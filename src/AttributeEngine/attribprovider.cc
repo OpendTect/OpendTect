@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribprovider.cc,v 1.51 2005-12-20 10:30:10 cvshelene Exp $";
+static const char* rcsID = "$Id: attribprovider.cc,v 1.52 2005-12-22 14:53:49 cvsnanne Exp $";
 
 #include "attribprovider.h"
 #include "attribstorprovider.h"
@@ -33,30 +33,32 @@ class ProviderBasicTask : public BasicTask
 {
 public:
 
-ProviderBasicTask( const Provider& p ) : provider( p )	{}
+ProviderBasicTask( const Provider& p )
+    : provider_( p )
+{}
 
-void setScope( const DataHolder* res_, const BinID& relpos_, int z0_,
-	       int nrsamples_ )
+void setScope( const DataHolder* res, const BinID& relpos, int z0,
+	       int nrsamples )
 {
-    res = res_;
-    relpos = relpos_;
-    z0 = z0_;
-    nrsamples = nrsamples_;
+    res_ = res;
+    relpos_ = relpos;
+    z0_ = z0;
+    nrsamples_ = nrsamples;
 }
 
 int nextStep()
 {
-    if ( !res ) return 0;
-    return provider.computeData(*res,relpos,z0,nrsamples)?0:-1;
+    if ( !res_ ) return 0;
+    return provider_.computeData(*res_,relpos_,z0_,nrsamples_) ? 0 : -1;
 }
 
 protected:
 
-    const Provider&		provider;
-    const DataHolder*		res;
-    BinID			relpos;
-    int				z0;
-    int				nrsamples;
+    const Provider&		provider_;
+    const DataHolder*		res_;
+    BinID			relpos_;
+    int				z0_;
+    int				nrsamples_;
 
 };
 
@@ -155,7 +157,7 @@ Provider::Provider( Desc& nd )
     , possiblevolume( 0 ) 
     , outputinterest( nd.nrOutputs(), 0 )
     , bufferstepout( 0, 0 )
-    , threadmanager( 0 )
+    , threadmanager(new Threads::ThreadWorkManager)
     , currentbid( -1, -1 )
     , curlinekey_( 0, 0 )
     , linebuffer( 0 )
@@ -839,17 +841,32 @@ const DataHolder* Provider::getData( const BinID& relpos, int idi )
     const int nrsamples = outdata->nrsamples_;
 
     bool success = false;
-    if ( !threadmanager )
+    if ( !threadmanager || !allowParallelComputation() )
 	success = computeData( *outdata, relpos, z0, nrsamples );
     else
     {
+	deepErase( computetasks );
 	if ( !computetasks.size() )
 	{
-	    for ( int idx=0; idx<threadmanager->nrThreads(); idx++)
-		computetasks += new ProviderBasicTask(*this);
+	    const int nrthreads = threadmanager->nrThreads();
+	    const int mintasksize = minTaskSize();
+	    int nrtasks = nrthreads;
+	    while ( nrsamples/nrtasks < mintasksize && nrtasks>1 )
+		nrtasks--;
+
+	    const int tasksize = nrsamples/nrtasks;
+	    int nrdone = 0;
+	    for ( int idx=0; idx<nrtasks; idx++ )
+	    {
+		const int cursz = idx==nrtasks-1 ? nrsamples-nrdone : tasksize;
+		ProviderBasicTask* task = new ProviderBasicTask( *this );
+		computetasks += task;
+		task->setScope( outdata, relpos, z0+nrdone, cursz );
+
+		nrdone += cursz;
+	    }
 	}
 
-	//TODO Divide task
 	success = threadmanager->addWork( computetasks );
     }
 

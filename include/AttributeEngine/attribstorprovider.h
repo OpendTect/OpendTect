@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribstorprovider.h,v 1.15 2005-11-30 11:05:57 cvshelene Exp $
+ RCS:           $Id: attribstorprovider.h,v 1.16 2005-12-22 14:53:02 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,13 +36,15 @@ public:
     void		adjust2DLineStoredVolume(bool adjuststep = false);
 
 protected:
+    			StorageProvider(Desc&);
     			~StorageProvider();
+
     static Provider*	createFunc(Desc&);
     static void		updateDesc(Desc&);
 
     bool		init();
+    bool		allowParallelComputation() const { return false; }
 
-    			StorageProvider(Desc&);
     SeisRequester*	getSeisRequester() const;
     bool		initSeisRequester(int req);
     bool		setSeisRequesterSelection(int req);

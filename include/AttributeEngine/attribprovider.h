@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribprovider.h,v 1.32 2005-12-20 10:29:55 cvshelene Exp $
+ RCS:           $Id: attribprovider.h,v 1.33 2005-12-22 14:53:02 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -129,7 +129,8 @@ protected:
     int				getDataIndex(int input) const;
 
     virtual bool		allowParallelComputation() const
-    				{ return true; }
+    				{ return false; }
+    virtual int			minTaskSize() const		{ return 25; }
 
     				//DataHolder stuff
     DataHolder*			getDataHolder(const BinID& relpos);
