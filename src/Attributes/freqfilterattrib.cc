@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          February 2003
- RCS:           $Id: freqfilterattrib.cc,v 1.12 2005-12-22 14:55:56 cvsnanne Exp $
+ RCS:           $Id: freqfilterattrib.cc,v 1.13 2005-12-22 15:53:15 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -318,9 +318,9 @@ FreqFilter::FreqFilter( Desc& ds )
     if ( isfftfilter )
 	window = new ArrayNDWindow( Array1DInfoImpl(100),
 		 false, (ArrayNDWindow::WindowType) windowtype );
-    else
-	zmargin = Interval<float>( -mNINT(mMINNRSAMPLES/2) * SI().zStep(),
-				    mNINT(mMINNRSAMPLES/2) * SI().zStep() );
+	
+    zmargin = Interval<float>( -mNINT(mMINNRSAMPLES/2) * SI().zStep(),
+			       mNINT(mMINNRSAMPLES/2) * SI().zStep() );
 }
 
 
@@ -412,9 +412,17 @@ void FreqFilter::butterWorthFilter( const DataHolder& output,
 void FreqFilter::fftFilter( const DataHolder& output,
 			    int z0, int nrsamples )
 {
+    int nrsamp = nrsamples;
+    int z0safe = z0;
+    if ( nrsamples == 1 )
+    {
+	nrsamp = mMINNRSAMPLES;
+	z0safe = z0 - mNINT(refstep*nrsamp/2);
+    }
+    
     if ( !fft.isinit() || !fftinv.isinit() )
     {
-	fftsz = FFT::_getNearBigFastSz(nrsamples*3);
+	fftsz = FFT::_getNearBigFastSz(nrsamp*3);
 	fft.setInputInfo( Array1DInfoImpl(fftsz) );
 	fft.setDir(true);
 	fft.init();
@@ -423,10 +431,10 @@ void FreqFilter::fftFilter( const DataHolder& output,
 	fftinv.setDir(false);
 	fftinv.init();
 	
-	setSz(nrsamples);
+	setSz(nrsamp);
 
 	delete window;
-	window = new ArrayNDWindow( Array1DInfoImpl(nrsamples),
+	window = new ArrayNDWindow( Array1DInfoImpl(nrsamp),
 	                 false, (ArrayNDWindow::WindowType) windowtype );
     }
 
@@ -434,10 +442,10 @@ void FreqFilter::fftFilter( const DataHolder& output,
         timedomain.set( idx, 0 );
 
     const float df = FFT::getDf( refstep, fftsz);
-    const int sz = fftsz/2 - nrsamples/2;
-    for ( int idx=0; idx<nrsamples; idx++ )
+    const int sz = fftsz/2 - nrsamp/2;
+    for ( int idx=0; idx<nrsamp; idx++ )
     {
-	int csamp = idx + z0;
+	int csamp = idx + z0safe;
         const float real = redata->series(realidx_)->value(csamp -redata->z0_);
         const float imag = -imdata->series(imagidx_)->value(csamp -imdata->z0_);
         signal.set( idx, float_complex(real,imag) );
@@ -445,7 +453,7 @@ void FreqFilter::fftFilter( const DataHolder& output,
 
     window->apply( &signal );
     removeBias( &signal );
-    for ( int idy=0; idy<nrsamples; idy++ )
+    for ( int idy=0; idy<nrsamp; idy++ )
 	timedomain.set( sz+idy, signal.get(idy) );
 
     fft.transform( timedomain, freqdomain );
@@ -475,10 +483,7 @@ void FreqFilter::setSz( int sz )
 
 const Interval<float>* FreqFilter::desZMargin(int input, int output) const
 {
-    if( !isfftfilter )
-	return &zmargin;
-
-    return 0;
+    return &zmargin;
 }
 
 };//namespace
