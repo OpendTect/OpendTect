@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribprovider.h,v 1.33 2005-12-22 14:53:02 cvsnanne Exp $
+ RCS:           $Id: attribprovider.h,v 1.34 2005-12-23 16:11:01 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -128,11 +128,12 @@ protected:
 				{ return false; }
     int				getDataIndex(int input) const;
 
+    				// MultiThreading stuff
     virtual bool		allowParallelComputation() const
     				{ return false; }
     virtual int			minTaskSize() const		{ return 25; }
 
-    				//DataHolder stuff
+    				// DataHolder stuff
     DataHolder*			getDataHolder(const BinID& relpos);
     void			removeDataHolder(const BinID& relpos);
     void			setInput(int input,Provider*);
@@ -147,12 +148,12 @@ protected:
     bool			isNew2DLine() const
     				{ return prevtrcnr > currentbid.crl; }
 
-    void			computeRefZStep(const ObjectSet<Provider>&);
-    void			propagateZRefStep( const ObjectSet<Provider>& );
-    virtual const BinID*	desStepout(int input, int output) const;
-    virtual const BinID*	reqStepout(int input, int output) const;
-    virtual const Interval<float>* desZMargin(int input, int output) const;
-    virtual const Interval<float>* reqZMargin(int input, int output) const;
+    void			computeRefStep(const ObjectSet<Provider>&);
+    void			propagateRefStep(const ObjectSet<Provider>&);
+    virtual const BinID*	desStepout(int input,int output) const;
+    virtual const BinID*	reqStepout(int input,int output) const;
+    virtual const Interval<float>* desZMargin(int input,int output) const;
+    virtual const Interval<float>* reqZMargin(int input,int output) const;
     virtual bool		getZStepStoredData(float& step) const
 				{return false;}
 

@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribprovider.cc,v 1.52 2005-12-22 14:53:49 cvsnanne Exp $";
+static const char* rcsID = "$Id: attribprovider.cc,v 1.53 2005-12-23 16:11:01 cvsnanne Exp $";
 
 #include "attribprovider.h"
 #include "attribstorprovider.h"
@@ -71,8 +71,18 @@ Provider* Provider::create( Desc& desc )
     if ( !prov ) return 0;
 
     prov->allexistingprov = existing;
-    prov->computeRefZStep( existing );
-    prov->propagateZRefStep( existing );
+    prov->computeRefStep( existing );
+    prov->propagateRefStep( existing );
+
+/*
+    if ( !prov->init() )
+    {
+	existing.remove( existing.indexOf(prov), existing.size()-1 );
+	prov->ref(); prov->unRef();
+	return 0;
+    }
+*/
+
     return prov;
 }
 
@@ -141,11 +151,11 @@ Provider* Provider::internalCreate( Desc& desc, ObjectSet<Provider>& existing,
 
     if ( !res->init() )
     {
-	existing.remove(existing.indexOf(res), existing.size()-1 );
+	existing.remove( existing.indexOf(res), existing.size()-1 );
 	res->unRef();
 	return 0;
     }
-    
+
     res->unRefNoDelete();
     return res;
 }
@@ -298,7 +308,7 @@ void Provider::setDesiredVolume( const CubeSampling& ndv )
 	{
 	    if ( outputinterest[idy]<1 ) continue;
 
-	    bool isstored = inputs[idx]? inputs[idx]->desc.isStored() : false;
+	    bool isstored = inputs[idx] ? inputs[idx]->desc.isStored() : false;
 	    if ( computeDesInputCube( idx, idy, inputcs, !isstored ) )
 		inputs[idx]->setDesiredVolume( inputcs );
 	}
@@ -1111,7 +1121,7 @@ int Provider::getTotalNrPos( bool is2d )
 }
 
 
-void Provider::computeRefZStep( const ObjectSet<Provider>& existing )
+void Provider::computeRefStep( const ObjectSet<Provider>& existing )
 {
     for( int idx=0; idx<existing.size(); idx++ )
     {
@@ -1124,7 +1134,7 @@ void Provider::computeRefZStep( const ObjectSet<Provider>& existing )
 }
 
 
-void Provider::propagateZRefStep( const ObjectSet<Provider>& existing )
+void Provider::propagateRefStep( const ObjectSet<Provider>& existing )
 {
     for ( int idx=0; idx<existing.size(); idx++ )
 	existing[idx]->refstep = refstep;
@@ -1161,8 +1171,8 @@ void Provider::adjust2DLineStoredVolume( bool adjuststep )
 
     if ( adjuststep )
     {
-	computeRefZStep( allexistingprov );
-	propagateZRefStep( allexistingprov );
+	computeRefStep( allexistingprov );
+	propagateRefStep( allexistingprov );
     }
 }
 

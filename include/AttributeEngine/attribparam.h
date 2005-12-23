@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribparam.h,v 1.18 2005-12-22 14:55:57 cvsnanne Exp $
+ RCS:           $Id: attribparam.h,v 1.19 2005-12-23 16:11:01 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -228,6 +228,7 @@ template <class T>
 void NumParam<T>::setDefaultValue( T val )
 {
     BufferString str( val );
+    if ( mIsUdf(val) ) str = sKey::FloatUdf;
     Param::setDefaultValue( str );
 }
 
