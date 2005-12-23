@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          December 2004
- RCS:           $Id: scalingattrib.h,v 1.6 2005-12-13 10:03:41 cvshelene Exp $
+ RCS:           $Id: scalingattrib.h,v 1.7 2005-12-23 16:09:46 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -56,23 +56,24 @@ protected:
     static void         updateDesc( Desc& );
 
     bool		getInputOutput(int input,TypeSet<int>& res) const;
-    bool		getInputData(const BinID&, int idx);
+    bool		getInputData(const BinID&,int idx);
     bool		computeData(const DataHolder&,const BinID& relpos,
-				    int t0,int nrsamples) const;
+				    int z0,int nrsamples) const;
 
-    void                checkTimeGates( const TypeSet<Interval<float> >& oldtgs,
-				      TypeSet< Interval<int> >& newsampgates,
-				      int t0, int nrsamples) const;
+    void                checkTimeGates(const TypeSet<Interval<float> >& oldtgs,
+				       TypeSet< Interval<int> >& newsampgates,
+				       int z0,int nrsamples) const;
     void                scaleTimeN(const DataHolder&, int, int) const;
 
+    bool		allowParallelComputation()	{ return true; }
 
-    int				scalingtype;
-    int				statstype;
-    float                       powerval;
+    int			scalingtype;
+    int			statstype;
+    float		powerval;
     TypeSet< Interval<float> >	gates;
-    TypeSet<float>              factors;
-    const DataHolder*		inputdata;
-    int				dataidx_;
+    TypeSet<float>	factors;
+    const DataHolder*	inputdata;
+    int			dataidx_;
 };
 
 }; // namespace Attrib

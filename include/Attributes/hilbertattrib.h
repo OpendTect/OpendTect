@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: hilbertattrib.h,v 1.7 2005-12-13 10:03:41 cvshelene Exp $
+ RCS:           $Id: hilbertattrib.h,v 1.8 2005-12-23 16:09:46 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,12 @@ ________________________________________________________________________
 
 namespace Attrib
 {
+
+/*!\brief Hilbert attribute.
+
+  Calculates Hilbert transform
+*/
+
 
 class Hilbert : public Provider
 {
@@ -32,7 +38,7 @@ protected:
     bool			getInputOutput(int inp,TypeSet<int>& res) const;
     bool			getInputData(const BinID&, int);
     bool			computeData(const DataHolder&,const BinID& pos,
-					    int t0,int nrsamples) const;
+					    int z0,int nrsamples) const;
 
     bool			allowParallelComputation() const
     				{ return false; }

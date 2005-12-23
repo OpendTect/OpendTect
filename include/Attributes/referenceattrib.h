@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene PAYRAUDEAU
  Date:          July 2005
- RCS:           $Id: referenceattrib.h,v 1.6 2005-12-13 10:03:41 cvshelene Exp $
+ RCS:           $Id: referenceattrib.h,v 1.7 2005-12-23 16:09:46 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,7 +40,7 @@ Outputs 2D:
 5		Trace index 		( taken from the first trace / 
 6		z index			z sample of the desired volume chosen )
 */
-    
+
 
 namespace Attrib
 {
@@ -56,10 +56,11 @@ public:
 
 protected:
     static Provider*    createInstance(Desc&);
-    static void         updateDesc( Desc& );
-    
+    static void         updateDesc(Desc&);
+
+    bool		allowParallelComputation() const	{ return true; }
     bool                getInputOutput(int input,TypeSet<int>& res) const;
-    bool                getInputData(const BinID&, int idx);
+    bool                getInputData(const BinID&,int zintv);
     bool		computeData(const DataHolder&,const BinID& relpos,
 				    int t0,int nrsamples) const;
 

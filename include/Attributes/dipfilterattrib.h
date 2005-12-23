@@ -7,16 +7,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: dipfilterattrib.h,v 1.4 2005-12-13 10:03:41 cvshelene Exp $
+ RCS:           $Id: dipfilterattrib.h,v 1.5 2005-12-23 16:09:46 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "attribprovider.h"
-#include "runstat.h"
-#include "valseries.h"
-#include "valseriesinterpol.h"
-#include "mathfunc.h"
 #include "arrayndimpl.h"
 
 /*!\brief Dip filtering Attribute
@@ -103,6 +99,8 @@ public:
 protected:
     static Provider*	createInstance( Desc& );
     static void		updateDesc( Desc& );
+
+    bool		allowParallelComputation()		{ return true; }
 
     bool		getInputOutput( int input, TypeSet<int>& res ) const;
     bool		getInputData( const BinID&, int idx );

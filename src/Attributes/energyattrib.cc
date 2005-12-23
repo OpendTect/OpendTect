@@ -4,15 +4,13 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: energyattrib.cc,v 1.9 2005-11-29 13:02:21 cvsnanne Exp $";
-
+static const char* rcsID = "$Id: energyattrib.cc,v 1.10 2005-12-23 16:09:46 cvsnanne Exp $";
 
 #include "energyattrib.h"
+
 #include "attribdataholder.h"
 #include "attribdesc.h"
 #include "attribfactory.h"
-#include "survinfo.h"
-#include "datainpspec.h"
 #include "attribparam.h"
 #include "runstat.h"
 
@@ -29,9 +27,8 @@ void Energy::initClass()
     gate->setLimits( Interval<float>(-1000,1000) );
     desc->addParam( gate );
 
+    desc->addInput( InputSpec("Input Data",true) );
     desc->addOutputDataType( Seis::UnknowData );
-    InputSpec inputspec( "Data on which the Energy should be measured", true );
-    desc->addInput( inputspec );
 
     desc->init();
 
@@ -44,7 +41,6 @@ Provider* Energy::createInstance( Desc& desc )
 {
     Energy* res = new Energy( desc );
     res->ref();
-
     if ( !res->isOK() )
     {
         res->unRef();
@@ -56,16 +52,13 @@ Provider* Energy::createInstance( Desc& desc )
 }
 
 
-Energy::Energy( Desc& desc )
-        : Provider( desc )
+Energy::Energy( Desc& ds )
+    : Provider(ds)
 {
     if ( !isOK() ) return;
 
-    mGetFloatInterval( gate, gateStr() );
-    gate.start = gate.start / zFactor();
-    gate.stop = gate.stop / zFactor();
-
-    inputdata.allowNull( true );
+    mGetFloatInterval( gate_, gateStr() );
+    gate_.scale( 1/zFactor() );
 }
 
 
@@ -75,51 +68,48 @@ bool Energy::getInputOutput( int input, TypeSet<int>& res ) const
 }
 
 
-bool Energy::getInputData( const BinID& relpos, int idx )
+bool Energy::getInputData( const BinID& relpos, int zintv )
 {
-    if ( !inputdata.size() )
-	inputdata += 0;
-
-    const DataHolder* data = inputs[0]->getData( relpos, idx );
-    inputdata.replace( 0, data );
+    inputdata_ = inputs[0]->getData( relpos, zintv );
     dataidx_ = getDataIndex( 0 );
-    return data;
+    return inputdata_;
 }
 
 
 bool Energy::computeData( const DataHolder& output, const BinID& relpos,
 			  int z0, int nrsamples ) const
 {
-    if ( !inputdata.size() || !output.nrSeries() ) return false;
+    if ( !inputdata_ || !inputdata_->nrSeries() || !output.nrSeries() )
+	return false;
 
-    ValueSeries<float>* outp = output.series(0);
+    ValueSeries<float>* res = output.series(0);
+    if ( !res ) return false;
 
-    Interval<int> samplegate( mNINT(gate.start/refstep),
-			      mNINT(gate.stop/refstep) );
-    const int sz = samplegate.width() + 1;
-    
     RunningStatistics<float> calc;
 
+    Interval<int> samplegate( mNINT(gate_.start/refstep),
+			      mNINT(gate_.stop/refstep) );
+    const int sz = samplegate.width() + 1;
     int csample = z0 + samplegate.start;
     for ( int idx=0; idx<sz; idx++ )
     {
 	const int csamp = csample + idx;
-	calc += inputdata[0]->series(dataidx_)->value(csamp-inputdata[0]->z0_);
+	calc += inputdata_->series(dataidx_)->value( csamp-inputdata_->z0_ );
     }
 
-    outp->setValue( output.z0_-z0, calc.sqSum()/sz );
+    const int z0_offset = z0-output.z0_;
+    res->setValue( z0_offset, calc.sqSum()/sz );
 
     calc.lock();
-
     csample = z0 + samplegate.stop;
     for ( int idx=1; idx<nrsamples; idx++ )
     {
 	const int csamp = csample + idx;
-	calc += inputdata[0]->series(dataidx_)->value(csamp-inputdata[0]->z0_);
-	outp->setValue( output.z0_-z0+idx, calc.sqSum()/sz );
+	calc += inputdata_->series(dataidx_)->value( csamp-inputdata_->z0_ );
+	res->setValue( z0_offset+idx, calc.sqSum()/sz );
     }
 
     return true;
 }
-			
+
 } // namespace Attrib

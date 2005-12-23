@@ -4,14 +4,13 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: convolveattrib.cc,v 1.11 2005-12-22 14:55:56 cvsnanne Exp $";
+static const char* rcsID = "$Id: convolveattrib.cc,v 1.12 2005-12-23 16:09:46 cvsnanne Exp $";
 
 #include "convolveattrib.h"
 #include "attribdataholder.h"
 #include "attribdesc.h"
 #include "attribfactory.h"
 #include "attribparam.h"
-#include "datainpspec.h"
 #include "ptrman.h"
 
 #define mShapeCube	0
@@ -257,8 +256,8 @@ Convolve::Kernel::~Kernel()
 { delete [] kernel; }
 
 
-Convolve::Convolve( Desc& desc_ )
-    : Provider( desc_ )
+Convolve::Convolve( Desc& ds )
+    : Provider(ds)
     , shape (-1)
     , size(0)
     , stepout(0,0)
@@ -294,7 +293,7 @@ bool Convolve::getInputOutput( int input, TypeSet<int>& res ) const
 
 bool Convolve::getInputData( const BinID& relpos, int idx )
 {
-    BinID stepout = kernel->getStepout();
+    stepout = kernel->getStepout();
     int sz = (1+stepout.inl*2) * (1+stepout.crl*2);
     
     while ( inputdata.size()< sz )
@@ -321,35 +320,47 @@ bool Convolve::getInputData( const BinID& relpos, int idx )
 }
 
 
+const BinID* Convolve::reqStepout( int inp, int out ) const
+{ return &stepout; }
+
+
+const Interval<float>* Convolve::reqZMargin( int inp, int ) const
+{
+    Interval<float> tg( kernel->getSG().start *refstep, 
+	    		kernel->getSG().stop * refstep );
+    const_cast<Convolve*>(this)->interval = tg;
+    return &interval;
+}
+
+
 bool Convolve::computeData( const DataHolder& output, const BinID& relpos,
 	                    int z0, int nrsamples ) const
 {
-    BinID stepout = kernel->getStepout();
     const int nrofkernels = kernel->nrSubKernels();
     const int subkernelsz = kernel->getSubKernelSize();
     const float* kernelvals = kernel->getKernel();
 
     int nrtraces = (1+stepout.inl*2) * (1+stepout.crl*2);
 
-    ArrPtrMan<bool> calculate = new bool[nrofkernels];
+    ArrPtrMan<bool> docalculate = new bool[nrofkernels];
     const bool customcalc = !outputinterest[0];
     if ( customcalc )
     {
 	for ( int idx=0; idx<nrofkernels; idx++)
-	    calculate[idx] = outputinterest[idx+1];
+	    docalculate[idx] = outputinterest[idx+1];
     }
     else
     {
 	for ( int idx=0; idx<nrofkernels; idx++)
-	    calculate[idx] = true;
+	    docalculate[idx] = true;
     }
 
     const Interval<int> sg = kernel->getSG();
     const int sgwidth = 1 + sg.width();
 
-    for ( int idx=0; idx<nrsamples; idx++)
+    for ( int idx=0; idx<nrsamples; idx++ )
     {
-	int cursample = z0 + idx;
+	const int cursample = z0 + idx;
 	ArrPtrMan<float> res = new float[nrofkernels];
 	for ( int idy=0; idy<nrofkernels; idy++ )
 	    res[idy] = 0;
@@ -368,7 +379,7 @@ bool Convolve::computeData( const DataHolder& output, const BinID& relpos,
 
 	    for ( int kidx=0; kidx<nrofkernels; kidx++ )
 	    {
-		if ( customcalc &&!calculate[kidx] ) continue;
+		if ( customcalc && !docalculate[kidx] ) continue;
 
 		int kerneloff = kidx*subkernelsz+valoffset;
 
@@ -378,37 +389,25 @@ bool Convolve::computeData( const DataHolder& output, const BinID& relpos,
 
 	}
 
+	const int outidx = z0 - output.z0_ + idx;
 	if ( outputinterest[0] )
 	{
 	    float ressum = 0;
 	    for ( int idy=0; idy<nrofkernels; idy++)
 		ressum += res[idy];
 
-	    output.series(0)->setValue( idx, ressum / nrofkernels );
+	    output.series(0)->setValue( outidx, ressum/nrofkernels );
 	}
 
 	if ( nrofkernels>1 )
 	{
 	    for ( int idy=0; idy<nrofkernels; idy++ )
 		if ( outputinterest[idy+1] ) 
-		    output.series(idy+1)->setValue( idx, res[idy] );
+		    output.series(idy+1)->setValue( outidx, res[idy] );
 	}
     }
 
     return true;
 }
 
-
-const BinID* Convolve::reqStepout( int inp, int out ) const
-{ return &stepout; }
-
-
-const Interval<float>* Convolve::reqZMargin( int inp, int ) const
-{
-    Interval<float> tg( kernel->getSG().start *refstep, 
-	    		kernel->getSG().stop * refstep );
-    const_cast<Convolve*>(this)->interval = tg;
-    return &interval;
-}
-
-}//namespace
+} // namespace Attrib

@@ -4,21 +4,23 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: frequencyattrib.cc,v 1.7 2005-12-22 14:55:56 cvsnanne Exp $";
+static const char* rcsID = "$Id: frequencyattrib.cc,v 1.8 2005-12-23 16:09:46 cvsnanne Exp $";
 
 #include "frequencyattrib.h"
+#include "arrayndimpl.h"
+#include "arrayndutils.h"
 #include "attribdataholder.h"
 #include "attribdesc.h"
 #include "attribfactory.h"
 #include "attribparam.h"
-#include "datainpspec.h"
-#include "simpnumer.h"
-#include "samplfunc.h"
-#include "genericnumer.h"
-#include "strmprov.h"
 #include "filepath.h"
+#include "genericnumer.h"
 #include "oddirs.h"
+#include "samplfunc.h"
+#include "simpnumer.h"
 #include "stats.h"
+#include "strmprov.h"
+
 #include <iostream>
 #include <stdio.h>
 
@@ -42,7 +44,7 @@ void Frequency::initClass()
     EnumParam* window = new EnumParam( windowStr() );
     window->addEnums( ArrayNDWindow::WindowTypeNames );
     window->setDefaultValue( ArrayNDWindow::CosTaper5 );
-    desc->addParam(window);
+    desc->addParam( window );
 
     BoolParam* dumptofile = new BoolParam( dumptofileStr() );
     dumptofile->setDefaultValue( false );
@@ -50,10 +52,9 @@ void Frequency::initClass()
     dumptofile->setRequired( false );
     desc->addParam( dumptofile );
 
-    desc->setNrOutputs( Seis::UnknowData, 8 );
-
     desc->addInput( InputSpec("Real data",true) );
     desc->addInput( InputSpec("Imag data",true) );
+    desc->setNrOutputs( Seis::UnknowData, 8 );
 
     PF().addDesc( desc, createInstance );
     desc->unRef();
@@ -76,7 +77,7 @@ Provider* Frequency::createInstance( Desc& ds )
 
 
 Frequency::Frequency( Desc& ds )
-    : Provider( ds )
+    : Provider(ds)
     , fftisinit(false)
     , fftsz(-1)
     , fft(false)
@@ -126,6 +127,9 @@ Frequency::~Frequency()
     }
 
     delete window;
+    delete signal;
+    delete timedomain;
+    delete freqdomain;
 }
 
 
@@ -133,42 +137,59 @@ const Interval<float>* Frequency::reqZMargin( int inp, int ) const
 { return &gate; }
 
 
-bool Frequency::computeData(const DataHolder& output, const BinID& relpos,
-				int z0, int nrsamples ) const
+bool Frequency::getInputOutput( int input, TypeSet<int>& res ) const
 {
+    return Provider::getInputOutput( input, res );
+}
+
+
+bool Frequency::getInputData( const BinID& relpos, int zintv )
+{
+    redata = inputs[0]->getData( relpos, zintv );
+    if ( !redata ) return false;
+
+    imdata = inputs[1]->getData( relpos, zintv );
+    if ( !imdata ) return false;
+
+    realidx_ = getDataIndex( 0 );
+    imagidx_ = getDataIndex( 1 );
+
+    return true;
+}
+
+
+bool Frequency::computeData( const DataHolder& output, const BinID& relpos,
+			     int z0, int nrsamples ) const
+{
+    Frequency* myself = const_cast<Frequency*>(this);
     if ( !fftisinit )
     {
-	const_cast<Frequency*>(this)->samplegate = 
-	    Interval<int>(mNINT(gate.start/refstep), mNINT(gate.stop/refstep));
+	myself->samplegate = 
+	    Interval<int>(mNINT(gate.start/refstep),mNINT(gate.stop/refstep));
 
-	const_cast<Frequency*>(this)->fftsz = 
-	    		FFT::_getNearBigFastSz((samplegate.width()+1)*3);
-	const_cast<Frequency*>(this)->fft.setInputInfo(Array1DInfoImpl(fftsz));
-	const_cast<Frequency*>(this)->fft.setDir(true);
-	const_cast<Frequency*>(this)->fft.init();
+	myself->fftsz = FFT::_getNearBigFastSz((samplegate.width()+1)*3);
+	myself->fft.setInputInfo(Array1DInfoImpl(fftsz));
+	myself->fft.setDir(true);
+	myself->fft.init();
 
-	const_cast<Frequency*>(this)->window = 
+	myself->window = 
 	    new ArrayNDWindow( Array1DInfoImpl(samplegate.width()+1),
-			    false, (ArrayNDWindow::WindowType) windowtype);
+			       false, (ArrayNDWindow::WindowType)windowtype );
 
-	const_cast<Frequency*>(this)->df = FFT::getDf( refstep, fftsz );
-	const_cast<Frequency*>(this)->
-	    signal.setInfo( Array1DInfoImpl( samplegate.width()+1 ) );
-	const_cast<Frequency*>(this)->
-	    timedomain.setInfo( Array1DInfoImpl( fftsz ));
-	const_cast<Frequency*>(this)->
-	    freqdomain.setInfo( Array1DInfoImpl( fftsz ));
-
-	const_cast<Frequency*>(this)->fftisinit = true;
+	myself->df = FFT::getDf( refstep, fftsz );
+	myself->signal = new Array1DImpl<float_complex>( samplegate.width()+1 );
+	myself->timedomain = new Array1DImpl<float_complex>( fftsz );
+	myself->freqdomain = new Array1DImpl<float_complex>( fftsz );
+	myself->fftisinit = true;
     }
     	
     const int sz = samplegate.width()+1;
     for ( int idx=0; idx<fftsz; idx++)
-	const_cast<Frequency*>(this)->timedomain.set( idx, 0 );
+	myself->timedomain->set( idx, 0 );
 
     for ( int idx=0; idx<nrsamples; idx++ )
     {
-	int cursample = z0 + idx;
+	const int cursample = z0 + idx;
 	int tempsamp = cursample + samplegate.start;
 	for ( int idy=0; idy<sz; idy ++ )
 	{
@@ -177,20 +198,17 @@ bool Frequency::computeData(const DataHolder& output, const BinID& relpos,
 	    const float imag = -imdata->series(imagidx_)->
 					value(tempsamp-imdata->z0_);
 
-	    const_cast<Frequency*>(this)->
-		signal.set( idy, float_complex( real, imag ));
-
-	    tempsamp ++;
+	    myself->signal->set( idy, float_complex(real,imag) );
+	    tempsamp++;
 	}
 
-	window->apply( &const_cast<Frequency*>(this)->signal );
-	removeBias( &const_cast<Frequency*>(this)->signal );
+	window->apply( myself->signal );
+	removeBias( myself->signal );
 	for ( int idy=0; idy<sz; idy++ )
-	    const_cast<Frequency*>(this)->
-		timedomain.set( sz+idy, signal.get(idy) );
+	    myself->timedomain->set( sz+idy, signal->get(idy) );
 
-	TypeSet<float> freqdomainpower(fftsz,0);
-	fft.transform( timedomain, const_cast<Frequency*>(this)->freqdomain );
+	TypeSet<float> freqdomainpower( fftsz, 0 );
+	fft.transform( *timedomain, *myself->freqdomain );
 
 	int maxnr = -1;
 	float maxval = 0;
@@ -198,7 +216,7 @@ bool Frequency::computeData(const DataHolder& output, const BinID& relpos,
 
 	for ( int idy=0; idy<=fftsz/2; idy++ )
 	{
-	    float val = abs( freqdomain.get(idy) );
+	    float val = abs( freqdomain->get(idy) );
 	    float val2 = val * val;
 	    freqdomainpower[idy] = val2;
 
@@ -211,6 +229,7 @@ bool Frequency::computeData(const DataHolder& output, const BinID& relpos,
 		dump += pos.inl; dump += " "; dump += pos.crl; dump += " ";
 		dump += cursample*refstep; dump += " "; 
 		dump += df*idy; dump += " "; dump += val2; dump += "\n";
+		myself->dumpset.add( dump );
 	    }
 
 	    if ( val2<maxval ) continue;
@@ -219,32 +238,30 @@ bool Frequency::computeData(const DataHolder& output, const BinID& relpos,
 	    maxnr = idy;
 	}
 
+	const int outidx = z0 - output.z0_ + idx;
 	if ( mIsZero(sum,mDefEps) )
 	{
-	    if ( outputinterest[0] )	output.series(0)->setValue(idx,0);
-	    if ( outputinterest[1] )    output.series(1)->setValue(idx,0);
-	    if ( outputinterest[2] )    output.series(2)->setValue(idx,0);
-	    if ( outputinterest[3] )    output.series(3)->setValue(idx,0);
-	    if ( outputinterest[4] )    output.series(4)->setValue(idx,0);
-	    if ( outputinterest[5] )    output.series(5)->setValue(idx,0);
-	    if ( outputinterest[6] )    output.series(6)->setValue(idx,0);
-	    if ( outputinterest[7] )    output.series(7)->setValue(idx,0);
-
+	    if ( outputinterest[0] ) output.series(0)->setValue( outidx, 0 );
+	    if ( outputinterest[1] ) output.series(1)->setValue( outidx, 0 );
+	    if ( outputinterest[2] ) output.series(2)->setValue( outidx, 0 );
+	    if ( outputinterest[3] ) output.series(3)->setValue( outidx, 0 );
+	    if ( outputinterest[4] ) output.series(4)->setValue( outidx, 0 );
+	    if ( outputinterest[5] ) output.series(5)->setValue( outidx, 0 );
+	    if ( outputinterest[6] ) output.series(6)->setValue( outidx, 0 );
+	    if ( outputinterest[7] ) output.series(7)->setValue( outidx, 0 );
 	    continue;
 	}
 
 	if ( normalize )
 	{
 	    for ( int idy=0; idy<=fftsz/2; idy++ )
-	    {
 		freqdomainpower[idy] /= sum;
-	    }
 
 	    maxval /= sum;
 	    sum = 1;
 	}
 
-	const float halfsum = sum / 2;
+	const float halfsum = sum/2;
 	float sa = 0;
 	float mfsum = 0;
 	bool mfisset = false;
@@ -270,47 +287,24 @@ bool Frequency::computeData(const DataHolder& output, const BinID& relpos,
 	    {
 		mfisset = true;
 		if ( outputinterest[2] ) 
-		    output.series(2)->setValue(idx, idy * df);
+		    output.series(2)->setValue( outidx, idy*df );
 	    }
 
 	    wf += hf;
-	    wf2 += hf*freq;	    
+	    wf2 += hf*freq;
 	}
 
-	if ( outputinterest[0] ) output.series(0)->setValue(idx, maxnr * df);
-	if ( outputinterest[1] ) output.series(1)->setValue(idx, wf / sum);
-	if ( outputinterest[3] ) output.series(3)->setValue(idx, wf2 / sum);
-	if ( outputinterest[4] ) output.series(4)->setValue(idx, maxval);
-	if ( outputinterest[5] ) output.series(5)->setValue(idx, sa);
+	if ( outputinterest[0] ) output.series(0)->setValue( outidx, maxnr*df );
+	if ( outputinterest[1] ) output.series(1)->setValue( outidx, wf/sum );
+	if ( outputinterest[3] ) output.series(3)->setValue( outidx, wf2/sum );
+	if ( outputinterest[4] ) output.series(4)->setValue( outidx, maxval );
+	if ( outputinterest[5] ) output.series(5)->setValue( outidx, sa );
 	if ( outputinterest[6] ) 
-	    output.series(6)->setValue(idx, 1+(maxval-sum)/(maxval+sum));
-	if ( outputinterest[7] ) output.series(7)->setValue(idx, aqf);
+	    output.series(6)->setValue( outidx, 1+(maxval-sum)/(maxval+sum) );
+	if ( outputinterest[7] ) output.series(7)->setValue( outidx, aqf );
     }
 
     return true;
 }
 
-
-bool Frequency::getInputOutput( int input, TypeSet<int>& res ) const
-{
-    return Provider::getInputOutput( input, res );
-}
-
-
-bool Frequency::getInputData( const BinID& relpos, int idx )
-{
-    redata = inputs[0]->getData( relpos, idx );
-    if ( !redata ) return false;
-
-    imdata = inputs[1]->getData( relpos, idx );
-    if ( !imdata ) return false;
-
-    realidx_ = getDataIndex( 0 );
-    imagidx_ = getDataIndex( 1 );
-
-    return true;
-}
-
-};//namespace
-
- 
+}; // namespace Attrib

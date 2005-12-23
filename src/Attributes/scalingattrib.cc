@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          December 2004
- RCS:           $Id: scalingattrib.cc,v 1.12 2005-12-22 14:55:56 cvsnanne Exp $
+ RCS:           $Id: scalingattrib.cc,v 1.13 2005-12-23 16:09:46 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -167,7 +167,7 @@ bool Scaling::getInputData( const BinID& relpos, int idx )
 {
     inputdata = inputs[0]->getData( relpos, idx );
     dataidx_ = getDataIndex( 0 );
-    return inputdata ? true : false;
+    return inputdata;
 }
     
 
@@ -241,7 +241,8 @@ bool Scaling::computeData( const DataHolder& output, const BinID& relpos,
 	    }
 	}
 
-	output.series(0)->setValue( idx, trcval*scalefactor );
+	const int outidx = z0 - output.z0_ + idx;
+	output.series(0)->setValue( outidx, trcval*scalefactor );
     }
 
     return true;

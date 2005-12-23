@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          June 2005
- RCS:           $Id: similarityattrib.cc,v 1.18 2005-12-22 14:55:56 cvsnanne Exp $
+ RCS:           $Id: similarityattrib.cc,v 1.19 2005-12-23 16:09:46 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,7 +17,6 @@ ________________________________________________________________________
 #include "attribparam.h"
 #include "attribsteering.h"
 #include "genericnumer.h"
-#include "survinfo.h"
 #include "runstat.h"
 
 #define mExtensionNone		0
@@ -116,7 +115,7 @@ Similarity::Similarity( Desc& desc_ )
     inputdata_.allowNull(true);
 
     mGetFloatInterval( gate_, gateStr() );
-    gate_.start /= zFactor(); gate_.stop /= zFactor(); 
+    gate_.scale( 1/zFactor() );
 
     mGetBool( dosteer_, steeringStr() );
     mGetBool( donormalize_, normalizeStr() );
@@ -145,7 +144,7 @@ Similarity::Similarity( Desc& desc_ )
 
     float extraz = mMAX( stepout_.inl*inldist(), stepout_.crl*crldist() ) 
 		   * mMAXDIP;
-    desgate_ = Interval<float>( gate_.start - extraz, gate_.stop + extraz );
+    desgate_ = Interval<float>( gate_.start-extraz, gate_.stop+extraz );
     
 }
 
@@ -185,11 +184,8 @@ void Similarity::initSteering()
 {
     for( int idx=0; idx<inputs.size(); idx++ )
     {
-	if ( !inputs[idx] )
-	    continue;
-
-	if ( inputs[idx]->getDesc().isSteering() )
-	    inputs[idx]->initSteering(stepout_);
+	if ( inputs[idx] && inputs[idx]->getDesc().isSteering() )
+	    inputs[idx]->initSteering( stepout_ );
     }
 }
 
@@ -205,7 +201,7 @@ bool Similarity::getInputOutput( int input, TypeSet<int>& res ) const
 }
 
 
-bool Similarity::getInputData( const BinID& relpos, int index )
+bool Similarity::getInputData( const BinID& relpos, int intv )
 {
     while ( inputdata_.size() < trcpos_.size() )
 	inputdata_ += 0;
@@ -214,7 +210,7 @@ bool Similarity::getInputData( const BinID& relpos, int index )
     for ( int idx=0; idx<trcpos_.size(); idx++ )
     {
 	const DataHolder* data = 
-		    inputs[0]->getData( relpos+trcpos_[idx]*bidstep, index );
+		    inputs[0]->getData( relpos+trcpos_[idx]*bidstep, intv );
 	if ( !data ) return false;
 	inputdata_.replace( idx, data );
 	if ( dosteer_ )
@@ -223,7 +219,7 @@ bool Similarity::getInputData( const BinID& relpos, int index )
     
     dataidx_ = getDataIndex( 0 );
 
-    steeringdata_ = dosteer_ ? inputs[1]->getData(relpos,index) : 0;
+    steeringdata_ = dosteer_ ? inputs[1]->getData(relpos,intv) : 0;
     if ( dosteer_ && !steeringdata_ )
 	return false;
 
@@ -254,25 +250,26 @@ bool Similarity::computeData( const DataHolder& output, const BinID& relpos,
 	    float s0 = firstsample + idx + samplegate.start;
 	    float s1 = s0;
 
-	     if ( !inputdata_[idx1] || ! inputdata_[idx2])
-		 continue;
+	    if ( !inputdata_[idx1] || !inputdata_[idx2] )
+		continue;
 	     
-	     if ( dosteer_ )
-	     {
-		 ValueSeries<float>* serie1 = 
-		     			steeringdata_->series(steeridx_[idx1]);
-	         if ( serie1 ) s0 += serie1->value( z0+idx-steeringdata_->z0_ );
+	    if ( dosteer_ )
+	    {
+		ValueSeries<float>* serie1 = 
+			steeringdata_->series( steeridx_[idx1] );
+		if ( serie1 ) s0 += serie1->value( z0+idx-steeringdata_->z0_ );
 
-		 ValueSeries<float>* serie2 = 
-		     			steeringdata_->series(steeridx_[idx2]);
-		 if ( serie2 ) s1 += serie2->value( z0+idx-steeringdata_->z0_ );
-	     }
+		ValueSeries<float>* serie2 = 
+			steeringdata_->series( steeridx_[idx2] );
+		if ( serie2 ) s1 += serie2->value( z0+idx-steeringdata_->z0_ );
+	    }
 
-	     SimiFunc vals0( *(inputdata_[idx1]->series(dataidx_)), 
-		     		inputdata_[idx1]->nrsamples_-1 );
-	     SimiFunc vals1( *(inputdata_[idx2]->series(dataidx_)), 
-		     		inputdata_[idx2]->nrsamples_-1 );
-	     stats += similarity(vals0, vals1, s0, s1, 1, gatesz, donormalize_);
+	    SimiFunc vals0( *(inputdata_[idx1]->series(dataidx_)), 
+			    inputdata_[idx1]->nrsamples_-1 );
+	    SimiFunc vals1( *(inputdata_[idx2]->series(dataidx_)), 
+			    inputdata_[idx2]->nrsamples_-1 );
+	    stats += ( s0<0 || s0>nrsamples || s1<0 || s1>nrsamples ) ? 0 :
+		    similarity( vals0, vals1, s0, s1, 1, gatesz, donormalize_ );
 	}
 
 	if ( !stats.size() )
@@ -316,9 +313,4 @@ const Interval<float>* Similarity::reqZMargin( int inp, int ) const
 const Interval<float>* Similarity::desZMargin( int inp, int ) const
 { return inp ? 0 : &desgate_; }
 
-
-
-
-
 }; //namespace
-

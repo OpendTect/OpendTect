@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: mathattrib.cc,v 1.11 2005-11-29 19:35:42 cvsnanne Exp $
+ RCS:           $Id: mathattrib.cc,v 1.12 2005-12-23 16:09:46 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,7 +40,6 @@ Provider* Math::createInstance( Desc& ds )
 {
     Math* res = new Math( ds );
     res->ref();
-
     if ( !res->isOK() )
     {
 	res->unRef();
@@ -112,7 +111,7 @@ bool Math::getInputOutput( int input, TypeSet<int>& res ) const
 }
 
 
-bool Math::getInputData( const BinID& relpos, int intv )
+bool Math::getInputData( const BinID& relpos, int zintv )
 {
     const int nrvar = expression_->getNrVariables();
     while ( inputdata_.size() < nrvar )
@@ -120,7 +119,7 @@ bool Math::getInputData( const BinID& relpos, int intv )
 
     for ( int varidx=0; varidx<nrvar; varidx++ )
     {
-	const DataHolder* data = inputs[varidx]->getData( relpos, intv );
+	const DataHolder* data = inputs[varidx]->getData( relpos, zintv );
 	if ( !data ) return false;
 	
 	inputdata_.replace( varidx, data );
@@ -141,7 +140,7 @@ bool Math::computeData( const DataHolder& output, const BinID& relpos,
     const int nrvar = expression_->getNrVariables();
     if ( inputtable_.size() != nrvar ) return false;
 
-    const int offset = output.z0_ - z0;
+    
     for ( int idx=0; idx<nrsamples; idx++ )
     {
 	const int cursample = z0 + idx;
@@ -155,13 +154,11 @@ bool Math::computeData( const DataHolder& output, const BinID& relpos,
 	    expression_->setVariable( variable, val );
 	}
 
-	const float res = expression_->getValue();
-	output.series(0)->setValue( offset+idx, 
-				    mIsUdf(res) ? mUdf(float) : res );
+	const int outidx = z0 - output.z0_ + idx;
+	output.series(0)->setValue( outidx, expression_->getValue() );
     }
 
     return true;
 }
-
 
 }; // namespace Attrib

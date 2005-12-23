@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Helene Payraudeau
  Date:		February 2005
- RCS:		$Id: eventattrib.cc,v 1.14 2005-09-05 10:22:24 cvshelene Exp $
+ RCS:		$Id: eventattrib.cc,v 1.15 2005-12-23 16:09:46 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "attribdesc.h"
 #include "attribfactory.h"
 #include "attribparam.h"
-#include "datainpspec.h"
 #include "genericnumer.h"
 #include "valseriesinterpol.h"
 
@@ -109,8 +108,7 @@ Event::Event( Desc& desc_ )
 	if ( eventtype == VSEvent::GateMax || eventtype == VSEvent::GateMin )
 	{
 	    mGetFloatInterval( gate, gateStr() );
-	    gate.start = gate.start / zFactor(); 
-	    gate.stop = gate.stop / zFactor();
+	    gate.scale( 1/zFactor() );
 	}
     }
 }
@@ -118,15 +116,29 @@ Event::Event( Desc& desc_ )
 
 bool Event::getInputOutput( int input, TypeSet<int>& res ) const
 {
-        return Provider::getInputOutput( input, res );
+    return Provider::getInputOutput( input, res );
 }
 
 
-bool Event::getInputData( const BinID& relpos, int idx )
+bool Event::getInputData( const BinID& relpos, int zintv )
 {
-    inputdata = inputs[0]->getData( relpos, idx );
+    inputdata = inputs[0]->getData( relpos, zintv );
     dataidx_ = getDataIndex( 0 );
     return inputdata;
+}
+
+
+const Interval<float>* Event::reqZMargin( int input, int output ) const
+{
+    return eventtype == VSEvent::GateMax || eventtype == VSEvent::GateMin 
+	? &gate : 0;
+}
+
+
+const Interval<float>* Event::desZMargin( int input, int output ) const
+{
+    return eventtype != VSEvent::GateMax && eventtype != VSEvent::GateMin
+	? &gate : 0;
 }
 
 
@@ -178,8 +190,8 @@ ValueSeriesEvent<float,float> Event::findNextEvent(
 void Event::singleEvent( TypeSet<float>& output, int nrsamples, int z0 ) const
 {
     SamplingData<float> sd;
-    ValueSeriesEvFinder<float,float> vsevfinder( *(inputdata->series(dataidx_)), 
-	    					inputdata->nrsamples_, sd );
+    ValueSeriesEvFinder<float,float> vsevfinder( *(inputdata->series(dataidx_)),
+						 inputdata->nrsamples_, sd );
     VSEvent::Type zc = VSEvent::ZC;
     Interval<float> sg(z0, z0-SGWIDTH);
     ValueSeriesEvent<float,float> ev = vsevfinder.find( zc, sg, 1 );
@@ -214,19 +226,18 @@ void Event::singleEvent( TypeSet<float>& output, int nrsamples, int z0 ) const
 	    }
 	}
 
-	if ( cursample > ev.pos && cursample < nextev.pos)
+	if ( cursample > ev.pos && cursample < nextev.pos )
 	{
 	    if ( outputinterest[0] )
 		output[idx] = extrev.val/(nextev.pos-ev.pos);
 	    else if ( outputinterest[1] )
 	    {
 		ValueSeriesInterpolator<float> interp(inputdata->nrsamples_-1);
-		float lastsampval = 
+		const float lastsampval = 
 		    interp.value( *( inputdata->series(dataidx_) ), ev.pos-1 );
-		float nextsampval = 
+		const float nextsampval = 
 		    interp.value( *( inputdata->series(dataidx_) ), ev.pos+1 );
-		output[idx] =
-		    fabs( (nextsampval - lastsampval) / 2 );
+		output[idx] = fabs( (nextsampval-lastsampval) / 2 );
 	    }
 	    else if ( outputinterest[2] )
 	    {
@@ -239,12 +250,12 @@ void Event::singleEvent( TypeSet<float>& output, int nrsamples, int z0 ) const
 }
 
 
-void Event::multipleEvents( TypeSet<float>& output,
+void Event::multipleEvents( TypeSet<float>& output, 
 			    int nrsamples, int z0 ) const
 {
     SamplingData<float> sd;
-    ValueSeriesEvFinder<float,float> vsevfinder( *(inputdata->series(dataidx_)), 
-	    					inputdata->nrsamples_, sd );
+    ValueSeriesEvFinder<float,float> vsevfinder( *(inputdata->series(dataidx_)),
+	    				         inputdata->nrsamples_, sd );
     if ( eventtype == VSEvent::GateMax || eventtype == VSEvent::GateMin )
     {
 	Interval<int> samplegate( mNINT(gate.start/refstep),
@@ -341,42 +352,27 @@ void Event::multipleEvents( TypeSet<float>& output,
 bool Event::computeData( const DataHolder& output, const BinID& relpos,
 			 int z0, int nrsamples ) const
 {
-    TypeSet<float> outp(nrsamples,0);
     if ( !inputdata ) return false;
 
-    int firstsample = z0 - inputdata->z0_;
-
+    TypeSet<float> outp( nrsamples, 0 );
+    const int firstsample = z0 - inputdata->z0_;
     if ( issingleevent )
-        singleEvent(outp, nrsamples, firstsample);
+        singleEvent( outp, nrsamples, firstsample );
     else
-        multipleEvents(outp, nrsamples, firstsample);
+        multipleEvents( outp, nrsamples, firstsample );
 
     for ( int idx=0; idx<nrsamples; idx++ )
     {
+	const int outidx = z0 - output.z0_ + idx;
 	if ( outputinterest[0] ) 
-	    output.series(0)->setValue(idx, outp[idx]);
+	    output.series(0)->setValue( outidx, outp[idx] );
 	else if ( outputinterest[1] ) 
-	    output.series(1)->setValue(idx, outp[idx]);
+	    output.series(1)->setValue( outidx, outp[idx] );
 	else if ( outputinterest[2] )
-	    output.series(2)->setValue(idx, outp[idx]);
+	    output.series(2)->setValue( outidx, outp[idx] );
     }
 
     return true;
 }
-
-
-const Interval<float>* Event::reqZMargin( int input, int output ) const
-{
-    return eventtype == VSEvent::GateMax || eventtype == VSEvent::GateMin 
-	? &gate : 0;
-}
-
-
-const Interval<float>* Event::desZMargin( int input, int output ) const
-{
-    return eventtype != VSEvent::GateMax && eventtype != VSEvent::GateMin
-	? &gate : 0;
-}
-
 
 }; // namespace Attrib

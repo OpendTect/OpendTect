@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          Jan 2004
- RCS:           $Id: specdecompattrib.h,v 1.6 2005-12-13 10:03:41 cvshelene Exp $
+ RCS:           $Id: specdecompattrib.h,v 1.7 2005-12-23 16:09:46 cvsnanne Exp $
 ________________________________________________________________________
 -*/
 
@@ -60,8 +60,11 @@ public:
 
 protected:
     			~SpecDecomp();
-    static Provider*	createInstance( Desc& );
-    static void		updateDesc( Desc& );
+    static Provider*	createInstance(Desc&);
+    static void		updateDesc(Desc&);
+
+    bool		allowParallelComputation() const
+    			{ return false; }
 
     bool		getInputOutput(int input,TypeSet<int>& res) const;
     bool		getInputData(const BinID&,int idx);

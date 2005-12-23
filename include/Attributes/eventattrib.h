@@ -1,17 +1,15 @@
 #ifndef eventattrib_h
 #define eventattrib_h
-
 /*+
-  ______________________________________________________________________
+________________________________________________________________________
 
-  CopyRight:     (C) dGB Beheer B.V.
-  Author:        Helene Payraudeau
-  Date:          February 2005
-  ______________________________________________________________________
+ CopyRight:	(C) dGB Beheer B.V.
+ Author:	Helene Payraudeau
+ Date:		February 2005
+ RCS:		$Id: eventattrib.h,v 1.10 2005-12-23 16:09:46 cvsnanne Exp $
+________________________________________________________________________
 
 -*/
-
-static const char* rcsID = "$Id: eventattrib.h,v 1.9 2005-12-13 10:03:41 cvshelene Exp $";
 
 #include "arrayndimpl.h"
 #include "limits.h"
@@ -20,6 +18,10 @@ static const char* rcsID = "$Id: eventattrib.h,v 1.9 2005-12-13 10:03:41 cvshele
 #include "valseries.h"
 #include "mathfunc.h"
 #include "valseriesevent.h"
+
+
+namespace Attrib
+{
 
 /*!\brief Event attribute
   
@@ -34,9 +36,6 @@ Calculates the distance between the sample and the sample of max or min
 amplitude withing a time gate.
 
 */
-
-namespace Attrib
-{
 
 class Event : public Provider
 {
@@ -59,6 +58,8 @@ protected:
     bool                getInputData( const BinID&, int idx );
     bool                computeData( const DataHolder&, const BinID& relpos,
 				     int t0, int nrsamples ) const;
+
+    bool		allowParallelComputation()	{ return true; }
 
     const Interval<float>*           reqZMargin(int input, int output) const;
     const Interval<float>*           desZMargin(int input, int output) const;

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          May 2005
- RCS:           $Id: instantattrib.h,v 1.4 2005-12-13 10:03:41 cvshelene Exp $
+ RCS:           $Id: instantattrib.h,v 1.5 2005-12-23 16:09:46 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,11 +43,14 @@ protected:
 	    				    int t0,int nrsamples) const;
 
     const Interval<float>*	reqZMargin(int input,int output) const
-				{ return &gate; }
+				{ return &gate_; }
 
-    Interval<float>		gate;
-    const DataHolder*		realdata;
-    const DataHolder*		imagdata;
+    bool			allowParallelComputation() const
+    				{ return true; }
+
+    Interval<float>		gate_;
+    const DataHolder*		realdata_;
+    const DataHolder*		imagdata_;
     int				realidx_;
     int				imagidx_;
 

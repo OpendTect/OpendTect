@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          May 2005
- RCS:           $Id: mathattrib.h,v 1.4 2005-12-13 10:03:41 cvshelene Exp $
+ RCS:           $Id: mathattrib.h,v 1.5 2005-12-23 16:09:46 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,10 +44,12 @@ protected:
     bool			computeData(const DataHolder&,const BinID& pos,
 	    				    int t0,int nrsamples) const;
 
-    ObjectSet<const DataHolder>	inputdata_;
-    TypeSet<int>		inputidxs_;
+    bool			allowParallelComputation() const
+    				{ return true; }
 
 private:
+    ObjectSet<const DataHolder>	inputdata_;
+    TypeSet<int>		inputidxs_;
     TypeSet<int>		inputtable_;
     MathExpression*		expression_;
 };

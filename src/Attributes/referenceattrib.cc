@@ -4,7 +4,7 @@
  * DATE     : July 2005
 -*/
 
-static const char* rcsID = "$Id: referenceattrib.cc,v 1.13 2005-11-30 09:53:24 cvshelene Exp $";
+static const char* rcsID = "$Id: referenceattrib.cc,v 1.14 2005-12-23 16:09:46 cvsnanne Exp $";
 
 
 #include "referenceattrib.h"
@@ -31,9 +31,7 @@ void Reference::initClass()
     is2d_->setRequired(false);
     desc->addParam( is2d_ );
 
-    InputSpec inputspec( "Data on which the Reference should be measured",true);
-    desc->addInput( inputspec );
-
+    desc->addInput( InputSpec("Input Data",true) );
     desc->init();
 
     PF().addDesc( desc, createInstance );
@@ -45,7 +43,6 @@ Provider* Reference::createInstance( Desc& ds )
 {
     Reference* res = new Reference( ds );
     res->ref();
-
     if ( !res->isOK() )
     {
         res->unRef();
@@ -67,8 +64,8 @@ void Reference::updateDesc( Desc& desc )
 }
 
 
-Reference::Reference( Desc& desc_ )
-        : Provider( desc_ )
+Reference::Reference( Desc& ds )
+    : Provider(ds)
 {
     if ( !isOK() ) return;
     
@@ -82,9 +79,9 @@ bool Reference::getInputOutput( int input, TypeSet<int>& res ) const
 }
 
 
-bool Reference::getInputData( const BinID& relpos, int intv )
+bool Reference::getInputData( const BinID& relpos, int zintv )
 {
-    inputdata_ = inputs[0]->getData( relpos, intv );
+    inputdata_ = inputs[0]->getData( relpos, zintv );
     return inputdata_;
 }
 
@@ -92,64 +89,63 @@ bool Reference::getInputData( const BinID& relpos, int intv )
 bool Reference::computeData( const DataHolder& output, const BinID& relpos,
 			     int z0, int nrsamples ) const
 {
-    float step = refstep ? refstep : SI().zStep();
+    const float step = refstep ? refstep : SI().zStep();
     Coord coord;
     if ( outputinterest[0] || outputinterest[1] ) 
 	coord = SI().transform( currentbid );
-    
+
     for ( int idx=0; idx<nrsamples; idx++ )
     {
+	const int outidx = z0 - output.z0_ + idx;
 	if ( outputinterest[0] )
-	    output.series(0)->setValue(idx, coord.x);
+	    output.series(0)->setValue( outidx, coord.x );
 	if ( outputinterest[1] )
-	    output.series(1)->setValue(idx, coord.y);
+	    output.series(1)->setValue( outidx, coord.y );
 	if ( outputinterest[2] )
-	    output.series(2)->setValue(idx, (z0+idx)*step);
+	    output.series(2)->setValue( outidx, (z0+idx)*step );
 
 	if ( !is2d_ )
 	{
 	    if ( outputinterest[3] )
-		output.series(3)->setValue(idx, currentbid.inl);
+		output.series(3)->setValue( outidx, currentbid.inl );
 	    if ( outputinterest[4] )
-		output.series(4)->setValue(idx, currentbid.crl);
+		output.series(4)->setValue( outidx, currentbid.crl );
 	    if ( outputinterest[5] )
-		output.series(5)->setValue(idx, z0 + idx + 1);
+		output.series(5)->setValue( outidx, z0+idx+1 );
 	    if ( outputinterest[6] )
 	    {
-		int val = currentbid.inl - SI().inlRange(0).start + 1;
-		output.series(6)->setValue(idx, val);
+		const int val = currentbid.inl - SI().inlRange(0).start + 1;
+		output.series(6)->setValue( outidx, val );
 	    }
 	    if ( outputinterest[7] )
 	    {
-		int val = currentbid.crl - SI().crlRange(0).start + 1;
-		output.series(7)->setValue(idx, val);
+		const int val = currentbid.crl - SI().crlRange(0).start + 1;
+		output.series(7)->setValue( outidx, val );
 	    }
 	    if ( outputinterest[8] )
 	    {
-		int val = z0 - mNINT(SI().zRange(0).start/step) + idx + 1;
-		output.series(8)->setValue(idx, val);
+		const int val = z0 - mNINT(SI().zRange(0).start/step) + idx + 1;
+		output.series(8)->setValue( outidx, val );
 	    }
 	}
 	else
 	{
 	    if ( outputinterest[3] )
-		output.series(3)->setValue( idx, currentbid.crl );
+		output.series(3)->setValue( outidx, currentbid.crl );
 	    if ( outputinterest[4] )
-		output.series(4)->setValue( idx, z0+idx+1 );
+		output.series(4)->setValue( outidx, z0+idx+1 );
 	    if ( outputinterest[5] )
-	    {
-		int val = currentbid.crl - desiredvolume->hrg.start.crl + 1;
-		output.series(5)->setValue( idx, val );
-	    }
+		output.series(5)->setValue( outidx,
+			currentbid.crl - desiredvolume->hrg.start.crl + 1 );
 	    if ( outputinterest[6] )
 	    {
-		int val = z0 - mNINT(SI().zRange(0).start/step) + idx + 1;
-		output.series(6)->setValue( idx, val );
+		const int val = z0 - mNINT(SI().zRange(0).start/step) + idx + 1;
+		output.series(6)->setValue( outidx, val );
 	    }
 	}
     }
 
     return true;
 }
-			
-};
+
+}; // namespace Attrib

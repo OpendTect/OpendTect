@@ -7,22 +7,16 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: frequencyattrib.h,v 1.5 2005-12-13 10:03:41 cvshelene Exp $
+ RCS:           $Id: frequencyattrib.h,v 1.6 2005-12-23 16:09:46 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "attribprovider.h"
-#include "position.h"
-#include "arrayndimpl.h"
-#include "arraynd.h"
+#include "bufstringset.h"
 #include "fft.h"
-#include "arrayndutils.h"
-#include "valseries.h"
-#include "valseriesinterpol.h"
-#include "mathfunc.h"
+#include "ranges.h"
 
-#include <limits.h>
 #include <complex>
 
 /*!\brief Frequency Attribute
@@ -55,40 +49,51 @@ Output:
 7       Absorption Quality Factor (AQF)
 
 */
+
+
+class ArrayNDWindow;
+class BinID;
+template<class T> class Array1DImpl;
+
 namespace Attrib
 {
+
+class DataHolder;
 
 class Frequency : public Provider
 {
 public:
-    static void		initClass();
-			Frequency( Desc& );
+    static void			initClass();
+				Frequency( Desc& );
 
-    static const char*	attribName()	{ return "Frequency"; }
-    static const char*	gateStr()	{ return "gate"; }
-    static const char*	normalizeStr()	{ return "normalize"; }
-    static const char*  windowStr()  	{ return "window"; }
-    static const char*	dumptofileStr()	{ return "dumptofile"; }
+    static const char*		attribName()		{ return "Frequency"; }
+    static const char*		gateStr()		{ return "gate"; }
+    static const char*		normalizeStr()		{ return "normalize"; }
+    static const char*		windowStr()		{ return "window"; }
+    static const char*		dumptofileStr()		{ return "dumptofile"; }
 
 protected:
-    			~Frequency();
-    static Provider*	createInstance( Desc& );
+    				~Frequency();
+    static Provider*		createInstance(Desc&);
 
-    bool		getInputOutput( int input, TypeSet<int>& res ) const;
-    bool		getInputData( const BinID&, int idx );
-    bool		computeData( const DataHolder&, const BinID& relpos,
-	    			     int t0, int nrsamples ) const;
+    bool			allowParallelComputation() const
+    				{ return true; }
+    bool			getInputOutput(int input,
+	    				       TypeSet<int>& res) const;
+    bool			getInputData(const BinID&,int idx);
+    bool			computeData(const DataHolder&,const BinID& rel,
+					    int z0,int nrsamples) const;
 
-    const Interval<float>*	reqZMargin(int input, int output) const;
+    const Interval<float>*	reqZMargin(int input,int output) const;
 
     Interval<float>		gate;
-    Interval<int>  	      	samplegate;
+    Interval<int>		samplegate;
     bool			dumptofile;
-    int                 	fftsz;
-    FFT                 	fft;
-    ArrayNDWindow*      	window;
-    int                	 	windowtype;
-    float               	df;
+    int				fftsz;
+    FFT				fft;
+    ArrayNDWindow*		window;
+    int				windowtype;
+    float			df;
 
     bool			normalize;
 
@@ -100,15 +105,12 @@ protected:
     BufferStringSet		dumpset;
     bool			fftisinit;
 
-    Array1DImpl<float_complex>      signal;
-    Array1DImpl<float_complex>      timedomain;
-    Array1DImpl<float_complex>      freqdomain;
-    float*                          freqdomainpower;
-
+    Array1DImpl<float_complex>*	signal;
+    Array1DImpl<float_complex>*	timedomain;
+    Array1DImpl<float_complex>*	freqdomain;
+    float*			freqdomainpower;
 };
 
 }; // namespace Attrib
 
-
 #endif
-

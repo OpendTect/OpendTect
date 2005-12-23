@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: instantattrib.cc,v 1.7 2005-11-29 19:35:42 cvsnanne Exp $
+ RCS:           $Id: instantattrib.cc,v 1.8 2005-12-23 16:09:46 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,7 +46,6 @@ Provider* Instantaneous::createInstance( Desc& desc )
 {
     Instantaneous* res = new Instantaneous( desc );
     res->ref();
-
     if ( !res->isOK() )
     {
 	res->unRef();
@@ -64,14 +63,14 @@ void Instantaneous::updateDesc( Desc& desc )
 }
 
 
-Instantaneous::Instantaneous( Desc& desc_ )
-    : Provider( desc_ )
+Instantaneous::Instantaneous( Desc& ds )
+    : Provider(ds)
 {
     if ( !isOK() ) return;
 
 //  mGetFloatInterval( gate, gateStr() );
 //  gate.start = gate.start / zFactor(); gate.stop = gate.stop / zFactor();
-    gate.start = -SI().zStep(); gate.stop = SI().zStep();
+    gate_.start = -SI().zStep(); gate_.stop = SI().zStep();
 }
 
 
@@ -81,56 +80,55 @@ bool Instantaneous::getInputOutput( int input, TypeSet<int>& res ) const
 }
 
 
-bool Instantaneous::getInputData( const BinID& relpos, int idx )
+bool Instantaneous::getInputData( const BinID& relpos, int zintv )
 {
-    realdata = inputs[0]->getData( relpos, idx );
-    imagdata = inputs[1]->getData( relpos, idx );
+    realdata_ = inputs[0]->getData( relpos, zintv );
+    imagdata_ = inputs[1]->getData( relpos, zintv );
     realidx_ = getDataIndex( 0 );
     imagidx_ = getDataIndex( 1 );
-    return realdata && imagdata;
+    return realdata_ && imagdata_;
 }
 
 
-#define mGetRVal( sidx ) realdata->series(realidx_)->value(sidx-realdata->z0_)
-#define mGetIVal( sidx ) -imagdata->series(imagidx_)->value(sidx-imagdata->z0_)
+#define mGetRVal(sidx) realdata_->series(realidx_)->value(sidx-realdata_->z0_)
+#define mGetIVal(sidx) -imagdata_->series(imagidx_)->value(sidx-imagdata_->z0_)
 
 
 bool Instantaneous::computeData( const DataHolder& output, const BinID& relpos, 
 				 int z0, int nrsamples ) const
 {
-    if ( !realdata || !imagdata ) return false;
+    if ( !realdata_ || !imagdata_ ) return false;
 
-    const int offset = output.z0_ - z0;
     for ( int idx=0; idx<nrsamples; idx++ )
     {
 	const int cursample = z0 + idx;
-	const int curidx = offset + idx;
+	const int outidx = z0 - output.z0_ + idx;
 	if ( outputinterest[0] )
-	    output.series(0)->setValue( curidx, calcAmplitude(cursample) );
+	    output.series(0)->setValue( outidx, calcAmplitude(cursample) );
 	if ( outputinterest[1] )
-	    output.series(1)->setValue( curidx, calcPhase(cursample) );
+	    output.series(1)->setValue( outidx, calcPhase(cursample) );
 	if ( outputinterest[2] )
-	    output.series(2)->setValue( curidx, calcFrequency(cursample) );
+	    output.series(2)->setValue( outidx, calcFrequency(cursample) );
 	if ( outputinterest[3] )
-	    output.series(3)->setValue( curidx, mGetIVal(cursample) );
+	    output.series(3)->setValue( outidx, mGetIVal(cursample) );
 	if ( outputinterest[4] )
-	    output.series(4)->setValue( curidx, calcAmplitude1Der(cursample) );
+	    output.series(4)->setValue( outidx, calcAmplitude1Der(cursample) );
 	if ( outputinterest[5] )
-	    output.series(5)->setValue( curidx, calcAmplitude2Der(cursample) );
+	    output.series(5)->setValue( outidx, calcAmplitude2Der(cursample) );
 	if ( outputinterest[6] )
-	    output.series(6)->setValue( curidx, cos(calcPhase(cursample)) );
+	    output.series(6)->setValue( outidx, cos(calcPhase(cursample)) );
 	if ( outputinterest[7] )
-	    output.series(7)->setValue( curidx, calcEnvWPhase(cursample) );
+	    output.series(7)->setValue( outidx, calcEnvWPhase(cursample) );
 	if ( outputinterest[8] )
-	    output.series(8)->setValue( curidx, calcEnvWFreq(cursample) );
+	    output.series(8)->setValue( outidx, calcEnvWFreq(cursample) );
 	if ( outputinterest[9] )
-	    output.series(9)->setValue( curidx, calcPhaseAccel(cursample) );
+	    output.series(9)->setValue( outidx, calcPhaseAccel(cursample) );
 	if ( outputinterest[10] )
-	    output.series(10)->setValue( curidx, calcThinBed(cursample) );
+	    output.series(10)->setValue( outidx, calcThinBed(cursample) );
 	if ( outputinterest[11] )
-	    output.series(11)->setValue( curidx, calcBandWidth(cursample) );
+	    output.series(11)->setValue( outidx, calcBandWidth(cursample) );
 	if ( outputinterest[12] )
-	    output.series(12)->setValue( curidx, calcQFactor(cursample) );
+	    output.series(12)->setValue( outidx, calcQFactor(cursample) );
     }
 
     return true;

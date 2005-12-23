@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: energyattrib.h,v 1.6 2005-12-13 10:03:41 cvshelene Exp $
+ RCS:           $Id: energyattrib.h,v 1.7 2005-12-23 16:09:46 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,7 +16,10 @@ ________________________________________________________________________
 #include "attribprovider.h"
 
 
-/*!\brief Energy Attribute
+namespace Attrib
+{
+
+/*!\brief "Energy Attribute"
 
 Energy gate=
 
@@ -31,9 +34,6 @@ Outputs:
 */
     
 
-namespace Attrib
-{
-
 class Energy: public Provider
 {
 public:
@@ -46,17 +46,18 @@ public:
 protected:
     static Provider*    createInstance(Desc&);
 
+    bool		allowParallelComputation() const	{ return true; }
     bool		getInputOutput(int input,TypeSet<int>& res) const;
     bool		getInputData(const BinID&, int idx);
     bool		computeData(const DataHolder&,const BinID& relpos,
 				    int t0,int nrsamples) const;
 
     const Interval<float>* reqZMargin(int input,int output) const
-    			   { return &gate; }
+    			   { return &gate_; }
     
-    Interval<float>	gate;
+    Interval<float>	gate_;
     int			dataidx_;
-    ObjectSet<const DataHolder>	inputdata;
+    const DataHolder*	inputdata_;
 };
 
 }; // namespace Attrib
@@ -66,10 +67,10 @@ protected:
 
   This module contains the definition of the 'standard' OpendTect attributes.
   Contained are attributes like Energy, Similarity, Volume Statistics, etc.
-  The base class for all attributes is the AttribCalc class.
+  The base class for all attributes is the Provider class.
 
   The Attribute factories are defined in the Attribute Engine module
-  (AttribEng).
+  (AttributeEngine).
 
   If you want to make your own attributes, please consult the Programmer's
   manual, section 'Plugins'. You'll find an annotated example of the Coherency
