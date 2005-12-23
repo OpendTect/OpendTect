@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		April 1995
  Contents:	Sets of simple objects
- RCS:		$Id: sets.h,v 1.33 2005-10-19 15:51:16 cvskris Exp $
+ RCS:		$Id: sets.h,v 1.34 2005-12-23 19:33:51 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,11 +38,7 @@ class TypeSet
 public:
 			TypeSet() {}
 
-			TypeSet( int nr, T typ )
-			{
-			    for ( int idx=0; idx<nr; idx++ )
-				tvec.push_back(typ);
-			}
+			TypeSet( int nr, T typ ) { setSize( nr, typ ); }
 			TypeSet( const TypeSet<T>& t )
 				{ append( t ); }
     virtual		~TypeSet()
@@ -52,6 +48,9 @@ public:
 
     virtual int		size() const
 				{ return tvec.size(); }
+    virtual void	setSize( int sz, T val=T() ) { tvec.setSize(sz,val); }
+    			/*!<\param val value assigned to added items
+			 	   if size is increased. */
     virtual T&		operator[]( int idx ) const
 				{ return (T&)tvec[idx]; }
 
