@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: coherencyattrib.cc,v 1.7 2005-09-02 14:20:47 cvshelene Exp $";
+static const char* rcsID = "$Id: coherencyattrib.cc,v 1.8 2005-12-23 07:56:16 cvsnanne Exp $";
 
 
 #include "coherencyattrib.h"
@@ -12,7 +12,6 @@ static const char* rcsID = "$Id: coherencyattrib.cc,v 1.7 2005-09-02 14:20:47 cv
 #include "attribdesc.h"
 #include "attribfactory.h"
 #include "attribparam.h"
-#include "datainpspec.h"
 #include "ptrman.h"
 #include "simpnumer.h"
 
@@ -27,33 +26,32 @@ void Coherency::initClass()
 
     IntParam* type = new IntParam( typeStr() );
     type->setLimits( Interval<int>(1,2) );
-    type->setDefaultValue("2");
+    type->setDefaultValue( 2 );
     desc->addParam( type );
 
     ZGateParam* gate = new ZGateParam( gateStr() );
-    gate->setLimits( Interval<float>(-mUndefValue, mUndefValue) );
+    gate->setLimits( Interval<float>(-mUndefValue,mUndefValue) );
     gate->setDefaultValue( Interval<float>(-40,40) );
     desc->addParam( gate );
 
     FloatParam* maxdip = new FloatParam( maxdipStr() );
     maxdip->setLimits( Interval<float>(0,mUndefValue) );
-    maxdip->setDefaultValue("250");
+    maxdip->setDefaultValue( 250 );
     desc->addParam( maxdip );
 
     FloatParam* ddip = new FloatParam( ddipStr() );
     ddip->setLimits( Interval<float>(0,mUndefValue) );
-    ddip->setDefaultValue("10");
+    ddip->setDefaultValue( 10 );
     desc->addParam( ddip );
 
     BinIDParam* stepout = new BinIDParam( stepoutStr() );
     stepout->setDefaultValue( BinID(1,1) );
-    stepout->setRequired(false);
+    stepout->setRequired( false );
     desc->addParam( stepout );
-
-    desc->setNrOutputs( Seis::UnknowData, 3 );
 
     desc->addInput( InputSpec("Real data for Coherency",true) );
     desc->addInput( InputSpec("Imag data for Coherency",true) );
+    desc->setNrOutputs( Seis::UnknowData, 3 );
 
     desc->init();
 
@@ -66,7 +64,6 @@ Provider* Coherency::createInstance( Desc& desc )
 {
     Coherency* res = new Coherency( desc );
     res->ref();
-
     if ( !res->isOK() )
     {
 	res->unRef();
