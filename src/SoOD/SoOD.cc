@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: SoOD.cc,v 1.3 2005-03-22 14:38:15 cvskris Exp $";
+static const char* rcsID = "$Id: SoOD.cc,v 1.4 2005-12-23 14:35:45 cvskris Exp $";
 
 
 #include "SoOD.h"
@@ -17,6 +17,8 @@ static const char* rcsID = "$Id: SoOD.cc,v 1.3 2005-03-22 14:38:15 cvskris Exp $
 #include "SoIndexedTriangleFanSet.h"
 #include "SoLODMeshSurface.h"
 #include "SoManLevelOfDetail.h"
+#include "SoMultiTexture2.h"
+#include "SoMFImage.h"
 #include "SoPerspectiveSel.h"
 #include "SoPlaneWellLog.h"
 #include "SoIndexedLineSet3D.h"
@@ -34,6 +36,9 @@ void SoOD::init()
     SoCameraInfoElement::initClass();
     UTMElement::initClass();
 
+    //Then fields
+    SoMFImage::initClass();
+
     //Then nodes
     SoArrow::initClass();
     SoCameraInfo::initClass();
@@ -42,6 +47,7 @@ void SoOD::init()
     SoIndexedTriangleFanSet::initClass();
     SoLODMeshSurface::initClass();
     SoManLevelOfDetail::initClass();
+    SoMultiTexture2::initClass();
     SoPerspectiveSel::initClass();
     SoPlaneWellLog::initClass();
     SoIndexedLineSet3D::initClass();
