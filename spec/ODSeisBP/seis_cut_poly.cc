@@ -4,7 +4,7 @@
  * DATE     : 2-12-2005
 -*/
 
-static const char* rcsID = "$Id: seis_cut_poly.cc,v 1.1 2005-12-13 14:40:48 cvsbert Exp $";
+static const char* rcsID = "$Id: seis_cut_poly.cc,v 1.2 2005-12-23 11:30:38 cvsjaap Exp $";
 
 #include "prog.h"
 #include "batchprog.h"
@@ -33,58 +33,104 @@ static void addBid( const char* str, TypeSet<BinID>& bids )
 }
 
 
-static bool isInside( const TypeSet<Coord>& poly, const Coord& point )
-{   
-    // count crossings with polygon when drawing a horizontal line
-    // from the given point to the right and check for odd or even
+static bool doCoincide( const Coord& point1, const Coord& point2,
+			double eps = mDefEps )
+{
+    return point1.sqDistance( point2 ) <= eps * eps;
+}
 
-    const bool onborderisinside = true;
-   
+
+static double sgnDistToLine( const Coord& point, 
+			     const Coord& dirvec, const Coord& posvec )
+{
+    const double nolinedist = 0;
+
+    const double dirveclen = dirvec.distance( Coord( 0, 0 ) );
+    if ( mIsZero( dirveclen, mDefEps ) )
+	return nolinedist;
+    const double substpointinlineeqn =   dirvec.y * ( point.x - posvec.x )
+				       - dirvec.x * ( point.y - posvec.y );
+    return substpointinlineeqn / dirveclen;
+}
+
+
+static bool isRightOfLine( const Coord& point,
+			   const Coord& dirvec, const Coord& posvec )
+{
+    return sgnDistToLine( point, dirvec, posvec ) > 0;
+}
+
+
+static bool isOnLine( const Coord& point,
+		      const Coord& dirvec, const Coord& posvec,
+		      double eps = mDefEps )
+{
+    const double signeddist = sgnDistToLine( point, dirvec, posvec );
+    return signeddist * signeddist <= eps * eps;
+}
+
+
+static bool isOnHalfLine( const Coord& point,
+			  const Coord& dirvec, const Coord& endvec, 
+			  double eps = mDefEps )
+{
+    if ( doCoincide( point, endvec, eps ) )
+	return true;
+    if ( !isOnLine( point, dirvec, endvec, eps ) )
+	return false;
+    const Coord rot90dirvec( -dirvec.y, dirvec.x );
+    return isRightOfLine( point, rot90dirvec, endvec );
+}
+
+
+static bool isOnSegment( const Coord& point,
+			 const Coord& vtx1, const Coord& vtx2, 
+			 double eps = mDefEps )
+{
+    return    isOnHalfLine( point, vtx2 - vtx1, vtx1, eps )
+	   && isOnHalfLine( point, vtx1 - vtx2, vtx2, eps );
+}
+
+
+static bool isEdgeCrossing( const Coord& raydir, const Coord& raysrc,
+			    const Coord& vtx1, const Coord& vtx2 )
+{
+    const bool vtx1right = isRightOfLine( vtx1, raydir, raysrc );
+    const bool vtx2right = isRightOfLine( vtx2, raydir, raysrc );
+
+    if ( vtx1right && !vtx2right )
+	return isRightOfLine( raysrc, vtx2 - vtx1, vtx1 );
+    if ( !vtx1right && vtx2right )
+	return isRightOfLine( raysrc, vtx1 - vtx2, vtx2 );
+    return false;
+}
+
+
+//! Draws (horizontal) ray from a given point to the far (right)
+//! and checks for odd number of edge crossings with polygon.
+
+static bool isInside( const TypeSet<Coord>& poly, const Coord& point,
+		      double eps = mDefEps, bool onborderisinside = true )
+{
+    const Coord arbitrarydir( 1, 0 );
+
     bool nrcrossingsodd = false;
-    
-    for ( int vtx0=0; vtx0<poly.size(); vtx0++ )
+    for ( int idx=0; idx<poly.size(); idx++ )
     {
-	int vtx1 = vtx0 + 1; 
-	if ( vtx1 == poly.size() ) 
-	    vtx1 = 0;		    // list of vertices is circular
-        
-	// is point aligned with horizontal edge and between its bounds?
-	
-	if ( point.y == poly[vtx0].y && point.y == poly[vtx1].y )
-	    if ( point.x <= poly[vtx0].x && point.x >= poly[vtx1].x ||
-	         point.x <= poly[vtx1].x && point.x >= poly[vtx0].x    ) 
-		return onborderisinside;
+	const Coord& vtxcurr = poly[ idx ];
+	const Coord& vtxnext = poly[ idx+1 < poly.size() ? idx+1 : 0 ] ;
 
-	// is point within horizontal band covered by slanting edge?
-
-	if ( point.y < poly[vtx0].y && point.y >= poly[vtx1].y ||
-	     point.y < poly[vtx1].y && point.y >= poly[vtx0].y    )
-	{
-	    // intersect edge with horizontal line through point
-
-	    const double xcrossing = poly[vtx0].x + 
-				     ( point.y - poly[vtx0].y ) * 
-				     ( poly[vtx1].x - poly[vtx0].x ) / 
-				     ( poly[vtx1].y - poly[vtx0].y )   ;
-	    
-	    // does point coincide with the slanting edge?
-
-	    if ( point.x == xcrossing )
-		return onborderisinside; 
-
-	    // only count crossings at the right of point
-
-	    if ( point.x < xcrossing )
-		nrcrossingsodd = !nrcrossingsodd;
-	}
+	if ( isOnSegment( point, vtxcurr, vtxnext, eps ) )
+	    return onborderisinside;
+	if ( isEdgeCrossing( arbitrarydir, point, vtxcurr, vtxnext ) )
+	    nrcrossingsodd = !nrcrossingsodd;
     }
     return nrcrossingsodd;
 }
 
 
-
 bool BatchProgram::go( std::ostream& strm )
-{
+{ 
     PtrMan<IOObj> inioobj = getIOObjFromPars( "Input Seismics", false,
 				    SeisTrcTranslatorGroup::ioContext(), true );
     PtrMan<IOObj> outioobj = getIOObjFromPars( "Output Seismics", false,
@@ -116,15 +162,10 @@ bool BatchProgram::go( std::ostream& strm )
     for ( int idx=0; idx<edgebids.size(); idx++ )
 	edgecoords += SI().transform( edgebids[idx] );
 
-    bool clockwise = true; pars().getYN( "Edge.Clockwise", clockwise );
-
     SeisTrcReader rdr( inioobj );
     SeisTrcWriter wrr( outioobj );
 
     SeisTrc trc;
-
-    const bool haveedge = edgebids.size() > 2;
-    const bool haveexcl = exclbids.size() > 0;
 
     ProgressMeter* pm = new ProgressMeter( strm );
     int nrexcl = 0;
