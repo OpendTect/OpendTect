@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          October 2006
- RCS:           $Id: zaxistransform.h,v 1.8 2005-11-11 22:30:22 cvskris Exp $
+ RCS:           $Id: zaxistransform.h,v 1.9 2005-12-26 17:08:34 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -70,12 +70,16 @@ public:
     void			setBinID( const BinID& nbid ) { bid=nbid; }
 
     float			operator[](int idx) const;
+    void			computeCache( const Interval<int>& range );
 
 protected:
     const ZAxisTransform&	transform;
     bool			back;
     BinID			bid;
     const SamplingData<double>	sd;
+
+    TypeSet<float>		cache;
+    int				firstcachesample;
 };
 
 

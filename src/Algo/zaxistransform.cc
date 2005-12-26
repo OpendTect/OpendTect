@@ -4,7 +4,7 @@
  * DATE     : Oct 2005
 -*/
 
-static const char* rcsID = "$Id: zaxistransform.cc,v 1.5 2005-11-11 22:36:08 cvskris Exp $";
+static const char* rcsID = "$Id: zaxistransform.cc,v 1.6 2005-12-26 17:08:34 cvskris Exp $";
 
 #include "zaxistransform.h"
 
@@ -71,9 +71,28 @@ ZAxisTransformSampler::~ZAxisTransformSampler()
 
 float ZAxisTransformSampler::operator[](int idx) const
 {
+    const int cachesz = cache.size();
+    if ( cachesz )
+    {
+	const int cacheidx = idx-firstcachesample;
+	if ( cacheidx>=0 && cacheidx<cachesz )
+	    return cache[cacheidx];
+    }
+
     const BinIDValue bidval( BinIDValue(bid,sd.atIndex(idx)) );
     return back ? transform.transformBack( bidval )
 	        : transform.transform( bidval );
+}
+
+
+void ZAxisTransformSampler::computeCache( const Interval<int>& range )
+{
+    const int sz = range.width()+1;
+    cache.setSize( sz );
+    const SamplingData<float> cachesd( sd.atIndex(range.start), sd.step );
+    if ( back ) transform.transformBack( bid, cachesd, sz, cache.arr() );
+    else transform.transform( bid, cachesd, sz, cache.arr() );
+    firstcachesample = range.start;
 }
 
 
