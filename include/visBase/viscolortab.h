@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viscolortab.h,v 1.11 2003-11-07 12:21:54 bert Exp $
+ RCS:		$Id: viscolortab.h,v 1.12 2005-12-26 20:33:53 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -37,7 +37,7 @@ public:
     float			clipRate() const;
     void			setClipRate( float );
     void			scaleTo( const Interval<float>& rg );
-    void			scaleTo( float* values, int nrvalues );
+    void			scaleTo( const float* values, int nrvalues );
     				/*!< Does only work if autoscale is true */
     Interval<float>		getInterval() const;
 
