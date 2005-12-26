@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.99 2005-12-21 12:12:54 cvshelene Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.100 2005-12-26 17:09:16 cvskris Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -684,6 +684,7 @@ void PlaneDataDisplay::setData( const Attrib::DataCubes* datacubes,
 		    const BinID bid( datacubes->inlsampling.atIndex(inlidx),
 			   	     datacubes->crlsampling.atIndex(crlidx) );
 		    outpsampler.setBinID( bid );
+		    outpsampler.computeCache( Interval<int>(0,zsz-1) );
 
 		    const float* inputptr = srcarray.getData() +
 					    info.getMemPos(inlidx,crlidx,0);
