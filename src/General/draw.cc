@@ -4,7 +4,7 @@
  * DATE     : 18-4-1996
 -*/
 
-static const char* rcsID = "$Id: draw.cc,v 1.43 2005-09-16 11:59:11 cvshelene Exp $";
+static const char* rcsID = "$Id: draw.cc,v 1.44 2005-12-27 13:29:54 cvsnanne Exp $";
 
 /*! \brief Several implementations for UI-related things.
 
@@ -22,6 +22,7 @@ The main chunk is color table related.
 #include "interpol.h"
 #include "bufstringset.h"
 #include "strmprov.h"
+
 #include <iostream>
 
 // First some implementations for a couple of header files ...
@@ -386,18 +387,6 @@ void ColorTable::initTabs()
     if ( tabpars.size() )
 	tabparsinited = true;
     sd.close();
-}
-
-
-void ColorTable::getAllTabPars( ObjectSet<IOPar>& coltabpars )
-{
-   PtrMan<IOPar> iopar = Settings::common().subselect( "Color table" );
-   if ( iopar && iopar->size() )
-       add( *iopar, 0, &coltabpars );
-
-   if ( !tabparsinited ) initTabs();
-
-   coltabpars.append(tabpars);
 }
 
 
