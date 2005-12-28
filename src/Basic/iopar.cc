@@ -4,7 +4,7 @@
  * DATE     : 21-12-1995
 -*/
 
-static const char* rcsID = "$Id: iopar.cc,v 1.49 2005-10-07 20:24:22 cvskris Exp $";
+static const char* rcsID = "$Id: iopar.cc,v 1.50 2005-12-28 18:09:43 cvsbert Exp $";
 
 #include "iopar.h"
 #include "multiid.h"
@@ -16,6 +16,7 @@ static const char* rcsID = "$Id: iopar.cc,v 1.49 2005-10-07 20:24:22 cvskris Exp
 #include "separstr.h"
 #include "ascstream.h"
 #include "bufstringset.h"
+#include "color.h"
 #include "convert.h"
 
 
@@ -579,13 +580,24 @@ bool IOPar::get( const char* s, int& i1, int& i2, float& f ) const
 }
 
 
-bool IOPar::getYN( const char* s, bool& i, char c ) const
+bool IOPar::getYN( const char* s, bool& i ) const
 {
     const char* ptr = find( s );
     if ( !ptr || !*ptr ) return false;
 
-    if ( !c )	i = yesNoFromString(ptr);
-    else	i = toupper(*ptr) == toupper(c);
+    i = yesNoFromString(ptr);
+    return true;
+}
+
+
+bool IOPar::getYN( const char* s, bool& i1, bool& i2 ) const
+{
+    const char* ptr = find( s );
+    if ( !ptr || !*ptr ) return false;
+
+    FileMultiString fms( ptr );
+    i1 = yesNoFromString(fms[0]);
+    i2 = yesNoFromString(fms[1]);
     return true;
 }
 
@@ -730,6 +742,15 @@ void IOPar::setYN( const char* keyw, bool i )
 }
 
 
+void IOPar::setYN( const char* keyw, bool i1, bool i2 )
+{
+    FileMultiString fms;
+    fms.add( getYesNoString(i1) );
+    fms.add( getYesNoString(i2) );
+    set( keyw, fms );
+}
+
+
 void IOPar::setPtr( const char* keyw, void* ptr )
 {
     char buf[80]; sprintf( buf, "%p", ptr );
@@ -820,8 +841,24 @@ bool IOPar::get( const char* s, MultiID& mid ) const
 
 
 void IOPar::set( const char* s, const MultiID& mid )
-{ 
+{
     set( s, (const char*)mid );
+}
+
+
+bool IOPar::get( const char* s, Color& c ) const
+{
+    const char* ptr = find( s );
+    if ( !ptr || !*ptr ) return false;
+
+    return c.use( ptr );
+}
+
+
+void IOPar::set( const char* s, const Color& c )
+{
+    BufferString bs; c.fill( bs.buf() );
+    set( s, bs );
 }
 
 
