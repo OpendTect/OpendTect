@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          September 2005
- RCS:           $Id: uiattrtrcselout.cc,v 1.7 2005-11-10 15:22:25 cvshelene Exp $
+ RCS:           $Id: uiattrtrcselout.cc,v 1.8 2005-12-28 18:14:04 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -59,6 +59,7 @@ uiAttrTrcSelOut::uiAttrTrcSelOut( uiParent* p, const DescSet& ad,
     setTitleText( "" );
 
     attrfld = new uiAttrSel( uppgrp, &ads, "Quantity to output" );
+    attrfld->selectiondone.notify( mCB(this,uiAttrTrcSelOut,attrSel) );
     attrfld->setNLAModel( nlamodel );
 
     if ( usesinglehor_ )
@@ -269,6 +270,12 @@ void uiAttrTrcSelOut::getComputableSurf( HorSampling& horsampling )
     }
 
     horsampling.set( inlrg, crlrg );
+}
+
+
+void uiAttrTrcSelOut::attrSel( CallBacker* cb )
+{
+    setParFileNmDef( attrfld->getInput() );
 }
 
 

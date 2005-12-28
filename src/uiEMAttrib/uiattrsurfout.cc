@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2004
- RCS:           $Id: uiattrsurfout.cc,v 1.10 2005-10-04 13:30:49 cvshelene Exp $
+ RCS:           $Id: uiattrsurfout.cc,v 1.11 2005-12-28 18:14:04 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -52,6 +52,7 @@ uiAttrSurfaceOut::uiAttrSurfaceOut( uiParent* p, const Attrib::DescSet& ad,
     ctio.ctxt.forread = true;
     objfld = new uiIOObjSel( uppgrp, ctio, "Calculate on surface" );
     objfld->attach( alignedBelow, attrnmfld );
+    objfld->selectiondone.notify( mCB(this,uiAttrSurfaceOut,objSel) );
 
     uppgrp->setHAlignObj( attrfld );
     addStdFields();
@@ -70,6 +71,16 @@ uiAttrSurfaceOut::~uiAttrSurfaceOut()
 void uiAttrSurfaceOut::attribSel( CallBacker* )
 {
     attrnmfld->setText( attrfld->getInput() );
+    objSel(0);
+}
+
+
+void uiAttrSurfaceOut::objSel( CallBacker* )
+{
+    if ( !objfld->ctxtIOObj().ioobj ) return;
+    BufferString parnm( objfld->ctxtIOObj().ioobj->name() );
+    parnm += " "; parnm += attrfld->getInput();
+    setParFileNmDef( parnm );
 }
 
 

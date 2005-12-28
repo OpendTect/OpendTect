@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:		$Id: uiattrvolout.cc,v 1.13 2005-12-21 10:52:13 cvsnanne Exp $
+ RCS:		$Id: uiattrvolout.cc,v 1.14 2005-12-28 18:14:04 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -139,6 +139,7 @@ void uiAttrVolOut::attrSel( CallBacker* )
 	}
     }
 
+    setParFileNmDef( todofld->getInput() );
     singLineSel(0);
 }
 

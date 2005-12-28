@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2004
- RCS:           $Id: uiattrsurfout.h,v 1.4 2005-07-29 13:08:11 cvsnanne Exp $
+ RCS:           $Id: uiattrsurfout.h,v 1.5 2005-12-28 18:14:04 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,6 +44,7 @@ protected:
     bool		fillPar(IOPar&);
     bool		addNLA(Attrib::DescID&);
     void		attribSel(CallBacker*);
+    void		objSel(CallBacker*);
 
     CtxtIOObj&		ctio;
     Attrib::DescSet&	ads;

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          September 2005
- RCS:           $Id: uiattrtrcselout.h,v 1.2 2005-09-27 09:34:55 cvshelene Exp $
+ RCS:           $Id: uiattrtrcselout.h,v 1.3 2005-12-28 18:14:04 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,6 +49,7 @@ protected:
     bool		fillPar(IOPar&);
     bool		addNLA(Attrib::DescID&);
     void                objSel(CallBacker*);
+    void                attrSel(CallBacker*);
     void		extraZSel(CallBacker*);
 
     CtxtIOObj&		ctio;

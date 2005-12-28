@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:           $Id: uibatchlaunch.cc,v 1.46 2005-09-22 08:27:19 cvsnanne Exp $
+ RCS:           $Id: uibatchlaunch.cc,v 1.47 2005-12-28 18:14:04 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,14 +31,15 @@ static const char* sSingBaseNm = "batch_processing";
 static const char* sMultiBaseNm = "cube_processing";
 
 
-static void getProcFilename( const char* basnm, BufferString& tfname )
+static void getProcFilename( const char* basnm, const char* altbasnm,
+			     BufferString& tfname )
 {
-    tfname = basnm;
-    if ( GetSoftwareUser() )
-	{ tfname += "_"; tfname += GetSoftwareUser(); }
-    tfname += ".par";
-
     FilePath fp( GetDataDir() );
+    if ( !basnm || !*basnm ) basnm = altbasnm;
+
+    tfname = basnm;
+    cleanupString( tfname.buf(), NO, NO, YES );
+    tfname += ".par";
     tfname = fp.add( "Proc" ).add( tfname ).fullPath();
 }
 
@@ -191,7 +192,7 @@ bool uiBatchLaunch::acceptOK( CallBacker* )
     }
 
     if ( parfname == "" )
-	getProcFilename( sSingBaseNm, parfname );
+	getProcFilename( sSingBaseNm, sSingBaseNm, parfname );
     if ( !writeProcFile(iopl,parfname) )
 	return false;
 
@@ -242,9 +243,9 @@ uiFullBatchDialog::uiFullBatchDialog( uiParent* p, const char* t,
 	, procprognm(ppn?ppn:"process_attrib")
 	, multiprognm(mpn?mpn:"SeisMMBatch")
     	, redo_(false)
+	, parfnamefld(0)
 {
-    getProcFilename( sSingBaseNm, singparfname );
-    getProcFilename( sMultiBaseNm, multiparfname );
+    setParFileNmDef( 0 );
 }
 
 
@@ -272,6 +273,16 @@ void uiFullBatchDialog::addStdFields()
     dogrp->setHAlignObj( singmachfld );
 }
 
+
+void uiFullBatchDialog::setParFileNmDef( const char* nm )
+{
+    getProcFilename( nm, sSingBaseNm, singparfname );
+    getProcFilename( nm, sMultiBaseNm, multiparfname );
+    if ( parfnamefld )
+	parfnamefld->setFileName( singmachfld->getBoolValue() ? singparfname
+							      : multiparfname );
+}
+
 void uiFullBatchDialog::singTogg( CallBacker* cb )
 {
     const BufferString inpfnm = parfnamefld->fileName();
@@ -287,9 +298,9 @@ bool uiFullBatchDialog::acceptOK( CallBacker* cb )
     if ( !prepareProcessing() ) return false;
     BufferString inpfnm = parfnamefld->fileName();
     if ( inpfnm == "" )
-	getProcFilename( "tmp_proc", inpfnm );
+	getProcFilename( 0, "tmp_proc", inpfnm );
     else if ( !FilePath(inpfnm).isAbsolute() )
-	getProcFilename( inpfnm, inpfnm );
+	getProcFilename( inpfnm, sSingBaseNm, inpfnm );
 
     const bool issing = singmachfld->getBoolValue();
 
@@ -335,13 +346,9 @@ bool uiFullBatchDialog::singLaunch( const IOParList& iopl, const char* fnm )
     if ( iop )
 	iop->set( "Log file", fname );
 
-    FilePath parfp( singparfname );
+    FilePath parfp( fnm );
     if ( !parfp.nrLevels() )
-    {
-	BufferString prfnm;
-	getProcFilename( sSingBaseNm, prfnm );
-        parfp = prfnm;
-    }
+        parfp = singparfname;
     if ( !writeProcFile(iopl,parfp.fullPath()) )
 	return false;
 
