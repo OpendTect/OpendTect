@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.110 2005-12-22 15:57:48 cvshelene Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.111 2005-12-29 14:22:01 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -79,7 +79,7 @@ uiODApplMgr::uiODApplMgr( uiODMain& a )
 	: appl(a)
 	, applservice(*new uiODApplService(&a,*this))
     	, nlaserv(0)
-	, getnewdata(this)
+    	, getOtherFormatData( this )
 {
     pickserv = new uiPickPartServer( applservice );
     visserv = new uiVisPartServer( applservice );
@@ -403,7 +403,7 @@ bool uiODApplMgr::getNewData( int visid, bool colordata )
     bool res = false;
     switch ( visserv->getAttributeFormat(visid) )
     {
-	case 0:
+	case uiVisPartServer::Cube :
 	{
 	    if ( myas.id()<-1 && colordata )
 	    { visserv->setCubeData(visid, true, 0 ); return true; }
@@ -421,7 +421,7 @@ bool uiODApplMgr::getNewData( int visid, bool colordata )
 	    res = true;
 	    break;
 	}
-	case 1:
+	case uiVisPartServer::Traces :
 	{
 	    if ( myas.id()<-1 && colordata )
 	    { SeisTrcBuf b; visserv->setTraceData(visid,true,b); return true; }
@@ -439,7 +439,7 @@ bool uiODApplMgr::getNewData( int visid, bool colordata )
 	    visserv->setTraceData( visid, colordata, data );
 	    return true;
 	}
-	case 2:
+	case uiVisPartServer::RandomPos :
 	{
 	    if ( myas.id()<-1 && colordata )
 	    { visserv->stuffSurfaceData(visid,true,0); return true; }
@@ -482,10 +482,15 @@ bool uiODApplMgr::getNewData( int visid, bool colordata )
 	    deepErase( data );
 	    return true;
 	}
-	case -2:
+	case uiVisPartServer::OtherFormat :
 	{
-	    getnewdata.trigger(visid);
+	    getOtherFormatData.trigger( visid );
 	    return true;
+	}
+	default :
+	{
+	    pErrMsg("Invalid format");
+	    return false;
 	}
     }
 

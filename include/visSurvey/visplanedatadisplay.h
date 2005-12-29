@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visplanedatadisplay.h,v 1.62 2005-12-21 12:13:25 cvshelene Exp $
+ RCS:		$Id: visplanedatadisplay.h,v 1.63 2005-12-29 14:22:01 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -87,7 +87,7 @@ public:
     int				getResolution() const;
     void			setResolution(int);
 
-    int				getAttributeFormat() const 	{ return 0; }
+    SurveyObject::AttribFormat	getAttributeFormat() const;
 
     bool			hasColorAttribute() const	{ return true; }
     const Attrib::SelSpec*	getSelSpec() const;

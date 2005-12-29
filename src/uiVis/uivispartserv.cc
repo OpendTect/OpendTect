@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.289 2005-12-19 08:16:48 cvshelene Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.290 2005-12-29 14:22:01 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -352,10 +352,19 @@ void uiVisPartServer::getChildIds( int id, TypeSet<int>& childids ) const
 }
 
 
-int uiVisPartServer::getAttributeFormat( int id ) const
+uiVisPartServer::AttribFormat uiVisPartServer::getAttributeFormat(int id) const
 {
-    mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id))
-    return so ? so->getAttributeFormat() : -1;
+    mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
+    switch ( so ? so->getAttributeFormat() : visSurvey::SurveyObject::None )
+    {
+	case visSurvey::SurveyObject::None		: return None;
+	case visSurvey::SurveyObject::Cube		: return Cube;
+	case visSurvey::SurveyObject::Traces		: return Traces;
+	case visSurvey::SurveyObject::RandomPos		: return RandomPos;
+	case visSurvey::SurveyObject::OtherFormat	: return OtherFormat;
+    }
+
+    return None;
 }
 
 
@@ -865,7 +874,7 @@ void uiVisPartServer::removeObject( int id, int sceneid )
 bool uiVisPartServer::hasAttrib( int id ) const
 {
     mDynamicCastGet( visSurvey::SurveyObject*, so, getObject(id) );
-    return so && so->getAttributeFormat() >= 0;
+    return so && so->getAttributeFormat() != visSurvey::SurveyObject::None;
 }
     
 

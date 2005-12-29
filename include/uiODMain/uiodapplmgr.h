@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiodapplmgr.h,v 1.26 2005-12-22 15:57:48 cvshelene Exp $
+ RCS:           $Id: uiodapplmgr.h,v 1.27 2005-12-29 14:22:01 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -122,10 +122,18 @@ public:
     void			enableMenusAndToolbars(bool);
     void			enableTree(bool);
     void			enableSceneManipulation(bool);
-    				/*!Turns on/off viewMode and enables/disables
-				   the possibility to go to actMode. */
+    				/*!<Turns on/off viewMode and enables/disables
+				    the possibility to go to actMode. */
 
-    CNotifier<uiODApplMgr,int>	getnewdata;
+    CNotifier<uiODApplMgr,int>	getOtherFormatData;
+    				/*!<Is triggered with the visid when the
+				    vispartserver wants data, but the format
+				    (as reported by
+				    uiVisPartServer::getAttributeFormat() ) is
+				    uiVisPartServer::OtherFormat. If you manage
+				    a visobject with OtherFormat, you can
+				    connect here to be notified when the object
+				    needs data. */
 
 protected:
 

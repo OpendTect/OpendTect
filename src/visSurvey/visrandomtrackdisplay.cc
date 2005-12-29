@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          January 2003
- RCS:           $Id: visrandomtrackdisplay.cc,v 1.59 2005-12-21 12:12:54 cvshelene Exp $
+ RCS:           $Id: visrandomtrackdisplay.cc,v 1.60 2005-12-29 14:22:01 cvskris Exp $
  ________________________________________________________________________
 
 -*/
@@ -584,6 +584,10 @@ int RandomTrackDisplay::getResolution() const
 
 int RandomTrackDisplay::nrResolutions() const
 { return 3; }
+
+
+SurveyObject::AttribFormat RandomTrackDisplay::getAttributeFormat() const
+{ return SurveyObject::Traces; }
 
 
 int RandomTrackDisplay::getSectionIdx() const

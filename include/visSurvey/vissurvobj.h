@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvobj.h,v 1.46 2005-11-11 22:36:08 cvskris Exp $
+ RCS:		$Id: vissurvobj.h,v 1.47 2005-12-29 14:22:01 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -110,14 +110,26 @@ public:
     virtual BufferString	getResolutionName(int) const;
     virtual int			getResolution() const		{ return 0; }
     virtual void		setResolution(int)		{}
+
+    enum AttribFormat		{ None, Cube, Traces, RandomPos, OtherFormat };
+    				/*!\enum AttribFormat
+					 Specifies how the object wants it's
+					 attrib data delivered.
+				   \var None
+				   	This object does not handle attribdata.
+				   \var	Cube
+				   	This object wants attribdata as 
+					DataCubes.
+				   \var	Traces
+				   	This object wants a set of traces.
+    				   \var RandomPos
+				        This object wants a table with 
+					array positions.
+    				   \var OtherFormat
+				   	This object wants attribdata of a
+					different kind. */
     
-    virtual int			getAttributeFormat() const	{ return -1; }
-    				/*<\retval 0	volume
-				   \retval 1	traces
-				   \retval 2	random pos
-				   \retval 3	tracking volume
-				   \retval -1	Does not have attribs 
-				*/
+    virtual AttribFormat	getAttributeFormat() const	{ return None; }
     virtual const Attrib::SelSpec* getSelSpec() const		{ return 0; }
     virtual const Attrib::ColorSelSpec* getColorSelSpec() const	{ return 0; }
     virtual const TypeSet<float>* getHistogram() const		{ return 0; }

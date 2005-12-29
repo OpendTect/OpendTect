@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.100 2005-12-26 17:09:16 cvskris Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.101 2005-12-29 14:22:01 cvskris Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -480,6 +480,10 @@ void PlaneDataDisplay::setResolution( int res )
     if ( cache ) setData( cache, 0 );
     if ( colcache ) setData( colcache, colas.datatype );
 }
+
+
+SurveyObject::AttribFormat PlaneDataDisplay::getAttributeFormat() const
+{ return SurveyObject::Cube; }
 
 
 const Attrib::SelSpec* PlaneDataDisplay::getSelSpec() const

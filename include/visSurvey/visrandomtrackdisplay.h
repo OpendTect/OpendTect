@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		January 2003
- RCS:		$Id: visrandomtrackdisplay.h,v 1.40 2005-12-21 12:13:25 cvshelene Exp $
+ RCS:		$Id: visrandomtrackdisplay.h,v 1.41 2005-12-29 14:22:01 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -66,7 +66,7 @@ public:
 
     bool			allowMaterialEdit() const { return true; }
 
-    int				getAttributeFormat() const { return 1; }
+    SurveyObject::AttribFormat	getAttributeFormat() const;
     bool			hasColorAttribute() const { return true; }
     const Attrib::SelSpec*	getSelSpec() const { return &as; }
     const Attrib::ColorSelSpec*	getColorSelSpec() const { return &colas; }

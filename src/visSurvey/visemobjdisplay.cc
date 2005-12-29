@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: visemobjdisplay.cc,v 1.68 2005-12-21 12:12:54 cvshelene Exp $
+ RCS:           $Id: visemobjdisplay.cc,v 1.69 2005-12-29 14:22:01 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -683,11 +683,11 @@ void EMObjectDisplay::selectNextTexture( bool next )
 }
 
 
-int EMObjectDisplay::getAttributeFormat() const
+SurveyObject::AttribFormat EMObjectDisplay::getAttributeFormat() const
 {
-    if ( !sections.size() ) return -1;
+    if ( !sections.size() ) return SurveyObject::None;
     mDynamicCastGet(const visBase::ParametricSurface*,ps,sections[0]);
-    return ps ? 2 : -1;
+    return ps ? SurveyObject::RandomPos : SurveyObject::None;
 }
 
 

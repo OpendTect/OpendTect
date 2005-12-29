@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          May 2004
- RCS:           $Id: visemobjdisplay.h,v 1.32 2005-12-21 12:13:25 cvshelene Exp $
+ RCS:           $Id: visemobjdisplay.h,v 1.33 2005-12-29 14:22:01 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -81,7 +81,7 @@ public:
     void			selectTexture(int);
     void			selectNextTexture(bool next);
 
-    int				getAttributeFormat() const;
+    SurveyObject::AttribFormat	getAttributeFormat() const;
     const Attrib::SelSpec*	getSelSpec() const;
     const Attrib::ColorSelSpec*	getColorSelSpec() const;
     void			setSelSpec(const Attrib::SelSpec&);

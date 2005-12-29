@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.154 2005-12-19 08:17:15 cvshelene Exp $
+ RCS:           $Id: uivispartserv.h,v 1.155 2005-12-29 14:22:01 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -84,10 +84,23 @@ public:
 			     scenes */
 
     bool		hasAttrib(int) const;
-    int			getAttributeFormat(int id) const;
-   			/*!\retval 0 volume
-  			   \retval 1 traces
-		           \retval 2 random positions */
+    enum AttribFormat	{ None, Cube, Traces, RandomPos, OtherFormat };
+    			/*!\enum AttribFormat
+				 Specifies how the object wants it's
+				 attrib data delivered.
+			   \var None
+			   	This object does not handle attribdata.
+			   \var	Cube
+				This object wants attribdata as DataCubes.
+			   \var Traces
+				This object wants a set of traces.
+			   \var RandomPos
+				This object wants a table with
+				array positions.
+			   \var	OtherFormat
+				This object wants data in a different format. */
+
+    AttribFormat	getAttributeFormat(int id) const;
     const Attrib::SelSpec* getSelSpec(int id) const;
     const Attrib::ColorSelSpec* getColorSelSpec(int id) const;
     void		setSelSpec(int id, const Attrib::SelSpec&);
