@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Contents:	Defines that encapsulate system things
- RCS:		$Id: plfdefs.h,v 1.14 2005-12-30 11:28:48 cvsbert Exp $
+ RCS:		$Id: plfdefs.h,v 1.15 2005-12-30 11:33:20 cvsbert Exp $
 ________________________________________________________________________
 
 */
@@ -149,7 +149,6 @@ Always defined:
 #  define __little__ 1
 #  define __islittle__ true
 # else
-#  define __little__ 0
 #  define __islittle__ false
 # endif
 #endif
