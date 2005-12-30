@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Contents:	Defines that encapsulate system things
- RCS:		$Id: plfdefs.h,v 1.12 2004-04-15 13:12:24 macman Exp $
+ RCS:		$Id: plfdefs.h,v 1.13 2005-12-30 11:27:41 cvsbert Exp $
 ________________________________________________________________________
 
 */
@@ -145,6 +145,11 @@ Always defined:
 # define __little__ 1
 # define __islittle__ true
 #else
+# ifdef __mac__
+#  define __little__ 1
+#  define __islittle__ true
+# else
+# define __little__ 0
 # define __islittle__ false
 #endif
 
