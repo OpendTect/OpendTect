@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvey.cc,v 1.66 2005-12-30 09:28:14 cvsnanne Exp $
+ RCS:           $Id: uisurvey.cc,v 1.67 2005-12-30 09:40:49 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -72,8 +72,8 @@ static bool copySurv( const char* from, const char* todirnm, int mb )
 	return false;
 
     uiCursorChanger cc( uiCursor::Wait );
-    const FilePath fromfp( from );
-    if ( !File_copy( fromfp.fullPath(), todir, YES ) )
+    const BufferString fromdir = FilePath( from ).fullPath();
+    if ( !File_copy( fromdir, todir, YES ) )
     {
         uiMSG().error( "Cannot copy the survey data" );
         return false;
