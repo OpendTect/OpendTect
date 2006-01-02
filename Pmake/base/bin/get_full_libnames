@@ -1,7 +1,7 @@
 #!/bin/csh
 #__Pmake________________________________________________________________________
 #
-# $Id: get_full_libnames,v 1.4 2005-11-18 15:29:17 cvsbert Exp $
+# $Id: get_full_libnames,v 1.5 2006-01-02 09:33:06 cvsdgb Exp $
 # This script returns the full libname for a given link directive
 #_______________________________________________________________________________
 
@@ -15,10 +15,12 @@ if( $HDIR == "win" ) then
     set archext=lib
     set dynext=dll
     set libprfx=""
+else if ( $HDIR == "mac" ) then
+    set dynext=dylib
 endif
 
-# set verbose=yes
-# set echo=on
+#set verbose=yes
+#set echo=on
 
 foreach inp ( $* )
 
@@ -28,9 +30,14 @@ foreach inp ( $* )
 
 	echo $libnm
 
-    else if ( `echo $inp|awk '{print substr($1,1,2)=="-l"?1:0;}'` == 1 ) then
+    else
 
-	set libnm=`echo $inp|awk '{print substr($1,3,length($1))}'`
+	set isminl=`echo $libnm | \
+		awk '{ printf( "%s", substr($1,1,2) == "-l" ? "1" : "0" ); }'`
+
+	if ( $isminl == 1 ) then
+
+	set libnm=`echo $inp|awk '{ print substr($1,3,length($1)); }'`
 	set libnm=${libprfx}${libnm}.${archext}
 	if ( ! -e $WORK/lib/$libsubd/$libnm ) then
 	    set libnm=$libnm:r
