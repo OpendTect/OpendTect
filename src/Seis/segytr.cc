@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: segytr.cc,v 1.45 2005-10-28 12:33:38 cvsbert Exp $";
+static const char* rcsID = "$Id: segytr.cc,v 1.46 2006-01-02 14:33:30 cvsdgb Exp $";
 
 #include "segytr.h"
 #include "seistrc.h"
@@ -20,6 +20,7 @@ static const char* rcsID = "$Id: segytr.cc,v 1.45 2005-10-28 12:33:38 cvsbert Ex
 #include "scaler.h"
 #include "survinfo.h"
 #include "seistrcsel.h"
+#include "envvars.h"
 #include <math.h>
 #include <ctype.h>
 # include <sstream>
@@ -336,8 +337,10 @@ int SEGYSeisTrcTranslator::nrFormatFor( const DataCharacteristics& dc ) const
 
 DataCharacteristics SEGYSeisTrcTranslator::getDataChar( int nf ) const
 {
+    static bool isswppd = GetEnvVarYN( "DTECT_SEGY_SWAPPED_DATA" );
     DataCharacteristics dc( true, true, BinDataDesc::N4,
-			    DataCharacteristics::Ibm, __islittle__ );
+			    DataCharacteristics::Ibm,
+			    isswppd ? !__islittle__ : __islittle__ );
 
     switch ( nf )
     {
