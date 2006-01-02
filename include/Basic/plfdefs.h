@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Contents:	Defines that encapsulate system things
- RCS:		$Id: plfdefs.h,v 1.15 2005-12-30 11:33:20 cvsbert Exp $
+ RCS:		$Id: plfdefs.h,v 1.16 2006-01-02 14:44:52 cvsbert Exp $
 ________________________________________________________________________
 
 */
@@ -50,7 +50,7 @@ Language:
 
 Byte order:
 
-	__little__	little-endian (PC,DEC)
+	__little__	little-endian - PC's, not Mac
 
 Always defined:
 
@@ -139,18 +139,14 @@ Always defined:
 #endif
 #ifdef mac
 # define __mac__ 1
+# undef __pc__
 #endif
 
 #ifdef __pc__
 # define __little__ 1
 # define __islittle__ true
 #else
-# ifdef __mac__
-#  define __little__ 1
-#  define __islittle__ true
-# else
 #  define __islittle__ false
-# endif
 #endif
 
 
