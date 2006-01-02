@@ -5,7 +5,7 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID = "$Id: genc.c,v 1.74 2005-10-07 10:06:36 cvsnanne Exp $";
+static const char* rcsID = "$Id: genc.c,v 1.75 2006-01-02 14:30:26 cvsdgb Exp $";
 
 #include "oddirs.h"
 #include "genc.h"
@@ -798,6 +798,21 @@ double IntPowerOf( double x, int y )
 {
     double ret = 1;
     if ( x == 0 ) return y ? 0 : 1;
+    if ( x > 1.5 || x < -1.5 )
+    {
+	if ( y > 150 ) return mUndefValue;
+	if ( y < -150 ) return 0;
+	if ( x > 1.99 || x < -1.99 )
+	{
+	    if ( y > 100 ) return mUndefValue;
+	    if ( y < -100 ) return 0;
+	}
+    }
+    else if ( x < 0.5 && x > -0.5 )
+    {
+	if ( y > 100 ) return 0;
+	if ( y < -100 ) return 1;
+    }
 
     while ( y )
     {
