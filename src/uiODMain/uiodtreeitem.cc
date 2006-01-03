@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.133 2006-01-03 09:02:18 cvsnanne Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.134 2006-01-03 13:00:22 cvshelene Exp $
 ___________________________________________________________________
 
 -*/
@@ -1020,9 +1020,7 @@ void uiODRandomLineTreeItem::createMenuCB( CallBacker* cb )
 	mAddManagedMenuItem(&insertnodemnuitem,new MenuItem(nodename), 
 			     rtd->canAddKnot(idx), false );
     }
-#ifdef __debug__ 
     mAddMenuItem( menu, &usewellsmnuitem, true, false );
-#endif
 }
 
 
