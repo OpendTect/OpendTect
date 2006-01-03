@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.132 2005-12-22 15:55:04 cvshelene Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.133 2006-01-03 09:02:18 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -345,29 +345,21 @@ bool uiODDisplayTreeItem::init()
 
 void uiODDisplayTreeItem::updateColumnText( int col )
 {
-    if ( !col )
+    if ( col==0 )
 	name_ = createDisplayName();
 
     else if ( col==2 )
     {
 	mDynamicCastGet(visSurvey::SurveyObject*,so,
 			visserv->getObject(displayid_))
-
 	if ( !so )
 	{
-	    uiTreeItem::updateColumnText(col);
+	    uiTreeItem::updateColumnText( col );
 	    return;
 	}
 	
 	PtrMan<ioPixmap> pixmap = 0;
-
-	const LineStyle* linestyle = so->lineStyle();
-	if ( linestyle && !so->hasColor() )
-	{
-	    pixmap = new ioPixmap( sPixmapWidth, sPixmapHeight );
-	    pixmap->fill( linestyle->color );
-	}
-	else if ( so->hasColor() )
+	if ( so->hasColor() )
 	{
 	    pixmap = new ioPixmap( sPixmapWidth, sPixmapHeight );
 	    pixmap->fill( so->getColor() );
@@ -375,20 +367,20 @@ void uiODDisplayTreeItem::updateColumnText( int col )
 	else
 	{
 	    int ctid = so->getColTabID();
-	    visBase::DataObject* obj = ctid>=0 ? 
+	    const visBase::DataObject* obj = ctid>=0 ? 
 				       visBase::DM().getObject( ctid ) : 0;
-	    mDynamicCastGet(visBase::VisColorTab*,coltab,obj);
-	    
+	    mDynamicCastGet(const visBase::VisColorTab*,coltab,obj);
 	    if ( coltab )
 	    { 
 		const char* tablename = coltab->colorSeq().colors().name();
 		pixmap = new ioPixmap( tablename, sPixmapWidth, sPixmapHeight );
 	    }
 	}
-	uilistviewitem->setPixmap( 2, *pixmap );
+
+	if ( pixmap ) uilistviewitem->setPixmap( 2, *pixmap );
     }
-    
-    uiTreeItem::updateColumnText(col);
+
+    uiTreeItem::updateColumnText( col );
 }
 
 
@@ -1288,12 +1280,11 @@ bool uiODWellParentTreeItem::showSubMenu()
 	wd->setupPicking();
 	BufferString name;
 	Color color;
-	if ( !applMgr()->wellServer()->setupNewWell( name, color ) ) 
+	if ( !applMgr()->wellServer()->setupNewWell(name,color) )
 	    return false;
-	LineStyle linestyle( (LineStyle::Type)1, 1, color );
-	wd->setLineStyle( linestyle );
+	wd->setLineStyle( LineStyle(LineStyle::Solid,1,color) );
+	wd->setName( name );
 	visserv->addObject( wd, sceneID(), true );
-	visserv->setObjectName( wd->id(), name.buf() );
 	addChild( new uiODWellTreeItem(wd->id()) );
     }
     else if ( mnuid == 2 || mnuid == 3 )
