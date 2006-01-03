@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viswelldisplay.h,v 1.31 2005-12-27 14:02:10 cvsnanne Exp $
+ RCS:		$Id: viswelldisplay.h,v 1.32 2006-01-03 09:09:31 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -54,6 +54,7 @@ public:
     void			setLineStyle(const LineStyle&);
 
     bool			hasColor() const	{ return true; }
+    Color			getColor() const;
 
     void			showWellName(bool);
     bool			wellNameShown() const;
