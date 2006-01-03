@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: volstatsattrib.cc,v 1.14 2005-12-22 14:55:56 cvsnanne Exp $";
+static const char* rcsID = "$Id: volstatsattrib.cc,v 1.15 2006-01-03 13:41:40 cvshelene Exp $";
 
 #include "volstatsattrib.h"
 
@@ -86,16 +86,20 @@ Provider* VolStats::createInstance( Desc& ds )
 
 void VolStats::updateDesc( Desc& desc )
 {
-    if ( desc.nrInputs() == 1 )
+    const bool issteer = desc.getValParam(steeringStr())->getBoolValue();
+    const int nrvolumes = desc.getValParam(nrvolumesStr())->getIntValue();
+    int nrneeded = issteer ? nrvolumes +1 : nrvolumes;
+    if ( desc.nrInputs() != nrneeded )
     {
-	const int nrvolumes = desc.getValParam(nrvolumesStr())->getIntValue();
-	for ( int idx=1; idx<nrvolumes; idx++ )
+	for ( int idx=desc.nrInputs(); idx>0; idx-- )
+	    desc.removeInput(idx-1);
+	
+	for ( int idx=0; idx<nrvolumes; idx++ )
 	{
 	    BufferString str = "inputdata vol"; str += (idx+1);
 	    desc.addInput( InputSpec(str.buf(),true) );
 	}
 	
-	const bool issteer = desc.getValParam(steeringStr())->getBoolValue();
 	if ( issteer )
 	{
 	    InputSpec steeringspec( "Steering data", true );
