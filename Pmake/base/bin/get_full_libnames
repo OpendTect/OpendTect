@@ -1,7 +1,7 @@
 #!/bin/csh
 #__Pmake________________________________________________________________________
 #
-# $Id: get_full_libnames,v 1.5 2006-01-02 09:33:06 cvsdgb Exp $
+# $Id: get_full_libnames,v 1.6 2006-01-04 17:24:45 cvsdgb Exp $
 # This script returns the full libname for a given link directive
 #_______________________________________________________________________________
 
@@ -32,8 +32,7 @@ foreach inp ( $* )
 
     else
 
-	set isminl=`echo $libnm | \
-		awk '{ printf( "%s", substr($1,1,2) == "-l" ? "1" : "0" ); }'`
+	set isminl=`echo $libnm | awk '{ printf( "%s", substr($1,1,2) == "-l" ? "1" : "0" ); }'`
 
 	if ( $isminl == 1 ) then
 
