@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: shiftattrib.cc,v 1.13 2005-10-06 10:03:45 cvshelene Exp $";
+static const char* rcsID = "$Id: shiftattrib.cc,v 1.14 2006-01-04 09:45:25 cvshelene Exp $";
 
 #include "shiftattrib.h"
 #include "attribdataholder.h"
@@ -81,7 +81,12 @@ Shift::Shift( Desc& desc_ )
     if ( steering ) 
 	time = mMAX(stepout.inl*inldist(), stepout.crl*crldist())*mMAXDIP;
     
-    interval = Interval<float>(-time/zFactor(), time/zFactor());
+    if ( steering )
+	interval = Interval<float>(-time/zFactor(), time/zFactor());
+    else if ( time > 0 )
+	interval = Interval<float>( 0 , time/zFactor() );
+    else
+	interval = Interval<float>( time/zFactor() , 0 );
 }
 
 
@@ -162,7 +167,7 @@ const BinID* Shift::reqStepout( int inp, int out ) const
 { return inp==1 ? 0 : &stepout; }
 
 
-const Interval<float>* Shift::desZMargin( int inp, int ) const
+const Interval<float>* Shift::reqZMargin( int inp, int ) const
 { return inp==1 ? 0 : &interval; }
 
 }; // namespace Attrib
