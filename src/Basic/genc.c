@@ -5,7 +5,7 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID = "$Id: genc.c,v 1.75 2006-01-02 14:30:26 cvsdgb Exp $";
+static const char* rcsID = "$Id: genc.c,v 1.76 2006-01-04 18:08:44 cvsdgb Exp $";
 
 #include "oddirs.h"
 #include "genc.h"
@@ -618,11 +618,7 @@ void SwapBytes( void* p, int n )
 
 void PutIsLittleEndian( unsigned char* ptr )
 {
-#if defined(__sun__) || defined(__sgi__)
-    *ptr = 0;
-#else
-    *ptr = 1;
-#endif
+    *ptr = __islittle__ ? 1 : 0;
 }
 
 #ifdef __msvc__
