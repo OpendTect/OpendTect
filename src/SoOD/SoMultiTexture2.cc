@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2005
- RCS:           $Id: SoMultiTexture2.cc,v 1.1 2005-12-16 17:57:43 cvskris Exp $
+ RCS:           $Id: SoMultiTexture2.cc,v 1.2 2006-01-04 21:45:03 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,7 +31,277 @@ ________________________________________________________________________
 #include <Inventor/nodes/SoTexture2.h>
 #include <Inventor/sensors/SoFieldSensor.h>
 #include <Inventor/threads/SbMutex.h>
+#include <Inventor/threads/SbThread.h>
+#include <Inventor/threads/SbCondVar.h>
 #include <Inventor/C/glue/gl.h>
+
+
+class SoMultiTextureProcessor
+{
+public:
+    				SoMultiTextureProcessor( const SoMultiTexture2&,
+					     unsigned char* res,
+					     int nc, int sz,
+					     const unsigned char* coltab,
+				       	     int coltabnc );
+				~SoMultiTextureProcessor();
+
+    bool			prepare( int idx );
+    bool			process();
+
+protected:
+    bool			process( int start, int stop );
+    static void*		threadFunc( void* data );
+
+    const SoMultiTexture2&	texture;
+    unsigned char*		res;
+    const unsigned char*	coltab;
+    int				coltabnc;
+    int				nc;
+    int				sz;
+
+    SbVec2s			lsz;
+    int				lnc;
+    const unsigned char*	bytes;
+    int				coltabstart;
+
+    int				numcolors;
+
+    SoMultiTexture2::Operator	oper;
+    bool			mask[4];
+
+    int				threadstart;
+    int				threadstop;
+    SbMutex			threadrangemutex;
+
+    SbList<SbThread*>		threads;
+
+    SbMutex			threadmutex;
+    SbCondVar			threadcondvar;
+    SbList<bool>		startthread;
+    int				threadfinishcount;
+    bool			terminatethreads;
+};
+
+
+SoMultiTextureProcessor::SoMultiTextureProcessor( const SoMultiTexture2& mt,
+		  unsigned char* r, int c, int s, const unsigned char* ctab,
+		  int ctabnc )
+    : res( r )
+    , nc( c )
+    , sz( s )
+    , texture( mt )
+    , terminatethreads( false )
+    , coltab( ctab )
+    , coltabnc( ctabnc )
+    , coltabstart( 0 )
+{
+    const int nrthreads = 4;
+    const int idealnrperthread = sz/nrthreads;
+    const int nrperthread = idealnrperthread<1000 ? 1000 : idealnrperthread;
+
+    threadstart = 0;
+    for ( int idx=0; idx<nrthreads; idx++ )
+    {
+	if ( threadstart>=sz )
+	    break;
+
+	if ( idx==nrthreads-1 )
+	    threadstop = sz-1;
+	else
+	{
+	    threadstop = threadstart+nrperthread-1;
+	    if ( threadstop>=sz ) threadstop=sz-1;
+	}
+
+	startthread.append( false );
+
+	threadrangemutex.lock();
+	SbThread* thread = SbThread::create( threadFunc, this );
+
+	threadrangemutex.lock();
+	threads.append( thread );
+	threadstart = threadstop+1;
+	threadrangemutex.unlock();
+    }
+}
+
+
+SoMultiTextureProcessor::~SoMultiTextureProcessor()
+{
+    threadmutex.lock();
+    terminatethreads = true;
+    threadcondvar.wakeAll();
+    threadmutex.unlock();
+
+    for ( int idx=0; idx<threads.getLength(); idx++ )
+	SbThread::join( threads[idx] );
+}
+
+
+bool SoMultiTextureProcessor::prepare( int idx )
+{
+    bytes = texture.image[idx].getValue(lsz,lnc);
+
+    numcolors = idx>=texture.numcolor.getNum() ? 0 : texture.numcolor[idx];
+
+    oper = idx>=texture.operation.getNum()
+	    ? SoMultiTexture2::BLEND
+	    : (SoMultiTexture2::Operator) texture.operation[idx];
+
+    if ( !idx && oper!=SoMultiTexture2::REPLACE )
+    {
+	static bool didwarn = false;
+	if ( !didwarn )
+	{
+	    SoDebugError::postWarning("SoMultiTexture2::createImage",
+				"Operator != REPLACE is invalid for "
+				"first texture. Using REPLACE." );
+	    didwarn = 1;
+	}
+
+	oper = SoMultiTexture2::REPLACE;
+    }
+
+    const short comp = idx>=texture.component.getNum()
+	    ? SoMultiTexture2::RED | SoMultiTexture2::GREEN |
+	      SoMultiTexture2::BLUE | (nc==4?SoMultiTexture2::OPACITY:0)
+	    : texture.component[idx];
+    mask[0] = comp & (SoMultiTexture2::RED^-1);
+    mask[1] = comp & (SoMultiTexture2::GREEN^-1);
+    mask[2] = comp & (SoMultiTexture2::BLUE^-1);
+    mask[3] = comp & (SoMultiTexture2::OPACITY^-1);
+
+    return true;
+}
+
+
+void* SoMultiTextureProcessor::threadFunc( void* data )
+{
+    SoMultiTextureProcessor* thisp =
+	reinterpret_cast<SoMultiTextureProcessor*>( data );
+
+    const int start = thisp->threadstart;
+    const int stop = thisp->threadstop;
+    const int mythreadnr = thisp->threads.getLength();
+    thisp->threadrangemutex.unlock();
+
+    thisp->threadmutex.lock();
+    while ( true )
+    {
+	if ( !thisp->startthread[mythreadnr] && !thisp->terminatethreads )
+	    thisp->threadcondvar.wait( thisp->threadmutex );
+
+	if ( thisp->startthread[mythreadnr] )
+	{
+	    thisp->threadmutex.unlock();
+	    thisp->process( start, stop );
+	    thisp->startthread[mythreadnr] = false;
+
+	    thisp->threadmutex.lock();
+	    thisp->threadfinishcount--;
+	    if ( !thisp->threadfinishcount )
+		thisp->threadcondvar.wakeAll();
+	    continue;
+	}
+
+	if ( thisp->terminatethreads )
+	{
+	    thisp->threadmutex.unlock();
+	    break;
+	}
+    }
+
+    return 0;
+}
+
+
+bool SoMultiTextureProcessor::process()
+{
+    threadmutex.lock();
+    for ( int idx=startthread.getLength()-1; idx>=0; idx-- )
+	startthread[idx]=true;
+
+    threadfinishcount = startthread.getLength();
+
+    threadcondvar.wakeAll();
+
+    while ( true )
+    {
+	if ( threadfinishcount )
+	    threadcondvar.wait( threadmutex );
+	if ( !threadfinishcount )
+	{
+	    threadmutex.unlock();
+	    break;
+	}
+    }
+
+    coltabstart += numcolors; 
+
+    return true;
+}
+
+
+bool SoMultiTextureProcessor::process( int start, int stop )
+{
+    for ( int idy=start; idy<=stop; idy++ )
+    {
+	unsigned char pixelcolor[4];
+	if ( numcolors )
+	{
+	    int index = bytes[idy];
+	    if ( index>=numcolors ) index=numcolors-1;
+
+	    index += coltabstart;
+	    if ( index>=numcolors ) index=numcolors-1;
+
+	    memcpy( pixelcolor, coltab+(index*coltabnc), coltabnc );
+	    if ( coltabnc==3 ) pixelcolor[3] = 0;
+	}
+	else
+	{
+	    if ( lnc==1 )
+	    {
+		pixelcolor[0] = pixelcolor[1] =
+		pixelcolor[2] = pixelcolor[3] = bytes[idy];
+	    }
+	    else
+	    {
+		if ( lnc==3 )
+		{
+		    memcpy( pixelcolor, bytes+idy*3, 3 );
+		    pixelcolor[3] = 0;
+		}
+		else
+		    memcpy( pixelcolor, bytes+idy*4, 4 );
+	    }
+	}
+
+	unsigned char* oldval = res +idy*nc;
+
+	unsigned char invtrans = pixelcolor[3];
+	unsigned char trans = 255-invtrans;
+
+	for ( int comp=nc-1; comp>=0; comp-- )
+	{
+	    if ( !mask[comp] )
+		continue;
+
+	    if ( oper==SoMultiTexture2::BLEND )
+	    {
+		oldval[comp] = (int)((int)oldval[comp] * trans +
+				     (int)pixelcolor[comp] * invtrans)/255;
+	    }
+	    else if ( oper==SoMultiTexture2::ADD )
+		oldval[comp] = (int)oldval[comp] + pixelcolor[comp] >> 1;
+	    else 
+		oldval[comp] =  pixelcolor[comp];
+	}
+    }
+
+    return true;
+}
 
 
 SO_NODE_SOURCE( SoMultiTexture2 );
@@ -62,9 +332,17 @@ void SoMultiTexture2::initClass()
 
 
 SoMultiTexture2::SoMultiTexture2()
-    : glimagevalid(false)
+    : imagesensor( 0 )
+    , numcolorsensor( 0 )
+    , colorssensor( 0 )
+    , operationsensor( 0 )
+    , componentsensor( 0 )
     , glimagemutex( new SbMutex )
+    , glimagevalid(false)
     , glimage( 0 )
+    , imagedata( 0 )
+    , imagesize( 0, 0 )
+    , imagenc( 0 )
 {
     SO_NODE_CONSTRUCTOR(SoMultiTexture2);
 
@@ -196,35 +474,79 @@ void SoMultiTexture2::GLRender( SoGLRenderAction * action )
 	}
     }
 
-    doAction( action );
+    const int unit = SoTextureUnitElement::get( state );
+    const int maxunits = cc_glglue_max_texture_units( glue );
+    if ( !unit )
+    {
+	SoGLTextureImageElement::set( state, this, glimagevalid ? glimage : 0,
+				      glmodel, SbColor(0,0,0) );
+	SoGLTexture3EnabledElement::set( state, this, false );
+	SoGLTextureEnabledElement::set(state, this, glimagevalid && quality );
+
+	if ( isOverride() )
+	    SoTextureOverrideElement::setImageOverride( state, true );
+    }
+    else if ( unit<maxunits )
+    {
+	SoGLMultiTextureImageElement::set( state, this, unit,
+					   glimagevalid ? glimage : 0,
+					   glmodel, SbColor(0,0,0));
+
+	SoGLMultiTextureEnabledElement::set( state, this, unit,
+					     glimagevalid && quality );
+    }
 }
 
 
 void SoMultiTexture2::doAction( SoAction* action )
 {
     SoState * state = action->getState();
-    const cc_glglue* glue =
-			cc_glglue_instance(SoGLCacheContextElement::get(state));
-    const float quality = SoTextureQualityElement::get(state);
 
     const int unit = SoTextureUnitElement::get(state);
-    const int maxunits = cc_glglue_max_texture_units(glue);
+    if ( !unit && SoTextureOverrideElement::getImageOverride(state) )
+	return;
+
     if ( !unit )
     {
-	SoTextureImageElement::Model glmodel =
-	    (SoTextureImageElement::Model) model.getValue();
-	SoGLTextureImageElement::set( state, this, glimagevalid ? glimage : 0,
-				      glmodel, blendColor.getValue() );
-	SoGLTexture3EnabledElement::set(state, this, FALSE);
-	SoGLTextureEnabledElement::set(state, this, glimagevalid && quality>0 );
+	SoTexture3EnabledElement::set(state, this, false );
+	if ( imagesize[0] && imagesize[1] )
+	{
+	    SoTextureImageElement::set( state, this, imagesize, imagenc,
+		    imagedata,
+		    (SoTextureImageElement::Wrap) wrapT.getValue(),
+		    (SoTextureImageElement::Wrap) wrapS.getValue(),
+		    (SoTextureImageElement::Model) model.getValue(),
+		    SbColor(0,0,0) );
+	    SoTextureEnabledElement::set(state, this, TRUE);
+	}
+	else
+	{
+	    SoTextureImageElement::setDefault(state, this);
+	    SoTextureEnabledElement::set(state, this, false );
+	}
 
 	if ( isOverride() )
+	{
 	    SoTextureOverrideElement::setImageOverride(state, TRUE);
+	}
     }
-    else if ( unit<maxunits )
+    else
     {
-	 SoGLMultiTextureEnabledElement::set( state, this, unit,
-		 			      glimagevalid && quality>0 );
+	if ( imagesize[0] && imagesize[1] )
+	{
+	    SoMultiTextureImageElement::set( state, this, unit, imagesize,
+		imagenc, imagedata,
+		(SoTextureImageElement::Wrap) wrapT.getValue(),
+		(SoTextureImageElement::Wrap) wrapS.getValue(),
+		(SoTextureImageElement::Model) model.getValue(),
+		SbColor( 0, 0, 0 ) );
+	    SoMultiTextureEnabledElement::set( state, this, unit, TRUE);
+	}
+	else
+	{
+	    SoMultiTextureImageElement::setDefault( state, this, unit);
+	    SoMultiTextureEnabledElement::set( state, this, unit, false );
+	}
     }
 }
 
@@ -319,92 +641,13 @@ const unsigned char* SoMultiTexture2::createImage( SbVec2s& size, int& nc) const
     unsigned char* res = new unsigned char[nrpixels*nc];
     memset( res, 255, nrpixels*nc );
 
+    SoMultiTextureProcessor processor( *this, res, nc, nrpixels, coltab,
+	    			       coltabnc );
+
     for ( int idx=0; idx<numimages; idx++ )
     {
-	SbVec2s lsz; int lnc;
-	const unsigned char* bytes = image[idx].getValue(lsz,lnc);
-
-	const int numcolors = idx>=numcolor.getNum() ? 0 : numcolor[idx];
-	const bool iscoltab = numcolors>0;
-
-	Operator oper = idx>=operation.getNum()
-	    ? BLEND : (Operator) operation[idx];
-
-	if ( !idx && oper!=REPLACE )
-	{
-	    static bool didwarn = false;
-	    if ( !didwarn )
-	    {
-		SoDebugError::postWarning("SoMultiTexture2::createImage",
-				"Operator != REPLACE is invalid for "
-				"first texture. Using REPLACE." );
-		didwarn = 1;
-	    }
-
-	    oper = REPLACE;
-	}
-
-	const short comp = idx>=component.getNum()
-	    ? RED | GREEN | BLUE | (nc==4?OPACITY:0)
-	    : component[idx];
-	const bool mask[] =
-		{ comp & (RED^-1), comp & (GREEN^-1),
-		  comp & (BLUE^-1), comp & (OPACITY^-1) };
-
-	for ( int idy=0; idy<nrpixels; idy++ )
-	{
-	    unsigned char pixelcolor[4];
-	    if ( iscoltab )
-	    {
-		int index = bytes[idy];
-		if ( index>=numcolors ) index=numcolors-1;
-
-		index += coltabstart;
-		if ( index+coltabstart>=nrcolors ) index=nrcolors-1;
-
-		memcpy( pixelcolor, coltab+(index*coltabnc), coltabnc );
-		if ( coltabnc==3 ) pixelcolor[3] = 0;
-	    }
-	    else
-	    {
-		if ( lnc==1 )
-		{
-		    pixelcolor[0] = pixelcolor[1] =
-	            pixelcolor[2] = pixelcolor[3] = bytes[idy];
-		}
-		else
-		{
-		    if ( lnc==3 )
-		    {
-			memcpy( pixelcolor, bytes+idy*3, 3 );
-			pixelcolor[3] = 0;
-		    }
-		    else
-			memcpy( pixelcolor, bytes+idy*4, 4 );
-		}
-	    }
-
-	    unsigned char* oldval = res +idy*nc;
-
-	    unsigned char invtrans = pixelcolor[3];
-	    unsigned char trans = 255-invtrans;
-
-	    for ( int comp=nc-1; comp>=0; comp-- )
-	    {
-		if ( !mask[comp] )
-		    continue;
-
-		if ( oper==BLEND )
-		{
-		    oldval[comp] = (int)((int)oldval[comp] * trans +
-				         (int)pixelcolor[comp] * invtrans)/255;
-		}
-		else if ( oper==ADD )
-		    oldval[comp] = (int)oldval[comp] + pixelcolor[comp] >> 1;
-		else 
-		    oldval[comp] =  pixelcolor[comp];
-	    }
-	}
+	processor.prepare( idx );
+	processor.process();
     }
 
     return res;
