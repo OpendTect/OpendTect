@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Payraudeau
  Date:          July 2005
- RCS:		$Id: uireferenceattrib.cc,v 1.5 2005-11-03 12:11:44 cvshelene Exp $
+ RCS:		$Id: uireferenceattrib.cc,v 1.6 2006-01-04 09:54:28 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -76,10 +76,7 @@ void uiReferenceAttrib::set2D( bool yn )
 
 bool uiReferenceAttrib::setParameters( const Attrib::Desc& desc )
 {
-    if ( strcmp(desc.attribName(),Reference::attribName()) )
-	return false;
-
-    return true;
+    return !strcmp(desc.attribName(),Reference::attribName());
 }
 
 
@@ -109,8 +106,7 @@ bool uiReferenceAttrib::getOutput( Desc& desc )
 
 bool uiReferenceAttrib::getParameters( Attrib::Desc& desc )
 {
-    mSetBool( Reference::is2DStr(), is2d_ );
-    return true;
+    return !strcmp(desc.attribName(),Reference::attribName());
 }
 
 

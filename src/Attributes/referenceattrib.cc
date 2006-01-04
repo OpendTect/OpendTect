@@ -4,13 +4,14 @@
  * DATE     : July 2005
 -*/
 
-static const char* rcsID = "$Id: referenceattrib.cc,v 1.14 2005-12-23 16:09:46 cvsnanne Exp $";
+static const char* rcsID = "$Id: referenceattrib.cc,v 1.15 2006-01-04 09:54:28 cvsnanne Exp $";
 
 
 #include "referenceattrib.h"
 
 #include "attribdataholder.h"
 #include "attribdesc.h"
+#include "attribdescset.h"
 #include "attribfactory.h"
 #include "attribparam.h"
 #include "cubesampling.h"
@@ -25,11 +26,6 @@ void Reference::initClass()
 {
     Desc* desc = new Desc( attribName(), updateDesc );
     desc->ref();
-
-    BoolParam* is2d_ = new BoolParam( is2DStr() );
-    is2d_->setDefaultValue(false);
-    is2d_->setRequired(false);
-    desc->addParam( is2d_ );
 
     desc->addInput( InputSpec("Input Data",true) );
     desc->init();
@@ -54,13 +50,10 @@ Provider* Reference::createInstance( Desc& ds )
 }
 
 
-void Reference::updateDesc( Desc& desc )
+void Reference::updateDesc( Desc& ds )
 {
-    const bool is2Dsurvey = desc.getValParam( is2DStr() )->getBoolValue();
-    if ( !is2Dsurvey )
-	desc.setNrOutputs( Seis::UnknowData, 9 );
-    else
-	desc.setNrOutputs( Seis::UnknowData, 7 );
+    const bool is2d = ds.descSet() ? ds.descSet()->is2D() : false;
+    ds.setNrOutputs( Seis::UnknowData, is2d ? 7 : 9 );
 }
 
 
@@ -69,7 +62,7 @@ Reference::Reference( Desc& ds )
 {
     if ( !isOK() ) return;
     
-    mGetBool( is2d_, is2DStr() );
+    is2d_ = ds.descSet() ? ds.descSet()->is2D() : false;
 }
 
 
