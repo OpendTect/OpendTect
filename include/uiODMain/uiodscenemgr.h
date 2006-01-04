@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.h,v 1.25 2005-10-19 21:47:57 cvskris Exp $
+ RCS:           $Id: uiodscenemgr.h,v 1.26 2006-01-04 09:49:34 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -60,6 +60,8 @@ public:
     int			getStereoType() const;
 
     void		tile();
+    void		tileHorizontal();
+    void		tileVertical();
     void		cascade();
     void		layoutScenes();
 

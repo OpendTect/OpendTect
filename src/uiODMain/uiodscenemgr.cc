@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.50 2005-11-28 14:19:02 cvsnanne Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.51 2006-01-04 09:49:34 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -195,7 +195,7 @@ void uiODSceneMgr::removeScene( CallBacker* cb )
     visServ().removeScene( scene->itemmanager->sceneID() );
     appl.removeDockWindow( scene->treeWin() );
 
-    scene->vwrGroup()->mainObject()->closed.remove(mWSMCB(removeScene));
+    scene->vwrGroup()->mainObject()->closed.remove( mWSMCB(removeScene) );
     scenes -= scene;
     delete scene;
 }
@@ -360,10 +360,10 @@ void uiODSceneMgr::setStereoType( int type )
 }
 
 
-void uiODSceneMgr::tile()
-{ wsp->tile(); }
-void uiODSceneMgr::cascade()
-{ wsp->cascade(); }
+void uiODSceneMgr::tile()		{ wsp->tile(); }
+void uiODSceneMgr::tileHorizontal()	{ wsp->tileHorizontal(); }
+void uiODSceneMgr::tileVertical()	{ wsp->tileVertical(); }
+void uiODSceneMgr::cascade()		{ wsp->cascade(); }
 
 
 void uiODSceneMgr::layoutScenes()

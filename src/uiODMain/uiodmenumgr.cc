@@ -4,12 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.cc,v 1.40 2005-12-22 15:57:48 cvshelene Exp $
+ RCS:           $Id: uiodmenumgr.cc,v 1.41 2006-01-04 09:49:34 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.40 2005-12-22 15:57:48 cvshelene Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.41 2006-01-04 09:49:34 cvsnanne Exp $";
 
 #include "uiodmenumgr.h"
 #include "uiodapplmgr.h"
@@ -240,7 +240,12 @@ void uiODMenuMgr::fillWinMenu()
 {
     mInsertItem( winmnu, "&New", mAddSceneMnuItm );
     mInsertItem( winmnu, "&Cascade", mCascadeMnuItm );
-    mInsertItem( winmnu, "&Tile", mTileMnuItm );
+    uiPopupMenu* tileitm = new uiPopupMenu( &appl, "&Tile" );
+    winmnu->insertItem( tileitm );
+
+    mInsertItem( tileitm, "&Auto", mTileAutoMnuItm );
+    mInsertItem( tileitm, "&Horizontal", mTileHorMnuItm );
+    mInsertItem( tileitm, "&Vertical", mTileVerMnuItm );
 }
 
 
@@ -395,7 +400,9 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mAddSceneMnuItm:	sceneMgr().tile(); // leave this, or --> crash!
 				sceneMgr().addScene(); break;
     case mCascadeMnuItm: 	sceneMgr().cascade(); break;
-    case mTileMnuItm: 		sceneMgr().tile(); break;
+    case mTileAutoMnuItm: 	sceneMgr().tile(); break;
+    case mTileHorMnuItm: 	sceneMgr().tileHorizontal(); break;
+    case mTileVerMnuItm: 	sceneMgr().tileVertical(); break;
     case mWorkAreaMnuItm: 	applMgr().setWorkingArea(); break;
     case mZScaleMnuItm: 	applMgr().setZScale(); break;
     case mBatchProgMnuItm: 	applMgr().batchProgs(); break;
