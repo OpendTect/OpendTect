@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2005
- RCS:           $Id: SoMultiTexture2.cc,v 1.2 2006-01-04 21:45:03 cvskris Exp $
+ RCS:           $Id: SoMultiTexture2.cc,v 1.3 2006-01-05 15:47:19 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,7 +43,7 @@ public:
 					     unsigned char* res,
 					     int nc, int sz,
 					     const unsigned char* coltab,
-				       	     int coltabnc );
+				       	     int coltabnc, int nrthreads );
 				~SoMultiTextureProcessor();
 
     bool			prepare( int idx );
@@ -86,7 +86,7 @@ protected:
 
 SoMultiTextureProcessor::SoMultiTextureProcessor( const SoMultiTexture2& mt,
 		  unsigned char* r, int c, int s, const unsigned char* ctab,
-		  int ctabnc )
+		  int ctabnc, int nrthreads )
     : res( r )
     , nc( c )
     , sz( s )
@@ -96,7 +96,9 @@ SoMultiTextureProcessor::SoMultiTextureProcessor( const SoMultiTexture2& mt,
     , coltabnc( ctabnc )
     , coltabstart( 0 )
 {
-    const int nrthreads = 4;
+    if ( nrthreads<2 )
+	return;
+
     const int idealnrperthread = sz/nrthreads;
     const int nrperthread = idealnrperthread<1000 ? 1000 : idealnrperthread;
 
@@ -135,7 +137,7 @@ SoMultiTextureProcessor::~SoMultiTextureProcessor()
     threadmutex.unlock();
 
     for ( int idx=0; idx<threads.getLength(); idx++ )
-	SbThread::join( threads[idx] );
+	SbThread::destroy( threads[idx] );
 }
 
 
@@ -218,11 +220,15 @@ void* SoMultiTextureProcessor::threadFunc( void* data )
 
 bool SoMultiTextureProcessor::process()
 {
+    const int nrthreads = startthread.getLength();
+    if ( !nrthreads )
+	return process( 0, sz-1 );
+
     threadmutex.lock();
-    for ( int idx=startthread.getLength()-1; idx>=0; idx-- )
+    for ( int idx=nrthreads-1; idx>=0; idx-- )
 	startthread[idx]=true;
 
-    threadfinishcount = startthread.getLength();
+    threadfinishcount = nrthreads;
 
     threadcondvar.wakeAll();
 
@@ -343,6 +349,8 @@ SoMultiTexture2::SoMultiTexture2()
     , imagedata( 0 )
     , imagesize( 0, 0 )
     , imagenc( 0 )
+    , nrthreads( 1 )
+    , findnrthreadstatus( NotInit )
 {
     SO_NODE_CONSTRUCTOR(SoMultiTexture2);
 
@@ -577,7 +585,7 @@ if ( cond ) \
 }
 
 
-const unsigned char* SoMultiTexture2::createImage( SbVec2s& size, int& nc) const
+const unsigned char* SoMultiTexture2::createImage( SbVec2s& size, int& nc )
 {
     const int numimages = image.getNum();
     if ( !numimages )
@@ -641,13 +649,31 @@ const unsigned char* SoMultiTexture2::createImage( SbVec2s& size, int& nc) const
     unsigned char* res = new unsigned char[nrpixels*nc];
     memset( res, 255, nrpixels*nc );
 
+    const SbTime starttime = SbTime::getTimeOfDay();
     SoMultiTextureProcessor processor( *this, res, nc, nrpixels, coltab,
-	    			       coltabnc );
+	    			       coltabnc, nrthreads );
 
     for ( int idx=0; idx<numimages; idx++ )
     {
 	processor.prepare( idx );
 	processor.process();
+    }
+
+    if ( findnrthreadstatus==Settled )
+	return res;
+
+    SbTime spenttime = SbTime::getTimeOfDay()-starttime;
+    spenttime /= (nrpixels*numimages);
+    if ( findnrthreadstatus==NotInit || spenttime<prevtime )
+    {
+	nrthreads++;
+	prevtime = spenttime;
+	findnrthreadstatus = Testing;
+    }
+    else
+    {
+	findnrthreadstatus = Settled;
+	nrthreads--;
     }
 
     return res;

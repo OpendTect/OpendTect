@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		Dec 2005
- RCS:		$Id: SoMultiTexture2.h,v 1.1 2005-12-16 17:57:43 cvskris Exp $
+ RCS:		$Id: SoMultiTexture2.h,v 1.2 2006-01-05 15:47:17 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include <Inventor/fields/SoSFImage.h>
 #include <Inventor/fields/SoMFEnum.h>
 #include <Inventor/fields/SoMFShort.h>
+#include <Inventor/SbTime.h>
 
 
 #include "SoMFImage.h"
@@ -91,7 +92,7 @@ public:
 protected:
     void		doAction( SoAction* );
     			~SoMultiTexture2();
-    const unsigned char* createImage( SbVec2s&, int & ) const;
+    const unsigned char* createImage( SbVec2s&, int & );
     static void		imageChangeCB( void*, SoSensor* );
     static bool		findTransperancy( const unsigned char* colors, int ncol,
 	    				  int nc, const unsigned char* idxs=0,
@@ -113,6 +114,14 @@ protected:
     const unsigned char* imagedata;
     SbVec2s		imagesize;
     int			imagenc;
+
+    			/*!Time spent creating the image last time with
+			   nrthreads-1. */
+    SbTime		prevtime;
+    			/*!Nr threads to use at next createImage. */
+    int			nrthreads;
+    enum FindNrThreadStatus { NotInit, Testing, Settled };
+    FindNrThreadStatus	findnrthreadstatus;
 };
 
 
