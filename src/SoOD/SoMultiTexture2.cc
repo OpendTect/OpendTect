@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2005
- RCS:           $Id: SoMultiTexture2.cc,v 1.3 2006-01-05 15:47:19 cvskris Exp $
+ RCS:           $Id: SoMultiTexture2.cc,v 1.4 2006-01-05 16:39:42 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -136,8 +136,10 @@ SoMultiTextureProcessor::~SoMultiTextureProcessor()
     threadcondvar.wakeAll();
     threadmutex.unlock();
 
+    /* Cannot destroy since mutex is deleted when function goes out of scope,
+       and the threads need the mutex when exiting. */
     for ( int idx=0; idx<threads.getLength(); idx++ )
-	SbThread::destroy( threads[idx] );
+	SbThread::join( threads[idx] ); 
 }
 
 
