@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: cbvswriter.cc,v 1.47 2005-08-26 18:19:28 cvsbert Exp $";
+static const char* rcsID = "$Id: cbvswriter.cc,v 1.48 2006-01-06 13:28:30 cvsbert Exp $";
 
 #include "cbvswriter.h"
 #include "cubesampling.h"
@@ -229,13 +229,13 @@ void CBVSWriter::newSeg( bool newinl )
     {
 	if ( goodgeom && inldata_.size() )
 	    newstep = inldata_[inldata_.size()-1]->segments[0].step;
-	inldata_ += new PosInfo::InlData( curbinid_.inl );
+	inldata_ += new PosInfo::LineData( curbinid_.inl );
     }
     else if ( goodgeom )
 	newstep = inldata_[inldata_.size()-1]->segments[0].step;
 
     inldata_[inldata_.size()-1]->segments +=
-	PosInfo::InlData::Segment(curbinid_.crl,curbinid_.crl, newstep);
+	PosInfo::LineData::Segment(curbinid_.crl,curbinid_.crl, newstep);
 }
 
 
@@ -257,8 +257,8 @@ void CBVSWriter::getBinID()
 	    newSeg( true );
 	else
 	{
-	    PosInfo::InlData& inlinf = *inldata_[inldata_.size()-1];
-	    PosInfo::InlData::Segment& seg =
+	    PosInfo::LineData& inlinf = *inldata_[inldata_.size()-1];
+	    PosInfo::LineData::Segment& seg =
 				inlinf.segments[inlinf.segments.size()-1];
 	    if ( !forcedlinestep_.crl && seg.stop == seg.start )
 	    {
@@ -291,7 +291,7 @@ int CBVSWriter::put( void** cdat, int offs )
     if ( prevbinid_.inl != curbinid_.inl )
     {
 	// getBinID() has added a new segment, so remove it from list ...
-	PosInfo::InlData* newinldat = inldata_[inldata_.size()-1];
+	PosInfo::LineData* newinldat = inldata_[inldata_.size()-1];
 	inldata_.remove( inldata_.size()-1 );
 	if ( file_lastinl_ )
 	{
@@ -420,7 +420,7 @@ void CBVSWriter::getRealGeometry()
 	survgeom_.step.crl = SI().crlStep();
     if ( !inldata_.haveInlStepInfo() )
 	survgeom_.step.inl = SI().inlStep();
-    else if ( inldata_[0]->inl > inldata_[1]->inl )
+    else if ( inldata_[0]->linenr > inldata_[1]->linenr )
 	survgeom_.step.inl = -survgeom_.step.inl;
 
     if ( survgeom_.fullyrectandreg )
@@ -452,14 +452,14 @@ bool CBVSWriter::writeTrailer()
 	strm_.write( (const char*)&nrinl, integersize );
 	for ( int iinl=0; iinl<nrinl; iinl++ )
 	{
-	    PosInfo::InlData& inlinf = *inldata_[iinl];
-	    strm_.write( (const char*)&inlinf.inl, integersize );
+	    PosInfo::LineData& inlinf = *inldata_[iinl];
+	    strm_.write( (const char*)&inlinf.linenr, integersize );
 	    const int nrcrl = inlinf.segments.size();
 	    strm_.write( (const char*)&nrcrl, integersize );
 
 	    for ( int icrl=0; icrl<nrcrl; icrl++ )
 	    {
-		PosInfo::InlData::Segment& seg = inlinf.segments[icrl];
+		PosInfo::LineData::Segment& seg = inlinf.segments[icrl];
 		strm_.write( (const char*)&seg.start, integersize );
 		strm_.write( (const char*)&seg.stop, integersize );
 		strm_.write( (const char*)&seg.step, integersize );
