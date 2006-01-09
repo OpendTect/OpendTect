@@ -2,10 +2,10 @@
  * COPYRIGHT: (C) de Groot-Bril Earth Sciences B.V.
  * AUTHOR   : A.H. Bril
  * DATE     : 2000
- * RCS      : $Id: od_cbvs_browse.cc,v 1.24 2005-08-26 18:19:27 cvsbert Exp $
+ * RCS      : $Id: od_cbvs_browse.cc,v 1.25 2006-01-09 10:25:44 cvsbert Exp $
 -*/
 
-static const char* rcsID = "$Id: od_cbvs_browse.cc,v 1.24 2005-08-26 18:19:27 cvsbert Exp $";
+static const char* rcsID = "$Id: od_cbvs_browse.cc,v 1.25 2006-01-09 10:25:44 cvsbert Exp $";
 
 #include "seistrc.h"
 #include "seiscbvs.h"
@@ -108,7 +108,7 @@ int main( int argc, char** argv )
 	}
 	else
 	{
-	    const PosInfo::InlData* inlinf = info.geom.getInfoFor( bid.inl );
+	    const PosInfo::LineData* inlinf = info.geom.getInfoFor( bid.inl );
 	    if ( !inlinf )
 	    {
 		std::cerr << "This inline is not present in the cube"

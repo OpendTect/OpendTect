@@ -4,7 +4,7 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID = "$Id: seiscbvsps.cc,v 1.11 2005-05-18 09:20:45 cvsbert Exp $";
+static const char* rcsID = "$Id: seiscbvsps.cc,v 1.12 2006-01-09 10:25:03 cvsbert Exp $";
 
 #include "seiscbvsps.h"
 #include "seispsioprov.h"
@@ -98,12 +98,12 @@ void SeisCBVSPSReader::addInl( int inl )
 {
     if ( !mkTr(inl) ) return;
 
-    PosInfo::InlData* newid = new PosInfo::InlData( inl );
+    PosInfo::LineData* newid = new PosInfo::LineData( inl );
     const CBVSInfo::SurvGeom& sg = curtr_->readMgr()->info().geom;
 
     if ( sg.fullyrectandreg )
 
-	newid->segments += PosInfo::InlData::Segment( sg.start.inl,
+	newid->segments += PosInfo::LineData::Segment( sg.start.inl,
 					sg.stop.inl, sg.step.inl );
     else
     {
@@ -111,20 +111,20 @@ void SeisCBVSPSReader::addInl( int inl )
 	if ( cd.size() < 1 )
 	    { pErrMsg("Huh? should get error earlier"); delete newid; return; }
 
-	PosInfo::InlData::Segment seg( cd[0]->inl, cd[0]->inl, 1 );
+	PosInfo::LineData::Segment seg( cd[0]->linenr, cd[0]->linenr, 1 );
 	if ( cd.size() > 1 )
 	{
-	    seg.stop = cd[1]->inl;
+	    seg.stop = cd[1]->linenr;
 	    seg.step = seg.stop - seg.start;
 	    for ( int idx=2; idx<cd.size(); idx++ )
 	    {
-		const PosInfo::InlData& id = *cd[idx];
+		const PosInfo::LineData& id = *cd[idx];
 		if ( seg.stop == seg.start )
-		    { seg.stop = id.inl; seg.step = seg.stop - seg.start; }
-		else if ( id.inl != cd[idx-1]->inl + seg.step )
+		    { seg.stop = id.linenr; seg.step = seg.stop - seg.start; }
+		else if ( id.linenr != cd[idx-1]->linenr + seg.step )
 		{
 		    newid->segments += seg;
-		    seg.start = seg.stop = id.inl;
+		    seg.start = seg.stop = id.linenr;
 		}
 	    }
 	    newid->segments += seg;
