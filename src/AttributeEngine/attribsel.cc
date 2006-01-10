@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: attribsel.cc,v 1.7 2005-10-06 20:31:04 cvskris Exp $
+ RCS:           $Id: attribsel.cc,v 1.8 2006-01-10 15:46:16 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -108,6 +108,12 @@ void SelSpec::setIDFromRef( const DescSet& ds )
 {
     isnla_ = false;
     id_ = ds.getID( ref_, true );
+    BufferString attribname;
+    if ( Desc::getAttribName( defstring_.buf(), attribname ) )
+    {
+	if ( strcmp( attribname, ds.getDesc(id_)->attribName() ) )
+	    id_ = ds.getID( defstring_, false );
+    }
     setDiscr( ds );
 }
 
