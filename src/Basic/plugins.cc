@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: plugins.cc,v 1.37 2005-08-26 18:19:28 cvsbert Exp $";
+static const char* rcsID = "$Id: plugins.cc,v 1.38 2006-01-10 15:24:56 cvsbert Exp $";
 
 #include "plugins.h"
 #include "filepath.h"
@@ -41,6 +41,7 @@ static const char* getHDir()
     return "win";
 #else
     const char* ret = GetEnvVar( "binsubdir" );
+    if ( !ret || !*ret ) ret = GetEnvVar( "PLFSUBDIR" );
     return ret ? ret : GetEnvVar( "HDIR" );
 #endif
 }
