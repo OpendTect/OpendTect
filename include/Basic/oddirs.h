@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Aug 2005
- RCS:		$Id: oddirs.h,v 1.2 2005-10-07 10:06:32 cvsnanne Exp $
+ RCS:		$Id: oddirs.h,v 1.3 2006-01-10 15:45:41 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -47,6 +47,12 @@ extern "C" {
 */
 const char*	GetSoftwareDir(void);
 
+/*! Platform subdirectory for platforms
+
+  Tries PLFSUBDIR, if not set: binsubdir, if not set: HDIR
+ 
+ */
+const char*	GetPlfSubDir(void);
 
 /*! Location of binaries on local platform
 

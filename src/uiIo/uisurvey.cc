@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvey.cc,v 1.67 2005-12-30 09:40:49 cvsnanne Exp $
+ RCS:           $Id: uisurvey.cc,v 1.68 2006-01-10 15:45:41 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -637,13 +637,7 @@ void uiSurvey::updateViewsGlobal()
 
     const char* swdir = GetSoftwareDir();
     BufferString fnm = FilePath( swdir ).add( ".rel.od" ).fullPath();
-#ifdef __win__
-    fnm += ".win";
-#else
-    const char* ptr = GetEnvVar( "binsubdir" );
-    if ( !ptr ) ptr = GetEnvVar( "HDIR" );
-    if ( ptr ) { fnm += "."; fnm += ptr; }
-#endif
+    fnm += "."; fnm += GetPlfSubDir();
     if ( !File_exists(fnm) )
 	fnm = FilePath( swdir ).add( ".rel.od" ).fullPath();
     if ( !File_exists(fnm) )

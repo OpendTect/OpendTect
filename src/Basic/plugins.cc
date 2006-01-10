@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: plugins.cc,v 1.38 2006-01-10 15:24:56 cvsbert Exp $";
+static const char* rcsID = "$Id: plugins.cc,v 1.39 2006-01-10 15:45:41 cvsbert Exp $";
 
 #include "plugins.h"
 #include "filepath.h"
@@ -34,17 +34,6 @@ extern "C" {
     typedef PluginInfo* (*PluginInfoRetFn)(void);
 
 };
-
-static const char* getHDir()
-{
-#ifdef __win__
-    return "win";
-#else
-    const char* ret = GetEnvVar( "binsubdir" );
-    if ( !ret || !*ret ) ret = GetEnvVar( "PLFSUBDIR" );
-    return ret ? ret : GetEnvVar( "HDIR" );
-#endif
-}
 
 
 static BufferString getProgNm( const char* argv0 )
@@ -280,7 +269,7 @@ static const char* getDefDir( bool instdir )
     FilePath fp( dnm );
     if ( !fromenv )
 	fp.add( plugindir );
-    fp.add( getHDir() );
+    fp.add( GetPlfSubDir() );
     dnm = fp.fullPath();
 
     if( DBG::isOn(DBG_SETTINGS) )

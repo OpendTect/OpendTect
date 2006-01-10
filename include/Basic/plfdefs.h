@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Contents:	Defines that encapsulate system things
- RCS:		$Id: plfdefs.h,v 1.16 2006-01-02 14:44:52 cvsbert Exp $
+ RCS:		$Id: plfdefs.h,v 1.17 2006-01-10 15:45:41 cvsbert Exp $
 ________________________________________________________________________
 
 */
@@ -24,6 +24,10 @@ HDIR can be:
 	sgi		SGI IRIX 6.x
 	win		M$ Windows
 	mac		Apple Mac OSX
+
+Also, PLFSUBDIR should be defined. It is identical to HDIR, except for:
+Linux: lux32 or lux64
+Solaris: sol32
 
 Then you get:
 OS type:
