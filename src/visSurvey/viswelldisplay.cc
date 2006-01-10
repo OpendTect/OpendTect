@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: viswelldisplay.cc,v 1.57 2006-01-03 09:09:31 cvsnanne Exp $";
+static const char* rcsID = "$Id: viswelldisplay.cc,v 1.58 2006-01-10 13:17:07 cvshelene Exp $";
 
 #include "viswelldisplay.h"
 
@@ -63,6 +63,7 @@ WellDisplay::WellDisplay()
     , transformation_(0)
     , picksallowed_(false)
     , group_(0)
+    , pseudotrack_(0)
 {
     setMaterial(0);
     setWell( visBase::Well::create() );
@@ -436,7 +437,7 @@ int WellDisplay::usePar( const IOPar& par )
 void WellDisplay::setDisplayTransformation( visBase::Transformation* nt )
 {
     well_->setDisplayTransformation( nt );
-    if ( picksallowed_) setDisplayTransformForPicks( nt );
+    setDisplayTransformForPicks( nt );
     fullRedraw(0);
 }
 
@@ -482,8 +483,15 @@ void WellDisplay::pickCB( CallBacker* cb )
 		if ( removeidx != -1 )
 		{
 		    group_->removeObject( removeidx );
-		    wellcoords_.remove( removeidx );
-		    well_->setTrack( wellcoords_ );
+		    pseudotrack_->removePoint( removeidx );
+		    TypeSet<Coord3> wcoords;
+		    for ( int idx=0; idx<pseudotrack_->nrPoints(); idx++ )
+		    {
+			wcoords += pseudotrack_->pos(idx);
+			wcoords[idx].z /= SI().zFactor();
+		    }
+
+		    well_->setTrack(wcoords);
 		    changed_.trigger();
 		}
 	    }
@@ -528,20 +536,35 @@ void WellDisplay::pickCB( CallBacker* cb )
 }
 
 
-void WellDisplay::addPick( const Coord3& pos )
+void WellDisplay::addPick( Coord3 pos )
 {
-    visBase::Marker* marker = visBase::Marker::create();
-    group_->addObject( marker );
+    int insertidx = -1;
+    if ( pseudotrack_ )
+    {
+	TypeSet<Coord3> wcoords;
+	insertidx = pseudotrack_->insertPoint( Coord(pos.x, pos.y), 
+					       pos.z * SI().zFactor() );
+	for ( int idx=0; idx<pseudotrack_->nrPoints(); idx++ )
+	{
+	    wcoords += pseudotrack_->pos(idx);
+	    wcoords[idx].z /= SI().zFactor();
+	}
 
-    marker->setDisplayTransformation( transformation_ );
-    marker->setCenterPos( pos );
-    marker->setScreenSize( mPickSz );
-    marker->setType( (MarkerStyle3D::Type)mPickType );
-    marker->getMaterial()->setColor( lineStyle()->color );
-    wellcoords_ += pos;
-    well_->setTrack(wellcoords_);
+	well_->setTrack(wcoords);
+	changed_.trigger();
+    }
+    
+    if ( insertidx > -1 )
+    {
+	visBase::Marker* marker = visBase::Marker::create();
+	group_->insertObject( insertidx, marker );
 
-    changed_.trigger();
+	marker->setDisplayTransformation( transformation_ );
+	marker->setCenterPos( pos );
+	marker->setScreenSize( mPickSz );
+	marker->setType( (MarkerStyle3D::Type)mPickType );
+	marker->getMaterial()->setColor( lineStyle()->color );
+    }
 }
 
 
@@ -589,6 +612,7 @@ void WellDisplay::setupPicking()
 {
     picksallowed_ = true;
     group_ = visBase::DataObjectGroup::create();
+    pseudotrack_ = new Well::Track();
     addChild( group_->getInventorNode() );
 }
 
@@ -603,17 +627,20 @@ void WellDisplay::showKnownPositions()
 	return;
 
     for ( int idx=0; idx<trackpos.size(); idx++ )
+	addPick( trackpos[idx] );
+}
+
+
+TypeSet<Coord3> WellDisplay::getWellCoords() const
+{
+    TypeSet<Coord3> coords;
+    for ( int idx=0; idx<pseudotrack_->nrPoints(); idx++ )
     {
-	Coord3 newpos = scene_->getZScaleTransform()->
-	    transformBack( trackpos[idx] );
-	if ( transformation_ )
-	    newpos = transformation_->transformBack(newpos);
-/*	BinID bid = SI().transform( Coord( trackpos[idx].x, trackpos[idx].y ) );
-	trackpos[idx].x = bid.inl; trackpos[idx].y = bid.crl; 
-	trackpos[idx].z *= -SI().zFactor();*/
-	newpos.z *= 2;
-	addPick( newpos );
+	coords += pseudotrack_->pos(idx);
+	coords[idx].z /= SI().zFactor();
     }
+
+    return coords;
 }
 
 }; // namespace visSurvey

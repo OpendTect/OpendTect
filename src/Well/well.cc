@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: well.cc,v 1.34 2005-12-02 16:53:39 cvshelene Exp $";
+static const char* rcsID = "$Id: well.cc,v 1.35 2006-01-10 13:17:07 cvshelene Exp $";
 
 #include "welldata.h"
 #include "welltrack.h"
@@ -276,26 +276,29 @@ void Well::Track::insertAfterIdx( int aftidx, const Coord3& c )
 }
 
 
-void Well::Track::insertPoint( const Coord& c, float z )
+int Well::Track::insertPoint( const Coord& c, float z )
 {
     const int oldsz = pos_.size();
     if ( oldsz < 1 )
-	{ addPoint( c, z ); return; }
+	{ addPoint( c, z ); return oldsz; }
 
     Coord3 cnew( c.x, c.y, z );
     if ( oldsz < 2 )
     {
 	Coord3 oth( pos_[0] );
 	if ( oth.z < cnew.z )
+	{
 	    addPoint( c, z );
+	    return oldsz;
+	}
 	else
 	{
 	    pos_.erase(); dah_.erase();
 	    pos_ += cnew; pos_ += oth;
 	    dah_ += 0;
 	    dah_ += oth.distance( cnew );
+	    return 0;
 	}
-	return;
     }
 
     // Need to find 'best' position. This is when the angle of the triangle
@@ -311,14 +314,14 @@ void Well::Track::insertPoint( const Coord& c, float z )
 	const float d0 = c0.distance( cnew );
 	const float d1 = c1.distance( cnew );
 	if ( mIsZero(d0,1e-4) || mIsZero(d1,1e-4) )
-	    return; // point already present
+	    return -1; // point already present
 	float val = ( d0 * d0 + d1 * d1 - ( d * d ) ) / (2 * d0 * d1);
 	if ( val < minval )
 	    { minidx = idx-1; minval = val; }
 	if ( idx == oldsz-1 && minval > 0.90 )
 	{
 	    addPoint( c, z );
-	    return;
+	    return oldsz;
 	}
     }
 
@@ -346,6 +349,7 @@ void Well::Track::insertPoint( const Coord& c, float z )
     }
 
     insertAfterIdx( minidx, cnew );
+    return minidx+1;
 }
 
 

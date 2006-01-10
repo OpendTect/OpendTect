@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viswelldisplay.h,v 1.32 2006-01-03 09:09:31 cvsnanne Exp $
+ RCS:		$Id: viswelldisplay.h,v 1.33 2006-01-10 13:17:07 cvshelene Exp $
 ________________________________________________________________________
 
 
@@ -29,7 +29,7 @@ namespace visBase
     class Well;
 };
 
-namespace Well { class Data; }
+namespace Well { class Data; class Track; }
 
 namespace visSurvey
 {
@@ -96,12 +96,12 @@ public:
     void 			setDisplayTransformForPicks(mVisTrans*);
 
     void                        setSceneEventCatcher(visBase::EventCatcher*);
-    void 			addPick(const Coord3&);
+    void 			addPick(Coord3);
     void			setupPicking();
     void			showKnownPositions();
     NotifierAccess*             getManipulationNotifier() { return &changed_; }
     bool			isHomeMadeWell() const { return picksallowed_; }
-    TypeSet<Coord3>             getWellCoords()	const	{ return wellcoords_; }
+    TypeSet<Coord3>             getWellCoords()	const;
     				//only used for user-made wells
 
 protected:
@@ -135,7 +135,7 @@ protected:
     int                         mousepressid_;
     Coord3                      mousepressposition_;
 
-    TypeSet<Coord3>		wellcoords_;
+    Well::Track*		pseudotrack_;
 
     bool			picksallowed_;
 

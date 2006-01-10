@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: welltrack.h,v 1.11 2005-11-22 07:57:59 cvshelene Exp $
+ RCS:		$Id: welltrack.h,v 1.12 2006-01-10 13:17:07 cvshelene Exp $
 ________________________________________________________________________
 
 
@@ -32,10 +32,12 @@ public:
 
     const Coord3&	pos( int idx ) const		{ return pos_[idx]; }
     float		value( int idx ) const		{ return pos_[idx].z; }
+    int			nrPoints() const		{ return pos_.size(); }
 
-    void		insertPoint(const Coord&,float z);
+    int			insertPoint(const Coord&,float z);
     			//!< a 'good' place will be found
     			//!< If inserted at top, z will be used as first dah
+    			//!< returns position index of the new point
     void		addPoint(const Coord&,float z,float dah=mUdf(float));
     			//!< Point must be further down track. No checks.
     void		setPoint(int,const Coord&,float z);
