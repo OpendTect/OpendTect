@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/06/2001
- RCS:           $Id: uiobjbody.h,v 1.37 2005-12-08 20:00:05 cvskris Exp $
+ RCS:           $Id: uiobjbody.h,v 1.38 2006-01-11 17:30:36 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,8 +17,6 @@ ________________________________________________________________________
 #include "uiparentbody.h"
 #include "uiobj.h"
 #include "uifont.h"
-
-#define USE_DISPLAY_TIMER
 
 class uiButtonGroup;
 class QWidget;
@@ -30,154 +28,155 @@ class QFontMetrics;
 class ioPixmap;
 class Color;
 
+#define USE_DISPLAY_TIMER 1
+
 
 class uiObjectBody : public uiBody, public UserIDObject
 {
 friend class 		i_uiLayoutItem; 
 
 protected:
-				uiObjectBody(uiParent*,const char* nm);
+			uiObjectBody(uiParent*,const char* nm);
 public:
 
-    virtual			~uiObjectBody();
+    virtual		~uiObjectBody();
 
-    void			setToolTip(const char*);
+    void		setToolTip(const char*);
 #ifndef USEQT4
-    static void			enableToolTips(bool yn=true);
-    static bool			toolTipsEnabled();
+    static void		enableToolTips(bool yn=true);
+    static bool		toolTipsEnabled();
 #endif
 
-    void 			display(bool yn=true,bool shrink=false,
-					 bool maximised=false);
-    void			uisetFocus();
-    bool			uihasFocus() const;
-    bool			uiCloseOK() { return uiObjHandle().closeOK(); }
-    bool			isDisplayed() const { return display_; }
+    void 		display(bool yn=true,bool shrink=false,
+				 bool maximised=false);
+    void		uisetFocus();
+    bool		uihasFocus() const;
+    bool		uiCloseOK() { return uiObjHandle().closeOK(); }
+    bool		isDisplayed() const { return display_; }
 
-    const Color&		uibackgroundColor() const;
-    void              		uisetBackgroundColor(const Color&);
-    void			uisetBackgroundPixmap(const char**);
-    void			uisetBackgroundPixmap(const ioPixmap&);
-    void			uisetSensitive(bool yn=true);
-    bool			uisensitive() const;
+    const Color&	uibackgroundColor() const;
+    void              	uisetBackgroundColor(const Color&);
+    void		uisetBackgroundPixmap(const char**);
+    void		uisetBackgroundPixmap(const ioPixmap&);
+    void		uisetSensitive(bool yn=true);
+    bool		uisensitive() const;
 
-    int				prefHNrPics() const;
-    void			setPrefWidth(int);      
-    float			prefWidthInCharSet() const 
-				    { return pref_char_width; }
-    void			setPrefWidthInChar(float);
+    int			prefHNrPics() const;
+    void		setPrefWidth(int);      
+    float		prefWidthInCharSet() const  { return pref_char_width; }
+    void		setPrefWidthInChar(float);
 
-    int				prefVNrPics() const;
-    void			setPrefHeight(int);     
-    float			prefHeightInCharSet() const 
-				    { return pref_char_height; }
-    void			setPrefHeightInChar(float);
+    int			prefVNrPics() const;
+    void		setPrefHeight(int);     
+    float		prefHeightInCharSet() const { return pref_char_height; }
+    void		setPrefHeightInChar(float);
 
-    void               		setStretch(int,int);
-    virtual int			stretch(bool,bool retUndef=false) const;
+    void               	setStretch(int,int);
+    virtual int		stretch(bool,bool retUndef=false) const;
 
-    virtual int			nrTxtLines() const	{ return -1; }
+    virtual int		nrTxtLines() const	{ return -1; }
 
-    void			attach(constraintType,uiObject* other=0, 
-				       int margin=-1,bool reciprocal=true);
-    void			attach(constraintType t,uiParent* other=0, 
-				       int m=-1,bool r=true)
-				    { attach(t,other->mainObject(),m,r ); }
+    void		attach(constraintType,uiObject* other=0, 
+			       int margin=-1,bool reciprocal=true);
+    void		attach(constraintType t,uiParent* other=0, 
+			       int m=-1,bool r=true)
+			    { attach(t,other->mainObject(),m,r ); }
 
-    void 			uisetFont(const uiFont&);
-    const uiFont*		uifont() const;
+    void 		uisetFont(const uiFont&);
+    const uiFont*	uifont() const;
 
-    virtual uiSize		actualsize(bool include_border=true) const;
+    virtual uiSize	actualsize(bool include_border=true) const;
 
-    virtual uiSize		minimumsize() const
-				{return uiSize(mUndefIntVal,mUndefIntVal,true);}
+    virtual uiSize	minimumsize() const
+			{ return uiSize(mUdf(int),mUdf(int),true); }
 
-    void			uisetCaption(const char*);
+    void		uisetCaption(const char*);
 
-    virtual void		reDraw(bool);
+    virtual void	reDraw(bool);
 
-    virtual uiObject&		uiObjHandle()			=0;
+    virtual uiObject&	uiObjHandle()		=0;
 
-    const i_LayoutItem*		layoutItem()		{ return layoutItem_; }
-    i_LayoutItem*		mkLayoutItem(i_LayoutMngr&);
+    const i_LayoutItem*	layoutItem()		{ return layoutItem_; }
+    i_LayoutItem*	mkLayoutItem(i_LayoutMngr&);
 
-    virtual void		finalise();
+    virtual void	finalise();
 
-    virtual void		fontchanged();
+    virtual void	fontchanged();
 
-    int				fontHgt() const;
-    int				fontWdt(bool max=false) const;
+    int			fontHgt() const;
+    int			fontWdt(bool max=false) const;
 
-    void			setHSzPol(uiObject::SzPolicy);
-    void			setVSzPol(uiObject::SzPolicy);
-    uiObject::SzPolicy		szPol(bool hor=true) const
-				{ return hor ? hszpol: vszpol ; }
+    void		setHSzPol(uiObject::SzPolicy);
+    void		setVSzPol(uiObject::SzPolicy);
+    uiObject::SzPolicy	szPol(bool hor=true) const
+			{ return hor ? hszpol: vszpol ; }
 
-    void			setShrinkAllowed(bool yn) { allowshrnk = yn; }
-    bool			shrinkAllowed()		{ return allowshrnk; }
+    void		setShrinkAllowed(bool yn) { allowshrnk = yn; }
+    bool		shrinkAllowed()		{ return allowshrnk; }
 
-    bool			isHidden()		{ return is_hidden; }
-    bool			itemInited() const;
+    bool		isHidden()		{ return is_hidden; }
+    bool		itemInited() const;
 
 protected:
 
-    int				hStretch;
-    int				vStretch;
+    int			hStretch;
+    int			vStretch;
 
-    virtual const QWidget*	managewidg_() const	{ return qwidget_(); }
+    virtual const QWidget* managewidg_() const	{ return qwidget_(); }
 
-    virtual i_LayoutItem*	mkLayoutItem_(i_LayoutMngr& mngr);
+    virtual i_LayoutItem* mkLayoutItem_(i_LayoutMngr& mngr);
 
-    virtual void		finalise_()             {}
+    virtual void	finalise_()             {}
 
 
-    void 			doDisplay(CallBacker*);
+    void 		doDisplay(CallBacker*);
 
-    int				fontWdtFor(const char*) const;
+    int			fontWdtFor(const char*) const;
 
-    void			loitemDeleted()		{ layoutItem_ = 0; }
+    void		loitemDeleted()		{ layoutItem_ = 0; }
 
 
 private:
 
-    i_LayoutItem*		layoutItem_;
-    uiParentBody* 		parent_;
-    const uiFont*		font_;
+    i_LayoutItem*	layoutItem_;
+    uiParentBody* 	parent_;
+    const uiFont*	font_;
 
-    bool			allowshrnk;
+    bool		allowshrnk;
 
-    bool			is_hidden;
-    bool			finalised;
-    bool			display_;
-    bool			display_maximised;
+    bool		is_hidden;
+    bool		finalised;
+    bool		display_;
+    bool		display_maximised;
 
-    int				pref_width_;
-    int				pref_height_;
+    int			pref_width_;
+    int			pref_height_;
 
-    int				pref_width_set;
-    float			pref_char_width;
-    int				pref_height_set;
-    float			pref_char_height;
-    int				pref_width_hint;
-    int				pref_height_hint;
+    int			pref_width_set;
+    float		pref_char_width;
+    int			pref_height_set;
+    float		pref_char_height;
+    int			pref_width_hint;
+    int			pref_height_hint;
 
-    int				fnt_hgt;
-    int				fnt_wdt;
-    int				fnt_maxwdt;
-    QFontMetrics*		fm;
+    int			fnt_hgt;
+    int			fnt_wdt;
+    int			fnt_maxwdt;
+    QFontMetrics*	fm;
 
-    uiObject::SzPolicy		hszpol;
-    uiObject::SzPolicy		vszpol;
+    uiObject::SzPolicy	hszpol;
+    uiObject::SzPolicy	vszpol;
 
-    void                	gtFntWdtHgt() const;
-    void			getSzHint();
+    void               	gtFntWdtHgt() const;
+    void		getSzHint();
 
-    #ifdef USE_DISPLAY_TIMER
-	Timer&			displTim;
-    #endif
-    };
+#ifdef USE_DISPLAY_TIMER
+    Timer&		displTim;
+#endif
+};
 
-/*! \brief Default (Template) implementation of uiObjectBody.
+
+/*!\brief Default (Template) implementation of uiObjectBody.
 
 
     Any uiObjectBody must implement thiswidget_() and uiObjHandle() 
@@ -219,8 +218,8 @@ private:
     It also declares a protected member handle_, of type mHANDLE_OBJ&, which 
     must be initialised in any constructor of objects using "i_uiobjqtbody.h"
 
-
 */
+
 template <class C, class T>
 class uiObjBodyImpl : public uiObjectBody, public T
 {
