@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: attribsel.cc,v 1.8 2006-01-10 15:46:16 cvshelene Exp $
+ RCS:           $Id: attribsel.cc,v 1.9 2006-01-11 13:58:46 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -114,6 +114,9 @@ void SelSpec::setIDFromRef( const DescSet& ds )
 	if ( strcmp( attribname, ds.getDesc(id_)->attribName() ) )
 	    id_ = ds.getID( defstring_, false );
     }
+     /*TODO: make it work 100% : doesn't work if attribute and stored data 
+    have the same name and the stored data is the FIRST thing you try
+    to display*/
     setDiscr( ds );
 }
 
