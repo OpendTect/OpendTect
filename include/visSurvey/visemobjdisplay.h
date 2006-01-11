@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          May 2004
- RCS:           $Id: visemobjdisplay.h,v 1.33 2005-12-29 14:22:01 cvskris Exp $
+ RCS:           $Id: visemobjdisplay.h,v 1.34 2006-01-11 14:07:25 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -113,6 +113,8 @@ public:
 	    					const Coord3&,
 	    					float& val,
 						BufferString& info) const;
+    float			calcDist(const Coord3&) const;
+    float			maxDist() const;
 
     int				getColTabID() const;
 

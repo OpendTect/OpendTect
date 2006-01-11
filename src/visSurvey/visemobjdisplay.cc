@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: visemobjdisplay.cc,v 1.69 2005-12-29 14:22:01 cvskris Exp $
+ RCS:           $Id: visemobjdisplay.cc,v 1.70 2006-01-11 14:07:25 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,6 +42,8 @@ ________________________________________________________________________
 #include "emsurfaceauxdata.h"
 #include "emsurfacegeometry.h"
 #include "emsurfaceedgeline.h"
+
+#include <math.h>
 
 
 
@@ -1086,6 +1088,42 @@ void EMObjectDisplay::setResolution( int res )
 int EMObjectDisplay::getColTabID() const
 {
     return usesTexture() ? coltab_->id() : -1;
+}
+
+
+float EMObjectDisplay::calcDist( const Coord3& pickpos ) const
+{
+    const EM::EMObject* emobject = em.getObject( oid );
+    if ( !emobject ) return mUdf(float);
+
+    const mVisTrans* utm2display = scene_->getUTM2DisplayTransform();
+    const Coord3 xytpos = utm2display->transformBack( pickpos );
+    mDynamicCastGet(const EM::Horizon*,hor,emobject)
+    if ( hor )
+    {
+	const BinID bid = SI().transform( xytpos );
+	TypeSet<Coord3> positions;
+	hor->geometry.getPos( bid, positions );
+
+	float mindist = mUndefValue;
+	for ( int idx=0; idx<positions.size(); idx++ )
+	{
+	    const Coord3& pos = positions[idx] + 
+				getTranslation()/SI().zFactor();
+	    const float dist = fabs(xytpos.z-pos.z);
+	    if ( dist < mindist ) mindist = dist;
+	}
+
+	return mindist;
+    }
+
+    return mUdf(float);
+}
+
+
+float EMObjectDisplay::maxDist() const
+{
+    return SI().zRange(true).step;
 }
 
 
