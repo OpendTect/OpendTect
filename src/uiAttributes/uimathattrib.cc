@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2001
- RCS:           $Id: uimathattrib.cc,v 1.3 2005-11-25 09:12:21 cvshelene Exp $
+ RCS:           $Id: uimathattrib.cc,v 1.4 2006-01-11 07:10:10 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -60,7 +60,7 @@ void uiMathAttrib::parsePush( CallBacker* )
 
     if ( nrvariables > cNrVars )
     {
-	uiMSG().warning( "Max. nr of variables you can use is 6" );
+	uiMSG().error( "Max. nr of variables you can use is 6" );
 	nrvariables = 0;
 	return;
     }
@@ -77,7 +77,7 @@ void uiMathAttrib::parsePush( CallBacker* )
 
 	if ( !found )
 	{
-	    uiMSG().warning( "you must use x0, x1, x2 ..." );
+	    uiMSG().error( "Formula should have x0, x1, x2 ..." );
 	    nrvariables = 0;
 	    return;
 	}

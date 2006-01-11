@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiattribpartserv.cc,v 1.24 2005-12-13 10:32:26 cvshelene Exp $
+ RCS:           $Id: uiattribpartserv.cc,v 1.25 2006-01-11 07:10:10 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -459,7 +459,7 @@ void uiAttribPartServer::usePar( const IOPar& iopar )
 	    errmsg += errmsgs.get( idx );
 	}
 	if ( errmsg != "" )
-	    uiMSG().warning( errmsg );
+	    uiMSG().error( errmsg );
 
 	sendEvent( evNewAttrSet );
     }
