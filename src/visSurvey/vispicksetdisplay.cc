@@ -4,7 +4,7 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.70 2005-10-07 15:31:53 cvsnanne Exp $";
+static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.71 2006-01-11 14:01:29 cvsnanne Exp $";
 
 #include "vispicksetdisplay.h"
 
@@ -193,8 +193,8 @@ void PickSetDisplay::otherObjectsMoved(
 	marker->turnOn( false );
 	for ( int idy=0; idy<objs.size(); idy++ )
 	{
-	    float dist = objs[idy]->calcDist(pos);
-	    if ( objs[idy]->calcDist(pos) < objs[idy]->maxDist() )
+	    const float dist = objs[idy]->calcDist(pos);
+	    if ( dist < objs[idy]->maxDist() )
 	    {
 		marker->turnOn(true);
 		break;
