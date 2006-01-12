@@ -5,7 +5,7 @@
  * FUNCTION : Seismic data storage
 -*/
 
-static const char* rcsID = "$Id: seisstor.cc,v 1.21 2005-12-20 11:03:06 cvsbert Exp $";
+static const char* rcsID = "$Id: seisstor.cc,v 1.22 2006-01-12 12:21:38 cvshelene Exp $";
 
 #include "seisstor.h"
 #include "seistrctr.h"
@@ -88,7 +88,7 @@ void SeisStoreAccess::setIOObj( const IOObj* ioob )
     {
 	if ( !trl )
 	    { delete ioobj; ioobj = 0; }
-	else
+	else if ( strl() )
 	    strl()->setSelData( seldata );
     }
 }
