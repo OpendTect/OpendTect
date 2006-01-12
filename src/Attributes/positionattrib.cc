@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          November 2002
- RCS:           $Id: positionattrib.cc,v 1.12 2005-12-22 14:55:56 cvsnanne Exp $
+ RCS:           $Id: positionattrib.cc,v 1.13 2006-01-12 13:14:04 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -103,32 +103,32 @@ Position::Position( Desc& desc_ )
 {
     if ( !isOK() ) return;
 
-    inputdata.allowNull(true);
+    inputdata_.allowNull(true);
 
-    mGetBinID( stepout, stepoutStr() );
-    mGetFloatInterval( gate, gateStr() );
-    gate.scale( 1/zFactor() );
+    mGetBinID( stepout_, stepoutStr() );
+    mGetFloatInterval( gate_, gateStr() );
+    gate_.scale( 1/zFactor() );
 
-    mGetEnum( oper, operStr() );
-    mGetBool( steering, steeringStr() );
+    mGetEnum( oper_, operStr() );
+    mGetBool( steering_, steeringStr() );
 
     BinID pos;
-    for ( pos.inl=-stepout.inl; pos.inl<=stepout.inl; pos.inl++ )
-	for ( pos.crl=-stepout.crl; pos.crl<=stepout.crl; pos.crl++ )
-	    positions += pos;
+    for ( pos.inl=-stepout_.inl; pos.inl<=stepout_.inl; pos.inl++ )
+	for ( pos.crl=-stepout_.crl; pos.crl<=stepout_.crl; pos.crl++ )
+	    positions_ += pos;
 
-    outdata = new Array2DImpl<const DataHolder*>( stepout.inl*2+1,
-	    					  stepout.crl*2+1 );
+    outdata_ = new Array2DImpl<const DataHolder*>( stepout_.inl*2+1,
+	    					  stepout_.crl*2+1 );
 
-    const float maxso = mMAX( stepout.inl*inldist(), stepout.crl*crldist() );
+    const float maxso = mMAX( stepout_.inl*inldist(), stepout_.crl*crldist() );
     const float extraz = maxso * mMAXDIP;
-    desgate = Interval<float>( gate.start-extraz, gate.stop+extraz );
+    desgate_ = Interval<float>( gate_.start-extraz, gate_.stop+extraz );
 }
 
 
 Position::~Position()
 {
-    delete outdata;
+    delete outdata_;
 }
 
 
@@ -137,19 +137,19 @@ void Position::initSteering()
     for( int idx=0; idx<inputs.size(); idx++ )
     {
 	if ( inputs[idx] && inputs[idx]->getDesc().isSteering() )
-	    inputs[idx]->initSteering(stepout);
+	    inputs[idx]->initSteering(stepout_);
     }
 }
 
 
 bool Position::getInputOutput( int input, TypeSet<int>& res ) const
 {
-    if ( !steering || input==0 || input==1 ) 
+    if ( !steering_ || input==0 || input==1 ) 
 	return Provider::getInputOutput( input, res );
 
-    for ( int inl=-stepout.inl; inl<=stepout.inl; inl++ )
+    for ( int inl=-stepout_.inl; inl<=stepout_.inl; inl++ )
     {
-	for ( int crl=-stepout.crl; crl<=stepout.crl; crl++ )
+	for ( int crl=-stepout_.crl; crl<=stepout_.crl; crl++ )
 	    res += getSteeringIndex( BinID(inl,crl) );
     }
 
@@ -159,31 +159,31 @@ bool Position::getInputOutput( int input, TypeSet<int>& res ) const
 
 bool Position::getInputData( const BinID& relpos, int idx )
 {
-    const int nrpos = positions.size();
-    const int inlsz = stepout.inl * 2 + 1;
-    const int crlsz = stepout.crl * 2 + 1;
+    const int nrpos = positions_.size();
+    const int inlsz = stepout_.inl * 2 + 1;
+    const int crlsz = stepout_.crl * 2 + 1;
     BinID bidstep = inputs[0]->getStepoutStep();
     //bidstep.inl = abs(bidstep.inl); bidstep.crl = abs(bidstep.crl);
 
-    while ( inputdata.size()<nrpos )
-	inputdata += 0;
+    while ( inputdata_.size()<nrpos )
+	inputdata_ += 0;
     
     for ( int idp=0; idp<nrpos; idp++ )
     {
-	BinID truepos = relpos + positions[idp] * bidstep;
+	BinID truepos = relpos + positions_[idp] * bidstep;
 	const DataHolder* indata = inputs[0]->getData( truepos, idx );
 
 	const DataHolder* odata = inputs[1]->getData( truepos, idx );
 	if ( !indata || !odata ) return false;
 
-	inputdata.replace( idp, indata );
-	outdata->set( positions[idp].inl + stepout.inl,
-		      positions[idp].crl + stepout.crl, odata );
+	inputdata_.replace( idp, indata );
+	outdata_->set( positions_[idp].inl + stepout_.inl,
+		      positions_[idp].crl + stepout_.crl, odata );
     }
     
     inidx_ = getDataIndex( 0 );
     outidx_ = getDataIndex( 1 );
-    steerdata = steering ? inputs[2]->getData(relpos,idx) : 0;
+    steerdata_ = steering_ ? inputs[2]->getData(relpos,idx) : 0;
 
     return true;
 }
@@ -192,13 +192,13 @@ bool Position::getInputData( const BinID& relpos, int idx )
 bool Position::computeData( const DataHolder& output, const BinID& relpos,
 			    int z0, int nrsamples ) const
 {
-    if ( !inputdata.size() || !outdata ) return false;
+    if ( !inputdata_.size() || !outdata_ ) return false;
     
-    const int nrpos = positions.size();
+    const int nrpos = positions_.size();
     const int cposnr = (int)(nrpos/2);
 
-    const Interval<int> samplegate( mNINT(gate.start/refstep),
-				    mNINT(gate.stop/refstep) );
+    const Interval<int> samplegate( mNINT(gate_.start/refstep),
+				    mNINT(gate_.stop/refstep) );
     
     RunningStatistics<float> stats;
 
@@ -209,24 +209,24 @@ bool Position::computeData( const DataHolder& output, const BinID& relpos,
 	stats.clear();
 	for ( int idp=0; idp<nrpos; idp++ )
 	{
-	    const DataHolder* dh = inputdata[idp];
+	    const DataHolder* dh = inputdata_[idp];
 	    if ( !dh || !dh->nrSeries() || !dh->series(inidx_) ) 
 		continue;
 
 	    ValueSeriesInterpolator<float> interp( dh->nrsamples_-1 );
 	    int ds = samplegate.start;
-	    const int steeridx = getSteeringIndex( positions[idp] );
+	    const int steeridx = getSteeringIndex( positions_[idp] );
 
 	    float sample = cursample;
-	    if ( steering && steerdata->series(steeridx) )
-		sample += steerdata->series(steeridx)->value( 
-						cursample-steerdata->z0_ );
+	    if ( steering_ && steerdata_->series(steeridx) )
+		sample += steerdata_->series(steeridx)->value( 
+						cursample-steerdata_->z0_ );
 		
 	    for ( int ids=0; ids<samplegate.width()+1; ids++ )
 	    {
 		float place = sample + ds - dh->z0_;
 		stats += interp.value( *(dh->series(inidx_)), place );
-		bidv += BinIDValue( positions[idp], sample + ds );
+		bidv += BinIDValue( positions_[idp], sample + ds );
 		ds++;
 	    }
 	}
@@ -234,7 +234,7 @@ bool Position::computeData( const DataHolder& output, const BinID& relpos,
 	if ( !stats.size() ) return false;
 	int posidx;
 	float outval;
-	switch ( oper )
+	switch ( oper_ )
 	{
 	    case 0: { outval = stats.min( &posidx ); } break;
 	    case 1: { outval = stats.max( &posidx ); } break;
@@ -243,8 +243,8 @@ bool Position::computeData( const DataHolder& output, const BinID& relpos,
 
 	BinID bid = bidv[posidx].binid;
 	float sample = bidv[posidx].value;
-	const DataHolder* odata = outdata->get( bid.inl+stepout.inl, 
-						bid.crl+stepout.crl );
+	const DataHolder* odata = outdata_->get( bid.inl+stepout_.inl, 
+						bid.crl+stepout_.crl );
 
 	float val = 0;
 	if ( odata && odata->nrSeries() && odata->series(outidx_) )
