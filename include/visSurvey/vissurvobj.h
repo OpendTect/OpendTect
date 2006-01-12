@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvobj.h,v 1.47 2005-12-29 14:22:01 cvskris Exp $
+ RCS:		$Id: vissurvobj.h,v 1.48 2006-01-12 18:48:25 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -150,7 +150,8 @@ public:
    				//Volume data 
     virtual CubeSampling	getCubeSampling() const
 				{ CubeSampling cs; return cs; }
-    virtual void		setCubeSampling(CubeSampling)		{}
+    				/*!<\returns the volume in world survey
+				     coordinates. */
     virtual bool		setDataVolume( bool color,
 	    				       const Attrib::DataCubes* slc );
     virtual const Attrib::DataCubes* getCacheVolume( bool color ) const
