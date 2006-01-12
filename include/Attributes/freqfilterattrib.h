@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          February 2003
- RCS:           $Id: freqfilterattrib.h,v 1.6 2005-12-13 10:03:41 cvshelene Exp $
+ RCS:           $Id: freqfilterattrib.h,v 1.7 2006-01-12 13:15:30 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -55,7 +55,7 @@ public:
 protected:
     			~FreqFilter();
     static Provider*    createInstance(Desc&);
-    static void         updateDesc( Desc& );
+    static void         updateDesc(Desc&);
 
     bool		getInputOutput(int input,TypeSet<int>& res) const;
     bool		getInputData(const BinID&, int idx);
@@ -64,9 +64,9 @@ protected:
     void		butterWorthFilter(const DataHolder&, int, int);
     void		fftFilter(const DataHolder&, int, int);
 
-    void 		setSz( int sz );
+    void 		setSz(int sz);
     
-    const Interval<float>*      desZMargin(int input, int output) const;
+    const Interval<float>*      desZMargin(int input,int output) const;
 
     int				filtertype;
     float 			minfreq;

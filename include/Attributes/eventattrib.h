@@ -6,17 +6,12 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Helene Payraudeau
  Date:		February 2005
- RCS:		$Id: eventattrib.h,v 1.10 2005-12-23 16:09:46 cvsnanne Exp $
+ RCS:		$Id: eventattrib.h,v 1.11 2006-01-12 13:15:30 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "arrayndimpl.h"
-#include "limits.h"
 #include "attribprovider.h"
-#include "runstat.h"
-#include "valseries.h"
-#include "mathfunc.h"
 #include "valseriesevent.h"
 
 
@@ -42,27 +37,27 @@ class Event : public Provider
 public:
     static void         initClass();
 
-			Event( Desc& );
+			Event(Desc&);
     
-    static const char*  attribName() { return "Event"; }
-    static const char*  eventTypeStr() { return "eventtype"; }
-    static const char*  issingleeventStr() { return "issingleevent"; }
-    static const char*  tonextStr() { return "tonext"; }
-    static const char*  gateStr() { return "gate"; }
+    static const char*  attribName() 		{ return "Event"; }
+    static const char*  eventTypeStr() 		{ return "eventtype"; }
+    static const char*  issingleeventStr() 	{ return "issingleevent"; }
+    static const char*  tonextStr() 		{ return "tonext"; }
+    static const char*  gateStr() 		{ return "gate"; }
 
 protected:
-    static Provider*    createInstance( Desc& );
-    static void         updateDesc( Desc& );
+    static Provider*    createInstance(Desc&);
+    static void         updateDesc(Desc&);
 
-    bool                getInputOutput( int input, TypeSet<int>& res ) const;
-    bool                getInputData( const BinID&, int idx );
-    bool                computeData( const DataHolder&, const BinID& relpos,
-				     int t0, int nrsamples ) const;
+    bool                getInputOutput(int input,TypeSet<int>& res) const;
+    bool                getInputData(const BinID&,int idx);
+    bool                computeData(const DataHolder&,const BinID& relpos,
+				    int t0,int nrsamples) const;
 
     bool		allowParallelComputation()	{ return true; }
 
-    const Interval<float>*           reqZMargin(int input, int output) const;
-    const Interval<float>*           desZMargin(int input, int output) const;
+    const Interval<float>*           reqZMargin(int input,int output) const;
+    const Interval<float>*           desZMargin(int input,int output) const;
 
     
     static VSEvent::Type       	     getEventType(int type); 

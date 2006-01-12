@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: frequencyattrib.h,v 1.6 2005-12-23 16:09:46 cvsnanne Exp $
+ RCS:           $Id: frequencyattrib.h,v 1.7 2006-01-12 13:15:30 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "attribprovider.h"
 #include "bufstringset.h"
 #include "fft.h"
-#include "ranges.h"
 
 #include <complex>
 
@@ -64,7 +63,7 @@ class Frequency : public Provider
 {
 public:
     static void			initClass();
-				Frequency( Desc& );
+				Frequency(Desc&);
 
     static const char*		attribName()		{ return "Frequency"; }
     static const char*		gateStr()		{ return "gate"; }

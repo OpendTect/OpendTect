@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: convolveattrib.h,v 1.8 2005-12-23 16:09:46 cvsnanne Exp $
+ RCS:           $Id: convolveattrib.h,v 1.9 2006-01-12 13:15:30 cvshelene Exp $
 ________________________________________________________________________
 
     
@@ -97,7 +97,7 @@ protected:
 	int                     getSubKernelSize() const;
 	float                   getSum() const { return sum; }
 
-				Kernel( int kernelfunc, int shape, int size );
+				Kernel(int kernelfunc,int shape,int size);
 				~Kernel();
 
     protected:

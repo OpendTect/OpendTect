@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          Jan 2004
- RCS:           $Id: specdecompattrib.h,v 1.7 2005-12-23 16:09:46 cvsnanne Exp $
+ RCS:           $Id: specdecompattrib.h,v 1.8 2006-01-12 13:15:30 cvshelene Exp $
 ________________________________________________________________________
 -*/
 
@@ -36,8 +36,6 @@ N
 
 */
 
-class ArrayNDWindow;
-
 namespace Attrib
 {
 
@@ -47,7 +45,7 @@ class SpecDecomp : public Provider
 {
 public:
     static void		initClass();
-			SpecDecomp( Desc& );
+			SpecDecomp(Desc&);
 
     static const char*	attribName()		{ return "SpecDecomp"; }
     static const char*  transformTypeStr()	{ return "transformtype"; }
@@ -76,35 +74,35 @@ protected:
 
     const Interval<float>*	reqZMargin(int input, int output) const;
 
-    int				transformtype;
-    ArrayNDWindow::WindowType	windowtype;
-    Interval<float>		gate;
-    float                       deltafreq;
+    int					transformtype;
+    ArrayNDWindow::WindowType		windowtype;
+    Interval<float>			gate;
+    float                       	deltafreq;
     WaveletTransform::WaveletType	dwtwavelet;
-    CWT::WaveletType		cwtwavelet;
+    CWT::WaveletType			cwtwavelet;
 
-    Interval<int>               samplegate;
+    Interval<int>               	samplegate;
 
-    ArrayNDWindow*              window;
-    FFT                         fft_;
-    CWT                         cwt_;
-    int                         scalelen;
+    ArrayNDWindow*              	window;
+    FFT                         	fft_;
+    CWT                         	cwt_;
+    int                         	scalelen;
 
-    float                       df;
-    int                         fftsz;
-    int                         sz;
+    float                       	df;
+    int                         	fftsz;
+    int                         	sz;
 
-    bool			fftisinit;
+    bool				fftisinit;
 
-    int				realidx_;
-    int				imagidx_;
+    int					realidx_;
+    int					imagidx_;
 
-    Array1DImpl<float_complex>*     timedomain;
-    Array1DImpl<float_complex>*     freqdomain;
-    Array1DImpl<float_complex>*     signal;
+    Array1DImpl<float_complex>*     	timedomain;
+    Array1DImpl<float_complex>*     	freqdomain;
+    Array1DImpl<float_complex>*     	signal;
 
-    const DataHolder*		    redata;
-    const DataHolder*               imdata;
+    const DataHolder*		    	redata;
+    const DataHolder*               	imdata;
 };
 
 }; // namespace Attrib

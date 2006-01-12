@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: volstatsattrib.h,v 1.6 2005-12-13 10:03:41 cvshelene Exp $
+ RCS:           $Id: volstatsattrib.h,v 1.7 2006-01-12 13:15:30 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,7 +51,7 @@ class VolStats : public Provider
 {
 public:
     static void		initClass();
-			VolStats( Desc& );
+			VolStats(Desc&);
 
     static const char*	attribName()		{ return "VolumeStatistics"; }
     static const char*	nrvolumesStr()		{ return "nrvolumes"; }
@@ -65,17 +65,17 @@ public:
 
 protected:
     			~VolStats();
-    static Provider*	createInstance( Desc& );
-    static void		updateDesc( Desc& );
+    static Provider*	createInstance(Desc&);
+    static void		updateDesc(Desc&);
 
-    bool		getInputOutput( int input, TypeSet<int>& res ) const;
-    bool		getInputData( const BinID&, int idx );
-    bool		computeData( const DataHolder&, const BinID& relpos,
-	    			     int t0, int nrsamples ) const;
+    bool		getInputOutput(int input,TypeSet<int>& res) const;
+    bool		getInputData(const BinID&,int idx);
+    bool		computeData(const DataHolder&,const BinID& relpos,
+	    			    int t0,int nrsamples) const;
 
-    const BinID*		reqStepout( int input, int output ) const;
-    const Interval<float>*	reqZMargin(int input, int output) const;
-    const Interval<float>*      desZMargin(int input, int output) const;
+    const BinID*		reqStepout(int input,int output) const;
+    const Interval<float>*	reqZMargin(int input,int output) const;
+    const Interval<float>*      desZMargin(int input,int output) const;
 
     int				nrvolumes;
     BinID			stepout;

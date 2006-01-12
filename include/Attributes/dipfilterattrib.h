@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: dipfilterattrib.h,v 1.5 2005-12-23 16:09:46 cvsnanne Exp $
+ RCS:           $Id: dipfilterattrib.h,v 1.6 2006-01-12 13:15:30 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -77,7 +77,7 @@ class DipFilter : public Provider
 {
 public:
     static void		initClass();
-			DipFilter( Desc& );
+			DipFilter(Desc&);
 
     static const char*	attribName()	{ return "DipFilter"; }
     static const char*	sizeStr()	{ return "size"; }
@@ -97,19 +97,19 @@ public:
 			    	  s41, s43, s45, s47, s49 };
 			    	DeclareEnumUtils(KernelSize);
 protected:
-    static Provider*	createInstance( Desc& );
-    static void		updateDesc( Desc& );
+    static Provider*	createInstance(Desc&);
+    static void		updateDesc(Desc&);
 
     bool		allowParallelComputation()		{ return true; }
 
-    bool		getInputOutput( int input, TypeSet<int>& res ) const;
-    bool		getInputData( const BinID&, int idx );
-    bool		computeData( const DataHolder&, const BinID& relpos,
-	    			     int t0, int nrsamples ) const;
+    bool		getInputOutput(int input,TypeSet<int>& res) const;
+    bool		getInputData(const BinID&,int idx);
+    bool		computeData(const DataHolder&,const BinID& relpos,
+	    			    int t0,int nrsamples) const;
     bool		initKernel();
     float		taper(float) const;
 
-    const BinID*		reqStepout( int input, int output ) const;
+    const BinID*		reqStepout(int input,int output) const;
 
     int				size;
     int				type;

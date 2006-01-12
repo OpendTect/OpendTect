@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          November 2002
- RCS:           $Id: positionattrib.h,v 1.6 2005-12-13 10:03:41 cvshelene Exp $
+ RCS:           $Id: positionattrib.h,v 1.7 2006-01-12 13:15:30 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,47 +41,47 @@ class Position : public Provider
 {
 public:
     static void		initClass();
-			Position( Desc& );
+			Position(Desc&);
 
-    static const char*	attribName()	{ return "Position"; }
-    static const char*	stepoutStr()	{ return "stepout"; }
-    static const char*	gateStr()	{ return "gate"; }
-    static const char*  operStr()   { return "oper"; }
-    static const char*	steeringStr()	{ return "steering"; }
+    static const char*	attribName()		{ return "Position"; }
+    static const char*	stepoutStr()		{ return "stepout"; }
+    static const char*	gateStr()		{ return "gate"; }
+    static const char*  operStr()   		{ return "oper"; }
+    static const char*	steeringStr()		{ return "steering"; }
     static const char*	operTypeStr(int);
     void		initSteering();
 
 protected:
     			~Position();
-    static Provider*	createInstance( Desc& );
-    static void		updateDesc( Desc& );
+    static Provider*	createInstance(Desc&);
+    static void		updateDesc(Desc&);
 
-    bool		getInputOutput( int input, TypeSet<int>& res ) const;
-    bool		getInputData( const BinID&, int idx );
-    bool		computeData( const DataHolder&, const BinID& relpos,
-	    			     int t0, int nrsamples ) const;
+    bool		getInputOutput(int input,TypeSet<int>& res) const;
+    bool		getInputData(const BinID&,int idx);
+    bool		computeData(const DataHolder&,const BinID& relpos,
+	    			    int t0,int nrsamples) const;
 
-    const BinID*		reqStepout( int input, int output ) const
-    				{ return &stepout; }
-    const Interval<float>*	reqZMargin( int input, int output ) const
-				{ return &gate; }
-    const Interval<float>*	desZMargin( int input, int output ) const
-				{ return &desgate; }
+    const BinID*		reqStepout(int input,int output) const
+    				{ return &stepout_; }
+    const Interval<float>*	reqZMargin(int input,int output) const
+				{ return &gate_; }
+    const Interval<float>*	desZMargin(int input,int output) const
+				{ return &desgate_; }
 
-    BinID			stepout;
-    Interval<float>		gate;
-    int				oper;
-    bool			steering;
+    BinID			stepout_;
+    Interval<float>		gate_;
+    int				oper_;
+    bool			steering_;
 
-    TypeSet<BinID>              positions;
-    Interval<float>             desgate;
+    TypeSet<BinID>              positions_;
+    Interval<float>             desgate_;
 
     int				inidx_;
     int				outidx_;
 
-    ObjectSet<const DataHolder>		inputdata;
-    Array2DImpl<const DataHolder*>*    	outdata;
-    const DataHolder*			steerdata;
+    ObjectSet<const DataHolder>		inputdata_;
+    Array2DImpl<const DataHolder*>*    	outdata_;
+    const DataHolder*			steerdata_;
 };
 
 }; // namespace Attrib

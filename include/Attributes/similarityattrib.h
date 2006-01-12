@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: similarityattrib.h,v 1.12 2005-12-13 10:03:41 cvshelene Exp $
+ RCS:           $Id: similarityattrib.h,v 1.13 2006-01-12 13:15:30 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -54,7 +54,7 @@ class Similarity : public Provider
 {
 public:
     static void		initClass();
-			Similarity( Desc& );
+			Similarity(Desc&);
 
     static const char*	attribName()	{ return "Similarity"; }
     static const char*	gateStr()	{ return "gate"; }
@@ -73,14 +73,14 @@ protected:
 
     bool		getTrcPos();
 
-    bool		getInputOutput( int input, TypeSet<int>& res ) const;
-    bool		getInputData( const BinID&, int idx );
-    bool		computeData( const DataHolder&, const BinID& relpos,
-	    			     int t0, int nrsamples ) const;
+    bool		getInputOutput(int input,TypeSet<int>& res) const;
+    bool		getInputData(const BinID&,int idx);
+    bool		computeData(const DataHolder&,const BinID& relpos,
+	    			    int t0,int nrsamples) const;
 
-    const BinID*		reqStepout(int input, int output ) const;
-    const Interval<float>*	reqZMargin(int input, int output) const;
-    const Interval<float>*      desZMargin(int input, int output) const;
+    const BinID*		reqStepout(int input,int output ) const;
+    const Interval<float>*	reqZMargin(int input,int output) const;
+    const Interval<float>*      desZMargin(int input,int output) const;
 
     BinID			pos0_;
     BinID			pos1_;
