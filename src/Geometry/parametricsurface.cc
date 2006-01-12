@@ -4,7 +4,7 @@
  * DATE     : Nov 2004
 -*/
 
-static const char* rcsID = "$Id: parametricsurface.cc,v 1.17 2005-12-13 16:06:06 cvskris Exp $";
+static const char* rcsID = "$Id: parametricsurface.cc,v 1.18 2006-01-12 19:27:12 cvskris Exp $";
 
 #include "parametricsurface.h"
 
@@ -17,8 +17,8 @@ namespace Geometry
 {
 
 
-ParametricSurface::ParametricSurface( const RCol& origo_, const RCol& step_ )
-    : origo( origo_ )
+ParametricSurface::ParametricSurface( const RCol& origin_, const RCol& step_ )
+    : origin( origin_ )
     , step( step_ )
     , checksupport( true )
     , checkselfintersection( true )
@@ -59,10 +59,10 @@ void ParametricSurface::getPosIDs( TypeSet<GeomPosID>& pids, bool remudf ) const
     RowCol rc;
     for ( int rowidx=0; rowidx<nrRows(); rowidx++ )
     {
-	rc.row = origo.row+rowidx*step.row;
+	rc.row = origin.row+rowidx*step.row;
 	for ( int colidx=0; colidx<nrCols(); colidx++ )
 	{
-	    rc.col = origo.col+colidx*step.col;
+	    rc.col = origin.col+colidx*step.col;
 
 	    if ( remudf && !isKnotDefined(rc) ) continue;
 
@@ -74,14 +74,14 @@ void ParametricSurface::getPosIDs( TypeSet<GeomPosID>& pids, bool remudf ) const
 
 StepInterval<int> ParametricSurface::rowRange() const
 {
-    return StepInterval<int>( origo.row, origo.row+(nrRows()-1)*step.row,
+    return StepInterval<int>( origin.row, origin.row+(nrRows()-1)*step.row,
 	   		      step.row );
 }
 
 
 StepInterval<int> ParametricSurface::colRange() const
 {
-    return StepInterval<int>( origo.col, origo.col+(nrCols()-1)*step.col,
+    return StepInterval<int>( origin.col, origin.col+(nrCols()-1)*step.col,
 	    		      step.col );
 }
 
@@ -91,14 +91,14 @@ int ParametricSurface::nrKnots() const { return nrCols()*nrRows(); }
 
 RowCol ParametricSurface::getKnotRowCol( int idx ) const
 {
-    return RowCol( origo.row+idx/nrCols()*step.row,
-	    	   origo.col+idx%nrCols()*step.col);
+    return RowCol( origin.row+idx/nrCols()*step.row,
+	    	   origin.col+idx%nrCols()*step.col);
 }
 
 
 int ParametricSurface::getKnotIndex( const RCol& rc ) const
 {
-    RowCol relbid = -(origo-rc);
+    RowCol relbid = -(origin-rc);
     if ( relbid.row<0 || relbid.col<0 )
 	return -1;
 
@@ -148,14 +148,14 @@ bool ParametricSurface::setKnot( const RCol& rc, const Coord3& np )
 	int rowindex = rowIndex( rc.r() );
 	while ( rowindex<0 )
 	{
-	    if ( !insertRow(origo.row-step.row) )
+	    if ( !insertRow(origin.row-step.row) )
 		return false;
 	    rowindex = rowIndex( rc.r() );
 	}
 
 	while ( rowindex>=nrRows() )
 	{
-	    if ( !insertRow(origo.row+step.row*nrRows()) )
+	    if ( !insertRow(origin.row+step.row*nrRows()) )
 		return false;
 	    rowindex = rowIndex( rc.r() );
 	}
@@ -163,14 +163,14 @@ bool ParametricSurface::setKnot( const RCol& rc, const Coord3& np )
 	int colindex = colIndex( rc.c() );
 	while ( colindex<0 )
 	{
-	    if ( !insertCol(origo.col-step.col) )
+	    if ( !insertCol(origin.col-step.col) )
 		return false;
 	    colindex = colIndex( rc.c() );
 	}
 
 	while ( colindex>=nrCols() )
 	{
-	    if ( !insertCol(origo.col+step.col*nrCols()) )
+	    if ( !insertCol(origin.col+step.col*nrCols()) )
 		return false;
 	    colindex = colIndex( rc.c() );
 	}
@@ -179,7 +179,7 @@ bool ParametricSurface::setKnot( const RCol& rc, const Coord3& np )
     }
     else
     {
-	origo = rc;
+	origin = rc;
 	index = 0;
     }
 

@@ -4,7 +4,7 @@
  * DATE     : Nov 2004
 -*/
 
-static const char* rcsID = "$Id: binidsurface.cc,v 1.3 2005-03-10 11:45:04 cvskris Exp $";
+static const char* rcsID = "$Id: binidsurface.cc,v 1.4 2006-01-12 19:27:12 cvskris Exp $";
 
 #include "binidsurface.h"
 
@@ -27,7 +27,7 @@ BinIDSurface::BinIDSurface( const RCol& newstep )
 
 
 BinIDSurface::BinIDSurface( const BinIDSurface& b )
-    : ParametricSurface( b.origo, b.step ) 
+    : ParametricSurface( b.origin, b.step ) 
     , depths( b.depths ? new Array2DImpl<float>(*b.depths) : 0 )
 { }
 

@@ -7,7 +7,7 @@ CopyRight:     (C) dGB Beheer B.V.
 Author:        A.H. Bril
 Date:          23-10-1996
 Contents:      Ranges
-RCS:           $Id: parametricsurface.h,v 1.9 2005-12-13 16:06:06 cvskris Exp $
+RCS:           $Id: parametricsurface.h,v 1.10 2006-01-12 19:27:12 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,7 +26,7 @@ class ParametricSurface : public Element
 {
 public:
     			ParametricSurface(
-					const RCol& origo=RowCol(0,0),
+					const RCol& origin=RowCol(0,0),
 					const RCol& step=RowCol(1,1) );
     			~ParametricSurface();
     ParametricSurface*	clone() const = 0;
@@ -62,9 +62,9 @@ public:
     virtual bool	isKnotDefined( const RCol& ) const;
     bool		hasSupport(const RCol&) const;
 
-    Coord3		getPosition( int64 pid ) const;
-    bool		setPosition( int64 pid, const Coord3&);
-    bool		isDefined( int64 pid ) const;
+    Coord3		getPosition( GeomPosID pid ) const;
+    bool		setPosition( GeomPosID pid, const Coord3&);
+    bool		isDefined( GeomPosID pid ) const;
 
     bool		isAtEdge( const RCol& ) const;
 
@@ -80,8 +80,8 @@ protected:
     virtual void	_setKnot( int idx, const Coord3& ) 		= 0;
     virtual bool	checkSelfIntersection( const RCol& ) const;
 
-    int		rowIndex(int row) const { return (row-origo.row)/step.row; }
-    int		colIndex(int col) const { return (col-origo.col)/step.col; }
+    int		rowIndex(int row) const { return (row-origin.row)/step.row; }
+    int		colIndex(int col) const { return (col-origin.col)/step.col; }
     static int	rowDim() { return 0; }
     static int	colDim() { return 1; }
     virtual int	nrRows() const 						= 0;
@@ -91,7 +91,7 @@ protected:
     bool	checksupport;
     bool	checkselfintersection;
 
-    RowCol	origo;
+    RowCol	origin;
     RowCol	step;
 };
 
