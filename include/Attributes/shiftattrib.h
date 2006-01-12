@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: shiftattrib.h,v 1.6 2006-01-04 09:45:34 cvshelene Exp $
+ RCS:           $Id: shiftattrib.h,v 1.7 2006-01-12 20:37:38 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,23 +37,27 @@ namespace Attrib
 class Shift : public Provider
 {
 public:
-    static void		initClass();
-			Shift(Desc&);
+    static void			initClass();
+				Shift(Desc&);
 
-    static const char*	attribName()	{ return "Shift"; }
-    static const char*	posStr()	{ return "pos"; }
-    static const char*	timeStr()	{ return "time"; }
-    static const char*	steeringStr()	{ return "steering"; }
-    void		initSteering();
+    static const char*		attribName()	{ return "Shift"; }
+    static const char*		posStr()	{ return "pos"; }
+    static const char*		timeStr()	{ return "time"; }
+    static const char*		steeringStr()	{ return "steering"; }
+    void			initSteering();
 
 protected:
-    static Provider*	createInstance(Desc&);
-    static void		updateDesc(Desc&);
+    static Provider*		createInstance(Desc&);
+    static void			updateDesc(Desc&);
 
-    bool		getInputOutput(int input,TypeSet<int>& res) const;
-    bool		getInputData(const BinID&,int idx);
-    bool		computeData(const DataHolder&,const BinID& relpos,
-	    			    int t0,int nrsamples) const;
+    bool			allowParallelComputation() const
+    				{ return true; }
+
+    bool			getInputOutput(int inp,TypeSet<int>& res) const;
+    bool			getInputData(const BinID&,int zintv);
+    bool			computeData(const DataHolder&,
+	    				    const BinID& relpos,
+					    int z0,int nrsamples) const;
 
     const BinID*		reqStepout(int input,int output) const;
     const Interval<float>*	reqZMargin(int input,int output) const;
@@ -70,7 +74,7 @@ protected:
     const DataHolder*		steeringdata;
 };
 
-}; // namespace Attrib
+} // namespace Attrib
 
 
 #endif

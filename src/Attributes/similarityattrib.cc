@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          June 2005
- RCS:           $Id: similarityattrib.cc,v 1.19 2005-12-23 16:09:46 cvsnanne Exp $
+ RCS:           $Id: similarityattrib.cc,v 1.20 2006-01-12 20:37:38 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -91,10 +91,12 @@ Provider* Similarity::createInstance( Desc& desc )
 void Similarity::updateDesc( Desc& desc )
 {
     BufferString extstr = desc.getValParam(extensionStr())->getStringValue();
-    const bool iscube = extstr == extensionTypeStr(mExtensionCube);
+    const bool iscube = extstr == extensionTypeStr( mExtensionCube );
     desc.setParamEnabled( pos0Str(), !iscube );
     desc.setParamEnabled( pos1Str(), !iscube );
     desc.setParamEnabled( stepoutStr(), iscube );
+
+    desc.inputSpec(1).enabled = desc.getValParam(steeringStr())->getBoolValue();
 }
 
 
@@ -232,20 +234,20 @@ bool Similarity::computeData( const DataHolder& output, const BinID& relpos,
 {
     if ( !inputdata_.size() ) return false;
 
-    Interval<int> samplegate( mNINT(gate_.start/refstep),
-	    		      mNINT(gate_.stop/refstep) );
+    const Interval<int> samplegate( mNINT(gate_.start/refstep),
+				    mNINT(gate_.stop/refstep) );
 
     const int gatesz = samplegate.width();
     const int nrpairs = inputdata_.size()/2;
-    int firstsample = inputdata_[0] ? z0 -inputdata_[0]->z0_ : z0;
+    const int firstsample = inputdata_[0] ? z0 -inputdata_[0]->z0_ : z0;
 
     for ( int idx=0; idx<nrsamples; idx++ )
     {
 	RunningStatistics<float> stats;
 	for ( int pair=0; pair<nrpairs; pair++ )
 	{
-	    int idx1 = extension_==mExtensionCube ? pair : pair*2;
-	    int idx2 = extension_==mExtensionCube ? 
+	    const int idx1 = extension_==mExtensionCube ? pair : pair*2;
+	    const int idx2 = extension_==mExtensionCube ? 
 				   inputdata_.size() - (pair+1) : pair*2 +1;
 	    float s0 = firstsample + idx + samplegate.start;
 	    float s1 = s0;
@@ -272,29 +274,30 @@ bool Similarity::computeData( const DataHolder& output, const BinID& relpos,
 		    similarity( vals0, vals1, s0, s1, 1, gatesz, donormalize_ );
 	}
 
+	const int outidx = z0 - output.z0_ + idx;
 	if ( !stats.size() )
 	{
-	    for (int id=0; id<outputinterest.size(); id++ )
+	    for (int sidx=0; sidx<outputinterest.size(); sidx++ )
 	    {
-		if ( outputinterest[id] ) 
-		    output.series(id)->setValue(idx,0);
+		if ( outputinterest[sidx] ) 
+		    output.series(sidx)->setValue( outidx, 0 );
 	    }
 	}
 	else
 	{
 	    if ( outputinterest[0] ) 
-		output.series(0)->setValue(idx,stats.mean());
+		output.series(0)->setValue( outidx, stats.mean() );
 
 	    if ( nrpairs>1 && outputinterest.size()>1 )
 	    {
 		if ( outputinterest[1] ) 
-		    output.series(1)->setValue(idx,stats.median());
+		    output.series(1)->setValue( outidx, stats.median() );
 		if ( outputinterest[2] ) 
-		    output.series(2)->setValue(idx,stats.variance());
+		    output.series(2)->setValue( outidx, stats.variance() );
 		if ( outputinterest[3] ) 
-		    output.series(3)->setValue(idx,stats.min());
+		    output.series(3)->setValue( outidx, stats.min() );
 		if ( outputinterest[4] ) 
-		    output.series(4)->setValue(idx,stats.max());
+		    output.series(4)->setValue( outidx, stats.max() );
 	    }
 	}
     }

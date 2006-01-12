@@ -4,15 +4,13 @@
  * DATE     : Oct 2005
 -*/
 
-static const char* rcsID = "$Id: evaluateattrib.cc,v 1.3 2005-10-19 13:01:14 cvshelene Exp $";
+static const char* rcsID = "$Id: evaluateattrib.cc,v 1.4 2006-01-12 20:37:38 cvsnanne Exp $";
 
 
 #include "evaluateattrib.h"
 #include "attribdataholder.h"
 #include "attribdesc.h"
 #include "attribfactory.h"
-#include "survinfo.h"
-#include "datainpspec.h"
 
 
 namespace Attrib
@@ -46,12 +44,12 @@ Provider* Evaluate::createInstance( Desc& desc )
 }
 
 
-Evaluate::Evaluate( Desc& desc )
-        : Provider( desc )
+Evaluate::Evaluate( Desc& ds )
+        : Provider( ds )
 {
     if ( !isOK() ) return;
 
-    inputdata.allowNull( true );
+    inputdata_.allowNull( true );
 }
 
 
@@ -61,18 +59,18 @@ bool Evaluate::getInputOutput( int input, TypeSet<int>& res ) const
 }
 
 
-bool Evaluate::getInputData( const BinID& relpos, int idx )
+bool Evaluate::getInputData( const BinID& relpos, int zintv )
 {
-    while ( inputdata.size() < inputs.size() )
-	inputdata += 0;
+    while ( inputdata_.size() < inputs.size() )
+	inputdata_ += 0;
 
-    for ( int idy=0; idy<inputs.size(); idy++ )
+    for ( int idx=0; idx<inputs.size(); idx++ )
     {
-	const DataHolder* data = inputs[idy]->getData( relpos, idx );
+	const DataHolder* data = inputs[idx]->getData( relpos, zintv );
 	if ( !data ) return false;
 
-	inputdata.replace( idy, data );
-	dataidx_ += getDataIndex( idy );
+	inputdata_.replace( idx, data );
+	dataidx_ += getDataIndex( idx );
     }
     
     return true;
@@ -80,20 +78,23 @@ bool Evaluate::getInputData( const BinID& relpos, int idx )
 
 
 bool Evaluate::computeData( const DataHolder& output, const BinID& relpos,
-			  int z0, int nrsamples ) const
+			    int z0, int nrsamples ) const
 {
-    if ( !inputdata.size() || !output.nrSeries() ) return false;
+    if ( !inputdata_.size() || !output.nrSeries() ) return false;
 
-    
     for ( int idx=0; idx<nrsamples; idx++ )
     {
-	int cursample = z0 + idx;
-	for ( int idy=0; idy<output.nrSeries(); idy++ )
+	const int cursample = z0 + idx;
+	for ( int sidx=0; sidx<output.nrSeries(); sidx++ )
 	{
-	    if ( outputinterest[idy] )
-		output.series(idy)->setValue( idx,
-			inputdata[idy]->series(dataidx_[idy])->
-			value(cursample - inputdata[idy]->z0_) );
+	    if ( !outputinterest[sidx] ) continue;
+
+	    const ValueSeries<float>* valseries = 
+			inputdata_[sidx]->series( dataidx_[sidx] );
+	    if ( !valseries ) continue;
+
+	    output.series(sidx)->setValue( z0-output.z0_+idx,
+			valseries->value(cursample-inputdata_[sidx]->z0_) );
 	}
     }
 

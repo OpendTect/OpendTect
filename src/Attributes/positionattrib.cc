@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          November 2002
- RCS:           $Id: positionattrib.cc,v 1.13 2006-01-12 13:14:04 cvshelene Exp $
+ RCS:           $Id: positionattrib.cc,v 1.14 2006-01-12 20:37:38 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -157,7 +157,7 @@ bool Position::getInputOutput( int input, TypeSet<int>& res ) const
 }
 
 
-bool Position::getInputData( const BinID& relpos, int idx )
+bool Position::getInputData( const BinID& relpos, int zintv )
 {
     const int nrpos = positions_.size();
     const int inlsz = stepout_.inl * 2 + 1;
@@ -168,22 +168,22 @@ bool Position::getInputData( const BinID& relpos, int idx )
     while ( inputdata_.size()<nrpos )
 	inputdata_ += 0;
     
-    for ( int idp=0; idp<nrpos; idp++ )
+    for ( int posidx=0; posidx<nrpos; posidx++ )
     {
-	BinID truepos = relpos + positions_[idp] * bidstep;
-	const DataHolder* indata = inputs[0]->getData( truepos, idx );
+	BinID truepos = relpos + positions_[posidx] * bidstep;
+	const DataHolder* indata = inputs[0]->getData( truepos, zintv );
 
-	const DataHolder* odata = inputs[1]->getData( truepos, idx );
+	const DataHolder* odata = inputs[1]->getData( truepos, zintv );
 	if ( !indata || !odata ) return false;
 
-	inputdata_.replace( idp, indata );
-	outdata_->set( positions_[idp].inl + stepout_.inl,
-		      positions_[idp].crl + stepout_.crl, odata );
+	inputdata_.replace( posidx, indata );
+	outdata_->set( positions_[posidx].inl + stepout_.inl,
+		       positions_[posidx].crl + stepout_.crl, odata );
     }
     
     inidx_ = getDataIndex( 0 );
     outidx_ = getDataIndex( 1 );
-    steerdata_ = steering_ ? inputs[2]->getData(relpos,idx) : 0;
+    steerdata_ = steering_ ? inputs[2]->getData( relpos, zintv ) : 0;
 
     return true;
 }

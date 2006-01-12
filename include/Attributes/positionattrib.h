@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          November 2002
- RCS:           $Id: positionattrib.h,v 1.7 2006-01-12 13:15:30 cvshelene Exp $
+ RCS:           $Id: positionattrib.h,v 1.8 2006-01-12 20:37:38 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,26 +40,30 @@ namespace Attrib
 class Position : public Provider
 {
 public:
-    static void		initClass();
-			Position(Desc&);
+    static void			initClass();
+				Position(Desc&);
 
-    static const char*	attribName()		{ return "Position"; }
-    static const char*	stepoutStr()		{ return "stepout"; }
-    static const char*	gateStr()		{ return "gate"; }
-    static const char*  operStr()   		{ return "oper"; }
-    static const char*	steeringStr()		{ return "steering"; }
-    static const char*	operTypeStr(int);
-    void		initSteering();
+    static const char*		attribName()	{ return "Position"; }
+    static const char*		stepoutStr()	{ return "stepout"; }
+    static const char*		gateStr()	{ return "gate"; }
+    static const char*  	operStr()	{ return "oper"; }
+    static const char*		steeringStr()	{ return "steering"; }
+    static const char*		operTypeStr(int);
+    void			initSteering();
 
 protected:
-    			~Position();
-    static Provider*	createInstance(Desc&);
-    static void		updateDesc(Desc&);
+    				~Position();
+    static Provider*		createInstance(Desc&);
+    static void			updateDesc(Desc&);
 
-    bool		getInputOutput(int input,TypeSet<int>& res) const;
-    bool		getInputData(const BinID&,int idx);
-    bool		computeData(const DataHolder&,const BinID& relpos,
-	    			    int t0,int nrsamples) const;
+    bool			allowParallelComputation() const
+				{ return true; }
+
+    bool			getInputOutput(int inp,TypeSet<int>& res) const;
+    bool			getInputData(const BinID&,int zintv);
+    bool			computeData(const DataHolder&,
+	    				    const BinID& relpos,
+					    int z0,int nrsamples) const;
 
     const BinID*		reqStepout(int input,int output) const
     				{ return &stepout_; }
@@ -79,13 +83,12 @@ protected:
     int				inidx_;
     int				outidx_;
 
-    ObjectSet<const DataHolder>		inputdata_;
-    Array2DImpl<const DataHolder*>*    	outdata_;
-    const DataHolder*			steerdata_;
+    ObjectSet<const DataHolder>	inputdata_;
+    Array2DImpl<const DataHolder*>* outdata_;
+    const DataHolder*		steerdata_;
 };
 
-}; // namespace Attrib
+} // namespace Attrib
 
 
 #endif
-

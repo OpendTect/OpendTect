@@ -7,15 +7,13 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          December 2004
- RCS:           $Id: scalingattrib.h,v 1.7 2005-12-23 16:09:46 cvsnanne Exp $
+ RCS:           $Id: scalingattrib.h,v 1.8 2006-01-12 20:37:38 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 
 #include "attribprovider.h"
-#include "basictask.h"
-#include "runstat.h"
 
 /*!\brief Scaling Attribute
 
@@ -40,59 +38,44 @@ class Scaling: public Provider
 public:
     static void		initClass();
 			Scaling(Desc&);
-
-    static const char*  attribName()		{ return "Scaling"; }
-    static const char*  scalingTypeStr()	{ return "scalingtype"; }
-    static const char*  powervalStr()		{ return "powerval"; }
-    static const char*  gateStr()		{ return "timegate"; }
-    static const char*  factorStr()		{ return "scalefactor"; }
-    static const char*  statsTypeStr()		{ return "statstype"; }
-    static const char*  statsTypeNamesStr(int type);
-    static const char*  scalingTypeNamesStr(int type);
+    static const char*	attribName()		{ return "Scaling"; }
+    static const char*	scalingTypeStr()	{ return "scalingtype"; }
+    static const char*	powervalStr()		{ return "powerval"; }
+    static const char*	gateStr()		{ return "timegate"; }
+    static const char*	factorStr()		{ return "scalefactor"; }
+    static const char*	statsTypeStr()		{ return "statstype"; }
+    static const char*	statsTypeNamesStr(int type);
+    static const char*	scalingTypeNamesStr(int type);
 
 protected:
 
-    static Provider*    createInstance(Desc&);
-    static void         updateDesc( Desc& );
-
-    bool		getInputOutput(int input,TypeSet<int>& res) const;
-    bool		getInputData(const BinID&,int idx);
-    bool		computeData(const DataHolder&,const BinID& relpos,
-				    int z0,int nrsamples) const;
-
-    void                checkTimeGates(const TypeSet<Interval<float> >& oldtgs,
-				       TypeSet< Interval<int> >& newsampgates,
-				       int z0,int nrsamples) const;
-    void                scaleTimeN(const DataHolder&, int, int) const;
+    static Provider*	createInstance(Desc&);
+    static void		updateDesc(Desc&);
 
     bool		allowParallelComputation()	{ return true; }
 
-    int			scalingtype;
-    int			statstype;
-    float		powerval;
-    TypeSet< Interval<float> >	gates;
-    TypeSet<float>	factors;
-    const DataHolder*	inputdata;
+    bool		getInputOutput(int input,TypeSet<int>& res) const;
+    bool		getInputData(const BinID&,int zintv);
+    bool		computeData(const DataHolder&,const BinID& relpos,
+				    int z0,int nrsamples) const;
+
+    void		getSampleGates(const TypeSet<Interval<float> >& oldtgs,
+				       TypeSet< Interval<int> >& newsampgates,
+				       int z0,int nrsamples) const;
+    void		scaleTimeN(const DataHolder&, int, int) const;
+    void		getScaleFactorsFromStats(
+	    			const TypeSet<Interval<int> >& gates,
+				TypeSet<float>& factors) const;
+
+    int			scalingtype_;
+    int			statstype_;
+    float		powerval_;
+    TypeSet< Interval<float> >	gates_;
+    TypeSet<float>	factors_;
+    const DataHolder*	inputdata_;
     int			dataidx_;
 };
 
 }; // namespace Attrib
-
-
-/*!\mainpage Standard Attributes
-
-  This module contains the definition of the 'standard' OpendTect attributes.
-  Contained are attributes like Energy, Similarity, Volume Statistics, etc.
-  The base class for all attributes is the AttribCalc class.
-
-  The Attribute factories are defined in the Attribute Engine module
-  (AttribEng).
-
-  If you want to make your own attributes, please consult the Programmer's
-  manual, section 'Plugins'. You'll find an annotated example of the Coherency
-  attribute implementation.
-
-*/
-
 
 #endif

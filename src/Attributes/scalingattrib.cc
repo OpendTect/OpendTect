@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          December 2004
- RCS:           $Id: scalingattrib.cc,v 1.13 2005-12-23 16:09:46 cvsnanne Exp $
+ RCS:           $Id: scalingattrib.cc,v 1.14 2006-01-12 20:37:38 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "attribfactory.h"
 #include "attribparam.h"
 #include "attribparamgroup.h"
+#include "runstat.h"
 
 #define mStatsTypeRMS	0
 #define mStatsTypeMean	1
@@ -135,8 +136,8 @@ Scaling::Scaling( Desc& desc_ )
 {
     if ( !isOK() ) return;
 
-    mGetEnum( scalingtype, scalingTypeStr() );
-    mGetFloat( powerval, powervalStr() );
+    mGetEnum( scalingtype_, scalingTypeStr() );
+    mGetFloat( powerval_, powervalStr() );
 
     mDescGetParamGroup(ZGateParam,gateset,desc,gateStr())
     for ( int idx=0; idx<gateset->size(); idx++ )
@@ -144,15 +145,15 @@ Scaling::Scaling( Desc& desc_ )
 	const ValParam& param = (ValParam&)(*gateset)[idx];
 	Interval<float> interval( param.getfValue(0), param.getfValue(1) );
 	interval.sort(); interval.scale( 1./zFactor() );
-	gates += interval;
+	gates_ += interval;
     }
     
-    mGetEnum( statstype, statsTypeStr() );
-    if ( statstype == mStatsTypeUser )
+    mGetEnum( statstype_, statsTypeStr() );
+    if ( statstype_ == mStatsTypeUser )
     {
 	mDescGetParamGroup(ValParam,factorset,desc,factorStr())
 	for ( int idx=0; idx<factorset->size(); idx++ )
-	    factors += ((ValParam&)((*factorset)[idx])).getfValue( 0 );
+	    factors_ += ((ValParam&)((*factorset)[idx])).getfValue( 0 );
     }
 }
 
@@ -163,62 +164,70 @@ bool Scaling::getInputOutput( int input, TypeSet<int>& res ) const
 }
 
 
-bool Scaling::getInputData( const BinID& relpos, int idx )
+bool Scaling::getInputData( const BinID& relpos, int zintv )
 {
-    inputdata = inputs[0]->getData( relpos, idx );
+    inputdata_ = inputs[0]->getData( relpos, zintv );
     dataidx_ = getDataIndex( 0 );
-    return inputdata;
+    return inputdata_;
+}
+
+
+void Scaling::getScaleFactorsFromStats( const TypeSet<Interval<int> >& sgates,
+					TypeSet<float>& scalefactors ) const
+{
+    RunningStatistics<float> stats;
+    for ( int sgidx=0; sgidx<gates_.size(); sgidx++ )
+    {
+	const Interval<int>& sg = sgates[sgidx];
+	if ( !sg.start && !sg.stop )
+	{
+	    scalefactors += 1;
+	    continue;
+	}
+
+	for ( int idx=sg.start; idx<=sg.stop; idx++ )
+	{
+	    const ValueSeries<float>* series = inputdata_->series(dataidx_);
+	    stats += fabs( series->value(idx-inputdata_->z0_) );
+	}
+
+	float val = 1;
+	if ( statstype_ == mStatsTypeRMS )
+	    val = stats.rms();
+	else if ( statstype_ == mStatsTypeMean )
+	    val = stats.mean();
+	else
+	    val = stats.max();
+
+	scalefactors += !mIsZero(val,mDefEps) ? 1/val : 1;
+    }
+
 }
     
 
 bool Scaling::computeData( const DataHolder& output, const BinID& relpos,
 			   int z0, int nrsamples ) const
 {
-    if ( scalingtype == mScalingTypeTPower )
+    if ( scalingtype_ == mScalingTypeTPower )
     {
 	scaleTimeN( output, z0, nrsamples );
 	return true;
     }
 
     TypeSet< Interval<int> > samplegates;
-    checkTimeGates( gates, samplegates, z0, nrsamples );
+    getSampleGates( gates_, samplegates, z0, nrsamples );
 
-    RunningStatistics<float> stats;
     TypeSet<float> scalefactors;
-    if ( statstype != mStatsTypeUser )
-    {
-	for ( int sgidx=0; sgidx<gates.size(); sgidx++ )
-	{
-	    const Interval<int>& sg = samplegates[sgidx];
-	    if ( !sg.start && !sg.stop )
-	    {
-		scalefactors += 1;
-		continue;
-	    }
-
-	    for ( int idx=sg.start; idx<=sg.stop; idx++ )
-		stats += fabs( inputdata->series(dataidx_)->
-					value(idx-inputdata->z0_) );
-
-	    float val = 1;
-	    if ( statstype == mStatsTypeRMS )
-		val = stats.rms();
-	    else if ( statstype == mStatsTypeMean )
-		val = stats.mean();
-	    else
-		val = stats.max();
-
-	    scalefactors += !mIsZero(val,mDefEps) ? 1/val : 1;
-	}
-    }
+    if ( statstype_ != mStatsTypeUser )
+	getScaleFactorsFromStats( samplegates, scalefactors );
     else
-	scalefactors = factors;
+	scalefactors = factors_;
 
     for ( int idx=0; idx<nrsamples; idx++ )
     {
-	int csamp = z0 + idx;
-	const float trcval = inputdata->series(dataidx_)->
-	    				value( csamp-inputdata->z0_ );
+	const int csamp = z0 + idx;
+	const float trcval = inputdata_->series(dataidx_)->
+	    				value( csamp-inputdata_->z0_ );
 	float scalefactor = 1;
 	bool found = false;
 	for ( int sgidx=0; sgidx<samplegates.size(); sgidx++ )
@@ -249,20 +258,20 @@ bool Scaling::computeData( const DataHolder& output, const BinID& relpos,
 }
 
 
-void Scaling::scaleTimeN(const DataHolder& output, int z0, int nrsamples) const
+void Scaling::scaleTimeN( const DataHolder& output, int z0, int nrsamples) const
 {
     for ( int idx=0; idx<nrsamples; idx++ )
     {
-	int cursample = idx+z0;
-	const float curt = z0*refstep + idx*refstep;
-	const float result = pow(curt,powerval) * 
-		inputdata->series(dataidx_)->value( cursample-inputdata->z0_ );
-	output.series(0)->setValue( idx, result );
+	const int cursample = idx+z0;
+	const float curt = cursample*refstep;
+	const float result = pow(curt,powerval_) * 
+	    inputdata_->series(dataidx_)->value( cursample-inputdata_->z0_ );
+	output.series(0)->setValue( cursample-output.z0_, result );
     }
 }
 
 
-void Scaling::checkTimeGates( const TypeSet< Interval<float> >& oldtgs,
+void Scaling::getSampleGates( const TypeSet< Interval<float> >& oldtgs,
 			      TypeSet<Interval<int> >& newsampgates,
 			      int z0, int nrsamples ) const
 {

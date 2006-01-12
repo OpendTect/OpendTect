@@ -7,24 +7,20 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: volstatsattrib.h,v 1.7 2006-01-12 13:15:30 cvshelene Exp $
+ RCS:           $Id: volstatsattrib.h,v 1.8 2006-01-12 20:37:38 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "attribprovider.h"
-#include "runstat.h"
 
 /*!\brief Volume Statistics Attribute
 
-VolumeStatistics nrvolumes=1 stepout=1,1 shape=Rectangle|Ellipse gate=[0,0]
+VolumeStatistics stepout=1,1 shape=Rectangle|Ellipse gate=[0,0]
 		 steering=
 
 VolumeStatistics collects all samples within the timegate from all traces
 within the stepout.
-
-If nrvolumes is enabled, the statistical analysis will be performed on each
-volume separately, and the average of all volumes will be calculated.
 
 If steering is enabled, the timegate is taken relative to the steering.
 
@@ -50,38 +46,40 @@ namespace Attrib
 class VolStats : public Provider
 {
 public:
-    static void		initClass();
-			VolStats(Desc&);
+    static void			initClass();
+				VolStats(Desc&);
 
-    static const char*	attribName()		{ return "VolumeStatistics"; }
-    static const char*	nrvolumesStr()		{ return "nrvolumes"; }
-    static const char*	stepoutStr()		{ return "stepout"; }
-    static const char*	shapeStr()		{ return "shape"; }
-    static const char*	gateStr()		{ return "gate"; }
-    static const char*  absolutegateStr()	{ return "absolutegate"; }
-    static const char*	steeringStr()		{ return "steering"; }
-    static const char*	shapeTypeStr(int);
-    void		initSteering();
+    static const char*		attribName()	  { return "VolumeStatistics"; }
+    static const char*		nrvolumesStr()	  { return "nrvolumes"; }
+    static const char*		stepoutStr()	  { return "stepout"; }
+    static const char*		shapeStr()	  { return "shape"; }
+    static const char*		gateStr()	  { return "gate"; }
+    static const char*		absolutegateStr() { return "absolutegate"; }
+    static const char*		steeringStr()	  { return "steering"; }
+    static const char*		shapeTypeStr(int);
+    void			initSteering();
 
 protected:
-    			~VolStats();
-    static Provider*	createInstance(Desc&);
-    static void		updateDesc(Desc&);
+				~VolStats();
+    static Provider*		createInstance(Desc&);
+    static void			updateDesc(Desc&);
 
-    bool		getInputOutput(int input,TypeSet<int>& res) const;
-    bool		getInputData(const BinID&,int idx);
-    bool		computeData(const DataHolder&,const BinID& relpos,
-	    			    int t0,int nrsamples) const;
+    bool			allowParallelComputing() const
+				{ return true; }
+
+    bool			getInputOutput(int inp,TypeSet<int>& res) const;
+    bool			getInputData(const BinID&,int zintv);
+    bool			computeData(const DataHolder&,
+	    				    const BinID& relpos,
+					    int z0,int nrsamples) const;
 
     const BinID*		reqStepout(int input,int output) const;
     const Interval<float>*	reqZMargin(int input,int output) const;
     const Interval<float>*      desZMargin(int input,int output) const;
 
-    int				nrvolumes;
     BinID			stepout;
     int				shape;
     Interval<float>		gate;
-    bool			absolutegate;
     bool			steering;
 
     Interval<float>             desgate;
@@ -91,17 +89,13 @@ protected:
 
     static int          	outputtypes[];
 
-    ObjectSet<RunningStatistics<double> >*	stats;
-
     int				dataidx_;
 
     ObjectSet<const DataHolder>	inputdata;
     const DataHolder*		steeringdata;
-
 };
 
-}; // namespace Attrib
+} // namespace Attrib
 
 
 #endif
-

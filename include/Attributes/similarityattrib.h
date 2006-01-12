@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: similarityattrib.h,v 1.13 2006-01-12 13:15:30 cvshelene Exp $
+ RCS:           $Id: similarityattrib.h,v 1.14 2006-01-12 20:37:38 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -53,34 +53,37 @@ namespace Attrib
 class Similarity : public Provider
 {
 public:
-    static void		initClass();
-			Similarity(Desc&);
+    static void			initClass();
+				Similarity(Desc&);
 
-    static const char*	attribName()	{ return "Similarity"; }
-    static const char*	gateStr()	{ return "gate"; }
-    static const char*	pos0Str()	{ return "pos0"; }
-    static const char*	pos1Str()	{ return "pos1"; }
-    static const char*	stepoutStr()	{ return "stepout"; }
-    static const char*	steeringStr()	{ return "steering"; }
-    static const char*	normalizeStr()	{ return "normalize"; }
-    static const char*	extensionStr()	{ return "extension"; }
-    static const char*	extensionTypeStr(int);
-    void		initSteering();
+    static const char*		attribName()	{ return "Similarity"; }
+    static const char*		gateStr()	{ return "gate"; }
+    static const char*		pos0Str()	{ return "pos0"; }
+    static const char*		pos1Str()	{ return "pos1"; }
+    static const char*		stepoutStr()	{ return "stepout"; }
+    static const char*		steeringStr()	{ return "steering"; }
+    static const char*		normalizeStr()	{ return "normalize"; }
+    static const char*		extensionStr()	{ return "extension"; }
+    static const char*		extensionTypeStr(int);
+    void			initSteering();
 
 protected:
-    static Provider*	createInstance(Desc&);
-    static void		updateDesc(Desc&);
+    static Provider*		createInstance(Desc&);
+    static void			updateDesc(Desc&);
 
-    bool		getTrcPos();
+    bool			allowParallelComputation() const
+				{ return true; }
 
-    bool		getInputOutput(int input,TypeSet<int>& res) const;
-    bool		getInputData(const BinID&,int idx);
-    bool		computeData(const DataHolder&,const BinID& relpos,
-	    			    int t0,int nrsamples) const;
+    bool			getInputOutput(int inp,TypeSet<int>& res) const;
+    bool			getInputData(const BinID&,int zintv);
+    bool			computeData(const DataHolder&,
+	    				    const BinID& relpos,
+					    int z0,int nrsamples) const;
 
-    const BinID*		reqStepout(int input,int output ) const;
+    const BinID*		reqStepout(int input,int output) const;
     const Interval<float>*	reqZMargin(int input,int output) const;
     const Interval<float>*      desZMargin(int input,int output) const;
+    bool			getTrcPos();
 
     BinID			pos0_;
     BinID			pos1_;
@@ -119,8 +122,7 @@ protected:
     };
 };
 
-}; // namespace Attrib
+} // namespace Attrib
 
 
 #endif
-
