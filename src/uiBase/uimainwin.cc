@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.100 2005-11-16 13:59:31 cvsarend Exp $
+ RCS:           $Id: uimainwin.cc,v 1.101 2006-01-12 17:11:17 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -322,7 +322,6 @@ uiStatusBar* uiMainWinBody::uistatusbar()
 
 uiMenuBar* uiMainWinBody::uimenubar()
 {
-    if ( !menubar ) pErrMsg("No menuBar. See uiMainWinBody's constructor"); 
     return menubar;
 }
 
