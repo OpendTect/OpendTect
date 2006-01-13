@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Jul 2003
- RCS:           $Id: visdepthtabplanedragger.cc,v 1.14 2005-06-10 11:02:52 cvsnanne Exp $
+ RCS:           $Id: visdepthtabplanedragger.cc,v 1.15 2006-01-13 15:40:15 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -92,14 +92,17 @@ Coord3 DepthTabPlaneDragger::center() const
 
 void DepthTabPlaneDragger::setSize( const Coord3& scale, bool alldims )
 {
-    const Coord3 dscale = world2Dragger(scale, false);
+    Coord3 newscale( scale[0] ? scale[0] : 0.1,
+    		     scale[1] ? scale[1] : 0.1,
+    		     scale[2] ? scale[2] : 0.1 );
+    const Coord3 dscale = world2Dragger( newscale, false);
     dragger->scaleFactor.setValue(SbVec3f( dscale.x/2, dscale.y/2, dscale.z/2));
 
-    sizes[dim] = scale;
+    sizes[dim] = newscale;
 
     if ( alldims )
     {
-	sizes[0] = scale; sizes[1] = scale; sizes[2] = scale;
+	sizes[0] = newscale; sizes[1] = newscale; sizes[2] = newscale;
     }
 }
 
