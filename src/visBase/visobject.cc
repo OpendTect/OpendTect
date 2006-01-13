@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visobject.cc,v 1.35 2005-04-22 10:07:49 cvskris Exp $";
+static const char* rcsID = "$Id: visobject.cc,v 1.36 2006-01-13 15:38:54 cvskris Exp $";
 
 #include "visobject.h"
 
@@ -46,7 +46,7 @@ VisualObjectImpl::VisualObjectImpl( bool selectable_ )
     setMaterial( Material::create() );
     onoff->ref();
     onoff->addChild( root );
-    onoff->whichChild = 0;
+    onoff->whichChild = SO_SWITCH_ALL;
 }
 
 
@@ -59,7 +59,7 @@ VisualObjectImpl::~VisualObjectImpl()
 
 void VisualObjectImpl::turnOn( bool yn )
 {
-    if ( onoff ) onoff->whichChild = yn ? 0 : SO_SWITCH_NONE;
+    if ( onoff ) onoff->whichChild = yn ? SO_SWITCH_ALL : SO_SWITCH_NONE;
     else if ( !yn )
     {
 	pErrMsg( "Turning off object without switch");
@@ -70,7 +70,7 @@ void VisualObjectImpl::turnOn( bool yn )
 
 bool VisualObjectImpl::isOn() const
 {
-    return !onoff || !onoff->whichChild.getValue();
+    return !onoff || onoff->whichChild.getValue()==SO_SWITCH_ALL;
 }
 
 
