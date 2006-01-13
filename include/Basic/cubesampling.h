@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Feb 2002
- RCS:           $Id: cubesampling.h,v 1.22 2005-11-29 16:03:39 cvskris Exp $
+ RCS:           $Id: cubesampling.h,v 1.23 2006-01-13 15:45:33 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,12 +43,8 @@ struct HorSampling
 
     inline void		include( const BinID& bid )
 			{ includeInl(bid.inl); includeCrl(bid.crl); }
-    inline void		includeInl( int inl )
-			{ if ( inl < start.inl ) start.inl = inl;
-			  if ( inl > stop.inl ) stop.inl = inl; }
-    inline void		includeCrl( int crl )
-			{ if ( crl < start.crl ) start.crl = crl;
-			  if ( crl > stop.crl ) stop.crl = crl; }
+    void		includeInl( int inl );
+    void		includeCrl( int crl );
     void		limitTo(const HorSampling&);
 
     int			nrInl() const;

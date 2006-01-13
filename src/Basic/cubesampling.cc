@@ -4,7 +4,7 @@
  * DATE     : somewhere around 1999
 -*/
  
-static const char* rcsID = "$Id: cubesampling.cc,v 1.18 2005-11-29 16:03:39 cvskris Exp $";
+static const char* rcsID = "$Id: cubesampling.cc,v 1.19 2006-01-13 15:45:30 cvskris Exp $";
 
 #include "cubesampling.h"
 #include "survinfo.h"
@@ -76,6 +76,30 @@ StepInterval<int> HorSampling::inlRange() const
 
 StepInterval<int> HorSampling::crlRange() const
 { return StepInterval<int>( start.crl, stop.crl, step.crl ); }
+
+
+void HorSampling::includeInl( int inl )
+{
+    if ( Values::isUdf(start.inl) || Values::isUdf(stop.inl) || nrInl()<1 )
+	start.inl = stop.inl = inl;
+    else
+    {
+	start.inl = mMIN( start.inl, inl );
+	stop.inl = mMAX( stop.inl, inl );
+    }
+}
+
+
+void HorSampling::includeCrl( int crl )
+{
+    if ( Values::isUdf(start.crl) || Values::isUdf(stop.crl) || nrCrl()<1 )
+	start.crl = stop.crl = crl;
+    else
+    {
+	start.crl = mMIN( start.crl, crl );
+	stop.crl = mMAX( stop.crl, crl );
+    }
+}
 
 
 void HorSampling::get( Interval<int>& inlrg, Interval<int>& crlrg ) const
