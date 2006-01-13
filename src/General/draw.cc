@@ -4,7 +4,7 @@
  * DATE     : 18-4-1996
 -*/
 
-static const char* rcsID = "$Id: draw.cc,v 1.44 2005-12-27 13:29:54 cvsnanne Exp $";
+static const char* rcsID = "$Id: draw.cc,v 1.45 2006-01-13 15:49:01 cvskris Exp $";
 
 /*! \brief Several implementations for UI-related things.
 
@@ -13,6 +13,8 @@ The main chunk is color table related.
 
 #include "draw.h"
 #include "colortab.h"
+
+#include "basictask.h"
 #include "separstr.h"
 #include "iopar.h"
 #include "settings.h"
@@ -138,27 +140,58 @@ ColorTable* ColorTable::clone() const
     return res;
 }
 
+class ColorTableIndexer : public ParallelTask
+{
+public:
+    			ColorTableIndexer( int nt, float x0, float dx,
+			       		   const ColorTable& ct, Color* res )
+			    : nrtimes( nt )
+			    , x0_( x0 )
+			    , dx_( dx )
+			    , ct_( ct )
+			    , res_( res )
+			{}
+
+    bool		doWork( int start, int stop )
+    			{
+			    for ( int idx=start; idx<=stop; idx++ )
+				res_[idx] = ct_.color( x0_+dx_*idx );
+			    return true;
+			}
+
+    int			nrTimes() const { return nrtimes; }
+
+protected:
+    int			nrtimes;
+    float		x0_;
+    float		dx_;
+    const ColorTable&	ct_;
+    Color*		res_;
+};
+
 
 void ColorTable::calcList( int nritems )
 {
-    collist.erase();
     const int sz = cvs.size();
-    if ( sz == 0 || nritems < 1 ) return;
-
-    ColorVal cv0( cvs[0] );
-    ColorVal cv1( cvs[sz-1] );
-    float dist = cv1.value - cv0.value;
-    uselist = false;
-    if ( nritems == 1 )
+    if ( !sz || nritems<1 )
     {
-	collist += color( cv0.value + dist / 2 );
-	uselist = true;
+	uselist = false;
+	collist.erase();
 	return;
     }
 
-    float step = dist / (nritems-1);
-    for ( int idx=0; idx<nritems; idx++ )
-	collist += color( cv0.value + idx * step );
+    const ColorVal cv0( cvs[0] );
+    const ColorVal cv1( cvs[sz-1] );
+    const float dist = cv1.value - cv0.value;
+    collist.setSize( nritems );
+    if ( nritems == 1 )
+	collist[0] = color( cv0.value + dist / 2 );
+    else
+    {
+	ColorTableIndexer comp( nritems, cv0.value, dist/(nritems-1),
+				*this, collist.arr() );
+	comp.execute();
+    }
 
     uselist = true;
 }
