@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2001
- RCS:           $Id: uislider.cc,v 1.22 2005-11-08 13:35:26 cvsdgb Exp $
+ RCS:           $Id: uislider.cc,v 1.23 2006-01-13 15:50:12 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -70,7 +70,7 @@ uiSlider::uiSlider( uiParent* p, const char* nm, int dec, bool log_ )
     , sliderMoved(this)
     , logscale(log_)
 {
-    body_->setOrientation( mOrientation::Vertical );
+    body_->setOrientation( mOrientation::Horizontal );
 
     if ( dec < 0 ) dec = 0;
     factor = (int)pow(10,(float)dec);
