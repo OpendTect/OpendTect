@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          November 2002
- RCS:           $Id: positionattrib.cc,v 1.14 2006-01-12 20:37:38 cvsnanne Exp $
+ RCS:           $Id: positionattrib.cc,v 1.15 2006-01-13 09:52:28 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -253,7 +253,7 @@ bool Position::computeData( const DataHolder& output, const BinID& relpos,
 	    val = intp.value( *(odata->series(outidx_)), sample-odata->z0_ );
 	}
 
-	output.series(0)->setValue( output.z0_-z0+idx, val );
+	output.series(0)->setValue( z0-output.z0_+idx, val );
     }
 
     return true;

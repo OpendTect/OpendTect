@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: volstatsattrib.cc,v 1.16 2006-01-12 20:37:38 cvsnanne Exp $";
+static const char* rcsID = "$Id: volstatsattrib.cc,v 1.17 2006-01-13 09:52:28 cvsnanne Exp $";
 
 #include "volstatsattrib.h"
 
@@ -68,6 +68,10 @@ void VolStats::initClass()
     InputSpec steeringspec( "Steering data", false );
     steeringspec.issteering = true;
     desc->addInput( steeringspec );
+
+    int res =0;
+    while ( outputtypes[res++] != -1 )
+	desc->addOutputDataType( Seis::UnknowData );
 
     PF().addDesc( desc, createInstance );
     desc->unRef();

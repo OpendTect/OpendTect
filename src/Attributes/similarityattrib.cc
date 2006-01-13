@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          June 2005
- RCS:           $Id: similarityattrib.cc,v 1.20 2006-01-12 20:37:38 cvsnanne Exp $
+ RCS:           $Id: similarityattrib.cc,v 1.21 2006-01-13 09:52:28 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -203,7 +203,7 @@ bool Similarity::getInputOutput( int input, TypeSet<int>& res ) const
 }
 
 
-bool Similarity::getInputData( const BinID& relpos, int intv )
+bool Similarity::getInputData( const BinID& relpos, int zintv )
 {
     while ( inputdata_.size() < trcpos_.size() )
 	inputdata_ += 0;
@@ -212,7 +212,7 @@ bool Similarity::getInputData( const BinID& relpos, int intv )
     for ( int idx=0; idx<trcpos_.size(); idx++ )
     {
 	const DataHolder* data = 
-		    inputs[0]->getData( relpos+trcpos_[idx]*bidstep, intv );
+		    inputs[0]->getData( relpos+trcpos_[idx]*bidstep, zintv );
 	if ( !data ) return false;
 	inputdata_.replace( idx, data );
 	if ( dosteer_ )
@@ -221,7 +221,7 @@ bool Similarity::getInputData( const BinID& relpos, int intv )
     
     dataidx_ = getDataIndex( 0 );
 
-    steeringdata_ = dosteer_ ? inputs[1]->getData(relpos,intv) : 0;
+    steeringdata_ = dosteer_ ? inputs[1]->getData( relpos, zintv ) : 0;
     if ( dosteer_ && !steeringdata_ )
 	return false;
 
@@ -239,7 +239,7 @@ bool Similarity::computeData( const DataHolder& output, const BinID& relpos,
 
     const int gatesz = samplegate.width();
     const int nrpairs = inputdata_.size()/2;
-    const int firstsample = inputdata_[0] ? z0 -inputdata_[0]->z0_ : z0;
+    const int firstsample = inputdata_[0] ? z0-inputdata_[0]->z0_ : z0;
 
     for ( int idx=0; idx<nrsamples; idx++ )
     {
@@ -270,8 +270,10 @@ bool Similarity::computeData( const DataHolder& output, const BinID& relpos,
 			    inputdata_[idx1]->nrsamples_-1 );
 	    SimiFunc vals1( *(inputdata_[idx2]->series(dataidx_)), 
 			    inputdata_[idx2]->nrsamples_-1 );
-	    stats += ( s0<0 || s0>nrsamples || s1<0 || s1>nrsamples ) ? 0 :
-		    similarity( vals0, vals1, s0, s1, 1, gatesz, donormalize_ );
+	    const bool validshift = s0>=0 && s0<inputdata_[idx1]->nrsamples_ &&
+				    s1>=0 && s1<inputdata_[idx2]->nrsamples_;
+	    stats += validshift ? 
+		similarity( vals0, vals1, s0, s1, 1, gatesz, donormalize_ ) : 0;
 	}
 
 	const int outidx = z0 - output.z0_ + idx;
