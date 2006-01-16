@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.135 2006-01-16 12:27:06 cvshelene Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.136 2006-01-16 15:45:07 cvshelene Exp $
 ___________________________________________________________________
 
 -*/
@@ -485,9 +485,16 @@ void uiODDisplayTreeItem::handleMenuCB( CallBacker* cb )
 
 	PtrMan<ioPixmap> pixmap = 0;
 	if ( visserv->isLocked(displayid_) )
+	{
 	    pixmap = new ioPixmap( GetIconFileName("lock_small.png") );
+	    lock(true);
+	}
 	else
+	{
 	    pixmap = new ioPixmap();
+	    lock(false);
+	}
+	
 	uilistviewitem->setPixmap( 0, *pixmap );
     }
     else if ( mnuid==duplicatemnuitem.id )
@@ -1395,6 +1402,16 @@ bool uiODWellTreeItem::init()
 }
 	    
 	
+void uiODWellTreeItem::lock( bool yn )
+{
+    mDynamicCastGet( visSurvey::WellDisplay*, wd,
+		     visserv->getObject(displayid_) );
+
+    if ( wd )
+	wd->lock(yn);
+}
+
+
 void uiODWellTreeItem::createMenuCB( CallBacker* cb )
 {
     uiODDisplayTreeItem::createMenuCB(cb);
@@ -1481,7 +1498,6 @@ void uiODWellTreeItem::handleMenuCB( CallBacker* cb )
     }
     else if ( mnuid == editmnuitem.id )
     {
-	//TODO implement
 	menu->setIsHandled( true );
 	wd->setupPicking();
 	wd->showKnownPositions();
@@ -1594,6 +1610,16 @@ bool uiODPickSetTreeItem::init()
     }
 
     return uiODDisplayTreeItem::init();
+}
+
+
+void uiODPickSetTreeItem::lock( bool yn )
+{
+    mDynamicCastGet( visSurvey::PickSetDisplay*, psd,
+		     visserv->getObject(displayid_) );
+
+    if ( psd )
+	psd->lock(yn);
 }
 
 

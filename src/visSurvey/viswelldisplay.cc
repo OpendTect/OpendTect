@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: viswelldisplay.cc,v 1.58 2006-01-10 13:17:07 cvshelene Exp $";
+static const char* rcsID = "$Id: viswelldisplay.cc,v 1.59 2006-01-16 15:45:22 cvshelene Exp $";
 
 #include "viswelldisplay.h"
 
@@ -448,7 +448,7 @@ visBase::Transformation* WellDisplay::getDisplayTransformation()
 
 void WellDisplay::pickCB( CallBacker* cb )
 {
-    if ( !isSelected() || !picksallowed_ || !group_ ) return;
+    if ( !isSelected() || !picksallowed_ || !group_ || locked_ ) return;
 
     mCBCapsuleUnpack(const visBase::EventInfo&,eventinfo,cb);
     if ( eventinfo.type != visBase::MouseClick ||
