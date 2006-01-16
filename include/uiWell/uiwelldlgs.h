@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2003
- RCS:           $Id: uiwelldlgs.h,v 1.19 2005-11-22 08:04:32 cvshelene Exp $
+ RCS:           $Id: uiwelldlgs.h,v 1.20 2006-01-16 12:22:51 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -168,7 +168,7 @@ class Coord3;
 class uiStoreWellDlg : public uiDialog
 {
 public:
-    				uiStoreWellDlg(uiParent*);
+    				uiStoreWellDlg(uiParent*,const BufferString&);
 				~uiStoreWellDlg();
     void			setWellCoords(const TypeSet<Coord3>& newcoords)
 				{ wellcoords_ = newcoords; }

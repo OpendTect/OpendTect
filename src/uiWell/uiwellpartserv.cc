@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2003
- RCS:           $Id: uiwellpartserv.cc,v 1.20 2005-12-22 15:56:19 cvshelene Exp $
+ RCS:           $Id: uiwellpartserv.cc,v 1.21 2006-01-16 12:26:02 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -152,9 +152,10 @@ bool uiWellPartServer::setupNewWell( BufferString& name, Color& color )
 
 
 bool uiWellPartServer::storeWell( const TypeSet<Coord3>& newcoords, 
+				  const BufferString& wellname, 
 				  const char* errmsg )
 {
-    uiStoreWellDlg dlg( appserv().parent() );
+    uiStoreWellDlg dlg( appserv().parent(), wellname );
     dlg.setWellCoords( newcoords );
     dlg.go();
 

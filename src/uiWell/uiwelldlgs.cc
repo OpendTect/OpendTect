@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          October 2003
- RCS:           $Id: uiwelldlgs.cc,v 1.36 2005-12-09 09:06:11 cvshelene Exp $
+ RCS:           $Id: uiwelldlgs.cc,v 1.37 2006-01-16 12:26:02 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -751,7 +751,7 @@ void uiExportLogs::writeLogs( StreamData& sdo )
 
 //============================================================================
 
-uiStoreWellDlg::uiStoreWellDlg( uiParent* p )
+uiStoreWellDlg::uiStoreWellDlg( uiParent* p, const BufferString& wellname )
     : uiDialog(p,uiDialog::Setup("Store Well Dialog",
 				 "Specify well parameters", "107.0.1"))
     , ctio_(*mMkCtxtIOObj(Well))
@@ -787,10 +787,13 @@ uiStoreWellDlg::uiStoreWellDlg( uiParent* p )
     }
     
     ctio_.ctxt.forread = false;
-    outfld = new uiIOObjSel( this, ctio_, "Output Well" );
+    outfld = new uiIOObjSel( this, ctio_, "Output Well", false, 0, "Select ...",
+	    		     true );
+
     if ( topgrp )
 	outfld->attach( alignedBelow, topgrp );
 
+    outfld->setInputText(wellname);
     modelSel(0);
 }
 
@@ -815,8 +818,15 @@ bool uiStoreWellDlg::checkInpFlds()
     if ( SI().zIsTime() && usemodelfld->getBoolValue() && ! *d2tfld->fileName())
 	mErrRet( "Please select 'Depth to Time model' file" )
 
+    if ( SI().zIsTime() && !usemodelfld->getBoolValue() )
+    {
+	float val = constvelfld->getfValue();
+	if ( mIsUdf(val) || val <= 0 )
+	    mErrRet( "Please fill in the velocity value (positive value)" )
+    }
+	    
     if ( !outfld->commitInput(true) )
-	mErrRet( "Please select output" )
+	mErrRet( "Please select an output" )
 
     return true;
 }
