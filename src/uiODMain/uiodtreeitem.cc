@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.134 2006-01-03 13:00:22 cvshelene Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.135 2006-01-16 12:27:06 cvshelene Exp $
 ___________________________________________________________________
 
 -*/
@@ -1476,7 +1476,8 @@ void uiODWellTreeItem::handleMenuCB( CallBacker* cb )
 	BufferString errmsg;
 	menu->setIsHandled( true );
 	if ( wd->isHomeMadeWell() )
-	    applMgr()->wellServer()->storeWell( wd->getWellCoords(), errmsg );
+	    applMgr()->wellServer()->storeWell( wd->getWellCoords(), 
+		    				wd->name(), errmsg );
     }
     else if ( mnuid == editmnuitem.id )
     {
