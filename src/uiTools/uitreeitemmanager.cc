@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uitreeitemmanager.cc,v 1.21 2005-10-13 21:23:16 cvskris Exp $";
+static const char* rcsID = "$Id: uitreeitemmanager.cc,v 1.22 2006-01-16 21:45:14 cvskris Exp $";
 
 
 #include "uitreeitemmanager.h"
@@ -169,6 +169,23 @@ uiTreeItem* uiTreeItem::findChild( int selkey )
 
     return 0;
 }
+
+
+void uiTreeItem::moveItem( uiTreeItem* below )
+{
+    getItem()->moveItem( below->getItem() );
+}
+
+
+void uiTreeItem::moveItemToTop()
+{
+    if ( parent && parent->getItem() && getItem() )
+    {
+	uiListViewItem* item = getItem();
+	parent->getItem()->takeItem( item );
+	parent->getItem()->insertItem( item );
+    }
+}
 	
 
 int uiTreeItem::uiListViewItemType() const
@@ -197,9 +214,10 @@ if ( !strcmp(newitem->parentType(), typeid(*this).name()) ) \
     children += newitem; \
     newitem->parent = this; \
  \
-    newitem->setListViewItem( new uiListViewItem(uiparentlist, \
+    uiListViewItem* item = new uiListViewItem(uiparentlist, \
 		  uiListViewItem::Setup(newitem->name(), \
-		  (uiListViewItem::Type)newitem->uiListViewItemType())) ); \
+		  (uiListViewItem::Type)newitem->uiListViewItemType())); \
+    newitem->setListViewItem( item ); \
  \
     if ( !newitem->init() ) \
     { \

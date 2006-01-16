@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: uitreeitemmanager.h,v 1.18 2005-09-23 12:03:59 cvshelene Exp $
+ RCS:		$Id: uitreeitemmanager.h,v 1.19 2006-01-16 21:45:14 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -106,6 +106,8 @@ public:
 				    \retval false	the key was not found
 				    			and res is not set
 				*/
+    void			moveItem( uiTreeItem* below );
+    void			moveItemToTop();
 
 protected:
     virtual int			uiListViewItemType() const;
