@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiiosel.h,v 1.28 2004-10-28 15:12:53 bert Exp $
+ RCS:           $Id: uiiosel.h,v 1.29 2006-01-16 12:20:40 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,7 +29,8 @@ public:
 			uiIOSelect(uiParent*,const CallBack& do_selection,
 				   const char* txt,
 				   bool withclear=false,
-				   const char* buttontxt="Select ...");
+				   const char* buttontxt="Select ...",
+				   bool keepmytxt=false);
 			~uiIOSelect();
 
     const char*		getInput() const;
@@ -71,6 +72,7 @@ protected:
     BufferStringSet	entries_;
     IOPar&		specialitems;
     bool		selok_;
+    bool		keepmytxt_;
 
     uiLabeledComboBox*	inp_;
     uiPushButton*	selbut_;

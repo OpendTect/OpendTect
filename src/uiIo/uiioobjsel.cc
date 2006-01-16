@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          25/05/2000
- RCS:           $Id: uiioobjsel.cc,v 1.80 2005-11-24 12:28:17 cvsbert Exp $
+ RCS:           $Id: uiioobjsel.cc,v 1.81 2006-01-16 12:19:52 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -366,10 +366,11 @@ void uiIOObjSelDlg::statusMsgCB( CallBacker* )
 
 
 uiIOObjSel::uiIOObjSel( uiParent* p, CtxtIOObj& c, const char* txt,
-			bool wclr, const char* st, const char* buttxt )
+			bool wclr, const char* st, const char* buttxt, 
+			bool keepmytxt )
 	: uiIOSelect( p, mCB(this,uiIOObjSel,doObjSel),
 		      txt ? txt : (const char*)c.ctxt.trgroup->userName(), 
-		      wclr, buttxt )
+		      wclr, buttxt, keepmytxt )
 	, ctio(c)
 	, forread(c.ctxt.forread)
 	, seltxt(st)

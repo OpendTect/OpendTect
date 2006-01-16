@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          start of 2001
- RCS:           $Id: uiiosel.cc,v 1.39 2005-10-31 15:17:37 cvsbert Exp $
+ RCS:           $Id: uiiosel.cc,v 1.40 2006-01-16 12:20:26 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,11 +27,12 @@ IOPar& uiIOFileSelect::tmpstoragehistory =
 
 
 uiIOSelect::uiIOSelect( uiParent* p, const CallBack& butcb, const char* txt,
-			bool withclear, const char* buttontxt )
+			bool withclear, const char* buttontxt, bool keepmytxt )
 	: uiGroup(p)
 	, doselcb_(butcb)
 	, selectiondone(this)
 	, specialitems(*new IOPar)
+    	, keepmytxt_(keepmytxt)
 {
     if ( withclear ) addSpecialItem( "" );
 
@@ -77,6 +78,9 @@ void uiIOSelect::updateFromEntries()
     if ( curitnr >= 0 )
 	curusrnm = inp_->box()->textOfItem( curitnr );
 
+    if ( keepmytxt_ )
+	curusrnm = inp_->box()->text();
+
     inp_->box()->empty();
 
     for ( int idx=0; idx<specialitems.size(); idx++ )
@@ -97,6 +101,9 @@ void uiIOSelect::updateFromEntries()
 
     if ( curitnr >= 0 && inp_->box()->size() )
 	inp_->box()->setCurrentItem( curusrnm );
+
+    if ( keepmytxt_ )
+	inp_->box()->setText( curusrnm );
 }
 
 
