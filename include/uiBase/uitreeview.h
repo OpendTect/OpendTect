@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          29/01/2002
- RCS:           $Id: uitreeview.h,v 1.13 2005-11-21 11:19:57 cvsarend Exp $
+ RCS:           $Id: uitreeview.h,v 1.14 2006-01-16 21:41:50 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -211,6 +211,7 @@ public:
     virtual		~uiListViewItem() {}
 
     void		insertItem( uiListViewItem* );
+    void		takeItem( uiListViewItem* );
     void		removeItem( uiListViewItem* );
 
     int			depth() const; // depth in the tree.

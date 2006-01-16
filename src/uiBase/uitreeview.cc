@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/01/2002
- RCS:           $Id: uitreeview.cc,v 1.16 2005-12-09 16:36:52 cvsnanne Exp $
+ RCS:           $Id: uitreeview.cc,v 1.17 2006-01-16 21:41:50 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -651,6 +651,10 @@ void uiListViewItem::init( const Setup& setup )
 
 void uiListViewItem::insertItem( uiListViewItem* itm )
     { mQthing().insertItem( mQitemFor(itm) ); }
+
+
+void uiListViewItem::takeItem( uiListViewItem* itm )
+    { mQthing().takeItem( mQitemFor(itm) ); }
 
 
 void uiListViewItem::removeItem( uiListViewItem* itm)
