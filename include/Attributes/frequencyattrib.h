@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: frequencyattrib.h,v 1.7 2006-01-12 13:15:30 cvshelene Exp $
+ RCS:           $Id: frequencyattrib.h,v 1.8 2006-01-17 13:19:00 cvsdgb Exp $
 ________________________________________________________________________
 
 -*/
@@ -76,7 +76,7 @@ protected:
     static Provider*		createInstance(Desc&);
 
     bool			allowParallelComputation() const
-    				{ return true; }
+    				{ return false; }
     bool			getInputOutput(int input,
 	    				       TypeSet<int>& res) const;
     bool			getInputData(const BinID&,int idx);
