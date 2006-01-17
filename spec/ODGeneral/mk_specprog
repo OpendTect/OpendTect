@@ -31,6 +31,8 @@ set mylibs="-lpthread -lm -ldl"
 
 if ( $HDIR == sgi ) then
 	set extraflgs="-L/usr/lib32"
+else if ( $HDIR == sun5 ) then
+	set mylibs="-lnsl"
 else if ( $HDIR == win ) then
 	set extraflgs="-mno-cygwin"
 	set libpref=""
