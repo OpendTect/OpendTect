@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: faultextender.cc,v 1.1 2005-12-12 17:26:39 cvskris Exp $";
+static const char* rcsID = "$Id: faultextender.cc,v 1.2 2006-01-18 20:57:14 cvsjaap Exp $";
 
 #include "faultextender.h"
 
@@ -51,6 +51,8 @@ int FaultExtender::nextStep()
     mDynamicCastGet(const Geometry::CubicBezierSurface*,surface,
 	    const_cast<const EM::Fault&>(fault).getElement(sid));
 
+    const_cast<Geometry::CubicBezierSurface*>(surface)->trimUndefParts();    
+
     StepInterval<int> rowrange = surface->rowRange();
     StepInterval<int> colrange = surface->colRange();
 
@@ -64,8 +66,8 @@ int FaultExtender::nextStep()
     else if ( colrange.start==colrange.stop ) inc = colrange.step;
     else
     {
-	//Check cowdir for all rcs, remove rcs that cannot grow, and determine
-	//if it cols should increase or decrease
+	//Check coldir for all rcs, remove rcs that cannot grow, and determine
+	//if its cols should increase or decrease
 	int nrpos = 0;
 	int nrneg = 0;
 	for ( int idx=0; idx<rcs.size(); idx++ )
@@ -233,7 +235,8 @@ int FaultExtender::nextStep()
 			pErrMsg("Hue");
 			continue;
 		    }
-			
+		
+		    // Update local rowcol lists to the inserted column	
 		    for ( int idz=0; idz<rcs.size(); idz++ )
 		    {
 			if ( rcs[idz].col>=newcol )
@@ -260,7 +263,8 @@ int FaultExtender::nextStep()
 			  idz+=rowrange.step )
 		    {
 			const RowCol addrc( idz, newcol );
-			if ( surface->isKnotDefined(addrc) )
+			if ( surface->isKnotDefined(addrc)
+			     && changednodes.indexOf(addrc)==-1  )
 			    changednodes += addrc;
 		    }
 		}
