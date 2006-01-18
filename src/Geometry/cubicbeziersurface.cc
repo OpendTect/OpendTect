@@ -4,7 +4,7 @@
  * DATE     : Nov 2004
 -*/
 
-static const char* rcsID = "$Id: cubicbeziersurface.cc,v 1.19 2006-01-12 19:27:12 cvskris Exp $";
+static const char* rcsID = "$Id: cubicbeziersurface.cc,v 1.20 2006-01-18 20:45:47 cvsjaap Exp $";
 
 #include "cubicbeziersurface.h"
 
@@ -366,7 +366,8 @@ bool CubicBezierSurface::insertRow(int row)
     }
 
     TypeSet<GeomPosID> addedpos;
-    const int newrow = addedinfront ? origin.row : origin.row+curnrrows*step.row;
+    const int newrow = addedinfront 
+		       ? origin.row : origin.row+curnrrows*step.row;
     for ( int idy=0; idy<curnrcols; idy++ )
 	addedpos += RowCol(newrow,origin.col+idy*step.col).getSerialized();
 
@@ -396,7 +397,8 @@ bool CubicBezierSurface::insertCol(int col)
     }
 
     TypeSet<GeomPosID> addedpos;
-    const int newcol = addedinfront ? origin.col : origin.col+curnrcols*step.col;
+    const int newcol = addedinfront 
+		       ? origin.col : origin.col+curnrcols*step.col;
     for ( int idy=0; idy<curnrrows; idy++ )
 	addedpos += RowCol(origin.row+idy*step.row,newcol).getSerialized();
 
@@ -412,14 +414,152 @@ bool CubicBezierSurface::insertCol(int col)
 
 bool CubicBezierSurface::removeRow( int row )
 {
-    pErrMsg( "not implemented ");
+    const int curnrrows = nrRows();
+    const int curnrcols = nrCols();
+
+    const int rowidx = rowIndex( row );
+    if ( rowidx<0 || rowidx>=curnrrows )
+    { 
+	errmsg() = "Row to remove does not exist"; 
+	return false; 
+    }
+
+    TypeSet<GeomPosID> removedpos;
+    TypeSet<GeomPosID> movedpos;
+
+    for ( int idy=0; idy<curnrcols; idy++ )
+    {
+	int curcol = origin.col + idy*step.col;
+	removedpos += RowCol( row, curcol ).getSerialized();
+
+	for ( int idx=rowidx+1; idx<curnrrows; idx++ )
+	{
+	    movedpos += 
+		RowCol( origin.row + idx*step.row, curcol ).getSerialized();
+	}
+    }
+
+    Array2D<Coord3>* newpositions = 
+	positions ? new Array2DImpl<Coord3>( curnrrows-1, curnrcols ) : 0;
+    
+    for ( int idx=0; newpositions && idx<curnrrows-1; idx++ )
+    {
+	for ( int idy=0; idy<curnrcols; idy++ )
+	{
+	    const int srcrow = idx<rowidx ? idx : idx+1;
+	    newpositions->set( idx, idy, positions->get( srcrow, idy ) );
+	}
+    }
+    if ( newpositions ) 
+	{ delete positions; positions = newpositions; }
+    
+    Array2D<Coord3>* newrowdirections = 
+	rowdirections ? new Array2DImpl<Coord3>( curnrrows-1, curnrcols ) : 0;
+    
+    for ( int idx=0; newrowdirections && idx<curnrrows-1; idx++ )
+    {
+	for ( int idy=0; idy<curnrcols; idy++ )
+	{
+	    const int srcrow = idx<rowidx ? idx : idx+1;
+	    newrowdirections->set( idx, idy, rowdirections->get(srcrow,idy) );
+	}
+    }
+    if ( newrowdirections ) 
+	{ delete rowdirections; rowdirections = newrowdirections; }
+    
+    Array2D<Coord3>* newcoldirections = 
+	coldirections ? new Array2DImpl<Coord3>( curnrrows-1, curnrcols ) : 0;
+
+    for ( int idx=0; newcoldirections && idx<curnrrows-1; idx++ )
+    {
+	for ( int idy=0; idy<curnrcols; idy++ )
+	{
+	    const int srcrow = idx<rowidx ? idx : idx+1;
+	    newcoldirections->set( idx, idy, coldirections->get(srcrow,idy) );
+	}
+    }
+    if ( newcoldirections )
+	{ delete coldirections; coldirections = newcoldirections; }
+
+    if ( removedpos.size() ) triggerNrPosCh( removedpos );
+    if ( movedpos.size() ) triggerMovement( movedpos );
+
     return true;
 }
 
 
 bool CubicBezierSurface::removeCol( int col )
 {
-    pErrMsg( "not implemented ");
+    const int curnrrows = nrRows();
+    const int curnrcols = nrCols();
+
+    const int colidx = colIndex( col );
+    if ( colidx<0 || colidx>=curnrcols )
+    { 
+	errmsg() = "Column to remove does not exist"; 
+	return false; 
+    }
+
+    TypeSet<GeomPosID> removedpos;
+    TypeSet<GeomPosID> movedpos;
+
+    for ( int idx=0; idx<curnrrows; idx++ )
+    {
+	int currow = origin.row + idx*step.row;
+	removedpos += RowCol( currow, col ).getSerialized();
+
+	for ( int idy=colidx+1; idy<curnrcols; idy++ )
+	{
+	    movedpos += 
+		RowCol( currow, origin.col + idy*step.col ).getSerialized();
+	}
+    }
+
+    Array2D<Coord3>* newpositions = 
+	positions ? new Array2DImpl<Coord3>( curnrrows, curnrcols-1 ) : 0;
+
+    for ( int idx=0; newpositions && idx<curnrrows; idx++ )
+    {
+	for ( int idy=0; idy<curnrcols-1; idy++ )
+	{
+	    const int srccol = idy<colidx ? idy : idy+1;
+	    newpositions->set( idx, idy, positions->get( idx, srccol ) );
+	}
+    }
+    if ( newpositions ) 
+	{ delete positions; positions = newpositions; }
+
+    Array2D<Coord3>* newrowdirections = 
+	rowdirections ? new Array2DImpl<Coord3>( curnrrows, curnrcols-1 ) : 0;
+
+    for ( int idx=0; newrowdirections && idx<curnrrows; idx++ )
+    {
+	for ( int idy=0; idy<curnrcols-1; idy++ )
+	{
+	    const int srccol = idy<colidx ? idy : idy+1;
+	    newrowdirections->set( idx, idy, rowdirections->get(idx,srccol) );
+	}
+    }
+    if ( newrowdirections ) 
+	{ delete rowdirections; rowdirections = newrowdirections; }
+    
+    Array2D<Coord3>* newcoldirections = 
+	coldirections ? new Array2DImpl<Coord3>( curnrrows, curnrcols-1 ) : 0;
+   
+    for ( int idx=0; newcoldirections && idx<curnrrows; idx++ )
+    {
+	for ( int idy=0; idy<curnrcols-1; idy++ )
+	{
+	    const int srccol = idy<colidx ? idy : idy+1;
+	    newcoldirections->set( idx, idy, coldirections->get(idx,srccol) );
+	}
+    }
+    if ( newcoldirections )
+	{ delete coldirections; coldirections = newcoldirections; }
+
+    if ( removedpos.size() ) triggerNrPosCh( removedpos );
+    if ( movedpos.size() ) triggerMovement( movedpos );
+
     return true;
 }
 
