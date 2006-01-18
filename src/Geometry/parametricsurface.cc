@@ -4,7 +4,7 @@
  * DATE     : Nov 2004
 -*/
 
-static const char* rcsID = "$Id: parametricsurface.cc,v 1.18 2006-01-12 19:27:12 cvskris Exp $";
+static const char* rcsID = "$Id: parametricsurface.cc,v 1.19 2006-01-18 20:48:06 cvsjaap Exp $";
 
 #include "parametricsurface.h"
 
@@ -410,6 +410,63 @@ bool ParametricSurface::isAtSameEdge( const RCol& rc1, const RCol& rc2,
     return false;
 }
 
+void ParametricSurface::trimUndefParts()
+{
+    StepInterval<int> rowrng = rowRange();
+    StepInterval<int> colrng = colRange();
 
-};
+    bool founddefknot = false;
+    while ( !founddefknot && rowrng.start<=rowrng.stop )
+    {
+	for ( int idx=colrng.start; idx<=colrng.stop; idx+=colrng.step )
+	{
+	    if ( isKnotDefined( RowCol( rowrng.start, idx ) ) )
+	    { founddefknot = true; break; }
+	}
+	if ( !founddefknot ) removeRow( rowrng.start );
+
+	rowrng.start += rowrng.step;
+    }
+
+    founddefknot = false;
+    while ( !founddefknot && rowrng.start<=rowrng.stop )
+    {
+	for ( int idx=colrng.start; idx<=colrng.stop; idx+=colrng.step )
+	{
+	    if ( isKnotDefined( RowCol( rowrng.stop, idx ) ) )
+	    { founddefknot = true; break; }
+	}
+	if ( !founddefknot ) removeRow( rowrng.stop );
+
+	rowrng.stop -= rowrng.step;
+    }
+
+    founddefknot = false;
+    while ( !founddefknot && colrng.start<=colrng.stop )
+    {
+	for ( int idx=rowrng.start; idx<=rowrng.stop; idx+=rowrng.step )
+	{
+	    if ( isKnotDefined( RowCol( idx, colrng.start ) ) )
+	    { founddefknot = true; break; }
+	}
+	if ( !founddefknot ) removeCol( colrng.start );
+
+	colrng.start += colrng.step;
+    }
+
+    founddefknot = false;
+    while ( !founddefknot && colrng.start<=colrng.stop )
+    {
+	for ( int idx=rowrng.start; idx<=rowrng.stop; idx+=rowrng.step )
+	{
+	    if ( isKnotDefined( RowCol( idx, colrng.stop ) ) )
+	    { founddefknot = true; break; }
+	}
+	if ( !founddefknot ) removeCol( colrng.stop );
+
+	colrng.stop -= colrng.step;
+    }
+}
+
+}; 
 
