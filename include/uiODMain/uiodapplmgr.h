@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiodapplmgr.h,v 1.27 2005-12-29 14:22:01 cvskris Exp $
+ RCS:           $Id: uiodapplmgr.h,v 1.28 2006-01-18 22:58:59 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -101,8 +101,7 @@ public:
     void			selectHorizon(MultiID&);
     void			selectFault(MultiID&);
     void			selectStickSet(MultiID&);
-    bool			selectAttrib(int);
-    bool			selectColorAttrib(int);
+    bool			selectAttrib( int id, int attrib );
     // PickSets
     const Color&		getPickColor();
     void			getPickSetGroup(PickSetGroup& psg);
@@ -110,11 +109,11 @@ public:
     bool			setPickSetDirs(int);
 
     // Work. Don't use unless expert.
-    bool			getNewData(int visid,bool);
+    bool			getNewData(int visid, int attrib  );
     bool			evaluateAttribute(int visid);
     void			pageUpDownPressed(bool up);
     void			resetServers();
-    void			modifyColorTable(int);
+    void			modifyColorTable(int visid, int attrib );
     void			manSurvCB(CallBacker*)	{ manageSurvey(); }
     void			manAttrCB(CallBacker*)	{ manageAttributes(); }
     void			outVolCB(CallBacker*)	{ createVol(); }
@@ -164,7 +163,7 @@ protected:
     bool			handleNLAServEv(int);
     bool			handleAttribServEv(int);
 
-    void			setHistogram(int);
+    void			setHistogram( int visid, int attrib );
 
     friend class		uiODApplService;
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.155 2005-12-29 14:22:01 cvskris Exp $
+ RCS:           $Id: uivispartserv.h,v 1.156 2006-01-18 22:58:59 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,7 +32,7 @@ class uiToolBar;
 class uiMenuHandler;
 class uiVisModeMgr;
 
-namespace Attrib    { class ColorSelSpec; class SelSpec; class DataCubes; }
+namespace Attrib    { class SelSpec; class DataCubes; }
 namespace visBase   { class DataObject; };
 namespace visSurvey { class Scene; class PolyLineDisplay; };
 namespace Threads   { class Mutex; };
@@ -101,23 +101,25 @@ public:
 				This object wants data in a different format. */
 
     AttribFormat	getAttributeFormat(int id) const;
-    const Attrib::SelSpec* getSelSpec(int id) const;
-    const Attrib::ColorSelSpec* getColorSelSpec(int id) const;
-    void		setSelSpec(int id, const Attrib::SelSpec&);
-    void		setColorSelSpec(int id, const Attrib::ColorSelSpec& );
-    void		resetColorDataType(int);
+    bool		canHaveMultipleAttribs(int id) const;
+    int			addAttrib(int id);
+    void		removeAttrib(int id, int attrib );
+    int			getNrAttribs(int id) const;
+    bool		swapAttribs( int id, int attrib0, int attrib1 );
+    const Attrib::SelSpec* getSelSpec(int id, int attrib ) const;
+    void		setSelSpec(int id, int attrib, const Attrib::SelSpec&);
     
 			//Volume data stuff
     CubeSampling	getCubeSampling(int id) const;
-    const Attrib::DataCubes* getCachedData(int id,bool color) const;
-    bool		setCubeData(int id, bool color,
+    const Attrib::DataCubes* getCachedData(int id, int attrib ) const;
+    bool		setCubeData(int id, int attrib,
 	    			    const Attrib::DataCubes*);
     			/*!< data becomes mine */
 
     			//Trace data
     void		getDataTraceBids(int id, TypeSet<BinID>&) const;
     Interval<float>	getDataTraceRange(int id) const;
-    void		setTraceData(int id,bool color,SeisTrcBuf&);
+    void		setTraceData(int id,int attrib,SeisTrcBuf&);
 
     			// See visSurvey::SurfaceDisplay for details
     void		fetchSurfaceData(int,ObjectSet<BinIDValueSet>&) const;
@@ -154,6 +156,8 @@ public:
 			     the object. */
     int			getEventObjId() const;
     			/*<\returns the id that triggered the event */
+    int			getEventAttrib() const;
+    			/*<\returns the attrib that triggered the event */
 
     static const int	evUpdateTree;
     void		triggerTreeUpdate();
@@ -165,17 +169,17 @@ public:
     			/*<! Get the id with getEventObjId() */
 
     static const int	evGetNewData;
-    			/*<! Get the id with getEventObjId() */
+    			/*!< Get the id with getEventObjId() */
+    			/*!< Get the attrib with getEventAttrib() */
     			/*!< Get selSpec with getSelSpec */
 
     void		calculateAllAttribs();
-    bool		calculateAttrib(int id,bool newsel);
-    bool		calculateColorAttrib(int,bool);
+    bool		calculateAttrib( int id, int attrib, bool newsel);
 
     bool		canHaveMultipleTextures(int) const;
-    int			nrTextures(int) const;
-    void		selectTexture(int id,int texture);
-    void		selectNextTexture(int id,bool next);
+    int			nrTextures( int id, int attrib ) const;
+    void		selectTexture(int id, int attrib, int texture);
+    int			selectedTexture( int id, int attrib ) const;
 
     static const int	evMouseMove;
     Coord3		getMousePos(bool xyt) const;
@@ -185,9 +189,6 @@ public:
 
 
     static const int	evSelectAttrib;
-
-    static const int	evSelectColorAttrib;
-    static const int	evGetColorData;
 
     static const int	evInteraction;
     			/*<! Get the id with getEventObjId() */
@@ -199,9 +200,9 @@ public:
     static const int	evToHomePos;
 
     			// ColorTable stuff
-    int				getColTabId(int) const;
-    void			setClipRate(int,float);
-    const TypeSet<float>*	getHistogram(int) const;
+    int				getColTabId(int id, int attrib ) const;
+    void			setClipRate(int id, int attrib, float);
+    const TypeSet<float>*	getHistogram(int id, int attrib ) const;
 
 				//General stuff
     bool			deleteAllObjects();
@@ -249,10 +250,6 @@ protected:
 
     bool			selectAttrib(int id);
 
-    bool			hasColorAttrib(int) const;
-    bool			selectColorAttrib(int);
-    void			removeColorData(int);
-
     bool			isManipulated(int id) const;
     void			acceptManipulation(int id);
     bool			resetManipulation(int id);
@@ -285,6 +282,7 @@ protected:
     bool			issolomode;
     Threads::Mutex&		eventmutex;
     int				eventobjid;
+    int				eventattrib;
 
     void			rightClickCB(CallBacker*);
     void			selectObjCB(CallBacker*);
@@ -296,7 +294,6 @@ protected:
     void			toHome(CallBacker*);
     void			colTabChangeCB(CallBacker*);
 
-    MenuItem			selcolorattrmnuitem;
     MenuItem			resetmanipmnuitem;
     MenuItem			changecolormnuitem;
     MenuItem			changematerialmnuitem;

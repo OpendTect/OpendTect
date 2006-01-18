@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: vissurvobj.cc,v 1.30 2005-11-11 22:36:08 cvskris Exp $";
+static const char* rcsID = "$Id: vissurvobj.cc,v 1.31 2006-01-18 22:58:59 cvskris Exp $";
 
 #include "vissurvobj.h"
 
@@ -21,8 +21,57 @@ namespace visSurvey {
 
 float SurveyObject::sDefMaxDist = 10;
 
-bool SurveyObject::setDataVolume( bool color, const Attrib::DataCubes* )
+
+SurveyObject::AttribFormat SurveyObject::getAttributeFormat() const
+{ return SurveyObject::None; }
+
+
+bool SurveyObject::canHaveMultipleAttribs() const { return false; }
+
+
+int SurveyObject::nrAttribs() const
+{ return getAttributeFormat()==SurveyObject::None ? 0 : 1; }
+
+
+bool SurveyObject::canAddAttrib() const
+{ return canHaveMultipleAttribs(); }
+
+
+bool SurveyObject::addAttrib()
+{ return false; }
+
+
+bool SurveyObject::canRemoveAttrib() const
+{ return canHaveMultipleAttribs() && nrAttribs()>1; }
+
+
+bool SurveyObject::removeAttrib( int )
+{ return false; }
+
+
+bool SurveyObject::swapAttribs( int, int )
+{ return false; }
+
+
+const Attrib::SelSpec* SurveyObject::getSelSpec( int attrib ) const
+{ return 0; }
+
+
+const TypeSet<float>* SurveyObject::getHistogram( int attrib ) const
+{ return 0; }
+
+
+int SurveyObject::getColTabID( int attrib ) const 
+{ return -1; }
+
+
+bool SurveyObject::setDataVolume( int, const Attrib::DataCubes* )
 { return true; }
+
+
+
+const Attrib::DataCubes* SurveyObject::getCacheVolume( int attrib ) const
+{ return 0; }
 
 
 void SurveyObject::setTraceData( bool color, SeisTrcBuf& trcs )

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visplanedatadisplay.h,v 1.63 2005-12-29 14:22:01 cvskris Exp $
+ RCS:		$Id: visplanedatadisplay.h,v 1.64 2006-01-18 22:58:59 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -21,7 +21,16 @@ ________________________________________________________________________
 class CubeSampling;
 template <class T> class Array2D;
 
-namespace visBase { class TextureRect; class VisColorTab; };
+namespace visBase
+{
+    class Coordinates;
+    class DepthTabPlaneDragger;
+    class FaceSet;
+    class MultiTexture2; 
+    class PickStyle;
+};
+
+
 namespace Attrib { class SelSpec; class ColorSelSpec; class DataCubes; }
 
 namespace visSurvey
@@ -32,41 +41,25 @@ class Scene;
 /*!\brief Used for displaying an inline, crossline or timeslice.
 
     A PlaneDataDisplay object is the front-end object for displaying an inline,
-    crossline or timeslice.  Use <code>setType(Type)</code> for setting the 
-    requested orientation of the slice.
+    crossline or timeslice.  Use <code>setOrientation(Orientation)</code> for
+    setting the requested orientation of the slice.
 */
 
-class PlaneDataDisplay :  public visBase::VisualObject,
+class PlaneDataDisplay :  public visBase::VisualObjectImpl,
 			  public visSurvey::SurveyObject
 {
 public:
 
     bool			isInlCrl() const { return true; }
 
-    enum Type			{ Inline, Crossline, Timeslice };
+    enum Orientation		{ Inline=0, Crossline=1, Timeslice=2 };
 
     static PlaneDataDisplay*	create()
 				mCreateDataObj(PlaneDataDisplay);
 
-    void			setType(Type type);
-    Type			getType() const { return type; }
+    void			setOrientation(Orientation);
+    Orientation			getOrientation() const { return orientation; }
 
-    void			setGeometry(bool manip=false,bool init_=false);
-    void			setRanges(const StepInterval<float>&,
-					  const StepInterval<float>&,
-					  const StepInterval<float>&,
-					  bool manip=false);
-    				//!< Sets the maximum range in each direction
-
-    void			setOrigo(const Coord3&);
-    void			setWidth(const Coord3&);
-
-    void			resetDraggerSizes( float appvel );
-    				//!< Should be called when appvel has changed
-
-    bool			canDuplicate() const		{ return true; }
-    SurveyObject*		duplicate() const;
-    
     void			showManipulator(bool);
     bool			isManipulatorShown() const;
     bool			isManipulated() const;
@@ -74,48 +67,45 @@ public:
     void			resetManipulation();
     void			acceptManipulation();
     BufferString		getManipulationString() const;
-    NotifierAccess*		getManipulationNotifier(){return &manipulating;}
-    NotifierAccess*		getMovementNotification(){return &moving;}
-    BufferString		getManipulationPos() const;
+    NotifierAccess*		getManipulationNotifier();
+    NotifierAccess*		getMovementNotification() {return &moving;}
 
     bool			allowMaterialEdit() const	{ return true; }
-    void			setMaterial(visBase::Material*);
-    const visBase::Material*	getMaterial() const;
-    visBase::Material*		getMaterial();
 
-    int				nrResolutions() const;
-    int				getResolution() const;
-    void			setResolution(int);
+    //int				nrResolutions() const;
+    //int				getResolution() const;
+    //void			setResolution(int);
 
     SurveyObject::AttribFormat	getAttributeFormat() const;
+    bool			canHaveMultipleAttribs() const;
+    int				nrAttribs() const;
+    bool			addAttrib();
+    bool			removeAttrib( int attrib );
+    bool			swapAttribs( int attrib0, int attrib1 );
 
-    bool			hasColorAttribute() const	{ return true; }
-    const Attrib::SelSpec*	getSelSpec() const;
-    void			setSelSpec(const Attrib::SelSpec&);
-    void			setColorSelSpec(const Attrib::ColorSelSpec&);
-    const Attrib::ColorSelSpec*	getColorSelSpec() const;
-    const TypeSet<float>*	getHistogram() const;
-    int				getColTabID() const;
+    bool			hasColorAttribute() const	{ return false;}
+    const Attrib::SelSpec*	getSelSpec(int) const;
+    void			setSelSpec(int,const Attrib::SelSpec&);
+    const TypeSet<float>*	getHistogram(int) const;
+    int				getColTabID(int) const;
 
     CubeSampling		getCubeSampling() const;
+    CubeSampling		getCubeSampling(bool manippos,
+	    					bool displayspace ) const;
     void			setCubeSampling(CubeSampling);
-    bool			setDataVolume( bool color,
+    bool			setDataVolume( int attrib,
 	    				       const Attrib::DataCubes* );
-    const Attrib::DataCubes*	getCacheVolume(bool color) const;
+    const Attrib::DataCubes*	getCacheVolume( int attrib ) const;
    
     bool			canHaveMultipleTextures() const { return true; }
-    int				nrTextures() const;
-    void			selectTexture(int);
-
-    void			turnOn(bool);
-    bool			isOn() const;
+    int				nrTextures( int attrib ) const;
+    void			selectTexture(int attrib, int texture );
+    int				selectedTexture(int attrib) const;
 
     void			getMousePosInfo(const visBase::EventInfo&,
 	    					const Coord3&,
 	    					float& val,
 	    					BufferString& info) const;
-
-    SoNode*			getInventorNode();
 
     virtual void		fillPar( IOPar&, TypeSet<int>& ) const;
     virtual int			usePar( const IOPar& );
@@ -129,23 +119,22 @@ public:
 protected:
 				~PlaneDataDisplay();
 
-    void			setUpConnections();
-    void			setTextureRect(visBase::TextureRect*);
-    void			setData(const Attrib::DataCubes*, int datatype);
-    void			zScaleChanged(CallBacker*);
+    void			setData( int attrib, const Attrib::DataCubes* );
+    void			updateRanges();
     void			manipChanged(CallBacker*);
     void			coltabChanged(CallBacker*);
-    CubeSampling		getCubeSampling(bool manippos) const;
-    void			checkCubeSampling(const CubeSampling&);
+    void			draggerFinish(CallBacker*);
+    void			setDraggerPos( const CubeSampling& );
 
-    visBase::TextureRect*	trect;
+    visBase::DepthTabPlaneDragger*	dragger;
+    visBase::PickStyle*			rectanglepickstyle;
+    visBase::MultiTexture2*		texture;
+    visBase::FaceSet*			rectangle;
+    Orientation				orientation;
 
-    Type			type;
-    Attrib::SelSpec&		as;
-    Attrib::ColorSelSpec&	colas;
 
-    const Attrib::DataCubes*	cache;
-    const Attrib::DataCubes*	colcache;
+    ObjectSet<Attrib::SelSpec>		as;
+    ObjectSet<const Attrib::DataCubes>	cache;
 
     BinID			curicstep;
     float			curzstep;
@@ -153,7 +142,6 @@ protected:
     int				datatransformvoihandle;
 
     static const char*		trectstr;
-    Notifier<PlaneDataDisplay>	manipulating;
     Notifier<PlaneDataDisplay>	moving;
 };
 

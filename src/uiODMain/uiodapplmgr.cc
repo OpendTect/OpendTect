@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.111 2005-12-29 14:22:01 cvskris Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.112 2006-01-18 22:58:59 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -322,31 +322,16 @@ void uiODApplMgr::setZScale()
 }
 
 
-bool uiODApplMgr::selectAttrib( int id )
+bool uiODApplMgr::selectAttrib( int id, int attrib )
 {
     if ( id < 0 ) return false;
-    const Attrib::SelSpec* as = visserv->getSelSpec( id );
+    const Attrib::SelSpec* as = visserv->getSelSpec( id, attrib );
     if ( !as ) return false;
 
     Attrib::SelSpec myas( *as );
     bool selok = attrserv->selectAttrib( myas );
     if ( selok )
-	visserv->setSelSpec( id, myas );
-
-    return selok;
-}
-
-
-bool uiODApplMgr::selectColorAttrib( int id )
-{
-    if ( id < 0 ) return false;
-    const Attrib::ColorSelSpec* as = visserv->getColorSelSpec( id );
-    if ( !as ) return false;
-
-    Attrib::ColorSelSpec myas( *as );
-    bool selok = attrserv->selectColorAttrib( myas );
-    if ( selok )
-	visserv->setColorSelSpec( id, myas );
+	visserv->setSelSpec( id, attrib, myas );
 
     return selok;
 }
@@ -374,12 +359,11 @@ bool uiODApplMgr::setPickSetDirs( int id )
 }
 
 
-bool uiODApplMgr::getNewData( int visid, bool colordata )
+bool uiODApplMgr::getNewData( int visid, int attrib )
 {
     if ( visid<0 ) return false;
 
-    const Attrib::SelSpec* as = colordata ? &visserv->getColorSelSpec(visid)->as
-					: visserv->getSelSpec(visid);
+    const Attrib::SelSpec* as = visserv->getSelSpec( visid, attrib );
     if ( !as )
     {
 	uiMSG().error( "Cannot calculate attribute on this object" );
@@ -388,16 +372,16 @@ bool uiODApplMgr::getNewData( int visid, bool colordata )
 
     Attrib::SelSpec myas( *as );
     if ( myas.id()!=Attrib::DescID::undef() ) attrserv->updateSelSpec( myas );
-    if ( myas.id()<-1 && !colordata )
+    if ( myas.id()<-1 )
     {
 	uiMSG().error( "Cannot find selected attribute" );
 	return false;
     } 
     
-    if ( myas.isNLA() && !colordata )
+    if ( myas.isNLA() )
     {
 	if ( nlaserv && nlaserv->isClassification() )
-	    visserv->setClipRate( visid, 0 );
+	    visserv->setClipRate( visid, attrib, 0 );
     }
 
     bool res = false;
@@ -405,11 +389,8 @@ bool uiODApplMgr::getNewData( int visid, bool colordata )
     {
 	case uiVisPartServer::Cube :
 	{
-	    if ( myas.id()<-1 && colordata )
-	    { visserv->setCubeData(visid, true, 0 ); return true; }
-
 	    const Attrib::DataCubes* cache =
-				visserv->getCachedData( visid, colordata );
+				visserv->getCachedData( visid, attrib );
 
 	    CubeSampling cs = visserv->getCubeSampling( visid );
 	    attrserv->setTargetSelSpec( myas );
@@ -417,15 +398,12 @@ bool uiODApplMgr::getNewData( int visid, bool colordata )
 		attrserv->createOutput( cs, cache );
 
 	    if ( !newdata ) return false;
-	    visserv->setCubeData( visid, colordata, newdata );
+	    visserv->setCubeData( visid, attrib, newdata );
 	    res = true;
 	    break;
 	}
 	case uiVisPartServer::Traces :
 	{
-	    if ( myas.id()<-1 && colordata )
-	    { SeisTrcBuf b; visserv->setTraceData(visid,true,b); return true; }
-
 	    const Interval<float> zrg = visserv->getDataTraceRange( visid );
 	    TypeSet<BinID> bids;
 	    visserv->getDataTraceBids( visid, bids );
@@ -436,14 +414,11 @@ bool uiODApplMgr::getNewData( int visid, bool colordata )
 	    attrserv->setTargetSelSpec( myas );
 	    if ( !attrserv->createOutput(bidset,data) )
 		return false;
-	    visserv->setTraceData( visid, colordata, data );
+	    visserv->setTraceData( visid, attrib, data );
 	    return true;
 	}
 	case uiVisPartServer::RandomPos :
 	{
-	    if ( myas.id()<-1 && colordata )
-	    { visserv->stuffSurfaceData(visid,true,0); return true; }
-
 	    if ( myas.id() == Attrib::SelSpec::cOtherAttrib() )
 	    {
 		const MultiID surfmid = visserv->getMultiID(visid);
@@ -454,7 +429,7 @@ bool uiODApplMgr::getNewData( int visid, bool colordata )
 		else
 		{
 		    visserv->readAuxData( visid );
-		    visserv->selectTexture( visid, 0 );
+		    visserv->selectTexture( visid, attrib, 0 );
 		}
 		
 		return selok;
@@ -469,15 +444,10 @@ bool uiODApplMgr::getNewData( int visid, bool colordata )
 		return false;
 	    }
 
-	    if ( colordata )
-		visserv->stuffSurfaceData( visid, colordata, &data );
-	    else
-	    {
-		const MultiID mid = visserv->getMultiID(visid);
-		const EM::ObjectID emid = emserv->getObjectID(mid);
-		emserv->setAuxData( emid, data, myas.userRef() );
-		visserv->readAuxData( visid );
-	    }
+	    const MultiID mid = visserv->getMultiID(visid);
+	    const EM::ObjectID emid = emserv->getObjectID(mid);
+	    emserv->setAuxData( emid, data, myas.userRef() );
+	    visserv->readAuxData( visid );
 
 	    deepErase( data );
 	    return true;
@@ -494,7 +464,7 @@ bool uiODApplMgr::getNewData( int visid, bool colordata )
 	}
     }
 
-    setHistogram( visid );
+    setHistogram( visid, attrib );
     return res;
 }
 
@@ -768,17 +738,13 @@ bool uiODApplMgr::handleVisServEv( int evid )
 	   || evid == uiVisPartServer::evSelection )
 	sceneMgr().updateSelectedTreeItem();
     else if ( evid == uiVisPartServer::evGetNewData )
-	return getNewData( visid, false );
+	return getNewData( visid, visserv->getEventAttrib() );
     else if ( evid == uiVisPartServer::evInteraction )
 	sceneMgr().setItemInfo( visid );
     else if ( evid == uiVisPartServer::evMouseMove )
 	sceneMgr().setMousePos();
     else if ( evid == uiVisPartServer::evSelectAttrib )
-	return selectAttrib( visid );
-    else if ( evid == uiVisPartServer::evSelectColorAttrib )
-	return selectColorAttrib( visid );
-    else if ( evid == uiVisPartServer::evGetColorData )
-	return getNewData( visid, true );
+	return selectAttrib( visid, visserv->getEventAttrib() );
     else if ( evid == uiVisPartServer::evViewAll )
 	sceneMgr().viewAll(0);
     else if ( evid == uiVisPartServer::evToHomePos )
@@ -947,7 +913,7 @@ bool uiODApplMgr::handleAttribServEv( int evid )
 	Attrib::SelSpec as;
 	attrserv->getDirectShowAttrSpec( as );
 	const int visid = visserv->getEventObjId();
-	visserv->setSelSpec( visid, as );
+	visserv->setSelSpec( visid, 0, as );
 	getNewData( visid, false );
 	sceneMgr().updateTrees();
     }
@@ -972,7 +938,7 @@ bool uiODApplMgr::handleAttribServEv( int evid )
     {
 	const int visid = visserv->getEventObjId();
 	Attrib::SelSpec as( "Evaluation", Attrib::SelSpec::cOtherAttrib() );
-	visserv->setSelSpec( visid, as );
+	visserv->setSelSpec( visid, 0, as );
 	if ( !evaluateAttribute(visid) )
 	    return false;
 	sceneMgr().updateTrees();
@@ -981,8 +947,8 @@ bool uiODApplMgr::handleAttribServEv( int evid )
     {
 	const int visid = visserv->getEventObjId();
 	const int sliceidx = attrserv->getSliceIdx();
-	visserv->selectTexture( visid, sliceidx );
-	modifyColorTable( visid );
+	visserv->selectTexture( visid, visserv->getEventAttrib(), sliceidx );
+	modifyColorTable( visid, visserv->getEventAttrib() );
 	sceneMgr().updateTrees();
     }
     else if ( evid==uiAttribPartServer::evEvalStoreSlices )
@@ -1004,18 +970,25 @@ bool uiODApplMgr::handleAttribServEv( int evid )
 void uiODApplMgr::pageUpDownPressed( bool up )
 {
     const int visid = visserv->getEventObjId();
-    visserv->selectNextTexture( visid, up );
-    modifyColorTable( visid );
+    const int attrib = visserv->getEventAttrib();
+    int texture = visserv->selectedTexture( visid, attrib );
+    if ( texture<visserv->nrTextures(visid,attrib)-1 && up )
+	texture++;
+    else if ( texture && !up )
+	texture--;
+
+    visserv->selectTexture( visid, attrib, texture );
+    modifyColorTable( visid, attrib );
     sceneMgr().updateTrees();
 }
 
 
-void uiODApplMgr::modifyColorTable( int visid )
+void uiODApplMgr::modifyColorTable( int visid, int attrib )
 {
-    appl.colTabEd().setColTab( visserv->getColTabId(visid) );
-    setHistogram( visid );
+    appl.colTabEd().setColTab( visserv->getColTabId(visid, attrib) );
+    setHistogram( visid, attrib );
 }
 
 
-void uiODApplMgr::setHistogram( int visid )
-{ appl.colTabEd().setHistogram( visserv->getHistogram(visid) ); }
+void uiODApplMgr::setHistogram( int visid, int attrib )
+{ appl.colTabEd().setHistogram( visserv->getHistogram(visid,attrib) ); }

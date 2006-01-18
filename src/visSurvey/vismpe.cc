@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vismpe.cc,v 1.37 2005-11-29 21:33:53 cvskris Exp $";
+static const char* rcsID = "$Id: vismpe.cc,v 1.38 2006-01-18 22:58:59 cvskris Exp $";
 
 #include "vismpe.h"
 
@@ -231,8 +231,11 @@ bool MPEDisplay::getPlanePosition( CubeSampling& planebox ) const
 }
 
 
-void MPEDisplay::setSelSpec( const Attrib::SelSpec& as )
-{ as_ = as; }
+void MPEDisplay::setSelSpec( int attrib, const Attrib::SelSpec& as )
+{
+    if ( attrib ) return;
+    as_ = as;
+}
 
 
 const char* MPEDisplay::getSelSpecUserRef() const

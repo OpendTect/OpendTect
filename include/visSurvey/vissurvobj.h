@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvobj.h,v 1.48 2006-01-12 18:48:25 cvskris Exp $
+ RCS:		$Id: vissurvobj.h,v 1.49 2006-01-18 22:58:59 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -129,19 +129,24 @@ public:
 				   	This object wants attribdata of a
 					different kind. */
     
-    virtual AttribFormat	getAttributeFormat() const	{ return None; }
-    virtual const Attrib::SelSpec* getSelSpec() const		{ return 0; }
-    virtual const Attrib::ColorSelSpec* getColorSelSpec() const	{ return 0; }
-    virtual const TypeSet<float>* getHistogram() const		{ return 0; }
-    virtual int			getColTabID() const		{ return -1; }
+    virtual AttribFormat		getAttributeFormat() const;
+    virtual bool			canHaveMultipleAttribs() const;
+    virtual int				nrAttribs() const;
+    virtual bool			canAddAttrib() const;
+    virtual bool			addAttrib();
+    virtual bool			canRemoveAttrib() const;
+    virtual bool			removeAttrib( int attrib );
+    virtual bool			swapAttribs( int attrib0, int attrib1 );
+    virtual const Attrib::SelSpec* 	getSelSpec( int attrib ) const;
+    virtual const TypeSet<float>* 	getHistogram( int attrib ) const;
+    virtual int				getColTabID( int attrib ) const;
 
-    virtual void		setSelSpec(const Attrib::SelSpec&)	{}
-    virtual void		setColorSelSpec(const Attrib::ColorSelSpec&) {}
+    virtual void		setSelSpec(int, const Attrib::SelSpec&)	{}
 
     virtual bool		canHaveMultipleTextures() const { return false;}
-    virtual int			nrTextures() const		{ return 0; }
-    virtual void		selectTexture(int)			{}
-    virtual void		selectNextTexture(bool)			{}
+    virtual int			nrTextures( int attrib ) const	{ return 0; }
+    virtual void		selectTexture(int attrib, int texture )	{}
+    virtual int			selectedTexture(int attrib) const { return 0; }
     virtual void		getMousePosInfo(const visBase::EventInfo&,
 					    const Coord3& xyzpos, float& val,
 					    BufferString& info) const
@@ -152,10 +157,9 @@ public:
 				{ CubeSampling cs; return cs; }
     				/*!<\returns the volume in world survey
 				     coordinates. */
-    virtual bool		setDataVolume( bool color,
+    virtual bool		setDataVolume( int attrib,
 	    				       const Attrib::DataCubes* slc );
-    virtual const Attrib::DataCubes* getCacheVolume( bool color ) const
-				{ return 0; }
+    virtual const Attrib::DataCubes* getCacheVolume( int attrib ) const;
 
     				//Trace-data
     virtual void		getDataTraceBids(TypeSet<BinID>&) const	{}

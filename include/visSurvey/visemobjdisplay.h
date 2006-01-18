@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          May 2004
- RCS:           $Id: visemobjdisplay.h,v 1.34 2006-01-11 14:07:25 cvsnanne Exp $
+ RCS:           $Id: visemobjdisplay.h,v 1.35 2006-01-18 22:58:59 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -82,9 +82,9 @@ public:
     void			selectNextTexture(bool next);
 
     SurveyObject::AttribFormat	getAttributeFormat() const;
-    const Attrib::SelSpec*	getSelSpec() const;
+    const Attrib::SelSpec*	getSelSpec(int) const;
     const Attrib::ColorSelSpec*	getColorSelSpec() const;
-    void			setSelSpec(const Attrib::SelSpec&);
+    void			setSelSpec(int,const Attrib::SelSpec&);
     void			setColorSelSpec(const Attrib::ColorSelSpec&);
     void			setDepthAsAttrib();
 
@@ -116,7 +116,7 @@ public:
     float			calcDist(const Coord3&) const;
     float			maxDist() const;
 
-    int				getColTabID() const;
+    int				getColTabID(int) const;
 
     Coord3			getTranslation() const;
     void			setTranslation(const Coord3&);

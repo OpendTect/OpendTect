@@ -7,16 +7,18 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: uiodtreeitem.h,v 1.11 2005-11-08 10:00:32 cvshelene Exp $
+ RCS:		$Id: uiodtreeitem.h,v 1.12 2006-01-18 22:58:59 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
 #include "uitreeitemmanager.h"
+#include "menuhandler.h"
 
 class uiListView;
 class uiListViewItem;
+class uiMenuHandler;
 class uiODApplMgr;
 class uiParent;
 class uiPopupMenu;
@@ -78,6 +80,45 @@ public:
 
 };
 
+
+class uiODDataTreeItem : public uiTreeItem
+{
+public:
+    			uiODDataTreeItem( const char* parenttype );
+			~uiODDataTreeItem();
+
+    static const int	cPixmapWidth() { return 16; }
+    static const int	cPixmapHeight() { return 10; }
+
+protected:
+
+    uiODApplMgr*	applMgr();
+    uiSoViewer*		viewer();
+    int			sceneID() const;
+    bool		anyButtonClick(uiListViewItem*);
+    bool		isSelectable() const { return true; }
+    bool		isExpandable() const { return false; }
+    const char*		parentType() const { return parenttype_; }
+    int			displayID() const;
+    bool		showSubMenu();
+
+    virtual void	createMenuCB( CallBacker* );
+    virtual void	handleMenuCB( CallBacker* );
+    void		updateColumnText( int col );
+    void		updateSiblings();
+    BufferString	createDisplayName() const;
+
+    uiMenuHandler*	menu;
+    MenuItem		selattrmnuitem;
+    MenuItem		settingsmnuitem;
+
+    MenuItem		movemnuitem;
+    MenuItem		movetotopmnuitem;
+    MenuItem		movetobottommnuitem;
+    MenuItem		moveupmnuitem;
+    MenuItem		movedownmnuitem;
+    const char*		parenttype_;
+};
 
 #endif
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.cc,v 1.71 2005-12-14 15:12:34 cvskris Exp $
+ RCS:           $Id: uimpeman.cc,v 1.72 2006-01-18 22:58:59 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -366,7 +366,7 @@ void uiMPEMan::updateSelectedAttrib()
     if ( !userref && attribspecs.size() )
     {
 	for ( int idx=0; idx<displays.size(); idx++ )
-	    displays[idx]->setSelSpec(*attribspecs[0] );
+	    displays[idx]->setSelSpec( 0, *attribspecs[0] );
 
 	userref = displays[0]->getSelSpecUserRef();
     }
@@ -474,7 +474,7 @@ void uiMPEMan::attribSel( CallBacker* )
 	for ( int idx=0; idx<displays.size(); idx++ )
 	{
 	    Attrib::SelSpec spec( 0, Attrib::SelSpec::cNoAttrib() );
-	    displays[idx]->setSelSpec( spec );
+	    displays[idx]->setSelSpec( 0, spec );
 	    displays[idx]->updateTexture();
 	}
     }
@@ -490,7 +490,7 @@ void uiMPEMan::attribSel( CallBacker* )
 
 	    for ( int idy=0; idy<displays.size(); idy++ )
 	    {
-		displays[idy]->setSelSpec( *spec );
+		displays[idy]->setSelSpec( 0, *spec );
 		displays[idy]->updateTexture();
 	    }
 	    break;

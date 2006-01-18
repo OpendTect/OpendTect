@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		August 2002
- RCS:		$Id: vismpe.h,v 1.28 2005-11-29 21:33:53 cvskris Exp $
+ RCS:		$Id: vismpe.h,v 1.29 2006-01-18 22:58:59 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -63,7 +63,7 @@ public:
     CubeSampling		getCubeSampling() const;
     bool			getPlanePosition(CubeSampling&) const;
 
-    void			setSelSpec(const Attrib::SelSpec&);
+    void			setSelSpec(int,const Attrib::SelSpec&);
     const char*			getSelSpecUserRef() const;
     				/*!<\returns the userRef, "None" if
 				     selspec.id==NoAttrib, or a zeropointer 

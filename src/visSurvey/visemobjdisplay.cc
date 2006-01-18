@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: visemobjdisplay.cc,v 1.70 2006-01-11 14:07:25 cvsnanne Exp $
+ RCS:           $Id: visemobjdisplay.cc,v 1.71 2006-01-18 22:58:59 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -658,11 +658,11 @@ void EMObjectDisplay::selectTexture( int textureidx )
     if ( !emsurf ) return;
 
     if ( textureidx >= emsurf->auxdata.nrAuxData() )
-	setSelSpec( Attrib::SelSpec(0,Attrib::SelSpec::cAttribNotSel()) );
+	setSelSpec( 0, Attrib::SelSpec(0,Attrib::SelSpec::cAttribNotSel()) );
     else
     {
 	BufferString attrnm = emsurf->auxdata.auxDataName( textureidx );
-	setSelSpec( Attrib::SelSpec(attrnm,Attrib::SelSpec::cOtherAttrib()) );
+	setSelSpec( 0, Attrib::SelSpec(attrnm,Attrib::SelSpec::cOtherAttrib()) );
     }
 }
 
@@ -693,12 +693,13 @@ SurveyObject::AttribFormat EMObjectDisplay::getAttributeFormat() const
 }
 
 
-const Attrib::SelSpec* EMObjectDisplay::getSelSpec() const
+const Attrib::SelSpec* EMObjectDisplay::getSelSpec(int) const
 { return &as; }
 
 
-void EMObjectDisplay::setSelSpec( const Attrib::SelSpec& as_ )
+void EMObjectDisplay::setSelSpec( int attrib, const Attrib::SelSpec& as_ )
 {
+    if ( attrib ) return;
     removeAttribCache();
     as = as_;
 }
@@ -1085,7 +1086,7 @@ void EMObjectDisplay::setResolution( int res )
 }
 
 
-int EMObjectDisplay::getColTabID() const
+int EMObjectDisplay::getColTabID(int attrib) const
 {
     return usesTexture() ? coltab_->id() : -1;
 }
@@ -1416,7 +1417,7 @@ void EMObjectDisplay::updateIntersectionLines(
 	{
 	    int objectid = -1;
 	    mDynamicCastGet( const PlaneDataDisplay*, plane, objs[idx] );
-	    if ( plane && plane->getType()!=PlaneDataDisplay::Timeslice )
+	    if ( plane && plane->getOrientation()!=PlaneDataDisplay::Timeslice )
 		objectid = plane->id();
 	    else
 	    {

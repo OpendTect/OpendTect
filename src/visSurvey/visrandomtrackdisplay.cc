@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          January 2003
- RCS:           $Id: visrandomtrackdisplay.cc,v 1.60 2005-12-29 14:22:01 cvskris Exp $
+ RCS:           $Id: visrandomtrackdisplay.cc,v 1.61 2006-01-18 22:58:59 cvskris Exp $
  ________________________________________________________________________
 
 -*/
@@ -132,8 +132,9 @@ void RandomTrackDisplay::setRandomTrack( visBase::RandomTrack* rt )
 }
 
 
-void RandomTrackDisplay::setSelSpec( const Attrib::SelSpec& as_ )
+void RandomTrackDisplay::setSelSpec( int attrib, const Attrib::SelSpec& as_ )
 {
+    if ( attrib ) return;
     as = as_;
     track->useTexture( false );
     setName( as.userRef() );
@@ -505,11 +506,11 @@ bool RandomTrackDisplay::isOn() const
 { return track->isOn(); }
 
 
-int RandomTrackDisplay::getColTabID() const
+int RandomTrackDisplay::getColTabID(int) const
 { return track->getColorTab().id(); }
 
 
-const TypeSet<float>* RandomTrackDisplay::getHistogram() const
+const TypeSet<float>* RandomTrackDisplay::getHistogram(int) const
 { return &track->getHistogram(); }
 
 
@@ -648,7 +649,7 @@ SurveyObject* RandomTrackDisplay::duplicate() const
 	rtd->setManipKnotPos( idx, getKnotPos(idx) );
     }
 
-    const int ctid = rtd->getColTabID();
+    const int ctid = rtd->getColTabID(0);
     visBase::DataObject* obj = ctid>=0 ? visBase::DM().getObject( ctid ) : 0;
     mDynamicCastGet(visBase::VisColorTab*,nct,obj);
     if ( nct )

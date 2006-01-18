@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vismpeseedcatcher.cc,v 1.5 2005-11-11 22:36:08 cvskris Exp $";
+static const char* rcsID = "$Id: vismpeseedcatcher.cc,v 1.6 2006-01-18 22:58:59 cvskris Exp $";
 
 #include "vismpeseedcatcher.h"
 
@@ -94,7 +94,7 @@ void MPEClickCatcher::clickCB( CallBacker* cb )
 		sendClickEvent( eventinfo.pickedpos, visid,
 				plane->getCubeSampling(),
 				plane->getCacheVolume(false),
-				plane->getSelSpec() );
+				plane->getSelSpec(0) );
 		eventcatcher->eventIsHandled();
 		break;
 	    }

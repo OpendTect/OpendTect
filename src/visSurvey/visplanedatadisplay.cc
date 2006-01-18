@@ -4,34 +4,39 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.102 2006-01-04 17:11:14 cvsnanne Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.103 2006-01-18 22:58:59 cvskris Exp $";
 
 #include "visplanedatadisplay.h"
 
 #include "attribsel.h"
-#include "cubesampling.h"
-#include "attribslice.h"
+//#include "cubesampling.h"
+//#include "attribslice.h"
 #include "attribdatacubes.h"
 #include "arrayndslice.h"
-#include "vistexturerect.h"
-#include "arrayndimpl.h"
-#include "position.h"
+#include "genericnumer.h"
+//#include "vistexturerect.h"
+//#include "arrayndimpl.h"
+//#include "position.h"
 #include "survinfo.h"
 #include "samplfunc.h"
-#include "visselman.h"
+//#include "visselman.h"
 #include "visdataman.h"
-#include "visrectangle.h"
+//#include "visrectangle.h"
 #include "vismaterial.h"
 #include "viscolortab.h"
-#include "viscolorseq.h"
-#include "sorting.h"
+//#include "viscolorseq.h"
+#include "viscoord.h"
+#include "visdepthtabplanedragger.h"
+#include "vispickstyle.h"
+#include "visfaceset.h"
+#include "vismultitexture2.h"
+//#include "sorting.h"
 #include "vistransform.h"
-#include "vistransmgr.h"
-#include "iopar.h"
-#include "colortab.h"
+//#include "vistransmgr.h"
+////#include "iopar.h"
+//#include "colortab.h"
 #include "zaxistransform.h"
-#include "genericnumer.h"
-#include <math.h>
+//#include <math.h>
 
 mCreateFactoryEntry( visSurvey::PlaneDataDisplay );
 
@@ -41,272 +46,130 @@ namespace visSurvey {
 const char* PlaneDataDisplay::trectstr = "Texture rectangle";
 
 PlaneDataDisplay::PlaneDataDisplay()
-    : VisualObject(true)
-    , trect(0)
-    , cache(0)
-    , colcache(0)
-    , as(*new Attrib::SelSpec)
-    , colas(*new Attrib::ColorSelSpec)
-    , manipulating(this)
-    , moving(this)
+    : VisualObjectImpl(true)
+    , texture( visBase::MultiTexture2::create() )
+    , rectangle( visBase::FaceSet::create() )
+    , rectanglepickstyle( visBase::PickStyle::create() )
+    , dragger( visBase::DepthTabPlaneDragger::create() )
     , curicstep(SI().inlStep(),SI().crlStep())
     , curzstep(SI().zStep())
     , datatransform( 0 )
     , datatransformvoihandle( -1 )
+    , moving( this )
 {
-    setTextureRect( visBase::TextureRect::create() );
+    cache.allowNull( true );
+    dragger->ref();
+    addChild( dragger->getInventorNode() );
+    dragger->finished.notify( mCB( this, PlaneDataDisplay, draggerFinish ) );
 
-    trect->getMaterial()->setColor( Color::White );
-    trect->getMaterial()->setAmbience( 0.8 );
-    trect->getMaterial()->setDiffIntensity( 0.8 );
+    rectanglepickstyle->ref();
+    addChild( rectanglepickstyle->getInventorNode() );
 
-    setType( Inline );
+    texture->ref();
+    addChild( texture->getInventorNode() );
+    texture->setTextureRenderQuality(1);
 
-    trect->getRectangle().setSnapping( true );
-    trect->useTexture( false );
+    rectangle->ref();
+    addChild( rectangle->getInventorNode() );
+    rectangle->setCoordIndex( 0, 0 );
+    rectangle->setCoordIndex( 1, 1 );
+    rectangle->setCoordIndex( 2, 2 );
+    rectangle->setCoordIndex( 3, 3 );
+    rectangle->setCoordIndex( 4, -1 );
+    rectangle->setVertexOrdering(0);
+    rectangle->setShapeType(0);
 
-//TODO: Fix! For some reason this is needed to let Texture2 work properly
-    showManipulator(true);
-    showManipulator(false);
+    material->setColor( Color::White );
+    material->setAmbience( 0.8 );
+    material->setDiffIntensity( 0.8 );
+
+
+    setOrientation( Inline );
+    updateRanges();
+
+    as += new Attrib::SelSpec;
+    cache += 0;
 }
 
 
 PlaneDataDisplay::~PlaneDataDisplay()
 {
-    trect->manipChanges()->remove( mCB(this,PlaneDataDisplay,manipChanged) );
-    trect->getColorTab().sequencechange.remove(
-				mCB(this,PlaneDataDisplay,coltabChanged) );
-    trect->unRef();
-    delete &as;
-    delete &colas;
+    dragger->finished.remove( mCB( this, PlaneDataDisplay, draggerFinish ) );
 
-    if ( cache ) cache->unRef();
-    if ( colcache ) colcache->unRef();
-
-    if ( scene_ )
-	scene_->zscalechange.remove( mCB(this,PlaneDataDisplay,zScaleChanged) );
+    deepErase( as );
+    deepUnRef( cache );
 
     setDataTransform( 0 );
+
+    texture->unRef();
+    rectangle->unRef();
+    dragger->unRef();
+    rectanglepickstyle->unRef();
 }
 
 
-void PlaneDataDisplay::setUpConnections()
+void PlaneDataDisplay::setOrientation( Orientation nt )
 {
-    if ( scene_ )
-    {
-	scene_->zscalechange.notify( mCB(this,PlaneDataDisplay,zScaleChanged) );
-	zScaleChanged(0);
-    }
+    orientation = nt;
+
+    dragger->setDim( (int) nt );
+    updateRanges();
 }
 
 
-void PlaneDataDisplay::setTextureRect( visBase::TextureRect* tr )
+void PlaneDataDisplay::updateRanges()
 {
-    if ( trect )
-    {
-	trect->manipChanges()->remove( mCB(this,PlaneDataDisplay,manipChanged));
-	trect->getColorTab().sequencechange.remove(
-				mCB(this,PlaneDataDisplay,coltabChanged) );
-	trect->unRef();
-    }
-
-    trect = tr;
-    trect->ref();
-    trect->manipChanges()->notify( mCB(this,PlaneDataDisplay,manipChanged) );
-    trect->getColorTab().sequencechange.notify( 
-	    			mCB(this,PlaneDataDisplay,coltabChanged) );
-}
-
-
-void PlaneDataDisplay::setType( Type nt )
-{
-    type = nt;
-    setGeometry( false, true );
-}
-
-
-void PlaneDataDisplay::setGeometry( bool manip, bool init_ )
-{
-    BinID startbid = SI().sampling(true).hrg.start;
-    BinID stopbid = SI().sampling(true).hrg.stop;
-
-    StepInterval<float> vrgd = SI().zRange(true);
+    CubeSampling survey( SI().sampling(true) );
     if ( datatransform )
-    {
-	Interval<float> zrg = datatransform->getZInterval( false );
-	vrgd.start = zrg.start;
-	vrgd.stop = zrg.stop;
-    }
+	assign( survey.zrg,  datatransform->getZInterval( false ) );
 	
-    StepInterval<float> inlrg( startbid.inl,stopbid.inl,SI().inlStep() );
-    StepInterval<float> crlrg( startbid.crl,stopbid.crl,SI().crlStep() );
-    StepInterval<float> vrg( vrgd.start, vrgd.stop, vrgd.step );
-    if ( init_ || datatransform )
-	trect->getRectangle().setOrigo( 
-				Coord3(inlrg.start,crlrg.start,vrg.start) );
+    const Interval<float> inlrg( survey.hrg.start.inl, survey.hrg.stop.inl );
+    const Interval<float> crlrg( survey.hrg.start.crl, survey.hrg.stop.crl );
 
-    setRanges( inlrg, crlrg, vrg, manip );
+    dragger->setSpaceLimits( inlrg, crlrg, survey.zrg );
+    dragger->setSize( Coord3(inlrg.width(), crlrg.width(), survey.zrg.width()));
 
-    resetDraggerSizes( scene_ ? scene_->getZScale() : STM().defZScale() );
-}
-
-
-void PlaneDataDisplay::setRanges( const StepInterval<float>& irg,
-					     const StepInterval<float>& crg,
-					     const StepInterval<float>& zrg,
-       					     bool manip )
-{
-    visBase::Rectangle& rect = trect->getRectangle();
-    if ( type==Inline )
-    {
-	rect.setOrientation( visBase::Rectangle::YZ );
-	rect.setRanges( zrg, crg, irg, manip );
-    }
-    else if ( type==Crossline )
-    {
-	rect.setOrientation( visBase::Rectangle::XZ );
-	rect.setRanges( irg, zrg, crg, manip );
-    }
+    CubeSampling cs = survey;
+    if ( orientation==Inline )
+	cs.hrg.start.inl = cs.hrg.stop.inl =
+	    SI().inlRange(true).snap( inlrg.center() );
+    else if ( orientation==Crossline )
+	cs.hrg.start.crl = cs.hrg.stop.crl =
+	    SI().crlRange(true).snap( crlrg.center() );
     else
-    {
-	rect.setOrientation( visBase::Rectangle::XY );
-	rect.setRanges( irg, crg, zrg, manip );
-    }
-}
+	cs.zrg.start = cs.zrg.stop = crlrg.center();
 
-
-void PlaneDataDisplay::setOrigo( const Coord3& pos )
-{
-    trect->getRectangle().setSnapping( false );
-    trect->getRectangle().setOrigo( pos );
-    trect->getRectangle().setSnapping( true );
-}
-
-
-void PlaneDataDisplay::setWidth( const Coord3& pos )
-{
-    if ( type==Inline )
-	trect->getRectangle().setWidth( pos.z, pos.y );
-    else if ( type==Crossline )
-	trect->getRectangle().setWidth( pos.x, pos.z );
-    else
-	trect->getRectangle().setWidth( pos.x, pos.y );
-}
-
-
-void PlaneDataDisplay::resetDraggerSizes( float appvel )
-{
-    const float happvel = appvel/2;
-    BinID startbid = SI().sampling(true).hrg.start;
-    BinID stopbid = SI().sampling(true).hrg.stop;
-    StepInterval<float> vrgd = SI().zRange(true);
-
-    StepInterval<float> inlrange( startbid.inl,stopbid.inl,SI().inlStep() );
-    StepInterval<float> crlrange( startbid.crl,stopbid.crl,SI().crlStep() );
-
-    float inlspacing = SI().transform(BinID(0,0)).distance(
-		       SI().transform( BinID(1,0)));
-    float crlspacing = SI().transform(BinID(0,0)).distance(
-		       SI().transform( BinID(0,1)));
-
-    float baselength = ( crlrange.width() * crlspacing +
-			 SI().zRange(true).width()*happvel +
-			 inlrange.width() * inlspacing ) / 3;
-
-    float draggerdiameter = 0.2 * baselength;
-    float draggerlength =  baselength * 0.2;
-    const float zfact = SI().zFactor();
-
-    if ( type==Inline )
-    {
-	float draggertimesize = draggerdiameter / (zfact*happvel);
-	float draggercrlsize = draggerdiameter / crlspacing;
-	float draggerinlsize = draggerlength / inlspacing;
-
-	trect->getRectangle().setDraggerSize( draggertimesize,
-					      draggercrlsize,
-				   	      draggerinlsize);
-    }
-    else if ( type==Crossline )
-    {
-	float draggertimesize = draggerdiameter / (zfact*happvel);
-	float draggerinlsize = draggerdiameter / inlspacing;
-	float draggercrlsize = draggerlength / crlspacing;
-
-	trect->getRectangle().setDraggerSize( draggerinlsize,
-					      draggertimesize,
-				   	      draggercrlsize);
-    }
-    else
-    {
-	float draggerinlsize = draggerdiameter/ inlspacing;
-	float draggercrlsize = draggerdiameter / crlspacing;
-	float draggertimesize = draggerlength / (zfact*happvel);
-
-	trect->getRectangle().setDraggerSize( draggerinlsize,
-					      draggercrlsize,
-				   	      draggertimesize);
-    }
+    cs.snapToSurvey();
+    if ( cs!=getCubeSampling(false,true) )
+	setCubeSampling( cs );
 }
 
 
 float PlaneDataDisplay::calcDist( const Coord3& pos ) const
 {
     const mVisTrans* utm2display = scene_->getUTM2DisplayTransform();
-    Coord3 xytpos = utm2display->transformBack( pos );
-    Coord3 planeorigo = trect->getRectangle().origo();
-    float width0 = trect->getRectangle().width( 0 );
-    float width1 = trect->getRectangle().width( 1 );
+    const Coord3 xytpos = utm2display->transformBack( pos );
+    const BinID binid = SI().transform( Coord(xytpos.x,xytpos.y) );
 
-    BinID binid = SI().transform( Coord(xytpos.x,xytpos.y) );
+    const CubeSampling cs = getCubeSampling(false,true);
     
     BinID inlcrldist( 0, 0 );
     float zdiff = 0;
 
-    if ( type==Inline )
-    {
-	inlcrldist.inl = abs(binid.inl-mNINT(planeorigo.x));
-	
-	if ( binid.crl<planeorigo.y )
-	    inlcrldist.crl = mNINT(planeorigo.y-binid.crl);
-	else if ( binid.crl>planeorigo.y+width1 )
-	    inlcrldist.crl = mNINT( binid.crl-planeorigo.y-width1);
-
-	if ( xytpos.z<planeorigo.z)
-	    zdiff = planeorigo.z-xytpos.z;
-	else if ( xytpos.z>planeorigo.z+width0 )
-	    zdiff = xytpos.z-planeorigo.z-width0;
-
-    }
-    else if ( type==Crossline )
-    {
-	inlcrldist.crl = abs(binid.crl-mNINT(planeorigo.y));
-	
-	if ( binid.inl<planeorigo.x )
-	    inlcrldist.inl = mNINT(planeorigo.x-binid.inl);
-	else if ( binid.inl>planeorigo.x+width0 )
-	    inlcrldist.inl = mNINT( binid.inl-planeorigo.x-width0);
-
-	if ( xytpos.z<planeorigo.z)
-	    zdiff = planeorigo.z-xytpos.z;
-	else if ( xytpos.z>planeorigo.z+width1 )
-	    zdiff = xytpos.z-planeorigo.z-width1;
-
-    }
-    else
-    {
-	if ( binid.inl<planeorigo.x )
-	    inlcrldist.inl = mNINT(planeorigo.x-binid.inl);
-	else if ( binid.inl>planeorigo.x+width0 )
-	    inlcrldist.inl = mNINT( binid.inl-planeorigo.x-width0);
-
-	if ( binid.crl<planeorigo.y )
-	    inlcrldist.crl = mNINT(planeorigo.y-binid.crl);
-	else if ( binid.crl>planeorigo.y+width1 )
-	    inlcrldist.crl = mNINT( binid.crl-planeorigo.y-width1);
-
-	zdiff = (planeorigo.z-xytpos.z) * SI().zFactor() * scene_->getZScale();
-    }
+    inlcrldist.inl =
+	binid.inl>=cs.hrg.start.inl && binid.inl<=cs.hrg.stop.inl 
+	     ? 0
+	     : mMIN( abs(binid.inl-cs.hrg.start.inl),
+		     abs( binid.inl-cs.hrg.stop.inl) );
+    inlcrldist.crl =
+	binid.crl>=cs.hrg.start.crl && binid.crl<=cs.hrg.stop.crl 
+	     ? 0
+	     : mMIN( abs(binid.crl-cs.hrg.start.crl),
+		     abs( binid.crl-cs.hrg.stop.crl) );
+    zdiff = cs.zrg.includes(xytpos.z)
+	? 0
+	: mMIN(xytpos.z-cs.zrg.start,xytpos.z-cs.zrg.stop) *
+	  SI().zFactor() * scene_->getZScale();
 
     const float inldist =
 	SI().transform( BinID(0,0)).distance( SI().transform(BinID(1,0)));
@@ -322,7 +185,7 @@ float PlaneDataDisplay::calcDist( const Coord3& pos ) const
 float PlaneDataDisplay::maxDist() const
 {
     float maxzdist = SI().zFactor() * scene_->getZScale() * SI().zStep() / 2;
-    return type == Timeslice ? maxzdist : SurveyObject::sDefMaxDist;
+    return orientation==Timeslice ? maxzdist : SurveyObject::sDefMaxDist;
 }
 
 
@@ -342,23 +205,48 @@ bool PlaneDataDisplay::setDataTransform( ZAxisTransform* zat )
     if ( datatransform )
     {
 	datatransform->ref();
-	setGeometry( false, false );
+	updateRanges();
     }
 
     return true;
 }
 
 
-void PlaneDataDisplay::zScaleChanged( CallBacker* )
+void PlaneDataDisplay::draggerFinish( CallBacker* cb )
 {
-    if ( !scene_ ) return;
-    resetDraggerSizes( scene_->getZScale() );
+    const CubeSampling cs = getCubeSampling(true,true);
+    CubeSampling snappedcs = cs;
+    snappedcs.snapToSurvey();
+
+
+    if ( orientation==Inline )
+	snappedcs.hrg.start.inl = snappedcs.hrg.stop.inl =
+	    SI().inlRange(true).snap( snappedcs.hrg.start.inl );
+    else if ( orientation==Crossline )
+	snappedcs.hrg.start.crl = snappedcs.hrg.stop.crl =
+	    SI().crlRange(true).snap( snappedcs.hrg.start.crl );
+    else
+	snappedcs.zrg.start = snappedcs.zrg.stop = snappedcs.zrg.center();
+
+    if ( cs!=snappedcs )
+	setDraggerPos( snappedcs );
 }
 
 
-void PlaneDataDisplay::manipChanged( CallBacker* )
+void PlaneDataDisplay::setDraggerPos( const CubeSampling& cs )
 {
-    manipulating.trigger();
+    const Coord3 center( (cs.hrg.start.inl+cs.hrg.stop.inl)/2,
+		         (cs.hrg.start.crl+cs.hrg.stop.crl)/2,
+		         cs.zrg.center() );
+    Coord3 width( cs.hrg.stop.inl-cs.hrg.start.inl,
+		  cs.hrg.stop.crl-cs.hrg.start.crl, cs.zrg.width() );
+
+    const Coord3 oldwidth = dragger->size();
+    width[(int)orientation] = oldwidth[(int)orientation];
+
+    dragger->setCenter( center );
+    dragger->setSize( width );
+    moving.trigger();
 }
 
 
@@ -371,11 +259,11 @@ void PlaneDataDisplay::coltabChanged( CallBacker* )
     showManipulator( false );
 }
 
-
+/*
 SurveyObject* PlaneDataDisplay::duplicate() const
 {
     PlaneDataDisplay* pdd = create();
-    pdd->setType( type );
+    pdd->setOrientation( orientation );
     pdd->setCubeSampling( getCubeSampling() );
     pdd->setResolution( getResolution() );
 
@@ -384,60 +272,63 @@ SurveyObject* PlaneDataDisplay::duplicate() const
     mDynamicCastGet(visBase::VisColorTab*,nct,obj);
     if ( nct )
     {
-	const char* ctnm = trect->getColorTab().colorSeq().colors().name();
+	const char* ctnm = texture->getColorTab().colorSeq().colors().name();
 	nct->colorSeq().loadFromStorage( ctnm );
     }
     return pdd;
 }
+*/
 
 
 void PlaneDataDisplay::showManipulator( bool yn )
 {
-    trect->getRectangle().showDraggers( yn );
+    dragger->turnOn( yn );
+    rectanglepickstyle->setStyle( yn ? visBase::PickStyle::Unpickable
+				     : visBase::PickStyle::Shape );
 }
 
 
 bool PlaneDataDisplay::isManipulatorShown() const
 {
-    return trect->getRectangle().draggersShown();
+    return dragger->isOn();
 }
 
 
 bool PlaneDataDisplay::isManipulated() const
-{ return getCubeSampling(true)!=getCubeSampling(false); }
+{ return getCubeSampling(true,true)!=getCubeSampling(false,true); }
 
 
 void PlaneDataDisplay::resetManipulation()
 {
-    trect->getRectangle().resetManip();
+    CubeSampling cs = getCubeSampling(false,true);
+    setDraggerPos(cs);
 }
 
 
 void PlaneDataDisplay::acceptManipulation()
 {
-    CubeSampling newcs = getCubeSampling(true);
-    resetManipulation();
-    setCubeSampling( newcs );
+    CubeSampling cs = getCubeSampling(true,true);
+    setCubeSampling(cs);
 }
 
 
 BufferString PlaneDataDisplay::getManipulationString() const
 {
     BufferString res;
-    if ( type == Inline )
+    if ( orientation==Inline )
     {
 	res = "Inline: ";
-	res += getCubeSampling(true).hrg.start.inl;
+	res += getCubeSampling(true,true).hrg.start.inl;
     }
-    else if ( type == Crossline )
+    else if ( orientation==Crossline )
     {
 	res = "Crossline: ";
-	res += getCubeSampling(true).hrg.start.crl;
+	res += getCubeSampling(true,true).hrg.start.crl;
     }
     else
     {
 	res = SI().zIsTime() ? "Time: " : "Depth: ";
-	float val = getCubeSampling(true).zrg.start;
+	float val = getCubeSampling(true,true).zrg.start;
 	res += SI().zIsTime() ? mNINT(val * 1000) : val;
     }
 
@@ -445,23 +336,10 @@ BufferString PlaneDataDisplay::getManipulationString() const
 }
 
 
-BufferString PlaneDataDisplay::getManipulationPos() const
-{
-    BufferString res;
-    if ( type == Inline )
-	res = getCubeSampling(true).hrg.start.inl;
-    else if ( type == Crossline )
-	res = getCubeSampling(true).hrg.start.crl;
-    else if ( type == Timeslice )
-    {
-	float val = getCubeSampling(true).zrg.start;
-	res = SI().zIsTime() ? mNINT(val * 1000) : val;
-    }
+NotifierAccess* PlaneDataDisplay::getManipulationNotifier()
+{ return &dragger->motion; }
 
-    return res;
-}
-
-
+/*
 int PlaneDataDisplay::nrResolutions() const
 {
     return trect->getNrResolutions();
@@ -478,76 +356,132 @@ void PlaneDataDisplay::setResolution( int res )
 {
     trect->setResolution( res );
     if ( cache ) setData( cache, 0 );
-    if ( colcache ) setData( colcache, colas.datatype );
 }
+
+*/
 
 
 SurveyObject::AttribFormat PlaneDataDisplay::getAttributeFormat() const
 { return SurveyObject::Cube; }
 
 
-const Attrib::SelSpec* PlaneDataDisplay::getSelSpec() const
-{ return &as; }
+bool PlaneDataDisplay::canHaveMultipleAttribs() const
+{ return true; }
 
 
-void PlaneDataDisplay::setSelSpec( const Attrib::SelSpec& as_ )
+int PlaneDataDisplay::nrAttribs() const
+{ return as.size(); }
+
+
+bool PlaneDataDisplay::addAttrib()
 {
-    as = as_;
-    if ( cache ) cache->unRef();
-    cache = 0;
+    as += new Attrib::SelSpec;
+    cache += 0;
 
-    const char* usrref = as.userRef();
+    texture->addTexture("");
+
+    return true;
+}
+
+
+bool PlaneDataDisplay::removeAttrib( int attrib )
+{
+    if ( as.size()<2 || attrib<0 || attrib>=as.size() )
+	return false;
+
+    delete as[attrib];
+    as.remove( attrib );
+    cache[attrib]->unRef();
+    cache.remove( attrib );
+
+    texture->removeTexture( attrib );
+
+    return true;
+}
+
+
+bool PlaneDataDisplay::swapAttribs( int a0, int a1 )
+{
+    if ( a0<0 || a1<0 || a0>=as.size() || a1>=as.size() )
+	return false;
+
+    texture->swapTextures( a0, a1 );
+    as.swap( a0, a1 );
+    cache.swap( a0, a1 );
+
+    return true;
+}
+
+
+const Attrib::SelSpec* PlaneDataDisplay::getSelSpec( int attrib ) const
+{
+    return attrib>=0 && attrib<as.size() ? as[attrib] : 0;
+}
+
+
+void PlaneDataDisplay::setSelSpec( int attrib, const Attrib::SelSpec& as_ )
+{
+    if ( attrib>=0 && attrib<as.size() )
+    {
+	*as[attrib] = as_;
+    }
+
+    if ( cache[attrib] ) cache[attrib]->unRef();
+    cache.replace( attrib, 0 );
+
+    const char* usrref = as_.userRef();
     if ( !usrref || !*usrref )
-	trect->useTexture( false );
-
-    setName( usrref );
+	texture->turnOn( false );
 }
 
 
-void PlaneDataDisplay::setColorSelSpec( const Attrib::ColorSelSpec& as_ )
-{ colas = as_; }
-
-
-const Attrib::ColorSelSpec* PlaneDataDisplay::getColorSelSpec() const
-{ return &colas; }
-
-
-const TypeSet<float>* PlaneDataDisplay::getHistogram() const
+const TypeSet<float>* PlaneDataDisplay::getHistogram( int attrib ) const
 {
-    return &trect->getHistogram();
+    return texture->getHistogram( attrib, texture->currentVersion( attrib ) );
 }
 
 
-int PlaneDataDisplay::getColTabID() const
+int PlaneDataDisplay::getColTabID( int attrib ) const
 {
-    return trect->getColorTab().id();
+    return texture->getColorTab( attrib ).id();
 }
 
 
 CubeSampling PlaneDataDisplay::getCubeSampling() const
 {
-    return getCubeSampling(true);
+    return getCubeSampling(true,false);
 }
 
 
-void PlaneDataDisplay::setCubeSampling( CubeSampling cs_ )
+void PlaneDataDisplay::setCubeSampling( CubeSampling cs )
 {
-    Coord3 width( cs_.hrg.stop.inl - cs_.hrg.start.inl,
-		  cs_.hrg.stop.crl - cs_.hrg.start.crl, 
-		  cs_.zrg.stop - cs_.zrg.start );
-    if ( datatransform )
+    cs.snapToSurvey();
+    visBase::Coordinates* coords = rectangle->getCoordinates();
+    if ( orientation==Inline || orientation==Crossline )
     {
-	Interval<float> zrg = datatransform->getZInterval( false );
-	width.z = zrg.width();
+	coords->setPos( 0,
+		       Coord3(cs.hrg.start.inl,cs.hrg.start.crl,cs.zrg.start));
+	coords->setPos( 1,
+		       Coord3(cs.hrg.start.inl,cs.hrg.start.crl,cs.zrg.stop));
+	coords->setPos( 2, Coord3(cs.hrg.stop.inl,cs.hrg.stop.crl,cs.zrg.stop));
+	coords->setPos( 3,
+		       Coord3(cs.hrg.stop.inl,cs.hrg.stop.crl, cs.zrg.start));
     }
-    setWidth( width );
+    else 
+    {
+	coords->setPos( 0,
+			Coord3(cs.hrg.start.inl,cs.hrg.start.crl,cs.zrg.start));
+	coords->setPos( 1,
+			Coord3(cs.hrg.start.inl,cs.hrg.stop.crl,cs.zrg.stop));
+	coords->setPos( 2, Coord3(cs.hrg.stop.inl,cs.hrg.stop.crl,cs.zrg.stop));
+	coords->setPos( 3,
+			Coord3(cs.hrg.stop.inl,cs.hrg.start.crl, cs.zrg.start));
+    }
 
-    Coord3 origo( cs_.hrg.start.inl, cs_.hrg.start.crl, cs_.zrg.start );
-    if ( datatransform ) origo.z = datatransform->getZInterval( false ).start;
-    setOrigo( origo );
+    setDraggerPos(cs);
 
-    curicstep = cs_.hrg.step;
-    curzstep = cs_.zrg.step;
+    curicstep = cs.hrg.step;
+    curzstep = cs.zrg.step;
 
     moving.trigger();
 
@@ -555,113 +489,94 @@ void PlaneDataDisplay::setCubeSampling( CubeSampling cs_ )
 	return;
 
     if ( datatransformvoihandle!=-1 )
-	datatransform->setVolumeOfInterest( datatransformvoihandle, cs_ );
+	datatransform->setVolumeOfInterest( datatransformvoihandle, cs );
 }
 
 
-CubeSampling PlaneDataDisplay::getCubeSampling( bool manippos ) const
+CubeSampling PlaneDataDisplay::getCubeSampling( bool manippos,
+						bool displayspace ) const
 {
-    visBase::Rectangle& rect = trect->getRectangle();
-    CubeSampling cubesampl;
-    cubesampl.hrg.start = 
-	BinID( mNINT(manippos ? rect.manipOrigo().x : rect.origo().x),
-	       mNINT(manippos ? rect.manipOrigo().y : rect.origo().y) );
-    cubesampl.hrg.stop = cubesampl.hrg.start;
-    cubesampl.hrg.step = curicstep;
-
-    float zrg0 = manippos ? rect.manipOrigo().z : rect.origo().z;
-    cubesampl.zrg.start = (float)(int)(1000*zrg0+.5) / 1000;
-    cubesampl.zrg.stop = cubesampl.zrg.start;
-    cubesampl.zrg.step = curzstep;
-
-    if ( rect.orientation()==visBase::Rectangle::XY )
+    CubeSampling res(false);
+    if ( manippos || rectangle->getCoordinates()->size()>=4 )
     {
-	cubesampl.hrg.stop.inl += mNINT(rect.width(0,manippos));
-	cubesampl.hrg.stop.crl += mNINT(rect.width(1,manippos));
-    }
-    else if ( rect.orientation()==visBase::Rectangle::XZ )
-    {
-	cubesampl.hrg.stop.inl += mNINT(rect.width(0,manippos));
-	cubesampl.zrg.stop += rect.width(1,manippos);
-    }
-    else
-    {
-	cubesampl.hrg.stop.crl += mNINT(rect.width(1,manippos));
-	cubesampl.zrg.stop += rect.width(0,manippos);
-    }
+	Coord3 c0, c1;
+	if ( manippos )
+	{
+	    const Coord3 center = dragger->center();
+	    Coord3 halfsize = dragger->size()/2;
+	    halfsize[orientation] = 0;
 
-    if ( datatransform )
-	assign( cubesampl.zrg, SI().zRange(true) );
+	    c0 = center + halfsize;
+	    c1 = center - halfsize;
+	}
+	else
+	{
+	    c0 = rectangle->getCoordinates()->getPos(0);
+	    c1 = rectangle->getCoordinates()->getPos(2);
+	}
 
-    return cubesampl;
+	res.hrg.start = res.hrg.stop = BinID(mNINT(c0.x),mNINT(c0.y) );
+	res.zrg.start = res.zrg.stop = c0.z;
+	res.hrg.include( BinID(mNINT(c1.x),mNINT(c1.y)) );
+	res.zrg.include( c1.z );
+	res.hrg.step = BinID( SI().inlStep(), SI().crlStep() );
+	res.zrg.step = SI().zRange(true).step;
+
+	if ( datatransform && !displayspace )
+	    res.zrg = SI().zRange(true);
+    }
+    return res;
 }
 
 
-bool PlaneDataDisplay::setDataVolume( bool colordata, 
+bool PlaneDataDisplay::setDataVolume( int attrib,
 				      const Attrib::DataCubes* datacubes )
 {
-    if ( colordata )
-    {
-	Interval<float> cliprate( colas.cliprate0, colas.cliprate1 );
-	trect->setColorPars( colas.reverse, colas.useclip, 
-			     colas.useclip ? cliprate : colas.range );
-    }
+    if ( attrib<0 || attrib>=nrAttribs() )
+	return false;
 
-    setData( datacubes, colordata ? colas.datatype : 0 );
-    if ( colordata )
-    {
-	if ( colcache ) colcache->unRef();
-	colcache = datacubes;
-	colcache->ref();
-	return true;
-    }
+    setData( attrib, datacubes );
 
-    if ( cache ) cache->unRef();
-    cache = datacubes;
-    cache->ref();
+    if ( cache[attrib] ) cache[attrib]->unRef();
+    cache.replace( attrib, datacubes );
+    datacubes->ref();
     return true;
 }
 
 
-void PlaneDataDisplay::setData( const Attrib::DataCubes* datacubes,
-				int datatype )
+void PlaneDataDisplay::setData( int attrib, const Attrib::DataCubes* datacubes )
 {
-    visBase::VisColorTab& coltab = trect->getColorTab();
-    coltab.ref();
-    trect->removeAllTextures( true );
-    trect->setColorTab( coltab );
-    coltab.unRef();
-
     if ( !datacubes )
     {
-	trect->setData( 0, 0, 0 );
-	trect->useTexture( false );
+	texture->setData( attrib, 0, 0 );
+	texture->turnOn( false );
 	return;
     }
 
-    checkCubeSampling( datacubes->cubeSampling() );
+    //Do subselection of input if input is too big
 
     int unuseddim, dim0, dim1;
-    if ( type==Inline )
+    if ( orientation==Inline )
     {
 	unuseddim = Attrib::DataCubes::cInlDim();
 	dim0 = Attrib::DataCubes::cZDim();
 	dim1 = Attrib::DataCubes::cCrlDim();
     }
-    else if ( type==Crossline )
+    else if ( orientation==Crossline )
     {
 	unuseddim = Attrib::DataCubes::cCrlDim();
-	dim0 = Attrib::DataCubes::cInlDim();
-	dim1 = Attrib::DataCubes::cZDim();
+	dim0 = Attrib::DataCubes::cZDim();
+	dim1 = Attrib::DataCubes::cInlDim();
     }
     else
     {
 	unuseddim = Attrib::DataCubes::cZDim();
-	dim0 = Attrib::DataCubes::cInlDim();
-	dim1 = Attrib::DataCubes::cCrlDim();
+	dim0 = Attrib::DataCubes::cCrlDim();
+	dim1 = Attrib::DataCubes::cInlDim();
     }
 
     const int nrcubes = datacubes->nrCubes();
+    texture->setNrVersions( 0, nrcubes );
     for ( int idx=0; idx<nrcubes; idx++ )
     {
 	PtrMan<Array3D<float> > tmparray = 0;
@@ -670,13 +585,7 @@ void PlaneDataDisplay::setData( const Attrib::DataCubes* datacubes,
 	    usedarray = &datacubes->getCube(idx);
 	else
 	{
-	    const CubeSampling cs = getCubeSampling();
-
-	    if ( datatransformvoihandle==-1 )
-		datatransformvoihandle = datatransform->addVolumeOfInterest(cs);
-	    else
-		datatransform->setVolumeOfInterest(datatransformvoihandle,cs);
-
+	    const CubeSampling cs = getCubeSampling(true,false);
 	    datatransform->loadDataIfMissing( datatransformvoihandle );
 
 	    ZAxisTransformSampler outpsampler( *datatransform, true, BinID(0,0),
@@ -714,74 +623,51 @@ void PlaneDataDisplay::setData( const Attrib::DataCubes* datacubes,
 	    }
 	}
 
-	if ( idx>0 ) trect->addTexture();
-
 	Array2DSlice<float> slice(*usedarray);
 	slice.setPos( unuseddim, 0 );
 	slice.setDimMap( 0, dim0 );
 	slice.setDimMap( 1, dim1 );
 
 	if ( slice.init() )
-	    trect->setData( &slice, idx, datatype );
+	    texture->setData( attrib, idx, &slice );
 	else
 	{
-	    trect->removeAllTextures( true );
+	    texture->turnOn(false);
 	    pErrMsg( "Could not init slice." );
 	}
     }
 
-    trect->finishTextures();
-    trect->showTexture( 0 );
-    trect->useTexture( true );
+    texture->turnOn( true );
 }
 
 
-#define mSetRg( var, ic ) cs.hrg.var.ic = datacs.hrg.var.ic
-void PlaneDataDisplay::checkCubeSampling( const CubeSampling& datacs )
+const Attrib::DataCubes* PlaneDataDisplay::getCacheVolume( int attrib ) const
 {
-    bool setnewcs = false;
-    CubeSampling cs = getCubeSampling(true);
-    if ( cs.hrg.step.inl != datacs.hrg.step.inl )
-    { mSetRg(start,inl); mSetRg(stop,inl); mSetRg(step,inl); setnewcs = true; }
-
-    if ( cs.hrg.step.crl != datacs.hrg.step.crl )
-    { mSetRg(start,crl); mSetRg(stop,crl); mSetRg(step,crl); setnewcs = true; }
-
-    if ( cs.zrg.step != datacs.zrg.step )
-    {  assign( cs.zrg, datacs.zrg ); setnewcs = true; } 
-
-    if ( setnewcs )
-    {
-	setCubeSampling( cs );
-	resetManipulation();
-    }
+    return attrib>=0 && attrib<nrAttribs() ? cache[attrib] : 0;
 }
 
 
-const Attrib::DataCubes* PlaneDataDisplay::getCacheVolume(bool colordata) const
+int PlaneDataDisplay::nrTextures( int attrib ) const
 {
-    return colordata ? colcache : cache;
+    return getCacheVolume( attrib ) ? getCacheVolume( attrib )->nrCubes() : 0;
 }
 
 
-int PlaneDataDisplay::nrTextures() const
-{ return cache ? cache->nrCubes() : 0; }
-
-
-void PlaneDataDisplay::selectTexture( int idx )
+void PlaneDataDisplay::selectTexture( int attrib, int idx )
 {
-    if ( idx>=nrTextures() ) return;
-    trect->showTexture( idx );
+    if ( attrib<0 || attrib>=nrAttribs() ||
+	 idx<0 || idx>=texture->nrVersions(attrib) ) return;
+
+    texture->setCurrentVersion( attrib, idx );
 }
 
 
-void PlaneDataDisplay::turnOn( bool yn )
-{ trect->turnOn(yn); }
+int PlaneDataDisplay::selectedTexture( int attrib ) const
+{ 
+    if ( attrib<0 || attrib>=nrAttribs() ) return 0;
 
-
-bool PlaneDataDisplay::isOn() const
-{ return trect->isOn(); }
-
+    return texture->currentVersion( attrib );
+}
 
 #define mIsValid(idx,sz) ( idx>=0 && idx<sz )
 
@@ -791,32 +677,18 @@ void PlaneDataDisplay::getMousePosInfo( const visBase::EventInfo&,
 					BufferString& info ) const
 {
     info = getManipulationString();
-    if ( !cache ) { val = mUdf(float); return; }
+    if ( cache.size()<=0 || !cache[0] ) { val = mUdf(float); return; }
     const BinIDValue bidv( SI().transform(pos), pos.z );
-    if ( !cache->getValue(trect->shownTexture(),bidv,&val,false) )
+    if ( !cache[0]->getValue(texture->currentVersion(0),bidv,&val,false) )
 	{ val = mUdf(float); return; }
 
     return;
 }
 
 
-void PlaneDataDisplay::setMaterial( visBase::Material* nm)
-{ trect->setMaterial(nm); }
-
-
-const visBase::Material* PlaneDataDisplay::getMaterial() const
-{ return trect->getMaterial(); }
-
-
-visBase::Material* PlaneDataDisplay::getMaterial()
-{ return trect->getMaterial(); }
-
-
-SoNode* PlaneDataDisplay::getInventorNode() { return trect->getInventorNode(); }
-
-
 void PlaneDataDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 {
+    /*
     visBase::VisualObject::fillPar( par, saveids );
     int trectid = trect->id();
     par.set( trectstr, trectid );
@@ -824,13 +696,16 @@ void PlaneDataDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
     if ( saveids.indexOf( trectid )==-1 ) saveids += trectid;
 
     as.fillPar( par );
-    colas.fillPar( par );
+    */
 }
 
 
 int PlaneDataDisplay::usePar( const IOPar& par )
 {
     int res =  visBase::VisualObject::usePar( par );
+    return res;
+
+    /*
     if ( res!=1 ) return res;
 
     int trectid;
@@ -849,16 +724,17 @@ int PlaneDataDisplay::usePar( const IOPar& par )
     trect->useTexture( false );
 
     if ( trect->getRectangle().orientation() == visBase::Rectangle::YZ )
-	type = Inline;
+	orientation = Inline;
     else if ( trect->getRectangle().orientation() == visBase::Rectangle::XZ )
-	type = Crossline;
+	orientation = Crossline;
     else
-	type = Timeslice;
+	orientation = Timeslice;
 
     if ( !as.usePar(par) ) return -1;
-    colas.usePar( par );
 
     return 1;
+    */
 }
+
 
 }; // namespace visSurvey

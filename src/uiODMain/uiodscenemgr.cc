@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.51 2006-01-04 09:49:34 cvsnanne Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.52 2006-01-18 22:58:59 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -593,7 +593,7 @@ void uiODSceneMgr::updateSelectedTreeItem()
     if ( id != -1 )
     {
 	setItemInfo( id );
-	applMgr().modifyColorTable( id );
+	//applMgr().modifyColorTable( id );
 	if ( !visServ().isOn(id) ) visServ().turnOn(id, true, true);
 	else if ( scenes.size() != 1 && visServ().isSoloMode() )
 	    visServ().updateDisplay( true, id );

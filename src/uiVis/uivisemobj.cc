@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Jan 2005
- RCS:           $Id: uivisemobj.cc,v 1.37 2005-12-19 08:16:48 cvshelene Exp $
+ RCS:           $Id: uivisemobj.cc,v 1.38 2006-01-18 22:58:59 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -104,7 +104,7 @@ uiVisEMObject::uiVisEMObject( uiParent* uip, int newid, uiVisPartServer* vps )
     if ( !emod->setEMObject(emid) ) { emod->unRef(); return; }
 
     if ( emod->usesTexture() &&
-	    emod->getSelSpec()->id()==Attrib::SelSpec::cNoAttrib() )
+	    emod->getSelSpec(0)->id()==Attrib::SelSpec::cNoAttrib() )
 	setDepthAsAttrib();
 
     setUpConnections();
@@ -416,7 +416,7 @@ void uiVisEMObject::handleMenuCB( CallBacker* cb )
 	shift.z = newshift;
 	emod->setTranslation( shift );
 	if ( !emod->hasStoredAttrib() )
-	    visserv->calculateAttrib( displayid, false );
+	    visserv->calculateAttrib( displayid, 0, false );
 	else
 	{
 	    uiMSG().error( "Cannot calculate this attribute on new location"

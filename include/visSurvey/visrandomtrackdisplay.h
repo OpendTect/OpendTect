@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		January 2003
- RCS:		$Id: visrandomtrackdisplay.h,v 1.41 2005-12-29 14:22:01 cvskris Exp $
+ RCS:		$Id: visrandomtrackdisplay.h,v 1.42 2006-01-18 22:58:59 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -68,9 +68,9 @@ public:
 
     SurveyObject::AttribFormat	getAttributeFormat() const;
     bool			hasColorAttribute() const { return true; }
-    const Attrib::SelSpec*	getSelSpec() const { return &as; }
+    const Attrib::SelSpec*	getSelSpec(int) const { return &as; }
     const Attrib::ColorSelSpec*	getColorSelSpec() const { return &colas; }
-    void			setSelSpec( const Attrib::SelSpec& );
+    void			setSelSpec( int, const Attrib::SelSpec& );
     void                        setColorSelSpec(const Attrib::ColorSelSpec&);
 
     void			getDataTraceBids(TypeSet<BinID>&) const;
@@ -114,8 +114,8 @@ public:
     void			turnOn(bool);
     bool			isOn() const;
 
-    int				getColTabID() const;
-    const TypeSet<float>*	getHistogram() const;
+    int				getColTabID(int) const;
+    const TypeSet<float>*	getHistogram(int) const;
 
     void                        setMaterial( visBase::Material* );
     const visBase::Material*    getMaterial() const;
