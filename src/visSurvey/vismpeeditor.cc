@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vismpeeditor.cc,v 1.19 2005-10-19 15:48:15 cvskris Exp $";
+static const char* rcsID = "$Id: vismpeeditor.cc,v 1.20 2006-01-18 20:05:58 cvsjaap Exp $";
 
 #include "vismpeeditor.h"
 
@@ -431,7 +431,7 @@ void MPEEditor::dragStart( CallBacker* cb )
 
 void MPEEditor::dragMotion( CallBacker* cb )
 {
-    const int idx = draggers.indexOf((visBase::Dragger*) cb );
+    const int idx = draggers.indexOf( (visBase::Dragger*) cb );
     const Coord3 np = draggers[idx]->getPos();
     isdragging = true;
     if ( emeditor ) emeditor->setPosition( np );
@@ -442,7 +442,13 @@ void MPEEditor::dragMotion( CallBacker* cb )
 
 void MPEEditor::dragStop( CallBacker* cb )
 {
-    if ( emeditor ) emeditor->finishEdit();
+    if ( emeditor ) 
+    { 
+	const int idx = draggers.indexOf( (visBase::Dragger*) cb );
+        NotifyStopper cbstop( draggers[idx]->motion );
+	draggers[idx]->setPos( emeditor->getPosition( activedragger ) );
+	emeditor->finishEdit();
+    }
 }
 
 
