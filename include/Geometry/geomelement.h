@@ -7,7 +7,7 @@ CopyRight:     (C) dGB Beheer B.V.
 Author:        A.H. Bril
 Date:          23-10-1996
 Contents:      Ranges
-RCS:           $Id: geomelement.h,v 1.4 2005-04-07 09:30:59 cvskris Exp $
+RCS:           $Id: geomelement.h,v 1.5 2006-01-18 20:41:00 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,6 +36,8 @@ public:
 
     virtual bool	isChanged() const { return ischanged; }
     virtual void	resetChangedFlag() { ischanged=false; }
+
+    virtual void	trimUndefParts() {}
 
     CNotifier<Element, const TypeSet<GeomPosID>*>	movementnotifier;
     CNotifier<Element, const TypeSet<GeomPosID>*>	nrpositionnotifier;
