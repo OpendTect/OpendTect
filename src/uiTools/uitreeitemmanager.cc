@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uitreeitemmanager.cc,v 1.22 2006-01-16 21:45:14 cvskris Exp $";
+static const char* rcsID = "$Id: uitreeitemmanager.cc,v 1.23 2006-01-18 22:56:44 cvskris Exp $";
 
 
 #include "uitreeitemmanager.h"
@@ -202,9 +202,16 @@ uiParent* uiTreeItem::getUiParent()
 
 void uiTreeItem::setListViewItem( uiListViewItem* item )
 {
-    uilistviewitem=item;
+    uilistviewitem = item;
     uilistviewitem->setExpandable(isExpandable());
     uilistviewitem->setSelectable(isSelectable());
+}
+
+
+int uiTreeItem::siblingIndex() const
+{
+    if ( !uilistviewitem ) return -1;
+    return uilistviewitem->siblingIndex();
 }
 
 

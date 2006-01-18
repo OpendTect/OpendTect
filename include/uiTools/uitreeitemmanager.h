@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: uitreeitemmanager.h,v 1.19 2006-01-16 21:45:14 cvskris Exp $
+ RCS:		$Id: uitreeitemmanager.h,v 1.20 2006-01-18 22:56:44 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -45,6 +45,13 @@ public:
     virtual bool		select();
     				/*!<Selects this item */
     virtual void		setChecked(bool yn);
+
+    virtual int			siblingIndex() const;
+    				/*\returns the index of this item among
+				   its siblings.
+				  \note this index is not neseccarely the same
+				        as the item's index in the parent's
+					child-list. */
 				 
     virtual bool		addChild( uiTreeItem* child );
     				/*!<Adds a child. If the child does not fit
@@ -109,6 +116,7 @@ public:
     void			moveItem( uiTreeItem* below );
     void			moveItemToTop();
 
+    virtual void		updateColumnText(int col);
 protected:
     virtual int			uiListViewItemType() const;
     				/*!<\returns the uiListViewItem::Type that
@@ -142,7 +150,6 @@ protected:
     virtual void		updateSelection(int selectionKey,
 	    					bool dw=false );
     				/*!< Does only update the display */
-    virtual void		updateColumnText(int col);
 
     IOPar			properties;
 
