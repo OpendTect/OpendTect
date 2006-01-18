@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          29/01/2002
- RCS:           $Id: uitreeview.h,v 1.14 2006-01-16 21:41:50 cvskris Exp $
+ RCS:           $Id: uitreeview.h,v 1.15 2006-01-18 22:53:14 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -213,6 +213,8 @@ public:
     void		insertItem( uiListViewItem* );
     void		takeItem( uiListViewItem* );
     void		removeItem( uiListViewItem* );
+    int			siblingIndex() const;
+    			/*!<\returns this items index of it's siblings. */
 
     int			depth() const; // depth in the tree.
 

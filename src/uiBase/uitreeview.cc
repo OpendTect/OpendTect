@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/01/2002
- RCS:           $Id: uitreeview.cc,v 1.17 2006-01-16 21:41:50 cvskris Exp $
+ RCS:           $Id: uitreeview.cc,v 1.18 2006-01-18 22:53:14 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -659,6 +659,26 @@ void uiListViewItem::takeItem( uiListViewItem* itm )
 
 void uiListViewItem::removeItem( uiListViewItem* itm)
     { mQthing().removeItem( mQitemFor(itm) ); }
+
+
+int uiListViewItem::siblingIndex() const
+{
+    const mQListViewItem* thisp = &mQthing();
+    mQListViewItem* parent = mQthing().parent();
+    if ( !parent )
+	return -1;
+
+    int idx=0;
+    mQListViewItem* curitem = parent->firstChild();
+    while ( curitem && curitem!=thisp )
+    {
+	idx++;
+	curitem = curitem->nextSibling();
+    }
+
+    if ( !curitem ) return -1;
+    return idx;
+}
 
 
 /*! \brief depth in the tree
