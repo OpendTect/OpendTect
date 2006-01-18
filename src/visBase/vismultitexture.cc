@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vismultitexture.cc,v 1.1 2006-01-13 15:41:27 cvskris Exp $";
+static const char* rcsID = "$Id: vismultitexture.cc,v 1.2 2006-01-18 16:41:19 cvskris Exp $";
 
 #include "vismultitexture2.h"
 
@@ -419,6 +419,20 @@ int MultiTexture::addTexture( const char* name )
     return res;
 };
 
+
+void MultiTexture::swapTextures( int t0, int t1 )
+{
+    if ( t0<0 || t1<0 || t0>=textureinfo.size() || t1>=textureinfo.size() )
+	return;
+
+    TextureInfo* ti0 = textureinfo[t0];
+    textureinfo.replace( t0, textureinfo[t1] );
+    textureinfo.replace( t1, ti0 );
+
+    updateSoTextureInternal( t0 );
+    updateSoTextureInternal( t1 );
+}
+    
 
 int MultiTexture::insertTexture( int idx, const char* name )
 {

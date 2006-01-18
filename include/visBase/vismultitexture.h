@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		Dec 2005
- RCS:		$Id: vismultitexture.h,v 1.1 2006-01-13 15:41:30 cvskris Exp $
+ RCS:		$Id: vismultitexture.h,v 1.2 2006-01-18 16:41:21 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -40,6 +40,7 @@ public:
     int			addTexture( const char* name );
     int			insertTexture( int, const char* name );
     void		removeTexture( int );
+    void		swapTextures( int, int );
     void		setOperation( int texture, Operation  );
     void		setComponents( int texture, char bits );
     void		setColorTab( int texture, VisColorTab& );
