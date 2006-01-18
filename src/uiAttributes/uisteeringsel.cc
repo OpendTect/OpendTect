@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: uisteeringsel.cc,v 1.16 2005-10-12 12:23:54 cvshelene Exp $
+ RCS:           $Id: uisteeringsel.cc,v 1.17 2006-01-18 14:58:49 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,16 +15,17 @@ ________________________________________________________________________
 #include "attribdescset.h"
 #include "attribfactory.h"
 #include "attribparam.h"
-#include "paramsetget.h"
 #include "attribsel.h"
 #include "attribstorprovider.h"
 #include "ctxtioobj.h"
-#include "ioobj.h"
 #include "ioman.h"
+#include "ioobj.h"
 #include "iopar.h"
+#include "paramsetget.h"
 #include "survinfo.h"
-#include "seistrctr.h"
 #include "seistrcsel.h"
+#include "seistrctr.h"
+#include "uiattrfact.h"
 #include "uigeninput.h"
 #include "uilabel.h"
 #include "uimsg.h"
@@ -45,8 +46,8 @@ uiSteeringSel::uiSteeringSel( uiParent* p, const Attrib::DescSet* ads )
     , is2d_(false)
     , notypechange_(false)
 {
-    RefMan<Desc> desc = PF().createDescCopy( "FullSteering" );
-    if ( !desc )
+    const char* res = uiAttribFactory::defNameForName( "Curvature" );
+    if ( !res )
     {
 	nosteerlbl_ = new uiLabel( this, "<Steering unavailable>" );
 	setHAlignObj( nosteerlbl_ );
@@ -264,8 +265,8 @@ void uiSteeringSel::set2D( bool yn )
 static const char* steer_seltxts[] = { "Steering Data", 0 };
 
 
-uiSteerCubeSel::uiSteerCubeSel( uiParent* p, CtxtIOObj& c, 
-				const DescSet* ads, const char* txt ) 
+uiSteerCubeSel::uiSteerCubeSel( uiParent* p, CtxtIOObj& c,
+				const DescSet* ads, const char* txt )
 	: uiSeisSel(p,getCtio(c),SeisSelSetup().selattr(false),false,
 			steer_seltxts)
 	, attrdata( ads )
