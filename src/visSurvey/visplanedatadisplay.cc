@@ -4,46 +4,40 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.103 2006-01-18 22:58:59 cvskris Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.104 2006-01-19 19:59:42 cvskris Exp $";
 
 #include "visplanedatadisplay.h"
 
 #include "attribsel.h"
-//#include "cubesampling.h"
-//#include "attribslice.h"
 #include "attribdatacubes.h"
 #include "arrayndslice.h"
 #include "genericnumer.h"
-//#include "vistexturerect.h"
-//#include "arrayndimpl.h"
-//#include "position.h"
+#include "vistexturerect.h"
 #include "survinfo.h"
 #include "samplfunc.h"
-//#include "visselman.h"
 #include "visdataman.h"
-//#include "visrectangle.h"
+#include "visrectangle.h"
 #include "vismaterial.h"
 #include "viscolortab.h"
-//#include "viscolorseq.h"
 #include "viscoord.h"
 #include "visdepthtabplanedragger.h"
 #include "vispickstyle.h"
 #include "visfaceset.h"
 #include "vismultitexture2.h"
-//#include "sorting.h"
 #include "vistransform.h"
-//#include "vistransmgr.h"
-////#include "iopar.h"
-//#include "colortab.h"
+#include "iopar.h"
 #include "zaxistransform.h"
-//#include <math.h>
+
+
 
 mCreateFactoryEntry( visSurvey::PlaneDataDisplay );
 
 
 namespace visSurvey {
 
-const char* PlaneDataDisplay::trectstr = "Texture rectangle";
+DefineEnumNames(PlaneDataDisplay,Orientation,1,"Orientation")
+{ "Inline", "Crossline", "Timeslice", 0 };
+
 
 PlaneDataDisplay::PlaneDataDisplay()
     : VisualObjectImpl(true)
@@ -129,19 +123,31 @@ void PlaneDataDisplay::updateRanges()
     dragger->setSpaceLimits( inlrg, crlrg, survey.zrg );
     dragger->setSize( Coord3(inlrg.width(), crlrg.width(), survey.zrg.width()));
 
-    CubeSampling cs = survey;
-    if ( orientation==Inline )
-	cs.hrg.start.inl = cs.hrg.stop.inl =
-	    SI().inlRange(true).snap( inlrg.center() );
-    else if ( orientation==Crossline )
-	cs.hrg.start.crl = cs.hrg.stop.crl =
-	    SI().crlRange(true).snap( crlrg.center() );
-    else
-	cs.zrg.start = cs.zrg.stop = crlrg.center();
-
-    cs.snapToSurvey();
+    const CubeSampling cs = snapCubeSampling( survey );
     if ( cs!=getCubeSampling(false,true) )
 	setCubeSampling( cs );
+}
+
+
+CubeSampling PlaneDataDisplay::snapCubeSampling( const CubeSampling& cs ) const
+{
+    CubeSampling res( cs );
+    const Interval<float> inlrg( res.hrg.start.inl, res.hrg.stop.inl );
+    const Interval<float> crlrg( res.hrg.start.crl, res.hrg.stop.crl );
+    const Interval<float> zrg( res.zrg );
+
+    res.snapToSurvey();
+
+    if ( orientation==Inline )
+	res.hrg.start.inl = res.hrg.stop.inl =
+	    SI().inlRange(true).snap( inlrg.center() );
+    else if ( orientation==Crossline )
+	res.hrg.start.crl = res.hrg.stop.crl =
+	    SI().crlRange(true).snap( crlrg.center() );
+    else
+	res.zrg.start = res.zrg.stop = SI().zRange(true).snap(zrg.center());
+
+    return res;
 }
 
 
@@ -215,18 +221,7 @@ bool PlaneDataDisplay::setDataTransform( ZAxisTransform* zat )
 void PlaneDataDisplay::draggerFinish( CallBacker* cb )
 {
     const CubeSampling cs = getCubeSampling(true,true);
-    CubeSampling snappedcs = cs;
-    snappedcs.snapToSurvey();
-
-
-    if ( orientation==Inline )
-	snappedcs.hrg.start.inl = snappedcs.hrg.stop.inl =
-	    SI().inlRange(true).snap( snappedcs.hrg.start.inl );
-    else if ( orientation==Crossline )
-	snappedcs.hrg.start.crl = snappedcs.hrg.stop.crl =
-	    SI().crlRange(true).snap( snappedcs.hrg.start.crl );
-    else
-	snappedcs.zrg.start = snappedcs.zrg.stop = snappedcs.zrg.center();
+    const CubeSampling snappedcs = snapCubeSampling( cs );
 
     if ( cs!=snappedcs )
 	setDraggerPos( snappedcs );
@@ -455,7 +450,8 @@ CubeSampling PlaneDataDisplay::getCubeSampling() const
 
 void PlaneDataDisplay::setCubeSampling( CubeSampling cs )
 {
-    cs.snapToSurvey();
+    cs = snapCubeSampling( cs );
+
     visBase::Coordinates* coords = rectangle->getCoordinates();
     if ( orientation==Inline || orientation==Crossline )
     {
@@ -688,52 +684,136 @@ void PlaneDataDisplay::getMousePosInfo( const visBase::EventInfo&,
 
 void PlaneDataDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 {
-    /*
     visBase::VisualObject::fillPar( par, saveids );
-    int trectid = trect->id();
-    par.set( trectstr, trectid );
+    
+    par.set( sKeyOrientation(), OrientationRef(orientation) );
+    getCubeSampling( false, true ).fillPar( par );
 
-    if ( saveids.indexOf( trectid )==-1 ) saveids += trectid;
+    for ( int attrib=as.size()-1; attrib>=0; attrib-- )
+    {
+	IOPar attribpar;
+	as[attrib]->fillPar( attribpar );
+	const int coltabid = getColTabID(attrib);
+	attribpar.set( sKeyColTabID(), coltabid );
+	if ( saveids.indexOf( coltabid )==-1 ) saveids += coltabid;
 
-    as.fillPar( par );
-    */
+	BufferString key = sKeyAttribs();
+	key += attrib;
+	par.mergeComp( attribpar, key );
+    }
+
+    par.set( sKeyNrAttribs(), as.size() );
 }
 
 
 int PlaneDataDisplay::usePar( const IOPar& par )
 {
-    int res =  visBase::VisualObject::usePar( par );
-    return res;
-
-    /*
+    const int res =  visBase::VisualObject::usePar( par );
     if ( res!=1 ) return res;
 
-    int trectid;
+    int nrattribs;
+    if ( par.get( sKeyNrAttribs(), nrattribs ) ) //current format
+    {
+	Orientation ori;
+	EnumRef oriref = OrientationRef(ori);
+	if ( par.get( sKeyOrientation(), oriref ) )
+	    setOrientation( ori );
 
-    if ( !par.get( trectstr, trectid ))
-	return -1;
+	CubeSampling cs;
+	if ( cs.usePar( par ) )
+	    setCubeSampling( cs );
 
-    visBase::DataObject* dataobj = visBase::DM().getObject( trectid );
-    if ( !dataobj ) return 0;
+	bool firstattrib = true;
+	for ( int attrib=0; attrib<nrattribs; attrib++ )
+	{
+	    BufferString key = sKeyAttribs();
+	    key += attrib;
+	    PtrMan<const IOPar> attribpar = par.subselect( key );
+	    if ( !attribpar )
+		continue;
 
-    mDynamicCastGet(visBase::TextureRect*,tr,dataobj)
-    if ( !tr ) return -1;
-    setTextureRect( tr );
+	    int coltabid = -1;
+	    if ( attribpar->get( sKeyColTabID(), coltabid ) )
+	    {
+		visBase::DataObject* dataobj= visBase::DM().getObject(coltabid);
+		if ( !dataobj ) return 0;
 
-    trect->getRectangle().setSnapping( true );
-    trect->useTexture( false );
+		mDynamicCastGet( const visBase::VisColorTab*, coltab, dataobj );
+		if ( !coltab ) coltabid=-1;
+	    }
 
-    if ( trect->getRectangle().orientation() == visBase::Rectangle::YZ )
-	orientation = Inline;
-    else if ( trect->getRectangle().orientation() == visBase::Rectangle::XZ )
-	orientation = Crossline;
+	    if ( !firstattrib )
+		addAttrib();
+	    else
+		firstattrib = false;
+
+	    const int attribnr = as.size()-1;
+
+	    as[attribnr]->usePar( *attribpar );
+	    if ( coltabid!=-1 )
+	    {
+		mDynamicCastGet( visBase::VisColorTab*, coltab, 
+		       		 visBase::DM().getObject(coltabid) );
+		texture->setColorTab( attribnr, *coltab );
+	    }
+	}
+    }
     else
-	orientation = Timeslice;
+    {
+	int trectid;
 
-    if ( !as.usePar(par) ) return -1;
+	if ( !par.get( sKeyTextureRect(), trectid ))
+	    return -1;
+
+	visBase::DataObject* dataobj = visBase::DM().getObject( trectid );
+	if ( !dataobj ) return 0;
+
+	mDynamicCastGet(visBase::TextureRect*,tr,dataobj)
+	if ( !tr ) return -1;
+
+	tr->ref();
+
+
+	visBase::Rectangle& rect = tr->getRectangle();
+	CubeSampling cubesampl;
+	Orientation ori;
+	cubesampl.hrg.start =
+	    BinID( mNINT( rect.origo().x), mNINT( rect.origo().y) );
+	cubesampl.hrg.stop = cubesampl.hrg.start;
+	cubesampl.hrg.step = curicstep;
+
+	const float zrg0 = rect.origo().z;
+	cubesampl.zrg.start = (float)(int)(1000*zrg0+.5) / 1000;
+	cubesampl.zrg.stop = cubesampl.zrg.start;
+	cubesampl.zrg.step = curzstep;
+
+	if ( rect.orientation()==visBase::Rectangle::XY )
+	{
+	    cubesampl.hrg.stop.inl += mNINT(rect.width(0,false));
+	    cubesampl.hrg.stop.crl += mNINT(rect.width(1,false));
+	    ori = Timeslice;
+	}
+	else if ( rect.orientation()==visBase::Rectangle::XZ )
+	{
+	    cubesampl.hrg.stop.inl += mNINT(rect.width(0,false));
+	    cubesampl.zrg.stop += rect.width(1,false);
+	    ori = Crossline;
+	}
+	else
+	{
+	    ori = Inline;
+	    cubesampl.hrg.stop.crl += mNINT(rect.width(1,false));
+	    cubesampl.zrg.stop += rect.width(0,false);
+	}
+
+	setOrientation( ori );
+	setCubeSampling( cubesampl );
+	tr->unRef();
+
+	as[0]->usePar( par );
+    }
 
     return 1;
-    */
 }
 
 

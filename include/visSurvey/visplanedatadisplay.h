@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visplanedatadisplay.h,v 1.64 2006-01-18 22:58:59 cvskris Exp $
+ RCS:		$Id: visplanedatadisplay.h,v 1.65 2006-01-19 19:59:42 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -53,6 +53,7 @@ public:
     bool			isInlCrl() const { return true; }
 
     enum Orientation		{ Inline=0, Crossline=1, Timeslice=2 };
+    				DeclareEnumUtils(Orientation);
 
     static PlaneDataDisplay*	create()
 				mCreateDataObj(PlaneDataDisplay);
@@ -126,6 +127,8 @@ protected:
     void			draggerFinish(CallBacker*);
     void			setDraggerPos( const CubeSampling& );
 
+    CubeSampling		snapCubeSampling( const CubeSampling& ) const;
+
     visBase::DepthTabPlaneDragger*	dragger;
     visBase::PickStyle*			rectanglepickstyle;
     visBase::MultiTexture2*		texture;
@@ -141,7 +144,12 @@ protected:
     ZAxisTransform*		datatransform;
     int				datatransformvoihandle;
 
-    static const char*		trectstr;
+
+    static const char*		sKeyNrAttribs() { return "Nr Attribs"; }
+    static const char*		sKeyOrientation() { return "Orientation"; }
+    static const char*		sKeyAttribs() { return "Attrib "; }
+    static const char*		sKeyColTabID() { return "Colortable ID"; }
+    static const char*		sKeyTextureRect() { return "Texture rectangle";}
     Notifier<PlaneDataDisplay>	moving;
 };
 
