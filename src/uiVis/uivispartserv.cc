@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.291 2006-01-18 22:58:59 cvskris Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.292 2006-01-19 16:01:19 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -1054,13 +1054,16 @@ void uiVisPartServer::setUpConnections( int id )
     if ( vo && vo->rightClicked() )
 	vo->rightClicked()->notify(mCB(this,uiVisPartServer,rightClickCB));
 
-    for ( int attrib=so->nrAttribs()-1; attrib>=0; attrib-- )
+    if ( so )
     {
-	mDynamicCastGet(visBase::VisColorTab*,coltab,
-			getObject(getColTabId(id,attrib)));
-	if ( coltab )
-	    coltab->sequencechange.notify(mCB(this,uiVisPartServer,
-					      colTabChangeCB));
+	for ( int attrib=so->nrAttribs()-1; attrib>=0; attrib-- )
+	{
+	    mDynamicCastGet(visBase::VisColorTab*,coltab,
+			    getObject(getColTabId(id,attrib)));
+	    if ( coltab )
+		coltab->sequencechange.notify(mCB(this,uiVisPartServer,
+						  colTabChangeCB));
+	}
     }
 }
 
