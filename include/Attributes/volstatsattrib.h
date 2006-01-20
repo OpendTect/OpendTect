@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: volstatsattrib.h,v 1.8 2006-01-12 20:37:38 cvsnanne Exp $
+ RCS:           $Id: volstatsattrib.h,v 1.9 2006-01-20 16:08:06 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -64,7 +64,7 @@ protected:
     static Provider*		createInstance(Desc&);
     static void			updateDesc(Desc&);
 
-    bool			allowParallelComputing() const
+    bool			allowParallelComputation() const
 				{ return true; }
 
     bool			getInputOutput(int inp,TypeSet<int>& res) const;
