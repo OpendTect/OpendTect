@@ -4,7 +4,7 @@
  * DATE     : Nov 2004
 -*/
 
-static const char* rcsID = "$Id: parametricsurface.cc,v 1.19 2006-01-18 20:48:06 cvsjaap Exp $";
+static const char* rcsID = "$Id: parametricsurface.cc,v 1.20 2006-01-20 23:57:30 cvsjaap Exp $";
 
 #include "parametricsurface.h"
 
@@ -410,6 +410,37 @@ bool ParametricSurface::isAtSameEdge( const RCol& rc1, const RCol& rc2,
     return false;
 }
 
+#define mRemovePart( rc0, rc0start, incop, rc1, removefunc ) \
+    for ( int rc0=rc0##rng.rc0start; rc0##rng.includes(rc0); \
+	  rc0 incop rc0##rng.step ) \
+    { \
+	bool founddefknot = false; \
+	for ( int rc1=rc1##rng.start; rc1<=rc1##rng.stop; \
+	      rc1+=rc1##rng.step ) \
+	{ \
+	    if ( isKnotDefined( RowCol(row,col) ) ) \
+	    { founddefknot = true; break; } \
+	} \
+ \
+	if ( founddefknot ) \
+	    break; \
+\
+	removefunc( rc0 ); \
+    } \
+    rc0##rng = rc0##Range(); 
+
+void ParametricSurface::trimUndefParts()
+{
+    StepInterval<int> rowrng = rowRange();
+    StepInterval<int> colrng = colRange();
+
+    mRemovePart( row, start, +=, col, removeRow )
+    mRemovePart( row, stop,  -=, col, removeRow )
+    mRemovePart( col, start, +=, row, removeCol )
+    mRemovePart( col, stop,  -=, row, removeCol )
+}
+
+/*
 void ParametricSurface::trimUndefParts()
 {
     StepInterval<int> rowrng = rowRange();
@@ -421,52 +452,61 @@ void ParametricSurface::trimUndefParts()
 	for ( int idx=colrng.start; idx<=colrng.stop; idx+=colrng.step )
 	{
 	    if ( isKnotDefined( RowCol( rowrng.start, idx ) ) )
-	    { founddefknot = true; break; }
+		{ founddefknot = true; break; }
 	}
-	if ( !founddefknot ) removeRow( rowrng.start );
-
-	rowrng.start += rowrng.step;
-    }
-
+	if ( !founddefknot ) 
+	{ 
+	    removeRow( rowrng.start ); 
+	    rowrng.start += rowrng.step; 
+	}
+     }
+		
     founddefknot = false;
     while ( !founddefknot && rowrng.start<=rowrng.stop )
     {
 	for ( int idx=colrng.start; idx<=colrng.stop; idx+=colrng.step )
 	{
 	    if ( isKnotDefined( RowCol( rowrng.stop, idx ) ) )
-	    { founddefknot = true; break; }
+		{ founddefknot = true; break; }
 	}
-	if ( !founddefknot ) removeRow( rowrng.stop );
-
-	rowrng.stop -= rowrng.step;
+	if ( !founddefknot ) 
+	{
+	    removeRow( rowrng.stop );
+	    rowrng.stop -= rowrng.step;
+	}
     }
-
+		
     founddefknot = false;
     while ( !founddefknot && colrng.start<=colrng.stop )
     {
 	for ( int idx=rowrng.start; idx<=rowrng.stop; idx+=rowrng.step )
 	{
 	    if ( isKnotDefined( RowCol( idx, colrng.start ) ) )
-	    { founddefknot = true; break; }
+		{ founddefknot = true; break; }
 	}
-	if ( !founddefknot ) removeCol( colrng.start );
-
-	colrng.start += colrng.step;
+	if ( !founddefknot ) 
+	{
+	    removeCol( colrng.start );
+	    colrng.start += colrng.step;
+	}
     }
-
+		    
     founddefknot = false;
     while ( !founddefknot && colrng.start<=colrng.stop )
     {
 	for ( int idx=rowrng.start; idx<=rowrng.stop; idx+=rowrng.step )
 	{
 	    if ( isKnotDefined( RowCol( idx, colrng.stop ) ) )
-	    { founddefknot = true; break; }
+		{ founddefknot = true; break; }
 	}
-	if ( !founddefknot ) removeCol( colrng.stop );
-
-	colrng.stop -= colrng.step;
+	if ( !founddefknot )
+	{
+	    removeCol( colrng.stop );
+	    colrng.stop -= colrng.step;
+	}
     }
 }
+*/
 
 }; 
 
