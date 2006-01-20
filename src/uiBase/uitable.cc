@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.cc,v 1.33 2005-11-02 14:20:26 cvsarend Exp $
+ RCS:           $Id: uitable.cc,v 1.34 2006-01-20 15:40:06 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -214,6 +214,18 @@ uiTable::~uiTable()
 {}
 
 
+void uiTable::showGrid( bool yn )
+{
+    body_->setShowGrid( yn );
+}
+
+
+bool uiTable::gridShown() const
+{
+    return body_->showGrid();
+}
+
+
 void uiTable::setDefaultRowLabels()
 {
     const int nrrows = nrRows();
@@ -269,10 +281,21 @@ int uiTable::rowHeight( int row ) const
 }
 
 
+void uiTable::setLeftMargin( int width )
+{
+    body_->setLeftMargin( width );
+}
+
+
 void uiTable::setColumnWidth( int col, int w )	
 {
-    if ( col == -1 ) return body_->setLeftMargin( w );
-    body_->setColumnWidth( col, w );
+    if ( col >= 0 )
+	body_->setColumnWidth( col, w );
+    else if ( col == -1 )
+    {
+	for ( int idx=0; idx<nrCols(); idx++ )
+	    body_->setColumnWidth( idx, w );
+    }
 }
 
 
@@ -283,10 +306,21 @@ void uiTable::setColumnWidthInChar( int col, float w )
 }
 
 
+void uiTable::setTopMargin( int h )
+{
+    body_->setTopMargin( h );
+}
+
+
 void uiTable::setRowHeight( int row, int h )
 {
-    if ( row == -1 ) return body_->setTopMargin(h);
-    body_->setRowHeight(row,h);
+    if ( row >= 0 )
+	body_->setRowHeight( row, h );
+    else if ( row == -1 )
+    {
+	for ( int idx=0; idx<nrRows(); idx++ )
+	    body_->setRowHeight( idx, h );
+    }
 }
 
 
@@ -836,25 +870,25 @@ void uiTable::removeAllSelections()
 }
 
 
-bool  uiTable::isRowSelected( int row )
+bool uiTable::isRowSelected( int row )
 {
     return body_->isRowSelected( row );
 }
 
 
-bool  uiTable::isColumnSelected( int col )
+bool uiTable::isColumnSelected( int col )
 {
     return body_->isColumnSelected( col );
 }
 
 
-int   uiTable::currentRow()
+int uiTable::currentRow()
 {
     return body_->currentRow();
 }
 
 
-int   uiTable::currentCol()
+int uiTable::currentCol()
 {
     return body_->currentColumn();
 }

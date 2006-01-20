@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.h,v 1.25 2005-09-19 15:22:50 cvsbert Exp $
+ RCS:           $Id: uitable.h,v 1.26 2006-01-20 15:40:06 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -102,6 +102,8 @@ public:
     void		setText(const RowCol&,const char*);
     void		clearCell(const RowCol&);
     void		clearTable();
+    void		showGrid(bool);
+    bool		gridShown() const;
     void		setCurrentCell( const RowCol& );
 
     int			nrRows() const;
@@ -119,13 +121,13 @@ public:
     int			columnWidth( int col ) const;
     int			rowHeight( int row ) const;
 
-			//! col == -1 : set left margin width
-    void		setColumnWidth( int col, int w );
-    void		setColumnWidthInChar( int col, float w );
+    void		setLeftMargin(int);
+    void		setColumnWidth(int col,int w);
+    void		setColumnWidthInChar(int col,float w);
 
-			//! row == -1 : set top margin height
-    void		setRowHeight( int row, int h );
-    void		setRowHeightInChar( int row, float h );
+    void		setTopMargin(int);
+    void		setRowHeight(int row,int h);
+    void		setRowHeightInChar(int row,float h);
 
     void		setColumnStretchable( int col, bool stretch );
     void		setRowStretchable( int row, bool stretch );
