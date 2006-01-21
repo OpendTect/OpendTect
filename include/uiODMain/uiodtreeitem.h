@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: uiodtreeitem.h,v 1.12 2006-01-18 22:58:59 cvskris Exp $
+ RCS:		$Id: uiodtreeitem.h,v 1.13 2006-01-21 02:23:15 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -117,6 +117,8 @@ protected:
     MenuItem		movetobottommnuitem;
     MenuItem		moveupmnuitem;
     MenuItem		movedownmnuitem;
+
+    MenuItem		removemnuitem;
     const char*		parenttype_;
 };
 

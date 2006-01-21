@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.137 2006-01-18 22:58:59 cvskris Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.138 2006-01-21 02:23:16 cvskris Exp $
 ___________________________________________________________________
 
 -*/
@@ -248,6 +248,7 @@ uiODDataTreeItem::uiODDataTreeItem( const char* parenttype )
     , movetobottommnuitem( "to bottom" )
     , moveupmnuitem( "up" )
     , movedownmnuitem( "down" )
+    , removemnuitem("Remove" )
 {}
 
 
@@ -341,13 +342,18 @@ void uiODDataTreeItem::createMenuCB( CallBacker* cb )
 	mAddMenuItem( menu, &settingsmnuitem, true, false );
     }
 
-    mAddMenuItem( &movemnuitem, &movetotopmnuitem, siblingIndex(), false );
-    mAddMenuItem( &movemnuitem, &moveupmnuitem, siblingIndex(), false );
+    const bool isfirst = !siblingIndex();
+    const bool islast = siblingIndex()<visserv->getNrAttribs( displayID())-1;
+
+    mAddMenuItem( &movemnuitem, &movetotopmnuitem, !isfirst, false );
+    mAddMenuItem( &movemnuitem, &moveupmnuitem, !isfirst, false );
     //TODO: Make enabling-check
-    mAddMenuItem( &movemnuitem, &movedownmnuitem, !siblingIndex(), false );
-    mAddMenuItem( &movemnuitem, &movetobottommnuitem, siblingIndex(), false );
+    mAddMenuItem( &movemnuitem, &movedownmnuitem, !islast, false );
+    mAddMenuItem( &movemnuitem, &movetobottommnuitem, !islast, false );
 
     mAddMenuItem( menu, &movemnuitem, true, false );
+    mAddMenuItem( menu, &removemnuitem, visserv->getNrAttribs( displayID())>1,
+	    	  false );
 }
 
 
@@ -362,9 +368,20 @@ void uiODDataTreeItem::handleMenuCB( CallBacker* cb )
     }
     else if ( mnuid==movetotopmnuitem.id )
     {
+	for ( int idx=siblingIndex(); idx; idx-- )
+	    visserv->swapAttribs( displayID(), idx, idx-1 );
+
+	updateSiblings();
+	menu->setIsHandled(true);
     }
     else if ( mnuid==movetobottommnuitem.id )
     {
+	const int nrattribs = visserv->getNrAttribs( displayID() );
+	for ( int idx=siblingIndex(); idx<nrattribs-2; idx++ )
+	    visserv->swapAttribs( displayID(), idx, idx+1 );
+
+	updateSiblings();
+	menu->setIsHandled(true);
     }
     else if ( mnuid==moveupmnuitem.id )
     {
@@ -375,8 +392,10 @@ void uiODDataTreeItem::handleMenuCB( CallBacker* cb )
 	    visserv->swapAttribs( displayID(), attribnr, targetattribnr );
 	    updateSiblings();
 	}
+
+	menu->setIsHandled(true);
     }
-    if ( mnuid==movedownmnuitem.id )
+    else if ( mnuid==movedownmnuitem.id )
     {
 	const int attribnr = siblingIndex();
 	if ( attribnr<visserv->getNrAttribs( displayID() )-1 )
@@ -387,6 +406,14 @@ void uiODDataTreeItem::handleMenuCB( CallBacker* cb )
 	}
 
 	menu->setIsHandled(true);
+    }
+    else if ( mnuid==removemnuitem.id )
+    {
+	const int attribnr = siblingIndex();
+	visserv->removeAttrib( displayID(), siblingIndex() );
+
+	prepareForShutdown();
+	parent->removeChild( this );
     }
     else
     {
