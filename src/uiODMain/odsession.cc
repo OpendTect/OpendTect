@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: odsession.cc,v 1.8 2005-11-01 12:05:33 cvsnanne Exp $";
+static const char* rcsID = "$Id: odsession.cc,v 1.9 2006-01-23 11:17:29 cvsnanne Exp $";
 
 #include "odsession.h"
 #include "ptrman.h"
@@ -36,12 +36,12 @@ ODSession& ODSession::operator=( const ODSession& sess )
 {
     if ( &sess != this )
     {
-	vispars_ == sess.vispars_;
-	scenepars_ == sess.scenepars_;
-	attrpars_ == sess.attrpars_;
-	nlapars_ == sess.nlapars_;
-	mpepars_ == sess.mpepars_;
-	pluginpars_ == sess.pluginpars_;
+	vispars_ = sess.vispars_;
+	scenepars_ = sess.scenepars_;
+	attrpars_ = sess.attrpars_;
+	nlapars_ = sess.nlapars_;
+	mpepars_ = sess.mpepars_;
+	pluginpars_ = sess.pluginpars_;
     }
     return *this;
 }
@@ -50,7 +50,7 @@ ODSession& ODSession::operator=( const ODSession& sess )
 bool ODSession::operator==( const ODSession& sess ) const
 {
     return vispars_ == sess.vispars_
-	&& scenepars_ == sess.scenepars_
+//	&& scenepars_ == sess.scenepars_
 	&& attrpars_ == sess.attrpars_
 	&& nlapars_ == sess.nlapars_
 	&& mpepars_ == sess.mpepars_
