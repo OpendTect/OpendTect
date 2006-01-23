@@ -7,13 +7,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2003
- RCS:           $Id: uiwelldlgs.h,v 1.20 2006-01-16 12:22:51 cvshelene Exp $
+ RCS:           $Id: uiwelldlgs.h,v 1.21 2006-01-23 14:32:26 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uidialog.h"
 #include "ranges.h"
+#include "position.h"
 
 class uiButtonGroup;
 class uiCheckBox;
@@ -164,7 +165,6 @@ protected:
 
 /*! \brief dialog for storing edited or home-made wells*/
 
-class Coord3;
 class uiStoreWellDlg : public uiDialog
 {
 public:
