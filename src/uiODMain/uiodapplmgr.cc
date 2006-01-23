@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.112 2006-01-18 22:58:59 cvskris Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.113 2006-01-23 07:50:23 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -473,14 +473,14 @@ bool uiODApplMgr::evaluateAttribute( int visid )
 {
     /* Perhaps better to merge this with uiODApplMgr::getNewData(), 
        for now it works */
-    int format = visserv->getAttributeFormat( visid );
-    if ( format == 0 )
+    uiVisPartServer::AttribFormat format = visserv->getAttributeFormat( visid );
+    if ( format == uiVisPartServer::Cube )
     {
 	const CubeSampling cs = visserv->getCubeSampling( visid );
 	RefMan<const Attrib::DataCubes> newdata = attrserv->createOutput( cs );
 	visserv->setCubeData( visid, false, newdata );
     }
-    else if ( format == 2 )
+    else if ( format == uiVisPartServer::RandomPos )
     {
 	ObjectSet<BinIDValueSet> data;
 	visserv->fetchSurfaceData( visid, data );
@@ -928,10 +928,11 @@ bool uiODApplMgr::handleAttribServEv( int evid )
     }
     else if ( evid==uiAttribPartServer::evEvalAttrInit )
     {
-	const int format = 
+	const uiVisPartServer::AttribFormat format = 
 	    	visserv->getAttributeFormat( visserv->getEventObjId() );
-	const bool alloweval = format==0 || format==2;
-	const bool allowstorage = format==2;
+	const bool alloweval = format==uiVisPartServer::Cube || 
+	    		       format==uiVisPartServer::RandomPos;
+	const bool allowstorage = format==uiVisPartServer::RandomPos;
 	attrserv->setEvaluateInfo( alloweval, allowstorage );
     }
     else if ( evid==uiAttribPartServer::evEvalCalcAttr )
@@ -954,8 +955,9 @@ bool uiODApplMgr::handleAttribServEv( int evid )
     else if ( evid==uiAttribPartServer::evEvalStoreSlices )
     {
 	const int visid = visserv->getEventObjId();
-	const int format = visserv->getAttributeFormat( visid );
-	if ( format != 2 ) return false;
+	const uiVisPartServer::AttribFormat format = 
+	    				visserv->getAttributeFormat( visid );
+	if ( format != uiVisPartServer::RandomPos ) return false;
 	const MultiID mid = visserv->getMultiID(visid);
 	const EM::ObjectID emid = emserv->getObjectID(mid);
 	emserv->storeAuxData( emid );
