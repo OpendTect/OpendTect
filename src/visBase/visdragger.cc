@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          December 2003
- RCS:           $Id: visdragger.cc,v 1.14 2005-10-17 21:10:22 cvskris Exp $
+ RCS:           $Id: visdragger.cc,v 1.15 2006-01-23 14:19:06 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,6 +36,7 @@ Dragger::Dragger()
     , positiontransform( Transformation::create() )
     , displaytrans( 0 )
     , rightclicknotifier(this)
+    , rightclickeventinfo( 0 )
 {
     onoff->ref();
     onoff->addChild( separator );
@@ -139,9 +140,17 @@ SoNode* Dragger::getShape( const char* name )
 
 void Dragger::triggerRightClick(const EventInfo* eventinfo)
 {
-    rightclickpath = eventinfo ? &eventinfo->pickedobjids : 0;
+    rightclickeventinfo = eventinfo;
     rightclicknotifier.trigger();
 }
+
+
+const TypeSet<int>* Dragger::rightClickedPath() const
+{ return rightclickeventinfo ? &rightclickeventinfo->pickedobjids : 0; }
+
+
+const EventInfo* Dragger::rightClickedEventInfo() const
+{ return rightclickeventinfo; }
 
 
 void Dragger::startCB( void* obj, SoDragger* )

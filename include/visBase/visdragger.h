@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          December 2003
- RCS:           $Id: visdragger.h,v 1.12 2005-02-04 14:31:34 kristofer Exp $
+ RCS:           $Id: visdragger.h,v 1.13 2006-01-23 14:19:05 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -68,8 +68,8 @@ public:
     Notifier<Dragger>		motion;
     Notifier<Dragger>		finished;
     NotifierAccess*		rightClicked() { return &rightclicknotifier; }
-    const TypeSet<int>*		rightClickedPath() const{return rightclickpath;}
-
+    const TypeSet<int>*		rightClickedPath() const;
+    const EventInfo*		rightClickedEventInfo() const;
 
     SoNode*			getInventorNode();
 
@@ -82,7 +82,7 @@ protected:
     static void			finishCB(void*,SoDragger*);
     
     Notifier<Dragger>		rightclicknotifier;
-    const TypeSet<int>*		rightclickpath;
+    const EventInfo*		rightclickeventinfo;
 
     SoSwitch*			onoff;
     SoSeparator*		separator;
