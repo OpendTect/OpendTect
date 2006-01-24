@@ -178,7 +178,15 @@ void MultiTexture2::updateColorTables()
 	const int nrsteps = ctab.nrSteps();
 
 	texture->numcolor.set1Value( idx, nrsteps );
-	//TODO: Set the other flds
+
+	SoMultiTexture2::Operator op = SoMultiTexture2::BLEND;
+	if ( !idx || getOperation(idx)==MultiTexture::REPLACE)
+	    op = SoMultiTexture2::REPLACE;
+	else if ( getOperation(idx)==MultiTexture::ADD )
+	    op = SoMultiTexture2::ADD;
+
+	texture->operation.set1Value( idx, op );
+	texture->component.set1Value( idx, getComponents(idx) );
 	
 	for ( int idy=0; idy<nrsteps; idy++ )
 	{
