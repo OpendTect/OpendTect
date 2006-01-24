@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uicombobox.cc,v 1.36 2005-09-16 12:03:41 cvshelene Exp $
+ RCS:           $Id: uicombobox.cc,v 1.37 2006-01-24 19:03:40 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,6 +21,12 @@ ________________________________________________________________________
 
 #ifdef __msvc__
 #include "qlabel.h"
+#endif
+
+#ifdef USEQT4
+# define mQIcon QIcon
+#else
+# define mQIcon QIconSet
 #endif
 
 
@@ -221,8 +227,7 @@ void uiComboBox::insertItem( const char* text, int index )
 
 void uiComboBox::insertItem( const ioPixmap& pm, const char* text , int index )
 {
-    // TODO: implement
-    pErrMsg( "Not implemented yet" );
+    body_->insertItem( *pm.Pixmap(), QString(text), index );
 }
 
 
