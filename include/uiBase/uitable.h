@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.h,v 1.26 2006-01-20 15:40:06 cvsnanne Exp $
+ RCS:           $Id: uitable.h,v 1.27 2006-01-24 20:52:11 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -104,7 +104,10 @@ public:
     void		clearTable();
     void		showGrid(bool);
     bool		gridShown() const;
-    void		setCurrentCell( const RowCol& );
+    void		setCurrentCell(const RowCol&);
+    void		setCellObject(const RowCol&,uiObject*);
+    uiObject*		getCellObject(const RowCol&) const;
+    void		clearCellObject(const RowCol&);
 
     int			nrRows() const;
     int			nrCols() const;
@@ -166,9 +169,8 @@ public:
     void		selectRow(int row);
     void 		selectColumn(int col);
     void		removeAllSelections();
-    void 		ensureCellVisible(int row, int col);
-    void		setCurrentCell(int row, int col);
-    
+    void 		ensureCellVisible(const RowCol&);
+
     const char*		rowLabel(int) const;
     const char*		rowLabel( const RowCol& rc ) const
 			    { return rowLabel(rc.row); }

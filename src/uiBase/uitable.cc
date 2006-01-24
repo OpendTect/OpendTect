@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.cc,v 1.34 2006-01-20 15:40:06 cvsnanne Exp $
+ RCS:           $Id: uitable.cc,v 1.35 2006-01-24 20:52:11 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -75,16 +75,28 @@ public:
 }; 
 
 
+class CellObject
+{
+    public:
+			CellObject( QWidget* qw, uiObject* obj )
+			    : qwidget_(qw)
+			    , object_(obj)	{}
+
+    uiObject*		object_;
+    QWidget*		qwidget_;
+};
+
+
 class uiTableBody : public uiObjBodyImpl<uiTable,mQTable>
 {
 public:
 
                         uiTableBody( uiTable& handle, uiParent* parnt, 
 				     const char* nm, int nrows, int ncols )
-			    : uiObjBodyImpl<uiTable,mQTable>( handle, parnt, nm )
-			    , messenger_ (*new i_tableMessenger(this, &handle ))
+			    : uiObjBodyImpl<uiTable,mQTable>(handle,parnt,nm)
+			    , messenger_ (*new i_tableMessenger(this,&handle))
 			{
-			    if ( nrows >= 0 ) setLines( nrows + 1 );
+			    if ( nrows >= 0 ) setLines( nrows+1 );
 			    if ( ncols >= 0 ) setNumCols( ncols );
 			}
 
@@ -137,7 +149,7 @@ public:
 			    QWidget* w = cellWidget( rc.row, rc.col );
 			    if ( !w ) return 0;
 
-			    for ( int idx=0; idx < inputs.size(); idx ++ )
+			    for ( int idx=0; idx<inputs.size(); idx++ )
 			    {
 				if ( inputs[idx]->widg == w )
 				    return inputs[idx]->obj;
@@ -152,7 +164,7 @@ public:
 			    if ( !w ) return;
 
 			    Input* inp=0;
-			    for ( int idx=0; idx < inputs.size(); idx ++ )
+			    for ( int idx=0; idx<inputs.size(); idx++ )
 			    {
 				if ( inputs[idx]->widg == w )
 				    { inp = inputs[idx]; break; }
@@ -162,9 +174,59 @@ public:
 			    if ( inp )	{ inputs -= inp; delete inp; }
 			}
 
+    void		setCellObject( const uiTable::RowCol& rc,
+	    			       uiObject* obj )
+			{
+			    QWidget* qwidget = obj->body()->qwidget();
+			    setCellWidget( rc.row, rc.col, qwidget );
+			    cellobjects_ += new CellObject( qwidget, obj );
+			}
+
+    uiObject*		getCellObject( const uiTable::RowCol& rc ) const
+			{
+			    QWidget* qw = cellWidget( rc.row, rc.col );
+			    if ( !qw ) return 0;
+
+			    uiObject* obj = 0;
+			    for ( int idx=0; idx<cellobjects_.size(); idx++ )
+			    {
+				if ( cellobjects_[idx]->qwidget_ == qw )
+				{
+				    obj = cellobjects_[idx]->object_;
+				    break;
+				}
+			    }
+
+			    return obj;
+			}
+
+    void		clearCellObject( const uiTable::RowCol& rc )
+			{
+			    QWidget* qw = cellWidget( rc.row, rc.col );
+			    if ( !qw ) return;
+
+			    CellObject* co = 0;
+			    for ( int idx=0; idx<cellobjects_.size(); idx++ )
+			    {
+				if ( cellobjects_[idx]->qwidget_ == qw )
+				{
+				    co = cellobjects_[idx];
+				    break;
+				}
+			    }
+
+			    clearCellWidget( rc.row, rc.col );
+			    if ( co )
+			    {
+				cellobjects_ -= co;
+				delete co;
+			    }
+			}
+
 protected:
 
     ObjectSet<Input>	inputs;
+    ObjectSet<CellObject> cellobjects_;
 
 
 private:
@@ -906,14 +968,25 @@ void  uiTable::selectColumn( int col )
 }
 
 
-void uiTable::ensureCellVisible( int row, int col )
+void uiTable::ensureCellVisible( const RowCol& rc )
 {
-    body_->ensureCellVisible( row, col );
+    body_->ensureCellVisible( rc.row, rc.col );
 }
 
 
-void uiTable::setCurrentCell( int row, int col )
+void uiTable::setCellObject( const RowCol& rc, uiObject* obj )
 {
-    body_->setCurrentCell( row, col );
+    body_->setCellObject( rc, obj );
 }
 
+
+uiObject* uiTable::getCellObject( const RowCol& rc ) const
+{
+    return body_->getCellObject( rc );
+}
+
+
+void uiTable::clearCellObject( const RowCol& rc )
+{
+    body_->clearCellObject( rc );
+}
