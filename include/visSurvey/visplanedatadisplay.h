@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visplanedatadisplay.h,v 1.65 2006-01-19 19:59:42 cvskris Exp $
+ RCS:		$Id: visplanedatadisplay.h,v 1.66 2006-01-24 06:32:32 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -125,6 +125,7 @@ protected:
     void			manipChanged(CallBacker*);
     void			coltabChanged(CallBacker*);
     void			draggerFinish(CallBacker*);
+    void			draggerRightClick(CallBacker*);
     void			setDraggerPos( const CubeSampling& );
 
     CubeSampling		snapCubeSampling( const CubeSampling& ) const;

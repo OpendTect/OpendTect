@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.104 2006-01-19 19:59:42 cvskris Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.105 2006-01-24 06:32:32 cvskris Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -55,6 +55,8 @@ PlaneDataDisplay::PlaneDataDisplay()
     dragger->ref();
     addChild( dragger->getInventorNode() );
     dragger->finished.notify( mCB( this, PlaneDataDisplay, draggerFinish ) );
+    dragger->rightClicked()->notify(
+	    		mCB( this, PlaneDataDisplay, draggerRightClick ) );
 
     rectanglepickstyle->ref();
     addChild( rectanglepickstyle->getInventorNode() );
@@ -89,6 +91,8 @@ PlaneDataDisplay::PlaneDataDisplay()
 PlaneDataDisplay::~PlaneDataDisplay()
 {
     dragger->finished.remove( mCB( this, PlaneDataDisplay, draggerFinish ) );
+    dragger->rightClicked()->remove(
+	    		mCB( this, PlaneDataDisplay, draggerRightClick ) );
 
     deepErase( as );
     deepUnRef( cache );
@@ -225,6 +229,12 @@ void PlaneDataDisplay::draggerFinish( CallBacker* cb )
 
     if ( cs!=snappedcs )
 	setDraggerPos( snappedcs );
+}
+
+
+void PlaneDataDisplay::draggerRightClick( CallBacker* cb )
+{
+    triggerRightClick( dragger->rightClickedEventInfo() );
 }
 
 
