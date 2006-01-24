@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          03/12/1999
- RCS:           $Id: uimain.h,v 1.9 2005-11-16 15:24:24 cvsarend Exp $
+ RCS:           $Id: uimain.h,v 1.10 2006-01-24 20:22:57 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -53,6 +53,9 @@ public:
     static void		processEvents(int msec=3000);
 
     static uiSize	desktopSize();
+
+    static void		setIconSize(int);
+    static int		getIconSize();
 
 protected:
 

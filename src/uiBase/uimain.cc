@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          10/12/1999
- RCS:           $Id: uimain.cc,v 1.27 2005-11-18 10:38:47 cvsnanne Exp $
+ RCS:           $Id: uimain.cc,v 1.28 2006-01-24 20:22:57 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -126,12 +126,7 @@ void uiMain::init( QApplication* qap, int argc, char **argv )
 
     delete iopar;
 
-    //FIXME: implement for QT4
-#ifndef USEQT4
-    QIconSet::setIconSize( QIconSet::Small, QSize(iconsz,iconsz) );
-    QIconSet::setIconSize( QIconSet::Automatic, QSize(iconsz,iconsz) );
-    QIconSet::setIconSize( QIconSet::Large, QSize(iconsz,iconsz) );
-#endif
+    setIconSize( iconsz );
 
     QApplication::setColorSpec( QApplication::ManyColor );
     QApplication::setDesktopSettingsAware( FALSE );
@@ -288,6 +283,30 @@ uiSize uiMain::desktopSize()
     QWidget *d = QApplication::desktop();
 #endif
     return uiSize ( d->width(), d->height(), true );
+}
+
+
+int uiMain::getIconSize()
+{
+#ifndef USEQT4
+    return QIconSet::iconSize( QIconSet::Small ).width();
+#else
+    //FIXME: implement for QT4
+    return 24;
+#endif
+}
+
+
+void uiMain::setIconSize( int iconsz )
+{
+    //FIXME: implement for QT4
+#ifndef USEQT4
+    QIconSet::setIconSize( QIconSet::Small, QSize(iconsz,iconsz) );
+    QIconSet::setIconSize( QIconSet::Automatic, QSize(iconsz,iconsz) );
+    QIconSet::setIconSize( QIconSet::Large, QSize(iconsz,iconsz) );
+#else
+    //FIXME: implement for QT4
+#endif
 }
 
 
