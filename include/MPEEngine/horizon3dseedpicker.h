@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: horizon3dseedpicker.h,v 1.1 2005-12-12 17:52:19 cvskris Exp $
+ RCS:           $Id: horizon3dseedpicker.h,v 1.2 2006-01-25 14:51:59 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -47,6 +47,9 @@ protected:
 
     EM::SectionID	sectionid;
     MPE::EMTracker&	tracker;
+    
+    bool		interpolateSeeds();
+    bool		interpolmode;
 };
 
 
