@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizon3dseedpicker.cc,v 1.1 2005-12-12 17:26:39 cvskris Exp $";
+static const char* rcsID = "$Id: horizon3dseedpicker.cc,v 1.2 2006-01-25 14:49:53 cvsjaap Exp $";
 
 #include "horizonseedpicker.h"
 
@@ -20,6 +20,7 @@ static const char* rcsID = "$Id: horizon3dseedpicker.cc,v 1.1 2005-12-12 17:26:3
 #include "executor.h"
 #include "mpeengine.h"
 #include "survinfo.h"
+#include "sorting.h"
 
 #define mInitialEventNrNotSet -2
 
@@ -29,6 +30,7 @@ namespace MPE
 HorizonSeedPicker::HorizonSeedPicker( MPE::EMTracker& t )
     : tracker( t )
     , firsthistorynr( mInitialEventNrNotSet )
+    , interpolmode( false )  
 {}
 
 
@@ -102,6 +104,9 @@ bool HorizonSeedPicker::reTrack()
     if ( !seedlist.size() )
 	return true;
 
+    if ( interpolmode )
+	return interpolateSeeds();
+    
     const TrackPlane::TrackMode tm = engine().trackPlane().getTrackMode();
     engine().setTrackMode( TrackPlane::Extend );
 
@@ -175,6 +180,59 @@ bool HorizonSeedPicker::stopSeedPick( bool iscancel )
     return true;
 }
 
+
+#define mSortSeeds(rorc) \
+{ \
+    for ( int idx=0; idx<nrseeds; idx++) \
+    { \
+	rorc##value[idx] = SI().transform( seedpos[idx] ).rorc(); \
+	rorc##index[idx] = idx; \
+    } \
+    sort_coupled( rorc##value, rorc##index, nrseeds ); \
+}
+
+
+#define mInterpolSeeds(rorc) \
+{ \
+    mGetHorizon(horptr); \
+    EM::EMObject* emobj = EM::EMM().getObject(emobjid); \
+    const RowCol step = horptr->geometry.step(); \
+    \
+    for ( int vtx=0; vtx<nrseeds-1; vtx++ ) \
+    { \
+	const int diff = rorc##value[vtx+1] - rorc##value[vtx]; \
+	for ( int idx=step.rorc(); idx<diff; idx+=step.rorc() ) \
+	{ \
+	    const double frac = (double) idx / diff; \
+	    const Coord3 interpos = (1-frac) * seedpos[ rorc##index[vtx] ]  \
+				    + frac * seedpos[ rorc##index[vtx+1] ]; \
+	    const EM::PosID interpid( emobj->id(), sectionid, \
+				SI().transform(interpos).getSerialized() ); \
+	    emobj->setPos( interpid, interpos, true ); \
+	    emobj->setPosAttrib( interpid, EM::EMObject::sSeedNode, true ); \
+	} \
+    } \
+}
+
+bool HorizonSeedPicker::interpolateSeeds()
+{
+    const int nrseeds = nrSeeds();
+    if ( nrseeds<2 ) return false;
+
+    int rvalue[ nrseeds ], rindex[ nrseeds ]; 
+    int cvalue[ nrseeds ], cindex[ nrseeds ]; 
+
+    mSortSeeds(r); mSortSeeds(c);
+
+    if ( rvalue[nrseeds-1] - rvalue[0] > cvalue[nrseeds-1] - cvalue[0] ) 
+    {
+	mInterpolSeeds(r);
+    }
+    else
+	mInterpolSeeds(c);
+
+    return true;
+}
 
 }; // namespace MPE
 
