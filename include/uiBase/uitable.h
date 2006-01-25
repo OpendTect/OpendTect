@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.h,v 1.28 2006-01-25 07:13:40 cvskris Exp $
+ RCS:           $Id: uitable.h,v 1.29 2006-01-25 09:24:50 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -127,6 +127,9 @@ public:
     void		setRowStretchable( int row, bool stretch );
     bool		isColumnStretchable( int col ) const;
     bool		isRowStretchable( int row ) const;
+
+    void		setTableReadOnly( bool );
+    bool		isTableReadOnly() const;
 
     void		setColumnReadOnly(int,bool);
     bool		isColumnReadOnly(int) const;

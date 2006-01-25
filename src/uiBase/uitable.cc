@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.cc,v 1.37 2006-01-25 07:22:42 cvskris Exp $
+ RCS:           $Id: uitable.cc,v 1.38 2006-01-25 09:24:50 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -468,6 +468,14 @@ const char* uiTable::text( const RowCol& rc ) const
 
     return rettxt_;
 }
+
+
+void uiTable::setTableReadOnly( bool yn )
+{ body_->setReadOnly( yn ); }
+
+
+bool uiTable::isTableReadOnly() const
+{ return body_->isReadOnly(); }
 
 
 #define mSetFunc(func) \
