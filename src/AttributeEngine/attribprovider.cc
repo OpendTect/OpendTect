@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribprovider.cc,v 1.53 2005-12-23 16:11:01 cvsnanne Exp $";
+static const char* rcsID = "$Id: attribprovider.cc,v 1.54 2006-01-25 11:05:00 cvshelene Exp $";
 
 #include "attribprovider.h"
 #include "attribstorprovider.h"
@@ -701,7 +701,10 @@ void Provider::addLocalCompZIntervals( const TypeSet< Interval<int> >& intvs )
     {
 	Interval<int> reqintv = intvs[idx];
 	if ( !mIsEqual(dz,surveystep,mDefEps) )
-	    reqintv.scale( mNINT(surveystep/refstep) );
+	{
+	    reqintv.start = mNINT( reqintv.start * (surveystep/refstep) );
+	    reqintv.stop = mNINT( reqintv.stop * (surveystep/refstep) );
+	}
 
 	if ( reqintv.start > possintv.stop || reqintv.stop < possintv.start )
 	{
