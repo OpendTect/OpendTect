@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.cc,v 1.35 2006-01-24 20:52:11 cvsnanne Exp $
+ RCS:           $Id: uitable.cc,v 1.36 2006-01-25 07:13:40 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -132,7 +132,7 @@ public:
 				leftHeader->setLabel( i, *it );
 			}
 
-    UserInputObj*	mkUsrInputObj( const uiTable::RowCol& rc )
+    UserInputObj*	mkUsrInputObj( const RowCol& rc )
 			{
 			    uiComboBox* cbb = new uiComboBox(0);
 			    QWidget* widg = cbb->body()->qwidget();
@@ -144,7 +144,7 @@ public:
 			}
 
 
-    UserInputObj*	usrInputObj( const uiTable::RowCol& rc )
+    UserInputObj*	usrInputObj( const RowCol& rc )
 			{
 			    QWidget* w = cellWidget( rc.row, rc.col );
 			    if ( !w ) return 0;
@@ -158,7 +158,7 @@ public:
 			}
 
 
-    void		delUsrInputObj( const uiTable::RowCol& rc )
+    void		delUsrInputObj( const RowCol& rc )
 			{
 			    QWidget* w = cellWidget( rc.row, rc.col );
 			    if ( !w ) return;

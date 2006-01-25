@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          October 2003
- RCS:           $Id: uiwelldlgs.cc,v 1.37 2006-01-16 12:26:02 cvshelene Exp $
+ RCS:           $Id: uiwelldlgs.cc,v 1.38 2006-01-25 07:13:40 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -75,7 +75,7 @@ int uiMarkerDlg::getNrRows() const
 {
     for ( int idx=table->nrRows()-1; idx>=0; idx-- )
     {
-	const char* name = table->text( uiTable::RowCol(idx,0) );
+	const char* name = table->text( RowCol(idx,0) );
 	if ( name && *name ) return idx+1;
     }
     return 0;
@@ -84,7 +84,7 @@ int uiMarkerDlg::getNrRows() const
 
 void uiMarkerDlg::mouseClick( CallBacker* )
 {
-    uiTable::RowCol rc = table->notifiedCell();
+    RowCol rc = table->notifiedCell();
     if ( rc.col != 2 ) return;
 
     Color newcol = table->getColor( rc );
@@ -108,16 +108,16 @@ void uiMarkerDlg::setMarkerSet( const ObjectSet<Well::Marker>& markers,
     {
 	int irow = startrow + idx;
 	const Well::Marker* marker = markers[idx];
-	table->setText( uiTable::RowCol(irow,0), marker->name() );
-	table->setValue( uiTable::RowCol(irow,1), marker->dah*zfac );
-	table->setColor( uiTable::RowCol(irow,2), marker->color );
+	table->setText( RowCol(irow,0), marker->name() );
+	table->setValue( RowCol(irow,1), marker->dah*zfac );
+	table->setColor( RowCol(irow,2), marker->color );
     }
     Well::Marker mrk;
     for ( int irow=startrow+nrnew; irow<nrrows; irow++ )
     {
-	table->setText( uiTable::RowCol(irow,0), "" );
-	table->setText( uiTable::RowCol(irow,1), "" );
-	table->setColor( uiTable::RowCol(irow,2), mrk.color );
+	table->setText( RowCol(irow,0), "" );
+	table->setText( RowCol(irow,1), "" );
+	table->setColor( RowCol(irow,2), mrk.color );
     }
 }
 
@@ -187,12 +187,12 @@ void uiMarkerDlg::getMarkerSet( ObjectSet<Well::Marker>& markers ) const
     const int nrrows = getNrRows();
     for ( int idx=0; idx<nrrows; idx++ )
     {
-	const char* name = table->text( uiTable::RowCol(idx,0) );
+	const char* name = table->text( RowCol(idx,0) );
 	if ( !name || !*name ) continue;
 
 	Well::Marker* marker = new Well::Marker( name );
-	marker->dah = table->getfValue( uiTable::RowCol(idx,1) ) * zfac;
-	marker->color = table->getColor( uiTable::RowCol(idx,2) );
+	marker->dah = table->getfValue( RowCol(idx,1) ) * zfac;
+	marker->color = table->getColor( RowCol(idx,2) );
 	markers += marker;
     }
 }
@@ -250,8 +250,8 @@ void uiD2TModelDlg::fillTable()
     const float zfac = unitfld->getBoolValue() ? 1 : 1./mFromFeetFac;
     for ( int idx=0; idx<sz; idx++ )
     {
-	table->setValue( uiTable::RowCol(idx,0), d2t.dah(idx) * zfac );
-	table->setValue( uiTable::RowCol(idx,1), d2t.t(idx) * 1000 );
+	table->setValue( RowCol(idx,0), d2t.dah(idx) * zfac );
+	table->setValue( RowCol(idx,1), d2t.t(idx) * 1000 );
     }
 }
 
@@ -328,10 +328,10 @@ void uiD2TModelDlg::updNow( CallBacker* )
     const int nrrows = table->nrRows();
     for ( int idx=0; idx<nrrows; idx++ )
     {
-	const char* sval = table->text( uiTable::RowCol(idx,0) );
+	const char* sval = table->text( RowCol(idx,0) );
 	if ( !sval || !*sval ) continue;
 	float dah = atof(sval) * zfac;
-	sval = table->text( uiTable::RowCol(idx,1) );
+	sval = table->text( RowCol(idx,1) );
 	if ( !sval || !*sval ) continue;
 	float tm = atof(sval) * 0.001;
 	d2t.add( dah, tm );

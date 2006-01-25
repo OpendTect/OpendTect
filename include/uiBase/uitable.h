@@ -7,13 +7,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.h,v 1.27 2006-01-24 20:52:11 cvsnanne Exp $
+ RCS:           $Id: uitable.h,v 1.28 2006-01-25 07:13:40 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uigroup.h"
 #include "color.h"
+#include "rowcol.h"
+#include "uigroup.h"
 
 class uiLabel;
 class ioPixmap;
@@ -27,16 +28,6 @@ class uiTable : public uiObject
 {
 friend class		i_tableMessenger;
 public:
-
-    class RowCol
-    {
-    public:
-			RowCol(int r=0,int c=0)
-			    : row(r), col(c) {}
-
-	int		row;
-	int		col;
-    };
 
     typedef Geom::Size2D<int>	Size;
 
@@ -194,13 +185,13 @@ public:
     Setup&		setup() 		{ return setup_; }
     const Setup&	setup() const		{ return setup_; }
 
-    RowCol		notifiedCell() const	{ return notifcell_; }
+    const RowCol&		notifiedCell() const	{ return notifcell_; }
     Notifier<uiTable>	valueChanged;
     Notifier<uiTable>	leftClicked;
     Notifier<uiTable>	rightClicked;
     Notifier<uiTable>	doubleClicked;
 
-    RowCol		newCell() const		{ return newcell_; }
+    const RowCol&	newCell() const		{ return newcell_; }
     Notifier<uiTable>	rowInserted;
     Notifier<uiTable>	rowDeleted;
     Notifier<uiTable>	colInserted;

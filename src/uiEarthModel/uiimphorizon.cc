@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          May 2002
- RCS:           $Id: uiimphorizon.cc,v 1.56 2005-11-08 13:37:53 cvsnanne Exp $
+ RCS:           $Id: uiimphorizon.cc,v 1.57 2006-01-25 07:13:40 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -475,8 +475,8 @@ AttribNameEditor( uiParent* p, const BufferStringSet& names )
 
     for ( int idx=0; idx<names.size(); idx++ )
     {
-	table_->setText( uiTable::RowCol(idx,0), names.get(idx) );
-	UserInputObj* uiobj = table_->mkUsrInputObj( uiTable::RowCol(idx,1) );
+	table_->setText( RowCol(idx,0), names.get(idx) );
+	UserInputObj* uiobj = table_->mkUsrInputObj( RowCol(idx,1) );
 	uiobj->addItems( sYesNo );
     }
 }
@@ -488,8 +488,8 @@ void AttribNameEditor::getAttribNames( BufferStringSet& names,
     doimp.erase();
     for ( int idx=0; idx<table_->nrRows(); idx++ )
     {
-	names.add( table_->text(uiTable::RowCol(idx,0)) );
-	doimp += !strcmp(table_->text(uiTable::RowCol(idx,1)),sKey::Yes);
+	names.add( table_->text(RowCol(idx,0)) );
+	doimp += !strcmp(table_->text(RowCol(idx,1)),sKey::Yes);
     }
 }
 

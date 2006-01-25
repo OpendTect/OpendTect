@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          December 2004
- RCS:           $Id: uiscalingattrib.cc,v 1.5 2005-08-15 16:17:29 cvsbert Exp $
+ RCS:           $Id: uiscalingattrib.cc,v 1.6 2006-01-25 07:13:40 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -136,9 +136,9 @@ bool uiScalingAttrib::setParameters( const Desc& desc )
 	for ( int idx=0; idx<gateset->size(); idx++ )
 	{
 	    const ValParam& param = (ValParam&)(*gateset)[idx];
-	    table->setValue( uiTable::RowCol(idx,startcol), 
+	    table->setValue( RowCol(idx,startcol), 
 		    	     param.getfValue(0) );
-	    table->setValue( uiTable::RowCol(idx,stopcol), 
+	    table->setValue( RowCol(idx,stopcol), 
 		    	     param.getfValue(1) );
 	}
     }
@@ -149,7 +149,7 @@ bool uiScalingAttrib::setParameters( const Desc& desc )
 	for ( int idx=0; idx< factorset->size(); idx++ )
 	{
 	    const ValParam& param = (ValParam&)(*factorset)[idx];
-	    table->setValue( uiTable::RowCol(idx,factcol),
+	    table->setValue( RowCol(idx,factcol),
 		    	     param.getfValue(0) );
 	}
     }
@@ -180,15 +180,15 @@ bool uiScalingAttrib::getParameters( Desc& desc )
     TypeSet<float> factors;
     for ( int idx=0; idx<table->nrRows(); idx++ )
     {
-	int start = table->getIntValue( uiTable::RowCol(idx,startcol) );
-	int stop = table->getIntValue( uiTable::RowCol(idx,stopcol) );
+	int start = table->getIntValue( RowCol(idx,startcol) );
+	int stop = table->getIntValue( RowCol(idx,stopcol) );
 	if ( mIsUndefInt(start) && mIsUndefInt(stop) ) continue;
 	
 	tgs += TimeGate(start,stop );
 
 	if ( statsfld->getIntValue() == 3 )
 	{
-	    const char* fact = table->text( uiTable::RowCol(idx,factcol) );
+	    const char* fact = table->text( RowCol(idx,factcol) );
 	    factors += fact && *fact ? atof(fact) : 1;
 	}
     }

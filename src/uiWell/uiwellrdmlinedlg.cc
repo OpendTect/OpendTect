@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          October 2005
- RCS:           $Id: uiwellrdmlinedlg.cc,v 1.4 2005-11-22 08:04:32 cvshelene Exp $
+ RCS:           $Id: uiwellrdmlinedlg.cc,v 1.5 2006-01-25 07:13:40 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -129,7 +129,7 @@ void uiWell2RandomLineDlg::attachFields( uiGroup* selbuttons, uiGroup* topgrp,
 }
 
 
-#define mRC(row,col) uiTable::RowCol(row,col)
+#define mRC(row,col) RowCol(row,col)
 
 #define mInsertRow(rowidx,text,val)\
 	selwellsbox_->insertRows( rowidx );\

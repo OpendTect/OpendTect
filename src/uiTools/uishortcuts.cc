@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Payraudeau
  Date:          December 2005
- RCS:           $Id: uishortcuts.cc,v 1.1 2005-12-22 15:57:48 cvshelene Exp $
+ RCS:           $Id: uishortcuts.cc,v 1.2 2006-01-25 07:13:40 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -67,7 +67,7 @@ uiShortcutsDlg::uiShortcutsDlg( uiParent* p )
 }
 
 
-#define mRC(row,col) uiTable::RowCol(row,col)
+#define mRC(row,col) RowCol(row,col)
 
 #define mFillRow(rowidx,text,val1,val2)\
 	shortcutskeys_->setText( mRC(rowidx, 0), text );\
