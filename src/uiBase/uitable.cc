@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.cc,v 1.36 2006-01-25 07:13:40 cvskris Exp $
+ RCS:           $Id: uitable.cc,v 1.37 2006-01-25 07:22:42 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -174,7 +174,7 @@ public:
 			    if ( inp )	{ inputs -= inp; delete inp; }
 			}
 
-    void		setCellObject( const uiTable::RowCol& rc,
+    void		setCellObject( const RowCol& rc,
 	    			       uiObject* obj )
 			{
 			    QWidget* qwidget = obj->body()->qwidget();
@@ -182,7 +182,7 @@ public:
 			    cellobjects_ += new CellObject( qwidget, obj );
 			}
 
-    uiObject*		getCellObject( const uiTable::RowCol& rc ) const
+    uiObject*		getCellObject( const RowCol& rc ) const
 			{
 			    QWidget* qw = cellWidget( rc.row, rc.col );
 			    if ( !qw ) return 0;
@@ -200,7 +200,7 @@ public:
 			    return obj;
 			}
 
-    void		clearCellObject( const uiTable::RowCol& rc )
+    void		clearCellObject( const RowCol& rc )
 			{
 			    QWidget* qw = cellWidget( rc.row, rc.col );
 			    if ( !qw ) return;
