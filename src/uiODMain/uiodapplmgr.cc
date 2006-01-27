@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.113 2006-01-23 07:50:23 cvshelene Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.114 2006-01-27 14:03:56 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,6 +27,7 @@ ________________________________________________________________________
 #include "uiattrsurfout.h"
 #include "uiattrtrcselout.h"
 
+#include "externalattrib.h"
 #include "attribdescset.h"
 #include "attribdatacubes.h"
 #include "attribsel.h"
@@ -393,6 +394,22 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
 				visserv->getCachedData( visid, attrib );
 
 	    CubeSampling cs = visserv->getCubeSampling( visid );
+	    if ( myas.id()==Attrib::SelSpec::cOtherAttrib() )
+	    {
+		PtrMan<Attrib::ExtAttribCalc> calc =
+		    Attrib::ExtAttribCalcFact::getInstance().
+		    	createCalculator(myas);
+
+		if ( !calc ) return false;
+
+		RefMan<const Attrib::DataCubes> newdata =
+		    calc->createAttrib( cs, cache );
+		if ( !newdata ) return false;
+		visserv->setCubeData( visid, attrib, newdata );
+		res = true;
+		break;
+	    }
+
 	    attrserv->setTargetSelSpec( myas );
 	    RefMan<const Attrib::DataCubes> newdata =
 		attrserv->createOutput( cs, cache );
@@ -419,7 +436,7 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
 	}
 	case uiVisPartServer::RandomPos :
 	{
-	    if ( myas.id() == Attrib::SelSpec::cOtherAttrib() )
+	    if ( myas.id()==Attrib::SelSpec::cOtherAttrib() )
 	    {
 		const MultiID surfmid = visserv->getMultiID(visid);
 		const EM::ObjectID emid = emserv->getObjectID(surfmid);
