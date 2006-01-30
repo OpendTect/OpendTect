@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: uiodtreeitem.h,v 1.13 2006-01-21 02:23:15 cvskris Exp $
+ RCS:		$Id: uiodtreeitem.h,v 1.14 2006-01-30 15:43:16 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -105,20 +105,19 @@ protected:
     virtual void	createMenuCB( CallBacker* );
     virtual void	handleMenuCB( CallBacker* );
     void		updateColumnText( int col );
-    void		updateSiblings();
     BufferString	createDisplayName() const;
 
-    uiMenuHandler*	menu;
-    MenuItem		selattrmnuitem;
-    MenuItem		settingsmnuitem;
+    uiMenuHandler*	menu_;
+    MenuItem		selattrmnuitem_;
+    MenuItem		settingsmnuitem_;
 
-    MenuItem		movemnuitem;
-    MenuItem		movetotopmnuitem;
-    MenuItem		movetobottommnuitem;
-    MenuItem		moveupmnuitem;
-    MenuItem		movedownmnuitem;
+    MenuItem		movemnuitem_;
+    MenuItem		movetotopmnuitem_;
+    MenuItem		movetobottommnuitem_;
+    MenuItem		moveupmnuitem_;
+    MenuItem		movedownmnuitem_;
 
-    MenuItem		removemnuitem;
+    MenuItem		removemnuitem_;
     const char*		parenttype_;
 };
 
