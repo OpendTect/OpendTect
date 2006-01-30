@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Jan 2005
- RCS:           $Id: uivisemobj.cc,v 1.38 2006-01-18 22:58:59 cvskris Exp $
+ RCS:           $Id: uivisemobj.cc,v 1.39 2006-01-30 15:39:16 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -148,7 +148,7 @@ uiVisEMObject::uiVisEMObject( uiParent* uip, const EM::ObjectID& emid,
 
 uiVisEMObject::~uiVisEMObject()
 {
-    uiMenuHandler* menu = visserv->getMenu(displayid,false);
+    MenuHandler* menu = visserv->getMenuHandler();
     if ( menu )
     {
 	menu->createnotifier.remove( mCB(this,uiVisEMObject,createMenuCB) );
@@ -204,7 +204,7 @@ void uiVisEMObject::setUpConnections()
     showonlyatsectionsmnuitem.text = "Display only at sections";
     changesectionnamemnuitem.text = "Change section's name";
 
-    uiMenuHandler* menu = visserv->getMenu(displayid,true);
+    MenuHandler* menu = visserv->getMenuHandler();
     menu->createnotifier.notify( mCB(this,uiVisEMObject,createMenuCB) );
     menu->handlenotifier.notify( mCB(this,uiVisEMObject,handleMenuCB) );
     nodemenu.createnotifier.notify( mCB(this,uiVisEMObject,createNodeMenuCB) );
@@ -306,7 +306,9 @@ float uiVisEMObject::getShift() const
 
 void uiVisEMObject::createMenuCB( CallBacker* cb )
 {
-    mDynamicCastGet(uiMenuHandler*,menu,cb)
+    mDynamicCastGet(uiMenuHandler*,menu,cb);
+    if ( menu->menuID()!=displayid )
+	return;
 
     visSurvey::EMObjectDisplay* emod = getDisplay();
 
@@ -347,7 +349,7 @@ void uiVisEMObject::handleMenuCB( CallBacker* cb )
     mCBCapsuleUnpackWithCaller(int,mnuid,caller,cb);
     mDynamicCastGet(uiMenuHandler*,menu,caller);
     visSurvey::EMObjectDisplay* emod = getDisplay();
-    if ( !emod || mnuid==-1 || menu->isHandled() )
+    if ( !emod || mnuid==-1 || menu->isHandled() || menu->menuID()!=displayid )
 	return;
 
     const EM::ObjectID emid = emod->getObjectID();
