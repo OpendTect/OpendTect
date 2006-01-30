@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvobj.h,v 1.49 2006-01-18 22:58:59 cvskris Exp $
+ RCS:		$Id: vissurvobj.h,v 1.50 2006-01-30 14:54:05 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -140,6 +140,8 @@ public:
     virtual const Attrib::SelSpec* 	getSelSpec( int attrib ) const;
     virtual const TypeSet<float>* 	getHistogram( int attrib ) const;
     virtual int				getColTabID( int attrib ) const;
+    virtual bool 			isClassification( int attrib ) const;
+    virtual void			setClassification( int attrib, bool yn);
 
     virtual void		setSelSpec(int, const Attrib::SelSpec&)	{}
 
