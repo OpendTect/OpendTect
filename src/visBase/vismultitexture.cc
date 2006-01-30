@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vismultitexture.cc,v 1.4 2006-01-24 06:38:16 cvskris Exp $";
+static const char* rcsID = "$Id: vismultitexture.cc,v 1.5 2006-01-30 14:31:33 cvskris Exp $";
 
 #include "vismultitexture2.h"
 
@@ -34,32 +34,32 @@ public:
 						     int sz,
 						     const VisColorTab* );
 
-    const unsigned int*		getHistogram() const { return globalhistogram; }
+    const unsigned int*		getHistogram() const { return globalhistogram_;}
 
 protected:
     bool			doWork( int start, int stop );
-    int				nrTimes() const { return sz; }
+    int				nrTimes() const { return sz_; }
 
-    unsigned char*		indexcache;
-    const float*		datacache;
-    const visBase::VisColorTab*	colortab;
-    unsigned int		globalhistogram[mNrColors];
-    Threads::Mutex		histogrammutex;
-    const int			sz;
+    unsigned char*		indexcache_;
+    const float*		datacache_;
+    const visBase::VisColorTab*	colortab_;
+    unsigned int		globalhistogram_[mNrColors];
+    Threads::Mutex		histogrammutex_;
+    const int			sz_;
 };
 
 
 TextureColorIndexer::TextureColorIndexer( const float* inp,
 					  unsigned char* outp, int nsz,
 					  const VisColorTab* ct )
-    : colortab( ct )
-    , indexcache( outp )
-    , sz( nsz )
-    , datacache( inp )
+    : colortab_( ct )
+    , indexcache_( outp )
+    , sz_( nsz )
+    , datacache_( inp )
 {
-    histogrammutex.lock();
-    memset( globalhistogram, 0, sizeof(int)*mNrColors );
-    histogrammutex.unlock();
+    histogrammutex_.lock();
+    memset( globalhistogram_, 0, sizeof(int)*mNrColors );
+    histogrammutex_.unlock();
 }
 
 
@@ -70,15 +70,15 @@ bool TextureColorIndexer::doWork( int start, int stop )
 
     for ( int idx=start; idx<=stop; idx++ )
     {
-	const int colorindex = colortab->colIndex(datacache[idx]);
-	indexcache[idx] = colorindex;
+	const int colorindex = colortab_->colIndex(datacache_[idx]);
+	indexcache_[idx] = colorindex;
 	histogram[colorindex]++;
     }
 
-    histogrammutex.lock();
+    histogrammutex_.lock();
     for ( int idx=mNrColors-1; idx>=0; idx-- )
-	globalhistogram[idx] += histogram[idx];
-    histogrammutex.unlock();
+	globalhistogram_[idx] += histogram[idx];
+    histogrammutex_.unlock();
 
     return true;
 }
@@ -89,6 +89,8 @@ class TextureInfo : public CallBackClass
 public:
     			TextureInfo( MultiTexture*, const char* name );
     			~TextureInfo();
+    void		enable( bool yn ) { enabled_=yn; }
+    bool		isEnabled() const { return enabled_; }
     int			nrVersions() const;
     void		setNrVersions(int);
 
@@ -108,40 +110,43 @@ public:
 
     const TypeSet<float>* getHistogram( int version );
 
-    MultiTexture::Operation	operation;
-    char			components;
+    MultiTexture::Operation	operation_;
+    char			components_;
+    bool			enabled_;
 
 protected:
     void			setColorTab( int, VisColorTab& ct );
     void			rangeChangeCB( CallBacker* );
     void			sequenceChangeCB( CallBacker* );
     void			clipStatusChangeCB( CallBacker* );
-    ObjectSet<const unsigned char> versionindexdata;
-    BoolTypeSet			ownsindexdata;
-    ObjectSet<const float>	versionfloatdata;
-    BoolTypeSet			ownsfloatdata;
-    ObjectSet<VisColorTab>	versioncoltab;
-    ObjectSet<TypeSet<float> >	versionhistogram;
-    int				currentversion;
-    BufferString		name;
-    int				sz;
-    MultiTexture*		texture;
+
+    ObjectSet<const unsigned char> versionindexdata_;
+    BoolTypeSet			ownsindexdata_;
+    ObjectSet<const float>	versionfloatdata_;
+    BoolTypeSet			ownsfloatdata_;
+    ObjectSet<VisColorTab>	versioncoltab_;
+    ObjectSet<TypeSet<float> >	versionhistogram_;
+    int				currentversion_;
+    BufferString		name_;
+    int				sz_;
+    MultiTexture*		texture_;
 };
 
 
 TextureInfo::TextureInfo( MultiTexture* nt, const char* nm )
-    : currentversion( 0 )
-    , operation( MultiTexture::BLEND )
-    , components( (MultiTexture::RED | MultiTexture::GREEN |
+    : currentversion_( 0 )
+    , operation_( MultiTexture::BLEND )
+    , components_( (MultiTexture::RED | MultiTexture::GREEN |
 		   MultiTexture::BLUE | MultiTexture::OPACITY ) )
-    , name( nm )
-    , sz( 0 )
-    , texture( nt )
+    , name_( nm )
+    , sz_( 0 )
+    , texture_( nt )
+    , enabled_( true )
 {
-    versionindexdata.allowNull(true);
-    versionfloatdata.allowNull(true);
-    versionhistogram.allowNull(true);
-    versioncoltab.allowNull(true);
+    versionindexdata_.allowNull(true);
+    versionfloatdata_.allowNull(true);
+    versionhistogram_.allowNull(true);
+    versioncoltab_.allowNull(true);
     setNrVersions(1);
 }
 
@@ -149,13 +154,13 @@ TextureInfo::TextureInfo( MultiTexture* nt, const char* nm )
 TextureInfo::~TextureInfo()
 {
 
-    for ( int idx=0; idx<versionfloatdata.size(); idx++ )
-	if ( ownsfloatdata[idx] ) delete [] versionfloatdata[idx];
+    for ( int idx=0; idx<versionfloatdata_.size(); idx++ )
+	if ( ownsfloatdata_[idx] ) delete [] versionfloatdata_[idx];
 
-    for ( int idx=0; idx<versionindexdata.size(); idx++ )
-	if ( ownsindexdata[idx] ) delete [] versionindexdata[idx];
+    for ( int idx=0; idx<versionindexdata_.size(); idx++ )
+	if ( ownsindexdata_[idx] ) delete [] versionindexdata_[idx];
 
-    deepUnRef( versioncoltab );
+    deepUnRef( versioncoltab_ );
 }
 
 void TextureInfo::setNrVersions( int nsz )
@@ -166,59 +171,59 @@ void TextureInfo::setNrVersions( int nsz )
 	return;
     }
 
-    while ( nsz<versionindexdata.size() )
+    while ( nsz<versionindexdata_.size() )
     {
-	if ( ownsindexdata[nsz] ) delete [] versionindexdata[nsz];
-	if ( ownsfloatdata[nsz] ) delete [] versionfloatdata[nsz];
-	delete versionhistogram[nsz];
-	versioncoltab[nsz]->unRef();
+	if ( ownsindexdata_[nsz] ) delete [] versionindexdata_[nsz];
+	if ( ownsfloatdata_[nsz] ) delete [] versionfloatdata_[nsz];
+	delete versionhistogram_[nsz];
+	versioncoltab_[nsz]->unRef();
 
-	versionindexdata.remove(nsz);
-	versionfloatdata.remove(nsz);
-	ownsfloatdata.remove(nsz);
-	ownsindexdata.remove(nsz);
-	versionhistogram.remove(nsz);
-	versioncoltab.remove(nsz);
+	versionindexdata_.remove(nsz);
+	versionfloatdata_.remove(nsz);
+	ownsfloatdata_.remove(nsz);
+	ownsindexdata_.remove(nsz);
+	versionhistogram_.remove(nsz);
+	versioncoltab_.remove(nsz);
     }
 
-    while ( versionindexdata.size()<nsz )
+    while ( versionindexdata_.size()<nsz )
     {
-	versionindexdata += 0;
-	versionfloatdata += 0;
-	ownsfloatdata += false;
-	ownsindexdata += false;
-	versionhistogram += 0;
-	versioncoltab += 0;
-	setColorTab( versioncoltab.size()-1, *VisColorTab::create() );
+	versionindexdata_ += 0;
+	versionfloatdata_ += 0;
+	ownsfloatdata_ += false;
+	ownsindexdata_ += false;
+	versionhistogram_ += 0;
+	versioncoltab_ += 0;
+	setColorTab( versioncoltab_.size()-1, *VisColorTab::create() );
     }
 
-    if ( currentversion>=nsz )
+    if ( currentversion_>=nsz )
 	setCurrentVersion( nsz-1 );
 }
 
 
 int TextureInfo::nrVersions() const
-{ return versionindexdata.size(); }
+{ return versionindexdata_.size(); }
 
 
 bool TextureInfo::setTextureData( int version, const float* data, int newsz,
 				  bool managedata )
 {
-    if ( version<0 || version>=nrVersions() || ( version && sz!=newsz ) )
+    if ( version<0 || version>=nrVersions() || ( version && sz_!=newsz ) )
     {
 	if ( managedata ) delete [] data;
 	return false;
     }
 
-    sz = newsz;
+    sz_ = newsz;
 
-    if ( ownsfloatdata[version] )
-	delete [] versionfloatdata[version];
+    if ( ownsfloatdata_[version] )
+	delete [] versionfloatdata_[version];
 
-    versionfloatdata.replace( version, data );
-    ownsfloatdata[version] = managedata;
+    versionfloatdata_.replace( version, data );
+    ownsfloatdata_[version] = managedata;
 
-    if ( versioncoltab[version]->autoScale() )
+    if ( versioncoltab_[version]->autoScale() )
 	clipData(version);
     else
 	createIndexes( version );
@@ -236,17 +241,17 @@ bool TextureInfo::setTextureData( int version, const unsigned char* data,
 	return false;
     }
 
-    if ( ownsfloatdata[version] )
-	delete [] versionfloatdata[version];
+    if ( ownsfloatdata_[version] )
+	delete [] versionfloatdata_[version];
 
-    versionfloatdata.replace( version, 0 );
-    ownsfloatdata[version] = false;
+    versionfloatdata_.replace( version, 0 );
+    ownsfloatdata_[version] = false;
 
-    if ( ownsindexdata[version] )
-	delete [] versionindexdata[version];
+    if ( ownsindexdata_[version] )
+	delete [] versionindexdata_[version];
 
-    versionindexdata.replace( version, data );
-    ownsindexdata[version] = managedata;
+    versionindexdata_.replace( version, data );
+    ownsindexdata_[version] = managedata;
 
     //TODO: Trigger some kind of update.
 
@@ -255,74 +260,74 @@ bool TextureInfo::setTextureData( int version, const unsigned char* data,
 
 void TextureInfo::setColorTab( VisColorTab& ct )
 {
-    versioncoltab[currentversion]->unRef();
-    versioncoltab.replace( currentversion, &ct );
+    versioncoltab_[currentversion_]->unRef();
+    versioncoltab_.replace( currentversion_, &ct );
     ct.ref();
 
     ColorSequence& seq = ct.colorSeq();
 
-    for ( int idx=versioncoltab.size()-1; idx>=0; idx-- )
+    for ( int idx=versioncoltab_.size()-1; idx>=0; idx-- )
     {
-	if ( idx==currentversion )
+	if ( idx==currentversion_ )
 	    continue;
 
-	versioncoltab[idx]->setColorSeq( &seq );
+	versioncoltab_[idx]->setColorSeq( &seq );
     }
 }
 
 
 void TextureInfo::setColorTab( int version, VisColorTab& ct )
 {
-    if ( versioncoltab[version] )
+    if ( versioncoltab_[version] )
     {
-	versioncoltab[version]->rangechange.remove(
+	versioncoltab_[version]->rangechange.remove(
 		mCB( this, TextureInfo, rangeChangeCB ) );
-	versioncoltab[version]->sequencechange.remove(
+	versioncoltab_[version]->sequencechange.remove(
 		mCB( this, TextureInfo, sequenceChangeCB ) );
-	versioncoltab[version]->unRef();
+	versioncoltab_[version]->unRef();
     }
 
-    versioncoltab.replace( version, &ct );
+    versioncoltab_.replace( version, &ct );
     ct.ref();
     ct.rangechange.notify( mCB( this, TextureInfo, rangeChangeCB ) );
     ct.sequencechange.notify( mCB( this, TextureInfo, sequenceChangeCB ) );
 
     if ( version )
-	versioncoltab[version]->setColorSeq( &versioncoltab[0]->colorSeq() );
+	versioncoltab_[version]->setColorSeq( &versioncoltab_[0]->colorSeq() );
 }
 
 
 VisColorTab& TextureInfo::getColorTab()
-{ return *versioncoltab[currentversion]; }
+{ return *versioncoltab_[currentversion_]; }
 
 
 void TextureInfo::clipData( int version )
 {
-    if ( versionfloatdata[version] )
-	versioncoltab[version]->scaleTo( versionfloatdata[version], sz );
+    if ( versionfloatdata_[version] )
+	versioncoltab_[version]->scaleTo( versionfloatdata_[version], sz_ );
 }
 
 
 void TextureInfo::createIndexes( int version )
 {
-    if ( !versionfloatdata[version] )
+    if ( !versionfloatdata_[version] )
 	return;
 
-    if ( !versionindexdata[version] )
+    if ( !versionindexdata_[version] )
     {
-	versionindexdata.replace( version, new unsigned char[sz] );
-	ownsindexdata[version] = true;
+	versionindexdata_.replace( version, new unsigned char[sz_] );
+	ownsindexdata_[version] = true;
     }
 
-    versioncoltab[version]->setNrSteps(mNrColors-1);
+    versioncoltab_[version]->setNrSteps(mNrColors-1);
 
-    TextureColorIndexer indexer( versionfloatdata[version],
-	    			 (unsigned char*) versionindexdata[version],
-				 sz, versioncoltab[version] );
+    TextureColorIndexer indexer( versionfloatdata_[version],
+	    			 (unsigned char*) versionindexdata_[version],
+				 sz_, versioncoltab_[version] );
     if ( !indexer.execute() )
     {
-	delete [] versionindexdata[version];
-	versionindexdata.replace( version, 0 );
+	delete [] versionindexdata_[version];
+	versionindexdata_.replace( version, 0 );
 	return;
     }
 
@@ -336,35 +341,35 @@ void TextureInfo::createIndexes( int version )
 
     if ( max )
     {
-	if ( !versionhistogram[version] )
-	    versionhistogram.replace( version,new TypeSet<float>(mNrColors,0) );
+	if ( !versionhistogram_[version] )
+	    versionhistogram_.replace( version,new TypeSet<float>(mNrColors,0) );
 	for ( int idx=mNrColors-1; idx>=0; idx-- )
-	    (*versionhistogram[version])[idx] = (float) histogram[idx]/max;
+	    (*versionhistogram_[version])[idx] = (float) histogram[idx]/max;
     }
 
-    texture->textureChange( this );
+    texture_->textureChange( this );
 }
 
 
-int TextureInfo::getCurrentVersion() const { return currentversion; }
+int TextureInfo::getCurrentVersion() const { return currentversion_; }
 
 
 void TextureInfo::setCurrentVersion( int nidx )
 {
-    if ( nidx<0 || nidx>=versionindexdata.size() )
+    if ( nidx<0 || nidx>=versionindexdata_.size() )
     {
 	pErrMsg("Invalid index");
 	return;
     }
 
-    currentversion = nidx;
+    currentversion_ = nidx;
 
     //TODO Trigger something
 }
 
 
 const unsigned char* TextureInfo::getCurrentData() const
-{ return versionindexdata[currentversion]; }
+{ return versionindexdata_[currentversion_]; }
 
 
 const TypeSet<float>* TextureInfo::getHistogram( int version )
@@ -372,30 +377,21 @@ const TypeSet<float>* TextureInfo::getHistogram( int version )
     if ( version<0 || version>=nrVersions() )
 	return 0;
 
-    return versionhistogram[version];
+    return versionhistogram_[version];
 }
 
 
 void TextureInfo::rangeChangeCB( CallBacker* cb )
 {
-    const int version = versioncoltab.indexOf((visBase::VisColorTab*) cb);
+    const int version = versioncoltab_.indexOf((visBase::VisColorTab*) cb);
     createIndexes( version );
 }
 
 
 void TextureInfo::sequenceChangeCB( CallBacker* )
 {
-    texture->updateColorTables();
+    texture_->updateColorTables();
 }
-
-
-
-//const char* Texture::colortabstr = "ColorTable ID";
-//const char* Texture::usestexturestr = "Uses texture";
-//const char* Texture::texturequalitystr = "Texture quality";
-//const char* Texture::resolutionstr = "Resolution";
-//const char* Texture::coltabmodstr = "ColorTableModifier ID";
-//
 
 
 MultiTexture::MultiTexture()
@@ -404,28 +400,51 @@ MultiTexture::MultiTexture()
 }
 
 
+MultiTexture::~MultiTexture()
+{ deepErase( textureinfo_ ); }
+
+
 int MultiTexture::nrTextures() const
-{ return textureinfo.size(); }
+{ return textureinfo_.size(); }
 
 
 int MultiTexture::addTexture( const char* name )
 {
     TextureInfo* newtexture = new TextureInfo( this, name );
 
-    const int res = textureinfo.size();
+    const int res = textureinfo_.size();
 
-    textureinfo += newtexture;
+    textureinfo_ += newtexture;
     updateSoTextureInternal(res);
     return res;
 };
 
 
-void MultiTexture::swapTextures( int t0, int t1 )
+void MultiTexture::enableTexture( int idx, bool yn )
 {
-    if ( t0<0 || t1<0 || t0>=textureinfo.size() || t1>=textureinfo.size() )
+    if ( idx<0 || idx>=textureinfo_.size() )
 	return;
 
-    textureinfo.swap( t0, t1 );
+    textureinfo_[idx]->enable( yn );
+}
+
+
+bool MultiTexture::isTextureEnabled( int idx ) const
+{
+    if ( idx<0 || idx>=textureinfo_.size() )
+	return false;
+
+    return textureinfo_[idx]->isEnabled();
+}
+
+
+
+void MultiTexture::swapTextures( int t0, int t1 )
+{
+    if ( t0<0 || t1<0 || t0>=textureinfo_.size() || t1>=textureinfo_.size() )
+	return;
+
+    textureinfo_.swap( t0, t1 );
 
     updateSoTextureInternal( t0 );
     updateSoTextureInternal( t1 );
@@ -434,7 +453,7 @@ void MultiTexture::swapTextures( int t0, int t1 )
 
 int MultiTexture::insertTexture( int idx, const char* name )
 {
-    if ( idx>=textureinfo.size() )
+    if ( idx>=textureinfo_.size() )
 	return addTexture( name );
 
     if ( idx<0 )
@@ -444,7 +463,7 @@ int MultiTexture::insertTexture( int idx, const char* name )
     }
 
     TextureInfo* newtexture = new TextureInfo( this, name );
-    textureinfo.insertAt( newtexture, idx );
+    textureinfo_.insertAt( newtexture, idx );
     insertTextureInternal(idx);
     return idx;
 }
@@ -452,54 +471,54 @@ int MultiTexture::insertTexture( int idx, const char* name )
 
 void MultiTexture::removeTexture( int idx )
 {
-    if ( idx<0 || idx>=textureinfo.size() )
+    if ( idx<0 || idx>=textureinfo_.size() )
 	return;
 
-    delete textureinfo[idx];
-    textureinfo.remove(idx);
+    delete textureinfo_[idx];
+    textureinfo_.remove(idx);
     removeTextureInternal( idx );
 }
 
 
 void MultiTexture::setOperation( int idx, Operation op )
 {
-    if ( idx<0 || idx>=textureinfo.size() )
+    if ( idx<0 || idx>=textureinfo_.size() )
 	return;
 
-    textureinfo[idx]->operation = op;
+    textureinfo_[idx]->operation_ = op;
 }
 
 
 MultiTexture::Operation MultiTexture::getOperation( int idx ) const
 {
-    return idx<0 || idx>=textureinfo.size()
+    return idx<0 || idx>=textureinfo_.size()
 	? BLEND
-	: textureinfo[idx]->operation;
+	: textureinfo_[idx]->operation_;
 }
 
 
 void MultiTexture::setComponents( int idx, char bits )
 {
-    if ( idx<0 || idx>=textureinfo.size() )
+    if ( idx<0 || idx>=textureinfo_.size() )
 	return;
 
-    textureinfo[idx]->components = bits;
+    textureinfo_[idx]->components_ = bits;
 }
 
 
 char MultiTexture::getComponents( int idx ) const
 {
-    return idx<0 || idx>=textureinfo.size()
+    return idx<0 || idx>=textureinfo_.size()
 	? RED | GREEN | BLUE | OPACITY
-	: textureinfo[idx]->components;
+	: textureinfo_[idx]->components_;
 }
 
 
 void MultiTexture::setColorTab( int idx, VisColorTab& ct )
 {
     ct.ref();
-    if ( idx<=0 && idx<textureinfo.size() )
-	textureinfo[idx]->setColorTab( ct );
+    if ( idx<=0 && idx<textureinfo_.size() )
+	textureinfo_[idx]->setColorTab( ct );
 
     ct.unRef();
 }
@@ -507,50 +526,50 @@ void MultiTexture::setColorTab( int idx, VisColorTab& ct )
 
 VisColorTab& MultiTexture::getColorTab( int idx )
 {
-    if ( idx<0 || idx>=textureinfo.size() )
+    if ( idx<0 || idx>=textureinfo_.size() )
 	pErrMsg("Index out of bounds");
 
-    return textureinfo[idx]->getColorTab();
+    return textureinfo_[idx]->getColorTab();
 }
 
 
 int MultiTexture::nrVersions( int idx ) const 
-{ return textureinfo[idx]->nrVersions(); }
+{ return textureinfo_[idx]->nrVersions(); }
 
 
 void MultiTexture::setNrVersions( int idx, int newsz )
 {
-    if ( idx<0 || idx>=textureinfo.size() )
+    if ( idx<0 || idx>=textureinfo_.size() )
 	return;
 
-    textureinfo[idx]->setNrVersions( newsz );
+    textureinfo_[idx]->setNrVersions( newsz );
 }
 
 
 int MultiTexture::currentVersion( int idx ) const
 {
-    if ( idx<0 || idx>=textureinfo.size() )
+    if ( idx<0 || idx>=textureinfo_.size() )
 	idx = 0;
 
-    return textureinfo[idx]->getCurrentVersion();
+    return textureinfo_[idx]->getCurrentVersion();
 }
 
 
 void MultiTexture::setCurrentVersion( int idx, int version )
 {
-    if ( idx<0 || idx>=textureinfo.size() )
+    if ( idx<0 || idx>=textureinfo_.size() )
 	idx = 0;
 
-    textureinfo[idx]->setCurrentVersion( version );
+    textureinfo_[idx]->setCurrentVersion( version );
 }
 
 
 const TypeSet<float>* MultiTexture::getHistogram( int texture, int version ) const
 {
-    if ( texture<0 || texture>=textureinfo.size() )
+    if ( texture<0 || texture>=textureinfo_.size() )
 	return 0;
 
-    return textureinfo[texture]->getHistogram( version );
+    return textureinfo_[texture]->getHistogram( version );
 }
 
 
@@ -563,13 +582,13 @@ const TypeSet<float>* MultiTexture::getHistogram( int texture, int version ) con
 bool MultiTexture::setTextureData( int texture, int version, const float* data,
 				   int sz, bool managedata )
 {
-    if ( texture<0 || texture>=textureinfo.size() )
+    if ( texture<0 || texture>=textureinfo_.size() )
     {
 	if ( managedata ) delete [] data;
 	return false;
     }
 
-    return textureinfo[texture]->setTextureData( version, data, sz, managedata);
+    return textureinfo_[texture]->setTextureData( version, data, sz, managedata);
 }
 
 
@@ -577,29 +596,29 @@ bool MultiTexture::setTextureIndexData( int texture, int version,
 					const unsigned char* data, int sz,
 					bool managedata )
 {
-    if ( texture<0 || texture>=textureinfo.size() )
+    if ( texture<0 || texture>=textureinfo_.size() )
     {
 	if ( managedata ) delete [] data;
 	return false;
     }
 
-    return textureinfo[texture]->setTextureData( version, data, sz, managedata);
+    return textureinfo_[texture]->setTextureData( version, data, sz, managedata);
 }
 
 
 const unsigned char*
 MultiTexture::getCurrentTextureIndexData( int texture ) const
 { 
-    if ( texture<0 || texture>=textureinfo.size() )
+    if ( texture<0 || texture>=textureinfo_.size() )
 	return 0;
 
-    return textureinfo[texture]->getCurrentData();
+    return textureinfo_[texture]->getCurrentData();
 }
 
 
 void MultiTexture::textureChange( TextureInfo* ti )
 {
-    const int texture = textureinfo.indexOf( ti );
+    const int texture = textureinfo_.indexOf( ti );
     if ( ti<0 )
     {
 	pErrMsg("Hugh");
