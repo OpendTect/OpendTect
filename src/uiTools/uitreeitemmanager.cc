@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uitreeitemmanager.cc,v 1.24 2006-01-30 14:51:38 cvskris Exp $";
+static const char* rcsID = "$Id: uitreeitemmanager.cc,v 1.25 2006-01-30 23:00:57 cvskris Exp $";
 
 
 #include "uitreeitemmanager.h"
@@ -259,6 +259,8 @@ if ( !strcmp(newitem->parentType(), typeid(*this).name()) ) \
 		  uiListViewItem::Setup(newitem->name(), \
 		  (uiListViewItem::Type)newitem->uiListViewItemType())); \
     newitem->setListViewItem( item ); \
+    while ( below && item->nextSibling() ) \
+        item->moveItem( item->nextSibling() ); \
  \
     if ( !newitem->init() ) \
     { \
@@ -275,23 +277,23 @@ if ( downwards ) \
 { \
     for ( int idx=0; idx<children.size(); idx++ ) \
     { \
-	if ( children[idx]->addChild( newitem, downwards ) ) \
+	if ( children[idx]->addChild( newitem, below, downwards ) ) \
 	    return true; \
     } \
 } \
 else if ( parent ) \
-    return parent->addChild( newitem, downwards ); \
+    return parent->addChild( newitem, below, downwards ); \
  \
 return false; 
 
 
-bool uiTreeItem::addChild( uiTreeItem* newitem )
+bool uiTreeItem::addChild( uiTreeItem* newitem, bool below )
 {
-    return addChild( newitem, false );
+    return addChild( newitem, below, false );
 }
 
 
-bool uiTreeItem::addChild( uiTreeItem* newitem, bool downwards )
+bool uiTreeItem::addChild( uiTreeItem* newitem, bool below, bool downwards )
 {
     mAddChildImpl( uilistviewitem );
 }
@@ -342,13 +344,13 @@ uiTreeTopItem::~uiTreeTopItem()
 }
 
 
-bool uiTreeTopItem::addChild( uiTreeItem* newitem )
+bool uiTreeTopItem::addChild( uiTreeItem* newitem, bool below )
 {
-    return addChild( newitem, true );
+    return addChild( newitem, below, true );
 }
 
 
-bool uiTreeTopItem::addChild( uiTreeItem* newitem, bool downwards )
+bool uiTreeTopItem::addChild( uiTreeItem* newitem, bool below, bool downwards )
 {
     downwards = true;		//We are at the top, so we should go downwards
     mAddChildImpl( listview );

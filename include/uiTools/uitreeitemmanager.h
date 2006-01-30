@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: uitreeitemmanager.h,v 1.21 2006-01-30 14:51:38 cvskris Exp $
+ RCS:		$Id: uitreeitemmanager.h,v 1.22 2006-01-30 23:00:57 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -58,11 +58,14 @@ public:
     virtual void		moveItem( uiTreeItem* after );
     virtual void		moveItemToTop();
 				 
-    virtual bool		addChild( uiTreeItem* child );
+    virtual bool		addChild( uiTreeItem* child, bool below );
     				/*!<Adds a child. If the child does not fit
 				    (i.e. the child's parentType() is not
 				    the same as this), it will try to find
 				    a valid parent somewhere else in the tree.
+				    \param below specifies wether the child
+				    shoule be added above or below eventual
+				    existing siblings.
 				    \note child becomes mine regardless of
 				    	  return value.
 				*/
@@ -126,13 +129,17 @@ protected:
 				    should be created */
     virtual uiParent*		getUiParent();
 
-    virtual bool		addChild( uiTreeItem*, bool downwards );
+    virtual bool		addChild(uiTreeItem*, bool below,
+	    				 bool downwards);
     				/*!< Adds a child to this item. If the child
 				    does not fit (i.e. its parentType() is not
 				    equal to this), the object tries to add
 				    it to its parent if downwards is false.
 				    If downwards is true, it tries to add it
 				    to its children if it does not fit.
+				    \param below specifies wether the child
+				    shoule be added above or below eventual
+				    existing siblings.
 				*/
 
     virtual const char*		parentType() const = 0;
@@ -170,7 +177,7 @@ class uiTreeTopItem : public uiTreeItem
 {
 public:
     			uiTreeTopItem(uiListView*);
-    virtual bool	addChild( uiTreeItem*);
+    virtual bool	addChild(uiTreeItem*, bool below);
     virtual void	updateSelection(int selectionkey, bool=false );
     			/*!< Does only update the display */
     virtual void	updateColumnText(int col);
@@ -181,7 +188,7 @@ public:
 
 			~uiTreeTopItem();
 protected:
-    virtual bool	addChild( uiTreeItem*, bool downwards);
+    virtual bool	addChild(uiTreeItem*, bool below, bool downwards);
     uiListView*		listview;
 
     void		selectionChanged(CallBacker*);
