@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.292 2006-01-19 16:01:19 cvskris Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.293 2006-01-30 15:36:35 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -53,40 +53,45 @@ const int uiVisPartServer::evViewAll			= 9;
 const int uiVisPartServer::evToHomePos			= 10;
 const int uiVisPartServer::evAddSeedToCurrentObject	= 11;
 
-const char* uiVisPartServer::appvelstr = "AppVel";
-const char* uiVisPartServer::workareastr = "Work Area";
+const char* uiVisPartServer::sKeyAppVel()		{ return "AppVel"; }
+const char* uiVisPartServer::sKeyWorkArea()		{ return "Work Area"; }
 
 
 uiVisPartServer::uiVisPartServer( uiApplService& a )
     : uiApplPartServer(a)
-    , viewmode(false)
-    , issolomode(false)
-    , eventobjid(-1)
-    , eventattrib(-1)
-    , eventmutex(*new Threads::Mutex)
-    , mouseposval(mUndefValue)
-    , mouseposstr("")
-    , resetmanipmnuitem( "Reset Manipulation", 8000 )
-    , changecolormnuitem( "Color...", 7000 )
-    , changematerialmnuitem( "Properties ...", 6000 )
-    , resmnuitem( "Resolution", 5000 )
-    , blockmenus( false )
+    , viewmode_(false)
+    , issolomode_(false)
+    , eventobjid_(-1)
+    , eventattrib_(-1)
+    , eventmutex_(*new Threads::Mutex)
+    , mouseposval_(mUndefValue)
+    , mouseposstr_("")
+    , resetmanipmnuitem_( "Reset Manipulation", 8000 )
+    , changecolormnuitem_( "Color...", 7000 )
+    , changematerialmnuitem_( "Properties ...", 6000 )
+    , resmnuitem_( "Resolution", 5000 )
+    , blockmenus_( false )
     , pldisplay_(0)
+    , menu_( *new uiMenuHandler(appserv().parent(),-1) )
 {
-    mpetools = new uiMPEMan( appserv().parent(), this );
-    mpetools->display( false );
+    menu_.ref();
+    menu_.createnotifier.notify( mCB(this,uiVisPartServer,createMenuCB) );
+    menu_.handlenotifier.notify( mCB(this,uiVisPartServer,handleMenuCB) );
+
+    mpetools_ = new uiMPEMan( appserv().parent(), this );
+    mpetools_->display( false );
 
     visBase::DM().selMan().selnotifier.notify( 
 	mCB(this,uiVisPartServer,selectObjCB) );
     visBase::DM().selMan().deselnotifier.notify( 
 	mCB(this,uiVisPartServer,deselectObjCB) );
 
-    vismgr = new uiVisModeMgr(this);
+    vismgr_ = new uiVisModeMgr(this);
 }
 
 
 void uiVisPartServer::unlockEvent()
-{ eventmutex.unlock(); }
+{ eventmutex_.unlock(); }
 
 
 uiVisPartServer::~uiVisPartServer()
@@ -97,9 +102,10 @@ uiVisPartServer::~uiVisPartServer()
 	    mCB(this,uiVisPartServer,deselectObjCB) );
 
     deleteAllObjects();
-    delete vismgr;
+    delete vismgr_;
 
-    delete &eventmutex;
+    delete &eventmutex_;
+    menu_.unRef();
 }
 
 
@@ -126,7 +132,7 @@ int uiVisPartServer::addScene( visSurvey::Scene* newscene )
     if ( !newscene ) newscene = visSurvey::Scene::create();
     newscene->mouseposchange.notify( mCB(this,uiVisPartServer,mouseMoveCB) );
     newscene->ref();
-    scenes += newscene;
+    scenes_ += newscene;
     return newscene->id();
 }
 
@@ -138,7 +144,7 @@ void uiVisPartServer::removeScene( int sceneid )
     {
 	scene->mouseposchange.remove( mCB(this,uiVisPartServer,mouseMoveCB) );
 	scene->unRef();
-	scenes -= scene;
+	scenes_ -= scene;
 	return;
     }
 }
@@ -146,27 +152,27 @@ void uiVisPartServer::removeScene( int sceneid )
 
 bool uiVisPartServer::disabMenus( bool yn )
 {
-    const bool res = blockmenus;
-    blockmenus = yn;
+    const bool res = blockmenus_;
+    blockmenus_ = yn;
     return res;
 }
 
 
 bool uiVisPartServer::disabToolbars( bool yn )
 {
-    const bool res = !mpetools->sensitive();
-    mpetools->setSensitive( !yn );
+    const bool res = !mpetools_->sensitive();
+    mpetools_->setSensitive( !yn );
     return res;
 }
 
 
 bool uiVisPartServer::blockMouseSelection( bool yn )
 {
-    if ( !scenes.size() ) return false;
+    if ( !scenes_.size() ) return false;
 
-    const bool res = scenes[0]->blockMouseSelection( yn );
-    for ( int idx=1; idx<scenes.size(); idx++ )
-	scenes[idx]->blockMouseSelection( yn );
+    const bool res = scenes_[0]->blockMouseSelection( yn );
+    for ( int idx=1; idx<scenes_.size(); idx++ )
+	scenes_[idx]->blockMouseSelection( yn );
 
     return res;
 }
@@ -175,30 +181,17 @@ bool uiVisPartServer::blockMouseSelection( bool yn )
 bool uiVisPartServer::showMenu( int id, int menutype, const TypeSet<int>* path,
 				const Coord3& pickedpos )
 {
-    if ( blockmenus )
+    if ( blockmenus_ )
 	return true;
 
-    uiMenuHandler* menu = getMenu( id, false );
-    menu->setPickedPos(pickedpos);
-    return menu ? menu->executeMenu(menutype,path) : true;
+    menu_.setMenuID( id );
+    menu_.setPickedPos(pickedpos);
+    return menu_.executeMenu(menutype,path);
 }
 
 
-uiMenuHandler* uiVisPartServer::getMenu(int visid, bool create)
-{
-    for ( int idx=0; idx<menus.size(); idx++ )
-    {
-	if ( menus[idx]->menuID()==visid )
-	    return menus[idx];
-    }
-    
-    if ( !create ) return 0;
-
-    uiMenuHandler* res = new uiMenuHandler(appserv().parent(),visid);
-    menus += res;
-    res->ref();
-    return res;
-}
+MenuHandler* uiVisPartServer::getMenuHandler()
+{ return &menu_; }
 
 
 void uiVisPartServer::shareObject( int sceneid, int id )
@@ -210,14 +203,14 @@ void uiVisPartServer::shareObject( int sceneid, int id )
     if ( !dobj ) return;
 
     scene->addObject( dobj );
-    eventmutex.lock();
+    eventmutex_.lock();
     sendEvent( evUpdateTree );
 }
 
 
 void uiVisPartServer::triggerTreeUpdate()
 {
-    eventmutex.lock();
+    eventmutex_.lock();
     sendEvent( evUpdateTree );
 }
 
@@ -267,7 +260,7 @@ void uiVisPartServer::addObject( visBase::DataObject* dobj, int sceneid,
     setUpConnections( dobj->id() );
     if ( isSoloMode() )
     {
-	int typesetidx = scenes.indexOf(scene);
+	int typesetidx = scenes_.indexOf(scene);
 	displayids_[typesetidx] += dobj->id();
 	turnOn( dobj->id(), true, true );
     }
@@ -276,14 +269,14 @@ void uiVisPartServer::addObject( visBase::DataObject* dobj, int sceneid,
 
 void uiVisPartServer::lockUnlockObject( int objectid )
 {
-    if ( !lockedobjects.addIfNew(objectid) )
-	lockedobjects.remove( lockedobjects.indexOf(objectid) );
+    if ( !lockedobjects_.addIfNew(objectid) )
+	lockedobjects_.remove( lockedobjects_.indexOf(objectid) );
 }
 
 
 bool uiVisPartServer::isLocked( int objectid ) const
 {
-    return lockedobjects.indexOf(objectid) != -1 ? true : false;
+    return lockedobjects_.indexOf(objectid) != -1 ? true : false;
 }
 
 
@@ -327,8 +320,8 @@ void uiVisPartServer::getChildIds( int id, TypeSet<int>& childids ) const
 
     if ( id==-1 )
     {
-	for ( int idx=0; idx<scenes.size(); idx++ )
-	    childids += scenes[idx]->id();
+	for ( int idx=0; idx<scenes_.size(); idx++ )
+	    childids += scenes_[idx]->id();
 
 	return;
     }
@@ -529,17 +522,17 @@ void uiVisPartServer::setTraceData( int id, int attrib, SeisTrcBuf& data )
 
 
 Coord3 uiVisPartServer::getMousePos(bool xyt) const
-{ return xyt ? xytmousepos : inlcrlmousepos; }
+{ return xyt ? xytmousepos_ : inlcrlmousepos_; }
 
 
 BufferString uiVisPartServer::getMousePosVal() const
 {
-    if ( mIsUdf(mouseposval) )
+    if ( mIsUdf(mouseposval_) )
 	return "undef";
-    else if ( mIsUdf(-mouseposval) )
+    else if ( mIsUdf(-mouseposval_) )
 	return "";
     else
-	return BufferString(mouseposval);
+	return BufferString(mouseposval_);
 }
 
 
@@ -572,10 +565,10 @@ const TypeSet<float>* uiVisPartServer::getHistogram( int id, int attrib ) const
 }
 
 
-int uiVisPartServer::getEventObjId() const { return eventobjid; }
+int uiVisPartServer::getEventObjId() const { return eventobjid_; }
 
 
-int uiVisPartServer::getEventAttrib() const { return eventattrib; }
+int uiVisPartServer::getEventAttrib() const { return eventattrib_; }
 
 
 const Attrib::SelSpec* uiVisPartServer::getSelSpec( int id, int attrib ) const
@@ -585,43 +578,54 @@ const Attrib::SelSpec* uiVisPartServer::getSelSpec( int id, int attrib ) const
 }
 
 
+bool uiVisPartServer::isClassification( int id, int attrib ) const
+{
+    mDynamicCastGet( visSurvey::SurveyObject*, so, getObject(id) );
+    return so ? so->isClassification( attrib ) : false;
+}
+
+
+void uiVisPartServer::setClassification( int id, int attrib, bool yn )
+{
+    mDynamicCastGet( visSurvey::SurveyObject*, so, getObject(id) );
+    if ( !so ) return;
+
+    so->setClassification( attrib, yn );
+}
+
+
 bool uiVisPartServer::deleteAllObjects()
 {
-    mpetools->deleteVisObjects();
+    mpetools_->deleteVisObjects();
 
-    while ( scenes.size() )
-	removeScene( scenes[0]->id() );
+    while ( scenes_.size() )
+	removeScene( scenes_[0]->id() );
 
-    scenes.erase();
-    for ( int idx=0; idx<menus.size(); idx++ )
-	menus[idx]->unRef();
-
-    menus.erase();
-
+    scenes_.erase();
     return visBase::DM().removeAll();
 }
 
 
 void uiVisPartServer::setViewMode(bool yn)
 {
-    if ( yn==viewmode ) return;
-    viewmode = yn;
+    if ( yn==viewmode_ ) return;
+    viewmode_ = yn;
     toggleDraggers();
 }
 
 
-bool uiVisPartServer::isViewMode() const { return viewmode; }
+bool uiVisPartServer::isViewMode() const { return viewmode_; }
 
 
-bool uiVisPartServer::isSoloMode() const { return issolomode; }
+bool uiVisPartServer::isSoloMode() const { return issolomode_; }
 
 
 void uiVisPartServer::setSoloMode( bool yn, TypeSet< TypeSet<int> > dispids,
 				   int selid )
 {
-    issolomode = yn;
+    issolomode_ = yn;
     displayids_ = dispids;
-    issolomode ? updateDisplay( true, selid ) : updateDisplay( false, selid );
+    issolomode_ ? updateDisplay( true, selid ) : updateDisplay( false, selid );
 }
 
 
@@ -684,14 +688,14 @@ void uiVisPartServer::toggleDraggers()
 {
     const TypeSet<int>& selected = visBase::DM().selMan().selected();
 
-    for ( int sceneidx=0; sceneidx<scenes.size(); sceneidx++ )
+    for ( int sceneidx=0; sceneidx<scenes_.size(); sceneidx++ )
     {
-	visSurvey::Scene* scene = scenes[sceneidx];
+	visSurvey::Scene* scene = scenes_[sceneidx];
 
 	for ( int objidx=0; objidx<scene->size(); objidx++ )
 	{
 	    visBase::DataObject* obj = scene->getObject( objidx );
-	    bool isdraggeron = selected.indexOf(obj->id())!=-1 && !viewmode;
+	    bool isdraggeron = selected.indexOf(obj->id())!=-1 && !viewmode_;
 
 	    mDynamicCastGet(visSurvey::SurveyObject*,so,obj)
 	    if ( so ) so->showManipulator(isdraggeron);
@@ -711,10 +715,10 @@ void uiVisPartServer::setZScale()
 
 
 void uiVisPartServer::vwAll( CallBacker* )
-{ eventmutex.lock(); sendEvent( evViewAll ); }
+{ eventmutex_.lock(); sendEvent( evViewAll ); }
 
 void uiVisPartServer::toHome( CallBacker* )
-{ eventmutex.lock(); sendEvent( evToHomePos ); }
+{ eventmutex_.lock(); sendEvent( evToHomePos ); }
 
 
 bool uiVisPartServer::setWorkingArea()
@@ -741,7 +745,7 @@ bool uiVisPartServer::setWorkingArea()
 bool uiVisPartServer::usePar( const IOPar& par )
 {
     BufferString res;
-    if ( par.get( workareastr, res ) )
+    if ( par.get( sKeyWorkArea(), res ) )
     {
 	FileMultiString fms(res);
 	CubeSampling cs;
@@ -766,7 +770,7 @@ bool uiVisPartServer::usePar( const IOPar& par )
 	addScene( newscene );
 
 	float appvel;
-	if ( par.get(appvelstr,appvel) )
+	if ( par.get(sKeyAppVel(),appvel) )
 	    newscene->setZScale( appvel/1000 );
 
 	TypeSet<int> children;
@@ -784,7 +788,7 @@ bool uiVisPartServer::usePar( const IOPar& par )
 	}
     }
 
-    mpetools->initFromDisplay();
+    mpetools_->initFromDisplay();
 
     return true;
 }
@@ -792,10 +796,10 @@ bool uiVisPartServer::usePar( const IOPar& par )
 
 void uiVisPartServer::calculateAllAttribs()
 {
-    for ( int idx=0; idx<scenes.size(); idx++ )
+    for ( int idx=0; idx<scenes_.size(); idx++ )
     {
 	TypeSet<int> children;
-	getChildIds( scenes[idx]->id(), children );
+	getChildIds( scenes_[idx]->id(), children );
 	for ( int idy=0; idy<children.size(); idy++ )
 	{
 	    const int childid = children[idy];
@@ -813,16 +817,17 @@ void uiVisPartServer::fillPar( IOPar& par ) const
 {
     TypeSet<int> storids;
 
-    for ( int idx=0; idx<scenes.size(); idx++ )
-	storids += scenes[idx]->id();
+    for ( int idx=0; idx<scenes_.size(); idx++ )
+	storids += scenes_[idx]->id();
 
-    par.set( appvelstr, scenes.size() ? scenes[0]->getZScale()*1000 : 2000 );
+    par.set( sKeyAppVel(),
+	     scenes_.size() ? scenes_[0]->getZScale()*1000 : 2000 );
 
     const CubeSampling& cs = SI().sampling( true );
     FileMultiString fms;
     fms += cs.hrg.start.inl; fms += cs.hrg.stop.inl; fms += cs.hrg.start.crl;
     fms += cs.hrg.stop.crl; fms += cs.zrg.start; fms += cs.zrg.stop;
-    par.set( workareastr, fms );
+    par.set( sKeyWorkArea(), fms );
 
     visBase::DM().fillPar(par, storids);
 }
@@ -830,7 +835,7 @@ void uiVisPartServer::fillPar( IOPar& par ) const
 
 void uiVisPartServer::turnOn( int id, bool yn, bool doclean )
 {
-    if ( !yn || !vismgr->allowTurnOn(id,doclean) )
+    if ( !yn || !vismgr_->allowTurnOn(id,doclean) )
 	yn = false;
 
     visBase::DataObject* dobj = visBase::DM().getObject( id );
@@ -886,7 +891,7 @@ bool uiVisPartServer::sendAddSeedEvent()
 
 void uiVisPartServer::turnSeedPickingOn( bool yn )
 {
-    mpetools->turnSeedPickingOn( yn );
+    mpetools_->turnSeedPickingOn( yn );
 }
 
 
@@ -894,11 +899,11 @@ void uiVisPartServer::turnSeedPickingOn( bool yn )
 prepostfix visSurvey::Scene* \
 uiVisPartServer::getScene( int sceneid ) prepostfix \
 { \
-    for ( int idx=0; idx<scenes.size(); idx++ ) \
+    for ( int idx=0; idx<scenes_.size(); idx++ ) \
     { \
-	if ( scenes[idx]->id()==sceneid ) \
+	if ( scenes_[idx]->id()==sceneid ) \
 	{ \
-	    return scenes[idx]; \
+	    return scenes_[idx]; \
 	} \
     } \
  \
@@ -929,10 +934,11 @@ bool uiVisPartServer::hasAttrib( int id ) const
 }
     
 
-bool uiVisPartServer::selectAttrib( int id )
+bool uiVisPartServer::selectAttrib( int id, int attrib )
 {
-    eventmutex.lock();
-    eventobjid = id;
+    eventmutex_.lock();
+    eventobjid_ = id;
+    eventattrib_ = attrib;
     return sendEvent( evSelectAttrib );
 }
 
@@ -963,14 +969,14 @@ bool uiVisPartServer::calculateAttrib( int id, int attrib, bool newselect )
 
     if ( newselect || ( as->id()==Attrib::SelSpec::cAttribNotSel() ) )
     {
-	if ( !selectAttrib( id ) )
+	if ( !selectAttrib( id, attrib ) )
 	    return false;
     }
 
     bool res = false;
-    eventmutex.lock();
-    eventobjid = id;
-    eventattrib = attrib;
+    eventmutex_.lock();
+    eventobjid_ = id;
+    eventattrib_ = attrib;
     res = sendEvent( evGetNewData );
     if ( res ) so->acceptManipulation();
     return res;
@@ -1018,8 +1024,8 @@ bool uiVisPartServer::resetManipulation( int id )
     mDynamicCastGet( visSurvey::SurveyObject*, so, getObject(id) );
     if ( so ) so->resetManipulation();
 
-    eventmutex.lock();
-    eventobjid = id;
+    eventmutex_.lock();
+    eventobjid_ = id;
     sendEvent( evInteraction );
 
     return so;
@@ -1046,10 +1052,6 @@ void uiVisPartServer::setUpConnections( int id )
     NotifierAccess* na = so ? so->getManipulationNotifier() : 0;
     if ( na ) na->notify( mCB(this,uiVisPartServer,interactionCB) );
 
-    uiMenuHandler* menu = getMenu(id,true);
-    menu->createnotifier.notify( mCB(this,uiVisPartServer,createMenuCB) );
-    menu->handlenotifier.notify( mCB(this,uiVisPartServer,handleMenuCB) );
-
     mDynamicCastGet(visBase::VisualObject*,vo,getObject(id))
     if ( vo && vo->rightClicked() )
 	vo->rightClicked()->notify(mCB(this,uiVisPartServer,rightClickCB));
@@ -1075,16 +1077,9 @@ void uiVisPartServer::removeConnections( int id )
 
     if ( na ) na->remove( mCB(this,uiVisPartServer,interactionCB) );
 
-    uiMenuHandler* menu = getMenu(id,false);
-    int mnufactidx = menus.indexOf(menu);
-    menus.remove(mnufactidx);
-    menu->createnotifier.remove( mCB(this,uiVisPartServer,createMenuCB) );
-    menu->handlenotifier.remove( mCB(this,uiVisPartServer,handleMenuCB) );
-
     mDynamicCastGet(visBase::VisualObject*,vo,getObject(id));
     if ( vo && vo->rightClicked() )
 	vo->rightClicked()->remove(mCB(this,uiVisPartServer,rightClickCB));
-    menu->unRef();
 
     for ( int attrib=so->nrAttribs()-1; attrib>=0; attrib-- )
     {
@@ -1124,11 +1119,11 @@ void uiVisPartServer::selectObjCB( CallBacker* cb )
     mCBCapsuleUnpack(int,sel,cb);
     visBase::DataObject* dobj = visBase::DM().getObject( sel );
     mDynamicCastGet(visSurvey::SurveyObject*,so,dobj);
-    if ( !viewmode && so )
+    if ( !viewmode_ && so )
 	so->showManipulator(true);
 
-    eventmutex.lock();
-    eventobjid = sel;
+    eventmutex_.lock();
+    eventobjid_ = sel;
     sendEvent( evSelection );
 }
 
@@ -1146,12 +1141,12 @@ void uiVisPartServer::deselectObjCB( CallBacker* cb )
 		calculateAttrib( oldsel, attrib, false );
 	}
 
-	if ( !viewmode )
+	if ( !viewmode_ )
 	    so->showManipulator(false);
     }
 
-    eventmutex.lock();
-    eventobjid = oldsel;
+    eventmutex_.lock();
+    eventobjid_ = oldsel;
     sendEvent( evDeSelection );
 }
 
@@ -1161,8 +1156,8 @@ void uiVisPartServer::interactionCB( CallBacker* cb )
     mDynamicCastGet(visBase::DataObject*,dataobj,cb)
     if ( dataobj )
     {
-	eventmutex.lock();
-	eventobjid = dataobj->id();
+	eventmutex_.lock();
+	eventobjid_ = dataobj->id();
 	sendEvent( evInteraction );
     }
 }
@@ -1173,11 +1168,11 @@ void uiVisPartServer::mouseMoveCB( CallBacker* cb )
     mDynamicCastGet(visSurvey::Scene*,scene,cb)
     if ( !scene ) return;
 
-    eventmutex.lock();
-    xytmousepos = scene->getMousePos(true);
-    inlcrlmousepos = scene->getMousePos(false);
-    mouseposval = scene->getMousePosValue();
-    mouseposstr = scene->getMousePosString();
+    eventmutex_.lock();
+    xytmousepos_ = scene->getMousePos(true);
+    inlcrlmousepos_ = scene->getMousePos(false);
+    mouseposval_ = scene->getMousePosValue();
+    mouseposstr_ = scene->getMousePosString();
     sendEvent( evMouseMove );
 }
 
@@ -1188,29 +1183,29 @@ void uiVisPartServer::createMenuCB(CallBacker* cb)
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(menu->menuID()));
     if ( !so ) return;
 
-    mAddMenuItemCond( menu, &resetmanipmnuitem, 
+    mAddMenuItemCond( menu, &resetmanipmnuitem_, 
 	    	      so->isManipulated() && !isLocked(menu->menuID()), false,
 		      so->canResetManipulation() );
-    //mAddMenuItemCond( menu, &changecolormnuitem, true, false, so->hasColor() );
-    changecolormnuitem.id = -1;
+    //mAddMenuItemCond( menu, &changecolormnuitem_, true, false, so->hasColor() );
+    changecolormnuitem_.id = -1;
 
-    mAddMenuItemCond( menu, &changematerialmnuitem, true, false, 
+    mAddMenuItemCond( menu, &changematerialmnuitem_, true, false, 
 		      so->allowMaterialEdit() );
 
-    resmnuitem.id = -1;
-    resmnuitem.removeItems();
+    resmnuitem_.id = -1;
+    resmnuitem_.removeItems();
     if ( so->nrResolutions()>1 )
     {
 	BufferStringSet resolutions;
 	for ( int idx=0; idx<so->nrResolutions(); idx++ )
 	    resolutions.add( so->getResolutionName(idx) );
 
-	resmnuitem.createItems( resolutions );
-	resmnuitem.getItem(so->getResolution())->checked = true;
-	mAddMenuItem(menu, &resmnuitem, true, false );
+	resmnuitem_.createItems( resolutions );
+	resmnuitem_.getItem(so->getResolution())->checked = true;
+	mAddMenuItem(menu, &resmnuitem_, true, false );
     }
     else
-	mResetMenuItem(&resmnuitem);
+	mResetMenuItem(&resmnuitem_);
 }
 
 
@@ -1224,27 +1219,27 @@ void uiVisPartServer::handleMenuCB(CallBacker* cb)
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id))
     if ( !so ) return;
     
-    if ( mnuid==resetmanipmnuitem.id )
+    if ( mnuid==resetmanipmnuitem_.id )
     {
 	resetManipulation(id);
 	menu->setIsHandled(true);
     }
-    else if ( mnuid==changecolormnuitem.id )
+    else if ( mnuid==changecolormnuitem_.id )
     {
 	Color col = so->getColor();
 	if ( selectColor(col,appserv().parent(),"Color selection",false) )
 	    so->setColor( col );
 	menu->setIsHandled(true);
     }
-    else if ( mnuid==changematerialmnuitem.id )
+    else if ( mnuid==changematerialmnuitem_.id )
     {
 	setMaterial(id);
 	menu->setIsHandled(true);
     }
-    else if ( resmnuitem.id!=-1 && resmnuitem.itemIndex(mnuid)!=-1 )
+    else if ( resmnuitem_.id!=-1 && resmnuitem_.itemIndex(mnuid)!=-1 )
     {
 	uiCursorChanger cursorlock( uiCursor::Wait );
-	so->setResolution(resmnuitem.itemIndex(mnuid));
+	so->setResolution(resmnuitem_.itemIndex(mnuid));
 	menu->setIsHandled(true);
     }
 }
@@ -1258,17 +1253,17 @@ void uiVisPartServer::colTabChangeCB( CallBacker* )
 
 void uiVisPartServer::showMPEToolbar()
 {
-    mpetools->updateAttribNames();
-    if ( !mpetools->isShown() )
+    mpetools_->updateAttribNames();
+    if ( !mpetools_->isShown() )
     {
-	mpetools->display();
-	mpetools->undock();
+	mpetools_->display();
+	mpetools_->undock();
     }
 }
 
 
 uiToolBar* uiVisPartServer::getTrackTB() const
-{ return (uiToolBar*)mpetools; }
+{ return (uiToolBar*)mpetools_; }
 
 
 void uiVisPartServer::initMPEStuff()
@@ -1282,7 +1277,7 @@ void uiVisPartServer::initMPEStuff()
 	emod->updateFromMPE();
     }
     
-    mpetools->initFromDisplay();
+    mpetools_->initFromDisplay();
 }
 
 
@@ -1294,18 +1289,18 @@ void uiVisPartServer::setupRdmLinePreview( TypeSet<Coord> coords )
     pldisplay_ = visSurvey::PolyLineDisplay::create();
     pldisplay_->fillPolyLine( coords );
     mDynamicCastGet(visBase::DataObject*,doobj,pldisplay_);
-    for ( int idx=0; idx<scenes.size(); idx++ )
-	scenes[idx]->addObject( doobj );
+    for ( int idx=0; idx<scenes_.size(); idx++ )
+	scenes_[idx]->addObject( doobj );
 }
 
 
 void uiVisPartServer::cleanPreview()
 {
     mDynamicCastGet(visBase::DataObject*,doobj,pldisplay_);
-    for ( int idx=0; idx<scenes.size(); idx++ )
+    for ( int idx=0; idx<scenes_.size(); idx++ )
     {
-	int objidx = scenes[idx]->getFirstIdx( doobj );
-	scenes[idx]->removeObject( objidx );
+	int objidx = scenes_[idx]->getFirstIdx( doobj );
+	scenes_[idx]->removeObject( objidx );
     }
 }
 
@@ -1318,8 +1313,8 @@ uiVisModeMgr::uiVisModeMgr( uiVisPartServer* p )
 
 bool uiVisModeMgr::allowTurnOn( int id, bool doclean )
 {
-    if ( !visserv.issolomode && !doclean ) return true;
-    if ( !visserv.issolomode ) return false;
+    if ( !visserv.issolomode_ && !doclean ) return true;
+    if ( !visserv.issolomode_ ) return false;
     const TypeSet<int>& selected = visBase::DM().selMan().selected();
     for ( int idx=0; idx<selected.size(); idx++ )
     {

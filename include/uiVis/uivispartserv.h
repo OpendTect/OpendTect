@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.156 2006-01-18 22:58:59 cvskris Exp $
+ RCS:           $Id: uivispartserv.h,v 1.157 2006-01-30 15:36:35 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,6 +31,7 @@ class uiPopupMenu;
 class uiToolBar;
 class uiMenuHandler;
 class uiVisModeMgr;
+class Color;
 
 namespace Attrib    { class SelSpec; class DataCubes; }
 namespace visBase   { class DataObject; };
@@ -108,6 +109,8 @@ public:
     bool		swapAttribs( int id, int attrib0, int attrib1 );
     const Attrib::SelSpec* getSelSpec(int id, int attrib ) const;
     void		setSelSpec(int id, int attrib, const Attrib::SelSpec&);
+    bool		isClassification( int id, int attrib ) const;
+    void		setClassification( int id, int attrib, bool yn );
     
 			//Volume data stuff
     CubeSampling	getCubeSampling(int id) const;
@@ -142,7 +145,7 @@ public:
 				description.
 			*/
 
-    uiMenuHandler*	getMenu(int id, bool create_if_does_not_exist=true);
+    MenuHandler*	getMenuHandler();
 
     MultiID		getMultiID(int) const;
 	
@@ -185,7 +188,7 @@ public:
     Coord3		getMousePos(bool xyt) const;
 			/*!< If !xyt mouse pos will be in inl, crl, t */
     BufferString	getMousePosVal() const;
-    BufferString	getMousePosString() const	{ return mouseposstr; }
+    BufferString	getMousePosString() const	{ return mouseposstr_; }
 
 
     static const int	evSelectAttrib;
@@ -248,7 +251,7 @@ protected:
     visSurvey::Scene*		getScene(int);
     const visSurvey::Scene*	getScene(int) const;
 
-    bool			selectAttrib(int id);
+    bool			selectAttrib(int id, int attrib);
 
     bool			isManipulated(int id) const;
     void			acceptManipulation(int id);
@@ -266,23 +269,22 @@ protected:
     void			toggleDraggers();
     int				getTypeSetIdx(int);
 
-    ObjectSet<visSurvey::Scene>	scenes;
+    ObjectSet<visSurvey::Scene>	scenes_;
 
-    ObjectSet<uiMenuHandler>	menus;
-    uiMenuHandler*		vismenu;
+    uiMenuHandler&		menu_;
 
-    uiMPEMan*			mpetools;
+    uiMPEMan*			mpetools_;
 
-    Coord3			xytmousepos;
-    Coord3			inlcrlmousepos;
-    float			mouseposval;
-    BufferString		mouseposstr;
+    Coord3			xytmousepos_;
+    Coord3			inlcrlmousepos_;
+    float			mouseposval_;
+    BufferString		mouseposstr_;
 
-    bool			viewmode;
-    bool			issolomode;
-    Threads::Mutex&		eventmutex;
-    int				eventobjid;
-    int				eventattrib;
+    bool			viewmode_;
+    bool			issolomode_;
+    Threads::Mutex&		eventmutex_;
+    int				eventobjid_;
+    int				eventattrib_;
 
     void			rightClickCB(CallBacker*);
     void			selectObjCB(CallBacker*);
@@ -294,19 +296,19 @@ protected:
     void			toHome(CallBacker*);
     void			colTabChangeCB(CallBacker*);
 
-    MenuItem			resetmanipmnuitem;
-    MenuItem			changecolormnuitem;
-    MenuItem			changematerialmnuitem;
-    MenuItem			resmnuitem;
+    MenuItem			resetmanipmnuitem_;
+    MenuItem			changecolormnuitem_;
+    MenuItem			changematerialmnuitem_;
+    MenuItem			resmnuitem_;
 
-    TypeSet<int>		lockedobjects;
+    TypeSet<int>		lockedobjects_;
     TypeSet< TypeSet<int> >	displayids_;
 
-    static const char*		workareastr;
-    static const char*		appvelstr;
+    static const char*		sKeyWorkArea();
+    static const char*		sKeyAppVel();
 
-    uiVisModeMgr*		vismgr;
-    bool			blockmenus;
+    uiVisModeMgr*		vismgr_;
+    bool			blockmenus_;
 
     visSurvey::PolyLineDisplay* pldisplay_;
 };
@@ -321,11 +323,10 @@ protected:
   transfer of data to be displayed. All supported scene objects are inheriting
   visSurvey::SurveyObject.
 
-  A lot of user interaction is done via popupmenus, and each object has an
-  own menu which can be accessed via getMenu. To add items or manipulate the
-  menus, please refer to the uiMenuHandler documentation.
-
-  */
+  A lot of user interaction is done via popupmenus, and all objects share
+  one uiMenuHandler that is accessed via getMenuHandler. To add items or
+  manipulate the menus, please refer to the uiMenuHandler documentation.
+*/
 
 
 class uiVisModeMgr 
