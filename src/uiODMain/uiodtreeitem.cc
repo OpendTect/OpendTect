@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.139 2006-01-30 15:43:16 cvskris Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.140 2006-01-30 20:34:20 cvskris Exp $
 ___________________________________________________________________
 
 -*/
@@ -471,7 +471,8 @@ void uiODDataTreeItem::updateColumnText( int col )
 		const char* tablename = coltab->colorSeq().colors().name();
 		PtrMan<ioPixmap> pixmap =
 		    new ioPixmap(  tablename, cPixmapWidth(), cPixmapHeight() );
-		uilistviewitem->setPixmap( uiODSceneMgr::cColorColumn(), *pixmap );
+		uilistviewitem->setPixmap( uiODSceneMgr::cColorColumn(),
+					   *pixmap );
 	    }
 	}
     }
@@ -645,7 +646,8 @@ void uiODDisplayTreeItem::updateColumnText( int col )
 	    pixmap->fill( so->getColor() );
 	}
 
-	if ( pixmap ) uilistviewitem->setPixmap( uiODSceneMgr::cColorColumn(), *pixmap );
+	if ( pixmap ) uilistviewitem->setPixmap( uiODSceneMgr::cColorColumn(),
+						 *pixmap );
     }
 
     uiTreeItem::updateColumnText( col );
@@ -704,7 +706,7 @@ void uiODDisplayTreeItem::createMenuCB( CallBacker* cb )
     mAddMenuItemCond( menu, &duplicatemnuitem_, true, false,
 		      visserv->canDuplicate(displayid_) );
 
-    mAddMenuItem( menu, &removemnuitem_, !visserv->isLocked(displayid_), false );
+    mAddMenuItem( menu, &removemnuitem_, !visserv->isLocked(displayid_), false);
 }
 
 
@@ -749,7 +751,6 @@ void uiODDisplayTreeItem::handleMenuCB( CallBacker* cb )
 	visserv->addAttrib( displayid_ );
 	addChild( newitem );
 	updateColumnText( uiODSceneMgr::cNameColumn() );
-	updateColumnText(1);
 	updateColumnText(uiODSceneMgr::cColorColumn());
 	menu->setIsHandled(true);
     }
@@ -1467,15 +1468,21 @@ void uiODHorizonTreeItem::initNotify()
 }
 
 
-void uiODHorizonTreeItem::updateColumnText( int col )
+BufferString uiODHorizonTreeItem::createDisplayName() const
 {
-    if ( col==1 )
+    const uiVisPartServer* cvisserv =
+	const_cast<uiODHorizonTreeItem*>(this)->applMgr()->visServer();
+
+    BufferString res = cvisserv->getObjectName( displayid_ );
+
+    if (  uivisemobj && uivisemobj->getShift() )
     {
-	BufferString shift = uivisemobj ? uivisemobj->getShift() : 0;
-	uilistviewitem->setText( shift, col );
+	res += " (";
+	res += uivisemobj->getShift();
+	res += ")";
     }
 
-    return uiODDisplayTreeItem::updateColumnText( col );
+    return res;
 }
 
 
@@ -1734,12 +1741,6 @@ void uiODWellTreeItem::handleMenuCB( CallBacker* cb )
 }
 
 
-void uiODWellTreeItem::updateColumnText( int col )
-{
-    return uiODDisplayTreeItem::updateColumnText(col);
-}
-
-    
 uiODPickSetParentTreeItem::uiODPickSetParentTreeItem()
     : uiODTreeItem( "PickSet" )
 {}
@@ -1839,20 +1840,6 @@ bool uiODPickSetTreeItem::init()
     }
 
     return uiODDisplayTreeItem::init();
-}
-
-
-void uiODPickSetTreeItem::updateColumnText( int col )
-{
-    mDynamicCastGet(visSurvey::PickSetDisplay*,psd,
-		    visserv->getObject(displayid_))
-    if ( col==1 )
-    {
-	BufferString text = psd->nrPicks();
-	uilistviewitem->setText( text, col );
-    }
-
-    return uiODDisplayTreeItem::updateColumnText(col);
 }
 
 
