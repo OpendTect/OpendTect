@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: uitreeitemmanager.h,v 1.20 2006-01-18 22:56:44 cvskris Exp $
+ RCS:		$Id: uitreeitemmanager.h,v 1.21 2006-01-30 14:51:38 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -52,6 +52,11 @@ public:
 				  \note this index is not neseccarely the same
 				        as the item's index in the parent's
 					child-list. */
+
+    virtual uiTreeItem*		siblingAbove();
+    virtual uiTreeItem*		siblingBelow();
+    virtual void		moveItem( uiTreeItem* after );
+    virtual void		moveItemToTop();
 				 
     virtual bool		addChild( uiTreeItem* child );
     				/*!<Adds a child. If the child does not fit
@@ -113,8 +118,6 @@ public:
 				    \retval false	the key was not found
 				    			and res is not set
 				*/
-    void			moveItem( uiTreeItem* below );
-    void			moveItemToTop();
 
     virtual void		updateColumnText(int col);
 protected:

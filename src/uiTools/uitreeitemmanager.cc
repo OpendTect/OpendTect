@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uitreeitemmanager.cc,v 1.23 2006-01-18 22:56:44 cvskris Exp $";
+static const char* rcsID = "$Id: uitreeitemmanager.cc,v 1.24 2006-01-30 14:51:38 cvskris Exp $";
 
 
 #include "uitreeitemmanager.h"
@@ -212,6 +212,40 @@ int uiTreeItem::siblingIndex() const
 {
     if ( !uilistviewitem ) return -1;
     return uilistviewitem->siblingIndex();
+}
+
+
+uiTreeItem* uiTreeItem::siblingAbove()
+{
+    if ( !parent || !uilistviewitem ) return 0;
+
+    uiListViewItem* itemabove = uilistviewitem->itemAbove();
+    if ( !itemabove ) return 0;
+
+    for ( int idx=0; idx<parent->children.size(); idx++ )
+    {
+	if ( parent->children[idx]->getItem()==itemabove )
+	    return parent->children[idx];
+    }
+
+    return 0;
+}
+
+
+uiTreeItem* uiTreeItem::siblingBelow()
+{
+    if ( !parent || !uilistviewitem ) return 0;
+
+    uiListViewItem* itembelow = uilistviewitem->itemBelow();
+    if ( !itembelow ) return 0;
+
+    for ( int idx=0; idx<parent->children.size(); idx++ )
+    {
+	if ( parent->children[idx]->getItem()==itembelow )
+	    return parent->children[idx];
+    }
+
+    return 0;
 }
 
 
