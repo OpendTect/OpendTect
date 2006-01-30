@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visdataman.h,v 1.15 2005-09-30 14:58:43 cvskris Exp $
+ RCS:		$Id: visdataman.h,v 1.16 2006-01-30 14:45:34 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -54,8 +54,8 @@ public:
     DataObject*		getObject( int id );
     const DataObject*	getObject( int id ) const;
 
-    SelectionManager&	selMan() { return selman; }
-    Factory&		factory() { return fact; }
+    SelectionManager&	selMan() { return selman_; }
+    Factory&		factory() { return fact_; }
 
     Notifier<DataManager>	removeallnotify;
 
@@ -65,14 +65,14 @@ protected:
     void		addObject( DataObject* );
     void		removeObject( DataObject* );
 
-    ObjectSet<DataObject>	objects;
+    ObjectSet<DataObject>	objects_;
 
-    int				freeid;
-    SelectionManager&		selman;
-    Factory&			fact;
+    int				freeid_;
+    SelectionManager&		selman_;
+    Factory&			fact_;
 
-    static const char*		freeidstr;
-    static const char*		selmanprefix;
+    static const char*		sKeyFreeID();
+    static const char*		sKeySelManPrefix();
 };
 
 DataManager& DM();

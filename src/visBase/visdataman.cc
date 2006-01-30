@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: visdataman.cc,v 1.29 2006-01-23 11:59:57 cvsnanne Exp $";
+static const char* rcsID = "$Id: visdataman.cc,v 1.30 2006-01-30 14:45:34 cvskris Exp $";
 
 #include "visdataman.h"
 #include "visdata.h"
@@ -18,8 +18,8 @@ static const char* rcsID = "$Id: visdataman.cc,v 1.29 2006-01-23 11:59:57 cvsnan
 namespace visBase
 {
 
-const char* DataManager::freeidstr = "Free ID";
-const char* DataManager::selmanprefix = "SelMan";
+const char* DataManager::sKeyFreeID()		{ return "Free ID"; }
+const char* DataManager::sKeySelManPrefix()	{ return "SelMan"; }
 
 DataManager& DM()
 {
@@ -32,9 +32,9 @@ DataManager& DM()
 
 
 DataManager::DataManager()
-    : freeid( 0 )
-    , selman( *new SelectionManager )
-    , fact( *new Factory )
+    : freeid_( 0 )
+    , selman_( *new SelectionManager )
+    , fact_( *new Factory )
     , removeallnotify( this )
 { }
 
@@ -42,16 +42,16 @@ DataManager::DataManager()
 DataManager::~DataManager()
 {
     removeAll();
-    delete &selman;
-    delete &fact;
+    delete &selman_;
+    delete &fact_;
 }
 
 
 void DataManager::fillPar( IOPar& par, TypeSet<int>& storids ) const
 {
     IOPar selmanpar;
-    selman.fillPar( selmanpar, storids );
-    par.mergeComp( selmanpar, selmanprefix );
+    selman_.fillPar( selmanpar, storids );
+    par.mergeComp( selmanpar, sKeySelManPrefix() );
 
     for ( int idx=0; idx<storids.size(); idx++ )
     {
@@ -66,7 +66,7 @@ void DataManager::fillPar( IOPar& par, TypeSet<int>& storids ) const
 
     sort( storids );
     const int storedfreeid = storids[storids.size()-1] + 1;
-    par.set( freeidstr, storedfreeid );
+    par.set( sKeyFreeID(), storedfreeid );
 }
 
 
@@ -74,7 +74,7 @@ bool DataManager::usePar( const IOPar& par )
 {
     removeAll();
 
-    if ( !par.get( freeidstr, freeid ))
+    if ( !par.get( sKeyFreeID(), freeid_ ))
 	return false;
 
     TypeSet<int> lefttodo;
@@ -111,7 +111,7 @@ bool DataManager::usePar( const IOPar& par )
 	    DataObject* obj = factory().create( type );
 	    if ( !obj ) { lefttodo.remove(idx); idx--; continue; }
 
-	    int no = objects.indexOf( obj );
+	    int no = objects_.indexOf( obj );
 	    obj->setID(lefttodo[idx]);  
 
 	    int res = obj->usePar( *iopar );
@@ -135,12 +135,12 @@ bool DataManager::usePar( const IOPar& par )
     }
 
     int maxid = -1;
-    for ( int idx=0; idx<objects.size(); idx++ )
+    for ( int idx=0; idx<objects_.size(); idx++ )
     {
-	if ( objects[idx]->id()>maxid ) maxid=objects[idx]->id();
+	if ( objects_[idx]->id()>maxid ) maxid=objects_[idx]->id();
     }
 
-    freeid = maxid+1;
+    freeid_ = maxid+1;
 
     for ( int idx=0;idx<createdobj.size(); idx++ )
 	createdobj[idx]->unRefNoDelete();
@@ -154,12 +154,12 @@ bool DataManager::removeAll(int nriterations)
     removeallnotify.trigger();
 
     bool objectsleft = false;
-    for ( int idx=0; idx<objects.size(); idx++ )
+    for ( int idx=0; idx<objects_.size(); idx++ )
     {
-	if ( !objects[idx]->nrRefs() )
+	if ( !objects_[idx]->nrRefs() )
 	{
-	    objects[idx]->ref();
-	    objects[idx]->unRef();
+	    objects_[idx]->ref();
+	    objects_[idx]->unRef();
 	    idx--;
 	}
 	else objectsleft = true;
@@ -169,14 +169,15 @@ bool DataManager::removeAll(int nriterations)
     if ( !nriterations )
     {
 	pErrMsg("All objects not unreferenced");
-	while ( objects.size() )
+	while ( objects_.size() )
 	{
 	    BufferString msg = "Forcing removal of ID: ";
-	    msg += objects[0]->id();
-	    msg += objects[0]->getClassName();
+	    msg += objects_[0]->id();
+	    msg += objects_[0]->getClassName();
 	    pErrMsg( msg );
 
-	    while ( objects[0]->nrRefs() ) objects[0]->unRef();
+	    while ( objects_.size() && objects_[0]->nrRefs() )
+		objects_[0]->unRef();
 	}
 
 	return false;
@@ -190,11 +191,11 @@ int DataManager::highestID() const
 {
     int max = 0;
 
-    const int nrobjects = objects.size();
+    const int nrobjects = objects_.size();
     for ( int idx=0; idx<nrobjects; idx++ )
     {
-	if ( objects[idx]->id()>max )
-	    max = objects[idx]->id();
+	if ( objects_[idx]->id()>max )
+	    max = objects_[idx]->id();
     }
 
     return max;
@@ -203,9 +204,9 @@ int DataManager::highestID() const
 
 DataObject* DataManager::getObject( int id ) 
 {
-    for ( int idx=0; idx<objects.size(); idx++ )
+    for ( int idx=0; idx<objects_.size(); idx++ )
     {
-	if ( objects[idx]->id()==id ) return objects[idx];
+	if ( objects_[idx]->id()==id ) return objects_[idx];
     }
 
     return 0;
@@ -218,10 +219,10 @@ const DataObject* DataManager::getObject( int id ) const
 
 void DataManager::addObject( DataObject* obj )
 {
-    if ( objects.indexOf(obj)==-1 )
+    if ( objects_.indexOf(obj)==-1 )
     {
-	objects += obj;
-	obj->setID(freeid++);
+	objects_ += obj;
+	obj->setID(freeid_++);
     }
 }
 
@@ -230,7 +231,7 @@ void DataManager::getIds( const SoPath* path, TypeSet<int>& res ) const
 {
     res.erase();
 
-    const int nrobjs = objects.size();
+    const int nrobjs = objects_.size();
 
     for ( int pathidx=path->getLength()-1; pathidx>=0; pathidx-- )
     {
@@ -238,10 +239,10 @@ void DataManager::getIds( const SoPath* path, TypeSet<int>& res ) const
 
 	for ( int idx=0; idx<nrobjs; idx++ )
 	{
-	    const SoNode* objnode = objects[idx]->getInventorNode();
+	    const SoNode* objnode = objects_[idx]->getInventorNode();
 	    if ( !objnode ) continue;
 
-	    if ( objnode==node ) res += objects[idx]->id();
+	    if ( objnode==node ) res += objects_[idx]->id();
 	}
     }
 }
@@ -252,15 +253,15 @@ void DataManager::getIds( const std::type_info& ti,
 {
     res.erase();
 
-    for ( int idx=0; idx<objects.size(); idx++ )
+    for ( int idx=0; idx<objects_.size(); idx++ )
     {
-	if ( typeid(*objects[idx]) == ti )
-	    res += objects[idx]->id();
+	if ( typeid(*objects_[idx]) == ti )
+	    res += objects_[idx]->id();
     }
 }
 
 void DataManager::removeObject( DataObject* dobj )
-{ objects -= dobj; }
+{ objects_ -= dobj; }
 
 
 }; //namespace
