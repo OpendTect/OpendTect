@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2005
- RCS:           $Id: SoMultiTexture2.cc,v 1.4 2006-01-05 16:39:42 cvskris Exp $
+ RCS:           $Id: SoMultiTexture2.cc,v 1.5 2006-01-30 14:29:00 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,7 +43,9 @@ public:
 					     unsigned char* res,
 					     int nc, int sz,
 					     const unsigned char* coltab,
-				       	     int coltabnc, int nrthreads );
+				       	     int coltabnc, int nrcolors,
+					     int nrthreads );
+
 				~SoMultiTextureProcessor();
 
     bool			prepare( int idx );
@@ -66,6 +68,7 @@ protected:
     int				coltabstart;
 
     int				numcolors;
+    const int			totalnumcolors;
 
     SoMultiTexture2::Operator	oper;
     bool			mask[4];
@@ -86,7 +89,7 @@ protected:
 
 SoMultiTextureProcessor::SoMultiTextureProcessor( const SoMultiTexture2& mt,
 		  unsigned char* r, int c, int s, const unsigned char* ctab,
-		  int ctabnc, int nrthreads )
+		  int ctabnc, int totalnumcols, int nrthreads )
     : res( r )
     , nc( c )
     , sz( s )
@@ -95,6 +98,7 @@ SoMultiTextureProcessor::SoMultiTextureProcessor( const SoMultiTexture2& mt,
     , coltab( ctab )
     , coltabnc( ctabnc )
     , coltabstart( 0 )
+    , totalnumcolors( totalnumcols )
 {
     if ( nrthreads<2 )
 	return;
@@ -171,6 +175,9 @@ bool SoMultiTextureProcessor::prepare( int idx )
 	    ? SoMultiTexture2::RED | SoMultiTexture2::GREEN |
 	      SoMultiTexture2::BLUE | (nc==4?SoMultiTexture2::OPACITY:0)
 	    : texture.component[idx];
+    if ( !comp )
+	return false;
+
     mask[0] = comp & (SoMultiTexture2::RED^-1);
     mask[1] = comp & (SoMultiTexture2::GREEN^-1);
     mask[2] = comp & (SoMultiTexture2::BLUE^-1);
@@ -224,24 +231,29 @@ bool SoMultiTextureProcessor::process()
 {
     const int nrthreads = startthread.getLength();
     if ( !nrthreads )
-	return process( 0, sz-1 );
-
-    threadmutex.lock();
-    for ( int idx=nrthreads-1; idx>=0; idx-- )
-	startthread[idx]=true;
-
-    threadfinishcount = nrthreads;
-
-    threadcondvar.wakeAll();
-
-    while ( true )
     {
-	if ( threadfinishcount )
-	    threadcondvar.wait( threadmutex );
-	if ( !threadfinishcount )
+	if ( !process( 0, sz-1 ) )
+	    return false;
+    }
+    else
+    {
+	threadmutex.lock();
+	for ( int idx=nrthreads-1; idx>=0; idx-- )
+	    startthread[idx]=true;
+
+	threadfinishcount = nrthreads;
+
+	threadcondvar.wakeAll();
+
+	while ( true )
 	{
-	    threadmutex.unlock();
-	    break;
+	    if ( threadfinishcount )
+		threadcondvar.wait( threadmutex );
+	    if ( !threadfinishcount )
+	    {
+		threadmutex.unlock();
+		break;
+	    }
 	}
     }
 
@@ -262,7 +274,7 @@ bool SoMultiTextureProcessor::process( int start, int stop )
 	    if ( index>=numcolors ) index=numcolors-1;
 
 	    index += coltabstart;
-	    if ( index>=numcolors ) index=numcolors-1;
+	    if ( index>=totalnumcolors ) index=totalnumcolors-1;
 
 	    memcpy( pixelcolor, coltab+(index*coltabnc), coltabnc );
 	    if ( coltabnc==3 ) pixelcolor[3] = 0;
@@ -602,21 +614,25 @@ const unsigned char* SoMultiTexture2::createImage( SbVec2s& size, int& nc )
     int coltabstart = 0;
     for ( int idx=0; idx<numimages; idx++ )
     {
-	const int numcolors = idx>=numcolor.getNum() ? 0 : numcolor[idx];
-	const bool iscoltab = numcolors>0;
-
 	SbVec2s lsz;
 	int lnc;
 	const unsigned char* bytes = image[idx].getValue(lsz,lnc);
+	const short comp = idx>=component.getNum()
+	    ? RED | GREEN | BLUE | (lnc==4?OPACITY:0)
+	    : component[idx];
+
+	if ( !comp ) //nothing to do
+	    continue;
+
+	const int numcolors = idx>=numcolor.getNum() ? 0 : numcolor[idx];
+	const bool iscoltab = numcolors>0;
+
 	mCondErrRet( iscoltab && lnc!=1,
 		     "Coltab image must be single component.");
 
 	mCondErrRet( lnc!=1 && lnc!=3 && lnc!=4,
 		     "Coltab must have either one, three or four components" );
 
-	const short comp = idx>=component.getNum()
-	    ? RED | GREEN | BLUE | (lnc==4?OPACITY:0)
-	    : component[idx];
 	const bool doopacity = comp & (OPACITY^-1);
 
 	mCondErrRet( doopacity && lnc==3,
@@ -653,12 +669,12 @@ const unsigned char* SoMultiTexture2::createImage( SbVec2s& size, int& nc )
 
     const SbTime starttime = SbTime::getTimeOfDay();
     SoMultiTextureProcessor processor( *this, res, nc, nrpixels, coltab,
-	    			       coltabnc, nrthreads );
+	    			       coltabnc, nrcolors, nrthreads );
 
     for ( int idx=0; idx<numimages; idx++ )
     {
-	processor.prepare( idx );
-	processor.process();
+	if ( processor.prepare( idx ) )
+	    processor.process();
     }
 
     if ( findnrthreadstatus==Settled )
