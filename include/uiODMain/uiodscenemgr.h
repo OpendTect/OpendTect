@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.h,v 1.27 2006-01-30 15:42:04 cvskris Exp $
+ RCS:           $Id: uiodscenemgr.h,v 1.28 2006-01-30 20:33:38 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -101,7 +101,7 @@ public:
     int			addEMItem(const EM::ObjectID&,int);
     void		removeTreeItem(int displayid);
 
-    uiTreeFactorySet*   treeItemFactorySet() 		{ return tifs; }
+    uiTreeFactorySet*   treeItemFactorySet() 		{ return tifs_; }
 
     static int		cNameColumn() { return 0; }
     static int		cColorColumn() { return 1; }
@@ -118,26 +118,27 @@ protected:
 			Scene(uiWorkSpace*);
 			~Scene();
        
-	uiListView*	lv;
-	uiSoViewer*	sovwr;
-	uiODTreeTop*	itemmanager;
+	uiListView*	lv_;
+	uiSoViewer*	sovwr_;
+	uiODTreeTop*	itemmanager_;
 
 	uiGroup*	vwrGroup();
 	uiDockWin*	treeWin();
     };
 
-    uiODMain&		appl;
-    uiWorkSpace*	wsp;
-    ObjectSet<uiODSceneMgr::Scene> scenes;
-    int			vwridx;
-    float		lasthrot, lastvrot, lastdval;
-    uiTreeFactorySet*	tifs;
-    uiSliderExtra*	zoomslider;
+    uiODMain&				appl_;
+    uiWorkSpace*			wsp_;
+    ObjectSet<uiODSceneMgr::Scene>	scenes_;
+    int					vwridx;
+    float				lasthrot_, lastvrot_, lastdval_;
+    uiTreeFactorySet*			tifs_;
+    uiSliderExtra*			zoomslider_;
+
 
     void		wheelMoved(CallBacker*,int wh,float&);
 
-    inline uiODApplMgr& applMgr()	{ return appl.applMgr(); }
-    inline uiODMenuMgr&	menuMgr()	{ return appl.menuMgr(); }
+    inline uiODApplMgr& applMgr()	{ return appl_.applMgr(); }
+    inline uiODMenuMgr&	menuMgr()	{ return appl_.menuMgr(); }
     inline uiVisPartServer& visServ()	{ return *applMgr().visServer(); }
 
     Scene&		mkNewScene();
