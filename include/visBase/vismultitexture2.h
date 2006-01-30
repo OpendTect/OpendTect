@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		Dec 2005
- RCS:		$Id: vismultitexture2.h,v 1.1 2006-01-13 15:41:30 cvskris Exp $
+ RCS:		$Id: vismultitexture2.h,v 1.2 2006-01-30 14:46:56 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -49,10 +49,10 @@ protected:
 
     void		updateColorTables();
 
-    SoSwitch*		onoff;
-    SoMultiTexture2*	texture;
-    SoComplexity*	complexity;
-    RowCol		size;
+    SoSwitch*		onoff_;
+    SoMultiTexture2*	texture_;
+    SoComplexity*	complexity_;
+    RowCol		size_;
 };
 
 }; // Namespace
