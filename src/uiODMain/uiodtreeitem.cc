@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.140 2006-01-30 20:34:20 cvskris Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.141 2006-01-30 23:02:14 cvskris Exp $
 ___________________________________________________________________
 
 -*/
@@ -220,7 +220,7 @@ void uiODTreeItem::handleStandardItems( int mnuid )
 void uiODTreeTop::addFactoryCB(CallBacker* cb)
 {
     mCBCapsuleUnpack(int,idx,cb);
-    addChild( tfs->getFactory(idx)->create() );
+    addChild( tfs->getFactory(idx)->create(), false );
 }
 
 
@@ -241,8 +241,6 @@ uiODDataTreeItem::uiODDataTreeItem( const char* parenttype )
     : uiTreeItem( "" )
     , parenttype_( parenttype )
     , menu_( 0 )
-    , selattrmnuitem_( "Select Attribute" )
-    , settingsmnuitem_( "Settings ..." )
     , movemnuitem_( "Move ..." )
     , movetotopmnuitem_( "to top" )
     , movetobottommnuitem_( "to bottom" )
@@ -280,19 +278,6 @@ int uiODDataTreeItem::sceneID() const
 }
 
 
-bool uiODDataTreeItem::anyButtonClick( uiListViewItem* item )
-{
-    if ( item!=uilistviewitem )
-	return uiTreeItem::anyButtonClick( item );
-
-    uiVisPartServer* visserv = applMgr()->visServer();
-    if ( !visserv->isClassification( displayID(), siblingIndex() ) )
-	applMgr()->modifyColorTable( displayID(), siblingIndex() );
-
-    return true;
-}
-
-
 
 int uiODDataTreeItem::displayID() const
 {
@@ -319,32 +304,7 @@ void uiODDataTreeItem::createMenuCB( CallBacker* cb )
 {
     mDynamicCastGet(uiMenuHandler*,menu,cb);
 
-    selattrmnuitem_.removeItems();
     uiVisPartServer* visserv = applMgr()->visServer();
-    if ( visserv->hasAttrib(displayID()) )
-    {
-	const Attrib::SelSpec* as = visserv->getSelSpec(displayID(),
-							siblingIndex() );
-
-	uiAttribPartServer* attrserv = applMgr()->attrServer();
-	MenuItem* subitem = attrserv->storedAttribMenuItem( *as );
-	mAddMenuItem( &selattrmnuitem_, subitem, subitem->nrItems(),
-		       subitem->checked );
-
-	subitem = attrserv->calcAttribMenuItem( *as );
-	mAddMenuItem( &selattrmnuitem_, subitem, subitem->nrItems(),
-			 subitem->checked );
-
-	subitem = attrserv->nlaAttribMenuItem( *as );
-	if ( subitem && subitem->nrItems() )
-	    mAddMenuItem( &selattrmnuitem_, subitem, true, subitem->checked );
-
-	mAddMenuItem( menu, &selattrmnuitem_, 
-		      !visserv->isLocked(displayID()), false );
-
-	mAddMenuItem( menu, &settingsmnuitem_, true, false );
-    }
-
     const bool isfirst = !siblingIndex();
     const bool islast = siblingIndex()==visserv->getNrAttribs( displayID())-1;
 
@@ -369,10 +329,7 @@ void uiODDataTreeItem::handleMenuCB( CallBacker* cb )
 
     uiVisPartServer* visserv = applMgr()->visServer();
 
-    if ( mnuid==settingsmnuitem_.id )
-    {
-    }
-    else if ( mnuid==movetotopmnuitem_.id )
+    if ( mnuid==movetotopmnuitem_.id )
     {
 	for ( int idx=siblingIndex(); idx; idx-- )
 	    visserv->swapAttribs( displayID(), idx, idx-1 );
@@ -425,6 +382,91 @@ void uiODDataTreeItem::handleMenuCB( CallBacker* cb )
 	prepareForShutdown();
 	parent->removeChild( this );
     }
+}
+
+
+void uiODDataTreeItem::updateColumnText( int col )
+{
+    if ( col==uiODSceneMgr::cNameColumn() )
+	name_ = createDisplayName();
+
+    uiTreeItem::updateColumnText( col );
+}
+
+
+uiODAttribTreeItem::uiODAttribTreeItem( const char* parenttype )
+    : uiODDataTreeItem( parenttype )
+    , selattrmnuitem_( "Select Attribute" )
+    , settingsmnuitem_( "Settings ..." )
+{}
+
+
+uiODAttribTreeItem::~uiODAttribTreeItem()
+{}
+
+
+bool uiODAttribTreeItem::anyButtonClick( uiListViewItem* item )
+{
+    if ( item!=uilistviewitem )
+	return uiTreeItem::anyButtonClick( item );
+
+    uiVisPartServer* visserv = applMgr()->visServer();
+    if ( !visserv->isClassification( displayID(), siblingIndex() ) )
+	applMgr()->modifyColorTable( displayID(), siblingIndex() );
+
+    return true;
+}
+
+
+
+void uiODAttribTreeItem::createMenuCB( CallBacker* cb )
+{
+    mDynamicCastGet(uiMenuHandler*,menu,cb);
+
+    selattrmnuitem_.removeItems();
+    uiVisPartServer* visserv = applMgr()->visServer();
+    if ( visserv->hasAttrib(displayID()) )
+    {
+	const Attrib::SelSpec* as = visserv->getSelSpec(displayID(),
+							siblingIndex() );
+
+	uiAttribPartServer* attrserv = applMgr()->attrServer();
+	MenuItem* subitem = attrserv->storedAttribMenuItem( *as );
+	mAddMenuItem( &selattrmnuitem_, subitem, subitem->nrItems(),
+		       subitem->checked );
+
+	subitem = attrserv->calcAttribMenuItem( *as );
+	mAddMenuItem( &selattrmnuitem_, subitem, subitem->nrItems(),
+			 subitem->checked );
+
+	subitem = attrserv->nlaAttribMenuItem( *as );
+	if ( subitem && subitem->nrItems() )
+	    mAddMenuItem( &selattrmnuitem_, subitem, true, subitem->checked );
+
+	mAddMenuItem( menu, &selattrmnuitem_, 
+		      !visserv->isLocked(displayID()), false );
+
+	mAddMenuItem( menu, &settingsmnuitem_, true, false );
+    }
+
+    uiODDataTreeItem::createMenuCB( cb );
+}
+
+
+void uiODAttribTreeItem::handleMenuCB( CallBacker* cb )
+{
+    uiODDataTreeItem::handleMenuCB( cb );
+
+    mCBCapsuleUnpackWithCaller( int, mnuid, caller, cb );
+    mDynamicCastGet(uiMenuHandler*,menu,caller);
+    if ( mnuid==-1 || menu->isHandled() )
+	return;
+
+    uiVisPartServer* visserv = applMgr()->visServer();
+
+    if ( mnuid==settingsmnuitem_.id )
+    {
+    }
     else
     {
 	const Attrib::SelSpec* as = visserv->getSelSpec( displayID(),
@@ -443,19 +485,43 @@ void uiODDataTreeItem::handleMenuCB( CallBacker* cb )
 }
 
 
-void uiODDataTreeItem::updateColumnText( int col )
+BufferString uiODAttribTreeItem::createDisplayName() const
 {
-    if ( col==uiODSceneMgr::cNameColumn() )
-	name_ = createDisplayName();
+    const uiVisPartServer* cvisserv =
+	const_cast<uiODAttribTreeItem*>(this)->applMgr()->visServer();
+    const Attrib::SelSpec* as = cvisserv->getSelSpec( displayID(),
+	   					      siblingIndex() );
+    BufferString dispname( as ? as->userRef() : 0 );
+    if ( as && as->isNLA() )
+    {
+	dispname = as->objectRef();
+	const char* nodenm = as->userRef();
+	if ( IOObj::isKey(as->userRef()) )
+	    nodenm = IOM().nameOf( as->userRef(), false );
+	dispname += " ("; dispname += nodenm; dispname += ")";
+    }
 
-    else if ( col==uiODSceneMgr::cColorColumn() )
+    if ( as && as->id()==Attrib::SelSpec::cAttribNotSel() )
+	dispname = "<right-click>";
+    else if ( !as )
+	dispname = cvisserv->getObjectName( displayID() );
+    else if ( as->id() == Attrib::SelSpec::cNoAttrib() )
+	dispname="";
+
+    return dispname;
+}
+
+
+void uiODAttribTreeItem::updateColumnText( int col )
+{
+    if ( col==uiODSceneMgr::cColorColumn() )
     {
 	uiVisPartServer* visserv = applMgr()->visServer();
 	mDynamicCastGet(visSurvey::SurveyObject*,so,
 			visserv->getObject( displayID() ))
 	if ( !so )
 	{
-	    uiTreeItem::updateColumnText( col );
+	    uiODDataTreeItem::updateColumnText( col );
 	    return;
 	}
 	
@@ -477,34 +543,7 @@ void uiODDataTreeItem::updateColumnText( int col )
 	}
     }
 
-    uiTreeItem::updateColumnText( col );
-}
-
-
-BufferString uiODDataTreeItem::createDisplayName() const
-{
-    const uiVisPartServer* cvisserv = const_cast<uiODDataTreeItem*>(this)->
-							applMgr()->visServer();
-    const Attrib::SelSpec* as = cvisserv->getSelSpec( displayID(),
-	   					      siblingIndex() );
-    BufferString dispname( as ? as->userRef() : 0 );
-    if ( as && as->isNLA() )
-    {
-	dispname = as->objectRef();
-	const char* nodenm = as->userRef();
-	if ( IOObj::isKey(as->userRef()) )
-	    nodenm = IOM().nameOf( as->userRef(), false );
-	dispname += " ("; dispname += nodenm; dispname += ")";
-    }
-
-    if ( as && as->id()==Attrib::SelSpec::cAttribNotSel() )
-	dispname = "<right-click>";
-    else if ( !as )
-	dispname = cvisserv->getObjectName( displayID() );
-    else if ( as->id() == Attrib::SelSpec::cNoAttrib() )
-	dispname="";
-
-    return dispname;
+    uiODDataTreeItem::updateColumnText( col );
 }
 
 
@@ -554,7 +593,7 @@ bool uiODDisplayTreeItem::create( uiTreeItem* treeitem, uiODApplMgr* appl,
 	uiTreeItem* res = itmcreater->create( displayid, treeitem );
 	if ( res )
 	{
-	    treeitem->addChild( res );
+	    treeitem->addChild( res, true );
 	    return true;
 	}
     }
@@ -595,7 +634,7 @@ int uiODDisplayTreeItem::selectionKey() const { return displayid_; }
 
 uiODDataTreeItem* uiODDisplayTreeItem::createAttribItem() const
 {
-    return new uiODDataTreeItem(typeid(*this).name() );
+    return new uiODAttribTreeItem(typeid(*this).name() );
 }
 
 
@@ -606,7 +645,7 @@ bool uiODDisplayTreeItem::init()
     if ( visserv->hasAttrib( displayid_ ) )
     {
 	uiODDataTreeItem* item = createAttribItem();
-	addChild( item );
+	addChild( item, true );
     }
 
     visserv->setSelObjectId( displayid_ );
@@ -749,9 +788,9 @@ void uiODDisplayTreeItem::handleMenuCB( CallBacker* cb )
 	uiODDataTreeItem* newitem =
 	    createAttribItem();
 	visserv->addAttrib( displayid_ );
-	addChild( newitem );
+	addChild( newitem, true );
 	updateColumnText( uiODSceneMgr::cNameColumn() );
-	updateColumnText(uiODSceneMgr::cColorColumn());
+	updateColumnText( uiODSceneMgr::cColorColumn() );
 	menu->setIsHandled(true);
     }
 }
@@ -847,7 +886,7 @@ uiODEarthModelSurfaceDataTreeItem::uiODEarthModelSurfaceDataTreeItem(
 							EM::ObjectID e,
 							uiVisEMObject* uv,
        							const char* parenttype )
-    : uiODDataTreeItem( parenttype )
+    : uiODAttribTreeItem( parenttype )
     , depthattribmnuitem_("Depth")
     , savesurfacedatamnuitem_("Save attribute ...")
     , loadsurfacedatamnuitem_("Surface data ...")
@@ -1201,7 +1240,7 @@ uiODRandomLineParentTreeItem::uiODRandomLineParentTreeItem()
 
 bool uiODRandomLineParentTreeItem::showSubMenu()
 {
-    mParentShowSubMenu( addChild(new uiODRandomLineTreeItem(-1)); );
+    mParentShowSubMenu( addChild(new uiODRandomLineTreeItem(-1), true); );
 }
 
 
@@ -1357,7 +1396,7 @@ bool uiODFaultParentTreeItem::showSubMenu()
 	handleStandardItems( mnuid );
 
     if ( addflt )
-	addChild( new uiODFaultTreeItem(emid) );
+	addChild( new uiODFaultTreeItem(emid), true );
 
     return true;
 }
@@ -1404,7 +1443,7 @@ bool uiODHorizonParentTreeItem::showSubMenu()
     {
 	EM::ObjectID emid;
 	const bool addhor = applMgr()->EMServer()->selectHorizon(emid);
-	if ( addhor ) addChild( new uiODHorizonTreeItem(emid) );
+	if ( addhor ) addChild( new uiODHorizonTreeItem(emid), true );
     }
     else if ( mnuid == 1 )
     {
@@ -1516,7 +1555,7 @@ bool uiODWellParentTreeItem::showSubMenu()
 	    return false;
 
 	for ( int idx=0; idx<emwellids.size(); idx++ )
-	    addChild( new uiODWellTreeItem(*emwellids[idx]) );
+	    addChild( new uiODWellTreeItem(*emwellids[idx]), true );
 
 	deepErase( emwellids );
     }
@@ -1532,7 +1571,7 @@ bool uiODWellParentTreeItem::showSubMenu()
 	wd->setLineStyle( LineStyle(LineStyle::Solid,1,color) );
 	wd->setName( name );
 	visserv->addObject( wd, sceneID(), true );
-	addChild( new uiODWellTreeItem(wd->id()) );
+	addChild( new uiODWellTreeItem(wd->id()), true );
     }
     else if ( mnuid == 2 || mnuid == 3 )
     {
@@ -1767,14 +1806,14 @@ bool uiODPickSetParentTreeItem::showSubMenu()
 		//TODO make sure it's not in list already
 		const PickSet* ps = psg.get( idx );
 		if ( ps )
-		    addChild( new uiODPickSetTreeItem(*ps) );
+		    addChild( new uiODPickSetTreeItem(*ps), true );
 	    }
 	}
 	else
 	{
 	    PickSet pset( psg.name() );
 	    pset.color = applMgr()->getPickColor();
-	    addChild( new uiODPickSetTreeItem(pset) );
+	    addChild( new uiODPickSetTreeItem(pset), true );
 	}
     }
     else if ( mnuid==1 )
@@ -1910,8 +1949,7 @@ void uiODPickSetTreeItem::handleMenuCB( CallBacker* cb )
     }
 
     updateColumnText( uiODSceneMgr::cNameColumn() );
-    updateColumnText(1);
-    updateColumnText(2);
+    updateColumnText( uiODSceneMgr::cColorColumn() );
 }
 
 
@@ -2084,7 +2122,7 @@ uiODInlineParentTreeItem::uiODInlineParentTreeItem()
 
 bool uiODInlineParentTreeItem::showSubMenu()
 {
-    mParentShowSubMenu( addChild( new uiODInlineTreeItem(-1)); );
+    mParentShowSubMenu( addChild( new uiODInlineTreeItem(-1), true); );
 }
 
 
@@ -2109,7 +2147,7 @@ uiODCrosslineParentTreeItem::uiODCrosslineParentTreeItem()
 
 bool uiODCrosslineParentTreeItem::showSubMenu()
 {
-    mParentShowSubMenu( addChild( new uiODCrosslineTreeItem(-1)); );
+    mParentShowSubMenu( addChild( new uiODCrosslineTreeItem(-1), true); );
 }
 
 
@@ -2134,7 +2172,7 @@ uiODTimesliceParentTreeItem::uiODTimesliceParentTreeItem()
 
 bool uiODTimesliceParentTreeItem::showSubMenu()
 {
-    mParentShowSubMenu( addChild( new uiODTimesliceTreeItem(-1)); );
+    mParentShowSubMenu( addChild( new uiODTimesliceTreeItem(-1), true); );
 }
 
 

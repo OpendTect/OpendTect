@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.53 2006-01-30 20:33:42 cvskris Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.54 2006-01-30 23:02:14 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -533,7 +533,8 @@ void uiODSceneMgr::initTree( Scene& scn, int vwridx )
 	{
 	    if ( tifs_->getPlacementIdx(idx)==highest )
 	    {
-		scn.itemmanager_->addChild( tifs_->getFactory(idx)->create() );
+		scn.itemmanager_->addChild( tifs_->getFactory(idx)->create(),
+					    false );
 		nradded++;
 	    }
 	}
@@ -542,7 +543,7 @@ void uiODSceneMgr::initTree( Scene& scn, int vwridx )
     }
 
     scn.itemmanager_->addChild( new uiODSceneTreeItem(scn.sovwr_->getTitle(),
-						 scn.sovwr_->sceneId() ) );
+					     scn.sovwr_->sceneId() ), false );
     scn.lv_->display();
     scn.treeWin()->display();
 }
@@ -656,7 +657,7 @@ int uiODSceneMgr::addPickSetItem( const PickSet& ps, int sceneid )
 	if ( sceneid >= 0 && sceneid != scene.sovwr_->sceneId() ) continue;
 
 	uiODPickSetTreeItem* itm = new uiODPickSetTreeItem( ps );
-	scene.itemmanager_->addChild( itm );
+	scene.itemmanager_->addChild( itm, false );
 	return itm->displayID();
     }
 
@@ -678,7 +679,7 @@ int uiODSceneMgr::addEMItem( const EM::ObjectID& emid, int sceneid )
 	else if ( !strcmp(type,"Horizontal Tube") )
 	    itm = new uiODBodyTreeItem(emid);
 
-	scene.itemmanager_->addChild( itm );
+	scene.itemmanager_->addChild( itm, false );
 	return itm->displayID();
     }
 
@@ -694,6 +695,19 @@ void uiODSceneMgr::removeTreeItem( int displayid )
 	uiTreeItem* itm = scene.itemmanager_->findChild( displayid );
 	if ( itm ) scene.itemmanager_->removeChild( itm );
     }
+}
+
+
+uiTreeItem* uiODSceneMgr::findItem( int displayid )
+{
+    for ( int idx=0; idx<scenes_.size(); idx++ )
+    {
+	Scene& scene = *scenes_[idx];
+	uiTreeItem* itm = scene.itemmanager_->findChild( displayid );
+	if ( itm ) return itm;
+    }
+
+    return 0;
 }
 
 

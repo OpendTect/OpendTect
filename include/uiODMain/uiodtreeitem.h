@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: uiodtreeitem.h,v 1.14 2006-01-30 15:43:16 cvskris Exp $
+ RCS:		$Id: uiodtreeitem.h,v 1.15 2006-01-30 23:02:14 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -95,7 +95,6 @@ protected:
     uiODApplMgr*	applMgr();
     uiSoViewer*		viewer();
     int			sceneID() const;
-    bool		anyButtonClick(uiListViewItem*);
     bool		isSelectable() const { return true; }
     bool		isExpandable() const { return false; }
     const char*		parentType() const { return parenttype_; }
@@ -105,12 +104,9 @@ protected:
     virtual void	createMenuCB( CallBacker* );
     virtual void	handleMenuCB( CallBacker* );
     void		updateColumnText( int col );
-    BufferString	createDisplayName() const;
+    virtual BufferString createDisplayName() const			= 0;
 
     uiMenuHandler*	menu_;
-    MenuItem		selattrmnuitem_;
-    MenuItem		settingsmnuitem_;
-
     MenuItem		movemnuitem_;
     MenuItem		movetotopmnuitem_;
     MenuItem		movetobottommnuitem_;
@@ -119,6 +115,27 @@ protected:
 
     MenuItem		removemnuitem_;
     const char*		parenttype_;
+};
+
+
+class uiODAttribTreeItem : public uiODDataTreeItem
+{
+public:
+    			uiODAttribTreeItem( const char* parenttype );
+			~uiODAttribTreeItem();
+
+protected:
+
+    bool		anyButtonClick(uiListViewItem*);
+
+    void		createMenuCB( CallBacker* );
+    void		handleMenuCB( CallBacker* );
+    void		updateColumnText( int col );
+    BufferString	createDisplayName() const;
+
+    MenuItem		selattrmnuitem_;
+    MenuItem		settingsmnuitem_;
+
 };
 
 #endif
