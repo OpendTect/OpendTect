@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.h,v 1.26 2006-01-04 09:49:34 cvsnanne Exp $
+ RCS:           $Id: uiodscenemgr.h,v 1.27 2006-01-30 15:42:04 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -102,6 +102,9 @@ public:
     void		removeTreeItem(int displayid);
 
     uiTreeFactorySet*   treeItemFactorySet() 		{ return tifs; }
+
+    static int		cNameColumn() { return 0; }
+    static int		cColorColumn() { return 1; }
 
 protected:
 
