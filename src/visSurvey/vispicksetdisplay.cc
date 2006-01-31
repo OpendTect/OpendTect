@@ -4,7 +4,7 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.72 2006-01-16 15:45:22 cvshelene Exp $";
+static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.73 2006-01-31 16:53:46 cvshelene Exp $";
 
 #include "vispicksetdisplay.h"
 
@@ -41,6 +41,7 @@ PickSetDisplay::PickSetDisplay()
     , picktype(3)
     , changed(this)
     , showall(true)
+    , haschanged(false)
     , transformation( 0 )
 {
     group->ref();
@@ -102,6 +103,7 @@ void PickSetDisplay::addPick( const Coord3& pos, const Sphere& dir )
     marker->setType( (MarkerStyle3D::Type)picktype );
     marker->setMaterial( 0 );
 
+    haschanged = true;
     changed.trigger();
 }
 
@@ -152,6 +154,7 @@ void PickSetDisplay::removePick( const Coord3& pos )
 	if ( marker->centerPos() == pos )
 	{
 	    group->removeObject( idx );
+	    haschanged = true;
 	    changed.trigger();
 	    return;
 	}
@@ -266,7 +269,7 @@ void PickSetDisplay::fillMarkerSet()
 
 void PickSetDisplay::pickCB( CallBacker* cb )
 {
-    if ( !isSelected() || locked_ ) return;
+    if ( !isSelected() || isLocked() ) return;
 
     mCBCapsuleUnpack(const visBase::EventInfo&,eventinfo,cb);
     if ( eventinfo.type != visBase::MouseClick ||

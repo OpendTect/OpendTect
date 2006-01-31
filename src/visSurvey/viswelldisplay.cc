@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: viswelldisplay.cc,v 1.59 2006-01-16 15:45:22 cvshelene Exp $";
+static const char* rcsID = "$Id: viswelldisplay.cc,v 1.60 2006-01-31 16:53:46 cvshelene Exp $";
 
 #include "viswelldisplay.h"
 
@@ -64,6 +64,7 @@ WellDisplay::WellDisplay()
     , picksallowed_(false)
     , group_(0)
     , pseudotrack_(0)
+    , needsave_(false)
 {
     setMaterial(0);
     setWell( visBase::Well::create() );
@@ -448,7 +449,7 @@ visBase::Transformation* WellDisplay::getDisplayTransformation()
 
 void WellDisplay::pickCB( CallBacker* cb )
 {
-    if ( !isSelected() || !picksallowed_ || !group_ || locked_ ) return;
+    if ( !isSelected() || !picksallowed_ || !group_ || isLocked() ) return;
 
     mCBCapsuleUnpack(const visBase::EventInfo&,eventinfo,cb);
     if ( eventinfo.type != visBase::MouseClick ||
@@ -492,6 +493,7 @@ void WellDisplay::pickCB( CallBacker* cb )
 		    }
 
 		    well_->setTrack(wcoords);
+		    needsave_ = true;
 		    changed_.trigger();
 		}
 	    }
@@ -551,6 +553,7 @@ void WellDisplay::addPick( Coord3 pos )
 	}
 
 	well_->setTrack(wcoords);
+	needsave_ = true;
 	changed_.trigger();
     }
     
@@ -608,12 +611,15 @@ void WellDisplay::setSceneEventCatcher( visBase::EventCatcher* nevc )
 }
 
 
-void WellDisplay::setupPicking()
+void WellDisplay::setupPicking( bool yn )
 {
-    picksallowed_ = true;
-    group_ = visBase::DataObjectGroup::create();
-    pseudotrack_ = new Well::Track();
-    addChild( group_->getInventorNode() );
+    picksallowed_ = yn;
+    if ( !group_ )
+    {
+	group_ = visBase::DataObjectGroup::create();
+	pseudotrack_ = new Well::Track();
+	addChild( group_->getInventorNode() );
+    }
 }
 
 

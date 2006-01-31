@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viswelldisplay.h,v 1.34 2006-01-16 15:45:31 cvshelene Exp $
+ RCS:		$Id: viswelldisplay.h,v 1.35 2006-01-31 16:53:26 cvshelene Exp $
 ________________________________________________________________________
 
 
@@ -97,11 +97,11 @@ public:
 
     void                        setSceneEventCatcher(visBase::EventCatcher*);
     void 			addPick(Coord3);
-    void			setupPicking();
-    void			lock(bool yn)		{ locked_ = yn; }
+    void			setupPicking(bool);
     void			showKnownPositions();
     NotifierAccess*             getManipulationNotifier() { return &changed_; }
     bool			isHomeMadeWell() const { return picksallowed_; }
+    bool			hasChanged() const 	{ return needsave_; }
     TypeSet<Coord3>             getWellCoords()	const;
     				//only used for user-made wells
 
@@ -139,7 +139,7 @@ protected:
     Well::Track*		pseudotrack_;
 
     bool			picksallowed_;
-    bool			locked_;
+    bool			needsave_;
 
     static const char*		sKeyEarthModelID;
     static const char*		sKeyWellID;

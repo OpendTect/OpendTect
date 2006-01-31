@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.142 2006-01-31 09:07:48 cvsnanne Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.143 2006-01-31 16:54:20 cvshelene Exp $
 ___________________________________________________________________
 
 -*/
@@ -31,6 +31,7 @@ ___________________________________________________________________
 #include "uiodscenemgr.h"
 #include "uimsg.h"
 #include "uigeninputdlg.h"
+#include "uigeninput.h"
 #include "uivisemobj.h"
 #include "uiempartserv.h"
 #include "uiwellpropdlg.h"
@@ -759,10 +760,14 @@ void uiODDisplayTreeItem::handleMenuCB( CallBacker* cb )
     if ( mnuid==lockmnuitem_.id )
     {
 	menu->setIsHandled(true);
-	visserv->lockUnlockObject( displayid_ );
+	mDynamicCastGet(visSurvey::SurveyObject*,so,
+		ODMainWin()->applMgr().visServer()->getObject( displayid_ ) )
+	if ( !so )
+	    return;
 
+	so->lock( !so->isLocked() );
 	PtrMan<ioPixmap> pixmap = 0;
-	if ( visserv->isLocked(displayid_) )
+	if ( so->isLocked() )
 	    pixmap = new ioPixmap( GetIconFileName("lock_small.png") );
 	else
 	    pixmap = new ioPixmap();
@@ -778,10 +783,12 @@ void uiODDisplayTreeItem::handleMenuCB( CallBacker* cb )
     else if ( mnuid==removemnuitem_.id )
     {
 	menu->setIsHandled(true);
-	
-	prepareForShutdown();
-	visserv->removeObject( displayid_, sceneID() );
-	parent->removeChild( this );
+	if ( askContinueAndSaveIfNeeded() )
+	{
+	    prepareForShutdown();
+	    visserv->removeObject( displayid_, sceneID() );
+	    parent->removeChild( this );
+	}
     }
     else if ( mnuid==addattribmnuitem_.id )
     {
@@ -1575,7 +1582,7 @@ bool uiODWellParentTreeItem::showSubMenu()
     {
 	uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
 	visSurvey::WellDisplay* wd = visSurvey::WellDisplay::create();
-	wd->setupPicking();
+	wd->setupPicking(true);
 	BufferString name;
 	Color color;
 	if ( !applMgr()->wellServer()->setupNewWell(name,color) )
@@ -1778,7 +1785,7 @@ void uiODWellTreeItem::handleMenuCB( CallBacker* cb )
     {
 	BufferString errmsg;
 	menu->setIsHandled( true );
-	if ( wd->isHomeMadeWell() )
+	if ( wd->hasChanged() )
 	    applMgr()->wellServer()->storeWell( wd->getWellCoords(), 
 		    				wd->name(), errmsg );
     }
@@ -1786,12 +1793,32 @@ void uiODWellTreeItem::handleMenuCB( CallBacker* cb )
     {
 	//TODO implement
 	menu->setIsHandled( true );
-	wd->setupPicking();
-	wd->showKnownPositions();
+	bool yn = wd->isHomeMadeWell();
+	wd->setupPicking(!yn);
+	if ( !yn )
+	    wd->showKnownPositions();
     }
 }
 
 
+bool uiODWellTreeItem::askContinueAndSaveIfNeeded()
+{
+    mDynamicCastGet(visSurvey::WellDisplay*,wd,visserv->getObject(displayid_));
+    if ( wd->hasChanged() )
+    {
+	BufferString warnstr = "this well has changed since the last save.\n";
+	warnstr += "Do you want to save it?";
+	int retval = uiMSG().notSaved(warnstr.buf());
+	if ( !retval ) return true;
+	else if ( retval == -1 ) return false;
+	else
+	    applMgr()->wellServer()->storeWell( wd->getWellCoords(),
+		                                wd->name(), 0 );
+    }
+    return true;
+}
+
+    
 uiODPickSetParentTreeItem::uiODPickSetParentTreeItem()
     : uiODTreeItem( "PickSet" )
 {}
@@ -1965,6 +1992,27 @@ void uiODPickSetTreeItem::handleMenuCB( CallBacker* cb )
 }
 
 
+bool uiODPickSetTreeItem::askContinueAndSaveIfNeeded()
+{
+    mDynamicCastGet(visSurvey::PickSetDisplay*,psd,
+	    	    visserv->getObject(displayid_));
+    if ( psd->hasChanged() )
+    {
+	BufferString warnstr ="this pickset has changed since the last save.\n";
+	warnstr += "Do you want to save it?";
+	int retval = uiMSG().notSaved(warnstr.buf()); 
+	if ( !retval ) return true;
+	else if ( retval == -1)	return false;
+	else
+	{
+	    PickSet* ps = new PickSet( psd->name() );
+	    psd->copyToPickSet( *ps );
+	    applMgr()->pickServer()->storeSinglePickSet( ps );
+	}
+    }
+    return true;
+}
+
 
 uiODPlaneDataTreeItem::uiODPlaneDataTreeItem( int did, int dim_ )
     : dim(dim_)
@@ -1994,6 +2042,10 @@ bool uiODPlaneDataTreeItem::init()
 			visserv->getObject(displayid_));
 	if ( !pdd ) return false;
     }
+
+    getItem()->moveForwdReq.notify(mCB(this,uiODPlaneDataTreeItem,moveForwdCB));
+    getItem()->moveBackwdReq.notify( mCB(this,uiODPlaneDataTreeItem,
+				     moveBackwdCB) );
 
     return uiODDisplayTreeItem::init();
 }
@@ -2118,6 +2170,32 @@ void uiODPlaneDataTreeItem::updatePlanePos( CallBacker* cb )
 }
 
 
+void uiODPlaneDataTreeItem::movePlane( const CubeSampling& cs )
+{
+    mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,
+	    	    visserv->getObject(displayid_))
+
+    pdd->setCubeSampling( cs );
+    pdd->resetManipulation();
+    for ( int attrib=visserv->getNrAttribs(displayid_); attrib>=0; attrib--)
+	visserv->calculateAttrib( displayid_, attrib, false );
+    updateColumnText(0);
+    updateColumnText(1);
+}
+
+
+void uiODPlaneDataTreeItem::moveForwdCB( CallBacker* cb )
+{
+    changeMainDirPos( true );
+}
+
+
+void uiODPlaneDataTreeItem::moveBackwdCB( CallBacker* cb )
+{
+    changeMainDirPos( false );
+}
+
+
 uiTreeItem* uiODInlineTreeItemFactory::create( int visid, uiTreeItem* ) const
 {
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd, 
@@ -2142,6 +2220,19 @@ uiODInlineTreeItem::uiODInlineTreeItem( int id )
     : uiODPlaneDataTreeItem( id, 0 )
 {}
 
+
+void uiODInlineTreeItem::changeMainDirPos( bool isplus )
+{
+    mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,
+		    visserv->getObject(displayid_))
+
+    CubeSampling cs = pdd->getCubeSampling();
+    cs.hrg.start.inl += isplus? 1 : -1; 
+    cs.hrg.stop.inl += isplus? 1 : -1; 
+
+    movePlane(cs);
+}
+	
 
 uiTreeItem* uiODCrosslineTreeItemFactory::create( int visid, uiTreeItem* ) const
 {
@@ -2168,6 +2259,19 @@ uiODCrosslineTreeItem::uiODCrosslineTreeItem( int id )
 {}
 
 
+void uiODCrosslineTreeItem::changeMainDirPos( bool isplus )
+{
+    mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,
+		    visserv->getObject(displayid_))
+
+    CubeSampling cs = pdd->getCubeSampling();
+    cs.hrg.start.crl += isplus? 1 : -1; 
+    cs.hrg.stop.crl += isplus? 1 : -1; 
+
+    movePlane(cs);
+}
+
+
 uiTreeItem* uiODTimesliceTreeItemFactory::create( int visid, uiTreeItem* ) const
 {
     mDynamicCastGet( visSurvey::PlaneDataDisplay*, pdd, 
@@ -2191,6 +2295,19 @@ bool uiODTimesliceParentTreeItem::showSubMenu()
 uiODTimesliceTreeItem::uiODTimesliceTreeItem( int id )
     : uiODPlaneDataTreeItem( id, 2 )
 {}
+
+
+void uiODTimesliceTreeItem::changeMainDirPos( bool isplus )
+{
+    mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,
+		    visserv->getObject(displayid_))
+
+    CubeSampling cs = pdd->getCubeSampling();
+    cs.zrg.start += isplus? 1 : -1; 
+    cs.zrg.stop += isplus? 1 : -1; 
+
+    movePlane(cs);
+}
 
 
 uiODSceneTreeItem::uiODSceneTreeItem( const char* name__, int id )

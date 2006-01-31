@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvobj.h,v 1.50 2006-01-30 14:54:05 cvskris Exp $
+ RCS:		$Id: vissurvobj.h,v 1.51 2006-01-31 16:53:26 cvshelene Exp $
 ________________________________________________________________________
 
 
@@ -185,13 +185,19 @@ public:
 
     virtual bool		setDataTransform( ZAxisTransform* );
 
+    void			lock( bool yn )		{ locked_ = yn; }
+    bool			isLocked() const	{ return locked_; }
+
     static float		sDefMaxDist;
 
 protected:
-    				SurveyObject() : scene_(0)	{}
+    				SurveyObject() 
+				: scene_(0)
+				, locked_(false)	{};
 
     BufferString		errmsg;
     Scene*			scene_;
+    bool			locked_;
 
     virtual void		setUpConnections()		{}
 };
