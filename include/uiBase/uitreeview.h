@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          29/01/2002
- RCS:           $Id: uitreeview.h,v 1.15 2006-01-18 22:53:14 cvskris Exp $
+ RCS:           $Id: uitreeview.h,v 1.16 2006-01-31 16:50:23 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -280,6 +280,8 @@ public:
     bool		multiLinesEnabled() const;
 
     Notifier<uiListViewItem> stateChanged; //!< only works for CheckBox type
+    Notifier<uiListViewItem> moveForwdReq; 
+    Notifier<uiListViewItem> moveBackwdReq; 
 
     static mQListViewItem*	 qitemFor( uiListViewItem* );
     static const mQListViewItem*  qitemFor( const uiListViewItem* );

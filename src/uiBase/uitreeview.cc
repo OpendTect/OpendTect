@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/01/2002
- RCS:           $Id: uitreeview.cc,v 1.18 2006-01-18 22:53:14 cvskris Exp $
+ RCS:           $Id: uitreeview.cc,v 1.19 2006-01-31 16:50:45 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "uilabel.h"
 #include "uiobjbody.h"
 #include "pixmap.h"
-
+#include "uihandleshortcuts.h"
 
 #include <qsize.h>
 #include <qpixmap.h>
@@ -66,7 +66,6 @@ private:
 
     i_listVwMessenger&	messenger_;
     uiListView&		lvhandle_;
-
 };
 
 
@@ -89,7 +88,20 @@ uiListViewBody::uiListViewBody( uiListView& handle, uiParent* parnt,
 
 void uiListViewBody::keyPressEvent( QKeyEvent* event )
 {
-    bool eventhandled = moveItem( event );
+    uiHandleShortcuts handsc;
+    uiHandleShortcuts::SCLabels sclabel;
+    bool eventhandled = handsc.handleEvent( event, sclabel );
+    if ( eventhandled )
+    {
+	uiListViewItem* currentitem = lvhandle_.currentItem();
+	if ( sclabel == uiHandleShortcuts::mvForwd )
+	    currentitem->moveForwdReq.trigger(currentitem);
+	else if ( sclabel == uiHandleShortcuts::mvBackwd )
+	    currentitem->moveBackwdReq.trigger(currentitem);
+    }
+    else
+	eventhandled = moveItem( event );
+    
     if ( !eventhandled )
 	QListView::keyPressEvent( event );
 }
@@ -602,6 +614,8 @@ mQListViewItem& uiListViewItemBody::mkitem( uiListViewItem& handle,
 uiListViewItem::uiListViewItem( uiListView*  parent, const char* txt )
 : uiHandle<uiListViewItemBody>( txt, &mkbody( parent, 0, Setup(txt) ) )
 , stateChanged( this )
+, moveForwdReq( this )
+, moveBackwdReq( this )
 { 
     init(Setup(txt)); 
 }
@@ -610,6 +624,8 @@ uiListViewItem::uiListViewItem( uiListView*  parent, const char* txt )
 uiListViewItem::uiListViewItem( uiListViewItem*  parent, const char* txt )
 : uiHandle<uiListViewItemBody>( txt, &mkbody( 0, parent, Setup(txt) ) )
 , stateChanged( this )
+, moveForwdReq( this )
+, moveBackwdReq( this )
 { 
     init(Setup(txt)); 
 }
@@ -618,6 +634,8 @@ uiListViewItem::uiListViewItem( uiListViewItem*  parent, const char* txt )
 uiListViewItem::uiListViewItem( uiListView*  parent, const Setup& setup )
 : uiHandle<uiListViewItemBody>( *setup.labels_[0], &mkbody( parent, 0, setup ) )
 , stateChanged( this )
+, moveForwdReq( this )
+, moveBackwdReq( this )
 { 
     init(setup); 
 }
@@ -626,6 +644,8 @@ uiListViewItem::uiListViewItem( uiListView*  parent, const Setup& setup )
 uiListViewItem::uiListViewItem( uiListViewItem*  parent, const Setup& setup )
 : uiHandle<uiListViewItemBody>( *setup.labels_[0], &mkbody( 0, parent, setup ) )
 , stateChanged( this )
+, moveForwdReq( this )
+, moveBackwdReq( this )
 { 
     init(setup); 
 }
