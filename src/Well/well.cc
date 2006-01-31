@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: well.cc,v 1.35 2006-01-10 13:17:07 cvshelene Exp $";
+static const char* rcsID = "$Id: well.cc,v 1.36 2006-01-31 16:55:26 cvshelene Exp $";
 
 #include "welldata.h"
 #include "welltrack.h"
@@ -318,7 +318,7 @@ int Well::Track::insertPoint( const Coord& c, float z )
 	float val = ( d0 * d0 + d1 * d1 - ( d * d ) ) / (2 * d0 * d1);
 	if ( val < minval )
 	    { minidx = idx-1; minval = val; }
-	if ( idx == oldsz-1 && minval > 0.90 )
+	if ( idx == oldsz-1 && minval > 0.85 )
 	{
 	    addPoint( c, z );
 	    return oldsz;
