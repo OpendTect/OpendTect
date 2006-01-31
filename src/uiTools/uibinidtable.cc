@@ -4,86 +4,70 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          February 2003
- RCS:           $Id: uibinidtable.cc,v 1.9 2006-01-25 07:13:40 cvskris Exp $
+ RCS:           $Id: uibinidtable.cc,v 1.10 2006-01-31 09:07:04 cvsnanne Exp $
  ________________________________________________________________________
 
 -*/
 
 #include "uibinidtable.h"
+#include "uigeninput.h"
+#include "uiseparator.h"
 #include "uitable.h"
 #include "uimsg.h"
 #include "position.h"
+#include "ranges.h"
 #include "survinfo.h"
-#include "bufstringset.h"
 
 
-uiBinIDTable::uiBinIDTable( uiParent* p, int nr )
+uiBinIDTable::uiBinIDTable( uiParent* p, bool withz )
     : uiGroup(p,"BinID table")
+    , withz_(withz)
 {
-    init( nr );
-}
+    table_ = new uiTable( this, uiTable::Setup().rowdesc("Node")
+	    					.rowgrow(true)
+						.defrowlbl(true) );
+    table_->setNrCols( 2 );
+    table_->setColumnLabel( 0, "Inline" );
+    table_->setColumnLabel( 1, "Crossline" );
+    table_->setNrRows( 5 );
 
+    uiSeparator* hsep = new uiSeparator( this, "Separator" );
+    hsep->attach( stretchedBelow, table_ );
 
-uiBinIDTable::uiBinIDTable( uiParent* p, const TypeSet<BinID>& bids )
-    : uiGroup(p,"BinID table")
-{
-    init( bids.size() );
-    setBinIDs( bids );
-}
-
-
-void uiBinIDTable::init( int nrrows )
-{
-    BufferStringSet colnms;
-    colnms += new BufferString("Inline");
-    colnms += new BufferString("Crossline");
-
-    table = new uiTable( this, uiTable::Setup().rowdesc("Node").rowgrow(true),
-		         "Table" );
-
-
-    table->setColumnLabels( colnms );
-    table->setNrRows( nrrows+5 );
-    nodeAdded();
-
-    table->rowInserted.notify( mCB(this,uiBinIDTable,nodeAdded) );
-}
-
-void uiBinIDTable::nodeAdded(CallBacker*)
-{
-    const int nrrows = table->nrRows();
-    for ( int idx=0; idx<nrrows; idx++ )
+    if ( withz_ )
     {
-	BufferString labl( "Node " );
-	labl += idx;
-	table->setRowLabel( idx, labl );
+	BufferString lbl = "Z range "; lbl += SI().getZUnit();
+	zfld_ = new uiGenInput( this, lbl, FloatInpIntervalSpec() );
+	zfld_->attach( leftAlignedBelow, table_ );
+	zfld_->attach( ensureBelow, hsep );
     }
 }
 
-    
 
 void uiBinIDTable::setBinIDs( const TypeSet<BinID>& bids )
 {
     const int nrbids = bids.size();
+    table_->setNrRows( nrbids+5 );
     for ( int idx=0; idx<nrbids; idx++ )
     {
 	const BinID bid = bids[idx];
-	table->setText( RowCol(idx,0), BufferString(bid.inl) );
-	table->setText( RowCol(idx,1), BufferString(bid.crl) );
+	table_->setText( RowCol(idx,0), BufferString(bid.inl) );
+	table_->setText( RowCol(idx,1), BufferString(bid.crl) );
     }
 }
 
 
-void uiBinIDTable::getBinIDs( TypeSet<BinID>& bids )
+void uiBinIDTable::getBinIDs( TypeSet<BinID>& bids ) const
 {
-    int nrrows = table->size().height();
+    int nrrows = table_->size().height();
     for ( int idx=0; idx<nrrows; idx++ )
     {
 	BinID bid(0,0);
-	BufferString inlstr = table->text(RowCol(idx,0));
-	BufferString crlstr = table->text(RowCol(idx,1));
+	BufferString inlstr = table_->text( RowCol(idx,0) );
+	BufferString crlstr = table_->text( RowCol(idx,1) );
 	if ( !(*inlstr) || !(*crlstr) )
 	    continue;
+
 	bid.inl = atoi(inlstr);
 	bid.crl = atoi(crlstr);
 	if ( !SI().isReasonable(bid) )
@@ -98,7 +82,7 @@ void uiBinIDTable::getBinIDs( TypeSet<BinID>& bids )
 		msg += " is probably wrong.\nDo you wish to discard it?";
 		if ( uiMSG().askGoOn(msg) )
 		{
-		    table->removeRow( idx );
+		    table_->removeRow( idx );
 		    nrrows--; idx--;
 		    continue;
 		}
@@ -110,28 +94,14 @@ void uiBinIDTable::getBinIDs( TypeSet<BinID>& bids )
 }
 
 
-uiBinIDTableDlg::uiBinIDTableDlg( uiParent* p, const char* title, int nr )
-    : uiDialog(p,uiDialog::Setup(title,"",""))
+void uiBinIDTable::setZRange( const Interval<float>& zrg )
 {
-    table = new uiBinIDTable( this, nr );
+    zfld_->setValue( zrg );
 }
 
 
-uiBinIDTableDlg::uiBinIDTableDlg( uiParent* p, const char* title, 
-				  const TypeSet<BinID>& bids )
-    : uiDialog(p,uiDialog::Setup(title,"",""))
+void uiBinIDTable::getZRange( Interval<float>& zrg ) const
 {
-    table = new uiBinIDTable( this, bids );
-}
-
-
-void uiBinIDTableDlg::setBinIDs( const TypeSet<BinID>& bids )
-{
-    table->setBinIDs( bids );
-}
-
-
-void uiBinIDTableDlg::getBinIDs( TypeSet<BinID>& bids )
-{
-    table->getBinIDs( bids );
+    assign( zrg, withz_ ? zfld_->getFInterval() 
+	    		: (Interval<float>)SI().zRange(false) );
 }
