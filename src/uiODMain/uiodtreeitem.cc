@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.141 2006-01-30 23:02:14 cvskris Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.142 2006-01-31 09:07:48 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -1339,17 +1339,29 @@ void uiODRandomLineTreeItem::editNodes()
     mDynamicCastGet(visSurvey::RandomTrackDisplay*,rtd,
 		    visserv->getObject(displayid_));
 
-    TypeSet<BinID> bidset;
-    rtd->getAllKnotPos( bidset );
-    uiBinIDTableDlg dlg( getUiParent(), "Specify nodes", bidset );
+    TypeSet<BinID> bids;
+    rtd->getAllKnotPos( bids );
+    uiDialog dlg( getUiParent(),
+	    	  uiDialog::Setup("Random lines","Specify node positions","") );
+    uiBinIDTable* table = new uiBinIDTable( &dlg, true );
+    table->setBinIDs( bids );
+
+    Interval<float> zrg = rtd->getDataTraceRange();
+    zrg.scale( SI().zFactor() );
+    table->setZRange( zrg );
     if ( dlg.go() )
     {
 	TypeSet<BinID> newbids;
-	dlg.getBinIDs( newbids );
+	table->getBinIDs( newbids );
 	rtd->setKnotPositions( newbids );
 
+	Interval<float> zrg;
+	table->getZRange( zrg );
+	zrg.scale( 1/SI().zFactor() );
+	rtd->setManipDepthInterval( zrg );
+
 	visserv->setSelObjectId( rtd->id() );
-	for ( int attrib=visserv->getNrAttribs(rtd->id()); attrib>=0; attrib-- )
+	for ( int attrib=0; attrib<visserv->getNrAttribs(rtd->id()); attrib++ )
 	    visserv->calculateAttrib( rtd->id(), attrib, false );
 
 	ODMainWin()->sceneMgr().updateTrees();
