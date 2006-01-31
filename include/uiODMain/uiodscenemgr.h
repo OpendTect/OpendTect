@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.h,v 1.28 2006-01-30 20:33:38 cvskris Exp $
+ RCS:           $Id: uiodscenemgr.h,v 1.29 2006-01-31 08:06:58 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,15 +18,16 @@ ________________________________________________________________________
 
 class MultiID;
 class PickSet;
-class uiGroup;
 class uiDockWin;
-class uiSoViewer;
+class uiGroup;
 class uiListView;
-class uiWorkSpace;
 class uiODTreeTop;
 class uiSliderExtra;
-class uiVisPartServer;
+class uiSoViewer;
 class uiTreeFactorySet;
+class uiTreeItem;
+class uiVisPartServer;
+class uiWorkSpace;
 
 
 /*!\brief Manages the scenes and the corresponding trees.
@@ -100,6 +101,7 @@ public:
     int			addPickSetItem(const PickSet&,int);
     int			addEMItem(const EM::ObjectID&,int);
     void		removeTreeItem(int displayid);
+    uiTreeItem*		findItem(int displayid);
 
     uiTreeFactorySet*   treeItemFactorySet() 		{ return tifs_; }
 
