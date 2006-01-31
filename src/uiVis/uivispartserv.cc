@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.293 2006-01-30 15:36:35 cvskris Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.294 2006-01-31 16:52:21 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -267,16 +267,13 @@ void uiVisPartServer::addObject( visBase::DataObject* dobj, int sceneid,
 }
 
 
-void uiVisPartServer::lockUnlockObject( int objectid )
-{
-    if ( !lockedobjects_.addIfNew(objectid) )
-	lockedobjects_.remove( lockedobjects_.indexOf(objectid) );
-}
-
-
 bool uiVisPartServer::isLocked( int objectid ) const
 {
-    return lockedobjects_.indexOf(objectid) != -1 ? true : false;
+    mDynamicCastGet(const visSurvey::SurveyObject*,so,getObject(objectid));
+    if ( !so )
+	return false;
+
+    return so->isLocked();
 }
 
 

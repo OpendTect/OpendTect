@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.157 2006-01-30 15:36:35 cvskris Exp $
+ RCS:           $Id: uivispartserv.h,v 1.158 2006-01-31 16:52:09 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -223,7 +223,6 @@ public:
     int				duplicateObject(int id,int sceneid);
     				/*!< \returns id of new object */
 
-    void			lockUnlockObject(int);
     bool			isLocked(int) const;
 
     				// Tracking stuff
@@ -291,7 +290,6 @@ protected:
     void			deselectObjCB(CallBacker*);
     void			interactionCB(CallBacker*);
     void			mouseMoveCB(CallBacker*);
-    //void			updatePlanePos(CallBacker*);
     void			vwAll(CallBacker*);
     void			toHome(CallBacker*);
     void			colTabChangeCB(CallBacker*);
@@ -301,7 +299,6 @@ protected:
     MenuItem			changematerialmnuitem_;
     MenuItem			resmnuitem_;
 
-    TypeSet<int>		lockedobjects_;
     TypeSet< TypeSet<int> >	displayids_;
 
     static const char*		sKeyWorkArea();
