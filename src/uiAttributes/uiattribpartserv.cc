@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiattribpartserv.cc,v 1.25 2006-01-11 07:10:10 cvsnanne Exp $
+ RCS:           $Id: uiattribpartserv.cc,v 1.26 2006-01-31 09:09:01 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -322,10 +322,8 @@ EngineMan* uiAttribPartServer::createEngMan( const CubeSampling* cs,
 }
 
 
-const Attrib::DataCubes*
-uiAttribPartServer::createOutput( const CubeSampling& cs,
-				  const DataCubes* cache,
-       				  const DescSet* ads )
+const Attrib::DataCubes* uiAttribPartServer::createOutput(
+	const CubeSampling& cs, const DataCubes* cache, const DescSet* ads )
 {
     PtrMan<EngineMan> aem = createEngMan( &cs, 0, ads );
     if ( !aem ) return 0;
@@ -338,15 +336,16 @@ uiAttribPartServer::createOutput( const CubeSampling& cs,
 	if ( strcmp (defstr, targetspecs[0].defString()) )
 	    cache = 0;
     }
+
     BufferString errmsg;
     Processor* process = aem->createDataCubesOutput( errmsg, cache );
     if ( !process )
 	{ uiMSG().error(errmsg); return 0; }
 
-    if ( aem->getNrOutputsToBeProcessed( *process ) != 0 )
+    if ( aem->getNrOutputsToBeProcessed(*process) != 0 )
     {
 	uiExecutor dlg( appserv().parent(), *process );
-	if ( !dlg.go() ) return 0;
+	if ( !dlg.go() ) { delete process; return 0; }
     }
 
     const Attrib::DataCubes* output = aem->getDataCubesOutput( *process );
