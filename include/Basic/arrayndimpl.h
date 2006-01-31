@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: arrayndimpl.h,v 1.32 2005-04-11 13:17:44 cvskris Exp $
+ RCS:		$Id: arrayndimpl.h,v 1.33 2006-01-31 17:45:09 cvsbert Exp $
 ________________________________________________________________________
 
 */
@@ -448,22 +448,151 @@ static ArrayND<T>*	create(const ArrayNDInfo& nsz,bool file=false);
 			{
 			    int ndim = in->getNDim();
 			    for ( int idx=0; idx<ndim; idx++ )
-			    { in->setSize( idx, ni.getSize(idx) ); }
+				{ in->setSize( idx, ni.getSize(idx) ); }
 			    stor->setSize( in->getTotalSz() );
 			    return true;
 			}
  
     void		setSize( const int* d )
 			{
-			    int ndim = in->getNDim();
+			    const int ndim = in->getNDim();
 			    for ( int idx=0; idx<ndim; idx++ )
-			    { in->setSize(idx,d[idx]); }
+				in->setSize(idx,d[idx]);
 			    stor->setSize(in->getTotalSz());
 			}
 
 protected:
 
     mDeclArrayNDProtMemb(ArrayNDInfo*)
+
+}; 
+
+
+/*!\brief No stored data just plane parameters */
+
+template <class T> class ArrayNDPlaneImpl : public ArrayND<T>
+{
+public:
+			ArrayNDPlaneImpl( const ArrayNDInfo& nsz )
+			    : in(nsz.clone())
+			    , a0(0)
+			    , an(nsz.getNDim(),0)	{}
+			ArrayNDPlaneImpl( const ArrayNDPlaneImpl& anpi )
+			    : in(anpi.in->clone())
+			    , a0(anpi.a0)
+			    , an(anpi.an)		{}
+     ArrayNDPlaneImpl<T>& operator =( const ArrayNDPlaneImpl& anpi )
+	 		{
+			    delete in; in = anpi.in->clone();
+			    a0 = anpi.a0; an = anpi.an;
+			}
+			~ArrayNDPlaneImpl()		{ delete in; }
+
+    void		setA0( T x )			{ a0 = x; }
+    void		setAn( int idx, T x )		{ an[idx] = x; }
+
+    virtual void	set(const int*,T)		{}
+    virtual T		get(const int*) const;
+
+    const ArrayNDInfo&	info() const			{ return *in; }
+    bool		canSetInfo()			{ return true; }
+    bool		canChangeNrDims() const		{ return false; }
+    bool		setInfo( const ArrayNDInfo& ni )
+			{
+			    *this = ArrayNDPlaneImpl(ni);
+			    return true;
+			}
+ 
+    void		setSize( const int* d )
+			{
+			    const int ndim = in->getNDim();
+			    for ( int idx=0; idx<ndim; idx++ )
+				in->setSize(idx,d[idx]);
+			}
+
+protected:
+
+    T			a0;
+    TypeSet<T>		an;
+
+    mDeclArrayNDProtMemb(ArrayNDInfo*)
+
+}; 
+
+template <class T>
+inline T ArrayNDPlaneImpl<T>::get( const int* pos ) const
+{
+    const int ndim = in->getNDim();
+    T res = a0;
+    for ( int idx=0; idx<ndim; idx++ )
+	res += an[idx] * pos[idx];
+
+    return res;
+}
+
+
+/*!\brief No stored data just 3 plane parameters */
+
+template <class T> class Array2DPlaneImpl : public Array2D<T>
+{
+public:
+			Array2DPlaneImpl( const Array2DInfo& nsz )
+			    : in(nsz.clone())
+			    , a0(0)
+			    , a1(0)
+			    , a2(0)			{}
+			Array2DPlaneImpl( int n1, int n2, T x0, T x1, T x2 )
+			    : in(new Array2DInfoImpl(n1,n2))
+			    , a0(x0)
+			    , a1(x1)
+			    , a2(x2)			{}
+			Array2DPlaneImpl( const Array2DPlaneImpl& anpi )
+			    : in(anpi.in->clone())
+			    , a0(anpi.a0)
+			    , a1(anpi.a1)
+			    , a2(anpi.a2)		{}
+     Array2DPlaneImpl<T>& operator =( const Array2DPlaneImpl& anpi )
+	 		{
+			    delete in; in = anpi.in->clone();
+			    a0 = anpi.a0; a1 = anpi.a1; a2 = anpi.a2;
+			}
+			~Array2DPlaneImpl()		{ delete in; }
+
+    void		setA0( T x )			{ a0 = x; }
+    void		setA1( T x )			{ a1 = x; }
+    void		setA2( T x )			{ a2 = x; }
+
+    virtual T		get( const int* i ) const
+			{ return get( i[0], i[1] ); }
+    virtual T		get( int i1, int i2 ) const
+			{ return a0 + a1 * i1 + a2 * i2; }
+    virtual void	set(const int*,T)		{}
+    virtual void	set(int,int,T)			{}
+
+    const Array2DInfo&	info() const			{ return *in; }
+    bool		canSetInfo()			{ return true; }
+    bool		canChangeNrDims() const		{ return false; }
+    bool		setInfo( const ArrayNDInfo& ni )
+			{
+			    if ( ni.getNDim() != 2 ) return false; 
+			    in->setSize( 0, ni.getSize(0) );
+			    in->setSize( 1, ni.getSize(1) );
+			    return true;
+			}
+ 
+    void		setSize( const int* d )
+    			{
+			    in->setSize( 0, d[0] );
+			    in->setSize( 1, d[1] );
+			}
+
+protected:
+
+    T			a0;
+    T			a1;
+    T			a2;
+
+    mDeclArrayNDProtMemb(Array2DInfo*)
 
 }; 
 
