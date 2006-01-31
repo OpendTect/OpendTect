@@ -2,7 +2,7 @@
 #_______________________________________________________________________________
 #
 # (C) dGB Beheer B.V.
-# $Id: od_exec_rmt,v 1.35 2005-03-30 11:19:22 cvsarend Exp $
+# $Id: od_exec_rmt,v 1.36 2006-01-31 10:36:45 cvsbert Exp $
 #
 # module remote startup script
 #_______________________________________________________________________________
@@ -118,32 +118,41 @@ else if ( "$1" == "--transfervars" ) then
 	goto next_var
 endif
 
-set transf="setenv DTECT_APPL -=-$dtectappl-=-"
+set transf="setenv DTECT_APPL -=-${dtectappl}-=-"
 
 if ( $?dtectdata ) then
-    set transf="${transf} +-+  setenv DTECT_DATA -=-$dtectdata-=-"
+    set transf="${transf} +-+  setenv DTECT_DATA -=-${dtectdata}-=-"
 endif
 
 if ( $?DTECT_USER ) then
-	set transf="${transf} +-+ setenv DTECT_USER $DTECT_USER"
+	set transf="${transf} +-+ setenv DTECT_USER ${DTECT_USER}"
 endif
 
 if ( $?LM_LICENSE_FILE ) then
-	set transf="${transf} +-+ setenv LM_LICENSE_FILE -=-$LM_LICENSE_FILE-=-"
+	set transf="${transf} +-+ setenv LM_LICENSE_FILE -=-${LM_LICENSE_FILE}-=-"
 endif
 
 if ( $?DTECT_DEBUG ) then
-    set transf="${transf} +-+ setenv DTECT_DEBUG $DTECT_DEBUG"
+    set transf="${transf} +-+ setenv DTECT_DEBUG ${DTECT_DEBUG}"
 endif
 if ( $?DEBUG ) then
-    set transf="${transf} +-+ setenv DEBUG $DEBUG"
+    set transf="${transf} +-+ setenv DEBUG ${DEBUG}"
 endif
 
 if ( $?DTECT_SCRIPT_DEBUG ) then
-    set transf="${transf} +-+ setenv DTECT_SCRIPT_DEBUG $DTECT_SCRIPT_DEBUG"
+    set transf="${transf} +-+ setenv DTECT_SCRIPT_DEBUG ${DTECT_SCRIPT_DEBUG}"
 endif
 if ( $?DTECT_SCRIPT_VERBOSE ) then
-    set transf="${transf} +-+ setenv DTECT_SCRIPT_VERBOSE $DTECT_SCRIPT_VERBOSE"
+    set transf="${transf} +-+ setenv DTECT_SCRIPT_VERBOSE ${DTECT_SCRIPT_VERBOSE}"
+endif
+if ( $?OD_USER_PLUGIN_DIR ) then
+    set transf="${transf} +-+ setenv OD_USER_PLUGIN_DIR ${OD_USER_PLUGIN_DIR}"
+endif
+if ( $?OD_APPL_PLUGIN_DIR ) then
+    set transf="${transf} +-+ setenv OD_APPL_PLUGIN_DIR ${OD_APPL_PLUGIN_DIR}"
+endif
+if ( $?OD_SHOW_PLUGIN_LOAD ) then
+    set transf="${transf} +-+ setenv OD_SHOW_PLUGIN_LOAD ${OD_SHOW_PLUGIN_LOAD}"
 endif
 
 if ( $?OD_REMOTE_DISPLAY ) then
