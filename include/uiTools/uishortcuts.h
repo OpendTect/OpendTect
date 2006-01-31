@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Payraudeau
  Date:          06/12/2005
- RCS:           $Id: uishortcuts.h,v 1.1 2005-12-22 15:57:48 cvshelene Exp $
+ RCS:           $Id: uishortcuts.h,v 1.2 2006-01-31 16:56:54 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,9 +39,6 @@ protected:
     uiTable*            shortcutskeys_;
 
     IOPar		pars_;
-    
-    static const char*	nameStr()			{ return "Name"; }
-    static const char*  keyStr()			{ return "Keys"; }
 };
 
 #endif
