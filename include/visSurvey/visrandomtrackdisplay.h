@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		January 2003
- RCS:		$Id: visrandomtrackdisplay.h,v 1.42 2006-01-18 22:58:59 cvskris Exp $
+ RCS:		$Id: visrandomtrackdisplay.h,v 1.43 2006-01-31 09:02:29 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -105,6 +105,7 @@ public:
     void			setKnotPositions(const TypeSet<BinID>&);
 
     void			setDepthInterval(const Interval<float>&);
+    void			setManipDepthInterval(const Interval<float>&);
 
     void			getMousePosInfo(const visBase::EventInfo&,
 	    					const Coord3&,

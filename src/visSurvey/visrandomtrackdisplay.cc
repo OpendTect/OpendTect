@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          January 2003
- RCS:           $Id: visrandomtrackdisplay.cc,v 1.61 2006-01-18 22:58:59 cvskris Exp $
+ RCS:           $Id: visrandomtrackdisplay.cc,v 1.62 2006-01-31 09:02:29 cvsnanne Exp $
  ________________________________________________________________________
 
 -*/
@@ -149,6 +149,12 @@ void RandomTrackDisplay::setDepthInterval( const Interval<float>& intv )
 { 
     track->setDepthInterval( intv );
     moving.trigger();
+}
+
+
+void RandomTrackDisplay::setManipDepthInterval( const Interval<float>& intv )
+{
+    track->setDraggerDepthInterval( intv );
 }
 
 

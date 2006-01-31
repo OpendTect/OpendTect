@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Jan 2003
- RCS:           $Id: visrandomtrack.cc,v 1.34 2005-11-15 16:16:56 cvshelene Exp $
+ RCS:           $Id: visrandomtrack.cc,v 1.35 2006-01-31 09:02:29 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -245,8 +245,15 @@ const Interval<float> RandomTrack::getDepthInterval() const
 { return depthrg; }
 
 
-const Interval<float>
-RandomTrack::getDraggerDepthInterval() const
+void RandomTrack::setDraggerDepthInterval( const Interval<float>& intv )
+{
+    if ( !dragger ) return;
+    dragger->z0 = intv.start;
+    dragger->z1 = intv.stop;
+}
+
+
+const Interval<float> RandomTrack::getDraggerDepthInterval() const
 {
     if ( !dragger ) return getDepthInterval();
     return Interval<float>( dragger->z0.getValue(), dragger->z1.getValue() );

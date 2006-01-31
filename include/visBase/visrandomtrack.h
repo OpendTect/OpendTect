@@ -1,5 +1,5 @@
-#ifndef visrandomtracksection_h
-#define visrandomtracksection_h
+#ifndef visrandomtrack_h
+#define visrandomtrack_h
 
 /*+
 ________________________________________________________________________
@@ -7,20 +7,19 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visrandomtrack.h,v 1.26 2005-02-04 14:31:34 kristofer Exp $
+ RCS:		$Id: visrandomtrack.h,v 1.27 2006-01-31 09:02:29 cvsnanne Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "visobject.h"
 #include "position.h"
 #include "ranges.h"
-#include "visobject.h"
 
 class SoRandomTrackLineDragger;
 template <class T> class Array2D;
 class IOPar;
-
 
 namespace visBase
 {
@@ -56,6 +55,7 @@ public:
 
     void			setDepthInterval(const Interval<float>&);
     const Interval<float>	getDepthInterval() const;
+    void			setDraggerDepthInterval(const Interval<float>&);
     const Interval<float>	getDraggerDepthInterval() const;
 
     void			setXrange( const StepInterval<float>& );
