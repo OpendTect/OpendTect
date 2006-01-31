@@ -7,12 +7,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uicanvas.h,v 1.10 2005-01-18 11:47:14 arend Exp $
+ RCS:           $Id: uicanvas.h,v 1.11 2006-01-31 16:37:55 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
-#include <uidrawable.h>
-#include <uimouse.h>
+#include "uidrawable.h"
+#include "uimouse.h"
 
 class	uiMouseEvent;
 class	uiCanvasBody;
@@ -82,8 +82,8 @@ public:
     virtual void		setMaximumWidth( int w );
     virtual void		setMaximumHeight( int h );
 
-    void			setRubberBandingOn(uiMouseEvent::ButtonState);
-    uiMouseEvent::ButtonState	rubberBandingOn() const;
+    void			setRubberBandingOn(OD::ButtonState);
+    OD::ButtonState		rubberBandingOn() const;
     void			setAspectRatio( float );
     float			aspectRatio();
  

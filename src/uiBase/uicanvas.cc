@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uicanvas.cc,v 1.24 2005-11-18 14:39:04 cvsarend Exp $
+ RCS:           $Id: uicanvas.cc,v 1.25 2006-01-31 16:39:07 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,8 +33,6 @@ ________________________________________________________________________
 #define mButState( e ) ( e->state() | e->button() )
 
 class uiScrollViewBody;
-class uiMouseEvent;
-
 
 int uiCanvasDefaults::defaultWidth  = 600;
 int uiCanvasDefaults::defaultHeight = 400;
@@ -72,7 +70,7 @@ public:
 					  const char *nm="uiScrollViewBody" )
 			    : uiDrawableObjBody<uiScrollView,mQScrollView> 
 				( handle, p, nm )
-			    , rubberstate( uiMouseEvent::NoButton )
+			    , rubberstate( OD::NoButton )
 #ifdef USEQT4
 			    , qrubber( 0 )
 #else
@@ -87,7 +85,7 @@ public:
 					    uiCanvasDefaults::defaultHeight);
 			    }
 
-    uiMouseEvent::ButtonState rubberstate;
+    OD::ButtonState 	rubberstate;
     float		aspectrat;
 
     virtual QPaintDevice* mQPaintDevice()	{ return viewport(); }
@@ -117,11 +115,11 @@ public:
 			}
 
 
-    void		setRubberBandingOn(uiMouseEvent::ButtonState b)
-				    { rubberstate = b; }
-    uiMouseEvent::ButtonState	rubberBandingOn() const	{ return rubberstate; }
-    void			setAspectRatio(float r)	{ aspectrat = r; }
-    float			aspectRatio()		{ return aspectrat; }
+    void		setRubberBandingOn(OD::ButtonState b)
+    					{ rubberstate = b; }
+    OD::ButtonState	rubberBandingOn() const		{ return rubberstate; }
+    void		setAspectRatio(float r)		{ aspectrat = r; }
+    float		aspectRatio()			{ return aspectrat; }
 
     virtual void	reDraw( bool deep )		{ updateContents(); }
 protected:
@@ -227,8 +225,7 @@ void uiScrollViewBody::contentsMousePressEvent ( QMouseEvent * e )
     }
     else
     {
-	uiMouseEvent::ButtonState bSt = 
-		    ( uiMouseEvent::ButtonState )(  mButState( e ) );
+	OD::ButtonState bSt = ( OD::ButtonState )(  mButState( e ) );
 	uiMouseEvent evt( bSt, e->x(), e->y() );
 
 	handle_.mousepressed.trigger( evt, handle_ );
@@ -293,8 +290,7 @@ void uiScrollViewBody::contentsMouseMoveEvent( QMouseEvent * e )
     }
     else
     {
-	uiMouseEvent::ButtonState bSt = 
-		    ( uiMouseEvent::ButtonState )(  mButState( e ) );
+	OD::ButtonState bSt = ( OD::ButtonState )(  mButState( e ) );
 	uiMouseEvent evt( bSt, e->x(), e->y() );
 
 	handle_.mousemoved.trigger( evt, handle_ );
@@ -329,8 +325,7 @@ void uiScrollViewBody::contentsMouseReleaseEvent ( QMouseEvent * e )
     }
     else
     {
-	uiMouseEvent::ButtonState bSt = 
-		    ( uiMouseEvent::ButtonState )(  mButState( e ) );
+	OD::ButtonState bSt = ( OD::ButtonState )(  mButState( e ) );
 	uiMouseEvent evt( bSt, e->x(), e->y() );
 
 	handle_.mousereleased.trigger( evt, handle_ );
@@ -340,8 +335,7 @@ void uiScrollViewBody::contentsMouseReleaseEvent ( QMouseEvent * e )
 
 void uiScrollViewBody::contentsMouseDoubleClickEvent ( QMouseEvent * e )
 {
-    uiMouseEvent::ButtonState bSt =
-                ( uiMouseEvent::ButtonState )(  mButState( e ) );
+    OD::ButtonState bSt = ( OD::ButtonState )(  mButState( e ) );
     uiMouseEvent evt( bSt, e->x(), e->y() );
     handle_.mousedoubleclicked.trigger( evt, handle_ );
 }
@@ -441,10 +435,10 @@ int  uiScrollView::frameWidth() const
     { return body_->frameWidth(); }
 
 
-void  uiScrollView::setRubberBandingOn(uiMouseEvent::ButtonState st)
+void  uiScrollView::setRubberBandingOn(OD::ButtonState st)
     { body_->setRubberBandingOn(st); }
 
-uiMouseEvent::ButtonState uiScrollView::rubberBandingOn() const
+OD::ButtonState uiScrollView::rubberBandingOn() const
     { return body_->rubberBandingOn(); }
 
 void  uiScrollView::setAspectRatio( float r )

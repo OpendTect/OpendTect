@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.cc,v 1.38 2006-01-25 09:24:50 cvskris Exp $
+ RCS:           $Id: uitable.cc,v 1.39 2006-01-31 16:39:07 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -734,10 +734,10 @@ void uiTable::clicked_( CallBacker* cb )
 {
     mCBCapsuleUnpack(const uiMouseEvent&,ev,cb);
 
-    if ( ev.buttonState() & uiMouseEvent::RightButton )
+    if ( ev.buttonState() & OD::RightButton )
 	{ rightClk(); rightClicked.trigger(); return; }
 
-    if ( ev.buttonState() & uiMouseEvent::LeftButton )
+    if ( ev.buttonState() & OD::LeftButton )
 	leftClicked.trigger();
 
     if ( setup_.snglclkedit_ )
