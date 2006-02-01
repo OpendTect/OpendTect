@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.54 2006-01-30 23:02:14 cvskris Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.55 2006-02-01 16:27:09 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -294,11 +294,11 @@ void uiODSceneMgr::pageUpDownPressed( CallBacker* cb )
 }
 
 
-void uiODSceneMgr::setMousePos()
+void uiODSceneMgr::updateStatusBar()
 {
     Coord3 xytpos = visServ().getMousePos(true);
     BufferString msg;
-    if ( !mIsUndefined( xytpos.x ) )
+    if ( !Values::isUdf( xytpos.x ) )
     {
 	BinID bid( SI().transform( Coord(xytpos.x,xytpos.y) ) );
 	msg = bid.inl; msg += "/"; msg += bid.crl;

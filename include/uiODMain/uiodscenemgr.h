@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.h,v 1.29 2006-01-31 08:06:58 cvsnanne Exp $
+ RCS:           $Id: uiodscenemgr.h,v 1.30 2006-02-01 16:27:09 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -55,7 +55,7 @@ public:
 
     void		pageUpDownPressed(CallBacker*);
 
-    void		setMousePos();
+    void		updateStatusBar();
     void		setKeyBindings();
     void		setStereoType(int);
     int			getStereoType() const;
