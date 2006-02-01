@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.295 2006-02-01 19:31:28 cvskris Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.296 2006-02-01 21:55:36 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -53,6 +53,8 @@ const int uiVisPartServer::evSelectAttrib		= 6;
 const int uiVisPartServer::evViewAll			= 9;
 const int uiVisPartServer::evToHomePos			= 10;
 const int uiVisPartServer::evAddSeedToCurrentObject	= 11;
+const int uiVisPartServer::evPickingStatusChange	= 12;
+
 
 const char* uiVisPartServer::sKeyAppVel()		{ return "AppVel"; }
 const char* uiVisPartServer::sKeyWorkArea()		{ return "Work Area"; }
@@ -893,6 +895,18 @@ void uiVisPartServer::turnSeedPickingOn( bool yn )
 }
 
 
+bool uiVisPartServer::isPicking() const
+{
+    const TypeSet<int>& sel = visBase::DM().selMan().selected();
+    if ( sel.size()!=1 ) return false;
+
+    mDynamicCastGet( visSurvey::SurveyObject*, so, getObject(sel[0]) );
+    if ( !so ) return false;
+
+    return so->isPicking();
+}
+
+
 #define mGetScene( prepostfix ) \
 prepostfix visSurvey::Scene* \
 uiVisPartServer::getScene( int sceneid ) prepostfix \
@@ -1123,6 +1137,9 @@ void uiVisPartServer::selectObjCB( CallBacker* cb )
     eventmutex_.lock();
     eventobjid_ = sel;
     sendEvent( evSelection );
+
+    eventmutex_.lock();
+    sendEvent( evPickingStatusChange );
 }
 
 
@@ -1146,6 +1163,9 @@ void uiVisPartServer::deselectObjCB( CallBacker* cb )
     eventmutex_.lock();
     eventobjid_ = oldsel;
     sendEvent( evDeSelection );
+
+    eventmutex_.lock();
+    sendEvent( evPickingStatusChange );
 }
 
 

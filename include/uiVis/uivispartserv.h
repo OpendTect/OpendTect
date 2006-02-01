@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.158 2006-01-31 16:52:09 cvshelene Exp $
+ RCS:           $Id: uivispartserv.h,v 1.159 2006-02-01 21:55:36 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -229,6 +229,13 @@ public:
     static const int		evAddSeedToCurrentObject;
     bool			sendAddSeedEvent();
     void			turnSeedPickingOn(bool yn);
+
+    static const int		evPickingStatusChange;
+    bool			isPicking() const;
+    				/*!<\returns true if the selected object
+				     is handling left-mouse picks on other
+				     objects, so the picks won't be handled by
+				     the selman. */
 
     void			showMPEToolbar();
     uiToolBar*			getTrackTB() const;
