@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.294 2006-01-31 16:52:21 cvshelene Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.295 2006-02-01 19:31:28 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,6 +40,7 @@ ________________________________________________________________________
 #include "visevent.h"
 #include "seisbuf.h"
 #include "attribsel.h"
+#include "zaxistransform.h"
 
 
 const int uiVisPartServer::evUpdateTree			= 0;
@@ -1165,8 +1166,21 @@ void uiVisPartServer::mouseMoveCB( CallBacker* cb )
     mDynamicCastGet(visSurvey::Scene*,scene,cb)
     if ( !scene ) return;
 
-    eventmutex_.lock();
     xytmousepos_ = scene->getMousePos(true);
+
+    const Coord3 worldpos( xytmousepos_, scene->getDataTransform() 
+	? scene->getDataTransform()->transformBack( xytmousepos_ )
+	: xytmousepos_.z );
+
+    for ( int idx=0; idx<scenes_.size(); idx++ )
+    {
+	if ( scenes_[idx]==scene )
+	    scenes_[idx]->setMarkerPos( Coord3::udf() );
+	else
+	    scenes_[idx]->setMarkerPos( worldpos );
+    }
+
+    eventmutex_.lock();
     inlcrlmousepos_ = scene->getMousePos(false);
     mouseposval_ = scene->getMousePosValue();
     mouseposstr_ = scene->getMousePosString();
