@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.114 2006-01-27 14:03:56 cvskris Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.115 2006-02-01 20:35:16 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -759,7 +759,7 @@ bool uiODApplMgr::handleVisServEv( int evid )
     else if ( evid == uiVisPartServer::evInteraction )
 	sceneMgr().setItemInfo( visid );
     else if ( evid == uiVisPartServer::evMouseMove )
-	sceneMgr().setMousePos();
+	sceneMgr().updateStatusBar();
     else if ( evid == uiVisPartServer::evSelectAttrib )
 	return selectAttrib( visid, visserv->getEventAttrib() );
     else if ( evid == uiVisPartServer::evViewAll )
