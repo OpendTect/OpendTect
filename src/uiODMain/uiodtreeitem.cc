@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.143 2006-01-31 16:54:20 cvshelene Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.144 2006-02-01 20:33:56 cvskris Exp $
 ___________________________________________________________________
 
 -*/
@@ -904,7 +904,7 @@ uiODEarthModelSurfaceDataTreeItem::uiODEarthModelSurfaceDataTreeItem(
 
 void uiODEarthModelSurfaceDataTreeItem::createMenuCB( CallBacker* cb )
 {
-    uiODDataTreeItem::createMenuCB( cb );
+    uiODAttribTreeItem::createMenuCB( cb );
     mDynamicCastGet(uiMenuHandler*,menu,cb);
 
     uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
@@ -949,6 +949,19 @@ void uiODEarthModelSurfaceDataTreeItem::handleMenuCB( CallBacker* cb )
 	visserv->selectTexture( displayID(), siblingIndex(), 0 );
 	ODMainWin()->sceneMgr().updateTrees();
     }
+}
+
+
+BufferString uiODEarthModelSurfaceDataTreeItem::createDisplayName() const
+{
+    uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
+    const Attrib::SelSpec* as = visserv->getSelSpec( displayID(),
+	    					     siblingIndex() );
+
+    if ( as->id()==Attrib::SelSpec::cNoAttrib() )
+	return BufferString("Depth");
+
+    return uiODAttribTreeItem::createDisplayName();
 }
 
 
@@ -1376,12 +1389,6 @@ void uiODRandomLineTreeItem::editNodes()
 }
 
 
-void uiODRandomLineTreeItem::updateColumnText( int col )
-{
-    return uiODDisplayTreeItem::updateColumnText(col);
-}
-
-
 uiODFaultParentTreeItem::uiODFaultParentTreeItem()
    : uiODTreeItem( "Fault" )
 {}
@@ -1546,7 +1553,7 @@ BufferString uiODHorizonTreeItem::createDisplayName() const
 
 void uiODHorizonTreeItem::dispChangeCB(CallBacker*)
 {
-    updateColumnText(uiODSceneMgr::cColorColumn());
+    updateColumnText( uiODSceneMgr::cColorColumn() );
 }
 
 
@@ -1760,7 +1767,7 @@ void uiODWellTreeItem::handleMenuCB( CallBacker* cb )
 	menu->setIsHandled( true );
 	uiWellPropDlg dlg( getUiParent(), wd );
 	dlg.go();
-	updateColumnText(uiODSceneMgr::cColorColumn());
+	updateColumnText( uiODSceneMgr::cColorColumn() );
     }
     else if ( mnuid == namemnuitem_.id )
     {
