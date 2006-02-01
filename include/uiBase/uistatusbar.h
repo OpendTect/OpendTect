@@ -7,12 +7,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          30/05/2000
- RCS:           $Id: uistatusbar.h,v 1.8 2004-04-29 12:33:29 arend Exp $
+ RCS:           $Id: uistatusbar.h,v 1.9 2006-02-01 21:54:01 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 #include <uihandle.h>
+
+#include "color.h"
 
 class uiStatusBarBody;
 class QStatusBar;
@@ -42,6 +44,8 @@ public:
     void		setLabelTxt(int,const char*);
 
     void 		message(const char*,int fldidx=0, int msecs=-1);
+    void		setBGColor( int fldidx, const Color& );
+    Color		getBGColor( int fldidx ) const;
 
 protected:
 

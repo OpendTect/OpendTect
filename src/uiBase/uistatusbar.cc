@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          30/05/2000
- RCS:           $Id: uistatusbar.cc,v 1.10 2004-04-29 12:33:23 arend Exp $
+ RCS:           $Id: uistatusbar.cc,v 1.11 2006-02-01 21:54:01 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -54,6 +54,37 @@ public:
 				qthing()->clear();
 			}
 
+    void		setBGColor( int idx, const Color& col )
+			{ 
+			    QWidget* widget = 0;
+			    if ( msgs.size()>0 && msgs[0] )
+			    {
+				if ( idx>0 && idx<msgs.size() && msgs[idx] )
+				    widget = msgs[idx];
+				else widget = msgs[0];
+			    }
+			    else 
+				widget = qthing();
+
+			    const QColor qcol(col.r(),col.g(),col.b());
+			    widget->setPaletteBackgroundColor(qcol);
+			}
+
+    Color		getBGColor( int idx )
+			{
+			    const QWidget* widget = 0;
+			    if ( msgs.size()>0 && msgs[0] )
+			    {
+				if ( idx>0 && idx<msgs.size() && msgs[idx] )
+				    widget = msgs[idx];
+				else widget = msgs[0];
+			    }
+			    else 
+				widget = qthing();
+
+			    const QColor qc = widget->paletteBackgroundColor();
+			    return Color(qc.red(),qc.green(),qc.blue());
+			}
 
     int			addMsgFld( const char* lbltxt, int stretch )
 			{
@@ -111,6 +142,18 @@ void uiStatusBar::message( const char* msg, int fldidx, int msecs )
     body_->message( msg, fldidx, msecs );
     body_->repaint();
     uiMain::theMain().flushX();
+}
+
+
+void uiStatusBar::setBGColor( int fldidx, const Color& col )
+{
+    body_->setBGColor( fldidx, col );
+}
+
+
+Color uiStatusBar::getBGColor( int fldidx ) const
+{
+    return body_->getBGColor( fldidx );
 }
 
 
