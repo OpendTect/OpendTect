@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvobj.h,v 1.51 2006-01-31 16:53:26 cvshelene Exp $
+ RCS:		$Id: vissurvobj.h,v 1.52 2006-02-01 21:54:38 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -51,6 +51,12 @@ public:
     virtual bool		allowPicks() const	{ return false; }
     				/*<\Returns whether picks can be created 
 				    on object. */
+    virtual bool		isPicking() const 	{ return false; }
+    				/*<\Returns true if object is in a mode
+				    where clicking on other objects are
+				    handled by object itself, and not passed
+				    on to selection manager .*/
+
     virtual void		snapToTracePos(Coord3&)	{}
     				//<\Snaps coordinate to a trace position
 

@@ -4,7 +4,7 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.73 2006-01-31 16:53:46 cvshelene Exp $";
+static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.74 2006-02-01 21:54:38 cvskris Exp $";
 
 #include "vispicksetdisplay.h"
 
@@ -59,6 +59,12 @@ PickSetDisplay::~PickSetDisplay()
     group->unRef();
 
     if ( transformation ) transformation->unRef();
+}
+
+
+bool PickSetDisplay::isPicking() const
+{
+    return isSelected() && !isLocked();
 }
 
 

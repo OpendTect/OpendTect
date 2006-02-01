@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vispicksetdisplay.h,v 1.45 2006-01-31 16:53:26 cvshelene Exp $
+ RCS:		$Id: vispicksetdisplay.h,v 1.46 2006-02-01 21:54:38 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -48,6 +48,8 @@ class PickSetDisplay :	public visBase::VisualObjectImpl,
 public:
     static PickSetDisplay*	create()
 				mCreateDataObj(PickSetDisplay);
+
+    bool			isPicking() const;
 
     void			copyFromPickSet(const PickSet&);
     void			copyToPickSet(PickSet&) const;
