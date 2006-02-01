@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.106 2006-01-30 14:54:05 cvskris Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.107 2006-02-01 19:30:01 cvskris Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -41,39 +41,39 @@ DefineEnumNames(PlaneDataDisplay,Orientation,1,"Orientation")
 
 PlaneDataDisplay::PlaneDataDisplay()
     : VisualObjectImpl(true)
-    , texture( visBase::MultiTexture2::create() )
-    , rectangle( visBase::FaceSet::create() )
-    , rectanglepickstyle( visBase::PickStyle::create() )
-    , dragger( visBase::DepthTabPlaneDragger::create() )
-    , curicstep(SI().inlStep(),SI().crlStep())
-    , curzstep(SI().zStep())
-    , datatransform( 0 )
-    , datatransformvoihandle( -1 )
-    , moving( this )
+    , texture_( visBase::MultiTexture2::create() )
+    , rectangle_( visBase::FaceSet::create() )
+    , rectanglepickstyle_( visBase::PickStyle::create() )
+    , dragger_( visBase::DepthTabPlaneDragger::create() )
+    , curicstep_(SI().inlStep(),SI().crlStep())
+    , curzstep_(SI().zStep())
+    , datatransform_( 0 )
+    , datatransformvoihandle_( -1 )
+    , moving_( this )
 {
-    cache.allowNull( true );
-    dragger->ref();
-    addChild( dragger->getInventorNode() );
-    dragger->finished.notify( mCB( this, PlaneDataDisplay, draggerFinish ) );
-    dragger->rightClicked()->notify(
+    cache_.allowNull( true );
+    dragger_->ref();
+    addChild( dragger_->getInventorNode() );
+    dragger_->finished.notify( mCB( this, PlaneDataDisplay, draggerFinish ) );
+    dragger_->rightClicked()->notify(
 	    		mCB( this, PlaneDataDisplay, draggerRightClick ) );
 
-    rectanglepickstyle->ref();
-    addChild( rectanglepickstyle->getInventorNode() );
+    rectanglepickstyle_->ref();
+    addChild( rectanglepickstyle_->getInventorNode() );
 
-    texture->ref();
-    addChild( texture->getInventorNode() );
-    texture->setTextureRenderQuality(1);
+    texture_->ref();
+    addChild( texture_->getInventorNode() );
+    texture_->setTextureRenderQuality(1);
 
-    rectangle->ref();
-    addChild( rectangle->getInventorNode() );
-    rectangle->setCoordIndex( 0, 0 );
-    rectangle->setCoordIndex( 1, 1 );
-    rectangle->setCoordIndex( 2, 2 );
-    rectangle->setCoordIndex( 3, 3 );
-    rectangle->setCoordIndex( 4, -1 );
-    rectangle->setVertexOrdering(0);
-    rectangle->setShapeType(0);
+    rectangle_->ref();
+    addChild( rectangle_->getInventorNode() );
+    rectangle_->setCoordIndex( 0, 0 );
+    rectangle_->setCoordIndex( 1, 1 );
+    rectangle_->setCoordIndex( 2, 2 );
+    rectangle_->setCoordIndex( 3, 3 );
+    rectangle_->setCoordIndex( 4, -1 );
+    rectangle_->setVertexOrdering(0);
+    rectangle_->setShapeType(0);
 
     material->setColor( Color::White );
     material->setAmbience( 0.8 );
@@ -83,34 +83,34 @@ PlaneDataDisplay::PlaneDataDisplay()
     setOrientation( Inline );
     updateRanges();
 
-    as += new Attrib::SelSpec;
-    cache += 0;
+    as_ += new Attrib::SelSpec;
+    cache_ += 0;
 }
 
 
 PlaneDataDisplay::~PlaneDataDisplay()
 {
-    dragger->finished.remove( mCB( this, PlaneDataDisplay, draggerFinish ) );
-    dragger->rightClicked()->remove(
+    dragger_->finished.remove( mCB( this, PlaneDataDisplay, draggerFinish ) );
+    dragger_->rightClicked()->remove(
 	    		mCB( this, PlaneDataDisplay, draggerRightClick ) );
 
-    deepErase( as );
-    deepUnRef( cache );
+    deepErase( as_ );
+    deepUnRef( cache_ );
 
     setDataTransform( 0 );
 
-    texture->unRef();
-    rectangle->unRef();
-    dragger->unRef();
-    rectanglepickstyle->unRef();
+    texture_->unRef();
+    rectangle_->unRef();
+    dragger_->unRef();
+    rectanglepickstyle_->unRef();
 }
 
 
 void PlaneDataDisplay::setOrientation( Orientation nt )
 {
-    orientation = nt;
+    orientation_ = nt;
 
-    dragger->setDim( (int) nt );
+    dragger_->setDim( (int) nt );
     updateRanges();
 }
 
@@ -118,14 +118,14 @@ void PlaneDataDisplay::setOrientation( Orientation nt )
 void PlaneDataDisplay::updateRanges()
 {
     CubeSampling survey( SI().sampling(true) );
-    if ( datatransform )
-	assign( survey.zrg,  datatransform->getZInterval( false ) );
+    if ( datatransform_ )
+	assign( survey.zrg,  datatransform_->getZInterval( false ) );
 	
     const Interval<float> inlrg( survey.hrg.start.inl, survey.hrg.stop.inl );
     const Interval<float> crlrg( survey.hrg.start.crl, survey.hrg.stop.crl );
 
-    dragger->setSpaceLimits( inlrg, crlrg, survey.zrg );
-    dragger->setSize( Coord3(inlrg.width(), crlrg.width(), survey.zrg.width()));
+    dragger_->setSpaceLimits( inlrg, crlrg, survey.zrg );
+    dragger_->setSize( Coord3(inlrg.width(), crlrg.width(),survey.zrg.width()));
 
     const CubeSampling cs = snapCubeSampling( survey );
     if ( cs!=getCubeSampling(false,true) )
@@ -142,10 +142,10 @@ CubeSampling PlaneDataDisplay::snapCubeSampling( const CubeSampling& cs ) const
 
     res.snapToSurvey();
 
-    if ( orientation==Inline )
+    if ( orientation_==Inline )
 	res.hrg.start.inl = res.hrg.stop.inl =
 	    SI().inlRange(true).snap( inlrg.center() );
-    else if ( orientation==Crossline )
+    else if ( orientation_==Crossline )
 	res.hrg.start.crl = res.hrg.stop.crl =
 	    SI().crlRange(true).snap( crlrg.center() );
     else
@@ -195,26 +195,26 @@ float PlaneDataDisplay::calcDist( const Coord3& pos ) const
 float PlaneDataDisplay::maxDist() const
 {
     float maxzdist = SI().zFactor() * scene_->getZScale() * SI().zStep() / 2;
-    return orientation==Timeslice ? maxzdist : SurveyObject::sDefMaxDist;
+    return orientation_==Timeslice ? maxzdist : SurveyObject::sDefMaxDist;
 }
 
 
 bool PlaneDataDisplay::setDataTransform( ZAxisTransform* zat )
 {
-    if ( datatransform )
+    if ( datatransform_ )
     {
-	if ( datatransformvoihandle!=-1 )
-	    datatransform->removeVolumeOfInterest(datatransformvoihandle);
-	datatransform->unRef();
-	datatransform = 0;
+	if ( datatransformvoihandle_!=-1 )
+	    datatransform_->removeVolumeOfInterest(datatransformvoihandle_);
+	datatransform_->unRef();
+	datatransform_ = 0;
     }
 
-    datatransform = zat;
-    datatransformvoihandle = -1;
+    datatransform_ = zat;
+    datatransformvoihandle_ = -1;
 
-    if ( datatransform )
+    if ( datatransform_ )
     {
-	datatransform->ref();
+	datatransform_->ref();
 	updateRanges();
     }
 
@@ -234,7 +234,7 @@ void PlaneDataDisplay::draggerFinish( CallBacker* cb )
 
 void PlaneDataDisplay::draggerRightClick( CallBacker* cb )
 {
-    triggerRightClick( dragger->rightClickedEventInfo() );
+    triggerRightClick( dragger_->rightClickedEventInfo() );
 }
 
 
@@ -246,12 +246,12 @@ void PlaneDataDisplay::setDraggerPos( const CubeSampling& cs )
     Coord3 width( cs.hrg.stop.inl-cs.hrg.start.inl,
 		  cs.hrg.stop.crl-cs.hrg.start.crl, cs.zrg.width() );
 
-    const Coord3 oldwidth = dragger->size();
-    width[(int)orientation] = oldwidth[(int)orientation];
+    const Coord3 oldwidth = dragger_->size();
+    width[(int)orientation_] = oldwidth[(int)orientation_];
 
-    dragger->setCenter( center );
-    dragger->setSize( width );
-    moving.trigger();
+    dragger_->setCenter( center );
+    dragger_->setSize( width );
+    moving_.trigger();
 }
 
 
@@ -268,7 +268,7 @@ void PlaneDataDisplay::coltabChanged( CallBacker* )
 SurveyObject* PlaneDataDisplay::duplicate() const
 {
     PlaneDataDisplay* pdd = create();
-    pdd->setOrientation( orientation );
+    pdd->setOrientation( orientation_ );
     pdd->setCubeSampling( getCubeSampling() );
     pdd->setResolution( getResolution() );
 
@@ -277,7 +277,7 @@ SurveyObject* PlaneDataDisplay::duplicate() const
     mDynamicCastGet(visBase::VisColorTab*,nct,obj);
     if ( nct )
     {
-	const char* ctnm = texture->getColorTab().colorSeq().colors().name();
+	const char* ctnm = texture_->getColorTab().colorSeq().colors().name();
 	nct->colorSeq().loadFromStorage( ctnm );
     }
     return pdd;
@@ -287,15 +287,15 @@ SurveyObject* PlaneDataDisplay::duplicate() const
 
 void PlaneDataDisplay::showManipulator( bool yn )
 {
-    dragger->turnOn( yn );
-    rectanglepickstyle->setStyle( yn ? visBase::PickStyle::Unpickable
+    dragger_->turnOn( yn );
+    rectanglepickstyle_->setStyle( yn ? visBase::PickStyle::Unpickable
 				     : visBase::PickStyle::Shape );
 }
 
 
 bool PlaneDataDisplay::isManipulatorShown() const
 {
-    return dragger->isOn();
+    return dragger_->isOn();
 }
 
 
@@ -320,12 +320,12 @@ void PlaneDataDisplay::acceptManipulation()
 BufferString PlaneDataDisplay::getManipulationString() const
 {
     BufferString res;
-    if ( orientation==Inline )
+    if ( orientation_==Inline )
     {
 	res = "Inline: ";
 	res += getCubeSampling(true,true).hrg.start.inl;
     }
-    else if ( orientation==Crossline )
+    else if ( orientation_==Crossline )
     {
 	res = "Crossline: ";
 	res += getCubeSampling(true,true).hrg.start.crl;
@@ -342,7 +342,7 @@ BufferString PlaneDataDisplay::getManipulationString() const
 
 
 NotifierAccess* PlaneDataDisplay::getManipulationNotifier()
-{ return &dragger->motion; }
+{ return &dragger_->motion; }
 
 /*
 int PlaneDataDisplay::nrResolutions() const
@@ -360,7 +360,7 @@ int PlaneDataDisplay::getResolution() const
 void PlaneDataDisplay::setResolution( int res )
 {
     trect->setResolution( res );
-    if ( cache ) setData( cache, 0 );
+    if ( cache_ ) setData( cache_, 0 );
 }
 
 */
@@ -375,15 +375,15 @@ bool PlaneDataDisplay::canHaveMultipleAttribs() const
 
 
 int PlaneDataDisplay::nrAttribs() const
-{ return as.size(); }
+{ return as_.size(); }
 
 
 bool PlaneDataDisplay::addAttrib()
 {
-    as += new Attrib::SelSpec;
-    cache += 0;
+    as_ += new Attrib::SelSpec;
+    cache_ += 0;
 
-    texture->addTexture("");
+    texture_->addTexture("");
 
     return true;
 }
@@ -391,15 +391,15 @@ bool PlaneDataDisplay::addAttrib()
 
 bool PlaneDataDisplay::removeAttrib( int attrib )
 {
-    if ( as.size()<2 || attrib<0 || attrib>=as.size() )
+    if ( as_.size()<2 || attrib<0 || attrib>=as_.size() )
 	return false;
 
-    delete as[attrib];
-    as.remove( attrib );
-    cache[attrib]->unRef();
-    cache.remove( attrib );
+    delete as_[attrib];
+    as_.remove( attrib );
+    cache_[attrib]->unRef();
+    cache_.remove( attrib );
 
-    texture->removeTexture( attrib );
+    texture_->removeTexture( attrib );
 
     return true;
 }
@@ -407,12 +407,12 @@ bool PlaneDataDisplay::removeAttrib( int attrib )
 
 bool PlaneDataDisplay::swapAttribs( int a0, int a1 )
 {
-    if ( a0<0 || a1<0 || a0>=as.size() || a1>=as.size() )
+    if ( a0<0 || a1<0 || a0>=as_.size() || a1>=as_.size() )
 	return false;
 
-    texture->swapTextures( a0, a1 );
-    as.swap( a0, a1 );
-    cache.swap( a0, a1 );
+    texture_->swapTextures( a0, a1 );
+    as_.swap( a0, a1 );
+    cache_.swap( a0, a1 );
 
     return true;
 }
@@ -420,59 +420,59 @@ bool PlaneDataDisplay::swapAttribs( int a0, int a1 )
 
 const Attrib::SelSpec* PlaneDataDisplay::getSelSpec( int attrib ) const
 {
-    return attrib>=0 && attrib<as.size() ? as[attrib] : 0;
+    return attrib>=0 && attrib<as_.size() ? as_[attrib] : 0;
 }
 
 
-void PlaneDataDisplay::setSelSpec( int attrib, const Attrib::SelSpec& as_ )
+void PlaneDataDisplay::setSelSpec( int attrib, const Attrib::SelSpec& as )
 {
-    if ( attrib>=0 && attrib<as.size() )
+    if ( attrib>=0 && attrib<as_.size() )
     {
-	*as[attrib] = as_;
+	*as_[attrib] = as;
     }
 
-    if ( cache[attrib] ) cache[attrib]->unRef();
-    cache.replace( attrib, 0 );
+    if ( cache_[attrib] ) cache_[attrib]->unRef();
+    cache_.replace( attrib, 0 );
 
-    const char* usrref = as_.userRef();
+    const char* usrref = as.userRef();
     if ( !usrref || !*usrref )
-	texture->turnOn( false );
+	texture_->turnOn( false );
 }
 
 
 bool PlaneDataDisplay::isClassification( int attrib ) const
 {
-    return attrib>=0 && attrib<isclassification.size()
-	? isclassification[attrib] : false;
+    return attrib>=0 && attrib<isclassification_.size()
+	? isclassification_[attrib] : false;
 }
 
 
 void PlaneDataDisplay::setClassification( int attrib, bool yn )
 {
-    if ( attrib<0 || attrib>=as.size() )
+    if ( attrib<0 || attrib>=as_.size() )
 	return;
 
     if ( yn )
     {
-	while ( attrib<=isclassification.size() )
-	    isclassification += false;
+	while ( attrib<=isclassification_.size() )
+	    isclassification_ += false;
     }
-    else if ( attrib>=isclassification.size() )
+    else if ( attrib>=isclassification_.size() )
 	return;
 
-    isclassification[attrib] = yn;
+    isclassification_[attrib] = yn;
 }
 
 
 const TypeSet<float>* PlaneDataDisplay::getHistogram( int attrib ) const
 {
-    return texture->getHistogram( attrib, texture->currentVersion( attrib ) );
+    return texture_->getHistogram( attrib, texture_->currentVersion( attrib ) );
 }
 
 
 int PlaneDataDisplay::getColTabID( int attrib ) const
 {
-    return texture->getColorTab( attrib ).id();
+    return texture_->getColorTab( attrib ).id();
 }
 
 
@@ -486,8 +486,8 @@ void PlaneDataDisplay::setCubeSampling( CubeSampling cs )
 {
     cs = snapCubeSampling( cs );
 
-    visBase::Coordinates* coords = rectangle->getCoordinates();
-    if ( orientation==Inline || orientation==Crossline )
+    visBase::Coordinates* coords = rectangle_->getCoordinates();
+    if ( orientation_==Inline || orientation_==Crossline )
     {
 	coords->setPos( 0,
 		       Coord3(cs.hrg.start.inl,cs.hrg.start.crl,cs.zrg.start));
@@ -510,16 +510,23 @@ void PlaneDataDisplay::setCubeSampling( CubeSampling cs )
 
     setDraggerPos(cs);
 
-    curicstep = cs.hrg.step;
-    curzstep = cs.zrg.step;
+    curicstep_ = cs.hrg.step;
+    curzstep_ = cs.zrg.step;
 
-    moving.trigger();
+    moving_.trigger();
 
-    if ( !datatransform )
+    if ( !datatransform_ )
 	return;
 
-    if ( datatransformvoihandle!=-1 )
-	datatransform->setVolumeOfInterest( datatransformvoihandle, cs );
+    CubeSampling transformcs = getCubeSampling( false, false );
+
+    if ( datatransformvoihandle_==-1 )
+    {
+	datatransformvoihandle_=
+	    datatransform_->addVolumeOfInterest( transformcs );
+    }
+    else
+	datatransform_->setVolumeOfInterest( datatransformvoihandle_, cs );
 }
 
 
@@ -527,22 +534,22 @@ CubeSampling PlaneDataDisplay::getCubeSampling( bool manippos,
 						bool displayspace ) const
 {
     CubeSampling res(false);
-    if ( manippos || rectangle->getCoordinates()->size()>=4 )
+    if ( manippos || rectangle_->getCoordinates()->size()>=4 )
     {
 	Coord3 c0, c1;
 	if ( manippos )
 	{
-	    const Coord3 center = dragger->center();
-	    Coord3 halfsize = dragger->size()/2;
-	    halfsize[orientation] = 0;
+	    const Coord3 center = dragger_->center();
+	    Coord3 halfsize = dragger_->size()/2;
+	    halfsize[orientation_] = 0;
 
 	    c0 = center + halfsize;
 	    c1 = center - halfsize;
 	}
 	else
 	{
-	    c0 = rectangle->getCoordinates()->getPos(0);
-	    c1 = rectangle->getCoordinates()->getPos(2);
+	    c0 = rectangle_->getCoordinates()->getPos(0);
+	    c1 = rectangle_->getCoordinates()->getPos(2);
 	}
 
 	res.hrg.start = res.hrg.stop = BinID(mNINT(c0.x),mNINT(c0.y) );
@@ -552,8 +559,11 @@ CubeSampling PlaneDataDisplay::getCubeSampling( bool manippos,
 	res.hrg.step = BinID( SI().inlStep(), SI().crlStep() );
 	res.zrg.step = SI().zRange(true).step;
 
-	if ( datatransform && !displayspace )
-	    res.zrg = SI().zRange(true);
+	if ( datatransform_ && !displayspace )
+	{
+	    assign( res.zrg, datatransform_->getZInterval( true ) );
+	    res.zrg.step = SI().zRange( true ).step;
+	}
     }
     return res;
 }
@@ -567,8 +577,8 @@ bool PlaneDataDisplay::setDataVolume( int attrib,
 
     setData( attrib, datacubes );
 
-    if ( cache[attrib] ) cache[attrib]->unRef();
-    cache.replace( attrib, datacubes );
+    if ( cache_[attrib] ) cache_[attrib]->unRef();
+    cache_.replace( attrib, datacubes );
     datacubes->ref();
     return true;
 }
@@ -578,21 +588,21 @@ void PlaneDataDisplay::setData( int attrib, const Attrib::DataCubes* datacubes )
 {
     if ( !datacubes )
     {
-	texture->setData( attrib, 0, 0 );
-	texture->turnOn( false );
+	texture_->setData( attrib, 0, 0 );
+	texture_->turnOn( false );
 	return;
     }
 
     //Do subselection of input if input is too big
 
     int unuseddim, dim0, dim1;
-    if ( orientation==Inline )
+    if ( orientation_==Inline )
     {
 	unuseddim = Attrib::DataCubes::cInlDim();
 	dim0 = Attrib::DataCubes::cZDim();
 	dim1 = Attrib::DataCubes::cCrlDim();
     }
-    else if ( orientation==Crossline )
+    else if ( orientation_==Crossline )
     {
 	unuseddim = Attrib::DataCubes::cCrlDim();
 	dim0 = Attrib::DataCubes::cZDim();
@@ -606,19 +616,19 @@ void PlaneDataDisplay::setData( int attrib, const Attrib::DataCubes* datacubes )
     }
 
     const int nrcubes = datacubes->nrCubes();
-    texture->setNrVersions( 0, nrcubes );
+    texture_->setNrVersions( attrib, nrcubes );
     for ( int idx=0; idx<nrcubes; idx++ )
     {
 	PtrMan<Array3D<float> > tmparray = 0;
 	const Array3D<float>* usedarray = 0;
-	if ( !datatransform )
+	if ( !datatransform_ )
 	    usedarray = &datacubes->getCube(idx);
 	else
 	{
 	    const CubeSampling cs = getCubeSampling(true,false);
-	    datatransform->loadDataIfMissing( datatransformvoihandle );
+	    datatransform_->loadDataIfMissing( datatransformvoihandle_ );
 
-	    ZAxisTransformSampler outpsampler( *datatransform, true, BinID(0,0),
+	    ZAxisTransformSampler outpsampler( *datatransform_, true,BinID(0,0),
 		    	SamplingData<double>(cs.zrg.start, cs.zrg.step));
 	    const Array3D<float>& srcarray = datacubes->getCube( idx );
 	    const Array3DInfo& info = srcarray.info();
@@ -659,21 +669,21 @@ void PlaneDataDisplay::setData( int attrib, const Attrib::DataCubes* datacubes )
 	slice.setDimMap( 1, dim1 );
 
 	if ( slice.init() )
-	    texture->setData( attrib, idx, &slice );
+	    texture_->setData( attrib, idx, &slice );
 	else
 	{
-	    texture->turnOn(false);
+	    texture_->turnOn(false);
 	    pErrMsg( "Could not init slice." );
 	}
     }
 
-    texture->turnOn( true );
+    texture_->turnOn( true );
 }
 
 
 const Attrib::DataCubes* PlaneDataDisplay::getCacheVolume( int attrib ) const
 {
-    return attrib>=0 && attrib<nrAttribs() ? cache[attrib] : 0;
+    return attrib>=0 && attrib<nrAttribs() ? cache_[attrib] : 0;
 }
 
 
@@ -686,9 +696,9 @@ int PlaneDataDisplay::nrTextures( int attrib ) const
 void PlaneDataDisplay::selectTexture( int attrib, int idx )
 {
     if ( attrib<0 || attrib>=nrAttribs() ||
-	 idx<0 || idx>=texture->nrVersions(attrib) ) return;
+	 idx<0 || idx>=texture_->nrVersions(attrib) ) return;
 
-    texture->setCurrentVersion( attrib, idx );
+    texture_->setCurrentVersion( attrib, idx );
 }
 
 
@@ -696,7 +706,7 @@ int PlaneDataDisplay::selectedTexture( int attrib ) const
 { 
     if ( attrib<0 || attrib>=nrAttribs() ) return 0;
 
-    return texture->currentVersion( attrib );
+    return texture_->currentVersion( attrib );
 }
 
 #define mIsValid(idx,sz) ( idx>=0 && idx<sz )
@@ -707,9 +717,9 @@ void PlaneDataDisplay::getMousePosInfo( const visBase::EventInfo&,
 					BufferString& info ) const
 {
     info = getManipulationString();
-    if ( cache.size()<=0 || !cache[0] ) { val = mUdf(float); return; }
+    if ( cache_.size()<=0 || !cache_[0] ) { val = mUdf(float); return; }
     const BinIDValue bidv( SI().transform(pos), pos.z );
-    if ( !cache[0]->getValue(texture->currentVersion(0),bidv,&val,false) )
+    if ( !cache_[0]->getValue(texture_->currentVersion(0),bidv,&val,false) )
 	{ val = mUdf(float); return; }
 
     return;
@@ -720,13 +730,13 @@ void PlaneDataDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 {
     visBase::VisualObject::fillPar( par, saveids );
     
-    par.set( sKeyOrientation(), OrientationRef(orientation) );
+    par.set( sKeyOrientation(), OrientationRef(orientation_) );
     getCubeSampling( false, true ).fillPar( par );
 
-    for ( int attrib=as.size()-1; attrib>=0; attrib-- )
+    for ( int attrib=as_.size()-1; attrib>=0; attrib-- )
     {
 	IOPar attribpar;
-	as[attrib]->fillPar( attribpar );
+	as_[attrib]->fillPar( attribpar );
 	const int coltabid = getColTabID(attrib);
 	attribpar.set( sKeyColTabID(), coltabid );
 	if ( saveids.indexOf( coltabid )==-1 ) saveids += coltabid;
@@ -736,7 +746,7 @@ void PlaneDataDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 	par.mergeComp( attribpar, key );
     }
 
-    par.set( sKeyNrAttribs(), as.size() );
+    par.set( sKeyNrAttribs(), as_.size() );
 }
 
 
@@ -781,14 +791,14 @@ int PlaneDataDisplay::usePar( const IOPar& par )
 	    else
 		firstattrib = false;
 
-	    const int attribnr = as.size()-1;
+	    const int attribnr = as_.size()-1;
 
-	    as[attribnr]->usePar( *attribpar );
+	    as_[attribnr]->usePar( *attribpar );
 	    if ( coltabid!=-1 )
 	    {
 		mDynamicCastGet( visBase::VisColorTab*, coltab, 
 		       		 visBase::DM().getObject(coltabid) );
-		texture->setColorTab( attribnr, *coltab );
+		texture_->setColorTab( attribnr, *coltab );
 	    }
 	}
     }
@@ -814,12 +824,12 @@ int PlaneDataDisplay::usePar( const IOPar& par )
 	cubesampl.hrg.start =
 	    BinID( mNINT( rect.origo().x), mNINT( rect.origo().y) );
 	cubesampl.hrg.stop = cubesampl.hrg.start;
-	cubesampl.hrg.step = curicstep;
+	cubesampl.hrg.step = curicstep_;
 
 	const float zrg0 = rect.origo().z;
 	cubesampl.zrg.start = (float)(int)(1000*zrg0+.5) / 1000;
 	cubesampl.zrg.stop = cubesampl.zrg.start;
-	cubesampl.zrg.step = curzstep;
+	cubesampl.zrg.step = curzstep_;
 
 	if ( rect.orientation()==visBase::Rectangle::XY )
 	{
@@ -844,7 +854,7 @@ int PlaneDataDisplay::usePar( const IOPar& par )
 	setCubeSampling( cubesampl );
 	tr->unRef();
 
-	as[0]->usePar( par );
+	as_[0]->usePar( par );
     }
 
     return 1;

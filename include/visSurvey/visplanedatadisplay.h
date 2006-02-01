@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visplanedatadisplay.h,v 1.67 2006-01-30 14:54:05 cvskris Exp $
+ RCS:		$Id: visplanedatadisplay.h,v 1.68 2006-02-01 19:30:01 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -59,7 +59,7 @@ public:
 				mCreateDataObj(PlaneDataDisplay);
 
     void			setOrientation(Orientation);
-    Orientation			getOrientation() const { return orientation; }
+    Orientation			getOrientation() const { return orientation_; }
 
     void			showManipulator(bool);
     bool			isManipulatorShown() const;
@@ -69,7 +69,7 @@ public:
     void			acceptManipulation();
     BufferString		getManipulationString() const;
     NotifierAccess*		getManipulationNotifier();
-    NotifierAccess*		getMovementNotification() {return &moving;}
+    NotifierAccess*		getMovementNotification() {return &moving_;}
 
     bool			allowMaterialEdit() const	{ return true; }
 
@@ -132,21 +132,21 @@ protected:
 
     CubeSampling		snapCubeSampling( const CubeSampling& ) const;
 
-    visBase::DepthTabPlaneDragger*	dragger;
-    visBase::PickStyle*			rectanglepickstyle;
-    visBase::MultiTexture2*		texture;
-    visBase::FaceSet*			rectangle;
-    Orientation				orientation;
+    visBase::DepthTabPlaneDragger*	dragger_;
+    visBase::PickStyle*			rectanglepickstyle_;
+    visBase::MultiTexture2*		texture_;
+    visBase::FaceSet*			rectangle_;
+    Orientation				orientation_;
 
 
-    ObjectSet<Attrib::SelSpec>		as;
-    BoolTypeSet				isclassification;
-    ObjectSet<const Attrib::DataCubes>	cache;
+    ObjectSet<Attrib::SelSpec>		as_;
+    BoolTypeSet				isclassification_;
+    ObjectSet<const Attrib::DataCubes>	cache_;
 
-    BinID			curicstep;
-    float			curzstep;
-    ZAxisTransform*		datatransform;
-    int				datatransformvoihandle;
+    BinID			curicstep_;
+    float			curzstep_;
+    ZAxisTransform*		datatransform_;
+    int				datatransformvoihandle_;
 
 
     static const char*		sKeyNrAttribs() { return "Nr Attribs"; }
@@ -154,7 +154,7 @@ protected:
     static const char*		sKeyAttribs() { return "Attrib "; }
     static const char*		sKeyColTabID() { return "Colortable ID"; }
     static const char*		sKeyTextureRect() { return "Texture rectangle";}
-    Notifier<PlaneDataDisplay>	moving;
+    Notifier<PlaneDataDisplay>	moving_;
 };
 
 };
