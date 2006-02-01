@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.55 2006-02-01 16:27:09 cvskris Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.56 2006-02-01 21:56:51 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,6 +32,11 @@ ________________________________________________________________________
 #include "ptrman.h"
 #include "survinfo.h"
 #include "scene.xpm"
+
+#define mPosField	0
+#define mValueField	1
+#define mNameField	2
+#define mStatusField	3
 
 static const int cWSWidth = 600;
 static const int cWSHeight = 300;
@@ -281,9 +286,12 @@ void uiODSceneMgr::actMode( CallBacker* )
 void uiODSceneMgr::viewMode( CallBacker* )
 {
     setToViewMode( true );
-    appl_.statusBar()->message( "", 0 );
-    appl_.statusBar()->message( "", 1 );
-    appl_.statusBar()->message( "", 2 );
+    appl_.statusBar()->message( "", mPosField );
+    appl_.statusBar()->message( "", mValueField );
+    appl_.statusBar()->message( "", mNameField );
+    appl_.statusBar()->message( "", mStatusField );
+    appl_.statusBar()->setBGColor( mStatusField,
+	    			   appl_.statusBar()->getBGColor(mPosField) );
 }
 
 
@@ -308,14 +316,21 @@ void uiODSceneMgr::updateStatusBar()
 	msg += SI().zIsTime() ? mNINT(xytpos.z * 1000) : xytpos.z; msg += ")";
     }
 
-    appl_.statusBar()->message( msg, 0 );
+    appl_.statusBar()->message( msg, mPosField );
 
     BufferString valstr = visServ().getMousePosVal();
     msg = valstr == "" ? "" : "Value = "; msg += valstr;
-    appl_.statusBar()->message( msg, 1 );
+    appl_.statusBar()->message( msg, mValueField );
 
     msg = visServ().getMousePosString();
-    appl_.statusBar()->message( msg, 2 );
+    appl_.statusBar()->message( msg, mNameField );
+
+    const bool ispicking = visServ().isPicking();
+
+    appl_.statusBar()->message( ispicking ? "Picking" : 0, mStatusField );
+
+    appl_.statusBar()->setBGColor( mStatusField, ispicking ?
+	    Color( 255, 0, 0 ) : appl_.statusBar()->getBGColor(mPosField) );
 }
 
 
@@ -579,9 +594,9 @@ void uiODSceneMgr::rebuildTrees()
 void uiODSceneMgr::setItemInfo( int id )
 {
     mDoAllScenes(itemmanager_,updateColumnText,cColorColumn());
-    appl_.statusBar()->message( "", 0 );
-    appl_.statusBar()->message( "", 1 );
-    appl_.statusBar()->message( visServ().getInteractionMsg(id), 2 );
+    appl_.statusBar()->message( "", mPosField );
+    appl_.statusBar()->message( "", mValueField );
+    appl_.statusBar()->message( visServ().getInteractionMsg(id), mNameField );
 }
 
 
