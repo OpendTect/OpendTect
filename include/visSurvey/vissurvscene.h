@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvscene.h,v 1.35 2005-10-19 22:07:15 cvskris Exp $
+ RCS:		$Id: vissurvscene.h,v 1.36 2006-02-01 19:16:09 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -26,6 +26,7 @@ namespace visBase
     class EventCatcher;
     class Transformation;
     class VisualObject;
+    class Marker;
 };
 
 namespace visSurvey
@@ -89,23 +90,22 @@ public:
     Notifier<Scene>		mouseposchange;
     Coord3			getMousePos(bool xyt) const;
     				/*! If not xyt it is inlcrlt */
-    float			getMousePosValue() const  { return mouseposval;}
-    BufferString		getMousePosString() const { return mouseposstr;}
+    float			getMousePosValue() const;
+    BufferString		getMousePosString() const;
 
     void			objectMoved(CallBacker*);
 
     Notifier<Scene>		zscalechange;
     void			setZScale(float);
-    float			getZScale() const	{ return curzscale; }
+    float			getZScale() const;
 
-    mVisTrans*			getZScaleTransform() const
-				{ return zscaletransform; }
-    mVisTrans*			getInlCrl2DisplayTransform() const
-    				{ return inlcrl2disptransform; }
-    mVisTrans*			getUTM2DisplayTransform() const
-				{ return utm2disptransform; }
+    mVisTrans*			getZScaleTransform() const;
+    mVisTrans*			getInlCrl2DisplayTransform() const;
+    mVisTrans*			getUTM2DisplayTransform() const;
     void			setDataTransform( ZAxisTransform* );
     ZAxisTransform*		getDataTransform();
+
+    void			setMarkerPos( const Coord3& );
 
     virtual void		fillPar(IOPar&,TypeSet<int>&) const;
     virtual int			usePar(const IOPar&);
@@ -117,21 +117,22 @@ protected:
     void			createTransforms(const HorSampling&);
     void			mouseMoveCB(CallBacker*);
     
-    visBase::Transformation*	zscaletransform;
-    visBase::Transformation*	inlcrl2disptransform;
-    visBase::Transformation*	utm2disptransform;
-    ZAxisTransform*		datatransform;
+    visBase::Transformation*	zscaletransform_;
+    visBase::Transformation*	inlcrl2disptransform_;
+    visBase::Transformation*	utm2disptransform_;
+    ZAxisTransform*		datatransform_;
 
-    visBase::Annotation*	annot;
+    visBase::Annotation*	annot_;
+    visBase::Marker*		marker_;
 
-    Coord3			xytmousepos;
-    float			mouseposval;
-    BufferString		mouseposstr;
-    float			curzscale;
+    Coord3			xytmousepos_;
+    float			mouseposval_;
+    BufferString		mouseposstr_;
+    float			curzscale_;
 
-    static const char*		annottxtstr;
-    static const char*		annotscalestr;
-    static const char*		annotcubestr;
+    static const char*		sKeyShowAnnot();
+    static const char*		sKeyShowScale();
+    static const char*		sKeyShoCube();
 };
 
 }; // namespace visSurvey

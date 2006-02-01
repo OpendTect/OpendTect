@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: vissurvscene.cc,v 1.76 2005-11-17 15:36:30 cvsnanne Exp $
+ RCS:           $Id: vissurvscene.cc,v 1.77 2006-02-01 19:16:09 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "visannot.h"
 #include "visdataman.h"
 #include "visevent.h"
+#include "vismarker.h"
 #include "vistransform.h"
 #include "vistransmgr.h"
 #include "vissurvobj.h"
@@ -28,21 +29,22 @@ mCreateFactoryEntry( visSurvey::Scene );
 
 namespace visSurvey {
 
-const char* Scene::annottxtstr = "Show text";
-const char* Scene::annotscalestr = "Show scale";
-const char* Scene::annotcubestr = "Show cube";
+const char* Scene::sKeyShowAnnot()			{ return "Show text"; }
+const char* Scene::sKeyShowScale()			{ return "Show scale"; }
+const char* Scene::sKeyShoCube()			{ return "Show cube"; }
 
 Scene::Scene()
-    : inlcrl2disptransform(0)
-    , utm2disptransform(0)
-    , zscaletransform(0)
-    , annot(0)
+    : inlcrl2disptransform_(0)
+    , utm2disptransform_(0)
+    , zscaletransform_(0)
+    , annot_(0)
+    , marker_(0)
     , mouseposchange(this)
-    , mouseposval(0)
-    , mouseposstr("")
+    , mouseposval_(0)
+    , mouseposstr_("")
     , zscalechange(this)
-    , curzscale(-1)
-    , datatransform( 0 )
+    , curzscale_(-1)
+    , datatransform_( 0 )
 {
     events.eventhappened.notify( mCB(this,Scene,mouseMoveCB) );
     setAmbientLight( 1 );
@@ -52,10 +54,10 @@ Scene::Scene()
 
 void Scene::init()
 {
-    annot = visBase::Annotation::create();
-    annot->setText( 0, "In-line" );
-    annot->setText( 1, "Cross-line" );
-    annot->setText( 2, SI().zIsTime() ? "TWT" : "Depth" );
+    annot_ = visBase::Annotation::create();
+    annot_->setText( 0, "In-line" );
+    annot_->setText( 1, "Cross-line" );
+    annot_->setText( 2, SI().zIsTime() ? "TWT" : "Depth" );
 
     const CubeSampling& cs = SI().sampling(true);
     createTransforms( cs.hrg );
@@ -64,7 +66,7 @@ void Scene::init()
     setZScale( zsc );
 
     setAnnotationCube( cs );
-    addInlCrlTObject( annot );
+    addInlCrlTObject( annot_ );
 }
 
 
@@ -72,68 +74,68 @@ Scene::~Scene()
 {
     events.eventhappened.remove( mCB(this,Scene,mouseMoveCB) );
 
-    int objidx = getFirstIdx( inlcrl2disptransform );
+    int objidx = getFirstIdx( inlcrl2disptransform_ );
     if ( objidx >= 0 ) removeObject( objidx );
 
-    objidx = getFirstIdx( zscaletransform );
+    objidx = getFirstIdx( zscaletransform_ );
     if ( objidx >= 0 ) removeObject( objidx );
 
-    objidx = getFirstIdx( annot );
+    objidx = getFirstIdx( annot_ );
     if ( objidx >= 0 ) removeObject( objidx );
 
-    if ( utm2disptransform ) utm2disptransform->unRef();
-    if ( datatransform ) datatransform->unRef();
+    if ( utm2disptransform_ ) utm2disptransform_->unRef();
+    if ( datatransform_ ) datatransform_->unRef();
 }
 
 
 void Scene::createTransforms( const HorSampling& hs )
 {
-    if ( !zscaletransform )
+    if ( !zscaletransform_ )
     {
-	zscaletransform = STM().createZScaleTransform();
+	zscaletransform_ = STM().createZScaleTransform();
 	visBase::DataObjectGroup::addObject(
-		const_cast<visBase::Transformation*>(zscaletransform) );
+		const_cast<visBase::Transformation*>(zscaletransform_) );
     }
 
-    if ( !inlcrl2disptransform )
+    if ( !inlcrl2disptransform_ )
     {
-	inlcrl2disptransform = STM().createIC2DisplayTransform( hs );
+	inlcrl2disptransform_ = STM().createIC2DisplayTransform( hs );
 	visBase::DataObjectGroup::addObject(
-		const_cast<visBase::Transformation*>(inlcrl2disptransform) );
+		const_cast<visBase::Transformation*>(inlcrl2disptransform_) );
     }
 
-    if ( !utm2disptransform )
+    if ( !utm2disptransform_ )
     {
-	utm2disptransform = STM().createUTM2DisplayTransform( hs );
-	utm2disptransform->ref();
+	utm2disptransform_ = STM().createUTM2DisplayTransform( hs );
+	utm2disptransform_->ref();
     }
 }
 
 
 void Scene::setAnnotationCube( const CubeSampling& cs )
 {
-    if ( !annot ) return;
+    if ( !annot_ ) return;
 
     BinID c0( cs.hrg.start.inl, cs.hrg.start.crl ); 
     BinID c1( cs.hrg.stop.inl, cs.hrg.start.crl ); 
     BinID c2( cs.hrg.stop.inl, cs.hrg.stop.crl ); 
     BinID c3( cs.hrg.start.inl, cs.hrg.stop.crl );
 
-    annot->setCorner( 0, c0.inl, c0.crl, cs.zrg.start );
-    annot->setCorner( 1, c1.inl, c1.crl, cs.zrg.start );
-    annot->setCorner( 2, c2.inl, c2.crl, cs.zrg.start );
-    annot->setCorner( 3, c3.inl, c3.crl, cs.zrg.start );
-    annot->setCorner( 4, c0.inl, c0.crl, cs.zrg.stop );
-    annot->setCorner( 5, c1.inl, c1.crl, cs.zrg.stop );
-    annot->setCorner( 6, c2.inl, c2.crl, cs.zrg.stop );
-    annot->setCorner( 7, c3.inl, c3.crl, cs.zrg.stop );
+    annot_->setCorner( 0, c0.inl, c0.crl, cs.zrg.start );
+    annot_->setCorner( 1, c1.inl, c1.crl, cs.zrg.start );
+    annot_->setCorner( 2, c2.inl, c2.crl, cs.zrg.start );
+    annot_->setCorner( 3, c3.inl, c3.crl, cs.zrg.start );
+    annot_->setCorner( 4, c0.inl, c0.crl, cs.zrg.stop );
+    annot_->setCorner( 5, c1.inl, c1.crl, cs.zrg.stop );
+    annot_->setCorner( 6, c2.inl, c2.crl, cs.zrg.stop );
+    annot_->setCorner( 7, c3.inl, c3.crl, cs.zrg.stop );
 }
 
 
 void Scene::addUTMObject( visBase::VisualObject* obj )
 {
-    obj->setDisplayTransformation( utm2disptransform );
-    const int insertpos = getFirstIdx( inlcrl2disptransform );
+    obj->setDisplayTransformation( utm2disptransform_ );
+    const int insertpos = getFirstIdx( inlcrl2disptransform_ );
     insertObject( insertpos, obj );
 }
 
@@ -165,8 +167,8 @@ void Scene::addObject( visBase::DataObject* obj )
     else if ( vo )
 	addUTMObject( vo );
 
-    if ( so && datatransform )
-	so->setDataTransform( datatransform );
+    if ( so && datatransform_ )
+	so->setDataTransform( datatransform_ );
 }
 
 
@@ -183,34 +185,74 @@ void Scene::removeObject( int idx )
 
 void Scene::setZScale( float zscale )
 {
-    if ( !zscaletransform ) return;
+    if ( !zscaletransform_ ) return;
 
-    if ( mIsEqual(zscale,curzscale,mDefEps) ) return;
+    if ( mIsEqual(zscale,curzscale_,mDefEps) ) return;
 
-    STM().setZScale( zscaletransform, zscale );
-    curzscale = zscale;
+    STM().setZScale( zscaletransform_, zscale );
+    curzscale_ = zscale;
     zscalechange.trigger();
 }
 
 
-void Scene::showAnnotText( bool yn )	{ annot->showText( yn ); }
-bool Scene::isAnnotTextShown() const	{ return annot->isTextShown(); }
-void Scene::showAnnotScale( bool yn )	{ annot->showScale( yn ); }
-bool Scene::isAnnotScaleShown() const	{ return annot->isScaleShown(); }
-void Scene::showAnnot( bool yn )	{ annot->turnOn( yn ); }
-bool Scene::isAnnotShown() const	{ return annot->isOn(); }
+float Scene::getZScale() const
+{ return curzscale_; }
+
+
+mVisTrans* Scene::getZScaleTransform() const
+{ return zscaletransform_; }
+
+
+mVisTrans* Scene::getInlCrl2DisplayTransform() const
+{ return inlcrl2disptransform_; }
+
+
+mVisTrans* Scene::getUTM2DisplayTransform() const
+{ return utm2disptransform_; }
+
+
+void Scene::showAnnotText( bool yn )
+{ annot_->showText( yn ); }
+
+
+bool Scene::isAnnotTextShown() const
+{ return annot_->isTextShown(); }
+
+
+void Scene::showAnnotScale( bool yn )
+{ annot_->showScale( yn ); }
+
+
+bool Scene::isAnnotScaleShown() const
+{ return annot_->isScaleShown(); }
+
+
+void Scene::showAnnot( bool yn )
+{ annot_->turnOn( yn ); }
+
+
+bool Scene::isAnnotShown() const
+{ return annot_->isOn(); }
 
 
 Coord3 Scene::getMousePos( bool xyt ) const
 {
-   if ( xyt ) return xytmousepos;
+   if ( xyt ) return xytmousepos_;
    
-   Coord3 res = xytmousepos;
+   Coord3 res = xytmousepos_;
    BinID binid = SI().transform( Coord(res.x,res.y) );
    res.x = binid.inl;
    res.y = binid.crl;
    return res;
 }
+
+
+float Scene::getMousePosValue() const
+{ return mouseposval_; }
+
+
+BufferString Scene::getMousePosString() const
+{ return mouseposstr_; }
 
 
 void Scene::objectMoved( CallBacker* cb )
@@ -251,11 +293,11 @@ void Scene::mouseMoveCB( CallBacker* cb )
     const int sz = eventinfo.pickedobjids.size();
     bool validpicksurface = false;
     const Coord3 displayspacepos = 
-	    zscaletransform->transformBack( eventinfo.pickedpos );
-    xytmousepos = utm2disptransform->transformBack( displayspacepos );
+	    zscaletransform_->transformBack( eventinfo.pickedpos );
+    xytmousepos_ = utm2disptransform_->transformBack( displayspacepos );
 
-    mouseposval = mUndefValue;
-    mouseposstr = "";
+    mouseposval_ = mUndefValue;
+    mouseposstr_ = "";
     for ( int idx=0; idx<sz; idx++ )
     {
 	const DataObject* pickedobj =
@@ -266,16 +308,16 @@ void Scene::mouseMoveCB( CallBacker* cb )
 	    if ( !validpicksurface )
 		validpicksurface = true;
 
-	    if ( mIsUndefined(mouseposval) )
+	    if ( mIsUndefined(mouseposval_) )
 	    {
 		float newmouseposval;
 		BufferString newstr;
-		so->getMousePosInfo( eventinfo, xytmousepos, newmouseposval,
+		so->getMousePosInfo( eventinfo, xytmousepos_, newmouseposval,
 				     newstr );
 		if ( newstr != "" )
-		    mouseposstr = newstr;
+		    mouseposstr_ = newstr;
 		if ( !mIsUndefined(newmouseposval) )
-		    mouseposval = newmouseposval;
+		    mouseposval_ = newmouseposval;
 	    }
 	    else if ( validpicksurface )
 		break;
@@ -289,9 +331,9 @@ void Scene::mouseMoveCB( CallBacker* cb )
 
 void Scene::setDataTransform( ZAxisTransform* zat )
 {
-    if ( datatransform ) datatransform->unRef();
-    datatransform = zat;
-    if ( datatransform ) datatransform->ref();
+    if ( datatransform_ ) datatransform_->unRef();
+    datatransform_ = zat;
+    if ( datatransform_ ) datatransform_->ref();
 
     for ( int idx=0; idx<size(); idx++ )
     {
@@ -304,7 +346,32 @@ void Scene::setDataTransform( ZAxisTransform* zat )
 
 
 ZAxisTransform* Scene::getDataTransform()
-{ return datatransform; }
+{ return datatransform_; }
+
+
+void Scene::setMarkerPos( const Coord3& coord )
+{
+    const Coord3 displaypos( coord,
+	    datatransform_ ? datatransform_->transform(coord) : coord.z);
+
+    const bool defined = displaypos.isDefined();
+    if ( !defined )
+    {
+	if ( marker_ )
+	    marker_->turnOn( false );
+
+	return;
+    }
+
+    if ( !marker_ )
+    {
+	marker_ = visBase::Marker::create();
+	addUTMObject( marker_ );
+    }
+
+    marker_->turnOn( true );
+    marker_->setCenterPos( displaypos );
+}
 
 
 void Scene::fillPar( IOPar& par, TypeSet<int>& saveids ) const
@@ -312,14 +379,14 @@ void Scene::fillPar( IOPar& par, TypeSet<int>& saveids ) const
     visBase::DataObject::fillPar( par, saveids );
 
     int kid = 0;
-    while ( getObject(kid++) != zscaletransform )
+    while ( getObject(kid++) != zscaletransform_ )
 	;
 
     int nrkids = 0;    
     for ( ; kid<size(); kid++ )
     {
-	if ( getObject(kid)==annot || 
-	     getObject(kid)==inlcrl2disptransform ) continue;
+	if ( getObject(kid)==annot_ || (marker_ && getObject(kid)==marker_) ||
+	     getObject(kid)==inlcrl2disptransform_ ) continue;
 
 	const int objid = getObject(kid)->id();
 	if ( saveids.indexOf(objid) == -1 )
@@ -332,20 +399,17 @@ void Scene::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 
     par.set( nokidsstr, nrkids );
     
-    bool txtshown = isAnnotTextShown();
-    par.setYN( annottxtstr, txtshown );
-    bool scaleshown = isAnnotScaleShown();
-    par.setYN( annotscalestr, scaleshown );
-    bool cubeshown = isAnnotShown();
-    par.setYN( annotcubestr, cubeshown );
+    par.setYN( sKeyShowAnnot(), isAnnotTextShown() );
+    par.setYN( sKeyShowScale(), isAnnotScaleShown() );
+    par.setYN( sKeyShoCube(), isAnnotShown() );
 }
 
 
 void Scene::removeAll()
 {
     visBase::DataObjectGroup::removeAll();
-    zscaletransform = 0; inlcrl2disptransform = 0; annot = 0;
-    curzscale = -1;
+    zscaletransform_ = 0; inlcrl2disptransform_ = 0; annot_ = 0;
+    curzscale_ = -1;
 }
 
 
@@ -358,15 +422,15 @@ int Scene::usePar( const IOPar& par )
     if ( res!=1 ) return res;
 
     bool txtshown = true;
-    par.getYN( annottxtstr, txtshown );
+    par.getYN( sKeyShowAnnot(), txtshown );
     showAnnotText( txtshown );
 
     bool scaleshown = true;
-    par.getYN( annotscalestr, scaleshown );
+    par.getYN( sKeyShowScale(), scaleshown );
     showAnnotScale( scaleshown );
 
     bool cubeshown = true;
-    par.getYN( annotcubestr, cubeshown );
+    par.getYN( sKeyShoCube(), cubeshown );
     showAnnot( cubeshown );
 
     return 1;
