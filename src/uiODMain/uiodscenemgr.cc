@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.56 2006-02-01 21:56:51 cvskris Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.57 2006-02-01 22:32:17 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -274,6 +274,7 @@ void uiODSceneMgr::setToViewMode( bool yn )
     mDoAllScenes(sovwr_,setViewing,yn);
     visServ().setViewMode( yn );
     menuMgr().updateViewMode( yn );
+    updateStatusBar();
 }
 
 
@@ -286,12 +287,6 @@ void uiODSceneMgr::actMode( CallBacker* )
 void uiODSceneMgr::viewMode( CallBacker* )
 {
     setToViewMode( true );
-    appl_.statusBar()->message( "", mPosField );
-    appl_.statusBar()->message( "", mValueField );
-    appl_.statusBar()->message( "", mNameField );
-    appl_.statusBar()->message( "", mStatusField );
-    appl_.statusBar()->setBGColor( mStatusField,
-	    			   appl_.statusBar()->getBGColor(mPosField) );
 }
 
 
@@ -304,9 +299,22 @@ void uiODSceneMgr::pageUpDownPressed( CallBacker* cb )
 
 void uiODSceneMgr::updateStatusBar()
 {
-    Coord3 xytpos = visServ().getMousePos(true);
+    if ( visServ().isViewMode() )
+    {
+	appl_.statusBar()->message( "", mPosField );
+	appl_.statusBar()->message( "", mValueField );
+	appl_.statusBar()->message( "", mNameField );
+	appl_.statusBar()->message( "", mStatusField );
+	appl_.statusBar()->setBGColor( mStatusField,
+				   appl_.statusBar()->getBGColor(mPosField) );
+	return;
+    }
+
+    const Coord3 xytpos = visServ().getMousePos(true);
+    const bool haspos = !Values::isUdf( xytpos.x );
+
     BufferString msg;
-    if ( !Values::isUdf( xytpos.x ) )
+    if ( haspos  )
     {
 	BinID bid( SI().transform( Coord(xytpos.x,xytpos.y) ) );
 	msg = bid.inl; msg += "/"; msg += bid.crl;
@@ -318,11 +326,20 @@ void uiODSceneMgr::updateStatusBar()
 
     appl_.statusBar()->message( msg, mPosField );
 
-    BufferString valstr = visServ().getMousePosVal();
-    msg = valstr == "" ? "" : "Value = "; msg += valstr;
+    const BufferString valstr = visServ().getMousePosVal();
+    if ( haspos )
+    {
+	msg = valstr == "" ? "" : "Value = ";
+	msg += valstr;
+    }
+    else
+    {
+	msg = "";
+    }
+
     appl_.statusBar()->message( msg, mValueField );
 
-    msg = visServ().getMousePosString();
+    msg = haspos ? visServ().getMousePosString() : "";
     appl_.statusBar()->message( msg, mNameField );
 
     const bool ispicking = visServ().isPicking();
@@ -597,6 +614,9 @@ void uiODSceneMgr::setItemInfo( int id )
     appl_.statusBar()->message( "", mPosField );
     appl_.statusBar()->message( "", mValueField );
     appl_.statusBar()->message( visServ().getInteractionMsg(id), mNameField );
+    appl_.statusBar()->message( "", mStatusField );
+    appl_.statusBar()->setBGColor( mStatusField,
+	    			   appl_.statusBar()->getBGColor(mPosField) );
 }
 
 
