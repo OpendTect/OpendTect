@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H.Payraudeau
  Date:          04/2005
- RCS:           $Id: attribengman.h,v 1.20 2005-11-25 13:27:37 cvsnanne Exp $
+ RCS:           $Id: attribengman.h,v 1.21 2006-02-02 12:02:13 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -107,7 +107,6 @@ protected:
     float		udfval;
     BufferString	linekey;
 
-    const DescSet* 	curattrset;
     DescSet*		procattrset;
     int			curattridx;
     TypeSet<SelSpec>	attrspecs_;
