@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uinlapartserv.cc,v 1.29 2005-12-08 12:02:59 cvsbert Exp $
+ RCS:           $Id: uinlapartserv.cc,v 1.30 2006-02-02 16:37:03 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -214,65 +214,86 @@ bool acceptOK( CallBacker* )
 };
 
 
+bool uiNLAPartServer::extractDirectData( const ObjectSet<PosVecDataSet>& vdss )
+{
+    const NLACreationDesc& crdesc = creationDesc();
+    if ( vdss.size() != crdesc.outids.size() )
+    {
+	if ( DBG::isOn() )
+	    DBG::message( "uiNLAPartServer::prepareInputData: "
+			  "Nr BinIDValue Sets != Nr. well IDs" );
+	return false;
+    }
+
+    // Put the positions in new BinIDValueSets
+    ObjectSet<BinIDValueSet> bivsets;
+    for ( int idx=0; idx<vdss.size(); idx++ )
+    {
+	BinIDValueSet* newbvs = new BinIDValueSet( 1, true );
+	bivsets += newbvs;
+	newbvs->append( vdss[idx]->data() );
+    }
+
+    // Fetch the well data
+    Well::LogDataExtracter lde( crdesc.outids, bivsets );
+    lde.usePar( crdesc.pars );
+    uiExecutor uiex( appserv().parent(), lde );
+    if ( uiex.go() )
+    {
+	// Add a column to the input data
+	const BufferString outnm = crdesc.design.outputs.get(0);
+	for ( int idx=0; idx<vdss.size(); idx++ )
+	{
+	    PosVecDataSet& vds = *vdss[idx];
+	    DataColDef* newdcd = new DataColDef( outnm );
+	    newdcd->ref_ = outnm;
+	    vds.add( newdcd );
+	    TypeSet<float>& res = *lde.results()[idx];
+	    const int ressz = res.size();
+
+	    BinIDValueSet::Pos pos;
+	    const int lastidx = vds.data().nrVals() - 1;
+	    BinID bid; float vals[lastidx+1];
+	    int ivec = 0;
+	    while ( vds.data().next(pos) )
+	    {
+		vds.data().get( pos, bid, vals );
+		vals[lastidx] = ivec >= ressz ? mUdf(float) : res[ivec];
+		vds.data().set( pos, vals );
+		ivec++;
+	    }
+	}
+    }
+
+    deepErase( bivsets );
+    return true;
+}
+
+
+const char* uiNLAPartServer::convertToClasses(
+			const ObjectSet<PosVecDataSet>& vdss )
+{
+    //TODO: implement
+    // Last column in all vdss explodes into N class columns with 0's and 1's
+    return "Litho-prediction on well data not implemented yet";
+}
+
+
 const char* uiNLAPartServer::prepareInputData(
 		const ObjectSet<PosVecDataSet>& inpvdss )
 {
     const NLACreationDesc& crdesc = creationDesc();
 
-    if ( crdesc.doextraction && crdesc.isdirect )
+    const bool directextraction = crdesc.doextraction && crdesc.isdirect;
+    if ( directextraction && !extractDirectData(inpvdss) )
+	return 0;
+
+    if ( directextraction && crdesc.design.classification )
     {
-	// Direct prediction: we need to fetch the well data
-	if ( inpvdss.size() != crdesc.outids.size() )
-	{
-	    if ( DBG::isOn() )
-		DBG::message( "uiNLAPartServer::prepareInputData: "
-			      "Nr BinIDValue Sets != Nr. well IDs" );
-	    return 0;
-	}
-
-	// Put the positions in new BinIDValueSets
-	ObjectSet<BinIDValueSet> bivsets;
-	for ( int idx=0; idx<inpvdss.size(); idx++ )
-	{
-	    BinIDValueSet* newbvs = new BinIDValueSet( 1, true );
-	    bivsets += newbvs;
-	    newbvs->append( inpvdss[idx]->data() );
-	}
-
-	// Fetch the well data
-	Well::LogDataExtracter lde( crdesc.outids, bivsets );
-	lde.usePar( crdesc.pars );
-	uiExecutor uiex( appserv().parent(), lde );
-	if ( uiex.go() )
-	{
-	    // Add a column to the input data
-	    const BufferString outnm = crdesc.design.outputs.get(0);
-	    for ( int idx=0; idx<inpvdss.size(); idx++ )
-	    {
-		PosVecDataSet& vds = *inpvdss[idx];
-		DataColDef* newdcd = new DataColDef( outnm );
-		newdcd->ref_ = outnm;
-		vds.add( newdcd );
-		TypeSet<float>& res = *lde.results()[idx];
-		const int ressz = res.size();
-
-		BinIDValueSet::Pos pos;
-		const int lastidx = vds.data().nrVals() - 1;
-		BinID bid; float vals[lastidx+1];
-		int ivec = 0;
-		while ( vds.data().next(pos) )
-		{
-		    vds.data().get( pos, bid, vals );
-		    vals[lastidx] = ivec >= ressz ? mUdf(float) : res[ivec];
-		    vds.data().set( pos, vals );
-		    ivec++;
-		}
-	    }
-	}
-
-	deepErase( bivsets );
+	const char* res = convertToClasses( inpvdss );
+        if ( res )
+	    return res;
     }
-
     const char* res = crdesc.prepareData( inpvdss, trainvds, testvds );
     if ( res ) return res;
 
@@ -288,7 +309,7 @@ const char* uiNLAPartServer::prepareInputData(
 	if ( vdss.size() < 2 )
 	    vdss += &testvds;
 	bool allok = true;
-	if ( crdesc.isdirect )
+	if ( crdesc.isdirect && !crdesc.design.classification )
 	{
 	    uiPrepNLAData pddlg( appserv().parent(), vdss );
 	    allok = pddlg.go();
