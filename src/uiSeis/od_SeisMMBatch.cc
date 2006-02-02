@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2002
- RCS:           $Id: od_SeisMMBatch.cc,v 1.17 2005-08-26 18:19:28 cvsbert Exp $
+ RCS:           $Id: od_SeisMMBatch.cc,v 1.18 2006-02-02 10:37:28 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,6 +12,8 @@ ________________________________________________________________________
 #include "uiseismmproc.h"
 #include "uimain.h"
 #include "plugins.h"
+#include "ioman.h"
+#include "survinfo.h"
 
 #include "prog.h"
 #include "strmprov.h"
@@ -28,11 +30,7 @@ int main( int argc, char ** argv )
 {
     od_putProgInfo( argc, argv );
 
-    PIM().setArgs( argc, argv );
-    PIM().loadAuto( false );
-
-    int bgadd = argc > 1 && !strcmp(argv[1],"-bg") ? 1 : 0;
-	
+    const int bgadd = argc > 1 && !strcmp(argv[1],"-bg") ? 1 : 0;
     if ( argc+bgadd < 3 )
     {
 	std::cerr << "Usage: " << argv[0] << " program parfile" << std::endl;
@@ -54,7 +52,6 @@ int main( int argc, char ** argv )
 	ExitProgram( 1 );
     }
     sdin.close();
-    parlist.setFileName( fp.fullPath() );
 
 #ifndef __win__
     if ( bgadd )
@@ -70,6 +67,14 @@ int main( int argc, char ** argv )
 	}
     }
 #endif 
+
+    parlist.setFileName( fp.fullPath() );
+    const char* res = parlist[0]->find( sKey::Survey );
+    if ( res && *res && SI().name() != res )
+	IOMan::setSurvey( res );
+
+    PIM().setArgs( argc, argv );
+    PIM().loadAuto( false );
 
     uiMain app( argc, argv );
     uiSeisMMProc* smmp = new uiSeisMMProc( 0, argv[1+bgadd], parlist );

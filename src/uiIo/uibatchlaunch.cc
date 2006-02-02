@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:           $Id: uibatchlaunch.cc,v 1.47 2005-12-28 18:14:04 cvsbert Exp $
+ RCS:           $Id: uibatchlaunch.cc,v 1.48 2006-02-02 10:37:28 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,6 +46,9 @@ static void getProcFilename( const char* basnm, const char* altbasnm,
 
 static bool writeProcFile( const IOParList& iopl, const char* tfname )
 {
+    for ( int idx=0; idx<iopl.size(); idx++ )
+	iopl[idx]->set( sKey::Survey, IOM().surveyName() );
+
     StreamData sd = StreamProvider(tfname).makeOStream();
     bool allok = sd.usable() && iopl.write(*sd.ostrm);
     sd.close();
