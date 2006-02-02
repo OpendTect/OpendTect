@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2005
- RCS:           $Id: SoMultiTexture2.cc,v 1.5 2006-01-30 14:29:00 cvskris Exp $
+ RCS:           $Id: SoMultiTexture2.cc,v 1.6 2006-02-02 21:59:46 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -381,6 +381,9 @@ SoMultiTexture2::SoMultiTexture2()
     SO_NODE_SET_SF_ENUM_TYPE( wrapS, Wrap);
     SO_NODE_SET_SF_ENUM_TYPE( wrapT, Wrap);
 
+    SO_NODE_DEFINE_ENUM_VALUE( Operator, BLEND );
+    SO_NODE_DEFINE_ENUM_VALUE( Operator, ADD );
+    SO_NODE_DEFINE_ENUM_VALUE( Operator, REPLACE );
     SO_NODE_SET_MF_ENUM_TYPE( operation, Operator);
 
 
