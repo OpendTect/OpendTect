@@ -150,7 +150,7 @@ void MultiTexture2::updateColorTables()
     int totalnr = 0;
     const int nrtextures = nrTextures();
     for ( int idx=0; idx<nrtextures; idx++ )
-	totalnr += getColorTab( idx ).nrSteps();
+	totalnr += getColorTab( idx ).nrSteps() + 1;
 
     unsigned char* arrstart = 0;
 
@@ -183,8 +183,8 @@ void MultiTexture2::updateColorTables()
 	const VisColorTab& ctab = getColorTab( idx );
 	const int nrsteps = ctab.nrSteps();
 
-	texture_->numcolor.set1Value( idx, nrsteps );
-	for ( int idy=0; idy<nrsteps; idy++ )
+	texture_->numcolor.set1Value( idx, nrsteps+1 ); //one extra for udf
+	for ( int idy=0; idy<=nrsteps; idy++ )
 	{
 	    const Color col = ctab.tableColor( idy );
 	    *(arr++) = col.r();

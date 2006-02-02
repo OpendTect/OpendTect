@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vismultitexture.cc,v 1.5 2006-01-30 14:31:33 cvskris Exp $";
+static const char* rcsID = "$Id: vismultitexture.cc,v 1.6 2006-02-02 22:00:27 cvskris Exp $";
 
 #include "vismultitexture2.h"
 
@@ -18,7 +18,7 @@ static const char* rcsID = "$Id: vismultitexture.cc,v 1.5 2006-01-30 14:31:33 cv
 #include "viscolortab.h"
 
 
-#define mNrColors	256
+#define mNrColors	255
 #define mUndefColIdx	255
 
 namespace visBase
@@ -319,7 +319,7 @@ void TextureInfo::createIndexes( int version )
 	ownsindexdata_[version] = true;
     }
 
-    versioncoltab_[version]->setNrSteps(mNrColors-1);
+    versioncoltab_[version]->setNrSteps(mNrColors);
 
     TextureColorIndexer indexer( versionfloatdata_[version],
 	    			 (unsigned char*) versionindexdata_[version],
