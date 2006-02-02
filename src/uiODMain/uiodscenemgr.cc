@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.57 2006-02-01 22:32:17 cvskris Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.58 2006-02-02 09:48:13 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -153,7 +153,7 @@ uiODSceneMgr::Scene& uiODSceneMgr::mkNewScene()
 int uiODSceneMgr::addScene()
 {
     Scene& scn = mkNewScene();
-    int sceneid = visServ().addScene();
+    const int sceneid = visServ().addScene();
     scn.sovwr_->setSceneGraph( sceneid );
     BufferString title( scenestr );
     title += vwridx;
@@ -203,6 +203,22 @@ void uiODSceneMgr::removeScene( CallBacker* cb )
     scene->vwrGroup()->mainObject()->closed.remove( mWSMCB(removeScene) );
     scenes_ -= scene;
     delete scene;
+}
+
+
+void uiODSceneMgr::setSceneName( int sceneid, const char* nm )
+{
+    visServ().setObjectName( sceneid, nm );
+
+    for ( int idx=0; idx<scenes_.size(); idx++ )
+    {
+	if ( scenes_[idx]->itemmanager_->sceneID() == sceneid )
+	{
+	    scenes_[idx]->sovwr_->setTitle( nm );
+	    scenes_[idx]->treeWin()->setName( nm );
+	    return;
+	}
+    }
 }
 
 
