@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.296 2006-02-01 21:55:36 cvskris Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.297 2006-02-02 13:38:37 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -76,6 +76,7 @@ uiVisPartServer::uiVisPartServer( uiApplService& a )
     , blockmenus_( false )
     , pldisplay_(0)
     , menu_( *new uiMenuHandler(appserv().parent(),-1) )
+    , xytmousepos_( Coord3::udf() )
 {
     menu_.ref();
     menu_.createnotifier.notify( mCB(this,uiVisPartServer,createMenuCB) );
