@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          17/01/2002
- RCS:           $Id: uitabbar.cc,v 1.10 2005-11-02 16:43:10 cvsdgb Exp $
+ RCS:           $Id: uitabbar.cc,v 1.11 2006-02-02 09:52:34 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,6 +46,12 @@ uiTab::uiTab( uiGroup& grp )
 #ifndef USEQT4
 int uiTab::id()
     { return body_.identifier(); }
+
+int uiTab::setName( const char* nm )
+{
+    body_.setText( nm );
+    return UserIDObject::setName( nm );
+}
 #endif
 
 class uiTabBarBody : public muiObjBodyImpl<uiTabBar,QTabBar>
@@ -80,7 +86,7 @@ uiTabBar::uiTabBar( uiParent* parnt, const char* nm, const CallBack* cb )
 
 uiTabBarBody& uiTabBar::mkbody(uiParent* parnt, const char* nm )
 {
-    body_= new uiTabBarBody(*this,parnt,nm);
+    body_ = new uiTabBarBody(*this,parnt,nm);
     return *body_; 
 }
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          17/01/2002
- RCS:           $Id: uitabstack.cc,v 1.11 2005-11-01 10:12:06 cvsarend Exp $
+ RCS:           $Id: uitabstack.cc,v 1.12 2006-02-02 09:52:34 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -56,9 +56,10 @@ void uiTabStack::tabSel( CallBacker* cb )
 void uiTabStack::addTab( uiGroup* grp, const char* txt )
 {
     if ( !grp ) return;
-    if ( !txt || !*txt ) txt = grp->name();
 
     uiTab* tab = new uiTab( *grp );
+    BufferString tabname = txt && *txt ? txt : (const char*)grp->name();
+    tab->setName( tabname );
     tabbar_->addTab( tab );
 
     if ( !hAlignObj() )

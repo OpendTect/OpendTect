@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          14/02/2003
- RCS:           $Id: uitabbar.h,v 1.9 2005-11-02 16:43:29 cvsdgb Exp $
+ RCS:           $Id: uitabbar.h,v 1.10 2006-02-02 09:52:59 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -75,6 +75,7 @@ public:
 			uiTab(uiGroup&);
 #ifndef USEQT4
     int			id();
+    int			setName(const char*);
 #endif
 
     uiGroup&		group()		{ return grp_; }

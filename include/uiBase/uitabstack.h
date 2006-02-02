@@ -7,12 +7,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          17/01/2002
- RCS:           $Id: uitabstack.h,v 1.5 2005-11-01 10:12:06 cvsarend Exp $
+ RCS:           $Id: uitabstack.h,v 1.6 2006-02-02 09:52:59 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
-#include <uigroup.h>
+#include "uigroup.h"
 
 class uiTabBar;
 
@@ -32,43 +32,42 @@ class uiTabBar;
 class uiTabStack : public uiGroup
 {
 public:
-			uiTabStack( uiParent*, const char* nm,
-				    bool manage=true );
+			uiTabStack(uiParent*,const char* nm,
+				   bool manage=true);
 
 			// use this as parent for groups to add
-    uiGroup*		tabGroup() { return tabgrp_; }
+    uiGroup*		tabGroup()			{ return tabgrp_; }
 
-			//! returns id of  new tab
-    void		addTab( uiGroup*, const char* txt =0 );
+    void		addTab(uiGroup*,const char* txt=0);
 
 #ifdef USEQT4
-    void		removeTab( uiGroup* );
+    void		removeTab(uiGroup*);
 #else
-    void		insertTab( uiGroup*, const char*, int index = -1 );
-    void		removeTab( int id );
+    void		insertTab(uiGroup*,const char*,int index=-1);
+    void		removeTab(int id);
 #endif
 
-    void		setTabEnabled( uiGroup*, bool );
-    bool		isTabEnabled( uiGroup* ) const;
+    void		setTabEnabled(uiGroup*,bool);
+    bool		isTabEnabled(uiGroup*) const;
 
-    void		setCurrentPage( int id );
-    void		setCurrentPage( uiGroup* );
+    void		setCurrentPage(int id);
+    void		setCurrentPage(uiGroup*);
 
     uiGroup*		currentPage() const;
-    uiGroup* 		page( int id ) const;
-    int			idOf( uiGroup* ) const;
+    uiGroup* 		page(int id) const;
+    int			idOf(uiGroup*) const;
     int			currentPageId() const;
 
     int			size() const;
 
-    uiTabBar*		tabBar()   { return tabbar_; }
+    uiTabBar*		tabBar()			{ return tabbar_; }
 
 protected:
 
     uiTabBar*		tabbar_;
     uiGroup*		tabgrp_;
 
-    void		tabSel( CallBacker* cb=0 );
+    void		tabSel(CallBacker* cb=0);
 
     mutable BufferString rettxt;
 };
