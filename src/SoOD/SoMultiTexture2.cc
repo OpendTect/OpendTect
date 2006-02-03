@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2005
- RCS:           $Id: SoMultiTexture2.cc,v 1.6 2006-02-02 21:59:46 cvskris Exp $
+ RCS:           $Id: SoMultiTexture2.cc,v 1.7 2006-02-03 19:43:00 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -310,6 +310,9 @@ bool SoMultiTextureProcessor::process( int start, int stop )
 
 	    if ( oper==SoMultiTexture2::BLEND )
 	    {
+		if ( comp==3 )
+		    continue;
+
 		oldval[comp] = (int)((int)oldval[comp] * trans +
 				     (int)pixelcolor[comp] * invtrans)/255;
 	    }
@@ -683,7 +686,7 @@ const unsigned char* SoMultiTexture2::createImage( SbVec2s& size, int& nc )
     if ( findnrthreadstatus==Settled )
 	return res;
 
-    SbTime spenttime = SbTime::getTimeOfDay()-starttime;
+    SbTime spenttime = (SbTime::getTimeOfDay()-starttime)*1e6; //to avoid mEps
     spenttime /= (nrpixels*numimages);
     if ( findnrthreadstatus==NotInit || spenttime<prevtime )
     {
