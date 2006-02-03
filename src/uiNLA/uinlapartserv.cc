@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uinlapartserv.cc,v 1.30 2006-02-02 16:37:03 cvsbert Exp $
+ RCS:           $Id: uinlapartserv.cc,v 1.31 2006-02-03 12:26:46 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -220,7 +220,7 @@ bool uiNLAPartServer::extractDirectData( const ObjectSet<PosVecDataSet>& vdss )
     if ( vdss.size() != crdesc.outids.size() )
     {
 	if ( DBG::isOn() )
-	    DBG::message( "uiNLAPartServer::prepareInputData: "
+	    DBG::message( "uiNLAPartServer::extractDirectData: "
 			  "Nr BinIDValue Sets != Nr. well IDs" );
 	return false;
     }
@@ -273,9 +273,71 @@ bool uiNLAPartServer::extractDirectData( const ObjectSet<PosVecDataSet>& vdss )
 const char* uiNLAPartServer::convertToClasses(
 			const ObjectSet<PosVecDataSet>& vdss )
 {
-    //TODO: implement
-    // Last column in all vdss explodes into N class columns with 0's and 1's
-    return "Litho-prediction on well data not implemented yet";
+    int firstgoodvds = -1;
+    for ( int iset=0; iset<vdss.size(); iset++ )
+    {
+	if ( !vdss[iset]->data().isEmpty() )
+	    { firstgoodvds = iset; break; }
+    }
+    if ( firstgoodvds == -1 )
+	return "No valid data found";
+
+    const int valnr = vdss[firstgoodvds]->data().nrVals() - 1;
+
+    // Discover the litho codes
+    TypeSet<int> codes;
+    for ( int iset=firstgoodvds; iset<vdss.size(); iset++ )
+    {
+	const BinIDValueSet& bvs = vdss[iset]->data();
+	BinIDValueSet::Pos pos;
+	while( bvs.next(pos) )
+	{
+	    const float val = bvs.getVals(pos)[valnr];
+	    if ( Values::isUdf(val) ) continue;
+	    const int code = mNINT(val);
+	    if ( codes.indexOf(code) < 0 )
+		codes += code;
+	}
+    }
+
+    if ( codes.size() < 2 )
+	return "Only one lithology found - need at least 2";
+    else if ( codes.size() > 12 )
+	return "More than 12 lithologies found - please group lithologies";
+
+    sort( codes );
+
+    // Extend with new cols and fill them
+    const BufferString orgnm( vdss[firstgoodvds]->colDef(valnr).name_ );
+    for ( int iset=0; iset<vdss.size(); iset++ )
+    {
+	PosVecDataSet& vds = *vdss[iset];
+	if ( vds.nrCols() < 1 ) continue;
+
+	for ( int icode=0; icode<codes.size(); icode++ )
+	{
+	    BufferString nm( orgnm );
+	    nm += " ["; nm += codes[icode]; nm += "]";
+	    DataColDef* dcd = new DataColDef( nm, nm, 0 );
+	    vds.add( dcd );
+	}
+	if ( vds.data().isEmpty() ) continue;
+
+	// Put 1's and 0's
+	BinIDValueSet& bvs = vds.data();
+	BinIDValueSet::Pos pos;
+	while( bvs.next(pos) )
+	{
+	    float* vals = bvs.getVals( pos );
+	    const float val = vals[valnr];
+	    if ( Values::isUdf(val) ) continue;
+	    const int code = mNINT(val);
+	    for ( int icode=0; icode<codes.size(); icode++ )
+		vals[valnr+icode+1] = code == codes[icode] ? 1 : 0;
+	}
+    }
+
+    return 0;
 }
 
 
@@ -285,14 +347,17 @@ const char* uiNLAPartServer::prepareInputData(
     const NLACreationDesc& crdesc = creationDesc();
 
     const bool directextraction = crdesc.doextraction && crdesc.isdirect;
-    if ( directextraction && !extractDirectData(inpvdss) )
-	return 0;
-
-    if ( directextraction && crdesc.design.classification )
+    if ( directextraction )
     {
-	const char* res = convertToClasses( inpvdss );
-        if ( res )
-	    return res;
+       if ( !extractDirectData(inpvdss) )
+	    return 0;
+
+	if ( crdesc.design.classification )
+	{
+	    const char* res = convertToClasses( inpvdss );
+	    if ( res )
+		return res;
+	}
     }
     const char* res = crdesc.prepareData( inpvdss, trainvds, testvds );
     if ( res ) return res;
