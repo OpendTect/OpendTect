@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vismultitexture.cc,v 1.6 2006-02-02 22:00:27 cvskris Exp $";
+static const char* rcsID = "$Id: vismultitexture.cc,v 1.7 2006-02-03 16:05:18 cvskris Exp $";
 
 #include "vismultitexture2.h"
 
@@ -364,7 +364,7 @@ void TextureInfo::setCurrentVersion( int nidx )
 
     currentversion_ = nidx;
 
-    //TODO Trigger something
+    texture_->textureChange( this );
 }
 
 
