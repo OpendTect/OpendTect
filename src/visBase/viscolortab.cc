@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Mar 2002
- RCS:           $Id: viscolortab.cc,v 1.24 2006-02-02 22:00:27 cvskris Exp $
+ RCS:           $Id: viscolortab.cc,v 1.25 2006-02-03 16:06:12 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -127,15 +127,18 @@ void VisColorTab::scaleTo( const Interval<float>& rg )
 {
     float width = rg.width();
     if ( mIsZero(width,mDefEps) )
-	scaleTo( Interval<float>(rg.start -1, rg.start+1));
+    {
+	scale.constant = rg.start;
+	scale.factor = 0;
+    }
     else
     {
 	scale.factor = 1.0/rg.width();
 	if ( rg.start > rg.stop ) scale.factor *= -1;
 	scale.constant = -rg.start*scale.factor;
-
-	rangechange.trigger();
     }
+
+    rangechange.trigger();
 }
 
 
