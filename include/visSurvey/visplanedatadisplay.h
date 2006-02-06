@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visplanedatadisplay.h,v 1.68 2006-02-01 19:30:01 cvskris Exp $
+ RCS:		$Id: visplanedatadisplay.h,v 1.69 2006-02-06 18:55:54 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -81,27 +81,27 @@ public:
     bool			canHaveMultipleAttribs() const;
     int				nrAttribs() const;
     bool			addAttrib();
-    bool			removeAttrib( int attrib );
-    bool			swapAttribs( int attrib0, int attrib1 );
+    bool			removeAttrib(int attrib);
+    bool			swapAttribs(int attrib0,int attrib1);
 
     bool			hasColorAttribute() const	{ return false;}
     const Attrib::SelSpec*	getSelSpec(int) const;
     void			setSelSpec(int,const Attrib::SelSpec&);
-    virtual bool 		isClassification( int attrib ) const;
-    virtual void		setClassification( int attrib, bool yn );
+    virtual bool 		isClassification(int attrib) const;
+    virtual void		setClassification(int attrib,bool yn);
     const TypeSet<float>*	getHistogram(int) const;
     int				getColTabID(int) const;
 
     CubeSampling		getCubeSampling() const;
     CubeSampling		getCubeSampling(bool manippos,
-	    					bool displayspace ) const;
+	    					bool displayspace) const;
     void			setCubeSampling(CubeSampling);
-    bool			setDataVolume( int attrib,
-	    				       const Attrib::DataCubes* );
-    const Attrib::DataCubes*	getCacheVolume( int attrib ) const;
+    bool			setDataVolume(int attrib,
+	    				      const Attrib::DataCubes*);
+    const Attrib::DataCubes*	getCacheVolume(int attrib) const;
    
     bool			canHaveMultipleTextures() const { return true; }
-    int				nrTextures( int attrib ) const;
+    int				nrTextures(int attrib) const;
     void			selectTexture(int attrib, int texture );
     int				selectedTexture(int attrib) const;
 
@@ -110,27 +110,28 @@ public:
 	    					float& val,
 	    					BufferString& info) const;
 
-    virtual void		fillPar( IOPar&, TypeSet<int>& ) const;
-    virtual int			usePar( const IOPar& );
+    virtual void		fillPar(IOPar&, TypeSet<int>&) const;
+    virtual int			usePar(const IOPar&);
 
-    virtual float		calcDist( const Coord3& ) const;
+    virtual float		calcDist(const Coord3&) const;
     virtual float		maxDist() const;
     virtual bool		allowPicks() const		{ return true; }
 
-    bool			setDataTransform( ZAxisTransform* );
+    bool			setDataTransform(ZAxisTransform*);
 
 protected:
 				~PlaneDataDisplay();
 
-    void			setData( int attrib, const Attrib::DataCubes* );
+    void			setData(int attrib,const Attrib::DataCubes*);
     void			updateRanges();
     void			manipChanged(CallBacker*);
     void			coltabChanged(CallBacker*);
     void			draggerFinish(CallBacker*);
     void			draggerRightClick(CallBacker*);
-    void			setDraggerPos( const CubeSampling& );
+    void			setDraggerPos(const CubeSampling&);
+    void			dataTransformCB(CallBacker*);
 
-    CubeSampling		snapCubeSampling( const CubeSampling& ) const;
+    CubeSampling		snapCubeSampling(const CubeSampling&) const;
 
     visBase::DepthTabPlaneDragger*	dragger_;
     visBase::PickStyle*			rectanglepickstyle_;
@@ -147,6 +148,7 @@ protected:
     float			curzstep_;
     ZAxisTransform*		datatransform_;
     int				datatransformvoihandle_;
+    Notifier<PlaneDataDisplay>	moving_;
 
 
     static const char*		sKeyNrAttribs() { return "Nr Attribs"; }
@@ -154,7 +156,6 @@ protected:
     static const char*		sKeyAttribs() { return "Attrib "; }
     static const char*		sKeyColTabID() { return "Colortable ID"; }
     static const char*		sKeyTextureRect() { return "Texture rectangle";}
-    Notifier<PlaneDataDisplay>	moving_;
 };
 
 };
