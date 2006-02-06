@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.107 2006-02-01 19:30:01 cvskris Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.108 2006-02-06 17:22:24 cvskris Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -625,7 +625,7 @@ void PlaneDataDisplay::setData( int attrib, const Attrib::DataCubes* datacubes )
 	    usedarray = &datacubes->getCube(idx);
 	else
 	{
-	    const CubeSampling cs = getCubeSampling(true,false);
+	    const CubeSampling cs = getCubeSampling(true,true);
 	    datatransform_->loadDataIfMissing( datatransformvoihandle_ );
 
 	    ZAxisTransformSampler outpsampler( *datatransform_, true,BinID(0,0),
