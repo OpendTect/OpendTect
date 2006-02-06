@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: vissurvscene.cc,v 1.77 2006-02-01 19:16:09 cvskris Exp $
+ RCS:           $Id: vissurvscene.cc,v 1.78 2006-02-06 20:24:08 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -290,42 +290,42 @@ void Scene::mouseMoveCB( CallBacker* cb )
     mCBCapsuleUnpack(const visBase::EventInfo&,eventinfo,cb);
     if ( eventinfo.type != visBase::MouseMovement ) return;
 
-    const int sz = eventinfo.pickedobjids.size();
-    bool validpicksurface = false;
-    const Coord3 displayspacepos = 
-	    zscaletransform_->transformBack( eventinfo.pickedpos );
-    xytmousepos_ = utm2disptransform_->transformBack( displayspacepos );
-
     mouseposval_ = mUndefValue;
     mouseposstr_ = "";
-    for ( int idx=0; idx<sz; idx++ )
-    {
-	const DataObject* pickedobj =
-			visBase::DM().getObject(eventinfo.pickedobjids[idx]);
-	mDynamicCastGet(const SurveyObject*,so,pickedobj)
-	if ( so )
-	{
-	    if ( !validpicksurface )
-		validpicksurface = true;
+    xytmousepos_ = Coord3::udf();
 
-	    if ( mIsUndefined(mouseposval_) )
+    const int sz = eventinfo.pickedobjids.size();
+    if ( sz )
+    {
+	const Coord3 displayspacepos = 
+		zscaletransform_->transformBack( eventinfo.pickedpos );
+	xytmousepos_ = utm2disptransform_->transformBack( displayspacepos );
+
+	for ( int idx=0; idx<sz; idx++ )
+	{
+	    const DataObject* pickedobj =
+			visBase::DM().getObject(eventinfo.pickedobjids[idx]);
+	    mDynamicCastGet(const SurveyObject*,so,pickedobj);
+	    if ( so )
 	    {
-		float newmouseposval;
-		BufferString newstr;
-		so->getMousePosInfo( eventinfo, xytmousepos_, newmouseposval,
-				     newstr );
-		if ( newstr != "" )
-		    mouseposstr_ = newstr;
-		if ( !mIsUndefined(newmouseposval) )
-		    mouseposval_ = newmouseposval;
-	    }
-	    else if ( validpicksurface )
+		if ( mIsUndefined(mouseposval_) )
+		{
+		    float newmouseposval;
+		    BufferString newstr;
+		    so->getMousePosInfo( eventinfo, xytmousepos_,
+			    		 newmouseposval, newstr );
+		    if ( newstr != "" )
+			mouseposstr_ = newstr;
+		    if ( !mIsUndefined(newmouseposval) )
+			mouseposval_ = newmouseposval;
+		}
+
 		break;
+	    }
 	}
     }
 
-    if ( validpicksurface )
-	mouseposchange.trigger();
+    mouseposchange.trigger();
 }
 
 
