@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uinlapartserv.h,v 1.14 2006-02-02 16:37:03 cvsbert Exp $
+ RCS:           $Id: uinlapartserv.h,v 1.15 2006-02-06 16:17:54 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -86,7 +86,7 @@ public:
     void		getBinIDValueSets(ObjectSet<BinIDValueSet>&) const;
     const char*		prepareInputData(const ObjectSet<PosVecDataSet>&);
     bool		extractDirectData(const ObjectSet<PosVecDataSet>&);
-    const char*		convertToClasses(const ObjectSet<PosVecDataSet>&);
+    const char*		convertToClasses(const ObjectSet<PosVecDataSet>&,int);
 
 protected:
 

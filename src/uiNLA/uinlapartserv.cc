@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uinlapartserv.cc,v 1.31 2006-02-03 12:26:46 cvsbert Exp $
+ RCS:           $Id: uinlapartserv.cc,v 1.32 2006-02-06 16:17:54 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -271,17 +271,8 @@ bool uiNLAPartServer::extractDirectData( const ObjectSet<PosVecDataSet>& vdss )
 
 
 const char* uiNLAPartServer::convertToClasses(
-			const ObjectSet<PosVecDataSet>& vdss )
+		    const ObjectSet<PosVecDataSet>& vdss, int firstgoodvds )
 {
-    int firstgoodvds = -1;
-    for ( int iset=0; iset<vdss.size(); iset++ )
-    {
-	if ( !vdss[iset]->data().isEmpty() )
-	    { firstgoodvds = iset; break; }
-    }
-    if ( firstgoodvds == -1 )
-	return "No valid data found";
-
     const int valnr = vdss[firstgoodvds]->data().nrVals() - 1;
 
     // Discover the litho codes
@@ -354,9 +345,27 @@ const char* uiNLAPartServer::prepareInputData(
 
 	if ( crdesc.design.classification )
 	{
-	    const char* res = convertToClasses( inpvdss );
+	    int firstgoodvds = -1;
+	    for ( int iset=0; iset<inpvdss.size(); iset++ )
+	    {
+		if ( !inpvdss[iset]->data().isEmpty() )
+		    { firstgoodvds = iset; break; }
+	    }
+	    if ( firstgoodvds == -1 )
+		return "No valid data found";
+
+	    const int orgnrvals = inpvdss[firstgoodvds]->data().nrVals();
+	    const char* res = convertToClasses( inpvdss, firstgoodvds );
 	    if ( res )
 		return res;
+
+	    // change design output nodes to new nodes
+	    BufferStringSet& outps = const_cast<BufferStringSet&>(
+		    				crdesc.design.outputs );
+	    outps.deepErase();
+	    const int newnrvals = inpvdss[firstgoodvds]->data().nrVals();
+	    for ( int idx=orgnrvals; idx<newnrvals; idx++ )
+		outps.add( inpvdss[firstgoodvds]->colDef(idx).name_ );
 	}
     }
     const char* res = crdesc.prepareData( inpvdss, trainvds, testvds );
