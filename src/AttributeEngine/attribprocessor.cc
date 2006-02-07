@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribprocessor.cc,v 1.33 2005-11-30 11:05:45 cvshelene Exp $";
+static const char* rcsID = "$Id: attribprocessor.cc,v 1.34 2006-02-07 13:40:23 cvshelene Exp $";
 
 #include "attribprocessor.h"
 
@@ -86,9 +86,7 @@ int Processor::nextStep()
 	    BinID firstpos;
 
 	    if ( sd_ && sd_->type_ == Seis::Table )
-	    {
 		firstpos = sd_->table_.firstPos();
-	    }
 	    else
 	    {
 		const BinID step = provider->getStepoutStep();
@@ -110,24 +108,24 @@ int Processor::nextStep()
 	}
     }
 
+    provider->updateCurrentInfo();
     const SeisTrcInfo* curtrcinfo = provider->getCurrentTrcInfo();
     const bool needsinput = !provider->getDesc().isStored() && 
 			    provider->getDesc().nrInputs();
-    if ( !curtrcinfo && needsinput && res == 0 )
+    if ( !curtrcinfo && needsinput )
     {
-	if ( res == 0 )
-	{
-	    errmsg = "no position to process\n";
-	    errmsg += "you may not be in the possible volume\n";
-	    errmsg += "mind the stepout...";
-	}
-	else
-	    errmsg = "no Trace info available";
-
+	errmsg = "no Trace info available";
 	return ErrorOccurred;
     }
 
-    if ( res != 0 )
+    if ( res == 0 && !nrdone )
+    {
+	errmsg = "no position to process\n";
+	errmsg += "you may not be in the possible volume\n";
+	errmsg += "mind the stepout...";
+	return ErrorOccurred;
+    }
+    else if ( res != 0 )
     {
 	BinID curbid = provider->getCurrentPosition();
 	if ( is2d_ && curtrcinfo )
