@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          September 2005
- RCS:           $Id: uiattrtrcselout.h,v 1.3 2005-12-28 18:14:04 cvsbert Exp $
+ RCS:           $Id: uiattrtrcselout.h,v 1.4 2006-02-07 13:39:14 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,6 +51,18 @@ protected:
     void                objSel(CallBacker*);
     void                attrSel(CallBacker*);
     void		extraZSel(CallBacker*);
+    void		interpSel(CallBacker*);
+    void		extraWidthSel(CallBacker*);
+
+    void		createSingleHorUI();
+    void		createTwoHorUI();
+    void		createAttrFld(uiGroup*);
+    void		createZIntervalFld(uiGroup*);
+    void		createSubSelFld(uiGroup*);
+    void		createOutsideValFld(uiGroup*);
+    void		createInterpFld(uiGroup*);
+    void		createNrSampFld(uiGroup*);
+    void		createOutputFld(uiGroup*);
 
     CtxtIOObj&		ctio;
     CtxtIOObj&		ctio2;
@@ -66,6 +78,11 @@ protected:
     uiGenInput*		gatefld;
     uiBinIDSubSel*	subselfld;
     uiGenInput*		outsidevalfld;
+    uiGenInput*		interpfld;
+    uiGenInput*		nrsampfld;
+    uiGenInput*		mainhorfld;
+    uiGenInput*		widthfld;
+    uiGenInput*		addwidthfld;
     uiSeisSel*          outpfld;
     bool		usesinglehor_;
 };

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          September 2005
- RCS:           $Id: emhorizonutils.cc,v 1.6 2005-11-09 16:43:37 cvshelene Exp $
+ RCS:           $Id: emhorizonutils.cc,v 1.7 2006-02-07 13:38:48 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,6 +21,8 @@ ________________________________________________________________________
 #include "emsurfaceauxdata.h"
 #include "parametricsurface.h"
 #include "survinfo.h"
+
+#define mMaxSampInterpol	150;
 
 namespace EM
 {
@@ -39,7 +41,8 @@ float HorizonUtils::getZ( const RowCol& rc, const Surface* surface )
 }
 
 
-float HorizonUtils::getMissingZ( const RowCol& rc, const Surface* surface )
+float HorizonUtils::getMissingZ( const RowCol& rc, const Surface* surface,
+				 int nrptinterp )
 {
     int dist = 1;
     int distfirstinlz = 0;
@@ -52,7 +55,7 @@ float HorizonUtils::getMissingZ( const RowCol& rc, const Surface* surface )
     float firstcrlz = -mUdf(float);
     float secondcrlz = -mUdf(float);
     
-    while ( dist<150 )
+    while ( dist<nrptinterp )
     {
 	if ( firstinlz == -mUdf(float) )
 	{
@@ -150,7 +153,9 @@ void HorizonUtils::getWantedPositions( std::ostream& strm,
 				       ObjectSet<MultiID>& midset,
 				       BinIDValueSet& wantedposbivs, 
 				       const HorSampling& hs,
-				       const Interval<float>& extraz )
+				       const Interval<float>& extraz,
+				       int nrinterpsamp, int mainhoridx,
+				       float extrawidth )
 {
     Surface* surface1 = getSurface(*(midset[0]));
     if ( !surface1 ) return;
@@ -164,30 +169,100 @@ void HorizonUtils::getWantedPositions( std::ostream& strm,
     
     strm << "\nFetching surface positions ...\n" ;
     ProgressMeter pm( strm );
-    
-    for ( int idy=hs.start.inl; idy<=hs.stop.inl; idy+=SI().inlStep() )
+   
+    if ( mIsUdf(nrinterpsamp) )
+	nrinterpsamp = mMaxSampInterpol;
+    float meanzinter = 0;
+    int nrpos;
+    float topz, botz, lastzinter;
+    for ( int idi=hs.start.inl; idi<=hs.stop.inl; idi+=SI().inlStep() )
     {
-	for ( int idz=hs.start.crl; idz<=hs.stop.crl; idz+=SI().crlStep() )
+	for ( int idc=hs.start.crl; idc<=hs.stop.crl; idc+=SI().crlStep() )
 	{
-	    float topz = getZ( RowCol(idy,idz), surface1 );
-	    float botz = surface2 ? getZ( RowCol(idy,idz), surface2 ) : 0;
-	    if ( topz == -mUdf(float) )
-		topz = getMissingZ( RowCol(idy,idz), surface1 );
-	    if ( botz == -mUdf(float) )
-		botz = getMissingZ( RowCol(idy,idz), surface2 );
-
-	    if ( topz == -mUdf(float) || botz == -mUdf(float) )
+	    lastzinter = meanzinter;
+	    if ( !getZInterval( idi, idc, surface1, surface2, topz, botz, 
+				nrinterpsamp, mainhoridx, lastzinter, 
+				extrawidth ) )
 		continue;
-
-	    BinIDValues bidval( BinID(idy,idz) );
+	    
+	    BinIDValues bidval( BinID(idi,idc) );
 	    bidval.value(0) = ( surface2 && botz<topz ? botz : topz ) 
 			      + extraz.start;
 	    bidval.value(1) = ( surface2 && botz>topz ? botz : topz ) 
 			      + extraz.stop;
 	    wantedposbivs.add(bidval);
+	    nrpos = wantedposbivs.totalSize();
+	    meanzinter = ( meanzinter*( nrpos -1 ) + lastzinter) / nrpos;
 	    ++pm;
 	}
     }
+}
+
+
+bool HorizonUtils::getZInterval( int idi, int idc, 
+				 Surface* surface1, Surface* surface2, 
+				 float& topz, float& botz, 
+				 int nrinterpsamp, int mainhoridx,
+				 float& lastzinterval, float extrawidth )
+{
+    topz = getZ( RowCol(idi,idc), surface1 );
+    botz = surface2 ? getZ( RowCol(idi,idc), surface2 ) : 0;
+    
+    bool is1interp, is2interp;
+    is1interp = is2interp = false;
+    bool is1main = ( surface2 && mainhoridx==1 ) ? true : false;
+
+    if ( fabs(topz) != mUdf(float) && fabs(botz) != mUdf(float) )
+	lastzinterval = botz - topz;
+    
+    if ( topz == -mUdf(float) && nrinterpsamp )
+    {
+	topz = getMissingZ( RowCol(idi,idc), surface1, nrinterpsamp );
+	is1interp = true;
+    }
+    if ( botz == -mUdf(float) && nrinterpsamp)
+    {
+	botz = getMissingZ( RowCol(idi,idc), surface2, nrinterpsamp );
+	is2interp = true;
+    }
+
+    if ( topz == -mUdf(float) || botz == -mUdf(float) )
+    {
+	if ( !surface2 || mIsZero(extrawidth,0.01) 
+	     || ( extrawidth && topz == -mUdf(float) && is1main )
+	     || ( extrawidth && botz == -mUdf(float) && !is1main ) )
+	    return false;
+	
+	if ( topz == -mUdf(float) )
+	    topz = botz - extrawidth;
+	else if ( botz == -mUdf(float) )
+	    botz = topz + extrawidth;
+    }
+
+    bool isintersect = ( lastzinterval >= 0 && ( botz - topz ) < 0 ) ||
+     		       ( lastzinterval <= 0 && ( botz - topz ) > 0 );
+
+    if ( surface2 && isintersect )
+	return SolveIntersect( topz, botz, nrinterpsamp, is1main, extrawidth, 
+			       is1interp, is2interp );
+
+    return true;
+}
+
+
+bool HorizonUtils::SolveIntersect( float& topz, float& botz, int nrinterpsamp,
+				   int is1main, float extrawidth,
+				   bool is1interp, bool is2interp )
+{
+    bool bothinterp = is1interp && is2interp;
+    if ( is1main && (  bothinterp || !is1interp ) )
+	botz = topz + extrawidth;
+    else if ( !is1main && (  bothinterp || !is2interp ) )
+	topz = botz - extrawidth;
+    else
+	return false;
+
+    return true;
 }
 
 

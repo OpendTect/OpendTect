@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2004
- RCS:           $Id: od_process_attrib_em.cc,v 1.24 2005-12-01 15:03:09 cvshelene Exp $
+ RCS:           $Id: od_process_attrib_em.cc,v 1.25 2006-02-07 13:37:41 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,8 +45,6 @@ ________________________________________________________________________
 
 using namespace Attrib;
 using namespace EM;
-
-#define cMinExtraZ 10;
 
 #define mDestroyWorkers \
 	{ delete proc; proc = 0; }
@@ -363,14 +361,20 @@ bool BatchProgram::go( std::ostream& strm )
 	BinIDValueSet bivs(2,false);
 	SeisTrcBuf seisoutp;
 	float outval;
+	int nrinterpsamp;
+	int mainhoridx = 1;
+	float extrawidth =0;
 	Interval<float> extraz;
 	geompar->get( "Outside Value", outval );
 	geompar->get( "ExtraZInterval", extraz.start, extraz.stop );
-	if ( extraz.start == 0 ) extraz.start = -cMinExtraZ;
-	if ( extraz.stop == 0 ) extraz.stop = cMinExtraZ;
 	extraz.scale(1/SI().zFactor());
+	geompar->get( "Interpolation Stepout", nrinterpsamp );
+	geompar->get( "Leading Horizon", mainhoridx );
+	geompar->get( "Artificial Width", extrawidth );
+	extrawidth /= SI().zFactor();
 
-	HorizonUtils::getWantedPositions( strm, midset, bivs, horsamp, extraz );
+	HorizonUtils::getWantedPositions( strm, midset, bivs, horsamp, extraz,
+					  nrinterpsamp, mainhoridx, extrawidth);
 	proc = aem.createTrcSelOutput( errmsg, bivs, seisoutp, outval );
 	if ( !process( strm, proc, outpid, &seisoutp ) ) return false;
     }

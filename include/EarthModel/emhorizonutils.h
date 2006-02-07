@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          September 2005
- RCS:           $Id: emhorizonutils.h,v 1.4 2005-11-09 16:43:46 cvshelene Exp $
+ RCS:           $Id: emhorizonutils.h,v 1.5 2006-02-07 13:38:40 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,17 +35,21 @@ class HorizonUtils
 {
 public:
 			HorizonUtils(){};
-			~HorizonUtils(){};
 				
-    static float 	getZ(const RowCol&, const Surface*);
-    static float 	getMissingZ(const RowCol&, const Surface*);
+    static float 	getZ(const RowCol&,const Surface*);
+    static float 	getMissingZ(const RowCol&,const Surface*,int);
     static Surface* 	getSurface(const MultiID&);
-    static void 	getPositions(std::ostream&, const MultiID&,
+    static void 	getPositions(std::ostream&,const MultiID&,
 				     ObjectSet<BinIDValueSet>&);
-    static void 	getWantedPositions(std::ostream&, ObjectSet<MultiID>&,
-					   BinIDValueSet&, const HorSampling&,
-					   const Interval<float>&);
-    static void 	addSurfaceData(const MultiID&, const BufferStringSet&,
+    static void 	getWantedPositions(std::ostream&,ObjectSet<MultiID>&,
+					   BinIDValueSet&,const HorSampling&,
+					   const Interval<float>&,int,int,
+					   float);
+    static bool		getZInterval(int,int,Surface*,Surface*,
+	    			     float&,float&,int,int,float&,float);
+	
+    static bool		SolveIntersect(float&,float&,int,int,float,bool,bool);
+    static void 	addSurfaceData(const MultiID&,const BufferStringSet&,
 				       const ObjectSet<BinIDValueSet>&);
 
 protected:
