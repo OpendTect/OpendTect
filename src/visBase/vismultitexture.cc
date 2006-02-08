@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vismultitexture.cc,v 1.7 2006-02-03 16:05:18 cvskris Exp $";
+static const char* rcsID = "$Id: vismultitexture.cc,v 1.8 2006-02-08 22:40:40 cvskris Exp $";
 
 #include "vismultitexture2.h"
 
@@ -89,7 +89,7 @@ class TextureInfo : public CallBackClass
 public:
     			TextureInfo( MultiTexture*, const char* name );
     			~TextureInfo();
-    void		enable( bool yn ) { enabled_=yn; }
+    void		enable( bool yn );
     bool		isEnabled() const { return enabled_; }
     int			nrVersions() const;
     void		setNrVersions(int);
@@ -162,6 +162,17 @@ TextureInfo::~TextureInfo()
 
     deepUnRef( versioncoltab_ );
 }
+
+
+void TextureInfo::enable( bool yn )
+{
+    if ( yn==enabled_ )
+	return;
+
+    enabled_=yn;
+    texture_->updateColorTables();
+}
+
 
 void TextureInfo::setNrVersions( int nsz )
 {
