@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: visemobjdisplay.cc,v 1.72 2006-02-08 08:16:38 cvsnanne Exp $
+ RCS:           $Id: visemobjdisplay.cc,v 1.73 2006-02-08 09:23:34 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -639,6 +639,8 @@ void EMObjectDisplay::readAuxData()
 	    res->add( rc, auxvalues ); 
 	}
     }
+
+    setTranslation( Coord3(0,0,emsurface->geometry.getShift()) );
 
     stuffData( false, &auxdata );
     deepErase( auxdata );
