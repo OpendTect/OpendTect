@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.145 2006-02-08 21:15:05 cvskris Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.146 2006-02-08 22:43:44 cvskris Exp $
 ___________________________________________________________________
 
 -*/
@@ -255,7 +255,17 @@ uiODDataTreeItem::~uiODDataTreeItem()
 { menu_->unRef(); }
 
 
-uiODApplMgr* uiODDataTreeItem::applMgr()
+int uiODDataTreeItem::uiListViewItemType() const
+{
+    uiVisPartServer* visserv = applMgr()->visServer();
+    if ( visserv->canHaveMultipleAttribs( displayID() ) )
+	return uiListViewItem::CheckBox;
+    else
+	return uiTreeItem::uiListViewItemType();
+}
+
+
+uiODApplMgr* uiODDataTreeItem::applMgr() const
 {
     void* res = 0;
     getPropertyPtr( uiODTreeTop::applmgrstr, res );
@@ -263,11 +273,33 @@ uiODApplMgr* uiODDataTreeItem::applMgr()
 }
 
 
-uiSoViewer* uiODDataTreeItem::viewer()
+uiSoViewer* uiODDataTreeItem::viewer() const
 {
     void* res = 0;
     getPropertyPtr( uiODTreeTop::viewerptr, res );
     return reinterpret_cast<uiSoViewer*>( res );
+}
+
+
+bool uiODDataTreeItem::init()
+{
+    uiVisPartServer* visserv = applMgr()->visServer();
+    if ( visserv->canHaveMultipleAttribs( displayID() ) )
+    {
+	uilistviewitem->stateChanged.notify(mCB(this,uiODDataTreeItem,checkCB));
+	uilistviewitem->setChecked( visserv->isAttribEnabled(displayID(),
+		    		    siblingIndex() ) );
+    }
+
+    return uiTreeItem::init();
+}
+
+
+void uiODDataTreeItem::checkCB( CallBacker* cb )
+{
+    uiVisPartServer* visserv = applMgr()->visServer();
+    visserv->enableAttrib( displayID(), siblingIndex(),
+	    		   uilistviewitem->isChecked() );
 }
 
 

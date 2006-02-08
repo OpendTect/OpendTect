@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: uiodtreeitem.h,v 1.15 2006-01-30 23:02:14 cvskris Exp $
+ RCS:		$Id: uiodtreeitem.h,v 1.16 2006-02-08 22:43:45 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -91,9 +91,13 @@ public:
     static const int	cPixmapHeight() { return 10; }
 
 protected:
+    int			uiListViewItemType() const;
+    bool		init();
 
-    uiODApplMgr*	applMgr();
-    uiSoViewer*		viewer();
+    void		checkCB( CallBacker* );
+
+    uiODApplMgr*	applMgr() const;
+    uiSoViewer*		viewer() const;
     int			sceneID() const;
     bool		isSelectable() const { return true; }
     bool		isExpandable() const { return false; }
