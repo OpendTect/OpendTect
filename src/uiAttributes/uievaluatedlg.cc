@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          March 2003
- RCS:           $Id: uievaluatedlg.cc,v 1.5 2005-12-21 10:54:46 cvsnanne Exp $
+ RCS:           $Id: uievaluatedlg.cc,v 1.6 2006-02-08 11:02:57 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -169,7 +169,7 @@ void AttribParamGroup::updatePars( Attrib::Desc& desc, int idx )
     {
 	const int val = initfld->getIntValue() + idx * incrfld->getIntValue();
 	mCreateLabel1(val)
-	fpar->setValue( val );
+	ipar->setValue( val );
     }
     else
 	return;
