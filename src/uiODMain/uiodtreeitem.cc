@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.144 2006-02-01 20:33:56 cvskris Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.145 2006-02-08 21:15:05 cvskris Exp $
 ___________________________________________________________________
 
 -*/
@@ -309,15 +309,20 @@ void uiODDataTreeItem::createMenuCB( CallBacker* cb )
     const bool isfirst = !siblingIndex();
     const bool islast = siblingIndex()==visserv->getNrAttribs( displayID())-1;
 
-    mAddMenuItem( &movemnuitem_, &movetotopmnuitem_, !isfirst, false );
-    mAddMenuItem( &movemnuitem_, &moveupmnuitem_, !isfirst, false );
-    //TODO: Make enabling-check
-    mAddMenuItem( &movemnuitem_, &movedownmnuitem_, !islast, false );
-    mAddMenuItem( &movemnuitem_, &movetobottommnuitem_, !islast, false );
+    const bool islocked = visserv->isLocked( displayID() );
+
+    mAddMenuItem( &movemnuitem_, &movetotopmnuitem_,
+	    	  !islocked && !isfirst, false );
+    mAddMenuItem( &movemnuitem_, &moveupmnuitem_,
+	    	  !islocked && !isfirst, false );
+    mAddMenuItem( &movemnuitem_, &movedownmnuitem_,
+	    	  !islocked && !islast, false );
+    mAddMenuItem( &movemnuitem_, &movetobottommnuitem_,
+		  !islocked && !islast, false );
 
     mAddMenuItem( menu, &movemnuitem_, true, false );
-    mAddMenuItem( menu, &removemnuitem_, visserv->getNrAttribs( displayID())>1,
-	    	  false );
+    mAddMenuItem( menu, &removemnuitem_,
+	          !islocked && visserv->getNrAttribs( displayID())>1, false );
 }
 
 
@@ -736,9 +741,12 @@ void uiODDisplayTreeItem::createMenuCB( CallBacker* cb )
 
     if ( visserv->hasAttrib( displayid_ ) &&
 	 visserv->canHaveMultipleAttribs( displayid_ ) )
-	mAddMenuItem( menu, &addattribmnuitem_, true, false )
+    {
+	mAddMenuItem( menu, &addattribmnuitem_,
+		      !visserv->isLocked( displayid_ ), false );
+    }
     else
-	mResetMenuItem( &addattribmnuitem_ )
+	mResetMenuItem( &addattribmnuitem_ );
 
     lockmnuitem_.text = getLockMenuText(); 
     mAddMenuItem( menu, &lockmnuitem_, true, false );
