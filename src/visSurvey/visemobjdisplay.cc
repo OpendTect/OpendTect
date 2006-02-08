@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: visemobjdisplay.cc,v 1.71 2006-01-18 22:58:59 cvskris Exp $
+ RCS:           $Id: visemobjdisplay.cc,v 1.72 2006-02-08 08:16:38 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -829,6 +829,10 @@ void EMObjectDisplay::setTranslation( const Coord3& nt )
 
     Coord3 shift( nt ); shift.z *= -1;
     translation->setTranslation( shift );
+
+    const EM::EMObject* emobject = em.getObject( oid );
+    mDynamicCastGet(const EM::Horizon*,horizon,emobject);
+    if ( horizon ) horizon->geometry.setShift( shift.z );
 }
 
 
