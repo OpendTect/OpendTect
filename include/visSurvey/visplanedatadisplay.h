@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visplanedatadisplay.h,v 1.69 2006-02-06 18:55:54 cvskris Exp $
+ RCS:		$Id: visplanedatadisplay.h,v 1.70 2006-02-08 22:42:27 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -87,8 +87,10 @@ public:
     bool			hasColorAttribute() const	{ return false;}
     const Attrib::SelSpec*	getSelSpec(int) const;
     void			setSelSpec(int,const Attrib::SelSpec&);
-    virtual bool 		isClassification(int attrib) const;
-    virtual void		setClassification(int attrib,bool yn);
+    bool 			isClassification(int attrib) const;
+    void			setClassification(int attrib,bool yn);
+    void			enableAttrib(int attrib,bool yn);
+    bool			isAttribEnabled(int attrib) const;
     const TypeSet<float>*	getHistogram(int) const;
     int				getColTabID(int) const;
 

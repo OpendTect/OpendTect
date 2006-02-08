@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: vissurvobj.cc,v 1.32 2006-01-30 14:54:05 cvskris Exp $";
+static const char* rcsID = "$Id: vissurvobj.cc,v 1.33 2006-02-08 22:42:27 cvskris Exp $";
 
 #include "vissurvobj.h"
 
@@ -73,9 +73,16 @@ void SurveyObject::setClassification( int, bool )
 {}
 
 
-bool SurveyObject::setDataVolume( int, const Attrib::DataCubes* )
+bool SurveyObject::isAttribEnabled( int ) const
 { return true; }
 
+
+void SurveyObject::enableAttrib( int, bool )
+{}
+
+
+bool SurveyObject::setDataVolume( int, const Attrib::DataCubes* )
+{ return true; }
 
 
 const Attrib::DataCubes* SurveyObject::getCacheVolume( int attrib ) const

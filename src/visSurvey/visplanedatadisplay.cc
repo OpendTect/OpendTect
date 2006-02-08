@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.109 2006-02-06 18:55:54 cvskris Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.110 2006-02-08 22:42:27 cvskris Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -474,6 +474,18 @@ void PlaneDataDisplay::setClassification( int attrib, bool yn )
 	return;
 
     isclassification_[attrib] = yn;
+}
+
+
+bool PlaneDataDisplay::isAttribEnabled( int attrib ) const 
+{
+    return texture_->isTextureEnabled( attrib );
+}
+
+
+void PlaneDataDisplay::enableAttrib( int attrib, bool yn )
+{
+    texture_->enableTexture( attrib, yn );
 }
 
 

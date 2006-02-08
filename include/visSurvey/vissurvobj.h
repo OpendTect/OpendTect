@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvobj.h,v 1.52 2006-02-01 21:54:38 cvskris Exp $
+ RCS:		$Id: vissurvobj.h,v 1.53 2006-02-08 22:42:27 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -141,18 +141,20 @@ public:
     virtual bool			canAddAttrib() const;
     virtual bool			addAttrib();
     virtual bool			canRemoveAttrib() const;
-    virtual bool			removeAttrib( int attrib );
-    virtual bool			swapAttribs( int attrib0, int attrib1 );
-    virtual const Attrib::SelSpec* 	getSelSpec( int attrib ) const;
-    virtual const TypeSet<float>* 	getHistogram( int attrib ) const;
-    virtual int				getColTabID( int attrib ) const;
-    virtual bool 			isClassification( int attrib ) const;
-    virtual void			setClassification( int attrib, bool yn);
+    virtual bool			removeAttrib(int attrib);
+    virtual bool			swapAttribs(int attrib0,int attrib1);
+    virtual const Attrib::SelSpec* 	getSelSpec(int attrib) const;
+    virtual const TypeSet<float>* 	getHistogram(int attrib) const;
+    virtual int				getColTabID(int attrib) const;
+    virtual bool 			isClassification(int attrib) const;
+    virtual void			setClassification(int attrib,bool yn);
+    virtual void			enableAttrib(int attrib,bool yn);
+    virtual bool			isAttribEnabled(int attrib) const;
 
-    virtual void		setSelSpec(int, const Attrib::SelSpec&)	{}
+    virtual void		setSelSpec(int,const Attrib::SelSpec&)	{}
 
     virtual bool		canHaveMultipleTextures() const { return false;}
-    virtual int			nrTextures( int attrib ) const	{ return 0; }
+    virtual int			nrTextures(int attrib) const	{ return 0; }
     virtual void		selectTexture(int attrib, int texture )	{}
     virtual int			selectedTexture(int attrib) const { return 0; }
     virtual void		getMousePosInfo(const visBase::EventInfo&,

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.159 2006-02-01 21:55:36 cvskris Exp $
+ RCS:           $Id: uivispartserv.h,v 1.160 2006-02-08 22:42:27 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -106,11 +106,13 @@ public:
     int			addAttrib(int id);
     void		removeAttrib(int id, int attrib );
     int			getNrAttribs(int id) const;
-    bool		swapAttribs( int id, int attrib0, int attrib1 );
-    const Attrib::SelSpec* getSelSpec(int id, int attrib ) const;
-    void		setSelSpec(int id, int attrib, const Attrib::SelSpec&);
-    bool		isClassification( int id, int attrib ) const;
-    void		setClassification( int id, int attrib, bool yn );
+    bool		swapAttribs(int id,int attrib0,int attrib1);
+    const Attrib::SelSpec* getSelSpec(int id,int attrib) const;
+    void		setSelSpec(int id,int attrib,const Attrib::SelSpec&);
+    bool		isClassification(int id,int attrib ) const;
+    void		setClassification(int id, int attrib, bool yn);
+    bool		isAttribEnabled(int id,int attrib) const;
+    void		enableAttrib(int id,int attrib,bool yn);
     
 			//Volume data stuff
     CubeSampling	getCubeSampling(int id) const;

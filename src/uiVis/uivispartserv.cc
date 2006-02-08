@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.297 2006-02-02 13:38:37 cvskris Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.298 2006-02-08 22:42:27 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -592,6 +592,22 @@ void uiVisPartServer::setClassification( int id, int attrib, bool yn )
     if ( !so ) return;
 
     so->setClassification( attrib, yn );
+}
+
+
+bool uiVisPartServer::isAttribEnabled( int id, int attrib ) const
+{
+    mDynamicCastGet( visSurvey::SurveyObject*, so, getObject(id) );
+    return so ? so->isAttribEnabled( attrib ) : false;
+}
+
+
+void uiVisPartServer::enableAttrib( int id, int attrib, bool yn )
+{
+    mDynamicCastGet( visSurvey::SurveyObject*, so, getObject(id) );
+    if ( !so ) return;
+
+    so->enableAttrib( attrib, yn );
 }
 
 
