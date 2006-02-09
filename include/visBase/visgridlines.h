@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		December 2005
- RCS:		$Id: visgridlines.h,v 1.2 2006-02-09 07:48:06 cvshelene Exp $
+ RCS:		$Id: visgridlines.h,v 1.3 2006-02-09 13:55:53 cvshelene Exp $
 ________________________________________________________________________
 
 
@@ -39,8 +39,11 @@ public:
     void			setLineStyle(const LineStyle&);
     void			getLineStyle(LineStyle&) const;
 
-    void			setCubeSampling(const CubeSampling&);
-    const CubeSampling&		getCubeSampling() 		{ return cs_; }
+    void			setGridCubeSampling(const CubeSampling&);
+    void			setPlaneCubeSampling( const CubeSampling& cs )
+							{ planecs_ = cs; }
+    const CubeSampling&		getGridCubeSampling() 	{ return gridcs_; }
+    const CubeSampling&		getPlaneCubeSampling() 	{ return planecs_; }
 
     void			showInlines(bool);
     bool			areInlinesShown() const;
@@ -51,7 +54,8 @@ public:
 
 protected:
 
-    CubeSampling		cs_;
+    CubeSampling		gridcs_;
+    CubeSampling		planecs_;
     bool			csinlchanged_;
     bool			cscrlchanged_;
     bool			cszchanged_;
@@ -65,6 +69,7 @@ protected:
     DrawStyle*			drawstyle_;
     Transformation*		transformation_;
 
+    void			removeLineSet(IndexedPolyLine*);
     IndexedPolyLine*		addLineSet();
     void			addLine(IndexedPolyLine&,const Coord3& start,
 					const Coord3& stop);

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Payraudeau
  Date:          February 2006
- RCS:           $Id: uigridlinesdlg.cc,v 1.1 2006-02-09 07:48:06 cvshelene Exp $
+ RCS:           $Id: uigridlinesdlg.cc,v 1.2 2006-02-09 13:55:53 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "uisellinest.h"
 #include "uibutton.h"
 #include "survinfo.h"
-#include "ranges.h"
 #include "draw.h"
 
 
@@ -24,7 +23,6 @@ ________________________________________________________________________
     label = "Show"; label += " "; label += lbl; label += " ";\
     label += "gridlines";\
     name##fld_ = new uiCheckBox( this, label );\
-    name##fld_->setChecked();\
     name##fld_->activated.notify( mCB(this,uiGridLinesDlg,showLSSel) );\
     name##spacingfld_ = new uiGenInput( this, "spacing",\
 	    				IntInpIntervalSpec( true ) );\
@@ -53,7 +51,6 @@ uiGridLinesDlg::uiGridLinesDlg( uiParent* p, visSurvey::PlaneDataDisplay* pdd )
     if ( inlfld_ && crlfld_ )
 	crlfld_->attach( alignedBelow, inlspacingfld_ );
 
-    setParameters();
     LineStyle lst;
     pdd->gridlines()->getLineStyle(lst);
     
@@ -65,6 +62,8 @@ uiGridLinesDlg::uiGridLinesDlg( uiParent* p, visSurvey::PlaneDataDisplay* pdd )
     }
     else
 	lsfld_->attach( alignedBelow, crlspacingfld_ );
+    
+    setParameters();
 }
 
 
@@ -95,26 +94,29 @@ void uiGridLinesDlg::showLSSel( CallBacker* cb )
 	    cs.hrg.step.dir = 200;\
 	\
 	cs.hrg.start.dir = cs.hrg.step.dir * \
-			    ( ceil( cs.hrg.start.dir/cs.hrg.step.dir ) );\
+		    ( ceil( (float)cs.hrg.start.dir/(float)cs.hrg.step.dir ) );\
 	cs.hrg.stop.dir = cs.hrg.step.dir * \
-			    ( floor( cs.hrg.stop.dir/cs.hrg.step.dir ) );\
+		    ( floor( (float)cs.hrg.stop.dir/(float)cs.hrg.step.dir ) );\
 
 
 #define mSetDefaultZrgStep()\
 	interval = ( cs.zrg.stop - cs.zrg.start ) * SI().zFactor();\
 	cs.zrg.step = interval<1000 ? 100 : 1000;\
 	cs.zrg.start = cs.zrg.step * \
-			ceil( cs.zrg.start * SI().zFactor() / cs.zrg.step );\
+	    ceil( (float)cs.zrg.start * SI().zFactor() / (float)cs.zrg.step );\
 	cs.zrg.stop = cs.zrg.step * \
-			floor( cs.zrg.stop * SI().zFactor() / cs.zrg.step );\
+	    floor( (float)cs.zrg.stop * SI().zFactor() / (float)cs.zrg.step );\
 
 
 void uiGridLinesDlg::setParameters()
 {
-    bool glinited = !pdd_->gridlines()->getCubeSampling().isEmpty();
+    bool glinited = !pdd_->gridlines()->getGridCubeSampling().isEmpty();
     CubeSampling cs;
     if ( glinited )
-	cs = pdd_->gridlines()->getCubeSampling();
+    {
+	cs = pdd_->gridlines()->getGridCubeSampling();
+	cs.zrg.scale( SI().zFactor() );
+    }
     else
     {
 	float interval;
@@ -143,8 +145,8 @@ void uiGridLinesDlg::setParameters()
     {
 	zfld_->setChecked( glinited ? pdd_->gridlines()->areZlinesShown() 
 				    : true);
-	const StepInterval<int> zintv( (int)cs.zrg.start, (int)cs.zrg.stop,
-				       (int)cs.zrg.step );
+	StepInterval<int> zintv( (int)cs.zrg.start, (int)cs.zrg.stop,
+				 (int)cs.zrg.step );
 	zspacingfld_->setValue(zintv);
     }
 }
@@ -158,10 +160,10 @@ void uiGridLinesDlg::setParameters()
 
 
 #define mGetZrgSampling()\
-    StepInterval<int> zintv = zspacingfld_->getIStepInterval();\
-    cs.zrg.start = zintv.start;\
-    cs.zrg.stop = zintv.stop;\
-    cs.zrg.step = zintv.step;\
+    StepInterval<float> zintv = zspacingfld_->getFStepInterval();\
+    cs.zrg.start = zintv.start/SI().zFactor();\
+    cs.zrg.stop = zintv.stop/SI().zFactor();\
+    cs.zrg.step = zintv.step/SI().zFactor();\
 
 
 bool uiGridLinesDlg::acceptOK( CallBacker* )
@@ -170,15 +172,24 @@ bool uiGridLinesDlg::acceptOK( CallBacker* )
     CubeSampling cs;
     if ( inlfld_ ) { mGetHrgSampling(inl) };
     if ( crlfld_ ) { mGetHrgSampling(crl) };
-    if ( zfld_ ) { mGetZrgSampling() };
+    if ( zfld_ ) { 
+//	mGetZrgSampling() };
+	StepInterval<float> zintv = zspacingfld_->getFStepInterval();
+	cs.zrg.start = zintv.start/SI().zFactor();
+	cs.zrg.stop = zintv.stop/SI().zFactor();
+	cs.zrg.step = zintv.step/SI().zFactor();
+    }
 
-    gl.setCubeSampling(cs);
+    gl.setGridCubeSampling( cs );
+    gl.setPlaneCubeSampling( pdd_->getCubeSampling() );
     if ( inlfld_ )
 	gl.showInlines( inlfld_->isChecked() );
     if ( crlfld_ )
 	gl.showCrosslines( crlfld_->isChecked() );
     if ( zfld_ )
 	gl.showZlines( zfld_->isChecked() );
+
+    gl.setLineStyle( lsfld_->getStyle() );
 
     return true;
 }

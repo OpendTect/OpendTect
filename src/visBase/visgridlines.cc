@@ -3,8 +3,8 @@ ________________________________________________________________________
 
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
- Date:          Decemebr 2005
- RCS:           $Id: visgridlines.cc,v 1.2 2006-02-09 07:48:06 cvshelene Exp $
+ Date:          December 2005
+ RCS:           $Id: visgridlines.cc,v 1.3 2006-02-09 13:55:53 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,7 +27,7 @@ GridLines::GridLines()
     : VisualObjectImpl(false)
     , drawstyle_(DrawStyle::create())
     , transformation_(0)
-    , cs_(false)
+    , gridcs_(false)
     , csinlchanged_(false)
     , cscrlchanged_(false)
     , cszchanged_(false)
@@ -56,19 +56,19 @@ void GridLines::getLineStyle( LineStyle& ls ) const
 }
 
 
-void GridLines::setCubeSampling( const CubeSampling& cs )
+void GridLines::setGridCubeSampling( const CubeSampling& cs )
 {
-    if ( cs==cs_ )
+    if ( cs==gridcs_ )
 	return;
 
-    if ( cs.hrg.inlRange() != cs_.hrg.inlRange() )
+    if ( cs.hrg.inlRange() != gridcs_.hrg.inlRange() )
 	csinlchanged_ = true;
-    if ( cs.hrg.crlRange() != cs_.hrg.crlRange() )
+    if ( cs.hrg.crlRange() != gridcs_.hrg.crlRange() )
 	cscrlchanged_ = true;
-    if ( cs.zrg != cs_.zrg )
+    if ( cs.zrg != gridcs_.zrg )
 	cszchanged_ = true;
 
-    cs_ = cs;
+    gridcs_ = cs;
 }
 
 
@@ -88,21 +88,30 @@ void GridLines::addLine( IndexedPolyLine& lines, const Coord3& start,
 IndexedPolyLine* GridLines::addLineSet()
 {
     IndexedPolyLine* polyline = IndexedPolyLine::create();
+    polyline->setMaterial( Material::create() );
     polylineset_ += polyline;
     addChild( polyline->getInventorNode() );
     return polyline;
 }
 
 
+void GridLines::removeLineSet( IndexedPolyLine* line )
+{
+    removeChild( line->getInventorNode() );
+    polylineset_.remove( polylineset_.indexOf( line ) );
+}
+
+
 void GridLines::drawInlines()
 {
-    if ( inlines_ ) delete inlines_;
+    if ( inlines_ ) removeLineSet( inlines_ );
     inlines_ = addLineSet();
-    const HorSampling& hs = cs_.hrg;
-    for ( int inl=hs.start.inl; inl<=hs.stop.inl; inl+=hs.step.inl )
+    const HorSampling& ghs = gridcs_.hrg;
+    for ( int inl=ghs.start.inl; inl<=ghs.stop.inl; inl+=ghs.step.inl )
     {
-	addLine( *inlines_, Coord3(inl,hs.start.crl,cs_.zrg.start),
-			    Coord3(inl,hs.stop.crl,cs_.zrg.stop) );
+	addLine( *inlines_, 
+		 Coord3(inl,planecs_.hrg.start.crl,planecs_.zrg.start),
+		 Coord3(inl,planecs_.hrg.stop.crl,planecs_.zrg.stop) );
     }
     csinlchanged_ = false;
 }
@@ -110,13 +119,14 @@ void GridLines::drawInlines()
 
 void GridLines::drawCrosslines()
 {
-    if ( crosslines_ ) delete crosslines_;
-	crosslines_ = addLineSet();
-    const HorSampling& hs = cs_.hrg;
-    for ( int crl=hs.start.crl; crl<=hs.stop.crl; crl+=hs.step.crl )
+    if ( crosslines_ ) removeLineSet( crosslines_ );
+    crosslines_ = addLineSet();
+    const HorSampling& ghs = gridcs_.hrg;
+    for ( int crl=ghs.start.crl; crl<=ghs.stop.crl; crl+=ghs.step.crl )
     {
-	addLine( *crosslines_, Coord3(hs.start.inl,crl,cs_.zrg.start),
-			       Coord3(hs.stop.inl,crl,cs_.zrg.stop) );
+	addLine( *crosslines_, 
+		 Coord3(planecs_.hrg.start.inl,crl,planecs_.zrg.start),
+		 Coord3(planecs_.hrg.stop.inl,crl,planecs_.zrg.stop) );
     }
     cscrlchanged_ = false;
 }
@@ -124,14 +134,14 @@ void GridLines::drawCrosslines()
 
 void GridLines::drawZlines() 
 {
-    if ( zlines_ ) delete zlines_;
+    if ( zlines_ ) removeLineSet( zlines_ );
     zlines_ = addLineSet();
-    const HorSampling& hs = cs_.hrg;
-    for ( int zidx=0; zidx<cs_.zrg.nrSteps(); zidx++ )
+    const HorSampling& phs = planecs_.hrg;
+    for ( int zidx=0; zidx<gridcs_.zrg.nrSteps()+1; zidx++ )
     {
-	const float zval = cs_.zrg.atIndex( zidx );
-	addLine( *zlines_, Coord3(hs.start.inl,hs.start.crl,zval),
-			   Coord3(hs.stop.inl,hs.stop.crl,zval) );
+	const float zval = gridcs_.zrg.atIndex( zidx );
+	addLine( *zlines_, Coord3(phs.start.inl,phs.start.crl,zval),
+			   Coord3(phs.stop.inl,phs.stop.crl,zval) );
     }
     cszchanged_ = false;
 }
