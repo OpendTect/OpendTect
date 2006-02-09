@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          October 2005
- RCS:           $Id: uiwellrdmlinedlg.cc,v 1.5 2006-01-25 07:13:40 cvskris Exp $
+ RCS:           $Id: uiwellrdmlinedlg.cc,v 1.6 2006-02-09 14:15:35 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -102,8 +102,8 @@ void uiWell2RandomLineDlg::createSelectButtons( uiGroup* selbuttons )
 
 void uiWell2RandomLineDlg::createMoveButtons( uiGroup* movebuttons )
 {
-    const ioPixmap pm0( GetIconFileName("upwardarrow.png") );
-    const ioPixmap pm1( GetIconFileName("downwardarrow.png") );
+    const ioPixmap pm0( GetIconFileName("uparrow.png") );
+    const ioPixmap pm1( GetIconFileName("downarrow.png") );
 
     uiLabel* movelbl = new uiLabel( movebuttons, "Change \n order" );
     CallBack cb = mCB(this,uiWell2RandomLineDlg,moveButPush);
