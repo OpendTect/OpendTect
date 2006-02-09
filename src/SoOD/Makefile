@@ -2,7 +2,7 @@
 #
 #	Makefile : 	General utilities
 # 	Mar 2004	Nanne Hemstra
-#	RCS :		$Id: Makefile,v 1.11 2005-12-16 17:57:43 cvskris Exp $
+#	RCS :		$Id: Makefile,v 1.12 2006-02-09 13:14:07 cvsnanne Exp $
 #_______________________________________________________________________________
 
 
@@ -18,6 +18,7 @@ SRC.cc	:=	SoCameraInfo.cc \
 		SoPerspectiveSel.cc \
 		SoPlaneWellLog.cc \
 		SoShapeScale.cc \
+		SoText2Set.cc \
 		SoTranslateRectangleDragger.cc \
 		SoRandomTrackLineDragger.cc \
 		SoGridSurfaceDragger.cc \

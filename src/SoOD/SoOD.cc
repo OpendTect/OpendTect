@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: SoOD.cc,v 1.4 2005-12-23 14:35:45 cvskris Exp $";
+static const char* rcsID = "$Id: SoOD.cc,v 1.5 2006-02-09 13:14:07 cvsnanne Exp $";
 
 
 #include "SoOD.h"
@@ -23,6 +23,7 @@ static const char* rcsID = "$Id: SoOD.cc,v 1.4 2005-12-23 14:35:45 cvskris Exp $
 #include "SoPlaneWellLog.h"
 #include "SoIndexedLineSet3D.h"
 #include "SoShapeScale.h"
+#include "SoText2Set.h"
 #include "SoTranslateRectangleDragger.h"
 #include "SoRandomTrackLineDragger.h"
 #include "SoGridSurfaceDragger.h"
@@ -52,6 +53,7 @@ void SoOD::init()
     SoPlaneWellLog::initClass();
     SoIndexedLineSet3D::initClass();
     SoShapeScale::initClass();
+    SoText2Set::initClass();
     SoTranslateRectangleDragger::initClass();
     SoRandomTrackLineDragger::initClass();
     SoGridSurfaceDragger::initClass();
