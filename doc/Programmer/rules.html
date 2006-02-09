@@ -4,7 +4,7 @@
   - Author:	A.H. Bril
   - Date:	Sep 2005
   - Contents:	Development rules & standards
-  - RCS:	$Id: rules.html,v 1.2 2005-10-21 10:58:23 bert Exp $
+  - RCS:	$Id: rules.html,v 1.3 2006-02-09 12:34:26 bert Exp $
  -->
 
 <body background="../backg.png"><title>Rules [OpendTect Programmer's manual V2.3]</title>
@@ -71,7 +71,7 @@ public:
 		SizeKeeper() : sz_(0)		{}
 
     int		size() const			{ return sz_; }
-    void	setSize( int n ) const		{ sz_ = n; }
+    void	setSize( int n )		{ sz_ = n; }
 
 protected:
 
@@ -82,13 +82,13 @@ and:
 <code><pre>
 class X { public: X() : n(0) {}
 protected: int n;
-public: int N() const { return n; } void sn(int p) const { n = p; } };
+public: int N() const { return n; } void sn(int p) { n = p; } };
 </code></pre>
 </p>
 <p>
 The second class definition looks like crap, and is difficult to understand,
 especially when you imagine the code where the class is used. Maybe the first
-definition isn't that clear for everybody immediately the start, but it's
+definition isn't that clear for everybody immediately at the start, but it's
 easy to see that once you get used to the style, it will be easy and fun to
 work with this kind of code.
 </p>
@@ -144,7 +144,7 @@ problems with it:
 <br>
 <b>Rule (2): Make your code look just like all the other code.</b>
 <br>
-Combinining (1) and (2) could casually be described as: make sure all team
+Combining (1) and (2) could casually be described as: make sure all team
 members feel at home in your code at all times.
 </p>
 
