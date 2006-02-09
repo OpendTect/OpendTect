@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emobject.cc,v 1.58 2005-12-13 16:54:21 cvskris Exp $";
+static const char* rcsID = "$Id: emobject.cc,v 1.59 2006-02-09 21:54:36 cvskris Exp $";
 
 #include "emobject.h"
 
@@ -111,9 +111,7 @@ EMObject::~EMObject()
 BufferString EMObject::name() const
 {
     PtrMan<IOObj> ioobj = IOM().get( multiID() );
-    static BufferString objnm;
-    objnm = ioobj ? ioobj->name() : "";
-    return objnm;
+    return BufferString( ioobj ? ioobj->name() : "" );
 }
 
 
