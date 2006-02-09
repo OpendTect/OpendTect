@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.110 2006-02-08 22:42:27 cvskris Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.111 2006-02-09 07:48:06 cvshelene Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -21,6 +21,7 @@ static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.110 2006-02-08 22:42
 #include "viscolortab.h"
 #include "viscoord.h"
 #include "visdepthtabplanedragger.h"
+#include "visgridlines.h"
 #include "vispickstyle.h"
 #include "visfaceset.h"
 #include "vismultitexture2.h"
@@ -45,6 +46,7 @@ PlaneDataDisplay::PlaneDataDisplay()
     , rectangle_( visBase::FaceSet::create() )
     , rectanglepickstyle_( visBase::PickStyle::create() )
     , dragger_( visBase::DepthTabPlaneDragger::create() )
+    , gridlines_( visBase::GridLines::create() )
     , curicstep_(SI().inlStep(),SI().crlStep())
     , curzstep_(SI().zStep())
     , datatransform_( 0 )
@@ -79,6 +81,8 @@ PlaneDataDisplay::PlaneDataDisplay()
     material->setAmbience( 0.8 );
     material->setDiffIntensity( 0.8 );
 
+    gridlines_->ref();
+    addChild( gridlines_->getInventorNode() );
 
     setOrientation( Inline );
     updateRanges();
@@ -103,6 +107,7 @@ PlaneDataDisplay::~PlaneDataDisplay()
     rectangle_->unRef();
     dragger_->unRef();
     rectanglepickstyle_->unRef();
+    gridlines_->unRef();
 }
 
 

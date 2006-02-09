@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.146 2006-02-08 22:43:44 cvskris Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.147 2006-02-09 07:48:06 cvshelene Exp $
 ___________________________________________________________________
 
 -*/
@@ -45,6 +45,9 @@ ___________________________________________________________________
 #include "uislicesel.h"
 #include "uipickszdlg.h"
 #include "uicolor.h"
+#include "visgridlines.h"
+#include "uigridlinesdlg.h"
+
 
 #include "visrandomtrackdisplay.h"
 #include "viswelldisplay.h"
@@ -2064,13 +2067,16 @@ bool uiODPickSetTreeItem::askContinueAndSaveIfNeeded()
 uiODPlaneDataTreeItem::uiODPlaneDataTreeItem( int did, int dim_ )
     : dim(dim_)
     , positiondlg(0)
+    , gridlines_(0)
     , positionmnuitem_("Position ...")
+    , gridlinesmnuitem_("Gridlines ...")
 { displayid_ = did; }
 
 
 uiODPlaneDataTreeItem::~uiODPlaneDataTreeItem()
 {
     delete positiondlg;
+    if ( gridlines_ ) delete gridlines_;
 }
 
 
@@ -2125,7 +2131,8 @@ void uiODPlaneDataTreeItem::createMenuCB( CallBacker* cb )
     if ( menu->menuID()!=displayID() )
 	return;
 
-    mAddMenuItem(menu, &positionmnuitem_, !visserv->isLocked(displayid_), false);
+    mAddMenuItem(menu, &positionmnuitem_, !visserv->isLocked(displayid_),false);
+    mAddMenuItem(menu, &gridlinesmnuitem_, true, false);
 
     uiSeisPartServer* seisserv = applMgr()->seisServer();
     int type = menu->getMenuType();
@@ -2149,12 +2156,14 @@ void uiODPlaneDataTreeItem::handleMenuCB( CallBacker* cb )
     mDynamicCastGet(uiMenuHandler*,menu,caller);
     if ( menu->menuID()!=displayID() || mnuid==-1 || menu->isHandled() )
 	return;
+    
+    mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,
+		    visserv->getObject(displayid_))
 
     if ( mnuid==positionmnuitem_.id )
     {
 	menu->setIsHandled(true);
-	mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,
-			visserv->getObject(displayid_))
+	if ( !pdd ) return;
 	delete positiondlg;
 	const CubeSampling& sics = SI().sampling(true);
 	positiondlg = new uiSliceSel( getUiParent(), pdd->getCubeSampling(),
@@ -2166,6 +2175,14 @@ void uiODPlaneDataTreeItem::handleMenuCB( CallBacker* cb )
 	positiondlg->go();
 	applMgr()->enableMenusAndToolbars( false );
 	applMgr()->enableSceneManipulation( false );
+    }
+    else if ( mnuid == gridlinesmnuitem_.id )
+    {
+	menu->setIsHandled(true);
+	if ( !pdd ) return;
+
+	uiGridLinesDlg gldlg( getUiParent(), pdd );
+	gldlg.go();
     }
     else
     {

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:		$Id: uiattrvolout.cc,v 1.14 2005-12-28 18:14:04 cvsbert Exp $
+ RCS:		$Id: uiattrvolout.cc,v 1.15 2006-02-09 07:48:06 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -249,10 +249,12 @@ bool uiAttrVolOut::fillPar( IOPar& iop )
     clonedset->removeDesc( nlamodelid );
     iop.set( "Target value", todofld->getAttrName() );
     BufferString linename;
-    if ( clonedset->is2D() )
+    if ( todofld->is2D() )
     {
 	MultiID ky;
-	const Desc* desc = clonedset->getFirstStored( Only2D );
+	DescSet descset;
+	descset.usePar(nlamodel->pars());
+	const Desc* desc = descset.getFirstStored( Only2D );
 	if ( desc && desc->getMultiID(ky) )
 	{
 	    iop.set( "Input Line Set", ky );

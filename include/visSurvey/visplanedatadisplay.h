@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visplanedatadisplay.h,v 1.70 2006-02-08 22:42:27 cvskris Exp $
+ RCS:		$Id: visplanedatadisplay.h,v 1.71 2006-02-09 07:48:06 cvshelene Exp $
 ________________________________________________________________________
 
 
@@ -26,6 +26,7 @@ namespace visBase
     class Coordinates;
     class DepthTabPlaneDragger;
     class FaceSet;
+    class GridLines;
     class MultiTexture2; 
     class PickStyle;
 };
@@ -107,6 +108,8 @@ public:
     void			selectTexture(int attrib, int texture );
     int				selectedTexture(int attrib) const;
 
+    visBase::GridLines*		gridlines()		{ return gridlines_; }
+
     void			getMousePosInfo(const visBase::EventInfo&,
 	    					const Coord3&,
 	    					float& val,
@@ -139,6 +142,7 @@ protected:
     visBase::PickStyle*			rectanglepickstyle_;
     visBase::MultiTexture2*		texture_;
     visBase::FaceSet*			rectangle_;
+    visBase::GridLines*			gridlines_;
     Orientation				orientation_;
 
 
