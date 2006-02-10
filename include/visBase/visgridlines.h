@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		December 2005
- RCS:		$Id: visgridlines.h,v 1.3 2006-02-09 13:55:53 cvshelene Exp $
+ RCS:		$Id: visgridlines.h,v 1.4 2006-02-10 10:54:28 cvshelene Exp $
 ________________________________________________________________________
 
 
@@ -33,6 +33,7 @@ class GridLines : public VisualObjectImpl
 public:
     static GridLines*		create()
     				mCreateDataObj(GridLines);
+    				~GridLines();
 
     void			setDisplayTransformation(Transformation*);
 
@@ -69,7 +70,7 @@ protected:
     DrawStyle*			drawstyle_;
     Transformation*		transformation_;
 
-    void			removeLineSet(IndexedPolyLine*);
+    void			emptyLineSet(IndexedPolyLine*);
     IndexedPolyLine*		addLineSet();
     void			addLine(IndexedPolyLine&,const Coord3& start,
 					const Coord3& stop);

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          December 2005
- RCS:           $Id: visgridlines.cc,v 1.3 2006-02-09 13:55:53 cvshelene Exp $
+ RCS:           $Id: visgridlines.cc,v 1.4 2006-02-10 10:54:28 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,6 +35,14 @@ GridLines::GridLines()
     inlines_ = crosslines_ = zlines_ = trcnrlines_ = 0;
 
     addChild( drawstyle_->getInventorNode() );
+}
+
+
+GridLines::~GridLines()
+{
+    if ( inlines_ ) removeChild( inlines_->getInventorNode() );
+    if ( crosslines_ ) removeChild( crosslines_->getInventorNode() );
+    if ( zlines_ ) removeChild( zlines_->getInventorNode() );
 }
 
 
@@ -95,17 +103,20 @@ IndexedPolyLine* GridLines::addLineSet()
 }
 
 
-void GridLines::removeLineSet( IndexedPolyLine* line )
+void GridLines::emptyLineSet( IndexedPolyLine* line )
 {
-    removeChild( line->getInventorNode() );
-    polylineset_.remove( polylineset_.indexOf( line ) );
+    line->removeCoordIndexAfter( 0 );
+    line->getCoordinates()->removeAfter( 0 );
 }
 
 
 void GridLines::drawInlines()
 {
-    if ( inlines_ ) removeLineSet( inlines_ );
-    inlines_ = addLineSet();
+    if ( !inlines_ ) 
+	inlines_ = addLineSet();
+    else
+	emptyLineSet( inlines_ );
+    
     const HorSampling& ghs = gridcs_.hrg;
     for ( int inl=ghs.start.inl; inl<=ghs.stop.inl; inl+=ghs.step.inl )
     {
@@ -119,8 +130,11 @@ void GridLines::drawInlines()
 
 void GridLines::drawCrosslines()
 {
-    if ( crosslines_ ) removeLineSet( crosslines_ );
-    crosslines_ = addLineSet();
+    if ( !crosslines_ ) 
+	crosslines_ = addLineSet();
+    else
+	emptyLineSet( crosslines_ );
+    
     const HorSampling& ghs = gridcs_.hrg;
     for ( int crl=ghs.start.crl; crl<=ghs.stop.crl; crl+=ghs.step.crl )
     {
@@ -134,8 +148,11 @@ void GridLines::drawCrosslines()
 
 void GridLines::drawZlines() 
 {
-    if ( zlines_ ) removeLineSet( zlines_ );
-    zlines_ = addLineSet();
+    if ( !zlines_ ) 
+	zlines_ = addLineSet();
+    else
+	emptyLineSet( zlines_ );
+    
     const HorSampling& phs = planecs_.hrg;
     for ( int zidx=0; zidx<gridcs_.zrg.nrSteps()+1; zidx++ )
     {
