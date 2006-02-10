@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.298 2006-02-08 22:42:27 cvskris Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.299 2006-02-10 13:27:04 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -1345,6 +1345,7 @@ void uiVisPartServer::setupRdmLinePreview( TypeSet<Coord> coords )
 void uiVisPartServer::cleanPreview()
 {
     mDynamicCastGet(visBase::DataObject*,doobj,pldisplay_);
+    if ( !doobj ) return;
     for ( int idx=0; idx<scenes_.size(); idx++ )
     {
 	int objidx = scenes_[idx]->getFirstIdx( doobj );
