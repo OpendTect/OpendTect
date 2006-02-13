@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.299 2006-02-10 13:27:04 cvshelene Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.300 2006-02-13 13:35:51 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -1349,7 +1349,7 @@ void uiVisPartServer::cleanPreview()
     for ( int idx=0; idx<scenes_.size(); idx++ )
     {
 	int objidx = scenes_[idx]->getFirstIdx( doobj );
-	scenes_[idx]->removeObject( objidx );
+	if ( objidx >= 0 ) scenes_[idx]->removeObject( objidx );
     }
 }
 
