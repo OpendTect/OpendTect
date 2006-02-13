@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          December 2005
- RCS:           $Id: visgridlines.cc,v 1.4 2006-02-10 10:54:28 cvshelene Exp $
+ RCS:           $Id: visgridlines.cc,v 1.5 2006-02-13 15:41:40 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,9 +40,12 @@ GridLines::GridLines()
 
 GridLines::~GridLines()
 {
-    if ( inlines_ ) removeChild( inlines_->getInventorNode() );
-    if ( crosslines_ ) removeChild( crosslines_->getInventorNode() );
-    if ( zlines_ ) removeChild( zlines_->getInventorNode() );
+    for ( int idx=0; idx<polylineset_.size(); idx++ )
+    {
+	removeChild( polylineset_[idx]->getInventorNode() );
+	polylineset_[idx]->unRef();
+	polylineset_.remove(idx--);
+    }
 }
 
 
@@ -69,11 +72,13 @@ void GridLines::setGridCubeSampling( const CubeSampling& cs )
     if ( cs==gridcs_ )
 	return;
 
-    if ( cs.hrg.inlRange() != gridcs_.hrg.inlRange() )
+    if ( cs.hrg.inlRange() != gridcs_.hrg.inlRange() || 
+	 cs.hrg.step.inl != gridcs_.hrg.step.inl )
 	csinlchanged_ = true;
-    if ( cs.hrg.crlRange() != gridcs_.hrg.crlRange() )
+    if ( cs.hrg.crlRange() != gridcs_.hrg.crlRange() ||
+	 cs.hrg.step.crl != gridcs_.hrg.step.crl )
 	cscrlchanged_ = true;
-    if ( cs.zrg != gridcs_.zrg )
+    if ( cs.zrg != gridcs_.zrg || cs.zrg.step != gridcs_.zrg.step )
 	cszchanged_ = true;
 
     gridcs_ = cs;
@@ -97,6 +102,7 @@ IndexedPolyLine* GridLines::addLineSet()
 {
     IndexedPolyLine* polyline = IndexedPolyLine::create();
     polyline->setMaterial( Material::create() );
+    polyline->ref();
     polylineset_ += polyline;
     addChild( polyline->getInventorNode() );
     return polyline;
