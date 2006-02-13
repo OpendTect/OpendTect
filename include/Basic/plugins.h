@@ -7,7 +7,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		Aug 2003
  Contents:	Plugins
- RCS:		$Id: plugins.h,v 1.13 2006-01-10 15:45:41 cvsbert Exp $
+ RCS:		$Id: plugins.h,v 1.14 2006-02-13 15:34:24 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,7 +39,7 @@ typedef struct {
 /*! To be called from program (once for EARLY, once for LATE) */
 void LoadAutoPlugins(int argc,char** argv,int inittype);
 /*! To be called from program if needed */
-bool LoadPlugin(const char* libnm,int argc,char** argv);
+int LoadPlugin(const char* libnm);
 
 
 #ifdef __cpp__
@@ -89,29 +89,51 @@ bool LoadPlugin(const char* libnm,int argc,char** argv);
  Make sure it returns an object of type PluginManager::Info*. Make sure it
  points to an existing object (static or made with new/malloc);
 
+3) The user of PIM() can decide not to load all of the .alo load libs. After
+   setArgs, the getData() list is filled. You can remove entries from this list
+   before calling loadAuto().
+
  */
 
 class PluginManager
 {
 public:
 
-    void			setArgs( int argc, char** argv )
-				{ argc_ = argc, argv_ = argv; }
-    bool			load( const char* libnm )
-				{ return LoadPlugin(libnm,argc_,argv_); }
-    void			loadAuto( bool late=true )
-				{ LoadAutoPlugins( argc_, argv_,
-				  late?PI_AUTO_INIT_LATE:PI_AUTO_INIT_EARLY); }
+    void			setArgs(int argc,char** argv);
+    void			loadAuto(bool late=true);
+    bool			load(const char* libnm);
 
-    bool			isLoaded(const char*); //!< file or username
-    const BufferStringSet&	loadedFileNames() const
-				{ return loaded_; }
+    struct Data
+    {
+	enum AutoSource		{ None, UserDir, AppDir, Both };
+	static bool		isUserDir( AutoSource src )
+	    			{ return src != AppDir && src != None; }
+
+				Data( const char* nm )
+				    : name_(nm)
+				    , info_(0)
+				    , autosource_(None)		{}
+
+	BufferString		name_;
+	PluginInfo*		info_;
+	AutoSource		autosource_;
+    };
+
+    ObjectSet<Data>&		getData()		{ return data_; }
+    Data*			findData( const char* nm )
+    				{ return fndData( nm ); }
+    const Data*			findData( const char* nm ) const
+    				{ return fndData( nm ); }
+    const Data*			findDataWithDispName(const char*) const;
+
+    bool			isLoaded(const char*) const;
+    bool			isPresent(const char*) const;
     const char*			userName(const char*) const;
-    				//!< returns without 'lib', extension and path
-    const PluginInfo&		getInfo(const char*) const;
+    				//!< returns without path, 'lib' and extension
+    const char*			getFileName(const Data&) const;
 
-    const char*			defDir(bool instdir=true) const;
-    				//! base directoy where plugins are located
+    const char*			getAutoDir( bool usr ) const
+				{ return usr ? userlibdir_ : applibdir_; }
 
 private:
 
@@ -120,18 +142,21 @@ private:
 
     int				argc_;
     char**			argv_;
+    ObjectSet<Data>		data_;
     static PluginManager*	theinst_;
-    BufferStringSet		loaded_;
-    ObjectSet<PluginInfo>	info_;
 
-    void			getUsrNm(const char*,BufferString&) const;
-    const char*			getFullName(const char*) const;
+    BufferString		userdir_;
+    BufferString		appdir_;
+    BufferString		userlibdir_;
+    BufferString		applibdir_;
 
-public:
+    bool			isPresent(const char*);
+    Data*			fndData(const char*) const;
+    void			getDefDirs();
+    void			getALOEntries(const char*,bool);
+    void			mkALOList();
+    bool			loadAutoLib(Data&,bool,bool);
 
-    void			addLoaded( const char* s, PluginInfo* p )
-				{ loaded_ += new BufferString(s); info_ += p; }
-    				//!< Don't use.
 };
 
 inline PluginManager& PIM()

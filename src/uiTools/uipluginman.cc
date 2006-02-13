@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Oct 2003
- RCS:           $Id: uipluginman.cc,v 1.12 2006-01-10 15:45:41 cvsbert Exp $
+ RCS:           $Id: uipluginman.cc,v 1.13 2006-02-13 15:34:24 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,51 +50,63 @@ uiPluginMan::uiPluginMan( uiParent* p )
 void uiPluginMan::fillList()
 {
     listfld->empty();
-    const BufferStringSet& nms = PIM().loadedFileNames();
-    for ( int idx=0; idx<nms.size(); idx++ )
-	listfld->addItem( PIM().getInfo(nms.get(idx)).dispname );
-    if ( nms.size() )
+    const ObjectSet<PluginManager::Data>& lst = PIM().getData();
+    BufferStringSet notloaded;
+    for ( int idx=0; idx<lst.size(); idx++ )
+    {
+	const PluginManager::Data& data = *lst[idx];
+	if ( !data.info_ )
+	    { notloaded.add( data.name_ ); continue; }
+
+	listfld->addItem( data.info_->dispname );
+    }
+    listfld->addItems( notloaded );
+    if ( listfld->size() )
 	listfld->setCurrentItem( 0 );
 }
 
 
 void uiPluginMan::selChg( CallBacker* )
 {
-    int curidx = listfld->currentItem();
-    if ( curidx < 0 ) return;
-
-    BufferString fnm = PIM().loadedFileNames().get(curidx);
-    const PluginInfo& piinf = PIM().getInfo( fnm );
+    const char* nm = listfld->getText();
+    if ( !nm || !*nm ) return;
 
     BufferString txt;
-    txt = "Filename: "; txt += fnm;
-    txt += "\nCreated by: "; txt += piinf.creator;
-    if ( piinf.version && *piinf.version )
+    const PluginManager::Data* data = PIM().findDataWithDispName( nm );
+    if ( !data )
+	txt = "This plugin was not loaded";
+    else
     {
-	txt += "\nVersion: ";
-	if ( *piinf.version != '=' )
-	    txt += piinf.version;
-	else
+	txt = "Filename: "; txt += PIM().getFileName( *data );
+	const PluginInfo& piinf = *data->info_;
+	txt += "\nCreated by: "; txt += piinf.creator;
+	if ( piinf.version && *piinf.version )
 	{
-	    FilePath fp( GetSoftwareDir() );
-	    BufferString fnm = ".rel.";
-	    fnm += piinf.version+1; fnm += "."; fnm += GetPlfSubDir();
-	    fp.add( fnm );
-	    StreamData sd = StreamProvider( fp.fullPath() ).makeIStream();
-	    if ( !sd.usable() )
-		txt += "<unknown>";
+	    txt += "\nVersion: ";
+	    if ( *piinf.version != '=' )
+		txt += piinf.version;
 	    else
 	    {
-		char buf[80];
-		sd.istrm->getline( buf, 80 );
-		txt += buf;
+		FilePath fp( GetSoftwareDir() );
+		BufferString fnm = ".rel.";
+		fnm += piinf.version+1; fnm += "."; fnm += GetPlfSubDir();
+		fp.add( fnm );
+		StreamData sd = StreamProvider( fp.fullPath() ).makeIStream();
+		if ( !sd.usable() )
+		    txt += "<unknown>";
+		else
+		{
+		    char buf[80];
+		    sd.istrm->getline( buf, 80 );
+		    txt += buf;
+		}
+		sd.close();
 	    }
-	    sd.close();
 	}
-    }
 
-    txt += "\n\n";
-    txt += piinf.text;
+	txt += "\n\n";
+	txt += piinf.text;
+    }
 
     infofld->setText( txt );
 }
@@ -117,7 +129,11 @@ void uiPluginMan::loadPush( CallBacker* )
 
     static BufferString defdir;
     if ( defdir == "" )
-	defdir = PIM().defDir(true);
+    {
+	defdir = PIM().getAutoDir( true );
+	if ( !File_exists(defdir) )
+	    defdir = PIM().getAutoDir( false );
+    }
 
     uiFileDialog dlg( this, uiFileDialog::ExistingFile, defdir, filt, captn );
     if ( !dlg.go() ) return;
