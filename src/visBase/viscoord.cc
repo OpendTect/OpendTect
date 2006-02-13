@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2002
- RCS:           $Id: viscoord.cc,v 1.21 2005-07-15 13:57:19 cvskris Exp $
+ RCS:           $Id: viscoord.cc,v 1.22 2006-02-13 22:50:20 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -147,6 +147,20 @@ int Coordinates::addPos( const Coord3& pos )
 }
 
 
+void Coordinates::insertPos( int idx, const Coord3& pos )
+{
+    Threads::MutexLocker lock( mutex );
+    coords->point.insertSpace( idx, 1 );
+    for ( int idy=unusedcoords.size()-1; idy>=0; idy-- )
+    {
+	if ( unusedcoords[idy]>=idx )
+	    unusedcoords[idy]++;
+    }
+
+    setPosWithoutLock(idx,pos);
+}
+
+
 Coord3 Coordinates::getPos( int idx, bool scenespace ) const
 {
     SbVec3f scenepos = coords->point[idx];
@@ -206,7 +220,7 @@ void Coordinates::setPosWithoutLock( int idx, const Coord3& pos )
 }
 
 
-void Coordinates::removePos( int idx )
+void Coordinates::removePos( int idx, bool keepidxafter )
 {
     Threads::MutexLocker lock( mutex );
     if ( idx==coords->point.getNum()-1 )
@@ -214,8 +228,17 @@ void Coordinates::removePos( int idx )
 	coords->point.deleteValues( idx );
 	unusedcoords -= idx;
     }
-    else
+    else if ( keepidxafter )
 	unusedcoords += idx;
+    else
+    {
+	coords->point.deleteValues( idx, 1 );
+	for ( int idy=unusedcoords.size()-1; idy>=0; idy-- )
+	{
+	    if ( unusedcoords[idy]>idx )
+		unusedcoords[idy]--;
+	}
+    }
 }
 
 
