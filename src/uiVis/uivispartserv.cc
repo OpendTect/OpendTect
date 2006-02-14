@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.301 2006-02-14 13:32:19 cvshelene Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.302 2006-02-14 21:40:12 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -986,8 +986,12 @@ bool uiVisPartServer::calculateAttrib( int id, int attrib, bool newselect )
 	return true;
     }
 
+
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
     if ( !so ) return false;
+
+    if ( so->isManipulated() )
+	so->acceptManipulation();
 
     const Attrib::SelSpec* as = so->getSelSpec( attrib );
     if ( !as ) return false;
@@ -1000,13 +1004,10 @@ bool uiVisPartServer::calculateAttrib( int id, int attrib, bool newselect )
 	    return false;
     }
 
-    bool res = false;
     eventmutex_.lock();
     eventobjid_ = id;
     eventattrib_ = attrib;
-    res = sendEvent( evGetNewData );
-    if ( res ) so->acceptManipulation();
-    return res;
+    return sendEvent( evGetNewData );
 }
 
 
@@ -1165,8 +1166,9 @@ void uiVisPartServer::deselectObjCB( CallBacker* cb )
     mDynamicCastGet(visSurvey::SurveyObject*,so,dobj)
     if ( so )
     {    
-	if ( so->isManipulated() )
+	if ( so->isManipulated() && !isLocked(oldsel) )
 	{
+	    so->acceptManipulation();
 	    for ( int attrib=so->nrAttribs()-1; attrib>=0; attrib-- )
 		calculateAttrib( oldsel, attrib, false );
 	}
