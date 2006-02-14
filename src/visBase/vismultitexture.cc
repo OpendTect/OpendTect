@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vismultitexture.cc,v 1.8 2006-02-08 22:40:40 cvskris Exp $";
+static const char* rcsID = "$Id: vismultitexture.cc,v 1.9 2006-02-14 21:52:32 cvskris Exp $";
 
 #include "vismultitexture2.h"
 
@@ -316,6 +316,9 @@ void TextureInfo::clipData( int version )
 {
     if ( versionfloatdata_[version] )
 	versioncoltab_[version]->scaleTo( versionfloatdata_[version], sz_ );
+    else
+	texture_->textureChange( this );
+
 }
 
 
