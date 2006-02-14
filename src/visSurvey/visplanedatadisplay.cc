@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.111 2006-02-09 07:48:06 cvshelene Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.112 2006-02-14 21:20:26 cvskris Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -15,9 +15,11 @@ static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.111 2006-02-09 07:48
 #include "vistexturerect.h"
 #include "survinfo.h"
 #include "samplfunc.h"
+#include "scaler.h"
 #include "visdataman.h"
 #include "visrectangle.h"
 #include "vismaterial.h"
+#include "vistexturecoords.h"
 #include "viscolortab.h"
 #include "viscoord.h"
 #include "visdepthtabplanedragger.h"
@@ -543,6 +545,7 @@ void PlaneDataDisplay::setCubeSampling( CubeSampling cs )
     curicstep_ = cs.hrg.step;
     curzstep_ = cs.zrg.step;
 
+    texture_->clearAll();
     moving_.trigger();
 
     if ( !datatransform_ )
@@ -699,7 +702,29 @@ void PlaneDataDisplay::setData( int attrib, const Attrib::DataCubes* datacubes )
 	slice.setDimMap( 1, dim1 );
 
 	if ( slice.init() )
+	{
 	    texture_->setData( attrib, idx, &slice );
+
+	    visBase::TextureCoords* tcoords = rectangle_->getTextureCoords();
+	    if ( !tcoords )
+	    {
+		tcoords = visBase::TextureCoords::create();
+		rectangle_->setTextureCoords( tcoords );
+	    }
+	    
+	    const LinScaler dim0scale( -0.5, 0, slice.info().getSize(0)-0.5, 1);
+	    const LinScaler dim1scale( -0.5, 0, slice.info().getSize(1)-0.5, 1);
+	    const Interval<float> dim0rg( dim0scale.scale(0),
+				  dim0scale.scale(slice.info().getSize(0)-1) );
+	    const Interval<float> dim1rg( dim1scale.scale(0), 
+				  dim1scale.scale(slice.info().getSize(1)-1) );
+
+
+	    tcoords->setCoord( 0, Coord3( dim1rg.start, dim0rg.start, 0 ) );
+	    tcoords->setCoord( 1, Coord3( dim1rg.start, dim0rg.stop, 0 ) );
+	    tcoords->setCoord( 2, Coord3( dim1rg.stop, dim0rg.stop, 0 ) );
+	    tcoords->setCoord( 3, Coord3( dim1rg.stop, dim0rg.start, 0 ) );
+	}
 	else
 	{
 	    texture_->turnOn(false);

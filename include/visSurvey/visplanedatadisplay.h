@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visplanedatadisplay.h,v 1.71 2006-02-09 07:48:06 cvshelene Exp $
+ RCS:		$Id: visplanedatadisplay.h,v 1.72 2006-02-14 21:20:26 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -157,10 +157,7 @@ protected:
     Notifier<PlaneDataDisplay>	moving_;
 
 
-    static const char*		sKeyNrAttribs() { return "Nr Attribs"; }
     static const char*		sKeyOrientation() { return "Orientation"; }
-    static const char*		sKeyAttribs() { return "Attrib "; }
-    static const char*		sKeyColTabID() { return "Colortable ID"; }
     static const char*		sKeyTextureRect() { return "Texture rectangle";}
 };
 
