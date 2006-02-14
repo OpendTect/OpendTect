@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2003
- RCS:           $Id: uiwellpartserv.cc,v 1.21 2006-01-16 12:26:02 cvshelene Exp $
+ RCS:           $Id: uiwellpartserv.cc,v 1.22 2006-02-14 13:32:20 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,15 +37,15 @@ const int uiWellPartServer::evCleanPreview			=2;
 
 uiWellPartServer::uiWellPartServer( uiApplService& a )
     : uiApplPartServer(a)
-    , rdmlinedlg(0)
+    , rdmlinedlg_(0)
 {
 }
 
 
 uiWellPartServer::~uiWellPartServer()
 {
-    if ( rdmlinedlg )
-	delete rdmlinedlg;
+    if ( rdmlinedlg_ )
+	delete rdmlinedlg_;
 }
 
 
@@ -114,15 +114,15 @@ void uiWellPartServer::manageWells()
 
 void uiWellPartServer::selectWellCoordsForRdmLine()
 {
-    rdmlinedlg = new uiWell2RandomLineDlg( appserv().parent(), this );
-    rdmlinedlg->windowClosed.notify( mCB(this,uiWellPartServer,rdmlnDlgClosed));
-    rdmlinedlg->go();
+    rdmlinedlg_ = new uiWell2RandomLineDlg( appserv().parent(), this );
+    rdmlinedlg_->windowClosed.notify(mCB(this,uiWellPartServer,rdmlnDlgClosed));
+    rdmlinedlg_->go();
 }
 
 
 void uiWellPartServer::rdmlnDlgClosed( CallBacker* )
 {
-    if ( rdmlinedlg->uiResult() == 0 )
+    if ( rdmlinedlg_->uiResult() == 0 )
 	sendEvent( evCleanPreview );
     else
 	sendEvent( evCreateRdmLine );
@@ -137,7 +137,7 @@ void uiWellPartServer::sendPreviewEvent()
 
 void uiWellPartServer::getRdmLineCoordinates( TypeSet<Coord>& coords )
 {
-    rdmlinedlg->getCoordinates( coords );
+    rdmlinedlg_->getCoordinates( coords );
 }
 
 

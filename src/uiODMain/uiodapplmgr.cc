@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.116 2006-02-01 21:56:51 cvskris Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.117 2006-02-14 13:32:19 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,6 +24,7 @@ ________________________________________________________________________
 #include "uiwellattribpartserv.h"
 #include "vispicksetdisplay.h"
 #include "visrandomtrackdisplay.h"
+#include "vispolylinedisplay.h"
 #include "uiattrsurfout.h"
 #include "uiattrtrcselout.h"
 
@@ -642,7 +643,7 @@ bool uiODApplMgr::handleWellServEv( int evid )
     {
 	TypeSet<Coord> coords;
 	wellserv->getRdmLineCoordinates( coords );
-	visserv->setupRdmLinePreview( coords );
+	setupRdmLinePreview( coords );
 	enableTree(false);
 	enableMenusAndToolbars(false);
     }
@@ -650,7 +651,7 @@ bool uiODApplMgr::handleWellServEv( int evid )
     {
 	TypeSet<Coord> coords;
 	wellserv->getRdmLineCoordinates( coords );
-	visserv->cleanPreview();
+	cleanPreview();
 
 	TypeSet<BinID> bidset;
 	for ( int idx=0; idx<coords.size(); idx++ )
@@ -669,7 +670,7 @@ bool uiODApplMgr::handleWellServEv( int evid )
     }
     if ( evid == uiWellPartServer::evCleanPreview )
     {
-	visserv->cleanPreview();
+	cleanPreview();
 	enableTree( true );
 	enableMenusAndToolbars( true );
     }
@@ -1012,3 +1013,37 @@ void uiODApplMgr::modifyColorTable( int visid, int attrib )
 
 void uiODApplMgr::setHistogram( int visid, int attrib )
 { appl.colTabEd().setHistogram( visserv->getHistogram(visid,attrib) ); }
+
+
+void uiODApplMgr::setupRdmLinePreview(const TypeSet<Coord>& coords)
+{
+    if ( wellserv->getPreviewIds().size()>0 )
+	cleanPreview();
+
+    TypeSet<int> plids;
+    TypeSet<int> sceneids;
+    visSurvey::PolyLineDisplay* pl = visSurvey::PolyLineDisplay::create();
+    pl->fillPolyLine( coords );
+    mDynamicCastGet(visBase::DataObject*,doobj,pl);
+    visserv->getChildIds( -1, sceneids );
+    
+    for ( int idx=0; idx<sceneids.size(); idx++ )
+    {
+	visserv->addObject( doobj, sceneids[idx], true );
+	plids.addIfNew( doobj->id() );
+    }
+    wellserv->setPreviewIds(plids);
+}
+
+
+void uiODApplMgr::cleanPreview()
+{
+    TypeSet<int> sceneids;
+    visserv->getChildIds( -1, sceneids );
+    TypeSet<int>& previds = wellserv->getPreviewIds();
+    if ( previds.size() == 0 ) return;
+    for ( int idx=0; idx<sceneids.size(); idx++ )
+	visserv->removeObject( previds[0],sceneids[idx] );
+
+    previds.erase();
+}

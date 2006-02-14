@@ -6,12 +6,13 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Payraudeau
  Date:          February 2006
- RCS:           $Id: uigridlinesdlg.h,v 1.1 2006-02-09 07:48:06 cvshelene Exp $
+ RCS:           $Id: uigridlinesdlg.h,v 1.2 2006-02-14 13:32:19 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uidialog.h"
+#include "ranges.h"
 
 class uiGenInput;
 class uiCheckBox;
@@ -29,6 +30,7 @@ protected:
     void		setParameters();
     void 		showLSSel(CallBacker*);
     bool                acceptOK(CallBacker*);
+
     uiCheckBox*		inlfld_;
     uiCheckBox*		crlfld_;
     uiCheckBox*		zfld_;

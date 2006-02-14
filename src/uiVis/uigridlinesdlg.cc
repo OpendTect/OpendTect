@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Payraudeau
  Date:          February 2006
- RCS:           $Id: uigridlinesdlg.cc,v 1.2 2006-02-09 13:55:53 cvshelene Exp $
+ RCS:           $Id: uigridlinesdlg.cc,v 1.3 2006-02-14 13:32:19 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,7 +24,7 @@ ________________________________________________________________________
     label += "gridlines";\
     name##fld_ = new uiCheckBox( this, label );\
     name##fld_->activated.notify( mCB(this,uiGridLinesDlg,showLSSel) );\
-    name##spacingfld_ = new uiGenInput( this, "spacing",\
+    name##spacingfld_ = new uiGenInput( this, "Spacing",\
 	    				IntInpIntervalSpec( true ) );\
     name##spacingfld_->attach( alignedBelow, name##fld_ );
 
@@ -82,30 +82,32 @@ void uiGridLinesDlg::showLSSel( CallBacker* cb )
 	    	    (crlfld_ && crlfld_->isChecked()) ||
 		    (zfld_ && zfld_->isChecked()) );
 }
-    
-
-#define mSetDefaultHrgStep(dir)\
-	interval = cs.hrg.stop.dir - cs.hrg.start.dir;\
-	if ( interval/10 < 50 )\
-	    cs.hrg.step.dir = 50;\
-	else if ( interval/10 < 100 )\
-	    cs.hrg.step.dir = 100;\
-	else\
-	    cs.hrg.step.dir = 200;\
-	\
-	cs.hrg.start.dir = cs.hrg.step.dir * \
-		    ( ceil( (float)cs.hrg.start.dir/(float)cs.hrg.step.dir ) );\
-	cs.hrg.stop.dir = cs.hrg.step.dir * \
-		    ( floor( (float)cs.hrg.stop.dir/(float)cs.hrg.step.dir ) );\
 
 
-#define mSetDefaultZrgStep()\
-	interval = ( cs.zrg.stop - cs.zrg.start ) * SI().zFactor();\
-	cs.zrg.step = interval<1000 ? 100 : 1000;\
-	cs.zrg.start = cs.zrg.step * \
-	    ceil( (float)cs.zrg.start * SI().zFactor() / (float)cs.zrg.step );\
-	cs.zrg.stop = cs.zrg.step * \
-	    floor( (float)cs.zrg.stop * SI().zFactor() / (float)cs.zrg.step );\
+static void setDefaultHorSampling( int& start, int& stop, int& step )
+{
+    const float interval = stop - start;
+    if ( interval/10 < 50 )
+	step = 50;
+    else if ( interval/10 < 100 )
+	step = 100;
+    else
+	step = 200;
+
+    start = step * (int)( ceil( (float)start/(float)step ) );
+    stop = step * (int)( floor( (float)stop/(float)step ) );
+}
+
+
+static void setDefaultZSampling( StepInterval<float>& zrg )
+{
+    const float interval = ( zrg.stop - zrg.start ) * SI().zFactor();
+    zrg.step = interval<1000 ? 100 : 1000;
+    zrg.start = zrg.step * 
+	ceil( (float)zrg.start * SI().zFactor() / (float)zrg.step );
+    zrg.stop = zrg.step * 
+	floor( (float)zrg.stop * SI().zFactor() / (float)zrg.step );
+}
 
 
 void uiGridLinesDlg::setParameters()
@@ -120,9 +122,11 @@ void uiGridLinesDlg::setParameters()
     else
     {
 	float interval;
-	mSetDefaultHrgStep(inl);
-	mSetDefaultHrgStep(crl);
-	mSetDefaultZrgStep();
+	setDefaultHorSampling( cs.hrg.start.inl, cs.hrg.stop.inl, 
+			       cs.hrg.step.inl );
+	setDefaultHorSampling( cs.hrg.start.crl, cs.hrg.stop.crl, 
+			       cs.hrg.step.crl );
+	setDefaultZSampling( cs.zrg );
     }
     
     if ( inlfld_ )
@@ -159,25 +163,16 @@ void uiGridLinesDlg::setParameters()
     cs.hrg.step.dir = dir##intv.step;\
 
 
-#define mGetZrgSampling()\
-    StepInterval<float> zintv = zspacingfld_->getFStepInterval();\
-    cs.zrg.start = zintv.start/SI().zFactor();\
-    cs.zrg.stop = zintv.stop/SI().zFactor();\
-    cs.zrg.step = zintv.step/SI().zFactor();\
-
-
 bool uiGridLinesDlg::acceptOK( CallBacker* )
 {
     visBase::GridLines& gl = *pdd_->gridlines();
     CubeSampling cs;
     if ( inlfld_ ) { mGetHrgSampling(inl) };
     if ( crlfld_ ) { mGetHrgSampling(crl) };
-    if ( zfld_ ) { 
-//	mGetZrgSampling() };
-	StepInterval<float> zintv = zspacingfld_->getFStepInterval();
-	cs.zrg.start = zintv.start/SI().zFactor();
-	cs.zrg.stop = zintv.stop/SI().zFactor();
-	cs.zrg.step = zintv.step/SI().zFactor();
+    if ( zfld_ )
+    {
+	assign( cs.zrg, zspacingfld_->getFStepInterval() );
+	cs.zrg.scale( 1/SI().zFactor() );
     }
 
     gl.setGridCubeSampling( cs );

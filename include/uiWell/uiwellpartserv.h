@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2003
- RCS:           $Id: uiwellpartserv.h,v 1.19 2006-01-16 12:22:52 cvshelene Exp $
+ RCS:           $Id: uiwellpartserv.h,v 1.20 2006-02-14 13:32:19 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,6 +46,9 @@ public:
     void			getRdmLineCoordinates(TypeSet<Coord>&);
     void			sendPreviewEvent();
     void			rdmlnDlgClosed(CallBacker*);
+    void			setPreviewIds( const TypeSet<int>& ids )
+				{ previewids_ = ids; }
+    TypeSet<int>&		getPreviewIds() 	{ return previewids_; }
     
     void			createWellFromPicks();
     const char*			askWellName();
@@ -60,7 +63,8 @@ public:
     
 protected:
 
-    uiWell2RandomLineDlg*	rdmlinedlg;
+    uiWell2RandomLineDlg*	rdmlinedlg_;
+    TypeSet<int>		previewids_;
 
 };
 

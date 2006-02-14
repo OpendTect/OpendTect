@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.147 2006-02-09 07:48:06 cvshelene Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.148 2006-02-14 13:32:19 cvshelene Exp $
 ___________________________________________________________________
 
 -*/
@@ -2067,17 +2067,13 @@ bool uiODPickSetTreeItem::askContinueAndSaveIfNeeded()
 uiODPlaneDataTreeItem::uiODPlaneDataTreeItem( int did, int dim_ )
     : dim(dim_)
     , positiondlg(0)
-    , gridlines_(0)
     , positionmnuitem_("Position ...")
     , gridlinesmnuitem_("Gridlines ...")
 { displayid_ = did; }
 
 
 uiODPlaneDataTreeItem::~uiODPlaneDataTreeItem()
-{
-    delete positiondlg;
-    if ( gridlines_ ) delete gridlines_;
-}
+{ delete positiondlg; }
 
 
 bool uiODPlaneDataTreeItem::init()

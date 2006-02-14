@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiodapplmgr.h,v 1.28 2006-01-18 22:58:59 cvskris Exp $
+ RCS:           $Id: uiodapplmgr.h,v 1.29 2006-02-14 13:32:19 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -164,6 +164,8 @@ protected:
     bool			handleAttribServEv(int);
 
     void			setHistogram( int visid, int attrib );
+    void			setupRdmLinePreview(const TypeSet<Coord>&);
+    void			cleanPreview();
 
     friend class		uiODApplService;
 
