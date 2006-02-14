@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          January 2003
- RCS:           $Id: visrandomtrackdisplay.cc,v 1.62 2006-01-31 09:02:29 cvsnanne Exp $
+ RCS:           $Id: visrandomtrackdisplay.cc,v 1.63 2006-02-14 21:22:13 cvskris Exp $
  ________________________________________________________________________
 
 -*/
@@ -19,13 +19,18 @@
 #include "seisbuf.h"
 #include "seistrc.h"
 #include "interpol.h"
+#include "scaler.h"
 #include "survinfo.h"
 #include "visdataman.h"
 #include "vismaterial.h"
-#include "visrandomtrack.h"
 #include "vistristripset.h"
+#include "visrandomtrack.h"
+#include "visrandomtrackdragger.h"
+#include "vistexturecoords.h"
 #include "vistransform.h"
 #include "viscolortab.h"
+#include "viscoord.h"
+#include "vismultitexture2.h"
 #include "colortab.h"
 #include "ptrman.h"
 
@@ -36,33 +41,55 @@ mCreateFactoryEntry( visSurvey::RandomTrackDisplay );
 namespace visSurvey
 {
 
-const char* RandomTrackDisplay::trackstr = "Random track";
-const char* RandomTrackDisplay::nrknotsstr = "Nr. Knots";
-const char* RandomTrackDisplay::knotprefix = "Knot ";
-const char* RandomTrackDisplay::depthintvstr = "Depth Interval";
-
-
+const char* RandomTrackDisplay::sKeyTrack() 	    { return "Random track"; }
+const char* RandomTrackDisplay::sKeyNrKnots() 	    { return "Nr. Knots"; }
+const char* RandomTrackDisplay::sKeyKnotPrefix()    { return "Knot "; }
+const char* RandomTrackDisplay::sKeyDepthInterval() { return "Depth Interval"; }
 
 RandomTrackDisplay::RandomTrackDisplay()
-    : VisualObject(true)
-    , track(0)
-    , texturematerial(visBase::Material::create())
-    , as(*new Attrib::SelSpec)
-    , colas(*new Attrib::ColorSelSpec)
-    , knotmoving(this)
-    , moving(this)
-    , selknotidx(-1)
-    , ismanip(false)
-    , cache(*new SeisTrcBuf(true))
-    , colcache(*new SeisTrcBuf(true))
+    : VisualObjectImpl(true)
+    , texture_( visBase::MultiTexture2::create() )
+    , triangles_( visBase::TriangleStripSet::create() )
+    , dragger_( visBase::RandomTrackDragger::create() )
+    , knotmoving_(this)
+    , moving_(this)
+    , selknotidx_(-1)
+    , ismanip_(false)
+    , datatransform_( 0 )
 {
-    setRandomTrack( visBase::RandomTrack::create() );
+    TypeSet<int> randomlines;
+    visBase::DM().getIds( typeid(*this), randomlines );
+    int highestnamenr = 0;
+    for ( int idx=0; idx<randomlines.size(); idx++ )
+    {
+	mDynamicCastGet( const RandomTrackDisplay*, rtd,
+			 visBase::DM().getObject(randomlines[idx]) );
+	if ( rtd == this )
+	    continue;
 
-    texturematerial->ref();
-    texturematerial->setColor( Color::White );
-    texturematerial->setAmbience( 0.8 );
-    texturematerial->setDiffIntensity( 0.8 );
-    track->setMaterial( texturematerial );
+	if ( rtd->nameNr()>highestnamenr )
+	    highestnamenr = rtd->nameNr();
+    }
+
+    namenr_ = highestnamenr+1;
+
+    BufferString nm( "Random Line "); nm += namenr_;
+    setName( nm );
+
+    dragger_->ref();
+    addChild( dragger_->getInventorNode() );
+    dragger_->motion.notify( mCB(this,visSurvey::RandomTrackDisplay,knotMoved));
+
+    texture_->ref();
+    addChild( texture_->getInventorNode() );
+    texture_->setTextureRenderQuality(1);
+
+    triangles_->ref();
+    addChild( triangles_->getInventorNode() );
+    triangles_->setMaterial( 0 );
+    triangles_->setVertexOrdering(0);
+    triangles_->setShapeType(0);
+    triangles_->setTextureCoords( visBase::TextureCoords::create() );
 
     const StepInterval<float>& survinterval = SI().zRange(true);
     const StepInterval<float> inlrange( SI().sampling(true).hrg.start.inl,
@@ -72,159 +99,186 @@ RandomTrackDisplay::RandomTrackDisplay()
 	    				SI().sampling(true).hrg.stop.crl,
 	    				SI().crlStep() );
 
-    track->setDepthInterval( Interval<float>( survinterval.start,
-					      survinterval.stop ));
-    BinID start( mNINT(inlrange.center()), mNINT(crlrange.start) );
-    BinID stop(start.inl, mNINT(crlrange.stop) );
+    const BinID start( mNINT(inlrange.center()), mNINT(crlrange.start) );
+    const BinID stop(start.inl, mNINT(crlrange.stop) );
 
-    setKnotPos( 0, start );
-    setKnotPos( 1, stop );
+    addKnot( start );
+    addKnot( stop );
 
-    track->setXrange( StepInterval<float>( inlrange.start,
-		    			   inlrange.stop,
-					   inlrange.step ));
+    setDepthInterval( Interval<float>( survinterval.start,
+				       survinterval.stop ));
 
-    track->setYrange( StepInterval<float>( crlrange.start,
-	    				   crlrange.stop,
-					   crlrange.step ));
-
-    track->setZrange( StepInterval<float>( survinterval.start,
-					   survinterval.stop,
-					   survinterval.step ));
+    dragger_->setLimits(
+	    Coord3( inlrange.start, crlrange.start, survinterval.start ),
+	    Coord3( inlrange.stop, crlrange.stop, survinterval.stop ),
+	    Coord3( inlrange.step, crlrange.step, survinterval.step ) );
 
     const int baselen = mNINT((inlrange.width()+crlrange.width())/2);
     
-    track->setDraggerSize( Coord3( baselen/50, baselen/50,
-	    			   survinterval.width()/50 ));
-    showManipulator(true);
-    showManipulator(false);
+    dragger_->setSize( Coord3(baselen/50,baselen/50,survinterval.width()/50) );
+				   
+    as_ += new Attrib::SelSpec;
+    cache_.allowNull();
+    cache_ += 0;
 }
 
 
 RandomTrackDisplay::~RandomTrackDisplay()
 {
-    track->knotmovement.remove( mCB(this,RandomTrackDisplay,knotMoved) );
-    track->knotnrchange.remove( mCB(this,RandomTrackDisplay,knotNrChanged) );
-    track->unRef();
-    texturematerial->unRef();
+    triangles_->unRef();
+    texture_->unRef();
+    dragger_->unRef();
 
-    delete &as;
-    delete &colas;
-    delete &cache;
-    delete &colcache;
+
+    deepErase( as_ );
+    deepErase( cache_ );
 }
 
 
-void RandomTrackDisplay::setRandomTrack( visBase::RandomTrack* rt )
+const Attrib::SelSpec* RandomTrackDisplay::getSelSpec( int attrib ) const
 {
-    if ( track )
+    return attrib>=0 && attrib<as_.size() ? as_[attrib] : 0;
+}
+
+
+void RandomTrackDisplay::setSelSpec( int attrib, const Attrib::SelSpec& as )
+{
+    if ( attrib>=0 && attrib<as_.size() )
     {
-	track->knotmovement.remove( mCB(this,RandomTrackDisplay,knotMoved) );
-	track->knotnrchange.remove( mCB(this,RandomTrackDisplay,knotNrChanged));
-	track->unRef();
+	*as_[attrib] = as;
+
+        if ( cache_[attrib] ) delete cache_[attrib];
+	    cache_.replace( attrib, 0 );
+	                            
+	const char* usrref = as.userRef();
+	if ( !usrref || !*usrref )
+	    texture_->turnOn( false );
     }
-
-    track = rt;
-    track->ref();
-    track->setSelectable(false);
-    track->knotmovement.notify( mCB(this,RandomTrackDisplay,knotMoved) );
-    track->knotnrchange.notify( mCB(this,RandomTrackDisplay,knotNrChanged) );
 }
-
-
-void RandomTrackDisplay::setSelSpec( int attrib, const Attrib::SelSpec& as_ )
-{
-    if ( attrib ) return;
-    as = as_;
-    track->useTexture( false );
-    setName( as.userRef() );
-}
-
-
-void RandomTrackDisplay::setColorSelSpec( const Attrib::ColorSelSpec& as_ )
-{ colas = as_; }
 
 
 void RandomTrackDisplay::setDepthInterval( const Interval<float>& intv )
 { 
-    track->setDepthInterval( intv );
-    moving.trigger();
+    const Interval<float> curint = getDepthInterval();
+    if ( mIsEqual(curint.start,intv.start, 1e-3 ) &&
+	 mIsEqual(curint.stop,intv.stop, 1e-3 ) )
+	return;
+
+    visBase::Coordinates* coords = triangles_->getCoordinates();
+    for ( int idx=0; idx<coords->size(); idx++ )
+    {
+	coords->setPos( idx, Coord3( coords->getPos(idx), intv.start) );
+	idx++;
+	coords->setPos( idx, Coord3( coords->getPos(idx), intv.stop) );
+    }
+
+    dragger_->setDepthRange( intv );
+
+    texture_->clearAll();
+    moving_.trigger();
 }
 
 
-void RandomTrackDisplay::setManipDepthInterval( const Interval<float>& intv )
+Interval<float> RandomTrackDisplay::getDepthInterval() const
 {
-    track->setDraggerDepthInterval( intv );
+    const visBase::Coordinates* coords = triangles_->getCoordinates();
+    return Interval<float>( coords->getPos(0).z,  coords->getPos(1).z );
 }
 
 
 Interval<float> RandomTrackDisplay::getDataTraceRange() const
-{ return track->getDraggerDepthInterval(); }
+{
+    //TODO Adapt if ztransform is present
+    const visBase::Coordinates* coords = triangles_->getCoordinates();
+    return Interval<float>( coords->getPos(0).z,  coords->getPos(1).z );
+}
 
 
 int RandomTrackDisplay::nrKnots() const
-{ return track->nrKnots(); }
+{ return triangles_->getCoordinates()->size()/2; }
 
 
-void RandomTrackDisplay::addKnot( const BinID& bid_ )
+void RandomTrackDisplay::addKnot( const BinID& bid )
 {
-    const BinID bid = snapPosition( bid_ );
-    if ( checkPosition(bid) )
+    const BinID sbid = snapPosition( bid );
+    if ( checkPosition(sbid) )
     {
-	track->addKnot( Coord(bid.inl,bid.crl) );
-	moving.trigger();
+	const Interval<float> zrg( getDataTraceRange() );
+	visBase::Coordinates* coords = triangles_->getCoordinates();
+	const int i0 = coords->addPos( Coord3( sbid.inl, sbid.crl, zrg.start) );
+	const int i1 = coords->addPos( Coord3( sbid.inl, sbid.crl, zrg.stop) );
+
+	const int idx = triangles_->nrCoordIndex();
+	triangles_->setCoordIndex( i0, i0 );
+	triangles_->setCoordIndex( i1, i1 );
+
+	dragger_->setKnot( i0/2, Coord(sbid.inl,sbid.crl) );
+	texture_->clearAll();
+	moving_.trigger();
     }
 }
 
 
-void RandomTrackDisplay::insertKnot( int knotidx, const BinID& bid_ )
+void RandomTrackDisplay::insertKnot( int knotidx, const BinID& bid )
 {
-    const BinID bid = snapPosition(bid_);
-    if ( checkPosition(bid) )
+    const BinID sbid = snapPosition(bid);
+    if ( checkPosition(sbid) )
     {
-	track->insertKnot( knotidx, Coord(bid.inl,bid.crl) ); 
-	moving.trigger();
+	const Interval<float> zrg( getDataTraceRange() );
+	visBase::Coordinates* coords = triangles_->getCoordinates();
+	coords->insertPos( knotidx*2, Coord3( sbid.inl, sbid.crl, zrg.start) );
+	coords->insertPos( knotidx*2+1, Coord3( sbid.inl, sbid.crl, zrg.stop) );
+
+	const int ciidx = triangles_->nrCoordIndex();
+	triangles_->setCoordIndex( ciidx, ciidx );
+	triangles_->setCoordIndex( ciidx+1, ciidx+1 );
+
+	dragger_->setKnot( knotidx, Coord(sbid.inl,sbid.crl) );
+	texture_->clearAll();
+	for ( int idx=0; idx<nrAttribs(); idx++ )
+	    setData( idx, cache_[0] );
+
+	moving_.trigger();
     }
 }
 
 
 BinID RandomTrackDisplay::getKnotPos( int knotidx ) const
 {
-    Coord crd = track->getKnotPos( knotidx );
+    const Coord3 crd = triangles_->getCoordinates()->getPos(knotidx*2);
     return BinID( (int)crd.x, (int)crd.y ); 
 }
 
 
 BinID RandomTrackDisplay::getManipKnotPos( int knotidx ) const
 {
-    Coord crd = track->getDraggerKnotPos( knotidx );
-    return BinID( (int)crd.x, (int)crd.y );
+    const Coord crd = dragger_->getKnot( knotidx );
+    return BinID( mNINT(crd.x), mNINT(crd.y) );
 }
 
 
-void RandomTrackDisplay::getAllKnotPos( TypeSet<BinID>& bidset ) const
+void RandomTrackDisplay::getAllKnotPos( TypeSet<BinID>& knots ) const
 {
-    const int nrknots = track->nrKnots();
+    const int nrknots = nrKnots();
     for ( int idx=0; idx<nrknots; idx++ )
-	bidset += getManipKnotPos( idx );
+	knots += getManipKnotPos( idx );
 }
 
 
-void RandomTrackDisplay::setKnotPos( int knotidx, const BinID& bid_ )
+void RandomTrackDisplay::setKnotPos( int knotidx, const BinID& bid )
 {
-    const BinID bid = snapPosition(bid_);
-    if ( checkPosition(bid) )
+    const BinID sbid = snapPosition(bid);
+    if ( checkPosition(sbid) )
     {
-	track->setKnotPos( knotidx, Coord(bid.inl,bid.crl) );
-	moving.trigger();
+	const Interval<float> zrg( getDataTraceRange() );
+	visBase::Coordinates* coords = triangles_->getCoordinates();
+	coords->setPos( knotidx*2, Coord3( sbid.inl, sbid.crl, zrg.start) );
+	coords->setPos( knotidx*2+1, Coord3( sbid.inl, sbid.crl, zrg.stop) );
+
+	dragger_->setKnot( knotidx, Coord(sbid.inl,sbid.crl) );
+	texture_->clearAll();
+	moving_.trigger();
     }
-}
-
-
-void RandomTrackDisplay::setManipKnotPos( int knotidx, const BinID& bid_ )
-{
-    const BinID bid = snapPosition(bid_);
-    track->setDraggerKnotPos( knotidx, Coord(bid.inl,bid.crl) );
 }
 
 
@@ -240,7 +294,6 @@ void RandomTrackDisplay::setKnotPositions( const TypeSet<BinID>& newbids )
 	if ( idx<nrKnots() )
 	{
 	    setKnotPos( idx, bid );
-	    setManipKnotPos( idx, bid );
 	}
 	else
 	    addKnot( bid );
@@ -249,14 +302,18 @@ void RandomTrackDisplay::setKnotPositions( const TypeSet<BinID>& newbids )
 
 
 void RandomTrackDisplay::removeKnot( int knotidx )
-{ track->removeKnot( knotidx ); }
-
-
-void RandomTrackDisplay::removeAllKnots()
 {
-    const int nrknots = track->nrKnots();
-    for ( int idx=0; idx<nrknots; idx++ )
-	track->removeKnot( idx );
+    if ( nrKnots()< 3 )
+    {
+	pErrMsg("Can't remove knot");
+	return;
+    }
+
+    triangles_->removeCoordIndexAfter( triangles_->nrCoordIndex()-3 );
+    triangles_->getCoordinates()->removePos( knotidx*2, false );
+    triangles_->getCoordinates()->removePos( knotidx*2, false );
+
+    dragger_->removeKnot( knotidx );
 }
 
 
@@ -275,21 +332,17 @@ void RandomTrackDisplay::removeAllKnots()
 	BinID nextbid = inlwise ? BinID(bidx,bidy) : BinID(bidy,bidx); \
 	SI().snap( nextbid ); \
 	bids += nextbid ; \
-	(*bset) += nextbid; \
     }
 
 
 void RandomTrackDisplay::getDataTraceBids( TypeSet<BinID>& bids ) const
 {
-    deepErase( const_cast<RandomTrackDisplay*>(this)->bidsset );
-    TypeSet<BinID> bidset;
-    getAllKnotPos( bidset );
-    for ( int idx=1; idx<bidset.size(); idx++ )
+    TypeSet<BinID> knots;
+    getAllKnotPos( knots );
+    for ( int idx=1; idx<knots.size(); idx++ )
     {
-	TypeSet<BinID>* bset = new TypeSet<BinID>;
-	const_cast<RandomTrackDisplay*>(this)->bidsset += bset;
-	BinID start = bidset[idx-1];
-	BinID stop = bidset[idx];
+	BinID start = knots[idx-1];
+	BinID stop = knots[idx];
 	const int nrinl = int(abs(stop.inl-start.inl) / SI().inlStep() + 1);
 	const int nrcrl = int(abs(stop.crl-start.crl) / SI().crlStep() + 1);
 	bool inlwise = nrinl > nrcrl;
@@ -302,71 +355,95 @@ void RandomTrackDisplay::getDataTraceBids( TypeSet<BinID>& bids ) const
 }
 
 
-void RandomTrackDisplay::setTraceData( bool colordata, SeisTrcBuf& trcbuf )
+void RandomTrackDisplay::setTraceData( int attrib, SeisTrcBuf& trcbuf )
 {
     const int nrtrcs = trcbuf.size();
     if ( !nrtrcs )
     {
-	const int nrsections = bidsset.size();
-	for ( int snr=0; snr<nrsections; snr++ )
-	    track->setData(snr,0,0);
+	texture_->setData( attrib, 0, 0 );
+	texture_->turnOn( false );
 	return;
     }
 
-    if ( colordata )
-    {
-	Interval<float> cliprate( colas.cliprate0, colas.cliprate1 );
-	track->setColorPars( colas.reverse, colas.useclip,
-			     colas.useclip ? cliprate : colas.range );
-    }
-    
-    setData( trcbuf, colordata ? colas.datatype : 0 );
-    SeisTrcBuf& cach = colordata ? colcache : cache;
-    cach.deepErase();
-    cach.stealTracesFrom( trcbuf );
-    if ( !colordata )
-	ismanip = false;
+    setData( attrib, trcbuf );
+
+    if ( !cache_[attrib] )
+	cache_.replace( attrib, new SeisTrcBuf );
+
+    cache_[attrib]->deepErase();
+    cache_[attrib]->stealTracesFrom( trcbuf );
+
+    //TODO Find other means of reseting ismanip_
+    //ismanip_ = false;
 }
 
 
-void RandomTrackDisplay::setData( const SeisTrcBuf& trcbuf, int datatype )
+void RandomTrackDisplay::setData( int attrib, const SeisTrcBuf& trcbuf )
 {
     const Interval<float> zrg = getDataTraceRange();
     const float step = trcbuf.get(0)->info().sampling.step;
     const int nrsamp = mNINT( zrg.width() / step ) + 1;
 
-    const int nrsections = bidsset.size();
-    for ( int snr=0; snr<nrsections; snr++ )
-    {
-	TypeSet<BinID>& binidset = *(bidsset[snr]);
-	const int nrbids = binidset.size();
-	float val;
-	PtrMan<Array2DImpl<float> > arr = new Array2DImpl<float>(nrsamp,nrbids);
-	for ( int bidnr=0; bidnr<nrbids; bidnr++ )
-	{
-	    BinID curbid = binidset[bidnr];
-	    int trcidx = trcbuf.find( curbid );
-	    if ( trcidx < 0 )
-	    {
-		for ( int ids=0; ids<nrsamp; ids++ )
-		    arr->set( ids, bidnr, mUndefValue );
-		continue;
-	    }
+    TypeSet<BinID> path;
+    getDataTraceBids( path );
 
-	    const SeisTrc* trc = trcbuf.get( trcidx );
+    Array2DImpl<float> array( path.size(), nrsamp );
+    float* dataptr = array.getData();
+
+    for ( int idx=array.info().getTotalSz()-1; idx>=0; idx-- )
+	dataptr[idx] = mUdf(float);
+
+    for ( int trcidx=path.size()-1; trcidx>=0; trcidx-- )
+    {
+	const BinID bid = path[trcidx];
+	const SeisTrc* trc = trcbuf.get( trcbuf.find( bid, false ) );
+	if ( !trc )
+	    continue;
+
+	float* arrptr = dataptr + array.info().getMemPos( trcidx, 0 );
+
+	if ( !datatransform_ )
+	{
 	    for ( int ids=0; ids<nrsamp; ids++ )
 	    {
 		const float ctime = zrg.start + ids*step;
-		val = trc && trc->dataPresent(ctime) ? trc->getValue(ctime,0)
-						     : mUndefValue;
-		arr->set( ids, bidnr, val );
+		if ( !trc->dataPresent(ctime) )
+		    continue;
+
+		arrptr[ids] = trc->getValue(ctime,0);
 	    }
 	}
-	
-	track->setData( snr, arr, datatype );
+	else
+	{
+	    //todo
+	}
     }
 
-    track->useTexture( true );
+    const LinScaler horscale( -0.5, 0, path.size()-0.5, 1 );
+    const LinScaler vertscale( -0.5, 0, nrsamp-0.5, 1 );
+    const float toptcoord = vertscale.scale(0);
+    const float bottomtcoord = vertscale.scale(nrsamp-1);
+
+    for ( int idx=0; idx<nrKnots(); idx++ )
+    {
+	const Coord crd = dragger_->getKnot(idx);
+	const BinID bid = BinID( mNINT(crd.x), mNINT(crd.y) );
+	const int index = path.indexOf(bid);
+	if ( index<0 )
+	{
+	    pErrMsg("Knot not found in path");
+	    return;
+	}
+
+	float horcoord = horscale.scale( index );
+	triangles_->getTextureCoords()->setCoord( idx*2,
+					      Coord3(toptcoord,horcoord,0));
+	triangles_->getTextureCoords()->setCoord( idx*2+1,
+					      Coord3(bottomtcoord,horcoord,0));
+    }
+
+    texture_->setData( attrib, 0, &array );
+    texture_->turnOn( true );
 }
 
 
@@ -375,7 +452,7 @@ void RandomTrackDisplay::setData( const SeisTrcBuf& trcbuf, int datatype )
     { \
 	bid.inl = reqbid.inl + step.inl * (inladd); \
 	bid.crl = reqbid.crl + step.crl * (crladd); \
-	trcidx = cache.find( bid ); \
+	trcidx = cache_[0]->find( bid ); \
     }
 
 
@@ -385,10 +462,10 @@ void RandomTrackDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
 					  BufferString& info ) const
 {
     info = "";
-    if ( !cache.size() ) { val = mUndefValue; return; }
+    if ( !cache_[0] || !cache_[0]->size() ) { val = mUndefValue; return; }
 
     BinID reqbid( SI().transform(pos) );
-    int trcidx = cache.find( reqbid );
+    int trcidx = cache_[0]->find( reqbid );
     if ( trcidx < 0 )
     {
 	const BinID step( SI().inlStep(), SI().crlStep() );
@@ -403,7 +480,7 @@ void RandomTrackDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
 	{ val = mUndefValue; return; }
     }
 
-    const SeisTrc& trc = *cache.get( trcidx );
+    const SeisTrc& trc = *cache_[0]->get( trcidx );
     const int sampidx = trc.nearestSample( pos.z );
     val = sampidx < 0 || sampidx >= trc.size()	? mUndefValue 
 						: trc.get( sampidx, 0 );
@@ -463,30 +540,47 @@ BinID RandomTrackDisplay::proposeNewPos(int knotnr ) const
 
 bool RandomTrackDisplay::isManipulated() const
 {
-    return ismanip;
+    return ismanip_;
 }
 
  
 void RandomTrackDisplay::acceptManipulation()
 {
-    track->moveObjectToDraggerPos();
-    moving.trigger();
+    setDepthInterval( dragger_->getDepthRange() );
+    for ( int idx=0; idx<nrKnots(); idx++ )
+    {
+	const Coord crd = dragger_->getKnot(idx);
+	setKnotPos( idx, BinID( mNINT(crd.x), mNINT(crd.y) ));
+    }
+
+
+    ismanip_ = false;
 }
 
 
 void RandomTrackDisplay::resetManipulation()
 {
-    track->moveDraggerToObjectPos();
-    ismanip = false;
+    dragger_->setDepthRange( getDepthInterval() );
+    for ( int idx=0; idx<nrKnots(); idx++ )
+    {
+	const BinID bid = getKnotPos(idx);
+	dragger_->setKnot(idx, Coord(bid.inl,bid.crl));
+    }
+
+    ismanip_ = false;
+    dragger_->turnOn( false );
 }
 
 
 void RandomTrackDisplay::showManipulator( bool yn )
-{ track->showDragger( yn ); }
-
+{
+    if ( !yn ) dragger_->showFeedback( false );
+    dragger_->turnOn( yn );
+}
+   
 
 bool RandomTrackDisplay::isManipulatorShown() const
-{ return track->isDraggerShown(); }
+{ return false; /* track->isDraggerShown();*/ }
 
 
 BufferString RandomTrackDisplay::getManipulationString() const
@@ -500,45 +594,42 @@ BufferString RandomTrackDisplay::getManipulationString() const
 	str += " Inl/Crl: ";
 	str += binid.inl; str += "/"; str += binid.crl;
     }
+
     return str;
 }
  
 
-void RandomTrackDisplay::turnOn( bool yn )
-{ track->turnOn( yn ); }
+int RandomTrackDisplay::getColTabID( int attrib ) const
+{
+    return texture_->getColorTab( attrib ).id();
+}
 
 
-bool RandomTrackDisplay::isOn() const
-{ return track->isOn(); }
-
-
-int RandomTrackDisplay::getColTabID(int) const
-{ return track->getColorTab().id(); }
-
-
-const TypeSet<float>* RandomTrackDisplay::getHistogram(int) const
-{ return &track->getHistogram(); }
+const TypeSet<float>* RandomTrackDisplay::getHistogram( int attrib ) const
+{
+    return texture_->getHistogram( attrib, texture_->currentVersion( attrib ) );}
 
 
 void RandomTrackDisplay::knotMoved( CallBacker* cb )
 {
-    ismanip = true;
+    ismanip_ = true;
     mCBCapsuleUnpack(int,sel,cb);
     
-    selknotidx = sel;
-    knotmoving.trigger();
+    selknotidx_ = sel;
+    knotmoving_.trigger();
 }
 
 
 void RandomTrackDisplay::knotNrChanged( CallBacker* )
 {
-    ismanip = true;
-    if ( !cache.size() )
-	return;
+    ismanip_ = true;
+    for ( int idx=0; idx<cache_.size(); idx++ )
+    {
+	if ( !cache_[idx] || !cache_[idx]->size() )
+	    continue;
 
-    TypeSet<BinID> bids;
-    getDataTraceBids( bids );
-    setData( cache );
+	setData( idx, *cache_[idx] );
+    }
 }
 
 
@@ -575,42 +666,55 @@ BinID RandomTrackDisplay::snapPosition( const BinID& binid_ ) const
 }
 
 
-void RandomTrackDisplay::setResolution( int res )
-{
-    track->setResolution( res );
-    if ( cache.size() ) setData( cache );
-    if ( colcache.size() ) setData( colcache, colas.datatype );
-}
-
-
-int RandomTrackDisplay::getResolution() const
-{
-    return track->getResolution();
-}
-
-
-int RandomTrackDisplay::nrResolutions() const
-{ return 3; }
-
-
 SurveyObject::AttribFormat RandomTrackDisplay::getAttributeFormat() const
 { return SurveyObject::Traces; }
 
 
-int RandomTrackDisplay::getSectionIdx() const
-{ return track->getSectionIdx(); }
+bool RandomTrackDisplay::canHaveMultipleAttribs() const
+{ return true; }
 
 
-void RandomTrackDisplay::removeNearestKnot( int sectionidx, 
-						       const BinID& pos_ )
+int RandomTrackDisplay::nrAttribs() const
+{ return as_.size(); }
+
+
+bool RandomTrackDisplay::addAttrib()
 {
-    Coord pos( pos_.inl, pos_.crl );
-    if ( pos.distance( track->getKnotPos(sectionidx) ) <
-	 pos.distance( track->getKnotPos(sectionidx+1) ) )
-	removeKnot( sectionidx );
-    else
-	removeKnot( sectionidx+1 );
+    as_ += new Attrib::SelSpec;
+    cache_ += 0;
+
+    texture_->addTexture("");
+    return true;
 }
+
+
+bool RandomTrackDisplay::removeAttrib( int attrib )
+{
+    if ( as_.size()<2 || attrib<0 || attrib>=as_.size() )
+	return false;
+
+    delete as_[attrib];
+    as_.remove( attrib );
+    delete cache_[attrib];
+    cache_.remove( attrib );
+		    
+    texture_->removeTexture( attrib );
+			        
+    return true;
+}   
+
+
+bool RandomTrackDisplay::isAttribEnabled( int attrib ) const
+{
+    return texture_->isTextureEnabled( attrib );
+}
+
+
+void RandomTrackDisplay::enableAttrib( int attrib, bool yn )
+{
+    texture_->enableTexture( attrib, yn );
+}
+
 
 
 float RandomTrackDisplay::calcDist( const Coord3& pos ) const
@@ -618,10 +722,14 @@ float RandomTrackDisplay::calcDist( const Coord3& pos ) const
     const mVisTrans* utm2display = scene_->getUTM2DisplayTransform();
     Coord3 xytpos = utm2display->transformBack( pos );
     BinID binid = SI().transform( Coord(xytpos.x,xytpos.y) );
-    if ( cache.find(binid) < 0 ) return mUndefValue;
+
+    TypeSet<BinID> bids;
+    getDataTraceBids( bids );
+    if ( bids.indexOf(binid)==-1 )
+	return mUdf(float);
 
     float zdiff = 0;
-    const Interval<float>& intv = track->getDepthInterval();
+    const Interval<float> intv = getDataTraceRange();
     if ( xytpos.z < intv.start )
 	zdiff = intv.start - xytpos.z;
     else if ( xytpos.z > intv.stop )
@@ -631,100 +739,124 @@ float RandomTrackDisplay::calcDist( const Coord3& pos ) const
 }
 
 
-void RandomTrackDisplay::setMaterial( visBase::Material* nm)
-{ track->setMaterial(nm); }
-
-
-const visBase::Material* RandomTrackDisplay::getMaterial() const
-{ return track->getMaterial(); }
-
-
-visBase::Material* RandomTrackDisplay::getMaterial()
-{ return track->getMaterial(); }
-
-
 SurveyObject* RandomTrackDisplay::duplicate() const
 {
     RandomTrackDisplay* rtd = create();
-    rtd->setResolution( getResolution() );
 
-    rtd->setDepthInterval( track->getDepthInterval() );
+    rtd->setDepthInterval( getDataTraceRange() );
     for ( int idx=0; idx<nrKnots(); idx++ )
     {
 	rtd->setKnotPos( idx, getKnotPos(idx) );
-	rtd->setManipKnotPos( idx, getKnotPos(idx) );
-    }
-
-    const int ctid = rtd->getColTabID(0);
-    visBase::DataObject* obj = ctid>=0 ? visBase::DM().getObject( ctid ) : 0;
-    mDynamicCastGet(visBase::VisColorTab*,nct,obj);
-    if ( nct )
-    {
-	const char* ctnm = track->getColorTab().colorSeq().colors().name();
-	nct->colorSeq().loadFromStorage( ctnm );
     }
 
     return rtd;
 }
 
 
-SoNode* RandomTrackDisplay::getInventorNode()
-{ return track->getInventorNode(); }
-
-
 void RandomTrackDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 {
-    visBase::VisualObject::fillPar( par, saveids );
+    visBase::VisualObjectImpl::fillPar( par, saveids );
 
-    int trackid = track->id();
-    par.set( trackstr, trackid );
+    const Interval<float> depthrg = getDataTraceRange();
+    par.set( sKeyDepthInterval(), depthrg.start, depthrg.stop );
 
-    const Interval<float> depthrg = track->getDepthInterval();
-    par.set( depthintvstr, depthrg.start, depthrg.stop );
+    const int nrknots = nrKnots();
+    par.set( sKeyNrKnots(), nrknots );
 
-    int nrknots = nrKnots();
-    par.set( nrknotsstr, nrknots );
-
-    BufferString key;
     for ( int idx=0; idx<nrknots; idx++ )
     {
-	key = knotprefix;
+	BufferString key;
+	key = sKeyKnotPrefix();
 	key += idx;
 	BinID bid = getKnotPos( idx );
 	par.set( key, bid.inl, bid.crl );
     }
 
-    if ( saveids.indexOf(trackid) == -1 ) saveids += trackid;
+    for ( int attrib=as_.size()-1; attrib>=0; attrib-- )
+    {
+	IOPar attribpar;
+	as_[attrib]->fillPar( attribpar );
+	const int coltabid = getColTabID(attrib);
+	attribpar.set( sKeyColTabID(), coltabid );
+	if ( saveids.indexOf( coltabid )==-1 ) saveids += coltabid;
 
-    as.fillPar(par);
-    colas.fillPar(par);
+	BufferString key = sKeyAttribs();
+	key += attrib;
+	par.mergeComp( attribpar, key );
+    }
 }
 
 
 int RandomTrackDisplay::usePar( const IOPar& par )
 {
-    int res =  visBase::VisualObject::usePar( par );
+    const int res =  visBase::VisualObjectImpl::usePar( par );
     if ( res != 1 ) return res;
 
-    int trackid;
-    if ( !par.get( trackstr, trackid ) ) return -1;
-    visBase::DataObject* dataobj = visBase::DM().getObject( trackid );
-    if ( !dataobj ) return 0;
-    mDynamicCastGet(visBase::RandomTrack*,rt,dataobj);
-    if ( !rt ) return -1;
-    setRandomTrack( rt );
+    //For old pars
+    int nrattribs;
+    if ( par.get( sKeyNrAttribs(), nrattribs ) ) //current format
+    {
+	bool firstattrib = true;
+	for ( int attrib=0; attrib<nrattribs; attrib++ )
+	{
+	    BufferString key = sKeyAttribs();
+	    key += attrib;
+	    PtrMan<const IOPar> attribpar = par.subselect( key );
+	    if ( !attribpar )
+		continue;
 
-    Interval<float> intv(0,1);
-    par.get( depthintvstr, intv.start, intv.stop );
-    setDepthInterval( intv );
+	    int coltabid = -1;
+	    if ( attribpar->get( sKeyColTabID(), coltabid ) )
+	    {
+		visBase::DataObject* dataobj= visBase::DM().getObject(coltabid);
+		if ( !dataobj ) return 0;
+
+		mDynamicCastGet( const visBase::VisColorTab*, coltab, dataobj );
+		if ( !coltab ) coltabid=-1;
+	    }
+
+	    if ( !firstattrib )
+		addAttrib();
+	    else
+		firstattrib = false;
+
+	    const int attribnr = as_.size()-1;
+
+	    as_[attribnr]->usePar( *attribpar );
+	    if ( coltabid!=-1 )
+	    {
+		mDynamicCastGet( visBase::VisColorTab*, coltab,
+		visBase::DM().getObject(coltabid) );
+		texture_->setColorTab( attribnr, *coltab );
+	    }
+	}
+    }
+    else
+    {
+	int trackid;
+	if ( !par.get( sKeyTrack(), trackid ) ) return -1;
+	mDynamicCastGet(visBase::RandomTrack*,rt,
+			visBase::DM().getObject(trackid));
+	if ( rt )
+	{
+	    rt->ref();
+	    as_[0]->usePar( par );
+	    texture_->setColorTab( 0, rt->getColorTab() );
+	    rt->unRef();
+	}
+    }
+
+    Interval<float> intv;
+    if ( par.get( sKeyDepthInterval(), intv.start, intv.stop ) )
+	setDepthInterval( intv );
 
     int nrknots = 0;
-    par.get( nrknotsstr, nrknots );
+    par.get( sKeyNrKnots(), nrknots );
 
     BufferString key;
     for ( int idx=0; idx<nrknots; idx++ )
     {
-	key = knotprefix;
+	key = sKeyKnotPrefix();
 	key += idx;
 	BinID pos;
 	par.get( key, pos.inl, pos.crl );
@@ -732,35 +864,8 @@ int RandomTrackDisplay::usePar( const IOPar& par )
 	    setKnotPos( idx, pos );
 	else
 	    addKnot( pos );
-
-	setManipKnotPos( idx, getKnotPos(idx) );
     }
 
-    const StepInterval<float>& survinterval = SI().zRange(true);
-    const StepInterval<float> inlrange( SI().sampling(true).hrg.start.inl,
-	    				SI().sampling(true).hrg.stop.inl,
-					SI().inlStep() );
-    const StepInterval<float> crlrange( SI().sampling(true).hrg.start.crl,
-	    				SI().sampling(true).hrg.stop.crl,
-	    				SI().crlStep() );
-
-    track->setXrange( StepInterval<float>( inlrange.start,
-		    			   inlrange.stop,
-					   inlrange.step ));
-
-    track->setYrange( StepInterval<float>( crlrange.start,
-	    				   crlrange.stop,
-					   crlrange.step ));
-
-    track->setZrange( StepInterval<float>( survinterval.start,
-					   survinterval.stop,
-					   survinterval.step ));
-
-    if ( !as.usePar(par) ) return -1;
-    colas.usePar( par );
-
-    showManipulator(true);
-    showManipulator(false);
     return 1;
 }
 

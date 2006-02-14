@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		January 2003
- RCS:		$Id: visrandomtrackdisplay.h,v 1.43 2006-01-31 09:02:29 cvsnanne Exp $
+ RCS:		$Id: visrandomtrackdisplay.h,v 1.44 2006-02-14 21:22:13 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -21,8 +21,8 @@ ________________________________________________________________________
 class CubeSampling;
 class BinID;
 
-namespace visBase { class RandomTrack; class Material; 
-		    class EventCatcher; };
+namespace visBase { class TriangleStripSet; class MultiTexture2; 
+		    class EventCatcher; class RandomTrackDragger; };
 
 namespace Attrib { class SelSpec; class ColorSelSpec; }
 
@@ -40,12 +40,15 @@ class Scene;
     line can be changed by <code>setDepthInterval(const Interval<float>&)</code>
 */
 
-class RandomTrackDisplay :  public visBase::VisualObject,
-			  public visSurvey::SurveyObject
+class RandomTrackDisplay :  public visBase::VisualObjectImpl,
+			    public visSurvey::SurveyObject
 {
 public:
     static RandomTrackDisplay*	create()
 				mCreateDataObj(RandomTrackDisplay);
+    int				nameNr() const { return namenr_; }
+    				/*!<\returns a number that is unique for 
+				     this rtd, and is present in its name. */
 
     bool			isInlCrl() const { return true; }
 
@@ -57,25 +60,25 @@ public:
     void			acceptManipulation();
     BufferString		getManipulationString() const;
 
-    int                		nrResolutions() const; 
-    int				getResolution() const;
-    void			setResolution(int);
-
     bool			canDuplicate() const		{ return true; }
     SurveyObject*		duplicate() const;
 
     bool			allowMaterialEdit() const { return true; }
 
     SurveyObject::AttribFormat	getAttributeFormat() const;
-    bool			hasColorAttribute() const { return true; }
-    const Attrib::SelSpec*	getSelSpec(int) const { return &as; }
-    const Attrib::ColorSelSpec*	getColorSelSpec() const { return &colas; }
+    bool			canHaveMultipleAttribs() const;
+    int				nrAttribs() const;
+    bool			addAttrib();
+    bool			isAttribEnabled(int attrib) const;
+    void			enableAttrib(int attrib,bool yn);
+
+    bool			removeAttrib(int);
+    const Attrib::SelSpec*	getSelSpec(int) const;
     void			setSelSpec( int, const Attrib::SelSpec& );
-    void                        setColorSelSpec(const Attrib::ColorSelSpec&);
 
     void			getDataTraceBids(TypeSet<BinID>&) const;
     Interval<float>		getDataTraceRange() const;
-    void			setTraceData(bool,SeisTrcBuf&);
+    void			setTraceData(int,SeisTrcBuf&);
 
     bool			canAddKnot(int knotnr) const;
     				/*!< If knotnr<nrKnots the function Checks if
@@ -97,40 +100,26 @@ public:
     void			insertKnot(int,const BinID&);
     void			setKnotPos(int,const BinID&);
     BinID			getKnotPos(int) const;
-    void			setManipKnotPos(int,const BinID&);
     BinID			getManipKnotPos(int) const;
     void			getAllKnotPos(TypeSet<BinID>&) const;
     void			removeKnot(int);
-    void			removeAllKnots();
     void			setKnotPositions(const TypeSet<BinID>&);
 
     void			setDepthInterval(const Interval<float>&);
-    void			setManipDepthInterval(const Interval<float>&);
+    Interval<float>		getDepthInterval() const;
 
     void			getMousePosInfo(const visBase::EventInfo&,
 	    					const Coord3&,
 	    					float& val,
 	    					BufferString& info) const;
 
-    void			turnOn(bool);
-    bool			isOn() const;
-
     int				getColTabID(int) const;
     const TypeSet<float>*	getHistogram(int) const;
 
-    void                        setMaterial( visBase::Material* );
-    const visBase::Material*    getMaterial() const;
-    visBase::Material*          getMaterial();
+    int				getSelKnotIdx() const	{ return selknotidx_; }
 
-    int				getSectionIdx() const;
-    void			removeNearestKnot(int,const BinID&);
-
-    int				getSelKnotIdx() const	{ return selknotidx; }
-
-    virtual NotifierAccess*	getMovementNotification() { return &moving; }
-    NotifierAccess*		getManipulationNotifier() { return &knotmoving;}
-
-    SoNode*			getInventorNode();
+    virtual NotifierAccess*	getMovementNotification() { return &moving_; }
+    NotifierAccess*		getManipulationNotifier() {return &knotmoving_;}
 
     virtual float               calcDist(const Coord3&) const;
     virtual bool		allowPicks() const		{ return true; }
@@ -141,17 +130,8 @@ public:
 protected:
 				~RandomTrackDisplay();
 
-    void			setRandomTrack(visBase::RandomTrack*);
-
     BinID			proposeNewPos(int knot) const;
-
-    visBase::RandomTrack*	track;
-    visBase::Material*		texturematerial;
-    Attrib::SelSpec&		as;
-    Attrib::ColorSelSpec&	colas;
-    int				selknotidx;
-
-    void			setData(const SeisTrcBuf&,int datatp=0);
+    void			setData( int attrib, const SeisTrcBuf& );
 
     BinID			snapPosition(const BinID&) const;
     bool			checkPosition(const BinID&) const;
@@ -159,18 +139,27 @@ protected:
     void			knotMoved(CallBacker*);
     void			knotNrChanged(CallBacker*);
 
-    ObjectSet< TypeSet<BinID> > bidsset;
-    SeisTrcBuf&			cache;
-    SeisTrcBuf&			colcache;
-    bool			ismanip;
 
-    static const char*		trackstr;
-    static const char*		nrknotsstr;
-    static const char*		knotprefix;
-    static const char*		depthintvstr;
+    visBase::TriangleStripSet*	triangles_;
+    visBase::RandomTrackDragger* dragger_;
+    visBase::MultiTexture2*	texture_;
+    ObjectSet<Attrib::SelSpec>	as_;
+    ObjectSet<SeisTrcBuf>	cache_;
+    int				selknotidx_;
 
-    Notifier<RandomTrackDisplay> moving;
-    Notifier<RandomTrackDisplay> knotmoving;
+    ZAxisTransform*		datatransform_;
+
+    bool			ismanip_;
+    int				namenr_;
+
+    Notifier<RandomTrackDisplay> moving_;
+    Notifier<RandomTrackDisplay> knotmoving_;
+
+    static const char*		sKeyTrack();
+    static const char*		sKeyNrKnots();
+    static const char*		sKeyKnotPrefix();
+    static const char*		sKeyDepthInterval();
+
 };
 
 };
