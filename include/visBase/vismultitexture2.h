@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		Dec 2005
- RCS:		$Id: vismultitexture2.h,v 1.2 2006-01-30 14:46:56 cvskris Exp $
+ RCS:		$Id: vismultitexture2.h,v 1.3 2006-02-14 21:13:46 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -31,12 +31,17 @@ public:
 
     bool			turnOn(bool yn);
     bool			isOn() const;
-    void			setTextureRenderQuality( float val );
+    void			clearAll();
+    				/*!<Sets all arrays to zero. Will cause
+				    the texture to become white. After clearAll
+				    is called, data of any size will be
+				    accepted.*/
+    void			setTextureRenderQuality(float);
     float			getTextureRenderQuality() const;
-    bool			setData( int texture, int version,
-	    				 const Array2D<float>* );
-    bool			setIndexData( int texture, int version,
-					 const Array2D<unsigned char>* );
+    bool			setData(int texture,int version,
+	    				const Array2D<float>*);
+    bool			setIndexData(int texture,int version,
+					     const Array2D<unsigned char>*);
 
     SoNode*			getInventorNode();
 protected:

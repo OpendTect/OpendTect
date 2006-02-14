@@ -28,7 +28,7 @@ MultiTexture2::MultiTexture2()
     : onoff_( new SoSwitch )
     , texture_( new SoMultiTexture2 )
     , complexity_( new SoComplexity )
-    , size_( 0, 0 )
+    , size_( -1, -1 )
 {
     onoff_->ref();
     onoff_->addChild( complexity_ );
@@ -61,6 +61,21 @@ bool MultiTexture2::isOn() const
 }
 
 
+void MultiTexture2::clearAll()
+{
+    size_.row = -1; size_.col = -1;
+
+    for ( int idx=0; idx<nrTextures(); idx++ )
+    {
+	for ( int idy=0; idy<nrVersions(idx); idy++ )
+	{
+	    setData( idx, idy, 0 );
+	}
+    }
+
+}
+
+
 void MultiTexture2::setTextureRenderQuality( float val )
 {
     complexity_->textureQuality.setValue( val );
@@ -79,15 +94,16 @@ bool MultiTexture2::setData( int texture, int version,
     if ( (data && size_.row!=data->info().getSize(0)) ||
          (data && size_.col!=data->info().getSize(1)) )
     {
-	if ( nrTextures()>1 || (nrTextures() && nrVersions(0)>1) )
+	if ( size_.row>=0 && size_.col>=0 &&
+		(nrTextures()>1 || (nrTextures() && nrVersions(0)>1)) )
 	{
 	    pErrMsg("Invalid size" );
 	    return false;
 	}
 	else
 	{
-	    size_[0] = data->info().getSize(0);
-	    size_[1] = data->info().getSize(1);
+	    size_.row = data->info().getSize(0);
+	    size_.col = data->info().getSize(1);
 	}
     }
 
@@ -138,8 +154,14 @@ bool MultiTexture2::setIndexData( int texture, int version,
 
 void MultiTexture2::updateSoTextureInternal( int texturenr )
 {
-    const SbImage image( getCurrentTextureIndexData(texturenr),
-	    		 SbVec2s(size_[1],size_[0]), 1 );
+    const unsigned char* texture = getCurrentTextureIndexData(texturenr);
+    if ( size_.row<0 || size_.col<0 || !texture )
+    {
+	texture_->component.set1Value( texturenr, 0 );
+	return;
+    }
+
+    const SbImage image( texture, SbVec2s(size_.col,size_.row), 1 );
     texture_->image.set1Value( texturenr, image );
     updateColorTables();
 }
