@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvobj.h,v 1.53 2006-02-08 22:42:27 cvskris Exp $
+ RCS:		$Id: vissurvobj.h,v 1.54 2006-02-14 21:19:34 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -175,7 +175,7 @@ public:
     virtual void		getDataTraceBids(TypeSet<BinID>&) const	{}
     virtual Interval<float>	getDataTraceRange() const
     				{ return Interval<float>(0,0); }
-    virtual void		setTraceData(bool forcolor,SeisTrcBuf&);
+    virtual void		setTraceData(int attrib,SeisTrcBuf&);
 
 				// Link to outside world
     virtual void		fetchData(ObjectSet<BinIDValueSet>&) const {}
@@ -197,6 +197,10 @@ public:
     bool			isLocked() const	{ return locked_; }
 
     static float		sDefMaxDist;
+
+    static const char*		sKeyColTabID()	{ return "Colortable ID"; }
+    static const char*		sKeyNrAttribs() { return "Nr Attribs"; }
+    static const char*		sKeyAttribs()	{ return "Attrib "; }
 
 protected:
     				SurveyObject() 
