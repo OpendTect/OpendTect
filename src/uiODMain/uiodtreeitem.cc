@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.148 2006-02-14 13:32:19 cvshelene Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.149 2006-02-14 21:45:41 cvskris Exp $
 ___________________________________________________________________
 
 -*/
@@ -1421,7 +1421,7 @@ void uiODRandomLineTreeItem::editNodes()
 	Interval<float> zrg;
 	table->getZRange( zrg );
 	zrg.scale( 1/SI().zFactor() );
-	rtd->setManipDepthInterval( zrg );
+	rtd->setDepthInterval( zrg );
 
 	visserv->setSelObjectId( rtd->id() );
 	for ( int attrib=0; attrib<visserv->getNrAttribs(rtd->id()); attrib++ )
