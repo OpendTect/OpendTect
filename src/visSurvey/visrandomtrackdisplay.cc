@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          January 2003
- RCS:           $Id: visrandomtrackdisplay.cc,v 1.63 2006-02-14 21:22:13 cvskris Exp $
+ RCS:           $Id: visrandomtrackdisplay.cc,v 1.64 2006-02-15 20:09:46 cvskris Exp $
  ________________________________________________________________________
 
 -*/
@@ -772,6 +772,8 @@ void RandomTrackDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 	par.set( key, bid.inl, bid.crl );
     }
 
+    par.set( sKeyNrAttribs(), as_.size() );
+
     for ( int attrib=as_.size()-1; attrib>=0; attrib-- )
     {
 	IOPar attribpar;
@@ -792,7 +794,6 @@ int RandomTrackDisplay::usePar( const IOPar& par )
     const int res =  visBase::VisualObjectImpl::usePar( par );
     if ( res != 1 ) return res;
 
-    //For old pars
     int nrattribs;
     if ( par.get( sKeyNrAttribs(), nrattribs ) ) //current format
     {
@@ -831,7 +832,7 @@ int RandomTrackDisplay::usePar( const IOPar& par )
 	    }
 	}
     }
-    else
+    else //For old pars
     {
 	int trackid;
 	if ( !par.get( sKeyTrack(), trackid ) ) return -1;
