@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vismultitexture.cc,v 1.10 2006-02-14 21:58:21 cvskris Exp $";
+static const char* rcsID = "$Id: vismultitexture.cc,v 1.11 2006-02-15 20:09:18 cvskris Exp $";
 
 #include "vismultitexture2.h"
 
@@ -276,17 +276,12 @@ bool TextureInfo::setTextureData( int version, const unsigned char* data,
 
 void TextureInfo::setColorTab( VisColorTab& ct )
 {
-    versioncoltab_[currentversion_]->unRef();
-    versioncoltab_.replace( currentversion_, &ct );
-    ct.ref();
-
+    setColorTab( 0, ct );
     ColorSequence& seq = ct.colorSeq();
 
     for ( int idx=versioncoltab_.size()-1; idx>=0; idx-- )
     {
-	if ( idx==currentversion_ )
-	    continue;
-
+	if ( !idx ) continue;
 	versioncoltab_[idx]->setColorSeq( &seq );
     }
 }
@@ -533,7 +528,7 @@ char MultiTexture::getComponents( int idx ) const
 void MultiTexture::setColorTab( int idx, VisColorTab& ct )
 {
     ct.ref();
-    if ( idx<=0 && idx<textureinfo_.size() )
+    if ( idx>=0 && idx<textureinfo_.size() )
 	textureinfo_[idx]->setColorTab( ct );
 
     ct.unRef();
