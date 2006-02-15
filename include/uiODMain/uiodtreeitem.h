@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: uiodtreeitem.h,v 1.16 2006-02-08 22:43:45 cvskris Exp $
+ RCS:		$Id: uiodtreeitem.h,v 1.17 2006-02-15 17:30:02 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -23,6 +23,8 @@ class uiODApplMgr;
 class uiParent;
 class uiPopupMenu;
 class uiSoViewer;
+
+namespace Attrib { class SelSpec; };
 
 class uiODTreeItem : public uiTreeItem
 {
@@ -81,20 +83,39 @@ public:
 };
 
 
+class uiODDataTreeItem;
+
+typedef uiODDataTreeItem*(uiDataTreeItemCrator)(const Attrib::SelSpec&,
+						const char*);
+
+
+/*!Base class for the attribs on a treeitem. */
+
+
 class uiODDataTreeItem : public uiTreeItem
 {
 public:
-    			uiODDataTreeItem( const char* parenttype );
+    			uiODDataTreeItem(const char* parenttype);
 			~uiODDataTreeItem();
 
     static const int	cPixmapWidth() { return 16; }
     static const int	cPixmapHeight() { return 10; }
 
+    static uiODDataTreeItem*	create(const Attrib::SelSpec&,
+	    			       const char* parenttype);
+    				/*!<Creates an item based on the selspec. This
+				    is used to create custom items like
+				    the overlay item. */
+    static void			addFactory(uiDataTreeItemCrator);
+    				/*!<Adds custom create function for create
+				    function. */
+
+
 protected:
     int			uiListViewItemType() const;
     bool		init();
 
-    void		checkCB( CallBacker* );
+    void		checkCB(CallBacker*);
 
     uiODApplMgr*	applMgr() const;
     uiSoViewer*		viewer() const;
@@ -105,9 +126,9 @@ protected:
     int			displayID() const;
     bool		showSubMenu();
 
-    virtual void	createMenuCB( CallBacker* );
-    virtual void	handleMenuCB( CallBacker* );
-    void		updateColumnText( int col );
+    virtual void	createMenuCB(CallBacker*);
+    virtual void	handleMenuCB(CallBacker*);
+    void		updateColumnText(int col);
     virtual BufferString createDisplayName() const			= 0;
 
     uiMenuHandler*	menu_;
@@ -119,7 +140,12 @@ protected:
 
     MenuItem		removemnuitem_;
     const char*		parenttype_;
+
+    static ObjectSet<uiDataTreeItemCrator>	creators_;
 };
+
+
+/*! Implemntation of uiODDataTreeItem for standard attribute displays. */
 
 
 class uiODAttribTreeItem : public uiODDataTreeItem

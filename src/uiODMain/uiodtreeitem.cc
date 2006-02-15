@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.149 2006-02-14 21:45:41 cvskris Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.150 2006-02-15 17:29:31 cvskris Exp $
 ___________________________________________________________________
 
 -*/
@@ -68,6 +68,9 @@ const char* uiODTreeTop::sceneidkey = "Sceneid";
 const char* uiODTreeTop::viewerptr = "Viewer";
 const char* uiODTreeTop::applmgrstr = "Applmgr";
 const char* uiODTreeTop::scenestr = "Scene";
+
+ObjectSet<uiDataTreeItemCrator> uiODDataTreeItem::creators_;
+
 
 uiODTreeTop::uiODTreeTop( uiSoViewer* sovwr, uiListView* lv, uiODApplMgr* am,
 			    uiTreeFactorySet* tfs_ )
@@ -256,6 +259,24 @@ uiODDataTreeItem::uiODDataTreeItem( const char* parenttype )
 
 uiODDataTreeItem::~uiODDataTreeItem()
 { menu_->unRef(); }
+
+
+uiODDataTreeItem* uiODDataTreeItem::create( const Attrib::SelSpec& as,
+					    const char* pt )
+{
+    for ( int idx=0; idx<creators_.size(); idx++)
+    {
+	uiODDataTreeItem* res = creators_[idx]( as, pt );
+	if ( res )
+	    return res;
+    }
+
+    return 0;
+}
+
+
+void uiODDataTreeItem::addFactory( uiDataTreeItemCrator cr )
+{ creators_ += cr; }
 
 
 int uiODDataTreeItem::uiListViewItemType() const
@@ -673,9 +694,13 @@ uiODDisplayTreeItem::~uiODDisplayTreeItem()
 int uiODDisplayTreeItem::selectionKey() const { return displayid_; }
 
 
-uiODDataTreeItem* uiODDisplayTreeItem::createAttribItem() const
+uiODDataTreeItem*
+uiODDisplayTreeItem::createAttribItem( const Attrib::SelSpec* as ) const
 {
-    return new uiODAttribTreeItem(typeid(*this).name() );
+    const char* parenttype = typeid(*this).name();
+    uiODDataTreeItem* res = as ? uiODDataTreeItem::create( *as, parenttype ) :0;
+    if ( !res ) res = new uiODAttribTreeItem( parenttype );
+    return res;
 }
 
 
@@ -685,8 +710,12 @@ bool uiODDisplayTreeItem::init()
 
     if ( visserv->hasAttrib( displayid_ ) )
     {
-	uiODDataTreeItem* item = createAttribItem();
-	addChild( item, true );
+	for ( int attrib=0; attrib<visserv->getNrAttribs(displayid_); attrib++ )
+	{
+	    const Attrib::SelSpec* as = visserv->getSelSpec(displayid_,attrib);
+	    uiODDataTreeItem* item = createAttribItem( as );
+	    addChild( item, true );
+	}
     }
 
     visserv->setSelObjectId( displayid_ );
@@ -835,8 +864,7 @@ void uiODDisplayTreeItem::handleMenuCB( CallBacker* cb )
     }
     else if ( mnuid==addattribmnuitem_.id )
     {
-	uiODDataTreeItem* newitem =
-	    createAttribItem();
+	uiODDataTreeItem* newitem = createAttribItem(0);
 	visserv->addAttrib( displayid_ );
 	addChild( newitem, true );
 	updateColumnText( uiODSceneMgr::cNameColumn() );
@@ -846,10 +874,15 @@ void uiODDisplayTreeItem::handleMenuCB( CallBacker* cb )
 }
 
 
-uiODDataTreeItem* uiODEarthModelSurfaceTreeItem::createAttribItem() const
+uiODDataTreeItem* uiODEarthModelSurfaceTreeItem::createAttribItem(
+					const Attrib::SelSpec* as ) const
 {
-    return new uiODEarthModelSurfaceDataTreeItem( emid, uivisemobj,
-	    					  typeid(*this).name() );
+    const char* parenttype = typeid(*this).name();
+    uiODDataTreeItem* res = as ? uiODDataTreeItem::create( *as, parenttype) : 0;
+    if ( !res ) res = new uiODEarthModelSurfaceDataTreeItem( emid, uivisemobj,
+	    						     parenttype );
+	    
+    return res;
 }
 
 
