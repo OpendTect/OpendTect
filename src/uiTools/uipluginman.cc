@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Oct 2003
- RCS:           $Id: uipluginman.cc,v 1.13 2006-02-13 15:34:24 cvsbert Exp $
+ RCS:           $Id: uipluginman.cc,v 1.14 2006-02-15 11:29:34 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,6 +27,7 @@ ________________________________________________________________________
 uiPluginMan::uiPluginMan( uiParent* p )
 	: uiDialog(p,Setup("Plugins",""))
 {
+    setCtrlStyle( uiDialog::LeaveOnly );
     uiGroup* leftgrp = new uiGroup( this, "Left group" );
     listfld = new uiListBox( leftgrp, "Plugin list" );
     listfld->setPrefWidthInChar( 25 );
@@ -43,7 +44,6 @@ uiPluginMan::uiPluginMan( uiParent* p )
     infofld->setPrefHeightInChar( 15 );
 
     finaliseDone.notify( mCB(this,uiPluginMan,selChg) );
-    setCancelText( "" );
 }
 
 
@@ -60,7 +60,11 @@ void uiPluginMan::fillList()
 
 	listfld->addItem( data.info_->dispname );
     }
-    listfld->addItems( notloaded );
+    if ( notloaded.size() > 0 )
+    {
+	listfld->addItem( "------------------" );
+	listfld->addItems( notloaded );
+    }
     if ( listfld->size() )
 	listfld->setCurrentItem( 0 );
 }
@@ -72,42 +76,46 @@ void uiPluginMan::selChg( CallBacker* )
     if ( !nm || !*nm ) return;
 
     BufferString txt;
-    const PluginManager::Data* data = PIM().findDataWithDispName( nm );
-    if ( !data )
-	txt = "This plugin was not loaded";
-    else
+    const PluginManager::Data* data = 0;
+    if ( *nm != '-' || *(nm+1) != '-' )
     {
-	txt = "Filename: "; txt += PIM().getFileName( *data );
-	const PluginInfo& piinf = *data->info_;
-	txt += "\nCreated by: "; txt += piinf.creator;
-	if ( piinf.version && *piinf.version )
-	{
-	    txt += "\nVersion: ";
-	    if ( *piinf.version != '=' )
-		txt += piinf.version;
-	    else
-	    {
-		FilePath fp( GetSoftwareDir() );
-		BufferString fnm = ".rel.";
-		fnm += piinf.version+1; fnm += "."; fnm += GetPlfSubDir();
-		fp.add( fnm );
-		StreamData sd = StreamProvider( fp.fullPath() ).makeIStream();
-		if ( !sd.usable() )
-		    txt += "<unknown>";
-		else
-		{
-		    char buf[80];
-		    sd.istrm->getline( buf, 80 );
-		    txt += buf;
-		}
-		sd.close();
-	    }
-	}
-
-	txt += "\n\n";
-	txt += piinf.text;
+	data = PIM().findDataWithDispName( nm );
+	if ( !data )
+	    txt = "This plugin was not loaded";
     }
 
+    if ( !data )
+	{ infofld->setText( txt ); return; }
+
+    const PluginInfo& piinf = *data->info_;
+    txt += "Created by: "; txt += piinf.creator;
+    txt += "\n\nFilename: "; txt += PIM().getFileName( *data );
+    if ( piinf.version && *piinf.version )
+    {
+	txt += "\nVersion: ";
+	if ( *piinf.version != '=' )
+	    txt += piinf.version;
+	else
+	{
+	    FilePath fp( GetSoftwareDir() );
+	    BufferString fnm = ".rel.";
+	    fnm += piinf.version+1; fnm += "."; fnm += GetPlfSubDir();
+	    fp.add( fnm );
+	    StreamData sd = StreamProvider( fp.fullPath() ).makeIStream();
+	    if ( !sd.usable() )
+		txt += "<unknown>";
+	    else
+	    {
+		char buf[80];
+		sd.istrm->getline( buf, 80 );
+		txt += buf;
+	    }
+	    sd.close();
+	}
+    }
+
+    txt += "\n-----------------------------------------\n\n";
+    txt += piinf.text;
     infofld->setText( txt );
 }
 
@@ -118,24 +126,23 @@ void uiPluginMan::loadPush( CallBacker* )
     static const char* filt = "*.DLL;;*.*";
     static const char* captn = "Select plugin DLL";
 #else
+    static const char* captn = "Select plugin shared library";
 # ifdef __mac__
     static const char* filt = "*.dylib*;;*";
-    static const char* captn = "Select plugin shared library";
 # else
     static const char* filt = "*.so*;;*";
-    static const char* captn = "Select plugin shared library";
 # endif
 #endif
 
-    static BufferString defdir;
-    if ( defdir == "" )
+    static BufferString loaddir;
+    if ( loaddir == "" )
     {
-	defdir = PIM().getAutoDir( true );
-	if ( !File_exists(defdir) )
-	    defdir = PIM().getAutoDir( false );
+	loaddir = PIM().getAutoDir( true );
+	if ( !File_exists(loaddir) )
+	    loaddir = PIM().getAutoDir( false );
     }
 
-    uiFileDialog dlg( this, uiFileDialog::ExistingFile, defdir, filt, captn );
+    uiFileDialog dlg( this, uiFileDialog::ExistingFile, loaddir, filt, captn );
     if ( !dlg.go() ) return;
 
     BufferString fnm = dlg.fileName();
@@ -144,5 +151,5 @@ void uiPluginMan::loadPush( CallBacker* )
     else if ( !PIM().load(fnm) )
 	uiMSG().error( "Couldn't load plugin" );
     else
-	{ defdir = FilePath(fnm).pathOnly(); fillList(); selChg(0); }
+	{ loaddir = FilePath(fnm).pathOnly(); fillList(); selChg(0); }
 }
