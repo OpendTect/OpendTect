@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		Oct 2003
  Contents:	Set of BufferStrings
- RCS:		$Id: bufstringset.h,v 1.4 2004-09-23 13:51:09 arend Exp $
+ RCS:		$Id: bufstringset.h,v 1.5 2006-02-15 17:33:15 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,6 +46,7 @@ public:
     void		sort( BufferStringSet* slave=0 );
     int			indexOf(const char*) const;
     						//!< returns -1 if not found
+    inline int		maxLength() const;
 
     virtual void	fillPar(IOPar&) const;
     virtual void	usePar(const IOPar&);
@@ -80,6 +81,19 @@ protected:
     BufferString	name_;
 
 };
+
+
+inline int BufferStringSet::maxLength() const
+{
+    int ret = 0;
+    for ( int idx=0; idx<size(); idx++ )
+    {
+	const int len = get(idx).size();
+	if ( len > ret )
+	    ret = len;
+    }
+    return ret;
+}
 
 
 #endif
