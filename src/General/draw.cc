@@ -4,7 +4,7 @@
  * DATE     : 18-4-1996
 -*/
 
-static const char* rcsID = "$Id: draw.cc,v 1.45 2006-01-13 15:49:01 cvskris Exp $";
+static const char* rcsID = "$Id: draw.cc,v 1.46 2006-02-15 19:23:52 cvskris Exp $";
 
 /*! \brief Several implementations for UI-related things.
 
@@ -172,10 +172,10 @@ protected:
 
 void ColorTable::calcList( int nritems )
 {
+    uselist = false;		//Prevent list from usage while computing
     const int sz = cvs.size();
     if ( !sz || nritems<1 )
     {
-	uselist = false;
 	collist.erase();
 	return;
     }
