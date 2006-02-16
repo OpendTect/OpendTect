@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodmain.cc,v 1.38 2006-02-01 21:56:51 cvskris Exp $
+ RCS:           $Id: uiodmain.cc,v 1.39 2006-02-16 12:36:39 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,6 +26,7 @@ ________________________________________________________________________
 #include "uicursor.h"
 #include "uiioobjsel.h"
 #include "uisetdatadir.h"
+#include "uipluginsel.h"
 #include "uimsg.h"
 #include "ioman.h"
 #include "ioobj.h"
@@ -60,6 +61,13 @@ int ODMain( int argc, char** argv )
     PIM().loadAuto( false );
     uiODMain* odmain = new uiODMain( *new uicMain(argc,argv) );
     manODMainWin( odmain );
+    bool dodlg = true;
+    Settings::common().getYN( uiPluginSel::sKeyDoAtStartup, dodlg );
+    if ( dodlg )
+    {
+	uiPluginSel dlg( odmain );
+	dlg.go();
+    }
     PIM().loadAuto( true );
     if ( !odmain->ensureGoodSurveySetup() )
 	return false;
