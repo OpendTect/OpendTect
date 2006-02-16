@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          Jan 2002
- RCS:           $Id: uibatchlaunch.h,v 1.13 2005-12-28 18:14:04 cvsbert Exp $
+ RCS:           $Id: uibatchlaunch.h,v 1.14 2006-02-16 12:35:06 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,7 +34,7 @@ public:
 				      const char* hostnm,const char* prognm,
 				      bool with_print_pars=false);
 
-    void		setParFileName( const char* fnm ) { parfname = fnm; }
+    void		setParFileName(const char*);
 
 protected:
 
