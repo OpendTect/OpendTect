@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vismultitexture.cc,v 1.11 2006-02-15 20:09:18 cvskris Exp $";
+static const char* rcsID = "$Id: vismultitexture.cc,v 1.12 2006-02-16 22:07:28 cvskris Exp $";
 
 #include "vismultitexture2.h"
 
@@ -160,7 +160,19 @@ TextureInfo::~TextureInfo()
     for ( int idx=0; idx<versionindexdata_.size(); idx++ )
 	if ( ownsindexdata_[idx] ) delete [] versionindexdata_[idx];
 
-    deepUnRef( versioncoltab_ );
+    for ( int idx=0; idx<versioncoltab_.size(); idx++ )
+    {
+	if ( versioncoltab_[idx] )
+	{
+	    versioncoltab_[idx]->rangechange.remove(
+		    mCB( this, TextureInfo, rangeChangeCB ) );
+	    versioncoltab_[idx]->sequencechange.remove(
+		    mCB( this, TextureInfo, sequenceChangeCB ) );
+	    versioncoltab_[idx]->unRef();
+	}
+    }
+
+    versioncoltab_.erase();
 }
 
 
