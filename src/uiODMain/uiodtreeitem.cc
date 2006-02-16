@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.150 2006-02-15 17:29:31 cvskris Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.151 2006-02-16 15:49:44 cvskris Exp $
 ___________________________________________________________________
 
 -*/
@@ -459,7 +459,6 @@ void uiODDataTreeItem::updateColumnText( int col )
 uiODAttribTreeItem::uiODAttribTreeItem( const char* parenttype )
     : uiODDataTreeItem( parenttype )
     , selattrmnuitem_( "Select Attribute" )
-    , settingsmnuitem_( "Settings ..." )
 {}
 
 
@@ -507,8 +506,6 @@ void uiODAttribTreeItem::createMenuCB( CallBacker* cb )
 
 	mAddMenuItem( menu, &selattrmnuitem_, 
 		      !visserv->isLocked(displayID()), false );
-
-	mAddMenuItem( menu, &settingsmnuitem_, true, false );
     }
 
     uiODDataTreeItem::createMenuCB( cb );
@@ -526,23 +523,17 @@ void uiODAttribTreeItem::handleMenuCB( CallBacker* cb )
 
     uiVisPartServer* visserv = applMgr()->visServer();
 
-    if ( mnuid==settingsmnuitem_.id )
-    {
-    }
-    else
-    {
-	const Attrib::SelSpec* as = visserv->getSelSpec( displayID(),
-							 siblingIndex() );
-	if ( !as ) return;
+    const Attrib::SelSpec* as = visserv->getSelSpec( displayID(),
+						     siblingIndex() );
+    if ( !as ) return;
 
-	Attrib::SelSpec myas( *as );
-	if ( applMgr()->attrServer()->handleAttribSubMenu(mnuid,myas) )
-	{
-	    menu->setIsHandled(true);
-	    visserv->setSelSpec( displayID(), siblingIndex(), myas );
-	    visserv->calculateAttrib( displayID(), siblingIndex(), false );
-	    updateColumnText( uiODSceneMgr::cNameColumn() );
-	}
+    Attrib::SelSpec myas( *as );
+    if ( applMgr()->attrServer()->handleAttribSubMenu(mnuid,myas) )
+    {
+	menu->setIsHandled(true);
+	visserv->setSelSpec( displayID(), siblingIndex(), myas );
+	visserv->calculateAttrib( displayID(), siblingIndex(), false );
+	updateColumnText( uiODSceneMgr::cNameColumn() );
     }
 }
 

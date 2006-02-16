@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: uiodtreeitem.h,v 1.17 2006-02-15 17:30:02 cvskris Exp $
+ RCS:		$Id: uiodtreeitem.h,v 1.18 2006-02-16 15:49:44 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -164,8 +164,6 @@ protected:
     BufferString	createDisplayName() const;
 
     MenuItem		selattrmnuitem_;
-    MenuItem		settingsmnuitem_;
-
 };
 
 #endif
