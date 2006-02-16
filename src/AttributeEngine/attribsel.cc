@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: attribsel.cc,v 1.9 2006-01-11 13:58:46 cvshelene Exp $
+ RCS:           $Id: attribsel.cc,v 1.10 2006-02-16 22:02:12 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,6 +40,7 @@ const char* SelSpec::sKeyRef()		{ return "Attrib Reference"; }
 const char* SelSpec::sKeyID()		{ return "Attrib ID"; }
 const char* SelSpec::sKeyIsNLA()	{ return "Is attrib NLA Model"; }
 const char* SelSpec::sKeyObjRef()	{ return "Object Reference"; }
+const char* SelSpec::sKeyDefStr()	{ return "Definition"; }
 static const char* isnnstr = "Is attrib NN"; // for backward compatibility
 
 bool SelSpec::operator==( const SelSpec& ss ) const
@@ -142,6 +143,7 @@ void SelSpec::fillPar( IOPar& par ) const
     par.set( sKeyID(), id_.asInt() );
     par.setYN( sKeyIsNLA(), isnla_ );
     par.set( sKeyObjRef(), objref_ );
+    par.set( sKeyDefStr(), defstring_ );
 }
 
 
@@ -152,6 +154,7 @@ bool SelSpec::usePar( const IOPar& par )
     isnla_ = false; 	par.getYN( sKeyIsNLA(), isnla_ );
     			par.getYN( isnnstr, isnla_ );
     objref_ = "";	par.get( sKeyObjRef(), objref_ );
+    defstring_ = "";	par.get( sKeyDefStr(), defstring_ );
     		
     return true;
 }
