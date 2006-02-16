@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          June 2005
- RCS:           $Id: similarityattrib.cc,v 1.21 2006-01-13 09:52:28 cvsnanne Exp $
+ RCS:           $Id: similarityattrib.cc,v 1.22 2006-02-16 16:08:20 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -160,6 +160,15 @@ bool Similarity::getTrcPos()
 	for ( bid.inl=-stepout_.inl; bid.inl<=stepout_.inl; bid.inl++ )
 	    for ( bid.crl=-stepout_.crl; bid.crl<=stepout_.crl; bid.crl++ )
 		trcpos_ += bid;
+
+	for ( int idx=0; idx<trcpos_.size()-1; idx++ )
+	{
+	    for ( int idy=idx+1; idy<trcpos_.size(); idy++)
+	    {
+		pos0s_ += idx;
+		pos1s_ += idy;
+	    }
+	}
     }
     else
     {
@@ -238,7 +247,8 @@ bool Similarity::computeData( const DataHolder& output, const BinID& relpos,
 				    mNINT(gate_.stop/refstep) );
 
     const int gatesz = samplegate.width();
-    const int nrpairs = inputdata_.size()/2;
+    const int nrpairs = extension_==mExtensionCube ? pos0s_.size()
+						   : inputdata_.size()/2;
     const int firstsample = inputdata_[0] ? z0-inputdata_[0]->z0_ : z0;
 
     for ( int idx=0; idx<nrsamples; idx++ )
@@ -246,9 +256,9 @@ bool Similarity::computeData( const DataHolder& output, const BinID& relpos,
 	RunningStatistics<float> stats;
 	for ( int pair=0; pair<nrpairs; pair++ )
 	{
-	    const int idx1 = extension_==mExtensionCube ? pair : pair*2;
-	    const int idx2 = extension_==mExtensionCube ? 
-				   inputdata_.size() - (pair+1) : pair*2 +1;
+	    const int idx1 = extension_==mExtensionCube ? pos0s_[pair] : pair*2;
+	    const int idx2 = extension_==mExtensionCube ? pos1s_[pair]
+							: pair*2 +1;
 	    float s0 = firstsample + idx + samplegate.start;
 	    float s1 = s0;
 
@@ -279,18 +289,16 @@ bool Similarity::computeData( const DataHolder& output, const BinID& relpos,
 	const int outidx = z0 - output.z0_ + idx;
 	if ( !stats.size() )
 	{
-	    for (int sidx=0; sidx<outputinterest.size(); sidx++ )
-	    {
+	    for ( int sidx=0; sidx<outputinterest.size(); sidx++ )
 		if ( outputinterest[sidx] ) 
 		    output.series(sidx)->setValue( outidx, 0 );
-	    }
 	}
 	else
 	{
 	    if ( outputinterest[0] ) 
 		output.series(0)->setValue( outidx, stats.mean() );
 
-	    if ( nrpairs>1 && outputinterest.size()>1 )
+	    if ( outputinterest.size()>1 )
 	    {
 		if ( outputinterest[1] ) 
 		    output.series(1)->setValue( outidx, stats.median() );
