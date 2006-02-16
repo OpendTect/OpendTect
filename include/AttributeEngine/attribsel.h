@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Sep 2001
- RCS:           $Id: attribsel.h,v 1.5 2005-12-02 14:35:35 cvshelene Exp $
+ RCS:           $Id: attribsel.h,v 1.6 2006-02-16 22:02:50 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -91,6 +91,7 @@ protected:
     static const char*	sKeyObjRef();
     static const char*	sKeyID();
     static const char*	sKeyIsNLA();
+    static const char*	sKeyDefStr();
 
     void		setDiscr(const DescSet&);
     void		setDiscr(const NLAModel&);
