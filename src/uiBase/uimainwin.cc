@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.101 2006-01-12 17:11:17 cvsbert Exp $
+ RCS:           $Id: uimainwin.cc,v 1.102 2006-02-16 12:35:38 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -940,39 +940,38 @@ void uiDialogBody::layoutChildren( uiObject* lowestobj )
 {
     uiObject* leftbut = okBut;
     uiObject* rightbut = cnclBut;
-    uiObject* centerbut = 0;
-    uiObject* extrabut1 = 0; uiObject* extrabut2 = 0;
-    uiObject* savebut = saveBut_cb ? (uiObject*)saveBut_cb
-				   : (uiObject*)saveBut_pb;
-    uiObject* nearokbut = saveBut_cb;
+    uiObject* exitbut = okBut ? okBut : cnclBut;
+    uiObject* centerbut = helpBut;
+    uiObject* extrabut = saveBut_pb;
 
-    if ( okBut && !cnclBut )	{ centerbut = okBut; leftbut = 0; }
-    if ( cnclBut && !okBut )	{ centerbut = cnclBut; rightbut = 0; }
-
-    if ( !centerbut )		centerbut = helpBut;
-    else			extrabut1 = helpBut;
-
-    if ( !centerbut )		centerbut = savebut;
-    else if ( !extrabut1 )	extrabut1 = savebut;
-    else 			extrabut2 = savebut;
-
-    // Exception: save checkbox needs to be near OK button.
-    if ( okBut && nearokbut )
+    if ( !okBut || !cnclBut )
     {
-	if ( centerbut == nearokbut ) centerbut = 0;
-	if ( extrabut1 == nearokbut ) extrabut1 = 0;
-	if ( extrabut2 == nearokbut ) extrabut2 = 0;
+	leftbut = rightbut = 0;
+	if ( exitbut )
+	{
+	    centerbut = exitbut;
+	    extrabut = helpBut;
+	    leftbut = saveBut_pb;
+	}
     }
 
-#	define mCommonLayout(but) \
-	but->attach( ensureBelow, lowestobj ); \
-	but->attach( bottomBorder, 0 )
+    if ( !centerbut )
+    {
+	centerbut = extrabut;
+	extrabut = 0;
+    }
+
+
+#define mCommonLayout(but) \
+    but->attach( ensureBelow, lowestobj ); \
+    but->attach( bottomBorder, 0 )
 
     if ( leftbut )
     {
 	mCommonLayout(leftbut);
 	leftbut->attach( leftBorder );
     }
+
     if ( rightbut )
     {
 	mCommonLayout(rightbut);
@@ -980,6 +979,7 @@ void uiDialogBody::layoutChildren( uiObject* lowestobj )
 	if ( leftbut )
 	    rightbut->attach( ensureRightOf, leftbut );
     }
+
     if ( centerbut )
     {
 	mCommonLayout(centerbut);
@@ -991,26 +991,21 @@ void uiDialogBody::layoutChildren( uiObject* lowestobj )
 	if ( rightbut )
 	    centerbut->attach( ensureLeftOf, rightbut );
     }
-    if ( extrabut1 )
+
+    if ( saveBut_cb )
     {
-	mCommonLayout(extrabut1);
-	extrabut1->attach( rightOf, centerbut );
+	mCommonLayout(saveBut_cb);
+	saveBut_cb->attach( extrabut ? leftOf : rightOf, exitbut );
+	if ( centerbut != exitbut )
+	    centerbut->attach( ensureRightOf, saveBut_cb );
+    }
+
+    if ( extrabut )
+    {
+	mCommonLayout(extrabut);
+	extrabut->attach( rightOf, centerbut );
 	if ( rightbut )
-	    extrabut1->attach( ensureLeftOf, rightbut );
-    }
-    if ( extrabut2 )
-    {
-	mCommonLayout(extrabut2);
-	extrabut1->attach( leftOf, centerbut );
-	if ( leftbut )
-	    extrabut2->attach( ensureRightOf, leftbut );
-    }
-    if ( okBut && nearokbut )
-    {
-	mCommonLayout(nearokbut);
-	nearokbut->attach( okBut == leftbut ? rightOf : leftOf, okBut );
-	if ( centerbut != okBut )
-	    centerbut->attach( ensureRightOf, nearokbut );
+	    extrabut->attach( ensureLeftOf, rightbut );
     }
 }
 
