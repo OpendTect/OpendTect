@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:           $Id: uibatchlaunch.cc,v 1.48 2006-02-02 10:37:28 cvsbert Exp $
+ RCS:           $Id: uibatchlaunch.cc,v 1.49 2006-02-16 12:34:25 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -141,6 +141,15 @@ void uiBatchLaunch::remSel( CallBacker* )
     remhostfld->display( isrem );
     optfld->display( !isrem );
     optSel(0);
+}
+
+
+void uiBatchLaunch::setParFileName( const char* fnm )
+{
+    parfname = fnm;
+    FilePath fp( fnm );
+    fp.setExtension( "log", true );
+    filefld->setFileName( fp.fullPath() );
 }
 
 
