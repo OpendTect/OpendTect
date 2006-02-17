@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Payraudeau
  Date:          06/12/2005
- RCS:           $Id: uishortcuts.h,v 1.2 2006-01-31 16:56:54 cvshelene Exp $
+ RCS:           $Id: uishortcuts.h,v 1.3 2006-02-17 17:47:32 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,10 +30,10 @@ public:
 
 protected:
     void		fillTable();
-    void		readFileValues();
-    void		getKeyValues(int,int&,int&) const;
+    bool		readFileValues();
+    void		getKeyValues(int,int&,int&,bool) const;
     int			getUIValue(int,int) const;
-    void		fillPar(IOPar&) const;
+    void		fillPar() const;
     void		shortcutsDlgClosed(CallBacker*);
 
     uiTable*            shortcutskeys_;

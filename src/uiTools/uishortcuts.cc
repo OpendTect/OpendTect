@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Payraudeau
  Date:          December 2005
- RCS:           $Id: uishortcuts.cc,v 1.3 2006-01-31 16:57:02 cvshelene Exp $
+ RCS:           $Id: uishortcuts.cc,v 1.4 2006-02-17 17:48:37 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "uitable.h"
 #include "userinputobj.h"
 #include "oddirs.h"
+#include "settings.h"
 
 
 uiShortcutsDlg::uiShortcutsDlg( uiParent* p )
@@ -56,12 +57,12 @@ void uiShortcutsDlg::fillTable()
 {
     UserInputObj* uiobj1;
     UserInputObj* uiobj2;
-    readFileValues();
+    bool isdefault = readFileValues();
     const int tablesz = uiHandleShortcuts::SCLabelsDef().size();
     int val1, val2;
     for ( int idx=0; idx<tablesz; idx++ )
     {
-	getKeyValues(idx, val1, val2);
+	getKeyValues( idx, val1, val2, isdefault );
 	if ( val1 == 5 )
 	    val1 = 1;//remember that we don't use the entire ButtonState list
 	if ( val1 == 6 )
@@ -71,9 +72,18 @@ void uiShortcutsDlg::fillTable()
 }
 
 
-void uiShortcutsDlg::readFileValues()
+bool uiShortcutsDlg::readFileValues()
 {
-    pars_.read( GetDataFileName("ShortCuts") );
+    BufferString firstsc;
+    if ( !mSettUse(get,"Shortcuts.0","Name",firstsc) )
+    {
+	pars_.read( GetDataFileName("ShortCuts") );
+	return true;
+    }
+    else
+	pars_ = Settings::common();
+
+    return false;
 }
 
 
@@ -87,10 +97,13 @@ for ( int idx=0; idx<KeySet##Def().size(); idx++ )\
 
 
 
-void uiShortcutsDlg::getKeyValues( int scutidx, int& val1, int& val2 ) const
+void uiShortcutsDlg::getKeyValues( int scutidx, int& val1, 
+				   int& val2, bool isdefault ) const
 {
     BufferString c1,c2;
-    BufferString key = IOPar::compKey( uiHandleShortcuts::keyStr(), scutidx );
+    BufferString scutidxstr = isdefault ? "" : "Shortcuts.";
+    scutidxstr += scutidx;
+    BufferString key = IOPar::compKey( scutidxstr, uiHandleShortcuts::keyStr());
     pars_.get( key.buf(), c1, c2 ); 
     mIndexOf( OD::ButtonState, c1, val1 );
     mIndexOf( OD::Key, c2, val2 );
@@ -117,24 +130,24 @@ void uiShortcutsDlg::shortcutsDlgClosed( CallBacker* )
     if ( uiResult() == 0 )
 	return;
 
-    IOPar scpars;
-    fillPar( scpars );
-    scpars.dump( GetDataFileName("ShortCuts") );
+    fillPar();
 }
 
 
-void uiShortcutsDlg::fillPar( IOPar& iopar ) const
+void uiShortcutsDlg::fillPar() const
 {
-    BufferString key;
     const int tablesz = uiHandleShortcuts::SCLabelsDef().size();
     
     for ( int idx=0; idx<tablesz; idx++ )
     {
-	key = IOPar::compKey( uiHandleShortcuts::nameStr(), idx );
-	iopar.set( key, uiHandleShortcuts::SCLabelsDef().convert(idx) );
-	key = IOPar::compKey( uiHandleShortcuts::keyStr(), idx );
-	iopar.set( key, OD::ButtonStateDef().convert( getUIValue(1,idx) ), 
-		   OD::KeyDef().convert( getUIValue(2,idx) ) );
+	BufferString basekey = IOPar::compKey( "Shortcuts", idx );
+	mSettUse(set,basekey,uiHandleShortcuts::nameStr(),
+		 uiHandleShortcuts::SCLabelsDef().convert(idx) );
+	Settings::common().set( IOPar::compKey(basekey,
+		    		uiHandleShortcuts::keyStr()),
+				OD::ButtonStateDef().convert(getUIValue(1,idx)),
+				OD::KeyDef().convert( getUIValue(2,idx) ) );
     }
+    Settings::common().write();
 }
 
