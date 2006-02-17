@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Oct 2004
- RCS:           $Id: jobrunner.cc,v 1.31 2005-10-26 14:38:36 cvsarend Exp $
+ RCS:           $Id: jobrunner.cc,v 1.32 2006-02-17 17:27:14 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -79,9 +79,7 @@ JobRunner::JobRunner( JobDescProv* p, const char* cmd )
     	, curjobfp_(*new FilePath)
     	, curjobinfo_(0)
 {
-    FilePath fp( GetDataDir() );
-    fp.add( "Proc" ).add( tmpfnm_base );
-    procdir_ = fp.fullPath();
+    procdir_ = GetProcFileName( tmpfnm_base );
     procdir_ += "_"; procdir_ += tmpfile_nr;
     tmpfile_nr++;
 

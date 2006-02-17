@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          May 2002
- RCS:           $Id: uiimpfault.cc,v 1.17 2005-03-07 10:51:30 cvskris Exp $
+ RCS:           $Id: uiimpfault.cc,v 1.18 2006-02-17 17:27:14 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,7 +45,7 @@ uiImportLMKFault::uiImportLMKFault( uiParent* p )
 
     formatfilefld = new uiFileInput( this, "Input Landmark formatfile",
 	    			     uiFileInput::Setup()
-				     .filter("*.fault_fmt;*") );
+				     .filter("*.fault_fmt") );
     formatfilefld->setDefaultSelectionDir(
 	    IOObjContext::getDataDirName(IOObjContext::Surf) );
     formatfilefld->attach( alignedBelow, infld );

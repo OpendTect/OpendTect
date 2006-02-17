@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          21/9/2000
- RCS:           $Id: uifileinput.h,v 1.19 2005-08-15 16:17:29 cvsbert Exp $
+ RCS:           $Id: uifileinput.h,v 1.20 2006-02-17 17:27:14 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,6 +25,9 @@ Displays a uiLineEdit field showing the current selected file. The user can
 edit the filename by hand, or pop up a file selector trough the included
 "Select..." push button. Optional is an Examine button for browsing the file.
 
+The filter you specify will automatically get an 'All files' added unless
+you specify otherwise in the setup.
+
 */
 
 class uiFileInput : public uiGenInput
@@ -40,12 +43,14 @@ public:
 			    , forread_(true)
 			    , withexamine_(false)
 			    , directories_(false)
+			    , allowallextensions_(true)
 			    {}
 	BufferString	fnm;
 	mDefSetupMemb(BufferString,filter)
 	mDefSetupMemb(bool,forread)
 	mDefSetupMemb(bool,withexamine)
 	mDefSetupMemb(bool,directories)
+	mDefSetupMemb(bool,allowallextensions)
 	
     };
 
@@ -84,6 +89,7 @@ protected:
     BufferString	filter;
     BufferString	defseldir;
     BufferString	selfltr;
+    bool		addallexts;
 
     bool		selmodset;
     uiFileDialog::Mode  selmode;

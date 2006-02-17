@@ -7,8 +7,13 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Aug 2005
- RCS:		$Id: oddirs.h,v 1.3 2006-01-10 15:45:41 cvsbert Exp $
+ RCS:		$Id: oddirs.h,v 1.4 2006-02-17 17:27:14 cvsbert Exp $
 ________________________________________________________________________
+
+For historic reasons, also dGB_ instead of DTECT_ or OD_ will be scanned.
+
+Beware that all functions may return a pointer to _the_ _same_ static
+buffer of length PATH_LENGTH!
 
 -*/
 
@@ -20,29 +25,18 @@ ________________________________________________________________________
 extern "C" {
 #endif
 
-/*! Directory of the installed software = $dGB|DTECT_APPL 
+
+/*! Directory of the installed software = $DTECT_APPL 
 
  GetSoftwareDir returns the full path of the root of where the executables,
  program data, etc. is located.
 
-
  On windows:
     DTECT_WINDATA
-    dGB_WINDATA
-
- in that order.
  On unix:
-
     DTECT_DATA
-    dGB_DATA
-
- in that order.
 
  If that fails, it will try to extract the location out of argv[0] 
-
-
- Beware that all functions may return a pointer to _the_ _same_ static
- buffer of length PATH_LENGTH!
 
 */
 const char*	GetSoftwareDir(void);
@@ -77,9 +71,9 @@ const char*	GetBinDir(void);
 const char*	GetExecScript(int remote);
 #define		mGetExecScript()	GetExecScript(0)
 
-/*! DTECT_USER (or dGB_USER, etc.).
+/*! DTECT_USER
 
- returns the value as set in DTECT_USER (or dGB_USER, etc.).
+ returns the value as set in DTECT_USER.
  This may be null - in fact it is most often null!
 
  /sa GetSoftwareDir(void)
@@ -102,9 +96,7 @@ const char*	GetSoftwareUser(void);
  On windows:
 
     DTECT_WINHOME
-    dGB_WINHOME
     DTECT_HOME	-> converted from unix to windows path (cygpath -w)
-    dGB_HOME 	-> ""
     HOME	-> ""
     HOMEDRIVE+HOMEPATH if exists and _not_ equal to "C:\"
 
@@ -115,7 +107,6 @@ const char*	GetSoftwareUser(void);
  On unix:
 
     DTECT_HOME
-    dGB_HOME
     HOME
 
  in that order.
@@ -167,19 +158,25 @@ const char*	GetPersonalDir(void);
 
 
 const char*	GetDataFileName(const char*);
-		/*!< Application data file in $dGB|DTECT_APPL/data */
+		/*!< Application data file in $DTECT_APPL/data.
+		  	Pass null for directory name. */
+
+const char*	GetProcFileName(const char*);
+		/*!< Job processing spec file in $DTECT_DATA/Proc.
+		  	Pass null for directory name. */
 
 const char*	GetIconFileName(const char*);
-		/*!< Icon file in $dGB|DTECT_APPL/data/icons */
+		/*!< Icon file in $DTECT_APPL/data/icons.
+		  	Pass null for directory name. */
 
 const char*	SearchODFile(const char*);
 		/*!< Search for a <configuration> file in:
 		    $OD_FILES
                     GetPersonalDir() + ".od"
                     GetSettingsDir() + ".od"
-		    $dGB|DTECT_APPL/data
-		    $dGB|DTECT_APPL/bin
-		    $dGB|DTECT_APPL
+		    $DTECT_APPL/data
+		    $DTECT_APPL/bin
+		    $DTECT_APPL
 		    GetBaseDataDir()
 		*/
 
@@ -192,16 +189,10 @@ const char*	SearchODFile(const char*);
  On windows:
 
     DTECT_WINDATA
-    dGB_WINDATA
-
- in that order.
 
  On unix:
 
     DTECT_DATA
-    dGB_DATA
-
- in that order.
 
  If it is not found, it will try to find it in the settings.
 

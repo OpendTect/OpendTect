@@ -67,16 +67,16 @@ uiCmdDriverInps( uiParent* p, CmdDriver& d )
 	, drv_(d)
 {
     fnmfld = new uiFileInput( this, "Command file", uiFileInput::Setup()
-				.filter("*.cmd;;*")
+				.filter("*.cmd")
 				.forread(true)
 				.withexamine(true) );
-    FilePath fp( GetDataDir() ); fp.add( "Proc" );
-    fnmfld->setDefaultSelectionDir( fp.fullPath() );
+    const BufferString procdir = GetProcFileName(0);
+    fnmfld->setDefaultSelectionDir( procdir );
     outdirfld = new uiFileInput( this, "Output directory", uiFileInput::Setup()
 				.forread(false)
 				.directories(true) );
     outdirfld->attach( alignedBelow, fnmfld );
-    outdirfld->setDefaultSelectionDir( fp.fullPath() );
+    outdirfld->setDefaultSelectionDir( procdir );
 }
 
 bool acceptOK( CallBacker* )

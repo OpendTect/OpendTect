@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Jun 2002
- RCS:		$Id: uiseiscbvsimp.cc,v 1.34 2005-10-03 08:11:50 cvsnanne Exp $
+ RCS:		$Id: uiseiscbvsimp.cc,v 1.35 2006-02-17 17:27:14 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -79,7 +79,7 @@ void uiSeisImpCBVS::init( bool fromioobj )
 	BufferString seldir = IOObjContext::getDataDirName(IOObjContext::Seis);
 	finpfld = new uiFileInput( this, "(First) CBVS file name",
 	       			   uiFileInput::Setup()
-				   .filter("CBVS (*.cbvs);;All (*)") );
+				   .filter("CBVS (*.cbvs)") );
 	finpfld->setDefaultSelectionDir( seldir );
 	finpfld->valuechanged.notify( mCB(this,uiSeisImpCBVS,finpSel) );
 

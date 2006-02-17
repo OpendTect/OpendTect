@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          October 2002
- RCS:           $Id: uiprintscenedlg.cc,v 1.22 2005-08-26 18:19:28 cvsbert Exp $
+ RCS:           $Id: uiprintscenedlg.cc,v 1.23 2006-02-17 17:27:14 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -112,8 +112,10 @@ uiPrintSceneDlg::uiPrintSceneDlg( uiParent* p, SoNode* scene_,
     }
 
     fileinputfld = new uiFileInput( this, "Select filename",
-				    uiFileInput::Setup().forread(false)
-				    			.filter(filter) );
+				    uiFileInput::Setup()
+				    .forread(false)
+				    .filter(filter)
+	   			    .allowallextensions(false) );
     BufferString dirnm = FilePath(GetDataDir()).add("Misc").fullPath();
     fileinputfld->setDefaultSelectionDir( dirnm );
     fileinputfld->attach( alignedBelow, dpifld );

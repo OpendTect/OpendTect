@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Feb 2005
- RCS:           $Id: horizonscanner.cc,v 1.7 2005-12-13 19:50:15 cvskris Exp $
+ RCS:           $Id: horizonscanner.cc,v 1.8 2006-02-17 17:27:14 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,7 +12,6 @@ ________________________________________________________________________
 #include "horizonscanner.h"
 #include "posgeomdetector.h"
 #include "iopar.h"
-#include "filepath.h"
 #include "strmprov.h"
 #include "survinfo.h"
 #include "oddirs.h"
@@ -139,9 +138,7 @@ void HorizonScanner::report( IOPar& iopar ) const
 const char* HorizonScanner::defaultUserInfoFile()
 {
     static BufferString ret;
-    FilePath fp( GetDataDir() );
-    fp.add( "Proc" ).add( "scan_horizon" );
-    ret = fp.fullPath();
+    ret = GetProcFileName( "scan_horizon" );
     if ( GetSoftwareUser() )
 	{ ret += "_"; ret += GetSoftwareUser(); }
     ret += ".txt";

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:           $Id: uibatchprogs.cc,v 1.21 2005-08-26 18:19:28 cvsbert Exp $
+ RCS:           $Id: uibatchprogs.cc,v 1.22 2006-02-17 17:27:14 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -179,8 +179,7 @@ uiBatchProgLaunch::uiBatchProgLaunch( uiParent* p, const char* appnm )
 	    {
 		BufferString filt;
 		if ( bpp.desc == "Parameter file" )
-		    filt = "Parameter files (*.par);;";
-		filt += "Any files (*)";
+		    filt = "Parameter files (*.par)";
 		bool forread = bpp.type == BatchProgPar::FileRead;
 		uiFileInput* fi = new uiFileInput( this, txt,
 			uiFileInput::Setup().forread(forread)
@@ -252,8 +251,7 @@ void uiBatchProgLaunch::exButPush( CallBacker* )
     if ( File_isEmpty(sourceex) )
 	{ pErrMsg("Installation problem"); return; }
 
-    FilePath fp( GetDataDir() );
-    BufferString targetex = fp.add( "Proc" ).add( bpi.exampleinput ).fullPath();
+    BufferString targetex = GetProcFileName( bpi.exampleinput );
     if ( !File_exists(targetex) )
     {
 	File_copy( sourceex, targetex, NO );

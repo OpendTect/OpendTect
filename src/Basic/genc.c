@@ -5,7 +5,7 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID = "$Id: genc.c,v 1.78 2006-01-10 15:45:41 cvsbert Exp $";
+static const char* rcsID = "$Id: genc.c,v 1.79 2006-02-17 17:27:14 cvsbert Exp $";
 
 #include "oddirs.h"
 #include "genc.h"
@@ -242,14 +242,16 @@ const char* GetDataFileName( const char* fname )
     strcpy( filenamebuf, mkFullPath( GetSoftwareDir(), "data" ) );
     if ( fname && *fname )
 	strcpy( filenamebuf, mkFullPath( filenamebuf, fname ) );
+    return filenamebuf;
+}
 
-    if ( od_debug_isOn(DBG_SETTINGS) )
-    {
-	sprintf( dbgbuf, "GetDataFileName for '%s': '%s'",
-			fname ? fname : "(null)", filenamebuf );
-	od_debug_message( dbgbuf );
-    }
 
+const char* GetProcFileName( const char* fname )
+{
+    static FileNameString filenamebuf;
+    strcpy( filenamebuf, mkFullPath( GetDataDir(), "Proc" ) );
+    if ( fname && *fname )
+	strcpy( filenamebuf, mkFullPath( filenamebuf, fname ) );
     return filenamebuf;
 }
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:           $Id: uibatchlaunch.cc,v 1.49 2006-02-16 12:34:25 cvsbert Exp $
+ RCS:           $Id: uibatchlaunch.cc,v 1.50 2006-02-17 17:27:14 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,13 +34,11 @@ static const char* sMultiBaseNm = "cube_processing";
 static void getProcFilename( const char* basnm, const char* altbasnm,
 			     BufferString& tfname )
 {
-    FilePath fp( GetDataDir() );
     if ( !basnm || !*basnm ) basnm = altbasnm;
-
     tfname = basnm;
     cleanupString( tfname.buf(), NO, NO, YES );
     tfname += ".par";
-    tfname = fp.add( "Proc" ).add( tfname ).fullPath();
+    tfname = GetProcFileName( tfname );
 }
 
 
@@ -103,16 +101,15 @@ uiBatchLaunch::uiBatchLaunch( uiParent* p, const IOParList& pl,
     static BufferString fname = "";
     if ( fname == "" )
     {
-	fname = "log";
+	fname = GetProcFileName( "log" );
 	if ( GetSoftwareUser() )
 	    { fname += "_"; fname += GetSoftwareUser(); }
 	fname += ".txt";
-
-	FilePath fp( GetDataDir() );
-	fname = fp.add( "Proc" ).add( fname ).fullPath();
     }
     filefld = new uiFileInput( this, "Log file",
-	   		       uiFileInput::Setup(fname).forread(false) );
+	   		       uiFileInput::Setup(fname)
+				.forread(false)
+	   			.filter("*.log;;*.txt") );
     filefld->attach( alignedBelow, optfld );
 
     nicefld = new uiLabeledSpinBox( this, "Nice level" );

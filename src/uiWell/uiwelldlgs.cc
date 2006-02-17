@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          October 2003
- RCS:           $Id: uiwelldlgs.cc,v 1.38 2006-01-25 07:13:40 cvskris Exp $
+ RCS:           $Id: uiwelldlgs.cc,v 1.39 2006-02-17 17:27:14 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -132,8 +132,7 @@ uiReadMarkerFile::uiReadMarkerFile( uiParent* p )
 				 "107.1.4"))
 {
     fnmfld = new uiFileInput( this, "Input Ascii file",
-	    		uiFileInput::Setup().filter("*;;*.dat;;*.txt")
-					    .withexamine(true)
+	    		uiFileInput::Setup().withexamine(true)
 					    .forread(true));
     fnmfld->setDefaultSelectionDir(
 	    IOObjContext::getDataDirName(IOObjContext::WllInf) );
@@ -364,7 +363,6 @@ bool uiD2TModelDlg::acceptOK( CallBacker* )
 
 // ==================================================================
 
-static const char* lasfilefilt = "*.las;;*.LAS;;*.txt;;*";
 static const float defundefval = -999.25;
 static const float feetfac = 0.3048;
 
@@ -374,7 +372,7 @@ uiLoadLogsDlg::uiLoadLogsDlg( uiParent* p, Well::Data& wd_ )
     , wd(wd_)
 {
     lasfld = new uiFileInput( this, "Input (pseudo-)LAS logs file",
-			      uiFileInput::Setup().filter(lasfilefilt)
+			      uiFileInput::Setup().filter("*.las;;*.dat")
 			      			  .withexamine(true) );
     lasfld->setDefaultSelectionDir( GetDataDir() );
     lasfld->valuechanged.notify( mCB(this,uiLoadLogsDlg,lasSel) );

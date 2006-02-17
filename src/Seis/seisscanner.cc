@@ -4,7 +4,7 @@
  * DATE     : Feb 2004
 -*/
 
-static const char* rcsID = "$Id: seisscanner.cc,v 1.25 2005-08-26 18:19:28 cvsbert Exp $";
+static const char* rcsID = "$Id: seisscanner.cc,v 1.26 2006-02-17 17:27:14 cvsbert Exp $";
 
 #include "seisscanner.h"
 #include "seisinfo.h"
@@ -16,7 +16,6 @@ static const char* rcsID = "$Id: seisscanner.cc,v 1.25 2005-08-26 18:19:28 cvsbe
 #include "strmprov.h"
 #include "sorting.h"
 #include "oddirs.h"
-#include "filepath.h"
 #include "ioobj.h"
 #include "iopar.h"
 #include "stats.h"
@@ -199,9 +198,7 @@ const char* SeisScanner::getClipRgStr( float pct ) const
 const char* SeisScanner::defaultUserInfoFile( const char* trnm )
 {
     static BufferString ret;
-    FilePath fp( GetDataDir() );
-    fp.add( "Proc" ).add( "scan" );
-    ret = fp.fullPath();
+    ret = GetProcFileName( "scan_seis" );
     if ( trnm && *trnm )
 	{ ret += "_"; ret += trnm; }
     if ( GetSoftwareUser() )

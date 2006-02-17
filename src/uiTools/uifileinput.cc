@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/08/2000
- RCS:           $Id: uifileinput.cc,v 1.31 2005-12-06 16:40:51 cvskris Exp $
+ RCS:           $Id: uifileinput.cc,v 1.32 2006-02-17 17:27:14 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,6 +27,7 @@ uiFileInput::uiFileInput( uiParent* p, const char* txt, const Setup& setup )
     , selmodset(false)
     , selmode(uiFileDialog::AnyFile)
     , examinebut(0)
+    , addallexts(setup.allowallextensions_)
 {
     setWithSelect( true );
     if ( setup.withexamine_ )
@@ -50,6 +51,7 @@ uiFileInput::uiFileInput( uiParent* p, const char* txt, const char* fnm )
     , selmodset(false)
     , selmode(uiFileDialog::AnyFile)
     , examinebut(0)
+    , addallexts(true)
 {
     setWithSelect( true );
 }
@@ -85,7 +87,16 @@ void uiFileInput::doSelect( CallBacker* )
     BufferString oldfltr = selfltr;
     if ( fname == "" )	fname = defseldir;
 
-    uiFileDialog dlg( this, forread, fname, filter );
+    BufferString flt( filter );
+    if ( flt != "" && addallexts )
+    {
+	flt += ";;All files (*";
+#ifdef __win__
+	flt += ".*";
+#endif
+	flt += ")";
+    }
+    uiFileDialog dlg( this, forread, fname, flt );
     dlg.setSelectedFilter( selfltr );
 
     if ( selmodset )

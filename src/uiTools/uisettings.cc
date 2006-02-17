@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          November 2001
- RCS:           $Id: uisettings.cc,v 1.14 2005-11-17 15:25:52 cvsbert Exp $
+ RCS:           $Id: uisettings.cc,v 1.15 2006-02-17 17:27:14 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,14 +40,16 @@ void uiSettings::selPush( CallBacker* )
     BufferStringSet keys;
     for ( int idx=0; idx<setts.size(); idx++ )
 	keys.add( setts.getKey(idx) );
+    keys.sort();
     uiSelectFromList dlg( this, keys, keyfld->text(),
 	    		  "Select an existing setting" );
     if ( !dlg.go() ) return;
     const int selidx = dlg.selection();
     if ( selidx < 0 ) return;
 
-    keyfld->setText( setts.getKey(selidx) );
-    valfld->setText( setts.getValue(selidx) );
+    const char* key = keys.get( selidx ).buf();
+    keyfld->setText( key );
+    valfld->setText( setts.find(key) );
 }
 
 
