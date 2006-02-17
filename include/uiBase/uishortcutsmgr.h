@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Payraudeau
  Date:          20/01/2006
- RCS:           $Id: uishortcutsmgr.h,v 1.1 2006-01-31 16:50:23 cvshelene Exp $
+ RCS:           $Id: uishortcutsmgr.h,v 1.2 2006-02-17 17:46:40 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,9 +46,9 @@ public:
 
     void		init();
     
-    IOPar		readShorcutsFile();
-    bool		getKeyValues(const IOPar&,int,BufferString&,
-	    			     BufferString&);
+    IOPar		readShorcutsFile(bool&);
+    bool		getKeyValues(const IOPar&,int,bool,
+	    			     BufferString&,BufferString&);
     
     ObjectSet<EventKeyAndState>& getList()		{ return list_; }	
 
@@ -68,6 +68,8 @@ public:
 			
     bool		operator==(const EventKeyAndState& ev) const
 			{ return key_==ev.key_ && state_==ev.state_; }
+    int			state() const 		{ return state_; }
+    void		setState( int state )	{ state_ = state; }
 
 protected:
 
