@@ -12,6 +12,7 @@ ___________________________________________________________________
 
 #include "arraynd.h"
 #include "errh.h"
+#include "thread.h"
 #include "viscolortab.h"
 
 #include "Inventor/nodes/SoSwitch.h"
@@ -34,6 +35,8 @@ MultiTexture2::MultiTexture2()
     onoff_->addChild( complexity_ );
     complexity_->type.setIgnored( true );
     complexity_->value.setIgnored( true );
+
+    texture_->setNrThreads( Threads::getNrProcessors() );
     onoff_->addChild( texture_ );
 }
 
