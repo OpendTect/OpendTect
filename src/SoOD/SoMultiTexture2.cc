@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2005
- RCS:           $Id: SoMultiTexture2.cc,v 1.7 2006-02-03 19:43:00 cvskris Exp $
+ RCS:           $Id: SoMultiTexture2.cc,v 1.8 2006-02-17 18:30:44 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,125 +39,180 @@ ________________________________________________________________________
 class SoMultiTextureProcessor
 {
 public:
-    				SoMultiTextureProcessor( const SoMultiTexture2&,
-					     unsigned char* res,
-					     int nc, int sz,
-					     const unsigned char* coltab,
-				       	     int coltabnc, int nrcolors,
-					     int nrthreads );
+    				SoMultiTextureProcessor( int nrthreads );
+    void			process( const SoMultiTexture2&,
+				         unsigned char* res,
+				         int nc, int sz,
+				         const unsigned char* coltab,
+				         int coltabnc, int nrcolors );
 
 				~SoMultiTextureProcessor();
 
-    bool			prepare( int idx );
-    bool			process();
-
 protected:
+    bool			prepare( int idx );
     bool			process( int start, int stop );
     static void*		threadFunc( void* data );
 
-    const SoMultiTexture2&	texture;
-    unsigned char*		res;
-    const unsigned char*	coltab;
-    int				coltabnc;
-    int				nc;
-    int				sz;
+    //Variables for this process (set in process(...) )
+    const SoMultiTexture2*	texture_;
+    unsigned char*		output_;
+    const unsigned char*	coltab_;
+    int				coltabnc_;
+    int				nc_;
+    int				sz_;
+    int				totalnumcolors_;
 
-    SbVec2s			lsz;
-    int				lnc;
-    const unsigned char*	bytes;
-    int				coltabstart;
+    //Variables for this layer (set in prepare)
+    int				imagenc_;
+    const unsigned char*	imagedata_;
+    int				coltabstart_;
+    int				imagenumcolors_;
+    SoMultiTexture2::Operator	imageoper_;
+    bool			imagemask_[4];
 
-    int				numcolors;
-    const int			totalnumcolors;
+    //Thread management variables
+    SbList<int>			threadstarts_;
+    SbList<int>			threadstops_;
+    SbMutex			threadrangemutex_;
 
-    SoMultiTexture2::Operator	oper;
-    bool			mask[4];
+    SbList<SbThread*>		threads_;
 
-    int				threadstart;
-    int				threadstop;
-    SbMutex			threadrangemutex;
-
-    SbList<SbThread*>		threads;
-
-    SbMutex			threadmutex;
-    SbCondVar			threadcondvar;
-    SbList<bool>		startthread;
-    int				threadfinishcount;
-    bool			terminatethreads;
+    SbMutex			threadmutex_;
+    SbCondVar			threadcondvar_;
+    SbList<bool>		startthread_;
+    int				threadfinishcount_;
+    bool			terminatethreads_;
 };
 
 
-SoMultiTextureProcessor::SoMultiTextureProcessor( const SoMultiTexture2& mt,
-		  unsigned char* r, int c, int s, const unsigned char* ctab,
-		  int ctabnc, int totalnumcols, int nrthreads )
-    : res( r )
-    , nc( c )
-    , sz( s )
-    , texture( mt )
-    , terminatethreads( false )
-    , coltab( ctab )
-    , coltabnc( ctabnc )
-    , coltabstart( 0 )
-    , totalnumcolors( totalnumcols )
+SoMultiTextureProcessor::SoMultiTextureProcessor( int nrthreads )
+    : terminatethreads_( false )
 {
-    if ( nrthreads<2 )
-	return;
-
-    const int idealnrperthread = sz/nrthreads;
-    const int nrperthread = idealnrperthread<1000 ? 1000 : idealnrperthread;
-
-    threadstart = 0;
     for ( int idx=0; idx<nrthreads; idx++ )
     {
-	if ( threadstart>=sz )
-	    break;
+	startthread_.append( false );
 
-	if ( idx==nrthreads-1 )
-	    threadstop = sz-1;
-	else
-	{
-	    threadstop = threadstart+nrperthread-1;
-	    if ( threadstop>=sz ) threadstop=sz-1;
-	}
-
-	startthread.append( false );
-
-	threadrangemutex.lock();
+	threadrangemutex_.lock();
 	SbThread* thread = SbThread::create( threadFunc, this );
 
-	threadrangemutex.lock();
-	threads.append( thread );
-	threadstart = threadstop+1;
-	threadrangemutex.unlock();
+	threadrangemutex_.lock();
+	threads_.append( thread );
+	threadrangemutex_.unlock();
     }
 }
 
 
 SoMultiTextureProcessor::~SoMultiTextureProcessor()
 {
-    threadmutex.lock();
-    terminatethreads = true;
-    threadcondvar.wakeAll();
-    threadmutex.unlock();
+    threadmutex_.lock();
+    terminatethreads_ = true;
+    threadcondvar_.wakeAll();
+    threadmutex_.unlock();
 
     /* Cannot destroy since mutex is deleted when function goes out of scope,
        and the threads need the mutex when exiting. */
-    for ( int idx=0; idx<threads.getLength(); idx++ )
-	SbThread::join( threads[idx] ); 
+    for ( int idx=0; idx<threads_.getLength(); idx++ )
+	SbThread::join( threads_[idx] ); 
+}
+
+
+
+
+void SoMultiTextureProcessor::process( const SoMultiTexture2& mt,
+		  unsigned char* res, int nc, int sz, const unsigned char* ctab,
+		  int ctabnc, int totalnumcols )
+{
+    texture_ = &mt;
+    output_ = res;
+    coltab_ = ctab;
+    coltabnc_ = ctabnc;
+    nc_ = nc;
+    sz_ = sz;
+    totalnumcolors_ = totalnumcols;
+    coltabstart_ = 0;
+
+    const int nrthreads = sz_>(threads_.getLength()*1000) ?
+			  threads_.getLength() : 1;
+
+    if ( nrthreads>1 )
+    {
+	const int idealnrperthread = sz/nrthreads;
+
+	threadrangemutex_.lock();
+	for ( int idx=threads_.getLength()-1; idx>=0; idx--)
+	{
+	    threadstarts_[idx] = -1;
+	    threadstops_[idx] = -1;
+	}
+
+	int threadstart = 0;
+	for ( int idx=0; idx<nrthreads; idx++ )
+	{
+	    if ( threadstart>=sz )
+		break;
+
+	    int threadstop = threadstart+idealnrperthread-1;
+	    if ( idx==nrthreads-1 || threadstop>=sz )
+		threadstop = sz-1;
+
+	    threadstarts_[idx] = threadstart;
+	    threadstops_[idx] = threadstop;
+	    threadstart = threadstop+1;
+	}
+
+	threadrangemutex_.unlock();
+    }
+
+    for ( int idx=0; idx<texture_->image.getNum(); idx++ )
+    {
+	if ( !prepare(idx) )
+	    return;
+	
+	if ( nrthreads>1 )
+	{
+	    threadmutex_.lock();
+	    for ( int idx=nrthreads-1; idx>=0; idx-- )
+		startthread_[idx]=true;
+
+	    threadfinishcount_ = nrthreads;
+
+	    threadcondvar_.wakeAll();
+
+	    while ( true )
+	    {
+		if ( threadfinishcount_ )
+		    threadcondvar_.wait( threadmutex_ );
+		if ( !threadfinishcount_ )
+		{
+		    threadmutex_.unlock();
+		    break;
+		}
+	    }
+	}
+	else
+	{
+	    process( 0, sz_ );
+	}
+
+	coltabstart_ += imagenumcolors_; 
+    }
 }
 
 
 bool SoMultiTextureProcessor::prepare( int idx )
 {
-    bytes = texture.image[idx].getValue(lsz,lnc);
+    SbVec2s lsz;
+    imagedata_ = texture_->image[idx].getValue(lsz,imagenc_);
 
-    numcolors = idx>=texture.numcolor.getNum() ? 0 : texture.numcolor[idx];
+    imagenumcolors_ = idx>=texture_->numcolor.getNum()
+	? 0
+	: texture_->numcolor[idx];
 
-    oper = idx>=texture.operation.getNum()
+    imageoper_ = idx>=texture_->operation.getNum()
 	    ? SoMultiTexture2::BLEND
-	    : (SoMultiTexture2::Operator) texture.operation[idx];
+	    : (SoMultiTexture2::Operator) texture_->operation[idx];
 
-    if ( !idx && oper!=SoMultiTexture2::REPLACE )
+    if ( !idx && imageoper_!=SoMultiTexture2::REPLACE )
     {
 	static bool didwarn = false;
 	if ( !didwarn )
@@ -168,20 +223,20 @@ bool SoMultiTextureProcessor::prepare( int idx )
 	    didwarn = 1;
 	}
 
-	oper = SoMultiTexture2::REPLACE;
+	imageoper_ = SoMultiTexture2::REPLACE;
     }
 
-    const short comp = idx>=texture.component.getNum()
+    const short comp = idx>=texture_->component.getNum()
 	    ? SoMultiTexture2::RED | SoMultiTexture2::GREEN |
-	      SoMultiTexture2::BLUE | (nc==4?SoMultiTexture2::OPACITY:0)
-	    : texture.component[idx];
+	      SoMultiTexture2::BLUE | (nc_==4?SoMultiTexture2::OPACITY:0)
+	    : texture_->component[idx];
     if ( !comp )
 	return false;
 
-    mask[0] = comp & (SoMultiTexture2::RED^-1);
-    mask[1] = comp & (SoMultiTexture2::GREEN^-1);
-    mask[2] = comp & (SoMultiTexture2::BLUE^-1);
-    mask[3] = comp & (SoMultiTexture2::OPACITY^-1);
+    imagemask_[0] = comp & (SoMultiTexture2::RED^-1);
+    imagemask_[1] = comp & (SoMultiTexture2::GREEN^-1);
+    imagemask_[2] = comp & (SoMultiTexture2::BLUE^-1);
+    imagemask_[3] = comp & (SoMultiTexture2::OPACITY^-1);
 
     return true;
 }
@@ -192,33 +247,34 @@ void* SoMultiTextureProcessor::threadFunc( void* data )
     SoMultiTextureProcessor* thisp =
 	reinterpret_cast<SoMultiTextureProcessor*>( data );
 
-    const int start = thisp->threadstart;
-    const int stop = thisp->threadstop;
-    const int mythreadnr = thisp->threads.getLength();
-    thisp->threadrangemutex.unlock();
+    const int mythreadnr = thisp->threads_.getLength();
+    thisp->threadrangemutex_.unlock();
 
-    thisp->threadmutex.lock();
+    thisp->threadmutex_.lock();
     while ( true )
     {
-	if ( !thisp->startthread[mythreadnr] && !thisp->terminatethreads )
-	    thisp->threadcondvar.wait( thisp->threadmutex );
+	if ( !thisp->startthread_[mythreadnr] && !thisp->terminatethreads_ )
+	    thisp->threadcondvar_.wait( thisp->threadmutex_ );
 
-	if ( thisp->startthread[mythreadnr] )
+	if ( thisp->startthread_[mythreadnr] )
 	{
-	    thisp->threadmutex.unlock();
-	    thisp->process( start, stop );
-	    thisp->startthread[mythreadnr] = false;
+	    thisp->threadmutex_.unlock();
+	    const int start = thisp->threadstarts_[mythreadnr];
+	    if ( start!=-1 )
+		thisp->process( start, thisp->threadstops_[mythreadnr] );
 
-	    thisp->threadmutex.lock();
-	    thisp->threadfinishcount--;
-	    if ( !thisp->threadfinishcount )
-		thisp->threadcondvar.wakeAll();
+	    thisp->startthread_[mythreadnr] = false;
+
+	    thisp->threadmutex_.lock();
+	    thisp->threadfinishcount_--;
+	    if ( !thisp->threadfinishcount_ )
+		thisp->threadcondvar_.wakeAll();
 	    continue;
 	}
 
-	if ( thisp->terminatethreads )
+	if ( thisp->terminatethreads_ )
 	{
-	    thisp->threadmutex.unlock();
+	    thisp->threadmutex_.unlock();
 	    break;
 	}
     }
@@ -227,88 +283,52 @@ void* SoMultiTextureProcessor::threadFunc( void* data )
 }
 
 
-bool SoMultiTextureProcessor::process()
-{
-    const int nrthreads = startthread.getLength();
-    if ( !nrthreads )
-    {
-	if ( !process( 0, sz-1 ) )
-	    return false;
-    }
-    else
-    {
-	threadmutex.lock();
-	for ( int idx=nrthreads-1; idx>=0; idx-- )
-	    startthread[idx]=true;
-
-	threadfinishcount = nrthreads;
-
-	threadcondvar.wakeAll();
-
-	while ( true )
-	{
-	    if ( threadfinishcount )
-		threadcondvar.wait( threadmutex );
-	    if ( !threadfinishcount )
-	    {
-		threadmutex.unlock();
-		break;
-	    }
-	}
-    }
-
-    coltabstart += numcolors; 
-
-    return true;
-}
-
-
 bool SoMultiTextureProcessor::process( int start, int stop )
 {
     for ( int idy=start; idy<=stop; idy++ )
     {
 	unsigned char pixelcolor[4];
-	if ( numcolors )
+	if ( imagenumcolors_ )
 	{
-	    int index = bytes[idy];
-	    if ( index>=numcolors ) index=numcolors-1;
+	    int index = imagedata_[idy];
+	    if ( index>=imagenumcolors_ ) index=imagenumcolors_-1;
 
-	    index += coltabstart;
-	    if ( index>=totalnumcolors ) index=totalnumcolors-1;
+	    index += coltabstart_;
+	    if ( index>=totalnumcolors_ ) index=totalnumcolors_-1;
 
-	    memcpy( pixelcolor, coltab+(index*coltabnc), coltabnc );
-	    if ( coltabnc==3 ) pixelcolor[3] = 0;
+	    memcpy( pixelcolor, coltab_+(index*coltabnc_), coltabnc_ );
+	    if ( coltabnc_==3 ) pixelcolor[3] = 0;
 	}
 	else
 	{
-	    if ( lnc==1 )
+	    if ( imagenc_==1 )
 	    {
 		pixelcolor[0] = pixelcolor[1] =
-		pixelcolor[2] = pixelcolor[3] = bytes[idy];
+		pixelcolor[2] = pixelcolor[3] = imagedata_[idy];
 	    }
 	    else
 	    {
-		if ( lnc==3 )
+		if ( imagenc_==3 )
 		{
-		    memcpy( pixelcolor, bytes+idy*3, 3 );
+		    memcpy( pixelcolor, imagedata_+idy*3, 3 );
 		    pixelcolor[3] = 0;
 		}
 		else
-		    memcpy( pixelcolor, bytes+idy*4, 4 );
+		    memcpy( pixelcolor, imagedata_+idy*4, 4 );
 	    }
 	}
 
-	unsigned char* oldval = res +idy*nc;
+	unsigned char* oldval = output_ + idy*nc_;
 
 	unsigned char invtrans = pixelcolor[3];
 	unsigned char trans = 255-invtrans;
 
-	for ( int comp=nc-1; comp>=0; comp-- )
+	for ( int comp=nc_-1; comp>=0; comp-- )
 	{
-	    if ( !mask[comp] )
+	    if ( !imagemask_[comp] )
 		continue;
 
-	    if ( oper==SoMultiTexture2::BLEND )
+	    if ( imageoper_==SoMultiTexture2::BLEND )
 	    {
 		if ( comp==3 )
 		    continue;
@@ -316,7 +336,7 @@ bool SoMultiTextureProcessor::process( int start, int stop )
 		oldval[comp] = (int)((int)oldval[comp] * trans +
 				     (int)pixelcolor[comp] * invtrans)/255;
 	    }
-	    else if ( oper==SoMultiTexture2::ADD )
+	    else if ( imageoper_==SoMultiTexture2::ADD )
 		oldval[comp] = (int)oldval[comp] + pixelcolor[comp] >> 1;
 	    else 
 		oldval[comp] =  pixelcolor[comp];
@@ -366,8 +386,7 @@ SoMultiTexture2::SoMultiTexture2()
     , imagedata( 0 )
     , imagesize( 0, 0 )
     , imagenc( 0 )
-    , nrthreads( 1 )
-    , findnrthreadstatus( NotInit )
+    , nrthreads_( 1 )
 {
     SO_NODE_CONSTRUCTOR(SoMultiTexture2);
 
@@ -591,6 +610,10 @@ void SoMultiTexture2::rayPick(SoRayPickAction * action)
 }
 
 
+void SoMultiTexture2::setNrThreads( int nr )
+{ nrthreads_ = nr; }
+
+
 #define mCondErrRet( cond, text )\
 if ( cond ) \
 {\
@@ -673,32 +696,9 @@ const unsigned char* SoMultiTexture2::createImage( SbVec2s& size, int& nc )
     unsigned char* res = new unsigned char[nrpixels*nc];
     memset( res, 255, nrpixels*nc );
 
-    const SbTime starttime = SbTime::getTimeOfDay();
-    SoMultiTextureProcessor processor( *this, res, nc, nrpixels, coltab,
-	    			       coltabnc, nrcolors, nrthreads );
-
-    for ( int idx=0; idx<numimages; idx++ )
-    {
-	if ( processor.prepare( idx ) )
-	    processor.process();
-    }
-
-    if ( findnrthreadstatus==Settled )
-	return res;
-
-    SbTime spenttime = (SbTime::getTimeOfDay()-starttime)*1e6; //to avoid mEps
-    spenttime /= (nrpixels*numimages);
-    if ( findnrthreadstatus==NotInit || spenttime<prevtime )
-    {
-	nrthreads++;
-	prevtime = spenttime;
-	findnrthreadstatus = Testing;
-    }
-    else
-    {
-	findnrthreadstatus = Settled;
-	nrthreads--;
-    }
+    static SoMultiTextureProcessor processor( nrthreads_ );
+    processor.process( *this, res, nc, nrpixels, coltab,
+		       coltabnc, nrcolors );
 
     return res;
 }

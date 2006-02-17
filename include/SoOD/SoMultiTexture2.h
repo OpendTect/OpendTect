@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		Dec 2005
- RCS:		$Id: SoMultiTexture2.h,v 1.2 2006-01-05 15:47:17 cvskris Exp $
+ RCS:		$Id: SoMultiTexture2.h,v 1.3 2006-02-17 18:30:44 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -89,6 +89,9 @@ public:
     void		callback( SoCallbackAction* );
     void		rayPick( SoRayPickAction* );
 
+    void		setNrThreads( int );
+    			/*!<\note Must be called before first GLRender. */
+
 protected:
     void		doAction( SoAction* );
     			~SoMultiTexture2();
@@ -115,13 +118,7 @@ protected:
     SbVec2s		imagesize;
     int			imagenc;
 
-    			/*!Time spent creating the image last time with
-			   nrthreads-1. */
-    SbTime		prevtime;
-    			/*!Nr threads to use at next createImage. */
-    int			nrthreads;
-    enum FindNrThreadStatus { NotInit, Testing, Settled };
-    FindNrThreadStatus	findnrthreadstatus;
+    int			nrthreads_;
 };
 
 
