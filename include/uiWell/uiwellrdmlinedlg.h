@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          October 2005
- RCS:           $Id: uiwellrdmlinedlg.h,v 1.4 2005-11-22 08:04:32 cvshelene Exp $
+ RCS:           $Id: uiwellrdmlinedlg.h,v 1.5 2006-02-17 17:45:22 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -54,6 +54,7 @@ protected:
     void		moveButPush(CallBacker*);
     void		previewPush(CallBacker*);
     int			getFirstEmptyRow();
+    void		ptsSel(CallBacker*);
 
     BufferStringSet	allwellsnames_;
     TypeSet<MultiID>	allwellsids_;
