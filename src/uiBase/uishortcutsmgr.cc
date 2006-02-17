@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "uihandleshortcuts.h"
 #include "ptrman.h"
 #include "oddirs.h"
+#include "settings.h"
 #include "keyenum.h"
 #include <qevent.h>
 
@@ -37,6 +38,8 @@ bool uiHandleShortcuts::handleEvent( QKeyEvent* event, SCLabels& sclabel )
 int uiHandleShortcuts::getShortcutIdx( QKeyEvent* event )
 {
     EventKeyAndState ev( event );
+    if ( ev.state() > (int)OD::Keypad )
+	ev.setState( ev.state() - (int)OD::Keypad );
     return indexOf( SCList().getList(), ev );
 }
 
@@ -61,12 +64,13 @@ ShortcutsList::ShortcutsList()
 
 void ShortcutsList::init()
 {
-    IOPar pars = readShorcutsFile();
+    bool isdefault = false;
+    IOPar pars = readShorcutsFile(isdefault);
     int index = 0;
     while ( true )
     {
 	BufferString val1, val2;
-	if ( !getKeyValues( pars, index, val1, val2 ) )
+	if ( !getKeyValues( pars, index, isdefault, val1, val2 ) )
 	    return;
 
 	EventKeyAndState* ev = new EventKeyAndState( val1, val2 );
@@ -76,19 +80,29 @@ void ShortcutsList::init()
 }
 
 
-bool ShortcutsList::getKeyValues( const IOPar& pars, int scutidx, 
+bool ShortcutsList::getKeyValues( const IOPar& par, int scutidx, bool isdefault,
 				  BufferString& val1, BufferString& val2 )
 {
-    BufferString key = IOPar::compKey( uiHandleShortcuts::keyStr(), scutidx );
-    const bool found = pars.get( key.buf(), val1, val2 );
+    BufferString basekey = isdefault ? "" : "Shortcuts.";
+    basekey += scutidx;
+    BufferString key = IOPar::compKey( basekey, uiHandleShortcuts::keyStr() );
+    const bool found = par.get( key.buf(), val1, val2 );
     return found;
 }
 
 
-IOPar ShortcutsList::readShorcutsFile()
+IOPar ShortcutsList::readShorcutsFile( bool& isdefaultfile )
 {
     IOPar pars("ShortCuts Table");
-    pars.read( GetDataFileName("ShortCuts") );
+    BufferString firstsc;
+    if ( !mSettUse(get,"Shortcuts.0","Name",firstsc) )
+    {
+	pars.read( GetDataFileName("ShortCuts") );
+	isdefaultfile = true;
+    }
+    else
+	pars = Settings::common();
+
     return pars;
 }
 
