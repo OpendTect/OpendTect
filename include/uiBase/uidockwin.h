@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          13/02/2002
- RCS:           $Id: uidockwin.h,v 1.9 2005-11-18 15:11:34 cvsarend Exp $
+ RCS:           $Id: uidockwin.h,v 1.10 2006-02-17 14:02:21 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,7 +34,8 @@ public:
 				   const char* nm="uiDockWin" );
 
     virtual		~uiDockWin();
-
+    void		setDockName(const char*);
+    const char*		getDockName() const;
 
     uiGroup* 		topGroup();
 

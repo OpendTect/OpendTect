@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          13/02/2002
- RCS:           $Id: uidockwin.cc,v 1.18 2005-11-18 15:45:36 cvsarend Exp $
+ RCS:           $Id: uidockwin.cc,v 1.19 2006-02-17 14:02:14 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -147,6 +147,13 @@ uiDockWin::~uiDockWin()
 { 
     delete body_; 
 }
+
+
+void uiDockWin::setDockName( const char* nm )
+{ body_->qwidget()->setName( nm ); }
+
+const char* uiDockWin::getDockName() const
+{ return body_->qwidget()->name(); }
 
 
 uiGroup* uiDockWin::topGroup()	    	   
