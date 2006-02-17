@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		Dec 2005
- RCS:		$Id: SoMultiTexture2.h,v 1.3 2006-02-17 18:30:44 cvskris Exp $
+ RCS:		$Id: SoMultiTexture2.h,v 1.4 2006-02-17 19:08:41 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -77,7 +77,6 @@ public:
     SoMFShort		component;
     			/*!< Component for each image. */
 
-
     SoSFColor		blendColor;
     			/*!<See SoTexture2 for documentation. */
 
@@ -105,18 +104,18 @@ protected:
 			    only the colors that are indexed by idxs are
 			    checked. */
 
-    SoFieldSensor*	imagesensor;
-    SoFieldSensor*	numcolorsensor;
-    SoFieldSensor*	colorssensor;
-    SoFieldSensor*	operationsensor;
-    SoFieldSensor*	componentsensor;
+    SoFieldSensor*	imagesensor_;
+    SoFieldSensor*	numcolorsensor_;
+    SoFieldSensor*	colorssensor_;
+    SoFieldSensor*	operationsensor_;
+    SoFieldSensor*	componentsensor_;
 
-    SbMutex*		glimagemutex;
-    bool		glimagevalid;
-    SoGLImage*		glimage;
-    const unsigned char* imagedata;
-    SbVec2s		imagesize;
-    int			imagenc;
+    SbMutex*		glimagemutex_;
+    bool		glimagevalid_;
+    SoGLImage*		glimage_;
+    const unsigned char* imagedata_;
+    SbVec2s		imagesize_;
+    int			imagenc_;
 
     int			nrthreads_;
 };

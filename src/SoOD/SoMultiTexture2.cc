@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2005
- RCS:           $Id: SoMultiTexture2.cc,v 1.8 2006-02-17 18:30:44 cvskris Exp $
+ RCS:           $Id: SoMultiTexture2.cc,v 1.9 2006-02-17 19:08:41 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -375,17 +375,17 @@ void SoMultiTexture2::initClass()
 
 
 SoMultiTexture2::SoMultiTexture2()
-    : imagesensor( 0 )
-    , numcolorsensor( 0 )
-    , colorssensor( 0 )
-    , operationsensor( 0 )
-    , componentsensor( 0 )
-    , glimagemutex( new SbMutex )
-    , glimagevalid(false)
-    , glimage( 0 )
-    , imagedata( 0 )
-    , imagesize( 0, 0 )
-    , imagenc( 0 )
+    : imagesensor_( 0 )
+    , numcolorsensor_( 0 )
+    , colorssensor_( 0 )
+    , operationsensor_( 0 )
+    , componentsensor_( 0 )
+    , glimagemutex_( new SbMutex )
+    , glimagevalid_(false)
+    , glimage_( 0 )
+    , imagedata_( 0 )
+    , imagesize_( 0, 0 )
+    , imagenc_( 0 )
     , nrthreads_( 1 )
 {
     SO_NODE_CONSTRUCTOR(SoMultiTexture2);
@@ -418,8 +418,8 @@ SoMultiTexture2::SoMultiTexture2()
     SO_NODE_SET_SF_ENUM_TYPE( model, Model );
    
 #define mImageSensor( var ) \
-    var##sensor =  new SoFieldSensor(imageChangeCB, this); \
-    var##sensor->attach(&var)
+    var##sensor_ =  new SoFieldSensor(imageChangeCB, this); \
+    var##sensor_->attach(&var)
 
     mImageSensor( numcolor );
     mImageSensor( image );
@@ -431,14 +431,14 @@ SoMultiTexture2::SoMultiTexture2()
 
 SoMultiTexture2::~SoMultiTexture2()
 {
-    delete imagesensor;
-    delete numcolorsensor;
-    delete colorssensor;
-    delete operationsensor;
-    delete componentsensor;
+    delete imagesensor_;
+    delete numcolorsensor_;
+    delete colorssensor_;
+    delete operationsensor_;
+    delete componentsensor_;
 
-    delete glimagemutex;
-    delete [] imagedata;
+    delete glimagemutex_;
+    delete [] imagedata_;
 }
 
 static SoGLImage::Wrap
@@ -461,44 +461,44 @@ void SoMultiTexture2::GLRender( SoGLRenderAction * action )
 			cc_glglue_instance(SoGLCacheContextElement::get(state));
 
     const bool needbig = false; //Hack since SoTextureScalePolicyElement is gone
-    const SoType glimagetype = glimage ?
-	glimage->getTypeId() : SoType::badType();
+    const SoType glimagetype = glimage_ ?
+	glimage_->getTypeId() : SoType::badType();
 
-    glimagemutex->lock();
-    if ( !glimagevalid ||
+    glimagemutex_->lock();
+    if ( !glimagevalid_ ||
 	 ( needbig && glimagetype!=SoGLBigImage::getClassTypeId() ) ||
 	 ( !needbig && glimagetype!=SoGLImage::getClassTypeId() ) )
     {
 	if ( needbig && glimagetype!=SoGLBigImage::getClassTypeId() )
 	{
-	    if ( glimage ) glimage->unref(state);
-	    glimage = new SoGLBigImage();
+	    if ( glimage_ ) glimage_->unref(state);
+	    glimage_ = new SoGLBigImage();
 	}
 	else if ( !needbig && glimagetype!=SoGLImage::getClassTypeId() )
 	{
-	    if ( glimage ) glimage->unref(state);
-	    glimage = new SoGLImage();
+	    if ( glimage_ ) glimage_->unref(state);
+	    glimage_ = new SoGLImage();
 	}
 
-	if ( imagedata ) delete [] imagedata;
-	imagedata = createImage(imagesize,imagenc);
-	if ( imagedata && imagesize[0] && imagesize[1] )
+	if ( imagedata_ ) delete [] imagedata_;
+	imagedata_ = createImage(imagesize_,imagenc_);
+	if ( imagedata_ && imagesize_[0] && imagesize_[1] )
 	{
-	    glimage->setData( imagedata, imagesize, imagenc,
+	    glimage_->setData( imagedata_, imagesize_, imagenc_,
 		    translateWrap((SoTexture2::Wrap)wrapS.getValue()),
 		    translateWrap((SoTexture2::Wrap)wrapT.getValue()),
 		    quality);
-	    glimagevalid = true;
+	    glimagevalid_ = true;
 	    SoCacheElement::setInvalid(true);
 	    if ( state->isCacheOpen() )
 		SoCacheElement::invalidate(state);
 	}
     }
 
-    if ( glimage && glimage->getTypeId() == SoGLBigImage::getClassTypeId() )
+    if ( glimage_ && glimage_->getTypeId() == SoGLBigImage::getClassTypeId() )
 	SoCacheElement::invalidate(state);
 
-    glimagemutex->unlock();
+    glimagemutex_->unlock();
 
     SoTextureImageElement::Model glmodel =
 	(SoTextureImageElement::Model) this->model.getValue();
@@ -525,10 +525,10 @@ void SoMultiTexture2::GLRender( SoGLRenderAction * action )
     const int maxunits = cc_glglue_max_texture_units( glue );
     if ( !unit )
     {
-	SoGLTextureImageElement::set( state, this, glimagevalid ? glimage : 0,
+	SoGLTextureImageElement::set( state, this, glimagevalid_ ? glimage_ : 0,
 				      glmodel, SbColor(0,0,0) );
 	SoGLTexture3EnabledElement::set( state, this, false );
-	SoGLTextureEnabledElement::set(state, this, glimagevalid && quality );
+	SoGLTextureEnabledElement::set(state, this, glimagevalid_ && quality );
 
 	if ( isOverride() )
 	    SoTextureOverrideElement::setImageOverride( state, true );
@@ -536,11 +536,11 @@ void SoMultiTexture2::GLRender( SoGLRenderAction * action )
     else if ( unit<maxunits )
     {
 	SoGLMultiTextureImageElement::set( state, this, unit,
-					   glimagevalid ? glimage : 0,
+					   glimagevalid_ ? glimage_ : 0,
 					   glmodel, SbColor(0,0,0));
 
 	SoGLMultiTextureEnabledElement::set( state, this, unit,
-					     glimagevalid && quality );
+					     glimagevalid_ && quality );
     }
 }
 
@@ -556,10 +556,10 @@ void SoMultiTexture2::doAction( SoAction* action )
     if ( !unit )
     {
 	SoTexture3EnabledElement::set(state, this, false );
-	if ( imagesize[0] && imagesize[1] )
+	if ( imagesize_[0] && imagesize_[1] )
 	{
-	    SoTextureImageElement::set( state, this, imagesize, imagenc,
-		    imagedata,
+	    SoTextureImageElement::set( state, this, imagesize_, imagenc_,
+		    imagedata_,
 		    (SoTextureImageElement::Wrap) wrapT.getValue(),
 		    (SoTextureImageElement::Wrap) wrapS.getValue(),
 		    (SoTextureImageElement::Model) model.getValue(),
@@ -579,10 +579,10 @@ void SoMultiTexture2::doAction( SoAction* action )
     }
     else
     {
-	if ( imagesize[0] && imagesize[1] )
+	if ( imagesize_[0] && imagesize_[1] )
 	{
-	    SoMultiTextureImageElement::set( state, this, unit, imagesize,
-		imagenc, imagedata,
+	    SoMultiTextureImageElement::set( state, this, unit, imagesize_,
+		imagenc_, imagedata_,
 		(SoTextureImageElement::Wrap) wrapT.getValue(),
 		(SoTextureImageElement::Wrap) wrapS.getValue(),
 		(SoTextureImageElement::Model) model.getValue(),
@@ -743,6 +743,6 @@ bool SoMultiTexture2::findTransperancy( const unsigned char* colors, int ncol,
 void SoMultiTexture2::imageChangeCB( void* data, SoSensor* )
 {
     SoMultiTexture2* ptr = (SoMultiTexture2*) data;
-    ptr->glimagevalid = false;
+    ptr->glimagevalid_ = false;
 }
 
