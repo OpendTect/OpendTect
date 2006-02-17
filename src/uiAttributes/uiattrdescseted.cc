@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrdescseted.cc,v 1.18 2005-12-22 08:19:18 cvshelene Exp $
+ RCS:           $Id: uiattrdescseted.cc,v 1.19 2006-02-17 17:26:00 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -99,6 +99,7 @@ void uiAttribDescSetEd::createMenuBar()
     mInsertItem( "Open &Default set ...", defaultSet );
     mInsertItem( "&Import set ...", importSet );
     mInsertItem( "Import set from &file ...", importFile );
+    mInsertItem( "&Reconstruct set from job file ...", job2Set );
 
     menu->insertItem( filemnu );
 }
@@ -113,10 +114,11 @@ void uiAttribDescSetEd::createToolBar()
     toolbar = new uiToolBar( this, "AttributeSet tools" );
     mAddButton( "newset.png", newSet, "New attribute set" );
     mAddButton( "openset.png", openSet, "Open attribute set" );
-    mAddButton( "saveset.png", savePush, "Save attribute set" );
     mAddButton( "defset.png", defaultSet, "Open default attribute set" );
     mAddButton( "impset.png", importSet, 
 	    	"Import attribute set from other survey" );
+    mAddButton( "job2set.png", job2Set, "Reconstruct set from job file" );
+    mAddButton( "saveset.png", savePush, "Save attribute set" );
     toolbar->addSeparator();
     mAddButton( "showattrnow.png", directShow, 
 	    	"Redisplay element with current attribute");
@@ -364,10 +366,6 @@ bool uiAttribDescSetEd::acceptOK( CallBacker* )
     if ( saveButtonChecked() && !doSave(true) )
 	return false;
     
-// TODO: check if these lines are necessary
-//    if ( !saveButtonChecked() && attrset->isSatisfied() )
-//	mErrRetFalse( attrset->errMsg() );
-
     if ( inoutadsman )
         inoutadsman->setSaved( adsman->isSaved() );
 
@@ -802,24 +800,27 @@ void uiAttribDescSetEd::importSet( CallBacker* )
 }
 
 
-class uiFileInpDlg : public uiDialog
+class uiGetFileForAttrSet : public uiDialog
 {
 public:
-uiFileInpDlg( uiParent* p )
-    : uiDialog(p,uiDialog::Setup("Import Attribute Set","Select filename",0))
+uiGetFileForAttrSet( uiParent* p, bool isattrset )
+    : uiDialog(p,uiDialog::Setup("Get Attribute Set", isattrset ?
+				 "Select file containing an attribute set"
+				 : "Select job specification file",
+				 0))
 {
-    fileinput = new uiFileInput( this, "Select AttributeSet file" );
-    fileinput->setFilter( "AttributeSet files (*.attr);;All files (*)" );
-    fileinput->setDefaultSelectionDir(
-			    IOObjContext::getDataDirName(IOObjContext::Attr) );
+    fileinput = new uiFileInput( this, isattrset ? "Attribute Set file"
+	    					 : "Job specification file" );
+    fileinput->setFilter( isattrset ? "AttributeSet files (*.attr)"
+				    : "Job specifications (*.par)" );
+    fileinput->setDefaultSelectionDir( isattrset ? GetBaseDataDir()
+						 : GetProcFileName(0) );
 }
-
-const char* fileName() const
-{ return fileinput->fileName(); }
 
 bool acceptOK( CallBacker* )
 {
-    if ( !fileName() || !*fileName() )
+    fname_ = fileinput->fileName();
+    if ( fname_ == "" || !File_exists(fname_) )
     {
 	uiMSG().error( "Please select filename" );
 	return false;
@@ -828,6 +829,7 @@ bool acceptOK( CallBacker* )
 }
 
     uiFileInput*	fileinput;
+    BufferString	fname_;
 };
 
 
@@ -835,9 +837,21 @@ void uiAttribDescSetEd::importFile( CallBacker* )
 {
     if ( !offerSetSave() ) return;
 
-    uiFileInpDlg dlg( this );
+    uiGetFileForAttrSet dlg( this, true );
     if ( dlg.go() )
-	importFromFile( dlg.fileName() );
+	importFromFile( dlg.fname_ );
+}
+
+
+void uiAttribDescSetEd::job2Set( CallBacker* )
+{
+    if ( !offerSetSave() ) return;
+    uiGetFileForAttrSet dlg( this, false );
+    if ( dlg.go() )
+    {
+	//TODO
+	uiMSG().error( "Sorry: TODO" );
+    }
 }
 
 
