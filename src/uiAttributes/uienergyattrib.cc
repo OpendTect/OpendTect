@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:		$Id: uienergyattrib.cc,v 1.3 2005-09-30 15:45:13 cvshelene Exp $
+ RCS:		$Id: uienergyattrib.cc,v 1.4 2006-02-17 10:46:46 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -52,6 +52,9 @@ bool uiEnergyAttrib::setInput( const Attrib::Desc& desc )
 
 bool uiEnergyAttrib::getParameters( Attrib::Desc& desc )
 {
+    if ( strcmp(desc.attribName(),Energy::attribName()) )
+	return false;
+
     mSetFloatInterval( Energy::gateStr(), gatefld->getFInterval() );
     return true;
 }
