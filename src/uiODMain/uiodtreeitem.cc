@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.151 2006-02-16 15:49:44 cvskris Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.152 2006-02-20 08:16:37 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -2270,13 +2270,43 @@ void uiODPlaneDataTreeItem::movePlane( const CubeSampling& cs )
 
 void uiODPlaneDataTreeItem::moveForwdCB( CallBacker* cb )
 {
-    changeMainDirPos( true );
+    movePlane( true );
 }
 
 
 void uiODPlaneDataTreeItem::moveBackwdCB( CallBacker* cb )
 {
-    changeMainDirPos( false );
+    movePlane( false );
+}
+
+
+void uiODPlaneDataTreeItem::movePlane( bool forward )
+{
+    mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,
+		    visserv->getObject(displayid_))
+
+    CubeSampling cs = pdd->getCubeSampling();
+    const int dir = forward ? 1 : -1;
+
+    if ( pdd->getOrientation() == visSurvey::PlaneDataDisplay::Inline )
+    {
+	cs.hrg.start.inl += cs.hrg.step.inl * dir;
+	cs.hrg.stop.inl = cs.hrg.start.inl;
+    }
+    else if ( pdd->getOrientation() == visSurvey::PlaneDataDisplay::Crossline )
+    {
+	cs.hrg.start.crl += cs.hrg.step.crl * dir;
+	cs.hrg.stop.crl = cs.hrg.start.crl;
+    }
+    else if ( pdd->getOrientation() == visSurvey::PlaneDataDisplay::Timeslice )
+    {
+	cs.zrg.start += cs.zrg.step * dir;
+	cs.zrg.stop = cs.zrg.start;
+    }
+    else
+	return;
+
+    movePlane( cs );
 }
 
 
@@ -2305,19 +2335,6 @@ uiODInlineTreeItem::uiODInlineTreeItem( int id )
 {}
 
 
-void uiODInlineTreeItem::changeMainDirPos( bool isplus )
-{
-    mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,
-		    visserv->getObject(displayid_))
-
-    CubeSampling cs = pdd->getCubeSampling();
-    cs.hrg.start.inl += isplus? 1 : -1; 
-    cs.hrg.stop.inl += isplus? 1 : -1; 
-
-    movePlane(cs);
-}
-	
-
 uiTreeItem* uiODCrosslineTreeItemFactory::create( int visid, uiTreeItem* ) const
 {
     mDynamicCastGet( visSurvey::PlaneDataDisplay*, pdd, 
@@ -2341,19 +2358,6 @@ bool uiODCrosslineParentTreeItem::showSubMenu()
 uiODCrosslineTreeItem::uiODCrosslineTreeItem( int id )
     : uiODPlaneDataTreeItem( id, 1 )
 {}
-
-
-void uiODCrosslineTreeItem::changeMainDirPos( bool isplus )
-{
-    mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,
-		    visserv->getObject(displayid_))
-
-    CubeSampling cs = pdd->getCubeSampling();
-    cs.hrg.start.crl += isplus? 1 : -1; 
-    cs.hrg.stop.crl += isplus? 1 : -1; 
-
-    movePlane(cs);
-}
 
 
 uiTreeItem* uiODTimesliceTreeItemFactory::create( int visid, uiTreeItem* ) const
@@ -2381,23 +2385,19 @@ uiODTimesliceTreeItem::uiODTimesliceTreeItem( int id )
 {}
 
 
-void uiODTimesliceTreeItem::changeMainDirPos( bool isplus )
-{
-    mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,
-		    visserv->getObject(displayid_))
-
-    CubeSampling cs = pdd->getCubeSampling();
-    cs.zrg.start += isplus? 1 : -1; 
-    cs.zrg.stop += isplus? 1 : -1; 
-
-    movePlane(cs);
-}
-
-
 uiODSceneTreeItem::uiODSceneTreeItem( const char* name__, int id )
     : uiODTreeItem( name__ )
     , displayid_( id )
 {}
+
+
+void uiODSceneTreeItem::updateColumnText( int col )
+{
+    if ( col==uiODSceneMgr::cNameColumn() )
+	name_ = applMgr()->visServer()->getObjectName( displayid_ );
+
+    uiTreeItem::updateColumnText( col );
+}
 
 
 #define mAnnotText	0
