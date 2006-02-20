@@ -4,14 +4,14 @@
  * DATE     : May 2001
 -*/
 
-static const char* rcsID = "$Id: attribdescsettr.cc,v 1.2 2005-06-02 07:14:27 cvsnanne Exp $";
+static const char* rcsID = "$Id: attribdescsettr.cc,v 1.3 2006-02-20 18:49:48 cvsbert Exp $";
 
 #include "attribdescsettr.h"
 #include "attrfact.h"
 #include "attribdescset.h"
-#include "ioparlist.h"
 #include "bufstringset.h"
 #include "ioobj.h"
+#include "iopar.h"
 #include "conn.h"
 #include "ptrman.h"
 
@@ -82,32 +82,18 @@ const char* dgbAttribDescSetTranslator::read( Attrib::DescSet& ads, Conn& conn )
     if ( !conn.forRead() || !conn.isStream() )
 	return "Internal error: bad connection";
 
-    IOParList iopl( ((StreamConn&)conn).iStream(),
-	    	    mTranslGroupName(AttribDescSet) );
-    if ( !iopl.size() )
-	return "Empty input file";
-
-    IOPar bupar;
+    IOPar iopar, bupar;
+    iopar.read( ((StreamConn&)conn).iStream(), mTranslGroupName(AttribDescSet));
     ads.fillPar( bupar );
     ads.removeAll();
-
     BufferStringSet parseerrmsgs;
-    ads.usePar( *iopl[0], &parseerrmsgs );
+    ads.usePar( iopar, &parseerrmsgs );
 
     if ( !ads.nrDescs() )
     {
 	ads.usePar( bupar );
 	return "Could not find any attribute definitions in file";
     }
-    /*
-
-    int remvd = ads.removeUnused();
-    if ( remvd && !ads.nrDescs() )
-    {
-	parseerrmsgs.erase();
-	ads.usePar( *iopl[0], &parseerrmsgs );
-    }
-    */
     
     if ( parseerrmsgs.size() )
     {
@@ -136,12 +122,10 @@ const char* dgbAttribDescSetTranslator::write( const Attrib::DescSet& ads,
     if ( !conn.forWrite() || !conn.isStream() )
 	return "Internal error: bad connection";
 
-    IOPar* iopar = new IOPar( "Attribute Descriptions" );
-    ads.fillPar( *iopar );
-    IOParList iopl( mTranslGroupName(AttribDescSet) );
-    iopl.deepErase(); // Protection is necessary!
-    iopl += iopar;
-    if ( !iopl.write(((StreamConn&)conn).oStream()) )
+    IOPar iopar( "Attribute Descriptions" );
+    ads.fillPar( iopar );
+    if ( !iopar.write( ((StreamConn&)conn).oStream(),
+		mTranslGroupName(AttribDescSet) ) )
 	return "Cannot write attributes to file";
 
     return 0;

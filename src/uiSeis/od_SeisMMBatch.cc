@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2002
- RCS:           $Id: od_SeisMMBatch.cc,v 1.18 2006-02-02 10:37:28 cvsbert Exp $
+ RCS:           $Id: od_SeisMMBatch.cc,v 1.19 2006-02-20 18:49:49 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,8 +18,9 @@ ________________________________________________________________________
 #include "prog.h"
 #include "strmprov.h"
 #include "strmdata.h"
-#include "ioparlist.h"
+#include "iopar.h"
 #include "filepath.h"
+#include "keystrs.h"
 #include <iostream>
 #ifndef __msvc__
 # include <unistd.h>
@@ -38,15 +39,16 @@ int main( int argc, char ** argv )
     }
 
     FilePath fp( argv[ 2 + bgadd ] );
-    StreamProvider spin( fp.fullPath() );
+    const BufferString parfnm( fp.fullPath() );
+    StreamProvider spin( parfnm );
     StreamData sdin = spin.makeIStream();
     if ( !sdin.usable() )
     {
 	std::cerr << argv[0] << ": Cannot open parameter file" << std::endl;
 	ExitProgram( 1 );
     }
-    IOParList parlist( *sdin.istrm );
-    if ( parlist.size() == 0 || parlist[0]->size() == 0 )
+    IOPar iop; iop.read( *sdin.istrm, sKey::Pars );
+    if ( iop.size() == 0 )
     {
 	std::cerr << argv[0] << ": Invalid parameter file" << std::endl;
 	ExitProgram( 1 );
@@ -68,8 +70,7 @@ int main( int argc, char ** argv )
     }
 #endif 
 
-    parlist.setFileName( fp.fullPath() );
-    const char* res = parlist[0]->find( sKey::Survey );
+    const char* res = iop.find( sKey::Survey );
     if ( res && *res && SI().name() != res )
 	IOMan::setSurvey( res );
 
@@ -77,7 +78,7 @@ int main( int argc, char ** argv )
     PIM().loadAuto( false );
 
     uiMain app( argc, argv );
-    uiSeisMMProc* smmp = new uiSeisMMProc( 0, argv[1+bgadd], parlist );
+    uiSeisMMProc* smmp = new uiSeisMMProc( 0, iop, argv[1+bgadd], parfnm );
 
     app.setTopLevel( smmp );
     smmp->show();

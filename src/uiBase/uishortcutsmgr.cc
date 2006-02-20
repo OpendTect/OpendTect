@@ -16,6 +16,8 @@ ________________________________________________________________________
 #include "keyenum.h"
 #include <qevent.h>
 
+const char* uiHandleShortcuts::sKeyFileType = "Keyboard shortcuts";
+
 
 DefineEnumNames(uiHandleShortcuts,SCLabels,0,"Shortcuts Labels")
 {
@@ -97,7 +99,8 @@ IOPar ShortcutsList::readShorcutsFile( bool& isdefaultfile )
     BufferString firstsc;
     if ( !mSettUse(get,"Shortcuts.0","Name",firstsc) )
     {
-	pars.read( GetDataFileName("ShortCuts") );
+	pars.read( GetDataFileName("ShortCuts"),
+		   uiHandleShortcuts::sKeyFileType );
 	isdefaultfile = true;
     }
     else
@@ -106,7 +109,9 @@ IOPar ShortcutsList::readShorcutsFile( bool& isdefaultfile )
     return pars;
 }
 
+
 //---------------------------------------------------------------------------
+
 EventKeyAndState::EventKeyAndState( QKeyEvent* event )
 	: state_( event->state() )
 	, key_( event->key() ) 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrdescseted.cc,v 1.19 2006-02-17 17:26:00 cvsbert Exp $
+ RCS:           $Id: uiattrdescseted.cc,v 1.20 2006-02-20 18:49:49 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -710,7 +710,7 @@ void uiAttribDescSetEd::defaultSet( CallBacker* )
 	FilePath fp( ptr );
 	fp.add( attrdl[idx]->buf() ).add( "index" );
 	IOPar iopar("AttributeSet Table");
-	iopar.read( fp.fullPath() );
+	iopar.read( fp.fullPath(), sKey::Pars, false );
 	for ( int idy=0; idy<iopar.size(); idy++ )
 	{
 	    BufferString attrfnm = iopar.getKey(idy);
@@ -849,8 +849,16 @@ void uiAttribDescSetEd::job2Set( CallBacker* )
     uiGetFileForAttrSet dlg( this, false );
     if ( dlg.go() )
     {
-	//TODO
-	uiMSG().error( "Sorry: TODO" );
+	IOPar iop; iop.read( dlg.fname_, sKey::Pars );
+	PtrMan<IOPar> subpar = iop.subselect( "Attributes" );
+	if ( !subpar || subpar->size() < 1 )
+	    mErrRet( "No valid attributes in file" )
+	attrset->removeAll();
+	attrset->usePar( *subpar );
+	adsman->setSaved( false );
+
+	setctio.setObj( 0 );
+	newList( -1 ); attrsetfld->setText( "" );
     }
 }
 

@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: wellreader.cc,v 1.18 2004-05-11 13:08:41 bert Exp $";
+static const char* rcsID = "$Id: wellreader.cc,v 1.19 2006-02-20 18:49:49 cvsbert Exp $";
 
 #include "wellreader.h"
 #include "welldata.h"
@@ -345,7 +345,7 @@ bool Well::Reader::getMarkers( std::istream& strm ) const
     if ( !rdHdr(strm,sKeyMarkers) ) return false;
 
     ascistream astrm( strm, NO );
-    IOPar iopar( astrm, false );
+    IOPar iopar( astrm );
     if ( !iopar.size() ) return false;
 
     BufferString bs;

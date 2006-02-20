@@ -4,12 +4,12 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: odsession.cc,v 1.9 2006-01-23 11:17:29 cvsnanne Exp $";
+static const char* rcsID = "$Id: odsession.cc,v 1.10 2006-02-20 18:49:49 cvsbert Exp $";
 
 #include "odsession.h"
 #include "ptrman.h"
 #include "ioobj.h"
-#include "ioparlist.h"
+#include "iopar.h"
 #include "ascstream.h"
 
 
@@ -194,12 +194,9 @@ const char* dgbODSessionTranslator::write( const ODSession& session, Conn& conn)
     if ( !conn.forWrite() || !conn.isStream() )
 	return "Internal error: bad connection";
 
-    IOPar* iopar = new IOPar( ODSessionTranslator::keyword );
-    session.fillPar( *iopar );
-    IOParList iopl( mTranslGroupName(ODSession) );
-    iopl.deepErase(); // Protection is necessary!
-    iopl += iopar;
-    if ( !iopl.write(((StreamConn&)conn).oStream()) )
+    IOPar iop( ODSessionTranslator::keyword );
+    session.fillPar( iop );
+    if ( !iop.write(((StreamConn&)conn).oStream(),mTranslGroupName(ODSession)) )
 	return "Cannot write d-Tect session to file";
     return 0;
 }

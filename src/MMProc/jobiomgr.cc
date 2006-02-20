@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          Oct 2004
- RCS:           $Id: jobiomgr.cc,v 1.23 2005-09-12 13:46:04 cvsarend Exp $
+ RCS:           $Id: jobiomgr.cc,v 1.24 2006-02-20 18:49:49 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,7 +13,6 @@ ________________________________________________________________________
 #include "filepath.h"
 #include "debugmasks.h"
 #include "strmprov.h"
-#include "ioparlist.h"
 #include "filegen.h"
 #include "hostdata.h"
 #include "ioman.h"
@@ -27,6 +26,7 @@ ________________________________________________________________________
 #include "separstr.h"
 #include "timefun.h"
 #include "keystrs.h"
+#include "iopar.h"
 
 #ifndef __win__
 #include <unistd.h>
@@ -431,47 +431,41 @@ bool JobIOMgr::startProg( const char* progname,
 bool JobIOMgr::mkIOParFile( FilePath& iopfp, const FilePath& basefp,
 			    const HostData& machine, const IOPar& iop )
 {
-    IOParList iopl;
-    iopl.deepErase(); // Protect against a file '.Parameters' in survdir
-    IOPar* newiop = new IOPar( iop ); iopl += newiop;
-
     iopfp = basefp; iopfp.setExtension( ".par", false );
-    FilePath logfnm(basefp); logfnm.setExtension( ".log", false );
+    const BufferString iopfnm( iopfp.fullPath() );
+    FilePath logfp(basefp); logfp.setExtension( ".log", false );
+    const BufferString logfnm( logfp.fullPath() );
 
-    FilePath remotelogfnm( machine.convPath( HostData::Data, logfnm ));
+    FilePath remotelogfnm( machine.convPath( HostData::Data, logfp ));
 
-    newiop->set( sKey::LogFile, remotelogfnm.fullPath(machine.pathStyle()) );
+    IOPar newiop( iop );
+    newiop.set( sKey::LogFile, remotelogfnm.fullPath(machine.pathStyle()) );
 
-    if ( newiop->find( sKey::TmpStor ) )
+    const char* tmpstor = iop.find( sKey::TmpStor );
+    if ( tmpstor )
     {
-	FilePath remotetmpdir = machine.convPath( HostData::Data,
-					      newiop->find( sKey::TmpStor ) );
-
-	newiop->set( sKey::TmpStor,
-				remotetmpdir.fullPath( machine.pathStyle() ) );
+	FilePath remotetmpdir = machine.convPath( HostData::Data, tmpstor );
+	newiop.set( sKey::TmpStor, remotetmpdir.fullPath(machine.pathStyle()) );
     }
 
-    newiop->set( sKey::Survey, IOM().surveyName() );
+    newiop.set( sKey::Survey, IOM().surveyName() );
 
+    if ( File_exists(iopfnm) ) File_remove( iopfnm, NO );
+    if ( File_exists(logfnm) ) File_remove( logfnm, NO );
 
-    if ( File_exists(iopfp.fullPath()) )
-	File_remove( iopfp.fullPath(), NO );
-    if ( File_exists(logfnm.fullPath()) )
-	File_remove( logfnm.fullPath(), NO );
-
-    StreamData ioplsd = StreamProvider(iopfp.fullPath()).makeOStream();
-    if ( !ioplsd.usable() )
+    StreamData iopsd = StreamProvider(iopfnm).makeOStream();
+    if ( !iopsd.usable() )
     {
 	BufferString s( "Cannot open '" );
-	s += iopfp.fullPath(); s += "' for write ...";
+	s += iopfnm; s += "' for write ...";
 	mErrRet(s)
     }
-    bool res = iopl.write( *ioplsd.ostrm );
-    ioplsd.close();
+    bool res = newiop.write( *iopsd.ostrm, sKey::Pars );
+    iopsd.close();
     if ( !res )
     {
 	BufferString s( "Cannot write parameters into '" );
-	s += iopfp.fullPath(); s += "'";
+	s += iopfnm; s += "'";
 	mErrRet(s)
     }
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: mpesetup.cc,v 1.2 2005-03-14 16:41:27 cvsnanne Exp $
+ RCS:           $Id: mpesetup.cc,v 1.3 2006-02-20 18:49:49 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,7 +13,7 @@ ________________________________________________________________________
 #include "mpefact.h"
 #include "ptrman.h"
 #include "ioobj.h"
-#include "ioparlist.h"
+#include "iopar.h"
 #include "ascstream.h"
 
 
@@ -152,12 +152,8 @@ const char* dgbMPESetupTranslator::write( const MPESetup& setup, Conn& conn )
     if ( !conn.forWrite() || !conn.isStream() )
 	return "Internal error: bad connection";
 
-    IOPar* iopar = new IOPar( MPESetupTranslator::keyword );
-    setup.fillPar( *iopar );
-    IOParList iopl( mTranslGroupName(MPESetup) );
-    iopl.deepErase(); // Protection is necessary!
-    iopl += iopar;
-    if ( !iopl.write(((StreamConn&)conn).oStream()) )
+    IOPar iop; setup.fillPar( iop );
+    if ( !iop.write(((StreamConn&)conn).oStream(),mTranslGroupName(MPESetup)) )
 	return "Cannot write setup to file";
     return 0;
 }

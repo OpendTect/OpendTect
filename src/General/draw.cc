@@ -4,7 +4,7 @@
  * DATE     : 18-4-1996
 -*/
 
-static const char* rcsID = "$Id: draw.cc,v 1.46 2006-02-15 19:23:52 cvskris Exp $";
+static const char* rcsID = "$Id: draw.cc,v 1.47 2006-02-20 18:49:49 cvsbert Exp $";
 
 /*! \brief Several implementations for UI-related things.
 
@@ -415,7 +415,7 @@ void ColorTable::initTabs()
     StreamData sd = StreamProvider( GetDataFileName("ColTabs") ).makeIStream();
     if ( !sd.usable() ) return;
     ascistream astrm( *sd.istrm );
-    IOPar iopar( astrm, true );
+    IOPar iopar( astrm );
     add( iopar, 0, &tabpars );
     if ( tabpars.size() )
 	tabparsinited = true;

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Payraudeau
  Date:          20/01/2006
- RCS:           $Id: uishortcutsmgr.h,v 1.2 2006-02-17 17:46:40 cvshelene Exp $
+ RCS:           $Id: uishortcutsmgr.h,v 1.3 2006-02-20 18:49:48 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,6 +33,8 @@ public:
 
     static const char*  nameStr()                       { return "Name"; }
     static const char*  keyStr()                        { return "Keys"; }
+
+    static const char*	sKeyFileType;
 
 protected:
 };

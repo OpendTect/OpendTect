@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		21-12-1995
- RCS:		$Id: iopar.h,v 1.36 2005-12-28 18:09:43 cvsbert Exp $
+ RCS:		$Id: iopar.h,v 1.37 2006-02-20 18:49:48 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,16 +40,15 @@ reading/writing to/from file, merging, and more.
 class IOPar : public UserIDObject
 {
 public:
-			IOPar(const char* nm=0);
-			IOPar(ascistream&,bool withname=true);
+			IOPar(const char* nm=0); //!< empty
+			IOPar(ascistream&);
 			~IOPar();
 			IOPar(const IOPar&);
     IOPar&		operator =(const IOPar&);
     bool		operator ==( const IOPar& iop ) const
 			{ return isEqual(iop); }
-    void		getFrom(ascistream&,bool withname=true,
-	    			bool keepexist=false);
-    void		putTo(ascostream&,bool withname=true) const;
+    void		getFrom(ascistream&);
+    void		putTo(ascostream&) const;
 
 			// serialisation
     void		getFrom(const char*);
@@ -206,19 +205,22 @@ public:
 
     const char*		mkKey(int) const;
 
-    bool		read(const char* filename);
+    bool		read(const char* filename,const char* filetype,
+	    			bool chktype=false);
+    			//!< filetype null will assume no file header
     			//!< uses set(). no clear() done
-    bool		dump(const char* filename,const char* filetyp=0) const;
+    void		read(std::istream&,const char* filetype,
+	    			bool chktype=false);
+    bool		write(const char* filename,const char* filetype) const;
+    			//!< If filetype is set to null no ascstream header
     			//!< If filetype is set to "_pretty", calls dumpPretty.
+    bool		write(std::ostream&,const char* filetyp) const;
     void		dumpPretty(std::ostream&) const;
 
 protected:
 
     BufferStringSet&	keys_;
     BufferStringSet&	vals_;
-
-    void		getDataFrom(ascistream&);
-    void		putDataTo(ascostream&) const;
 
 };
 

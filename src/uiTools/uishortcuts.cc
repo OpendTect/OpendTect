@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Payraudeau
  Date:          December 2005
- RCS:           $Id: uishortcuts.cc,v 1.4 2006-02-17 17:48:37 cvshelene Exp $
+ RCS:           $Id: uishortcuts.cc,v 1.5 2006-02-20 18:49:49 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -77,7 +77,8 @@ bool uiShortcutsDlg::readFileValues()
     BufferString firstsc;
     if ( !mSettUse(get,"Shortcuts.0","Name",firstsc) )
     {
-	pars_.read( GetDataFileName("ShortCuts") );
+	pars_.read( GetDataFileName("ShortCuts"),
+		    uiHandleShortcuts::sKeyFileType );
 	return true;
     }
     else

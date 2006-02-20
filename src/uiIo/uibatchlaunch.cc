@@ -4,20 +4,19 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:           $Id: uibatchlaunch.cc,v 1.50 2006-02-17 17:27:14 cvsbert Exp $
+ RCS:           $Id: uibatchlaunch.cc,v 1.51 2006-02-20 18:49:49 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uibatchlaunch.h"
-#include "uidistriblaunch.h"
 #include "uicombobox.h"
 #include "uispinbox.h"
 #include "uifileinput.h"
 #include "uiseparator.h"
 #include "uibutton.h"
 #include "uimsg.h"
-#include "ioparlist.h"
+#include "iopar.h"
 #include "strmdata.h"
 #include "strmprov.h"
 #include "hostdata.h"
@@ -42,15 +41,10 @@ static void getProcFilename( const char* basnm, const char* altbasnm,
 }
 
 
-static bool writeProcFile( const IOParList& iopl, const char* tfname )
+static bool writeProcFile( IOPar& iop, const char* tfname )
 {
-    for ( int idx=0; idx<iopl.size(); idx++ )
-	iopl[idx]->set( sKey::Survey, IOM().surveyName() );
-
-    StreamData sd = StreamProvider(tfname).makeOStream();
-    bool allok = sd.usable() && iopl.write(*sd.ostrm);
-    sd.close();
-    if ( !allok )
+    const_cast<IOPar&>(iop).set( sKey::Survey, IOM().surveyName() );
+    if ( !iop.write(tfname,sKey::Pars) )
     {
 	BufferString msg = "Cannot write to:\n"; msg += tfname;
 	uiMSG().error( msg );
@@ -62,11 +56,11 @@ static bool writeProcFile( const IOParList& iopl, const char* tfname )
 
 #ifdef HAVE_OUTPUT_OPTIONS
 
-uiBatchLaunch::uiBatchLaunch( uiParent* p, const IOParList& pl,
+uiBatchLaunch::uiBatchLaunch( uiParent* p, const IOPar& ip,
 			      const char* hn, const char* pn, bool wp )
         : uiDialog(p,uiDialog::Setup("Batch launch","Specify output mode",
 		   "0.1.4"))
-	, iopl(pl)
+	, iop(*new IOPar(ip))
 	, hostname(hn)
 	, progname(pn)
 {
@@ -116,6 +110,12 @@ uiBatchLaunch::uiBatchLaunch( uiParent* p, const IOParList& pl,
     nicefld->attach( alignedBelow, filefld );
     nicefld->box()->setInterval( 0, 19 );
     nicefld->box()->setValue( nicelvl );
+}
+
+
+uiBatchLaunch::~uiBatchLaunch()
+{
+    delete &iop;
 }
 
 
@@ -173,36 +173,23 @@ bool uiBatchLaunch::acceptOK( CallBacker* )
     BufferString fname = sel == 0 ? "window"
 		       : (sel == 2 ? "stdout" : filefld->fileName());
     if ( fname == "" ) fname = "/dev/null";
-    IOPar* iop = const_cast<IOPar*>(iopl.size() ? iopl[0] : 0);
-    if ( iop )
-    {
-	iop->set( sKey::LogFile, fname );
-	iop->set( sKey::Survey, IOM().surveyName() );
-    }
+    iop.set( sKey::LogFile, fname );
+    iop.set( sKey::Survey, IOM().surveyName() );
 
     if ( selected() == 3 )
     {
-	if ( iop ) iop->set( sKey::LogFile, "stdout" );
-        StreamData sd = StreamProvider( fname ).makeOStream();
-	if ( !sd.usable() )
-        {
-	    uiMSG().error( "Cannot open output stream" );
-	    sd.close();
-	    return false;
-	}
-	else if ( !iopl.write(*sd.ostrm) )
+	iop.set( sKey::LogFile, "stdout" );
+	if ( !iop.write(fname,sKey::Pars) )
 	{
-	    uiMSG().error( "Error during write" );
-	    sd.close();
+	    uiMSG().error( "Cannot write parameter file" );
             return false;
 	}
-	sd.close();
 	return true;
     }
 
     if ( parfname == "" )
 	getProcFilename( sSingBaseNm, sSingBaseNm, parfname );
-    if ( !writeProcFile(iopl,parfname) )
+    if ( !writeProcFile(iop,parfname) )
 	return false;
 
     BufferString comm( "@" );
@@ -302,6 +289,7 @@ void uiFullBatchDialog::singTogg( CallBacker* cb )
 	parfnamefld->setFileName( multiparfname );
 }
 
+
 bool uiFullBatchDialog::acceptOK( CallBacker* cb )
 {
     if ( !prepareProcessing() ) return false;
@@ -313,7 +301,7 @@ bool uiFullBatchDialog::acceptOK( CallBacker* cb )
 
     const bool issing = singmachfld->getBoolValue();
 
-    PtrMan<IOParList> iopl = 0;
+    PtrMan<IOPar> iop = 0;
     if ( redo_ )
     {
 	if ( issing )
@@ -321,44 +309,40 @@ bool uiFullBatchDialog::acceptOK( CallBacker* cb )
 	    StreamData sd = StreamProvider( inpfnm ).makeIStream();
 	    if ( !sd.usable() )
 		{ uiMSG().error( "Cannot open parameter file" ); return false; }
-	    iopl = new IOParList( *sd.istrm );
-	    iopl->setFileName( inpfnm );
+	    iop = new IOPar; iop->read( *sd.istrm, sKey::Pars );
 	}
     }
     else
     {
-	iopl = new IOParList; iopl->deepErase();
-	IOPar* iopar = new IOPar( "Processing" );
-	*iopl += iopar;
-	if ( !fillPar(*iopar) )
+	iop = new IOPar( "Processing" );
+	if ( !fillPar(*iop) )
 	    return false;
     }
 
-    if ( !issing && !redo_ && !writeProcFile(*iopl,inpfnm) )
+    if ( !issing && !redo_ && !writeProcFile(*iop,inpfnm) )
 	return false;
 
-    return issing ? singLaunch( *iopl, inpfnm ) : multiLaunch( inpfnm );
+    return issing ? singLaunch( *iop, inpfnm ) : multiLaunch( inpfnm );
 }
 
 
-bool uiFullBatchDialog::singLaunch( const IOParList& iopl, const char* fnm )
+bool uiFullBatchDialog::singLaunch( const IOPar& iop, const char* fnm )
 {
 #ifdef HAVE_OUTPUT_OPTIONS
-    uiBatchLaunch dlg( this, iopl, 0, procprognm, false );
+    uiBatchLaunch dlg( this, iop, 0, procprognm, false );
     dlg.setParFileName( fnm );
     return dlg.go();
 #else
 
     BufferString fname = "stdout";
 
-    IOPar* iop = const_cast<IOPar*>(iopl.size() ? iopl[0] : 0);
-    if ( iop )
-	iop->set( "Log file", fname );
+    IOPar& workiop( const_cast<IOPar&>( iop ) );
+    workiop.set( "Log file", fname );
 
     FilePath parfp( fnm );
     if ( !parfp.nrLevels() )
         parfp = singparfname;
-    if ( !writeProcFile(iopl,parfp.fullPath()) )
+    if ( !writeProcFile(workiop,parfp.fullPath()) )
 	return false;
 
     const bool dormt = false;

@@ -5,7 +5,7 @@
  * FUNCTION : Default user settings
 -*/
  
-static const char* rcsID = "$Id: settings.cc,v 1.29 2005-12-19 11:40:46 cvsbert Exp $";
+static const char* rcsID = "$Id: settings.cc,v 1.30 2006-02-20 18:49:48 cvsbert Exp $";
 
 #include "settings.h"
 #include "filegen.h"
@@ -139,7 +139,7 @@ bool Settings::write( bool do_merge ) const
 
     ascostream stream( sfio.ostrm() );
     stream.putHeader( sKeyDeflt );
-    putTo( stream, false );
+    putTo( stream );
     if ( !sfio.closeSuccess() )
     {
 	BufferString msg( "Error closing user settings file:\n" );

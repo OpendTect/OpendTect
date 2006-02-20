@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:           $Id: uiseismmproc.h,v 1.34 2005-10-25 11:46:59 cvsarend Exp $
+ RCS:           $Id: uiseismmproc.h,v 1.35 2006-02-20 18:49:48 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,7 +20,6 @@ class uiLabel;
 class Executor;
 class uiSlider;
 class JobRunner;
-class IOParList;
 class uiTextEdit;
 class uiGenInput;
 class uiComboBox;
@@ -36,8 +35,8 @@ class uiLabeledListBox;
 class uiSeisMMProc : public uiDialog
 {
 public:
-                        uiSeisMMProc(uiParent*,const char* prognm,
-				     const IOParList&);
+                        uiSeisMMProc(uiParent*,const IOPar&,
+				     const char* prognm,const char* parfnm);
 			~uiSeisMMProc();
 
 protected:
@@ -47,8 +46,9 @@ protected:
     JobRunner*		jobrunner;
     Executor*		task;
     Timer*		timer;
-    IOParList&		iopl;
+    const IOPar&	iop;
     BufferString	progname;
+    BufferString	parfnm;
     int			nrcyclesdone;
     uiSeisIOObjInfo*	outioobjinfo;
     bool		isrestart;

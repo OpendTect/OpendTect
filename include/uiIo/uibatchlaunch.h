@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          Jan 2002
- RCS:           $Id: uibatchlaunch.h,v 1.14 2006-02-16 12:35:06 cvsbert Exp $
+ RCS:           $Id: uibatchlaunch.h,v 1.15 2006-02-20 18:49:48 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,7 +19,6 @@ ________________________________________________________________________
 #endif
 
 class IOPar;
-class IOParList;
 class uiGenInput;
 class uiFileInput;
 class uiPushButton;
@@ -30,16 +29,17 @@ class uiLabeledSpinBox;
 class uiBatchLaunch : public uiDialog
 {
 public:
-			uiBatchLaunch(uiParent*,const IOParList&,
+			uiBatchLaunch(uiParent*,const IOPar&,
 				      const char* hostnm,const char* prognm,
 				      bool with_print_pars=false);
+			~uiBatchLaunch();
 
     void		setParFileName(const char*);
 
 protected:
 
     BufferStringSet	opts;
-    const IOParList&	iopl;
+    IOPar&		iop;
     BufferString	hostname;
     BufferString	progname;
     BufferString	parfname;
@@ -85,7 +85,7 @@ protected:
 
     void		singTogg(CallBacker*);
 
-    bool		singLaunch(const IOParList&,const char*);
+    bool		singLaunch(const IOPar&,const char*);
     bool		multiLaunch(const char*);
     bool		distrLaunch(CallBacker*,const char*);
     bool		acceptOK(CallBacker*);

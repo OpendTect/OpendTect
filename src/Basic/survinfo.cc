@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          18-4-1996
- RCS:           $Id: survinfo.cc,v 1.70 2005-08-26 18:19:28 cvsbert Exp $
+ RCS:           $Id: survinfo.cc,v 1.71 2006-02-20 18:49:49 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,6 +27,8 @@ ________________________________________________________________________
 static const char* sKeySI = "Survey Info";
 static const char* sKeyXTransf = "Coord-X-BinID";
 static const char* sKeyYTransf = "Coord-Y-BinID";
+static const char* sKeyDefsFile = ".defs";
+static const char* sKeySurvDefs = "Survey defaults";
 const char* SurveyInfo::sKeyInlRange = "In-line range";
 const char* SurveyInfo::sKeyCrlRange = "Cross-line range";
 const char* SurveyInfo::sKeyZRange = "Z range";
@@ -59,7 +61,7 @@ SurveyInfo::SurveyInfo()
     , valid_(false)
     , zistime_(true)
     , zinfeet_(false)
-    , pars_(*new IOPar("Survey defaults"))
+    , pars_(*new IOPar(sKeySurvDefs))
 {
     rdxtr.b = rdytr.c = 1;
     set3binids[2].crl = 0;
@@ -69,7 +71,7 @@ SurveyInfo::SurveyInfo()
 SurveyInfo::SurveyInfo( const SurveyInfo& si )
     : cs_(*new CubeSampling(false))
     , wcs_(*new CubeSampling(false))
-    , pars_(*new IOPar("Survey defaults"))
+    , pars_(*new IOPar(sKeySurvDefs))
 {
     *this = si;
 }
@@ -191,9 +193,9 @@ SurveyInfo* SurveyInfo::read( const char* survdir )
     if ( si->wrapUpRead() )
 	si->valid_ = true;
 
-    fp = fpsurvdir; fp.add( ".defs" );
-    si->pars().read( fp.fullPath() );
-    si->pars().setName( "Survey defaults" );
+    fp = fpsurvdir; fp.add( sKeyDefsFile );
+    si->pars().read( fp.fullPath(), sKeySurvDefs, true );
+    si->pars().setName( sKeySurvDefs );
     return si;
 }
 
@@ -679,5 +681,5 @@ void SurveyInfo::savePars( const char* basedir ) const
     if ( !basedir || !*basedir )
 	basedir = GetDataDir();
 
-    pars_.dump( FilePath(basedir).add(".defs").fullPath() );
+    pars_.write( FilePath(basedir).add(sKeyDefsFile).fullPath(), sKeySurvDefs );
 }

@@ -5,12 +5,12 @@
  * FUNCTION : Batch Program 'driver'
 -*/
  
-static const char* rcsID = "$Id: batchprog.cc,v 1.81 2005-10-12 15:00:30 cvsarend Exp $";
+static const char* rcsID = "$Id: batchprog.cc,v 1.82 2006-02-20 18:49:49 cvsbert Exp $";
 
 #include "batchprog.h"
-#include "ioparlist.h"
 #include "ioman.h"
 #include "iodir.h"
+#include "iopar.h"
 #include "strmprov.h"
 #include "strmdata.h"
 #include "filepath.h"
@@ -50,6 +50,7 @@ BatchProgram::BatchProgram( int* pac, char** av )
 	, fullpath(av[0])
 	, inbg(NO)
 	, sdout(*new StreamData)
+	, iopar(new IOPar)
 	, comm(0)
 {
     od_putProgInfo( *pargc, argv_ );
@@ -128,9 +129,9 @@ BatchProgram::BatchProgram( int* pac, char** av )
 	return;
     }
  
-    IOParList parlist( *sd.istrm );
+    iopar->read( *sd.istrm, sKey::Pars );
     sd.close();
-    if ( parlist.size() == 0 )
+    if ( iopar->size() == 0 )
     {
 	BufferString msg( argv_[0] );
 	msg += ": Invalid input file: ";
@@ -140,7 +141,6 @@ BatchProgram::BatchProgram( int* pac, char** av )
         return;
     }
 
-    iopar = new IOPar( *parlist[0] );
 
     const char* res = iopar->find( sKey::LogFile );
     if ( !res )

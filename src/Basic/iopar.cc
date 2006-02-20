@@ -4,7 +4,7 @@
  * DATE     : 21-12-1995
 -*/
 
-static const char* rcsID = "$Id: iopar.cc,v 1.50 2005-12-28 18:09:43 cvsbert Exp $";
+static const char* rcsID = "$Id: iopar.cc,v 1.51 2006-02-20 18:49:48 cvsbert Exp $";
 
 #include "iopar.h"
 #include "multiid.h"
@@ -18,6 +18,7 @@ static const char* rcsID = "$Id: iopar.cc,v 1.50 2005-12-28 18:09:43 cvsbert Exp
 #include "bufstringset.h"
 #include "color.h"
 #include "convert.h"
+#include "errh.h"
 
 
 IOPar::IOPar( const char* nm )
@@ -28,12 +29,12 @@ IOPar::IOPar( const char* nm )
 }
 
 
-IOPar::IOPar( ascistream& astream, bool withname )
+IOPar::IOPar( ascistream& astream )
 	: UserIDObject("")
 	, keys_(*new BufferStringSet(true))
 	, vals_(*new BufferStringSet(true))
 {
-    getFrom( astream, withname, true );
+    getFrom( astream );
 }
 
 
@@ -862,33 +863,32 @@ void IOPar::set( const char* s, const Color& c )
 }
 
 
-void IOPar::getFrom( ascistream& astream, bool withname, bool keepold )
+void IOPar::getFrom( ascistream& strm )
 {
-    if ( !keepold )
-	{ deepErase(keys_); deepErase(vals_); }
-
-    if ( withname )
+    if ( atEndOfSection(strm) )
+	strm.next();
+    if ( strm.type() == ascistream::Keyword )
     {
-	if ( atEndOfSection(astream) )
-	    astream.next();
-	setName( astream.keyWord() );
-	astream.next();
+	setName( strm.keyWord() );
+	strm.next();
     }
-    getDataFrom( astream );
+
+    while ( !atEndOfSection(strm) )
+    {
+	set( strm.keyWord(), strm.value() );
+	strm.next();
+    }
 }
 
 
-void IOPar::putTo( ascostream& astream, bool withname ) const
+void IOPar::putTo( ascostream& strm ) const
 {
-    astream.tabsOff();
-    if ( withname )
-    {
-	BufferString nm( name() );
-	if ( nm == "" ) nm = "Parameters";
-	astream.put( nm );
-    }
-    putDataTo( astream );
-    astream.newParagraph();
+    strm.tabsOff();
+    if ( name() != "" )
+	strm.put( name() );
+    for ( int idx=0; idx<size(); idx++ )
+	strm.put( keys_.get(idx), vals_.get(idx) );
+    strm.newParagraph();
 }
 
 
@@ -949,42 +949,54 @@ void IOPar::getFrom( const char* str )
 }
 
 
-bool IOPar::read( const char* fnm )
+bool IOPar::read( const char* fnm, const char* typ, bool chktyp )
 {
     StreamData sd = StreamProvider(fnm).makeIStream();
     if ( !sd.usable() ) return false;
-
-    ascistream astream( *sd.istrm, YES );
-    astream.next();
-    setName( astream.keyWord() );
-
-    getDataFrom( astream );
+    read( *sd.istrm, typ );
     sd.close();
-
     return true;
 }
 
 
-bool IOPar::dump( const char* fnm, const char* typ ) const
+void IOPar::read( std::istream& strm, const char* typ, bool chktyp )
+{
+    const bool havetyp = typ && *typ;
+    ascistream astream( strm, havetyp ? YES : NO );
+    if ( havetyp && chktyp && !astream.isOfFileType(typ) )
+    {
+	BufferString msg( "File has wrong file type: '" );
+	msg += astream.fileType();
+	msg += "' should be: '"; msg += typ; msg += "'";
+	ErrMsg( msg );
+    }
+    else
+	getFrom( astream );
+}
+
+
+bool IOPar::write( const char* fnm, const char* typ ) const
 {
     StreamData sd = StreamProvider(fnm).makeOStream();
     if ( !sd.usable() ) return false;
+    bool ret = write( *sd.ostrm, typ );
+    sd.close();
+    return ret;
+}
 
 
-    if ( !typ ) typ = name().buf();
-    if ( !typ ) typ = sKey::Pars;
+bool IOPar::write( std::ostream& strm, const char* typ ) const
+{
 
-    if ( !strcmp(typ,"_pretty") )
-	dumpPretty( *sd.ostrm );
+    if ( typ && !strcmp(typ,"_pretty") )
+	dumpPretty( strm );
     else
     {
-	ascostream astream( *sd.ostrm );
-	if ( !astream.putHeader( typ ) )
-	    return false;
-	putDataTo( astream );
+	ascostream astream( strm );
+	if ( typ && *typ )
+	    astream.putHeader( typ );
+	putTo( astream );
     }
-
-    sd.close();
     return true;
 }
 
@@ -1017,21 +1029,4 @@ void IOPar::dumpPretty( std::ostream& strm ) const
 	toprint += vals_.get(idx);
 	strm << toprint << '\n';
     }
-}
-
-
-void IOPar::getDataFrom( ascistream& strm )
-{
-    while ( !atEndOfSection(strm) )
-    {
-	set( strm.keyWord(), strm.value() );
-	strm.next();
-    }
-}
-
-
-void IOPar::putDataTo( ascostream& strm ) const
-{
-    for ( int idx=0; idx<size(); idx++ )
-	strm.put( keys_.get(idx), vals_.get(idx) );
 }

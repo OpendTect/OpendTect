@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Feb 2005
- RCS:           $Id: horizonscanner.cc,v 1.9 2006-02-20 11:29:23 cvsnanne Exp $
+ RCS:           $Id: horizonscanner.cc,v 1.10 2006-02-20 18:49:49 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -151,7 +151,7 @@ void HorizonScanner::launchBrowser( const char* fnm ) const
     if ( !fnm || !*fnm )
 	fnm = defaultUserInfoFile();
     IOPar iopar; report( iopar );
-    iopar.dump( fnm, "_pretty" );
+    iopar.write( fnm, "_pretty" );
 
     ExecuteScriptCommand( "FileBrowser", fnm );
 }

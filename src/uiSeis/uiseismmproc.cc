@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:		$Id: uiseismmproc.cc,v 1.101 2005-11-29 16:39:18 cvsbert Exp $
+ RCS:		$Id: uiseismmproc.cc,v 1.102 2006-02-20 18:49:49 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,7 +31,7 @@ ________________________________________________________________________
 #include "uigeninput.h"
 #include "uilabel.h"
 #include "hostdata.h"
-#include "ioparlist.h"
+#include "iopar.h"
 #include "ioman.h"
 #include "iostrm.h"
 #include "timer.h"
@@ -52,13 +52,15 @@ static const char* outlsfilename = "outls.2ds";
 static const char* outlskey = "Output Line Set";
 
 
-uiSeisMMProc::uiSeisMMProc( uiParent* p, const char* prnm, const IOParList& pl )
+uiSeisMMProc::uiSeisMMProc( uiParent* p, const IOPar& ip,
+			    const char* prnm, const char* pfnm )
 	: uiDialog(p,uiDialog::Setup("Job management","","103.2.0")
 		.nrstatusflds(-1)
 		.fixedsize(true))
 	, progname(prnm)
+	, parfnm(pfnm)
 	, hdl(*new HostDataList)
-    	, iopl(*new IOParList(pl))
+    	, iop(*new IOPar(ip))
 	, avmachfld(0), usedmachfld(0)
 	, jrppolselfld(0), nicefld(0)
 	, tmpstordirfld(0), inlperjobfld(0), logvwer(0)
@@ -70,8 +72,7 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const char* prnm, const IOParList& pl )
 	, timer(0)
 	, nrcyclesdone(0)
 {
-    const IOPar& iopar = *iopl[0];
-    MultiID outid = iopar.find( SeisJobExecProv::outputKey(iopar) );
+    MultiID outid = iop.find( SeisJobExecProv::outputKey(iop) );
     outioobjinfo = new uiSeisIOObjInfo( outid );
     if ( !outioobjinfo->isOK() )
 	{ setOkText( "Output cube not found in Object Management" );
@@ -89,7 +90,7 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const char* prnm, const IOParList& pl )
     setTitleText( multihost ? "Multi-Machine Processing"
 		    : (is2d ? "Multi-line processing"
 			    : "Line-split processing") );
-    const char* res = iopar.find( "Target value" );
+    const char* res = iop.find( "Target value" );
     caption = "Processing";
     if ( res && *res )
 	{ caption += " '"; caption += res; caption += "'"; }
@@ -105,7 +106,7 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const char* prnm, const IOParList& pl )
     uiObject* inlperjobattach = 0;
     if ( !is2d )
     {
-	BufferString tmpstordir = iopar.find( sKey::TmpStor );
+	BufferString tmpstordir = iop.find( sKey::TmpStor );
 	isrestart = tmpstordir != "";
 	if ( !isrestart )
 	{
@@ -135,7 +136,7 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const char* prnm, const IOParList& pl )
 	}
 
 	inlperjobfld = new uiGenInput( this, "Nr inlines per job",
-				       IntInpSpec( defltNrInlPerJob(iopar) ) );
+				       IntInpSpec( defltNrInlPerJob(iop) ) );
 
 	sepattach = inlperjobfld->mainObject();
 
@@ -258,8 +259,7 @@ uiSeisMMProc::~uiSeisMMProc()
     delete timer;
 
     delete &hdl;
-    iopl.deepErase();
-    delete &iopl;
+    delete &iop;
 }
 
 
@@ -285,18 +285,25 @@ void uiSeisMMProc::setNiceNess()
 
 void uiSeisMMProc::startWork( CallBacker* )
 {
-    IOPar& inpiopar = *iopl[0];
     if ( tmpstordirfld )
     {
 	BufferString tmpstordir = tmpstordirfld->getInput();
 	if ( !File_isWritable(tmpstordir) )
 	    mErrRet("The temporary storage directory is not writable")
 	tmpstordir = SeisJobExecProv::getDefTempStorDir( tmpstordir );
-	inpiopar.set( sKey::TmpStor, tmpstordir );
+	const_cast<IOPar&>(iop).set( sKey::TmpStor, tmpstordir );
 	tmpstordirfld->setSensitive( false );
+	if ( !File_isDirectory(tmpstordir) )
+	{
+	    if ( File_exists(tmpstordir) )
+		File_remove( tmpstordir, NO );
+	    File_createDir( tmpstordir, 0 );
+	}
+	if ( !File_isDirectory(tmpstordir) )
+	    mErrRet("Cannot create temporary storage directory")
     }
 
-    jobprov = new SeisJobExecProv( progname, inpiopar );
+    jobprov = new SeisJobExecProv( progname, iop );
     if ( jobprov->errMsg() && *jobprov->errMsg() )
 	mErrRet(jobprov->errMsg())
 
@@ -312,9 +319,7 @@ void uiSeisMMProc::startWork( CallBacker* )
 
     mkJobRunner( nr_inl_job );
 
-    iopl.deepErase();
-    iopl += new IOPar( jobprov->pars() );
-    iopl.write();
+    jobprov->pars().write( parfnm, sKey::Pars );
 
     setOkText( "Finish Now" );
     setCancelText( "Abort" );

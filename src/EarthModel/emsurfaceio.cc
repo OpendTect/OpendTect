@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          June 2003
- RCS:           $Id: emsurfaceio.cc,v 1.54 2005-11-30 22:01:21 cvskris Exp $
+ RCS:           $Id: emsurfaceio.cc,v 1.55 2006-02-20 18:49:49 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -89,7 +89,7 @@ EM::dgbSurfaceReader::dgbSurfaceReader( const IOObj& ioobj,
 
     astream.next();
 
-    par = new IOPar( astream, false );
+    par = new IOPar( astream );
     int nrsections;
     if ( !par->get( nrsectionstr, nrsections ) &&
 	    !par->get("Nr Subhorizons", nrsections ) )

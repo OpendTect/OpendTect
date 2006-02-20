@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          July 2003
- RCS:           $Id: keybindings.cc,v 1.6 2005-08-26 18:19:28 cvsbert Exp $
+ RCS:           $Id: keybindings.cc,v 1.7 2006-02-20 18:49:49 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -56,7 +56,7 @@ KeyBindMan::KeyBindMan()
 
     for ( int idx=0; !atEndOfSection(astrm); idx++ )
     {
-        IOPar iopar( astrm, false );
+        IOPar iopar( astrm );
         KeyBindings keybind;
         if ( iopar.hasKey(KeyBindings::sName) )
         {
