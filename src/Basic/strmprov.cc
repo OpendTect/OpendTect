@@ -41,7 +41,7 @@
 #include "oddirs.h"
 
 
-static const char* rcsID = "$Id: strmprov.cc,v 1.65 2005-12-06 15:35:39 cvskris Exp $";
+static const char* rcsID = "$Id: strmprov.cc,v 1.66 2006-02-20 10:00:55 cvsnanne Exp $";
 
 static FixedString<1024> oscommand;
 
@@ -355,12 +355,12 @@ StreamData StreamProvider::makeIStream( bool binary ) const
     {
 	FilePath fp( fname );
 
-	BufferString fullpath = fp.fullPath(FilePath::Local,true);
+	BufferString fullpath = fp.fullPath( FilePath::Local, true );
 
 	//Sometimes the filename _is_ weired, and the cleanup does the
 	//wrong thing.
 	if ( !File_exists(fullpath) )
-	    fullpath = fp.fullPath(FilePath::Local,false);
+	    fullpath = fp.fullPath( FilePath::Local, false );
 
 	if ( File_exists(fullpath) )
 	{
@@ -540,7 +540,8 @@ static const char* getCmd( const char* fnm )
 	fullexec += interpfp.fullPath();
 
 	fullexec += "\" '";
-	fullexec += execnm;
+	FilePath execfp( execnm );
+	fullexec += execfp.fullPath( FilePath::Unix );
 	fullexec += "'";
 
 	if ( args && *args )
