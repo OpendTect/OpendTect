@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: arrayndimpl.h,v 1.33 2006-01-31 17:45:09 cvsbert Exp $
+ RCS:		$Id: arrayndimpl.h,v 1.34 2006-02-20 20:54:08 cvskris Exp $
 ________________________________________________________________________
 
 */
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "bufstring.h"
 #include "filegen.h"
 #include "filepath.h"
+#include "thread.h"
 
 #include <fstream>
 
@@ -56,23 +57,24 @@ class ArrayNDFileStor : public ArrayND<T>::LinearStorage
 {
 public:
 
-    bool	isOK() const { return strm; }
+    bool	isOK() const { return strm_; }
 
 #undef mChckStrm
 #define mChckStrm \
-    if ( strm->fail() ) \
-	{ mNonConstMem(close()); mNonConstMem(stream_fail) = true; return T();}
+    if ( strm_->fail() ) \
+	{ mNonConstMem(close()); mNonConstMem(streamfail_) = true; return T();}
 
     T		get( int pos ) const
 		{
-		    if ( !strm ) const_cast<ArrayNDFileStor*>(this)->open();
-		    if ( !strm ) return T();
+		    Threads::MutexLocker mlock( mutex_ );
+		    if ( !strm_ ) const_cast<ArrayNDFileStor*>(this)->open();
+		    if ( !strm_ ) return T();
 
-		    strm->seekg(pos*sizeof(T), std::ios::beg );
+		    strm_->seekg(pos*sizeof(T), std::ios::beg );
 		    mChckStrm
 
 		    T res;
-		    strm->read( (char *)&res, sizeof(T));
+		    strm_->read( (char *)&res, sizeof(T));
 		    mChckStrm
 
 		    return res;
@@ -80,17 +82,18 @@ public:
 
 #undef mChckStrm
 #define mChckStrm \
-    if ( strm->fail() ) { close(); stream_fail = true; return; }
+    if ( strm_->fail() ) { close(); streamfail_ = true; return; }
 
     void	set( int pos, T val ) 
 		{
-		    if ( !strm ) open();
-		    if ( !strm ) return;
+		    Threads::MutexLocker mlock( mutex_ );
+		    if ( !strm_ ) open();
+		    if ( !strm_ ) return;
 
-		    strm->seekp( pos*sizeof(T), std::ios::beg );
+		    strm_->seekp( pos*sizeof(T), std::ios::beg );
 		    mChckStrm
 
-		    strm->write( (const char *)&val, sizeof(T));
+		    strm_->write( (const char *)&val, sizeof(T));
 		    mChckStrm
 		}
 
@@ -98,58 +101,59 @@ public:
 
     void	setSize( int nsz )
 		{
-		    if ( strm ) close();
-		    sz = nsz;
-		    open_failed = stream_fail = false;
+		    Threads::MutexLocker mlock( mutex_ );
+		    if ( strm_ ) close();
+		    sz_ = nsz;
+		    openfailed_ = streamfail_ = false;
 		    open();
 		}
 
-    int		size() const { return sz; }
+    int		size() const { return sz_; }
 
 		ArrayNDFileStor( int nsz )
-		    : sz( nsz )
-		    , strm( 0 )
-		    , name(FilePath::getTempName("dat"))
-		    , open_failed(false)
-		    , stream_fail(false)
+		    : sz_( nsz )
+		    , strm_( 0 )
+		    , name_(FilePath::getTempName("dat"))
+		    , openfailed_(false)
+		    , streamfail_(false)
 		{ }
 
     inline	~ArrayNDFileStor()
 		{
+		    Threads::MutexLocker mlock( mutex_ );
 		    close();
-		    File_remove( name, NO );
+		    File_remove( name_, false );
 		}
 private:
 
 #undef mChckStrm
 #define mChckStrm \
-    if ( strm->fail() ) { close(); open_failed = stream_fail = true; return; }
+    if ( strm_->fail() ) { close(); openfailed_ = streamfail_ = true; return; }
 
     void	open()
 		{
-		    if ( strm ) close();
-		    else if ( open_failed || stream_fail ) return;
+		    if ( strm_ ) close();
+		    else if ( openfailed_ || streamfail_ ) return;
 
-		    strm = new std::fstream( name, std::fstream::binary
+		    strm_ = new std::fstream( name_, std::fstream::binary
 						 | std::fstream::out
-						 | std::fstream::app
 						 | std::fstream::trunc );
 		    mChckStrm
 
 		    char tmp[mChunkSz*sizeof(T)];
 		    memset( tmp, 0, mChunkSz*sizeof(T) );
-		    for ( int idx=0; idx<sz; idx+=mChunkSz )
+		    for ( int idx=0; idx<sz_; idx+=mChunkSz )
 		    {
-			if ( (sz-idx)/mChunkSz )
-			    strm->write( tmp, mChunkSz*sizeof(T) );
-			else if ( sz-idx )
-			    strm->write( tmp, (sz-idx)*sizeof(T) );
+			if ( (sz_-idx)/mChunkSz )
+			    strm_->write( tmp, mChunkSz*sizeof(T) );
+			else if ( sz_-idx )
+			    strm_->write( tmp, (sz_-idx)*sizeof(T) );
 
 			mChckStrm
 		    }
 
-		    strm->close();
-		    strm->open( name, std::fstream::binary
+		    strm_->close();
+		    strm_->open( name_, std::fstream::binary
 				    | std::fstream::out
 				    | std::fstream::in );
 		    mChckStrm
@@ -158,16 +162,17 @@ private:
 
     void	close()
 		{
-		    strm->close(); delete strm; strm = 0;
+		    strm_->close(); delete strm_; strm_ = 0;
 		}
 
 protected:
 
-    std::fstream* strm;
-    BufferString name;
-    int		sz;
-    bool	open_failed;
-    bool	stream_fail;
+    std::fstream*		strm_;
+    BufferString		name_;
+    int				sz_;
+    bool			openfailed_;
+    bool			streamfail_;
+    mutable Threads::Mutex	mutex_;
 
 };
 
