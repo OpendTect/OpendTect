@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/08/2000
- RCS:           $Id: uifileinput.cc,v 1.32 2006-02-17 17:27:14 cvsbert Exp $
+ RCS:           $Id: uifileinput.cc,v 1.33 2006-02-20 11:29:23 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,22 +21,21 @@ ________________________________________________________________________
 
 uiFileInput::uiFileInput( uiParent* p, const char* txt, const Setup& setup )
     : uiGenInput( p, txt, FileNameInpSpec(setup.fnm) )
-    , forread(setup.forread_)
-    , fname(setup.fnm)
-    , filter(setup.filter_)
-    , selmodset(false)
-    , selmode(uiFileDialog::AnyFile)
-    , examinebut(0)
-    , addallexts(setup.allowallextensions_)
+    , forread_(setup.forread_)
+    , filter_(setup.filter_)
+    , selmodset_(false)
+    , selmode_(uiFileDialog::AnyFile)
+    , examinebut_(0)
+    , addallexts_(setup.allowallextensions_)
 {
     setWithSelect( true );
     if ( setup.withexamine_ )
-	examinebut = new uiPushButton( this, "Examine ...", 
+	examinebut_ = new uiPushButton( this, "Examine ...", 
 					mCB(this,uiFileInput,examineFile) );
     if ( setup.directories_ )
     {
-	selmodset = true;
-	selmode = uiFileDialog::DirectoryOnly;
+	selmodset_ = true;
+	selmode_ = uiFileDialog::DirectoryOnly;
     }
 
     mainObject()->finaliseDone.notify( mCB(this,uiFileInput,isFinalised) );
@@ -45,13 +44,12 @@ uiFileInput::uiFileInput( uiParent* p, const char* txt, const Setup& setup )
 
 uiFileInput::uiFileInput( uiParent* p, const char* txt, const char* fnm )
     : uiGenInput( p, txt, FileNameInpSpec(fnm) )
-    , forread(true)
-    , fname(fnm)
-    , filter("")
-    , selmodset(false)
-    , selmode(uiFileDialog::AnyFile)
-    , examinebut(0)
-    , addallexts(true)
+    , forread_(true)
+    , filter_("")
+    , selmodset_(false)
+    , selmode_(uiFileDialog::AnyFile)
+    , examinebut_(0)
+    , addallexts_(true)
 {
     setWithSelect( true );
 }
@@ -64,8 +62,8 @@ uiFileInput::~uiFileInput()
 
 void uiFileInput::isFinalised( CallBacker* )
 {
-    if ( examinebut )
-	examinebut->attach( rightOf, selbut );
+    if ( examinebut_ )
+	examinebut_->attach( rightOf, selbut );
 }
 
 
@@ -77,18 +75,18 @@ void uiFileInput::setFileName( const char* s )
 
 void uiFileInput::enableExamine( bool yn )
 {
-    if ( examinebut ) examinebut->setSensitive( yn );
+    if ( examinebut_ ) examinebut_->setSensitive( yn );
 }
 
 
 void uiFileInput::doSelect( CallBacker* )
 {
-    fname = text();
-    BufferString oldfltr = selfltr;
-    if ( fname == "" )	fname = defseldir;
+    BufferString fname = text();
+    BufferString oldfltr = selfltr_;
+    if ( fname == "" )	fname = defseldir_;
 
-    BufferString flt( filter );
-    if ( flt != "" && addallexts )
+    BufferString flt( filter_ );
+    if ( flt != "" && addallexts_ )
     {
 	flt += ";;All files (*";
 #ifdef __win__
@@ -96,19 +94,19 @@ void uiFileInput::doSelect( CallBacker* )
 #endif
 	flt += ")";
     }
-    uiFileDialog dlg( this, forread, fname, flt );
-    dlg.setSelectedFilter( selfltr );
+    uiFileDialog dlg( this, forread_, fname, flt );
+    dlg.setSelectedFilter( selfltr_ );
 
-    if ( selmodset )
-	dlg.setMode( selmode );
+    if ( selmodset_ )
+	dlg.setMode( selmode_ );
 
     if ( !dlg.go() )
 	return;
 
-    selfltr = dlg.selectedFilter();
+    selfltr_ = dlg.selectedFilter();
     BufferString oldfname( fname );
     BufferString newfname;
-    if ( selmode == uiFileDialog::ExistingFiles )
+    if ( selmode_ == uiFileDialog::ExistingFiles )
     {
 	BufferStringSet filenames;
 	dlg.getFileNames( filenames );
@@ -122,18 +120,19 @@ void uiFileInput::doSelect( CallBacker* )
 	setFileName( newfname );
     }
 
-    if ( newfname != oldfname || ( !forread && oldfltr != selfltr ) )
+    if ( newfname != oldfname || ( !forread_ && oldfltr != selfltr_ ) )
 	valuechanged.trigger( *this );
 }
 
 
-const char* uiFileInput::fileName()
+const char* uiFileInput::fileName() const
 {
+    static BufferString fname;
     fname = text();
     FilePath fp( fname );
-    if ( !fp.isAbsolute() && fname != "" && defseldir != "" )
+    if ( !fp.isAbsolute() && fname != "" && defseldir_ != "" )
     {
-	fp.insert( defseldir );
+	fp.insert( defseldir_ );
 	fname = fp.fullPath(); //fname is cleaned here.
     }
     else
@@ -153,22 +152,5 @@ void uiFileInput::getFileNames( BufferStringSet& list ) const
 
 void uiFileInput::examineFile( CallBacker* )
 {
-    static BufferString fnm_;
-    fnm_ = fileName();
-
-    replaceCharacter( fnm_.buf(), ' ', (char)128 );
-
-    BufferString cmd( "@" );
-    cmd += mGetExecScript();
-
-    cmd += " FileBrowser \'";
-    cmd += fnm_; cmd += "\' ";
-
-    StreamProvider strmprov( cmd );
-    if ( !strmprov.executeCommand(false) )
-    {
-        BufferString s( "Failed to submit command '" );
-        s += strmprov.command(); s += "'";
-        ErrMsg( s );
-    }
+    ExecuteScriptCommand( "FileBrowser", fileName() );
 }

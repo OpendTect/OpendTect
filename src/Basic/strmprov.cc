@@ -41,7 +41,7 @@
 #include "oddirs.h"
 
 
-static const char* rcsID = "$Id: strmprov.cc,v 1.66 2006-02-20 10:00:55 cvsnanne Exp $";
+static const char* rcsID = "$Id: strmprov.cc,v 1.67 2006-02-20 11:29:23 cvsnanne Exp $";
 
 static FixedString<1024> oscommand;
 
@@ -106,6 +106,37 @@ bool ExecOSCmd( const char* comm, bool inbg )
     return res;
 
 #endif
+}
+
+
+const char* GetExecCommand( const char* prognm, const char* filenm )
+{
+    static BufferString cmd;
+    cmd = "@";
+    cmd += mGetExecScript(); cmd += " "; cmd += prognm;
+
+    BufferString fnm( filenm );
+    replaceCharacter( fnm.buf(), ' ', (char)128 );
+    FilePath fp( fnm );
+    cmd += " \'"; cmd += fp.fullPath( FilePath::Unix ); cmd += "\' ";
+    return cmd;
+}
+
+
+bool ExecuteScriptCommand( const char* prognm, const char* filenm )
+{
+    static BufferString cmd;
+    cmd = GetExecCommand( prognm, filenm );
+    StreamProvider strmprov( cmd );
+    if ( !strmprov.executeCommand(false) )
+    {
+	BufferString s( "Failed to submit command '" );
+	s += strmprov.command(); s += "'";
+	ErrMsg( s );
+	return false;
+    }
+
+    return true;
 }
 
 

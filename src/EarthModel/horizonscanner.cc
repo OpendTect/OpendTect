@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Feb 2005
- RCS:           $Id: horizonscanner.cc,v 1.8 2006-02-17 17:27:14 cvsbert Exp $
+ RCS:           $Id: horizonscanner.cc,v 1.9 2006-02-20 11:29:23 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -153,17 +153,7 @@ void HorizonScanner::launchBrowser( const char* fnm ) const
     IOPar iopar; report( iopar );
     iopar.dump( fnm, "_pretty" );
 
-    BufferString nospcfname( fnm );
-    replaceCharacter( nospcfname.buf(), ' ', (char)128 );
-    BufferString cmd( "@" ); cmd += mGetExecScript();
-    cmd += " FileBrowser "; cmd += nospcfname;
-    StreamProvider strmprov( cmd );
-    if ( !strmprov.executeCommand(false) )
-    {
-	BufferString s( "Failed to submit command '" );
-	s += strmprov.command(); s += "'";
-	ErrMsg( s );
-    }
+    ExecuteScriptCommand( "FileBrowser", fnm );
 }
 
 

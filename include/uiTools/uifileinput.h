@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          21/9/2000
- RCS:           $Id: uifileinput.h,v 1.20 2006-02-17 17:27:14 cvsbert Exp $
+ RCS:           $Id: uifileinput.h,v 1.21 2006-02-20 11:29:23 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -61,40 +61,39 @@ public:
 
     void		setFileName(const char*);
     void		setDefaultSelectionDir( const char* nm )
-			{ defseldir = nm; }
-    void		setFilter( const char* fltr )	{ filter = fltr; }
-    const char*		selectedFilter() const		{ return selfltr; }
-    void		setSelectedFilter(const char* fltr) { selfltr = fltr; }
+			{ defseldir_ = nm; }
+    void		setFilter( const char* fltr )	   { filter_ = fltr; }
+    const char*		selectedFilter() const		   { return selfltr_; }
+    void		setSelectedFilter( const char* f ) { selfltr_ = f; }
 
-    const char*		fileName();
+    const char*		fileName() const;
     void		getFileNames(BufferStringSet&) const;
 
     uiFileDialog::Mode	selectMode() const		
 			{ 
-			    return selmodset ? selmode 
-				 : (forread  ? uiFileDialog::ExistingFile 
-					     : uiFileDialog::AnyFile); 
+			    return selmodset_ ? selmode_ 
+				 : (forread_  ? uiFileDialog::ExistingFile 
+					      : uiFileDialog::AnyFile); 
 			}
 
     void		setSelectMode( uiFileDialog::Mode m) 
-			{ selmodset = true;  selmode = m; }
+			{ selmodset_ = true;  selmode_ = m; }
 
     void		enableExamine(bool);
     			//!< only if examinebut present
 
 protected:
 
-    bool		forread;
-    BufferString	fname;
-    BufferString	filter;
-    BufferString	defseldir;
-    BufferString	selfltr;
-    bool		addallexts;
+    bool		forread_;
+    BufferString	filter_;
+    BufferString	defseldir_;
+    BufferString	selfltr_;
+    bool		addallexts_;
 
-    bool		selmodset;
-    uiFileDialog::Mode  selmode;
+    bool		selmodset_;
+    uiFileDialog::Mode  selmode_;
 
-    uiPushButton*	examinebut;
+    uiPushButton*	examinebut_;
 
     virtual void	doSelect(CallBacker*);
     void		examineFile(CallBacker*);
