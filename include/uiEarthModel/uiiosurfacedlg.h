@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurfacedlg.h,v 1.10 2005-07-26 07:43:50 cvsnanne Exp $
+ RCS:           $Id: uiiosurfacedlg.h,v 1.11 2006-02-20 08:43:19 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -62,13 +62,13 @@ class uiStoreAuxData : public uiDialog
 public:
     			uiStoreAuxData(uiParent*,const EM::Surface&);
 
-    int			getDataFileIdx() const	{ return auxdataidx_; }
+    bool		doOverWrite() const	{ return dooverwrite_; }
 
 protected:
     uiGenInput*		attrnmfld_;
     const EM::Surface&	surface_;
 
-    int			auxdataidx_;
+    bool		dooverwrite_;
     bool		checkIfAlreadyPresent(const char*);
     bool		acceptOK(CallBacker*);
 };

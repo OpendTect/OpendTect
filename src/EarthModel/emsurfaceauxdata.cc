@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: emsurfaceauxdata.cc,v 1.7 2005-05-17 09:29:05 cvskris Exp $
+ RCS:           $Id: emsurfaceauxdata.cc,v 1.8 2006-02-20 08:40:51 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -207,7 +207,7 @@ Executor* SurfaceAuxData::auxDataLoader( int selidx )
 }
 
 
-Executor* SurfaceAuxData::auxDataSaver( int dataidx, int fileidx )
+Executor* SurfaceAuxData::auxDataSaver( int dataidx, bool overwrite )
 {
     PtrMan<IOObj> ioobj = IOM().get( surface.multiID() );
     if ( !ioobj )
@@ -219,10 +219,10 @@ Executor* SurfaceAuxData::auxDataSaver( int dataidx, int fileidx )
     mSettUse(getYN,"dTect.Surface","Binary format",binary);
 
     BufferString fnm;
-    if ( fileidx >= 0 )
+    if ( overwrite )
     {
 	if ( dataidx<0 ) dataidx = 0;
-	fnm = dgbSurfDataWriter::createHovName( conn->fileName(), fileidx );
+	fnm = getAuxDataFileName( *ioobj, auxDataName(dataidx) );
 	return new dgbSurfDataWriter(surface,dataidx,0,binary,fnm);
     }
 

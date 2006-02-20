@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2004
- RCS:           $Id: od_process_attrib_em.cc,v 1.25 2006-02-07 13:37:41 cvshelene Exp $
+ RCS:           $Id: od_process_attrib_em.cc,v 1.26 2006-02-20 08:44:02 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -352,7 +352,7 @@ bool BatchProgram::go( std::ostream& strm )
 
 	SurfaceIOData sd; sd.use( *surface );
 	SurfaceIODataSelection sels( sd );
-	PtrMan<Executor> saver = surface->auxdata.auxDataSaver( -1, -1 );
+	PtrMan<Executor> saver = surface->auxdata.auxDataSaver( -1, false );
 	if ( !saver || !saver->execute(&strm) )
 	    mErrRet( "Cannot save data" );
     }

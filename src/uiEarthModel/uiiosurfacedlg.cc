@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurfacedlg.cc,v 1.15 2005-10-06 19:13:37 cvskris Exp $
+ RCS:           $Id: uiiosurfacedlg.cc,v 1.16 2006-02-20 08:43:19 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -84,7 +84,6 @@ uiStoreAuxData::uiStoreAuxData( uiParent* p, const EM::Surface& surf )
     : uiDialog(p,uiDialog::Setup("Output selection","Specify attribute name",
 				 "104.3.2"))
     , surface_(surf)
-    , auxdataidx_(-1)
 {
     attrnmfld_ = new uiGenInput( this, "Attribute" );
     attrnmfld_->setText( surface_.auxdata.auxDataName(0) );
@@ -101,9 +100,10 @@ bool uiStoreAuxData::acceptOK( CallBacker* )
     if ( rv && !uiMSG().askGoOn(msg) )
 	return false;
 
+    dooverwrite_ = true;
     if ( attrnm != surface_.auxdata.auxDataName(0) )
 	const_cast<EM::Surface&>(surface_).
-	    auxdata.setAuxDataName( 0, attrnm.buf());
+	    auxdata.setAuxDataName( 0, attrnm.buf() );
 
     return true;
 }
@@ -115,13 +115,12 @@ bool uiStoreAuxData::checkIfAlreadyPresent( const char* attrnm )
     EM::EMM().getSurfaceData( surface_.multiID(), sd );
 
     bool present = false;
-    auxdataidx_ = -1;
     for ( int idx=0; idx<sd.valnames.size(); idx++ )
     {
 	if ( *sd.valnames[idx] == attrnm )
 	{
 	    present = true;
-	    auxdataidx_ = idx;
+	    break;
 	}
     }
 

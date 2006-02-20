@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.72 2005-11-30 22:09:10 cvskris Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.73 2006-02-20 08:43:19 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -305,17 +305,18 @@ bool uiEMPartServer::storeAuxData( const EM::ObjectID& id, bool storeas ) const
     if ( !surface ) return false;
 
     int dataidx = -1;
-    int fileidx = -1;
+    bool overwrite = false;
     if ( storeas )
     {
 	uiStoreAuxData dlg( appserv().parent(), *surface );
 	if ( !dlg.go() ) return false;
 
 	dataidx = 0;
-	fileidx = dlg.getDataFileIdx();
+	overwrite = dlg.doOverWrite();
     }
 
-    PtrMan<Executor> saver = surface->auxdata.auxDataSaver( dataidx, fileidx );
+    PtrMan<Executor> saver =
+	surface->auxdata.auxDataSaver( dataidx, overwrite );
     if ( !saver )
     {
 	uiMSG().error( "Cannot save attribute" );

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfaceauxdata.h,v 1.2 2005-02-10 16:22:42 nanne Exp $
+ RCS:		$Id: emsurfaceauxdata.h,v 1.3 2006-02-20 08:40:51 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -33,7 +33,7 @@ public:
 			SurfaceAuxData(Surface&);
 			~SurfaceAuxData();
     Executor*		auxDataLoader(int selidx=-1);
-    Executor*		auxDataSaver(int dataidx=0,int fileidx=-1);
+    Executor*		auxDataSaver(int dataidx=0,bool overwrite=false);
 
     void		removeAll();
     void		removeSection( const SectionID& sectionid );
