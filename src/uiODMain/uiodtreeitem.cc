@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.152 2006-02-20 08:16:37 cvsnanne Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.153 2006-02-20 14:56:27 cvsjaap Exp $
 ___________________________________________________________________
 
 -*/
@@ -1118,7 +1118,7 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB( CallBacker* cb )
     else if ( menu->getPath() )
 	sectionid = uivisemobj->getSectionID( menu->getPath() );
 
-    else if ( mnuid==savemnuitem_.id )
+    if ( mnuid==savemnuitem_.id )
     {
 	menu->setIsHandled(true);
 	applMgr()->EMServer()->storeObject( emid, false );
