@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.58 2006-02-02 09:48:13 cvsnanne Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.59 2006-02-20 08:17:04 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -212,10 +212,14 @@ void uiODSceneMgr::setSceneName( int sceneid, const char* nm )
 
     for ( int idx=0; idx<scenes_.size(); idx++ )
     {
-	if ( scenes_[idx]->itemmanager_->sceneID() == sceneid )
+	Scene& scene = *scenes_[idx];
+	if ( scene.itemmanager_->sceneID() == sceneid )
 	{
-	    scenes_[idx]->sovwr_->setTitle( nm );
-	    scenes_[idx]->treeWin()->setName( nm );
+	    scene.sovwr_->setTitle( nm );
+	    scene.treeWin()->setDockName( nm );
+	    uiTreeItem* itm = scene.itemmanager_->findChild( sceneid );
+	    if ( itm )
+		itm->updateColumnText( uiODSceneMgr::cNameColumn() );
 	    return;
 	}
     }
@@ -323,16 +327,15 @@ void uiODSceneMgr::updateStatusBar()
 	appl_.statusBar()->message( "", mStatusField );
 	appl_.statusBar()->setBGColor( mStatusField,
 				   appl_.statusBar()->getBGColor(mPosField) );
-	return;
     }
 
-    const Coord3 xytpos = visServ().getMousePos(true);
-    const bool haspos = !Values::isUdf( xytpos.x );
+    const Coord3 xytpos = visServ().getMousePos( true );
+    const bool haspos = !mIsUdf( xytpos.x );
 
     BufferString msg;
     if ( haspos  )
     {
-	BinID bid( SI().transform( Coord(xytpos.x,xytpos.y) ) );
+	const BinID bid( SI().transform( Coord(xytpos.x,xytpos.y) ) );
 	msg = bid.inl; msg += "/"; msg += bid.crl;
 	msg += "   (";
 	msg += mNINT(xytpos.x); msg += ",";
@@ -349,9 +352,7 @@ void uiODSceneMgr::updateStatusBar()
 	msg += valstr;
     }
     else
-    {
 	msg = "";
-    }
 
     appl_.statusBar()->message( msg, mValueField );
 
@@ -359,11 +360,10 @@ void uiODSceneMgr::updateStatusBar()
     appl_.statusBar()->message( msg, mNameField );
 
     const bool ispicking = visServ().isPicking();
-
     appl_.statusBar()->message( ispicking ? "Picking" : 0, mStatusField );
 
     appl_.statusBar()->setBGColor( mStatusField, ispicking ?
-	    Color( 255, 0, 0 ) : appl_.statusBar()->getBGColor(mPosField) );
+	    Color(255,0,0) : appl_.statusBar()->getBGColor(mPosField) );
 }
 
 
