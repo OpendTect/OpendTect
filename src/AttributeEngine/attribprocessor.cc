@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribprocessor.cc,v 1.34 2006-02-07 13:40:23 cvshelene Exp $";
+static const char* rcsID = "$Id: attribprocessor.cc,v 1.35 2006-02-21 13:09:40 cvshelene Exp $";
 
 #include "attribprocessor.h"
 
@@ -22,10 +22,10 @@ static const char* rcsID = "$Id: attribprocessor.cc,v 1.34 2006-02-07 13:40:23 c
 namespace Attrib
 {
 
-Processor::Processor( Desc& desc , const char* lk )
+Processor::Processor( Desc& desc , const char* lk, BufferString& err )
     : Executor("Attribute Processor")
     , desc_(desc)
-    , provider(Provider::create(desc))
+    , provider(Provider::create(desc,err))
     , nriter(0)
     , nrdone(0)
     , isinited(false)

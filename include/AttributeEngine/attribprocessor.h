@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribprocessor.h,v 1.14 2005-10-28 15:09:11 cvshelene Exp $
+ RCS:           $Id: attribprocessor.h,v 1.15 2006-02-21 13:09:54 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,7 +29,7 @@ class Provider;
 class Processor : public Executor
 {
 public:
-    			Processor(Desc&,const char* lk="");
+    			Processor(Desc&,const char*,BufferString&);
     			~Processor();
 
     virtual bool	isOK() const;

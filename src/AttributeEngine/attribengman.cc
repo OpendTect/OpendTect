@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H.Payraudeau
  Date:          04/2005
- RCS:           $Id: attribengman.cc,v 1.48 2005-11-25 13:27:43 cvsnanne Exp $
+ RCS:           $Id: attribengman.cc,v 1.49 2006-02-21 13:09:40 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -67,7 +67,8 @@ void EngineMan::getPossibleVolume( DescSet& attribset, CubeSampling& cs,
     TypeSet<DescID> desiredids(1,outid);
     BufferString errmsg;
     DescID evalid = createEvaluateADS( attribset, desiredids, errmsg );
-    PtrMan<Processor> proc = createProcessor( attribset, linename, evalid );
+    PtrMan<Processor> proc = 
+			createProcessor( attribset, linename, evalid, errmsg );
     if ( !proc ) return;
 
     proc->getProvider()->setDesiredVolume( cs );
@@ -76,7 +77,7 @@ void EngineMan::getPossibleVolume( DescSet& attribset, CubeSampling& cs,
 
 
 Processor* EngineMan::usePar( const IOPar& iopar, DescSet& attribset, 
-	      		      const char* linename )
+	      		      const char* linename, BufferString& errmsg )
 {
     int outputidx = 0;
     TypeSet<DescID> ids;
@@ -108,9 +109,9 @@ Processor* EngineMan::usePar( const IOPar& iopar, DescSet& attribset,
 	outputidx++;
     }
 
-    BufferString errmsg;
     DescID evalid = createEvaluateADS( attribset, ids, errmsg );
-    Processor* proc = createProcessor( attribset, linename, evalid );
+    Processor* proc = createProcessor( attribset, linename, evalid, errmsg );
+    if ( !proc ) return 0;
 
     for ( int idx=1; idx<ids.size(); idx++ )
 	proc->addOutputInterest(idx);
@@ -146,13 +147,13 @@ Processor* EngineMan::usePar( const IOPar& iopar, DescSet& attribset,
 
 
 Processor* EngineMan::createProcessor( const DescSet& attribset,
-				       const char* linename,
-				       const DescID& outid )
+				       const char* linename,const DescID& outid,
+				       BufferString& errmsg )
 {
     Desc* targetdesc = const_cast<Desc*>(attribset.getDesc(outid));
     if ( !targetdesc ) return 0;
     
-    Processor* processor = new Processor( *targetdesc, linename );
+    Processor* processor = new Processor( *targetdesc, linename, errmsg );
     if ( !processor->isOK() )
     {
 	delete processor;
@@ -848,10 +849,11 @@ Processor* EngineMan::getProcessor( BufferString& errmsg )
 	outid = nlaid;
     }
 
-    Processor* proc = createProcessor( *procattrset, lineKey().buf(), outid );
+    Processor* proc = 
+		createProcessor( *procattrset, lineKey().buf(), outid, errmsg );
     setExecutorName( proc );
     if ( !proc )
-	mErrRet( "Invalid input data,\nNo processor created" )
+	mErrRet( errmsg )
 	    
     if ( doeval )
     {

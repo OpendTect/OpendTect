@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H.Payraudeau
  Date:          04/2005
- RCS:           $Id: attribengman.h,v 1.21 2006-02-02 12:02:13 cvsbert Exp $
+ RCS:           $Id: attribengman.h,v 1.22 2006-02-21 13:09:54 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,15 +45,14 @@ public:
     virtual		~EngineMan();
 
     Processor*		usePar(const IOPar&,DescSet&,
-	    		       const char* linename); 
+	    		       const char* linename,BufferString&); 
 
-    static Processor*	createProcessor(const DescSet& attribset,
-				        const char* linename,const DescID&);
+    static Processor*	createProcessor(const DescSet&,const char*,
+	    				const DescID&,BufferString&);
     static void		getPossibleVolume(DescSet&,CubeSampling&,
 	    				  const char* linename,const DescID&);
-    static void		addNLADesc(const char* defstr,DescID& nladescid,
-				   DescSet&,int outputnr,const NLAModel*,
-				   BufferString& errmsg);
+    static void		addNLADesc(const char*,DescID&,DescSet&,int,
+	    			   const NLAModel*,BufferString&);
 
     SeisTrcStorOutput* 	createOutput(const IOPar&,const LineKey&);
 

@@ -4,7 +4,7 @@
  * DATE     : Mar 2000
 -*/
 
-static const char* rcsID = "$Id: od_process_attrib.cc,v 1.14 2005-12-16 15:59:40 cvshelene Exp $";
+static const char* rcsID = "$Id: od_process_attrib.cc,v 1.15 2006-02-21 13:10:29 cvshelene Exp $";
 
 #include "attribstorprovider.h"
 #include "attribdescset.h"
@@ -215,7 +215,9 @@ bool BatchProgram::go( std::ostream& strm )
 	linename = output->find(sKey::LineKey);
 	indexoutp++;
     }    
-    proc = attrengman->usePar( pars(), attribset, linename );
+    BufferString errmsg;
+    proc = attrengman->usePar( pars(), attribset, linename, errmsg );
+    if ( !proc ) mRetError( errmsg );
     
     ProgressMeter progressmeter(strm);
 

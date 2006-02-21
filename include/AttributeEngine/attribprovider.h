@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribprovider.h,v 1.34 2005-12-23 16:11:01 cvsnanne Exp $
+ RCS:           $Id: attribprovider.h,v 1.35 2006-02-21 13:09:54 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,7 +46,7 @@ class Provider
 
 public:
 
-    static Provider*		create(Desc&);
+    static Provider*		create(Desc&,BufferString&);
 				/*!< Also creates all inputs, the input's
 				     inputs, and so on */
     virtual bool		isOK() const;
@@ -118,7 +118,7 @@ protected:
 
     virtual SeisRequester*	getSeisRequester() const;
     static Provider*		internalCreate(Desc&,ObjectSet<Provider>&, 
-					       bool& issame);
+					       bool& issame,BufferString&);
 
     virtual bool		getInputOutput(int input,TypeSet<int>&) const;
     virtual bool		getInputData(const BinID& relpos,int idx);

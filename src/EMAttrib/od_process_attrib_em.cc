@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2004
- RCS:           $Id: od_process_attrib_em.cc,v 1.26 2006-02-20 08:44:02 cvsnanne Exp $
+ RCS:           $Id: od_process_attrib_em.cc,v 1.27 2006-02-21 13:10:53 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -154,6 +154,9 @@ static bool prepare( std::ostream& strm, const IOPar& iopar, const char* idstr,
 #define mErrRet(s) \
     { strm << '\n' << s << '\n' << std::endl; mDestroyWorkers ; return false; }
 
+#define mErrRetNoProc(s) \
+    { strm << '\n' << s << '\n' << std::endl; return false; }
+
 #define mPIDMsg(s) { strm << "\n["<< GetPID() <<"]: " << s << std::endl; }
 
 static bool process( std::ostream& strm, Processor* proc, 
@@ -249,8 +252,6 @@ bool BatchProgram::go( std::ostream& strm )
    
     bool iscubeoutp = !strcmp( type, Output::tskey );
 
-    Processor* proc = 0;
-
     BufferString errmsg;
     MultiID outpid;
     ObjectSet<MultiID> midset;
@@ -258,7 +259,7 @@ bool BatchProgram::go( std::ostream& strm )
 		   iscubeoutp ? SeisTrcStorOutput::seisidkey 
 		   	      : LocationOutput::surfidkey,
 		   midset, errmsg, iscubeoutp, outpid ) )
-	mErrRet( errmsg );
+	mErrRetNoProc(errmsg);
 
     PtrMan<IOPar> geompar = pars().subselect(sKey::Geometry);
     HorSampling horsamp;
@@ -286,7 +287,7 @@ bool BatchProgram::go( std::ostream& strm )
 	{
 	    BufferString errstr = "Cannot load surface:";
 	    errstr += mid->buf();
-	    mErrRet( errstr.buf() );
+	    mErrRetNoProc( errstr.buf() );
 	}
     }
 
@@ -294,13 +295,13 @@ bool BatchProgram::go( std::ostream& strm )
     DescSet attribset;
     PtrMan<IOPar> attribs = pars().subselect( "Attributes" );
     if ( !attribset.usePar(*attribs) )
-	mErrRet( attribset.errMsg() )
+	mErrRetNoProc( attribset.errMsg() )
 
     PtrMan<IOPar> output = pars().subselect( "Output.1" );
-    if ( !output ) mErrRet( "No output specified" );
+    if ( !output ) mErrRetNoProc( "No output specified" );
     
     PtrMan<IOPar> attribsiopar = output->subselect("Attributes");
-    if ( !attribsiopar ) mErrRet( "No output specified" );
+    if ( !attribsiopar ) mErrRetNoProc( "No output specified" );
 
     TypeSet<DescID> attribids;
     int nrattribs = 1;
@@ -314,7 +315,7 @@ bool BatchProgram::go( std::ostream& strm )
     }
 
     if ( !attribids.size() )
-	mErrRet( "No attributes selected" );
+	mErrRetNoProc( "No attributes selected" );
 
     TypeSet<SelSpec> selspecs;
     BufferStringSet attribrefs;
@@ -326,7 +327,6 @@ bool BatchProgram::go( std::ostream& strm )
 	attribrefs.add( spec.userRef() );
     }
 
-    // TODO: make a targetvalue for each output
     BufferString newattrnm;
     pars().get( "Target value", newattrnm );
     if ( newattrnm != "" )
@@ -341,8 +341,8 @@ bool BatchProgram::go( std::ostream& strm )
 	ObjectSet<BinIDValueSet> bivs;
 	HorizonUtils::getPositions( strm, *(midset[0]), bivs );
 	aem.computeIntersect2D(bivs);
-	proc = aem.createLocationOutput( errmsg, bivs );
-	if ( !proc ) mErrRet( "Could create processor" );
+	Processor* proc = aem.createLocationOutput( errmsg, bivs );
+	if ( !proc ) mErrRet( errmsg );
 
 	if ( !process(strm,proc) ) return false;
         HorizonUtils::addSurfaceData( *(midset[0]), attribrefs, bivs );
@@ -375,7 +375,9 @@ bool BatchProgram::go( std::ostream& strm )
 
 	HorizonUtils::getWantedPositions( strm, midset, bivs, horsamp, extraz,
 					  nrinterpsamp, mainhoridx, extrawidth);
-	proc = aem.createTrcSelOutput( errmsg, bivs, seisoutp, outval );
+	Processor* proc = 
+	    	aem.createTrcSelOutput( errmsg, bivs, seisoutp, outval );
+	if ( !proc ) mErrRet( errmsg );
 	if ( !process( strm, proc, outpid, &seisoutp ) ) return false;
     }
 

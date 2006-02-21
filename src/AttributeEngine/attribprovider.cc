@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribprovider.cc,v 1.54 2006-01-25 11:05:00 cvshelene Exp $";
+static const char* rcsID = "$Id: attribprovider.cc,v 1.55 2006-02-21 13:09:40 cvshelene Exp $";
 
 #include "attribprovider.h"
 #include "attribstorprovider.h"
@@ -63,32 +63,23 @@ protected:
 };
 
 
-Provider* Provider::create( Desc& desc )
+Provider* Provider::create( Desc& desc, BufferString& errstr )
 {
     ObjectSet<Provider> existing;
     bool issame = false;
-    Provider* prov = internalCreate( desc, existing, issame );
+    Provider* prov = internalCreate( desc, existing, issame, errstr );
     if ( !prov ) return 0;
 
     prov->allexistingprov = existing;
     prov->computeRefStep( existing );
     prov->propagateRefStep( existing );
 
-/*
-    if ( !prov->init() )
-    {
-	existing.remove( existing.indexOf(prov), existing.size()-1 );
-	prov->ref(); prov->unRef();
-	return 0;
-    }
-*/
-
     return prov;
 }
 
 
 Provider* Provider::internalCreate( Desc& desc, ObjectSet<Provider>& existing, 
-				    bool& issame )
+				    bool& issame, BufferString& errstr )
 {
     for ( int idx=0; idx<existing.size(); idx++ )
     {
@@ -104,10 +95,18 @@ Provider* Provider::internalCreate( Desc& desc, ObjectSet<Provider>& existing,
     }
 
     if ( desc.nrInputs() && !desc.descSet() )
+    {
+	errstr = "No attribute set specified";
 	return 0;
+    }
 
     Provider* res = PF().create( desc );
-    if ( !res ) return 0;
+    if ( !res )
+    {
+	errstr = "No factory entry for"; errstr += " ";
+	errstr += desc.attribName(); errstr += " "; errstr += "attribute.";
+	return 0;
+    }
 
     res->ref();
     
@@ -121,7 +120,8 @@ Provider* Provider::internalCreate( Desc& desc, ObjectSet<Provider>& existing,
 	Desc* inputdesc = desc.getInput(idx);
 	if ( !inputdesc ) continue;
 
-	Provider* inputprovider = internalCreate(*inputdesc, existing, issame);
+	Provider* inputprovider = 
+	    		internalCreate( *inputdesc, existing, issame, errstr );
 	if ( !inputprovider )
 	{
 	    existing.remove(existing.indexOf(res), existing.size()-1 );
@@ -153,6 +153,9 @@ Provider* Provider::internalCreate( Desc& desc, ObjectSet<Provider>& existing,
     {
 	existing.remove( existing.indexOf(res), existing.size()-1 );
 	res->unRef();
+	errstr = "attribute \""; errstr += res->desc.userRef(); 
+	errstr += "\" of type \"";errstr += res->desc.attribName(); 
+	errstr += "\" cannot be initialized";
 	return 0;
     }
 
