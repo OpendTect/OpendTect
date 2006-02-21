@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2004
- RCS:           $Id: uiattrsurfout.cc,v 1.11 2005-12-28 18:14:04 cvsbert Exp $
+ RCS:           $Id: uiattrsurfout.cc,v 1.12 2006-02-21 13:14:01 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -79,7 +79,7 @@ void uiAttrSurfaceOut::objSel( CallBacker* )
 {
     if ( !objfld->ctxtIOObj().ioobj ) return;
     BufferString parnm( objfld->ctxtIOObj().ioobj->name() );
-    parnm += " "; parnm += attrfld->getInput();
+    parnm += " "; parnm += attrnmfld->text();
     setParFileNmDef( parnm );
 }
 
