@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribdescset.h,v 1.18 2005-11-03 12:11:44 cvshelene Exp $
+ RCS:           $Id: attribdescset.h,v 1.19 2006-02-21 13:29:35 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,7 +45,8 @@ public:
     Desc*       		getDesc(const DescID&);
     const Desc*			getDesc(const DescID&) const;
 
-    int				nrDescs() const;
+    int				nrDescs(bool inclstored=true,
+	    				bool inclhidden=true) const;
     DescID			getID(const Desc&) const;
     DescID			getID(int) const;
     DescID			getID(const char* ref,bool isusrref) const;

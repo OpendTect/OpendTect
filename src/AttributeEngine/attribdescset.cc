@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribdescset.cc,v 1.37 2005-11-03 12:11:44 cvshelene Exp $";
+static const char* rcsID = "$Id: attribdescset.cc,v 1.38 2006-02-21 13:29:35 cvsbert Exp $";
 
 #include "attribdescset.h"
 #include "attribstorprovider.h"
@@ -77,7 +77,21 @@ const Desc* DescSet::getDesc( const DescID& id ) const
 }
 
 
-int DescSet::nrDescs() const { return descs.size(); }
+int DescSet::nrDescs( bool incstored, bool inchidden ) const
+{
+    int ret = descs.size();
+    if ( !incstored || !inchidden )
+    {
+	for ( int idx=0; idx<descs.size(); idx++ )
+	{
+	    if ( !incstored && descs[idx]->isStored() )
+		ret--;
+	    else if ( !inchidden && descs[idx]->isHidden() )
+		ret--;
+	}
+    }
+    return ret;
+}
 
 
 DescID DescSet::getID( const Desc& desc ) const
