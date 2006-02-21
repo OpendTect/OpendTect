@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: well.cc,v 1.36 2006-01-31 16:55:26 cvshelene Exp $";
+static const char* rcsID = "$Id: well.cc,v 1.37 2006-02-21 13:14:32 cvshelene Exp $";
 
 #include "welldata.h"
 #include "welltrack.h"
@@ -306,6 +306,7 @@ int Well::Track::insertPoint( const Coord& c, float z )
     // This boils down to min(sum of sq distances / product of distances)
 
     float minval = 1e30; int minidx = -1;
+    float mindist = pos_[0].distance(cnew); int mindistidx = 0;
     for ( int idx=1; idx<oldsz; idx++ )
     {
 	const Coord3& c0 = pos_[idx-1];
@@ -318,10 +319,21 @@ int Well::Track::insertPoint( const Coord& c, float z )
 	float val = ( d0 * d0 + d1 * d1 - ( d * d ) ) / (2 * d0 * d1);
 	if ( val < minval )
 	    { minidx = idx-1; minval = val; }
+	if ( d1 < mindist )
+	    { mindist = d1; mindistidx = idx; }
 	if ( idx == oldsz-1 && minval > 0.85 )
 	{
-	    addPoint( c, z );
-	    return oldsz;
+	    if ( mindistidx == oldsz-1)
+	    {
+		addPoint( c, z );
+		return oldsz;
+	    }
+	    else
+	    {
+		float prevdist = pos_[mindistidx-1].distance(cnew);
+		float nextdist = pos_[mindistidx+1].distance(cnew);
+		minidx = prevdist > nextdist ? mindistidx : mindistidx -1;
+	    }
 	}
     }
 
