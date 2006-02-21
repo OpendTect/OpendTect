@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Mar 2002
- RCS:		$Id: keystrs.h,v 1.15 2005-11-16 14:59:50 cvsarend Exp $
+ RCS:		$Id: keystrs.h,v 1.16 2006-02-21 16:26:08 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,6 +51,8 @@ namespace sKey
     extern const char*	PSSeis		mImpl("Pre-Stack Seismics");
     extern const char*	Range		mImpl("Range");
     extern const char*	Steering	mImpl("Steering");
+    extern const char*	DepthDomain	mImpl("Depth Domain");
+    extern const char*	Wheeler		mImpl("Wheeler");
     extern const char*	Table		mImpl("Table");
     extern const char*	Type		mImpl("Type");
     extern const char*	Title		mImpl("Title");
