@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrdescseted.cc,v 1.20 2006-02-20 18:49:49 cvsbert Exp $
+ RCS:           $Id: uiattrdescseted.cc,v 1.21 2006-02-21 13:28:53 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,6 +46,7 @@ ________________________________________________________________________
 #include "uimenu.h"
 #include "uimsg.h"
 #include "uiseparator.h"
+#include "uitextedit.h"
 #include "uitoolbar.h"
 #include "seistype.h"
 #include "survinfo.h"
@@ -803,11 +804,12 @@ void uiAttribDescSetEd::importSet( CallBacker* )
 class uiGetFileForAttrSet : public uiDialog
 {
 public:
-uiGetFileForAttrSet( uiParent* p, bool isattrset )
-    : uiDialog(p,uiDialog::Setup("Get Attribute Set", isattrset ?
+uiGetFileForAttrSet( uiParent* p, bool isatt )
+    : uiDialog(p,uiDialog::Setup("Get Attribute Set", isatt ?
 				 "Select file containing an attribute set"
 				 : "Select job specification file",
 				 0))
+    , isattrset(isatt)
 {
     fileinput = new uiFileInput( this, isattrset ? "Attribute Set file"
 	    					 : "Job specification file" );
@@ -815,6 +817,45 @@ uiGetFileForAttrSet( uiParent* p, bool isattrset )
 				    : "Job specifications (*.par)" );
     fileinput->setDefaultSelectionDir( isattrset ? GetBaseDataDir()
 						 : GetProcFileName(0) );
+    fileinput->valuechanged.notify( mCB(this,uiGetFileForAttrSet,selChg) );
+    infofld = new uiTextEdit( this, "Attribute info", true );
+    infofld->attach( ensureBelow, fileinput );
+    infofld->attach( widthSameAs, fileinput );
+    infofld->setPrefHeightInChar( 4 );
+}
+
+void selChg( CallBacker* )
+{
+    fname_ = fileinput->fileName();
+    IOPar iop; iop.read( fname_, sKey::Pars );
+    if ( !isattrset )
+    {
+	PtrMan<IOPar> subpar = iop.subselect( "Attributes" );
+	iop.clear();
+	if ( subpar ) iop = *subpar;
+    }
+
+    attrset.removeAll();
+    attrset.usePar( iop );
+    const int nrgood = attrset.nrDescs( false, false );
+    BufferString txt( nrgood == 1  ? "Attribute: "
+			: (nrgood ? "Attributes:\n"
+				  : "No valid attributes present") );
+    int nrdone = 0;
+    const int totalnrdescs = attrset.nrDescs();
+    for ( int idx=0; idx<totalnrdescs; idx++ )
+    {
+	Desc* desc = attrset.getDesc( attrset.getID(idx) );
+	if ( desc->isHidden() || desc->isStored() ) continue;
+
+	nrdone++;
+	txt += desc->userRef();
+	txt += " ("; txt += desc->attribName(); txt += ")";
+	if ( nrdone != nrgood )
+	    txt += "\n";
+    }
+
+    infofld->setText( txt );
 }
 
 bool acceptOK( CallBacker* )
@@ -822,14 +863,18 @@ bool acceptOK( CallBacker* )
     fname_ = fileinput->fileName();
     if ( fname_ == "" || !File_exists(fname_) )
     {
-	uiMSG().error( "Please select filename" );
+	uiMSG().error( "Please enter the filename" );
 	return false;
     }
+    selChg(0);
     return true;
 }
 
     uiFileInput*	fileinput;
+    uiTextEdit*		infofld;
     BufferString	fname_;
+    DescSet		attrset;
+    bool		isattrset;
 };
 
 
@@ -849,12 +894,12 @@ void uiAttribDescSetEd::job2Set( CallBacker* )
     uiGetFileForAttrSet dlg( this, false );
     if ( dlg.go() )
     {
-	IOPar iop; iop.read( dlg.fname_, sKey::Pars );
-	PtrMan<IOPar> subpar = iop.subselect( "Attributes" );
-	if ( !subpar || subpar->size() < 1 )
-	    mErrRet( "No valid attributes in file" )
+	if ( dlg.attrset.nrDescs(false,false) < 1 )
+	    mErrRet( "No usable attributes in file" )
+
+	IOPar iop; dlg.attrset.fillPar( iop );
 	attrset->removeAll();
-	attrset->usePar( *subpar );
+	attrset->usePar( iop );
 	adsman->setSaved( false );
 
 	setctio.setObj( 0 );
