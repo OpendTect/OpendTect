@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.153 2006-02-20 14:56:27 cvsjaap Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.154 2006-02-21 13:11:33 cvshelene Exp $
 ___________________________________________________________________
 
 -*/
@@ -1057,7 +1057,8 @@ void uiODEarthModelSurfaceTreeItem::createMenuCB( CallBacker* cb )
 	const Coord3& pickedpos = menu->getPickedPos();
 	const bool hastracker = applMgr()->mpeServer()->getTrackerID(emid)>=0;
 
-	if ( !hastracker && applMgr()->EMServer()->isFullResolution(emid) )
+	if ( !hastracker && applMgr()->EMServer()->isFullResolution(emid) &&
+	     !visserv->isLocked(displayid_) )
 	{
 	    mAddMenuItem( trackmnu, &starttrackmnuitem_, pickedpos.isDefined(),
 			  false );
@@ -1066,7 +1067,7 @@ void uiODEarthModelSurfaceTreeItem::createMenuCB( CallBacker* cb )
 	    mResetMenuItem( &enabletrackingmnuitem_ );
 	    mResetMenuItem( &relationsmnuitem_ );
 	}
-	else if ( hastracker && section != -1 )
+	else if ( hastracker && section != -1 && !visserv->isLocked(displayid_))
 	{
 	    mResetMenuItem( &starttrackmnuitem_ );
 
@@ -1365,14 +1366,17 @@ void uiODRandomLineTreeItem::createMenuCB( CallBacker* cb )
     if ( menu->menuID()!=displayID() )
 	return;
 
-    mAddMenuItem( menu, &editnodesmnuitem_, true, false );
-    mAddMenuItem( menu, &insertnodemnuitem_, true, false );
+    mAddMenuItem( menu, &editnodesmnuitem_, !visserv->isLocked(displayid_), 
+	    	  false );
+    mAddMenuItem( menu, &insertnodemnuitem_, !visserv->isLocked(displayid_), 
+	    	  false );
     insertnodemnuitem_.removeItems();
 
     mDynamicCastGet(visSurvey::RandomTrackDisplay*,rtd,
 		    visserv->getObject(displayid_));
     for ( int idx=0; idx<=rtd->nrKnots(); idx++ )
     {
+	if ( visserv->isLocked(displayid_) ) break;
 	BufferString nodename;
 	if ( idx==rtd->nrKnots() )
 	{
@@ -1386,9 +1390,10 @@ void uiODRandomLineTreeItem::createMenuCB( CallBacker* cb )
 	}
 
 	mAddManagedMenuItem(&insertnodemnuitem_,new MenuItem(nodename), 
-			     rtd->canAddKnot(idx), false );
+			    rtd->canAddKnot(idx), false );
     }
-    mAddMenuItem( menu, &usewellsmnuitem_, true, false );
+    mAddMenuItem( menu, &usewellsmnuitem_, !visserv->isLocked(displayid_), 
+	    	  false );
 }
 
 
