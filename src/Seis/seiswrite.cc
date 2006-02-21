@@ -15,12 +15,10 @@
 #include "executor.h"
 #include "iostrm.h"
 #include "separstr.h"
-#include "binidselimpl.h"
 #include "iopar.h"
 
 SeisTrcWriter::SeisTrcWriter( const IOObj* ioob, const LineKeyProvider* l )
 	: SeisStoreAccess(ioob)
-	, binids(*new BinIDRange)
     	, lineauxiopar(*new IOPar)
 	, lkp(l)
 {
@@ -30,7 +28,6 @@ SeisTrcWriter::SeisTrcWriter( const IOObj* ioob, const LineKeyProvider* l )
 
 SeisTrcWriter::SeisTrcWriter( const char* fnm, bool isps )
 	: SeisStoreAccess(fnm,isps)
-	, binids(*new BinIDRange)
     	, lineauxiopar(*new IOPar)
 	, lkp(0)
 {
@@ -43,14 +40,12 @@ void SeisTrcWriter::init()
     putter = 0; psioprov = 0; pswriter = 0;
     nrtrcs = nrwritten = 0;
     prepared = false;
-    binids.start.inl = mUdf(int);
 }
 
 
 SeisTrcWriter::~SeisTrcWriter()
 {
     close();
-    delete &binids;
     delete &lineauxiopar;
 }
 
@@ -282,11 +277,6 @@ bool SeisTrcWriter::put( const SeisTrc& trc )
     }
 
     nrwritten++;
-    if ( Values::isUdf(binids.start.inl) )
-	binids.start = binids.stop = trc.info().binid;
-    else
-	binids.include( trc.info().binid );
-
     return true;
 }
 
@@ -295,21 +285,4 @@ bool SeisTrcWriter::isMultiConn() const
 {
     mDynamicCastGet(IOStream*,iostrm,ioobj)
     return iostrm && iostrm->isMulti();
-}
-
-
-void SeisTrcWriter::fillAuxPar( IOPar& iopar ) const
-{
-    if ( !strl() || nrwritten < 1 )
-	return;
-
-    FileMultiString fms;
-    fms += binids.start.inl; fms += binids.start.crl;
-    fms += binids.stop.inl; fms += binids.stop.crl;
-    iopar.set( SeisPacketInfo::sBinIDs, fms );
-
-    iopar.set( SeisStoreAccess::sNrTrcs, nrwritten );
-    iopar.set( SeisTrcInfo::sSamplingInfo, strl()->outSD().start,
-	    				   strl()->outSD().step );
-    iopar.set( SeisTrcInfo::sNrSamples, strl()->outNrSamples() );
 }

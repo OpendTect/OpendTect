@@ -4,7 +4,7 @@
  * DATE     : 3-8-1994
 -*/
 
-static const char* rcsID = "$Id: ioman.cc,v 1.56 2005-11-16 15:33:08 cvsarend Exp $";
+static const char* rcsID = "$Id: ioman.cc,v 1.57 2006-02-21 15:23:10 cvsbert Exp $";
 
 #include "ioman.h"
 #include "iodir.h"
@@ -72,6 +72,7 @@ IOMan::IOMan( const char* rd )
 	, dirptr(0)
 	, state_(IOMan::NeedInit)
     	, newIODir(this)
+    	, entryRemoved(this)
 {
     rootdir = rd && *rd ? rd : GetDataDir();
     if ( !File_isDirectory(rootdir) )
@@ -670,121 +671,7 @@ bool IOMan::permRemove( const MultiID& ky )
     if ( !dirPtr() || !dirPtr()->permRemove(ky) )
 	return false;
 
-    removeAux( ky );
+    CBCapsule<MultiID> caps( ky, this );
+    entryRemoved.trigger( &caps );
     return true;
-}
-
-
-IOParList* IOMan::getParList( const char* typ ) const
-{
-    return new IOParList( typ );
-}
-
-
-bool IOMan::getAuxfname( const MultiID& ky, FileNameString& fn ) const
-{
-    bool local = true;
-    IOObj* ioobj = (IOObj*)(*dirptr)[ky];
-    if ( !ioobj ) { local = false; ioobj = IODir::getObj( ky ); }
-    if ( !ioobj ) return false;
-    fn = FilePath( ioobj->dirName() ).add( ".aux" ).fullPath();
-    if ( !local ) delete ioobj;
-    return true;
-}
-
-
-bool IOMan::hasAux( const MultiID& ky ) const
-{
-    IOParList* iopl = getAuxList( ky );
-    bool rv = iopl && find( *iopl, (const char*)ky );
-    delete iopl;
-    return rv;
-}
-
-
-IOParList* IOMan::getAuxList( const MultiID& ky ) const
-{
-    FileNameString fn;
-    if ( !getAuxfname(ky,fn) ) return 0;
-
-    StreamData sd = StreamProvider( fn ).makeIStream();
-    if ( !sd.usable() ) return 0;
-
-    IOParList* iopl = new IOParList( *sd.istrm );
-    iopl->setFileName( fn );
-
-    sd.close();
-    return iopl;
-}
-
-
-bool IOMan::putAuxList( const MultiID& ky, const IOParList* iopl ) const
-{
-    if ( !iopl ) return true;
-    FileNameString fn;
-    if ( !getAuxfname(ky,fn) ) return false;
-
-    StreamData sd = StreamProvider( fn ).makeOStream();
-
-    if( !sd.usable() ) { sd.close(); return false; }
-
-    bool ret = iopl->write( *sd.ostrm );
-
-    sd.close();
-    return ret;
-}
-
-
-IOPar* IOMan::getAux( const MultiID& ky ) const
-{
-    IOParList* iopl = getAuxList( ky );
-    if ( !iopl ) return new IOPar( ky );
-    IOPar* iopar = find( *iopl, (const char*)ky );
-    if ( iopar ) *iopl -= iopar;
-    else	 iopar = new IOPar( ky );
-
-    delete iopl;
-    return iopar;
-}
-
-
-bool IOMan::putAux( const MultiID& ky, const IOPar* iopar ) const
-{
-    if ( !iopar ) return true;
-    IOParList* iopl = getAuxList( ky );
-    if ( !iopl ) return false;
-
-    IOPar* listiopar = find( *iopl, iopar->name().buf() );
-    if ( listiopar ) *listiopar = *iopar;
-    else	     *iopl += new IOPar( *iopar );
-
-    int rv = putAuxList( ky, iopl );
-    delete iopl;
-    return rv;
-}
-
-
-bool IOMan::removeAux( const MultiID& ky ) const
-{
-    IOParList* iopl = getAuxList( ky );
-    if ( !iopl ) return true;
-    IOPar* iopar = find( *iopl, (const char*)ky );
-    if ( !iopar ) { delete iopl; return true; }
-    *iopl -= iopar;
-
-    int rv;
-    FileNameString fn;
-    getAuxfname( ky, fn );
-    if ( iopl->size() == 0 )
-	rv = File_remove( fn, NO );
-    else
-    {
-	StreamData sd = StreamProvider( fn ).makeOStream();
-	rv = iopl->write( *sd.ostrm );
-	sd.close();
-    }
-
-    delete iopar;
-    delete iopl;
-    return rv;
 }

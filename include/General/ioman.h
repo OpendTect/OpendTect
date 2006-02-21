@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		3-8-1995
- RCS:		$Id: ioman.h,v 1.24 2005-10-20 09:42:51 cvsarend Exp $
+ RCS:		$Id: ioman.h,v 1.25 2006-02-21 15:23:10 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,6 +24,7 @@ class IOObjContext;
 class Translator;
 class IODir;
 class IOObj;
+class IOMan;
 
 
 /*!\brief manages the Meta-data store for the IOObj's. This info
@@ -40,12 +41,11 @@ through getParList().
 
 */
 
+inline IOMan& IOM();
+
+
 class IOMan : public UserIDObject
 {
-    friend class	IOObj;
-    friend class	IODir;
-    friend IOMan&	IOM();
-
 public:
 
     bool		bad() const		{ return state_ != Good; }
@@ -78,17 +78,8 @@ public:
 			//!< will create a new entry if necessary
     bool		haveEntries(const MultiID& dirid,const char* trgrpnm=0,
 				     const char* trnm=0) const;
-    IOParList*		getParList(const char* typ=0) const;
-			//!< Reads the file on the root of the survey
     bool		commitChanges(const IOObj&);
     bool		permRemove(const MultiID&);
-
-    IOPar*		getAux(const MultiID&) const;
-    bool		putAux(const MultiID&,const IOPar*) const;
-    IOParList*		getAuxList(const MultiID&) const;
-    bool		putAuxList(const MultiID&,const IOParList*) const;
-    bool		hasAux(const MultiID&) const;
-    bool		removeAux(const MultiID&) const;
 
     const char*		surveyName() const;
     static bool		newSurvey();
@@ -106,6 +97,7 @@ public:
     MultiID		newKey() const;
 
     Notifier<IOMan>	newIODir;
+    Notifier<IOMan>	entryRemoved; // CallBacker will be CBCapsule<MultiID>
 
 private:
 
@@ -123,7 +115,10 @@ private:
     static void		stop();
 
     bool		setDir(const char*);
-    bool		getAuxfname(const MultiID&,FileNameString&) const;
+
+    friend class	IOObj;
+    friend class	IODir;
+    friend IOMan&	IOM();
 
 };
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		27-1-98
- RCS:		$Id: seiswrite.h,v 1.19 2005-12-12 18:11:13 cvsbert Exp $
+ RCS:		$Id: seiswrite.h,v 1.20 2006-02-21 15:23:10 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,7 +24,6 @@ is done.
 
 #include "seisstor.h"
 #include "linekey.h"
-class BinIDRange;
 class SeisPSWriter;
 class Seis2DLinePutter;
 
@@ -45,25 +44,24 @@ public:
 
     bool		prepareWork(const SeisTrc&);
     virtual bool	put(const SeisTrc&);
+    int			nrWritten() const		{ return nrwritten; }
 
-    void		fillAuxPar(IOPar&) const;
     bool		isMultiComp() const;
     bool		isMultiConn() const;
 
     			// 2D
-    const LineKeyProvider* lineKeyProvider() const { return lkp; }
+    const LineKeyProvider* lineKeyProvider() const	{ return lkp; }
     void		setLineKeyProvider( const LineKeyProvider* l )
-							 { lkp = l; }
+							{ lkp = l; }
 				//!< If no lineKeyProvider set,
 				//!< seldata's linekey will be used
-    void		setAttrib( const char* a )	 { attrib = a; }
+    void		setAttrib( const char* a )	{ attrib = a; }
 				//!< if set, overrules attrib in linekey
     IOPar&		lineAuxPars()			{ return lineauxiopar; }
 
 protected:
 
     bool		prepared;
-    BinIDRange&		binids;
     int			nrtrcs;
     int			nrwritten;
 

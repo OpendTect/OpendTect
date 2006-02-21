@@ -4,7 +4,7 @@
  * DATE     : Oct 2001
 -*/
 
-static const char* rcsID = "$Id: seissingtrcproc.cc,v 1.32 2005-12-12 18:11:13 cvsbert Exp $";
+static const char* rcsID = "$Id: seissingtrcproc.cc,v 1.33 2006-02-21 15:23:10 cvsbert Exp $";
 
 #include "seissingtrcproc.h"
 #include "seisread.h"
@@ -364,14 +364,5 @@ int SeisSingleTraceProc::nextStep()
 
 void SeisSingleTraceProc::wrapUp()
 {
-    if ( !wrr_ ) return;
-
-    IOPar* iopar = IOM().getAux( wrrkey_ );
-    if ( iopar )
-    {
-	wrr_->fillAuxPar( *iopar );
-	IOM().putAux( wrrkey_, iopar );
-	delete iopar;
-    }
-    wrr_->close();
+    if ( wrr_ ) wrr_->close();
 }
