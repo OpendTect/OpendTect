@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Jan 2005
- RCS:           $Id: uivisemobj.cc,v 1.39 2006-01-30 15:39:16 cvskris Exp $
+ RCS:           $Id: uivisemobj.cc,v 1.40 2006-02-21 13:12:04 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -322,20 +322,25 @@ void uiVisEMObject::createMenuCB( CallBacker* cb )
 	          emod->getOnlyAtSectionsDisplay() );
     mAddMenuItem( menu, &changesectionnamemnuitem, 
 	          emobj->canSetSectionName() && sid!=-1, false );
-    mAddMenuItem( menu, &shiftmnuitem,
-	    !strcmp(getObjectType(displayid),EM::Horizon::typeStr()), false );
-    mAddMenuItem( menu, &fillholesitem,
-	    !strcmp(getObjectType(displayid),EM::Horizon::typeStr()), false );
+    bool dispmenu = !strcmp(getObjectType(displayid),EM::Horizon::typeStr()) &&
+		     !visserv->isLocked(displayid);
+    mAddMenuItem( menu, &shiftmnuitem, dispmenu, false );
+    mAddMenuItem( menu, &fillholesitem, dispmenu, false );
 
-    mAddMenuItem(&trackmenuitem,&editmnuitem,true,emod->isEditingEnabled());
-    mAddMenuItem(&trackmenuitem,&wireframemnuitem,true, emod->usesWireframe());
-   
-    const TypeSet<EM::PosID>* seeds =
-			emobj->getPosAttribList(EM::EMObject::sSeedNode);
-    mAddMenuItem(&trackmenuitem,&showseedsmnuitem,
+    if ( dispmenu )
+    {
+	mAddMenuItem(&trackmenuitem,&editmnuitem,true,emod->isEditingEnabled());
+	mAddMenuItem(&trackmenuitem,&wireframemnuitem,true,
+		     emod->usesWireframe());
+       
+	const TypeSet<EM::PosID>* seeds =
+			    emobj->getPosAttribList(EM::EMObject::sSeedNode);
+	mAddMenuItem(&trackmenuitem,&showseedsmnuitem,
 	    	 seeds && seeds->size(),
 		 emod->showsPosAttrib(EM::EMObject::sSeedNode));
-
+    }
+    else
+	trackmenuitem.removeItems();
     mAddMenuItem(menu,&trackmenuitem,trackmenuitem.nrItems(),false);
 
     mAddMenuItem( menu, &removesectionmnuitem, false, false );
