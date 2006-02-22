@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: dipfilterattrib.cc,v 1.11 2005-12-23 16:09:46 cvsnanne Exp $";
+static const char* rcsID = "$Id: dipfilterattrib.cc,v 1.12 2006-02-22 12:30:04 cvshelene Exp $";
 
 
 #include "dipfilterattrib.h"
@@ -23,22 +23,14 @@ static const char* rcsID = "$Id: dipfilterattrib.cc,v 1.11 2005-12-23 16:09:46 c
 namespace Attrib
 {
 
-DefineEnumNames(DipFilter,KernelSize,0,"KernelSize")
-{	   "3",  "5",  "7",  "9",
-    "11", "13", "15", "17", "19",
-    "21", "23", "25", "27", "29",
-    "31", "33", "35", "37", "39",
-    "41", "43", "45", "47", "49", 0};
-
-
 void DipFilter::initClass()
 {
     Desc* desc = new Desc( attribName(), updateDesc );
     desc->ref();
 
-    EnumParam* size = new EnumParam( sizeStr() );
-    size->addEnums( DipFilter::KernelSizeNames );
-    size->setDefaultValue( s7 );
+    IntParam* size = new IntParam( sizeStr() );
+    size->setLimits( Interval<int>(3,49) );
+    size->setDefaultValue( 3 );
     desc->addParam( size );
 
     EnumParam* type = new EnumParam( typeStr() );
@@ -147,7 +139,7 @@ DipFilter::DipFilter( Desc& ds )
 
     inputdata.allowNull(true);
     
-    mGetEnum( size, sizeStr() );
+    mGetInt( size, sizeStr() );
     mGetEnum( type, typeStr() );
 
     if ( type == mFilterTypeLowPass || type == mFilterTypeBandPass )
@@ -175,10 +167,9 @@ DipFilter::DipFilter( Desc& ds )
     mGetFloat( taperlen, taperlenStr() );
     taperlen = taperlen/100;
 
-    kernel.setSize( size*2+3, size*2+3, size*2+3 );
+    kernel.setSize( size, size, size );
     valrange = Interval<float>(minvel,maxvel);
-    stepout = BinID( size+1, size+1 );
-    size = size*2+3;
+    stepout = BinID( size/2, size/2 );
     initKernel();
 }
 

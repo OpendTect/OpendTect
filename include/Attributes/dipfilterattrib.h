@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: dipfilterattrib.h,v 1.6 2006-01-12 13:15:30 cvshelene Exp $
+ RCS:           $Id: dipfilterattrib.h,v 1.7 2006-02-22 12:30:13 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -90,12 +90,6 @@ public:
     static const char*  taperlenStr()   { return "taperlen"; }
     static const char*	filterTypeNamesStr(int);
 
-    enum KernelSize             {       s3,  s5,  s7,  s9,
-				  s11, s13, s15, s17, s19,
-				  s21, s23, s25, s27, s29,
-				  s31, s33, s35, s37, s39,
-			    	  s41, s43, s45, s47, s49 };
-			    	DeclareEnumUtils(KernelSize);
 protected:
     static Provider*	createInstance(Desc&);
     static void		updateDesc(Desc&);
