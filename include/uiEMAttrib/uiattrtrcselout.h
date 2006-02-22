@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          September 2005
- RCS:           $Id: uiattrtrcselout.h,v 1.4 2006-02-07 13:39:14 cvshelene Exp $
+ RCS:           $Id: uiattrtrcselout.h,v 1.5 2006-02-22 12:32:09 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,7 +50,6 @@ protected:
     bool		addNLA(Attrib::DescID&);
     void                objSel(CallBacker*);
     void                attrSel(CallBacker*);
-    void		extraZSel(CallBacker*);
     void		interpSel(CallBacker*);
     void		extraWidthSel(CallBacker*);
 
@@ -58,11 +57,18 @@ protected:
     void		createTwoHorUI();
     void		createAttrFld(uiGroup*);
     void		createZIntervalFld(uiGroup*);
+    void		createExtraZTopFld(uiGroup*);
+    void		createExtraZBotFld(uiGroup*);
     void		createSubSelFld(uiGroup*);
     void		createOutsideValFld(uiGroup*);
     void		createInterpFld(uiGroup*);
     void		createNrSampFld(uiGroup*);
+    void		createAddWidthFld(uiGroup*);
+    void		createWidthFld(uiGroup*);
+    void		createMainHorFld(uiGroup*);
     void		createOutputFld(uiGroup*);
+
+    BufferString	createAddWidthLabel();
 
     CtxtIOObj&		ctio;
     CtxtIOObj&		ctio2;
@@ -74,8 +80,9 @@ protected:
     uiAttrSel*		attrfld;
     uiIOObjSel*		objfld;
     uiIOObjSel*		obj2fld;
-    uiGenInput*		extrazfld;
     uiGenInput*		gatefld;
+    uiGenInput*         extraztopfld;
+    uiGenInput*         extrazbotfld;
     uiBinIDSubSel*	subselfld;
     uiGenInput*		outsidevalfld;
     uiGenInput*		interpfld;
