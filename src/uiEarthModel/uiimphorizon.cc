@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          May 2002
- RCS:           $Id: uiimphorizon.cc,v 1.57 2006-01-25 07:13:40 cvskris Exp $
+ RCS:           $Id: uiimphorizon.cc,v 1.58 2006-02-22 20:37:11 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -228,6 +228,34 @@ bool uiImportHorizon::doWork()
     }
 
     HorSampling hs; subselfld->getHorSampling( hs );
+    if ( hs.step.inl%filehs_.step.inl || hs.step.crl%filehs_.step.crl )
+    {
+	BufferString msg( "Inline/Crossline steps must be dividable by ");
+	msg += filehs_.step.inl; msg += "/"; msg += filehs_.step.crl;
+	msg += ".";
+	uiMSG().error( msg );
+	return false;
+    }
+
+    if ( !filehs_.includes(hs.start) )
+    {
+	BufferString msg( "Ranges are not compatible with the file.\n"
+			  "Snap to closest position (" );
+	const StepInterval<int> inlrg( filehs_.inlRange() );
+	const StepInterval<int> crlrg( filehs_.crlRange() );
+	BinID newstart = BinID(inlrg.atIndex(inlrg.nearestIndex(hs.start.inl)),
+			       crlrg.atIndex(crlrg.nearestIndex(hs.start.crl)));
+	newstart.inl = mMAX( inlrg.start, newstart.inl );
+	newstart.crl = mMAX( crlrg.start, newstart.crl );
+	msg += newstart.inl; msg += "/";
+	msg += newstart.crl; msg += ")?";
+	if ( !uiMSG().askGoOn( msg ) )
+	    return false;
+
+	hs.start = newstart;
+	subselfld->setInput(hs); //important since other may read it later
+    }
+
     ObjectSet<BinIDValueSet> sections;
     if ( !readFiles(sections,scanner.needZScaling(),&hs) ) return false;
     if ( !sections.size() )
@@ -314,7 +342,6 @@ bool uiImportHorizon::readFiles( ObjectSet<BinIDValueSet>& sections,
 void uiImportHorizon::scanFile( CallBacker* )
 {
     uiCursorChanger cursorlock( uiCursor::Wait );
-    HorSampling hs( false );
     BufferStringSet filenames;
     if ( !getFileNames(filenames) ) return;
 
@@ -323,8 +350,8 @@ void uiImportHorizon::scanFile( CallBacker* )
     scanner.launchBrowser();
 
     xyfld->setValue( scanner.posIsXY() );
-    hs.set( scanner.inlRg(), scanner.crlRg() );
-    subselfld->setInput( hs );
+    filehs_.set( scanner.inlRg(), scanner.crlRg() );
+    subselfld->setInput( filehs_ );
     interpolfld->setValue(scanner.gapsFound(true) || scanner.gapsFound(false));
     interpolSel(0);
     midgrp->setSensitive( true );
