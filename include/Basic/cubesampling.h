@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Feb 2002
- RCS:           $Id: cubesampling.h,v 1.23 2006-01-13 15:45:33 cvskris Exp $
+ RCS:           $Id: cubesampling.h,v 1.24 2006-02-22 14:59:31 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -80,6 +80,21 @@ struct HorSampling
     BinID		stop;
     BinID		step;
 };
+
+
+//\brief Iterates over all BinID positions
+class HorSamplingIterator
+{
+public:
+    			HorSamplingIterator(const HorSampling&);
+
+    bool		next(BinID&);
+
+protected:
+    HorSampling		hrg_;
+    bool		firstpos_;
+};
+
 
 
 /*\brief Hor+Vert sampling in 3D surveys

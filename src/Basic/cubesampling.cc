@@ -4,7 +4,7 @@
  * DATE     : somewhere around 1999
 -*/
  
-static const char* rcsID = "$Id: cubesampling.cc,v 1.19 2006-01-13 15:45:30 cvskris Exp $";
+static const char* rcsID = "$Id: cubesampling.cc,v 1.20 2006-02-22 14:59:26 cvsnanne Exp $";
 
 #include "cubesampling.h"
 #include "survinfo.h"
@@ -431,4 +431,32 @@ void CubeSampling::normalise()
 {
     hrg.normalise();
     normaliseZ( zrg );
+}
+
+
+
+HorSamplingIterator::HorSamplingIterator( const HorSampling& hrg )
+    : hrg_(hrg)
+    , firstpos_(true)
+{
+}
+
+
+bool HorSamplingIterator::next( BinID& bid )
+{
+    if ( firstpos_ )
+    {
+	bid = hrg_.start;
+	firstpos_ = false;
+	return true;
+    }
+
+    bid.crl += hrg_.step.crl;
+    if ( bid.crl > hrg_.stop.crl )
+    {
+	bid.inl += hrg_.step.inl;
+	bid.crl = hrg_.start.crl;
+    }
+
+    return bid.inl <= hrg_.stop.inl;
 }
