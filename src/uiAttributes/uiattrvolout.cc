@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:		$Id: uiattrvolout.cc,v 1.15 2006-02-09 07:48:06 cvshelene Exp $
+ RCS:		$Id: uiattrvolout.cc,v 1.16 2006-02-22 16:57:08 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -188,6 +188,8 @@ bool uiAttrVolOut::fillPar( IOPar& iop )
 
     IOPar attrpar( "Attribute Descriptions" );
     DescSet* clonedset = ads.optimizeClone( targetid );
+    if ( !clonedset )
+	return false; 
     clonedset->fillPar( attrpar );
 
     for ( int idx=0; idx<attrpar.size(); idx++ )

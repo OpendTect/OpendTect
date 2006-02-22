@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          March 2003
- RCS:           $Id: uievaluatedlg.cc,v 1.6 2006-02-08 11:02:57 cvsnanne Exp $
+ RCS:           $Id: uievaluatedlg.cc,v 1.7 2006-02-22 16:57:08 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -205,7 +205,8 @@ uiEvaluateDlg::uiEvaluateDlg( uiParent* p, uiAttrDescEd& ade, bool store )
     , haspars_(false)
 {
     srcid_ = ade.curDesc()->id();
-    attrset_ = ade.curDesc()->descSet()->optimizeClone( srcid_ );
+    DescSet* newattrset = ade.curDesc()->descSet()->optimizeClone( srcid_ );
+    if ( newattrset ) attrset_ = newattrset;
     attrset_->fillPar( initpar_ );
 
     TypeSet<EvalParam> params;

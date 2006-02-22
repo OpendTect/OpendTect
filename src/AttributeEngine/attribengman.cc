@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H.Payraudeau
  Date:          04/2005
- RCS:           $Id: attribengman.cc,v 1.49 2006-02-21 13:09:40 cvshelene Exp $
+ RCS:           $Id: attribengman.cc,v 1.50 2006-02-22 16:57:08 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -840,8 +840,6 @@ Processor* EngineMan::getProcessor( BufferString& errmsg )
     }
     else
     {
-// TODO: Is it necessary to fill model pars here?
-//	inpattrset->fillPar( const_cast<NLAModel*>(nlamodel)->pars() );
 	DescID nlaid( SelSpec::cNoAttrib() );
 	procattrset = createNLAADS( nlaid, errmsg );
 	if ( *(const char*)errmsg )
