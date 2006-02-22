@@ -7,12 +7,17 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/09/2000
- RCS:           $Id: uifiledlg.h,v 1.13 2005-05-26 15:42:45 cvsnanne Exp $
+ RCS:           $Id: uifiledlg.h,v 1.14 2006-02-22 14:39:37 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 #include "uiobj.h"
 #include "bufstringset.h"
+
+/*!\brief Dialog to get a file or directory name from user
+ 
+ 
+ */
 
 class uiFileDialog : public UserIDObject
 {
@@ -52,6 +57,8 @@ public:
     void		setOkText( const char* txt )	{ oktxt_ = txt; }
     void		setCancelText( const char* txt ){ cnclxt_ = txt; }
 
+    void		setAllowAllExts( bool yn=true )	{ addallexts_ = yn; }
+
     int                 go();
 
     static const char*	filesep;
@@ -73,6 +80,7 @@ protected:
     uiParent*		parnt_;
     BufferStringSet	filenames;
     BufferString	selectedfilter_;
+    bool		addallexts_;
 };
 
 #endif

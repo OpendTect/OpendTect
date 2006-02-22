@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/09/2000
- RCS:           $Id: uifiledlg.cc,v 1.24 2005-11-18 14:02:50 cvsarend Exp $
+ RCS:           $Id: uifiledlg.cc,v 1.25 2006-02-22 14:39:37 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -75,6 +75,7 @@ uiFileDialog::uiFileDialog( uiParent* parnt, bool forread,
 	, caption_( caption )
 	, oktxt_( "Select" )
 	, parnt_( parnt )
+    	, addallexts_( false )
 {
     if( !caption || !*caption )
 	caption_ = forread ? "Open" : "Save As";
@@ -90,6 +91,7 @@ uiFileDialog::uiFileDialog( uiParent* parnt, Mode mode,
 	, caption_( caption )
 	, oktxt_( "Select" )
 	, parnt_( parnt )
+    	, addallexts_( false )
 {}
 
 #ifdef USEQT4
@@ -117,7 +119,19 @@ int uiFileDialog::go()
     dgbQFileDialog* fd = new dgbQFileDialog( qp, name(), TRUE );
 
     fd->setMode( qmodeForUiMode(mode_) );
-    fd->mSetFilter( QString(filter_) );
+    if ( filter_.size() )
+    {
+	BufferString flt( filter_ );
+	if ( addallexts_ )
+	{
+	    flt += ";;All files (*";
+#ifdef __win__
+	    flt += ".*";
+#endif
+	    flt += ")";
+	}
+	fd->mSetFilter( QString(flt) );
+    }
     fd->setCaption( QString(caption_) );
     fd->setDir( QString(fname_) );
     if ( selectedfilter_.size() )
