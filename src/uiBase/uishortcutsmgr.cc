@@ -40,7 +40,7 @@ bool uiHandleShortcuts::handleEvent( QKeyEvent* event, SCLabels& sclabel )
 int uiHandleShortcuts::getShortcutIdx( QKeyEvent* event )
 {
     EventKeyAndState ev( event );
-    if ( ev.state() > (int)OD::Keypad )
+    if ( ev.state() >= (int)OD::Keypad )
 	ev.setState( ev.state() - (int)OD::Keypad );
     return indexOf( SCList().getList(), ev );
 }
@@ -66,6 +66,7 @@ ShortcutsList::ShortcutsList()
 
 void ShortcutsList::init()
 {
+    deepErase( list_ );
     bool isdefault = false;
     IOPar pars = readShorcutsFile(isdefault);
     int index = 0;

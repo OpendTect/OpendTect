@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Payraudeau
  Date:          December 2005
- RCS:           $Id: uishortcuts.cc,v 1.5 2006-02-20 18:49:49 cvsbert Exp $
+ RCS:           $Id: uishortcuts.cc,v 1.6 2006-02-22 12:31:35 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -132,6 +132,7 @@ void uiShortcutsDlg::shortcutsDlgClosed( CallBacker* )
 	return;
 
     fillPar();
+    SCList().init();
 }
 
 
