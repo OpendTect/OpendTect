@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H.Payraudeau
  Date:          04/2005
- RCS:           $Id: attribengman.cc,v 1.50 2006-02-22 16:57:08 cvsbert Exp $
+ RCS:           $Id: attribengman.cc,v 1.51 2006-02-23 14:20:10 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -352,9 +352,6 @@ void EngineMan::setCubeSampling( const CubeSampling& newcs )
 }
 
 
-#define mErrRet() \
-	delete &descset; desc->unRef(); return;
-
 DescSet* EngineMan::createNLAADS( DescID& nladescid, BufferString& errmsg,
        				  const DescSet* addtoset )
 {
@@ -378,6 +375,9 @@ DescSet* EngineMan::createNLAADS( DescID& nladescid, BufferString& errmsg,
     return descset;
 }
 
+
+#define mErrRet() \
+	desc->unRef(); return;
 
 void EngineMan::addNLADesc( const char* specstr, DescID& nladescid,
 			    DescSet& descset, int outputnr,
