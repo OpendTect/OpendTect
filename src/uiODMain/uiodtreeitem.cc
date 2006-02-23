@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.154 2006-02-21 13:11:33 cvshelene Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.155 2006-02-23 17:41:44 cvskris Exp $
 ___________________________________________________________________
 
 -*/
@@ -41,6 +41,7 @@ ___________________________________________________________________
 #include "uiwellattribpartserv.h"
 #include "uiattribpartserv.h"
 #include "uimpepartserv.h"
+#include "uiscenepropdlg.h"
 #include "uiseispartserv.h"
 #include "uislicesel.h"
 #include "uipickszdlg.h"
@@ -2405,37 +2406,17 @@ void uiODSceneTreeItem::updateColumnText( int col )
 }
 
 
-#define mAnnotText	0
-#define mAnnotScale	1
-#define mSurveyBox	2
-#define mBackgroundCol	3
-#define mDumpIV		4
-#define mSubMnuSnapshot	5
+#define mProperties	0
+#define mDumpIV		1
+#define mSubMnuSnapshot	2
 
 
 bool uiODSceneTreeItem::showSubMenu()
 {
     uiPopupMenu mnu( getUiParent(), "Action" );
-    uiVisPartServer* visserv = applMgr()->visServer();
-    mDynamicCastGet(visSurvey::Scene*,scene,visserv->getObject(displayid_))
 
-    const bool showcube = scene->isAnnotShown();
-    uiMenuItem* anntxt = new uiMenuItem("Annotation text");
-    mnu.insertItem( anntxt, mAnnotText );
-    anntxt->setChecked( showcube && scene->isAnnotTextShown() );
-    anntxt->setEnabled( showcube );
-
-    uiMenuItem* annscale = new uiMenuItem("Annotation scale");
-    mnu.insertItem( annscale, mAnnotScale );
-    annscale->setChecked( showcube && scene->isAnnotScaleShown() );
-    annscale->setEnabled( showcube );
-
-    uiMenuItem* annsurv = new uiMenuItem("Survey box");
-    mnu.insertItem( annsurv, mSurveyBox );
-    annsurv->setChecked( showcube );
-
-    mnu.insertItem( new uiMenuItem("Background color ..."), mBackgroundCol );
-
+    uiMenuItem* anntxt = new uiMenuItem("Properties ...");
+    mnu.insertItem( anntxt, mProperties );
 
     bool yn = false;
     Settings::common().getYN( IOPar::compKey("dTect","Dump OI Menu"), yn );
@@ -2447,18 +2428,20 @@ bool uiODSceneTreeItem::showSubMenu()
     if ( yn )
 	mnu.insertItem( new uiMenuItem("Make snapshot..."), mSubMnuSnapshot );
 
+    uiVisPartServer* visserv = applMgr()->visServer();
+
     const int mnuid=mnu.exec();
-    if ( mnuid==mAnnotText )
-	scene->showAnnotText( !scene->isAnnotTextShown() );
-    else if ( mnuid==mAnnotScale )
-	scene->showAnnotScale( !scene->isAnnotScaleShown() );
-    else if ( mnuid==mSurveyBox )
-	scene->showAnnot( !scene->isAnnotShown() );
-    else if ( mnuid==mBackgroundCol )
+    if ( mnuid==mProperties )
     {
-	Color col = viewer()->getBackgroundColor();
-	if ( selectColor(col,getUiParent(),"Color selection",false) )
-	    viewer()->setBackgroundColor( col );
+	ObjectSet<uiSoViewer> viewers;
+	ODMainWin()->sceneMgr().getSoViewers( viewers );
+
+	mDynamicCastGet( visSurvey::Scene*, templscene,
+			 visserv->getObject(displayid_) );
+
+	uiScenePropertyDlg dlg( getUiParent(), templscene,
+				viewer(), viewers, visserv );
+	dlg.go();
     }
     else if ( mnuid==mDumpIV )
 	visserv->dumpOI( displayid_ );
