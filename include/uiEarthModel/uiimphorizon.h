@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          May 2002
- RCS:           $Id: uiimphorizon.h,v 1.13 2005-09-06 09:35:19 cvsnanne Exp $
+ RCS:           $Id: uiimphorizon.h,v 1.14 2006-02-23 17:36:37 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,11 +15,11 @@ ________________________________________________________________________
 #include "uidialog.h"
 #include "multiid.h"
 #include "emposid.h"
+#include "cubesampling.h"
 
 class BinIDValueSet;
 class BufferStringSet;
 class CtxtIOObj;
-class HorSampling;
 class uiBinIDSubSel;
 class uiCheckBox;
 class uiColorInput;
@@ -74,6 +74,7 @@ protected:
     EM::ObjectID	emobjid_;
     BufferStringSet&	attribnames_;
     BoolTypeSet		attribsel_;
+    HorSampling		filehs_;
 };
 
 
