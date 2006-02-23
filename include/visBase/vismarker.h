@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		July 2002
- RCS:		$Id: vismarker.h,v 1.17 2004-11-16 09:29:17 kristofer Exp $
+ RCS:		$Id: vismarker.h,v 1.18 2006-02-23 14:46:34 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -63,6 +63,7 @@ public:
 			    try to have the same size (in pixels) on the screen
 			    at all times. */
     float		getScreenSize() const;
+    static float	cDefaultScreenSize() { return 5; }
 
     void		doFaceCamera(bool yn);
     			/*!<If true, the maker will always be rotated so the

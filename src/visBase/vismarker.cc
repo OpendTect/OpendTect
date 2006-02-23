@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          July 2002
- RCS:           $Id: vismarker.cc,v 1.20 2005-02-07 12:45:40 nanne Exp $
+ RCS:           $Id: vismarker.cc,v 1.21 2006-02-23 14:46:34 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,6 +49,7 @@ Marker::Marker()
 
     markerscale->restoreProportions = true;
     markerscale->dorotate = true;
+    setScreenSize( cDefaultScreenSize() );
 }
 
 
