@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.102 2006-02-16 12:35:38 cvsbert Exp $
+ RCS:           $Id: uimainwin.cc,v 1.103 2006-02-23 22:59:38 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -996,8 +996,10 @@ void uiDialogBody::layoutChildren( uiObject* lowestobj )
     {
 	mCommonLayout(saveBut_cb);
 	saveBut_cb->attach( extrabut ? leftOf : rightOf, exitbut );
-	if ( centerbut != exitbut )
+	if ( centerbut && centerbut != exitbut )
 	    centerbut->attach( ensureRightOf, saveBut_cb );
+	if ( rightbut && rightbut != exitbut )
+	    rightbut->attach( ensureRightOf, saveBut_cb );
     }
 
     if ( extrabut )
