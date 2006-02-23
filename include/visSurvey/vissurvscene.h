@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvscene.h,v 1.36 2006-02-01 19:16:09 cvskris Exp $
+ RCS:		$Id: vissurvscene.h,v 1.37 2006-02-23 17:34:48 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -19,6 +19,7 @@ ________________________________________________________________________
 class HorSampling;
 class CubeSampling;
 class ZAxisTransform;
+class Color;
 
 namespace visBase
 {
@@ -106,6 +107,10 @@ public:
     ZAxisTransform*		getDataTransform();
 
     void			setMarkerPos( const Coord3& );
+    void			setMarkerSize( float );
+    float			getMarkerSize() const;
+    const Color&		getMarkerColor() const;
+    void			setMarkerColor( const Color& );
 
     virtual void		fillPar(IOPar&,TypeSet<int>&) const;
     virtual int			usePar(const IOPar&);

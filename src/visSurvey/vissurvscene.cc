@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: vissurvscene.cc,v 1.78 2006-02-06 20:24:08 cvskris Exp $
+ RCS:           $Id: vissurvscene.cc,v 1.79 2006-02-23 17:34:48 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "visdataman.h"
 #include "visevent.h"
 #include "vismarker.h"
+#include "vismaterial.h"
 #include "vistransform.h"
 #include "vistransmgr.h"
 #include "vissurvobj.h"
@@ -371,6 +372,53 @@ void Scene::setMarkerPos( const Coord3& coord )
 
     marker_->turnOn( true );
     marker_->setCenterPos( displaypos );
+}
+
+
+void Scene::setMarkerSize( float nv )
+{
+    if ( !marker_ )
+    {
+	marker_ = visBase::Marker::create();
+	addUTMObject( marker_ );
+	marker_->turnOn( false );
+    }
+
+    marker_->setScreenSize( nv );
+}
+
+
+float Scene::getMarkerSize() const
+{
+    if ( !marker_ )
+	return visBase::Marker::cDefaultScreenSize();
+
+    return marker_->getScreenSize();
+}
+
+
+void Scene::setMarkerColor( const Color& nc )
+{
+    if ( !marker_ )
+    {
+	marker_ = visBase::Marker::create();
+	addUTMObject( marker_ );
+	marker_->turnOn( false );
+    }
+
+    marker_->getMaterial()->setColor( nc );
+}
+
+
+const Color& Scene::getMarkerColor() const
+{
+    if ( !marker_ )
+    {
+	static Color dummy(255,255,255);
+	return dummy;
+    }
+
+    return marker_->getMaterial()->getColor();
 }
 
 
