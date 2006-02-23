@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          February 2003
- RCS:           $Id: freqfilterattrib.cc,v 1.13 2005-12-22 15:53:15 cvshelene Exp $
+ RCS:           $Id: freqfilterattrib.cc,v 1.14 2006-02-23 13:20:58 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -417,7 +417,7 @@ void FreqFilter::fftFilter( const DataHolder& output,
     if ( nrsamples == 1 )
     {
 	nrsamp = mMINNRSAMPLES;
-	z0safe = z0 - mNINT(refstep*nrsamp/2);
+	z0safe = z0 - nrsamp/2;
     }
     
     if ( !fft.isinit() || !fftinv.isinit() )
