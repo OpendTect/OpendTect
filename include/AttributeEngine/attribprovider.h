@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribprovider.h,v 1.35 2006-02-21 13:09:54 cvshelene Exp $
+ RCS:           $Id: attribprovider.h,v 1.36 2006-02-24 11:09:53 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -109,7 +109,11 @@ public:
     void			setOutputInterestSize();
     
     BinID			getTrcInfoBid() const	{ return trcinfobid; }
-    
+
+    static const char*		prepare(Desc&);
+    				//!< Must be called before getting
+    				//!< inputs/outputs etc. from a Desc
+
 protected:
 
 				Provider(Desc&);

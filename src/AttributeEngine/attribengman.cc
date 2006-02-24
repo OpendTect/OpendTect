@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H.Payraudeau
  Date:          04/2005
- RCS:           $Id: attribengman.cc,v 1.51 2006-02-23 14:20:10 cvshelene Exp $
+ RCS:           $Id: attribengman.cc,v 1.52 2006-02-24 11:09:53 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -376,23 +376,26 @@ DescSet* EngineMan::createNLAADS( DescID& nladescid, BufferString& errmsg,
 }
 
 
-#define mErrRet() \
-	desc->unRef(); return;
-
 void EngineMan::addNLADesc( const char* specstr, DescID& nladescid,
 			    DescSet& descset, int outputnr,
 			    const NLAModel* nlamdl, BufferString& errmsg )
 {
-    Desc* desc = PF().createDescCopy( "NN" );
+    RefMan<Desc> desc = PF().createDescCopy( "NN" );
     desc->setDescSet( &descset );
 
     if ( !desc->parseDefStr(specstr) )
     { 
-	errmsg = "cannot parse definition string"; errmsg += specstr;
-	mErrRet(); 
+	errmsg = "Invalid definition string for NLA model:\n";
+	errmsg += specstr;
+	return;
     }
-
     desc->setHidden( true );
+
+    // Need to make a Provider because the inputs and outputs may
+    // not be known otherwise
+    const char* emsg = Provider::prepare( *desc );
+    if ( emsg )
+	{ errmsg = emsg; return; }
 
     const int nrinputs = desc->nrInputs();
     for ( int idx=0; idx<nrinputs; idx++ )
@@ -421,7 +424,7 @@ void EngineMan::addNLADesc( const char* specstr, DescID& nladescid,
 			errmsg = "NLA input '";
 			errmsg += inpname;
 			errmsg += "' cannot be found in the provided set.";
-			mErrRet();
+			return;
 		    }
 		}
 	    }
@@ -434,7 +437,7 @@ void EngineMan::addNLADesc( const char* specstr, DescID& nladescid,
     {
 	errmsg = "Output "; errmsg += outputnr; 
 	errmsg += " not present.";
-	mErrRet();
+	return;
     }
     
     const NLADesign& nlades = nlamdl->design();
@@ -443,10 +446,7 @@ void EngineMan::addNLADesc( const char* specstr, DescID& nladescid,
 
     nladescid = descset.addDesc( desc );
     if ( nladescid == DescID::undef() )
-    {
 	errmsg = descset.errMsg();
-	mErrRet();
-    }
 }
 
 

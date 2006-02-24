@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribdesc.cc,v 1.40 2005-11-14 20:52:51 cvskris Exp $";
+static const char* rcsID = "$Id: attribdesc.cc,v 1.41 2006-02-24 11:09:53 cvsbert Exp $";
 
 #include "attribdesc.h"
 
@@ -54,6 +54,7 @@ Desc::Desc( const char* attribname_, DescStatusUpdater updater, DescChecker dc )
     , hidden_(false)
     , is2d(false)
     , is2dset(false)
+    , needprovinit_(false)
 {
     mRefCountConstructor;
     inputs.allowNull(true);
@@ -69,6 +70,7 @@ Desc::Desc( const Desc& a )
     , issteering( a.issteering )
     , seloutput( a.seloutput )
     , userref( a.userref )
+    , needprovinit_( a.needprovinit_ )
     , is2d(false)
     , is2dset(false)
 {

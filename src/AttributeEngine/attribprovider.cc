@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribprovider.cc,v 1.55 2006-02-21 13:09:40 cvshelene Exp $";
+static const char* rcsID = "$Id: attribprovider.cc,v 1.56 2006-02-24 11:09:53 cvsbert Exp $";
 
 #include "attribprovider.h"
 #include "attribstorprovider.h"
@@ -917,7 +917,31 @@ SeisRequester* Provider::getSeisRequester() const
 
 bool Provider::init()
 {
-    return true;
+    return isOK();
+}
+
+
+const char* Provider::prepare( Desc& desc )
+{
+    if ( !desc.needProvInit() )
+	return 0;
+
+    desc.setNeedProvInit( false );
+
+    static BufferString errmsg;
+    RefMan<Provider> prov = PF().create( desc );
+    if ( prov && prov->isOK() )
+	return 0;
+
+    errmsg = "";
+    if ( prov )
+	errmsg = prov->errMsg();
+    if ( errmsg == "" )
+    {
+	errmsg = "Cannot initialise '"; errmsg += desc.attribName();
+	errmsg += "' Attribute properly";
+    }
+    return errmsg.buf();
 }
 
 

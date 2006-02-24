@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribdesc.h,v 1.25 2005-11-14 16:10:23 cvskris Exp $
+ RCS:           $Id: attribdesc.h,v 1.26 2006-02-24 11:09:53 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -88,6 +88,8 @@ public:
     bool		isHidden() const		{ return hidden_; }
     bool		isStored() const;
     bool		getMultiID(MultiID&) const;
+    void		setNeedProvInit( bool yn=true )	{ needprovinit_ = yn; }
+    bool		needProvInit() const		{ return needprovinit_;}
 
     int			nrInputs() const;
     int                 nrSpecs() const         { return inputspecs.size(); }
@@ -143,6 +145,7 @@ protected:
     TypeSet<int>		outputtypelinks;
     bool			issteering;
     bool			hidden_;
+    bool			needprovinit_;
     bool 			is2d;
     bool 			is2dset;
 
