@@ -7,7 +7,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		Aug 2003
  Contents:	Plugins
- RCS:		$Id: plugins.h,v 1.14 2006-02-13 15:34:24 cvsbert Exp $
+ RCS:		$Id: plugins.h,v 1.15 2006-02-24 15:59:03 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,6 +40,12 @@ typedef struct {
 void LoadAutoPlugins(int argc,char** argv,int inittype);
 /*! To be called from program if needed */
 int LoadPlugin(const char* libnm);
+
+#ifdef __win__
+  typedef HMODULE Handletype;
+#else
+    typedef void* Handletype;
+#endif
 
 
 #ifdef __cpp__
@@ -90,8 +96,8 @@ int LoadPlugin(const char* libnm);
  points to an existing object (static or made with new/malloc);
 
 3) The user of PIM() can decide not to load all of the .alo load libs. After
-   setArgs, the getData() list is filled. You can remove entries from this list
-   before calling loadAuto().
+   setArgs() (which is absolutely mandatory), the getData() list is filled.
+   You can change the source_ to None before calling loadAuto().
 
  */
 
@@ -100,8 +106,11 @@ class PluginManager
 public:
 
     void			setArgs(int argc,char** argv);
-    void			loadAuto(bool late=true);
+    					//!< Mandatory
+    void			loadAuto(bool late);
+    					//!< see class comments
     bool			load(const char* libnm);
+    					//!< Explicit load of a plugin
 
     struct Data
     {
@@ -112,11 +121,15 @@ public:
 				Data( const char* nm )
 				    : name_(nm)
 				    , info_(0)
-				    , autosource_(None)		{}
-
+				    , autosource_(None)
+				    , autotype_(PI_AUTO_INIT_NONE)
+				    , handle_(0)	{}
 	BufferString		name_;
-	PluginInfo*		info_;
+	const PluginInfo*	info_;
 	AutoSource		autosource_;
+	int			autotype_;
+	Handletype		handle_;
+
     };
 
     ObjectSet<Data>&		getData()		{ return data_; }
@@ -126,7 +139,6 @@ public:
     				{ return fndData( nm ); }
     const Data*			findDataWithDispName(const char*) const;
 
-    bool			isLoaded(const char*) const;
     bool			isPresent(const char*) const;
     const char*			userName(const char*) const;
     				//!< returns without path, 'lib' and extension
@@ -150,12 +162,11 @@ private:
     BufferString		userlibdir_;
     BufferString		applibdir_;
 
-    bool			isPresent(const char*);
     Data*			fndData(const char*) const;
     void			getDefDirs();
     void			getALOEntries(const char*,bool);
+    void			openALOEntries();
     void			mkALOList();
-    bool			loadAutoLib(Data&,bool,bool);
 
 };
 

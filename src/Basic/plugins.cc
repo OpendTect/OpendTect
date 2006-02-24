@@ -16,7 +16,8 @@
 #include "debugmasks.h"
 
 PluginManager* PluginManager::theinst_ = 0;
-static const char* plugindir = "plugins";
+static const char* sPluginDir = "plugins";
+static const char* sKeyNoDispName = "??";
 
 extern "C" {
 
@@ -102,7 +103,7 @@ void PluginManager::getDefDirs()
 
     FilePath fp( dnm );
     if ( !fromenv )
-	fp.add( plugindir );
+	fp.add( sPluginDir );
     appdir_ = fp.fullPath();
     fp.add( GetPlfSubDir() );
     applibdir_ = fp.fullPath();
@@ -116,7 +117,7 @@ void PluginManager::getDefDirs()
 
     fp.set( dnm );
     if ( !fromenv )
-	fp.add( plugindir );
+	fp.add( sPluginDir );
     userdir_ = fp.fullPath();
     fp.add( GetPlfSubDir() );
     userlibdir_ = fp.fullPath();
@@ -147,10 +148,10 @@ const PluginManager::Data* PluginManager::findDataWithDispName(
     if ( !nm || !*nm ) return 0;
     for ( int idx=0; idx<data_.size(); idx++ )
     {
-	const Data& data = *data_[idx];
-	if ( data.info_ && data.info_->dispname
-		&& !strcmp(data.info_->dispname,nm) )
-	    return &data;
+	Data* data = data_[idx];
+	const PluginInfo* piinf = data->info_;
+	if ( piinf && piinf->dispname && !strcmp(piinf->dispname,nm) )
+	    return data;
     }
     return 0;
 }
@@ -185,13 +186,6 @@ PluginManager::Data* PluginManager::fndData( const char* nm ) const
 }
 
 
-bool PluginManager::isLoaded( const char* nm ) const
-{
-    const Data* data = findData( nm );
-    return data && data->info_;
-}
-
-
 bool PluginManager::isPresent( const char* nm ) const
 {
     return findData( nm );
@@ -200,8 +194,126 @@ bool PluginManager::isPresent( const char* nm ) const
 
 const char* PluginManager::userName( const char* nm ) const
 {
-    FilePath fp( nm );
-    return getFnName( fp.fileName(), "", "" );
+    const Data* data = findData( nm );
+    const PluginInfo* piinf = data ? data->info_ : 0;
+    if ( !piinf )
+    {
+	FilePath fp( nm );
+	return getFnName( fp.fileName(), "", "" );
+    }
+
+    return piinf->dispname;
+}
+
+
+static void* getLibHandle( const char* lnm )
+{
+    if ( !lnm || !*lnm  )
+	return 0;
+
+    void* ret = 0;
+
+#ifdef __win__
+
+    BufferString targetlibnm( lnm );
+    if ( File_isLink(lnm) )
+	targetlibnm = File_linkTarget(lnm);
+
+    if ( File_exists(targetlibnm) )
+    {
+	ret = LoadLibrary( targetlibnm );
+
+#else
+
+    if ( File_exists(lnm) )
+    {
+	ret = dlopen( lnm, RTLD_GLOBAL | RTLD_NOW );
+
+#endif
+	if ( !ret )
+	    std::cerr << dlerror() << std::endl;
+    }
+
+
+    if( DBG::isOn(DBG_SETTINGS) )
+    {
+	BufferString msg( "Attempt to get handle for plugin " );
+	msg += lnm; msg += ret ? " succeeded" : " failed";
+	DBG::message( msg );
+    }
+
+    return ret;
+}
+
+
+static void closeLibHandle( void*& handle )
+{
+    if ( !handle ) return;
+#ifdef __win__
+    FreeLibrary( handle );
+#else
+    dlclose( handle );
+#endif
+    handle = 0;
+}
+
+
+static PluginInfo* mkEmptyInfo()
+{
+    PluginInfo* piinf = new PluginInfo;
+    piinf = new PluginInfo;
+    piinf->dispname = sKeyNoDispName;
+    piinf->creator = piinf->version = "";
+    piinf->text = "No info available";
+    return piinf;
+}
+
+#ifdef __win__
+# define mFnGettter GetProcAddress
+#else
+# define mFnGettter dlsym
+#endif
+
+#define mGetFn(typ,fn,handle,nm1,nm2,libnm) \
+	typ fn = (typ)mFnGettter( handle, getFnName(libnm,nm1,nm2) )
+
+
+static PluginInfo* getPluginInfo( Handletype handle, const char* libnm )
+{
+    mGetFn(PluginInfoRetFn,fn,handle,"Get","PluginInfo",libnm);
+    return fn ? (*fn)() : mkEmptyInfo();
+}
+
+
+static int getPluginType( Handletype handle, const char* libnm )
+{
+    mGetFn(VoidIntRetFn,fn,handle,"Get","PluginType",libnm);
+    return fn ? (*fn)() : PI_AUTO_INIT_LATE;
+}
+
+
+void PluginManager::openALOEntries()
+{
+    for ( int idx=0; idx<data_.size(); idx++ )
+    {
+	Data& data = *data_[idx];
+	if ( data.autosource_ == Data::None )
+	    continue;
+	data.handle_ = getLibHandle( getFileName(data) );
+	if ( !data.handle_ )
+	{
+	    if ( data.autosource_ != Data::Both )
+		continue;
+
+	    data.autosource_ = Data::AppDir;
+	    data.handle_ = getLibHandle( getFileName(data) );
+	    if ( !data.handle_ )
+		continue;
+	}
+
+	data.autotype_ = getPluginType( data.handle_, data.name_ );
+	data.info_ = getPluginInfo( data.handle_, data.name_ );
+    }
 }
 
 
@@ -256,120 +368,49 @@ void PluginManager::mkALOList()
 {
     getALOEntries( userlibdir_, true );
     getALOEntries( applibdir_, false );
+    openALOEntries();
 }
 
 
-#ifdef __win__
-# define mNotLoadedRet(act) \
-	{ if ( handle ) FreeLibrary(handle); return 0; }
-# define mFnGettter GetProcAddress
-#else
-# define mNotLoadedRet(act) \
-	{ act; if ( handle ) dlclose(handle); return 0; }
-# define mFnGettter dlsym
-#endif
-
-#define mGetFn(typ,fn,nm1,nm2) \
-	typ fn = (typ)mFnGettter( handle, getFnName(libnmonly,nm1,nm2) )
-
-
-static PluginInfo* loadPlugin( const char* lnm, int argc, char** argv,
-       				bool checkinittype=false, bool late=true )
+static bool loadPlugin( Handletype handle, int argc, char** argv,
+       			const char* libnm )
 {
-    if ( !lnm || !*lnm  )
-	return 0;
-
-    const BufferString libnm( lnm );
-    if( DBG::isOn(DBG_SETTINGS) )
+    mGetFn(ArgcArgvCCRetFn,fn,handle,"Init","Plugin",libnm);
+    if ( !fn )
     {
-	BufferString msg( "Attempting to load plugin " );
-	msg += libnm;
-	DBG::message( msg );
+	const BufferString libnmonly = FilePath(libnm).fileName();
+	std::cerr << "Cannot find "
+		  << getFnName(libnmonly,"Init","Plugin")
+		  << " function in " << libnm << std::endl;
+	return false;
     }
 
-#ifdef __win__
-
-    BufferString targetlibnm( libnm );
-    if ( File_isLink(libnm) )
-	targetlibnm = File_linkTarget(libnm);
-    if ( !File_exists(targetlibnm) )
-	return 0;
-    HMODULE handle = LoadLibrary( targetlibnm );
-
-#else
-
-    if ( !File_exists(libnm) )
-	return 0;
-    void* handle = dlopen( libnm, RTLD_GLOBAL | RTLD_NOW );
-
-#endif
-
-    if ( !handle )
-	mNotLoadedRet( std::cerr << dlerror() << std::endl )
-
-    const BufferString libnmonly = FilePath(libnm).fileName();
-    if ( checkinittype )
-    {
-	mGetFn(VoidIntRetFn,fn,"Get","PluginType");
-	if ( fn )
-	{
-	    int inittype = (*fn)();
-	    if ( (late  && inittype != PI_AUTO_INIT_LATE)
-	      || (!late && inittype != PI_AUTO_INIT_EARLY) )
-		mNotLoadedRet(;) // not an error: just not auto or not now
-	}
-    }
-
-    mGetFn(ArgcArgvCCRetFn,fn2,"Init","Plugin");
-    if ( !fn2 )
-	mNotLoadedRet( std::cerr << "Cannot find "
-			    << getFnName(libnmonly,"Init","Plugin")
-			    << " function in " << libnm << std::endl )
-
-    const char* ret = (*fn2)(argc,argv);
+    const char* ret = (*fn)( argc, argv );
     if ( ret )
-	mNotLoadedRet( std::cerr << libnm << ": " << ret << std::endl )
-
-    mGetFn(PluginInfoRetFn,fn3,"Get","PluginInfo");
-    PluginInfo* piinf = 0;
-    if ( fn3 )
-	piinf = (*fn3)();
-    if ( !piinf )
     {
-	piinf = new PluginInfo;
-	piinf->dispname = "??"; piinf->creator = piinf->version = "";
-	piinf->text = "No info available";
+	const BufferString libnmonly = FilePath(libnm).fileName();
+	std::cerr << "Error loading " << libnm << ":\n" << ret << std::endl;
+	return false;
     }
 
-    static bool shw_load = GetEnvVarYN( "OD_SHOW_PLUGIN_LOAD" );
-    if ( shw_load )
-	std::cerr << "Successfully loaded plugin " << libnm << std::endl;
-
-    return piinf;
+    return true;
 }
 
 
 bool PluginManager::load( const char* libnm )
 {
-    PluginInfo* piinf = loadPlugin( libnm, argc_, argv_ );
-    if ( !piinf ) return false;
-
     Data* data = new Data( libnm );
-    data->info_ = piinf;
+    data->handle_ = getLibHandle( libnm );
+    if ( !data->handle_ )
+	{ delete data; return false; }
+
+    FilePath fp( libnm );
+    const BufferString libnmonly( fp.fileName() );
+    if ( !loadPlugin(data->handle_,argc_,argv_,libnmonly) )
+	{ closeLibHandle(data->handle_); delete data; return false; }
+
+    data->info_ = getPluginInfo( data->handle_, libnmonly );
     data_ += data;
-    return true;
-}
-
-
-bool PluginManager::loadAutoLib( Data& data, bool usr, bool late )
-{
-    PluginInfo* piinf = loadPlugin( getFileName(data), argc_, argv_,
-	    			    true, late );
-    if ( !piinf )
-	return false;
-
-    data.autosource_ = usr ? Data::UserDir : Data::AppDir;
-    data.info_ = piinf;
     return true;
 }
 
@@ -379,16 +420,22 @@ void PluginManager::loadAuto( bool late )
     for ( int idx=0; idx<data_.size(); idx++ )
     {
 	Data& data = *data_[idx];
-	if ( data.autosource_ == Data::None )
+	if ( !data.handle_ )
 	    continue;
 
-	if ( data.autosource_ != Data::AppDir )
+	const int pitype = late ? PI_AUTO_INIT_LATE : PI_AUTO_INIT_EARLY;
+	if ( data.autotype_ != pitype )
+	    continue;
+
+	if ( !loadPlugin(data.handle_,argc_,argv_,data.name_) )
 	{
-	    if ( loadAutoLib(data,true,late) )
-		continue;
+	    data.info_ = 0;
+	    closeLibHandle(data.handle_);
 	}
 
-	if ( data.autosource_ != Data::UserDir )
-	    loadAutoLib( data, false, late );
+	static bool shw_load = GetEnvVarYN( "OD_SHOW_PLUGIN_LOAD" );
+	if ( shw_load )
+	    std::cerr << "Successfully loaded plugin '"
+		      << userName(data.name_) << "'" << std::endl;
     }
 }
