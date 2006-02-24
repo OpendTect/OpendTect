@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.155 2006-02-23 17:41:44 cvskris Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.156 2006-02-24 16:05:12 cvskris Exp $
 ___________________________________________________________________
 
 -*/
@@ -989,7 +989,7 @@ void uiODEarthModelSurfaceDataTreeItem::createMenuCB( CallBacker* cb )
 
 void uiODEarthModelSurfaceDataTreeItem::handleMenuCB( CallBacker* cb )
 {
-    uiODDataTreeItem::handleMenuCB(cb);
+    uiODAttribTreeItem::handleMenuCB(cb);
     mCBCapsuleUnpackWithCaller( int, mnuid, caller, cb );
     mDynamicCastGet(uiMenuHandler*,menu,caller);
     if ( mnuid==-1 || menu->isHandled() )
