@@ -28,7 +28,7 @@ extern "C" PluginInfo* GetCmdDriverPluginInfo()
 {
     static PluginInfo retpii = {
 	"OpendTect command driver",
-	"dGB - Bert Bril",
+	"dGB (Bert)"
 	"=od",
 	"Used for testing and general 'scripting'." };
     return &retpii;
