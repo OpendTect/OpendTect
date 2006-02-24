@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visplanedatadisplay.h,v 1.72 2006-02-14 21:20:26 cvskris Exp $
+ RCS:		$Id: visplanedatadisplay.h,v 1.73 2006-02-24 13:41:56 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -70,7 +70,8 @@ public:
     void			acceptManipulation();
     BufferString		getManipulationString() const;
     NotifierAccess*		getManipulationNotifier();
-    NotifierAccess*		getMovementNotification() {return &moving_;}
+    NotifierAccess*		getMovementNotification()
+    				{ return &movefinished_; }
 
     bool			allowMaterialEdit() const	{ return true; }
 
@@ -131,6 +132,7 @@ protected:
     void			updateRanges();
     void			manipChanged(CallBacker*);
     void			coltabChanged(CallBacker*);
+    void			draggerMotion(CallBacker*);
     void			draggerFinish(CallBacker*);
     void			draggerRightClick(CallBacker*);
     void			setDraggerPos(const CubeSampling&);
@@ -155,6 +157,7 @@ protected:
     ZAxisTransform*		datatransform_;
     int				datatransformvoihandle_;
     Notifier<PlaneDataDisplay>	moving_;
+    Notifier<PlaneDataDisplay>	movefinished_;
 
 
     static const char*		sKeyOrientation() { return "Orientation"; }

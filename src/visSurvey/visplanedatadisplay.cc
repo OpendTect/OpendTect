@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.113 2006-02-21 16:21:19 cvsnanne Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.114 2006-02-24 13:41:45 cvsnanne Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -53,14 +53,16 @@ PlaneDataDisplay::PlaneDataDisplay()
     , curzstep_(SI().zStep())
     , datatransform_( 0 )
     , datatransformvoihandle_( -1 )
-    , moving_( this )
+    , moving_(this)
+    , movefinished_(this)
 {
     cache_.allowNull( true );
     dragger_->ref();
     addChild( dragger_->getInventorNode() );
-    dragger_->finished.notify( mCB( this, PlaneDataDisplay, draggerFinish ) );
+    dragger_->motion.notify( mCB(this,PlaneDataDisplay,draggerMotion) );
+    dragger_->finished.notify( mCB(this,PlaneDataDisplay,draggerFinish) );
     dragger_->rightClicked()->notify(
-	    		mCB( this, PlaneDataDisplay, draggerRightClick ) );
+	    		mCB(this,PlaneDataDisplay,draggerRightClick) );
 
     rectanglepickstyle_->ref();
     addChild( rectanglepickstyle_->getInventorNode() );
@@ -96,9 +98,10 @@ PlaneDataDisplay::PlaneDataDisplay()
 
 PlaneDataDisplay::~PlaneDataDisplay()
 {
-    dragger_->finished.remove( mCB( this, PlaneDataDisplay, draggerFinish ) );
+    dragger_->motion.notify( mCB(this,PlaneDataDisplay,draggerMotion) );
+    dragger_->finished.remove( mCB(this,PlaneDataDisplay,draggerFinish) );
     dragger_->rightClicked()->remove(
-	    		mCB( this, PlaneDataDisplay, draggerRightClick ) );
+	    		mCB(this,PlaneDataDisplay,draggerRightClick) );
 
     deepErase( as_ );
     deepUnRef( cache_ );
@@ -245,7 +248,13 @@ void PlaneDataDisplay::dataTransformCB( CallBacker* )
 }
 
 
-void PlaneDataDisplay::draggerFinish( CallBacker* cb )
+void PlaneDataDisplay::draggerMotion( CallBacker* )
+{
+    moving_.trigger();
+}
+
+
+void PlaneDataDisplay::draggerFinish( CallBacker* )
 {
     const CubeSampling cs = getCubeSampling(true,true);
     const CubeSampling snappedcs = snapCubeSampling( cs );
@@ -274,7 +283,7 @@ void PlaneDataDisplay::setDraggerPos( const CubeSampling& cs )
 
     dragger_->setCenter( center );
     dragger_->setSize( width );
-    moving_.trigger();
+    movefinished_.trigger();
 }
 
 
@@ -337,6 +346,7 @@ void PlaneDataDisplay::acceptManipulation()
 {
     CubeSampling cs = getCubeSampling(true,true);
     setCubeSampling(cs);
+    if ( gridlines_ ) gridlines_->setPlaneCubeSampling( cs );
 }
 
 
@@ -365,7 +375,7 @@ BufferString PlaneDataDisplay::getManipulationString() const
 
 
 NotifierAccess* PlaneDataDisplay::getManipulationNotifier()
-{ return &dragger_->motion; }
+{ return &moving_; }
 
 /*
 int PlaneDataDisplay::nrResolutions() const
@@ -549,7 +559,7 @@ void PlaneDataDisplay::setCubeSampling( CubeSampling cs )
     curzstep_ = cs.zrg.step;
 
     texture_->clearAll();
-    moving_.trigger();
+    movefinished_.trigger();
 
     if ( !datatransform_ )
 	return;
