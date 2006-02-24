@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          February 2006
- RCS:           $Id: uiscenepropdlg.cc,v 1.1 2006-02-23 17:40:29 cvskris Exp $
+ RCS:           $Id: uiscenepropdlg.cc,v 1.2 2006-02-24 15:49:26 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -56,7 +56,7 @@ uiScenePropertyDlg::uiScenePropertyDlg( uiParent* p,
     annotfld_->activated.notify( mCB(this,uiScenePropertyDlg,updateCB) );
     annotfld_->setSensitive( survboxfld_->isChecked() );
 
-    annotscalefld_ = new uiCheckBox( this, "Annotation text" );
+    annotscalefld_ = new uiCheckBox( this, "Annotation scale" );
     annotscalefld_->setChecked( scene->isAnnotScaleShown() );
     annotscalefld_->attach( alignedBelow, annotfld_ );
     annotscalefld_->activated.notify( mCB(this,uiScenePropertyDlg,updateCB) );
