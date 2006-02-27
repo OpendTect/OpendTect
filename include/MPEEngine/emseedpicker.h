@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: emseedpicker.h,v 1.8 2006-01-30 14:49:40 cvskris Exp $
+ RCS:           $Id: emseedpicker.h,v 1.9 2006-02-27 10:46:52 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -53,6 +53,10 @@ public:
 				the user has to add before we
 				can use the results. */
     virtual bool	stopSeedPick(bool iscancel=false)	{ return true; }
+
+    virtual void	setSeedMode( int )			{ return; }
+    virtual void	freezeMode( bool )			{ return; }
+    virtual bool	isModeFrozen() const			{ return false;}
 
     virtual const char*	errMsg() const				{ return 0; }
 
