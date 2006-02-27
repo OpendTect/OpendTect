@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          23-10-1996
- RCS:           $Id: autotracker.h,v 1.3 2005-09-20 09:46:15 cvsduntao Exp $
+ RCS:           $Id: autotracker.h,v 1.4 2006-02-27 10:45:07 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "emposid.h"
 #include "executor.h"
 #include "sets.h"
+#include "cubesampling.h"
 
 namespace EM { class EMObject; };
 namespace Attrib { class SelSpec; }
@@ -33,6 +34,8 @@ public:
 				AutoTracker( EMTracker&, const EM::SectionID& );
     void			setNewSeeds( const TypeSet<EM::PosID>& );
     int				nextStep();
+    void			setTrackBoundary( const CubeSampling& );
+    void			unsetTrackBoundary();
     int				nrDone() const { return nrdone; }
     int				totalNr() const { return totalnr; }
 
