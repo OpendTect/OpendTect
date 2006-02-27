@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: autotracker.cc,v 1.6 2005-09-20 09:46:15 cvsduntao Exp $";
+static const char* rcsID = "$Id: autotracker.cc,v 1.7 2006-02-27 10:56:55 cvsjaap Exp $";
 
 #include "autotracker.h"
 
@@ -127,22 +127,20 @@ int AutoTracker::nextStep()
 
     nrdone += currentseeds.size();
 
-    //Make all new nodes seeds, apart from them outsectionide the activearea
-    currentseeds.erase();
-    const CubeSampling activevolume = engine().activeVolume();
-    for ( int idx=0; idx<addedpos.size(); idx++ )
-    {
-	const EM::PosID pid( emobject.id(), sectionid, addedpos[idx] );
-	const Coord3 pos = emobject.getPos(pid);
-	const BinID bid = SI().transform(pos);
-	if ( activevolume.hrg.includes(bid) &&
-	     activevolume.zrg.includes(pos.z))
-	    currentseeds += addedpos[idx];
-    }
+    // Make all new nodes seeds
+    currentseeds = addedpos;
 
     totalnr += currentseeds.size();
     return currentseeds.size() ? MoreToDo : Finished;
 }
+
+
+void AutoTracker::setTrackBoundary( const CubeSampling& cs )
+{ extender->setExtBoundary( cs ); }
+
+
+void AutoTracker::unsetTrackBoundary()
+{ extender->unsetExtBoundary(); }
 
 
 bool AutoTracker::addSeed( const EM::PosID& pid )
