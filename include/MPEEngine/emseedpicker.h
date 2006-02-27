@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: emseedpicker.h,v 1.10 2006-02-27 14:25:54 cvsjaap Exp $
+ RCS:           $Id: emseedpicker.h,v 1.11 2006-02-27 15:05:42 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -55,7 +55,7 @@ public:
     virtual bool	stopSeedPick(bool iscancel=false)	{ return true; }
 
     virtual void	setSeedMode( int )			{ return; }
-    virtual void	getSeedMode() const			{ return -1; }
+    virtual int		getSeedMode() const			{ return -1; }
     virtual void	freezeMode( bool )			{ return; }
     virtual bool	isModeFrozen() const			{ return false;}
 
