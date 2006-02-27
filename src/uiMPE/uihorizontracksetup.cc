@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2005
- RCS:           $Id: uihorizontracksetup.cc,v 1.1 2005-12-14 18:58:25 cvskris Exp $
+ RCS:           $Id: uihorizontracksetup.cc,v 1.2 2006-02-27 11:18:15 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -66,20 +66,13 @@ uiHorizonSetupDialog::uiHorizonSetupDialog( uiParent* p,SectionTracker* tracker,
     mDynamicCastGet(HorizonAdjuster*,horadj,adjuster)
     horadj_ = horadj;
 
-    trackatallfld = new uiGenInput( this, "Mode",
-	    			    BoolInpSpec("Track","Simply extend") );
-    trackatallfld->valuechanged.notify(
-	    mCB(this,uiHorizonSetupDialog,selTrackAtAll) );
-    trackatallfld->setValue( tracker->adjusterUsed() );
-
     Attrib::DescID curid = adjuster->getAttributeSel(0) ?
-	adjuster->getAttributeSel(0)->id() : Attrib::DescID::undef();
+	adjuster->getAttributeSel(0)->id() : Attrib::DescID::undef(); 
 
     maingrp = new uiGroup( this, "main group" );
 
     inpfld = new uiAttrSel( maingrp, attrset_, "Seismic data", curid );
     maingrp->setHAlignObj( inpfld );
-    maingrp->attach( alignedBelow, trackatallfld );
 
     uiSeparator* hseptop = new uiSeparator( maingrp, "top sep" );
     hseptop->attach( stretchedBelow, inpfld );
@@ -170,30 +163,20 @@ NotifierAccess* uiHorizonSetupDialog::applyButtonPressed()
 
 void uiHorizonSetupDialog::initWin( CallBacker* cb )
 {
-    selTrackAtAll( cb );
-    selAmpThresholdType( cb );
-}
-
-
-void uiHorizonSetupDialog::selTrackAtAll( CallBacker* cb )
-{
-    const bool trackatall = trackatallfld->getBoolValue();
-    maingrp->display( trackatall );
-    
     selUseSimilarity( cb );
+    selAmpThresholdType( cb );
 }
 
 
 void uiHorizonSetupDialog::selUseSimilarity( CallBacker* )
 {
-    const bool trackatall = trackatallfld->getBoolValue();
     const bool usesimi = usesimifld->getBoolValue();
-    compwinfld->display( trackatall && usesimi );
-    simithresholdfld->display( trackatall && usesimi );
+    compwinfld->display( usesimi );
+    simithresholdfld->display( usesimi );
 }
 
 
-void uiHorizonSetupDialog::selAmpThresholdType( CallBacker * )
+void uiHorizonSetupDialog::selAmpThresholdType( CallBacker* )
 {
     const bool absthreshold = thresholdtypefld->getBoolValue();
     ampthresholdfld->setTitleText( absthreshold ? "Amplitude value"
@@ -215,10 +198,6 @@ bool uiHorizonSetupDialog::commitToTracker() const
 	return false;
 	
     if ( !inpfld ) return true;
-
-    const bool trackatall = trackatallfld->getBoolValue();
-    sectiontracker_->useAdjuster( trackatall );
-    if ( !trackatall ) return true;
 
     const bool usesimi = usesimifld->getBoolValue();
     
