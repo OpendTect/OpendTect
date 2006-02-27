@@ -8,10 +8,10 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: sectionextender.cc,v 1.6 2005-09-27 19:26:03 cvskris Exp $";
+static const char* rcsID = "$Id: sectionextender.cc,v 1.7 2006-02-27 11:09:51 cvsjaap Exp $";
 
 #include "sectionextender.h"
-
+#include "mpeengine.h"
 #include "position.h"
 
 namespace MPE 
@@ -20,7 +20,8 @@ namespace MPE
 
 SectionExtender::SectionExtender( const EM::SectionID& si)
     : sid( si )
-    , trkstattbl(0)
+    , trkstattbl( 0 )
+    , extboundary( false )
 {}
 
 
@@ -80,6 +81,18 @@ const TypeSet<EM::SubID>& SectionExtender::getAddedPositions() const
 
 const TypeSet<EM::SubID>& SectionExtender::getAddedPositionsSource() const
 { return addedpossrc; }
+
+
+const CubeSampling& SectionExtender::getExtBoundary() const
+{ return extboundary.isEmpty() ? engine().activeVolume() : extboundary; }
+
+
+void SectionExtender::setExtBoundary( const CubeSampling& cs )
+{ extboundary = cs; }
+
+
+void SectionExtender::unsetExtBoundary() 
+{ extboundary.setEmpty(); }
 
 
 void SectionExtender::addTarget( const EM::SubID& target,
