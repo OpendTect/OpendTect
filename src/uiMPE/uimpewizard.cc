@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpewizard.cc,v 1.37 2005-10-26 21:58:49 cvskris Exp $
+ RCS:           $Id: uimpewizard.cc,v 1.38 2006-02-27 12:31:47 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,16 +13,19 @@ ________________________________________________________________________
 #include "uimpewizard.h"
 
 #include "ctxtioobj.h"
-#include "emmanager.h"
 #include "emhistory.h"
+#include "emmanager.h"
 #include "emobject.h"
 #include "emseedpicker.h"
+#include "emsurfacetr.h"
 #include "executor.h"
+#include "horizonseedpicker.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "mpeengine.h"
 #include "ptrman.h"
 #include "survinfo.h"
+#include "uibuttongroup.h"
 #include "uicolor.h"
 #include "uicursor.h"
 #include "uigeninput.h"
@@ -36,7 +39,6 @@ ________________________________________________________________________
 #include "uiseparator.h"
 #include "uispinbox.h"
 
-
 namespace MPE {
 
 int Wizard::defcolnr = 0;
@@ -47,15 +49,15 @@ const int Wizard::sFinalizePage		= 2;
 
 
 Wizard::Wizard( uiParent* p, uiMPEPartServer* mps )
-    : uiWizard(p,uiDialog::Setup("Tracking Wizard","XXXXXXX tracking","")
-				.modal(false))
+    : uiWizard( p, uiDialog::Setup( "Tracking Wizard", "XXXXXXX Tracking", 
+				    "" ).modal(false) )
     , mpeserv(mps)
     , sid( -1 )
     , currentobject(-1)
     , objectcreated(false)
     , trackercreated(false)
     , ioparentrycreated(false)
-    , ispicking(false)
+//    , ispicking(false)
     , typefld( 0 )
     , anotherfld( 0 )
 {
@@ -92,32 +94,55 @@ uiIOObjSelGrp* Wizard::createNamePage()
 }
 
 
+const char* Wizard::seedPickText( bool doneedseed ) const
+{
+    if ( doneedseed )
+	return ( "Must pick seedpoint(s) by clicking on a slice.\n"
+		 "Remove seedpoints by ctrl-click on them." );
+    else
+	return ( "May pick seedpoint(s) by clicking on a slice.\n"
+		 "Remove seedpoints by ctrl-click on them." );
+}
+
+
 uiGroup* Wizard::createSeedSetupPage()
 {
     uiGroup* grp = new uiGroup( this, "Page 2" );
 
-    BufferString str( "Select tracking setup, then\n"
-		      "create a seedpoint by clicking on a slice.\n"
-		      "Remove seedpoints by ctrl-click on them." );
-    uiLabel* lbl = new uiLabel( grp, str );
+    setupgrp = new uiSetupSel( grp, mpeserv->attrset );
+    setupgrp->setupchg.notify( mCB(this,Wizard,setupChange) );
     
     uiSeparator* sep1 = new uiSeparator( grp, "Separator 1" );
-    sep1->attach( stretchedBelow, lbl );
-
-    setupgrp = new uiSetupSel( grp, mpeserv->attrset );
-    setupgrp->attach( alignedBelow, lbl );
-    setupgrp->attach( ensureBelow, sep1 );
-    setupgrp->setupchg.notify( mCB(this,Wizard,setupChange) );
-
-    uiSeparator* sep2 = new uiSeparator( grp, "Separator 2" );
-    sep2->attach( stretchedBelow, setupgrp );
-
-    colorfld = new uiColorInput( grp, Color::drawDef(defcolnr++),
-	    			 "Object color" );
-    colorfld->colorchanged.notify( mCB(this,Wizard,colorChangeCB) );
-    colorfld->attach( alignedBelow, setupgrp );
-    colorfld->attach( ensureBelow, sep2 );
+    sep1->attach( stretchedBelow, setupgrp );
     
+    picktxt = new uiLabel( grp, seedPickText(true) );
+    picktxt->attach( ensureBelow, sep1 );
+    picktxt->attach( alignedBelow, setupgrp );
+    
+    colorfld = new uiColorInput( grp, Color::drawDef(defcolnr++), 
+				 "Object color" );
+    colorfld->colorchanged.notify( mCB(this,Wizard,colorChangeCB) );
+    colorfld->attach( ensureBelow, picktxt );
+    colorfld->attach( alignedBelow, picktxt );
+
+    modesep = new uiSeparator( grp, "Separator 0" );
+    modesep->attach( stretchedAbove, setupgrp );
+    
+    hmodegrp = new uiButtonGroup( grp, "Mode" );
+    hmodegrp->setRadioButtonExclusive( true );
+    // buttons should be in order of MPE::HorizonSeedPicker::SeedModeOrder
+    uiRadioButton* hbut0 = new uiRadioButton( hmodegrp, "Tracking in volume");
+    uiRadioButton* hbut1 = new uiRadioButton( hmodegrp, "Line tracking" );
+    uiRadioButton* hbut2 = new uiRadioButton( hmodegrp, "Line manual" );
+    hbut0->activated.notify( mCB(this, Wizard, seedModeChange) );
+    hbut1->activated.notify( mCB(this, Wizard, seedModeChange) );
+    hbut2->activated.notify( mCB(this, Wizard, seedModeChange) );
+    hmodegrp->selectButton( HorizonSeedPicker::TrackFromSeeds );
+    hmodegrp->attach( alignedAbove, setupgrp );
+    modesep->attach( stretchedBelow, hmodegrp );
+
+    fmodegrp = 0;
+
     return grp;
 }
 
@@ -259,15 +284,25 @@ bool Wizard::prepareSeedSetupPage()
 
     setupgrp->setType( objid, sid );
 
+    if ( hmodegrp ) hmodegrp->display( false, true);
+    if ( fmodegrp ) fmodegrp->display( false, true);
+    if ( trackertype == EMHorizonTranslatorGroup::keyword )
+	modegrp = hmodegrp;
+    else if ( trackertype == EMFaultTranslatorGroup::keyword )
+	modegrp = fmodegrp;
+    else modegrp = 0;
+    if ( modegrp ) modegrp->display( true, true );
+    modesep->display( modegrp, true );	
+    seedModeChange( 0 );
+
     colorChangeCB(0);
-    allowpicking = true;
-    updatePickingStatus();
+    mpeserv->sendEvent( uiMPEPartServer::evStartSeedPick );
 
     if ( currentPageIdx()==lastPage() )
 	setRotateMode(false);
 
-    emobj->notifier.notify( mCB(this,Wizard,emObjectChange) );
-    emObjectChange(0);
+    emobj->notifier.notify( mCB(this,Wizard,updateFinishButton) );
+    updateFinishButton(0);
     initialhistorynr = EM::EMM().history().currentEventNr();
     return true;
 }
@@ -275,11 +310,12 @@ bool Wizard::prepareSeedSetupPage()
 
 bool Wizard::leaveSeedSetupPage( bool process )
 {
-    allowpicking = false;
-    updatePickingStatus();
+    mpeserv->blockdataloading = true;
+    mpeserv->sendEvent( uiMPEPartServer::evEndSeedPick );
+    mpeserv->blockdataloading = false;
 
     EM::EMObject* emobj = EM::EMM().getObject(currentobject);
-    emobj->notifier.remove( mCB(this,Wizard,emObjectChange) );
+    emobj->notifier.remove( mCB(this,Wizard,updateFinishButton) );
     setButtonSensitive( uiDialog::CANCEL, true );
     if ( !process )
     {
@@ -287,8 +323,8 @@ bool Wizard::leaveSeedSetupPage( bool process )
 	return true;
     }
 
-    if ( !setupgrp->isSetToValidSetup() )
-	mErrRet( "Please select Tracking Setup" );
+//    if ( !setupgrp->isSetToValidSetup() )
+//	mErrRet( "Please select Tracking Setup" );
 
     if ( currentPageIdx()==lastPage() )
 	return finalizeCycle();
@@ -572,39 +608,66 @@ bool Wizard::createTracker()
 }
 
 
-void Wizard::updatePickingStatus()
+/*void Wizard::updatePickingStatus()
 {
-    const bool shouldbeon = allowpicking && setupgrp->isSetToValidSetup();
-    colorfld->setSensitive(shouldbeon);
-
-    if ( shouldbeon==ispicking )
-	return;
-
-    if ( shouldbeon )
+    if ( allowpicking && !ispicking )
     {
 	mpeserv->sendEvent( uiMPEPartServer::evStartSeedPick );
 	ispicking = true;
     }
-    else
+
+    if ( ispicking && !allowpicking )
     {
 	mpeserv->blockdataloading = true;
 	mpeserv->sendEvent( uiMPEPartServer::evEndSeedPick );
 	mpeserv->blockdataloading = false;
 	ispicking = false;
     }
+} */
+
+
+#define mGetSeedPicker() \
+    const int trackerid = mpeserv->getTrackerID( currentobject ); \
+    if ( trackerid == -1 ) \
+	return; \
+    EMTracker* tracker = engine().getTracker( trackerid ); \
+    if ( !tracker ) \
+	return; \
+    EMSeedPicker* seedpicker = tracker->getSeedPicker( true ); \
+    if ( !seedpicker ) \
+	return; 
+
+
+void Wizard::seedModeChange( CallBacker* )
+{
+    mGetSeedPicker();
+    const int newmode = modegrp ? modegrp->selectedId() : -1;
+    seedpicker->setSeedMode( newmode );
+
+    const bool skipsetup = trackertype == EMHorizonTranslatorGroup::keyword 
+			    && newmode == HorizonSeedPicker::DrawBetweenSeeds
+			    // Following line is temporary bugfix
+			    && setupgrp->isSetToValidSetup();
+    setupgrp->setSensitive( !skipsetup );
+
+    const bool newmodeneedseed = seedpicker->isMinimumNrOfSeeds() > 0; 
+    picktxt->setText( seedPickText( newmodeneedseed ) );
+
+    setupChange( 0 );
 }
-	
 
 
 void Wizard::setupChange( CallBacker* )
 {
-    updatePickingStatus();
+    mGetSeedPicker();
 
-    const int trackerid = mpeserv->getTrackerID( currentobject );
-    MPE::EMTracker* tracker = MPE::engine().getTracker( trackerid );
-    MPE::EMSeedPicker* seedpicker = tracker->getSeedPicker(false);
-    if ( !seedpicker )
-	return;
+    const bool allowpicking = !setupgrp->sensitive() 
+			      || setupgrp->isSetToValidSetup(); 
+    picktxt->setSensitive( allowpicking );
+    colorfld->setSensitive( allowpicking );
+    seedpicker->freezeMode( !allowpicking );
+
+    updateFinishButton( 0 );
 
     uiCursor::setOverride( uiCursor::Wait );
     seedpicker->reTrack();
@@ -612,16 +675,14 @@ void Wizard::setupChange( CallBacker* )
 }
 
 
-void MPE::Wizard::emObjectChange( CallBacker* )
+void Wizard::updateFinishButton( CallBacker* )
 {
-    const int trackerid = mpeserv->getTrackerID( currentobject );
-    if ( trackerid == -1 )
-	return;
-    MPE::EMTracker* tracker = MPE::engine().getTracker( trackerid );
-    MPE::EMSeedPicker* seedpicker = tracker->getSeedPicker(false);
-
-    setButtonSensitive( uiDialog::CANCEL, seedpicker &&
-	    seedpicker->nrSeeds()>=seedpicker->isMinimumNrOfSeeds() );
+    mGetSeedPicker();
+    const bool finishenabled = !seedpicker->isModeFrozen() 
+		   && seedpicker->nrSeeds() >= seedpicker->isMinimumNrOfSeeds()
+    // Following line is temporary bugfix
+		   && seedpicker->nrSeeds()>0;
+    setButtonSensitive( uiDialog::CANCEL, finishenabled );
 }
 
 
