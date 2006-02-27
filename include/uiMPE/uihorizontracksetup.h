@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          December 2005
- RCS:           $Id: uihorizontracksetup.h,v 1.1 2005-12-14 18:58:48 cvskris Exp $
+ RCS:           $Id: uihorizontracksetup.h,v 1.2 2006-02-27 11:20:17 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,7 +43,6 @@ public:
 
 protected:
 
-    uiGenInput*			trackatallfld;
     uiAttrSel*			inpfld;
     uiGenInput*			usesimifld;
     uiGenInput*			thresholdtypefld;
@@ -60,7 +59,6 @@ protected:
 				uiHorizonSetupDialog( uiParent*,SectionTracker*,
 						      const Attrib::DescSet* );
     void			initWin(CallBacker*);
-    void			selTrackAtAll(CallBacker*);
     void			selUseSimilarity(CallBacker*);
     void			selAmpThresholdType(CallBacker*);
 
