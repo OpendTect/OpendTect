@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpewizard.h,v 1.19 2005-10-26 21:58:49 cvskris Exp $
+ RCS:           $Id: uimpewizard.h,v 1.20 2006-02-27 12:25:00 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,8 +27,10 @@ class uiGroup;
 class uiIOObjSel;
 class uiIOObjSelGrp;
 class uiLabeledSpinBox;
+class uiLabel;
 class uiPushButton;
 class uiSelLineStyle;
+class uiSeparator;
 class uiMPEPartServer;
 
 namespace MPE {
@@ -38,13 +40,13 @@ class uiSetupSel;
 class Wizard : public uiWizard
 {
 public:
-			Wizard(uiParent*,uiMPEPartServer*);
+			Wizard( uiParent*, uiMPEPartServer* );
 			~Wizard();
 
     void		reset();
 
     void		setObject( const EM::ObjectID&, const EM::SectionID& );
-    void		setTrackingType(const char* typestr);
+    void		setTrackingType(const char* typstr);
 
     static const int	sNamePage;
     static const int	sSeedSetupPage;
@@ -58,6 +60,12 @@ protected:
     uiColorInput*	colorfld;
 
     uiSetupSel*		setupgrp;
+    uiLabel*		picktxt;
+
+    uiButtonGroup*      hmodegrp;
+    uiButtonGroup*      fmodegrp;
+    uiButtonGroup*      modegrp;
+    uiSeparator*	modesep;
 
     uiGenInput*		anotherfld;
     uiGenInput*		typefld;
@@ -88,13 +96,9 @@ protected:
 
     void		colorChangeCB(CallBacker*);
     void		anotherSel(CallBacker*);
+    void		seedModeChange(CallBacker*);
     void		setupChange(CallBacker*);
-
-    void		emObjectChange(CallBacker*);
-
-    bool		allowpicking;
-    bool		ispicking;
-    void		updatePickingStatus();
+    void		updateFinishButton(CallBacker*);
 
     CubeSampling	seedbox;
 
@@ -108,6 +112,9 @@ protected:
     uiMPEPartServer*	mpeserv;
     static int		defcolnr;
     BufferString	trackertype;
+
+private:
+    const char*		seedPickText( bool doesneedseed ) const;
 };
 
 }; // namespace MPE
