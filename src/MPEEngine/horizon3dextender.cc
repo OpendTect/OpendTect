@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizon3dextender.cc,v 1.3 2005-12-23 08:10:20 cvsdgb Exp $";
+static const char* rcsID = "$Id: horizon3dextender.cc,v 1.4 2006-02-27 11:04:39 cvsjaap Exp $";
 
 #include "horizonextender.h"
 
@@ -95,7 +95,12 @@ int HorizonExtender::nextStep()
 		if ( neighbor.sectionID()!=sid )
 		    continue;
 
-		//If this is a better route to a node that is allready
+		BinID neighborbinid; 
+		neighborbinid.setSerialized( neighbor.subID() );
+		if ( !getExtBoundary().hrg.includes(neighborbinid) )
+		    continue;
+
+		//If this is a better route to a node that is already
 		//added, replace the route with this one
 
 		const int previndex = addedpos.indexOf( neighbor.subID() );
@@ -107,9 +112,11 @@ int HorizonExtender::nextStep()
 		    const RowCol cursrc( srcbid/step );
 
 		    const int olddist = oldsrc.distanceSq(dst);
-		    if ( cursrc.distanceSq( dst )<olddist )
+		    if ( cursrc.distanceSq( dst )<olddist ) 
+		    {
 			addedpossrc[previndex] = srcbid.getSerialized();
-
+			surface.setPos( neighbor, Coord3(0,0,depth), true );
+		    }
 		    continue;
 		}
 
@@ -119,7 +126,7 @@ int HorizonExtender::nextStep()
 		    continue;
 
 
-		if ( surface.setPos(neighbor,Coord3(0,0,depth),true) )
+		if ( surface.setPos( neighbor, Coord3(0,0,depth), true) )
 		{
 		    addTarget( neighbor.subID(), srcbid.getSerialized() );
 		    change = true;
@@ -132,20 +139,4 @@ int HorizonExtender::nextStep()
 }
 
 
-bool HorizonExtender::addTargetNode( const BinID& targetnode,
-				     const EM::SubID& src, float depth )
-{
-    if ( engine().trackPlane().getTrackMode() == TrackPlane::Extend
-	&& surface.isDefined(sid,targetnode.getSerialized()) )
-        return false;
-	
-    EM::SubID targetid = targetnode.getSerialized();
-    if ( trkstattbl && trkstattbl->posTracked(targetid) )
-	return false;
-    
-
-    return true;
-};
-
-
-};
+};  // namespace MPE
