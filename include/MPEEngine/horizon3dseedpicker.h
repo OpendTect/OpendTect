@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: horizon3dseedpicker.h,v 1.2 2006-01-25 14:51:59 cvsjaap Exp $
+ RCS:           $Id: horizon3dseedpicker.h,v 1.3 2006-02-27 10:49:23 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,7 +25,7 @@ public:
 
     bool		canSetSectionID() const		{ return true; }
     bool		setSectionID( const EM::SectionID& sid );
-    EM::SectionID	getSectionID() const		{ return sectionid; }
+    EM::SectionID	getSectionID() const		{ return sectionid_; }
 
     bool		startSeedPick();
     bool		addSeed( const Coord3& );
@@ -33,23 +33,33 @@ public:
     bool		removeSeed( const EM::PosID& );
     bool		canRemoveSeed() const		{ return true; }
     bool		reTrack();
-    int			nrSeeds() const			{return seedpos.size();}
+    int			nrSeeds() const;
+    int			isMinimumNrOfSeeds() const;
 
     bool		stopSeedPick(bool iscancel=false);
+
+    enum SeedModeOrder	{ TrackFromSeeds, TrackBetweenSeeds, DrawBetweenSeeds };
+    int			getSeedMode() const		{ return seedmode_; }
+    void		setSeedMode( int sm )		{ seedmode_ = sm; }
+    void		freezeMode( bool yn )		{ frozen_ = yn; }
+    bool		isModeFrozen() const		{ return frozen_; }
 
 protected:
     bool		removeEverythingButSeeds();
 
-    TypeSet<EM::PosID>	seedlist;
-    TypeSet<Coord3>	seedpos;
-    int			firsthistorynr;
-    bool		didchecksupport;
-
-    EM::SectionID	sectionid;
-    MPE::EMTracker&	tracker;
-    
     bool		interpolateSeeds();
-    bool		interpolmode;
+    CubeSampling	getSeedBox() const;
+
+    TypeSet<EM::PosID>	seedlist_;
+    TypeSet<Coord3>	seedpos_;
+    int			firsthistorynr_;
+    bool		didchecksupport_;
+
+    EM::SectionID	sectionid_;
+    MPE::EMTracker&	tracker_;
+
+    int			seedmode_;
+    bool		frozen_;
 };
 
 
