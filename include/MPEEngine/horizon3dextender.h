@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: horizon3dextender.h,v 1.1 2005-12-12 17:52:19 cvskris Exp $
+ RCS:           $Id: horizon3dextender.h,v 1.2 2006-02-27 10:48:05 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,8 +33,6 @@ public:
     int				nextStep();
 
 protected:
-    bool			addTargetNode(const BinID&,const EM::SubID&,
-	    				      float depth);
     BinIDValue			direction;
     EM::Horizon&		surface;
 };
