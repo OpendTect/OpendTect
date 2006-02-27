@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: horizon3dtracker.h,v 1.1 2005-12-12 17:52:19 cvskris Exp $
+ RCS:		$Id: horizon3dtracker.h,v 1.2 2006-02-27 12:16:07 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -48,9 +48,6 @@ protected:
     SectionTracker*	createSectionTracker(EM::SectionID);
     ConsistencyChecker* getConsistencyChecker();
     
-    void 		interpolateSeeds(const TypeSet<EM::PosID>*,
-    					 EM::SectionID );
-
     ConsistencyChecker*	consistencychecker;
     HorizonSeedPicker*	seedpicker;
 };
