@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: faultseedpicker.h,v 1.1 2005-12-14 16:51:16 cvskris Exp $
+ RCS:           $Id: faultseedpicker.h,v 1.2 2006-02-27 11:12:18 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,8 +37,11 @@ public:
     bool		reTrack();
     int			nrSeeds() const;
 
-    int			isMinimumNrOfSeeds() const		{ return 2; }
+    int			isMinimumNrOfSeeds() const	{ return 2; }
     bool		stopSeedPick(bool iscancel=false);
+
+    void		freezeMode( bool yn )		{ frozen = yn; }
+    bool		isModeFrozen() const		{ return frozen; }
 
    const char*		errMsg() const; 
 protected:
@@ -55,6 +58,7 @@ protected:
     EM::SectionID	sectionid;
     bool		isrowstick;
     bool		didchecksupport;
+    bool		frozen;
 
 };
 
