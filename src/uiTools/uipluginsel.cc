@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2006
- RCS:           $Id: uipluginsel.cc,v 1.1 2006-02-16 12:36:39 cvsbert Exp $
+ RCS:           $Id: uipluginsel.cc,v 1.2 2006-02-27 16:40:59 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,24 +29,29 @@ uiPluginSel::uiPluginSel( uiParent* p )
     setSaveButtonChecked( true );
 
     ObjectSet<PluginManager::Data>& pimdata = PIM().getData();
+    BufferStringSet piusrnms;
     for ( int idx=0; idx<pimdata.size(); idx++ )
     {
 	PluginManager::Data& data = *pimdata[idx];
-	if ( data.info_ ) continue;
-	pluginnms_.add( data.name_ );
+	if ( data.handle_ )
+	{
+	    pluginnms_.add( data.name_ );
+	    piusrnms.add( PIM().userName(data.name_) );
+	}
     }
 
-    const int maxlen = pluginnms_.maxLength();
+    const int maxlen = piusrnms.maxLength();
     const float rowspercol = maxlen / 10.;
     int nrcols = (int)(sqrt( rowspercol * pluginnms_.size() ) + .5);
     if ( nrcols < 1 ) nrcols = 1;
+    if ( nrcols > 3 ) nrcols = 3;
     int nrows = pluginnms_.size() / nrcols;
     if ( pluginnms_.size() % nrcols )
 	nrows++;
 
     for ( int idx=0; idx<pluginnms_.size(); idx++ )
     {
-	BufferString dispnm = PIM().userName( pluginnms_.get(idx) );
+	BufferString dispnm = piusrnms.get( idx );
 	uiCheckBox* cb = new uiCheckBox( this, dispnm );
 	cb->setChecked( true );
 	cb->setPrefWidthInChar( maxlen );
