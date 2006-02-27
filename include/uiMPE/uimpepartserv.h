@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          December 2004
- RCS:           $Id: uimpepartserv.h,v 1.20 2005-11-29 16:11:13 cvskris Exp $
+ RCS:           $Id: uimpepartserv.h,v 1.21 2006-02-27 12:21:28 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -52,7 +52,6 @@ public:
 					   to include pos. */
     EM::ObjectID		getEMObjectID(int trackerid) const;
 
-    bool			startWizard(const char* tracktype,int startpg);
     bool			canAddSeed(int trackerid) const;
     void			addSeed(int trackerid);
 
