@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrdescseted.cc,v 1.21 2006-02-21 13:28:53 cvsbert Exp $
+ RCS:           $Id: uiattrdescseted.cc,v 1.22 2006-02-28 11:55:48 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,6 +20,7 @@ ________________________________________________________________________
 #include "attribparam.h"
 #include "attribstorprovider.h"
 #include "uiattrinpdlg.h"
+#include "uiattrsrchprocfiles.h"
 #include "attribsel.h"
 
 #include "ctxtioobj.h"
@@ -804,27 +805,43 @@ void uiAttribDescSetEd::importSet( CallBacker* )
 class uiGetFileForAttrSet : public uiDialog
 {
 public:
-uiGetFileForAttrSet( uiParent* p, bool isatt )
-    : uiDialog(p,uiDialog::Setup("Get Attribute Set", isatt ?
-				 "Select file containing an attribute set"
-				 : "Select job specification file",
-				 0))
-    , isattrset(isatt)
+uiGetFileForAttrSet( uiParent* p, bool isads )
+    : uiDialog(p,uiDialog::Setup(
+		isads ? "Get Attribute Set" : "Get attributes from job file",
+		isads ? "Select file containing an attribute set"
+		      : "Select job specification file",
+		 "101.1.3"))
+    , isattrset(isads)
 {
-    fileinput = new uiFileInput( this, isattrset ? "Attribute Set file"
-	    					 : "Job specification file" );
+    fileinput = new uiFileInput( this, "File name" );
     fileinput->setFilter( isattrset ? "AttributeSet files (*.attr)"
 				    : "Job specifications (*.par)" );
     fileinput->setDefaultSelectionDir( isattrset ? GetBaseDataDir()
 						 : GetProcFileName(0) );
     fileinput->valuechanged.notify( mCB(this,uiGetFileForAttrSet,selChg) );
+    if ( !isattrset )
+    {
+	uiPushButton* but = new uiPushButton( this, "Search directory ...",
+	       			mCB(this,uiGetFileForAttrSet,srchDir) );
+	but->attach( rightOf, fileinput );
+    }
     infofld = new uiTextEdit( this, "Attribute info", true );
     infofld->attach( ensureBelow, fileinput );
     infofld->attach( widthSameAs, fileinput );
     infofld->setPrefHeightInChar( 4 );
 }
 
-void selChg( CallBacker* )
+void srchDir( CallBacker* )
+{
+    uiAttrSrchProcFiles dlg( this );
+    if ( dlg.go() )
+    {
+	fileinput->setFileName( dlg.fileName() );
+	selChg();
+    }
+}
+
+void selChg( CallBacker* =0 )
 {
     fname_ = fileinput->fileName();
     IOPar iop; iop.read( fname_, sKey::Pars );
