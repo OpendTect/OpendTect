@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrdescseted.cc,v 1.22 2006-02-28 11:55:48 cvsbert Exp $
+ RCS:           $Id: uiattrdescseted.cc,v 1.23 2006-02-28 14:44:24 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -821,7 +821,8 @@ uiGetFileForAttrSet( uiParent* p, bool isads )
     fileinput->valuechanged.notify( mCB(this,uiGetFileForAttrSet,selChg) );
     if ( !isattrset )
     {
-	uiPushButton* but = new uiPushButton( this, "Search directory ...",
+	uiPushButton* but = new uiPushButton( this,
+				"Find from created cube ...",
 	       			mCB(this,uiGetFileForAttrSet,srchDir) );
 	but->attach( rightOf, fileinput );
     }
