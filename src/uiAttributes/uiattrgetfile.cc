@@ -4,23 +4,26 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrgetfile.cc,v 1.1 2006-02-28 15:58:52 cvsbert Exp $
+ RCS:           $Id: uiattrgetfile.cc,v 1.2 2006-02-28 16:33:24 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiattrgetfile.h"
 #include "uiattrsrchprocfiles.h"
+#include "uisrchprocfiles.h"
 #include "uifileinput.h"
 #include "uibutton.h"
 #include "uitextedit.h"
 #include "uimsg.h"
 #include "attribdesc.h"
 #include "attribdescset.h"
+#include "seistrctr.h"
 #include "iopar.h"
 #include "oddirs.h"
 #include "filegen.h"
 
+// uiAttrSrchProcFiles implementation at end of file
 
 using namespace Attrib;
 
@@ -115,4 +118,28 @@ bool uiGetFileForAttrSet::acceptOK( CallBacker* )
     }
     selChg(0);
     return true;
+}
+
+
+uiAttrSrchProcFiles::uiAttrSrchProcFiles( uiParent* p )
+    : uiSrchProcFiles(p,mkCtio(),"Output.1.Seismic ID")
+{
+    setHelpID( "101.1.4" );
+}
+
+
+CtxtIOObj& uiAttrSrchProcFiles::mkCtio()
+{
+    ctioptr_ = mMkCtxtIOObj(SeisTrc);
+    ctioptr_->ctxt.forread = true;
+    ctioptr_->ctxt.parconstraints.set( sKey::Type, sKey::Attribute );
+    ctioptr_->ctxt.includeconstraints = true;
+    ctioptr_->ctxt.allowcnstrsabsent = false;
+    return *ctioptr_;
+}
+
+
+uiAttrSrchProcFiles::~uiAttrSrchProcFiles()
+{
+    delete ctioptr_;
 }

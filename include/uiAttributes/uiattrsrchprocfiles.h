@@ -6,39 +6,25 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Feb 2006
- RCS:           $Id: uiattrsrchprocfiles.h,v 1.2 2006-02-28 15:58:52 cvsbert Exp $
+ RCS:           $Id: uiattrsrchprocfiles.h,v 1.3 2006-02-28 16:33:24 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uidialog.h"
-
-class uiGenInput;
-class uiIOObjSel;
-class uiFileInput;
-class CtxtIOObj;
+#include "uisrchprocfiles.h"
 
 
-class uiAttrSrchProcFiles : public uiDialog
+class uiAttrSrchProcFiles : public uiSrchProcFiles
 {
 public:
-			uiAttrSrchProcFiles(uiParent*,const char* iopar_key=0);
+			uiAttrSrchProcFiles(uiParent*);
 			~uiAttrSrchProcFiles();
-
-    const char*		fileName() const;
 
 protected:
 
-    uiFileInput*	dirfld;
-    uiGenInput*		maskfld;
-    uiGenInput*		fnamefld;
-    uiIOObjSel*		seisfld;
+    CtxtIOObj*		ctioptr_;
+    CtxtIOObj&		mkCtio();
 
-    BufferString	iopkey_;
-    CtxtIOObj&		ctio_;
-
-    void		srchDir(CallBacker*);
-    bool		acceptOK(CallBacker*);
 };
 
 #endif
