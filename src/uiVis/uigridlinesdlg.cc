@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Payraudeau
  Date:          February 2006
- RCS:           $Id: uigridlinesdlg.cc,v 1.3 2006-02-14 13:32:19 cvshelene Exp $
+ RCS:           $Id: uigridlinesdlg.cc,v 1.4 2006-02-28 09:08:10 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -113,7 +113,7 @@ static void setDefaultZSampling( StepInterval<float>& zrg )
 void uiGridLinesDlg::setParameters()
 {
     bool glinited = !pdd_->gridlines()->getGridCubeSampling().isEmpty();
-    CubeSampling cs;
+    CubeSampling cs = pdd_->getCubeSampling();
     if ( glinited )
     {
 	cs = pdd_->gridlines()->getGridCubeSampling();
