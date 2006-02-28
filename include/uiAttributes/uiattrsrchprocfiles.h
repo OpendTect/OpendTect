@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Feb 2006
- RCS:           $Id: uiattrsrchprocfiles.h,v 1.1 2006-02-28 11:55:48 cvsbert Exp $
+ RCS:           $Id: uiattrsrchprocfiles.h,v 1.2 2006-02-28 15:58:52 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,7 +22,7 @@ class CtxtIOObj;
 class uiAttrSrchProcFiles : public uiDialog
 {
 public:
-			uiAttrSrchProcFiles(uiParent*);
+			uiAttrSrchProcFiles(uiParent*,const char* iopar_key=0);
 			~uiAttrSrchProcFiles();
 
     const char*		fileName() const;
@@ -34,6 +34,7 @@ protected:
     uiGenInput*		fnamefld;
     uiIOObjSel*		seisfld;
 
+    BufferString	iopkey_;
     CtxtIOObj&		ctio_;
 
     void		srchDir(CallBacker*);
