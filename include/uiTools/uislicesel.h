@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uislicesel.h,v 1.12 2005-10-20 10:30:26 cvsarend Exp $
+ RCS:           $Id: uislicesel.h,v 1.13 2006-03-01 12:33:43 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,11 +30,11 @@ class uiSliceSel : public uiDialog
 public:
     enum Type			{ Inl, Crl, Tsl, Vol, TwoD };
 
-				uiSliceSel(uiParent*,const CubeSampling&,
-					   const CubeSampling&,
-					   const CallBack&,Type);
+				uiSliceSel(uiParent*,const CubeSampling& csin,
+					   const CubeSampling& maxcs,
+					   const CallBack& applycb,Type);
 				~uiSliceSel();
-    const CubeSampling&		getCubeSampling()	{ return cs; }
+    const CubeSampling&		getCubeSampling()	{ return cs_; }
 
 protected:
 
@@ -45,7 +45,7 @@ protected:
     void			readInput();
     bool			acceptOK(CallBacker*);
     void			setBoxValues(uiSpinBox*,
-	    				     const StepInterval<int>&, int );
+	    				     const StepInterval<int>&,int);
     void			createInlFld();
     void			createCrlFld();
     void			createZFld();
@@ -57,16 +57,16 @@ protected:
     uiSpinBox*			crl1fld;
     uiSpinBox*			z1fld;
 
-    uiSliceScroll*		scrolldlg;
+    uiSliceScroll*		scrolldlg_;
 
-    const CubeSampling&		curcs;
-    const CubeSampling&		maxcs;
+    const CubeSampling&		curcs_;
+    const CubeSampling&		maxcs_;
 
-    CubeSampling&		cs;
-    CallBack&			appcb;
-    bool			isinl, iscrl, istsl, isvol, is2d;
+    CubeSampling&		cs_;
+    CallBack&			applycb_;
+    bool			isinl_, iscrl_, istsl_, isvol_, is2d_;
 
-    Threads::Mutex&		updatemutex;
+    Threads::Mutex&		updatemutex_;
 };
 
 #endif
