@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribprovider.cc,v 1.56 2006-02-24 11:09:53 cvsbert Exp $";
+static const char* rcsID = "$Id: attribprovider.cc,v 1.57 2006-03-01 09:13:32 cvshelene Exp $";
 
 #include "attribprovider.h"
 #include "attribstorprovider.h"
@@ -1037,8 +1037,8 @@ bool Provider::computeDesInputCube( int inp, int out, CubeSampling& res,
 	if ( reqzrg ) zrg=*reqzrg;
 	const Interval<float>* deszrg = desZMargin(inp,out);
 	if ( deszrg ) zrg.include( *deszrg );
-	Interval<float> extraz(extraz_);
-	extraz.include(zrg);
+	Interval<float> extraz = Interval<float>(extraz_.start + zrg.start,
+						 extraz_.stop + zrg.stop);
 	inputs[inp]->setSelData(seldata_);
 	inputs[inp]->setExtraZ(extraz);
     }
@@ -1220,12 +1220,7 @@ void Provider::setSelData( const SeisSelData* seldata )
 
 void Provider::setExtraZ( const Interval<float>& extraz )
 {
-    extraz_ = extraz;
-    for ( int idx=0; idx<inputs.size(); idx++ )
-    {
-	if ( inputs[idx] )
-	    inputs[idx]->setExtraZ(extraz_);
-    }
+    extraz_.include( extraz );
 }
 
 
