@@ -332,7 +332,7 @@ void PluginManager::getALOEntries( const char* dirnm, bool usrdir )
 
 	FilePath fp( dirnm ); fp.add( dl.get(idx) );
 	StreamData sd = StreamProvider( fp.fullPath() ).makeIStream(false);
-	if ( !sd.usable() ) continue;
+	if ( !sd.usable() ) { sd.close(); continue; }
 
 	char buf[128];
 	while ( *sd.istrm )
@@ -360,6 +360,8 @@ void PluginManager::getALOEntries( const char* dirnm, bool usrdir )
 	    else if ( usrdir != Data::isUserDir(data->autosource_) )
 		data->autosource_ = Data::Both;
 	}
+
+	sd.close();
     }
 }
 
