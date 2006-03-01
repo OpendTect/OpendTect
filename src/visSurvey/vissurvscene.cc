@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: vissurvscene.cc,v 1.80 2006-03-01 16:44:28 cvsnanne Exp $
+ RCS:           $Id: vissurvscene.cc,v 1.81 2006-03-01 20:19:07 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -366,9 +366,7 @@ void Scene::setMarkerPos( const Coord3& coord )
 
     if ( !marker_ )
     {
-	marker_ = visBase::Marker::create();
-	marker_->setType( MarkerStyle3D::Sphere );
-	marker_->setScreenSize( 3 );
+	marker_ = createMarker();
 	addUTMObject( marker_ );
     }
 
@@ -377,11 +375,21 @@ void Scene::setMarkerPos( const Coord3& coord )
 }
 
 
+visBase::Marker* Scene::createMarker() const
+{
+    visBase::Marker* marker = visBase::Marker::create();
+    marker->setType( MarkerStyle3D::Cross );
+    marker->getMaterial()->setColor( cDefaultMarkerColor() );
+    marker->setScreenSize( 3 );
+    return marker;
+}
+
+
 void Scene::setMarkerSize( float nv )
 {
     if ( !marker_ )
     {
-	marker_ = visBase::Marker::create();
+	marker_ = createMarker();
 	addUTMObject( marker_ );
 	marker_->turnOn( false );
     }
@@ -403,7 +411,7 @@ void Scene::setMarkerColor( const Color& nc )
 {
     if ( !marker_ )
     {
-	marker_ = visBase::Marker::create();
+	marker_ = createMarker();
 	addUTMObject( marker_ );
 	marker_->turnOn( false );
     }
@@ -415,12 +423,15 @@ void Scene::setMarkerColor( const Color& nc )
 const Color& Scene::getMarkerColor() const
 {
     if ( !marker_ )
-    {
-	static Color dummy(255,255,255);
-	return dummy;
-    }
+	return cDefaultMarkerColor();
 
     return marker_->getMaterial()->getColor();
+}
+
+
+const Color& Scene::cDefaultMarkerColor()
+{
+    static Color res( 255,255,255 );
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvscene.h,v 1.37 2006-02-23 17:34:48 cvskris Exp $
+ RCS:		$Id: vissurvscene.h,v 1.38 2006-03-01 20:19:07 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -121,6 +121,8 @@ protected:
     void			init();
     void			createTransforms(const HorSampling&);
     void			mouseMoveCB(CallBacker*);
+    visBase::Marker*		createMarker() const;
+    static const Color&		cDefaultMarkerColor();
     
     visBase::Transformation*	zscaletransform_;
     visBase::Transformation*	inlcrl2disptransform_;
