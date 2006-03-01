@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.156 2006-02-24 16:05:12 cvskris Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.157 2006-03-01 12:36:41 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -13,6 +13,8 @@ ___________________________________________________________________
 
 #include "attribsel.h"
 #include "errh.h"
+#include "emhorizon.h"
+#include "emfault.h"
 #include "ptrman.h"
 #include "oddirs.h"
 #include "ioobj.h"
@@ -20,33 +22,35 @@ ___________________________________________________________________
 #include "uimenu.h"
 #include "pickset.h"
 #include "pixmap.h"
-#include "arrayrgb.h"
+#include "settings.h"
 #include "colortab.h"
 #include "survinfo.h"
-#include "uilistview.h"
+#include "zaxistransform.h"
+
+#include "uiattribpartserv.h"
 #include "uibinidtable.h"
+#include "uiempartserv.h"
+#include "uiexecutor.h"
+#include "uigeninput.h"
+#include "uigeninputdlg.h"
+#include "uilistview.h"
 #include "uimenuhandler.h"
-#include "uisoviewer.h"
+#include "uimsg.h"
 #include "uiodapplmgr.h"
 #include "uiodscenemgr.h"
-#include "uimsg.h"
-#include "uigeninputdlg.h"
-#include "uigeninput.h"
+#include "uisoviewer.h"
 #include "uivisemobj.h"
-#include "uiempartserv.h"
-#include "uiwellpropdlg.h"
 #include "uivispartserv.h"
-#include "uiwellpartserv.h"
-#include "uipickpartserv.h"
 #include "uiwellattribpartserv.h"
-#include "uiattribpartserv.h"
+#include "uiwellpartserv.h"
+#include "uiwellpropdlg.h"
+#include "uipickpartserv.h"
 #include "uimpepartserv.h"
 #include "uiscenepropdlg.h"
 #include "uiseispartserv.h"
 #include "uislicesel.h"
 #include "uipickszdlg.h"
 #include "uicolor.h"
-#include "visgridlines.h"
 #include "uigridlinesdlg.h"
 
 
@@ -56,13 +60,10 @@ ___________________________________________________________________
 #include "visemobjdisplay.h"
 #include "vissurvscene.h"
 #include "visplanedatadisplay.h"
-#include "visdataman.h"
 #include "viscolortab.h"
 #include "viscolorseq.h"
-#include "uiexecutor.h"
-#include "settings.h"
-#include "emhorizon.h"
-#include "emfault.h"
+#include "visdataman.h"
+#include "visgridlines.h"
 
 
 const char* uiODTreeTop::sceneidkey = "Sceneid";
@@ -2191,9 +2192,18 @@ void uiODPlaneDataTreeItem::handleMenuCB( CallBacker* cb )
 	menu->setIsHandled(true);
 	if ( !pdd ) return;
 	delete positiondlg;
-	const CubeSampling& sics = SI().sampling(true);
-	positiondlg = new uiSliceSel( getUiParent(), pdd->getCubeSampling(),
-				SI().sampling(true),
+	CubeSampling maxcs = SI().sampling(true);
+	mDynamicCastGet(visSurvey::Scene*,scene,visserv->getObject(sceneID()))
+	if ( scene && scene->getDataTransform() )
+	{
+	    const Interval<float> zintv =
+		scene->getDataTransform()->getZInterval( false );
+	    maxcs.zrg.start = zintv.start;
+	    maxcs.zrg.stop = zintv.stop;
+	}
+
+	positiondlg = new uiSliceSel( getUiParent(),
+				pdd->getCubeSampling(true,true), maxcs,
 				mCB(this,uiODPlaneDataTreeItem,updatePlanePos), 
 				(uiSliceSel::Type)dim );
 	positiondlg->windowClosed.notify( 
