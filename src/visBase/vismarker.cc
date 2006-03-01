@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          July 2002
- RCS:           $Id: vismarker.cc,v 1.21 2006-02-23 14:46:34 cvskris Exp $
+ RCS:           $Id: vismarker.cc,v 1.22 2006-03-01 19:53:31 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,6 +22,8 @@ ________________________________________________________________________
 #include <Inventor/nodes/SoCylinder.h>
 #include <Inventor/nodes/SoCone.h>
 #include <Inventor/nodes/SoRotation.h>
+#include <Inventor/nodes/SoSeparator.h>
+#include <Inventor/nodes/SoScale.h>
 #include <Inventor/nodes/SoTranslation.h>
 
 #include <math.h>
@@ -143,6 +145,28 @@ void Marker::setType( MarkerStyle3D::Type type )
     case MarkerStyle3D::Arrow:
 	setMarkerShape(new SoArrow);
 	setArrowDir( direction );
+	break;
+    case MarkerStyle3D::Cross:
+	SoGroup* group = new SoGroup;
+	group->ref();
+
+	SoCylinder* cyl = new SoCylinder;
+	cyl->radius.setValue( 0.2 );
+	group->addChild( cyl );
+
+	SoRotation* rot1 = new SoRotation;
+	rot1->rotation.setValue( SbVec3f(1,0,0), M_PI_2 );
+	group->addChild( rot1 );
+	group->addChild( cyl );
+
+	SoRotation* rot2 = new SoRotation;
+	rot2->rotation.setValue( SbVec3f(0,0,1), M_PI_2 );
+	group->addChild( rot2 );
+	group->addChild( cyl );
+
+	setMarkerShape( group );
+	group->unref();
+	setRotation( Coord3(0,0,1), 0 );
 	break;
     }
 
