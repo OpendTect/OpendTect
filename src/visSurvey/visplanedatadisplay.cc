@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.114 2006-02-24 13:41:45 cvsnanne Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.115 2006-03-01 12:32:23 cvsnanne Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -129,7 +129,7 @@ void PlaneDataDisplay::updateRanges()
 {
     CubeSampling survey( SI().sampling(true) );
     if ( datatransform_ )
-	assign( survey.zrg,  datatransform_->getZInterval( false ) );
+	assign( survey.zrg, datatransform_->getZInterval(false) );
 	
     const Interval<float> inlrg( survey.hrg.start.inl, survey.hrg.stop.inl );
     const Interval<float> crlrg( survey.hrg.start.crl, survey.hrg.stop.crl );
@@ -530,32 +530,27 @@ CubeSampling PlaneDataDisplay::getCubeSampling() const
 void PlaneDataDisplay::setCubeSampling( CubeSampling cs )
 {
     cs = snapCubeSampling( cs );
+    const HorSampling& hrg = cs.hrg;
 
     visBase::Coordinates* coords = rectangle_->getCoordinates();
     if ( orientation_==Inline || orientation_==Crossline )
     {
-	coords->setPos( 0,
-		       Coord3(cs.hrg.start.inl,cs.hrg.start.crl,cs.zrg.start));
-	coords->setPos( 1,
-		       Coord3(cs.hrg.start.inl,cs.hrg.start.crl,cs.zrg.stop));
-	coords->setPos( 2, Coord3(cs.hrg.stop.inl,cs.hrg.stop.crl,cs.zrg.stop));
-	coords->setPos( 3,
-		       Coord3(cs.hrg.stop.inl,cs.hrg.stop.crl, cs.zrg.start));
+	coords->setPos( 0, Coord3(hrg.start.inl,hrg.start.crl,cs.zrg.start) );
+	coords->setPos( 1, Coord3(hrg.start.inl,hrg.start.crl,cs.zrg.stop) );
+	coords->setPos( 2, Coord3(hrg.stop.inl,hrg.stop.crl,cs.zrg.stop) );
+	coords->setPos( 3, Coord3(hrg.stop.inl,hrg.stop.crl, cs.zrg.start) );
     }
     else 
     {
-	coords->setPos( 0,
-			Coord3(cs.hrg.start.inl,cs.hrg.start.crl,cs.zrg.start));
-	coords->setPos( 1,
-			Coord3(cs.hrg.start.inl,cs.hrg.stop.crl,cs.zrg.stop));
-	coords->setPos( 2, Coord3(cs.hrg.stop.inl,cs.hrg.stop.crl,cs.zrg.stop));
-	coords->setPos( 3,
-			Coord3(cs.hrg.stop.inl,cs.hrg.start.crl, cs.zrg.start));
+	coords->setPos( 0, Coord3(hrg.start.inl,hrg.start.crl,cs.zrg.start) );
+	coords->setPos( 1, Coord3(hrg.start.inl,hrg.stop.crl,cs.zrg.stop) );
+	coords->setPos( 2, Coord3(hrg.stop.inl,hrg.stop.crl,cs.zrg.stop) );
+	coords->setPos( 3, Coord3(hrg.stop.inl,hrg.start.crl,cs.zrg.start) );
     }
 
-    setDraggerPos(cs);
+    setDraggerPos( cs );
 
-    curicstep_ = cs.hrg.step;
+    curicstep_ = hrg.step;
     curzstep_ = cs.zrg.step;
 
     texture_->clearAll();
@@ -567,12 +562,11 @@ void PlaneDataDisplay::setCubeSampling( CubeSampling cs )
     CubeSampling transformcs = getCubeSampling( false, false );
 
     if ( datatransformvoihandle_==-1 )
-    {
-	datatransformvoihandle_=
+	datatransformvoihandle_ =
 	    datatransform_->addVolumeOfInterest( transformcs );
-    }
     else
-	datatransform_->setVolumeOfInterest( datatransformvoihandle_, cs );
+	datatransform_->setVolumeOfInterest( datatransformvoihandle_,
+					     transformcs );
 }
 
 
