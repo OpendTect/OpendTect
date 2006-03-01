@@ -4,12 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodhelpmenumgr.cc,v 1.4 2005-09-26 12:57:33 cvsbert Exp $
+ RCS:           $Id: uiodhelpmenumgr.cc,v 1.5 2006-03-01 16:46:49 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiodhelpmenumgr.cc,v 1.4 2005-09-26 12:57:33 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodhelpmenumgr.cc,v 1.5 2006-03-01 16:46:49 cvsnanne Exp $";
 
 #include "uiodhelpmenumgr.h"
 #include "uiodmenumgr.h"
@@ -112,6 +112,12 @@ uiODHelpMenuMgr::uiODHelpMenuMgr( uiODMenuMgr* mm )
 	mInsertItem( helpmnu, "&Programmer ...", mProgrammerMnuItm );
     }
     mInsertItem( helpmnu, "&About ...", mAboutMnuItm );
+}
+
+
+uiODHelpMenuMgr::~uiODHelpMenuMgr()
+{
+    deepErase( entries );
 }
 
 

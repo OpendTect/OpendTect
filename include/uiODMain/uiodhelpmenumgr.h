@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Aug 2005
- RCS:           $Id: uiodhelpmenumgr.h,v 1.2 2005-08-23 16:54:17 cvsbert Exp $
+ RCS:           $Id: uiodhelpmenumgr.h,v 1.3 2006-03-01 16:46:49 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,6 +24,7 @@ class uiODHelpMenuMgr
 public:
 
     			uiODHelpMenuMgr(uiODMenuMgr*);
+    			~uiODHelpMenuMgr();
 
     void		handle(int,const char*);
 
