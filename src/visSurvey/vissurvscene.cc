@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: vissurvscene.cc,v 1.81 2006-03-01 20:19:07 cvskris Exp $
+ RCS:           $Id: vissurvscene.cc,v 1.82 2006-03-01 20:24:41 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -380,7 +380,7 @@ visBase::Marker* Scene::createMarker() const
     visBase::Marker* marker = visBase::Marker::create();
     marker->setType( MarkerStyle3D::Cross );
     marker->getMaterial()->setColor( cDefaultMarkerColor() );
-    marker->setScreenSize( 3 );
+    marker->setScreenSize( 6 );
     return marker;
 }
 
@@ -432,6 +432,7 @@ const Color& Scene::getMarkerColor() const
 const Color& Scene::cDefaultMarkerColor()
 {
     static Color res( 255,255,255 );
+    return res;
 }
 
 
