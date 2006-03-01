@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		25-10-1996
- RCS:		$Id: seisioobjinfo.h,v 1.4 2005-07-27 09:33:04 cvsnanne Exp $
+ RCS:		$Id: seisioobjinfo.h,v 1.5 2006-03-01 16:46:23 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,6 +32,8 @@ public:
 			SeisIOObjInfo(const IOObj&);
 			SeisIOObjInfo(const MultiID&);
 			SeisIOObjInfo(const SeisIOObjInfo&);
+			~SeisIOObjInfo();
+
     SeisIOObjInfo&	operator =(const SeisIOObjInfo&);
 
     inline bool		isOK() const	{ return !bad_; }

@@ -4,7 +4,7 @@
  * DATE     : June 2005
 -*/
 
-static const char* rcsID = "$Id: seisioobjinfo.cc,v 1.6 2005-11-09 13:54:28 cvsnanne Exp $";
+static const char* rcsID = "$Id: seisioobjinfo.cc,v 1.7 2006-03-01 16:46:23 cvsnanne Exp $";
 
 #include "seisioobjinfo.h"
 #include "seistrcsel.h"
@@ -37,6 +37,12 @@ SeisIOObjInfo::SeisIOObjInfo( const SeisIOObjInfo& sii )
 	, bad_(sii.bad_)
 {
     ioobj_ = sii.ioobj_ ? sii.ioobj_->clone() : 0;
+}
+
+
+SeisIOObjInfo::~SeisIOObjInfo()
+{
+    delete ioobj_;
 }
 
 
