@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:		$Id: uiseismmproc.cc,v 1.102 2006-02-20 18:49:49 cvsbert Exp $
+ RCS:		$Id: uiseismmproc.cc,v 1.103 2006-03-01 13:45:46 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -175,9 +175,9 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const IOPar& ip,
     usedmachfld->box()->setPrefWidthInChar( hostnmwdth );
     usedmachfld->box()->setPrefHeightInChar( maxhostdisp );
 
-    uiButton* stopbut = new uiPushButton( usedmachgrp, "Stop" );
+    uiButton* stopbut = new uiPushButton( usedmachgrp, "St&op", true );
     stopbut->activated.notify( mCB(this,uiSeisMMProc,stopPush) );
-    uiButton* vwlogbut = new uiPushButton( usedmachgrp, "View log" );
+    uiButton* vwlogbut = new uiPushButton( usedmachgrp, "&View log", false );
     vwlogbut->activated.notify( mCB(this,uiSeisMMProc,vwLogPush) );
     vwlogbut->attach( rightAlignedBelow, usedmachfld );
 
@@ -185,14 +185,14 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const IOPar& ip,
     if ( multihost )
     {
 	stopbut->attach( alignedBelow, usedmachfld );
-	addbut = new uiPushButton( machgrp, ">> Add >>" );
+	addbut = new uiPushButton( machgrp, ">> &Add >>", true );
 	if ( avmachfld )  addbut->attach( centeredRightOf, avmachfld );
 	usedmachgrp->attach( ensureRightOf, addbut );
 	machgrp->setHAlignObj( avmachfld );
     }
     else
     {
-	addbut = new uiPushButton( usedmachgrp, "Start" );
+	addbut = new uiPushButton( usedmachgrp, "St&art", true );
 	addbut->attach( alignedBelow, usedmachfld );
 	stopbut->attach( centeredBelow, usedmachfld );
     	machgrp->setHAlignObj( stopbut );

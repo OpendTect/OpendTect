@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          October 2005
- RCS:           $Id: uiwellrdmlinedlg.cc,v 1.7 2006-02-17 17:51:51 cvshelene Exp $
+ RCS:           $Id: uiwellrdmlinedlg.cc,v 1.8 2006-03-01 13:45:47 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -85,7 +85,7 @@ void uiWell2RandomLineDlg::createFields( uiGroup* topgrp )
     onlytopfld_->setValue(false);
 
     CallBack cb = mCB(this,uiWell2RandomLineDlg,previewPush);
-    previewbutton_ = new uiPushButton( this, "Preview", cb );
+    previewbutton_ = new uiPushButton( this, "&Preview", cb, true );
 }
 
 

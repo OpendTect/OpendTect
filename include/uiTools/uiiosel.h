@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiiosel.h,v 1.29 2006-01-16 12:20:40 cvshelene Exp $
+ RCS:           $Id: uiiosel.h,v 1.30 2006-03-01 13:45:46 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,7 +29,7 @@ public:
 			uiIOSelect(uiParent*,const CallBack& do_selection,
 				   const char* txt,
 				   bool withclear=false,
-				   const char* buttontxt="Select ...",
+				   const char* buttontxt="&Select",
 				   bool keepmytxt=false);
 			~uiIOSelect();
 
@@ -57,7 +57,7 @@ public:
     void		setReadOnly(bool readonly=true);
 
     void		doSel(CallBacker*);
-    			//!< Called by 'Select ...' button push.
+    			//!< Called by Select button push.
     			//!< Make sure selok_ is true if that is the case!
     Notifier<uiIOSelect> selectiondone;
 

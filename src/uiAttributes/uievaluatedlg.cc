@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          March 2003
- RCS:           $Id: uievaluatedlg.cc,v 1.7 2006-02-22 16:57:08 cvsbert Exp $
+ RCS:           $Id: uievaluatedlg.cc,v 1.8 2006-03-01 13:45:46 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -233,7 +233,7 @@ uiEvaluateDlg::uiEvaluateDlg( uiParent* p, uiAttrDescEd& ade, bool store )
     nrstepsfld->box()->setInterval( cSliceIntv );
     nrstepsfld->attach( alignedBelow, pargrp );
 
-    calcbut = new uiPushButton( this, "Calculate" );
+    calcbut = new uiPushButton( this, "Calculate", true );
     calcbut->activated.notify( mCB(this,uiEvaluateDlg,calcPush) );
     calcbut->attach( rightTo, nrstepsfld );
 

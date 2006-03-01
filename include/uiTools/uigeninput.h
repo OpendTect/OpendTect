@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Oct 2000
- RCS:           $Id: uigeninput.h,v 1.31 2005-11-18 16:56:07 cvsbert Exp $
+ RCS:           $Id: uigeninput.h,v 1.32 2006-03-01 13:45:46 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -215,7 +215,7 @@ Returns true, if changes are accepted.
 
     void		setWithCheck( bool yn=true )	{ withchk = yn; }
     void		setWithSelect( bool yn=true ) 
-			{ selText = yn ? "Select ..." : "" ; }
+			{ selText = yn ? "&Select" : "" ; }
 
     Notifier<uiGenInput> checked;
     Notifier<uiGenInput> valuechanging;
@@ -237,9 +237,9 @@ protected:
     uiPushButton*	selbut;
     uiPushButton*	clrbut;
 
-                        //! "Select ..." is pressed. Calls virtual doSelect
+                        //! Select is pressed. Calls virtual doSelect
     void		doSelect_(CallBacker*);
-                        //! "Select ..." is pressed. Called by doSelect_
+                        //! Select is pressed. Called by doSelect_
     virtual void	doSelect(CallBacker*)   {}
     void		doClear(CallBacker*);
 

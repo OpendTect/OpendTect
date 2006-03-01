@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          November 2001
- RCS:           $Id: uisettings.cc,v 1.15 2006-02-17 17:27:14 cvsbert Exp $
+ RCS:           $Id: uisettings.cc,v 1.16 2006-03-01 13:45:47 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,8 +22,8 @@ uiSettings::uiSettings( uiParent* p, const char* nm, const char* settskey )
 	, setts(Settings::fetch(settskey))
 {
     keyfld = new uiGenInput( this, "Settings keyword", StringInpSpec() );
-    uiButton* pb = new uiPushButton( this, "Select ...",
-	    			     mCB(this,uiSettings,selPush) );
+    uiButton* pb = new uiPushButton( this, "&Select",
+	    			     mCB(this,uiSettings,selPush), false );
     pb->attach( rightOf, keyfld );
 
     valfld = new uiGenInput( this, "Value", StringInpSpec() );

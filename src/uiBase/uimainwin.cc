@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.103 2006-02-23 22:59:38 cvskris Exp $
+ RCS:           $Id: uimainwin.cc,v 1.104 2006-03-01 13:45:46 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -878,14 +878,15 @@ void uiDialogBody::initChildren()
 uiObject* uiDialogBody::createChildren()
 {
     if ( setup.oktext_ != "" )
-	okBut = new uiPushButton( centralWidget_, setup.oktext_ );
+	okBut = new uiPushButton( centralWidget_, setup.oktext_, true );
     if ( setup.canceltext_ != "" )
-	cnclBut = new uiPushButton( centralWidget_, setup.canceltext_ );
+	cnclBut = new uiPushButton( centralWidget_, setup.canceltext_, true );
 
     if ( setup.savebutton_ && setup.savetext_ != "" )
     {
 	if ( setup.savebutispush_ )
-	    saveBut_pb= new uiPushButton( centralWidget_, setup.savetext_);
+	    saveBut_pb= new uiPushButton( centralWidget_, setup.savetext_,
+		    			  true);
 	else
 	{
 	    saveBut_cb = new uiCheckBox( centralWidget_, setup.savetext_ );
@@ -895,7 +896,7 @@ uiObject* uiDialogBody::createChildren()
     if ( setup.helpid_ != "" )
     {
 	const ioPixmap pixmap( GetIconFileName("contexthelp.png") );
-	helpBut = new uiToolButton( centralWidget_, "Help button", pixmap );
+	helpBut = new uiToolButton( centralWidget_, "&Help button", pixmap );
 	helpBut->setPrefWidthInChar( 5 );
 	static bool shwhid = GetEnvVarYN( "DTECT_SHOW_HELP" );
 #ifdef __debug__
@@ -1045,11 +1046,11 @@ void uiDialog::setCtrlStyle( uiDialog::CtrlStyle cs )
     break;
     case DoAndStay:
 	setOkText( "Go" );
-	setCancelText( "Dismiss" );
+	setCancelText( "&Dismiss" );
     break;
     case LeaveOnly:
-	setOkText( mBody->finalised() ? "Dismiss" : "" );
-	setCancelText( "Dismiss" );
+	setOkText( mBody->finalised() ? "&Dismiss" : "" );
+	setCancelText( "&Dismiss" );
     break;
     }
 }

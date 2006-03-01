@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          September 2003
- RCS:           $Id: uiwellman.cc,v 1.28 2005-10-07 10:06:36 cvsnanne Exp $
+ RCS:           $Id: uiwellman.cc,v 1.29 2006-03-01 13:45:47 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -62,7 +62,7 @@ uiWellMan::uiWellMan( uiParent* p )
 	    	       mCB(this,uiWellMan,exportLogs), "Export log" );
     butgrp->attach( rightTo, logsfld );
     
-    uiPushButton* markerbut = new uiPushButton( topgrp, "Edit markers ..." );
+    uiPushButton* markerbut = new uiPushButton( topgrp, "&Markers", false);
     markerbut->activated.notify( mCB(this,uiWellMan,edMarkers) );
     markerbut->attach( alignedBelow, listfld );
     markerbut->attach( ensureBelow, manipgrp );
@@ -70,12 +70,12 @@ uiWellMan::uiWellMan( uiParent* p )
     uiPushButton* d2tbut = 0;
     if ( SI().zIsTime() )
     {
-	d2tbut = new uiPushButton( topgrp, "Edit Depth/Time Model ..." );
+	d2tbut = new uiPushButton( topgrp, "&Depth/Time Model", false );
 	d2tbut->activated.notify( mCB(this,uiWellMan,edD2T) );
 	d2tbut->attach( rightOf, markerbut );
     }
 
-    uiPushButton* logsbut = new uiPushButton( topgrp, "Add logs ..." );
+    uiPushButton* logsbut = new uiPushButton( topgrp, "Add &Logs", false );
     logsbut->activated.notify( mCB(this,uiWellMan,addLogs) );
     logsbut->attach( alignedBelow, logsfld );
     if ( d2tbut )

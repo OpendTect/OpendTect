@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrdescseted.cc,v 1.24 2006-02-28 15:58:52 cvsbert Exp $
+ RCS:           $Id: uiattrdescseted.cc,v 1.25 2006-03-01 13:45:46 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -142,7 +142,7 @@ void uiAttribDescSetEd::createGroups()
     attrlistfld->setStretch( 2, 2 );
     attrlistfld->selectionChanged.notify( mCB(this,uiAttribDescSetEd,selChg) );
 
-    rmbut = new uiPushButton( leftgrp, "Remove selected" );
+    rmbut = new uiPushButton( leftgrp, "Remove selected", true );
     rmbut->attach( centeredBelow, attrlistfld );
     rmbut->activated.notify( mCB(this,uiAttribDescSetEd,rmPush) );
 
@@ -191,11 +191,11 @@ void uiAttribDescSetEd::createGroups()
     uiLabel* lbl = new uiLabel( rightgrp, "Attribute name" );
     lbl->attach( leftOf, attrnmfld );
 
-    addbut = new uiPushButton( rightgrp, "Add as new" );
+    addbut = new uiPushButton( rightgrp, "Add as new", true );
     addbut->attach( alignedBelow, attrnmfld );
     addbut->activated.notify( mCB(this,uiAttribDescSetEd,addPush) );
 
-    revbut = new uiPushButton( rightgrp, "Revert changes" );
+    revbut = new uiPushButton( rightgrp, "Revert changes", true );
     revbut->attach( rightTo, addbut );
     revbut->attach( rightBorder );
     revbut->activated.notify( mCB(this,uiAttribDescSetEd,revPush) );

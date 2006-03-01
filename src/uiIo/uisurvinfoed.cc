@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvinfoed.cc,v 1.73 2005-08-26 18:19:28 cvsbert Exp $
+ RCS:           $Id: uisurvinfoed.cc,v 1.74 2006-03-01 13:45:46 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -155,7 +155,7 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo* si_ )
 #ifdef __win__
     pathfld->setSensitive( false );
 #else
-    uiButton* pathbut = new uiPushButton( this, "Select" );
+    uiButton* pathbut = new uiPushButton( this, "&Select", false );
     pathbut->attach( rightOf, pathfld );
     pathbut->activated.notify( mCB(this,uiSurveyInfoEditor,pathbutPush) );
 #endif
@@ -188,7 +188,7 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo* si_ )
 	    }
 	    sipfld->setCurrentItem( nrprovs-2 ); // last one before copy
 	    sipfld->setPrefWidthInChar( maxlen + 10 );
-	    uiPushButton* sipbut = new uiPushButton( this, "Go ...", sipcb );
+	    uiPushButton* sipbut = new uiPushButton( this, "&Go", sipcb, false);
 	    sipbut->attach( rightOf, sipfld );
 	}
 	else
@@ -196,9 +196,8 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo* si_ )
 	    uiPushButton* prevbut = 0;
 	    for ( int idx=0; idx<nrprovs; idx++ )
 	    {
-		BufferString txt( survInfoProvs()[idx]->usrText() );
-		txt += " ...";
-		uiPushButton* newpb = new uiPushButton( this, txt, sipcb );
+		uiPushButton* newpb = new uiPushButton( this,
+			survInfoProvs()[idx]->usrText(), sipcb, false );
 		sipbuts += newpb;
 		if ( prevbut )
 		    newpb->attach( rightOf, prevbut );
@@ -304,7 +303,7 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo* si_ )
     ycrlfld->attach( rightOf, yinlfld );
     overrule->attach( alignedBelow, ycrlfld );
 
-    applybut = new uiPushButton( this, "Apply" ); 
+    applybut = new uiPushButton( this, "&Apply", true ); 
     applybut->activated.notify( mCB(this,uiSurveyInfoEditor,appButPushed) );
     applybut->attach( alignedBelow, crdgrp );
 

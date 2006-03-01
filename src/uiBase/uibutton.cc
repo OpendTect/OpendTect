@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uibutton.cc,v 1.27 2005-11-18 17:08:51 cvsdgb Exp $
+ RCS:           $Id: uibutton.cc,v 1.28 2006-03-01 13:45:46 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -189,28 +189,29 @@ const char* uiButton::text()
 #endif
 
 
-uiPushButton::uiPushButton( uiParent* parnt, const char* nm )
-    : uiButton( parnt, nm, 0, mkbody(parnt,0,nm) )
+uiPushButton::uiPushButton( uiParent* parnt, const char* nm, bool ia )
+    : uiButton( parnt, nm, 0, mkbody(parnt,0,nm,ia) )
     , pixmap_(0)
 {}
 
 
-uiPushButton::uiPushButton( uiParent* parnt, const char* nm, const CallBack& cb)
-    : uiButton( parnt, nm, &cb, mkbody(parnt,0,nm) )
+uiPushButton::uiPushButton( uiParent* parnt, const char* nm, const CallBack& cb,
+			    bool ia )
+    : uiButton( parnt, nm, &cb, mkbody(parnt,0,nm,ia) )
     , pixmap_(0)
 {}
 
 
 uiPushButton::uiPushButton( uiParent* parnt, const char* nm,
-			    const ioPixmap& pm )
-    : uiButton( parnt, nm, 0, mkbody(parnt,&pm,nm) )
+			    const ioPixmap& pm, bool ia )
+    : uiButton( parnt, nm, 0, mkbody(parnt,&pm,nm,ia) )
     , pixmap_(new ioPixmap(pm))
 {}
 
 
 uiPushButton::uiPushButton( uiParent* parnt, const char* nm,
-			    const ioPixmap& pm, const CallBack& cb )
-    : uiButton( parnt, nm, &cb, mkbody(parnt,&pm,nm) )
+			    const ioPixmap& pm, const CallBack& cb, bool ia )
+    : uiButton( parnt, nm, &cb, mkbody(parnt,&pm,nm,ia) )
     , pixmap_(new ioPixmap(pm))
 {}
 
@@ -222,10 +223,13 @@ uiPushButton::~uiPushButton()
 
 
 uiPushButtonBody& uiPushButton::mkbody( uiParent* parnt, const ioPixmap* pm,
-					const char* txt)
+					const char* txt, bool immact )
 {
-    if ( pm )	body_ = new uiPushButtonBody(*this,*pm,parnt,txt); 
-    else	body_ = new uiPushButtonBody(*this,parnt,txt); 
+    BufferString buttxt( txt );
+    if ( !immact )
+	buttxt += " ...";
+    if ( pm )	body_ = new uiPushButtonBody(*this,*pm,parnt,buttxt.buf()); 
+    else	body_ = new uiPushButtonBody(*this,parnt,buttxt.buf()); 
 
     return *body_; 
 }

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/08/2000
- RCS:           $Id: uidialog.h,v 1.40 2005-08-15 16:17:29 cvsbert Exp $
+ RCS:           $Id: uidialog.h,v 1.41 2006-03-01 13:45:46 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,7 +49,7 @@ public:
 			: wintitle_(window_title)
 			, dlgtitle_(dialog_title ? dialog_title : window_title)
 			, helpid_(help_id), savetext_("Save defaults")
-			, oktext_("Ok"), canceltext_("Cancel")
+			, oktext_("&Ok"), canceltext_("&Cancel")
 			, modal_(true) // if no parent given, always non-modal
 			, savebutton_(false), savebutispush_(false)
 			, separator_(true), menubar_(false), nrstatusflds_(0)

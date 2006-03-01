@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiioobjsel.h,v 1.43 2006-01-16 12:19:40 cvshelene Exp $
+ RCS:           $Id: uiioobjsel.h,v 1.44 2006-03-01 13:45:46 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -146,7 +146,7 @@ public:
 			uiIOObjSel(uiParent*,CtxtIOObj&,const char* txt=0,
 				   bool wthclear=false,
 				   const char* selectionlabel=0,
-				   const char* buttontxt="Select ...", 
+				   const char* buttontxt="&Select", 
 				   bool keepmytxt=false);
 			~uiIOObjSel();
 

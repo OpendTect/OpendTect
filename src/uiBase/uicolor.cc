@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink / Bril
  Date:          22/05/2000
- RCS:           $Id: uicolor.cc,v 1.15 2005-09-06 08:41:44 cvsnanne Exp $
+ RCS:           $Id: uicolor.cc,v 1.16 2006-03-01 13:45:46 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -94,7 +94,7 @@ uiColorInput::uiColorInput( uiParent* p, const Color& col,
 	, colorchanged(this)
 	, withalpha_(false)
 {
-    colbut_ = new uiPushButton( this, "" );
+    colbut_ = new uiPushButton( this, "", false );
     colbut_->activated.notify( mCB(this,uiColorInput,selCol) );
     
     if ( lbltxt && *lbltxt )

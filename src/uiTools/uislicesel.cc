@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uislicesel.cc,v 1.36 2006-03-01 12:33:43 cvsnanne Exp $
+ RCS:           $Id: uislicesel.cc,v 1.37 2006-03-01 13:45:47 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,8 +19,8 @@ ________________________________________________________________________
 #include "timer.h"
 #include "thread.h"
 
-static const char* sButTxtAdvance = "Advance >>";
-static const char* sButTxtPause = "Pause";
+static const char* sButTxtAdvance = "&Advance >>";
+static const char* sButTxtPause = "&Pause";
 
 
 uiSliceSel::uiSliceSel( uiParent* p, const CubeSampling& curcs,
@@ -55,11 +55,11 @@ uiSliceSel::uiSliceSel( uiParent* p, const CubeSampling& curcs,
 
     if ( !isvol_ && !is2d_ )
     {
-	uiButton* applybut = new uiPushButton( this, "Apply" );
+	uiButton* applybut = new uiPushButton( this, "&Apply", true );
 	applybut->activated.notify( mCB(this,uiSliceSel,applyPush) );
 	mainObject()->setTabOrder( (uiObject*)z0fld, (uiObject*)applybut );
 	applybut->attach( alignedBelow, z0fld );
-	uiButton* scrollbut = new uiPushButton( this, "Scroll ..." );
+	uiButton* scrollbut = new uiPushButton( this, "&Scroll", false );
 	scrollbut->activated.notify( mCB(this,uiSliceSel,scrollPush) );
 	scrollbut->attach( rightOf, isinl_ ? inl0fld : (iscrl_?crl0fld:z0fld) );
     }
@@ -175,10 +175,10 @@ uiSliceScroll( uiSliceSel* ss )
     typfld->box()->selectionChanged.notify( mCB(this,uiSliceScroll,typSel) );
     typfld->attach( alignedBelow, stepfld );
 
-    ctrlbut = new uiPushButton( this, sButTxtAdvance );
+    ctrlbut = new uiPushButton( this, sButTxtAdvance, true );
     ctrlbut->activated.notify( mCB(this,uiSliceScroll,butPush) );
     ctrlbut->attach( alignedBelow, typfld );
-    backbut = new uiPushButton( this, "<< Step back" );
+    backbut = new uiPushButton( this, "<< Step &Back", true );
     backbut->activated.notify( mCB(this,uiSliceScroll,butPush) );
     backbut->attach( leftOf, ctrlbut );
 

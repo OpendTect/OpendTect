@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          May 2002
- RCS:           $Id: uiimphorizon.cc,v 1.58 2006-02-22 20:37:11 cvskris Exp $
+ RCS:           $Id: uiimphorizon.cc,v 1.59 2006-03-01 13:45:46 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -60,8 +60,9 @@ uiImportHorizon::uiImportHorizon( uiParent* p )
 	    IOObjContext::getDataDirName(IOObjContext::Surf) );
     infld->valuechanged.notify( mCB(this,uiImportHorizon,inputCB) );
 
-    uiPushButton* scanbut = new uiPushButton( this, "Scan file ...", 
-					mCB(this,uiImportHorizon,scanFile) );
+    uiPushButton* scanbut = new uiPushButton( this, "Scan &file", 
+					mCB(this,uiImportHorizon,scanFile),
+					false );
     scanbut->attach( alignedBelow, infld );
 
     uiSeparator* sep = new uiSeparator( this, "Separator1" );
@@ -100,8 +101,8 @@ uiImportHorizon::uiImportHorizon( uiParent* p )
     stepoutfld->setElemSzPol( uiObject::small );
     stepoutfld->attach( rightTo, interpolfld );
 
-    attribbut = new uiPushButton( midgrp, "Attribute info ...",
-	    			  mCB(this,uiImportHorizon,attribSel) );
+    attribbut = new uiPushButton( midgrp, "Attribute &info",
+	    			  mCB(this,uiImportHorizon,attribSel), false );
     attribbut->attach( alignedBelow, interpolfld );
 
     uiSeparator* sep2 = new uiSeparator( this, "Separator2" );

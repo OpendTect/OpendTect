@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Oct 2003
- RCS:           $Id: uipluginman.cc,v 1.15 2006-02-16 12:36:20 cvsbert Exp $
+ RCS:           $Id: uipluginman.cc,v 1.16 2006-03-01 13:45:47 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,8 +34,8 @@ uiPluginMan::uiPluginMan( uiParent* p )
     fillList();
     listfld->selectionChanged.notify( mCB(this,uiPluginMan,selChg) );
 
-    uiPushButton* loadbut = new uiPushButton( leftgrp, " Load a plugin ... ",
-	    			mCB(this,uiPluginMan,loadPush) );
+    uiPushButton* loadbut = new uiPushButton( leftgrp, " &Load a plugin ",
+	    			mCB(this,uiPluginMan,loadPush), false );
     loadbut->attach( alignedBelow, listfld );
 
     infofld = new uiTextEdit( this, "Info" );

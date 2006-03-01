@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uigeninput.cc,v 1.71 2005-11-18 16:56:07 cvsbert Exp $
+ RCS:           $Id: uigeninput.cc,v 1.72 2006-03-01 13:45:47 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -365,7 +365,7 @@ uiBinIDInpFld::uiBinIDInpFld( uiGenInput* p, const DataInpSpec& spec,
     const bool transform = false;
     if ( transform )
     {
-	ofrmBut = new uiPushButton( &binidGrp, spc->otherTxt() );
+	ofrmBut = new uiPushButton( &binidGrp, spc->otherTxt(), false );
 	ofrmBut->activated.notify( mCB(this,uiBinIDInpFld,otherFormSel) );
 
 	ofrmBut->attach( rightTo, &crl_y );
@@ -758,14 +758,14 @@ void uiGenInput::doFinalise()
 
     if ( selText != "" )
     {
-	selbut = new uiPushButton( this, selText );
+	selbut = new uiPushButton( this, selText, false );
 	selbut->activated.notify( mCB(this,uiGenInput,doSelect_) );
 	selbut->attach( rightOf, lastElem );
     }
 
     if ( withclr )
     {
-	clrbut = new uiPushButton( this, "Clear ..." );
+	clrbut = new uiPushButton( this, "&Clear", true );
 	clrbut->attach( rightOf, selbut ? selbut : lastElem );
 	clrbut->activated.notify( mCB(this,uiGenInput,doClear) );
     }

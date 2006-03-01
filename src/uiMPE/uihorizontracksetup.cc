@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2005
- RCS:           $Id: uihorizontracksetup.cc,v 1.2 2006-02-27 11:18:15 cvsjaap Exp $
+ RCS:           $Id: uihorizontracksetup.cc,v 1.3 2006-03-01 13:45:46 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -141,7 +141,7 @@ uiHorizonSetupDialog::uiHorizonSetupDialog( uiParent* p,SectionTracker* tracker,
     extriffailfld->attach( ensureBelow, hsepbot );
     extriffailfld->setValue( !horadj_->removesOnFailure() );
 
-    applybut = new uiPushButton( this, "Apply" );
+    applybut = new uiPushButton( this, "&Apply", true );
     applybut->attach( alignedBelow, maingrp );
 
     finaliseDone.notify( mCB(this,uiHorizonSetupDialog,initWin) );

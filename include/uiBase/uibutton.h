@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uibutton.h,v 1.16 2005-09-06 08:41:44 cvsnanne Exp $
+ RCS:           $Id: uibutton.h,v 1.17 2006-03-01 13:45:46 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,7 +24,7 @@ class uiToolButtonBody;
 class ioPixmap;
 
 
-//! Button Abstract Base class
+//!\brief Button Abstract Base class
 class uiButton : public uiObject
 {
 public:
@@ -39,16 +39,25 @@ public:
 };
 
 
+/*!\brief Push button. By default, assumes immediate action, not a dialog
+  when pushed. The button text will in that case get an added " ..." to the
+  text. In principle, it could also get another appearance.
+  */
+
 class uiPushButton : public uiButton
 {
 public:
-				uiPushButton(uiParent*,const char* nm);
 				uiPushButton(uiParent*,const char* nm,
-					     const CallBack&); 
+					     bool immediate);
 				uiPushButton(uiParent*,const char* nm,
-					     const ioPixmap&);
+					     const CallBack&,
+					     bool immediate); 
 				uiPushButton(uiParent*,const char* nm,
-					     const ioPixmap&,const CallBack&);
+					     const ioPixmap&,
+					     bool immediate);
+				uiPushButton(uiParent*,const char* nm,
+					     const ioPixmap&,const CallBack&,
+					     bool immediate);
 				~uiPushButton();
 
     void			setDefault(bool yn=true);
@@ -60,7 +69,8 @@ public:
 private:
 
     uiPushButtonBody*		body_;
-    uiPushButtonBody&		mkbody(uiParent*,const ioPixmap*,const char*);
+    uiPushButtonBody&		mkbody(uiParent*,const ioPixmap*,const char*,
+	    				bool);
 
     const ioPixmap*		pixmap_;
 };

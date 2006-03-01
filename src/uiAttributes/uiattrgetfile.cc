@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrgetfile.cc,v 1.2 2006-02-28 16:33:24 cvsbert Exp $
+ RCS:           $Id: uiattrgetfile.cc,v 1.3 2006-03-01 13:45:46 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,8 +46,8 @@ uiGetFileForAttrSet::uiGetFileForAttrSet( uiParent* p, bool isads )
     if ( !isattrset_ )
     {
 	uiPushButton* but = new uiPushButton( this,
-				"Find from created cube ...",
-	       			mCB(this,uiGetFileForAttrSet,srchDir) );
+				"&Find from created cube",
+	       			mCB(this,uiGetFileForAttrSet,srchDir), false );
 	but->attach( rightOf, fileinpfld );
     }
     infofld = new uiTextEdit( this, "Attribute info", true );

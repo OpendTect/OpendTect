@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          22/05/2000
- RCS:           $Id: uifont.cc,v 1.21 2005-02-23 14:47:04 cvsarend Exp $
+ RCS:           $Id: uifont.cc,v 1.22 2006-03-01 13:45:46 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -314,10 +314,10 @@ uiSetFonts::uiSetFonts( uiParent* p, const char* nm )
     uiFontList::initialise();
     const ObjectSet<uiFont>& fonts = uiFontList::fonts;
     uiButtonGroup* butgrp = new uiButtonGroup( this, "" );
+    butgrp->setPrefWidthInChar( 25 );
     for ( int idx=0; idx<fonts.size(); idx++ )
     {
-	uiButton* but = new uiPushButton( butgrp, 
-					  (const char*)fonts[idx]->key());
+	uiButton* but = new uiPushButton( butgrp, fonts[idx]->key(), false );
         but->activated.notify( mCB(this,uiSetFonts,butPushed) );
 	buttons += but;
     }

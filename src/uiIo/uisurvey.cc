@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvey.cc,v 1.68 2006-01-10 15:45:41 cvsbert Exp $
+ RCS:           $Id: uisurvey.cc,v 1.69 2006-03-01 13:45:46 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -162,25 +162,25 @@ uiSurvey::uiSurvey( uiParent* p, bool isgdi )
     listbox->setStretch( 2, 2 );
     leftgrp->attach( leftOf, rightgrp );
 
-    newbut = new uiPushButton( leftgrp, "New ...",
-	    			mCB(this,uiSurvey,newButPushed) );
+    newbut = new uiPushButton( leftgrp, "&New",
+	    			mCB(this,uiSurvey,newButPushed), false );
     newbut->attach( rightOf, listbox );
     newbut->setPrefWidthInChar( 12 );
-    rmbut = new uiPushButton( leftgrp, "Remove ...",
-	    			mCB(this,uiSurvey,rmButPushed) );
+    rmbut = new uiPushButton( leftgrp, "&Remove",
+	    			mCB(this,uiSurvey,rmButPushed), false );
     rmbut->attach( alignedBelow, newbut );
     rmbut->setPrefWidthInChar( 12 );
-    editbut = new uiPushButton( leftgrp, "Edit ...",
-	    			mCB(this,uiSurvey,editButPushed) );
+    editbut = new uiPushButton( leftgrp, "&Edit",
+	    			mCB(this,uiSurvey,editButPushed), false );
     editbut->attach( alignedBelow, rmbut );
     editbut->setPrefWidthInChar( 12 );
-    copybut = new uiPushButton( leftgrp, "Copy ...",
-	    			mCB(this,uiSurvey,copyButPushed) );
+    copybut = new uiPushButton( leftgrp, "C&opy",
+	    			mCB(this,uiSurvey,copyButPushed), false );
     copybut->attach( alignedBelow, editbut );
     copybut->setPrefWidthInChar( 12 );
 
-    convbut = new uiPushButton( rightgrp, "X/Y <-> I/C ...",
-	    			mCB(this,uiSurvey,convButPushed) );
+    convbut = new uiPushButton( rightgrp, "&X/Y <-> I/C",
+	    			mCB(this,uiSurvey,convButPushed), false );
     convbut->attach( centeredBelow, mapcanvas );
     uiButton* tutbut = 0;
     if ( isgdi )
@@ -191,14 +191,14 @@ uiSurvey::uiSurvey( uiParent* p, bool isgdi )
 	const bool tutinst = File_exists( dirnm );
 	if ( tutinst && !direxists )
 	{
-	    tutbut = new uiPushButton( leftgrp, "Get Tutorial" );
+	    tutbut = new uiPushButton( leftgrp, "&Get Tutorial", true );
 	    tutbut->attach( alignedBelow, listbox );
 	    tutbut->activated.notify( mCB(this,uiSurvey,tutButPushed) );
 	}
     }
 
-    datarootbut = new uiPushButton( leftgrp, "Set Data Root ...",
-	    			mCB(this,uiSurvey,dataRootPushed) );
+    datarootbut = new uiPushButton( leftgrp, "&Set Data Root",
+	    			mCB(this,uiSurvey,dataRootPushed), false );
     datarootbut->attach( tutbut ? rightAlignedBelow : centeredBelow, listbox );
 
     uiSeparator* horsep1 = new uiSeparator( this );
@@ -248,7 +248,7 @@ uiSurvey::uiSurvey( uiParent* p, bool isgdi )
    
     getSurvInfo(); 
     mkInfo();
-    setOkText( "Select" );
+    setOkText( "&Ok (Select)" );
 }
 
 

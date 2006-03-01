@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          25/05/2000
- RCS:           $Id: uiioobjsel.cc,v 1.81 2006-01-16 12:19:52 cvshelene Exp $
+ RCS:           $Id: uiioobjsel.cc,v 1.82 2006-03-01 13:45:46 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -337,7 +337,7 @@ uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const CtxtIOObj& c,
     nm += c.ctxt.trgroup->userName();
     if ( ismultisel ) nm += "(s)";
     setTitleText( nm );
-    setOkText( "Select" );
+    setOkText( "&Ok (Select)" );
     finaliseDone.notify( mCB(this,uiIOObjSelDlg,setInitial) );
     selgrp->getListField()->box()->doubleClicked.notify(
 	    mCB(this,uiDialog,accept) );

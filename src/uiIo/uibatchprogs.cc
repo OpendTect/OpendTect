@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:           $Id: uibatchprogs.cc,v 1.22 2006-02-17 17:27:14 cvsbert Exp $
+ RCS:           $Id: uibatchprogs.cc,v 1.23 2006-03-01 13:45:46 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -201,8 +201,8 @@ uiBatchProgLaunch::uiBatchProgLaunch( uiParent* p, const char* appnm )
 	{
 	    if ( !exbut )
 	    {
-		exbut = new uiPushButton( this, "Show example input ...",
-				mCB(this,uiBatchProgLaunch,exButPush) );
+		exbut = new uiPushButton( this, "&Show example input",
+				mCB(this,uiBatchProgLaunch,exButPush), false );
 		if ( inplst->size() )
 		    exbut->attach( alignedBelow, (*inplst)[inplst->size()-1] );
 	    }

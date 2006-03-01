@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          October 2003
- RCS:           $Id: uiwelldlgs.cc,v 1.39 2006-02-17 17:27:14 cvsbert Exp $
+ RCS:           $Id: uiwelldlgs.cc,v 1.40 2006-03-01 13:45:47 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -65,8 +65,8 @@ uiMarkerDlg::uiMarkerDlg( uiParent* p, const Well::Track& t )
     unitfld = new uiGenInput( this, "Depth unit", mft );
     unitfld->attach( leftAlignedBelow, table );
 
-    uiButton* rfbut = new uiPushButton( this, "Read file ...",
-	    				mCB(this,uiMarkerDlg,rdFile) );
+    uiButton* rfbut = new uiPushButton( this, "&Read file",
+	    				mCB(this,uiMarkerDlg,rdFile), false );
     rfbut->attach( rightTo, unitfld ); rfbut->attach( rightBorder );
 }
 
@@ -224,10 +224,12 @@ uiD2TModelDlg::uiD2TModelDlg( uiParent* p, Well::Data& d )
     table->setNrRows( nremptyrows );
 
     uiGroup* actbutgrp = new uiGroup( this, "Action buttons grp" );
-    uiButton* updnowbut = new uiPushButton( actbutgrp, "Update display",
-	    				    mCB(this,uiD2TModelDlg,updNow) );
-    uiButton* readbut = new uiPushButton( actbutgrp, "Read new ...",
-	    				    mCB(this,uiD2TModelDlg,readNew) );
+    uiButton* updnowbut = new uiPushButton( actbutgrp, "&Update display",
+	    				    mCB(this,uiD2TModelDlg,updNow),
+					    true );
+    uiButton* readbut = new uiPushButton( actbutgrp, "&Read new ...",
+	    				    mCB(this,uiD2TModelDlg,readNew),
+					    false );
     readbut->attach( rightOf, updnowbut );
     actbutgrp->attach( centeredBelow, table );
 
@@ -490,8 +492,8 @@ uiLogSelDlg::uiLogSelDlg( uiParent* p, const Well::LogSet& logs )
     logscfld->setChecked( false );
     logscfld->attach( rightOf, rangefld );
 
-    uiPushButton* resetbut = new uiPushButton( this, "Reset",
-	    				mCB(this,uiLogSelDlg,resetPush));
+    uiPushButton* resetbut = new uiPushButton( this, "&Reset",
+	    				mCB(this,uiLogSelDlg,resetPush), true );
     resetbut->attach( rightOf, logscfld );
 
     dispfld = new uiGenInput( this, "Display", BoolInpSpec("Left","Right") );
