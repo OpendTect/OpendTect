@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          October 2006
- RCS:           $Id: zaxistransform.h,v 1.9 2005-12-26 17:08:34 cvskris Exp $
+ RCS:           $Id: zaxistransform.h,v 1.10 2006-03-01 15:41:14 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -56,7 +56,7 @@ public:
     				/*!<\returns the z interval in either to
 				     or from domain. */
 
-    NotifierAccess*		changeNotifier() { return 0; }
+    virtual NotifierAccess*	changeNotifier() { return 0; }
 };
 
 
