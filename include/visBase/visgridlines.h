@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		December 2005
- RCS:		$Id: visgridlines.h,v 1.4 2006-02-10 10:54:28 cvshelene Exp $
+ RCS:		$Id: visgridlines.h,v 1.5 2006-03-01 12:39:52 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -41,8 +41,7 @@ public:
     void			getLineStyle(LineStyle&) const;
 
     void			setGridCubeSampling(const CubeSampling&);
-    void			setPlaneCubeSampling( const CubeSampling& cs )
-							{ planecs_ = cs; }
+    void			setPlaneCubeSampling(const CubeSampling&);
     const CubeSampling&		getGridCubeSampling() 	{ return gridcs_; }
     const CubeSampling&		getPlaneCubeSampling() 	{ return planecs_; }
 

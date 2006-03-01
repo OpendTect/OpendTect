@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          December 2005
- RCS:           $Id: visgridlines.cc,v 1.5 2006-02-13 15:41:40 cvshelene Exp $
+ RCS:           $Id: visgridlines.cc,v 1.6 2006-03-01 12:39:52 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -85,6 +85,15 @@ void GridLines::setGridCubeSampling( const CubeSampling& cs )
 }
 
 
+void GridLines::setPlaneCubeSampling( const CubeSampling& cs )
+{
+    planecs_ = cs;
+    if ( inlines_ ) drawInlines();
+    if ( crosslines_ ) drawCrosslines();
+    if ( zlines_ ) drawZlines();
+}
+
+
 void GridLines::addLine( IndexedPolyLine& lines, const Coord3& start,
 			 const Coord3& stop )
 {
@@ -111,8 +120,8 @@ IndexedPolyLine* GridLines::addLineSet()
 
 void GridLines::emptyLineSet( IndexedPolyLine* line )
 {
-    line->removeCoordIndexAfter( 0 );
-    line->getCoordinates()->removeAfter( 0 );
+    line->removeCoordIndexAfter( -1 );
+    line->getCoordinates()->removeAfter( -1 );
 }
 
 
