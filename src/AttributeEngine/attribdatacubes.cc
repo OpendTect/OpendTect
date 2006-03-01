@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribdatacubes.cc,v 1.8 2005-11-28 13:28:47 cvsnanne Exp $";
+static const char* rcsID = "$Id: attribdatacubes.cc,v 1.9 2006-03-01 16:39:12 cvsnanne Exp $";
 
 #include "attribdatacubes.h"
 #include "survinfo.h"
@@ -108,7 +108,7 @@ bool DataCubes::getValue( int array, const BinIDValue& bidv, float* res,
     }
 
     float dummy;
-    if ( !interpolateSampled( data, zsz, zpos, dummy, false ) )
+    if ( !interpolateSampledWithUdf( data, zsz, zpos, dummy, false ) )
 	return false;
 
     *res = dummy;
