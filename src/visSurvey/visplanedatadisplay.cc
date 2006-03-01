@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.115 2006-03-01 12:32:23 cvsnanne Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.116 2006-03-01 16:31:32 cvskris Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -245,6 +245,8 @@ void PlaneDataDisplay::dataTransformCB( CallBacker* )
 {
     for ( int idx=0; idx<cache_.size(); idx++ )
 	setData( idx, cache_[idx] );
+
+    updateRanges();
 }
 
 
