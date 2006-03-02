@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: attribsel.cc,v 1.10 2006-02-16 22:02:12 cvskris Exp $
+ RCS:           $Id: attribsel.cc,v 1.11 2006-03-02 16:01:47 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -214,8 +214,9 @@ void SelInfo::fillStored( const char* filter )
 	     (!is2d && !iscbvs) ) continue;
 
 	if ( !strcmp(ioobj.group(),sKey::PSSeis) ) continue;
+	if ( ioobj.pars().find(sKey::DepthDomain) ) continue;
 
-	const char* res = ioobj.pars().find( "Type" );
+	const char* res = ioobj.pars().find( sKey::Type );
 	if ( res && !strcmp(res,sKey::Steering) ) continue;
 
 	const char* ioobjnm = ioobj.name().buf();
