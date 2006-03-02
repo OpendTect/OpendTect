@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.157 2006-03-01 12:36:41 cvsnanne Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.158 2006-03-02 12:55:56 cvshelene Exp $
 ___________________________________________________________________
 
 -*/
@@ -51,6 +51,7 @@ ___________________________________________________________________
 #include "uislicesel.h"
 #include "uipickszdlg.h"
 #include "uicolor.h"
+#include "uicursor.h"
 #include "uigridlinesdlg.h"
 
 
@@ -1872,12 +1873,14 @@ void uiODWellTreeItem::handleMenuCB( CallBacker* cb )
     }
     else if ( mnuid == editmnuitem_.id )
     {
-	//TODO implement
 	menu->setIsHandled( true );
 	bool yn = wd->isHomeMadeWell();
 	wd->setupPicking(!yn);
 	if ( !yn )
+	{
+	    uiCursorChanger cursorchgr( uiCursor::Wait );
 	    wd->showKnownPositions();
+	}
     }
 }
 
