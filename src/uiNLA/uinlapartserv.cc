@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uinlapartserv.cc,v 1.32 2006-02-06 16:17:54 cvsbert Exp $
+ RCS:           $Id: uinlapartserv.cc,v 1.33 2006-03-02 17:01:29 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,6 +24,7 @@ ________________________________________________________________________
 #include "uiioobjsel.h"
 #include "uidistribution.h"
 #include "uigeninput.h"
+#include "uicombobox.h"
 #include "uicanvas.h"
 #include "uimsg.h"
 #include "debug.h"
@@ -43,6 +44,7 @@ const int uiNLAPartServer::evGetData		= 5;
 const int uiNLAPartServer::evSaveMisclass	= 6;
 const int uiNLAPartServer::evCreateAttrSet	= 7;
 const int uiNLAPartServer::evIs2D		= 8;
+const char* uiNLAPartServer::sKeyUsrCancel	= "User cancel";
 
 
 uiNLAPartServer::uiNLAPartServer( uiApplService& a )
@@ -270,8 +272,82 @@ bool uiNLAPartServer::extractDirectData( const ObjectSet<PosVecDataSet>& vdss )
 }
 
 
+class uiLithCodeMan : public uiDialog
+{
+public:
+
+uiLithCodeMan( uiParent* p, const TypeSet<int>& codes, BufferStringSet& dets )
+    	: uiDialog(p,uiDialog::Setup("Manage codes",
+		    			"Specify how to handle codes"))
+	, details(dets)
+{
+    BufferStringSet opts;
+    opts.add( "Use" ); opts.add( "Merge into" ); opts.add( "Drop" );
+    uiLabeledComboBox* prevlcb = 0;
+    for ( int idx=0; idx<codes.size(); idx++ )
+    {
+	BufferString txt( "Code '" );
+	txt += codes[idx]; txt += "'";
+	uiLabeledComboBox* lcb = new uiLabeledComboBox( this, opts, txt );
+	uiGenInput* nmfld = new uiGenInput( this, "Name" );
+	uiGenInput* codefld = new uiGenInput( this, "Code" );
+
+	if ( prevlcb )
+	    lcb->attach( alignedBelow, prevlcb );
+	prevlcb = lcb;
+	nmfld->attach( rightOf, lcb );
+	codefld->attach( rightOf, lcb );
+
+	optflds += lcb->box();
+	nmflds += nmfld;
+	mrgcodeflds += codefld;
+	lcb->box()->selectionChanged.notify( mCB(this,uiLithCodeMan,selChg) );
+    }
+
+    selChg( 0 );
+}
+
+
+void selChg( CallBacker* sender )
+{
+    for ( int idx=0; idx<optflds.size(); idx++ )
+    {
+	uiComboBox* cb = optflds[idx];
+	if ( sender && sender != cb )
+	    continue;
+	const int opt = cb->currentItem();
+	nmflds[idx]->display( opt == 0 );
+	mrgcodeflds[idx]->display( opt == 1 );
+    }
+}
+
+
+bool acceptOK( CallBacker* )
+{
+    details.deepErase();
+    for ( int idx=0; idx<optflds.size(); idx++ )
+    {
+	uiComboBox* cb = optflds[idx];
+	const int opt = cb->currentItem();
+	BufferString txt( opt == 0 ? "U" : (opt == 1 ? "M" : "R") );
+	if ( opt == 0 )
+	    txt += nmflds[idx]->text();
+	else if ( opt == 1 )
+	    txt += mrgcodeflds[idx]->getIntValue();
+    }
+    return true;
+}
+
+    BufferStringSet&		details;
+    ObjectSet<uiComboBox>	optflds;
+    ObjectSet<uiGenInput>	nmflds;
+    ObjectSet<uiGenInput>	mrgcodeflds;
+
+};
+
+
 const char* uiNLAPartServer::convertToClasses(
-		    const ObjectSet<PosVecDataSet>& vdss, int firstgoodvds )
+	const ObjectSet<PosVecDataSet>& vdss, const int firstgoodvds )
 {
     const int valnr = vdss[firstgoodvds]->data().nrVals() - 1;
 
@@ -293,42 +369,51 @@ const char* uiNLAPartServer::convertToClasses(
 
     if ( codes.size() < 2 )
 	return "Only one lithology found - need at least 2";
-    else if ( codes.size() > 12 )
-	return "More than 12 lithologies found - please group lithologies";
+    else if ( codes.size() > 20 )
+	return "More than 20 lithologies found - please group lithologies";
 
     sort( codes );
+    BufferStringSet details;
+    uiLithCodeMan dlg( appserv().parent(), codes, details );
+    if ( !dlg.go() )
+	return sKeyUsrCancel;
 
-    // Extend with new cols and fill them
-    const BufferString orgnm( vdss[firstgoodvds]->colDef(valnr).name_ );
     for ( int iset=0; iset<vdss.size(); iset++ )
     {
 	PosVecDataSet& vds = *vdss[iset];
-	if ( vds.nrCols() < 1 ) continue;
-
-	for ( int icode=0; icode<codes.size(); icode++ )
-	{
-	    BufferString nm( orgnm );
-	    nm += " ["; nm += codes[icode]; nm += "]";
-	    DataColDef* dcd = new DataColDef( nm, nm, 0 );
-	    vds.add( dcd );
-	}
-	if ( vds.data().isEmpty() ) continue;
-
-	// Put 1's and 0's
-	BinIDValueSet& bvs = vds.data();
-	BinIDValueSet::Pos pos;
-	while( bvs.next(pos) )
-	{
-	    float* vals = bvs.getVals( pos );
-	    const float val = vals[valnr];
-	    if ( Values::isUdf(val) ) continue;
-	    const int code = mNINT(val);
-	    for ( int icode=0; icode<codes.size(); icode++ )
-		vals[valnr+icode+1] = code == codes[icode] ? 1 : 0;
-	}
+	if ( vds.nrCols() > 0 )
+	    extendAndFillNewCols( vds, valnr, codes, details );
     }
-
     return 0;
+}
+
+
+
+void uiNLAPartServer::extendAndFillNewCols( PosVecDataSet& vds, const int valnr,
+		const TypeSet<int>& codes, const BufferStringSet& details )
+{
+    pErrMsg( "TODO: use user's prefs to manage codes" );
+    for ( int icode=0; icode<codes.size(); icode++ )
+    {
+	BufferString nm;
+	nm += "Litho "; nm += codes[icode];
+	DataColDef* dcd = new DataColDef( nm, nm, 0 );
+	vds.add( dcd );
+    }
+    if ( vds.data().isEmpty() ) return;
+
+    // Put 1's and 0's
+    BinIDValueSet& bvs = vds.data();
+    BinIDValueSet::Pos pos;
+    while( bvs.next(pos) )
+    {
+	float* vals = bvs.getVals( pos );
+	const float val = vals[valnr];
+	if ( Values::isUdf(val) ) continue;
+	const int code = mNINT(val);
+	for ( int icode=0; icode<codes.size(); icode++ )
+	    vals[valnr+icode+1] = code == codes[icode] ? 1 : 0;
+    }
 }
 
 
@@ -409,7 +494,7 @@ const char* uiNLAPartServer::prepareInputData(
     }
 
     trainvds.data().empty(); testvds.data().empty();
-    return "User cancel";
+    return sKeyUsrCancel;
 }
 
 

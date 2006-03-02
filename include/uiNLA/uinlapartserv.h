@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uinlapartserv.h,v 1.15 2006-02-06 16:17:54 cvsbert Exp $
+ RCS:           $Id: uinlapartserv.h,v 1.16 2006-03-02 17:01:29 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -65,13 +65,15 @@ public:
     static const int	evGetStoredInput;
 			//!< need to put stored data into attrset
     static const int	evGetData;
-    			//!< need to fill fsTrain() and fsTest()
+    			//!< need to fill vdsTrain() and vdsTest()
     static const int	evSaveMisclass;
-    			//!< use misclass analysis FS; user wants it.
+    			//!< use misclass analysis VDS; user wants it.
     static const int	evCreateAttrSet;
     			//!< create attributeset from GDI NN
     static const int	evIs2D;
     			//!< find out if we are working 2D
+    static const char*	sKeyUsrCancel;
+    			//!< Returned when operation must stop without error
 
     			// Following should be filled on events
     BufferStringSet&	inputNames()			{ return inpnms; }
@@ -85,8 +87,6 @@ public:
 
     void		getBinIDValueSets(ObjectSet<BinIDValueSet>&) const;
     const char*		prepareInputData(const ObjectSet<PosVecDataSet>&);
-    bool		extractDirectData(const ObjectSet<PosVecDataSet>&);
-    const char*		convertToClasses(const ObjectSet<PosVecDataSet>&,int);
 
 protected:
 
@@ -97,6 +97,11 @@ protected:
     IOPar&		storepars;
 
     void		writeSets(CallBacker*);
+    bool		extractDirectData(const ObjectSet<PosVecDataSet>&);
+    const char*		convertToClasses(const ObjectSet<PosVecDataSet>&,int);
+    void		extendAndFillNewCols(PosVecDataSet&,const int,
+	    				     const TypeSet<int>&,
+					     const BufferStringSet&);
 };
 
 
