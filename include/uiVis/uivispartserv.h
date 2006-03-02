@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.161 2006-02-14 13:32:19 cvshelene Exp $
+ RCS:           $Id: uivispartserv.h,v 1.162 2006-03-02 20:27:53 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -152,7 +152,8 @@ public:
     MultiID		getMultiID(int) const;
 	
     int			getSelObjectId() const;
-    void		setSelObjectId(int);
+    int			getSelAttribNr() const;
+    void		setSelObjectId(int visid,int attrib=-1);
 
     			//Events and their functions
     void		unlockEvent();
@@ -290,6 +291,7 @@ protected:
     Threads::Mutex&		eventmutex_;
     int				eventobjid_;
     int				eventattrib_;
+    int				selattrib_;
 
     void			rightClickCB(CallBacker*);
     void			selectObjCB(CallBacker*);

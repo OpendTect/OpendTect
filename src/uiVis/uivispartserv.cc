@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.302 2006-02-14 21:40:12 cvskris Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.303 2006-03-02 20:27:53 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -65,6 +65,7 @@ uiVisPartServer::uiVisPartServer( uiApplService& a )
     , issolomode_(false)
     , eventobjid_(-1)
     , eventattrib_(-1)
+    , selattrib_(-1)
     , eventmutex_(*new Threads::Mutex)
     , mouseposval_(mUndefValue)
     , mouseposstr_("")
@@ -307,9 +308,21 @@ int uiVisPartServer::getSelObjectId() const
 }
 
 
-void uiVisPartServer::setSelObjectId( int id )
+int uiVisPartServer::getSelAttribNr() const
+{ return selattrib_; }
+
+
+void uiVisPartServer::setSelObjectId( int id, int attrib )
 {
     visBase::DM().selMan().select( id );
+    if ( id==-1 )
+	return;
+
+    selattrib_ = attrib;
+
+    eventmutex_.lock();
+    eventobjid_ = id;
+    sendEvent( evSelection );
 }
 
 
@@ -1150,6 +1163,8 @@ void uiVisPartServer::selectObjCB( CallBacker* cb )
     if ( !viewmode_ && so )
 	so->showManipulator(true);
 
+    selattrib_ = -1;
+
     eventmutex_.lock();
     eventobjid_ = sel;
     sendEvent( evSelection );
@@ -1179,6 +1194,7 @@ void uiVisPartServer::deselectObjCB( CallBacker* cb )
 
     eventmutex_.lock();
     eventobjid_ = oldsel;
+    selattrib_ = -1;
     sendEvent( evDeSelection );
 
     eventmutex_.lock();
