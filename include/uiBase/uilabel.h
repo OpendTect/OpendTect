@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          7/9/2000
- RCS:           $Id: uilabel.h,v 1.8 2004-09-08 09:23:12 arend Exp $
+ RCS:           $Id: uilabel.h,v 1.9 2006-03-02 16:49:47 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,6 +49,8 @@ public:
     int			alignment() const;
 
 private:
+
+    void		init(const char* txt,uiObject* buddy);
 
     uiLabelBody*	body_;
     uiLabelBody&	mkbody(uiParent*,const char*);

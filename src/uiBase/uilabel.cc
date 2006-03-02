@@ -4,6 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          7/9/2000
+ RCS:		$Id: uilabel.cc,v 1.11 2006-03-02 16:49:38 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,30 +41,27 @@ public:
 uiLabel::uiLabel( uiParent* p, const char* txt )
     : uiObject(p,txt,mkbody(p,txt))
 {
-    setText(txt);
-    setStretch( 0, 0 );
+    init( txt, 0 );
 }
 
 
 uiLabel::uiLabel( uiParent* p, const char* txt, uiGroup* grp )
     : uiObject(p,txt,mkbody(p,txt))
 {
-    setText(txt);
-
-    uiObject* buddy = grp ? grp->attachObj() : 0;
-    if ( buddy )
-    {
-	body_->setBuddy( buddy->body()->qwidget() );
-	buddy->attach( rightOf, this );
-    }
-    setStretch( 0, 0 );
+    init( txt, grp ? grp->attachObj() : 0 );
 }
 
 
 uiLabel::uiLabel( uiParent* p, const char* txt, uiObject* buddy )
     : uiObject(p,txt,mkbody(p,txt))
 {
-    setText(txt);
+    init( txt, buddy );
+}
+
+
+void uiLabel::init( const char* txt, uiObject* buddy )
+{
+    setText( txt );
 
     if ( buddy ) 
     {
@@ -83,7 +81,7 @@ uiLabelBody& uiLabel::mkbody( uiParent* p, const char* txt )
 
 void uiLabel::setText( const char* txt )
 { 
-    body_->setText( QString(txt) ); 
+    body_->setText( QString(txt) );
 }
 
 
