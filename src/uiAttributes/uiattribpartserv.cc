@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiattribpartserv.cc,v 1.26 2006-01-31 09:09:01 cvsnanne Exp $
+ RCS:           $Id: uiattribpartserv.cc,v 1.27 2006-03-02 18:51:09 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,6 +30,7 @@ ________________________________________________________________________
 #include "binidvalset.h"
 #include "nlacrdesc.h"
 #include "nlamodel.h"
+#include "iodir.h"
 #include "iopar.h"
 #include "ioobj.h"
 #include "ioman.h"
@@ -615,6 +616,42 @@ MenuItem* uiAttribPartServer::nlaAttribMenuItem( const SelSpec& as )
 }
 
 
+// TODO: create more general function, for now it does what we need
+MenuItem* uiAttribPartServer::depthdomainAttribMenuItem( const SelSpec& as,
+							 const char* key )
+{
+    BufferString itmtxt = key; itmtxt += " Cubes";
+    depthdomainmnuitem.text = itmtxt;
+    depthdomainmnuitem.removeItems();
+    depthdomainmnuitem.checked = false;
+
+    IOM().to( MultiID(IOObjContext::getStdDirData(IOObjContext::Seis)->id) );
+    const ObjectSet<IOObj>& ioobjs = IOM().dirPtr()->getObjs();
+
+    BufferStringSet ioobjnms;
+    for ( int idx=0; idx<ioobjs.size(); idx++ )
+    {
+	const IOObj& ioobj = *ioobjs[idx];
+	const char* res = ioobj.pars().find( sKey::DepthDomain );
+	if ( res && !strcmp(res,key) )
+	    ioobjnms.add( ioobj.name() );
+    }
+
+    ioobjnms.sort();
+    for ( int idx=0; idx<ioobjnms.size(); idx++ )
+    {
+	const BufferString& nm = ioobjnms.get( idx );
+	MenuItem* itm = new MenuItem( nm );
+	const bool docheck = nm == as.userRef();
+	mAddManagedMenuItem( &depthdomainmnuitem, itm, true, docheck );
+	if ( docheck ) depthdomainmnuitem.checked = true;
+    }
+
+    depthdomainmnuitem.enabled = depthdomainmnuitem.nrItems();
+    return &depthdomainmnuitem;
+}
+
+
 bool uiAttribPartServer::handleAttribSubMenu( int mnuid, SelSpec& as ) const
 {
     uiAttrSelData attrdata( adsman->descSet() );
@@ -641,6 +678,14 @@ bool uiAttribPartServer::handleAttribSubMenu( int mnuid, SelSpec& as ) const
     {
 	outputnr = nlamnuitem.itemIndex(nlamnuitem.findItem(mnuid));
 	isnla = true;
+    }
+    else if ( depthdomainmnuitem.findItem(mnuid) )
+    {
+	const MenuItem* item = depthdomainmnuitem.findItem( mnuid );
+	IOM().to( MultiID(IOObjContext::getStdDirData(IOObjContext::Seis)->id));
+	PtrMan<IOObj> ioobj = IOM().getLocal( item->text );
+	if ( ioobj )
+	    attribid = adsman->descSet()->getStoredID( ioobj->key() );
     }
     else
 	return false;

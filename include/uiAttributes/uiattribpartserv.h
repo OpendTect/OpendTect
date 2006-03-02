@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiattribpartserv.h,v 1.8 2005-11-11 22:36:08 cvskris Exp $
+ RCS:           $Id: uiattribpartserv.h,v 1.9 2006-03-02 18:50:58 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -115,8 +115,9 @@ public:
     MenuItem*         	storedAttribMenuItem(const Attrib::SelSpec&);
     MenuItem*         	calcAttribMenuItem(const Attrib::SelSpec&);
     MenuItem*         	nlaAttribMenuItem(const Attrib::SelSpec&);
+    MenuItem*         	depthdomainAttribMenuItem(const Attrib::SelSpec&,
+	    					  const char* key);
 
-    
     bool		handleAttribSubMenu(int mnuid,Attrib::SelSpec&) const;
 
     void		getTargetAttribNames(BufferStringSet&) const;
@@ -131,6 +132,7 @@ protected:
     MenuItem            storedmnuitem;
     MenuItem            calcmnuitem;
     MenuItem            nlamnuitem;
+    MenuItem            depthdomainmnuitem;
 
     Attrib::DescSetMan*	adsman;
     const Attrib::Desc*	dirshwattrdesc;
