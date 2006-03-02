@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.117 2006-02-14 13:32:19 cvshelene Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.118 2006-03-02 17:00:58 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -864,7 +864,7 @@ bool uiODApplMgr::handleNLAServEv( int evid )
 	    if ( dataextraction )
 		attrserv->curDescSet()->fillPar( nlaserv->storePars() );
 	    const char* res = nlaserv->prepareInputData( vdss );
-	    if ( res && *res && strcmp(res,"User cancel") )
+	    if ( res && *res && strcmp(res,uiNLAPartServer::sKeyUsrCancel) )
 		uiMSG().warning( res );
 	    if ( !dataextraction ) // i.e. if we have just read a PosVecDataSet
 		attrserv->replaceSet( vdss[0]->pars() );
