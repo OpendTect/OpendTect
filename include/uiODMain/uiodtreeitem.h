@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: uiodtreeitem.h,v 1.18 2006-02-16 15:49:44 cvskris Exp $
+ RCS:		$Id: uiodtreeitem.h,v 1.19 2006-03-02 21:25:41 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -110,12 +110,14 @@ public:
     				/*!<Adds custom create function for create
 				    function. */
 
+    bool		select();
 
 protected:
     int			uiListViewItemType() const;
     bool		init();
 
     void		checkCB(CallBacker*);
+    bool		shouldSelect(int) const;
 
     uiODApplMgr*	applMgr() const;
     uiSoViewer*		viewer() const;

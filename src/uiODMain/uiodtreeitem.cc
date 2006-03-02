@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.159 2006-03-02 18:52:47 cvsnanne Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.160 2006-03-02 21:25:41 cvskris Exp $
 ___________________________________________________________________
 
 -*/
@@ -330,6 +330,14 @@ void uiODDataTreeItem::checkCB( CallBacker* cb )
 }
 
 
+bool uiODDataTreeItem::shouldSelect( int selid ) const
+{
+    const uiVisPartServer* visserv = applMgr()->visServer();
+    return selid!=-1 && selid==displayID() &&
+	visserv->getSelAttribNr()==siblingIndex();
+}
+
+
 int uiODDataTreeItem::sceneID() const
 {
     int sceneid=-1;
@@ -382,6 +390,13 @@ void uiODDataTreeItem::createMenuCB( CallBacker* cb )
     mAddMenuItem( menu, &movemnuitem_, true, false );
     mAddMenuItem( menu, &removemnuitem_,
 	          !islocked && visserv->getNrAttribs( displayID())>1, false );
+}
+
+
+bool uiODDataTreeItem::select()
+{
+    applMgr()->visServer()->setSelObjectId( displayID(), siblingIndex() );
+    return true;
 }
 
 
@@ -474,6 +489,8 @@ bool uiODAttribTreeItem::anyButtonClick( uiListViewItem* item )
     if ( item!=uilistviewitem )
 	return uiTreeItem::anyButtonClick( item );
 
+    if ( !select() ) return false;
+
     uiVisPartServer* visserv = applMgr()->visServer();
     if ( !visserv->isClassification( displayID(), siblingIndex() ) )
 	applMgr()->modifyColorTable( displayID(), siblingIndex() );
@@ -481,6 +498,11 @@ bool uiODAttribTreeItem::anyButtonClick( uiListViewItem* item )
     return true;
 }
 
+
+bool uiODDisplayTreeItem::shouldSelect( int selkey ) const
+{
+    return uiTreeItem::shouldSelect( selkey ) && visserv->getSelAttribNr()==-1;
+}
 
 
 void uiODAttribTreeItem::createMenuCB( CallBacker* cb )
