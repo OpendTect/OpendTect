@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.118 2006-03-02 17:00:58 cvsbert Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.119 2006-03-02 21:21:35 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -967,8 +967,10 @@ bool uiODApplMgr::handleAttribServEv( int evid )
     {
 	const int visid = visserv->getEventObjId();
 	const int sliceidx = attrserv->getSliceIdx();
-	visserv->selectTexture( visid, visserv->getEventAttrib(), sliceidx );
-	modifyColorTable( visid, visserv->getEventAttrib() );
+	const int attrnr = visserv->getSelAttribNr()==-1
+	    ? 0 : visserv->getSelAttribNr();
+	visserv->selectTexture( visid, attrnr, sliceidx );
+	modifyColorTable( visid, attrnr );
 	sceneMgr().updateTrees();
     }
     else if ( evid==uiAttribPartServer::evEvalStoreSlices )
@@ -991,7 +993,7 @@ bool uiODApplMgr::handleAttribServEv( int evid )
 void uiODApplMgr::pageUpDownPressed( bool up )
 {
     const int visid = visserv->getEventObjId();
-    const int attrib = visserv->getEventAttrib();
+    const int attrib = visserv->getSelAttribNr();
     int texture = visserv->selectedTexture( visid, attrib );
     if ( texture<visserv->nrTextures(visid,attrib)-1 && up )
 	texture++;
