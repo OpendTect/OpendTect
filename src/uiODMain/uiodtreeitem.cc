@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.158 2006-03-02 12:55:56 cvshelene Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.159 2006-03-02 18:52:47 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -489,11 +489,10 @@ void uiODAttribTreeItem::createMenuCB( CallBacker* cb )
 
     selattrmnuitem_.removeItems();
     uiVisPartServer* visserv = applMgr()->visServer();
-    if ( visserv->hasAttrib(displayID()) )
+    const Attrib::SelSpec* as = visserv->getSelSpec( displayID(),
+						     siblingIndex() );
+    if ( as && visserv->hasAttrib(displayID()) )
     {
-	const Attrib::SelSpec* as = visserv->getSelSpec(displayID(),
-							siblingIndex() );
-
 	uiAttribPartServer* attrserv = applMgr()->attrServer();
 	MenuItem* subitem = attrserv->storedAttribMenuItem( *as );
 	mAddMenuItem( &selattrmnuitem_, subitem, subitem->nrItems(),
@@ -506,6 +505,14 @@ void uiODAttribTreeItem::createMenuCB( CallBacker* cb )
 	subitem = attrserv->nlaAttribMenuItem( *as );
 	if ( subitem && subitem->nrItems() )
 	    mAddMenuItem( &selattrmnuitem_, subitem, true, subitem->checked );
+
+	mDynamicCastGet(visSurvey::Scene*,scene,visserv->getObject(sceneID()))
+	if ( scene && scene->getDataTransform() )
+	{
+	    // TODO: get depthdomain key from scene
+	    subitem = attrserv->depthdomainAttribMenuItem( *as, sKey::Wheeler );
+	    mAddMenuItem( &selattrmnuitem_, subitem, true, subitem->checked );
+	}
 
 	mAddMenuItem( menu, &selattrmnuitem_, 
 		      !visserv->isLocked(displayID()), false );
