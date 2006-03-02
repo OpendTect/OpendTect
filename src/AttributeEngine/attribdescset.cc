@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribdescset.cc,v 1.38 2006-02-21 13:29:35 cvsbert Exp $";
+static const char* rcsID = "$Id: attribdescset.cc,v 1.39 2006-03-02 13:52:47 cvsbert Exp $";
 
 #include "attribdescset.h"
 #include "attribstorprovider.h"
@@ -41,12 +41,13 @@ void DescSet::updateInputs()
 {
     for ( int idx=0; idx<nrDescs(); idx++ )
     {
-	for ( int inpidx=0; inpidx<descs[idx]->nrInputs(); inpidx++ )
+	Desc& dsc = *descs[idx];
+	for ( int inpidx=0; inpidx<dsc.nrInputs(); inpidx++ )
 	{
-	    const Desc* oldinpdesc = descs[idx]->getInput( inpidx );
+	    const Desc* oldinpdesc = dsc.getInput( inpidx );
 	    if ( !oldinpdesc ) continue;
 	    Desc* newinpdesc = getDesc( oldinpdesc->id() );
-	    descs[idx]->setInput( inpidx, newinpdesc );
+	    dsc.setInput( inpidx, newinpdesc );
 	}
     }
 }
@@ -84,9 +85,10 @@ int DescSet::nrDescs( bool incstored, bool inchidden ) const
     {
 	for ( int idx=0; idx<descs.size(); idx++ )
 	{
-	    if ( !incstored && descs[idx]->isStored() )
+	    const Desc& dsc = *descs[idx];
+	    if ( !incstored && dsc.isStored() )
 		ret--;
-	    else if ( !inchidden && descs[idx]->isHidden() )
+	    else if ( !inchidden && dsc.isHidden() )
 		ret--;
 	}
     }
@@ -94,9 +96,9 @@ int DescSet::nrDescs( bool incstored, bool inchidden ) const
 }
 
 
-DescID DescSet::getID( const Desc& desc ) const
+DescID DescSet::getID( const Desc& dsc ) const
 {
-    const int idx = descs.indexOf( &desc );
+    const int idx = descs.indexOf( &dsc );
     return idx==-1 ? DescID::undef() : ids[idx];
 }
 
@@ -120,12 +122,13 @@ DescID DescSet::getID( const char* str, bool isusrref ) const
 
     for ( int idx=0; idx<nrDescs(); idx++ )
     {
-	if ( isusrref && descs[idx]->isIdentifiedBy(str) )
+	const Desc& dsc = *descs[idx];
+	if ( isusrref && dsc.isIdentifiedBy(str) )
 	    return ids[idx];
 	else if ( !isusrref )
 	{
 	    BufferString defstr;
-	    descs[idx]->getDefStr( defstr );
+	    dsc.getDefStr( defstr );
 	    if ( defstr == str )
 		return ids[idx];
 	}
@@ -159,22 +162,23 @@ void DescSet::fillPar( IOPar& par ) const
 
     for ( int idx=0; idx<descs.size(); idx++ )
     {
+	const Desc& dsc = *descs[idx];
 	IOPar apar;
 	BufferString defstr;
-	if ( !descs[idx]->getDefStr(defstr) ) continue;
+	if ( !dsc.getDefStr(defstr) ) continue;
 	apar.set( definitionStr(), defstr );
 
-	BufferString userref( descs[idx]->userRef() );
+	BufferString userref( dsc.userRef() );
 	apar.set( userRefStr(), userref );
 
-	apar.setYN( hiddenStr(), descs[idx]->isHidden() );
+	apar.setYN( hiddenStr(), dsc.isHidden() );
 
-	for ( int input=0; input<descs[idx]->nrInputs(); input++ )
+	for ( int input=0; input<dsc.nrInputs(); input++ )
 	{
-	    if ( !descs[idx]->getInput(input) ) continue;
+	    if ( !dsc.getInput(input) ) continue;
 
 	    const char* key = IOPar::compKey( inputPrefixStr(), input );
-	    apar.set( key, getID( *descs[idx]->getInput(input) ).asInt() );
+	    apar.set( key, getID( *dsc.getInput(input) ).asInt() );
 	}
 
 	BufferString subkey = ids[idx].asInt();
@@ -252,17 +256,17 @@ Desc* DescSet::createDesc( const BufferString& attrname, const IOPar& descpar,
 			   const BufferString& defstring, 
 			   BufferStringSet* errmsgs )
 {
-    Desc* desc = PF().createDescCopy( attrname );
-    if ( !desc )
+    Desc* dsc = PF().createDescCopy( attrname );
+    if ( !dsc )
     {
 	BufferString err = "Cannot find factory-entry for ";
 	err += attrname;
 	mHandleDescErr(err);
     }
 
-    if ( !desc->parseDefStr(defstring.buf()) )
+    if ( !dsc->parseDefStr(defstring.buf()) )
     {
-	if ( !desc->isStored() )
+	if ( !dsc->isStored() )
 	{
 	    BufferString err = "Cannot parse: ";
 	    err += defstring;
@@ -271,35 +275,35 @@ Desc* DescSet::createDesc( const BufferString& attrname, const IOPar& descpar,
     }
 
     const char* userref = descpar.find( userRefStr() );
-    if ( userref ) desc->setUserRef( userref );
+    if ( userref ) dsc->setUserRef( userref );
 
     bool ishidden = false;
     descpar.getYN( hiddenStr(), ishidden );
-    desc->setHidden( ishidden );
+    dsc->setHidden( ishidden );
 
-    if ( desc-> isStored() )
+    if ( dsc->isStored() )
     {
 	const char* type = descpar.find( "Datatype" ); 
 	if ( type && !strcmp( type, "Dip" ) )
-	    desc->setStoredDataType(Seis::Dip);
+	    dsc->setStoredDataType(Seis::Dip);
     }
 
     int selout = 0;
     if ( descpar.get("Selected Attrib",selout) )
-	desc->selectOutput(selout);
+	dsc->selectOutput(selout);
 
-    return desc;
+    return dsc;
 }
 
 
-void DescSet::handleReferenceInput( Desc* desc )
+void DescSet::handleReferenceInput( Desc* dsc )
 {
-    if ( desc->isSatisfied() == Desc::Error )
+    if ( dsc->isSatisfied() == Desc::Error )
     {
 	Desc* inpdesc = getFirstStored( is2D() ? Only2D : No2D, false );
 	if ( !inpdesc ) return;
 
-	desc->setInput( 0, inpdesc );
+	dsc->setInput( 0, inpdesc );
     }
 }
 
@@ -314,7 +318,8 @@ bool DescSet::setAllInputDescs( int nrdescsnosteer, const IOPar& copypar,
 	if ( !descpar )
 	    { pErrMsg("Huh?"); continue; }
 
-	for ( int input=0; input<descs[idx]->nrInputs(); input++ )
+	Desc& dsc = *descs[idx];
+	for ( int input=0; input<dsc.nrInputs(); input++ )
 	{
 	    const char* key = IOPar::compKey( inputPrefixStr(), input );
 
@@ -324,16 +329,16 @@ bool DescSet::setAllInputDescs( int nrdescsnosteer, const IOPar& copypar,
 	    Desc* inpdesc = getDesc( DescID(inpid,true) );
 	    if ( !inpdesc ) continue;
 
-	    descs[idx]->setInput( input, inpdesc );
+	    dsc.setInput( input, inpdesc );
 	}
 
-	if ( !strcmp( descs[idx]->attribName(), "Reference" ) )
-	    handleReferenceInput( descs[idx] );
+	if ( !strcmp( dsc.attribName(), "Reference" ) )
+	    handleReferenceInput( &dsc );
 	
-	if ( descs[idx]->isSatisfied() == Desc::Error )
+	if ( dsc.isSatisfied() == Desc::Error )
 	{
 	    BufferString err = "inputs or parameters are not satisfied for ";
-	    err += descs[idx]->attribName();
+	    err += dsc.attribName();
 	    mHandleParseErr(err);
 	}
     }
@@ -369,13 +374,13 @@ bool DescSet::usePar( const IOPar& par, BufferStringSet* errmsgs )
 
 	handleOldAttributes( attribname, *descpar, defstring );
 	
-	RefMan<Desc> desc;
-	desc = createDesc( attribname, *descpar, defstring, errmsgs );
-	if ( !desc )
+	RefMan<Desc> dsc;
+	dsc = createDesc( attribname, *descpar, defstring, errmsgs );
+	if ( !dsc )
 	    return false;
 
-	desc->updateParams();
-	addDesc( desc, DescID(id,true) );
+	dsc->updateParams();
+	addDesc( dsc, DescID(id,true) );
     }
     
     ObjectSet<Desc> newsteeringdescs;
@@ -414,8 +419,8 @@ bool DescSet::useOldSteeringPar( IOPar& par, ObjectSet<Desc>& newsteeringdescs,
 				     steeringdescid) )
 	        mHandleParseErr( "Cannot create steering desc" );
 	    
-	    Desc* desc = getDesc( DescID(id,true) );
-	    for ( int idx=0; idx<desc->nrInputs(); idx++ )
+	    Desc* dsc = getDesc( DescID(id,true) );
+	    for ( int idx=0; idx<dsc->nrInputs(); idx++ )
 	    {
 		BufferString inputstr = IOPar::compKey( "Input", idx );
 		if ( !strcmp(descpar->find(inputstr),"-1") )
@@ -549,11 +554,12 @@ bool DescSet::is2D() const
     is2d = false;
     for ( int idx=0; idx<descs.size(); idx++ )
     {
-	if ( !descs[idx]->isStored() )
+	const Desc& dsc = *descs[idx];
+	if ( !dsc.isStored() )
 	    continue;
 
 	const_cast<DescSet*>(this)->firsttime = false;
-	if ( descs[idx]->is2D() )
+	if ( dsc.is2D() )
 	{
 	    is2d = true;
 	    break;
@@ -568,13 +574,13 @@ DescID DescSet::getStoredID( const char* lk, int selout, bool create )
 {
     for ( int idx=0; idx<descs.size(); idx++ )
     {
-	const Desc* desc = descs[idx];
-	if ( !desc->isStored() || desc->selectedOutput()!=selout )
+	const Desc& dsc = *descs[idx];
+	if ( !dsc.isStored() || dsc.selectedOutput()!=selout )
 	    continue;
 
-	const ValParam* keypar = desc->getValParam( StorageProvider::keyStr() );
+	const ValParam* keypar = dsc.getValParam( StorageProvider::keyStr() );
 	const char* curlk = keypar->getStringValue();
-	if ( !strcmp(lk,curlk) ) return desc->id();
+	if ( !strcmp(lk,curlk) ) return dsc.id();
     }
 
     if ( !create ) return DescID::undef();
@@ -611,20 +617,20 @@ DescSet* DescSet::optimizeClone( const TypeSet<DescID>& targets ) const
     {
 	const DescID needednode = needednodes[0];
 	needednodes.remove( 0 );
-	const Desc* desc = getDesc( needednode );
-	if ( !desc )
+	const Desc* dsc = getDesc( needednode );
+	if ( !dsc )
 	{
 	    delete res;
 	    return 0;
 	}
 
-	Desc* nd = desc->clone();
+	Desc* nd = dsc->clone();
 	nd->setDescSet( res );
 	res->addDesc( nd, needednode );
 
-	for ( int idx=0; idx<desc->nrInputs(); idx++ )
+	for ( int idx=0; idx<dsc->nrInputs(); idx++ )
 	{
-	    const Desc* inpdesc = desc->getInput(idx);
+	    const Desc* inpdesc = dsc->getInput(idx);
 	    const DescID inputid = inpdesc ? inpdesc->id() : DescID::undef();
 	    if ( inputid!=DescID::undef() && !res->getDesc(inputid) )
 		needednodes += inputid;
@@ -643,10 +649,10 @@ bool DescSet::isAttribUsed( const DescID& id ) const
 {
     for ( int idx=0; idx<nrDescs(); idx++ )
     {
-	const Desc* ad = descs[idx];
-	for ( int inpnr=0; inpnr<ad->nrInputs(); inpnr++ )
+	const Desc& dsc = *descs[idx];
+	for ( int inpnr=0; inpnr<dsc.nrInputs(); inpnr++ )
 	{
-	    if ( ad->inputId(inpnr) == id )
+	    if ( dsc.inputId(inpnr) == id )
 		return true;
 	}
     }
@@ -667,17 +673,17 @@ int DescSet::removeUnused( bool remstored )
 	    DescID descid = getID( descidx );
 	    if ( torem.indexOf(descid) >= 0 ) continue;
 
-	    const Desc* ad = getDesc( descid );
+	    const Desc& dsc = *getDesc( descid );
 	    bool iscandidate = false;
-	    if ( ad->isStored() )
+	    if ( dsc.isStored() )
 	    {
 		const ValParam* keypar = 
-		    	ad->getValParam( StorageProvider::keyStr() );
+		    	dsc.getValParam( StorageProvider::keyStr() );
 		PtrMan<IOObj> ioobj = IOM().get( keypar->getStringValue() );
 		if ( remstored || !ioobj || !ioobj->implExists(true) )
 		    iscandidate = true;
 	    }
-	    else if ( ad->isHidden() )
+	    else if ( dsc.isHidden() )
 		iscandidate = true;
 
 	    if ( iscandidate )
@@ -702,104 +708,22 @@ Desc* DescSet::getFirstStored( Pol2D p2d, bool usesteering ) const
 {
     for ( int idx=0; idx<nrDescs(); idx++ )
     {
-	Desc* ad = descs[idx];
-	if ( !ad->isStored() ) continue;
+	const Desc& dsc = *descs[idx];
+	if ( !dsc.isStored() ) continue;
 
 	MultiID mid;
-	if ( !ad->getMultiID(mid) ) continue;
+	if ( !dsc.getMultiID(mid) ) continue;
 
 	PtrMan<IOObj> ioobj = IOM().get( mid );
 	const char* res = ioobj ? ioobj->pars().find( "Type" ) : 0;
 	const bool issteer = res && *res == 'S';
 	if ( !usesteering && issteer ) continue;
 
-	if ( (ad->is2D() && p2d != No2D) || (!ad->is2D() && p2d != Only2D) )
-	    return ad;
+	if ( (dsc.is2D() && p2d != No2D) || (!dsc.is2D() && p2d != Only2D) )
+	    return const_cast<Desc*>( &dsc );
     }
 
     return 0;
 }
 
-/*
-bool DescSet::setRanges( IOPar& iop, bool incstepout ) const
-{
-    CubeSampling cs;
-    if ( !getInputRanges(cs) )
-	return false;
-
-    if ( incstepout )
-    {
-	BinID stepout = getMaximumStepout();
-	cs.hrg.start.inl += stepout.inl * cs.hrg.step.inl;
-	cs.hrg.stop.inl -= stepout.inl * cs.hrg.step.inl;
-	cs.hrg.start.crl += stepout.crl * cs.hrg.step.crl;
-	cs.hrg.stop.crl -= stepout.crl * cs.hrg.step.crl;
-    }
-
-    iop.set( sKeyMaxInlRg, cs.hrg.start.inl, cs.hrg.stop.inl, cs.hrg.step.inl );
-    iop.set( sKeyMaxCrlRg, cs.hrg.start.crl, cs.hrg.stop.crl, cs.hrg.step.crl );
-	return true;
-}
-
-
-bool DescSet::getInputRanges( CubeSampling& cs, const char* lk ) const
-{
-    cs.init();
-    if ( is2D() )
-    {
-	cs.hrg.start.inl = cs.hrg.start.crl = 0;
-	cs.hrg.stop.inl = cs.hrg.stop.crl = mUndefIntVal;
-	cs.hrg.step.inl = cs.hrg.step.crl = 1;
-    }
-    
-    bool foundone = false;
-    for ( int idx=0; idx<ids.size(); idx++ )
-    {
-	const Desc* desc = getDesc( getID(ids[idx]) );
-	if ( !desc.isStored() ) continue;
-
-	CubeSampling lcs( cs );
-	if ( desc->getDataLimits(lcs,lk) )
-	{
-	    if ( !foundone )
-	    {
-		cs = lcs;
-		foundone = true;
-	    }
-	    else
-	    {
-		if ( ad->is2D() )
-		    lcs.zrg.step = cs.zrg.step;
-		cs.limitTo( lcs );
-	    }
-	}
-    }
-
-    return foundone;
-}
-
-
-BinID DescSet::getMaximumStepout() const
-{
-    BinID res(0,0);
-
-    for ( int idx=0; idx<ids.size(); idx++ )
-    {
-	TypeSet<int>    localstepoutids;
-	TypeSet<BinID>  localstepout;
-	if ( !getMaximumStepout( ids[idx], BinID(0,0),
-		    localstepoutids, localstepout ) )
-	    continue;
-
-	for ( int idy=0; idy<localstepoutids.size(); idy++ )
-	{
-	    res = BinID( mMAX(localstepout[idy].inl, res.inl),
-			 mMAX(localstepout[idy].crl, res.crl));
-	}
-    }
-
-    return res;
-}
-//missing another getMaxStepout
-*/
 }; // namespace Attrib

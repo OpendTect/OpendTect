@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrgetfile.cc,v 1.3 2006-03-01 13:45:46 cvsbert Exp $
+ RCS:           $Id: uiattrgetfile.cc,v 1.4 2006-03-02 13:52:47 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -94,7 +94,7 @@ void uiGetFileForAttrSet::selChg( CallBacker* )
     const int totalnrdescs = attrset_.nrDescs();
     for ( int idx=0; idx<totalnrdescs; idx++ )
     {
-	Desc* desc = attrset_.getDesc( attrset_.getID(idx) );
+	Desc* desc = attrset_.desc( idx );
 	if ( desc->isHidden() || desc->isStored() ) continue;
 
 	nrdone++;
