@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:		$Id: uiattrvolout.cc,v 1.16 2006-02-22 16:57:08 cvsbert Exp $
+ RCS:		$Id: uiattrvolout.cc,v 1.17 2006-03-02 16:22:03 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,14 +46,14 @@ const char* uiAttrVolOut::sKeyMaxInlRg = "Maximum Inline Range";
 static void setTypeAttr( CtxtIOObj& ctio, bool yn )
 {
     if ( yn )
-	ctio.ctxt.parconstraints.set( "Type", "Attribute" );
+	ctio.ctxt.parconstraints.set( sKey::Type, sKey::Attribute );
     else
-	ctio.ctxt.parconstraints.removeWithKey( "Type" );
+	ctio.ctxt.parconstraints.removeWithKey( sKey::Type );
 }
 
 
 uiAttrVolOut::uiAttrVolOut( uiParent* p, const DescSet& ad,
-				const NLAModel* n, MultiID id )
+			    const NLAModel* n, MultiID id )
 	: uiFullBatchDialog(p,"Process")
 	, ctio(mkCtxtIOObj())
     	, subselpar(*new IOPar)
