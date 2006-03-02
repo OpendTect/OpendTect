@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: volstatsattrib.cc,v 1.18 2006-01-30 15:08:10 cvshelene Exp $";
+static const char* rcsID = "$Id: volstatsattrib.cc,v 1.19 2006-03-02 12:52:51 cvshelene Exp $";
 
 #include "volstatsattrib.h"
 
@@ -131,10 +131,16 @@ VolStats::VolStats( Desc& ds )
     mGetFloatInterval( gate, gateStr() );
     gate.start /= zFactor(); gate.stop /= zFactor();
 
-    float extraz = mMAX(stepout.inl*inldist(), stepout.crl*crldist()) * mMAXDIP;
-    desgate = Interval<float>( gate.start-extraz, gate.stop+extraz );
-    
     mGetBool( steering, steeringStr() );
+    
+    if ( steering )
+    {
+	float extraz = mMAX(stepout.inl*inldist(), stepout.crl*crldist()) 
+	    		* mMAXDIP;
+	desgate = Interval<float>( gate.start-extraz, gate.stop+extraz );
+    }
+    else
+	desgate = Interval<float>(0,0);
     
     BinID pos;
     for ( pos.inl=-stepout.inl; pos.inl<=stepout.inl; pos.inl++ )
