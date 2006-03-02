@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uitreeitemmanager.cc,v 1.25 2006-01-30 23:00:57 cvskris Exp $";
+static const char* rcsID = "$Id: uitreeitemmanager.cc,v 1.26 2006-03-02 20:17:51 cvskris Exp $";
 
 
 #include "uitreeitemmanager.h"
@@ -75,7 +75,7 @@ bool uiTreeItem::anyButtonClick( uiListViewItem* item )
 void uiTreeItem::updateSelection( int selid, bool downward )
 {
     if ( uilistviewitem )
-	uilistviewitem->setSelected( selid!=-1 && selid==selectionKey() );
+	uilistviewitem->setSelected( shouldSelect(selid) );
 
     if ( downward )
     {
@@ -84,6 +84,12 @@ void uiTreeItem::updateSelection( int selid, bool downward )
     }
     else if ( parent )
 	parent->updateSelection( selid, false );
+}
+
+
+bool uiTreeItem::shouldSelect( int selid ) const
+{
+    return selid!=-1 && selid==selectionKey();
 }
 
 

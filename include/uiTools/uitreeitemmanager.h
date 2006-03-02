@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: uitreeitemmanager.h,v 1.22 2006-01-30 23:00:57 cvskris Exp $
+ RCS:		$Id: uitreeitemmanager.h,v 1.23 2006-03-02 20:17:51 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -160,6 +160,9 @@ protected:
     virtual void		updateSelection(int selectionKey,
 	    					bool dw=false );
     				/*!< Does only update the display */
+    virtual bool		shouldSelect(int selectionkey) const;
+    				/*!\returns true if the item should be marked
+				    as selected given the selectionkey. */
 
     IOPar			properties;
 
