@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribprovider.h,v 1.36 2006-02-24 11:09:53 cvsbert Exp $
+ RCS:           $Id: attribprovider.h,v 1.37 2006-03-02 12:52:07 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -102,7 +102,7 @@ public:
     virtual BinID		getStepoutStep() const;
     BufferString         	errMsg() const;
 
-    ObjectSet<Provider>		getInputs() 		{ return inputs; }
+    ObjectSet<Provider>&	getInputs() 		{ return inputs; }
 
     virtual void		initSteering(){};
     virtual void		initSteering( const BinID& ){};

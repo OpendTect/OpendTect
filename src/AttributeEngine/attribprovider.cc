@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribprovider.cc,v 1.57 2006-03-01 09:13:32 cvshelene Exp $";
+static const char* rcsID = "$Id: attribprovider.cc,v 1.58 2006-03-02 12:52:07 cvshelene Exp $";
 
 #include "attribprovider.h"
 #include "attribstorprovider.h"
@@ -134,9 +134,10 @@ Provider* Provider::internalCreate( Desc& desc, ObjectSet<Provider>& existing,
 	{
 	    for ( int idy=0; idy<desc.nrInputs()-1; idy++ )
 	    {
-		if ( res->getInputs().size()<idy)
-		if ( res->getInputs()[idy]->getDesc().
-				isIdenticalTo( *inputdesc, false ) )
+		if ( res->getInputs().size()<=idy ) break;
+		Provider* tmpprov = res->getInputs()[idy];
+		if ( tmpprov && tmpprov->getDesc().
+					isIdenticalTo( *inputdesc, true ) )
 		    alreadythere = true;
 	    }
 	}
@@ -1128,10 +1129,10 @@ int Provider::getTotalNrPos( bool is2d )
     {
 	return seldata_->table_.totalSize();
     }
-    if ( !possiblevolume )
+    if ( !possiblevolume || !desiredvolume )
 	return false;
 
-    CubeSampling cs = *possiblevolume;
+    CubeSampling cs = *desiredvolume;
     if ( getDesc().isStored() )
     {
 	cs.hrg.start.inl =

@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribprocessor.cc,v 1.35 2006-02-21 13:09:40 cvshelene Exp $";
+static const char* rcsID = "$Id: attribprocessor.cc,v 1.36 2006-03-02 12:52:07 cvshelene Exp $";
 
 #include "attribprocessor.h"
 
@@ -114,14 +114,14 @@ int Processor::nextStep()
 			    provider->getDesc().nrInputs();
     if ( !curtrcinfo && needsinput )
     {
-	errmsg = "no Trace info available";
+	errmsg = "No trace info available";
 	return ErrorOccurred;
     }
 
     if ( res == 0 && !nrdone )
     {
-	errmsg = "no position to process\n";
-	errmsg += "you may not be in the possible volume\n";
+	errmsg = "No position to process.\n";
+	errmsg += "You may not be in the possible volume,\n";
 	errmsg += "mind the stepout...";
 	return ErrorOccurred;
     }
@@ -139,14 +139,14 @@ int Processor::nextStep()
 		curbid.crl = curtrcinfo->nr;
 	    }
 	}
-	
+
+	SeisTrcInfo mytrcinfo;
 	if ( !curtrcinfo )
 	{
-	    SeisTrcInfo trcinfo;
-	    trcinfo.binid = curbid;
-	    if ( is2d_ ) trcinfo.nr = curbid.crl;
+	    mytrcinfo.binid = curbid;
+	    if ( is2d_ ) mytrcinfo.nr = curbid.crl;
 
-	    curtrcinfo = &trcinfo;
+	    curtrcinfo = &mytrcinfo;
 	}
 
 	TypeSet< Interval<int> > localintervals;
@@ -224,13 +224,28 @@ void Processor::init()
     for ( int idx=0; idx<globaloutputinterest.size(); idx++ )
 	provider->enableOutput(globaloutputinterest[idx], true );
 
-    provider->setDesiredVolume( globalcs );
     if ( !provider->getInputs().size() && !provider->getDesc().isStored() )
+    {
+	provider->setDesiredVolume( globalcs );
 	provider->setPossibleVolume( globalcs );
+    }
     else
     {
-	provider->getPossibleVolume( -1, globalcs );
+	CubeSampling possvol;
+	provider->setDesiredVolume( possvol );
+	provider->getPossibleVolume( -1, possvol );
 	provider->resetDesiredVolume();
+
+#       define mAdjustIf(v1,op,v2) \
+	if ( !mIsUdf(v1) && !mIsUdf(v2) && v1 op v2 ) v1 = v2;
+	
+	mAdjustIf(globalcs.hrg.start.inl,<,possvol.hrg.start.inl);
+	mAdjustIf(globalcs.hrg.start.crl,<,possvol.hrg.start.crl);
+	mAdjustIf(globalcs.zrg.start,<,possvol.zrg.start);
+	mAdjustIf(globalcs.hrg.stop.inl,>,possvol.hrg.stop.inl);
+	mAdjustIf(globalcs.hrg.stop.crl,>,possvol.hrg.stop.crl);
+	mAdjustIf(globalcs.zrg.stop,>,possvol.zrg.stop);
+	
 	provider->setDesiredVolume( globalcs );
     }
 
