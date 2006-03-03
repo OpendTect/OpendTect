@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uinlapartserv.cc,v 1.33 2006-03-02 17:01:29 cvsbert Exp $
+ RCS:           $Id: uinlapartserv.cc,v 1.34 2006-03-03 11:50:47 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -283,25 +283,33 @@ uiLithCodeMan( uiParent* p, const TypeSet<int>& codes, BufferStringSet& dets )
 {
     BufferStringSet opts;
     opts.add( "Use" ); opts.add( "Merge into" ); opts.add( "Drop" );
-    uiLabeledComboBox* prevlcb = 0;
-    for ( int idx=0; idx<codes.size(); idx++ )
+    uiLabeledComboBox* prevoptlcb = 0;
+    for ( int icode=0; icode<codes.size(); icode++ )
     {
+	const int curcode = codes[icode];
 	BufferString txt( "Code '" );
-	txt += codes[idx]; txt += "'";
-	uiLabeledComboBox* lcb = new uiLabeledComboBox( this, opts, txt );
+	txt += curcode; txt += "'";
+	uiLabeledComboBox* optlcb = new uiLabeledComboBox( this, opts, txt );
+	uiComboBox* optbox = optlcb->box();
 	uiGenInput* nmfld = new uiGenInput( this, "Name" );
-	uiGenInput* codefld = new uiGenInput( this, "Code" );
+	uiLabeledComboBox* codelcb = new uiLabeledComboBox( this, "Code" );
+	for ( int ic=0; ic<codes.size(); ic++ )
+	{
+	    if ( ic == curcode ) continue;
+	    BufferString s; s+= codes[ic];
+	    codelcb->box()->addItem( s );
+	}
 
-	if ( prevlcb )
-	    lcb->attach( alignedBelow, prevlcb );
-	prevlcb = lcb;
-	nmfld->attach( rightOf, lcb );
-	codefld->attach( rightOf, lcb );
+	nmfld->attach( rightOf, optlcb );
+	codelcb->attach( rightOf, optlcb );
+	if ( prevoptlcb )
+	    optlcb->attach( alignedBelow, prevoptlcb );
+	prevoptlcb = optlcb;
 
-	optflds += lcb->box();
+	optflds += optbox;
 	nmflds += nmfld;
-	mrgcodeflds += codefld;
-	lcb->box()->selectionChanged.notify( mCB(this,uiLithCodeMan,selChg) );
+	mrgcodeflds += codelcb;
+	optbox->selectionChanged.notify( mCB(this,uiLithCodeMan,selChg) );
     }
 
     selChg( 0 );
@@ -333,7 +341,7 @@ bool acceptOK( CallBacker* )
 	if ( opt == 0 )
 	    txt += nmflds[idx]->text();
 	else if ( opt == 1 )
-	    txt += mrgcodeflds[idx]->getIntValue();
+	    txt += mrgcodeflds[idx]->box()->text();
     }
     return true;
 }
@@ -341,7 +349,7 @@ bool acceptOK( CallBacker* )
     BufferStringSet&		details;
     ObjectSet<uiComboBox>	optflds;
     ObjectSet<uiGenInput>	nmflds;
-    ObjectSet<uiGenInput>	mrgcodeflds;
+    ObjectSet<uiLabeledComboBox> mrgcodeflds;
 
 };
 
