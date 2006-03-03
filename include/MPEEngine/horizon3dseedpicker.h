@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: horizon3dseedpicker.h,v 1.3 2006-02-27 10:49:23 cvsjaap Exp $
+ RCS:           $Id: horizon3dseedpicker.h,v 1.4 2006-03-03 13:56:47 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,13 +45,16 @@ public:
     bool		isModeFrozen() const		{ return frozen_; }
 
 protected:
-    bool		removeEverythingButSeeds();
-
+    bool		retrackActiveLine();
+    void		repairDisconnections();
+    bool		clearActiveLine();
     bool		interpolateSeeds();
     CubeSampling	getSeedBox() const;
 
     TypeSet<EM::PosID>	seedlist_;
     TypeSet<Coord3>	seedpos_;
+    TypeSet<EM::PosID>	crosspid_;
+    TypeSet<Coord3>	crosspos_;
     int			firsthistorynr_;
     bool		didchecksupport_;
 
