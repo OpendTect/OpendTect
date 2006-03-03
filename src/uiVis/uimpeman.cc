@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.cc,v 1.72 2006-01-18 22:58:59 cvskris Exp $
+ RCS:           $Id: uimpeman.cc,v 1.73 2006-03-03 13:41:50 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -207,14 +207,11 @@ void uiMPEMan::seedClick( CallBacker* )
     if ( !emobject )
 	return;
 
-    if ( clickcatcher->ctrlClickedNode().objectID()!=-1 )
+    if ( clickcatcher->ctrlClickedNode().objectID() != -1 )
     {
 	const EM::PosID pid = clickcatcher->ctrlClickedNode();
-	if ( !seedpicker || !seedpicker->canRemoveSeed() ||
-	     pid.objectID()!=emobject->id() )
-	    return;
-
-	seedpicker->removeSeed(pid);
+	if ( seedpicker->canRemoveSeed() && pid.objectID()==emobject->id() )
+	    seedpicker->removeSeed(pid);
 	return;
     }
 
@@ -222,10 +219,8 @@ void uiMPEMan::seedClick( CallBacker* )
     if ( clickedobject==-1 )
 	return;
 
-
     if ( seedclickobject==-1 )
     {
-	didtriggervolchange = false;
 	seedpicker = tracker->getSeedPicker(true);
 	if ( !seedpicker || !seedpicker->canSetSectionID() ||
 	     !seedpicker->setSectionID(emobject->sectionID(0)) ||
@@ -234,51 +229,48 @@ void uiMPEMan::seedClick( CallBacker* )
 	    seedpicker = 0;
 	    return;
 	}
+    }
+    const CubeSampling newvolume = clickcatcher->clickedObjectCS();
+    if ( newvolume.isEmpty() )
+	return;
 
-	const bool haddefaultvol =
-	    engine.activeVolume()==engine.getDefaultActiveVolume();
-
-	CubeSampling newvolume = clickcatcher->clickedObjectCS();
-	if ( !haddefaultvol )
-	    newvolume.limitTo(engine.activeVolume());
-
-	if ( newvolume.isEmpty() )
-	    return;
-
-	oldactivevol = engine.activeVolume();
+    if ( newvolume != engine.activeVolume() )
+    {
+	didtriggervolchange = false;
+	oldactivevol = engine.activeVolume(); 
 	NotifyStopper notifystopper( engine.activevolumechange );
-	engine.setActiveVolume(newvolume);
+	engine.setActiveVolume( newvolume );
 	notifystopper.restore();
 	seedclickobject = clickedobject;
 
-	if ( haddefaultvol )
+	RefMan<const Attrib::DataCubes> cached = 
+	    				clickcatcher->clickedObjectData();
+
+	if ( cached )
 	{
-	    RefMan<const Attrib::DataCubes> cached =
-		clickcatcher->clickedObjectData();
-
-	    if ( cached )
-	    {
-		cached->ref();
-		engine.setAttribData( *clickcatcher->clicedObjectDataSelSpec(),
-				      cached );
-	    }
-
-	    didtriggervolchange = true;
-
-	    mGetDisplays( false );
-	    for ( int idx=0; idx<displays.size(); idx++ )
-		displays[idx]->turnOn( false );
-
-	    engine.activevolumechange.trigger();
+	    cached->ref();
+	    engine.setAttribData( *clickcatcher->clicedObjectDataSelSpec(),
+				  cached );
 	}
-    }
-    else if ( clickedobject!=seedclickobject )
-	return;
 
+	didtriggervolchange = true;
+
+	mGetDisplays( false );
+	for ( int idx=0; idx<displays.size(); idx++ )
+	    displays[idx]->turnOn( false );
+
+	engine.activevolumechange.trigger();
+/*
+	EM::History& history = EM::EMM().history(); 
+	const int cureventnr = history.currentEventNr(); 
+	if ( cureventnr>=history.firstEventNr() )
+	    history.setLevel( cureventnr, mEMHistoryUserInteractionLevel );
+	    */
+    }
 
     if ( !seedpicker )
 	return;
-
+    
     visSurvey::Scene* scene = visSurvey::STM().currentScene();
     const Coord3 disppos = scene->getZScaleTransform()->
 		transformBack(clickcatcher->clickedPos());
@@ -382,12 +374,12 @@ void uiMPEMan::turnSeedPickingOn( bool yn )
 {
     blockattribsel = yn;
 
-    if ( seedpicker )
+/*    if ( seedpicker )
     {
 	seedpicker->stopSeedPick();
 	seedpicker = 0;
     }
-
+*/
     turnOn( seedidx, yn );
     if ( yn )
     {
@@ -566,8 +558,9 @@ void uiMPEMan::mouseEraseModeCB( CallBacker* )
 
 void uiMPEMan::seedModeCB( CallBacker* )
 {
-    if ( isOn( seedidx ) )
-	visserv->sendAddSeedEvent();
+    clickcatcher->turnOn( isOn(seedidx ) );
+//    if ( isOn( seedidx ) )
+//	visserv->sendAddSeedEvent();
 }
 
 
@@ -596,7 +589,8 @@ void uiMPEMan::updateButtonSensitivity( CallBacker* )
     uiToolBar::setSensitive( redoidx, EM::EMM().history().canReDo() );
 
     //Seed button
-    bool hastracker = false;
+//    bool hastracker = false;
+    bool hastracker = true;
     const TypeSet<int>& selectedids = visBase::DM().selMan().selected();
     if ( selectedids.size()==1 )
     {
