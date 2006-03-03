@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uinlapartserv.h,v 1.16 2006-03-02 17:01:29 cvsbert Exp $
+ RCS:           $Id: uinlapartserv.h,v 1.17 2006-03-03 17:19:57 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -97,11 +97,22 @@ protected:
     IOPar&		storepars;
 
     void		writeSets(CallBacker*);
+
     bool		extractDirectData(const ObjectSet<PosVecDataSet>&);
     const char*		convertToClasses(const ObjectSet<PosVecDataSet>&,int);
-    void		extendAndFillNewCols(PosVecDataSet&,const int,
-	    				     const TypeSet<int>&,
-					     const BufferStringSet&);
+
+    struct LithCodeData
+    {
+	TypeSet<int>	codes;
+	TypeSet<int>	ptrtbl;
+	TypeSet<int>	usedcodes;
+	BufferStringSet	usednames;
+
+	void		useUserSels(const BufferStringSet&);
+	void		addCols(PosVecDataSet&,const char*);
+	void		fillCols(PosVecDataSet&,const int);
+    };
+
 };
 
 

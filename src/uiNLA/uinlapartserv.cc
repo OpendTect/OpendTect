@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uinlapartserv.cc,v 1.34 2006-03-03 11:50:47 cvsbert Exp $
+ RCS:           $Id: uinlapartserv.cc,v 1.35 2006-03-03 17:19:57 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -276,10 +276,11 @@ class uiLithCodeMan : public uiDialog
 {
 public:
 
-uiLithCodeMan( uiParent* p, const TypeSet<int>& codes, BufferStringSet& dets )
+uiLithCodeMan( uiParent* p, const TypeSet<int>& codes, BufferStringSet& usels,
+       		const char* lognm )
     	: uiDialog(p,uiDialog::Setup("Manage codes",
 		    			"Specify how to handle codes"))
-	, details(dets)
+	, usrsels(usels)
 {
     BufferStringSet opts;
     opts.add( "Use" ); opts.add( "Merge into" ); opts.add( "Drop" );
@@ -291,7 +292,8 @@ uiLithCodeMan( uiParent* p, const TypeSet<int>& codes, BufferStringSet& dets )
 	txt += curcode; txt += "'";
 	uiLabeledComboBox* optlcb = new uiLabeledComboBox( this, opts, txt );
 	uiComboBox* optbox = optlcb->box();
-	uiGenInput* nmfld = new uiGenInput( this, "Name" );
+	BufferString nm( lognm ); nm += " ["; nm += curcode; nm += "]";
+	uiGenInput* nmfld = new uiGenInput( this, "Name", nm );
 	uiLabeledComboBox* codelcb = new uiLabeledComboBox( this, "Code" );
 	for ( int ic=0; ic<codes.size(); ic++ )
 	{
@@ -332,7 +334,7 @@ void selChg( CallBacker* sender )
 
 bool acceptOK( CallBacker* )
 {
-    details.deepErase();
+    usrsels.deepErase();
     for ( int idx=0; idx<optflds.size(); idx++ )
     {
 	uiComboBox* cb = optflds[idx];
@@ -342,11 +344,12 @@ bool acceptOK( CallBacker* )
 	    txt += nmflds[idx]->text();
 	else if ( opt == 1 )
 	    txt += mrgcodeflds[idx]->box()->text();
+	usrsels.add( txt );
     }
     return true;
 }
 
-    BufferStringSet&		details;
+    BufferStringSet&		usrsels;
     ObjectSet<uiComboBox>	optflds;
     ObjectSet<uiGenInput>	nmflds;
     ObjectSet<uiLabeledComboBox> mrgcodeflds;
@@ -355,12 +358,14 @@ bool acceptOK( CallBacker* )
 
 
 const char* uiNLAPartServer::convertToClasses(
-	const ObjectSet<PosVecDataSet>& vdss, const int firstgoodvds )
+					const ObjectSet<PosVecDataSet>& vdss,
+					const int firstgoodvds )
 {
     const int valnr = vdss[firstgoodvds]->data().nrVals() - 1;
+    const char* valnm = vdss[firstgoodvds]->colDef(valnr).name_;
 
     // Discover the litho codes
-    TypeSet<int> codes;
+    LithCodeData lcd;
     for ( int iset=firstgoodvds; iset<vdss.size(); iset++ )
     {
 	const BinIDValueSet& bvs = vdss[iset]->data();
@@ -370,57 +375,118 @@ const char* uiNLAPartServer::convertToClasses(
 	    const float val = bvs.getVals(pos)[valnr];
 	    if ( Values::isUdf(val) ) continue;
 	    const int code = mNINT(val);
-	    if ( codes.indexOf(code) < 0 )
-		codes += code;
+	    if ( lcd.codes.indexOf(code) < 0 )
+		lcd.codes += code;
 	}
     }
 
-    if ( codes.size() < 2 )
+    if ( lcd.codes.size() < 2 )
 	return "Only one lithology found - need at least 2";
-    else if ( codes.size() > 20 )
+    else if ( lcd.codes.size() > 20 )
 	return "More than 20 lithologies found - please group lithologies";
 
-    sort( codes );
-    BufferStringSet details;
-    uiLithCodeMan dlg( appserv().parent(), codes, details );
+    sort( lcd.codes );
+    BufferStringSet usels;
+    uiLithCodeMan dlg( appserv().parent(), lcd.codes, usels, valnm );
     if ( !dlg.go() )
 	return sKeyUsrCancel;
 
+    lcd.useUserSels( usels );
     for ( int iset=0; iset<vdss.size(); iset++ )
     {
-	PosVecDataSet& vds = *vdss[iset];
-	if ( vds.nrCols() > 0 )
-	    extendAndFillNewCols( vds, valnr, codes, details );
+	PosVecDataSet& vds( *vdss[iset] );
+	lcd.addCols( vds, valnm );
+	if ( !vds.data().isEmpty() )
+	    lcd.fillCols( vds, valnr );
     }
+
     return 0;
 }
 
 
-
-void uiNLAPartServer::extendAndFillNewCols( PosVecDataSet& vds, const int valnr,
-		const TypeSet<int>& codes, const BufferStringSet& details )
+void uiNLAPartServer::LithCodeData::useUserSels( const BufferStringSet& usels )
 {
-    pErrMsg( "TODO: use user's prefs to manage codes" );
     for ( int icode=0; icode<codes.size(); icode++ )
     {
-	BufferString nm;
-	nm += "Litho "; nm += codes[icode];
-	DataColDef* dcd = new DataColDef( nm, nm, 0 );
+	const char* det = usels.get( icode ).buf();
+	if ( *det == 'R' )
+	    ptrtbl += -1;
+	else if ( *det == 'M' )
+	    ptrtbl += codes.indexOf( atoi(det+1) );
+	else
+	{
+	    ptrtbl += icode;
+	    usedcodes += codes[icode];
+	    usednames.add( det + 1 );
+	}
+    }
+
+    // Handle indirect references. Blunt but safe approach.
+    for ( int idx=0; idx<ptrtbl.size()-2; idx++ )
+    for ( int iptr=0; iptr<ptrtbl.size(); iptr++ )
+    {
+	int& pointedto = ptrtbl[iptr];
+	if ( pointedto != -1 )
+	    pointedto = ptrtbl[pointedto]; // will often be the same
+    }
+}
+
+
+void uiNLAPartServer::LithCodeData::addCols( PosVecDataSet& vds,
+					     const char* valnm )
+{
+    for ( int icode=0; icode<usedcodes.size(); icode++ )
+    {
+	const int curcode = usedcodes[icode];
+	const char* givennm = usednames.get(icode).buf();
+
+	BufferString lithstr = valnm; lithstr += "=";
+	bool firstcode = true;
+	for ( int idx=0; idx<ptrtbl.size(); idx++ )
+	{
+	    int pointingto = ptrtbl[idx];
+	    if ( pointingto == -1 ) continue;
+	    if ( codes[pointingto] == curcode )
+	    {
+		if ( firstcode )
+		    firstcode = false;
+		else
+		    lithstr += ",";
+		lithstr += codes[idx];
+	    }
+	}
+	BufferString refnm( givennm ); refnm += " [";
+	refnm += lithstr; refnm += "]";
+
+	DataColDef* dcd = new DataColDef( givennm, refnm, 0 );
 	vds.add( dcd );
     }
-    if ( vds.data().isEmpty() ) return;
+}
 
-    // Put 1's and 0's
+
+void uiNLAPartServer::LithCodeData::fillCols( PosVecDataSet& vds,
+					      const int valnr )
+{
     BinIDValueSet& bvs = vds.data();
     BinIDValueSet::Pos pos;
-    while( bvs.next(pos) )
+    while ( bvs.next(pos) )
     {
 	float* vals = bvs.getVals( pos );
 	const float val = vals[valnr];
 	if ( Values::isUdf(val) ) continue;
+
 	const int code = mNINT(val);
-	for ( int icode=0; icode<codes.size(); icode++ )
-	    vals[valnr+icode+1] = code == codes[icode] ? 1 : 0;
+	int codeidx = codes.indexOf( code );
+	if ( codeidx >= 0 )
+	    codeidx = ptrtbl[codeidx];
+	if ( codeidx < 0 ) continue;
+
+	codeidx = usedcodes.indexOf( codes[codeidx] );
+	if ( codeidx < 0 )
+	    { pErrMsg("Logic error somewhere"); continue; }
+
+	for ( int icode=0; icode<usedcodes.size(); icode++ )
+	    vals[valnr+icode+1] = icode == codeidx ? 1 : 0;
     }
 }
 
@@ -458,7 +524,7 @@ const char* uiNLAPartServer::prepareInputData(
 	    outps.deepErase();
 	    const int newnrvals = inpvdss[firstgoodvds]->data().nrVals();
 	    for ( int idx=orgnrvals; idx<newnrvals; idx++ )
-		outps.add( inpvdss[firstgoodvds]->colDef(idx).name_ );
+		outps.add( inpvdss[firstgoodvds]->colDef(idx).ref_ );
 	}
     }
     const char* res = crdesc.prepareData( inpvdss, trainvds, testvds );
