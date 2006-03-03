@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Nov 2002
- RCS:           $Id: emsurfacegeometry.cc,v 1.29 2005-12-14 16:47:50 cvskris Exp $
+ RCS:           $Id: emsurfacegeometry.cc,v 1.30 2006-03-03 13:58:59 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -1356,6 +1356,13 @@ Executor* SurfaceGeometry::saver( const SurfaceIODataSelection* newsel,
     PtrMan<IOObj> ioobj = IOM().get( mid );
     if ( !ioobj )
 	{ surface.errmsg = "Cannot find surface"; return 0; }
+
+    int nrknots = 0;
+    for ( int idx=0; idx<nrSections(); idx++ )
+	nrknots += meshsurfaces[idx]->nrKnots();
+
+    if ( nrknots == 0 )
+	{ surface.errmsg = "Empty surface"; return 0; }
 
     PtrMan<EMSurfaceTranslator> tr = 
 			(EMSurfaceTranslator*)ioobj->getTranslator();
