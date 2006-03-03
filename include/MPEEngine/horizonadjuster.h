@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          January 2005
- RCS:           $Id: horizonadjuster.h,v 1.14 2005-12-22 13:42:14 cvskris Exp $
+ RCS:           $Id: horizonadjuster.h,v 1.15 2006-03-03 13:54:11 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,7 +30,7 @@ class SectionExtender;
 class HorizonAdjuster : public SectionAdjuster
 {
 public:
-			HorizonAdjuster(EM::Horizon&, const EM::SectionID&);
+			HorizonAdjuster(EM::Horizon&,const EM::SectionID&);
 			~HorizonAdjuster();
 
     void		reset();
@@ -44,7 +44,7 @@ public:
     Interval<float>	permittedZRange() const;
     void		setTrackByValue(bool yn);
     bool		trackByValue() const;
-    void		setTrackEvent( VSEvent::Type ev );
+    void		setTrackEvent(VSEvent::Type ev);
     VSEvent::Type	trackEvent() const;
 
     void		setAmplitudeThreshold(float th);
@@ -59,26 +59,26 @@ public:
     void		setSimiliarityThreshold(float th);
     float		similarityThreshold();
 
-    int				getNrAttributes() const;
-    const Attrib::SelSpec*	getAttributeSel( int idx ) const;
-    void			setAttributeSel( int, const Attrib::SelSpec& );
+    int			getNrAttributes() const;
+    const Attrib::SelSpec* getAttributeSel(int idx) const;
+    void		setAttributeSel(int idx,const Attrib::SelSpec&);
 
     void		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
 
 protected:
 
-    Attrib::SelSpec&		attribsel;
-    const Attrib::DataCubes*	attrdata;
-    EM::Horizon&		horizon_;
-    VSEvent::Type		evtype;
-    Interval<float>		permzrange_;
-    float			ampthreshold_;
-    float			allowedvar_;
-    bool			useabsthreshold_;
-    Interval<float>		similaritywin_;
-    float			similaritythreshold_;
-    bool			trackbyvalue_;
+    Attrib::SelSpec*	attribsel_;
+    const Attrib::DataCubes* attrdata_;
+    EM::Horizon&	horizon_;
+    VSEvent::Type	evtype_;
+    Interval<float>	permzrange_;
+    float		ampthreshold_;
+    float		allowedvar_;
+    bool		useabsthreshold_;
+    Interval<float>	similaritywin_;
+    float		similaritythreshold_;
+    bool		trackbyvalue_;
 
 private:
 
