@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizonadjuster.cc,v 1.24 2005-12-21 22:14:19 cvskris Exp $";
+static const char* rcsID = "$Id: horizonadjuster.cc,v 1.25 2006-03-03 13:55:05 cvsjaap Exp $";
 
 #include "horizonadjuster.h"
 
@@ -30,10 +30,10 @@ namespace MPE {
 
 HorizonAdjuster::HorizonAdjuster( EM::Horizon& hor,
 	const EM::SectionID& sid )
-    : SectionAdjuster( sid )
-    , horizon_( hor )
-    , attribsel( *new Attrib::SelSpec )
-    , attrdata( 0 )
+    : SectionAdjuster(sid)
+    , horizon_(hor)
+    , attribsel_(0)
+    , attrdata_(0)
 {
     float dist = 5 * SI().zStep();
     permzrange_ = Interval<float>(-dist,dist);
@@ -44,19 +44,19 @@ HorizonAdjuster::HorizonAdjuster( EM::Horizon& hor,
     allowedvar_ = 0.20;
     similaritythreshold_ = 0.80;
     trackbyvalue_ = true;
-    evtype = VSEvent::Max;
+    evtype_ = VSEvent::Max;
     useabsthreshold_ = false;
 }
 
 
 HorizonAdjuster::~HorizonAdjuster()
 {
-    delete &attribsel;
-    if ( attrdata ) attrdata->unRef();
+    delete attribsel_;
+    if ( attrdata_ ) attrdata_->unRef();
 }
 
 
-void HorizonAdjuster::setPermittedZRange(const Interval<float>& rg)
+void HorizonAdjuster::setPermittedZRange( const Interval<float>& rg )
 { permzrange_ = rg; }
 
 
@@ -64,7 +64,7 @@ Interval<float> HorizonAdjuster::permittedZRange() const
 { return permzrange_; }
 
 
-void HorizonAdjuster::setTrackByValue(bool yn)
+void HorizonAdjuster::setTrackByValue( bool yn )
 { trackbyvalue_ = yn; }
 
 
@@ -73,14 +73,14 @@ bool HorizonAdjuster::trackByValue() const
 
 
 void HorizonAdjuster::setTrackEvent( VSEvent::Type ev )
-{ evtype = ev; }
+{ evtype_ = ev; }
 
 
 VSEvent::Type HorizonAdjuster::trackEvent() const
-{ return evtype; }
+{ return evtype_; }
 
 
-void HorizonAdjuster::setAmplitudeThreshold(float th)
+void HorizonAdjuster::setAmplitudeThreshold( float th )
 { ampthreshold_ = th; }
 
 
@@ -88,7 +88,7 @@ float HorizonAdjuster::amplitudeTreshold() const
 { return ampthreshold_; }
 
 
-void HorizonAdjuster::setAllowedVariance(float v)
+void HorizonAdjuster::setAllowedVariance( float v )
 { allowedvar_ = v; }
 
 
@@ -96,7 +96,7 @@ float HorizonAdjuster::allowedVariance() const
 { return allowedvar_; }
 
 
-void HorizonAdjuster::setUseAbsThreshold(bool abs)
+void HorizonAdjuster::setUseAbsThreshold( bool abs )
 { useabsthreshold_ = abs; }
 
 
@@ -104,7 +104,7 @@ bool HorizonAdjuster::useAbsThreshold() const
 { return useabsthreshold_; }
 
 
-void HorizonAdjuster::setSimilarityWindow(const Interval<float>& rg)
+void HorizonAdjuster::setSimilarityWindow( const Interval<float>& rg )
 { similaritywin_ = rg; }
 
 
@@ -112,7 +112,7 @@ Interval<float> HorizonAdjuster::similarityWindow() const
 { return similaritywin_; }
 
 
-void HorizonAdjuster::setSimiliarityThreshold(float th)
+void HorizonAdjuster::setSimiliarityThreshold( float th )
 { similaritythreshold_ = th; }
 
 
@@ -125,20 +125,20 @@ int HorizonAdjuster::getNrAttributes() const
 
 
 const Attrib::SelSpec* HorizonAdjuster::getAttributeSel( int idx ) const
-{ return !idx ? &attribsel : 0; }
+{ return !idx ? attribsel_ : 0; }
 
 
-void  HorizonAdjuster::reset()
+void HorizonAdjuster::reset()
 {
-    if ( attrdata ) attrdata->unRef();
-    attrdata = engine().getAttribCache( attribsel );
-    if ( attrdata ) attrdata->ref();
+    if ( attrdata_ ) attrdata_->unRef();
+    attrdata_ = attribsel_ ? engine().getAttribCache( *attribsel_ ) : 0;
+    if ( attrdata_ ) attrdata_->ref();
 }
 
 
 int HorizonAdjuster::nextStep()
 {
-    if ( !attrdata )
+    if ( !attrdata_ )
 	return cErrorOccurred();
 
     int count = 0;
@@ -220,17 +220,17 @@ void HorizonAdjuster::getNeededAttribs(
 {
     for ( int idx=specs.size()-1; idx>=0; idx-- )
     {
-	if ( *specs[idx]==attribsel )
+	if ( *specs[idx] == *attribsel_ )
 	    return;
     }
 
-    specs += &attribsel;
+    specs += attribsel_;
 }
 
 
 CubeSampling HorizonAdjuster::getAttribCube( const Attrib::SelSpec& sp ) const
 {
-    if ( sp!=attribsel )
+    if ( !attribsel_ || sp != *attribsel_ )
 	return SectionAdjuster::getAttribCube( sp );
 
     CubeSampling res = engine().activeVolume();
@@ -251,41 +251,41 @@ bool HorizonAdjuster::snap( const BinID& bid,
 			    float threshold,
 			    float& targetz ) const
 {
-    const StepInterval<float> zrg( attrdata->z0*attrdata->zstep,
-			   (attrdata->z0+attrdata->getZSz())* attrdata->zstep,
-			   attrdata->zstep );
+    const StepInterval<float> zrg( attrdata_->z0*attrdata_->zstep,
+			(attrdata_->z0+attrdata_->getZSz())* attrdata_->zstep,
+			attrdata_->zstep );
 
     if ( !zrg.includes(targetz) )
 	return false;
 
-    const int inlidx = attrdata->inlsampling.nearestIndex( bid.inl );
-    if ( inlidx<0 || inlidx>=attrdata->getInlSz() )
+    const int inlidx = attrdata_->inlsampling.nearestIndex( bid.inl );
+    if ( inlidx<0 || inlidx>=attrdata_->getInlSz() )
 	return false;
 
-    const int crlidx = attrdata->crlsampling.nearestIndex( bid.crl );
-    if ( crlidx<0 || crlidx>=attrdata->getCrlSz() )
+    const int crlidx = attrdata_->crlsampling.nearestIndex( bid.crl );
+    if ( crlidx<0 || crlidx>=attrdata_->getCrlSz() )
 	return false;
 
-    const Array3D<float>& cube = attrdata->getCube(0);
+    const Array3D<float>& cube = attrdata_->getCube(0);
     const float* arr = cube.getData() +
 		       cube.info().getMemPos( inlidx, crlidx, 0 );
 
     const ArrayValueSeries<float> valarr( const_cast<float*>(arr) );
     const SamplingData<float> sd( zrg.start, zrg.step );
     ValueSeriesEvFinder<float, float>
-			    evfinder( valarr, attrdata->getZSz()-1, sd);
+			    evfinder( valarr, attrdata_->getZSz()-1, sd);
 
     const Interval<float> uprg( targetz,
 	    			mMAX(zrg.start,targetz+permzrange_.start) );
     const Interval<float> dnrg( targetz,
 	    			mMIN(zrg.stop,targetz+permzrange_.stop) );
 
-    if ( evtype==VSEvent::ZCNegPos || evtype==VSEvent::ZCPosNeg )
+    if ( evtype_==VSEvent::ZCNegPos || evtype_==VSEvent::ZCPosNeg )
     {
 	ValueSeriesEvent<float, float> upevent =
-	    				evfinder.find( evtype, uprg, 1 );
+	    				evfinder.find( evtype_, uprg, 1 );
 	ValueSeriesEvent<float, float> dnevent =
-	    				evfinder.find( evtype, dnrg, 1 );
+	    				evfinder.find( evtype_, dnrg, 1 );
 
 	const bool upfound = !Values::isUdf(upevent.pos);
 	const bool dnfound = !Values::isUdf(dnevent.pos);
@@ -298,7 +298,7 @@ bool HorizonAdjuster::snap( const BinID& bid,
 	else 
 	    targetz = upfound ? upevent.pos : dnevent.pos;
     }
-    else if ( evtype==VSEvent::Max || evtype==VSEvent::Min )
+    else if ( evtype_==VSEvent::Max || evtype_==VSEvent::Min )
     {
 	float upampl;
 	bool uploopskip;
@@ -321,7 +321,7 @@ bool HorizonAdjuster::snap( const BinID& bid,
 		targetz = uploopskip ? dnevent.pos : upevent.pos;
 	    else
 	    {
-		if ( evtype==VSEvent::Min )
+		if ( evtype_==VSEvent::Min )
 		{
 		    upampl *= -1;
 		    dnampl *= -1;
@@ -343,26 +343,25 @@ bool HorizonAdjuster::snap( const BinID& bid,
 }
 
 
-ValueSeriesEvent<float, float>
-HorizonAdjuster::findExtreme(
-	const ValueSeriesEvFinder<float, float>& eventfinder,
-        const Interval<float>& rg, float threshold, float& avgampl,
-	bool& hasloopskips ) const
+ValueSeriesEvent<float,float> HorizonAdjuster::findExtreme(
+		    const ValueSeriesEvFinder<float, float>& eventfinder,
+		    const Interval<float>& rg, float threshold, float& avgampl,
+		    bool& hasloopskips ) const
 {
     const SamplingData<float>& sd = eventfinder.samplingData();
     const ValueSeries<float>& valser = eventfinder.valueSeries();
 
-    ValueSeriesEvent<float, float> ev;
+    ValueSeriesEvent<float,float> ev;
     int occ=1;
     while ( true )
     {
-	ev = eventfinder.find( evtype, rg, occ );
+	ev = eventfinder.find( evtype_, rg, occ );
 	if ( Values::isUdf(ev.pos) )
 	    return ev;
 
 	if ( !Values::isUdf(threshold) &&
-	     ( (evtype==VSEvent::Min && ev.val>threshold) ||
-	     (evtype==VSEvent::Max && ev.val<threshold)) )
+	     ( (evtype_==VSEvent::Min && ev.val>threshold) ||
+	     (evtype_==VSEvent::Max && ev.val<threshold)) )
 	{
 	    occ++;
 	    continue;
@@ -382,8 +381,8 @@ HorizonAdjuster::findExtreme(
     {
 	const float val = valser.value(idx);
 	if ( !hasloopskips &&
-		(evtype==VSEvent::Min && val>prev ) ||
-		(evtype==VSEvent::Max && val<prev ) )
+		(evtype_==VSEvent::Min && val>prev ) ||
+		(evtype_==VSEvent::Max && val<prev ) )
 	    hasloopskips = true;
 
 	avgampl += val;
@@ -406,7 +405,7 @@ bool HorizonAdjuster::trackByAmplitude( const BinID& refbid,
 		horizon_.getPos( sectionid_, refbid.getSerialized() ).z;
 
     float threshold;
-    if ( !attrdata->getValue( 0, BinIDValue(refbid,refdepth), &threshold,true) )
+    if ( !attrdata_->getValue(0, BinIDValue(refbid,refdepth), &threshold,true) )
 	return false;
 
     threshold *= (1-allowedvar_);
@@ -416,22 +415,22 @@ bool HorizonAdjuster::trackByAmplitude( const BinID& refbid,
 
 #define mGetArray( prefix, extrarg ) \
     const int prefix##inlidx = \
-		attrdata->inlsampling.nearestIndex( prefix##bid.inl ); \
-    if ( prefix##inlidx<0 || prefix##inlidx>=attrdata->getInlSz() ) \
+		attrdata_->inlsampling.nearestIndex( prefix##bid.inl ); \
+    if ( prefix##inlidx<0 || prefix##inlidx>=attrdata_->getInlSz() ) \
 	return false; \
  \
     const int prefix##crlidx = \
-	attrdata->crlsampling.nearestIndex( prefix##bid.crl ); \
-    if ( prefix##crlidx<0 || prefix##crlidx>=attrdata->getCrlSz() ) \
+	attrdata_->crlsampling.nearestIndex( prefix##bid.crl ); \
+    if ( prefix##crlidx<0 || prefix##crlidx>=attrdata_->getCrlSz() ) \
 	return false; \
  \
     const float prefix##depth = \
 		horizon_.getPos( sectionid_, prefix##bid.getSerialized() ).z; \
-    const int prefix##sample = mNINT(prefix##depth/zstep) - attrdata->z0; \
+    const int prefix##sample = mNINT(prefix##depth/zstep) - attrdata_->z0; \
      \
     const Interval<int> prefix##rg = \
 		Interval<int>( prefix##sample, prefix##sample ) + extrarg; \
-    if ( prefix##rg.start<0 || prefix##rg.stop>=attrdata->getZSz()-1 ) \
+    if ( prefix##rg.start<0 || prefix##rg.stop>=attrdata_->getZSz()-1 ) \
 	return false; \
  \
     const float* prefix##arr = cube.getData() + \
@@ -445,9 +444,9 @@ bool HorizonAdjuster::trackBySimilarity( const BinID& trefbid,
 	? targetbid
 	: trefbid;
 
-    const Array3D<float>& cube = attrdata->getCube(0);
+    const Array3D<float>& cube = attrdata_->getCube(0);
 
-    const float zstep = attrdata->zstep;
+    const float zstep = attrdata_->zstep;
     const Interval<int> similarityrg( mNINT( similaritywin_.start/zstep ),
 				      mNINT( similaritywin_.stop/zstep ) );
     const int simlength = similarityrg.width()+1;
@@ -490,7 +489,7 @@ bool HorizonAdjuster::trackBySimilarity( const BinID& trefbid,
 
     bestmatch += targetsample;
 
-    targetz = (bestmatch+attrdata->z0) * zstep;
+    targetz = (bestmatch+attrdata_->z0) * zstep;
 
     const int bestidx = mNINT(bestmatch)-targetrg.start;
     return snap( targetbid, targetarr[bestidx], targetz );
@@ -508,19 +507,20 @@ void HorizonAdjuster::setAttributeSel( int idx, const Attrib::SelSpec& as )
     if ( idx )
 	return;
 
-    attribsel = as;
+    if ( !attribsel_ ) attribsel_ = new Attrib::SelSpec;
+    *attribsel_ = as;
 
-    if ( attrdata ) attrdata->unRef();
-    attrdata = engine().getAttribCache( attribsel );
-    if ( attrdata ) attrdata->ref();
+    if ( attrdata_ ) attrdata_->unRef();
+    attrdata_ = engine().getAttribCache( *attribsel_ );
+    if ( attrdata_ ) attrdata_->ref();
 }
 
 
 void HorizonAdjuster::fillPar( IOPar& iopar ) const
 {
     SectionAdjuster::fillPar( iopar );
-    attribsel.fillPar( iopar );
-    iopar.set( sKeyTrackEvent(), VSEvent::TypeRef(evtype) );
+    if ( attribsel_ ) attribsel_->fillPar( iopar );
+    iopar.set( sKeyTrackEvent(), VSEvent::TypeRef(evtype_) );
     iopar.set( sKeyPermittedZRange(), permzrange_.start, permzrange_.stop );
     iopar.set( sKeyValueThreshold(), ampthreshold_ );
     iopar.set( sKeyAllowedVariance(), allowedvar_);
@@ -533,12 +533,13 @@ void HorizonAdjuster::fillPar( IOPar& iopar ) const
 
 bool HorizonAdjuster::usePar( const IOPar& iopar )
 {
-    EnumRef tmpref = VSEvent::TypeRef(evtype);
+    EnumRef tmpref = VSEvent::TypeRef(evtype_);
 
     PtrMan<IOPar> oldpar = iopar.subselect("attrval.Attrib 0");
-    if ( !oldpar || !attribsel.usePar(*oldpar ) )
+    if ( !attribsel_ ) attribsel_ = new Attrib::SelSpec;
+    if ( !oldpar || !attribsel_->usePar(*oldpar) )
     {
-	if ( !attribsel.usePar( iopar ) )
+	if ( !attribsel_->usePar(iopar) )
 	    return false;
     }
 
