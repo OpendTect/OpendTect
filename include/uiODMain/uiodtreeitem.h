@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: uiodtreeitem.h,v 1.19 2006-03-02 21:25:41 cvskris Exp $
+ RCS:		$Id: uiodtreeitem.h,v 1.20 2006-03-03 22:03:42 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -155,7 +155,11 @@ class uiODAttribTreeItem : public uiODDataTreeItem
 public:
     			uiODAttribTreeItem( const char* parenttype );
 			~uiODAttribTreeItem();
-
+    static BufferString	createDisplayName( int visid, int attrib );
+    static void		createSelMenu(MenuItem&,int visid,int attrib,
+	    			      int sceneid);
+    static bool		handleSelMenu(int mnuid,int visid,int attrib);
+    static const char*	sKeySelAttribMenuTxt();
 protected:
 
     bool		anyButtonClick(uiListViewItem*);

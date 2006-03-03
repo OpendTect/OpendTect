@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.161 2006-03-03 12:24:31 cvsnanne Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.162 2006-03-03 22:03:42 cvskris Exp $
 ___________________________________________________________________
 
 -*/
@@ -484,7 +484,7 @@ void uiODDataTreeItem::updateColumnText( int col )
 
 uiODAttribTreeItem::uiODAttribTreeItem( const char* parenttype )
     : uiODDataTreeItem( parenttype )
-    , selattrmnuitem_( "Select Attribute" )
+    , selattrmnuitem_( sKeySelAttribMenuTxt() )
 {}
 
 
@@ -513,40 +513,53 @@ bool uiODDisplayTreeItem::shouldSelect( int selkey ) const
 }
 
 
-void uiODAttribTreeItem::createMenuCB( CallBacker* cb )
+void uiODAttribTreeItem::createSelMenu( MenuItem& mnu, int visid, int attrib,
+					int sceneid)
 {
-    mDynamicCastGet(uiMenuHandler*,menu,cb);
-
-    selattrmnuitem_.removeItems();
-    uiVisPartServer* visserv = applMgr()->visServer();
-    const Attrib::SelSpec* as = visserv->getSelSpec( displayID(),
-						     siblingIndex() );
-    if ( as && visserv->hasAttrib(displayID()) )
+    const uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
+    const Attrib::SelSpec* as = visserv->getSelSpec( visid, attrib );
+    if ( as && visserv->hasAttrib(visid) )
     {
-	uiAttribPartServer* attrserv = applMgr()->attrServer();
+	uiAttribPartServer* attrserv = ODMainWin()->applMgr().attrServer();
 	MenuItem* subitem = attrserv->storedAttribMenuItem( *as );
-	mAddMenuItem( &selattrmnuitem_, subitem, subitem->nrItems(),
+	mAddMenuItem( &mnu, subitem, subitem->nrItems(),
 		       subitem->checked );
 
 	subitem = attrserv->calcAttribMenuItem( *as );
-	mAddMenuItem( &selattrmnuitem_, subitem, subitem->nrItems(),
+	mAddMenuItem( &mnu, subitem, subitem->nrItems(),
 			 subitem->checked );
 
 	subitem = attrserv->nlaAttribMenuItem( *as );
 	if ( subitem && subitem->nrItems() )
-	    mAddMenuItem( &selattrmnuitem_, subitem, true, subitem->checked );
+	    mAddMenuItem( &mnu, subitem, true, subitem->checked );
 
-	mDynamicCastGet(visSurvey::Scene*,scene,visserv->getObject(sceneID()))
+	mDynamicCastGet(visSurvey::Scene*,scene,visserv->getObject(sceneid))
 	if ( scene && scene->getDataTransform() )
 	{
 	    // TODO: get depthdomain key from scene
 	    subitem = attrserv->depthdomainAttribMenuItem( *as, sKey::Wheeler );
-	    mAddMenuItem( &selattrmnuitem_, subitem, true, subitem->checked );
+	    mAddMenuItem( &mnu, subitem, true, subitem->checked );
 	}
-
-	mAddMenuItem( menu, &selattrmnuitem_, 
-		      !visserv->isLocked(displayID()), false );
     }
+}
+
+
+const char* uiODAttribTreeItem::sKeySelAttribMenuTxt()
+{ return "Select Attribute"; }
+
+
+void uiODAttribTreeItem::createMenuCB( CallBacker* cb )
+{
+    const uiVisPartServer* visserv = applMgr()->visServer();
+
+    mDynamicCastGet(uiMenuHandler*,menu,cb);
+
+    selattrmnuitem_.removeItems();
+    createSelMenu( selattrmnuitem_, displayID(), siblingIndex(), sceneID() );
+
+    if ( selattrmnuitem_.nrItems() )
+	mAddMenuItem( menu, &selattrmnuitem_,
+		!visserv->isLocked(displayID()), false );
 
     uiODDataTreeItem::createMenuCB( cb );
 }
@@ -561,29 +574,41 @@ void uiODAttribTreeItem::handleMenuCB( CallBacker* cb )
     if ( mnuid==-1 || menu->isHandled() )
 	return;
 
-    uiVisPartServer* visserv = applMgr()->visServer();
-
-    const Attrib::SelSpec* as = visserv->getSelSpec( displayID(),
-						     siblingIndex() );
-    if ( !as ) return;
-
-    Attrib::SelSpec myas( *as );
-    if ( applMgr()->attrServer()->handleAttribSubMenu(mnuid,myas) )
+    if ( handleSelMenu( mnuid, displayID(), siblingIndex()) )
     {
 	menu->setIsHandled(true);
-	visserv->setSelSpec( displayID(), siblingIndex(), myas );
-	visserv->calculateAttrib( displayID(), siblingIndex(), false );
 	updateColumnText( uiODSceneMgr::cNameColumn() );
     }
 }
 
 
-BufferString uiODAttribTreeItem::createDisplayName() const
+bool uiODAttribTreeItem::handleSelMenu( int mnuid, int visid, int attrib )
 {
-    const uiVisPartServer* cvisserv =
-	const_cast<uiODAttribTreeItem*>(this)->applMgr()->visServer();
-    const Attrib::SelSpec* as = cvisserv->getSelSpec( displayID(),
-	   					      siblingIndex() );
+    if ( mnuid==-1 )
+	return false;
+
+    uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
+    const Attrib::SelSpec* as = visserv->getSelSpec( visid, attrib );
+    if ( !as ) return false;
+
+    uiAttribPartServer* attrserv = ODMainWin()->applMgr().attrServer();
+
+    Attrib::SelSpec myas( *as );
+    if ( attrserv->handleAttribSubMenu(mnuid,myas) )
+    {
+	visserv->setSelSpec( visid, attrib, myas );
+	visserv->calculateAttrib( visid, attrib, false );
+	return true;
+    }
+
+    return false;
+}
+
+
+BufferString uiODAttribTreeItem::createDisplayName( int visid, int attrib )
+{
+    const uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
+    const Attrib::SelSpec* as = visserv->getSelSpec( visid, attrib );
     BufferString dispname( as ? as->userRef() : 0 );
     if ( as && as->isNLA() )
     {
@@ -597,11 +622,17 @@ BufferString uiODAttribTreeItem::createDisplayName() const
     if ( as && as->id()==Attrib::SelSpec::cAttribNotSel() )
 	dispname = "<right-click>";
     else if ( !as )
-	dispname = cvisserv->getObjectName( displayID() );
+	dispname = visserv->getObjectName( visid );
     else if ( as->id() == Attrib::SelSpec::cNoAttrib() )
 	dispname="";
 
     return dispname;
+}
+
+
+BufferString uiODAttribTreeItem::createDisplayName() const
+{
+    return createDisplayName( displayID(), siblingIndex() );
 }
 
 
@@ -745,7 +776,7 @@ bool uiODDisplayTreeItem::init()
 	{
 	    const Attrib::SelSpec* as = visserv->getSelSpec(displayid_,attrib);
 	    uiODDataTreeItem* item = createAttribItem( as );
-	    addChild( item, true );
+	    if ( item ) addChild( item, true );
 	}
     }
 
