@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrdescseted.cc,v 1.25 2006-03-01 13:45:46 cvsbert Exp $
+ RCS:           $Id: uiattrdescseted.cc,v 1.26 2006-03-03 11:49:20 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -92,7 +92,7 @@ void uiAttribDescSetEd::createMenuBar()
     uiMenuBar* menu = menuBar();
     if( !menu )		{ pErrMsg("huh?"); return; }
 
-    uiPopupMenu* filemnu = new uiPopupMenu( this, "File" );
+    uiPopupMenu* filemnu = new uiPopupMenu( this, "&File" );
     mInsertItem( "&New set ...", newSet );
     mInsertItem( "&Open set ...", openSet );
     mInsertItem( "&Save set ...", savePush );
