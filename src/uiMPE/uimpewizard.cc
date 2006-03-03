@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpewizard.cc,v 1.38 2006-02-27 12:31:47 cvsjaap Exp $
+ RCS:           $Id: uimpewizard.cc,v 1.39 2006-03-03 13:43:12 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -52,14 +52,14 @@ Wizard::Wizard( uiParent* p, uiMPEPartServer* mps )
     : uiWizard( p, uiDialog::Setup( "Tracking Wizard", "XXXXXXX Tracking", 
 				    "" ).modal(false) )
     , mpeserv(mps)
-    , sid( -1 )
+    , sid(-1)
     , currentobject(-1)
     , objectcreated(false)
     , trackercreated(false)
     , ioparentrycreated(false)
 //    , ispicking(false)
-    , typefld( 0 )
-    , anotherfld( 0 )
+    , typefld(0)
+    , anotherfld(0)
 {
     objselgrp = createNamePage();
     addPage( objselgrp );
@@ -284,8 +284,8 @@ bool Wizard::prepareSeedSetupPage()
 
     setupgrp->setType( objid, sid );
 
-    if ( hmodegrp ) hmodegrp->display( false, true);
-    if ( fmodegrp ) fmodegrp->display( false, true);
+    if ( hmodegrp ) hmodegrp->display( false, true );
+    if ( fmodegrp ) fmodegrp->display( false, true );
     if ( trackertype == EMHorizonTranslatorGroup::keyword )
 	modegrp = hmodegrp;
     else if ( trackertype == EMFaultTranslatorGroup::keyword )
@@ -293,9 +293,10 @@ bool Wizard::prepareSeedSetupPage()
     else modegrp = 0;
     if ( modegrp ) modegrp->display( true, true );
     modesep->display( modegrp, true );	
-    seedModeChange( 0 );
 
+    seedModeChange(0);
     colorChangeCB(0);
+
     mpeserv->sendEvent( uiMPEPartServer::evStartSeedPick );
 
     if ( currentPageIdx()==lastPage() )
@@ -310,9 +311,10 @@ bool Wizard::prepareSeedSetupPage()
 
 bool Wizard::leaveSeedSetupPage( bool process )
 {
-    mpeserv->blockdataloading = true;
-    mpeserv->sendEvent( uiMPEPartServer::evEndSeedPick );
-    mpeserv->blockdataloading = false;
+//    mpeserv->blockdataloading = true;
+//    mpeserv->sendEvent( uiMPEPartServer::evEndSeedPick );
+//    mpeserv->blockdataloading = false;
+    mpeserv->sendEvent( uiMPEPartServer::evShowToolbar );
 
     EM::EMObject* emobj = EM::EMM().getObject(currentobject);
     emobj->notifier.remove( mCB(this,Wizard,updateFinishButton) );
@@ -322,9 +324,6 @@ bool Wizard::leaveSeedSetupPage( bool process )
 	restoreObject();
 	return true;
     }
-
-//    if ( !setupgrp->isSetToValidSetup() )
-//	mErrRet( "Please select Tracking Setup" );
 
     if ( currentPageIdx()==lastPage() )
 	return finalizeCycle();
@@ -426,10 +425,15 @@ bool Wizard::isClosing( bool iscancel )
 {
     if ( iscancel )
 	restoreObject();
-
-    if ( !seedbox.isEmpty() )
-	mpeserv->expandActiveVolume(seedbox);
-
+    else 
+    {
+	const int md = modegrp->selectedId();
+	const bool modevolfree = trackertype==EMHorizonTranslatorGroup::keyword 
+				 && ( md==HorizonSeedPicker::TrackBetweenSeeds
+				   || md==HorizonSeedPicker::DrawBetweenSeeds );
+	if ( !modevolfree && !seedbox.isEmpty() )
+	    mpeserv->expandActiveVolume(seedbox);
+    }
     mpeserv->sendEvent( ::uiMPEPartServer::evWizardClosed );
     return true;
 }
@@ -637,23 +641,20 @@ bool Wizard::createTracker()
     if ( !seedpicker ) \
 	return; 
 
-
 void Wizard::seedModeChange( CallBacker* )
 {
     mGetSeedPicker();
     const int newmode = modegrp ? modegrp->selectedId() : -1;
     seedpicker->setSeedMode( newmode );
 
-    const bool skipsetup = trackertype == EMHorizonTranslatorGroup::keyword 
-			    && newmode == HorizonSeedPicker::DrawBetweenSeeds
-			    // Following line is temporary bugfix
-			    && setupgrp->isSetToValidSetup();
+    const bool skipsetup = trackertype==EMHorizonTranslatorGroup::keyword 
+			   && newmode==HorizonSeedPicker::DrawBetweenSeeds;
     setupgrp->setSensitive( !skipsetup );
 
     const bool newmodeneedseed = seedpicker->isMinimumNrOfSeeds() > 0; 
-    picktxt->setText( seedPickText( newmodeneedseed ) );
+    picktxt->setText( seedPickText(newmodeneedseed) );
 
-    setupChange( 0 );
+    setupChange(0);
 }
 
 
@@ -667,7 +668,7 @@ void Wizard::setupChange( CallBacker* )
     colorfld->setSensitive( allowpicking );
     seedpicker->freezeMode( !allowpicking );
 
-    updateFinishButton( 0 );
+    updateFinishButton(0);
 
     uiCursor::setOverride( uiCursor::Wait );
     seedpicker->reTrack();
@@ -679,9 +680,7 @@ void Wizard::updateFinishButton( CallBacker* )
 {
     mGetSeedPicker();
     const bool finishenabled = !seedpicker->isModeFrozen() 
-		   && seedpicker->nrSeeds() >= seedpicker->isMinimumNrOfSeeds()
-    // Following line is temporary bugfix
-		   && seedpicker->nrSeeds()>0;
+		   && seedpicker->nrSeeds() >= seedpicker->isMinimumNrOfSeeds();
     setButtonSensitive( uiDialog::CANCEL, finishenabled );
 }
 

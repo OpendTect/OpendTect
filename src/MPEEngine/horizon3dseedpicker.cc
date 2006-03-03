@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizon3dseedpicker.cc,v 1.3 2006-02-27 11:07:15 cvsjaap Exp $";
+static const char* rcsID = "$Id: horizon3dseedpicker.cc,v 1.4 2006-03-03 13:43:57 cvsjaap Exp $";
 
 #include "horizonseedpicker.h"
 
@@ -57,7 +57,6 @@ bool HorizonSeedPicker::startSeedPick()
     return true;
 }
 
-
 	
 bool HorizonSeedPicker::addSeed(const Coord3& seedcrd3 )
 {
@@ -86,6 +85,9 @@ bool HorizonSeedPicker::addSeed(const Coord3& seedcrd3 )
 	seedpos_[idx] = seedcrd3;
     }
 
+//    emobj->setPos( pid, seedcrd3, true );
+//    emobj->setPosAttrib( pid, EM::EMObject::sSeedNode, true);
+
     return reTrack();
 }
 
@@ -94,7 +96,18 @@ bool HorizonSeedPicker::removeSeed( const EM::PosID& pid)
 {
     int idx = seedlist_.indexOf(pid);
     if ( idx == -1 ) return false;
-    
+   
+    // TO DO: Removal of seeds outside the active volume. Temporarily disabled
+    // because there is no possibility to retrack. seedClick() gets the volume
+    // of the controlclicked seed, not the volume of the underlying in/crline.
+    BinID seedbid = SI().transform( seedpos_[idx] );
+    const HorSampling hrg = engine().activeVolume().hrg;
+    const StepInterval<float> zrg = engine().activeVolume().zrg;
+
+    if ( !zrg.includes( seedpos_[idx].z ) || !hrg.includes(seedbid) )
+	return false;
+    // End of shield.
+
     seedlist_.remove(idx);
     seedpos_.remove(idx);
 
@@ -104,14 +117,46 @@ bool HorizonSeedPicker::removeSeed( const EM::PosID& pid)
 
 bool HorizonSeedPicker::reTrack()
 {
-    removeEverythingButSeeds();
+   EM::EMObject* emobj = EM::EMM().getObject( tracker_.objectID() );  
+
+   /* for ( int idx=seedlist_.size()-1; idx>=0; idx-- )
+    {
+	if ( !emobj->isDefined( seedlist_[idx] ) )
+	{
+	    seedlist_.remove(idx);
+	    seedpos_.remove(idx);
+	}
+    }
+    */
+
+    if ( !clearActiveLine() )
+    	return false;
+    
+    for ( int idx=0; idx<seedlist_.size(); idx++ )
+    {
+	if ( !emobj->isDefined( seedlist_[idx] ) )
+	{
+	    emobj->setPos( seedlist_[idx], seedpos_[idx], true );
+	    emobj->setPosAttrib( seedlist_[idx], EM::EMObject::sSeedNode, true);
+	}
+    }
+   
+    if ( !retrackActiveLine() );
+	return false;
+
+    repairDisconnections();
+    return true;
+}
+
+
+bool HorizonSeedPicker::retrackActiveLine()
+{
     if ( !seedlist_.size() )
 	return true;
-
-    if ( frozen_ ) return true;
-   
+    if ( frozen_ ) 
+	return true;
     if ( seedmode_ == DrawBetweenSeeds )
-	return interpolateSeeds();
+	return interpolateSeeds(); 
    
     const TrackPlane::TrackMode tm = engine().trackPlane().getTrackMode();
     engine().setTrackMode( TrackPlane::Extend );
@@ -158,8 +203,7 @@ int HorizonSeedPicker::nrSeeds() const
 int HorizonSeedPicker::isMinimumNrOfSeeds() const
 { return getSeedMode()==TrackFromSeeds ? 1 : 0 ; }
 
-
-
+/*
 bool HorizonSeedPicker::removeEverythingButSeeds()
 {
     if ( firsthistorynr_ != mInitialEventNrNotSet )
@@ -177,6 +221,7 @@ bool HorizonSeedPicker::removeEverythingButSeeds()
 
     return true;
 }
+*/
 
 
 bool HorizonSeedPicker::stopSeedPick( bool iscancel )
@@ -198,55 +243,112 @@ bool HorizonSeedPicker::stopSeedPick( bool iscancel )
     return true;
 }
 
-#define mSortSeeds(rorc) \
-{ \
-    for ( int idx=0; idx<nrseeds; idx++) \
-    { \
-	rorc##value[idx] = SI().transform( seedpos_[idx] ).rorc(); \
-	rorc##index[idx] = idx; \
-    } \
-    sort_coupled( rorc##value, rorc##index, nrseeds ); \
+
+void HorizonSeedPicker::repairDisconnections()
+{
+    EM::EMObject* emobj = EM::EMM().getObject( tracker_.objectID() );  
+
+    for ( int idx=0; idx<crosspid_.size(); idx++ )
+    {
+	if ( !emobj->isDefined( crosspid_[idx] ) )
+	    emobj->setPos( crosspid_[idx], crosspos_[idx], true ); 
+    }
 }
 
 
-#define mInterpolSeeds(rorc) \
-{ \
-    mGetHorizon(horptr); \
-    EM::EMObject* emobj = EM::EMM().getObject(emobjid); \
-    const int step = horptr->geometry.step().rorc(); \
-    \
-    for ( int vtx=0; vtx<nrseeds-1; vtx++ ) \
-    { \
-	const int diff = rorc##value[vtx+1] - rorc##value[vtx]; \
-	for ( int idx=step; idx<diff; idx+=step ) \
-	{ \
-	    const double frac = (double) idx / diff; \
-	    const Coord3 interpos = (1-frac) * seedpos_[ rorc##index[vtx] ]  \
-				    + frac * seedpos_[ rorc##index[vtx+1] ]; \
-	    const EM::PosID interpid( emobj->id(), sectionid_, \
-				SI().transform(interpos).getSerialized() ); \
-	    emobj->setPos( interpid, interpos, true ); \
-	} \
-    } \
+bool HorizonSeedPicker::clearActiveLine()
+{
+    crosspid_.erase(); crosspos_.erase();
+
+    bool inlineactive = false; 
+    if ( engine().activeVolume().nrInl() == 1 ) 
+	inlineactive = true; 
+    else if ( engine().activeVolume().nrCrl() != 1 ) 
+	return false; 
+
+    EM::EMObject* emobj = EM::EMM().getObject( tracker_.objectID() );  
+
+    const StepInterval<int> inlrng = engine().activeVolume().hrg.inlRange();
+    const StepInterval<int> crlrng = engine().activeVolume().hrg.crlRange();
+    
+    for ( int inl=inlrng.start; inl<=inlrng.stop; inl+=inlrng.step )
+    {
+	for ( int crl=crlrng.start; crl<=crlrng.stop; crl+=crlrng.step ) 
+	{
+	    const BinID curbid( inl, crl );
+	    BinID leftbid( inl-inlrng.step, crl );
+	    BinID rightbid( inl+inlrng.step, crl );
+	    if ( inlineactive )
+	    {
+		leftbid = BinID( inl, crl-crlrng.step );
+		rightbid = BinID( inl, crl+crlrng.step );
+	    }
+
+	    const EM::PosID curpid( emobj->id(), sectionid_, 
+						     curbid.getSerialized() ); 
+	    const EM::PosID leftpid( emobj->id(), sectionid_, 
+						    leftbid.getSerialized() ); 
+	    const EM::PosID rightpid( emobj->id(), sectionid_, 
+						   rightbid.getSerialized() ); 
+
+	    const bool crossconnected = emobj->isDefined(curpid) &&
+		  ( emobj->isDefined(leftpid) || emobj->isDefined(rightpid) );
+	    if ( crossconnected ) 
+	    {
+		crosspid_ += curpid;
+		crosspos_ += emobj->getPos( curpid );
+	    }
+
+	    emobj->unSetPos( curpid, true );
+	}
+    }
+    return true;
 }
+
 
 bool HorizonSeedPicker::interpolateSeeds()
 {
+    bool inlineactive = false; 
+    if ( engine().activeVolume().nrInl() == 1 ) 
+	inlineactive = true; 
+    else if ( engine().activeVolume().nrCrl() != 1 ) 
+	return false; 
+    const int step = inlineactive ? 
+		     engine().activeVolume().hrg.crlRange().step : 
+		     engine().activeVolume().hrg.inlRange().step ; 
+
     const int nrseeds = nrSeeds();
-    if ( nrseeds<2 ) return false;
+    int sortval[nrseeds], sortidx[nrseeds]; 
+    int nractives = 0;
 
-    int rvalue[ nrseeds ], rindex[ nrseeds ]; 
-    int cvalue[ nrseeds ], cindex[ nrseeds ]; 
-
-    mSortSeeds(r); mSortSeeds(c);
-
-    if ( rvalue[nrseeds-1] - rvalue[0] > cvalue[nrseeds-1] - cvalue[0] ) 
+    for ( int idx=0; idx<nrseeds; idx++ )
     {
-	mInterpolSeeds(r);
-    }
-    else
-	mInterpolSeeds(c);
+	const BinID seedbid = SI().transform( seedpos_[idx] );
+	if ( engine().activeVolume().hrg.includes(seedbid) )
+	{
+	    sortval[ nractives ] = inlineactive ? seedbid.crl : seedbid.inl;
+	    sortidx[ nractives++ ] = idx;
+	}
+    }	
+    if ( nractives<2 ) return true;
 
+    sort_coupled( sortval, sortidx, nractives ); 
+    
+    EM::EMObject* emobj = EM::EMM().getObject( tracker_.objectID() );  
+
+    for ( int vtx=0; vtx<nractives-1; vtx++ ) 
+    { 
+	const int diff = sortval[ vtx+1 ] - sortval[ vtx ]; 
+	for ( int idx=step; idx<diff; idx+=step ) 
+	{ 
+	    const double frac = (double) idx / diff; 
+	    const Coord3 interpos = (1-frac) * seedpos_[ sortidx[vtx] ] + 
+				       frac  * seedpos_[ sortidx[vtx+1] ];
+	    const EM::PosID interpid( emobj->id(), sectionid_, 
+				SI().transform(interpos).getSerialized() ); 
+	    emobj->setPos( interpid, interpos, true ); 
+	} 
+    } 
     return true;
 }
 
@@ -257,8 +359,9 @@ CubeSampling HorizonSeedPicker::getSeedBox() const
     seedbox.hrg.init( false );
     for ( int idx=0; idx<nrSeeds(); idx++ )
     {
-	BinID seedbid = SI().transform( seedpos_[idx] );
-	seedbox.hrg.include( seedbid );
+	const BinID seedbid = SI().transform( seedpos_[idx] );
+	if ( engine().activeVolume().hrg.includes(seedbid) )
+	    seedbox.hrg.include( seedbid );
     }
     return seedbox;
 }
