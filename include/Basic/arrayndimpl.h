@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: arrayndimpl.h,v 1.34 2006-02-20 20:54:08 cvskris Exp $
+ RCS:		$Id: arrayndimpl.h,v 1.35 2006-03-03 14:15:15 cvsnanne Exp $
 ________________________________________________________________________
 
 */
@@ -121,7 +121,7 @@ public:
     inline	~ArrayNDFileStor()
 		{
 		    Threads::MutexLocker mlock( mutex_ );
-		    close();
+		    if ( strm_ ) close();
 		    File_remove( name_, false );
 		}
 private:
@@ -162,7 +162,8 @@ private:
 
     void	close()
 		{
-		    strm_->close(); delete strm_; strm_ = 0;
+		    if ( strm_ ) strm_->close();
+		    delete strm_; strm_ = 0;
 		}
 
 protected:
