@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.160 2006-03-02 21:25:41 cvskris Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.161 2006-03-03 12:24:31 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -261,7 +261,14 @@ uiODDataTreeItem::uiODDataTreeItem( const char* parenttype )
 
 
 uiODDataTreeItem::~uiODDataTreeItem()
-{ menu_->unRef(); }
+{
+    if ( menu_ )
+    {
+	menu_->createnotifier.remove( mCB(this,uiODDataTreeItem,createMenuCB) );
+	menu_->handlenotifier.remove( mCB(this,uiODDataTreeItem,handleMenuCB) );
+	menu_->unRef();
+    }
+}
 
 
 uiODDataTreeItem* uiODDataTreeItem::create( const Attrib::SelSpec& as,
@@ -416,7 +423,7 @@ void uiODDataTreeItem::handleMenuCB( CallBacker* cb )
 
 	moveItemToTop();
 
-	menu->setIsHandled(true);
+	menu->setIsHandled( true );
     }
     else if ( mnuid==movetobottommnuitem_.id )
     {
@@ -427,7 +434,7 @@ void uiODDataTreeItem::handleMenuCB( CallBacker* cb )
 	while ( siblingIndex()<nrattribs-1 )
 	    moveItem( siblingBelow() );
 
-	menu->setIsHandled(true);
+	menu->setIsHandled( true );
     }
     else if ( mnuid==moveupmnuitem_.id )
     {
@@ -452,7 +459,7 @@ void uiODDataTreeItem::handleMenuCB( CallBacker* cb )
 	}
 
 	moveItem( siblingBelow() );
-	menu->setIsHandled(true);
+	menu->setIsHandled( true );
     }
     else if ( mnuid==removemnuitem_.id )
     {
@@ -461,6 +468,7 @@ void uiODDataTreeItem::handleMenuCB( CallBacker* cb )
 
 	prepareForShutdown();
 	parent->removeChild( this );
+	menu->setIsHandled( true );
     }
 }
 
