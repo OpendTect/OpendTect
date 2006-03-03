@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: uimsg.cc,v 1.27 2005-12-14 15:18:28 cvsbert Exp $
+ RCS:           $Id: uimsg.cc,v 1.28 2006-03-03 11:49:56 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -110,7 +110,7 @@ void uiMsg::message( const char* text, const char* caption )
     uiCursorChanger uicursor( uiCursor::Arrow );
     if ( !caption || !*caption ) caption = "Information";
     QMessageBox::information( popParnt(),
-			      QString(caption), QString(text), QString("Ok") );
+			      QString(caption), QString(text), QString("&Ok") );
 
 }
 
@@ -130,7 +130,7 @@ void uiMsg::error( const char* text, const char* caption )
     uiCursorChanger uicursor( uiCursor::Arrow );
     if ( !caption || !*caption ) caption = "Error";
     QMessageBox::critical( popParnt(),
-			   QString(caption), QString(text), QString("Ok") );
+			   QString(caption), QString(text), QString("&Ok") );
 }
 
 
@@ -142,12 +142,12 @@ int uiMsg::notSaved( const char* text, const char* caption, bool cancelbutt )
 #if QT_VERSION < 0x030200
     int res = QMessageBox::information( popParnt(),QString(caption),
 	       QString(text),
-	       QString("Save"), QString("Don't save"),
-	       cancelbutt ? QString("Cancel") : QString::null, 0, 2 );
+	       QString("&Save"), QString("&Don't save"),
+	       cancelbutt ? QString("&Cancel") : QString::null, 0, 2 );
 #else
     int res = QMessageBox::question( popParnt(),QString(caption),QString(text),
-	       QString("Save"), QString("Don't save"),
-	       cancelbutt ? QString("Cancel") : QString::null, 0, 2 );
+	       QString("&Save"), QString("&Don't save"),
+	       cancelbutt ? QString("&Cancel") : QString::null, 0, 2 );
 #endif
 
     if ( res==0 ) return 1;
@@ -170,8 +170,8 @@ bool uiMsg::askGoOn( const char* text, bool yn, const char* caption )
     if ( !caption || !*caption ) caption = "Please specify";
     return !QMessageBox::warning( popParnt(),
 				  QString(caption), QString(text),
-				  QString(yn?"Yes":"Ok"),
-				  QString(yn?"No":"Cancel"),
+				  QString(yn?"&Yes":"&Ok"),
+				  QString(yn?"&No":"&Cancel"),
 				  QString::null,0,1);
 }
 
@@ -181,10 +181,10 @@ int uiMsg::askGoOnAfter( const char* text, const char* cnclmsg,
 			 const char* caption )
 {
     uiCursorChanger uicursor( uiCursor::Arrow );
-    if ( !cnclmsg || !*cnclmsg ) cnclmsg = "Cancel";
+    if ( !cnclmsg || !*cnclmsg ) cnclmsg = "&Cancel";
     if ( !caption || !*caption ) caption = "Please specify";
     return QMessageBox::warning( popParnt(), QString(caption), QString(text),
-				  QString("Yes"), QString("No"),
+				  QString("&Yes"), QString("&No"),
 				  QString(cnclmsg), 0, 2 );
 }
 
@@ -193,11 +193,11 @@ bool uiMsg::showMsgNextTime( const char* text, const char* caption,
 			     const char* ntmsg )
 {
     uiCursorChanger uicursor( uiCursor::Arrow );
-    if ( !ntmsg || !*ntmsg ) ntmsg = "Don't show this message again";
+    if ( !ntmsg || !*ntmsg ) ntmsg = "&Don't show this message again";
     if ( !caption || !*caption ) caption = "Information";
     return !QMessageBox::warning( popParnt(),
 				  QString(caption), QString(text),
-				  QString("Ok"),
+				  QString("&Ok"),
 				  QString(ntmsg),
 				  QString::null,0,1);
 }
