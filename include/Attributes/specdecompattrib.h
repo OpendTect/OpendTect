@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          Jan 2004
- RCS:           $Id: specdecompattrib.h,v 1.8 2006-01-12 13:15:30 cvshelene Exp $
+ RCS:           $Id: specdecompattrib.h,v 1.9 2006-03-03 13:42:44 cvshelene Exp $
 ________________________________________________________________________
 -*/
 
@@ -73,36 +73,38 @@ protected:
     bool		calcCWT(const DataHolder&,int t0,int nrsamples) const;
 
     const Interval<float>*	reqZMargin(int input, int output) const;
+    const Interval<float>*	desZMargin(int input, int output) const;
 
-    int					transformtype;
-    ArrayNDWindow::WindowType		windowtype;
-    Interval<float>			gate;
-    float                       	deltafreq;
-    WaveletTransform::WaveletType	dwtwavelet;
-    CWT::WaveletType			cwtwavelet;
+    int					transformtype_;
+    ArrayNDWindow::WindowType		windowtype_;
+    Interval<float>			gate_;
+    float                       	deltafreq_;
+    WaveletTransform::WaveletType	dwtwavelet_;
+    CWT::WaveletType			cwtwavelet_;
 
-    Interval<int>               	samplegate;
+    Interval<int>               	samplegate_;
 
-    ArrayNDWindow*              	window;
+    ArrayNDWindow*              	window_;
     FFT                         	fft_;
     CWT                         	cwt_;
-    int                         	scalelen;
+    int                         	scalelen_;
 
-    float                       	df;
-    int                         	fftsz;
-    int                         	sz;
+    float                       	df_;
+    int                         	fftsz_;
+    int                         	sz_;
 
-    bool				fftisinit;
+    bool				fftisinit_;
+    Interval<float>			desgate_;
 
     int					realidx_;
     int					imagidx_;
 
-    Array1DImpl<float_complex>*     	timedomain;
-    Array1DImpl<float_complex>*     	freqdomain;
-    Array1DImpl<float_complex>*     	signal;
+    Array1DImpl<float_complex>*     	timedomain_;
+    Array1DImpl<float_complex>*     	freqdomain_;
+    Array1DImpl<float_complex>*     	signal_;
 
-    const DataHolder*		    	redata;
-    const DataHolder*               	imdata;
+    const DataHolder*		    	redata_;
+    const DataHolder*               	imdata_;
 };
 
 }; // namespace Attrib

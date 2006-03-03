@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          January 2004
- RCS:           $Id: specdecompattrib.cc,v 1.12 2005-12-22 14:55:56 cvsnanne Exp $
+ RCS:           $Id: specdecompattrib.cc,v 1.13 2006-03-03 13:42:44 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -124,45 +124,46 @@ const char* SpecDecomp::transTypeNamesStr(int type)
 
 SpecDecomp::SpecDecomp( Desc& desc_ )
     : Provider( desc_ )
-    , window(0)
-    , fftisinit(false)
-    , timedomain(0)
-    , freqdomain(0)
-    , signal(0)
-    , scalelen(0)
+    , window_(0)
+    , fftisinit_(false)
+    , timedomain_(0)
+    , freqdomain_(0)
+    , signal_(0)
+    , scalelen_(0)
 { 
     if ( !isOK() ) return;
 
-    mGetEnum( transformtype, transformTypeStr() );
-    mGetFloat( deltafreq, deltafreqStr() );
+    mGetEnum( transformtype_, transformTypeStr() );
+    mGetFloat( deltafreq_, deltafreqStr() );
 
-    if ( transformtype == mTransformTypeFourier )
+    if ( transformtype_ == mTransformTypeFourier )
     {
 	int wtype;
 	mGetEnum( wtype, windowStr() );
-	windowtype = (ArrayNDWindow::WindowType)wtype;
+	windowtype_ = (ArrayNDWindow::WindowType)wtype;
 	
-	mGetFloatInterval( gate, gateStr() );
-	gate.start = gate.start / zFactor(); gate.stop = gate.stop / zFactor();
+	mGetFloatInterval( gate_, gateStr() );
+	gate_.start = gate_.start / zFactor();
+	gate_.stop = gate_.stop / zFactor();
     }
-    else if ( transformtype == mTransformTypeDiscrete )
+    else if ( transformtype_ == mTransformTypeDiscrete )
     {
 	int dwave;
 	mGetEnum( dwave, dwtwaveletStr() );
-	dwtwavelet = (WaveletTransform::WaveletType) dwave;
+	dwtwavelet_ = (WaveletTransform::WaveletType) dwave;
     }
     else 
     {
 	int cwave;
 	mGetEnum( cwave, cwtwaveletStr() );
-	cwtwavelet = (CWT::WaveletType) cwave;
+	cwtwavelet_ = (CWT::WaveletType) cwave;
     }
 }
 
 
 SpecDecomp::~SpecDecomp()
 {
-    delete window;
+    delete window_;
 }
 
 
@@ -174,11 +175,11 @@ bool SpecDecomp::getInputOutput( int input, TypeSet<int>& res ) const
 
 bool SpecDecomp::getInputData( const BinID& relpos, int idx )
 {
-    redata = inputs[0]->getData( relpos, idx );
-    if ( !redata ) return false;
+    redata_ = inputs[0]->getData( relpos, idx );
+    if ( !redata_ ) return false;
 
-    imdata = inputs[1]->getData( relpos, idx );
-    if ( !imdata ) return false;
+    imdata_ = inputs[1]->getData( relpos, idx );
+    if ( !imdata_ ) return false;
 
     realidx_ = getDataIndex( 0 );
     imagidx_ = getDataIndex( 1 );
@@ -190,59 +191,60 @@ bool SpecDecomp::getInputData( const BinID& relpos, int idx )
 bool SpecDecomp::computeData( const DataHolder& output, const BinID& relpos,
 	                          int z0, int nrsamples ) const
 {
-    if ( !fftisinit )
+    if ( !fftisinit_ )
     {
-	if ( transformtype == mTransformTypeFourier )
+	if ( transformtype_ == mTransformTypeFourier )
 	{
-	    const_cast<SpecDecomp*>(this)->samplegate = 
-	     Interval<int>(mNINT(gate.start/refstep), mNINT(gate.stop/refstep));
-	    const_cast<SpecDecomp*>(this)->sz = samplegate.width()+1;
+	    const_cast<SpecDecomp*>(this)->samplegate_ = 
+		     Interval<int>(mNINT(gate_.start/refstep),
+				   mNINT(gate_.stop/refstep));
+	    const_cast<SpecDecomp*>(this)->sz_ = samplegate_.width()+1;
 
 	    const float fnyq = 0.5 / refstep;
-	    const int minsz = mNINT( 2*fnyq/deltafreq );
-	    const_cast<SpecDecomp*>(this)->fftsz = sz > minsz ? sz : minsz;
+	    const int minsz = mNINT( 2*fnyq/deltafreq_ );
+	    const_cast<SpecDecomp*>(this)->fftsz_ = sz_ > minsz ? sz_ : minsz;
 	    const_cast<SpecDecomp*>(this)->
-			fft_.setInputInfo(Array1DInfoImpl(fftsz));
+			fft_.setInputInfo(Array1DInfoImpl(fftsz_));
 	    const_cast<SpecDecomp*>(this)->fft_.setDir(true);
 	    const_cast<SpecDecomp*>(this)->fft_.init();
-	    const_cast<SpecDecomp*>(this)->df = FFT::getDf( refstep, fftsz );
+	    const_cast<SpecDecomp*>(this)->df_ = FFT::getDf( refstep, fftsz_ );
 
-	    const_cast<SpecDecomp*>(this)->window = 
-		new ArrayNDWindow( Array1DInfoImpl(sz), false, 
-			(ArrayNDWindow::WindowType)windowtype );
+	    const_cast<SpecDecomp*>(this)->window_ = 
+		new ArrayNDWindow( Array1DInfoImpl(sz_), false, 
+			(ArrayNDWindow::WindowType)windowtype_ );
 	}
 	else
-	    const_cast<SpecDecomp*>(this)->scalelen = 1024;
+	    const_cast<SpecDecomp*>(this)->scalelen_ = 1024;
 
-	const_cast<SpecDecomp*>(this)->fftisinit = true;
+	const_cast<SpecDecomp*>(this)->fftisinit_ = true;
     }
     
-    if ( transformtype == mTransformTypeFourier )
+    if ( transformtype_ == mTransformTypeFourier )
     {
 	const_cast<SpecDecomp*>(this)->
-	    		signal = new Array1DImpl<float_complex>( sz );
+	    		signal_ = new Array1DImpl<float_complex>( sz_ );
 
 	const_cast<SpecDecomp*>(this)->
-	    timedomain = new Array1DImpl<float_complex>( fftsz );
-	const int tsz = timedomain->info().getTotalSz();
-	memset(timedomain->getData(),0, tsz*sizeof(float_complex));
+	    timedomain_ = new Array1DImpl<float_complex>( fftsz_ );
+	const int tsz = timedomain_->info().getTotalSz();
+	memset(timedomain_->getData(),0, tsz*sizeof(float_complex));
 
 	const_cast<SpecDecomp*>(this)->
-			freqdomain = new Array1DImpl<float_complex>( fftsz );
+			freqdomain_ = new Array1DImpl<float_complex>( fftsz_ );
     }
     
     bool res;
-    if ( transformtype == mTransformTypeFourier )
+    if ( transformtype_ == mTransformTypeFourier )
 	res = calcDFT(output, z0, nrsamples);
-    else if ( transformtype == mTransformTypeDiscrete )
+    else if ( transformtype_ == mTransformTypeDiscrete )
 	res = calcDWT(output, z0, nrsamples);
-    else if ( transformtype == mTransformTypeContinuous )
+    else if ( transformtype_ == mTransformTypeContinuous )
 	res = calcCWT(output, z0, nrsamples);
 
     
-    delete signal;
-    delete timedomain;
-    delete freqdomain;
+    delete signal_;
+    delete timedomain_;
+    delete freqdomain_;
     return res;
 }
 
@@ -252,32 +254,32 @@ bool SpecDecomp::calcDFT(const DataHolder& output, int z0, int nrsamples ) const
     for ( int idx=0; idx<nrsamples; idx++ )
     {
 	int cursample = z0 + idx;
-	int samp = cursample + samplegate.start;
-	for ( int ids=0; ids<sz; ids++ )
+	int samp = cursample + samplegate_.start;
+	for ( int ids=0; ids<sz_; ids++ )
 	{
-	    float real = redata->series(realidx_)? 
-			redata->series(realidx_)->value(samp-redata->z0_) : 0;
-	    float imag = imdata->series(imagidx_)? 
-			-imdata->series(imagidx_)->value(samp-imdata->z0_) : 0;
+	    float real = redata_->series(realidx_)? 
+			redata_->series(realidx_)->value(samp-redata_->z0_) : 0;
+	    float imag = imdata_->series(imagidx_)? 
+			-imdata_->series(imagidx_)->value(samp-imdata_->z0_) :0;
 
-	    signal->set( ids, float_complex(real,imag) );
+	    signal_->set( ids, float_complex(real,imag) );
 	    samp++;
 	}
 
-	removeBias( signal );
-	window->apply( signal );
+	removeBias( signal_ );
+	window_->apply( signal_ );
 
-	const int diff = (int)(fftsz - sz)/2;
-	for ( int idy=0; idy<sz; idy++ )
-	    timedomain->set( diff+idy, signal->get(idy) );
+	const int diff = (int)(fftsz_ - sz_)/2;
+	for ( int idy=0; idy<sz_; idy++ )
+	    timedomain_->set( diff+idy, signal_->get(idy) );
 
-	fft_.transform( *timedomain, *freqdomain );
+	fft_.transform( *timedomain_, *freqdomain_ );
 
 	for ( int idf=0; idf<outputinterest.size(); idf++ )
 	{
 	    if ( !outputinterest[idf] ) continue;
 
-	    float_complex val = freqdomain->get( idf );
+	    float_complex val = freqdomain_->get( idf );
 	    float real = val.real();
 	    float imag = val.imag();
 	    output.series(idf)->setValue( idx, sqrt(real*real+imag*imag) );
@@ -290,21 +292,21 @@ bool SpecDecomp::calcDFT(const DataHolder& output, int z0, int nrsamples ) const
 
 bool SpecDecomp::calcDWT(const DataHolder& output, int z0, int nrsamples ) const
 {
-    int len = nrsamples + scalelen;
+    int len = nrsamples + scalelen_;
     while ( !isPower( len, 2 ) ) len++;
 
     Array1DImpl<float> inputdata( len );
-    if ( !redata->series(realidx_) ) return false;
+    if ( !redata_->series(realidx_) ) return false;
     
     int off = (len-nrsamples)/2;
     for ( int idx=0; idx<len; idx++ )
     {
-	int cursample = z0 - redata->z0_ + idx-off;
-        inputdata.set( idx, redata->series(realidx_)->value(cursample) );
+	int cursample = z0 - redata_->z0_ + idx-off;
+        inputdata.set( idx, redata_->series(realidx_)->value(cursample) );
     }
 
     Array1DImpl<float> transformed( len );
-    ::DWT dwt(dwtwavelet );// what does that really mean?
+    ::DWT dwt(dwtwavelet_ );// what does that really mean?
 
     dwt.setInputInfo( inputdata.info() );
     dwt.init();
@@ -341,35 +343,35 @@ bool SpecDecomp::calcDWT(const DataHolder& output, int z0, int nrsamples ) const
 bool SpecDecomp::calcCWT(const DataHolder& output, int z0, int nrsamples ) const
 {
     int nrsamp = nrsamples;
-    if ( nrsamples == 1 ) nrsamp = 256;
+    if ( nrsamples < 256 ) nrsamp = 256;
     mGetNextPow2( nrsamp );
-    if ( !redata->series(realidx_) || !imdata->series(imagidx_) ) return false;
+    if ( !redata_->series(realidx_) || !imdata_->series(imagidx_) ) return false;
 
     const int off = (nrsamp-nrsamples)/2;
     Array1DImpl<float_complex> inputdata( nrsamp );
     for ( int idx=0; idx<nrsamp; idx++ )
     {
 	const int cursample = z0 + idx - off;
-	const int reidx = cursample-redata->z0_;
-	const float real = reidx < 0 || reidx >= redata->nrsamples_
-		? 0 : redata->series(realidx_)->value( cursample-redata->z0_ );
+	const int reidx = cursample-redata_->z0_;
+	const float real = reidx < 0 || reidx >= redata_->nrsamples_
+		? 0 : redata_->series(realidx_)->value( reidx );
 
-	const int imidx = cursample-imdata->z0_;
-	const float imag = imidx < 0 || imidx >= imdata->nrsamples_
-		? 0 : -imdata->series(imagidx_)->value( cursample-imdata->z0_ );
+	const int imidx = cursample-imdata_->z0_;
+	const float imag = imidx < 0 || imidx >= imdata_->nrsamples_
+		? 0 : -imdata_->series(imagidx_)->value( imidx );
         inputdata.set( idx, float_complex(real,imag) );
     }
 
     CWT& cwt = const_cast<CWT&>(cwt_);
     cwt.setInputInfo( Array1DInfoImpl(nrsamp) );
     cwt.setDir( true );
-    cwt.setWavelet( cwtwavelet );
+    cwt.setWavelet( cwtwavelet_ );
     cwt.setDeltaT( refstep );
 
     const float nyqfreq = 0.5 / SI().zStep();
-    const int nrattribs = mNINT( nyqfreq / deltafreq );
-    const float freqstop = deltafreq*nrattribs;
-    cwt.setTransformRange( StepInterval<float>(deltafreq,freqstop,deltafreq) );
+    const int nrattribs = mNINT( nyqfreq / deltafreq_ );
+    const float freqstop = deltafreq_*nrattribs;
+    cwt.setTransformRange( StepInterval<float>(deltafreq_,freqstop,deltafreq_));
     cwt.init();
 
     Array2DImpl<float> outputdata(0,0);
@@ -398,6 +400,14 @@ bool SpecDecomp::calcCWT(const DataHolder& output, int z0, int nrsamples ) const
 
 
 const Interval<float>* SpecDecomp::reqZMargin( int inp, int ) const
-{ return transformtype != mTransformTypeFourier ? 0 : &gate; }
+{ return transformtype_ != mTransformTypeFourier ? 0 : &gate_; }
+
+
+const Interval<float>* SpecDecomp::desZMargin( int inp, int ) const
+{
+    const_cast<SpecDecomp*>(this)->desgate_ = 
+		Interval<float>( -(1024-1)*refstep, (1024-1)*refstep );
+    return transformtype_ == mTransformTypeFourier ? 0 : &desgate_;
+}
 
 }//namespace
