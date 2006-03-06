@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribdescset.h,v 1.20 2006-03-02 13:52:47 cvsbert Exp $
+ RCS:           $Id: attribdescset.h,v 1.21 2006-03-06 08:13:53 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,6 +33,7 @@ public:
     DescSet*			clone() const;
     DescSet*			optimizeClone(const DescID& targetid) const;
     DescSet*      		optimizeClone(const TypeSet<DescID>&) const;
+    DescSet*      		optimizeClone(const BufferStringSet&) const;
     				/*!< Only clones stuff needed to calculate
 				     the attrib with the ids given */
     void			updateInputs();

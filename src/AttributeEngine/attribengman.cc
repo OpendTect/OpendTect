@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H.Payraudeau
  Date:          04/2005
- RCS:           $Id: attribengman.cc,v 1.52 2006-02-24 11:09:53 cvsbert Exp $
+ RCS:           $Id: attribengman.cc,v 1.53 2006-03-06 08:13:53 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -372,7 +372,9 @@ DescSet* EngineMan::createNLAADS( DescID& nladescid, BufferString& errmsg,
     addNLADesc( defstr, nladescid, *descset, attrspecs_[0].id().asInt(), 
 		nlamodel, errmsg );
 
-    return descset;
+    DescSet* cleanset = descset->optimizeClone( nladescid );
+    delete descset;
+    return cleanset;
 }
 
 
@@ -743,42 +745,6 @@ void EngineMan::computeIntersect2D( ObjectSet<BinIDValueSet>& bivsets ) const
 	newbivsets += newset;
     }
     bivsets = newbivsets;
-    
-/*    ObjectSet<BinIDValueSet> newbivsets;
-    for ( int idx=0; idx<bivsets.size(); idx++ )
-	newbivsets += new BinIDValueSet(bivsets[idx]->nrVals(), true);
-    
-    for ( int idx=0; idx<lset.nrLines(); idx++ )
-    {
-	if ( strcmp( lset.attribute(idx), "Seis" ) ) continue;
-	Line2DGeometry linegeom;
-	if ( !lset.getGeometry( idx,linegeom ) ) return;
-	BinID prevbid(-1,-1);
-	for ( int idy=0; idy<linegeom.posns.size(); idy++ )
-	{
-	    BinID bid = SI().transform( linegeom.posns[idy].coord );
-	    if ( bid == prevbid ) continue;
-	    prevbid = bid;
-	    for ( int idz=0; idz<bivsets.size(); idz++ )
-	    {
-		if ( bivsets[idz]->includes(bid) )
-		{
-		    BinIDValueSet::Pos pos = bivsets[idz]->findFirst(bid);
-
-		    while ( true )
-		    {
-			BinIDValues bidvalues;
-			bivsets[idz]->get(pos,bidvalues);
-			newbivsets[idz]->add(bidvalues);
-			bivsets[idz]->next( pos );
-			if ( bid != bivsets[idz]->getBinID(pos) )
-			    break;
-		    }
-		}
-	    }
-	}
-    }
-    bivsets = newbivsets;*/
 }
 
 

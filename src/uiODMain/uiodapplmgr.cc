@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.119 2006-03-02 21:21:35 cvskris Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.120 2006-03-06 08:13:53 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -806,7 +806,10 @@ bool uiODApplMgr::handleNLAServEv( int evid )
 	if ( !ads ) return false;
 	IOPar& iopar = nlaserv->modelPars();
 	iopar.clear();
-	ads->fillPar( iopar );
+	BufferStringSet inputs = nlaserv->modelInputs();
+	const Attrib::DescSet* cleanads = ads->optimizeClone( inputs );
+	cleanads->fillPar( iopar );
+	delete cleanads;
     }
     else if ( evid == uiNLAPartServer::evPrepareRead )
     {
