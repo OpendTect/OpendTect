@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribprocessor.cc,v 1.36 2006-03-02 12:52:07 cvshelene Exp $";
+static const char* rcsID = "$Id: attribprocessor.cc,v 1.37 2006-03-06 16:25:46 cvshelene Exp $";
 
 #include "attribprocessor.h"
 
@@ -232,7 +232,8 @@ void Processor::init()
     else
     {
 	CubeSampling possvol;
-	provider->setDesiredVolume( possvol );
+	provider->setDesiredVolume( possvol.includes( globalcs ) ? 
+				    possvol : globalcs );
 	provider->getPossibleVolume( -1, possvol );
 	provider->resetDesiredVolume();
 
