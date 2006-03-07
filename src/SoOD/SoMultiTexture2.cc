@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2005
- RCS:           $Id: SoMultiTexture2.cc,v 1.9 2006-02-17 19:08:41 cvskris Exp $
+ RCS:           $Id: SoMultiTexture2.cc,v 1.10 2006-03-07 22:13:15 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -166,7 +166,7 @@ void SoMultiTextureProcessor::process( const SoMultiTexture2& mt,
     for ( int idx=0; idx<texture_->image.getNum(); idx++ )
     {
 	if ( !prepare(idx) )
-	    return;
+	    continue;
 	
 	if ( nrthreads>1 )
 	{
