@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.cc,v 1.73 2006-03-03 13:41:50 cvsjaap Exp $
+ RCS:           $Id: uimpeman.cc,v 1.74 2006-03-07 12:46:56 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -163,7 +163,7 @@ uiMPEMan::~uiMPEMan()
     visBase::DM().selMan().selnotifier.remove(
 	    mCB(this,uiMPEMan,updateButtonSensitivity) );
     visBase::DM().selMan().deselnotifier.remove(
-	    mCB(this,uiMPEMan,updateButtonSensitivity));
+	    mCB(this,uiMPEMan,updateButtonSensitivity) );
 }
 
 
@@ -187,7 +187,7 @@ void uiMPEMan::deleteVisObjects()
 	if ( scenes.size() )
 	    visserv->removeObject( clickcatcher->id(), scenes[0] );
 
-	clickcatcher->click.remove(mCB(this,uiMPEMan,seedClick));
+	clickcatcher->click.remove( mCB(this,uiMPEMan,seedClick) );
 	clickcatcher->unRef();
 	clickcatcher = 0;
     }
@@ -199,23 +199,24 @@ void uiMPEMan::deleteVisObjects()
 void uiMPEMan::seedClick( CallBacker* )
 {
     MPE::Engine& engine = MPE::engine();
-    MPE::EMTracker* tracker = engine.getTracker(engine.highestTrackerID());
+    MPE::EMTracker* tracker = engine.getTracker( engine.highestTrackerID() );
     if ( !tracker )
 	return;
 
-    const EM::EMObject* emobject = EM::EMM().getObject(tracker->objectID());
+    const EM::EMObject* emobject = EM::EMM().getObject( tracker->objectID() );
     if ( !emobject )
 	return;
 
-    if ( clickcatcher->ctrlClickedNode().objectID() != -1 )
+    if ( clickcatcher && clickcatcher->ctrlClickedNode().objectID() != -1 )
     {
 	const EM::PosID pid = clickcatcher->ctrlClickedNode();
 	if ( seedpicker->canRemoveSeed() && pid.objectID()==emobject->id() )
-	    seedpicker->removeSeed(pid);
+	    seedpicker->removeSeed( pid );
 	return;
     }
 
-    const int clickedobject = clickcatcher->clickedObjectID();
+    const int clickedobject = 
+			clickcatcher ? clickcatcher->clickedObjectID() : -1;
     if ( clickedobject==-1 )
 	return;
 
@@ -245,7 +246,6 @@ void uiMPEMan::seedClick( CallBacker* )
 
 	RefMan<const Attrib::DataCubes> cached = 
 	    				clickcatcher->clickedObjectData();
-
 	if ( cached )
 	{
 	    cached->ref();
@@ -265,7 +265,7 @@ void uiMPEMan::seedClick( CallBacker* )
 	const int cureventnr = history.currentEventNr(); 
 	if ( cureventnr>=history.firstEventNr() )
 	    history.setLevel( cureventnr, mEMHistoryUserInteractionLevel );
-	    */
+*/
     }
 
     if ( !seedpicker )
@@ -273,7 +273,7 @@ void uiMPEMan::seedClick( CallBacker* )
     
     visSurvey::Scene* scene = visSurvey::STM().currentScene();
     const Coord3 disppos = scene->getZScaleTransform()->
-		transformBack(clickcatcher->clickedPos());
+		transformBack( clickcatcher->clickedPos() );
     const Coord3 pos = scene->getUTM2DisplayTransform()->transformBack(disppos);
 
     uiCursor::setOverride( uiCursor::Wait );
@@ -395,12 +395,12 @@ void uiMPEMan::turnSeedPickingOn( bool yn )
 	    clickcatcher->click.notify(mCB(this,uiMPEMan,seedClick));
 	}
 
-	clickcatcher->turnOn(true);
+	clickcatcher->turnOn( true );
 	oldactivevol.setEmpty();
     }
     else
     {
-	if ( clickcatcher ) clickcatcher->turnOn(false);
+	if ( clickcatcher ) clickcatcher->turnOn( false );
 	if ( !oldactivevol.isEmpty() )
 	{
 	    //Restore old volume if it has been changed.
@@ -558,7 +558,7 @@ void uiMPEMan::mouseEraseModeCB( CallBacker* )
 
 void uiMPEMan::seedModeCB( CallBacker* )
 {
-    clickcatcher->turnOn( isOn(seedidx ) );
+    if ( clickcatcher ) clickcatcher->turnOn( isOn(seedidx) );
 //    if ( isOn( seedidx ) )
 //	visserv->sendAddSeedEvent();
 }
