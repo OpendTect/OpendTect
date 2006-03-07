@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Nov 2004
- RCS:		$Id: externalattrib.h,v 1.1 2006-01-27 13:59:37 cvskris Exp $
+ RCS:		$Id: externalattrib.h,v 1.2 2006-03-07 12:18:22 cvsdgb Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,20 +43,24 @@ public:
     virtual bool		isIndexes() const			= 0;
 };
 
-typedef ExtAttribCalc*(ExtAttribCalcCreator)(const SelSpec&);
+
+struct ExtAttribCalcCreator
+{
+    virtual ExtAttribCalc*	make(const SelSpec&) const		= 0;
+};
 
 
 class ExtAttribCalcFact
 {
 public:
-    void			add( ExtAttribCalcCreator nc )
+    void			add( ExtAttribCalcCreator* nc )
 				{ creators += nc; }
     ExtAttribCalc*		createCalculator( const SelSpec& spec )
 				{
 			    	    for ( int idx=0; idx<creators.size(); idx++)
 				    {
 					ExtAttribCalc* res =
-						creators[idx]( spec );
+						creators[idx]->make( spec );
 					if ( res )
 					    return res;
 				    }
@@ -66,8 +70,10 @@ public:
 
     static ExtAttribCalcFact&	getInstance()
 				{
-				    static ExtAttribCalcFact inst;
-				    return inst;
+				    static ExtAttribCalcFact* inst = 0;
+				    if ( !inst )
+					inst = new ExtAttribCalcFact;
+				    return *inst;
 				}
 protected:
 
