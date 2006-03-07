@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Jan 2005
- RCS:           $Id: uivisemobj.cc,v 1.40 2006-02-21 13:12:04 cvshelene Exp $
+ RCS:           $Id: uivisemobj.cc,v 1.41 2006-03-07 12:46:27 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -196,7 +196,7 @@ void uiVisEMObject::setUpConnections()
     wireframemnuitem.text = "Wireframe";
     editmnuitem.text = "Edit";
     shiftmnuitem.text = "Shift ...";
-    fillholesitem.text = "Fill holes";
+    fillholesitem.text = "Fill holes ...";
     showseedsmnuitem.text = "Show seeds";
     removesectionmnuitem.text ="Remove section";
     makepermnodemnuitem.text = "Make control permanent";
@@ -444,11 +444,12 @@ void uiVisEMObject::handleMenuCB( CallBacker* cb )
 			   lbl, inpspec );
 	if ( !dlg.go() ) return;
 
+	uiCursorChanger cursorchanger( uiCursor::Wait );
 	const int aperture = dlg.getIntValue();
 	if ( aperture<1 )
 	    uiMSG().error( "Aperture size must be greater than 0" );
 	else
-	    emhzn->interpolateHoles(aperture);
+	    emhzn->interpolateHoles( aperture );
     }
     else if ( mnuid==removesectionmnuitem.id )
     {
