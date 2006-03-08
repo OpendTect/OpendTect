@@ -4,12 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.cc,v 1.41 2006-01-04 09:49:34 cvsnanne Exp $
+ RCS:           $Id: uiodmenumgr.cc,v 1.42 2006-03-08 13:41:26 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.41 2006-01-04 09:49:34 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.42 2006-03-08 13:41:26 cvsnanne Exp $";
 
 #include "uiodmenumgr.h"
 #include "uiodapplmgr.h"
@@ -60,14 +60,15 @@ uiODMenuMgr::~uiODMenuMgr()
 
 void uiODMenuMgr::initSceneMgrDepObjs()
 {
-    uiMenuBar* menu = appl.menuBar();
-    fillFileMenu();	menu->insertItem( filemnu );
-    fillProcMenu();	menu->insertItem( procmnu );
-    fillWinMenu();	menu->insertItem( winmnu );
-    fillViewMenu();	menu->insertItem( viewmnu );
-    fillUtilMenu();	menu->insertItem( utilmnu );
+    uiMenuBar* menubar = appl.menuBar();
+    fillFileMenu();	menubar->insertItem( filemnu );
+    fillProcMenu();	menubar->insertItem( procmnu );
+    fillWinMenu();	menubar->insertItem( winmnu );
+    fillViewMenu();	menubar->insertItem( viewmnu );
+    fillUtilMenu();	menubar->insertItem( utilmnu );
+    menubar->insertSeparator();
     helpmgr = new uiODHelpMenuMgr( this );
-    menu->insertItem( helpmnu );
+    menubar->insertItem( helpmnu );
 
     fillDtectTB();
     fillCoinTB();
