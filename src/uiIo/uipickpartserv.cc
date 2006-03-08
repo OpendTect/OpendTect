@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uipickpartserv.cc,v 1.29 2005-05-18 11:30:39 cvsnanne Exp $
+ RCS:           $Id: uipickpartserv.cc,v 1.30 2006-03-08 13:15:37 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -68,9 +68,10 @@ bool uiPickPartServer::fetchPickSets()
 	hornms.add( hinfos[idx]->name );
 
     uiFetchPicks dlg( appserv().parent(), psgid, hornms );
-    if ( !dlg.go() ) { deepErase( hinfos ); return false; }
+    if ( !dlg.go() )
+	{ deepErase( hinfos ); return false; }
 
-    if ( !dlg.nrSets() )
+    if ( dlg.mkNew() )
     { 
 	psg.setName( dlg.getName() );
 	pickcolor = dlg.getPickColor();
@@ -83,13 +84,30 @@ bool uiPickPartServer::fetchPickSets()
 	    if ( rv )	psg.add(ps);
 	    else	delete ps;
 	}
+	if ( dlg.wantStore() )
+	    pErrMsg("TODO: pop up store set window");
+
 	return rv;
     }
 
     BufferString bs;
-    if ( !PickSetGroupTranslator::retrieve(psg,dlg.ioobj(),bs,
-					   dlg.selectedSets()) )
-	{ uiMSG().error( bs ); return false; }
+    for ( int idx=0; dlg.ioobj(idx); idx++ )
+    {
+	if ( !PickSetGroupTranslator::retrieve(psg,dlg.ioobj(idx),bs) )
+	{
+	    if ( idx == 0 )
+	    {
+		uiMSG().error( bs );
+		return false;
+	    }
+	    else
+	    {
+		BufferString msg( dlg.ioobj(idx)->name() );
+		msg += ": "; msg += bs;
+		uiMSG().warning( msg );
+	    }
+	}
+    }
 
     return true;
 }
