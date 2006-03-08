@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.162 2006-03-03 22:03:42 cvskris Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.163 2006-03-08 13:46:51 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -855,21 +855,21 @@ BufferString uiODDisplayTreeItem::createDisplayName() const
 
 const char* uiODDisplayTreeItem::getLockMenuText() 
 { 
-    return visserv->isLocked(displayid_)? "Unlock" : "Lock";
+    return visserv->isLocked(displayid_) ? "Unlock" : "Lock";
 }
 
 
 void uiODDisplayTreeItem::createMenuCB( CallBacker* cb )
 {
     mDynamicCastGet(uiMenuHandler*,menu,cb);
-    if ( menu->menuID()!=displayID() )
+    if ( menu->menuID() != displayID() )
 	return;
 
-    if ( visserv->hasAttrib( displayid_ ) &&
-	 visserv->canHaveMultipleAttribs( displayid_ ) )
+    if ( visserv->hasAttrib(displayid_) &&
+	 visserv->canHaveMultipleAttribs(displayid_) )
     {
 	mAddMenuItem( menu, &addattribmnuitem_,
-		      !visserv->isLocked( displayid_ ), false );
+		      !visserv->isLocked(displayid_), false );
     }
     else
 	mResetMenuItem( &addattribmnuitem_ );
@@ -2110,16 +2110,17 @@ void uiODPickSetTreeItem::handleMenuCB( CallBacker* cb )
     }
     else if ( mnuid==storemnuitem_.id )
     {
-	menu->setIsHandled(true);
+	menu->setIsHandled( true );
 	mDynamicCastGet(visSurvey::PickSetDisplay*,psd,
 			visserv->getObject(displayid_));
 	PickSet* ps = new PickSet( psd->name() );
 	psd->copyToPickSet( *ps );
 	applMgr()->pickServer()->storeSinglePickSet( ps );
+	psd->setChanged( false );
     }
     else if ( mnuid==dirmnuitem_.id )
     {
-	menu->setIsHandled(true);
+	menu->setIsHandled( true );
 	applMgr()->setPickSetDirs( displayid_ );
     }
     else if ( mnuid==showallmnuitem_.id )
@@ -2148,19 +2149,21 @@ bool uiODPickSetTreeItem::askContinueAndSaveIfNeeded()
 {
     mDynamicCastGet(visSurvey::PickSetDisplay*,psd,
 	    	    visserv->getObject(displayid_));
-    if ( psd->hasChanged() )
+    if ( !psd->hasChanged() ) return true;
+
+    BufferString warnstr = "This pickset has changed since the last save.\n"
+			   "Do you want to save it?";
+    const int retval = uiMSG().notSaved( warnstr.buf() );
+    if ( retval == 0 )
+	return true;
+    else if ( retval == -1 )
+	return false;
+    else
     {
-	BufferString warnstr ="this pickset has changed since the last save.\n";
-	warnstr += "Do you want to save it?";
-	int retval = uiMSG().notSaved(warnstr.buf()); 
-	if ( !retval ) return true;
-	else if ( retval == -1)	return false;
-	else
-	{
-	    PickSet* ps = new PickSet( psd->name() );
-	    psd->copyToPickSet( *ps );
-	    applMgr()->pickServer()->storeSinglePickSet( ps );
-	}
+	PickSet* ps = new PickSet( psd->name() );
+	psd->copyToPickSet( *ps );
+	applMgr()->pickServer()->storeSinglePickSet( ps );
+	psd->setChanged( false );
     }
     return true;
 }
