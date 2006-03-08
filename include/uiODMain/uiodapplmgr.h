@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiodapplmgr.h,v 1.29 2006-02-14 13:32:19 cvshelene Exp $
+ RCS:           $Id: uiodapplmgr.h,v 1.30 2006-03-08 18:19:53 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -110,7 +110,7 @@ public:
 
     // Work. Don't use unless expert.
     bool			getNewData(int visid, int attrib  );
-    bool			evaluateAttribute(int visid);
+    bool			evaluateAttribute(int visid,int attrib);
     void			pageUpDownPressed(bool up);
     void			resetServers();
     void			modifyColorTable(int visid, int attrib );

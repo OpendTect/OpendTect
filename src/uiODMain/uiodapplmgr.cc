@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.121 2006-03-08 13:48:50 cvsnanne Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.122 2006-03-08 18:19:53 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -441,20 +441,21 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
 	    {
 		const MultiID surfmid = visserv->getMultiID(visid);
 		const EM::ObjectID emid = emserv->getObjectID(surfmid);
-		bool selok = emserv->loadAuxData( emid, myas.userRef() );
-		if ( !selok )
+		const int auxdatanr = emserv->loadAuxData(emid,myas.userRef());
+		if ( auxdatanr<0 )
 		    uiMSG().error( "Cannot find stored data" );
 		else
 		{
-		    visserv->readAuxData( visid );
-		    visserv->selectTexture( visid, attrib, 0 );
+		    ObjectSet<BinIDValueSet> vals;
+		    emserv->getAuxData( emid, auxdatanr, vals);
+		    visserv->setRandomPosData( visid, attrib, &vals );
 		}
 		
-		return selok;
+		return  auxdatanr>=0;
 	    }
 
 	    ObjectSet<BinIDValueSet> data;
-	    visserv->fetchSurfaceData( visid, data );
+	    visserv->getRandomPos( visid, data );
 	    attrserv->setTargetSelSpec( myas );
 	    if ( !attrserv->createOutput(data) )
 	    {
@@ -462,10 +463,7 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
 		return false;
 	    }
 
-	    const MultiID mid = visserv->getMultiID(visid);
-	    const EM::ObjectID emid = emserv->getObjectID(mid);
-	    emserv->setAuxData( emid, data, myas.userRef() );
-	    visserv->readAuxData( visid );
+	    visserv->setRandomPosData( visid, attrib, &data );
 
 	    deepErase( data );
 	    return true;
@@ -487,7 +485,7 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
 }
 
 
-bool uiODApplMgr::evaluateAttribute( int visid )
+bool uiODApplMgr::evaluateAttribute( int visid, int attrib )
 {
     /* Perhaps better to merge this with uiODApplMgr::getNewData(), 
        for now it works */
@@ -496,21 +494,16 @@ bool uiODApplMgr::evaluateAttribute( int visid )
     {
 	const CubeSampling cs = visserv->getCubeSampling( visid );
 	RefMan<const Attrib::DataCubes> newdata = attrserv->createOutput( cs );
-	visserv->setCubeData( visid, false, newdata );
+	visserv->setCubeData( visid, attrib, newdata );
     }
-    else if ( format == uiVisPartServer::RandomPos )
+    else if ( format==uiVisPartServer::RandomPos )
     {
 	ObjectSet<BinIDValueSet> data;
-	visserv->fetchSurfaceData( visid, data );
+	visserv->getRandomPos( visid, data );
 
 	attrserv->createOutput( data );
-	BufferStringSet attribnms;
-	attrserv->getTargetAttribNames( attribnms );
-	const MultiID mid = visserv->getMultiID(visid);
-	const EM::ObjectID emid = emserv->getObjectID(mid);
-	emserv->setAuxData( emid, data, attribnms );
+	visserv->setRandomPosData( visid, attrib, &data );
 	deepErase( data );
-	visserv->readAuxData( visid );
     }
     else
     {
@@ -935,7 +928,8 @@ bool uiODApplMgr::handleAttribServEv( int evid )
 	Attrib::SelSpec as;
 	attrserv->getDirectShowAttrSpec( as );
 	const int visid = visserv->getEventObjId();
-	visserv->setSelSpec( visid, 0, as );
+	const int attrib = visserv->getSelAttribNr();
+	visserv->setSelSpec( visid, attrib, as );
 	getNewData( visid, false );
 	sceneMgr().updateTrees();
     }
@@ -961,8 +955,9 @@ bool uiODApplMgr::handleAttribServEv( int evid )
     {
 	const int visid = visserv->getEventObjId();
 	Attrib::SelSpec as( "Evaluation", Attrib::SelSpec::cOtherAttrib() );
-	visserv->setSelSpec( visid, 0, as );
-	if ( !evaluateAttribute(visid) )
+	const int attrib = visserv->getSelAttribNr();
+	visserv->setSelSpec( visid, attrib, as );
+	if ( !evaluateAttribute(visid,attrib) )
 	    return false;
 	sceneMgr().updateTrees();
     }
@@ -981,7 +976,7 @@ bool uiODApplMgr::handleAttribServEv( int evid )
 	const int visid = visserv->getEventObjId();
 	const uiVisPartServer::AttribFormat format = 
 	    				visserv->getAttributeFormat( visid );
-	if ( format != uiVisPartServer::RandomPos ) return false;
+	if ( format!=uiVisPartServer::RandomPos ) return false;
 	const MultiID mid = visserv->getMultiID(visid);
 	const EM::ObjectID emid = emserv->getObjectID(mid);
 	emserv->storeAuxData( emid );

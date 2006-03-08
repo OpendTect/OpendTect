@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Sep 2002
- RCS:           $Id: uiempartserv.h,v 1.36 2005-11-30 22:09:10 cvskris Exp $
+ RCS:           $Id: uiempartserv.h,v 1.37 2006-03-08 18:19:53 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -59,9 +59,11 @@ public:
 
     bool		selectHorizon(EM::ObjectID& id);
     bool		selectFault(EM::ObjectID& id);
-    bool		showLoadAuxDataDlg(const EM::ObjectID&);
-    bool		loadAuxData(const EM::ObjectID&,const char*);
-    			/*!<Loads the specified data into mem. */
+    int			showLoadAuxDataDlg(const EM::ObjectID&);
+    			/*<\returns auxdatanr. */
+    int			loadAuxData(const EM::ObjectID&,const char*);
+    			/*!<Loads the specified data into memory and returns
+			    its auxdatanr. */
 
     bool		importLMKFault();
 
@@ -77,11 +79,11 @@ public:
 	    			    bool storeas=false) const;
     bool		storeAuxData(const EM::ObjectID&,
 	    			     bool storeas=false) const;
-    void		setAuxData(const EM::ObjectID&,
-	    			   ObjectSet<BinIDValueSet>&,const char*);
-    void		setAuxData(const EM::ObjectID&,
-	    			   ObjectSet<BinIDValueSet>&,
-				   const BufferStringSet&);
+    int			setAuxData(const EM::ObjectID&,
+	    			   ObjectSet<const BinIDValueSet>&,
+				   const char* nm, int valnr );
+    bool		getAuxData(const EM::ObjectID&,int auxdatanr,
+	    			   ObjectSet<BinIDValueSet>& ) const;
 
     void		removeHistory();
 

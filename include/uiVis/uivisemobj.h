@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		May 2004
- RCS:		$Id: uivisemobj.h,v 1.17 2005-12-06 16:51:33 cvskris Exp $
+ RCS:		$Id: uivisemobj.h,v 1.18 2006-03-08 18:19:52 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -41,11 +41,10 @@ public:
     EM::ObjectID	getObjectID() const;
 
     float		getShift() const;
-    void		setDepthAsAttrib();
+    void		setDepthAsAttrib(int attrib);
     void		setOnlyAtSectionsDisplay(bool);
     uiMenuHandler&	getNodeMenu() { return nodemenu; }
 
-    void		readAuxData();
     int			nrSections() const;
     EM::SectionID	getSectionID(int idx) const;
     EM::SectionID	getSectionID(const TypeSet<int>* pickedpath) const;

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          May 2004
- RCS:           $Id: visemobjdisplay.h,v 1.35 2006-01-18 22:58:59 cvskris Exp $
+ RCS:           $Id: visemobjdisplay.h,v 1.36 2006-03-08 18:19:52 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -70,23 +70,27 @@ public:
     StepInterval<int>		displayedRowRange() const;
     StepInterval<int>		displayedColRange() const;
 
-    void			useTexture(bool yn);
-    void			setUseTexture(bool yn);
+    void			useTexture(bool yn,bool trigger=false);
     bool			usesTexture() const;
 
     void			setOnlyAtSectionsDisplay(bool yn);
     bool			getOnlyAtSectionsDisplay() const;
 
-    void			readAuxData();
-    void			selectTexture(int);
-    void			selectNextTexture(bool next);
+    void			displaySurfaceData(int attrib,int auxdatanr);
+    void			selectTexture(int,int);
 
     SurveyObject::AttribFormat	getAttributeFormat() const;
+    bool			canHaveMultipleAttribs() const;
+    int				nrAttribs() const;
+    bool			addAttrib();
+    bool			removeAttrib(int attrib);
+    bool			swapAttribs(int attrib0,int attrib1);
+    void			enableAttrib(int attrib, bool yn);
+    bool			isAttribEnabled(int attrib) const;
     const Attrib::SelSpec*	getSelSpec(int) const;
-    const Attrib::ColorSelSpec*	getColorSelSpec() const;
     void			setSelSpec(int,const Attrib::SelSpec&);
-    void			setColorSelSpec(const Attrib::ColorSelSpec&);
-    void			setDepthAsAttrib();
+    void			setDepthAsAttrib(int);
+
 
     bool			allowMaterialEdit() const { return true; }
     const LineStyle*		lineStyle() const;
@@ -96,11 +100,13 @@ public:
     void			setColor(Color);
     Color			getColor() const;
 
-    void			fetchData( ObjectSet<BinIDValueSet>&) const;
-    void			stuffData( bool forcolordata,
+    void			getRandomPos(ObjectSet<BinIDValueSet>&) const;
+    void			getRandomPosCache(int,
+	    				ObjectSet<const BinIDValueSet>&) const;
+    void			setRandomPosData( int,
 					   const ObjectSet<BinIDValueSet>*);
 
-    bool			hasStoredAttrib() const;
+    bool			hasStoredAttrib( int attrib ) const;
 
     int				nrResolutions() const;
     BufferString		getResolutionName(int) const;
@@ -149,7 +155,6 @@ protected:
     void				removeEMStuff();
 
     static visBase::VisualObject*	createSection(Geometry::Element*);
-    void				removeAttribCache();
     bool				addSection(EM::SectionID);
     bool				addEdgeLineDisplay(EM::SectionID);
     void				emChangeCB(CallBacker*);
@@ -167,7 +172,7 @@ protected:
     mVisTrans*				transformation;
     mVisTrans*				translation;
     visBase::EventCatcher*		eventcatcher;
-    visBase::VisColorTab*		coltab_;
+    ObjectSet<visBase::VisColorTab>	coltabs_;
 
     ObjectSet<visBase::VisualObject>	sections;
     TypeSet<EM::SectionID>		sectionids;
@@ -198,11 +203,8 @@ protected:
     int					curtextureidx;
     float				edgelineradius;
 
-    Attrib::SelSpec&			as;
-    bool				validtexture;
-    Attrib::ColorSelSpec&		colas;
-    ObjectSet<const float>		attribcache;
-    TypeSet<int>			attribcachesz;
+    ObjectSet<Attrib::SelSpec>		as_;
+    bool				validtexture_;
 
     static visBase::FactoryEntry	oldnameentry;
 

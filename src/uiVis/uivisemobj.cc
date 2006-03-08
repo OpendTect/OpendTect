@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Jan 2005
- RCS:           $Id: uivisemobj.cc,v 1.42 2006-03-08 08:00:18 cvsnanne Exp $
+ RCS:           $Id: uivisemobj.cc,v 1.43 2006-03-08 18:19:52 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -103,9 +103,14 @@ uiVisEMObject::uiVisEMObject( uiParent* uip, int newid, uiVisPartServer* vps )
 
     if ( !emod->setEMObject(emid) ) { emod->unRef(); return; }
 
-    if ( emod->usesTexture() &&
-	    emod->getSelSpec(0)->id()==Attrib::SelSpec::cNoAttrib() )
-	setDepthAsAttrib();
+    if ( emod->usesTexture() )
+    {
+	for ( int idx=0; idx<emod->nrAttribs(); idx++ )
+	{
+	    if ( emod->getSelSpec(idx)->id()==Attrib::SelSpec::cNoAttrib() )
+		setDepthAsAttrib( idx );
+	}
+    }
 
     setUpConnections();
 }
@@ -140,7 +145,7 @@ uiVisEMObject::uiVisEMObject( uiParent* uip, const EM::ObjectID& emid,
 
     visserv->addObject( emod, sceneid, true );
     displayid = emod->id();
-    setDepthAsAttrib();
+    setDepthAsAttrib( 0 );
 
     setUpConnections();
 }
@@ -245,18 +250,11 @@ const char* uiVisEMObject::getObjectType( int id )
 }
 
 
-void uiVisEMObject::setDepthAsAttrib()
+void uiVisEMObject::setDepthAsAttrib( int attrib )
 {
     uiCursorChanger cursorchanger( uiCursor::Wait );
     visSurvey::EMObjectDisplay* emod = getDisplay();
-    if ( emod ) emod->setDepthAsAttrib();
-}
-
-
-void uiVisEMObject::readAuxData()
-{
-    visSurvey::EMObjectDisplay* emod = getDisplay();
-    if ( emod ) emod->readAuxData();
+    if ( emod ) emod->setDepthAsAttrib( attrib );
 }
 
 
@@ -360,7 +358,7 @@ void uiVisEMObject::handleMenuCB( CallBacker* cb )
 
     if ( mnuid==singlecolmnuitem.id )
     {
-	emod->setUseTexture( !emod->usesTexture() );
+	emod->useTexture( !emod->usesTexture(), true );
 	menu->setIsHandled(true);
     }
     else if ( mnuid==showonlyatsectionsmnuitem.id )
@@ -419,14 +417,18 @@ void uiVisEMObject::handleMenuCB( CallBacker* cb )
 
 	shift.z = newshift;
 	emod->setTranslation( shift );
-	if ( !emod->hasStoredAttrib() )
-	    visserv->calculateAttrib( displayid, 0, false );
-	else
+	for ( int attrib=0; attrib<emod->nrAttribs(); attrib++ )
 	{
-	    uiMSG().error( "Cannot calculate this attribute on new location"
-		           "\nDepth will be displayed instead" );
-	    emod->setDepthAsAttrib();
+	    if ( !emod->hasStoredAttrib( attrib ) )
+		visserv->calculateAttrib( displayid, attrib, false );
+	    else
+	    {
+		uiMSG().error( "Cannot calculate this attribute on new location"
+			       "\nDepth will be displayed instead" );
+		emod->setDepthAsAttrib( attrib );
+	    }
 	}
+
 	visserv->triggerTreeUpdate();
     }
     else if ( mnuid==fillholesitem.id )

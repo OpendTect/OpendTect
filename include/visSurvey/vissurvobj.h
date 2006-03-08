@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvobj.h,v 1.55 2006-03-08 13:48:50 cvsnanne Exp $
+ RCS:		$Id: vissurvobj.h,v 1.56 2006-03-08 18:19:52 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -177,15 +177,14 @@ public:
     				{ return Interval<float>(0,0); }
     virtual void		setTraceData(int attrib,SeisTrcBuf&);
 
-				// Link to outside world
-    virtual void		fetchData(ObjectSet<BinIDValueSet>&) const {}
+				// Random pos
+    virtual void		getRandomPos( ObjectSet<BinIDValueSet>&) const{}
 				/*!< Content of objectset becomes callers.
-				     Every patch is put in a BinIDValueSet.
-				     The first value int the bidset is the
-				     depth, the eventual second value is the
-				     cached value */
-    virtual void		stuffData(bool forcolordata,
-	    				  const ObjectSet<BinIDValueSet>*) {}
+				     Every patch is put in a BinIDValueSet. */
+    virtual void		getRandomPosCache(int attrib,
+	    				ObjectSet<const BinIDValueSet>&) const{}
+    virtual void		setRandomPosData( int attrib,
+	    				   const ObjectSet<BinIDValueSet>*) {}
     				/*!< Every patch should have a BinIDValueSet */
     virtual void		readAuxData()	{}
 

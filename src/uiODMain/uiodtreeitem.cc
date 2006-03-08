@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.163 2006-03-08 13:46:51 cvsnanne Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.164 2006-03-08 18:19:53 cvskris Exp $
 ___________________________________________________________________
 
 -*/
@@ -341,7 +341,7 @@ bool uiODDataTreeItem::shouldSelect( int selid ) const
 {
     const uiVisPartServer* visserv = applMgr()->visServer();
     return selid!=-1 && selid==displayID() &&
-	visserv->getSelAttribNr()==siblingIndex();
+	   visserv->getSelAttribNr()==siblingIndex();
 }
 
 
@@ -1069,23 +1069,32 @@ void uiODEarthModelSurfaceDataTreeItem::handleMenuCB( CallBacker* cb )
     if ( mnuid==savesurfacedatamnuitem_.id )
     {
 	menu->setIsHandled(true);
-	applMgr()->EMServer()->storeAuxData( emid, true );
+	ObjectSet<const BinIDValueSet> vals;
+	visserv->getRandomPosCache( displayID(), siblingIndex(), vals );
+	if ( vals.size() && vals[0]->nrVals()>=2 )
+	{
+	    const int auxnr =
+		applMgr()->EMServer()->setAuxData( emid, vals, name_, 1 );
+	    applMgr()->EMServer()->storeAuxData( emid, true );
+	}
     }
     else if ( mnuid==depthattribmnuitem_.id )
     {
 	menu->setIsHandled(true);
-	uivisemobj->setDepthAsAttrib();
+	uivisemobj->setDepthAsAttrib( siblingIndex() );
 	updateColumnText( uiODSceneMgr::cNameColumn() );
     }
     else if ( mnuid==loadsurfacedatamnuitem_.id )
     {
 	menu->setIsHandled(true);
-	const bool res = applMgr()->EMServer()->showLoadAuxDataDlg(emid);
-	if ( !res ) return;
+	const int auxdatanr = applMgr()->EMServer()->showLoadAuxDataDlg(emid);
+	if ( auxdatanr<0 ) return;
 
-	uivisemobj->readAuxData();
-	visserv->selectTexture( displayID(), siblingIndex(), 0 );
-	ODMainWin()->sceneMgr().updateTrees();
+	ObjectSet<BinIDValueSet> vals;
+	applMgr()->EMServer()->getAuxData( emid, auxdatanr, vals);
+	visserv->setRandomPosData( displayID(), siblingIndex(), &vals );
+
+	//ODMainWin()->sceneMgr().updateTrees();
     }
 }
 

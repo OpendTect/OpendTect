@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.163 2006-03-08 13:48:50 cvsnanne Exp $
+ RCS:           $Id: uivispartserv.h,v 1.164 2006-03-08 18:19:52 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -126,10 +126,11 @@ public:
     void		setTraceData(int id,int attrib,SeisTrcBuf&);
 
     			// See visSurvey::SurfaceDisplay for details
-    void		fetchSurfaceData(int,ObjectSet<BinIDValueSet>&) const;
-    void		stuffSurfaceData(int,bool forcolordata,
+    void		getRandomPos(int visid,ObjectSet<BinIDValueSet>&) const;
+    void		getRandomPosCache(int visid,int attrib,
+	    				ObjectSet<const BinIDValueSet>& ) const;
+    void		setRandomPosData(int visid, int attrib,
 					 const ObjectSet<BinIDValueSet>*);
-    void		readAuxData(int);
 
     bool		blockMouseSelection(bool yn);
 			/*!<\returns Previous status. */

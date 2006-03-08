@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: visemobjdisplay.cc,v 1.73 2006-02-08 09:23:34 cvsnanne Exp $
+ RCS:           $Id: visemobjdisplay.cc,v 1.74 2006-03-08 18:19:52 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -78,8 +78,6 @@ EMObjectDisplay::EMObjectDisplay()
     , parmid(-1)
     , parrowrg( -1, -1, -1 )
     , parcolrg( -1, -1, -1 )
-    , as(*new Attrib::SelSpec)
-    , colas(*new Attrib::ColorSelSpec)
     , curtextureidx(0)
     , usestexture(true)
     , useswireframe(false)
@@ -88,14 +86,16 @@ EMObjectDisplay::EMObjectDisplay()
     , transformation(0)
     , translation(0)
     , displayonlyatsections( false )
-    , coltab_(visBase::VisColorTab::create())
     , hasmoved( this )
     , changedisplay( this )
     , drawstyle(visBase::DrawStyle::create())
     , edgelineradius( 3.5 )
-    , validtexture( false )
+    , validtexture_( false )
 {
-    coltab_->ref();
+    as_ += new Attrib::SelSpec;
+    coltabs_ += visBase::VisColorTab::create();
+    coltabs_[0]->ref();
+
     drawstyle->ref();
     addChild( drawstyle->getInventorNode() );
 
@@ -110,12 +110,12 @@ EMObjectDisplay::~EMObjectDisplay()
     drawstyle->unRef();
     drawstyle = 0;
 
-    delete &as;
-    delete &colas;
+    deepErase(as_);
+
     if ( transformation ) transformation->unRef();
 
     setSceneEventCatcher( 0 );
-    if ( coltab_ ) coltab_->unRef();
+    deepUnRef( coltabs_ );
 
     if ( translation )
     {
@@ -468,7 +468,12 @@ bool EMObjectDisplay::addSection( EM::SectionID sid )
     mDynamicCastGet(visBase::ParametricSurface*,psurf,vo)
     if ( psurf )
     {
-	psurf->setColorTab( *coltab_ );
+	while ( psurf->nrTextures()<nrAttribs() )
+	    psurf->addTexture();
+
+	for ( int idx=0; idx<nrAttribs(); idx++ )
+	    psurf->setColorTab( idx, *coltabs_[idx] );
+
 	psurf->useWireframe(useswireframe);
 	psurf->setResolution( getResolution()-1 );
     }
@@ -515,39 +520,34 @@ bool EMObjectDisplay::addEdgeLineDisplay(EM::SectionID sid)
 }
 
 
-void EMObjectDisplay::useTexture( bool yn )
+void EMObjectDisplay::useTexture( bool yn, bool trigger )
 {
-    if ( yn && !validtexture )
+    if ( yn && !validtexture_ )
     {
-	if ( as.id()==Attrib::SelSpec::cNoAttrib() )
+	for ( int idx=0; idx<nrAttribs(); idx++ )
 	{
-	    usestexture = yn;
-	    setDepthAsAttrib();
-	    return;
+	    if ( as_[idx]->id()==Attrib::SelSpec::cNoAttrib() )
+	    {
+		usestexture = yn;
+		setDepthAsAttrib(idx);
+		return;
+	    }
 	}
     }
 
     usestexture = yn;
 
-//  if ( yn ) nontexturecol = getMaterial()->getColor();
     getMaterial()->setColor( yn ? Color::White : nontexturecol );
 
     for ( int idx=0; idx<sections.size(); idx++ )
     {
 	mDynamicCastGet(visBase::ParametricSurface*,psurf,sections[idx]);
 	if ( psurf )
-	{
-	    if ( psurf->nrTextures() )
-		psurf->selectActiveTexture( yn ? 0 : -1 );
-	}
+	    psurf->useTexture( yn );
     }
-}
-
-
-void EMObjectDisplay::setUseTexture( bool yn )
-{
-    useTexture(yn);
-    changedisplay.trigger();
+    
+    if ( trigger )
+	changedisplay.trigger();
 }
 
 
@@ -607,53 +607,13 @@ Color EMObjectDisplay::getColor() const
 }
 
 
-void EMObjectDisplay::readAuxData()
-{
-    EM::EMObject* emobject = em.getObject( oid );
-    mDynamicCastGet(EM::Surface*,emsurface,emobject)
-    if ( !emsurface ) return;
-
-    ObjectSet<BinIDValueSet> auxdata;
-    for ( int idx=0; idx<emsurface->nrSections(); idx++ )
-    {
-	const EM::SectionID sectionid = emsurface->sectionID(idx);
-	const Geometry::ParametricSurface* psurf = 
-	    		emsurface->geometry.getSurface( sectionid );
-	if ( !psurf ) continue;
-
-	EM::PosID posid( emsurface->id(), sectionid );
-	const int nrattribs = emsurface->auxdata.nrAuxData()+1;
-	BinIDValueSet* res = new BinIDValueSet( nrattribs, false );
-	auxdata += res;
-	float auxvalues[nrattribs];
-
-	const int nrnodes = psurf->nrKnots();
-	for ( int idy=0; idy<nrnodes; idy++ )
-	{
-	    const RowCol rc = psurf->getKnotRowCol( idy );
-	    posid.setSubID( rc.getSerialized() );
-	    auxvalues[0] = 0;
-	    for ( int ida=1; ida<nrattribs; ida++ )
-		auxvalues[ida] = emsurface->auxdata.getAuxDataVal(ida-1,posid);
-
-	    res->add( rc, auxvalues ); 
-	}
-    }
-
-    setTranslation( Coord3(0,0,emsurface->geometry.getShift()) );
-
-    stuffData( false, &auxdata );
-    deepErase( auxdata );
-}
-
-
-void EMObjectDisplay::selectTexture( int textureidx )
+void EMObjectDisplay::selectTexture( int attrib, int textureidx )
 {
     for ( int idx=0; idx<sections.size(); idx++ )
     {
 	mDynamicCastGet(visBase::ParametricSurface*,psurf,sections[idx]);
 	if ( psurf )
-	    psurf->selectActiveTexture( textureidx );
+	    psurf->selectActiveVersion( attrib, textureidx );
     }
 
     mDynamicCastGet(EM::Surface*,emsurf,em.getObject(oid))
@@ -669,24 +629,6 @@ void EMObjectDisplay::selectTexture( int textureidx )
 }
 
 
-void EMObjectDisplay::selectNextTexture( bool next )
-{
-    if ( !sections.size() ) return;
-
-    mDynamicCastGet(visBase::ParametricSurface*,psurf,sections[0]);
-    if ( !psurf ) return;
-
-    if ( next && curtextureidx < psurf->nrTextures()-1 )
-	curtextureidx++;
-    else if ( !next && curtextureidx )
-	curtextureidx--;
-    else
-	return;
-
-    selectTexture( curtextureidx );
-}
-
-
 SurveyObject::AttribFormat EMObjectDisplay::getAttributeFormat() const
 {
     if ( !sections.size() ) return SurveyObject::None;
@@ -695,34 +637,100 @@ SurveyObject::AttribFormat EMObjectDisplay::getAttributeFormat() const
 }
 
 
-const Attrib::SelSpec* EMObjectDisplay::getSelSpec(int) const
-{ return &as; }
+bool EMObjectDisplay::canHaveMultipleAttribs() const
+{ return true; }
 
 
-void EMObjectDisplay::setSelSpec( int attrib, const Attrib::SelSpec& as_ )
+int EMObjectDisplay::nrAttribs() const
+{ return as_.size(); }
+
+
+bool EMObjectDisplay::addAttrib()
 {
-    if ( attrib ) return;
-    removeAttribCache();
-    as = as_;
+    as_ += new Attrib::SelSpec;
+    coltabs_ += visBase::VisColorTab::create();
+    coltabs_[coltabs_.size()-1]->ref();
+
+    for ( int idx=0; idx<sections.size(); idx++ )
+    {
+	mDynamicCastGet(visBase::ParametricSurface*,psurf,sections[idx]);
+	if ( psurf )
+	{
+	    psurf->addTexture();
+	    psurf->setColorTab( coltabs_.size()-1,
+		    		*coltabs_[coltabs_.size()-1] );
+	}
+    }
+
+    return true;
 }
 
 
-const Attrib::ColorSelSpec* EMObjectDisplay::getColorSelSpec() const
+bool EMObjectDisplay::removeAttrib( int attrib )
 {
-    return getAttributeFormat() < 0 ? 0 : &colas;
+    for ( int idx=0; idx<sections.size(); idx++ )
+    {
+	mDynamicCastGet(visBase::ParametricSurface*,psurf,sections[idx]);
+	if ( psurf )
+	    psurf->removeTexture( attrib );
+    }
+
+    delete as_[attrib];
+    as_.remove( attrib );
+    return true;
 }
 
 
-void EMObjectDisplay::setColorSelSpec( const Attrib::ColorSelSpec& as_ )
-{ colas = as_; }
-
-
-void EMObjectDisplay::setDepthAsAttrib()
+bool EMObjectDisplay::swapAttribs( int a0, int a1 )
 {
-    as.set( "", Attrib::SelSpec::cNoAttrib(), false, "" );
+    for ( int idx=0; idx<sections.size(); idx++ )
+    {
+	mDynamicCastGet(visBase::ParametricSurface*,psurf,sections[idx]);
+	if ( psurf )
+	    psurf->swapTextures( a0, a1 );
+    }
+
+    as_.swap( a0, a1 );
+    return true;
+}
+
+void EMObjectDisplay::enableAttrib( int attribnr, bool yn )
+{
+    for ( int idx=0; idx<sections.size(); idx++ )
+    {
+	mDynamicCastGet(visBase::ParametricSurface*,psurf,sections[idx]);
+	if ( psurf )
+	    psurf->enableTexture( attribnr, yn );
+    }
+}
+
+
+bool EMObjectDisplay::isAttribEnabled( int attribnr ) const
+{
+    if ( !sections.size() )
+	return true;
+
+    mDynamicCastGet(visBase::ParametricSurface*,psurf,sections[0]);
+    return psurf ? psurf->isTextureEnabled(attribnr) : true;
+}
+
+
+const Attrib::SelSpec* EMObjectDisplay::getSelSpec( int attrib ) const
+{ return as_[attrib]; }
+
+
+void EMObjectDisplay::setSelSpec( int attrib, const Attrib::SelSpec& as )
+{
+    (*as_[attrib]) = as;
+}
+
+
+void EMObjectDisplay::setDepthAsAttrib( int attrib )
+{
+    as_[attrib]->set( "", Attrib::SelSpec::cNoAttrib(), false, "" );
 
     ObjectSet<BinIDValueSet> positions;
-    fetchData(positions);
+    getRandomPos( positions );
 
     if ( !positions.size() )
     {
@@ -743,40 +751,57 @@ void EMObjectDisplay::setDepthAsAttrib()
 	}
     }
 
-    stuffData( false, &positions );
+    setRandomPosData( attrib, &positions );
     useTexture( usestexture );
     deepErase( positions );
 }
 
 
-void EMObjectDisplay::fetchData( ObjectSet<BinIDValueSet>& data ) const
+void EMObjectDisplay::getRandomPos( ObjectSet<BinIDValueSet>& data ) const
 {
     deepErase( data );
     for ( int idx=0; idx<sections.size(); idx++ )
     {
 	mDynamicCastGet(visBase::ParametricSurface*,psurf,sections[idx]);
 	if ( !psurf ) return;
+
 	data += new BinIDValueSet( 1, false );
 	BinIDValueSet& res = *data[idx];
-	psurf->getDataPositions( res, true, getTranslation().z/SI().zFactor() );
+	psurf->getDataPositions( res, getTranslation().z/SI().zFactor() );
     }
 }
 
 
-void EMObjectDisplay::stuffData( bool forcolordata,
+void EMObjectDisplay::getRandomPosCache( int attrib,
+				 ObjectSet<const BinIDValueSet>& data ) const
+{
+    data.erase();
+    data.allowNull( true );
+    for ( int idx=0; idx<sections.size(); idx++ )
+    {
+	mDynamicCastGet(visBase::ParametricSurface*,psurf,sections[idx]);
+	if ( !psurf )
+	{
+	    data += 0;
+	    continue;
+	}
+
+	data += psurf->getCache( attrib );
+    }
+}
+
+
+void EMObjectDisplay::setRandomPosData( int attrib,
 				 const ObjectSet<BinIDValueSet>* data )
 {
-    if ( forcolordata )
-	return;
-
-    validtexture = true;
+    validtexture_ = true;
 
     if ( !data || !data->size() )
     {
 	for ( int idx=0; idx<sections.size(); idx++ )
 	{
 	    mDynamicCastGet(visBase::ParametricSurface*,psurf,sections[idx]);
-	    if ( psurf ) psurf->setTextureData( 0 );
+	    if ( psurf ) psurf->setTextureData( 0, attrib );
 	    else useTexture(false);
 	}
 	return;
@@ -789,8 +814,7 @@ void EMObjectDisplay::stuffData( bool forcolordata,
 
 	mDynamicCastGet(visBase::ParametricSurface*,psurf,sections[idx]);
 	if ( psurf )
-	    psurf->setTextureData( (*data)[idx], forcolordata ? colas.datatype 
-		    					      : 0 );
+	    psurf->setTextureData( (*data)[idx], attrib );
 	else
 	    useTexture(false);
     }
@@ -798,15 +822,16 @@ void EMObjectDisplay::stuffData( bool forcolordata,
     for ( ; idx<sections.size(); idx++ )
     {
 	mDynamicCastGet(visBase::ParametricSurface*,psurf,sections[idx]);
-	if ( psurf ) psurf->setTextureData( 0 );
+	if ( psurf ) psurf->setTextureData( 0, attrib );
     }
 }
 
 
-bool EMObjectDisplay::hasStoredAttrib() const
+bool EMObjectDisplay::hasStoredAttrib( int attrib ) const
 {
-    const char* userref = as.userRef();
-    return as.id() == Attrib::SelSpec::cOtherAttrib() && userref && *userref;
+    const char* userref = as_[attrib]->userRef();
+    return as_[attrib]->id()==Attrib::SelSpec::cOtherAttrib() &&
+	   userref && *userref;
 }
 
 
@@ -835,6 +860,12 @@ void EMObjectDisplay::setTranslation( const Coord3& nt )
     const EM::EMObject* emobject = em.getObject( oid );
     mDynamicCastGet(const EM::Horizon*,horizon,emobject);
     if ( horizon ) horizon->geometry.setShift( shift.z );
+
+    for ( int idx=0; idx<sections.size(); idx++ )
+    {
+	mDynamicCastGet(visBase::ParametricSurface*,ps,sections[idx]);
+	if ( ps ) ps->inValidateCache(-1);
+    }
 }
 
 
@@ -984,8 +1015,16 @@ void EMObjectDisplay::emChangeCB( CallBacker* cb )
 	    updatePosAttrib(posattribs[idx]);
 	}
 	
-	validtexture = false;
+	validtexture_ = false;
 	if ( usesTexture() ) useTexture(false);
+
+	const EM::SectionID sid = cbdata.pid0.sectionID();
+	const int idx = sectionids.indexOf( sid );
+	if ( idx>=0 )
+	{
+	    mDynamicCastGet(visBase::ParametricSurface*,ps,sections[idx]);
+	    if ( ps ) ps->inValidateCache(-1);
+	}
 
 	triggermovement = true;
     }
@@ -1032,14 +1071,6 @@ void EMObjectDisplay::emEdgeLineChangeCB(CallBacker* cb)
 	    }
 	}
     }
-}
-
-
-
-void EMObjectDisplay::removeAttribCache()
-{
-    deepEraseArr( attribcache );
-    attribcachesz.erase();
 }
 
 
@@ -1094,7 +1125,7 @@ void EMObjectDisplay::setResolution( int res )
 
 int EMObjectDisplay::getColTabID(int attrib) const
 {
-    return usesTexture() ? coltab_->id() : -1;
+    return usesTexture() ? coltabs_[attrib]->id() : -1;
 }
 
 
@@ -1152,7 +1183,7 @@ void EMObjectDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
     if ( !sectionname.size() ) sectionname = sid;
     info += ", Section: "; info += sectionname;
 
-    if ( as.id()<-1 )
+    if ( as_[0]->id()<-1 )
 	return;
 
     mDynamicCastGet(const EM::Surface*,emsurface,emobject)
@@ -1194,9 +1225,6 @@ void EMObjectDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
     par.set( sKeyResolution, getResolution() );
     par.set( sKeyShift, getTranslation().z );
     par.set( sKey::Color, (int)nontexturecol.rgb() );
-    par.set( sKeyColorTableID, coltab_->id() );
-    if ( saveids.indexOf(coltab_->id())==-1 )
-	saveids += coltab_->id();
 
     if ( lineStyle() )
     {
@@ -1205,9 +1233,25 @@ void EMObjectDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 	par.set( sKeyLineStyle, str );
     }
 
-    as.fillPar( par );
-    colas.fillPar( par );
+    for ( int attrib=as_.size()-1; attrib>=0; attrib-- )
+    {
+	IOPar attribpar;
+	as_[attrib]->fillPar( attribpar );
+	const int coltabid = getColTabID(attrib);
+	attribpar.set( sKeyColTabID(), coltabid );
+	if ( saveids.indexOf( coltabid )==-1 ) saveids += coltabid;
 
+	BufferString key = sKeyAttribs();
+	key += attrib;
+	par.mergeComp( attribpar, key );
+    }
+
+    par.set( sKeyNrAttribs(), as_.size() );
+
+    //par.set( sKeyColorTableID, coltab_->id() );
+    //if ( saveids.indexOf(coltab_->id())==-1 )
+	//saveids += coltab_->id();
+    as_[0]->fillPar( par );
 }
 
 
@@ -1225,9 +1269,6 @@ int EMObjectDisplay::usePar( const IOPar& par )
     par.get( sKeySections, parsections );
     par.get( sKeyRowRange, parrowrg.start, parrowrg.stop, parrowrg.step );
     par.get( sKeyColRange, parcolrg.start, parcolrg.stop, parcolrg.step );
-
-    as.usePar( par );
-    colas.usePar( par );
 
     BufferString linestyle;
     if ( par.get( sKeyLineStyle, linestyle ) )
@@ -1261,23 +1302,76 @@ int EMObjectDisplay::usePar( const IOPar& par )
     par.getYN( sKeyOnlyAtSections, filter );
     setOnlyAtSectionsDisplay(filter);
 
-    visBase::VisColorTab* coltab;
-    int coltabid = -1;
-    par.get( sKeyColorTableID, coltabid );
-    if ( coltabid > -1 )
-    {
-	DataObject* dataobj = visBase::DM().getObject( coltabid );
-	if ( !dataobj ) return 0;
-	coltab = (visBase::VisColorTab*)dataobj;
-	if ( !coltab ) return -1;
-	if ( coltab_ ) coltab_->unRef();
-	coltab_ = coltab;
-	coltab_->ref();
-    }
-
     Coord3 shift( 0, 0, 0 );
     par.get( sKeyShift, shift.z );
     setTranslation( shift );
+
+    int nrattribs;
+    if ( par.get( sKeyNrAttribs(), nrattribs ) ) //Current format
+    {
+	bool firstattrib = true;
+	for ( int attrib=0; attrib<nrattribs; attrib++ )
+	{
+	    BufferString key = sKeyAttribs();
+	    key += attrib;
+	    PtrMan<const IOPar> attribpar = par.subselect( key );
+	    if ( !attribpar )
+		continue;
+
+	    if ( !firstattrib )
+		addAttrib();
+	    else
+		firstattrib = false;
+
+	    const int attribnr = as_.size()-1;
+
+	    int coltabid = -1;
+	    if ( attribpar->get( sKeyColTabID(), coltabid ) )
+	    {
+		visBase::DataObject* dataobj=visBase::DM().getObject(coltabid);
+		if ( !dataobj ) return 0;
+
+		mDynamicCastGet( visBase::VisColorTab*, coltab, dataobj );
+		if ( !coltab ) coltabid=-1;
+		coltabs_[attribnr]->unRef();
+		coltabs_.replace( attribnr, coltab );
+
+		for ( int idx=0; idx<sections.size(); idx++ )
+		{
+		    mDynamicCastGet( visBase::ParametricSurface*,psurf,
+			    	     sections[idx]);
+		    if ( psurf )
+			psurf->setColorTab( attribnr, *coltab);
+		}
+	    }
+
+	    as_[attribnr]->usePar( *attribpar );
+	}
+    }
+    else //old format
+    {
+	as_[0]->usePar( par );
+	visBase::VisColorTab* coltab;
+	int coltabid = -1;
+	par.get( sKeyColorTableID, coltabid );
+	if ( coltabid>-1 )
+	{
+	    DataObject* dataobj = visBase::DM().getObject( coltabid );
+	    if ( !dataobj ) return 0;
+
+	    mDynamicCastGet( visBase::VisColorTab*, coltab, dataobj );
+	    if ( !coltab ) return -1;
+	    if ( coltabs_[0] ) coltabs_[0]->unRef();
+	    coltabs_.replace( 0, coltab );
+	    coltab->ref();
+	    for ( int idx=0; idx<sections.size(); idx++ )
+	    {
+		mDynamicCastGet( visBase::ParametricSurface*,psurf,
+				 sections[idx]);
+		if ( psurf ) psurf->setColorTab( 0, *coltab);
+	    }
+	}
+    }
 
     return 1;
 }
