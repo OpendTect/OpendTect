@@ -5,7 +5,7 @@
  * FUNCTION : Seismic data reader
 -*/
 
-static const char* rcsID = "$Id: seisread.cc,v 1.62 2005-12-12 18:11:13 cvsbert Exp $";
+static const char* rcsID = "$Id: seisread.cc,v 1.63 2006-03-08 17:01:53 cvsbert Exp $";
 
 #include "seisread.h"
 #include "seistrctr.h"
@@ -128,7 +128,6 @@ void SeisTrcReader::startWork()
 	return;
     }
 
-
     SeisTrcTranslator& sttrl = *strl();
     if ( forcefloats )
     {
@@ -183,22 +182,33 @@ Conn* SeisTrcReader::openFirst()
 
 bool SeisTrcReader::initRead( Conn* conn )
 {
-    if ( psioprov || is2d ) return true;
+    if ( psioprov || is2d )
+	return true;
+    else
+    {
+	if ( !trl )
+	    { pErrMsg("Should be a translator there"); return false; }
+	mDynamicCastGet(SeisTrcTranslator*,sttrl,trl)
+	if ( !sttrl )
+	{
+	    errmsg = trl->userName();
+	    errmsg +=  "found where seismic cube was expected";
+	    cleanUp(); return false;
+	}
+    }
 
     SeisTrcTranslator& sttrl = *strl();
     if ( !sttrl.initRead(conn,readmode) )
     {
 	errmsg = sttrl.errMsg();
-	cleanUp();
-	return false;
+	cleanUp(); return false;
     }
     const int nrcomp = sttrl.componentInfo().size();
     if ( nrcomp < 1 )
     {
 	// Why didn't the translator return false?
 	errmsg = "Internal: no data components found";
-	cleanUp();
-	return false;
+	cleanUp(); return false;
     }
 
     // Make sure the right component(s) are selected.
