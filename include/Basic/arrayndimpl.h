@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: arrayndimpl.h,v 1.35 2006-03-03 14:15:15 cvsnanne Exp $
+ RCS:		$Id: arrayndimpl.h,v 1.36 2006-03-08 14:43:35 cvsbert Exp $
 ________________________________________________________________________
 
 */
@@ -44,9 +44,17 @@ protected:
     int		sz;
     T*		ptr;
 
-    void	alloc()			{ delete [] ptr; ptr = new T [sz]; }
+    inline void	alloc(); //!< Does the actual allocation of memory
 
 };
+
+
+template <class T>
+inline void ArrayNDMemStor<T>::alloc()
+{
+    delete [] ptr;
+    mTryAlloc( ptr, T [sz] )
+}
 
 
 #define mChunkSz 1024
