@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vispicksetdisplay.h,v 1.46 2006-02-01 21:54:38 cvskris Exp $
+ RCS:		$Id: vispicksetdisplay.h,v 1.47 2006-03-08 09:40:37 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -57,7 +57,8 @@ public:
     void			addPick(const Coord3&,const Sphere&);
     void			addPick(const Coord3&);
     BufferString		getManipulationString() const;
-    bool                        hasChanged() const      { return haschanged; }
+    bool			hasChanged() const	{ return haschanged; }
+    void			setChanged(bool yn)	{ haschanged = yn; }
 
     int				nrPicks() const;
     Coord3			getPick(int idx) const;
