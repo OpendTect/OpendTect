@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.164 2006-03-08 18:19:53 cvskris Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.165 2006-03-08 19:26:33 cvskris Exp $
 ___________________________________________________________________
 
 -*/
@@ -225,8 +225,6 @@ void uiODTreeItem::handleStandardItems( int mnuid )
 }
 
 
-
-
 void uiODTreeTop::addFactoryCB(CallBacker* cb)
 {
     mCBCapsuleUnpack(int,idx,cb);
@@ -322,7 +320,7 @@ bool uiODDataTreeItem::init()
     {
 	uilistviewitem->stateChanged.notify(mCB(this,uiODDataTreeItem,checkCB));
 	uilistviewitem->setChecked( visserv->isAttribEnabled(displayID(),
-		    		    siblingIndex() ) );
+		    		    attribNr() ) );
     }
 
     return uiTreeItem::init();
@@ -332,7 +330,7 @@ bool uiODDataTreeItem::init()
 void uiODDataTreeItem::checkCB( CallBacker* cb )
 {
     uiVisPartServer* visserv = applMgr()->visServer();
-    visserv->enableAttrib( displayID(), siblingIndex(),
+    visserv->enableAttrib( displayID(), attribNr(),
 	    		   uilistviewitem->isChecked() );
 }
 
@@ -341,7 +339,7 @@ bool uiODDataTreeItem::shouldSelect( int selid ) const
 {
     const uiVisPartServer* visserv = applMgr()->visServer();
     return selid!=-1 && selid==displayID() &&
-	   visserv->getSelAttribNr()==siblingIndex();
+	   visserv->getSelAttribNr()==attribNr();
 }
 
 
@@ -358,6 +356,14 @@ int uiODDataTreeItem::displayID() const
 {
     mDynamicCastGet( uiODDisplayTreeItem*, odti, parent );
     return odti ? odti->displayID() : -1;
+}
+
+
+int uiODDataTreeItem::attribNr() const
+{
+    const uiVisPartServer* visserv = applMgr()->visServer();
+    const int nrattribs = visserv->getNrAttribs( displayID() );
+    return nrattribs-siblingIndex()-1;
 }
 
 
@@ -402,7 +408,7 @@ void uiODDataTreeItem::createMenuCB( CallBacker* cb )
 
 bool uiODDataTreeItem::select()
 {
-    applMgr()->visServer()->setSelObjectId( displayID(), siblingIndex() );
+    applMgr()->visServer()->setSelObjectId( displayID(), attribNr() );
     return true;
 }
 
@@ -418,8 +424,9 @@ void uiODDataTreeItem::handleMenuCB( CallBacker* cb )
 
     if ( mnuid==movetotopmnuitem_.id )
     {
-	for ( int idx=siblingIndex(); idx; idx-- )
-	    visserv->swapAttribs( displayID(), idx, idx-1 );
+	const int nrattribs = visserv->getNrAttribs( displayID() );
+	for ( int idx=attribNr(); idx<nrattribs-1; idx++ )
+	    visserv->swapAttribs( displayID(), idx, idx+1 );
 
 	moveItemToTop();
 
@@ -428,8 +435,8 @@ void uiODDataTreeItem::handleMenuCB( CallBacker* cb )
     else if ( mnuid==movetobottommnuitem_.id )
     {
 	const int nrattribs = visserv->getNrAttribs( displayID() );
-	for ( int idx=siblingIndex(); idx<nrattribs-1; idx++ )
-	    visserv->swapAttribs( displayID(), idx, idx+1 );
+	for ( int idx=attribNr(); idx; idx-- )
+	    visserv->swapAttribs( displayID(), idx, idx-1 );
 
 	while ( siblingIndex()<nrattribs-1 )
 	    moveItem( siblingBelow() );
@@ -438,10 +445,10 @@ void uiODDataTreeItem::handleMenuCB( CallBacker* cb )
     }
     else if ( mnuid==moveupmnuitem_.id )
     {
-	const int attribnr = siblingIndex();
-	if ( attribnr )
+	const int attribnr = attribNr();
+	if ( attribnr<visserv->getNrAttribs( displayID() )-1 )
 	{
-	    const int targetattribnr = attribnr-1;
+	    const int targetattribnr = attribnr+1;
 	    visserv->swapAttribs( displayID(), attribnr, targetattribnr );
 	}
 
@@ -451,10 +458,10 @@ void uiODDataTreeItem::handleMenuCB( CallBacker* cb )
     }
     else if ( mnuid==movedownmnuitem_.id )
     {
-	const int attribnr = siblingIndex();
-	if ( attribnr<visserv->getNrAttribs( displayID() )-1 )
+	const int attribnr = attribNr();
+	if ( attribnr )
 	{
-	    const int targetattribnr = attribnr+1;
+	    const int targetattribnr = attribnr-1;
 	    visserv->swapAttribs( displayID(), attribnr, targetattribnr );
 	}
 
@@ -463,8 +470,8 @@ void uiODDataTreeItem::handleMenuCB( CallBacker* cb )
     }
     else if ( mnuid==removemnuitem_.id )
     {
-	const int attribnr = siblingIndex();
-	visserv->removeAttrib( displayID(), siblingIndex() );
+	const int attribnr = attribNr();
+	visserv->removeAttrib( displayID(), attribNr() );
 
 	prepareForShutdown();
 	parent->removeChild( this );
@@ -500,8 +507,8 @@ bool uiODAttribTreeItem::anyButtonClick( uiListViewItem* item )
     if ( !select() ) return false;
 
     uiVisPartServer* visserv = applMgr()->visServer();
-    if ( !visserv->isClassification( displayID(), siblingIndex() ) )
-	applMgr()->modifyColorTable( displayID(), siblingIndex() );
+    if ( !visserv->isClassification( displayID(), attribNr() ) )
+	applMgr()->modifyColorTable( displayID(), attribNr() );
 
     return true;
 }
@@ -555,7 +562,7 @@ void uiODAttribTreeItem::createMenuCB( CallBacker* cb )
     mDynamicCastGet(uiMenuHandler*,menu,cb);
 
     selattrmnuitem_.removeItems();
-    createSelMenu( selattrmnuitem_, displayID(), siblingIndex(), sceneID() );
+    createSelMenu( selattrmnuitem_, displayID(), attribNr(), sceneID() );
 
     if ( selattrmnuitem_.nrItems() )
 	mAddMenuItem( menu, &selattrmnuitem_,
@@ -574,7 +581,7 @@ void uiODAttribTreeItem::handleMenuCB( CallBacker* cb )
     if ( mnuid==-1 || menu->isHandled() )
 	return;
 
-    if ( handleSelMenu( mnuid, displayID(), siblingIndex()) )
+    if ( handleSelMenu( mnuid, displayID(), attribNr()) )
     {
 	menu->setIsHandled(true);
 	updateColumnText( uiODSceneMgr::cNameColumn() );
@@ -632,7 +639,7 @@ BufferString uiODAttribTreeItem::createDisplayName( int visid, int attrib )
 
 BufferString uiODAttribTreeItem::createDisplayName() const
 {
-    return createDisplayName( displayID(), siblingIndex() );
+    return createDisplayName( displayID(), attribNr() );
 }
 
 
@@ -652,7 +659,7 @@ void uiODAttribTreeItem::updateColumnText( int col )
 	PtrMan<ioPixmap> pixmap = 0;
 	if ( !so->hasColor() )
 	{
-	    int ctid = so->getColTabID( siblingIndex() );
+	    int ctid = so->getColTabID( attribNr() );
 	    const visBase::DataObject* obj = ctid>=0 ? 
 				       visBase::DM().getObject( ctid ) : 0;
 	    mDynamicCastGet(const visBase::VisColorTab*,coltab,obj);
@@ -776,7 +783,7 @@ bool uiODDisplayTreeItem::init()
 	{
 	    const Attrib::SelSpec* as = visserv->getSelSpec(displayid_,attrib);
 	    uiODDataTreeItem* item = createAttribItem( as );
-	    if ( item ) addChild( item, true );
+	    if ( item ) addChild( item, false );
 	}
     }
 
@@ -928,7 +935,7 @@ void uiODDisplayTreeItem::handleMenuCB( CallBacker* cb )
     {
 	uiODDataTreeItem* newitem = createAttribItem(0);
 	visserv->addAttrib( displayid_ );
-	addChild( newitem, true );
+	addChild( newitem, false );
 	updateColumnText( uiODSceneMgr::cNameColumn() );
 	updateColumnText( uiODSceneMgr::cColorColumn() );
 	menu->setIsHandled(true);
@@ -1047,7 +1054,7 @@ void uiODEarthModelSurfaceDataTreeItem::createMenuCB( CallBacker* cb )
 
     uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
     const Attrib::SelSpec* as = visserv->getSelSpec( displayID(),
-	    					     siblingIndex() );
+	    					     attribNr() );
 
     mAddMenuItem( &selattrmnuitem_, &loadsurfacedatamnuitem_, true, false );
     mAddMenuItem( &selattrmnuitem_, &depthattribmnuitem_, true,
@@ -1070,7 +1077,7 @@ void uiODEarthModelSurfaceDataTreeItem::handleMenuCB( CallBacker* cb )
     {
 	menu->setIsHandled(true);
 	ObjectSet<const BinIDValueSet> vals;
-	visserv->getRandomPosCache( displayID(), siblingIndex(), vals );
+	visserv->getRandomPosCache( displayID(), attribNr(), vals );
 	if ( vals.size() && vals[0]->nrVals()>=2 )
 	{
 	    const int auxnr =
@@ -1081,7 +1088,7 @@ void uiODEarthModelSurfaceDataTreeItem::handleMenuCB( CallBacker* cb )
     else if ( mnuid==depthattribmnuitem_.id )
     {
 	menu->setIsHandled(true);
-	uivisemobj->setDepthAsAttrib( siblingIndex() );
+	uivisemobj->setDepthAsAttrib( attribNr() );
 	updateColumnText( uiODSceneMgr::cNameColumn() );
     }
     else if ( mnuid==loadsurfacedatamnuitem_.id )
@@ -1092,7 +1099,7 @@ void uiODEarthModelSurfaceDataTreeItem::handleMenuCB( CallBacker* cb )
 
 	ObjectSet<BinIDValueSet> vals;
 	applMgr()->EMServer()->getAuxData( emid, auxdatanr, vals);
-	visserv->setRandomPosData( displayID(), siblingIndex(), &vals );
+	visserv->setRandomPosData( displayID(), attribNr(), &vals );
 
 	//ODMainWin()->sceneMgr().updateTrees();
     }
@@ -1103,7 +1110,7 @@ BufferString uiODEarthModelSurfaceDataTreeItem::createDisplayName() const
 {
     uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
     const Attrib::SelSpec* as = visserv->getSelSpec( displayID(),
-	    					     siblingIndex() );
+	    					     attribNr() );
 
     if ( as->id()==Attrib::SelSpec::cNoAttrib() )
 	return BufferString("Depth");

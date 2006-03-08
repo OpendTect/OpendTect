@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: uiodtreeitem.h,v 1.20 2006-03-03 22:03:42 cvskris Exp $
+ RCS:		$Id: uiodtreeitem.h,v 1.21 2006-03-08 19:26:33 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -126,6 +126,7 @@ protected:
     bool		isExpandable() const { return false; }
     const char*		parentType() const { return parenttype_; }
     int			displayID() const;
+    int			attribNr() const;
     bool		showSubMenu();
 
     virtual void	createMenuCB(CallBacker*);
