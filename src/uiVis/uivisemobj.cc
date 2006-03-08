@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Jan 2005
- RCS:           $Id: uivisemobj.cc,v 1.41 2006-03-07 12:46:27 cvsnanne Exp $
+ RCS:           $Id: uivisemobj.cc,v 1.42 2006-03-08 08:00:18 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -322,26 +322,23 @@ void uiVisEMObject::createMenuCB( CallBacker* cb )
 	          emod->getOnlyAtSectionsDisplay() );
     mAddMenuItem( menu, &changesectionnamemnuitem, 
 	          emobj->canSetSectionName() && sid!=-1, false );
-    bool dispmenu = !strcmp(getObjectType(displayid),EM::Horizon::typeStr()) &&
-		     !visserv->isLocked(displayid);
-    mAddMenuItem( menu, &shiftmnuitem, dispmenu, false );
-    mAddMenuItem( menu, &fillholesitem, dispmenu, false );
+    const bool enabmenu =
+	!strcmp(getObjectType(displayid),EM::Horizon::typeStr())
+	&& !visserv->isLocked(displayid);
+    mAddMenuItem( menu, &shiftmnuitem, enabmenu, false );
+    mAddMenuItem( menu, &fillholesitem, enabmenu, false );
 
-    if ( dispmenu )
-    {
-	mAddMenuItem(&trackmenuitem,&editmnuitem,true,emod->isEditingEnabled());
-	mAddMenuItem(&trackmenuitem,&wireframemnuitem,true,
-		     emod->usesWireframe());
-       
-	const TypeSet<EM::PosID>* seeds =
-			    emobj->getPosAttribList(EM::EMObject::sSeedNode);
-	mAddMenuItem(&trackmenuitem,&showseedsmnuitem,
-	    	 seeds && seeds->size(),
-		 emod->showsPosAttrib(EM::EMObject::sSeedNode));
-    }
-    else
-	trackmenuitem.removeItems();
-    mAddMenuItem(menu,&trackmenuitem,trackmenuitem.nrItems(),false);
+    mAddMenuItem( &trackmenuitem, &editmnuitem, enabmenu,
+	    	  emod->isEditingEnabled() );
+    mAddMenuItem( &trackmenuitem, &wireframemnuitem, true,
+		  emod->usesWireframe() );
+   
+    const TypeSet<EM::PosID>* seeds =
+			emobj->getPosAttribList(EM::EMObject::sSeedNode);
+    mAddMenuItem( &trackmenuitem, &showseedsmnuitem, seeds && seeds->size(),
+	     emod->showsPosAttrib(EM::EMObject::sSeedNode) );
+
+    mAddMenuItem( menu, &trackmenuitem, trackmenuitem.nrItems(), false );
 
     mAddMenuItem( menu, &removesectionmnuitem, false, false );
     if ( emobj->nrSections()>1 && sid!=-1 )
