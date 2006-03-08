@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emmanager.h,v 1.26 2005-10-06 19:13:37 cvskris Exp $
+ RCS:		$Id: emmanager.h,v 1.27 2006-03-08 13:44:46 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -51,6 +51,7 @@ public:
     EM::ObjectID	objectID(int idx) const;
     Executor*		objectLoader(const MultiID&,
 	    			     const SurfaceIODataSelection* =0);
+    Executor*		objectLoader(const TypeSet<MultiID>&);
     EM::ObjectID	createObject(const char* type,const char* name);
     			/*!< Creates a new object, saves it and loads it into
 			     mem.

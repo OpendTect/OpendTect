@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emmanager.cc,v 1.43 2005-12-20 19:31:59 cvskris Exp $";
+static const char* rcsID = "$Id: emmanager.cc,v 1.44 2006-03-08 13:44:52 cvsnanne Exp $";
 
 #include "emmanager.h"
 
@@ -201,10 +201,25 @@ EM::ObjectID EM::EMManager::objectID(int idx) const
 { return idx>=0 && idx<objects.size() ? objects[idx]->id() : -1; }
 
 
+Executor* EM::EMManager::objectLoader( const TypeSet<MultiID>& mids )
+{
+    ExecutorGroup* execgrp = new ExecutorGroup( "Reading" );
+    execgrp->setNrDoneText( "Nr done" );
+    for ( int idx=0; idx<mids.size(); idx++ )
+    {
+	const ObjectID objid = getObjectID( mids[idx] );
+	Executor* loader = objid<0 ? objectLoader( mids[idx] ) : 0;
+	if ( loader ) execgrp->add( loader );
+    }
+
+    return execgrp;
+}
+
+
 Executor* EM::EMManager::objectLoader( const MultiID& mid,
 				       const SurfaceIODataSelection* iosel )
 {
-    ObjectID id = getObjectID(mid);
+    ObjectID id = getObjectID( mid );
     EMObject* obj = getObject( id );
    
     if ( !obj )
