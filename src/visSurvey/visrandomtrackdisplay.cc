@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          January 2003
- RCS:           $Id: visrandomtrackdisplay.cc,v 1.64 2006-02-15 20:09:46 cvskris Exp $
+ RCS:           $Id: visrandomtrackdisplay.cc,v 1.65 2006-03-08 17:03:16 cvskris Exp $
  ________________________________________________________________________
 
 -*/
@@ -396,7 +396,11 @@ void RandomTrackDisplay::setData( int attrib, const SeisTrcBuf& trcbuf )
     for ( int trcidx=path.size()-1; trcidx>=0; trcidx-- )
     {
 	const BinID bid = path[trcidx];
-	const SeisTrc* trc = trcbuf.get( trcbuf.find( bid, false ) );
+	const int trcidx = trcbuf.find( bid, false );
+	if ( trcidx<0 )
+	    continue;
+
+	const SeisTrc* trc = trcbuf.get( trcidx );
 	if ( !trc )
 	    continue;
 
@@ -838,13 +842,14 @@ int RandomTrackDisplay::usePar( const IOPar& par )
 	if ( !par.get( sKeyTrack(), trackid ) ) return -1;
 	mDynamicCastGet(visBase::RandomTrack*,rt,
 			visBase::DM().getObject(trackid));
-	if ( rt )
-	{
-	    rt->ref();
-	    as_[0]->usePar( par );
-	    texture_->setColorTab( 0, rt->getColorTab() );
-	    rt->unRef();
-	}
+	
+	if ( !rt )
+	    return 0;
+
+	rt->ref();
+	as_[0]->usePar( par );
+	texture_->setColorTab( 0, rt->getColorTab() );
+	rt->unRef();
     }
 
     Interval<float> intv;
