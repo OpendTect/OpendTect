@@ -4,19 +4,24 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Payraudeau
  Date:          December 2005
- RCS:           $Id: uishortcuts.cc,v 1.6 2006-02-22 12:31:35 cvshelene Exp $
+ RCS:           $Id: uishortcuts.cc,v 1.7 2006-03-08 13:35:43 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 
 #include "uishortcuts.h"
+
+#include "uicombobox.h"
 #include "uihandleshortcuts.h"
-#include "keyenum.h"
 #include "uitable.h"
-#include "userinputobj.h"
+#include "keyenum.h"
 #include "oddirs.h"
 #include "settings.h"
+
+
+static const char* sButtonStrs[] =
+{ "NoButton", "ShiftButton", "ControlButton", 0 };
 
 
 uiShortcutsDlg::uiShortcutsDlg( uiParent* p )
@@ -39,25 +44,11 @@ uiShortcutsDlg::uiShortcutsDlg( uiParent* p )
 }
 
 
-#define mRC(row,col) RowCol(row,col)
-
-#define mFillRow(rowidx,text,val1,val2)\
-	shortcutskeys_->setText( mRC(rowidx, 0), text );\
-	uiobj1 = shortcutskeys_->mkUsrInputObj( mRC(rowidx,1) );\
-	uiobj1->addItem( "NoButton" );\
-	uiobj1->addItem( "ShiftButton" );\
-	uiobj1->addItem( "ControlButton" );\
-	uiobj1->setValue( val1 );\
-	uiobj2 = shortcutskeys_->mkUsrInputObj( mRC(rowidx,2) );\
-	uiobj2->addItems( OD::KeyDef().names );\
-	uiobj2->setValue( val2 );
-
-
 void uiShortcutsDlg::fillTable()
 {
     UserInputObj* uiobj1;
     UserInputObj* uiobj2;
-    bool isdefault = readFileValues();
+    const bool isdefault = readFileValues();
     const int tablesz = uiHandleShortcuts::SCLabelsDef().size();
     int val1, val2;
     for ( int idx=0; idx<tablesz; idx++ )
@@ -67,7 +58,18 @@ void uiShortcutsDlg::fillTable()
 	    val1 = 1;//remember that we don't use the entire ButtonState list
 	if ( val1 == 6 )
 	    val1 = 2;
-	mFillRow(idx,uiHandleShortcuts::SCLabelsDef().convert(idx),val1,val2);
+
+	shortcutskeys_->setText( RowCol(idx,0),
+				uiHandleShortcuts::SCLabelsDef().convert(idx) );
+	uiComboBox* box1 = new uiComboBox(0);
+	shortcutskeys_->setCellObject( RowCol(idx,1), box1 );
+	box1->addItems( sButtonStrs );
+	box1->setCurrentItem( val1 );
+
+	uiComboBox* box2 = new uiComboBox(0);
+	shortcutskeys_->setCellObject( RowCol(idx,2), box2 );
+	box2->addItems( OD::KeyDef().names );
+	box2->setCurrentItem( val2 );
     }
 }
 
@@ -113,16 +115,18 @@ void uiShortcutsDlg::getKeyValues( int scutidx, int& val1,
 
 int uiShortcutsDlg::getUIValue( int keyidx, int scutidx ) const
 {
+    mDynamicCastGet(uiComboBox*,box,
+		    shortcutskeys_->getCellObject(RowCol(scutidx,keyidx)))
     if ( keyidx == 1 )
     {
-	if ( !strcmp( shortcutskeys_->text(mRC(scutidx,keyidx)),"ShiftButton") )
+	BufferString keytxt = box->text();
+	if ( keytxt == "ShiftButton" )
 	    return getEnum( "ShiftButton", OD::ButtonStateDef().names, 0, 0 );
-	else if ( !strcmp( shortcutskeys_->text(mRC(scutidx,keyidx)),
-							"ControlButton") )
+	else if ( keytxt == "ControlButton" )
 	    return getEnum( "ControlButton", OD::ButtonStateDef().names, 0, 0 );
     }
-    
-    return shortcutskeys_->getIntValue( mRC(scutidx,keyidx) );
+
+    return box->currentItem();
 }
 
 

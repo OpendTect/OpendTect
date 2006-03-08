@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.h,v 1.29 2006-01-25 09:24:50 cvskris Exp $
+ RCS:           $Id: uitable.h,v 1.30 2006-03-08 13:35:43 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -200,12 +200,6 @@ public:
     Notifier<uiTable>	colInserted;
     Notifier<uiTable>	colDeleted;
 
-    UserInputObj*	mkUsrInputObj(const RowCol&);
-    void		delUsrInputObj(const RowCol&);
-    UserInputObj*	usrInputObj(const RowCol&);
-    const UserInputObj*	usrInputObj(const RowCol& p ) const
-			  { return const_cast<uiTable*>(this)->usrInputObj(p); }
-
     void		setPixmap(const RowCol&,const ioPixmap&);
     void		setColor(const RowCol&,const Color&);
     const Color		getColor(const RowCol&) const;
@@ -226,7 +220,6 @@ protected:
     RowCol		newcell_;
 
     mutable Setup	setup_;
-    mutable BufferString rettxt_;
 
     CNotifier<uiTable,const uiMouseEvent&>	clicked;
     void		clicked_(CallBacker*);

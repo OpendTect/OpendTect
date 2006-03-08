@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.cc,v 1.39 2006-01-31 16:39:07 cvshelene Exp $
+ RCS:           $Id: uitable.cc,v 1.40 2006-03-08 13:35:43 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -63,18 +63,6 @@ we'll address it for the next Qt version.
 #include <qcolor.h>
 
 
-class Input
-{
-public:
-			Input( UserInputObj* o, QWidget* w )
-			    : obj( o ), widg( w )	{}
-			~Input() 			{ delete obj; }
-
-    UserInputObj*	obj;
-    QWidget*		widg;
-}; 
-
-
 class CellObject
 {
     public:
@@ -101,7 +89,10 @@ public:
 			}
 
     virtual 		~uiTableBody()
-			    { deepErase( inputs ); delete &messenger_; }
+			{
+			    deepErase( cellobjects_ );
+			    delete &messenger_;
+			}
 
     void 		setLines( int prefNrLines )
 			{ 
@@ -130,48 +121,6 @@ public:
 				 it != labels.end() && i < numRows();
 				 ++i,++it )
 				leftHeader->setLabel( i, *it );
-			}
-
-    UserInputObj*	mkUsrInputObj( const RowCol& rc )
-			{
-			    uiComboBox* cbb = new uiComboBox(0);
-			    QWidget* widg = cbb->body()->qwidget();
-
-			    setCellWidget( rc.row, rc.col, widg );
-
-			    inputs += new Input( cbb, widg );
-			    return cbb;
-			}
-
-
-    UserInputObj*	usrInputObj( const RowCol& rc )
-			{
-			    QWidget* w = cellWidget( rc.row, rc.col );
-			    if ( !w ) return 0;
-
-			    for ( int idx=0; idx<inputs.size(); idx++ )
-			    {
-				if ( inputs[idx]->widg == w )
-				    return inputs[idx]->obj;
-			    }
-			    return 0;
-			}
-
-
-    void		delUsrInputObj( const RowCol& rc )
-			{
-			    QWidget* w = cellWidget( rc.row, rc.col );
-			    if ( !w ) return;
-
-			    Input* inp=0;
-			    for ( int idx=0; idx<inputs.size(); idx++ )
-			    {
-				if ( inputs[idx]->widg == w )
-				    { inp = inputs[idx]; break; }
-			    }
-
-			    clearCellWidget( rc.row, rc.col );
-			    if ( inp )	{ inputs -= inp; delete inp; }
 			}
 
     void		setCellObject( const RowCol& rc,
@@ -225,9 +174,7 @@ public:
 
 protected:
 
-    ObjectSet<Input>	inputs;
     ObjectSet<CellObject> cellobjects_;
-
 
 private:
 
@@ -456,17 +403,14 @@ void uiTable::clearCell( const RowCol& rc )
 void uiTable::setCurrentCell( const RowCol& rc )
 { body_->setCurrentCell( rc.row, rc.col ); }
 
+
 const char* uiTable::text( const RowCol& rc ) const
 {
-    if ( usrInputObj(rc) )
-	rettxt_ = usrInputObj(rc)->text();
-    else
-    {
-	body_->endEdit( rc.row, rc.col, true, false );
-	rettxt_ = (const char*) body_->text( rc.row, rc.col );
-    }
-
-    return rettxt_;
+// TODO: if cellobject on this rc, get from cellobject
+    body_->endEdit( rc.row, rc.col, true, false );
+    static BufferString rettxt;
+    rettxt = (const char*) body_->text( rc.row, rc.col );
+    return rettxt;
 }
 
 
@@ -530,16 +474,6 @@ mSetFunc( setColumnStretchable )
 mIsFunc( isColumnStretchable )
 mSetFunc( setRowStretchable )
 mIsFunc( isRowStretchable )
-
-
-UserInputObj* uiTable::mkUsrInputObj( const RowCol& rc )
-{ return body_->mkUsrInputObj(rc); }
-
-void uiTable::delUsrInputObj( const RowCol& rc )
-{ body_->delUsrInputObj(rc); }
-
-UserInputObj* uiTable::usrInputObj( const RowCol& rc )
-{ return body_->usrInputObj(rc); }
 
 
 void uiTable::setPixmap( const RowCol& rc, const ioPixmap& pm )
@@ -648,8 +582,9 @@ void uiTable::setColumnLabels( const BufferStringSet& labels )
 
 int uiTable::getIntValue( const RowCol& rc ) const
 {
-    if ( usrInputObj(rc) )
-	return usrInputObj(rc)->getIntValue();
+// TODO: if cellobject on this rc, get from cellobject
+    const char* str = text( rc );
+    if ( !str || !*str ) return mUdf(int);
 
     return Conv::to<int>( text(rc) );
 }
@@ -657,62 +592,42 @@ int uiTable::getIntValue( const RowCol& rc ) const
 
 double uiTable::getValue( const RowCol& rc ) const
 {
-    const char* s = text( rc );
-    if ( !s || !*s ) return mUdf(double);
+// TODO: if cellobject on this rc, get from cellobject
+    const char* str = text( rc );
+    if ( !str || !*str ) return mUdf(double);
 
-    return usrInputObj(rc) ? usrInputObj(rc)->getValue() : Conv::to<double>(s);
+    return Conv::to<double>(str);
 }
 
 
 float uiTable::getfValue( const RowCol& rc ) const
 {
-    const char* s = text( rc );
-    if ( !s || !*s ) return mUdf(float);
+// TODO: if cellobject on this rc, get from cellobject
+    const char* str = text( rc );
+    if ( !str || !*str ) return mUdf(float);
 
-    return usrInputObj(rc) ? usrInputObj(rc)->getValue() : Conv::to<float>(s);
+    return Conv::to<float>(str);
 }
 
 
 void uiTable::setValue( const RowCol& rc, int i )
 {
-    if ( usrInputObj(rc) )
-	usrInputObj(rc)->setValue(i);
-
+// TODO: if cellobject on this rc, set to cellobject
     setText( rc, Conv::to<const char*>(i) );
 }
 
 
 void uiTable::setValue( const RowCol& rc, float f )
 {
-    if ( Values::isUdf(f) ) 
-    {
-	if ( usrInputObj(rc) )
-	    usrInputObj(rc)->setText( "" );
-	setText( rc, "" );
-    }
-    else
-    {
-	if ( usrInputObj(rc) )
-	    usrInputObj(rc)->setValue(f);
-	setText( rc, Conv::to<const char*>(f) );
-    }
+// TODO: if cellobject on this rc, set to cellobject
+    setText( rc, mIsUdf(f) ? "" : Conv::to<const char*>(f) );
 }
 
 
 void uiTable::setValue( const RowCol& rc, double d )
 {
-    if ( Values::isUdf(d) ) 
-    {
-	if ( usrInputObj(rc) )
-	    usrInputObj(rc)->setText( "" );
-	setText( rc, "" );
-    }
-    else
-    {
-	if ( usrInputObj(rc) )
-	    usrInputObj(rc)->setValue(d);
-	setText( rc, Conv::to<const char*>(d) );
-    }
+// TODO: if cellobject on this rc, set to cellobject
+    setText( rc, mIsUdf(d) ? "" : Conv::to<const char*>(d) );
 }
 
 

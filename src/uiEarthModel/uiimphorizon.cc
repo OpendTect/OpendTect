@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          May 2002
- RCS:           $Id: uiimphorizon.cc,v 1.59 2006-03-01 13:45:46 cvsbert Exp $
+ RCS:           $Id: uiimphorizon.cc,v 1.60 2006-03-08 13:35:43 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,8 +28,8 @@ ________________________________________________________________________
 #include "strmdata.h"
 #include "strmprov.h"
 #include "survinfo.h"
-#include "userinputobj.h"
 
+#include "uicombobox.h"
 #include "uiexecutor.h"
 #include "uifileinput.h"
 #include "uigeninput.h"
@@ -229,6 +229,7 @@ bool uiImportHorizon::doWork()
     }
 
     HorSampling hs; subselfld->getHorSampling( hs );
+/*  TODO: ask Kris why this has been implemented
     if ( hs.step.inl%filehs_.step.inl || hs.step.crl%filehs_.step.crl )
     {
 	BufferString msg( "Inline/Crossline steps must be dividable by ");
@@ -237,6 +238,7 @@ bool uiImportHorizon::doWork()
 	uiMSG().error( msg );
 	return false;
     }
+*/
 
     if ( !filehs_.includes(hs.start) )
     {
@@ -490,6 +492,7 @@ static const char* sYesNo[] = { sKey::Yes, sKey::No, 0 };
 
 class AttribNameEditor : public uiDialog
 {
+
 public:
 AttribNameEditor( uiParent* p, const BufferStringSet& names )
     : uiDialog(p,Setup("Attribute import","Specify attribute names",""))
@@ -504,10 +507,12 @@ AttribNameEditor( uiParent* p, const BufferStringSet& names )
     for ( int idx=0; idx<names.size(); idx++ )
     {
 	table_->setText( RowCol(idx,0), names.get(idx) );
-	UserInputObj* uiobj = table_->mkUsrInputObj( RowCol(idx,1) );
-	uiobj->addItems( sYesNo );
+	uiComboBox* ynbox = new uiComboBox(0);
+	ynbox->addItems( sYesNo );
+	table_->setCellObject( RowCol(idx,1), ynbox );
     }
 }
+
 
 void AttribNameEditor::getAttribNames( BufferStringSet& names,
 				       BoolTypeSet& doimp ) const
@@ -517,7 +522,8 @@ void AttribNameEditor::getAttribNames( BufferStringSet& names,
     for ( int idx=0; idx<table_->nrRows(); idx++ )
     {
 	names.add( table_->text(RowCol(idx,0)) );
-	doimp += !strcmp(table_->text(RowCol(idx,1)),sKey::Yes);
+	mDynamicCastGet(uiComboBox*,box,table_->getCellObject(RowCol(idx,1)))
+	doimp += !strcmp(box->text(),sKey::Yes);
     }
 }
 
