@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: arrayndimpl.h,v 1.36 2006-03-08 14:43:35 cvsbert Exp $
+ RCS:		$Id: arrayndimpl.h,v 1.37 2006-03-08 14:48:00 cvsbert Exp $
 ________________________________________________________________________
 
 */
@@ -31,7 +31,7 @@ public:
 
     const T*	getData() const			{ return ptr; }
 
-    void	setSize( int nsz )		{ if ( sz == nsz ) return;
+    inline void	setSize( int nsz )		{ if ( sz == nsz ) return;
 						  sz = nsz; alloc(); }
     int		size() const			{ return sz; }
 
@@ -54,6 +54,7 @@ inline void ArrayNDMemStor<T>::alloc()
 {
     delete [] ptr;
     mTryAlloc( ptr, T [sz] )
+    if ( !ptr ) sz = 0;
 }
 
 
