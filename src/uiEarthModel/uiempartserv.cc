@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.73 2006-02-20 08:43:19 cvsnanne Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.74 2006-03-08 13:42:12 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -348,7 +348,7 @@ void uiEMPartServer::setAuxData( const EM::ObjectID& id,
 
     surface->auxdata.removeAll();
 
-    const int nrdatavals = data[0]->nrVals();
+    const int nrdatavals = data[0]->nrVals()-1;
     TypeSet<int> dataidxs;
     for ( int idx=0; idx<nrdatavals; idx++ )
     {
