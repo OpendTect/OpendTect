@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiattribpartserv.cc,v 1.27 2006-03-02 18:51:09 cvsnanne Exp $
+ RCS:           $Id: uiattribpartserv.cc,v 1.28 2006-03-08 13:42:58 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -693,7 +693,7 @@ bool uiAttribPartServer::handleAttribSubMenu( int mnuid, SelSpec& as ) const
     IOObj* ioobj = IOM().get( adsman->attrsetid_ );
     BufferString attrsetnm = ioobj ? ioobj->name() : "";
     as.set( 0, isnla ? DescID(outputnr,true) : attribid, isnla,
-    isnla ? (const char*)nlaname : (const char*)attrsetnm );
+	    isnla ? (const char*)nlaname : (const char*)attrsetnm );
     BufferString bfs;
     if ( attribid != SelSpec::cAttribNotSel() )
     {
