@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/06/2001
- RCS:           $Id: uiobjbody.cc,v 1.5 2005-11-08 15:39:10 cvsarend Exp $
+ RCS:           $Id: uiobjbody.cc,v 1.6 2006-03-08 13:38:17 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -241,11 +241,7 @@ void uiObjectBody::uisetBackgroundPixmap( const ioPixmap& pm )
 }
 
 
-#ifdef __debug__ 
-#define mChkLayoutItm() if (!layoutItem_) { pErrMsg("No layoutItem"); return 0; }
-#else
-#define mChkLayoutItm() if (!layoutItem_) { return 0; } 
-#endif
+#define mChkLayoutItm() if ( !layoutItem_ ) { return 0; } 
 
 void uiObjectBody::getSzHint()
 {
