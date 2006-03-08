@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.116 2006-03-01 16:31:32 cvskris Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.117 2006-03-08 13:48:50 cvsnanne Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -523,9 +523,9 @@ int PlaneDataDisplay::getColTabID( int attrib ) const
 }
 
 
-CubeSampling PlaneDataDisplay::getCubeSampling() const
+CubeSampling PlaneDataDisplay::getCubeSampling( int attrib ) const
 {
-    return getCubeSampling(true,false);
+    return getCubeSampling( true, false, attrib );
 }
 
 
@@ -573,7 +573,8 @@ void PlaneDataDisplay::setCubeSampling( CubeSampling cs )
 
 
 CubeSampling PlaneDataDisplay::getCubeSampling( bool manippos,
-						bool displayspace ) const
+						bool displayspace,
+       						int attrib ) const
 {
     CubeSampling res(false);
     if ( manippos || rectangle_->getCoordinates()->size()>=4 )
@@ -600,6 +601,11 @@ CubeSampling PlaneDataDisplay::getCubeSampling( bool manippos,
 	res.zrg.include( c1.z );
 	res.hrg.step = BinID( SI().inlStep(), SI().crlStep() );
 	res.zrg.step = SI().zRange(true).step;
+
+	const char* depthdomain = attrib>=0 && attrib<as_.size() 
+	    				? as_[attrib]->depthDomainKey() : 0;
+	const bool alreadytransformed = depthdomain && *depthdomain;
+	if ( alreadytransformed ) return res;
 
 	if ( datatransform_ && !displayspace )
 	{
@@ -657,13 +663,16 @@ void PlaneDataDisplay::setData( int attrib, const Attrib::DataCubes* datacubes )
 	dim1 = Attrib::DataCubes::cInlDim();
     }
 
+    const char* depthdomain = as_[attrib]->depthDomainKey();
+    const bool alreadytransformed = depthdomain && *depthdomain;
+
     const int nrcubes = datacubes->nrCubes();
     texture_->setNrVersions( attrib, nrcubes );
     for ( int idx=0; idx<nrcubes; idx++ )
     {
 	PtrMan<Array3D<float> > tmparray = 0;
 	const Array3D<float>* usedarray = 0;
-	if ( !datatransform_ )
+	if ( alreadytransformed || !datatransform_ )
 	    usedarray = &datacubes->getCube(idx);
 	else
 	{

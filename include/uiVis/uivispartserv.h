@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.162 2006-03-02 20:27:53 cvskris Exp $
+ RCS:           $Id: uivispartserv.h,v 1.163 2006-03-08 13:48:50 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -104,25 +104,24 @@ public:
     AttribFormat	getAttributeFormat(int id) const;
     bool		canHaveMultipleAttribs(int id) const;
     int			addAttrib(int id);
-    void		removeAttrib(int id, int attrib );
+    void		removeAttrib(int id,int attrib);
     int			getNrAttribs(int id) const;
     bool		swapAttribs(int id,int attrib0,int attrib1);
     const Attrib::SelSpec* getSelSpec(int id,int attrib) const;
     void		setSelSpec(int id,int attrib,const Attrib::SelSpec&);
-    bool		isClassification(int id,int attrib ) const;
+    bool		isClassification(int id,int attrib) const;
     void		setClassification(int id, int attrib, bool yn);
     bool		isAttribEnabled(int id,int attrib) const;
     void		enableAttrib(int id,int attrib,bool yn);
     
 			//Volume data stuff
-    CubeSampling	getCubeSampling(int id) const;
-    const Attrib::DataCubes* getCachedData(int id, int attrib ) const;
-    bool		setCubeData(int id, int attrib,
-	    			    const Attrib::DataCubes*);
+    CubeSampling	getCubeSampling(int id,int attrib=-1) const;
+    const Attrib::DataCubes* getCachedData(int id,int attrib) const;
+    bool		setCubeData(int id,int attrib,const Attrib::DataCubes*);
     			/*!< data becomes mine */
 
     			//Trace data
-    void		getDataTraceBids(int id, TypeSet<BinID>&) const;
+    void		getDataTraceBids(int id,TypeSet<BinID>&) const;
     Interval<float>	getDataTraceRange(int id) const;
     void		setTraceData(int id,int attrib,SeisTrcBuf&);
 
@@ -132,12 +131,12 @@ public:
 					 const ObjectSet<BinIDValueSet>*);
     void		readAuxData(int);
 
-    bool		blockMouseSelection( bool yn );
+    bool		blockMouseSelection(bool yn);
 			/*!<\returns Previous status. */
 
-    bool		disabMenus( bool yn );
+    bool		disabMenus(bool yn);
 			/*!<\returns The previous status. */
-    bool		disabToolbars( bool yn );
+    bool		disabToolbars(bool yn);
 			/*!<\returns The previous status. */
 
     bool		showMenu(int id,int menutype=0,const TypeSet<int>* =0,

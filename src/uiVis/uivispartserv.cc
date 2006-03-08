@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.303 2006-03-02 20:27:53 cvskris Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.304 2006-03-08 13:48:50 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -416,12 +416,11 @@ bool uiVisPartServer::swapAttribs( int id, int attrib0, int attrib1 )
 }
 
 
-
-CubeSampling uiVisPartServer::getCubeSampling( int id ) const
+CubeSampling uiVisPartServer::getCubeSampling( int id, int attribid ) const
 {
     CubeSampling res;
-    mDynamicCastGet( const visSurvey::SurveyObject*, so, getObject(id) );
-    if ( so ) res = so->getCubeSampling();
+    mDynamicCastGet(const visSurvey::SurveyObject*,so,getObject(id));
+    if ( so ) res = so->getCubeSampling( attribid );
     return res;
 }
 
@@ -1120,15 +1119,16 @@ void uiVisPartServer::removeConnections( int id )
 
     mDynamicCastGet(visBase::VisualObject*,vo,getObject(id));
     if ( vo && vo->rightClicked() )
-	vo->rightClicked()->remove(mCB(this,uiVisPartServer,rightClickCB));
+	vo->rightClicked()->remove( mCB(this,uiVisPartServer,rightClickCB) );
+    if ( !so ) return;
 
     for ( int attrib=so->nrAttribs()-1; attrib>=0; attrib-- )
     {
 	mDynamicCastGet(visBase::VisColorTab*,coltab,
 			getObject(getColTabId(id,attrib)));
 	if ( coltab )
-	    coltab->sequencechange.remove(mCB(this,uiVisPartServer,
-					      colTabChangeCB));
+	    coltab->sequencechange.remove(
+				    mCB(this,uiVisPartServer,colTabChangeCB) );
     }
 }
 

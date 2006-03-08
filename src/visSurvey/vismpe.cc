@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vismpe.cc,v 1.38 2006-01-18 22:58:59 cvskris Exp $";
+static const char* rcsID = "$Id: vismpe.cc,v 1.39 2006-03-08 13:48:50 cvsnanne Exp $";
 
 #include "vismpe.h"
 
@@ -165,7 +165,7 @@ void MPEDisplay::updatePlaneColor( CallBacker* )
 }
 
 
-CubeSampling MPEDisplay::getCubeSampling() const
+CubeSampling MPEDisplay::getCubeSampling( int attrib ) const
 { return getBoxPosition(); }
 
 

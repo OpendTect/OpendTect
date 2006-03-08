@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		August 2002
- RCS:		$Id: vismpe.h,v 1.29 2006-01-18 22:58:59 cvskris Exp $
+ RCS:		$Id: vismpe.h,v 1.30 2006-03-08 13:48:50 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -60,7 +60,7 @@ public:
     void			moveMPEPlane(int nrsteps);
     visBase::Texture3*		getTexture() { return texture_; }
 
-    CubeSampling		getCubeSampling() const;
+    CubeSampling		getCubeSampling(int attrib=-1) const;
     bool			getPlanePosition(CubeSampling&) const;
 
     void			setSelSpec(int,const Attrib::SelSpec&);

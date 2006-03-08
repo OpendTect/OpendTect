@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visplanedatadisplay.h,v 1.73 2006-02-24 13:41:56 cvsnanne Exp $
+ RCS:		$Id: visplanedatadisplay.h,v 1.74 2006-03-08 13:48:50 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -96,9 +96,10 @@ public:
     const TypeSet<float>*	getHistogram(int) const;
     int				getColTabID(int) const;
 
-    CubeSampling		getCubeSampling() const;
+    CubeSampling		getCubeSampling(int attrib=-1) const;
     CubeSampling		getCubeSampling(bool manippos,
-	    					bool displayspace) const;
+	    					bool displayspace,
+						int attrib=-1) const;
     void			setCubeSampling(CubeSampling);
     bool			setDataVolume(int attrib,
 	    				      const Attrib::DataCubes*);

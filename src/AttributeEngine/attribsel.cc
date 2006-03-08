@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: attribsel.cc,v 1.11 2006-03-02 16:01:47 cvsnanne Exp $
+ RCS:           $Id: attribsel.cc,v 1.12 2006-03-08 13:48:50 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -56,11 +56,26 @@ bool SelSpec::operator!=( const SelSpec& ss ) const
 }
 
 
+void SelSpec::setDepthDomainKey( const Desc& desc )
+{
+    depthdomainkey_ = "";
+    MultiID mid;
+    if ( !desc.getMultiID(mid) )
+	return;
+
+    PtrMan<IOObj> ioobj = IOM().get( mid );
+    if ( ioobj )
+	ioobj->pars().get( sKey::DepthDomain, depthdomainkey_ );
+}
+
+
 void SelSpec::set( const Desc& desc )
 {
     isnla_ = false;
     id_ = desc.id();
     ref_ = desc.userRef();
+    desc.getDefStr( defstring_ );
+    setDepthDomainKey( desc );
     setDiscr( *desc.descSet() );
 }
 
@@ -118,6 +133,9 @@ void SelSpec::setIDFromRef( const DescSet& ds )
      /*TODO: make it work 100% : doesn't work if attribute and stored data 
     have the same name and the stored data is the FIRST thing you try
     to display*/
+    const Desc* desc = ds.getDesc( id_ );
+    if ( desc )
+	setDepthDomainKey( *desc );
     setDiscr( ds );
 }
 
@@ -132,7 +150,13 @@ void SelSpec::setRefFromID( const NLAModel& nlamod )
 void SelSpec::setRefFromID( const DescSet& ds )
 {
     const Desc* desc = ds.getDesc( id_ );
-    ref_ = desc ?  desc->userRef() : "";
+    ref_ = "";
+    if ( desc )
+    {
+	ref_ = desc->userRef();
+	desc->getDefStr( defstring_ );
+	setDepthDomainKey( *desc );
+    }
     setDiscr( ds );
 }
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.120 2006-03-06 08:13:53 cvshelene Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.121 2006-03-08 13:48:50 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -394,7 +394,7 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
 	    const Attrib::DataCubes* cache =
 				visserv->getCachedData( visid, attrib );
 
-	    CubeSampling cs = visserv->getCubeSampling( visid );
+	    CubeSampling cs = visserv->getCubeSampling( visid, attrib );
 	    if ( myas.id()==Attrib::SelSpec::cOtherAttrib() )
 	    {
 		PtrMan<Attrib::ExtAttribCalc> calc =

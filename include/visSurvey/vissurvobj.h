@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvobj.h,v 1.54 2006-02-14 21:19:34 cvskris Exp $
+ RCS:		$Id: vissurvobj.h,v 1.55 2006-03-08 13:48:50 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -155,7 +155,7 @@ public:
 
     virtual bool		canHaveMultipleTextures() const { return false;}
     virtual int			nrTextures(int attrib) const	{ return 0; }
-    virtual void		selectTexture(int attrib, int texture )	{}
+    virtual void		selectTexture(int attrib,int texture) {}
     virtual int			selectedTexture(int attrib) const { return 0; }
     virtual void		getMousePosInfo(const visBase::EventInfo&,
 					    const Coord3& xyzpos, float& val,
@@ -163,13 +163,13 @@ public:
 				{ val = mUndefValue; info = ""; }
    
    				//Volume data 
-    virtual CubeSampling	getCubeSampling() const
+    virtual CubeSampling	getCubeSampling( int attrib ) const
 				{ CubeSampling cs; return cs; }
     				/*!<\returns the volume in world survey
 				     coordinates. */
-    virtual bool		setDataVolume( int attrib,
-	    				       const Attrib::DataCubes* slc );
-    virtual const Attrib::DataCubes* getCacheVolume( int attrib ) const;
+    virtual bool		setDataVolume(int attrib,
+	    				      const Attrib::DataCubes* slc);
+    virtual const Attrib::DataCubes* getCacheVolume(int attrib) const;
 
     				//Trace-data
     virtual void		getDataTraceBids(TypeSet<BinID>&) const	{}
