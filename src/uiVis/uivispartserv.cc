@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.305 2006-03-08 18:19:52 cvskris Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.306 2006-03-09 17:07:43 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,6 +20,7 @@ ________________________________________________________________________
 #include "visselman.h"
 #include "vissurvobj.h"
 #include "vissurvscene.h"
+#include "uiattribtransdlg.h"
 #include "uifiledlg.h"
 #include "uimaterialdlg.h"
 #include "uizscaledlg.h"
@@ -413,6 +414,16 @@ bool uiVisPartServer::swapAttribs( int id, int attrib0, int attrib1 )
     if ( !so ) return false;
 
     return so->swapAttribs( attrib0, attrib1 );
+}
+
+
+void uiVisPartServer::showAttribTransparencyDlg( int id, int attrib )
+{
+    mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
+    if ( !so ) return;
+
+    uiAttribTransDlg dlg( appserv().parent(), *so, attrib );
+    dlg.go();
 }
 
 
