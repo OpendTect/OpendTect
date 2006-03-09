@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.306 2006-03-09 17:07:43 cvskris Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.307 2006-03-09 18:51:09 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -77,6 +77,7 @@ uiVisPartServer::uiVisPartServer( uiApplService& a )
     , blockmenus_( false )
     , menu_( *new uiMenuHandler(appserv().parent(),-1) )
     , xytmousepos_( Coord3::udf() )
+    , zfactor_(1)
 {
     menu_.ref();
     menu_.createnotifier.notify( mCB(this,uiVisPartServer,createMenuCB) );
@@ -1250,6 +1251,7 @@ void uiVisPartServer::mouseMoveCB( CallBacker* cb )
     inlcrlmousepos_ = scene->getMousePos(false);
     mouseposval_ = scene->getMousePosValue();
     mouseposstr_ = scene->getMousePosString();
+    zfactor_ = scene->getDataTransform() ? 1 : SI().zFactor();
     sendEvent( evMouseMove );
 }
 

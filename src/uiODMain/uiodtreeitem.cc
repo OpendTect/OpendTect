@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.166 2006-03-09 17:09:03 cvskris Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.167 2006-03-09 18:51:09 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -1154,8 +1154,8 @@ void uiODEarthModelSurfaceTreeItem::createMenuCB( CallBacker* cb )
 	const Coord3& pickedpos = menu->getPickedPos();
 	const bool hastracker = applMgr()->mpeServer()->getTrackerID(emid)>=0;
 
-	if ( !hastracker && applMgr()->EMServer()->isFullResolution(emid) &&
-	     !visserv->isLocked(displayid_) )
+	const bool isfullres = applMgr()->EMServer()->isFullResolution( emid );
+	if ( !hastracker && !visserv->isLocked(displayid_) ) // && isfullres )
 	{
 	    mAddMenuItem( trackmnu, &starttrackmnuitem_, pickedpos.isDefined(),
 			  false );
@@ -2245,7 +2245,13 @@ BufferString uiODPlaneDataTreeItem::createDisplayName() const
     else if ( orientation==visSurvey::PlaneDataDisplay::Crossline )
 	res = cs.hrg.start.crl;
     else
-	res = cs.zrg.start;
+    {
+	float zfactor = 1;
+	mDynamicCastGet(visSurvey::Scene*,scene,visserv->getObject(sceneID()))
+	if ( scene && !scene->getDataTransform() )
+	    zfactor = SI().zFactor();
+	res = cs.zrg.start * zfactor;
+    }
 
     return res;
 }

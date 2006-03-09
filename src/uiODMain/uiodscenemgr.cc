@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.59 2006-02-20 08:17:04 cvsnanne Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.60 2006-03-09 18:51:09 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -340,7 +340,11 @@ void uiODSceneMgr::updateStatusBar()
 	msg += "   (";
 	msg += mNINT(xytpos.x); msg += ",";
 	msg += mNINT(xytpos.y); msg += ",";
-	msg += SI().zIsTime() ? mNINT(xytpos.z * 1000) : xytpos.z; msg += ")";
+//	msg += SI().zIsTime() ? mNINT(xytpos.z * 1000) : xytpos.z;
+	const float zfact = visServ().zFactor();
+	const float zval = SI().zIsTime() && visServ().zFactor()>100 
+	    				? mNINT(xytpos.z*zfact) : xytpos.z;
+	msg += zval; msg += ")";
     }
 
     appl_.statusBar()->message( msg, mPosField );

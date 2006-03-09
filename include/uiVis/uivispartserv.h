@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.165 2006-03-09 17:07:43 cvskris Exp $
+ RCS:           $Id: uivispartserv.h,v 1.166 2006-03-09 18:51:09 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -191,6 +191,7 @@ public:
     static const int	evMouseMove;
     Coord3		getMousePos(bool xyt) const;
 			/*!< If !xyt mouse pos will be in inl, crl, t */
+    float		zFactor() const			{ return zfactor_; }
     BufferString	getMousePosVal() const;
     BufferString	getMousePosString() const	{ return mouseposstr_; }
 
@@ -284,6 +285,7 @@ protected:
 
     Coord3			xytmousepos_;
     Coord3			inlcrlmousepos_;
+    float			zfactor_;
     float			mouseposval_;
     BufferString		mouseposstr_;
 
