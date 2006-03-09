@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2005
- RCS:           $Id: SoMultiTexture2.cc,v 1.11 2006-03-09 17:04:18 cvskris Exp $
+ RCS:           $Id: SoMultiTexture2.cc,v 1.12 2006-03-09 19:59:40 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -61,6 +61,7 @@ protected:
     int				nc_;
     int				sz_;
     int				totalnumcolors_;
+    bool			imageisinitialized_;
 
     //Variables for this layer (set in prepare)
     int				imagenc_;
@@ -131,6 +132,7 @@ void SoMultiTextureProcessor::process( const SoMultiTexture2& mt,
     sz_ = sz;
     totalnumcolors_ = totalnumcols;
     coltabstart_ = 0;
+    imageisinitialized_ = false;
 
     const int nrthreads = sz_>(threads_.getLength()*1000) ?
 			  threads_.getLength() : 1;
@@ -196,6 +198,7 @@ void SoMultiTextureProcessor::process( const SoMultiTexture2& mt,
 	}
 
 	coltabstart_ += imagenumcolors_; 
+	imageisinitialized_ = true;
     }
 }
 
@@ -220,19 +223,27 @@ bool SoMultiTextureProcessor::prepare( int idx )
 	    ? SoMultiTexture2::BLEND
 	    : (SoMultiTexture2::Operator) texture_->operation[idx];
 
-    if ( !idx && imageoper_!=SoMultiTexture2::REPLACE )
+    
+    if ( imageoper_!=SoMultiTexture2::REPLACE )
     {
-	static bool didwarn = false;
-	if ( !didwarn )
+	if ( !idx )
 	{
-	    SoDebugError::postWarning("SoMultiTexture2::createImage",
-				"Operator != REPLACE is invalid for "
-				"first texture. Using REPLACE." );
-	    didwarn = 1;
+	    static bool didwarn = false;
+	    if ( !didwarn )
+	    {
+		SoDebugError::postWarning("SoMultiTexture2::createImage",
+				    "Operator != REPLACE is invalid for "
+				    "first texture. Using REPLACE." );
+		didwarn = 1;
+	    }
+
+	    imageoper_ = SoMultiTexture2::REPLACE;
 	}
 
-	imageoper_ = SoMultiTexture2::REPLACE;
+	if ( !imageisinitialized_ )
+	    imageoper_ = SoMultiTexture2::REPLACE;
     }
+
 
     const short comp = idx>=texture_->component.getNum()
 	    ? SoMultiTexture2::RED | SoMultiTexture2::GREEN |
@@ -653,6 +664,7 @@ const unsigned char* SoMultiTexture2::createImage( SbVec2s& size, int& nc )
 
     bool hastransperancy = false;
     int coltabstart = 0;
+    bool nrimagesused = 0;
     for ( int idx=0; idx<numimages; idx++ )
     {
 	SbVec2s lsz;
@@ -707,14 +719,13 @@ const unsigned char* SoMultiTexture2::createImage( SbVec2s& size, int& nc )
 	}
 
 	coltabstart += numcolors;
+	nrimagesused++;
     }
 
     const int nrpixels = size[0]*size[1];
-    nc = hastransperancy ? 4 : 3;
+    nc = hastransperancy || !nrimagesused ? 4 : 3;
 
     unsigned char* res = new unsigned char[nrpixels*nc];
-    memset( res, 255, nrpixels*nc );
-
     static SoMultiTextureProcessor processor( nrthreads_ );
     processor.process( *this, res, nc, nrpixels, coltab,
 		       coltabnc, nrcolors );
