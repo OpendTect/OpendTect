@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H.Payraudeau
  Date:          04/2005
- RCS:           $Id: attribengman.cc,v 1.53 2006-03-06 08:13:53 cvshelene Exp $
+ RCS:           $Id: attribengman.cc,v 1.54 2006-03-09 16:09:46 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -457,6 +457,7 @@ DescID EngineMan::createEvaluateADS( DescSet& descset,
 				     BufferString& errmsg )
 {
     if ( !outids.size() ) return DescID::undef();
+    if ( outids.size() == 1 ) return outids[0];
 
     Desc* desc = PF().createDescCopy( "Evaluate" );
     desc->setDescSet( &descset );
