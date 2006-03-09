@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.165 2006-03-08 19:26:33 cvskris Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.166 2006-03-09 17:09:03 cvskris Exp $
 ___________________________________________________________________
 
 -*/
@@ -255,6 +255,7 @@ uiODDataTreeItem::uiODDataTreeItem( const char* parenttype )
     , moveupmnuitem_( "up" )
     , movedownmnuitem_( "down" )
     , removemnuitem_("Remove" )
+    , changetransparencyitem_( "Change transparency ..." )
 {}
 
 
@@ -403,6 +404,10 @@ void uiODDataTreeItem::createMenuCB( CallBacker* cb )
     mAddMenuItem( menu, &movemnuitem_, true, false );
     mAddMenuItem( menu, &removemnuitem_,
 	          !islocked && visserv->getNrAttribs( displayID())>1, false );
+    if ( visserv->canHaveMultipleAttribs(displayID()) )
+	mAddMenuItem( menu, &changetransparencyitem_, true, false )
+    else
+	mResetMenuItem( &changetransparencyitem_ );
 }
 
 
@@ -467,6 +472,11 @@ void uiODDataTreeItem::handleMenuCB( CallBacker* cb )
 
 	moveItem( siblingBelow() );
 	menu->setIsHandled( true );
+    }
+    else if ( mnuid==changetransparencyitem_.id )
+    {
+	menu->setIsHandled( true );
+	visserv->showAttribTransparencyDlg( displayID(), attribNr() );
     }
     else if ( mnuid==removemnuitem_.id )
     {
