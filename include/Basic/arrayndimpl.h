@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: arrayndimpl.h,v 1.37 2006-03-08 14:48:00 cvsbert Exp $
+ RCS:		$Id: arrayndimpl.h,v 1.38 2006-03-09 18:47:03 cvsnanne Exp $
 ________________________________________________________________________
 
 */
@@ -173,6 +173,13 @@ private:
 		{
 		    if ( strm_ ) strm_->close();
 		    delete strm_; strm_ = 0;
+		}
+
+    void	setFileName( const char* fnm )
+		{
+		    if ( strm_ ) strm_->close();
+		    File_remove( name_, false );
+		    name_ = fnm;
 		}
 
 protected:
