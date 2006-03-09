@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvobj.h,v 1.56 2006-03-08 18:19:52 cvskris Exp $
+ RCS:		$Id: vissurvobj.h,v 1.57 2006-03-09 17:26:20 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -143,6 +143,9 @@ public:
     virtual bool			canRemoveAttrib() const;
     virtual bool			removeAttrib(int attrib);
     virtual bool			swapAttribs(int attrib0,int attrib1);
+    virtual void			setAttribTransparency(int,
+	    						      unsigned char);
+    virtual unsigned char		getAttribTransparency(int) const;
     virtual const Attrib::SelSpec* 	getSelSpec(int attrib) const;
     virtual const TypeSet<float>* 	getHistogram(int attrib) const;
     virtual int				getColTabID(int attrib) const;

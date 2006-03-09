@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		January 2003
- RCS:		$Id: visrandomtrackdisplay.h,v 1.44 2006-02-14 21:22:13 cvskris Exp $
+ RCS:		$Id: visrandomtrackdisplay.h,v 1.45 2006-03-09 17:26:20 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -67,6 +67,9 @@ public:
 
     SurveyObject::AttribFormat	getAttributeFormat() const;
     bool			canHaveMultipleAttribs() const;
+    bool			swapAttrib(int,int);
+    void			setAttribTransparency(int,unsigned char);
+    unsigned char		getAttribTransparency(int) const;
     int				nrAttribs() const;
     bool			addAttrib();
     bool			isAttribEnabled(int attrib) const;

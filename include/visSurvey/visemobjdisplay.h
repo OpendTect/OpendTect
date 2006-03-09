@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          May 2004
- RCS:           $Id: visemobjdisplay.h,v 1.36 2006-03-08 18:19:52 cvskris Exp $
+ RCS:           $Id: visemobjdisplay.h,v 1.37 2006-03-09 17:26:20 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -85,6 +85,8 @@ public:
     bool			addAttrib();
     bool			removeAttrib(int attrib);
     bool			swapAttribs(int attrib0,int attrib1);
+    void			setAttribTransparency(int,unsigned char);
+    unsigned char		getAttribTransparency(int) const;
     void			enableAttrib(int attrib, bool yn);
     bool			isAttribEnabled(int attrib) const;
     const Attrib::SelSpec*	getSelSpec(int) const;

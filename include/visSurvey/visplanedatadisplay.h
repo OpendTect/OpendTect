@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visplanedatadisplay.h,v 1.74 2006-03-08 13:48:50 cvsnanne Exp $
+ RCS:		$Id: visplanedatadisplay.h,v 1.75 2006-03-09 17:26:20 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -85,6 +85,8 @@ public:
     bool			addAttrib();
     bool			removeAttrib(int attrib);
     bool			swapAttribs(int attrib0,int attrib1);
+    void			setAttribTransparency(int,unsigned char);
+    unsigned char		getAttribTransparency(int) const;
 
     bool			hasColorAttribute() const	{ return false;}
     const Attrib::SelSpec*	getSelSpec(int) const;

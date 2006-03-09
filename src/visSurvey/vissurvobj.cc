@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: vissurvobj.cc,v 1.34 2006-02-14 21:19:34 cvskris Exp $";
+static const char* rcsID = "$Id: vissurvobj.cc,v 1.35 2006-03-09 17:26:20 cvskris Exp $";
 
 #include "vissurvobj.h"
 
@@ -51,6 +51,14 @@ bool SurveyObject::removeAttrib( int )
 
 bool SurveyObject::swapAttribs( int, int )
 { return false; }
+
+
+void SurveyObject::setAttribTransparency( int, unsigned char )
+{}
+
+
+unsigned char SurveyObject::getAttribTransparency( int ) const
+{ return 0; }
 
 
 const Attrib::SelSpec* SurveyObject::getSelSpec( int attrib ) const

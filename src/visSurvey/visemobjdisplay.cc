@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: visemobjdisplay.cc,v 1.74 2006-03-08 18:19:52 cvskris Exp $
+ RCS:           $Id: visemobjdisplay.cc,v 1.75 2006-03-09 17:26:20 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -693,6 +693,31 @@ bool EMObjectDisplay::swapAttribs( int a0, int a1 )
     as_.swap( a0, a1 );
     return true;
 }
+
+
+void EMObjectDisplay::setAttribTransparency( int attrib, unsigned char nt )
+{
+    for ( int idx=0; idx<sections.size(); idx++ )
+    {
+	mDynamicCastGet(visBase::ParametricSurface*,psurf,sections[idx]);
+	if ( psurf )
+	    psurf->setTextureTransparency( attrib, nt );
+    }
+}
+
+
+unsigned char EMObjectDisplay::getAttribTransparency( int attrib ) const
+{
+    for ( int idx=0; idx<sections.size(); idx++ )
+    {
+	mDynamicCastGet(visBase::ParametricSurface*,psurf,sections[idx]);
+	if ( psurf )
+	    return psurf->getTextureTransparency( attrib );
+    }
+
+    return 0;
+}
+
 
 void EMObjectDisplay::enableAttrib( int attribnr, bool yn )
 {

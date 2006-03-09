@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          January 2003
- RCS:           $Id: visrandomtrackdisplay.cc,v 1.65 2006-03-08 17:03:16 cvskris Exp $
+ RCS:           $Id: visrandomtrackdisplay.cc,v 1.66 2006-03-09 17:26:20 cvskris Exp $
  ________________________________________________________________________
 
 -*/
@@ -676,6 +676,31 @@ SurveyObject::AttribFormat RandomTrackDisplay::getAttributeFormat() const
 
 bool RandomTrackDisplay::canHaveMultipleAttribs() const
 { return true; }
+
+
+bool RandomTrackDisplay::swapAttrib( int a0, int a1 )
+{
+    if ( a0<0 || a1<0 || a0>=as_.size() || a1>=as_.size() )
+	return false;
+
+    texture_->swapTextures( a0, a1 );
+    as_.swap( a0, a1 );
+    cache_.swap( a0, a1 );
+
+    return true;
+}
+
+
+void RandomTrackDisplay::setAttribTransparency( int attrib, unsigned char nt )
+{
+    texture_->setTextureTransparency( attrib, nt );
+}
+
+
+unsigned char RandomTrackDisplay::getAttribTransparency( int attrib ) const
+{
+    return texture_->getTextureTransparency( attrib );
+}
 
 
 int RandomTrackDisplay::nrAttribs() const
