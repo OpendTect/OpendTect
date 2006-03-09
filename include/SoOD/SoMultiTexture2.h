@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		Dec 2005
- RCS:		$Id: SoMultiTexture2.h,v 1.4 2006-02-17 19:08:41 cvskris Exp $
+ RCS:		$Id: SoMultiTexture2.h,v 1.5 2006-03-09 17:04:18 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -66,6 +66,10 @@ public:
     			/*!< Number of colors in colortable for each image.
 			     If nonzero, the corresponding image must be 1 byte
 			     per pixel and map to the colortable.  */
+    SoMFShort		opacity;
+    			/*!< Specifies the maximum opacity of each image.
+			     0 is completely transperant, 255 is completely
+			     opaque. */
     SoSFImage		colors;
     			/*!< Colortables for all images. The colortable
 			     for image N starts at index=numcolor[0] +
@@ -109,6 +113,7 @@ protected:
     SoFieldSensor*	colorssensor_;
     SoFieldSensor*	operationsensor_;
     SoFieldSensor*	componentsensor_;
+    SoFieldSensor*	opacitysensor_;
 
     SbMutex*		glimagemutex_;
     bool		glimagevalid_;

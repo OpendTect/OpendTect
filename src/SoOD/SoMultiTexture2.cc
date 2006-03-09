@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2005
- RCS:           $Id: SoMultiTexture2.cc,v 1.10 2006-03-07 22:13:15 cvskris Exp $
+ RCS:           $Id: SoMultiTexture2.cc,v 1.11 2006-03-09 17:04:18 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -69,6 +69,7 @@ protected:
     int				imagenumcolors_;
     SoMultiTexture2::Operator	imageoper_;
     bool			imagemask_[4];
+    unsigned char		opacity_;
 
     //Thread management variables
     SbList<int>			threadstarts_;
@@ -204,6 +205,13 @@ bool SoMultiTextureProcessor::prepare( int idx )
     SbVec2s lsz;
     imagedata_ = texture_->image[idx].getValue(lsz,imagenc_);
 
+    opacity_ = idx>=texture_->opacity.getNum()
+	? 255
+	: texture_->opacity[idx];
+
+    if ( !opacity_ )
+	return false;
+
     imagenumcolors_ = idx>=texture_->numcolor.getNum()
 	? 0
 	: texture_->numcolor[idx];
@@ -320,7 +328,8 @@ bool SoMultiTextureProcessor::process( int start, int stop )
 
 	unsigned char* oldval = output_ + idy*nc_;
 
-	unsigned char invtrans = pixelcolor[3];
+	pixelcolor[3] = (int) (pixelcolor[3]*opacity_)/255;
+	unsigned char invtrans = (int) pixelcolor[3];
 	unsigned char trans = 255-invtrans;
 
 	for ( int comp=nc_-1; comp>=0; comp-- )
@@ -380,6 +389,7 @@ SoMultiTexture2::SoMultiTexture2()
     , colorssensor_( 0 )
     , operationsensor_( 0 )
     , componentsensor_( 0 )
+    , opacitysensor_( 0 )
     , glimagemutex_( new SbMutex )
     , glimagevalid_(false)
     , glimage_( 0 )
@@ -392,6 +402,7 @@ SoMultiTexture2::SoMultiTexture2()
 
     SO_NODE_ADD_FIELD( image, (SbImage(0, SbVec2s(0,0), 0)) );
     SO_NODE_ADD_FIELD( numcolor, (0) );
+    SO_NODE_ADD_FIELD( opacity, (255) );
     SO_NODE_ADD_FIELD( colors, (SbVec2s(0,0), 0, 0) );
     SO_NODE_ADD_FIELD( operation, (BLEND) );
     SO_NODE_ADD_FIELD( component, (RED|GREEN|BLUE|OPACITY) );
@@ -426,6 +437,7 @@ SoMultiTexture2::SoMultiTexture2()
     mImageSensor( colors );
     mImageSensor( operation );
     mImageSensor( component );
+    mImageSensor( opacity );
 }
 
 
@@ -655,6 +667,11 @@ const unsigned char* SoMultiTexture2::createImage( SbVec2s& size, int& nc )
 
 	const int numcolors = idx>=numcolor.getNum() ? 0 : numcolor[idx];
 	const bool iscoltab = numcolors>0;
+	const unsigned char opacityval =
+	    idx>=opacity.getNum() ? 255 : opacity[idx];
+
+	if ( !opacityval )
+	    continue;
 
 	mCondErrRet( iscoltab && lnc!=1,
 		     "Coltab image must be single component.");
@@ -664,7 +681,7 @@ const unsigned char* SoMultiTexture2::createImage( SbVec2s& size, int& nc )
 
 	const bool doopacity = comp & (OPACITY^-1);
 
-	mCondErrRet( doopacity && lnc==3,
+	mCondErrRet( opacityval==255 && doopacity && lnc==3,
 		     "Operations on opacity can ony be done with one or "
 		      "four components");
 
@@ -673,7 +690,9 @@ const unsigned char* SoMultiTexture2::createImage( SbVec2s& size, int& nc )
 
 	if ( !hastransperancy && doopacity )
 	{
-	    if ( iscoltab )
+	    if ( opacityval!=255 )
+		hastransperancy = true;
+	    else if ( iscoltab )
 	    {
 		if ( findTransperancy( coltab+coltabstart,
 			    	       numcolors, coltabnc,
