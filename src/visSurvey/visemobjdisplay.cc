@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: visemobjdisplay.cc,v 1.75 2006-03-09 17:26:20 cvskris Exp $
+ RCS:           $Id: visemobjdisplay.cc,v 1.76 2006-03-09 21:08:28 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -73,55 +73,55 @@ const char* EMObjectDisplay::sKeySections = "Displayed Sections";
 
 EMObjectDisplay::EMObjectDisplay()
     : VisualObjectImpl(true)
-    , em(EM::EMM())
-    , oid(-1)
-    , parmid(-1)
-    , parrowrg( -1, -1, -1 )
-    , parcolrg( -1, -1, -1 )
-    , curtextureidx(0)
-    , usestexture(true)
-    , useswireframe(false)
-    , editor(0)
-    , eventcatcher(0)
-    , transformation(0)
-    , translation(0)
-    , displayonlyatsections( false )
+    , em_(EM::EMM())
+    , oid_(-1)
+    , parmid_(-1)
+    , parrowrg_( -1, -1, -1 )
+    , parcolrg_( -1, -1, -1 )
+    , curtextureidx_(0)
+    , usestexture_(true)
+    , useswireframe_(false)
+    , editor_(0)
+    , eventcatcher_(0)
+    , transformation_(0)
+    , translation_(0)
+    , displayonlyatsections_( false )
     , hasmoved( this )
     , changedisplay( this )
-    , drawstyle(visBase::DrawStyle::create())
-    , edgelineradius( 3.5 )
+    , drawstyle_(visBase::DrawStyle::create())
+    , edgelineradius_( 3.5 )
     , validtexture_( false )
 {
     as_ += new Attrib::SelSpec;
     coltabs_ += visBase::VisColorTab::create();
     coltabs_[0]->ref();
 
-    drawstyle->ref();
-    addChild( drawstyle->getInventorNode() );
+    drawstyle_->ref();
+    addChild( drawstyle_->getInventorNode() );
 
     LineStyle defls; defls.width = 3;
-    drawstyle->setLineStyle( defls );
+    drawstyle_->setLineStyle( defls );
 }
 
 
 EMObjectDisplay::~EMObjectDisplay()
 {
-    removeChild( drawstyle->getInventorNode() );
-    drawstyle->unRef();
-    drawstyle = 0;
+    removeChild( drawstyle_->getInventorNode() );
+    drawstyle_->unRef();
+    drawstyle_ = 0;
 
     deepErase(as_);
 
-    if ( transformation ) transformation->unRef();
+    if ( transformation_ ) transformation_->unRef();
 
     setSceneEventCatcher( 0 );
     deepUnRef( coltabs_ );
 
-    if ( translation )
+    if ( translation_ )
     {
-	removeChild( translation->getInventorNode() );
-	translation->unRef();
-	translation = 0;
+	removeChild( translation_->getInventorNode() );
+	translation_->unRef();
+	translation_ = 0;
     }
 
     removeEMStuff();
@@ -129,72 +129,72 @@ EMObjectDisplay::~EMObjectDisplay()
 
 
 mVisTrans* EMObjectDisplay::getDisplayTransformation()
-{ return transformation; }
+{ return transformation_; }
 
 
 void EMObjectDisplay::setDisplayTransformation( mVisTrans* nt )
 {
-    if ( transformation ) transformation->unRef();
-    transformation = nt;
-    if ( transformation ) transformation->ref();
+    if ( transformation_ ) transformation_->unRef();
+    transformation_ = nt;
+    if ( transformation_ ) transformation_->ref();
 
-    for ( int idx=0; idx<sections.size(); idx++ )
-	sections[idx]->setDisplayTransformation(transformation);
+    for ( int idx=0; idx<sections_.size(); idx++ )
+	sections_[idx]->setDisplayTransformation(transformation_);
 
-    for ( int idx=0; idx<intersectionlines.size(); idx++ )
-	intersectionlines[idx]->setDisplayTransformation(transformation);
+    for ( int idx=0; idx<intersectionlines_.size(); idx++ )
+	intersectionlines_[idx]->setDisplayTransformation(transformation_);
 
-    for ( int idx=0; idx<posattribmarkers.size(); idx++ )
-	posattribmarkers[idx]->setDisplayTransformation(transformation);
+    for ( int idx=0; idx<posattribmarkers_.size(); idx++ )
+	posattribmarkers_[idx]->setDisplayTransformation(transformation_);
 
-    if ( editor ) editor->setDisplayTransformation(transformation);
+    if ( editor_ ) editor_->setDisplayTransformation(transformation_);
 }
 
 
 void EMObjectDisplay::setSceneEventCatcher( visBase::EventCatcher* ec )
 {
-    if ( eventcatcher )
+    if ( eventcatcher_ )
     {
-	eventcatcher->eventhappened.remove( mCB(this,EMObjectDisplay,clickCB) );
-	eventcatcher->unRef();
+	eventcatcher_->eventhappened.remove( mCB(this,EMObjectDisplay,clickCB));
+	eventcatcher_->unRef();
     }
 
-    eventcatcher = ec;
-    if ( eventcatcher )
+    eventcatcher_ = ec;
+    if ( eventcatcher_ )
     {
-	eventcatcher->eventhappened.notify( mCB(this,EMObjectDisplay,clickCB) );
-	eventcatcher->ref();
+	eventcatcher_->eventhappened.notify( mCB(this,EMObjectDisplay,clickCB));
+	eventcatcher_->ref();
     }
 
-    for ( int idx=0; idx<sections.size(); idx++ )
-	sections[idx]->setSceneEventCatcher( ec );
+    for ( int idx=0; idx<sections_.size(); idx++ )
+	sections_[idx]->setSceneEventCatcher( ec );
 
-    if ( editor ) editor->setSceneEventCatcher( ec );
+    if ( editor_ ) editor_->setSceneEventCatcher( ec );
 }
 
 
 void EMObjectDisplay::clickCB( CallBacker* cb )
 {
-    if ( !isOn() || eventcatcher->isEventHandled() || !isSelected() )
+    if ( !isOn() || eventcatcher_->isEventHandled() || !isSelected() )
 	return;
 
-    if ( editor && !editor->clickCB( cb ) )
+    if ( editor_ && !editor_->clickCB( cb ) )
 	return;
 
     mCBCapsuleUnpack(const visBase::EventInfo&,eventinfo,cb);
 
     bool onobject = false;
-    for ( int idx=0; idx<sections.size(); idx++ )
+    for ( int idx=0; idx<sections_.size(); idx++ )
     {
-	if ( eventinfo.pickedobjids.indexOf(sections[idx]->id())!=-1 )
+	if ( eventinfo.pickedobjids.indexOf(sections_[idx]->id())!=-1 )
 	{
 	    onobject = true;
 	    break;
 	}
     }
 
-    if ( !onobject && editor )
-	onobject = eventinfo.pickedobjids.indexOf( editor->id() )!=-1;
+    if ( !onobject && editor_ )
+	onobject = eventinfo.pickedobjids.indexOf( editor_->id() )!=-1;
 
     if  ( !onobject )
 	return;
@@ -210,14 +210,14 @@ void EMObjectDisplay::clickCB( CallBacker* cb )
 
     if ( !keycb && !mousecb ) return;
 
-    const EM::EMObject* emobject = em.getObject( oid );
+    const EM::EMObject* emobject = em_.getObject( oid_ );
     mDynamicCastGet(const EM::Surface*,emsurface,emobject)
     if ( !emsurface ) return;
 
     const mVisTrans* ztrans = scene_->getZScaleTransform();
     Coord3 newpos = ztrans->transformBack( eventinfo.pickedpos );
-    if ( transformation )
-	newpos = transformation->transformBack( newpos );
+    if ( transformation_ )
+	newpos = transformation_->transformBack( newpos );
 
     const float tracedist = SI().transform(BinID(0,0)).distance(
 	    SI().transform(BinID(SI().inlStep(),SI().crlStep())));
@@ -233,7 +233,7 @@ void EMObjectDisplay::clickCB( CallBacker* cb )
     {
 	const Coord3 coord = emsurface->getPos( closestnodes[idx] );
 	const Coord3 displaypos = ztrans->transform(
-		transformation ? transformation->transform(coord) : coord );
+		transformation_ ? transformation_->transform(coord) : coord );
 
 	const float dist = displaypos.distance( eventinfo.pickedpos );
 	if ( !idx || dist<mindist )
@@ -243,11 +243,11 @@ void EMObjectDisplay::clickCB( CallBacker* cb )
 	}
     }
 
-    if ( mousecb && editor )
+    if ( mousecb && editor_ )
     {
-	editor->mouseClick( closestnode, eventinfo.shift, eventinfo.alt,
+	editor_->mouseClick( closestnode, eventinfo.shift, eventinfo.alt,
 			    eventinfo.ctrl );
-	eventcatcher->eventIsHandled();
+	eventcatcher_->eventIsHandled();
     }
     else if ( keycb )
     {
@@ -268,29 +268,28 @@ void EMObjectDisplay::edgeLineRightClickCB( CallBacker* )
 
 void EMObjectDisplay::removeEMStuff()
 {
-    for ( int idx=0; idx<sections.size(); idx++ )
+    for ( int idx=0; idx<sections_.size(); idx++ )
     {
-	removeChild( sections[idx]->getInventorNode() );
-	sections[idx]->unRef();
+	removeChild( sections_[idx]->getInventorNode() );
+	sections_[idx]->unRef();
     }
 
-    while ( posattribs.size() )
-	showPosAttrib( posattribs[0], false, Color(0,0,0) );
+    while ( posattribs_.size() )
+	showPosAttrib( posattribs_[0], false, Color(0,0,0) );
 
-    while ( intersectionlines.size() )
+    while ( intersectionlines_.size() )
     {
-	intersectionlines[0]->unRef();
-	intersectionlines.remove(0);
-	intersectionlineids.remove(0);
+	intersectionlines_[0]->unRef();
+	intersectionlines_.remove(0);
+	intersectionlineids_.remove(0);
     }
 
+    sections_.erase();
+    sectionids_.erase();
 
-    sections.erase();
-    sectionids.erase();
+    if ( editor_ ) editor_->unRef();
 
-    if ( editor ) editor->unRef();
-
-    EM::EMObject* emobject = em.getObject( oid );
+    EM::EMObject* emobject = em_.getObject( oid_ );
     if ( emobject )
     {
 	emobject->notifier.remove( mCB(this,EMObjectDisplay,emChangeCB));
@@ -311,12 +310,12 @@ void EMObjectDisplay::removeEMStuff()
 
 bool EMObjectDisplay::setEMObject( const EM::ObjectID& newid )
 {
-    EM::EMObject* emobject = em.getObject( newid );
+    EM::EMObject* emobject = em_.getObject( newid );
     if ( !emobject ) return false;
 
-    if ( sections.size() ) removeEMStuff();
+    if ( sections_.size() ) removeEMStuff();
 
-    oid = newid;
+    oid_ = newid;
     emobject->ref();
     emobject->notifier.notify( mCB(this,EMObjectDisplay,emChangeCB) );
     mDynamicCastGet( EM::Surface*, emsurface, emobject );
@@ -329,8 +328,8 @@ bool EMObjectDisplay::setEMObject( const EM::ObjectID& newid )
 
 MultiID EMObjectDisplay::getMultiID() const
 {
-    const EM::EMObject* emobject = em.getObject( oid );
-    if ( !emobject ) return parmid;
+    const EM::EMObject* emobject = em_.getObject( oid_ );
+    if ( !emobject ) return parmid_;
 
     return emobject->multiID();
 }
@@ -338,9 +337,9 @@ MultiID EMObjectDisplay::getMultiID() const
 
 BufferStringSet EMObjectDisplay::displayedSections() const
 {
-    const EM::EMObject* emobject = em.getObject( oid );
+    const EM::EMObject* emobject = em_.getObject( oid_ );
     if ( !emobject )
-	return parsections;
+	return parsections_;
    
     BufferStringSet res; 
     for ( int idx=emobject->nrSections()-1; idx>=0; idx-- )
@@ -352,8 +351,8 @@ BufferStringSet EMObjectDisplay::displayedSections() const
 
 StepInterval<int> EMObjectDisplay::displayedRowRange() const
 {
-    mDynamicCastGet(const EM::Surface*, surface, em.getObject( oid ) );
-    if ( !surface ) return parrowrg;
+    mDynamicCastGet(const EM::Surface*, surface, em_.getObject( oid_ ) );
+    if ( !surface ) return parrowrg_;
     
     return surface->geometry.rowRange();
 }
@@ -361,8 +360,8 @@ StepInterval<int> EMObjectDisplay::displayedRowRange() const
 
 StepInterval<int> EMObjectDisplay::displayedColRange() const
 {
-    mDynamicCastGet(const EM::Surface*, surface, em.getObject( oid ) );
-    if ( !surface ) return parcolrg;
+    mDynamicCastGet(const EM::Surface*, surface, em_.getObject( oid_ ) );
+    if ( !surface ) return parcolrg_;
     
     return surface->geometry.colRange();
 }
@@ -370,9 +369,9 @@ StepInterval<int> EMObjectDisplay::displayedColRange() const
 
 bool EMObjectDisplay::updateFromEM()
 { 
-    if ( sections.size() ) removeEMStuff();
+    if ( sections_.size() ) removeEMStuff();
 
-    EM::EMObject* emobject = em.getObject( oid );
+    EM::EMObject* emobject = em_.getObject( oid_ );
     if ( !emobject ) return false;
 
     setName( emobject->name() );
@@ -380,9 +379,9 @@ bool EMObjectDisplay::updateFromEM()
     for ( int idx=0; idx<emobject->nrSections(); idx++ )
 	addSection( emobject->sectionID(idx) );
 
-    nontexturecol = emobject->preferredColor();
-    getMaterial()->setColor( nontexturecol );
-    if ( usestexture ) useTexture( true );
+    nontexturecol_ = emobject->preferredColor();
+    getMaterial()->setColor( nontexturecol_ );
+    if ( usestexture_ ) useTexture( true );
     updateFromMPE();
 
     return true;
@@ -391,7 +390,7 @@ bool EMObjectDisplay::updateFromEM()
 
 void EMObjectDisplay::updateFromMPE()
 {
-    const bool hastracker = MPE::engine().getTrackerByObject(oid) >= 0;
+    const bool hastracker = MPE::engine().getTrackerByObject(oid_) >= 0;
     if ( hastracker )
     {
 	useWireframe( true );
@@ -400,51 +399,51 @@ void EMObjectDisplay::updateFromMPE()
 	showPosAttrib( EM::EMObject::sSeedNode, true, Color(255,255,255) );
     }
 
-    if ( MPE::engine().getEditor(oid,hastracker) )
+    if ( MPE::engine().getEditor(oid_,hastracker) )
 	enableEditing(true);
 }
 
 
 void EMObjectDisplay::showPosAttrib( int attr, bool yn, const Color& color )
 {
-    int attribindex = posattribs.indexOf(attr);
+    int attribindex = posattribs_.indexOf(attr);
     if ( yn )
     {
 	if ( attribindex==-1 )
 	{
-	    posattribs += attr;
+	    posattribs_ += attr;
 	    visBase::DataObjectGroup* group= visBase::DataObjectGroup::create();
 	    group->ref();
 	    addChild( group->getInventorNode() );
-	    posattribmarkers += group;
+	    posattribmarkers_ += group;
 
 	    group->addObject( visBase::Material::create() );
-	    attribindex = posattribs.size()-1;
+	    attribindex = posattribs_.size()-1;
 	}
 
 	mDynamicCastGet(visBase::Material*, posattrmat,
-			posattribmarkers[attribindex]->getObject(0) );
+			posattribmarkers_[attribindex]->getObject(0) );
 	posattrmat->setColor( color );
 
 	updatePosAttrib(attr);
     }
     else if ( attribindex!=-1 && !yn )
     {
-	posattribs -= attr;
-	removeChild(posattribmarkers[attribindex]->getInventorNode());
-	posattribmarkers[attribindex]->unRef();
-	posattribmarkers.remove(attribindex);
+	posattribs_ -= attr;
+	removeChild(posattribmarkers_[attribindex]->getInventorNode());
+	posattribmarkers_[attribindex]->unRef();
+	posattribmarkers_.remove(attribindex);
     }
 }
 
 
 bool EMObjectDisplay::showsPosAttrib(int attr) const
-{ return posattribs.indexOf(attr)!=-1; }
+{ return posattribs_.indexOf(attr)!=-1; }
 
 
 bool EMObjectDisplay::addSection( EM::SectionID sid )
 {
-    EM::EMObject* emobject = em.getObject( oid );
+    EM::EMObject* emobject = em_.getObject( oid_ );
     Geometry::Element* ge = const_cast<Geometry::Element*>(
 	const_cast<const EM::EMObject*>(emobject)->getElement(sid));
     if ( !ge ) return false;
@@ -454,16 +453,16 @@ bool EMObjectDisplay::addSection( EM::SectionID sid )
 
     vo->ref();
     vo->setMaterial( 0 );
-    vo->setDisplayTransformation( transformation );
-    const int index = childIndex(drawstyle->getInventorNode());
+    vo->setDisplayTransformation( transformation_ );
+    const int index = childIndex(drawstyle_->getInventorNode());
     insertChild( index, vo->getInventorNode() );
-    vo->turnOn( !displayonlyatsections );
+    vo->turnOn( !displayonlyatsections_ );
 
-    sections += vo;
-    sectionids += sid;
+    sections_ += vo;
+    sectionids_ += sid;
 
     mDynamicCastGet(visBase::CubicBezierSurface*,cbs,vo);
-    if ( cbs ) cbs->useWireframe( useswireframe );
+    if ( cbs ) cbs->useWireframe( useswireframe_ );
 
     mDynamicCastGet(visBase::ParametricSurface*,psurf,vo)
     if ( psurf )
@@ -474,7 +473,7 @@ bool EMObjectDisplay::addSection( EM::SectionID sid )
 	for ( int idx=0; idx<nrAttribs(); idx++ )
 	    psurf->setColorTab( idx, *coltabs_[idx] );
 
-	psurf->useWireframe(useswireframe);
+	psurf->useWireframe(useswireframe_);
 	psurf->setResolution( getResolution()-1 );
     }
 
@@ -484,16 +483,16 @@ bool EMObjectDisplay::addSection( EM::SectionID sid )
 
 bool EMObjectDisplay::addEdgeLineDisplay(EM::SectionID sid)
 {
-    mDynamicCastGet( EM::Surface*, emsurface, em.getObject( oid) );
+    mDynamicCastGet( EM::Surface*, emsurface, em_.getObject( oid_) );
     EM::EdgeLineSet* els = emsurface
 	? emsurface->edgelinesets.getEdgeLineSet(sid,false) : 0;
 
     if ( els )
     {
 	bool found = false;
-	for ( int idx=0; idx<edgelinedisplays.size(); idx++ )
+	for ( int idx=0; idx<edgelinedisplays_.size(); idx++ )
 	{
-	    if ( edgelinedisplays[idx]->getEdgeLineSet()==els )
+	    if ( edgelinedisplays_[idx]->getEdgeLineSet()==els )
 	    {
 		found = true;
 		break;
@@ -507,12 +506,12 @@ bool EMObjectDisplay::addEdgeLineDisplay(EM::SectionID sid)
 	    elsd->ref();
 	    elsd->setConnect(true);
 	    elsd->setEdgeLineSet(els);
-	    elsd->setRadius(edgelineradius);
+	    elsd->setRadius(edgelineradius_);
 	    addChild( elsd->getInventorNode() );
-	    elsd->setDisplayTransformation(transformation);
+	    elsd->setDisplayTransformation(transformation_);
 	    elsd->rightClicked()->notify(
 		    mCB(this,EMObjectDisplay,edgeLineRightClickCB));
-	    edgelinedisplays += elsd;
+	    edgelinedisplays_ += elsd;
 	}
     }
 
@@ -528,20 +527,20 @@ void EMObjectDisplay::useTexture( bool yn, bool trigger )
 	{
 	    if ( as_[idx]->id()==Attrib::SelSpec::cNoAttrib() )
 	    {
-		usestexture = yn;
+		usestexture_ = yn;
 		setDepthAsAttrib(idx);
 		return;
 	    }
 	}
     }
 
-    usestexture = yn;
+    usestexture_ = yn;
 
-    getMaterial()->setColor( yn ? Color::White : nontexturecol );
+    getMaterial()->setColor( yn ? Color::White : nontexturecol_ );
 
-    for ( int idx=0; idx<sections.size(); idx++ )
+    for ( int idx=0; idx<sections_.size(); idx++ )
     {
-	mDynamicCastGet(visBase::ParametricSurface*,psurf,sections[idx]);
+	mDynamicCastGet(visBase::ParametricSurface*,psurf,sections_[idx]);
 	if ( psurf )
 	    psurf->useTexture( yn );
     }
@@ -552,19 +551,19 @@ void EMObjectDisplay::useTexture( bool yn, bool trigger )
 
 
 bool EMObjectDisplay::usesTexture() const
-{ return usestexture; }
+{ return usestexture_; }
 
 
 const LineStyle* EMObjectDisplay::lineStyle() const
 {
     return usesWireframe() || getOnlyAtSectionsDisplay()
-	? &drawstyle->lineStyle()
+	? &drawstyle_->lineStyle()
 	: 0;
 }
 
 
 void EMObjectDisplay::setLineStyle( const LineStyle& ls )
-{ drawstyle->setLineStyle(ls); }
+{ drawstyle_->setLineStyle(ls); }
 
 
 bool EMObjectDisplay::hasColor() const
@@ -575,10 +574,10 @@ bool EMObjectDisplay::hasColor() const
 
 void EMObjectDisplay::setOnlyAtSectionsDisplay(bool yn)
 {
-    displayonlyatsections = yn;
+    displayonlyatsections_ = yn;
 
-    for ( int idx=0; idx<sections.size(); idx++ )
-	sections[idx]->turnOn(!displayonlyatsections);
+    for ( int idx=0; idx<sections_.size(); idx++ )
+	sections_[idx]->turnOn(!displayonlyatsections_);
 
     hasmoved.trigger();
     changedisplay.trigger();
@@ -586,13 +585,13 @@ void EMObjectDisplay::setOnlyAtSectionsDisplay(bool yn)
 
 
 bool EMObjectDisplay::getOnlyAtSectionsDisplay() const
-{ return displayonlyatsections; }
+{ return displayonlyatsections_; }
 
 
 void EMObjectDisplay::setColor( Color col )
 {
 
-    EM::EMObject* emobject = em.getObject( oid );
+    EM::EMObject* emobject = em_.getObject( oid_ );
     if ( emobject )
     {
 	emobject->setPreferredColor( col );
@@ -603,20 +602,20 @@ void EMObjectDisplay::setColor( Color col )
 
 Color EMObjectDisplay::getColor() const
 {
-    return nontexturecol;
+    return nontexturecol_;
 }
 
 
 void EMObjectDisplay::selectTexture( int attrib, int textureidx )
 {
-    for ( int idx=0; idx<sections.size(); idx++ )
+    for ( int idx=0; idx<sections_.size(); idx++ )
     {
-	mDynamicCastGet(visBase::ParametricSurface*,psurf,sections[idx]);
+	mDynamicCastGet(visBase::ParametricSurface*,psurf,sections_[idx]);
 	if ( psurf )
 	    psurf->selectActiveVersion( attrib, textureidx );
     }
 
-    mDynamicCastGet(EM::Surface*,emsurf,em.getObject(oid))
+    mDynamicCastGet(EM::Surface*,emsurf,em_.getObject(oid_))
     if ( !emsurf ) return;
 
     if ( textureidx >= emsurf->auxdata.nrAuxData() )
@@ -624,15 +623,17 @@ void EMObjectDisplay::selectTexture( int attrib, int textureidx )
     else
     {
 	BufferString attrnm = emsurf->auxdata.auxDataName( textureidx );
-	setSelSpec( 0, Attrib::SelSpec(attrnm,Attrib::SelSpec::cOtherAttrib()) );
+	setSelSpec( 0, Attrib::SelSpec(attrnm,Attrib::SelSpec::cOtherAttrib()));
     }
+
+    curtextureidx_ = textureidx;
 }
 
 
 SurveyObject::AttribFormat EMObjectDisplay::getAttributeFormat() const
 {
-    if ( !sections.size() ) return SurveyObject::None;
-    mDynamicCastGet(const visBase::ParametricSurface*,ps,sections[0]);
+    if ( !sections_.size() ) return SurveyObject::None;
+    mDynamicCastGet(const visBase::ParametricSurface*,ps,sections_[0]);
     return ps ? SurveyObject::RandomPos : SurveyObject::None;
 }
 
@@ -651,9 +652,9 @@ bool EMObjectDisplay::addAttrib()
     coltabs_ += visBase::VisColorTab::create();
     coltabs_[coltabs_.size()-1]->ref();
 
-    for ( int idx=0; idx<sections.size(); idx++ )
+    for ( int idx=0; idx<sections_.size(); idx++ )
     {
-	mDynamicCastGet(visBase::ParametricSurface*,psurf,sections[idx]);
+	mDynamicCastGet(visBase::ParametricSurface*,psurf,sections_[idx]);
 	if ( psurf )
 	{
 	    psurf->addTexture();
@@ -668,9 +669,9 @@ bool EMObjectDisplay::addAttrib()
 
 bool EMObjectDisplay::removeAttrib( int attrib )
 {
-    for ( int idx=0; idx<sections.size(); idx++ )
+    for ( int idx=0; idx<sections_.size(); idx++ )
     {
-	mDynamicCastGet(visBase::ParametricSurface*,psurf,sections[idx]);
+	mDynamicCastGet(visBase::ParametricSurface*,psurf,sections_[idx]);
 	if ( psurf )
 	    psurf->removeTexture( attrib );
     }
@@ -683,9 +684,9 @@ bool EMObjectDisplay::removeAttrib( int attrib )
 
 bool EMObjectDisplay::swapAttribs( int a0, int a1 )
 {
-    for ( int idx=0; idx<sections.size(); idx++ )
+    for ( int idx=0; idx<sections_.size(); idx++ )
     {
-	mDynamicCastGet(visBase::ParametricSurface*,psurf,sections[idx]);
+	mDynamicCastGet(visBase::ParametricSurface*,psurf,sections_[idx]);
 	if ( psurf )
 	    psurf->swapTextures( a0, a1 );
     }
@@ -697,9 +698,9 @@ bool EMObjectDisplay::swapAttribs( int a0, int a1 )
 
 void EMObjectDisplay::setAttribTransparency( int attrib, unsigned char nt )
 {
-    for ( int idx=0; idx<sections.size(); idx++ )
+    for ( int idx=0; idx<sections_.size(); idx++ )
     {
-	mDynamicCastGet(visBase::ParametricSurface*,psurf,sections[idx]);
+	mDynamicCastGet(visBase::ParametricSurface*,psurf,sections_[idx]);
 	if ( psurf )
 	    psurf->setTextureTransparency( attrib, nt );
     }
@@ -708,9 +709,9 @@ void EMObjectDisplay::setAttribTransparency( int attrib, unsigned char nt )
 
 unsigned char EMObjectDisplay::getAttribTransparency( int attrib ) const
 {
-    for ( int idx=0; idx<sections.size(); idx++ )
+    for ( int idx=0; idx<sections_.size(); idx++ )
     {
-	mDynamicCastGet(visBase::ParametricSurface*,psurf,sections[idx]);
+	mDynamicCastGet(visBase::ParametricSurface*,psurf,sections_[idx]);
 	if ( psurf )
 	    return psurf->getTextureTransparency( attrib );
     }
@@ -721,9 +722,9 @@ unsigned char EMObjectDisplay::getAttribTransparency( int attrib ) const
 
 void EMObjectDisplay::enableAttrib( int attribnr, bool yn )
 {
-    for ( int idx=0; idx<sections.size(); idx++ )
+    for ( int idx=0; idx<sections_.size(); idx++ )
     {
-	mDynamicCastGet(visBase::ParametricSurface*,psurf,sections[idx]);
+	mDynamicCastGet(visBase::ParametricSurface*,psurf,sections_[idx]);
 	if ( psurf )
 	    psurf->enableTexture( attribnr, yn );
     }
@@ -732,10 +733,10 @@ void EMObjectDisplay::enableAttrib( int attribnr, bool yn )
 
 bool EMObjectDisplay::isAttribEnabled( int attribnr ) const
 {
-    if ( !sections.size() )
+    if ( !sections_.size() )
 	return true;
 
-    mDynamicCastGet(visBase::ParametricSurface*,psurf,sections[0]);
+    mDynamicCastGet(visBase::ParametricSurface*,psurf,sections_[0]);
     return psurf ? psurf->isTextureEnabled(attribnr) : true;
 }
 
@@ -777,7 +778,7 @@ void EMObjectDisplay::setDepthAsAttrib( int attrib )
     }
 
     setRandomPosData( attrib, &positions );
-    useTexture( usestexture );
+    useTexture( usestexture_ );
     deepErase( positions );
 }
 
@@ -785,9 +786,9 @@ void EMObjectDisplay::setDepthAsAttrib( int attrib )
 void EMObjectDisplay::getRandomPos( ObjectSet<BinIDValueSet>& data ) const
 {
     deepErase( data );
-    for ( int idx=0; idx<sections.size(); idx++ )
+    for ( int idx=0; idx<sections_.size(); idx++ )
     {
-	mDynamicCastGet(visBase::ParametricSurface*,psurf,sections[idx]);
+	mDynamicCastGet(visBase::ParametricSurface*,psurf,sections_[idx]);
 	if ( !psurf ) return;
 
 	data += new BinIDValueSet( 1, false );
@@ -802,9 +803,9 @@ void EMObjectDisplay::getRandomPosCache( int attrib,
 {
     data.erase();
     data.allowNull( true );
-    for ( int idx=0; idx<sections.size(); idx++ )
+    for ( int idx=0; idx<sections_.size(); idx++ )
     {
-	mDynamicCastGet(visBase::ParametricSurface*,psurf,sections[idx]);
+	mDynamicCastGet(visBase::ParametricSurface*,psurf,sections_[idx]);
 	if ( !psurf )
 	{
 	    data += 0;
@@ -823,9 +824,9 @@ void EMObjectDisplay::setRandomPosData( int attrib,
 
     if ( !data || !data->size() )
     {
-	for ( int idx=0; idx<sections.size(); idx++ )
+	for ( int idx=0; idx<sections_.size(); idx++ )
 	{
-	    mDynamicCastGet(visBase::ParametricSurface*,psurf,sections[idx]);
+	    mDynamicCastGet(visBase::ParametricSurface*,psurf,sections_[idx]);
 	    if ( psurf ) psurf->setTextureData( 0, attrib );
 	    else useTexture(false);
 	}
@@ -835,18 +836,18 @@ void EMObjectDisplay::setRandomPosData( int attrib,
     int idx = 0;
     for ( ; idx<data->size(); idx++ )
     {
-	if ( idx>=sections.size() ) break;
+	if ( idx>=sections_.size() ) break;
 
-	mDynamicCastGet(visBase::ParametricSurface*,psurf,sections[idx]);
+	mDynamicCastGet(visBase::ParametricSurface*,psurf,sections_[idx]);
 	if ( psurf )
 	    psurf->setTextureData( (*data)[idx], attrib );
 	else
 	    useTexture(false);
     }
 
-    for ( ; idx<sections.size(); idx++ )
+    for ( ; idx<sections_.size(); idx++ )
     {
-	mDynamicCastGet(visBase::ParametricSurface*,psurf,sections[idx]);
+	mDynamicCastGet(visBase::ParametricSurface*,psurf,sections_[idx]);
 	if ( psurf ) psurf->setTextureData( 0, attrib );
     }
 }
@@ -862,9 +863,9 @@ bool EMObjectDisplay::hasStoredAttrib( int attrib ) const
 
 Coord3 EMObjectDisplay::getTranslation() const
 {
-    if ( !translation ) return Coord3(0,0,0);
+    if ( !translation_ ) return Coord3(0,0,0);
 
-    Coord3 shift = translation->getTranslation();
+    Coord3 shift = translation_->getTranslation();
     shift.z *= -1; 
     return shift;
 }
@@ -872,41 +873,41 @@ Coord3 EMObjectDisplay::getTranslation() const
 
 void EMObjectDisplay::setTranslation( const Coord3& nt )
 {
-    if ( !translation )
+    if ( !translation_ )
     {
-	translation = visBase::Transformation::create();
-	translation->ref();
-	insertChild( 0, translation->getInventorNode() );
+	translation_ = visBase::Transformation::create();
+	translation_->ref();
+	insertChild( 0, translation_->getInventorNode() );
     }
 
     Coord3 shift( nt ); shift.z *= -1;
-    translation->setTranslation( shift );
+    translation_->setTranslation( shift );
 
-    const EM::EMObject* emobject = em.getObject( oid );
+    const EM::EMObject* emobject = em_.getObject( oid_ );
     mDynamicCastGet(const EM::Horizon*,horizon,emobject);
     if ( horizon ) horizon->geometry.setShift( shift.z );
 
-    for ( int idx=0; idx<sections.size(); idx++ )
+    for ( int idx=0; idx<sections_.size(); idx++ )
     {
-	mDynamicCastGet(visBase::ParametricSurface*,ps,sections[idx]);
+	mDynamicCastGet(visBase::ParametricSurface*,ps,sections_[idx]);
 	if ( ps ) ps->inValidateCache(-1);
     }
 }
 
 
-bool EMObjectDisplay::usesWireframe() const { return useswireframe; }
+bool EMObjectDisplay::usesWireframe() const { return useswireframe_; }
 
 
 void EMObjectDisplay::useWireframe( bool yn )
 {
-    useswireframe = yn;
+    useswireframe_ = yn;
 
-    for ( int idx=0; idx<sections.size(); idx++ )
+    for ( int idx=0; idx<sections_.size(); idx++ )
     {
-	mDynamicCastGet(visBase::CubicBezierSurface*,cbs,sections[idx]);
+	mDynamicCastGet(visBase::CubicBezierSurface*,cbs,sections_[idx]);
 	if ( cbs ) cbs->useWireframe( yn );
 
-	mDynamicCastGet(visBase::ParametricSurface*,ps,sections[idx]);
+	mDynamicCastGet(visBase::ParametricSurface*,ps,sections_[idx]);
 	if ( ps ) ps->useWireframe( yn );
     }
 }
@@ -914,50 +915,50 @@ void EMObjectDisplay::useWireframe( bool yn )
 
 void EMObjectDisplay::setEdgeLineRadius(float nr)
 {
-    edgelineradius = nr;
-    for ( int idx=0; idx<edgelinedisplays.size(); idx++ )
-	edgelinedisplays[idx]->setRadius(nr);
+    edgelineradius_ = nr;
+    for ( int idx=0; idx<edgelinedisplays_.size(); idx++ )
+	edgelinedisplays_[idx]->setRadius(nr);
 }
 
 
 float EMObjectDisplay::getEdgeLineRadius() const
-{ return edgelineradius; }
+{ return edgelineradius_; }
 
 
 
-MPEEditor* EMObjectDisplay::getEditor() { return editor; }
+MPEEditor* EMObjectDisplay::getEditor() { return editor_; }
 
 
 void EMObjectDisplay::enableEditing( bool yn )
 {
-    if ( yn && !editor )
+    if ( yn && !editor_ )
     {
-	MPE::ObjectEditor* mpeeditor = MPE::engine().getEditor(oid,true);
+	MPE::ObjectEditor* mpeeditor = MPE::engine().getEditor(oid_,true);
 
 	if ( !mpeeditor ) return;
 
-	editor = MPEEditor::create();
-	editor->ref();
-	editor->setSceneEventCatcher( eventcatcher );
-	editor->setDisplayTransformation( transformation );
-	editor->setEditor(mpeeditor);
-	addChild( editor->getInventorNode() );
+	editor_ = MPEEditor::create();
+	editor_->ref();
+	editor_->setSceneEventCatcher( eventcatcher_ );
+	editor_->setDisplayTransformation( transformation_ );
+	editor_->setEditor(mpeeditor);
+	addChild( editor_->getInventorNode() );
     }
 
-    if ( editor ) editor->turnOn(yn);
+    if ( editor_ ) editor_->turnOn(yn);
 }
 
 
 bool EMObjectDisplay::isEditingEnabled() const
-{ return editor && editor->isOn(); }
+{ return editor_ && editor_->isOn(); }
 
 
 EM::SectionID EMObjectDisplay::getSectionID( int visid ) const
 {
-    for ( int idx=0; idx<sections.size(); idx++ )
+    for ( int idx=0; idx<sections_.size(); idx++ )
     {
-	if ( sections[idx]->id()==visid )
-	    return sectionids[idx];
+	if ( sections_[idx]->id()==visid )
+	    return sectionids_[idx];
     }
 
     return -1;
@@ -1004,7 +1005,7 @@ void EMObjectDisplay::emChangeCB( CallBacker* cb )
 {
     bool triggermovement = false;
 
-    EM::EMObject* emobject = em.getObject( oid );
+    EM::EMObject* emobject = em_.getObject( oid_ );
 
     mCBCapsuleUnpack(const EM::EMObjectCallbackData&,cbdata,cb);
     if ( cbdata.event==EM::EMObjectCallbackData::SectionChange )
@@ -1017,37 +1018,37 @@ void EMObjectDisplay::emChangeCB( CallBacker* cb )
 	    addSection( sectionid );
 	else
 	{
-	    const int idx = sectionids.indexOf( sectionid );
+	    const int idx = sectionids_.indexOf( sectionid );
 	    if ( idx < 0 ) return;
-	    removeChild( sections[idx]->getInventorNode() );
-	    sections[idx]->unRef();
-	    sections.remove( idx );
-	    sectionids.remove( idx );
+	    removeChild( sections_[idx]->getInventorNode() );
+	    sections_[idx]->unRef();
+	    sections_.remove( idx );
+	    sectionids_.remove( idx );
 	}
 
 	triggermovement = true;
     }
     else if ( cbdata.event==EM::EMObjectCallbackData::PositionChange )
     {
-	for ( int idx=0; idx<posattribs.size(); idx++ )
+	for ( int idx=0; idx<posattribs_.size(); idx++ )
 	{
 	    const TypeSet<EM::PosID>* pids =
-		emobject->getPosAttribList(posattribs[idx]);
+		emobject->getPosAttribList(posattribs_[idx]);
 
 	    if ( !pids || pids->indexOf(cbdata.pid0)==-1 )
 		continue;
 
-	    updatePosAttrib(posattribs[idx]);
+	    updatePosAttrib(posattribs_[idx]);
 	}
 	
 	validtexture_ = false;
 	if ( usesTexture() ) useTexture(false);
 
 	const EM::SectionID sid = cbdata.pid0.sectionID();
-	const int idx = sectionids.indexOf( sid );
+	const int idx = sectionids_.indexOf( sid );
 	if ( idx>=0 )
 	{
-	    mDynamicCastGet(visBase::ParametricSurface*,ps,sections[idx]);
+	    mDynamicCastGet(visBase::ParametricSurface*,ps,sections_[idx]);
 	    if ( ps ) ps->inValidateCache(-1);
 	}
 
@@ -1055,14 +1056,14 @@ void EMObjectDisplay::emChangeCB( CallBacker* cb )
     }
     else if ( cbdata.event==EM::EMObjectCallbackData::AttribChange )
     {
-	if ( posattribs.indexOf(cbdata.attrib)!=-1 )
+	if ( posattribs_.indexOf(cbdata.attrib)!=-1 )
 	    updatePosAttrib(cbdata.attrib);
     }
     else if ( cbdata.event==EM::EMObjectCallbackData::PrefColorChange )
     {
-	nontexturecol = emobject->preferredColor();
-	if ( !usestexture )
-	    getMaterial()->setColor( nontexturecol );
+	nontexturecol_ = emobject->preferredColor();
+	if ( !usestexture_ )
+	    getMaterial()->setColor( nontexturecol_ );
     }
 
     if ( triggermovement )
@@ -1074,7 +1075,7 @@ void EMObjectDisplay::emEdgeLineChangeCB(CallBacker* cb)
 {
     mCBCapsuleUnpack( EM::SectionID, section, cb );
 
-    const EM::EMObject* emobject = em.getObject( oid );
+    const EM::EMObject* emobject = em_.getObject( oid_ );
     mDynamicCastGet(const EM::Surface*,emsurface,emobject)
     if ( !emsurface ) return;
 
@@ -1082,12 +1083,12 @@ void EMObjectDisplay::emEdgeLineChangeCB(CallBacker* cb)
 	 addEdgeLineDisplay(section);
     else
     {
-	for ( int idx=0; idx<edgelinedisplays.size(); idx++ )
+	for ( int idx=0; idx<edgelinedisplays_.size(); idx++ )
 	{
-	    if (edgelinedisplays[idx]->getEdgeLineSet()->getSection()==section)
+	    if (edgelinedisplays_[idx]->getEdgeLineSet()->getSection()==section)
   	    {
-		EdgeLineSetDisplay* elsd = edgelinedisplays[idx--];
-		edgelinedisplays -= elsd;
+		EdgeLineSetDisplay* elsd = edgelinedisplays_[idx--];
+		edgelinedisplays_ -= elsd;
 		elsd->rightClicked()->remove(
 			 mCB( this, EMObjectDisplay, edgeLineRightClickCB ));
 		removeChild( elsd->getInventorNode() );
@@ -1101,9 +1102,9 @@ void EMObjectDisplay::emEdgeLineChangeCB(CallBacker* cb)
 
 int EMObjectDisplay::nrResolutions() const
 {
-    if ( !sections.size() ) return 1;
+    if ( !sections_.size() ) return 1;
 
-    mDynamicCastGet(const visBase::ParametricSurface*,ps,sections[0]);
+    mDynamicCastGet(const visBase::ParametricSurface*,ps,sections_[0]);
     return ps ? ps->nrResolutions()+1 : 1;
 }
 
@@ -1131,18 +1132,18 @@ BufferString EMObjectDisplay::getResolutionName( int res ) const
 
 int EMObjectDisplay::getResolution() const
 {
-    if ( !sections.size() ) return 1;
+    if ( !sections_.size() ) return 1;
 
-    mDynamicCastGet(const visBase::ParametricSurface*,ps,sections[0]);
+    mDynamicCastGet(const visBase::ParametricSurface*,ps,sections_[0]);
     return ps ? ps->currentResolution()+1 : 0;
 }
 
 
 void EMObjectDisplay::setResolution( int res )
 {
-    for ( int idx=0; idx<sections.size(); idx++ )
+    for ( int idx=0; idx<sections_.size(); idx++ )
     {
-	mDynamicCastGet(visBase::ParametricSurface*,ps,sections[idx]);
+	mDynamicCastGet(visBase::ParametricSurface*,ps,sections_[idx]);
 	if ( ps ) ps->setResolution( res-1 );
     }
 }
@@ -1156,7 +1157,7 @@ int EMObjectDisplay::getColTabID(int attrib) const
 
 float EMObjectDisplay::calcDist( const Coord3& pickpos ) const
 {
-    const EM::EMObject* emobject = em.getObject( oid );
+    const EM::EMObject* emobject = em_.getObject( oid_ );
     if ( !emobject ) return mUdf(float);
 
     const mVisTrans* utm2display = scene_->getUTM2DisplayTransform();
@@ -1195,12 +1196,12 @@ void EMObjectDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
 				       float& val, BufferString& info ) const
 {
     info = ""; val = pos.z;
-    const EM::EMObject* emobject = em.getObject( oid );
+    const EM::EMObject* emobject = em_.getObject( oid_ );
     if ( !emobject ) return;
     
     info = emobject->getTypeStr(); info += ": "; info += name();
 
-    if ( !sections.size() )
+    if ( !sections_.size() )
 	return;
    
     const EM::SectionID sid = getSectionID(&eventinfo.pickedobjids);
@@ -1211,18 +1212,26 @@ void EMObjectDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
     if ( as_[0]->id()<-1 )
 	return;
 
-    mDynamicCastGet(const EM::Surface*,emsurface,emobject)
-    if ( !emsurface || !emsurface->auxdata.nrAuxData() )
-	return;
-    const RowCol rc( SI().transform(pos) );
-    EM::PosID posid( emsurface->id(), 0, rc.getSerialized() );
-    for ( int idx=0; idx<emsurface->nrSections(); idx++ )
-    {
-	posid.setSectionID( emsurface->sectionID(idx) );
-	val = emsurface->auxdata.getAuxDataVal( curtextureidx, posid );
-	if ( !mIsUndefined(val) )
-	    break;
-    }
+    const int sectionidx = sectionids_.indexOf( sid );
+    if ( sectionidx<0 ) return;
+
+    mDynamicCastGet( visBase::ParametricSurface*,psurf, sections_[sectionidx]);
+
+    if ( !psurf ) return;
+
+    const BinIDValueSet* bidvalset = psurf->getCache( 0 );
+    if ( !bidvalset || bidvalset->nrVals()<2 ) return;
+
+    const BinID bid( SI().transform(pos) );
+
+    const BinIDValueSet::Pos setpos = bidvalset->findFirst( bid );
+    if ( setpos.i<0 || setpos.j<0 ) return;
+
+    const float* vals = bidvalset->getVals( setpos );
+    int curtexture = selectedTexture(0);
+    if ( curtexture>bidvalset->nrVals()-1 ) curtexture = 0;
+
+    val = vals[curtexture+1];
 }
 
 
@@ -1230,7 +1239,7 @@ void EMObjectDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 {
     visBase::VisualObjectImpl::fillPar( par, saveids );
 
-    const EM::EMObject* emobj = em.getObject(oid);
+    const EM::EMObject* emobj = em_.getObject(oid_);
     if ( emobj && !emobj->isFullyLoaded() )
     {
 	par.set( sKeySections, displayedSections() );
@@ -1249,7 +1258,7 @@ void EMObjectDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
     par.setYN( sKeyOnlyAtSections, getOnlyAtSectionsDisplay() );
     par.set( sKeyResolution, getResolution() );
     par.set( sKeyShift, getTranslation().z );
-    par.set( sKey::Color, (int)nontexturecol.rgb() );
+    par.set( sKey::Color, (int)nontexturecol_.rgb() );
 
     if ( lineStyle() )
     {
@@ -1288,12 +1297,12 @@ int EMObjectDisplay::usePar( const IOPar& par )
     if ( scene_ )
 	setDisplayTransformation( scene_->getUTM2DisplayTransform() );
 
-    if ( !par.get(sKeyEarthModelID,parmid) )
+    if ( !par.get(sKeyEarthModelID,parmid_) )
 	return -1;
 
-    par.get( sKeySections, parsections );
-    par.get( sKeyRowRange, parrowrg.start, parrowrg.stop, parrowrg.step );
-    par.get( sKeyColRange, parcolrg.start, parcolrg.stop, parcolrg.step );
+    par.get( sKeySections, parsections_ );
+    par.get( sKeyRowRange, parrowrg_.start, parrowrg_.stop, parrowrg_.step );
+    par.get( sKeyColRange, parcolrg_.start, parcolrg_.stop, parcolrg_.step );
 
     BufferString linestyle;
     if ( par.get( sKeyLineStyle, linestyle ) )
@@ -1309,11 +1318,11 @@ int EMObjectDisplay::usePar( const IOPar& par )
     par.getYN( sKeyEdit, enableedit );
     enableEditing( enableedit );
 
-    if ( !par.get(sKey::Color,(int&)nontexturecol.rgb()) )
-	nontexturecol = getMaterial()->getColor();
+    if ( !par.get(sKey::Color,(int&)nontexturecol_.rgb()) )
+	nontexturecol_ = getMaterial()->getColor();
 
-    if ( !par.getYN( sKeyTexture, usestexture ) )
-	usestexture = true;
+    if ( !par.getYN( sKeyTexture, usestexture_ ) )
+	usestexture_ = true;
 
     bool usewireframe = false;
     par.getYN( sKeyWireFrame, usewireframe );
@@ -1361,10 +1370,10 @@ int EMObjectDisplay::usePar( const IOPar& par )
 		coltabs_[attribnr]->unRef();
 		coltabs_.replace( attribnr, coltab );
 
-		for ( int idx=0; idx<sections.size(); idx++ )
+		for ( int idx=0; idx<sections_.size(); idx++ )
 		{
 		    mDynamicCastGet( visBase::ParametricSurface*,psurf,
-			    	     sections[idx]);
+			    	     sections_[idx]);
 		    if ( psurf )
 			psurf->setColorTab( attribnr, *coltab);
 		}
@@ -1376,7 +1385,6 @@ int EMObjectDisplay::usePar( const IOPar& par )
     else //old format
     {
 	as_[0]->usePar( par );
-	visBase::VisColorTab* coltab;
 	int coltabid = -1;
 	par.get( sKeyColorTableID, coltabid );
 	if ( coltabid>-1 )
@@ -1389,10 +1397,10 @@ int EMObjectDisplay::usePar( const IOPar& par )
 	    if ( coltabs_[0] ) coltabs_[0]->unRef();
 	    coltabs_.replace( 0, coltab );
 	    coltab->ref();
-	    for ( int idx=0; idx<sections.size(); idx++ )
+	    for ( int idx=0; idx<sections_.size(); idx++ )
 	    {
 		mDynamicCastGet( visBase::ParametricSurface*,psurf,
-				 sections[idx]);
+				 sections_[idx]);
 		if ( psurf ) psurf->setColorTab( 0, *coltab);
 	    }
 	}
@@ -1407,15 +1415,15 @@ NotifierAccess* EMObjectDisplay::getMovementNotification() { return &hasmoved; }
 
 void EMObjectDisplay::updatePosAttrib(int attrib)
 {
-    const int attribindex = posattribs.indexOf(attrib);
+    const int attribindex = posattribs_.indexOf(attrib);
     if ( attribindex==-1 ) return;
 
-    EM::EMObject* emobject = em.getObject( oid );
+    EM::EMObject* emobject = em_.getObject( oid_ );
     const TypeSet<EM::PosID>* pids = emobject->getPosAttribList(attrib);
 
     //Remove everything but material
-    while ( posattribmarkers[attribindex]->size()>1 )
-	posattribmarkers[attribindex]->removeObject(1);
+    while ( posattribmarkers_[attribindex]->size()>1 )
+	posattribmarkers_[attribindex]->removeObject(1);
 
     if ( !pids )
 	return;
@@ -1426,10 +1434,10 @@ void EMObjectDisplay::updatePosAttrib(int attrib)
 	if ( !pos.isDefined() ) continue;
 
 	visBase::Marker* marker = visBase::Marker::create();
-	posattribmarkers[attribindex]->addObject(marker);
+	posattribmarkers_[attribindex]->addObject(marker);
 
 	marker->setMaterial(0);
-	marker->setDisplayTransformation(transformation);
+	marker->setDisplayTransformation(transformation_);
 	marker->setCenterPos(pos);
     }
 }
@@ -1439,11 +1447,11 @@ EM::PosID EMObjectDisplay::getPosAttribPosID( int attrib,
 					      const TypeSet<int>& path ) const
 {
     EM::PosID res(-1,-1,-1);
-    const int attribidx = posattribs.indexOf(attrib);
+    const int attribidx = posattribs_.indexOf(attrib);
     if ( attribidx<0 )
 	return res;
 
-    visBase::DataObjectGroup* group = posattribmarkers[attribidx];
+    visBase::DataObjectGroup* group = posattribmarkers_[attribidx];
     TypeSet<int> visids;
     for ( int idx=1; idx<group->size(); idx++ )
 	visids += group->getObject( idx )->id();
@@ -1454,7 +1462,7 @@ EM::PosID EMObjectDisplay::getPosAttribPosID( int attrib,
 	if ( index==-1 )
 	    continue;
 
-	EM::EMObject* emobject = em.getObject( oid );
+	EM::EMObject* emobject = em_.getObject( oid_ );
 	const TypeSet<EM::PosID>* pids = emobject->getPosAttribList(attrib);
 	res = (*pids)[index];
 	break;
@@ -1526,7 +1534,7 @@ EM::PosID EMObjectDisplay::getPosAttribPosID( int attrib,
 void EMObjectDisplay::updateIntersectionLines(
 	    const ObjectSet<const SurveyObject>& objs, int whichobj )
 {
-    const EM::EMObject* emobject = em.getObject( oid );
+    const EM::EMObject* emobject = em_.getObject( oid_ );
     mDynamicCastGet(const EM::Horizon*,horizon,emobject);
     if ( !horizon ) return;
 
@@ -1534,9 +1542,9 @@ void EMObjectDisplay::updateIntersectionLines(
 	whichobj = -1;
 
     TypeSet<int> linestoupdate;
-    BoolTypeSet lineshouldexist( intersectionlineids.size(), false );
+    BoolTypeSet lineshouldexist( intersectionlineids_.size(), false );
 
-    if ( displayonlyatsections )
+    if ( displayonlyatsections_ )
     {
 	for ( int idx=0; idx<objs.size(); idx++ )
 	{
@@ -1560,7 +1568,7 @@ void EMObjectDisplay::updateIntersectionLines(
 	    if ( objectid==-1 )
 		continue;
 
-	    const int idy = intersectionlineids.indexOf(objectid);
+	    const int idy = intersectionlineids_.indexOf(objectid);
 	    if ( idy==-1 )
 	    {
 		linestoupdate += objectid;
@@ -1576,16 +1584,16 @@ void EMObjectDisplay::updateIntersectionLines(
 	}
     }
 
-    for ( int idx=0; idx<intersectionlineids.size(); idx++ )
+    for ( int idx=0; idx<intersectionlineids_.size(); idx++ )
     {
 	if ( !lineshouldexist[idx] )
 	{
-	    removeChild( intersectionlines[idx]->getInventorNode() );
-	    intersectionlines[idx]->unRef();
+	    removeChild( intersectionlines_[idx]->getInventorNode() );
+	    intersectionlines_[idx]->unRef();
 
 	    lineshouldexist.remove(idx);
-	    intersectionlines.remove(idx);
-	    intersectionlineids.remove(idx);
+	    intersectionlines_.remove(idx);
+	    intersectionlineids_.remove(idx);
 	    idx--;
 	}
     }
@@ -1604,20 +1612,20 @@ void EMObjectDisplay::updateIntersectionLines(
 	    mped->getPlanePosition(cs);
 	}
 
-	int lineidx = intersectionlineids.indexOf(linestoupdate[idx]);
+	int lineidx = intersectionlineids_.indexOf(linestoupdate[idx]);
 	if ( lineidx==-1 )
 	{
-	    lineidx = intersectionlineids.size();
-	    intersectionlineids += linestoupdate[idx];
+	    lineidx = intersectionlineids_.size();
+	    intersectionlineids_ += linestoupdate[idx];
 	    visBase::IndexedPolyLine* newline =
 		visBase::IndexedPolyLine::create();
 	    newline->ref();
-	    newline->setDisplayTransformation(transformation);
-	    intersectionlines += newline;
+	    newline->setDisplayTransformation(transformation_);
+	    intersectionlines_ += newline;
 	    addChild( newline->getInventorNode() );
 	}
 
-	visBase::IndexedPolyLine* line = intersectionlines[lineidx];
+	visBase::IndexedPolyLine* line = intersectionlines_[lineidx];
 	line->getCoordinates()->removeAfter(-1);
 	line->removeCoordIndexAfter(-1);
 	int cii = 0;

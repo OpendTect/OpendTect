@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          May 2004
- RCS:           $Id: visemobjdisplay.h,v 1.37 2006-03-09 17:26:20 cvskris Exp $
+ RCS:           $Id: visemobjdisplay.h,v 1.38 2006-03-09 21:08:28 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -52,7 +52,7 @@ public:
     void			setSceneEventCatcher( visBase::EventCatcher* );
 
     bool			setEMObject(const EM::ObjectID&);
-    EM::ObjectID		getObjectID() const { return oid; }
+    EM::ObjectID		getObjectID() const { return oid_; }
     bool			updateFromEM();
     void			updateFromMPE();
 
@@ -171,39 +171,39 @@ protected:
 					   const ObjectSet<const SurveyObject>&,
 					   int whichobj );
 
-    mVisTrans*				transformation;
-    mVisTrans*				translation;
-    visBase::EventCatcher*		eventcatcher;
+    mVisTrans*				transformation_;
+    mVisTrans*				translation_;
+    visBase::EventCatcher*		eventcatcher_;
     ObjectSet<visBase::VisColorTab>	coltabs_;
 
-    ObjectSet<visBase::VisualObject>	sections;
-    TypeSet<EM::SectionID>		sectionids;
+    ObjectSet<visBase::VisualObject>	sections_;
+    TypeSet<EM::SectionID>		sectionids_;
 
-    ObjectSet<EdgeLineSetDisplay>	edgelinedisplays;
+    ObjectSet<EdgeLineSetDisplay>	edgelinedisplays_;
 
-    ObjectSet<visBase::DataObjectGroup>	posattribmarkers;
-    TypeSet<int>			posattribs;
+    ObjectSet<visBase::DataObjectGroup>	posattribmarkers_;
+    TypeSet<int>			posattribs_;
 
-    ObjectSet<visBase::IndexedPolyLine>	intersectionlines;
-    TypeSet<int>			intersectionlineids;
+    ObjectSet<visBase::IndexedPolyLine>	intersectionlines_;
+    TypeSet<int>			intersectionlineids_;
 
-    EM::EMManager&			em;
-    EM::ObjectID			oid;
-    MultiID				parmid;
-    BufferStringSet			parsections;
-    StepInterval<int>			parrowrg;
-    StepInterval<int>			parcolrg;
+    EM::EMManager&			em_;
+    EM::ObjectID			oid_;
+    MultiID				parmid_;
+    BufferStringSet			parsections_;
+    StepInterval<int>			parrowrg_;
+    StepInterval<int>			parcolrg_;
 
 
-    MPEEditor*				editor;
+    MPEEditor*				editor_;
 
-    Color				nontexturecol;
-    visBase::DrawStyle*			drawstyle;
-    bool				usestexture;
-    bool				displayonlyatsections;
-    bool				useswireframe;
-    int					curtextureidx;
-    float				edgelineradius;
+    Color				nontexturecol_;
+    visBase::DrawStyle*			drawstyle_;
+    bool				usestexture_;
+    bool				displayonlyatsections_;
+    bool				useswireframe_;
+    int					curtextureidx_;
+    float				edgelineradius_;
 
     ObjectSet<Attrib::SelSpec>		as_;
     bool				validtexture_;
