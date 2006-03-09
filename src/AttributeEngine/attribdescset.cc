@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribdescset.cc,v 1.40 2006-03-06 08:13:53 cvshelene Exp $";
+static const char* rcsID = "$Id: attribdescset.cc,v 1.41 2006-03-09 16:10:57 cvshelene Exp $";
 
 #include "attribdescset.h"
 #include "attribstorprovider.h"
@@ -379,6 +379,10 @@ bool DescSet::usePar( const IOPar& par, BufferStringSet* errmsgs )
 	if ( !dsc )
 	    return false;
 
+	const char* emsg = Provider::prepare( *dsc );
+	if ( emsg )
+	    { errmsgs->add( emsg ); return false; }
+	
 	dsc->updateParams();
 	addDesc( dsc, DescID(id,true) );
     }
