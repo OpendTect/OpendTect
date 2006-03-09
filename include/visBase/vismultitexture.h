@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		Dec 2005
- RCS:		$Id: vismultitexture.h,v 1.4 2006-01-30 14:31:33 cvskris Exp $
+ RCS:		$Id: vismultitexture.h,v 1.5 2006-03-09 17:06:40 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -37,18 +37,20 @@ public:
     virtual float	getTextureRenderQuality() const		= 0;
 
     int			nrTextures() const;
-    int			addTexture( const char* name );
-    void		enableTexture( int texture, bool );
-    bool		isTextureEnabled( int texture ) const;
-    int			insertTexture( int, const char* name );
-    void		removeTexture( int );
-    void		swapTextures( int, int );
-    void		setOperation( int texture, Operation  );
-    Operation		getOperation( int texture ) const;
-    void		setComponents( int texture, char bits );
-    char		getComponents( int texture ) const;
-    void		setColorTab( int texture, VisColorTab& );
-    VisColorTab&	getColorTab( int texture );
+    int			addTexture(const char* name);
+    void		enableTexture(int texture,bool);
+    bool		isTextureEnabled(int texture) const;
+    int			insertTexture(int, const char* name);
+    void		removeTexture(int);
+    void		swapTextures(int,int);
+    virtual void	setTextureTransparency(int,unsigned char)	= 0;
+    virtual unsigned char getTextureTransparency(int) const 		= 0;
+    virtual void	setOperation(int texture,Operation)		= 0;
+    virtual Operation	getOperation(int texture) const			= 0;
+    virtual void	setComponents(int texture,char bits);
+    virtual char	getComponents(int texture) const;
+    void		setColorTab(int texture,VisColorTab&);
+    VisColorTab&	getColorTab(int texture);
 
     int			nrVersions( int texture ) const;
     void		setNrVersions( int texture, int nrvers );

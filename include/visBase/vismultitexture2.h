@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		Dec 2005
- RCS:		$Id: vismultitexture2.h,v 1.3 2006-02-14 21:13:46 cvskris Exp $
+ RCS:		$Id: vismultitexture2.h,v 1.4 2006-03-09 17:06:40 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -36,6 +36,11 @@ public:
 				    the texture to become white. After clearAll
 				    is called, data of any size will be
 				    accepted.*/
+
+    void			setTextureTransparency(int, unsigned char);
+    unsigned char		getTextureTransparency(int) const;
+    void			setOperation(int texture,Operation);
+    Operation			getOperation(int texture) const;
     void			setTextureRenderQuality(float);
     float			getTextureRenderQuality() const;
     bool			setData(int texture,int version,

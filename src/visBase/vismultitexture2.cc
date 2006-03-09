@@ -79,6 +79,43 @@ void MultiTexture2::clearAll()
 }
 
 
+void MultiTexture2::setTextureTransparency( int texturenr, unsigned char trans )
+{
+    texture_->opacity.set1Value( texturenr, 255-trans );
+}
+
+
+unsigned char MultiTexture2::getTextureTransparency( int texturenr ) const
+{
+    return 255-texture_->opacity[texturenr];
+}
+
+
+void MultiTexture2::setOperation( int texturenr, MultiTexture::Operation op )
+{
+    SoMultiTexture2::Operator nop = SoMultiTexture2::BLEND;
+    if ( op==MultiTexture::REPLACE)
+	nop = SoMultiTexture2::REPLACE;
+    else if ( op==MultiTexture::ADD )
+	nop = SoMultiTexture2::ADD;
+
+}
+
+
+MultiTexture::Operation MultiTexture2::getOperation( int texturenr ) const
+{
+    MultiTexture::Operation res;
+    if ( texture_->operation[texturenr]==SoMultiTexture2::BLEND )
+	res = MultiTexture::BLEND;
+    else if ( texture_->operation[texturenr]==SoMultiTexture2::REPLACE )
+	res = MultiTexture::REPLACE;
+    else
+	res = MultiTexture::ADD;
+
+    return res;
+}
+
+
 void MultiTexture2::setTextureRenderQuality( float val )
 {
     complexity_->textureQuality.setValue( val );
@@ -194,7 +231,6 @@ void MultiTexture2::updateColorTables()
     unsigned char* arr = arrstart;
 
     texture_->numcolor.deleteValues( nrtextures, -1 );
-    texture_->operation.deleteValues( nrtextures, -1 );
     texture_->component.deleteValues( nrtextures, -1 );
 
     for ( int idx=0; idx<nrtextures; idx++ )
@@ -224,9 +260,7 @@ void MultiTexture2::updateColorTables()
 	else if ( getOperation(idx)==MultiTexture::ADD )
 	    op = SoMultiTexture2::ADD;
 
-	texture_->operation.set1Value( idx, op );
 	texture_->component.set1Value( idx, getComponents(idx) );
-	
     }
 
     if ( finishedit )

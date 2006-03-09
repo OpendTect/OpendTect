@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vismultitexture.cc,v 1.12 2006-02-16 22:07:28 cvskris Exp $";
+static const char* rcsID = "$Id: vismultitexture.cc,v 1.13 2006-03-09 17:06:40 cvskris Exp $";
 
 #include "vismultitexture2.h"
 
@@ -110,9 +110,8 @@ public:
 
     const TypeSet<float>* getHistogram( int version );
 
-    MultiTexture::Operation	operation_;
-    char			components_;
     bool			enabled_;
+    char			components_;
 
 protected:
     void			setColorTab( int, VisColorTab& ct );
@@ -135,10 +134,9 @@ protected:
 
 TextureInfo::TextureInfo( MultiTexture* nt, const char* nm )
     : currentversion_( 0 )
-    , operation_( MultiTexture::BLEND )
-    , components_( (MultiTexture::RED | MultiTexture::GREEN |
-		   MultiTexture::BLUE | MultiTexture::OPACITY ) )
     , name_( nm )
+    , components_( (MultiTexture::RED | MultiTexture::GREEN |
+		    MultiTexture::BLUE | MultiTexture::OPACITY ) )
     , sz_( 0 )
     , texture_( nt )
     , enabled_( true )
@@ -500,23 +498,6 @@ void MultiTexture::removeTexture( int idx )
     delete textureinfo_[idx];
     textureinfo_.remove(idx);
     removeTextureInternal( idx );
-}
-
-
-void MultiTexture::setOperation( int idx, Operation op )
-{
-    if ( idx<0 || idx>=textureinfo_.size() )
-	return;
-
-    textureinfo_[idx]->operation_ = op;
-}
-
-
-MultiTexture::Operation MultiTexture::getOperation( int idx ) const
-{
-    return idx<0 || idx>=textureinfo_.size()
-	? BLEND
-	: textureinfo_[idx]->operation_;
 }
 
 
