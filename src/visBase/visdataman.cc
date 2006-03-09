@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: visdataman.cc,v 1.30 2006-01-30 14:45:34 cvskris Exp $";
+static const char* rcsID = "$Id: visdataman.cc,v 1.31 2006-03-09 18:38:52 cvsnanne Exp $";
 
 #include "visdataman.h"
 #include "visdata.h"
@@ -65,7 +65,7 @@ void DataManager::fillPar( IOPar& par, TypeSet<int>& storids ) const
     }
 
     sort( storids );
-    const int storedfreeid = storids[storids.size()-1] + 1;
+    const int storedfreeid = storids.size() ? storids[storids.size()-1] + 1 : 0;
     par.set( sKeyFreeID(), storedfreeid );
 }
 
