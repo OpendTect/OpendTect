@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		1-9-1995
  Contents:	General definitions for every module
- RCS:		$Id: gendefs.h,v 1.35 2005-10-26 08:23:27 cvsnanne Exp $
+ RCS:		$Id: gendefs.h,v 1.36 2006-03-10 13:55:44 cvsbert Exp $
 ________________________________________________________________________
 
  This file contains general defines that are so basic they can be used in
@@ -66,31 +66,19 @@ ________________________________________________________________________
 
 #ifdef __win__
 # include <stdio.h>
+# undef small
 #endif
 
 #ifdef __msvc__
-
-# include <stdlib.h>
-# include <windefs.h>
-# define PATH_LENGTH			_MAX_PATH
-
-# define mPolyRet(base,clss)		base
-# define mTFriend(T,clss)
-# define mTTFriend(T,C,clss)
-# define mProtected			public
-# define mPolyRetDownCast(clss,var)	dynamic_cast<clss>(var)
-# define mPolyRetDownCastRef(clss,var)	*(dynamic_cast<clss*>(&var))
-# define mDynamicCastGet(typ,out,in) \
-	 typ out = 0; try { out = dynamic_cast< typ >( in ); } catch (...) {}
-
+#include "msvcdefs.h"
 #else
 
-#define PATH_LENGTH			255
+#define PATH_LENGTH		255
 
-# define mPolyRet(base,clss)		clss
-# define mTFriend(T,clss)		template <class T> friend class clss
+# define mPolyRet(base,clss)	clss
+# define mTFriend(T,clss)	template <class T> friend class clss
 # define mTTFriend(T,C,clss)	template <class T, class C> friend class clss
-# define mProtected			protected
+# define mProtected		protected
 # define mPolyRetDownCast(clss,var)	var
 # define mPolyRetDownCastRef(clss,var)	var
 # define mDynamicCastGet(typ,out,in)	typ out = dynamic_cast< typ >( in );
