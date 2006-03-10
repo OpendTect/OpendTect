@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Oct 2003
- RCS:           $Id: uipluginman.cc,v 1.16 2006-03-01 13:45:47 cvsbert Exp $
+ RCS:           $Id: uipluginman.cc,v 1.17 2006-03-10 13:31:08 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,15 +51,18 @@ void uiPluginMan::fillList()
 {
     listfld->empty();
     const ObjectSet<PluginManager::Data>& lst = PIM().getData();
-    BufferStringSet notloaded;
+    BufferStringSet loaded, notloaded;
     for ( int idx=0; idx<lst.size(); idx++ )
     {
 	const PluginManager::Data& data = *lst[idx];
 	if ( !data.info_ )
-	    { notloaded.add( data.name_ ); continue; }
+	    notloaded.add( data.name_ );
+	else
+	    loaded.add( data.info_->dispname );
 
-	listfld->addItem( data.info_->dispname );
     }
+    loaded.sort(); notloaded.sort();
+    listfld->addItems( loaded );
     if ( notloaded.size() > 0 )
     {
 	listfld->addItem( "------------------" );

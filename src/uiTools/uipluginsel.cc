@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2006
- RCS:           $Id: uipluginsel.cc,v 1.2 2006-02-27 16:40:59 cvsbert Exp $
+ RCS:           $Id: uipluginsel.cc,v 1.3 2006-03-10 13:31:08 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,12 +33,13 @@ uiPluginSel::uiPluginSel( uiParent* p )
     for ( int idx=0; idx<pimdata.size(); idx++ )
     {
 	PluginManager::Data& data = *pimdata[idx];
-	if ( data.handle_ )
+	if ( data.handle_ && data.autotype_ == PI_AUTO_INIT_LATE )
 	{
 	    pluginnms_.add( data.name_ );
 	    piusrnms.add( PIM().userName(data.name_) );
 	}
     }
+    piusrnms.sort( &pluginnms_ );
 
     const int maxlen = piusrnms.maxLength();
     const float rowspercol = maxlen / 10.;
