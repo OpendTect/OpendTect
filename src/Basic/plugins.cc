@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Aug 2003
- RCS:           $Id: plugins.cc,v 1.43 2006-03-10 08:18:16 cvsnanne Exp $
+ RCS:           $Id: plugins.cc,v 1.44 2006-03-10 08:22:46 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -221,7 +221,7 @@ static Handletype getLibHandle( const char* lnm )
     if ( !lnm || !*lnm  )
 	return 0;
 
-    void* ret = 0;
+    Handletype ret = 0;
 
 #ifdef __win__
 
