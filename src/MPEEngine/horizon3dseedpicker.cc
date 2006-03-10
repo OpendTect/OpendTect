@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizon3dseedpicker.cc,v 1.4 2006-03-03 13:43:57 cvsjaap Exp $";
+static const char* rcsID = "$Id: horizon3dseedpicker.cc,v 1.5 2006-03-10 16:07:05 cvsjaap Exp $";
 
 #include "horizonseedpicker.h"
 
@@ -202,6 +202,11 @@ int HorizonSeedPicker::nrSeeds() const
 
 int HorizonSeedPicker::isMinimumNrOfSeeds() const
 { return getSeedMode()==TrackFromSeeds ? 1 : 0 ; }
+
+
+bool HorizonSeedPicker::isInVolumeMode() const
+{ return getSeedMode()==TrackFromSeeds; }
+
 
 /*
 bool HorizonSeedPicker::removeEverythingButSeeds()
