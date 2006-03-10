@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpewizard.cc,v 1.39 2006-03-03 13:43:12 cvsjaap Exp $
+ RCS:           $Id: uimpewizard.cc,v 1.40 2006-03-10 16:13:37 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -276,7 +276,7 @@ bool Wizard::prepareSeedSetupPage()
 
     const int trackerid = mpeserv->getTrackerID( currentobject );
 
-    const EMTracker* tracker = MPE::engine().getTracker( trackerid );
+    EMTracker* tracker = MPE::engine().getTracker( trackerid );
     const EM::ObjectID objid = tracker->objectID();
     EM::EMObject* emobj = EM::EMM().getObject(objid);
     if ( sid==-1 )
@@ -298,6 +298,9 @@ bool Wizard::prepareSeedSetupPage()
     colorChangeCB(0);
 
     mpeserv->sendEvent( uiMPEPartServer::evStartSeedPick );
+    EMSeedPicker* seedpicker = tracker->getSeedPicker( true );
+    if ( seedpicker )
+	seedpicker->startSeedPick();
 
     if ( currentPageIdx()==lastPage() )
 	setRotateMode(false);
@@ -311,9 +314,9 @@ bool Wizard::prepareSeedSetupPage()
 
 bool Wizard::leaveSeedSetupPage( bool process )
 {
-//    mpeserv->blockdataloading = true;
-//    mpeserv->sendEvent( uiMPEPartServer::evEndSeedPick );
-//    mpeserv->blockdataloading = false;
+    mpeserv->blockdataloading = true;
+    mpeserv->sendEvent( uiMPEPartServer::evEndSeedPick );
+    mpeserv->blockdataloading = false;
     mpeserv->sendEvent( uiMPEPartServer::evShowToolbar );
 
     EM::EMObject* emobj = EM::EMM().getObject(currentobject);
@@ -421,17 +424,25 @@ void Wizard::restoreObject()
 }
 
 
+#define mGetSeedPicker( retfld ) \
+    const int trackerid = mpeserv->getTrackerID( currentobject ); \
+    if ( trackerid == -1 ) \
+	return retfld; \
+    EMTracker* tracker = engine().getTracker( trackerid ); \
+    if ( !tracker ) \
+	return retfld; \
+    EMSeedPicker* seedpicker = tracker->getSeedPicker( true ); \
+    if ( !seedpicker ) \
+	return retfld; 
+
 bool Wizard::isClosing( bool iscancel )
 {
     if ( iscancel )
 	restoreObject();
     else 
     {
-	const int md = modegrp->selectedId();
-	const bool modevolfree = trackertype==EMHorizonTranslatorGroup::keyword 
-				 && ( md==HorizonSeedPicker::TrackBetweenSeeds
-				   || md==HorizonSeedPicker::DrawBetweenSeeds );
-	if ( !modevolfree && !seedbox.isEmpty() )
+	mGetSeedPicker(false);
+	if ( seedpicker->isInVolumeMode() && !seedbox.isEmpty() )
 	    mpeserv->expandActiveVolume(seedbox);
     }
     mpeserv->sendEvent( ::uiMPEPartServer::evWizardClosed );
@@ -505,7 +516,8 @@ void Wizard::adjustSeedBox()
 	    break;
 
 	const Coord3 pos = emobj->getPos(pid);
-	if ( !pos.isDefined() )
+	if ( !pos.isDefined() || 
+	     !emobj->isPosAttrib( pid, EM::EMObject::sSeedNode ) )
 	    continue;
 
 	const BinID bid = SI().transform(pos);
@@ -629,17 +641,6 @@ bool Wizard::createTracker()
     }
 } */
 
-
-#define mGetSeedPicker() \
-    const int trackerid = mpeserv->getTrackerID( currentobject ); \
-    if ( trackerid == -1 ) \
-	return; \
-    EMTracker* tracker = engine().getTracker( trackerid ); \
-    if ( !tracker ) \
-	return; \
-    EMSeedPicker* seedpicker = tracker->getSeedPicker( true ); \
-    if ( !seedpicker ) \
-	return; 
 
 void Wizard::seedModeChange( CallBacker* )
 {
