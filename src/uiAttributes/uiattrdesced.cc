@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:		$Id: uiattrdesced.cc,v 1.9 2005-10-26 11:00:30 cvsnanne Exp $
+ RCS:		$Id: uiattrdesced.cc,v 1.10 2006-03-10 13:08:47 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "attribdescset.h"
 #include "attribdescsetman.h"
 #include "attribparam.h"
+#include "attribprovider.h"
 #include "iopar.h"
 #include "survinfo.h"
 #include "uiattrfact.h"
@@ -231,6 +232,7 @@ const char* uiAttrDescEd::commit( Attrib::Desc* editdesc )
     if ( !editdesc ) return 0;
 
     getParameters( *editdesc );
+    errmsg = Provider::prepare( *editdesc );
     editdesc->updateParams();
     getInput( *editdesc );
     getOutput( *editdesc );
