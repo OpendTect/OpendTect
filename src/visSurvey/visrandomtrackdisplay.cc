@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          January 2003
- RCS:           $Id: visrandomtrackdisplay.cc,v 1.66 2006-03-09 17:26:20 cvskris Exp $
+ RCS:           $Id: visrandomtrackdisplay.cc,v 1.67 2006-03-10 10:08:43 cvsnanne Exp $
  ________________________________________________________________________
 
 -*/
@@ -393,9 +393,9 @@ void RandomTrackDisplay::setData( int attrib, const SeisTrcBuf& trcbuf )
     for ( int idx=array.info().getTotalSz()-1; idx>=0; idx-- )
 	dataptr[idx] = mUdf(float);
 
-    for ( int trcidx=path.size()-1; trcidx>=0; trcidx-- )
+    for ( int posidx=path.size()-1; posidx>=0; posidx-- )
     {
-	const BinID bid = path[trcidx];
+	const BinID bid = path[posidx];
 	const int trcidx = trcbuf.find( bid, false );
 	if ( trcidx<0 )
 	    continue;
@@ -404,7 +404,7 @@ void RandomTrackDisplay::setData( int attrib, const SeisTrcBuf& trcbuf )
 	if ( !trc )
 	    continue;
 
-	float* arrptr = dataptr + array.info().getMemPos( trcidx, 0 );
+	float* arrptr = dataptr + array.info().getMemPos( posidx, 0 );
 
 	if ( !datatransform_ )
 	{
