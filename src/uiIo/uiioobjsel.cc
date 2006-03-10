@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          25/05/2000
- RCS:           $Id: uiioobjsel.cc,v 1.82 2006-03-01 13:45:46 cvsbert Exp $
+ RCS:           $Id: uiioobjsel.cc,v 1.83 2006-03-10 13:34:02 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -75,7 +75,7 @@ uiIOObjSelGrp::uiIOObjSelGrp( uiParent* p, const CtxtIOObj& c,
     {
 	nmfld = new uiGenInput( this, "Name" );
 	nmfld->attach( alignedBelow, topgrp );
-	nmfld->setElemSzPol( uiObject::smallmax );
+	nmfld->setElemSzPol( uiObject::SmallMax );
 	nmfld->setStretch( 2, 0 );
 
 	const char* nm = ctio.name();

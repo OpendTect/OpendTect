@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.cc,v 1.40 2006-03-08 13:35:43 cvsnanne Exp $
+ RCS:           $Id: uitable.cc,v 1.41 2006-03-10 13:34:02 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -199,8 +199,8 @@ uiTable::uiTable( uiParent* p, const Setup& s, const char* nm )
     clicked.notify( mCB(this,uiTable,clicked_) );
     setGeometry.notify( mCB(this,uiTable,geometrySet_) );
 
-    setHSzPol( uiObject::medvar );
-    setVSzPol( uiObject::smallvar );
+    setHSzPol( uiObject::MedVar );
+    setVSzPol( uiObject::SmallVar );
 
 //    setStretch( s.colgrow_ ? 2 : 1, s.rowgrow_ ? 2 : 1 );
 

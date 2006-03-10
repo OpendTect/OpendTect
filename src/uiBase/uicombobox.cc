@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uicombobox.cc,v 1.37 2006-01-24 19:03:40 cvskris Exp $
+ RCS:           $Id: uicombobox.cc,v 1.38 2006-03-10 13:34:02 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -47,7 +47,7 @@ public:
 				if ( !ed ) setEditable( true );
 				setEditable( ed );
 				setAutoCompletion( ed );
-				setHSzPol( uiObject::medium) ;
+				setHSzPol( uiObject::Medium) ;
 			    }
 
     virtual		~uiComboBoxBody()

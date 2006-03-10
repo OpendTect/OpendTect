@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2001
- RCS:           $Id: uispinbox.cc,v 1.18 2005-11-08 12:44:40 cvsarend Exp $
+ RCS:           $Id: uispinbox.cc,v 1.19 2006-03-10 13:34:02 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -62,7 +62,7 @@ uiSpinBoxBody::uiSpinBoxBody( uiSpinBox& handle, uiParent* p, const char* nm )
     , messenger_(*new i_SpinBoxMessenger(this,&handle))
     , dval(new QDoubleValidator(this,"Validator"))
 {
-    setHSzPol( uiObject::small );
+    setHSzPol( uiObject::Small );
 #ifndef USEQT4
     setValidator( dval );
 #endif

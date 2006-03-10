@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2001
- RCS:           $Id: uiinstantattrib.cc,v 1.2 2005-06-09 13:11:45 cvsnanne Exp $
+ RCS:           $Id: uiinstantattrib.cc,v 1.3 2006-03-10 13:34:02 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,7 +43,7 @@ uiInstantaneousAttrib::uiInstantaneousAttrib( uiParent* p )
     inpfld = getImagInpFld();
 
     outpfld = new uiGenInput( this, "Output", StringListInpSpec(outstrs) );
-    outpfld->setElemSzPol( uiObject::medvar );
+    outpfld->setElemSzPol( uiObject::MedVar );
     outpfld->attach( alignedBelow, inpfld );
 
     setHAlignObj( inpfld );

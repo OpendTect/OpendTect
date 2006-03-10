@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uiconvpos.cc,v 1.15 2005-10-07 10:06:36 cvsnanne Exp $
+ RCS:           $Id: uiconvpos.cc,v 1.16 2006-03-10 13:34:02 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,13 +25,13 @@ uiConvertPos::uiConvertPos( uiParent* p, SurveyInfo* si )
 {
     uiGroup* fldgrp = new uiGroup( this );
     inlfld = new uiGenInput( fldgrp, "In-line", IntInpSpec() );
-    inlfld->setElemSzPol( uiObject::small );
+    inlfld->setElemSzPol( uiObject::Small );
     crlfld = new uiGenInput( fldgrp, "Cross-line", IntInpSpec() );
-    crlfld->setElemSzPol( uiObject::small );
+    crlfld->setElemSzPol( uiObject::Small );
     xfld = new uiGenInput( fldgrp, "X-coordinate", DoubleInpSpec() );
-    xfld->setElemSzPol( uiObject::small );
+    xfld->setElemSzPol( uiObject::Small );
     yfld = new uiGenInput( fldgrp, "Y-coordinate", DoubleInpSpec() );
-    yfld->setElemSzPol( uiObject::small );
+    yfld->setElemSzPol( uiObject::Small );
     crlfld->attach( alignedBelow, inlfld );
     xfld->attach( rightTo, inlfld );
     yfld->attach( alignedBelow, xfld );

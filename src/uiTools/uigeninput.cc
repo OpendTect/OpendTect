@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uigeninput.cc,v 1.72 2006-03-01 13:45:47 cvsbert Exp $
+ RCS:           $Id: uigeninput.cc,v 1.73 2006-03-10 13:34:03 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -207,25 +207,25 @@ protected:
 				update_( spec_ );
 
 				uiObject::SzPolicy hpol =
-					 p_ ? p_->elemSzPol() : uiObject::undef;
+					 p_ ? p_->elemSzPol() : uiObject::Undef;
 
-				if ( hpol == uiObject::undef )
+				if ( hpol == uiObject::Undef )
 				{
 				    int nel = p_ ? p_->nElements() : nElems();
 
 				    switch( spec_.type().rep() )
 				    {
 				    case DataType::stringTp:
-					hpol = nel > 1 ? uiObject::smallvar
-						       : uiObject::medvar;
+					hpol = nel > 1 ? uiObject::SmallVar
+						       : uiObject::MedVar;
 				    break;
 				    case DataType::boolTp:
-					hpol = nel > 1 ? uiObject::smallvar
-						       : uiObject::medvar;
+					hpol = nel > 1 ? uiObject::SmallVar
+						       : uiObject::MedVar;
 				    break;
 				    default:
-					hpol = nel > 1 ? uiObject::small
-						       : uiObject::medium;
+					hpol = nel > 1 ? uiObject::Small
+						       : uiObject::Medium;
 				    break;
 				    }
 				}
@@ -636,7 +636,7 @@ uiGenInput::uiGenInput( uiParent* p, const char* disptxt, const char* inputStr)
     , labl(0), cbox(0), selbut(0), clrbut(0)
     , checked( this ), valuechanging( this ), valuechanged( this )
     , checked_(false), rdonly_(false), rdonlyset_(false)
-    , elemszpol( uiObject::undef )
+    , elemszpol( uiObject::Undef )
 { 
     inputs += new StringInpSpec( inputStr ); 
     mainObject()->finaliseStart.notify( mCB(this,uiGenInput,doFinalise) );
@@ -651,7 +651,7 @@ uiGenInput::uiGenInput( uiParent* p, const char* disptxt
     , labl(0), cbox(0), selbut(0), clrbut(0)
     , checked( this ), valuechanging( this ), valuechanged( this )
     , checked_(false), rdonly_(false), rdonlyset_(false)
-    , elemszpol( uiObject::undef )
+    , elemszpol( uiObject::Undef )
 {
     inputs += inp1.clone();
     mainObject()->finaliseStart.notify( mCB(this,uiGenInput,doFinalise) );
@@ -667,7 +667,7 @@ uiGenInput::uiGenInput( uiParent* p, const char* disptxt
     , labl(0), cbox(0), selbut(0), clrbut(0)
     , checked( this ), valuechanging( this ), valuechanged( this )
     , checked_(false), rdonly_(false), rdonlyset_(false)
-    , elemszpol( uiObject::undef )
+    , elemszpol( uiObject::Undef )
 {
     inputs += inp1.clone();
     inputs += inp2.clone();
@@ -685,7 +685,7 @@ uiGenInput::uiGenInput( uiParent* p, const char* disptxt
     , labl(0), cbox(0), selbut(0), clrbut(0)
     , checked( this ), valuechanging( this ), valuechanged( this )
     , checked_(false), rdonly_(false), rdonlyset_(false)
-    , elemszpol( uiObject::undef )
+    , elemszpol( uiObject::Undef )
 {
     inputs += inp1.clone();
     inputs += inp2.clone();

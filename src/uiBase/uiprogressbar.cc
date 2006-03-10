@@ -31,7 +31,7 @@ public:
 				( handle, parnt,nm)
 			    { 
 				setStretch( 1, 0 );
-				setHSzPol( uiObject::medvar );
+				setHSzPol( uiObject::MedVar );
 				setCenterIndicator( true );
 			    }
 

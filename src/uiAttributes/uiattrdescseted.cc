@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrdescseted.cc,v 1.26 2006-03-03 11:49:20 cvsbert Exp $
+ RCS:           $Id: uiattrdescseted.cc,v 1.27 2006-03-10 13:34:02 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -185,7 +185,7 @@ void uiAttribDescSetEd::createGroups()
     degrp->setHAlignObj( attrtypefld );
 
     attrnmfld = new uiLineEdit( rightgrp );
-    attrnmfld->setHSzPol( uiObject::medmax );
+    attrnmfld->setHSzPol( uiObject::Medium );
     attrnmfld->attach( alignedBelow, degrp );
     attrnmfld->returnPressed.notify( mCB(this,uiAttribDescSetEd,addPush) );
     uiLabel* lbl = new uiLabel( rightgrp, "Attribute name" );

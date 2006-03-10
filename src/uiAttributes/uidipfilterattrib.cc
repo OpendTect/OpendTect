@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2001
- RCS:           $Id: uidipfilterattrib.cc,v 1.6 2005-08-22 15:33:53 cvsnanne Exp $
+ RCS:           $Id: uidipfilterattrib.cc,v 1.7 2006-03-10 13:34:02 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -85,7 +85,7 @@ ui3DFilterAttrib::ui3DFilterAttrib( uiParent* p )
     BufferString lbl( "Min/max " );
     lbl += zIsTime() ? "velocity (m/s)" : "dip (deg)";
     velfld = new uiGenInput( this, lbl, fis, fis );
-    velfld->setElemSzPol( uiObject::small );
+    velfld->setElemSzPol( uiObject::Small );
     velfld->attach( alignedBelow, fltrtpfld );
 
     azifld = new uiGenInput( this, "Azimuth filter", BoolInpSpec() );

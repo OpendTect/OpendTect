@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          October 2005
- RCS:           $Id: uiwellrdmlinedlg.cc,v 1.8 2006-03-01 13:45:47 cvsbert Exp $
+ RCS:           $Id: uiwellrdmlinedlg.cc,v 1.9 2006-03-10 13:34:03 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -98,10 +98,10 @@ void uiWell2RandomLineDlg::createSelectButtons( uiGroup* selbuttons )
     CallBack cb = mCB(this,uiWell2RandomLineDlg,selButPush);
     toselect_ = new uiToolButton( selbuttons, "", pm0, cb );
     toselect_->attach( centeredBelow, sellbl );
-    toselect_->setHSzPol( uiObject::undef );
+    toselect_->setHSzPol( uiObject::Undef );
     fromselect_ = new uiToolButton( selbuttons, "", pm1, cb );
     fromselect_->attach( alignedBelow, toselect_ );
-    fromselect_->setHSzPol( uiObject::undef );
+    fromselect_->setHSzPol( uiObject::Undef );
     selbuttons->setHAlignObj( toselect_ );
 }
 
@@ -115,10 +115,10 @@ void uiWell2RandomLineDlg::createMoveButtons( uiGroup* movebuttons )
     CallBack cb = mCB(this,uiWell2RandomLineDlg,moveButPush);
     moveupward_ = new uiToolButton( movebuttons, "", pm0, cb );
     moveupward_->attach( centeredBelow, movelbl );
-    moveupward_->setHSzPol( uiObject::undef );
+    moveupward_->setHSzPol( uiObject::Undef );
     movedownward_ = new uiToolButton( movebuttons, "", pm1, cb );
     movedownward_->attach( alignedBelow, moveupward_ );
-    movedownward_->setHSzPol( uiObject::undef );
+    movedownward_->setHSzPol( uiObject::Undef );
     movebuttons->setHAlignObj( moveupward_ );
 }
 

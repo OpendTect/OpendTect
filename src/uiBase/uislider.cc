@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2001
- RCS:           $Id: uislider.cc,v 1.23 2006-01-13 15:50:12 cvsnanne Exp $
+ RCS:           $Id: uislider.cc,v 1.24 2006-03-10 13:34:02 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -58,7 +58,7 @@ uiSliderBody::uiSliderBody( uiSlider& handle, uiParent* p, const char* nm )
     , messenger_( *new i_SliderMessenger(this,&handle) )
 {
     setStretch( 1, 0 );
-    setHSzPol( uiObject::medium );
+    setHSzPol( uiObject::Medium );
     setFocusPolicy( mFocus::WheelFocus );
 }
 
@@ -247,7 +247,7 @@ void uiSliderExtra::init( const uiSliderExtra::Setup& setup, const char* nm )
     {
 	slider->valueChanged.notify( mCB(this,uiSliderExtra,sliderMove) );
 	editfld = new uiLineEdit( this, FloatInpSpec() );
-	editfld->setHSzPol( uiObject::small );
+	editfld->setHSzPol( uiObject::Small );
 	editfld->returnPressed.notify( mCB(this,uiSliderExtra,editRetPress) );
 	editfld->attach( rightOf, slider );
 	sliderMove(0);

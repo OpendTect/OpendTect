@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          October 2002
- RCS:           $Id: uiprintscenedlg.cc,v 1.23 2006-02-17 17:27:14 cvsbert Exp $
+ RCS:           $Id: uiprintscenedlg.cc,v 1.24 2006-03-10 13:34:02 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -85,7 +85,7 @@ uiPrintSceneDlg::uiPrintSceneDlg( uiParent* p, SoNode* scene_,
 
     const char* units[] = { "cm", "inches", "pixels", 0 };
     unitfld = new uiGenInput( this, "", StringListInpSpec(units) );
-    unitfld->setElemSzPol( uiObject::small );
+    unitfld->setElemSzPol( uiObject::Small );
     unitfld->valuechanged.notify( mCB(this,uiPrintSceneDlg,unitChg) );
     unitfld->attach( rightTo, wfld );
 
@@ -96,7 +96,7 @@ uiPrintSceneDlg::uiPrintSceneDlg( uiParent* p, SoNode* scene_,
 
     dpifld = new uiGenInput( this, "Resolution (dpi)", 
 	    		     IntInpSpec(mNINT(screendpi)) );
-    dpifld->setElemSzPol( uiObject::small );
+    dpifld->setElemSzPol( uiObject::Small );
     dpifld->valuechanging.notify( mCB(this,uiPrintSceneDlg,dpiChg) );
     dpifld->attach( alignedBelow, hfld );
 

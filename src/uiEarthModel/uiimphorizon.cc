@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          May 2002
- RCS:           $Id: uiimphorizon.cc,v 1.60 2006-03-08 13:35:43 cvsnanne Exp $
+ RCS:           $Id: uiimphorizon.cc,v 1.61 2006-03-10 13:34:02 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -98,7 +98,7 @@ uiImportHorizon::uiImportHorizon( uiParent* p )
 
     stepoutfld = new uiGenInput( midgrp, "Stepout", IntInpSpec() );
     stepoutfld->setValue( sDefStepout );
-    stepoutfld->setElemSzPol( uiObject::small );
+    stepoutfld->setElemSzPol( uiObject::Small );
     stepoutfld->attach( rightTo, interpolfld );
 
     attribbut = new uiPushButton( midgrp, "Attribute &info",

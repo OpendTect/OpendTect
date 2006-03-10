@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          October 2003
- RCS:           $Id: uiwelldlgs.cc,v 1.40 2006-03-01 13:45:47 cvsbert Exp $
+ RCS:           $Id: uiwelldlgs.cc,v 1.41 2006-03-10 13:34:03 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -479,7 +479,7 @@ uiLogSelDlg::uiLogSelDlg( uiParent* p, const Well::LogSet& logs )
     , logset(logs)
 {
     logsfld = new uiLabeledListBox( this, "Select Log" );
-    logsfld->box()->setHSzPol( uiObject::wide );
+    logsfld->box()->setHSzPol( uiObject::Wide );
     logsfld->box()->selectionChanged.notify( mCB(this,uiLogSelDlg,logSel) );
     for ( int idx=0; idx<logs.size(); idx++ )
 	logsfld->box()->addItem( logs.getLog(idx).name() );

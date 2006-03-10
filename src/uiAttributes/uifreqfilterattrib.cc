@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2001
- RCS:           $Id: uifreqfilterattrib.cc,v 1.7 2005-11-22 15:35:15 cvsnanne Exp $
+ RCS:           $Id: uifreqfilterattrib.cc,v 1.8 2006-03-10 13:34:02 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -60,7 +60,7 @@ uiFreqFilterAttrib::uiFreqFilterAttrib( uiParent* p )
 
     FloatInpSpec fis;
     freqfld = new uiGenInput( this, "Min/max frequency(Hz)", fis, fis );
-    freqfld->setElemSzPol( uiObject::small );
+    freqfld->setElemSzPol( uiObject::Small );
     freqfld->setValues( 15, 50 );
     freqfld->attach( alignedBelow, typefld );
 
@@ -69,7 +69,7 @@ uiFreqFilterAttrib::uiFreqFilterAttrib( uiParent* p )
     polesfld->attach( alignedBelow, freqfld );
 
     winfld = new uiGenInput( this, "Window/Taper", StringListInpSpec(winstrs) );
-    winfld->setElemSzPol( uiObject::medvar );
+    winfld->setElemSzPol( uiObject::MedVar );
     winfld->attach( alignedBelow, freqfld );
     winfld->display (false);
 

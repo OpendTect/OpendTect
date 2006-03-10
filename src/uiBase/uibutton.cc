@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uibutton.cc,v 1.28 2006-03-01 13:45:46 cvsbert Exp $
+ RCS:           $Id: uibutton.cc,v 1.29 2006-03-10 13:34:02 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -47,7 +47,7 @@ template< class T > class uiButtonTemplBody : public uiButtonBody,
 			    , idInGroup( 0 )		
 			    { 
 				this->setText(txt); 
-				setHSzPol( uiObject::smallvar );
+				setHSzPol( uiObject::SmallVar );
 			    }
 
 			uiButtonTemplBody(uiButton& handle, 
@@ -62,7 +62,7 @@ template< class T > class uiButtonTemplBody : public uiButtonBody,
 			    , idInGroup( 0 )		
 			    { 
 				this->setText(txt); 
-				setHSzPol( uiObject::smallvar );
+				setHSzPol( uiObject::SmallVar );
 			    }
 
 #define mHANDLE_OBJ	uiButton

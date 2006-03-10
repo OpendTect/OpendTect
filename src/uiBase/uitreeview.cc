@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/01/2002
- RCS:           $Id: uitreeview.cc,v 1.19 2006-01-31 16:50:45 cvshelene Exp $
+ RCS:           $Id: uitreeview.cc,v 1.20 2006-03-10 13:34:02 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -78,7 +78,7 @@ uiListViewBody::uiListViewBody( uiListView& handle, uiParent* parnt,
     , lvhandle_(handle)
 {
     setStretch( 1, ( nrTxtLines()== 1) ? 0 : 1 );
-    setHSzPol( uiObject::medvar ) ;
+    setHSzPol( uiObject::MedVar ) ;
 
     setSorting( -1 );
     setAcceptDrops( TRUE );

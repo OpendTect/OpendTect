@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiobjfileman.cc,v 1.6 2005-09-02 09:52:48 cvsnanne Exp $
+ RCS:           $Id: uiobjfileman.cc,v 1.7 2006-03-10 13:34:02 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -52,7 +52,7 @@ void uiObjFileMan::createDefaultUI( const char* ext )
 
     topgrp = new uiGroup( this, "Top things" );
     listfld = new uiListBox( topgrp, "Objects" );
-    listfld->setHSzPol( uiObject::medvar );
+    listfld->setHSzPol( uiObject::MedVar );
     for ( int idx=0; idx<entrylist->size(); idx++ )
 	listfld->addItem( (*entrylist)[idx]->name() );
     listfld->setCurrentItem(0);

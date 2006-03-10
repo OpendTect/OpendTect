@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2001
- RCS:           $Id: uifrequencyattrib.cc,v 1.5 2005-09-30 15:45:13 cvshelene Exp $
+ RCS:           $Id: uifrequencyattrib.cc,v 1.6 2006-03-10 13:34:02 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -58,11 +58,11 @@ uiFrequencyAttrib::uiFrequencyAttrib( uiParent* p )
     normfld->attach( alignedBelow, gatefld );
 
     winfld = new uiGenInput( this, "Window/Taper", StringListInpSpec(winstrs) );
-    winfld->setElemSzPol( uiObject::medvar );
+    winfld->setElemSzPol( uiObject::MedVar );
     winfld->attach( alignedBelow, normfld ); 
 
     outpfld = new uiGenInput( this, "Output", StringListInpSpec(outpstrs) );
-    outpfld->setElemSzPol( uiObject::widevar );
+    outpfld->setElemSzPol( uiObject::WideVar );
     outpfld->attach( alignedBelow, winfld );
 
     setHAlignObj( inpfld );

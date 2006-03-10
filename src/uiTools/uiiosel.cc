@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          start of 2001
- RCS:           $Id: uiiosel.cc,v 1.41 2006-03-01 13:45:47 cvsbert Exp $
+ RCS:           $Id: uiiosel.cc,v 1.42 2006-03-10 13:34:03 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -61,7 +61,7 @@ uiIOSelect::~uiIOSelect()
 
 void uiIOSelect::stretchHor( bool yn )
 {
-    inp_->box()->setHSzPol( uiObject::medmax );
+    inp_->box()->setHSzPol( uiObject::MedMax );
 }
 
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uilineedit.cc,v 1.22 2005-02-23 14:47:04 cvsarend Exp $
+ RCS:           $Id: uilineedit.cc,v 1.23 2006-03-10 13:34:02 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,7 +44,7 @@ uiLineEditBody::uiLineEditBody( uiLineEdit& handle,uiParent* parnt,
     , messenger_ ( *new i_lineEditMessenger( this, &handle ))
 { 
     setStretch( 1, 0 ); 
-    setHSzPol(uiObject::medium);
+    setHSzPol( uiObject::Medium );
 }
 
 //------------------------------------------------------------------------------

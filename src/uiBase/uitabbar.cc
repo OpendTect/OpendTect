@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          17/01/2002
- RCS:           $Id: uitabbar.cc,v 1.11 2006-02-02 09:52:34 cvsnanne Exp $
+ RCS:           $Id: uitabbar.cc,v 1.12 2006-03-10 13:34:02 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -63,7 +63,7 @@ public:
 			    : muiObjBodyImpl<uiTabBar,QTabBar>(handle,p,nm)
 			    , messenger_( *new i_tabbarMessenger(this, &handle))
 			    {
-				setHSzPol( uiObject::medvar );
+				setHSzPol( uiObject::MedVar );
 			    }
 
     virtual		~uiTabBarBody()	{ delete &messenger_; }

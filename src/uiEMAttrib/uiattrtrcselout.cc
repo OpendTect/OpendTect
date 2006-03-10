@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          September 2005
- RCS:           $Id: uiattrtrcselout.cc,v 1.10 2006-02-22 12:31:57 cvshelene Exp $
+ RCS:           $Id: uiattrtrcselout.cc,v 1.11 2006-03-10 13:34:02 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -178,7 +178,7 @@ void uiAttrTrcSelOut::createZIntervalFld( uiGroup* grp )
 void uiAttrTrcSelOut::createExtraZTopFld( uiGroup* grp )
 {
     extraztopfld = new uiGenInput( grp, "plus", IntInpSpec() );
-    extraztopfld->setElemSzPol(uiObject::small);
+    extraztopfld->setElemSzPol(uiObject::Small);
     extraztopfld->attach( rightOf, objfld );
     extraztopfld->setValue(0);
     uiLabel* toplbl = new uiLabel( grp, SI().getZUnit() );
@@ -189,7 +189,7 @@ void uiAttrTrcSelOut::createExtraZTopFld( uiGroup* grp )
 void uiAttrTrcSelOut::createExtraZBotFld( uiGroup* grp )
 {
     extrazbotfld = new uiGenInput( grp, "plus", IntInpSpec() );
-    extrazbotfld->setElemSzPol(uiObject::small);
+    extrazbotfld->setElemSzPol(uiObject::Small);
     extrazbotfld->attach( rightOf, obj2fld );
     extrazbotfld->setValue(0);
     uiLabel* botlbl = new uiLabel( grp, SI().getZUnit() );

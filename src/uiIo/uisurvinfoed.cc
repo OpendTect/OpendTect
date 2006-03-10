@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvinfoed.cc,v 1.74 2006-03-01 13:45:46 cvsbert Exp $
+ RCS:           $Id: uisurvinfoed.cc,v 1.75 2006-03-10 13:34:02 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -280,17 +280,17 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo* si_ )
 
     trgrp = new uiGroup( this, "I/C to X/Y transformation" );
     x0fld = new uiGenInput ( trgrp, "X = ", DoubleInpSpec() );
-    x0fld->setElemSzPol( uiObject::small );
+    x0fld->setElemSzPol( uiObject::Small );
     xinlfld = new uiGenInput ( trgrp, "+ in-line *", DoubleInpSpec() );
-    xinlfld->setElemSzPol( uiObject::small );
+    xinlfld->setElemSzPol( uiObject::Small );
     xcrlfld = new uiGenInput ( trgrp, "+ cross-line *", DoubleInpSpec() );
-    xcrlfld->setElemSzPol( uiObject::small );
+    xcrlfld->setElemSzPol( uiObject::Small );
     y0fld = new uiGenInput ( trgrp, "Y = ", DoubleInpSpec() );
-    y0fld->setElemSzPol( uiObject::small );
+    y0fld->setElemSzPol( uiObject::Small );
     yinlfld = new uiGenInput ( trgrp, "+ in-line *", DoubleInpSpec() );
-    yinlfld->setElemSzPol( uiObject::small );
+    yinlfld->setElemSzPol( uiObject::Small );
     ycrlfld = new uiGenInput ( trgrp, "+ cross-line *", DoubleInpSpec() );
-    ycrlfld->setElemSzPol( uiObject::small );
+    ycrlfld->setElemSzPol( uiObject::Small );
     overrule= new uiCheckBox( trgrp, "Overrule easy settings" );
     overrule->setChecked( false );
     trgrp->setHAlignObj( xinlfld );

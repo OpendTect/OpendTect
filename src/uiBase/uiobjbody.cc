@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/06/2001
- RCS:           $Id: uiobjbody.cc,v 1.6 2006-03-08 13:38:17 cvsnanne Exp $
+ RCS:           $Id: uiobjbody.cc,v 1.7 2006-03-10 13:34:02 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,8 +50,8 @@ uiObjectBody::uiObjectBody( uiParent* parnt, const char* nm )
     , fnt_wdt( 0 )
     , fnt_maxwdt( 0 )
     , fm( 0 )
-    , hszpol( uiObject::undef )
-    , vszpol( uiObject::undef )
+    , hszpol( uiObject::Undef )
+    , vszpol( uiObject::Undef )
 #ifdef USE_DISPLAY_TIMER
     , displTim( *new Timer("Display timer"))
 { 
@@ -198,7 +198,7 @@ int uiObjectBody::fontWdt( bool max ) const
 void uiObjectBody::setHSzPol( uiObject::SzPolicy pol )
 {
     hszpol = pol;
-    if ( pol >= uiObject::smallmax && pol <= uiObject::widemax )
+    if ( pol >= uiObject::SmallMax && pol <= uiObject::WideMax )
     {
 	int vs = stretch( false, true );
 	setStretch( 2, vs);
@@ -209,7 +209,7 @@ void uiObjectBody::setHSzPol( uiObject::SzPolicy pol )
 void uiObjectBody::setVSzPol( uiObject::SzPolicy pol )
 {
     vszpol = pol;
-    if ( pol >= uiObject::smallmax && pol <= uiObject::widemax )
+    if ( pol >= uiObject::SmallMax && pol <= uiObject::WideMax )
     {
 	int hs = stretch( true, true );
 	setStretch( hs, 2 );
@@ -283,18 +283,18 @@ int uiObjectBody::prefHNrPics() const
 	    bool var=false; 
 	    switch( szPol(true) )
 	    {
-		case uiObject::small:    pwc=baseFldSz;     break;
-		case uiObject::medium:   pwc=2*baseFldSz+1; break;
-		case uiObject::wide:     pwc=4*baseFldSz+3; break;
+		case uiObject::Small:    pwc=baseFldSz;     break;
+		case uiObject::Medium:   pwc=2*baseFldSz+1; break;
+		case uiObject::Wide:     pwc=4*baseFldSz+3; break;
 
-		case uiObject::smallmax:
-		case uiObject::smallvar: pwc=baseFldSz;     var=true; break;
+		case uiObject::SmallMax:
+		case uiObject::SmallVar: pwc=baseFldSz;     var=true; break;
 
-		case uiObject::medmax:
-		case uiObject::medvar:   pwc=2*baseFldSz+1; var=true; break;
+		case uiObject::MedMax:
+		case uiObject::MedVar:   pwc=2*baseFldSz+1; var=true; break;
 
-		case uiObject::widemax:
-		case uiObject::widevar:  pwc=4*baseFldSz+3; var=true; break;
+		case uiObject::WideMax:
+		case uiObject::WideVar:  pwc=4*baseFldSz+3; var=true; break;
 	    }
 
 	    if ( !pwc )
@@ -366,7 +366,7 @@ int uiObjectBody::prefVNrPics() const
 	{ 
 	    const_cast<uiObjectBody*>(this)->getSzHint();
 
-	    if ( nrTxtLines() < 0 && szPol(false) == uiObject::undef  )
+	    if ( nrTxtLines() < 0 && szPol(false) == uiObject::Undef  )
 		const_cast<uiObjectBody*>(this)->pref_height_= pref_height_hint;
 	    else 
 	    {
@@ -379,20 +379,20 @@ int uiObjectBody::prefVNrPics() const
 		bool var=false; 
 		switch( szPol(false) )
 		{
-		    case uiObject::small:    lines=baseFldSz;     break;
-		    case uiObject::medium:   lines=2*baseFldSz+1; break;
-		    case uiObject::wide:     lines=4*baseFldSz+3; break;
+		    case uiObject::Small:    lines=baseFldSz;     break;
+		    case uiObject::Medium:   lines=2*baseFldSz+1; break;
+		    case uiObject::Wide:     lines=4*baseFldSz+3; break;
 
-		    case uiObject::smallmax:
-		    case uiObject::smallvar:
+		    case uiObject::SmallMax:
+		    case uiObject::SmallVar:
 			    lines=baseFldSz; var=true; break;
 
-		    case uiObject::medmax:
-		    case uiObject::medvar: 
+		    case uiObject::MedMax:
+		    case uiObject::MedVar: 
 			    lines=2*baseFldSz+1; var=true; break;
 
-		    case uiObject::widemax:
-		    case uiObject::widevar:
+		    case uiObject::WideMax:
+		    case uiObject::WideVar:
 			    lines=4*baseFldSz+3; var=true; break;
 		}
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2001
- RCS:           $Id: uishiftattrib.cc,v 1.6 2005-12-21 10:53:43 cvsnanne Exp $
+ RCS:           $Id: uishiftattrib.cc,v 1.7 2006-03-10 13:34:02 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,7 +33,7 @@ uiShiftAttrib::uiShiftAttrib( uiParent* p )
     typefld = new uiGenInput( this, "Use", BoolInpSpec(zstr,"Steering") );
     typefld->attach( alignedBelow, stepoutfld );
     typefld->valuechanged.notify( mCB(this,uiShiftAttrib,shiftSel) );
-    typefld->setElemSzPol( uiObject::smallvar );
+    typefld->setElemSzPol( uiObject::SmallVar );
 
     timefld = new uiGenInput( this, shiftLabel(), FloatInpSpec() );
     timefld->attach( alignedBelow, typefld );

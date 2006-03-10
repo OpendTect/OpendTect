@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: uiattrsel.cc,v 1.9 2005-10-25 09:15:46 cvsnanne Exp $
+ RCS:           $Id: uiattrsel.cc,v 1.10 2006-03-10 13:34:02 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -96,7 +96,7 @@ uiAttrSelDlg::uiAttrSelDlg( uiParent* p, const char* seltxt,
     if ( attrdata.shwcubes )
     {
 	storfld = new uiListBox( this, attrinf->ioobjnms );
-	storfld->setHSzPol( uiObject::wide );
+	storfld->setHSzPol( uiObject::Wide );
 	storfld->selectionChanged.notify( mCB(this,uiAttrSelDlg,cubeSel) );
 	storfld->doubleClicked.notify( mCB(this,uiAttrSelDlg,accept) );
 	storfld->attach( rightOf, selgrp );
@@ -111,7 +111,7 @@ uiAttrSelDlg::uiAttrSelDlg( uiParent* p, const char* seltxt,
     if ( haveattribs )
     {
 	attrfld = new uiListBox( this, attrinf->attrnms );
-	attrfld->setHSzPol( uiObject::wide );
+	attrfld->setHSzPol( uiObject::Wide );
 	attrfld->doubleClicked.notify( mCB(this,uiAttrSelDlg,accept) );
 	attrfld->attach( rightOf, selgrp );
     }
@@ -119,7 +119,7 @@ uiAttrSelDlg::uiAttrSelDlg( uiParent* p, const char* seltxt,
     if ( havenlaouts )
     {
 	nlaoutfld = new uiListBox( this, attrinf->nlaoutnms );
-	nlaoutfld->setHSzPol( uiObject::wide );
+	nlaoutfld->setHSzPol( uiObject::Wide );
 	nlaoutfld->doubleClicked.notify( mCB(this,uiAttrSelDlg,accept) );
 	nlaoutfld->attach( rightOf, selgrp );
     }

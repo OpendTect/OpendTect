@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: uilistbox.cc,v 1.63 2005-11-21 12:43:59 cvsarend Exp $
+ RCS:           $Id: uilistbox.cc,v 1.64 2006-03-10 13:34:02 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -79,7 +79,7 @@ uiListBoxBody::uiListBoxBody( uiListBox& handle, uiParent* parnt,
 
     setStretch( 2, (nrTxtLines()== 1) ? 0 : 2 );
 
-    setHSzPol( uiObject::medium);
+    setHSzPol( uiObject::Medium );
 }
 
 
