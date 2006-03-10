@@ -7,13 +7,16 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		Aug 2003
  Contents:	Plugins
- RCS:		$Id: plugins.h,v 1.15 2006-02-24 15:59:03 cvsbert Exp $
+ RCS:		$Id: plugins.h,v 1.16 2006-03-10 08:18:11 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 
 #include "bufstringset.h"
+#ifdef __win__
+#include "windows.h"
+#endif
 
 #ifdef __cpp__
 extern "C" {

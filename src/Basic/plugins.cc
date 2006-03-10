@@ -1,3 +1,15 @@
+/*+
+________________________________________________________________________
+
+ CopyRight:     (C) dGB Beheer B.V.
+ Author:        Bert Bril
+ Date:          Aug 2003
+ RCS:           $Id: plugins.cc,v 1.43 2006-03-10 08:18:16 cvsnanne Exp $
+________________________________________________________________________
+
+-*/
+
+
 #include "plugins.h"
 #include "filepath.h"
 #include "filegen.h"
@@ -6,9 +18,7 @@
 #include "envvars.h"
 #include "oddirs.h"
 
-#ifdef __win__
-#include <Windows.h>
-#else
+#ifndef __win__
 #include <dlfcn.h>
 #endif
 #include <iostream>
@@ -206,7 +216,7 @@ const char* PluginManager::userName( const char* nm ) const
 }
 
 
-static void* getLibHandle( const char* lnm )
+static Handletype getLibHandle( const char* lnm )
 {
     if ( !lnm || !*lnm  )
 	return 0;
@@ -222,6 +232,15 @@ static void* getLibHandle( const char* lnm )
     if ( File_exists(targetlibnm) )
     {
 	ret = LoadLibrary( targetlibnm );
+	if ( !ret )
+	{
+	    char* ptr = NULL;
+	    FormatMessage( FORMAT_MESSAGE_ALLOCATE_BUFFER |
+			   FORMAT_MESSAGE_FROM_SYSTEM, NULL,
+			   GetLastError(), 0, (char* )&ptr, 1024, NULL );
+	    std::cerr << ptr << std::endl;
+	}
+    }
 
 #else
 
@@ -229,11 +248,11 @@ static void* getLibHandle( const char* lnm )
     {
 	ret = dlopen( lnm, RTLD_GLOBAL | RTLD_NOW );
 
-#endif
 	if ( !ret )
 	    std::cerr << dlerror() << std::endl;
     }
 
+#endif
 
     if( DBG::isOn(DBG_SETTINGS) )
     {
@@ -246,7 +265,7 @@ static void* getLibHandle( const char* lnm )
 }
 
 
-static void closeLibHandle( void*& handle )
+static void closeLibHandle( Handletype& handle )
 {
     if ( !handle ) return;
 #ifdef __win__
@@ -409,7 +428,11 @@ bool PluginManager::load( const char* libnm )
     FilePath fp( libnm );
     const BufferString libnmonly( fp.fileName() );
     if ( !loadPlugin(data->handle_,argc_,argv_,libnmonly) )
-	{ closeLibHandle(data->handle_); delete data; return false; }
+    {
+	closeLibHandle( data->handle_ );
+	delete data;
+	return false;
+    }
 
     data->info_ = getPluginInfo( data->handle_, libnmonly );
     data_ += data;
@@ -432,7 +455,7 @@ void PluginManager::loadAuto( bool late )
 	if ( !loadPlugin(data.handle_,argc_,argv_,data.name_) )
 	{
 	    data.info_ = 0;
-	    closeLibHandle(data.handle_);
+	    closeLibHandle( data.handle_ );
 	}
 
 	static bool shw_load = GetEnvVarYN( "OD_SHOW_PLUGIN_LOAD" );
