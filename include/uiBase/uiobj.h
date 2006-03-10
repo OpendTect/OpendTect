@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          25/08/1999
- RCS:           $Id: uiobj.h,v 1.39 2006-03-10 13:34:02 cvsbert Exp $
+ RCS:           $Id: uiobj.h,v 1.40 2006-03-10 13:39:51 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,10 +16,6 @@ ________________________________________________________________________
 #include "uigeom.h"
 #include "uilayout.h"
 #include "errh.h"
-
-#ifdef __win__
-# undef small
-#endif
 
 #include <stdlib.h>
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: thread.h,v 1.20 2004-11-29 11:05:41 bert Exp $
+ RCS:		$Id: thread.h,v 1.21 2006-03-10 13:39:51 cvsbert Exp $
 ________________________________________________________________________
 
 */
@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "callback.h"
 #ifdef __win__
 # include "pthreadwin.h"
-# undef small
 #else
 # include <pthread.h>
 #endif
