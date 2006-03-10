@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.cc,v 1.74 2006-03-07 12:46:56 cvsnanne Exp $
+ RCS:           $Id: uimpeman.cc,v 1.75 2006-03-10 16:54:31 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,6 +21,7 @@ ________________________________________________________________________
 #include "emseedpicker.h"
 #include "emsurfacegeometry.h"
 #include "emtracker.h"
+#include "horizonseedpicker.h"
 #include "mpeengine.h"
 #include "oddirs.h"
 #include "pixmap.h"
@@ -79,6 +80,7 @@ uiMPEMan::uiMPEMan( uiParent* p, uiVisPartServer* ps )
     , seedclickobject( -1 )
     , blockattribsel( false )
     , didtriggervolchange( false )
+    , seedpickwason( false )
 {
     seedidx = mAddButton( "seedpickmode.png", seedModeCB, "Create seed", true );
     addSeparator();
@@ -199,7 +201,7 @@ void uiMPEMan::deleteVisObjects()
 void uiMPEMan::seedClick( CallBacker* )
 {
     MPE::Engine& engine = MPE::engine();
-    MPE::EMTracker* tracker = engine.getTracker( engine.highestTrackerID() );
+    MPE::EMTracker* tracker = getSelectedTracker();
     if ( !tracker )
 	return;
 
@@ -207,38 +209,39 @@ void uiMPEMan::seedClick( CallBacker* )
     if ( !emobject )
 	return;
 
-    if ( clickcatcher && clickcatcher->ctrlClickedNode().objectID() != -1 )
+    if ( clickcatcher && clickcatcher->ctrlClickedNode().objectID()!=-1 )
     {
 	const EM::PosID pid = clickcatcher->ctrlClickedNode();
-	if ( seedpicker->canRemoveSeed() && pid.objectID()==emobject->id() )
+	if ( seedpicker && seedpicker->canRemoveSeed() && 
+					     pid.objectID()==emobject->id() )
 	    seedpicker->removeSeed( pid );
 	return;
     }
 
-    const int clickedobject = 
-			clickcatcher ? clickcatcher->clickedObjectID() : -1;
+    const int clickedobject = clickcatcher ? 
+			      clickcatcher->clickedObjectID() : -1 ;
     if ( clickedobject==-1 )
 	return;
 
     if ( seedclickobject==-1 )
     {
+	didtriggervolchange = false;
 	seedpicker = tracker->getSeedPicker(true);
 	if ( !seedpicker || !seedpicker->canSetSectionID() ||
-	     !seedpicker->setSectionID(emobject->sectionID(0)) ||
-	     !seedpicker->startSeedPick() )
+	     !seedpicker->setSectionID(emobject->sectionID(0)) )
 	{
 	    seedpicker = 0;
 	    return;
 	}
+	oldactivevol = engine.activeVolume(); 
     }
+    
     const CubeSampling newvolume = clickcatcher->clickedObjectCS();
     if ( newvolume.isEmpty() )
 	return;
-
+    
     if ( newvolume != engine.activeVolume() )
     {
-	didtriggervolchange = false;
-	oldactivevol = engine.activeVolume(); 
 	NotifyStopper notifystopper( engine.activevolumechange );
 	engine.setActiveVolume( newvolume );
 	notifystopper.restore();
@@ -246,6 +249,7 @@ void uiMPEMan::seedClick( CallBacker* )
 
 	RefMan<const Attrib::DataCubes> cached = 
 	    				clickcatcher->clickedObjectData();
+
 	if ( cached )
 	{
 	    cached->ref();
@@ -260,12 +264,6 @@ void uiMPEMan::seedClick( CallBacker* )
 	    displays[idx]->turnOn( false );
 
 	engine.activevolumechange.trigger();
-/*
-	EM::History& history = EM::EMM().history(); 
-	const int cureventnr = history.currentEventNr(); 
-	if ( cureventnr>=history.firstEventNr() )
-	    history.setLevel( cureventnr, mEMHistoryUserInteractionLevel );
-*/
     }
 
     if ( !seedpicker )
@@ -334,10 +332,15 @@ void uiMPEMan::updateAttribNames()
     if ( !init && attribfld->size()>1 && attribspecs.size() &&
 	 engine().getAttribCache(*attribspecs[0]) )
     {
-	init = true;
-	engine().setTrackMode( TrackPlane::Extend );
-	showTracker( true );
-	attribfld->setCurrentItem( (int)1 );
+	MPE::EMTracker* tracker = getSelectedTracker();
+	seedpicker = tracker ? tracker->getSeedPicker(true) : 0;
+	if ( !seedpicker || seedpicker->isInVolumeMode() )
+	{
+	    init = true;
+	    engine().setTrackMode( TrackPlane::Extend );
+	    showTracker( true );
+	    attribfld->setCurrentItem( (int)1 );
+	}
     }
 
     updateButtonSensitivity(0);
@@ -558,7 +561,8 @@ void uiMPEMan::mouseEraseModeCB( CallBacker* )
 
 void uiMPEMan::seedModeCB( CallBacker* )
 {
-    if ( clickcatcher ) clickcatcher->turnOn( isOn(seedidx) );
+    turnSeedPickingOn( isOn(seedidx) );
+
 //    if ( isOn( seedidx ) )
 //	visserv->sendAddSeedEvent();
 }
@@ -582,6 +586,22 @@ void uiMPEMan::redoPush( CallBacker* )
 }
 
 
+MPE::EMTracker* uiMPEMan::getSelectedTracker() const
+{
+    const TypeSet<int>& selectedids = visBase::DM().selMan().selected();
+    if ( selectedids.size()!=1 )
+	return 0;
+    const MultiID mid = visserv->getMultiID(selectedids[0]);
+    if ( mid==-1 )
+	return 0;
+    const EM::ObjectID oid = EM::EMM().getObjectID(mid);
+    const int trackerid = MPE::engine().getTrackerByObject(oid);
+    if ( trackerid==-1 )
+	return 0;
+    return MPE::engine().getTracker( trackerid );
+}
+
+
 void uiMPEMan::updateButtonSensitivity( CallBacker* ) 
 {
     //Undo/Redo
@@ -589,35 +609,47 @@ void uiMPEMan::updateButtonSensitivity( CallBacker* )
     uiToolBar::setSensitive( redoidx, EM::EMM().history().canReDo() );
 
     //Seed button
-//    bool hastracker = false;
-    bool hastracker = true;
-    const TypeSet<int>& selectedids = visBase::DM().selMan().selected();
-    if ( selectedids.size()==1 )
+
+    MPE::EMTracker* tracker = getSelectedTracker();
+
+    uiToolBar::setSensitive( seedidx, tracker );
+
+    if ( !tracker && isOn(seedidx) )
     {
-	const MultiID mid = visserv->getMultiID(selectedids[0]);
-	if ( !(mid==-1) )
-	{
-	    const EM::ObjectID oid = EM::EMM().getObjectID(mid);
-	    const int trackerid = MPE::engine().getTrackerByObject(oid);
-	    if ( trackerid!=-1 ) hastracker = true;
-	}
+	turnSeedPickingOn( false );
+	seedpickwason = true;
     }
+    if ( isOn(seedidx) )
+	seedpickwason = false;
+    if ( tracker && seedpickwason )
+	turnSeedPickingOn( true );
 
-    uiToolBar::setSensitive( seedidx, hastracker );
-
+    seedpicker = tracker ? tracker->getSeedPicker(true) : 0 ;
+    const bool isvoltrack = seedpicker ? seedpicker->isInVolumeMode() : true ; 
+    
+    uiToolBar::setSensitive( undoidx, isvoltrack );
+    uiToolBar::setSensitive( redoidx, isvoltrack );
+    uiToolBar::setSensitive( extendidx, isvoltrack );
+    uiToolBar::setSensitive( retrackidx, isvoltrack );
+    uiToolBar::setSensitive( eraseidx, isvoltrack );
+    uiToolBar::setSensitive( moveplaneidx, isvoltrack );
+    uiToolBar::setSensitive( showcubeidx, isvoltrack );
+    uiToolBar::setSensitive( trackinvolidx, isvoltrack );
+    
     //Track forward, backward, attrib, trans, nrstep
     mGetDisplays(false);
     const bool trackerisshown = displays.size() &&
 				displays[0]->isDraggerShown();
-    uiToolBar::setSensitive( trackforwardidx, trackerisshown );
-    uiToolBar::setSensitive( trackbackwardidx, trackerisshown );
-    attribfld->setSensitive( trackerisshown );
-    transfld->setSensitive( trackerisshown );
-    nrstepsbox->setSensitive( trackerisshown );
+
+    uiToolBar::setSensitive( trackforwardidx, trackerisshown && isvoltrack );
+    uiToolBar::setSensitive( trackbackwardidx, trackerisshown && isvoltrack );
+    attribfld->setSensitive( trackerisshown && isvoltrack );
+    transfld->setSensitive( trackerisshown && isvoltrack );
+    nrstepsbox->setSensitive( trackerisshown && isvoltrack );
 
     //coltab
     uiToolBar::setSensitive( clrtabidx, trackerisshown && !colbardlg &&
-			     attribfld->currentItem()>0 );
+			     attribfld->currentItem()>0 && isvoltrack );
 
 
     //trackmode buttons
