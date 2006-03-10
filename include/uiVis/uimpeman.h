@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.h,v 1.27 2005-10-26 22:04:42 cvskris Exp $
+ RCS:           $Id: uimpeman.h,v 1.28 2006-03-10 16:09:32 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,8 +17,8 @@ ________________________________________________________________________
 #include "menuhandler.h"
 
 namespace EM { class EMManager; };
-namespace MPE { class EMSeedPicker; };
-namespace visSurvey { class MPEDisplay; class MPEClickCatcher;}
+namespace MPE { class EMSeedPicker; class EMTracker; };
+namespace visSurvey { class MPEDisplay; class MPEClickCatcher; }
 namespace Geometry  { class Element; };
 namespace visSurvey { class PickSetDisplay; }
 
@@ -107,8 +107,12 @@ protected:
     bool			trackerwasonbeforemouseerase;
 
     bool			init;
+    bool			seedpickwason;
 
     static const char*		sKeyNoAttrib() { return "No attribute"; }
+
+private:
+    MPE::EMTracker*		getSelectedTracker() const; 
 };
 
 #endif
