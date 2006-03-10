@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: attribsel.cc,v 1.12 2006-03-08 13:48:50 cvsnanne Exp $
+ RCS:           $Id: attribsel.cc,v 1.13 2006-03-10 11:13:48 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -127,7 +127,8 @@ void SelSpec::setIDFromRef( const DescSet& ds )
     BufferString attribname;
     if ( Desc::getAttribName( defstring_.buf(), attribname ) )
     {
-	if ( strcmp( attribname, ds.getDesc(id_)->attribName() ) )
+	if ( ds.getDesc(id_) && 
+	     strcmp( attribname, ds.getDesc(id_)->attribName() ) )
 	    id_ = ds.getID( defstring_, false );
     }
      /*TODO: make it work 100% : doesn't work if attribute and stored data 

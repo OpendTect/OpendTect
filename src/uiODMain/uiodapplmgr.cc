@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.122 2006-03-08 18:19:53 cvskris Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.123 2006-03-10 11:13:48 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -401,7 +401,13 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
 		    Attrib::ExtAttribCalcFact::getInstance().
 		    	createCalculator(myas);
 
-		if ( !calc ) return false;
+		if ( !calc )
+		{
+		    BufferString errstr = "Selected attribute is not present ";
+		    errstr += "in the set\n and cannot be created";
+		    uiMSG().error( errstr );
+		    return false;
+		}
 
 		RefMan<const Attrib::DataCubes> newdata =
 		    calc->createAttrib( cs, cache );
