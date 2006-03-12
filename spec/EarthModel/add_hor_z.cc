@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2004
- RCS:           $Id: add_hor_z.cc,v 1.1 2005-12-21 16:39:17 cvsdgb Exp $
+ RCS:           $Id: add_hor_z.cc,v 1.2 2006-03-12 20:44:59 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,6 +22,7 @@ ________________________________________________________________________
 #include "ptrman.h"
 #include "survinfo.h"
 #include "executor.h"
+#include "keystrs.h"
 #include <iostream>
 
 static int prUsage( const char* msg = 0 )
@@ -80,7 +81,7 @@ static int doWork( int argc, char** argv )
 
 	BufferString str;
 	str += c.x; str += "\t"; str += c.y; str += "\t";
-	if ( isudf )	str += sUndefValue;
+	if ( isudf )	str += sKey::FloatUdf;
 	else		str += positions[0].z;
 	*sd.ostrm << str << std::endl;
     }
