@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: welllog.h,v 1.12 2005-08-31 13:09:47 cvsbert Exp $
+ RCS:		$Id: welllog.h,v 1.13 2006-03-12 13:39:10 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -26,7 +26,7 @@ public:
 
 			Log( const char* nm=0 )
 			: DahObj(nm)
-			, range_(mUndefValue,-mUndefValue)
+			, range_(mUdf(float),-mUdf(float))
 			, displogrthm_(false)		{}
 			Log( const Log& t )
 			: DahObj("")			{ *this = t; }

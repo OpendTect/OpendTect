@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Jan 2003
- RCS:           $Id: vistexture2.cc,v 1.33 2005-03-11 12:25:59 cvskris Exp $
+ RCS:           $Id: vistexture2.cc,v 1.34 2006-03-12 13:39:11 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -131,7 +131,7 @@ bool Texture2::isDataClassified( const Array2D<float>* newdata ) const
 	for ( int x1=0; x1<datax1size; x1++ )
 	{
 	    const float val = newdata->get( x0, x1 );
-	    if ( mIsUndefined(val) ) continue;
+	    if ( mIsUdf(val) ) continue;
 	    const int ival = mNINT(val);
 	    if ( !mIsEqual(val,ival,mDefEps)
 	      || ival > sMaxNrClasses ) return false;
@@ -152,7 +152,7 @@ void Texture2::polyInterp( const Array2DInfoImpl& newsize,
     const float x0step = (datax0size-1)/(float)(x0sz-1);
     const float x1step = (datax1size-1)/(float)(x1sz-1);
 
-    float val; const float udf = mUndefValue;
+    float val; const float udf = mUdf(float);
     for ( int x0=0; x0<x0sz; x0++ )
     {
 	const float x0pos=x0*x0step;
@@ -196,16 +196,13 @@ void Texture2::polyInterp( const Array2DInfoImpl& newsize,
 	    const float v32 = x0p2udf || x1p1udf ? udf
 		: newdata->get( x0idx+2, x1idx+1 );
 
-	    if ( mIsUndefined(v11) || mIsUndefined(v12) ||
-		 mIsUndefined(v21) || mIsUndefined(v22) )
+	    if ( mIsUdf(v11) || mIsUdf(v12) || mIsUdf(v21) || mIsUdf(v22) )
 	    {
 		val = x0relpos > 0.5 ? ( x1relpos > 0.5 ? v22 : v21 )
 		    		     : ( x1relpos > 0.5 ? v12 : v11 );
 	    }
-	    else if ( mIsUndefined(v01) || mIsUndefined(v02) ||
-		      mIsUndefined(v10) || mIsUndefined(v13) ||
-		      mIsUndefined(v20) || mIsUndefined(v23) ||
-		      mIsUndefined(v31) || mIsUndefined(v32) )
+	    else if ( mIsUdf(v01) || mIsUdf(v02) || mIsUdf(v10) || mIsUdf(v13)||
+		      mIsUdf(v20) || mIsUdf(v23) || mIsUdf(v31) || mIsUdf(v32) )
 	    {
 		val = linearInterpolate2D( v11, v12, v21, v22,
 					   x0relpos, x1relpos );

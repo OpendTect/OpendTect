@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uigroup.cc,v 1.51 2005-08-29 11:10:09 cvsbert Exp $
+ RCS:           $Id: uigroup.cc,v 1.52 2006-03-12 13:39:11 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -287,7 +287,7 @@ void uiGroupObjBody::reDraw( bool deep )
 int uiGroupObjBody::stretch( bool hor, bool ) const
 {
     int s = uiObjectBody::stretch( hor, true ); // true: can be undefined
-    if( s != mUndefIntVal ) return s;
+    if( !mIsUdf(s) ) return s;
 
     if( prntbody_->loMngr )
     {

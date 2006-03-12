@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: wellwriter.cc,v 1.7 2004-05-14 14:10:39 bert Exp $";
+static const char* rcsID = "$Id: wellwriter.cc,v 1.8 2006-03-12 13:39:11 cvsbert Exp $";
 
 #include "wellwriter.h"
 #include "welldata.h"
@@ -135,23 +135,23 @@ bool Well::Writer::putLog( std::ostream& strm, const Well::Log& wl ) const
     for ( ; wrintv.start<wl.size(); wrintv.start++ )
     {
 	dah = wl.dah(wrintv.start); val = wl.value(wrintv.start);
-	if ( !mIsUndefined(dah) && !mIsUndefined(val) )
+	if ( !mIsUdf(dah) && !mIsUdf(val) )
 	    break;
     }
     for ( ; wrintv.stop>=0; wrintv.stop-- )
     {
 	dah = wl.dah(wrintv.stop); val = wl.value(wrintv.stop);
-	if ( !mIsUndefined(dah) && !mIsUndefined(val) )
+	if ( !mIsUdf(dah) && !mIsUdf(val) )
 	    break;
     }
 
     for ( int idx=wrintv.start; idx<=wrintv.stop; idx++ )
     {
 	dah = wl.dah(idx); val = wl.value(idx);
-	if ( mIsUndefined(dah) )
+	if ( mIsUdf(dah) )
 	    continue;
-	if ( mIsUndefined(val) )
-	    strm << dah << '\t' << sUndefValue << '\n';
+	if ( mIsUdf(val) )
+	    strm << dah << '\t' << sKey::FloatUdf << '\n';
 	else
 	    strm << dah << '\t' << val << '\n';
     }

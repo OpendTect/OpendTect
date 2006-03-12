@@ -5,7 +5,7 @@
  * FUNCTION : Seismic trace functions
 -*/
 
-static const char* rcsID = "$Id: seistrcprop.cc,v 1.13 2005-05-20 11:50:10 cvsbert Exp $";
+static const char* rcsID = "$Id: seistrcprop.cc,v 1.14 2006-03-12 13:39:10 cvsbert Exp $";
 
 #include "seistrcprop.h"
 #include "seistrc.h"
@@ -38,7 +38,7 @@ ValueSeriesEvent<float,float> SeisTrcPropCalc::find( VSEvent::Type typ,
 void SeisTrcPropChg::stack( const SeisTrc& trc2, bool alongpick )
 {
     float pick = trc2.info().pick;
-    if ( alongpick && (Values::isUdf(pick) || Values::isUdf(trc.info().pick)) )
+    if ( alongpick && (mIsUdf(pick) || mIsUdf(trc.info().pick)) )
 	alongpick = NO;
     float diff;
     if ( alongpick )
@@ -221,7 +221,7 @@ float SeisTrcPropCalc::getFreq( int isamp ) const
     mFlValSerEv ev1 = find( VSEvent::Extr, tg, 1 );
     tg.start = mypos+2*trc.info().sampling.step; tg.stop = endpos;
     mFlValSerEv ev2 = find( VSEvent::Extr, tg, 1 );
-    if ( Values::isUdf(ev1.pos) || Values::isUdf(ev2.pos) )
+    if ( mIsUdf(ev1.pos) || mIsUdf(ev2.pos) )
 	return mUdf(float);
 
     // If my sample is an extreme, the events are exactly at a wavelength
@@ -242,9 +242,9 @@ float SeisTrcPropCalc::getFreq( int isamp ) const
 
     // Guess where they would have been when not found
     float dpos = ev2.pos - ev1.pos;
-    if ( Values::isUdf(ev0.pos) )
+    if ( mIsUdf(ev0.pos) )
 	ev0.pos = ev1.pos - dpos;
-    if ( Values::isUdf(ev3.pos) )
+    if ( mIsUdf(ev3.pos) )
 	ev3.pos = ev2.pos + dpos;
 
     // ... and create a weigthed wavelength
@@ -283,10 +283,8 @@ void SeisTrcPropChg::topMute( float mpos, float taperlen )
     int endidx = trc.size() - 1;
     if ( mpos > trc.samplePos(endidx) )
 	mpos = trc.samplePos(endidx);
-    if ( taperlen < 0 || Values::isUdf(taperlen) )
+    if ( taperlen < 0 || mIsUdf(taperlen) )
 	taperlen = 0;
-//  if ( !Values::isUdf(trc.info().mute_pos) && trc.info().mute_pos >= mpos )
-//	return;
 
     mtrc().info().mute_pos = mpos;
     mtrc().info().taper_length = taperlen;
@@ -324,10 +322,8 @@ void SeisTrcPropChg::tailMute( float mpos, float taperlen )
     if ( mpos < trc.startPos() )
 	mpos = trc.startPos();
 
-    if ( taperlen < 0 || Values::isUdf(taperlen) )
+    if ( taperlen < 0 || mIsUdf(taperlen) )
 	taperlen = 0;
-//  if ( !Values::isUdf(trc.info().mute_pos) && trc.info().mute_pos >= mpos )
-//	return;
 
     mtrc().info().mute_pos = mpos;
     mtrc().info().taper_length = taperlen;
@@ -371,7 +367,7 @@ double SeisTrcPropCalc::corr( const SeisTrc& t2, const SampleGate& sgin,
 
     float p1 = trc.info().pick;
     float p2 = t2.info().pick;
-    if ( alpick && (Values::isUdf(p1) || Values::isUdf(p2)) )
+    if ( alpick && (mIsUdf(p1) || mIsUdf(p2)) )
 	return mUdf(double);
 
     for ( int idx=sg.start; idx<=sg.stop; idx++ )
@@ -402,7 +398,7 @@ double SeisTrcPropCalc::dist( const SeisTrc& t2, const SampleGate& sgin,
 
     float p1 = trc.info().pick;
     float p2 = t2.info().pick;
-    if ( alpick && (Values::isUdf(p1) || Values::isUdf(p2)) )
+    if ( alpick && (mIsUdf(p1) || mIsUdf(p2)) )
 	return mUdf(double);
 
     for ( int idx=sg.start; idx<=sg.stop; idx++ )

@@ -4,7 +4,7 @@
  * DATE     : Feb 2004
 -*/
 
-static const char* rcsID = "$Id: seisscanner.cc,v 1.28 2006-02-20 18:49:49 cvsbert Exp $";
+static const char* rcsID = "$Id: seisscanner.cc,v 1.29 2006-03-12 13:39:10 cvsbert Exp $";
 
 #include "seisscanner.h"
 #include "seisinfo.h"
@@ -151,7 +151,7 @@ void SeisScanner::report( IOPar& iopar ) const
 	iopar.set( "Z.step", cs.zrg.step );
     }
 
-    if ( !Values::isUdf(valrg.start) )
+    if ( !mIsUdf(valrg.start) )
     {
 	iopar.add( "->", "Data values" );
 	iopar.set( "Minimum value", valrg.start );
@@ -159,7 +159,7 @@ void SeisScanner::report( IOPar& iopar ) const
 	iopar.set( "Median value", distribvals[nrdistribvals/2] );
 	iopar.set( "1/4 value", distribvals[nrdistribvals/4] );
 	iopar.set( "3/4 value", distribvals[3*nrdistribvals/4] );
-	if ( !Values::isUdf(invalidsamplebid.inl) )
+	if ( !mIsUdf(invalidsamplebid.inl) )
 	{
 	    iopar.set( "First invalid value at", invalidsamplebid );
 	    iopar.set( "First invalid value sample number", invalidsamplenr );
@@ -341,7 +341,7 @@ bool SeisScanner::doValueWork()
    if ( nullstart-1 > nonnullsamplerg.stop )
        nonnullsamplerg.stop = nullstart - 1;
 
-    bool needinitvalrg = Values::isUdf(valrg.start);
+    bool needinitvalrg = mIsUdf(valrg.start);
     for ( int idx=0; idx<nullstart; idx++ )
     {
 	float val = trc.get(idx,0);

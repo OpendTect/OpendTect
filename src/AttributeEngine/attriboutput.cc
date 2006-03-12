@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attriboutput.cc,v 1.41 2005-12-12 18:11:13 cvsbert Exp $";
+static const char* rcsID = "$Id: attriboutput.cc,v 1.42 2006-03-12 13:39:10 cvsbert Exp $";
 
 #include "attriboutput.h"
 #include "attribdataholder.h"
@@ -22,6 +22,7 @@ static const char* rcsID = "$Id: attriboutput.cc,v 1.41 2005-12-12 18:11:13 cvsb
 #include "ptrman.h"
 #include "linekey.h"
 #include "scaler.h"
+#include "keystrs.h"
 
 
 namespace Attrib

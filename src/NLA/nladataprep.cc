@@ -4,7 +4,7 @@
  * DATE     : May 2005
 -*/
  
-static const char* rcsID = "$Id: nladataprep.cc,v 1.2 2005-05-18 15:20:47 cvsbert Exp $";
+static const char* rcsID = "$Id: nladataprep.cc,v 1.3 2006-03-12 13:39:10 cvsbert Exp $";
 
 #include "nladataprep.h"
 #include "binidvalset.h"
@@ -27,13 +27,13 @@ void NLADataPreparer::removeUndefs( bool targetonly )
     while ( bvs_.next(pos) )
     {
 	float* vals = bvs_.getVals( pos );
-	if ( targetonly && Values::isUdf(vals[targetcol_]) )
+	if ( targetonly && mIsUdf(vals[targetcol_]) )
 	    poss += pos;
 	else
 	{
 	    for ( int idx=0; idx<bvs_.nrVals(); idx++ )
 	    {
-		if ( Values::isUdf(vals[idx]) )
+		if ( mIsUdf(vals[idx]) )
 		    { poss += pos; break; }
 	    }
 	}
@@ -76,7 +76,7 @@ void NLADataPreparer::balance( const NLADataPreparer::BalanceSetup& setup )
     {
 	const float* vals = bvs_.getVals( pos );
 	float val = vals[targetcol_];
-	if ( mIsUndefined(val) ) continue;
+	if ( mIsUdf(val) ) continue;
 
 	float relpos = (val-targetrg.start) / targetrgwdth;
 	relpos *= setup.nrclasses; relpos -= 0.5;

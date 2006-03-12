@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: cbvsreader.cc,v 1.65 2006-01-06 13:28:30 cvsbert Exp $";
+static const char* rcsID = "$Id: cbvsreader.cc,v 1.66 2006-03-12 13:39:10 cvsbert Exp $";
 
 /*!
 
@@ -643,7 +643,7 @@ bool CBVSReader::getAuxInfo( PosAuxInfo& auxinf )
     auxinf.coord = info_.geom.b2c.transform( curbinid_ );
     auxinf.startpos = info_.sd.start;
     auxinf.offset = auxinf.azimuth = 0;
-    auxinf.pick = auxinf.refpos = mUndefValue;
+    auxinf.pick = mSetUdf(auxinf.refpos);
 
     if ( !auxnrbytes )
 	return true;

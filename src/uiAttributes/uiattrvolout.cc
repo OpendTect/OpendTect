@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:		$Id: uiattrvolout.cc,v 1.18 2006-03-08 16:20:13 cvsbert Exp $
+ RCS:		$Id: uiattrvolout.cc,v 1.19 2006-03-12 13:39:11 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,6 +37,7 @@ ________________________________________________________________________
 #include "binidselimpl.h"
 #include "scaler.h"
 #include "cubesampling.h"
+#include "keystrs.h"
 
 using namespace Attrib;
 

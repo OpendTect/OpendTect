@@ -9,7 +9,7 @@
 -----------------------------------------------------------------------------
 */
 
-static const char* rcsID = "$Id: houghtransform.cc,v 1.6 2003-11-24 08:38:13 kristofer Exp $";
+static const char* rcsID = "$Id: houghtransform.cc,v 1.7 2006-03-12 13:39:10 cvsbert Exp $";
 
 
 #include "houghtransform.h"
@@ -128,7 +128,7 @@ void PlaneFrom3DSpaceHoughTransform::setData( const Array3D<float>* data )
     int nrsamples = 0;
     for ( int idx=0; idx<datasize; idx++ )
     {
-	if ( mIsUndefined( dataptr[idx] ) )
+	if ( mIsUdf( dataptr[idx] ) )
 	    continue;
 
 	indexes[nrsamples]= idx;

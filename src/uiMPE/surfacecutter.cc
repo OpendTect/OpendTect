@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          March 2005
- RCS:           $Id: surfacecutter.cc,v 1.7 2005-10-18 19:13:10 cvskris Exp $
+ RCS:           $Id: surfacecutter.cc,v 1.8 2006-03-12 13:39:11 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -92,7 +92,7 @@ bool SurfaceCutter::doTerminate( bool positiveside )
 	if ( cs.hrg.includes(rc) )
 	{
 	    cuttedsurf->setPos( cuttedsectionid_, rc.getSerialized(), 
-		    			 Coord3(0,0,mUndefValue), true );
+		    			 Coord3(0,0,mUdf(double)), true );
 	    continue;
 	}
 	

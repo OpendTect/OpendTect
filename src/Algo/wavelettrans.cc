@@ -4,7 +4,7 @@
  * DATE     : Mar 2000
 -*/
 
-static const char* rcsID = "$Id: wavelettrans.cc,v 1.13 2004-12-23 17:11:52 nanne Exp $";
+static const char* rcsID = "$Id: wavelettrans.cc,v 1.14 2006-03-12 13:39:10 cvsbert Exp $";
 
 
 #include "wavelettrans.h"
@@ -640,7 +640,7 @@ int CWT::getNrScales( int nrsamples ) const
 float CWT::getFrequency( int nrsamples, float dt_, int scaleidx ) const
 {
     if ( !nrsamples || mIsZero(dt_,mDefEps) )
-	return mUndefValue;
+	return mUdf(float);
 
     const float df = 1. / ( dt_ * nrsamples );
 
@@ -665,7 +665,7 @@ float CWT::getFrequency( int nrsamples, float dt_, int scaleidx ) const
 float CWT::getScale( int nrsamples, float dt_, float freq ) const
 {
     if ( !nrsamples || mIsZero(dt_,mDefEps) )
-	return mUndefValue;
+	return mUdf(float);
 
     const float df = 1. / ( dt_ * nrsamples );
     const float freqidx = freq / df;

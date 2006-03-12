@@ -4,7 +4,7 @@
  * DATE     : Jul 2005
 -*/
 
-static const char* rcsID = "$Id: picksettr.cc,v 1.1 2005-07-27 09:23:35 cvsbert Exp $";
+static const char* rcsID = "$Id: picksettr.cc,v 1.2 2006-03-12 13:39:10 cvsbert Exp $";
 
 #include "picksetfact.h"
 #include "pickset.h"
@@ -143,7 +143,7 @@ const char* dgbPickSetGroupTranslator::read( PickSetGroup& psg, Conn& conn,
     if ( astrm.hasKeyword("Z Factor") )
     {
 	zfac = astrm.getValue();
-	if ( mIsZero(zfac,mDefEps) || mIsUndefined(zfac) )
+	if ( mIsZero(zfac,mDefEps) || mIsUdf(zfac) )
 	    zfac = 1;
 	astrm.next();
 	if ( atEndOfSection(astrm) ) astrm.next();

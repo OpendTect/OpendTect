@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          February 2003
- RCS:           $Id: freqfilterattrib.cc,v 1.14 2006-02-23 13:20:58 cvshelene Exp $
+ RCS:           $Id: freqfilterattrib.cc,v 1.15 2006-03-12 13:39:10 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -208,11 +208,11 @@ void FreqFilter::initClass()
     desc->addParam( filtertype );
 
     FloatParam* minfreq = new FloatParam( minfreqStr() );
-    minfreq->setLimits( Interval<float>(0,mUndefValue) );
+    minfreq->setLimits( Interval<float>(0,mUdf(float)) );
     desc->addParam( minfreq );
 
     FloatParam* maxfreq = new FloatParam( maxfreqStr() );
-    maxfreq->setLimits( Interval<float>(0,mUndefValue) );
+    maxfreq->setLimits( Interval<float>(0,mUdf(float)) );
     desc->addParam( maxfreq );
 
     IntParam* nrpoles = new IntParam( nrpolesStr() );

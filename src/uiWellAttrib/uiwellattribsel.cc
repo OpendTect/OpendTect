@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          February 2004
- RCS:           $Id: uiwellattribsel.cc,v 1.13 2005-11-28 11:38:41 cvsnanne Exp $
+ RCS:           $Id: uiwellattribsel.cc,v 1.14 2006-03-12 13:39:11 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -178,7 +178,7 @@ void uiWellAttribSel::getPositions( BinIDValueSet& bidset,
 	float& vidx = bidset.getVals(pos)[1];
 	int posidx = mNINT(vidx);
 	positions[posidx] = pos;
-	vidx = mUndefValue;
+	mSetUdf(vidx);
     }
 }
 
@@ -214,7 +214,7 @@ bool uiWellAttribSel::createLog( const BinIDValueSet& bidset,
     for ( int idx=0; idx<mdepths.size(); idx++ )
     {
 	bidset.get( positions[idx], bid, v );
-	if ( !mIsUndefined(v[1]) )
+	if ( !mIsUdf(v[1]) )
 	    newlog->addValue( mdepths[idx], v[1] );
     }
 

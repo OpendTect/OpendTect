@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          June 2004
- RCS:           $Id: uiseissubsel.cc,v 1.32 2005-10-28 12:33:38 cvsbert Exp $
+ RCS:           $Id: uiseissubsel.cc,v 1.33 2006-03-12 13:39:11 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -317,8 +317,8 @@ void uiSeis2DSubSel::setInput( const Interval<float>& zrg )
 void uiSeis2DSubSel::setInput( const HorSampling& hs )
 {
     StepInterval<int> trg( 1, hs.nrCrl(), 1 );
-    if ( mIsUndefInt(hs.stop.crl) )
-	trg.stop = mUndefIntVal;
+    if ( mIsUdf(hs.stop.crl) )
+	trg.stop = mUdf(int);
     trcrgfld->setValue( trg );
 }
 
@@ -419,7 +419,7 @@ bool uiSeis2DSubSel::fillPar( IOPar& iopar ) const
 	iopar.set( sKey::LineKey, lnm );
 
     iopar.set( sKey::FirstInl, 0 );
-    iopar.set( sKey::LastInl, mUndefIntVal );
+    iopar.set( sKey::LastInl, mUdf(int) );
     iopar.set( sKey::StepInl, 1 );
 
     if ( !isall )
@@ -439,7 +439,7 @@ bool uiSeis2DSubSel::fillPar( IOPar& iopar ) const
     else
     {
 	iopar.set( sKey::FirstCrl, 1 );
-	iopar.set( sKey::LastCrl, mUndefIntVal );
+	iopar.set( sKey::LastCrl, mUdf(int) );
 	iopar.set( sKey::StepCrl, 1 );
     }
 
@@ -453,7 +453,7 @@ bool uiSeis2DSubSel::getRange( StepInterval<int>& trg ) const
     const char* res = trcrgfld->text( 1 );
     if ( isAll() || !res || !*res )
     {
-	trg.stop = mUndefIntVal;
+	mSetUdf(trg.stop);
 	return true;
     }
 
@@ -478,7 +478,7 @@ bool uiSeis2DSubSel::getZRange( Interval<float>& zrg ) const
 	{
 	    fldzrg.start *= 0.001;
 	    fldzrg.stop *= 0.001;
-	    if ( mIsUndefined(fldzrg.step) ) 
+	    if ( mIsUdf(fldzrg.step) ) 
 		fldzrg.step = survzrg.step;
 	    else
 		fldzrg.step *= 0.001;
@@ -503,7 +503,7 @@ int uiSeis2DSubSel::expectedNrTraces() const
 {
     StepInterval<int> trg;
     if ( getRange(trg) )
-	return mIsUndefInt(trg.stop) ? -1 : trg.nrSteps() + 1;
+	return mIsUdf(trg.stop) ? -1 : trg.nrSteps() + 1;
     return -1;
 }
 

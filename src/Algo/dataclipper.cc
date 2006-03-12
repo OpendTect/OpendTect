@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: dataclipper.cc,v 1.10 2005-02-23 14:45:23 cvsarend Exp $";
+static const char* rcsID = "$Id: dataclipper.cc,v 1.11 2006-03-12 13:39:10 cvsbert Exp $";
 
 
 #include "dataclipper.h"
@@ -54,7 +54,7 @@ void DataClipper::putData( float v )
 	    return;
     }
 
-    if ( !Values::isUdf( v ) ) samples += v;
+    if ( !mIsUdf( v ) ) samples += v;
 }
 
 
@@ -72,7 +72,7 @@ void DataClipper::putData( const float* vals, int nrvals )
 		    continue;
 
 		float val =  vals[idx];
-		if ( !Values::isUdf( val ) ) samples += val;
+		if ( !mIsUdf( val ) ) samples += val;
 	    }
 	}
 	else
@@ -82,7 +82,7 @@ void DataClipper::putData( const float* vals, int nrvals )
 		double rand = Stat_getRandom();
 		rand *= (nrvals-1);
 		float val =  vals[mNINT(rand)];
-		if ( !Values::isUdf( val ) )
+		if ( !mIsUdf( val ) )
 		    samples += val;
 	    }
 	}
@@ -92,7 +92,7 @@ void DataClipper::putData( const float* vals, int nrvals )
 	for ( int idx=0; idx<nrvals; idx++ )
 	{
 	    float val = vals[idx];
-	    if ( !Values::isUdf( val ) ) samples += val;
+	    if ( !mIsUdf( val ) ) samples += val;
 	}
     }
 }

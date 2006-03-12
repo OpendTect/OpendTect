@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: genericnumer.h,v 1.16 2005-10-26 22:07:16 cvskris Exp $
+ RCS:           $Id: genericnumer.h,v 1.17 2006-03-12 13:39:09 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -142,11 +142,11 @@ float findValueInAperture(const FloatMathFunction&,float startx,
 findExtreme - finds a functions minimal or maximum value (specified by bool 
 minima) within the values x1 and x2. 
 f((x1+x2)/2) should be less than f(x1) and f(x2). If no minima can be found,
-mUndefValue is returned;
+mUdf(float) is returned;
 */
 
-float findExtreme( const FloatMathFunction&, bool minima, float x1, float x2,
-		   float tol = 1e-5);
+float findExtreme(const FloatMathFunction&,bool minima,float x1,float x2,
+		  float tol = 1e-5);
 
 
 template <class A, class B> inline

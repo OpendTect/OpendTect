@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvinfoed.cc,v 1.75 2006-03-10 13:34:02 cvsbert Exp $
+ RCS:           $Id: uisurvinfoed.cc,v 1.76 2006-03-12 13:39:11 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -313,7 +313,7 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo* si_ )
 
 static void setZValFld( uiGenInput* zfld, int nr, float val, float fac )
 {
-    if ( mIsUndefined(val) )
+    if ( mIsUdf(val) )
 	{ zfld->setText( "", nr ); return; }
 
     val *= fac; int ival = mNINT(val); float fival = ival;
@@ -636,8 +636,7 @@ bool uiSurveyInfoEditor::setRanges()
 
     survinfo->setZUnit( timefld->isChecked(), meterfld->isChecked() );
     cs.zrg = zfld->getFStepInterval();
-    if ( mIsUndefined(cs.zrg.start) || mIsUndefined(cs.zrg.stop)
-      || mIsUndefined(cs.zrg.step) )
+    if ( mIsUdf(cs.zrg.start) || mIsUdf(cs.zrg.stop) || mIsUdf(cs.zrg.step) )
 	mErrRet("Please enter the Z Range")
     const float zfac = 1. / survinfo->zFactor();
     if ( !mIsEqual(zfac,1,0.0001) )
@@ -713,7 +712,7 @@ void uiSurveyInfoEditor::sipbutPush( CallBacker* cb )
 	    survinfo->setZUnit( !isdpth, false );
     }
 
-    if ( mIsUndefined(cs.zrg.start) )
+    if ( mIsUdf(cs.zrg.start) )
 	cs.zrg = survinfo->zRange(false);
 
     survinfo->setRange(cs,false);

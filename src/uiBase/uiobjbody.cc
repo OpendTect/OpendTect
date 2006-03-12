@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/06/2001
- RCS:           $Id: uiobjbody.cc,v 1.7 2006-03-10 13:34:02 cvsbert Exp $
+ RCS:           $Id: uiobjbody.cc,v 1.8 2006-03-12 13:39:11 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,8 +31,8 @@ uiObjectBody::uiObjectBody( uiParent* parnt, const char* nm )
     , layoutItem_( 0 )
     , parent_( parnt ? mParntBody(parnt) : 0  )
     , font_( 0 )
-    , hStretch( mUndefIntVal  )
-    , vStretch(  mUndefIntVal )
+    , hStretch( mUdf(int)  )
+    , vStretch(  mUdf(int) )
     , allowshrnk( false )
     , is_hidden( false )
     , finalised( false )
@@ -462,7 +462,7 @@ int uiObjectBody::stretch( bool hor, bool retUndef ) const
     int s = hor ? hStretch : vStretch;
     if ( retUndef ) return s;
 
-    return s != mUndefIntVal ? s : 0;
+    return mIsUdf(s) ? 0 : s;
 }
 
 

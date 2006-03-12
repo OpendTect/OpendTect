@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uigeninput.cc,v 1.73 2006-03-10 13:34:03 cvsbert Exp $
+ RCS:           $Id: uigeninput.cc,v 1.74 2006-03-12 13:39:11 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -74,7 +74,7 @@ public:
 			}
 
     virtual bool	isUndef( int idx ) const
-			{ return Values::isUdf(text(idx)); } 
+			{ return mIsUdf(text(idx)); } 
 
     const char*		text( int idx ) const
 			{ 
@@ -98,7 +98,7 @@ public:
 			{
 			    UserInputObj* obj = element( idx );
 			    if ( !obj ) return;
-			    if ( Values::isUdf(t) )
+			    if ( mIsUdf(t) )
 				obj->clear();
 			    else
 				obj->setValue(t);

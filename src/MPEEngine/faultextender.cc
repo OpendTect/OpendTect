@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: faultextender.cc,v 1.2 2006-01-18 20:57:14 cvsjaap Exp $";
+static const char* rcsID = "$Id: faultextender.cc,v 1.3 2006-03-12 13:39:10 cvsbert Exp $";
 
 #include "faultextender.h"
 
@@ -184,9 +184,9 @@ int FaultExtender::nextStep()
 
 	    const Coord3 diff = backcoord-surface->getKnot(rc);
 
-	    if ( (!mIsUndefined(maxdistance.x) && maxdistance.x<fabs(diff.x)) ||
-		 (!mIsUndefined(maxdistance.y) && maxdistance.y<fabs(diff.y)) ||
-		 (!mIsUndefined(maxdistance.z) && maxdistance.z<fabs(diff.z)) )
+	    if ( (!mIsUdf(maxdistance.x) && maxdistance.x<fabs(diff.x)) ||
+		 (!mIsUdf(maxdistance.y) && maxdistance.y<fabs(diff.y)) ||
+		 (!mIsUdf(maxdistance.z) && maxdistance.z<fabs(diff.z)) )
 	    {
 		if ( rowdir )
 		{

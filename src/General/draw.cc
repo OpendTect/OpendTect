@@ -4,7 +4,7 @@
  * DATE     : 18-4-1996
 -*/
 
-static const char* rcsID = "$Id: draw.cc,v 1.48 2006-03-01 19:51:57 cvskris Exp $";
+static const char* rcsID = "$Id: draw.cc,v 1.49 2006-03-12 13:39:10 cvsbert Exp $";
 
 /*! \brief Several implementations for UI-related things.
 
@@ -199,7 +199,7 @@ void ColorTable::calcList( int nritems )
 
 Color ColorTable::color( float v, bool use_undefcol ) const
 {
-    if ( mIsUndefined(v) ) return undefcolor;
+    if ( mIsUdf(v) ) return undefcolor;
     const int sz = cvs.size();
     if ( sz == 0 ) return undefcolor;
 
@@ -288,7 +288,7 @@ int ColorTable::colorIdx( float v, int undefid ) const
     float startval = cvs[0].value;
     float stopval = cvs[sz-1].value;
 
-    if ( mIsUndefined( v ) ) return undefid;
+    if ( mIsUdf( v ) ) return undefid;
 
     bool isrev = startval > stopval;
     if ( isrev )
@@ -334,7 +334,7 @@ void ColorTable::scaleTo( const Interval<float>& intv )
 
 Interval<float> ColorTable::getInterval() const
 {
-    Interval<float> ret( mUndefValue, mUndefValue );
+    Interval<float> ret( mUdf(float), mUdf(float) );
     if ( cvs.size() > 0 )
 	ret = Interval<float>( cvs[0].value, cvs[cvs.size()-1].value );
 
@@ -346,7 +346,7 @@ static float getfromPar( const IOPar& iopar, Color& col, const char* key,
 			 bool withval=false )
 {
     const char* res = iopar[key];
-    float val = withval ? mUndefValue : 0;
+    float val = withval ? mUdf(float) : 0;
     if ( res && *res )
     {
 	if ( !withval )
@@ -377,7 +377,7 @@ void ColorTable::usePar( const IOPar& iopar )
 	key += "."; key += idx;
 	Color col;
 	float val = getfromPar( iopar, col, key, true );
-	if ( mIsUndefined(val) )
+	if ( mIsUdf(val) )
 	{
 	    if ( idx ) break;
 	    continue;

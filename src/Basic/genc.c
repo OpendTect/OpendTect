@@ -5,7 +5,7 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID = "$Id: genc.c,v 1.79 2006-02-17 17:27:14 cvsbert Exp $";
+static const char* rcsID = "$Id: genc.c,v 1.80 2006-03-12 13:39:10 cvsbert Exp $";
 
 #include "oddirs.h"
 #include "genc.h"
@@ -15,6 +15,7 @@ static const char* rcsID = "$Id: genc.c,v 1.79 2006-02-17 17:27:14 cvsbert Exp $
 #include "winutils.h"
 #include "timefun.h"
 #include "string2.h"
+#include "mallocdefs.h"
 
 #include <string.h>
 #include <stdio.h>
@@ -808,17 +809,22 @@ int IsNormalNumber( double x )
 #endif
 }
 
+
 double IntPowerOf( double x, int y )
 {
+    if ( mcIsUndefined(x) ) return mcUndefValue;
+
     double ret = 1;
-    if ( x == 0 ) return y ? 0 : 1;
+    if ( x == 0 )
+	return y ? 0 : 1;
+
     if ( x > 1.5 || x < -1.5 )
     {
-	if ( y > 150 ) return mUndefValue;
+	if ( y > 150 ) return mcUndefValue;
 	if ( y < -150 ) return 0;
 	if ( x > 1.99 || x < -1.99 )
 	{
-	    if ( y > 100 ) return mUndefValue;
+	    if ( y > 100 ) return mcUndefValue;
 	    if ( y < -100 ) return 0;
 	}
     }

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Feb 2005
- RCS:           $Id: horizonscanner.cc,v 1.10 2006-02-20 18:49:49 cvsbert Exp $
+ RCS:           $Id: horizonscanner.cc,v 1.11 2006-03-12 13:39:10 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "survinfo.h"
 #include "oddirs.h"
 #include "cubesampling.h"
+#include "keystrs.h"
 
 
 HorizonScanner::HorizonScanner( const BufferStringSet& fnms )
@@ -203,7 +204,7 @@ bool HorizonScanner::analyzeData()
 	val = atof( valbuf );
 
 	bool validvert = false;
-	if ( !mIsUndefined(val) ) 
+	if ( !mIsUdf(val) ) 
 	{
 	    if ( validrg.includes(val) ) { nrnoscale++; validvert=true; }
 	    else if ( validrg.includes(val*fac) ) { nrscale++; validvert=true; }
@@ -268,9 +269,9 @@ int HorizonScanner::nextStep()
 	    {
 		ptr = getNextWord( ptr, valbuf );
 		if ( firsttime )
-		    valranges += Interval<float>(mUndefValue,-mUndefValue);
+		    valranges += Interval<float>(mUdf(float),-mUdf(float));
 		const float val = atof( valbuf );
-		if ( !mIsUndefined(val) && validx<valranges.size() )
+		if ( !mIsUdf(val) && validx<valranges.size() )
 		    valranges[validx].include( val, false );
 		validx++;
 	    }

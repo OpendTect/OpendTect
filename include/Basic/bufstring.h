@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		12-4-2000
  Contents:	Variable buffer length strings with minimum size.
- RCS:		$Id: bufstring.h,v 1.16 2004-04-01 13:39:50 bert Exp $
+ RCS:		$Id: bufstring.h,v 1.17 2006-03-12 13:39:09 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,24 +31,24 @@ public:
    			BufferString( const char* s=0,
 				      unsigned int ml=mMaxUserIDLength )
 				: minlen(ml+1)
-			{ init(); if ( s ) *this = s; }
+				    { init(); if ( s ) *this = s; }
    			BufferString( int i,
 				      unsigned int ml=mMaxUserIDLength )
 				: minlen(ml+1)
-			{ init(); *this += i; }
+				    { init(); *this += i; }
    			BufferString( double d,
 				      unsigned int ml=mMaxUserIDLength )
 				: minlen(ml+1)
-			{ init(); *this += d; }
+				    { init(); *this += d; }
    			BufferString( float f,
 				      unsigned int ml=mMaxUserIDLength )
 				: minlen(ml+1)
-			{ init(); *this += f; }
+				    { init(); *this += f; }
 			BufferString( const BufferString& bs )
 				: minlen(bs.minlen)
-			{ init(); *this = bs; }
+				    { init(); *this = bs; }
 			~BufferString()
-			{ free(buf_); }
+				    { delete [] buf_; }
    inline BufferString&	operator=( const BufferString& bs )
 			{ if ( &bs != this ) *this = bs.buf_; return *this; }
    inline BufferString&	operator=( int i )
@@ -72,15 +72,15 @@ public:
    inline unsigned int	bufSize() const			{ return len; }
    inline void		setBufSize(unsigned int);
    inline bool		operator==( const BufferString& s ) const
-			{ return operator ==( s.buf_ ); }
+				    { return operator ==( s.buf_ ); }
    inline bool		operator!=( const BufferString& s ) const
-			{ return operator !=( s.buf_ ); }
+				    { return operator !=( s.buf_ ); }
    inline bool		operator!=( const char* s ) const
-			{ return ! (*this == s); }
+				    { return ! (*this == s); }
    inline bool		operator >( const char* s ) const
-			{ return s ? strcmp(buf_,s) > 0 : true; }
+				    { return s ? strcmp(buf_,s) > 0 : true; }
    inline bool		operator <( const char* s ) const
-			{ return s ? strcmp(buf_,s) < 0 : false; }
+				    { return s ? strcmp(buf_,s) < 0 : false; }
 
    inline BufferString&	operator=(const char*);
    inline BufferString&	operator+=(const char*);
@@ -97,7 +97,7 @@ protected:
 private:
 
     inline void		init()
-			{ len = minlen; buf_ = mMALLOC(len,char); *buf_ ='\0'; }
+			{ len = minlen; buf_ = new char [len]; *buf_ ='\0'; }
 
 };
 
@@ -119,12 +119,10 @@ inline bool BufferString::operator==( const char* s ) const
 
 inline void BufferString::setBufSize( unsigned int newlen )
 {
-    if ( newlen < minlen ) newlen = minlen;
+    if ( newlen < minlen )
+	newlen = minlen;
     if ( newlen != len )
-    {
-	len = newlen;
-	buf_ = mREALLOC(buf_,len,char);
-    }
+	{ len = newlen; delete [] buf_; buf_ = new char [len]; }
 }
 
 

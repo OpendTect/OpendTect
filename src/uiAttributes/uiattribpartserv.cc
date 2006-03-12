@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiattribpartserv.cc,v 1.28 2006-03-08 13:42:58 cvsnanne Exp $
+ RCS:           $Id: uiattribpartserv.cc,v 1.29 2006-03-12 13:39:11 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,6 +37,7 @@ ________________________________________________________________________
 #include "ptrman.h"
 #include "survinfo.h"
 #include "seisinfo.h"
+#include "keystrs.h"
 #include "posvecdataset.h"
 
 #include "uiattrsel.h"

@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: pickset.cc,v 1.26 2005-10-28 13:16:22 cvsnanne Exp $";
+static const char* rcsID = "$Id: pickset.cc,v 1.27 2006-03-12 13:39:10 cvsbert Exp $";
 
 #include "pickset.h"
 #include "survinfo.h"
@@ -13,7 +13,7 @@ static const char* rcsID = "$Id: pickset.cc,v 1.26 2005-10-28 13:16:22 cvsnanne 
 
 static double getNextVal( char*& str )
 {
-    if ( !*str ) return mUndefValue;
+    if ( !*str ) return mUdf(double);
     char* endptr = str;
     while ( *endptr && !isspace(*endptr) ) endptr++;
     if ( *endptr ) *endptr++ = '\0';
@@ -80,7 +80,7 @@ bool PickLocation::fromString( const char* s, bool doxy )
     double xread = getNextVal( str );
     double yread = getNextVal( str );
     double zread = getNextVal( str );
-    if ( mIsUndefined(zread) )
+    if ( mIsUdf(zread) )
 	return false;
 
     pos.x = xread;
@@ -100,10 +100,10 @@ bool PickLocation::fromString( const char* s, bool doxy )
     // See if there's a direction, too
     xread = getNextVal( str );
     yread = getNextVal( str );
-    if ( !mIsUndefined(yread) )
+    if ( !mIsUdf(yread) )
     {
 	zread = getNextVal( str );
-	if ( mIsUndefined(zread) ) zread = 0;
+	if ( mIsUdf(zread) ) zread = 0;
 	dir = Sphere( xread, yread, zread );
     }
 

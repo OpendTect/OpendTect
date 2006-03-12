@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: seistrctr.cc,v 1.69 2005-10-28 12:33:38 cvsbert Exp $";
+static const char* rcsID = "$Id: seistrctr.cc,v 1.70 2006-03-12 13:39:11 cvsbert Exp $";
 
 #include "seistrctr.h"
 #include "seisfact.h"
@@ -179,7 +179,7 @@ bool SeisTrcTranslator::commitSelections()
     if ( sz < 1 ) return false;
 
     outsd = insd; outnrsamples = innrsamples;
-    if ( seldata && !Values::isUdf(seldata->zRange().start) )
+    if ( seldata && !mIsUdf(seldata->zRange().start) )
     {
 	const Interval<float> selzrg( seldata->zRange() );
 	const Interval<float> sizrg( SI().sampling(false).zrg );
@@ -298,7 +298,7 @@ bool SeisTrcTranslator::write( const SeisTrc& trc )
 	return writeTrc_( trc );
     }
 
-    const bool haveprev = !Values::isUdf( prevnr_ );
+    const bool haveprev = !mIsUdf( prevnr_ );
     const bool wrblk = haveprev && (is_2d ? prevnr_ > 99
 				: prevnr_ != trc.info().binid.inl);
     if ( !is_2d )

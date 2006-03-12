@@ -4,7 +4,7 @@
  * DATE     : June 2005
 -*/
 
-static const char* rcsID = "$Id: seisioobjinfo.cc,v 1.7 2006-03-01 16:46:23 cvsnanne Exp $";
+static const char* rcsID = "$Id: seisioobjinfo.cc,v 1.8 2006-03-12 13:39:10 cvsbert Exp $";
 
 #include "seisioobjinfo.h"
 #include "seistrcsel.h"
@@ -106,7 +106,7 @@ int SeisIOObjInfo::expectedMBs( const SpaceInfo& si ) const
     if ( !sttr )
 	{ pErrMsg("No Translator!"); return -1; }
 
-    if ( si.expectednrtrcs < 0 || mIsUndefInt(si.expectednrtrcs) )
+    if ( si.expectednrtrcs < 0 || mIsUdf(si.expectednrtrcs) )
 	return -1;
 
     int overhead = sttr->bytesOverheadPerTrace();

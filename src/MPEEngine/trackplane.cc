@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: trackplane.cc,v 1.5 2005-10-07 21:48:45 cvskris Exp $";
+static const char* rcsID = "$Id: trackplane.cc,v 1.6 2006-03-12 13:39:10 cvsbert Exp $";
    
 
 #include "trackplane.h"
@@ -17,6 +17,7 @@ static const char* rcsID = "$Id: trackplane.cc,v 1.5 2005-10-07 21:48:45 cvskris
 #include "mathfunc.h"
 #include "survinfo.h"
 #include "trigonometry.h"
+#include "keystrs.h"
 #include <math.h>
 
 namespace MPE

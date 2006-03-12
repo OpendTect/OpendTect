@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Feb 2002
- RCS:           $Id: cubesampling.h,v 1.24 2006-02-22 14:59:31 cvsnanne Exp $
+ RCS:           $Id: cubesampling.h,v 1.25 2006-03-12 13:39:09 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -55,7 +55,7 @@ struct HorSampling
 			{ return nrInl() < 1 || nrCrl() < 1; }
 
     void		init(bool settoSI=true);
-    			//!< Sets to survey values or mUndefIntVal (but step 1)
+    			//!< Sets to survey values or mUdf(int) (but step 1)
     void		set2DDef();
     			//!< Sets ranges to 0-maxint
     void		normalise();

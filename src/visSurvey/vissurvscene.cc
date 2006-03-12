@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: vissurvscene.cc,v 1.82 2006-03-01 20:24:41 cvskris Exp $
+ RCS:           $Id: vissurvscene.cc,v 1.83 2006-03-12 13:39:11 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -291,7 +291,7 @@ void Scene::mouseMoveCB( CallBacker* cb )
     mCBCapsuleUnpack(const visBase::EventInfo&,eventinfo,cb);
     if ( eventinfo.type != visBase::MouseMovement ) return;
 
-    mouseposval_ = mUndefValue;
+    mouseposval_ = mUdf(float);
     mouseposstr_ = "";
     xytmousepos_ = Coord3::udf();
 
@@ -309,7 +309,7 @@ void Scene::mouseMoveCB( CallBacker* cb )
 	    mDynamicCastGet(const SurveyObject*,so,pickedobj);
 	    if ( so )
 	    {
-		if ( mIsUndefined(mouseposval_) )
+		if ( mIsUdf(mouseposval_) )
 		{
 		    float newmouseposval;
 		    BufferString newstr;
@@ -317,7 +317,7 @@ void Scene::mouseMoveCB( CallBacker* cb )
 			    		 newmouseposval, newstr );
 		    if ( newstr != "" )
 			mouseposstr_ = newstr;
-		    if ( !mIsUndefined(newmouseposval) )
+		    if ( !mIsUdf(newmouseposval) )
 			mouseposval_ = newmouseposval;
 		}
 

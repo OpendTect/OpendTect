@@ -4,7 +4,7 @@
  * DATE     : Jan 2005
 -*/
 
-static const char* rcsID = "$Id: posvecdataset.cc,v 1.10 2006-02-20 18:49:49 cvsbert Exp $";
+static const char* rcsID = "$Id: posvecdataset.cc,v 1.11 2006-03-12 13:39:10 cvsbert Exp $";
 
 #include "posvecdataset.h"
 #include "datacoldef.h"
@@ -14,6 +14,7 @@ static const char* rcsID = "$Id: posvecdataset.cc,v 1.10 2006-02-20 18:49:49 cvs
 #include "ascstream.h"
 #include "separstr.h"
 #include "strmprov.h"
+#include "keystrs.h"
 #include <iosfwd>
 
 
@@ -194,7 +195,7 @@ void PosVecDataSet::merge( const PosVecDataSet& vds, OvwPolicy ovwpol,
 	{
 	    vals = data_.getVals( pos );
 	    const float z = *vals;
-	    if ( mIsUndefined(z) || mIsEqual(*vdsvals,z,1e-6) )
+	    if ( mIsUdf(z) || mIsEqual(*vdsvals,z,1e-6) )
 		break;
 	}
 	if ( !pos.valid() )
@@ -212,7 +213,7 @@ void PosVecDataSet::merge( const PosVecDataSet& vds, OvwPolicy ovwpol,
 	    int targidx = colidxs[ idx ];
 	    if ( newpos || targidx >= orgnrcds // new column
 	      || ovwpol == Ovw
-	      || (ovwpol == OvwIfUdf && mIsUndefined(vals[targidx])) )
+	      || (ovwpol == OvwIfUdf && mIsUdf(vals[targidx])) )
 		vals[targidx] = vdsvals[idx];
 	}
     }

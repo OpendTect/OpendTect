@@ -4,7 +4,7 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID = "$Id: seiscbvsps.cc,v 1.12 2006-01-09 10:25:03 cvsbert Exp $";
+static const char* rcsID = "$Id: seiscbvsps.cc,v 1.13 2006-03-12 13:39:10 cvsbert Exp $";
 
 #include "seiscbvsps.h"
 #include "seispsioprov.h"
@@ -60,7 +60,7 @@ SeisCBVSPSReader::SeisCBVSPSReader( const char* dirnm, int inl )
 	return;
     }
 
-    if ( Values::isUdf(inl) )
+    if ( mIsUdf(inl) )
     {
 	DirList dl( dirnm_, DirList::FilesOnly, selmask_.buf() );
 	for ( int idx=0; idx<dl.size(); idx++ )
@@ -139,7 +139,7 @@ bool SeisCBVSPSReader::mkTr( int inl ) const
 {
     if ( curtr_ && curinl_ == inl )
 	return true;
-    else if ( Values::isUdf(inl) )
+    else if ( mIsUdf(inl) )
 	return false;
 
     delete curtr_; curtr_ = 0;
@@ -246,7 +246,7 @@ void SeisCBVSPSWriter::usePar( const IOPar& iopar )
 
 bool SeisCBVSPSWriter::newInl( const SeisTrc& trc )
 {
-    if ( Values::isUdf(prevbid_.inl) )
+    if ( mIsUdf(prevbid_.inl) )
     {
 	if ( reqdtype_ == DataCharacteristics::Auto )
 	    dc_ = trc.data().getInterpreter()->dataChar();

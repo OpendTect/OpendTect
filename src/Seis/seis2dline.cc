@@ -4,7 +4,7 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID = "$Id: seis2dline.cc,v 1.50 2005-10-31 14:59:22 cvshelene Exp $";
+static const char* rcsID = "$Id: seis2dline.cc,v 1.51 2006-03-12 13:39:10 cvsbert Exp $";
 
 #include "seis2dline.h"
 #include "seistrctr.h"
@@ -731,7 +731,7 @@ Seis2DGeomDumper( const Seis2DLineSet& l, std::ostream& o, bool inr, float z,
 	, lnshandled(0)
 	, ptswritten(0)
 	, zval(z)
-	, incz(!Values::isUdf(z))
+	, incz(!mIsUdf(z))
 {
     lastidx = ls.nrLines() - 1;
     if ( lastidx < 0 )

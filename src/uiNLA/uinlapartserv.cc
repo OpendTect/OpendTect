@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uinlapartserv.cc,v 1.35 2006-03-03 17:19:57 cvsbert Exp $
+ RCS:           $Id: uinlapartserv.cc,v 1.36 2006-03-12 13:39:11 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,13 +19,6 @@ ________________________________________________________________________
 #include "posvecdatasettr.h"
 #include "datacoldef.h"
 #include "binidvalset.h"
-#include "uiexecutor.h"
-#include "uiposdataedit.h"
-#include "uiioobjsel.h"
-#include "uidistribution.h"
-#include "uigeninput.h"
-#include "uicombobox.h"
-#include "uicanvas.h"
 #include "uimsg.h"
 #include "debug.h"
 #include "ioman.h"
@@ -34,6 +27,15 @@ ________________________________________________________________________
 #include "survinfo.h"
 #include "ctxtioobj.h"
 #include "sorting.h"
+#include "keystrs.h"
+
+#include "uiexecutor.h"
+#include "uiposdataedit.h"
+#include "uiioobjsel.h"
+#include "uidistribution.h"
+#include "uigeninput.h"
+#include "uicombobox.h"
+#include "uicanvas.h"
 
 const int uiNLAPartServer::evPrepareWrite	= 0;
 const int uiNLAPartServer::evPrepareRead	= 1;
@@ -187,10 +189,10 @@ bool acceptOK( CallBacker* )
 	rg_ = valrgfld->getFInterval();
 	rg_.sort();
 	bsetup.nrptsperclss = nrptspclssfld->getIntValue();
-	if ( bsetup.nrptsperclss < 1 || Values::isUdf(bsetup.nrptsperclss) )
+	if ( bsetup.nrptsperclss < 1 || mIsUdf(bsetup.nrptsperclss) )
 	    mErrRet("Please enter a valid number of points per class")
 	bsetup.noiselvl = percnoisefld->getfValue();
-	if ( Values::isUdf(bsetup.noiselvl) )
+	if ( mIsUdf(bsetup.noiselvl) )
 	    bsetup.noiselvl = 0;
 	if ( bsetup.noiselvl > 100 || bsetup.noiselvl < -1e-6 )
 	    mErrRet("Please enter a valid number of points per class")
@@ -373,7 +375,7 @@ const char* uiNLAPartServer::convertToClasses(
 	while( bvs.next(pos) )
 	{
 	    const float val = bvs.getVals(pos)[valnr];
-	    if ( Values::isUdf(val) ) continue;
+	    if ( mIsUdf(val) ) continue;
 	    const int code = mNINT(val);
 	    if ( lcd.codes.indexOf(code) < 0 )
 		lcd.codes += code;
@@ -473,7 +475,7 @@ void uiNLAPartServer::LithCodeData::fillCols( PosVecDataSet& vds,
     {
 	float* vals = bvs.getVals( pos );
 	const float val = vals[valnr];
-	if ( Values::isUdf(val) ) continue;
+	if ( mIsUdf(val) ) continue;
 
 	const int code = mNINT(val);
 	int codeidx = codes.indexOf( code );

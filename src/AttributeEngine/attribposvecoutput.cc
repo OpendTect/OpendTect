@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          June 2005
- RCS:           $Id: attribposvecoutput.cc,v 1.5 2005-10-20 13:58:25 cvshelene Exp $
+ RCS:           $Id: attribposvecoutput.cc,v 1.6 2006-03-12 13:39:10 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,7 +42,7 @@ PosVecOutputGen::PosVecOutputGen( const DescSet& as,
     aem_ = new EngineMan;
     aem_->setAttribSet( &ads_ );
     aem_->setNLAModel( m );
-    aem_->setUndefValue( mUndefValue );
+    aem_->setUndefValue( mUdf(float) );
     outex_ = aem_->createFeatureOutput( inps_, bvss_ );
     if ( outex_ )
 	setName( outex_->name() );

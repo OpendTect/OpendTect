@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: dipfilterattrib.cc,v 1.12 2006-02-22 12:30:04 cvshelene Exp $";
+static const char* rcsID = "$Id: dipfilterattrib.cc,v 1.13 2006-03-12 13:39:10 cvsbert Exp $";
 
 
 #include "dipfilterattrib.h"
@@ -42,12 +42,12 @@ void DipFilter::initClass()
     desc->addParam( type );
 
     FloatParam* minvel = new FloatParam( minvelStr() );
-    minvel->setLimits( Interval<float>(0,mUndefValue) );
+    minvel->setLimits( Interval<float>(0,mUdf(float)) );
     minvel->setDefaultValue( 0 );
     desc->addParam( minvel );
 
     FloatParam* maxvel = new FloatParam( maxvelStr() );
-    maxvel->setLimits( Interval<float>(0,mUndefValue) );
+    maxvel->setLimits( Interval<float>(0,mUdf(float)) );
     maxvel->setDefaultValue( 1000 );
     desc->addParam( maxvel );
 

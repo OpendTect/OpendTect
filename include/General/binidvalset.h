@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		July 2004
- RCS:		$Id: binidvalset.h,v 1.9 2005-09-30 09:16:53 cvshelene Exp $
+ RCS:		$Id: binidvalset.h,v 1.10 2006-03-12 13:39:09 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,7 +44,7 @@ class IOPar;
 
   When you construct a BinIDValueSet, you must provide the number of values
   (which can be changed later) and whether duplicate BinIDs are allowed.
-  In the set, new uninitialised values will be set to mUndefValue.
+  In the set, new uninitialised values will be set to mUdf(float).
 
   if you also want the values sorted (for the same BinID) use
   sortDuplicateBids().

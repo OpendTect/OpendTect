@@ -4,7 +4,7 @@
  * DATE     : 21-6-1996
 -*/
 
-static const char* rcsID = "$Id: binidvalset.cc,v 1.12 2005-10-04 16:33:07 cvskris Exp $";
+static const char* rcsID = "$Id: binidvalset.cc,v 1.13 2006-03-12 13:39:10 cvsbert Exp $";
 
 #include "binidvalset.h"
 #include "iopar.h"
@@ -148,7 +148,7 @@ bool BinIDValueSet::getFrom( std::istream& strm )
 	else			vals += atof( buf );
 	idx++;
     }
-    if ( Values::isUdf(bid.crl) ) return false;
+    if ( mIsUdf(bid.crl) ) return false;
 
     empty();
     setNrVals( vals.size() );
@@ -248,13 +248,13 @@ Interval<float> BinIDValueSet::valRange( int valnr ) const
     while ( next(pos) )
     {
 	const float val = mVals(pos)[valnr];
-	if ( !Values::isUdf(val) )
+	if ( !mIsUdf(val) )
 	    { ret.start = ret.stop = val; break; }
     }
     while ( next(pos) )
     {
 	const float val = mVals(pos)[valnr];
-	if ( !Values::isUdf(val) )
+	if ( !mIsUdf(val) )
 	    ret.include( val, false );
     }
 
@@ -776,7 +776,7 @@ void BinIDValueSet::getColumn( int valnr, TypeSet<float>& vals,
     while ( next(pos) )
     {
 	const float* v = getVals( pos );
-	if ( incudf || !Values::isUdf(v[valnr]) )
+	if ( incudf || !mIsUdf(v[valnr]) )
 	    vals += v[ valnr ];
     }
 }

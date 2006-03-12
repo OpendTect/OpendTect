@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Oct 2004
- RCS:           $Id: jobrunner.cc,v 1.32 2006-02-17 17:27:14 cvsbert Exp $
+ RCS:           $Id: jobrunner.cc,v 1.33 2006-03-12 13:39:10 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -88,7 +88,7 @@ JobRunner::JobRunner( JobDescProv* p, const char* cmd )
     if ( !File_exists(procdir_) )
 	File_createDir(procdir_,0);
 
-    if ( Values::isUdf(descprov_->nrJobs()) || !descprov_->nrJobs() )
+    if ( mIsUdf(descprov_->nrJobs()) || !descprov_->nrJobs() )
     {
 	UsrMsg( "No jobs to process!", MsgClass::Error );
 	return;

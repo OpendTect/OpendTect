@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          May 2002
- RCS:           $Id: uiimphorizon.cc,v 1.61 2006-03-10 13:34:02 cvsbert Exp $
+ RCS:           $Id: uiimphorizon.cc,v 1.62 2006-03-12 13:39:11 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,6 +28,7 @@ ________________________________________________________________________
 #include "strmdata.h"
 #include "strmprov.h"
 #include "survinfo.h"
+#include "keystrs.h"
 
 #include "uicombobox.h"
 #include "uiexecutor.h"
@@ -87,7 +88,7 @@ uiImportHorizon::uiImportHorizon( uiParent* p )
     scalefld->attach( alignedBelow, subselfld );
 
     udffld = new uiGenInput( midgrp, "Undefined value",
-	    		     StringInpSpec(sUndefValue) );
+	    		     StringInpSpec(sKey::FloatUdf) );
     udffld->attach( alignedBelow, scalefld );
 
     interpolfld = new uiGenInput( midgrp, "Interpolate to make regular grid",
@@ -417,9 +418,9 @@ BinIDValueSet* uiImportHorizon::getBidValSet( const char* fnm, bool doscale,
 	    set->setNrVals( values.size() );
 
 	if ( mIsEqual(values[0],udfval,mDefEps) )
-	    values[0] = mUndefValue;
+	    mSetUdf(values[0]);
 
-	if ( doscale && !mIsUndefined(values[0]) )
+	if ( doscale && !mIsUdf(values[0]) )
 	    values[0] *= factor;
 
 	if ( scaler )
@@ -450,11 +451,11 @@ bool uiImportHorizon::interpolateGrid( ObjectSet<BinIDValueSet>& sections )
 		bid.crl = hs.start.crl + crl*hs.step.crl;
 		BinIDValueSet::Pos pos = data.findFirst( bid );
 		if ( pos.j < 0 )
-		    arr->set( inl, crl, mUndefValue );
+		    arr->set( inl, crl, mUdf(float) );
 		else
 		{
 		    const float* vals = data.getVals( pos );
-		    arr->set( inl, crl, vals ? vals[0] : mUndefValue );
+		    arr->set( inl, crl, vals ? vals[0] : mUdf(float) );
 		}
 	    }
 	}

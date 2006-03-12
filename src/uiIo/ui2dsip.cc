@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Oct 2004
- RCS:		$Id: ui2dsip.cc,v 1.3 2004-11-12 15:13:28 bert Exp $
+ RCS:		$Id: ui2dsip.cc,v 1.4 2006-03-12 13:39:11 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -83,6 +83,6 @@ bool ui2DSurvInfoProvider::getInfo( uiDialog* din, CubeSampling& cs,
     crd[1] = cmax;
     crd[2] = Coord( c0.x, cmax.y );
 
-    cs.zrg.start = cs.zrg.stop = cs.zrg.step = mUndefValue;
+    cs.zrg.start = cs.zrg.stop = mSetUdf(cs.zrg.step);
     return true;
 }

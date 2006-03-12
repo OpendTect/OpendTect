@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.167 2006-03-09 18:51:09 cvsnanne Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.168 2006-03-12 13:39:11 cvsbert Exp $
 ___________________________________________________________________
 
 -*/
@@ -25,6 +25,7 @@ ___________________________________________________________________
 #include "settings.h"
 #include "colortab.h"
 #include "survinfo.h"
+#include "keystrs.h"
 #include "zaxistransform.h"
 
 #include "uiattribpartserv.h"

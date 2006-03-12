@@ -1,12 +1,12 @@
-#ifndef basictypes_h
-#define basictypes_h
+#ifndef convert_h
+#define convert_h
 /*+
 ________________________________________________________________________
 
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          13/01/2005
- RCS:           $Id: convert.h,v 1.3 2005-03-31 12:19:26 cvsarend Exp $
+ RCS:           $Id: convert.h,v 1.4 2006-03-12 13:39:09 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,7 +36,7 @@ inline T& to( const F& fr )
 template <class T, class F>
 inline void udfset(T& _to, const F& fr, const T& und= Values::Undef<T>::val())
 {
-    if( Values::hasUdf<F>() && Values::isUdf(fr) )
+    if ( Values::hasUdf<F>() && Values::isUdf(fr) )
 	_to = und;
     else 
     {
@@ -92,14 +92,11 @@ inline void set( int32& _to, const char* const& s )
     if ( !s || !*s ) { return; }
 
     char* endptr;  
-    int32 tmpval = strtol(s, &endptr, 0);
-    if ( s==endptr )
-    {
-       	if ( Values::Undef<int32>::hasUdf() ) Values::setUdf(_to); 
-	return;
-    }
-
-    _to = tmpval; 
+    int32 tmpval = strtol( s, &endptr, 0 );
+    if ( s != endptr )
+	_to = tmpval; 
+    else if ( Values::Undef<int32>::hasUdf() )
+	    Values::setUdf( _to ); 
 }
 
 template <>

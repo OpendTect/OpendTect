@@ -6,59 +6,38 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          13/01/2005
- RCS:           $Id: undefval.h,v 1.3 2005-05-31 08:07:04 cvsnanne Exp $
+ RCS:           $Id: undefval.h,v 1.4 2006-03-12 13:39:09 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-
-
-
 #include "plftypes.h"
 
-#ifdef __cpp__
-# include "keystrs.h"
-#endif
-
-#define __sUndefValue		  sKey::FloatUdf
 #define __mUndefValue             1e30
 #define __mIsUndefined(x)         (((x)>9.99999e29)&&((x)<1.00001e30))
 #define __mUndefIntVal            2109876543
 #define __mUndefIntVal64          9223344556677889900LL
-#define __mIsUndefInt(x)          ((x) == __mUndefIntVal)
 
-#ifndef __cpp__
 
-/* for C, fallback to old style macro's */
+#ifdef __cpp__
 
-#define csUndefValue		 "1e30"
-#define mcUndefValue             __mUndefValue
-#define mcIsUndefined(x)         __mIsUndefined(x)
-#define mcUndefIntVal            __mUndefIntVal
-#define mcUndefIntVal64          __mUndefIntVal64
-#define mcIsUndefInt(x)          __mIsUndefInt(x)
-
-#else
 
 #define mUdf(type) Values::Undef<type>::val()
 #define mIsUdf(val) Values::isUdf(val)
+#define mSetUdf(val) Values::setUdf(val)
 
 
 /*!  \brief Templatized undefined and initialisation (i.e. null) values.  
 
     Since these are all templates, they can be used much more generic
-    then the previous solution with macros.
+    than previous solutions with macros.
 
-    The most used changes compared to the old macros are:
+Use like:
 
-    mIsUndefined(var)	-> Values::isUdf(var)
-    mUndefValue		-> mUdf(type) 
+  T x = mUdf(T);
+  if ( mIsUdf(x) )
+      mSetUdf(y);
 
-    For the moment, the old macro's are still available. In order to
-    test for old style macro's, use 
-
-	make OWNC++FLAGS=-DFORCE_NEW_UNDEF
- 
 */
 
 namespace Values
@@ -72,6 +51,7 @@ public:
     static T		val();
     static bool		hasUdf();
     static bool		isUdf( T );
+    void		setUdf( T );
 };
 
 
@@ -82,6 +62,7 @@ public:
     static int32	val()			{ return __mUndefIntVal; }
     static bool		hasUdf()		{ return true; }
     static bool		isUdf( int32 i )	{ return i==__mUndefIntVal; }
+    static void		setUdf( int64 i )	{ i = __mUndefIntVal; }
 };
 
 template<>
@@ -91,6 +72,7 @@ public:
     static uint32	val()			{ return __mUndefIntVal; }
     static bool		hasUdf()		{ return true; }
     static bool		isUdf( uint32 i )	{ return i==__mUndefIntVal; }
+    static void		setUdf( uint64 i )	{ i = __mUndefIntVal; }
 };
 
 
@@ -101,6 +83,7 @@ public:
     static int64	val()			{ return __mUndefIntVal64; }
     static bool		hasUdf()		{ return true; }
     static bool		isUdf( int64 i )	{ return i==__mUndefIntVal64; }
+    static void		setUdf( int64 i )	{ i = __mUndefIntVal64; }
 };
 
 template<>
@@ -110,6 +93,7 @@ public:
     static uint64	val()			{ return __mUndefIntVal64; }
     static bool		hasUdf()		{ return true; }
     static bool		isUdf( uint64 i )	{ return i==__mUndefIntVal64; }
+    static void		setUdf( uint64 i )	{ i = __mUndefIntVal64; }
 };
 
 
@@ -119,7 +103,8 @@ class Undef<bool>
 public:
     static bool		val()			{ return false; }
     static bool		hasUdf()		{ return false; }
-    static bool		isUdf( bool b )	{ return false; }
+    static bool		isUdf( bool b )		{ return false; }
+    static void		setUdf( bool b )	{ b = false; }
 };
 
 
@@ -130,6 +115,7 @@ public:
     static float	val()			{ return __mUndefValue; }
     static bool		hasUdf()		{ return true; }
     static bool		isUdf( float f )	{ return __mIsUndefined(f); }
+    static void		setUdf( float f )	{ f = __mUndefValue; }
 };
 
 
@@ -140,6 +126,7 @@ public:
     static double	val()			{ return __mUndefValue; }
     static bool		hasUdf()		{ return true; }
     static bool		isUdf( double d )	{ return __mIsUndefined(d); }
+    static void		setUdf( double d )	{ d = __mUndefValue; }
 };
 
 
@@ -147,37 +134,32 @@ template<>
 class Undef<const char*>
 {
 public:
-    static const char*	val()				{ return ""; }
-    static bool		hasUdf()			{ return true; }
+    static const char*	val()			{ return ""; }
+    static bool		hasUdf()		{ return true; }
     static bool		isUdf( const char* s )	{ return !s || !*s; }
+    static void		setUdf( const char* s )	{}
+};
+
+
+template<>
+class Undef<char*>
+{
+public:
+    static const char*	val()			{ return ""; }
+    static bool		hasUdf()		{ return true; }
+    static bool		isUdf( const char* s )	{ return !s || !*s; }
+    static void		setUdf( char* s )	{ if ( s ) *s = '\0'; }
 };
 
 
 template <class T>
-T& setUdf( T& u )
-{ 
-    u = Undef<T>::val(); 
-    return u; 
-}
-
-
-template <class T>
-bool isUdf( const T& t)
+bool isUdf( const T& t )
 { 
     return Undef<T>::isUdf(t);  
 }
 
-
-
 template <class T>
 const T& udfVal( const T& t )
-{ 
-    static T u = Undef<T>::val();
-    return u;
-}
-
-template <class T>
-const T& val()
 { 
     static T u = Undef<T>::val();
     return u;
@@ -189,6 +171,27 @@ bool hasUdf()
     return Undef<T>::hasUdf();  
 }
 
+template <class T>
+T& setUdf( T& u )
+{
+    Undef<T>::setUdf( u );
+    return u; 
 }
+
+}
+
+
+#else
+
+/* for C, fallback to old style macro's. Do not provide mUdf and mIsUdf to
+   ensure explicit thinking about the situation. */
+
+# define scUndefValue		 "1e30"
+# define mcUndefValue             __mUndefValue
+# define mcIsUndefined(x)         __mIsUndefined(x)
+
+
 #endif 
+
+
 #endif

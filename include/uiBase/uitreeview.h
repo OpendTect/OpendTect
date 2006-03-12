@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          29/01/2002
- RCS:           $Id: uitreeview.h,v 1.16 2006-01-31 16:50:23 cvshelene Exp $
+ RCS:           $Id: uitreeview.h,v 1.17 2006-03-12 13:39:10 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -232,9 +232,9 @@ public:
 			//! returns NEW ioPixmap, constructed from Qt's pixmap
     const ioPixmap* 	pixmap( int column ) const; // becomes yours
 
-    virtual const char* key( int, bool ) const		{ return 0; }
-    virtual int		compare( uiListViewItem* , int column, bool ) const
-			    { return mUndefIntVal; }
+    virtual const char* key(int,bool) const		{ return 0; }
+    virtual int		compare( uiListViewItem*,int column,bool) const
+							{ return mUdf(int); }
 
     int			childCount() const;
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: emhorizon3d.cc,v 1.68 2005-10-18 19:26:14 cvskris Exp $
+ RCS:           $Id: emhorizon3d.cc,v 1.69 2006-03-12 13:39:10 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -172,7 +172,7 @@ int nextStep()
     }
 
     const int nrvals = bvs.nrVals();
-    TypeSet<float> vals( nrvals, mUndefValue );
+    TypeSet<float> vals( nrvals, mUdf(float) );
     BinID bid;
     bvs.get( pos_, bid, vals.arr() );
 
@@ -356,7 +356,7 @@ bool HorizonGeometry::createFromStick( const TypeSet<Coord3>& stick,
 		surface.setPosAttrib( posid, EMObject::sPermanentControlNode,
 				      true);
 
-	    float distance = mUndefValue;
+	    float distance = mUdf(float);
 	    RowCol nextstep;
 	    if ( iterstep.row )
 	    {

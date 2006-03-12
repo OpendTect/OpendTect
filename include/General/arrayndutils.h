@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: arrayndutils.h,v 1.21 2005-01-28 13:31:16 bert Exp $
+ RCS:           $Id: arrayndutils.h,v 1.22 2006-03-12 13:39:09 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -312,9 +312,7 @@ inline T Array3DInterpolate( const Array3D<T>& array,
     if ( !posperiodic && ( prevpos0 < 0 || prevpos0 > size.getSize(0) -2 ||
 			 prevpos1 < 0 || prevpos1 > size.getSize(1) -2 ||
 			 prevpos2 < 0 || prevpos2 > size.getSize(2) -2 ))
-    {
-	return mUndefValue;
-    }
+	return mUdf(T);
 
     if ( !posperiodic && ( !prevpos0 || prevpos0 > size.getSize(0) -3 ||
 			 !prevpos1 || prevpos1 > size.getSize(1) -3 ||

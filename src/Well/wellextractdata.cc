@@ -4,7 +4,7 @@
  * DATE     : May 2004
 -*/
 
-static const char* rcsID = "$Id: wellextractdata.cc,v 1.26 2005-09-28 15:08:48 cvsbert Exp $";
+static const char* rcsID = "$Id: wellextractdata.cc,v 1.27 2006-03-12 13:39:11 cvsbert Exp $";
 
 #include "wellextractdata.h"
 #include "wellreader.h"
@@ -149,7 +149,7 @@ int Well::TrackSampler::nextStep()
     if ( !wr.getInfo() ) mRetNext()
     if ( timesurv && !wr.getD2T() ) mRetNext()
     fulldahrg = wr.getLogDahRange( lognm );
-    if ( mIsUndefined(fulldahrg.start) ) mRetNext()
+    if ( mIsUdf(fulldahrg.start) ) mRetNext()
     wr.getMarkers();
 
     getData( wd, *bivset );
@@ -161,9 +161,9 @@ void Well::TrackSampler::getData( const Well::Data& wd, BinIDValueSet& bivset )
 {
     Interval<float> dahrg;
     getLimitPos(wd.markers(),true,dahrg.start);
-    	if ( mIsUndefined(dahrg.start) ) return;
+    	if ( mIsUdf(dahrg.start) ) return;
     getLimitPos(wd.markers(),false,dahrg.stop);
-    	if ( mIsUndefined(dahrg.stop) ) return;
+    	if ( mIsUdf(dahrg.stop) ) return;
     if ( dahrg.start > dahrg.stop  ) return;
 
     float dahincr = SI().zStep() * .5;
@@ -172,7 +172,7 @@ void Well::TrackSampler::getData( const Well::Data& wd, BinIDValueSet& bivset )
 
     BinIDValue biv; float dah = dahrg.start - dahincr;
     int trackidx = 0; Coord3 precisepos;
-    BinIDValue prevbiv; prevbiv.binid.inl = mUndefIntVal;
+    BinIDValue prevbiv; mSetUdf(prevbiv.binid.inl);
 
     while ( true )
     {
@@ -202,7 +202,7 @@ void Well::TrackSampler::getLimitPos( const ObjectSet<Marker>& markers,
 	val = fulldahrg.stop;
     else
     {
-	val = mUndefValue;
+	mSetUdf(val);
 	for ( int idx=0; idx<markers.size(); idx++ )
 	{
 	    if ( markers[idx]->name() == mrknm )
@@ -213,11 +213,11 @@ void Well::TrackSampler::getLimitPos( const ObjectSet<Marker>& markers,
 	}
     }
 
-    float shft = isstart ? (mIsUndefined(above) ? above : -above) : below;
-    if ( mIsUndefined(val) )
+    float shft = isstart ? (mIsUdf(above) ? above : -above) : below;
+    if ( mIsUdf(val) )
 	return;
 
-    if ( !mIsUndefined(shft) )
+    if ( !mIsUdf(shft) )
 	val += shft;
 }
 
@@ -238,7 +238,7 @@ bool Well::TrackSampler::getSnapPos( const Well::Data& wd, float dah,
     if ( SI().zIsTime() && wd.d2TModel() )
     {
 	pos.z = wd.d2TModel()->getTime( dah );
-	if ( mIsUndefined(pos.z) )
+	if ( mIsUdf(pos.z) )
 	    return false;
     }
     biv.value = pos.z; SI().snapZ( biv.value );
@@ -404,7 +404,7 @@ void Well::LogDataExtracter::getData( const BinIDValueSet& bivs,
     {
 	bivs.get( bvpos, biv );
 	if ( biv.value < z1 - tol )
-	    res += mUndefValue;
+	    res += mUdf(float);
 	else
 	    break;
     }
@@ -420,7 +420,7 @@ void Well::LogDataExtracter::getData( const BinIDValueSet& bivs,
 	return;
 
     float prevwinsz = mDefWinSz;
-    float prevdah = mUndefValue;
+    float prevdah = mUdf(float);
     bivs.prev( bvpos );
     while ( bivs.next(bvpos) )
     {
@@ -439,7 +439,7 @@ void Well::LogDataExtracter::getData( const BinIDValueSet& bivs,
 	    // This is not uncommon. A new binid with higher posns.
 	    trackidx = 1;
 	    bivs.prev( bvpos );
-	    prevdah = mUndefValue;
+	    mSetUdf(prevdah);
 	    continue;
 	}
 
@@ -447,7 +447,7 @@ void Well::LogDataExtracter::getData( const BinIDValueSet& bivs,
 		    + (biv.value-z1) * track.dah(trackidx) )
 		    / (z2 - z1);
 
-	float winsz = mIsUndefined(prevdah) ? prevwinsz : dah - prevdah;
+	float winsz = mIsUdf(prevdah) ? prevwinsz : dah - prevdah;
 	addValAtDah( dah, wl, res, winsz );
 	prevwinsz = winsz;
 	prevdah = dah;
@@ -465,9 +465,9 @@ void Well::LogDataExtracter::getGenTrackData( const BinIDValueSet& bivs,
     while ( bivs.next(bvpos) )
     {
 	bivs.get( bvpos, biv );
-	if ( !mIsUndefined(biv.value) )
+	if ( !mIsUdf(biv.value) )
 	    break;
-	res += mUndefValue;
+	res += mUdf(float);
     }
 
     if ( !bvpos.valid() || !track.size() )
@@ -479,24 +479,24 @@ void Well::LogDataExtracter::getGenTrackData( const BinIDValueSet& bivs,
     const float startdah = track.dah(0);
     const float dahstep = wl.dahStep(true);
 
-    float prevdah = mUndefValue;
+    float prevdah = mUdf(float);
     float prevwinsz = mDefWinSz;
     bivs.prev( bvpos );
     while ( bivs.next(bvpos) )
     {
 	bivs.get( bvpos, biv );
 	float dah = findNearest( track, biv, startdah, dahstep );
-	if ( mIsUndefined(dah) )
-	    { res += mUndefValue; continue; }
+	if ( mIsUdf(dah) )
+	    { res += mUdf(float); continue; }
 	else
 	{
 	    Coord3 pos = track.getPos( dah );
 	    Coord coord = SI().transform( biv.binid );
 	    if ( coord.distance(pos) > dtol || fabs(pos.z-biv.value) > ztol )
-		res += mUndefValue;
+		res += mUdf(float);
 	    else
 	    {
-		float winsz = mIsUndefined(prevdah) ? prevwinsz : dah - prevdah;
+		float winsz = mIsUdf(prevdah) ? prevwinsz : dah - prevdah;
 		addValAtDah( dah, wl, res, winsz );
 		prevwinsz = winsz;
 		prevdah = dah;
@@ -508,8 +508,8 @@ void Well::LogDataExtracter::getGenTrackData( const BinIDValueSet& bivs,
 float Well::LogDataExtracter::findNearest( const Well::Track& track,
 		    const BinIDValue& biv, float startdah, float dahstep ) const
 {
-    if ( mIsUndefined(dahstep) || mIsZero(dahstep,mDefEps) )
-	return mUndefValue;
+    if ( mIsUdf(dahstep) || mIsZero(dahstep,mDefEps) )
+	return mUdf(float);
 
     const float zfac = SI().zIsTime() ? 10000 : 1;
 		// Use a distance criterion weighing the Z a lot
@@ -555,13 +555,13 @@ float Well::LogDataExtracter::calcVal( const Well::Log& wl, float dah,
 	if ( rg.includes(dah) )
 	{
 	    float val = wl.value(idx);
-	    if ( !mIsUndefined(val) )
+	    if ( !mIsUdf(val) )
 		vals += wl.value(idx);
 	}
 	else if ( dah > rg.stop )
 	    break;
     }
-    if ( vals.size() < 1 ) return mUndefValue;
+    if ( vals.size() < 1 ) return mUdf(float);
     if ( vals.size() == 1 ) return vals[0];
     if ( vals.size() == 2 ) return samppol == Avg ? (vals[0]+vals[1])/2
 						  : vals[0];

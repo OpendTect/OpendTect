@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:		$Id: uiseis2dgeom.cc,v 1.5 2005-08-26 18:19:28 cvsbert Exp $
+ RCS:		$Id: uiseis2dgeom.cc,v 1.6 2006-03-12 13:39:11 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -106,8 +106,8 @@ bool uiSeisDump2DGeom::acceptOK( CallBacker* )
         return false;
     }
 
-    float zval = zfld->isChecked() ? zfld->getfValue() : mUndefValue;
-    if ( !mIsUndefined(zval) ) zval /= SI().zFactor();
+    float zval = zfld->isChecked() ? zfld->getfValue() : mUdf(float);
+    if ( !mIsUdf(zval) ) zval /= SI().zFactor();
     const bool incnr = incnrfld->getBoolValue();
     LineKey lk;
     if ( lnmsfld->isChecked() )

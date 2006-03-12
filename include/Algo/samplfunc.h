@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: samplfunc.h,v 1.8 2005-01-28 13:31:16 bert Exp $
+ RCS:           $Id: samplfunc.h,v 1.9 2006-03-12 13:39:09 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,7 +34,7 @@ public:
 
     virtual int			size() const				= 0;
 
-    virtual float		period() const { return mUndefValue; } 
+    virtual float		period() const { return mUdf(float); } 
     void			setPeriodic( bool np ) { periodic = np; } 
 
     float			getIndex(float x) const
@@ -63,7 +63,7 @@ protected:
 
 
     virtual bool		extrapolate() const { return false; }
-    virtual RT			getUndefVal() const { return mUndefValue; }
+    virtual RT			getUndefVal() const { return mUdf(RT); }
 
 };
 
@@ -80,7 +80,7 @@ public:
 			    , sz( sz_ )
 			    , x0( x0_ )
 			    , dx( dx_ )
-			    , period_ ( mUndefValue )
+			    , period_ ( mUdf(float) )
 			{}
 
     RT			operator[](int idx) const { return idxabl[idx]; }

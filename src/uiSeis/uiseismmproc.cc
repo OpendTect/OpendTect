@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:		$Id: uiseismmproc.cc,v 1.103 2006-03-01 13:45:46 cvsbert Exp $
+ RCS:		$Id: uiseismmproc.cc,v 1.104 2006-03-12 13:39:11 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,22 @@ ________________________________________________________________________
 #include "jobrunner.h"
 #include "jobdescprov.h"
 #include "jobinfo.h"
+#include "hostdata.h"
+#include "iopar.h"
+#include "ioman.h"
+#include "iostrm.h"
+#include "timer.h"
+#include "timefun.h"
+#include "filegen.h"
+#include "filepath.h"
+#include "executor.h"
+#include "ptrman.h"
+#include "strmprov.h"
+#include "envvars.h"
+#include "keystrs.h"
+#include "settings.h"
+#include "seissingtrcproc.h"
+
 #include "uilabel.h"
 #include "uilistbox.h"
 #include "uicombobox.h"
@@ -30,23 +46,8 @@ ________________________________________________________________________
 #include "uislider.h"
 #include "uigeninput.h"
 #include "uilabel.h"
-#include "hostdata.h"
-#include "iopar.h"
-#include "ioman.h"
-#include "iostrm.h"
-#include "timer.h"
-#include "timefun.h"
-#include "filegen.h"
-#include "filepath.h"
-#include "executor.h"
-#include "ptrman.h"
-#include "strmprov.h"
-#include "envvars.h"
-#include "seissingtrcproc.h"
 #include <stdlib.h>
 #include <iostream>
-
-#include "settings.h"
 
 static const char* outlsfilename = "outls.2ds";
 static const char* outlskey = "Output Line Set";

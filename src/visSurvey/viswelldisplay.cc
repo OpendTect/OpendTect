@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: viswelldisplay.cc,v 1.60 2006-01-31 16:53:46 cvshelene Exp $";
+static const char* rcsID = "$Id: viswelldisplay.cc,v 1.61 2006-03-12 13:39:11 cvsbert Exp $";
 
 #include "viswelldisplay.h"
 
@@ -139,7 +139,7 @@ TypeSet<Coord3> WellDisplay::getTrackPos( Well::Data* wd )
 	if ( zinfeet_ )
 	    mMeter2Feet(pt.z);
 
-	if ( !mIsUndefined(pt.z) )
+	if ( !mIsUdf(pt.z) )
 	    trackpos += pt;
     }
 

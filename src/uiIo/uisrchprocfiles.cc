@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Feb 2006
- RCS:           $Id: uisrchprocfiles.cc,v 1.1 2006-02-28 16:33:24 cvsbert Exp $
+ RCS:           $Id: uisrchprocfiles.cc,v 1.2 2006-03-12 13:39:11 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,6 +23,7 @@ ________________________________________________________________________
 #include "dirlist.h"
 #include "filepath.h"
 #include "ctxtioobj.h"
+#include "keystrs.h"
 
 
 uiSrchProcFiles::uiSrchProcFiles( uiParent* p, CtxtIOObj& c, const char* iopky )

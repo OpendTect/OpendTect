@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          18-4-1996
- RCS:           $Id: rcol2coord.cc,v 1.2 2005-04-28 13:43:44 cvskris Exp $
+ RCS:           $Id: rcol2coord.cc,v 1.3 2006-03-12 13:39:10 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -61,11 +61,11 @@ RowCol RCol2Coord::transformBack( const Coord& coord,
 				  const StepInterval<int>* rowrg,
 				  const StepInterval<int>* colrg) const
 {
-    if ( Values::isUdf(coord.x) || Values::isUdf(coord.y) )
+    if ( mIsUdf(coord.x) || mIsUdf(coord.y) )
 	return RowCol(mUdf(int),mUdf(int));
 
     const Coord res = transformBackNoSnap( coord );
-    if ( Values::isUdf(res.x) || Values::isUdf(res.y) )
+    if ( mIsUdf(res.x) || mIsUdf(res.y) )
 	return RowCol(mUdf(int),mUdf(int));
 
     return RowCol(rowrg ? rowrg->snap(res.x) : mNINT(res.x),
@@ -75,7 +75,7 @@ RowCol RCol2Coord::transformBack( const Coord& coord,
 
 Coord RCol2Coord::transformBackNoSnap( const Coord& coord ) const
 {
-    if ( Values::isUdf(coord.x) || Values::isUdf(coord.y) )
+    if ( mIsUdf(coord.x) || mIsUdf(coord.y) )
 	return Coord(mUdf(double),mUdf(double));
 
     double det = xtr.det( ytr );

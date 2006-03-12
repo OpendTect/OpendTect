@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          29/06/2001
- RCS:           $Id: i_layoutitem.h,v 1.25 2005-11-17 14:44:18 cvsarend Exp $
+ RCS:           $Id: i_layoutitem.h,v 1.26 2006-03-12 13:39:10 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -175,7 +175,7 @@ public:
     virtual uiSize 	minimumsize() const
 			    { 
 				uiSize s =  uiObjBody_.minimumsize();
-				if( s.hNrPics()!=mUndefIntVal )  
+				if( !mIsUdf(s.hNrPics()) )  
 				    return s;
 
 				return i_LayoutItem::minimumsize();

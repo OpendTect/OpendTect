@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2002
- RCS:           $Id: uiscaler.cc,v 1.13 2005-01-12 16:13:43 arend Exp $
+ RCS:           $Id: uiscaler.cc,v 1.14 2006-03-12 13:39:11 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -82,8 +82,8 @@ Scaler* uiScaler::getScaler() const
     case 0: {
 	double c = linearfld->isUndef(0) ? 0 : linearfld->getValue(0);
 	double f = linearfld->isUndef(1) ? 1 : linearfld->getValue(1);
-	if ( mIsUndefined(c) ) c = 0;
-	if ( mIsUndefined(f) ) f = 1;
+	if ( mIsUdf(c) ) c = 0;
+	if ( mIsUdf(f) ) f = 1;
 	scaler = new LinScaler( c, f );
 	} break;
     case 1: {

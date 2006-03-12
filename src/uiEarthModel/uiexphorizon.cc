@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2002
- RCS:           $Id: uiexphorizon.cc,v 1.40 2005-11-16 14:04:20 cvsnanne Exp $
+ RCS:           $Id: uiexphorizon.cc,v 1.41 2006-03-12 13:39:11 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,6 +23,7 @@ ________________________________________________________________________
 #include "strmdata.h"
 #include "strmprov.h"
 #include "survinfo.h"
+#include "keystrs.h"
 #include "uicursor.h"
 #include "uiexecutor.h"
 #include "uifileinput.h"
@@ -53,7 +54,7 @@ uiExportHorizon::uiExportHorizon( uiParent* p )
     zfld->attach( alignedBelow, typfld );
 
     udffld = new uiGenInput( this, "Undefined value",
-	    		     StringInpSpec(sUndefValue) );
+	    		     StringInpSpec(sKey::FloatUdf) );
     udffld->attach( alignedBelow, zfld );
 
     gfgrp = new uiGroup( this, "GF things" );
@@ -127,7 +128,7 @@ bool uiExportHorizon::writeAscii()
     const bool addzpos = zfld->getBoolValue();
     const bool dogf = typfld->getIntValue() == 2;
     BufferString udfstr = udffld->text();
-    if ( udfstr == "" ) udfstr = sUndefValue;
+    if ( udfstr == "" ) udfstr = sKey::FloatUdf;
 
     BufferString basename = outfld->fileName();
 

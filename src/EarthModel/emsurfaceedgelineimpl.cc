@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emsurfaceedgelineimpl.cc,v 1.21 2005-12-13 19:50:15 cvskris Exp $";
+static const char* rcsID = "$Id: emsurfaceedgelineimpl.cc,v 1.22 2006-03-12 13:39:10 cvsbert Exp $";
 
 
 
@@ -117,7 +117,7 @@ bool SurfaceCutLine::isNodeOK(const RowCol& testrc) const
 {
     const int cacheidx = cacherc.indexOf(testrc,false);
 
-    float disttosurface = mUndefValue;
+    float disttosurface = mUdf(float);
     if ( cacheidx==-1 )
     {
 	const Coord3 ntpos = surface.getPos( section, testrc.getSerialized() );
@@ -136,7 +136,7 @@ bool SurfaceCutLine::isNodeOK(const RowCol& testrc) const
     else
 	disttosurface = distcache[cacheidx];
 
-    if ( mIsUndefined(disttosurface) )
+    if ( mIsUdf(disttosurface) )
 	return false;
 
 //  return fabs(disttosurface)<meshdist/2;
@@ -182,7 +182,7 @@ bool SurfaceCutLine::trackWithCache( int start, bool forward,
     int bestidx = -1;
     bool changebestposition = false;
     Coord3 bestpos;
-    float bestscore = mUndefValue;
+    float bestscore = mUdf(float);
 
 
     const int backnodecacheidx = cacherc.indexOf(backnode,false);
@@ -191,13 +191,13 @@ bool SurfaceCutLine::trackWithCache( int start, bool forward,
     {
 	const Coord3 pos = surface.getPos( section, backnode.getSerialized() );
 	poscache += pos;
-	if (  pos.isDefined() )
+	if ( !pos.isDefined() )
+	    mSetUdf(backnodedistance);
+	else
 	{
 	    backnodedistance = cuttingsurface->geometry.normalDistance(pos,t2d);
 	    if ( cutonpositiveside ) backnodedistance = -backnodedistance;
 	}
-	else
-	    backnodedistance = mUndefValue;
 
 	distcache += backnodedistance;
 	cacherc += backnode;
@@ -206,7 +206,7 @@ bool SurfaceCutLine::trackWithCache( int start, bool forward,
     else
 	backnodedistance = distcache[backnodecacheidx];
 
-    if ( !mIsUndefined(backnodedistance) && backnodedistance>meshdist/16 )
+    if ( !mIsUdf(backnodedistance) && backnodedistance>meshdist/16 )
 	rightsidefound = true;
 
     for ( int idx=1; idx<nrdirs; idx++ )
@@ -227,13 +227,13 @@ bool SurfaceCutLine::trackWithCache( int start, bool forward,
 	{
 	    const Coord3 pos = surface.getPos( section, currc.getSerialized() );
 	    poscache += pos;
-	    if ( pos.isDefined() )
+	    if ( !pos.isDefined() )
+		mSetUdf(distance);
+	    else
 	    {
 		distance = cuttingsurface->geometry.normalDistance(pos,t2d);
 		if ( cutonpositiveside ) distance = -distance;
 	    }
-	    else
-		distance = mUndefValue;
 
 	    distcache += distance;
 	    cacherc += currc;
@@ -242,7 +242,7 @@ bool SurfaceCutLine::trackWithCache( int start, bool forward,
 	else
 	    distance = distcache[cacheidx];
 
-	if ( !mIsUndefined(distance) )
+	if ( !mIsUdf(distance) )
 	{
 	    firstfound = true;
 	    const RowCol prevdir = lastdefineddir;
@@ -267,7 +267,7 @@ bool SurfaceCutLine::trackWithCache( int start, bool forward,
 		const float curscore =
 		    computeScore( currc, changecurbestpos, curbestpos,
 			    	  &sourcerc );
-		if ( !mIsUndefined(curscore) &&
+		if ( !mIsUdf(curscore) &&
 			curscore<meshdist/2 && curscore<=bestscore )
 		{
 		    bestidx = curdiridx;
@@ -288,7 +288,7 @@ bool SurfaceCutLine::trackWithCache( int start, bool forward,
 		const float curscore =
 		    computeScore( currc, changecurbestpos, curbestpos,
 			          &sourcerc );
-		if ( !mIsUndefined( curscore ) &&
+		if ( !mIsUdf( curscore ) &&
 			curscore<meshdist/16 && curscore<=bestscore  )
 		{
 		    bestidx = curdiridx;
@@ -313,7 +313,7 @@ bool SurfaceCutLine::trackWithCache( int start, bool forward,
 		    computeScore( prevrc, changeprevbestpos, prevbestpos,
 			          &sourcerc );
 
-		if ( !mIsUndefined( prevscore ) && !changeprevbestpos )
+		if ( !mIsUdf( prevscore ) && !changeprevbestpos )
 		{
 		    changebestposition = false;
 		    bestidx = dirs.indexOf(prevdir);
@@ -326,7 +326,7 @@ bool SurfaceCutLine::trackWithCache( int start, bool forward,
 		    computeScore( currc, changecurbestpos, curbestpos,
 			          &sourcerc );
 
-		if ( mIsUndefined(prevscore)&&mIsUndefined(curscore) )
+		if ( mIsUdf(prevscore) && mIsUdf(curscore) )
 		break;
 
 		const bool usecur = curscore<prevscore;
@@ -356,7 +356,7 @@ bool SurfaceCutLine::trackWithCache( int start, bool forward,
 		computeScore( prevrc, changeprevbestpos, prevbestpos,
 			      &sourcerc );
 
-	    if ( !mIsUndefined(prevscore) && prevscore<meshdist/2 )
+	    if ( !mIsUdf(prevscore) && prevscore<meshdist/2 )
 	    {
 		changebestposition = false;
 		bestidx = dirs.indexOf(lastdefineddir);
@@ -730,7 +730,7 @@ void SurfaceCutLine::computeDistancesAlongLine( const EdgeLine& line,
 	    if ( negate ) dist = -dist;
 	}
 
-	if ( !mIsUndefined(dist) )
+	if ( !mIsUdf(dist) )
 	{
 	    if ( furthestaway==-1 || distances[furthestaway]<dist )
 		furthestaway = border.size();
@@ -777,13 +777,13 @@ float SurfaceCutLine::computeScore( const RowCol& targetrc,
     if ( cacheidx==-1 )
     {
 	poscache += pos = surface.getPos( section, targetrc.getSerialized() );
-	if (  pos.isDefined() )
+	if ( !pos.isDefined() )
+	    mSetUdf(distance);
+	else
 	{
 	    distance = cuttingsurface->geometry.normalDistance(pos,t2d);
 	    if ( cutonpositiveside ) distance = -distance;
 	}
-	else
-	    distance = mUndefValue;
 
 	distcache += distance;
 	cacherc += targetrc;
@@ -796,11 +796,11 @@ float SurfaceCutLine::computeScore( const RowCol& targetrc,
     }
 
     if ( !pos.isDefined() )
-	return mUndefValue;
+	return mUdf(float);
 
     TypeSet<PosID> cuttingnodes;
     if ( !getCuttingPositions( pos, cuttingnodes ) )
-	return mUndefValue;
+	return mUdf(float);
     
     if ( !cuttingnodes.size() )
     {
@@ -811,7 +811,7 @@ float SurfaceCutLine::computeScore( const RowCol& targetrc,
 	//
 	// Should perhaps be removed later
 	if ( !sourcerc )
-	    return mUndefValue;
+	    return mUdf(float);
 
 	const Coord backpos = surface.getPos(section,sourcerc->getSerialized());
 	const Coord diff( pos.x-backpos.x, pos.y-backpos.y);
@@ -823,7 +823,7 @@ float SurfaceCutLine::computeScore( const RowCol& targetrc,
 	    return distance;
 	}
 
-	return mUndefValue;
+	return mUdf(float);
     }
 
     scorepos = pos;

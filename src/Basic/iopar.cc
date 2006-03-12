@@ -4,7 +4,7 @@
  * DATE     : 21-12-1995
 -*/
 
-static const char* rcsID = "$Id: iopar.cc,v 1.51 2006-02-20 18:49:48 cvsbert Exp $";
+static const char* rcsID = "$Id: iopar.cc,v 1.52 2006-03-12 13:39:10 cvsbert Exp $";
 
 #include "iopar.h"
 #include "multiid.h"
@@ -359,7 +359,7 @@ bool IOPar::getSc( const char* s, float& f, float sc, bool udf ) const
     if ( ptr && *ptr )
     {
 	Conv::udfset( f, ptr );
-	if ( !Values::isUdf(f) ) f *= sc;
+	if ( !mIsUdf(f) ) f *= sc;
 	return true;
     }
     else if ( udf )
@@ -375,7 +375,7 @@ bool IOPar::getSc( const char* s, double& d, double sc, bool udf ) const
     if ( ptr && *ptr )
     {
 	d = atof( ptr );
-	if ( !Values::isUdf(d) ) d *= sc;
+	if ( !mIsUdf(d) ) d *= sc;
 	return true;
     }
     else if ( udf )
@@ -432,7 +432,7 @@ bool IOPar::getSc( const char* s, double& d1, double& d2, double sc,
 	{
 	    havedata = true;
 	    d1 = atof( ptr );
-	    if ( !Values::isUdf(d1) ) d1 *= sc;
+	    if ( !mIsUdf(d1) ) d1 *= sc;
 	}
 	else if ( udf )
 	    Values::setUdf(d1);
@@ -442,7 +442,7 @@ bool IOPar::getSc( const char* s, double& d1, double& d2, double sc,
 	{
 	    havedata = true;
 	    d2 = atof( ptr );
-	    if ( !Values::isUdf(d2) ) d2 *= sc;
+	    if ( !mIsUdf(d2) ) d2 *= sc;
 	}
 	else if ( udf )
 	    Values::setUdf(d2);
@@ -463,7 +463,7 @@ bool IOPar::getSc( const char* s, double& d1, double& d2, double& d3, double sc,
 	if ( *ptr )
 	{
 	    d1 = atof( ptr );
-	    if ( !Values::isUdf(d1) ) d1 *= sc;
+	    if ( !mIsUdf(d1) ) d1 *= sc;
 	    havedata = true;
 	}
 	else if ( udf )
@@ -473,7 +473,7 @@ bool IOPar::getSc( const char* s, double& d1, double& d2, double& d3, double sc,
 	if ( *ptr )
 	{
 	    d2 = atof( ptr );
-	    if ( !Values::isUdf(d2) ) d2 *= sc;
+	    if ( !mIsUdf(d2) ) d2 *= sc;
 	    havedata = true;
 	}
 	else if ( udf )
@@ -483,7 +483,7 @@ bool IOPar::getSc( const char* s, double& d1, double& d2, double& d3, double sc,
 	if ( *ptr )
 	{
 	    d3 = atof( ptr );
-	    if ( !Values::isUdf(d3) ) d3 *= sc;
+	    if ( !mIsUdf(d3) ) d3 *= sc;
 	    havedata = true;
 	}
 	else if ( udf )
@@ -506,7 +506,7 @@ bool IOPar::getSc( const char* s, double& d1, double& d2, double& d3,
 	{
 	    havedata = true;
 	    d1 = atof( ptr );
-	    if ( !Values::isUdf(d1) ) d1 *= sc;
+	    if ( !mIsUdf(d1) ) d1 *= sc;
 	}
 	else if ( udf )
 	    Values::setUdf(d1);
@@ -516,7 +516,7 @@ bool IOPar::getSc( const char* s, double& d1, double& d2, double& d3,
 	{
 	    havedata = true;
 	    d2 = atof( ptr );
-	    if ( !Values::isUdf(d2) ) d2 *= sc;
+	    if ( !mIsUdf(d2) ) d2 *= sc;
 	}
 	else if ( udf )
 	    Values::setUdf(d2);
@@ -526,7 +526,7 @@ bool IOPar::getSc( const char* s, double& d1, double& d2, double& d3,
 	{
 	    havedata = true;
 	    d3 = atof( ptr );
-	    if ( !Values::isUdf(d3) ) d3 *= sc;
+	    if ( !mIsUdf(d3) ) d3 *= sc;
 	}
 	else if ( udf )
 	    Values::setUdf(d3);
@@ -536,7 +536,7 @@ bool IOPar::getSc( const char* s, double& d1, double& d2, double& d3,
 	{
 	    havedata = true;
 	    d4 = atof( ptr );
-	    if ( !Values::isUdf(d4) ) d4 *= sc;
+	    if ( !mIsUdf(d4) ) d4 *= sc;
 	}
 	else if ( udf )
 	    Values::setUdf(d4);

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: emsurfaceauxdata.cc,v 1.8 2006-02-20 08:40:51 cvsnanne Exp $
+ RCS:           $Id: emsurfaceauxdata.cc,v 1.9 2006-03-12 13:39:10 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -117,19 +117,19 @@ void SurfaceAuxData::removeAuxData( int dataidx )
 
 float SurfaceAuxData::getAuxDataVal( int dataidx, const PosID& posid ) const
 {
-    if ( !auxdata[dataidx] ) return mUndefValue;
+    if ( !auxdata[dataidx] ) return mUdf(float);
     const int sectionidx = surface.geometry.sectionNr( posid.sectionID() );
-    if ( sectionidx==-1 ) return mUndefValue;
+    if ( sectionidx==-1 ) return mUdf(float);
 
     const TypeSet<float>* sectionauxdata = sectionidx<auxdata[dataidx]->size()
 	? (*auxdata[dataidx])[sectionidx] : 0;
 
-    if ( !sectionauxdata ) return mUndefValue;
+    if ( !sectionauxdata ) return mUdf(float);
 
     const RowCol geomrc( posid.subID() );
     const int subidx =
 	surface.geometry.getSurface(posid.sectionID())->getKnotIndex(geomrc);
-    if ( subidx==-1 ) return mUndefValue;
+    if ( subidx==-1 ) return mUdf(float);
     return (*sectionauxdata)[subidx];
 }
 
@@ -155,7 +155,7 @@ void SurfaceAuxData::setAuxDataVal( int dataidx, const PosID& posid, float val)
 
 	const int sz= surface.geometry.getSurface(posid.sectionID())->nrKnots();
 	auxdata[dataidx]->replace( sectionidx,
-				   new TypeSet<float>(sz,mUndefValue) );
+				   new TypeSet<float>(sz,mUdf(float)) );
 	sectionauxdata = (*auxdata[dataidx])[sectionidx];
     }
 

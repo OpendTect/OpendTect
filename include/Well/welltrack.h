@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: welltrack.h,v 1.12 2006-01-10 13:17:07 cvshelene Exp $
+ RCS:		$Id: welltrack.h,v 1.13 2006-03-12 13:39:10 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -48,7 +48,7 @@ public:
     			//!< Will correct all dahs below point
 
     Coord3		getPos(float d_ah) const;
-    float		getDahForTVD(float,float prevdah=mUndefValue) const;
+    float		getDahForTVD(float,float prevdah=mUdf(float)) const;
     			//!< Non-unique. previous DAH may be helpful
 
     			// If you know what you're doing:

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Dec 2004
- RCS:		$Id: seispsioprov.h,v 1.5 2005-08-16 10:34:27 cvsbert Exp $
+ RCS:		$Id: seispsioprov.h,v 1.6 2006-03-12 13:39:09 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,7 +41,7 @@ class IOObj;
   Pass:
   * negative number for no scanning
   * positive number for single inline usage
-  * mUndefIntVal (=default) for scanning the entire datastore
+  * mUdf(int) (=default) for scanning the entire datastore
 
  */
 

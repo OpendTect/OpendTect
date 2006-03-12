@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: wellimpasc.h,v 1.15 2005-12-02 16:53:15 cvshelene Exp $
+ RCS:		$Id: wellimpasc.h,v 1.16 2006-03-12 13:39:09 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -43,7 +43,7 @@ public:
     {
     public:
 			LasFileInfo()
-			    : zrg(mUndefValue,mUndefValue)
+			    : zrg(mUdf(float),mUdf(float))
 			    , undefval(-999.25)	{}
 			~LasFileInfo()		{ deepErase(lognms); }
 

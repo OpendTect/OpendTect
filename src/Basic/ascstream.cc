@@ -4,13 +4,14 @@
  * DATE     : 7-7-1994
 -*/
 
-static const char* rcsID = "$Id: ascstream.cc,v 1.16 2005-09-27 08:38:52 cvsbert Exp $";
+static const char* rcsID = "$Id: ascstream.cc,v 1.17 2006-03-12 13:39:10 cvsbert Exp $";
 
 #include "ascstream.h"
 #include "string2.h"
 #include "general.h"
 #include "timefun.h"
 #include "convert.h"
+#include "odver.h"
 #include <string.h>
 #include <stdlib.h>
 #include <iostream>
@@ -101,14 +102,14 @@ bool ascostream::put( const char* keyword, int value )
 
 bool ascostream::put( const char* keyword, float value )
 {
-    return Values::isUdf(value) ? stream().good()
+    return mIsUdf(value) ? stream().good()
 	 : put( keyword, Conv::to<const char*>(value) );
 }
 
 
 bool ascostream::put( const char* keyword, double value )
 {
-    return Values::isUdf(value) ? stream().good()
+    return mIsUdf(value) ? stream().good()
 	 : put( keyword, Conv::to<const char*>(value) );
 }
 

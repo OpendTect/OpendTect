@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          December 2004
- RCS:           $Id: uiscalingattrib.cc,v 1.6 2006-01-25 07:13:40 cvskris Exp $
+ RCS:           $Id: uiscalingattrib.cc,v 1.7 2006-03-12 13:39:11 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -182,7 +182,7 @@ bool uiScalingAttrib::getParameters( Desc& desc )
     {
 	int start = table->getIntValue( RowCol(idx,startcol) );
 	int stop = table->getIntValue( RowCol(idx,stopcol) );
-	if ( mIsUndefInt(start) && mIsUndefInt(stop) ) continue;
+	if ( mIsUdf(start) && mIsUdf(stop) ) continue;
 	
 	tgs += TimeGate(start,stop );
 

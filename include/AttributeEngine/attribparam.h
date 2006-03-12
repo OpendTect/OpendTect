@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribparam.h,v 1.19 2005-12-23 16:11:01 cvsnanne Exp $
+ RCS:           $Id: attribparam.h,v 1.20 2006-03-12 13:39:09 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -218,9 +218,8 @@ NumParam<T>::NumParam( const NumParam<T>& np )
 template <class T>
 bool NumParam<T>::getCompositeValue( BufferString& res ) const
 {
-    if ( !spec_ ) return false;
-    res = spec_->isUndef() ? sKey::FloatUdf : spec_->text();
-    return true;
+    res = spec_ && !spec_->isUndef() ? spec_->text() : "1e30";
+    return spec_;
 }
 
 
@@ -228,7 +227,6 @@ template <class T>
 void NumParam<T>::setDefaultValue( T val )
 {
     BufferString str( val );
-    if ( mIsUdf(val) ) str = sKey::FloatUdf;
     Param::setDefaultValue( str );
 }
 

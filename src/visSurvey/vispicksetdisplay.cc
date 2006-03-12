@@ -4,7 +4,7 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.74 2006-02-01 21:54:38 cvskris Exp $";
+static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.75 2006-03-12 13:39:11 cvsbert Exp $";
 
 #include "vispicksetdisplay.h"
 
@@ -137,8 +137,7 @@ int PickSetDisplay::nrPicks() const
 Coord3 PickSetDisplay::getPick( int idx ) const
 {
     mDynamicCastGet(visBase::Marker*,marker,group->getObject(idx))
-    return marker ? marker->centerPos() 
-    		  : Coord3(mUndefValue,mUndefValue,mUndefValue);
+    return marker ? marker->centerPos() : Coord3::udf();
 }
 
 

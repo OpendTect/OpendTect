@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvobj.h,v 1.57 2006-03-09 17:26:20 cvskris Exp $
+ RCS:		$Id: vissurvobj.h,v 1.58 2006-03-12 13:39:10 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -41,7 +41,7 @@ class SurveyObject
 {
 public:
     virtual float		calcDist(const Coord3&) const
-				{ return mUndefValue; }
+				{ return mUdf(float); }
     				/*<\Calculates distance between pick and 
 				    object*/
     virtual float		maxDist() const		{ return sDefMaxDist; }
@@ -163,7 +163,7 @@ public:
     virtual void		getMousePosInfo(const visBase::EventInfo&,
 					    const Coord3& xyzpos, float& val,
 					    BufferString& info) const
-				{ val = mUndefValue; info = ""; }
+				{ val = mUdf(float); info = ""; }
    
    				//Volume data 
     virtual CubeSampling	getCubeSampling( int attrib ) const

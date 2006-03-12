@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: trigonometry.cc,v 1.24 2005-10-04 14:05:48 cvskris Exp $";
+static const char* rcsID = "$Id: trigonometry.cc,v 1.25 2006-03-12 13:39:10 cvsbert Exp $";
 
 #include "trigonometry.h"
 
@@ -72,9 +72,10 @@ Coord3 estimateAverageVector( const TypeSet<Coord3>& vectors, bool normalize,
     const TypeSet<Coord3>& usedvectors =  normalize || checkforundefs
 					 ? ownvectors : vectors;
 
+    static const Coord3 udfcrd3( mUdf(double), mUdf(double), mUdf(double) );
     const int nrusedvectors = usedvectors.size();
     if ( !nrusedvectors )
-	return Coord3( mUndefValue, mUndefValue, mUndefValue );
+	return udfcrd3;
 
     if ( nrusedvectors==1 )
 	return usedvectors[0];
@@ -92,7 +93,7 @@ Coord3 estimateAverageVector( const TypeSet<Coord3>& vectors, bool normalize,
 	pca.addSample( usedvectors[idx] );
     
     if ( !pca.calculate() )
-	return Coord3( mUndefValue, mUndefValue, mUndefValue );
+	return udfcrd3;
 
     Coord3 res;
     pca.getEigenVector(0, res );
@@ -100,7 +101,8 @@ Coord3 estimateAverageVector( const TypeSet<Coord3>& vectors, bool normalize,
     int nrnegative = 0;
     for ( int idx=0; idx<nrusedvectors; idx++ )
     {
-	if ( res.dot(usedvectors[idx])<0 ) nrnegative++;
+	if ( res.dot(usedvectors[idx])<0 )
+	    nrnegative++;
     }
 
     if ( nrnegative*2> nrusedvectors )

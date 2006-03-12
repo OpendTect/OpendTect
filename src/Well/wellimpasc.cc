@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: wellimpasc.cc,v 1.31 2005-09-05 15:14:48 cvsbert Exp $";
+static const char* rcsID = "$Id: wellimpasc.cc,v 1.32 2006-03-12 13:39:11 cvsbert Exp $";
 
 #include "wellimpasc.h"
 #include "welldata.h"
@@ -66,7 +66,7 @@ const char* Well::AscImporter::getTrack( const char* fnm, bool tosurf,
 	{
 	    if ( !SI().isReasonable(wd.info().surfacecoord) )
 		wd.info().surfacecoord = c;
-	    if ( mIsUndefined(wd.info().surfaceelev) )
+	    if ( mIsUdf(wd.info().surfaceelev) )
 		wd.info().surfaceelev = -c.z;
 
 	    surfcoord.x = wd.info().surfacecoord.x;
@@ -105,7 +105,7 @@ const char* Well::AscImporter::getD2T( const char* fnm, bool istvd,
     d2t.erase();
 
     const float zfac = zinfeet ? 0.3048 : 1;
-    float z, val, prevdah = mUndefValue;
+    float z, val, prevdah = mUdf(float);
     bool firstpos = true;
     bool t_in_ms = false;
     TypeSet<float> tms; TypeSet<float> dahs;
@@ -113,13 +113,13 @@ const char* Well::AscImporter::getD2T( const char* fnm, bool istvd,
     {
 	strm >> z >> val;
 	if ( !strm ) break;
-	if ( mIsUndefined(z) ) continue;
+	if ( mIsUdf(z) ) continue;
 	z *= zfac;
 
 	if ( istvd )
 	{
 	    z = wd.track().getDahForTVD( z, prevdah );
-	    if ( mIsUndefined(z) ) continue;
+	    if ( mIsUdf(z) ) continue;
 	    prevdah = z;
 	}
 
@@ -144,7 +144,7 @@ const char* Well::AscImporter::getMarkers( const char* fnm, bool istvd,
     mOpenFile( fnm );
     std::istream& strm = *sd.istrm;
     const float zfac = zinfeet ? 0.3048 : 1;
-    float z, prevdah = mUndefValue;
+    float z, prevdah = mUdf(float);
 #   define mBufSz 128
     char buf[mBufSz];
     while ( strm )
@@ -153,13 +153,13 @@ const char* Well::AscImporter::getMarkers( const char* fnm, bool istvd,
 	if ( !strm ) break;
 	strm.getline( buf, mBufSz );
 	char* ptr = buf; skipLeadingBlanks(ptr); removeTrailingBlanks(ptr);
-	if ( mIsUndefined(z) || !*ptr ) continue;
+	if ( mIsUdf(z) || !*ptr ) continue;
 	z *= zfac;
 
 	if ( istvd )
 	{
 	    z = wd.track().getDahForTVD( z, prevdah );
-	    if ( mIsUndefined(z) ) continue;
+	    if ( mIsUdf(z) ) continue;
 	    prevdah = z;
 	}
 
@@ -291,9 +291,9 @@ const char* Well::AscImporter::getLogInfo( std::istream& strm,
     if ( convs[0] )
     {
 	lfi.zunitstr = convs[0]->symbol();
-	if ( !mIsUndefined(lfi.zrg.start) )
+	if ( !mIsUdf(lfi.zrg.start) )
 	    lfi.zrg.start = convs[0]->internalValue(lfi.zrg.start);
-	if ( !mIsUndefined(lfi.zrg.stop) )
+	if ( !mIsUdf(lfi.zrg.stop) )
 	    lfi.zrg.stop = convs[0]->internalValue(lfi.zrg.stop);
     }
     const char* ret = strm.good() ? 0 : "Only header found; No data";
@@ -380,8 +380,8 @@ const char* Well::AscImporter::getLogs( std::istream& strm,
     Interval<float> reqzrg;
     assign( reqzrg, lfi.zrg );
     reqzrg.sort();
-    bool havestart = !mIsUndefined(reqzrg.start);
-    bool havestop = !mIsUndefined(reqzrg.stop);
+    bool havestart = !mIsUdf(reqzrg.start);
+    bool havestop = !mIsUdf(reqzrg.stop);
 
     TypeSet<float> vals;
     while ( true )
@@ -394,7 +394,7 @@ const char* Well::AscImporter::getLogs( std::istream& strm,
 	    dpth = convs[0]->internalValue( dpth );
 
 	bool douse = reqzrg.includes( dpth );
-	if ( Values::isUdf(dpth) )
+	if ( mIsUdf(dpth) )
 	    douse = false;
 	else
 	{
@@ -416,7 +416,7 @@ const char* Well::AscImporter::getLogs( std::istream& strm,
 	    if ( !douse || !issel[ilog] ) continue;
 
 	    if ( mIsEqual(val,lfi.undefval,mDefEps) )
-		val = mUndefValue;
+		val = mUdf(float);
 	    else if ( useconvs_ && convs[ilog+1] )
 		val = convs[ilog+1]->internalValue( val );
 

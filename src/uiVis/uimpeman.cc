@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.cc,v 1.75 2006-03-10 16:54:31 cvsjaap Exp $
+ RCS:           $Id: uimpeman.cc,v 1.76 2006-03-12 13:39:11 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,6 +26,7 @@ ________________________________________________________________________
 #include "oddirs.h"
 #include "pixmap.h"
 #include "survinfo.h"
+#include "keystrs.h"
 #include "uibutton.h"
 #include "uicombobox.h"
 #include "uicursor.h"

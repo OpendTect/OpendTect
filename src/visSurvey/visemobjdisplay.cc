@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: visemobjdisplay.cc,v 1.76 2006-03-09 21:08:28 cvskris Exp $
+ RCS:           $Id: visemobjdisplay.cc,v 1.77 2006-03-12 13:39:11 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -228,7 +228,7 @@ void EMObjectDisplay::clickCB( CallBacker* cb )
     if ( !closestnodes.size() ) return;
 
     EM::PosID closestnode = closestnodes[0];
-    float mindist=mUndefValue;
+    float mindist = mUdf(float);
     for ( int idx=0; idx<closestnodes.size(); idx++ )
     {
 	const Coord3 coord = emsurface->getPos( closestnodes[idx] );
@@ -1169,7 +1169,7 @@ float EMObjectDisplay::calcDist( const Coord3& pickpos ) const
 	TypeSet<Coord3> positions;
 	hor->geometry.getPos( bid, positions );
 
-	float mindist = mUndefValue;
+	float mindist = mUdf(float);
 	for ( int idx=0; idx<positions.size(); idx++ )
 	{
 	    const Coord3& pos = positions[idx] + 

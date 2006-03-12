@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: well.cc,v 1.37 2006-02-21 13:14:32 cvshelene Exp $";
+static const char* rcsID = "$Id: well.cc,v 1.38 2006-03-12 13:39:11 cvsbert Exp $";
 
 #include "welldata.h"
 #include "welltrack.h"
@@ -30,7 +30,7 @@ const char* Well::Log::sKeyUnitLbl	= "Unit of Measure";
 float Well::DahObj::dahStep( bool ismin ) const
 {
     const int sz = dah_.size();
-    if ( sz < 2 ) return mUndefValue;
+    if ( sz < 2 ) return mUdf(float);
 
     float res = dah_[1] - dah_[0];
     int nrvals = 1;
@@ -51,7 +51,7 @@ float Well::DahObj::dahStep( bool ismin ) const
     }
 
     if ( !ismin ) res /= nrvals; // average
-    return mIsZero(res,mDefEps) ? mUndefValue : res;
+    return mIsZero(res,mDefEps) ? mUdf(float) : res;
 }
 
 
@@ -114,7 +114,7 @@ void Well::LogSet::updateDahIntv( const Well::Log& wl )
 {
     if ( !wl.size() ) return;
 
-    if ( mIsUndefined(dahintv.start) )
+    if ( mIsUdf(dahintv.start) )
 	{ dahintv.start = wl.dah(0); dahintv.stop = wl.dah(wl.size()-1); }
     else
     {
@@ -178,17 +178,17 @@ float Well::Log::getValue( float dh ) const
     if ( findFPPos(dah_,dah_.size(),dh,-1,idx1) )
 	return val_[idx1];
     else if ( idx1 < 0 || idx1 == dah_.size()-1 )
-	return mUndefValue;
+	return mUdf(float);
 
     const int idx2 = idx1 + 1;
     const float v1 = val_[idx1];
     const float v2 = val_[idx2];
     const float d1 = dh - dah_[idx1];
     const float d2 = dah_[idx2] - dh;
-    if ( mIsUndefined(v1) )
-	return d1 > d2 ? v2 : mUndefValue;
-    if ( mIsUndefined(v2) )
-	return d2 > d1 ? v1 : mUndefValue;
+    if ( mIsUdf(v1) )
+	return d1 > d2 ? v2 : mUdf(float);
+    if ( mIsUdf(v2) )
+	return d2 > d1 ? v1 : mUdf(float);
 
     return ( d1*val_[idx2] + d2*val_[idx1] ) / (d1 + d2);
 }
@@ -196,7 +196,7 @@ float Well::Log::getValue( float dh ) const
 
 void Well::Log::addValue( float z, float val )
 {
-    if ( !mIsUndefined(val) ) 
+    if ( !mIsUdf(val) ) 
     {
 	if ( val < range_.start ) range_.start = val;
 	if ( val > range_.stop ) range_.stop = val;
@@ -243,7 +243,7 @@ Well::Track& Well::Track::operator =( const Track& t )
 void Well::Track::addPoint( const Coord& c, float z, float dah )
 {
     pos_ += Coord3(c,z);
-    if ( Values::isUdf(dah) )
+    if ( mIsUdf(dah) )
     {
 	const int previdx = dah_.size() - 1;
 	dah = previdx < 0 ? 0
@@ -424,7 +424,7 @@ Coord3 Well::Track::coordAfterIdx( float dh, int idx1 ) const
 
 float Well::Track::getDahForTVD( float z, float prevdah ) const
 {
-    bool haveprevdah = !mIsUndefined(prevdah);
+    bool haveprevdah = !mIsUdf(prevdah);
     int foundidx = -1;
     for ( int idx=0; idx<pos_.size(); idx++ )
     {
@@ -436,7 +436,7 @@ float Well::Track::getDahForTVD( float z, float prevdah ) const
 	    { foundidx = idx; break; }
     }
     if ( foundidx < 1 )
-	return foundidx ? mUndefValue : dah_[0];
+	return foundidx ? mUdf(float) : dah_[0];
 
     const int idx1 = foundidx - 1;
     const int idx2 = foundidx;
@@ -537,7 +537,7 @@ float Well::D2TModel::getTime( float dh ) const
     if ( findFPPos(dah_,dah_.size(),dh,-1,idx1) )
 	return t_[idx1];
     else if ( dah_.size() < 2 )
-	return mUndefValue;
+	return mUdf(float);
     else if ( idx1 < 0 || idx1 == dah_.size()-1 )
     {
 	// Extrapolate. Is this correct?
@@ -560,7 +560,7 @@ float Well::D2TModel::getDepth( float time ) const
     if ( findFPPos(t_,t_.size(),time,-1,idx1) )
 	return dah_[idx1];
     else if ( t_.size() < 2 )
-	return mUndefValue;
+	return mUdf(float);
     else if ( idx1 < 0 || idx1 == t_.size()-1 )
     {
 	// Extrapolate. Is this correct?
@@ -579,7 +579,7 @@ float Well::D2TModel::getDepth( float time ) const
 
 float Well::D2TModel::getVelocity( float dh ) const
 {
-    if ( dah_.size() < 2 ) return mUndefValue;
+    if ( dah_.size() < 2 ) return mUdf(float);
 
     int idx1;
     findFPPos( dah_, dah_.size(), dh, -1, idx1 );

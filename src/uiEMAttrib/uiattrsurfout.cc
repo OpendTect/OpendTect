@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2004
- RCS:           $Id: uiattrsurfout.cc,v 1.12 2006-02-21 13:14:01 cvshelene Exp $
+ RCS:           $Id: uiattrsurfout.cc,v 1.13 2006-03-12 13:39:11 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,6 +29,7 @@ ________________________________________________________________________
 #include "uimsg.h"
 #include "ptrman.h"
 #include "multiid.h"
+#include "keystrs.h"
 
 
 uiAttrSurfaceOut::uiAttrSurfaceOut( uiParent* p, const Attrib::DescSet& ad,

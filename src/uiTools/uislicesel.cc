@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uislicesel.cc,v 1.37 2006-03-01 13:45:47 cvsbert Exp $
+ RCS:           $Id: uislicesel.cc,v 1.38 2006-03-12 13:39:11 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -304,7 +304,7 @@ void setTimer()
     if ( !timer ) return;
 
     float val = dtfld->getfValue();
-    if ( Values::isUdf(val) || val < 0.2 )
+    if ( mIsUdf(val) || val < 0.2 )
 	val = 200;
     else
 	val *= 1000;

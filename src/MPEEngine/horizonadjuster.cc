@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizonadjuster.cc,v 1.25 2006-03-03 13:55:05 cvsjaap Exp $";
+static const char* rcsID = "$Id: horizonadjuster.cc,v 1.26 2006-03-12 13:39:10 cvsbert Exp $";
 
 #include "horizonadjuster.h"
 
@@ -287,8 +287,8 @@ bool HorizonAdjuster::snap( const BinID& bid,
 	ValueSeriesEvent<float, float> dnevent =
 	    				evfinder.find( evtype_, dnrg, 1 );
 
-	const bool upfound = !Values::isUdf(upevent.pos);
-	const bool dnfound = !Values::isUdf(dnevent.pos);
+	const bool upfound = !mIsUdf(upevent.pos);
+	const bool dnfound = !mIsUdf(dnevent.pos);
 
 	if ( !upfound && !dnfound )
 	    return false;
@@ -310,8 +310,8 @@ bool HorizonAdjuster::snap( const BinID& bid,
 	ValueSeriesEvent<float,float> dnevent =
 	    findExtreme(evfinder,dnrg,threshold,dnampl,dnloopskip);
 
-	const bool upfound = !Values::isUdf(upevent.pos);
-	const bool dnfound = !Values::isUdf(dnevent.pos);
+	const bool upfound = !mIsUdf(upevent.pos);
+	const bool dnfound = !mIsUdf(dnevent.pos);
 
 	if ( !upfound && !dnfound )
 	    return false;
@@ -356,10 +356,10 @@ ValueSeriesEvent<float,float> HorizonAdjuster::findExtreme(
     while ( true )
     {
 	ev = eventfinder.find( evtype_, rg, occ );
-	if ( Values::isUdf(ev.pos) )
+	if ( mIsUdf(ev.pos) )
 	    return ev;
 
-	if ( !Values::isUdf(threshold) &&
+	if ( !mIsUdf(threshold) &&
 	     ( (evtype_==VSEvent::Min && ev.val>threshold) ||
 	     (evtype_==VSEvent::Max && ev.val<threshold)) )
 	{

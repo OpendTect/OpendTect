@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Jan 2002
- RCS:           $Id: visrectangle.cc,v 1.44 2005-02-07 12:45:40 nanne Exp $
+ RCS:           $Id: visrectangle.cc,v 1.45 2006-03-12 13:39:11 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -479,12 +479,10 @@ Rectangle::Rectangle()
     , maniprectswitch( 0 )
     , dragger( RectangleDragger::create() )
     , snap( false )
-    , xrange( -mUndefValue, mUndefValue, mUndefValue )
-    , yrange( -mUndefValue, mUndefValue, mUndefValue )
-    , zrange( -mUndefValue, mUndefValue, mUndefValue )
-    , wxrange( 1, mUndefValue )
-    , wyrange( 1, mUndefValue )
-{ 
+    , xrange( -mUdf(float), mUdf(float), mUdf(float) )
+    , wxrange( 1, mUdf(float) )
+{
+    yrange = zrange = xrange; wyrange = wxrange;
     if ( dragger ) dragger->ref();
 
     addChild( origotrans );
@@ -726,8 +724,8 @@ void Rectangle::setRanges( const StepInterval<float>& range0,
     if ( !manip )
     {
 	setWidth( range0.width(), range1.width() );
-	setWidthRange( 0, Interval<float>( range0.width()*0.1, mUndefValue ));
-	setWidthRange( 1, Interval<float>( range1.width()*0.1, mUndefValue ));
+	setWidthRange( 0, Interval<float>( range0.width()*0.1, mUdf(float) ));
+	setWidthRange( 1, Interval<float>( range1.width()*0.1, mUdf(float) ));
     }
 
     setRange( 0, range0 );
@@ -934,7 +932,7 @@ float Rectangle::snapPos( int dim, float pos) const
     const StepInterval<float>& range =
 			    !dim ? xrange : (dim==1 ? yrange : zrange );
 
-    if ( snap && !mIsUndefined(range.step))
+    if ( snap && !mIsUdf(range.step))
     {
 	int idx = range.nearestIndex( pos );
 	pos = range.start + idx*range.step;

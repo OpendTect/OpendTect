@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2003
- RCS:           $Id: viswell.cc,v 1.25 2005-11-23 15:37:02 cvsnanne Exp $
+ RCS:           $Id: viswell.cc,v 1.26 2006-03-12 13:39:11 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -276,10 +276,10 @@ void Well::setLogData( const TypeSet<Coord3Value>& crdvals, const char* lognm,
 	Coord3 pos( cv.coord );
 	if ( transformation )
 	    pos = transformation->transform( pos );
-	if ( mIsUndefined(pos.z) ) continue;
+	if ( mIsUdf(pos.z) ) continue;
 
 	float val = scaler.scale( cv.value );
-	if ( mIsUndefined(val) )
+	if ( mIsUdf(val) )
 	    val = prevval;
 	else if ( val < 0 )
 	    val = 0;

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: uisteeringsel.cc,v 1.17 2006-01-18 14:58:49 cvsnanne Exp $
+ RCS:           $Id: uisteeringsel.cc,v 1.18 2006-03-12 13:39:11 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,6 +23,7 @@ ________________________________________________________________________
 #include "iopar.h"
 #include "paramsetget.h"
 #include "survinfo.h"
+#include "keystrs.h"
 #include "seistrcsel.h"
 #include "seistrctr.h"
 #include "uiattrfact.h"

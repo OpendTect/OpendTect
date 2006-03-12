@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.307 2006-03-09 18:51:09 cvsnanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.308 2006-03-12 13:39:11 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -68,7 +68,7 @@ uiVisPartServer::uiVisPartServer( uiApplService& a )
     , eventattrib_(-1)
     , selattrib_(-1)
     , eventmutex_(*new Threads::Mutex)
-    , mouseposval_(mUndefValue)
+    , mouseposval_(mUdf(float))
     , mouseposstr_("")
     , resetmanipmnuitem_( "Reset Manipulation", 8000 )
     , changecolormnuitem_( "Color...", 7000 )

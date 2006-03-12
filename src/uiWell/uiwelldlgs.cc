@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          October 2003
- RCS:           $Id: uiwelldlgs.cc,v 1.41 2006-03-10 13:34:03 cvsbert Exp $
+ RCS:           $Id: uiwelldlgs.cc,v 1.42 2006-03-12 13:39:11 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -427,8 +427,8 @@ void uiLoadLogsDlg::lasSel( CallBacker* )
     udffld->setValue( lfi.undefval );
     if ( isft )
     {
-	if ( !mIsUndefined(lfi.zrg.start) ) lfi.zrg.start /= feetfac;
-	if ( !mIsUndefined(lfi.zrg.stop) ) lfi.zrg.stop /= feetfac;
+	if ( !mIsUdf(lfi.zrg.start) ) lfi.zrg.start /= feetfac;
+	if ( !mIsUdf(lfi.zrg.stop) ) lfi.zrg.stop /= feetfac;
     }
     intvfld->setValue( lfi.zrg );
 }
@@ -444,8 +444,8 @@ bool uiLoadLogsDlg::acceptOK( CallBacker* )
     const bool zinft = !intvunfld->getBoolValue();
     if ( zinft )
     {
-	if ( !mIsUndefined(lfi.zrg.start) ) lfi.zrg.start *= feetfac;
-	if ( !mIsUndefined(lfi.zrg.stop) ) lfi.zrg.stop *= feetfac;
+	if ( !mIsUdf(lfi.zrg.start) ) lfi.zrg.start *= feetfac;
+	if ( !mIsUdf(lfi.zrg.stop) ) lfi.zrg.stop *= feetfac;
     }
     SI().pars().setYN( SurveyInfo::sKeyDpthInFt, zinft );
     SI().savePars();

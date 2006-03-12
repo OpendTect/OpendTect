@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: extremefinder.cc,v 1.12 2005-02-23 14:45:23 cvsarend Exp $";
+static const char* rcsID = "$Id: extremefinder.cc,v 1.13 2006-03-12 13:39:10 cvsbert Exp $";
 
 #include "extremefinder.h"
 #include "ranges.h"
@@ -32,7 +32,7 @@ BisectionExtremeFinder1D::BisectionExtremeFinder1D(
 
 #define mGetFuncVal(x,variable, retval) \
 funcval = func.getValue(x); \
-if ( Values::isUdf(funcval) ) { isok=false; return retval; } \
+if ( mIsUdf(funcval) ) { isok=false; return retval; } \
 variable = max ? -funcval : funcval
 
 

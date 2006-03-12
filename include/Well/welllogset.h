@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: welllogset.h,v 1.7 2004-05-09 15:17:12 bert Exp $
+ RCS:		$Id: welllogset.h,v 1.8 2006-03-12 13:39:10 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -48,7 +48,7 @@ protected:
     Interval<float>	dahintv;
 
     void		init()
-    			{ dahintv.start = dahintv.stop = mUndefValue; }
+    			{ dahintv.start = mSetUdf(dahintv.stop); }
 
     void		updateDahIntv(const Well::Log&);
 

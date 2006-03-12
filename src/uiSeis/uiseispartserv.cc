@@ -4,19 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiseispartserv.cc,v 1.37 2005-11-03 10:12:40 cvsbert Exp $
+ RCS:           $Id: uiseispartserv.cc,v 1.38 2006-03-12 13:39:11 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiseispartserv.h"
-#include "uimergeseis.h"
-#include "uiseissegyimpexp.h"
-#include "uiseiscbvsimp.h"
-#include "uiseisfileman.h"
-#include "uiseisioobjinfo.h"
-#include "uisegysip.h"
-#include "uiseissel.h"
 #include "ctxtioobj.h"
 #include "seistrcsel.h"
 #include "ioobj.h"
@@ -27,13 +20,22 @@ ________________________________________________________________________
 #include "seistrctr.h"
 #include "seis2dline.h"
 #include "ptrman.h"
-#include "uilistboxdlg.h"
-#include "uimenu.h"
+#include "keystrs.h"
 #include "seispsioprov.h"
 #include "seisbuf.h"
 #include "seispsread.h"
 #include "seissectview.h"
 #include "segposinfo.h"
+
+#include "uimenu.h"
+#include "uimergeseis.h"
+#include "uiseissegyimpexp.h"
+#include "uiseiscbvsimp.h"
+#include "uiseisfileman.h"
+#include "uiseisioobjinfo.h"
+#include "uisegysip.h"
+#include "uiseissel.h"
+#include "uilistboxdlg.h"
 
 
 

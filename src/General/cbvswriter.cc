@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: cbvswriter.cc,v 1.48 2006-01-06 13:28:30 cvsbert Exp $";
+static const char* rcsID = "$Id: cbvswriter.cc,v 1.49 2006-03-12 13:39:10 cvsbert Exp $";
 
 #include "cbvswriter.h"
 #include "cubesampling.h"
@@ -25,7 +25,7 @@ CBVSWriter::CBVSWriter( std::ostream* s, const CBVSInfo& i,
 	, auxinfo_(e)
 	, thrbytes_(0)
 	, file_lastinl_(false)
-	, prevbinid_(mUndefIntVal,mUndefIntVal)
+	, prevbinid_(mUdf(int),mUdf(int))
 	, trcswritten_(0)
 	, nrtrcsperposn_(i.nrtrcsperposn)
 	, nrtrcsperposn_status_(2)
@@ -47,7 +47,7 @@ CBVSWriter::CBVSWriter( std::ostream* s, const CBVSWriter& cw,
 	, auxinfo_(cw.auxinfo_)
 	, thrbytes_(cw.thrbytes_)
 	, file_lastinl_(false)
-	, prevbinid_(mUndefIntVal,mUndefIntVal)
+	, prevbinid_(mUdf(int),mUdf(int))
 	, trcswritten_(0)
 	, nrtrcsperposn_(cw.nrtrcsperposn_)
 	, nrtrcsperposn_status_(cw.nrtrcsperposn_status_)

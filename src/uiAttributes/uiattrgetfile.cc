@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrgetfile.cc,v 1.4 2006-03-02 13:52:47 cvsbert Exp $
+ RCS:           $Id: uiattrgetfile.cc,v 1.5 2006-03-12 13:39:11 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,6 +22,7 @@ ________________________________________________________________________
 #include "iopar.h"
 #include "oddirs.h"
 #include "filegen.h"
+#include "keystrs.h"
 
 // uiAttrSrchProcFiles implementation at end of file
 

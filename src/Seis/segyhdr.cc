@@ -5,7 +5,7 @@
  * FUNCTION : Seg-Y headers
 -*/
 
-static const char* rcsID = "$Id: segyhdr.cc,v 1.38 2005-11-17 11:08:22 cvsbert Exp $";
+static const char* rcsID = "$Id: segyhdr.cc,v 1.39 2006-03-12 13:39:10 cvsbert Exp $";
 
 
 #include "segyhdr.h"
@@ -551,7 +551,7 @@ void SegyTraceheader::use( const SeisTrcInfo& ti )
     IbmFormat::putInt( mNINT(ti.offset), buf+36 );
     IbmFormat::putInt( mNINT(ti.azimuth*1e6), buf+40 );
     IbmFormat::putShort( -10, buf+70 ); // scalco
-    if ( Values::isUdf(ti.coord.x) )
+    if ( mIsUdf(ti.coord.x) )
     {
 	if ( hdef.xcoord != 255 )
 	    IbmFormat::putInt( 0, buf+hdef.xcoord-1 );
@@ -588,7 +588,7 @@ void SegyTraceheader::use( const SeisTrcInfo& ti )
     }
 
     const float zfac = SI().zFactor();
-    if ( !Values::isUdf(ti.pick) && hdef.pick != 255 )
+    if ( !mIsUdf(ti.pick) && hdef.pick != 255 )
 	IbmFormat::putInt( mNINT(ti.pick*zfac), buf+hdef.pick-1 );
 
     // Absolute priority, therefore possibly overwriting previous
@@ -714,7 +714,7 @@ void SegyTraceheader::fill( SeisTrcInfo& ti, float extcoordsc ) const
 
 double SegyTraceheader::getCoordScale( float extcoordsc ) const
 {
-    if ( !Values::isUdf(extcoordsc) ) return extcoordsc;
+    if ( !mIsUdf(extcoordsc) ) return extcoordsc;
     short scalco = IbmFormat::asShort( buf+70 );
     return scalco ? (scalco > 0 ? scalco : -1./scalco) : 1;
 }

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.123 2006-03-10 11:13:48 cvshelene Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.124 2006-03-12 13:39:11 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -883,7 +883,7 @@ bool uiODApplMgr::handleNLAServEv( int evid )
 	{
 	    bvsmc.get( pos, bid, vals );
 	    const float conf = vals[3];
-	    if ( mIsUndefined(conf) )
+	    if ( mIsUdf(conf) )
 		continue;
 
 	    const int actualclass = mNINT(vals[1]);

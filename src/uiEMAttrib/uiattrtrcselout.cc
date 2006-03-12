@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          September 2005
- RCS:           $Id: uiattrtrcselout.cc,v 1.11 2006-03-10 13:34:02 cvsbert Exp $
+ RCS:           $Id: uiattrtrcselout.cc,v 1.12 2006-03-12 13:39:11 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,6 +36,7 @@ ________________________________________________________________________
 #include "ptrman.h"
 #include "multiid.h"
 #include "survinfo.h"
+#include "keystrs.h"
 
 using namespace Attrib;
 

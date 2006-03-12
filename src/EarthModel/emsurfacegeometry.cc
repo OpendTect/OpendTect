@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Nov 2002
- RCS:           $Id: emsurfacegeometry.cc,v 1.30 2006-03-03 13:58:59 cvsjaap Exp $
+ RCS:           $Id: emsurfacegeometry.cc,v 1.31 2006-03-12 13:39:10 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -243,7 +243,7 @@ bool SurfaceGeometry::findClosestNodes( const SectionID& sid,
 bool SurfaceGeometry::findClosestMesh( PosID& res, const Coord3& timepos,
 			           const FloatMathFunction* t2dfunc ) const
 {
-    TopList<float, PosID> closestnodes( 20, mUndefValue, false );
+    TopList<float, PosID> closestnodes( 20, mUdf(float), false );
     if ( !findClosestNodes(closestnodes,timepos,t2dfunc) )
 	return false;
 
@@ -565,11 +565,11 @@ float SurfaceGeometry::normalDistance( const Coord3& timepos,
 {
     PosID closestmesh(0,0,0);
     if ( !findClosestMesh(closestmesh,timepos,t2dfunc) )
-	return mUndefValue;
+	return mUdf(float);
 
     Coord3 meshnormal;
     if ( !computeMeshNormal(meshnormal,closestmesh,t2dfunc) )
-	return mUndefValue;
+	return mUdf(float);
 
     Coord3 c00, c10, c01, c11;
     bool c00def, c10def, c01def, c11def;

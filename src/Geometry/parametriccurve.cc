@@ -4,7 +4,7 @@
  * DATE     : Dec 2004
 -*/
 
-static const char* rcsID = "$Id: parametriccurve.cc,v 1.6 2005-04-29 16:21:18 cvsnanne Exp $";
+static const char* rcsID = "$Id: parametriccurve.cc,v 1.7 2006-03-12 13:39:10 cvsbert Exp $";
 
 #include "parametriccurve.h"
 
@@ -43,7 +43,7 @@ bool ParametricCurve::findClosestPosition( float& p, const Coord3& pos,
 //    pErrMsg("This function is not tested, quality not assured (yet)");
     CurveSqDistanceFunction mfunc( *this, pos );
     const StepInterval<int> prange = parameterRange();
-    if ( Values::isUdf(p) || !prange.includes(p,false) )
+    if ( mIsUdf(p) || !prange.includes(p,false) )
     {
 	float closestsqdist = mUdf(float);
 	for ( int idx=prange.start; idx<=prange.stop; idx+=prange.step )
@@ -78,7 +78,7 @@ bool ParametricCurve::findClosestIntersection( float& p, const Plane3& plane,
 {
     pErrMsg("This function is not tested, quality not assured (yet)");
     const StepInterval<int> prange = parameterRange();
-    if ( Values::isUdf(p) || !prange.includes(p,false) )
+    if ( mIsUdf(p) || !prange.includes(p,false) )
     {
 	float closestdist = mUdf(float);
 	for ( int idx=prange.start; idx<=prange.stop; idx+=prange.step )

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiseisfileman.cc,v 1.56 2005-11-03 10:12:40 cvsbert Exp $
+ RCS:           $Id: uiseisfileman.cc,v 1.57 2006-03-12 13:39:11 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -117,9 +117,9 @@ void uiSeisFileMan::mkFileInfo()
 	if ( oinf.getRanges(cs) )
 	{
 	    txt = "";
-	    if ( !mIsUndefInt(cs.hrg.stop.inl) )
+	    if ( !mIsUdf(cs.hrg.stop.inl) )
 		{ txt += "Inline range: "; mRangeTxt(inl); }
-	    if ( !mIsUndefInt(cs.hrg.stop.crl) )
+	    if ( !mIsUdf(cs.hrg.stop.crl) )
 		{ txt += "\nCrossline range: "; mRangeTxt(crl); }
 	    txt += "\nZ-range: "; 
 	    mZRangeTxt(cs.zrg.start); txt += " - "; mZRangeTxt(cs.zrg.stop); 

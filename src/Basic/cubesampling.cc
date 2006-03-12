@@ -4,7 +4,7 @@
  * DATE     : somewhere around 1999
 -*/
  
-static const char* rcsID = "$Id: cubesampling.cc,v 1.20 2006-02-22 14:59:26 cvsnanne Exp $";
+static const char* rcsID = "$Id: cubesampling.cc,v 1.21 2006-03-12 13:39:10 cvsbert Exp $";
 
 #include "cubesampling.h"
 #include "survinfo.h"
@@ -80,7 +80,7 @@ StepInterval<int> HorSampling::crlRange() const
 
 void HorSampling::includeInl( int inl )
 {
-    if ( Values::isUdf(start.inl) || Values::isUdf(stop.inl) || nrInl()<1 )
+    if ( mIsUdf(start.inl) || mIsUdf(stop.inl) || nrInl()<1 )
 	start.inl = stop.inl = inl;
     else
     {
@@ -92,7 +92,7 @@ void HorSampling::includeInl( int inl )
 
 void HorSampling::includeCrl( int crl )
 {
-    if ( Values::isUdf(start.crl) || Values::isUdf(stop.crl) || nrCrl()<1 )
+    if ( mIsUdf(start.crl) || mIsUdf(stop.crl) || nrCrl()<1 )
 	start.crl = stop.crl = crl;
     else
     {
@@ -172,8 +172,7 @@ void HorSampling::removeInfo( IOPar& par )
 
 int HorSampling::nrInl() const
 {
-    if ( !step.inl
-      || (Values::isUdf(start.inl) && Values::isUdf(stop.inl)) )
+    if ( !step.inl || (mIsUdf(start.inl) && mIsUdf(stop.inl)) )
 	return 0;
 
     int ret = (stop.inl - start.inl) / step.inl;
@@ -183,8 +182,7 @@ int HorSampling::nrInl() const
 
 int HorSampling::nrCrl() const
 {
-    if ( !step.crl
-      || (Values::isUdf(start.crl) && Values::isUdf(stop.crl)) )
+    if ( !step.crl || (mIsUdf(start.crl) && mIsUdf(stop.crl)) )
 	return 0;
 
     int ret = (stop.crl - start.crl) / step.crl;

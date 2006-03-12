@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H.Payraudeau
  Date:          04/2005
- RCS:           $Id: attribengman.cc,v 1.54 2006-03-09 16:09:46 cvshelene Exp $
+ RCS:           $Id: attribengman.cc,v 1.55 2006-03-12 13:39:10 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,6 +33,7 @@ ________________________________________________________________________
 #include "linekey.h"
 #include "seis2dline.h"
 #include "binidvalset.h"
+#include "keystrs.h"
 
 
 

@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: segytr.cc,v 1.46 2006-01-02 14:33:30 cvsdgb Exp $";
+static const char* rcsID = "$Id: segytr.cc,v 1.47 2006-03-12 13:39:10 cvsbert Exp $";
 
 #include "segytr.h"
 #include "seistrc.h"
@@ -154,9 +154,9 @@ void SEGYSeisTrcTranslator::updateCDFromBuf()
     trhead.fill( info, ext_coord_scaling );
     insd = info.sampling;
     if ( !insd.step ) insd.step = binhead_dpos;
-    if ( !Values::isUdf(ext_time_shift) )
+    if ( !mIsUdf(ext_time_shift) )
 	insd.start = ext_time_shift;
-    if ( !Values::isUdf(ext_sample_rate) )
+    if ( !mIsUdf(ext_sample_rate) )
 	insd.step = ext_sample_rate;
 
     innrsamples = ext_nr_samples;
@@ -229,9 +229,9 @@ void SEGYSeisTrcTranslator::interpretBuf( SeisTrcInfo& ti )
 	curtrcscale = trcscale;
     }
 
-    if ( !Values::isUdf(ext_time_shift) )
+    if ( !mIsUdf(ext_time_shift) )
 	ti.sampling.start = ext_time_shift;
-    if ( !Values::isUdf(ext_sample_rate) )
+    if ( !mIsUdf(ext_sample_rate) )
 	ti.sampling.step = ext_sample_rate;
 }
 

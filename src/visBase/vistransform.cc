@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Feb 2002
- RCS:           $Id: vistransform.cc,v 1.17 2005-03-09 11:53:28 cvskris Exp $
+ RCS:           $Id: vistransform.cc,v 1.18 2006-03-12 13:39:11 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -141,7 +141,7 @@ Coord3 Transformation::transform( const Coord3& pos ) const
 {
     SbVec3f res( pos.x, pos.y, pos.z );
     transform( res );
-    if ( mIsUndefined(pos.z) ) res[2] = mUndefValue;
+    if ( mIsUdf(pos.z) ) res[2] = mUdf(float);
 
     return Coord3( res[0], res[1], res[2] );
 }
@@ -162,7 +162,7 @@ Coord3 Transformation::transformBack( const Coord3& pos ) const
 {
     SbVec3f res( pos.x, pos.y, pos.z );
     transformBack( res );
-    if ( mIsUndefined(pos.z) ) res[2] = mUndefValue;
+    if ( mIsUdf(pos.z) ) res[2] = mUdf(float);
 
     return Coord3( res[0], res[1], res[2] );
 }

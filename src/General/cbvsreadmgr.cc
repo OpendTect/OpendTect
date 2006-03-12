@@ -5,7 +5,7 @@
  * FUNCTION : CBVS File pack reading
 -*/
 
-static const char* rcsID = "$Id: cbvsreadmgr.cc,v 1.51 2006-01-06 13:28:30 cvsbert Exp $";
+static const char* rcsID = "$Id: cbvsreadmgr.cc,v 1.52 2006-03-12 13:39:10 cvsbert Exp $";
 
 #include "cbvsreadmgr.h"
 #include "cbvsreader.h"
@@ -654,7 +654,7 @@ bool CBVSReadMgr::fetch( void** d, const bool* c,
     // The code looks simple, but that's how it got after many cycles
     // of compression.
 
-    Interval<int> selsamps( ss ? ss->start : 0, ss ? ss->stop : mUndefIntVal );
+    Interval<int> selsamps( ss ? ss->start : 0, ss ? ss->stop : mUdf(int) );
     selsamps.sort();
 
     const int rdr0nrsamps = readers_[0]->info().nrsamples;
@@ -813,7 +813,7 @@ void CBVSReadMgr::dumpInfo( std::ostream& strm, bool inclcompinfo ) const
 	int inlstep = info().geom.step.inl;
 	if ( inlstep < 0 ) inlstep = -inlstep;
 	Interval<int> inlgap;
-	inlgap.start = mUndefIntVal;
+	inlgap.start = mUdf(int);
 	for ( int inl=info().geom.start.inl; inl<=info().geom.stop.inl;
 		inl += inlstep )
 	{
@@ -821,7 +821,7 @@ void CBVSReadMgr::dumpInfo( std::ostream& strm, bool inclcompinfo ) const
 	    if ( !inlinf )
 	    {
 		inlgaps = true;
-		if ( mIsUndefInt(inlgap.start) )
+		if ( mIsUdf(inlgap.start) )
 		    inlgap.start = inlgap.stop = inl;
 		else
 		    inlgap.stop = inl;
@@ -830,10 +830,10 @@ void CBVSReadMgr::dumpInfo( std::ostream& strm, bool inclcompinfo ) const
 	    {
 		if ( inlinf->segments.size() > 1 )
 		    crlgaps = true;
-		if ( !mIsUndefInt(inlgap.start) )
+		if ( !mIsUdf(inlgap.start) )
 		{
 		    handleInlGap( strm, inlgap );
-		    inlgap.start = mUndefIntVal;
+		    mSetUdf(inlgap.start);
 		}
 	    }
 	}

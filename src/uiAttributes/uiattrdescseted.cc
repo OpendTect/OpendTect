@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrdescseted.cc,v 1.27 2006-03-10 13:34:02 cvsbert Exp $
+ RCS:           $Id: uiattrdescseted.cc,v 1.28 2006-03-12 13:39:11 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,6 +36,8 @@ ________________________________________________________________________
 #include "ptrman.h"
 #include "oddirs.h"
 #include "pixmap.h"
+#include "keystrs.h"
+
 #include "uigeninput.h"
 #include "uibutton.h"
 #include "uicombobox.h"

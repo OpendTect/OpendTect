@@ -4,7 +4,7 @@
  * DATE     : 12-1-2004
 -*/
 
-static const char* rcsID = "$Id: datainpspec.cc,v 1.15 2005-09-22 10:53:16 cvsnanne Exp $";
+static const char* rcsID = "$Id: datainpspec.cc,v 1.16 2006-03-12 13:39:10 cvsbert Exp $";
 
 #include "datainpspec.h"
 #include "iopar.h"
@@ -350,8 +350,7 @@ float PositionInpSpec::value( int idx ) const
 bool PositionInpSpec::isUndef( int idx ) const
 {
     if ( idx<0 || idx>1 ) return true;
-    return idx==0 ? Values::isUdf( x_inl_ )
-		  : Values::isUdf( y_crl_ );
+    return idx==0 ? mIsUdf( x_inl_ ) : mIsUdf( y_crl_ );
 } 
 
 
