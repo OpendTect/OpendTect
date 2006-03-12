@@ -2,10 +2,10 @@
  * COPYRIGHT: (C) de Groot-Bril Earth Sciences B.V.
  * AUTHOR   : A.H. Bril
  * DATE     : 2000
- * RCS      : $Id: od_cbvs_select_subcube.cc,v 1.25 2005-08-26 18:19:27 cvsbert Exp $
+ * RCS      : $Id: od_cbvs_select_subcube.cc,v 1.26 2006-03-12 20:44:44 cvsbert Exp $
 -*/
 
-static const char* rcsID = "$Id: od_cbvs_select_subcube.cc,v 1.25 2005-08-26 18:19:27 cvsbert Exp $";
+static const char* rcsID = "$Id: od_cbvs_select_subcube.cc,v 1.26 2006-03-12 20:44:44 cvsbert Exp $";
 
 #include "seistrc.h"
 #include "seiscbvs.h"
@@ -82,7 +82,7 @@ static int doWork( int argc, char** argv )
     tri->setSelData( &tsel );
 
     bool haverange = false;
-    Interval<float> rg( -mUndefValue, mUndefValue );
+    Interval<float> rg( -mUdf(float), mUdf(float) );
     Interval<float>* userg = 0;
     if ( argc > 4 )
     {

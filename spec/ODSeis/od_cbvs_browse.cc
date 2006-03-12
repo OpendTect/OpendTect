@@ -2,10 +2,10 @@
  * COPYRIGHT: (C) de Groot-Bril Earth Sciences B.V.
  * AUTHOR   : A.H. Bril
  * DATE     : 2000
- * RCS      : $Id: od_cbvs_browse.cc,v 1.25 2006-01-09 10:25:44 cvsbert Exp $
+ * RCS      : $Id: od_cbvs_browse.cc,v 1.26 2006-03-12 20:44:44 cvsbert Exp $
 -*/
 
-static const char* rcsID = "$Id: od_cbvs_browse.cc,v 1.25 2006-01-09 10:25:44 cvsbert Exp $";
+static const char* rcsID = "$Id: od_cbvs_browse.cc,v 1.26 2006-03-12 20:44:44 cvsbert Exp $";
 
 #include "seistrc.h"
 #include "seiscbvs.h"
@@ -145,17 +145,17 @@ int main( int argc, char** argv )
 	    { std::cerr << "Cannot read trace!" << std::endl; continue; }
 
 	if ( !mIsZero(trc.info().pick,mDefEps)
-		&& !mIsUndefined(trc.info().pick) )
+		&& !mIsUdf(trc.info().pick) )
 	    std::cerr << "Pick position: " << trc.info().pick << std::endl;
 	if ( !mIsZero(trc.info().refpos,mDefEps)
-		&& !mIsUndefined(trc.info().refpos) )
+		&& !mIsUdf(trc.info().refpos) )
 	    std::cerr << "Reference position: " << trc.info().refpos
 		      << std::endl;
 	if ( !mIsZero(trc.info().offset,mDefEps)
-		&& !mIsUndefined(trc.info().offset) )
+		&& !mIsUdf(trc.info().offset) )
 	    std::cerr << "Offset: " << trc.info().offset << std::endl;
 	if ( !mIsZero(trc.info().azimuth,mDefEps)
-		&& !mIsUndefined(trc.info().azimuth) )
+		&& !mIsUdf(trc.info().azimuth) )
 	    std::cerr << "Azimuth: " << (trc.info().azimuth*57.29577951308232)
 		      << std::endl;
 	if ( !mIsZero(trc.info().coord.x,0.1) )
