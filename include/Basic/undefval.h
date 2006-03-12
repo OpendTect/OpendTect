@@ -6,24 +6,31 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          13/01/2005
- RCS:           $Id: undefval.h,v 1.5 2006-03-12 20:59:50 cvsbert Exp $
+ RCS:           $Id: undefval.h,v 1.6 2006-03-12 21:08:29 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "plftypes.h"
 
+//! Undefined value. IEEE gives NaN but that's not exactly what we want
 #define __mUndefValue             1e30
+//! Check on undefined. Also works when double converted to float and vv
 #define __mIsUndefined(x)         (((x)>9.99999e29)&&((x)<1.00001e30))
+//! Almost MAXINT so unlikely, but not MAXINT to avoid that
 #define __mUndefIntVal            2109876543
+//! Almost MAXINT64 therefore unlikely.
 #define __mUndefIntVal64          9223344556677889900LL
 
 
 #ifdef __cpp__
 
 
+//! Use this macro to get the undefined for simple types
 #define mUdf(type) Values::Undef<type>::val()
+//! Use this macro to check for undefinedness of simple types
 #define mIsUdf(val) Values::isUdf(val)
+//! Use this macro to set simple types to undefined
 #define mSetUdf(val) Values::setUdf(val)
 
 
@@ -61,8 +68,8 @@ class Undef<int32>
 public:
     static int32	val()			{ return __mUndefIntVal; }
     static bool		hasUdf()		{ return true; }
-    static bool		isUdf( int32 i )	{ return i==__mUndefIntVal; }
-    static void		setUdf( int64& i )	{ i = __mUndefIntVal; }
+    static bool		isUdf( int32 i )	{ return i == __mUndefIntVal; }
+    static void		setUdf( int32& i )	{ i = __mUndefIntVal; }
 };
 
 template<>
@@ -71,7 +78,7 @@ class Undef<uint32>
 public:
     static uint32	val()			{ return __mUndefIntVal; }
     static bool		hasUdf()		{ return true; }
-    static bool		isUdf( uint32 i )	{ return i==__mUndefIntVal; }
+    static bool		isUdf( uint32 i )	{ return i == __mUndefIntVal; }
     static void		setUdf( uint64& i )	{ i = __mUndefIntVal; }
 };
 
@@ -82,7 +89,7 @@ class Undef<int64>
 public:
     static int64	val()			{ return __mUndefIntVal64; }
     static bool		hasUdf()		{ return true; }
-    static bool		isUdf( int64 i )	{ return i==__mUndefIntVal64; }
+    static bool		isUdf( int64 i )	{ return i == __mUndefIntVal64;}
     static void		setUdf( int64& i )	{ i = __mUndefIntVal64; }
 };
 
@@ -92,7 +99,7 @@ class Undef<uint64>
 public:
     static uint64	val()			{ return __mUndefIntVal64; }
     static bool		hasUdf()		{ return true; }
-    static bool		isUdf( uint64 i )	{ return i==__mUndefIntVal64; }
+    static bool		isUdf( uint64 i )	{ return i == __mUndefIntVal64;}
     static void		setUdf( uint64& i )	{ i = __mUndefIntVal64; }
 };
 
