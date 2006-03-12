@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Mar 2006
- RCS:		$Id: commondefs.h,v 1.1 2006-03-12 13:39:09 cvsbert Exp $
+ RCS:		$Id: commondefs.h,v 1.2 2006-03-12 20:59:26 cvsbert Exp $
 ________________________________________________________________________
 
  Some very commonly used macros.
@@ -24,16 +24,6 @@ ________________________________________________________________________
 #define mIsEqualRel(x,y,e)	( (y) ? ((x)/(y))-1<(e) && ((x)/(y)-1)>(-e) \
 				      : mIsZero(x,e) )
 #define mDefEps			(1e-10)
-
-#define mUndefValue		_obsolete_mUndefValue
-#define mIsUndefined(x)		_obsolete_mIsUndefined
-#define sUndefValue		_obsolete_sUndefValue
-#define mUndefIntVal		_obsolete_mUndefIntVal
-#define mIsUndefInt(x)		_obsolete_mIsUndefInt
-
-#define mMALLOC(sz,tp)		_include_mallocdefs_mMALLOC
-#define mREALLOC(var,sz,tp)	_include_mallocdefs_mREALLOC
-#define mFREE(ptr)		_include_mallocdefs_mFREE
 
 #undef	YES
 #undef	NO
