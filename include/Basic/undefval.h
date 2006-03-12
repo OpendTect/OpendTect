@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          13/01/2005
- RCS:           $Id: undefval.h,v 1.4 2006-03-12 13:39:09 cvsbert Exp $
+ RCS:           $Id: undefval.h,v 1.5 2006-03-12 20:59:50 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,8 +50,8 @@ class Undef
 public:
     static T		val();
     static bool		hasUdf();
-    static bool		isUdf( T );
-    void		setUdf( T );
+    static bool		isUdf(T);
+    void		setUdf(T&);
 };
 
 
@@ -62,7 +62,7 @@ public:
     static int32	val()			{ return __mUndefIntVal; }
     static bool		hasUdf()		{ return true; }
     static bool		isUdf( int32 i )	{ return i==__mUndefIntVal; }
-    static void		setUdf( int64 i )	{ i = __mUndefIntVal; }
+    static void		setUdf( int64& i )	{ i = __mUndefIntVal; }
 };
 
 template<>
@@ -72,7 +72,7 @@ public:
     static uint32	val()			{ return __mUndefIntVal; }
     static bool		hasUdf()		{ return true; }
     static bool		isUdf( uint32 i )	{ return i==__mUndefIntVal; }
-    static void		setUdf( uint64 i )	{ i = __mUndefIntVal; }
+    static void		setUdf( uint64& i )	{ i = __mUndefIntVal; }
 };
 
 
@@ -83,7 +83,7 @@ public:
     static int64	val()			{ return __mUndefIntVal64; }
     static bool		hasUdf()		{ return true; }
     static bool		isUdf( int64 i )	{ return i==__mUndefIntVal64; }
-    static void		setUdf( int64 i )	{ i = __mUndefIntVal64; }
+    static void		setUdf( int64& i )	{ i = __mUndefIntVal64; }
 };
 
 template<>
@@ -93,7 +93,7 @@ public:
     static uint64	val()			{ return __mUndefIntVal64; }
     static bool		hasUdf()		{ return true; }
     static bool		isUdf( uint64 i )	{ return i==__mUndefIntVal64; }
-    static void		setUdf( uint64 i )	{ i = __mUndefIntVal64; }
+    static void		setUdf( uint64& i )	{ i = __mUndefIntVal64; }
 };
 
 
@@ -104,7 +104,7 @@ public:
     static bool		val()			{ return false; }
     static bool		hasUdf()		{ return false; }
     static bool		isUdf( bool b )		{ return false; }
-    static void		setUdf( bool b )	{ b = false; }
+    static void		setUdf( bool& b )	{ b = false; }
 };
 
 
@@ -115,7 +115,7 @@ public:
     static float	val()			{ return __mUndefValue; }
     static bool		hasUdf()		{ return true; }
     static bool		isUdf( float f )	{ return __mIsUndefined(f); }
-    static void		setUdf( float f )	{ f = __mUndefValue; }
+    static void		setUdf( float& f )	{ f = __mUndefValue; }
 };
 
 
@@ -126,7 +126,7 @@ public:
     static double	val()			{ return __mUndefValue; }
     static bool		hasUdf()		{ return true; }
     static bool		isUdf( double d )	{ return __mIsUndefined(d); }
-    static void		setUdf( double d )	{ d = __mUndefValue; }
+    static void		setUdf( double& d )	{ d = __mUndefValue; }
 };
 
 
@@ -137,7 +137,7 @@ public:
     static const char*	val()			{ return ""; }
     static bool		hasUdf()		{ return true; }
     static bool		isUdf( const char* s )	{ return !s || !*s; }
-    static void		setUdf( const char* s )	{}
+    static void		setUdf( const char*& )	{}
 };
 
 
@@ -148,7 +148,7 @@ public:
     static const char*	val()			{ return ""; }
     static bool		hasUdf()		{ return true; }
     static bool		isUdf( const char* s )	{ return !s || !*s; }
-    static void		setUdf( char* s )	{ if ( s ) *s = '\0'; }
+    static void		setUdf( char*& s )	{ if ( s ) *s = '\0'; }
 };
 
 
