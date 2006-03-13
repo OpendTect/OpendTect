@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2005
- RCS:           $Id: SoMultiTexture2.cc,v 1.12 2006-03-09 19:59:40 cvskris Exp $
+ RCS:           $Id: SoMultiTexture2.cc,v 1.13 2006-03-13 18:38:30 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -194,7 +194,7 @@ void SoMultiTextureProcessor::process( const SoMultiTexture2& mt,
 	}
 	else
 	{
-	    process( 0, sz_ );
+	    process( 0, sz_-1 );
 	}
 
 	coltabstart_ += imagenumcolors_; 
