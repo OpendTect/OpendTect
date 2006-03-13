@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          25/05/2000
- RCS:           $Id: uiioobjsel.cc,v 1.83 2006-03-10 13:34:02 cvsbert Exp $
+ RCS:           $Id: uiioobjsel.cc,v 1.84 2006-03-13 16:25:13 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -101,6 +101,9 @@ uiIOObjSelGrp::uiIOObjSelGrp( uiParent* p, const CtxtIOObj& c,
     }
 
     selectionChange( this );
+    BufferString preset_name = ctio.name();
+    if ( nmfld && preset_name.size()>0 )
+	nmfld->setText( preset_name );
 }
 
 
