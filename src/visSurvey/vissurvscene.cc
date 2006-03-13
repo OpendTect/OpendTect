@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: vissurvscene.cc,v 1.83 2006-03-12 13:39:11 cvsbert Exp $
+ RCS:           $Id: vissurvscene.cc,v 1.84 2006-03-13 22:12:48 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -152,9 +152,6 @@ void Scene::addObject( visBase::DataObject* obj )
     mDynamicCastGet(SurveyObject*,so,obj)
     mDynamicCastGet(visBase::VisualObject*,vo,obj)
 
-    if ( so && so->getMovementNotification() )
-	so->getMovementNotification()->notify( mCB(this,Scene,objectMoved) );
-
     if ( so )
     {
 	if ( so->getMovementNotification() )
@@ -170,6 +167,9 @@ void Scene::addObject( visBase::DataObject* obj )
 
     if ( so && datatransform_ )
 	so->setDataTransform( datatransform_ );
+
+    if ( so )
+	objectMoved(0);
 }
 
 
@@ -181,6 +181,9 @@ void Scene::removeObject( int idx )
 	so->getMovementNotification()->remove( mCB(this,Scene,objectMoved) );
 
     visBase::DataObjectGroup::removeObject( idx );
+
+    if ( so )
+	objectMoved(0);
 }
 
 
