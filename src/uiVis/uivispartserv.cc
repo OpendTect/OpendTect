@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.308 2006-03-12 13:39:11 cvsbert Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.309 2006-03-13 18:53:44 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -425,6 +425,24 @@ void uiVisPartServer::showAttribTransparencyDlg( int id, int attrib )
 
     uiAttribTransDlg dlg( appserv().parent(), *so, attrib );
     dlg.go();
+}
+
+
+unsigned char uiVisPartServer::getAttribTransparency( int id,int attrib ) const
+{
+    mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
+    if ( !so ) return 0;
+
+    return so->getAttribTransparency( attrib );
+}
+
+
+void uiVisPartServer::setAttribTransparency( int id, int attrib,
+					     unsigned char nv )
+{
+    mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
+    if ( so ) 
+	so->setAttribTransparency( attrib, nv );
 }
 
 

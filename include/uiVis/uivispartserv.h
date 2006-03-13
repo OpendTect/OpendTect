@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.166 2006-03-09 18:51:09 cvsnanne Exp $
+ RCS:           $Id: uivispartserv.h,v 1.167 2006-03-13 18:53:44 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -108,6 +108,8 @@ public:
     int			getNrAttribs(int id) const;
     bool		swapAttribs(int id,int attrib0,int attrib1);
     void		showAttribTransparencyDlg(int id,int attrib);
+    unsigned char	getAttribTransparency(int id,int attrib) const;
+    void		setAttribTransparency(int id,int attrib, unsigned char);
     const Attrib::SelSpec* getSelSpec(int id,int attrib) const;
     void		setSelSpec(int id,int attrib,const Attrib::SelSpec&);
     bool		isClassification(int id,int attrib) const;
