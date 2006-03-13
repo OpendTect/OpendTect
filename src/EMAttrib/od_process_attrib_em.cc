@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2004
- RCS:           $Id: od_process_attrib_em.cc,v 1.27 2006-02-21 13:10:53 cvshelene Exp $
+ RCS:           $Id: od_process_attrib_em.cc,v 1.28 2006-03-13 08:30:43 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,6 +29,7 @@ ________________________________________________________________________
 #include "timefun.h"
 #include "filegen.h"
 #include "filepath.h"
+#include "keystrs.h"
 
 #include "emmanager.h"
 #include "emsurface.h"
