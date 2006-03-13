@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: visemobjdisplay.cc,v 1.77 2006-03-12 13:39:11 cvsbert Exp $
+ RCS:           $Id: visemobjdisplay.cc,v 1.78 2006-03-13 22:13:16 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -384,6 +384,7 @@ bool EMObjectDisplay::updateFromEM()
     if ( usestexture_ ) useTexture( true );
     updateFromMPE();
 
+    hasmoved.trigger();
     return true;
 }
 
@@ -477,6 +478,7 @@ bool EMObjectDisplay::addSection( EM::SectionID sid )
 	psurf->setResolution( getResolution()-1 );
     }
 
+    hasmoved.trigger();
     return addEdgeLineDisplay(sid);
 }
 
@@ -1024,6 +1026,7 @@ void EMObjectDisplay::emChangeCB( CallBacker* cb )
 	    sections_[idx]->unRef();
 	    sections_.remove( idx );
 	    sectionids_.remove( idx );
+	    hasmoved.trigger();
 	}
 
 	triggermovement = true;
