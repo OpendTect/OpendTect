@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.60 2006-03-09 18:51:09 cvsnanne Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.61 2006-03-14 13:27:06 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -52,11 +52,12 @@ static const char* scenestr = "Scene ";
 
 
 uiODSceneMgr::uiODSceneMgr( uiODMain* a )
-    	: appl_(*a)
-    	, wsp_(new uiWorkSpace(a,"OpendTect work space"))
-	, vwridx(0)
-    	, lasthrot_(0), lastvrot_(0), lastdval_(0)
-    	, tifs_(new uiTreeFactorySet)
+    : appl_(*a)
+    , wsp_(new uiWorkSpace(a,"OpendTect work space"))
+    , vwridx(0)
+    , lasthrot_(0), lastvrot_(0), lastdval_(0)
+    , tifs_(new uiTreeFactorySet)
+    , sceneClosed(this)
 {
 
     tifs_->addFactory( new uiODInlineTreeItemFactory, 1000 );
@@ -202,6 +203,7 @@ void uiODSceneMgr::removeScene( CallBacker* cb )
 
     scene->vwrGroup()->mainObject()->closed.remove( mWSMCB(removeScene) );
     scenes_ -= scene;
+    sceneClosed.trigger( scene->itemmanager_->sceneID() );
     delete scene;
 }
 
