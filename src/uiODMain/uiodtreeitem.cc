@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.169 2006-03-14 07:10:47 cvsnanne Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.170 2006-03-14 13:33:23 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -774,8 +774,8 @@ uiODDisplayTreeItem::~uiODDisplayTreeItem()
 int uiODDisplayTreeItem::selectionKey() const { return displayid_; }
 
 
-uiODDataTreeItem*
-uiODDisplayTreeItem::createAttribItem( const Attrib::SelSpec* as ) const
+uiODDataTreeItem* uiODDisplayTreeItem::createAttribItem(
+					const Attrib::SelSpec* as ) const
 {
     const char* parenttype = typeid(*this).name();
     uiODDataTreeItem* res = as ? uiODDataTreeItem::create( *as, parenttype ) :0;
@@ -845,15 +845,14 @@ void uiODDisplayTreeItem::updateColumnText( int col )
 
 bool uiODDisplayTreeItem::showSubMenu()
 {
-    return applMgr()->visServer()->showMenu( displayid_, 
-					     uiMenuHandler::fromTree );
+    return visserv->showMenu( displayid_, uiMenuHandler::fromTree );
 }
 
 
 void uiODDisplayTreeItem::checkCB( CallBacker* )
 {
-    if ( !applMgr()->visServer()->isSoloMode() )
-	applMgr()->visServer()->turnOn(displayid_, uilistviewitem->isChecked());
+    if ( !visserv->isSoloMode() )
+	visserv->turnOn( displayid_, uilistviewitem->isChecked() );
 }
 
 
@@ -865,9 +864,9 @@ int uiODDisplayTreeItem::uiListViewItemType() const
 
 BufferString uiODDisplayTreeItem::createDisplayName() const
 {
-    const uiVisPartServer* cvisserv = const_cast<uiODDisplayTreeItem*>(this)->
-							applMgr()->visServer();
-    return cvisserv->getObjectName(displayid_);
+    const uiVisPartServer* cvisserv =
+		const_cast<uiODDisplayTreeItem*>(this)->applMgr()->visServer();
+    return cvisserv->getObjectName( displayid_ );
 }
 
 
@@ -913,7 +912,7 @@ void uiODDisplayTreeItem::handleMenuCB( CallBacker* cb )
     {
 	menu->setIsHandled(true);
 	mDynamicCastGet(visSurvey::SurveyObject*,so,
-		ODMainWin()->applMgr().visServer()->getObject( displayid_ ) )
+			visserv->getObject(displayid_))
 	if ( !so )
 	    return;
 
@@ -1426,6 +1425,14 @@ uiODRandomLineParentTreeItem::uiODRandomLineParentTreeItem()
 
 bool uiODRandomLineParentTreeItem::showSubMenu()
 {
+    mDynamicCastGet(visSurvey::Scene*,scene,
+	    	    ODMainWin()->applMgr().visServer()->getObject(sceneID()));
+    if ( scene && scene->getDataTransform() )
+    {
+	uiMSG().message( "Cannot add Random lines to this scene" );
+	return false;
+    }
+
     mParentShowSubMenu( addChild(new uiODRandomLineTreeItem(-1), true); );
 }
 
@@ -1623,6 +1630,14 @@ uiODHorizonParentTreeItem::uiODHorizonParentTreeItem()
 
 bool uiODHorizonParentTreeItem::showSubMenu()
 {
+    mDynamicCastGet(visSurvey::Scene*,scene,
+	    	    ODMainWin()->applMgr().visServer()->getObject(sceneID()));
+    if ( scene && scene->getDataTransform() )
+    {
+	uiMSG().message( "Cannot add Horizons to this scene" );
+	return false;
+    }
+
     uiPopupMenu mnu( getUiParent(), "Action" );
     mnu.insertItem( new uiMenuItem("Load ..."), 0 );
     mnu.insertItem( new uiMenuItem("New ..."), 1 );
@@ -1734,6 +1749,14 @@ uiODWellParentTreeItem::uiODWellParentTreeItem()
 
 bool uiODWellParentTreeItem::showSubMenu()
 {
+    mDynamicCastGet(visSurvey::Scene*,scene,
+	    	    ODMainWin()->applMgr().visServer()->getObject(sceneID()));
+    if ( scene && scene->getDataTransform() )
+    {
+	uiMSG().message( "Cannot add Wells to this scene" );
+	return false;
+    }
+
     uiPopupMenu mnu( getUiParent(), "Action" );
     mnu.insertItem( new uiMenuItem("Load ..."), 0 );
     mnu.insertItem( new uiMenuItem("New WellTrack ..."), 1 );
@@ -2005,6 +2028,14 @@ uiODPickSetParentTreeItem::uiODPickSetParentTreeItem()
 
 bool uiODPickSetParentTreeItem::showSubMenu()
 {
+    mDynamicCastGet(visSurvey::Scene*,scene,
+	    	    ODMainWin()->applMgr().visServer()->getObject(sceneID()));
+    if ( scene && scene->getDataTransform() )
+    {
+	uiMSG().message( "Cannot add PickSets to this scene" );
+	return false;
+    }
+
     uiPopupMenu mnu( getUiParent(), "Action" );
     mnu.insertItem( new uiMenuItem("New/Load ..."), 0 );
     if ( children.size() )
