@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribprocessor.cc,v 1.38 2006-03-08 13:44:00 cvsnanne Exp $";
+static const char* rcsID = "$Id: attribprocessor.cc,v 1.39 2006-03-14 15:51:48 cvshelene Exp $";
 
 #include "attribprocessor.h"
 
@@ -219,7 +219,17 @@ void Processor::init()
     }
 
     if ( sd_ && sd_->type_ == Seis::Table )
+    {
 	provider->setSelData( sd_ );
+	mDynamicCastGet( LocationOutput*, locoutp, outputs[0] );
+	if ( locoutp )
+	{
+	    Interval<float> extraz( -2*provider->getRefStep(), 
+		    		    2*provider->getRefStep() );
+	    provider->setExtraZ( extraz );
+	    provider->setNeedInterpol(true);
+	}
+    }
 
     for ( int idx=0; idx<globaloutputinterest.size(); idx++ )
 	provider->enableOutput(globaloutputinterest[idx], true );

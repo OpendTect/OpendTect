@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribprovider.h,v 1.37 2006-03-02 12:52:07 cvshelene Exp $
+ RCS:           $Id: attribprovider.h,v 1.38 2006-03-14 15:51:48 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -96,6 +96,7 @@ public:
 
     void               		updateInputReqs(int input=-1);
     virtual void                updateStorageReqs(bool all=false);
+    void			setNeedInterpol(bool);
     void			setSelData(const SeisSelData*);
     void                        setExtraZ(const Interval<float>&);
     float                       getRefStep() const; 
@@ -192,6 +193,7 @@ protected:
     bool 			alreadymoved;
 
     bool			isusedmulttimes;
+    bool			needinterp;
     BufferString 		errmsg;
 };
 

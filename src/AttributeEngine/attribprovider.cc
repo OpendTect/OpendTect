@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribprovider.cc,v 1.58 2006-03-02 12:52:07 cvshelene Exp $";
+static const char* rcsID = "$Id: attribprovider.cc,v 1.59 2006-03-14 15:51:48 cvshelene Exp $";
 
 #include "attribprovider.h"
 #include "attribstorprovider.h"
@@ -154,7 +154,7 @@ Provider* Provider::internalCreate( Desc& desc, ObjectSet<Provider>& existing,
     {
 	existing.remove( existing.indexOf(res), existing.size()-1 );
 	res->unRef();
-	errstr = "attribute \""; errstr += res->desc.userRef(); 
+	errstr = "Attribute \""; errstr += res->desc.userRef(); 
 	errstr += "\" of type \"";errstr += res->desc.attribName(); 
 	errstr += "\" cannot be initialized";
 	return 0;
@@ -183,6 +183,7 @@ Provider::Provider( Desc& nd )
     , extraz_(0,0)
     , trcinfobid( -1, -1 )
     , prevtrcnr( 0 )
+    , needinterp( 0 )
 {
     mRefCountConstructor;
     desc.ref();
@@ -1277,6 +1278,17 @@ void Provider::setUsedMultTimes()
     {
 	if ( inputs[idx] )
 	    inputs[idx]->setUsedMultTimes();
+    }
+}
+
+
+void Provider::setNeedInterpol( bool yn )
+{
+    needinterp = yn;
+    for ( int idx=0; idx<inputs.size(); idx++ )
+    {
+	if ( inputs[idx] )
+	    inputs[idx]->setNeedInterpol( yn );
     }
 }
 
