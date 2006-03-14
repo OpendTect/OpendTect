@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.168 2006-03-12 13:39:11 cvsbert Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.169 2006-03-14 07:10:47 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -556,7 +556,7 @@ void uiODAttribTreeItem::createSelMenu( MenuItem& mnu, int visid, int attrib,
 	{
 	    // TODO: get depthdomain key from scene
 	    subitem = attrserv->depthdomainAttribMenuItem( *as, sKey::Wheeler );
-	    mAddMenuItem( &mnu, subitem, true, subitem->checked );
+	    mAddMenuItem( &mnu, subitem, subitem->nrItems(), subitem->checked );
 	}
     }
 }
