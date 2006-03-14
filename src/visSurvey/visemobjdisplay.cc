@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: visemobjdisplay.cc,v 1.78 2006-03-13 22:13:16 cvskris Exp $
+ RCS:           $Id: visemobjdisplay.cc,v 1.79 2006-03-14 07:01:50 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -1274,7 +1274,7 @@ void EMObjectDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
     {
 	IOPar attribpar;
 	as_[attrib]->fillPar( attribpar );
-	const int coltabid = getColTabID(attrib);
+	const int coltabid = coltabs_[attrib]->id();
 	attribpar.set( sKeyColTabID(), coltabid );
 	if ( saveids.indexOf( coltabid )==-1 ) saveids += coltabid;
 
@@ -1288,7 +1288,7 @@ void EMObjectDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
     //par.set( sKeyColorTableID, coltab_->id() );
     //if ( saveids.indexOf(coltab_->id())==-1 )
 	//saveids += coltab_->id();
-    as_[0]->fillPar( par );
+    //as_[0]->fillPar( par );
 }
 
 
@@ -1308,11 +1308,11 @@ int EMObjectDisplay::usePar( const IOPar& par )
     par.get( sKeyColRange, parcolrg_.start, parcolrg_.stop, parcolrg_.step );
 
     BufferString linestyle;
-    if ( par.get( sKeyLineStyle, linestyle ) )
+    if ( par.get(sKeyLineStyle,linestyle) )
     {
 	LineStyle ls;
-	ls.fromString(linestyle);
-	setLineStyle(ls);
+	ls.fromString( linestyle );
+	setLineStyle( ls );
     }
 
     // Editing may not be moved further down, since the enableEditing call
@@ -1324,7 +1324,7 @@ int EMObjectDisplay::usePar( const IOPar& par )
     if ( !par.get(sKey::Color,(int&)nontexturecol_.rgb()) )
 	nontexturecol_ = getMaterial()->getColor();
 
-    if ( !par.getYN( sKeyTexture, usestexture_ ) )
+    if ( !par.getYN(sKeyTexture,usestexture_) )
 	usestexture_ = true;
 
     bool usewireframe = false;
@@ -1344,7 +1344,7 @@ int EMObjectDisplay::usePar( const IOPar& par )
     setTranslation( shift );
 
     int nrattribs;
-    if ( par.get( sKeyNrAttribs(), nrattribs ) ) //Current format
+    if ( par.get(sKeyNrAttribs(),nrattribs) ) //Current format
     {
 	bool firstattrib = true;
 	for ( int attrib=0; attrib<nrattribs; attrib++ )
@@ -1363,22 +1363,23 @@ int EMObjectDisplay::usePar( const IOPar& par )
 	    const int attribnr = as_.size()-1;
 
 	    int coltabid = -1;
-	    if ( attribpar->get( sKeyColTabID(), coltabid ) )
+	    if ( attribpar->get(sKeyColTabID(),coltabid) )
 	    {
-		visBase::DataObject* dataobj=visBase::DM().getObject(coltabid);
+		visBase::DataObject* dataobj = 
+		    			visBase::DM().getObject( coltabid );
 		if ( !dataobj ) return 0;
 
-		mDynamicCastGet( visBase::VisColorTab*, coltab, dataobj );
+		mDynamicCastGet(visBase::VisColorTab*,coltab,dataobj);
 		if ( !coltab ) coltabid=-1;
 		coltabs_[attribnr]->unRef();
 		coltabs_.replace( attribnr, coltab );
 
 		for ( int idx=0; idx<sections_.size(); idx++ )
 		{
-		    mDynamicCastGet( visBase::ParametricSurface*,psurf,
-			    	     sections_[idx]);
+		    mDynamicCastGet(visBase::ParametricSurface*,psurf,
+			    	    sections_[idx]);
 		    if ( psurf )
-			psurf->setColorTab( attribnr, *coltab);
+			psurf->setColorTab( attribnr, *coltab );
 		}
 	    }
 
