@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Jan 2003
- RCS:           $Id: vistexture2.cc,v 1.34 2006-03-12 13:39:11 cvsbert Exp $
+ RCS:           $Id: vistexture2.cc,v 1.35 2006-03-14 14:58:51 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,7 +12,7 @@ ________________________________________________________________________
 #include "vistexture2.h"
 #include "viscolortab.h"
 #include "arrayndimpl.h"
-#include "interpol.h"
+#include "interpol2d.h"
 #include "simpnumer.h"
 
 #include <limits.h>
@@ -171,50 +171,34 @@ void Texture2::polyInterp( const Array2DInfoImpl& newsize,
 	    const bool x1p2udf = x1idx >= datax1size-2;
 	    const bool x1p1udf = x1idx == datax1size-1;
 
-	    const float v01 = x0m1udf ? udf
+	    const float vm10 = x0m1udf ? udf
 		: newdata->get( x0idx-1, x1idx );
-	    const float v02 = x0m1udf || x1p1udf ? udf
+	    const float vm11 = x0m1udf || x1p1udf ? udf
 		: newdata->get( x0idx-1, x1idx+1 );
-	    const float v10 = x1m1udf ? udf
-		: newdata->get( x0idx,   x1idx-1 );
-	    const float v11 =
-		  newdata->get( x0idx,   x1idx );
-	    const float v12 = x1p1udf ? udf
-		: newdata->get( x0idx,   x1idx+1 );
-	    const float v13 = x1p2udf ? udf
-		: newdata->get( x0idx,   x1idx+2 );
-	    const float v20 = x0p1udf || x1m1udf ? udf
+	    const float v0m1 = x1m1udf ? udf
+		: newdata->get( x0idx, x1idx-1 );
+	    const float v00 =
+		  newdata->get( x0idx, x1idx );
+	    const float v01 = x1p1udf ? udf
+		: newdata->get( x0idx, x1idx+1 );
+	    const float v02 = x1p2udf ? udf
+		: newdata->get( x0idx, x1idx+2 );
+	    const float v1m1 = x0p1udf || x1m1udf ? udf
 		: newdata->get( x0idx+1, x1idx-1 );
-	    const float v21 = x0p1udf ? udf
+	    const float v10 = x0p1udf ? udf
 		: newdata->get( x0idx+1, x1idx );
-	    const float v22 = x0p1udf || x1p1udf ? udf
+	    const float v11 = x0p1udf || x1p1udf ? udf
 		: newdata->get( x0idx+1, x1idx+1 );
-	    const float v23 = x0p1udf || x1p2udf ? udf
+	    const float v12 = x0p1udf || x1p2udf ? udf
 		: newdata->get( x0idx+1, x1idx+2 );
-	    const float v31 = x0p2udf ? udf
+	    const float v20 = x0p2udf ? udf
 		: newdata->get( x0idx+2, x1idx );
-	    const float v32 = x0p2udf || x1p1udf ? udf
+	    const float v21 = x0p2udf || x1p1udf ? udf
 		: newdata->get( x0idx+2, x1idx+1 );
 
-	    if ( mIsUdf(v11) || mIsUdf(v12) || mIsUdf(v21) || mIsUdf(v22) )
-	    {
-		val = x0relpos > 0.5 ? ( x1relpos > 0.5 ? v22 : v21 )
-		    		     : ( x1relpos > 0.5 ? v12 : v11 );
-	    }
-	    else if ( mIsUdf(v01) || mIsUdf(v02) || mIsUdf(v10) || mIsUdf(v13)||
-		      mIsUdf(v20) || mIsUdf(v23) || mIsUdf(v31) || mIsUdf(v32) )
-	    {
-		val = linearInterpolate2D( v11, v12, v21, v22,
-					   x0relpos, x1relpos );
-	    }
-	    else
-	    {
-		val = polyInterpolate2DDual1D( v01, v02, v10, v11, v12, v13,
-						v20, v21, v22, v23, v31, v32,
-						x0relpos, x1relpos );
-	    }
-
-	    res[newsize.getMemPos(x0,x1)] = val;
+	    res[newsize.getMemPos(x0,x1)] = Interpolate::polyReg2DWithUdf(
+		    vm10,vm11,v0m1,v00,v01,v02,v1m1,v10,v11,v12,v20,v21,
+		    x0relpos, x1relpos );
 	}
     }
 }

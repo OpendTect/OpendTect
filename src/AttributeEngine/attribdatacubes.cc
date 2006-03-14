@@ -5,11 +5,11 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribdatacubes.cc,v 1.9 2006-03-01 16:39:12 cvsnanne Exp $";
+static const char* rcsID = "$Id: attribdatacubes.cc,v 1.10 2006-03-14 14:58:51 cvsbert Exp $";
 
 #include "attribdatacubes.h"
 #include "survinfo.h"
-#include "interpol.h"
+#include "idxable.h"
 
 namespace Attrib
 {
@@ -107,11 +107,11 @@ bool DataCubes::getValue( int array, const BinIDValue& bidv, float* res,
 	return true;
     }
 
-    float dummy;
-    if ( !interpolateSampledWithUdf( data, zsz, zpos, dummy, false ) )
+    float interpval;
+    if ( !IdxAble::interpolateRegWithUdf( data, zsz, zpos, interpval, false ) )
 	return false;
 
-    *res = dummy;
+    *res = interpval;
     return true;
 }
 

@@ -4,7 +4,7 @@
  * DATE     : 18-4-1996
 -*/
 
-static const char* rcsID = "$Id: draw.cc,v 1.49 2006-03-12 13:39:10 cvsbert Exp $";
+static const char* rcsID = "$Id: draw.cc,v 1.50 2006-03-14 14:58:51 cvsbert Exp $";
 
 /*! \brief Several implementations for UI-related things.
 
@@ -21,7 +21,7 @@ The main chunk is color table related.
 #include "ascstream.h"
 #include "ptrman.h"
 #include "oddirs.h"
-#include "interpol.h"
+#include "interpol1d.h"
 #include "bufstringset.h"
 #include "strmprov.h"
 
@@ -268,7 +268,7 @@ float ColorTable::getTransparency( float val ) const
 	float x1 = translist[idx].x();
 	float y1 = translist[idx].y();
 	if ( valnorm >= x0 && valnorm <= x1 )
-	    return linearInterpolate( x0, y0, x1, y1, valnorm );
+	    return Interpolate::linear1D( x0, y0, x1, y1, valnorm );
     }
 
     return 0;

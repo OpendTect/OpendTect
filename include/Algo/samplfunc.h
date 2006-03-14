@@ -7,13 +7,13 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: samplfunc.h,v 1.9 2006-03-12 13:39:09 cvsbert Exp $
+ RCS:           $Id: samplfunc.h,v 1.10 2006-03-14 14:58:51 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include <mathfunc.h>
-#include <periodicvalue.h>
+#include "mathfunc.h"
+#include "periodicvalue.h"
 
 /*!\brief make any sampled series comply with MathFunction.
 If the sampled values are periodic (i.e. phase), set the periodic flag and let
@@ -46,16 +46,13 @@ public:
     RT				getValue( RT x ) const
 				{ 
 				    return periodic 
-					? interpolateYPeriodicSampled( *this,
-							       size(),
-							       getIndex(x),
-							       period(),
-							       extrapolate(),
-							       getUndefVal())  
-					: interpolateSampled( *this, size(), 
-				     			       getIndex(x),
-							       extrapolate(),
-							       getUndefVal());
+					? IdxAble::interpolateYPeriodicReg(
+						*this, size(),
+						getIndex(x), period(),
+						extrapolate())  
+					: IdxAble::interpolateReg( *this,
+						size(), getIndex(x),
+						extrapolate());
 				}
 
 protected:
@@ -63,7 +60,6 @@ protected:
 
 
     virtual bool		extrapolate() const { return false; }
-    virtual RT			getUndefVal() const { return mUdf(RT); }
 
 };
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril & Kris Tingdahl
  Date:          Mar 2005
- RCS:           $Id: valseriesinterpol.h,v 1.1 2005-03-08 11:55:44 cvsbert Exp $
+ RCS:           $Id: valseriesinterpol.h,v 1.2 2006-03-14 14:58:51 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,9 +39,9 @@ public:
     bool		vdamine_;
     int			maxidx_;
     T			snapdist_;
+    T			udfval_;
     bool		smooth_;
     bool		extrapol_;
-    T			udfval_;
     bool		isperiodic_;
     T			period_;
 
@@ -73,11 +73,16 @@ inline T ValueSeriesInterpolator<T>::value( const ValueSeries<T>& vda,
     curidx = lopos + 2;	mChkVSIRg;	v[3] = vda.value( curidx );
 
     pos -= lopos; // now 0 < pos < 1
+    T rv;
     if ( !isperiodic_ )
-	return polyInterpolate( v[0], v[1], v[2], v[3], pos );
-
-    pos += 1; // now 1 < pos < 2
-    return interpolateYPeriodicSampled( v, 4, pos, period_, false, udfval_ );
+	rv = Interpolate::polyReg1D( v[0], v[1], v[2], v[3], pos );
+    else
+    {
+	pos += 1; // now 1 < pos < 2
+	rv = IdxAble::interpolateYPeriodicReg( v, 4, pos, period_, false  );
+    }
+    if ( mIsUdf(rv) )
+	rv = udfval_;
 }
 
 #undef mChkVSIRg

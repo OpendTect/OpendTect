@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: well.cc,v 1.38 2006-03-12 13:39:11 cvsbert Exp $";
+static const char* rcsID = "$Id: well.cc,v 1.39 2006-03-14 14:58:51 cvsbert Exp $";
 
 #include "welldata.h"
 #include "welltrack.h"
@@ -12,7 +12,7 @@ static const char* rcsID = "$Id: well.cc,v 1.38 2006-03-12 13:39:11 cvsbert Exp 
 #include "welllogset.h"
 #include "welld2tmodel.h"
 #include "wellmarker.h"
-#include "finding.h"
+#include "idxable.h"
 #include "iopar.h"
 
 const char* Well::Info::sKeyuwid	= "Unique Well ID";
@@ -175,7 +175,7 @@ Well::Log& Well::Log::operator =( const Well::Log& l )
 float Well::Log::getValue( float dh ) const
 {
     int idx1;
-    if ( findFPPos(dah_,dah_.size(),dh,-1,idx1) )
+    if ( IdxAble::findFPPos(dah_,dah_.size(),dh,-1,idx1) )
 	return val_[idx1];
     else if ( idx1 < 0 || idx1 == dah_.size()-1 )
 	return mUdf(float);
@@ -400,7 +400,7 @@ void Well::Track::removePoint( int idx )
 Coord3 Well::Track::getPos( float dh ) const
 {
     int idx1;
-    if ( findFPPos(dah_,dah_.size(),dh,-1,idx1) )
+    if ( IdxAble::findFPPos(dah_,dah_.size(),dh,-1,idx1) )
 	return pos_[idx1];
     else if ( idx1 < 0 || idx1 == dah_.size()-1 )
 	return Coord3(0,0,0);
@@ -534,7 +534,7 @@ Well::D2TModel& Well::D2TModel::operator =( const Well::D2TModel& d2t )
 float Well::D2TModel::getTime( float dh ) const
 {
     int idx1;
-    if ( findFPPos(dah_,dah_.size(),dh,-1,idx1) )
+    if ( IdxAble::findFPPos(dah_,dah_.size(),dh,-1,idx1) )
 	return t_[idx1];
     else if ( dah_.size() < 2 )
 	return mUdf(float);
@@ -557,7 +557,7 @@ float Well::D2TModel::getTime( float dh ) const
 float Well::D2TModel::getDepth( float time ) const
 {
     int idx1;
-    if ( findFPPos(t_,t_.size(),time,-1,idx1) )
+    if ( IdxAble::findFPPos(t_,t_.size(),time,-1,idx1) )
 	return dah_[idx1];
     else if ( t_.size() < 2 )
 	return mUdf(float);
@@ -582,7 +582,7 @@ float Well::D2TModel::getVelocity( float dh ) const
     if ( dah_.size() < 2 ) return mUdf(float);
 
     int idx1;
-    findFPPos( dah_, dah_.size(), dh, -1, idx1 );
+    IdxAble::findFPPos( dah_, dah_.size(), dh, -1, idx1 );
     if ( idx1 < 1 )
 	idx1 = 1;
     else if ( idx1 > dah_.size()-1 )

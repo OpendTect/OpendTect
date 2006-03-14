@@ -4,14 +4,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Jan 2003
- RCS:           $Id: vistexture3.cc,v 1.25 2005-08-29 11:10:10 cvsbert Exp $
+ RCS:           $Id: vistexture3.cc,v 1.26 2006-03-14 14:58:51 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "vistexture3.h"
 #include "arrayndimpl.h"
-#include "interpol.h"
+#include "interpol3d.h"
 #include "envvars.h"
 
 #include <Inventor/nodes/SoSwitch.h>
@@ -133,7 +133,7 @@ void Texture3::setData( const Array3D<float>* newdata, DataType sel )
     const float x2step = (datax2sz-1)/(float)(x2sz-1);
     
     int idx=0;
-    float val000, val001, val010, val011, val100, val101, val110, val111;
+    float v000, v001, v010, v011, v100, v101, v110, v111;
     for ( int x2=0; x2<x2sz; x2++ )
     {
 	const float x2pos=x2*x2step;
@@ -155,46 +155,26 @@ void Texture3::setData( const Array3D<float>* newdata, DataType sel )
 		const bool x0onedge = x0idx+1==datax0sz;
 		const float x0relpos = x0pos-x0idx;
 
-		val000 = newdata->get( x0idx, x1idx, x2idx );
+		v000 = newdata->get( x0idx, x1idx, x2idx );
 		if ( !x1onedge )
-		    val010 = newdata->get( x0idx, x1idx+1, x2idx );
+		    v010 = newdata->get( x0idx, x1idx+1, x2idx );
 		if ( !x2onedge )
-		    val001 = newdata->get( x0idx, x1idx, x2idx+1 );
+		    v001 = newdata->get( x0idx, x1idx, x2idx+1 );
 		if ( !x1onedge && !x2onedge )
-		    val011 = newdata->get( x0idx, x1idx+1, x2idx+1 );
+		    v011 = newdata->get( x0idx, x1idx+1, x2idx+1 );
 		if ( !x0onedge )
-		    val100 = newdata->get( x0idx+1, x1idx, x2idx );
+		    v100 = newdata->get( x0idx+1, x1idx, x2idx );
 		if ( !x0onedge && !x1onedge )
-		    val110 = newdata->get( x0idx+1, x1idx+1, x2idx );
+		    v110 = newdata->get( x0idx+1, x1idx+1, x2idx );
 		if ( !x0onedge && !x2onedge )
-		    val101 = newdata->get( x0idx+1, x1idx, x2idx+1 );
+		    v101 = newdata->get( x0idx+1, x1idx, x2idx+1 );
 		if ( !x0onedge && !x1onedge && !x2onedge )
-		    val111 = newdata->get( x0idx+1, x1idx+1, x2idx+1 );
+		    v111 = newdata->get( x0idx+1, x1idx+1, x2idx+1 );
 
-		float val = 0;
-		if ( x0onedge && x1onedge && x2onedge )
-		    val = val000;
-		else if ( x0onedge && x1onedge )
-		    val = linearInterpolateWithUdf( val000, val001, x2relpos );
-		else if ( x0onedge && x2onedge )
-		    val = linearInterpolateWithUdf( val000, val010, x1relpos );
-		else if ( x1onedge && x2onedge )
-		    val = linearInterpolateWithUdf( val000, val100, x0relpos );
-		else if ( x0onedge )
-		    val = linearInterpolate2DWithUdf( val000, val001, val010,
-						val011, x1relpos, x2relpos );
-		else if ( x1onedge )
-		    val = linearInterpolate2DWithUdf( val000, val001, val100,
-						val101, x0relpos, x2relpos );
-		else if ( x2onedge )
-		    val = linearInterpolate2DWithUdf( val000, val010, val100,
-						val110, x0relpos, x1relpos );
-		else 
-		    val = linearInterpolate3DWithUdf( val000, val001, val010,
-					val011, val100, val101, val110,
-					val111, x0relpos, x1relpos, x2relpos );
-
-		resized[idx++] = val;
+		resized[idx++] =
+		    Interpolate::linearReg3DWithUdf(
+			    v000, v100, v010, v110, v001, v101, v011, v111,
+			    x0relpos, x1relpos, x2relpos );
 		/*!< Note that this is the coin-ordering, not
 		     the standard Array size
 		 */

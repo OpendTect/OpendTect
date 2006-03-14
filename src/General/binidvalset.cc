@@ -4,17 +4,17 @@
  * DATE     : 21-6-1996
 -*/
 
-static const char* rcsID = "$Id: binidvalset.cc,v 1.13 2006-03-12 13:39:10 cvsbert Exp $";
+static const char* rcsID = "$Id: binidvalset.cc,v 1.14 2006-03-14 14:58:51 cvsbert Exp $";
 
 #include "binidvalset.h"
 #include "iopar.h"
 #include "separstr.h"
-#include "finding.h"
+#include "idxable.h"
 #include "sorting.h"
 #include "strmoper.h"
 #include <iostream>
 
-#define mSetUdf(arr,nvals) \
+#define mSetToUdf(arr,nvals) \
     for ( int idx=0; idx<nvals; idx++ ) \
 	Values::setUdf(arr[idx])
 #define mInl(pos) (inls[pos.i])
@@ -27,7 +27,7 @@ static const char* rcsID = "$Id: binidvalset.cc,v 1.13 2006-03-12 13:39:10 cvsbe
 static int findIndexFor( const TypeSet<int>& nrs, int nr, bool* found = 0 )
 {
     int ret;
-    bool fnd = findPos( nrs.arr(), nrs.size(), nr, -1, ret );
+    bool fnd = IdxAble::findPos( nrs.arr(), nrs.size(), nr, -1, ret );
     if ( found ) *found = fnd;
     return ret;
 }
@@ -107,7 +107,7 @@ void BinIDValueSet::append( const BinIDValueSet& bvs )
     else
     {
 	float* insvals = new float [nrvals];
-	mSetUdf(insvals,nrvals);
+	mSetToUdf(insvals,nrvals);
 	while ( bvs.next(pos,!bvs.allowdup) )
 	{
 	    bvs.get( pos, bid );
@@ -371,7 +371,7 @@ void BinIDValueSet::get( const Pos& pos, BinID& bid, float* vs ) const
     }
 
     if ( vs ) 
-	mSetUdf(vs,nrvals);
+	mSetToUdf(vs,nrvals);
 }
 
 
@@ -446,7 +446,7 @@ void BinIDValueSet::addNew( BinIDValueSet::Pos& pos, int crl, const float* arr )
 	if ( arr )
 	    memcpy( newvals, arr, nrvals * sizeof(float) );
 	else
-	    mSetUdf( newvals, nrvals );
+	    mSetToUdf( newvals, nrvals );
     }
 
     if ( pos.j < 0 )
@@ -491,7 +491,7 @@ void BinIDValueSet::set( BinIDValueSet::Pos pos, const float* vals )
     if ( vals )
 	memcpy( mVals(pos), vals, nrvals*sizeof(float) );
     else
-	mSetUdf( mVals(pos), nrvals );
+	mSetToUdf( mVals(pos), nrvals );
 }
 
 
@@ -649,7 +649,7 @@ void BinIDValueSet::setNrVals( int newnrvals, bool kp_data )
 	    for ( int icrl=0; icrl<sz; icrl++ )
 	    {
 		float* newvals = new float [ nrvals ];
-		mSetUdf( newvals, nrvals );
+		mSetToUdf( newvals, nrvals );
 		vals += newvals;
 	    }
 	}
@@ -744,7 +744,7 @@ void BinIDValueSet::extend( const BinID& so, const BinID& sos )
     allowdup = false;
 
     float* vals = nrvals ? new float [nrvals] : 0;
-    mSetUdf(vals,nrvals);
+    mSetToUdf(vals,nrvals);
 
     Pos pos; BinID bid;
     while ( bvs.next(pos) )

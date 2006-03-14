@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          January 2003
- RCS:           $Id: visrandomtrackdisplay.cc,v 1.68 2006-03-12 13:39:11 cvsbert Exp $
+ RCS:           $Id: visrandomtrackdisplay.cc,v 1.69 2006-03-14 14:58:51 cvsbert Exp $
  ________________________________________________________________________
 
 -*/
@@ -18,7 +18,7 @@
 #include "iopar.h"
 #include "seisbuf.h"
 #include "seistrc.h"
-#include "interpol.h"
+#include "interpol1d.h"
 #include "scaler.h"
 #include "survinfo.h"
 #include "visdataman.h"
@@ -325,9 +325,9 @@ void RandomTrackDisplay::removeKnot( int knotidx )
     { \
 	BinID bid; \
 	int bidx = start.x + idi*step; \
-	float val = linearInterpolate( (float)start.x, (float)start.y, \
-				       (float)stop.x, (float)stop.y, \
-				       (float)bidx ); \
+	float val = Interpolate::linear1D( (float)start.x, (float)start.y, \
+					   (float)stop.x, (float)stop.y, \
+					   (float)bidx ); \
 	int bidy = (int)(val + .5); \
 	BinID nextbid = inlwise ? BinID(bidx,bidy) : BinID(bidy,bidx); \
 	SI().snap( nextbid ); \

@@ -8,13 +8,13 @@ ________________________________________________________________________
  Author:	Kris Tingdahl
  Date:		12-4-1999
  Contents:	Periodic value interpolation and so forth
- RCS:		$Id: periodicvalue.h,v 1.5 2005-05-18 09:20:45 cvsbert Exp $
+ RCS:		$Id: periodicvalue.h,v 1.6 2006-03-14 14:58:51 cvsbert Exp $
 ________________________________________________________________________
 
 */
 
-#include <simpnumer.h>
-#include <interpol.h>
+#include "simpnumer.h"
+#include "idxable.h"
 
 
 /*!>
@@ -116,15 +116,17 @@ protected:
 };
 
 
+namespace IdxAble
+{
+
 /*!>
- interpolateYPeriodicSampled interpolates in an indexable storage with
+ interpolateYPeriodicReg interpolates in an indexable storage with
  periodic entities ( defined by y(x) = y(x) + N*P )
 */
 
 template <class T, class RT>
-inline void interpolateYPeriodicSampled( const T& idxabl, int sz, float pos,
-				RT& ret, RT period, bool extrapolate=NO,
-				RT undefval=mUdf(RT) )
+inline void interpolateYPeriodicReg( const T& idxabl, int sz, float pos,
+				RT& ret, RT period, bool extrapolate=false )
 {
     const float halfperiod = period / 2;
     int intpos = mNINT( pos );
@@ -134,7 +136,7 @@ inline void interpolateYPeriodicSampled( const T& idxabl, int sz, float pos,
 
     int prevpos = dist > 0 ? intpos : intpos - 1;
     if ( !extrapolate && (prevpos > sz-2 || prevpos < 0) )
-	ret = undefval;
+	ret = mUdf(RT);
     else if ( prevpos < 1 )
     {
 	const float val0 = idxabl[0];
@@ -142,7 +144,8 @@ inline void interpolateYPeriodicSampled( const T& idxabl, int sz, float pos,
 	while ( val1 - val0 > halfperiod ) val1 -= period; 
 	while ( val1 - val0 < -halfperiod ) val1 += period; 
 
-	ret = dePeriodize(linearInterpolate( val0, val1, pos ), period );
+	ret = dePeriodize( Interpolate::linearReg1D( val0, val1, pos ),
+			   period );
     }
     else if ( prevpos > sz-3 )
     {
@@ -150,7 +153,8 @@ inline void interpolateYPeriodicSampled( const T& idxabl, int sz, float pos,
 	RT val1 = idxabl[sz-1];
 	while ( val1 - val0 > halfperiod ) val1 -= period; 
 	while ( val1 - val0 < -halfperiod ) val1 += period; 
-	ret = dePeriodize(linearInterpolate( val0, val1, pos-(sz-2) ), period );
+	ret = dePeriodize( Interpolate::linearReg1D( val0, val1, pos-(sz-2) ),
+			  period );
     }
     else
     {
@@ -168,33 +172,31 @@ inline void interpolateYPeriodicSampled( const T& idxabl, int sz, float pos,
 	while ( val3 - val2 > halfperiod ) val3 -= period; 
 	while ( val3 - val2 < -halfperiod ) val3 += period; 
 
-	ret = dePeriodize(polyInterpolate( val0, val1, val2, val3,
-			  pos - prevpos ), period );
+	ret = dePeriodize(Interpolate::polyReg1D( val0, val1, val2, val3,
+						  pos - prevpos ), period );
     }
 }
 
 
 template <class T>
-inline float interpolateYPeriodicSampled( const T& idxabl, int sz, float pos,
-                                 float period, bool extrapolate=NO,
-                                 float undefval=mUdf(float) )
+inline float interpolateYPeriodicReg( const T& idxabl, int sz, float pos,
+                                 float period, bool extrapolate=false )
 {
-    float ret = undefval;
-    interpolateYPeriodicSampled( idxabl, sz, pos, ret,
-				 period, extrapolate, undefval );
+    float ret = mUdf(float);
+    interpolateYPeriodicReg( idxabl, sz, pos, ret, period, extrapolate );
     return ret;
 }
 
 
 /*!>
- interpolateXPeriodicSampled interpolates in an periodic indexable ( where
+ interpolateXPeriodicReg interpolates in an periodic indexable ( where
  the position is periodic ), defined by y(x) = x(x+n*P). The period is equal
  to the size of the given idxabl.
 */
 
 template <class T, class RT>
-inline void interpolateXPeriodicSampled( const T& idxabl, int sz, float pos,
-					RT& ret)
+inline void interpolateXPeriodicReg( const T& idxabl, int sz, float pos,
+					 RT& ret)
 {
     int intpos = mNINT( pos );
     float dist = pos - intpos;
@@ -219,11 +221,9 @@ inline void interpolateXPeriodicSampled( const T& idxabl, int sz, float pos,
     const RT nextval = idxabl[nextpos];
     const RT nextval2 = idxabl[nextpos2];
 
-    ret = polyInterpolate( prevval2, 
-			   prevval, 
-			   nextval,
-			   nextval2, relpos );
+    ret = Interpolate::polyReg1D( prevval2, prevval, nextval, nextval2, relpos);
 }
 
+} // namespace IdxAble
 
 #endif
