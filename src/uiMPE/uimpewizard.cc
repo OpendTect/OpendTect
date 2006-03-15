@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpewizard.cc,v 1.40 2006-03-10 16:13:37 cvsjaap Exp $
+ RCS:           $Id: uimpewizard.cc,v 1.41 2006-03-15 13:25:13 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -298,9 +298,9 @@ bool Wizard::prepareSeedSetupPage()
     colorChangeCB(0);
 
     mpeserv->sendEvent( uiMPEPartServer::evStartSeedPick );
-    EMSeedPicker* seedpicker = tracker->getSeedPicker( true );
-    if ( seedpicker )
-	seedpicker->startSeedPick();
+//    EMSeedPicker* seedpicker = tracker->getSeedPicker( true );
+//    if ( seedpicker )
+//	seedpicker->startSeedPick();
 
     if ( currentPageIdx()==lastPage() )
 	setRotateMode(false);
@@ -648,8 +648,7 @@ void Wizard::seedModeChange( CallBacker* )
     const int newmode = modegrp ? modegrp->selectedId() : -1;
     seedpicker->setSeedMode( newmode );
 
-    const bool skipsetup = trackertype==EMHorizonTranslatorGroup::keyword 
-			   && newmode==HorizonSeedPicker::DrawBetweenSeeds;
+    const bool skipsetup = seedpicker->isInDrawMode();
     setupgrp->setSensitive( !skipsetup );
 
     const bool newmodeneedseed = seedpicker->isMinimumNrOfSeeds() > 0; 
@@ -663,8 +662,8 @@ void Wizard::setupChange( CallBacker* )
 {
     mGetSeedPicker();
 
-    const bool allowpicking = !setupgrp->sensitive() 
-			      || setupgrp->isSetToValidSetup(); 
+    const bool allowpicking = !setupgrp->sensitive() ||
+			      setupgrp->isSetToValidSetup(); 
     picktxt->setSensitive( allowpicking );
     colorfld->setSensitive( allowpicking );
     seedpicker->freezeMode( !allowpicking );
