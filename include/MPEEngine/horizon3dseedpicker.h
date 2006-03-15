@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: horizon3dseedpicker.h,v 1.5 2006-03-10 16:05:09 cvsjaap Exp $
+ RCS:           $Id: horizon3dseedpicker.h,v 1.6 2006-03-15 13:16:48 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,6 +44,7 @@ public:
     void		freezeMode( bool yn )		{ frozen_ = yn; }
     bool		isModeFrozen() const		{ return frozen_; }
     bool		isInVolumeMode() const;
+    bool		isInDrawMode() const;
 
 protected:
     bool		retrackActiveLine();

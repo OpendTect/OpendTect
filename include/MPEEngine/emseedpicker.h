@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: emseedpicker.h,v 1.12 2006-03-10 16:04:11 cvsjaap Exp $
+ RCS:           $Id: emseedpicker.h,v 1.13 2006-03-15 13:16:48 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -59,6 +59,7 @@ public:
     virtual void	freezeMode( bool )			{ return; }
     virtual bool	isModeFrozen() const			{ return false;}
     virtual bool        isInVolumeMode() const			{ return true; }
+    virtual bool	isInDrawMode() const			{ return false;}
 
     virtual const char*	errMsg() const				{ return 0; }
 
