@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.cc,v 1.76 2006-03-12 13:39:11 cvsbert Exp $
+ RCS:           $Id: uimpeman.cc,v 1.77 2006-03-15 13:19:48 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,6 +20,7 @@ ________________________________________________________________________
 #include "emmanager.h"
 #include "emseedpicker.h"
 #include "emsurfacegeometry.h"
+#include "emsurfacetr.h"
 #include "emtracker.h"
 #include "horizonseedpicker.h"
 #include "mpeengine.h"
@@ -83,7 +84,11 @@ uiMPEMan::uiMPEMan( uiParent* p, uiVisPartServer* ps )
     , didtriggervolchange( false )
     , seedpickwason( false )
 {
-    seedidx = mAddButton( "seedpickmode.png", seedModeCB, "Create seed", true );
+    seedmodefld = new uiComboBox( this, "Seed mode" );
+    seedmodefld->setToolTip( "Select seed mode" );
+    seedmodefld->selectionChanged.notify( mCB(this,uiMPEMan,seedModeSel) );
+
+    seedidx = mAddButton( "seedpickmode.png", addSeedCB, "Create seed", true );
     addSeparator();
     
     moveplaneidx = mAddButton( "moveplane.png", movePlaneCB,
@@ -229,7 +234,8 @@ void uiMPEMan::seedClick( CallBacker* )
 	didtriggervolchange = false;
 	seedpicker = tracker->getSeedPicker(true);
 	if ( !seedpicker || !seedpicker->canSetSectionID() ||
-	     !seedpicker->setSectionID(emobject->sectionID(0)) )
+	     !seedpicker->setSectionID(emobject->sectionID(0)) ||
+	     !seedpicker->startSeedPick() )
 	{
 	    seedpicker = 0;
 	    return;
@@ -560,12 +566,21 @@ void uiMPEMan::mouseEraseModeCB( CallBacker* )
 }
 
 
-void uiMPEMan::seedModeCB( CallBacker* )
+void uiMPEMan::addSeedCB( CallBacker* )
 {
     turnSeedPickingOn( isOn(seedidx) );
 
 //    if ( isOn( seedidx ) )
 //	visserv->sendAddSeedEvent();
+}
+
+void uiMPEMan::seedModeSel( CallBacker* )
+{
+    if ( seedpicker )
+    {
+	seedpicker->setSeedMode( seedmodefld->currentItem() ); 
+    }
+    updateButtonSensitivity(0);
 }
 
 
@@ -611,22 +626,9 @@ void uiMPEMan::updateButtonSensitivity( CallBacker* )
 
     //Seed button
 
-    MPE::EMTracker* tracker = getSelectedTracker();
+    updateSeedModeState();
 
-    uiToolBar::setSensitive( seedidx, tracker );
-
-    if ( !tracker && isOn(seedidx) )
-    {
-	turnSeedPickingOn( false );
-	seedpickwason = true;
-    }
-    if ( isOn(seedidx) )
-	seedpickwason = false;
-    if ( tracker && seedpickwason )
-	turnSeedPickingOn( true );
-
-    seedpicker = tracker ? tracker->getSeedPicker(true) : 0 ;
-    const bool isvoltrack = seedpicker ? seedpicker->isInVolumeMode() : true ; 
+    const bool isvoltrack = seedpicker ? seedpicker->isInVolumeMode() : true; 
     
     uiToolBar::setSensitive( undoidx, isvoltrack );
     uiToolBar::setSensitive( redoidx, isvoltrack );
@@ -662,6 +664,43 @@ void uiMPEMan::updateButtonSensitivity( CallBacker* )
 }
 
 
+void uiMPEMan::updateSeedModeState()
+{
+    seedmodefld->empty();
+
+    MPE::EMTracker* tracker = getSelectedTracker();
+    uiToolBar::setSensitive( seedidx, tracker );
+    seedmodefld->setSensitive( tracker );
+
+    if ( !tracker )
+    {
+	seedmodefld->addItem("No seed mode");
+	if ( isOn(seedidx) )
+	{
+	    turnSeedPickingOn( false );
+	    seedpickwason = true;
+	}
+	return;
+    }
+    if ( isOn(seedidx) )
+	seedpickwason = false;
+    if ( seedpickwason )
+	turnSeedPickingOn( true );
+
+    const EM::EMObject* emobj = EM::EMM().getObject( tracker->objectID() );
+    if ( emobj && emobj->getTypeStr() == EMHorizonTranslatorGroup::keyword )
+    {
+	// items should be in order of MPE::HorizonSeedPicker::SeedModeOrder
+	seedmodefld->addItem("Volume track");
+	seedmodefld->addItem("Line tracking");
+	seedmodefld->addItem("Line manual");
+    }
+
+    seedpicker = tracker->getSeedPicker(true);
+    seedmodefld->setCurrentItem( seedpicker->getSeedMode() );
+}
+
+
 void uiMPEMan::trackForward( CallBacker* )
 {
     uiCursorChanger cursorlock( uiCursor::Wait );
@@ -692,7 +731,6 @@ void uiMPEMan::trackInVolume( CallBacker* )
     for ( int idx=0; idx<displays.size(); idx++ )
 	displays[idx]->updateMPEActiveVolume();
 
-    const bool ison = isOn( seedidx );
     const TrackPlane::TrackMode tm = engine().trackPlane().getTrackMode();
     engine().setTrackMode(TrackPlane::Extend);
     updateButtonSensitivity();
