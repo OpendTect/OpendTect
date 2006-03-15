@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Mar 2006
- RCS:		$Id: interpol3d.h,v 1.1 2006-03-14 14:58:51 cvsbert Exp $
+ RCS:		$Id: interpol3d.h,v 1.2 2006-03-15 14:11:46 cvsbert Exp $
 ________________________________________________________________________
 
 */
@@ -145,6 +145,8 @@ inline void set( T v000, T v100, T v010, T v110, T v001, T v101, T v011, T v111)
 	mFillIfUdf(101,001,111,100,011,000,110,010)
 	mFillIfUdf(011,111,001,010,101,110,000,100)
 	mFillIfUdf(111,011,101,110,001,010,100,000)
+
+#	undef mFillIfUdf
     }
 
     intp_.set( v000, v100, v010, v110, v001, v101, v011, v111 );

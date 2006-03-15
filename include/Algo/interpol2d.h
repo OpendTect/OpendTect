@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Mar 2006
- RCS:		$Id: interpol2d.h,v 1.2 2006-03-14 20:06:24 cvsbert Exp $
+ RCS:		$Id: interpol2d.h,v 1.3 2006-03-15 14:11:46 cvsbert Exp $
 ________________________________________________________________________
 
 */
@@ -20,9 +20,10 @@ ________________________________________________________________________
     { \
 	if ( u##left##_ && u##right##_ ) \
 	    v##nd = v##opp; \
-	v##nd = u##left##_ || u##right##_ ? \
-	       (u##right##_ ? v##left : v##right) \
-			    : (v##left + v##right) / 2; \
+	else \
+	    v##nd = u##left##_ || u##right##_ ? \
+		   (u##right##_ ? v##left : v##right) \
+				: (v##left + v##right) / 2; \
     }
 
 #define mRetUdfIfNearestUdf() \
@@ -258,6 +259,8 @@ void fillOuter2Inner( T vm10, T vm11, T v0m1, T v02,
     mFillWithEither(10,1m1,20)
     mFillWithEither(11,21,12)
     mFillWithEither(01,02,m11)
+
+#undef mFillWithEither
 }
 
 void fillInner2Inner( T& v00, T& v10, T& v01, T& v11 )
@@ -288,6 +291,7 @@ void fillInner2Outer( T v00, T v10, T v01, T v11,
     mFillIfUdf(02,01);
     mFillIfUdf(12,11);
     mFillIfUdf(21,11);
+#   undef mFillIfUdf
 }
 
 inline void set( T vm10, T vm11,
@@ -358,6 +362,9 @@ inline T polyReg2DWithUdf( T vm10, T vm11, T v0m1, T v00, T v01, T v02,
     return PolyReg2DWithUdf<T>(vm10,vm11,v0m1,v00,v01,v02,v1m1,v10,v11,v12,v20,
 	    			v21).apply( x, y );
 }
+
+
+#undef mFillIfUdfFromSquare
 
 
 } // namespace Interpolate
