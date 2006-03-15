@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Feb 2006
- RCS:           $Id: visrandomtrackdragger.h,v 1.1 2006-02-13 22:52:28 cvskris Exp $
+ RCS:           $Id: visrandomtrackdragger.h,v 1.2 2006-03-15 14:10:52 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,7 +33,7 @@ class Transformation;
 class RandomTrackDragger : public VisualObjectImpl
 {
 public:
-    static RandomTrackDragger*		create()
+    static RandomTrackDragger*	create()
     				mCreateDataObj(RandomTrackDragger);
 
 
@@ -42,8 +42,10 @@ public:
 
     int				nrKnots() const;
     Coord			getKnot(int) const;
-    void			setKnot(int,const Coord& );
+    void			setKnot(int,const Coord&);
+    void			insertKnot(int,const Coord&);
     void			removeKnot(int);
+
     Interval<float>		getDepthRange() const;
     void			setDepthRange(const Interval<float>&);
 
@@ -54,12 +56,13 @@ public:
 	    				  const Coord3& stop,
 					  const Coord3& step); 
 
-    void			showFeedback( bool yn );
+    void			showFeedback(bool yn);
 
     CNotifier<RandomTrackDragger,int> motion;
     NotifierAccess*		rightClicked() { return &rightclicknotifier_; }
     const TypeSet<int>*		rightClickedPath() const;
     const EventInfo*		rightClickedEventInfo() const;
+
 protected:
     				~RandomTrackDragger();
     void			triggerRightClick(const EventInfo* eventinfo);

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          December 2003
- RCS:           $Id: visrandomtrackdragger.cc,v 1.1 2006-02-13 22:52:26 cvskris Exp $
+ RCS:           $Id: visrandomtrackdragger.cc,v 1.2 2006-03-15 14:10:52 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -130,10 +130,19 @@ Coord RandomTrackDragger::getKnot( int idx ) const
 }
 
 
-void RandomTrackDragger::setKnot( int idx, const Coord& p )
+void RandomTrackDragger::setKnot( int idx, const Coord& knotpos )
 {
-    Coord3 pos( p, 0 );
+    Coord3 pos( knotpos, 0 );
     if ( displaytrans_ ) displaytrans_->transform( pos );
+    dragger_->knots.set1Value( idx, SbVec2f(pos.x, pos.y) );
+}
+
+
+void RandomTrackDragger::insertKnot( int idx, const Coord& knotpos )
+{
+    Coord3 pos( knotpos, 0 );
+    if ( displaytrans_ ) displaytrans_->transform( pos );
+    dragger_->knots.insertSpace( idx, 1 );
     dragger_->knots.set1Value( idx, SbVec2f(pos.x, pos.y) );
 }
 
