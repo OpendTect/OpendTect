@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          January 2003
- RCS:           $Id: visrandomtrackdisplay.cc,v 1.69 2006-03-14 14:58:51 cvsbert Exp $
+ RCS:           $Id: visrandomtrackdisplay.cc,v 1.70 2006-03-15 14:15:04 cvsnanne Exp $
  ________________________________________________________________________
 
 -*/
@@ -226,17 +226,17 @@ void RandomTrackDisplay::insertKnot( int knotidx, const BinID& bid )
     {
 	const Interval<float> zrg( getDataTraceRange() );
 	visBase::Coordinates* coords = triangles_->getCoordinates();
-	coords->insertPos( knotidx*2, Coord3( sbid.inl, sbid.crl, zrg.start) );
-	coords->insertPos( knotidx*2+1, Coord3( sbid.inl, sbid.crl, zrg.stop) );
+	coords->insertPos( knotidx*2, Coord3(sbid.inl,sbid.crl,zrg.start) );
+	coords->insertPos( knotidx*2+1, Coord3(sbid.inl,sbid.crl,zrg.stop) );
 
 	const int ciidx = triangles_->nrCoordIndex();
 	triangles_->setCoordIndex( ciidx, ciidx );
 	triangles_->setCoordIndex( ciidx+1, ciidx+1 );
 
-	dragger_->setKnot( knotidx, Coord(sbid.inl,sbid.crl) );
+	dragger_->insertKnot( knotidx, Coord(sbid.inl,sbid.crl) );
 	texture_->clearAll();
 	for ( int idx=0; idx<nrAttribs(); idx++ )
-	    setData( idx, cache_[0] );
+	    setData( idx, *cache_[idx] );
 
 	moving_.trigger();
     }
@@ -357,14 +357,6 @@ void RandomTrackDisplay::getDataTraceBids( TypeSet<BinID>& bids ) const
 
 void RandomTrackDisplay::setTraceData( int attrib, SeisTrcBuf& trcbuf )
 {
-    const int nrtrcs = trcbuf.size();
-    if ( !nrtrcs )
-    {
-	texture_->setData( attrib, 0, 0 );
-	texture_->turnOn( false );
-	return;
-    }
-
     setData( attrib, trcbuf );
 
     if ( !cache_[attrib] )
@@ -380,6 +372,14 @@ void RandomTrackDisplay::setTraceData( int attrib, SeisTrcBuf& trcbuf )
 
 void RandomTrackDisplay::setData( int attrib, const SeisTrcBuf& trcbuf )
 {
+    const int nrtrcs = trcbuf.size();
+    if ( !nrtrcs )
+    {
+	texture_->setData( attrib, 0, 0 );
+	texture_->turnOn( false );
+	return;
+    }
+
     const Interval<float> zrg = getDataTraceRange();
     const float step = trcbuf.get(0)->info().sampling.step;
     const int nrsamp = mNINT( zrg.width() / step ) + 1;
