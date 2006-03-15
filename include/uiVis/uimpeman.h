@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.h,v 1.28 2006-03-10 16:09:32 cvsjaap Exp $
+ RCS:           $Id: uimpeman.h,v 1.29 2006-03-15 13:18:48 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -60,6 +60,7 @@ protected:
 
     visSurvey::MPEClickCatcher*	clickcatcher;
 
+    uiComboBox*			seedmodefld;
     uiComboBox*			attribfld;
     uiSlider*			transfld;
 
@@ -81,7 +82,9 @@ protected:
     void			trackForward(CallBacker*);
     void			trackInVolume(CallBacker*);
 
-    void			seedModeCB(CallBacker*);
+    void			updateSeedModeState();
+    void			addSeedCB(CallBacker*);
+    void			seedModeSel(CallBacker*);
     void			setColorbarCB(CallBacker*);
     void                        onColTabClosing(CallBacker*);
     void			movePlaneCB(CallBacker*);
