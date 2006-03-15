@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizon3dseedpicker.cc,v 1.5 2006-03-10 16:07:05 cvsjaap Exp $";
+static const char* rcsID = "$Id: horizon3dseedpicker.cc,v 1.6 2006-03-15 13:28:30 cvsjaap Exp $";
 
 #include "horizonseedpicker.h"
 
@@ -32,7 +32,10 @@ HorizonSeedPicker::HorizonSeedPicker( MPE::EMTracker& t )
     , firsthistorynr_( mInitialEventNrNotSet )
     , seedmode_( TrackFromSeeds )
     , frozen_( false )
-{}
+{
+    seedlist_.erase();
+    seedpos_.erase();
+}
 
 
 bool HorizonSeedPicker::setSectionID( const EM::SectionID& sid )
@@ -48,8 +51,8 @@ bool HorizonSeedPicker::setSectionID( const EM::SectionID& sid )
 bool HorizonSeedPicker::startSeedPick()
 {
     firsthistorynr_ =  EM::EMM().history().currentEventNr();
-    seedlist_.erase();
-    seedpos_.erase();
+//    seedlist_.erase();
+//    seedpos_.erase();
 
     mGetHorizon(hor);
     didchecksupport_ = hor->geometry.checkSupport(false);
@@ -141,7 +144,7 @@ bool HorizonSeedPicker::reTrack()
 	}
     }
    
-    if ( !retrackActiveLine() );
+    if ( !retrackActiveLine() )
 	return false;
 
     repairDisconnections();
@@ -207,6 +210,8 @@ int HorizonSeedPicker::isMinimumNrOfSeeds() const
 bool HorizonSeedPicker::isInVolumeMode() const
 { return getSeedMode()==TrackFromSeeds; }
 
+bool HorizonSeedPicker::isInDrawMode() const
+{ return getSeedMode()==DrawBetweenSeeds; }
 
 /*
 bool HorizonSeedPicker::removeEverythingButSeeds()
@@ -281,12 +286,12 @@ bool HorizonSeedPicker::clearActiveLine()
 	for ( int crl=crlrng.start; crl<=crlrng.stop; crl+=crlrng.step ) 
 	{
 	    const BinID curbid( inl, crl );
-	    BinID leftbid( inl-inlrng.step, crl );
-	    BinID rightbid( inl+inlrng.step, crl );
+	    BinID leftbid = BinID( inl, crl-crlrng.step );
+	    BinID rightbid = BinID( inl, crl+crlrng.step );
 	    if ( inlineactive )
 	    {
-		leftbid = BinID( inl, crl-crlrng.step );
-		rightbid = BinID( inl, crl+crlrng.step );
+		leftbid = BinID( inl-inlrng.step, crl );
+		rightbid = BinID( inl+inlrng.step, crl );
 	    }
 
 	    const EM::PosID curpid( emobj->id(), sectionid_, 
@@ -297,13 +302,12 @@ bool HorizonSeedPicker::clearActiveLine()
 						   rightbid.getSerialized() ); 
 
 	    const bool crossconnected = emobj->isDefined(curpid) &&
-		  ( emobj->isDefined(leftpid) || emobj->isDefined(rightpid) );
+		( emobj->isDefined(leftpid) && emobj->isDefined(rightpid) ) ;
 	    if ( crossconnected ) 
 	    {
 		crosspid_ += curpid;
 		crosspos_ += emobj->getPos( curpid );
 	    }
-
 	    emobj->unSetPos( curpid, true );
 	}
     }
