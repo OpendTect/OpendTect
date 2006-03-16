@@ -4,7 +4,7 @@
  * DATE     : May 2004
 -*/
 
-static const char* rcsID = "$Id: wellextractdata.cc,v 1.27 2006-03-12 13:39:11 cvsbert Exp $";
+static const char* rcsID = "$Id: wellextractdata.cc,v 1.28 2006-03-16 11:05:33 cvsbert Exp $";
 
 #include "wellextractdata.h"
 #include "wellreader.h"
@@ -353,9 +353,9 @@ void Well::LogDataExtracter::getData( const BinIDValueSet& bivs,
 	return;
     const Well::Log& wl = wd.logs().getLog( wlidx );
 
-    if ( GetEnvVarYN("DTECT_DUMP_WELL_EXTRACTION_DATA") )
+    if ( GetEnvVar("OD_WELL_EXTRACTION_DATA_DUMP") )
     {
-	StreamProvider sp( FilePath::getTempName("trackdump.txt") );
+	StreamProvider sp( GetEnvVar("OD_WELL_EXTRACTION_DATA_DUMP") );
 	StreamData sd = sp.makeOStream();
 	if ( sd.usable() )
 	{
@@ -369,8 +369,7 @@ void Well::LogDataExtracter::getData( const BinIDValueSet& bivs,
 	    float val = wl.getValue( d_ah );
 	    BinID bid = SI().transform( zpos );
 	    Coord bidcoord = SI().transform( bid );
-	    Coord offs; offs.x = zpos.x - bidcoord.x;
-	    		offs.y = zpos.y - bidcoord.y;
+	    Coord offs( zpos.x - bidcoord.x, zpos.y - bidcoord.y );
 	    strm << d_ah << '\t' << val << '\t'
 		 << bid.inl << '\t' << bid.crl << '\t'
 		 << offs.x << '\t' << offs.y << '\t'
