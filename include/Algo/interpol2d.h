@@ -7,13 +7,12 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Mar 2006
- RCS:		$Id: interpol2d.h,v 1.3 2006-03-15 14:11:46 cvsbert Exp $
+ RCS:		$Id: interpol2d.h,v 1.4 2006-03-16 18:41:57 cvsbert Exp $
 ________________________________________________________________________
 
 */
 
 #include "undefval.h"
-#include "interpol1d.h" //TODO temp. for poly
 
 #define mFillIfUdfFromSquare(nd,left,right,opp) \
     if ( u##nd##_ ) \
@@ -144,7 +143,7 @@ inline T linearReg2DWithUdf( T v00, T v10, T v01, T v11, float x, float y )
 }
 
 
-/*!<\brief Interpolate 2D regularly sampled, using a 3rd order surface. */
+/*!<\brief Interpolate 2D regularly sampled, using a 2nd order surface. */
 
 template <class T>
 class PolyReg2D
@@ -174,34 +173,33 @@ inline void set( T vm10, T vm11,
 	 T v1m1, T v10,  T v11, T v12,
 		 T v20,  T v21 )
 {
-    intp1d_[0].set( vm10, v00, v10, v20 );
-    intp1d_[1].set( vm11, v01, v11, v21 );
-    intp1d_[2].set( v0m1, v00, v01, v02 );
-    intp1d_[3].set( v1m1, v10, v11, v12 );
+    const T vx = 0.5 * (vm10 + vm11);
+    const T vy = 0.5 * (v0m1 + v1m1);
+    const T vx2 = 0.5 * (v20 + v21);
+    const T vy2 = 0.5 * (v02 + v12);
+    a_[0] = v00;
+    a_[1] = (57*v10 + 120*v01 + 216*v11 + 48*vx + 104*vy - 80*vx2 - 108*vy2
+	    - 357*v00) / 63;
+    a_[2] = (-48*v10 - 111*v01 - 288*v11 - 120*vx - 176*vy + 116*vx2 + 144*vy2
+	    + 483*v00) / 63;
+    a_[3] = 3*v10 + 3*v01 + 9*v11 + 4*vx + 4*vy - 4*vx2 - 4*vy2 - 15 * v00;
+    a_[4] = (6*v10 - 120*v01 - 216*v11 - 48*vx - 104*vy + 80*vx2 + 108*vy2
+	    + 294*v00) / 63;
+    a_[5] = (48*v10 + 174*v01 + 288*v11 + 120*vx + 176*vy - 116*vx2 - 144*vy2
+	    - 546*v00) / 63;
+    a_[6] = (-6*v10 - 18*v01 - 30*v11 - 12*vx - 16*vy + 12*vx2 + 16*vy2
+	    + 54*v00) / 3;
+    a_[7] = (-6*v10 + 6*v01 + 6*v11 + 4*vy - 4*vy2 - 6*v00) / 3;
 }
 
 inline T apply( float x, float y ) const
 {
-    v[0] = intp1d_[0].apply( x );
-    if ( y < 0.001 )
-	return v[0];
-    v[1] = intp1d_[0].apply( x );
-    if ( y > 0.999 )
-	return v[1];
-    v[2] = intp1d_[0].apply( y );
-    if ( x < 0.001 )
-	return v[2];
-    v[3] = intp1d_[0].apply( y );
-    if ( x > 0.999 )
-	return v[3];
-
-    // take weighted average
-    return (x * v[3] + (1-x) * v[2] + y * v[1] + (1-y) * v[0]) / 2;
+    return a_[0] + a_[1] * x + a_[2] * y + a_[3] * x * y
+		 + a_[4] * x * x + a_[5] * y * y
+		 + a_[6] * x * y * y + a_[7] * x * y * y;
 }
 
-    // TODO: do it right
-    mutable T		v[4];
-    PolyReg1D<T>	intp1d_[4];
+    T	a_[8];
 
 };
 
