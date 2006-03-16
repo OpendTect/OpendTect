@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emobject.cc,v 1.59 2006-02-09 21:54:36 cvskris Exp $";
+static const char* rcsID = "$Id: emobject.cc,v 1.60 2006-03-16 15:46:24 cvskris Exp $";
 
 #include "emobject.h"
 
@@ -439,7 +439,7 @@ bool EMObject::usePar( const IOPar& par )
 
 	for ( int idy=0; idy<minsz; idy++ )
 	{
-	    if ( !isDefined(subids[idy]) )
+	    if ( !isDefined(sections[idy],subids[idy]) )
 		continue;
 
 	    setPosAttrib( PosID(id(),sections[idy],subids[idy]), attrib, true );
