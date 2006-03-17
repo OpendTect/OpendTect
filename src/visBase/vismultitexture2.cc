@@ -99,6 +99,7 @@ void MultiTexture2::setOperation( int texturenr, MultiTexture::Operation op )
     else if ( op==MultiTexture::ADD )
 	nop = SoMultiTexture2::ADD;
 
+    texture_->operation.set1Value( texturenr, nop );
 }
 
 
