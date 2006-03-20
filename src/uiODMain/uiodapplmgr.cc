@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.124 2006-03-12 13:39:11 cvsbert Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.125 2006-03-20 08:04:14 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -397,9 +397,8 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
 	    CubeSampling cs = visserv->getCubeSampling( visid, attrib );
 	    if ( myas.id()==Attrib::SelSpec::cOtherAttrib() )
 	    {
-		PtrMan<Attrib::ExtAttribCalc> calc =
-		    Attrib::ExtAttribCalcFact::getInstance().
-		    	createCalculator(myas);
+		PtrMan<Attrib::ExtAttribCalc> calc = 
+				Attrib::ExtAttrFact().createCalculator( myas );
 
 		if ( !calc )
 		{
@@ -410,7 +409,7 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
 		}
 
 		RefMan<const Attrib::DataCubes> newdata =
-		    calc->createAttrib( cs, cache );
+				calc->createAttrib( cs, cache );
 		if ( !newdata ) return false;
 		visserv->setCubeData( visid, attrib, newdata );
 		res = true;
@@ -419,7 +418,7 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
 
 	    attrserv->setTargetSelSpec( myas );
 	    RefMan<const Attrib::DataCubes> newdata =
-		attrserv->createOutput( cs, cache );
+				attrserv->createOutput( cs, cache );
 
 	    if ( !newdata ) return false;
 	    visserv->setCubeData( visid, attrib, newdata );
