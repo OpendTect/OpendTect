@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          November 2002
- RCS:           $Id: positionattrib.h,v 1.8 2006-01-12 20:37:38 cvsnanne Exp $
+ RCS:           $Id: positionattrib.h,v 1.9 2006-03-20 16:32:08 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -75,13 +75,14 @@ protected:
     BinID			stepout_;
     Interval<float>		gate_;
     int				oper_;
-    bool			steering_;
+    bool			dosteer_;
 
     TypeSet<BinID>              positions_;
     Interval<float>             desgate_;
 
     int				inidx_;
     int				outidx_;
+    TypeSet<int>		steerindexes_;
 
     ObjectSet<const DataHolder>	inputdata_;
     Array2DImpl<const DataHolder*>* outdata_;

@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: volstatsattrib.cc,v 1.19 2006-03-02 12:52:51 cvshelene Exp $";
+static const char* rcsID = "$Id: volstatsattrib.cc,v 1.20 2006-03-20 16:32:02 cvsnanne Exp $";
 
 #include "volstatsattrib.h"
 
@@ -22,6 +22,20 @@ static const char* rcsID = "$Id: volstatsattrib.cc,v 1.19 2006-03-02 12:52:51 cv
 namespace Attrib
 {
 
+
+static int outputtypes[] =
+{
+    RunStats::Mean,
+    RunStats::Median,
+    RunStats::Variance,
+    RunStats::Min,
+    RunStats::Max,
+    RunStats::Sum,
+    RunStats::NormVariance,
+    -1
+};
+
+ 
 void VolStats::initClass()
 {
     Desc* desc = new Desc( attribName(), updateDesc );
@@ -104,58 +118,47 @@ const char* VolStats::shapeTypeStr( int type )
     return type==mShapeRectangle ? "Rectangle" : "Ellipse";
 }
 
-
-int VolStats::outputtypes[] =
-{
-    RunStats::Mean,
-    RunStats::Median,
-    RunStats::Variance,
-    RunStats::Min,
-    RunStats::Max,
-    RunStats::Sum,
-    RunStats::NormVariance,
-    -1
-};
-
-    
+   
 VolStats::VolStats( Desc& ds )
     : Provider( ds )
-    , positions(0,BinID(0,0))
+    , positions_(0,BinID(0,0))
+    , desgate_(0,0)
 {
     if ( !isOK() ) return;
 
-    inputdata.allowNull(true);
+    inputdata_.allowNull(true);
     
-    mGetBinID( stepout, stepoutStr() );
-    mGetEnum( shape, shapeStr() );
-    mGetFloatInterval( gate, gateStr() );
-    gate.start /= zFactor(); gate.stop /= zFactor();
+    mGetBinID( stepout_, stepoutStr() );
+    mGetEnum( shape_, shapeStr() );
+    mGetFloatInterval( gate_, gateStr() );
+    gate_.scale( 1/zFactor() );
 
-    mGetBool( steering, steeringStr() );
-    
-    if ( steering )
+    mGetBool( dosteer_, steeringStr() );
+
+    if ( dosteer_ )
     {
-	float extraz = mMAX(stepout.inl*inldist(), stepout.crl*crldist()) 
+	float extraz = mMAX(stepout_.inl*inldist(), stepout_.crl*crldist()) 
 	    		* mMAXDIP;
-	desgate = Interval<float>( gate.start-extraz, gate.stop+extraz );
+	desgate_ = Interval<float>( gate_.start-extraz, gate_.stop+extraz );
     }
-    else
-	desgate = Interval<float>(0,0);
-    
+
     BinID pos;
-    for ( pos.inl=-stepout.inl; pos.inl<=stepout.inl; pos.inl++ )
+    for ( pos.inl=-stepout_.inl; pos.inl<=stepout_.inl; pos.inl++ )
     {
-	for ( pos.crl=-stepout.crl; pos.crl<=stepout.crl; pos.crl++ )
+	for ( pos.crl=-stepout_.crl; pos.crl<=stepout_.crl; pos.crl++ )
 	{
-	    float relinldist = stepout.inl ? ((float)pos.inl)/stepout.inl : 0;
-	    float relcrldist = stepout.crl ? ((float)pos.crl)/stepout.crl : 0;
+	    const float relinldist =
+			stepout_.inl ? ((float)pos.inl)/stepout_.inl : 0;
+	    const float relcrldist =
+			stepout_.crl ? ((float)pos.crl)/stepout_.crl : 0;
 
-	    float dist2 = relinldist*relinldist+relcrldist*relcrldist;
-
-	    if ( shape==mShapeEllipse && dist2>1 )
+	    const float dist2 = relinldist*relinldist + relcrldist*relcrldist;
+	    if ( shape_==mShapeEllipse && dist2>1 )
 		continue;
 
-	    positions += pos;
+	    positions_ += pos;
+	    if ( dosteer_ )
+		steerindexes_ += getSteeringIndex( pos );
 	}
     }
 }
@@ -171,44 +174,42 @@ void VolStats::initSteering()
     for ( int idx=0; idx<inputs.size(); idx++ )
     {
 	if ( inputs[idx] && inputs[idx]->getDesc().isSteering() )
-	    inputs[idx]->initSteering( stepout );
+	    inputs[idx]->initSteering( stepout_ );
     }
 }
 
 
 bool VolStats::getInputOutput( int input, TypeSet<int>& res ) const
 {
-    if ( !steering || input<inputs.size()-1 ) 
+    if ( !dosteer_ || input<inputs.size()-1 ) 
 	return Provider::getInputOutput( input, res );
 
-    for ( int inl=-stepout.inl; inl<=stepout.inl; inl++ )
-    {
-	for ( int crl=-stepout.crl; crl<=stepout.crl; crl++ )
-	    res += getSteeringIndex( BinID(inl,crl) );
-    }
+    for ( int idx=0; idx<positions_.size(); idx++ )
+	res += steerindexes_[idx];
+
     return true;
 }
 
 
 bool VolStats::getInputData( const BinID& relpos, int zintv )
 {
-    while ( inputdata.size() < positions.size() )
-	inputdata += 0;
+    while ( inputdata_.size() < positions_.size() )
+	inputdata_ += 0;
 
-    steeringdata = steering ? inputs[1]->getData( relpos, zintv ) : 0;
-    if ( steering && !steeringdata )
+    steeringdata_ = dosteer_ ? inputs[1]->getData( relpos, zintv ) : 0;
+    if ( dosteer_ && !steeringdata_ )
 	return false;
 
     const BinID bidstep = inputs[0]->getStepoutStep();
-    const int nrpos = positions.size();
+    const int nrpos = positions_.size();
 
     for ( int posidx=0; posidx<nrpos; posidx++ )
     {
-	const BinID truepos = relpos + positions[posidx] * bidstep;
+	const BinID truepos = relpos + positions_[posidx] * bidstep;
 	const DataHolder* indata = inputs[0]->getData( truepos, zintv );
 	if ( !indata ) return false;
 
-	inputdata.replace( posidx, indata );
+	inputdata_.replace( posidx, indata );
     }
 
     dataidx_ = getDataIndex( 0 );
@@ -217,23 +218,23 @@ bool VolStats::getInputData( const BinID& relpos, int zintv )
 
 
 const BinID* VolStats::reqStepout( int inp, int out ) const
-{ return inp == 0 ? &stepout : 0; }
+{ return inp == 0 ? &stepout_ : 0; }
 
 
 const Interval<float>* VolStats::reqZMargin( int inp, int ) const
-{ return inp==0 ? &gate : 0; }
+{ return inp==0 ? &gate_ : 0; }
 
 
 const Interval<float>* VolStats::desZMargin( int inp, int ) const
-{ return inp==0 ? &desgate : 0; }
+{ return inp==0 ? &desgate_ : 0; }
 
 
 bool VolStats::computeData( const DataHolder& output, const BinID& relpos,
 			    int z0, int nrsamples ) const
 {
-    const int nrpos = positions.size();
-    const Interval<int> samplegate( mNINT(gate.start/refstep), 
-				    mNINT(gate.stop/refstep) );
+    const int nrpos = positions_.size();
+    const Interval<int> samplegate( mNINT(gate_.start/refstep), 
+				    mNINT(gate_.stop/refstep) );
     const int gatesz = samplegate.width() + 1;
 
     for ( int idx=0; idx<nrsamples; idx++ )
@@ -242,15 +243,15 @@ bool VolStats::computeData( const DataHolder& output, const BinID& relpos,
 	RunningStatistics<float> stats;
 	for ( int posidx=0; posidx<nrpos; posidx++ )
 	{
-	    const DataHolder* dh = inputdata[posidx];
+	    const DataHolder* dh = inputdata_[posidx];
 	    if ( !dh ) continue;
 
 	    float shift = 0;
-	    if ( steering )
+	    if ( dosteer_ )
 	    {
-		const int steeridx = getSteeringIndex( positions[posidx] );
-		shift = steeringdata->series(steeridx)->
-				    value( cursample-steeringdata->z0_ );
+		const int steeridx = steerindexes_[posidx];
+		shift = steeringdata_->series(steeridx)->
+				    value( cursample-steeringdata_->z0_ );
 	    }
 
 	    ValueSeriesInterpolator<float> interp( dh->nrsamples_-1 );

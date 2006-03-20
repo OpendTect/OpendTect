@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          November 2002
- RCS:           $Id: positionattrib.cc,v 1.15 2006-01-13 09:52:28 cvsnanne Exp $
+ RCS:           $Id: positionattrib.cc,v 1.16 2006-03-20 16:32:02 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -110,15 +110,20 @@ Position::Position( Desc& desc_ )
     gate_.scale( 1/zFactor() );
 
     mGetEnum( oper_, operStr() );
-    mGetBool( steering_, steeringStr() );
+    mGetBool( dosteer_, steeringStr() );
 
     BinID pos;
     for ( pos.inl=-stepout_.inl; pos.inl<=stepout_.inl; pos.inl++ )
+    {
 	for ( pos.crl=-stepout_.crl; pos.crl<=stepout_.crl; pos.crl++ )
+	{
 	    positions_ += pos;
+	    if ( dosteer_ ) steerindexes_ += getSteeringIndex( pos );
+	}
+    }
 
     outdata_ = new Array2DImpl<const DataHolder*>( stepout_.inl*2+1,
-	    					  stepout_.crl*2+1 );
+						   stepout_.crl*2+1 );
 
     const float maxso = mMAX( stepout_.inl*inldist(), stepout_.crl*crldist() );
     const float extraz = maxso * mMAXDIP;
@@ -144,14 +149,11 @@ void Position::initSteering()
 
 bool Position::getInputOutput( int input, TypeSet<int>& res ) const
 {
-    if ( !steering_ || input==0 || input==1 ) 
+    if ( !dosteer_ || input==0 || input==1 ) 
 	return Provider::getInputOutput( input, res );
 
-    for ( int inl=-stepout_.inl; inl<=stepout_.inl; inl++ )
-    {
-	for ( int crl=-stepout_.crl; crl<=stepout_.crl; crl++ )
-	    res += getSteeringIndex( BinID(inl,crl) );
-    }
+    for ( int idx=0; idx<positions_.size(); idx++ )
+	res += steerindexes_[idx];
 
     return true;
 }
@@ -183,7 +185,7 @@ bool Position::getInputData( const BinID& relpos, int zintv )
     
     inidx_ = getDataIndex( 0 );
     outidx_ = getDataIndex( 1 );
-    steerdata_ = steering_ ? inputs[2]->getData( relpos, zintv ) : 0;
+    steerdata_ = dosteer_ ? inputs[2]->getData( relpos, zintv ) : 0;
 
     return true;
 }
@@ -215,10 +217,10 @@ bool Position::computeData( const DataHolder& output, const BinID& relpos,
 
 	    ValueSeriesInterpolator<float> interp( dh->nrsamples_-1 );
 	    int ds = samplegate.start;
-	    const int steeridx = getSteeringIndex( positions_[idp] );
 
 	    float sample = cursample;
-	    if ( steering_ && steerdata_->series(steeridx) )
+	    const int steeridx = steerindexes_[idp];
+	    if ( dosteer_ && steerdata_->series(steeridx) )
 		sample += steerdata_->series(steeridx)->value( 
 						cursample-steerdata_->z0_ );
 		
@@ -226,7 +228,7 @@ bool Position::computeData( const DataHolder& output, const BinID& relpos,
 	    {
 		float place = sample + ds - dh->z0_;
 		stats += interp.value( *(dh->series(inidx_)), place );
-		bidv += BinIDValue( positions_[idp], sample + ds );
+		bidv += BinIDValue( positions_[idp], sample+ds );
 		ds++;
 	    }
 	}
@@ -258,6 +260,5 @@ bool Position::computeData( const DataHolder& output, const BinID& relpos,
 
     return true;
 }
-
 
 } // namespace Attrib

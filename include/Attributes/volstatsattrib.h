@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: volstatsattrib.h,v 1.9 2006-01-20 16:08:06 cvsnanne Exp $
+ RCS:           $Id: volstatsattrib.h,v 1.10 2006-03-20 16:32:08 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -77,22 +77,18 @@ protected:
     const Interval<float>*	reqZMargin(int input,int output) const;
     const Interval<float>*      desZMargin(int input,int output) const;
 
-    BinID			stepout;
-    int				shape;
-    Interval<float>		gate;
-    bool			steering;
+    BinID			stepout_;
+    int				shape_;
+    Interval<float>		gate_;
+    bool			dosteer_;
+    Interval<float>             desgate_;
 
-    Interval<float>             desgate;
-
-    TypeSet<BinID>      	positions;
-    Interval<float>		absdepthgate;
-
-    static int          	outputtypes[];
-
+    TypeSet<BinID>      	positions_;
     int				dataidx_;
+    TypeSet<int>		steerindexes_;
 
-    ObjectSet<const DataHolder>	inputdata;
-    const DataHolder*		steeringdata;
+    ObjectSet<const DataHolder>	inputdata_;
+    const DataHolder*		steeringdata_;
 };
 
 } // namespace Attrib

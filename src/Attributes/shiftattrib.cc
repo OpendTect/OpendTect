@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: shiftattrib.cc,v 1.16 2006-01-18 13:50:08 cvshelene Exp $";
+static const char* rcsID = "$Id: shiftattrib.cc,v 1.17 2006-03-20 16:32:02 cvsnanne Exp $";
 
 #include "shiftattrib.h"
 #include "attribdataholder.h"
@@ -69,23 +69,25 @@ void Shift::updateDesc( Desc& desc )
 
 
 Shift::Shift( Desc& desc_ )
-    : Provider( desc_ )
+    : Provider(desc_)
+    , steeridx_(-1)
 {
-    mGetBinID( pos, posStr() );
-    mGetFloat( time, timeStr() );
-    mGetBool( steering, steeringStr() );
+    mGetBinID( pos_, posStr() );
+    mGetFloat( time_, timeStr() );
+    mGetBool( dosteer_, steeringStr() );
 
-    stepout = BinID( abs(pos.inl), abs(pos.crl) );
+    stepout_ = BinID( abs(pos_.inl), abs(pos_.crl) );
 
-    if ( steering )
+    if ( dosteer_ )
     {
-	time = mMAX(stepout.inl*inldist(),stepout.crl*crldist()) * mMAXDIP;
-	interval = Interval<float>( -time/zFactor(), time/zFactor() );
+	time_ = mMAX(stepout_.inl*inldist(),stepout_.crl*crldist()) * mMAXDIP;
+	interval_ = Interval<float>( -time_/zFactor(), time_/zFactor() );
+	steeridx_ = getSteeringIndex( pos_ );
     }
     else
     {
-	interval.start = time<0 ? time/zFactor() : 0;
-	interval.stop = time>0 ? time/zFactor() : 0;
+	interval_.start = time_<0 ? time_/zFactor() : 0;
+	interval_.stop = time_>0 ? time_/zFactor() : 0;
     }
 }
 
@@ -95,16 +97,16 @@ void Shift::initSteering()
     for ( int idx=0; idx<inputs.size(); idx++ )
     {
 	if ( inputs[idx] && inputs[idx]->getDesc().isSteering() )
-	    inputs[idx]->initSteering( stepout );
+	    inputs[idx]->initSteering( stepout_ );
     }
 }
 
 
 bool Shift::getInputOutput( int input, TypeSet<int>& res ) const
 {
-    if ( !steering || !input ) return Provider::getInputOutput( input, res );
+    if ( !dosteer_ || !input ) return Provider::getInputOutput( input, res );
 
-    res += getSteeringIndex( pos );
+    res += steeridx_;
     return true;
 }
 
@@ -112,15 +114,16 @@ bool Shift::getInputOutput( int input, TypeSet<int>& res ) const
 bool Shift::getInputData( const BinID& relpos, int zintv )
 {
     const BinID bidstep = inputs[0]->getStepoutStep();
-    const BinID posneeded = relpos + bidstep*pos;
-    inputdata = inputs[0]->getData( posneeded, zintv );
-    if ( !inputdata )
+    const BinID posneeded = relpos + bidstep*pos_;
+    inputdata_ = inputs[0]->getData( posneeded, zintv );
+    if ( !inputdata_ )
 	return false;
 
     dataidx_ = getDataIndex( 0 );
-    
-    steeringdata = steering ? inputs[1]->getData( relpos, zintv ) : 0;
-    if ( !steeringdata && steering )
+    if ( steeridx_<0 ) steeridx_ = getSteeringIndex( pos_ );
+
+    steeringdata_ = dosteer_ ? inputs[1]->getData( relpos, zintv ) : 0;
+    if ( !steeringdata_ && dosteer_ )
 	return false;
 
     return true;
@@ -132,23 +135,22 @@ bool Shift::computeData( const DataHolder& output, const BinID& relpos,
 {
     if ( !outputinterest[0] ) return false;
 
-    float sampleshift = time/(zFactor()*refstep);
+    float sampleshift = time_/(zFactor()*refstep);
     const int sampleidx = mNINT(sampleshift);
-    const bool dointerpolate = steering || 
+    const bool dointerpolate = dosteer_ || 
 			       !mIsEqual(sampleshift,sampleidx,0.001);
-    ValueSeriesInterpolator<float> interp( inputdata->nrsamples_-1 );
-    const int steeringpos = steering ? getSteeringIndex(pos) : 0;
+    ValueSeriesInterpolator<float> interp( inputdata_->nrsamples_-1 );
 
     for ( int idx=0; idx<nrsamples; idx++ )
     {
-	if ( steering )
+	if ( dosteer_ && steeringdata_->series(steeridx_) )
 	{
-	    const int validx = idx + z0 - steeringdata->z0_;
-	    sampleshift = steeringdata->series(steeringpos)->value( validx );
+	    const int validx = idx + z0 - steeringdata_->z0_;
+	    sampleshift = steeringdata_->series(steeridx_)->value( validx );
 	}
 
-	const ValueSeries<float>* curdata = inputdata->series( dataidx_ );
-	const int cursample = z0 - inputdata->z0_ + idx;
+	const ValueSeries<float>* curdata = inputdata_->series( dataidx_ );
+	const int cursample = z0 - inputdata_->z0_ + idx;
 	const float val = dointerpolate 
 			    ? interp.value( *curdata, cursample+sampleshift ) 
 			    : curdata->value( cursample+sampleidx );
@@ -161,10 +163,10 @@ bool Shift::computeData( const DataHolder& output, const BinID& relpos,
 
 
 const BinID* Shift::reqStepout( int inp, int out ) const
-{ return inp==1 ? 0 : &stepout; }
+{ return inp==1 ? 0 : &stepout_; }
 
 
 const Interval<float>* Shift::reqZMargin( int inp, int ) const
-{ return inp==1 ? 0 : &interval; }
+{ return inp==1 ? 0 : &interval_; }
 
 }; // namespace Attrib

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: similarityattrib.h,v 1.15 2006-02-17 11:06:10 cvshelene Exp $
+ RCS:           $Id: similarityattrib.h,v 1.16 2006-03-20 16:32:08 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -95,7 +95,7 @@ protected:
     Interval<float>             desgate_;
 
     bool			dosteer_;
-    TypeSet<int>		steeridx_;
+    TypeSet<int>		steerindexes_;
     bool			donormalize_;
     int				dataidx_;
     TypeSet<int>                pos0s_;
