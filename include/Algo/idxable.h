@@ -7,12 +7,13 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert & Kris
  Date:		Mar 2006
- RCS:		$Id: idxable.h,v 1.1 2006-03-14 14:58:51 cvsbert Exp $
+ RCS:		$Id: idxable.h,v 1.2 2006-03-20 17:41:05 cvsbert Exp $
 ________________________________________________________________________
 
 */
 
 #include "interpol1d.h"
+#include "sorting.h"
 
 /*!\brief Position-sorted indexable objects
 
@@ -288,6 +289,104 @@ inline float interpolateRegWithUdf( const T& idxabl, int sz, float pos,
     float ret = mUdf(float);
     interpolateRegWithUdf( idxabl, sz, pos, ret, extrapolate, snapdist );
     return ret;
+}
+
+
+/*\brief finds the bendpoints in (X,Y) series
+
+  Can be used to de-interpolate.
+ 
+ */
+
+template <class T, class RT>
+class BendPointFinder
+{
+public:
+
+BendPointFinder( const T& x, const T& y, int sz, T eps, TypeSet<int>& bndidxs )
+    	: x_(x)
+    	, y_(y)
+    	, epssq_(eps*eps)
+    	, bendidxs_(bndidxs)
+{
+    bendidxs_.erase();
+}
+
+void findAll()
+{
+    findInPart( 0, sz_-1 );
+}
+
+void findInPart( int idx0, int idx1 )
+{
+    bendidxs_ += idx0; bendidxs_ += idx1;
+    findInSegment( idx0, idx1 );
+    sort( bendidxs_ );
+}
+
+protected:
+
+void findInSegment( int idx0, int idx1 )
+{
+    if ( idx1 < idx0 + 2 )
+	return; // First stop criterion
+
+    const RT x0( x_[idx0] ); const RT y0( y_[idx0] );
+    const RT x1( x_[idx1] ); const RT y1( y_[idx1] );
+    const RT dx( x1 - x0 ); const RT dy( y1 - y0 );
+    RT dsqmax = 0; int idx;
+    const RT dxsq = dx * dx; RT dysq = dy * dy;
+    if ( dxsq < epssq_ )
+	dsqmax = getMaxDxsqOnly( idx0, idx1, idx );
+    else
+    {
+	for ( int ipt=idx0+1; ipt<idx1; ipt++ )
+	{
+	    RT px = x_[ipt] - x0; RT py = y_[ipt] - y0;
+	    RT u = (dx * px + dy * py) / (dxsq + dysq);
+	    RT plinex = u * dx; RT pliney = u * dy;
+	    RT dsq = (plinex-px) * (plinex-px) + (pliney-py) * (pliney-py);
+	    if ( dsq > dsqmax )
+		{ dsqmax = dsq; idx = ipt; }
+	}
+    }
+
+    if ( dsqmax < epssq_ )
+	return; // Second stop criterion
+
+    bendidxs_ += idx;
+    findInSegment( idx0, idx );
+    findInSegment( idx, idx1 );
+}
+
+
+RT getMaxDxsqOnly( int idx0, int idx1, int& idx )
+{
+    const RT x = (x_[idx0] + x_[idx1]) / 2;
+    RT dsqmax = 0;
+    for ( int ipt=idx0+1; ipt<idx1; ipt++ )
+    {
+	const RT dx = x_[ipt] - x;
+	const RT dxsq = dx * dx;
+	if ( dxsq > dsqmax )
+	    dsqmax = dxsq;
+    }
+    return dsqmax;
+}
+
+    const int		sz_;
+    const T		epssq_;
+    const T&		x_;
+    const T&		y_;
+    TypeSet<int>&	bendidxs_;
+
+};
+
+template <class T, class RT>
+void getBendPoints( const T& x, const T& y, int sz, T eps, TypeSet<int>& bidxs )
+{
+    BendPointFinder<T,RT> bpf( x, y, sz, eps, bidxs );
+    bpf.findAll();
 }
 
 
