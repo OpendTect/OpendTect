@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Nov 2004
- RCS:		$Id: externalattrib.h,v 1.2 2006-03-07 12:18:22 cvsdgb Exp $
+ RCS:		$Id: externalattrib.h,v 1.3 2006-03-20 07:44:48 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -68,17 +68,13 @@ public:
 				    return 0;
 				}
 
-    static ExtAttribCalcFact&	getInstance()
-				{
-				    static ExtAttribCalcFact* inst = 0;
-				    if ( !inst )
-					inst = new ExtAttribCalcFact;
-				    return *inst;
-				}
 protected:
 
     ObjectSet<ExtAttribCalcCreator>	creators;
 };
 
-};
+ExtAttribCalcFact& ExtAttrFact();
+
+} // namespace Attrib
+
 #endif
