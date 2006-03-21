@@ -4,7 +4,7 @@
  * DATE     : Mar 2004
 -*/
 
-static const char* rcsID = "$Id: filepath.cc,v 1.14 2005-12-06 15:33:09 cvskris Exp $";
+static const char* rcsID = "$Id: filepath.cc,v 1.15 2006-03-21 14:47:54 cvsnanne Exp $";
 
 #include "filepath.h"
 #include "envvars.h"
@@ -58,7 +58,12 @@ FilePath& FilePath::set( const char* _fnm )
     lvls_.deepErase(); prefix_ = ""; isabs_ = false;
     if ( !_fnm ) return *this;
 
-    BufferString __fnm ( _fnm );
+    BufferString __fnm
+#ifdef __win__
+		      ( getCleanWinPath(_fnm) );
+#else
+		      ( _fnm );
+#endif
 
     const char* fnm = __fnm.buf();
 
@@ -68,7 +73,7 @@ FilePath& FilePath::set( const char* _fnm )
     char* ptr = strchr( fnm, *sPrefSep );
     if ( ptr )
     {
-	const char* dsptr = strchr( fnm, *dirSep(Windows) );
+	const char* dsptr = strchr( fnm, *dirSep(Local) );
 	if ( dsptr > ptr )
 	{
 	    prefix_ = fnm;
@@ -320,8 +325,7 @@ void FilePath::addPart( const char* fnm )
 	    remdblsep = true;
 	else
 	{
-	    if ( (prev != *dirSep(Windows) && prev != *dirSep(Windows))
-		    || !remdblsep )
+	    if ( prev != *dirSep(Local) || !remdblsep )
 	    {
 		*bufptr = '\0';
 		if ( buf[0] ) lvls_.add( buf );
