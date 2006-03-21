@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpewizard.cc,v 1.41 2006-03-15 13:25:13 cvsjaap Exp $
+ RCS:           $Id: uimpewizard.cc,v 1.42 2006-03-21 10:39:09 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -298,9 +298,8 @@ bool Wizard::prepareSeedSetupPage()
     colorChangeCB(0);
 
     mpeserv->sendEvent( uiMPEPartServer::evStartSeedPick );
-//    EMSeedPicker* seedpicker = tracker->getSeedPicker( true );
-//    if ( seedpicker )
-//	seedpicker->startSeedPick();
+    EMSeedPicker* seedpicker = tracker->getSeedPicker( true );
+    seedpicker->setLocalErase( false );
 
     if ( currentPageIdx()==lastPage() )
 	setRotateMode(false);
@@ -442,6 +441,7 @@ bool Wizard::isClosing( bool iscancel )
     else 
     {
 	mGetSeedPicker(false);
+	seedpicker->setLocalErase( true );
 	if ( seedpicker->isInVolumeMode() && !seedbox.isEmpty() )
 	    mpeserv->expandActiveVolume(seedbox);
     }
