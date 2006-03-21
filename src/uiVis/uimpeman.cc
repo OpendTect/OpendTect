@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.cc,v 1.77 2006-03-15 13:19:48 cvsjaap Exp $
+ RCS:           $Id: uimpeman.cc,v 1.78 2006-03-21 10:51:14 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -680,6 +680,7 @@ void uiMPEMan::updateSeedModeState()
 	    turnSeedPickingOn( false );
 	    seedpickwason = true;
 	}
+	seedpicker = 0;
 	return;
     }
     if ( isOn(seedidx) )
