@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		May 2004
- RCS:		$Id: welldahobj.h,v 1.3 2005-11-22 07:57:59 cvshelene Exp $
+ RCS:		$Id: welldahobj.h,v 1.4 2006-03-21 14:53:00 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -41,6 +41,11 @@ public:
 
     void		addToDahFrom(int fromidx,float extradah);
     void		removeFromDahFrom(int fromidx,float extradah);
+
+    void		deInterpolate();
+    			//!< Remove unnecessary points
+    float		operator []( int idx ) const	{ return value(idx); }
+    			//!< compliance with IdxAble
 
 protected:
 

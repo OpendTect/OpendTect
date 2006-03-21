@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: well.cc,v 1.39 2006-03-14 14:58:51 cvsbert Exp $";
+static const char* rcsID = "$Id: well.cc,v 1.40 2006-03-21 14:53:00 cvsbert Exp $";
 
 #include "welldata.h"
 #include "welltrack.h"
@@ -52,6 +52,31 @@ float Well::DahObj::dahStep( bool ismin ) const
 
     if ( !ismin ) res /= nrvals; // average
     return mIsZero(res,mDefEps) ? mUdf(float) : res;
+}
+
+
+void Well::DahObj::deInterpolate()
+{
+    TypeSet<int> bpidxs;
+    TypeSet<float> dahsc( dah_ );
+    for ( int idx=0; idx<dahsc.size(); idx++ )
+	dahsc[idx] *= 0.001; // gives them about same dimension
+
+    IdxAble::getBendPoints( dahsc, *this, dahsc.size(), 1e-5, bpidxs );
+    if ( bpidxs.size() < 1 ) return;
+
+    int bpidx = 0;
+    TypeSet<int> torem;
+    for ( int idx=0; idx<dahsc.size(); idx++ )
+    {
+	if ( idx != bpidxs[bpidx] )
+	    torem += idx;
+	else
+	    bpidx++;
+    }
+
+    for ( int idx=torem.size()-1; idx>-1; idx-- )
+	remove( torem[idx] );
 }
 
 
