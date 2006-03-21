@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril & Kris Tingdahl
  Date:          Mar 2005
- RCS:           $Id: valseriesinterpol.h,v 1.2 2006-03-14 14:58:51 cvsbert Exp $
+ RCS:           $Id: valseriesinterpol.h,v 1.3 2006-03-21 07:07:27 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -83,6 +83,8 @@ inline T ValueSeriesInterpolator<T>::value( const ValueSeries<T>& vda,
     }
     if ( mIsUdf(rv) )
 	rv = udfval_;
+
+    return rv;
 }
 
 #undef mChkVSIRg
