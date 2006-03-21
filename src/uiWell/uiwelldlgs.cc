@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          October 2003
- RCS:           $Id: uiwelldlgs.cc,v 1.42 2006-03-12 13:39:11 cvsbert Exp $
+ RCS:           $Id: uiwelldlgs.cc,v 1.43 2006-03-21 14:51:54 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -227,7 +227,7 @@ uiD2TModelDlg::uiD2TModelDlg( uiParent* p, Well::Data& d )
     uiButton* updnowbut = new uiPushButton( actbutgrp, "&Update display",
 	    				    mCB(this,uiD2TModelDlg,updNow),
 					    true );
-    uiButton* readbut = new uiPushButton( actbutgrp, "&Read new ...",
+    uiButton* readbut = new uiPushButton( actbutgrp, "&Read new",
 	    				    mCB(this,uiD2TModelDlg,readNew),
 					    false );
     readbut->attach( rightOf, updnowbut );
@@ -787,7 +787,7 @@ uiStoreWellDlg::uiStoreWellDlg( uiParent* p, const BufferString& wellname )
     }
     
     ctio_.ctxt.forread = false;
-    outfld = new uiIOObjSel( this, ctio_, "Output Well", false, 0, "Select ...",
+    outfld = new uiIOObjSel( this, ctio_, "Output Well", false, 0, "Select",
 	    		     true );
 
     if ( topgrp )
