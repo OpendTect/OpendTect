@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: horizon3dseedpicker.h,v 1.6 2006-03-15 13:16:48 cvsjaap Exp $
+ RCS:           $Id: horizon3dseedpicker.h,v 1.7 2006-03-21 10:30:13 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,20 +41,25 @@ public:
     enum SeedModeOrder	{ TrackFromSeeds, TrackBetweenSeeds, DrawBetweenSeeds };
     int			getSeedMode() const		{ return seedmode_; }
     void		setSeedMode( int sm )		{ seedmode_ = sm; }
+    void		setLocalErase( bool yn )	{ localerase_ = yn; }
     void		freezeMode( bool yn )		{ frozen_ = yn; }
     bool		isModeFrozen() const		{ return frozen_; }
     bool		isInVolumeMode() const;
     bool		isInDrawMode() const;
 
 protected:
+    void		eraseFromSeed( const BinID& startbid, bool upwards );
+    void		checkJunctions();
     bool		retrackActiveLine();
     void		repairDisconnections();
     bool		clearActiveLine();
     bool		interpolateSeeds();
+    BinID		activeLineStep() const;
     CubeSampling	getSeedBox() const;
 
     TypeSet<EM::PosID>	seedlist_;
     TypeSet<Coord3>	seedpos_;
+    TypeSet<EM::PosID>	junclist_;
     TypeSet<EM::PosID>	crosspid_;
     TypeSet<Coord3>	crosspos_;
     int			firsthistorynr_;
@@ -64,6 +69,7 @@ protected:
     MPE::EMTracker&	tracker_;
 
     int			seedmode_;
+    bool		localerase_;
     bool		frozen_;
 };
 
