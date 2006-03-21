@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert & Kris
  Date:		Mar 2006
- RCS:		$Id: idxable.h,v 1.2 2006-03-20 17:41:05 cvsbert Exp $
+ RCS:		$Id: idxable.h,v 1.3 2006-03-21 14:50:27 cvsbert Exp $
 ________________________________________________________________________
 
 */
@@ -298,14 +298,16 @@ inline float interpolateRegWithUdf( const T& idxabl, int sz, float pos,
  
  */
 
-template <class T, class RT>
+template <class T1, class T2, class RT>
 class BendPointFinder
 {
 public:
 
-BendPointFinder( const T& x, const T& y, int sz, T eps, TypeSet<int>& bndidxs )
+BendPointFinder( const T1& x, const T2& y, int sz, RT eps,
+		 TypeSet<int>& bndidxs )
     	: x_(x)
     	, y_(y)
+    	, sz_(sz)
     	, epssq_(eps*eps)
     	, bendidxs_(bndidxs)
 {
@@ -325,6 +327,7 @@ void findInPart( int idx0, int idx1 )
 }
 
 protected:
+
 
 void findInSegment( int idx0, int idx1 )
 {
@@ -375,17 +378,18 @@ RT getMaxDxsqOnly( int idx0, int idx1, int& idx )
 }
 
     const int		sz_;
-    const T		epssq_;
-    const T&		x_;
-    const T&		y_;
+    const RT		epssq_;
+    const T1&		x_;
+    const T2&		y_;
     TypeSet<int>&	bendidxs_;
 
 };
 
-template <class T, class RT>
-void getBendPoints( const T& x, const T& y, int sz, T eps, TypeSet<int>& bidxs )
+template <class T1, class T2, class RT>
+void getBendPoints( const T1& x, const T2& y, int sz, RT eps,
+		    TypeSet<int>& bidxs )
 {
-    BendPointFinder<T,RT> bpf( x, y, sz, eps, bidxs );
+    BendPointFinder<T1,T2,RT> bpf( x, y, sz, eps, bidxs );
     bpf.findAll();
 }
 
