@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          May 2002
- RCS:           $Id: uiimphorizon.cc,v 1.62 2006-03-12 13:39:11 cvsbert Exp $
+ RCS:           $Id: uiimphorizon.cc,v 1.63 2006-03-22 12:40:51 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -230,6 +230,8 @@ bool uiImportHorizon::doWork()
     }
 
     HorSampling hs; subselfld->getHorSampling( hs );
+    if ( hs.step.inl==0 ) hs.step.inl = SI().inlStep();
+    if ( hs.step.crl==0 ) hs.step.crl = SI().crlStep();
 /*  TODO: ask Kris why this has been implemented
     if ( hs.step.inl%filehs_.step.inl || hs.step.crl%filehs_.step.crl )
     {
@@ -355,6 +357,8 @@ void uiImportHorizon::scanFile( CallBacker* )
 
     xyfld->setValue( scanner.posIsXY() );
     filehs_.set( scanner.inlRg(), scanner.crlRg() );
+    if ( filehs_.step.inl==0 ) filehs_.step.inl = SI().inlStep();
+    if ( filehs_.step.crl==0 ) filehs_.step.crl = SI().crlStep();
     subselfld->setInput( filehs_ );
     interpolfld->setValue(scanner.gapsFound(true) || scanner.gapsFound(false));
     interpolSel(0);
