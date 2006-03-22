@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2003
- RCS:           $Id: uiwellimpasc.cc,v 1.28 2006-03-21 14:52:27 cvsbert Exp $
+ RCS:           $Id: uiwellimpasc.cc,v 1.29 2006-03-22 12:39:48 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,8 +50,7 @@ uiWellImportAsc::uiWellImportAsc( uiParent* p )
 		IOObjContext::getDataDirName(IOObjContext::WllInf) );
 	d2tfld->attach( alignedBelow, infld );
 
-	tvdfld = new uiGenInput( this, "Models are",
-				 BoolInpSpec("TVDSS","MD") );
+	tvdfld = new uiGenInput( this, "Model is", BoolInpSpec("TVDSS","MD") );
 	tvdfld->setValue( false );
 	tvdfld->attach( alignedBelow, d2tfld );
     }
