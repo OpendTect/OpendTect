@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: arrayndimpl.h,v 1.38 2006-03-09 18:47:03 cvsnanne Exp $
+ RCS:		$Id: arrayndimpl.h,v 1.39 2006-03-22 11:51:46 cvsnanne Exp $
 ________________________________________________________________________
 
 */
@@ -14,6 +14,7 @@ ________________________________________________________________________
 
 #include "arraynd.h"
 #include "bufstring.h"
+#include "envvars.h"
 #include "filegen.h"
 #include "filepath.h"
 #include "thread.h"
@@ -125,7 +126,11 @@ public:
 		    , name_(FilePath::getTempName("dat"))
 		    , openfailed_(false)
 		    , streamfail_(false)
-		{ }
+		{
+		    const char* stordir = GetEnvVar( "OD_SSIS_TEMP_STORDIR" );
+		    if ( stordir )
+			setTempStorageDir( stordir );
+		}
 
     inline	~ArrayNDFileStor()
 		{
@@ -175,11 +180,14 @@ private:
 		    delete strm_; strm_ = 0;
 		}
 
-    void	setFileName( const char* fnm )
+    void	setTempStorageDir( const char* dir )
 		{
 		    if ( strm_ ) strm_->close();
 		    File_remove( name_, false );
-		    name_ = fnm;
+		    FilePath fp( name_ );
+		    fp.setPath( File_isDirectory(dir) && File_isWritable(dir)
+					? dir : "/tmp/" );
+		    name_ = fp.fullPath();
 		}
 
 protected:
