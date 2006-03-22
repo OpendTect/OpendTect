@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          December 2004
- RCS:           $Id: scalingattrib.cc,v 1.15 2006-03-12 13:39:10 cvsbert Exp $
+ RCS:           $Id: scalingattrib.cc,v 1.16 2006-03-22 15:45:46 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -132,7 +132,8 @@ const char* Scaling::scalingTypeNamesStr( int type )
 
 
 Scaling::Scaling( Desc& desc_ )
-    : Provider(desc_)
+    : Provider( desc_ )
+    , desgate_( 0 , 0 )
 {
     if ( !isOK() ) return;
 
@@ -200,8 +201,8 @@ void Scaling::getScaleFactorsFromStats( const TypeSet<Interval<int> >& sgates,
 	    val = stats.max();
 
 	scalefactors += !mIsZero(val,mDefEps) ? 1/val : 1;
+	stats.clear();
     }
-
 }
     
 
@@ -285,10 +286,22 @@ void Scaling::getSampleGates( const TypeSet< Interval<float> >& oldtgs,
 	    continue;
 	}
 
-	if ( sg.start < z0 ) sg.start = z0;
-	if ( sg.stop > z0 + nrsamples ) sg.stop = z0 + nrsamples;
+	if ( sg.start < inputdata_->z0_ ) sg.start = inputdata_->z0_;
+	if ( sg.stop >= inputdata_->z0_ + inputdata_->nrsamples_ ) 
+	    sg.stop = inputdata_->z0_ + inputdata_->nrsamples_ -1;
 	newsampgates += sg;
     }
+}
+
+
+const Interval<float>* Scaling::desZMargin( int inp, int ) const
+{
+    if ( scalingtype_ == mScalingTypeTPower )
+	return 0;
+
+    const_cast<Scaling*>(this)->desgate_ =
+	                Interval<float>( -(1024-1)*refstep, (1024-1)*refstep );
+    return &desgate_;
 }
 
 } // namespace Attrib

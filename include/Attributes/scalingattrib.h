@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          December 2004
- RCS:           $Id: scalingattrib.h,v 1.8 2006-01-12 20:37:38 cvsnanne Exp $
+ RCS:           $Id: scalingattrib.h,v 1.9 2006-03-22 15:45:46 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -66,6 +66,7 @@ protected:
     void		getScaleFactorsFromStats(
 	    			const TypeSet<Interval<int> >& gates,
 				TypeSet<float>& factors) const;
+    const Interval<float>* desZMargin( int inp, int ) const;
 
     int			scalingtype_;
     int			statstype_;
@@ -74,6 +75,7 @@ protected:
     TypeSet<float>	factors_;
     const DataHolder*	inputdata_;
     int			dataidx_;
+    Interval<float>	desgate_;
 };
 
 }; // namespace Attrib
