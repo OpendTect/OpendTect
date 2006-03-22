@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.125 2006-03-20 08:04:14 cvsnanne Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.126 2006-03-22 12:18:25 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -934,8 +934,9 @@ bool uiODApplMgr::handleAttribServEv( int evid )
 	attrserv->getDirectShowAttrSpec( as );
 	const int visid = visserv->getEventObjId();
 	const int attrib = visserv->getSelAttribNr();
+	if ( attrib<0 ) return false;
 	visserv->setSelSpec( visid, attrib, as );
-	getNewData( visid, false );
+	getNewData( visid, attrib );
 	sceneMgr().updateTrees();
     }
     else if ( evid==uiAttribPartServer::evNewAttrSet )
