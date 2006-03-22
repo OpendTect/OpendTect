@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:           $Id: uibatchlaunch.cc,v 1.51 2006-02-20 18:49:49 cvsbert Exp $
+ RCS:           $Id: uibatchlaunch.cc,v 1.52 2006-03-22 12:40:12 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -159,7 +159,7 @@ int uiBatchLaunch::selected()
 bool uiBatchLaunch::acceptOK( CallBacker* )
 {
     const bool dormt = execRemote();
-    if ( execRemote() )
+    if ( dormt )
     {
 	hostname = remhostfld->text();
 	if ( hostname == "" )
