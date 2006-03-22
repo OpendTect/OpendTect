@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert & Kris
  Date:		Mar 2006
- RCS:		$Id: interpol1d.h,v 1.1 2006-03-14 14:58:51 cvsbert Exp $
+ RCS:		$Id: interpol1d.h,v 1.2 2006-03-22 16:07:49 cvsnanne Exp $
 ________________________________________________________________________
 
 */
@@ -157,6 +157,8 @@ inline void set( T vm1, T v0, T v1, T v2 )
     if ( mIsUdf(v2) ) v2 = v1udf_ ? v0 : v1;
     if ( v0udf_ ) v0 = vm1;
     if ( v1udf_ ) v1 = v2;
+
+    intp_.set( vm1, v0, v1, v2 );
 }
 
 inline T apply( float x ) const

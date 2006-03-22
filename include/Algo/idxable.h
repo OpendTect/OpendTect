@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert & Kris
  Date:		Mar 2006
- RCS:		$Id: idxable.h,v 1.3 2006-03-21 14:50:27 cvsbert Exp $
+ RCS:		$Id: idxable.h,v 1.4 2006-03-22 16:07:49 cvsnanne Exp $
 ________________________________________________________________________
 
 */
@@ -248,8 +248,9 @@ inline bool interpolateReg( const T& idxabl, int sz, float pos, RT& ret,
     else if ( res == 0 )
 	{ ret = idxabl[p[0]]; return true; }
 
+    const float relpos = pos - p[1];
     ret = Interpolate::polyReg1D( idxabl[p[0]], idxabl[p[1]], idxabl[p[2]],
-				  idxabl[p[3]], pos );
+				  idxabl[p[3]], relpos );
     return true;
 }
 
@@ -265,8 +266,9 @@ inline bool interpolateRegWithUdf( const T& idxabl, int sz, float pos, RT& ret,
     else if ( res == 0 )
 	{ ret = idxabl[p[0]]; return true; }
 
+    const float relpos = pos - p[1];
     ret = Interpolate::polyReg1DWithUdf( idxabl[p[0]], idxabl[p[1]],
-	    				 idxabl[p[2]], idxabl[p[3]], pos );
+	    				 idxabl[p[2]], idxabl[p[3]], relpos );
     return true;
 }
 
