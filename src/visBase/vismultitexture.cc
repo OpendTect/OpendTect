@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vismultitexture.cc,v 1.13 2006-03-09 17:06:40 cvskris Exp $";
+static const char* rcsID = "$Id: vismultitexture.cc,v 1.14 2006-03-23 12:21:10 cvsnanne Exp $";
 
 #include "vismultitexture2.h"
 
@@ -87,37 +87,37 @@ bool TextureColorIndexer::doWork( int start, int stop )
 class TextureInfo : public CallBackClass
 {
 public:
-    			TextureInfo( MultiTexture*, const char* name );
-    			~TextureInfo();
-    void		enable( bool yn );
-    bool		isEnabled() const { return enabled_; }
-    int			nrVersions() const;
-    void		setNrVersions(int);
+    				TextureInfo( MultiTexture*, const char* name );
+    				~TextureInfo();
+    void			enable( bool yn );
+    bool			isEnabled() const { return enabled_; }
+    int				nrVersions() const;
+    void			setNrVersions(int);
 
-    bool		setTextureData( int version, const float*, int sz,
-	    				bool man );
-    bool		setTextureData( int version, const unsigned char*,
-	    				int sz, bool man );
+    bool			setTextureData(int version,const float*,
+	    				       int sz,bool man);
+    bool			setTextureData(int version,const unsigned char*,
+					       int sz,bool man);
 
-    void		setColorTab( VisColorTab& ct );
-    VisColorTab&	getColorTab();
+    void			setColorTab( VisColorTab& ct);
+    VisColorTab&		getColorTab();
 
-    void		clipData( int version );
-    void		createIndexes( int version );
-    int			getCurrentVersion() const;
-    void		setCurrentVersion( int );
-    const unsigned char* getCurrentData() const;
+    void			clipData(int version);
+    void			createIndexes(int version);
+    int				getCurrentVersion() const;
+    void			setCurrentVersion( int );
+    const unsigned char*	getCurrentData() const;
 
-    const TypeSet<float>* getHistogram( int version );
+    const TypeSet<float>*	getHistogram(int version);
 
     bool			enabled_;
     char			components_;
 
 protected:
-    void			setColorTab( int, VisColorTab& ct );
-    void			rangeChangeCB( CallBacker* );
-    void			sequenceChangeCB( CallBacker* );
-    void			clipStatusChangeCB( CallBacker* );
+    void			setColorTab(int,VisColorTab& ct);
+    void			rangeChangeCB(CallBacker*);
+    void			sequenceChangeCB(CallBacker*);
+    void			autoscaleChangeCB(CallBacker*);
 
     ObjectSet<const unsigned char> versionindexdata_;
     BoolTypeSet			ownsindexdata_;
@@ -302,16 +302,19 @@ void TextureInfo::setColorTab( int version, VisColorTab& ct )
     if ( versioncoltab_[version] )
     {
 	versioncoltab_[version]->rangechange.remove(
-		mCB( this, TextureInfo, rangeChangeCB ) );
+				mCB(this,TextureInfo,rangeChangeCB ) );
 	versioncoltab_[version]->sequencechange.remove(
-		mCB( this, TextureInfo, sequenceChangeCB ) );
+				mCB(this,TextureInfo,sequenceChangeCB ) );
+	versioncoltab_[version]->autoscalechange.remove(
+				mCB(this,TextureInfo,autoscaleChangeCB) );
 	versioncoltab_[version]->unRef();
     }
 
     versioncoltab_.replace( version, &ct );
     ct.ref();
-    ct.rangechange.notify( mCB( this, TextureInfo, rangeChangeCB ) );
-    ct.sequencechange.notify( mCB( this, TextureInfo, sequenceChangeCB ) );
+    ct.rangechange.notify( mCB(this,TextureInfo,rangeChangeCB) );
+    ct.sequencechange.notify( mCB(this,TextureInfo,sequenceChangeCB) );
+    ct.autoscalechange.notify( mCB(this,TextureInfo,autoscaleChangeCB) );
 
     if ( version )
 	versioncoltab_[version]->setColorSeq( &versioncoltab_[0]->colorSeq() );
@@ -363,7 +366,8 @@ void TextureInfo::createIndexes( int version )
     if ( max )
     {
 	if ( !versionhistogram_[version] )
-	    versionhistogram_.replace( version,new TypeSet<float>(mNrColors,0) );
+	    versionhistogram_.replace( version,
+		    		       new TypeSet<float>(mNrColors,0) );
 	for ( int idx=mNrColors-1; idx>=0; idx-- )
 	    (*versionhistogram_[version])[idx] = (float) histogram[idx]/max;
     }
@@ -404,7 +408,7 @@ const TypeSet<float>* TextureInfo::getHistogram( int version )
 
 void TextureInfo::rangeChangeCB( CallBacker* cb )
 {
-    const int version = versioncoltab_.indexOf((visBase::VisColorTab*) cb);
+    const int version = versioncoltab_.indexOf( (visBase::VisColorTab*)cb );
     createIndexes( version );
 }
 
@@ -412,6 +416,13 @@ void TextureInfo::rangeChangeCB( CallBacker* cb )
 void TextureInfo::sequenceChangeCB( CallBacker* )
 {
     texture_->updateColorTables();
+}
+
+
+void TextureInfo::autoscaleChangeCB( CallBacker* cb )
+{
+    const int version = versioncoltab_.indexOf( (visBase::VisColorTab*)cb );
+    clipData( version );
 }
 
 
