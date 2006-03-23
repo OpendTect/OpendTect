@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Sep 2002
- RCS:           $Id: uiempartserv.h,v 1.37 2006-03-08 18:19:53 cvskris Exp $
+ RCS:           $Id: uiempartserv.h,v 1.38 2006-03-23 14:54:25 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -57,8 +57,8 @@ public:
 			    he wants to save it or not. If user want to
 			    save it, that is performed. */
 
-    bool		selectHorizon(EM::ObjectID& id);
-    bool		selectFault(EM::ObjectID& id);
+    void		selectHorizons(TypeSet<EM::ObjectID>&);
+    void		selectFaults(TypeSet<EM::ObjectID>&);
     int			showLoadAuxDataDlg(const EM::ObjectID&);
     			/*<\returns auxdatanr. */
     int			loadAuxData(const EM::ObjectID&,const char*);
@@ -93,7 +93,7 @@ public:
     const EM::ObjectID&	selEMID() const			{ return selemid_; }
 
 protected:
-    bool		selectSurface(EM::ObjectID&,bool);
+    void		selectSurfaces(TypeSet<EM::ObjectID>&,bool);
     bool		loadAuxData(const EM::ObjectID&, const TypeSet<int>& );
 
     EM::ObjectID	selemid_;

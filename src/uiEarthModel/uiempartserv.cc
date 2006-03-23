@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.75 2006-03-08 18:19:53 cvskris Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.76 2006-03-23 14:54:25 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,6 +36,7 @@ ________________________________________________________________________
 #include "uiiosurfacedlg.h"
 #include "uigeninputdlg.h"
 #include "uilistboxdlg.h"
+#include "uimultisurfaceread.h"
 #include "uisurfaceman.h"
 #include "uiexecutor.h"
 #include "uiioobjsel.h"
@@ -173,30 +174,35 @@ bool uiEMPartServer::askUserToSave(const EM::ObjectID& emid) const
 }
 
 
-bool uiEMPartServer::selectHorizon( EM::ObjectID& id )
-{ return selectSurface( id, true ); }
+void uiEMPartServer::selectHorizons( TypeSet<EM::ObjectID>& ids )
+{ selectSurfaces( ids, true ); }
 
 
-bool uiEMPartServer::selectFault( EM::ObjectID& id )
-{ return selectSurface(id, false ); }
+void uiEMPartServer::selectFaults( TypeSet<EM::ObjectID>& ids )
+{ selectSurfaces( ids, false ); }
 
 
-bool uiEMPartServer::selectSurface( EM::ObjectID& id, bool selhor )
+void uiEMPartServer::selectSurfaces( TypeSet<EM::ObjectID>& objids, bool ishor )
 {
-    uiReadSurfaceDlg dlg( appserv().parent(), selhor );
-    if ( !dlg.go() ) return false;
+    BufferString lbl( ishor ? "Horizon" : "Fault" ); lbl += " selection";
+    uiDialog dlg( appserv().parent(), uiDialog::Setup(lbl) );
+    uiMultiSurfaceRead* uiobj = new uiMultiSurfaceRead( &dlg, ishor );
+    if ( !dlg.go() ) return;
 
-    IOObj* ioobj = dlg.ioObj();
-    if ( !ioobj ) return false;
-    
+    TypeSet<MultiID> surfaceids;
+    uiobj->getSurfaceIds( surfaceids );
+
     EM::SurfaceIOData sd;
     EM::SurfaceIODataSelection sel( sd );
-    dlg.getSelection( sel );
-    if ( !loadSurface( ioobj->key(), &sel ) )
-	return false;
+    uiobj->getSurfaceSelection( sel );
 
-    id = EM::EMM().getObjectID(ioobj->key());
-    return true;
+    PtrMan<Executor> exec = EM::EMM().objectLoader( surfaceids, &sel );
+    if ( !exec ) return;
+    uiExecutor execdlg( appserv().parent(), *exec );
+    if ( !execdlg.go() ) return;
+
+    for ( int idx=0; idx<surfaceids.size(); idx++ )
+	objids += EM::EMM().getObjectID( surfaceids[idx] );
 }
 
 
@@ -422,7 +428,6 @@ void  uiEMPartServer::removeHistory()
 }
 
 
-
 bool uiEMPartServer::loadSurface( const MultiID& mid,
        				  const EM::SurfaceIODataSelection* newsel )
 {
@@ -434,13 +439,12 @@ bool uiEMPartServer::loadSurface( const MultiID& mid,
     if ( !exec )
     {
 	PtrMan<IOObj> ioobj = IOM().get(mid);
-	BufferString nm = ioobj
-	    ? (const char*) ioobj->name()
-	    : (const char*) mid;
+	BufferString nm = ioobj ? (const char*) ioobj->name()
+				: (const char*) mid;
 	mErrRet( nm );
     }
 
-    EM::EMObject* obj = em.getObject(em.getObjectID(mid));
+    EM::EMObject* obj = em.getObject( em.getObjectID(mid) );
     obj->ref();
     uiExecutor exdlg( appserv().parent(), *exec );
     if ( exdlg.go() <= 0 )

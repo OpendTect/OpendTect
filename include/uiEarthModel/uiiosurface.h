@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurface.h,v 1.17 2005-07-26 07:43:50 cvsnanne Exp $
+ RCS:           $Id: uiiosurface.h,v 1.18 2006-03-23 14:54:25 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,7 +37,7 @@ public:
 			~uiIOSurface();
 
     IOObj*		selIOObj() const;
-    void		getSelection(EM::SurfaceIODataSelection&);
+    void		getSelection(EM::SurfaceIODataSelection&) const;
 
     virtual bool	processInput()		{ return true; };
 

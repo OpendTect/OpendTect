@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurface.cc,v 1.35 2005-10-06 19:13:37 cvskris Exp $
+ RCS:           $Id: uiiosurface.cc,v 1.36 2006-03-23 14:54:25 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -151,7 +151,7 @@ bool uiIOSurface::haveAttrSel() const
 }
 
 
-void uiIOSurface::getSelection( EM::SurfaceIODataSelection& sels )
+void uiIOSurface::getSelection( EM::SurfaceIODataSelection& sels ) const
 {
     if ( rgfld && rgfld->isRg() )
     {

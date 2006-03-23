@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.170 2006-03-14 13:33:23 cvsnanne Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.171 2006-03-23 14:54:25 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -1578,12 +1578,17 @@ bool uiODFaultParentTreeItem::showSubMenu()
     mnu.insertItem( new uiMenuItem("New ..."), 1 );
     addStandardItems( mnu );
 
-    EM::ObjectID emid;
-    bool addflt = false;
-
     const int mnuid = mnu.exec();
     if ( mnuid == 0 )
-	addflt = applMgr()->EMServer()->selectFault(emid);
+    {
+	TypeSet<EM::ObjectID> emids;
+	applMgr()->EMServer()->selectFaults( emids );
+	for ( int idx=0; idx<emids.size(); idx++ )
+	{
+	    if ( emids[idx] < 0 ) continue;
+	    addChild( new uiODFaultTreeItem(emids[idx]), true );
+	}
+    }
     else if ( mnuid == 1 )
     {
 	//Will be restored by event (evWizardClosed) from mpeserv
@@ -1597,9 +1602,6 @@ bool uiODFaultParentTreeItem::showSubMenu()
     }
     else
 	handleStandardItems( mnuid );
-
-    if ( addflt )
-	addChild( new uiODFaultTreeItem(emid), true );
 
     return true;
 }
@@ -1652,9 +1654,13 @@ bool uiODHorizonParentTreeItem::showSubMenu()
     const int mnuid = mnu.exec();
     if ( mnuid == 0 )
     {
-	EM::ObjectID emid;
-	const bool addhor = applMgr()->EMServer()->selectHorizon(emid);
-	if ( addhor ) addChild( new uiODHorizonTreeItem(emid), true );
+	TypeSet<EM::ObjectID> emids;
+	applMgr()->EMServer()->selectHorizons( emids );
+	for ( int idx=0; idx<emids.size(); idx++ )
+	{
+	    if ( emids[idx] < 0 ) continue;
+	    addChild( new uiODHorizonTreeItem(emids[idx]), true );
+	}
     }
     else if ( mnuid == 1 )
     {
