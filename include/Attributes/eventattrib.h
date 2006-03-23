@@ -6,14 +6,13 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Helene Payraudeau
  Date:		February 2005
- RCS:		$Id: eventattrib.h,v 1.11 2006-01-12 13:15:30 cvshelene Exp $
+ RCS:		$Id: eventattrib.h,v 1.12 2006-03-23 07:52:07 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "attribprovider.h"
 #include "valseriesevent.h"
-
 
 namespace Attrib
 {
@@ -35,49 +34,51 @@ amplitude withing a time gate.
 class Event : public Provider
 {
 public:
-    static void         initClass();
+    static void			initClass();
 
-			Event(Desc&);
+				Event(Desc&);
     
-    static const char*  attribName() 		{ return "Event"; }
-    static const char*  eventTypeStr() 		{ return "eventtype"; }
-    static const char*  issingleeventStr() 	{ return "issingleevent"; }
-    static const char*  tonextStr() 		{ return "tonext"; }
-    static const char*  gateStr() 		{ return "gate"; }
+    static const char*		attribName()		{ return "Event"; }
+    static const char*		eventTypeStr()		{ return "eventtype"; }
+    static const char*		tonextStr() 		{ return "tonext"; }
+    static const char*		gateStr() 		{ return "gate"; }
+    static const char*		issingleeventStr()
+				{ return "issingleevent"; }
 
 protected:
-    static Provider*    createInstance(Desc&);
-    static void         updateDesc(Desc&);
+    static Provider*		createInstance(Desc&);
+    static void			updateDesc(Desc&);
 
-    bool                getInputOutput(int input,TypeSet<int>& res) const;
-    bool                getInputData(const BinID&,int idx);
-    bool                computeData(const DataHolder&,const BinID& relpos,
-				    int t0,int nrsamples) const;
+    bool			getInputOutput(int input,
+	    				       TypeSet<int>& res) const;
+    bool			getInputData(const BinID&,int zintv);
+    bool			computeData(const DataHolder&,
+	    				    const BinID& relpos,
+					    int z0,int nrsamples) const;
 
-    bool		allowParallelComputation()	{ return true; }
+    bool			allowParallelComputation()	{ return true; }
 
-    const Interval<float>*           reqZMargin(int input,int output) const;
-    const Interval<float>*           desZMargin(int input,int output) const;
+    const Interval<float>*	reqZMargin(int input,int output) const;
+    const Interval<float>*	desZMargin(int input,int output) const;
 
     
-    static VSEvent::Type       	     getEventType(int type); 
-    ValueSeriesEvent<float,float>    findNextEvent( 
+    static VSEvent::Type	getEventType(int type); 
+    ValueSeriesEvent<float,float> findNextEvent( 
 	    				ValueSeriesEvent<float,float> nextev, 
 					int dir,VSEvent::Type,int) const;
 
-    void		singleEvent(TypeSet<float>&,int,int) const;
-    void		multipleEvents(TypeSet<float>&,int,int) const;
+    void			singleEvent(TypeSet<float>&,int,int) const;
+    void			multipleEvents(TypeSet<float>&,int,int) const;
 
-    const DataHolder*	inputdata;
+    const DataHolder*		inputdata;
 
-    bool		issingleevent;
-    bool		tonext;
-    VSEvent::Type	eventtype;
-    Interval<float>	gate;
-    int			dataidx_;
-
+    bool			issingleevent;
+    bool			tonext;
+    VSEvent::Type		eventtype;
+    Interval<float>		gate;
+    int				dataidx_;
 };
 
-}; // namespace Attrib
+} // namespace Attrib
 
 #endif
