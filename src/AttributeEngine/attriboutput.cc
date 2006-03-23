@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attriboutput.cc,v 1.42 2006-03-12 13:39:10 cvsbert Exp $";
+static const char* rcsID = "$Id: attriboutput.cc,v 1.43 2006-03-23 12:47:17 cvshelene Exp $";
 
 #include "attriboutput.h"
 #include "attribdataholder.h"
@@ -70,9 +70,6 @@ DataCubesOutput::DataCubesOutput( const CubeSampling& cs )
     , datacubes_(0)
     , udfval_(mUdf(float))
 {
-    const float dz = SI().zStep();
-    Interval<int> interval( mNINT(cs.zrg.start/dz), mNINT(cs.zrg.stop/dz) );
-    sampleinterval_ += interval;
 }
 
 
@@ -88,8 +85,17 @@ bool DataCubesOutput::wantsOutput( const BinID& bid ) const
 { return desiredvolume_.hrg.includes(bid); }
 
 
-TypeSet< Interval<int> > DataCubesOutput::getLocalZRange( const BinID& ) const
-{ return sampleinterval_; }
+TypeSet< Interval<int> > DataCubesOutput::getLocalZRange( const BinID&,
+							  float zstep ) const
+{
+    if ( sampleinterval_.size() ==0 )
+    {
+	Interval<int> interval( mNINT( desiredvolume_.zrg.start / zstep ),
+				mNINT( desiredvolume_.zrg.stop / zstep ) );
+	const_cast<DataCubesOutput*>(this)->sampleinterval_ += interval;
+    }
+    return sampleinterval_; 
+}
 
 
 #define mGetSz(dir)\
@@ -107,12 +113,16 @@ void DataCubesOutput::collectData( const DataHolder& data, float refstep,
     {
 	datacubes_ = new Attrib::DataCubes;
 	datacubes_->ref();
+	int step = desiredvolume_.hrg.step.inl>SI().inlStep() ? 
+		   SI().inlStep() : desiredvolume_.hrg.step.inl;
 	datacubes_->inlsampling= StepInterval<int>(desiredvolume_.hrg.start.inl,
 						   desiredvolume_.hrg.stop.inl,
-						   desiredvolume_.hrg.step.inl);
+						   step);
+	step = desiredvolume_.hrg.step.crl>SI().crlStep() ?
+	       SI().crlStep() : desiredvolume_.hrg.step.crl;
 	datacubes_->crlsampling= StepInterval<int>(desiredvolume_.hrg.start.crl,
 						   desiredvolume_.hrg.stop.crl,
-						   desiredvolume_.hrg.step.crl);
+						   step);
 	datacubes_->z0 = mNINT(desiredvolume_.zrg.start/refstep);
 	datacubes_->zstep = refstep;
 	int inlsz, crlsz, zsz;
@@ -177,10 +187,6 @@ SeisTrcStorOutput::SeisTrcStorOutput( const CubeSampling& cs,
 {
     seldata_.linekey_ = lk;
     attribname_ = lk.attrName();
-
-    const float dz = SI().zStep();
-    Interval<int> interval( mNINT(cs.zrg.start/dz), mNINT(cs.zrg.stop/dz) );
-    sampleinterval_ += interval;
 }
 
 
@@ -415,6 +421,19 @@ void SeisTrcStorOutput::writeTrc()
 }
 
 
+TypeSet< Interval<int> > SeisTrcStorOutput::getLocalZRange( const BinID& bid,
+							    float zstep ) const
+{
+    if ( sampleinterval_.size() == 0 )
+    {
+	Interval<int> interval( mNINT(desiredvolume_.zrg.start/zstep), 
+				mNINT(desiredvolume_.zrg.stop/zstep) );
+	const_cast<SeisTrcStorOutput*>(this)->sampleinterval_ += interval;
+    }
+    return sampleinterval_;
+}
+
+
 TwoDOutput::TwoDOutput( const Interval<int>& trg, const Interval<float>& zrg,
 			const LineKey& lk )
     : errmsg_(0)
@@ -423,11 +442,6 @@ TwoDOutput::TwoDOutput( const Interval<int>& trg, const Interval<float>& zrg,
 {
     seldata_.linekey_ = lk;
     setGeometry( trg, zrg );
-
-    const float dz = SI().zStep();
-    Interval<int> interval( mNINT(seldata_.zrg_.start/dz), 
-	    		    mNINT(seldata_.zrg_.stop/dz) );
-    sampleinterval_ += interval;
 }
 
 
@@ -493,6 +507,19 @@ void TwoDOutput::setOutput( ObjectSet<DataHolder>& dataset,
 }
 
 
+TypeSet< Interval<int> > TwoDOutput::getLocalZRange( const BinID& bid,
+						     float zstep ) const
+{
+    if ( sampleinterval_.size() == 0 )
+    {
+	Interval<int> interval( mNINT(seldata_.zrg_.start/zstep), 
+				mNINT(seldata_.zrg_.stop/zstep) );
+	const_cast<TwoDOutput*>(this)->sampleinterval_ += interval;
+    }
+    return sampleinterval_;
+}
+
+
 LocationOutput::LocationOutput( BinIDValueSet& bidvalset )
     : bidvalset_(bidvalset)
 {
@@ -537,16 +564,16 @@ bool LocationOutput::wantsOutput( const BinID& bid ) const
 }
 
 
-TypeSet< Interval<int> > LocationOutput::getLocalZRange(const BinID& bid) const
+TypeSet< Interval<int> > LocationOutput::getLocalZRange( const BinID& bid,
+							 float zstep ) const
 {
-    const float dz = SI().zStep();
     TypeSet< Interval<int> > sampleinterval;
 
     BinIDValueSet::Pos pos = bidvalset_.findFirst( bid );
     while ( pos.valid() )
     {
 	const float* vals = bidvalset_.getVals( pos );
-	Interval<int> interval( mNINT(vals[0]/dz), mNINT(vals[0]/dz) );
+	Interval<int> interval( mNINT(vals[0]/zstep), mNINT(vals[0]/zstep) );
 	sampleinterval += interval;
 	bidvalset_.next( pos );
 	if ( bid != bidvalset_.getBinID(pos) )
@@ -657,19 +684,18 @@ void TrcSelectionOutput::setOutput( SeisTrcBuf* outp_ )
 }
 
 
-TypeSet< Interval<int> > 
-	TrcSelectionOutput::getLocalZRange( const BinID& bid ) const
+TypeSet< Interval<int> > TrcSelectionOutput::getLocalZRange( const BinID& bid,
+							     float zstep ) const
 {
     BinIDValueSet::Pos pos = bidvalset_.findFirst( bid );
     BinID binid;
-    const float dz = SI().zStep();
     TypeSet<float> values;
     bidvalset_.get( pos, binid, values );
     TypeSet< Interval<int> > sampleinterval;
     for ( int idx=0; idx<values.size()/2; idx+=2 )
     {
-	Interval<int> interval( mNINT(values[idx]/dz), 
-				mNINT(values[idx+1]/dz) );
+	Interval<int> interval( mNINT(values[idx]/zstep), 
+				mNINT(values[idx+1]/zstep) );
 	sampleinterval += interval;
     }
  

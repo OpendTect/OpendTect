@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribprovider.cc,v 1.59 2006-03-14 15:51:48 cvshelene Exp $";
+static const char* rcsID = "$Id: attribprovider.cc,v 1.60 2006-03-23 12:47:17 cvshelene Exp $";
 
 #include "attribprovider.h"
 #include "attribstorprovider.h"
@@ -696,8 +696,7 @@ bool Provider::setCurrentPosition( const BinID& bid )
 
 void Provider::addLocalCompZIntervals( const TypeSet< Interval<int> >& intvs )
 {
-    const float surveystep = SI().zStep();
-    const float dz = mIsZero(refstep,mDefEps) ? surveystep : refstep;
+    const float dz = mIsZero(refstep,mDefEps) ? SI().zStep() : refstep;
     const Interval<int> possintv( mNINT(possiblevolume->zrg.start/dz),
 	    			  mNINT(possiblevolume->zrg.stop/dz) );
 
@@ -705,12 +704,6 @@ void Provider::addLocalCompZIntervals( const TypeSet< Interval<int> >& intvs )
     for ( int idx=0; idx<intvs.size(); idx++ )
     {
 	Interval<int> reqintv = intvs[idx];
-	if ( !mIsEqual(dz,surveystep,mDefEps) )
-	{
-	    reqintv.start = mNINT( reqintv.start * (surveystep/refstep) );
-	    reqintv.stop = mNINT( reqintv.stop * (surveystep/refstep) );
-	}
-
 	if ( reqintv.start > possintv.stop || reqintv.stop < possintv.start )
 	{
 	    for ( int inp=0; inp<inputs.size(); inp++ )
