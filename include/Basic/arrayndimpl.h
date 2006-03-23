@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: arrayndimpl.h,v 1.39 2006-03-22 11:51:46 cvsnanne Exp $
+ RCS:		$Id: arrayndimpl.h,v 1.40 2006-03-23 11:54:18 cvsnanne Exp $
 ________________________________________________________________________
 
 */
@@ -127,7 +127,7 @@ public:
 		    , openfailed_(false)
 		    , streamfail_(false)
 		{
-		    const char* stordir = GetEnvVar( "OD_SSIS_TEMP_STORDIR" );
+		    const char* stordir = GetEnvVar( "OD_ARRAY_TEMP_STORDIR" );
 		    if ( stordir )
 			setTempStorageDir( stordir );
 		}
