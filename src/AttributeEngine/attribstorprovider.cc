@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribstorprovider.cc,v 1.39 2006-03-14 15:51:48 cvshelene Exp $";
+static const char* rcsID = "$Id: attribstorprovider.cc,v 1.40 2006-03-28 12:23:01 cvsnanne Exp $";
 
 #include "attribstorprovider.h"
 
@@ -471,19 +471,18 @@ bool StorageProvider::computeData( const DataHolder& output,
 	trc = rg[currentreq]->get(0,0);
     else
     {
-	const BinID bid = desc.is2D() ? BinID(0, curtrcinfo_->nr) : currentbid;
+	const BinID bid = desc.is2D() ? BinID(0,curtrcinfo_->nr) : currentbid;
 	trc = rg[currentreq]->get( bid+relpos );
     }
     
     if ( !trc )
 	return false;
 
-    fillDataHolderWithTrc( trc, output );
-    return true;
+    return fillDataHolderWithTrc( trc, output );
 }
 
 
-void StorageProvider::fillDataHolderWithTrc( const SeisTrc* trc, 
+bool StorageProvider::fillDataHolderWithTrc( const SeisTrc* trc, 
 					     const DataHolder& data ) const
 {
     const int z0 = data.z0_;
@@ -491,8 +490,8 @@ void StorageProvider::fillDataHolderWithTrc( const SeisTrc* trc,
     float exacttime = 0;
     if ( needinterp )
     {
-	BinIDValueSet::Pos pos = seldata_->table_.findFirst( trc->info().binid);
-	if ( !pos.valid() ) return;
+	BinIDValueSet::Pos pos = seldata_->table_.findFirst( currentbid );
+	if ( !pos.valid() ) return false;
 
 	exacttime = seldata_->table_.getVals( pos )[0];
 	offset = mNINT( z0 - exacttime/refstep );
@@ -511,6 +510,8 @@ void StorageProvider::fillDataHolderWithTrc( const SeisTrc* trc,
 	    }
 	}
     }
+
+    return true;
 }
 
 

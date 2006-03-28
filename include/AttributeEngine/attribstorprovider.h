@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribstorprovider.h,v 1.16 2005-12-22 14:53:02 cvsnanne Exp $
+ RCS:           $Id: attribstorprovider.h,v 1.17 2006-03-28 12:23:06 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -54,7 +54,7 @@ protected:
 				    const BinID& relpos,
 				    int t0,int nrsamples) const;
 
-    void		fillDataHolderWithTrc(const SeisTrc*,
+    bool		fillDataHolderWithTrc(const SeisTrc*,
 					      const DataHolder&) const;
     bool		getZStepStoredData(float& step) const
 			{ step = storedvolume.zrg.step; return true; }
