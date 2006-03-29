@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          May 2005
- RCS:           $Id: mathattrib.h,v 1.6 2006-03-23 07:51:48 cvsnanne Exp $
+ RCS:           $Id: mathattrib.h,v 1.7 2006-03-29 09:00:12 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,7 +45,7 @@ protected:
 	    				    int t0,int nrsamples) const;
 
     bool			allowParallelComputation() const
-    				{ return false; }
+    				{ return true; }
 
 private:
     ObjectSet<const DataHolder>	inputdata_;
