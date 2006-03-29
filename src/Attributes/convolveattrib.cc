@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: convolveattrib.cc,v 1.12 2005-12-23 16:09:46 cvsnanne Exp $";
+static const char* rcsID = "$Id: convolveattrib.cc,v 1.13 2006-03-29 15:39:40 cvsnanne Exp $";
 
 #include "convolveattrib.h"
 #include "attribdataholder.h"
@@ -340,20 +340,12 @@ bool Convolve::computeData( const DataHolder& output, const BinID& relpos,
     const int subkernelsz = kernel->getSubKernelSize();
     const float* kernelvals = kernel->getKernel();
 
-    int nrtraces = (1+stepout.inl*2) * (1+stepout.crl*2);
+    const int nrtraces = (1+stepout.inl*2) * (1+stepout.crl*2);
 
     ArrPtrMan<bool> docalculate = new bool[nrofkernels];
     const bool customcalc = !outputinterest[0];
-    if ( customcalc )
-    {
-	for ( int idx=0; idx<nrofkernels; idx++)
-	    docalculate[idx] = outputinterest[idx+1];
-    }
-    else
-    {
-	for ( int idx=0; idx<nrofkernels; idx++)
-	    docalculate[idx] = true;
-    }
+    for ( int idx=0; idx<nrofkernels; idx++ )
+	docalculate[idx] = customcalc ? outputinterest[idx+1] : true;
 
     const Interval<int> sg = kernel->getSG();
     const int sgwidth = 1 + sg.width();
