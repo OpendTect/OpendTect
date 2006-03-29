@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: emseedpicker.h,v 1.14 2006-03-21 10:30:13 cvsjaap Exp $
+ RCS:           $Id: emseedpicker.h,v 1.15 2006-03-29 17:06:34 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,8 +38,8 @@ public:
     virtual EM::SectionID getSectionID() const			{ return -1; }
 
     virtual bool	startSeedPick()				{ return false;}
-    			/*!<Should be set when seedpicking is about 
-			    to start. */
+    			/*!<Should be set when seedpicking
+			    is about to start. */
 
     virtual bool	canAddSeed() const			{ return false;}
     virtual bool	addSeed( const Coord3& )		{ return false;}
