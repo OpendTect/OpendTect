@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: mathattrib.cc,v 1.12 2005-12-23 16:09:46 cvsnanne Exp $
+ RCS:           $Id: mathattrib.cc,v 1.13 2006-03-29 09:00:37 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -136,8 +136,10 @@ bool Math::getInputData( const BinID& relpos, int zintv )
 bool Math::computeData( const DataHolder& output, const BinID& relpos, 
 			int z0, int nrsamples ) const
 {
-    if ( !expression_ ) return false;
-    const int nrvar = expression_->getNrVariables();
+    PtrMan<MathExpression> mathobj = expression_ ? expression_->clone() : 0;
+    if ( !mathobj ) return false;
+
+    const int nrvar = mathobj->getNrVariables();
     if ( inputtable_.size() != nrvar ) return false;
 
     
@@ -151,11 +153,11 @@ bool Math::computeData( const DataHolder& output, const BinID& relpos,
 	    const float val = 
 		serie->value( cursample - inputdata_[varidx]->z0_ );
 	    const int variable = inputtable_[varidx];
-	    expression_->setVariable( variable, val );
+	    mathobj->setVariable( variable, val );
 	}
 
 	const int outidx = z0 - output.z0_ + idx;
-	output.series(0)->setValue( outidx, expression_->getValue() );
+	output.series(0)->setValue( outidx, mathobj->getValue() );
     }
 
     return true;
