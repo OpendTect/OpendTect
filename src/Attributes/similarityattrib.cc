@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          June 2005
- RCS:           $Id: similarityattrib.cc,v 1.23 2006-03-20 16:32:02 cvsnanne Exp $
+ RCS:           $Id: similarityattrib.cc,v 1.24 2006-03-30 11:49:33 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -287,11 +287,11 @@ bool Similarity::computeData( const DataHolder& output, const BinID& relpos,
 			    inputdata_[idx1]->nrsamples_-1 );
 	    const bool valids0 = s0>=0 && 
 				 (s0+gatesz)<=inputdata_[idx0]->nrsamples_;
-	    if ( !valids0 ) s0 = firstsample + idx;
+	    if ( !valids0 ) s0 = firstsample + idx + samplegate.start;
 
 	    const bool valids1 = s1>=0 && 
 				 (s1+gatesz)<=inputdata_[idx1]->nrsamples_;
-	    if ( !valids1 ) s1 = firstsample + idx;
+	    if ( !valids1 ) s1 = firstsample + idx + samplegate.start;
 
 	    stats += similarity( vals0, vals1, s0, s1, 1, gatesz, donormalize_);
 	}
