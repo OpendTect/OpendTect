@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.h,v 1.29 2006-03-15 13:18:48 cvsjaap Exp $
+ RCS:           $Id: uimpeman.h,v 1.30 2006-03-30 16:14:55 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -60,7 +60,7 @@ protected:
 
     visSurvey::MPEClickCatcher*	clickcatcher;
 
-    uiComboBox*			seedmodefld;
+    uiComboBox*			seedconmodefld;
     uiComboBox*			attribfld;
     uiSlider*			transfld;
 
@@ -82,9 +82,9 @@ protected:
     void			trackForward(CallBacker*);
     void			trackInVolume(CallBacker*);
 
-    void			updateSeedModeState();
+    void			updateSeedPickState();
     void			addSeedCB(CallBacker*);
-    void			seedModeSel(CallBacker*);
+    void			seedConnectModeSel(CallBacker*);
     void			setColorbarCB(CallBacker*);
     void                        onColTabClosing(CallBacker*);
     void			movePlaneCB(CallBacker*);
@@ -94,6 +94,8 @@ protected:
     void			mouseEraseModeCB(CallBacker*);
     void			showTracker(bool);
     
+    MPE::EMTracker*		getSelectedTracker(); 
+
     void			setHistoryLevel(int);
 
     void			seedClick(CallBacker*);
@@ -111,11 +113,9 @@ protected:
 
     bool			init;
     bool			seedpickwason;
+    int				seltrackerid;
 
     static const char*		sKeyNoAttrib() { return "No attribute"; }
-
-private:
-    MPE::EMTracker*		getSelectedTracker() const; 
 };
 
 #endif
