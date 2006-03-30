@@ -4,11 +4,13 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vismpeseedcatcher.cc,v 1.6 2006-01-18 22:58:59 cvskris Exp $";
+static const char* rcsID = "$Id: vismpeseedcatcher.cc,v 1.7 2006-03-30 16:13:05 cvsjaap Exp $";
 
 #include "vismpeseedcatcher.h"
 
+#include "emmanager.h"
 #include "emobject.h"
+#include "survinfo.h"
 #include "visdataman.h"
 #include "visemobjdisplay.h"
 #include "visevent.h"
@@ -26,7 +28,7 @@ MPEClickCatcher::MPEClickCatcher()
     : click( this )
     , eventcatcher( 0 )
     , transformation( 0 )
-    , ctrlclicknode(-1,-1,-1)
+    , clickednode(-1,-1,-1)
 { }
 
 
@@ -82,17 +84,32 @@ void MPEClickCatcher::clickCB( CallBacker* cb )
     if ( eventinfo.mousebutton!=visBase::EventInfo::leftMouseButton() )
 	return;
 
-    if ( !eventinfo.shift && !eventinfo.alt && !eventinfo.ctrl )
+    if ( !eventinfo.alt && (!eventinfo.ctrl || !eventinfo.shift) )
     {
 	for ( int idx=0; idx<eventinfo.pickedobjids.size(); idx++ )
 	{
 	    const int visid = eventinfo.pickedobjids[idx];
 	    visBase::DataObject* dataobj = visBase::DM().getObject( visid );
-	    mDynamicCastGet( PlaneDataDisplay*, plane, dataobj );
-	    if ( plane )
+	    if ( !dataobj ) 
+		continue;
+
+	    mDynamicCastGet( visSurvey::EMObjectDisplay*, emod, dataobj );
+	    if ( emod )
 	    {
-		sendClickEvent( eventinfo.pickedpos, visid,
-				plane->getCubeSampling(),
+		sendPlanesContainingNode( visid, emod, eventinfo );
+		eventcatcher->eventIsHandled();
+		break;
+	    }
+
+	    if ( eventinfo.ctrl || eventinfo.shift )
+		continue;
+	    
+	    mDynamicCastGet( PlaneDataDisplay*, plane, dataobj );
+	    if ( plane && plane->getOrientation()!=PlaneDataDisplay::Timeslice )
+	    {
+		sendClickEvent( EM::PosID(-1,-1,-1), eventinfo.ctrl, 
+				eventinfo.shift, eventinfo.pickedpos, 
+				visid, plane->getCubeSampling(),
 				plane->getCacheVolume(false),
 				plane->getSelSpec(0) );
 		eventcatcher->eventIsHandled();
@@ -104,43 +121,68 @@ void MPEClickCatcher::clickCB( CallBacker* cb )
 		 !mpedisplay->isManipulatorShown() &&
 		 mpedisplay->getPlanePosition(clickedcs) ) 
 	    {
-		sendClickEvent( eventinfo.pickedpos, visid, clickedcs, 0, 0 );
+		sendClickEvent( EM::PosID(-1,-1,-1), eventinfo.ctrl, 
+				eventinfo.shift, eventinfo.pickedpos, 
+				visid, clickedcs, 0, 0 );
 		eventcatcher->eventIsHandled();
 		break;
 	    }
 	}
     }
-    else if ( !eventinfo.shift && !eventinfo.alt && eventinfo.ctrl )
+}
+
+
+void MPEClickCatcher::sendPlanesContainingNode( 
+			    int visid, const visSurvey::EMObjectDisplay* emod,
+			    const visBase::EventInfo& eventinfo )
+{
+    const EM::PosID nodepid = emod->getPosAttribPosID( EM::EMObject::sSeedNode,
+						       eventinfo.pickedobjids );
+    if ( nodepid.objectID()==-1 ) 
+	return;
+
+    const EM::EMObject* emobj = EM::EMM().getObject( emod->getObjectID() );
+    if ( !emobj ) 
+	return;
+
+    const Coord3 nodepos = emobj->getPos( nodepid );
+    const BinID nodebid = SI().transform( nodepos );
+    
+    TypeSet<int> planesinscene;
+    visBase::DM().getIds( typeid(visSurvey::PlaneDataDisplay), planesinscene ); 
+    
+    for ( int idx=0; idx<planesinscene.size(); idx++ )
     {
-	for ( int idx=0; idx<eventinfo.pickedobjids.size(); idx++ )
+	visBase::DataObject* planeobj = 
+				visBase::DM().getObject( planesinscene[idx] );
+	if ( !planeobj )
+	    continue;
+
+	mDynamicCastGet( PlaneDataDisplay*, plane, planeobj );
+	if ( !plane || plane->getOrientation()==PlaneDataDisplay::Timeslice ) 
+	    continue;
+
+	const CubeSampling cs = plane->getCubeSampling();
+	if ( cs.hrg.includes(nodebid) && cs.zrg.includes(nodepos.z) )
 	{
-	    const int visid = eventinfo.pickedobjids[idx];
-	    visBase::DataObject* dataobj = visBase::DM().getObject( visid );
-	    mDynamicCastGet( visSurvey::EMObjectDisplay*, emod, dataobj );
-	    if ( !emod ) continue;
-
-	    ctrlclicknode =
-		emod->getPosAttribPosID( EM::EMObject::sSeedNode,
-					 eventinfo.pickedobjids );
-
-	    if ( ctrlclicknode.objectID()!=-1 )
-	    {
-		click.trigger();
-		eventcatcher->eventIsHandled();
-	    }
-
-	    break;
+	    sendClickEvent( nodepid, eventinfo.ctrl, eventinfo.shift,
+			    eventinfo.pickedpos, visid, cs, 
+			    plane->getCacheVolume(false), 
+			    plane->getSelSpec(0) );
 	}
     }
 }
 
 
-void MPEClickCatcher::sendClickEvent( const Coord3& coord, int visid, 
-				      const CubeSampling& cs,
+void MPEClickCatcher::sendClickEvent( const EM::PosID pid, bool ctrl, 
+				      bool shift, const Coord3& coord, 
+				      int visid, const CubeSampling& cs,
        				      const Attrib::DataCubes* ss,
 				      const Attrib::SelSpec* selspec )
 {
-    ctrlclicknode = EM::PosID(-1,-1,-1);
+    clickednode = pid;
+    ctrlclicked = ctrl;
+    shiftclicked = shift;
     clickedcs = cs;
     clickedobjid = visid;
     clickedpos = coord;
@@ -149,12 +191,14 @@ void MPEClickCatcher::sendClickEvent( const Coord3& coord, int visid,
 
     click.trigger();
 
+    clickednode = EM::PosID(-1,-1,-1);
+    ctrlclicked = false;
+    shiftclicked = false;
     clickedobjid = -1;
     as = 0;
     attrdata = 0;
     clickedcs.init(false);
     clickedpos = Coord3::udf();
 }
-
 
 }; //namespce
