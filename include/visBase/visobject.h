@@ -7,14 +7,13 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visobject.h,v 1.37 2005-04-22 10:07:49 cvskris Exp $
+ RCS:		$Id: visobject.h,v 1.38 2006-03-30 08:13:19 cvsnanne Exp $
 ________________________________________________________________________
 
 
 -*/
 
 #include "visdata.h"
-#include "color.h"
 
 class SoSeparator;
 class SoNode;
