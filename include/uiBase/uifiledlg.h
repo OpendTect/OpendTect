@@ -7,19 +7,19 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/09/2000
- RCS:           $Id: uifiledlg.h,v 1.14 2006-02-22 14:39:37 cvsbert Exp $
+ RCS:           $Id: uifiledlg.h,v 1.15 2006-03-30 20:49:46 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
-#include "uiobj.h"
+
 #include "bufstringset.h"
 
-/*!\brief Dialog to get a file or directory name from user
- 
- 
- */
+class uiParent;
 
-class uiFileDialog : public UserIDObject
+/*!\brief Dialog to get a file or directory name from user
+*/
+
+class uiFileDialog
 {
 public:
     //! File selection mode
@@ -35,14 +35,14 @@ public:
     };
 
                         uiFileDialog(uiParent*,bool forread,
-				     const char* fname = 0,
-				     const char* filter = 0,
-				     const char* caption = 0 );
+				     const char* fname=0,
+				     const char* filter=0,
+				     const char* caption=0);
 
-                        uiFileDialog(uiParent*,Mode mode = AnyFile,
-				     const char* fname = 0,
-				     const char* filter = 0,
-				     const char* caption = 0 );
+                        uiFileDialog(uiParent*,Mode mode=AnyFile,
+				     const char* fname=0,
+				     const char* filter=0,
+				     const char* caption=0);
 
     const char*		fileName() const	{ return fn; }
     void		getFileNames(BufferStringSet&) const;

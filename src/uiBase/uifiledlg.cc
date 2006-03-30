@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/09/2000
- RCS:           $Id: uifiledlg.cc,v 1.25 2006-02-22 14:39:37 cvsbert Exp $
+ RCS:           $Id: uifiledlg.cc,v 1.26 2006-03-30 20:49:46 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -68,8 +68,7 @@ QFileDialog::Mode qmodeForUiMode( uiFileDialog::Mode mode )
 uiFileDialog::uiFileDialog( uiParent* parnt, bool forread,
 			    const char* fname, const char* filter,
 			    const char* caption )
-	: UserIDObject( "uiFileDialog" )
-	, mode_( forread ? ExistingFile : AnyFile )
+	: mode_( forread ? ExistingFile : AnyFile )
 	, fname_( fname )
 	, filter_( filter )
 	, caption_( caption )
@@ -77,15 +76,15 @@ uiFileDialog::uiFileDialog( uiParent* parnt, bool forread,
 	, parnt_( parnt )
     	, addallexts_( false )
 {
-    if( !caption || !*caption )
+    if ( !caption || !*caption )
 	caption_ = forread ? "Open" : "Save As";
 }
+
 
 uiFileDialog::uiFileDialog( uiParent* parnt, Mode mode,
 			    const char* fname, const char* filter,
 			    const char* caption )
-	: UserIDObject( "uiFileDialog" )
-	, mode_( mode )
+	: mode_( mode )
 	, fname_( fname )
 	, filter_( filter )
 	, caption_( caption )
@@ -116,7 +115,7 @@ int uiFileDialog::go()
     if ( parnt_ )
 	{ qp = parnt_->pbody() ? parnt_->pbody()->managewidg() : 0; }
 
-    dgbQFileDialog* fd = new dgbQFileDialog( qp, name(), TRUE );
+    dgbQFileDialog* fd = new dgbQFileDialog( qp, "File dialog", TRUE );
 
     fd->setMode( qmodeForUiMode(mode_) );
     if ( filter_.size() )

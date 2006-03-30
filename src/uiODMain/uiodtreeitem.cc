@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.171 2006-03-23 14:54:25 cvsnanne Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.172 2006-03-30 20:49:46 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -81,7 +81,7 @@ uiODTreeTop::uiODTreeTop( uiSoViewer* sovwr, uiListView* lv, uiODApplMgr* am,
     : uiTreeTopItem(lv)
     , tfs(tfs_)
 {
-    setProperty<int>( sceneidkey, sovwr->sceneId() );
+    setProperty<int>( sceneidkey, sovwr->sceneID() );
     setPropertyPtr( viewerptr, sovwr );
     setPropertyPtr( applmgrstr, am );
 
@@ -2562,14 +2562,12 @@ void uiODSceneTreeItem::updateColumnText( int col )
 
 #define mProperties	0
 #define mDumpIV		1
-#define mSubMnuSnapshot	2
-
 
 bool uiODSceneTreeItem::showSubMenu()
 {
     uiPopupMenu mnu( getUiParent(), "Action" );
 
-    uiMenuItem* anntxt = new uiMenuItem("Properties ...");
+    uiMenuItem* anntxt = new uiMenuItem( "Properties ..." );
     mnu.insertItem( anntxt, mProperties );
 
     bool yn = false;
@@ -2577,13 +2575,7 @@ bool uiODSceneTreeItem::showSubMenu()
     if ( yn )
 	mnu.insertItem( new uiMenuItem("Dump OI ..."), mDumpIV );
 
-    yn = true;
-    Settings::common().getYN( IOPar::compKey("dTect","Enable snapshot"), yn );
-    if ( yn )
-	mnu.insertItem( new uiMenuItem("Make snapshot..."), mSubMnuSnapshot );
-
     uiVisPartServer* visserv = applMgr()->visServer();
-
     const int mnuid=mnu.exec();
     if ( mnuid==mProperties )
     {
@@ -2599,8 +2591,6 @@ bool uiODSceneTreeItem::showSubMenu()
     }
     else if ( mnuid==mDumpIV )
 	visserv->dumpOI( displayid_ );
-    else if ( mnuid==mSubMnuSnapshot )
-	viewer()->renderToFile();
 
     return true;
 }

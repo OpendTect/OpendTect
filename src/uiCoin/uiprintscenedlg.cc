@@ -4,24 +4,28 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          October 2002
- RCS:           $Id: uiprintscenedlg.cc,v 1.24 2006-03-10 13:34:02 cvsbert Exp $
+ RCS:           $Id: uiprintscenedlg.cc,v 1.25 2006-03-30 20:49:46 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiprintscenedlg.h"
+
+#include "uibutton.h"
+#include "uicombobox.h"
+#include "uicursor.h"
 #include "uifileinput.h"
+#include "uilabel.h"
+#include "uimsg.h"
+#include "uiobj.h"
+#include "uisoviewer.h"
+#include "uispinbox.h"
 #include "iopar.h"
 #include "filegen.h"
 #include "filepath.h"
-#include "uibutton.h"
-#include "uilabel.h"
-#include "uispinbox.h"
-#include "uimsg.h"
-#include "uiobj.h"
 #include "ptrman.h"
 #include "oddirs.h"
-#include "uicursor.h"
+#include "visscene.h"
 
 #include <Inventor/SoOffscreenRenderer.h>
 
@@ -31,17 +35,19 @@ const char* uiPrintSceneDlg::widthstr = "Width";
 const char* uiPrintSceneDlg::unitstr = "Unit";
 const char* uiPrintSceneDlg::resstr = "Resolution";
 
-const char* uiPrintSceneDlg::imageformats[] =
+static const char* imageformats[] =
 { "jpg", "png", "bmp", "eps", "xpm", "xbm", 0 };
 
-const char* uiPrintSceneDlg::filters[] = {
+static const char* filters[] =
+{
     "JPEG (*.jpg *.jpeg)",
     "PNG (*.png)",
     "Bitmap (*.bmp)",
     "EPS (*.ps *.eps)",
     "XPM (*.xpm)",
     "XBM (*.xbm)",
-    0 };
+    0
+};
 
 
 static const StepInterval<float> sSizeRange(0.5,999,0.1);
@@ -49,15 +55,27 @@ static StepInterval<float> sPixelSizeRange(1,9999,1);
 static const int sDefdpi = 300;
 
 
-uiPrintSceneDlg::uiPrintSceneDlg( uiParent* p, SoNode* scene_,
-				  const SbVec2s& winsz_ )
+static void sPixels2Inch( const SbVec2f& from, SbVec2f& to, float dpi )
+{ to = from / dpi; }
+
+static void sInch2Pixels( const SbVec2f& from, SbVec2f& to, float dpi )
+{ to = from * dpi; }
+
+static void sCm2Inch( const SbVec2f& from, SbVec2f& to )
+{ to = from / 2.54; }
+
+static void sInch2Cm( const SbVec2f& from, SbVec2f& to )
+{ to = from * 2.54; }
+
+
+uiPrintSceneDlg::uiPrintSceneDlg( uiParent* p,
+				  const ObjectSet<uiSoViewer>& vwrs )
     : uiDialog(p,uiDialog::Setup("Create snapshot",
 				 "Enter image size and filename","50.0.1"))
-    , scene(scene_)
-    , heightfld(0)
-    , winsz(winsz_)
+    , viewers(vwrs)
     , screendpi(SoOffscreenRenderer::getScreenPixelsPerInch())
-    , bgcolor(0)
+    , heightfld(0)
+    , scenefld(0)
 {
     SbViewportRegion vp;
     SoOffscreenRenderer sor( vp );
@@ -74,9 +92,24 @@ uiPrintSceneDlg::uiPrintSceneDlg( uiParent* p, SoNode* scene_,
     SbVec2s maxres = SoOffscreenRenderer::getMaximumResolution();
     sPixelSizeRange.stop = mMIN(maxres[0],maxres[1]);
 
+    if ( viewers.size() > 1 )
+    {
+	BufferStringSet scenenms;
+	for ( int idx=0; idx<viewers.size(); idx++ )
+	{
+	    visBase::Scene* scene = viewers[idx]->getScene();
+	    scenenms.add( scene->name() );
+	}
+
+	scenefld = new uiLabeledComboBox( this, scenenms, "Make snapshot of" );
+	scenefld->box()->selectionChanged.notify( 
+					mCB(this,uiPrintSceneDlg,sceneSel) );
+    }
+
     uiLabeledSpinBox* wfld = new uiLabeledSpinBox( this, "Width", 2 );
     widthfld = wfld->box();
     widthfld->valueChanged.notify( mCB(this,uiPrintSceneDlg,sizeChg) );
+    if ( scenefld ) wfld->attach( alignedBelow, scenefld );
 
     uiLabeledSpinBox* hfld = new uiLabeledSpinBox( this, "Height", 2 );
     heightfld = hfld->box();
@@ -122,31 +155,20 @@ uiPrintSceneDlg::uiPrintSceneDlg( uiParent* p, SoNode* scene_,
     fileinputfld->setReadOnly();
     fileinputfld->valuechanged.notify( mCB(this,uiPrintSceneDlg,fileSel) );
 
-    init();
-    unitChg(0);
+    sceneSel(0);
 }
 
 
-void uiPrintSceneDlg::init()
+void uiPrintSceneDlg::sceneSel( CallBacker* )
 {
+    const int vwridx = scenefld ? scenefld->box()->currentItem() : 0;
+    const uiSoViewer* vwr = viewers[vwridx];
+    const SbVec2s& winsz = vwr->getViewportSizePixels();
     aspectratio = (float)winsz[0] / winsz[1];
     sizepix.setValue( winsz[0], winsz[1] );
-    pixels2Inch( sizepix, sizeinch );
-    sizecm  = sizeinch * 2.54;
-}
-
-
-void uiPrintSceneDlg::pixels2Inch( const SbVec2f& from, SbVec2f& to )
-{
-    const float dpi = dpifld->getfValue();
-    to = from / dpi;
-}
-
-
-void uiPrintSceneDlg::inch2Pixels( const SbVec2f& from, SbVec2f& to )
-{
-    const float dpi = dpifld->getfValue();
-    to = from * dpi;
+    sPixels2Inch( sizepix, sizeinch, dpifld->getValue() );
+    sInch2Cm( sizeinch, sizecm );
+    unitChg(0);
 }
 
 
@@ -219,20 +241,20 @@ void uiPrintSceneDlg::updateSizes()
     if ( !sel )
     {
 	sizecm.setValue( width, height );
-	sizeinch = sizecm / 2.54;
-	inch2Pixels( sizeinch, sizepix );
+	sCm2Inch( sizecm, sizeinch );
+	sInch2Pixels( sizeinch, sizepix, dpifld->getValue() );
     }
     else if ( sel == 1 )
     {
 	sizeinch.setValue( width, height );
-	sizecm = sizeinch * 2.54;
-	inch2Pixels( sizeinch, sizepix );
+	sInch2Cm( sizeinch, sizecm );
+	sInch2Pixels( sizeinch, sizepix, dpifld->getValue() );
     }
     else
     {
 	sizepix.setValue( width, height );
-	pixels2Inch( sizepix, sizeinch );
-	sizecm = sizeinch * 2.54;
+	sPixels2Inch( sizepix, sizeinch, dpifld->getValue() );
+	sInch2Cm( sizeinch, sizecm );
     }
 }
 
@@ -319,10 +341,16 @@ bool uiPrintSceneDlg::acceptOK( CallBacker* )
     viewport.setWindowSize( mNINT(sizepix[0]), mNINT(sizepix[1]) );
     viewport.setPixelsPerInch( dpifld->getfValue() );
 
+    const int vwridx = scenefld ? scenefld->box()->currentItem() : 0;
+    const uiSoViewer* vwr = viewers[vwridx];
     PtrMan<SoOffscreenRenderer> sor = new SoOffscreenRenderer(viewport);
-    if ( bgcolor ) sor->setBackgroundColor( *bgcolor );
 
-    if ( !sor->render( scene ) )
+#define col2f(rgb) float(col.rgb())/255
+    const Color col = vwr->getBackgroundColor();
+    sor->setBackgroundColor( SbColor(col2f(r),col2f(g),col2f(b)) );
+
+    SoNode* scenegraph = vwr->getSceneGraph();
+    if ( !sor->render(scenegraph) )
     {
 	uiMSG().error( "Cannot render scene" );
 	return false;
@@ -355,12 +383,6 @@ const char* uiPrintSceneDlg::getExtension() const
 }
 
 
-void uiPrintSceneDlg::setBackgroundColor( const SbColor& col )
-{
-    bgcolor = &col;
-}
-
-
 void uiPrintSceneDlg::fillPar( IOPar& par ) const
 {
     if ( !heightfld ) return;
@@ -373,16 +395,13 @@ void uiPrintSceneDlg::fillPar( IOPar& par ) const
 bool uiPrintSceneDlg::usePar( const IOPar& par )
 {
     if ( !heightfld ) return false;
-/*
+
     float val;
     if ( par.get(heightstr,val) ) heightfld->setValue(val);
     if ( par.get(widthstr,val) ) widthfld->setValue(val);
 
     int ival;
     if ( par.get(unitstr,ival) ) unitfld->setValue(ival);
-*/
+
     return true;
 }
-
-
-

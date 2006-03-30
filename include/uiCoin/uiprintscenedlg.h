@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          July 2002
- RCS:           $Id: uiprintscenedlg.h,v 1.9 2005-05-26 15:44:01 cvsnanne Exp $
+ RCS:           $Id: uiprintscenedlg.h,v 1.10 2006-03-30 20:49:46 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,20 +20,21 @@ class SoNode;
 class uiCheckBox;
 class uiFileInput;
 class uiGenInput;
+class uiLabeledComboBox;
+class uiSoViewer;
 class uiSpinBox;
 
 class uiPrintSceneDlg : public uiDialog
 {
 public:
-			uiPrintSceneDlg(uiParent*,SoNode*,const SbVec2s&);
-
-    void		setBackgroundColor(const SbColor&);
+			uiPrintSceneDlg(uiParent*,const ObjectSet<uiSoViewer>&);
 
     void		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
 
 protected:
 
+    uiLabeledComboBox*	scenefld;
     uiSpinBox*		heightfld;
     uiSpinBox*		widthfld;
     uiGenInput*		unitfld;
@@ -41,20 +42,18 @@ protected:
     uiGenInput*		dpifld;
     uiFileInput*	fileinputfld;
 
-    SoNode*		scene;
-    const SbColor*	bgcolor;
-
     void		fileSel(CallBacker*);
     void		addFileExtension(BufferString&);
     bool		filenameOK() const;
 
-    bool		acceptOK(CallBacker*);
+    void		sceneSel(CallBacker*);
     void		unitChg(CallBacker*);
     void		lockChg(CallBacker*);
     void		sizeChg(CallBacker*);
     void		dpiChg(CallBacker*);
+    bool		acceptOK(CallBacker*);
 
-    SbVec2s		winsz;
+    const ObjectSet<uiSoViewer>& viewers;
 
     SbVec2f		sizepix;
     SbVec2f		sizeinch;
@@ -62,20 +61,13 @@ protected:
     float		aspectratio;	// width / height
     const float		screendpi;
 
-    void		init();
     void		updateSizes();
-    void		pixels2Inch(const SbVec2f&,SbVec2f&);
-    void		inch2Pixels(const SbVec2f&,SbVec2f&);
     const char*		getExtension() const;
 
     static const char*	heightstr;
     static const char*	widthstr;
     static const char*	unitstr;
     static const char*	resstr;
-
-    static const char*	imageformats[];
-    static const char*	filters[];
-
 };
 
 #endif

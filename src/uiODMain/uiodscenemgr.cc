@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.61 2006-03-14 13:27:06 cvsnanne Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.62 2006-03-30 20:49:46 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,6 +26,7 @@ ________________________________________________________________________
 #include "uistatusbar.h"
 #include "uithumbwheel.h"
 #include "uigeninputdlg.h"
+#include "uiprintscenedlg.h"
 #include "uitreeitemmanager.h"
 #include "uimsg.h"
 
@@ -155,7 +156,7 @@ int uiODSceneMgr::addScene()
 {
     Scene& scn = mkNewScene();
     const int sceneid = visServ().addScene();
-    scn.sovwr_->setSceneGraph( sceneid );
+    scn.sovwr_->setSceneID( sceneid );
     BufferString title( scenestr );
     title += vwridx;
     scn.sovwr_->setTitle( title );
@@ -266,7 +267,7 @@ void uiODSceneMgr::useScenePars( const IOPar& sessionpar )
 	    continue;
 	}
     
-	int sceneid = scn.sovwr_->sceneId();
+	int sceneid = scn.sovwr_->sceneID();
 	BufferString title( scenestr );
 	title += vwridx;
   	scn.sovwr_->setTitle( title );
@@ -461,8 +462,13 @@ void uiODSceneMgr::showRotAxis( CallBacker* )
 
 void uiODSceneMgr::mkSnapshot( CallBacker* )
 {
-    if ( scenes_.size() )
-	scenes_[0]->sovwr_->renderToFile();
+    ObjectSet<uiSoViewer> viewers;
+    getSoViewers( viewers );
+    if ( viewers.size() == 0 ) return;
+
+    uiPrintSceneDlg dlg( &appl_, viewers );
+    dlg.go();
+    // TODO: save settings in iopar
 }
 
 
@@ -597,7 +603,7 @@ void uiODSceneMgr::initTree( Scene& scn, int vwridx )
     }
 
     scn.itemmanager_->addChild( new uiODSceneTreeItem(scn.sovwr_->getTitle(),
-					     scn.sovwr_->sceneId() ), false );
+					     scn.sovwr_->sceneID() ), false );
     scn.lv_->display();
     scn.treeWin()->display();
 }
@@ -619,7 +625,7 @@ void uiODSceneMgr::rebuildTrees()
     for ( int idx=0; idx<scenes_.size(); idx++ )
     {
 	Scene& scene = *scenes_[idx];
-	const int sceneid = scene.sovwr_->sceneId();
+	const int sceneid = scene.sovwr_->sceneID();
 	TypeSet<int> visids; visServ().getChildIds( sceneid, visids );
 
 	for ( int idy=0; idy<visids.size(); idy++ )
@@ -711,7 +717,7 @@ int uiODSceneMgr::addPickSetItem( const PickSet& ps, int sceneid )
     for ( int idx=0; idx<scenes_.size(); idx++ )
     {
 	Scene& scene = *scenes_[idx];
-	if ( sceneid >= 0 && sceneid != scene.sovwr_->sceneId() ) continue;
+	if ( sceneid >= 0 && sceneid != scene.sovwr_->sceneID() ) continue;
 
 	uiODPickSetTreeItem* itm = new uiODPickSetTreeItem( ps );
 	scene.itemmanager_->addChild( itm, false );
@@ -728,7 +734,7 @@ int uiODSceneMgr::addEMItem( const EM::ObjectID& emid, int sceneid )
     for ( int idx=0; idx<scenes_.size(); idx++ )
     {
 	Scene& scene = *scenes_[idx];
-	if ( sceneid >= 0 && sceneid != scene.sovwr_->sceneId() ) continue;
+	if ( sceneid >= 0 && sceneid != scene.sovwr_->sceneID() ) continue;
 
 	uiODDisplayTreeItem* itm;
 	if ( !strcmp( type, "Horizon" ) ) itm = new uiODHorizonTreeItem(emid);
