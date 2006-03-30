@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: emseedpicker.h,v 1.15 2006-03-29 17:06:34 cvskris Exp $
+ RCS:           $Id: emseedpicker.h,v 1.16 2006-03-30 15:53:32 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,7 +33,7 @@ public:
 
 
     virtual bool	canSetSectionID() const			{ return false;}
-    virtual bool	setSectionID( const EM::SectionID& )	{ return false;}
+    virtual bool	setSectionID(const EM::SectionID&)	{ return false;}
 				
     virtual EM::SectionID getSectionID() const			{ return -1; }
 
@@ -42,9 +42,10 @@ public:
 			    is about to start. */
 
     virtual bool	canAddSeed() const			{ return false;}
-    virtual bool	addSeed( const Coord3& )		{ return false;}
+    virtual bool	addSeed(const Coord3&)			{ return false;}
     virtual bool	canRemoveSeed() const			{ return false;}
-    virtual bool	removeSeed( const EM::PosID& )		{ return false;}
+    virtual bool	removeSeed(const EM::PosID&,
+	    			   bool retrack=true)		{ return false;}
     virtual bool	reTrack()				{ return false;}
     virtual int		nrSeeds() const				{ return 0; }
 
@@ -54,13 +55,12 @@ public:
 				can use the results. */
     virtual bool	stopSeedPick(bool iscancel=false)	{ return true; }
 
-    virtual void	setSeedMode( int )			{ return; }
-    virtual int		getSeedMode() const			{ return -1; }
-    virtual void        setLocalErase( bool )			{ return; }
-    virtual void	freezeMode( bool )			{ return; }
-    virtual bool	isModeFrozen() const			{ return false;}
-    virtual bool        isInVolumeMode() const			{ return true; }
-    virtual bool	isInDrawMode() const			{ return false;}
+    virtual void	setSeedConnectMode(int)			{ return; }
+    virtual int		getSeedConnectMode() const		{ return -1; }
+    virtual void	blockSeedPick(bool)			{ return; }
+    virtual bool	isSeedPickBlocked() const		{ return false;}
+    virtual bool        doesModeUseVolume() const		{ return true; }
+    virtual bool	doesModeUseSetup() const		{ return true;}
 
     virtual const char*	errMsg() const				{ return 0; }
 
