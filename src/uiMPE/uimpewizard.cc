@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpewizard.cc,v 1.42 2006-03-21 10:39:09 cvsjaap Exp $
+ RCS:           $Id: uimpewizard.cc,v 1.43 2006-03-30 16:42:01 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -98,10 +98,12 @@ const char* Wizard::seedPickText( bool doneedseed ) const
 {
     if ( doneedseed )
 	return ( "Must pick seedpoint(s) by clicking on a slice.\n"
-		 "Remove seedpoints by ctrl-click on them." );
+		 "Remove seedpoints by ctrl-click on them, or\n" 
+		 "use shift-click instead to omit retracking." );
     else
 	return ( "May pick seedpoint(s) by clicking on a slice.\n"
-		 "Remove seedpoints by ctrl-click on them." );
+		 "Remove seedpoints by ctrl-click on them, or\n" 
+		 "use shift-click instead to omit retracking." );
 }
 
 
@@ -299,7 +301,6 @@ bool Wizard::prepareSeedSetupPage()
 
     mpeserv->sendEvent( uiMPEPartServer::evStartSeedPick );
     EMSeedPicker* seedpicker = tracker->getSeedPicker( true );
-    seedpicker->setLocalErase( false );
 
     if ( currentPageIdx()==lastPage() )
 	setRotateMode(false);
@@ -316,7 +317,6 @@ bool Wizard::leaveSeedSetupPage( bool process )
     mpeserv->blockdataloading = true;
     mpeserv->sendEvent( uiMPEPartServer::evEndSeedPick );
     mpeserv->blockdataloading = false;
-    mpeserv->sendEvent( uiMPEPartServer::evShowToolbar );
 
     EM::EMObject* emobj = EM::EMM().getObject(currentobject);
     emobj->notifier.remove( mCB(this,Wizard,updateFinishButton) );
@@ -363,11 +363,6 @@ bool Wizard::finalizeCycle()
 	if ( saver ) saver->execute();
 	adjustSeedBox();
     }
-
-    EM::History& history = EM::EMM().history();
-    const int cureventnr = history.currentEventNr();
-    if ( cureventnr>=history.firstEventNr() )
-	history.setLevel( cureventnr, mEMHistoryUserInteractionLevel );
 
     return true;
 }
@@ -441,9 +436,9 @@ bool Wizard::isClosing( bool iscancel )
     else 
     {
 	mGetSeedPicker(false);
-	seedpicker->setLocalErase( true );
-	if ( seedpicker->isInVolumeMode() && !seedbox.isEmpty() )
+	if ( seedpicker->doesModeUseVolume() && !seedbox.isEmpty() )
 	    mpeserv->expandActiveVolume(seedbox);
+        mpeserv->sendEvent( uiMPEPartServer::evShowToolbar );
     }
     mpeserv->sendEvent( ::uiMPEPartServer::evWizardClosed );
     return true;
@@ -624,32 +619,14 @@ bool Wizard::createTracker()
 }
 
 
-/*void Wizard::updatePickingStatus()
-{
-    if ( allowpicking && !ispicking )
-    {
-	mpeserv->sendEvent( uiMPEPartServer::evStartSeedPick );
-	ispicking = true;
-    }
-
-    if ( ispicking && !allowpicking )
-    {
-	mpeserv->blockdataloading = true;
-	mpeserv->sendEvent( uiMPEPartServer::evEndSeedPick );
-	mpeserv->blockdataloading = false;
-	ispicking = false;
-    }
-} */
-
-
 void Wizard::seedModeChange( CallBacker* )
 {
     mGetSeedPicker();
     const int newmode = modegrp ? modegrp->selectedId() : -1;
-    seedpicker->setSeedMode( newmode );
+    seedpicker->setSeedConnectMode( newmode );
 
-    const bool skipsetup = seedpicker->isInDrawMode();
-    setupgrp->setSensitive( !skipsetup );
+    const bool needsetup = seedpicker->doesModeUseSetup();
+    setupgrp->setSensitive( needsetup );
 
     const bool newmodeneedseed = seedpicker->isMinimumNrOfSeeds() > 0; 
     picktxt->setText( seedPickText(newmodeneedseed) );
@@ -666,7 +643,7 @@ void Wizard::setupChange( CallBacker* )
 			      setupgrp->isSetToValidSetup(); 
     picktxt->setSensitive( allowpicking );
     colorfld->setSensitive( allowpicking );
-    seedpicker->freezeMode( !allowpicking );
+    seedpicker->blockSeedPick( !allowpicking );
 
     updateFinishButton(0);
 
@@ -679,7 +656,7 @@ void Wizard::setupChange( CallBacker* )
 void Wizard::updateFinishButton( CallBacker* )
 {
     mGetSeedPicker();
-    const bool finishenabled = !seedpicker->isModeFrozen() 
+    const bool finishenabled = !seedpicker->isSeedPickBlocked() 
 		   && seedpicker->nrSeeds() >= seedpicker->isMinimumNrOfSeeds();
     setButtonSensitive( uiDialog::CANCEL, finishenabled );
 }
