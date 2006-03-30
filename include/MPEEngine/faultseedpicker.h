@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: faultseedpicker.h,v 1.2 2006-02-27 11:12:18 cvsjaap Exp $
+ RCS:           $Id: faultseedpicker.h,v 1.3 2006-03-30 15:55:45 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,32 +21,32 @@ namespace MPE
 class FaultSeedPicker : public EMSeedPicker
 {
 public:
-    			FaultSeedPicker( MPE::EMTracker& );
+    			FaultSeedPicker(MPE::EMTracker&);
     			~FaultSeedPicker() {}
 
     bool		canSetSectionID() const;
-    bool		setSectionID( const EM::SectionID& sid );
+    bool		setSectionID(const EM::SectionID& sid);
     EM::SectionID	getSectionID() const;
 
     bool		startSeedPick();
 
     bool		canAddSeed() const;
-    bool		addSeed( const Coord3& );
+    bool		addSeed(const Coord3&);
     bool		canRemoveSeed() const;
-    bool		removeSeed( const EM::PosID& );
+    bool		removeSeed(const EM::PosID&);
     bool		reTrack();
     int			nrSeeds() const;
 
     int			isMinimumNrOfSeeds() const	{ return 2; }
     bool		stopSeedPick(bool iscancel=false);
 
-    void		freezeMode( bool yn )		{ frozen = yn; }
-    bool		isModeFrozen() const		{ return frozen; }
+    void		blockSeedPick(bool yn)		{ blockpicking = yn; }
+    bool		isSeedPickBlocked() const	{ return blockpicking; }
 
    const char*		errMsg() const; 
 protected:
     bool		sectionIsEmpty() const;
-    RowCol		getNewSeedRc( const Coord3& ) const;
+    RowCol		getNewSeedRc(const Coord3&) const;
 
     MPE::EMTracker&	tracker;
 
@@ -58,7 +58,7 @@ protected:
     EM::SectionID	sectionid;
     bool		isrowstick;
     bool		didchecksupport;
-    bool		frozen;
+    bool		blockpicking;
 
 };
 
