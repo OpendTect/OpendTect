@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Mar 2002
- RCS:           $Id: vishingeline.cc,v 1.11 2005-10-18 19:17:06 cvskris Exp $
+ RCS:           $Id: vishingeline.cc,v 1.12 2006-03-30 11:39:15 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "emsurfaceedgeline.h"
 #include "emsurfacegeometry.h"
 #include "emmanager.h"
+#include "color.h"
 #include "settings.h"
 #include "emsurfaceedgelineimpl.h"
 #include "viscoord.h"
