@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: emsurfacetr.cc,v 1.5 2005-12-13 19:46:24 cvskris Exp $
+ RCS:           $Id: emsurfacetr.cc,v 1.6 2006-03-30 15:39:25 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -212,45 +212,6 @@ dgbEMSurfaceTranslator::~dgbEMSurfaceTranslator()
 }
 
 
-class dgbEMSurfacePosCalc : public EM::SurfPosCalc
-{
-public:
-    Coord	getPos(const RowCol& rc) const
-		{
-		    return SI().transform(BinID(rc.row,rc.col));
-		}
-};
-
-
-class dgbEMSurfaceRowColConverter : public EM::RowColConverter
-{
-public:
-    RowCol		get(const RowCol& rc) const
-			{
-			    const Coord coord(a11*rc.row+a12*rc.col+a13,
-					      a21*rc.row+a22*rc.col+a23 );
-			    const BinID bid = SI().transform(coord);
-			    return RowCol(bid.inl, bid.crl );
-			}
-
-    bool		usePar(const IOPar& par)
-			{
-			    return par.get( transformxstr, a11, a12, a13 ) &&
-				   par.get( transformystr, a21, a22, a23 );
-			}
-
-    static const char*	transformxstr;
-    static const char*	transformystr;
-
-protected:
-    double		a11, a12, a13, a21, a22, a23;
-};
-
-
-const char* dgbEMSurfaceRowColConverter::transformxstr = "X transform";
-const char* dgbEMSurfaceRowColConverter::transformystr = "Y transform";
-
-
 bool dgbEMSurfaceTranslator::prepRead()
 {
     if ( reader_ ) delete reader_;
@@ -262,32 +223,16 @@ bool dgbEMSurfaceTranslator::prepRead()
 	return false;
     }
 
-    int version = 1;
-    reader_->pars()->get( EM::dgbSurfaceReader::versionstr, version );
-    if ( version==1 )
-    {
-	dgbEMSurfaceRowColConverter* rctrans = new dgbEMSurfaceRowColConverter;
-	if ( !rctrans->usePar(*reader_->pars()) )
-	{
-	    delete rctrans;
-	    errmsg_ = "Cannot parse transform";
-	    return false;
-	}
-
-	reader_->setRowColConverter( rctrans );
-	reader_->setReadFillType( true );
-    }
-
-    if ( readOnlyZ() )
-	reader_->setSurfPosCalc( new dgbEMSurfacePosCalc );
-
     for ( int idx=0; idx<reader_->nrSections(); idx++ )
 	sd_.sections += new BufferString( reader_->sectionName(idx) );
     
     for ( int idx=0; idx<reader_->nrAuxVals(); idx++ )
 	sd_.valnames += new BufferString( reader_->auxDataName(idx) );
 
-    if ( version == 1 )
+    int version = 1;
+    reader_->pars()->get( EM::dgbSurfaceReader::sKeyVersion(), version );
+
+    if ( version==1 )
     {
 	sd_.rg.start = SI().sampling(false).hrg.start;
 	sd_.rg.stop = SI().sampling(false).hrg.stop;
@@ -304,6 +249,8 @@ bool dgbEMSurfaceTranslator::prepRead()
 
 	sd_.dbinfo = reader_->dbInfo();
     }
+
+    reader_->setReadOnlyZ(  readOnlyZ() );
 
     return true;
 }
@@ -355,7 +302,6 @@ Executor* dgbEMSurfaceTranslator::getWriter()
     EM::dgbSurfaceWriter* res = new EM::dgbSurfaceWriter(ioobj_,unm,
 							 *surface,isbinary);
     res->setWriteOnlyZ( writeOnlyZ() );
-    res->pars()->set( EM::dgbSurfaceReader::versionstr, 2 );
 
     if ( hasRangeSelection() )
     {

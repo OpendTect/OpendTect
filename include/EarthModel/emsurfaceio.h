@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfaceio.h,v 1.17 2005-11-30 22:01:21 cvskris Exp $
+ RCS:		$Id: emsurfaceio.h,v 1.18 2006-03-30 15:39:25 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -27,8 +27,6 @@ template <class T> class DataInterpreter;
 namespace EM
 {
 class Surface;
-class SurfPosCalc;
-class RowColConverter;
 class dgbSurfDataReader;
 
 
@@ -48,7 +46,7 @@ public:
 					  const char* filetype,
 					  EM::Surface* surface );
 			/*!< Sets up object and reads header.
-			\param ioobj	The IOObj with info about where to
+			\aaram ioobj	The IOObj with info about where to
 					read data.
 			\param filetype	The filetype that should be in
 					the file header.
@@ -60,7 +58,7 @@ public:
 			~dgbSurfaceReader();
 			/*!< Closes the stream */
 
-    void		setSurface( EM::Surface* s )	{ surface = s; }
+    void		setSurface( EM::Surface* s )	{ surface_ = s; }
     bool		isOK() const;
     void		setGeometry();
 
@@ -86,29 +84,9 @@ public:
     const StepInterval<int>&	colInterval() const;
     void			setRowInterval( const StepInterval<int>& );
     void			setColInterval( const StepInterval<int>& );
+    void			setReadOnlyZ(bool yn=true);
 
     const IOPar*		pars() const;
-
-    void			setSurfPosCalc( SurfPosCalc* );
-    				/*!<
-				    If given, the reader will only read
-				    the z coordinate from the file anc compute
-				    the x and y from the (nonconverted) rowcol
-				    with the given object.
-				    \note Passed object Becomes mine.
-				 */
-
-    void			setRowColConverter( RowColConverter* );
-    				/*!<
-				    If given, the reader will convert the file's
-				    rowcol with the given object before adding
-				    nodes to the surface.
-				    in memory.
-				    \note Passed object Becomes mine.
-				 */
-
-    void			setReadFillType(bool yn);
-
 
     virtual int			nrDone() const;
     virtual const char*		nrDoneText() const;
@@ -118,71 +96,97 @@ public:
 
     virtual const char*		message() const;
 
-    static const char*		nrsectionstr;
-    static const char*		nrhingelinestr;
-    static const char*		hingelineprefixstr;
-    static const char*		posattrprefixstr;
-    static const char*		posattrsectionstr;
-    static const char*		posattrposidstr;
-    static const char*		nrposattrstr;
-    static const char*		sectionidstr;
-    static const char*		sectionnamestr;
-    static const char*		rowrangestr;
-    static const char*		colrangestr;
-    static const char*		intdatacharstr;
-    static const char*		floatdatacharstr;
-    static const char*		dbinfostr;
-    static const char*		versionstr;
+    static const char*		sKeyNrSections();
+    static const char*		sKeyNrSectionsV1();
+    static BufferString		sSectionIDKey( int idx );
+    static BufferString		sSectionNameKey( int idx );
+    static const char*		sKeyRowRange();
+    static const char*		sKeyColRange();
+    static const char*		sKeyInt16DataChar();
+    static const char*		sKeyInt32DataChar();
+    static const char*		sKeyInt64DataChar();
+    static const char*		sKeyFloatDataChar();
+    static const char*		sKeyDBInfo();
+    static const char*		sKeyVersion();
 
-    static const char*		badconnstr;
-    static const char*		parseerrorstr;
-    static const char*		prefcolofstr;
+    static const char*		sMsgParseError();
+    static const char*		sMsgReadError();
 
 protected:
+    bool			usePar( const IOPar& );
+    bool			isBinary() const;
 
     double			readFloat(std::istream&) const;
-    int				readInt(std::istream&) const;
-    StreamConn*			conn;
+    int				readInt16(std::istream&) const;
+    int				readInt32(std::istream&) const;
+    int64			readInt64(std::istream&) const;
+    bool			readSectionOffsets(std::istream&);
+    bool			readRowOffsets(std::istream&);
+    RowCol			getFileStep() const;
+    int				prepareNewSection(std::istream&);
+    bool			shouldSkipRow(int row) const;
+    int				skipRow(std::istream&);
+    bool			prepareRowRead(std::istream&);
+    int				currentRow() const;
+    void			goToNextRow();
+    void			createSection( const SectionID& );
 
-    BufferStringSet		sectionnames;
-    TypeSet<EM::SectionID>	sectionids;
-    TypeSet<EM::SectionID>	sectionsel;
-    bool			fullyread;
+    StreamConn*			conn_;
 
-    BufferStringSet		auxdatanames;
-    ObjectSet<EM::dgbSurfDataReader> auxdataexecs;
-    TypeSet<int>		auxdatasel;
+    BufferStringSet		sectionnames_;
+    TypeSet<EM::SectionID>	sectionids_;
+    TypeSet<EM::SectionID>	sectionsel_;
+    bool			fullyread_;
 
-    const IOPar*		par;
+    BufferStringSet		auxdatanames_;
+    ObjectSet<EM::dgbSurfDataReader> auxdataexecs_;
+    TypeSet<int>		auxdatasel_;
 
-    BufferString		msg;
-    bool			error;
-    int				nrdone;
+    const IOPar*		par_;
 
-    bool			isinited;
+    BufferString		msg_;
+    bool			error_;
+    int				nrdone_;
 
-    int				sectionindex;
-    int				oldsectionindex;
-    int				firstrow;
-    int				nrrows;
-    int				rowindex;
+    bool			isinited_;
 
-    DataInterpreter<int>*	intinterpreter;
-    DataInterpreter<double>*	floatinterpreter;
-    EM::Surface*		surface;
+    int				sectionindex_;
+    int				oldsectionindex_;
+    int				firstrow_;
+    int				nrrows_;
+    int				rowindex_;
 
-    StepInterval<int>		rowrange;
-    StepInterval<int>		colrange;
+    DataInterpreter<int>*	int32interpreter_;
+    DataInterpreter<float>*	floatinterpreter_;
+    EM::Surface*		surface_;
 
-    StepInterval<int>*		readrowrange;
-    StepInterval<int>*		readcolrange;
+    StepInterval<int>		rowrange_;
+    StepInterval<int>		colrange_;
 
-    SurfPosCalc*		surfposcalc;
-    RowColConverter*		rcconv;
-    bool			readfilltype;
+    StepInterval<int>*		readrowrange_;
+    StepInterval<int>*		readcolrange_;
 
-    BufferString		dbinfo;
+    bool			readonlyz_;
+    BufferString		dbinfo_;
+    int				version_;
 
+    bool			readVersion2Row(std::istream&,int,int);
+
+//Version 3 stuff 
+    bool			readVersion3Row(std::istream&,int,int);
+    DataInterpreter<int>*	int16interpreter_;
+    DataInterpreter<int64>*	int64interpreter_;
+    TypeSet<int64>		rowoffsets_;
+    TypeSet<int64>		sectionoffsets_;
+
+//Version 1 stuff
+    bool			readVersion1Row(std::istream&,int,int);
+    RowCol			convertRowCol(int,int) const;
+    bool			parseVersion1(const IOPar&);
+    static const char*		sKeyTransformX();
+    static const char*		sKeyTransformY();
+
+    double			conv11, conv12, conv13, conv21, conv22, conv23;
 };
 
 
@@ -250,65 +254,54 @@ public:
     virtual const char*		message() const;
 
 protected:
+    bool			writeNewSection(std::ostream&);
+    bool			writeRow(std::ostream&);
 
     bool			writeFloat(std::ostream&,float,
 	    				   const char*) const;
-    bool                 	writeInt(std::ostream&,int,const char*) const;
-    StreamConn*			conn;
-    const IOObj*		ioobj;
+    bool                 	writeInt16(std::ostream&,unsigned short,
+	    				   const char*) const;
+    bool                 	writeInt32(std::ostream&,int32,
+	    				   const char*) const;
+    bool                 	writeInt64(std::ostream&,int64,
+	    				   const char*) const;
+    StreamConn*			conn_;
+    const IOObj*		ioobj_;
 
-    TypeSet<EM::SectionID>	sectionsel;
-    TypeSet<int>		auxdatasel;
-    BufferString		dbinfo;
+    TypeSet<EM::SectionID>	sectionsel_;
+    TypeSet<int64>		sectionoffsets_;
+    TypeSet<int>		auxdatasel_;
+    BufferString		dbinfo_;
 
-    IOPar&			par;
+    IOPar&			par_;
 
-    BufferString		msg;
-    int				nrdone;
+    BufferString		msg_;
+    int				nrdone_;
 
-    int				sectionindex;
-    int				oldsectionindex;
-    int				firstrow;
-    int				nrrows;
-    int				rowindex;
+    int				sectionindex_;
+    int				oldsectionindex_;
+    int64			rowoffsettableoffset_;
+    TypeSet<int64>		rowoffsettable_;
+    int				firstrow_;
+    int				nrrows_;
+    int				rowindex_;
 
-    const EM::Surface&		surface;
+    const EM::Surface&		surface_;
 
-    StepInterval<int>		rowrange;
-    StepInterval<int>		colrange;
+    StepInterval<int>		rowrange_;
+    StepInterval<int>		colrange_;
 
-    StepInterval<int>*		writerowrange;
-    StepInterval<int>*		writecolrange;
-    bool			writeonlyz;
-    bool			binary;
-    BufferString		filetype;
+    StepInterval<int>*		writerowrange_;
+    StepInterval<int>*		writecolrange_;
+    bool			writeonlyz_;
+    bool			binary_;
+    BufferString		filetype_;
+
+    static const char*		sTab()		{ return "\t"; }
+    static const char*		sEOL()		{ return "\n"; }
+    static const char*		sEOLTab()	{ return "\n\t\t"; }
+    static const char*		sMsgWriteError(){return "Cannot write surface";}
 };
-
-
-/*! Helper class for the reader that is handy when only z values are written
-and the x & y should be computed from the RowCol */
-
-class SurfPosCalc
-{
-public:
-    virtual			~SurfPosCalc() {}
-    virtual Coord		getPos(const RowCol& ) const = 0;
-};
-
-
-/* Helper class for the writer that is used with old file-formats. The class
-should compute a RowCol that is used in EM from the RowCol stored on file.
-*/
-
-
-class RowColConverter
-{
-public:
-    virtual			~RowColConverter() {}
-    virtual RowCol		get(const RowCol& ) const = 0;
-};
-
-
 
 };
 
