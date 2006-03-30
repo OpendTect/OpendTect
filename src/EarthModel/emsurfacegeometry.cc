@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Nov 2002
- RCS:           $Id: emsurfacegeometry.cc,v 1.32 2006-03-23 14:54:25 cvsnanne Exp $
+ RCS:           $Id: emsurfacegeometry.cc,v 1.33 2006-03-30 07:18:19 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -605,6 +605,13 @@ float SurfaceGeometry::normalDistance( const Coord3& timepos,
     plane.intersectWith( line, intersection );
     const Coord3 vector = pos-intersection;
     return meshnormal.dot( vector );
+}
+
+
+bool SurfaceGeometry::hasSupport( const PosID& pid ) const
+{
+    const Geometry::ParametricSurface* psurf = getSurface( pid.sectionID() );
+    return psurf ? psurf->hasSupport( RowCol(pid.subID()) ) : false;
 }
 
 

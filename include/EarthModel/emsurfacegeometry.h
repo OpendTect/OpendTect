@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfacegeometry.h,v 1.18 2005-12-13 16:43:14 cvskris Exp $
+ RCS:		$Id: emsurfacegeometry.h,v 1.19 2006-03-30 07:18:19 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -206,6 +206,7 @@ public:
 			  \retval	-2	Side could not be determined
 			*/
 
+    bool		hasSupport(const PosID&) const;
     bool		checkSupport(bool yn);
     			/*!<\returns previous status */
     bool		checksSupport() const;
