@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vismpeseedcatcher.h,v 1.5 2005-11-11 22:36:08 cvskris Exp $
+ RCS:		$Id: vismpeseedcatcher.h,v 1.6 2006-03-30 16:11:26 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -21,17 +21,11 @@ ________________________________________________________________________
 #include "geomelement.h"
 
 
-namespace Geometry { class ElementEditor; };
-namespace MPE { class ObjectEditor; };
+namespace Geometry { class ElementEditor; }
+namespace MPE { class ObjectEditor; }
 namespace EM { class EdgeLineSet; }
 namespace Attrib { class SelSpec; class DataCubes; }
-
-namespace visBase
-{
-
-class Marker;
-class Dragger;
-};
+namespace visBase { class Marker; class Dragger; }
 
 
 namespace visSurvey
@@ -39,46 +33,58 @@ namespace visSurvey
 
 /*!\brief
 */
-
+class EMObjectDisplay;
 
 class MPEClickCatcher : public visBase::VisualObjectImpl
 {
 public:
     static MPEClickCatcher*	create()
-			mCreateDataObj( MPEClickCatcher );
+				mCreateDataObj(MPEClickCatcher);
 
-    void		setSceneEventCatcher( visBase::EventCatcher* );
-    void		setDisplayTransformation( mVisTrans* );
-    mVisTrans*		getDisplayTransformation() {return transformation;}
+    void			setSceneEventCatcher(visBase::EventCatcher*);
+    void			setDisplayTransformation(mVisTrans*);
+
+    mVisTrans*			getDisplayTransformation() 
+							{return transformation;}
 
     Notifier<MPEClickCatcher>	click;
-    EM::PosID			ctrlClickedNode() const { return ctrlclicknode;}
-    				/*!<If this returns a valid PosID, the other
-				    click-variables are not set.*/
+    EM::PosID			clickedNode() const     {return clickednode;}
+    bool                        ctrlClicked() const     {return ctrlclicked;}
+    bool                        shiftClicked() const    {return shiftclicked;}
     const Coord3&		clickedPos() const;
-    int				clickedObjectID() const { return clickedobjid; }
-    const CubeSampling&		clickedObjectCS() const { return clickedcs; }
-    const Attrib::DataCubes*	clickedObjectData() const { return attrdata; }
-    const Attrib::SelSpec*	clicedObjectDataSelSpec() const { return as; }
+    int				clickedObjectID() const {return clickedobjid;}
+    const CubeSampling&		clickedObjectCS() const {return clickedcs;}
+    const Attrib::DataCubes*	clickedObjectData() 
+						  const {return attrdata;}
+    const Attrib::SelSpec*	clickedObjectDataSelSpec() 
+						  const {return as;}
 
 protected:
-    				~MPEClickCatcher();
-    void			clickCB( CallBacker* );
+				~MPEClickCatcher();
+    void			clickCB(CallBacker*);
 
-    void			sendClickEvent( const Coord3&, int objid,
-						const CubeSampling& cs,
-	   					const Attrib::DataCubes* =0,
-	   					const Attrib::SelSpec* =0 );
+    void 			sendPlanesContainingNode(
+					int visid, const EMObjectDisplay*,
+					const visBase::EventInfo&);
 
-    Coord3				clickedpos;
-    int					clickedobjid;
-    CubeSampling			clickedcs;
-    RefMan<const Attrib::DataCubes>	attrdata;
-    const Attrib::SelSpec*		as;
-    EM::PosID				ctrlclicknode;
+    void			sendClickEvent( const EM::PosID,
+	    				bool ctrl,bool shift,const Coord3&,
+	    				int objid,const CubeSampling&,
+					const Attrib::DataCubes* =0,
+					const Attrib::SelSpec* =0);
 
-    visBase::EventCatcher*		eventcatcher;
-    visBase::Transformation*		transformation;
+    EM::PosID			clickednode;
+    bool			ctrlclicked;
+    bool			shiftclicked;
+    Coord3			clickedpos;
+    int				clickedobjid;
+    CubeSampling		clickedcs;
+    RefMan<const 
+	   Attrib::DataCubes>   attrdata;
+    const Attrib::SelSpec*	as;
+
+    visBase::EventCatcher*	eventcatcher;
+    visBase::Transformation*	transformation;
 };
 
 };
