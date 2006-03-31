@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          June 2003
- RCS:           $Id: emsurfaceio.cc,v 1.56 2006-03-30 15:39:25 cvskris Exp $
+ RCS:           $Id: emsurfaceio.cc,v 1.57 2006-03-31 20:04:38 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -69,6 +69,7 @@ dgbSurfaceReader::dgbSurfaceReader( const IOObj& ioobj,
     , conn_( dynamic_cast<StreamConn*>(ioobj.getConn(Conn::Read)) )
     , surface_( surface )
     , par_( 0 )
+    , setsurfacepar_( false )
     , readrowrange_( 0 )
     , readcolrange_( 0 )
     , int16interpreter_( 0 )
@@ -78,11 +79,14 @@ dgbSurfaceReader::dgbSurfaceReader( const IOObj& ioobj,
     , nrdone_( 0 )
     , readonlyz_( true )
     , sectionindex_( 0 )
+    , sectionsread_( 0 )
     , oldsectionindex_( -1 )
     , isinited_( false )
     , fullyread_( true )
     , version_( 1 )
 {
+    sectionnames_.allowNull();
+
     BufferString exnm = "Reading surface '"; exnm += ioobj.name(); exnm += "'";
     setName( exnm );
     setNrDoneText( "Nr done" );
@@ -94,22 +98,115 @@ dgbSurfaceReader::dgbSurfaceReader( const IOObj& ioobj,
 	return;
     }
 
+    createAuxDataReader();
+    error_ = !readHeaders( filetype );
+}
+
+
+bool dgbSurfaceReader::readHeaders( const char* filetype )
+{
     std::istream& strm = ((StreamConn*)conn_)->iStream();
     ascistream astream( strm );
     if ( !astream.isOfFileType( filetype ))
     {
 	msg_ = "Invalid filetype";
-	error_ = true;
-	return;
+	return false;
     }
 
     astream.next();
 
-    par_ = new IOPar( astream );
-    error_ = !usePar( *par_ );
+    IOPar par( astream );
+    version_ = 1;
+    par.get( sKeyVersion(), version_ );
 
-    if ( error_ ) return;
+    BufferString dc;
+#define mGetDataChar( type, str, interpr ) \
+    delete interpr; \
+    if ( par.get(str,dc) ) \
+    { \
+	DataCharacteristics writtendatachar; \
+	writtendatachar.set( dc.buf() ); \
+	interpr = new DataInterpreter<type>( writtendatachar ); \
+    } \
+    else interpr = 0
 
+    mGetDataChar( int, sKeyInt16DataChar(), int16interpreter_ );
+    mGetDataChar( int, sKeyInt32DataChar(), int32interpreter_ );
+    mGetDataChar( int64, sKeyInt64DataChar(), int64interpreter_ );
+    mGetDataChar( float, sKeyFloatDataChar(), floatinterpreter_ );
+
+    if ( version_==3 )
+    {
+	const int64 nrsectionsoffset = readInt64( strm );
+	if ( !strm ) { msg_ = sMsgReadError(); return false; }
+
+	strm.seekg( nrsectionsoffset, std::ios::beg );
+	const int nrsections = readInt32( strm );
+	if ( !strm ) { msg_ = sMsgReadError(); return false; }
+
+	for ( int idx=0; idx<nrsections; idx++ )
+	    sectionoffsets_ += readInt64( strm );
+
+	for ( int idx=0; idx<nrsections; idx++ )
+	    sectionids_ += readInt32( strm );
+
+	if ( !strm ) { msg_ = sMsgReadError(); return false; }
+
+	ascistream parstream( strm, false );
+	parstream.next();
+	par_ = new IOPar( parstream );
+    }
+    else
+    {
+	int nrsections;
+	if ( !par.get( sKeyNrSections() , nrsections ) &&
+	     !par.get( sKeyNrSectionsV1(), nrsections ) )
+	{
+	    msg_ = sMsgParseError();
+	    return false;
+	}
+
+	for ( int idx=0; idx<nrsections; idx++ )
+	{
+	    int sectionid = idx;
+	    BufferString key = sSectionIDKey( idx );
+	    par.get(key, sectionid);
+	    sectionids_+= sectionid;
+
+	}
+
+	par_ = new IOPar( par );
+    }
+
+    for ( int idx=0; idx<sectionids_.size(); idx++ )
+    {
+	const BufferString key = sSectionNameKey( idx );
+	BufferString sectionname;
+	par_->get(key,sectionname);
+		    
+	sectionnames_ += sectionname.size() ? new BufferString(sectionname) : 0;
+    }
+
+    par_->get( sKeyRowRange(), rowrange_.start, rowrange_.stop, rowrange_.step);
+    par_->get( sKeyColRange(), colrange_.start, colrange_.stop, colrange_.step);
+
+    for ( int idx=0; idx<nrSections(); idx++ )
+	sectionsel_ += sectionID(idx);
+
+    for ( int idx=0; idx<nrAuxVals(); idx++ )
+	auxdatasel_ += idx;
+
+    par_->get( sKeyDBInfo(), dbinfo_ );
+
+    if ( version_==1 )
+	return parseVersion1( *par_ );
+
+    return true;
+}
+	
+
+void dgbSurfaceReader::createAuxDataReader()
+{
     int gap = 0;
     for ( int idx=0; ; idx++ )
     {
@@ -175,10 +272,17 @@ SectionID dgbSurfaceReader::sectionID( int idx ) const
 }
 
 
-const char* dgbSurfaceReader::sectionName( int idx ) const
+BufferString dgbSurfaceReader::sectionName( int idx ) const
 {
-    const char* res = sectionnames_[idx]->buf();
-    return res && *res ? res : 0;
+    if ( !sectionnames_[idx] )
+    {
+	BufferString res = "[";
+	res += sectionids_[idx];
+	res += "]";
+	return res;
+    }
+
+    return *sectionnames_[idx];
 }
 
 
@@ -260,7 +364,7 @@ int dgbSurfaceReader::totalNr() const
 {
     int ownres =
 	(readrowrange_?readrowrange_->nrSteps():rowrange_.nrSteps()) *
-	sectionids_.size();
+	sectionsel_.size();
 
     if ( !ownres ) ownres = nrrows_;
 
@@ -310,27 +414,6 @@ void dgbSurfaceReader::setGeometry()
 
 
     isinited_ = true;
-}
-
-
-bool dgbSurfaceReader::readSectionOffsets( std::istream& stream )
-{
-    sectionoffsets_.erase();
-
-    if ( version_<=2 )
-	return true;
-
-    const int offsetsize =
-	int64interpreter_ ? int64interpreter_->nrBytes() : 21;
-
-    stream.seekg( -offsetsize*sectionids_.size(), std::ios_base::end );
-    if ( !stream ) 
-	return false;
-
-    for ( int idx=0; idx<sectionids_.size(); idx++ )
-	sectionoffsets_ += readInt64(stream);
-
-    return stream;
 }
 
 
@@ -401,26 +484,21 @@ int dgbSurfaceReader::nextStep()
     std::istream& strm = conn_->iStream();
 
     if ( !isinited_ )
-    {
 	setGeometry();
-	if ( !readSectionOffsets( strm ) )
-	{
-	    msg_ = sMsgReadError();
-	    return ErrorOccurred;
-	}
-    }
 
     if ( sectionindex_>=sectionids_.size() )
     {
-	if ( !surface_->usePar(*par_) )
-	{
-	    msg_ = "Could not parse header";
-	    return ErrorOccurred;
-	}
 
 	int res = ExecutorGroup::nextStep();
-	if ( !res )
+	if ( !res && !setsurfacepar_ )
 	{
+	    setsurfacepar_ = true;
+	    if ( !surface_->usePar(*par_) )
+	    {
+		msg_ = "Could not parse header";
+		return ErrorOccurred;
+	    }
+
 	    surface_->setFullyLoaded( fullyread_ );
 
 	    surface_->resetChangedFlag();
@@ -508,6 +586,10 @@ int dgbSurfaceReader::prepareNewSection( std::istream& strm )
     else
     {
 	sectionindex_++;
+	sectionsread_++;
+	nrdone_ = sectionsread_ *
+	    ( readrowrange_ ? readrowrange_->nrSteps() : rowrange_.nrSteps() );
+
 	return MoreToDo;
     }
 
@@ -519,6 +601,9 @@ int dgbSurfaceReader::prepareNewSection( std::istream& strm )
 	     sectionrowrg.start>readrowrange_->stop )
 	{
 	    sectionindex_++;
+	    sectionsread_++;
+	    nrdone_ = sectionsread_ *
+	       (readrowrange_ ? readrowrange_->nrSteps() : rowrange_.nrSteps());
 	    return MoreToDo;
 	}
     }
@@ -685,7 +770,12 @@ void dgbSurfaceReader::goToNextRow()
 
     rowindex_++;
     if ( rowindex_>=nrrows_ )
+    {
 	sectionindex_++;
+	sectionsread_++;
+	nrdone_ = sectionsread_ *
+	    ( readrowrange_ ? readrowrange_->nrSteps() : rowrange_.nrSteps() );
+    }
 }
 
 
@@ -710,15 +800,18 @@ bool dgbSurfaceReader::readVersion3Row( std::istream& strm,
 	    return true;
 	}
 
-	colindex = colrg.nearestIndex( readcolrange_->start );
-	if ( colindex<0 )
-	    colindex = 0;
-
-	if ( colindex )
+	if ( int16interpreter_ )
 	{
-	    fullyread_ = false;
-	    strm.seekg( colindex*int16interpreter_->nrBytes(),
-		    std::ios_base::cur );
+	    colindex = colrg.nearestIndex( readcolrange_->start );
+	    if ( colindex<0 )
+		colindex = 0;
+
+	    if ( colindex )
+	    {
+		fullyread_ = false;
+		strm.seekg( colindex*int16interpreter_->nrBytes(),
+			std::ios_base::cur );
+	    }
 	}
     }
 
@@ -781,10 +874,12 @@ void dgbSurfaceReader::createSection( const SectionID& sectionid )
     surface_->geometry.setStep( filestep, loadedstep );
 
     const int index = sectionids_.indexOf(sectionid);
-    surface_->geometry.addSection( *sectionnames_[index], sectionid, 
-				  false );
+    surface_->geometry.addSection( sectionnames_[index] ?
+	    			   *sectionnames_[index] : 0, sectionid, false );
     surface_->geometry.checkSupport(false);
 }
+
+
 const char* dgbSurfaceReader::message() const
 {
     return msg_;
@@ -840,67 +935,9 @@ int64 dgbSurfaceReader::readInt64(std::istream& strm) const
 }
 
 
-bool dgbSurfaceReader::usePar( const IOPar& par )
+int dgbSurfaceReader::int64Size() const
 {
-    version_ = 1;
-    par.get( sKeyVersion(), version_ );
-
-    int nrsections;
-    if ( !par.get( sKeyNrSections() , nrsections ) &&
-	 !par.get( sKeyNrSectionsV1(), nrsections ) )
-    {
-	msg_ = sMsgParseError();
-	return false;
-    }
-
-    for ( int idx=0; idx<nrsections; idx++ )
-    {
-	int sectionid = idx;
-	BufferString key = sSectionIDKey( idx );
-	par.get(key, sectionid);
-	sectionids_+= sectionid;
-
-	key = sSectionNameKey( idx );
-	BufferString sectionname;
-	par.get(key,sectionname);
-	if ( !sectionname.size() )
-	{ sectionname = "["; sectionname += idx+1; sectionname += "]"; }
-		
-	sectionnames_ += new BufferString(sectionname);
-    }
-
-    par.get( sKeyRowRange(), rowrange_.start, rowrange_.stop, rowrange_.step );
-    par.get( sKeyColRange(), colrange_.start, colrange_.stop, colrange_.step );
-
-    BufferString dc;
-#define mGetDataChar( type, str, interpr ) \
-    delete interpr; \
-    if ( par.get(str,dc) ) \
-    { \
-	DataCharacteristics writtendatachar; \
-	writtendatachar.set( dc.buf() ); \
-	interpr = new DataInterpreter<type>( writtendatachar ); \
-    } \
-    else interpr = 0
-
-
-    mGetDataChar( int, sKeyInt16DataChar(), int16interpreter_ );
-    mGetDataChar( int, sKeyInt32DataChar(), int32interpreter_ );
-    mGetDataChar( int64, sKeyInt64DataChar(), int64interpreter_ );
-    mGetDataChar( float, sKeyFloatDataChar(), floatinterpreter_ );
-
-    for ( int idx=0; idx<nrSections(); idx++ )
-	sectionsel_ += sectionID(idx);
-
-    for ( int idx=0; idx<nrAuxVals(); idx++ )
-	auxdatasel_ += idx;
-
-    par.get( sKeyDBInfo(), dbinfo_ );
-
-    if ( version_==1 )
-	return parseVersion1( par );
-
-    return true;
+    return int64interpreter_ ? int64interpreter_->nrBytes() : 21;
 }
 
 
@@ -942,12 +979,6 @@ bool dgbSurfaceReader::parseVersion1( const IOPar& par )
 }
 
 
-#define mSetDc( type, string ) \
-{ \
-    type dummy; \
-    DataCharacteristics(dummy).toString( dc.buf() ); \
-}\
-    par_.set( string, dc )
 
 dgbSurfaceWriter::dgbSurfaceWriter( const IOObj* ioobj,
 					const char* filetype,
@@ -958,8 +989,10 @@ dgbSurfaceWriter::dgbSurfaceWriter( const IOObj* ioobj,
     , ioobj_( ioobj ? ioobj->clone() : 0 )
     , surface_( surface )
     , par_( *new IOPar("Surface parameters" ))
-    , writerowrange_( new StepInterval<int> )
-    , writecolrange_( new StepInterval<int> )
+    , writerowrange_( 0 )
+    , writecolrange_( 0 )
+    , writtenrowrange_( INT_MAX, INT_MIN )
+    , writtencolrange_( INT_MAX, INT_MIN )
     , nrdone_( 0 )
     , sectionindex_( 0 )
     , oldsectionindex_( -1 )
@@ -970,15 +1003,6 @@ dgbSurfaceWriter::dgbSurfaceWriter( const IOObj* ioobj,
     setNrDoneText( "Nr done" );
     par_.set( dgbSurfaceReader::sKeyDBInfo(), surface.dbInfo() );
 
-    if ( binary_ )
-    {
-	BufferString dc;
-	mSetDc( int32, dgbSurfaceReader::sKeyInt32DataChar() );
-	mSetDc( unsigned short, dgbSurfaceReader::sKeyInt16DataChar() );
-	mSetDc( int64, dgbSurfaceReader::sKeyInt64DataChar() );
-	mSetDc( float, dgbSurfaceReader::sKeyFloatDataChar() );
-    }
-
     for ( int idx=0; idx<nrSections(); idx++ )
 	sectionsel_ += sectionID(idx);
 
@@ -988,15 +1012,59 @@ dgbSurfaceWriter::dgbSurfaceWriter( const IOObj* ioobj,
 	    auxdatasel_ += idx;
     }
 
-    surface.fillPar( par_ );
+    rowrange_ = surface.geometry.rowRange();
+    colrange_ = surface.geometry.colRange();
 
-    *writerowrange_ = surface.geometry.rowRange();
-    *writecolrange_ = surface.geometry.colRange();
+    surface.fillPar( par_ );
 }
 
 
 dgbSurfaceWriter::~dgbSurfaceWriter()
 {
+    std::ostream& strm = conn_->oStream();
+    const int64 nrsectionsoffset = strm.tellp();
+    writeInt32( strm, sectionsel_.size(), sEOL() );
+
+    for ( int idx=0; idx<sectionoffsets_.size(); idx++ )
+	writeInt64( strm, sectionoffsets_[idx], sEOL() );
+
+    for ( int idx=0; idx<sectionsel_.size(); idx++ )
+	writeInt32( strm, sectionsel_[idx], sEOL() );
+
+
+    const int64 secondparoffset = strm.tellp();
+    strm.seekp( nrsectionsoffsetoffset_, std::ios::beg );
+    writeInt64( strm, nrsectionsoffset, sEOL() );
+    strm.seekp( secondparoffset, std::ios::beg );
+
+    if ( writtenrowrange_.width(false)>=0 )
+    {
+	par_.set( dgbSurfaceReader::sKeyRowRange(),
+	    writtenrowrange_.start, writtenrowrange_.stop,
+	    writerowrange_ ? writerowrange_->step : rowrange_.step );
+    }
+
+    if ( writtencolrange_.width(false)>=0 )
+    {
+	par_.set( dgbSurfaceReader::sKeyColRange(),
+	    writtencolrange_.start, writtencolrange_.stop,
+	    writecolrange_ ? writecolrange_->step : colrange_.step );
+
+    }
+
+    for ( int idx=0; idx<sectionsel_.size(); idx++ )
+    {
+	const BufferString sectionname = surface_.sectionName(sectionsel_[idx]);
+	if ( !sectionname.size() )
+	    continue;
+
+	par_.set( dgbSurfaceReader::sSectionNameKey(idx), sectionname );
+    }
+
+    ascostream astream( strm );
+    astream.newParagraph();
+    par_.putTo( astream );
+
     delete &par_;
     delete conn_;
     delete writerowrange_;
@@ -1111,6 +1179,13 @@ int dgbSurfaceWriter::totalNr() const
 }
 
 
+#define mSetDc( type, string ) \
+{ \
+    type dummy; \
+    DataCharacteristics(dummy).toString( dc.buf() ); \
+}\
+    versionpar.set( string, dc )
+
 int dgbSurfaceWriter::nextStep()
 {
     if ( !ioobj_ ) { msg_ = "No object info"; return ErrorOccurred; }
@@ -1124,6 +1199,25 @@ int dgbSurfaceWriter::nextStep()
 	    return ErrorOccurred;
 	}
 
+	IOPar versionpar("Header 1");
+	versionpar.set( dgbSurfaceReader::sKeyVersion(), 3 );
+	if ( binary_ )
+	{
+	    BufferString dc;
+	    mSetDc( int32, dgbSurfaceReader::sKeyInt32DataChar() );
+	    mSetDc( unsigned short, dgbSurfaceReader::sKeyInt16DataChar() );
+	    mSetDc( int64, dgbSurfaceReader::sKeyInt64DataChar() );
+	    mSetDc( float, dgbSurfaceReader::sKeyFloatDataChar() );
+	}
+
+
+	std::ostream& strm = conn_->oStream();
+	ascostream astream( strm );
+	astream.putHeader( filetype_ );
+	versionpar.putTo( astream );
+	nrsectionsoffsetoffset_ = strm.tellp();
+	writeInt64( strm, 0, sEOL() );
+
 	for ( int idx=0; idx<auxdatasel_.size(); idx++ )
 	{
 	    if ( auxdatasel_[idx]>=surface_.auxdata.nrAuxData() )
@@ -1135,51 +1229,28 @@ int dgbSurfaceWriter::nextStep()
 	    // TODO:: Change binid sampler so not all values are written when
 	    // there is a subselection
 	}
-
-	par_.set( dgbSurfaceReader::sKeyRowRange(),
-	     writerowrange_->start,writerowrange_->stop,writerowrange_->step);
-	par_.set( dgbSurfaceReader::sKeyColRange(),
-	     writecolrange_->start,writecolrange_->stop,writecolrange_->step);
-
-	par_.set( dgbSurfaceReader::sKeyVersion(), 3 );
-
-	par_.set( dgbSurfaceReader::sKeyNrSections(), sectionsel_.size() );
-	for ( int idx=0; idx<sectionsel_.size(); idx++ )
-	{
-	    BufferString key = dgbSurfaceReader::sSectionIDKey( idx );
-	    par_.set( key, sectionsel_[idx] );
-
-	    key = dgbSurfaceReader::sSectionNameKey( idx );
-	    par_.set( key, surface_.geometry.sectionName(sectionsel_[idx]));
-	}
-
-	std::ostream& stream = conn_->oStream();
-	ascostream astream( stream );
-	astream.putHeader( filetype_ );
-	par_.putTo( astream );
     }
 
     if ( sectionindex_>=sectionsel_.size() )
     {
-	//TODO: Write offsets first time
 	const int res = ExecutorGroup::nextStep();
 	if ( !res ) const_cast<Surface*>(&surface_)->resetChangedFlag();
 	return res;
     }
 
-    std::ostream& stream = conn_->oStream();
+    std::ostream& strm = conn_->oStream();
 
-    if ( sectionindex_!=oldsectionindex_ && !writeNewSection( stream ) )
+    if ( sectionindex_!=oldsectionindex_ && !writeNewSection( strm ) )
 	return ErrorOccurred;
 
-    if ( !writeRow( stream ) )
+    if ( !writeRow( strm ) )
 	return ErrorOccurred;
 	    
     rowindex_++;
     if ( rowindex_>=nrrows_ )
     {
-	stream.seekp( rowoffsettableoffset_, std::ios_base::beg );
-	if ( !stream )
+	strm.seekp( rowoffsettableoffset_, std::ios_base::beg );
+	if ( !strm )
 	{
 	    msg_ = sMsgWriteError();
 	    return ErrorOccurred;
@@ -1187,7 +1258,7 @@ int dgbSurfaceWriter::nextStep()
 
 	for ( int idx=0; idx<nrrows_; idx++ )
 	{
-	    if ( !writeInt64(stream,rowoffsettable_[idx],sEOL() ) )
+	    if ( !writeInt64(strm,rowoffsettable_[idx],sEOL() ) )
 	    {
 		msg_ = sMsgWriteError();
 		return ErrorOccurred;
@@ -1196,22 +1267,16 @@ int dgbSurfaceWriter::nextStep()
 
 	rowoffsettable_.erase();
 
-	stream.seekp( 0, std::ios_base::end );
-	if ( !stream )
+	strm.seekp( 0, std::ios_base::end );
+	if ( !strm )
 	{
 	    msg_ = sMsgWriteError();
 	    return ErrorOccurred;
 	}
 
 	sectionindex_++;
-	if ( sectionindex_>=sectionsel_.size() )
-	{
-	    for ( int idx=0; idx<sectionoffsets_.size(); idx++ )
-		writeInt64( stream, sectionoffsets_[idx], sEOL() );
-	}
-
-	stream.flush();
-	if ( !stream )
+	strm.flush();
+	if ( !strm )
 	{
 	    msg_ = sMsgWriteError();
 	    return ErrorOccurred;
@@ -1269,7 +1334,7 @@ bool dgbSurfaceWriter::writeInt64( std::ostream& strm, int64 val,
 }
 
 
-bool dgbSurfaceWriter::writeNewSection( std::ostream& stream )
+bool dgbSurfaceWriter::writeNewSection( std::ostream& strm )
 {
     const Geometry::ParametricSurface* gsurf =
 		surface_.geometry.getSurface( sectionsel_[sectionindex_] );
@@ -1302,9 +1367,9 @@ bool dgbSurfaceWriter::writeNewSection( std::ostream& stream )
 	nrrows_ = (lastrow-firstrow_)/rowrange_.step+1;
     }
 
-    sectionoffsets_ += stream.tellp();
+    sectionoffsets_ += strm.tellp();
 
-    if ( !writeInt32(stream,nrrows_, nrrows_ ? sTab() : sEOL() ) )
+    if ( !writeInt32(strm,nrrows_, nrrows_ ? sTab() : sEOL() ) )
     {
 	msg_ = sMsgWriteError();
 	return false;
@@ -1317,16 +1382,16 @@ bool dgbSurfaceWriter::writeNewSection( std::ostream& stream )
 	return MoreToDo;
     }
 
-    if ( !writeInt32(stream,firstrow_,sEOL()) )
+    if ( !writeInt32(strm,firstrow_,sEOL()) )
     {
 	msg_ = sMsgWriteError();
 	return ErrorOccurred;
     }
 
-    rowoffsettableoffset_ = stream.tellp();
+    rowoffsettableoffset_ = strm.tellp();
     for ( int idx=0; idx<nrrows_; idx++ )
     {
-	if ( !writeInt64(stream,0,sEOL() ) )
+	if ( !writeInt64(strm,0,sEOL() ) )
 	{
 	    msg_ = sMsgWriteError();
 	    return ErrorOccurred;
@@ -1340,9 +1405,9 @@ bool dgbSurfaceWriter::writeNewSection( std::ostream& stream )
 }
 
 
-bool dgbSurfaceWriter::writeRow( std::ostream& stream )
+bool dgbSurfaceWriter::writeRow( std::ostream& strm )
 {
-    rowoffsettable_ += stream.tellp();
+    rowoffsettable_ += strm.tellp();
     const int row = firstrow_+rowindex_ *
 		    (writerowrange_?writerowrange_->step:rowrange_.step);
 
@@ -1379,7 +1444,7 @@ bool dgbSurfaceWriter::writeRow( std::ostream& stream )
 	colcoords.remove(idx);
     }
 
-    if ( !writeInt32(stream,colcoords.size(),colcoords.size()?sTab():sEOL()) )
+    if ( !writeInt32(strm,colcoords.size(),colcoords.size()?sTab():sEOL()) )
     {
 	msg_ = sMsgWriteError();
 	return false;
@@ -1387,7 +1452,7 @@ bool dgbSurfaceWriter::writeRow( std::ostream& stream )
 
     if ( colcoords.size() )
     {
-	if ( !writeInt32(stream,firstcol,sTab()) )
+	if ( !writeInt32(strm,firstcol,sTab()) )
 	{
 	    msg_ = sMsgWriteError();
 	    return false;
@@ -1416,8 +1481,8 @@ bool dgbSurfaceWriter::writeRow( std::ostream& stream )
 	    sd.start = rg.start;
 	    sd.step = rg.width()/65534;
 
-	    if ( !writeFloat( stream, sd.start, sTab()) ||
-		 !writeFloat( stream, sd.step, sEOLTab()) )
+	    if ( !writeFloat( strm, sd.start, sTab()) ||
+		 !writeFloat( strm, sd.step, sEOLTab()) )
 	    {
 		msg_ = sMsgWriteError();
 		return false;
@@ -1432,7 +1497,7 @@ bool dgbSurfaceWriter::writeRow( std::ostream& stream )
 		const int index = mIsUdf(pos.z)
 		    ? 0xFFFF : sd.nearestIndex(pos.z);
 
-		if ( !writeInt16( stream, index, 
+		if ( !writeInt16( strm, index, 
 			          idx!=colcoords.size()-1 ? sEOLTab() : sEOL()))
 		{
 		    msg_ = sMsgWriteError();
@@ -1441,9 +1506,9 @@ bool dgbSurfaceWriter::writeRow( std::ostream& stream )
 	    }
 	    else
 	    {
-		if ( !writeFloat( stream, pos.x, sTab()) ||
-		     !writeFloat( stream, pos.y, sTab()) ||
-		     !writeFloat( stream, pos.z,
+		if ( !writeFloat( strm, pos.x, sTab()) ||
+		     !writeFloat( strm, pos.y, sTab()) ||
+		     !writeFloat( strm, pos.z,
 			          idx!=colcoords.size()-1 ? sEOLTab() : sEOL()))
 		{
 		    msg_ = sMsgWriteError();
@@ -1451,6 +1516,11 @@ bool dgbSurfaceWriter::writeRow( std::ostream& stream )
 		}
 	    }
 	}
+
+	writtenrowrange_.include( row, false );
+	writtencolrange_.include( firstcol, false );
+	writtencolrange_.include( firstcol+colrange_.step*(colcoords.size()-1),
+				  false );
     }
 
     return true;

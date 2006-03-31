@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: emsurfacetr.cc,v 1.6 2006-03-30 15:39:25 cvskris Exp $
+ RCS:           $Id: emsurfacetr.cc,v 1.7 2006-03-31 20:04:38 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -303,7 +303,7 @@ Executor* dgbEMSurfaceTranslator::getWriter()
 							 *surface,isbinary);
     res->setWriteOnlyZ( writeOnlyZ() );
 
-    if ( hasRangeSelection() )
+    if ( hasRangeSelection() && !sels_.rg.isEmpty() )
     {
 	StepInterval<int> rrg, crg; getSels( rrg, crg );
 	res->setRowInterval( rrg ); res->setColInterval( crg );

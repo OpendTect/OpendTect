@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfaceio.h,v 1.18 2006-03-30 15:39:25 cvskris Exp $
+ RCS:		$Id: emsurfaceio.h,v 1.19 2006-03-31 20:04:33 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -64,7 +64,7 @@ public:
 
     int			nrSections() const;
     EM::SectionID	sectionID( int ) const;
-    const char*		sectionName( int ) const;
+    BufferString	sectionName( int ) const;
     void		selSections(const TypeSet<EM::SectionID>&);
     			/*!< The given sectionIDs will be loaded. If this
 			     function is not called, all avaliable sections
@@ -113,14 +113,15 @@ public:
     static const char*		sMsgReadError();
 
 protected:
-    bool			usePar( const IOPar& );
     bool			isBinary() const;
 
     double			readFloat(std::istream&) const;
     int				readInt16(std::istream&) const;
     int				readInt32(std::istream&) const;
     int64			readInt64(std::istream&) const;
-    bool			readSectionOffsets(std::istream&);
+    int				int64Size() const;
+    void			createAuxDataReader();
+    bool			readHeaders(const char*);
     bool			readRowOffsets(std::istream&);
     RowCol			getFileStep() const;
     int				prepareNewSection(std::istream&);
@@ -149,7 +150,9 @@ protected:
     int				nrdone_;
 
     bool			isinited_;
+    bool			setsurfacepar_;
 
+    int				sectionsread_;
     int				sectionindex_;
     int				oldsectionindex_;
     int				firstrow_;
@@ -270,6 +273,7 @@ protected:
 
     TypeSet<EM::SectionID>	sectionsel_;
     TypeSet<int64>		sectionoffsets_;
+    int64			nrsectionsoffsetoffset_;
     TypeSet<int>		auxdatasel_;
     BufferString		dbinfo_;
 
@@ -293,6 +297,8 @@ protected:
 
     StepInterval<int>*		writerowrange_;
     StepInterval<int>*		writecolrange_;
+    Interval<int>		writtenrowrange_;
+    Interval<int>		writtencolrange_;
     bool			writeonlyz_;
     bool			binary_;
     BufferString		filetype_;
