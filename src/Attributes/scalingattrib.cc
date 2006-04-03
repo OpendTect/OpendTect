@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          December 2004
- RCS:           $Id: scalingattrib.cc,v 1.16 2006-03-22 15:45:46 cvshelene Exp $
+ RCS:           $Id: scalingattrib.cc,v 1.17 2006-04-03 13:35:31 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -52,7 +52,6 @@ void Scaling::initClass()
 
     FloatParam* powerval = new FloatParam( powervalStr() );
     powerval->setLimits( Interval<float>(0,mUdf(float)) );
-    powerval->setDefaultValue( 1 );
     desc->setParamEnabled( powervalStr(), false );
     desc->addParam( powerval );
     
@@ -65,7 +64,6 @@ void Scaling::initClass()
 
     FloatParam factor( factorStr() );
     factor.setLimits( Interval<float>(0,mUdf(float)) );
-    factor.setDefaultValue( 1 );
 
     ParamGroup<ValParam>* factorset
 		= new ParamGroup<ValParam>( 0, factorStr(), factor );

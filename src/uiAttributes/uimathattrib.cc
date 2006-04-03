@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2001
- RCS:           $Id: uimathattrib.cc,v 1.5 2006-03-01 13:45:46 cvsbert Exp $
+ RCS:           $Id: uimathattrib.cc,v 1.6 2006-04-03 13:30:32 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -52,7 +52,7 @@ void uiMathAttrib::parsePush( CallBacker* )
 {
     MathExpression* expr = MathExpression::parse( inpfld->text() );
     nrvariables = expr ? expr->getNrVariables() : 0;
-    if ( !expr )
+    if ( !expr && strcmp( inpfld->text(), "" ) )
     {
 	uiMSG().error( "Could not parse this equation" );
 	return;

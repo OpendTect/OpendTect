@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2001
- RCS:           $Id: uifreqfilterattrib.cc,v 1.8 2006-03-10 13:34:02 cvsbert Exp $
+ RCS:           $Id: uifreqfilterattrib.cc,v 1.9 2006-04-03 13:30:32 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -61,7 +61,6 @@ uiFreqFilterAttrib::uiFreqFilterAttrib( uiParent* p )
     FloatInpSpec fis;
     freqfld = new uiGenInput( this, "Min/max frequency(Hz)", fis, fis );
     freqfld->setElemSzPol( uiObject::Small );
-    freqfld->setValues( 15, 50 );
     freqfld->attach( alignedBelow, typefld );
 
     polesfld = new uiLabeledSpinBox( this, "Nr of poles" );
@@ -92,8 +91,6 @@ void uiFreqFilterAttrib::typeSel( CallBacker* )
     const bool hasmax = !type || type==2;
     freqfld->setSensitive( hasmin, 0, 0 );
     freqfld->setSensitive( hasmax, 0, 1 );
-    if ( !hasmin ) freqfld->setText( "", 0 );
-    if ( !hasmax ) freqfld->setText( "", 1 );
 }
 
 

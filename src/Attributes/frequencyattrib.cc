@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: frequencyattrib.cc,v 1.9 2006-03-12 13:39:10 cvsbert Exp $";
+static const char* rcsID = "$Id: frequencyattrib.cc,v 1.10 2006-04-03 13:35:31 cvshelene Exp $";
 
 #include "frequencyattrib.h"
 #include "arrayndimpl.h"
@@ -35,6 +35,7 @@ void Frequency::initClass()
 
     ZGateParam* gate = new ZGateParam( gateStr() );
     gate->setLimits( Interval<float>(-mLargestZGate,mLargestZGate) );
+    gate->setDefaultValue( Interval<float>(-28, 28) );
     desc->addParam( gate );
 
     BoolParam* normalize = new BoolParam( normalizeStr() );

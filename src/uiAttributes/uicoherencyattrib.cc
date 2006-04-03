@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uicoherencyattrib.cc,v 1.2 2005-09-30 15:45:13 cvshelene Exp $";
+static const char* rcsID = "$Id: uicoherencyattrib.cc,v 1.3 2006-04-03 13:33:34 cvshelene Exp $";
 
 #include "uicoherencyattrib.h"
 #include "coherencyattrib.h"
@@ -26,12 +26,11 @@ uiCoherencyAttrib::uiCoherencyAttrib( uiParent* p )
 {
     inpfld = getImagInpFld();
 
-    is1fld = new uiGenInput( this, "Type", BoolInpSpec("1","2",false) );
+    is1fld = new uiGenInput( this, "Type", BoolInpSpec("1","2") );
     is1fld->attach( alignedBelow, inpfld );
     is1fld->valuechanged.notify( mCB(this,uiCoherencyAttrib,is1Sel) );
 
     tgfld = new uiGenInput( this, gateLabel(), FloatInpIntervalSpec() );
-    tgfld->setValues( -28, 28 );
     tgfld->attach( alignedBelow, is1fld );
 
     maxdipfld = new uiGenInput( this, "Maximum dip", FloatInpSpec() );
@@ -41,7 +40,6 @@ uiCoherencyAttrib::uiCoherencyAttrib( uiParent* p )
     deltadipfld->attach( alignedBelow, maxdipfld );
 
     stepoutfld = new uiStepOutSel( this );
-    stepoutfld->setVal( true, 1 ); stepoutfld->setVal( false, 1 );
     stepoutfld->attach( alignedBelow, deltadipfld );
 
     setHAlignObj( tgfld );

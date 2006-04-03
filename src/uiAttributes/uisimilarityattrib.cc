@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May  2005
- RCS:           $Id: uisimilarityattrib.cc,v 1.9 2006-01-02 08:10:28 cvsnanne Exp $
+ RCS:           $Id: uisimilarityattrib.cc,v 1.10 2006-04-03 13:30:32 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -54,22 +54,17 @@ uiSimilarityAttrib::uiSimilarityAttrib( uiParent* p )
     inpfld = getInpFld();
 
     gatefld = new uiGenInput( this, gateLabel(), FloatInpIntervalSpec() );
-    gatefld->setValues( -28, 28 );
     gatefld->attach( alignedBelow, inpfld );
 
     extfld = new uiGenInput( this, "Extension", StringListInpSpec(extstrs) );
     extfld->valuechanged.notify( mCB(this,uiSimilarityAttrib,extSel) );
-    extfld->setValue( extstrs[1] );
     extfld->attach( alignedBelow, gatefld );
     
     pos0fld = new uiStepOutSel( this, "Trace positions" );
-    pos0fld->setVal( true, 0 ); pos0fld->setVal( false, 1 );
     pos0fld->attach( alignedBelow, extfld );
     pos1fld = new uiStepOutSel( this, "&" );
-    pos1fld->setVal( true, 0 ); pos1fld->setVal( false, -1 );
     pos1fld->attach( rightOf, pos0fld );
     stepoutfld = new uiStepOutSel( this );
-    stepoutfld->setVal( true, 1 ); stepoutfld->setVal( false, 1 );
     stepoutfld->attach( alignedBelow, extfld );
 
     outpstatsfld = new uiGenInput( this, "Output statistic",

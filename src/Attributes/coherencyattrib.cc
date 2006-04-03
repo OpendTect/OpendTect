@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: coherencyattrib.cc,v 1.9 2006-03-12 13:39:10 cvsbert Exp $";
+static const char* rcsID = "$Id: coherencyattrib.cc,v 1.10 2006-04-03 13:33:18 cvshelene Exp $";
 
 
 #include "coherencyattrib.h"
@@ -31,7 +31,7 @@ void Coherency::initClass()
 
     ZGateParam* gate = new ZGateParam( gateStr() );
     gate->setLimits( Interval<float>(-mUdf(float),mUdf(float)) );
-    gate->setDefaultValue( Interval<float>(-40,40) );
+    gate->setDefaultValue( Interval<float>(-28,28) );
     desc->addParam( gate );
 
     FloatParam* maxdip = new FloatParam( maxdipStr() );

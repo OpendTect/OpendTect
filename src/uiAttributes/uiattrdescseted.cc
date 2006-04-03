@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrdescseted.cc,v 1.28 2006-03-12 13:39:11 cvsbert Exp $
+ RCS:           $Id: uiattrdescseted.cc,v 1.29 2006-04-03 13:30:32 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -429,7 +429,19 @@ void uiAttribDescSetEd::updateFields( bool set_type )
     if ( !curde )
 	curde = curDescEd();
 
-    Desc* dummydesc = new Desc( "Dummy" ); dummydesc->ref();
+    BufferString attribname = curde->getAttribName();
+    if ( !attribname.size() )
+    {
+	const char* attrstr = attrtypefld->box()->text();
+	attribname = uiAttribFactory::defNameForName( attrstr );
+    }
+    bool isrightdesc = desc && !strcmp( desc->attribName(), attribname );
+
+    Desc* dummydesc = PF().createDescCopy( attribname );
+    if ( !dummydesc )
+	dummydesc = new Desc( "Dummy" );
+    
+    dummydesc->ref();
     dummydesc->setDescSet( attrset );
     const bool is2d = attrset->is2D();
     for ( int idx=0; idx<desceds.size(); idx++ )
@@ -438,7 +450,7 @@ void uiAttribDescSetEd::updateFields( bool set_type )
 	if ( !de ) continue;
 
 	if ( curde == de )
-	    de->setDesc( desc ? desc : dummydesc, adsman );
+	    de->setDesc( isrightdesc ? desc : dummydesc, adsman );
 	const bool dodisp = de == curde;
 	if ( dodisp ) de->set2D( is2d );
 	de->display( dodisp );

@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribparam.cc,v 1.21 2005-12-22 14:55:56 cvsnanne Exp $";
+static const char* rcsID = "$Id: attribparam.cc,v 1.22 2006-04-03 13:26:08 cvshelene Exp $";
 
 #include "attribparam.h"
 #include "attribparamgroup.h"
@@ -30,7 +30,6 @@ Param::Param( const Param& b )
     : key_( b.key_ )
     , enabled_( b.enabled_ )
     , required_( b.required_ )
-    , defaultval_( b.defaultval_ )
     , isgroup_( b.isgroup_ )
 {}
 
@@ -47,7 +46,6 @@ ValParam::ValParam( const ValParam& b )
 {
     enabled_ = b.enabled_;
     required_ = b.required_;
-    defaultval_ = b.defaultval_;
 }
 
 
@@ -112,7 +110,20 @@ void ValParam::setValue( type val, int idx ) \
 mSetGet(int,getIntValue)
 mSetGet(float,getfValue)
 mSetGet(bool,getBoolValue)
+    
+#define mSetGetDefault(type,getfunc) \
+type ValParam::getfunc( int idx ) const \
+{ return spec_->getfunc(idx); } \
+\
+void ValParam::setDefaultValue( type val, int idx ) \
+{ spec_->setDefaultValue( val, idx ); }
 
+mSetGetDefault(int,getDefaultIntValue)
+mSetGetDefault(float,getDefaultfValue)
+mSetGetDefault(bool,getDefaultBoolValue)
+mSetGetDefault(const char*,getDefaultStringValue)
+
+    
 const char* ValParam::getStringValue( int idx ) const
 { return spec_->text(idx); }
 
@@ -191,27 +202,29 @@ void ZGateParam::setLimits( const Interval<float>& rg )
 { reinterpret_cast<FloatInpIntervalSpec*>(spec_)->setLimits(rg); }
 
 
-void ZGateParam::setDefaultValue( const Interval<float>& defaultgate )
-{
-    BufferString str = "["; 
-    str += defaultgate.start; str += ",";
-    str += defaultgate.stop; str += "]";
-    Param::setDefaultValue( str );
-}
-
-
 void ZGateParam::setValue( const Interval<float>& gate )
 { reinterpret_cast<FloatInpIntervalSpec*>(spec_)->setValue( gate ); }
 
 
+void ZGateParam::setDefaultValue( const Interval<float>& defaultgate )
+{ reinterpret_cast<FloatInpIntervalSpec*>(spec_)->setDefaultValue(defaultgate);}
+
+
 bool ZGateParam::getCompositeValue( BufferString& res ) const
 {
-    res = "[";
-    res += spec_->text(0);
-    res += ",";
-    res += spec_->text(1);
-    res += "]";
+    Interval<float> intv( spec_->getfValue(0), spec_->getfValue(1) );
+    toString( res, intv );
     return true;
+}
+
+
+void ZGateParam::toString( BufferString& res, const Interval<float>& gate) const
+{
+    res = "[";
+    res += gate.start;
+    res += ",";
+    res += gate.stop;
+    res += "]";
 }
 
 
@@ -221,6 +234,21 @@ Interval<float> ZGateParam::getValue() const
     return Interval<float>( spec->value(0), spec->value(1) );
 }
 
+
+Interval<float> ZGateParam::getDefaultZGateValue() const
+{
+    FloatInpIntervalSpec* spec = reinterpret_cast<FloatInpIntervalSpec*>(spec_);
+    return Interval<float>( spec->defaultValue(0), spec->defaultValue(1) );
+}
+
+
+BufferString ZGateParam::getDefaultValue() const
+{
+    Interval<float> intv = getDefaultZGateValue();
+    BufferString res;
+    toString( res, intv );
+    return res;
+}
 
 
 BinIDParam::BinIDParam( const char* nm )
@@ -272,31 +300,55 @@ bool BinIDParam::setCompositeValue( const char* posstr )
 
 void BinIDParam::setDefaultValue( const BinID& bid )
 {
-    BufferString defaultstring = bid.inl;
-    defaultstring += ","; defaultstring += bid.crl;
-    Param::setDefaultValue( defaultstring );
+    reinterpret_cast<BinIDInpSpec*>(spec_)->setDefaultValue(bid.inl,0);
+    reinterpret_cast<BinIDInpSpec*>(spec_)->setDefaultValue(bid.crl,1);
 }
 
 
 bool BinIDParam::getCompositeValue( BufferString& res ) const
 {
-    res = spec_->text(0);
-    res += ",";
-    res += spec_->text(1);
+    BinID bid = getValue();
+    toString( res, bid );
     return true;
+}
+
+
+void BinIDParam::toString( BufferString& res, const BinID& bid ) const
+{
+    res += bid.inl;
+    res += ",";
+    res += bid.crl;
 }
 
 
 BinID BinIDParam::getValue() const
 {
     BinIDInpSpec* spec = reinterpret_cast<BinIDInpSpec*>(spec_);
-    return BinID( mNINT(spec->value(0)), mNINT(spec->value(1)) );
+    const float val0 = spec->value(0);
+    const float val1 = spec->value(1);
+    return BinID( mIsUdf(val0) ? mUdf(int) : mNINT(val0),
+	          mIsUdf(val1) ? mUdf(int) : mNINT(val1) );
 }
 
 
+BinID BinIDParam::getDefaultBinIDValue() const
+{
+    BinIDInpSpec* spec = reinterpret_cast<BinIDInpSpec*>(spec_);
+    return BinID( mNINT(spec->defaultValue(0)), mNINT(spec->defaultValue(1)) );
+}
+
+
+BufferString BinIDParam::getDefaultValue() const
+{
+    BinID bid = getDefaultBinIDValue();
+    BufferString res;
+    toString( res, bid );
+    return res;
+}
+
 
 BoolParam::BoolParam( const char* nm )
-    : ValParam(nm,new BoolInpSpec("yes","no"))
+    : ValParam(nm,new BoolInpSpec("yes","no",0,0))
 {}
 
 mParamClone( BoolParam );
@@ -315,12 +367,16 @@ bool BoolParam::setCompositeValue( const char* str )
 }
 
 
-void BoolParam::setDefaultValue( bool yn )
+BufferString BoolParam::getDefaultValue() const
 {
-    BufferString str =
-	reinterpret_cast<BoolInpSpec*>(spec_)->trueFalseTxt( yn );
-    Param::setDefaultValue( str );
+    bool yn = getDefaultValue();
+    BufferString str = reinterpret_cast<BoolInpSpec*>(spec_)->trueFalseTxt(yn);
+    return str;
 }
+
+
+bool BoolParam::isSet() const
+{ return reinterpret_cast<BoolInpSpec*>(spec_)->isSet(); }
 
 
 EnumParam::EnumParam( const char* nm )
@@ -332,15 +388,16 @@ mParamClone( EnumParam );
 void EnumParam::addEnum( const char* ne )
 { reinterpret_cast<StringListInpSpec*>(spec_)->addString(ne); }
 
-
-void EnumParam::setDefaultValue( int val )
+    
+BufferString EnumParam::getDefaultValue() const
 {
+    int strindex = getDefaultIntValue();  
     const BufferStringSet& strings = 
 	reinterpret_cast<StringListInpSpec*>(spec_)->strings();
-    if ( val < 0 || val >= strings.size() )
-	val = 0;
+    if ( strindex < 0 || strindex >= strings.size() )
+	strindex = 0;
 
-    Param::setDefaultValue( strings.get(val) );
+    return strings.get(strindex);
 }
 
 
@@ -378,6 +435,10 @@ void EnumParam::fillDefStr( BufferString& res ) const
 }
 
 
+bool EnumParam::isSet() const
+{ return reinterpret_cast<StringListInpSpec*>(spec_)->isSet(); }
+
+
 StringParam::StringParam( const char* key )
     : ValParam( key, new StringInpSpec )
 {}
@@ -388,8 +449,7 @@ mParamClone( StringParam );
 bool StringParam::setCompositeValue( const char* str_ )
 {
     BufferString str = str_;
-    if ( str.size() )// && str[0]=='"' && str[str.size()-1]=='"' )
-		     // no, this is never verified...
+    if ( str.size() )
     {
 	if ( !spec_->setText( str, 0 ) )
 	    return false;

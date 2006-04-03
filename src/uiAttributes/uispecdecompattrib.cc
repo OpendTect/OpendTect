@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2004
- RCS:           $Id: uispecdecompattrib.cc,v 1.9 2005-12-21 10:53:13 cvsnanne Exp $
+ RCS:           $Id: uispecdecompattrib.cc,v 1.10 2006-04-03 13:30:32 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,7 +39,6 @@ uiSpecDecompAttrib::uiSpecDecompAttrib( uiParent* p )
     typefld->valuechanged.notify( mCB(this,uiSpecDecompAttrib,typeSel) );
 
     gatefld = new uiGenInput( this, gateLabel(), DoubleInpIntervalSpec() );
-    gatefld->setValues( -28, 28 );
     gatefld->attach( alignedBelow, typefld );
 
     BufferString lbl( "Output frequency (" );
@@ -47,13 +46,11 @@ uiSpecDecompAttrib::uiSpecDecompAttrib( uiParent* p )
     outpfld = new uiLabeledSpinBox( this, lbl, 1 );
     outpfld->attach( alignedBelow, gatefld );
     outpfld->box()->doSnap( true );
-    outpfld->box()->setValue( sDefaultFreqStep );
 
     stepfld = new uiLabeledSpinBox( this, "step", 1 );
     stepfld->attach( rightTo, outpfld );
     stepfld->box()->valueChanged.notify( 
 	    			mCB(this,uiSpecDecompAttrib,stepChg) );
-    stepfld->box()->setValue( sDefaultFreqStep );
 
     waveletfld = new uiGenInput( this, "Wavelet", 
 	    			 StringListInpSpec(CWT::WaveletTypeNames) );

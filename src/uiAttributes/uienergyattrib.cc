@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:		$Id: uienergyattrib.cc,v 1.4 2006-02-17 10:46:46 cvsnanne Exp $
+ RCS:		$Id: uienergyattrib.cc,v 1.5 2006-04-03 13:30:32 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,7 +28,6 @@ uiEnergyAttrib::uiEnergyAttrib( uiParent* p )
 
     gatefld = new uiGenInput( this, gateLabel(), FloatInpIntervalSpec() );
     gatefld->attach( alignedBelow, inpfld );
-    gatefld->setValues( -28, 28 );
     setHAlignObj( gatefld );
 }
 

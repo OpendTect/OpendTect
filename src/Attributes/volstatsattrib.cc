@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: volstatsattrib.cc,v 1.20 2006-03-20 16:32:02 cvsnanne Exp $";
+static const char* rcsID = "$Id: volstatsattrib.cc,v 1.21 2006-04-03 13:35:31 cvshelene Exp $";
 
 #include "volstatsattrib.h"
 
@@ -41,15 +41,6 @@ void VolStats::initClass()
     Desc* desc = new Desc( attribName(), updateDesc );
     desc->ref();
 
-/*
-    IntParam* nrvolumes = new IntParam( nrvolumesStr() );
-    nrvolumes->setLimits( Interval<int>(1,INT_MAX) );
-    nrvolumes->setDefaultValue( 1 );
-    nrvolumes->setValue( 1 );
-    nrvolumes->setRequired( false );
-    desc->addParam( nrvolumes );
-*/
-
     BinIDParam* stepout = new BinIDParam( stepoutStr() );
     stepout->setDefaultValue( BinID(1,1) );
     desc->addParam( stepout );
@@ -65,14 +56,6 @@ void VolStats::initClass()
     gate->setLimits( Interval<float>(-mLargestZGate,mLargestZGate) );
     desc->addParam( gate );
 
-/*
-    BoolParam* absolutegate = new BoolParam( absolutegateStr() );
-    absolutegate->setDefaultValue( false );
-    absolutegate->setValue( false );
-    absolutegate->setRequired( false );
-    desc->addParam( absolutegate );
-*/
-    
     BoolParam* steering = new BoolParam( steeringStr() );
     steering->setDefaultValue( false );
     desc->addParam( steering );

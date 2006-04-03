@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          June 2005
- RCS:           $Id: similarityattrib.cc,v 1.24 2006-03-30 11:49:33 cvshelene Exp $
+ RCS:           $Id: similarityattrib.cc,v 1.25 2006-04-03 13:35:31 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,10 +34,16 @@ void Similarity::initClass()
 
     ZGateParam* gate = new ZGateParam( gateStr() );
     gate->setLimits( Interval<float>(-1000,1000) );
+    gate->setDefaultValue( Interval<float>(-28, 28) );
     desc->addParam( gate );
 
-    desc->addParam( new BinIDParam(pos0Str()) );
-    desc->addParam( new BinIDParam(pos1Str()) );
+    BinIDParam* pos0 = new BinIDParam( pos0Str() );
+    pos0->setDefaultValue( BinID(0,1) );    
+    desc->addParam( pos0 );
+    
+    BinIDParam* pos1 = new BinIDParam( pos1Str() );
+    pos1->setDefaultValue( BinID(0,-1) );    
+    desc->addParam( pos1 );
 
     BinIDParam* stepout = new BinIDParam( stepoutStr() );
     stepout->setDefaultValue( BinID(1,1) );

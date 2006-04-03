@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2001
- RCS:           $Id: uidipfilterattrib.cc,v 1.7 2006-03-10 13:34:02 cvsbert Exp $
+ RCS:           $Id: uidipfilterattrib.cc,v 1.8 2006-04-03 13:30:32 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "convolveattrib.h"
 #include "attribdesc.h"
 #include "attribparam.h"
+#include "attribfactory.h"
 #include "uiattrsel.h"
 #include "uigeninput.h"
 #include "uispinbox.h"
@@ -137,8 +138,6 @@ void ui3DFilterAttrib::filtSel( CallBacker* )
     bool mode1 = ( !val || val==2 );
     velfld->setSensitive( mode0, 0, 0 );
     velfld->setSensitive( mode1, 0, 1 );
-    if ( !mode0 ) velfld->setText( "", 0 );
-    if ( !mode1 ) velfld->setText( "", 1 );
 }
 
 
@@ -148,7 +147,7 @@ void ui3DFilterAttrib::aziSel( CallBacker* )
 }
 
 
-void ui3DFilterAttrib::kernelSel( CallBacker* )
+void ui3DFilterAttrib::kernelSel( CallBacker* cb )
 {
     int kernelval = kernelfld->getIntValue();
     bool dipf = kernelval == 3;
@@ -163,7 +162,19 @@ void ui3DFilterAttrib::kernelSel( CallBacker* )
     shapefld->display( kernelval < 2 );
     outpfld->display( kernelval == 2 );
 
-    if ( dipf ) { aziSel(0); filtSel(0); } 
+    if ( dipf ) { aziSel(0); filtSel(0); }
+
+    if ( cb )
+    {
+	Desc* dummydesc = PF().createDescCopy( getAttribName() );
+	if ( dummydesc )
+	{
+	    dummydesc->ref();
+	    setParameters( *dummydesc );
+	    dummydesc->unRef();
+	    kernelfld->setValue( kernelval );
+	}
+    }
 }
 
 

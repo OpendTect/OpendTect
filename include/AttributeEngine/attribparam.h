@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribparam.h,v 1.20 2006-03-12 13:39:09 cvsbert Exp $
+ RCS:           $Id: attribparam.h,v 1.21 2006-04-03 13:24:09 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -47,7 +47,7 @@ public:
     void			setRequired(bool yn=true) { required_=yn; }
     bool			isGroup() const		  { return isgroup_; }
 
-    const char*			getKey() const		{ return key_.buf(); }
+    const char*			getKey() const		  { return key_.buf(); }
 
 
     virtual bool		setCompositeValue( const char* ) 
@@ -56,10 +56,8 @@ public:
 				{ return false; }
     virtual bool		getCompositeValue(BufferString&) const	=0;
     
-    void			setDefaultValue(const char* val)
-    				{ defaultval_ = val; }
-    BufferString		getDefaultValue() const { return defaultval_; } 
-    void			setKey( char* newkey ) { key_ = newkey; }
+    virtual BufferString	getDefaultValue() const	  { return ""; } 
+    void			setKey( char* newkey )    { key_ = newkey; }
 
     virtual void		fillDefStr(BufferString&) const		=0;			
 
@@ -70,7 +68,6 @@ protected:
 
     bool			enabled_;
     bool			required_;
-    BufferString		defaultval_;
 
     bool			_isEqual( const Param& p ) const
 				{
@@ -102,10 +99,21 @@ public:
     void			setValue(bool,int idx=0);
     void			setValue(const char*,int idx=0);
 
+    virtual int			getDefaultIntValue(int idx=0) const;
+    virtual float		getDefaultfValue(int idx=0) const;
+    bool			getDefaultBoolValue(int idx=0) const;
+    const char*			getDefaultStringValue(int idx=0) const;
+
+    void			setDefaultValue(int,int idx=0);
+    void			setDefaultValue(float,int idx=0);
+    void			setDefaultValue(bool,int idx=0);
+    void			setDefaultValue(const char*,int idx=0);
+
     DataInpSpec*		getSpec() { return spec_; }
 
     virtual bool		setCompositeValue(const char*);
     virtual bool		getCompositeValue(BufferString&) const;
+    virtual BufferString	getDefaultValue() const	{ return ""; } 
     virtual void   	        fillDefStr(BufferString&) const;
     
 protected:
@@ -127,8 +135,13 @@ public:
     virtual bool		getCompositeValue(BufferString&) const;
 
     void			setDefaultValue(const Interval<float>&);
+    Interval<float>		getDefaultZGateValue() const;
+    virtual BufferString	getDefaultValue() const; 
     void 			setValue(const Interval<float>& gate);
     Interval<float>		getValue() const;
+
+    void			toString(BufferString&,
+	    				 const Interval<float>&) const;
 };
 
 
@@ -144,7 +157,11 @@ public:
     virtual bool		getCompositeValue(BufferString&) const;
 
     void                        setDefaultValue(const BinID&);
+    BinID			getDefaultBinIDValue() const;
+    BufferString		getDefaultValue() const;
     BinID			getValue() const;
+    
+    void			toString(BufferString&,const BinID&) const;
 };
 
 
@@ -155,7 +172,9 @@ public:
     BoolParam*			clone() const;
 
     virtual bool		setCompositeValue(const char*);
-    void                        setDefaultValue(bool);
+    BufferString		getDefaultValue() const;
+
+    bool			isSet() const;
 };
 
 
@@ -164,12 +183,13 @@ class EnumParam : public ValParam
 public:
     				EnumParam(const char*);
     EnumParam*			clone() const;
-    void			setDefaultValue(int);
+    BufferString		getDefaultValue() const;
 
     void			addEnum(const char*);
     void			addEnums(const char**);
 
     void                	fillDefStr(BufferString&) const;
+    bool			isSet() const;
 };
 
 
@@ -181,6 +201,8 @@ public:
 
     virtual bool		setCompositeValue(const char*);
     virtual bool		getCompositeValue(BufferString&) const;
+    virtual BufferString	getDefaultValue() const
+				{ return getDefaultStringValue(); }
 };
 
 
@@ -199,7 +221,6 @@ public:
     virtual bool		getCompositeValue(BufferString& res) const;
     virtual bool                setCompositeValue(const char*);
 
-    virtual void		setDefaultValue(T val);
     virtual int			getIntValue(int idx=0) const;
     virtual float		getfValue(int idx=0) const;
 };
@@ -211,7 +232,6 @@ NumParam<T>::NumParam( const NumParam<T>& np )
 {
     enabled_ = np.enabled_;
     required_ = np.required_;
-    defaultval_ = np.defaultval_;
 }
 
 
@@ -220,14 +240,6 @@ bool NumParam<T>::getCompositeValue( BufferString& res ) const
 {
     res = spec_ && !spec_->isUndef() ? spec_->text() : "1e30";
     return spec_;
-}
-
-
-template <class T>
-void NumParam<T>::setDefaultValue( T val )
-{
-    BufferString str( val );
-    Param::setDefaultValue( str );
 }
 
 
