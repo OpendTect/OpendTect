@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/02/2001
- RCS:           $Id: datainpspec.h,v 1.59 2005-08-19 14:17:22 cvsnanne Exp $
+ RCS:           $Id: datainpspec.h,v 1.60 2006-04-03 13:26:40 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -112,6 +112,18 @@ public:
     virtual void	setValue( float f, int idx=0 );
     virtual void	setValue( bool b, int idx=0 );
 
+    virtual int		getDefaultIntValue( int idx=0 ) const;
+    virtual double	getDefaultValue( int idx=0 ) const;
+    virtual float	getDefaultfValue( int idx=0 ) const;
+    virtual bool	getDefaultBoolValue( int idx=0 ) const;
+    virtual const char*	getDefaultStringValue( int idx=0 ) const;
+
+    virtual void	setDefaultValue( int i, int idx=0 )		{}
+    virtual void	setDefaultValue( double d, int idx=0 )		{}
+    virtual void	setDefaultValue( float f, int idx=0 )		{}
+    virtual void	setDefaultValue( bool b, int idx=0 )		{}
+    virtual void	setDefaultValue( const char* s, int idx=0 )	{}
+
 
 protected:
 
@@ -136,14 +148,15 @@ class NumInpSpec : public DataInpSpec
 public:
 			NumInpSpec() 
 			    : DataInpSpec( DataTypeImpl<T>() ) , limits_(0)
-			    { Values::setUdf( value_ ); }
+			    { mSetUdf( value_ ); mSetUdf( defaultvalue_ ); }
 			NumInpSpec( T val ) 
 			    : DataInpSpec( DataTypeImpl<T>() ) , limits_(0)
-			    , value_( val )			{}
+			    , value_( val ) { mSetUdf( defaultvalue_ ); }
 			NumInpSpec( const NumInpSpec<T>& o )
 			    : DataInpSpec( o ) 
 			    , limits_( o.limits_?new Interval<T>(*o.limits_):0 )
-			    , value_( o.value_ )		{}
+			    , value_( o.value_ )
+			    , defaultvalue_( o.defaultvalue_ ) {}
 			~NumInpSpec()			{ delete limits_; }
 
     virtual NumInpSpec<T>* clone() const
@@ -155,10 +168,33 @@ public:
     virtual bool	setText( const char* s, int idx=0 )
 			    { return getFromString( value_, s ); }
 
+    virtual int		getIntValue(int idx=0) const { return (int)value(); }
+    virtual double	getValue(int idx=0) const    { return value(); }
+    virtual float	getfValue(int idx=0) const   { return value(); }
+
+    virtual int		getDefaultIntValue(int idx=0) const
+    			{ return (int)defaultValue(); }
+    virtual double	getDefaultValue(int idx=0) const
+    			{ return defaultValue(); }
+    virtual float	getDefaultfValue(int idx=0) const
+    			{ return defaultValue(); }
+    
+    virtual void	setDefaultValue( int i, int idx=0 )
+			{ defaultvalue_ = i; }
+    virtual void	setDefaultValue( double d, int idx=0 )
+			{ defaultvalue_ = d; }
+    virtual void	setDefaultValue( float f, int idx=0 )
+			{ defaultvalue_ = f; }
     T			value() const
 			{
 			    if ( Values::isUdf(value_) ) return mUdf(T);
 			    return value_;
+			}
+
+    T			defaultValue() const
+			{
+			    if ( mIsUdf(defaultvalue_) ) return mUdf(T);
+			    return defaultvalue_;
 			}
 
     virtual const char*	text( int idx=0 ) const
@@ -187,6 +223,7 @@ public:
 protected:
 
     T			value_;
+    T			defaultvalue_;
 
     Interval<T>*	limits_;
 }; 
@@ -220,22 +257,40 @@ public:
 						  : new Interval<T>(
 							mUdf(T), 
 							mUdf(T) ) )
+			    , defaultinterval_( withstep ? new StepInterval<T>( 
+								mUdf(T), 
+								mUdf(T), 
+								mUdf(T) ) 
+						  	 : new Interval<T>(
+								mUdf(T), 
+								mUdf(T) ) )
 			    {}
 
 			NumInpIntervalSpec( const Interval<T>& interval ) 
 			    : DataInpSpec( DataTypeImpl<T>(DataType::interval) )
 			    , startlimits_(0), stoplimits_(0), steplimits_(0)
-			    , interval_( interval.clone() )	{}
+			    , interval_( interval.clone() )
+			    , defaultinterval_( hasStep() ? new StepInterval<T>(
+								mUdf(T), 
+								mUdf(T), 
+								mUdf(T) ) 
+						  	 : new Interval<T>(
+								mUdf(T), 
+								mUdf(T) ) )
+			    {}
 
 			NumInpIntervalSpec( const NumInpIntervalSpec<T>& o )
 			    : DataInpSpec( o )
 			    , startlimits_(0), stoplimits_(0), steplimits_(0)
 			    , interval_( o.interval_ ? o.interval_->clone() : 0)
+			    , defaultinterval_( o.defaultinterval_ ? 
+				    		o.defaultinterval_->clone() : 0)
 			    {}
 
 			~NumInpIntervalSpec()	
 			{ 
 			    delete interval_; 
+			    delete defaultinterval_; 
 			    delete startlimits_;
 			    delete stoplimits_;
 			    delete steplimits_;
@@ -259,6 +314,12 @@ public:
 			    interval_ = intval.clone();
 			}
 
+    virtual void	setDefaultValue( const Interval<T>& defaultintval )
+			{
+			    if ( defaultinterval_ ) delete defaultinterval_;
+			    defaultinterval_ = defaultintval.clone();
+			}
+
     virtual bool	setText( const char* s, int idx=0 )
 			{ 
 			    if ( pt_value_(idx) ) 
@@ -276,6 +337,19 @@ public:
     virtual double	getValue(int idx=0) const    { return value(idx); }
     virtual float	getfValue(int idx=0) const   { return value(idx); }
 
+    T			defaultValue( int idx=0 ) const
+			{
+			    if ( !defaultinterval_ ) return mUdf(T);
+			    return defaultvalue_(idx);
+			}
+
+    virtual int		getDefaultIntValue(int idx=0) const
+    			{ return (int)defaultValue(idx); }
+    virtual double	getDefaultValue(int idx=0) const
+    			{ return defaultValue(idx); }
+    virtual float	getDefaultfValue(int idx=0) const
+    			{ return defaultValue(idx); }
+    
     virtual const char*	text( int idx=0 ) const
 			{
 			    if ( isUndef(idx) ) return "";
@@ -358,6 +432,7 @@ public:
 protected:
 
     Interval<T>*	interval_;
+    Interval<T>*	defaultinterval_;
 
     Interval<T>*	startlimits_;
     Interval<T>*	stoplimits_;
@@ -369,18 +444,37 @@ protected:
 			    return mUdf(T);
 			}
 
-    T*			pt_value_( int idx=0 ) const
+    T			defaultvalue_( int idx=0 ) const
 			{
-			    if ( !interval_ )	return 0;
-			    if ( idx == 0 )	return &interval_->start;
-			    if ( idx == 1 )	return &interval_->stop;
-			    if ( hasStep() )	return &stpi()->step; 
+			    if ( pt_value_(idx,true) )
+				return *pt_value_(idx,true);
+
+			    return mUdf(T);
+			}
+
+    T*			pt_value_( int idx=0, bool defval=false ) const
+			{
+			    if ( defval )
+			    {
+				if ( !defaultinterval_) return 0;
+				if ( idx == 0 ) return &defaultinterval_->start;
+				if ( idx == 1 )  return &defaultinterval_->stop;
+				if ( hasStep() ) return &stpi(defval)->step;
+			    }
+			    else
+			    {
+				if ( !interval_) return 0;
+				if ( idx == 0 )	 return &interval_->start;
+				if ( idx == 1 )	 return &interval_->stop;
+				if ( hasStep() ) return &stpi()->step; 
+			    }
 			    return 0;
 			}
 
-    StepInterval<T>*	stpi() const
+    StepInterval<T>*	stpi( bool defval=false ) const
 			{
-			    mDynamicCastGet(const StepInterval<T>*,si,interval_)
+			    mDynamicCastGet(const StepInterval<T>*,si,
+					defval ? defaultinterval_ : interval_)
 			    return const_cast<StepInterval<T>*>( si );
 			}
 }; 
@@ -403,10 +497,14 @@ public:
 
     virtual bool	setText( const char* s, int idx=0 ) ;
     virtual const char*	text( int idx ) const;
+
+    void		setDefaultStringValue( const char* s, int idx );
+    const char*		getDefaultStringValue( int idx ) const;
 protected:
 
     bool		isUndef_;
     BufferString	str;
+    BufferString	defaultstr;
 
 };
 
@@ -434,29 +532,36 @@ It does not change the underlying true/false texts.
 class BoolInpSpec : public DataInpSpec
 {
 public:
-			BoolInpSpec( const char* truetxt=0,
-				     const char* falsetxt=0,bool yesno=true);
-			BoolInpSpec( const BoolInpSpec& oth);
+			BoolInpSpec(const char* truetxt=0,
+				    const char* falsetxt=0,bool yesno=true,
+				    bool isset=true);
+			BoolInpSpec(const BoolInpSpec&);
 
-    virtual bool	isUndef( int idx=0 ) const;
+    virtual bool	isUndef(int idx=0) const;
 
     virtual DataInpSpec* clone() const;
-    const char*		trueFalseTxt( bool tf = true ) const;
-    void 		setTrueFalseTxt( bool tf, const char* txt );
+    const char*		trueFalseTxt(bool tf=true) const;
+    void 		setTrueFalseTxt(bool,const char*);
 
     bool		checked() const;
-    void		setChecked( bool yesno );
-    virtual const char*	text( int idx=0 ) const;
+    void		setChecked(bool yesno);
+    virtual const char*	text(int idx=0) const;
 
-    virtual bool	setText( const char* s, int idx=0 );
-    virtual bool	getBoolValue( int idx=0 ) const;
-    virtual void	setValue( bool b, int idx=0 );
+    virtual bool	setText(const char* s,int idx=0);
+    virtual bool	getBoolValue(int idx=0) const;
+    virtual void	setValue(bool,int idx=0);
+    virtual bool	getDefaultBoolValue(int idx=0) const;
+    virtual void	setDefaultValue(bool,int idx=0);
+
+    bool		isSet() const 			{ return isset; }
 
 protected:
 
     BufferString	truetext;
     BufferString	falsetext;
     bool		yn;
+    bool		defaultyn;
+    bool		isset;
 
 };
 
@@ -470,7 +575,7 @@ class StringListInpSpec : public DataInpSpec
 public:
     			StringListInpSpec( const BufferStringSet& bss );
 			StringListInpSpec( const char** sl=0 );
-			StringListInpSpec( const StringListInpSpec& oth);
+			StringListInpSpec( const StringListInpSpec& oth );
 			~StringListInpSpec();
 
     virtual bool	isUndef( int idx=0 ) const;
@@ -492,11 +597,16 @@ public:
     virtual void	setValue( double d, int idx=0 );
     virtual void	setValue( float f, int idx=0 );
 
+    virtual void	setDefaultValue( int i, int idx=0 );
+    virtual int		getDefaultIntValue( int idx=0 ) const;
+
+    bool		isSet() const			{ return isset_; }
 protected:
 
     BufferStringSet	strings_;
     int			cur_;
-
+    int			defaultval_;
+    bool		isset_;
 };
 
 
@@ -522,10 +632,14 @@ public:
     const char*		otherTxt() const;
     const RCol2Coord*	binID2Coord() const;
 
+    float		defaultValue(int idx=0) const;
+    void		setDefaultValue(float f, int idx=0);
 protected:
 
     double		x_inl_;
     double		y_crl_;
+    double		defaultx_inl_;
+    double		defaulty_crl_;
 
     bool		docoord_;
     bool		isrelative_;
@@ -542,6 +656,11 @@ public:
 
     BinID		getValue() const
     			{ return BinID(mNINT(value(0)),mNINT(value(1))); }
+    BinID		getDefaultValue() const
+    			{
+			    return BinID(mNINT(defaultValue(0)),
+					 mNINT(defaultValue(1)));
+			}
 };
 
 
@@ -554,6 +673,11 @@ public:
 
     Coord		getValue() const
     			{ return Coord(value(0),value(1)); }
+    Coord		getDefaultValue() const
+    			{
+			    return Coord(mNINT(defaultValue(0)),
+					 mNINT(defaultValue(1)));
+			}
 };
 
 #endif

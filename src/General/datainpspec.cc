@@ -4,7 +4,7 @@
  * DATE     : 12-1-2004
 -*/
 
-static const char* rcsID = "$Id: datainpspec.cc,v 1.16 2006-03-12 13:39:10 cvsbert Exp $";
+static const char* rcsID = "$Id: datainpspec.cc,v 1.17 2006-04-03 13:26:56 cvshelene Exp $";
 
 #include "datainpspec.h"
 #include "iopar.h"
@@ -119,6 +119,32 @@ void DataInpSpec::setValue( bool b, int idx )
 { setValue( ((int)b), idx ); }
 
 
+int DataInpSpec::getDefaultIntValue( int idx ) const
+{
+    return mUdf(int);
+}
+
+
+double DataInpSpec::getDefaultValue( int idx ) const
+{
+    return mUdf(double);
+}
+
+
+float DataInpSpec::getDefaultfValue( int idx ) const
+{
+    return mUdf(float);
+}
+
+
+bool DataInpSpec::getDefaultBoolValue( int idx ) const
+{ return false; }
+
+
+const char* DataInpSpec::getDefaultStringValue( int idx ) const
+{ return ""; }
+
+
 void DataInpSpec::setType( DataType t )
 { tp_ = t; }
 
@@ -156,6 +182,18 @@ const char* StringInpSpec::text( int idx ) const
 }
 
 
+void StringInpSpec::setDefaultStringValue( const char* s, int idx )
+{
+    defaultstr = s;
+}
+
+
+const char* StringInpSpec::getDefaultStringValue( int idx ) const
+{
+    return defaultstr;
+}
+
+
 FileNameInpSpec::FileNameInpSpec( const char* fname )
     : StringInpSpec( fname )
 {
@@ -167,11 +205,14 @@ DataInpSpec* FileNameInpSpec::clone() const
 { return new FileNameInpSpec( *this ); }
 
 
-BoolInpSpec::BoolInpSpec( const char* truetxt, const char* falsetxt,bool yesno)
+BoolInpSpec::BoolInpSpec( const char* truetxt, const char* falsetxt, bool yesno,
+			  bool setyn )
     : DataInpSpec( DataTypeImpl<bool>() )
     , truetext(truetxt && *truetxt ? truetxt : "Yes")
     , falsetext(falsetxt && *falsetxt ? falsetxt : "No")
     , yn(yesno)
+    , defaultyn(true)
+    , isset(setyn)
 {}
 
 
@@ -180,6 +221,8 @@ BoolInpSpec::BoolInpSpec( const BoolInpSpec& oth)
     , truetext( oth.truetext )
     , falsetext( oth.falsetext )
     , yn( oth.yn )
+    , defaultyn( oth.defaultyn )
+    , isset(oth.isset)
 {}
 
 
@@ -204,7 +247,7 @@ bool BoolInpSpec::checked() const
 
 
 void BoolInpSpec::setChecked( bool yesno )
-{ yn=yesno; }
+{ yn = yesno; isset = true;}
 
 
 const char* BoolInpSpec::text( int idx ) const
@@ -217,6 +260,7 @@ const char* BoolInpSpec::text( int idx ) const
 bool BoolInpSpec::setText( const char* s, int idx )
 {
     yn = s && strcmp(s,falsetext);
+    isset = true;
     return true;
 }
 
@@ -226,19 +270,31 @@ bool BoolInpSpec::getBoolValue( int idx ) const
 
 
 void BoolInpSpec::setValue( bool b, int idx )
-{ yn = b; }
+{ yn = b; isset = true; }
+
+
+bool BoolInpSpec::getDefaultBoolValue( int idx ) const
+{ return defaultyn; }
+
+
+void BoolInpSpec::setDefaultValue( bool b, int idx )
+{ defaultyn = b; }
 
 
 StringListInpSpec::StringListInpSpec( const BufferStringSet& bss )
     : DataInpSpec( DataTypeImpl<const char*> (DataType::list) )
     , strings_(bss)
     , cur_(0)
+    , defaultval_(0)
+    , isset_(0)
 {}
 
 
 StringListInpSpec::StringListInpSpec( const char** sl )
     : DataInpSpec( DataTypeImpl<const char*>(DataType::list) )
     , cur_(0)
+    , defaultval_(0)
+    , isset_(0)
 {
     if ( !sl ) return;
     for ( int idx=0; sl[idx]; idx++ )
@@ -249,6 +305,8 @@ StringListInpSpec::StringListInpSpec( const char** sl )
 StringListInpSpec::StringListInpSpec( const StringListInpSpec& oth )
     : DataInpSpec( oth )
     , cur_(oth.cur_)
+    , defaultval_(oth.defaultval_)
+    , isset_(oth.isset_)
 { deepCopy( strings_, oth.strings_ ); }
 
 
@@ -287,7 +345,7 @@ bool StringListInpSpec::setText( const char* s, int nr )
 {
     for ( int idx=0; idx<strings_.size(); idx++ )
     {
-	if ( *strings_[idx] == s ) { cur_ = idx; return true; }
+	if ( *strings_[idx] == s ) { cur_ = idx; isset_ = true; return true; }
     }
 
     return false;
@@ -307,31 +365,47 @@ float StringListInpSpec::getfValue( int idx ) const
 
 
 void StringListInpSpec::setValue( int i, int idx )
-{ if ( i < strings_.size() ) cur_ = i; }
+{ if ( i < strings_.size() ) cur_ = i; isset_ = true; }
 
 
 void StringListInpSpec::setValue( double d, int idx )
 {
     if ( (int)(d+.5) < strings_.size() )
+    {
 	cur_ = (int)(d+.5);
+	isset_ = true;
+    }
 }
 
 
 void StringListInpSpec::setValue( float f, int idx )
 {
     if ( (int)(f+.5) < strings_.size() )
+    {
 	cur_ = (int)(f+.5);
+	isset_ = true;
+    }
 }
+
+
+int StringListInpSpec::getDefaultIntValue( int idx ) const
+{ return defaultval_; }
+
+
+void StringListInpSpec::setDefaultValue( int i, int idx )
+{ if ( i < strings_.size() ) defaultval_ = i; }
 
 
 PositionInpSpec::PositionInpSpec( bool docrd, float x_inline, float y_crossline,
 				  bool isrelative, const RCol2Coord* b2c )
     : DataInpSpec( DataTypeImpl<int>(DataType::binID) )
-    , x_inl_(x_inline)
-    , y_crl_(y_crossline)
-    , docoord_(docrd)
-    , isrelative_(isrelative)
+    , x_inl_( x_inline )
+    , y_crl_( y_crossline )
+    , docoord_( docrd )
+    , isrelative_( isrelative )
     , b2c_( b2c )
+    , defaultx_inl_( mUdf(float) )
+    , defaulty_crl_( mUdf(float) )
 {}
 
 
@@ -373,3 +447,12 @@ const char* PositionInpSpec::otherTxt() const
 
 const RCol2Coord* PositionInpSpec::binID2Coord() const
 { return b2c_; }
+
+
+float PositionInpSpec::defaultValue( int idx ) const
+{ return idx==0 ? defaultx_inl_ : defaulty_crl_; }
+
+
+void PositionInpSpec::setDefaultValue( float f, int idx )
+{ idx==0 ? defaultx_inl_= f : defaulty_crl_= f; }
+
