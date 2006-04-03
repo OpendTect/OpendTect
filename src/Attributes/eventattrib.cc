@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Helene Payraudeau
  Date:		February 2005
- RCS:		$Id: eventattrib.cc,v 1.15 2005-12-23 16:09:46 cvsnanne Exp $
+ RCS:		$Id: eventattrib.cc,v 1.16 2006-04-03 13:38:29 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -271,7 +271,7 @@ void Event::multipleEvents( TypeSet<float>& output,
 	    ValueSeriesEvent<float,float> ev = 
 					vsevfinder.find( eventtype, sg, 1 );
 	    if ( mIsUdf(ev.pos) )
-		output[idx] = fabs( (z0 + idx) - ev.pos);
+		output[idx] = ev.pos;
 	    else
 		output[idx] = fabs( (z0 + idx) - ev.pos) * refstep;
 	}
@@ -285,7 +285,7 @@ void Event::multipleEvents( TypeSet<float>& output,
 	sg.stop = tonext ? sg.start + SGWIDTH : sg.start - SGWIDTH;
 	ValueSeriesEvent<float,float> ev = vsevfinder.find( eventtype, sg, 1 );
 	if ( mIsUdf(ev.pos) )
-	    output[0] = fabs( z0 - ev.pos );
+	    output[0] = ev.pos;
 	else
 	    output[0] = fabs( z0 - ev.pos ) * refstep;
     }
@@ -318,7 +318,7 @@ void Event::multipleEvents( TypeSet<float>& output,
 		if ( cursample > ev.pos && cursample < nextev.pos)
 		{
 		    if ( mIsUdf(nextev.pos) )
-			output[idx] = (nextev.pos - ev.pos);
+			output[idx] = nextev.pos;
 		    else 
 			output[idx] = (nextev.pos - ev.pos) * refstep;
 		}
@@ -339,7 +339,7 @@ void Event::multipleEvents( TypeSet<float>& output,
 		if ( cursample < ev.pos && cursample > nextev.pos)
 		{
 		    if ( mIsUdf(nextev.pos) )
-			output[idx] = (ev.pos - nextev.pos);
+			output[idx] = nextev.pos;
 		    else
 			output[idx] = (ev.pos - nextev.pos) * refstep;
 		}
