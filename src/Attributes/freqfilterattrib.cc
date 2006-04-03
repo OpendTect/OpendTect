@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          February 2003
- RCS:           $Id: freqfilterattrib.cc,v 1.15 2006-03-12 13:39:10 cvsbert Exp $
+ RCS:           $Id: freqfilterattrib.cc,v 1.16 2006-04-03 13:51:12 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -209,10 +209,12 @@ void FreqFilter::initClass()
 
     FloatParam* minfreq = new FloatParam( minfreqStr() );
     minfreq->setLimits( Interval<float>(0,mUdf(float)) );
+    minfreq->setDefaultValue(15);
     desc->addParam( minfreq );
 
     FloatParam* maxfreq = new FloatParam( maxfreqStr() );
     maxfreq->setLimits( Interval<float>(0,mUdf(float)) );
+    maxfreq->setDefaultValue(50);
     desc->addParam( maxfreq );
 
     IntParam* nrpoles = new IntParam( nrpolesStr() );
@@ -368,10 +370,10 @@ void FreqFilter::butterWorthFilter( const DataHolder& output,
 {
     int nrsamp = nrsamples;
     int csamp = z0;
-    if ( nrsamples == 1 )
+    if ( nrsamples < mMINNRSAMPLES )
     {
 	nrsamp = mMINNRSAMPLES;
-	csamp = z0 - mNINT(refstep*nrsamp/2);
+	csamp = z0 - mNINT(nrsamp/2);
     }
 
     ArrPtrMan<float> data = new float [nrsamp];
@@ -399,8 +401,9 @@ void FreqFilter::butterWorthFilter( const DataHolder& output,
 	BFhighpass( nrpoles, cutoff, nrsamp, tmp, outp );
     }
 
-    if ( nrsamples == 1 )
-	output.series(0)->setValue( 0, outp[nrsamp/2 - 1] );
+    if ( nrsamples < mMINNRSAMPLES )
+	for ( int idx=0; idx<nrsamples; idx++ )
+	    output.series(0)->setValue( idx, outp[nrsamp/2 - 1 + idx] );
     else
     {
 	float* out = output.series(0)->arr();
@@ -414,7 +417,7 @@ void FreqFilter::fftFilter( const DataHolder& output,
 {
     int nrsamp = nrsamples;
     int z0safe = z0;
-    if ( nrsamples == 1 )
+    if ( nrsamples < mMINNRSAMPLES )
     {
 	nrsamp = mMINNRSAMPLES;
 	z0safe = z0 - nrsamp/2;
@@ -466,8 +469,9 @@ void FreqFilter::fftFilter( const DataHolder& output,
 
     fftinv.transform( tmpfreqdomain, timecplxoutp );
 
+    const int firstidx = nrsamples < mMINNRSAMPLES ? fftsz/2 - nrsamples/2: sz;
     for ( int idx=0; idx<nrsamples; idx++ )
-	output.series(0)->setValue( idx, timecplxoutp.get(sz+idx).real() );
+	output.series(0)->setValue( idx, timecplxoutp.get(firstidx+idx).real());
 }
 
 
