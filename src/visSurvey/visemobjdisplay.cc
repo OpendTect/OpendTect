@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: visemobjdisplay.cc,v 1.79 2006-03-14 07:01:50 cvsnanne Exp $
+ RCS:           $Id: visemobjdisplay.cc,v 1.80 2006-04-04 08:41:16 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -88,6 +88,7 @@ EMObjectDisplay::EMObjectDisplay()
     , displayonlyatsections_( false )
     , hasmoved( this )
     , changedisplay( this )
+    , locknotifier( this )
     , drawstyle_(visBase::DrawStyle::create())
     , edgelineradius_( 3.5 )
     , validtexture_( false )
@@ -1415,6 +1416,16 @@ int EMObjectDisplay::usePar( const IOPar& par )
 
 
 NotifierAccess* EMObjectDisplay::getMovementNotification() { return &hasmoved; }
+
+
+NotifierAccess* EMObjectDisplay::getLockNotification() { return &locknotifier; }
+
+
+void EMObjectDisplay::lock( bool yn ) 
+{
+    locked_ = yn;
+    locknotifier.trigger();
+}
 
 
 void EMObjectDisplay::updatePosAttrib(int attrib)
