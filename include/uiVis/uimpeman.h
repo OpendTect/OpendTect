@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.h,v 1.30 2006-03-30 16:14:55 cvsjaap Exp $
+ RCS:           $Id: uimpeman.h,v 1.31 2006-04-04 09:00:52 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,23 +34,29 @@ class uiVisPartServer;
 
 /*! \brief Dialog for tracking properties
 */
-class uiMPEMan : public uiToolBar
+class uiMPEMan : public CallBackClass
 {
 public:		
 				uiMPEMan(uiParent*, uiVisPartServer*);
 				~uiMPEMan();
+
+    uiToolBar*			getToolBar() const;
 
     void			deleteVisObjects();
     void			updateAttribNames();
     void			initFromDisplay();
 
     void			turnSeedPickingOn(bool);
+    bool			isSeedPickingOn() const;
+    void                        visObjectLockedCB();
 
 protected:
     visSurvey::MPEDisplay*	getDisplay(int sceneid,bool create=false);
     
     uiColorBarDialog*		colbardlg;
 
+    uiToolBar*			toolbar;
+    
     MenuItem			seedmnuitem;
     MenuItem			createmnuitem;
     uiVisPartServer*		visserv;
