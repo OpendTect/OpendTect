@@ -7,12 +7,14 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert & Kris
  Date:		Mar 2006
- RCS:		$Id: idxable.h,v 1.4 2006-03-22 16:07:49 cvsnanne Exp $
+ RCS:		$Id: idxable.h,v 1.5 2006-04-04 20:50:03 cvskris Exp $
 ________________________________________________________________________
 
 */
 
+#include "gendefs.h"
 #include "interpol1d.h"
+#include "sets.h"
 #include "sorting.h"
 
 /*!\brief Position-sorted indexable objects
