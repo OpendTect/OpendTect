@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.cc,v 1.79 2006-03-30 16:38:14 cvsjaap Exp $
+ RCS:           $Id: uimpeman.cc,v 1.80 2006-04-04 09:16:19 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -59,7 +59,7 @@ ________________________________________________________________________
 using namespace MPE;
 
 #define mAddButton(pm,func,tip,toggle) \
-    addButton( ioPixmap( GetIconFileName(pm) ), \
+    toolbar->addButton( ioPixmap( GetIconFileName(pm) ), \
 	    	    mCB(this,uiMPEMan,func), tip, toggle )
 
 #define mGetDisplays(create) \
@@ -72,8 +72,7 @@ using namespace MPE;
 
 
 uiMPEMan::uiMPEMan( uiParent* p, uiVisPartServer* ps )
-    : uiToolBar(p,"Tracking controls")
-    , clickcatcher(0)
+    : clickcatcher(0)
     , visserv(ps)
     , init(false)
     , createmnuitem("Create")
@@ -85,13 +84,15 @@ uiMPEMan::uiMPEMan( uiParent* p, uiVisPartServer* ps )
     , seedpickwason(false)
     , seltrackerid(-1)
 {
-    seedconmodefld = new uiComboBox( this, "Seed connect mode" );
+    toolbar = new uiToolBar(p,"Tracking controls");
+
+    seedconmodefld = new uiComboBox( toolbar, "Seed connect mode" );
     seedconmodefld->setToolTip( "Select seed connect mode" );
     seedconmodefld->selectionChanged.notify( mCB(this, uiMPEMan,
 						 seedConnectModeSel) );
 
     seedidx = mAddButton( "seedpickmode.png", addSeedCB, "Create seed", true );
-    addSeparator();
+    toolbar->addSeparator();
     
     moveplaneidx = mAddButton( "moveplane.png", movePlaneCB,
 			       "Move track plane", true );
@@ -102,52 +103,52 @@ uiMPEMan::uiMPEMan( uiParent* p, uiVisPartServer* ps )
     eraseidx = mAddButton( "erasingplane.png", eraseModeCB, 
 	    		   "Erase mode", true );
 /*
-    addSeparator();
+    toolbar->addSeparator();
     mouseeraseridx = mAddButton( "eraser.png", mouseEraseModeCB, 
 	    			 "Erase with mouse", true );
 */
 
-    addSeparator();
+    toolbar->addSeparator();
     undoidx = mAddButton( "undo.png", undoPush, "Undo", false );
     redoidx = mAddButton( "redo.png", redoPush, "Redo", false );
 
-    addSeparator();
+    toolbar->addSeparator();
     showcubeidx = mAddButton( "trackcube.png", showCubeCB,
 	    		      "Show trackingarea", true );
 
-    addSeparator();
-    attribfld = new uiComboBox( this, "Attribute" );
+    toolbar->addSeparator();
+    attribfld = new uiComboBox( toolbar, "Attribute" );
     attribfld->setToolTip( "QC Attribute" );
     attribfld->selectionChanged.notify( mCB(this,uiMPEMan,attribSel) );
-    setStretchableWidget( attribfld );
+    toolbar->setStretchableWidget( attribfld );
 
     clrtabidx = mAddButton( "colorbar.png", setColorbarCB,
 			    "Set track plane colorbar", true );
 
-    addSeparator();
-    transfld = new uiSlider( this, "Slider", 2 );
+    toolbar->addSeparator();
+    transfld = new uiSlider( toolbar, "Slider", 2 );
     transfld->setOrientation( uiSlider::Horizontal );
     transfld->setMaxValue( 1 );
     transfld->setToolTip( "Transparency" );
     transfld->valueChanged.notify( mCB(this,uiMPEMan,transpChg) );
 
-    addSeparator();
+    toolbar->addSeparator();
     trackinvolidx = mAddButton( "track_seed.png", trackInVolume,
     				"Auto-tracking", false );
     
-    addSeparator();
+    toolbar->addSeparator();
     trackforwardidx = mAddButton( "leftarrow.png", trackBackward,
 	    			  "Track backward", false );
     trackbackwardidx = mAddButton( "rightarrow.png", trackForward,
 	    			   "Track forward", false );
 
-    nrstepsbox = new uiSpinBox( this );
+    nrstepsbox = new uiSpinBox( toolbar );
     nrstepsbox->setToolTip( "Nr of tracking steps" );
     nrstepsbox->setMinValue( 1 );
 
-    setCloseMode( 2 );
-    setResizeEnabled();
-    setVerticallyStretchable(false);
+    toolbar->setCloseMode( 2 );
+    toolbar->setResizeEnabled();
+    toolbar->setVerticallyStretchable(false);
     updateAttribNames();
 
     EM::EMM().history().changenotifier.notify(
@@ -299,6 +300,12 @@ void uiMPEMan::seedClick( CallBacker* )
     setHistoryLevel(currentevent);
 }
 
+uiToolBar* uiMPEMan::getToolBar() const 
+{ 
+    return toolbar; 
+}
+
+
 
 visSurvey::MPEDisplay* uiMPEMan::getDisplay( int sceneid, bool create )
 {
@@ -323,7 +330,7 @@ visSurvey::MPEDisplay* uiMPEMan::getDisplay( int sceneid, bool create )
 
     visserv->addObject( mpedisplay, scene->id(), false );
     mpedisplay->setDraggerTransparency( transfld->getValue() );
-    mpedisplay->showDragger( isOn(extendidx) );
+    mpedisplay->showDragger( toolbar->isOn(extendidx) );
 
     mpedisplay->boxDraggerStatusChange.notify(
 	    mCB(this,uiMPEMan,boxDraggerStatusChangeCB) );
@@ -393,6 +400,12 @@ void uiMPEMan::updateSelectedAttrib()
 }
 
 
+bool uiMPEMan::isSeedPickingOn() const
+{
+    return clickcatcher && clickcatcher->isOn();
+}
+
+
 void uiMPEMan::turnSeedPickingOn( bool yn )
 {
     blockattribsel = yn;
@@ -403,7 +416,7 @@ void uiMPEMan::turnSeedPickingOn( bool yn )
 	seedpicker = 0;
     }
 
-    turnOn( seedidx, yn );
+    toolbar->turnOn( seedidx, yn );
     if ( yn )
     {
 	seedclickobject = -1;
@@ -460,19 +473,19 @@ void uiMPEMan::boxDraggerStatusChangeCB( CallBacker* cb )
 	    displays[idx]->updateMPEActiveVolume();
     }
 
-    turnOn( showcubeidx, ison );
+    toolbar->turnOn( showcubeidx, ison );
 }
 
 
 void uiMPEMan::showCubeCB( CallBacker* )
 {
-    const bool isshown = isOn( showcubeidx );
+    const bool isshown = toolbar->isOn( showcubeidx );
     mGetDisplays(isshown)
     for ( int idx=0; idx<displays.size(); idx++ )
 	displays[idx]->showBoxDragger( isshown );
 
-    setToolTip( showcubeidx, isshown ? "Show trackingarea"
-	    			     : "Hide trackingarea" );
+    toolbar->setToolTip( showcubeidx, isshown ? "Show trackingarea"
+	    				      : "Hide trackingarea" );
 }
 
 
@@ -581,7 +594,7 @@ void uiMPEMan::mouseEraseModeCB( CallBacker* )
 
 void uiMPEMan::addSeedCB( CallBacker* )
 {
-    turnSeedPickingOn( isOn(seedidx) );
+    turnSeedPickingOn( toolbar->isOn(seedidx) );
 
 //    if ( isOn( seedidx ) )
 //	visserv->sendAddSeedEvent();
@@ -618,9 +631,10 @@ void uiMPEMan::redoPush( CallBacker* )
 MPE::EMTracker* uiMPEMan::getSelectedTracker() 
 {
     const TypeSet<int>& selectedids = visBase::DM().selMan().selected();
-    if ( selectedids.size()!=1 )
+    if ( selectedids.size()!=1 || 
+	 visserv->isLocked(selectedids[0]) )
 	return 0;
-    const MultiID mid = visserv->getMultiID(selectedids[0]);
+    const MultiID mid = visserv->getMultiID( selectedids[0] );
     if ( mid==-1 )
 	return 0;
     const EM::ObjectID oid = EM::EMM().getObjectID(mid);
@@ -634,8 +648,8 @@ MPE::EMTracker* uiMPEMan::getSelectedTracker()
 void uiMPEMan::updateButtonSensitivity( CallBacker* ) 
 {
     //Undo/Redo
-    uiToolBar::setSensitive( undoidx, EM::EMM().history().canUnDo() );
-    uiToolBar::setSensitive( redoidx, EM::EMM().history().canReDo() );
+    toolbar->setSensitive( undoidx, EM::EMM().history().canUnDo() );
+    toolbar->setSensitive( redoidx, EM::EMM().history().canReDo() );
 
     //Seed button
 
@@ -643,35 +657,35 @@ void uiMPEMan::updateButtonSensitivity( CallBacker* )
 
     const bool isvoltrack = seedpicker ? seedpicker->doesModeUseVolume() : true;
     
-    uiToolBar::setSensitive( extendidx, isvoltrack );
-    uiToolBar::setSensitive( retrackidx, isvoltrack );
-    uiToolBar::setSensitive( eraseidx, isvoltrack );
-    uiToolBar::setSensitive( moveplaneidx, isvoltrack );
-    uiToolBar::setSensitive( showcubeidx, isvoltrack );
-    uiToolBar::setSensitive( trackinvolidx, isvoltrack );
+    toolbar->setSensitive( extendidx, isvoltrack );
+    toolbar->setSensitive( retrackidx, isvoltrack );
+    toolbar->setSensitive( eraseidx, isvoltrack );
+    toolbar->setSensitive( moveplaneidx, isvoltrack );
+    toolbar->setSensitive( showcubeidx, isvoltrack );
+    toolbar->setSensitive( trackinvolidx, isvoltrack );
     
     //Track forward, backward, attrib, trans, nrstep
     mGetDisplays(false);
     const bool trackerisshown = displays.size() &&
 				displays[0]->isDraggerShown();
 
-    uiToolBar::setSensitive( trackforwardidx, trackerisshown && isvoltrack );
-    uiToolBar::setSensitive( trackbackwardidx, trackerisshown && isvoltrack );
+    toolbar->setSensitive( trackforwardidx, trackerisshown && isvoltrack );
+    toolbar->setSensitive( trackbackwardidx, trackerisshown && isvoltrack );
     attribfld->setSensitive( trackerisshown && isvoltrack );
     transfld->setSensitive( trackerisshown && isvoltrack );
     nrstepsbox->setSensitive( trackerisshown && isvoltrack );
 
     //coltab
-    uiToolBar::setSensitive( clrtabidx, trackerisshown && !colbardlg &&
-			     attribfld->currentItem()>0 && isvoltrack );
+    toolbar->setSensitive( clrtabidx, trackerisshown && !colbardlg &&
+			   attribfld->currentItem()>0 && isvoltrack );
 
 
     //trackmode buttons
     const TrackPlane::TrackMode tm = engine().trackPlane().getTrackMode();
-    turnOn( extendidx, trackerisshown && tm==TrackPlane::Extend );
-    turnOn( retrackidx, trackerisshown && tm==TrackPlane::ReTrack );
-    turnOn( eraseidx, trackerisshown && tm==TrackPlane::Erase );
-    turnOn( moveplaneidx, trackerisshown && tm==TrackPlane::Move );
+    toolbar->turnOn( extendidx, trackerisshown && tm==TrackPlane::Extend );
+    toolbar->turnOn( retrackidx, trackerisshown && tm==TrackPlane::ReTrack );
+    toolbar->turnOn( eraseidx, trackerisshown && tm==TrackPlane::Erase );
+    toolbar->turnOn( moveplaneidx, trackerisshown && tm==TrackPlane::Move );
 }
 
 
@@ -681,14 +695,14 @@ void uiMPEMan::updateSeedPickState()
 	seedpicker = 0;
 
     MPE::EMTracker* seltracker = getSelectedTracker();
-    uiToolBar::setSensitive( seedidx, seltracker );
+    toolbar->setSensitive( seedidx, seltracker );
     seedconmodefld->setSensitive( seltracker );
     seedconmodefld->empty();
 
     if ( !seltracker )
     {
 	seedconmodefld->addItem("No seed mode");
-	if ( isOn(seedidx) )
+	if ( toolbar->isOn(seedidx) )
 	{
 	    turnSeedPickingOn( false );
 	    seedpickwason = true;
@@ -696,7 +710,7 @@ void uiMPEMan::updateSeedPickState()
 	seedpicker = 0;
 	return;
     }
-    if ( isOn(seedidx) )
+    if ( toolbar->isOn(seedidx) )
 	seedpickwason = false;
     if ( seedpickwason )
 	turnSeedPickingOn( true );
@@ -712,6 +726,12 @@ void uiMPEMan::updateSeedPickState()
 
     seedpicker = seltracker->getSeedPicker(true);
     seedconmodefld->setCurrentItem( seedpicker->getSeedConnectMode() );
+}
+
+
+void uiMPEMan::visObjectLockedCB()
+{
+    updateButtonSensitivity();
 }
 
 
@@ -755,7 +775,7 @@ void uiMPEMan::trackInVolume( CallBacker* )
     if ( exec )
     {
 	const int currentevent = EM::EMM().history().currentEventNr();
-	uiExecutor uiexec( this, *exec );
+	uiExecutor uiexec( toolbar, *exec );
 	if ( !uiexec.go() )
 	{
 	    uiMSG().error(engine().errMsg());
@@ -782,7 +802,7 @@ void uiMPEMan::showTracker( bool yn )
 
 void uiMPEMan::setColorbarCB(CallBacker*)
 {
-    if ( colbardlg || !isOn(clrtabidx) )
+    if ( colbardlg || !toolbar->isOn(clrtabidx) )
 	return;
 
     mGetDisplays(false);
@@ -794,7 +814,7 @@ void uiMPEMan::setColorbarCB(CallBacker*)
 	?  displays[0]->getTexture()->getColorTab().id()
 	: -1;
 
-    colbardlg = new uiColorBarDialog( this, coltabid, "Track plane colorbar" );
+    colbardlg = new uiColorBarDialog( toolbar, coltabid, "Track plane colorbar" );
     colbardlg->winClosing.notify( mCB( this,uiMPEMan,onColTabClosing ) );
     colbardlg->go();
 
@@ -804,7 +824,7 @@ void uiMPEMan::setColorbarCB(CallBacker*)
 
 void uiMPEMan::onColTabClosing( CallBacker* )
 {
-    turnOn( clrtabidx, false );
+    toolbar->turnOn( clrtabidx, false );
     colbardlg = 0;
 
     updateButtonSensitivity();
@@ -813,7 +833,7 @@ void uiMPEMan::onColTabClosing( CallBacker* )
 
 void uiMPEMan::movePlaneCB( CallBacker* )
 {
-    const bool ison = isOn( moveplaneidx );
+    const bool ison = toolbar->isOn( moveplaneidx );
     showTracker( ison );
     engine().setTrackMode( ison ? TrackPlane::Move : TrackPlane::None );
 }
@@ -821,7 +841,7 @@ void uiMPEMan::movePlaneCB( CallBacker* )
 
 void uiMPEMan::extendModeCB( CallBacker* )
 {
-    const bool ison = isOn( extendidx );
+    const bool ison = toolbar->isOn( extendidx );
     showTracker( ison );
     engine().setTrackMode( ison ? TrackPlane::Extend : TrackPlane::None );
 }
@@ -829,7 +849,7 @@ void uiMPEMan::extendModeCB( CallBacker* )
 
 void uiMPEMan::retrackModeCB( CallBacker* )
 {
-    const bool ison = isOn( retrackidx );
+    const bool ison = toolbar->isOn( retrackidx );
     showTracker( ison );
     engine().setTrackMode( ison ? TrackPlane::ReTrack : TrackPlane::None );
 }
@@ -837,7 +857,7 @@ void uiMPEMan::retrackModeCB( CallBacker* )
 
 void uiMPEMan::eraseModeCB( CallBacker* )
 {
-    const bool ison = isOn( eraseidx );
+    const bool ison = toolbar->isOn( eraseidx );
     showTracker( ison );
     engine().setTrackMode( ison ? TrackPlane::Erase : TrackPlane::None );
 }
