@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.309 2006-03-13 18:53:44 cvskris Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.310 2006-04-04 09:08:12 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -84,7 +84,7 @@ uiVisPartServer::uiVisPartServer( uiApplService& a )
     menu_.handlenotifier.notify( mCB(this,uiVisPartServer,handleMenuCB) );
 
     mpetools_ = new uiMPEMan( appserv().parent(), this );
-    mpetools_->display( false );
+    mpetools_->getToolBar()->display( false );
 
     visBase::DM().selMan().selnotifier.notify( 
 	mCB(this,uiVisPartServer,selectObjCB) );
@@ -165,8 +165,8 @@ bool uiVisPartServer::disabMenus( bool yn )
 
 bool uiVisPartServer::disabToolbars( bool yn )
 {
-    const bool res = !mpetools_->sensitive();
-    mpetools_->setSensitive( !yn );
+    const bool res = !mpetools_->getToolBar()->sensitive();
+    mpetools_->getToolBar()->setSensitive( !yn );
     return res;
 }
 
@@ -956,6 +956,9 @@ void uiVisPartServer::turnSeedPickingOn( bool yn )
 
 bool uiVisPartServer::isPicking() const
 {
+    if ( mpetools_ && mpetools_->isSeedPickingOn() ) 
+	return true;
+
     const TypeSet<int>& sel = visBase::DM().selMan().selected();
     if ( sel.size()!=1 ) return false;
 
@@ -1123,6 +1126,8 @@ void uiVisPartServer::setUpConnections( int id )
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id))
     NotifierAccess* na = so ? so->getManipulationNotifier() : 0;
     if ( na ) na->notify( mCB(this,uiVisPartServer,interactionCB) );
+    na = so ? so->getLockNotification() : 0;
+    if ( na ) na->notify( mCB(mpetools_,uiMPEMan,visObjectLockedCB) );
 
     mDynamicCastGet(visBase::VisualObject*,vo,getObject(id))
     if ( vo && vo->rightClicked() )
@@ -1146,8 +1151,9 @@ void uiVisPartServer::removeConnections( int id )
 {
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id))
     NotifierAccess* na = so ? so->getManipulationNotifier() : 0;
-
     if ( na ) na->remove( mCB(this,uiVisPartServer,interactionCB) );
+    na = so ? so->getLockNotification() : 0;
+    if ( na ) na->remove( mCB(mpetools_,uiMPEMan,visObjectLockedCB) );
 
     mDynamicCastGet(visBase::VisualObject*,vo,getObject(id));
     if ( vo && vo->rightClicked() )
@@ -1351,16 +1357,16 @@ void uiVisPartServer::colTabChangeCB( CallBacker* )
 void uiVisPartServer::showMPEToolbar()
 {
     mpetools_->updateAttribNames();
-    if ( !mpetools_->isShown() )
+    if ( !mpetools_->getToolBar()->isShown() )
     {
-	mpetools_->display();
-	mpetools_->undock();
+	mpetools_->getToolBar()->display();
+	mpetools_->getToolBar()->undock();
     }
 }
 
 
 uiToolBar* uiVisPartServer::getTrackTB() const
-{ return (uiToolBar*)mpetools_; }
+{ return mpetools_->getToolBar(); }
 
 
 void uiVisPartServer::initMPEStuff()
