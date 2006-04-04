@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribstorprovider.cc,v 1.40 2006-03-28 12:23:01 cvsnanne Exp $";
+static const char* rcsID = "$Id: attribstorprovider.cc,v 1.41 2006-04-04 10:22:48 cvshelene Exp $";
 
 #include "attribstorprovider.h"
 
@@ -490,7 +490,9 @@ bool StorageProvider::fillDataHolderWithTrc( const SeisTrc* trc,
     float exacttime = 0;
     if ( needinterp )
     {
-	BinIDValueSet::Pos pos = seldata_->table_.findFirst( currentbid );
+	BinID curbid = desc.is2D() && curtrcinfo_ ?
+		       curtrcinfo_->binid : currentbid;
+	BinIDValueSet::Pos pos = seldata_->table_.findFirst( curbid );
 	if ( !pos.valid() ) return false;
 
 	exacttime = seldata_->table_.getVals( pos )[0];
