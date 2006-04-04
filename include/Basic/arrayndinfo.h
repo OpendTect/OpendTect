@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: arrayndinfo.h,v 1.5 2003-11-07 12:21:51 bert Exp $
+ RCS:		$Id: arrayndinfo.h,v 1.6 2006-04-04 20:47:37 cvskris Exp $
 ________________________________________________________________________
 
 An ArrayNDInfo contains the information about the size of ArrayND, and
@@ -221,15 +221,23 @@ public:
     bool			next();
     void			reset();
 
-    const int*			getPos() const { return position; }
+    template <class T> void inline	setPos( const T& idxabl );
+    const int*			getPos() const { return position_; }
     int				operator[](int) const;
 
 protected:
     bool			inc(int);
 
-    int*			position;
-    const ArrayNDInfo&		sz;
+    int*			position_;
+    const ArrayNDInfo&		sz_;
 };
+
+
+template <class T> inline void ArrayNDIter::setPos( const T& idxable )
+{
+    for ( int idx=sz_.getNDim()-1; idx>=0; idx-- )
+	position_[idx] = idxable[idx];
+}
 
 #endif
 
