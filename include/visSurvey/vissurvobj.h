@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvobj.h,v 1.58 2006-03-12 13:39:10 cvsbert Exp $
+ RCS:		$Id: vissurvobj.h,v 1.59 2006-04-04 08:25:35 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -195,8 +195,9 @@ public:
 
     virtual bool		setDataTransform( ZAxisTransform* );
 
-    void			lock( bool yn )		{ locked_ = yn; }
-    bool			isLocked() const	{ return locked_; }
+    virtual void		lock( bool yn )		{ locked_ = yn; }
+    virtual bool		isLocked() const	{ return locked_; }
+    virtual NotifierAccess*	getLockNotification()	{ return 0; }
 
     static float		sDefMaxDist;
 
