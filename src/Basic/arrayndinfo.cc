@@ -4,7 +4,7 @@
  * DATE     : 9-3-1999
 -*/
 
-static const char* rcsID = "$Id: arrayndinfo.cc,v 1.5 2003-11-07 12:21:57 bert Exp $";
+static const char* rcsID = "$Id: arrayndinfo.cc,v 1.6 2006-04-04 20:51:58 cvskris Exp $";
 
 #include <arrayndinfo.h>
 
@@ -323,9 +323,9 @@ unsigned long ArrayNDInfoImpl::calcTotalSz() const
 }
 
 
-ArrayNDIter::ArrayNDIter( const ArrayNDInfo& sz_ )
-    : sz ( sz_ )
-    , position( new int[sz_.getNDim()] )
+ArrayNDIter::ArrayNDIter( const ArrayNDInfo& sz )
+    : sz_ ( sz )
+    , position_( new int[sz.getNDim()] )
 {
     reset();
 }
@@ -333,40 +333,40 @@ ArrayNDIter::ArrayNDIter( const ArrayNDInfo& sz_ )
 
 ArrayNDIter::~ArrayNDIter()
 {
-    delete [] position;
+    delete [] position_;
 }
 
 
 bool ArrayNDIter::next()
 {
-    return inc( sz.getNDim() - 1 );
+    return inc( sz_.getNDim() - 1 );
 }
 
 
 void ArrayNDIter::reset()
 {
-    const int ndim = sz.getNDim();
+    const int ndim = sz_.getNDim();
 
     for ( int idx=0; idx<ndim; idx++ )
-	position[idx] = 0;
+	position_[idx] = 0;
 }
 
 
 int ArrayNDIter::operator[](int dim) const
 {
-    return position[dim];
+    return position_[dim];
 }
 
 
 bool ArrayNDIter::inc( int dim )
 {
-    position[dim] ++;
+    position_[dim] ++;
 
-    if ( position[dim] >= sz.getSize(dim))
+    if ( position_[dim] >= sz_.getSize(dim))
     {
 	if ( dim )
 	{
-	    position[dim] = 0;
+	    position_[dim] = 0;
 	    return inc( dim-1 );
 	}
 	else
