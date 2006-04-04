@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.172 2006-03-30 20:49:46 cvsnanne Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.173 2006-04-04 08:48:38 cvsjaap Exp $
 ___________________________________________________________________
 
 -*/
@@ -923,6 +923,7 @@ void uiODDisplayTreeItem::handleMenuCB( CallBacker* cb )
 	else
 	    pixmap = new ioPixmap();
 	uilistviewitem->setPixmap( 0, *pixmap );
+	ODMainWin()->sceneMgr().updateStatusBar();
     }
     else if ( mnuid==duplicatemnuitem_.id )
     {
