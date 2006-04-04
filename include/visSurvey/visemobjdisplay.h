@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          May 2004
- RCS:           $Id: visemobjdisplay.h,v 1.38 2006-03-09 21:08:28 cvskris Exp $
+ RCS:           $Id: visemobjdisplay.h,v 1.39 2006-04-04 08:28:39 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -151,6 +151,10 @@ public:
     NotifierAccess*		getMovementNotification();
     Notifier<EMObjectDisplay>	hasmoved;
     Notifier<EMObjectDisplay>	changedisplay;
+
+    void			lock(bool yn);
+    NotifierAccess*		getLockNotification();
+    Notifier<EMObjectDisplay>	locknotifier;
 
 protected:
     					~EMObjectDisplay();
