@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribprovider.cc,v 1.60 2006-03-23 12:47:17 cvshelene Exp $";
+static const char* rcsID = "$Id: attribprovider.cc,v 1.61 2006-04-05 17:23:05 cvskris Exp $";
 
 #include "attribprovider.h"
 #include "attribstorprovider.h"
@@ -621,6 +621,7 @@ int Provider::comparePosAndAlign( Provider* input1, bool inp1_is_on_newline,
 	                          Provider* input2, bool inp2_is_on_newline,
 	                          bool inp1moved )
 {
+    bool inp2moved = false;
     while ( true )
     {
 	int compres = input1->getSeisRequester()->
@@ -641,11 +642,15 @@ int Provider::comparePosAndAlign( Provider* input1, bool inp1_is_on_newline,
 	}
 	else if ( compres == 1 || inp1_is_on_newline )
 	{
+	    inp2moved = true;
 	    input2->resetMoved();
 	    const int res = input2->moveToNextTrace();
 	    if ( res != 1 ) return res;
 	}
     }
+
+    if ( inp1moved || inp2moved )
+	updateCurrentInfo();
 
     return 1;
 }
