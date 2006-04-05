@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoDepthTabPlaneDragger.cc,v 1.7 2004-08-06 07:56:58 kristofer Exp $";
+static const char* rcsID = "$Id: SoDepthTabPlaneDragger.cc,v 1.8 2006-04-05 15:28:19 cvsnanne Exp $";
 
 
 #include "SoDepthTabPlaneDragger.h"
@@ -317,6 +317,8 @@ void SoDepthTabPlaneDragger::reallyAdjustScaleTabSize(SoGLRenderAction* action)
 	}
 	sizex = fabs(sizex/scale[0]);
 	sizey = fabs(sizey/scale[1]);
+	if ( isnan(sizex) ) sizex = 0.08f;
+	if ( isnan(sizey) ) sizey = 0.08f;
     }
 
     if ( sizex==prevsizex && prevsizey==sizey )
