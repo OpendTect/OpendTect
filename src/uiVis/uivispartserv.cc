@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.310 2006-04-04 09:08:12 cvsjaap Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.311 2006-04-07 15:34:42 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -52,8 +52,8 @@ const int uiVisPartServer::evInteraction		= 5;
 const int uiVisPartServer::evSelectAttrib		= 6;
 const int uiVisPartServer::evViewAll			= 9;
 const int uiVisPartServer::evToHomePos			= 10;
-const int uiVisPartServer::evAddSeedToCurrentObject	= 11;
-const int uiVisPartServer::evPickingStatusChange	= 12;
+const int uiVisPartServer::evPickingStatusChange	= 11;
+const int uiVisPartServer::evShowSetupDlg		= 12;
 
 
 const char* uiVisPartServer::sKeyAppVel()		{ return "AppVel"; }
@@ -942,9 +942,9 @@ int uiVisPartServer::duplicateObject( int id, int sceneid )
 }
 
 
-bool uiVisPartServer::sendAddSeedEvent()
+bool uiVisPartServer::sendShowSetupDlgEvent()
 {
-    return sendEvent( evAddSeedToCurrentObject );
+    return sendEvent( evShowSetupDlg );
 }
 
 
