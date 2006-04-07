@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:		$Id: uiattrvolout.cc,v 1.19 2006-03-12 13:39:11 cvsbert Exp $
+ RCS:		$Id: uiattrvolout.cc,v 1.20 2006-04-07 11:27:47 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -266,7 +266,6 @@ bool uiAttrVolOut::fillPar( IOPar& iop )
 	}
     }
 
-    CubeSampling csampling;
     EngineMan::getPossibleVolume( *clonedset, cs, linename, targetid );
     iop.set( sKeyMaxInlRg, cs.hrg.start.inl, cs.hrg.stop.inl, cs.hrg.step.inl );
     iop.set( sKeyMaxCrlRg, cs.hrg.start.crl, cs.hrg.stop.crl, cs.hrg.step.crl );
