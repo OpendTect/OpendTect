@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.cc,v 1.80 2006-04-04 09:16:19 cvsjaap Exp $
+ RCS:           $Id: uimpeman.cc,v 1.81 2006-04-07 15:43:05 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,12 +22,15 @@ ________________________________________________________________________
 #include "emsurfacegeometry.h"
 #include "emsurfacetr.h"
 #include "emtracker.h"
+#include "faultseedpicker.h"
 #include "horizonseedpicker.h"
+#include "ioman.h"
+#include "keystrs.h"
 #include "mpeengine.h"
 #include "oddirs.h"
 #include "pixmap.h"
+#include "sectiontracker.h"
 #include "survinfo.h"
-#include "keystrs.h"
 #include "uibutton.h"
 #include "uicombobox.h"
 #include "uicursor.h"
@@ -76,13 +79,11 @@ uiMPEMan::uiMPEMan( uiParent* p, uiVisPartServer* ps )
     , visserv(ps)
     , init(false)
     , createmnuitem("Create")
-    , seedpicker(0)
     , colbardlg(0)
     , seedclickobject(-1)
     , blockattribsel(false)
     , didtriggervolchange(false)
     , seedpickwason(false)
-    , seltrackerid(-1)
 {
     toolbar = new uiToolBar(p,"Tracking controls");
 
@@ -227,17 +228,17 @@ void uiMPEMan::seedClick( CallBacker* )
     if ( clickedobject==-1 )
 	return;
 
+    MPE::EMSeedPicker* seedpicker = tracker->getSeedPicker(true);
+    if ( !seedpicker )
+	return;
+
     if ( seedclickobject==-1 )
     {
 	didtriggervolchange = false;
-	seedpicker = tracker->getSeedPicker(true);
-	if ( !seedpicker || !seedpicker->canSetSectionID() ||
+	if ( !seedpicker->canSetSectionID() ||
 	     !seedpicker->setSectionID(emobj->sectionID(0)) ||
 	     !seedpicker->startSeedPick() )
-	{
-	    seedpicker = 0;
 	    return;
-	}
 	oldactivevol = engine.activeVolume(); 
     }
     
@@ -270,9 +271,6 @@ void uiMPEMan::seedClick( CallBacker* )
 	engine.activevolumechange.trigger();
     }
 
-    if ( !seedpicker )
-	return;
-    
     const int currentevent = EM::EMM().history().currentEventNr();
     uiCursor::setOverride( uiCursor::Wait );
     
@@ -360,7 +358,8 @@ void uiMPEMan::updateAttribNames()
 	 engine().getAttribCache(*attribspecs[0]) )
     {
 	MPE::EMTracker* tracker = getSelectedTracker();
-	seedpicker = tracker ? tracker->getSeedPicker(true) : 0;
+	MPE::EMSeedPicker* seedpicker = tracker ? 
+					tracker->getSeedPicker(true) : 0;
 	if ( !seedpicker || seedpicker->doesModeUseVolume() )
 	{
 	    init = true;
@@ -410,12 +409,6 @@ void uiMPEMan::turnSeedPickingOn( bool yn )
 {
     blockattribsel = yn;
 
-    if ( seedpicker )
-    {
-	seedpicker->stopSeedPick();
-	seedpicker = 0;
-    }
-
     toolbar->turnOn( seedidx, yn );
     if ( yn )
     {
@@ -436,6 +429,12 @@ void uiMPEMan::turnSeedPickingOn( bool yn )
     }
     else
     {
+	MPE::EMTracker* tracker = getSelectedTracker();
+	MPE::EMSeedPicker* seedpicker = tracker ? 
+				        tracker->getSeedPicker(true) : 0;
+	if ( seedpicker )
+	    seedpicker->stopSeedPick();
+
 	if ( clickcatcher ) clickcatcher->turnOn( false );
 	if ( !oldactivevol.isEmpty() )
 	{
@@ -595,18 +594,25 @@ void uiMPEMan::mouseEraseModeCB( CallBacker* )
 void uiMPEMan::addSeedCB( CallBacker* )
 {
     turnSeedPickingOn( toolbar->isOn(seedidx) );
-
-//    if ( isOn( seedidx ) )
-//	visserv->sendAddSeedEvent();
 }
+
 
 void uiMPEMan::seedConnectModeSel( CallBacker* )
 {
-    if ( seedpicker )
-    {
-	seedpicker->setSeedConnectMode( seedconmodefld->currentItem() ); 
-    }
+    MPE::EMTracker* tracker = getSelectedTracker();
+    MPE::EMSeedPicker* seedpicker = tracker ? tracker->getSeedPicker(true) : 0;
+    if ( !seedpicker )
+	return;
+    seedpicker->setSeedConnectMode( seedconmodefld->currentItem() ); 
     updateButtonSensitivity(0);
+    if ( !seedpicker->doesModeUseSetup() )
+       return;	
+
+    const SectionTracker* sectiontracker = 
+		       tracker->getSectionTracker( seedpicker->getSectionID() );
+    if ( !sectiontracker || IOM().get(sectiontracker->setupID()) )
+	return;
+    visserv->sendShowSetupDlgEvent();
 }
 
 
@@ -638,10 +644,10 @@ MPE::EMTracker* uiMPEMan::getSelectedTracker()
     if ( mid==-1 )
 	return 0;
     const EM::ObjectID oid = EM::EMM().getObjectID(mid);
-    seltrackerid = MPE::engine().getTrackerByObject(oid);
-    if ( seltrackerid==-1 )
+    const int trackerid = MPE::engine().getTrackerByObject(oid);
+    if ( trackerid==-1 )
 	return 0;
-    return MPE::engine().getTracker( seltrackerid );
+    return MPE::engine().getTracker( trackerid );
 }
 
 
@@ -652,9 +658,10 @@ void uiMPEMan::updateButtonSensitivity( CallBacker* )
     toolbar->setSensitive( redoidx, EM::EMM().history().canReDo() );
 
     //Seed button
-
     updateSeedPickState();
 
+    MPE::EMTracker* tracker = getSelectedTracker();
+    MPE::EMSeedPicker* seedpicker = tracker ? tracker->getSeedPicker(true) : 0;
     const bool isvoltrack = seedpicker ? seedpicker->doesModeUseVolume() : true;
     
     toolbar->setSensitive( extendidx, isvoltrack );
@@ -689,17 +696,29 @@ void uiMPEMan::updateButtonSensitivity( CallBacker* )
 }
 
 
+#define mAddSeedConModeItems( seedconmodefld, typ ) \
+    if ( emobj && emobj->getTypeStr() == EM##typ##TranslatorGroup::keyword ) \
+    { \
+	for ( int idx=0; idx<typ##SeedPicker::nrSeedConnectModes(); idx++ ) \
+	{ \
+	    seedconmodefld-> \
+		    addItem( typ##SeedPicker::seedConModeText(idx,true) ); \
+	} \
+	if ( typ##SeedPicker::nrSeedConnectModes()<=0 ) \
+	    seedconmodefld->addItem("No seed mode"); \
+    }
+
+
 void uiMPEMan::updateSeedPickState()
 {
-    if ( !MPE::Engine().getTracker(seltrackerid) )
-	seedpicker = 0;
-
-    MPE::EMTracker* seltracker = getSelectedTracker();
-    toolbar->setSensitive( seedidx, seltracker );
-    seedconmodefld->setSensitive( seltracker );
+    MPE::EMTracker* tracker = getSelectedTracker();
+    MPE::EMSeedPicker* seedpicker = tracker ? tracker->getSeedPicker(true) : 0;
+    
+    toolbar->setSensitive( seedidx, seedpicker );
+    seedconmodefld->setSensitive( seedpicker );
     seedconmodefld->empty();
 
-    if ( !seltracker )
+    if ( !seedpicker )
     {
 	seedconmodefld->addItem("No seed mode");
 	if ( toolbar->isOn(seedidx) )
@@ -707,7 +726,6 @@ void uiMPEMan::updateSeedPickState()
 	    turnSeedPickingOn( false );
 	    seedpickwason = true;
 	}
-	seedpicker = 0;
 	return;
     }
     if ( toolbar->isOn(seedidx) )
@@ -715,16 +733,10 @@ void uiMPEMan::updateSeedPickState()
     if ( seedpickwason )
 	turnSeedPickingOn( true );
 
-    const EM::EMObject* emobj = EM::EMM().getObject( seltracker->objectID() );
-    if ( emobj && emobj->getTypeStr() == EMHorizonTranslatorGroup::keyword )
-    {
-	// items should be in order of MPE::HorizonSeedPicker::SeedModeOrder
-	seedconmodefld->addItem("Volume track");
-	seedconmodefld->addItem("Line tracking");
-	seedconmodefld->addItem("Line manual");
-    }
+    const EM::EMObject* emobj = EM::EMM().getObject( tracker->objectID() );
+    mAddSeedConModeItems( seedconmodefld, Horizon );
+    mAddSeedConModeItems( seedconmodefld, Fault );
 
-    seedpicker = seltracker->getSeedPicker(true);
     seedconmodefld->setCurrentItem( seedpicker->getSeedConnectMode() );
 }
 
