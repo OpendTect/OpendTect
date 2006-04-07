@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.126 2006-03-22 12:18:25 cvsnanne Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.127 2006-04-07 15:20:56 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,6 +28,9 @@ ________________________________________________________________________
 #include "uiattrsurfout.h"
 #include "uiattrtrcselout.h"
 
+#include "emseedpicker.h"
+#include "emtracker.h"
+#include "mpeengine.h"
 #include "externalattrib.h"
 #include "attribdescset.h"
 #include "attribdatacubes.h"
@@ -766,21 +769,17 @@ bool uiODApplMgr::handleVisServEv( int evid )
 	sceneMgr().viewAll(0);
     else if ( evid == uiVisPartServer::evToHomePos )
 	sceneMgr().toHomePos(0);
-    else if (  evid == uiVisPartServer::evAddSeedToCurrentObject )
+    else if (  evid == uiVisPartServer::evShowSetupDlg )
     {
 	const int selobjvisid = visserv->getSelObjectId();
 	const MultiID selobjmid = visserv->getMultiID(selobjvisid);
 	const EM::ObjectID& emid = emserv->getObjectID(selobjmid);
 	const int trackerid = mpeserv->getTrackerID(emid);
-
-	if ( trackerid!=-1 )
-	{
-	    //Will be restored by event (evWizardClosed) from mpeserv
-	    enableMenusAndToolbars( false );
-	    enableTree( false );
-
-	    mpeserv->addSeed(trackerid);
-	}
+	MPE::EMTracker* tracker = MPE::engine().getTracker( trackerid );
+	const MPE::EMSeedPicker* seedpicker = tracker ? 
+					      tracker->getSeedPicker(false) : 0;
+	const EM::SectionID sid = seedpicker ? seedpicker->getSectionID() : -1;
+	mpeserv->showSetupDlg( emid, sid, false );
     }
     else
 	pErrMsg("Unknown event from visserv");
