@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.167 2006-03-13 18:53:44 cvskris Exp $
+ RCS:           $Id: uivispartserv.h,v 1.168 2006-04-07 15:12:37 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -233,10 +233,7 @@ public:
     bool			isLocked(int) const;
 
     				// Tracking stuff
-    static const int		evAddSeedToCurrentObject;
-    bool			sendAddSeedEvent();
     void			turnSeedPickingOn(bool yn);
-
     static const int		evPickingStatusChange;
     bool			isPicking() const;
     				/*!<\returns true if the selected object
@@ -244,6 +241,9 @@ public:
 				     objects, so the picks won't be handled by
 				     the selman. */
 
+    static const int		evShowSetupDlg;
+    bool			sendShowSetupDlgEvent();
+    
     void			showMPEToolbar();
     uiToolBar*			getTrackTB() const;
     void			initMPEStuff();
