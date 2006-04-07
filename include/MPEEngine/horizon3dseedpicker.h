@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: horizon3dseedpicker.h,v 1.8 2006-03-30 15:58:21 cvsjaap Exp $
+ RCS:           $Id: horizon3dseedpicker.h,v 1.9 2006-04-07 14:31:47 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,7 +39,14 @@ public:
 
     bool		stopSeedPick(bool iscancel=false);
 
-    enum SeedModeOrder	{TrackFromSeeds,TrackBetweenSeeds,DrawBetweenSeeds};
+    enum SeedModeOrder	{ TrackFromSeeds, 
+			  TrackBetweenSeeds, 
+			  DrawBetweenSeeds   };
+
+    static int		nrSeedConnectModes()		{ return 3; }
+    static int		defaultSeedConMode()		{return TrackFromSeeds;}
+    static const char*	seedConModeText(int mode, 
+					bool abbrev=false); 
 
     int			getSeedConnectMode() const	{ return seedconmode_; }
     void		setSeedConnectMode(int scm)	{ seedconmode_ = scm; }
