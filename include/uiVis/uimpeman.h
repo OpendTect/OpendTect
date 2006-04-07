@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.h,v 1.31 2006-04-04 09:00:52 cvsjaap Exp $
+ RCS:           $Id: uimpeman.h,v 1.32 2006-04-07 14:40:39 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -62,7 +62,6 @@ protected:
     uiVisPartServer*		visserv;
     CubeSampling		oldactivevol;
     bool			didtriggervolchange;
-    MPE::EMSeedPicker*		seedpicker;
 
     visSurvey::MPEClickCatcher*	clickcatcher;
 
@@ -119,7 +118,6 @@ protected:
 
     bool			init;
     bool			seedpickwason;
-    int				seltrackerid;
 
     static const char*		sKeyNoAttrib() { return "No attribute"; }
 };
