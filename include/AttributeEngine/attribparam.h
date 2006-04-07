@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribparam.h,v 1.21 2006-04-03 13:24:09 cvshelene Exp $
+ RCS:           $Id: attribparam.h,v 1.22 2006-04-07 14:22:15 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -223,6 +223,7 @@ public:
 
     virtual int			getIntValue(int idx=0) const;
     virtual float		getfValue(int idx=0) const;
+    virtual BufferString	getDefaultValue() const;
 };
 
 
@@ -271,6 +272,14 @@ bool NumParam<T>::setCompositeValue( const char* nv )
 template <class T>
 void NumParam<T>::setLimits( const Interval<T>& limit )
 { reinterpret_cast<NumInpSpec<T>*>(spec_)->setLimits( limit ); }
+
+
+template <class T>
+BufferString NumParam<T>::getDefaultValue() const
+{
+    BufferString bfs = reinterpret_cast<NumInpSpec<T>*>(spec_)->defaultValue();
+    return bfs;
+}
 
 
 typedef NumParam<int>		IntParam;
