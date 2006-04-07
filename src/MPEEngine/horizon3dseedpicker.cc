@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizon3dseedpicker.cc,v 1.8 2006-03-30 16:01:20 cvsjaap Exp $";
+static const char* rcsID = "$Id: horizon3dseedpicker.cc,v 1.9 2006-04-07 15:14:41 cvsjaap Exp $";
 
 #include "horizonseedpicker.h"
 
@@ -27,7 +27,7 @@ namespace MPE
 
 HorizonSeedPicker::HorizonSeedPicker( MPE::EMTracker& t )
     : tracker_( t )
-    , seedconmode_( TrackFromSeeds )
+    , seedconmode_( defaultSeedConMode() )
     , blockpicking_( false )
 { }
 
@@ -259,6 +259,19 @@ int HorizonSeedPicker::nrSeeds() const
     return seednodelist ? seednodelist->size() : 0;
 }
 
+const char* HorizonSeedPicker::seedConModeText( int mode, bool abbrev )
+{
+    if ( mode==TrackFromSeeds && !abbrev )
+	return "Tracking in volume";
+    else if ( mode==TrackFromSeeds && abbrev )
+	return "Volume track";
+    else if ( mode==TrackBetweenSeeds )
+	return "Line tracking";
+    else if ( mode==DrawBetweenSeeds )
+	return "Line manual";
+    else
+	return "Unknown mode";
+}
 
 int HorizonSeedPicker::isMinimumNrOfSeeds() const
 { return seedconmode_==TrackFromSeeds ? 1 : 0 ; }
