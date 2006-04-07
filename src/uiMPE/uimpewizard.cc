@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpewizard.cc,v 1.43 2006-03-30 16:42:01 cvsjaap Exp $
+ RCS:           $Id: uimpewizard.cc,v 1.44 2006-04-07 15:17:50 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "emseedpicker.h"
 #include "emsurfacetr.h"
 #include "executor.h"
+#include "faultseedpicker.h"
 #include "horizonseedpicker.h"
 #include "ioman.h"
 #include "ioobj.h"
@@ -57,7 +58,6 @@ Wizard::Wizard( uiParent* p, uiMPEPartServer* mps )
     , objectcreated(false)
     , trackercreated(false)
     , ioparentrycreated(false)
-//    , ispicking(false)
     , typefld(0)
     , anotherfld(0)
 {
@@ -98,14 +98,27 @@ const char* Wizard::seedPickText( bool doneedseed ) const
 {
     if ( doneedseed )
 	return ( "Must pick seedpoint(s) by clicking on a slice.\n"
-		 "Remove seedpoints by ctrl-click on them, or\n" 
-		 "use shift-click instead to omit retracking." );
+		 "Remove seedpoints by ctrl-click on them,\n" 
+		 "or use shift-click instead to omit retracking." );
     else
 	return ( "May pick seedpoint(s) by clicking on a slice.\n"
-		 "Remove seedpoints by ctrl-click on them, or\n" 
-		 "use shift-click instead to omit retracking." );
+		 "Remove seedpoints by ctrl-click on them,\n" 
+		 "or use shift-click instead to omit retracking." );
 }
 
+
+#define mDefSeedConModeGrp( xmodegrp, typ ) \
+    xmodegrp = new uiButtonGroup( grp, "Mode" ); \
+    xmodegrp->setRadioButtonExclusive( true ); \
+    for ( int idx=0; idx<typ##SeedPicker::nrSeedConnectModes(); idx++ ) \
+    { \
+	uiRadioButton* butptr = new uiRadioButton( hmodegrp, \
+			    typ##SeedPicker::seedConModeText(idx,false) ); \
+	butptr->activated.notify( mCB(this, Wizard, seedModeChange) ); \
+    } \
+    xmodegrp->selectButton( typ##SeedPicker::defaultSeedConMode() ); \
+    xmodegrp->attach( alignedAbove, setupgrp ); \
+    modesep->attach( stretchedBelow, xmodegrp ); 
 
 uiGroup* Wizard::createSeedSetupPage()
 {
@@ -130,20 +143,8 @@ uiGroup* Wizard::createSeedSetupPage()
     modesep = new uiSeparator( grp, "Separator 0" );
     modesep->attach( stretchedAbove, setupgrp );
     
-    hmodegrp = new uiButtonGroup( grp, "Mode" );
-    hmodegrp->setRadioButtonExclusive( true );
-    // buttons should be in order of MPE::HorizonSeedPicker::SeedModeOrder
-    uiRadioButton* hbut0 = new uiRadioButton( hmodegrp, "Tracking in volume");
-    uiRadioButton* hbut1 = new uiRadioButton( hmodegrp, "Line tracking" );
-    uiRadioButton* hbut2 = new uiRadioButton( hmodegrp, "Line manual" );
-    hbut0->activated.notify( mCB(this, Wizard, seedModeChange) );
-    hbut1->activated.notify( mCB(this, Wizard, seedModeChange) );
-    hbut2->activated.notify( mCB(this, Wizard, seedModeChange) );
-    hmodegrp->selectButton( HorizonSeedPicker::TrackFromSeeds );
-    hmodegrp->attach( alignedAbove, setupgrp );
-    modesep->attach( stretchedBelow, hmodegrp );
-
-    fmodegrp = 0;
+    mDefSeedConModeGrp( hmodegrp, Horizon ); 
+    mDefSeedConModeGrp( fmodegrp, Fault ); 
 
     return grp;
 }
@@ -261,6 +262,13 @@ bool Wizard::leaveNamePage( bool process )
 }
 
 
+#define mSelectSeedConModeGrp( xmodegrp, typ ) \
+    xmodegrp->display( false, true ); \
+    if ( trackertype == EM##typ##TranslatorGroup::keyword && \
+	 typ##SeedPicker::nrSeedConnectModes()>0 ) \
+	modegrp = xmodegrp; \
+    xmodegrp->display( xmodegrp==modegrp, true );
+    
 bool Wizard::prepareSeedSetupPage()
 {
     if ( currentobject!=-1 )
@@ -286,14 +294,9 @@ bool Wizard::prepareSeedSetupPage()
 
     setupgrp->setType( objid, sid );
 
-    if ( hmodegrp ) hmodegrp->display( false, true );
-    if ( fmodegrp ) fmodegrp->display( false, true );
-    if ( trackertype == EMHorizonTranslatorGroup::keyword )
-	modegrp = hmodegrp;
-    else if ( trackertype == EMFaultTranslatorGroup::keyword )
-	modegrp = fmodegrp;
-    else modegrp = 0;
-    if ( modegrp ) modegrp->display( true, true );
+    modegrp=0;
+    mSelectSeedConModeGrp( hmodegrp, Horizon );
+    mSelectSeedConModeGrp( fmodegrp, Fault );
     modesep->display( modegrp, true );	
 
     seedModeChange(0);
