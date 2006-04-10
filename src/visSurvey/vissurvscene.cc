@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: vissurvscene.cc,v 1.84 2006-03-13 22:12:48 cvskris Exp $
+ RCS:           $Id: vissurvscene.cc,v 1.85 2006-04-10 15:16:16 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -158,6 +158,7 @@ void Scene::addObject( visBase::DataObject* obj )
 	    so->getMovementNotification()->notify( mCB(this,Scene,objectMoved));
 
 	so->setScene( this );
+	STM().setCurrentScene( this );
     }
 
     if ( so && so->isInlCrl() )
