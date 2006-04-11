@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Jan 2005
- RCS:           $Id: uivisemobj.cc,v 1.43 2006-03-08 18:19:52 cvskris Exp $
+ RCS:           $Id: uivisemobj.cc,v 1.44 2006-04-11 08:17:00 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -292,6 +292,7 @@ void uiVisEMObject::checkTrackingStatus()
     visSurvey::EMObjectDisplay* emod = getDisplay();
     if ( !emod ) return;
     emod->updateFromMPE();
+    connectEditor();
 }
 
 
