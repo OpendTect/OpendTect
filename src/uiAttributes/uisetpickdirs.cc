@@ -4,14 +4,13 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Nov 2003
- RCS:           $Id: uisetpickdirs.cc,v 1.3 2005-08-22 15:33:53 cvsnanne Exp $
+ RCS:           $Id: uisetpickdirs.cc,v 1.4 2006-04-11 07:19:29 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 
 #include "uisetpickdirs.h"
-#include "attrfact.h"
 #include "attribsel.h"
 #include "ctxtioobj.h"
 #include "seistrctr.h"
