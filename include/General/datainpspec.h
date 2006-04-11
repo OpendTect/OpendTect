@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/02/2001
- RCS:           $Id: datainpspec.h,v 1.60 2006-04-03 13:26:40 cvshelene Exp $
+ RCS:           $Id: datainpspec.h,v 1.61 2006-04-11 06:13:20 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -163,7 +163,7 @@ public:
 			    { return new NumInpSpec<T>( *this ); }
 
     virtual bool	isUndef( int idx=0 ) const	
-			    { return Values::isUdf(value_); }
+			    { return mIsUdf(value_); }
 
     virtual bool	setText( const char* s, int idx=0 )
 			    { return getFromString( value_, s ); }
@@ -179,15 +179,15 @@ public:
     virtual float	getDefaultfValue(int idx=0) const
     			{ return defaultValue(); }
     
-    virtual void	setDefaultValue( int i, int idx=0 )
-			{ defaultvalue_ = i; }
-    virtual void	setDefaultValue( double d, int idx=0 )
-			{ defaultvalue_ = d; }
-    virtual void	setDefaultValue( float f, int idx=0 )
-			{ defaultvalue_ = f; }
+    virtual void	setDefaultValue( int val, int idx=0 )
+			{ defaultvalue_ = (T)val; }
+    virtual void	setDefaultValue( double val, int idx=0 )
+			{ defaultvalue_ = (T)val; }
+    virtual void	setDefaultValue( float val, int idx=0 )
+			{ defaultvalue_ = (T)val; }
     T			value() const
 			{
-			    if ( Values::isUdf(value_) ) return mUdf(T);
+			    if ( mIsUdf(value_) ) return mUdf(T);
 			    return value_;
 			}
 
@@ -305,7 +305,7 @@ public:
     virtual bool	isUndef( int idx=0 ) const
 			{	
 			    if ( !interval_ ) return true;
-			    return Values::isUdf( value_(idx) ); 
+			    return mIsUdf( value_(idx) ); 
 			}
 
     virtual void	setValue( const Interval<T>& intval )
