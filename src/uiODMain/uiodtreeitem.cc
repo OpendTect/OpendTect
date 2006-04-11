@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.174 2006-04-07 15:26:36 cvsjaap Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.175 2006-04-11 06:48:34 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -81,7 +81,7 @@ uiODTreeTop::uiODTreeTop( uiSoViewer* sovwr, uiListView* lv, uiODApplMgr* am,
     : uiTreeTopItem(lv)
     , tfs(tfs_)
 {
-    setProperty<int>( sceneidkey, sovwr->sceneId() );
+    setProperty<int>( sceneidkey, sovwr->sceneID() );
     setPropertyPtr( viewerptr, sovwr );
     setPropertyPtr( applmgrstr, am );
 
