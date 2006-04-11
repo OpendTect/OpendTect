@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.176 2006-04-11 07:36:49 cvsnanne Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.177 2006-04-11 07:44:49 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -268,6 +268,8 @@ uiODDataTreeItem::~uiODDataTreeItem()
     }
 }
 
+
+TypeSet<uiDataTreeItemCreator> uiODDataTreeItem::creators_;
 
 uiODDataTreeItem* uiODDataTreeItem::create( const Attrib::SelSpec& as,
 					    const char* pt )
