@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribprovider.cc,v 1.61 2006-04-05 17:23:05 cvskris Exp $";
+static const char* rcsID = "$Id: attribprovider.cc,v 1.62 2006-04-11 12:11:49 cvshelene Exp $";
 
 #include "attribprovider.h"
 #include "attribstorprovider.h"
@@ -129,24 +129,8 @@ Provider* Provider::internalCreate( Desc& desc, ObjectSet<Provider>& existing,
 	    return 0;
 	}
 
-	bool alreadythere = false;
-	if ( issame )
-	{
-	    for ( int idy=0; idy<desc.nrInputs()-1; idy++ )
-	    {
-		if ( res->getInputs().size()<=idy ) break;
-		Provider* tmpprov = res->getInputs()[idy];
-		if ( tmpprov && tmpprov->getDesc().
-					isIdenticalTo( *inputdesc, true ) )
-		    alreadythere = true;
-	    }
-	}
-		    
-	if ( !alreadythere )
-	{
-	    res->setInput( idx, inputprovider );
-	    inputprovider->addParent(res);
-	}
+	res->setInput( idx, inputprovider );
+	inputprovider->addParent(res);
 	issame = false;
     }
 
