@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: uiodtreeitem.h,v 1.22 2006-03-09 17:09:03 cvskris Exp $
+ RCS:		$Id: uiodtreeitem.h,v 1.23 2006-04-11 07:36:44 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -85,8 +85,8 @@ public:
 
 class uiODDataTreeItem;
 
-typedef uiODDataTreeItem*(uiDataTreeItemCrator)(const Attrib::SelSpec&,
-						const char*);
+typedef uiODDataTreeItem* (*uiDataTreeItemCreator)(const Attrib::SelSpec&,
+						   const char*);
 
 
 /*!Base class for the attribs on a treeitem. */
@@ -106,7 +106,7 @@ public:
     				/*!<Creates an item based on the selspec. This
 				    is used to create custom items like
 				    the overlay item. */
-    static void			addFactory(uiDataTreeItemCrator);
+    static void			addFactory(uiDataTreeItemCreator);
     				/*!<Adds custom create function for create
 				    function. */
 
@@ -145,11 +145,11 @@ protected:
     MenuItem		changetransparencyitem_;
     const char*		parenttype_;
 
-    static ObjectSet<uiDataTreeItemCrator>	creators_;
+    static TypeSet<uiDataTreeItemCreator>	creators_;
 };
 
 
-/*! Implemntation of uiODDataTreeItem for standard attribute displays. */
+/*! Implementation of uiODDataTreeItem for standard attribute displays. */
 
 
 class uiODAttribTreeItem : public uiODDataTreeItem

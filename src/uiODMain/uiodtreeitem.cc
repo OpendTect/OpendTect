@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.175 2006-04-11 06:48:34 cvsnanne Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.176 2006-04-11 07:36:49 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -72,8 +72,6 @@ const char* uiODTreeTop::sceneidkey = "Sceneid";
 const char* uiODTreeTop::viewerptr = "Viewer";
 const char* uiODTreeTop::applmgrstr = "Applmgr";
 const char* uiODTreeTop::scenestr = "Scene";
-
-ObjectSet<uiDataTreeItemCrator> uiODDataTreeItem::creators_;
 
 
 uiODTreeTop::uiODTreeTop( uiSoViewer* sovwr, uiListView* lv, uiODApplMgr* am,
@@ -285,7 +283,7 @@ uiODDataTreeItem* uiODDataTreeItem::create( const Attrib::SelSpec& as,
 }
 
 
-void uiODDataTreeItem::addFactory( uiDataTreeItemCrator cr )
+void uiODDataTreeItem::addFactory( uiDataTreeItemCreator cr )
 { creators_ += cr; }
 
 
