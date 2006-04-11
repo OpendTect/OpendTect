@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          Jan 2004
- RCS:           $Id: specdecompattrib.h,v 1.9 2006-03-03 13:42:44 cvshelene Exp $
+ RCS:           $Id: specdecompattrib.h,v 1.10 2006-04-11 15:17:58 cvshelene Exp $
 ________________________________________________________________________
 -*/
 
@@ -73,7 +73,7 @@ protected:
     bool		calcCWT(const DataHolder&,int t0,int nrsamples) const;
 
     const Interval<float>*	reqZMargin(int input, int output) const;
-    const Interval<float>*	desZMargin(int input, int output) const;
+    const Interval<int>*	desZSampMargin(int input, int output) const;
 
     int					transformtype_;
     ArrayNDWindow::WindowType		windowtype_;
@@ -94,7 +94,7 @@ protected:
     int                         	sz_;
 
     bool				fftisinit_;
-    Interval<float>			desgate_;
+    Interval<int>			desgate_;
 
     int					realidx_;
     int					imagidx_;

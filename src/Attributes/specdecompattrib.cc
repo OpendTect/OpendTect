@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          January 2004
- RCS:           $Id: specdecompattrib.cc,v 1.14 2006-04-03 13:35:31 cvshelene Exp $
+ RCS:           $Id: specdecompattrib.cc,v 1.15 2006-04-11 15:17:58 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -159,6 +159,8 @@ SpecDecomp::SpecDecomp( Desc& desc_ )
 	mGetEnum( cwave, cwtwaveletStr() );
 	cwtwavelet_ = (CWT::WaveletType) cwave;
     }
+    
+    desgate_ = Interval<int>( -(1024-1), 1024-1 );
 }
 
 
@@ -404,10 +406,8 @@ const Interval<float>* SpecDecomp::reqZMargin( int inp, int ) const
 { return transformtype_ != mTransformTypeFourier ? 0 : &gate_; }
 
 
-const Interval<float>* SpecDecomp::desZMargin( int inp, int ) const
+const Interval<int>* SpecDecomp::desZSampMargin( int inp, int ) const
 {
-    const_cast<SpecDecomp*>(this)->desgate_ = 
-		Interval<float>( -(1024-1)*refstep, (1024-1)*refstep );
     return transformtype_ == mTransformTypeFourier ? 0 : &desgate_;
 }
 

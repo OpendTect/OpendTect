@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          December 2004
- RCS:           $Id: scalingattrib.cc,v 1.17 2006-04-03 13:35:31 cvshelene Exp $
+ RCS:           $Id: scalingattrib.cc,v 1.18 2006-04-11 15:17:58 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -131,7 +131,6 @@ const char* Scaling::scalingTypeNamesStr( int type )
 
 Scaling::Scaling( Desc& desc_ )
     : Provider( desc_ )
-    , desgate_( 0 , 0 )
 {
     if ( !isOK() ) return;
 
@@ -154,6 +153,8 @@ Scaling::Scaling( Desc& desc_ )
 	for ( int idx=0; idx<factorset->size(); idx++ )
 	    factors_ += ((ValParam&)((*factorset)[idx])).getfValue( 0 );
     }
+    
+    desgate_ = Interval<int>( -(1024-1), 1024-1 );
 }
 
 
@@ -292,14 +293,9 @@ void Scaling::getSampleGates( const TypeSet< Interval<float> >& oldtgs,
 }
 
 
-const Interval<float>* Scaling::desZMargin( int inp, int ) const
+const Interval<int>* Scaling::desZSampMargin( int inp, int ) const
 {
-    if ( scalingtype_ == mScalingTypeTPower )
-	return 0;
-
-    const_cast<Scaling*>(this)->desgate_ =
-	                Interval<float>( -(1024-1)*refstep, (1024-1)*refstep );
-    return &desgate_;
+    return scalingtype_ == mScalingTypeTPower ? 0 : &desgate_;
 }
 
 } // namespace Attrib
