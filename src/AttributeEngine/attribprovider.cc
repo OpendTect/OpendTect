@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribprovider.cc,v 1.62 2006-04-11 12:11:49 cvshelene Exp $";
+static const char* rcsID = "$Id: attribprovider.cc,v 1.63 2006-04-11 15:16:31 cvshelene Exp $";
 
 #include "attribprovider.h"
 #include "attribstorprovider.h"
@@ -23,7 +23,6 @@ static const char* rcsID = "$Id: attribprovider.cc,v 1.62 2006-04-11 12:11:49 cv
 #include "seistrcsel.h"
 #include "survinfo.h"
 #include "threadwork.h"
-#include "arrayndimpl.h"
 
 
 namespace Attrib
@@ -377,6 +376,13 @@ bool Provider::getPossibleVolume( int output, CubeSampling& res )
 		    inputcs.zrg.stop -= zrg->stop;
 		}
 
+		const Interval<int>* zrgsamp = reqZSampMargin(inp,out);
+		if ( zrgsamp )
+		{
+		    inputcs.zrg.start -= zrgsamp->start*refstep;
+		    inputcs.zrg.stop -= zrgsamp->stop*refstep;
+		}
+		
 #		define mAdjustIf(v1,op,v2) \
 		    if ( !mIsUdf(v1) && !mIsUdf(v2) && v1 op v2 ) v1 = v2;
 		mAdjustIf(res.hrg.start.inl,<,inputcs.hrg.start.inl);
@@ -715,28 +721,7 @@ void Provider::addLocalCompZIntervals( const TypeSet< Interval<int> >& intvs )
 		localcomputezintervals[idx].include(reqintv);
 	}
 
-	for ( int out=0; out<outputinterest.size(); out++ )
-	{
-	    if ( !outputinterest[out] ) continue;
-
-	    for ( int inp=0; inp<inputs.size(); inp++ )
-	    {
-		if ( !inputs[inp] )
-		    continue;
-
-		Interval<int> inputrange( reqintv );
-		Interval<float> zrg( 0, 0 );
-		const Interval<float>* req = reqZMargin( inp, out );
-		if ( req ) zrg = *req;
-		const Interval<float>* des = desZMargin( inp, out );
-		if ( des ) zrg.include( *des );
-
-		inputrange.start += mNINT(zrg.start/dz);
-		inputrange.stop += mNINT(zrg.stop/dz);
-
-		inputranges.set( inp, idx, inputrange );
-	    }
-	}
+	fillInputRangesArray( inputranges, idx, reqintv );
     }
 
     for ( int inp=0; inp<inputs.size(); inp++ )
@@ -753,6 +738,43 @@ void Provider::addLocalCompZIntervals( const TypeSet< Interval<int> >& intvs )
 	    inpranges += rg;
 	}
 	inputs[inp]->addLocalCompZIntervals( inpranges );
+    }
+}
+
+
+#define mUseMargins(type,Ts,ts)\
+	const Interval<type>* req##ts = reqZ##Ts##Margin( inp, out );\
+	if ( req##ts ) zrg##ts = *req##ts;\
+	const Interval<type>* des##ts = desZ##Ts##Margin( inp, out );\
+	if ( des##ts ) zrg##ts.include( *des##ts );\
+
+void Provider::fillInputRangesArray( Array2DImpl< Interval<int> >& inputranges, 
+				     int idx, const Interval<int>& reqintv )
+{
+    const float dz = mIsZero(refstep,mDefEps) ? SI().zStep() : refstep;
+    for ( int out=0; out<outputinterest.size(); out++ )
+    {
+	if ( !outputinterest[out] ) continue;
+
+	for ( int inp=0; inp<inputs.size(); inp++ )
+	{
+	    if ( !inputs[inp] )
+		continue;
+
+	    Interval<int> inputrange( reqintv );
+	    Interval<float> zrg( 0, 0 );
+	    mUseMargins(float,,);
+
+	    Interval<int> zrgsamp( 0, 0 );
+	    mUseMargins(int,Samp,samp);
+
+	    inputrange.start += mNINT(zrg.start/dz);
+	    inputrange.start += zrgsamp.start;
+	    inputrange.stop += mNINT(zrg.stop/dz);
+	    inputrange.stop += zrgsamp.stop;
+
+	    inputranges.set( inp, idx, inputrange );
+	}
     }
 }
 
@@ -1017,10 +1039,14 @@ bool Provider::computeDesInputCube( int inp, int out, CubeSampling& res,
     if ( seldata_ && seldata_->type_ == Seis::Table )
     {
 	Interval<float> zrg(0,0);
-	const Interval<float>* reqzrg = reqZMargin(inp,out);
-	if ( reqzrg ) zrg=*reqzrg;
-	const Interval<float>* deszrg = desZMargin(inp,out);
-	if ( deszrg ) zrg.include( *deszrg );
+	mUseMargins(float,,)
+
+	Interval<int> zrgsamp(0,0);
+	mUseMargins(int,Samp,samp)
+	
+	zrg.include( Interval<float>( zrgsamp.start*refstep,
+		    		      zrgsamp.stop*refstep ) );
+
 	Interval<float> extraz = Interval<float>(extraz_.start + zrg.start,
 						 extraz_.stop + zrg.stop);
 	inputs[inp]->setSelData(seldata_);
@@ -1052,12 +1078,13 @@ bool Provider::computeDesInputCube( int inp, int out, CubeSampling& res,
 	res.hrg.stop.inl += stepout.inl * inlstepoutfact;
 	res.hrg.stop.crl += stepout.crl * crlstepoutfact;
     }
-    
+   
     Interval<float> zrg(0,0);
-    const Interval<float>* reqzrg = reqZMargin(inp,out);
-    if ( reqzrg ) zrg=*reqzrg;
-    const Interval<float>* deszrg = desZMargin(inp,out);
-    if ( deszrg ) zrg.include( *deszrg );
+    mUseMargins(float,,)
+
+    Interval<int> zrgsamp(0,0);
+    mUseMargins(int,Samp,samp)
+    zrg.include(Interval<float>( zrgsamp.start*refstep, zrgsamp.stop*refstep ));
     
     res.zrg.start += zrg.start;
     res.zrg.stop += zrg.stop;
@@ -1104,6 +1131,8 @@ const BinID* Provider::desStepout(int,int) const		{ return 0; }
 const BinID* Provider::reqStepout(int,int) const		{ return 0; }
 const Interval<float>* Provider::desZMargin(int,int) const	{ return 0; }
 const Interval<float>* Provider::reqZMargin(int,int) const	{ return 0; }
+const Interval<int>* Provider::desZSampMargin(int,int) const	{ return 0; }
+const Interval<int>* Provider::reqZSampMargin(int,int) const	{ return 0; }
 
 
 int Provider::getTotalNrPos( bool is2d )

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribprovider.h,v 1.38 2006-03-14 15:51:48 cvshelene Exp $
+ RCS:           $Id: attribprovider.h,v 1.39 2006-04-11 15:16:31 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "ranges.h"
 #include "sets.h"
 #include "linekey.h"
+#include "arrayndimpl.h"
 
 class BasicTask;
 class CubeSampling;
@@ -132,6 +133,9 @@ protected:
 					    int t0,int nrsamples) const
 				{ return false; }
     int				getDataIndex(int input) const;
+    void			fillInputRangesArray(
+					    Array2DImpl< Interval<int> >&,
+					    int,const Interval<int>&);
 
     				// MultiThreading stuff
     virtual bool		allowParallelComputation() const
@@ -159,6 +163,8 @@ protected:
     virtual const BinID*	reqStepout(int input,int output) const;
     virtual const Interval<float>* desZMargin(int input,int output) const;
     virtual const Interval<float>* reqZMargin(int input,int output) const;
+    virtual const Interval<int>* desZSampMargin(int input,int output) const;
+    virtual const Interval<int>* reqZSampMargin(int input,int output) const;
     virtual bool		getZStepStoredData(float& step) const
 				{return false;}
 
