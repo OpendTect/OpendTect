@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: paramsetget.h,v 1.6 2006-04-03 13:27:33 cvshelene Exp $
+ RCS:           $Id: paramsetget.h,v 1.7 2006-04-11 10:16:17 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,18 +39,22 @@ ________________________________________________________________________
 
 #define mSetBool( str, newval ) \
 { \
-    Attrib::ValParam* param = desc.getValParam( str ); \
+    mDynamicCastGet(Attrib::BoolParam*,param,desc.getValParam(str)) \
     const bool oldval = param->getBoolValue(); \
     if ( chtr.set(oldval,newval) ) \
 	param->setValue( newval ); \
+    else\
+    	param->setSet();\
 }
 
 #define mSetEnum( str, newval ) \
 { \
-    Attrib::ValParam* param = desc.getValParam( str ); \
+    mDynamicCastGet(Attrib::EnumParam*,param,desc.getValParam(str)) \
     const int oldval = param->getIntValue(); \
     if ( chtr.set(oldval,newval) ) \
 	param->setValue( newval ); \
+    else\
+    	param->setSet();\
 }
 
 #define mSetBinID( str, newval ) \

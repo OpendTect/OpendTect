@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribparam.h,v 1.22 2006-04-07 14:22:15 cvshelene Exp $
+ RCS:           $Id: attribparam.h,v 1.23 2006-04-11 10:16:17 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -175,6 +175,7 @@ public:
     BufferString		getDefaultValue() const;
 
     bool			isSet() const;
+    void			setSet(bool yn=true);
 };
 
 
@@ -190,6 +191,7 @@ public:
 
     void                	fillDefStr(BufferString&) const;
     bool			isSet() const;
+    void			setSet(bool yn=true);
 };
 
 

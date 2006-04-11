@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribparam.cc,v 1.22 2006-04-03 13:26:08 cvshelene Exp $";
+static const char* rcsID = "$Id: attribparam.cc,v 1.23 2006-04-11 10:16:17 cvshelene Exp $";
 
 #include "attribparam.h"
 #include "attribparamgroup.h"
@@ -379,6 +379,10 @@ bool BoolParam::isSet() const
 { return reinterpret_cast<BoolInpSpec*>(spec_)->isSet(); }
 
 
+void BoolParam::setSet( bool yn )
+{ reinterpret_cast<BoolInpSpec*>(spec_)->setSet(yn); }
+
+
 EnumParam::EnumParam( const char* nm )
     : ValParam( nm, new StringListInpSpec )
 {}
@@ -437,6 +441,10 @@ void EnumParam::fillDefStr( BufferString& res ) const
 
 bool EnumParam::isSet() const
 { return reinterpret_cast<StringListInpSpec*>(spec_)->isSet(); }
+
+
+void EnumParam::setSet( bool yn )
+{ reinterpret_cast<StringListInpSpec*>(spec_)->setSet(yn); }
 
 
 StringParam::StringParam( const char* key )

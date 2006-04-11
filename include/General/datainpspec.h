@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/02/2001
- RCS:           $Id: datainpspec.h,v 1.61 2006-04-11 06:13:20 cvsnanne Exp $
+ RCS:           $Id: datainpspec.h,v 1.62 2006-04-11 10:16:17 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -554,6 +554,7 @@ public:
     virtual void	setDefaultValue(bool,int idx=0);
 
     bool		isSet() const 			{ return isset; }
+    void		setSet( bool yesno=true )	{ isset = yesno; }
 
 protected:
 
@@ -601,6 +602,7 @@ public:
     virtual int		getDefaultIntValue( int idx=0 ) const;
 
     bool		isSet() const			{ return isset_; }
+    void		setSet( bool yn=true )		{ isset_ = yn; }
 protected:
 
     BufferStringSet	strings_;
