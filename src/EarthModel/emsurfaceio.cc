@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          June 2003
- RCS:           $Id: emsurfaceio.cc,v 1.57 2006-03-31 20:04:38 cvskris Exp $
+ RCS:           $Id: emsurfaceio.cc,v 1.58 2006-04-12 13:56:24 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -1000,6 +1000,7 @@ dgbSurfaceWriter::dgbSurfaceWriter( const IOObj* ioobj,
     , filetype_( filetype )
     , binary_( binary )
 {
+    surface.ref();
     setNrDoneText( "Nr done" );
     par_.set( dgbSurfaceReader::sKeyDBInfo(), surface.dbInfo() );
 
@@ -1065,6 +1066,7 @@ dgbSurfaceWriter::~dgbSurfaceWriter()
     astream.newParagraph();
     par_.putTo( astream );
 
+    surface_.unRef();
     delete &par_;
     delete conn_;
     delete writerowrange_;
