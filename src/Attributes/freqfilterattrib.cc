@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          February 2003
- RCS:           $Id: freqfilterattrib.cc,v 1.16 2006-04-03 13:51:12 cvshelene Exp $
+ RCS:           $Id: freqfilterattrib.cc,v 1.17 2006-04-12 07:30:28 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -290,7 +290,6 @@ FreqFilter::FreqFilter( Desc& ds )
     , tmpfreqdomain(0)
     , timecplxoutp(0)
     , window(0)
-    , zmargin(0,0)
 {
     if ( !isOK() ) return;
 
@@ -321,8 +320,7 @@ FreqFilter::FreqFilter( Desc& ds )
 	window = new ArrayNDWindow( Array1DInfoImpl(100),
 		 false, (ArrayNDWindow::WindowType) windowtype );
 	
-    zmargin = Interval<float>( -mNINT(mMINNRSAMPLES/2) * SI().zStep(),
-			       mNINT(mMINNRSAMPLES/2) * SI().zStep() );
+    zmargin = Interval<int>( -mNINT(mMINNRSAMPLES/2), mNINT(mMINNRSAMPLES/2) );
 }
 
 
@@ -485,7 +483,7 @@ void FreqFilter::setSz( int sz )
     timecplxoutp.setInfo( Array1DInfoImpl( fftsz ) );
 }
 
-const Interval<float>* FreqFilter::desZMargin(int input, int output) const
+const Interval<int>* FreqFilter::desZSampMargin(int input, int output) const
 {
     return &zmargin;
 }
