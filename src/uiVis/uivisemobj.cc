@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Jan 2005
- RCS:           $Id: uivisemobj.cc,v 1.44 2006-04-11 08:17:00 cvsjaap Exp $
+ RCS:           $Id: uivisemobj.cc,v 1.45 2006-04-12 13:05:48 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -395,7 +395,7 @@ void uiVisEMObject::handleMenuCB( CallBacker* cb )
 	menu->setIsHandled(true);
 	emod->showPosAttrib( EM::EMObject::sSeedNode,
 			     !emod->showsPosAttrib(EM::EMObject::sSeedNode),
-			     Color( 200, 200, 200 ));
+			     Color(255,255,255 ));
     }
     else if ( mnuid==editmnuitem.id )
     {
