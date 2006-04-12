@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizon3dseedpicker.cc,v 1.9 2006-04-07 15:14:41 cvsjaap Exp $";
+static const char* rcsID = "$Id: horizon3dseedpicker.cc,v 1.10 2006-04-12 12:50:42 cvsjaap Exp $";
 
 #include "horizonseedpicker.h"
 
@@ -368,7 +368,7 @@ CubeSampling HorizonSeedPicker::getSeedBox() const
 {
     CubeSampling seedbox( true );
     seedbox.hrg.init( false );
-    for ( int idx=0; idx<nrSeeds(); idx++ )
+    for ( int idx=0; idx<seedpos_.size(); idx++ )
     {
 	const BinID seedbid = SI().transform( seedpos_[idx] );
 	if ( engine().activeVolume().hrg.includes(seedbid) )
