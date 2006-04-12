@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visobject.cc,v 1.36 2006-01-13 15:38:54 cvskris Exp $";
+static const char* rcsID = "$Id: visobject.cc,v 1.37 2006-04-12 13:10:34 cvsjaap Exp $";
 
 #include "visobject.h"
 
@@ -24,8 +24,8 @@ namespace visBase
 const char* VisualObjectImpl::materialidstr = "Material ID";
 const char* VisualObjectImpl::isonstr = "Is on";
 
-VisualObject::VisualObject( bool selectable_ )
-    : isselectable(selectable_)
+VisualObject::VisualObject( bool selectable )
+    : isselectable(selectable)
     , deselnotifier(this)
     , selnotifier(this)
     , rightClick(this)
@@ -37,8 +37,8 @@ VisualObject::~VisualObject()
 {}
 
 
-VisualObjectImpl::VisualObjectImpl( bool selectable_ )
-    : VisualObject(selectable_)
+VisualObjectImpl::VisualObjectImpl( bool selectable )
+    : VisualObject(selectable)
     , root(new SoSeparator)
     , onoff(new SoSwitch)
     , material(0)
@@ -166,9 +166,9 @@ void VisualObjectImpl::fillPar( IOPar& iopar,
 }
 
 
-void VisualObject::triggerRightClick( const EventInfo* eventinfo_ )
+void VisualObject::triggerRightClick( const EventInfo* eventinfo )
 {
-    rcevinfo = eventinfo_;
+    rcevinfo = eventinfo;
     rightClick.trigger();
 }
 
