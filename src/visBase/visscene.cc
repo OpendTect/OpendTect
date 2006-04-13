@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Jan 2002
- RCS:           $Id: visscene.cc,v 1.30 2005-10-12 20:35:34 cvskris Exp $
+ RCS:           $Id: visscene.cc,v 1.31 2006-04-13 14:24:34 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "visdataman.h"
 #include "visselman.h"
 #include "visevent.h"
+#include "vismarker.h"
 
 #include <Inventor/nodes/SoEnvironment.h>
 #include <Inventor/nodes/SoSeparator.h>
@@ -140,16 +141,26 @@ void Scene::mousePickCB( CallBacker* cb )
 		DM().selMan().deSelectAll();
 	}
 
+	bool markerclicked = false;
+
 	for ( int idx=0; idx<sz; idx++ )
 	{
-	    DataObject* dataobj =
-			    DM().getObject(eventinfo.pickedobjids[idx]);
+	    DataObject* dataobj = DM().getObject(eventinfo.pickedobjids[idx]);
+	    const bool idisok = markerclicked || mousedownid==dataobj->id();
 
-	    if ( dataobj->selectable() && mousedownid==dataobj->id() )
+	    if ( dataobj->selectable() && idisok )
 	    {
 		if ( eventinfo.mousebutton==EventInfo::rightMouseButton() &&
 			dataobj->rightClicked() )
+		{
+		    mDynamicCastGet( visBase::Marker*, emod, dataobj );
+		    if ( emod ) 
+		    {
+			markerclicked = true;
+			continue;
+		    }
 		    dataobj->triggerRightClick(&eventinfo);
+		}
 		else if ( eventinfo.shift && !eventinfo.alt && !eventinfo.ctrl )
 		    DM().selMan().select( mousedownid, true );
 		else if ( !eventinfo.shift && !eventinfo.alt && !eventinfo.ctrl)
