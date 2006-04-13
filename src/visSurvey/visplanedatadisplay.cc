@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.119 2006-03-17 11:56:52 cvsnanne Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.120 2006-04-13 15:30:30 cvskris Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -63,6 +63,25 @@ PlaneDataDisplay::PlaneDataDisplay()
     dragger_->finished.notify( mCB(this,PlaneDataDisplay,draggerFinish) );
     dragger_->rightClicked()->notify(
 	    		mCB(this,PlaneDataDisplay,draggerRightClick) );
+
+    RefMan<visBase::FaceSet> draggerrect = visBase::FaceSet::create();
+    draggerrect->removeSwitch();
+    draggerrect->setVertexOrdering(1);
+    draggerrect->getCoordinates()->addPos( Coord3(-1,-1,0) );
+    draggerrect->getCoordinates()->addPos( Coord3(1,-1,0) );
+    draggerrect->getCoordinates()->addPos( Coord3(1,1,0) );
+    draggerrect->getCoordinates()->addPos( Coord3(-1,1,0) );
+    draggerrect->setCoordIndex( 0, 0 );
+    draggerrect->setCoordIndex( 1, 1 );
+    draggerrect->setCoordIndex( 2, 2 );
+    draggerrect->setCoordIndex( 3, 3 );
+    draggerrect->setCoordIndex( 4, -1 );
+
+    RefMan<visBase::Material> draggermaterial = visBase::Material::create();
+    draggermaterial->setTransparency( 0.8 );
+    draggerrect->setMaterial( draggermaterial );
+
+    dragger_->setOwnShape( draggerrect->getInventorNode() );
 
     rectanglepickstyle_->ref();
     addChild( rectanglepickstyle_->getInventorNode() );
