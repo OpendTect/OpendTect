@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vismultitexture.cc,v 1.14 2006-03-23 12:21:10 cvsnanne Exp $";
+static const char* rcsID = "$Id: vismultitexture.cc,v 1.15 2006-04-13 20:04:05 cvskris Exp $";
 
 #include "vismultitexture2.h"
 
@@ -234,6 +234,14 @@ bool TextureInfo::setTextureData( int version, const float* data, int newsz,
     {
 	if ( managedata ) delete [] data;
 	return false;
+    }
+
+    if ( newsz!=sz_ )
+    {
+	if ( ownsindexdata_[version] )
+	    delete [] versionindexdata_[version];
+
+	versionindexdata_.replace( version, 0 );
     }
 
     sz_ = newsz;
