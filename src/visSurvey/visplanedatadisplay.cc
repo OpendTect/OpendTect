@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.120 2006-04-13 15:30:30 cvskris Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.121 2006-04-13 20:15:49 cvskris Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -55,6 +55,7 @@ PlaneDataDisplay::PlaneDataDisplay()
     , datatransformvoihandle_( -1 )
     , moving_(this)
     , movefinished_(this)
+    , resolution_( 0 )
 {
     cache_.allowNull( true );
     dragger_->ref();
@@ -398,26 +399,24 @@ BufferString PlaneDataDisplay::getManipulationString() const
 NotifierAccess* PlaneDataDisplay::getManipulationNotifier()
 { return &moving_; }
 
-/*
+
 int PlaneDataDisplay::nrResolutions() const
-{
-    return trect->getNrResolutions();
-}
+{ return 3; }
 
 
 int PlaneDataDisplay::getResolution() const
-{
-    return trect->getResolution();
-}
+{ return resolution_; }
 
 
 void PlaneDataDisplay::setResolution( int res )
 {
-    trect->setResolution( res );
-    if ( cache_ ) setData( cache_, 0 );
+    resolution_ = res;
+    for ( int idx=0; idx<nrAttribs(); idx++ )
+    {
+	if ( cache_[idx] )
+	    setData( 0, cache_[idx] );
+    }
 }
-
-*/
 
 
 SurveyObject::AttribFormat PlaneDataDisplay::getAttributeFormat() const
@@ -753,7 +752,12 @@ void PlaneDataDisplay::setData( int attrib, const Attrib::DataCubes* datacubes )
 
 	if ( slice.init() )
 	{
-	    texture_->setData( attrib, idx, &slice );
+	    if ( resolution_ )
+		texture_->setDataOversample( attrib, idx, resolution_, 
+					     !isClassification( attrib ),
+		       			     &slice );
+	    else
+		texture_->setData( attrib, idx, &slice );
 
 	    visBase::TextureCoords* tcoords = rectangle_->getTextureCoords();
 	    if ( !tcoords )
@@ -783,6 +787,25 @@ void PlaneDataDisplay::setData( int attrib, const Attrib::DataCubes* datacubes )
     }
 
     texture_->turnOn( true );
+}
+
+
+inline int getPow2Sz( int actsz, bool above=true, int minsz=1,
+		      int maxsz=INT_MAX )
+{
+    char npow = 0; char npowextra = actsz == 1 ? 1 : 0;
+    int sz = actsz;
+    while ( sz>1 )
+    {
+	if ( above && !npowextra && sz % 2 )
+	npowextra = 1;
+	sz /= 2; npow++;
+    }
+
+    sz = intpow( 2, npow + npowextra );
+    if ( sz < minsz ) sz = minsz;
+    if ( sz > maxsz ) sz = maxsz;
+    return sz;
 }
 
 
@@ -836,6 +859,7 @@ void PlaneDataDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
     visBase::VisualObject::fillPar( par, saveids );
     
     par.set( sKeyOrientation(), OrientationRef(orientation_) );
+    par.set( sKeyResolution(), resolution_ );
     getCubeSampling( false, true ).fillPar( par );
 
     for ( int attrib=as_.size()-1; attrib>=0; attrib-- )
@@ -867,6 +891,8 @@ int PlaneDataDisplay::usePar( const IOPar& par )
 	EnumRef oriref = OrientationRef(ori);
 	if ( par.get( sKeyOrientation(), oriref ) )
 	    setOrientation( ori );
+
+	par.get( sKeyResolution(), resolution_ );
 
 	CubeSampling cs;
 	if ( cs.usePar( par ) )
@@ -957,6 +983,11 @@ int PlaneDataDisplay::usePar( const IOPar& par )
 
 	setOrientation( ori );
 	setCubeSampling( cubesampl );
+	resolution_ = tr->getResolution();
+
+	if ( resolution_>=2 ) resolution_ = 2;
+	else if ( resolution_<0 ) resolution_ = 0;
+	
 	tr->unRef();
 
 	as_[0]->usePar( par );

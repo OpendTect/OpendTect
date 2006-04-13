@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visplanedatadisplay.h,v 1.75 2006-03-09 17:26:20 cvskris Exp $
+ RCS:		$Id: visplanedatadisplay.h,v 1.76 2006-04-13 20:15:49 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -75,9 +75,9 @@ public:
 
     bool			allowMaterialEdit() const	{ return true; }
 
-    //int				nrResolutions() const;
-    //int				getResolution() const;
-    //void			setResolution(int);
+    int				nrResolutions() const;
+    int				getResolution() const;
+    void			setResolution(int);
 
     SurveyObject::AttribFormat	getAttributeFormat() const;
     bool			canHaveMultipleAttribs() const;
@@ -155,6 +155,7 @@ protected:
     BoolTypeSet				isclassification_;
     ObjectSet<const Attrib::DataCubes>	cache_;
 
+    int				resolution_;
     BinID			curicstep_;
     float			curzstep_;
     ZAxisTransform*		datatransform_;
@@ -165,6 +166,7 @@ protected:
 
     static const char*		sKeyOrientation() { return "Orientation"; }
     static const char*		sKeyTextureRect() { return "Texture rectangle";}
+    static const char*		sKeyResolution()  { return "Resolution";}
 };
 
 };
