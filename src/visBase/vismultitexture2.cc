@@ -8,10 +8,15 @@ ___________________________________________________________________
 
 -*/
 
+static const char* rcsID = "$Id: vismultitexture2.cc,v 1.9 2006-04-13 20:05:09 cvskris Exp $";
+
+
 #include "vismultitexture2.h"
 
-#include "arraynd.h"
+#include "arrayndimpl.h"
+#include "interpol2d.h"
 #include "errh.h"
+#include "simpnumer.h"
 #include "thread.h"
 #include "viscolortab.h"
 
@@ -24,6 +29,39 @@ mCreateFactoryEntry( visBase::MultiTexture2 );
 
 namespace visBase
 {
+
+inline int getPow2Sz( int actsz, bool above=true, int minsz=1,
+		      int maxsz=INT_MAX )
+{
+    char npow = 0; char npowextra = actsz == 1 ? 1 : 0;
+    int sz = actsz;
+    while ( sz>1 )
+    {
+	if ( above && !npowextra && sz % 2 )
+	npowextra = 1;
+	sz /= 2; npow++;
+    }
+
+    sz = intpow( 2, npow + npowextra );
+    if ( sz<minsz ) sz = minsz;
+    if ( sz>maxsz ) sz = maxsz;
+    return sz;
+}
+
+
+inline int nextPower2( int nr, int minnr, int maxnr )
+{
+    if ( nr > maxnr )
+	return maxnr;
+
+    int newnr = minnr;
+    while ( nr > newnr )
+	newnr *= 2;
+
+    return newnr;
+}
+
+
 
 MultiTexture2::MultiTexture2()
     : onoff_( new SoSwitch )
@@ -129,24 +167,166 @@ float MultiTexture2::getTextureRenderQuality() const
 }
 
 
+bool MultiTexture2::setDataOversample( int texture, int version,
+				       int resolution, bool interpol,
+	                               const Array2D<float>* data )
+{
+    if ( !data ) return setData( texture, version, data );
+
+    const int datax0size = data->info().getSize(0);
+    const int datax1size = data->info().getSize(1);
+    if ( datax0size<2 || datax1size<2  )
+	return setData( texture, version, data );
+
+    const static int minpix2d = 128;
+    const static int maxpix2d = 1024;
+
+    int newx0 = getPow2Sz( datax0size, true, minpix2d, maxpix2d );
+    int newx1 = getPow2Sz( datax1size, true, minpix2d, maxpix2d );
+
+    if ( resolution )
+    {
+	newx0 = nextPower2( datax0size, minpix2d, maxpix2d ) * resolution;
+	newx1 = nextPower2( datax1size, minpix2d, maxpix2d ) * resolution;
+    }
+
+    if ( !setSize( newx0, newx1 ) )
+	return false;
+
+    Array2DImpl<float> interpoldata( newx0, newx1 );
+    if ( interpol )
+	polyInterp( *data, interpoldata );
+    else
+	nearestValInterp( *data, interpoldata );
+
+    const int totalsz = interpoldata.info().getTotalSz();
+    float* arr = new float[totalsz];
+    memcpy( arr, interpoldata.getData(), totalsz*sizeof(float) );
+    return setTextureData( texture, version, arr, totalsz, true );
+}
+
+
+bool MultiTexture2::setSize( int sz0, int sz1 )
+{
+    if ( size_.row==sz0 && size_.col==sz1 )
+	return true;
+
+    if ( size_.row>=0 && size_.col>=0 &&
+		(nrTextures()>1 || (nrTextures() && nrVersions(0)>1)) )
+    {
+	pErrMsg("Invalid size" );
+	return false;
+    }
+
+    size_.row = sz0;
+    size_.col = sz1;
+    return true;
+}
+
+void MultiTexture2::nearestValInterp( const Array2D<float>& inp,
+				      Array2D<float>& out ) const
+{   
+    const int inpsize0 = inp.info().getSize( 0 );
+    const int inpsize1 = inp.info().getSize( 1 );
+    const int outsize0 = out.info().getSize( 0 );
+    const int outsize1 = out.info().getSize( 1 );
+    const float x0step = (inpsize0-1)/(float)(outsize0-1);
+    const float x1step = (inpsize1-1)/(float)(outsize1-1);
+
+    for ( int x0=0; x0<outsize0; x0++ )
+    {
+	const int x0sample = mNINT( x0*x0step );
+	for ( int x1=0; x1<outsize1; x1++ )
+	{
+	    const float x1pos = x1*x1step;
+	    out.set( x0, x1, inp.get( x0sample, mNINT(x1pos) ) );
+	}
+    }
+}
+
+
+void MultiTexture2::polyInterp( const Array2D<float>& inp,
+				Array2D<float>& out ) const
+{
+    const int inpsize0 = inp.info().getSize( 0 );
+    const int inpsize1 = inp.info().getSize( 1 );
+    const int outsize0 = out.info().getSize( 0 );
+    const int outsize1 = out.info().getSize( 1 );
+    const float x0step = (inpsize0-1)/(float)(outsize0-1);
+    const float x1step = (inpsize1-1)/(float)(outsize1-1);
+
+
+    float val; const float udf = mUdf(float);
+    Interpolate::PolyReg2DWithUdf<float> interpol;
+    int interpolx1=-1;
+
+    for ( int x0=0; x0<outsize0; x0++ )
+    {
+	const float x0pos=x0*x0step;
+	const int x0idx = (int)x0pos;
+	const float x0relpos = x0pos-x0idx;
+	const bool x0m1udf = x0idx == 0;
+	const bool x0p2udf = x0idx >= inpsize0-2;
+	const bool x0p1udf = x0idx == inpsize0-1;
+
+	interpolx1=-1;
+
+	for ( int x1=0; x1<outsize1; x1++ )
+	{
+	    const float x1pos = x1*x1step;
+	    const int x1idx = (int)x1pos;
+	    const float x1relpos = x1pos-x1idx;
+
+	    if ( interpolx1!=x1idx )
+	    {
+		const bool x1m1udf = x1idx == 0;
+		const bool x1p2udf = x1idx >= inpsize1-2;
+		const bool x1p1udf = x1idx == inpsize1-1;
+
+		const float vm10 = x0m1udf ? udf
+		    : inp.get( x0idx-1, x1idx );
+		const float vm11 = x0m1udf || x1p1udf ? udf
+		    : inp.get( x0idx-1, x1idx+1 );
+		const float v0m1 = x1m1udf ? udf
+		    : inp.get( x0idx, x1idx-1 );
+		const float v00 =
+		    inp.get( x0idx, x1idx );
+		const float v01 = x1p1udf ? udf
+		    : inp.get( x0idx, x1idx+1 );
+		const float v02 = x1p2udf ? udf
+		    : inp.get( x0idx, x1idx+2 );
+		const float v1m1 = x0p1udf || x1m1udf ? udf
+		    : inp.get( x0idx+1, x1idx-1 );
+		const float v10 = x0p1udf ? udf
+		    : inp.get( x0idx+1, x1idx );
+		const float v11 = x0p1udf || x1p1udf ? udf
+		    : inp.get( x0idx+1, x1idx+1 );
+		const float v12 = x0p1udf || x1p2udf ? udf
+		    : inp.get( x0idx+1, x1idx+2 );
+		const float v20 = x0p2udf ? udf
+		    : inp.get( x0idx+2, x1idx );
+		const float v21 = x0p2udf || x1p1udf ? udf
+		    : inp.get( x0idx+2, x1idx+1 );
+
+		interpol.set( vm10, vm11,
+			v0m1, v00,  v01,  v02,
+			v1m1, v10,  v11,  v12,
+			      v20,  v21 );
+
+		interpolx1 = x1idx;
+	    }
+
+	    out.set( x0, x1, interpol.apply( x0relpos, x1relpos ) );
+	}
+    }
+}
+
+
 bool MultiTexture2::setData( int texture, int version,
 			     const Array2D<float>* data )
 {
-    if ( (data && size_.row!=data->info().getSize(0)) ||
-         (data && size_.col!=data->info().getSize(1)) )
-    {
-	if ( size_.row>=0 && size_.col>=0 &&
-		(nrTextures()>1 || (nrTextures() && nrVersions(0)>1)) )
-	{
-	    pErrMsg("Invalid size" );
-	    return false;
-	}
-	else
-	{
-	    size_.row = data->info().getSize(0);
-	    size_.col = data->info().getSize(1);
-	}
-    }
+    if ( data && !setSize( data->info().getSize(0), data->info().getSize(1) ) )
+	return false;
 
     const int totalsz = data ? data->info().getTotalSz() : 0;
     const float* dataarray = data ? data->getData() : 0;

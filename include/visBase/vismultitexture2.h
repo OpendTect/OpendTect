@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		Dec 2005
- RCS:		$Id: vismultitexture2.h,v 1.4 2006-03-09 17:06:40 cvskris Exp $
+ RCS:		$Id: vismultitexture2.h,v 1.5 2006-04-13 20:05:09 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -45,6 +45,9 @@ public:
     float			getTextureRenderQuality() const;
     bool			setData(int texture,int version,
 	    				const Array2D<float>*);
+    bool			setDataOversample(int texture,int version,
+	    				int resolution,bool interpol,
+					const Array2D<float>*);
     bool			setIndexData(int texture,int version,
 					     const Array2D<unsigned char>*);
 
@@ -52,10 +55,15 @@ public:
 protected:
 
     			~MultiTexture2();
+    void		polyInterp(const Array2D<float>&,
+				   Array2D<float>&) const;
+    void		nearestValInterp(const Array2D<float>&,
+					 Array2D<float>&) const;
+    bool		setSize(int,int);
 
-    void		updateSoTextureInternal( int texture );
-    void		insertTextureInternal( int texture );
-    void		removeTextureInternal( int texture );
+    void		updateSoTextureInternal(int texture);
+    void		insertTextureInternal(int texture);
+    void		removeTextureInternal(int texture);
 
     void		updateColorTables();
 
