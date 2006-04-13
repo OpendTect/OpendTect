@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Feb 2002
- RCS:           $Id: viscube.cc,v 1.18 2005-02-07 12:45:40 nanne Exp $
+ RCS:           $Id: viscube.cc,v 1.19 2006-04-13 15:29:08 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -83,7 +83,7 @@ void Cube::setWidth( const Coord3& n )
     const Coord3 transscale = transformation ? transformation->getScale() :
 			      Coord3(1,1,1);
 
-    SoCube* cube = reinterpret_cast<SoCube*>( shape );
+    SoCube* cube = reinterpret_cast<SoCube*>( shape_ );
     cube->width.setValue(n.x*transscale.x);
     cube->height.setValue(n.y*transscale.y);
     cube->depth.setValue(n.z*transscale.z);
@@ -94,7 +94,7 @@ Coord3 Cube::width() const
 {
     Coord3 res;
     
-    SoCube* cube = reinterpret_cast<SoCube*>( shape );
+    SoCube* cube = reinterpret_cast<SoCube*>( shape_ );
     res.x = cube->width.getValue();
     res.y = cube->height.getValue();
     res.z = cube->depth.getValue();

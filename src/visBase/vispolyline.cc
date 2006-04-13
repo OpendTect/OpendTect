@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Apr 2002
- RCS:           $Id: vispolyline.cc,v 1.11 2005-02-07 12:45:40 nanne Exp $
+ RCS:           $Id: vispolyline.cc,v 1.12 2006-04-13 15:29:08 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,11 +26,11 @@ namespace visBase
 
 PolyLine::PolyLine()
     : VertexShape( new SoLineSet )
-    , lineset( dynamic_cast<SoLineSet*>( shape ) )
+    , lineset( dynamic_cast<SoLineSet*>( shape_ ) )
 { }
 
 
-int PolyLine::size() const { return coords->size(); }
+int PolyLine::size() const { return coords_->size(); }
 
 
 void PolyLine::addPoint( const Coord3& pos )
@@ -42,13 +42,13 @@ void PolyLine::addPoint( const Coord3& pos )
 void PolyLine::setPoint(int idx, const Coord3& pos )
 {
     if ( idx>size() ) return;
-    coords->setPos( idx, pos );
+    coords_->setPos( idx, pos );
     lineset->numVertices.setValue( size() );
 }
 
 
 Coord3 PolyLine::getPoint( int idx ) const 
-{ return coords->getPos( idx ); }
+{ return coords_->getPos( idx ); }
 
 
 void PolyLine::removePoint( int idx )
@@ -56,10 +56,10 @@ void PolyLine::removePoint( int idx )
     lineset->numVertices.setValue( size()-1 );
     for ( int idy=idx; idy<size()-1; idy++ )
     {
-	coords->setPos( idy, coords->getPos( idy+1 ) );
+	coords_->setPos( idy, coords_->getPos( idy+1 ) );
     }
 
-    coords->removePos( size()-1 );
+    coords_->removePos( size()-1 );
 }
 
 
@@ -75,13 +75,13 @@ IndexedPolyLine3D::IndexedPolyLine3D()
 
 float IndexedPolyLine3D::getRadius() const
 {
-    return reinterpret_cast<SoIndexedLineSet3D*>(shape)->radius.getValue();
+    return reinterpret_cast<SoIndexedLineSet3D*>(shape_)->radius.getValue();
 }
 
 
 void IndexedPolyLine3D::setRadius(float nv)
 {
-    reinterpret_cast<SoIndexedLineSet3D*>(shape)->radius.setValue(nv);
+    reinterpret_cast<SoIndexedLineSet3D*>(shape_)->radius.setValue(nv);
 }
 
 }; // namespace visBase

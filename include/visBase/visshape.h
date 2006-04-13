@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visshape.h,v 1.14 2004-11-16 09:29:17 kristofer Exp $
+ RCS:		$Id: visshape.h,v 1.15 2006-04-13 15:29:13 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -85,20 +85,20 @@ protected:
     				/*!< Inserts the node _before_ the shape */
     void			removeNode( SoNode* );
 
-    SoNode*			shape;
-    SoSwitch*			onoff;
+    SoNode*			shape_;
+    SoSwitch*			onoff_;
 
-    Texture2*			texture2;
-    Texture3*			texture3;
-    Material*			material;
+    Texture2*			texture2_;
+    Texture3*			texture3_;
+    Material*			material_;
 
 private:
-    static const char*		onoffstr;
-    static const char*		texturestr;
-    static const char*		materialstr;
+    static const char*		sKeyOnOff();
+    static const char*		sKeyTexture();
+    static const char*		sKeyMaterial();
 
-    SoSeparator*		root;
-    SoMaterialBinding*		materialbinding;
+    SoSeparator*		root_;
+    SoMaterialBinding*		materialbinding_;
 };
 
 
@@ -147,13 +147,13 @@ public:
 protected:
     			~VertexShape();
 
-    Normals*		normals;
-    Coordinates*	coords;
-    TextureCoords*	texturecoords;
+    Normals*		normals_;
+    Coordinates*	coords_;
+    TextureCoords*	texturecoords_;
 
 private:
-    SoNormalBinding*	normalbinding;
-    SoShapeHints*	shapehints;
+    SoNormalBinding*	normalbinding_;
+    SoShapeHints*	shapehints_;
 };
 
 
@@ -187,7 +187,7 @@ public:
 
 private:
 
-    SoIndexedShape*	indexedshape;
+    SoIndexedShape*	indexedshape_;
 };
 
 };

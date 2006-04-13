@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: visshape.cc,v 1.19 2005-02-04 14:31:34 kristofer Exp $";
+static const char* rcsID = "$Id: visshape.cc,v 1.20 2006-04-13 15:29:08 cvskris Exp $";
 
 #include "visshape.h"
 
@@ -35,31 +35,31 @@ static const char* rcsID = "$Id: visshape.cc,v 1.19 2005-02-04 14:31:34 kristofe
 namespace visBase
 {
 
-const char* Shape::onoffstr = "Is on";
-const char* Shape::texturestr = "Texture";
-const char* Shape::materialstr = "Material";
+const char* Shape::sKeyOnOff() 			{ return  "Is on";	}
+const char* Shape::sKeyTexture() 		{ return  "Texture";	}
+const char* Shape::sKeyMaterial() 		{ return  "Material";	}
 
-Shape::Shape( SoNode* shape_ )
-    : shape( shape_ )
-    , onoff( new SoSwitch )
-    , texture2( 0 )
-    , texture3( 0 )
-    , material( 0 )
-    , root( new SoSeparator )
-    , materialbinding( 0 )
+Shape::Shape( SoNode* shape )
+    : shape_( shape )
+    , onoff_( new SoSwitch )
+    , texture2_( 0 )
+    , texture3_( 0 )
+    , material_( 0 )
+    , root_( new SoSeparator )
+    , materialbinding_( 0 )
 {
-    onoff->ref();
-    onoff->addChild( root );
-    onoff->whichChild = 0;
-    insertNode( shape );
+    onoff_->ref();
+    onoff_->addChild( root_ );
+    onoff_->whichChild = 0;
+    insertNode( shape_ );
 }
 
 
 Shape::~Shape()
 {
-    if ( texture2 ) texture2->unRef();
-    if ( texture3 ) texture3->unRef();
-    if ( material ) material->unRef();
+    if ( texture2_ ) texture2_->unRef();
+    if ( texture3_ ) texture3_->unRef();
+    if ( material_ ) material_->unRef();
 
     getInventorNode()->unref();
 }
@@ -67,7 +67,7 @@ Shape::~Shape()
 
 void Shape::turnOn(bool n)
 {
-    if ( onoff ) onoff->whichChild = n ? 0 : SO_SWITCH_NONE;
+    if ( onoff_ ) onoff_->whichChild = n ? 0 : SO_SWITCH_NONE;
     else if ( !n )
     {
 	pErrMsg( "Turning off object without switch");
@@ -77,35 +77,35 @@ void Shape::turnOn(bool n)
 
 bool Shape::isOn() const
 {
-    return !onoff || !onoff->whichChild.getValue();
+    return !onoff_ || !onoff_->whichChild.getValue();
 }
 
 
 void Shape::removeSwitch()
 {
-    root->ref();
-    onoff->unref();
-    onoff = 0;
+    root_->ref();
+    onoff_->unref();
+    onoff_ = 0;
 }
 
 
 void Shape::setRenderCache(int mode)
 {
     if ( !mode )
-	root->renderCaching = SoSeparator::OFF;
+	root_->renderCaching = SoSeparator::OFF;
     else if ( mode==1 )
-	root->renderCaching = SoSeparator::ON;
+	root_->renderCaching = SoSeparator::ON;
     else
-	root->renderCaching = SoSeparator::AUTO;
+	root_->renderCaching = SoSeparator::AUTO;
 }
 
 
 int Shape::getRenderCache() const
 {
-    if ( root->renderCaching.getValue()==SoSeparator::OFF )
+    if ( root_->renderCaching.getValue()==SoSeparator::OFF )
 	return 0;
 
-    if ( root->renderCaching.getValue()==SoSeparator::ON )
+    if ( root_->renderCaching.getValue()==SoSeparator::ON )
 	return 1;
     
     return 2;
@@ -137,32 +137,32 @@ clssname* ownclass::get##clssname() \
 }
 
 
-setGetItem( Shape, Texture2, texture2 );
-setGetItem( Shape, Texture3, texture3 );
-setGetItem( Shape, Material, material );
+setGetItem( Shape, Texture2, texture2_ );
+setGetItem( Shape, Texture3, texture3_ );
+setGetItem( Shape, Material, material_ );
 
 
 void Shape::setMaterialBinding( int nv )
 {
     bool isindexed = dynamic_cast<IndexedShape*>( this );
 
-    if ( !materialbinding )
+    if ( !materialbinding_ )
     {
-	materialbinding = new SoMaterialBinding;
-	insertNode( materialbinding );
+	materialbinding_ = new SoMaterialBinding;
+	insertNode( materialbinding_ );
     }
     if ( !nv )
     {
-	materialbinding->value = SoMaterialBinding::OVERALL;
+	materialbinding_->value = SoMaterialBinding::OVERALL;
     }
     else if ( nv==1 )
     {
-	materialbinding->value = isindexed ?
+	materialbinding_->value = isindexed ?
 	    SoMaterialBinding::PER_FACE_INDEXED : SoMaterialBinding::PER_FACE;
     }
     else
     {
-	materialbinding->value = isindexed
+	materialbinding_->value = isindexed
 	    ? SoMaterialBinding::PER_VERTEX_INDEXED
 	    : SoMaterialBinding::PER_VERTEX;
     }
@@ -171,9 +171,9 @@ void Shape::setMaterialBinding( int nv )
 
 int Shape::getMaterialBinding() const
 {
-    if ( !materialbinding ) return 0;
-    return materialbinding->value.getValue()==SoMaterialBinding::PER_FACE ||
-	   materialbinding->value.getValue()==
+    if ( !materialbinding_ ) return 0;
+    return materialbinding_->value.getValue()==SoMaterialBinding::PER_FACE ||
+	   materialbinding_->value.getValue()==
 	   			SoMaterialBinding::PER_FACE_INDEXED ? 1 : 2;
 }
 
@@ -185,23 +185,23 @@ void Shape::fillPar( IOPar& iopar, TypeSet<int>& saveids ) const
 {
     VisualObject::fillPar( iopar, saveids );
 
-    if ( material )
-	iopar.set( materialstr, material->id() );
+    if ( material_ )
+	iopar.set( sKeyMaterial(), material_->id() );
 
     int textureindex = -1;
-    if ( texture2 )
-	textureindex = texture2->id();
-    else if ( texture3 )
-	textureindex = texture3->id();
+    if ( texture2_ )
+	textureindex = texture2_->id();
+    else if ( texture3_ )
+	textureindex = texture3_->id();
 
     if ( textureindex != -1 )
     {
-	iopar.set( texturestr, textureindex );
+	iopar.set( sKeyTexture(), textureindex );
 	if ( saveids.indexOf(textureindex) == -1 )
 	    saveids += textureindex;
     }
 
-    iopar.setYN( onoffstr, isOn() );
+    iopar.setYN( sKeyOnOff(), isOn() );
 }
 
 
@@ -211,11 +211,11 @@ int Shape::usePar( const IOPar& par )
     if ( res!=1 ) return res;
 
     bool ison;
-    if ( par.getYN(onoffstr,ison) )
+    if ( par.getYN( sKeyOnOff(), ison) )
 	turnOn( ison );
 
     int textureindex;
-    if ( par.get(texturestr,textureindex) && textureindex!=-1 )
+    if ( par.get(sKeyTexture(),textureindex) && textureindex!=-1 )
     {
 	if ( !DM().getObject(textureindex) )
 	    return 0;
@@ -233,29 +233,29 @@ int Shape::usePar( const IOPar& par )
 
 	
 SoNode* Shape::getInventorNode()
-{ return onoff ? (SoNode*) onoff : (SoNode*) root; }
+{ return onoff_ ? (SoNode*) onoff_ : (SoNode*) root_; }
 
 
 void Shape::insertNode( SoNode*  node )
 {
-    root->insertChild( node, 0 );
+    root_->insertChild( node, 0 );
 }
 
 
 void Shape::removeNode( SoNode* node )
 {
-    while ( root->findChild( node ) != -1 )
-	root->removeChild( node );
+    while ( root_->findChild( node ) != -1 )
+	root_->removeChild( node );
 }
 
 
-VertexShape::VertexShape( SoVertexShape* shape_ )
-    : Shape( shape_ )
-    , normals( 0 )
-    , coords( 0 )
-    , texturecoords( 0 )
-    , normalbinding( 0 )
-    , shapehints( 0 )
+VertexShape::VertexShape( SoVertexShape* shape )
+    : Shape( shape )
+    , normals_( 0 )
+    , coords_( 0 )
+    , texturecoords_( 0 )
+    , normalbinding_( 0 )
+    , shapehints_( 0 )
 {
     setCoordinates( Coordinates::create() );
 }
@@ -263,23 +263,23 @@ VertexShape::VertexShape( SoVertexShape* shape_ )
 
 VertexShape::~VertexShape()
 {
-    setCoordinates( 0 );
-    setTextureCoords( 0 );
-    setNormals( 0 );
+    if ( normals_ ) normals_->unRef();
+    if ( coords_ ) coords_->unRef();
+    if ( texturecoords_ ) texturecoords_->unRef();
 }
 
 
 void VertexShape::setDisplayTransformation( Transformation* tr )
-{ coords->setDisplayTransformation( tr ); }
+{ coords_->setDisplayTransformation( tr ); }
 
 
 Transformation* VertexShape::getDisplayTransformation()
-{ return  coords->getDisplayTransformation(); }
+{ return  coords_->getDisplayTransformation(); }
 
 
-setGetItem( VertexShape, Coordinates, coords );
-setGetItem( VertexShape, Normals, normals );
-setGetItem( VertexShape, TextureCoords, texturecoords );
+setGetItem( VertexShape, Coordinates, coords_ );
+setGetItem( VertexShape, Normals, normals_ );
+setGetItem( VertexShape, TextureCoords, texturecoords_ );
 
 
 const Coordinates* VertexShape::getCoordinates() const
@@ -292,19 +292,19 @@ void VertexShape::setNormalPerFaceBinding( bool nv )
 {
     bool isindexed = dynamic_cast<IndexedShape*>( this );
 
-    if ( !normalbinding )
+    if ( !normalbinding_ )
     {
-	normalbinding = new SoNormalBinding;
-	insertNode( normalbinding );
+	normalbinding_ = new SoNormalBinding;
+	insertNode( normalbinding_ );
     }
     if ( nv )
     {
-	normalbinding->value = isindexed ?
+	normalbinding_->value = isindexed ?
 	    SoNormalBinding::PER_FACE_INDEXED : SoNormalBinding::PER_FACE;
     }
     else
     {
-	normalbinding->value = isindexed
+	normalbinding_->value = isindexed
 	    ? SoNormalBinding::PER_VERTEX_INDEXED
 	    : SoNormalBinding::PER_VERTEX;
     }
@@ -313,38 +313,38 @@ void VertexShape::setNormalPerFaceBinding( bool nv )
 
 bool VertexShape::getNormalPerFaceBinding() const
 {
-    if ( !normalbinding ) return true;
-    return normalbinding->value.getValue()==SoNormalBinding::PER_FACE ||
-	   normalbinding->value.getValue()==SoNormalBinding::PER_FACE_INDEXED;
+    if ( !normalbinding_ ) return true;
+    return normalbinding_->value.getValue()==SoNormalBinding::PER_FACE ||
+	   normalbinding_->value.getValue()==SoNormalBinding::PER_FACE_INDEXED;
 }
 
 
 #define mCheckCreateShapeHints() \
-    if ( !shapehints ) \
+    if ( !shapehints_ ) \
     { \
-	shapehints = new SoShapeHints; \
-	insertNode( shapehints ); \
+	shapehints_ = new SoShapeHints; \
+	insertNode( shapehints_ ); \
     }
 
 void VertexShape::setVertexOrdering( int nv )
 {
     mCheckCreateShapeHints()
     if ( !nv )
-	shapehints->vertexOrdering = SoShapeHints::CLOCKWISE;
+	shapehints_->vertexOrdering = SoShapeHints::CLOCKWISE;
     else if ( nv==1 )
-	shapehints->vertexOrdering = SoShapeHints::COUNTERCLOCKWISE;
+	shapehints_->vertexOrdering = SoShapeHints::COUNTERCLOCKWISE;
     else
-	shapehints->vertexOrdering = SoShapeHints::UNKNOWN_ORDERING;
+	shapehints_->vertexOrdering = SoShapeHints::UNKNOWN_ORDERING;
 }
 
 
 int VertexShape::getVertexOrdering() const
 {
-    if ( !shapehints ) return 2;
+    if ( !shapehints_ ) return 2;
 
-    if ( shapehints->vertexOrdering.getValue()==SoShapeHints::CLOCKWISE )
+    if ( shapehints_->vertexOrdering.getValue()==SoShapeHints::CLOCKWISE )
 	return 0;
-    if ( shapehints->vertexOrdering.getValue()==SoShapeHints::COUNTERCLOCKWISE )
+    if ( shapehints_->vertexOrdering.getValue()==SoShapeHints::COUNTERCLOCKWISE )
 	return 1;
 
     return 2;
@@ -354,57 +354,57 @@ int VertexShape::getVertexOrdering() const
 void VertexShape::setFaceType( int ft )
 {
     mCheckCreateShapeHints()
-    shapehints->faceType = !ft ? SoShapeHints::UNKNOWN_FACE_TYPE
+    shapehints_->faceType = !ft ? SoShapeHints::UNKNOWN_FACE_TYPE
 			       : SoShapeHints::CONVEX;
 }
 
 
 int VertexShape::getFaceType() const
 {
-    return shapehints && 
-	shapehints->faceType.getValue() == SoShapeHints::CONVEX ? 1 : 0;
+    return shapehints_ && 
+	shapehints_->faceType.getValue() == SoShapeHints::CONVEX ? 1 : 0;
 }
 
 
 void VertexShape::setShapeType( int st )
 {
     mCheckCreateShapeHints()
-    shapehints->shapeType = !st ? SoShapeHints::UNKNOWN_SHAPE_TYPE
+    shapehints_->shapeType = !st ? SoShapeHints::UNKNOWN_SHAPE_TYPE
 			        : SoShapeHints::SOLID;
 }
 
 
 int VertexShape::getShapeType() const
 {
-    return shapehints && 
-	shapehints->shapeType.getValue() == SoShapeHints::SOLID ? 1 : 0;
+    return shapehints_ && 
+	shapehints_->shapeType.getValue() == SoShapeHints::SOLID ? 1 : 0;
 }
 
 
-IndexedShape::IndexedShape( SoIndexedShape* shape_ )
-    : VertexShape( shape_ )
-    , indexedshape( shape_ )
+IndexedShape::IndexedShape( SoIndexedShape* shape )
+    : VertexShape( shape )
+    , indexedshape_( shape )
 {}
 
 
 #define setGetIndex( resourcename, fieldname )  \
 int IndexedShape::nr##resourcename() const \
-{ return indexedshape->fieldname.getNum(); } \
+{ return indexedshape_->fieldname.getNum(); } \
  \
  \
 void IndexedShape::set##resourcename( int pos, int idx ) \
-{ indexedshape->fieldname.set1Value( pos, idx ); } \
+{ indexedshape_->fieldname.set1Value( pos, idx ); } \
  \
  \
 void IndexedShape::remove##resourcename##After(int pos) \
 {  \
-    if ( indexedshape->fieldname.getNum()>pos+1 ) \
-	indexedshape->fieldname.deleteValues(pos+1); \
+    if ( indexedshape_->fieldname.getNum()>pos+1 ) \
+	indexedshape_->fieldname.deleteValues(pos+1); \
 } \
  \
  \
 int IndexedShape::get##resourcename( int pos ) const \
-{ return indexedshape->fieldname[pos]; } \
+{ return indexedshape_->fieldname[pos]; } \
 
 
 setGetIndex( CoordIndex, coordIndex );
