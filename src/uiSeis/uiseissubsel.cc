@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          June 2004
- RCS:           $Id: uiseissubsel.cc,v 1.33 2006-03-12 13:39:11 cvsbert Exp $
+ RCS:           $Id: uiseissubsel.cc,v 1.34 2006-04-14 12:49:36 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -92,7 +92,6 @@ void uiSeisSubSel::setInput( const IOObj& ioobj )
 	    clear();
 	else
 	    setInput( cs );
-	clear();
     }
 }
 
