@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uipickpartserv.cc,v 1.30 2006-03-08 13:15:37 cvsbert Exp $
+ RCS:           $Id: uipickpartserv.cc,v 1.31 2006-04-14 14:43:14 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -79,7 +79,7 @@ bool uiPickPartServer::fetchPickSets()
 	if ( dlg.genRand() )
 	{
 	    PickSet* ps = new PickSet( dlg.getName() );
-	    ps->color = pickcolor;
+	    ps->color_ = pickcolor;
 	    rv = mkRandLocs( *ps, dlg.randPars() );
 	    if ( rv )	psg.add(ps);
 	    else	delete ps;
@@ -252,7 +252,7 @@ void uiPickPartServer::setMisclassSet( const BinIDValueSet& bivs )
     static const BufferString sMisClassStr = "Misclassified [NN]";
 
     PickSet* pickset = new PickSet( sMisClassStr );
-    pickset->color.set( 255, 0, 0 );
+    pickset->color_.set( 255, 0, 0 );
     BinIDValueSet::Pos pos; BinIDValue biv;
     while ( bivs.next(pos,false) )
     {

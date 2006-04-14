@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.127 2006-04-07 15:20:56 cvsjaap Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.128 2006-04-14 14:43:14 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -894,7 +894,7 @@ bool uiODApplMgr::handleNLAServEv( int evid )
 	const int psid = sceneMgr().getIDFromName( psg.name() );
 	const bool haspicks = psg.nrSets();
 	PickSet pset( psg.name() );
-	pset.color.set(255,0,0);
+	pset.color_.set(255,0,0);
 	if ( psid < 0 )
 	{
 	    const PickSet* ps = haspicks ? psg.get(0) : 0;

@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		May 2001
  Contents:	PickSet base classes
- RCS:		$Id: pickset.h,v 1.14 2005-10-28 13:17:38 cvsnanne Exp $
+ RCS:		$Id: pickset.h,v 1.15 2006-04-14 14:43:14 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -73,9 +73,10 @@ class PickSet : public UserIDObject
 public:
 
 			PickSet(const char* nm);
+    int			nrPicks() const		{ return size(); }
 
-    Color		color;
-
+    Color		color_;
+    int			size_;
 };
 
 

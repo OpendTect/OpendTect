@@ -4,7 +4,7 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.76 2006-03-13 22:31:07 cvskris Exp $";
+static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.77 2006-04-14 14:43:14 cvsnanne Exp $";
 
 #include "vispicksetdisplay.h"
 
@@ -70,11 +70,12 @@ bool PickSetDisplay::isPicking() const
 
 void PickSetDisplay::copyFromPickSet( const PickSet& pickset )
 {
-    setColor( pickset.color );
+    setColor( pickset.color_ );
     setName( pickset.name() );
+    setScreenSize( pickset.size_ );
     removeAll();
     bool hasdir = false;
-    const int nrpicks = pickset.size();
+    const int nrpicks = pickset.nrPicks();
     for ( int idx=0; idx<nrpicks; idx++ )
     {
 	const PickLocation& loc = pickset[idx];
@@ -82,18 +83,21 @@ void PickSetDisplay::copyFromPickSet( const PickSet& pickset )
 	if ( loc.hasDir() ) hasdir = true;
     }
 
-   if ( hasdir ) //show Arrows
-       setType( markertypes.size()-1 );
+    if ( hasdir ) //show Arrows
+       setType( markertypes.size()-2 );
+
+    haschanged = false;
 }
 
 
 void PickSetDisplay::copyToPickSet( PickSet& pickset ) const
 {
     pickset.setName( name() );
-    pickset.color = getMaterial()->getColor();
-    pickset.color.setTransparency( 0 );
+    pickset.color_ = getMaterial()->getColor();
+    pickset.color_.setTransparency( 0 );
+    pickset.size_ = picksz;
     for ( int idx=0; idx<nrPicks(); idx++ )
-	pickset+= PickLocation( getPick(idx), getDirection(idx) );
+	pickset += PickLocation( getPick(idx), getDirection(idx) );
 }
 
 

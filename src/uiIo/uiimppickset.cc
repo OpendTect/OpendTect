@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2002
- RCS:           $Id: uiimppickset.cc,v 1.16 2005-11-16 10:21:05 cvsnanne Exp $
+ RCS:           $Id: uiimppickset.cc,v 1.17 2006-04-14 14:43:14 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -79,7 +79,7 @@ bool uiImpExpPickSet::doImport()
 
     const char* psnm = objfld->getInput();
     PickSet* ps = new PickSet( psnm );
-    ps->color = Color::DgbColor;
+    ps->color_ = Color::DgbColor;
 
     bool doxy = xyfld ? xyfld->getBoolValue() : true;
     bool firstpos = true;

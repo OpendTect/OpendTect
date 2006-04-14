@@ -1,10 +1,13 @@
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
- * AUTHOR   : A.H. Bril
- * DATE     : Jul 2005
--*/
+________________________________________________________________________
 
-static const char* rcsID = "$Id: picksettr.cc,v 1.2 2006-03-12 13:39:10 cvsbert Exp $";
+ CopyRight:	(C) dGB Beheer B.V.
+ Author:	A.H. Bril
+ Date:		Jul 2005
+ RCS:		$Id: picksettr.cc,v 1.3 2006-04-14 14:43:14 cvsnanne Exp $
+________________________________________________________________________
+
+-*/
 
 #include "picksetfact.h"
 #include "pickset.h"
@@ -18,6 +21,7 @@ static const char* rcsID = "$Id: picksettr.cc,v 1.2 2006-03-12 13:39:10 cvsbert 
 #include "streamconn.h"
 #include "ioman.h"
 #include "errh.h"
+#include "keystrs.h"
 
 
 const IOObjContext& PickSetGroupTranslatorGroup::ioContext()
@@ -99,8 +103,9 @@ bool PickSetGroupTranslator::store( const PickSetGroup& inppsg,
 		{
 		    found = true;
 		    mrgdps.copy( ps );
-		    mrgdps.color = ps.color;
-		    mrgdps.color.setTransparency( 0 );
+		    mrgdps.size_ = ps.size_;
+		    mrgdps.color_ = ps.color_;
+		    mrgdps.color_.setTransparency( 0 );
 		    break;
 		}
 	    }
@@ -108,8 +113,9 @@ bool PickSetGroupTranslator::store( const PickSetGroup& inppsg,
 	    {
 		PickSet* newps = new PickSet( ps.name() );
 		newps->copy( ps );
-		newps->color = ps.color;
-		newps->color.setTransparency( 0 );
+		newps->size_ = ps.size_;
+		newps->color_ = ps.color_;
+		newps->color_.setTransparency( 0 );
 		mrgd.add( newps );
 	    }
 	}
@@ -159,9 +165,14 @@ const char* dgbPickSetGroupTranslator::read( PickSetGroup& psg, Conn& conn,
 	PickSet* newps = selarr && !selarr[ips] ? 0
 			 : new PickSet( astrm.value() );
 	astrm.next();
-	if ( astrm.hasKeyword("Color") )
+	if ( astrm.hasKeyword(sKey::Color) )
 	{
-	    if ( newps ) newps->color.use( astrm.value() );
+	    if ( newps ) newps->color_.use( astrm.value() );
+	    astrm.next();
+	}
+	if ( astrm.hasKeyword(sKey::Size) )
+	{
+	    if ( newps ) newps->size_ = astrm.getVal();
 	    astrm.next();
 	}
 	PickLocation loc;
@@ -203,12 +214,15 @@ const char* dgbPickSetGroupTranslator::write( const PickSetGroup& psg,
 	const PickSet& ps = *psg.get( iset );
 	astrm.put( "Ref", ps.name() );
 	char buf[80];
-	if ( ps.color != Color::NoColor )
+	if ( ps.color_ != Color::NoColor )
 	{
-	    ps.color.fill( buf );
-	    astrm.put( "Color", buf );
+	    ps.color_.fill( buf );
+	    astrm.put( sKey::Color, buf );
 	}
-	for ( int iloc=0; iloc<ps.size(); iloc++ )
+	if ( ps.size_ != 0 )
+	    astrm.put( sKey::Size, ps.size_ );
+
+	for ( int iloc=0; iloc<ps.nrPicks(); iloc++ )
 	{
 	    ps[iloc].toString( buf );
 	    strm << buf << '\n';
@@ -247,7 +261,7 @@ void PickSetGroupTranslator::createBinIDValueSets(
 	for ( int ips=0; ips<psg.nrSets(); ips++ )
 	{
 	    const PickSet& ps = *psg.get( ips );
-	    const int nrpicks = ps.size();
+	    const int nrpicks = ps.nrPicks();
 	    if ( !nrpicks ) continue;
 
 	    for ( int ipck=0; ipck<nrpicks; ipck++ )

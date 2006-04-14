@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.178 2006-04-12 13:03:22 cvsjaap Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.179 2006-04-14 14:43:14 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -2070,7 +2070,7 @@ bool uiODPickSetParentTreeItem::showSubMenu()
 	else
 	{
 	    PickSet pset( psg.name() );
-	    pset.color = applMgr()->getPickColor();
+	    pset.color_ = applMgr()->getPickColor();
 	    addChild( new uiODPickSetTreeItem(pset), true );
 	}
     }

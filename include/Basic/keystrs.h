@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Mar 2002
- RCS:		$Id: keystrs.h,v 1.16 2006-02-21 16:26:08 cvsnanne Exp $
+ RCS:		$Id: keystrs.h,v 1.17 2006-04-14 14:43:13 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,6 +37,7 @@ namespace sKey
     extern const char*	Attribute	mImpl("Attribute");
     extern const char*	Color		mImpl("Color");
     extern const char*	Depth		mImpl("Depth");
+    extern const char*	DepthDomain	mImpl("Depth Domain");
     extern const char*	Desc		mImpl("Description");
     extern const char*	Factor		mImpl("Factor");
     extern const char*	FileName	mImpl("File name");
@@ -50,14 +51,15 @@ namespace sKey
     extern const char*	Pars		mImpl("Parameters");
     extern const char*	PSSeis		mImpl("Pre-Stack Seismics");
     extern const char*	Range		mImpl("Range");
+    extern const char*	Size		mImpl("Size");
     extern const char*	Steering	mImpl("Steering");
-    extern const char*	DepthDomain	mImpl("Depth Domain");
-    extern const char*	Wheeler		mImpl("Wheeler");
+    extern const char*	Survey		mImpl("Survey");
     extern const char*	Table		mImpl("Table");
     extern const char*	Type		mImpl("Type");
     extern const char*	Title		mImpl("Title");
     extern const char*	Undef		mImpl("Undefined");
     extern const char*	Value		mImpl("Value");
+    extern const char*	Wheeler		mImpl("Wheeler");
     extern const char*	Yes		mImpl("Yes");
 
     extern const char*	Average		mImpl("Average");
@@ -80,8 +82,6 @@ namespace sKey
 
     extern const char*	TmpStor		mImpl("Temporary storage location");
     extern const char*	LogFile		mImpl("Log file");
-    extern const char*	Survey		mImpl("Survey");
-
 };
 
 
