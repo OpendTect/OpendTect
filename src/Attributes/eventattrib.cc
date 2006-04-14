@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Helene Payraudeau
  Date:		February 2005
- RCS:		$Id: eventattrib.cc,v 1.16 2006-04-03 13:38:29 cvshelene Exp $
+ RCS:		$Id: eventattrib.cc,v 1.17 2006-04-14 14:29:40 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -165,12 +165,12 @@ VSEvent::Type Event::getEventType( int type )
 ValueSeriesEvent<float,float> Event::findNextEvent( 
 					ValueSeriesEvent<float,float> nextev, 
 					int dir, VSEvent::Type evtype,
-					int nrsamples ) const
+					int nrsamples, int z0 ) const
 {
     ValueSeriesEvent<float,float> ev = nextev;
     SamplingData<float> sd;
-    ValueSeriesEvFinder<float,float> vsevfinder( *(inputdata->series(dataidx_)), 
-						 inputdata->z0_+nrsamples, sd );
+    ValueSeriesEvFinder<float,float> vsevfinder( *(inputdata->series(dataidx_)),
+	    					 z0+nrsamples, sd );
     Interval<float> sg;
     sg.start = ev.pos + dir;
     sg.stop = sg.start + dir*SGWIDTH;
@@ -217,7 +217,7 @@ void Event::singleEvent( TypeSet<float>& output, int nrsamples, int z0 ) const
 	else if ( cursample > nextev.pos )
 	{
 	    ev = nextev;
-	    nextev = findNextEvent( nextev, 1, zc, nrsamples );
+	    nextev = findNextEvent( nextev, 1, zc, inputdata->nrsamples_, z0 );
 	    if ( outputinterest[0] || outputinterest[2] )
 	    {
 		sg.start = ev.pos + 1;
@@ -229,28 +229,41 @@ void Event::singleEvent( TypeSet<float>& output, int nrsamples, int z0 ) const
 	if ( cursample > ev.pos && cursample < nextev.pos )
 	{
 	    if ( outputinterest[0] )
-		output[idx] = extrev.val/(nextev.pos-ev.pos);
+		output[idx] = mIsUdf( nextev.pos ) || mIsUdf( ev.pos ) ?
+			      mUdf(float) : extrev.val/(nextev.pos-ev.pos);
 	    else if ( outputinterest[1] )
 	    {
-		ValueSeriesInterpolator<float> interp(inputdata->nrsamples_-1);
-		const float lastsampval = 
-		    interp.value( *( inputdata->series(dataidx_) ), ev.pos-1 );
-		const float nextsampval = 
-		    interp.value( *( inputdata->series(dataidx_) ), ev.pos+1 );
-		output[idx] = fabs( (nextsampval-lastsampval) / 2 );
+		if ( mIsUdf( ev.pos ) ) 
+		    output[idx] = mUdf( float );
+		else
+		{
+		    ValueSeriesInterpolator<float>
+		    interp(inputdata->nrsamples_-1);
+		    float lastsampval =  interp.value(
+			    *( inputdata->series(dataidx_) ), ev.pos-1 );
+		    float nextsampval = interp.value(
+			    *( inputdata->series(dataidx_) ), ev.pos+1 );
+		    output[idx] = fabs( (nextsampval - lastsampval) / 2 );
+		}
 	    }
 	    else if ( outputinterest[2] )
 	    {
-		float leftdist = extrev.pos - ev.pos;
-		float rightdist = nextev.pos - extrev.pos;
-		output[idx] = (rightdist-leftdist) / (rightdist+leftdist);
+		if ( mIsUdf( ev.pos ) ||  mIsUdf( extrev.pos ) 
+		     || mIsUdf( nextev.pos ) ) 
+		    output[idx] = mUdf( float );
+		else
+		{
+		    float leftdist = extrev.pos - ev.pos;
+		    float rightdist = nextev.pos - extrev.pos;
+		    output[idx] = (rightdist-leftdist) / (rightdist+leftdist);
+		}
 	    }
 	}
     }
 }
 
 
-void Event::multipleEvents( TypeSet<float>& output, 
+void Event::multipleEvents( TypeSet<float>& output,
 			    int nrsamples, int z0 ) const
 {
     SamplingData<float> sd;
@@ -301,7 +314,8 @@ void Event::multipleEvents( TypeSet<float>& output,
 	    ev = vsevfinder.find( eventtype, sg, 1 );
 	}
 	ValueSeriesEvent<float,float> nextev = 
-	    		findNextEvent( ev, direction, eventtype, nrsamples );
+	    		findNextEvent( ev, direction, eventtype,
+			       	       inputdata->nrsamples_, z0 );
 
 	if ( tonext )
 	{
@@ -313,7 +327,8 @@ void Event::multipleEvents( TypeSet<float>& output,
 		else if ( cursample > nextev.pos )
 		{
 		    ev = nextev;
-		    nextev = findNextEvent(nextev, 1, eventtype, nrsamples);
+		    nextev = findNextEvent( nextev, 1, eventtype,
+			    		    inputdata->nrsamples_, z0 );
 		}
 		if ( cursample > ev.pos && cursample < nextev.pos)
 		{
@@ -334,7 +349,8 @@ void Event::multipleEvents( TypeSet<float>& output,
 		else if ( cursample < nextev.pos )
 		{
 		    ev = nextev;
-		    nextev = findNextEvent(nextev, -1, eventtype, nrsamples);
+		    nextev = findNextEvent( nextev, -1, eventtype,
+			    		    inputdata->nrsamples_, z0 );
 		}
 		if ( cursample < ev.pos && cursample > nextev.pos)
 		{

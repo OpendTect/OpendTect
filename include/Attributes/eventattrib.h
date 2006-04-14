@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Helene Payraudeau
  Date:		February 2005
- RCS:		$Id: eventattrib.h,v 1.12 2006-03-23 07:52:07 cvsnanne Exp $
+ RCS:		$Id: eventattrib.h,v 1.13 2006-04-14 14:29:40 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -56,7 +56,8 @@ protected:
 	    				    const BinID& relpos,
 					    int z0,int nrsamples) const;
 
-    bool			allowParallelComputation()	{ return true; }
+    bool			allowParallelComputation() const
+    				{ return true; }
 
     const Interval<float>*	reqZMargin(int input,int output) const;
     const Interval<float>*	desZMargin(int input,int output) const;
@@ -65,7 +66,7 @@ protected:
     static VSEvent::Type	getEventType(int type); 
     ValueSeriesEvent<float,float> findNextEvent( 
 	    				ValueSeriesEvent<float,float> nextev, 
-					int dir,VSEvent::Type,int) const;
+					int dir,VSEvent::Type,int,int) const;
 
     void			singleEvent(TypeSet<float>&,int,int) const;
     void			multipleEvents(TypeSet<float>&,int,int) const;
