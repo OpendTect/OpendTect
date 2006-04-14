@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribdesc.h,v 1.26 2006-02-24 11:09:53 cvsbert Exp $
+ RCS:           $Id: attribdesc.h,v 1.27 2006-04-14 14:48:06 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -168,32 +168,73 @@ protected:
 }; // namespace Attrib
 
 #define mGetInt( var, varstring ) \
-var = ((ValParam*)desc.getParam(varstring))->getIntValue(0); \
+{\
+    var = desc.getValParam(varstring)->getIntValue(0); \
+    if ( mIsUdf(var) )\
+        var = desc.getValParam(varstring)->getDefaultfValue(0);\
+}
 
 #define mGetFloat( var, varstring ) \
-var = ((ValParam*)desc.getParam(varstring))->getfValue(0); \
+{\
+    var = desc.getValParam(varstring)->getfValue(0); \
+    if ( mIsUdf(var) )\
+        var = desc.getValParam(varstring)->getDefaultfValue(0);\
+}
 
 #define mGetBool( var, varstring ) \
-var = ((ValParam*)desc.getParam(varstring))->getBoolValue(0); \
+{\
+    Attrib::ValParam* valparam##var = \
+            const_cast<Attrib::ValParam*>(desc.getValParam(varstring));\
+    mDynamicCastGet(Attrib::BoolParam*,boolparam##var,valparam##var);\
+    if ( boolparam##var ) \
+        var = boolparam##var->isSet() ? boolparam##var->getBoolValue(0)\
+				      : boolparam##var->getDefaultBoolValue(0);\
+}
 
 #define mGetEnum( var, varstring ) \
-var = ((ValParam*)desc.getParam(varstring))->getIntValue(0); \
+{\
+    Attrib::ValParam* valparam##var = \
+            const_cast<Attrib::ValParam*>(desc.getValParam(varstring));\
+    mDynamicCastGet(Attrib::EnumParam*,enumparam##var,valparam##var);\
+    if ( enumparam##var ) \
+        var = enumparam##var->isSet() ? enumparam##var->getIntValue(0)\
+				      : enumparam##var->getDefaultIntValue(0);\
+}
 
 #define mGetString( var, varstring ) \
-var = ((ValParam*)desc.getParam(varstring))->getStringValue(0); \
+{\
+    var = desc.getValParam(varstring)->getStringValue(0); \
+    if ( !strcmp( var, "" ) )\
+        var = desc.getValParam(str)->getDefaultStringValue(0); \
+}
     
 #define mGetBinID( var, varstring ) \
 {\
-    var.inl = ((ValParam*)desc.getParam(varstring))->getIntValue(0); \
-    var.crl = ((ValParam*)desc.getParam(varstring))->getIntValue(1); \
+    var.inl = desc.getValParam(varstring)->getIntValue(0); \
+    var.crl = desc.getValParam(varstring)->getIntValue(1); \
+    if ( mIsUdf(var.inl) || mIsUdf(var.crl) )\
+    {\
+	Attrib::ValParam* valparam##var = \
+	      const_cast<Attrib::ValParam*>(desc.getValParam(varstring));\
+	mDynamicCastGet(Attrib::BinIDParam*,binidparam##var,valparam##var);\
+	if ( binidparam##var ) \
+	    var = binidparam##var->getDefaultBinIDValue();\
+    }\
 }
 
 #define mGetFloatInterval( var, varstring ) \
 {\
-    var.start = ((ValParam*)desc.getParam(varstring))->getfValue(0); \
-    var.stop = ((ValParam*)desc.getParam(varstring))->getfValue(1); \
+    var.start = desc.getValParam(varstring)->getfValue(0); \
+    var.stop = desc.getValParam(varstring)->getfValue(1); \
+    if ( mIsUdf(var.start) || mIsUdf(var.stop) )\
+    {\
+	Attrib::ValParam* valparam##var = \
+	      const_cast<Attrib::ValParam*>(desc.getValParam(varstring));\
+	mDynamicCastGet(Attrib::ZGateParam*,gateparam##var,valparam##var);\
+	if ( gateparam##var ) \
+	    var = gateparam##var->getDefaultZGateValue();\
+    }\
 }
-
 
 #endif
 
