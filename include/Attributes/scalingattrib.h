@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          December 2004
- RCS:           $Id: scalingattrib.h,v 1.10 2006-04-11 15:17:58 cvshelene Exp $
+ RCS:           $Id: scalingattrib.h,v 1.11 2006-04-14 14:30:10 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -52,7 +52,7 @@ protected:
     static Provider*	createInstance(Desc&);
     static void		updateDesc(Desc&);
 
-    bool		allowParallelComputation()	{ return true; }
+    bool		allowParallelComputation() const	{ return true; }
 
     bool		getInputOutput(int input,TypeSet<int>& res) const;
     bool		getInputData(const BinID&,int zintv);
