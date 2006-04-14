@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/08/2000
- RCS:           $Id: uisellinest.cc,v 1.14 2004-04-20 15:05:18 nanne Exp $
+ RCS:           $Id: uisellinest.cc,v 1.15 2006-04-14 08:24:28 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,7 +44,10 @@ uiSelLineStyle::uiSelLineStyle( uiParent* p, const LineStyle& ls,
     {
 	colinp = new uiColorInput( this, linestyle.color );
 	colinp->colorchanged.notify( mCB(this,uiSelLineStyle,changeCB) );
-	if ( stylesel ) colinp->attach( rightTo, stylesel );
+	if ( stylesel )
+	    colinp->attach( rightTo, stylesel );
+	else
+	    new uiLabel( this, txt, colinp );
     }
 
     if ( wwidth )
@@ -62,10 +65,10 @@ uiSelLineStyle::uiSelLineStyle( uiParent* p, const LineStyle& ls,
     }
 
     setHAlignObj( stylesel ? (uiObject*)stylesel 
-	    		   : ( colinp ? (uiObject*)colinp 
+	    		   : ( colinp ? (uiObject*)colinp->attachObj() 
 			       	      : (uiObject*)widthbox ) );
     setHCentreObj( stylesel ? (uiObject*)stylesel
-	    		    : ( colinp ? (uiObject*)colinp
+	    		    : ( colinp ? (uiObject*)colinp->attachObj()
 				       : (uiObject*)widthbox ) );
 }
 
