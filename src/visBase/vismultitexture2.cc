@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vismultitexture2.cc,v 1.9 2006-04-13 20:05:09 cvskris Exp $";
+static const char* rcsID = "$Id: vismultitexture2.cc,v 1.10 2006-04-17 15:40:16 cvskris Exp $";
 
 
 #include "vismultitexture2.h"
@@ -26,6 +26,52 @@ static const char* rcsID = "$Id: vismultitexture2.cc,v 1.9 2006-04-13 20:05:09 c
 
 
 mCreateFactoryEntry( visBase::MultiTexture2 );
+
+//Remove when interpol works
+template <class T>
+inline T polyInterpolateDual1D( T v00, T vm10, T v10, T v20,
+				T v0m1, T v01, T v02, float x, float y )
+{
+    const T a1 = v10 - (3*v00 + 2*vm10 + v20) / 6;
+    const T a2 = (vm10 + v10) * .5 - v00;
+    const T a3 = (3 * v00 + v20 - vm10 - 3 * v10) / 6;
+
+    const T a4 = v01 - (3*v00 + 2*v0m1 + v02) / 6;
+    const T a5 = (v0m1 + v01) * .5 - v00;
+    const T a6 = (3 * v00 + v02 - v0m1 - 3 * v01) / 6;
+
+    const T sqx = x * x, sqy = y * y;
+    return  v00 + a1 * x + a2 * sqx + a3 * x * sqx
+		+ a4 * y + a5 * sqy + a6 * y * sqy;
+}
+
+
+template <class T>
+inline T polyInterpolate2DDual1D( T v01, T v02,
+	                          T v10, T v11, T v12, T v13,
+				  T v20, T v21, T v22, T v23,
+				  T v31, T v32, float x, float y )
+{
+    T v1 = polyInterpolateDual1D( v11, v01, v21, v31, v10, v12, v13, x, y );
+    T v2 = polyInterpolateDual1D( v22, v32, v12, v02, v23, v21, v20, 1-x, 1-y );    T d1 = x * x + y * y;
+    x = 1 - x; y = 1 - y; T d2 = x * x + y * y;
+    return (v1 * d2 + v2 * d1) / (d1 + d2);
+}
+
+
+
+template <class T>
+inline T linearInterpolate2D( T v00, T v01, T v10, T v11, float x, float y )
+{
+    const float xm = 1 - x;
+    const float ym = 1 - y;
+
+    return xm*ym*v00 + x*ym*v10 + x*y*v11 + xm*y*v01;
+}
+
+//end remove
+
+
 
 namespace visBase
 {
@@ -248,6 +294,9 @@ void MultiTexture2::nearestValInterp( const Array2D<float>& inp,
 void MultiTexture2::polyInterp( const Array2D<float>& inp,
 				Array2D<float>& out ) const
 {
+    static const bool newinterpol =
+	GetEnvVarYN("MULTI_TEXTURE_USE_NEW_INTERPOL");
+
     const int inpsize0 = inp.info().getSize( 0 );
     const int inpsize1 = inp.info().getSize( 1 );
     const int outsize0 = out.info().getSize( 0 );
@@ -277,7 +326,7 @@ void MultiTexture2::polyInterp( const Array2D<float>& inp,
 	    const int x1idx = (int)x1pos;
 	    const float x1relpos = x1pos-x1idx;
 
-	    if ( interpolx1!=x1idx )
+	    if ( newinterpol || interpolx1!=x1idx )
 	    {
 		const bool x1m1udf = x1idx == 0;
 		const bool x1p2udf = x1idx >= inpsize1-2;
@@ -308,15 +357,46 @@ void MultiTexture2::polyInterp( const Array2D<float>& inp,
 		const float v21 = x0p2udf || x1p1udf ? udf
 		    : inp.get( x0idx+2, x1idx+1 );
 
-		interpol.set( vm10, vm11,
-			v0m1, v00,  v01,  v02,
-			v1m1, v10,  v11,  v12,
-			      v20,  v21 );
+		if ( newinterpol )
+		{
+		    interpol.set( vm10, vm11,
+			    v0m1, v00,  v01,  v02,
+			    v1m1, v10,  v11,  v12,
+				  v20,  v21 );
 
-		interpolx1 = x1idx;
+		    interpolx1 = x1idx;
+		}
+		else
+		{
+		    if ( Values::isUdf(v00) || Values::isUdf(v01) ||
+			Values::isUdf(v10) || Values::isUdf(v11) )
+		    {
+			val = x0relpos > 0.5 ? ( x1relpos > 0.5 ? v11 : v10 )
+					    : ( x1relpos > 0.5 ? v01 : v00 );
+		    }
+		    else if ( Values::isUdf(vm10) || Values::isUdf(vm11) ||
+			    Values::isUdf(v0m1) || Values::isUdf(v02) ||
+			    Values::isUdf(v1m1) || Values::isUdf(v12) ||
+			    Values::isUdf(v20) || Values::isUdf(v21) )
+		    {
+			val = linearInterpolate2D( v00, v01, v10, v11,
+						    x0relpos, x1relpos );
+		    }
+		    else
+		    {
+			val = polyInterpolate2DDual1D( vm10, vm11, v0m1,
+						       v00, v01, v02,
+						       v1m1, v10, v11,
+						       v12, v20, v21,
+						       x0relpos, x1relpos );
+		    }
+		}
 	    }
 
-	    out.set( x0, x1, interpol.apply( x0relpos, x1relpos ) );
+	    if ( newinterpol )
+		val = interpol.apply( x0relpos, x1relpos );
+
+	    out.set( x0, x1, val );
 	}
     }
 }
