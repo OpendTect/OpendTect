@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribdesc.h,v 1.27 2006-04-14 14:48:06 cvshelene Exp $
+ RCS:           $Id: attribdesc.h,v 1.28 2006-04-18 07:14:39 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -171,7 +171,7 @@ protected:
 {\
     var = desc.getValParam(varstring)->getIntValue(0); \
     if ( mIsUdf(var) )\
-        var = desc.getValParam(varstring)->getDefaultfValue(0);\
+        var = desc.getValParam(varstring)->getDefaultIntValue(0);\
 }
 
 #define mGetFloat( var, varstring ) \
