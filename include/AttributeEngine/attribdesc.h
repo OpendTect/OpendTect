@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribdesc.h,v 1.28 2006-04-18 07:14:39 cvshelene Exp $
+ RCS:           $Id: attribdesc.h,v 1.29 2006-04-18 07:30:00 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -205,7 +205,7 @@ protected:
 {\
     var = desc.getValParam(varstring)->getStringValue(0); \
     if ( !strcmp( var, "" ) )\
-        var = desc.getValParam(str)->getDefaultStringValue(0); \
+        var = desc.getValParam(varstring)->getDefaultStringValue(0); \
 }
     
 #define mGetBinID( var, varstring ) \
