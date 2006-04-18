@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Mar 2006
- RCS:		$Id: interpol2d.h,v 1.4 2006-03-16 18:41:57 cvsbert Exp $
+ RCS:		$Id: interpol2d.h,v 1.5 2006-04-18 15:17:32 cvsnanne Exp $
 ________________________________________________________________________
 
 */
@@ -196,7 +196,7 @@ inline T apply( float x, float y ) const
 {
     return a_[0] + a_[1] * x + a_[2] * y + a_[3] * x * y
 		 + a_[4] * x * x + a_[5] * y * y
-		 + a_[6] * x * y * y + a_[7] * x * y * y;
+		 + a_[6] * x * x * y + a_[7] * x * y * y;
 }
 
     T	a_[8];
