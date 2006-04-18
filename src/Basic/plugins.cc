@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Aug 2003
- RCS:           $Id: plugins.cc,v 1.44 2006-03-10 08:22:46 cvsnanne Exp $
+ RCS:           $Id: plugins.cc,v 1.45 2006-04-18 14:43:00 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -445,7 +445,7 @@ void PluginManager::loadAuto( bool late )
     for ( int idx=0; idx<data_.size(); idx++ )
     {
 	Data& data = *data_[idx];
-	if ( !data.handle_ )
+	if ( !data.handle_ || data.autosource_==Data::None )
 	    continue;
 
 	const int pitype = late ? PI_AUTO_INIT_LATE : PI_AUTO_INIT_EARLY;
