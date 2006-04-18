@@ -4,7 +4,7 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.77 2006-04-14 14:43:14 cvsnanne Exp $";
+static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.78 2006-04-18 10:36:58 cvsnanne Exp $";
 
 #include "vispicksetdisplay.h"
 
@@ -95,7 +95,7 @@ void PickSetDisplay::copyToPickSet( PickSet& pickset ) const
     pickset.setName( name() );
     pickset.color_ = getMaterial()->getColor();
     pickset.color_.setTransparency( 0 );
-    pickset.size_ = picksz;
+    pickset.size_ = (int)picksz;
     for ( int idx=0; idx<nrPicks(); idx++ )
 	pickset += PickLocation( getPick(idx), getDirection(idx) );
 }
