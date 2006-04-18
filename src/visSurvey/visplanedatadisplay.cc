@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.121 2006-04-13 20:15:49 cvskris Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.122 2006-04-18 14:37:02 cvskris Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -755,9 +755,9 @@ void PlaneDataDisplay::setData( int attrib, const Attrib::DataCubes* datacubes )
 	    if ( resolution_ )
 		texture_->setDataOversample( attrib, idx, resolution_, 
 					     !isClassification( attrib ),
-		       			     &slice );
+		       			     &slice, true );
 	    else
-		texture_->setData( attrib, idx, &slice );
+		texture_->setData( attrib, idx, &slice, true );
 
 	    visBase::TextureCoords* tcoords = rectangle_->getTextureCoords();
 	    if ( !tcoords )

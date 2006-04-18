@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          January 2003
- RCS:           $Id: visrandomtrackdisplay.cc,v 1.70 2006-03-15 14:15:04 cvsnanne Exp $
+ RCS:           $Id: visrandomtrackdisplay.cc,v 1.71 2006-04-18 14:37:02 cvskris Exp $
  ________________________________________________________________________
 
 -*/
@@ -446,7 +446,7 @@ void RandomTrackDisplay::setData( int attrib, const SeisTrcBuf& trcbuf )
 					      Coord3(bottomtcoord,horcoord,0));
     }
 
-    texture_->setData( attrib, 0, &array );
+    texture_->setData( attrib, 0, &array, true );
     texture_->turnOn( true );
 }
 
