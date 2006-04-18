@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: uiattrdesced.h,v 1.9 2005-12-22 08:14:05 cvshelene Exp $
+ RCS:           $Id: uiattrdesced.h,v 1.10 2006-04-18 11:09:05 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -73,6 +73,7 @@ public:
     virtual		~uiAttrDescEd();
 
     void		setDesc(Desc*,DescSetMan*);
+    void		setDescSet( DescSet* ds )	{ ads = ds; }
     Desc*		curDesc()			{ return attrdesc; }
     const Desc*		curDesc() const			{ return attrdesc; }
     virtual const char*	commit(Desc* desc=0);
@@ -127,6 +128,7 @@ protected:
     void		attrInpSel(CallBacker*);
 
     BufferString	errmsg;
+    DescSet*		ads;
 
 private:
 
