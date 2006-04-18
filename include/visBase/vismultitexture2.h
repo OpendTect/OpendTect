@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		Dec 2005
- RCS:		$Id: vismultitexture2.h,v 1.5 2006-04-13 20:05:09 cvskris Exp $
+ RCS:		$Id: vismultitexture2.h,v 1.6 2006-04-18 14:35:38 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -44,10 +44,23 @@ public:
     void			setTextureRenderQuality(float);
     float			getTextureRenderQuality() const;
     bool			setData(int texture,int version,
-	    				const Array2D<float>*);
+	    				const Array2D<float>*, bool copy=false);
+    				/*!<\param copy Specifies whether the data
+				                should be copied or not. If it's
+						not copied, it is assumed to
+						remain in mem until this
+						object is destroyed, or
+						another data is set */
+				
     bool			setDataOversample(int texture,int version,
 	    				int resolution,bool interpol,
-					const Array2D<float>*);
+					const Array2D<float>*,bool copy=false);
+    				/*!<\param copy Specifies whether the data
+				                should be copied or not. If it's
+						not copied, it is assumed to
+						remain in mem until this
+						object is destroyed, or
+						another data is set */
     bool			setIndexData(int texture,int version,
 					     const Array2D<unsigned char>*);
 

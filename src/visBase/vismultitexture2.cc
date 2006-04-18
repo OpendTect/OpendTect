@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vismultitexture2.cc,v 1.10 2006-04-17 15:40:16 cvskris Exp $";
+static const char* rcsID = "$Id: vismultitexture2.cc,v 1.11 2006-04-18 14:35:38 cvskris Exp $";
 
 
 #include "vismultitexture2.h"
@@ -215,14 +215,14 @@ float MultiTexture2::getTextureRenderQuality() const
 
 bool MultiTexture2::setDataOversample( int texture, int version,
 				       int resolution, bool interpol,
-	                               const Array2D<float>* data )
+	                               const Array2D<float>* data, bool copy )
 {
     if ( !data ) return setData( texture, version, data );
 
     const int datax0size = data->info().getSize(0);
     const int datax1size = data->info().getSize(1);
     if ( datax0size<2 || datax1size<2  )
-	return setData( texture, version, data );
+	return setData( texture, version, data, copy );
 
     const static int minpix2d = 128;
     const static int maxpix2d = 1024;
@@ -403,23 +403,29 @@ void MultiTexture2::polyInterp( const Array2D<float>& inp,
 
 
 bool MultiTexture2::setData( int texture, int version,
-			     const Array2D<float>* data )
+			     const Array2D<float>* data, bool copy )
 {
     if ( data && !setSize( data->info().getSize(0), data->info().getSize(1) ) )
 	return false;
 
     const int totalsz = data ? data->info().getTotalSz() : 0;
     const float* dataarray = data ? data->getData() : 0;
-    float manage = false;
-    if ( data && !dataarray )
+    bool manage = false;
+    if ( data && (!dataarray || copy ) )
     {
 	float* arr = new float[totalsz];
-	ArrayNDIter iter( data->info() );
-	int idx=0;
-	do
+
+	if ( data->getData() )
+	    memcpy( arr, data->getData(), totalsz*sizeof(float) );
+	else
 	{
-	    arr[idx++] = data->get(iter.getPos());
-	} while ( iter.next() );
+	    ArrayNDIter iter( data->info() );
+	    int idx=0;
+	    do
+	    {
+		arr[idx++] = data->get(iter.getPos());
+	    } while ( iter.next() );
+	}
 
 	manage = true;
 	dataarray = arr;
