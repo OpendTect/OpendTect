@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.cc,v 1.41 2006-03-10 13:34:02 cvsbert Exp $
+ RCS:           $Id: uitable.cc,v 1.42 2006-04-18 11:06:49 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -336,7 +336,7 @@ void uiTable::setRowHeight( int row, int h )
 void uiTable::setRowHeightInChar( int row, float h )
 {
     float hgt = h * body_->fontHgt();
-    setColumnWidth( row, mNINT(hgt) );
+    setRowHeight( row, mNINT(hgt) );
 }
 
 
