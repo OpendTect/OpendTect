@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurfacedlg.cc,v 1.16 2006-02-20 08:43:19 cvsnanne Exp $
+ RCS:           $Id: uiiosurfacedlg.cc,v 1.17 2006-04-19 15:31:53 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -92,15 +92,18 @@ uiStoreAuxData::uiStoreAuxData( uiParent* p, const EM::Surface& surf )
 
 bool uiStoreAuxData::acceptOK( CallBacker* )
 {
+    dooverwrite_ = false;
     BufferString attrnm = attrnmfld_->text();
-    bool rv = checkIfAlreadyPresent( attrnm.buf() );
-    BufferString msg( "This surface already has an attribute called:\n" );
-    msg += attrnm;
-    msg += "\nDo you wish to overwrite this data?";
-    if ( rv && !uiMSG().askGoOn(msg) )
-	return false;
+    const bool ispres = checkIfAlreadyPresent( attrnm.buf() );
+    if ( ispres )
+    {
+	BufferString msg( "This surface already has an attribute called:\n" );
+	msg += attrnm; msg += "\nDo you wish to overwrite this data?";
+	if ( !uiMSG().askGoOn(msg) )
+	    return false;
+	dooverwrite_ = true;
+    }
 
-    dooverwrite_ = true;
     if ( attrnm != surface_.auxdata.auxDataName(0) )
 	const_cast<EM::Surface&>(surface_).
 	    auxdata.setAuxDataName( 0, attrnm.buf() );

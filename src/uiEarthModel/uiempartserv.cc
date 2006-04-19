@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.76 2006-03-23 14:54:25 cvsnanne Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.77 2006-04-19 15:31:52 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -257,18 +257,15 @@ int uiEMPartServer::showLoadAuxDataDlg( const EM::ObjectID& id )
     em.getSurfaceData( mid, sd );
     uiListBoxDlg dlg( appserv().parent(), sd.valnames, "Surface data" );
     dlg.box()->setMultiSelect(false);
-    if ( !dlg.go() ) return false;
+    if ( !dlg.go() ) return -1;
 
     TypeSet<int> selattribs;
     dlg.box()->getSelectedItems( selattribs );
-    if ( !selattribs.size() ) return false;
+    if ( !selattribs.size() ) return -1;
 
-    if ( surface->auxdata.auxDataName(selattribs[0]) )
-	return selattribs[0];
-
-    PtrMan<Executor> exec = surface->auxdata.auxDataLoader(selattribs[0]);
+    PtrMan<Executor> exec = surface->auxdata.auxDataLoader( selattribs[0] );
     uiExecutor exdlg( appserv().parent(), *exec );
-    return exdlg.go() ? selattribs[0] : -1;
+    return exdlg.go() ? 0 : -1;
 }
 
 
@@ -333,8 +330,8 @@ bool uiEMPartServer::storeAuxData( const EM::ObjectID& id, bool storeas ) const
 
 
 int uiEMPartServer::setAuxData( const EM::ObjectID& id,
-				 ObjectSet<const BinIDValueSet>& data, 
-				 const char* attribnm, int idx )
+				ObjectSet<const BinIDValueSet>& data, 
+				const char* attribnm, int idx )
 {
     mDynamicCastAll(id);
     if ( !surface ) { uiMSG().error( "Cannot find surface" ); return -1; }
@@ -412,7 +409,7 @@ bool uiEMPartServer::getAuxData( const EM::ObjectID& oid, int auxdatanr,
 	    if ( pid.objectID()==-1 )
 		break;
 
-	    auxvals[1] = surface->auxdata.getAuxDataVal(auxdatanr,pid);
+	    auxvals[1] = surface->auxdata.getAuxDataVal( auxdatanr, pid );
 	    bid.setSerialized( pid.subID() );
 	    res->add( bid, auxvals );
 	}
@@ -422,7 +419,7 @@ bool uiEMPartServer::getAuxData( const EM::ObjectID& oid, int auxdatanr,
 }
 
 
-void  uiEMPartServer::removeHistory()
+void uiEMPartServer::removeHistory()
 {
     EM::EMM().history().empty();
 }
