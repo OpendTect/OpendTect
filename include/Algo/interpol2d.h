@@ -7,12 +7,12 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Mar 2006
- RCS:		$Id: interpol2d.h,v 1.5 2006-04-18 15:17:32 cvsnanne Exp $
+ RCS:		$Id: interpol2d.h,v 1.6 2006-04-20 14:47:24 cvsnanne Exp $
 ________________________________________________________________________
 
 */
 
-#include "undefval.h"
+#include "interpol1d.h"
 
 #define mFillIfUdfFromSquare(nd,left,right,opp) \
     if ( u##nd##_ ) \
@@ -173,33 +173,45 @@ inline void set( T vm10, T vm11,
 	 T v1m1, T v10,  T v11, T v12,
 		 T v20,  T v21 )
 {
-    const T vx = 0.5 * (vm10 + vm11);
-    const T vy = 0.5 * (v0m1 + v1m1);
-    const T vx2 = 0.5 * (v20 + v21);
-    const T vy2 = 0.5 * (v02 + v12);
-    a_[0] = v00;
-    a_[1] = (57*v10 + 120*v01 + 216*v11 + 48*vx + 104*vy - 80*vx2 - 108*vy2
-	    - 357*v00) / 63;
-    a_[2] = (-48*v10 - 111*v01 - 288*v11 - 120*vx - 176*vy + 116*vx2 + 144*vy2
-	    + 483*v00) / 63;
-    a_[3] = 3*v10 + 3*v01 + 9*v11 + 4*vx + 4*vy - 4*vx2 - 4*vy2 - 15 * v00;
-    a_[4] = (6*v10 - 120*v01 - 216*v11 - 48*vx - 104*vy + 80*vx2 + 108*vy2
-	    + 294*v00) / 63;
-    a_[5] = (48*v10 + 174*v01 + 288*v11 + 120*vx + 176*vy - 116*vx2 - 144*vy2
-	    - 546*v00) / 63;
-    a_[6] = (-6*v10 - 18*v01 - 30*v11 - 12*vx - 16*vy + 12*vx2 + 16*vy2
-	    + 54*v00) / 3;
-    a_[7] = (-6*v10 + 6*v01 + 6*v11 + 4*vy - 4*vy2 - 6*v00) / 3;
+    vm10_ = vm10; v0m1_ = v0m1; v20_ = v20; v02_ = v02;
+    delxm1_ = vm11 - vm10; delym1_ = v1m1 - v0m1;
+    delx2_ = v21 - v20; dely2_ = v12 - v02;
+    ix0_.set( v0m1, v00, v01, v02 ); ix1_.set( v1m1, v10, v11, v12 );
+    iy0_.set( vm10, v00, v10, v20 ); iy1_.set( vm11, v01, v11, v21 );
 }
 
 inline T apply( float x, float y ) const
 {
-    return a_[0] + a_[1] * x + a_[2] * y + a_[3] * x * y
-		 + a_[4] * x * x + a_[5] * y * y
-		 + a_[6] * x * x * y + a_[7] * x * y * y;
+    // Exactly on border or outside: handle now
+    if ( x <= 0 ) return ix0_.apply( y );
+    else if ( y <= 0 ) return iy0_.apply( x );
+    else if ( x >= 1 ) return ix1_.apply( y );
+    else if ( y >= 1 ) return iy1_.apply( x );
+
+    // Values on X-line through point
+    const T vxm1 = vm10_ + delxm1_ * y;
+    const T vx0 = ix0_.apply( y );
+    const T vx1 = ix1_.apply( y );
+    const T vx2 = v20_ + delx2_ * y;
+
+    // Values on Y-line through point
+    const T vym1 = v0m1_ + delym1_ * x;
+    const T vy0 = iy0_.apply( x );
+    const T vy1 = iy1_.apply( x );
+    const T vy2 = v02_ + dely2_ * x;
+
+    // Result is weighted average, weight dep on distance from border
+    const T estx = polyReg1D( vxm1, vx0, vx1, vx2, x );
+    const T esty = polyReg1D( vym1, vy0, vy1, vy2, y );
+    const float distfromedgex = x > 0.5 ? 1 - x : x;
+    const float distfromedgey = y > 0.5 ? 1 - y : y;
+    return (distfromedgey * estx + distfromedgex * esty)
+	 / (distfromedgey + distfromedgex);
 }
 
-    T	a_[8];
+    PolyReg1D<T>	ix0_, ix1_, iy0_, iy1_;
+    T			vm10_, v0m1_, v20_, v02_;
+    T			delxm1_, delym1_, delx2_, dely2_;
 
 };
 
@@ -334,7 +346,6 @@ inline T apply( float x, float y ) const
     return intp_.apply( x, y );
 }
 
-    // TODO: do it right
     PolyReg2D<T>	intp_;
     bool		haveudf_;
     bool		u00_;
