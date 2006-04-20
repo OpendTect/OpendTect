@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.179 2006-04-14 14:43:14 cvsnanne Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.180 2006-04-20 07:25:08 cvsjaap Exp $
 ___________________________________________________________________
 
 -*/
@@ -1662,8 +1662,6 @@ bool uiODHorizonParentTreeItem::showSubMenu()
 	    if ( emids[idx] < 0 ) continue;
 	    addChild( new uiODHorizonTreeItem(emids[idx]), true );
 	}
-	if ( emids.size() > 0 )
-	    applMgr()->visServer()->showMPEToolbar();
     }
     else if ( mnuid == 1 )
     {
