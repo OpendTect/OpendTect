@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribparam.cc,v 1.23 2006-04-11 10:16:17 cvshelene Exp $";
+static const char* rcsID = "$Id: attribparam.cc,v 1.24 2006-04-20 08:13:49 cvshelene Exp $";
 
 #include "attribparam.h"
 #include "attribparamgroup.h"
@@ -334,7 +334,10 @@ BinID BinIDParam::getValue() const
 BinID BinIDParam::getDefaultBinIDValue() const
 {
     BinIDInpSpec* spec = reinterpret_cast<BinIDInpSpec*>(spec_);
-    return BinID( mNINT(spec->defaultValue(0)), mNINT(spec->defaultValue(1)) );
+    const float defval0 = spec->defaultValue(0);
+    const float defval1 = spec->defaultValue(1);
+    return BinID( mIsUdf(defval0) ? mUdf(int) : mNINT(defval0),
+		  mIsUdf(defval1) ? mUdf(int) : mNINT(defval1) );
 }
 
 
