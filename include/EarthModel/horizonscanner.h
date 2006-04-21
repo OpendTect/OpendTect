@@ -1,13 +1,13 @@
-#ifndef seisscanner_h
-#define seisscanner_h
+#ifndef horizonscanner_h
+#define horizonscanner_h
 
 /*+
 ________________________________________________________________________
 
  CopyRight:	(C) dGB Beheer B.V.
- Author:	A.H. Bril
+ Author:	N. Hemstra
  Date:		Feb 2004
- RCS:		$Id: horizonscanner.h,v 1.4 2005-04-28 08:58:39 cvsnanne Exp $
+ RCS:		$Id: horizonscanner.h,v 1.5 2006-04-21 13:33:36 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
