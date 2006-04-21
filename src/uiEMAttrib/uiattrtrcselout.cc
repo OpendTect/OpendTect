@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          September 2005
- RCS:           $Id: uiattrtrcselout.cc,v 1.12 2006-03-12 13:39:11 cvsbert Exp $
+ RCS:           $Id: uiattrtrcselout.cc,v 1.13 2006-04-21 11:12:02 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,30 +13,30 @@ ________________________________________________________________________
 #include "uiattrtrcselout.h"
 #include "attribdesc.h"
 #include "attribdescset.h"
+#include "attribengman.h"
 #include "attriboutput.h"
-#include "attribfactory.h"
-#include "emsurfacetr.h"
-#include "emmanager.h"
-#include "uiattrsel.h"
-#include "uiseissel.h"
-#include "uibinidsubsel.h"
-#include "uiioobjsel.h"
-#include "uigeninput.h"
-#include "uilabel.h"
-#include "uiseparator.h"
 #include "ctxtioobj.h"
-#include "seistrctr.h"
-#include "seistrcsel.h"
+#include "emmanager.h"
+#include "emsurfacetr.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "iopar.h"
-#include "nladesign.h"
-#include "nlamodel.h"
-#include "uimsg.h"
-#include "ptrman.h"
-#include "multiid.h"
-#include "survinfo.h"
 #include "keystrs.h"
+#include "multiid.h"
+#include "ptrman.h"
+#include "seistrcsel.h"
+#include "seistrctr.h"
+#include "survinfo.h"
+
+#include "uiattrsel.h"
+#include "uibinidsubsel.h"
+#include "uigeninput.h"
+#include "uiioobjsel.h"
+#include "uilabel.h"
+#include "uimsg.h"
+#include "uiseissel.h"
+#include "uiseparator.h"
+
 
 using namespace Attrib;
 
@@ -504,74 +504,12 @@ bool uiAttrTrcSelOut::addNLA( DescID& id )
 {
     BufferString defstr("NN specification=");
     defstr += nlaid;
-    BufferString attribname;
-    if ( !Desc::getAttribName(defstr,attribname) )
-	mErrRet("Cannot find attribute name");
-    RefMan<Desc> ad = PF().createDescCopy( attribname );
-    if ( !ad )
-    {
-	BufferString err = "Cannot find factory-entry for "; err += attribname;
-	mErrRet(err);
-    }
 
-    if ( !ad->parseDefStr(defstr) )
-    {
-	BufferString err = "Cannot parse: "; err += defstr;
-	mErrRet(err);
-    }
-
-    ad->setHidden( true );
-    const NLADesign& nlades = nlamodel->design();
-    ad->setUserRef( *nlades.outputs[attrfld->outputNr()] );
-    ad->selectOutput( attrfld->outputNr() );
-
-    const int nrinputs = nlades.inputs.size();
-    for ( int idx=0; idx<nrinputs; idx++ )
-    {
-        const char* inpname = nlades.inputs[idx]->buf();
-	DescID descid = ads.getID( inpname, true );
-        if ( descid < 0 && IOObj::isKey(inpname) )
-        {
-            descid = ads.getID( inpname, false );
-            if ( descid < 0 )
-            {
-                // It could be 'storage', but it's not yet in the old set ...
-                PtrMan<IOObj> ioobj = IOM().get( MultiID(inpname) );
-                if ( ioobj )
-                {
-		    BufferString defstr("Storage id="); defstr += inpname;
-		    BufferString attribname;
-		    if ( !Desc::getAttribName( defstr, attribname ) )
-			mErrRet("Cannot find attribute name")
-		    RefMan<Desc> newdesc = 
-					PF().createDescCopy(attribname);
-		    if ( !newdesc )
-		    {
-			BufferString err = "Cannot find factory-entry for "; 
-			err += attribname;
-			mErrRet(err);
-		    }
-
-		    if ( !newdesc->parseDefStr(defstr) )
-		    {
-			BufferString err = "Cannot parse: "; err += defstr;
-			mErrRet(err);
-		    }
-                    newdesc->setUserRef( ioobj->name() );
-                    descid = ads.addDesc( newdesc );
-                }
-            }
-	}
-
-        ad->setInput( idx, ads.getDesc(descid) );
-    }
-
-    id = ads.addDesc( ad );
-    if ( id < 0 )
-    {
-        uiMSG().error( ads.errMsg() );
-        return false;
-    }
+    const int outputnr = attrfld->outputNr();
+    BufferString errmsg;
+    Attrib::EngineMan::addNLADesc( defstr, id, ads, outputnr, nlamodel, errmsg);
+    if ( errmsg.size() )
+	mErrRet( errmsg );
 
     return true;
 }
