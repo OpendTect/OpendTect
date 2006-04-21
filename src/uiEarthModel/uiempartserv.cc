@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.77 2006-04-19 15:31:52 cvsnanne Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.78 2006-04-21 10:47:55 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -263,6 +263,7 @@ int uiEMPartServer::showLoadAuxDataDlg( const EM::ObjectID& id )
     dlg.box()->getSelectedItems( selattribs );
     if ( !selattribs.size() ) return -1;
 
+    surface->auxdata.removeAll();
     PtrMan<Executor> exec = surface->auxdata.auxDataLoader( selattribs[0] );
     uiExecutor exdlg( appserv().parent(), *exec );
     return exdlg.go() ? 0 : -1;
@@ -349,6 +350,7 @@ int uiEMPartServer::setAuxData( const EM::ObjectID& id,
 	name += idx;
     }
 
+    surface->auxdata.removeAll();
     const int auxdatanr = surface->auxdata.addAuxData( name );
 
     BinID bid;
@@ -376,12 +378,14 @@ int uiEMPartServer::setAuxData( const EM::ObjectID& id,
 
 
 bool uiEMPartServer::getAuxData( const EM::ObjectID& oid, int auxdatanr,
+				 BufferString& auxdataname,
 	                         ObjectSet<BinIDValueSet>& auxdata ) const
 {
     mDynamicCastAll(oid);
     if ( !surface || !surface->auxdata.auxDataName(auxdatanr) )
 	return false;
 
+    auxdataname = surface->auxdata.auxDataName( auxdatanr );
     deepErase( auxdata );
     auxdata.allowNull( true );
 

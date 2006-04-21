@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.180 2006-04-20 07:25:08 cvsjaap Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.181 2006-04-21 10:47:21 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -184,20 +184,17 @@ int uiODTreeItem::sceneID() const
 
 void uiODTreeItem::addStandardItems( uiPopupMenu& mnu )
 {
-#ifdef __debug__
     if ( children.size() < 2 ) return;
 
     mnu.insertSeparator( 100 );
-    mnu.insertItem( new uiMenuItem("Show all"), 101 );
-    mnu.insertItem( new uiMenuItem("Hide all"), 102 );
-    mnu.insertItem( new uiMenuItem("Remove all"), 103 );
-#endif
+    mnu.insertItem( new uiMenuItem("Show all items"), 101 );
+    mnu.insertItem( new uiMenuItem("Hide all items"), 102 );
+    mnu.insertItem( new uiMenuItem("Remove all items"), 103 );
 }
 
 
 void uiODTreeItem::handleStandardItems( int mnuid )
 {
-#ifdef __debug__
     for ( int idx=0; idx<children.size(); idx++ )
     {
 	if ( mnuid == 101 )
@@ -220,7 +217,6 @@ void uiODTreeItem::handleStandardItems( int mnuid )
 	    removeChild( itm );
 	}
     }
-#endif
 }
 
 
@@ -404,7 +400,7 @@ void uiODDataTreeItem::createMenuCB( CallBacker* cb )
 
     mAddMenuItem( menu, &movemnuitem_, true, false );
     mAddMenuItem( menu, &removemnuitem_,
-	          !islocked && visserv->getNrAttribs( displayID())>1, false );
+		  !islocked && visserv->getNrAttribs( displayID())>1, false );
     if ( visserv->canHaveMultipleAttribs(displayID()) )
 	mAddMenuItem( menu, &changetransparencyitem_, true, false )
     else
@@ -1067,8 +1063,10 @@ void uiODEarthModelSurfaceDataTreeItem::createMenuCB( CallBacker* cb )
     const Attrib::SelSpec* as = visserv->getSelSpec( displayID(),
 	    					     attribNr() );
 
-    mAddMenuItem( &selattrmnuitem_, &loadsurfacedatamnuitem_, true, false );
-    mAddMenuItem( &selattrmnuitem_, &depthattribmnuitem_, true,
+    const bool islocked = visserv->isLocked( displayID() );
+    mAddMenuItem( &selattrmnuitem_, &loadsurfacedatamnuitem_,
+		  !islocked, false );
+    mAddMenuItem( &selattrmnuitem_, &depthattribmnuitem_, !islocked,
 		  as->id()==Attrib::SelSpec::cNoAttrib() );
 
     mAddMenuItem( menu, &savesurfacedatamnuitem_, as && as->id() >= 0, false );
@@ -1086,7 +1084,7 @@ void uiODEarthModelSurfaceDataTreeItem::handleMenuCB( CallBacker* cb )
     uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
     if ( mnuid==savesurfacedatamnuitem_.id )
     {
-	menu->setIsHandled(true);
+	menu->setIsHandled( true );
 	ObjectSet<const BinIDValueSet> vals;
 	visserv->getRandomPosCache( displayID(), attribNr(), vals );
 	if ( vals.size() && vals[0]->nrVals()>=2 )
@@ -1098,21 +1096,23 @@ void uiODEarthModelSurfaceDataTreeItem::handleMenuCB( CallBacker* cb )
     }
     else if ( mnuid==depthattribmnuitem_.id )
     {
-	menu->setIsHandled(true);
+	menu->setIsHandled( true );
 	uivisemobj->setDepthAsAttrib( attribNr() );
 	updateColumnText( uiODSceneMgr::cNameColumn() );
     }
     else if ( mnuid==loadsurfacedatamnuitem_.id )
     {
-	menu->setIsHandled(true);
+	menu->setIsHandled( true );
 	const int auxdatanr = applMgr()->EMServer()->showLoadAuxDataDlg(emid);
 	if ( auxdatanr<0 ) return;
 
+	BufferString attrnm;
 	ObjectSet<BinIDValueSet> vals;
-	applMgr()->EMServer()->getAuxData( emid, auxdatanr, vals);
+	applMgr()->EMServer()->getAuxData( emid, auxdatanr, attrnm, vals );
+	visserv->setSelSpec( displayID(), attribNr(),
+		Attrib::SelSpec(attrnm,Attrib::SelSpec::cOtherAttrib()) );
 	visserv->setRandomPosData( displayID(), attribNr(), &vals );
-
-	//ODMainWin()->sceneMgr().updateTrees();
+	updateColumnText( uiODSceneMgr::cNameColumn() );
     }
 }
 
@@ -1152,23 +1152,17 @@ void uiODEarthModelSurfaceTreeItem::createMenuCB( CallBacker* cb )
 	else if ( menu->getPath() )
 	    section = uivisemobj->getSectionID( menu->getPath() );
 
-	const Coord3& pickedpos = menu->getPickedPos();
 	const bool hastracker = applMgr()->mpeServer()->getTrackerID(emid)>=0;
-
-	const bool isfullres = applMgr()->EMServer()->isFullResolution( emid );
-	if ( !hastracker && !visserv->isLocked(displayid_) ) // && isfullres )
+	if ( !hastracker && !visserv->isLocked(displayid_) )
 	{
-	    mAddMenuItem( trackmnu, &starttrackmnuitem_, pickedpos.isDefined(),
-			  false );
-
+	    mAddMenuItem( trackmnu, &starttrackmnuitem_, true, false );
 	    mResetMenuItem( &changesetupmnuitem_ );
 	    mResetMenuItem( &enabletrackingmnuitem_ );
 	    mResetMenuItem( &relationsmnuitem_ );
 	}
-	else if ( hastracker && section != -1 && !visserv->isLocked(displayid_))
+	else if ( hastracker && section!=-1 && !visserv->isLocked(displayid_) )
 	{
-	    mResetMenuItem( &starttrackmnuitem_ );
-
+	    mAddMenuItem( trackmnu, &starttrackmnuitem_, false, false );
 	    mAddMenuItem( trackmnu, &changesetupmnuitem_, true, false );
 	    mAddMenuItem( trackmnu, &enabletrackingmnuitem_, true,
 		   applMgr()->mpeServer()->isTrackingEnabled(
@@ -1434,7 +1428,7 @@ bool uiODRandomLineParentTreeItem::showSubMenu()
 	return false;
     }
 
-    mParentShowSubMenu( addChild(new uiODRandomLineTreeItem(-1), true); );
+    mParentShowSubMenu( addChild(new uiODRandomLineTreeItem(-1),false); );
 }
 
 
@@ -1587,7 +1581,7 @@ bool uiODFaultParentTreeItem::showSubMenu()
 	for ( int idx=0; idx<emids.size(); idx++ )
 	{
 	    if ( emids[idx] < 0 ) continue;
-	    addChild( new uiODFaultTreeItem(emids[idx]), true );
+	    addChild( new uiODFaultTreeItem(emids[idx]), false );
 	}
     }
     else if ( mnuid == 1 )
@@ -1660,7 +1654,7 @@ bool uiODHorizonParentTreeItem::showSubMenu()
 	for ( int idx=0; idx<emids.size(); idx++ )
 	{
 	    if ( emids[idx] < 0 ) continue;
-	    addChild( new uiODHorizonTreeItem(emids[idx]), true );
+	    addChild( new uiODHorizonTreeItem(emids[idx]), false );
 	}
     }
     else if ( mnuid == 1 )
@@ -1781,7 +1775,7 @@ bool uiODWellParentTreeItem::showSubMenu()
 	    return false;
 
 	for ( int idx=0; idx<emwellids.size(); idx++ )
-	    addChild( new uiODWellTreeItem(*emwellids[idx]), true );
+	    addChild( new uiODWellTreeItem(*emwellids[idx]), false );
 
 	deepErase( emwellids );
     }
@@ -1797,7 +1791,7 @@ bool uiODWellParentTreeItem::showSubMenu()
 	wd->setLineStyle( LineStyle(LineStyle::Solid,1,color) );
 	wd->setName( name );
 	visserv->addObject( wd, sceneID(), true );
-	addChild( new uiODWellTreeItem(wd->id()), true );
+	addChild( new uiODWellTreeItem(wd->id()), false );
     }
     else if ( mnuid == 2 || mnuid == 3 )
     {
@@ -2062,14 +2056,14 @@ bool uiODPickSetParentTreeItem::showSubMenu()
 		//TODO make sure it's not in list already
 		const PickSet* ps = psg.get( idx );
 		if ( ps )
-		    addChild( new uiODPickSetTreeItem(*ps), true );
+		    addChild( new uiODPickSetTreeItem(*ps), false );
 	    }
 	}
 	else
 	{
 	    PickSet pset( psg.name() );
 	    pset.color_ = applMgr()->getPickColor();
-	    addChild( new uiODPickSetTreeItem(pset), true );
+	    addChild( new uiODPickSetTreeItem(pset), false );
 	}
     }
     else if ( mnuid==1 )
@@ -2487,7 +2481,7 @@ uiODInlineParentTreeItem::uiODInlineParentTreeItem()
 
 bool uiODInlineParentTreeItem::showSubMenu()
 {
-    mParentShowSubMenu( addChild( new uiODInlineTreeItem(-1), true); );
+    mParentShowSubMenu( addChild(new uiODInlineTreeItem(-1),false); );
 }
 
 
@@ -2512,7 +2506,7 @@ uiODCrosslineParentTreeItem::uiODCrosslineParentTreeItem()
 
 bool uiODCrosslineParentTreeItem::showSubMenu()
 {
-    mParentShowSubMenu( addChild( new uiODCrosslineTreeItem(-1), true); );
+    mParentShowSubMenu( addChild(new uiODCrosslineTreeItem(-1),false); );
 }
 
 
@@ -2537,7 +2531,7 @@ uiODTimesliceParentTreeItem::uiODTimesliceParentTreeItem()
 
 bool uiODTimesliceParentTreeItem::showSubMenu()
 {
-    mParentShowSubMenu( addChild( new uiODTimesliceTreeItem(-1), true); );
+    mParentShowSubMenu( addChild(new uiODTimesliceTreeItem(-1),false); );
 }
 
 

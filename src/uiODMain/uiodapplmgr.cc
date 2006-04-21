@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.128 2006-04-14 14:43:14 cvsnanne Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.129 2006-04-21 10:47:21 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -454,8 +454,9 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
 		    uiMSG().error( "Cannot find stored data" );
 		else
 		{
+		    BufferString attrnm;
 		    ObjectSet<BinIDValueSet> vals;
-		    emserv->getAuxData( emid, auxdatanr, vals);
+		    emserv->getAuxData( emid, auxdatanr, attrnm, vals );
 		    visserv->setRandomPosData( visid, attrib, &vals );
 		}
 		

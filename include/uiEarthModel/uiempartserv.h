@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Sep 2002
- RCS:           $Id: uiempartserv.h,v 1.38 2006-03-23 14:54:25 cvsnanne Exp $
+ RCS:           $Id: uiempartserv.h,v 1.39 2006-04-21 10:47:55 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -81,9 +81,10 @@ public:
 	    			     bool storeas=false) const;
     int			setAuxData(const EM::ObjectID&,
 	    			   ObjectSet<const BinIDValueSet>&,
-				   const char* nm, int valnr );
+				   const char* nm,int valnr);
     bool		getAuxData(const EM::ObjectID&,int auxdatanr,
-	    			   ObjectSet<BinIDValueSet>& ) const;
+	    			   BufferString& auxdataname,
+	    			   ObjectSet<BinIDValueSet>&) const;
 
     void		removeHistory();
 
