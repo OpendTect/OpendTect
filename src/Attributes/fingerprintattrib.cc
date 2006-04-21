@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          February 2006
- RCS:           $Id: fingerprintattrib.cc,v 1.1 2006-04-18 11:09:05 cvshelene Exp $
+ RCS:           $Id: fingerprintattrib.cc,v 1.2 2006-04-21 08:13:22 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "attribfactory.h"
 #include "attribparam.h"
 #include "attribparamgroup.h"
+#include "genericnumer.h"
 
 #include <math.h>
 
@@ -124,18 +125,12 @@ bool FingerPrint::computeData( const DataHolder& output, const BinID& relpos,
     for ( int idx=0; idx<nrsamples; idx++ )
     {
 	const int cursample = idx + z0;
-	float val = 0;
+	TypeSet<float> localvals;
 	for ( int inpidx=0; inpidx<inputdata_.size(); inpidx++ )
-	{
-	    const float localval = inputdata_[inpidx]->series(dataidx_[inpidx])
-				->value( cursample-inputdata_[inpidx]->z0_ );
-	    const float denom = mIsZero( vector_[inpidx], 0.001 ) ?
-				vector_[inpidx] * vector_[inpidx] : 0.00001;
-	    val += (vector_[inpidx]-localval)*(vector_[inpidx]-localval)/denom;
-	}
+	    localvals += inputdata_[inpidx]->series(dataidx_[inpidx])
+			 ->value( cursample-inputdata_[inpidx]->z0_ );
 
-    
-	val = sqrt( val )/inputdata_.size();
+	float val = similarity( vector_, localvals, vector_.size() );
 	output.series(0)->setValue( cursample-output.z0_, val );
     }
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Payraudeau
  Date:          February  2006
- RCS:           $Id: uifingerprintattrib.cc,v 1.1 2006-04-18 11:09:05 cvshelene Exp $
+ RCS:           $Id: uifingerprintattrib.cc,v 1.2 2006-04-21 08:13:22 cvshelene Exp $
 
 ________________________________________________________________________
 
@@ -24,6 +24,7 @@ ________________________________________________________________________
 #include "uitable.h"
 #include "uibutton.h"
 #include "uigeninput.h"
+#include "uilabel.h"
 #include "uimsg.h"
 #include "pixmap.h"
 #include "oddirs.h"
@@ -37,6 +38,22 @@ static const int sInitNrRows = 5;
 uiFingerPrintAttrib::uiFingerPrintAttrib( uiParent* p )
 	: uiAttrDescEd(p)
 {
+    usereffld_ = new uiGenInput( this, "", 
+	    			 BoolInpSpec("Reference position","Manual") );
+    usereffld_->valuechanged.notify( mCB(this,uiFingerPrintAttrib,isRefSel) );
+    
+    uiGroup* topgrp = new uiGroup( this, "position group" );
+    refposfld_ = new uiStepOutSel( topgrp, "Position" );
+    refposzfld_ = new uiGenInput( topgrp, "Z" );
+    refposzfld_->setElemSzPol( uiObject::Small );
+    refposzfld_->attach( rightOf, refposfld_ );
+    
+    CallBack cb = mCB(this,uiFingerPrintAttrib,getPosPush);
+    const ioPixmap pm( GetIconFileName("pick.png") );
+    getposbut_ = new uiToolButton( topgrp, "", pm, cb );
+    getposbut_->attach( rightOf, refposzfld_ );
+    topgrp->attach( centeredBelow, usereffld_ );
+
     table_ = new uiTable( this, uiTable::Setup().rowdesc("")
 						.rowgrow(true)
 						.defrowlbl("")
@@ -47,18 +64,19 @@ uiFingerPrintAttrib::uiFingerPrintAttrib( uiParent* p )
     table_->setColumnLabels( collbls );
     table_->setNrRows( sInitNrRows );
     table_->setColumnWidth(0,240);
-    table_->setColumnWidth(1,80);
-    table_->setRowHeight( -1, 20 );
-    table_->setStretch( 0, 0 );
+    table_->setColumnWidth(1,90);
+    table_->setRowHeight( -1, 16 );
     table_->setToolTip( "Right-click to add, insert or remove an attribute" );
-    table_->setPrefHeight( 225 );
+    table_->attach( centeredBelow, topgrp );
 
-    const char* butlbl = "&Obtain values from a reference position";
-    getvalbut_ = new uiPushButton( this, butlbl, false );
-    getvalbut_->activated.notify( mCB(this,uiFingerPrintAttrib,getValPush) );
-    getvalbut_->attach( alignedBelow, table_ );
-    
-    getvaldlg_ = new uiFingerPrintGetValDlg(p);
+    uiLabel* calclbl = 
+	new uiLabel( this, "Attribute values at reference position " );
+    calclbl->attach( alignedBelow, table_ );
+    CallBack cbcalc = mCB(this,uiFingerPrintAttrib,calcPush);
+    calcbut_ = new uiPushButton( this, "C&alculate", cbcalc, true );
+    calcbut_->attach( rightTo, calclbl );
+
+    isRefSel(0);
 }
 
 
@@ -74,14 +92,6 @@ void uiFingerPrintAttrib::initTable()
 
     table_->rowInserted.notify( mCB(this,uiFingerPrintAttrib,insertRowCB) );
     table_->rowDeleted.notify( mCB(this,uiFingerPrintAttrib,deleteRowCB) );
-}
-
-
-void uiFingerPrintAttrib::getValPush( CallBacker* cb )
-{
-    getvaldlg_->windowClosed.notify(mCB(this,uiFingerPrintAttrib,valDlgClosed));
-    getvaldlg_->setDescSet( ads );
-    getvaldlg_->go();
 }
 
 
@@ -105,7 +115,7 @@ void uiFingerPrintAttrib::deleteRowCB( CallBacker* cb )
 
 void uiFingerPrintAttrib::set2D( bool yn )
 {
-    getvaldlg_->set2D( yn );
+    refposfld_->set2D( yn );
 }
 
 
@@ -114,10 +124,12 @@ bool uiFingerPrintAttrib::setParameters( const Desc& desc )
     if ( strcmp(desc.attribName(),FingerPrint::attribName()) )
 	return false;
 
-    mIfGetBinID( FingerPrint::refposStr(), refpos, 
-	    	 getvaldlg_->setRefBinID(refpos) )
+    mIfGetBinID( FingerPrint::refposStr(), refpos, refposfld_->setBinID(refpos))
     mIfGetFloat( FingerPrint::refposzStr(), refposz,
-	    	 getvaldlg_->setRefZ( refposz*SI().zFactor() ) );
+	    	 refposzfld_->setValue( refposz ) );
+
+    usereffld_->setValue( !mIsUdf( refposzfld_->getfValue() ) );
+    isRefSel(0);
     
     table_->clearTable();
     table_->setNrRows( sInitNrRows );
@@ -162,7 +174,8 @@ bool uiFingerPrintAttrib::getParameters( Desc& desc )
     if ( strcmp(desc.attribName(), FingerPrint::attribName()) )
 	return false;
 
-    mSetBinID( FingerPrint::refposStr(), getvaldlg_->getRefBinID() );
+    mSetBinID( FingerPrint::refposStr(), refposfld_->binID() );
+    mSetFloat( FingerPrint::refposzStr(), refposzfld_->getfValue() );
 
     TypeSet<float> values;
     for ( int idx=0; idx<table_->nrRows(); idx++ )
@@ -196,62 +209,24 @@ bool uiFingerPrintAttrib::getInput( Desc& desc )
 }
 
 
-void uiFingerPrintAttrib::valDlgClosed( CallBacker* )
+void uiFingerPrintAttrib::isRefSel( CallBacker* )
 {
-    if ( getvaldlg_->uiResult() == 0 )
-	return;
-
-    TypeSet<float> vals = getvaldlg_->getValues();
-    for ( int idx=0; idx<attribflds_.size(); idx++ )
-    {
-	BufferString inp = attribflds_[idx]->getInput();
-	for ( int idxdesc=0; idxdesc<ads->nrDescs(); idxdesc++ )
-	{
-	    if ( !strcmp( inp, ads->desc(idxdesc)->userRef() ) )
-		table_->setValue( RowCol(idx,1), vals[idxdesc] );
-	}
-    }
-}
-
-//------------------------------------------------------------------------------
-uiFingerPrintGetValDlg::uiFingerPrintGetValDlg( uiParent* p )
-        : uiDialog( p, uiDialog::Setup("FingerPrint dialog","").modal(false) )
-{
-    BufferString title( "Get values from a reference position" );
-    setTitleText( title );
-    
-    uiGroup* topgrp = new uiGroup( this, "position group" );
-    refposfld_ = new uiStepOutSel( topgrp, "Position" );
-    refposzfld_ = new uiGenInput( topgrp, "Z" );
-    refposzfld_->setElemSzPol( uiObject::Small );
-    refposzfld_->attach( rightOf, refposfld_ );
-
-    CallBack cb = mCB(this,uiFingerPrintGetValDlg,getPosPush);
-    const ioPixmap pm( GetIconFileName("pick.png") );
-    getposbut_ = new uiToolButton( topgrp, "", pm, cb );
-    getposbut_->attach( rightOf, refposzfld_ );
-    
-    CallBack cbcalc = mCB(this,uiFingerPrintGetValDlg,calcPush);
-    calcbut_ = new uiPushButton( this, "Get &values", cbcalc, true );
-    calcbut_->attach( centeredBelow, topgrp );
+    const bool useref = usereffld_-> getBoolValue();
+    refposfld_->display( useref );
+    refposzfld_->display( useref );
+    getposbut_->display( useref );
 }
 
 
-void uiFingerPrintGetValDlg::set2D( bool yn )
-{
-    refposfld_->set2D( yn );
-}
-
-
-void uiFingerPrintGetValDlg::getPosPush(CallBacker*)
+void uiFingerPrintAttrib::getPosPush(CallBacker*)
 {
 }
 
 
-void uiFingerPrintGetValDlg::calcPush(CallBacker*)
+void uiFingerPrintAttrib::calcPush(CallBacker*)
 {
-    refpos_ = refposfld_->binID();
-    refposz_ = refposzfld_->getfValue() / SI().zFactor();
+    BinID refpos_ = refposfld_->binID();
+    float refposz_ = refposzfld_->getfValue() / SI().zFactor();
 
     if ( mIsUdf( refpos_.inl ) || mIsUdf( refpos_.crl ) || mIsUdf( refposz_ ) )
     {
@@ -278,23 +253,23 @@ void uiFingerPrintGetValDlg::calcPush(CallBacker*)
 	return;
     }
 
-    saveValues( values[0] );
+    showValues( values[0] );
     
 }
 
 
-EngineMan* uiFingerPrintGetValDlg::createEngineMan()
+EngineMan* uiFingerPrintAttrib::createEngineMan()
 {
     EngineMan* aem = new EngineMan;
     
     TypeSet<SelSpec> attribspecs;
-    for ( int idx=0; idx<attrset_->nrDescs(); idx++ )
+    for ( int idx=0; idx<ads->nrDescs(); idx++ )
     {
-	SelSpec sp( 0, attrset_->desc(idx)->id() );
+	SelSpec sp( 0, ads->desc(idx)->id() );
 	attribspecs += sp;
     }
 
-    aem->setAttribSet( attrset_ );
+    aem->setAttribSet( ads );
     aem->setAttribSpecs( attribspecs );
 
     return aem;
@@ -302,10 +277,20 @@ EngineMan* uiFingerPrintGetValDlg::createEngineMan()
 }
 
 
-void uiFingerPrintGetValDlg::saveValues( BinIDValueSet* bidvalset )
+void uiFingerPrintAttrib::showValues( BinIDValueSet* bidvalset )
 {
     float* vals = bidvalset->getVals( bidvalset->getPos(0) );
-    for ( int idx=1; idx<bidvalset->nrVals(); idx++ )
-	values_ += vals[idx];
+    
+    for ( int idx=0; idx<attribflds_.size(); idx++ )
+    {
+	BufferString inp = attribflds_[idx]->getInput();
+	for ( int idxdesc=0; idxdesc<ads->nrDescs(); idxdesc++ )
+	{
+	    if ( !strcmp( inp, ads->desc(idxdesc)->userRef() ) )
+		table_->setValue( RowCol(idx,1), vals[idxdesc+1] );
+	}
+    }
 }
+
+
 
