@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emobject.cc,v 1.60 2006-03-16 15:46:24 cvskris Exp $";
+static const char* rcsID = "$Id: emobject.cc,v 1.61 2006-04-24 12:48:09 cvsjaap Exp $";
 
 #include "emobject.h"
 
@@ -410,7 +410,7 @@ bool EMObject::usePar( const IOPar& par )
     }
 
     for ( int idx=0; idx<nrPosAttribs(); idx++ )
-	removePosAttrib(posAttrib(idx));
+	removePosAttrib( posAttrib(idx), false );
 
     int nrattribs = 0;
     par.get( nrposattrstr, nrattribs );
@@ -441,8 +441,8 @@ bool EMObject::usePar( const IOPar& par )
 	{
 	    if ( !isDefined(sections[idy],subids[idy]) )
 		continue;
-
-	    setPosAttrib( PosID(id(),sections[idy],subids[idy]), attrib, true );
+	    const PosID pid = PosID( id(), sections[idy], subids[idy] );
+	    setPosAttrib( pid, attrib, true, false );
 	}
     }
 
