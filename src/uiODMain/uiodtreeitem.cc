@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.181 2006-04-21 10:47:21 cvsnanne Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.182 2006-04-24 15:13:14 cvsjaap Exp $
 ___________________________________________________________________
 
 -*/
@@ -1234,7 +1234,10 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB( CallBacker* cb )
 	applMgr()->enableTree(false);
 
 	if ( applMgr()->mpeServer()->addTracker(emid,menu->getPickedPos())!=-1 )
+	{
 	    uivisemobj->checkTrackingStatus();
+	    applMgr()->visServer()->showMPEToolbar();
+	}
 
 	applMgr()->enableMenusAndToolbars(true);
 	applMgr()->enableTree(true);
