@@ -7,13 +7,16 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          10-12-1999
- RCS:           $Id: ptrman.h,v 1.10 2005-02-03 09:11:32 kristofer Exp $
+ RCS:           $Id: ptrman.h,v 1.11 2006-04-24 13:43:05 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
 
 #include <general.h>
 
+
+// We have to make 3 macros because of compiler restrictions
+// concerning the total length of macros
 
 #define mDefPtrMan1(Clss,PostSet, EraseFunc) \
 \
