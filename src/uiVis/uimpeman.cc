@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.cc,v 1.81 2006-04-07 15:43:05 cvsjaap Exp $
+ RCS:           $Id: uimpeman.cc,v 1.82 2006-04-24 13:33:24 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -156,6 +156,8 @@ uiMPEMan::uiMPEMan( uiParent* p, uiVisPartServer* ps )
 	    		mCB(this,uiMPEMan,updateButtonSensitivity) );
     engine().trackplanechange.notify(
 	    		mCB(this,uiMPEMan,updateButtonSensitivity) );
+    engine().trackerchange.notify(
+	    		mCB(this,uiMPEMan,updateButtonSensitivity) );
     visBase::DM().selMan().selnotifier.notify(
 	    mCB(this,uiMPEMan,updateButtonSensitivity) );
     visBase::DM().selMan().deselnotifier.notify(
@@ -171,6 +173,8 @@ uiMPEMan::~uiMPEMan()
 	    		mCB(this,uiMPEMan,updateButtonSensitivity) );
     deleteVisObjects();
     engine().trackplanechange.remove(
+	    		mCB(this,uiMPEMan,updateButtonSensitivity) );
+    engine().trackerchange.remove(
 	    		mCB(this,uiMPEMan,updateButtonSensitivity) );
     visBase::DM().selMan().selnotifier.remove(
 	    mCB(this,uiMPEMan,updateButtonSensitivity) );
