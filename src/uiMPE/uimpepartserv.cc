@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2004
- RCS:           $Id: uimpepartserv.cc,v 1.37 2006-03-03 14:02:09 cvsjaap Exp $
+ RCS:           $Id: uimpepartserv.cc,v 1.38 2006-04-24 13:26:02 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -116,11 +116,14 @@ int uiMPEPartServer::addTracker( const EM::ObjectID& emid,
     }
     blockdataloading = false;
 
-    CubeSampling poscs(false);
-    const BinID bid = SI().transform(pickedpos);
-    poscs.hrg.start = poscs.hrg.stop = bid;
-    poscs.zrg.start = poscs.zrg.stop = pickedpos.z;
-    expandActiveVolume( poscs );
+    if ( pickedpos.isDefined() ) 
+    {
+	CubeSampling poscs(false);
+	const BinID bid = SI().transform(pickedpos);
+	poscs.hrg.start = poscs.hrg.stop = bid;
+	poscs.zrg.start = poscs.zrg.stop = pickedpos.z;
+	expandActiveVolume( poscs );
+    }
 
     return res;
 }
