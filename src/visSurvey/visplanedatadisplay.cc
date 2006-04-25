@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.122 2006-04-18 14:37:02 cvskris Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.123 2006-04-25 13:00:44 cvsnanne Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -79,7 +79,7 @@ PlaneDataDisplay::PlaneDataDisplay()
     draggerrect->setCoordIndex( 4, -1 );
 
     RefMan<visBase::Material> draggermaterial = visBase::Material::create();
-    draggermaterial->setTransparency( 0.8 );
+    draggermaterial->setTransparency( 0.6 );
     draggerrect->setMaterial( draggermaterial );
 
     dragger_->setOwnShape( draggerrect->getInventorNode() );
