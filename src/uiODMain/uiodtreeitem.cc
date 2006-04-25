@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.182 2006-04-24 15:13:14 cvsjaap Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.183 2006-04-25 12:50:07 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -2042,8 +2042,14 @@ bool uiODPickSetParentTreeItem::showSubMenu()
 
     uiPopupMenu mnu( getUiParent(), "Action" );
     mnu.insertItem( new uiMenuItem("New/Load ..."), 0 );
-    if ( children.size() )
+    if ( children.size()>0 )
+    {
 	mnu.insertItem( new uiMenuItem("Store ..."), 1);
+	mnu.insertSeparator();
+	mnu.insertItem( new uiMenuItem("Display picks only at sections"), 2 );
+	mnu.insertItem( new uiMenuItem("Show all picks"), 3 );
+    }
+
     addStandardItems( mnu );
 
     const int mnuid = mnu.exec();
@@ -2072,6 +2078,18 @@ bool uiODPickSetParentTreeItem::showSubMenu()
     else if ( mnuid==1 )
     {
 	applMgr()->storePickSets();
+    }
+    else if ( mnuid==2 || mnuid==3 )
+    {
+	const bool showall = mnuid == 3;
+	for ( int idx=0; idx<children.size(); idx++ )
+	{
+	    mDynamicCastGet(uiODPickSetTreeItem*,itm,children[idx])
+	    if ( !itm ) continue;
+
+	    itm->showAllPicks( showall );
+	    itm->updateColumnText( uiODSceneMgr::cColorColumn() );
+	}
     }
     else
 	handleStandardItems( mnuid );
@@ -2125,10 +2143,9 @@ bool uiODPickSetTreeItem::init()
     }
     else
     {
-	mDynamicCastGet( visSurvey::PickSetDisplay*, psd,
-			 visserv->getObject(displayid_) );
-	if ( !psd )
-	    return false;
+	mDynamicCastGet(visSurvey::PickSetDisplay*,psd,
+			visserv->getObject(displayid_));
+	if ( !psd ) return false;
     }
 
     return uiODDisplayTreeItem::init();
@@ -2162,6 +2179,8 @@ void uiODPickSetTreeItem::handleMenuCB( CallBacker* cb )
     if ( menu->menuID()!=displayID() || mnuid==-1 || menu->isHandled() )
 	return;
 
+    mDynamicCastGet(visSurvey::PickSetDisplay*,psd,
+		    visserv->getObject(displayid_));
     if ( mnuid==renamemnuitem_.id )
     {
 	menu->setIsHandled(true);
@@ -2173,8 +2192,6 @@ void uiODPickSetTreeItem::handleMenuCB( CallBacker* cb )
     else if ( mnuid==storemnuitem_.id )
     {
 	menu->setIsHandled( true );
-	mDynamicCastGet(visSurvey::PickSetDisplay*,psd,
-			visserv->getObject(displayid_));
 	PickSet* ps = new PickSet( psd->name() );
 	psd->copyToPickSet( *ps );
 	applMgr()->pickServer()->storeSinglePickSet( ps );
@@ -2187,23 +2204,26 @@ void uiODPickSetTreeItem::handleMenuCB( CallBacker* cb )
     }
     else if ( mnuid==showallmnuitem_.id )
     {
-	mDynamicCastGet(visSurvey::PickSetDisplay*,psd,
-			visserv->getObject(displayid_));
-	const bool showall = !psd->allShown();
-	psd->showAll( showall );
-	mDynamicCastGet( visSurvey::Scene*,scene,visserv->getObject(sceneID()));
-	scene->objectMoved(0);
+	showAllPicks( !psd->allShown() );
     }
     else if ( mnuid==propertymnuitem_.id )
     {
-	mDynamicCastGet(visSurvey::PickSetDisplay*,psd,
-			applMgr()->visServer()->getObject(displayid_))
 	uiPickSizeDlg dlg( getUiParent(), psd );
 	dlg.go();
     }
 
     updateColumnText( uiODSceneMgr::cNameColumn() );
     updateColumnText( uiODSceneMgr::cColorColumn() );
+}
+
+
+void uiODPickSetTreeItem::showAllPicks( bool yn )
+{
+    mDynamicCastGet(visSurvey::PickSetDisplay*,psd,
+		    visserv->getObject(displayid_));
+    psd->showAll( yn );
+    mDynamicCastGet(visSurvey::Scene*,scene,visserv->getObject(sceneID()));
+    scene->objectMoved(0);
 }
 
 
