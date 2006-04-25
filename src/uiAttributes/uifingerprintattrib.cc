@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Payraudeau
  Date:          February  2006
- RCS:           $Id: uifingerprintattrib.cc,v 1.2 2006-04-21 08:13:22 cvshelene Exp $
+ RCS:           $Id: uifingerprintattrib.cc,v 1.3 2006-04-25 14:47:46 cvshelene Exp $
 
 ________________________________________________________________________
 
@@ -21,39 +21,80 @@ ________________________________________________________________________
 #include "attribengman.h"
 #include "uiattrsel.h"
 #include "uistepoutsel.h"
+#include "uiioobjsel.h"
 #include "uitable.h"
 #include "uibutton.h"
+#include "uibuttongroup.h"
 #include "uigeninput.h"
 #include "uilabel.h"
 #include "uimsg.h"
 #include "pixmap.h"
+#include "ctxtioobj.h"
+#include "ioobj.h"
 #include "oddirs.h"
 #include "binidvalset.h"
 #include "survinfo.h"
+#include "transl.h"
+#include "pickset.h"
+#include "picksettr.h"
+#include "runstat.h"
 
 using namespace Attrib;
 
-static const int sInitNrRows = 5;
+static const int sInitNrRows = 4;
+
+static const char* valinpstrs[] =
+{
+	"Mamual",
+	"Reference Position",
+	"Pickset",
+	0
+};
+
+
+static const char* statstrs[] =
+{
+	"Average",
+	"Median",
+	"Variance",
+	"Min",
+	"Max",
+	0
+};
 
 uiFingerPrintAttrib::uiFingerPrintAttrib( uiParent* p )
 	: uiAttrDescEd(p)
+    	, ctio_(*mMkCtxtIOObj(PickSetGroup))
 {
-    usereffld_ = new uiGenInput( this, "", 
-	    			 BoolInpSpec("Reference position","Manual") );
-    usereffld_->valuechanged.notify( mCB(this,uiFingerPrintAttrib,isRefSel) );
-    
-    uiGroup* topgrp = new uiGroup( this, "position group" );
-    refposfld_ = new uiStepOutSel( topgrp, "Position" );
-    refposzfld_ = new uiGenInput( topgrp, "Z" );
+    refgrp_ = new uiButtonGroup( this, "Get values from", false );
+    manualbut_ = new uiRadioButton( refgrp_, "Manual" );
+    manualbut_->activated.notify( mCB(this,uiFingerPrintAttrib,refSel ) );
+    refposbut_ = new uiRadioButton( refgrp_, "Reference position" );
+    refposbut_->activated.notify( mCB(this,uiFingerPrintAttrib,refSel ) );
+    picksetbut_ = new uiRadioButton( refgrp_, "Pickset" );
+    picksetbut_->activated.notify( mCB(this,uiFingerPrintAttrib,refSel ) );
+
+    refposfld_ = new uiStepOutSel( this, "Trace position`Inl/Crl position");
+    refposfld_->attach( alignedBelow, (uiParent*)refgrp_ );
+    BufferString zlabel = "Z"; zlabel += SI().getZUnit();
+    refposzfld_ = new uiGenInput( this, zlabel );
     refposzfld_->setElemSzPol( uiObject::Small );
     refposzfld_->attach( rightOf, refposfld_ );
     
     CallBack cb = mCB(this,uiFingerPrintAttrib,getPosPush);
     const ioPixmap pm( GetIconFileName("pick.png") );
-    getposbut_ = new uiToolButton( topgrp, "", pm, cb );
+    getposbut_ = new uiToolButton( this, "", pm, cb );
     getposbut_->attach( rightOf, refposzfld_ );
-    topgrp->attach( centeredBelow, usereffld_ );
 
+    picksetfld_ = new uiIOObjSel( this, ctio_, "Pickset file" );
+    picksetfld_->attach( alignedBelow, (uiParent*)refgrp_ );
+    picksetfld_->display(false);
+
+    statsfld_ = new uiGenInput( this, "PickSet statistic", 
+	    		       StringListInpSpec(statstrs) );
+    statsfld_->attach( alignedBelow, picksetfld_ );
+    statsfld_->display(false);
+    
     table_ = new uiTable( this, uiTable::Setup().rowdesc("")
 						.rowgrow(true)
 						.defrowlbl("")
@@ -67,7 +108,7 @@ uiFingerPrintAttrib::uiFingerPrintAttrib( uiParent* p )
     table_->setColumnWidth(1,90);
     table_->setRowHeight( -1, 16 );
     table_->setToolTip( "Right-click to add, insert or remove an attribute" );
-    table_->attach( centeredBelow, topgrp );
+    table_->attach( alignedBelow, statsfld_ );
 
     uiLabel* calclbl = 
 	new uiLabel( this, "Attribute values at reference position " );
@@ -76,7 +117,15 @@ uiFingerPrintAttrib::uiFingerPrintAttrib( uiParent* p )
     calcbut_ = new uiPushButton( this, "C&alculate", cbcalc, true );
     calcbut_->attach( rightTo, calclbl );
 
-    isRefSel(0);
+    setHAlignObj( table_ );
+    refSel(0);
+}
+
+
+uiFingerPrintAttrib::~uiFingerPrintAttrib()
+{
+    delete ctio_.ioobj;
+    delete &ctio_;
 }
 
 
@@ -128,8 +177,12 @@ bool uiFingerPrintAttrib::setParameters( const Desc& desc )
     mIfGetFloat( FingerPrint::refposzStr(), refposz,
 	    	 refposzfld_->setValue( refposz ) );
 
-    usereffld_->setValue( !mIsUdf( refposzfld_->getfValue() ) );
-    isRefSel(0);
+    mIfGetString( FingerPrint::picksetStr(), pick, 
+	    	  picksetfld_->setInputText(pick) )
+
+    mIfGetInt( FingerPrint::reftypeStr(), type, refgrp_->selectButton(type) )
+
+    refSel(0);
     
     table_->clearTable();
     table_->setNrRows( sInitNrRows );
@@ -174,8 +227,19 @@ bool uiFingerPrintAttrib::getParameters( Desc& desc )
     if ( strcmp(desc.attribName(), FingerPrint::attribName()) )
 	return false;
 
-    mSetBinID( FingerPrint::refposStr(), refposfld_->binID() );
-    mSetFloat( FingerPrint::refposzStr(), refposzfld_->getfValue() );
+    mSetInt( FingerPrint::reftypeStr(), refgrp_->selectedId() );
+    const int refgrpval = refgrp_->selectedId();
+
+    if ( refgrpval == 1 )
+    {
+	mSetBinID( FingerPrint::refposStr(), refposfld_->binID() );
+	mSetFloat( FingerPrint::refposzStr(), refposzfld_->getfValue() );
+    }
+    else if ( refgrpval == 2 )
+    {
+	mSetInt( FingerPrint::statstypeStr(), statsfld_->getIntValue() );
+	mSetString( FingerPrint::picksetStr(), picksetfld_->getInput() );
+    }
 
     TypeSet<float> values;
     for ( int idx=0; idx<table_->nrRows(); idx++ )
@@ -209,12 +273,15 @@ bool uiFingerPrintAttrib::getInput( Desc& desc )
 }
 
 
-void uiFingerPrintAttrib::isRefSel( CallBacker* )
+void uiFingerPrintAttrib::refSel( CallBacker* )
 {
-    const bool useref = usereffld_-> getBoolValue();
-    refposfld_->display( useref );
-    refposzfld_->display( useref );
-    getposbut_->display( useref );
+    const bool refbutchecked = refposbut_->isChecked();
+    const bool pickbutchecked = picksetbut_->isChecked();
+    refposfld_->display( refbutchecked );
+    refposzfld_->display( refbutchecked );
+    getposbut_->display( refbutchecked );
+    picksetfld_->display( pickbutchecked );
+    statsfld_->display( pickbutchecked );
 }
 
 
@@ -225,36 +292,67 @@ void uiFingerPrintAttrib::getPosPush(CallBacker*)
 
 void uiFingerPrintAttrib::calcPush(CallBacker*)
 {
-    BinID refpos_ = refposfld_->binID();
-    float refposz_ = refposzfld_->getfValue() / SI().zFactor();
-
-    if ( mIsUdf( refpos_.inl ) || mIsUdf( refpos_.crl ) || mIsUdf( refposz_ ) )
+    ObjectSet<BinIDValueSet> values;
+    
+    if ( refgrp_->selectedId() == 1 )
     {
-	//see if ok in 2d
-	uiMSG().error( "Please fill in the position fields first" );
+	BinID refpos_ = refposfld_->binID();
+	float refposz_ = refposzfld_->getfValue() / SI().zFactor();
+
+	if ( mIsUdf(refpos_.inl) || mIsUdf(refpos_.crl) || mIsUdf(refposz_) )
+	{
+	    //see if ok in 2d
+	    uiMSG().error( "Please fill in the position fields first" );
+	    return;
+	}
+
+	BinIDValueSet* bidvalset = new BinIDValueSet( 1, false );
+	bidvalset->add( refpos_, refposz_ );
+	values += bidvalset;
+    }
+    else if ( refgrp_->selectedId() == 2 )
+    {
+	BufferString errmsg;
+	PickSetGroup psg;
+	picksetfld_->processInput();
+	const IOObj* ioobj = picksetfld_->ctxtIOObj().ioobj;
+	if ( !ioobj )
+	{
+	    uiMSG().error( "Please choose a pickset first" );
+	    return;
+	}
+	BufferStringSet ioobjids;
+	ioobjids.add( ioobj->key() );
+	PickSetGroupTranslator::createBinIDValueSets( ioobjids, values );
+    }
+    else
+    {
+	uiMSG().error( "In manual mode, values should be filled by the user" );
 	return;
     }
-
-    ObjectSet<BinIDValueSet> values;
-    BinIDValueSet bidvalset( 1, false );
-    bidvalset.add( refpos_, refposz_ );
-    values += &bidvalset;
     
     BufferString errmsg;
     PtrMan<Attrib::EngineMan> aem = createEngineMan();
     PtrMan<Processor> proc = aem->createLocationOutput( errmsg, values );
     if ( !proc )
-	uiMSG().error(errmsg);
-
-    int res = proc->nextStep();
-    if ( res == -1 )
     {
-	uiMSG().error( "Cannot reach next position" );
+	uiMSG().error(errmsg);
 	return;
     }
 
+    int res =1;
+    while ( res == 1 )
+    {
+	res = proc->nextStep();
+	if ( res == -1 )
+	{
+	    uiMSG().error( "Cannot reach next position" );
+	    return;
+	}
+    }
+
     showValues( values[0] );
-    
+    deepErase(values);
 }
 
 
@@ -279,15 +377,68 @@ EngineMan* uiFingerPrintAttrib::createEngineMan()
 
 void uiFingerPrintAttrib::showValues( BinIDValueSet* bidvalset )
 {
-    float* vals = bidvalset->getVals( bidvalset->getPos(0) );
-    
+    TypeSet<float> vals;
+    vals.setSize(ads->nrDescs());
+    if ( bidvalset->totalSize() == 1 )
+    {
+	float* tmpvals = bidvalset->getVals( bidvalset->getPos(0) );
+	for ( int idx=0; idx<ads->nrDescs(); idx++ )
+	    vals[idx] = tmpvals[idx+1];
+    }
+    else
+    {
+	ObjectSet< RunningStatistics<float> > statsset;
+	for ( int idx=0; idx<ads->nrDescs(); idx++ )
+	    statsset += new RunningStatistics<float>;
+
+	for ( int idsz=0; idsz<bidvalset->totalSize(); idsz++ )
+	{
+	    float* values = bidvalset->getVals( bidvalset->getPos(idsz) );
+	    for ( int idx=0; idx<ads->nrDescs(); idx++ )
+		*(statsset[idx]) += values[idx+1];
+	}
+	
+	for ( int idx=0; idx<ads->nrDescs(); idx++ )
+	{
+	    switch ( statsfld_->getIntValue() )
+	    {
+		case 0:
+		    {
+			vals[idx] = statsset[idx]->mean();
+			break;
+		    }
+		case 1:
+		    {
+			vals[idx] = statsset[idx]->median(); 
+			break;
+		    }
+		case 2:
+		    {
+			vals[idx] = statsset[idx]->variance(); 
+			break;
+		    }
+		case 3:
+		    {
+			vals[idx] = statsset[idx]->min(); 
+			break;
+		    }
+		case 4:
+		    {
+			vals[idx] = statsset[idx]->max();
+			break;
+		    }
+	    }
+	}
+	deepErase( statsset );
+    }
+	
     for ( int idx=0; idx<attribflds_.size(); idx++ )
     {
 	BufferString inp = attribflds_[idx]->getInput();
 	for ( int idxdesc=0; idxdesc<ads->nrDescs(); idxdesc++ )
 	{
 	    if ( !strcmp( inp, ads->desc(idxdesc)->userRef() ) )
-		table_->setValue( RowCol(idx,1), vals[idxdesc+1] );
+		table_->setValue( RowCol(idx,1), vals[idxdesc] );
 	}
     }
 }

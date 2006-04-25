@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Payraudeau
  Date:          February 2006
- RCS:           $Id: uifingerprintattrib.h,v 1.2 2006-04-21 08:13:22 cvshelene Exp $
+ RCS:           $Id: uifingerprintattrib.h,v 1.3 2006-04-25 14:47:46 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,12 +16,16 @@ ________________________________________________________________________
 #include "uidialog.h"
 #include "position.h"
 
+class CtxtIOObj;
 class uiAttrSel;
 class uiTable;
 class uiStepOutSel;
+class uiIOObjSel;
 class uiGenInput;
 class uiPushButton;
 class uiToolButton;
+class uiRadioButton;
+class uiButtonGroup;
 class BinIDValueSet;
 namespace Attrib { class EngineMan; }
 
@@ -33,18 +37,25 @@ class uiFingerPrintAttrib : public uiAttrDescEd
 public:
 
 			uiFingerPrintAttrib(uiParent*);
+			~uiFingerPrintAttrib();
 
     void		set2D(bool);
 
 protected:
 
     uiTable*            table_;
-    uiGenInput*		usereffld_;
+    uiButtonGroup*      refgrp_;
+    uiRadioButton*	manualbut_;
+    uiRadioButton*	refposbut_;
+    uiRadioButton*	picksetbut_;
+    uiGenInput*		statsfld_;
     uiGenInput*		refposzfld_;
     uiStepOutSel*	refposfld_;
     uiToolButton*       getposbut_;
     uiPushButton*       calcbut_;
-    
+    uiIOObjSel*		picksetfld_;
+   
+    CtxtIOObj&		ctio_;
     ObjectSet<uiAttrSel> attribflds_;
 
     void		insertRowCB(CallBacker*);
@@ -59,7 +70,7 @@ protected:
     
     void                getPosPush(CallBacker*);
     void                calcPush(CallBacker*);
-    void		isRefSel(CallBacker*);
+    void		refSel(CallBacker*);
     EngineMan*          createEngineMan();
     void                showValues(BinIDValueSet*);
 };

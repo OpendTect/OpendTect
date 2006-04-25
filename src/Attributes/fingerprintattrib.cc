@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          February 2006
- RCS:           $Id: fingerprintattrib.cc,v 1.2 2006-04-21 08:13:22 cvshelene Exp $
+ RCS:           $Id: fingerprintattrib.cc,v 1.3 2006-04-25 14:47:46 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,6 +42,18 @@ void FingerPrint::initClass()
 				new ParamGroup<FloatParam>(0,valStr(),value);
     desc->addParam( valueset );
 
+    IntParam* statstype = new IntParam( statstypeStr() );
+    statstype->setRequired( false );
+    desc->addParam( statstype );
+    
+    StringParam* pickset = new StringParam( picksetStr() );
+    pickset->setRequired( false );
+    desc->addParam( pickset );
+    
+    IntParam* reftype = new IntParam( reftypeStr() );
+    reftype->setDefaultValue(0);
+    desc->addParam( reftype );
+    
     desc->addInput( InputSpec("Input data",true) );
     desc->addOutputDataType( Seis::UnknowData );
 
@@ -78,6 +90,12 @@ void FingerPrint::updateDesc( Desc& desc )
 	BufferString bfs = "Input Data"; bfs += idx+1;
 	desc.addInput( InputSpec(bfs, true) );
     }
+
+    int type = desc.getValParam(reftypeStr())->getIntValue();
+    desc.setParamEnabled( refposStr(), type == 1 );
+    desc.setParamEnabled( refposzStr(), type == 1 );
+    desc.setParamEnabled( picksetStr(), type == 2 );
+    desc.setParamEnabled( statstypeStr(), type == 2 );
 }
 
 
@@ -87,9 +105,6 @@ FingerPrint::FingerPrint( Desc& dsc )
     if ( !isOK() ) return;
 
     inputdata_.allowNull(true);
-
-    mGetBinID( refpos_, refposStr() )
-    mGetFloat( refposz_, refposzStr() )
 
     mDescGetParamGroup(FloatParam,valueset,desc,valStr())
     for ( int idx=0; idx<valueset->size(); idx++ )

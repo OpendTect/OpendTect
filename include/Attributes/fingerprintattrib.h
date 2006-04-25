@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          23-02-2006
- RCS:           $Id: fingerprintattrib.h,v 1.1 2006-04-18 11:09:05 cvshelene Exp $
+ RCS:           $Id: fingerprintattrib.h,v 1.2 2006-04-25 14:47:46 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,6 +46,9 @@ public:
     static const char*		refposStr()	{ return "refpos"; }
     static const char*		refposzStr()	{ return "refposz"; }
     static const char*		valStr()	{ return "value"; }
+    static const char*		picksetStr()	{ return "pickset"; }
+    static const char*		statstypeStr()	{ return "statstype"; }
+    static const char*		reftypeStr()	{ return "reftype"; }
 
 protected:
     static Provider*		createInstance(Desc&);
@@ -60,8 +63,14 @@ protected:
 					    int z0,int nrsamples) const;
 
     TypeSet<float>		vector_;
+    
+    // these parameters are only needed for the user interface
     BinID			refpos_;
     float			refposz_;
+    int				statstype_;
+    const char*			pickname_;
+    int				reftype_;
+    
 
     TypeSet<int>		dataidx_;
     ObjectSet<const DataHolder>	inputdata_;
