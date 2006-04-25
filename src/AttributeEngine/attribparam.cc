@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribparam.cc,v 1.24 2006-04-20 08:13:49 cvshelene Exp $";
+static const char* rcsID = "$Id: attribparam.cc,v 1.25 2006-04-25 08:02:58 cvsnanne Exp $";
 
 #include "attribparam.h"
 #include "attribparamgroup.h"
@@ -372,7 +372,7 @@ bool BoolParam::setCompositeValue( const char* str )
 
 BufferString BoolParam::getDefaultValue() const
 {
-    bool yn = getDefaultValue();
+    const bool yn = getDefaultBoolValue();
     BufferString str = reinterpret_cast<BoolInpSpec*>(spec_)->trueFalseTxt(yn);
     return str;
 }
