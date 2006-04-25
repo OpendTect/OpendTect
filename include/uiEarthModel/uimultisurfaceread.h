@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uimultisurfaceread.h,v 1.1 2006-03-23 14:53:53 cvsnanne Exp $
+ RCS:           $Id: uimultisurfaceread.h,v 1.2 2006-04-25 16:25:11 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,7 +23,7 @@ class uiMultiSurfaceRead : public uiIOSurface
 {
 public:
 			uiMultiSurfaceRead(uiParent*,bool ishor);
-			~uiMultiSurfaceRead()	{}
+			~uiMultiSurfaceRead();
 
     void		getSurfaceIds(TypeSet<MultiID>&) const;
     void		getSurfaceSelection(EM::SurfaceIODataSelection&) const;
