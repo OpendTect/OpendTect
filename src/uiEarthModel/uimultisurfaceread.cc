@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uimultisurfaceread.cc,v 1.1 2006-03-23 14:54:02 cvsnanne Exp $
+ RCS:           $Id: uimultisurfaceread.cc,v 1.2 2006-04-25 10:41:06 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,6 +43,12 @@ uiMultiSurfaceRead::uiMultiSurfaceRead( uiParent* p, bool ishor )
 
     mkRangeFld();
     rgfld->attach( leftAlignedBelow, surfacefld_ );
+}
+
+
+uiMultiSurfaceRead::~uiMultiSurfaceRead()
+{
+    delete entrylist_;
 }
 
 
