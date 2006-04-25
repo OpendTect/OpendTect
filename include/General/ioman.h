@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		3-8-1995
- RCS:		$Id: ioman.h,v 1.25 2006-02-21 15:23:10 cvsbert Exp $
+ RCS:		$Id: ioman.h,v 1.26 2006-04-25 14:33:29 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -98,6 +98,7 @@ public:
 
     Notifier<IOMan>	newIODir;
     Notifier<IOMan>	entryRemoved; // CallBacker will be CBCapsule<MultiID>
+    Notifier<IOMan>	surveyChanged;
 
 private:
 

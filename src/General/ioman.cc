@@ -4,7 +4,7 @@
  * DATE     : 3-8-1994
 -*/
 
-static const char* rcsID = "$Id: ioman.cc,v 1.58 2006-02-21 16:49:13 cvskris Exp $";
+static const char* rcsID = "$Id: ioman.cc,v 1.59 2006-04-25 14:33:29 cvsbert Exp $";
 
 #include "ioman.h"
 #include "iodir.h"
@@ -44,6 +44,7 @@ bool IOMan::newSurvey()
     IOMan::theinst_ = 0;
     clearSelHists();
     SetSurveyNameDirty();
+    IOM().surveyChanged.trigger();
 
     return !IOM().bad();
 }
@@ -58,6 +59,7 @@ void IOMan::setSurvey( const char* survname )
     delete SurveyInfo::theinst_;
     SurveyInfo::theinst_ = 0;
     SetSurveyName( survname );
+    IOM().surveyChanged.trigger();
 }
 
 
@@ -73,6 +75,7 @@ IOMan::IOMan( const char* rd )
 	, state_(IOMan::NeedInit)
     	, newIODir(this)
     	, entryRemoved(this)
+    	, surveyChanged(this)
 {
     rootdir = rd && *rd ? rd : GetDataDir();
     if ( !File_isDirectory(rootdir) )
@@ -220,13 +223,15 @@ bool IOMan::validSurveySetup( BufferString& errmsg )
 
 	else
 	{
+	    BufferString msg;
 	    if ( nosurv && noomf )
-		std::cerr << "Warning: Essential data files not found in ";
+		msg = "Warning: Essential data files not found in ";
 	    else if ( nosurv )
-		std::cerr << "Warning: Invalid or no '.survey' found in ";
+		msg = "Warning: Invalid or no '.survey' found in ";
 	    else if ( noomf )
-		std::cerr << "Warning: Invalid or no '.omf' found in ";
-	    std::cerr << projdir << ".\nThis survey is corrupt." << std::endl;
+		msg = "Warning: Invalid or no '.omf' found in ";
+	    msg += projdir; msg += ".\nThis survey is corrupt.";
+	    UsrMsg( msg );
 	}
     }
 
