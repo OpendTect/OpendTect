@@ -8,13 +8,13 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		19-10-1995
  Contents:	Error handler
- RCS:		$Id: msgh.h,v 1.7 2004-04-01 13:39:50 bert Exp $
+ RCS:		$Id: msgh.h,v 1.8 2006-04-25 16:53:11 cvsbert Exp $
 ________________________________________________________________________
 
 */
 
-#include <callback.h>
-#include <enums.h>
+#include "callback.h"
+#include "enums.h"
 
 
 /*!\brief class to encapsulate a message to the user.
@@ -45,31 +45,6 @@ public:
 void UsrMsg(const char*,MsgClass::Type t=MsgClass::Info);
 //!< Will pass the message to the appropriate destination.
 
-
-class UsrIoMsg : public CallBacker
-{   
-    friend class	uiMsg;
-    friend		UsrIoMsg* TheUIOMsg();
-
-public:
-
-    virtual void	message(const char*,const char* caption=0) =0;
-    virtual void        warning(const char*,const char* cn=0) =0;
-    virtual void        error(const char*,const char* cn=0) =0;
-    virtual void        about(const char*,const char* cn=0) =0;
-    virtual bool        askGoOn(const char*,bool wyn=true,const char* cn=0) =0;
-			//!< wyn false: 'Ok' and 'Cancel', true: 'Yes' and 'No'
-    virtual int         askGoOnAfter(const char*,const char* cnclmsg=0,
-                             const char* cn=0) =0;
-
-protected:
-
-    static UsrIoMsg*	theUsrIoMsg_;
-
-};
-
-
-inline UsrIoMsg* TheUIOMsg()	{ return UsrIoMsg::theUsrIoMsg_; }
 
 
 #endif

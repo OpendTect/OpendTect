@@ -4,7 +4,7 @@
  * DATE     : Mar 2004
 -*/
 
-static const char* rcsID = "$Id: filepath.cc,v 1.15 2006-03-21 14:47:54 cvsnanne Exp $";
+static const char* rcsID = "$Id: filepath.cc,v 1.16 2006-04-25 16:53:11 cvsbert Exp $";
 
 #include "filepath.h"
 #include "envvars.h"
@@ -253,9 +253,11 @@ BufferString FilePath::getTempName( const char* ext )
 	static bool warn = true;
 	if ( warn )
 	{
-	    std::cerr << "WARNING: You don't have the TEMP or TMP environment "
-		   "variable set.\nUsing '" << fname << "'." << std::endl;
-	    warn = 0;
+	    BufferString msg( "WARNING: You don't have the TEMP or TMP "
+		    	      "environment variable set.\nUsing directory '" );
+	    		 msg += fname; msg += "'.";
+	    UsrMsg( msg );
+	    warn = false;
 	}
     }
 

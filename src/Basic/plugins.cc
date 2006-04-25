@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Aug 2003
- RCS:           $Id: plugins.cc,v 1.45 2006-04-18 14:43:00 cvsnanne Exp $
+ RCS:           $Id: plugins.cc,v 1.46 2006-04-25 16:53:11 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "strmprov.h"
 #include "envvars.h"
 #include "oddirs.h"
+#include "errh.h"
 
 #ifndef __win__
 #include <dlfcn.h>
@@ -238,7 +239,7 @@ static Handletype getLibHandle( const char* lnm )
 	    FormatMessage( FORMAT_MESSAGE_ALLOCATE_BUFFER |
 			   FORMAT_MESSAGE_FROM_SYSTEM, NULL,
 			   GetLastError(), 0, (char* )&ptr, 1024, NULL );
-	    std::cerr << ptr << std::endl;
+	    ErrMsg( ptr );
 	}
     }
 
@@ -249,7 +250,7 @@ static Handletype getLibHandle( const char* lnm )
 	ret = dlopen( lnm, RTLD_GLOBAL | RTLD_NOW );
 
 	if ( !ret )
-	    std::cerr << dlerror() << std::endl;
+	    ErrMsg( dlerror() );
     }
 
 #endif
@@ -400,9 +401,10 @@ static bool loadPlugin( Handletype handle, int argc, char** argv,
     if ( !fn )
     {
 	const BufferString libnmonly = FilePath(libnm).fileName();
-	std::cerr << "Cannot find "
-		  << getFnName(libnmonly,"Init","Plugin")
-		  << " function in " << libnm << std::endl;
+	BufferString msg( "Cannot find " );
+	msg += getFnName(libnmonly,"Init","Plugin");
+	msg += " function in "; msg += libnm;
+	ErrMsg( msg );
 	return false;
     }
 
@@ -410,7 +412,9 @@ static bool loadPlugin( Handletype handle, int argc, char** argv,
     if ( ret )
     {
 	const BufferString libnmonly = FilePath(libnm).fileName();
-	std::cerr << "Error loading " << libnm << ":\n" << ret << std::endl;
+	BufferString msg( "Error loading " );
+	msg += libnm; msg += ":\n"; msg += ret;
+	ErrMsg( msg );
 	return false;
     }
 
@@ -460,7 +464,10 @@ void PluginManager::loadAuto( bool late )
 
 	static bool shw_load = GetEnvVarYN( "OD_SHOW_PLUGIN_LOAD" );
 	if ( shw_load )
-	    std::cerr << "Successfully loaded plugin '"
-		      << userName(data.name_) << "'" << std::endl;
+	{
+	    BufferString msg( "Successfully loaded plugin '" );
+	    msg += userName(data.name_); msg += "'";
+	    UsrMsg( msg );
+	}
     }
 }

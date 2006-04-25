@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          January 2004
- RCS:           $Id: specdecompattrib.cc,v 1.15 2006-04-11 15:17:58 cvshelene Exp $
+ RCS:           $Id: specdecompattrib.cc,v 1.16 2006-04-25 16:53:11 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "attribparam.h"
 #include "genericnumer.h"
 #include "survinfo.h"
+#include "strmprov.h"
 #include "envvars.h"
 
 #include <math.h>
@@ -381,13 +382,19 @@ bool SpecDecomp::calcCWT(const DataHolder& output, int z0, int nrsamples ) const
     cwt.transform( inputdata, outputdata );
 
     const int nrscales = outputdata.info().getSize(1);
-    if ( GetEnvVarYN("DTECT_PRINT_SPECDECOMP") )
+    const char* fname = GetEnvVar( "OD_PRINT_SPECDECOMP_FILE" );
+    if ( fname && *fname )
     {
-	for ( int idx=0; idx<nrsamp; idx++ )
+	StreamData sd = StreamProvider(fname).makeOStream();
+	if ( sd.usable() )
 	{
-	    for ( int idy=0; idy<nrscales; idy++ )
-		std::cerr << idx << '\t' << idy << '\t'
-		    	  << outputdata.get(idx,idy)<<'\n';
+	    for ( int idx=0; idx<nrsamp; idx++ )
+	    {
+		for ( int idy=0; idy<nrscales; idy++ )
+		    *sd.ostrm << idx << '\t' << idy << '\t'
+			      << outputdata.get(idx,idy)<<'\n';
+	    }
+	    sd.close();
 	}
     }
     

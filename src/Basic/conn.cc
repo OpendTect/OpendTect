@@ -5,11 +5,15 @@
  * FUNCTION : Connections
 -*/
 
-static const char* rcsID = "$Id: conn.cc,v 1.18 2004-04-27 15:51:15 bert Exp $";
+static const char* rcsID = "$Id: conn.cc,v 1.19 2006-04-25 16:53:11 cvsbert Exp $";
 
 #include "errh.h"
 #include "strmprov.h"
 #include "strmoper.h"
+#include "oddirs.h"
+#include "filegen.h"
+#include "filepath.h"
+#include "timefun.h"
 #include <iostream>
 #include <fstream>
 
@@ -19,15 +23,72 @@ bool ErrMsgClass::printProgrammerErrs =
 # else
     false;
 # endif
-UsrIoMsg* UsrIoMsg::theUsrIoMsg_ = 0;
 
 DefineEnumNames(MsgClass,Type,1,"Message type")
 	{ "Information", "Message", "Warning", "Error", "PE", 0 };
 
+static BufferString logmsgfnm;
+
+const char* logMsgFileName()
+{
+    return logmsgfnm.buf();
+}
+
+#define mErrRet(s) \
+    { \
+	strm = &std::cerr; \
+	*strm << "Cannot open file for log messages:\n\t" << s << std::endl; \
+	return *strm; \
+    }
+
+static std::ostream& logMsgStrm()
+{
+    static std::ostream* strm = 0;
+    if ( strm ) return *strm;
+
+    const char* basedd = GetBaseDataDir();
+    if ( !File_isDirectory( basedd ) )
+	mErrRet( "Directory for data storage is invalid" )
+
+    FilePath fp( basedd );
+    fp.add( "LogFiles" );
+    const BufferString dirnm = fp.fullPath();
+    if ( !File_exists(dirnm) )
+	File_createDir( dirnm, 0775 );
+    if ( !File_isDirectory(dirnm) )
+	mErrRet( "Cannot create proper directory for log file" )
+
+    FilePath fphome( _GetHomeDir() );
+    BufferString fnm( fphome.fileName() );
+    const char* odusr = GetSoftwareUser();
+    if ( odusr && *odusr )
+	{ fnm += "_"; fnm += odusr; }
+    BufferString datestr = Time_getFullDateString();
+    replaceCharacter( datestr.buf(), ' ', '-' );
+    replaceCharacter( datestr.buf(), ':', '.' );
+    fnm += "_"; fnm += datestr;
+    fnm += ".txt";
+
+    fp.add( fnm );
+    logmsgfnm = fp.fullPath();
+    StreamData sd = StreamProvider( logmsgfnm ).makeOStream( false );
+    if ( !sd.usable() )
+    {
+	BufferString msg( "Cannot create log file '" );
+	msg += logmsgfnm; msg += "'";
+	logmsgfnm = "";
+	mErrRet( msg );
+    }
+
+    strm = sd.ostrm;
+    return *strm;
+}
+
+
 void UsrMsg( const char* msg, MsgClass::Type t )
 {
     if ( !MsgClass::theCB().willCall() )
-	std::cerr << msg << std::endl;
+	logMsgStrm() << msg << std::endl;
     else
     {
 	MsgClass obj( msg, t );
@@ -41,7 +102,12 @@ void ErrMsg( const char* msg, bool progr )
     if ( !ErrMsgClass::printProgrammerErrs && progr ) return;
 
     if ( !MsgClass::theCB().willCall() )
-	std::cerr << (progr?"(PE) ":"") << msg << std::endl;
+    {
+	if ( progr )
+	    std::cerr << "(PE) " << msg << std::endl;
+	else
+	    logMsgStrm() << "Err: " << msg << std::endl;
+    }
     else
     {
 	ErrMsgClass obj( msg, progr );

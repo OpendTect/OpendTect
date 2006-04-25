@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          10/12/1999
- RCS:           $Id: uimain.cc,v 1.28 2006-01-24 20:22:57 cvskris Exp $
+ RCS:           $Id: uimain.cc,v 1.29 2006-04-25 16:53:11 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -164,9 +164,6 @@ void uiMain::init( QApplication* qap, int argc, char **argv )
     if ( !enab )
 	uiObject::enableToolTips( false );
 #endif
-
-    CallBack msghcb = mCB(&uiMSG(),uiMsg,handleMsg);
-    MsgClass::theCB( &msghcb );
 }
 
 uiMain::~uiMain()

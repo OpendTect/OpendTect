@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H.Bril
  Date:          Mar 2002
- RCS:           $Id: od_main.cc,v 1.13 2006-02-24 11:09:19 cvsbert Exp $
+ RCS:           $Id: od_main.cc,v 1.14 2006-04-25 16:53:11 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "prog.h"
 #include "genc.h"
 #include "envvars.h"
+#include "errh.h"
 #include <iostream>
 
 // TODO : Is there a better way to force linking with attribute factory?
@@ -36,9 +37,12 @@ int main( int argc, char** argv )
       && !isPromised("OD_I_PAID_MAINT_SUPP_FEE")	 // Better.
       && !isPromised("OD_I_AM_AN_OPENDTECT_DEVELOPER") ) // Yo.
     {
-	std::cerr << "OpendTect is free for R&D, education or evaluation only."
-		     "\nIn doubt, consult http://opendtect.org/rel/LICENSE.txt."
-		  << std::endl;
+	static const char* msg =
+	    "OpendTect is free for R&D, education or evaluation only.\n"
+	    "In doubt, consult http://opendtect.org/rel/LICENSE.txt.";
+
+	std::cerr << msg << std::endl;
+	UsrMsg( msg );
     }
 
     od_putProgInfo( argc, argv );

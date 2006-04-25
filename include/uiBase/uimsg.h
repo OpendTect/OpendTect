@@ -7,21 +7,18 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          26/04/2000
- RCS:           $Id: uimsg.h,v 1.15 2005-12-14 15:18:28 cvsbert Exp $
+ RCS:           $Id: uimsg.h,v 1.16 2006-04-25 16:53:11 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include <callback.h>
-#include <msgh.h>
-class uiObject;
-class MsgClass;
+#include "gendefs.h"
 class uiMainWin;
 class uiStatusBar;
 class QWidget;
 
 
-class uiMsg : public UsrIoMsg
+class uiMsg
 {
     friend class uiMain;
     friend uiMsg& uiMSG();
@@ -46,13 +43,12 @@ public:
 
     uiMainWin*	setMainWin(uiMainWin*);	//!< return old
 
+    bool	toStatusbar(const char*); //!< returns false if there is none
     uiStatusBar* statusBar();
 
 protected:
 
 		uiMsg();
-    void	handleMsg(CallBacker*);
-    void	toStatusbar(MsgClass*);
 
     QWidget*	popParnt();
 
@@ -67,10 +63,7 @@ private:
 inline uiMsg& uiMSG()
 {
     if ( !uiMsg::theinst_ )
-    {
 	uiMsg::theinst_ = new uiMsg;
-	UsrIoMsg::theUsrIoMsg_ = uiMsg::theinst_;
-    }
     return *uiMsg::theinst_;
 }
 

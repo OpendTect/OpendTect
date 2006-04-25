@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          Oct 2004
- RCS:           $Id: jobiomgr.cc,v 1.24 2006-02-20 18:49:49 cvsbert Exp $
+ RCS:           $Id: jobiomgr.cc,v 1.25 2006-04-25 16:53:11 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -345,7 +345,7 @@ void JobIOHandler::alarmHndl(CallBacker*)
     // all blocking socket calls. 
     // See http://www.cs.ucsb.edu/~rich/class/cs290I-grid/notes/Sockets/
     
-    std::cerr << "Communication time-out." << std::endl;
+    UsrMsg( "Job handler: Socket communication time-out." );
 }
 
 

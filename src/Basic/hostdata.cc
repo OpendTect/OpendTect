@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Apr 2002
- RCS:           $Id: hostdata.cc,v 1.29 2005-11-16 14:54:31 cvsarend Exp $
+ RCS:           $Id: hostdata.cc,v 1.30 2006-04-25 16:53:11 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -277,17 +277,10 @@ bool HostDataList::readHostFile( const char* fname )
     static bool complain = !GetEnvVarYN( "OD_NO_DATAHOST_CHK" );
     if ( sharehost.size() && !sharedata_.host_ && complain )
     {
-	BufferString msg("No host ");
-	msg += sharehost;
-	msg += "  found in ";
-	msg += fname;
+	BufferString msg("No host "); msg += sharehost;
+	msg += "  found in "; msg += fname;
 	msg += ". Multi machine batch processing may not work as expected.";
-
-	if ( TheUIOMsg() )
-	    TheUIOMsg()->warning( msg, "Data host not in BatchHosts." );
-	else 
-	    ErrMsg( msg );
-
+	ErrMsg( msg );
 	complain = false;
     }
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: uimsg.cc,v 1.28 2006-03-03 11:49:56 cvsbert Exp $
+ RCS:           $Id: uimsg.cc,v 1.29 2006-04-25 16:53:11 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,24 +40,6 @@ uiMainWin* uiMsg::setMainWin( uiMainWin* m )
 }
 
 
-void uiMsg::handleMsg( CallBacker* cb )
-{
-    mDynamicCastGet(MsgClass*,mc,cb)
-    if ( !mc ) return;
-
-    switch ( mc->type() )
-    {
-    case MsgClass::ProgrammerError:
-#ifdef __debug__
-	std::cerr << "(PE) " << mc->msg << std::endl;
-#endif
-    break;
-    default:
-	std::cerr << mc->msg << std::endl;
-    break;
-    }
-}
-
 uiStatusBar* uiMsg::statusBar()
 {
     uiMainWin* mw = uimainwin_;/* ? uimainwin_ 
@@ -84,24 +66,12 @@ QWidget* uiMsg::popParnt()
 }
 
 
-void uiMsg::toStatusbar( MsgClass* mc )
+bool uiMsg::toStatusbar( const char* msg )
 {
-    if ( !mc )
-    {
-	if ( statusBar() ) statusBar()->message( "" );
-	return;
-    }
+    if ( !statusBar() ) return false;
 
-    BufferString msg;
-    if ( mc->type() > MsgClass::Message
-      && mc->type() < MsgClass::ProgrammerError )
-	msg = mc->type() == MsgClass::Warning ? "[Warning]: " : "Error: ";
-    msg += mc->msg;
-
-    if ( !statusBar() )
-	std::cerr << msg << std::endl;
-    else
-	statusBar()->message( msg );
+    statusBar()->message( msg );
+    return true;
 }
 
 
