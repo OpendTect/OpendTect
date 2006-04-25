@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: mpeengine.cc,v 1.58 2006-04-24 13:35:04 cvsjaap Exp $";
+static const char* rcsID = "$Id: mpeengine.cc,v 1.59 2006-04-25 12:13:43 cvsjaap Exp $";
 
 #include "mpeengine.h"
 
@@ -44,7 +44,7 @@ namespace MPE
 Engine::Engine()
     : trackplanechange( this )
     , activevolumechange( this )
-    , trackerchange( this )
+    , trackeraddremove( this )
     , loadEMObject( this )
 {
     trackers.allowNull(true);
@@ -203,7 +203,7 @@ int Engine::addTracker( EM::EMObject* obj )
     if ( !added )
 	mRetErr( "Cannot find this trackertype", -1 );
 
-    trackerchange.trigger();
+    trackeraddremove.trigger();
 
     return trackers.size()-1;
 }
@@ -216,7 +216,7 @@ void Engine::removeTracker( int idx )
 
     delete trackers[idx];
     trackers.replace( idx, 0 );
-
+    trackeraddremove.trigger();
    
     for ( int idy=0; idy<trackers.size(); idy++ )
     {
@@ -225,7 +225,6 @@ void Engine::removeTracker( int idx )
     }
 
     setActiveVolume( getDefaultActiveVolume() );
-    trackerchange.trigger();
 }
 
 

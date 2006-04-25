@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.cc,v 1.82 2006-04-24 13:33:24 cvsjaap Exp $
+ RCS:           $Id: uimpeman.cc,v 1.83 2006-04-25 12:13:43 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -156,8 +156,8 @@ uiMPEMan::uiMPEMan( uiParent* p, uiVisPartServer* ps )
 	    		mCB(this,uiMPEMan,updateButtonSensitivity) );
     engine().trackplanechange.notify(
 	    		mCB(this,uiMPEMan,updateButtonSensitivity) );
-    engine().trackerchange.notify(
-	    		mCB(this,uiMPEMan,updateButtonSensitivity) );
+    engine().trackeraddremove.notify(
+	    		mCB(this,uiMPEMan,trackerAddedRemovedCB) );
     visBase::DM().selMan().selnotifier.notify(
 	    mCB(this,uiMPEMan,updateButtonSensitivity) );
     visBase::DM().selMan().deselnotifier.notify(
@@ -174,8 +174,8 @@ uiMPEMan::~uiMPEMan()
     deleteVisObjects();
     engine().trackplanechange.remove(
 	    		mCB(this,uiMPEMan,updateButtonSensitivity) );
-    engine().trackerchange.remove(
-	    		mCB(this,uiMPEMan,updateButtonSensitivity) );
+    engine().trackeraddremove.remove(
+	    		mCB(this,uiMPEMan,trackerAddedRemovedCB) );
     visBase::DM().selMan().selnotifier.remove(
 	    mCB(this,uiMPEMan,updateButtonSensitivity) );
     visBase::DM().selMan().deselnotifier.remove(
@@ -210,7 +210,6 @@ void uiMPEMan::deleteVisObjects()
 
     init = false;
 }
-
 
 void uiMPEMan::seedClick( CallBacker* )
 {
@@ -608,6 +607,7 @@ void uiMPEMan::seedConnectModeSel( CallBacker* )
     if ( !seedpicker )
 	return;
     seedpicker->setSeedConnectMode( seedconmodefld->currentItem() ); 
+    turnSeedPickingOn(true);
     updateButtonSensitivity(0);
     if ( !seedpicker->doesModeUseSetup() )
        return;	
@@ -742,6 +742,13 @@ void uiMPEMan::updateSeedPickState()
     mAddSeedConModeItems( seedconmodefld, Fault );
 
     seedconmodefld->setCurrentItem( seedpicker->getSeedConnectMode() );
+}
+
+
+void uiMPEMan::trackerAddedRemovedCB( CallBacker* )
+{
+    seedpickwason = false;
+    updateButtonSensitivity();
 }
 
 
