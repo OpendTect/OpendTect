@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.129 2006-04-21 10:47:21 cvsnanne Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.130 2006-04-25 16:02:35 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -149,6 +149,7 @@ int uiODApplMgr::manageSurvey()
 	delete attrserv; attrserv = new uiAttribPartServer( applservice );
 	if ( appl.sceneMgrAvailable() )
 	    sceneMgr().cleanUp( true );
+	MPE::engine().setActiveVolume( MPE::engine().getDefaultActiveVolume() );
 	return 2;
     }
 }
