@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: mpeengine.cc,v 1.59 2006-04-25 12:13:43 cvsjaap Exp $";
+static const char* rcsID = "$Id: mpeengine.cc,v 1.60 2006-04-26 20:29:51 cvskris Exp $";
 
 #include "mpeengine.h"
 
@@ -26,7 +26,7 @@ static const char* rcsID = "$Id: mpeengine.cc,v 1.59 2006-04-25 12:13:43 cvsjaap
 #include "survinfo.h"
 
 
-#define mRetErr( msg, retval ) { errmsg = msg; return retval; }
+#define mRetErr( msg, retval ) { errmsg_ = msg; return retval; }
 
 
 MPE::Engine& MPE::engine()
@@ -47,35 +47,35 @@ Engine::Engine()
     , trackeraddremove( this )
     , loadEMObject( this )
 {
-    trackers.allowNull(true);
+    trackers_.allowNull(true);
     init();
 }
 
 
 Engine::~Engine()
 {
-    deepErase( trackers );
-    deepErase( editors );
-    deepUnRef( attribcache );
-    deepErase( attribcachespecs );
-    deepErase( trackerfactories );
-    deepErase( editorfactories );
+    deepErase( trackers_ );
+    deepErase( editors_ );
+    deepUnRef( attribcache_ );
+    deepErase( attribcachespecs_ );
+    deepErase( trackerfactories_ );
+    deepErase( editorfactories_ );
 }
 
 
 const CubeSampling& Engine::activeVolume() const
-{ return activevolume; }
+{ return activevolume_; }
 
 
 void Engine::setActiveVolume( const CubeSampling& nav )
 {
-    activevolume = nav;
+    activevolume_ = nav;
 
     int dim = 0;
-    if ( trackplane.boundingBox().hrg.start.crl==
-	 trackplane.boundingBox().hrg.stop.crl )
+    if ( trackplane_.boundingBox().hrg.start.crl==
+	 trackplane_.boundingBox().hrg.stop.crl )
 	dim = 1;
-    else if ( !trackplane.boundingBox().zrg.width() )
+    else if ( !trackplane_.boundingBox().zrg.width() )
 	dim = 2;
 
     TrackPlane ntp;
@@ -98,12 +98,12 @@ void Engine::setActiveVolume( const CubeSampling& nav )
 
 
 const TrackPlane& Engine::trackPlane() const
-{ return trackplane; }
+{ return trackplane_; }
 
 
 bool Engine::setTrackPlane( const TrackPlane& ntp, bool dotrack )
 {
-    trackplane = ntp;
+    trackplane_ = ntp;
     trackplanechange.trigger();
     if ( ntp.getTrackMode()==TrackPlane::Move ||
 	    ntp.getTrackMode()==TrackPlane::None )
@@ -115,32 +115,32 @@ bool Engine::setTrackPlane( const TrackPlane& ntp, bool dotrack )
 
 bool Engine::trackAtCurrentPlane()
 {
-    for ( int idx=0; idx<trackers.size(); idx++ )
+    for ( int idx=0; idx<trackers_.size(); idx++ )
     {
-	if ( !trackers[idx] || !trackers[idx]->isEnabled() )
+	if ( !trackers_[idx] || !trackers_[idx]->isEnabled() )
 	    continue;
 
-	if ( !trackers[idx]->trackSections( trackplane ) )
+	if ( !trackers_[idx]->trackSections( trackplane_ ) )
 	{
-	    errmsg = "Error while tracking ";
-	    errmsg += trackers[idx]->objectName();
-	    errmsg += ": ";
-	    errmsg += trackers[idx]->errMsg();
+	    errmsg_ = "Error while tracking ";
+	    errmsg_ += trackers_[idx]->objectName();
+	    errmsg_ += ": ";
+	    errmsg_ += trackers_[idx]->errMsg();
 	    return false;
 	}
     }
 
-    for ( int idx=0; idx<trackers.size(); idx++ )
+    for ( int idx=0; idx<trackers_.size(); idx++ )
     {
-	if ( !trackers[idx] || !trackers[idx]->isEnabled() )
+	if ( !trackers_[idx] || !trackers_[idx]->isEnabled() )
 	    continue;
 
-	if ( !trackers[idx]->trackIntersections( trackplane ) )
+	if ( !trackers_[idx]->trackIntersections( trackplane_ ) )
 	{
-	    errmsg = "Error while tracking ";
-	    errmsg += trackers[idx]->objectName();
-	    errmsg += ": ";
-	    errmsg += trackers[idx]->errMsg();
+	    errmsg_ = "Error while tracking ";
+	    errmsg_ += trackers_[idx]->objectName();
+	    errmsg_ += ": ";
+	    errmsg_ += trackers_[idx]->errMsg();
 	    return false;
 	}
     }
@@ -152,14 +152,14 @@ bool Engine::trackAtCurrentPlane()
 Executor* Engine::trackInVolume()
 {
     ExecutorGroup* res = 0;
-    for ( int idx=0; idx<trackers.size(); idx++ )
+    for ( int idx=0; idx<trackers_.size(); idx++ )
     {
-	if ( !trackers[idx] || !trackers[idx]->isEnabled() )
+	if ( !trackers_[idx] || !trackers_[idx]->isEnabled() )
 	    continue;
 
 	if ( !res ) res = new ExecutorGroup("Autotrack", false );
 
-	res->add( trackers[idx]->trackInVolume() );
+	res->add( trackers_[idx]->trackInVolume() );
     }
 
     return res;
@@ -167,7 +167,7 @@ Executor* Engine::trackInVolume()
 
 void Engine::setTrackMode( TrackPlane::TrackMode tm )
 {
-    trackplane.setTrackMode( tm );
+    trackplane_.setTrackMode( tm );
     trackplanechange.trigger();
 }
 
@@ -175,8 +175,8 @@ void Engine::setTrackMode( TrackPlane::TrackMode tm )
 void Engine::getAvaliableTrackerTypes( BufferStringSet& res ) const
 {
     res.deepErase();
-    for ( int idx=0; idx<trackerfactories.size(); idx++ )
-	res.add(trackerfactories[idx]->emObjectType());
+    for ( int idx=0; idx<trackerfactories_.size(); idx++ )
+	res.add(trackerfactories_[idx]->emObjectType());
 }
 
 
@@ -189,12 +189,12 @@ int Engine::addTracker( EM::EMObject* obj )
 	mRetErr( "Object is already tracked", -1 );
 
     bool added = false;
-    for ( int idx=0; idx<trackerfactories.size(); idx++ )
+    for ( int idx=0; idx<trackerfactories_.size(); idx++ )
     {
-	if ( !strcmp(obj->getTypeStr(),trackerfactories[idx]->emObjectType()) )
+	if ( !strcmp(obj->getTypeStr(),trackerfactories_[idx]->emObjectType()) )
 	{
-	    EMTracker* tracker = trackerfactories[idx]->create(obj);
-	    trackers += tracker;
+	    EMTracker* tracker = trackerfactories_[idx]->create(obj);
+	    trackers_ += tracker;
 	    added = true;
 	    break;
 	}
@@ -205,22 +205,22 @@ int Engine::addTracker( EM::EMObject* obj )
 
     trackeraddremove.trigger();
 
-    return trackers.size()-1;
+    return trackers_.size()-1;
 }
 
 
 void Engine::removeTracker( int idx )
 {
-    if ( idx<0 || idx>=trackers.size() )
+    if ( idx<0 || idx>=trackers_.size() )
 	return;
 
-    delete trackers[idx];
-    trackers.replace( idx, 0 );
+    delete trackers_[idx];
+    trackers_.replace( idx, 0 );
     trackeraddremove.trigger();
    
-    for ( int idy=0; idy<trackers.size(); idy++ )
+    for ( int idy=0; idy<trackers_.size(); idy++ )
     {
-	if ( trackers[idy] )
+	if ( trackers_[idy] )
 	    return;
     }
 
@@ -229,7 +229,7 @@ void Engine::removeTracker( int idx )
 
 
 int Engine::highestTrackerID() const
-{ return trackers.size()-1; }
+{ return trackers_.size()-1; }
 
 
 const EMTracker* Engine::getTracker( int idx ) const
@@ -237,18 +237,18 @@ const EMTracker* Engine::getTracker( int idx ) const
 
 
 EMTracker* Engine::getTracker( int idx ) 
-{ return idx>=0 && idx<trackers.size() ? trackers[idx] : 0; }
+{ return idx>=0 && idx<trackers_.size() ? trackers_[idx] : 0; }
 
 
 int Engine::getTrackerByObject( const EM::ObjectID& oid ) const
 {
     if ( oid==-1 ) return -1;
 
-    for ( int idx=0; idx<trackers.size(); idx++ )
+    for ( int idx=0; idx<trackers_.size(); idx++ )
     {
-	if ( !trackers[idx] ) continue;
+	if ( !trackers_[idx] ) continue;
 
-	if ( oid==trackers[idx]->objectID() )
+	if ( oid==trackers_[idx]->objectID() )
 	    return idx;
     }
 
@@ -260,11 +260,11 @@ int Engine::getTrackerByObject( const char* objname ) const
 {
     if ( !objname || !objname[0] ) return -1;
 
-    for ( int idx=0; idx<trackers.size(); idx++ )
+    for ( int idx=0; idx<trackers_.size(); idx++ )
     {
-	if ( !trackers[idx] ) continue;
+	if ( !trackers_[idx] ) continue;
 
-	if ( !strcmp(objname,trackers[idx]->objectName()) )
+	if ( !strcmp(objname,trackers_[idx]->objectName()) )
 	    return idx;
     }
 
@@ -274,9 +274,9 @@ int Engine::getTrackerByObject( const char* objname ) const
 
 void Engine::getNeededAttribs( ObjectSet<const Attrib::SelSpec>& res ) const
 {
-    for ( int trackeridx=0; trackeridx<trackers.size(); trackeridx++ )
+    for ( int trackeridx=0; trackeridx<trackers_.size(); trackeridx++ )
     {
-	EMTracker* tracker = trackers[trackeridx];
+	EMTracker* tracker = trackers_[trackeridx];
 	if ( !tracker ) continue;
 
 	ObjectSet<const Attrib::SelSpec> specs;
@@ -294,10 +294,10 @@ void Engine::getNeededAttribs( ObjectSet<const Attrib::SelSpec>& res ) const
 CubeSampling Engine::getAttribCube( const Attrib::SelSpec& as ) const
 {
     CubeSampling res( engine().activeVolume() );
-    for ( int idx=0; idx<trackers.size(); idx++ )
+    for ( int idx=0; idx<trackers_.size(); idx++ )
     {
-	if ( !trackers[idx] ) continue;
-	const CubeSampling cs = trackers[idx]->getAttribCube( as );
+	if ( !trackers_[idx] ) continue;
+	const CubeSampling cs = trackers_[idx]->getAttribCube( as );
 	res.include(cs);
     }
 
@@ -307,10 +307,10 @@ CubeSampling Engine::getAttribCube( const Attrib::SelSpec& as ) const
 
 const Attrib::DataCubes* Engine::getAttribCache(const Attrib::SelSpec& as) const
 {
-    for ( int idx=0; idx<attribcachespecs.size(); idx++ )
+    for ( int idx=0; idx<attribcachespecs_.size(); idx++ )
     {
-	if ( *attribcachespecs[idx]==as )
-	    return idx<attribcache.size() ? attribcache[idx] : 0;
+	if ( *attribcachespecs_[idx]==as )
+	    return idx<attribcache_.size() ? attribcache_[idx] : 0;
     }
 
     return 0;
@@ -321,19 +321,19 @@ bool Engine::setAttribData( const Attrib::SelSpec& as,
 			    const Attrib::DataCubes* newdata )
 {
     bool found = false;
-    for ( int idx=0; idx<attribcachespecs.size(); idx++ )
+    for ( int idx=0; idx<attribcachespecs_.size(); idx++ )
     {
-	if ( *attribcachespecs[idx]==as )
+	if ( *attribcachespecs_[idx]==as )
 	{
-	    attribcache[idx]->unRef();
+	    attribcache_[idx]->unRef();
 	    if ( !newdata )
 	    {
-		attribcache.remove(idx);
-		attribcachespecs.remove(idx);
+		attribcache_.remove(idx);
+		attribcachespecs_.remove(idx);
 	    }
 	    else
 	    {
-		attribcache.replace(idx, newdata);
+		attribcache_.replace(idx, newdata);
 		newdata->ref();
 	    }
 
@@ -344,8 +344,8 @@ bool Engine::setAttribData( const Attrib::SelSpec& as,
 
     if ( newdata && !found )
     {
-	attribcachespecs += new Attrib::SelSpec(as);
-	attribcache += newdata;
+	attribcachespecs_ += new Attrib::SelSpec(as);
+	attribcache_ += newdata;
 	newdata->ref();
     }
 
@@ -355,10 +355,10 @@ bool Engine::setAttribData( const Attrib::SelSpec& as,
 
 ObjectEditor* Engine::getEditor( const EM::ObjectID& id, bool create )
 {
-    for ( int idx=0; idx<editors.size(); idx++ )
+    for ( int idx=0; idx<editors_.size(); idx++ )
     {
-	if ( editors[idx]->emObject().id()==id )
-	    return editors[idx];
+	if ( editors_[idx]->emObject().id()==id )
+	    return editors_[idx];
     }
 
     if ( !create ) return 0;
@@ -366,13 +366,13 @@ ObjectEditor* Engine::getEditor( const EM::ObjectID& id, bool create )
     EM::EMObject* emobj = EM::EMM().getObject(id);
     if ( !emobj ) return 0;
 
-    for ( int idx=0; idx<editorfactories.size(); idx++ )
+    for ( int idx=0; idx<editorfactories_.size(); idx++ )
     {
-	if ( strcmp(editorfactories[idx]->emObjectType(), emobj->getTypeStr()) )
+	if ( strcmp(editorfactories_[idx]->emObjectType(), emobj->getTypeStr()) )
 	    continue;
 
-	ObjectEditor* editor = editorfactories[idx]->create(*emobj);
-	editors += editor;
+	ObjectEditor* editor = editorfactories_[idx]->create(*emobj);
+	editors_ += editor;
 	return editor;
     }
 
@@ -385,43 +385,43 @@ void Engine::removeEditor( const EM::ObjectID& objid )
     ObjectEditor* editor = getEditor( objid, false );
     if ( editor )
     {
-	editors -= editor;
+	editors_ -= editor;
 	delete editor;
     }
 }
 
 
 const char* Engine::errMsg() const
-{ return errmsg[0] ? (const char*) errmsg : 0 ; }
+{ return errmsg_[0] ? (const char*) errmsg_ : 0 ; }
 
 
 void Engine::addTrackerFactory( TrackerFactory* ntf )
 {
-    for ( int idx=0; idx<trackerfactories.size(); idx++ )
+    for ( int idx=0; idx<trackerfactories_.size(); idx++ )
     {
-	if ( !strcmp(ntf->emObjectType(),trackerfactories[idx]->emObjectType()))
+	if ( !strcmp(ntf->emObjectType(),trackerfactories_[idx]->emObjectType()))
 	{
 	    delete ntf;
 	    return;
 	}
     }
 
-    trackerfactories += ntf;
+    trackerfactories_ += ntf;
 }
 
 
 void Engine::addEditorFactory( EditorFactory* nef )
 {
-    for ( int idx=0; idx<editorfactories.size(); idx++ )
+    for ( int idx=0; idx<editorfactories_.size(); idx++ )
     {
-	if ( !strcmp(nef->emObjectType(),editorfactories[idx]->emObjectType()))
+	if ( !strcmp(nef->emObjectType(),editorfactories_[idx]->emObjectType()))
 	{
 	    delete nef;
 	    return;
 	}
     }
 
-    editorfactories += nef;
+    editorfactories_ += nef;
 }
 
 
@@ -445,9 +445,9 @@ CubeSampling Engine::getDefaultActiveVolume()
 void Engine::fillPar( IOPar& iopar ) const
 {
     int trackeridx = 0;
-    for ( int idx=0; idx<trackers.size(); idx++ )
+    for ( int idx=0; idx<trackers_.size(); idx++ )
     {
-	EMTracker* tracker = trackers[idx];
+	EMTracker* tracker = trackers_[idx];
 	if ( !tracker ) continue;
 	
 	IOPar localpar;
@@ -462,10 +462,10 @@ void Engine::fillPar( IOPar& iopar ) const
     }
 
     iopar.set( sKeyNrTrackers(), trackeridx );
-    activevolume.fillPar( iopar );
+    activevolume_.fillPar( iopar );
 
     IOPar tppar;
-    trackplane.fillPar( tppar );
+    trackplane_.fillPar( tppar );
     iopar.mergeComp( tppar, sKeyTrackPlane() );
 }
 
@@ -479,7 +479,7 @@ bool Engine::usePar( const IOPar& iopar )
     {
 	setActiveVolume( newvolume );
 	PtrMan<IOPar> tppar = iopar.subselect( sKeyTrackPlane() );
-	if ( tppar ) trackplane.usePar( *tppar );
+	if ( tppar ) trackplane_.usePar( *tppar );
     }
 
     /* The setting of the active volume must be above the initiation of the
@@ -519,7 +519,7 @@ bool Engine::usePar( const IOPar& iopar )
 	    
 	const int trackeridx = addTracker( emobj );
 	if ( trackeridx < 0 ) continue;
-	EMTracker* tracker = trackers[trackeridx];
+	EMTracker* tracker = trackers_[trackeridx];
 	
 	bool doenable = true;
 	localpar->getYN( sKeyEnabled(), doenable );
@@ -534,10 +534,10 @@ bool Engine::usePar( const IOPar& iopar )
 
 void Engine::init()
 {
-    deepErase( trackers );
-    deepErase( editors );
-    deepUnRef( attribcache );
-    deepErase( attribcachespecs );
+    deepErase( trackers_ );
+    deepErase( editors_ );
+    deepUnRef( attribcache_ );
+    deepErase( attribcachespecs_ );
     setActiveVolume( getDefaultActiveVolume() );
 }
 

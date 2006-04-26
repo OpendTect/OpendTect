@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          23-10-1996
- RCS:           $Id: mpeengine.h,v 1.27 2006-04-25 12:13:43 cvsjaap Exp $
+ RCS:           $Id: mpeengine.h,v 1.28 2006-04-26 20:29:53 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -61,7 +61,7 @@ public:
     bool			setTrackPlane(const TrackPlane&,bool track);
     void			setTrackMode(TrackPlane::TrackMode);
     TrackPlane::TrackMode	getTrackMode()
-    				{ return trackplane.getTrackMode(); }
+    				{ return trackplane_.getTrackMode(); }
     Notifier<Engine>		trackplanechange;
 
     Notifier<Engine>		loadEMObject;
@@ -109,18 +109,18 @@ protected:
     void			init();
     int				getFreeID();
 
-    BufferString		errmsg;
-    CubeSampling		activevolume;
-    TrackPlane			trackplane;
+    BufferString		errmsg_;
+    CubeSampling		activevolume_;
+    TrackPlane			trackplane_;
 
-    ObjectSet<EMTracker>	trackers;
-    ObjectSet<ObjectEditor>	editors;
+    ObjectSet<EMTracker>	trackers_;
+    ObjectSet<ObjectEditor>	editors_;
 
-    ObjectSet<const Attrib::DataCubes>	attribcache;
-    ObjectSet<Attrib::SelSpec>		attribcachespecs;
+    ObjectSet<const Attrib::DataCubes>	attribcache_;
+    ObjectSet<Attrib::SelSpec>		attribcachespecs_;
 
-    ObjectSet<TrackerFactory>	trackerfactories;
-    ObjectSet<EditorFactory>	editorfactories;
+    ObjectSet<TrackerFactory>	trackerfactories_;
+    ObjectSet<EditorFactory>	editorfactories_;
 
     static const char*		sKeyNrTrackers(){ return "Nr Trackers"; }
     static const char*		sKeyObjectID()	{ return "ObjectID"; }
