@@ -4,12 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.cc,v 1.42 2006-03-08 13:41:26 cvsnanne Exp $
+ RCS:           $Id: uiodmenumgr.cc,v 1.43 2006-04-26 09:43:22 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.42 2006-03-08 13:41:26 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.43 2006-04-26 09:43:22 cvsbert Exp $";
 
 #include "uiodmenumgr.h"
 #include "uiodapplmgr.h"
@@ -18,6 +18,7 @@ static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.42 2006-03-08 13:41:26 cvsna
 #include "uiodstdmenu.h"
 #include "uicrdevenv.h"
 #include "uisettings.h"
+#include "uifilebrowser.h"
 #include "uimenu.h"
 #include "uimsg.h"
 #include "uitoolbar.h"
@@ -277,6 +278,8 @@ void uiODMenuMgr::fillViewMenu()
 }
 
 
+extern const char* logMsgFileName();
+
 void uiODMenuMgr::fillUtilMenu()
 {
     settmnu = new uiPopupMenu( &appl, "&Settings" );
@@ -290,6 +293,9 @@ void uiODMenuMgr::fillUtilMenu()
     mInsertItem( utilmnu, "&Batch programs ...", mBatchProgMnuItm );
     mInsertItem( utilmnu, "&Plugins ...", mPluginsMnuItm );
     mInsertItem( utilmnu, "&Create Devel. Env. ...", mCrDevEnvMnuItm );
+    const char* lmfnm = logMsgFileName();
+    if ( lmfnm && *lmfnm )
+	mInsertItem( utilmnu, "Show log file ...", mShwLogFileMnuItm );
 }
 
 
@@ -409,6 +415,7 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mBatchProgMnuItm: 	applMgr().batchProgs(); break;
     case mPluginsMnuItm: 	applMgr().pluginMan(); break;
     case mCrDevEnvMnuItm: 	uiCrDevEnv::crDevEnv(&appl); break;
+    case mShwLogFileMnuItm: 	showLogFile(); break;
     case mSettFontsMnuItm: 	applMgr().setFonts(); break;
     case mSettMouseMnuItm: 	sceneMgr().setKeyBindings(); break;
 
@@ -457,4 +464,13 @@ mDefManCBFn(Wll)
 void uiODMenuMgr::timerCB( CallBacker* )
 {
     sceneMgr().layoutScenes();
+}
+
+
+void uiODMenuMgr::showLogFile()
+{
+    const char* lmfnm = logMsgFileName();
+    uiFileBrowser fb( &appl, uiFileBrowser::Setup(logMsgFileName())
+	    		     .scroll2bottom(true) );
+    fb.go();
 }
