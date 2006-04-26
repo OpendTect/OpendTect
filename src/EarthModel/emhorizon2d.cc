@@ -4,76 +4,52 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: emhorizon2d.cc,v 1.1 2006-04-18 17:30:13 cvskris Exp $
+ RCS:           $Id: emhorizon2d.cc,v 1.2 2006-04-26 21:14:32 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "emhorizon2d.h"
 
+#include "emsurfacetr.h"
+
+#include "emrowcoliterator.h"
 #include "errh.h"
 #include "horizon2dline.h"
+#include "ioman.h"
 
 namespace EM
 {
 
-Horizon2D::Horizon2D( EMManager& man )
-    : EMObject( man )
+Horizon2Geometry::Horizon2Geometry( Surface& hor2 )
+    : RowColSurfaceGeometry( hor2 )
 {}
 
 
-const char* Horizon2D::getTypeStr() const { return "2D Horizon"; }
-
-
-int Horizon2D::nrSections() const { return sids_.size(); }
-
-
-SectionID Horizon2D::sectionID( int idx ) const { return sids_[idx]; }
-
-
-BufferString Horizon2D::sectionName( const SectionID& sid ) const
+Geometry::Horizon2DLine*
+Horizon2Geometry::sectionGeometry( const SectionID& sid )
 {
-    const int idx = sids_.indexOf( sid );
-    return idx>=0 && sectionnames_[idx] ?
-	sectionnames_.get(idx) : BufferString("");
+    return (Geometry::Horizon2DLine*) SurfaceGeometry::sectionGeometry(sid);
 }
 
 
-bool Horizon2D::canSetSectionName() const	{ return true; }
-
-
-bool Horizon2D::setSectionName( const SectionID& sid, const char* nm,
-				bool addtohistory )
+const Geometry::Horizon2DLine*
+Horizon2Geometry::sectionGeometry( const SectionID& sid ) const
 {
-    const int idx = sids_.indexOf( sid );
-    if ( !nm, !*nm || idx<0 )
-	return false;
-
-    sectionnames_.get(idx) = nm;
-
-    if ( addtohistory )
-	pErrMsg("Section namechange history not implemented" );
-
-    changed = true;
-    return true;
+    return (const Geometry::Horizon2DLine*)
+	SurfaceGeometry::sectionGeometry(sid);
 }
 
 
-int Horizon2D::sectionIndex( const SectionID& sid ) const
-{
-    return sids_.indexOf( sid );
-}
-
-
-int Horizon2D::nrLines() const
+int Horizon2Geometry::nrLines() const
 { return linenames_.size(); }
 
 
-int Horizon2D::lineID( int idx ) const
+int Horizon2Geometry::lineID( int idx ) const
 { return idx>=0 && idx<nrLines() ? lineids_[idx] : -1; }
 
 
-const char* Horizon2D::lineName( int lid ) const
+const char* Horizon2Geometry::lineName( int lid ) const
 {
     const int idx = lineids_.indexOf( lid );
     if ( idx>=0 && idx<nrLines() )
@@ -86,14 +62,16 @@ const char* Horizon2D::lineName( int lid ) const
 }
 
 
-int Horizon2D::addLine( const TypeSet<Coord>& path, int start, int step,
+int Horizon2Geometry::addLine( const TypeSet<Coord>& path, int start, int step,
 			 const char* nm )
 {
     linenames_.add( nm );
 
     for ( int idx=sections_.size(); idx>=0; idx-- )
     {
-	const int lineid = sections_[idx]->addRow( path, start, step );
+	Geometry::Horizon2DLine* section =
+	    reinterpret_cast<Geometry::Horizon2DLine*>(sections_[idx]);
+	const int lineid = section->addRow( path, start, step );
 	if ( idx )
 	    continue;
 
@@ -104,7 +82,7 @@ int Horizon2D::addLine( const TypeSet<Coord>& path, int start, int step,
 }
 
 
-void Horizon2D::removeLine( int lid )
+void Horizon2Geometry::removeLine( int lid )
 {
     const int lidx = lineids_.indexOf( lid );
     if ( lidx<0 || lidx>=linenames_.size() )
@@ -113,8 +91,49 @@ void Horizon2D::removeLine( int lid )
     linenames_.remove( lidx );
     lineids_.remove( lidx );
     for ( int idx=sections_.size(); idx>=0; idx-- )
-	sections_[idx]->removeRow( lid );
+    {
+	Geometry::Horizon2DLine* section =
+	    reinterpret_cast<Geometry::Horizon2DLine*>(sections_[idx]);
+	section->removeRow( lid );
+    }
 }
 
+
+bool Horizon2Geometry::isAtEdge( const PosID& pid ) const
+{
+    const int sidx = sids_.indexOf( pid.sectionID() );
+    if ( sidx==-1 ) return false;
+
+    const RowCol rc( pid.subID() );
+    const StepInterval<int> colrange = colRange( rc.row );
+    return rc.col==colrange.start || rc.col==colrange.stop;
+}
+
+
+Geometry::Horizon2DLine* Horizon2Geometry::createSectionGeometry() const
+{ return new Geometry::Horizon2DLine; }
+
+
+Horizon2D::Horizon2D( EMManager& man )
+    : Surface( man )
+    , geometry_( *this )
+{ }
+
+
+const char* Horizon2D::getTypeStr() const { return "2D Horizon"; }
+
+
+Horizon2Geometry& Horizon2D::geometry()
+{ return geometry_; }
+
+
+const Horizon2Geometry& Horizon2D::geometry() const
+{ return geometry_; }
+
+
+const IOObjContext& Horizon2D::getIOObjContext() const
+{ return EMHorizonTranslatorGroup::ioContext(); }  //Fix onw tr
+
+    
 
 }; //namespace
