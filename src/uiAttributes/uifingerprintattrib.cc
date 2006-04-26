@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Payraudeau
  Date:          February  2006
- RCS:           $Id: uifingerprintattrib.cc,v 1.3 2006-04-25 14:47:46 cvshelene Exp $
+ RCS:           $Id: uifingerprintattrib.cc,v 1.4 2006-04-26 12:32:07 cvshelene Exp $
 
 ________________________________________________________________________
 
@@ -67,9 +67,9 @@ uiFingerPrintAttrib::uiFingerPrintAttrib( uiParent* p )
     	, ctio_(*mMkCtxtIOObj(PickSetGroup))
 {
     refgrp_ = new uiButtonGroup( this, "Get values from", false );
-    manualbut_ = new uiRadioButton( refgrp_, "Manual" );
-    manualbut_->activated.notify( mCB(this,uiFingerPrintAttrib,refSel ) );
-    refposbut_ = new uiRadioButton( refgrp_, "Reference position" );
+    uiRadioButton* manualbut = new uiRadioButton( refgrp_, "Manual" );
+    manualbut->activated.notify( mCB(this,uiFingerPrintAttrib,refSel ) );
+    refposbut_ = new uiRadioButton( refgrp_,"Reference position");
     refposbut_->activated.notify( mCB(this,uiFingerPrintAttrib,refSel ) );
     picksetbut_ = new uiRadioButton( refgrp_, "Pickset" );
     picksetbut_->activated.notify( mCB(this,uiFingerPrintAttrib,refSel ) );
@@ -109,13 +109,15 @@ uiFingerPrintAttrib::uiFingerPrintAttrib( uiParent* p )
     table_->setRowHeight( -1, 16 );
     table_->setToolTip( "Right-click to add, insert or remove an attribute" );
     table_->attach( alignedBelow, statsfld_ );
+    table_->rowInserted.notify( mCB(this,uiFingerPrintAttrib,insertRowCB) );
+    table_->rowDeleted.notify( mCB(this,uiFingerPrintAttrib,deleteRowCB) );
 
     uiLabel* calclbl = 
 	new uiLabel( this, "Attribute values at reference position " );
     calclbl->attach( alignedBelow, table_ );
     CallBack cbcalc = mCB(this,uiFingerPrintAttrib,calcPush);
-    calcbut_ = new uiPushButton( this, "C&alculate", cbcalc, true );
-    calcbut_->attach( rightTo, calclbl );
+    uiPushButton* calcbut = new uiPushButton( this, "C&alculate", cbcalc, true);
+    calcbut->attach( rightTo, calclbl );
 
     setHAlignObj( table_ );
     refSel(0);
@@ -138,9 +140,6 @@ void uiFingerPrintAttrib::initTable()
 	attribflds_ += attrbox;
 	table_->setCellObject( RowCol(idx,0), attrbox->attachObj() );
     }
-
-    table_->rowInserted.notify( mCB(this,uiFingerPrintAttrib,insertRowCB) );
-    table_->rowDeleted.notify( mCB(this,uiFingerPrintAttrib,deleteRowCB) );
 }
 
 
@@ -177,8 +176,7 @@ bool uiFingerPrintAttrib::setParameters( const Desc& desc )
     mIfGetFloat( FingerPrint::refposzStr(), refposz,
 	    	 refposzfld_->setValue( refposz ) );
 
-    mIfGetString( FingerPrint::picksetStr(), pick, 
-	    	  picksetfld_->setInputText(pick) )
+    mIfGetString( FingerPrint::picksetStr(), pick, picksetfld_->setInput(pick) )
 
     mIfGetInt( FingerPrint::reftypeStr(), type, refgrp_->selectButton(type) )
 
@@ -238,7 +236,9 @@ bool uiFingerPrintAttrib::getParameters( Desc& desc )
     else if ( refgrpval == 2 )
     {
 	mSetInt( FingerPrint::statstypeStr(), statsfld_->getIntValue() );
-	mSetString( FingerPrint::picksetStr(), picksetfld_->getInput() );
+	if ( picksetfld_->ctxtIOObj().ioobj )
+	    mSetString( FingerPrint::picksetStr(), 
+			picksetfld_->ctxtIOObj().ioobj->key().buf() )
     }
 
     TypeSet<float> values;

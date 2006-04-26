@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Payraudeau
  Date:          February 2006
- RCS:           $Id: uifingerprintattrib.h,v 1.3 2006-04-25 14:47:46 cvshelene Exp $
+ RCS:           $Id: uifingerprintattrib.h,v 1.4 2006-04-26 12:32:07 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,9 +22,8 @@ class uiTable;
 class uiStepOutSel;
 class uiIOObjSel;
 class uiGenInput;
-class uiPushButton;
-class uiToolButton;
 class uiRadioButton;
+class uiToolButton;
 class uiButtonGroup;
 class BinIDValueSet;
 namespace Attrib { class EngineMan; }
@@ -45,14 +44,12 @@ protected:
 
     uiTable*            table_;
     uiButtonGroup*      refgrp_;
-    uiRadioButton*	manualbut_;
     uiRadioButton*	refposbut_;
     uiRadioButton*	picksetbut_;
+    uiToolButton*	getposbut_;
     uiGenInput*		statsfld_;
     uiGenInput*		refposzfld_;
     uiStepOutSel*	refposfld_;
-    uiToolButton*       getposbut_;
-    uiPushButton*       calcbut_;
     uiIOObjSel*		picksetfld_;
    
     CtxtIOObj&		ctio_;
