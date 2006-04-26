@@ -7,41 +7,31 @@ CopyRight:     (C) dGB Beheer B.V.
 Author:        A.H. Bril
 Date:          23-10-1996
 Contents:      Ranges
-RCS:           $Id: faultsticksurface.h,v 1.1 2006-03-20 16:25:37 cvskris Exp $
+RCS:           $Id: faultsticksurface.h,v 1.2 2006-04-26 21:04:10 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "rowcol.h"
-#include "geomelement.h"
+#include "rowcolsurface.h"
 
 template <class T> class Array2D;
 
 namespace Geometry
 {
 
-class FaultStickSurface : public Element
+class FaultStickSurface : public RowColSurface
 {
 public:
     			FaultStickSurface();
     			~FaultStickSurface();
-    ParametricSurface*	clone() const;
-    void		getPosIDs(TypeSet<GeomPosID>&,bool=true) const;
 
     bool		insertStick(int stick);
     bool		removeStick(int stick);
-
-    StepInterval<int>	knotRange(int stick) const;
-    StepInterval<int>	stickRange() const;
 
     bool		setKnot(const RCol&,const Coord3&);
     bool		unsetKnot(const RCol&);
     Coord3		getKnot(const RCol&) const;
     bool		isKnotDefined(const RCol&) const;
-
-    Coord3		getPosition(GeomPosID pid) const;
-    bool		setPosition(GeomPosID pid,const Coord3&);
-    bool		isDefined(GeomPosID pid) const;
 
     Notifier<FaultStickSurface>	startsRebuilding;
     Notifier<FaultStickSurface>	finishRebuilding;
