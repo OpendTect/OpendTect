@@ -7,7 +7,7 @@ CopyRight:     (C) dGB Beheer B.V.
 Author:        A.H. Bril
 Date:          23-10-1996
 Contents:      Ranges
-RCS:           $Id: parametricsurfaceimpl.h,v 1.7 2006-01-12 19:27:12 cvskris Exp $
+RCS:           $Id: parametricsurfaceimpl.h,v 1.8 2006-04-26 21:09:27 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,7 +23,7 @@ const bool addedinfront = idxvar==-1; \
 if ( addedinfront ) \
 { \
     idxvar = 0; \
-    origin.type -= step.type; \
+    origin_.type -= step_.type; \
 }\
 \
 const int curnrrows = nrRows(); \
@@ -51,8 +51,8 @@ for ( int idx=0; new##variable && idx<=curnrrows; idx++ ) \
 		new##variable->set(idx,idy, udf ); \
 	    else \
 	    { \
-		const Coord param( origin.row+(rowidx-0.5)*step.row, \
-				   origin.col+idy*step.col ); \
+		const Coord param( origin_.row+(rowidx-0.5)*step_.row, \
+				   origin_.col+idy*step_.col ); \
 		new##variable->set(idx,idy,interpolfunc); \
 	    } \
 	} \
@@ -81,8 +81,8 @@ for ( int idx=0; new##variable && idx<curnrrows; idx++ ) \
 		new##variable->set(idx,idy, udf ); \
 	    else \
 	    { \
-		const Coord param( origin.row+idx*step.row, \
-				   origin.col+(colidx-0.5)*step.col ); \
+		const Coord param( origin_.row+idx*step_.row, \
+				   origin_.col+(colidx-0.5)*step_.col ); \
 		new##variable->set(idx,idy,interpolfunc); \
 	    } \
 	} \

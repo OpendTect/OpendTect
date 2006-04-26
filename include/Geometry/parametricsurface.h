@@ -7,7 +7,7 @@ CopyRight:     (C) dGB Beheer B.V.
 Author:        A.H. Bril
 Date:          23-10-1996
 Contents:      Ranges
-RCS:           $Id: parametricsurface.h,v 1.11 2006-01-18 20:31:35 cvsjaap Exp $
+RCS:           $Id: parametricsurface.h,v 1.12 2006-04-26 21:09:27 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,8 +30,6 @@ public:
 					const RCol& step=RowCol(1,1) );
     			~ParametricSurface();
     ParametricSurface*	clone() const = 0;
-    void		getPosIDs( TypeSet<GeomPosID>&, bool=true ) const;
-
     virtual Coord3 	computePosition(const Coord&) const;
     virtual Coord3 	computeNormal(const Coord&) const;
 
@@ -41,6 +39,7 @@ public:
     virtual bool	removeCol(int col) 			= 0;
 
     StepInterval<int>	rowRange() const;
+    StepInterval<int>	colRange(int row) const;
     StepInterval<int>	colRange() const;
     int			nrKnots() const;
     RowCol		getKnotRowCol( int idx ) const;
@@ -58,7 +57,8 @@ public:
 
     virtual bool	setKnot( const RCol&, const Coord3& );
     virtual bool	unsetKnot( const RCol& );
-    virtual Coord3	getKnot( const RCol&, bool estifundef=false ) const = 0;
+    virtual Coord3	getKnot(const RCol&, bool estifundef ) const = 0;
+    virtual Coord3	getKnot(const RCol&) const;
     virtual bool	isKnotDefined( const RCol& ) const;
     bool		hasSupport(const RCol&) const;
 
@@ -83,19 +83,19 @@ protected:
     virtual void	_setKnot( int idx, const Coord3& ) 		= 0;
     virtual bool	checkSelfIntersection( const RCol& ) const;
 
-    int		rowIndex(int row) const { return (row-origin.row)/step.row; }
-    int		colIndex(int col) const { return (col-origin.col)/step.col; }
+    int		rowIndex(int row) const { return (row-origin_.row)/step_.row; }
+    int		colIndex(int col) const { return (col-origin_.col)/step_.col; }
     static int	rowDim() { return 0; }
     static int	colDim() { return 1; }
     virtual int	nrRows() const 						= 0;
     virtual int	nrCols() const 						= 0;
     bool	isAtSameEdge(const RCol&,const RCol&,TypeSet<RowCol>* =0) const;
 
-    bool	checksupport;
-    bool	checkselfintersection;
+    bool	checksupport_;
+    bool	checkselfintersection_;
 
-    RowCol	origin;
-    RowCol	step;
+    RowCol	origin_;
+    RowCol	step_;
 };
 
 };

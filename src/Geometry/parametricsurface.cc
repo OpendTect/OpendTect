@@ -4,7 +4,7 @@
  * DATE     : Nov 2004
 -*/
 
-static const char* rcsID = "$Id: parametricsurface.cc,v 1.20 2006-01-20 23:57:30 cvsjaap Exp $";
+static const char* rcsID = "$Id: parametricsurface.cc,v 1.21 2006-04-26 21:09:24 cvskris Exp $";
 
 #include "parametricsurface.h"
 
@@ -17,11 +17,11 @@ namespace Geometry
 {
 
 
-ParametricSurface::ParametricSurface( const RCol& origin_, const RCol& step_ )
-    : origin( origin_ )
-    , step( step_ )
-    , checksupport( true )
-    , checkselfintersection( true )
+ParametricSurface::ParametricSurface( const RCol& origin, const RCol& step )
+    : origin_( origin )
+    , step_( step )
+    , checksupport_( true )
+    , checkselfintersection_( true )
 { }
 
 
@@ -52,38 +52,22 @@ Coord3 ParametricSurface::computeNormal( const Coord& ) const
 }
 
 
-void ParametricSurface::getPosIDs( TypeSet<GeomPosID>& pids, bool remudf ) const
-{
-    pids.erase();
-
-    RowCol rc;
-    for ( int rowidx=0; rowidx<nrRows(); rowidx++ )
-    {
-	rc.row = origin.row+rowidx*step.row;
-	for ( int colidx=0; colidx<nrCols(); colidx++ )
-	{
-	    rc.col = origin.col+colidx*step.col;
-
-	    if ( remudf && !isKnotDefined(rc) ) continue;
-
-	    pids += rc.getSerialized();
-	}
-    }
-}
-
-
 StepInterval<int> ParametricSurface::rowRange() const
 {
-    return StepInterval<int>( origin.row, origin.row+(nrRows()-1)*step.row,
-	   		      step.row );
+    return StepInterval<int>( origin_.row, origin_.row+(nrRows()-1)*step_.row,
+	   		      step_.row );
 }
 
 
 StepInterval<int> ParametricSurface::colRange() const
 {
-    return StepInterval<int>( origin.col, origin.col+(nrCols()-1)*step.col,
-	    		      step.col );
+    return StepInterval<int>( origin_.col, origin_.col+(nrCols()-1)*step_.col,
+	    		      step_.col );
 }
+
+
+StepInterval<int> ParametricSurface::colRange(int) const
+{ return colRange(); }
 
 
 int ParametricSurface::nrKnots() const { return nrCols()*nrRows(); }
@@ -91,21 +75,21 @@ int ParametricSurface::nrKnots() const { return nrCols()*nrRows(); }
 
 RowCol ParametricSurface::getKnotRowCol( int idx ) const
 {
-    return RowCol( origin.row+idx/nrCols()*step.row,
-	    	   origin.col+idx%nrCols()*step.col);
+    return RowCol( origin_.row+idx/nrCols()*step_.row,
+	    	   origin_.col+idx%nrCols()*step_.col);
 }
 
 
 int ParametricSurface::getKnotIndex( const RCol& rc ) const
 {
-    RowCol relbid = -(origin-rc);
+    RowCol relbid = -(origin_-rc);
     if ( relbid.row<0 || relbid.col<0 )
 	return -1;
 
-    if ( relbid.row%step.row || relbid.col%step.col )
+    if ( relbid.row%step_.row || relbid.col%step_.col )
 	return -1;
 
-    relbid /= step;
+    relbid /= step_;
     
     if ( relbid.row>=nrRows() || relbid.col>=nrCols() )
 	return -1;
@@ -139,7 +123,7 @@ bool ParametricSurface::setKnot( const RCol& rc, const Coord3& np )
     int index;
     if ( nrKnots() )
     {
-	if ( wasundef && !hasSupport(rc) )
+	if ( wasundef && checksupport_ && !hasSupport(rc) )
 	{
 	    errmsg() = "New rc does not have any support";
 	    return false;
@@ -148,14 +132,14 @@ bool ParametricSurface::setKnot( const RCol& rc, const Coord3& np )
 	int rowindex = rowIndex( rc.r() );
 	while ( rowindex<0 )
 	{
-	    if ( !insertRow(origin.row-step.row) )
+	    if ( !insertRow(origin_.row-step_.row) )
 		return false;
 	    rowindex = rowIndex( rc.r() );
 	}
 
 	while ( rowindex>=nrRows() )
 	{
-	    if ( !insertRow(origin.row+step.row*nrRows()) )
+	    if ( !insertRow(origin_.row+step_.row*nrRows()) )
 		return false;
 	    rowindex = rowIndex( rc.r() );
 	}
@@ -163,14 +147,14 @@ bool ParametricSurface::setKnot( const RCol& rc, const Coord3& np )
 	int colindex = colIndex( rc.c() );
 	while ( colindex<0 )
 	{
-	    if ( !insertCol(origin.col-step.col) )
+	    if ( !insertCol(origin_.col-step_.col) )
 		return false;
 	    colindex = colIndex( rc.c() );
 	}
 
 	while ( colindex>=nrCols() )
 	{
-	    if ( !insertCol(origin.col+step.col*nrCols()) )
+	    if ( !insertCol(origin_.col+step_.col*nrCols()) )
 		return false;
 	    colindex = colIndex( rc.c() );
 	}
@@ -179,7 +163,7 @@ bool ParametricSurface::setKnot( const RCol& rc, const Coord3& np )
     }
     else
     {
-	origin = rc;
+	origin_ = rc;
 	index = 0;
     }
 
@@ -227,7 +211,7 @@ bool ParametricSurface::unsetKnot( const RCol& rc )
 	TypeSet<RowCol> neighborsonedge;
 	for ( int idx=0; idx<dirs.size(); idx++ )
 	{
-	    const RowCol neighbor = dirs[idx]*step+rc;
+	    const RowCol neighbor = dirs[idx]*step_+rc;
 	    if ( !isKnotDefined(neighbor) )
 		continue;
 
@@ -253,11 +237,11 @@ bool ParametricSurface::unsetKnot( const RCol& rc )
 
     for ( int idx=0; idx<dirs.size(); idx++ )
     {
-	const RowCol neighbor = dirs[idx]*step+rc;
+	const RowCol neighbor = dirs[idx]*step_+rc;
 	if ( !isKnotDefined(neighbor) )
 	    continue;
 
-	if ( !hasSupport(neighbor) )
+	if ( checksupport_ && !hasSupport(neighbor) )
 	{
 	    _setKnot(index, oldpos );
 	    errmsg() = "Cannot remove position since neighbor would not be"
@@ -280,6 +264,10 @@ bool ParametricSurface::unsetKnot( const RCol& rc )
     triggerNrPosCh(rc.getSerialized());
     return true;
 }
+
+
+Coord3 ParametricSurface::getKnot( const RCol& rc ) const
+{ return getKnot( rc, false ); }
 
 
 bool ParametricSurface::isKnotDefined( const RCol& rc ) const
@@ -305,25 +293,25 @@ bool ParametricSurface::isDefined( int64 pid ) const
 
 bool ParametricSurface::checkSupport(bool yn)
 {
-    const bool oldstatus = checksupport;
-    checksupport = yn;
+    const bool oldstatus = checksupport_;
+    checksupport_ = yn;
     return oldstatus;
 }
 
 
-bool ParametricSurface::checksSupport() const { return checksupport; }
+bool ParametricSurface::checksSupport() const { return checksupport_; }
 
 
 bool ParametricSurface::checkSelfIntersection( bool yn )
 {
-    const bool oldstatus = checkselfintersection;
-    checkselfintersection = yn;
+    const bool oldstatus = checkselfintersection_;
+    checkselfintersection_ = yn;
     return oldstatus;
 }
 
 
 bool ParametricSurface::checksSelfIntersection() const
-{ return checkselfintersection; }
+{ return checkselfintersection_; }
 
 
 bool ParametricSurface::checkSelfIntersection(const RCol& ) const
@@ -332,15 +320,13 @@ bool ParametricSurface::checkSelfIntersection(const RCol& ) const
 
 bool ParametricSurface::hasSupport( const RCol& rc ) const
 {
-    if ( !checksupport ) return true;
-
     const TypeSet<RowCol>& dirs = RowCol::clockWiseSequence();
     const int nrdirs = dirs.size();
 
     bool prevdirdefined = false;
     for ( int idx=0; idx<=nrdirs; idx++ )
     {
-	const RowCol neighbor = dirs[idx%nrdirs]*step+rc;
+	const RowCol neighbor = dirs[idx%nrdirs]*step_+rc;
 	if ( isKnotDefined(neighbor) )
 	{
 	    if ( prevdirdefined )
@@ -358,10 +344,10 @@ bool ParametricSurface::hasSupport( const RCol& rc ) const
 
 bool ParametricSurface::isAtEdge( const RCol& rc ) const
 {
-    return !isKnotDefined(RowCol(rc.r()+step.row, rc.c()+step.col) ) ||
-	   !isKnotDefined(RowCol(rc.r()+step.row, rc.c()-step.col) ) ||
-	   !isKnotDefined(RowCol(rc.r()-step.row, rc.c()+step.col) ) ||
-	   !isKnotDefined(RowCol(rc.r()-step.row, rc.c()-step.col) );
+    return !isKnotDefined(RowCol(rc.r()+step_.row, rc.c()+step_.col) ) ||
+	   !isKnotDefined(RowCol(rc.r()+step_.row, rc.c()-step_.col) ) ||
+	   !isKnotDefined(RowCol(rc.r()-step_.row, rc.c()+step_.col) ) ||
+	   !isKnotDefined(RowCol(rc.r()-step_.row, rc.c()-step_.col) );
 }
 
 
@@ -371,19 +357,19 @@ bool ParametricSurface::isAtSameEdge( const RCol& rc1, const RCol& rc2,
     if ( !isAtEdge(rc1)  || !isAtEdge(rc2) )
 	return false;
 
-    if ( rc1.isNeighborTo(rc2, step, true ) )
+    if ( rc1.isNeighborTo(rc2, step_, true ) )
 	return true;
 
     const TypeSet<RowCol>& dirs = RowCol::clockWiseSequence();
 
     int udefidx = -1;
-    if ( !isKnotDefined(RowCol(rc1.r()+step.row, rc1.c()+step.col)) )
+    if ( !isKnotDefined(RowCol(rc1.r()+step_.row, rc1.c()+step_.col)) )
 	udefidx = dirs.indexOf(RowCol(1,1));
-    else if ( !isKnotDefined(RowCol(rc1.r()+step.row, rc1.c()-step.col)) )
+    else if ( !isKnotDefined(RowCol(rc1.r()+step_.row, rc1.c()-step_.col)) )
 	udefidx = dirs.indexOf(RowCol(1,-1));
-    else if ( !isKnotDefined(RowCol(rc1.r()-step.row, rc1.c()+step.col)) )
+    else if ( !isKnotDefined(RowCol(rc1.r()-step_.row, rc1.c()+step_.col)) )
 	udefidx = dirs.indexOf(RowCol(-1,1));
-    else if ( !isKnotDefined(RowCol(rc1.r()-step.row, rc1.c()-step.col)) )
+    else if ( !isKnotDefined(RowCol(rc1.r()-step_.row, rc1.c()-step_.col)) )
 	udefidx = dirs.indexOf(RowCol(-1,-1));
 
     if ( udefidx==-1 )
@@ -394,7 +380,7 @@ bool ParametricSurface::isAtSameEdge( const RCol& rc1, const RCol& rc2,
 
     for ( int idx=0; idx<dirs.size(); idx++ )
     {
-	const RowCol neighbor = step*dirs[(idx+udefidx)%dirs.size()]+rc1;
+	const RowCol neighbor = step_*dirs[(idx+udefidx)%dirs.size()]+rc1;
 	if ( path && path->indexOf(neighbor)!=-1 )
 	    continue;
 
