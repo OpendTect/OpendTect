@@ -4,7 +4,7 @@
  * DATE     : Dec 2004
 -*/
 
-static const char* rcsID = "$Id: geomelement.cc,v 1.4 2005-10-18 14:40:13 cvskris Exp $";
+static const char* rcsID = "$Id: geomelement.cc,v 1.5 2006-04-26 21:01:45 cvskris Exp $";
 
 #include "geomelement.h"
 #include "survinfo.h"
@@ -14,7 +14,7 @@ namespace Geometry
 Element::Element()
     : nrpositionnotifier( this )
     , movementnotifier( this )
-    , ischanged( false )
+    , ischanged_( false )
     , errmsg_( 0 )
 { }
 
@@ -61,7 +61,7 @@ void Element::triggerMovement( const TypeSet<GeomPosID>& gpids )
     if ( !gpids.size() ) return;
 
     movementnotifier.trigger( &gpids, this );
-    ischanged = true;
+    ischanged_ = true;
 }
 
 
@@ -69,14 +69,14 @@ void Element::triggerMovement( const GeomPosID& gpid )
 {
     TypeSet<GeomPosID> gpids( 1, gpid );
     movementnotifier.trigger( &gpids, this );
-    ischanged = true;
+    ischanged_ = true;
 }
 
 
 void Element::triggerMovement()
 {
     movementnotifier.trigger( 0, this );
-    ischanged = true;
+    ischanged_ = true;
 }
 
 
@@ -84,7 +84,7 @@ void Element::triggerNrPosCh( const TypeSet<GeomPosID>& gpids )
 {
     if ( !gpids.size() ) return;
     nrpositionnotifier.trigger( &gpids, this );
-    ischanged = true;
+    ischanged_ = true;
 }
 
 
@@ -92,14 +92,14 @@ void Element::triggerNrPosCh( const GeomPosID& gpid )
 {
     TypeSet<GeomPosID> gpids( 1, gpid );
     nrpositionnotifier.trigger( &gpids, this );
-    ischanged = true;
+    ischanged_ = true;
 }
 
 
 void Element::triggerNrPosCh()
 {
     nrpositionnotifier.trigger( 0, this );
-    ischanged = true;
+    ischanged_ = true;
 }
 }; //Namespace
 
