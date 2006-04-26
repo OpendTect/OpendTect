@@ -7,13 +7,13 @@ CopyRight:     (C) dGB Beheer B.V.
 Author:        A.H. Bril
 Date:          23-10-1996
 Contents:      Ranges
-RCS:           $Id: parametricsurface.h,v 1.12 2006-04-26 21:09:27 cvskris Exp $
+RCS:           $Id: parametricsurface.h,v 1.13 2006-04-26 21:11:48 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "rowcol.h"
-#include "geomelement.h"
+#include "rowcolsurface.h"
 
 template <class T> class Array2D;
 
@@ -22,7 +22,7 @@ namespace Geometry
 
 class ParametricCurve;
 
-class ParametricSurface : public Element
+class ParametricSurface : public RowColSurface
 {
 public:
     			ParametricSurface(
