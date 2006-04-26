@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2006
- RCS:           $Id: uipluginsel.cc,v 1.3 2006-03-10 13:31:08 cvsbert Exp $
+ RCS:           $Id: uipluginsel.cc,v 1.4 2006-04-26 15:42:40 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -55,7 +55,7 @@ uiPluginSel::uiPluginSel( uiParent* p )
 	BufferString dispnm = piusrnms.get( idx );
 	uiCheckBox* cb = new uiCheckBox( this, dispnm );
 	cb->setChecked( true );
-	cb->setPrefWidthInChar( maxlen );
+	cb->setPrefWidthInChar( maxlen+5 );
 	cbs_ += cb;
 	if ( !idx ) continue;
 
