@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.130 2006-04-25 16:02:35 cvsjaap Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.131 2006-04-26 15:19:54 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -125,7 +125,7 @@ void uiODApplMgr::resetServers()
     emserv->removeHistory();
 }
 
-
+//TODO verify that the descsets are both saved
 int uiODApplMgr::manageSurvey()
 {
     BufferString prevnm = GetDataDir();
@@ -963,6 +963,7 @@ bool uiODApplMgr::handleAttribServEv( int evid )
 	const int visid = visserv->getEventObjId();
 	Attrib::SelSpec as( "Evaluation", Attrib::SelSpec::cOtherAttrib() );
 	const int attrib = visserv->getSelAttribNr();
+	if ( attrib<0 ) return false;
 	visserv->setSelSpec( visid, attrib, as );
 	if ( !evaluateAttribute(visid,attrib) )
 	    return false;
