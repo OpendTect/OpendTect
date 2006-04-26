@@ -5,7 +5,7 @@
  * FUNCTION : Connections
 -*/
 
-static const char* rcsID = "$Id: conn.cc,v 1.19 2006-04-25 16:53:11 cvsbert Exp $";
+static const char* rcsID = "$Id: conn.cc,v 1.20 2006-04-26 09:43:02 cvsbert Exp $";
 
 #include "errh.h"
 #include "strmprov.h"
@@ -43,6 +43,9 @@ const char* logMsgFileName()
 
 static std::ostream& logMsgStrm()
 {
+#ifdef __win__
+    return *std::cerr;
+#else
     static std::ostream* strm = 0;
     if ( strm ) return *strm;
 
@@ -82,6 +85,7 @@ static std::ostream& logMsgStrm()
 
     strm = sd.ostrm;
     return *strm;
+#endif
 }
 
 
