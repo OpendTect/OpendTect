@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Jan 2005
- RCS:           $Id: uivisemobj.cc,v 1.45 2006-04-12 13:05:48 cvsjaap Exp $
+ RCS:           $Id: uivisemobj.cc,v 1.46 2006-04-27 16:04:37 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,7 +27,7 @@ ________________________________________________________________________
 #include "uimenuhandler.h"
 #include "uivispartserv.h"
 #include "visdataman.h"
-#include "visemobjdisplay.h"
+#include "vishorizondisplay.h"
 #include "vismpeeditor.h"
 #include "vissurvobj.h"
 
@@ -49,6 +49,8 @@ uiVisEMObject::uiVisEMObject( uiParent* uip, int newid, uiVisPartServer* vps )
 
     visSurvey::EMObjectDisplay* emod = getDisplay();
     if ( !emod ) return;
+
+    mDynamicCastGet( const visSurvey::HorizonDisplay*, hordisp, emod );
 
     uiCursorChanger cursorchanger( uiCursor::Wait );
 
@@ -76,16 +78,19 @@ uiVisEMObject::uiVisEMObject( uiParent* uip, int newid, uiVisPartServer* vps )
 	    if ( sectionidx.size() )
 		sel.selsections = sectionidx;
 
-	    const StepInterval<int> rowrg = emod->displayedRowRange();
-	    const StepInterval<int> colrg = emod->displayedColRange();
-	    if ( rowrg.step!=-1 && colrg.step!=-1 )
+	    if ( hordisp )
 	    {
-		sel.rg.start.inl = rowrg.start;
-		sel.rg.start.crl = colrg.start;
-		sel.rg.stop.inl = rowrg.stop;
-		sel.rg.step.crl = colrg.step;
-		sel.rg.step.inl = rowrg.step;
-		sel.rg.stop.crl = colrg.stop;
+		const StepInterval<int> rowrg = hordisp->displayedRowRange();
+		const StepInterval<int> colrg = hordisp->displayedColRange();
+		if ( rowrg.step!=-1 && colrg.step!=-1 )
+		{
+		    sel.rg.start.inl = rowrg.start;
+		    sel.rg.start.crl = colrg.start;
+		    sel.rg.stop.inl = rowrg.stop;
+		    sel.rg.step.crl = colrg.step;
+		    sel.rg.step.inl = rowrg.step;
+		    sel.rg.stop.crl = colrg.stop;
+		}
 	    }
 
 	    exec = EM::EMM().objectLoader( mid, &sel );
@@ -103,11 +108,11 @@ uiVisEMObject::uiVisEMObject( uiParent* uip, int newid, uiVisPartServer* vps )
 
     if ( !emod->setEMObject(emid) ) { emod->unRef(); return; }
 
-    if ( emod->usesTexture() )
+    if ( hordisp && hordisp->usesTexture() )
     {
 	for ( int idx=0; idx<emod->nrAttribs(); idx++ )
 	{
-	    if ( emod->getSelSpec(idx)->id()==Attrib::SelSpec::cNoAttrib() )
+	    if ( hordisp->getSelSpec(idx)->id()==Attrib::SelSpec::cNoAttrib() )
 		setDepthAsAttrib( idx );
 	}
     }
@@ -132,16 +137,17 @@ uiVisEMObject::uiVisEMObject( uiParent* uip, const EM::ObjectID& emid,
     interactionlinemenu.ref();
     edgelinemenu.ref();
 
-    visSurvey::EMObjectDisplay* emod = visSurvey::EMObjectDisplay::create();
+    const EM::EMObject* emobj = EM::EMM().getObject(emid);
+    mDynamicCastGet( const EM::Horizon*, hor, emobj );
+    visSurvey::EMObjectDisplay* emod = 0;
+    if ( hor )
+	emod = visSurvey::HorizonDisplay::create();
 
     mDynamicCastGet(visSurvey::Scene*,scene,visBase::DM().getObject(sceneid))
     emod->setDisplayTransformation( scene->getUTM2DisplayTransform() );
 
     uiCursorChanger cursorchanger(uiCursor::Wait);
     if ( !emod->setEMObject(emid) ) mRefUnrefRet
-
-    EM::EMManager& em = EM::EMM();
-    const EM::EMObject* emobj = EM::EMM().getObject(emid);
 
     visserv->addObject( emod, sceneid, true );
     displayid = emod->id();
@@ -253,8 +259,8 @@ const char* uiVisEMObject::getObjectType( int id )
 void uiVisEMObject::setDepthAsAttrib( int attrib )
 {
     uiCursorChanger cursorchanger( uiCursor::Wait );
-    visSurvey::EMObjectDisplay* emod = getDisplay();
-    if ( emod ) emod->setDepthAsAttrib( attrib );
+    mDynamicCastGet( visSurvey::HorizonDisplay*, hordisp, getDisplay() );
+    if ( hordisp ) hordisp->setDepthAsAttrib( attrib );
 }
 
 
@@ -298,8 +304,8 @@ void uiVisEMObject::checkTrackingStatus()
 
 float uiVisEMObject::getShift() const
 {
-    const visSurvey::EMObjectDisplay* emod = getDisplay();
-    return emod ? emod->getTranslation().z : 0;
+    mDynamicCastGet( const visSurvey::HorizonDisplay*, hordisp, getDisplay() );
+    return hordisp ? hordisp->getTranslation().z : 0;
 }
 
 
@@ -315,8 +321,10 @@ void uiVisEMObject::createMenuCB( CallBacker* cb )
     const EM::EMObject* emobj = EM::EMM().getObject(emid);
     const EM::SectionID sid = emod->getSectionID(menu->getPath());
 
+    mDynamicCastGet( const visSurvey::HorizonDisplay*, hordisp, getDisplay() );
+
     mAddMenuItem( menu, &singlecolmnuitem, !emod->getOnlyAtSectionsDisplay(),
-	  	  !emod->usesTexture() );
+	  	  !hordisp || (hordisp&&!hordisp->usesTexture()) );
     mAddMenuItem( menu, &showonlyatsectionsmnuitem, true,
 	          emod->getOnlyAtSectionsDisplay() );
     mAddMenuItem( menu, &changesectionnamemnuitem, 
@@ -329,8 +337,9 @@ void uiVisEMObject::createMenuCB( CallBacker* cb )
 
     mAddMenuItem( &trackmenuitem, &editmnuitem, enabmenu,
 	    	  emod->isEditingEnabled() );
-    mAddMenuItem( &trackmenuitem, &wireframemnuitem, true,
-		  emod->usesWireframe() );
+    if ( hordisp )
+	mAddMenuItem( &trackmenuitem, &wireframemnuitem, true,
+		      hordisp->usesWireframe() );
    
     const TypeSet<EM::PosID>* seeds =
 			emobj->getPosAttribList(EM::EMObject::sSeedNode);
@@ -353,13 +362,14 @@ void uiVisEMObject::handleMenuCB( CallBacker* cb )
     if ( !emod || mnuid==-1 || menu->isHandled() || menu->menuID()!=displayid )
 	return;
 
+    mDynamicCastGet( visSurvey::HorizonDisplay*, hordisp, getDisplay() );
     const EM::ObjectID emid = emod->getObjectID();
     EM::EMObject* emobj = EM::EMM().getObject(emid);
     const EM::SectionID sid = emod->getSectionID(menu->getPath());
 
     if ( mnuid==singlecolmnuitem.id )
     {
-	emod->useTexture( !emod->usesTexture(), true );
+	if ( hordisp ) hordisp->useTexture( !hordisp->usesTexture(), true );
 	menu->setIsHandled(true);
     }
     else if ( mnuid==showonlyatsectionsmnuitem.id )
@@ -388,7 +398,7 @@ void uiVisEMObject::handleMenuCB( CallBacker* cb )
     else if ( mnuid==wireframemnuitem.id )
     {
 	menu->setIsHandled(true);
-	emod->useWireframe( !emod->usesWireframe() );
+	if ( hordisp ) hordisp->useWireframe( !hordisp->usesWireframe() );
     }
     else if ( mnuid==showseedsmnuitem.id )
     {
@@ -407,30 +417,34 @@ void uiVisEMObject::handleMenuCB( CallBacker* cb )
     else if ( mnuid==shiftmnuitem.id )
     {
 	menu->setIsHandled(true);
-	Coord3 shift = emod->getTranslation();
-	BufferString lbl( "Shift " ); lbl += SI().getZUnit();
-	DataInpSpec* inpspec = new FloatInpSpec( shift.z );
-	uiGenInputDlg dlg( uiparent,"Specify horizon shift", lbl, inpspec );
-	if ( !dlg.go() ) return;
-
-	double newshift = dlg.getfValue();
-	if ( shift.z == newshift ) return;
-
-	shift.z = newshift;
-	emod->setTranslation( shift );
-	for ( int attrib=0; attrib<emod->nrAttribs(); attrib++ )
+	if ( hordisp )
 	{
-	    if ( !emod->hasStoredAttrib( attrib ) )
-		visserv->calculateAttrib( displayid, attrib, false );
-	    else
-	    {
-		uiMSG().error( "Cannot calculate this attribute on new location"
-			       "\nDepth will be displayed instead" );
-		emod->setDepthAsAttrib( attrib );
-	    }
-	}
+	    Coord3 shift = hordisp->getTranslation();
+	    BufferString lbl( "Shift " ); lbl += SI().getZUnit();
+	    DataInpSpec* inpspec = new FloatInpSpec( shift.z );
+	    uiGenInputDlg dlg( uiparent,"Specify horizon shift", lbl, inpspec );
+	    if ( !dlg.go() ) return;
 
-	visserv->triggerTreeUpdate();
+	    double newshift = dlg.getfValue();
+	    if ( shift.z == newshift ) return;
+
+	    shift.z = newshift;
+	    hordisp->setTranslation( shift );
+	    for ( int attrib=0; attrib<hordisp->nrAttribs(); attrib++ )
+	    {
+		if ( !hordisp->hasStoredAttrib( attrib ) )
+		    visserv->calculateAttrib( displayid, attrib, false );
+		else
+		{
+		    uiMSG().error( "Cannot calculate this attribute on "
+			    	   "new location"
+				   "\nDepth will be displayed instead" );
+		    hordisp->setDepthAsAttrib( attrib );
+		}
+	    }
+
+	    visserv->triggerTreeUpdate();
+	}
     }
     else if ( mnuid==fillholesitem.id )
     {
@@ -468,13 +482,18 @@ void uiVisEMObject::handleMenuCB( CallBacker* cb )
 void uiVisEMObject::setOnlyAtSectionsDisplay( bool yn )
 {
     visSurvey::EMObjectDisplay* emod = getDisplay();
-    bool usetexture = false;
-    if ( yn )
-	showedtexture = emod->usesTexture();
-    else 
-	usetexture = showedtexture;
+    mDynamicCastGet( visSurvey::HorizonDisplay*, hordisp, emod );
+    if ( hordisp )
+    {
+	bool usetexture = false;
+	if ( yn )
+	    showedtexture = hordisp->usesTexture();
+	else 
+	    usetexture = showedtexture;
 
-    emod->useTexture( usetexture );
+	hordisp->useTexture( usetexture );
+    }
+
     emod->setOnlyAtSectionsDisplay( yn );
 }
 
