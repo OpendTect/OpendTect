@@ -5,12 +5,13 @@
  * FUNCTION : Connections
 -*/
 
-static const char* rcsID = "$Id: conn.cc,v 1.20 2006-04-26 09:43:02 cvsbert Exp $";
+static const char* rcsID = "$Id: conn.cc,v 1.21 2006-04-27 10:19:46 cvsbert Exp $";
 
 #include "errh.h"
 #include "strmprov.h"
 #include "strmoper.h"
 #include "oddirs.h"
+#include "envvars.h"
 #include "filegen.h"
 #include "filepath.h"
 #include "timefun.h"
@@ -48,6 +49,9 @@ static std::ostream& logMsgStrm()
 #else
     static std::ostream* strm = 0;
     if ( strm ) return *strm;
+
+    if ( GetEnvVarYN("OD_LOG_STDERR") )
+	{ strm = &std::cerr; return *strm; }
 
     const char* basedd = GetBaseDataDir();
     if ( !File_isDirectory( basedd ) )
