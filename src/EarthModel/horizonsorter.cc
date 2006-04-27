@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          April 2006
- RCS:           $Id: horizonsorter.cc,v 1.2 2006-04-27 15:29:13 cvskris Exp $
+ RCS:           $Id: horizonsorter.cc,v 1.3 2006-04-27 20:38:37 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -93,8 +93,10 @@ void HorizonSorter::sort()
 {
     sortedids_ = unsortedids_;
     const int nrhors = unsortedids_.size();
+    const int maxnrloops = nrhors * nrhors;
     int nrswaps = 0;
-    while ( true )
+    int nrloops;
+    while ( nrloops < maxnrloops )
     {
 	nrswaps = 0;
 	for ( int idx=0; idx<nrhors; idx++ )
@@ -117,6 +119,8 @@ void HorizonSorter::sort()
 
 	if ( nrswaps == 0 )
 	    break;
+
+	nrloops++;
     }
 }
 
@@ -171,3 +175,71 @@ int HorizonSorter::nextStep()
     nrdone_++;
     return MoreToDo;
 }
+
+/*
+// HorizonModifier
+// TODO: Move to new file
+
+HorizonModifier::HorizonModifier()
+    : tophor_(0)
+    , bothor_(0)
+    , topisstatic_(true)
+{
+}
+
+
+HorizonModifier::~HorizonModifier()
+{
+}
+
+
+bool HorizonModifier::setHorizons( const MultiID& top, const MultiID& bot )
+{
+    EM::ObjectID objid = EM::EMM().getObjectID( top );
+    mDynamicCastGet(EM::Horizon*,tophor,EM::EMM().getObject(objid))
+    tophor_ = tophor;
+
+    objid = EM::EMM().getObjectID( bot );
+    mDynamicCastGet(EM::Horizon*,bothor,EM::EMM().getObject(objid))
+    bothor_ = bothor;
+
+    if ( tophor_ && bothor_ )
+    {
+	tophor_->ref();
+	bothor_->ref();
+    }
+
+    return tophor_ && bothor_;
+}
+
+
+void HorizonModifier::setMode( ModifyMode mode )
+{
+}
+
+
+void HorizonModifier::setStaticHorizon( bool top )
+{
+    topisstatic_ = top;
+}
+
+
+void HorizonModifier::modify()
+{
+    StepInterval<int> rrg = tophor_->geometry.rowRange();
+    StepInterval<int> crg = tophor_->geometry.colRange();
+    HorSampling hrg.set( rrg, crg );
+
+    rrg = bothor_->geometry.rowRange();
+    crg = bothor_->geometry.colRange();
+    hrg.include( BinID(rrg.start,crg.start) );
+    hrg.include( BinID(rrg.stop,crg.stop) );
+
+    BinID bid;
+    HorSamplingIterator iterator( hrg );
+    while ( iterator.next(binid) )
+    {
+    }
+}
+
+*/
