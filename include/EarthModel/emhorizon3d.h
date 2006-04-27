@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emhorizon3d.h,v 1.43 2006-04-27 15:29:13 cvskris Exp $
+ RCS:		$Id: emhorizon3d.h,v 1.44 2006-04-27 16:22:06 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -75,6 +75,7 @@ public:
     static const char*	typeStr();
     static EMObject*	create(EMManager&);
     static void		initClass(EMManager&);
+    void		removeAll();
 
     HorizonGeometry&		geometry();
     const HorizonGeometry&	geometry() const;
@@ -97,7 +98,6 @@ public:
 protected:
 	    		Horizon(EMManager&);
 	    		~Horizon();
-    void		removeAll();
     void		fillPar(IOPar&) const;
     bool		usePar( const IOPar& );
     const IOObjContext&	getIOObjContext() const;
