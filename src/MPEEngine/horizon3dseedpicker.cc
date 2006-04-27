@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizon3dseedpicker.cc,v 1.10 2006-04-12 12:50:42 cvsjaap Exp $";
+static const char* rcsID = "$Id: horizon3dseedpicker.cc,v 1.11 2006-04-27 08:16:11 cvsjaap Exp $";
 
 #include "horizonseedpicker.h"
 
@@ -124,6 +124,7 @@ bool HorizonSeedPicker::retrackOnActiveLine( BinID startbid,
 	startwasdefined = false;
     }
     
+    trackbounds_.erase();
     TypeSet<EM::PosID> candidatejunctionpairs;
 
     extendSeedListEraseInBetween( wholeline, startbid, startwasdefined, -dir, 
@@ -162,40 +163,52 @@ void HorizonSeedPicker::extendSeedListEraseInBetween(
 
     while ( true )
     {
+	const BinID prevbid = curbid;
 	const EM::PosID prevpid = curpid;
 	const bool prevdefined = curdefined;
 	
-    	curbid += dir ;
+    	curbid += dir;
+	
+	// reaching end of survey
 	if ( !engine().activeVolume().hrg.includes(curbid) )
+	{
+	    if  ( seedconmode_==TrackFromSeeds )
+		trackbounds_ += prevbid;
 	    return;
+	}
+	
 	curpid = EM::PosID( emobj->id(), sectionid_, curbid.getSerialized() ); 
 	curdefined = emobj->isDefined(curpid);
 
+	// running into a seed point
 	if ( emobj->isPosAttrib( curpid, EM::EMObject::sSeedNode ) )
 	{
-	    if  ( wholeline || seedconmode_!=TrackFromSeeds )
-	    {
-		seedlist_ += curpid;
-		seedpos_ += emobj->getPos( curpid );
-	    }
+	    seedlist_ += curpid;
+	    seedpos_ += emobj->getPos( curpid );
+	    
 	    if ( !wholeline )
 		return;
 	    
 	    continue;
 	}
 	
+	// running into a loose end
 	if ( !wholeline && !prevdefined && curdefined )
 	{
-	    if  ( seedconmode_!=TrackFromSeeds )
+	    if  ( seedconmode_==DrawBetweenSeeds )
 	    {
 		seedlist_ += curpid;
 		seedpos_ += emobj->getPos( curpid );
 	    }
+	    else
+		trackbounds_ += curbid;
+
 	    candidatejunctionpairs += prevpid;
 	    candidatejunctionpairs += curpid;
 	    return;
 	}
 
+	// erasing points attached to start
 	if ( curdefined ) 
 	    emobj->unSetPos( curpid, true );
     }
@@ -236,9 +249,7 @@ bool HorizonSeedPicker::retrackFromSeedList()
 	    mDynamicCastGet( AutoTracker*, autotrk, exec );
 	    if ( !autotrk )
 		break;
-
-	    if ( seedconmode_ == TrackBetweenSeeds )
-		autotrk->setTrackBoundary( getSeedBox() );
+	    autotrk->setTrackBoundary( getTrackBox() );
 	    autotrk->setNewSeeds( seedlist_ );
 	    autotrk->execute();
 	    autotrk->unsetTrackBoundary();
@@ -364,17 +375,21 @@ bool HorizonSeedPicker::interpolateSeeds()
 }
 
 
-CubeSampling HorizonSeedPicker::getSeedBox() const
+CubeSampling HorizonSeedPicker::getTrackBox() const
 {
-    CubeSampling seedbox( true );
-    seedbox.hrg.init( false );
+    CubeSampling trackbox( true );
+    trackbox.hrg.init( false );
     for ( int idx=0; idx<seedpos_.size(); idx++ )
     {
 	const BinID seedbid = SI().transform( seedpos_[idx] );
 	if ( engine().activeVolume().hrg.includes(seedbid) )
-	    seedbox.hrg.include( seedbid );
+	    trackbox.hrg.include( seedbid );
     }
-    return seedbox;
+
+    for ( int idx=0; idx<trackbounds_.size(); idx++ )
+	trackbox.hrg.include( trackbounds_[idx] );
+    
+    return trackbox;
 }
 
 
