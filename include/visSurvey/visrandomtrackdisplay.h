@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		January 2003
- RCS:		$Id: visrandomtrackdisplay.h,v 1.45 2006-03-09 17:26:20 cvskris Exp $
+ RCS:		$Id: visrandomtrackdisplay.h,v 1.46 2006-04-27 21:28:49 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -24,7 +24,7 @@ class BinID;
 namespace visBase { class TriangleStripSet; class MultiTexture2; 
 		    class EventCatcher; class RandomTrackDragger; };
 
-namespace Attrib { class SelSpec; class ColorSelSpec; }
+namespace Attrib { class SelSpec; }
 
 namespace visSurvey
 {

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvobj.h,v 1.59 2006-04-04 08:25:35 cvsjaap Exp $
+ RCS:		$Id: vissurvobj.h,v 1.60 2006-04-27 21:28:49 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -29,7 +29,7 @@ class SeisTrcBuf;
 class ZAxisTransform;
 
 namespace visBase { class Transformation; class EventInfo; };
-namespace Attrib  { class SelSpec; class DataCubes; class ColorSelSpec; }
+namespace Attrib  { class SelSpec; class DataCubes; }
 
 namespace visSurvey
 {

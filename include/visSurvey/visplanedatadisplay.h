@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visplanedatadisplay.h,v 1.76 2006-04-13 20:15:49 cvskris Exp $
+ RCS:		$Id: visplanedatadisplay.h,v 1.77 2006-04-27 21:28:49 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -32,7 +32,7 @@ namespace visBase
 };
 
 
-namespace Attrib { class SelSpec; class ColorSelSpec; class DataCubes; }
+namespace Attrib { class SelSpec; class DataCubes; }
 
 namespace visSurvey
 {
