@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: horizon3dseedpicker.h,v 1.9 2006-04-07 14:31:47 cvsjaap Exp $
+ RCS:           $Id: horizon3dseedpicker.h,v 1.10 2006-04-27 08:17:27 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -62,10 +62,11 @@ protected:
     bool		retrackFromSeedList();
     int			nrLateralConnections( const BinID& ) const;
     bool		interpolateSeeds();
-    CubeSampling	getSeedBox() const;
+    CubeSampling	getTrackBox() const;
 
     TypeSet<EM::PosID>	seedlist_;
     TypeSet<Coord3>	seedpos_;
+    TypeSet<BinID>	trackbounds_;
     bool		didchecksupport_;
     EM::SectionID	sectionid_;
     MPE::EMTracker&	tracker_;
