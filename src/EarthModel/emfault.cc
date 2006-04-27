@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Fredman
  Date:          Sep 2002
- RCS:           $Id: emfault.cc,v 1.34 2005-10-18 18:34:29 cvskris Exp $
+ RCS:           $Id: emfault.cc,v 1.35 2006-04-27 15:29:13 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,10 +35,15 @@ EMObject* Fault::create( EMManager& emm )
 
 
 Fault::Fault( EMManager& em )
-    : Surface(em,*new FaultGeometry(*this))
+    : Surface(em)
+    , geometry_( *this )
 {
-    geometry.addSection( "", false );
+    geometry_.addSection( "", false );
 }
+
+
+FaultGeometry& Fault::geometry()
+{ return geometry_; }
 
 
 const IOObjContext& Fault::getIOObjContext() const
@@ -48,8 +53,6 @@ const IOObjContext& Fault::getIOObjContext() const
 FaultGeometry::FaultGeometry( Fault& flt )
     : SurfaceGeometry(flt)
 {
-    loadedstep_ = BinID(1,1);
-    step_ = BinID(1,1);
 }
 
 
@@ -57,8 +60,16 @@ FaultGeometry::~FaultGeometry()
 {}
 
 
-Geometry::ParametricSurface* FaultGeometry::createSectionSurface() const
-{ return new Geometry::CubicBezierSurface( loadedstep_ ); }
+Geometry::CubicBezierSurface*
+FaultGeometry::sectionGeometry( const EM::SectionID& sid )
+{
+    Geometry::Element* res = SurfaceGeometry::sectionGeometry( sid );
+    return reinterpret_cast<Geometry::CubicBezierSurface*>( res );
+}
+
+
+Geometry::CubicBezierSurface* FaultGeometry::createSectionGeometry() const
+{ return new Geometry::CubicBezierSurface( RowCol(1,1) ); }
 
 
 

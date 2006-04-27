@@ -8,12 +8,12 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emsurfaceedgeline.cc,v 1.29 2005-10-12 21:25:57 cvskris Exp $";
+static const char* rcsID = "$Id: emsurfaceedgeline.cc,v 1.30 2006-04-27 15:29:13 cvskris Exp $";
    
 
 #include "emsurfaceedgeline.h"
 #include "emmanager.h"
-#include "emsurface.h"
+#include "emhorizon.h"
 #include "emsurfacegeometry.h"
 #include "emhistory.h"
 #include "executor.h"
@@ -46,15 +46,15 @@ const char* EdgeLineManager::sectionkey = "Sectionlines ";
 mEdgeLineSegmentFactoryEntry(EdgeLineSegment);
 
 
-EdgeLineSegment::EdgeLineSegment( Surface& surf, const SectionID& sect )
-    : surface( surf )
+EdgeLineSegment::EdgeLineSegment( Horizon& surf, const SectionID& sect )
+    : horizon_( surf )
     , section( sect )
     , notifier( 0 )
     {}
 
 
 EdgeLineSegment::EdgeLineSegment( const EdgeLineSegment& templ)
-    : surface( templ.surface )
+    : horizon_( templ.horizon_ )
     , section( templ.section )
     , nodes( templ.nodes )
     , notifier( 0 )
@@ -64,13 +64,13 @@ EdgeLineSegment::EdgeLineSegment( const EdgeLineSegment& templ)
 EdgeLineSegment::~EdgeLineSegment()
 {
     if ( notifier )
-	surface.notifier.remove(mCB(this,EdgeLineSegment,posChangeCB));
+	horizon_.notifier.remove(mCB(this,EdgeLineSegment,posChangeCB));
 
     delete notifier;
 }
 
 
-bool EdgeLineSegment::shouldSurfaceTrack(int,const RowCol& trackdir) const
+bool EdgeLineSegment::shouldHorizonTrack(int,const RowCol& trackdir) const
 { return true; }
 
 
@@ -84,7 +84,7 @@ bool EdgeLineSegment::haveIdenticalSettings( const EdgeLineSegment& seg ) const
 bool EdgeLineSegment::internalIdenticalSettings(
 					const EdgeLineSegment& seg) const
 {
-    return &surface==&seg.surface && section==seg.section;
+    return &horizon_==&seg.horizon_ && section==seg.section;
 }
 
 
@@ -197,18 +197,18 @@ bool EdgeLineSegment::isContinuedBy( const EdgeLineSegment* seg ) const
     if ( !seg ) return false;
     const int sz = size();
     return sz && seg->size() &&
-	   nodes[sz-1].isNeighborTo((*seg)[0], surface.geometry.step());
+	   nodes[sz-1].isNeighborTo((*seg)[0], horizon_.geometry().step());
 }
 
 
 bool EdgeLineSegment::isDefined( const RowCol& rc ) const
-{ return surface.geometry.isDefined( section, rc ); }
+{ return horizon_.isDefined( section, rc.getSerialized() ); }
 
 
 bool EdgeLineSegment::isAtEdge( const RowCol& rc ) const
 { 
-    const PosID pid( surface.id(), section, rc.getSerialized() );
-    return surface.geometry.isAtEdge(pid);
+    const PosID pid( horizon_.id(), section, rc.getSerialized() );
+    return horizon_.geometry().isAtEdge(pid);
 }
 
 
@@ -221,7 +221,7 @@ bool EdgeLineSegment::isByPassed( int idx, const EdgeLineSegment* prev,
 
     const RowCol& prevrc = idx ? nodes[idx-1] : (*prev)[prev->size()-1];
     const RowCol& nextrc = idx!=size()-1 ? nodes[idx+1] : (*next)[0];
-    if ( !prevrc.isNeighborTo(nextrc,surface.geometry.step(), true ) )
+    if ( !prevrc.isNeighborTo(nextrc,horizon_.geometry().step(), true ) )
 	return false;
 
     const RowCol& rc = nodes[idx];
@@ -237,7 +237,7 @@ bool EdgeLineSegment::isConnToNext(int idx) const
     if ( idx==size()-1 )
 	return true;
 
-    return nodes[idx].isNeighborTo( nodes[idx+1], surface.geometry.step(),
+    return nodes[idx].isNeighborTo( nodes[idx+1], horizon_.geometry().step(),
 	    			    true );
 }
 
@@ -246,7 +246,7 @@ bool EdgeLineSegment::isConnToPrev(int idx) const
 {
     if ( !idx ) return true;
 
-    return nodes[idx].isNeighborTo(nodes[idx-1],surface.geometry.step(),true );
+    return nodes[idx].isNeighborTo(nodes[idx-1],horizon_.geometry().step(),true );
 }
 
 
@@ -273,7 +273,7 @@ bool EdgeLineSegment::areAllNodesOutsideBad( int idx,
     int curdir = (prevdir+1)%dirs.size();
     while ( curdir!=nextdir )
     {
-	const RowCol nrc = cur+dirs[curdir]*surface.geometry.step();
+	const RowCol nrc = cur+dirs[curdir]*horizon_.geometry().step();
 	if ( isNodeOK(nrc) )
 	    return false;
 
@@ -317,7 +317,7 @@ NotifierAccess* EdgeLineSegment::changeNotifier()
     if ( !notifier )
     {
 	notifier = new Notifier<EdgeLineSegment>(this);
-	surface.notifier.notify(mCB(this,EdgeLineSegment,posChangeCB));
+	horizon_.notifier.notify(mCB(this,EdgeLineSegment,posChangeCB));
     }
 	
     return notifier;
@@ -329,11 +329,11 @@ bool EdgeLineSegment::trackWithCache( int start, bool forward,
 {
     if ( !size() ) return false;
     const RowCol& lastnode = nodes[start];
-    const RowCol& step = surface.geometry.step();
+    const RowCol& step = horizon_.geometry().step();
     RowCol backnode;
     if ( !getNeighborNode(start, !forward, backnode, prev, next ) )
     {
-	if ( !getSurfaceStart( start, !forward, backnode ) )
+	if ( !getHorizonStart( start, !forward, backnode ) )
 	    return false;
     }
 
@@ -406,7 +406,7 @@ void EdgeLineSegment::reverse()
 void EdgeLineSegment::makeLine( const RowCol& start, const RowCol& stop )
 {
     PtrMan<NotifyStopper> stopper = notifier ? new NotifyStopper(*notifier) : 0;
-    RCol::makeLine( start, stop, nodes, surface.geometry.step() );
+    RCol::makeLine( start, stop, nodes, horizon_.geometry().step() );
 
     if ( notifier )
     {
@@ -577,17 +577,17 @@ bool EdgeLineSegment::getNeighborNode( int idx, bool forward, RowCol& rc,
 	else return false;
     }
 
-    return nodes[idx].isNeighborTo(rc, surface.geometry.step(), true );
+    return nodes[idx].isNeighborTo(rc, horizon_.geometry().step(), true );
 }
 
 
-bool EdgeLineSegment::getSurfaceStart( int start, bool clockwise, 
+bool EdgeLineSegment::getHorizonStart( int start, bool clockwise, 
 					   RowCol& rc ) const
 {
     const TypeSet<RowCol>& dirs = RowCol::clockWiseSequence();
     const int nrdirs = dirs.size();
 
-    const RowCol& step = surface.geometry.step();
+    const RowCol& step = horizon_.geometry().step();
     const RowCol& centernode = nodes[start];
 
     //Find a place where it goes from undef to defined
@@ -622,7 +622,7 @@ bool EdgeLineSegment::getSurfaceStart( int start, bool clockwise,
 
 int EdgeLineSegment::findNeighborTo(RowCol const& rc, bool forward) const
 {
-    const RowCol& step = surface.geometry.step();
+    const RowCol& step = horizon_.geometry().step();
     if ( forward )
     {
 	for ( int idx=0; idx<size(); idx++ )
@@ -653,7 +653,7 @@ EdgeLineSegment::factories()
 
 
 EdgeLineSegment* EM::EdgeLineSegment::factory( const IOPar& par,
-       						   Surface&	surf,
+       						   Horizon&	surf,
 						   const SectionID& sect )
 {
     BufferString name;
@@ -699,8 +699,8 @@ void EdgeLineSegment::posChangeCB(CallBacker* cb)
 }
 
 
-EdgeLine::EdgeLine( EM::Surface& surf, const EM::SectionID& sect )
-    : surface( surf )
+EdgeLine::EdgeLine( EM::Horizon& surf, const EM::SectionID& sect )
+    : horizon_( surf )
     , section( sect )
     , t2d( 0 )
     , changenotifier(this)
@@ -710,7 +710,7 @@ EdgeLine::EdgeLine( EM::Surface& surf, const EM::SectionID& sect )
 
 EdgeLine* EM::EdgeLine::clone() const
 {
-    EdgeLine* res = new EdgeLine( surface, section );
+    EdgeLine* res = new EdgeLine( horizon_, section );
     for ( int idx=0; idx<segments.size(); idx++ )
     {
 	EdgeLineSegment* seg = segments[idx]->clone();
@@ -740,7 +740,7 @@ void EdgeLine::setSection( const EM::SectionID& s )
 
 int EdgeLine::getSegment( const EM::PosID& pos, int* seq ) const
 {
-    if ( pos.objectID()!=surface.id() || pos.sectionID()!=section )
+    if ( pos.objectID()!=horizon_.id() || pos.sectionID()!=section )
 	return -1;
 
     return getSegment( RowCol(pos.subID()), seq );
@@ -795,7 +795,7 @@ bool EdgeLine::isClosed() const
 	if ( !segsize )
 	    continue;
 
-	return first.isNeighborTo((*segments[idx])[segsize-1], surface.geometry.step(),
+	return first.isNeighborTo((*segments[idx])[segsize-1], horizon_.geometry().step(),
 				  true );
     }
 
@@ -805,7 +805,7 @@ bool EdgeLine::isClosed() const
 
 bool EdgeLine::isInside( const EM::PosID& pid, bool undefval ) const
 {
-    if ( pid.objectID()!=surface.id() || pid.sectionID()!=section )
+    if ( pid.objectID()!=horizon_.id() || pid.sectionID()!=section )
 	return undefval;
 
     return isInside( RowCol(pid.subID()), undefval );
@@ -880,7 +880,7 @@ bool EdgeLine::isHole() const
     if ( !isClosed() )
 	return false;
 
-    const RowCol& step = surface.geometry.step();
+    const RowCol& step = horizon_.geometry().step();
 
     TypeSet<RowCol> rcs;
     RowCol prevrc;
@@ -970,7 +970,7 @@ int EdgeLine::computeArea() const
     int layer1start = 0;
 
     const TypeSet<RowCol>& dirs = RowCol::clockWiseSequence();
-    const RowCol& step = surface.geometry.step();
+    const RowCol& step = horizon_.geometry().step();
     for ( int idx=0; idx<layer2start+2; idx++ )
     {
 	const RowCol backnode = nodesinside[(idx)%layer2start];
@@ -1168,7 +1168,7 @@ bool EdgeLine::reTrackLine()
 
 bool EdgeLine::repairLine()
 {
-    const RCol& step = surface.geometry.step();
+    const RCol& step = horizon_.geometry().step();
 
     for ( int idz=0; idz<nrSegments(); idz++ )
     {
@@ -1311,7 +1311,7 @@ bool EdgeLine::repairLine()
 	    else
 	    {
 		EM::EdgeLineSegment* helpsegment = new
-		    EM::EdgeLineSegment( surface, section );
+		    EM::EdgeLineSegment( horizon_, section );
 		helpsegment->insert(0,rcs);
 		insertSegment( helpsegment, -1, true );
 	    }
@@ -1433,7 +1433,7 @@ bool EdgeLine::usePar( const IOPar& par )
 	    continue;
 
 	EdgeLineSegment* els = EM::EdgeLineSegment::factory( *segmentpar,
-				    surface, section );
+				    horizon_, section );
 	if ( !els )
 	    continue;
 
@@ -1467,7 +1467,7 @@ int EdgeLine::findNeighborTo( const RowCol& rc, int startseg, int startpos,
     EdgeLineIterator iter( *this, forward, startseg, startpos );
     if ( !iter.isOK() ) return -1;
 
-    const RowCol& step = surface.geometry.step();
+    const RowCol& step = horizon_.geometry().step();
 
     do
     {
@@ -1499,7 +1499,7 @@ void EdgeLine::reduceSegments()
 	EdgeLineSegment& curseg = *segments[idx];
 	EdgeLineSegment& nextseg = *segments[(idx+1)%segments.size()];
 	if ( &curseg!=&nextseg &&
-	     curseg.last().isNeighborTo(nextseg.first(), surface.geometry.step() ) &&
+	     curseg.last().isNeighborTo(nextseg.first(), horizon_.geometry().step() ) &&
 	     curseg.haveIdenticalSettings(nextseg) )
 	{
 	    for ( int idy=0; idy<nextseg.size(); idy++ )
@@ -1577,13 +1577,13 @@ bool EdgeLineIterator::next()
 
 PosID EdgeLineIterator::current() const
 {
-    const Surface& surface = el.getSurface();
-    return PosID(surface.id(),el.getSection(),currentRowCol().getSerialized() );
+    const Horizon& horizon_ = el.getHorizon();
+    return PosID(horizon_.id(),el.getSection(),currentRowCol().getSerialized() );
 }
 
 
-EdgeLineSet::EdgeLineSet(EM::Surface& surf, const EM::SectionID& sect)
-    : surface(surf), section(sect), changenotifier(this)
+EdgeLineSet::EdgeLineSet(EM::Horizon& surf, const EM::SectionID& sect)
+    : horizon_(surf), section(sect), changenotifier(this)
 {}
 
 
@@ -1596,7 +1596,7 @@ EdgeLineSet::~EdgeLineSet()
 
 EdgeLineSet* EM::EdgeLineSet::clone() const
 {
-    EdgeLineSet* res = new EdgeLineSet( surface, section );
+    EdgeLineSet* res = new EdgeLineSet( horizon_, section );
     for ( int idx=0; idx<lines.size(); idx++ )
     {
 	EdgeLine* line = lines[idx]->clone();
@@ -1684,8 +1684,8 @@ bool EdgeLineSet::removeAllNodesOutsideLines()
 	    nonholes += lines[idx];
     }
 
-    const StepInterval<int> rowrange = surface.geometry.rowRange(section);
-    const StepInterval<int> colrange = surface.geometry.colRange(section);
+    const StepInterval<int> rowrange = horizon_.geometry().rowRange(section);
+    const StepInterval<int> colrange = horizon_.geometry().colRange(section);
 
     
     for ( int row=rowrange.start; row<=rowrange.stop; row+=rowrange.step )
@@ -1693,10 +1693,10 @@ bool EdgeLineSet::removeAllNodesOutsideLines()
 	for ( int col=colrange.start; col<=colrange.stop; col+=colrange.step )
 	{
 	    const RowCol rc(row,col);
-	    if ( !surface.geometry.isDefined(section,rc) )
+	    if ( !horizon_.isDefined(section,rc.getSerialized()) )
 		continue;
 
-	    const PosID pid(surface.id(),section,rc.getSerialized());
+	    const PosID pid(horizon_.id(),section,rc.getSerialized());
 
 	    bool foundinnonhole = false;
 	    for ( int idx=0; idx<nonholes.size(); idx++ )
@@ -1724,7 +1724,7 @@ bool EdgeLineSet::removeAllNodesOutsideLines()
 		    continue;
 	    }
 
-	    surface.unSetPos(pid,true);
+	    horizon_.unSetPos(pid,true);
 	}
     }
 
@@ -1736,11 +1736,11 @@ bool EdgeLineSet::findLines( EdgeLineCreationFunc func )
 {
     removeAll();
 
-    const StepInterval<int> rowrange = surface.geometry.rowRange();
+    const StepInterval<int> rowrange = horizon_.geometry().rowRange();
     if ( rowrange.width(false)<2 )
 	return false;
 
-    const StepInterval<int> colrange = surface.geometry.colRange();
+    const StepInterval<int> colrange = horizon_.geometry().colRange();
     if ( colrange.width(false)<2 )
 	return false;
 
@@ -1749,17 +1749,17 @@ bool EdgeLineSet::findLines( EdgeLineCreationFunc func )
 	for ( int col=colrange.start; col<=colrange.stop;col+=colrange.step)
 	{
 	    const RowCol rc( row, col );
-	    const PosID pid(surface.id(),rc.getSerialized() );
+	    const PosID pid(horizon_.id(),rc.getSerialized() );
 
 	    TypeSet<PosID> linkedpos;
-	    surface.geometry.getLinkedPos( pid, linkedpos );
+	    horizon_.geometry().getLinkedPos( pid, linkedpos );
 	    if ( linkedpos.size() )
 	    {
 		//Todo
 		continue;
 	    }
 
-	    if ( surface.geometry.isAtEdge(pid) )
+	    if ( horizon_.geometry().isAtEdge(pid) )
 	    {
 		bool found = false;
 		for ( int idx=0; idx<lines.size(); idx++ )
@@ -1774,7 +1774,7 @@ bool EdgeLineSet::findLines( EdgeLineCreationFunc func )
 		if ( found ) 
 		    continue;
 
-		EdgeLineSegment* els = func( surface, section );
+		EdgeLineSegment* els = func( horizon_, section );
 		(*els) += rc;
 		int idx=0;
 		while ( els->track(idx++,true) )
@@ -1782,7 +1782,7 @@ bool EdgeLineSet::findLines( EdgeLineCreationFunc func )
 
 		if ( els->isClosed() )
 		{
-		    EdgeLine* el = new EdgeLine( surface, section );
+		    EdgeLine* el = new EdgeLine( horizon_, section );
 		    el->changenotifier.notify(
 			    mCB(this,EdgeLineSet, changedLineCB ));
 		    lines += el;
@@ -1840,7 +1840,7 @@ bool EdgeLineSet::usePar( const IOPar& par )
 
 	PtrMan<IOPar> linepar = par.subselect(key);
 	if ( !linepar ) continue;
-	EdgeLine* el = new EdgeLine( surface, section );
+	EdgeLine* el = new EdgeLine( horizon_, section );
 	if ( !el->usePar( *linepar ) )
 	{
 	    delete el;
@@ -1855,8 +1855,8 @@ bool EdgeLineSet::usePar( const IOPar& par )
 }
 
 
-EdgeLineManager::EdgeLineManager( EM::Surface& surf )
-    : surface(surf)
+EdgeLineManager::EdgeLineManager( EM::Horizon& surf )
+    : horizon_(surf)
     , addremovenotify( this )
 {
     linesets.allowNull();
@@ -1873,9 +1873,9 @@ EdgeLineManager::~EdgeLineManager()
 
 void EdgeLineManager::updateEL( CallBacker* )
 {
-    for ( int sidx=0; sidx<surface.geometry.nrSections(); sidx++ )
+    for ( int sidx=0; sidx<horizon_.geometry().nrSections(); sidx++ )
     {
-	EdgeLineSet* elset = getEdgeLineSet( surface.geometry.sectionID(sidx),
+	EdgeLineSet* elset = getEdgeLineSet( horizon_.geometry().sectionID(sidx),
 					     false );
 	if ( !elset ) continue;
 	for ( int lidx=0; lidx<elset->nrLines(); lidx++ )
@@ -1895,7 +1895,7 @@ const EdgeLineSet* EM::EdgeLineManager::getEdgeLineSet(
 EdgeLineSet* EM::EdgeLineManager::getEdgeLineSet(
 	const SectionID& section, bool create )
 {
-    const int sectionnr = surface.geometry.sectionNr(section);
+    const int sectionnr = horizon_.geometry().sectionIndex(section);
     if ( sectionnr==-1 )
 	return 0;
 
@@ -1903,7 +1903,7 @@ EdgeLineSet* EM::EdgeLineManager::getEdgeLineSet(
 
     if ( !linesets[sectionnr] && create )
     {
-	EdgeLineSet* els = new EdgeLineSet( surface, section );
+	EdgeLineSet* els = new EdgeLineSet( horizon_, section );
 	if ( !els->findLines() )
 	    delete els;
 	else
@@ -1926,7 +1926,7 @@ void  EdgeLineManager::cloneEdgeLineSet( const EM::SectionID& src,
     EdgeLineSet* els = srcset->clone();
     els->setSection( dst );
 
-    const int dstidx = surface.geometry.sectionNr(dst);
+    const int dstidx = horizon_.geometry().sectionIndex(dst);
     while ( dstidx>=linesets.size() ) linesets += 0;
     linesets.replace(dstidx, els);
     addremovenotify.trigger( dst );
@@ -1935,7 +1935,7 @@ void  EdgeLineManager::cloneEdgeLineSet( const EM::SectionID& src,
 
 void EdgeLineManager::removeSection( const SectionID& pid )
 {
-    const int nr = surface.geometry.sectionNr(pid);
+    const int nr = horizon_.geometry().sectionIndex(pid);
     if ( nr<0 || nr>=linesets.size() ) return;
     delete linesets[nr];
     linesets.remove(nr);
@@ -1945,7 +1945,7 @@ void EdgeLineManager::removeSection( const SectionID& pid )
 
 void EdgeLineManager::removeLineSet( const SectionID& pid )
 {
-    const int nr = surface.geometry.sectionNr(pid);
+    const int nr = horizon_.geometry().sectionIndex(pid);
     if ( nr<0 || nr>=linesets.size() ) return;
     delete linesets[nr];
     linesets.replace(nr,0);
@@ -1969,15 +1969,15 @@ void EdgeLineManager::removeAll()
 
 void EdgeLineManager::fillPar( IOPar& par ) const
 {
-    for ( int idx=0; idx<surface.geometry.nrSections(); idx++ )
+    for ( int idx=0; idx<horizon_.geometry().nrSections(); idx++ )
     {
-	const EdgeLineSet* els = getEdgeLineSet(surface.geometry.sectionID(idx) );
+	const EdgeLineSet* els = getEdgeLineSet(horizon_.geometry().sectionID(idx) );
 	if ( !els ) continue;
 
 	IOPar elspar;
 	els->fillPar( elspar );
 	BufferString key = sectionkey;
-	key += surface.geometry.sectionID(idx);
+	key += horizon_.geometry().sectionID(idx);
 	par.mergeComp( elspar, key );
     }
 }
@@ -1986,15 +1986,15 @@ void EdgeLineManager::fillPar( IOPar& par ) const
 bool EdgeLineManager::usePar( const IOPar& par )
 {
     removeAll();
-    for ( int idx=0; idx<surface.geometry.nrSections(); idx++ )
+    for ( int idx=0; idx<horizon_.geometry().nrSections(); idx++ )
     {
 	BufferString key = sectionkey;
-	key += surface.geometry.sectionID(idx);
+	key += horizon_.geometry().sectionID(idx);
 
 	PtrMan<IOPar> elspar = par.subselect(key);
 	if ( !elspar ) continue;
 
-	EdgeLineSet* els = new EdgeLineSet( surface, surface.geometry.sectionID(idx) );
+	EdgeLineSet* els = new EdgeLineSet( horizon_, horizon_.geometry().sectionID(idx) );
 	if ( !els->usePar( *elspar ) )
 	{
 	    delete els;

@@ -7,19 +7,36 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		9-04-2002
- RCS:		$Id: emfault.h,v 1.25 2005-10-18 20:16:43 cvskris Exp $
+ RCS:		$Id: emfault.h,v 1.26 2006-04-27 15:29:13 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 #include "emsurface.h"
 #include "emsurfacegeometry.h"
+#include "cubicbeziersurface.h"
+
 
 template <class T> class SortedList;
-namespace Geometry { class MeshSurface; };
 
 namespace EM
 {
+class Fault;
+
+class FaultGeometry : public SurfaceGeometry
+{
+public:
+    			FaultGeometry( Fault& );
+			~FaultGeometry();
+
+    Geometry::CubicBezierSurface*
+			sectionGeometry(const EM::SectionID&);
+
+protected:
+    Geometry::CubicBezierSurface*	createSectionGeometry() const;
+};
+
+
 
 /*!\brief
 
@@ -33,6 +50,8 @@ public:
 
     const char*			getTypeStr() const { return typeStr(); }
 
+    FaultGeometry&		geometry();
+
 protected:
 				Fault(EMManager&);
 
@@ -41,19 +60,7 @@ protected:
 
     friend class		EMManager;
     friend class		EMObject;
-
-};
-
-
-
-class FaultGeometry : public SurfaceGeometry
-{
-public:
-    			FaultGeometry( Fault& );
-			~FaultGeometry();
-
-protected:
-    Geometry::ParametricSurface*	createSectionSurface() const;
+    FaultGeometry		geometry_;
 };
 
 

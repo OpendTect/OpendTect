@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfaceedgeline.h,v 1.17 2005-09-20 16:01:37 cvsnanne Exp $
+ RCS:		$Id: emsurfaceedgeline.h,v 1.18 2006-04-27 15:29:13 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -23,9 +23,9 @@ namespace EM
 {
 
 class EdgeLineSegment;
-class Surface;
+class Horizon;
 class SurfaceRelation;
-typedef EdgeLineSegment*(*EdgeLineCreationFunc)(EM::Surface&, const SectionID&);
+typedef EdgeLineSegment*(*EdgeLineCreationFunc)(EM::Horizon&, const SectionID&);
 
 /*!\brief
 
@@ -33,7 +33,7 @@ typedef EdgeLineSegment*(*EdgeLineCreationFunc)(EM::Surface&, const SectionID&);
 
 #define mEdgeLineSegmentClone(clss,clssname) \
 virtual EdgeLineSegment* clone() const { return new clss(*this); } \
-static clss* create( EM::Surface& surf, const EM::SectionID& sect ) \
+static clss* create( EM::Horizon& surf, const EM::SectionID& sect ) \
 			{ return new clss( surf, sect ); } \
 static const char* sClassName() { return #clssname; } \
 virtual const char* className() const { return clss::sClassName(); }
@@ -51,13 +51,13 @@ class EdgeLineSegment : public CallBackClass
 public:
     				mEdgeLineSegmentClone(EdgeLineSegment,Default);
 
-			EdgeLineSegment( EM::Surface&, const EM::SectionID& );
+			EdgeLineSegment( EM::Horizon&, const EM::SectionID& );
 			EdgeLineSegment( const EdgeLineSegment& );
 			~EdgeLineSegment();
     void		setSection(const EM::SectionID& s) { section=s; }
     virtual void	setTime2Depth(const FloatMathFunction*) {}
-    virtual bool	shouldSurfaceTrack(int,const RowCol& trackdir) const;
-    virtual bool	shouldSurfaceExpand() const { return false; }
+    virtual bool	shouldHorizonTrack(int,const RowCol& trackdir) const;
+    virtual bool	shouldHorizonExpand() const { return false; }
 
     bool		haveIdenticalSettings( const EdgeLineSegment& ) const;
     			/*!<\returns true if the segments are of the same
@@ -107,11 +107,11 @@ public:
     virtual bool	usePar( const IOPar& );
 
     NotifierAccess*	changeNotifier();
-    static EM::EdgeLineSegment*	factory(const IOPar&,EM::Surface& surf,
+    static EM::EdgeLineSegment*	factory(const IOPar&,EM::Horizon& surf,
 	    				const EM::SectionID& sect);
 
-    const EM::Surface&	getSurface() const { return surface; }
-    EM::Surface&	getSurface() { return surface; }
+    const EM::Horizon&	getHorizon() const { return horizon_; }
+    EM::Horizon&	getHorizon() { return horizon_; }
     EM::SectionID	getSection() const { return section; }
 
     const TypeSet<RowCol>&	getNodes() const { return nodes; }
@@ -148,9 +148,9 @@ protected:
     bool		getNeighborNode(int idx, bool forward, RowCol&,
 	    				const EdgeLineSegment* prev,
 	    				const EdgeLineSegment* next ) const;
-    bool		getSurfaceStart( int idx,bool clockwise,RowCol& ) const;
+    bool		getHorizonStart( int idx,bool clockwise,RowCol& ) const;
 
-    EM::Surface&	surface;
+    EM::Horizon&	horizon_;
     EM::SectionID	section;
 
     static const char*	key;
@@ -184,7 +184,7 @@ public:
 class EdgeLine : public CallBackClass
 {
 public:
-    			EdgeLine( EM::Surface&, const EM::SectionID& );
+    			EdgeLine( EM::Horizon&, const EM::SectionID& );
     virtual		~EdgeLine() { deepErase( segments ); }
     virtual void	setTime2Depth(const FloatMathFunction*);
     EdgeLine*		clone() const;
@@ -212,7 +212,7 @@ public:
     bool		reTrackLine();
     bool		repairLine();
 
-    const EM::Surface&	getSurface() const { return surface; }
+    const EM::Horizon&	getHorizon() const { return horizon_; }
     EM::SectionID	getSection() const { return section; }
 
     void		getBoundingBox(RowCol& start,RowCol& stop) const;
@@ -237,7 +237,7 @@ protected:
     				/*!<Removes zero-length segments and
 				    joins neighbor segments with identical
 				    settings */
-    EM::Surface&		surface;
+    EM::Horizon&		horizon_;
     EM::SectionID		section;
 
     ObjectSet<EdgeLineSegment>	segments;
@@ -289,7 +289,7 @@ protected:
 class EdgeLineSet : public CallBackClass
 {
 public:
-    			EdgeLineSet( EM::Surface&, const EM::SectionID&);
+    			EdgeLineSet( EM::Horizon&, const EM::SectionID&);
     virtual		~EdgeLineSet();
 
     void		removeAll();
@@ -307,12 +307,12 @@ public:
     const EdgeLine*	getLine(int idx) const;
     EdgeLine*		getLine(int idx);
 
-    bool		adaptToSurface();
+    bool		adaptToHorizon();
     bool		findLines(EdgeLineCreationFunc=EdgeLineSegment::create);
     bool		removeAllNodesOutsideLines();
 
-    const EM::Surface&	getSurface() const		{ return surface; }
-    EM::Surface&	getSurface()			{ return surface; }
+    const EM::Horizon&	getHorizon() const		{ return horizon_; }
+    EM::Horizon&	getHorizon()			{ return horizon_; }
     EM::SectionID	getSection() const		{ return section; }
 
 
@@ -323,7 +323,7 @@ public:
 protected:
     void		changedLineCB(CallBacker*);
     ObjectSet<EdgeLine>	lines;
-    EM::Surface&	surface;
+    EM::Horizon&	horizon_;
     EM::SectionID	section;
 
     static const char*	nrlinesstr;
@@ -334,7 +334,7 @@ protected:
 class EdgeLineManager : public CallBackClass
 {
 public:
-    				EdgeLineManager(Surface&);
+    				EdgeLineManager(Horizon&);
     virtual			~EdgeLineManager();
     EdgeLineSet*		getEdgeLineSet(const EM::SectionID&,bool cr);
     const EdgeLineSet*		getEdgeLineSet(const EM::SectionID&) const;
@@ -351,7 +351,7 @@ public:
 
 protected:
     static const char*		sectionkey;
-    Surface&			surface;
+    Horizon&			horizon_;
     ObjectSet<EdgeLineSet>	linesets;
 
     void			updateEL(CallBacker*);

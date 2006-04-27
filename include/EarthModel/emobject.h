@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emobject.h,v 1.56 2005-12-13 16:50:26 cvskris Exp $
+ RCS:		$Id: emobject.h,v 1.57 2006-04-27 15:29:13 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -82,26 +82,26 @@ public:
     BufferString		name() const;
 
     virtual int			nrSections() const 			= 0;
-    virtual SectionID		sectionID( int ) const			= 0;
-    virtual BufferString	sectionName( const SectionID& ) const;
+    virtual SectionID		sectionID(int) const			= 0;
+    virtual BufferString	sectionName(const SectionID&) const;
     virtual bool		canSetSectionName() const;
-    virtual bool		setSectionName( const SectionID&, const char*,
-	    					bool addtohistory );
-    virtual int			sectionIndex( const SectionID& ) const;
+    virtual bool		setSectionName(const SectionID&,const char*,
+	    				       bool addtohistory);
+    virtual int			sectionIndex( const SectionID&) const;
     virtual bool		removeSection( SectionID, bool hist )
     					{ return false; }
 
-    const Geometry::Element*	getElement( SectionID ) const;
+    const Geometry::Element*	sectionGeometry(const SectionID&) const;
 
     const Color&		preferredColor() const;
     void			setPreferredColor(const Color&);
 
     virtual Coord3		getPos(const EM::PosID&) const;
     virtual Coord3		getPos(const EM::SectionID&,
-	    			       const EM::SubID& ) const;
-    virtual bool		isDefined( const EM::PosID& ) const;
-    virtual bool		isDefined( const EM::SectionID&,
-					   const EM::SubID& ) const;
+	    			       const EM::SubID&) const;
+    virtual bool		isDefined(const EM::PosID&) const;
+    virtual bool		isDefined(const EM::SectionID&,
+					  const EM::SubID&) const;
     virtual bool		setPos(const EM::PosID&,
 	    			       const Coord3&,
 				       bool addtohistory);
@@ -109,25 +109,30 @@ public:
 	    			       const EM::SubID&,
 	    			       const Coord3&,
 				       bool addtohistory);
-    virtual bool		unSetPos(const EM::PosID&, bool addtohistory );
-    virtual bool		isAtEdge( const EM::PosID& ) const;
+    virtual bool		unSetPos(const EM::PosID&,bool addtohistory);
 
-    void			changePosID( const EM::PosID& from, 
-	    				     const EM::PosID& to,
-					     bool addtohistory );
+
+    virtual bool		enableGeometryChecks(bool);
+    virtual bool		isGeometryChecksEnabled() const;
+
+    virtual bool		isAtEdge(const EM::PosID&) const;
+
+    void			changePosID(const EM::PosID& from, 
+	    				    const EM::PosID& to,
+					    bool addtohistory);
     				/*!<Tells the object that the node former known
 				    as from is now called to. Function will also
 				    exchange set the position of to to the 
 				    posion of from. */
 
-    virtual void		getLinkedPos( const EM::PosID& posid,
-					  TypeSet<EM::PosID>& ) const
+    virtual void		getLinkedPos(const EM::PosID& posid,
+					  TypeSet<EM::PosID>&) const
     					{ return; }
     				/*!< Gives positions on the object that are
 				     linked to the posid given
 				*/
 
-    virtual EMObjectIterator*	createIterator( const EM::SectionID& ) const
+    virtual EMObjectIterator*	createIterator(const EM::SectionID&) const
 				{ return 0; }
     				/*!< creates an interator. If the sectionid is
 				     -1, all sections will be traversed. */
@@ -136,28 +141,23 @@ public:
     virtual int			posAttrib(int idx) const;
     virtual void		removePosAttrib( int attr,
 	    					 bool addtohistory=true );
-    virtual void		setPosAttrib( const EM::PosID&,
-				    int attr, bool yn, bool addtohistory=true );
+    virtual void		setPosAttrib(const EM::PosID&,
+				    int attr,bool yn,bool addtohistory=true);
     				//!<Sets/unsets the posattrib depending on yn.
-    virtual bool		isPosAttrib(const EM::PosID&, int attr) const;
+    virtual bool		isPosAttrib(const EM::PosID&,int attr) const;
     virtual const char*		posAttribName(int) const;
     virtual int			addPosAttribName(const char*);
     const TypeSet<PosID>*	getPosAttribList(int) const;
 
     CNotifier<EMObject,const EMObjectCallbackData&>	notifier;
 
-    virtual Executor*		loader() { return 0; }
-    virtual bool		isLoaded() const {return false;}
-    virtual Executor*		saver() { return 0; }
-    virtual bool		isChanged( int what=-1 ) const
-    				{ return changed; }
-    				/*!<\param what	Says what the query is about.
-						-1 mean any change, all other
-						figures are dependent on impl.
-				*/
-    virtual void		resetChangedFlag(int what=-1) { changed=false; }
-    bool			isFullyLoaded() const { return fullyloaded; }
-    void			setFullyLoaded( bool yn ) { fullyloaded=yn; }
+    virtual Executor*		loader()		{ return 0; }
+    virtual bool		isLoaded() const	{ return false; }
+    virtual Executor*		saver()			{ return 0; }
+    virtual bool		isChanged() const	{ return changed; }
+    virtual void		resetChangedFlag()	{ changed=false; }
+    bool			isFullyLoaded() const	{ return fullyloaded; }
+    void			setFullyLoaded(bool yn) { fullyloaded=yn; }
 
     const char*			errMsg() const
     				{ return errmsg[0]
@@ -174,7 +174,7 @@ public:
     static int			sSeedNode;
 
 protected:
-    virtual Geometry::Element*	getElementInternal( SectionID ) { return 0; }
+    virtual Geometry::Element*	sectionGeometryInternal(const SectionID&);
 
     void			posIDChangeCB(CallBacker*);
     virtual const IOObjContext&	getIOObjContext() const = 0;

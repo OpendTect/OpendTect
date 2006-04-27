@@ -8,15 +8,14 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emsurfaceedgelineimpl.cc,v 1.22 2006-03-12 13:39:10 cvsbert Exp $";
+static const char* rcsID = "$Id: emsurfaceedgelineimpl.cc,v 1.23 2006-04-27 15:29:13 cvskris Exp $";
 
 
 
 #include "emsurfaceedgelineimpl.h"
 
 #include "emmanager.h"
-#include "emsurface.h"
-#include "emsurfacegeometry.h"
+#include "emhorizon.h"
 #include "emsurfacerelations.h"
 #include "executor.h"
 #include "iopar.h"
@@ -53,7 +52,7 @@ bool SurfaceConnectLine::internalIdenticalSettings(
 bool SurfaceConnectLine::isNodeOK(const RowCol& rc) const
 {
     return EdgeLineSegment::isNodeOK(rc) &&
-	   surface.geometry.isDefined(connectingsection,rc);
+	   horizon_.isDefined(connectingsection,rc.getSerialized());
 }
 
 
@@ -74,16 +73,16 @@ bool SurfaceConnectLine::usePar(const IOPar& par)
 }
 
 
-SurfaceCutLine::SurfaceCutLine( Surface& surf, const SectionID& sect )
+SurfaceCutLine::SurfaceCutLine( Horizon& surf, const SectionID& sect )
     : EdgeLineSegment( surf, sect )
     , t2d( 0 )
-    , cuttingsurface( 0 )
+    , cuttinghorizon_( 0 )
     , cutonpositiveside( false )
     , meshdist( getMeshDist() )
 {}
 
 
-bool SurfaceCutLine::shouldSurfaceTrack(int idx, const RowCol& dir) const
+bool SurfaceCutLine::shouldHorizonTrack(int idx, const RowCol& dir) const
 {
     if ( idx && idx!=size()-1 )
 	return false;
@@ -115,15 +114,16 @@ float SurfaceCutLine::getMeshDist()
 
 bool SurfaceCutLine::isNodeOK(const RowCol& testrc) const
 {
+    /*
     const int cacheidx = cacherc.indexOf(testrc,false);
 
     float disttosurface = mUdf(float);
     if ( cacheidx==-1 )
     {
-	const Coord3 ntpos = surface.getPos( section, testrc.getSerialized() );
+	const Coord3 ntpos = horizon_.getPos( section, testrc.getSerialized() );
 	if ( ntpos.isDefined() )
 	{
-	    disttosurface = cuttingsurface->geometry.normalDistance(ntpos,t2d);
+	    disttosurface = cuttinghorizon_->geometry().normalDistance(ntpos);
 	    if ( cutonpositiveside ) disttosurface = -disttosurface;
 	}
 
@@ -141,6 +141,8 @@ bool SurfaceCutLine::isNodeOK(const RowCol& testrc) const
 
 //  return fabs(disttosurface)<meshdist/2;
     return disttosurface<meshdist/2;
+    */
+    return true;
 }
 
 
@@ -148,7 +150,8 @@ bool SurfaceCutLine::trackWithCache( int start, bool forward,
 				     const EdgeLineSegment* prev,
 				     const EdgeLineSegment* next )
 {
-    if ( !cuttingsurface ) 
+    /*
+    if ( !cuttinghorizon_ ) 
 	return EdgeLineSegment::track( start, forward, prev, next );
 
     if ( size()>1 && isAtCuttingEdge(start) )
@@ -165,7 +168,7 @@ bool SurfaceCutLine::trackWithCache( int start, bool forward,
     RowCol backnode;
     if ( !getNeighborNode(start,!forward,backnode,prev,next) )
     {
-	if ( !getSurfaceStart(start,!forward,backnode) )
+	if ( !getHorizonStart(start,!forward,backnode) )
 	    return false;
     }
 
@@ -174,7 +177,7 @@ bool SurfaceCutLine::trackWithCache( int start, bool forward,
     const int nrdirs = dirs.size();
     int curdiridx = dirs.indexOf(backnodedir) + nrdirs;
 
-    const RowCol& step = surface.geometry.step();
+    const RowCol& step = horizon_.geometry().step();
 
     RowCol lastdefineddir;
     bool firstfound = false;
@@ -189,13 +192,13 @@ bool SurfaceCutLine::trackWithCache( int start, bool forward,
     float backnodedistance;
     if ( backnodecacheidx==-1 )
     {
-	const Coord3 pos = surface.getPos( section, backnode.getSerialized() );
+	const Coord3 pos = horizon_.getPos( section, backnode.getSerialized() );
 	poscache += pos;
 	if ( !pos.isDefined() )
 	    mSetUdf(backnodedistance);
 	else
 	{
-	    backnodedistance = cuttingsurface->geometry.normalDistance(pos,t2d);
+	    backnodedistance = cuttinghorizon_->geometry().normalDistance(pos,t2d);
 	    if ( cutonpositiveside ) backnodedistance = -backnodedistance;
 	}
 
@@ -225,13 +228,13 @@ bool SurfaceCutLine::trackWithCache( int start, bool forward,
 	float distance;
 	if ( cacheidx==-1 )
 	{
-	    const Coord3 pos = surface.getPos( section, currc.getSerialized() );
+	    const Coord3 pos = horizon_.getPos( section, currc.getSerialized() );
 	    poscache += pos;
 	    if ( !pos.isDefined() )
 		mSetUdf(distance);
 	    else
 	    {
-		distance = cuttingsurface->geometry.normalDistance(pos,t2d);
+		distance = cuttinghorizon_->geometry().normalDistance(pos,t2d);
 		if ( cutonpositiveside ) distance = -distance;
 	    }
 
@@ -258,7 +261,6 @@ bool SurfaceCutLine::trackWithCache( int start, bool forward,
 	    /* Normally, one node has to be on the 'wrong' part of the fault.
 	     * But if we are at the last node, we might make something out of
 	     * it anyway.
-	    */
 
 	    if ( idx==nrdirs-1 && bestidx==-1 )
 	    {
@@ -279,7 +281,7 @@ bool SurfaceCutLine::trackWithCache( int start, bool forward,
 		break;
 	    }
 
-	    /*If we are really close, check if we can get a match */
+	    // If we are really close, check if we can get a match 
 
 	    if ( zerodist )
 	    {
@@ -372,11 +374,11 @@ bool SurfaceCutLine::trackWithCache( int start, bool forward,
 	(*this) += newrc;
     else insert( 0, newrc );
 
-    /* TODO: Needs better testing. Gives weired results now
+    // TODO: Needs better testing. Gives weired results now
     if ( changebestposition )
     {
 	const int cacheindex = cacherc.indexOf(newrc);
-	float distance = cuttingsurface->geometry.normalDistance(bestpos,t2d);
+	float distance = cuttinghorizon_->geometry().normalDistance(bestpos,t2d);
 	if ( cutonpositiveside ) distance = -distance;
 	if ( cacheindex!=-1 )
 	{
@@ -400,7 +402,7 @@ bool SurfaceCutLine::trackWithCache( int start, bool forward,
 
 bool SurfaceCutLine::isAtCuttingEdge(int idx) const
 {
-    const Coord3 ntpos = surface.getPos(section,(*this)[idx].getSerialized());
+    const Coord3 ntpos = horizon_.getPos(section,(*this)[idx].getSerialized());
 
     const Interval<float> xinterval( ntpos.x-10, ntpos.x+10 );
     const Interval<float> yinterval( ntpos.y-10, ntpos.y+10 );
@@ -408,7 +410,7 @@ bool SurfaceCutLine::isAtCuttingEdge(int idx) const
     const Interval<float> zinterval( zrange.start, zrange.stop );
 
     TypeSet<PosID> cuttingnodes;
-    cuttingsurface->geometry.findPos( xinterval,yinterval,zinterval,
+    cuttinghorizon_->geometry().findPos( xinterval,yinterval,zinterval,
 				      &cuttingnodes );
     if ( !cuttingnodes.size() )
 	return false;
@@ -417,10 +419,10 @@ bool SurfaceCutLine::isAtCuttingEdge(int idx) const
     float closestabove, closestbelow;
     for ( int idy=0; idy<cuttingnodes.size(); idy++ )
     {
-	const Coord3 cuttingpos = cuttingsurface->getPos(cuttingnodes[idy]);
+	const Coord3 cuttingpos = cuttinghorizon_->getPos(cuttingnodes[idy]);
 	const float diff =  cuttingpos.z - ntpos.z;
 	if ( fabs(diff)<zrange.step/4 )
-	    return cuttingsurface->geometry.isAtEdge(cuttingnodes[idy]);
+	    return cuttinghorizon_->geometry().isAtEdge(cuttingnodes[idy]);
 
 	if ( diff>0 && ( closestaboveidx==-1  || diff<closestabove ))
 	{ closestabove = diff; closestaboveidx=idy; }
@@ -431,13 +433,13 @@ bool SurfaceCutLine::isAtCuttingEdge(int idx) const
     if ( closestaboveidx!=-1 && closestbelowidx!=-1 )
     {
 	return
-	    cuttingsurface->geometry.isAtEdge(cuttingnodes[closestaboveidx]) &&
-	    cuttingsurface->geometry.isAtEdge(cuttingnodes[closestbelowidx]);
+	    cuttinghorizon_->geometry().isAtEdge(cuttingnodes[closestaboveidx]) &&
+	    cuttinghorizon_->geometry().isAtEdge(cuttingnodes[closestbelowidx]);
     }
     else if ( closestaboveidx!=-1 )
-	return cuttingsurface->geometry.isAtEdge(cuttingnodes[closestaboveidx]);
+	return cuttinghorizon_->geometry().isAtEdge(cuttingnodes[closestaboveidx]);
     else if ( closestbelowidx!=-1 )
-	return cuttingsurface->geometry.isAtEdge(cuttingnodes[closestbelowidx]);
+	return cuttinghorizon_->geometry().isAtEdge(cuttingnodes[closestbelowidx]);
 
     return false;
 }
@@ -459,7 +461,7 @@ void SurfaceCutLine::commitChanges()
     {
 	if ( ischanged[idx] )
 	{
-	    surface.setPos( section, cacherc[idx].getSerialized(),
+	    horizon_.setPos( section, cacherc[idx].getSerialized(),
 		  	    poscache[idx], true );
 	    ischanged[idx] = false;
 	}
@@ -468,32 +470,35 @@ void SurfaceCutLine::commitChanges()
 
 #define mSetupCreateCut(createline) \
     const SectionRelations* relations = \
-				surface.relations.getRelations(section); \
+				horizon_.relations.getRelations(section); \
     if ( !relations || relidx>=relations->cuttingsurfaces.size() ) \
 	return 0; \
  \
-    mDynamicCastGet(Surface*,cuttingsurface, \
+    mDynamicCastGet(Horizon*,cuttinghorizon_, \
 	    	    EMM().getObject(relations->cuttingsurfaces[relidx])); \
     const SectionID& cuttingsection = relations->cuttingsections[relidx]; \
     const bool cutonposside = relations->cutpositiveside[relidx]; \
  \
-    if ( !cuttingsurface || \
-	 !surface.geometry.hasSection(section) || \
-	 !cuttingsurface->geometry.hasSection(cuttingsection) ) \
+    if ( !cuttinghorizon_ || \
+	 !horizon_.geometry().hasSection(section) || \
+	 !cuttinghorizon_->geometry().hasSection(cuttingsection) ) \
 	return 0; \
  \
     EdgeLineSet& elset = \
-	    *surface.edgelinesets.getEdgeLineSet(section,createline); \
+	    *horizon_.edgelinesets.getEdgeLineSet(section,createline); \
     if ( !&elset ) return 0
 
-SurfaceCutLine* SurfaceCutLine::createCutFromSeed( Surface& surface,
+SurfaceCutLine* SurfaceCutLine::createCutFromSeed( Horizon& horizon,
     const SectionID& section, int relidx, const RowCol& seed,
     bool bothdirs, const FloatMathFunction* t2d )
 {
+    return 0;
+
+    /*
     mSetupCreateCut(false);
 
-    SurfaceCutLine* scl = new SurfaceCutLine( surface, section );
-    scl->setCuttingSurface( cuttingsurface, cutonposside );
+    SurfaceCutLine* scl = new SurfaceCutLine( horizon, section );
+    scl->setCuttingSurface( cuttinghorizon_, cutonposside );
     scl->setTime2Depth( t2d );
     (*scl) += seed;
     if ( !scl->isNodeOK(seed) )
@@ -538,12 +543,15 @@ SurfaceCutLine* SurfaceCutLine::createCutFromSeed( Surface& surface,
     }
 
     return scl;
+    */
 }
 
 
-SurfaceCutLine* SurfaceCutLine::createCutFromEdges( Surface& surface,
+SurfaceCutLine* SurfaceCutLine::createCutFromEdges( Horizon& horizon,
    const SectionID& section, int relidx, const FloatMathFunction* t2d )
 {
+    return 0;
+    /*
     mSetupCreateCut(true);
 
     int lineidx = elset.getMainLine();
@@ -554,7 +562,7 @@ SurfaceCutLine* SurfaceCutLine::createCutFromEdges( Surface& surface,
 
     TypeSet<RowCol> border;
     TypeSet<float> distances;
-    computeDistancesAlongLine( el, *cuttingsurface, t2d, border, distances,
+    computeDistancesAlongLine( el, *cuttinghorizon, t2d, border, distances,
 	    			cutonposside, true );
     TypeSet<RowCol> forwardtrackstarts;
     TypeSet<RowCol> backwardtrackstarts;
@@ -616,8 +624,8 @@ SurfaceCutLine* SurfaceCutLine::createCutFromEdges( Surface& surface,
     {
 	const bool forward = trackforward[idx];
 	const int firstborderidx = border.indexOf(possibletrackstarts[idx]);
-	SurfaceCutLine* scl = new SurfaceCutLine( surface, section );
-	scl->setCuttingSurface( cuttingsurface, cutonposside );
+	SurfaceCutLine* scl = new SurfaceCutLine( horizon, section );
+	scl->setCuttingSurface( cuttinghorizon_, cutonposside );
 	scl->setTime2Depth( t2d );
 	(*scl) += possibletrackstarts[idx];
 	while ( scl->trackWithCache(forward ? scl->size()-1 : 0,forward,0,0) )
@@ -700,16 +708,18 @@ SurfaceCutLine* SurfaceCutLine::createCutFromEdges( Surface& surface,
     }
 
     return cutline;
+    */
 }
 
 
 
 void SurfaceCutLine::computeDistancesAlongLine( const EdgeLine& line,
-	const Surface& cuttingsurface, const  FloatMathFunction* t2d,
+	const Horizon& cuttinghorizon, const  FloatMathFunction* t2d,
 	TypeSet<RowCol>& border, TypeSet<float>& distances, bool negate,
 	bool usecaching )
 {
-    const Surface& surface = line.getSurface();
+    /*
+    const Horizon& horizon = line.getHorizon();
     const SectionID section = line.getSection();
     int furthestaway = -1;
 
@@ -725,8 +735,8 @@ void SurfaceCutLine::computeDistancesAlongLine( const EdgeLine& line,
 	const RowCol& rc = iterator.currentRowCol();
 	if ( !usecaching || !nodestonextcalc )
 	{
-	    const Coord3 coord = surface.getPos(section,rc.getSerialized() );
-	    dist = cuttingsurface.geometry.normalDistance( coord, t2d );
+	    const Coord3 coord = horizon.getPos(section,rc.getSerialized() );
+	    dist = cuttinghorizon.geometry().normalDistance( coord, t2d );
 	    if ( negate ) dist = -dist;
 	}
 
@@ -755,6 +765,7 @@ void SurfaceCutLine::computeDistancesAlongLine( const EdgeLine& line,
 	border.remove(0,furthestaway-1);
 	distances.remove(0,furthestaway-1);
     }
+    */
 }
 
 
@@ -762,7 +773,7 @@ bool SurfaceCutLine::internalIdenticalSettings(
 					const EdgeLineSegment& els_ ) const
 {
     const SurfaceCutLine* els = reinterpret_cast<const SurfaceCutLine*>(&els_);
-    return els->cuttingsurface==cuttingsurface &&
+    return els->cuttinghorizon_==cuttinghorizon_ &&
 	   els->cutonpositiveside==cutonpositiveside &&
 	   EdgeLineSegment::internalIdenticalSettings(els_);
 }
@@ -771,17 +782,18 @@ bool SurfaceCutLine::internalIdenticalSettings(
 float SurfaceCutLine::computeScore( const RowCol& targetrc,
 	bool& changescorepos, Coord3& scorepos, const RowCol* sourcerc )
 {
+    /*
     const int cacheidx = cacherc.indexOf(targetrc,false);
     float distance;
     Coord3 pos;
     if ( cacheidx==-1 )
     {
-	poscache += pos = surface.getPos( section, targetrc.getSerialized() );
+	poscache += pos = horizon_.getPos( section, targetrc.getSerialized() );
 	if ( !pos.isDefined() )
 	    mSetUdf(distance);
 	else
 	{
-	    distance = cuttingsurface->geometry.normalDistance(pos,t2d);
+	    distance = cuttinghorizon_->geometry().normalDistance(pos,t2d);
 	    if ( cutonpositiveside ) distance = -distance;
 	}
 
@@ -807,13 +819,13 @@ float SurfaceCutLine::computeScore( const RowCol& targetrc,
 	// If we don't find any cutting nodes, it might be that they are spaced
 	// with double spacing here (which is bad). If there is a cutting node
 	// in the continuation, we can give a score, since we are surrounded
-	// by the cutting surface
+	// by the cutting horizon
 	//
 	// Should perhaps be removed later
 	if ( !sourcerc )
 	    return mUdf(float);
 
-	const Coord backpos = surface.getPos(section,sourcerc->getSerialized());
+	const Coord backpos = horizon_.getPos(section,sourcerc->getSerialized());
 	const Coord diff( pos.x-backpos.x, pos.y-backpos.y);
 	const Coord targetpos(pos.x+diff.x,pos.y+diff.y);
 
@@ -834,7 +846,7 @@ float SurfaceCutLine::computeScore( const RowCol& targetrc,
     {
 	for ( int idy=0; idy<cuttingnodes.size(); idy++ )
 	{
-	    const Coord3 cuttingpos = cuttingsurface->getPos(cuttingnodes[idy]);
+	    const Coord3 cuttingpos = cuttinghorizon_->getPos(cuttingnodes[idy]);
 	    if ( cuttingpos.z>=pos.z )
 	    {
 		if ( closestaboveidx==-1 || cuttingpos.z<closestabove )
@@ -858,7 +870,7 @@ float SurfaceCutLine::computeScore( const RowCol& targetrc,
 	    const RowCol closestaboverc( cuttingnodes[closestaboveidx].subID());
 	    const RowCol closestbelowrc( cuttingnodes[closestbelowidx].subID());
 	    if ( !closestaboverc.isNeighborTo(closestbelowrc,
-					      cuttingsurface->geometry.step()) )
+					      cuttinghorizon_->geometry().step()) )
 	    {
 		if ( closestabove-pos.z<pos.z-closestbelow )
 		    scorepos.z = closestabove;
@@ -886,7 +898,7 @@ float SurfaceCutLine::computeScore( const RowCol& targetrc,
     }
     else
     {
-	const Coord3 cuttingpos = cuttingsurface->getPos(cuttingnodes[0]);
+	const Coord3 cuttingpos = cuttinghorizon_->getPos(cuttingnodes[0]);
 	scorepos.z = cuttingpos.z;
 	changescorepos = true;
     }
@@ -903,6 +915,8 @@ float SurfaceCutLine::computeScore( const RowCol& targetrc,
     }
 
     return score;
+    */
+	return 0;
 }
 
 
@@ -914,7 +928,7 @@ bool SurfaceCutLine::getCuttingPositions( const Coord& pos,
     const StepInterval<float>& zrange = SI().zRange(false);
     const Interval<float> zinterval( zrange.start, zrange.stop );
 
-    cuttingsurface->geometry.findPos( xinterval,yinterval,zinterval,
+    cuttinghorizon_->geometry().findPos( xinterval,yinterval,zinterval,
 				      &cuttingnodes );
     return true;
 }
@@ -923,7 +937,7 @@ bool SurfaceCutLine::getCuttingPositions( const Coord& pos,
 void SurfaceCutLine::fillPar(IOPar& par) const
 {
     EdgeLineSegment::fillPar(par);
-    par.set(cuttingobjectstr,cuttingsurface->multiID());
+    par.set(cuttingobjectstr,cuttinghorizon_->multiID());
     par.setYN(possidestr,cutonpositiveside);
 }
 
@@ -939,18 +953,18 @@ bool SurfaceCutLine::usePar(const IOPar& par)
 	return false;
 
     const EM::ObjectID id = EM::EMM().getObjectID( mid );
-    mDynamicCastGet(EM::Surface*,newsurf,EM::EMM().getObject(id));
+    mDynamicCastGet(EM::Horizon*,newsurf,EM::EMM().getObject(id));
     if ( !newsurf || !newsurf->isLoaded() )
     {
 	PtrMan<Executor> loader = EM::EMM().objectLoader(id,0);
 	if ( loader ) loader->execute();
 
-	newsurf = dynamic_cast<EM::Surface*>(EM::EMM().getObject(id));
+	newsurf = dynamic_cast<EM::Horizon*>(EM::EMM().getObject(id));
 	if ( !newsurf || !newsurf->isLoaded() )
 	    return false;
     }
 
-    cuttingsurface = newsurf;
+    cuttinghorizon_ = newsurf;
     return true;
 }
 

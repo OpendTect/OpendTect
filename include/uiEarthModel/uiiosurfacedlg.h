@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurfacedlg.h,v 1.11 2006-02-20 08:43:19 cvsnanne Exp $
+ RCS:           $Id: uiiosurfacedlg.h,v 1.12 2006-04-27 15:29:13 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,7 +22,7 @@ class uiIOObjSel;
 class uiSurfaceRead;
 class uiSurfaceWrite;
 
-namespace EM { class Surface; class SurfaceIODataSelection; };
+namespace EM { class Surface; class SurfaceIODataSelection; class Horizon; };
 
 
 /*! \brief Dialog for horizon export */
@@ -60,13 +60,13 @@ protected:
 class uiStoreAuxData : public uiDialog
 {
 public:
-    			uiStoreAuxData(uiParent*,const EM::Surface&);
+    			uiStoreAuxData(uiParent*,const EM::Horizon&);
 
     bool		doOverWrite() const	{ return dooverwrite_; }
 
 protected:
     uiGenInput*		attrnmfld_;
-    const EM::Surface&	surface_;
+    const EM::Horizon&	surface_;
 
     bool		dooverwrite_;
     bool		checkIfAlreadyPresent(const char*);

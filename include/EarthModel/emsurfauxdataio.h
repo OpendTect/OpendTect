@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfauxdataio.h,v 1.12 2005-01-17 16:27:10 nanne Exp $
+ RCS:		$Id: emsurfauxdataio.h,v 1.13 2006-04-27 15:29:13 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -23,14 +23,14 @@ template <class T> class DataInterpreter;
 namespace EM
 {
 
-class Surface;
+class Horizon;
 
 /*!\brief  Writes auxdata to file */
 
 class dgbSurfDataWriter : public Executor
 {
 public:
-    				dgbSurfDataWriter(const EM::Surface& surf,
+    				dgbSurfDataWriter(const EM::Horizon& surf,
 						  int dataidx,
 						  const BinIDSampler* sel,
 						  bool binary,
@@ -52,13 +52,12 @@ public:
     virtual int			totalNr() const;
     virtual const char*		message() const;
 
-    static const char*		attrnmstr;
-    static const char*		infostr;
-    static const char*		intdatacharstr;
-    static const char*		int64datacharstr;
-    static const char*		floatdatacharstr;
-    static const char*		filetypestr;
-    static const char*		shiftstr;
+    static const char*		sKeyAttrName();
+    static const char*		sKeyIntDataChar();
+    static const char*		sKeyInt64DataChar();
+    static const char*		sKeyFloatDataChar();
+    static const char*		sKeyFileType();
+    static const char*		sKeyShift();
 
     static BufferString		createHovName(const char* base,int idx);
 
@@ -67,22 +66,22 @@ protected:
     bool			writeInt(int);
     bool			writeInt64(int64);
     bool			writeFloat(float);
-    int				dataidx;
-    const EM::Surface&		surf;
-    const BinIDSampler*		sel;
+    int				dataidx_;
+    const EM::Horizon&		surf_;
+    const BinIDSampler*		sel_;
   
-    TypeSet<EM::SubID>		subids;
-    TypeSet<float>		values;
-    int				sectionindex;
+    TypeSet<EM::SubID>		subids_;
+    TypeSet<float>		values_;
+    int				sectionindex_;
 
-    int				chunksize;
-    int				nrdone;
-    int				totalnr;
-    BufferString		errmsg;
+    int				chunksize_;
+    int				nrdone_;
+    int				totalnr_;
+    BufferString		errmsg_;
 
-    std::ostream*		stream;
-    bool			binary;
-    BufferString		filename;
+    std::ostream*		stream_;
+    bool			binary_;
+    BufferString		filename_;
 };
 
 
@@ -97,7 +96,7 @@ public:
     const char*			dataName() const;
     const char*			dataInfo() const;
 
-    void			setSurface(EM::Surface& surf);
+    void			setSurface(EM::Horizon&);
 
     virtual int			nextStep();
     virtual int			nrDone() const;
@@ -108,28 +107,28 @@ protected:
     bool			readInt(int&);
     bool			readInt64(int64&);
     bool			readFloat(float&);
-    BufferString		dataname;
-    BufferString		datainfo;
-    int				dataidx;
-    float			shift;
-    EM::Surface*		surf;
-    const BinIDSampler*		sel;
+    BufferString		dataname_;
+    BufferString		datainfo_;
+    int				dataidx_;
+    float			shift_;
+    EM::Horizon*		surf_;
+    const BinIDSampler*		sel_;
   
-    int				sectionindex;
-    int				nrsections;
-    EM::SectionID		currentsection;
-    int				valsleftonsection;
+    int				sectionindex_;
+    int				nrsections_;
+    EM::SectionID		currentsection_;
+    int				valsleftonsection_;
 
-    int				chunksize;
-    int				nrdone;
-    int				totalnr;
-    BufferString		errmsg;
+    int				chunksize_;
+    int				nrdone_;
+    int				totalnr_;
+    BufferString		errmsg_;
 
-    std::istream*		stream;
-    DataInterpreter<int>*	intinterpreter;
-    DataInterpreter<int64>*	int64interpreter;
-    DataInterpreter<float>*	floatinterpreter;
-    bool			error;
+    std::istream*		stream_;
+    DataInterpreter<int>*	intinterpreter_;
+    DataInterpreter<int64>*	int64interpreter_;
+    DataInterpreter<float>*	floatinterpreter_;
+    bool			error_;
 };
 
 };

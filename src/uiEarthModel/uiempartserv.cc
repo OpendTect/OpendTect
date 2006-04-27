@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.78 2006-04-21 10:47:55 cvsnanne Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.79 2006-04-27 15:29:13 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -145,7 +145,7 @@ bool uiEMPartServer::isFullResolution(const EM::ObjectID& emid) const
 {
     EM::EMManager& em = EM::EMM();
     mDynamicCastGet(const EM::Surface*,emsurf,em.getObject(emid));
-    return emsurf && emsurf->geometry.isFullResolution();
+    return emsurf && emsurf->geometry().isFullResolution();
 }
 
 
@@ -210,13 +210,13 @@ bool uiEMPartServer::loadAuxData( const EM::ObjectID& id,
 				  const TypeSet<int>& selattribs )
 {
     mDynamicCastAll(id);
-    if ( !surface ) return false;
+    if ( !hor ) return false;
 
-    surface->auxdata.removeAll();
+    hor->auxdata.removeAll();
     ExecutorGroup exgrp( "Surface data loader" );
     exgrp.setNrDoneText( "Nr done" );
     for ( int idx=0; idx<selattribs.size(); idx++ )
-	exgrp.add( surface->auxdata.auxDataLoader(selattribs[idx]) );
+	exgrp.add( hor->auxdata.auxDataLoader(selattribs[idx]) );
 
     uiExecutor exdlg( appserv().parent(), exgrp );
     return exdlg.go();
@@ -227,7 +227,7 @@ bool uiEMPartServer::loadAuxData( const EM::ObjectID& id,
 int uiEMPartServer::loadAuxData( const EM::ObjectID& id, const char* attrnm )
 {
     mDynamicCastAll(id);
-    if ( !surface ) return -1;
+    if ( !hor ) return -1;
     
     EM::SurfaceIOData sd;
     const MultiID mid = em.getMultiID( id );
@@ -250,7 +250,7 @@ int uiEMPartServer::loadAuxData( const EM::ObjectID& id, const char* attrnm )
 int uiEMPartServer::showLoadAuxDataDlg( const EM::ObjectID& id )
 {
     mDynamicCastAll(id);
-    if ( !surface ) return -1;
+    if ( !hor ) return -1;
 
     EM::SurfaceIOData sd;
     const MultiID mid = em.getMultiID( id );
@@ -263,8 +263,8 @@ int uiEMPartServer::showLoadAuxDataDlg( const EM::ObjectID& id )
     dlg.box()->getSelectedItems( selattribs );
     if ( !selattribs.size() ) return -1;
 
-    surface->auxdata.removeAll();
-    PtrMan<Executor> exec = surface->auxdata.auxDataLoader( selattribs[0] );
+    hor->auxdata.removeAll();
+    PtrMan<Executor> exec = hor->auxdata.auxDataLoader( selattribs[0] );
     uiExecutor exdlg( appserv().parent(), *exec );
     return exdlg.go() ? 0 : -1;
 }
@@ -287,7 +287,7 @@ bool uiEMPartServer::storeObject( const EM::ObjectID& id, bool storeas ) const
 	dlg.getSelection( sel );
 
 	const MultiID& key = dlg.ioObj() ? dlg.ioObj()->key() : "";
-	exec = surface->geometry.saver( &sel, &key );
+	exec = surface->geometry().saver( &sel, &key );
 	if ( exec ) surface->setMultiID( key );
     }
     else
@@ -304,21 +304,20 @@ bool uiEMPartServer::storeObject( const EM::ObjectID& id, bool storeas ) const
 bool uiEMPartServer::storeAuxData( const EM::ObjectID& id, bool storeas ) const
 {
     mDynamicCastAll(id);
-    if ( !surface ) return false;
+    if ( !hor ) return false;
 
     int dataidx = -1;
     bool overwrite = false;
     if ( storeas )
     {
-	uiStoreAuxData dlg( appserv().parent(), *surface );
+	uiStoreAuxData dlg( appserv().parent(), *hor );
 	if ( !dlg.go() ) return false;
 
 	dataidx = 0;
 	overwrite = dlg.doOverWrite();
     }
 
-    PtrMan<Executor> saver =
-	surface->auxdata.auxDataSaver( dataidx, overwrite );
+    PtrMan<Executor> saver = hor->auxdata.auxDataSaver( dataidx, overwrite );
     if ( !saver )
     {
 	uiMSG().error( "Cannot save attribute" );
@@ -335,7 +334,7 @@ int uiEMPartServer::setAuxData( const EM::ObjectID& id,
 				const char* attribnm, int idx )
 {
     mDynamicCastAll(id);
-    if ( !surface ) { uiMSG().error( "Cannot find surface" ); return -1; }
+    if ( !hor ) { uiMSG().error( "Cannot find horizon" ); return -1; }
     if ( !data.size() ) { uiMSG().error( "No data calculated" ); return -1; }
 
     const int nrdatavals = data[0]->nrVals();
@@ -350,16 +349,16 @@ int uiEMPartServer::setAuxData( const EM::ObjectID& id,
 	name += idx;
     }
 
-    surface->auxdata.removeAll();
-    const int auxdatanr = surface->auxdata.addAuxData( name );
+    hor->auxdata.removeAll();
+    const int auxdatanr = hor->auxdata.addAuxData( name );
 
     BinID bid;
     BinIDValueSet::Pos pos;
-    const int nrvals = surface->auxdata.nrAuxData();
+    const int nrvals = hor->auxdata.nrAuxData();
     float vals[nrvals];
     for ( int sidx=0; sidx<data.size(); sidx++ )
     {
-	const EM::SectionID sectionid = surface->geometry.sectionID( sidx );
+	const EM::SectionID sectionid = hor->sectionID( sidx );
 	const BinIDValueSet& bivs = *data[sidx];
 
 	EM::PosID posid( id, sectionid );
@@ -369,7 +368,7 @@ int uiEMPartServer::setAuxData( const EM::ObjectID& id,
 	    RowCol rc( bid.inl, bid.crl );
 	    EM::SubID subid = rc.getSerialized();
 	    posid.setSubID( subid );
-	    surface->auxdata.setAuxDataVal( auxdatanr, posid, vals[idx] );
+	    hor->auxdata.setAuxDataVal( auxdatanr, posid, vals[idx] );
 	}
     }
 
@@ -382,19 +381,17 @@ bool uiEMPartServer::getAuxData( const EM::ObjectID& oid, int auxdatanr,
 	                         ObjectSet<BinIDValueSet>& auxdata ) const
 {
     mDynamicCastAll(oid);
-    if ( !surface || !surface->auxdata.auxDataName(auxdatanr) )
+    if ( !hor || !hor->auxdata.auxDataName(auxdatanr) )
 	return false;
 
-    auxdataname = surface->auxdata.auxDataName( auxdatanr );
+    auxdataname = hor->auxdata.auxDataName( auxdatanr );
     deepErase( auxdata );
     auxdata.allowNull( true );
 
-    for ( int idx=0; idx<surface->nrSections(); idx++ )
+    for ( int idx=0; idx<hor->nrSections(); idx++ )
     {
-	const EM::SectionID sid = surface->sectionID(idx);
-	const Geometry::ParametricSurface* psurf = 
-				surface->geometry.getSurface( sid );
-	if ( !psurf )
+	const EM::SectionID sid = hor->sectionID(idx);
+	if ( !hor->geometry().sectionGeometry( sid ) )
 	{
 	    auxdata += 0;
 	    continue;
@@ -406,14 +403,14 @@ bool uiEMPartServer::getAuxData( const EM::ObjectID& oid, int auxdatanr,
 	float auxvals[2];
 	BinID bid;
 	auxvals[0] = 0;
-	PtrMan<EM::EMObjectIterator> iterator = surface->createIterator( sid );
+	PtrMan<EM::EMObjectIterator> iterator = hor->createIterator( sid );
 	while ( true )
 	{
 	    const EM::PosID pid = iterator->next();
 	    if ( pid.objectID()==-1 )
 		break;
 
-	    auxvals[1] = surface->auxdata.getAuxDataVal( auxdatanr, pid );
+	    auxvals[1] = hor->auxdata.getAuxDataVal( auxdatanr, pid );
 	    bid.setSerialized( pid.subID() );
 	    res->add( bid, auxvals );
 	}
@@ -510,9 +507,15 @@ void uiEMPartServer::getSurfaceDef( const TypeSet<EM::ObjectID>& selhorids,
     {
 	for ( bid.crl=br->start.crl; bid.crl<br->stop.crl; bid.crl+=step.crl )
 	{
-	    RowCol rc(bid.inl,bid.crl);
+	    const EM::SubID subid = bid.getSerialized();
 	    TypeSet<Coord3> z1pos, z2pos;
-	    hor->geometry.getPos( rc, z1pos );
+	    for ( int idx=hor->nrSections()-1; idx>=0; idx-- )
+	    {
+		const EM::SectionID sid = hor->sectionID( idx );
+		if ( hor->isDefined( sid, subid ) )
+		    z1pos += hor->getPos( sid, subid );
+	    }
+
 	    if ( !z1pos.size() ) continue;
 
 	    if ( !hor2 )
@@ -522,7 +525,13 @@ void uiEMPartServer::getSurfaceDef( const TypeSet<EM::ObjectID>& selhorids,
 	    }
 	    else
 	    {
-		hor2->geometry.getPos( rc, z2pos );
+		for ( int idx=hor2->nrSections()-1; idx>=0; idx-- )
+		{
+		    const EM::SectionID sid = hor2->sectionID( idx );
+		    if ( hor2->isDefined( sid, subid ) )
+			z2pos += hor2->getPos( sid, subid );
+		}
+
 		if ( !z2pos.size() ) continue;
 
 		Interval<float> zintv;

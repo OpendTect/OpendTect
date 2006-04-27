@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emobject.cc,v 1.61 2006-04-24 12:48:09 cvsjaap Exp $";
+static const char* rcsID = "$Id: emobject.cc,v 1.62 2006-04-27 15:29:13 cvskris Exp $";
 
 #include "emobject.h"
 
@@ -144,8 +144,12 @@ bool EMObject::setSectionName( const SectionID&, const char*, bool )
 { return false; }
 
 
-const Geometry::Element* EMObject::getElement( SectionID sec ) const
-{ return const_cast<EMObject*>(this)->getElementInternal(sec); }
+const Geometry::Element* EMObject::sectionGeometry( const SectionID& sec ) const
+{ return const_cast<EMObject*>(this)->sectionGeometryInternal(sec); }
+
+
+Geometry::Element* EMObject::sectionGeometryInternal( const SectionID& sec )
+{ return 0; }
 
 
 Coord3 EMObject::getPos( const PosID& pid ) const
@@ -160,7 +164,7 @@ Coord3 EMObject::getPos( const PosID& pid ) const
 Coord3 EMObject::getPos( const EM::SectionID& sid,
 			 const EM::SubID& subid ) const
 {
-    const Geometry::Element* element = getElement( sid );
+    const Geometry::Element* element = sectionGeometry( sid );
     return element ? element->getPosition( subid ) : Coord3::udf();
 }
 
@@ -179,7 +183,7 @@ bool EMObject::setPos(	const PosID& pid, const Coord3& newpos,
 bool EMObject::setPos(	const SectionID& sid, const SubID& subid,
 			const Coord3& newpos, bool addtohistory ) 
 {
-    Geometry::Element* element = getElementInternal( sid );
+    Geometry::Element* element = sectionGeometryInternal( sid );
     if ( !element ) mRetErr( "" );
 
     const Coord3 oldpos = element->getPosition(subid);
@@ -247,6 +251,14 @@ bool EMObject::unSetPos(const PosID& pid, bool addtohistory )
 }
 
 
+bool EMObject::enableGeometryChecks(bool)
+{ return true; }
+
+
+bool EMObject::isGeometryChecksEnabled() const
+{ return true; }
+
+
 void EMObject::changePosID( const PosID& from, const PosID& to,
 			    bool addtohistory )
 {
@@ -295,7 +307,7 @@ bool EMObject::isDefined( const PosID& pid ) const
 bool EMObject::isDefined( const EM::SectionID& sid,
 			  const EM::SubID& subid ) const
 { 
-    const Geometry::Element* element = getElement( sid );
+    const Geometry::Element* element = sectionGeometry( sid );
     return element && element->isDefined( subid );
 }
 

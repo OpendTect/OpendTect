@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          June 2003
- RCS:           $Id: emsurfaceio.cc,v 1.58 2006-04-12 13:56:24 cvsnanne Exp $
+ RCS:           $Id: emsurfaceio.cc,v 1.59 2006-04-27 15:29:13 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "ascstream.h"
 #include "datachar.h"
 #include "datainterp.h"
-#include "emsurface.h"
+#include "emhorizon.h"
 #include "emsurfacegeometry.h"
 #include "emsurfaceauxdata.h"
 #include "emsurfaceedgeline.h"
@@ -374,14 +374,15 @@ int dgbSurfaceReader::totalNr() const
 
 void dgbSurfaceReader::setGeometry()
 {
-    surface_->cleanUp();
+    surface_->removeAll();
     surface_->setDBInfo( dbinfo_ );
     for ( int idx=0; idx<auxdatasel_.size(); idx++ )
     {
 	if ( auxdatasel_[idx]>=auxdataexecs_.size() )
 	    continue;
 
-	auxdataexecs_[auxdatasel_[idx]]->setSurface( *surface_ );
+	auxdataexecs_[auxdatasel_[idx]]->setSurface(
+		reinterpret_cast<Horizon&>(*surface_));
 
 	add( auxdataexecs_[auxdatasel_[idx]] );
 	auxdataexecs_.replace( auxdatasel_[idx], 0 );
@@ -502,7 +503,7 @@ int dgbSurfaceReader::nextStep()
 	    surface_->setFullyLoaded( fullyread_ );
 
 	    surface_->resetChangedFlag();
-	    surface_->geometry.checkSupport(true);
+	    surface_->enableGeometryChecks(true);
 	}
 
 	return res;
@@ -548,7 +549,7 @@ int dgbSurfaceReader::nextStep()
          ( version_==1 && !readVersion1Row( strm, firstcol, nrcols ) ) )
 	return ErrorOccurred;
 
-    surface_->geometry.checkSupport(false);
+    surface_->enableGeometryChecks( false );
 
     goToNextRow();
     return MoreToDo;
@@ -662,7 +663,7 @@ bool dgbSurfaceReader::readVersion1Row( std::istream& strm, int firstcol,
 	    continue;
 	}
 
-	if ( !surface_->geometry.getSurface(sectionid) )
+	if ( !surface_->sectionGeometry(sectionid) )
 	    createSection( sectionid );
 
 	surface_->setPos( sectionid, surfrc.getSerialized(), pos, false );
@@ -709,7 +710,7 @@ bool dgbSurfaceReader::readVersion2Row( std::istream& strm,
 	    continue;
 	}
 
-	if ( !surface_->geometry.getSurface(sectionid) )
+	if ( !surface_->sectionGeometry(sectionid) )
 	    createSection( sectionid );
 
 	surface_->setPos( sectionid, rowcol.getSerialized(), pos, false );
@@ -851,7 +852,7 @@ bool dgbSurfaceReader::readVersion3Row( std::istream& strm,
 	    pos.z = zsd.atIndex( zidx );
 
 
-	if ( !surface_->geometry.getSurface(sectionid) )
+	if ( !surface_->sectionGeometry(sectionid) )
 	    createSection( sectionid );
 
 	surface_->setPos( sectionid, rc.getSerialized(), pos, false );
@@ -871,12 +872,15 @@ void dgbSurfaceReader::createSection( const SectionID& sectionid )
     const RowCol loadedstep = readrowrange_ && readcolrange_
 			? RowCol(readrowrange_->step,readcolrange_->step)
 			: filestep;
-    surface_->geometry.setStep( filestep, loadedstep );
+
+    mDynamicCastGet( Horizon*, hor, surface_ );
+    if ( hor )
+	hor->geometry().setStep( filestep, loadedstep );
 
     const int index = sectionids_.indexOf(sectionid);
-    surface_->geometry.addSection( sectionnames_[index] ?
-	    			   *sectionnames_[index] : 0, sectionid, false );
-    surface_->geometry.checkSupport(false);
+    surface_->geometry().addSection( sectionnames_[index] ?
+			       *sectionnames_[index] : 0, sectionid, false );
+    surface_->enableGeometryChecks(false);
 }
 
 
@@ -999,6 +1003,8 @@ dgbSurfaceWriter::dgbSurfaceWriter( const IOObj* ioobj,
     , writeonlyz_( false )
     , filetype_( filetype )
     , binary_( binary )
+    , geometry_(
+	reinterpret_cast<const EM::RowColSurfaceGeometry&>( surface.geometry()))
 {
     surface.ref();
     setNrDoneText( "Nr done" );
@@ -1013,8 +1019,8 @@ dgbSurfaceWriter::dgbSurfaceWriter( const IOObj* ioobj,
 	    auxdatasel_ += idx;
     }
 
-    rowrange_ = surface.geometry.rowRange();
-    colrange_ = surface.geometry.colRange();
+    rowrange_ = geometry_.rowRange();
+    colrange_ = geometry_.colRange();
 
     surface.fillPar( par_ );
 }
@@ -1083,13 +1089,13 @@ int dgbSurfaceWriter::nrSections() const
 
 SectionID dgbSurfaceWriter::sectionID( int idx ) const
 {
-    return surface_.geometry.sectionID(idx);
+    return surface_.sectionID(idx);
 }
 
 
 const char* dgbSurfaceWriter::sectionName( int idx ) const
 {
-    return surface_.geometry.sectionName(sectionID(idx));
+    return surface_.sectionName(sectionID(idx));
 }
 
 
@@ -1101,13 +1107,15 @@ void dgbSurfaceWriter::selSections(const TypeSet<SectionID>& sel)
 
 int dgbSurfaceWriter::nrAuxVals() const
 {
-    return surface_.auxdata.nrAuxData();
+    mDynamicCastGet( const Horizon*, hor, &surface_ );
+    return hor ? hor->auxdata.nrAuxData() : 0;
 }
 
 
 const char* dgbSurfaceWriter::auxDataName( int idx ) const
 {
-    return surface_.auxdata.auxDataName(idx);
+    mDynamicCastGet( const Horizon*, hor, &surface_ );
+    return hor ? hor->auxdata.auxDataName(idx) : 0;
 }
 
 
@@ -1220,14 +1228,15 @@ int dgbSurfaceWriter::nextStep()
 	nrsectionsoffsetoffset_ = strm.tellp();
 	writeInt64( strm, 0, sEOL() );
 
+	mDynamicCastGet( const Horizon*, hor, &surface_ );
 	for ( int idx=0; idx<auxdatasel_.size(); idx++ )
 	{
-	    if ( auxdatasel_[idx]>=surface_.auxdata.nrAuxData() )
+	    if ( auxdatasel_[idx]>=hor->auxdata.nrAuxData() )
 		continue;
 
 	    BufferString fnm( dgbSurfDataWriter::createHovName( 
 		    			conn_->fileName(),auxdatasel_[idx]) );
-	    add(new dgbSurfDataWriter(surface_,auxdatasel_[idx],0,binary_,fnm));
+	    add(new dgbSurfDataWriter(*hor,auxdatasel_[idx],0,binary_,fnm));
 	    // TODO:: Change binid sampler so not all values are written when
 	    // there is a subselection
 	}
@@ -1338,8 +1347,8 @@ bool dgbSurfaceWriter::writeInt64( std::ostream& strm, int64 val,
 
 bool dgbSurfaceWriter::writeNewSection( std::ostream& strm )
 {
-    const Geometry::ParametricSurface* gsurf =
-		surface_.geometry.getSurface( sectionsel_[sectionindex_] );
+    mDynamicCastGet( const Geometry::RowColSurface*, gsurf,
+	    	     surface_.sectionGeometry( sectionsel_[sectionindex_] ) );
 
     StepInterval<int> sectionrange = gsurf->rowRange();
     sectionrange.sort();
@@ -1413,7 +1422,7 @@ bool dgbSurfaceWriter::writeRow( std::ostream& strm )
     const int row = firstrow_+rowindex_ *
 		    (writerowrange_?writerowrange_->step:rowrange_.step);
 
-    const SectionID sectionid = surface_.geometry.sectionID(sectionindex_);
+    const SectionID sectionid = surface_.sectionID(sectionindex_);
     TypeSet<Coord3> colcoords;
 
     int firstcol = -1;

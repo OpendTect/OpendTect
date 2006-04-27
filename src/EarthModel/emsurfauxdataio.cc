@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Jun 2003
- RCS:           $Id: emsurfauxdataio.cc,v 1.26 2006-03-12 13:39:10 cvsbert Exp $
+ RCS:           $Id: emsurfauxdataio.cc,v 1.27 2006-04-27 15:29:13 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,7 +13,7 @@ ________________________________________________________________________
 #include "ascstream.h"
 #include "datainterp.h"
 #include "datachar.h"
-#include "emsurface.h"
+#include "emhorizon.h"
 #include "emsurfacegeometry.h"
 #include "emsurfaceauxdata.h"
 #include "parametricsurface.h"
@@ -24,111 +24,112 @@ ________________________________________________________________________
 #include "filegen.h"
 #include <iostream>
 
-const char* EM::dgbSurfDataWriter::attrnmstr = "Attribute";
-const char* EM::dgbSurfDataWriter::infostr = "Info";
-const char* EM::dgbSurfDataWriter::intdatacharstr = "Int data";
-const char* EM::dgbSurfDataWriter::int64datacharstr = "Long long data";
-const char* EM::dgbSurfDataWriter::floatdatacharstr = "Float data";
-const char* EM::dgbSurfDataWriter::filetypestr = "Surface aux data";
-const char* EM::dgbSurfDataWriter::shiftstr = "Shift";
+namespace EM
+{
+
+const char* dgbSurfDataWriter::sKeyAttrName()	    { return "Attribute"; }
+const char* dgbSurfDataWriter::sKeyIntDataChar()    { return "Int data"; }
+const char* dgbSurfDataWriter::sKeyInt64DataChar()  { return "Long long data"; }
+const char* dgbSurfDataWriter::sKeyFloatDataChar()  { return "Float data"; }
+const char* dgbSurfDataWriter::sKeyFileType() 	    {return "Surface aux data";}
+const char* dgbSurfDataWriter::sKeyShift() 	    { return "Shift"; }
 
 
-EM::dgbSurfDataWriter::dgbSurfDataWriter( const EM::Surface& surf_,int dataidx_,
-				    const BinIDSampler* sel_, bool binary_,
-       				    const char* fnm_ )
+dgbSurfDataWriter::dgbSurfDataWriter( const Horizon& surf,int dataidx,
+				    const BinIDSampler* sel, bool binary,
+       				    const char* filename )
     : Executor("Aux data writer")
-    , stream(0)
-    , chunksize(100)
-    , dataidx(dataidx_)
-    , surf(surf_)
-    , sel(sel_)
-    , sectionindex(0)
-    , binary(binary_)
-    , nrdone(0)
-    , filename(fnm_)
+    , stream_(0)
+    , chunksize_(100)
+    , dataidx_(dataidx)
+    , surf_(surf)
+    , sel_(sel)
+    , sectionindex_(0)
+    , binary_(binary)
+    , nrdone_(0)
+    , filename_(filename)
 {
     IOPar par( "Surface Data" );
-    par.set( attrnmstr, surf.auxdata.auxDataName(dataidx) );
-    par.set( shiftstr, surf.geometry.getShift() );
+    par.set( sKeyAttrName(), surf.auxdata.auxDataName(dataidx_) );
+    par.set( sKeyShift(), surf.geometry().getShift() );
 
-    if ( binary )
+    if ( binary_ )
     {
 	BufferString dc;
 
 	int idummy;
 	DataCharacteristics(idummy).toString( dc.buf() );
-	par.set( intdatacharstr, dc );
+	par.set( sKeyIntDataChar(), dc );
 
 	int64 lldummy;
 	DataCharacteristics(lldummy).toString( dc.buf() );
-	par.set( int64datacharstr, dc );
+	par.set( sKeyInt64DataChar(), dc );
 
 	float fdummy;
 	DataCharacteristics(fdummy).toString( dc.buf() );
-	par.set( floatdatacharstr, dc );
+	par.set( sKeyFloatDataChar(), dc );
     }
 
-    StreamData sd = StreamProvider( filename ).makeOStream();
+    StreamData sd = StreamProvider( filename_ ).makeOStream();
     if ( !sd.usable() ) return;
-    stream = sd.ostrm;
-    if ( !(*stream) ) return;
+    stream_ = sd.ostrm;
+    if ( !(*stream_) ) return;
 
-    ascostream astream( *stream );
-    astream.putHeader( filetypestr );
+    ascostream astream( *stream_ );
+    astream.putHeader( sKeyFileType() );
     par.putTo( astream );
 
     int nrnodes = 0;
-    for ( int idx=0; idx<surf.geometry.nrSections(); idx++ )
+    for ( int idx=0; idx<surf.nrSections(); idx++ )
     {
-	EM::SectionID sectionid = surf.geometry.sectionID(idx);
-	const Geometry::ParametricSurface* meshsurf =
-			surf.geometry.getSurface(sectionid);
+	SectionID sectionid = surf.sectionID(idx);
+	const Geometry::BinIDSurface* meshsurf =
+			surf.geometry().sectionGeometry(sectionid);
 	nrnodes += meshsurf->nrKnots();
     }
 
-    totalnr = 100;
-    chunksize = nrnodes/totalnr+1;
-    if ( chunksize < 100 )
+    totalnr_ = 100;
+    chunksize_ = nrnodes/totalnr_+1;
+    if ( chunksize_ < 100 )
     {
-	chunksize = 100;
-	totalnr = nrnodes/chunksize+1;
+	chunksize_ = 100;
+	totalnr_ = nrnodes/chunksize_+1;
     }
 }
 
 
-EM::dgbSurfDataWriter::~dgbSurfDataWriter()
+dgbSurfDataWriter::~dgbSurfDataWriter()
 {
-    delete stream;
+    delete stream_;
 }
 
 
 #define mErrRetWrite(msg) \
-{ errmsg = msg; File_remove(filename.buf(),0); return ErrorOccurred; }
+{ errmsg_ = msg; File_remove(filename_.buf(),0); return ErrorOccurred; }
 
 
-int EM::dgbSurfDataWriter::nextStep()
+int dgbSurfDataWriter::nextStep()
 {
-    EM::PosID posid( surf.id() );
-    for ( int idx=0; idx<chunksize; idx++ )
+    PosID posid( surf_.id() );
+    for ( int idx=0; idx<chunksize_; idx++ )
     {
-	while ( !subids.size() )
+	while ( !subids_.size() )
 	{
-	    if ( nrdone )
+	    if ( nrdone_ )
 	    {
-		sectionindex++;
-		if ( sectionindex >= surf.geometry.nrSections() )
+		sectionindex_++;
+		if ( sectionindex_ >= surf_.nrSections() )
 		    return Finished;
 	    }
 	    else
 	    {
-		if ( !writeInt(surf.geometry.nrSections()) )
+		if ( !writeInt(surf_.nrSections()) )
 		    mErrRetWrite("Error in writing data information")
 	    }
 
-	    const EM::SectionID sectionid = 
-					surf.geometry.sectionID( sectionindex );
-	    const Geometry::ParametricSurface* meshsurf = 
-					surf.geometry.getSurface( sectionid );
+	    const SectionID sectionid = surf_.sectionID( sectionindex_ );
+	    const Geometry::BinIDSurface* meshsurf = 
+					surf_.geometry().sectionGeometry( sectionid );
 
 	    const int nrnodes = meshsurf->nrKnots();
 	    for ( int idy=0; idy<nrnodes; idy++ )
@@ -137,45 +138,45 @@ int EM::dgbSurfDataWriter::nextStep()
 		const Coord3 coord = meshsurf->getKnot( rc, false );
 
 		const BinID bid = SI().transform(coord);
-		if ( sel && sel->excludes(bid) )
+		if ( sel_ && sel_->excludes(bid) )
 		    continue;
 
 		const RowCol emrc( bid.inl, bid.crl );
-		const EM::SubID subid = emrc.getSerialized();
+		const SubID subid = emrc.getSerialized();
 		posid.setSubID( subid );
 		posid.setSectionID( sectionid );
-		const float auxval = surf.auxdata.getAuxDataVal(dataidx,posid);
+		const float auxval = surf_.auxdata.getAuxDataVal(dataidx_,posid);
 		if ( mIsUdf(auxval) )
 		    continue;
 
-		subids += subid;
-		values += auxval;
+		subids_ += subid;
+		values_ += auxval;
 	    }
 
-	    if ( !subids.size() )
+	    if ( !subids_.size() )
 		mErrRetWrite("No data available for this surface")
 
-	    if ( !writeInt(sectionid) || !writeInt(subids.size()) )
+	    if ( !writeInt(sectionid) || !writeInt(subids_.size()) )
 		mErrRetWrite("Error in writing data information")
 	}
 
-	const int subidindex = subids.size()-1;
-	const EM::SubID subid = subids[subidindex];
-	const float auxvalue = values[subidindex];
+	const int subidindex = subids_.size()-1;
+	const SubID subid = subids_[subidindex];
+	const float auxvalue = values_[subidindex];
 
 	if ( !writeInt64(subid) || !writeFloat(auxvalue) )
 	    mErrRetWrite("Error in writing datavalues")
 
-	subids.remove( subidindex );
-	values.remove( subidindex );
+	subids_.remove( subidindex );
+	values_.remove( subidindex );
     }
 
-    nrdone++;
+    nrdone_++;
     return MoreToDo;
 }
 
 
-BufferString EM::dgbSurfDataWriter::createHovName( const char* base, int idx )
+BufferString dgbSurfDataWriter::createHovName( const char* base, int idx )
 {
     BufferString res( base );
     res += "^"; res += idx; res += ".hov";
@@ -183,201 +184,201 @@ BufferString EM::dgbSurfDataWriter::createHovName( const char* base, int idx )
 }
 
 
-bool EM::dgbSurfDataWriter::writeInt( int val )
+bool dgbSurfDataWriter::writeInt( int val )
 {
-    if ( binary )
-	stream->write( (char*) &val, sizeof(val) );
+    if ( binary_ )
+	stream_->write( (char*) &val, sizeof(val) );
     else
-	(*stream) << val << '\n' ;
+	(*stream_) << val << '\n' ;
 
-    return (*stream);
+    return (*stream_);
 }
 
 
-bool EM::dgbSurfDataWriter::writeInt64( int64 val )
+bool dgbSurfDataWriter::writeInt64( int64 val )
 {
-    if ( binary )
-	stream->write( (char*) &val, sizeof(val) );
+    if ( binary_ )
+	stream_->write( (char*) &val, sizeof(val) );
     else
-	(*stream) << val << '\n' ;
+	(*stream_) << val << '\n' ;
 
-    return (*stream);
+    return (*stream_);
 }
 
 
-bool EM::dgbSurfDataWriter::writeFloat( float val )
+bool dgbSurfDataWriter::writeFloat( float val )
 {
-    if ( binary )
-	stream->write( (char*) &val ,sizeof(val) );
+    if ( binary_ )
+	stream_->write( (char*) &val ,sizeof(val) );
     else
-	(*stream) << val << '\n';
+	(*stream_) << val << '\n';
 
-    return (*stream);
+    return (*stream_);
 }
 
 
-int EM::dgbSurfDataWriter::nrDone() const 
-{ return nrdone; }
+int dgbSurfDataWriter::nrDone() const 
+{ return nrdone_; }
 
 
-int EM::dgbSurfDataWriter::totalNr() const
-{ return totalnr; }
+int dgbSurfDataWriter::totalNr() const
+{ return totalnr_; }
 
 
-const char* EM::dgbSurfDataWriter::message() const
-{ return errmsg; }
+const char* dgbSurfDataWriter::message() const
+{ return errmsg_; }
 
 
 
 // Reader +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-EM::dgbSurfDataReader::dgbSurfDataReader( const char* filename )
+dgbSurfDataReader::dgbSurfDataReader( const char* filename )
     : Executor("Aux data reader")
-    , intinterpreter(0)
-    , int64interpreter(0)
-    , floatinterpreter(0)
-    , chunksize(100)
-    , dataidx(-1)
-    , surf(0)
-    , sectionindex(0)
-    , error(true)
-    , nrdone(0)
-    , valsleftonsection(0)
-    , shift(0)
-    , stream(0)
+    , intinterpreter_(0)
+    , int64interpreter_(0)
+    , floatinterpreter_(0)
+    , chunksize_(100)
+    , dataidx_(-1)
+    , surf_(0)
+    , sectionindex_(0)
+    , error_(true)
+    , nrdone_(0)
+    , valsleftonsection_(0)
+    , shift_(0)
+    , stream_(0)
 {
     StreamData sd = StreamProvider( filename ).makeIStream();
     if ( !sd.usable() )
 	return;
-    stream = sd.istrm;
-    if ( !(*stream) )
+    stream_ = sd.istrm;
+    if ( !(*stream_) )
 	return;
 
-    ascistream astream( *stream );
-    if ( !astream.isOfFileType(dgbSurfDataWriter::filetypestr) )
+    ascistream astream( *stream_ );
+    if ( !astream.isOfFileType(dgbSurfDataWriter::sKeyFileType()) )
         return;
 
     const IOPar par( astream );
-    if ( !par.get(dgbSurfDataWriter::attrnmstr,dataname) )
+    if ( !par.get(dgbSurfDataWriter::sKeyAttrName(),dataname_) )
 	return;
 
-    if ( !par.get(dgbSurfDataWriter::attrnmstr,datainfo) )
+    if ( !par.get(dgbSurfDataWriter::sKeyAttrName(),datainfo_) )
 	return;
 
-    par.get( dgbSurfDataWriter::shiftstr, shift );
+    par.get( dgbSurfDataWriter::sKeyShift(), shift_ );
 
     BufferString dc;
-    if ( par.get(EM::dgbSurfDataWriter::intdatacharstr,dc) )
+    if ( par.get(dgbSurfDataWriter::sKeyIntDataChar(),dc) )
     {
 	DataCharacteristics writtendatachar;
 	writtendatachar.set( dc.buf() );
-	intinterpreter = new DataInterpreter<int>( writtendatachar );
+	intinterpreter_ = new DataInterpreter<int>( writtendatachar );
 
-	if ( !par.get(EM::dgbSurfDataWriter::int64datacharstr,dc) )
+	if ( !par.get(dgbSurfDataWriter::sKeyInt64DataChar(),dc) )
 	{
-	    error = true; 
-	    errmsg = "Error in reading data characteristics (int64)";
+	    error_ = true; 
+	    errmsg_ = "Error in reading data characteristics (int64)";
 	    return;
 	}
 	writtendatachar.set( dc.buf() );
-	int64interpreter = new DataInterpreter<int64>( writtendatachar );
+	int64interpreter_ = new DataInterpreter<int64>( writtendatachar );
 					     
-	if ( !par.get(EM::dgbSurfDataWriter::floatdatacharstr,dc) )
+	if ( !par.get(dgbSurfDataWriter::sKeyFloatDataChar(),dc) )
 	{
-	    error = true;
-	    errmsg = "Error in reading data characteristics (float)"; 
+	    error_ = true;
+	    errmsg_ = "Error in reading data characteristics (float)"; 
 	    return;
 	}
 	writtendatachar.set( dc.buf() );
-	floatinterpreter = new DataInterpreter<float>( writtendatachar );
+	floatinterpreter_ = new DataInterpreter<float>( writtendatachar );
     }
 
-    error = false;
+    error_ = false;
 }
 
 
-EM::dgbSurfDataReader::~dgbSurfDataReader()
+dgbSurfDataReader::~dgbSurfDataReader()
 {
-    delete stream;
-    delete intinterpreter;
-    delete int64interpreter;
-    delete floatinterpreter;
+    delete stream_;
+    delete intinterpreter_;
+    delete int64interpreter_;
+    delete floatinterpreter_;
 }
 
 
-const char* EM::dgbSurfDataReader::dataName() const
+const char* dgbSurfDataReader::dataName() const
 {
-    return dataname[0] ? dataname.buf() : 0;
+    return dataname_[0] ? dataname_.buf() : 0;
 }
 
 
-const char* EM::dgbSurfDataReader::dataInfo() const
+const char* dgbSurfDataReader::dataInfo() const
 {
-    return datainfo[0] ? datainfo.buf() : 0;
+    return datainfo_[0] ? datainfo_.buf() : 0;
 }
 
 
 
-void EM::dgbSurfDataReader::setSurface( EM::Surface& surf_ )
+void dgbSurfDataReader::setSurface( Horizon& surf )
 {
-    surf = &surf_;
-    dataidx = surf->auxdata.addAuxData( dataname );
-    surf->geometry.setShift( shift );
+    surf_ = &surf;
+    dataidx_ = surf_->auxdata.addAuxData( dataname_ );
+    surf_->geometry().setShift( shift_ );
 }
 
 
 #define mErrRetRead(msg) { \
-    if ( msg ) errmsg = msg; \
-    surf->auxdata.removeAuxData(dataidx); return ErrorOccurred; }
+    if ( msg ) errmsg_ = msg; \
+    surf_->auxdata.removeAuxData(dataidx_); return ErrorOccurred; }
 
-int EM::dgbSurfDataReader::nextStep()
+int dgbSurfDataReader::nextStep()
 {
-    if ( error ) mErrRetRead(0)
+    if ( error_ ) mErrRetRead(0)
 
-    EM::PosID posid( surf->id() );
-    for ( int idx=0; idx<chunksize; idx++ )
+    PosID posid( surf_->id() );
+    for ( int idx=0; idx<chunksize_; idx++ )
     {
-	while ( !valsleftonsection )
+	while ( !valsleftonsection_ )
 	{
-	    if ( nrdone )
+	    if ( nrdone_ )
 	    {
-		sectionindex++;
-		if ( sectionindex >= nrsections )
+		sectionindex_++;
+		if ( sectionindex_ >= nrsections_ )
 		    return Finished;
 	    }
 	    else
 	    {
-		if ( !readInt(nrsections) )
+		if ( !readInt(nrsections_) )
 		    mErrRetRead( "Error in reading data information" )
 	    }
 
 	    int cp;
-	    if ( !readInt(cp) || !readInt(valsleftonsection) )
+	    if ( !readInt(cp) || !readInt(valsleftonsection_) )
 		mErrRetRead( "Error in reading data information" )
 
-	    currentsection = cp;
-	    totalnr = 100;
-	    chunksize = valsleftonsection/totalnr+1;
-	    if ( chunksize < 100 )
+	    currentsection_ = cp;
+	    totalnr_ = 100;
+	    chunksize_ = valsleftonsection_/totalnr_+1;
+	    if ( chunksize_ < 100 )
 	    {
-		chunksize = 100;
-		totalnr = valsleftonsection/chunksize+1;
+		chunksize_ = 100;
+		totalnr_ = valsleftonsection_/chunksize_+1;
 	    }
 	}
 
-	EM::SubID subid;
+	SubID subid;
 	float val;
 	if ( !readInt64(subid) || !readFloat(val) )
 	    mErrRetRead( "Error in reading data values" )
 
 	posid.setSubID( subid );
-	posid.setSectionID( currentsection );
-	surf->auxdata.setAuxDataVal( dataidx, posid, val );
+	posid.setSectionID( currentsection_ );
+	surf_->auxdata.setAuxDataVal( dataidx_, posid, val );
 
-	valsleftonsection--;
+	valsleftonsection_--;
     }
 
-    nrdone++;
+    nrdone_++;
     return MoreToDo;
 }
 
@@ -390,31 +391,33 @@ static int sizeoffloat = sizeof(float);
     if ( interpreter ) \
     { \
 	char buf[sizeof(res)]; \
-	stream->read(buf,sizeof(res)); \
+	stream_->read(buf,sizeof(res)); \
 	res = interpreter->get(buf,0); \
     } \
     else \
-	(*stream) >> res; \
+	(*stream_) >> res; \
 \
-    return (*stream);
+    return (*stream_);
 
-bool EM::dgbSurfDataReader::readInt( int& res )
-{ mReadData(intinterpreter,sizeofint) }
+bool dgbSurfDataReader::readInt( int& res )
+{ mReadData(intinterpreter_,sizeofint) }
 
-bool EM::dgbSurfDataReader::readInt64( int64& res )
-{ mReadData(int64interpreter,sizeofint64) }
+bool dgbSurfDataReader::readInt64( int64& res )
+{ mReadData(int64interpreter_,sizeofint64) }
 
-bool EM::dgbSurfDataReader::readFloat( float& res )
-{ mReadData(floatinterpreter,sizeoffloat) }
-
-
-int EM::dgbSurfDataReader::nrDone() const 
-{ return nrdone; }
+bool dgbSurfDataReader::readFloat( float& res )
+{ mReadData(floatinterpreter_,sizeoffloat) }
 
 
-int EM::dgbSurfDataReader::totalNr() const
-{ return totalnr; }
+int dgbSurfDataReader::nrDone() const 
+{ return nrdone_; }
 
 
-const char* EM::dgbSurfDataReader::message() const
-{ return errmsg; }
+int dgbSurfDataReader::totalNr() const
+{ return totalnr_; }
+
+
+const char* dgbSurfDataReader::message() const
+{ return errmsg_; }
+
+}; //nsamespace

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          April 2006
- RCS:           $Id: horizonsorter.cc,v 1.1 2006-04-25 15:20:33 cvsnanne Exp $
+ RCS:           $Id: horizonsorter.cc,v 1.2 2006-04-27 15:29:13 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -66,8 +66,8 @@ void HorizonSorter::calcBoundingBox()
     HorSampling hrg;
     for ( int idx=0; idx<horizons_.size(); idx++ )
     {
-	StepInterval<int> rrg = horizons_[idx]->geometry.rowRange();
-	StepInterval<int> crg = horizons_[idx]->geometry.colRange();
+	StepInterval<int> rrg = horizons_[idx]->geometry().rowRange();
+	StepInterval<int> crg = horizons_[idx]->geometry().colRange();
 	if ( !idx )
 	{
 	    hrg.set( rrg, crg );
@@ -145,13 +145,14 @@ int HorizonSorter::nextStep()
 	return Finished;
     }
 
+    const EM::SubID subid = binid_.getSerialized();
     const int nrhors = horizons_.size();
     float depths[nrhors];
     for ( int idx=0; idx<nrhors; idx++ )
     {
-	TypeSet<Coord3> crds;
-	horizons_[idx]->geometry.getPos( binid_, crds );
-	depths[idx] = crds.size() ? crds[0].z : mUdf(float);
+	const Coord3 pos = horizons_[idx]->getPos( horizons_[idx]->sectionID(0),
+	       					   subid );
+	depths[idx] = pos.z;
     }
 
     for ( int idx=0; idx<nrhors; idx++ )

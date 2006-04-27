@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurface.cc,v 1.36 2006-03-23 14:54:25 cvsnanne Exp $
+ RCS:           $Id: uiiosurface.cc,v 1.37 2006-04-27 15:29:13 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -212,7 +212,7 @@ uiSurfaceWrite::uiSurfaceWrite( uiParent* p, const EM::Surface& surf_,
 				bool ishor )
     : uiIOSurface(p,false,ishor)
 {
-    if ( surf_.geometry.nrSections() > 1 )
+    if ( surf_.nrSections() > 1 )
 	mkSectionFld( false );
 
     mkRangeFld();

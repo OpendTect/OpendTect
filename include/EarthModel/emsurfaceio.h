@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfaceio.h,v 1.19 2006-03-31 20:04:33 cvskris Exp $
+ RCS:		$Id: emsurfaceio.h,v 1.20 2006-04-27 15:29:13 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -28,6 +28,7 @@ namespace EM
 {
 class Surface;
 class dgbSurfDataReader;
+class RowColSurfaceGeometry;
 
 
 /*!
@@ -291,6 +292,7 @@ protected:
     int				rowindex_;
 
     const EM::Surface&		surface_;
+    const EM::RowColSurfaceGeometry& geometry_;
 
     StepInterval<int>		rowrange_;
     StepInterval<int>		colrange_;

@@ -4,12 +4,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Nov 2002
- RCS:           $Id: emsurfacegeometry.cc,v 1.33 2006-03-30 07:18:19 cvsnanne Exp $
+ RCS:           $Id: emsurfacegeometry.cc,v 1.34 2006-04-27 15:29:13 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "emsurfacegeometry.h"
+
+#include "emrowcoliterator.h"
 
 #include "emsurface.h"
 #include "emsurfacetr.h"
@@ -132,19 +134,16 @@ bool SurfaceSectionHistoryEvent::action( bool doadd ) const
     Surface* emsurface = dynamic_cast<Surface*>(objectptr);
 
     if ( doadd )
-	return emsurface->geometry.addSection( name, sid, false );
+	return emsurface->geometry().addSection( name, sid, false );
 
-    emsurface->geometry.removeSection( sid, false );
+    emsurface->geometry().removeSection( sid, false );
     return true;
 }
 
 
 SurfaceGeometry::SurfaceGeometry( Surface& surf_ )
-    : step_(SI().inlStep(),SI().crlStep())
-    , loadedstep_(SI().inlStep(),SI().crlStep())
-    , shift(0)
-    , changed( 0 )
-    , surface( surf_ )
+    : changed_( false )
+    , surface_( surf_ )
 {}
 
 
@@ -161,13 +160,25 @@ void SurfaceGeometry::removeAll()
 }
 
 
-void SurfaceGeometry::checkSections()
+bool SurfaceGeometry::enableChecks(bool yn)
+{ return false; }
+
+
+bool SurfaceGeometry::isChecksEnabled() const
+{ return false; }
+
+
+bool SurfaceGeometry::isNodeOK(const PosID&) const
+{ return true; }
+
+/*
+void SurfaceGeometry::removeEmptySections()
 {
     const int nrsections = nrSections();
     for ( int sidx=0; sidx<nrsections; sidx++ )
     {
 	const SectionID sid = sectionID( sidx );
-	const Geometry::ParametricSurface* psurf = getSurface( sid );
+	const Geometry::ParametricSurface* psurf = sectionGeometry( sid );
 	if ( !psurf ) return;
 
 	bool isundef = true;
@@ -186,15 +197,176 @@ void SurfaceGeometry::checkSections()
 	    removeSection( sid, false );
     }
 }
+*/
 
 
+int SurfaceGeometry::nrSections() const
+{
+    return sids_.size();
+}
+
+
+SectionID SurfaceGeometry::sectionID( int idx ) const
+{
+    return sids_[idx];
+}
+
+
+SectionID SurfaceGeometry::sectionID( const char* nm ) const
+{
+    for ( int idx=0; idx<sectionnames_.size(); idx++ )
+	if ( *sectionnames_[idx] == nm ) return sids_[idx];
+    return -1;
+}
+
+
+const char* SurfaceGeometry::sectionName( const SectionID& sid ) const
+{
+    int idx = sids_.indexOf(sid);
+    const char* res = idx!=-1 ? sectionnames_[idx]->buf() : 0;
+    return  res && *res ? res : 0;
+}
+
+
+bool SurfaceGeometry::setSectionName( const SectionID& sid, const char* nm,
+				      bool addtohistory )
+{
+    const int idx = sids_.indexOf(sid);
+    if ( !nm || !*nm || idx<0 )
+	return false;
+
+    sectionnames_.get(idx) = nm;
+
+    if ( addtohistory )
+	pErrMsg("Section namechange history not implemented" );
+
+    changed_ = true;
+    return true;
+}
+
+
+bool SurfaceGeometry::hasSection( const SectionID& sid ) const
+{ return sectionIndex(sid)!=-1; }
+
+
+int SurfaceGeometry::sectionIndex( const SectionID& sid ) const
+{ return sids_.indexOf(sid); }
+
+
+
+SectionID SurfaceGeometry::addSection( const char* nm, bool addtohistory )
+{
+    SectionID res = 0;
+    while ( sids_.indexOf(res)!=-1 ) res++;
+
+    return addSection( nm, res, addtohistory );
+}
+
+
+SectionID SurfaceGeometry::addSection( const char* nm, const SectionID& sid, 
+				       bool addtohistory )
+{
+    Geometry::Element* newsurf = createSectionGeometry();
+    return newsurf ? addSectionInternal( newsurf, nm, sid, addtohistory ) : -1;
+}
+
+
+bool SurfaceGeometry::removeSection( const SectionID& sid, bool addtohistory )
+{
+    int idx=sids_.indexOf(sid);
+    if ( idx==-1 ) return false;
+
+    for ( int attr=0; attr<surface_.nrPosAttribs(); attr++ )
+    {
+	const TypeSet<PosID>* attrset = surface_.getPosAttribList( attr );
+	if ( !attrset ) continue;
+	for ( int idy=0; idy<attrset->size(); idy++ )
+	{
+	    const PosID& posid = (*attrset)[idy];
+	    if ( sid == posid.sectionID() )
+		surface_.setPosAttrib( posid, attr, false );
+	}
+    }
+
+    surface_.relations.removeSection( sid );
+    BufferString name = *sectionnames_[idx];
+
+    delete sections_[idx];
+    sections_.remove( idx );
+    sids_.remove( idx );
+    sectionnames_.remove( idx );
+
+    if ( addtohistory )
+    {
+	pErrMsg("History not implemented for remove section");
+	EMM().history().setCurrentEventAsFirst();
+	/*
+
+	HistoryEvent* history =
+	    new SurfaceSectionHistoryEvent( false, surface_.id(),
+					    sid, name );
+	EMM().history().addEvent( history, 0, 0 );
+	*/
+    }
+
+    EMObjectCallbackData cbdata;
+    cbdata.event = EMObjectCallbackData::SectionChange;
+    cbdata.pid0 = PosID( surface_.id(), sid, 0 );
+    surface_.notifier.trigger(cbdata);
+
+    changed_ = true;
+    return true;
+}
+
+
+SectionID SurfaceGeometry::cloneSection( const SectionID& sid )
+{
+    int sectionidx = sids_.indexOf(sid);
+    if ( sectionidx==-1 ) return -1;
+
+    Geometry::Element* newsurf = sections_[sectionidx]->clone();
+    const SectionID res = addSectionInternal( newsurf, 0, -1, true );
+
+    surface_.relations.cloneSectionRelation( sid, res );
+
+    return res;
+}
+
+
+const Geometry::Element*
+SurfaceGeometry::sectionGeometry( const SectionID& sid ) const
+{
+    const int idx = sids_.indexOf( sid );
+    return idx==-1 ? 0 : sections_[idx];
+}
+
+
+Geometry::Element*
+SurfaceGeometry::sectionGeometry( const SectionID& sid )
+{
+    const int idx = sids_.indexOf( sid );
+    return idx==-1 ? 0 : sections_[idx];
+}
+
+
+bool SurfaceGeometry::isAtEdge(EM::PosID const&) const
+{ return false; }
+
+
+int SurfaceGeometry::getConnectedPos( const PosID& posid,
+				      TypeSet<PosID>* res) const
+{
+    return 0;
+}
+
+
+/*
 bool SurfaceGeometry::findClosestNodes( TopList<float,PosID>& toplist,
-				    const Coord3& pos_,
-				    const FloatMathFunction* t2dfunc) const
+				    const Coord3& pos) const
 {
     const int nrsections = nrSections();
     for ( int idx=0; idx<nrsections; idx++ )
-	findClosestNodes( sectionID(idx), toplist, pos_, t2dfunc );
+	findClosestNodes( sectionID(idx), toplist, pos, t2dfunc );
 
     return toplist.size();
 }
@@ -224,13 +396,13 @@ bool SurfaceGeometry::findClosestNodes( const SectionID& sid,
 	{
 	    if ( isDefined(sid,rc) )
 	    {
-		Coord3 pos = surface.getPos( sid, rc.getSerialized() );
+		Coord3 pos = surface_.getPos( sid, rc.getSerialized() );
 		if ( t2dfunc )
 		    pos.z = t2dfunc->getValue( pos.z );
 
 		double dist = pos.distance( origpos );
 		toplist.addValue( dist,
-			      PosID(surface.id(),sid,rc.getSerialized()) );
+			      PosID(surface_.id(),sid,rc.getSerialized()) );
 	    
 	    }
 	}
@@ -375,7 +547,7 @@ bool SurfaceGeometry::computeNormal( Coord3& res, const CubeSampling* cs,
 		for ( ; colrange.includes( idx.col ); idx.col+=colrange.step )
 		{
 		    if ( isDefined(sid,idx) )
-			nodes += PosID(surface.id(),sid,idx.getSerialized());
+			nodes += PosID(surface_.id(),sid,idx.getSerialized());
 		}
 	    }
 	}
@@ -389,7 +561,7 @@ bool SurfaceGeometry::computeNormal( Coord3& res, const CubeSampling* cs,
 if ( !fetched[nodeindex] ) \
 { \
     fetched[nodeindex]=true; \
-    const Coord3 tpos = surface.getPos(getNeighbor(node,dirs[nodeindex])); \
+    const Coord3 tpos = surface_.getPos(getNeighbor(node,dirs[nodeindex])); \
     if ( tpos.isDefined() )  \
     { \
 	while ( coords.size()<=nodeindex ) \
@@ -402,7 +574,7 @@ if ( !fetched[nodeindex] ) \
 bool SurfaceGeometry::computeNormal( Coord3& res, const PosID& node,
 		     const FloatMathFunction* t2d, bool normalize ) const
 {
-    const Coord3 nodetpos = surface.getPos(node);
+    const Coord3 nodetpos = surface_.getPos(node);
     const bool defnode = nodetpos.isDefined();
     const Coord3 nodecoord( nodetpos,
 	     		 t2d&&defnode ? t2d->getValue(nodetpos.z) : nodetpos.z);
@@ -608,45 +780,6 @@ float SurfaceGeometry::normalDistance( const Coord3& timepos,
 }
 
 
-bool SurfaceGeometry::hasSupport( const PosID& pid ) const
-{
-    const Geometry::ParametricSurface* psurf = getSurface( pid.sectionID() );
-    return psurf ? psurf->hasSupport( RowCol(pid.subID()) ) : false;
-}
-
-
-bool SurfaceGeometry::checkSupport( bool yn )
-{
-    const bool res = checksSupport();
-    for ( int idx=0; idx<meshsurfaces.size(); idx++ )
-    	meshsurfaces[idx]->checkSupport(yn);
-
-    return res;
-}
-
-
-bool SurfaceGeometry::checksSupport() const
-{ return meshsurfaces.size() ? meshsurfaces[0]->checksSupport() : true; }
-
-
-bool SurfaceGeometry::checkSelfIntersection( bool yn )
-{
-    const bool res = checksSelfIntersection();
-    for ( int idx=0; idx<meshsurfaces.size(); idx++ )
-    	meshsurfaces[idx]->checkSelfIntersection(yn);
-
-    return res;
-}
-
-
-bool SurfaceGeometry::checksSelfIntersection() const
-{
-    return meshsurfaces.size()
-	? meshsurfaces[0]->checksSelfIntersection()
-	: true;
-}
-
-
 char SurfaceGeometry::whichSide( const Coord3& timepos,
 			     const FloatMathFunction* t2dfunc,
 			     float fuzzy ) const
@@ -668,7 +801,7 @@ for ( int idy=0; idy<nrnodealiases; idy++ ) \
     const SectionID sid = nodealias.sectionID(); \
     const RowCol noderc(nodealias.subID()); \
     const RowCol neighborrc( noderc.row rowdiff, noderc.col coldiff ); \
-    coordname = surface.getPos(sid, neighborrc.getSerialized()); \
+    coordname = surface_.getPos(sid, neighborrc.getSerialized()); \
     defname = coordname.isDefined(); \
     if ( defname ) \
     { \
@@ -692,7 +825,7 @@ void SurfaceGeometry::getMeshCoords( const PosID& pid,
     nodealiases += pid;
     const int nrnodealiases = nodealiases.size();
 
-    c00 = surface.getPos(pid);
+    c00 = surface_.getPos(pid);
     c00def = c00.isDefined();
     if ( c00def && t2dfunc ) c00.z = t2dfunc->getValue(c00.z);
 
@@ -701,305 +834,7 @@ void SurfaceGeometry::getMeshCoords( const PosID& pid,
     mGetNeigborCoord( c11, c11def, +step_.row, +step_.col );
 }
 
-
-int SurfaceGeometry::nrSections() const
-{
-    return sectionids.size();
-}
-
-
-SectionID SurfaceGeometry::sectionID( int idx ) const
-{
-    return sectionids[idx];
-}
-
-
-SectionID SurfaceGeometry::sectionID( const char* nm ) const
-{
-    for ( int idx=0; idx<sectionnames.size(); idx++ )
-	if ( *sectionnames[idx] == nm ) return sectionids[idx];
-    return -1;
-}
-
-
-const char* SurfaceGeometry::sectionName( const SectionID& sid ) const
-{
-    int idx = sectionids.indexOf(sid);
-    const char* res = idx!=-1 ? sectionnames[idx]->buf() : 0;
-    return  res && *res ? res : 0;
-}
-
-
-bool SurfaceGeometry::setSectionName( const SectionID& sid, const char* nm,
-				      bool addtohistory )
-{
-    const int idx = sectionids.indexOf(sid);
-    if ( !nm || !*nm || idx<0 )
-	return false;
-
-    sectionnames.get(idx) = nm;
-
-    if ( addtohistory )
-	pErrMsg("Section namechange history not implemented" );
-
-    changed = true;
-    return true;
-}
-
-
-bool SurfaceGeometry::hasSection( const SectionID& sid ) const
-{ return sectionNr(sid)!=-1; }
-
-
-int SurfaceGeometry::sectionNr( const SectionID& sid ) const
-{ return sectionids.indexOf(sid); }
-
-
-
-SectionID SurfaceGeometry::addSection( const char* nm, bool addtohistory )
-{
-    SectionID res = 0;
-    while ( sectionids.indexOf(res)!=-1 ) res++;
-
-    return addSection( nm, res, addtohistory );
-}
-
-
-SectionID SurfaceGeometry::addSection( const char* nm, const SectionID& sid, 
-				       bool addtohistory )
-{
-    Geometry::ParametricSurface* newsurf = createSectionSurface();
-    return newsurf ? addSection( newsurf, nm, sid, addtohistory ) : -1;
-}
-
-
-SectionID SurfaceGeometry::addSection( Geometry::ParametricSurface* surf,
-				   const char* nm, const SectionID& wantedsid,
-				   bool addtohistory )
-{
-    if ( !surf ) return -1;
-    surf->checkSupport( checksSupport() );
-
-    SectionID sid = wantedsid;
-    if ( sid==-1 )
-    {
-	sid = 0;
-	while ( sectionids.indexOf(sid)!=-1 ) sid++;
-    }
-    
-    BufferString name; 
-    if ( nm && *nm ) name = nm;
-    else { name = "["; name += sid + 1; name += "]"; }
-
-    sectionids += sid;
-    sectionnames += new BufferString(name);
-    meshsurfaces += surf;
-
-    if ( addtohistory )
-    {
-	pErrMsg("History not implemented for add section");
-	EMM().history().setCurrentEventAsFirst();
-	/*
-	HistoryEvent* history =
-	    new SurfaceSectionHistoryEvent( true, surface.id(), sid, name );
-	EMM().history().addEvent( history, 0, 0 );
-	*/
-    }
-
-    EMObjectCallbackData cbdata;
-    cbdata.event = EMObjectCallbackData::SectionChange;
-    cbdata.pid0 = PosID( surface.id(), sid, 0 );
-    surface.notifier.trigger(cbdata);
-
-    changed = true;
-    return sid;
-}
-
-
-void SurfaceGeometry::removeSection( const SectionID& sid, bool addtohistory )
-{
-    int idx=sectionids.indexOf(sid);
-    if ( idx==-1 ) return;
-
-    for ( int attr=0; attr<surface.nrPosAttribs(); attr++ )
-    {
-	const TypeSet<PosID>* attrset = surface.getPosAttribList( attr );
-	if ( !attrset ) continue;
-	for ( int idy=0; idy<attrset->size(); idy++ )
-	{
-	    const PosID& posid = (*attrset)[idy];
-	    if ( sid == posid.sectionID() )
-		surface.setPosAttrib( posid, attr, false );
-	}
-    }
-
-    surface.edgelinesets.removeSection( sid );
-    surface.relations.removeSection( sid );
-    surface.auxdata.removeSection( sid );
-    BufferString name = *sectionnames[idx];
-
-    delete meshsurfaces[idx];
-    meshsurfaces.remove( idx );
-    sectionids.remove( idx );
-    sectionnames.remove( idx );
-
-    if ( addtohistory )
-    {
-	pErrMsg("History not implemented for remove section");
-	EMM().history().setCurrentEventAsFirst();
-	/*
-
-	HistoryEvent* history =
-	    new SurfaceSectionHistoryEvent( false, surface.id(),
-					    sid, name );
-	EMM().history().addEvent( history, 0, 0 );
-	*/
-    }
-
-    EMObjectCallbackData cbdata;
-    cbdata.event = EMObjectCallbackData::SectionChange;
-    cbdata.pid0 = PosID( surface.id(), sid, 0 );
-    surface.notifier.trigger(cbdata);
-
-    changed = true;
-}
-
-
-SectionID SurfaceGeometry::cloneSection( const SectionID& sid )
-{
-    int sectionidx = sectionids.indexOf(sid);
-    if ( sectionidx==-1 ) return -1;
-
-    Geometry::ParametricSurface* newsurf = meshsurfaces[sectionidx]->clone();
-    SectionID res = addSection( newsurf, 0, -1, true );
-
-    surface.edgelinesets.cloneEdgeLineSet( sid, res );
-    surface.relations.cloneSectionRelation( sid, res );
-
-    return res;
-}
-
-bool SurfaceGeometry::insertRowOrCol( const SectionID& sid, int rc, bool row,
-				      bool hist )
-{
-    const bool didcheck = checkSelfIntersection(false);
-    const int dim = row ? 0 : 1;
-
-    TypeSet<RowCol> movedrc;
-    TypeSet<RowCol> queue;
-
-    PtrMan<EMObjectIterator> iterator = surface.createIterator(sid);
-    while ( iterator )
-    {
-	const EM::PosID pid = iterator->next();
-	if ( pid.objectID()==-1 )
-	    break;
-
-	const RowCol fromrc( pid.subID() );
-	if ( fromrc[dim]<rc )
-	    continue;
-
-	queue += fromrc;
-    }
-
-    mDynamicCastGet( Geometry::ParametricSurface*, paramsurf,
-	    	     surface.getElementInternal(sid) );
-    const StepInterval<int> perprg = row ? colRange(sid) : rowRange(sid);
-    TypeSet<RowCol> replacercs;
-    TypeSet<Coord3> replacepos;
-    for ( int idx=perprg.start; idx<=perprg.stop; idx+= perprg.step )
-    {
-	const RowCol replacerc( row ? rc : idx, row ? idx : rc );
-	Coord param( replacerc.row, replacerc.col );
-	param[dim] -= (float) step()[dim]/2;
-	
-	replacercs += RowCol( row ? rc : idx, row ? idx : rc );
-	replacepos += paramsurf->computePosition(param);
-    }
-
-    while ( queue.size() )
-    {
-	for ( int idx=queue.size()-1; idx>=0; idx-- )
-	{
-	    const RowCol& fromrc = queue[idx];
-	    RowCol torc( fromrc );
-	    torc[dim] = fromrc[dim]+step_[dim];
-
-	    if ( isDefined(sid,torc) && movedrc.indexOf(torc)==-1 )
-		continue;
-
-	    const EM::PosID frompid( surface.id(), sid, fromrc.getSerialized());
-	    const EM::PosID topid( surface.id(), sid, torc.getSerialized());
-	    surface.changePosID( frompid, topid, hist );
-	    queue.removeFast(idx);
-	    movedrc += fromrc;
-	}
-    }
-
-    for ( int idx=replacercs.size()-1; idx>=0; idx-- )
-	paramsurf->setKnot(replacercs[idx],replacepos[idx]);
-
-    checkSelfIntersection(didcheck);
-    return true;
-}
-
-
-bool SurfaceGeometry::insertRow( const SectionID& sid, int rc, bool hist )
-{
-    return insertRowOrCol( sid, rc, true, hist );
-}
-
-
-bool SurfaceGeometry::insertCol( const SectionID& sid, int rc, bool hist )
-{
-    return insertRowOrCol( sid, rc, false, hist );
-}
-
-
-void SurfaceGeometry::getPos( const RowCol& rc, TypeSet<Coord3>& crdset ) const
-{
-    const int nrsubsurf = nrSections();
-    for ( int surfidx=0; surfidx<nrsubsurf; surfidx++ )
-    {
-	Coord3 crd = surface.getPos( sectionID(surfidx), rc.getSerialized() );
-	if ( crd.isDefined() )
-	    crdset += crd;
-    }
-}
-
-
-bool SurfaceGeometry::isDefined( const PosID& posid ) const
-{
-    return isDefined( posid.sectionID(), RowCol(posid.subID()) );
-}
-
-
-bool SurfaceGeometry::isDefined( const SectionID& sid, const RowCol& rc ) const
-{
-    const int surfidx = sectionids.indexOf( sid );
-    if ( surfidx < 0 || surfidx >= meshsurfaces.size() ) return false;
-
-    return meshsurfaces[surfidx]->isKnotDefined( rc );
-}
-
-
-int SurfaceGeometry::findPos( const RowCol& rowcol, TypeSet<PosID>& res ) const
-{
-    const int nrsubsurf = nrSections();
-    for ( int idx=0; idx<nrsubsurf; idx++ )
-    {
-	Geometry::ParametricSurface* meshsurf = meshsurfaces[idx];
-	if ( !meshsurf->isKnotDefined( rowcol ) )
-	    continue;
-
-	Coord3 pos = meshsurf->getKnot( rowcol );
-	SubID subid = rowcol.getSerialized();
-
-	res += PosID( surface.id(), sectionID(idx), subid );
-    }
-
-    return res.size();
-}
+*/
 
 
 int SurfaceGeometry::findPos( const SectionID& sid,
@@ -1007,20 +842,24 @@ int SurfaceGeometry::findPos( const SectionID& sid,
 			  const Interval<float>& z,
 			  TypeSet<PosID>* res ) const	
 {
-    /*
-    int idx = sectionids.indexOf(sid);
+    return 0;
+
+
+    /* TODO: Move this to some inheriting class
+
+    int idx = sids_.indexOf(sid);
     if ( idx<0 ) return 0;
 
     TypeSet<PosID> posids;
     TypeSet<GeomPosID> nodes;
-    meshsurfaces[idx]->findPos( x.center(), y.center(), z.center(),
+    sections_[idx]->findPos( x.center(), y.center(), z.center(),
 			    x.width()/2, y.width()/2, z.width()/2, nodes );
 
     const int nrnodes = nodes.size();
     for ( int idy=0; idy<nrnodes; idy++ )
     {
-	const SectionID sid = sectionids[idx];
-	const PosID posid( surface.id(), sid, 
+	const SectionID sid = sids_[idx];
+	const PosID posid( surface_.id(), sid, 
 			getSurfSubID(nodes[idy],sid) );
 
 	TypeSet<PosID> clones;
@@ -1042,13 +881,13 @@ int SurfaceGeometry::findPos( const SectionID& sid,
     if ( res ) res->append(posids);
     return posids.size();
     */
-    return 0;
 }
 
 
-int SurfaceGeometry::findPos( const Interval<float>& x, const Interval<float>& y,
-			  const Interval<float>& z,
-			  TypeSet<PosID>* res ) const	
+int SurfaceGeometry::findPos( const Interval<float>& x,
+			      const Interval<float>& y,
+			      const Interval<float>& z,
+			      TypeSet<PosID>* res ) const	
 {
     int sum = 0;
     const int nrsections = nrSections();
@@ -1084,7 +923,7 @@ int SurfaceGeometry::findPos( const CubeSampling& cs,
     for ( int idx=0; idx<posids.size(); idx++ )
     {
 	const PosID& posid = posids[idx];
-	const BinID nodebid = SI().transform(surface.getPos(posid));
+	const BinID nodebid = SI().transform(surface_.getPos(posid));
 
 	if ( nodebid.inl<cs.hrg.start.inl || nodebid.inl>cs.hrg.stop.inl ||
 	     nodebid.crl<cs.hrg.start.crl || nodebid.crl>cs.hrg.stop.crl )
@@ -1099,129 +938,9 @@ int SurfaceGeometry::findPos( const CubeSampling& cs,
 }
 
 
-PosID SurfaceGeometry::getNeighbor( const PosID& posid,
-				    const RowCol& dir ) const
-{
-    RowCol diff(0,0);
-    if ( dir.row>0 ) diff.row = step_.row;
-    else if ( dir.row<0 ) diff.row = -step_.row;
-
-    if ( dir.col>0 ) diff.col = step_.col;
-    else if ( dir.col<0 ) diff.col = -step_.col;
-    
-    TypeSet<PosID> aliases;
-    getLinkedPos( posid, aliases );
-    aliases += posid;
-
-    const int nraliases = aliases.size();
-    for ( int idx=0; idx<nraliases; idx++ )
-    {
-	const RowCol ownrc(aliases[idx].subID());
-	const RowCol neigborrc = ownrc+diff;
-	if ( isDefined(aliases[idx].sectionID(),neigborrc) )
-	    return PosID( surface.id(), aliases[idx].sectionID(),
-		    	  neigborrc.getSerialized() );
-    }
-
-    const RowCol ownrc(posid.subID());
-    const RowCol neigborrc = ownrc+diff;
-
-    return PosID( surface.id(), posid.sectionID(), neigborrc.getSerialized());
-}
-
-
-int SurfaceGeometry::getNeighbors( const PosID& posid_, TypeSet<PosID>* res,
-			       int maxradius, bool circle ) const
-{
-    ObjectSet< TypeSet<PosID> > neigbors;
-    const RowCol start(posid_.subID());
-    neigbors += new TypeSet<PosID>( 1, posid_ );
-
-    for ( int idx=0; idx<neigbors.size(); idx++ )
-    {
-	for ( int idz=0; idz<neigbors[idx]->size(); idz++ )
-	{
-	    PosID currentposid = (*neigbors[idx])[idz];
-	    const RowCol rowcol(currentposid.subID());
-
-	    for ( int row=-step_.row; row<=step_.row; row+=step_.row )
-	    {
-		for ( int col=-step_.col; col<=step_.col; col+=step_.col )
-		{
-		    if ( !row && !col ) continue;
-
-		    const RowCol neighborrowcol(rowcol.row+row,rowcol.col+col);
-		    const int drow =abs(neighborrowcol.row-start.row)/step_.row;
-		    const int dcol =abs(neighborrowcol.col-start.col)/step_.col;
-
-		    if ( drow>maxradius || dcol>maxradius )
-			continue;
-
-		    if ( circle && (drow*drow+dcol*dcol)> maxradius*maxradius)
-			continue;
-
-		    if ( !isDefined(currentposid.sectionID(),neighborrowcol) )
-			continue;
-		   
-		    const PosID
-			    neighborposid(currentposid.objectID(),
-			    currentposid.sectionID(),
-			    neighborrowcol.getSerialized() );
-
-		    bool found = false;
-		    for ( int idy=0; idy<neigbors.size(); idy++ )
-		    {
-			const TypeSet<PosID>& posids=*neigbors[idy];
-			if ( posids.indexOf(neighborposid)!=-1 )
-			{
-			    found = true;
-			    break;
-			}
-		    }
-
-		    if ( found )
-			continue;
-
-		    TypeSet<PosID>& posids = *new TypeSet<PosID>;
-		    getLinkedPos( neighborposid, posids );
-		    posids.insert( 0, neighborposid );
-
-		    neigbors += &posids;
-
-		}
-	    }
-	}
-    }
-
-    if ( res )
-    {
-	// Leave out the fist one, since it's the origin
-	for ( int idx=1; idx<neigbors.size(); idx++ )
-	{
-	    (*res) += (*neigbors[idx])[0];
-	}
-    }
-
-    const int size = neigbors.size();
-    deepErase( neigbors );
-
-    // Leave out the fist one, since it's the origin
-    return size-1;
-}
-
-
 void SurfaceGeometry::getLinkedPos( const PosID& posid,
 				TypeSet<PosID>& res ) const
-{
-    if ( posid.objectID()!=surface.id() )
-        return; //TODO: Implement handling for this case
-
-    const SubID subid = posid.subID();
-    const RowCol rowcol(subid);
-    const Geometry::ParametricSurface* ownmeshsurf =
-				getSurface( posid.sectionID() );
-    if ( !ownmeshsurf ) return;
-}
+{ res.erase(); }
 
 
 bool SurfaceGeometry::isLoaded() const
@@ -1230,114 +949,22 @@ bool SurfaceGeometry::isLoaded() const
 }
 
 
-RowCol SurfaceGeometry::loadedStep() const
-{
-    return loadedstep_;
-}
-
-
-RowCol SurfaceGeometry::step() const
-{
-    return step_;
-}
-
-
-void SurfaceGeometry::setStep( const RowCol& ns, const RowCol& loadedstep )
-{
-    step_ = ns;
-    loadedstep_ = loadedstep;
-}
-
-
 bool SurfaceGeometry::isFullResolution() const
 {
-    return loadedstep_ == step_;
-}
-
-
-const Geometry::ParametricSurface*
-    SurfaceGeometry::getSurface( const SectionID& sid ) const
-{
-    const int idx = sectionids.indexOf( sid );
-    return idx==-1 ? 0 : meshsurfaces[idx];
-}
-
-#define mGetRange( funcname ) \
-StepInterval<int> SurfaceGeometry::funcname(const SectionID& sid) const \
-{ \
-    if ( sid==-1 ) \
-    { \
-	StepInterval<int> res(0,0,0); \
-	bool isset = false; \
-	for ( int idx=0; idx<nrSections(); idx++ ) \
-	{ \
-	    Geometry::ParametricSurface* surf = meshsurfaces[idx]; \
-	    if ( !surf->nrKnots() ) continue; \
- \
-	    StepInterval<int> sectionrg = surf->funcname(); \
- \
-	    if ( !isset ) { res = sectionrg; isset=true; } \
-	    else res.include( sectionrg );  \
-	} \
- \
-	return res; \
-    } \
- \
-    StepInterval<int> res(0,0,0); \
-    const Geometry::ParametricSurface* gsurf = getSurface( sid ); \
-    if ( gsurf ) res = gsurf->funcname(); \
-    return res; \
-}
-
-
-mGetRange( rowRange )
-mGetRange( colRange )
-
-
-Interval<float> SurfaceGeometry::getZRange( const Interval<int>& rowrg,
-					    const Interval<int>& colrg ) const
-{
-    Interval<float> zrg( mUdf(float), -mUdf(float) );
-    for ( int sidx=0; sidx<nrSections(); sidx++ )
-    {
-	const SectionID sid = sectionID( sidx );
-	const Geometry::ParametricSurface* psurf = getSurface( sid );
-	for ( int nidx=0; nidx<psurf->nrKnots(); nidx++ )
-	{
-	    RowCol rc = psurf->getKnotRowCol( nidx );
-	    if ( rowrg.includes(rc.r()) && colrg.includes(rc.c()) )
-	    {
-		const Coord3& crd = surface.getPos( sid, rc.getSerialized() );
-		if ( crd.isDefined() ) zrg.include( crd.z, false );
-	    }
-	}
-    }
-
-    return zrg;
-}
-
-
-bool SurfaceGeometry::isAtEdge( const PosID& pid ) const
-{
-    if ( !isDefined(pid) ) return false;
-
-    return !isDefined(getNeighbor(pid,RowCol(0,1))) ||
-	     !isDefined(getNeighbor(pid,RowCol(1,0))) ||
-	     !isDefined(getNeighbor(pid,RowCol(0,-1))) ||
-	     !isDefined(getNeighbor(pid,RowCol(-1,0)));
+    return true;
 }
 
 
 Executor* SurfaceGeometry::loader( const SurfaceIODataSelection* newsel )
 {
-    PtrMan<IOObj> ioobj = IOM().get( surface.multiID() );
+    PtrMan<IOObj> ioobj = IOM().get( surface_.multiID() );
     if ( !ioobj )
-	{ surface.errmsg = "Cannot find surface"; return 0; }
+	{ surface_.errmsg = "Cannot find surface"; return 0; }
 
     PtrMan<EMSurfaceTranslator> tr = 
 			(EMSurfaceTranslator*)ioobj->getTranslator();
     if ( !tr || !tr->startRead(*ioobj) )
-	{ surface.errmsg = tr ? tr->errMsg() :
+	{ surface_.errmsg = tr ? tr->errMsg() :
 	    "Cannot find Translator"; return 0; }
 
     SurfaceIODataSelection& sel = tr->selections();
@@ -1351,8 +978,8 @@ Executor* SurfaceGeometry::loader( const SurfaceIODataSelection* newsel )
     else
 	sel.selvalues.erase();
 
-    Executor* exec = tr->reader( surface );
-    surface.errmsg = tr->errMsg();
+    Executor* exec = tr->reader( surface_ );
+    surface_.errmsg = tr->errMsg();
     return exec;
 }
 
@@ -1360,22 +987,24 @@ Executor* SurfaceGeometry::loader( const SurfaceIODataSelection* newsel )
 Executor* SurfaceGeometry::saver( const SurfaceIODataSelection* newsel,
        			          const MultiID* key )
 {
-    const MultiID& mid = key && !(*key=="") ? *key : surface.multiID();
+    const MultiID& mid = key && !(*key=="") ? *key : surface_.multiID();
     PtrMan<IOObj> ioobj = IOM().get( mid );
     if ( !ioobj )
-	{ surface.errmsg = "Cannot find surface"; return 0; }
+	{ surface_.errmsg = "Cannot find surface"; return 0; }
 
+    /*
     int nrknots = 0;
     for ( int idx=0; idx<nrSections(); idx++ )
-	nrknots += meshsurfaces[idx]->nrKnots();
+	nrknots += sections_[idx]->nrKnots();
 
     if ( nrknots == 0 )
-	{ surface.errmsg = "Empty surface"; return 0; }
+	{ surface_.errmsg = "Empty surface"; return 0; }
+	*/
 
     PtrMan<EMSurfaceTranslator> tr = 
 			(EMSurfaceTranslator*)ioobj->getTranslator();
-    if ( !tr || !tr->startWrite(surface) )
-	{ surface.errmsg = tr ? tr->errMsg() : "No Translator"; return 0; }
+    if ( !tr || !tr->startWrite(surface_) )
+	{ surface_.errmsg = tr ? tr->errMsg() : "No Translator"; return 0; }
 
     SurfaceIODataSelection& sel = tr->selections();
     if ( newsel )
@@ -1386,18 +1015,158 @@ Executor* SurfaceGeometry::saver( const SurfaceIODataSelection* newsel,
     }
 
     Executor* exec = tr->writer(*ioobj);
-    surface.errmsg = tr->errMsg();
+    surface_.errmsg = tr->errMsg();
     return exec;
 }
 
 
 bool SurfaceGeometry::usePar( const IOPar& par )
-{
-    return true;
-}
+{ return true; }
 
 
 void SurfaceGeometry::fillPar( IOPar& par ) const
 { }
+
+
+EMObjectIterator* SurfaceGeometry::createIterator( const SectionID& ) const
+{ return 0; }
+
+
+SectionID SurfaceGeometry::addSectionInternal( Geometry::Element* surf,
+				   const char* nm, const SectionID& wantedsid,
+				   bool addtohistory )
+{
+    if ( !surf ) return -1;
+
+    SectionID sid = wantedsid;
+    if ( sid==-1 )
+    {
+	sid = 0;
+	while ( sids_.indexOf(sid)!=-1 ) sid++;
+    }
+    
+    BufferString name; 
+    if ( nm && *nm ) name = nm;
+    else { name = "["; name += sid + 1; name += "]"; }
+
+    sids_ += sid;
+    sectionnames_ += new BufferString(name);
+    sections_ += surf;
+
+    if ( addtohistory )
+    {
+	pErrMsg("History not implemented for add section");
+	EMM().history().setCurrentEventAsFirst();
+    }
+
+    enableChecks( isChecksEnabled() ); 
+
+    EMObjectCallbackData cbdata;
+    cbdata.event = EMObjectCallbackData::SectionChange;
+    cbdata.pid0 = PosID( surface_.id(), sid, 0 );
+    surface_.notifier.trigger(cbdata);
+
+    changed_ = true;
+    return sid;
+}
+
+
+RowColSurfaceGeometry::RowColSurfaceGeometry( Surface& s )
+    : SurfaceGeometry( s )
+{}
+
+
+RowColSurfaceGeometry::~RowColSurfaceGeometry()
+{}
+
+
+const Geometry::RowColSurface*
+RowColSurfaceGeometry::sectionGeometry( const SectionID& sid ) const
+{
+    const Geometry::Element* res = SurfaceGeometry::sectionGeometry( sid );
+    return reinterpret_cast<const Geometry::RowColSurface*>( res );
+}
+
+
+StepInterval<int> RowColSurfaceGeometry::rowRange( const SectionID& sid ) const
+{
+    const Geometry::RowColSurface* elem = sectionGeometry( sid );
+    return elem->rowRange();
+}
+
+
+StepInterval<int> RowColSurfaceGeometry::rowRange() const
+{
+    StepInterval<int> res(0,0,0);
+    bool isset = false;
+    for ( int idx=0; idx<nrSections(); idx++ )
+    {
+	Geometry::RowColSurface* surf =
+	    (Geometry::RowColSurface*) sections_[idx];
+	const StepInterval<int> sectionrg = surf->rowRange();
+	if ( sectionrg.start>sectionrg.stop )
+	    continue;
+
+	if ( !isset ) { res = sectionrg; isset=true; }
+	else res.include( sectionrg );
+    }
+
+    return res;
+}
+
+
+StepInterval<int> RowColSurfaceGeometry::colRange( const SectionID& sid,
+       						   int row ) const
+{
+    const Geometry::RowColSurface* elem = sectionGeometry( sid );
+    return elem->colRange( row );
+}
+
+
+StepInterval<int> RowColSurfaceGeometry::colRange() const
+{
+    StepInterval<int> res(0,0,0);
+    bool isset = false;
+    for ( int idx=0; idx<nrSections(); idx++ )
+    {
+	Geometry::RowColSurface* surf =
+	    		(Geometry::RowColSurface*) sections_[idx];
+
+	StepInterval<int> sectionrg = surf->colRange();
+	if ( sectionrg.start>sectionrg.stop )
+	    continue;
+
+	if ( !isset ) { res = sectionrg; isset=true; }
+	else res.include( sectionrg );
+    }
+
+    return res;
+}
+
+
+StepInterval<int> RowColSurfaceGeometry::colRange( int row ) const
+{
+    StepInterval<int> res(0,0,0);
+    bool isset = false;
+    for ( int idx=0; idx<nrSections(); idx++ )
+    {
+	Geometry::RowColSurface* surf =
+	    (Geometry::RowColSurface*) sections_[idx];
+	StepInterval<int> sectionrg = surf->colRange( row );
+	if ( sectionrg.start>sectionrg.stop )
+	    continue;
+
+	if ( !isset ) { res = sectionrg; isset=true; }
+	else res.include( sectionrg );
+    }
+
+    return res;
+}
+
+EMObjectIterator* RowColSurfaceGeometry::createIterator( const SectionID& sid ) const
+{
+    return new RowColIterator( surface_, sid );
+}
+
 
 }; //namespace

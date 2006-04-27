@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurfacedlg.cc,v 1.17 2006-04-19 15:31:53 cvsnanne Exp $
+ RCS:           $Id: uiiosurfacedlg.cc,v 1.18 2006-04-27 15:29:13 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -80,7 +80,7 @@ void uiReadSurfaceDlg::getSelection( EM::SurfaceIODataSelection& sels )
 
 
 
-uiStoreAuxData::uiStoreAuxData( uiParent* p, const EM::Surface& surf )
+uiStoreAuxData::uiStoreAuxData( uiParent* p, const EM::Horizon& surf )
     : uiDialog(p,uiDialog::Setup("Output selection","Specify attribute name",
 				 "104.3.2"))
     , surface_(surf)
@@ -105,7 +105,7 @@ bool uiStoreAuxData::acceptOK( CallBacker* )
     }
 
     if ( attrnm != surface_.auxdata.auxDataName(0) )
-	const_cast<EM::Surface&>(surface_).
+	const_cast<EM::Horizon&>(surface_).
 	    auxdata.setAuxDataName( 0, attrnm.buf() );
 
     return true;
@@ -180,7 +180,7 @@ bool uiCopySurface::acceptOK( CallBacker* )
     emobj->setMultiID( ioobj->key() );
 
     mDynamicCastGet(EM::Surface*,surface,emobj.ptr())
-    PtrMan<Executor> loader = surface->geometry.loader( &sdsel );
+    PtrMan<Executor> loader = surface->geometry().loader( &sdsel );
     if ( !loader ) mErrRet("Cannot read surface")
 
     uiExecutor loaddlg( this, *loader );
@@ -189,7 +189,7 @@ bool uiCopySurface::acceptOK( CallBacker* )
     IOObj* newioobj = outfld->ctxtIOObj().ioobj;
     const MultiID& mid = newioobj->key();
     emobj->setMultiID( mid );
-    PtrMan<Executor> saver = surface->geometry.saver( 0, &mid );
+    PtrMan<Executor> saver = surface->geometry().saver( 0, &mid );
     if ( !saver ) mErrRet("Cannot save surface")
 
     uiExecutor savedlg( this, *saver );

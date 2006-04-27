@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          September 2005
- RCS:           $Id: emhorizonutils.cc,v 1.7 2006-02-07 13:38:48 cvshelene Exp $
+ RCS:           $Id: emhorizonutils.cc,v 1.8 2006-04-27 15:29:13 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "binidvalset.h"
 
 #include "emmanager.h"
-#include "emsurface.h"
+#include "emhorizon.h"
 #include "emsurfacegeometry.h"
 #include "emsurfaceauxdata.h"
 #include "parametricsurface.h"
@@ -29,14 +29,16 @@ namespace EM
     
 float HorizonUtils::getZ( const RowCol& rc, const Surface* surface )
 {
+    const SubID subid = rc.getSerialized();
+
     float bottomz=-mUdf(float);
-    TypeSet<Coord3> coords;
-    surface->geometry.getPos( rc, coords );
-    for( int idx=0; idx<coords.size(); idx++ )
+    for ( int idx=surface->nrSections()-1; idx>=0; idx-- )
     {
-	float valz = coords[idx].z;
+	const EM::SectionID sid = surface->sectionID( idx );
+	const float valz = surface->getPos( sid, subid ).z; 
 	bottomz = ( !mIsUdf(valz) && valz>bottomz ) ? valz : bottomz;
     }
+
     return bottomz;
 }
 
@@ -123,25 +125,26 @@ void HorizonUtils::getPositions( std::ostream& strm, const MultiID& id,
     strm << "\nFetching surface positions ...\n" ;
     ProgressMeter pm( strm );
     deepErase( data );
-    const int nrsect = surface->geometry.nrSections();
-    for ( int sectionidx=0; sectionidx<nrsect; sectionidx++ )
+
+    PtrMan<EMObjectIterator> iterator = surface->createIterator(-1);
+    SectionID sid = -1;
+    BinIDValueSet* res = 0;
+    while ( iterator )
     {
-	const SectionID sectionid = 
-	    			surface->geometry.sectionID( sectionidx );
-	const Geometry::ParametricSurface* psurf = 
-	    			surface->geometry.getSurface(sectionid);
+	const EM::PosID pid = iterator->next();
+	if ( pid.objectID()==-1 )
+	    break;
 
-	BinIDValueSet& res = *new BinIDValueSet( 1, false );
-	data += &res;
-
-	const int nrnodes = psurf->nrKnots();
-	for ( int idy=0; idy<nrnodes; idy++ )
-	{
-	    const Coord3 crd = psurf->getKnot( psurf->getKnotRowCol(idy) );
-	    const BinID bid = SI().transform(crd);
-	    res.add( bid, crd.z );
-	    ++pm;
+	if ( pid.sectionID()!=sid )
+	{	
+	    res = new BinIDValueSet( 1, false );
+	    data += res;
 	}
+
+	const Coord3 crd = surface->getPos( pid );
+	const BinID bid = SI().transform(crd);
+	res->add( bid, crd.z );
+	++pm;
     }
 
     pm.finish();
@@ -273,17 +276,16 @@ void HorizonUtils::addSurfaceData( const MultiID& id,
     EMManager& em = EMM();
     const ObjectID objid = em.getObjectID(id);
     EMObject* obj = em.getObject( objid );
-    mDynamicCastGet(Surface*,surface,obj)
-    if ( !surface ) return;
+    mDynamicCastGet(Horizon*,horizon,obj)
+    if ( !horizon ) return;
 
-    surface->auxdata.removeAll();
+    horizon->auxdata.removeAll();
     for ( int idx=0; idx<attrnms.size(); idx++ )
-	surface->auxdata.addAuxData( attrnms.get(idx) );
+	horizon->auxdata.addAuxData( attrnms.get(idx) );
 
     for ( int sectionidx=0; sectionidx<data.size(); sectionidx++ )
     {
-	const SectionID sectionid = 
-	    			surface->geometry.sectionID( sectionidx );
+	const SectionID sectionid = horizon->sectionID( sectionidx );
 	BinIDValueSet& bivs = *data[sectionidx];
 
 	PosID posid( objid, sectionid );
@@ -295,7 +297,7 @@ void HorizonUtils::addSurfaceData( const MultiID& id,
 	    const SubID subid = RowCol(bid.inl,bid.crl).getSerialized();
 	    posid.setSubID( subid );
 	    for ( int validx=1; validx<vals.size(); validx++ )
-		surface->auxdata.setAuxDataVal( validx-1, posid, vals[validx] );
+		horizon->auxdata.setAuxDataVal( validx-1, posid, vals[validx] );
 	}
     }
 }

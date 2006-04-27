@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: emhorizon3d.cc,v 1.69 2006-03-12 13:39:10 cvsbert Exp $
+ RCS:           $Id: emhorizon3d.cc,v 1.70 2006-04-27 15:29:13 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "binidvalset.h"
 #include "emmanager.h"
 #include "emsurfaceauxdata.h"
+#include "emsurfaceedgeline.h"
 #include "emsurfacetr.h"
 #include "executor.h"
 #include "ioobj.h"
@@ -55,6 +56,7 @@ AuxDataImporter( Horizon& hor, const ObjectSet<BinIDValueSet>& sects,
 	BufferString nm = attribnames.get( attribidx );
 	if ( !nm.size() )
 	    { nm = "Imported attribute "; nm += attribidx; }
+
 	horizon.auxdata.addAuxData( nm );
     }
 
@@ -67,16 +69,16 @@ int nextStep()
     if ( sectionidx == -1 || inl > inlrange.stop )
     {
 	sectionidx++;
-	if ( sectionidx >= horizon.geometry.nrSections() )
+	if ( sectionidx >= horizon.geometry().nrSections() )
 	    return Finished;
 
-	SectionID sectionid = horizon.geometry.sectionID(sectionidx);
-	inlrange = horizon.geometry.rowRange(sectionid);
-	crlrange = horizon.geometry.colRange(sectionid);
+	SectionID sectionid = horizon.geometry().sectionID(sectionidx);
+	inlrange = horizon.geometry().rowRange(sectionid);
+	crlrange = horizon.geometry().colRange(sectionid);
 	inl = inlrange.start;
     }
 
-    PosID posid( horizon.id(), horizon.geometry.sectionID(sectionidx) );
+    PosID posid( horizon.id(), horizon.geometry().sectionID(sectionidx) );
     const BinIDValueSet& bvs = *sections[sectionidx];
     const int nrattribs = bvs.nrVals()-1;
     for ( int crl=crlrange.start; crl<=crlrange.stop; crl+=crlrange.step )
@@ -85,8 +87,7 @@ int nextStep()
 	BinIDValueSet::Pos pos = bvs.findFirst( bid );
 	const float* vals = bvs.getVals( pos );
 	if ( !vals ) continue;
-	RowCol rc( HorizonGeometry::getRowCol(bid) );
-	posid.setSubID( rc.getSerialized() );
+	posid.setSubID( bid.getSerialized() );
 	int index = 0;
 	for ( int attridx=0; attridx<nrattribs; attridx++ )
 	{
@@ -133,16 +134,17 @@ HorizonImporter( Horizon& hor, const ObjectSet<BinIDValueSet>& sects,
     , sections_(sects)
     , totalnr_(0)
     , nrdone_(0)
+
 {
     for ( int idx=0; idx<sections_.size(); idx++ )
     {
 	const BinIDValueSet& bvs = *sections_[idx];
 	totalnr_ += bvs.totalSize();
-	horizon_.geometry.setStep( step, step );
-	horizon_.geometry.addSection( 0, false );
+	horizon_.geometry().setStep( step, step );
+	horizon_.geometry().addSection( 0, false );
     }
 
-    horizon_.geometry.checkSupport( false );
+    horizon_.enableGeometryChecks(false);
     sectionidx_ = 0;
 }
 
@@ -163,7 +165,7 @@ int nextStep()
 
 	if ( sectionidx_ >= sections_.size() )
 	{
-	    horizon_.geometry.checkSupport( true );
+	    horizon_.enableGeometryChecks( true );
 	    return Finished;
 	}
 
@@ -176,7 +178,7 @@ int nextStep()
     BinID bid;
     bvs.get( pos_, bid, vals.arr() );
 
-    PosID posid( horizon_.id(), horizon_.geometry.sectionID(sectionidx_),
+    PosID posid( horizon_.id(), horizon_.sectionID(sectionidx_),
 		 bid.getSerialized() );
     bool res = horizon_.setPos( posid, Coord3(0,0,vals[0]), false );
     if ( res )
@@ -202,10 +204,52 @@ protected:
 
 
 Horizon::Horizon( EMManager& man )
-    : Surface(man,*new HorizonGeometry(*this))
+    : Surface(man)
+    , geometry_( *this )
+    , auxdata( *new SurfaceAuxData(*this) )
+    , edgelinesets( *new EdgeLineManager(*this) )
 {
-    geometry.addSection( "", false );
+    geometry_.addSection( "", false );
 }
+
+
+Horizon::~Horizon()
+{
+    delete &auxdata;
+    delete &edgelinesets;
+}
+
+
+void Horizon::removeAll()
+{
+    Surface::removeAll();
+    auxdata.removeAll();
+    edgelinesets.removeAll();
+}
+
+
+void Horizon::fillPar( IOPar& par ) const
+{
+    Surface::fillPar( par );
+    auxdata.fillPar( par );
+    edgelinesets.fillPar( par );
+}
+
+
+bool Horizon::usePar( const IOPar& par )
+{
+    return Surface::usePar( par ) &&
+	auxdata.usePar( par ) &&
+	edgelinesets.usePar( par );
+}
+
+
+HorizonGeometry&  Horizon::geometry()
+{ return geometry_; }
+
+
+const HorizonGeometry&  Horizon::geometry() const
+{ return geometry_; }
 
 
 const char* Horizon::typeStr() { return EMHorizonTranslatorGroup::keyword; }
@@ -220,11 +264,11 @@ void Horizon::initClass(EMManager& emm)
 
 void Horizon::interpolateHoles( int aperture )
 {
-    for ( int idx=0; idx<geometry.nrSections(); idx++ )
+    for ( int idx=0; idx<geometry_.nrSections(); idx++ )
     {
-	SectionID sectionid = geometry.sectionID( idx );
-	const StepInterval<int> rowrg = geometry.rowRange(sectionid);
-	const StepInterval<int> colrg = geometry.colRange(sectionid);
+	SectionID sectionid = geometry_.sectionID( idx );
+	const StepInterval<int> rowrg = geometry_.rowRange(sectionid);
+	const StepInterval<int> colrg = geometry_.colRange(sectionid);
 	if ( rowrg.width(false)<1 || colrg.width(false)<1 )
 	    continue;
 
@@ -282,7 +326,7 @@ const IOObjContext& Horizon::getIOObjContext() const
 Executor* Horizon::importer( const ObjectSet<BinIDValueSet>& sections, 
 			     const RowCol& step )
 {
-    cleanUp();
+    removeAll();
     return new HorizonImporter( *this, sections, step );
 }
 
@@ -297,162 +341,179 @@ Executor* Horizon::auxDataImporter( const ObjectSet<BinIDValueSet>& sections,
 
 
 HorizonGeometry::HorizonGeometry( Surface& surf )
-    : SurfaceGeometry( surf ) 
+    : RowColSurfaceGeometry( surf ) 
+    , step_( SI().inlStep(), SI().crlStep() )
+    , loadedstep_( SI().inlStep(), SI().crlStep() )
+    , shift_( 0 )
 {}
 
 
-bool HorizonGeometry::createFromStick( const TypeSet<Coord3>& stick,
-				       SectionID sid, float velocity )
+const Geometry::BinIDSurface*
+HorizonGeometry::sectionGeometry( const SectionID& sid ) const
 {
-/*
-    SectionID sectionid = sid;
-    if ( !nrSections() || !hasSection(sid) ) 
-	sectionid = addSection( "", true );
+    return (const Geometry::BinIDSurface*) SurfaceGeometry::sectionGeometry(sid);
+}
 
-    const float idealdistance = 25; // TODO set this in some intelligent way
 
-    for ( int idx=0; idx<stick.size()-1; idx++ )
+Geometry::BinIDSurface*
+HorizonGeometry::sectionGeometry( const SectionID& sid )
+{
+    return (Geometry::BinIDSurface*) SurfaceGeometry::sectionGeometry(sid);
+}
+
+
+RowCol HorizonGeometry::loadedStep() const
+{
+    return loadedstep_;
+}
+
+
+RowCol HorizonGeometry::step() const
+{
+    return step_;
+}
+
+
+void HorizonGeometry::setStep( const RowCol& ns, const RowCol& loadedstep )
+{
+    step_ = ns;
+    loadedstep_ = loadedstep;
+}
+
+
+bool HorizonGeometry::isFullResolution() const
+{
+    return loadedstep_ == step_;
+}
+
+
+bool HorizonGeometry::removeSection( const SectionID& sid, bool addtohistory )
+{
+    int idx=sids_.indexOf(sid);
+    if ( idx==-1 ) return false;
+
+    ((Horizon&) surface_).edgelinesets.removeSection( sid );
+    ((Horizon&) surface_).auxdata.removeSection( sid );
+    return SurfaceGeometry::removeSection( sid, addtohistory );
+}
+
+
+SectionID HorizonGeometry::cloneSection( const SectionID& sid )
+{
+    const SectionID res = SurfaceGeometry::cloneSection(sid);
+    if ( res!=-1 )
+	((Horizon&) surface_).edgelinesets.cloneEdgeLineSet( sid, res );
+
+    return res;
+}
+
+
+void HorizonGeometry::setShift( float ns )
+{ shift_ = ns; }
+
+
+float HorizonGeometry::getShift() const
+{ return shift_; }
+
+
+bool HorizonGeometry::enableChecks( bool yn )
+{
+    const bool res = isChecksEnabled();
+    for ( int idx=0; idx<sections_.size(); idx++ )
+	((Geometry::BinIDSurface*)sections_[idx])->checkSupport(yn);
+
+    return res;
+}
+
+
+bool HorizonGeometry::isChecksEnabled() const
+{
+    return sections_.size()
+	? ((Geometry::BinIDSurface*)sections_[0])->checksSupport() : true;
+}
+
+
+bool HorizonGeometry::isNodeOK( const PosID& pid ) const
+{
+    const Geometry::BinIDSurface* surf = sectionGeometry( pid.sectionID() );
+    return surf ? surf->hasSupport( RowCol(pid.subID()) ) : false;
+}
+
+
+bool HorizonGeometry::isAtEdge( const PosID& pid ) const
+{
+    if ( !surface_.isDefined( pid ) )
+	return false;
+
+    return !surface_.isDefined(getNeighbor(pid,RowCol(0,1))) ||
+	   !surface_.isDefined(getNeighbor(pid,RowCol(1,0))) ||
+	   !surface_.isDefined(getNeighbor(pid,RowCol(0,-1))) ||
+	   !surface_.isDefined(getNeighbor(pid,RowCol(-1,0)));
+}
+
+
+PosID HorizonGeometry::getNeighbor( const PosID& posid,
+				    const RowCol& dir ) const
+{
+    const RowCol rc( posid.subID() );
+    const SectionID sid = posid.sectionID();
+
+    const StepInterval<int> rowrg = rowRange( sid );
+    const StepInterval<int> colrg = colRange( sid, rc.row );
+
+    RowCol diff(0,0);
+    if ( dir.row>0 ) diff.row = rowrg.step;
+    else if ( dir.row<0 ) diff.row = -rowrg.step;
+
+    if ( dir.col>0 ) diff.col = colrg.step;
+    else if ( dir.col<0 ) diff.col = -colrg.step;
+
+    TypeSet<PosID> aliases;
+    getLinkedPos( posid, aliases );
+    aliases += posid;
+
+    const int nraliases = aliases.size();
+    for ( int idx=0; idx<nraliases; idx++ )
     {
-	const Coord3 startpos( stick[idx], stick[idx].z*velocity/2 );
-	const Coord3 stoppos( stick[idx+1], stick[idx+1].z*velocity/2 );
-	if ( !startpos.isDefined() || !stoppos.isDefined() )
-	    break;
-
-	const BinID startbid = SI().transform( startpos );
-	const BinID stopbid = SI().transform( stoppos );
-
-	const RowCol startrc = getRowCol(startbid);
-	const RowCol stoprc = getRowCol(stopbid);
-	const Line3 line( Coord3(startrc.row,startrc.col,0),
-	     Coord3(stoprc.row-startrc.row,stoprc.col-startrc.col,0) );
-
-	RowCol iterstep( step_ );
-	if ( startrc.row==stoprc.row ) iterstep.row = 0;
-	else if ( startrc.row>stoprc.row ) iterstep.row = -iterstep.row;
-
-	if ( startrc.col==stoprc.col ) iterstep.col = 0;
-	else if ( startrc.col>stoprc.col ) iterstep.col = -iterstep.col;
-
-	RowCol rowcol = startrc;
-	while ( rowcol != stoprc )
+	const RowCol ownrc(aliases[idx].subID());
+	const RowCol neigborrc = ownrc+diff;
+	if ( surface_.isDefined(aliases[idx].sectionID(),
+	     neigborrc.getSerialized()) )
 	{
-	    const float rowdistbefore = rowcol.row-startrc.row;
-	    const float coldistbefore = rowcol.col-startrc.col;
-	    const float distbefore = sqrt(rowdistbefore*rowdistbefore+
-					  coldistbefore*coldistbefore );
-	    const float rowdistafter = rowcol.row-stoprc.row;
-	    const float coldistafter = rowcol.col-stoprc.col;
-	    const float distafter = sqrt(rowdistafter*rowdistafter+
-					  coldistafter*coldistafter );
-
-	    const Coord3 newpos(SI().transform(getBinID(rowcol)),
-		    (startpos.z*distafter+stoppos.z*distbefore)/
-		    (distbefore+distafter)/(velocity/2));
-
-	    const PosID posid( surface.id(), sectionid,
-				   rowcol.getSerialized() );
-	    setPos( posid, newpos, true );
-	    if ( rowcol == startrc )
-		surface.setPosAttrib( posid, EMObject::sPermanentControlNode,
-				      true);
-
-	    float distance = mUdf(float);
-	    RowCol nextstep;
-	    if ( iterstep.row )
-	    {
-		distance = line.distanceToPoint(
-			Coord3(rowcol.row+iterstep.row, rowcol.col,0) );
-		nextstep = rowcol;
-		nextstep.row += iterstep.row;
-	    }
-
-	    if ( iterstep.col )
-	    {
-		float nd = line.distanceToPoint(
-			    Coord3(rowcol.row, rowcol.col+iterstep.col,0) );
-		if ( nd<distance )
-		{
-		    nextstep = rowcol;
-		    nextstep.col += iterstep.col;	
-		}
-	    }
-
-	    rowcol = nextstep;
-	}
-
-	if ( idx==stick.size()-2 )
-	{
-	    const PosID posid( surface.id(), sectionid,
-				    rowcol.getSerialized() );
-	    setPos( posid, Coord3( stoppos, stoppos.z/(velocity/2)), true);
-
-	    surface.setPosAttrib( posid, EMObject::sPermanentControlNode, true);
+	    return PosID( surface_.id(), aliases[idx].sectionID(),
+			  neigborrc.getSerialized() );
 	}
     }
-*/
 
-    return true;
+    const RowCol ownrc(posid.subID());
+    const RowCol neigborrc = ownrc+diff;
+
+    return PosID( surface_.id(), posid.sectionID(), neigborrc.getSerialized());
 }
 
 
-BinID HorizonGeometry::getBinID( const SubID& subid )
+int HorizonGeometry::getConnectedPos( const PosID& posid,
+				      TypeSet<PosID>* res ) const
 {
-    return getBinID( RowCol(subid) );
+    int rescount = 0;
+    const TypeSet<RowCol>& dirs = RowCol::clockWiseSequence();
+    for ( int idx=dirs.size()-1; idx>-0; idx-- )
+    {
+	const PosID neighbor = getNeighbor( posid, dirs[idx] );
+	if ( surface_.isDefined( neighbor ) )
+	{
+	    rescount++;
+	    if ( res ) (*res) += neighbor;
+	}
+    }
+
+    return rescount;
 }
 
 
-BinID HorizonGeometry::getBinID( const RowCol& rc )
-{
-    return BinID(rc.row, rc.col);
-}
+Geometry::BinIDSurface* HorizonGeometry::createSectionGeometry() const
+{ return new Geometry::BinIDSurface( step_ ); }
 
-
-RowCol HorizonGeometry::getRowCol( const BinID& bid )
-{
-    return RowCol( bid.inl, bid.crl );
-}
-
-
-SubID HorizonGeometry::getSubID( const BinID& bid )
-{
-    return bid.getSerialized();
-}
-
-
-Geometry::ParametricSurface* HorizonGeometry::createSectionSurface() const
-{
-    return new Geometry::BinIDSurface( loadedstep_ );
-}
-
-/*
-void HorizonGeometry::setTransform( const SectionID& sectionid ) const
-{
-    const int sectionidx = sectionNr( sectionid );
-    if ( sectionidx < 0 || sectionidx >= meshsurfaces.size() )
-	return;
-    mDynamicCastGet(Geometry::GridSurface*,gridsurf,meshsurfaces[sectionidx])
-    if ( !gridsurf ) return;
-
-    const RowCol rc00( 0, 0 );
-    const RowCol rc10( 1, 0 );
-    const RowCol rc11( 1, 1 );
-
-    const RowCol surfrc00( getSurfSubID(rc00,sectionid) );
-    const RowCol surfrc10( getSurfSubID(rc10,sectionid) );
-    const RowCol surfrc11( getSurfSubID(rc11,sectionid) );
-
-    const Coord pos00 = SI().transform(BinID(surfrc00.row,surfrc00.col));
-    const Coord pos10 = SI().transform(BinID(surfrc10.row,surfrc10.col));
-    const Coord pos11 = SI().transform(BinID(surfrc11.row,surfrc11.col));
-    
-    gridsurf->setTransform(  pos00.x, pos00.y, rc00.row, rc00.col,
-			     pos10.x, pos10.y, rc10.row, rc10.col,
-			     pos11.x, pos11.y, rc11.row, rc11.col );
-}
-
-*/
 
 
 }; //namespace
-
-

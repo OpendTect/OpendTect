@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          May 2002
- RCS:           $Id: uiimphorizon.cc,v 1.63 2006-03-22 12:40:51 cvsnanne Exp $
+ RCS:           $Id: uiimphorizon.cc,v 1.64 2006-04-27 15:29:13 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -305,7 +305,7 @@ bool uiImportHorizon::doWork()
     if ( !success )
 	mErrRetUnRef("Cannot import horizon")
 
-    PtrMan<Executor> exec = horizon->geometry.saver();
+    PtrMan<Executor> exec = horizon->saver();
     if ( !exec )
     {
 	horizon->unRef();

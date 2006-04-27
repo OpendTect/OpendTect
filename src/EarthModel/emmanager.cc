@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emmanager.cc,v 1.45 2006-03-23 14:54:25 cvsnanne Exp $";
+static const char* rcsID = "$Id: emmanager.cc,v 1.46 2006-04-27 15:29:13 cvskris Exp $";
 
 #include "emmanager.h"
 
@@ -234,7 +234,7 @@ Executor* EM::EMManager::objectLoader( const MultiID& mid,
 
     mDynamicCastGet(EM::Surface*,surface,obj)
     if ( surface )
-	return surface->geometry.loader(iosel);
+	return surface->geometry().loader(iosel);
     else if ( obj )
 	return obj->loader();
 

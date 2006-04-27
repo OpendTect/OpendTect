@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfaceauxdata.h,v 1.3 2006-02-20 08:40:51 cvsnanne Exp $
+ RCS:		$Id: emsurfaceauxdata.h,v 1.4 2006-04-27 15:29:13 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -23,14 +23,14 @@ class IOPar;
 namespace EM
 {
 
-class Surface;
+class Horizon;
 class PosID;
 
 
 class SurfaceAuxData 
 {
 public:
-			SurfaceAuxData(Surface&);
+			SurfaceAuxData(Horizon&);
 			~SurfaceAuxData();
     Executor*		auxDataLoader(int selidx=-1);
     Executor*		auxDataSaver(int dataidx=0,bool overwrite=false);
@@ -72,7 +72,7 @@ public:
     virtual void	fillPar( IOPar& ) const;
 
 protected:
-    Surface&					surface;
+    Horizon&					horizon_;
 
     BufferStringSet				auxdatanames;
     BufferStringSet				auxdatainfo;

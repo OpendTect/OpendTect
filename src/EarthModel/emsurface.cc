@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: emsurface.cc,v 1.82 2005-10-06 19:13:37 cvskris Exp $
+ RCS:           $Id: emsurface.cc,v 1.83 2006-04-27 15:29:13 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,11 +13,12 @@ ________________________________________________________________________
 
 #include "cubesampling.h"
 #include "emhistoryimpl.h"
+#include "emhorizon.h"
 #include "emmanager.h"
-#include "emsurfaceauxdata.h"
-#include "emsurfaceedgeline.h"
+#include "emrowcoliterator.h"
 #include "emsurfacegeometry.h"
 #include "emsurfaceiodata.h"
+#include "emsurfaceauxdata.h"
 #include "emsurfacerelations.h"
 #include "iopar.h"
 
@@ -30,132 +31,10 @@ static const char* sSections = "Patches";
 
 using namespace EM;
 
-class SurfaceIterator : public EMObjectIterator
-{
-public:
-    		SurfaceIterator( const Surface& surf,
-				 const SectionID& sectionid )
-		    : surface( surf )
-		    , sid( sectionid )
-		    , inited( false )
-		    , allsids( sectionid==-1 )
-		{
-		    if ( allsids )
-			sid = surface.sectionID(0);
-		}
-
-    PosID	next()
-		{
-		    if ( !inited )
-		    {
-			if ( !initSection() )
-			    return PosID(-1,-1,-1);
-		    }
-		    else
-		    {
-			rc.col += colrg.step;
-			if ( !colrg.includes(rc.col) )
-			{
-			    rc.col = colrg.start;
-			    rc.row += rowrg.step;
-			    if ( !rowrg.includes(rc.row) )
-			    {
-				inited = false;
-				if ( !nextSection() )
-				    return PosID(-1,-1,-1);
-			    }
-			}
-		    }
-
-		    if ( !surface.geometry.isDefined(sid,rc) )
-			return next();
-
-
-		    return PosID(surface.id(),sid,rc.getSerialized());
-		}
-
-    int		maximumSize() const
-		{
-		    if ( allsids )
-		    {
-			int sum = 0;
-			for ( int idx=0; idx<surface.nrSections(); idx++ )
-			    sum += maximumSize(surface.sectionID(idx));
-			return sum;
-		    }
-
-		    return maximumSize(sid);
-		}
-
-    int		maximumSize( const SectionID& cursid ) const
-		{
-		    return (surface.geometry.rowRange(cursid).nrSteps()+1) *
-			   (surface.geometry.colRange(cursid).nrSteps()+1);
-		}
-
-protected:
-			
-
-    bool	initSection()
-		{
-		    while ( true )
-		    {
-			rowrg = surface.geometry.rowRange(sid);
-			colrg = surface.geometry.colRange(sid);
-
-
-/*
- * 			TODO: Don't know if this is neccessary. The check was
- * 			commented out since single node surfaces does not work.
-			if ( rowrg.start==rowrg.stop &&
-			     colrg.start==colrg.stop )
-			    return nextSection();
-			    */
-
-			rc.row = rowrg.start;
-			rc.col = colrg.start;
-			inited = true;
-			break;
-		    }
-
-		    return true;
-		}
-
-    bool	nextSection()
-		{
-		    if ( !allsids ) return false;
-
-		    inited = false;
-		    int idx=0;
-		    for ( ; idx<surface.nrSections(); idx++ )
-		    {
-			if ( surface.sectionID(idx)==sid )
-			    break;
-		    }
-
-		    if ( idx<surface.nrSections()-1 )
-		    {
-			sid = surface.sectionID(++idx);
-			return initSection();
-		    }
-
-		    return false;
-		}
-
-    RowCol		rc;
-    SectionID		sid;
-    StepInterval<int>	rowrg;
-    StepInterval<int>	colrg;
-    bool		inited;
-
-    const bool		allsids;
-    const Surface&	surface;
-};
-
-
 
 void SurfaceIOData::clear()
 {
+    rg.init(false);
     dbinfo = "";
     deepErase(valnames);
     deepErase(sections);
@@ -166,20 +45,26 @@ void SurfaceIOData::use( const Surface& surf )
 {
     clear();
 
-    StepInterval<int> hrg = surf.geometry.rowRange();
-    rg.start.inl = hrg.start; rg.stop.inl = hrg.stop;
-    rg.step.inl = hrg.step;
-    hrg = surf.geometry.colRange();
-    rg.start.crl = hrg.start; rg.stop.crl = hrg.stop;
-    rg.step.crl = hrg.step;
+    mDynamicCastGet( const RowColSurfaceGeometry*, rcsg, &surf.geometry() );
+    if ( rcsg )
+    {
+	StepInterval<int> hrg = rcsg->rowRange();
+	rg.start.inl = hrg.start; rg.stop.inl = hrg.stop;
+	rg.step.inl = hrg.step;
+	hrg = rcsg->colRange();
+	rg.start.crl = hrg.start; rg.stop.crl = hrg.stop;
+	rg.step.crl = hrg.step;
+    }
 
-    for ( int idx=0; idx<surf.geometry.nrSections(); idx++ )
-	sections +=
-	    new BufferString( surf.geometry.sectionName(
-			surf.geometry.sectionID(idx) ) );
+    for ( int idx=0; idx<surf.nrSections(); idx++ )
+	sections += new BufferString( surf.sectionName( surf.sectionID(idx) ) );
 
-    for ( int idx=0; idx<surf.auxdata.nrAuxData(); idx++ )
-	valnames += new BufferString( surf.auxdata.auxDataName(idx) );
+    mDynamicCastGet( const Horizon*, horizon, &surf );
+    if ( horizon )
+    {
+	for ( int idx=0; idx<horizon->auxdata.nrAuxData(); idx++ )
+	    valnames += new BufferString( horizon->auxdata.auxDataName(idx) );
+    }
 }
 
 
@@ -227,47 +112,37 @@ void SurfaceIODataSelection::setDefault()
 }
 
 
-Surface::Surface( EMManager& man, SurfaceGeometry& geom)
+Surface::Surface( EMManager& man)
     : EMObject( man )
     , relations( *new SurfaceRelations(*this ) )
-    , edgelinesets( *new EdgeLineManager(*this) )
-    , geometry( geom )
-    , auxdata( *new SurfaceAuxData(*this) )
 {
 }
 
 
 Surface::~Surface()
 {
-    cleanUp();
+    removeAll();
     delete &relations;
-    delete &edgelinesets;
-    delete &geometry;
-    delete &auxdata;
 }
 
 
-void Surface::cleanUp()
+void Surface::removeAll()
 {
-    auxdata.removeAll();
-    geometry.removeAll();
     relations.removeAll();
-    edgelinesets.removeAll();
 }
 
 
 int Surface::nrSections() const
-{ return geometry.nrSections(); }
+{ return geometry().nrSections(); }
 
 
 SectionID Surface::sectionID( int idx ) const
-{ return geometry.sectionID(idx); }
+{ return geometry().sectionID(idx); }
 
 
 BufferString Surface::sectionName( const SectionID& sid ) const
 {
-    BufferString res = geometry.sectionName(sid);
-    return res;
+    return geometry().sectionName(sid);
 }
 
 
@@ -275,54 +150,39 @@ bool Surface::canSetSectionName() const { return true; }
 
 
 bool Surface::setSectionName( const SectionID& sid, const char* nm, bool hist )
-{ return geometry.setSectionName(sid,nm,hist); }
+{ return geometry().setSectionName(sid,nm,hist); }
 
 
 bool Surface::removeSection( SectionID sid, bool hist )
 {
-    geometry.removeSection( sid, hist );
-    return true;
+    return geometry().removeSection( sid, hist );
 }
 
 
 bool Surface::isAtEdge( const PosID& posid ) const
-{ return geometry.isAtEdge(posid); }
-
-
-bool Surface::isChanged(int idx) const
-{ return EMObject::isChanged(idx); }
-//{ return auxdata.isChanged(idx) || geometry.isChanged(idx); }
-
-
-void Surface::resetChangedFlag(int idx)
-{
-    EMObject::resetChangedFlag(idx);
-    auxdata.resetChangedFlag();
-}
+{ return geometry().isAtEdge(posid); }
 
 
 bool Surface::isLoaded() const
-{ return geometry.isLoaded(); }
+{ return geometry().isLoaded(); }
 
 
-Executor* Surface::saver() { return geometry.saver(); }
+Executor* Surface::saver() { return geometry().saver(); }
 
 
-Executor* Surface::loader() { return geometry.loader(); }
+Executor* Surface::loader() { return geometry().loader(); }
 
 
-Geometry::Element* Surface::getElementInternal( SectionID sid )
+Geometry::Element* Surface::sectionGeometryInternal( const SectionID& sid )
 {
-    const Geometry::Element* elem =
-	(const Geometry::Element*) geometry.getSurface(sid);
-    return const_cast<Geometry::Element*>(elem);
+    return geometry().sectionGeometry(sid);
 }
 
 
 bool Surface::usePar( const IOPar& par )
 {
-    return EMObject::usePar(par) && geometry.usePar(par) &&
-	   relations.usePar(par) && edgelinesets.usePar(par);
+    return EMObject::usePar(par) && geometry().usePar(par) &&
+	   relations.usePar(par);
 }
 
 
@@ -330,12 +190,23 @@ void Surface::fillPar( IOPar& par ) const
 {
     EMObject::fillPar(par);
     relations.fillPar(par);
-    edgelinesets.fillPar(par);
-    geometry.fillPar(par);
+    geometry().fillPar(par);
 }
 
 
 EMObjectIterator* Surface::createIterator( const SectionID& sid ) const
 {
-    return new SurfaceIterator( *this, sid );
+    return geometry().createIterator( sid );
 }
+
+
+bool Surface::enableGeometryChecks( bool nv )
+{ return geometry().enableChecks( nv ); }
+
+
+bool Surface::isGeometryChecksEnabled() const
+{ return geometry().isChecksEnabled(); }
+
+
+const SurfaceGeometry& Surface::geometry() const
+{ return const_cast<Surface*>(this)->geometry(); }

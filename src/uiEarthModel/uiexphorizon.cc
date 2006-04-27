@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2002
- RCS:           $Id: uiexphorizon.cc,v 1.41 2006-03-12 13:39:11 cvsbert Exp $
+ RCS:           $Id: uiexphorizon.cc,v 1.42 2006-04-27 15:29:13 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -147,7 +147,7 @@ bool uiExportHorizon::writeAscii()
 
     emobj->setMultiID( ioobj->key() );
     mDynamicCastGet(EM::Horizon*,hor,emobj.ptr())
-    PtrMan<Executor> loader = hor->geometry.loader( &sels );
+    PtrMan<Executor> loader = hor->geometry().loader( &sels );
     if ( !loader ) mErrRet("Cannot read horizon")
     uiExecutor dlg( this, *loader );
     if ( !dlg.go() ) return false;
@@ -191,7 +191,7 @@ bool uiExportHorizon::writeAscii()
 	    initGF( *sdo.ostrm, gfnmfld->text(), gfunfld->getBoolValue(), 
 		    gfcommfld->text() );
 
-	const EM::SectionID sectionid = hor->geometry.sectionID( sectionidx );
+	const EM::SectionID sectionid = hor->sectionID( sectionidx );
 	PtrMan<EM::EMObjectIterator> it = hor->createIterator( sectionid );
 	BufferString str;
 	while ( true )

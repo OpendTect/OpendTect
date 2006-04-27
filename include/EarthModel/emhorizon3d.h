@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emhorizon3d.h,v 1.42 2005-10-06 19:13:37 cvskris Exp $
+ RCS:		$Id: emhorizon3d.h,v 1.43 2006-04-27 15:29:13 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -15,40 +15,53 @@ ________________________________________________________________________
 
 #include "emsurface.h"
 #include "emsurfacegeometry.h"
+#include "binidsurface.h"
 
 /*!
-Rules for horizons.
-
-A horizon can have many sections that can be used for reversed faults.
-
-
-     ----------------------
-     |                    |
-     |       xxxxxx       |
-     |     xxxxxxxxxx     |
-     |   xx Patch 1 xxx   |
-     |  XXXXXXXXXXXXXXX   |
-     |                    |
-     |                    |
-     |     Patch 0        |
-     |                    |
-     |                    |
-     |                    |
-     ----------------------
-
-The area marked with x is an area with an reversed fault, and the area with x
-is an own section, while the white area is another section. In the border between
-the sections, the nodes are defined on both sections, with the same coordinate.
-In addition, they are also linked together. 
 */
 
 class BinIDValueSet;
 class BufferStringSet;
 
-namespace Geometry { class MeshSurface; };
-
 namespace EM
 {
+
+class HorizonGeometry : public RowColSurfaceGeometry
+{
+public:
+    			HorizonGeometry( Surface& );
+
+    const Geometry::BinIDSurface* sectionGeometry(const SectionID&) const;
+    Geometry::BinIDSurface*	  sectionGeometry(const SectionID&);
+
+    bool		removeSection(const SectionID&, bool hist);
+    SectionID		cloneSection(const SectionID& sid);
+
+    void		setShift(float);
+    float		getShift() const;
+
+    bool		isFullResolution() const;
+    RowCol		loadedStep() const;
+    RowCol		step() const;
+    void		setStep(const RowCol& step,const RowCol& loadedstep);
+
+    bool		enableChecks(bool yn);
+    bool		isChecksEnabled() const;
+    bool		isNodeOK(const PosID&) const;
+
+    bool		isAtEdge(const PosID& pid) const;
+    PosID		getNeighbor(const PosID&,const RowCol&) const;
+    int			getConnectedPos(const PosID&,TypeSet<PosID>*) const;
+
+
+protected:
+    Geometry::BinIDSurface* createSectionGeometry() const;
+
+    RowCol		loadedstep_;
+    RowCol		step_;
+    float		shift_;
+};
+
 
 /*!\brief
 The horizon is made up of one or more grids (so they can overlap at faults).
@@ -60,9 +73,12 @@ class Horizon : public Surface
 {
 public:
     static const char*	typeStr();
-    static EMObject*	create( EMManager& );
+    static EMObject*	create(EMManager&);
     static void		initClass(EMManager&);
-    
+
+    HorizonGeometry&		geometry();
+    const HorizonGeometry&	geometry() const;
+
     void		interpolateHoles(int aperture);
 
     const char*		getTypeStr() const { return typeStr(); }
@@ -75,35 +91,20 @@ public:
 	    				const BufferStringSet& attribnms,
 					const BoolTypeSet& attribsel);
 
+    SurfaceAuxData&	auxdata;
+    EdgeLineManager&	edgelinesets;
+
 protected:
 	    		Horizon(EMManager&);
+	    		~Horizon();
+    void		removeAll();
+    void		fillPar(IOPar&) const;
+    bool		usePar( const IOPar& );
     const IOObjContext&	getIOObjContext() const;
 
     friend class	EMManager;
     friend class	EMObject;
-};
-
-
-class HorizonGeometry : public SurfaceGeometry
-{
-public:
-    			HorizonGeometry( Surface& );
-
-    static BinID	getBinID(const SubID&);
-    static BinID	getBinID(const RowCol&);
-    static SubID	getSubID(const BinID&);
-    static RowCol	getRowCol(const BinID&);
-
-    bool		createFromStick(const TypeSet<Coord3>&,
-	    					SectionID,float);
-
-protected:
-    Geometry::ParametricSurface* createSectionSurface() const;
-};
-
-
-class HorizonFactory
-{
+    HorizonGeometry	geometry_;
 };
 
 

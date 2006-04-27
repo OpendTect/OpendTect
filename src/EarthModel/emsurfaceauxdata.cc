@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: emsurfaceauxdata.cc,v 1.9 2006-03-12 13:39:10 cvsbert Exp $
+ RCS:           $Id: emsurfaceauxdata.cc,v 1.10 2006-04-27 15:29:13 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,8 +29,8 @@ ________________________________________________________________________
 namespace EM
 {
 
-SurfaceAuxData::SurfaceAuxData( Surface& surf )
-    : surface( surf )
+SurfaceAuxData::SurfaceAuxData( Horizon& horizon )
+    : horizon_( horizon )
     , changed( 0 )
 {
     auxdatanames.allowNull(true);
@@ -95,7 +95,7 @@ int SurfaceAuxData::addAuxData( const char* name )
     auxdata += newauxdata;
     newauxdata->allowNull(true);
 
-    for ( int idx=0; idx<surface.geometry.nrSections(); idx++ )
+    for ( int idx=0; idx<horizon_.nrSections(); idx++ )
 	(*newauxdata) += 0;
 
     changed = true;
@@ -118,7 +118,7 @@ void SurfaceAuxData::removeAuxData( int dataidx )
 float SurfaceAuxData::getAuxDataVal( int dataidx, const PosID& posid ) const
 {
     if ( !auxdata[dataidx] ) return mUdf(float);
-    const int sectionidx = surface.geometry.sectionNr( posid.sectionID() );
+    const int sectionidx = horizon_.sectionIndex( posid.sectionID() );
     if ( sectionidx==-1 ) return mUdf(float);
 
     const TypeSet<float>* sectionauxdata = sectionidx<auxdata[dataidx]->size()
@@ -128,7 +128,7 @@ float SurfaceAuxData::getAuxDataVal( int dataidx, const PosID& posid ) const
 
     const RowCol geomrc( posid.subID() );
     const int subidx =
-	surface.geometry.getSurface(posid.sectionID())->getKnotIndex(geomrc);
+	horizon_.geometry().sectionGeometry(posid.sectionID())->getKnotIndex(geomrc);
     if ( subidx==-1 ) return mUdf(float);
     return (*sectionauxdata)[subidx];
 }
@@ -138,12 +138,12 @@ void SurfaceAuxData::setAuxDataVal( int dataidx, const PosID& posid, float val)
 {
     if ( !auxdata[dataidx] ) return;
 
-    const int sectionidx = surface.geometry.sectionNr( posid.sectionID() );
+    const int sectionidx = horizon_.sectionIndex( posid.sectionID() );
     if ( sectionidx==-1 ) return;
 
     const RowCol geomrc( posid.subID() ); 
     const int subidx =
-	surface.geometry.getSurface(posid.sectionID())->getKnotIndex(geomrc);
+	horizon_.geometry().sectionGeometry(posid.sectionID())->getKnotIndex(geomrc);
     if ( subidx==-1 ) return;
 
     TypeSet<float>* sectionauxdata = sectionidx<auxdata[dataidx]->size()
@@ -153,7 +153,8 @@ void SurfaceAuxData::setAuxDataVal( int dataidx, const PosID& posid, float val)
 	for ( int idx=auxdata[dataidx]->size(); idx<=sectionidx; idx++ )
 	    (*auxdata[dataidx]) += 0;
 
-	const int sz= surface.geometry.getSurface(posid.sectionID())->nrKnots();
+	const int sz =
+	    horizon_.geometry().sectionGeometry( posid.sectionID() )->nrKnots();
 	auxdata[dataidx]->replace( sectionidx,
 				   new TypeSet<float>(sz,mUdf(float)) );
 	sectionauxdata = (*auxdata[dataidx])[sectionidx];
@@ -176,14 +177,14 @@ void SurfaceAuxData::resetChangedFlag()
 
 Executor* SurfaceAuxData::auxDataLoader( int selidx )
 {
-    PtrMan<IOObj> ioobj = IOM().get( surface.multiID() );
+    PtrMan<IOObj> ioobj = IOM().get( horizon_.multiID() );
     if ( !ioobj )
-	{ surface.errmsg = "Cannot find surface"; return 0; }
+	{ horizon_.errmsg = "Cannot find surface"; return 0; }
 
     PtrMan<EMSurfaceTranslator> tr = 
 			(EMSurfaceTranslator*)ioobj->getTranslator();
     if ( !tr || !tr->startRead(*ioobj) )
-    { surface.errmsg = tr ? tr->errMsg() : "Cannot find Translator"; return 0; }
+    { horizon_.errmsg = tr ? tr->errMsg() : "Cannot find Translator"; return 0; }
 
     SurfaceIODataSelection& sel = tr->selections();
     int nrauxdata = sel.sd.valnames.size();
@@ -199,7 +200,7 @@ Executor* SurfaceAuxData::auxDataLoader( int selidx )
 	if ( !*filenm ) continue;
 
 	dgbSurfDataReader* rdr = new dgbSurfDataReader(filenm);
-	rdr->setSurface( surface );
+	rdr->setSurface( horizon_ );
 	grp->add( rdr );
     }
 
@@ -209,9 +210,9 @@ Executor* SurfaceAuxData::auxDataLoader( int selidx )
 
 Executor* SurfaceAuxData::auxDataSaver( int dataidx, bool overwrite )
 {
-    PtrMan<IOObj> ioobj = IOM().get( surface.multiID() );
+    PtrMan<IOObj> ioobj = IOM().get( horizon_.multiID() );
     if ( !ioobj )
-	{ surface.errmsg = "Cannot find surface"; return 0; }
+	{ horizon_.errmsg = "Cannot find surface"; return 0; }
     StreamConn* conn = dynamic_cast<StreamConn*>(ioobj->getConn(Conn::Read));
     if ( !conn ) return 0;
 
@@ -223,7 +224,7 @@ Executor* SurfaceAuxData::auxDataSaver( int dataidx, bool overwrite )
     {
 	if ( dataidx<0 ) dataidx = 0;
 	fnm = getAuxDataFileName( *ioobj, auxDataName(dataidx) );
-	return new dgbSurfDataWriter(surface,dataidx,0,binary,fnm);
+	return new dgbSurfDataWriter(horizon_,dataidx,0,binary,fnm);
     }
 
     ExecutorGroup* grp = new ExecutorGroup( "Surface attributes saver" );
@@ -238,7 +239,7 @@ Executor* SurfaceAuxData::auxDataSaver( int dataidx, bool overwrite )
 		break;
 	}
 
-	Executor* exec = new dgbSurfDataWriter(surface,selidx,0,binary,fnm);
+	Executor* exec = new dgbSurfDataWriter(horizon_,selidx,0,binary,fnm);
 	grp->add( exec );
     }
 
@@ -246,9 +247,9 @@ Executor* SurfaceAuxData::auxDataSaver( int dataidx, bool overwrite )
 }
 
 
-void SurfaceAuxData::removeSection(const SectionID& sectionid)
+void SurfaceAuxData::removeSection( const SectionID& sectionid )
 {
-    const int sectionidx = surface.geometry.sectionNr(sectionid);
+    const int sectionidx = horizon_.sectionIndex( sectionid );
     if ( sectionidx==-1 ) return;
 
     for ( int idy=0; idy<nrAuxData(); idy++ )
