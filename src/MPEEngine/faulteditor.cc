@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: faulteditor.cc,v 1.1 2005-12-12 17:26:39 cvskris Exp $";
+static const char* rcsID = "$Id: faulteditor.cc,v 1.2 2006-04-27 15:53:13 cvskris Exp $";
 
 #include "faulteditor.h"
 
@@ -42,7 +42,7 @@ void FaultEditor::initClass()
 
 Geometry::ElementEditor* FaultEditor::createEditor( const EM::SectionID& sid )
 {
-    const Geometry::Element* ge = emObject().getElement( sid );
+    const Geometry::Element* ge = emObject().sectionGeometry( sid );
     if ( !ge ) return 0;
 
     mDynamicCastGet(const Geometry::CubicBezierSurface*,surface,ge);

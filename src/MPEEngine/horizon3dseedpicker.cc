@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizon3dseedpicker.cc,v 1.11 2006-04-27 08:16:11 cvsjaap Exp $";
+static const char* rcsID = "$Id: horizon3dseedpicker.cc,v 1.12 2006-04-27 15:53:13 cvskris Exp $";
 
 #include "horizonseedpicker.h"
 
@@ -48,7 +48,7 @@ bool HorizonSeedPicker::setSectionID( const EM::SectionID& sid )
 bool HorizonSeedPicker::startSeedPick()
 {
     mGetHorizon(hor);
-    didchecksupport_ = hor->geometry.checkSupport(false);
+    didchecksupport_ = hor->enableGeometryChecks( false );
     return true;
 }
 
@@ -299,7 +299,7 @@ bool HorizonSeedPicker::doesModeUseSetup() const
 bool HorizonSeedPicker::stopSeedPick( bool iscancel )
 {
     mGetHorizon(hor);
-    hor->geometry.checkSupport( didchecksupport_ );
+    hor->enableGeometryChecks( didchecksupport_ );
     return true;
 }
 

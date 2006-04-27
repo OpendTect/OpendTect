@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          March 2005
- RCS:           $Id: uiemhorizoneditor.cc,v 1.15 2005-12-15 08:51:29 cvshelene Exp $
+ RCS:           $Id: uiemhorizoneditor.cc,v 1.16 2006-04-27 15:54:53 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,8 +16,7 @@ ________________________________________________________________________
 #include "emhistory.h"
 #include "emmanager.h"
 #include "emsurfaceedgelineimpl.h"
-#include "emsurfacegeometry.h"
-#include "emsurface.h"
+#include "emhorizon.h"
 #include "uidialog.h"
 #include "uigeninput.h"
 #include "uimpepartserv.h"
@@ -202,7 +201,7 @@ void uiEMHorizonEditor::handleInteractionLineMenus( CallBacker* cb )
     const EM::EdgeLineSegment& interactionlineseg = *interactionline.getSegment(0);
     const EM::SectionID sid = interactionline.getSection();
     EM::EMObject& emobj = const_cast<EM::EMObject&>(editor->emObject());
-    mDynamicCastGet(EM::Surface&,surface,emobj)
+    mDynamicCastGet(EM::Horizon&,surface,emobj)
     bool handled = false;
 /*
     EM::EdgeLineSet* lineset = surface.edgelinesets.getEdgeLineSet( sid, true );
@@ -265,7 +264,7 @@ void uiEMHorizonEditor::handleInteractionLineMenus( CallBacker* cb )
 	if ( !interactionline.isClosed() )
 	    return;
 		
-	const RowCol step = surface.geometry.step();
+	const RowCol step = surface.geometry().step();
 	const bool rightturn = interactionline.isHole();
 	EM::PosID pid( surface.id() );
 	RowCol start, stop;
@@ -277,7 +276,7 @@ void uiEMHorizonEditor::handleInteractionLineMenus( CallBacker* cb )
 	    const RowCol& rc = interactionlineseg[idx];
 	    pid.setSubID( rc.getSerialized() );
 
-	    wasatedge[idx] = surface.geometry.isAtEdge(pid);
+	    wasatedge[idx] = surface.geometry().isAtEdge(pid);
 	}
 
 	TypeSet<EM::PosID> nodestoremove;
@@ -321,7 +320,7 @@ void uiEMHorizonEditor::handleInteractionLineMenus( CallBacker* cb )
     if ( handled )
     {
 	menu->setIsHandled(true);
-	const EM::PosID pid( interactionlineseg.getSurface().id(),
+	const EM::PosID pid( interactionlineseg.getHorizon().id(),
 			     interactionlineseg.getSection(),
 			     interactionlineseg[0].getSerialized() );
 	editor->restartInteractionLine( pid );

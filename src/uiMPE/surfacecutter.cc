@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          March 2005
- RCS:           $Id: surfacecutter.cc,v 1.8 2006-03-12 13:39:11 cvsbert Exp $
+ RCS:           $Id: surfacecutter.cc,v 1.9 2006-04-27 15:54:53 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -64,6 +64,7 @@ void SurfaceCutter::setCuttedObj( EM::ObjectID objid, EM::SectionID sid )
 
 bool SurfaceCutter::doTerminate( bool positiveside )
 {
+    /*
     mDynamicCastGet(EM::Surface*,cuttedsurf,EM::EMM().getObject(cuttedobjid_))
     if ( !cuttedsurf || cuttedsurf->sectionIndex(cuttedsectionid_)!=-1 )
 	return false;
@@ -84,7 +85,7 @@ bool SurfaceCutter::doTerminate( bool positiveside )
     EM::PosID posid( cuttedsurf->id(), cuttedsectionid_ );
     ConsistencyChecker checker( *cuttedsurf );
     const Geometry::ParametricSurface* psurf = 
-			cuttedsurf->geometry.getSurface( cuttedsectionid_ );
+			cuttedsurf->geometry().sectionGeometry( cuttedsectionid_ );
     const int nrnodes = psurf->nrKnots();
     for ( int idy=0; idy<nrnodes; idy++ )
     {
@@ -101,9 +102,10 @@ bool SurfaceCutter::doTerminate( bool positiveside )
     }
 
     checker.nextStep();
-    cuttedsurf->geometry.checkSections();
+    cuttedsurf->geometry().checkSections();
 
     reTrack();
+    */
     return true;
 }
 
@@ -111,16 +113,16 @@ bool SurfaceCutter::doTerminate( bool positiveside )
 bool SurfaceCutter::doCut()
 {
     mDynamicCastGet(EM::Surface*,cuttedsurf,EM::EMM().getObject(cuttedobjid_))
-    if ( !cuttedsurf || !cuttedsurf->geometry.hasSection(cuttedsectionid_) )
+    if ( !cuttedsurf || !cuttedsurf->geometry().hasSection(cuttedsectionid_) )
 	return false;
 
     mDynamicCastGet(EM::Surface*,cuttingsurf,EM::EMM().getObject(cuttingobjid_))
-    if ( !cuttingsurf || !cuttingsurf->geometry.hasSection(cuttingsectionid_) )
+    if ( !cuttingsurf || !cuttingsurf->geometry().hasSection(cuttingsectionid_) )
 	return false;
 
     const int initialhistnr = EM::EMM().history().currentEventNr();
     const EM::SectionID newsectionid =
-		    cuttedsurf->geometry.cloneSection( cuttedsectionid_ );
+		    cuttedsurf->geometry().cloneSection( cuttedsectionid_ );
     if ( newsectionid == -1 )
 	return false;
 
@@ -146,7 +148,7 @@ bool SurfaceCutter::doCut()
 bool SurfaceCutter::reTrack()
 {
     mDynamicCastGet(EM::Surface*,cuttedsurf,EM::EMM().getObject(cuttedobjid_))
-    if ( !cuttedsurf || !cuttedsurf->geometry.hasSection(cuttedsectionid_) )
+    if ( !cuttedsurf || !cuttedsurf->geometry().hasSection(cuttedsectionid_) )
 	return false;
 
     const int trackeridx = engine().getTrackerByObject( cuttedobjid_ );
@@ -244,11 +246,11 @@ bool SurfaceCutter::reTrack()
 bool SurfaceCutter::getSurfaceDir( RowCol& dir )
 {
     mDynamicCastGet(EM::Surface*,cuttingsurf,EM::EMM().getObject(cuttingobjid_))
-    if ( !cuttingsurf || !cuttingsurf->geometry.hasSection(cuttingsectionid_) )
+    if ( !cuttingsurf || !cuttingsurf->geometry().hasSection(cuttingsectionid_) )
 	return false;
     
     mDynamicCastGet(const Geometry::CubicBezierSurface*,
-		    cbsurf,cuttingsurf->geometry.getSurface(0))
+		    cbsurf,cuttingsurf->geometry().sectionGeometry(0))
     if ( !cbsurf ) return false;
     
     StepInterval<int> rowrg = cbsurf->rowRange();
@@ -275,7 +277,7 @@ void SurfaceCutter::getBoundingBox( CubeSampling& cs )
 	    	Interval<int>(mUdf(int),-mUdf(int)) );
     mDynamicCastGet(EM::Surface*,cuttingsurf,EM::EMM().getObject(cuttingobjid_))
     IntervalND<float> bb =
-	cuttingsurf->geometry.getSurface(cuttingsectionid_)->boundingBox(true);
+	cuttingsurf->geometry().sectionGeometry(cuttingsectionid_)->boundingBox(true);
 
     const Interval<float>& xrange = bb.getRange(0);
     const Interval<float>& yrange = bb.getRange(1);

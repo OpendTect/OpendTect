@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          March 2005
- RCS:           $Id: horizoneditor.cc,v 1.1 2005-12-12 17:26:39 cvskris Exp $
+ RCS:           $Id: horizoneditor.cc,v 1.2 2006-04-27 15:53:13 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -58,7 +58,7 @@ void HorizonEditor::initClass()
 
 Geometry::ElementEditor* HorizonEditor::createEditor( const EM::SectionID& sid )
 {
-    const Geometry::Element* ge = emObject().getElement( sid );
+    const Geometry::Element* ge = emObject().sectionGeometry( sid );
     if ( !ge ) return 0;
 
     mDynamicCastGet(const Geometry::BinIDSurface*,surface,ge);
@@ -119,7 +119,7 @@ void HorizonEditor::getAlongMovingNodes( const EM::PosID&,
 
     const EM::SectionID sectionid = movingnode.sectionID();
     const RowCol rc = movingnode.subID();
-    const RowCol step = horizon->geometry.step();
+    const RowCol step = horizon->geometry().step();
 
     for ( int ridx=-editarea.row; ridx<=editarea.row; ridx++ )
     {
@@ -170,7 +170,7 @@ void HorizonEditor::getAlongMovingNodes( const EM::PosID&,
 		effect = effect ? 1 : 0;
 	    
 	    const RowCol currc =  rc + step*RowCol(ridx,cidx);
-	    if ( horizon->geometry.isDefined(sectionid,currc) )
+	    if ( horizon->isDefined(sectionid,currc.getSerialized()) )
 	    {
 		nodes += EM::PosID( horizon->id(), sectionid,
 					     currc.getSerialized() );

@@ -8,13 +8,13 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emeditor.cc,v 1.16 2005-10-19 14:00:45 cvskris Exp $";
+static const char* rcsID = "$Id: emeditor.cc,v 1.17 2006-04-27 15:53:13 cvskris Exp $";
 
 #include "emeditor.h"
 
 #include "emhistory.h"
 #include "emmanager.h"
-#include "emsurface.h"
+#include "emhorizon.h"
 #include "emsurfacegeometry.h"
 #include "emsurfaceedgeline.h"
 #include "emtracker.h"
@@ -237,7 +237,7 @@ mGetFunction( getDirection );
 
 void ObjectEditor::restartInteractionLine(const EM::PosID& pid)
 {
-    mDynamicCastGet( EM::Surface*, emsurface, &emobject );
+    mDynamicCastGet( EM::Horizon*, emsurface, &emobject );
     const EM::SectionID sid = pid.sectionID();
     if ( !emsurface )
     {
@@ -300,7 +300,7 @@ bool ObjectEditor::closeInteractionLine( bool doit )
 
     const RowCol rc(  (*interactionline->getLine(0)->getSegment(0))[0] );
 
-    const EM::PosID pid( interactionline->getSurface().id(),
+    const EM::PosID pid( interactionline->getHorizon().id(),
 	    		 interactionline->getSection(),
 			 rc.getSerialized() );
 
@@ -317,7 +317,7 @@ bool ObjectEditor::interactionLineInteraction( const EM::PosID& pid,
 	 !interactionline->getLine(0)->getSegment(0)->size())
 	return false;
 
-    EM::Surface& emsurface = interactionline->getSurface();
+    EM::Horizon& emsurface = interactionline->getHorizon();
     const EM::SectionID sid = interactionline->getSection();
     const RowCol rc( pid.subID() );
 
@@ -336,7 +336,7 @@ bool ObjectEditor::interactionLineInteraction( const EM::PosID& pid,
 
     const RowCol lastrc = els.last();
     TypeSet <RowCol> line;
-    RowCol::makeLine( lastrc, rc, line, emsurface.geometry.step() );
+    RowCol::makeLine( lastrc, rc, line, emsurface.geometry().step() );
     if ( rc==els[0] )
 	line.remove(line.size()-1);
 
@@ -417,7 +417,7 @@ void ObjectEditor::emSectionChange(CallBacker* cb)
     const int editoridx = sections.indexOf(sectionid);
 
     const Geometry::Element* ge =
-	const_cast<const EM::EMObject*>(&emobject)->getElement( sectionid );
+	const_cast<const EM::EMObject*>(&emobject)->sectionGeometry( sectionid );
 
     if ( !ge && editoridx!=-1 )
     {

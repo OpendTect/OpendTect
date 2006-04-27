@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: sectionselectorimpl.cc,v 1.11 2005-11-14 17:15:31 cvskris Exp $";
+static const char* rcsID = "$Id: sectionselectorimpl.cc,v 1.12 2006-04-27 15:53:13 cvskris Exp $";
 
 #include "sectionselectorimpl.h"
 
@@ -84,7 +84,7 @@ SurfaceSourceSelector::SurfaceSourceSelector(
 void SurfaceSourceSelector::setTrackPlane( const MPE::TrackPlane& plane )
 {
     mDynamicCastGet( const Geometry::ParametricSurface*,surface,
-		     emobject.getElement(sectionid));
+		     emobject.sectionGeometry(sectionid));
 
     TypeSet<GeomPosID> allnodes;
     surface->getPosIDs( allnodes );

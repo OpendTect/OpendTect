@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: faultseedpicker.cc,v 1.1 2005-12-14 16:50:34 cvskris Exp $";
+static const char* rcsID = "$Id: faultseedpicker.cc,v 1.2 2006-04-27 15:53:13 cvskris Exp $";
 
 #include "faultseedpicker.h"
 
@@ -45,7 +45,7 @@ bool FaultSeedPicker::startSeedPick()
 
     const EM::ObjectID emobjid = tracker.objectID();
     mDynamicCastGet( EM::Fault*, fault, EM::EMM().getObject(emobjid) );
-    didchecksupport = fault->geometry.checkSupport(false);
+    didchecksupport = fault->enableGeometryChecks( false );
 
     isactive = true;
     nrseeds = 0;
@@ -59,6 +59,7 @@ bool FaultSeedPicker::canAddSeed() const
 
 bool FaultSeedPicker::addSeed( const Coord3& pos )
 {
+    /*
     const EM::ObjectID emobjid = tracker.objectID();
     mDynamicCastGet( EM::Fault*, fault, EM::EMM().getObject(emobjid) );
 
@@ -132,7 +133,7 @@ bool FaultSeedPicker::addSeed( const Coord3& pos )
 	}
 	fault->setPosAttrib( pid, EM::EMObject::sSeedNode, true );
     }
-
+    */
     return true;
 }
 
@@ -157,7 +158,7 @@ bool FaultSeedPicker::stopSeedPick(bool iscancel)
 {
     const EM::ObjectID emobjid = tracker.objectID();
     mDynamicCastGet( EM::Fault*, fault, EM::EMM().getObject(emobjid) );
-    fault->geometry.checkSupport(didchecksupport);
+    fault->enableGeometryChecks( didchecksupport );
 
     return true;
 }
