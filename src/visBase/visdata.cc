@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: visdata.cc,v 1.21 2005-02-04 14:31:34 kristofer Exp $";
+static const char* rcsID = "$Id: visdata.cc,v 1.22 2006-04-27 17:57:12 cvskris Exp $";
 
 #include "visdata.h"
 
@@ -21,8 +21,8 @@ namespace visBase
 {
 
 
-const char* DataObject::typestr = "Type";
-const char* DataObject::namestr = "Name";
+const char* DataObject::sKeyType()	{ return "Type"; }
+const char* DataObject::sKeyName()	{ return "Name"; }
 
 
 const SoNode* DataObject::getInventorNode() const
@@ -85,12 +85,12 @@ void DataObject::setDisplayTransformation( Transformation* )
 
 void DataObject::fillPar( IOPar& par, TypeSet<int>& ) const
 {
-    par.set( typestr, getClassName() );
+    par.set( sKeyType(), getClassName() );
 
     const char* nm = name();
 
     if ( nm )
-	par.set( namestr, nm );
+	par.set( sKeyName(), nm );
 }
 
 
@@ -110,7 +110,7 @@ bool DataObject::dumpOIgraph( const char* filename, bool binary )
 
 int DataObject::usePar( const IOPar& par )
 {
-    const char* nm = par.find( namestr );
+    const char* nm = par.find( sKeyName() );
 
     if ( nm )
 	setName( nm );
@@ -123,31 +123,33 @@ void DataObject::_init()
 { DM().addObject( this ); }
 
 
-FactoryEntry::FactoryEntry( FactPtr funcptr_,
-				     const char* name_ ) 
-    : funcptr( funcptr_ )
-    , name( name_ )
-    , factory( &DM().factory() )
+FactoryEntry::FactoryEntry( FactPtr funcptr,
+			    const char* name ) 
+    : name_( name )
+    , funcptr_( funcptr )
+    , factory_( &DM().factory() )
 {
-    factory->entries += this;
-    factory->closing.notify( mCB(this, FactoryEntry, visIsClosingCB ));
+    factory_->addEntry( this );
+    factory_->closing.notify( mCB(this, FactoryEntry, visIsClosingCB ));
 }
 
 
 FactoryEntry::~FactoryEntry()
 {
-    if ( !factory )
+    if ( !factory_ )
 	return;
 
-    factory->entries -= this;
-    factory->closing.remove( mCB(this, FactoryEntry, visIsClosingCB ));
+    factory_->removeEntry(this);
+    factory_->closing.remove( mCB(this, FactoryEntry, visIsClosingCB ));
 }
+
+
+DataObject* FactoryEntry::create()
+{ return funcptr_(); }
 
 
 void FactoryEntry::visIsClosingCB(CallBacker*)
-{
-    factory = 0;
-}
+{ factory_ = 0; }
 
 
 Factory::Factory()
@@ -159,16 +161,33 @@ Factory::~Factory()
 { closing.trigger(); }
 
 
-DataObject* Factory::create( const char* nm )
+void Factory::addEntry( FactoryEntry* fe )
+{ entries_ += fe; }
+
+
+void Factory::removeEntry( FactoryEntry* fe )
+{ entries_ -= fe; }
+
+
+FactoryEntry* Factory::getEntry( const char* nm )
 {
     if ( !nm ) return 0;
 
-    for ( int idx=0; idx<entries.size(); idx++ )
+    for ( int idx=0; idx<entries_.size(); idx++ )
     {
-	if ( !strcmp( nm, entries[idx]->name )) return entries[idx]->create();
+	if ( !strcmp( nm, entries_[idx]->name() ))
+	    return entries_[idx];
     }
 
     return 0;
+}
+
+
+
+DataObject* Factory::create( const char* nm )
+{
+    FactoryEntry* entry = getEntry( nm );
+    return entry ? entry->create() : 0;
 }
 
 }; // namespace visBase

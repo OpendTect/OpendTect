@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visdata.h,v 1.35 2005-02-04 14:31:34 kristofer Exp $
+ RCS:		$Id: visdata.h,v 1.36 2006-04-27 17:57:11 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -15,13 +15,13 @@ ________________________________________________________________________
 
 #include "callback.h"
 #include "refcount.h"
+#include "sets.h"
 
 class SoNode;
 class IOPar;
 class BufferString;
 
 namespace visBase { class DataObject; class EventInfo; }
-typedef visBase::DataObject* (*FactPtr)(void);
 
 
 #define mVisTrans visBase::Transformation
@@ -29,6 +29,9 @@ typedef visBase::DataObject* (*FactPtr)(void);
 
 namespace visBase
 {
+
+typedef DataObject* (*FactPtr)(void);
+
 class Transformation;
 class SelectionManager;
 class DataManager;
@@ -95,8 +98,8 @@ public:
 
     virtual void		fillPar( IOPar&, TypeSet<int>& ) const;
 			
-    static const char*		typestr;
-    static const char*		namestr;
+    static const char*		sKeyType();
+    static const char*		sKeyName();
 
     bool			dumpOIgraph( const char* filename,
 	    				     bool binary=false);
@@ -120,20 +123,24 @@ private:
 
 class Factory;
 
+/*! The FactoryEntry knows how to create one visualization object, and it has a 
+    function that can produce the object.  */
+
 class FactoryEntry : public CallBackClass
 {
 public:
     			FactoryEntry( FactPtr, const char*);
     			~FactoryEntry();
 
-    DataObject*		create(void) { return (*funcptr)(); }
-
-    			FactPtr funcptr;
-    const char*		name;
+    DataObject*		create();
+    const char*		name() const { return name_; }
 
 protected:
     void		visIsClosingCB(CallBacker*);
-    visBase::Factory*	factory;
+
+    visBase::Factory*	factory_;
+    FactPtr		funcptr_;
+    const char*		name_;
 };
 
 
@@ -142,27 +149,42 @@ class Factory : public CallBacker
 public:
     				Factory(); 
     				~Factory();
-    DataObject*			create( const char* );
-    ObjectSet<FactoryEntry>	entries;
+
+    void			addEntry(FactoryEntry*);
+    void			removeEntry(FactoryEntry*);
+
+    DataObject*			create(const char*);
+    FactoryEntry*		getEntry(const char*);
 
     Notifier<Factory>		closing;
-};
+
+protected:
+    ObjectSet<FactoryEntry>	entries_;
 
 };
 
-#define _mCreateDataObj(clss,args) 				\
+};
+
+#define _mCreateDataObj(clss) 					\
 {								\
-    clss* res = new clss args;					\
+    clss* res = (clss*) factoryentry_.create();			\
     res->_init();						\
     return res;							\
 }								\
+								\
 private:							\
+    static clss* createInternal()				\
+    { return new clss; }					\
+								\
     clss(const clss&);						\
     clss& operator =(const clss&);				\
-    static visBase::FactoryEntry	__factoryentry;		\
+    static visBase::FactoryEntry	factoryentry_;		\
 public:								\
+    static const char* getStaticClassName()			\
+	{ return factoryentry_.name(); }			\
+								\
     virtual const char*	getClassName() const 			\
-	{ return __factoryentry.name; }				\
+	{ return getStaticClassName(); }			\
 protected:
     
 #define _mDeclConstr(clss)	\
@@ -170,12 +192,14 @@ protected:
 public:
 
 #define mCreateDataObj(clss) \
-    _mCreateDataObj(clss,()) \
+    _mCreateDataObj(clss) \
     _mDeclConstr(clss)
 
 #define mCreateFactoryEntry( clss )				\
-    visBase::FactoryEntry clss::__factoryentry(			\
-    (FactPtr) clss::create, #clss)
+    visBase::FactoryEntry clss::factoryentry_(			\
+    (visBase::FactPtr) clss::createInternal, #clss)
+
+
 
 
 #endif
