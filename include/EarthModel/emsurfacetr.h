@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfacetr.h,v 1.1 2004-07-14 15:33:59 nanne Exp $
+ RCS:		$Id: emsurfacetr.h,v 1.2 2006-04-27 19:37:09 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -15,13 +15,15 @@ ________________________________________________________________________
 
 #include "transl.h"
 #include "emhorizon.h"
+#include "emhorizon2d.h"
 #include "emfault.h"
 #include "emsurfaceiodata.h"
 
 namespace EM { class dgbSurfaceReader; };
 
-typedef EM::Horizon EMHorizon;
-typedef EM::Fault EMFault;
+typedef EM::Horizon 	EMHorizon;
+typedef EM::Horizon2D	EMHorizon2D;
+typedef EM::Fault   	EMFault;
 
 
 /*!\brief Read/write EM::Horizon to storage */
@@ -32,6 +34,17 @@ public:
 				mDefEmptyTranslatorGroupConstructor(EMHorizon)
 
     const char*			defExtension() const	{ return "hor"; }
+
+    static const char*		keyword;
+};
+
+
+class EMHorizon2DTranslatorGroup : public TranslatorGroup
+{				 isTranslatorGroup(EMHorizon2D)
+public:
+				mDefEmptyTranslatorGroupConstructor(EMHorizon2D)
+
+    const char*			defExtension() const	{ return "2dh"; }
 
     static const char*		keyword;
 };
@@ -134,6 +147,21 @@ protected:
     virtual bool		readOnlyZ() const		{ return true; }
     virtual bool		writeOnlyZ() const		{ return true; }
     virtual bool		hasRangeSelection() const	{ return true; }
+};
+
+
+class dgbEMHorizon2DTranslator : public dgbEMSurfaceTranslator
+{				isTranslator(dgb,EMHorizon2D)
+public:
+    				dgbEMHorizon2DTranslator(const char* unm,
+						       const char* nm)
+				    : dgbEMSurfaceTranslator(unm,nm)	{}
+    virtual			~dgbEMHorizon2DTranslator()		{}
+
+protected:
+    virtual bool		readOnlyZ() const		{return false;}
+    virtual bool		writeOnlyZ() const		{return false;}
+    virtual bool		hasRangeSelection() const	{return false;}
 };
 
 

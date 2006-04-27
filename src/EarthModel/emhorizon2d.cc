@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: emhorizon2d.cc,v 1.2 2006-04-26 21:14:32 cvskris Exp $
+ RCS:           $Id: emhorizon2d.cc,v 1.3 2006-04-27 19:37:07 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,7 +12,7 @@ ________________________________________________________________________
 #include "emhorizon2d.h"
 
 #include "emsurfacetr.h"
-
+#include "emmanager.h"
 #include "emrowcoliterator.h"
 #include "errh.h"
 #include "horizon2dline.h"
@@ -114,13 +114,29 @@ Geometry::Horizon2DLine* Horizon2Geometry::createSectionGeometry() const
 { return new Geometry::Horizon2DLine; }
 
 
+const char* Horizon2D::typeStr()		{ return "2D Horizon"; }
+
+
+EMObject* Horizon2D::create( EMManager& emm )
+{ return new Horizon2D( emm ); }
+
+
+void Horizon2D::initClass(EMManager& emm)
+{
+    ObjectFactory* no = new ObjectFactory( create,
+	    EMHorizon2DTranslatorGroup::ioContext(), typeStr());
+    emm.addFactory( no );
+}
+
+
 Horizon2D::Horizon2D( EMManager& man )
     : Surface( man )
     , geometry_( *this )
 { }
 
 
-const char* Horizon2D::getTypeStr() const { return "2D Horizon"; }
+const char* Horizon2D::getTypeStr() const
+{ return typeStr(); }
 
 
 Horizon2Geometry& Horizon2D::geometry()
@@ -132,7 +148,7 @@ const Horizon2Geometry& Horizon2D::geometry() const
 
 
 const IOObjContext& Horizon2D::getIOObjContext() const
-{ return EMHorizonTranslatorGroup::ioContext(); }  //Fix onw tr
+{ return EMHorizon2DTranslatorGroup::ioContext(); }  //Fix onw tr
 
     
 

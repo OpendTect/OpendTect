@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emmanager.cc,v 1.46 2006-04-27 15:29:13 cvskris Exp $";
+static const char* rcsID = "$Id: emmanager.cc,v 1.47 2006-04-27 19:37:07 cvskris Exp $";
 
 #include "emmanager.h"
 
@@ -102,6 +102,7 @@ void EM::EMManager::init()
     Fault::initClass(*this);
     HorizontalTube::initClass(*this);
     StickSet::initClass(*this);
+    Horizon2D::initClass(*this);
 } 
 
 
