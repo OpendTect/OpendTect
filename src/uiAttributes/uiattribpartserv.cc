@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiattribpartserv.cc,v 1.29 2006-03-12 13:39:11 cvsbert Exp $
+ RCS:           $Id: uiattribpartserv.cc,v 1.30 2006-04-27 21:43:52 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -48,7 +48,6 @@ ________________________________________________________________________
 #include "uimsg.h"
 #include "uimenu.h"
 #include "uisetpickdirs.h"
-#include "uicolorattrsel.h"
 #include "attribsetcreator.h"
 #include "uiseisioobjinfo.h"
 
@@ -498,38 +497,6 @@ bool uiAttribPartServer::setPickSetDirs( PickSet& ps, const NLAModel* nlamod )
 {
     uiSetPickDirs dlg( appserv().parent(), ps, curDescSet(), nlamod );
 	return dlg.go();
-}
-
-
-bool uiAttribPartServer::selectColorAttrib( ColorSelSpec& selspec )
-{
-    uiAttrSelData attrdata( adsman->descSet() );
-    attrdata.attribid = selspec.as.isNLA() ? SelSpec::cNoAttrib() 
-					   : selspec.as.id();
-    attrdata.outputnr = selspec.as.isNLA() ? selspec.as.id().asInt() : -1;
-    attrdata.nlamodel = getNLAModel();
-
-    uiColorAttrSel dlg( appserv().parent(), attrdata );
-    dlg.setPars( selspec );
-
-    if ( !dlg.go() )
-	return false;
-
-    dlg.getPars( selspec );
-    attrdata.attribid = dlg.attribID();
-    attrdata.outputnr = dlg.outputNr();
-    const bool isnla = attrdata.outputnr >= 0;
-    IOObj* ioobj = IOM().get( adsman->attrsetid_ );
-    BufferString attrsetnm = ioobj ? ioobj->name() : "";
-    selspec.as.set( 0, isnla ? DescID(attrdata.outputnr,true) 
-	    		     : attrdata.attribid, isnla,
-		    isnla ? (const char*)nlaname : (const char*)attrsetnm );
-    if ( isnla )
-	selspec.as.setRefFromID( *attrdata.nlamodel );
-    else
-	selspec.as.setRefFromID( *adsman->descSet() );
-
-    return true;
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiattribpartserv.h,v 1.9 2006-03-02 18:50:58 cvsnanne Exp $
+ RCS:           $Id: uiattribpartserv.h,v 1.10 2006-04-27 21:43:52 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,7 +20,6 @@ ________________________________________________________________________
 
 namespace Attrib
 {
-    class ColorSelSpec;
     class DataHolder;
     class Desc;
     class DescSet;
@@ -82,7 +81,6 @@ public:
     bool		attrSetEditorActive() const	{ return attrsetdlg; }
     void		updateSelSpec(Attrib::SelSpec&) const;
 
-    bool		selectColorAttrib(Attrib::ColorSelSpec&);
     bool		selectAttrib(Attrib::SelSpec&);
     bool		setPickSetDirs(PickSet&,const NLAModel*);
     void		outputVol(MultiID&);
