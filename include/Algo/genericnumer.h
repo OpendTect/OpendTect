@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: genericnumer.h,v 1.17 2006-03-12 13:39:09 cvsbert Exp $
+ RCS:           $Id: genericnumer.h,v 1.18 2006-04-27 16:08:44 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -160,6 +160,13 @@ void reSample( const FloatMathFunction& input, const A& samplevals,
 	    	      input.getValue(sampleval);
     }
 }
+
+
+/*!Computes the greatest common divisor from two intigers. Uses the algorithm
+   published by Josef Stein. */
+
+unsigned int greatestCommonDivisor( unsigned int u, unsigned int v );
+
 
 
 #endif
