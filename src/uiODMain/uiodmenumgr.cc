@@ -4,12 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.cc,v 1.43 2006-04-26 09:43:22 cvsbert Exp $
+ RCS:           $Id: uiodmenumgr.cc,v 1.44 2006-04-27 10:20:19 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.43 2006-04-26 09:43:22 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.44 2006-04-27 10:20:19 cvsbert Exp $";
 
 #include "uiodmenumgr.h"
 #include "uiodapplmgr.h"
@@ -469,8 +469,8 @@ void uiODMenuMgr::timerCB( CallBacker* )
 
 void uiODMenuMgr::showLogFile()
 {
-    const char* lmfnm = logMsgFileName();
-    uiFileBrowser fb( &appl, uiFileBrowser::Setup(logMsgFileName())
-	    		     .scroll2bottom(true) );
+    uiFileBrowser::Setup su( logMsgFileName() );
+    su.scroll2bottom(true); su.modal(true);
+    uiFileBrowser fb( &appl, su );
     fb.go();
 }
