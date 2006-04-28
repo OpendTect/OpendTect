@@ -7,28 +7,32 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		April 2006
- RCS:		$Id: horizonsorter.h,v 1.1 2006-04-25 15:20:33 cvsnanne Exp $
+ RCS:		$Id: horizonsorter.h,v 1.2 2006-04-28 15:20:13 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "executor.h"
+
+#include "cubesampling.h"
 #include "multiid.h"
 #include "position.h"
+
 
 namespace EM { class Horizon; }
 template <class T> class Array3D;
 class HorSamplingIterator;
 
+
 class HorizonSorter : public Executor
 {
 public:
 
-				HorizonSorter();
+				HorizonSorter(const TypeSet<MultiID>&);
 				~HorizonSorter();
 
-    void			addHorizons(const TypeSet<MultiID>&);
     void			getSortedList(TypeSet<MultiID>&);
+    const HorSampling&		getBoundingBox() const	{ return hrg_; }
 
     const char*			message() const;
     int				totalNr() const;
@@ -39,6 +43,7 @@ protected:
 
     int				nextStep();
     void			calcBoundingBox();
+    void			init();
     void			sort();
 
     int				totalnr_;
@@ -46,6 +51,7 @@ protected:
 
     HorSamplingIterator*	iterator_;
     BinID			binid_;
+    HorSampling			hrg_;
     ObjectSet<EM::Horizon>	horizons_;
     Array3D<int>*		result_;
     TypeSet<MultiID>		unsortedids_;

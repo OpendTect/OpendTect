@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          April 2006
- RCS:           $Id: horizonsorter.cc,v 1.3 2006-04-27 20:38:37 cvsnanne Exp $
+ RCS:           $Id: horizonsorter.cc,v 1.4 2006-04-28 15:20:13 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,24 +20,13 @@ ________________________________________________________________________
 #include "survinfo.h"
 
 
-HorizonSorter::HorizonSorter()
+HorizonSorter::HorizonSorter( const TypeSet<MultiID>& ids )
     : Executor("Sort horizons")
+    , unsortedids_(ids)
     , totalnr_(0)
     , nrdone_(0)
     , iterator_(0)
     , result_(0)
-{
-}
-
-
-HorizonSorter::~HorizonSorter()
-{
-    delete result_;
-    delete iterator_;
-}
-
-
-void HorizonSorter::addHorizons( const TypeSet<MultiID>& ids )
 {
     PtrMan<Executor> horreader = EM::EMM().objectLoader( ids );
     horreader->execute();
@@ -56,36 +45,47 @@ void HorizonSorter::addHorizons( const TypeSet<MultiID>& ids )
 	horizons_ += horizon;
     }
 
+    init();
+}
+
+
+HorizonSorter::~HorizonSorter()
+{
+    delete result_;
+    delete iterator_;
+}
+
+
+void HorizonSorter::init()
+{
     calcBoundingBox();
-    unsortedids_ = ids;
+    totalnr_ = hrg_.totalNr();
+
+    delete iterator_;
+    iterator_ = new HorSamplingIterator( hrg_ );
+
+    delete result_;
+    result_ = new Array3DImpl<int>( horizons_.size(), horizons_.size(), 2 );
+    for ( int idx=0; idx<result_->info().getTotalSz(); idx++ )
+	result_->getData()[idx] = 0;
 }
 
 
 void HorizonSorter::calcBoundingBox()
 {
-    HorSampling hrg;
     for ( int idx=0; idx<horizons_.size(); idx++ )
     {
 	StepInterval<int> rrg = horizons_[idx]->geometry().rowRange();
 	StepInterval<int> crg = horizons_[idx]->geometry().colRange();
 	if ( !idx )
 	{
-	    hrg.set( rrg, crg );
+	    hrg_.set( rrg, crg );
 	    continue;
 	}
 
-	hrg.include( BinID(rrg.start,crg.start) );
-	hrg.include( BinID(rrg.stop,crg.stop) );
+	hrg_.include( BinID(rrg.start,crg.start) );
+	hrg_.include( BinID(rrg.stop,crg.stop) );
     }
-
-    delete iterator_;
-    iterator_ = new HorSamplingIterator( hrg );
-    totalnr_ = hrg.totalNr();
-
-    delete result_;
-    result_ = new Array3DImpl<int>( horizons_.size(), horizons_.size(), 2 );
-    for ( int idx=0; idx<result_->info().getTotalSz(); idx++ )
-	result_->getData()[idx] = 0;
 }
 
 
@@ -95,8 +95,7 @@ void HorizonSorter::sort()
     const int nrhors = unsortedids_.size();
     const int maxnrloops = nrhors * nrhors;
     int nrswaps = 0;
-    int nrloops;
-    while ( nrloops < maxnrloops )
+    while ( true )
     {
 	nrswaps = 0;
 	for ( int idx=0; idx<nrhors; idx++ )
@@ -110,17 +109,27 @@ void HorizonSorter::sort()
 		if ( nrbelow > nrabove && idx0 > idx1 ) continue;
 		if ( nrbelow < nrabove && idx0 < idx1 ) continue;
 
-		MultiID tmp = sortedids_[idx0];
-		sortedids_[idx0] = sortedids_[idx1];
-		sortedids_[idx1] = tmp;
+		if ( nrbelow > nrabove )
+		{
+		    MultiID mid = sortedids_[idx0];
+		    sortedids_.remove( idx0 );
+		    sortedids_.insert( idx1, mid );
+		}
+		else if ( nrbelow < nrabove )
+		{
+		    MultiID mid = sortedids_[idx1];
+		    sortedids_.remove( idx1 );
+		    sortedids_.insert( idx0, mid );
+		}
+		else
+		    continue;
+
 		nrswaps++;
 	    }
 	}
 
 	if ( nrswaps == 0 )
 	    break;
-
-	nrloops++;
     }
 }
 
