@@ -7,12 +7,13 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiattribpartserv.h,v 1.10 2006-04-27 21:43:52 cvskris Exp $
+ RCS:           $Id: uiattribpartserv.h,v 1.11 2006-04-28 15:11:07 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiapplserv.h"
+#include "attribdescid.h"
 #include "position.h"
 #include "multiid.h"
 #include "menuhandler.h"
@@ -96,6 +97,9 @@ public:
     bool		createOutput(ObjectSet<BinIDValueSet>&);
     bool		createOutput( const BinIDValueSet& bidvalset,
 	    			      SeisTrcBuf&);
+
+    Attrib::DescID	createStored2DAttrib(const MultiID& lineset,
+	    				     const char* attribname);
     
     bool		create2DOutput(const CubeSampling&, const char* linekey,
 				       ObjectSet<Attrib::DataHolder>&, 

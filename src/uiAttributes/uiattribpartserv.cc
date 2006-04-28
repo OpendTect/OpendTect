@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiattribpartserv.cc,v 1.30 2006-04-27 21:43:52 cvskris Exp $
+ RCS:           $Id: uiattribpartserv.cc,v 1.31 2006-04-28 15:11:07 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -463,6 +463,13 @@ void uiAttribPartServer::usePar( const IOPar& iopar )
 
 	sendEvent( evNewAttrSet );
     }
+}
+
+
+Attrib::DescID uiAttribPartServer::createStored2DAttrib(const MultiID& lineset,
+							const char* attribname)
+{
+    return adsman->descSet()->getStoredID( LineKey(lineset,attribname) );
 }
 
 
