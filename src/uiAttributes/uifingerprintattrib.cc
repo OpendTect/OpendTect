@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Payraudeau
  Date:          February  2006
- RCS:           $Id: uifingerprintattrib.cc,v 1.4 2006-04-26 12:32:07 cvshelene Exp $
+ RCS:           $Id: uifingerprintattrib.cc,v 1.5 2006-04-28 10:00:47 cvshelene Exp $
 
 ________________________________________________________________________
 
@@ -131,10 +131,10 @@ uiFingerPrintAttrib::~uiFingerPrintAttrib()
 }
 
 
-void uiFingerPrintAttrib::initTable()
+void uiFingerPrintAttrib::initTable( int nrrows )
 {
     attribflds_.erase();
-    for ( int idx=0; idx<sInitNrRows; idx++ )
+    for ( int idx=0; idx<nrrows; idx++ )
     {
 	uiAttrSel* attrbox = new uiAttrSel( 0, 0, "" );
 	attribflds_ += attrbox;
@@ -182,19 +182,17 @@ bool uiFingerPrintAttrib::setParameters( const Desc& desc )
 
     refSel(0);
     
-    table_->clearTable();
-    table_->setNrRows( sInitNrRows );
-    initTable();
-
-    int nrvals = 0;
+    int nrvals = sInitNrRows;
     if ( desc.getParam( FingerPrint::valStr() ) )
     {
 	mDescGetConstParamGroup(FloatParam,valueset,desc,FingerPrint::valStr())
-	nrvals = valueset->size();
+	if ( valueset->size() > sInitNrRows )
+	    nrvals = valueset->size();
     }
 
-    while ( nrvals > table_->nrRows() )
-	table_->insertRows(0);
+    table_->clearTable();
+    table_->setNrRows( nrvals );
+    initTable( nrvals );
 
     if ( desc.getParam( FingerPrint::valStr() ) )
     {
@@ -332,7 +330,8 @@ void uiFingerPrintAttrib::calcPush(CallBacker*)
     }
     
     BufferString errmsg;
-    PtrMan<Attrib::EngineMan> aem = createEngineMan();
+    int nrspecs;
+    PtrMan<Attrib::EngineMan> aem = createEngineMan( nrspecs );
     PtrMan<Processor> proc = aem->createLocationOutput( errmsg, values );
     if ( !proc )
     {
@@ -351,54 +350,62 @@ void uiFingerPrintAttrib::calcPush(CallBacker*)
 	}
     }
 
-    showValues( values[0] );
+    showValues( values[0], nrspecs );
     deepErase(values);
 }
 
 
-EngineMan* uiFingerPrintAttrib::createEngineMan()
+EngineMan* uiFingerPrintAttrib::createEngineMan( int& nrspecs )
 {
     EngineMan* aem = new EngineMan;
     
     TypeSet<SelSpec> attribspecs;
-    for ( int idx=0; idx<ads->nrDescs(); idx++ )
+    for ( int idx=0; idx<attribflds_.size(); idx++ )
     {
-	SelSpec sp( 0, ads->desc(idx)->id() );
-	attribspecs += sp;
+	BufferString inp = attribflds_[idx]->getInput();
+	for ( int idxdesc=0; idxdesc<ads->nrDescs(); idxdesc++ )
+	{
+	    if ( !strcmp( inp, ads->desc(idxdesc)->userRef() ) )
+	    {
+		SelSpec sp( 0, ads->desc(idxdesc)->id() );
+		attribspecs += sp;
+	    }
+	}
     }
 
     aem->setAttribSet( ads );
     aem->setAttribSpecs( attribspecs );
+    nrspecs = attribspecs.size();
 
     return aem;
     
 }
 
 
-void uiFingerPrintAttrib::showValues( BinIDValueSet* bidvalset )
+void uiFingerPrintAttrib::showValues( BinIDValueSet* bidvalset, int nrspecs )
 {
     TypeSet<float> vals;
-    vals.setSize(ads->nrDescs());
+    vals.setSize( nrspecs );
     if ( bidvalset->totalSize() == 1 )
     {
 	float* tmpvals = bidvalset->getVals( bidvalset->getPos(0) );
-	for ( int idx=0; idx<ads->nrDescs(); idx++ )
+	for ( int idx=0; idx<nrspecs; idx++ )
 	    vals[idx] = tmpvals[idx+1];
     }
     else
     {
 	ObjectSet< RunningStatistics<float> > statsset;
-	for ( int idx=0; idx<ads->nrDescs(); idx++ )
+	for ( int idx=0; idx<nrspecs; idx++ )
 	    statsset += new RunningStatistics<float>;
 
 	for ( int idsz=0; idsz<bidvalset->totalSize(); idsz++ )
 	{
 	    float* values = bidvalset->getVals( bidvalset->getPos(idsz) );
-	    for ( int idx=0; idx<ads->nrDescs(); idx++ )
+	    for ( int idx=0; idx<nrspecs; idx++ )
 		*(statsset[idx]) += values[idx+1];
 	}
 	
-	for ( int idx=0; idx<ads->nrDescs(); idx++ )
+	for ( int idx=0; idx<nrspecs; idx++ )
 	{
 	    switch ( statsfld_->getIntValue() )
 	    {
@@ -432,13 +439,17 @@ void uiFingerPrintAttrib::showValues( BinIDValueSet* bidvalset )
 	deepErase( statsset );
     }
 	
+    int index = 0;
     for ( int idx=0; idx<attribflds_.size(); idx++ )
     {
 	BufferString inp = attribflds_[idx]->getInput();
 	for ( int idxdesc=0; idxdesc<ads->nrDescs(); idxdesc++ )
 	{
 	    if ( !strcmp( inp, ads->desc(idxdesc)->userRef() ) )
-		table_->setValue( RowCol(idx,1), vals[idxdesc] );
+	    {
+		table_->setValue( RowCol(idx,1), vals[index] );
+		index++;
+	    }
 	}
     }
 }

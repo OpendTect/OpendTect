@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          23-02-2006
- RCS:           $Id: fingerprintattrib.h,v 1.2 2006-04-25 14:47:46 cvshelene Exp $
+ RCS:           $Id: fingerprintattrib.h,v 1.3 2006-04-28 10:00:47 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -55,7 +55,7 @@ protected:
     static void			updateDesc(Desc&);
 
     bool			allowParallelComputation() const
-				{ return false; }
+				{ return true; }
 
     bool			getInputData(const BinID&,int zintv);
     bool			computeData(const DataHolder&,

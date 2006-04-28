@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Payraudeau
  Date:          February 2006
- RCS:           $Id: uifingerprintattrib.h,v 1.4 2006-04-26 12:32:07 cvshelene Exp $
+ RCS:           $Id: uifingerprintattrib.h,v 1.5 2006-04-28 10:00:47 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -57,7 +57,7 @@ protected:
 
     void		insertRowCB(CallBacker*);
     void		deleteRowCB(CallBacker*);
-    void		initTable();
+    void		initTable(int);
 
     bool		setParameters(const Attrib::Desc&);
     bool		setInput(const Attrib::Desc&);
@@ -68,8 +68,8 @@ protected:
     void                getPosPush(CallBacker*);
     void                calcPush(CallBacker*);
     void		refSel(CallBacker*);
-    EngineMan*          createEngineMan();
-    void                showValues(BinIDValueSet*);
+    EngineMan*          createEngineMan(int&);
+    void                showValues(BinIDValueSet*,int);
 };
 
 #endif
