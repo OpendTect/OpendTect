@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.311 2006-04-07 15:34:42 cvsjaap Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.312 2006-04-28 15:25:18 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -110,6 +110,7 @@ uiVisPartServer::~uiVisPartServer()
     delete vismgr_;
 
     delete &eventmutex_;
+    delete mpetools_;
     menu_.unRef();
 }
 
