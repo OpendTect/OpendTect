@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          23-10-1996
- RCS:           $Id: emtracker.h,v 1.22 2005-12-08 14:33:27 cvskris Exp $
+ RCS:           $Id: emtracker.h,v 1.23 2006-04-28 15:26:26 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,6 +38,8 @@ public:
 
     BufferString		objectName() const;
     EM::ObjectID		objectID() const;
+
+    virtual bool		is2D() const		{ return false; }
 
     virtual bool		isEnabled() const	{ return isenabled; }
     virtual void		enable(bool yn)		{ isenabled=yn; }
