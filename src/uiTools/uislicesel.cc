@@ -4,20 +4,21 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uislicesel.cc,v 1.38 2006-03-12 13:39:11 cvsbert Exp $
+ RCS:           $Id: uislicesel.cc,v 1.39 2006-04-28 14:35:45 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uislicesel.h"
-#include "cubesampling.h"
+
 #include "uispinbox.h"
 #include "uicombobox.h"
 #include "uigeninput.h"
 #include "uibutton.h"
+#include "cubesampling.h"
 #include "survinfo.h"
-#include "timer.h"
 #include "thread.h"
+#include "timer.h"
 
 static const char* sButTxtAdvance = "&Advance >>";
 static const char* sButTxtPause = "&Pause";
@@ -30,7 +31,6 @@ uiSliceSel::uiSliceSel( uiParent* p, const CubeSampling& curcs,
 				 "Specify the element's position",
 				 "0.4.1").modal(type==Vol||type==TwoD))
     , cs_(*new CubeSampling(curcs))
-    , curcs_(*new CubeSampling(curcs))
     , maxcs_(*new CubeSampling(maxcs))
     , inl0fld(0)
     , updatemutex_(*new Threads::Mutex)
@@ -63,19 +63,16 @@ uiSliceSel::uiSliceSel( uiParent* p, const CubeSampling& curcs,
 	scrollbut->activated.notify( mCB(this,uiSliceSel,scrollPush) );
 	scrollbut->attach( rightOf, isinl_ ? inl0fld : (iscrl_?crl0fld:z0fld) );
     }
+
+    setCubeSampling( curcs );
 }
 
 
 void uiSliceSel::createInlFld()
 {
-    Interval<int> inlrg( curcs_.hrg.start.inl, curcs_.hrg.stop.inl );
-    StepInterval<int> maxinlrg( maxcs_.hrg.start.inl, maxcs_.hrg.stop.inl,
-				maxcs_.hrg.step.inl );
     BufferString label( isinl_ ? "Inline nr" : "Inline range" );
     inl0fld = new uiLabeledSpinBox( this, label );
-    setBoxValues( inl0fld->box(), maxinlrg, inlrg.start );
     inl1fld = new uiSpinBox( this );
-    setBoxValues( inl1fld, maxinlrg, inlrg.stop );
     inl1fld->attach( rightTo, inl0fld );
     inl1fld->display( !isinl_ );
 }
@@ -83,15 +80,10 @@ void uiSliceSel::createInlFld()
 
 void uiSliceSel::createCrlFld()
 {
-    Interval<int> crlrg( curcs_.hrg.start.crl, curcs_.hrg.stop.crl );
-    StepInterval<int> maxcrlrg( maxcs_.hrg.start.crl, maxcs_.hrg.stop.crl,
-				maxcs_.hrg.step.crl );
     BufferString label = is2d_ ? "Trace range" 
 			       : ( iscrl_ ? "Xline nr" : "Xline range" );
     crl0fld = new uiLabeledSpinBox( this, label );
-    setBoxValues( crl0fld->box(), maxcrlrg, crlrg.start );
     crl1fld = new uiSpinBox( this );
-    setBoxValues( crl1fld, maxcrlrg, crlrg.stop );
     crl1fld->attach( rightTo, crl0fld );
     crl1fld->display( !iscrl_ );
     if ( inl0fld ) crl0fld->attach( alignedBelow, inl0fld );
@@ -100,20 +92,10 @@ void uiSliceSel::createCrlFld()
 
 void uiSliceSel::createZFld()
 {
-    const float zfact( SI().zFactor() );
-    Interval<int> zrg( mNINT(curcs_.zrg.start*zfact), 
-	    	       mNINT(curcs_.zrg.stop*zfact) );
     BufferString label = SI().zIsTime() ? "Time " : "Depth ";
     if ( !istsl_ ) label += "range "; label += SI().getZUnit();
-    StepInterval<int> maxzrg = 
-		    StepInterval<int>( mNINT(maxcs_.zrg.start*zfact),
-				       mNINT(maxcs_.zrg.stop*zfact),
-				       mNINT(maxcs_.zrg.step*zfact) );
-
     z0fld = new uiLabeledSpinBox( this, label );
-    setBoxValues( z0fld->box(), maxzrg, zrg.start );
     z1fld = new uiSpinBox( this );
-    setBoxValues( z1fld, maxzrg, zrg.stop );
     z1fld->attach( rightTo, z0fld );
     z1fld->display( !istsl_ );
     z0fld->attach( alignedBelow, crl0fld );
@@ -355,7 +337,7 @@ uiSliceSel::~uiSliceSel()
     delete &applycb_;
     delete &updatemutex_;
     delete scrolldlg_;
-    delete &maxcs_; delete &curcs_;
+    delete &maxcs_;
 }
 
 
@@ -414,6 +396,34 @@ void uiSliceSel::readInput()
 
     SI().snap( cs_.hrg.start, BinID(0,0) );
     SI().snap( cs_.hrg.stop, BinID(0,0) );
+}
+
+
+void uiSliceSel::setCubeSampling( const CubeSampling& cs )
+{
+    Interval<int> inlrg( cs.hrg.start.inl, cs.hrg.stop.inl );
+    StepInterval<int> maxinlrg( maxcs_.hrg.start.inl, maxcs_.hrg.stop.inl,
+				maxcs_.hrg.step.inl );
+    setBoxValues( inl0fld->box(), maxinlrg, inlrg.start );
+    setBoxValues( inl1fld, maxinlrg, inlrg.stop );
+
+    Interval<int> crlrg( cs.hrg.start.crl, cs.hrg.stop.crl );
+    StepInterval<int> maxcrlrg( maxcs_.hrg.start.crl, maxcs_.hrg.stop.crl,
+				maxcs_.hrg.step.crl );
+    setBoxValues( crl0fld->box(), maxcrlrg, crlrg.start );
+    setBoxValues( crl1fld, maxcrlrg, crlrg.stop );
+
+    const float zfact( SI().zFactor() );
+    Interval<int> zrg( mNINT(cs.zrg.start*zfact), 
+	    	       mNINT(cs.zrg.stop*zfact) );
+    StepInterval<int> maxzrg = 
+		    StepInterval<int>( mNINT(maxcs_.zrg.start*zfact),
+				       mNINT(maxcs_.zrg.stop*zfact),
+				       mNINT(maxcs_.zrg.step*zfact) );
+    setBoxValues( z0fld->box(), maxzrg, zrg.start );
+    setBoxValues( z1fld, maxzrg, zrg.stop );
+
+    cs_ = cs;
 }
 
 
