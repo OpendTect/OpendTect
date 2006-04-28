@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.131 2006-04-26 15:19:54 cvshelene Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.132 2006-04-28 15:24:49 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -608,6 +608,7 @@ bool uiODApplMgr::handleMPEServEv( int evid )
 	//Turn off everything
 
 	visserv->turnSeedPickingOn( true );
+	sceneMgr().setToViewMode( false );
     }
     else if ( evid == uiMPEPartServer::evEndSeedPick )
     {
