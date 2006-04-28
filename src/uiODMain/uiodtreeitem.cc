@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.183 2006-04-25 12:50:07 cvsnanne Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.184 2006-04-28 14:39:16 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -1046,7 +1046,7 @@ uiODEarthModelSurfaceDataTreeItem::uiODEarthModelSurfaceDataTreeItem(
 							uiVisEMObject* uv,
        							const char* parenttype )
     : uiODAttribTreeItem( parenttype )
-    , depthattribmnuitem_("Depth")
+    , depthattribmnuitem_("Z values")
     , savesurfacedatamnuitem_("Save attribute ...")
     , loadsurfacedatamnuitem_("Surface data ...")
     , emid( e )
@@ -1124,7 +1124,7 @@ BufferString uiODEarthModelSurfaceDataTreeItem::createDisplayName() const
 	    					     attribNr() );
 
     if ( as->id()==Attrib::SelSpec::cNoAttrib() )
-	return BufferString("Depth");
+	return BufferString("Z values");
 
     return uiODAttribTreeItem::createDisplayName();
 }
@@ -2371,8 +2371,10 @@ void uiODPlaneDataTreeItem::handleMenuCB( CallBacker* cb )
 	positiondlg->windowClosed.notify( 
 		mCB(this,uiODPlaneDataTreeItem,posDlgClosed) );
 	positiondlg->go();
+	pdd->getMovementNotification()->notify(
+		mCB(this,uiODPlaneDataTreeItem,updatePositionDlg) );
 	applMgr()->enableMenusAndToolbars( false );
-	applMgr()->enableSceneManipulation( false );
+//	applMgr()->enableSceneManipulation( false );
     }
     else if ( mnuid == gridlinesmnuitem_.id )
     {
@@ -2389,6 +2391,15 @@ void uiODPlaneDataTreeItem::handleMenuCB( CallBacker* cb )
 	const BinID bid( (int)inlcrlpos.x, (int)inlcrlpos.y );
 	applMgr()->seisServer()->handleGatherSubMenu( mnuid, bid );
     }
+}
+
+
+void uiODPlaneDataTreeItem::updatePositionDlg( CallBacker* )
+{
+    mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,
+	    	    visserv->getObject(displayid_))
+    const CubeSampling newcs = pdd->getCubeSampling();
+    positiondlg->setCubeSampling( newcs );
 }
 
 
@@ -2411,6 +2422,8 @@ void uiODPlaneDataTreeItem::posDlgClosed( CallBacker* )
 
     applMgr()->enableMenusAndToolbars( true );
     applMgr()->enableSceneManipulation( true );
+    pdd->getMovementNotification()->remove(
+		mCB(this,uiODPlaneDataTreeItem,updatePositionDlg) );
 }
 
 
