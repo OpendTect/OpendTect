@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: sectionselectorimpl.cc,v 1.12 2006-04-27 15:53:13 cvskris Exp $";
+static const char* rcsID = "$Id: sectionselectorimpl.cc,v 1.13 2006-04-28 20:59:59 cvskris Exp $";
 
 #include "sectionselectorimpl.h"
 
@@ -26,7 +26,7 @@ namespace MPE
 BinIDSurfaceSourceSelector::BinIDSurfaceSourceSelector(
 	const EM::Horizon& hor, const EM::SectionID& sid )
     : SectionSourceSelector( sid )
-    , surface( hor )
+    , surface_( hor )
 {}
 
 
@@ -45,19 +45,19 @@ void BinIDSurfaceSourceSelector::setTrackPlane( const MPE::TrackPlane& plane )
 	const BinID prevbid = currentbid-plane.motion().binid;
 	const EM::SubID curnode = currentbid.getSerialized();
 	const EM::SubID prevnode = prevbid.getSerialized();
-	const bool curnodedef = surface.isDefined( sectionid, curnode );
-	const bool prevnodedef = surface.isDefined( sectionid, prevnode );
+	const bool curnodedef = surface_.isDefined( sectionid_, curnode );
+	const bool prevnodedef = surface_.isDefined( sectionid_, prevnode );
 
 	if ( plane.getTrackMode() == TrackPlane::Erase ||
 	     plane.getTrackMode() == TrackPlane::ReTrack )
 	{
 	    if ( prevnodedef )
-		selpos += prevnode;
+		selpos_ += prevnode;
 	}
 	else if ( plane.getTrackMode()==TrackPlane::Extend )
 	{
 	    if ( prevnodedef && !curnodedef )
-		selpos += prevnode;
+		selpos_ += prevnode;
 	}
 
 	if ( startbid.inl==stopbid.inl )
@@ -75,16 +75,16 @@ void BinIDSurfaceSourceSelector::setTrackPlane( const MPE::TrackPlane& plane )
 
 
 SurfaceSourceSelector::SurfaceSourceSelector(
-	const EM::EMObject& obj_, const EM::SectionID& sid )
+	const EM::EMObject& obj, const EM::SectionID& sid )
     : SectionSourceSelector( sid )
-    , emobject( obj_ )
+    , emobject_( obj )
 {}
 
 
 void SurfaceSourceSelector::setTrackPlane( const MPE::TrackPlane& plane )
 {
     mDynamicCastGet( const Geometry::ParametricSurface*,surface,
-		     emobject.sectionGeometry(sectionid));
+		     emobject_.sectionGeometry(sectionid_));
 
     TypeSet<GeomPosID> allnodes;
     surface->getPosIDs( allnodes );
@@ -114,7 +114,7 @@ void SurfaceSourceSelector::setTrackPlane( const MPE::TrackPlane& plane )
 	if ( !surface->isAtEdge(node) )
 	    continue;
 
-	selpos += allnodes[idx];
+	selpos_ += allnodes[idx];
     }
 }
 
