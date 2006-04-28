@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrsel.h,v 1.2 2005-07-29 13:08:11 cvsnanne Exp $
+ RCS:           $Id: uiattrsel.h,v 1.3 2006-04-28 15:59:16 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -68,26 +68,26 @@ public:
 			~uiAttrSelDlg();
 
 			// if ( go() ) ...
-    Attrib::DescID	attribID() const	{ return attrdata.attribid; }
+    Attrib::DescID	attribID() const	{ return attrdata_.attribid; }
 			//!< -1 if not selected
-    int			outputNr() const	{ return attrdata.outputnr; }
+    int			outputNr() const	{ return attrdata_.outputnr; }
 			//!< -1 if not selected
 
 protected:
 
-    uiAttrSelData	attrdata;
-    Attrib::SelInfo*	attrinf;
-    bool		in_action;
+    uiAttrSelData	attrdata_;
+    Attrib::SelInfo*	attrinf_;
+    bool		in_action_;
 
-    uiGroup*		selgrp;
-    uiRadioButton*	srcfld;
-    uiRadioButton*	calcfld;
-    uiRadioButton*	nlafld;
-    uiListBox*		storfld;
-    uiListBox*		attrfld;
-    uiListBox*		nlaoutfld;
-    uiGenInput*		filtfld;
-    uiGenInput*		attr2dfld;
+    uiGroup*		selgrp_;
+    uiRadioButton*	srcfld_;
+    uiRadioButton*	calcfld_;
+    uiRadioButton*	nlafld_;
+    uiListBox*		storfld_;
+    uiListBox*		attrfld_;
+    uiListBox*		nlaoutfld_;
+    uiGenInput*		filtfld_;
+    uiGenInput*		attr2dfld_;
 
     bool		getAttrData(bool);
     void		doFinalise( CallBacker* );
@@ -118,10 +118,10 @@ public:
 				  const uiAttrSelData&);
 			~uiAttrSel()		{}
 
-    Attrib::DescID	attribID() const	{ return attrdata.attribid; }
-    int			outputNr() const	{ return attrdata.outputnr; }
-    bool		is2D() const		{ return is2d; }
-    void		set2D(bool yn)		{ is2d = yn; }
+    Attrib::DescID	attribID() const	{ return attrdata_.attribid; }
+    int			outputNr() const	{ return attrdata_.outputnr; }
+    bool		is2D() const		{ return is2d_; }
+    void		set2D(bool yn)		{ is2d_ = yn; }
 
     void		setDescSet(const Attrib::DescSet*);
 			//!< This function has to be called before getHistory !
@@ -146,8 +146,8 @@ public:
     
 protected:
 
-    uiAttrSelData	attrdata;
-    bool		is2d;
+    uiAttrSelData	attrdata_;
+    bool		is2d_;
     Attrib::DescID	ignoreid;
     BufferString	errmsg;
     mutable BufferString usrnm;

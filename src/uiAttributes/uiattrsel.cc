@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: uiattrsel.cc,v 1.10 2006-03-10 13:34:02 cvsbert Exp $
+ RCS:           $Id: uiattrsel.cc,v 1.11 2006-04-28 15:59:16 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -47,17 +47,17 @@ uiAttrSelDlg::uiAttrSelDlg( uiParent* p, const char* seltxt,
 			    const uiAttrSelData& atd, 
 			    Pol2D pol2d, DescID ignoreid )
 	: uiDialog(p,Setup("",0,atd.nlamodel?"":"101.1.1"))
-	, attrdata(atd)
-	, selgrp(0)
-	, storfld(0)
-	, attrfld(0)
-	, attr2dfld(0)
-	, nlafld(0)
-	, nlaoutfld(0)
-	, in_action(false)
+	, attrdata_(atd)
+	, selgrp_(0)
+	, storfld_(0)
+	, attrfld_(0)
+	, attr2dfld_(0)
+	, nlafld_(0)
+	, nlaoutfld_(0)
+	, in_action_(false)
 {
-    attrinf = new SelInfo( atd.attrset, atd.nlamodel, pol2d, ignoreid );
-    if ( !attrinf->ioobjnms.size() )
+    attrinf_ = new SelInfo( atd.attrset, atd.nlamodel, pol2d, ignoreid );
+    if ( !attrinf_->ioobjnms.size() )
     {
 	new uiLabel( this, "No seismic data available.\n"
 			   "Please import data first" );
@@ -66,110 +66,110 @@ uiAttrSelDlg::uiAttrSelDlg( uiParent* p, const char* seltxt,
 	return;
     }
 
-    const bool havenlaouts = attrinf->nlaoutnms.size();
-    const bool haveattribs = attrinf->attrnms.size();
+    const bool havenlaouts = attrinf_->nlaoutnms.size();
+    const bool haveattribs = attrinf_->attrnms.size();
 
     BufferString nm( "Select " ); nm += seltxt;
     setName( nm );
     setCaption( "Select" );
     setTitleText( nm );
 
-    selgrp = new uiGroup( this, "Input selection" );
+    selgrp_ = new uiGroup( this, "Input selection" );
 
-    srcfld = new uiRadioButton( selgrp, "Stored" );
-    srcfld->activated.notify( mCB(this,uiAttrSelDlg,selDone) );
-    srcfld->setSensitive( attrdata.shwcubes );
+    srcfld_ = new uiRadioButton( selgrp_, "Stored" );
+    srcfld_->activated.notify( mCB(this,uiAttrSelDlg,selDone) );
+    srcfld_->setSensitive( attrdata_.shwcubes );
 
-    calcfld = new uiRadioButton( selgrp, "Attributes" );
-    calcfld->attach( alignedBelow, srcfld );
-    calcfld->setSensitive( haveattribs );
-    calcfld->activated.notify( mCB(this,uiAttrSelDlg,selDone) );
+    calcfld_ = new uiRadioButton( selgrp_, "Attributes" );
+    calcfld_->attach( alignedBelow, srcfld_ );
+    calcfld_->setSensitive( haveattribs );
+    calcfld_->activated.notify( mCB(this,uiAttrSelDlg,selDone) );
 
     if ( havenlaouts )
     {
-	nlafld = new uiRadioButton( selgrp, attrdata.nlamodel->nlaType(false) );
-	nlafld->attach( alignedBelow, calcfld );
-	nlafld->setSensitive( havenlaouts );
-	nlafld->activated.notify( mCB(this,uiAttrSelDlg,selDone) );
+	nlafld_ = new uiRadioButton( selgrp_, attrdata_.nlamodel->nlaType(false) );
+	nlafld_->attach( alignedBelow, calcfld_ );
+	nlafld_->setSensitive( havenlaouts );
+	nlafld_->activated.notify( mCB(this,uiAttrSelDlg,selDone) );
     }
 
-    if ( attrdata.shwcubes )
+    if ( attrdata_.shwcubes )
     {
-	storfld = new uiListBox( this, attrinf->ioobjnms );
-	storfld->setHSzPol( uiObject::Wide );
-	storfld->selectionChanged.notify( mCB(this,uiAttrSelDlg,cubeSel) );
-	storfld->doubleClicked.notify( mCB(this,uiAttrSelDlg,accept) );
-	storfld->attach( rightOf, selgrp );
-	attr2dfld = new uiGenInput( this, "Stored Attribute",
+	storfld_ = new uiListBox( this, attrinf_->ioobjnms );
+	storfld_->setHSzPol( uiObject::Wide );
+	storfld_->selectionChanged.notify( mCB(this,uiAttrSelDlg,cubeSel) );
+	storfld_->doubleClicked.notify( mCB(this,uiAttrSelDlg,accept) );
+	storfld_->attach( rightOf, selgrp_ );
+	attr2dfld_ = new uiGenInput( this, "Stored Attribute",
 				    StringListInpSpec() );
-	attr2dfld->attach( alignedBelow, storfld );
-	filtfld = new uiGenInput( this, "Filter", "*" );
-	filtfld->attach( alignedBelow, storfld );
-	filtfld->valuechanged.notify( mCB(this,uiAttrSelDlg,filtChg) );
+	attr2dfld_->attach( alignedBelow, storfld_ );
+	filtfld_ = new uiGenInput( this, "Filter", "*" );
+	filtfld_->attach( alignedBelow, storfld_ );
+	filtfld_->valuechanged.notify( mCB(this,uiAttrSelDlg,filtChg) );
     }
 
     if ( haveattribs )
     {
-	attrfld = new uiListBox( this, attrinf->attrnms );
-	attrfld->setHSzPol( uiObject::Wide );
-	attrfld->doubleClicked.notify( mCB(this,uiAttrSelDlg,accept) );
-	attrfld->attach( rightOf, selgrp );
+	attrfld_ = new uiListBox( this, attrinf_->attrnms );
+	attrfld_->setHSzPol( uiObject::Wide );
+	attrfld_->doubleClicked.notify( mCB(this,uiAttrSelDlg,accept) );
+	attrfld_->attach( rightOf, selgrp_ );
     }
 
     if ( havenlaouts )
     {
-	nlaoutfld = new uiListBox( this, attrinf->nlaoutnms );
-	nlaoutfld->setHSzPol( uiObject::Wide );
-	nlaoutfld->doubleClicked.notify( mCB(this,uiAttrSelDlg,accept) );
-	nlaoutfld->attach( rightOf, selgrp );
+	nlaoutfld_ = new uiListBox( this, attrinf_->nlaoutnms );
+	nlaoutfld_->setHSzPol( uiObject::Wide );
+	nlaoutfld_->doubleClicked.notify( mCB(this,uiAttrSelDlg,accept) );
+	nlaoutfld_->attach( rightOf, selgrp_ );
     }
 
     int seltyp = havenlaouts ? 2 : (haveattribs ? 1 : 0);
     int storcur = -1, attrcur = -1, nlacur = -1;
-    if ( attrdata.nlamodel && attrdata.outputnr >= 0 )
+    if ( attrdata_.nlamodel && attrdata_.outputnr >= 0 )
     {
 	seltyp = 2;
-	nlacur = attrdata.outputnr;
+	nlacur = attrdata_.outputnr;
     }
     else
     {
-	const Desc* desc = attrdata.attribid < 0 ? 0 :
-	    		attrdata.attrset->getDesc( attrdata.attribid );
+	const Desc* desc = attrdata_.attribid < 0 ? 0 :
+	    		attrdata_.attrset->getDesc( attrdata_.attribid );
 	if ( desc )
 	{
 	    seltyp = desc->isStored() ? 0 : 1;
 	    if ( seltyp == 1 )
-		attrcur = attrinf->attrnms.indexOf( desc->userRef() );
-	    else if ( storfld )
-		storcur = attrinf->ioobjnms.indexOf( desc->userRef() );
+		attrcur = attrinf_->attrnms.indexOf( desc->userRef() );
+	    else if ( storfld_ )
+		storcur = attrinf_->ioobjnms.indexOf( desc->userRef() );
 	}
 	else
 	{
 	    // Defaults are the last ones added to attrib set
-	    for ( int idx=attrdata.attrset->nrDescs()-1; idx!=-1; idx-- )
+	    for ( int idx=attrdata_.attrset->nrDescs()-1; idx!=-1; idx-- )
 	    {
-		const DescID attrid = attrdata.attrset->getID( idx );
-		const Desc& ad = *attrdata.attrset->getDesc( attrid );
+		const DescID attrid = attrdata_.attrset->getID( idx );
+		const Desc& ad = *attrdata_.attrset->getDesc( attrid );
 		if ( ad.isStored() && storcur == -1 )
-		    storcur = attrinf->ioobjnms.indexOf( ad.userRef() );
+		    storcur = attrinf_->ioobjnms.indexOf( ad.userRef() );
 		else if ( !ad.isStored() && attrcur == -1 )
-		    attrcur = attrinf->attrnms.indexOf( ad.userRef() );
+		    attrcur = attrinf_->attrnms.indexOf( ad.userRef() );
 		if ( storcur != -1 && attrcur != -1 ) break;
 	    }
 	}
     }
 
     if ( storcur == -1 )		storcur = 0;
-    if ( attrcur == -1 )		attrcur = attrinf->attrnms.size()-1;
+    if ( attrcur == -1 )		attrcur = attrinf_->attrnms.size()-1;
     if ( nlacur == -1 && havenlaouts )	nlacur = 0;
 
-    if ( storfld  )			storfld->setCurrentItem( storcur );
-    if ( attrfld && attrcur != -1 )	attrfld->setCurrentItem( attrcur );
-    if ( nlaoutfld && nlacur != -1 )	nlaoutfld->setCurrentItem( nlacur );
+    if ( storfld_  )			storfld_->setCurrentItem( storcur );
+    if ( attrfld_ && attrcur != -1 )	attrfld_->setCurrentItem( attrcur );
+    if ( nlaoutfld_ && nlacur != -1 )	nlaoutfld_->setCurrentItem( nlacur );
 
-    if ( seltyp == 0 )		srcfld->setChecked(true);
-    else if ( seltyp == 1 )	calcfld->setChecked(true);
-    else if ( nlafld )		nlafld->setChecked(true);
+    if ( seltyp == 0 )		srcfld_->setChecked(true);
+    else if ( seltyp == 1 )	calcfld_->setChecked(true);
+    else if ( nlafld_ )		nlafld_->setChecked(true);
 
     finaliseStart.notify( mCB( this,uiAttrSelDlg,doFinalise) );
 }
@@ -177,22 +177,22 @@ uiAttrSelDlg::uiAttrSelDlg( uiParent* p, const char* seltxt,
 
 uiAttrSelDlg::~uiAttrSelDlg()
 {
-    delete attrinf;
+    delete attrinf_;
 }
 
 
 void uiAttrSelDlg::doFinalise( CallBacker* )
 {
     selDone(0);
-    in_action = true;
+    in_action_ = true;
 }
 
 
 int uiAttrSelDlg::selType() const
 {
-    if ( calcfld->isChecked() )
+    if ( calcfld_->isChecked() )
 	return 1;
-    if ( nlafld && nlafld->isChecked() )
+    if ( nlafld_ && nlafld_->isChecked() )
 	return 2;
     return 0;
 }
@@ -200,32 +200,32 @@ int uiAttrSelDlg::selType() const
 
 void uiAttrSelDlg::selDone( CallBacker* c )
 {
-    if ( !selgrp ) return;
+    if ( !selgrp_ ) return;
 
     mDynamicCastGet(uiRadioButton*,but,c);
    
     bool dosrc, docalc, donla; 
-    if ( but == srcfld )
+    if ( but == srcfld_ )
     { dosrc = true; docalc = donla = false; }
-    else if ( but == calcfld )
+    else if ( but == calcfld_ )
     { docalc = true; dosrc = donla = false; }
-    else if ( but == nlafld )
+    else if ( but == nlafld_ )
     { donla = true; docalc = dosrc = false; }
 
     if ( but )
     {
-	srcfld->setChecked( dosrc );
-	calcfld->setChecked( docalc );
-	if ( nlafld ) nlafld->setChecked( donla );
+	srcfld_->setChecked( dosrc );
+	calcfld_->setChecked( docalc );
+	if ( nlafld_ ) nlafld_->setChecked( donla );
     }
 
     const int seltyp = selType();
-    if ( attrfld ) attrfld->display( seltyp == 1 );
-    if ( nlaoutfld ) nlaoutfld->display( seltyp == 2 );
-    if ( storfld )
+    if ( attrfld_ ) attrfld_->display( seltyp == 1 );
+    if ( nlaoutfld_ ) nlaoutfld_->display( seltyp == 2 );
+    if ( storfld_ )
     {
-	storfld->display( seltyp == 0 );
-	filtfld->display( seltyp == 0 );
+	storfld_->display( seltyp == 0 );
+	filtfld_->display( seltyp == 0 );
     }
 
     cubeSel(0);
@@ -234,13 +234,13 @@ void uiAttrSelDlg::selDone( CallBacker* c )
 
 void uiAttrSelDlg::filtChg( CallBacker* c )
 {
-    if ( !storfld || !filtfld ) return;
+    if ( !storfld_ || !filtfld_ ) return;
 
-    attrinf->fillStored( filtfld->text() );
-    storfld->empty();
-    storfld->addItems( attrinf->ioobjnms );
-    if ( attrinf->ioobjnms.size() )
-	storfld->setCurrentItem( 0 );
+    attrinf_->fillStored( filtfld_->text() );
+    storfld_->empty();
+    storfld_->addItems( attrinf_->ioobjnms );
+    if ( attrinf_->ioobjnms.size() )
+	storfld_->setCurrentItem( 0 );
 
     cubeSel( c );
 }
@@ -251,67 +251,67 @@ void uiAttrSelDlg::cubeSel( CallBacker* c )
     const int seltyp = selType();
     if ( seltyp )
     {
-	attr2dfld->display( false );
+	attr2dfld_->display( false );
 	return;
     }
 
-    int selidx = storfld->currentItem();
-    bool is2d = false;
+    int selidx = storfld_->currentItem();
+    bool is2d_ = false;
     BufferString ioobjkey;
     if ( selidx >= 0 )
     {
-	ioobjkey = attrinf->ioobjids.get( storfld->currentItem() );
-	is2d = SelInfo::is2D( ioobjkey.buf() );
+	ioobjkey = attrinf_->ioobjids.get( storfld_->currentItem() );
+	is2d_ = SelInfo::is2D( ioobjkey.buf() );
     }
-    attr2dfld->display( is2d );
-    filtfld->display( !is2d );
-    if ( is2d )
+    attr2dfld_->display( is2d_ );
+    filtfld_->display( !is2d_ );
+    if ( is2d_ )
     {
 	BufferStringSet nms;
 	SelInfo::getAttrNames( ioobjkey.buf(), nms );
-	attr2dfld->newSpec( StringListInpSpec(nms), 0 );
+	attr2dfld_->newSpec( StringListInpSpec(nms), 0 );
     }
 }
 
 
 bool uiAttrSelDlg::getAttrData( bool needattrmatch )
 {
-    attrdata.attribid = DescID::undef();
-    attrdata.outputnr = -1;
-    if ( !selgrp || !in_action ) return true;
+    attrdata_.attribid = DescID::undef();
+    attrdata_.outputnr = -1;
+    if ( !selgrp_ || !in_action_ ) return true;
 
     const int seltyp = selType();
-    int selidx = (seltyp ? (seltyp == 2 ? nlaoutfld : attrfld) : storfld)
+    int selidx = (seltyp ? (seltyp == 2 ? nlaoutfld_ : attrfld_) : storfld_)
 		    ->currentItem();
     if ( selidx < 0 )
 	return false;
 
     if ( seltyp == 1 )
-	attrdata.attribid = attrinf->attrids[selidx];
+	attrdata_.attribid = attrinf_->attrids[selidx];
     else if ( seltyp == 2 )
-	attrdata.outputnr = selidx;
+	attrdata_.outputnr = selidx;
     else
     {
-	DescSet& as = const_cast<DescSet&>( *attrdata.attrset );
+	DescSet& as = const_cast<DescSet&>( *attrdata_.attrset );
 
-	const char* ioobjkey = attrinf->ioobjids.get(selidx);
+	const char* ioobjkey = attrinf_->ioobjids.get(selidx);
 	LineKey linekey( ioobjkey );
 	if ( SelInfo::is2D(ioobjkey) )
 	{
-	    attrdata.outputnr = attr2dfld->getIntValue();
+	    attrdata_.outputnr = attr2dfld_->getIntValue();
 	    BufferStringSet nms;
 	    SelInfo::getAttrNames( ioobjkey, nms );
-	    const char* attrnm = attrdata.outputnr >= nms.size() ? 0
-				    : nms.get(attrdata.outputnr).buf();
+	    const char* attrnm = attrdata_.outputnr >= nms.size() ? 0
+				    : nms.get(attrdata_.outputnr).buf();
 	    if ( needattrmatch )
 		linekey.setAttrName( attrnm );
 	}
 
-	attrdata.attribid = as.getStoredID( linekey, 0, true );
-	if ( needattrmatch && attrdata.attribid < 0 )
+	attrdata_.attribid = as.getStoredID( linekey, 0, true );
+	if ( needattrmatch && attrdata_.attribid < 0 )
 	{
 	    BufferString msg( "Could not find the seismic data " );
-	    msg += attrdata.attribid == DescID::undef() ? "in object manager"
+	    msg += attrdata_.attribid == DescID::undef() ? "in object manager"
 							: "on disk";	
 	    uiMSG().error( msg );
 	    return false;
@@ -331,20 +331,20 @@ bool uiAttrSelDlg::acceptOK( CallBacker* )
 uiAttrSel::uiAttrSel( uiParent* p, const DescSet* ads,
 		      const char* txt, DescID curid )
     : uiIOSelect(p,mCB(this,uiAttrSel,doSel),txt?txt:"Input Data")
-    , attrdata(ads)
+    , attrdata_(ads)
     , ignoreid(DescID::undef())
-    , is2d(false)
+    , is2d_(false)
 {
-    attrdata.attribid = curid;
+    attrdata_.attribid = curid;
     updateInput();
 }
 
 
 uiAttrSel::uiAttrSel( uiParent* p, const char* txt, const uiAttrSelData& ad )
     : uiIOSelect(p,mCB(this,uiAttrSel,doSel),txt?txt:"Input Data")
-    , attrdata(ad)
+    , attrdata_(ad)
     , ignoreid(DescID::undef())
-    , is2d(false)
+    , is2d_(false)
 {
     updateInput();
 }
@@ -352,25 +352,25 @@ uiAttrSel::uiAttrSel( uiParent* p, const char* txt, const uiAttrSelData& ad )
 
 void uiAttrSel::setDescSet( const DescSet* ads )
 {
-    attrdata.attrset = ads;
+    attrdata_.attrset = ads;
     update2D();
 }
 
 
 void uiAttrSel::setNLAModel( const NLAModel* mdl )
 {
-    attrdata.nlamodel = mdl;
+    attrdata_.nlamodel = mdl;
 }
 
 
 void uiAttrSel::setDesc( const Desc* ad )
 {
-    attrdata.attrset = ad ? ad->descSet() : 0;
+    attrdata_.attrset = ad ? ad->descSet() : 0;
     const char* inp = ad->userRef();
     if ( inp[0] == '_' || (ad->isStored() && ad->dataType() == Seis::Dip) )
 	return;
 
-    attrdata.attribid = !attrdata.attrset ? DescID::undef() : ad->id();
+    attrdata_.attribid = !attrdata_.attrset ? DescID::undef() : ad->id();
     updateInput();
     update2D();
 }
@@ -380,7 +380,7 @@ void uiAttrSel::setIgnoreDesc( const Desc* ad )
 {
     ignoreid = DescID::undef();
     if ( !ad ) return;
-    if ( !attrdata.attrset ) attrdata.attrset = ad->descSet();
+    if ( !attrdata_.attrset ) attrdata_.attrset = ad->descSet();
     ignoreid = ad->id();
 }
 
@@ -388,16 +388,16 @@ void uiAttrSel::setIgnoreDesc( const Desc* ad )
 void uiAttrSel::updateInput()
 {
     BufferString bs;
-    bs = attrdata.attribid.asInt();
+    bs = attrdata_.attribid.asInt();
     bs += ":";
-    bs += attrdata.outputnr;
+    bs += attrdata_.outputnr;
     setInput( bs );
 }
 
 
 const char* uiAttrSel::userNameFromKey( const char* txt ) const
 {
-    if ( !attrdata.attrset || !txt || !*txt ) return "";
+    if ( !attrdata_.attrset || !txt || !*txt ) return "";
 
     BufferString buf( txt );
     char* outnrstr = strchr( buf.buf(), ':' );
@@ -406,16 +406,16 @@ const char* uiAttrSel::userNameFromKey( const char* txt ) const
     const int outnr = outnrstr ? atoi( outnrstr ) : 0;
     if ( attrid < 0 )
     {
-	if ( !attrdata.nlamodel || outnr < 0 )
+	if ( !attrdata_.nlamodel || outnr < 0 )
 	    return "";
-	if ( outnr >= attrdata.nlamodel->design().outputs.size() )
+	if ( outnr >= attrdata_.nlamodel->design().outputs.size() )
 	    return "<error>";
 
-	const char* nm = attrdata.nlamodel->design().outputs[outnr]->buf();
+	const char* nm = attrdata_.nlamodel->design().outputs[outnr]->buf();
 	return IOObj::isKey(nm) ? IOM().nameOf(nm) : nm;
     }
 
-    const Desc* ad = attrdata.attrset->getDesc( attrid );
+    const Desc* ad = attrdata_.attrset->getDesc( attrid );
     usrnm = ad ? ad->userRef() : "";
     return usrnm.buf();
 }
@@ -430,10 +430,10 @@ void uiAttrSel::getHistory( const IOPar& iopar )
 
 bool uiAttrSel::getRanges( CubeSampling& cs ) const
 {
-    if ( attrdata.attribid < 0 || !attrdata.attrset )
+    if ( attrdata_.attribid < 0 || !attrdata_.attrset )
 	return false;
 
-    const Desc* desc = attrdata.attrset->getDesc( attrdata.attribid );
+    const Desc* desc = attrdata_.attrset->getDesc( attrdata_.attribid );
     if ( !desc->isStored() ) return false;
 
     const ValParam* keypar = 
@@ -446,14 +446,14 @@ bool uiAttrSel::getRanges( CubeSampling& cs ) const
 
 void uiAttrSel::doSel( CallBacker* )
 {
-    if ( !attrdata.attrset ) return;
+    if ( !attrdata_.attrset ) return;
 
-    uiAttrSelDlg dlg( this, inp_->label()->text(), attrdata, 
-	    	      is2d ? Only2D : Both2DAnd3D, ignoreid );
+    uiAttrSelDlg dlg( this, inp_->label()->text(), attrdata_, 
+	    	      is2d_ ? Only2D : Both2DAnd3D, ignoreid );
     if ( dlg.go() )
     {
-	attrdata.attribid = dlg.attribID();
-	attrdata.outputnr = dlg.outputNr();
+	attrdata_.attribid = dlg.attribID();
+	attrdata_.outputnr = dlg.outputNr();
 	updateInput();
 	update2D();
 	selok_ = true;
@@ -463,24 +463,24 @@ void uiAttrSel::doSel( CallBacker* )
 
 void uiAttrSel::processInput()
 {
-    if ( !attrdata.attrset ) return;
+    if ( !attrdata_.attrset ) return;
 
     BufferString inp = getInput();
     char* attr2d = strchr( inp, '|' );
-    DescSet& as = const_cast<DescSet&>( *attrdata.attrset );
-    attrdata.attribid = as.getID( inp, true );
-    attrdata.outputnr = -1;
-    if ( attrdata.attribid >= 0 && attr2d )
+    DescSet& as = const_cast<DescSet&>( *attrdata_.attrset );
+    attrdata_.attribid = as.getID( inp, true );
+    attrdata_.outputnr = -1;
+    if ( attrdata_.attribid >= 0 && attr2d )
     {
-	const Desc& ad = *attrdata.attrset->getDesc(attrdata.attribid);
+	const Desc& ad = *attrdata_.attrset->getDesc(attrdata_.attribid);
 	BufferString defstr; ad.getDefStr( defstr );
 	BufferStringSet nms;
 	SelInfo::getAttrNames( defstr, nms );
-	attrdata.outputnr = nms.indexOf( attr2d );
+	attrdata_.outputnr = nms.indexOf( attr2d );
     }
-    else if ( attrdata.attribid < 0 && attrdata.nlamodel )
+    else if ( attrdata_.attribid < 0 && attrdata_.nlamodel )
     {
-	const BufferStringSet& outnms( attrdata.nlamodel->design().outputs );
+	const BufferStringSet& outnms( attrdata_.nlamodel->design().outputs );
 	const BufferString nodenm = IOObj::isKey(inp) ? IOM().nameOf(inp)
 	    						: inp.buf();
 	for ( int idx=0; idx<outnms.size(); idx++ )
@@ -489,7 +489,7 @@ void uiAttrSel::processInput()
 	    const char* desnm = IOObj::isKey(outstr) ? IOM().nameOf(outstr)
 						     : outstr.buf();
 	    if ( nodenm == desnm )
-		{ attrdata.outputnr = idx; break; }
+		{ attrdata_.outputnr = idx; break; }
 	}
     }
 
@@ -499,16 +499,16 @@ void uiAttrSel::processInput()
 
 void uiAttrSel::fillSelSpec( SelSpec& as ) const
 {
-    const bool isnla = attrdata.attribid < 0 && attrdata.outputnr >= 0;
+    const bool isnla = attrdata_.attribid < 0 && attrdata_.outputnr >= 0;
     if ( isnla )
-	as.set( 0, DescID(attrdata.outputnr,true), true, "" );
+	as.set( 0, DescID(attrdata_.outputnr,true), true, "" );
     else
-	as.set( 0, attrdata.attribid, false, "" );
+	as.set( 0, attrdata_.attribid, false, "" );
 
-    if ( isnla && attrdata.nlamodel )
-	as.setRefFromID( *attrdata.nlamodel );
+    if ( isnla && attrdata_.nlamodel )
+	as.setRefFromID( *attrdata_.nlamodel );
     else
-	as.setRefFromID( *attrdata.attrset );
+	as.setRefFromID( *attrdata_.attrset );
 }
 
 
@@ -517,9 +517,9 @@ const char* uiAttrSel::getAttrName() const
     static BufferString ret;
 
     ret = getInput();
-    if ( is2d )
+    if ( is2d_ )
     {
-	const Desc* ad = attrdata.attrset->getDesc( attrdata.attribid );
+	const Desc* ad = attrdata_.attrset->getDesc( attrdata_.attribid );
 	if ( (ad && ad->isStored()) || strchr(ret.buf(),'|') )
 	    ret = LineKey( ret ).attrName();
     }
@@ -530,26 +530,26 @@ const char* uiAttrSel::getAttrName() const
 
 bool uiAttrSel::checkOutput( const IOObj& ioobj ) const
 {
-    if ( attrdata.attribid < 0 && attrdata.outputnr < 0 )
+    if ( attrdata_.attribid < 0 && attrdata_.outputnr < 0 )
     {
 	uiMSG().error( "Please select the input" );
 	return false;
     }
 
-    if ( is2d && !SeisTrcTranslator::is2D(ioobj) )
+    if ( is2d_ && !SeisTrcTranslator::is2D(ioobj) )
     {
 	uiMSG().error( "Can only store this in a 2D line set" );
 	return false;
     }
 
     //TODO this is pretty difficult to get right
-    if ( attrdata.attribid < 0 )
+    if ( attrdata_.attribid < 0 )
 	return true;
 
-    const Desc& ad = *attrdata.attrset->getDesc( attrdata.attribid );
+    const Desc& ad = *attrdata_.attrset->getDesc( attrdata_.attribid );
     bool isdep = false;
 /*
-    if ( !is2d )
+    if ( !is2d_ )
 	isdep = ad.isDependentOn(ioobj,0);
     else
     {
@@ -574,8 +574,8 @@ bool uiAttrSel::checkOutput( const IOObj& ioobj ) const
 void uiAttrSel::update2D()
 {
     processInput();
-    if ( attrdata.attrset && attrdata.attrset->nrDescs() > 0 )
-	is2d = attrdata.attrset->is2D();
+    if ( attrdata_.attrset && attrdata_.attrset->nrDescs() > 0 )
+	is2d_ = attrdata_.attrset->is2D();
 }
 
 
@@ -583,7 +583,7 @@ void uiAttrSel::update2D()
 
 DescID uiImagAttrSel::imagID() const
 {
-    if ( !attrdata.attrset )
+    if ( !attrdata_.attrset )
     {
 	pErrMsg( "No attribdescset set");
 	return DescID::undef();
@@ -591,10 +591,10 @@ DescID uiImagAttrSel::imagID() const
 
     const DescID selattrid = attribID();
     TypeSet<DescID> attribids;
-    attrdata.attrset->getIds( attribids );
+    attrdata_.attrset->getIds( attribids );
     for ( int idx=0; idx<attribids.size(); idx++ )
     {
-	const Desc* desc = attrdata.attrset->getDesc( attribids[idx] );
+	const Desc* desc = attrdata_.attrset->getDesc( attribids[idx] );
 
 	if ( strcmp(desc->attribName(),Hilbert::attribName()) )
 	    continue;
@@ -606,7 +606,7 @@ DescID uiImagAttrSel::imagID() const
 	return attribids[idx];
     }
 
-    DescSet* descset = const_cast<DescSet*>(attrdata.attrset);
+    DescSet* descset = const_cast<DescSet*>(attrdata_.attrset);
 
     Desc* inpdesc = descset->getDesc( selattrid );
     Desc* newdesc = PF().createDescCopy( Hilbert::attribName() );
