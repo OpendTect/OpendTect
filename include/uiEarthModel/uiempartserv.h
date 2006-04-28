@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Sep 2002
- RCS:           $Id: uiempartserv.h,v 1.39 2006-04-21 10:47:55 cvsnanne Exp $
+ RCS:           $Id: uiempartserv.h,v 1.40 2006-04-28 15:22:03 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,7 +27,7 @@ class SurfaceInfo;
 class uiPopupMenu;
 template <class T> class Interval;
 
-namespace EM { class SurfaceIODataSelection; };
+namespace EM { class EMManager; class SurfaceIODataSelection; };
 
 /*! \brief Earth Model UI Part Server */
 
@@ -98,9 +98,9 @@ protected:
     bool		loadAuxData(const EM::ObjectID&, const TypeSet<int>& );
 
     EM::ObjectID	selemid_;
+    EM::EMManager&	em_;
 
     bool		ioHorizon(bool);
-    
 };
 
 
