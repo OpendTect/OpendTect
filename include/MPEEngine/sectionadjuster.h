@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          January 2005
- RCS:           $Id: sectionadjuster.h,v 1.15 2006-04-28 16:07:40 cvskris Exp $
+ RCS:           $Id: sectionadjuster.h,v 1.16 2006-04-28 16:14:28 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -47,7 +47,7 @@ public:
 				     given attrib to track in activevolum. */
     virtual void		getNeededAttribs(
 	    			    ObjectSet<const Attrib::SelSpec>&) const;
-    virtual void		is2D() const			{ return false;}
+    virtual bool		is2D() const			{ return false;}
 
     virtual int			getNrAttributes() const		{ return 0; }
     virtual const Attrib::SelSpec* getAttributeSel( int idx ) const { return 0;}
