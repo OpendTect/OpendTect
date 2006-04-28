@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Payraudeau
  Date:          February  2006
- RCS:           $Id: uifingerprintattrib.cc,v 1.5 2006-04-28 10:00:47 cvshelene Exp $
+ RCS:           $Id: uifingerprintattrib.cc,v 1.6 2006-04-28 11:38:26 cvshelene Exp $
 
 ________________________________________________________________________
 
@@ -155,7 +155,7 @@ void uiFingerPrintAttrib::insertRowCB( CallBacker* cb )
 
 void uiFingerPrintAttrib::deleteRowCB( CallBacker* cb )
 {
-    int deletedrowidx = table_->currentRow();
+    int deletedrowidx = table_->currentRow()<0 ? 0 : table_->currentRow()<0;
     delete attribflds_[deletedrowidx];
     attribflds_.remove( deletedrowidx );
 }
