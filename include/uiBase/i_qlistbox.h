@@ -1,5 +1,5 @@
-#ifndef i_q4listbox_H
-#define i_q4listbox_H
+#ifndef i_q4listbox_h
+#define i_q4listbox_h
 
 /*+
 ________________________________________________________________________
@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: i_qlistbox.h,v 1.1 2005-11-21 12:44:20 cvsarend Exp $
+ RCS:           $Id: i_qlistbox.h,v 1.2 2006-04-28 15:23:20 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/

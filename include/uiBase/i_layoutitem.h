@@ -1,5 +1,5 @@
-#ifndef I_LAYOUTITEM_H
-#define I_LAYOUTITEM_H
+#ifndef i_layoutitem_h
+#define i_layoutitem_h
 
 /*+
 ________________________________________________________________________
@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          29/06/2001
- RCS:           $Id: i_layoutitem.h,v 1.26 2006-03-12 13:39:10 cvsbert Exp $
+ RCS:           $Id: i_layoutitem.h,v 1.27 2006-04-28 15:23:20 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/

@@ -1,5 +1,5 @@
-#ifndef uiListBox_H
-#define uiListBox_H
+#ifndef uilistbox_h
+#define uilistbox_h
 
 /*+
 ________________________________________________________________________
@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: uilistbox.h,v 1.30 2004-11-09 13:14:32 nanne Exp $
+ RCS:           $Id: uilistbox.h,v 1.31 2006-04-28 15:23:20 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/

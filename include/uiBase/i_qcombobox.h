@@ -1,5 +1,5 @@
-#ifndef i_qComboBox_H
-#define i_qComboBox_H
+#ifndef i_qcombobox_h
+#define i_qcombobox_h
 
 /*+
 ________________________________________________________________________
@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: i_qcombobox.h,v 1.3 2003-11-07 12:21:53 bert Exp $
+ RCS:           $Id: i_qcombobox.h,v 1.4 2006-04-28 15:23:20 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/

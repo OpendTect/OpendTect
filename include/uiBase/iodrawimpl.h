@@ -1,5 +1,5 @@
-#ifndef iodrawimpl_H
-#define iodrawimpl_H
+#ifndef iodrawimpl_h
+#define iodrawimpl_h
 
 /*+
 ________________________________________________________________________
@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          04/07/2001
- RCS:           $Id: iodrawimpl.h,v 1.4 2005-11-17 13:16:23 cvsarend Exp $
+ RCS:           $Id: iodrawimpl.h,v 1.5 2006-04-28 15:23:20 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/

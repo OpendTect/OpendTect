@@ -1,5 +1,5 @@
-#ifndef i_qbutton_H
-#define i_qbutton_H
+#ifndef i_qbutton_h
+#define i_qbutton_h
 
 /*+
 ________________________________________________________________________
@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: i_qbutton.h,v 1.9 2005-11-18 15:23:37 cvsarend Exp $
+ RCS:           $Id: i_qbutton.h,v 1.10 2006-04-28 15:23:20 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/

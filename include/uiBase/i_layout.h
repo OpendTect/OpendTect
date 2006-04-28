@@ -1,5 +1,5 @@
-#ifndef I_LAYOUT_H
-#define I_LAYOUT_H
+#ifndef i_layout_h
+#define i_layout_h
 
 /*+
 ________________________________________________________________________
@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          18/08/1999
- RCS:           $Id: i_layout.h,v 1.36 2005-11-17 14:55:58 cvsdgb Exp $
+ RCS:           $Id: i_layout.h,v 1.37 2006-04-28 15:23:20 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/

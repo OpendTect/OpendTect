@@ -1,5 +1,5 @@
-#ifndef iodrawtool_H
-#define iodrawtool_H
+#ifndef iodrawtool_h
+#define iodrawtool_h
 
 /*+
 ________________________________________________________________________
@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          04/07/2001
- RCS:           $Id: iodrawtool.h,v 1.11 2005-11-17 13:02:00 cvsarend Exp $
+ RCS:           $Id: iodrawtool.h,v 1.12 2006-04-28 15:23:20 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/

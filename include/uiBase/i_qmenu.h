@@ -1,5 +1,5 @@
-#ifndef i_qmenu_H
-#define i_qmenu_H
+#ifndef i_qmenu_h
+#define i_qmenu_h
 
 /*+
 ________________________________________________________________________
@@ -7,13 +7,13 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: i_qmenu.h,v 1.4 2003-11-07 12:21:53 bert Exp $
+ RCS:           $Id: i_qmenu.h,v 1.5 2006-04-28 15:23:20 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include <qobject.h>
-#include <uimenu.h>
+#include "uimenu.h"
 
 //! Helper class for uiMenuItem to relay Qt's 'activated' messages to uiMenuItem.
 /*!
