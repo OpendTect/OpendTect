@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          May 2004
- RCS:           $Id: visemobjdisplay.h,v 1.40 2006-04-27 16:01:40 cvskris Exp $
+ RCS:           $Id: visemobjdisplay.h,v 1.41 2006-04-28 13:42:28 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -65,8 +65,8 @@ public:
     MultiID			getMultiID() const;
     BufferStringSet		displayedSections() const;
 
-    void			setOnlyAtSectionsDisplay(bool yn);
-    bool			getOnlyAtSectionsDisplay() const;
+    virtual void		setOnlyAtSectionsDisplay(bool yn);
+    virtual bool		getOnlyAtSectionsDisplay() const;
 
     bool			allowMaterialEdit() const { return true; }
     const LineStyle*		lineStyle() const;
