@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          June 2003
- RCS:           $Id: emsurfaceio.cc,v 1.59 2006-04-27 15:29:13 cvskris Exp $
+ RCS:           $Id: emsurfaceio.cc,v 1.60 2006-04-28 15:22:28 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -249,7 +249,9 @@ dgbSurfaceReader::~dgbSurfaceReader()
     delete readrowrange_;
     delete readcolrange_;
 
+    delete int16interpreter_;
     delete int32interpreter_;
+    delete int64interpreter_;
     delete floatinterpreter_;
 }
 
