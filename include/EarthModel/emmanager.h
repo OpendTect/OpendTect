@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emmanager.h,v 1.28 2006-03-23 14:54:25 cvsnanne Exp $
+ RCS:		$Id: emmanager.h,v 1.29 2006-04-28 15:19:52 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -43,6 +43,7 @@ public:
 			~EMManager();
 
     void		init();
+    void		empty();
 
     History&		history();
     const History&	history() const;

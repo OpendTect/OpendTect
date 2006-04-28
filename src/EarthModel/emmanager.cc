@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emmanager.cc,v 1.47 2006-04-27 19:37:07 cvskris Exp $";
+static const char* rcsID = "$Id: emmanager.cc,v 1.48 2006-04-28 15:19:52 cvsnanne Exp $";
 
 #include "emmanager.h"
 
@@ -31,6 +31,7 @@ EM::EMManager& EM::EMM()
     return *emm;
 }
 
+
 EM::EMManager::EMManager()
     : history_( *new EM::History(*this) )
     , freeid( 0 )
@@ -41,6 +42,13 @@ EM::EMManager::EMManager()
 
 EM::EMManager::~EMManager()
 {
+    empty();
+    delete &history_;
+}
+
+
+void EM::EMManager::empty()
+{   
     for ( int idx=0; idx<objects.size(); idx++ )
     {
 	EMObjectCallbackData cbdata;
@@ -58,7 +66,8 @@ EM::EMManager::~EMManager()
 	pErrMsg( "All objects are not unreffed" );
 
     deepErase( objectfactories );
-    delete &history_;
+
+    history_.empty();
 }
 
 
