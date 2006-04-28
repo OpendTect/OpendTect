@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodmain.cc,v 1.40 2006-04-25 16:53:11 cvsbert Exp $
+ RCS:           $Id: uiodmain.cc,v 1.41 2006-04-28 14:36:23 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -165,7 +165,7 @@ bool uiODMain::buildUI()
 		&& (*s == 't' || *s == 'T' || *(s+1) == 't' || *(s+1) == 'T');
     if ( !s )
     {
-	IOPar* iopar = Settings::common().subselect( mCBarKey );
+	PtrMan<IOPar> iopar = Settings::common().subselect( mCBarKey );
 	if ( !iopar ) iopar = new IOPar;
 
 	bool insettings = false;
