@@ -8,13 +8,14 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizonadjuster.cc,v 1.26 2006-03-12 13:39:10 cvsbert Exp $";
+static const char* rcsID = "$Id: horizonadjuster.cc,v 1.27 2006-04-28 16:45:53 cvskris Exp $";
 
 #include "horizonadjuster.h"
 
 #include "attribdatacubes.h"
 #include "attribsel.h"
 #include "emhorizon.h"
+#include "emhorizon2d.h"
 #include "genericnumer.h"
 #include "iopar.h"
 #include "linear.h"
@@ -28,7 +29,7 @@ static const char* rcsID = "$Id: horizonadjuster.cc,v 1.26 2006-03-12 13:39:10 c
 namespace MPE {
 
 
-HorizonAdjuster::HorizonAdjuster( EM::Horizon& hor,
+HorizonAdjuster::HorizonAdjuster( EM::Surface& hor,
 	const EM::SectionID& sid )
     : SectionAdjuster(sid)
     , horizon_(hor)
@@ -244,6 +245,13 @@ CubeSampling HorizonAdjuster::getAttribCube( const Attrib::SelSpec& sp ) const
     }
 
     return res;
+}
+
+
+bool HorizonAdjuster::is2D() const
+{
+    mDynamicCastGet( const EM::Horizon2D*, hor2d, &horizon_ );
+    return hor2d;
 }
 
 

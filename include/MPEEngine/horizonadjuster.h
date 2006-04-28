@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          January 2005
- RCS:           $Id: horizonadjuster.h,v 1.15 2006-03-03 13:54:11 cvsjaap Exp $
+ RCS:           $Id: horizonadjuster.h,v 1.16 2006-04-28 16:45:53 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,7 +18,7 @@ ________________________________________________________________________
 #include "valseriesevent.h"
 
 class IOPar;
-namespace EM { class Horizon; };
+namespace EM { class Surface; };
 namespace Attrib { class DataCubes; };
 
 
@@ -30,7 +30,9 @@ class SectionExtender;
 class HorizonAdjuster : public SectionAdjuster
 {
 public:
-			HorizonAdjuster(EM::Horizon&,const EM::SectionID&);
+			HorizonAdjuster(EM::Surface&,const EM::SectionID&);
+			/*!<\note Object is only supposed to work on
+			          EM::Horizon and EM::Horizon2. */
 			~HorizonAdjuster();
 
     void		reset();
@@ -39,6 +41,7 @@ public:
     void		getNeededAttribs(
 	    			ObjectSet<const Attrib::SelSpec>&) const;
     CubeSampling	getAttribCube(const Attrib::SelSpec&) const;
+    bool		is2D() const;
 
     void		setPermittedZRange(const Interval<float>& rg);
     Interval<float>	permittedZRange() const;
@@ -70,7 +73,7 @@ protected:
 
     Attrib::SelSpec*	attribsel_;
     const Attrib::DataCubes* attrdata_;
-    EM::Horizon&	horizon_;
+    EM::Surface&	horizon_;
     VSEvent::Type	evtype_;
     Interval<float>	permzrange_;
     float		ampthreshold_;
