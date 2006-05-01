@@ -8,12 +8,14 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: extremefinder.cc,v 1.13 2006-03-12 13:39:10 cvsbert Exp $";
+static const char* rcsID = "$Id: extremefinder.cc,v 1.14 2006-05-01 08:31:52 cvsnanne Exp $";
 
 #include "extremefinder.h"
-#include "ranges.h"
 #include "mathfunc.h"
+#include "ptrman.h"
+#include "ranges.h"
 #include "undefval.h"
+
 #include <math.h>
 
 BisectionExtremeFinder1D::BisectionExtremeFinder1D(
@@ -431,7 +433,7 @@ int ExtremeFinderND::nextStep()
 
     for ( int dir=0; dir<n; dir++ )
     {
-	float xit[n];
+	ArrPtrMan<float> xit = new float [n];
 	for ( int idy=0; idy<n; idy++ )
 	    xit[idy] = xi[dir][idy];
 
@@ -450,8 +452,8 @@ int ExtremeFinderND::nextStep()
     if ( iter==itermax )
 	return -1;
 
-    float xit[n];
-    float ptt[n];
+    ArrPtrMan<float> xit = new float [n];
+    ArrPtrMan<float> ptt = new float [n];
     for ( int idx=0; idx<n; idx++ )
     {
 	ptt[idx] = 2.0*p[idx]-pt[idx];
