@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		21-6-1996
  Contents:	Positions: Inline/crossline and Coordinate
- RCS:		$Id: position.h,v 1.40 2005-12-13 19:53:05 cvskris Exp $
+ RCS:		$Id: position.h,v 1.41 2006-05-01 17:32:18 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -53,6 +53,10 @@ public:
     double	angle(const Coord& from,const Coord& to) const;
     double	cosAngle(const Coord& from,const Coord& to) const;
     		//!< saves the expensive acos() call
+		//
+    Coord	normalize() const;
+    double	abs() const;
+    double	dot(const Coord&) const;
 
     void	fill(char*) const;
     bool	use(const char*);
