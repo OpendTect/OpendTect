@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: sectionextender.h,v 1.11 2006-02-27 10:51:27 cvsjaap Exp $
+ RCS:           $Id: sectionextender.h,v 1.12 2006-05-01 17:28:18 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "basictask.h"
 #include "emposid.h"
 #include "sets.h"
-#include "trackstattbl.h"
 #include "cubesampling.h"
 
 class BinID;
@@ -43,9 +42,6 @@ public:
     virtual const BinIDValue*	getDirection() const;
 
     void			setStartPositions(const TypeSet<EM::SubID> ns);
-    void			setTrackStatTbl(const TrackingStatusTable* t)
-    				    { trkstattbl = t; }
-
     int				nextStep();
     
     void			extendInVolume(const BinID& bidstep,
@@ -66,14 +62,13 @@ protected:
     void			addTarget( const EM::SubID& target,
 	    				   const EM::SubID& src );
 
-    TypeSet<EM::SubID>		addedpos;
-    TypeSet<EM::SubID>		addedpossrc;
-    TypeSet<EM::SubID>		startpos;
-    const TrackingStatusTable*	trkstattbl;
+    TypeSet<EM::SubID>		addedpos_;
+    TypeSet<EM::SubID>		addedpossrc_;
+    TypeSet<EM::SubID>		startpos_;
 
-    CubeSampling		extboundary;
+    CubeSampling		extboundary_;
 
-    const EM::SectionID		sid;
+    const EM::SectionID		sid_;
     BufferString		errmsg;
 };
 

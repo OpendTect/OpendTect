@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizon3dextender.cc,v 1.5 2006-04-27 15:53:13 cvskris Exp $";
+static const char* rcsID = "$Id: horizon3dextender.cc,v 1.6 2006-05-01 17:28:20 cvskris Exp $";
 
 #include "horizonextender.h"
 
@@ -43,9 +43,9 @@ int HorizonExtender::nextStep()
     
     TypeSet<BinID> sourcenodes;
     BinID dummy;
-    for ( int idx=0; idx<startpos.size(); idx++ )
+    for ( int idx=0; idx<startpos_.size(); idx++ )
     {
-	dummy.setSerialized( startpos[idx] );
+	dummy.setSerialized( startpos_[idx] );
 	sourcenodes += dummy;
     }
 
@@ -85,14 +85,14 @@ int HorizonExtender::nextStep()
 	    else
 		directions = RowCol::clockWiseSequence();
 
-	    const float depth = surface.getPos(sid,srcbid.getSerialized()).z;
-	    const EM::PosID pid(surface.id(), sid, srcbid.getSerialized() );
+	    const float depth = surface.getPos(sid_,srcbid.getSerialized()).z;
+	    const EM::PosID pid(surface.id(), sid_, srcbid.getSerialized() );
 	    for ( int idy=0; idy<directions.size(); idy++ )
 	    {
 		const EM::PosID neighbor =
 		    surface.geometry().getNeighbor(pid, directions[idy] );
 
-		if ( neighbor.sectionID()!=sid )
+		if ( neighbor.sectionID()!=sid_ )
 		    continue;
 
 		BinID neighborbinid; 
@@ -103,18 +103,18 @@ int HorizonExtender::nextStep()
 		//If this is a better route to a node that is already
 		//added, replace the route with this one
 
-		const int previndex = addedpos.indexOf( neighbor.subID() );
+		const int previndex = addedpos_.indexOf( neighbor.subID() );
 		if ( previndex!=-1 )
 		{
 		    const RowCol step( surface.geometry().step() );
-		    const RowCol oldsrc( (RowCol(addedpossrc[previndex]))/step);
-		    const RowCol dst( (RowCol(addedpos[previndex]))/step );
+		    const RowCol oldsrc( (RowCol(addedpossrc_[previndex]))/step);
+		    const RowCol dst( (RowCol(addedpos_[previndex]))/step );
 		    const RowCol cursrc( srcbid/step );
 
 		    const int olddist = oldsrc.distanceSq(dst);
 		    if ( cursrc.distanceSq( dst )<olddist ) 
 		    {
-			addedpossrc[previndex] = srcbid.getSerialized();
+			addedpossrc_[previndex] = srcbid.getSerialized();
 			surface.setPos( neighbor, Coord3(0,0,depth), true );
 		    }
 		    continue;

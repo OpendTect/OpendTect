@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: sectionextender.cc,v 1.7 2006-02-27 11:09:51 cvsjaap Exp $";
+static const char* rcsID = "$Id: sectionextender.cc,v 1.8 2006-05-01 17:28:20 cvskris Exp $";
 
 #include "sectionextender.h"
 #include "mpeengine.h"
@@ -19,20 +19,18 @@ namespace MPE
 
 
 SectionExtender::SectionExtender( const EM::SectionID& si)
-    : sid( si )
-    , trkstattbl( 0 )
-    , extboundary( false )
+    : sid_( si )
+    , extboundary_( false )
 {}
 
 
-EM::SectionID SectionExtender::sectionID() const { return sid; }
+EM::SectionID SectionExtender::sectionID() const { return sid_; }
 
 
 void SectionExtender::reset()
 {
-    addedpos.erase();
-    addedpossrc.erase();
-    trkstattbl = 0;
+    addedpos_.erase();
+    addedpossrc_.erase();
 }
 
 
@@ -43,7 +41,7 @@ const BinIDValue* SectionExtender::getDirection() const { return 0; }
 
 
 void SectionExtender::setStartPositions( const TypeSet<EM::SubID> ns )
-{ startpos = ns; }
+{ startpos_ = ns; }
 
 
 int SectionExtender::nextStep() { return 0; }
@@ -76,33 +74,33 @@ const char* SectionExtender::errMsg() const { return errmsg[0] ? errmsg : 0; }
 
 
 const TypeSet<EM::SubID>& SectionExtender::getAddedPositions() const
-{ return addedpos; }
+{ return addedpos_; }
 
 
 const TypeSet<EM::SubID>& SectionExtender::getAddedPositionsSource() const
-{ return addedpossrc; }
+{ return addedpossrc_; }
 
 
 const CubeSampling& SectionExtender::getExtBoundary() const
-{ return extboundary.isEmpty() ? engine().activeVolume() : extboundary; }
+{ return extboundary_.isEmpty() ? engine().activeVolume() : extboundary_; }
 
 
 void SectionExtender::setExtBoundary( const CubeSampling& cs )
-{ extboundary = cs; }
+{ extboundary_ = cs; }
 
 
 void SectionExtender::unsetExtBoundary() 
-{ extboundary.setEmpty(); }
+{ extboundary_.setEmpty(); }
 
 
 void SectionExtender::addTarget( const EM::SubID& target,
 			         const EM::SubID& src )
 {
-    if ( addedpos.indexOf(target)!=-1 )
+    if ( addedpos_.indexOf(target)!=-1 )
 	return;
 
-    addedpossrc += src;
-    addedpos += target;
+    addedpossrc_ += src;
+    addedpos_ += target;
 }
 
 
