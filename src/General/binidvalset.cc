@@ -4,7 +4,7 @@
  * DATE     : 21-6-1996
 -*/
 
-static const char* rcsID = "$Id: binidvalset.cc,v 1.14 2006-03-14 14:58:51 cvsbert Exp $";
+static const char* rcsID = "$Id: binidvalset.cc,v 1.15 2006-05-01 16:29:47 cvsbert Exp $";
 
 #include "binidvalset.h"
 #include "iopar.h"
@@ -12,6 +12,7 @@ static const char* rcsID = "$Id: binidvalset.cc,v 1.14 2006-03-14 14:58:51 cvsbe
 #include "idxable.h"
 #include "sorting.h"
 #include "strmoper.h"
+#include "survinfo.h"
 #include <iostream>
 
 #define mSetToUdf(arr,nvals) \
@@ -121,51 +122,69 @@ void BinIDValueSet::append( const BinIDValueSet& bvs )
 }
 
 
-static void ignoreName( std::istream& strm )
-{
-    while ( isspace(strm.peek()) && strm )
-	strm.ignore(1);
-
-    if ( strm.peek() == '"' )
-    {
-	strm.ignore(1);
-	while ( strm.peek() != '"' && strm )
-	    strm.ignore(1);
-	strm.ignore(1);
-    }
-}
-
-
 bool BinIDValueSet::getFrom( std::istream& strm )
 {
-    BinID bid( 0, mUdf(int) ); char buf[1024]; TypeSet<float> vals;
-    int idx = 0;
-    ignoreName( strm );
-    while ( wordFromLine(strm,buf,1024) )
-    {
-	if ( idx == 0 )		bid.inl = atoi( buf );
-	else if ( idx == 1 )	bid.crl = atoi( buf );
-	else			vals += atof( buf );
-	idx++;
-    }
-    if ( mIsUdf(bid.crl) ) return false;
-
     empty();
-    setNrVals( vals.size() );
-    add( bid, vals.arr() );
+    setNrVals( 0, false );
 
-    while ( strm.good() )
+    char linebuf[4096], valbuf[1024];
+    Coord crd; BinID bid;
+    bool first_time = true;
+    while ( strm.getline( linebuf, 4096 ) )
     {
-	bid.inl = bid.crl = 0;
-	ignoreName( strm );
-	strm >> bid.inl >> bid.crl;
-	if ( bid.inl == 0 && bid.crl == 0 )
-	    return true;
-	for ( int idy=0; idy<vals.size(); idy++ )
-	    strm >> vals[idy];
-	add( bid, vals.arr() );
+	char* firstchar = linebuf;
+	skipLeadingBlanks( firstchar );
+	if ( *firstchar == '"' )
+	{
+	    char* ptr = strchr( firstchar+1, '"' );
+	    if ( !ptr ) continue;
+	    firstchar = ptr+1;
+	}
+	skipLeadingBlanks( firstchar );
+	if ( !*firstchar || (*firstchar != '-' && !isdigit(*firstchar) ) )
+	    continue;
+
+	const char* nextword = getNextWord( firstchar, valbuf );
+	crd.x = atof( valbuf );
+	skipLeadingBlanks( nextword ); if ( !*nextword ) continue;
+	nextword = getNextWord( nextword, valbuf );
+	crd.y = atof( valbuf );
+
+	bid = SI().transform( crd );
+	if ( !SI().isReasonable(bid) )
+	{
+	    bid.inl = (int)crd.x; bid.crl = (int)crd.y;
+	    if ( !SI().isReasonable(bid) )
+		continue;
+	}
+
+	if ( first_time )
+	{
+	    first_time = false;
+	    const char* firstval = nextword;
+	    int nrvalsfound = 0;
+	    while ( true )
+	    {
+		skipLeadingBlanks( nextword ); if ( !*nextword ) break;
+		nrvalsfound++;
+		nextword = getNextWord( nextword, valbuf );
+	    }
+	    setNrVals( nrvalsfound, false );
+	    nextword = firstval;
+	}
+
+	Pos pos = add( bid );
+	float* vals = getVals( pos );
+	for ( int idx=0; idx<nrVals(); idx++ )
+	{
+	    skipLeadingBlanks( nextword ); if ( !*nextword ) break;
+	    nextword = getNextWord( nextword, valbuf );
+	    if ( !valbuf[0] ) break;
+	    vals[idx] = (float)atof(valbuf);
+	}
     }
-    return true;
+
+    return !isEmpty();
 }
 
 
