@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: emhorizon2d.cc,v 1.3 2006-04-27 19:37:07 cvskris Exp $
+ RCS:           $Id: emhorizon2d.cc,v 1.4 2006-05-01 18:04:45 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -63,9 +63,10 @@ const char* Horizon2Geometry::lineName( int lid ) const
 
 
 int Horizon2Geometry::addLine( const TypeSet<Coord>& path, int start, int step,
-			 const char* nm )
+			 const MultiID& lineset, const char* line )
 {
-    linenames_.add( nm );
+    linenames_.add( line );
+    linesets_ +=  lineset;
 
     for ( int idx=sections_.size(); idx>=0; idx-- )
     {
@@ -89,6 +90,7 @@ void Horizon2Geometry::removeLine( int lid )
 	return;
 
     linenames_.remove( lidx );
+    linesets_.remove( lidx );
     lineids_.remove( lidx );
     for ( int idx=sections_.size(); idx>=0; idx-- )
     {
@@ -99,14 +101,57 @@ void Horizon2Geometry::removeLine( int lid )
 }
 
 
+PosID Horizon2Geometry::getNeighbor( const PosID& pid, bool nextcol,
+				     bool retundef ) const
+{
+    const RowCol rc( pid.subID() );
+    TypeSet<PosID> aliases;
+    getLinkedPos( pid, aliases );
+    aliases += pid;
+
+    const int nraliases = aliases.size();
+    for ( int idx=0; idx<nraliases; idx++ )
+    {
+	const SectionID sid = aliases[idx].sectionID();
+	const RowCol ownrc( aliases[idx].subID() );
+	const int colstep = colRange( sid, ownrc.row ).step;
+	const RowCol neighborrc( ownrc.row,
+		nextcol ? ownrc.col+colstep : ownrc.col-colstep );
+
+	if ( surface_.isDefined( sid, neighborrc.getSerialized() ) ||
+	     (!retundef && idx==nraliases-1) )
+	    return PosID( surface_.id(), sid, neighborrc.getSerialized() );
+    }
+
+    return PosID::udf();
+}
+
+
+int Horizon2Geometry::getConnectedPos(const PosID& pid,
+				      TypeSet<PosID>* res) const
+{
+    int nrres = 0;
+    PosID neighborpid = getNeighbor( pid, true, true);
+    if ( neighborpid.objectID()!=-1 )
+    {
+	nrres++;
+	if ( res ) (*res) += neighborpid;
+    }
+
+    neighborpid = getNeighbor( pid, false, true);
+    if ( neighborpid.objectID()!=-1 )
+    {    
+	nrres++;
+	if ( res ) (*res) += neighborpid;
+    }    
+
+    return nrres;
+}
+
+
 bool Horizon2Geometry::isAtEdge( const PosID& pid ) const
 {
-    const int sidx = sids_.indexOf( pid.sectionID() );
-    if ( sidx==-1 ) return false;
-
-    const RowCol rc( pid.subID() );
-    const StepInterval<int> colrange = colRange( rc.row );
-    return rc.col==colrange.start || rc.col==colrange.stop;
+    return getConnectedPos( pid, 0 )!=2;
 }
 
 
