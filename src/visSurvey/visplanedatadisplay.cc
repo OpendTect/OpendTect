@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.123 2006-04-25 13:00:44 cvsnanne Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.124 2006-05-01 07:05:34 cvsnanne Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -78,9 +78,10 @@ PlaneDataDisplay::PlaneDataDisplay()
     draggerrect->setCoordIndex( 3, 3 );
     draggerrect->setCoordIndex( 4, -1 );
 
-    RefMan<visBase::Material> draggermaterial = visBase::Material::create();
-    draggermaterial->setTransparency( 0.6 );
-    draggerrect->setMaterial( draggermaterial );
+    draggermaterial_ = visBase::Material::create();
+    draggermaterial_->ref();
+    draggermaterial_->setTransparency( 1 );
+    draggerrect->setMaterial( draggermaterial_ );
 
     dragger_->setOwnShape( draggerrect->getInventorNode() );
 
@@ -131,6 +132,7 @@ PlaneDataDisplay::~PlaneDataDisplay()
     texture_->unRef();
     rectangle_->unRef();
     dragger_->unRef();
+    draggermaterial_->unRef();
     rectanglepickstyle_->unRef();
     gridlines_->unRef();
 }
@@ -273,6 +275,7 @@ void PlaneDataDisplay::dataTransformCB( CallBacker* )
 void PlaneDataDisplay::draggerMotion( CallBacker* )
 {
     moving_.trigger();
+    draggermaterial_->setTransparency( 0.5 );
 }
 
 
@@ -343,7 +346,7 @@ void PlaneDataDisplay::showManipulator( bool yn )
 {
     dragger_->turnOn( yn );
     rectanglepickstyle_->setStyle( yn ? visBase::PickStyle::Unpickable
-				     : visBase::PickStyle::Shape );
+				      : visBase::PickStyle::Shape );
 }
 
 
@@ -359,15 +362,17 @@ bool PlaneDataDisplay::isManipulated() const
 
 void PlaneDataDisplay::resetManipulation()
 {
-    CubeSampling cs = getCubeSampling(false,true);
-    setDraggerPos(cs);
+    CubeSampling cs = getCubeSampling( false, true );
+    setDraggerPos( cs );
+    draggermaterial_->setTransparency( 1 );
 }
 
 
 void PlaneDataDisplay::acceptManipulation()
 {
-    CubeSampling cs = getCubeSampling(true,true);
-    setCubeSampling(cs);
+    CubeSampling cs = getCubeSampling( true, true );
+    setCubeSampling( cs );
+    draggermaterial_->setTransparency( 1 );
     if ( gridlines_ ) gridlines_->setPlaneCubeSampling( cs );
 }
 

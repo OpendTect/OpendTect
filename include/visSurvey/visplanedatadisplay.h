@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visplanedatadisplay.h,v 1.77 2006-04-27 21:28:49 cvskris Exp $
+ RCS:		$Id: visplanedatadisplay.h,v 1.78 2006-05-01 07:05:34 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -144,6 +144,7 @@ protected:
     CubeSampling		snapCubeSampling(const CubeSampling&) const;
 
     visBase::DepthTabPlaneDragger*	dragger_;
+    visBase::Material*			draggermaterial_;
     visBase::PickStyle*			rectanglepickstyle_;
     visBase::MultiTexture2*		texture_;
     visBase::FaceSet*			rectangle_;
