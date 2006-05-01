@@ -6,7 +6,7 @@ ________________________________________________________________________
 CopyRight:     (C) dGB Beheer B.V.
 Author:        A.H. Bril
 Date:          23-10-1996
-RCS:           $Id: parametriccurve.h,v 1.5 2005-04-07 09:30:59 cvskris Exp $
+RCS:           $Id: parametriccurve.h,v 1.6 2006-05-01 07:43:02 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -62,7 +62,7 @@ public:
 			    parameterRange().stop and parameterRange().start. */
     void		getPosIDs( TypeSet<GeomPosID>&, bool=true ) const;
     			/*!<Returns a list with all defined positions. */
-    virtual bool	insertPosition( const GeomPosID,const Coord3& )	= 0;
+    virtual bool	insertPosition(GeomPosID,const Coord3&)		= 0;
     virtual StepInterval<int>	parameterRange() const			= 0;
 };
 
