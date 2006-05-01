@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		July 2004
- RCS:		$Id: binidvalset.h,v 1.10 2006-03-12 13:39:09 cvsbert Exp $
+ RCS:		$Id: binidvalset.h,v 1.11 2006-05-01 16:30:04 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -165,6 +165,7 @@ public:
     			// Fast
     bool		getFrom(std::istream&);
 				//!< re-structures but keeps allowdup
+    				//!< considers only 'reasonable' lines to add
     bool		putTo(std::ostream&) const;
 
     			// Direct access to value arrays
