@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: faultextender.cc,v 1.4 2006-04-27 15:53:13 cvskris Exp $";
+static const char* rcsID = "$Id: faultextender.cc,v 1.5 2006-05-02 06:32:20 cvsnanne Exp $";
 
 #include "faultextender.h"
 
@@ -20,10 +20,10 @@ namespace MPE
 {
 
 
-FaultExtender::FaultExtender( EM::Fault& fault_,
-			    const EM::SectionID& sid_ )
-    : SectionExtender( sid_ )
-    , fault( fault_ )
+FaultExtender::FaultExtender( EM::Fault& flt,
+			    const EM::SectionID& sid )
+    : SectionExtender(sid)
+    , fault(flt)
     , maxdistance(Coord3::udf())
 {}
 
