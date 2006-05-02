@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: vishorizondisplay.cc,v 1.2 2006-05-02 19:58:01 cvskris Exp $
+ RCS:           $Id: vishorizondisplay.cc,v 1.3 2006-05-02 20:17:29 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -99,8 +99,6 @@ HorizonDisplay::~HorizonDisplay()
 	translation_->unRef();
 	translation_ = 0;
     }
-
-    removeEMStuff();
 }
 
 

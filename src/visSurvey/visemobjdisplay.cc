@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: visemobjdisplay.cc,v 1.84 2006-05-02 19:58:01 cvskris Exp $
+ RCS:           $Id: visemobjdisplay.cc,v 1.85 2006-05-02 20:17:29 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -193,7 +193,11 @@ void EMObjectDisplay::removeEMStuff()
     while ( posattribs_.size() )
 	showPosAttrib( posattribs_[0], false, Color(0,0,0) );
 
-    if ( editor_ ) editor_->unRef();
+    if ( editor_ )
+    {
+	editor_->unRef();
+	editor_ = 0;
+    }
 
     if ( emobject_ )
     {
