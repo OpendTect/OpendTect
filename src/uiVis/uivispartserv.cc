@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.313 2006-05-02 07:59:47 cvsnanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.314 2006-05-02 13:01:42 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -60,6 +60,11 @@ const char* uiVisPartServer::sKeyAppVel()		{ return "AppVel"; }
 const char* uiVisPartServer::sKeyWorkArea()		{ return "Work Area"; }
 
 
+static const int sResetManipIdx = 800;
+static const int sColorIdx = 700;
+static const int sPropertiesIdx = 600;
+static const int sResolutionIdx = 500;
+
 uiVisPartServer::uiVisPartServer( uiApplService& a )
     : uiApplPartServer(a)
     , viewmode_(false)
@@ -70,13 +75,13 @@ uiVisPartServer::uiVisPartServer( uiApplService& a )
     , eventmutex_(*new Threads::Mutex)
     , mouseposval_(mUdf(float))
     , mouseposstr_("")
-    , resetmanipmnuitem_( "Reset Manipulation", 8000 )
-    , changecolormnuitem_( "Color...", 7000 )
-    , changematerialmnuitem_( "Properties ...", 6000 )
-    , resmnuitem_( "Resolution", 5000 )
-    , blockmenus_( false )
+    , resetmanipmnuitem_("Reset Manipulation",sResetManipIdx)
+    , changecolormnuitem_("Color...",sColorIdx)
+    , changematerialmnuitem_("Properties ...",sPropertiesIdx)
+    , resmnuitem_("Resolution",sResolutionIdx)
+    , blockmenus_(false)
     , menu_( *new uiMenuHandler(appserv().parent(),-1) )
-    , xytmousepos_( Coord3::udf() )
+    , xytmousepos_(Coord3::udf())
     , zfactor_(1)
 {
     menu_.ref();
