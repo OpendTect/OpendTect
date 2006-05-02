@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          May 2004
- RCS:           $Id: vishorizondisplay.h,v 1.1 2006-04-26 21:23:38 cvskris Exp $
+ RCS:           $Id: vishorizondisplay.h,v 1.2 2006-05-02 19:58:01 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -63,8 +63,6 @@ public:
 
     bool			allowMaterialEdit() const { return true; }
     bool			hasColor() const;
-    void			setColor(Color);
-    Color			getColor() const;
 
     EM::SectionID		getSectionID(int visid) const;
 
@@ -116,9 +114,7 @@ protected:
     bool			addEdgeLineDisplay(const EM::SectionID&);
     void			emChangeCB(CallBacker*);
     void			emEdgeLineChangeCB(CallBacker*);
-    void			clickCB(CallBacker*);
     void			edgeLineRightClickCB(CallBacker*);
-    void			updatePosAttrib(int attrib);
     void			updateIntersectionLines(
 				   const ObjectSet<const SurveyObject>&,
 				   int whichobj );

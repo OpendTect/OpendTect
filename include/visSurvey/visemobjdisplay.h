@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          May 2004
- RCS:           $Id: visemobjdisplay.h,v 1.41 2006-04-28 13:42:28 cvskris Exp $
+ RCS:           $Id: visemobjdisplay.h,v 1.42 2006-05-02 19:58:01 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -110,9 +110,9 @@ protected:
     virtual bool		addSection(const EM::SectionID&)   	   = 0;
 
     virtual EM::PosID 		findClosestNode(const Coord3&) const;
-    void			emChangeCB(CallBacker*);
-    void			clickCB(CallBacker*);
-    void			updatePosAttrib(int attrib);
+    virtual void		emChangeCB(CallBacker*);
+    virtual void		clickCB(CallBacker*);
+    virtual void		updatePosAttrib(int attrib);
 
     mVisTrans*				transformation_;
     visBase::EventCatcher*		eventcatcher_;

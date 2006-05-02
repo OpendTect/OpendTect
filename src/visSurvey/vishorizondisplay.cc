@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: vishorizondisplay.cc,v 1.1 2006-04-26 21:23:32 cvskris Exp $
+ RCS:           $Id: vishorizondisplay.cc,v 1.2 2006-05-02 19:58:01 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -344,23 +344,6 @@ bool HorizonDisplay::hasColor() const
 
 bool HorizonDisplay::getOnlyAtSectionsDisplay() const
 { return displayonlyatsections_; }
-
-
-void HorizonDisplay::setColor( Color col )
-{
-
-    if ( emobject_ )
-    {
-	emobject_->setPreferredColor( col );
-    }
-    changedisplay.trigger();
-}
-
-
-Color HorizonDisplay::getColor() const
-{
-    return nontexturecol_;
-}
 
 
 void HorizonDisplay::selectTexture( int attrib, int textureidx )
