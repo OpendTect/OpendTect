@@ -4,7 +4,7 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.78 2006-04-18 10:36:58 cvsnanne Exp $";
+static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.79 2006-05-02 11:31:30 cvsnanne Exp $";
 
 #include "vispicksetdisplay.h"
 
@@ -124,14 +124,6 @@ void PickSetDisplay::addPick( const Coord3& pos )
 }
 
 
-BufferString PickSetDisplay::getManipulationString() const
-{
-    BufferString str = "Nr. of picks: ";
-    str += nrPicks();
-    return str;
-}
-
-
 int PickSetDisplay::nrPicks() const
 {
     return group->size();
@@ -174,6 +166,23 @@ void PickSetDisplay::removePick( const Coord3& pos )
 void PickSetDisplay::removeAll()
 {
     group->removeAll();
+}
+
+
+BufferString PickSetDisplay::getManipulationString() const
+{
+    BufferString str = "Nr. of picks: ";
+    str += nrPicks();
+    return str;
+}
+
+
+void PickSetDisplay::getMousePosInfo( const visBase::EventInfo&,
+				      const Coord3& pos, float& val,
+				      BufferString& info ) const
+{
+    val = mUdf(float);
+    info = getManipulationString();
 }
 
 
