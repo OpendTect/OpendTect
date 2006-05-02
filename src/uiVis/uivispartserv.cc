@@ -4,43 +4,43 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.312 2006-04-28 15:25:18 cvsnanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.313 2006-05-02 07:59:47 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uivispartserv.h"
 
-#include "attribslice.h"
+#include "attribsel.h"
+#include "binidvalset.h"
+#include "iopar.h"
+#include "oddirs.h"
+#include "seisbuf.h"
 #include "separstr.h"
 #include "survinfo.h"
-#include "visdataman.h"
+#include "zaxistransform.h"
+
 #include "viscolortab.h"
+#include "visdataman.h"
+#include "visemobjdisplay.h"
+#include "visevent.h"
 #include "visobject.h"
 #include "visselman.h"
 #include "vissurvobj.h"
 #include "vissurvscene.h"
-#include "uiattribtransdlg.h"
-#include "uifiledlg.h"
-#include "uimaterialdlg.h"
-#include "uizscaledlg.h"
-#include "uiworkareadlg.h"
-#include "uimenu.h"
-#include "uicursor.h"
-#include "iopar.h"
-#include "oddirs.h"
-#include "binidvalset.h"
-#include "uimenuhandler.h"
-#include "uicolor.h"
-#include "uimpeman.h"
-#include "vismpe.h"
 #include "vistransform.h"
 #include "vistransmgr.h"
-#include "visemobjdisplay.h"
-#include "visevent.h"
-#include "seisbuf.h"
-#include "attribsel.h"
-#include "zaxistransform.h"
+
+#include "uiattribtransdlg.h"
+#include "uicolor.h"
+#include "uicursor.h"
+#include "uifiledlg.h"
+#include "uimaterialdlg.h"
+#include "uimenuhandler.h"
+#include "uimpeman.h"
+#include "uitoolbar.h"
+#include "uiworkareadlg.h"
+#include "uizscaledlg.h"
 
 
 const int uiVisPartServer::evUpdateTree			= 0;
@@ -1184,7 +1184,7 @@ void uiVisPartServer::rightClickCB( CallBacker* cb )
     if ( vo && vo->rightClickedEventInfo() && vo->getDisplayTransformation() )
     {
 	pickedpos = vo->getDisplayTransformation()->transformBack(
-			vo->rightClickedEventInfo()->pickedpos);
+			vo->rightClickedEventInfo()->pickedpos );
 	pickedpos = visSurvey::STM().currentScene()->
 			getZScaleTransform()->transformBack( pickedpos );
     }
@@ -1386,7 +1386,7 @@ void uiVisPartServer::initMPEStuff()
 
 
 uiVisModeMgr::uiVisModeMgr( uiVisPartServer* p )
-    :visserv(*p)
+    : visserv(*p)
 {
 }
 
