@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.62 2006-03-30 20:49:46 cvsnanne Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.63 2006-05-02 12:34:06 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -364,6 +364,11 @@ void uiODSceneMgr::updateStatusBar()
     appl_.statusBar()->message( msg, mValueField );
 
     msg = haspos ? visServ().getMousePosString() : "";
+    if ( msg == "" )
+    {
+	const int selid = visServ().getSelObjectId();
+	msg = visServ().getInteractionMsg( selid );
+    }
     appl_.statusBar()->message( msg, mNameField );
 
     const bool ispicking = visServ().isPicking();
