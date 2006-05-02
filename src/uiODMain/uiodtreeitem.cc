@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.184 2006-04-28 14:39:16 cvsnanne Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.185 2006-05-02 09:25:30 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -496,6 +496,8 @@ void uiODDataTreeItem::updateColumnText( int col )
 }
 
 
+// uiODAttribTreeItem
+
 uiODAttribTreeItem::uiODAttribTreeItem( const char* parenttype )
     : uiODDataTreeItem( parenttype )
     , selattrmnuitem_( sKeySelAttribMenuTxt() )
@@ -518,12 +520,6 @@ bool uiODAttribTreeItem::anyButtonClick( uiListViewItem* item )
 	applMgr()->modifyColorTable( displayID(), attribNr() );
 
     return true;
-}
-
-
-bool uiODDisplayTreeItem::shouldSelect( int selkey ) const
-{
-    return uiTreeItem::shouldSelect( selkey ) && visserv->getSelAttribNr()==-1;
 }
 
 
@@ -739,16 +735,20 @@ bool uiODDisplayTreeItem::create( uiTreeItem* treeitem, uiODApplMgr* appl,
     return false;
 }
 
-	
+
+static const int sAttribIdx = 1000;
+static const int sDuplicateIdx = 900;
+static const int sLockIdx = -900;
+static const int sRemoveIdx = -1000;
 
 uiODDisplayTreeItem::uiODDisplayTreeItem()
     : uiODTreeItem(0)
     , displayid_(-1)
     , visserv(ODMainWin()->applMgr().visServer())
-    , addattribmnuitem_("Add attribute")
-    , lockmnuitem_("Lock",1000)
-    , duplicatemnuitem_("Duplicate")
-    , removemnuitem_("Remove",-1000)
+    , addattribmnuitem_("Add attribute",sAttribIdx)
+    , duplicatemnuitem_("Duplicate",sDuplicateIdx)
+    , lockmnuitem_("Lock",sLockIdx)
+    , removemnuitem_("Remove",sRemoveIdx)
 {
 }
 
@@ -768,6 +768,12 @@ uiODDisplayTreeItem::~uiODDisplayTreeItem()
 
 
 int uiODDisplayTreeItem::selectionKey() const { return displayid_; }
+
+
+bool uiODDisplayTreeItem::shouldSelect( int selkey ) const
+{
+    return uiTreeItem::shouldSelect( selkey ) && visserv->getSelAttribNr()==-1;
+}
 
 
 uiODDataTreeItem* uiODDisplayTreeItem::createAttribItem(
@@ -1042,15 +1048,15 @@ void uiODEarthModelSurfaceTreeItem::prepareForShutdown()
 
 
 uiODEarthModelSurfaceDataTreeItem::uiODEarthModelSurfaceDataTreeItem(
-							EM::ObjectID e,
+							EM::ObjectID objid,
 							uiVisEMObject* uv,
        							const char* parenttype )
     : uiODAttribTreeItem( parenttype )
     , depthattribmnuitem_("Z values")
     , savesurfacedatamnuitem_("Save attribute ...")
     , loadsurfacedatamnuitem_("Surface data ...")
-    , emid( e )
-    , uivisemobj( uv )
+    , emid(objid)
+    , uivisemobj(uv)
 {}
 
 
@@ -2251,11 +2257,14 @@ bool uiODPickSetTreeItem::askContinueAndSaveIfNeeded()
 }
 
 
+static const int sPositionIdx = 990;
+static const int sGridLinesIdx = 980;
+
 uiODPlaneDataTreeItem::uiODPlaneDataTreeItem( int did, int dim_ )
     : dim(dim_)
     , positiondlg(0)
-    , positionmnuitem_("Position ...")
-    , gridlinesmnuitem_("Gridlines ...")
+    , positionmnuitem_("Position ...",sPositionIdx)
+    , gridlinesmnuitem_("Gridlines ...",sGridLinesIdx)
 { displayid_ = did; }
 
 
@@ -2279,9 +2288,10 @@ bool uiODPlaneDataTreeItem::init()
 	if ( !pdd ) return false;
     }
 
-    getItem()->moveForwdReq.notify(mCB(this,uiODPlaneDataTreeItem,moveForwdCB));
-    getItem()->moveBackwdReq.notify( mCB(this,uiODPlaneDataTreeItem,
-				     moveBackwdCB) );
+    getItem()->moveForwdReq.notify(
+			mCB(this,uiODPlaneDataTreeItem,moveForwdCB) );
+    getItem()->moveBackwdReq.notify(
+			mCB(this,uiODPlaneDataTreeItem,moveBackwdCB) );
 
     return uiODDisplayTreeItem::init();
 }
@@ -2291,7 +2301,7 @@ BufferString uiODPlaneDataTreeItem::createDisplayName() const
 {
     BufferString res;
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,
-				visserv->getObject(displayid_))
+		    visserv->getObject(displayid_))
     const CubeSampling cs = pdd->getCubeSampling(true,true);
     const visSurvey::PlaneDataDisplay::Orientation orientation =
 						    pdd->getOrientation();
@@ -2317,11 +2327,12 @@ void uiODPlaneDataTreeItem::createMenuCB( CallBacker* cb )
 {
     uiODDisplayTreeItem::createMenuCB(cb);
     mDynamicCastGet(uiMenuHandler*,menu,cb);
-    if ( menu->menuID()!=displayID() )
+    if ( menu->menuID() != displayID() )
 	return;
 
-    mAddMenuItem(menu, &positionmnuitem_, !visserv->isLocked(displayid_),false);
-    mAddMenuItem(menu, &gridlinesmnuitem_, true, false);
+    mAddMenuItem( menu, &positionmnuitem_, !visserv->isLocked(displayid_),
+	          false );
+    mAddMenuItem( menu, &gridlinesmnuitem_, true, false );
 
     uiSeisPartServer* seisserv = applMgr()->seisServer();
     int type = menu->getMenuType();
