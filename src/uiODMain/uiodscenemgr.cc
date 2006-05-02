@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.63 2006-05-02 12:34:06 cvsnanne Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.64 2006-05-02 22:00:25 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -66,14 +66,12 @@ uiODSceneMgr::uiODSceneMgr( uiODMain* a )
     tifs_->addFactory( new uiODTimesliceTreeItemFactory, 3000 );
     tifs_->addFactory( new uiODRandomLineTreeItemFactory, 4000 );
     tifs_->addFactory( new uiODPickSetTreeItemFactory, 5000 );
-#ifdef __debug__
-    tifs_->addFactory( new uiODBodyTreeItemFactory, 5500 );
-#endif
     tifs_->addFactory( new uiODHorizonTreeItemFactory, 6000);
 #ifdef __debug__
     tifs_->addFactory( new uiODFaultTreeItemFactory, 7000 );
 #endif
     tifs_->addFactory( new uiODWellTreeItemFactory, 8000 );
+    tifs_->addFactory( new Seis2DTreeItemFactory, 9500 );
 
     wsp_->setPrefWidth( cWSWidth );
     wsp_->setPrefHeight( cWSHeight );
@@ -744,8 +742,6 @@ int uiODSceneMgr::addEMItem( const EM::ObjectID& emid, int sceneid )
 	uiODDisplayTreeItem* itm;
 	if ( !strcmp( type, "Horizon" ) ) itm = new uiODHorizonTreeItem(emid);
 	else if ( !strcmp(type,"Fault" ) ) itm = new uiODFaultTreeItem(emid);
-	else if ( !strcmp(type,"Horizontal Tube") )
-	    itm = new uiODBodyTreeItem(emid);
 
 	scene.itemmanager_->addChild( itm, false );
 	return itm->displayID();
