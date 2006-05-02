@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          April 2006
- RCS:           $Id: horizonsorter.cc,v 1.4 2006-04-28 15:20:13 cvsnanne Exp $
+ RCS:           $Id: horizonsorter.cc,v 1.5 2006-05-02 14:21:43 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,9 +15,7 @@ ________________________________________________________________________
 #include "cubesampling.h"
 #include "emhorizon.h"
 #include "emmanager.h"
-#include "keystrs.h"
 #include "ptrman.h"
-#include "survinfo.h"
 
 
 HorizonSorter::HorizonSorter( const TypeSet<MultiID>& ids )
@@ -31,7 +29,6 @@ HorizonSorter::HorizonSorter( const TypeSet<MultiID>& ids )
     PtrMan<Executor> horreader = EM::EMM().objectLoader( ids );
     horreader->execute();
 
-    horizons_.erase();
     for ( int idx=0; idx<ids.size(); idx++ )
     {
 	EM::ObjectID objid = EM::EMM().getObjectID( ids[idx] );
@@ -40,8 +37,6 @@ HorizonSorter::HorizonSorter( const TypeSet<MultiID>& ids )
 	mDynamicCastGet(EM::Horizon*,horizon,emobj);
 	if ( !horizon )
 	    emobj->unRef();
-	else
-	    emobj->unRefNoDelete();
 	horizons_ += horizon;
     }
 
@@ -53,6 +48,7 @@ HorizonSorter::~HorizonSorter()
 {
     delete result_;
     delete iterator_;
+    deepUnRef( horizons_ );
 }
 
 
@@ -93,7 +89,6 @@ void HorizonSorter::sort()
 {
     sortedids_ = unsortedids_;
     const int nrhors = unsortedids_.size();
-    const int maxnrloops = nrhors * nrhors;
     int nrswaps = 0;
     while ( true )
     {
@@ -140,6 +135,17 @@ void HorizonSorter::getSortedList( TypeSet<MultiID>& ids )
 }
 
 
+int HorizonSorter::getNrCrossings( const MultiID& mid1,
+				   const MultiID& mid2 ) const
+{
+    const int idx1 = unsortedids_.indexOf( mid1 );
+    const int idx2 = unsortedids_.indexOf( mid2 );
+    const int nrabove = result_->get( mMIN(idx1,idx2), mMAX(idx1,idx2), 0 );
+    const int nrbelow = result_->get( mMIN(idx1,idx2), mMAX(idx1,idx2), 1 );
+    return mMIN(nrabove,nrbelow);
+}
+
+
 const char* HorizonSorter::message() const	{ return "Sorting"; }
 
 const char* HorizonSorter::nrDoneText() const	{ return "Positions done"; }
@@ -158,15 +164,11 @@ int HorizonSorter::nextStep()
 	return Finished;
     }
 
-    const EM::SubID subid = binid_.getSerialized();
     const int nrhors = horizons_.size();
-    float depths[nrhors];
+    ArrPtrMan<float> depths = new float [nrhors];
     for ( int idx=0; idx<nrhors; idx++ )
-    {
-	const Coord3 pos = horizons_[idx]->getPos( horizons_[idx]->sectionID(0),
-	       					   subid );
-	depths[idx] = pos.z;
-    }
+	depths[idx] = horizons_[idx]->getPos( horizons_[idx]->sectionID(0),
+					      binid_.getSerialized() ).z;
 
     for ( int idx=0; idx<nrhors; idx++ )
     {
@@ -184,71 +186,3 @@ int HorizonSorter::nextStep()
     nrdone_++;
     return MoreToDo;
 }
-
-/*
-// HorizonModifier
-// TODO: Move to new file
-
-HorizonModifier::HorizonModifier()
-    : tophor_(0)
-    , bothor_(0)
-    , topisstatic_(true)
-{
-}
-
-
-HorizonModifier::~HorizonModifier()
-{
-}
-
-
-bool HorizonModifier::setHorizons( const MultiID& top, const MultiID& bot )
-{
-    EM::ObjectID objid = EM::EMM().getObjectID( top );
-    mDynamicCastGet(EM::Horizon*,tophor,EM::EMM().getObject(objid))
-    tophor_ = tophor;
-
-    objid = EM::EMM().getObjectID( bot );
-    mDynamicCastGet(EM::Horizon*,bothor,EM::EMM().getObject(objid))
-    bothor_ = bothor;
-
-    if ( tophor_ && bothor_ )
-    {
-	tophor_->ref();
-	bothor_->ref();
-    }
-
-    return tophor_ && bothor_;
-}
-
-
-void HorizonModifier::setMode( ModifyMode mode )
-{
-}
-
-
-void HorizonModifier::setStaticHorizon( bool top )
-{
-    topisstatic_ = top;
-}
-
-
-void HorizonModifier::modify()
-{
-    StepInterval<int> rrg = tophor_->geometry.rowRange();
-    StepInterval<int> crg = tophor_->geometry.colRange();
-    HorSampling hrg.set( rrg, crg );
-
-    rrg = bothor_->geometry.rowRange();
-    crg = bothor_->geometry.colRange();
-    hrg.include( BinID(rrg.start,crg.start) );
-    hrg.include( BinID(rrg.stop,crg.stop) );
-
-    BinID bid;
-    HorSamplingIterator iterator( hrg );
-    while ( iterator.next(binid) )
-    {
-    }
-}
-
-*/

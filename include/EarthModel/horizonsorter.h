@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		April 2006
- RCS:		$Id: horizonsorter.h,v 1.2 2006-04-28 15:20:13 cvsnanne Exp $
+ RCS:		$Id: horizonsorter.h,v 1.3 2006-05-02 14:21:43 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,6 +33,8 @@ public:
 
     void			getSortedList(TypeSet<MultiID>&);
     const HorSampling&		getBoundingBox() const	{ return hrg_; }
+    int				getNrCrossings(const MultiID&,
+	    				       const MultiID&) const;
 
     const char*			message() const;
     int				totalNr() const;
