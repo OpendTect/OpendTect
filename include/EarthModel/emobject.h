@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emobject.h,v 1.57 2006-04-27 15:29:13 cvskris Exp $
+ RCS:		$Id: emobject.h,v 1.58 2006-05-02 14:14:39 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -102,14 +102,13 @@ public:
     virtual bool		isDefined(const EM::PosID&) const;
     virtual bool		isDefined(const EM::SectionID&,
 					  const EM::SubID&) const;
-    virtual bool		setPos(const EM::PosID&,
-	    			       const Coord3&,
+    virtual bool		setPos(const EM::PosID&,const Coord3&,
 				       bool addtohistory);
-    virtual bool		setPos(const EM::SectionID&,
-	    			       const EM::SubID&,
-	    			       const Coord3&,
-				       bool addtohistory);
+    virtual bool		setPos(const EM::SectionID&,const EM::SubID&,
+	    			       const Coord3&,bool addtohistory);
     virtual bool		unSetPos(const EM::PosID&,bool addtohistory);
+    virtual bool		unSetPos(const EM::SectionID&,const EM::SubID&,
+					 bool addtohistory);
 
 
     virtual bool		enableGeometryChecks(bool);

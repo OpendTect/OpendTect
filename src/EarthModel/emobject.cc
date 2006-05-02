@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emobject.cc,v 1.62 2006-04-27 15:29:13 cvskris Exp $";
+static const char* rcsID = "$Id: emobject.cc,v 1.63 2006-05-02 14:14:39 cvsnanne Exp $";
 
 #include "emobject.h"
 
@@ -248,6 +248,13 @@ void EMObject::setPreferredColor(const Color& col)
 bool EMObject::unSetPos(const PosID& pid, bool addtohistory )
 {
     return setPos( pid, Coord3::udf(), addtohistory );
+}
+
+
+bool EMObject::unSetPos( const EM::SectionID& sid, const EM::SubID& subid,
+			 bool addtohistory )
+{
+    return setPos( sid, subid, Coord3::udf(), addtohistory );
 }
 
 
