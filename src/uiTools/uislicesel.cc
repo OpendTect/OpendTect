@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uislicesel.cc,v 1.39 2006-04-28 14:35:45 cvsnanne Exp $
+ RCS:           $Id: uislicesel.cc,v 1.40 2006-05-02 14:15:19 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -401,11 +401,14 @@ void uiSliceSel::readInput()
 
 void uiSliceSel::setCubeSampling( const CubeSampling& cs )
 {
-    Interval<int> inlrg( cs.hrg.start.inl, cs.hrg.stop.inl );
-    StepInterval<int> maxinlrg( maxcs_.hrg.start.inl, maxcs_.hrg.stop.inl,
-				maxcs_.hrg.step.inl );
-    setBoxValues( inl0fld->box(), maxinlrg, inlrg.start );
-    setBoxValues( inl1fld, maxinlrg, inlrg.stop );
+    if ( inl0fld )
+    {
+	Interval<int> inlrg( cs.hrg.start.inl, cs.hrg.stop.inl );
+	StepInterval<int> maxinlrg( maxcs_.hrg.start.inl, maxcs_.hrg.stop.inl,
+				    maxcs_.hrg.step.inl );
+	setBoxValues( inl0fld->box(), maxinlrg, inlrg.start );
+	setBoxValues( inl1fld, maxinlrg, inlrg.stop );
+    }
 
     Interval<int> crlrg( cs.hrg.start.crl, cs.hrg.stop.crl );
     StepInterval<int> maxcrlrg( maxcs_.hrg.start.crl, maxcs_.hrg.stop.crl,
