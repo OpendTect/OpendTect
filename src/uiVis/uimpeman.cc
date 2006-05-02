@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.cc,v 1.83 2006-04-25 12:13:43 cvsjaap Exp $
+ RCS:           $Id: uimpeman.cc,v 1.84 2006-05-02 08:00:13 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,14 +12,9 @@ ________________________________________________________________________
 #include "uimpeman.h"
 
 #include "attribsel.h"
-#include "attribslice.h"
-#include "cubicbeziercurve.h"
-#include "draw.h"
 #include "emhistory.h"
 #include "emobject.h"
 #include "emmanager.h"
-#include "emseedpicker.h"
-#include "emsurfacegeometry.h"
 #include "emsurfacetr.h"
 #include "emtracker.h"
 #include "faultseedpicker.h"
@@ -30,29 +25,21 @@ ________________________________________________________________________
 #include "oddirs.h"
 #include "pixmap.h"
 #include "sectiontracker.h"
-#include "survinfo.h"
-#include "uibutton.h"
+
 #include "uicombobox.h"
 #include "uicursor.h"
 #include "uiexecutor.h"
-#include "uimenu.h"
-#include "uimenuhandler.h"
 #include "uimsg.h"
 #include "uislider.h"
 #include "uispinbox.h"
+#include "uitoolbar.h"
 #include "uiviscoltabed.h"
 #include "uivispartserv.h"
 #include "viscolortab.h"
 #include "visdataman.h"
 #include "visdataman.h"
-#include "visevent.h"
-#include "vismarker.h"
-#include "vismaterial.h"
 #include "vismpe.h"
 #include "vismpeseedcatcher.h"
-#include "vispicksetdisplay.h"
-#include "visplanedatadisplay.h"
-#include "visseedstickeditor.h"
 #include "visselman.h"
 #include "vissurvscene.h"
 #include "vistexture3.h"
@@ -78,7 +65,6 @@ uiMPEMan::uiMPEMan( uiParent* p, uiVisPartServer* ps )
     : clickcatcher(0)
     , visserv(ps)
     , init(false)
-    , createmnuitem("Create")
     , colbardlg(0)
     , seedclickobject(-1)
     , blockattribsel(false)
@@ -87,65 +73,7 @@ uiMPEMan::uiMPEMan( uiParent* p, uiVisPartServer* ps )
 {
     toolbar = new uiToolBar(p,"Tracking controls");
 
-    seedconmodefld = new uiComboBox( toolbar, "Seed connect mode" );
-    seedconmodefld->setToolTip( "Select seed connect mode" );
-    seedconmodefld->selectionChanged.notify( mCB(this, uiMPEMan,
-						 seedConnectModeSel) );
-
-    seedidx = mAddButton( "seedpickmode.png", addSeedCB, "Create seed", true );
-    toolbar->addSeparator();
-    
-    moveplaneidx = mAddButton( "moveplane.png", movePlaneCB,
-			       "Move track plane", true );
-    extendidx = mAddButton( "trackplane.png", extendModeCB,
-	    		    "Extend mode", true );
-    retrackidx = mAddButton( "retrackplane.png", retrackModeCB, 
-	    		     "ReTrack mode", true );
-    eraseidx = mAddButton( "erasingplane.png", eraseModeCB, 
-	    		   "Erase mode", true );
-/*
-    toolbar->addSeparator();
-    mouseeraseridx = mAddButton( "eraser.png", mouseEraseModeCB, 
-	    			 "Erase with mouse", true );
-*/
-
-    toolbar->addSeparator();
-    undoidx = mAddButton( "undo.png", undoPush, "Undo", false );
-    redoidx = mAddButton( "redo.png", redoPush, "Redo", false );
-
-    toolbar->addSeparator();
-    showcubeidx = mAddButton( "trackcube.png", showCubeCB,
-	    		      "Show trackingarea", true );
-
-    toolbar->addSeparator();
-    attribfld = new uiComboBox( toolbar, "Attribute" );
-    attribfld->setToolTip( "QC Attribute" );
-    attribfld->selectionChanged.notify( mCB(this,uiMPEMan,attribSel) );
-    toolbar->setStretchableWidget( attribfld );
-
-    clrtabidx = mAddButton( "colorbar.png", setColorbarCB,
-			    "Set track plane colorbar", true );
-
-    toolbar->addSeparator();
-    transfld = new uiSlider( toolbar, "Slider", 2 );
-    transfld->setOrientation( uiSlider::Horizontal );
-    transfld->setMaxValue( 1 );
-    transfld->setToolTip( "Transparency" );
-    transfld->valueChanged.notify( mCB(this,uiMPEMan,transpChg) );
-
-    toolbar->addSeparator();
-    trackinvolidx = mAddButton( "track_seed.png", trackInVolume,
-    				"Auto-tracking", false );
-    
-    toolbar->addSeparator();
-    trackforwardidx = mAddButton( "leftarrow.png", trackBackward,
-	    			  "Track backward", false );
-    trackbackwardidx = mAddButton( "rightarrow.png", trackForward,
-	    			   "Track forward", false );
-
-    nrstepsbox = new uiSpinBox( toolbar );
-    nrstepsbox->setToolTip( "Nr of tracking steps" );
-    nrstepsbox->setMinValue( 1 );
+    addButtons();
 
     toolbar->setCloseMode( 2 );
     toolbar->setResizeEnabled();
@@ -164,6 +92,70 @@ uiMPEMan::uiMPEMan( uiParent* p, uiVisPartServer* ps )
 	    mCB(this,uiMPEMan,updateButtonSensitivity));
 
     updateButtonSensitivity();
+}
+
+
+void uiMPEMan::addButtons()
+{
+    seedconmodefld = new uiComboBox( toolbar, "Seed connect mode" );
+    seedconmodefld->setToolTip( "Select seed connect mode" );
+    seedconmodefld->selectionChanged.notify(
+				mCB(this,uiMPEMan,seedConnectModeSel) );
+    toolbar->addSeparator();
+
+    seedidx = mAddButton( "seedpickmode.png", addSeedCB, "Create seed", true );
+    toolbar->addSeparator();
+
+    trackinvolidx = mAddButton( "track_seed.png", trackInVolume,
+    				"Auto-tracking", false );
+    toolbar->addSeparator();
+
+    showcubeidx = mAddButton( "trackcube.png", showCubeCB,
+	    		      "Show trackingarea", true );
+    toolbar->addSeparator();
+
+    moveplaneidx = mAddButton( "moveplane.png", movePlaneCB,
+			       "Move track plane", true );
+    extendidx = mAddButton( "trackplane.png", extendModeCB,
+	    		    "Extend mode", true );
+    retrackidx = mAddButton( "retrackplane.png", retrackModeCB, 
+	    		     "ReTrack mode", true );
+    eraseidx = mAddButton( "erasingplane.png", eraseModeCB, 
+	    		   "Erase mode", true );
+    toolbar->addSeparator();
+/*
+    mouseeraseridx = mAddButton( "eraser.png", mouseEraseModeCB, 
+	    			 "Erase with mouse", true );
+    toolbar->addSeparator();
+*/
+
+    attribfld = new uiComboBox( toolbar, "Attribute" );
+    attribfld->setToolTip( "QC Attribute" );
+    attribfld->selectionChanged.notify( mCB(this,uiMPEMan,attribSel) );
+    toolbar->setStretchableWidget( attribfld );
+
+    clrtabidx = mAddButton( "colorbar.png", setColorbarCB,
+			    "Set track plane colorbar", true );
+
+    transfld = new uiSlider( toolbar, "Slider", 2 );
+    transfld->setOrientation( uiSlider::Horizontal );
+    transfld->setMaxValue( 1 );
+    transfld->setToolTip( "Transparency" );
+    transfld->valueChanged.notify( mCB(this,uiMPEMan,transpChg) );
+    toolbar->addSeparator();
+
+    trackforwardidx = mAddButton( "leftarrow.png", trackBackward,
+	    			  "Track backward", false );
+    trackbackwardidx = mAddButton( "rightarrow.png", trackForward,
+	    			   "Track forward", false );
+
+    nrstepsbox = new uiSpinBox( toolbar );
+    nrstepsbox->setToolTip( "Nr of tracking steps" );
+    nrstepsbox->setMinValue( 1 );
+    toolbar->addSeparator();
+
+    undoidx = mAddButton( "undo.png", undoPush, "Undo", false );
+    redoidx = mAddButton( "redo.png", redoPush, "Redo", false );
 }
 
 
@@ -647,8 +639,8 @@ MPE::EMTracker* uiMPEMan::getSelectedTracker()
     const MultiID mid = visserv->getMultiID( selectedids[0] );
     if ( mid==-1 )
 	return 0;
-    const EM::ObjectID oid = EM::EMM().getObjectID(mid);
-    const int trackerid = MPE::engine().getTrackerByObject(oid);
+    const EM::ObjectID oid = EM::EMM().getObjectID( mid );
+    const int trackerid = MPE::engine().getTrackerByObject( oid );
     if ( trackerid==-1 )
 	return 0;
     return MPE::engine().getTracker( trackerid );
@@ -837,8 +829,9 @@ void uiMPEMan::setColorbarCB(CallBacker*)
 	?  displays[0]->getTexture()->getColorTab().id()
 	: -1;
 
-    colbardlg = new uiColorBarDialog( toolbar, coltabid, "Track plane colorbar" );
-    colbardlg->winClosing.notify( mCB( this,uiMPEMan,onColTabClosing ) );
+    colbardlg = new uiColorBarDialog( toolbar, coltabid,
+				      "Track plane colorbar" );
+    colbardlg->winClosing.notify( mCB(this,uiMPEMan,onColTabClosing) );
     colbardlg->go();
 
     updateButtonSensitivity();
@@ -905,7 +898,7 @@ void uiMPEMan::initFromDisplay()
 }
 
 
-void uiMPEMan::setHistoryLevel(int preveventnr)
+void uiMPEMan::setHistoryLevel( int preveventnr )
 {
     EM::History& history = EM::EMM().history();
     const int currentevent = history.currentEventNr();

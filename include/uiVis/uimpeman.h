@@ -7,28 +7,22 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.h,v 1.33 2006-04-25 12:13:43 cvsjaap Exp $
+ RCS:           $Id: uimpeman.h,v 1.34 2006-05-02 08:00:13 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiparent.h"
 #include "cubesampling.h"
-#include "uitoolbar.h"
-#include "menuhandler.h"
 
-namespace EM { class EMManager; };
-namespace MPE { class EMSeedPicker; class EMTracker; };
+namespace MPE { class EMTracker; };
 namespace visSurvey { class MPEDisplay; class MPEClickCatcher; }
-namespace Geometry  { class Element; };
-namespace visSurvey { class PickSetDisplay; }
 
-
-class BufferStringSet;
 class uiColorBarDialog;
 class uiComboBox;
 class uiSpinBox;
-class uiPushButton;
 class uiSlider;
+class uiToolBar;
 class uiVisPartServer;
 
 
@@ -37,7 +31,7 @@ class uiVisPartServer;
 class uiMPEMan : public CallBackClass
 {
 public:		
-				uiMPEMan(uiParent*, uiVisPartServer*);
+				uiMPEMan(uiParent*,uiVisPartServer*);
 				~uiMPEMan();
 
     uiToolBar*			getToolBar() const;
@@ -51,14 +45,13 @@ public:
     void                        visObjectLockedCB();
 
 protected:
+    void			addButtons();
     visSurvey::MPEDisplay*	getDisplay(int sceneid,bool create=false);
     
     uiColorBarDialog*		colbardlg;
 
     uiToolBar*			toolbar;
     
-    MenuItem			seedmnuitem;
-    MenuItem			createmnuitem;
     uiVisPartServer*		visserv;
     CubeSampling		oldactivevol;
     bool			didtriggervolchange;
@@ -68,7 +61,6 @@ protected:
     uiComboBox*			seedconmodefld;
     uiComboBox*			attribfld;
     uiSlider*			transfld;
-
     uiSpinBox*			nrstepsbox;
 
     void			boxDraggerStatusChangeCB(CallBacker*);
