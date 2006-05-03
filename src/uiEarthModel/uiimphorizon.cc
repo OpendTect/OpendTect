@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          May 2002
- RCS:           $Id: uiimphorizon.cc,v 1.64 2006-04-27 15:29:13 cvskris Exp $
+ RCS:           $Id: uiimphorizon.cc,v 1.65 2006-05-03 15:26:48 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -229,7 +229,7 @@ bool uiImportHorizon::doWork()
 	if ( !uiMSG().askGoOn(msg) ) return false;
     }
 
-    HorSampling hs; subselfld->getHorSampling( hs );
+    HorSampling hs = subselfld->getInput().cs_.hrg;
     if ( hs.step.inl==0 ) hs.step.inl = SI().inlStep();
     if ( hs.step.crl==0 ) hs.step.crl = SI().crlStep();
 /*  TODO: ask Kris why this has been implemented
@@ -259,7 +259,9 @@ bool uiImportHorizon::doWork()
 	    return false;
 
 	hs.start = newstart;
-	subselfld->setInput(hs); //important since other may read it later
+	uiBinIDSubSel::Data data = subselfld->getInput();
+	data.cs_.hrg = hs;
+	subselfld->setInput(data); //important since other may read it later
     }
 
     ObjectSet<BinIDValueSet> sections;
@@ -359,7 +361,9 @@ void uiImportHorizon::scanFile( CallBacker* )
     filehs_.set( scanner.inlRg(), scanner.crlRg() );
     if ( filehs_.step.inl==0 ) filehs_.step.inl = SI().inlStep();
     if ( filehs_.step.crl==0 ) filehs_.step.crl = SI().crlStep();
-    subselfld->setInput( filehs_ );
+    uiBinIDSubSel::Data subseldata = subselfld->getInput();
+    subseldata.cs_.hrg = filehs_; subselfld->setInput( subseldata );
+
     interpolfld->setValue(scanner.gapsFound(true) || scanner.gapsFound(false));
     interpolSel(0);
     midgrp->setSensitive( true );
@@ -440,7 +444,7 @@ BinIDValueSet* uiImportHorizon::getBidValSet( const char* fnm, bool doscale,
 
 bool uiImportHorizon::interpolateGrid( ObjectSet<BinIDValueSet>& sections )
 {
-    HorSampling hs; subselfld->getHorSampling( hs );
+    HorSampling hs = subselfld->getInput().cs_.hrg;
 
     for ( int idx=0; idx<sections.size(); idx++ )
     {

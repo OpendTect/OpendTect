@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          June 2004
- RCS:           $Id: uiseissubsel.cc,v 1.34 2006-04-14 12:49:36 cvsnanne Exp $
+ RCS:           $Id: uiseissubsel.cc,v 1.35 2006-05-03 15:26:48 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -62,21 +62,40 @@ void uiSeisSubSel::setInput( const HorSampling& hs )
     if ( is2d_ )
 	sel2d->setInput( hs );
     else
-	sel3d->setInput( hs );
+    {
+	uiBinIDSubSel::Data data = sel3d->getInput();
+	data.type_ = 1; data.cs_.hrg = hs;
+	sel3d->setInput( data );
+    }
 }
 
 
 void uiSeisSubSel::setInput( const StepInterval<float>& zrg )
 {
-    sel2d->setInput( zrg );
-    sel3d->setInput( zrg );
+    if ( is2d_ )
+	sel2d->setInput( zrg );
+    else
+    {
+	uiBinIDSubSel::Data data = sel3d->getInput();
+	data.type_ = 1; data.cs_.zrg = zrg;
+	sel3d->setInput( data );
+    }
 }
 
 
 void uiSeisSubSel::setInput( const CubeSampling& cs )
 {
-    setInput( cs.hrg );
-    setInput( cs.zrg );
+    if ( is2d_ )
+    {
+	setInput( cs.hrg );
+	setInput( cs.zrg );
+    }
+    else
+    {
+	uiBinIDSubSel::Data data = sel3d->getInput();
+	data.type_ = 1; data.cs_ = cs;
+	sel3d->setInput( data );
+    }
 }
 
 
@@ -98,13 +117,15 @@ void uiSeisSubSel::setInput( const IOObj& ioobj )
 
 bool uiSeisSubSel::isAll() const
 {
-    return is2d_ ? sel2d->isAll() : sel3d->isAll();
+    return is2d_ ? sel2d->isAll() : sel3d->getInput().isAll();
 }
 
 
 bool uiSeisSubSel::getSampling( HorSampling& hs ) const
 {
-    if ( is2d_ )
+    if ( !is2d_ )
+	hs = sel3d->getInput().cs_.hrg;
+    else
     {
 	StepInterval<int> trcrg;
 	if ( !sel2d->getRange( trcrg ) )
@@ -113,20 +134,16 @@ bool uiSeisSubSel::getSampling( HorSampling& hs ) const
 	hs.stop.crl = trcrg.stop;
 	hs.step.crl = trcrg.step;
     }
-    else
-    {
-	CubeSampling cs;
-	if ( !sel3d->getSampling(cs) )
-	    return false;
-	hs = cs.hrg;
-    }
     return true;
 }
 
 
 bool uiSeisSubSel::getZRange( Interval<float>& zrg ) const
 {
-    return is2d_ ? sel2d->getZRange(zrg) : sel3d->getZRange(zrg);
+    if ( is2d_ )
+	return sel2d->getZRange(zrg);
+    zrg = sel3d->getInput().cs_.zrg;
+    return true;
 }
 
 
@@ -147,13 +164,15 @@ void uiSeisSubSel::usePar( const IOPar& iop )
 
 int uiSeisSubSel::expectedNrSamples() const
 {
-    return is2d_ ? sel2d->expectedNrSamples() : sel3d->expectedNrSamples();
+    return is2d_ ? sel2d->expectedNrSamples()
+		 : sel3d->getInput().expectedNrSamples();
 }
 
 
 int uiSeisSubSel::expectedNrTraces() const
 {
-    return is2d_ ? sel2d->expectedNrTraces() : sel3d->expectedNrTraces();
+    return is2d_ ? sel2d->expectedNrTraces()
+		 : sel3d->getInput().expectedNrTraces();
 }
 
 
