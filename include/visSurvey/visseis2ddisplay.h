@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		January 2003
- RCS:		$Id: visseis2ddisplay.h,v 1.1 2006-05-02 21:56:05 cvskris Exp $
+ RCS:		$Id: visseis2ddisplay.h,v 1.2 2006-05-03 18:54:19 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -25,7 +25,7 @@ class SeisTrcInfo;
 namespace Attrib 
 { 
     class SelSpec; 
-    class DataHolder;
+    class Data2DHolder;
 }
 
 namespace visBase
@@ -67,9 +67,7 @@ public:
 
     void			setGeometry(const PosInfo::Line2DData&,
 	    				    const CubeSampling* cs=0);
-    void			setTraceData(bool forcolor,
-	    				   const ObjectSet<Attrib::DataHolder>&,
-					   const ObjectSet<SeisTrcInfo>&);
+    void			setTraceData( const Attrib::Data2DHolder& );
     void			clearTexture();
 
     bool			allowPicks() const		{ return true; }
@@ -106,8 +104,8 @@ public:
 	    					BufferString&) const;
     void			snapToTracePos(Coord3&);
 
-    void			setLineSetID(const MultiID& id)
-				{ linesetid = id; }
+    void			setLineSetID(const MultiID& mid)
+				{ linesetid = mid; }
     const MultiID&		lineSetID() const	{ return linesetid; }
 
     NotifierAccess*		getMovementNotification()	
@@ -125,13 +123,11 @@ protected:
 	    				 const Interval<float>&,
 					 int stripidx, const Interval<int>& );
     void			addLineName();
-    void			setData(const ObjectSet<Attrib::DataHolder>&,
-	    				const ObjectSet<SeisTrcInfo>&);
+    void			setData(const Attrib::Data2DHolder&);
     void			getNearestTrace(const Coord3&,int& idx,
 						float& sqdist) const;
 
-    ObjectSet<SeisTrcInfo>	infocache;
-    ObjectSet<Attrib::DataHolder> datacache;
+    const Attrib::Data2DHolder*	cache_;
 
     Attrib::SelSpec&		as;
     CubeSampling&		cs;

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H.Payraudeau
  Date:          04/2005
- RCS:           $Id: attribengman.cc,v 1.55 2006-03-12 13:39:10 cvsbert Exp $
+ RCS:           $Id: attribengman.cc,v 1.56 2006-05-03 18:54:19 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -497,8 +497,7 @@ DescID EngineMan::createEvaluateADS( DescSet& descset,
 
 
 Processor* EngineMan::createScreenOutput2D( BufferString& errmsg,
-	 				    ObjectSet<DataHolder>& dataset,
-					    ObjectSet<SeisTrcInfo>& trcinfoset )
+					    Data2DHolder& output )
 {
     Processor* proc = getProcessor( errmsg );
     if ( !proc ) 
@@ -513,7 +512,7 @@ Processor* EngineMan::createScreenOutput2D( BufferString& errmsg,
     Interval<float> zrg( cs_.zrg.start, cs_.zrg.stop );
     TwoDOutput* attrout = new TwoDOutput( trcrg, zrg, lkey );
     attrout->setGeometry( trcrg, zrg );
-    attrout->setOutput( dataset, trcinfoset );
+    attrout->setOutput( output );
     proc->addOutput( attrout ); 
 
     return proc;

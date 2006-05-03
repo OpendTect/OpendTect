@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.186 2006-05-02 21:54:52 cvskris Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.187 2006-05-03 18:54:19 cvskris Exp $
 ___________________________________________________________________
 
 -*/
@@ -1516,6 +1516,7 @@ const char* uiOD2DLineSetTreeItem::parentType() const
 { return typeid(uiODSeis2DParentTreeItem).name(); }
 
 
+
 bool uiOD2DLineSetTreeItem::init()
 {
     applMgr()->seisServer()->get2DLineSetName( setid_, name_ );
@@ -1699,18 +1700,17 @@ void uiOD2DLineSetSubItem::getNewData( CallBacker* cb )
 	LineKey linekey( objnm, as.userRef() );
 	applMgr()->seisServer()->create2DOutput( s2d->lineSetID(), linekey,
 	cs, dataset, trcinfoset );
-	s2d->setTraceData( false, dataset, trcinfoset );
+	s2d->setTraceData( dataset, trcinfoset );
 	return;
     }
 */
     applMgr()->attrServer()->setTargetSelSpec( as );
-    ObjectSet<Attrib::DataHolder> dataset;
-    ObjectSet<SeisTrcInfo> trcinfoset;
+    RefMan<Attrib::Data2DHolder> dataset = new Attrib::Data2DHolder;
 
-    if ( !applMgr()->attrServer()->create2DOutput( cs, objnm, dataset,
-	trcinfoset ) ) return;
-    if ( dataset.size() && trcinfoset.size() )
-	s2d->setTraceData( false, dataset, trcinfoset );
+    if ( !applMgr()->attrServer()->create2DOutput( cs, objnm, *dataset) )
+	return;
+    if ( dataset->size() )
+	s2d->setTraceData( *dataset );
 
 }
 
@@ -1830,16 +1830,17 @@ bool uiOD2DLineSetAttribItem::displayStoredData( const char* attribnm )
     LineKey linekey( s2d->name(), attribnm );
     myas.set( attribnm, attribid, false, 0 );
     attrserv->setTargetSelSpec( myas );
-    ObjectSet<Attrib::DataHolder> dataset;
-    ObjectSet<SeisTrcInfo> trcinfoset;
+    RefMan<Attrib::Data2DHolder> dataset = new Attrib::Data2DHolder;
 
     if ( !applMgr()->attrServer()->create2DOutput( s2d->getCubeSampling(),
-	linekey, dataset, trcinfoset ) ) return false;
-    if ( dataset.size() && trcinfoset.size() )
+	    linekey, *dataset) )
+	return false;
+
+    if ( dataset->size() )
     {
 	uiCursorChanger cursorchgr( uiCursor::Wait );
 	s2d->setSelSpec( 0, myas );
-	s2d->setTraceData( false, dataset, trcinfoset );
+	s2d->setTraceData( *dataset );
     }
     updateColumnText(0);
     setChecked( s2d->isOn() );
@@ -1857,20 +1858,18 @@ void uiOD2DLineSetAttribItem::setAttrib( const Attrib::SelSpec& myas )
     CubeSampling cs = s2d->getCubeSampling();
     BufferString linekey = s2d->name();
     applMgr()->attrServer()->setTargetSelSpec( myas );
-    ObjectSet<Attrib::DataHolder> dataset;
-    ObjectSet<SeisTrcInfo> trcinfoset;
+    RefMan<Attrib::Data2DHolder> dataset = new Attrib::Data2DHolder;
 
     if ( !applMgr()->attrServer()->
-	    create2DOutput( cs, linekey, dataset, trcinfoset ) )
-    {
-	deepErase(dataset); deepErase(trcinfoset); return;
-    }
+	    create2DOutput( cs, linekey, *dataset ) )
+	return;
 
-    if ( dataset.size() && trcinfoset.size() )
+    if ( dataset->size() )
     {
 	s2d->setSelSpec( 0, myas );
-	s2d->setTraceData( false, dataset, trcinfoset );
+	s2d->setTraceData( *dataset );
     }
+
     updateColumnText(0);
     setChecked( s2d->isOn() );
 }

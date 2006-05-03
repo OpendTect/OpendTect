@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H.Payraudeau
  Date:          04/2005
- RCS:           $Id: attribengman.h,v 1.22 2006-02-21 13:09:54 cvshelene Exp $
+ RCS:           $Id: attribengman.h,v 1.23 2006-05-03 18:54:19 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,7 +34,7 @@ class DescSet;
 class SelSpec;
 class DataCubes;
 class Processor;
-class DataHolder;
+class Data2DHolder;
 
 /*!\brief The Attribute engine Manager. */
 
@@ -84,8 +84,7 @@ public:
 					    const ObjectSet<BinIDValueSet>&);
 
     Processor*		createScreenOutput2D(BufferString& errmsg,
-	    				      ObjectSet<DataHolder>&,
-					      ObjectSet<SeisTrcInfo>&);
+	    				     Data2DHolder&);
     Processor*		createLocationOutput(BufferString& errmsg,
 					     ObjectSet<BinIDValueSet>&);
 

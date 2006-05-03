@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2004
- RCS:           $Id: visseis2ddisplay.cc,v 1.1 2006-05-02 21:55:32 cvskris Exp $
+ RCS:           $Id: visseis2ddisplay.cc,v 1.2 2006-05-03 18:54:19 cvskris Exp $
  ________________________________________________________________________
 
 -*/
@@ -55,6 +55,7 @@ Seis2DDisplay::Seis2DDisplay()
     , cs(*new CubeSampling(false))
     , geomchanged(this)
     , iszlset(false)
+    , cache_( 0 )
 {
     texture->ref();
     addChild( texture->getInventorNode() );
@@ -82,8 +83,9 @@ Seis2DDisplay::~Seis2DDisplay()
     if ( transformation ) transformation->unRef();
     delete &as;
     delete &cs;
-    deepErase( datacache );
-    deepErase( infocache );
+
+    if ( cache_ ) cache_->unRef();
+    cache_ = 0;
 }
 
 
@@ -99,8 +101,8 @@ void Seis2DDisplay::setSelSpec( int attrib, const SelSpec& as_ )
 {
     if ( attrib ) return;
     as = as_;
-    deepErase( datacache );
-    deepErase( infocache );
+    if ( cache_ ) cache_->unRef();
+    cache_ = 0;
 }
 
 
@@ -157,34 +159,31 @@ void Seis2DDisplay::clearTexture()
 }
 
 
-void Seis2DDisplay::setTraceData( bool forcolor, 
-				  const ObjectSet<DataHolder>& dataset,
-				  const ObjectSet<SeisTrcInfo>& trcinfoset )
+void Seis2DDisplay::setTraceData( const Attrib::Data2DHolder& dataset )
 {
-    setData( dataset, trcinfoset );
-    deepErase( datacache );
-    datacache = dataset;
+    setData( dataset );
+    if ( cache_ ) cache_->unRef();
 
-    deepErase( infocache );
-    infocache = trcinfoset;
+    cache_ = &dataset;
+    cache_->ref();
 }
 
 
-void Seis2DDisplay::setData( const ObjectSet<DataHolder>& dataset,
-			     const ObjectSet<SeisTrcInfo>& trcinfoset )
+void Seis2DDisplay::setData( const Attrib::Data2DHolder& dataset )
 {
-    if ( !dataset.size() || !trcinfoset.size() ) return;
+    if ( !dataset.size() ) return;
+
     TypeSet<Coord> crds;
-    for ( int trcinfoidx=0; trcinfoidx<trcinfoset.size(); trcinfoidx++ )
+    for ( int trcinfoidx=0; trcinfoidx<dataset.size(); trcinfoidx++ )
     {
-	const SeisTrcInfo* trcinfo = trcinfoset[trcinfoidx];
+	const SeisTrcInfo* trcinfo = dataset.trcinfoset_[trcinfoidx];
 	if ( !trcinfo ) continue;
 	crds += trcinfo->coord;
     }
 
     Interval<float> zrg(0,0);
     int nrsamp;
-    SamplingData<float> sd = trcinfoset[0]->sampling;
+    SamplingData<float> sd = dataset.trcinfoset_[0]->sampling;
     
     if ( isZLimitSet() )
     {
@@ -194,7 +193,7 @@ void Seis2DDisplay::setData( const ObjectSet<DataHolder>& dataset,
     }
     else
     {
-	nrsamp = dataset[0]->nrsamples_;
+	nrsamp = dataset.dataset_[0]->nrsamples_;
 	zrg.start = sd.start;
 	zrg.stop = sd.start+sd.step*(nrsamp-1);
     }
@@ -205,7 +204,7 @@ void Seis2DDisplay::setData( const ObjectSet<DataHolder>& dataset,
     PtrMan<Array2DImpl<float> > arr = new Array2DImpl<float>(nrsamp,nrtrcs);
     for ( int dataidx=0; dataidx<dataset.size(); dataidx++ )
     {
-	const DataHolder* dh = dataset[dataidx];
+	const DataHolder* dh = dataset.dataset_[dataidx];
 	if ( !dh )
 	{
 	    for ( int ids=0; ids<nrsamp; ids++ )
@@ -263,6 +262,7 @@ void Seis2DDisplay::setPlaneCoordinates( const TypeSet<Coord>& crds,
 
 
 #define mAddCoords( coordidx, posidx ) \
+{ \
     const float texturecoord_s = (float)(posidx)/(crds.size()-1); \
     coords->setPos( coordidx, Coord3(crds[posidx],zrg.start) ); \
     plane->setCoordIndex( coordidx, coordidx ); \
@@ -273,7 +273,8 @@ void Seis2DDisplay::setPlaneCoordinates( const TypeSet<Coord>& crds,
     plane->setCoordIndex( coordidx, coordidx ); \
     texturecoords->setCoord( coordidx, Coord(texturecoord_s,1) ); \
     plane->setTextureCoordIndex( coordidx, coordidx ); \
-    coordidx++
+    coordidx++; \
+}
 
 void visSurvey::Seis2DDisplay::setStrip( const TypeSet<Coord>& crds,
 					 const Interval<float>& zrg,
@@ -428,8 +429,8 @@ SurveyObject* Seis2DDisplay::duplicate() const
     s2dd->setLineSetID( linesetid );
     s2dd->setLineName( name() );
 
-    const int id = s2dd->getColTabID(0);
-    visBase::DataObject* obj = id>=0 ? visBase::DM().getObject( id ) : 0;
+    const int ctid = s2dd->getColTabID(0);
+    visBase::DataObject* obj = ctid>=0 ? visBase::DM().getObject( ctid ) : 0;
     mDynamicCastGet(visBase::VisColorTab*,nct,obj);
     if ( nct )
     {
@@ -504,7 +505,7 @@ int Seis2DDisplay::getResolution() const
 void Seis2DDisplay::setResolution( int res )
 {
     texture->setResolution( res );
-    setData( datacache, infocache );
+    if ( cache_ ) setData( *cache_ );
 }
 
 
@@ -517,7 +518,7 @@ void Seis2DDisplay::getMousePosInfo( const visBase::EventInfo&,
 				     BufferString& info ) const
 {
     info = "Line: "; info += name();
-    if ( !infocache.size() ) { mSetUdf(val); return; }
+    if ( !cache_ || !cache_->size() ) { mSetUdf(val); return; }
 
     int dataidx = -1;
     float mindist;
@@ -525,12 +526,13 @@ void Seis2DDisplay::getMousePosInfo( const visBase::EventInfo&,
     if ( dataidx < 0 )
 	{ mSetUdf(val); return; }
 
-    const DataHolder* dh = datacache[dataidx];
+    const DataHolder* dh = cache_->dataset_[dataidx];
     if ( !dh )
 	{ mSetUdf(val); return; }
 
-    const int trcnr = infocache[dataidx]->nr;
-    const int sampidx = mNINT(pos.z/infocache[dataidx]->sampling.step)-dh->z0_;
+    const int trcnr = cache_->trcinfoset_[dataidx]->nr;
+    const int sampidx =
+	mNINT(pos.z/cache_->trcinfoset_[dataidx]->sampling.step)-dh->z0_;
     val = sampidx < 0 || sampidx >= dh->nrsamples_ ? mUdf(float)
 			: dh->series(dh->validSeriesIdx()[0])->value(sampidx);
     //use first valid idx: as for now we can't evaluate attributes in 2D...
@@ -546,7 +548,7 @@ void Seis2DDisplay::snapToTracePos( Coord3& pos )
     getNearestTrace( pos, trcidx, mindist );
 
     if ( trcidx < 0 ) return;
-    const Coord& crd = infocache[trcidx]->coord;
+    const Coord& crd = cache_->trcinfoset_[trcidx]->coord;
     pos.x = crd.x; pos.y = crd.y; 
 }
 
@@ -556,13 +558,18 @@ void Seis2DDisplay::getNearestTrace( const Coord3& pos, int& trcidx,
 {
     trcidx = -1;
     mSetUdf(mindist);
-    for ( int idx=0; idx<infocache.size(); idx++ )
+
+    if ( cache_ )
     {
-	const float dist = pos.Coord::sqDistance( infocache[idx]->coord );
-	if ( dist < mindist )
+	for ( int idx=0; idx<cache_->size(); idx++ )
 	{
-	    mindist = dist;
-	    trcidx = idx;
+	    const float dist =
+		pos.Coord::sqDistance( cache_->trcinfoset_[idx]->coord );
+	    if ( dist < mindist )
+	    {
+		mindist = dist;
+		trcidx = idx;
+	    }
 	}
     }
 }

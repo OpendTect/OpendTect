@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attriboutput.h,v 1.24 2006-03-23 12:47:17 cvshelene Exp $
+ RCS:           $Id: attriboutput.h,v 1.25 2006-05-03 18:54:19 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,6 +31,7 @@ namespace Attrib
 {
 class DataHolder;
 class DataCubes;
+class Data2DHolder;
 
 class Output
 { mRefCountImpl(Output);
@@ -141,15 +142,14 @@ public:
 				TwoDOutput(const Interval<int>&, 
 					   const Interval<float>&,
 					   const LineKey&);
-				~TwoDOutput() {};
+				~TwoDOutput();
     
     bool			doInit();
     bool			wantsOutput(const BinID&) const;
     void			setGeometry(const Interval<int>&,
 	    				    const Interval<float>&);
     bool			getDesiredVolume(CubeSampling&) const;
-    void			setOutput(ObjectSet<DataHolder>&,
-	    				  ObjectSet<SeisTrcInfo>&);
+    void			setOutput(Data2DHolder&);
 
     void			collectData(const DataHolder&,float step,
 	    				    const SeisTrcInfo&);
@@ -160,8 +160,7 @@ protected:
     TypeSet< Interval<int> >	sampleinterval_;
     BufferString 		errmsg_;
 
-    ObjectSet<DataHolder>*	datahset_;
-    ObjectSet<SeisTrcInfo>*	trcinfoset_;
+    Data2DHolder*		output_;
 };
 
 

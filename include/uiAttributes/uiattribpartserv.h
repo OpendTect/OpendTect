@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiattribpartserv.h,v 1.11 2006-04-28 15:11:07 cvskris Exp $
+ RCS:           $Id: uiattribpartserv.h,v 1.12 2006-05-03 18:54:19 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,7 +21,7 @@ ________________________________________________________________________
 
 namespace Attrib
 {
-    class DataHolder;
+    class Data2DHolder;
     class Desc;
     class DescSet;
     class DescSetMan;
@@ -102,8 +102,7 @@ public:
 	    				     const char* attribname);
     
     bool		create2DOutput(const CubeSampling&, const char* linekey,
-				       ObjectSet<Attrib::DataHolder>&, 
-				       ObjectSet<SeisTrcInfo>&);
+	    			       Attrib::Data2DHolder& );
 
     bool		extractData(const NLACreationDesc&,
 				    const ObjectSet<BinIDValueSet>&,

@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attriboutput.cc,v 1.43 2006-03-23 12:47:17 cvshelene Exp $";
+static const char* rcsID = "$Id: attriboutput.cc,v 1.44 2006-05-03 18:54:19 cvskris Exp $";
 
 #include "attriboutput.h"
 #include "attribdataholder.h"
@@ -437,11 +437,16 @@ TypeSet< Interval<int> > SeisTrcStorOutput::getLocalZRange( const BinID& bid,
 TwoDOutput::TwoDOutput( const Interval<int>& trg, const Interval<float>& zrg,
 			const LineKey& lk )
     : errmsg_(0)
-    , datahset_(0)
-    , trcinfoset_(0)
+    , output_( 0 )
 {
     seldata_.linekey_ = lk;
     setGeometry( trg, zrg );
+}
+
+
+TwoDOutput::~TwoDOutput()
+{
+    if ( output_ ) output_->unRef();
 }
 
 
@@ -488,22 +493,22 @@ void TwoDOutput::collectData( const DataHolder& data, float refstep,
     if ( !nrcomp || nrcomp < desoutputs_.size() )
 	return;
 
-    if ( !datahset_ || !trcinfoset_ ) return;
+    if ( !output_ ) return;
 
-    (*datahset_) += data.clone();
+    output_->dataset_ += data.clone();
 
     SeisTrcInfo* trcinfo = new SeisTrcInfo(info);
     trcinfo->sampling.step = refstep;
     trcinfo->sampling.start = data.z0_*refstep;
-    (*trcinfoset_) += trcinfo;
+    output_->trcinfoset_ += trcinfo;
 }
 
 
-void TwoDOutput::setOutput( ObjectSet<DataHolder>& dataset,
-			    ObjectSet<SeisTrcInfo>& trcinfoset )
+void TwoDOutput::setOutput( Data2DHolder& no )
 {
-    datahset_ = &dataset;
-    trcinfoset_ = &trcinfoset;
+    if ( output_ ) output_->unRef();
+    output_ = &no;
+    output_->ref();
 }
 
 

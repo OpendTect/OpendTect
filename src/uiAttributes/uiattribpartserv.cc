@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiattribpartserv.cc,v 1.31 2006-04-28 15:11:07 cvskris Exp $
+ RCS:           $Id: uiattribpartserv.cc,v 1.32 2006-05-03 18:54:19 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -475,15 +475,13 @@ Attrib::DescID uiAttribPartServer::createStored2DAttrib(const MultiID& lineset,
 
 bool uiAttribPartServer::create2DOutput( const CubeSampling& cs,
 					 const char* linekey,
-					 ObjectSet<DataHolder>& dataset,
-					 ObjectSet<SeisTrcInfo>& trcinfoset )
+					 Attrib::Data2DHolder& dataset )
 {
     PtrMan<EngineMan> aem = createEngMan( &cs, linekey );
     if ( !aem ) return false;
 
     BufferString errmsg;
-    PtrMan<Processor> process = aem->createScreenOutput2D( errmsg, dataset,
-							   trcinfoset );
+    PtrMan<Processor> process = aem->createScreenOutput2D( errmsg, dataset);
     if ( !process )
 	{ uiMSG().error(errmsg); return false; }
 
