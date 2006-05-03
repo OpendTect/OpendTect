@@ -5,9 +5,11 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribdataholder.cc,v 1.1 2006-05-03 16:19:08 cvskris Exp $";
+static const char* rcsID = "$Id: attribdataholder.cc,v 1.2 2006-05-03 17:57:52 cvskris Exp $";
 
 #include "attribdataholder.h"
+
+#include "seisinfo.h"
 
 namespace Attrib
 {
@@ -82,7 +84,7 @@ void DataHolder::replace( int idx, ValueSeries<float>* valseries )
 
 Data2DHolder::~Data2DHolder()
 {
-    deepErase( datahset_ );
+    deepErase( dataset_ );
     deepErase( trcinfoset_ );
 }
 
