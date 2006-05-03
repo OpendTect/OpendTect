@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: emsurfacetr.cc,v 1.8 2006-04-27 19:37:07 cvskris Exp $
+ RCS:           $Id: emsurfacetr.cc,v 1.9 2006-05-03 14:39:26 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -257,9 +257,7 @@ bool dgbEMSurfaceTranslator::prepRead()
     for ( int idx=0; idx<reader_->nrAuxVals(); idx++ )
 	sd_.valnames += new BufferString( reader_->auxDataName(idx) );
 
-    int version = 1;
-    reader_->pars()->get( EM::dgbSurfaceReader::sKeyVersion(), version );
-
+    const int version = reader_->version();
     if ( version==1 )
     {
 	sd_.rg.start = SI().sampling(false).hrg.start;
