@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.187 2006-05-03 18:54:19 cvskris Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.188 2006-05-03 18:57:42 cvskris Exp $
 ___________________________________________________________________
 
 -*/
@@ -1360,7 +1360,8 @@ uiTreeItem* Seis2DTreeItemFactory::create( int visid,
 
 
 uiOD2DLineSetTreeItem::uiOD2DLineSetTreeItem( const MultiID& mid )
-    : setid_( mid )
+    : uiODTreeItem("")
+    , setid_( mid )
     , menuhandler_( 0 )
     , addlinesitm_( "Add line(s) ..." )
     , showitm_( "Show all" )
