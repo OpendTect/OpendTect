@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		September 2005
- RCS:		$Id: uihorizonsortdlg.cc,v 1.1 2006-04-28 15:22:48 cvsnanne Exp $
+ RCS:		$Id: uihorizonsortdlg.cc,v 1.2 2006-05-03 10:04:10 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -96,8 +96,6 @@ bool uiHorizonSortDlg::acceptOK( CallBacker* )
 	mDynamicCastGet(EM::Horizon*,horizon,emobj);
 	if ( !horizon )
 	    emobj->unRef();
-	else
-	    emobj->unRefNoDelete();
 	horizons_ += horizon;
     }
 
