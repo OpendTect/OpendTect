@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizonadjuster.cc,v 1.27 2006-04-28 16:45:53 cvskris Exp $";
+static const char* rcsID = "$Id: horizonadjuster.cc,v 1.28 2006-05-03 08:26:55 cvsjaap Exp $";
 
 #include "horizonadjuster.h"
 
@@ -244,6 +244,7 @@ CubeSampling HorizonAdjuster::getAttribCube( const Attrib::SelSpec& sp ) const
 	res.zrg.stop += similaritywin_.stop;
     }
 
+    res.snapToSurvey();
     return res;
 }
 
