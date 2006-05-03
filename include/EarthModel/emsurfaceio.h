@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfaceio.h,v 1.20 2006-04-27 15:29:13 cvskris Exp $
+ RCS:		$Id: emsurfaceio.h,v 1.21 2006-05-03 14:38:49 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -43,11 +43,11 @@ Surface Reader.
 class dgbSurfaceReader : public ExecutorGroup
 {
 public:
-			dgbSurfaceReader( const IOObj& ioobj,
-					  const char* filetype,
-					  EM::Surface* surface );
+			dgbSurfaceReader(const IOObj& ioobj,
+					 const char* filetype,
+					 EM::Surface* surface );
 			/*!< Sets up object and reads header.
-			\aaram ioobj	The IOObj with info about where to
+			\param ioobj	The IOObj with info about where to
 					read data.
 			\param filetype	The filetype that should be in
 					the file header.
@@ -56,35 +56,38 @@ public:
 					be given if the obj only is used
 					to get data from the header
 			*/
-			~dgbSurfaceReader();
-			/*!< Closes the stream */
 
-    void		setSurface( EM::Surface* s )	{ surface_ = s; }
-    bool		isOK() const;
-    void		setGeometry();
+				~dgbSurfaceReader();
+				/*!< Closes the stream */
 
-    int			nrSections() const;
-    EM::SectionID	sectionID( int ) const;
-    BufferString	sectionName( int ) const;
-    void		selSections(const TypeSet<EM::SectionID>&);
-    			/*!< The given sectionIDs will be loaded. If this
-			     function is not called, all avaliable sections
-			     will be loaded.
-			*/
+    int				version() const		{ return version_; }
 
-    const char*		dbInfo() const;
-    int			nrAuxVals() const;
-    const char*		auxDataName(int) const;
-    void		selAuxData(const TypeSet<int>&);
-    			/*!< The specified data will be loaded. If this
-			     function is not called, all avaliable auxdata
-			     will be loaded.
-			*/
+    void			setSurface( EM::Surface* s ) { surface_ = s; }
+    bool			isOK() const;
+    void			setGeometry();
+
+    int				nrSections() const;
+    EM::SectionID		sectionID(int) const;
+    BufferString		sectionName(int) const;
+    void			selSections(const TypeSet<EM::SectionID>&);
+    				/*!< The given sectionIDs will be loaded. If
+				     this function is not called, all avaliable
+				     sections will be loaded.
+				*/
+
+    const char*			dbInfo() const;
+    int				nrAuxVals() const;
+    const char*			auxDataName(int) const;
+    void			selAuxData(const TypeSet<int>&);
+    				/*!< The specified data will be loaded. If this
+				     function is not called, all avaliable
+				     auxdata will be loaded.
+				*/
 
     const StepInterval<int>&	rowInterval() const;
     const StepInterval<int>&	colInterval() const;
-    void			setRowInterval( const StepInterval<int>& );
-    void			setColInterval( const StepInterval<int>& );
+    void			setRowInterval(const StepInterval<int>&);
+    void			setColInterval(const StepInterval<int>&);
     void			setReadOnlyZ(bool yn=true);
 
     const IOPar*		pars() const;
@@ -99,8 +102,8 @@ public:
 
     static const char*		sKeyNrSections();
     static const char*		sKeyNrSectionsV1();
-    static BufferString		sSectionIDKey( int idx );
-    static BufferString		sSectionNameKey( int idx );
+    static BufferString		sSectionIDKey(int idx);
+    static BufferString		sSectionNameKey(int idx);
     static const char*		sKeyRowRange();
     static const char*		sKeyColRange();
     static const char*		sKeyInt16DataChar();
