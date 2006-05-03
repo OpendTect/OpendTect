@@ -2,14 +2,14 @@
 #_______________________________________________________________________________
 #
 # (C) dGB Beheer B.V.
-# $Id: od_cr_dev_env,v 1.20 2005-11-18 11:30:01 cvsbert Exp $
+# $Id: od_cr_dev_env,v 1.21 2006-05-03 09:00:26 cvsnanne Exp $
 #
 # Script copies sources and libs into a development directory
 #
 #_______________________________________________________________________________
 
 if (  $#argv < 2 ) then
-    echo "Usage : $0 OpendtTect_directory existing_target_directory [--installcygwin]"
+    echo "Usage : $0 OpendTect_directory existing_target_directory [--installcygwin]"
     exit 1
 endif
 
@@ -61,6 +61,7 @@ foreach item ( plugins src include Pmake )
     $cpcmd "$inpdir/$item" .
 end
 
+ln -s Pmake/RootMakefile Makefile
 if ( -d plugins ) then
     cd plugins
     if ( -e Makefile.lnk ) then
@@ -75,25 +76,25 @@ cd "$outdir"
 
 mkdir lib
 cd lib
-mkdir $HDIR
-cd $HDIR
+mkdir $PLFSUBDIR
+cd $PLFSUBDIR
 ln -s . G
 ln -s . O
 
 cd "$outdir"
 mkdir bin
 cd bin
-mkdir $HDIR
-cd $HDIR
+mkdir $PLFSUBDIR
+cd $PLFSUBDIR
 ln -s . G
 ln -s . O
 mkdir so
 cd so
 
 
-${cpcmd} "${inpdir}/bin/${HDIR}/so"/*.${soext}* .
-if ( "$HDIR" == "win" ) then
-    $cpcmd "$inpdir/bin/$HDIR/so"/*.a .
+${cpcmd} "${inpdir}/bin/${PLFSUBDIR}/so"/*.${soext}* .
+if ( "$PLFSUBDIR" == "win" ) then
+    $cpcmd "$inpdir/bin/$PLFSUBDIR/so"/*.a .
 endif
 
 
@@ -101,7 +102,7 @@ cd "$outdir"
 
 foreach fil ( init.bash init.csh )
     sed -e "s%__WORK__%$outdir%" \
-        -e "s%__hdir__%$HDIR%" \
+        -e "s%__hdir__%$PLFSUBDIR%" \
         -e "s%__DTECTAPPL__DIR__%$DTECT_APPL%" \
         "$inpdir/.$fil" > $fil
 end
