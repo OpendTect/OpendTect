@@ -7,14 +7,17 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribdataholder.h,v 1.11 2005-09-15 09:06:31 cvshelene Exp $
+ RCS:           $Id: attribdataholder.h,v 1.12 2006-05-03 16:19:08 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "valseries.h"
+#include "refcount.h"
 #include "samplingdata.h"
 #include "sets.h"
+#include "valseries.h"
+
+class SeisTrcInfo;
 
 namespace Attrib
 {
@@ -33,28 +36,21 @@ namespace Attrib
 class DataHolder
 {
 public:
-			    DataHolder( int z0, int nrsamples )
-			    : z0_(z0), nrsamples_(nrsamples)
-			    { data_.allowNull(true); }
+			DataHolder( int z0, int nrsamples );
+			~DataHolder();
 
-			    ~DataHolder()		{ deepErase(data_); }
+    DataHolder*	        clone() const;
+    ValueSeries<float>*	add(bool addnull=false);
+			//!< Adds an ArrayValueSeries if !addnull
 
-    inline DataHolder*	        clone() const;
-    inline ValueSeries<float>*	add(bool addnull=false);
-    				//!< Adds an ArrayValueSeries if !addnull
+    int			nrSeries() const	{ return data_.size(); }
+    ValueSeries<float>*	series(int idx) const	{ return data_[idx]; }
+    void		replace(int idx,ValueSeries<float>*);
+    bool                dataPresent(int samplenr) const;
+    TypeSet<int>	validSeriesIdx() const;
 
-    int				nrSeries() const	{ return data_.size(); }
-    ValueSeries<float>*		series( int idx ) const	{ return data_[idx]; }
-    void			replace(int idx,ValueSeries<float>* valseries)
-				{ ValueSeries<float>* ptr = 
-				    data_.replace( idx, valseries ); 
-				  if ( ptr ) delete ptr;
-				}
-    inline bool                 dataPresent(int samplenr) const;
-    inline TypeSet<int>		validSeriesIdx() const;
-
-    int				z0_;	//!< See class comments
-    int				nrsamples_;
+    int			z0_;	//!< See class comments
+    int			nrsamples_;
 
 protected:
 
@@ -63,55 +59,17 @@ protected:
 };
 
 
-inline ValueSeries<float>* DataHolder::add( bool addnull )
-{
-    ValueSeries<float>* res = addnull ? 0
-	: new ArrayValueSeries<float>( new float[nrsamples_], true );
-    data_ += res;
-    return res;
-}
+/*!Class that holds 2d data seismic or attribute data. */
+
+class Data2DHolder
+{ mRefCountImpl(Data2DHolder);
+public:
+    int				size() const { return dataset_.size(); }
+    ObjectSet<DataHolder>	dataset_;
+    ObjectSet<SeisTrcInfo>	trcinfoset_;
+};
 
 
-inline bool DataHolder::dataPresent( int samplenr ) const
-{
-    if ( samplenr >= z0_ && samplenr < (z0_ + nrsamples_) )
-	return true;
-
-    return false;
-}
-
-
-inline DataHolder* DataHolder::clone() const
-{
-    DataHolder* dh = new DataHolder( z0_, nrsamples_ );
-    dh->data_.allowNull(true);
-
-    for ( int idx=0; idx<nrSeries(); idx++ )
-    {
-      if ( !data_[idx] ) dh->add( true );
-      else
-      {
-	  dh->add();
-	  memcpy( dh->data_[idx]->arr(), data_[idx]->arr(),
-		  nrsamples_*sizeof(float) );
-      }
-    }
-
-    return dh;
-}
-
-
-inline TypeSet<int> DataHolder::validSeriesIdx() const
-{
-    TypeSet<int> seriesidset;
-    for( int idx=0; idx<nrSeries(); idx++ )
-    {
-	if ( data_[idx] )
-	    seriesidset += idx;
-    }
-
-    return seriesidset;
-}
 }; //Namespace
 
 
