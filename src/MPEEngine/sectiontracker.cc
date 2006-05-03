@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: sectiontracker.cc,v 1.15 2006-04-27 15:53:13 cvskris Exp $";
+static const char* rcsID = "$Id: sectiontracker.cc,v 1.16 2006-05-03 07:51:25 cvsjaap Exp $";
 
 #include "sectiontracker.h"
 
@@ -114,6 +114,9 @@ bool SectionTracker::trackWithPlane( const TrackPlane& plane )
 
 void SectionTracker::removeUnSupported( TypeSet<EM::SubID>& subids ) const
 {
+    if ( !emobject.isGeometryChecksEnabled() )
+	return;
+
     mDynamicCastGet(const Geometry::ParametricSurface*, gesurf,
 	const_cast<const EM::EMObject&>(emobject).sectionGeometry(sid) );
     bool change = true;
