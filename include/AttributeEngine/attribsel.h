@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Sep 2001
- RCS:           $Id: attribsel.h,v 1.7 2006-03-08 13:48:50 cvsnanne Exp $
+ RCS:           $Id: attribsel.h,v 1.8 2006-05-03 14:32:04 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -105,44 +105,6 @@ protected:
     void		setDiscr(const DescSet&);
     void		setDiscr(const NLAModel&);
 };
-
-
-/*!\brief specifies the attribute selection for colortable specification and
-	the property selected (e.g. transparency,whiteness, etc. */
-
-class ColorSelSpec
-{
-public:
-			ColorSelSpec( const char* r=0,
-				      const DescID& i=SelSpec::cNoAttrib(),
-				      bool n=false, const char* objr=0)
-			: as(r,i,n,objr) 
-			, datatype(0)
-			, reverse(false)
-			, useclip(true)
-			, range(Interval<float>(0,0))
-			, cliprate0(0.025)
-			, cliprate1(0.025) {}
-
-    SelSpec		as;
-    int			datatype;
-
-    float		cliprate0;
-    float 		cliprate1;
-    Interval<float>	range;
-    bool		useclip;
-    bool		reverse;
-
-    void		fillPar(IOPar&) const;
-    bool		usePar(const IOPar&);
-
-protected:
-    static const char*	sKeyRef();
-    static const char*	sKeyID();
-    static const char*	sKeyIsNLA();
-    static const char*	sKeyDataType();
-};
-
 
 
 /*!\brief specifies current attribute choices (ID or output nr of NLA model). */

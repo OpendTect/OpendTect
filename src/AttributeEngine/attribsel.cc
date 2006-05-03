@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: attribsel.cc,v 1.13 2006-03-10 11:13:48 cvshelene Exp $
+ RCS:           $Id: attribsel.cc,v 1.14 2006-05-03 14:32:04 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -306,34 +306,6 @@ void SelInfo::getAttrNames( const char* defstr, BufferStringSet& nms )
     int idx = nms.indexOf( sKey::Steering );
     if ( idx >= 0 )
 	nms.remove( idx );
-}
-
-
-const char* ColorSelSpec::sKeyRef()	{ return "Color-Attrib Reference"; }
-const char* ColorSelSpec::sKeyID()	{ return "Color-Attrib ID"; }
-const char* ColorSelSpec::sKeyIsNLA()	{ return "Is color-Attrib NLA Model"; }
-const char* ColorSelSpec::sKeyDataType(){ return "Color-Attrib datatype"; }
-
-void ColorSelSpec::fillPar( IOPar& par ) const
-{
-    par.set( sKeyRef(), as.userRef() );
-    par.set( sKeyID(), as.id().asInt() );
-    par.setYN( sKeyIsNLA(), as.isNLA() );
-    par.set( sKeyDataType(), datatype );
-}
-
-
-bool ColorSelSpec::usePar( const IOPar& par )
-{
-    BufferString ref; DescID id(-1,true); bool isnla;
-    if ( !par.get(sKeyRef(),ref) ) return false;
-    if ( !par.get(sKeyID(),id.asInt()) ) return false;
-    if ( !par.getYN(sKeyIsNLA(),isnla) ) return false;
-    as.set( ref.buf(), id, isnla, "" );
-    datatype = 0;
-    par.get( sKeyDataType(), datatype );
-
-    return true;
 }
 
 }; // namespace Attrib
