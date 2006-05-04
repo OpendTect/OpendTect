@@ -7,11 +7,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          December 2004
- RCS:           $Id: uimpepartserv.h,v 1.21 2006-02-27 12:21:28 cvsjaap Exp $
+ RCS:           $Id: uimpepartserv.h,v 1.22 2006-05-04 21:22:29 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "attribsel.h"
 #include "uiapplserv.h"
 #include "multiid.h"
 #include "cubesampling.h"
@@ -21,7 +22,7 @@ class BufferStringSet;
 
 namespace Geometry { class Element; }
 namespace MPE { class Wizard; }
-namespace Attrib { class DescSet; class SelSpec; class DataCubes; }
+namespace Attrib { class DescSet; class DataCubes; class Data2DHolder; }
 
 
 /*! \brief Implementation of Tracking part server interface */
@@ -70,14 +71,27 @@ public:
     				/*!< returns the trackerid of the last event */
 
     static const int		evGetAttribData;
+    bool			is2D() const;
+    				/*!<If attrib is 2D, check for a selspec. If
+				    selspec is returned, calculate the attrib.
+				    If no selspec is present, use getLineSet,
+				    getLineName & getAttribName. */
     CubeSampling		getAttribVolume(const Attrib::SelSpec&) const;
     				/*!<\returns the volume needed of an
 				 	     attrib if tracking should
 					     be possible in the activeVolume. */
     const Attrib::SelSpec*	getAttribSelSpec() const;
     const Attrib::DataCubes*	getAttribCache(const Attrib::SelSpec&) const;
-    void			setAttribData( const Attrib::SelSpec&,
-					       const Attrib::DataCubes*);
+    void			setAttribData(const Attrib::SelSpec&,
+					      const Attrib::DataCubes*);
+    void			setAttribData(const Attrib::SelSpec&,
+					      const Attrib::Data2DHolder*);
+
+    static const int		evCreate2DSelSpec;
+    const MultiID&		get2DLineSet() const;
+    const char*			get2DLineName() const;
+    const char*			get2DAttribName() const;
+    void			set2DSelSpec(const Attrib::SelSpec&);
 
     static const int		evStartSeedPick;
     static const int		evEndSeedPick;
@@ -109,6 +123,12 @@ protected:
 				//Interaction variables
     const Attrib::SelSpec*	eventattrselspec;
     int				activetrackerid;
+
+    				//2D interaction
+    BufferString		linename_;
+    BufferString		attribname_;
+    MultiID			linesetid_;
+    Attrib::SelSpec		lineselspec_;
 
     friend class		MPE::Wizard;
 };

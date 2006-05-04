@@ -4,13 +4,15 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2004
- RCS:           $Id: uimpepartserv.cc,v 1.38 2006-04-24 13:26:02 cvsjaap Exp $
+ RCS:           $Id: uimpepartserv.cc,v 1.39 2006-05-04 21:22:30 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uimpepartserv.h"
 
+#include "attribdataholder.h"
+#include "attribdatacubes.h"
 #include "geomelement.h"
 #include "mpeengine.h"
 #include "emtracker.h"
@@ -33,6 +35,7 @@ const int uiMPEPartServer::evShowToolbar	= 4;
 const int uiMPEPartServer::evInitFromSession	= 5;
 const int uiMPEPartServer::evRemoveTreeObject	= 6;
 const int uiMPEPartServer::evWizardClosed	= 7;
+const int uiMPEPartServer::evCreate2DSelSpec	= 8;
 
 
 uiMPEPartServer::uiMPEPartServer( uiApplService& a, const Attrib::DescSet* ads )
@@ -232,6 +235,39 @@ void uiMPEPartServer::setAttribData( const Attrib::SelSpec& spec,
 {
     MPE::engine().setAttribData( spec, slcset );
 }
+
+
+void uiMPEPartServer::setAttribData( const Attrib::SelSpec& as,
+				     const Attrib::Data2DHolder* newdata )
+{
+    RefMan<const Attrib::Data2DHolder> reffer = newdata;
+
+    if ( !newdata )
+    {
+	MPE::engine().setAttribData( as, 0 );
+	return;
+    }
+	
+    RefMan<Attrib::DataCubes> dc = new Attrib::DataCubes;
+
+    if ( newdata->fillDataCube(*dc) )
+	MPE::engine().setAttribData( as, dc );
+}
+
+
+const MultiID& uiMPEPartServer::get2DLineSet() const { return linesetid_; }
+
+
+const char* uiMPEPartServer::get2DLineName() const
+{ return linename_.size() ? (const char*) linename_ : 0; }
+
+
+const char* uiMPEPartServer::get2DAttribName() const
+{ return attribname_.size() ? (const char*) attribname_ : 0; }
+
+
+void uiMPEPartServer::set2DSelSpec(const Attrib::SelSpec& as)
+{ lineselspec_ = as; }
 
 
 void uiMPEPartServer::activeVolumeChange(CallBacker*)
