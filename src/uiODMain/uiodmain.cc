@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodmain.cc,v 1.41 2006-04-28 14:36:23 cvsnanne Exp $
+ RCS:           $Id: uiodmain.cc,v 1.42 2006-05-04 20:21:02 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -63,7 +63,8 @@ int ODMain( int argc, char** argv )
     manODMainWin( odmain );
     bool dodlg = true;
     Settings::common().getYN( uiPluginSel::sKeyDoAtStartup, dodlg );
-    if ( dodlg )
+    ObjectSet<PluginManager::Data>& pimdata = PIM().getData();
+    if ( dodlg && pimdata.size() )
     {
 	uiPluginSel dlg( odmain );
 	dlg.go();
