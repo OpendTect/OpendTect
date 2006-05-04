@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribdatacubes.cc,v 1.10 2006-03-14 14:58:51 cvsbert Exp $";
+static const char* rcsID = "$Id: attribdatacubes.cc,v 1.11 2006-05-04 20:59:42 cvskris Exp $";
 
 #include "attribdatacubes.h"
 #include "survinfo.h"
@@ -39,10 +39,7 @@ void DataCubes::addCube()
 void DataCubes::addCube( float val )
 {
     addCube();
-    float* vals = cubes[cubes.size()-1]->getData();
-    const float* stopptr = vals + cubes[cubes.size()-1]->info().getTotalSz();
-    while ( vals<stopptr )
-    	(*vals++) = val;
+    setValue( cubes.size()-1, val );
 }
     
 
@@ -83,6 +80,15 @@ void DataCubes::setValue( int array, int inlidx, int crlidx, int zidx,
 			  float val )
 {
     cubes[array]->set( inlidx, crlidx, zidx, val );
+}
+
+
+void DataCubes::setValue( int array, float val )
+{
+    float* vals = cubes[array]->getData();
+    const float* stopptr = vals + cubes[array]->info().getTotalSz();
+    while ( vals<stopptr )
+    	(*vals++) = val;
 }
 
 
@@ -139,6 +145,10 @@ bool DataCubes::includes( const BinID& binid ) const
 
 
 const Array3D<float>& DataCubes::getCube( int idx ) const
+{ return *cubes[idx]; }
+
+
+Array3D<float>& DataCubes::getCube( int idx )
 { return *cubes[idx]; }
 
 

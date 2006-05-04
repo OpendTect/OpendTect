@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Apr 2002
- RCS:           $Id: attribdatacubes.h,v 1.7 2005-11-28 13:28:41 cvsnanne Exp $
+ RCS:           $Id: attribdatacubes.h,v 1.8 2006-05-04 20:59:40 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,6 +40,7 @@ public:
     				/*!<\note that all data will be lost. */
     void			setValue(int array,int inlidx,int crlidx,
 	    				 int zidx,float val);
+    void			setValue(int array,float val);
     bool			getValue(int array,const BinIDValue&,
 	    				 float* res,bool interpolate) const;
     bool			includes(const BinIDValue&) const;
@@ -47,6 +48,15 @@ public:
 
 
     const Array3D<float>&	getCube(int idx) const;
+    				/*!<The attrib data. The data is always
+				    organized with inl as the slowest dim,
+				    and z as the fastest dim. Data can thus
+				    be accessed by:
+				    \code
+				    float val = getCube(idx).get(inlidx,crlidx,
+				    				  zidx);
+				    \endcode */
+    Array3D<float>&		getCube(int idx);
     				/*!<The attrib data. The data is always
 				    organized with inl as the slowest dim,
 				    and z as the fastest dim. Data can thus
