@@ -5,10 +5,14 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribdataholder.cc,v 1.2 2006-05-03 17:57:52 cvskris Exp $";
+static const char* rcsID = "$Id: attribdataholder.cc,v 1.3 2006-05-04 21:01:08 cvskris Exp $";
 
 #include "attribdataholder.h"
 
+#include "arraynd.h"
+#include "attribdatacubes.h"
+#include "cubesampling.h"
+#include "genericnumer.h"
 #include "seisinfo.h"
 
 namespace Attrib
@@ -87,5 +91,97 @@ Data2DHolder::~Data2DHolder()
     deepErase( dataset_ );
     deepErase( trcinfoset_ );
 }
+
+
+bool Data2DHolder::fillDataCube( DataCubes& res ) const
+{
+    if ( !dataset_.size() )
+	return false;
+
+    StepInterval<int> trcrange;
+    Interval<int> zrange;
+    int prevtrcnr;
+    float zstep;
+
+    for ( int idx=0; idx<trcinfoset_.size(); idx++ )
+    {
+	const int curtrcnr = trcinfoset_[idx]->nr;
+	const int start = dataset_[idx]->z0_;
+	const int stop = dataset_[idx]->z0_ + dataset_[idx]->nrsamples_-1;
+
+	if ( !idx )
+	{
+	    trcrange.start = trcrange.stop = curtrcnr;
+	    zrange.start = start;
+	    zrange.start = stop;
+	    zstep = trcinfoset_[idx]->sampling.step;
+	}
+	else
+	{
+	    const int step = curtrcnr - prevtrcnr;
+	    if ( idx==1 )
+		trcrange.step = step;
+	    else if ( trcrange.step!=step )
+		trcrange.step = greatestCommonDivisor( step, trcrange.step );
+
+	    trcrange.include( curtrcnr );
+	    zrange.include( start );
+	    zrange.include( stop );
+	}
+
+	prevtrcnr = curtrcnr;
+    }
+
+    CubeSampling cs;
+    cs.hrg.start = BinID( 0, trcrange.start );
+    cs.hrg.stop = BinID( 0, trcrange.stop );
+    cs.hrg.step = BinID( 1, trcrange.step );
+
+    cs.zrg.start = zrange.start*zstep;
+    cs.zrg.stop = zrange.stop*zstep;
+    cs.zrg.step = zstep;
+
+    res.setSizeAndPos( cs );
+    res.setValue( 0, mUdf(float) );
+
+    Array3D<float>& array = res.getCube( 0 );
+    float* arrptr = array.getData();
+
+    if ( arrptr )
+    {
+	for ( int idx=0; idx<trcinfoset_.size(); idx++ )
+	{
+	    const int offset = array.info().getMemPos( 0,
+		    trcrange.nearestIndex( trcinfoset_[idx]->nr),
+		    dataset_[idx]->z0_-zrange.start );
+
+	    const float* srcptr = 0;
+	    const int nrseries = dataset_[idx]->nrSeries();
+
+	    for ( int idy=0; idy<nrseries; idy++ )
+	    {
+		if ( dataset_[idx]->series(idy) )
+		{
+		    srcptr = dataset_[idx]->series(idy)->arr();
+		    break;
+		}
+	    }
+
+	    if ( !srcptr )
+		continue;
+
+	    memcpy( arrptr+offset, srcptr,
+		    dataset_[idx]->nrsamples_*sizeof(float) );
+	}
+    }
+    else
+    {
+	pErrMsg( "Not implemented" );
+	return false;
+    }
+
+    return true;
+}
+
 
 }; // namespace Attrib

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribdataholder.h,v 1.12 2006-05-03 16:19:08 cvskris Exp $
+ RCS:           $Id: attribdataholder.h,v 1.13 2006-05-04 21:01:11 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,6 +21,7 @@ class SeisTrcInfo;
 
 namespace Attrib
 {
+class DataCubes;
 
     /*!\brief Holds the data used in the attribute data
 
@@ -65,6 +66,7 @@ class Data2DHolder
 { mRefCountImpl(Data2DHolder);
 public:
     int				size() const { return dataset_.size(); }
+    bool			fillDataCube(DataCubes&) const;
     ObjectSet<DataHolder>	dataset_;
     ObjectSet<SeisTrcInfo>	trcinfoset_;
 };
