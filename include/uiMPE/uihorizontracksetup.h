@@ -7,11 +7,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          December 2005
- RCS:           $Id: uihorizontracksetup.h,v 1.2 2006-02-27 11:20:17 cvsjaap Exp $
+ RCS:           $Id: uihorizontracksetup.h,v 1.3 2006-05-04 20:31:58 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uigroup.h"
 #include "uimpe.h"
 #include "valseriesevent.h"
 
@@ -23,25 +24,28 @@ class uiPushButton;
 namespace MPE
 {
 
-
 class HorizonAdjuster;
 
 
 /*!\brief Horizon tracking setup dialog. */
 
-class uiHorizonSetupDialog :  public uiSetupDialog
+
+class uiHorizonSetupGroup : public uiGroup
 {
 public:
-    static void		initClass();
-			/*!<Adds the class to the factory. */
-			~uiHorizonSetupDialog();
+				uiHorizonSetupGroup(uiParent*,SectionTracker*,
+						    const Attrib::DescSet*);
+				~uiHorizonSetupGroup();
 
-    void		enableApplyButton( bool yn );
-    NotifierAccess*	applyButtonPressed();
+    void			enableApplyButton(bool yn);
+    NotifierAccess*		applyButtonPressed();
 
-    bool		commitToTracker() const;
+    bool			commitToTracker() const;
 
 protected:
+    void			initWin(CallBacker*);
+    void			selUseSimilarity(CallBacker*);
+    void			selAmpThresholdType(CallBacker*);
 
     uiAttrSel*			inpfld;
     uiGenInput*			usesimifld;
@@ -56,25 +60,36 @@ protected:
     uiGroup*			maingrp;
     uiPushButton*		applybut;
 
-				uiHorizonSetupDialog( uiParent*,SectionTracker*,
-						      const Attrib::DescSet* );
-    void			initWin(CallBacker*);
-    void			selUseSimilarity(CallBacker*);
-    void			selAmpThresholdType(CallBacker*);
-
     const Attrib::DescSet*	attrset_;
     SectionTracker*		sectiontracker_;
     HorizonAdjuster*		horadj_;
 
-    bool			acceptOK(CallBacker*);
-
     static const char**		sKeyEventNames();
     static const VSEvent::Type*	cEventTypes();
-    static uiSetupDialog*	create( uiParent*, SectionTracker*,
-				        const Attrib::DescSet* );
 };
 
 
-}; //Namespace
+class uiHorizonSetupDialog : public uiSetupDialog
+{
+public:
+    static void			initClass();
+				/*!<Adds the class to the factory. */
+
+    void			enableApplyButton(bool yn);
+    NotifierAccess*		applyButtonPressed();
+    bool			commitToTracker() const;
+
+protected:
+				uiHorizonSetupDialog(uiParent*,SectionTracker*,
+						     const Attrib::DescSet*);
+    static uiSetupDialog*	create(uiParent*,SectionTracker*,
+				       const Attrib::DescSet*);
+
+    bool			acceptOK(CallBacker*);
+
+    uiHorizonSetupGroup*	grp;
+};
+
+} // namespace MPE
 
 #endif

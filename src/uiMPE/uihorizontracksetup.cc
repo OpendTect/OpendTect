@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2005
- RCS:           $Id: uihorizontracksetup.cc,v 1.3 2006-03-01 13:45:46 cvsbert Exp $
+ RCS:           $Id: uihorizontracksetup.cc,v 1.4 2006-05-04 20:31:58 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,14 +39,51 @@ void uiHorizonSetupDialog::initClass()
 }
 
 
-const char** uiHorizonSetupDialog::sKeyEventNames()
+uiSetupDialog* uiHorizonSetupDialog::create( uiParent* p, SectionTracker* st,
+					     const Attrib::DescSet* ds )
+{
+    mDynamicCastGet(HorizonAdjuster*,horadj,st->adjuster());
+    if ( !horadj ) return 0;
+
+    return new uiHorizonSetupDialog( p, st, ds );
+}
+
+
+uiHorizonSetupDialog::uiHorizonSetupDialog( uiParent* p, SectionTracker* trkr,
+					    const Attrib::DescSet* ads )
+    : uiSetupDialog(p,"108.0.2")
+{
+    grp = new uiHorizonSetupGroup( this, trkr, ads );
+}
+
+
+bool uiHorizonSetupDialog::acceptOK( CallBacker* )
+{
+    return grp->commitToTracker();
+}
+
+
+void  uiHorizonSetupDialog::enableApplyButton( bool yn )
+{ grp->enableApplyButton( yn ); }
+
+
+NotifierAccess* uiHorizonSetupDialog::applyButtonPressed()
+{ return grp->applyButtonPressed(); }
+
+
+bool uiHorizonSetupDialog::commitToTracker() const
+{ return grp->commitToTracker(); }
+
+
+
+const char** uiHorizonSetupGroup::sKeyEventNames()
 {
     static const char* event_names[] = { "Min", "Max", "0+-", "0-+", 0 };
     return event_names;
 }
 
 
-const VSEvent::Type* uiHorizonSetupDialog::cEventTypes()
+const VSEvent::Type* uiHorizonSetupGroup::cEventTypes()
 {
     static const VSEvent::Type event_types[] = { VSEvent::Min, VSEvent::Max,
 					 VSEvent::ZCPosNeg, VSEvent::ZCNegPos };
@@ -55,9 +92,9 @@ const VSEvent::Type* uiHorizonSetupDialog::cEventTypes()
 }
 
 
-uiHorizonSetupDialog::uiHorizonSetupDialog( uiParent* p,SectionTracker* tracker,
-					    const Attrib::DescSet* ads )
-    : uiSetupDialog(p,"108.0.2")
+uiHorizonSetupGroup::uiHorizonSetupGroup( uiParent* p, SectionTracker* tracker,
+					  const Attrib::DescSet* ads )
+    : uiGroup(p,"Horizon Setup Group")
     , sectiontracker_(tracker)
     , attrset_(ads)
     , inpfld(0)
@@ -90,7 +127,7 @@ uiHorizonSetupDialog::uiHorizonSetupDialog( uiParent* p,SectionTracker* tracker,
     
     usesimifld = new uiGenInput( simigrp, "Use similarity", BoolInpSpec() );
     usesimifld->valuechanged.notify(
-	    mCB(this,uiHorizonSetupDialog,selUseSimilarity) );
+	    mCB(this,uiHorizonSetupGroup,selUseSimilarity) );
     usesimifld->setValue( !horadj_->trackByValue() );
     BufferString compwindtxt( "Compare window " );
     compwindtxt += SI().getZUnit();
@@ -125,7 +162,7 @@ uiHorizonSetupDialog::uiHorizonSetupDialog( uiParent* p,SectionTracker* tracker,
     thresholdtypefld = new uiGenInput( thresholdgrp, "Threshold type",
 		       BoolInpSpec("Cut-off amplitude","Relative difference") );
     thresholdtypefld->valuechanged.notify(
-	    		mCB(this,uiHorizonSetupDialog,selAmpThresholdType) );
+	    		mCB(this,uiHorizonSetupGroup,selAmpThresholdType) );
     ampthresholdfld = new uiGenInput ( thresholdgrp, "Value", FloatInpSpec() );
     ampthresholdfld->attach( alignedBelow, thresholdtypefld );
     thresholdtypefld->setValue( horadj_->useAbsThreshold() );
@@ -144,31 +181,31 @@ uiHorizonSetupDialog::uiHorizonSetupDialog( uiParent* p,SectionTracker* tracker,
     applybut = new uiPushButton( this, "&Apply", true );
     applybut->attach( alignedBelow, maingrp );
 
-    finaliseDone.notify( mCB(this,uiHorizonSetupDialog,initWin) );
+    initWin( 0 );
 }
 
 
-uiHorizonSetupDialog::~uiHorizonSetupDialog()
+uiHorizonSetupGroup::~uiHorizonSetupGroup()
 {
 }
 
 
-void  uiHorizonSetupDialog::enableApplyButton( bool yn )
+void  uiHorizonSetupGroup::enableApplyButton( bool yn )
 { applybut->setSensitive( yn ); }
 
 
-NotifierAccess* uiHorizonSetupDialog::applyButtonPressed()
+NotifierAccess* uiHorizonSetupGroup::applyButtonPressed()
 { return &applybut->activated; }
 
 
-void uiHorizonSetupDialog::initWin( CallBacker* cb )
+void uiHorizonSetupGroup::initWin( CallBacker* cb )
 {
     selUseSimilarity( cb );
     selAmpThresholdType( cb );
 }
 
 
-void uiHorizonSetupDialog::selUseSimilarity( CallBacker* )
+void uiHorizonSetupGroup::selUseSimilarity( CallBacker* )
 {
     const bool usesimi = usesimifld->getBoolValue();
     compwinfld->display( usesimi );
@@ -176,7 +213,7 @@ void uiHorizonSetupDialog::selUseSimilarity( CallBacker* )
 }
 
 
-void uiHorizonSetupDialog::selAmpThresholdType( CallBacker* )
+void uiHorizonSetupGroup::selAmpThresholdType( CallBacker* )
 {
     const bool absthreshold = thresholdtypefld->getBoolValue();
     ampthresholdfld->setTitleText( absthreshold ? "Amplitude value"
@@ -186,13 +223,7 @@ void uiHorizonSetupDialog::selAmpThresholdType( CallBacker* )
 }
 
 
-bool uiHorizonSetupDialog::acceptOK( CallBacker* )
-{
-    return commitToTracker();
-}
-
-
-bool uiHorizonSetupDialog::commitToTracker() const
+bool uiHorizonSetupGroup::commitToTracker() const
 {
     if ( horadj_->getNrAttributes()<1 )
 	return false;
@@ -253,14 +284,4 @@ bool uiHorizonSetupDialog::commitToTracker() const
 }
 
 
-uiSetupDialog* uiHorizonSetupDialog::create( uiParent* p, SectionTracker* st,
-					     const Attrib::DescSet* ds )
-{
-    mDynamicCastGet(HorizonAdjuster*,horadj,st->adjuster());
-    if ( !horadj ) return 0;
-
-    return new uiHorizonSetupDialog( p, st, ds );
-}
-
-
-}; //namespace
+} //namespace MPE
