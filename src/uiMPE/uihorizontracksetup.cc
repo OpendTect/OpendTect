@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2005
- RCS:           $Id: uihorizontracksetup.cc,v 1.4 2006-05-04 20:31:58 cvsnanne Exp $
+ RCS:           $Id: uihorizontracksetup.cc,v 1.5 2006-05-04 21:18:52 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -109,6 +109,7 @@ uiHorizonSetupGroup::uiHorizonSetupGroup( uiParent* p, SectionTracker* tracker,
     maingrp = new uiGroup( this, "main group" );
 
     inpfld = new uiAttrSel( maingrp, attrset_, "Seismic data", curid );
+    inpfld->set2D( adjuster->is2D() );
     maingrp->setHAlignObj( inpfld );
 
     uiSeparator* hseptop = new uiSeparator( maingrp, "top sep" );
