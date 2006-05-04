@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.188 2006-05-03 18:57:42 cvskris Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.189 2006-05-04 20:10:49 cvskris Exp $
 ___________________________________________________________________
 
 -*/
@@ -18,6 +18,7 @@ ___________________________________________________________________
 #include "seisinfo.h"
 #include "errh.h"
 #include "emhorizon.h"
+#include "emhorizon2d.h"
 #include "emfault.h"
 #include "ptrman.h"
 #include "oddirs.h"
@@ -2164,8 +2165,14 @@ bool uiODHorizonParentTreeItem::showSubMenu()
 uiTreeItem* uiODHorizonTreeItemFactory::create( int visid, uiTreeItem* ) const
 {
     const char* objtype = uiVisEMObject::getObjectType(visid);
-    return objtype && !strcmp(objtype, "Horizon")
-	? new uiODHorizonTreeItem(visid,true) : 0;
+    if ( !objtype ) return 0;
+
+    if ( !strcmp(objtype, EM::Horizon::typeStr() ) )
+	return new uiODHorizonTreeItem(visid,true);
+    else if ( !strcmp(objtype, EM::Horizon2D::typeStr() ) )
+	return new uiODHorizon2DTreeItem(visid,true);
+
+    return 0;
 }
 
 
@@ -2177,10 +2184,6 @@ uiODHorizonTreeItem::uiODHorizonTreeItem( const EM::ObjectID& mid_ )
 uiODHorizonTreeItem::uiODHorizonTreeItem( int id, bool )
     : uiODEarthModelSurfaceTreeItem( 0 )
 { displayid_=id; }
-
-
-uiODHorizonTreeItem::~uiODHorizonTreeItem()
-{}
 
 
 void uiODHorizonTreeItem::initNotify()
@@ -2211,6 +2214,31 @@ BufferString uiODHorizonTreeItem::createDisplayName() const
 
 
 void uiODHorizonTreeItem::dispChangeCB(CallBacker*)
+{
+    updateColumnText( uiODSceneMgr::cColorColumn() );
+}
+
+
+uiODHorizon2DTreeItem::uiODHorizon2DTreeItem( const EM::ObjectID& mid_ )
+    : uiODEarthModelSurfaceTreeItem( mid_ )
+{}
+
+
+uiODHorizon2DTreeItem::uiODHorizon2DTreeItem( int id, bool )
+    : uiODEarthModelSurfaceTreeItem( 0 )
+{ displayid_=id; }
+
+
+void uiODHorizon2DTreeItem::initNotify()
+{
+    mDynamicCastGet(visSurvey::EMObjectDisplay*,
+	    	    emd,visserv->getObject(displayid_));
+    if ( emd )
+	emd->changedisplay.notify(mCB(this,uiODHorizon2DTreeItem,dispChangeCB));
+}
+
+
+void uiODHorizon2DTreeItem::dispChangeCB(CallBacker*)
 {
     updateColumnText( uiODSceneMgr::cColorColumn() );
 }
