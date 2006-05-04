@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: vishorizondisplay.cc,v 1.3 2006-05-02 20:17:29 cvskris Exp $
+ RCS:           $Id: vishorizondisplay.cc,v 1.4 2006-05-04 16:27:41 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,34 +13,23 @@ ________________________________________________________________________
 
 #include "attribsel.h"
 #include "binidvalset.h"
-//#include "cubicbeziersurface.h"
-//#include "emmanager.h"
 #include "emhorizon.h"
 #include "mpeengine.h"
-//#include "emeditor.h"
-//#include "viscubicbeziersurface.h"
 #include "viscoord.h"
-//#include "visdatagroup.h"
 #include "visdataman.h"
 #include "visdrawstyle.h"
 #include "visevent.h"
 #include "vishingeline.h"
-//#include "vismarker.h"
 #include "vismpe.h"
 #include "visparametricsurface.h"
 #include "visplanedatadisplay.h"
 #include "vispolyline.h"
 #include "vismaterial.h"
-//#include "vismpeeditor.h"
 #include "vistransform.h"
 #include "viscolortab.h"
 #include "survinfo.h"
-//#include "keystrs.h"
 #include "iopar.h"
-//
-//#include "emsurface.h"
 #include "emsurfaceauxdata.h"
-//#include "emsurfacegeometry.h"
 #include "emsurfaceedgeline.h"
 
 #include <math.h>
@@ -99,6 +88,8 @@ HorizonDisplay::~HorizonDisplay()
 	translation_->unRef();
 	translation_ = 0;
     }
+
+    removeEMStuff();
 }
 
 

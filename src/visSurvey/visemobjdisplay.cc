@@ -4,48 +4,24 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: visemobjdisplay.cc,v 1.85 2006-05-02 20:17:29 cvskris Exp $
+ RCS:           $Id: visemobjdisplay.cc,v 1.86 2006-05-04 16:27:41 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "visemobjdisplay.h"
 
-//#include "attribsel.h"
-//#include "binidvalset.h"
-//#include "cubicbeziersurface.h"
 #include "emmanager.h"
 #include "emobject.h"
 #include "mpeengine.h"
-//#include "emeditor.h"
-//#include "viscubicbeziersurface.h"
-//#include "viscoord.h"
-//#include "visdatagroup.h"
-//#include "visdataman.h"
 #include "visdrawstyle.h"
 #include "visevent.h"
-//#include "vishingeline.h"
 #include "vismarker.h"
-//#include "vismpe.h"
-//#include "visparametricsurface.h"
-//#include "visplanedatadisplay.h"
-//#include "vispolyline.h"
 #include "vismaterial.h"
 #include "vismpeeditor.h"
 #include "vistransform.h"
-//#include "viscolortab.h"
-//#include "survinfo.h"
 #include "keystrs.h"
 #include "iopar.h"
-//
-//#include "emsurface.h"
-//#include "emsurfaceauxdata.h"
-//#include "emsurfacegeometry.h"
-////#include "emsurfaceedgeline.h"
-//
-//#include <math.h>
-
-
 
 
 namespace visSurvey
@@ -93,7 +69,14 @@ EMObjectDisplay::~EMObjectDisplay()
 
     setSceneEventCatcher( 0 );
 
-    removeEMStuff();
+
+    if ( posattribs_.size() || editor_ || emobject_ )
+    {
+	pErrMsg("You have not called removeEMStuff from"
+		"inheriting object's constructor." );
+	removeEMStuff(); //Lets hope for the best.
+    }
+
 }
 
 
