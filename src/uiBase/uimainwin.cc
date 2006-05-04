@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.104 2006-03-01 13:45:46 cvsbert Exp $
+ RCS:           $Id: uimainwin.cc,v 1.105 2006-05-04 20:43:32 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -99,10 +99,7 @@ public:
     uiStatusBar* 	uistatusbar();
     uiMenuBar* 		uimenubar();
 
-    virtual void        polish()
-                        {
-                            mQMainWindow::polish();
-                        }
+    virtual void        polish() { mQMainWindow::polish(); }
 
     void		reDraw( bool deep )
 			{
@@ -126,7 +123,7 @@ public:
 			    popped_up = false;
 			    poptimer.start( 100, true );
 
-			    if( modal_ )	
+			    if ( modal_ )	
 				looplevel__ = qApp->enter_loop();
 			    else 
 				looplevel__ = -1;
@@ -156,6 +153,9 @@ public:
     void		storePositions();
     void		restorePositions();
 #endif
+
+    void		setModal( bool yn )	{ modal_ = yn; }
+    bool		isModal() const		{ return modal_; }
 
 protected:
 
@@ -1081,3 +1081,5 @@ void uiDialog::setSaveButtonChecked(bool b)
     { mBody->setSaveButtonChecked(b); }
 bool uiDialog::saveButtonChecked() const
     { return mBody->saveButtonChecked(); }
+void uiDialog::setModal( bool yn )		{ mBody->setModal( yn ); }
+bool uiDialog::isModal() const			{ return mBody->isModal(); }

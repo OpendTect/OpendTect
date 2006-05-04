@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/08/2000
- RCS:           $Id: uidialog.h,v 1.41 2006-03-01 13:45:46 cvsbert Exp $
+ RCS:           $Id: uidialog.h,v 1.42 2006-05-04 20:43:32 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -93,6 +93,8 @@ public:
     void		setBorder( int ); 
 
     void		setCaption( const char* txt );
+    void		setModal(bool yn);
+    bool		isModal() const;
 
     uiButton*		button( Button but );
     void		setButtonText( Button but, const char* txt )
@@ -119,12 +121,12 @@ public:
     int			uiResult() const;
     			
 
-    void		setButtonSensitive( Button, bool);
+    void		setButtonSensitive(Button,bool);
     void		setSaveButtonChecked(bool);
-    void		setTitleText( const char* txt );
+    void		setTitleText(const char* txt);
     bool		saveButtonChecked() const;
 
-    void		setSeparator( bool yn );
+    void		setSeparator(bool yn);
 			//!< Separator between central dialog and Ok/Cancel bar?
     bool		separator() const;
     void		setHelpID(const char*);
