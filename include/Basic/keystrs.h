@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Mar 2002
- RCS:		$Id: keystrs.h,v 1.17 2006-04-14 14:43:13 cvsnanne Exp $
+ RCS:		$Id: keystrs.h,v 1.18 2006-05-04 20:20:16 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,6 +35,7 @@ namespace sKey
 {
 
     extern const char*	Attribute	mImpl("Attribute");
+    extern const char*	Attributes	mImpl("Attributes");
     extern const char*	Color		mImpl("Color");
     extern const char*	Depth		mImpl("Depth");
     extern const char*	DepthDomain	mImpl("Depth Domain");
@@ -70,10 +71,12 @@ namespace sKey
     extern const char*	Sum		mImpl("Sum");
 
     extern const char*	BinIDSel	mImpl("BinID selection");
+    extern const char*	InlRange	mImpl("In-line range");
     extern const char*	FirstInl	mImpl("First In-line");
     extern const char*	LastInl		mImpl("Last In-line");
     extern const char*	StepInl		mImpl("Step In-line");
     extern const char*	StepOutInl	mImpl("Stepout In-line");
+    extern const char*	CrlRange	mImpl("Cross-line range");
     extern const char*	FirstCrl	mImpl("First Cross-line");
     extern const char*	LastCrl		mImpl("Last Cross-line");
     extern const char*	StepCrl		mImpl("Step Cross-line");
