@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.124 2006-05-01 07:05:34 cvsnanne Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.125 2006-05-04 21:59:53 cvskris Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -455,7 +455,7 @@ bool PlaneDataDisplay::removeAttrib( int attrib )
 
     delete as_[attrib];
     as_.remove( attrib );
-    cache_[attrib]->unRef();
+    if ( cache_[attrib] ) cache_[attrib]->unRef();
     cache_.remove( attrib );
 
     texture_->removeTexture( attrib );
