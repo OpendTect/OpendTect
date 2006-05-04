@@ -4,16 +4,18 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vismpeseedcatcher.cc,v 1.7 2006-03-30 16:13:05 cvsjaap Exp $";
+static const char* rcsID = "$Id: vismpeseedcatcher.cc,v 1.8 2006-05-04 20:55:33 cvskris Exp $";
 
 #include "vismpeseedcatcher.h"
 
+#include "attribdataholder.h"
 #include "emmanager.h"
 #include "emobject.h"
 #include "survinfo.h"
 #include "visdataman.h"
 #include "visemobjdisplay.h"
 #include "visevent.h"
+#include "visseis2ddisplay.h"
 #include "vismpe.h"
 #include "vistransform.h"
 #include "visplanedatadisplay.h"
@@ -26,9 +28,9 @@ namespace visSurvey
 
 MPEClickCatcher::MPEClickCatcher()
     : click( this )
-    , eventcatcher( 0 )
-    , transformation( 0 )
-    , clickednode(-1,-1,-1)
+    , eventcatcher_( 0 )
+    , transformation_( 0 )
+    , clickednode_(-1,-1,-1)
 { }
 
 
@@ -41,39 +43,71 @@ MPEClickCatcher::~MPEClickCatcher()
 
 void MPEClickCatcher::setSceneEventCatcher( visBase::EventCatcher* nev )
 {
-    if ( eventcatcher )
+    if ( eventcatcher_ )
     {
-	eventcatcher->eventhappened.remove( mCB(this,MPEClickCatcher,clickCB) );
-	eventcatcher->unRef();
+	eventcatcher_->eventhappened.remove( mCB(this,MPEClickCatcher,clickCB) );
+	eventcatcher_->unRef();
     }
 
-    eventcatcher = nev;
+    eventcatcher_ = nev;
 
-    if ( eventcatcher )
+    if ( eventcatcher_ )
     {
-	eventcatcher->eventhappened.notify( mCB(this,MPEClickCatcher,clickCB) );
-	eventcatcher->ref();
+	eventcatcher_->eventhappened.notify( mCB(this,MPEClickCatcher,clickCB) );
+	eventcatcher_->ref();
     }
 }
 
 
 void MPEClickCatcher::setDisplayTransformation( visBase::Transformation* nt )
 {
-    if ( transformation )
-	transformation->unRef();
+    if ( transformation_ )
+	transformation_->unRef();
 
-    transformation = nt;
-    if ( transformation )
-	transformation->ref();
+    transformation_ = nt;
+    if ( transformation_ )
+	transformation_->ref();
 }
 
 
-const Coord3& MPEClickCatcher::clickedPos() const { return clickedpos; }
+visBase::Transformation* MPEClickCatcher::getDisplayTransformation()
+{ return transformation_; }
+
+
+EM::PosID MPEClickCatcher::clickedNode() const
+{ return clickednode_; }
+
+
+bool  MPEClickCatcher::ctrlClicked() const     
+{ return ctrlclicked_; }
+
+
+bool MPEClickCatcher::shiftClicked() const    
+{ return shiftclicked_; }
+
+
+const Coord3& MPEClickCatcher::clickedPos() const
+{ return clickedpos_; }
+
+int  MPEClickCatcher::clickedObjectID() const
+{ return clickedobjid_;}
+
+
+const CubeSampling& MPEClickCatcher::clickedObjectCS() const
+{ return clickedcs_; }
+
+
+const Attrib::DataCubes* MPEClickCatcher::clickedObjectData() const
+{ return attrdata_; }
+
+
+const Attrib::SelSpec* MPEClickCatcher::clickedObjectDataSelSpec() const
+{ return as_; }
 
 
 void MPEClickCatcher::clickCB( CallBacker* cb )
 {
-    if ( eventcatcher->isEventHandled() || !isOn() )
+    if ( eventcatcher_->isEventHandled() || !isOn() )
 	return;
 
     mCBCapsuleUnpack(const visBase::EventInfo&,eventinfo,cb );
@@ -97,7 +131,7 @@ void MPEClickCatcher::clickCB( CallBacker* cb )
 	    if ( emod )
 	    {
 		sendPlanesContainingNode( visid, emod, eventinfo );
-		eventcatcher->eventIsHandled();
+		eventcatcher_->eventIsHandled();
 		break;
 	    }
 
@@ -112,19 +146,41 @@ void MPEClickCatcher::clickCB( CallBacker* cb )
 				visid, plane->getCubeSampling(),
 				plane->getCacheVolume(false),
 				plane->getSelSpec(0) );
-		eventcatcher->eventIsHandled();
+		eventcatcher_->eventIsHandled();
 		break;
 	    }
 
 	    mDynamicCastGet( MPEDisplay*, mpedisplay, dataobj );
 	    if ( mpedisplay && mpedisplay->isDraggerShown() &&
 		 !mpedisplay->isManipulatorShown() &&
-		 mpedisplay->getPlanePosition(clickedcs) ) 
+		 mpedisplay->getPlanePosition(clickedcs_) ) 
 	    {
 		sendClickEvent( EM::PosID(-1,-1,-1), eventinfo.ctrl, 
 				eventinfo.shift, eventinfo.pickedpos, 
-				visid, clickedcs, 0, 0 );
-		eventcatcher->eventIsHandled();
+				visid, clickedcs_, 0, 0 );
+		eventcatcher_->eventIsHandled();
+		break;
+	    }
+
+	    mDynamicCastGet( Seis2DDisplay*, seis2ddisplay, dataobj );
+	    if ( seis2ddisplay )
+	    {
+		RefMan<const Attrib::Data2DHolder> cache =
+						seis2ddisplay->getCache();
+		RefMan<Attrib::DataCubes> cube = 0;
+
+		if ( cache )
+		{
+ 		    cube = new Attrib::DataCubes;
+		    if ( !cache->fillDataCube(*cube) )
+			cube = 0;
+		}
+
+		sendClickEvent( EM::PosID(-1,-1,-1), eventinfo.ctrl, 
+				eventinfo.shift, eventinfo.pickedpos, 
+				visid, clickedcs_, cube,
+				seis2ddisplay->getSelSpec(0)  );
+		eventcatcher_->eventIsHandled();
 		break;
 	    }
 	}
@@ -180,25 +236,25 @@ void MPEClickCatcher::sendClickEvent( const EM::PosID pid, bool ctrl,
        				      const Attrib::DataCubes* ss,
 				      const Attrib::SelSpec* selspec )
 {
-    clickednode = pid;
-    ctrlclicked = ctrl;
-    shiftclicked = shift;
-    clickedcs = cs;
-    clickedobjid = visid;
-    clickedpos = coord;
-    as = selspec;
-    attrdata = ss;
+    clickednode_ = pid;
+    ctrlclicked_ = ctrl;
+    shiftclicked_ = shift;
+    clickedcs_ = cs;
+    clickedobjid_ = visid;
+    clickedpos_ = coord;
+    as_ = selspec;
+    attrdata_ = ss;
 
     click.trigger();
 
-    clickednode = EM::PosID(-1,-1,-1);
-    ctrlclicked = false;
-    shiftclicked = false;
-    clickedobjid = -1;
-    as = 0;
-    attrdata = 0;
-    clickedcs.init(false);
-    clickedpos = Coord3::udf();
+    clickednode_ = EM::PosID(-1,-1,-1);
+    ctrlclicked_ = false;
+    shiftclicked_ = false;
+    clickedobjid_ = -1;
+    as_ = 0;
+    attrdata_ = 0;
+    clickedcs_.init(false);
+    clickedpos_ = Coord3::udf();
 }
 
 }; //namespce

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vismpeseedcatcher.h,v 1.6 2006-03-30 16:11:26 cvsjaap Exp $
+ RCS:		$Id: vismpeseedcatcher.h,v 1.7 2006-05-04 20:55:35 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -44,20 +44,17 @@ public:
     void			setSceneEventCatcher(visBase::EventCatcher*);
     void			setDisplayTransformation(mVisTrans*);
 
-    mVisTrans*			getDisplayTransformation() 
-							{return transformation;}
+    mVisTrans*			getDisplayTransformation();
 
     Notifier<MPEClickCatcher>	click;
-    EM::PosID			clickedNode() const     {return clickednode;}
-    bool                        ctrlClicked() const     {return ctrlclicked;}
-    bool                        shiftClicked() const    {return shiftclicked;}
+    EM::PosID			clickedNode() const;
+    bool                        ctrlClicked() const;
+    bool                        shiftClicked() const;
     const Coord3&		clickedPos() const;
-    int				clickedObjectID() const {return clickedobjid;}
-    const CubeSampling&		clickedObjectCS() const {return clickedcs;}
-    const Attrib::DataCubes*	clickedObjectData() 
-						  const {return attrdata;}
-    const Attrib::SelSpec*	clickedObjectDataSelSpec() 
-						  const {return as;}
+    int				clickedObjectID() const;
+    const CubeSampling&		clickedObjectCS() const;
+    const Attrib::DataCubes*	clickedObjectData() const;
+    const Attrib::SelSpec*	clickedObjectDataSelSpec() const;
 
 protected:
 				~MPEClickCatcher();
@@ -73,18 +70,17 @@ protected:
 					const Attrib::DataCubes* =0,
 					const Attrib::SelSpec* =0);
 
-    EM::PosID			clickednode;
-    bool			ctrlclicked;
-    bool			shiftclicked;
-    Coord3			clickedpos;
-    int				clickedobjid;
-    CubeSampling		clickedcs;
-    RefMan<const 
-	   Attrib::DataCubes>   attrdata;
-    const Attrib::SelSpec*	as;
+    EM::PosID				clickednode_;
+    bool				ctrlclicked_;
+    bool				shiftclicked_;
+    Coord3				clickedpos_;
+    int					clickedobjid_;
+    CubeSampling			clickedcs_;
+    RefMan<const Attrib::DataCubes>	attrdata_;
+    const Attrib::SelSpec*		as_;
 
-    visBase::EventCatcher*	eventcatcher;
-    visBase::Transformation*	transformation;
+    visBase::EventCatcher*		eventcatcher_;
+    visBase::Transformation*		transformation_;
 };
 
 };
