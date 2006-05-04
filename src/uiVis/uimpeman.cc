@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.cc,v 1.84 2006-05-02 08:00:13 cvsnanne Exp $
+ RCS:           $Id: uimpeman.cc,v 1.85 2006-05-04 20:12:40 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -218,8 +218,7 @@ void uiMPEMan::seedClick( CallBacker* )
     if ( pid.objectID()!=emobj->id() && pid.objectID()!=-1 )
 	return;
 
-    const int clickedobject = clickcatcher ? 
-			      clickcatcher->clickedObjectID() : -1;
+    const int clickedobject = clickcatcher->clickedObjectID();
     if ( clickedobject==-1 )
 	return;
 
@@ -236,34 +235,44 @@ void uiMPEMan::seedClick( CallBacker* )
 	    return;
 	oldactivevol = engine.activeVolume(); 
     }
-    
-    const CubeSampling newvolume = clickcatcher->clickedObjectCS();
-    if ( newvolume.isEmpty() )
-	return;
-    
-    if ( !engine.activeVolume().includes(newvolume) )
-    {
-	NotifyStopper notifystopper( engine.activevolumechange );
-	engine.setActiveVolume( newvolume );
-	notifystopper.restore();
-	seedclickobject = clickedobject;
 
-	RefMan<const Attrib::DataCubes> cached = 
-	    				clickcatcher->clickedObjectData();
+    if ( tracker->is2D() )
+    {
+	seedclickobject = clickedobject;
+	RefMan<const Attrib::DataCubes> cached =
+	    clickcatcher->clickedObjectData();
+
 	if ( cached )
-	{
-	    cached->ref();
 	    engine.setAttribData( *clickcatcher->clickedObjectDataSelSpec(),
 				  cached );
+    }
+    else
+    {
+	const CubeSampling newvolume = clickcatcher->clickedObjectCS();
+	if ( newvolume.isEmpty() )
+	    return;
+	
+	if ( !engine.activeVolume().includes(newvolume) )
+	{
+	    NotifyStopper notifystopper( engine.activevolumechange );
+	    engine.setActiveVolume( newvolume );
+	    notifystopper.restore();
+	    seedclickobject = clickedobject;
+
+	    RefMan<const Attrib::DataCubes> cached = 
+					    clickcatcher->clickedObjectData();
+	    if ( cached )
+		engine.setAttribData( *clickcatcher->clickedObjectDataSelSpec(),
+				      cached );
+
+	    didtriggervolchange = true;
+
+	    mGetDisplays( false );
+	    for ( int idx=0; idx<displays.size(); idx++ )
+		displays[idx]->turnOn( false );
+
+	    engine.activevolumechange.trigger();
 	}
-
-	didtriggervolchange = true;
-
-	mGetDisplays( false );
-	for ( int idx=0; idx<displays.size(); idx++ )
-	    displays[idx]->turnOn( false );
-
-	engine.activevolumechange.trigger();
     }
 
     const int currentevent = EM::EMM().history().currentEventNr();
