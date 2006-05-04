@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2006
- RCS:           $Id: horizon2dextender.h,v 1.1 2006-05-01 17:26:15 cvskris Exp $
+ RCS:           $Id: horizon2dextender.h,v 1.2 2006-05-04 21:05:12 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,7 +26,7 @@ public:
     			Horizon2DExtender(EM::Horizon2D&,
 					  const EM::SectionID&);
 
-    void		setAngleThreshold(float degrees);
+    void		setAngleThreshold(float radians);
     float		getAngleThreshold() const;
 
     void		setDirection(const BinIDValue&);
