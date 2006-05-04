@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		January 2003
- RCS:		$Id: visseis2ddisplay.h,v 1.2 2006-05-03 18:54:19 cvskris Exp $
+ RCS:		$Id: visseis2ddisplay.h,v 1.3 2006-05-04 20:56:45 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -68,6 +68,7 @@ public:
     void			setGeometry(const PosInfo::Line2DData&,
 	    				    const CubeSampling* cs=0);
     void			setTraceData( const Attrib::Data2DHolder& );
+    const Attrib::Data2DHolder*	getCache() const		{return cache_;}
     void			clearTexture();
 
     bool			allowPicks() const		{ return true; }
