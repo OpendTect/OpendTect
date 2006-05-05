@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vismpeseedcatcher.cc,v 1.8 2006-05-04 20:55:33 cvskris Exp $";
+static const char* rcsID = "$Id: vismpeseedcatcher.cc,v 1.9 2006-05-05 21:00:51 cvskris Exp $";
 
 #include "vismpeseedcatcher.h"
 
@@ -179,7 +179,9 @@ void MPEClickCatcher::clickCB( CallBacker* cb )
 		sendClickEvent( EM::PosID(-1,-1,-1), eventinfo.ctrl, 
 				eventinfo.shift, eventinfo.pickedpos, 
 				visid, clickedcs_, cube,
-				seis2ddisplay->getSelSpec(0)  );
+				seis2ddisplay->getSelSpec(0),
+		      		cache, seis2ddisplay->name(),
+				&seis2ddisplay->lineSetID() );
 		eventcatcher_->eventIsHandled();
 		break;
 	    }
@@ -234,7 +236,10 @@ void MPEClickCatcher::sendClickEvent( const EM::PosID pid, bool ctrl,
 				      bool shift, const Coord3& coord, 
 				      int visid, const CubeSampling& cs,
        				      const Attrib::DataCubes* ss,
-				      const Attrib::SelSpec* selspec )
+				      const Attrib::SelSpec* selspec,
+				      const Attrib::Data2DHolder* linedata,
+				      const char* linename,
+				      const MultiID* lineset)
 {
     clickednode_ = pid;
     ctrlclicked_ = ctrl;
@@ -244,6 +249,10 @@ void MPEClickCatcher::sendClickEvent( const EM::PosID pid, bool ctrl,
     clickedpos_ = coord;
     as_ = selspec;
     attrdata_ = ss;
+    linedata_ = linedata;
+    if ( lineset ) lineset_ = *lineset;
+    linename_ = linename;
+
 
     click.trigger();
 
@@ -255,6 +264,10 @@ void MPEClickCatcher::sendClickEvent( const EM::PosID pid, bool ctrl,
     attrdata_ = 0;
     clickedcs_.init(false);
     clickedpos_ = Coord3::udf();
+    linedata_ = 0;
+    lineset_ = -1;
+    linename_ = "";
+
 }
 
 }; //namespce

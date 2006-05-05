@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vismpeseedcatcher.h,v 1.7 2006-05-04 20:55:35 cvskris Exp $
+ RCS:		$Id: vismpeseedcatcher.h,v 1.8 2006-05-05 21:00:51 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -24,7 +24,7 @@ ________________________________________________________________________
 namespace Geometry { class ElementEditor; }
 namespace MPE { class ObjectEditor; }
 namespace EM { class EdgeLineSet; }
-namespace Attrib { class SelSpec; class DataCubes; }
+namespace Attrib { class SelSpec; class DataCubes; class Data2DHolder; }
 namespace visBase { class Marker; class Dragger; }
 
 
@@ -56,6 +56,10 @@ public:
     const Attrib::DataCubes*	clickedObjectData() const;
     const Attrib::SelSpec*	clickedObjectDataSelSpec() const;
 
+    const MultiID&		clickedObjectLineSet() const;
+    const char*			clickedObjectLineName() const;
+    const Attrib::Data2DHolder*	clickedObjectLineData() const;
+
 protected:
 				~MPEClickCatcher();
     void			clickCB(CallBacker*);
@@ -68,7 +72,10 @@ protected:
 	    				bool ctrl,bool shift,const Coord3&,
 	    				int objid,const CubeSampling&,
 					const Attrib::DataCubes* =0,
-					const Attrib::SelSpec* =0);
+					const Attrib::SelSpec* =0,
+					const Attrib::Data2DHolder* =0,
+					const char* linename = 0,
+					const MultiID* lineset = 0 );
 
     EM::PosID				clickednode_;
     bool				ctrlclicked_;
@@ -78,6 +85,10 @@ protected:
     CubeSampling			clickedcs_;
     RefMan<const Attrib::DataCubes>	attrdata_;
     const Attrib::SelSpec*		as_;
+
+    RefMan<const Attrib::Data2DHolder>	linedata_;
+    MultiID				lineset_;
+    BufferString			linename_;
 
     visBase::EventCatcher*		eventcatcher_;
     visBase::Transformation*		transformation_;
