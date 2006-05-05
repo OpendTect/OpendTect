@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfacegeometry.h,v 1.20 2006-04-27 15:29:13 cvskris Exp $
+ RCS:		$Id: emsurfacegeometry.h,v 1.21 2006-05-05 19:43:51 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -71,6 +71,7 @@ public:
     virtual Geometry::Element*		sectionGeometry(const SectionID&);
     virtual int		getConnectedPos(const PosID& posid,
 	    				TypeSet<PosID>* res) const;
+    			/*!<\returns the number of connected pos. */
     virtual void	getLinkedPos(const PosID& posid,TypeSet<PosID>&) const;
     virtual bool	isAtEdge(const PosID&) const;
 
