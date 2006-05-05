@@ -7,12 +7,13 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          June 2004
- RCS:           $Id: uiseissubsel.h,v 1.14 2005-02-10 13:54:39 bert Exp $
+ RCS:           $Id: uiseissubsel.h,v 1.15 2006-05-05 16:26:10 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uigroup.h"
+#include "uicompoundparsel.h"
+#include "uidialog.h"
 #include "ranges.h"
 class IOPar;
 class IOObj;
@@ -70,35 +71,36 @@ protected:
 };
 
 
-class uiSeis2DSubSel : public uiGroup
+class uiSeis2DSubSel : public uiCompoundParSel
 { 	
 public:
 
 			uiSeis2DSubSel(uiParent*,bool for_new_entry,bool mln);
 			~uiSeis2DSubSel();
 
+    class PosData
+    {
+    public:
+				PosData()	{ clear(); }
+
+	bool			isall_;
+	StepInterval<int>	trcrg_;
+	StepInterval<float>	zrg_;
+
+	void			clear();
+	void			fillPar(IOPar&) const;
+	void			usePar(const IOPar&);
+	int			expectedNrTraces() const;
+	int 			expectedNrSamples() const;
+    };
+
     void		clear();
-    void		setInput(const StepInterval<int>&);
-    			//!< Trace number range
-    void		setInput(const Interval<float>&);
-    			//!< Z range
-    void		setInput(const HorSampling&);
-    			//!< crlrg converted to trace range
-    void		setInput(const char* linename);
-    void		setInput( const StepInterval<int>& tr,
-	    			  const Interval<float>& zr )
-			{ setInput( tr ); setInput( zr ); }
+    void		setInput(const PosData&);
     void		setInput(const IOObj&);
+    const PosData&	getInput() const		{ return data_; }
 
     virtual void	usePar(const IOPar&);
     virtual bool	fillPar(IOPar&) const;
-    bool		getRange(StepInterval<int>&) const;
-    bool		getZRange(Interval<float>&) const;
-
-    bool		isAll() const;
-
-    int			expectedNrSamples() const;
-    int			expectedNrTraces() const;
 
     Notifier<uiSeis2DSubSel> lineSel;
     Notifier<uiSeis2DSubSel> singLineSel;
@@ -106,23 +108,46 @@ public:
     const char*		selectedLine() const;
     void		setSelectedLine(const char*);
 
-    const BufferStringSet& curLineNames() const		{ return curlnms; }
+    const BufferStringSet& curLineNames() const		{ return curlnms_; }
+
+protected:
+
+    uiGenInput*		lnmfld;
+    uiGenInput*		lnmsfld;
+
+    PosData		data_;
+    bool		multiln_;
+    BufferStringSet&	curlnms_;
+
+    void		lineChg(CallBacker*);
+    void		singLineChg(CallBacker*);
+    void		doDlg(CallBacker*);
+    void		updSumm(CallBacker*)		{ updateSummary(); }
+
+    BufferString	getSummary() const;
+
+};
+
+
+class uiSeis2DSubSelDlg : public uiDialog
+{
+public:
+
+    			uiSeis2DSubSelDlg(uiParent*);
+	
+    void		setInput(const uiSeis2DSubSel::PosData&);
+    const uiSeis2DSubSel::PosData& getInput() const;
 
 protected:
 
     uiGenInput*		selfld;
     uiGenInput*		trcrgfld;
-    uiGenInput*		zfld;
-    uiGenInput*		lnmfld;
-    uiGenInput*		lnmsfld;
-    bool		multiln;
-    BufferStringSet&	curlnms;
+    uiGenInput*		zrgfld;
+    mutable uiSeis2DSubSel::PosData data_;
+    friend class	uiSeis2DSubSel;
 
-    virtual void	selChg(CallBacker*);
-    void		lineChg(CallBacker*);
-    void		singLineChg(CallBacker*);
-    void		doFinalise(CallBacker*);
-
+    void		selChg(CallBacker* c=0);
+    bool		acceptOK(CallBacker*);
 };
 
 

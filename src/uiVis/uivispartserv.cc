@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.314 2006-05-02 13:01:42 cvsnanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.315 2006-05-05 16:26:10 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,7 +39,7 @@ ________________________________________________________________________
 #include "uimenuhandler.h"
 #include "uimpeman.h"
 #include "uitoolbar.h"
-#include "uiworkareadlg.h"
+#include "uibinidsubsel.h"
 #include "uizscaledlg.h"
 
 
@@ -788,8 +788,15 @@ void uiVisPartServer::toHome( CallBacker* )
 
 bool uiVisPartServer::setWorkingArea()
 {
-    uiWorkAreaDlg dlg( appserv().parent() );
+    uiBinIDSubSelDlg dlg( appserv().parent(), uiBinIDSubSel::Setup()
+					       .withz(true)
+					       .withstep(false)
+					       .showsurvinfo(true)
+					       .rangeonly(true) );
     if ( !dlg.go() ) return false;
+    CubeSampling cs = dlg.getInput().cs_;
+    cs.limitTo( SI().sampling(false) );
+    const_cast<SurveyInfo&>(SI()).setWorkRange( cs );
 
     TypeSet<int> sceneids;
     getChildIds( -1, sceneids );

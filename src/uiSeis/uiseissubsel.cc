@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          June 2004
- RCS:           $Id: uiseissubsel.cc,v 1.35 2006-05-03 15:26:48 cvsbert Exp $
+ RCS:           $Id: uiseissubsel.cc,v 1.36 2006-05-05 16:26:10 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -60,7 +60,11 @@ void uiSeisSubSel::clear()
 void uiSeisSubSel::setInput( const HorSampling& hs )
 {
     if ( is2d_ )
-	sel2d->setInput( hs );
+    {
+	uiSeis2DSubSel::PosData data = sel2d->getInput();
+	data.isall_ = false; data.trcrg_ = hs.crlRange();
+	sel2d->setInput( data );
+    }
     else
     {
 	uiBinIDSubSel::Data data = sel3d->getInput();
@@ -73,7 +77,11 @@ void uiSeisSubSel::setInput( const HorSampling& hs )
 void uiSeisSubSel::setInput( const StepInterval<float>& zrg )
 {
     if ( is2d_ )
-	sel2d->setInput( zrg );
+    {
+	uiSeis2DSubSel::PosData data = sel2d->getInput();
+	data.isall_ = false; data.zrg_ = zrg;
+	sel2d->setInput( data );
+    }
     else
     {
 	uiBinIDSubSel::Data data = sel3d->getInput();
@@ -117,7 +125,7 @@ void uiSeisSubSel::setInput( const IOObj& ioobj )
 
 bool uiSeisSubSel::isAll() const
 {
-    return is2d_ ? sel2d->isAll() : sel3d->getInput().isAll();
+    return is2d_ ? sel2d->getInput().isall_ : sel3d->getInput().isAll();
 }
 
 
@@ -127,12 +135,10 @@ bool uiSeisSubSel::getSampling( HorSampling& hs ) const
 	hs = sel3d->getInput().cs_.hrg;
     else
     {
-	StepInterval<int> trcrg;
-	if ( !sel2d->getRange( trcrg ) )
-	    return false;
-	hs.start.crl = trcrg.start;
-	hs.stop.crl = trcrg.stop;
-	hs.step.crl = trcrg.step;
+	uiSeis2DSubSel::PosData data = sel2d->getInput();
+	hs.start.crl = data.trcrg_.start;
+	hs.stop.crl = data.trcrg_.stop;
+	hs.step.crl = data.trcrg_.step;
     }
     return true;
 }
@@ -141,8 +147,9 @@ bool uiSeisSubSel::getSampling( HorSampling& hs ) const
 bool uiSeisSubSel::getZRange( Interval<float>& zrg ) const
 {
     if ( is2d_ )
-	return sel2d->getZRange(zrg);
-    zrg = sel3d->getInput().cs_.zrg;
+	zrg = sel2d->getInput().zrg_;
+    else
+	zrg = sel3d->getInput().cs_.zrg;
     return true;
 }
 
@@ -164,14 +171,14 @@ void uiSeisSubSel::usePar( const IOPar& iop )
 
 int uiSeisSubSel::expectedNrSamples() const
 {
-    return is2d_ ? sel2d->expectedNrSamples()
+    return is2d_ ? sel2d->getInput().expectedNrSamples()
 		 : sel3d->getInput().expectedNrSamples();
 }
 
 
 int uiSeisSubSel::expectedNrTraces() const
 {
-    return is2d_ ? sel2d->expectedNrTraces()
+    return is2d_ ? sel2d->getInput().expectedNrTraces()
 		 : sel3d->getInput().expectedNrTraces();
 }
 
@@ -200,82 +207,222 @@ void uiSeisSubSel::setSelectedLine( const char* nm )
 }
 
 
+void uiSeis2DSubSel::PosData::clear()
+{
+    isall_ = true;
+    trcrg_.start = 1; trcrg_.stop = mUdf(int); trcrg_.step = 1;
+    zrg_ = SI().zRange(true);
+}
+
+
+void uiSeis2DSubSel::PosData::fillPar( IOPar& iopar ) const
+{
+    iopar.set( sKey::BinIDSel, isall_ ? sKey::No : sKey::Range );
+
+    iopar.set( sKey::FirstInl, 0 );
+    iopar.set( sKey::LastInl, mUdf(int) );
+    iopar.set( sKey::StepInl, 1 );
+
+    if ( !isall_ )
+    {
+	iopar.set( sKey::FirstCrl, trcrg_.start );
+	iopar.set( sKey::LastCrl, trcrg_.stop );
+	iopar.set( sKey::StepCrl, trcrg_.step );
+
+	FileMultiString fms;
+	fms += zrg_.start; fms += zrg_.stop; fms += zrg_.step;
+	iopar.set( sKey::ZRange, (const char*)fms );
+    }
+    else
+    {
+	iopar.set( sKey::FirstCrl, 1 );
+	iopar.set( sKey::LastCrl, mUdf(int) );
+	iopar.set( sKey::StepCrl, 1 );
+    }
+}
+
+
+void uiSeis2DSubSel::PosData::usePar( const IOPar& iopar )
+{
+    iopar.get( sKey::FirstCrl, trcrg_.start );
+    iopar.get( sKey::LastCrl, trcrg_.stop );
+    iopar.get( sKey::StepCrl, trcrg_.step );
+
+    const char* res = iopar.find( sKey::ZRange );
+    if ( res  )
+    {
+	FileMultiString fms( res );
+	const int sz = fms.size();
+	if ( sz > 0 ) zrg_.start = atof( fms[0] );
+	if ( sz > 1 ) zrg_.stop = atof( fms[1] );
+	if ( sz > 2 ) zrg_.step = atof( fms[2] );
+    }
+
+    res = iopar.find( sKey::BinIDSel );
+    isall_ = !res || *res != *sKey::Range;
+}
+
+
+int uiSeis2DSubSel::PosData::expectedNrTraces() const
+{
+    if ( !isall_ )
+	return mIsUdf(trcrg_.stop) ? -1 : trcrg_.nrSteps() + 1;
+    return -1;
+}
+
+
+int uiSeis2DSubSel::PosData::expectedNrSamples() const
+{
+    if ( isall_ )
+	return SI().zRange(false).nrSteps() + 1;
+    else if ( !mIsUdf(zrg_.start) )
+	return zrg_.nrSteps() + 1;
+
+    return 0;
+}
+
+
 static const BufferStringSet emptylnms;
 
 
 uiSeis2DSubSel::uiSeis2DSubSel( uiParent* p, bool for_new_entry, bool mln )
-	: uiGroup( p, "2D seismics sub-selection" )
+	: uiCompoundParSel(p,"Data subselection")
 	, lnmsfld(0)
 	, lnmfld(0)
-    	, multiln(mln)
+    	, multiln_(mln)
 	, lineSel(this)
 	, singLineSel(this)
-    	, curlnms(*new BufferStringSet)
+    	, curlnms_(*new BufferStringSet)
 {
+    butPush.notify( mCB(this,uiSeis2DSubSel,doDlg) );
+
+    uiGenInput* fld;
     if ( for_new_entry )
-	lnmfld = new uiGenInput( this, "Store in Set as" );
+	fld = lnmfld = new uiGenInput( this, "Store in Set as" );
     else
     {
-	lnmsfld = new uiGenInput( this, multiln ? "One line only" : "Line name",
-				  StringListInpSpec(emptylnms) );
-	if ( multiln )
+	fld = lnmsfld = new uiGenInput( this, multiln_ ? "One line only"
+				: "Line name", StringListInpSpec(emptylnms) );
+	if ( multiln_ )
 	{
 	    lnmsfld->setWithCheck( true );
 	    lnmsfld->checked.notify( mCB(this,uiSeis2DSubSel,singLineChg) );
 	}
 	lnmsfld->valuechanged.notify( mCB(this,uiSeis2DSubSel,lineChg) );
     }
+    fld->attach( alignedBelow, txtfld );
 
-    selfld = new uiGenInput( this, "Select", BoolInpSpec("All","Part",true) );
-    selfld->valuechanged.notify( mCB(this,uiSeis2DSubSel,selChg) );
-    selfld->attach( alignedBelow, lnmfld ? lnmfld : lnmsfld );
-
-    trcrgfld = new uiGenInput( this, "Trace number range",
-			       IntInpIntervalSpec(true) );
-    trcrgfld->setValue( 1, 0 ); trcrgfld->setValue( 1, 2 );
-    trcrgfld->attach( alignedBelow, selfld );
-
-    StepInterval<float> zrg = SI().zRange(true);
-    BufferString fldtxt = "Z range "; fldtxt += SI().getZUnit();
-    zfld = new uiGenInput( this, fldtxt, FloatInpIntervalSpec(true) );
-    if ( !SI().zIsTime() )
-	zfld->setValue( zrg );
-    else
-    {
-	zfld->setValue( mNINT(zrg.start*1000), 0 );
-	zfld->setValue( mNINT(zrg.stop*1000), 1 );
-	zfld->setValue( mNINT(zrg.step*1000), 2 );
-    }
-    zfld->attach( alignedBelow, trcrgfld );
-
-    setHAlignObj( selfld );
-    setHCentreObj( selfld );
-
-    mainObject()->finaliseStart.notify( mCB(this,uiSeis2DSubSel,doFinalise) );
+    mainObject()->finaliseDone.notify( mCB(this,uiSeis2DSubSel,updSumm) );
 }
 
 
 uiSeis2DSubSel::~uiSeis2DSubSel()
 {
-    delete &curlnms;
+    delete &curlnms_;
 }
 
 
-void uiSeis2DSubSel::doFinalise( CallBacker* cb )
+void uiSeis2DSubSel::clear()
 {
-    selChg( cb );
+    data_.clear();
+    updateSummary();
+
+    if ( lnmfld )
+	lnmfld->setText( "" );
+    else
+    {
+	if ( multiln_ )
+	    lnmsfld->setChecked( false );
+	lnmsfld->newSpec( StringListInpSpec(emptylnms), 0 );
+    }
 }
 
 
-bool uiSeis2DSubSel::isAll() const
+void uiSeis2DSubSel::setInput( const PosData& data )
 {
-    return selfld->getBoolValue();
+    data_ = data;
+    updateSummary();
+}
+
+
+void uiSeis2DSubSel::setInput( const IOObj& ioobj )
+{
+    clear();
+    if ( !lnmsfld ) return;
+
+    uiSeisIOObjInfo oinf(ioobj,false);
+    const BufferString prevlnm( selectedLine() );
+    curlnms_.erase();
+
+    oinf.getLineNames( curlnms_ );
+    lnmsfld->newSpec( StringListInpSpec(curlnms_), 0 );
+    const bool prevok = prevlnm != "" && curlnms_.indexOf(prevlnm) >= 0;
+    if ( multiln_ )
+	lnmsfld->setChecked( prevok );
+
+    if ( prevok )
+	lnmsfld->setText( prevlnm );
+}
+
+
+void uiSeis2DSubSel::doDlg( CallBacker* )
+{
+    uiSeis2DSubSelDlg dlg( this );
+    dlg.setInput( data_ );
+    if ( dlg.go() )
+	data_ = dlg.data_;
+}
+
+
+BufferString uiSeis2DSubSel::getSummary() const
+{
+    BufferString txt;
+    if ( data_.isall_ )
+	txt = "None";
+    else
+    {
+	txt = "Traces "; txt += data_.trcrg_.start;
+	txt += "-"; txt += data_.trcrg_.stop;
+	txt += " ("; txt += data_.zrg_.nrSteps() + 1; txt += " samples)";
+    }
+    return txt;
+}
+
+
+void uiSeis2DSubSel::usePar( const IOPar& iopar )
+{
+    data_.usePar( iopar );
+    updateSummary();
+
+    LineKey lk; lk.usePar( iopar, false );
+    BufferString lnm( lk.lineName() );
+    if ( lnmfld )
+	lnmfld->setText( lnm );
+    else
+    {
+	lnmsfld->setText( lnm );
+	if ( multiln_ ) lnmsfld->setChecked( lnm != "" );
+    }
+}
+
+
+bool uiSeis2DSubSel::fillPar( IOPar& iopar ) const
+{
+    data_.fillPar( iopar );
+
+    BufferString lnm( selectedLine() );
+    if ( lnm == "" )
+	iopar.removeWithKey( sKey::LineKey );
+    else
+	iopar.set( sKey::LineKey, lnm );
+
+    return true;
 }
 
 
 bool uiSeis2DSubSel::isSingLine() const
 {
-    return lnmfld || !multiln || lnmsfld->isChecked();
+    return lnmfld || !multiln_ || lnmsfld->isChecked();
 }
 
 
@@ -294,73 +441,6 @@ void uiSeis2DSubSel::setSelectedLine( const char* nm )
 }
 
 
-void uiSeis2DSubSel::clear()
-{
-    trcrgfld->setValue(1,0); trcrgfld->setText("",1); trcrgfld->setValue(1,2);
-    setInput( SI().zRange(false) );
-    selfld->setValue( true );
-    if ( lnmfld )
-	lnmfld->setText( "" );
-    else
-    {
-	if ( multiln )
-	    lnmsfld->setChecked( false );
-	lnmsfld->newSpec( StringListInpSpec(emptylnms), 0 );
-    }
-    selChg( 0 );
-}
-
-
-void uiSeis2DSubSel::setInput( const StepInterval<int>& rg )
-{
-    trcrgfld->setValue( rg );
-}
-
-
-void uiSeis2DSubSel::setInput( const Interval<float>& zrg )
-{
-    if ( !SI().zIsTime() )
-	zfld->setValue( zrg );
-    else
-    {
-	zfld->setValue( mNINT(zrg.start*1000), 0 );
-	zfld->setValue( mNINT(zrg.stop*1000), 1 );
-	mDynamicCastGet(const StepInterval<float>*,szrg,&zrg);
-	if ( szrg )
-	    zfld->setValue( mNINT(szrg->step*1000), 2 );
-    }
-}
-
-
-void uiSeis2DSubSel::setInput( const HorSampling& hs )
-{
-    StepInterval<int> trg( 1, hs.nrCrl(), 1 );
-    if ( mIsUdf(hs.stop.crl) )
-	trg.stop = mUdf(int);
-    trcrgfld->setValue( trg );
-}
-
-
-void uiSeis2DSubSel::setInput( const IOObj& ioobj )
-{
-    clear();
-    if ( !lnmsfld ) return;
-
-    uiSeisIOObjInfo oinf(ioobj,false);
-    const BufferString prevlnm( selectedLine() );
-    curlnms.erase();
-
-    oinf.getLineNames( curlnms );
-    lnmsfld->newSpec( StringListInpSpec(curlnms), 0 );
-    const bool prevok = prevlnm != "" && curlnms.indexOf(prevlnm) >= 0;
-    if ( multiln )
-	lnmsfld->setChecked( prevok );
-
-    if ( prevok )
-	lnmsfld->setText( prevlnm );
-}
-
-
 void uiSeis2DSubSel::lineChg( CallBacker* )
 {
     lineSel.trigger();
@@ -373,161 +453,62 @@ void uiSeis2DSubSel::singLineChg( CallBacker* )
 }
 
 
-void uiSeis2DSubSel::selChg( CallBacker* )
+uiSeis2DSubSelDlg::uiSeis2DSubSelDlg( uiParent* p )
+    : uiDialog( p, uiDialog::Setup("Data subselection","Select traces/samples",
+				   "0.0.0") )
 {
-    bool disp = !isAll();
-    trcrgfld->display( disp );
-    zfld->display( disp );
+    selfld = new uiGenInput( this, "Select", BoolInpSpec("All","Part",true) );
+    selfld->valuechanged.notify( mCB(this,uiSeis2DSubSelDlg,selChg) );
+
+    trcrgfld = new uiGenInput( this, "Trace number range",
+			       IntInpIntervalSpec(true) );
+    trcrgfld->setValue( 1, 0 ); trcrgfld->setValue( 1, 2 );
+    trcrgfld->attach( alignedBelow, selfld );
+
+    StepInterval<float> zrg = SI().zRange(true);
+    BufferString fldtxt = "Z range "; fldtxt += SI().getZUnit();
+    zrgfld = new uiGenInput( this, fldtxt, FloatInpIntervalSpec(true) );
+    const float zfac = SI().zFactor();
+    zrgfld->setValue( zrg.start*zfac, 0 );
+    zrgfld->setValue( zrg.stop*zfac, 1 );
+    zrgfld->setValue( zrg.step*zfac, 2 );
+    zrgfld->attach( alignedBelow, trcrgfld );
+
+    finaliseDone.notify( mCB(this,uiSeis2DSubSelDlg,selChg) );
 }
 
 
-void uiSeis2DSubSel::usePar( const IOPar& iopar )
+void uiSeis2DSubSelDlg::setInput( const uiSeis2DSubSel::PosData& data )
 {
-    LineKey lk; lk.usePar( iopar, false );
-    BufferString lnm( lk.lineName() );
-    if ( lnmfld )
-	lnmfld->setText( lnm );
-    else
-    {
-	lnmsfld->setText( lnm );
-	if ( multiln ) lnmsfld->setChecked( lnm != "" );
-    }
-
-    StepInterval<int> trcrg = trcrgfld->getIStepInterval();
-    iopar.get( sKey::FirstCrl, trcrg.start );
-    iopar.get( sKey::LastCrl, trcrg.stop );
-    iopar.get( sKey::StepCrl, trcrg.step );
-    trcrgfld->setValue(trcrg);
-
-    const char* res = iopar.find( sKey::ZRange );
-    if ( res  )
-    {
-	StepInterval<double> zrg = zfld->getDStepInterval();
-	FileMultiString fms( res );
-	const int sz = fms.size();
-	if ( sz > 0 ) zrg.start = atof( fms[0] );
-	if ( sz > 1 ) zrg.stop = atof( fms[1] );
-	if ( sz > 2 ) zrg.step = atof( fms[2] );
-	if ( SI().zIsTime() )
-	{
-	    zfld->setValue( mNINT(zrg.start*1000), 0 );
-	    zfld->setValue( mNINT(zrg.stop*1000), 1 );
-	    zfld->setValue( mNINT(zrg.step*1000), 2 );
-	}
-	else
-	    zfld->setValue( zrg );
-    }
-
-    res = iopar.find( sKey::BinIDSel );
-    selfld->setValue( !res || *res != *sKey::Range );
-
-    selChg( 0 );
+    data_ = data;
+    selfld->setValue( data_.isall_ );
+    trcrgfld->setValue( data_.trcrg_ );
+    zrgfld->setValue( data_.zrg_ );
+    selChg();
 }
 
 
-bool uiSeis2DSubSel::fillPar( IOPar& iopar ) const
+const uiSeis2DSubSel::PosData& uiSeis2DSubSelDlg::getInput() const
 {
-    const bool isall = isAll();
-    iopar.set( sKey::BinIDSel, isall ? sKey::No : sKey::Range );
-
-    BufferString lnm( selectedLine() );
-    if ( lnm == "" )
-	iopar.removeWithKey( sKey::LineKey );
-    else
-	iopar.set( sKey::LineKey, lnm );
-
-    iopar.set( sKey::FirstInl, 0 );
-    iopar.set( sKey::LastInl, mUdf(int) );
-    iopar.set( sKey::StepInl, 1 );
-
-    if ( !isall )
+    data_.isall_ = selfld->getBoolValue();
+    if ( !data_.isall_ )
     {
-	StepInterval<int> trcrg = trcrgfld->getIStepInterval();
-	iopar.set( sKey::FirstCrl, trcrg.start );
-	iopar.set( sKey::LastCrl, trcrg.stop );
-	iopar.set( sKey::StepCrl, trcrg.step );
-
-	StepInterval<float> zrg;
-	if ( !getZRange( zrg ) )
-	    return false;
-	FileMultiString fms;
-	fms += zrg.start; fms += zrg.stop; fms += zrg.step;
-	iopar.set( sKey::ZRange, (const char*)fms );
+	data_.trcrg_ = trcrgfld->getIStepInterval();
+	data_.zrg_ = zrgfld->getFStepInterval();
     }
-    else
-    {
-	iopar.set( sKey::FirstCrl, 1 );
-	iopar.set( sKey::LastCrl, mUdf(int) );
-	iopar.set( sKey::StepCrl, 1 );
-    }
+    return data_;
+}
 
+void uiSeis2DSubSelDlg::selChg( CallBacker* )
+{
+    data_.isall_ = selfld->getBoolValue();
+    trcrgfld->display( !data_.isall_ );
+    zrgfld->display( !data_.isall_ );
+}
+
+
+bool uiSeis2DSubSelDlg::acceptOK( CallBacker* )
+{
+    getInput();
     return true;
-}
-
-
-bool uiSeis2DSubSel::getRange( StepInterval<int>& trg ) const
-{
-    trg.start = 0;
-    const char* res = trcrgfld->text( 1 );
-    if ( isAll() || !res || !*res )
-    {
-	mSetUdf(trg.stop);
-	return true;
-    }
-
-    trg = trcrgfld->getIStepInterval();
-    return true;
-}
-
-
-bool uiSeis2DSubSel::getZRange( Interval<float>& zrg ) const
-{
-    mDynamicCastGet(StepInterval<float>*,szrg,&zrg);
-    const StepInterval<float>& survzrg = SI().zRange(false);
-    if ( isAll() )
-    {
-	assign( zrg, survzrg );
-	if ( szrg ) szrg->step = survzrg.step;
-    }
-    else
-    {
-	StepInterval<float> fldzrg = zfld->getFStepInterval();
-	if ( SI().zIsTime() )
-	{
-	    fldzrg.start *= 0.001;
-	    fldzrg.stop *= 0.001;
-	    if ( mIsUdf(fldzrg.step) ) 
-		fldzrg.step = survzrg.step;
-	    else
-		fldzrg.step *= 0.001;
-	}
-	assign( zrg, fldzrg );
-	if ( szrg ) szrg->step = fldzrg.step;
-    }
-
-    if ( zrg.start > zrg.stop || zrg.start > survzrg.stop ||
-	 zrg.stop < survzrg.start )
-    {
-	assign( zrg, survzrg );
-	uiMSG().error( "Z range not correct." );
-	return false;
-    }
-
-    return true;
-}
-
-
-int uiSeis2DSubSel::expectedNrTraces() const
-{
-    StepInterval<int> trg;
-    if ( getRange(trg) )
-	return mIsUdf(trg.stop) ? -1 : trg.nrSteps() + 1;
-    return -1;
-}
-
-
-int uiSeis2DSubSel::expectedNrSamples() const
-{
-    StepInterval<float> zrg; getZRange( zrg );
-    return zrg.nrSteps() + 1;
 }
