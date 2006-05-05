@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vismpeseedcatcher.cc,v 1.9 2006-05-05 21:00:51 cvskris Exp $";
+static const char* rcsID = "$Id: vismpeseedcatcher.cc,v 1.10 2006-05-05 21:11:07 cvskris Exp $";
 
 #include "vismpeseedcatcher.h"
 
@@ -103,6 +103,19 @@ const Attrib::DataCubes* MPEClickCatcher::clickedObjectData() const
 
 const Attrib::SelSpec* MPEClickCatcher::clickedObjectDataSelSpec() const
 { return as_; }
+
+
+const MultiID& MPEClickCatcher::clickedObjectLineSet() const
+{ return lineset_; }
+
+
+const char* MPEClickCatcher::clickedObjectLineName() const
+{ return linename_[0] ? (const char*) linename_ : 0; }
+
+
+const Attrib::Data2DHolder* MPEClickCatcher::clickedObjectLineData() const
+{ return linedata_; }
+
 
 
 void MPEClickCatcher::clickCB( CallBacker* cb )
