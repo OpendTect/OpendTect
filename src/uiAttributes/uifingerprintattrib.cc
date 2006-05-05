@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Payraudeau
  Date:          February  2006
- RCS:           $Id: uifingerprintattrib.cc,v 1.6 2006-04-28 11:38:26 cvshelene Exp $
+ RCS:           $Id: uifingerprintattrib.cc,v 1.7 2006-05-05 14:45:48 cvshelene Exp $
 
 ________________________________________________________________________
 
@@ -38,6 +38,7 @@ ________________________________________________________________________
 #include "pickset.h"
 #include "picksettr.h"
 #include "runstat.h"
+#include "uiexecutor.h"
 
 using namespace Attrib;
 
@@ -331,7 +332,7 @@ void uiFingerPrintAttrib::calcPush(CallBacker*)
     
     BufferString errmsg;
     int nrspecs;
-    PtrMan<Attrib::EngineMan> aem = createEngineMan( nrspecs );
+    PtrMan<EngineMan> aem = createEngineMan( nrspecs );
     PtrMan<Processor> proc = aem->createLocationOutput( errmsg, values );
     if ( !proc )
     {
@@ -339,18 +340,11 @@ void uiFingerPrintAttrib::calcPush(CallBacker*)
 	return;
     }
 
-    int res =1;
-    while ( res == 1 )
-    {
-	res = proc->nextStep();
-	if ( res == -1 )
-	{
-	    uiMSG().error( "Cannot reach next position" );
-	    return;
-	}
-    }
+    proc->setName("Compute reference values");
+    uiExecutor dlg( this, *proc );
+    if ( !dlg.go() ) return;
 
-    showValues( values[0], nrspecs );
+    showValues( *(values[0]), nrspecs );
     deepErase(values);
 }
 
@@ -378,17 +372,16 @@ EngineMan* uiFingerPrintAttrib::createEngineMan( int& nrspecs )
     nrspecs = attribspecs.size();
 
     return aem;
-    
 }
 
 
-void uiFingerPrintAttrib::showValues( BinIDValueSet* bidvalset, int nrspecs )
+void uiFingerPrintAttrib::showValues( const BinIDValueSet& bidvalset,
+				      int nrspecs )
 {
-    TypeSet<float> vals;
-    vals.setSize( nrspecs );
-    if ( bidvalset->totalSize() == 1 )
+    TypeSet<float> vals( nrspecs, -1 );
+    if ( bidvalset.totalSize() == 1 )
     {
-	float* tmpvals = bidvalset->getVals( bidvalset->getPos(0) );
+	const float* tmpvals = bidvalset.getVals( bidvalset.getPos(0) );
 	for ( int idx=0; idx<nrspecs; idx++ )
 	    vals[idx] = tmpvals[idx+1];
     }
@@ -398,44 +391,19 @@ void uiFingerPrintAttrib::showValues( BinIDValueSet* bidvalset, int nrspecs )
 	for ( int idx=0; idx<nrspecs; idx++ )
 	    statsset += new RunningStatistics<float>;
 
-	for ( int idsz=0; idsz<bidvalset->totalSize(); idsz++ )
+	BinIDValueSet::Pos pos;
+	while ( bidvalset.next(pos) )
 	{
-	    float* values = bidvalset->getVals( bidvalset->getPos(idsz) );
+	    const float* values = bidvalset.getVals( pos );
 	    for ( int idx=0; idx<nrspecs; idx++ )
 		*(statsset[idx]) += values[idx+1];
 	}
-	
+
+	int type = statsfld_->getIntValue();
+	if ( type > 1 ) type++; // StdDev is not used
 	for ( int idx=0; idx<nrspecs; idx++ )
-	{
-	    switch ( statsfld_->getIntValue() )
-	    {
-		case 0:
-		    {
-			vals[idx] = statsset[idx]->mean();
-			break;
-		    }
-		case 1:
-		    {
-			vals[idx] = statsset[idx]->median(); 
-			break;
-		    }
-		case 2:
-		    {
-			vals[idx] = statsset[idx]->variance(); 
-			break;
-		    }
-		case 3:
-		    {
-			vals[idx] = statsset[idx]->min(); 
-			break;
-		    }
-		case 4:
-		    {
-			vals[idx] = statsset[idx]->max();
-			break;
-		    }
-	    }
-	}
+	    vals[idx] = statsset[idx]->getValue( (RunStats::StatType)type );
+
 	deepErase( statsset );
     }
 	
