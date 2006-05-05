@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          18-4-1996
- RCS:           $Id: survinfo.cc,v 1.71 2006-02-20 18:49:49 cvsbert Exp $
+ RCS:           $Id: survinfo.cc,v 1.72 2006-05-05 14:59:02 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -529,23 +529,30 @@ void SurveyInfo::snapStep( BinID& s, BinID rounding ) const
 #endif
 
 
+#define mSnapZ(z,dir,idxeps) \
+{\
+    const float fidx = (z-zrg.start) / zrg.step; \
+    int targetidx = mNINT(fidx); \
+    if ( dir && !mIsEqual(fidx,targetidx,idxeps) ) \
+	targetidx = dir < 0 ? (int)(floor(fidx)) : (int)(ceil(fidx)); \
+    z = zrg.atIndex(targetidx); \
+}
+
 void SurveyInfo::snapZ( float& z, int dir ) const
 {
     const StepInterval<float>& zrg = cs_.zrg;
-
     const float eps = 1e-8;
+    const float idxeps = pow(2,-13);
+
+    float snapzrgstop=zrg.stop;
+    mSnapZ( snapzrgstop, -1, idxeps );
+
     if ( z < zrg.start+eps )
 	{ z = zrg.start; return; }
-    if ( z > zrg.stop-eps )
-	{ z = zrg.stop; return; }
+    if ( z > snapzrgstop-eps )
+	{ z = snapzrgstop; return; }
 
-    const float idxeps = pow(2,-13);
-    const float fidx = (z-zrg.start) / zrg.step;
-    int targetidx = mNINT(fidx);
-    if ( dir && !mIsEqual(fidx,targetidx,idxeps) )
-	targetidx = dir < 0 ? (int)(floor(fidx)) : (int)(ceil(fidx));
-
-    z = zrg.atIndex(targetidx);
+    mSnapZ( z, dir, idxeps );
 }
 
 
