@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.cc,v 1.85 2006-05-04 20:12:40 cvskris Exp $
+ RCS:           $Id: uimpeman.cc,v 1.86 2006-05-05 21:06:31 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "emtracker.h"
 #include "faultseedpicker.h"
 #include "horizonseedpicker.h"
+#include "horizon2dseedpicker.h"
 #include "ioman.h"
 #include "keystrs.h"
 #include "mpeengine.h"
@@ -243,8 +244,14 @@ void uiMPEMan::seedClick( CallBacker* )
 	    clickcatcher->clickedObjectData();
 
 	if ( cached )
+	{
 	    engine.setAttribData( *clickcatcher->clickedObjectDataSelSpec(),
 				  cached );
+	    mDynamicCastGet( MPE::Horizon2DSeedPicker*, h2dsp, seedpicker );
+	    h2dsp->setLine( clickcatcher->clickedObjectLineSet(),
+		    	    clickcatcher->clickedObjectLineName(),
+		    	    clickcatcher->clickedObjectLineData() );
+	}
     }
     else
     {
@@ -301,6 +308,7 @@ void uiMPEMan::seedClick( CallBacker* )
     uiCursor::restoreOverride();
     setHistoryLevel(currentevent);
 }
+
 
 uiToolBar* uiMPEMan::getToolBar() const 
 { 
