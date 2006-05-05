@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		24-01-2003
- RCS:		$Id: uiviscoltabed.h,v 1.6 2005-10-04 14:38:43 cvskris Exp $
+ RCS:		$Id: uiviscoltabed.h,v 1.7 2006-05-05 20:38:48 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -33,6 +33,8 @@ public:
     void			setColTab(int coltabid);
     void			setHistogram(const TypeSet<float>*);
     void			setPrefHeight(int);
+
+    Notifier<uiVisColTabEd>	sequenceChange;
 
 protected:
 
