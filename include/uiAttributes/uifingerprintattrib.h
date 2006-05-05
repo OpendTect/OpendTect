@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Payraudeau
  Date:          February 2006
- RCS:           $Id: uifingerprintattrib.h,v 1.5 2006-04-28 10:00:47 cvshelene Exp $
+ RCS:           $Id: uifingerprintattrib.h,v 1.6 2006-05-05 14:45:19 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -69,7 +69,7 @@ protected:
     void                calcPush(CallBacker*);
     void		refSel(CallBacker*);
     EngineMan*          createEngineMan(int&);
-    void                showValues(BinIDValueSet*,int);
+    void                showValues(const BinIDValueSet&,int);
 };
 
 #endif
