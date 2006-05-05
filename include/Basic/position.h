@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		21-6-1996
  Contents:	Positions: Inline/crossline and Coordinate
- RCS:		$Id: position.h,v 1.41 2006-05-01 17:32:18 cvskris Exp $
+ RCS:		$Id: position.h,v 1.42 2006-05-05 18:54:15 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -47,6 +47,8 @@ public:
 		      && mIsEqual(y,crd.y,mDefEps); }
     bool	operator!=( const Coord& crd ) const
 		{ return ! (crd == *this); }
+
+    virtual bool isDefined() const;
 
     double	distance(const Coord&) const;
     double	sqDistance(const Coord&) const;
@@ -281,7 +283,7 @@ inline bool Coord3::operator!=( const Coord3& b ) const
 
 inline bool Coord3::isDefined() const
 {
-    return !Values::isUdf(x) && !Values::isUdf(y) && !Values::isUdf(z);
+    return !Values::isUdf(z) && Coord::isDefined();
 }
 
 

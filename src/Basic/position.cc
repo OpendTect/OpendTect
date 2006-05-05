@@ -4,7 +4,7 @@
  * DATE     : 21-6-1996
 -*/
 
-static const char* rcsID = "$Id: position.cc,v 1.50 2006-05-01 17:32:18 cvskris Exp $";
+static const char* rcsID = "$Id: position.cc,v 1.51 2006-05-05 18:54:15 cvskris Exp $";
 
 #include "position.h"
 #include "bufstring.h"
@@ -19,6 +19,10 @@ float BinIDValues::udf = mUdf(float);
 
 
 Coord Coord::normalize() const { return *this/abs(); }
+
+
+bool Coord::isDefined() const
+{ return !Values::isUdf(x) && !Values::isUdf(y); }
 
 
 double Coord::dot( const Coord& b ) const
