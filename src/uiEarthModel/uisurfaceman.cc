@@ -4,30 +4,35 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2003
- RCS:           $Id: uisurfaceman.cc,v 1.29 2005-10-25 07:25:52 cvsnanne Exp $
+ RCS:           $Id: uisurfaceman.cc,v 1.30 2006-05-05 06:46:07 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 
 #include "uisurfaceman.h"
-#include "ioobj.h"
-#include "ctxtioobj.h"
-#include "uilistbox.h"
-#include "uiioobjmanip.h"
-#include "uitextedit.h"
-#include "filegen.h"
+
 #include "binidselimpl.h"
-#include "emmanager.h"
-#include "emsurfacetr.h"
-#include "emsurfaceiodata.h"
-#include "emsurfauxdataio.h"
-#include "emsurfaceauxdata.h"
-#include "uimsg.h"
-#include "uigeninputdlg.h"
-#include "uiiosurfacedlg.h"
-#include "pixmap.h"
+#include "ctxtioobj.h"
+#include "filegen.h"
+#include "ioobj.h"
 #include "oddirs.h"
+#include "pixmap.h"
+
+#include "emmanager.h"
+#include "emsurfaceauxdata.h"
+#include "emsurfaceiodata.h"
+#include "emsurfacetr.h"
+#include "emsurfauxdataio.h"
+
+#include "uibutton.h"
+#include "uigeninputdlg.h"
+#include "uihorizonrelations.h"
+#include "uiioobjmanip.h"
+#include "uiiosurfacedlg.h"
+#include "uilistbox.h"
+#include "uimsg.h"
+#include "uitextedit.h"
 
 
 uiSurfaceMan::uiSurfaceMan( uiParent* p, bool hor )
@@ -54,6 +59,12 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, bool hor )
 	    	       "Rename selected attribute" );
 #endif
     butgrp->attach( rightTo, attribfld );
+
+    uiPushButton* relbut = new uiPushButton( topgrp, "&Relations", false );
+    relbut->activated.notify( mCB(this,uiSurfaceMan,setRelations) );
+    relbut->attach( alignedBelow, listfld );
+    relbut->attach( ensureBelow, manipgrp );
+    relbut->attach( ensureBelow, attribfld );
 
     selChg( this ); 
 }
@@ -164,4 +175,11 @@ void uiSurfaceMan::mkFileInfo()
     }
 
     infofld->setText( txt );
+}
+
+
+void uiSurfaceMan::setRelations( CallBacker* )
+{
+    uiHorizonRelationsDlg dlg( this );
+    dlg.go();
 }
