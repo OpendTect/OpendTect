@@ -7,76 +7,88 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Payraudeau
  Date:          20/01/2006
- RCS:           $Id: uishortcutsmgr.h,v 1.3 2006-02-20 18:49:48 cvsbert Exp $
+ RCS:           $Id: uishortcutsmgr.h,v 1.4 2006-05-05 14:43:14 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "iopar.h"
 #include "enums.h"
+#include "bufstringset.h"
 
-class QKeyEvent;
-class EventKeyAndState;
 
-class uiHandleShortcuts 
+class uiShortcutsList;
+class uiShortcutsMgr
 {
 public:
-			uiHandleShortcuts(){};
+			uiShortcutsMgr()			{};
 
-    enum		SCLabels		
-    			{ mvForwd, mvBackwd };
-    			DeclareEnumUtils(SCLabels);
-   
-
-    static bool		handleEvent(QKeyEvent*,SCLabels&);
-    static int 		getShortcutIdx(QKeyEvent*);
-
-    static const char*  nameStr()                       { return "Name"; }
-    static const char*  keyStr()                        { return "Keys"; }
-
-    static const char*	sKeyFileType;
-
-protected:
+    IOPar*		readShortcutsFile(const char*);
+    			// IOPar becomes yours!
+    
+    uiShortcutsList*	getList(const char*);
 };
 
+uiShortcutsMgr& SCMgr();
 
-class ShortcutsList
+
+
+class QKeyEvent;
+class uiKeyDesc;
+
+class uiShortcutsList
 {
 public:
-    			ShortcutsList();
-    			~ShortcutsList() 		{ deepErase(list_); }
+    			uiShortcutsList(const char*);
+    			~uiShortcutsList() 		{ deepErase(keyslist_);}
 
-    void		init();
+    void		init(const char*);
     
-    IOPar		readShorcutsFile(bool&);
-    bool		getKeyValues(const IOPar&,int,bool,
+    bool		getKeyValues(const IOPar&,int,
 	    			     BufferString&,BufferString&);
+    bool		getSCNames(const IOPar&,int,BufferString&);
+    const char*		getAct(QKeyEvent*);		
     
-    ObjectSet<EventKeyAndState>& getList()		{ return list_; }	
+    ObjectSet<uiKeyDesc>& getKeysList()			{ return keyslist_; }	
+    BufferStringSet& 	getNamesList()			{ return nameslist_; }
+
+    static const char*  ODSceneStr()			{ return "ODScene"; }   
 
 protected:
 				
-    ObjectSet<EventKeyAndState>	list_;
+    ObjectSet<uiKeyDesc> keyslist_;
+    BufferStringSet	nameslist_;
 };
 
-ShortcutsList& SCList();
 
-
-class EventKeyAndState
+class uiKeyDesc
 {
 public:
-			EventKeyAndState(QKeyEvent*);
-			EventKeyAndState(const char*,const char*);
+			uiKeyDesc(QKeyEvent*);
+			~uiKeyDesc();
+			uiKeyDesc(const char*,const char*);
 			
-    bool		operator==(const EventKeyAndState& ev) const
+    bool		operator==(const uiKeyDesc& ev) const
 			{ return key_==ev.key_ && state_==ev.state_; }
+
+    bool		set( const char* str1, const char* str2 );
+    bool		set(QKeyEvent*);
+    
     int			state() const 		{ return state_; }
-    void		setState( int state )	{ state_ = state; }
+    int			key() const 		{ return key_; }
+    QKeyEvent*		keyEv() const		{ return qkeyev_; }
+    void		setState(int);
+    char 		asciiChar() const;
+    bool		isSimpleAscii() const;
 
 protected:
 
     int			key_;
     int			state_;
+    QKeyEvent*		qkeyev_;
+    bool		qkeyevmine_;
+
+    void		handleSpecialKey(const char*);
 
 };
 

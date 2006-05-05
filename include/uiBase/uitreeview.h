@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          29/01/2002
- RCS:           $Id: uitreeview.h,v 1.17 2006-03-12 13:39:10 cvsbert Exp $
+ RCS:           $Id: uitreeview.h,v 1.18 2006-05-05 14:43:14 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,6 +27,7 @@ ________________________________________________________________________
 
 class uiListViewBody;
 class uiListViewItem;
+class uiShortcutsList;
 class ioPixmap;
 
 class uiListView : public uiObject
@@ -142,6 +143,7 @@ public:
     Notifier<uiListView> itemRenamed;
     Notifier<uiListView> expanded;
     Notifier<uiListView> collapsed;
+    Notifier<uiListView> unusedKey;
 
 protected:
 

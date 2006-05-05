@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Mar 2002
- RCS:		$Id: keystrs.h,v 1.18 2006-05-04 20:20:16 cvsnanne Exp $
+ RCS:		$Id: keystrs.h,v 1.19 2006-05-05 14:43:14 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,6 +45,7 @@ namespace sKey
     extern const char*	FloatUdf	mImpl("1e30");
     extern const char*	Geometry	mImpl("Geometry");
     extern const char*	IOSelection	mImpl("I/O Selection");
+    extern const char*	Keys		mImpl("Keys");
     extern const char*	LineKey		mImpl("Line key");
     extern const char*	Name		mImpl("Name");
     extern const char*	No		mImpl("No");
@@ -52,6 +53,7 @@ namespace sKey
     extern const char*	Pars		mImpl("Parameters");
     extern const char*	PSSeis		mImpl("Pre-Stack Seismics");
     extern const char*	Range		mImpl("Range");
+    extern const char*	Shortcuts	mImpl("Shortcuts");
     extern const char*	Size		mImpl("Size");
     extern const char*	Steering	mImpl("Steering");
     extern const char*	Survey		mImpl("Survey");

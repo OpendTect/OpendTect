@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/01/2002
- RCS:           $Id: uitreeview.cc,v 1.20 2006-03-10 13:34:02 cvsbert Exp $
+ RCS:           $Id: uitreeview.cc,v 1.21 2006-05-05 14:43:14 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,7 +41,7 @@ public:
                         uiListViewBody( uiListView& handle, uiParent* parnt, 
 					const char* nm, int nrl);
 
-    virtual 		~uiListViewBody()		{ delete &messenger_; }
+    virtual 		~uiListViewBody();
     void 		setLines( int prefNrLines )
 			{ 
 			    if(prefNrLines >= 0) prefnrlines=prefNrLines;
@@ -61,6 +61,7 @@ protected:
 
     void		keyPressEvent(QKeyEvent*);
     bool		moveItem(QKeyEvent*);
+    uiShortcutsList*     scl_;
 
 private:
 
@@ -83,27 +84,42 @@ uiListViewBody::uiListViewBody( uiListView& handle, uiParent* parnt,
     setSorting( -1 );
     setAcceptDrops( TRUE );
     viewport()->setAcceptDrops( TRUE );
+
+    scl_ = SCMgr().getList( uiShortcutsList::ODSceneStr() );
 }
 
+uiListViewBody::~uiListViewBody()
+{
+    delete &messenger_;
+    delete scl_;
+}
+
+#define mTriggRet \
+{\
+    lvhandle_.unusedKey.trigger();\
+    QListView::keyPressEvent( event );\
+    return;\
+}
 
 void uiListViewBody::keyPressEvent( QKeyEvent* event )
 {
-    uiHandleShortcuts handsc;
-    uiHandleShortcuts::SCLabels sclabel;
-    bool eventhandled = handsc.handleEvent( event, sclabel );
-    if ( eventhandled )
-    {
-	uiListViewItem* currentitem = lvhandle_.currentItem();
-	if ( sclabel == uiHandleShortcuts::mvForwd )
-	    currentitem->moveForwdReq.trigger(currentitem);
-	else if ( sclabel == uiHandleShortcuts::mvBackwd )
-	    currentitem->moveBackwdReq.trigger(currentitem);
-    }
-    else
-	eventhandled = moveItem( event );
+    if ( moveItem( event ) ) return;
     
-    if ( !eventhandled )
-	QListView::keyPressEvent( event );
+    if ( !scl_ ) mTriggRet
+    
+    const char* act = scl_->getAct( event );
+    if ( !act || !*act ) mTriggRet
+
+    uiListViewItem* currentitem = lvhandle_.currentItem();
+    if ( matchStringCI("Move slice f",act) )
+	currentitem->moveForwdReq.trigger(currentitem);
+    else if ( matchStringCI("Move slice b",act) )
+	currentitem->moveBackwdReq.trigger(currentitem);
+    else
+    {
+	UsrMsg("Specified action not recognised");
+	mTriggRet;
+    }
 }
 
 
@@ -164,6 +180,7 @@ uiListView::uiListView( uiParent* p, const char* nm, int nl, bool dec )
     , itemRenamed(this)
     , expanded(this)
     , collapsed(this)
+    , unusedKey(this)
     , lastitemnotified(0) 
 {
     setRootDecorated( dec );

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Payraudeau
  Date:          December 2005
- RCS:           $Id: uishortcuts.cc,v 1.7 2006-03-08 13:35:43 cvsnanne Exp $
+ RCS:           $Id: uishortcuts.cc,v 1.8 2006-05-05 14:43:14 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,13 +16,29 @@ ________________________________________________________________________
 #include "uihandleshortcuts.h"
 #include "uitable.h"
 #include "keyenum.h"
+#include "keystrs.h"
 #include "oddirs.h"
 #include "settings.h"
 
 
+static const char* sSCNamesList[] =
+{ "Move slice forward", "Move slice backward", 0 };
+
 static const char* sButtonStrs[] =
 { "NoButton", "ShiftButton", "ControlButton", 0 };
 
+static const char* sKeyStrs[] =
+{ "A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S",
+  "T","U","V","W","X","Y","Z","Plus","Minus","Asterisk","Slash","Up","Down",
+  "Left","Right","Delete","PageUp","PageDown", 0 };
+
+
+#define mArraySize( arrayname,size )\
+{\
+    size = 0;\
+    while ( arrayname[size] != 0 )\
+    	size++;\
+}\
 
 uiShortcutsDlg::uiShortcutsDlg( uiParent* p )
     : uiDialog( p,uiDialog::Setup( "Set up shortcuts", "", "0.2.4" ) )
@@ -38,9 +54,10 @@ uiShortcutsDlg::uiShortcutsDlg( uiParent* p )
     shortcutskeys_->setColumnLabel( 0, "action" );
     shortcutskeys_->setColumnLabel( 1, "key 1" );
     shortcutskeys_->setColumnLabel( 2, "key 2" );
-    shortcutskeys_->setNrRows( uiHandleShortcuts::SCLabelsDef().size() );
+    int nrrows;
+    mArraySize(sSCNamesList,nrrows);
+    shortcutskeys_->setNrRows( nrrows );
     fillTable();
-    windowClosed.notify( mCB(this,uiShortcutsDlg, shortcutsDlgClosed) );
 }
 
 
@@ -48,19 +65,17 @@ void uiShortcutsDlg::fillTable()
 {
     UserInputObj* uiobj1;
     UserInputObj* uiobj2;
-    const bool isdefault = readFileValues();
-    const int tablesz = uiHandleShortcuts::SCLabelsDef().size();
+    IOPar* pars = SCMgr().readShortcutsFile( uiShortcutsList::ODSceneStr() );
+    if ( !pars ) return;
+    
+    int tablesz;
+    mArraySize(sSCNamesList,tablesz);
     int val1, val2;
     for ( int idx=0; idx<tablesz; idx++ )
     {
-	getKeyValues( idx, val1, val2, isdefault );
-	if ( val1 == 5 )
-	    val1 = 1;//remember that we don't use the entire ButtonState list
-	if ( val1 == 6 )
-	    val1 = 2;
+	getKeyValues( idx, val1, val2, pars );
 
-	shortcutskeys_->setText( RowCol(idx,0),
-				uiHandleShortcuts::SCLabelsDef().convert(idx) );
+	shortcutskeys_->setText( RowCol(idx,0), sSCNamesList[idx] );
 	uiComboBox* box1 = new uiComboBox(0);
 	shortcutskeys_->setCellObject( RowCol(idx,1), box1 );
 	box1->addItems( sButtonStrs );
@@ -68,48 +83,37 @@ void uiShortcutsDlg::fillTable()
 
 	uiComboBox* box2 = new uiComboBox(0);
 	shortcutskeys_->setCellObject( RowCol(idx,2), box2 );
-	box2->addItems( OD::KeyDef().names );
+	box2->addItems( sKeyStrs );
 	box2->setCurrentItem( val2 );
     }
-}
 
-
-bool uiShortcutsDlg::readFileValues()
-{
-    BufferString firstsc;
-    if ( !mSettUse(get,"Shortcuts.0","Name",firstsc) )
-    {
-	pars_.read( GetDataFileName("ShortCuts"),
-		    uiHandleShortcuts::sKeyFileType );
-	return true;
-    }
-    else
-	pars_ = Settings::common();
-
-    return false;
+    delete pars;
 }
 
 
 #define mIndexOf(KeySet, keystring, val)\
-val = 0;\
-for ( int idx=0; idx<KeySet##Def().size(); idx++ )\
 {\
-    if ( !strcmp( KeySet##Def().convert(idx), keystring.buf() ) )\
-    { val = idx; break; }\
+    val = 0;\
+    int size;\
+    mArraySize(KeySet,size);\
+    for ( int idx=0; idx<size; idx++ )\
+    {\
+	if ( !strcmp( KeySet[idx], keystring.buf() ) )\
+	{ val = idx; break; }\
+    }\
 }\
 
 
 
-void uiShortcutsDlg::getKeyValues( int scutidx, int& val1, 
-				   int& val2, bool isdefault ) const
+void uiShortcutsDlg::getKeyValues( int scutidx, int& val1, int& val2, 
+				   IOPar* pars ) const
 {
     BufferString c1,c2;
-    BufferString scutidxstr = isdefault ? "" : "Shortcuts.";
-    scutidxstr += scutidx;
-    BufferString key = IOPar::compKey( scutidxstr, uiHandleShortcuts::keyStr());
-    pars_.get( key.buf(), c1, c2 ); 
-    mIndexOf( OD::ButtonState, c1, val1 );
-    mIndexOf( OD::Key, c2, val2 );
+    BufferString scutidxstr = scutidx;
+    BufferString key = IOPar::compKey( scutidxstr, sKey::Keys );
+    pars->get( key.buf(), c1, c2 ); 
+    mIndexOf( sButtonStrs, c1, val1 );
+    mIndexOf( sKeyStrs, c2, val2 );
 }
 
 
@@ -117,43 +121,46 @@ int uiShortcutsDlg::getUIValue( int keyidx, int scutidx ) const
 {
     mDynamicCastGet(uiComboBox*,box,
 		    shortcutskeys_->getCellObject(RowCol(scutidx,keyidx)))
-    if ( keyidx == 1 )
-    {
-	BufferString keytxt = box->text();
-	if ( keytxt == "ShiftButton" )
-	    return getEnum( "ShiftButton", OD::ButtonStateDef().names, 0, 0 );
-	else if ( keytxt == "ControlButton" )
-	    return getEnum( "ControlButton", OD::ButtonStateDef().names, 0, 0 );
-    }
 
     return box->currentItem();
 }
 
 
-void uiShortcutsDlg::shortcutsDlgClosed( CallBacker* )
+bool uiShortcutsDlg::acceptOK( CallBacker* )
 {
-    if ( uiResult() == 0 )
-	return;
+    writeToSettings();
+    uiShortcutsList* list = SCMgr().getList( uiShortcutsList::ODSceneStr() );
+    list->init(uiShortcutsList::ODSceneStr());
 
-    fillPar();
-    SCList().init();
+    return true;
 }
 
 
-void uiShortcutsDlg::fillPar() const
+void uiShortcutsDlg::writeToSettings()
 {
-    const int tablesz = uiHandleShortcuts::SCLabelsDef().size();
-    
-    for ( int idx=0; idx<tablesz; idx++ )
+    BufferString basekey = 
+	    IOPar::compKey( sKey::Shortcuts, uiShortcutsList::ODSceneStr() );
+    for ( int idx=0; idx<shortcutskeys_->nrRows(); idx++ )
     {
-	BufferString basekey = IOPar::compKey( "Shortcuts", idx );
-	mSettUse(set,basekey,uiHandleShortcuts::nameStr(),
-		 uiHandleShortcuts::SCLabelsDef().convert(idx) );
-	Settings::common().set( IOPar::compKey(basekey,
-		    		uiHandleShortcuts::keyStr()),
-				OD::ButtonStateDef().convert(getUIValue(1,idx)),
-				OD::KeyDef().convert( getUIValue(2,idx) ) );
+	BufferString key = IOPar::compKey( basekey, idx );
+	mSettUse(set,key,sKey::Name, sSCNamesList[idx] );
+	Settings::common().set( IOPar::compKey(key, sKey::Keys),
+				sButtonStrs[getUIValue(1,idx)],
+				sKeyStrs[getUIValue(2,idx)] );
     }
-    Settings::common().write();
+    removeShortcutsOldStyle(); //compat with old files...
+    Settings::common().write( false );
+}
+
+
+void uiShortcutsDlg::removeShortcutsOldStyle()
+{
+    IOPar& par = Settings::common();
+    BufferString basekey = IOPar::compKey( sKey::Shortcuts, 0 );
+    par.removeWithKey( IOPar::compKey(basekey.buf(),sKey::Name) );
+    par.removeWithKey( IOPar::compKey(basekey.buf(),sKey::Keys) );
+    basekey = IOPar::compKey( sKey::Shortcuts, 1 );
+    par.removeWithKey( IOPar::compKey(basekey.buf(),sKey::Name) );
+    par.removeWithKey( IOPar::compKey(basekey.buf(),sKey::Keys) );
 }
 
