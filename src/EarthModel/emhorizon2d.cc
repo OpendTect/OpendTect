@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: emhorizon2d.cc,v 1.4 2006-05-01 18:04:45 cvskris Exp $
+ RCS:           $Id: emhorizon2d.cc,v 1.5 2006-05-05 19:03:11 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -59,6 +59,16 @@ const char* Horizon2Geometry::lineName( int lid ) const
     }
     
     return 0;
+}
+
+
+const MultiID& Horizon2Geometry::lineSet( int lid ) const
+{
+    const int idx = lineids_.indexOf( lid );
+    if ( idx>=0 && idx<nrLines() )
+	return linesets_[idx];
+    
+    return MultiID(-1);
 }
 
 

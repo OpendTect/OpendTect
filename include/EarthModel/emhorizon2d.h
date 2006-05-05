@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emhorizon2d.h,v 1.3 2006-05-01 18:04:45 cvskris Exp $
+ RCS:		$Id: emhorizon2d.h,v 1.4 2006-05-05 19:03:11 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -32,6 +32,7 @@ public:
     int				nrLines() const;
     int				lineID(int idx) const;
     const char*			lineName(int id) const;
+    const MultiID&		lineSet(int id) const;
     int				addLine(const TypeSet<Coord>&,
 	    			    int start,int step,
 				    const MultiID& lineset,
