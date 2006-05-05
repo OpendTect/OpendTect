@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiodapplmgr.h,v 1.30 2006-03-08 18:19:53 cvskris Exp $
+ RCS:           $Id: uiodapplmgr.h,v 1.31 2006-05-05 20:40:12 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -114,6 +114,7 @@ public:
     void			pageUpDownPressed(bool up);
     void			resetServers();
     void			modifyColorTable(int visid, int attrib );
+    NotifierAccess*		colorTableSeqChange();
     void			manSurvCB(CallBacker*)	{ manageSurvey(); }
     void			manAttrCB(CallBacker*)	{ manageAttributes(); }
     void			outVolCB(CallBacker*)	{ createVol(); }

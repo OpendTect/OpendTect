@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.132 2006-04-28 15:24:49 cvsnanne Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.133 2006-05-05 20:40:12 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -610,7 +610,7 @@ bool uiODApplMgr::handleMPEServEv( int evid )
 	visserv->turnSeedPickingOn( true );
 	sceneMgr().setToViewMode( false );
     }
-    else if ( evid == uiMPEPartServer::evEndSeedPick )
+    else if ( evid==uiMPEPartServer::evEndSeedPick )
     {
 	visserv->turnSeedPickingOn( false );
     }
@@ -619,7 +619,7 @@ bool uiODApplMgr::handleMPEServEv( int evid )
 	enableMenusAndToolbars( true );
 	enableTree( true );
     }
-    else if ( evid == uiMPEPartServer::evGetAttribData )
+    else if ( evid==uiMPEPartServer::evGetAttribData )
     {
 	const Attrib::SelSpec* as = mpeserv->getAttribSelSpec();
 	if ( !as ) return false;
@@ -630,9 +630,19 @@ bool uiODApplMgr::handleMPEServEv( int evid )
 	    				attrserv->createOutput( cs, cache );
 	mpeserv->setAttribData(*as, newdata );
     }
-    else if ( evid == uiMPEPartServer::evShowToolbar )
+    else if ( evid==uiMPEPartServer::evCreate2DSelSpec )
+    {
+	const Attrib::DescID attribid = attrServer()->createStored2DAttrib(
+		mpeserv->get2DLineSet(), mpeserv->get2DAttribName() );
+
+	if ( attribid<0 ) return false;
+
+	const Attrib::SelSpec as( mpeserv->get2DAttribName(), attribid );
+	mpeserv->set2DSelSpec( as );
+    }
+    else if ( evid==uiMPEPartServer::evShowToolbar )
 	visserv->showMPEToolbar();
-    else if ( evid == uiMPEPartServer::evInitFromSession )
+    else if ( evid==uiMPEPartServer::evInitFromSession )
 	visserv->initMPEStuff();
     else
 	pErrMsg("Unknown event from mpeserv");
@@ -1017,6 +1027,12 @@ void uiODApplMgr::modifyColorTable( int visid, int attrib )
 {
     appl.colTabEd().setColTab( visserv->getColTabId(visid, attrib) );
     setHistogram( visid, attrib );
+}
+
+
+NotifierAccess* uiODApplMgr::colorTableSeqChange()
+{
+    return &appl.colTabEd().sequenceChange;
 }
 
 
