@@ -7,11 +7,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribdataholder.h,v 1.13 2006-05-04 21:01:11 cvskris Exp $
+ RCS:           $Id: attribdataholder.h,v 1.14 2006-05-05 20:35:16 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "cubesampling.h"
 #include "refcount.h"
 #include "samplingdata.h"
 #include "sets.h"
@@ -67,6 +68,7 @@ class Data2DHolder
 public:
     int				size() const { return dataset_.size(); }
     bool			fillDataCube(DataCubes&) const;
+    CubeSampling		getCubeSampling() const;
     ObjectSet<DataHolder>	dataset_;
     ObjectSet<SeisTrcInfo>	trcinfoset_;
 };

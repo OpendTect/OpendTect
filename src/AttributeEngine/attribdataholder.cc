@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribdataholder.cc,v 1.3 2006-05-04 21:01:08 cvskris Exp $";
+static const char* rcsID = "$Id: attribdataholder.cc,v 1.4 2006-05-05 20:35:16 cvskris Exp $";
 
 #include "attribdataholder.h"
 
@@ -93,10 +93,11 @@ Data2DHolder::~Data2DHolder()
 }
 
 
-bool Data2DHolder::fillDataCube( DataCubes& res ) const
+CubeSampling Data2DHolder::getCubeSampling() const
 {
-    if ( !dataset_.size() )
-	return false;
+    CubeSampling res;
+    if ( !trcinfoset_.size() )
+	return res;
 
     StepInterval<int> trcrange;
     Interval<int> zrange;
@@ -132,16 +133,28 @@ bool Data2DHolder::fillDataCube( DataCubes& res ) const
 	prevtrcnr = curtrcnr;
     }
 
-    CubeSampling cs;
-    cs.hrg.start = BinID( 0, trcrange.start );
-    cs.hrg.stop = BinID( 0, trcrange.stop );
-    cs.hrg.step = BinID( 1, trcrange.step );
+    res.hrg.start = BinID( 0, trcrange.start );
+    res.hrg.stop = BinID( 0, trcrange.stop );
+    res.hrg.step = BinID( 1, trcrange.step );
 
-    cs.zrg.start = zrange.start*zstep;
-    cs.zrg.stop = zrange.stop*zstep;
-    cs.zrg.step = zstep;
+    res.zrg.start = zrange.start*zstep;
+    res.zrg.stop = zrange.stop*zstep;
+    res.zrg.step = zstep;
 
-    res.setSizeAndPos( cs );
+    return res;
+}
+
+
+
+bool Data2DHolder::fillDataCube( DataCubes& res ) const
+{
+    if ( !dataset_.size() )
+	return false;
+
+    const CubeSampling cs = getCubeSampling();
+    const StepInterval<int> trcrange( cs.hrg.start.crl, cs.hrg.stop.crl,
+				      cs.hrg.step.crl );
+    res.setSizeAndPos( getCubeSampling() );
     res.setValue( 0, mUdf(float) );
 
     Array3D<float>& array = res.getCube( 0 );
@@ -153,7 +166,7 @@ bool Data2DHolder::fillDataCube( DataCubes& res ) const
 	{
 	    const int offset = array.info().getMemPos( 0,
 		    trcrange.nearestIndex( trcinfoset_[idx]->nr),
-		    dataset_[idx]->z0_-zrange.start );
+		    dataset_[idx]->z0_-mNINT(cs.zrg.start/cs.zrg.step) );
 
 	    const float* srcptr = 0;
 	    const int nrseries = dataset_[idx]->nrSeries();
