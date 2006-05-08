@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          Jan 2004
- RCS:           $Id: uicrdevenv.cc,v 1.20 2005-08-29 11:10:09 cvsbert Exp $
+ RCS:           $Id: uicrdevenv.cc,v 1.21 2006-05-08 14:38:15 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -74,11 +74,11 @@ bool uiCrDevEnv::isOK( const char* datadir )
     if ( !File_isDirectory(datafp.fullPath()) )
 	return false;
 
-    datafp.set( "include" );
+    datafp.set( datadir ).add( "include" );
     if ( !File_isDirectory(datafp.fullPath()) )
 	return false;
 
-    datafp.set( "plugins" );
+    datafp.set( datadir ).add( "plugins" );
     if ( !File_isDirectory(datafp.fullPath()) )
 	return false;
 
@@ -147,7 +147,7 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
     {
 	BufferString msg = "Your current work directory (";
 	msg += oldworkdir.fullPath();
-	msg += oldok ?  ") seems to already be a work directory.\n" :
+	msg += oldok ?  ") seems to be a valid work directory.\n" :
 			") does not seem to be a valid work directory.\n";
 	msg += "Do you want to completely remove the existing directory\n"
 	       "and create a new work directory there?";
