@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          September 2005
- RCS:           $Id: uiattrtrcselout.cc,v 1.14 2006-05-03 15:26:48 cvsbert Exp $
+ RCS:           $Id: uiattrtrcselout.cc,v 1.15 2006-05-08 15:39:34 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,8 +44,8 @@ using namespace Attrib;
 uiAttrTrcSelOut::uiAttrTrcSelOut( uiParent* p, const DescSet& ad,
 			      const NLAModel* n, const MultiID& mid, 
 			      bool usesinglehor )
-    : uiFullBatchDialog( p, "Create Horizon related cube output",
-	    		 "process_attrib_em" )
+    : uiFullBatchDialog(p,Setup("Create Horizon related cube output")
+	    		  .procprognm("process_attrib_em"))
     , ctio(*mMkCtxtIOObj(EMHorizon))
     , ctio2(*mMkCtxtIOObj(EMHorizon))
     , ctioout(*mMkCtxtIOObj(SeisTrc))
@@ -61,9 +61,7 @@ uiAttrTrcSelOut::uiAttrTrcSelOut( uiParent* p, const DescSet& ad,
     , addwidthfld(0)
 {
     if ( usesinglehor_)
-	setHelpID( "104.4.2" );
-    else	
-	setHelpID( "104.4.1" );
+	setHelpID( usesinglehor_ ? "104.4.2" : "104.4.1" );
 
     setTitleText( "" );
 
