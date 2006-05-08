@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visdata.h,v 1.36 2006-04-27 17:57:11 cvskris Exp $
+ RCS:		$Id: visdata.h,v 1.37 2006-05-08 14:36:12 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -168,13 +168,16 @@ protected:
 #define _mCreateDataObj(clss) 					\
 {								\
     clss* res = (clss*) factoryentry_.create();			\
-    res->_init();						\
     return res;							\
 }								\
 								\
 private:							\
     static clss* createInternal()				\
-    { return new clss; }					\
+    {								\
+	clss* res = new clss;					\
+	res->_init();						\
+	return res;						\
+    }								\
 								\
     clss(const clss&);						\
     clss& operator =(const clss&);				\
