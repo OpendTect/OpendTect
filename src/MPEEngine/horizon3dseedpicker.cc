@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizon3dseedpicker.cc,v 1.12 2006-04-27 15:53:13 cvskris Exp $";
+static const char* rcsID = "$Id: horizon3dseedpicker.cc,v 1.13 2006-05-08 13:49:44 cvsjaap Exp $";
 
 #include "horizonseedpicker.h"
 
@@ -61,7 +61,6 @@ bool HorizonSeedPicker::addSeed(const Coord3& seedcrd )
     BinID seedbid = SI().transform( seedcrd );
     const HorSampling hrg = engine().activeVolume().hrg;
     const StepInterval<float> zrg = engine().activeVolume().zrg;
-
     if ( !zrg.includes(seedcrd.z) || !hrg.includes(seedbid) )
 	return false;
 
@@ -89,7 +88,7 @@ bool HorizonSeedPicker::removeSeed( const EM::PosID& pid, bool retrack )
     EM::EMObject* emobj = EM::EMM().getObject( tracker_.objectID() );  
     BinID seedbid = SI().transform( emobj->getPos(pid) );
 
-    if ( nrLateralConnections(seedbid) == 0 )
+    if ( nrLateralConnections(pid) == 0 )
 	emobj->unSetPos( pid, true );
 
     seedlist_.erase(); seedpos_.erase(); 
@@ -284,7 +283,7 @@ const char* HorizonSeedPicker::seedConModeText( int mode, bool abbrev )
 	return "Unknown mode";
 }
 
-int HorizonSeedPicker::isMinimumNrOfSeeds() const
+int HorizonSeedPicker::minSeedsToLeaveInitStage() const
 { return seedconmode_==TrackFromSeeds ? 1 : 0 ; }
 
 
@@ -304,29 +303,28 @@ bool HorizonSeedPicker::stopSeedPick( bool iscancel )
 }
 
 
-int HorizonSeedPicker::nrLateralConnections( const BinID& seedbid ) const
+int HorizonSeedPicker::nrLateralConnections( const EM::PosID& pid ) const
 {
     EM::EMObject* emobj = EM::EMM().getObject( tracker_.objectID() );  
+    BinID bid = SI().transform( emobj->getPos(pid) );
 
+    TypeSet<EM::PosID> neighpid;
+    mGetHorizon(hor);
+    hor->geometry().getConnectedPos( pid, &neighpid );
+    
     BinID dir = engine().activeVolume().hrg.step;
     if ( engine().activeVolume().nrInl() == 1 )
 	dir.crl = 0;
     else
 	dir.inl = 0;
-    
-    int nrlatcon(0);
-    BinID neighbid = seedbid - dir;
-    
-    for ( int cnt=0; cnt<2; cnt++ );
-    {
-	EM::PosID neighpid = EM::PosID( emobj->id(), sectionid_, 
-					neighbid.getSerialized() ); 
-	if ( emobj->isDefined(neighpid) )
-	    nrlatcon++;
-	
-    	neighbid = seedbid + dir;
-    }
 
+    int nrlatcon = 0;
+    for ( int idx=0; idx<neighpid.size(); idx++ )
+    {
+	BinID neighbid = SI().transform( emobj->getPos(neighpid[idx]) ); 
+	if ( bid.isNeighborTo(neighbid,dir) )
+	    nrlatcon++;
+    }
     return nrlatcon;
 }
 
