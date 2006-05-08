@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		23-10-1996
  Contents:	Ranges
- RCS:		$Id: ranges.h,v 1.38 2006-02-22 19:14:16 cvskris Exp $
+ RCS:		$Id: ranges.h,v 1.39 2006-05-08 21:55:13 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,6 +44,8 @@ public:
 
     template <class TT>
     inline bool		includes( const TT& t, bool allowrev=true ) const;
+    template <class TT>
+    inline bool		overlaps(const Interval<TT>& t,bool allrev=true) const;
     inline void		include( const T& i, bool allowrev=true );
     inline void		include( const Interval<T>& i, bool allowrev=true );
 
@@ -414,6 +416,14 @@ bool Interval<T>::includes( const TT& t, bool allowrev ) const
     return allowrev && isRev()
 	? t>=stop && start>=t
 	: t>=start && stop>=t;
+}
+
+
+template <class T> template <class TT> inline
+bool Interval<T>::overlaps( const Interval<TT>& t, bool allowrev ) const
+{
+    return includes( t.start, allowrev ) || includes( t.stop, allowrev ) ||
+	   t.includes( start, allowrev ) || t.includes( stop, allowrev );
 }
 
 
