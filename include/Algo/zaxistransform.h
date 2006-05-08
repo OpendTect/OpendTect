@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          October 2006
- RCS:           $Id: zaxistransform.h,v 1.10 2006-03-01 15:41:14 cvskris Exp $
+ RCS:           $Id: zaxistransform.h,v 1.11 2006-05-08 20:41:49 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,31 +28,33 @@ ZATF().
 class ZAxisTransform
 { mRefCountImpl(ZAxisTransform);
 public:
-    enum			ZType { Time, Depth, StratDepth };
-    				DeclareEnumUtils( ZType );
+    enum		ZType { Time, Depth, StratDepth };
+    			DeclareEnumUtils( ZType );
 
-    				ZAxisTransform();
+    			ZAxisTransform();
 
-    virtual int			addVolumeOfInterest( const CubeSampling& );
-    virtual void		setVolumeOfInterest( int, const CubeSampling& );
-    virtual void		removeVolumeOfInterest( int );
-    virtual bool		loadDataIfMissing( int ) { return false; }
+    virtual int		addVolumeOfInterest(const CubeSampling&,
+	    				    bool zistrans=false);
+    virtual void	setVolumeOfInterest(int,const CubeSampling&,
+	    				    bool zistrans=false);
+    virtual void	removeVolumeOfInterest(int);
+    virtual bool	loadDataIfMissing(int) { return false; }
     				
-    virtual ZType		getFromZType() const 			= 0;
-    virtual ZType		getToZType() const 			= 0;
+    virtual ZType	getFromZType() const 				= 0;
+    virtual ZType	getToZType() const 				= 0;
 
-    virtual void		transform( const BinID&, 
+    virtual void		transform(const BinID&, 
+	    				  const SamplingData<float>&,
+					  int sz,float* res) const	= 0;
+    virtual float		transform(const BinIDValue&) const;
+    float			transform(const Coord3&) const;
+    virtual void		transformBack(const BinID&,
 	    				   const SamplingData<float>&,
-					   int sz, float* res ) const	= 0;
-    virtual float		transform( const BinIDValue& ) const;
-    float			transform( const Coord3& ) const;
-    virtual void		transformBack( const BinID&,
-	    				   const SamplingData<float>&,
-					   int sz, float* res ) const	= 0;
-    virtual float		transformBack( const BinIDValue& ) const;
-    float			transformBack( const Coord3& ) const;
+					   int sz,float* res) const	= 0;
+    virtual float		transformBack(const BinIDValue&) const;
+    float			transformBack(const Coord3&) const;
 
-    virtual Interval<float>	getZInterval( bool from ) const		= 0;
+    virtual Interval<float>	getZInterval(bool from) const		= 0;
     				/*!<\returns the z interval in either to
 				     or from domain. */
 
@@ -67,19 +69,19 @@ public:
 				   bool back, const BinID& bid,
 				   const SamplingData<double>& );
     virtual			~ZAxisTransformSampler();
-    void			setBinID( const BinID& nbid ) { bid=nbid; }
+    void			setBinID(const BinID& nbid) { bid_=nbid; }
 
     float			operator[](int idx) const;
-    void			computeCache( const Interval<int>& range );
+    void			computeCache(const Interval<int>& range);
 
 protected:
-    const ZAxisTransform&	transform;
-    bool			back;
-    BinID			bid;
-    const SamplingData<double>	sd;
+    const ZAxisTransform&	transform_;
+    bool			back_;
+    BinID			bid_;
+    const SamplingData<double>	sd_;
 
-    TypeSet<float>		cache;
-    int				firstcachesample;
+    TypeSet<float>		cache_;
+    int				firstcachesample_;
 };
 
 

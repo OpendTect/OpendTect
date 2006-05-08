@@ -4,7 +4,7 @@
  * DATE     : Oct 2005
 -*/
 
-static const char* rcsID = "$Id: zaxistransform.cc,v 1.6 2005-12-26 17:08:34 cvskris Exp $";
+static const char* rcsID = "$Id: zaxistransform.cc,v 1.7 2006-05-08 20:41:49 cvskris Exp $";
 
 #include "zaxistransform.h"
 
@@ -22,10 +22,10 @@ ZAxisTransform::~ZAxisTransform()
 { }
 
 
-int ZAxisTransform::addVolumeOfInterest( const CubeSampling& ) { return -1; }
+int ZAxisTransform::addVolumeOfInterest( const CubeSampling&, bool ) { return -1; }
 
 
-void ZAxisTransform::setVolumeOfInterest( int, const CubeSampling& ) {}
+void ZAxisTransform::setVolumeOfInterest( int, const CubeSampling&, bool ) {}
 
 
 void ZAxisTransform::removeVolumeOfInterest( int ) {}
@@ -58,41 +58,41 @@ float ZAxisTransform::transformBack( const BinIDValue& pos ) const
 ZAxisTransformSampler::ZAxisTransformSampler( const ZAxisTransform& trans,
 					      bool b, const BinID& nbid,
 					      const SamplingData<double>& nsd )
-    : transform( trans )
-    , back( b )
-    , bid( nbid )
-    , sd( nsd )
-{ transform.ref(); }
+    : transform_( trans )
+    , back_( b )
+    , bid_( nbid )
+    , sd_( nsd )
+{ transform_.ref(); }
 
 
 ZAxisTransformSampler::~ZAxisTransformSampler()
-{ transform.unRef(); }
+{ transform_.unRef(); }
 
 
 float ZAxisTransformSampler::operator[](int idx) const
 {
-    const int cachesz = cache.size();
+    const int cachesz = cache_.size();
     if ( cachesz )
     {
-	const int cacheidx = idx-firstcachesample;
+	const int cacheidx = idx-firstcachesample_;
 	if ( cacheidx>=0 && cacheidx<cachesz )
-	    return cache[cacheidx];
+	    return cache_[cacheidx];
     }
 
-    const BinIDValue bidval( BinIDValue(bid,sd.atIndex(idx)) );
-    return back ? transform.transformBack( bidval )
-	        : transform.transform( bidval );
+    const BinIDValue bidval( BinIDValue(bid_,sd_.atIndex(idx)) );
+    return back_ ? transform_.transformBack( bidval )
+	         : transform_.transform( bidval );
 }
 
 
 void ZAxisTransformSampler::computeCache( const Interval<int>& range )
 {
     const int sz = range.width()+1;
-    cache.setSize( sz );
-    const SamplingData<float> cachesd( sd.atIndex(range.start), sd.step );
-    if ( back ) transform.transformBack( bid, cachesd, sz, cache.arr() );
-    else transform.transform( bid, cachesd, sz, cache.arr() );
-    firstcachesample = range.start;
+    cache_.setSize( sz );
+    const SamplingData<float> cachesd( sd_.atIndex(range.start), sd_.step );
+    if ( back_ ) transform_.transformBack( bid_, cachesd, sz, cache_.arr() );
+    else transform_.transform( bid_, cachesd, sz, cache_.arr() );
+    firstcachesample_ = range.start;
 }
 
 
