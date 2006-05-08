@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.133 2006-05-05 20:40:12 cvskris Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.134 2006-05-08 16:50:01 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -347,15 +347,18 @@ void uiODApplMgr::selectWells( ObjectSet<MultiID>& wellids )
 { wellserv->selectWells( wellids ); }
 
 
-const Color& uiODApplMgr::getPickColor() { return pickserv->getPickColor(); }
-void uiODApplMgr::getPickSetGroup( PickSetGroup& p ) { p = pickserv->group(); }
-bool uiODApplMgr::storePickSets() { return pickserv->storePickSets(); }
+const Color& uiODApplMgr::getPickColor()
+{ return pickserv->getPickColor(); }
+void uiODApplMgr::getPickSetGroup( Pick::SetGroup& p )
+{ p = pickserv->group(); }
+bool uiODApplMgr::storePickSets()
+{ return pickserv->storePickSets(); }
 
 
 bool uiODApplMgr::setPickSetDirs( int id )
 {
     mDynamicCastGet( visSurvey::PickSetDisplay*, psd, visserv->getObject(id) );
-    PickSet ps( psd->name());
+    Pick::Set ps( psd->name());
     psd->copyToPickSet(ps);
     if ( !attrserv->setPickSetDirs(ps,nlaserv?&nlaserv->getModel():0) )
 	return false;
@@ -730,7 +733,7 @@ bool uiODApplMgr::handlePickServEv( int evid )
 	{
 	    if ( !pickserv->selectedSets()[idx] ) continue;
 	    const char* nm = pickserv->availableSets().get(idx).buf();
-	    PickSet* ps = new PickSet( nm );
+	    Pick::Set* ps = new Pick::Set( nm );
 	    mDynamicCastGet( visSurvey::PickSetDisplay*, psd,
 		    	     visserv->getObject(sceneMgr().getIDFromName(nm)) );
 	    psd->copyToPickSet( *ps );
@@ -903,14 +906,14 @@ bool uiODApplMgr::handleNLAServEv( int evid )
 		mcpicks.add( bid, vals[0], conf );
 	}
 	pickserv->setMisclassSet( mcpicks );
-	PickSetGroup& psg = pickserv->group();
+	Pick::SetGroup& psg = pickserv->group();
 	const int psid = sceneMgr().getIDFromName( psg.name() );
 	const bool haspicks = psg.nrSets();
-	PickSet pset( psg.name() );
+	Pick::Set pset( psg.name() );
 	pset.color_.set(255,0,0);
 	if ( psid < 0 )
 	{
-	    const PickSet* ps = haspicks ? psg.get(0) : 0;
+	    const Pick::Set* ps = haspicks ? psg.get(0) : 0;
 	    sceneMgr().addPickSetItem( haspicks && ps ? *ps : pset, -1 );
 	}
 	else

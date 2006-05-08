@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.64 2006-05-02 22:00:25 cvskris Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.65 2006-05-08 16:50:01 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -715,7 +715,7 @@ void uiODSceneMgr::disabTrees( bool yn )
 }
 
 
-int uiODSceneMgr::addPickSetItem( const PickSet& ps, int sceneid )
+int uiODSceneMgr::addPickSetItem( const Pick::Set& ps, int sceneid )
 {
     for ( int idx=0; idx<scenes_.size(); idx++ )
     {

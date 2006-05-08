@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: uiodtreeitem.h,v 1.23 2006-04-11 07:36:44 cvsnanne Exp $
+ RCS:		$Id: uiodtreeitem.h,v 1.24 2006-05-08 16:49:48 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -149,30 +149,17 @@ protected:
 };
 
 
-/*! Implementation of uiODDataTreeItem for standard attribute displays. */
+#define mShowMenu bool showSubMenu();
 
-
-class uiODAttribTreeItem : public uiODDataTreeItem
-{
-public:
-    			uiODAttribTreeItem( const char* parenttype );
-			~uiODAttribTreeItem();
-    static BufferString	createDisplayName( int visid, int attrib );
-    static void		createSelMenu(MenuItem&,int visid,int attrib,
-	    			      int sceneid);
-    static bool		handleSelMenu(int mnuid,int visid,int attrib);
-    static const char*	sKeySelAttribMenuTxt();
-protected:
-
-    bool		anyButtonClick(uiListViewItem*);
-
-    void		createMenuCB( CallBacker* );
-    void		handleMenuCB( CallBacker* );
-    void		updateColumnText( int col );
-    BufferString	createDisplayName() const;
-
-    MenuItem		selattrmnuitem_;
+#define mDefineItem( type, inherited, parentitem, extrapublic ) \
+class uiOD##type##TreeItem : public uiOD##inherited \
+{ \
+public: \
+    			uiOD##type##TreeItem(); \
+    extrapublic;	\
+protected: \
+    const char*		parentType() const { return typeid(uiOD##parentitem).name();}\
 };
 
-#endif
 
+#endif
