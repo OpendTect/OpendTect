@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2001
- RCS:           $Id: create_randpicks_2d.cc,v 1.1 2005-12-21 16:39:17 cvsdgb Exp $
+ RCS:           $Id: create_randpicks_2d.cc,v 1.2 2006-05-08 14:40:18 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -89,7 +89,7 @@ static int doWork( int argc, char** argv )
 	const Coord& pos = geometry.posns[crdidx].coord;
 	const BinID bid = SI().transform( pos );
 	TypeSet<Coord3> positions;
-	horizon->geometry.getPos( bid, positions );
+	horizon->geometry().getPos( bid, positions );
 	if ( !positions.size() || !positions[0].isDefined() )
 	    continue;
 

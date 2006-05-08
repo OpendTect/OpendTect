@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2004
- RCS:           $Id: add_hor_z.cc,v 1.2 2006-03-12 20:44:59 cvsbert Exp $
+ RCS:           $Id: add_hor_z.cc,v 1.3 2006-05-08 14:40:18 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -75,7 +75,7 @@ static int doWork( int argc, char** argv )
 	Coord c( coords[idx] );
 	const BinID bid = SI().transform( c );
 	TypeSet<Coord3> positions;
-	horizon->geometry.getPos( bid, positions );
+	horizon->geometry().getPos( bid, positions );
 	bool isudf = !positions[0].isDefined();
 	if ( isudf && !incudf ) continue;
 

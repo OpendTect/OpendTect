@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          November 2005
- RCS:           $Id: import_horattrib.cc,v 1.1 2005-11-09 15:26:45 cvsnanne Exp $
+ RCS:           $Id: import_horattrib.cc,v 1.2 2006-05-08 14:40:18 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -90,7 +90,7 @@ static int doWork( int argc, char** argv )
 	    *sd.istrm >> bid.inl >> bid.crl >> val;
 
 	posid.setSubID( bid.getSerialized() );
-	if ( horizon->geometry.isDefined(posid) )
+	if ( horizon->geometry().isDefined(posid) )
 	    horizon->auxdata.setAuxDataVal( dataidx, posid, val );
     }
     sd.close();

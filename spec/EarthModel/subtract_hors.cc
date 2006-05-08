@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:           2005
- RCS:           $Id: subtract_hors.cc,v 1.4 2005-12-01 09:08:47 cvsnanne Exp $
+ RCS:           $Id: subtract_hors.cc,v 1.5 2006-05-08 14:40:19 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -77,8 +77,8 @@ static int doWork( int argc, char** argv )
     const int dataidx = addtohor.auxdata.addAuxData( attribname );
     if ( dataidx < 0 ) return prError( "Cannot add datavalues" );
 
-    StepInterval<int> inlrg = addtohor.geometry.rowRange();
-    StepInterval<int> crlrg = addtohor.geometry.colRange();
+    StepInterval<int> inlrg = addtohor.geometry().rowRange();
+    StepInterval<int> crlrg = addtohor.geometry().colRange();
     RowCol rc;
     EM::PosID posid( addtohor.id() );
     for ( rc.row=inlrg.start; rc.row<=inlrg.stop; rc.row+=inlrg.step )
@@ -86,9 +86,9 @@ static int doWork( int argc, char** argv )
 	for ( rc.col=crlrg.start; rc.col<=crlrg.stop; rc.col+=crlrg.step )
 	{
 	    TypeSet<Coord3> positions1;
-	    horizon1->geometry.getPos( rc, positions1 );
+	    horizon1->geometry().getPos( rc, positions1 );
 	    TypeSet<Coord3> positions2;
-	    horizon1->geometry.getPos( rc, positions2 );
+	    horizon1->geometry().getPos( rc, positions2 );
 	    Coord3 pos1 = positions1.size() ? positions1[0] : Coord3::udf();
 	    Coord3 pos2 = positions2.size() ? positions2[0] : Coord3::udf();
 
