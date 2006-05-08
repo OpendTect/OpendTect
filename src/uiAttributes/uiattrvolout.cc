@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:		$Id: uiattrvolout.cc,v 1.20 2006-04-07 11:27:47 cvshelene Exp $
+ RCS:		$Id: uiattrvolout.cc,v 1.21 2006-05-08 15:34:12 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -55,7 +55,7 @@ static void setTypeAttr( CtxtIOObj& ctio, bool yn )
 
 uiAttrVolOut::uiAttrVolOut( uiParent* p, const DescSet& ad,
 			    const NLAModel* n, MultiID id )
-	: uiFullBatchDialog(p,"Process")
+	: uiFullBatchDialog(p,Setup("Process"))
 	, ctio(mkCtxtIOObj())
     	, subselpar(*new IOPar)
     	, sel(*new CurrentSel)

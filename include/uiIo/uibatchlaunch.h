@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          Jan 2002
- RCS:           $Id: uibatchlaunch.h,v 1.15 2006-02-20 18:49:48 cvsbert Exp $
+ RCS:           $Id: uibatchlaunch.h,v 1.16 2006-05-08 15:33:32 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -65,9 +65,23 @@ class uiFullBatchDialog : public uiDialog
 {
 protected:
 
-    			uiFullBatchDialog(uiParent*,const char* wintxt,
-					  const char* procprognm=0,
-					  const char* multiprocprognm=0);
+    class Setup
+    {
+    public:
+			Setup(const char* wintxt)
+			    : wintxt_(wintxt)
+			    , procprognm_(0)
+			    , multiprocprognm_(0)
+			    , modal_(true)
+			{}
+
+	mDefSetupMemb(BufferString,wintxt)
+	mDefSetupMemb(BufferString,procprognm)
+	mDefSetupMemb(BufferString,multiprocprognm)
+	mDefSetupMemb(bool,modal)
+    };
+
+    			uiFullBatchDialog(uiParent*,const Setup&);
 
     const BufferString	procprognm;
     const BufferString	multiprognm;

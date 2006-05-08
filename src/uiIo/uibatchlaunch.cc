@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:           $Id: uibatchlaunch.cc,v 1.52 2006-03-22 12:40:12 cvsnanne Exp $
+ RCS:           $Id: uibatchlaunch.cc,v 1.53 2006-05-08 15:33:32 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -232,12 +232,12 @@ bool uiBatchLaunch::acceptOK( CallBacker* )
 #endif // HAVE_OUTPUT_OPTIONS
 
 
-uiFullBatchDialog::uiFullBatchDialog( uiParent* p, const char* t,
-					const char* ppn, const char* mpn )
-	: uiDialog(p,Setup(t,"X",0).oktext("Proceed"))
+uiFullBatchDialog::uiFullBatchDialog( uiParent* p, const Setup& s )
+	: uiDialog(p,uiDialog::Setup(s.wintxt_,"X",0).oktext("Proceed")
+						     .modal(s.modal_))
     	, uppgrp(new uiGroup(this,"Upper group"))
-	, procprognm(ppn?ppn:"process_attrib")
-	, multiprognm(mpn?mpn:"SeisMMBatch")
+	, procprognm(s.procprognm_ ? s.procprognm_ : "process_attrib")
+	, multiprognm(s.multiprocprognm_ ? s.multiprocprognm_ : "SeisMMBatch")
     	, redo_(false)
 	, parfnamefld(0)
 {
@@ -391,7 +391,8 @@ bool uiFullBatchDialog::multiLaunch( const char* fnm )
 
 uiRestartBatchDialog::uiRestartBatchDialog( uiParent* p, const char* ppn,
        					    const char* mpn )
-    	: uiFullBatchDialog(p,"(Re-)Start processing",ppn,mpn)
+    	: uiFullBatchDialog(p,Setup("(Re-)Start processing")
+				.procprognm(ppn).multiprocprognm(mpn))
 {
     redo_ = true;
     setHelpID( "101.2.1" );
