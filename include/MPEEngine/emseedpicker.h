@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: emseedpicker.h,v 1.16 2006-03-30 15:53:32 cvsjaap Exp $
+ RCS:           $Id: emseedpicker.h,v 1.17 2006-05-08 13:41:58 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -48,11 +48,8 @@ public:
 	    			   bool retrack=true)		{ return false;}
     virtual bool	reTrack()				{ return false;}
     virtual int		nrSeeds() const				{ return 0; }
-
-    virtual int		isMinimumNrOfSeeds() const		{ return 1; }
-    			/*<!\returns the number of seeds that
-				the user has to add before we
-				can use the results. */
+    virtual int		minSeedsToLeaveInitStage() const	{ return 1; }
+    
     virtual bool	stopSeedPick(bool iscancel=false)	{ return true; }
 
     virtual void	setSeedConnectMode(int)			{ return; }

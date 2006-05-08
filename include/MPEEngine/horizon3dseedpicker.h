@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: horizon3dseedpicker.h,v 1.10 2006-04-27 08:17:27 cvsjaap Exp $
+ RCS:           $Id: horizon3dseedpicker.h,v 1.11 2006-05-08 13:41:58 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,7 +35,7 @@ public:
     bool		canRemoveSeed() const		{ return true; }
     bool		reTrack();
     int			nrSeeds() const;
-    int			isMinimumNrOfSeeds() const;
+    int			minSeedsToLeaveInitStage() const;
 
     bool		stopSeedPick(bool iscancel=false);
 
@@ -60,7 +60,7 @@ protected:
 					     bool startwasdefined,
 					     bool eraseonly=false);
     bool		retrackFromSeedList();
-    int			nrLateralConnections( const BinID& ) const;
+    int			nrLateralConnections( const EM::PosID& ) const;
     bool		interpolateSeeds();
     CubeSampling	getTrackBox() const;
 
