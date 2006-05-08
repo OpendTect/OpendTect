@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Jul 2005
- RCS:		$Id: picksettr.cc,v 1.4 2006-05-08 16:50:19 cvsbert Exp $
+ RCS:		$Id: picksettr.cc,v 1.5 2006-05-08 20:22:19 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -103,7 +103,7 @@ bool PickSetGroupTranslator::store( const Pick::SetGroup& inppsg,
 		{
 		    found = true;
 		    mrgdps.copy( ps );
-		    mrgdps.nrfields_ = ps.nrfields_;
+		    mrgdps.pixsize_ = ps.pixsize_;
 		    mrgdps.color_ = ps.color_;
 		    mrgdps.color_.setTransparency( 0 );
 		    break;
@@ -113,7 +113,7 @@ bool PickSetGroupTranslator::store( const Pick::SetGroup& inppsg,
 	    {
 		Pick::Set* newps = new Pick::Set( ps.name() );
 		newps->copy( ps );
-		newps->nrfields_ = ps.nrfields_;
+		newps->pixsize_ = ps.pixsize_;
 		newps->color_ = ps.color_;
 		newps->color_.setTransparency( 0 );
 		mrgd.add( newps );
@@ -172,7 +172,7 @@ const char* dgbPickSetGroupTranslator::read( Pick::SetGroup& psg, Conn& conn,
 	}
 	if ( astrm.hasKeyword(sKey::Size) )
 	{
-	    if ( newps ) newps->nrfields_ = astrm.getVal();
+	    if ( newps ) newps->pixsize_ = astrm.getVal();
 	    astrm.next();
 	}
 	Pick::Location loc;
@@ -219,8 +219,8 @@ const char* dgbPickSetGroupTranslator::write( const Pick::SetGroup& psg,
 	    ps.color_.fill( buf );
 	    astrm.put( sKey::Color, buf );
 	}
-	if ( ps.nrfields_ != 0 )
-	    astrm.put( sKey::Size, ps.nrfields_ );
+	if ( ps.pixsize_ != 0 )
+	    astrm.put( sKey::Size, ps.pixsize_ );
 
 	for ( int iloc=0; iloc<ps.size(); iloc++ )
 	{
