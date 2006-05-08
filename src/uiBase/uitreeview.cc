@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/01/2002
- RCS:           $Id: uitreeview.cc,v 1.21 2006-05-05 14:43:14 cvshelene Exp $
+ RCS:           $Id: uitreeview.cc,v 1.22 2006-05-08 07:06:31 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "uilabel.h"
 #include "uiobjbody.h"
 #include "pixmap.h"
-#include "uihandleshortcuts.h"
+#include "uishortcutsmgr.h"
 
 #include <qsize.h>
 #include <qpixmap.h>

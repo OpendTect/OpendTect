@@ -1,5 +1,5 @@
-#ifndef uihandleshortcuts_h
-#define uihandleshortcuts_h
+#ifndef uishortcutsmgr_h
+#define uishortcutsmgr_h
 
 /*+
 ________________________________________________________________________
@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Payraudeau
  Date:          20/01/2006
- RCS:           $Id: uishortcutsmgr.h,v 1.4 2006-05-05 14:43:14 cvshelene Exp $
+ RCS:           $Id: uishortcutsmgr.h,v 1.5 2006-05-08 07:06:31 cvshelene Exp $
 ________________________________________________________________________
 
 -*/

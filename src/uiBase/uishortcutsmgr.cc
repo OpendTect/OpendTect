@@ -9,7 +9,7 @@ ________________________________________________________________________
 -*/
 
 
-#include "uihandleshortcuts.h"
+#include "uishortcutsmgr.h"
 #include "ptrman.h"
 #include "oddirs.h"
 #include "settings.h"

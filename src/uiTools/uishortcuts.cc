@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Payraudeau
  Date:          December 2005
- RCS:           $Id: uishortcuts.cc,v 1.8 2006-05-05 14:43:14 cvshelene Exp $
+ RCS:           $Id: uishortcuts.cc,v 1.9 2006-05-08 07:06:31 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,7 +13,7 @@ ________________________________________________________________________
 #include "uishortcuts.h"
 
 #include "uicombobox.h"
-#include "uihandleshortcuts.h"
+#include "uishortcutsmgr.h"
 #include "uitable.h"
 #include "keyenum.h"
 #include "keystrs.h"
