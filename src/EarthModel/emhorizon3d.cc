@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: emhorizon3d.cc,v 1.70 2006-04-27 15:29:13 cvskris Exp $
+ RCS:           $Id: emhorizon3d.cc,v 1.71 2006-05-08 13:39:19 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -497,7 +497,7 @@ int HorizonGeometry::getConnectedPos( const PosID& posid,
 {
     int rescount = 0;
     const TypeSet<RowCol>& dirs = RowCol::clockWiseSequence();
-    for ( int idx=dirs.size()-1; idx>-0; idx-- )
+    for ( int idx=dirs.size()-1; idx>=0; idx-- )
     {
 	const PosID neighbor = getNeighbor( posid, dirs[idx] );
 	if ( surface_.isDefined( neighbor ) )
