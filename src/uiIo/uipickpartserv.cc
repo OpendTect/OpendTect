@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uipickpartserv.cc,v 1.31 2006-04-14 14:43:14 cvsnanne Exp $
+ RCS:           $Id: uipickpartserv.cc,v 1.32 2006-05-08 16:50:19 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,7 +37,7 @@ const int uiPickPartServer::evGetHorDef = 3;
 
 uiPickPartServer::uiPickPartServer( uiApplService& a )
 	: uiApplPartServer(a)
-    	, psg(*new PickSetGroup)
+    	, psg(*new Pick::SetGroup)
 	, pickcolor(Color::DgbColor)
     	, gendef(2,true)
 {
@@ -78,7 +78,7 @@ bool uiPickPartServer::fetchPickSets()
 	bool rv = true;
 	if ( dlg.genRand() )
 	{
-	    PickSet* ps = new PickSet( dlg.getName() );
+	    Pick::Set* ps = new Pick::Set( dlg.getName() );
 	    ps->color_ = pickcolor;
 	    rv = mkRandLocs( *ps, dlg.randPars() );
 	    if ( rv )	psg.add(ps);
@@ -113,7 +113,7 @@ bool uiPickPartServer::fetchPickSets()
 }
 
 
-bool uiPickPartServer::mkRandLocs( PickSet& ps, const RandLocGenPars& rp )
+bool uiPickPartServer::mkRandLocs( Pick::Set& ps, const RandLocGenPars& rp )
 {
     uiCursorChanger cursorlock( uiCursor::Wait );
 
@@ -154,7 +154,7 @@ bool uiPickPartServer::mkRandLocs( PickSet& ps, const RandLocGenPars& rp )
 	gendef.get( pos, bid, zrg.start, zrg.stop );
 	float val = zrg.start + Stat_getRandom() * zrg.width();
 
-	ps += PickLocation( SI().transform(bid), val );
+	ps += Pick::Location( SI().transform(bid), val );
     }
 
     gendef.empty();
@@ -189,7 +189,7 @@ bool uiPickPartServer::storePickSets()
 }
 
 
-bool uiPickPartServer::storeSinglePickSet( PickSet* ps )
+bool uiPickPartServer::storeSinglePickSet( Pick::Set* ps )
 {
     PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(PickSetGroup);
     ctio->ctxt.forread = false;
@@ -251,14 +251,14 @@ void uiPickPartServer::setMisclassSet( const BinIDValueSet& bivs )
 {
     static const BufferString sMisClassStr = "Misclassified [NN]";
 
-    PickSet* pickset = new PickSet( sMisClassStr );
+    Pick::Set* pickset = new Pick::Set( sMisClassStr );
     pickset->color_.set( 255, 0, 0 );
     BinIDValueSet::Pos pos; BinIDValue biv;
     while ( bivs.next(pos,false) )
     {
 	bivs.get( pos, biv );
 	Coord pos = SI().transform( biv.binid );
-	*pickset += PickLocation( pos.x, pos.y, biv.value );
+	*pickset += Pick::Location( pos.x, pos.y, biv.value );
     }
 
     psg.clear();

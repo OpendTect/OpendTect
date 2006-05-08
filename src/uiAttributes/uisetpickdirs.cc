@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Nov 2003
- RCS:           $Id: uisetpickdirs.cc,v 1.4 2006-04-11 07:19:29 cvsnanne Exp $
+ RCS:           $Id: uisetpickdirs.cc,v 1.5 2006-05-08 16:50:19 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,7 +40,7 @@ ________________________________________________________________________
 
 using namespace Attrib;
 
-uiSetPickDirs::uiSetPickDirs( uiParent* p, PickSet& s,
+uiSetPickDirs::uiSetPickDirs( uiParent* p, Pick::Set& s,
 			      const DescSet* a, const NLAModel* n )
 	: uiDialog(p,uiDialog::Setup("Add direction to Pick Set",
 				     "Specify directions for picks",
@@ -130,7 +130,7 @@ bool uiSetPickDirs::acceptOK( CallBacker* )
     BinIDValueSet locations( 1, true );
     for ( int idx=0; idx<ps.size(); idx++ )
     {
-	PickLocation pl( ps[idx] );
+	Pick::Location pl( ps[idx] );
 	locations.add( SI().transform(pl.pos), pl.z );
     }
 

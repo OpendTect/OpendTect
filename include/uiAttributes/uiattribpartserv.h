@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiattribpartserv.h,v 1.12 2006-05-03 18:54:19 cvskris Exp $
+ RCS:           $Id: uiattribpartserv.h,v 1.13 2006-05-08 16:50:19 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,10 +39,10 @@ class PosVecDataSet;
 class IOPar;
 class NLACreationDesc;
 class NLAModel;
-class PickSet;
 class SeisTrcBuf;
 class SeisTrcInfo;
 class uiAttribDescSetEd;
+namespace Pick { class Set; }
 template <class T> class Interval;
 
 
@@ -83,7 +83,7 @@ public:
     void		updateSelSpec(Attrib::SelSpec&) const;
 
     bool		selectAttrib(Attrib::SelSpec&);
-    bool		setPickSetDirs(PickSet&,const NLAModel*);
+    bool		setPickSetDirs(Pick::Set&,const NLAModel*);
     void		outputVol(MultiID&);
     bool		replaceSet(const IOPar&);
     bool		addToDescSet(const char*);

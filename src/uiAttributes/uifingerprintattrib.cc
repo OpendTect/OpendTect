@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Payraudeau
  Date:          February  2006
- RCS:           $Id: uifingerprintattrib.cc,v 1.7 2006-05-05 14:45:48 cvshelene Exp $
+ RCS:           $Id: uifingerprintattrib.cc,v 1.8 2006-05-08 16:50:19 cvsbert Exp $
 
 ________________________________________________________________________
 
@@ -312,7 +312,7 @@ void uiFingerPrintAttrib::calcPush(CallBacker*)
     else if ( refgrp_->selectedId() == 2 )
     {
 	BufferString errmsg;
-	PickSetGroup psg;
+	Pick::SetGroup psg;
 	picksetfld_->processInput();
 	const IOObj* ioobj = picksetfld_->ctxtIOObj().ioobj;
 	if ( !ioobj )

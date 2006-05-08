@@ -5,31 +5,30 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: pickset.cc,v 1.28 2006-04-14 14:43:14 cvsnanne Exp $";
+static const char* rcsID = "$Id: pickset.cc,v 1.29 2006-05-08 16:50:19 cvsbert Exp $";
 
 #include "pickset.h"
 #include "survinfo.h"
+#include "multiid.h"
 #include <ctype.h>
 
-static double getNextVal( char*& str )
+Pick::SetGroupMgr* Pick::SetGroupMgr::theinst_ = 0;
+
+Pick::SetGroupMgr& Pick::SGMgr()
 {
-    if ( !*str ) return mUdf(double);
-    char* endptr = str;
-    while ( *endptr && !isspace(*endptr) ) endptr++;
-    if ( *endptr ) *endptr++ = '\0';
-    double v = atof( str );
-    str = endptr; skipLeadingBlanks(str);
-    return v;
+    if ( !Pick::SetGroupMgr::theinst_ )
+	Pick::SetGroupMgr::theinst_ = new Pick::SetGroupMgr;
+    return *Pick::SetGroupMgr::theinst_;
 }
 
 
-PickLocation::~PickLocation()
+Pick::Location::~Location()
 {
     if ( text ) delete text;
 }
 
 
-void PickLocation::operator=( const PickLocation& pl )
+void Pick::Location::operator=( const Pick::Location& pl )
 {
     pos = pl.pos;
     z = pl.z;
@@ -44,14 +43,26 @@ void PickLocation::operator=( const PickLocation& pl )
 }
 
 
-void PickLocation::setText( const char* key, const char* txt )
+void Pick::Location::setText( const char* key, const char* txt )
 {
     if ( !text ) text = new BufferString;
     *text += key; *text += "'"; *text += txt; *text += "'";
 }
 
 
-bool PickLocation::fromString( const char* s, bool doxy )
+static double getNextVal( char*& str )
+{
+    if ( !*str ) return mUdf(double);
+    char* endptr = str;
+    while ( *endptr && !isspace(*endptr) ) endptr++;
+    if ( *endptr ) *endptr++ = '\0';
+    double v = atof( str );
+    str = endptr; skipLeadingBlanks(str);
+    return v;
+}
+
+
+bool Pick::Location::fromString( const char* s, bool doxy )
 {
     if ( !s || !*s ) return false;
 
@@ -111,7 +122,7 @@ bool PickLocation::fromString( const char* s, bool doxy )
 }
 
 
-void PickLocation::toString( char* str )
+void Pick::Location::toString( char* str )
 {
     if ( text )
     {
@@ -136,7 +147,7 @@ void PickLocation::toString( char* str )
 }
 
 
-void PickLocation::getKey( const char* idkey, BufferString& val ) const
+void Pick::Location::getKey( const char* idkey, BufferString& val ) const
 {
     if ( !text )
     {
@@ -154,15 +165,15 @@ void PickLocation::getKey( const char* idkey, BufferString& val ) const
 }
 
 
-PickSet::PickSet( const char* nm )
+Pick::Set::Set( const char* nm )
     : UserIDObject(nm)
     , color_(Color::NoColor)
-    , size_(3)
+    , nrfields_(3)
 {
 }
 
 
-void PickSetGroup::add( PickSet*& ps )
+void Pick::SetGroup::add( Pick::Set*& ps )
 {
     if ( !ps ) return;
     const int pssz = ps->size();
@@ -175,7 +186,7 @@ void PickSetGroup::add( PickSet*& ps )
 	    { mrgnr = idx; break; }
     if ( mrgnr < 0 ) { sets += ps; return; }
 
-    PickSet& mrgps = *ps;
+    Pick::Set& mrgps = *ps;
     ps = sets[mrgnr];
 
     for ( int idx=0; idx<pssz; idx++ )
@@ -185,4 +196,53 @@ void PickSetGroup::add( PickSet*& ps )
     }
 
     delete &mrgps;
+}
+
+
+void Pick::SetGroupMgr::add( const MultiID& ky, SetGroup* sg )
+{
+    psgs_ += sg; ids_ += new MultiID( ky );
+    itemAdded.trigger( sg );
+}
+
+
+void Pick::SetGroupMgr::set( const MultiID& ky, SetGroup* sg )
+{
+    SetGroup* oldsg = find( ky );
+    if ( !oldsg )
+    {
+	if ( sg )
+	    add( ky, sg );
+    }
+    else if ( sg != oldsg )
+    {
+	int idx = psgs_.indexOf( oldsg );
+	itemToBeRemoved.trigger( oldsg );
+	delete oldsg; psgs_.remove( idx );
+	delete ids_[idx]; ids_.remove( idx );
+	if ( sg )
+	    add( ky, sg );
+    }
+}
+
+
+Pick::SetGroup* Pick::SetGroupMgr::find( const MultiID& ky ) const
+{
+    for ( int idx=0; idx<size(); idx++ )
+    {
+	if ( ky == *ids_[idx] )
+	    return const_cast<Pick::SetGroup*>( psgs_[idx] );
+    }
+    return 0;
+}
+
+
+MultiID* Pick::SetGroupMgr::find( const Pick::SetGroup& sg ) const
+{
+    for ( int idx=0; idx<size(); idx++ )
+    {
+	if ( &sg == psgs_[idx] )
+	    return const_cast<MultiID*>( ids_[idx] );
+    }
+    return 0;
 }

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Dec 2003
- RCS:           $Id: uisetpickdirs.h,v 1.3 2005-08-22 15:33:53 cvsnanne Exp $
+ RCS:           $Id: uisetpickdirs.h,v 1.4 2006-05-08 16:50:19 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,27 +19,27 @@ ________________________________________________________________________
 namespace Attrib { class DescSet; class SelInfo; };
 
 class Coord3;
-class PickSet;
 class NLAModel;
 class CtxtIOObj;
 class uiAttrSel;
 class uiGenInput;
 class BinIDValueSet;
 class uiSteerCubeSel;
+namespace Pick { class Set; }
 
 /*! \brief */
 
 class uiSetPickDirs : public uiDialog
 {
 public:
-    				uiSetPickDirs(uiParent*,PickSet&,
+    				uiSetPickDirs(uiParent*,Pick::Set&,
 					      const Attrib::DescSet* a=0,
 					      const NLAModel* n=0);
 				~uiSetPickDirs();
 
 protected:
 
-    PickSet&			ps;
+    Pick::Set&			ps;
     const Attrib::DescSet*	ads;
     Attrib::DescSet*		createdset;
     const NLAModel*		nlamdl;

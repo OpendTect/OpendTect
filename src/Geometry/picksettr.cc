@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Jul 2005
- RCS:		$Id: picksettr.cc,v 1.3 2006-04-14 14:43:14 cvsnanne Exp $
+ RCS:		$Id: picksettr.cc,v 1.4 2006-05-08 16:50:19 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -54,7 +54,7 @@ int PickSetGroupTranslatorGroup::selector( const char* key )
 }
 
 
-bool PickSetGroupTranslator::retrieve( PickSetGroup& psg, const IOObj* ioobj,
+bool PickSetGroupTranslator::retrieve( Pick::SetGroup& psg, const IOObj* ioobj,
 				  BufferString& bs, const bool* selarr )
 {
     if ( !ioobj ) { bs = "Cannot find object in data base"; return false; }
@@ -69,7 +69,7 @@ bool PickSetGroupTranslator::retrieve( PickSetGroup& psg, const IOObj* ioobj,
 }
 
 
-bool PickSetGroupTranslator::store( const PickSetGroup& inppsg,
+bool PickSetGroupTranslator::store( const Pick::SetGroup& inppsg,
 				    const IOObj* ioobj,
 				    BufferString& bs, const bool* selarr,
 				    bool domrg )
@@ -79,7 +79,7 @@ bool PickSetGroupTranslator::store( const PickSetGroup& inppsg,
     if ( !t ) { bs = "Selected object is not a PickSet Group"; return false; }
 
     PtrMan<PickSetGroupTranslator> tr = t;
-    PickSetGroup mrgd;
+    Pick::SetGroup mrgd;
     if ( domrg )
     {
 	Conn* conn = ioobj->getConn( Conn::Read );
@@ -93,17 +93,17 @@ bool PickSetGroupTranslator::store( const PickSetGroup& inppsg,
 	const int orgsz = mrgd.nrSets();
 	for ( int idx=0; idx<inppsg.nrSets(); idx++ )
 	{
-	    const PickSet& ps = *inppsg.get( idx );
+	    const Pick::Set& ps = *inppsg.get( idx );
 	    const UserIDString& nm = ps.name();
 	    bool found = false;
 	    for ( int iorg=0; iorg<orgsz; iorg++ )
 	    {
-		PickSet& mrgdps = *mrgd.get( iorg );
+		Pick::Set& mrgdps = *mrgd.get( iorg );
 		if ( nm == mrgdps.name() )
 		{
 		    found = true;
 		    mrgdps.copy( ps );
-		    mrgdps.size_ = ps.size_;
+		    mrgdps.nrfields_ = ps.nrfields_;
 		    mrgdps.color_ = ps.color_;
 		    mrgdps.color_.setTransparency( 0 );
 		    break;
@@ -111,9 +111,9 @@ bool PickSetGroupTranslator::store( const PickSetGroup& inppsg,
 	    }
 	    if ( !found )
 	    {
-		PickSet* newps = new PickSet( ps.name() );
+		Pick::Set* newps = new Pick::Set( ps.name() );
 		newps->copy( ps );
-		newps->size_ = ps.size_;
+		newps->nrfields_ = ps.nrfields_;
 		newps->color_ = ps.color_;
 		newps->color_.setTransparency( 0 );
 		mrgd.add( newps );
@@ -122,7 +122,7 @@ bool PickSetGroupTranslator::store( const PickSetGroup& inppsg,
     }
 
     bs = "";
-    const PickSetGroup& wrgrp = domrg ? mrgd : inppsg;
+    const Pick::SetGroup& wrgrp = domrg ? mrgd : inppsg;
     PtrMan<Conn> conn = ioobj->getConn( Conn::Write );
     if ( !conn )
         { bs = "Cannot open "; bs += ioobj->fullUserExpr(false); return false; }
@@ -131,7 +131,7 @@ bool PickSetGroupTranslator::store( const PickSetGroup& inppsg,
 }
 
 
-const char* dgbPickSetGroupTranslator::read( PickSetGroup& psg, Conn& conn,
+const char* dgbPickSetGroupTranslator::read( Pick::SetGroup& psg, Conn& conn,
 					     const bool* selarr )
 {
     if ( !conn.forRead() || !conn.isStream() )
@@ -162,8 +162,8 @@ const char* dgbPickSetGroupTranslator::read( PickSetGroup& psg, Conn& conn,
 
     for ( int ips=0; !atEndOfSection(astrm); ips++ )
     {
-	PickSet* newps = selarr && !selarr[ips] ? 0
-			 : new PickSet( astrm.value() );
+	Pick::Set* newps = selarr && !selarr[ips] ? 0
+			 : new Pick::Set( astrm.value() );
 	astrm.next();
 	if ( astrm.hasKeyword(sKey::Color) )
 	{
@@ -172,10 +172,10 @@ const char* dgbPickSetGroupTranslator::read( PickSetGroup& psg, Conn& conn,
 	}
 	if ( astrm.hasKeyword(sKey::Size) )
 	{
-	    if ( newps ) newps->size_ = astrm.getVal();
+	    if ( newps ) newps->nrfields_ = astrm.getVal();
 	    astrm.next();
 	}
-	PickLocation loc;
+	Pick::Location loc;
 	while ( !atEndOfSection(astrm) )
 	{
 	    if ( !loc.fromString( astrm.keyWord() ) )
@@ -195,7 +195,7 @@ const char* dgbPickSetGroupTranslator::read( PickSetGroup& psg, Conn& conn,
 }
 
 
-const char* dgbPickSetGroupTranslator::write( const PickSetGroup& psg,
+const char* dgbPickSetGroupTranslator::write( const Pick::SetGroup& psg,
 						Conn& conn, const bool* selarr )
 {
     if ( !conn.forWrite() || !conn.isStream() )
@@ -211,7 +211,7 @@ const char* dgbPickSetGroupTranslator::write( const PickSetGroup& psg,
     {
 	if ( selarr && !selarr[iset] ) continue;
 
-	const PickSet& ps = *psg.get( iset );
+	const Pick::Set& ps = *psg.get( iset );
 	astrm.put( "Ref", ps.name() );
 	char buf[80];
 	if ( ps.color_ != Color::NoColor )
@@ -219,10 +219,10 @@ const char* dgbPickSetGroupTranslator::write( const PickSetGroup& psg,
 	    ps.color_.fill( buf );
 	    astrm.put( sKey::Color, buf );
 	}
-	if ( ps.size_ != 0 )
-	    astrm.put( sKey::Size, ps.size_ );
+	if ( ps.nrfields_ != 0 )
+	    astrm.put( sKey::Size, ps.nrfields_ );
 
-	for ( int iloc=0; iloc<ps.nrPicks(); iloc++ )
+	for ( int iloc=0; iloc<ps.size(); iloc++ )
 	{
 	    ps[iloc].toString( buf );
 	    strm << buf << '\n';
@@ -250,7 +250,7 @@ void PickSetGroupTranslator::createBinIDValueSets(
 	    msg = "Cannot find PickSet Group with key "; msg += key;
 	    ErrMsg( msg ); continue;
 	}
-	PickSetGroup psg;
+	Pick::SetGroup psg;
 	if ( !retrieve(psg,ioobj,msg) )
 	    { ErrMsg( msg ); continue; }
 
@@ -260,13 +260,13 @@ void PickSetGroupTranslator::createBinIDValueSets(
 	BinIDValueSet* bs = new BinIDValueSet( 1, true );
 	for ( int ips=0; ips<psg.nrSets(); ips++ )
 	{
-	    const PickSet& ps = *psg.get( ips );
-	    const int nrpicks = ps.nrPicks();
+	    const Pick::Set& ps = *psg.get( ips );
+	    const int nrpicks = ps.size();
 	    if ( !nrpicks ) continue;
 
 	    for ( int ipck=0; ipck<nrpicks; ipck++ )
 	    {
-		PickLocation pl( ps[ipck] );
+		Pick::Location pl( ps[ipck] );
 		bs->add( SI().transform(pl.pos), pl.z );
 	    }
 	}

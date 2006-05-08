@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiattribpartserv.cc,v 1.32 2006-05-03 18:54:19 cvskris Exp $
+ RCS:           $Id: uiattribpartserv.cc,v 1.33 2006-05-08 16:50:19 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -498,7 +498,7 @@ bool uiAttribPartServer::createAttributeSet( const BufferStringSet& inps,
 }
 
 
-bool uiAttribPartServer::setPickSetDirs( PickSet& ps, const NLAModel* nlamod )
+bool uiAttribPartServer::setPickSetDirs( Pick::Set& ps, const NLAModel* nlamod )
 {
     uiSetPickDirs dlg( appserv().parent(), ps, curDescSet(), nlamod );
 	return dlg.go();

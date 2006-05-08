@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		May 2001
- RCS:		$Id: picksettr.h,v 1.5 2004-07-16 15:35:25 bert Exp $
+ RCS:		$Id: picksettr.h,v 1.6 2006-05-08 16:50:19 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "transl.h"
 #include "bufstringset.h"
 class Conn;
-class PickSetGroup;
+namespace Pick { class SetGroup; }
 class BinIDValueSet;
 
 
@@ -33,14 +33,14 @@ class PickSetGroupTranslator : public Translator
 public:
     			mDefEmptyTranslatorBaseConstructor(PickSetGroup)
 
-    virtual const char*	read(PickSetGroup&,Conn&,const bool* selarr=0) = 0;
+    virtual const char*	read(Pick::SetGroup&,Conn&,const bool* selarr=0) = 0;
 			//!< returns err msg or null on success
-    virtual const char*	write(const PickSetGroup&,Conn&,const bool* sa=0) = 0;
+    virtual const char*	write(const Pick::SetGroup&,Conn&,const bool* sa=0) = 0;
 			//!< returns err msg or null on success
 
-    static bool		retrieve(PickSetGroup&,const IOObj*,BufferString&,
+    static bool		retrieve(Pick::SetGroup&,const IOObj*,BufferString&,
 				const bool* selarr=0);
-    static bool		store(const PickSetGroup&,const IOObj*,BufferString&,
+    static bool		store(const Pick::SetGroup&,const IOObj*,BufferString&,
 				const bool* selarr=0,bool domrg=false);
     			//!< if domrg == true, if set already exists new set
 			//!< will be merged
@@ -57,8 +57,8 @@ public:
 
     			mDefEmptyTranslatorConstructor(dgb,PickSetGroup)
 
-    const char*		read(PickSetGroup&,Conn&,const bool* s=0);
-    const char*		write(const PickSetGroup&,Conn&,const bool* s=0);
+    const char*		read(Pick::SetGroup&,Conn&,const bool* s=0);
+    const char*		write(const Pick::SetGroup&,Conn&,const bool* s=0);
 
 };
 

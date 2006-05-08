@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uipickpartserv.h,v 1.21 2004-07-30 11:41:21 nanne Exp $
+ RCS:           $Id: uipickpartserv.h,v 1.22 2006-05-08 16:50:19 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,11 +19,10 @@ ________________________________________________________________________
 #include "bufstringset.h"
 
 class Color;
-class PickSet;
 class BinIDRange;
 class SurfaceInfo;
-class PickSetGroup;
 class RandLocGenPars;
+namespace Pick { class Set; class SetGroup; };
 
 
 /*! \brief Service provider for application level - seismics */
@@ -47,14 +46,14 @@ public:
     static const int		evGetHorDef;
 
 				// Interaction stuff
-    PickSetGroup&		group()			{ return psg; }
+    Pick::SetGroup&		group()			{ return psg; }
     				//!< 1) Result of fetchPickSets()
     				//!< 2) Must be filled on evFetchPicks
     BufferStringSet&		availableSets()		{ return avsets; }
     const BoolTypeSet& 		selectedSets() const	{ return selsets; }
     MultiID&			psgID()			{ return psgid; }
     const Color&		getPickColor()		{ return pickcolor; }
-    bool			storeSinglePickSet(PickSet*);
+    bool			storeSinglePickSet(Pick::Set*);
     void			renamePickset(const char*,BufferString&);
     void			setMisclassSet(const BinIDValueSet&);
 
@@ -65,7 +64,7 @@ public:
 
 protected:
 
-    PickSetGroup&		psg;
+    Pick::SetGroup&		psg;
     MultiID			psgid;
     BufferStringSet		avsets;
     BoolTypeSet			selsets;
@@ -76,7 +75,7 @@ protected:
     ObjectSet<MultiID>		selhorids;
     const BinIDRange*		selbr;
 
-    bool			mkRandLocs(PickSet&,const RandLocGenPars&);
+    bool			mkRandLocs(Pick::Set&,const RandLocGenPars&);
 };
 
 

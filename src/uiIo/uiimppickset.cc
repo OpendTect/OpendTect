@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2002
- RCS:           $Id: uiimppickset.cc,v 1.17 2006-04-14 14:43:14 cvsnanne Exp $
+ RCS:           $Id: uiimppickset.cc,v 1.18 2006-05-08 16:50:19 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -78,13 +78,13 @@ bool uiImpExpPickSet::doImport()
     }
 
     const char* psnm = objfld->getInput();
-    PickSet* ps = new PickSet( psnm );
+    Pick::Set* ps = new Pick::Set( psnm );
     ps->color_ = Color::DgbColor;
 
     bool doxy = xyfld ? xyfld->getBoolValue() : true;
     bool firstpos = true;
     bool doscale = false;
-    PickLocation ploc;
+    Pick::Location ploc;
     char buf[1024];
     const float zfactor = SI().zFactor();
     while ( true )
@@ -113,7 +113,7 @@ bool uiImpExpPickSet::doImport()
 
     sdi.close();
 
-    PickSetGroup psg;
+    Pick::SetGroup psg;
     psg.add( ps );
     BufferString errmsg;
     if ( !PickSetGroupTranslator::store(psg,ctio.ioobj,errmsg) )
@@ -125,7 +125,7 @@ bool uiImpExpPickSet::doImport()
 
 bool uiImpExpPickSet::doExport()
 {
-    PickSetGroup psg;
+    Pick::SetGroup psg;
     BufferString errmsg;
     if ( !PickSetGroupTranslator::retrieve(psg,ctio.ioobj,errmsg) )
 	mErrRet(errmsg);
@@ -140,7 +140,7 @@ bool uiImpExpPickSet::doExport()
 
     for ( int setidx=0; setidx<psg.nrSets(); setidx++ )
     {
-	PickSet& ps = *psg.get( setidx );
+	Pick::Set& ps = *psg.get( setidx );
 	char buf[80];
 	for ( int locidx=0; locidx<ps.size(); locidx++ )
 	{
