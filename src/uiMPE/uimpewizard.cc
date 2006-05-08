@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpewizard.cc,v 1.44 2006-04-07 15:17:50 cvsjaap Exp $
+ RCS:           $Id: uimpewizard.cc,v 1.45 2006-05-08 13:44:43 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -631,7 +631,7 @@ void Wizard::seedModeChange( CallBacker* )
     const bool needsetup = seedpicker->doesModeUseSetup();
     setupgrp->setSensitive( needsetup );
 
-    const bool newmodeneedseed = seedpicker->isMinimumNrOfSeeds() > 0; 
+    const bool newmodeneedseed = seedpicker->minSeedsToLeaveInitStage() > 0; 
     picktxt->setText( seedPickText(newmodeneedseed) );
 
     setupChange(0);
@@ -659,8 +659,8 @@ void Wizard::setupChange( CallBacker* )
 void Wizard::updateFinishButton( CallBacker* )
 {
     mGetSeedPicker();
-    const bool finishenabled = !seedpicker->isSeedPickBlocked() 
-		   && seedpicker->nrSeeds() >= seedpicker->isMinimumNrOfSeeds();
+    const bool finishenabled = !seedpicker->isSeedPickBlocked() &&
+	       seedpicker->nrSeeds() >= seedpicker->minSeedsToLeaveInitStage();
     setButtonSensitive( uiDialog::CANCEL, finishenabled );
 }
 
