@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Apr 2002
- RCS:           $Id: attribdatacubes.h,v 1.8 2006-05-04 20:59:40 cvskris Exp $
+ RCS:           $Id: attribdatacubes.h,v 1.9 2006-05-09 20:02:56 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,7 +28,7 @@ class DataCubes
 public:
     				DataCubes();
 
-    int				nrCubes() const { return cubes.size(); }
+    int				nrCubes() const { return cubes_.size(); }
     void			addCube();
     void			addCube(float);
     				//!<Adds the cube and inits it to the given val.
@@ -65,9 +65,9 @@ public:
 				    float val = getCube(idx).get(inlidx,crlidx,
 				    				  zidx);
 				    \endcode */
-    int				getInlSz() const 	{ return inlsz; }
-    int				getCrlSz() const	{ return crlsz; }
-    int				getZSz() const		{ return zsz; }
+    int				getInlSz() const 	{ return inlsz_; }
+    int				getCrlSz() const	{ return crlsz_; }
+    int				getZSz() const		{ return zsz_; }
 
     SamplingData<int>		inlsampling;
     SamplingData<int>		crlsampling;
@@ -83,10 +83,10 @@ public:
     static int			cZDim()		{ return 2; }
 
 protected:
-    ObjectSet<Array3DImpl<float> >	cubes;
-    int					inlsz;
-    int					crlsz;
-    int					zsz;
+    ObjectSet<Array3DImpl<float> >	cubes_;
+    int					inlsz_;
+    int					crlsz_;
+    int					zsz_;
 };
 
 

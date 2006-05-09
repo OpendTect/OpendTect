@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribdatacubes.cc,v 1.11 2006-05-04 20:59:42 cvskris Exp $";
+static const char* rcsID = "$Id: attribdatacubes.cc,v 1.12 2006-05-09 20:02:56 cvskris Exp $";
 
 #include "attribdatacubes.h"
 #include "survinfo.h"
@@ -19,35 +19,35 @@ DataCubes::DataCubes()
     , crlsampling( SI().crlRange(true).start, SI().crlRange(true).step )
     , z0( mNINT(SI().zRange(true).start/SI().zRange(true).step) )
     , zstep( SI().zRange(true).step )
-    , inlsz( 0 )
-    , crlsz( 0 )
-    , zsz( 0 )
+    , inlsz_( 0 )
+    , crlsz_( 0 )
+    , zsz_( 0 )
 { mRefCountConstructor; }
 
 
 DataCubes::~DataCubes()
-{ deepErase( cubes ); }
+{ deepErase( cubes_ ); }
 
 
 void DataCubes::addCube()
 {
-    Array3DImpl<float>* arr = new Array3DImpl<float>( inlsz, crlsz, zsz, false);
-    cubes += arr;
+    Array3DImpl<float>* arr = new Array3DImpl<float>( inlsz_, crlsz_, zsz_, false);
+    cubes_ += arr;
 }
 
 
 void DataCubes::addCube( float val )
 {
     addCube();
-    setValue( cubes.size()-1, val );
+    setValue( cubes_.size()-1, val );
 }
     
 
 
 void DataCubes::removeCube( int idx )
 {
-    delete cubes[idx];
-    cubes.remove(idx);
+    delete cubes_[idx];
+    cubes_.remove(idx);
 }
 
 
@@ -67,26 +67,26 @@ void DataCubes::setSizeAndPos( const CubeSampling& cs )
 
 void  DataCubes::setSize( int nrinl, int nrcrl, int nrz )
 {
-    inlsz = nrinl;
-    crlsz = nrcrl;
-    zsz = nrz;
+    inlsz_ = nrinl;
+    crlsz_ = nrcrl;
+    zsz_ = nrz;
 
-    for ( int idx=0; idx<cubes.size(); idx++ )
-	cubes[idx]->setSize( inlsz, crlsz, zsz );
+    for ( int idx=0; idx<cubes_.size(); idx++ )
+	cubes_[idx]->setSize( inlsz_, crlsz_, zsz_ );
 }
 
 
 void DataCubes::setValue( int array, int inlidx, int crlidx, int zidx,
 			  float val )
 {
-    cubes[array]->set( inlidx, crlidx, zidx, val );
+    cubes_[array]->set( inlidx, crlidx, zidx, val );
 }
 
 
 void DataCubes::setValue( int array, float val )
 {
-    float* vals = cubes[array]->getData();
-    const float* stopptr = vals + cubes[array]->info().getTotalSz();
+    float* vals = cubes_[array]->getData();
+    const float* stopptr = vals + cubes_[array]->info().getTotalSz();
     while ( vals<stopptr )
     	(*vals++) = val;
 }
@@ -96,25 +96,25 @@ bool DataCubes::getValue( int array, const BinIDValue& bidv, float* res,
 			  bool interpolate ) const
 {
     const int inlidx = inlsampling.nearestIndex( bidv.binid.inl );
-    if ( inlidx<0 || inlidx>=inlsz ) return false;
+    if ( inlidx<0 || inlidx>=inlsz_ ) return false;
     const int crlidx = crlsampling.nearestIndex( bidv.binid.crl );
-    if ( crlidx<0 || crlidx>=crlsz ) return false;
+    if ( crlidx<0 || crlidx>=crlsz_ ) return false;
 
-    if ( cubes.size() <= array ) return false;
-    const float* data = cubes[array]->getData();
-    data += cubes[array]->info().getMemPos( inlidx, crlidx, 0 );
+    if ( cubes_.size() <= array ) return false;
+    const float* data = cubes_[array]->getData();
+    data += cubes_[array]->info().getMemPos( inlidx, crlidx, 0 );
 
     const float zpos = bidv.value/zstep-z0;
     if ( !interpolate )
     {
 	const int zidx = mNINT( zpos );
-	if ( zidx < 0 || zidx >= zsz ) return false;
+	if ( zidx < 0 || zidx >= zsz_ ) return false;
 	*res = data[zidx];
 	return true;
     }
 
     float interpval;
-    if ( !IdxAble::interpolateRegWithUdf( data, zsz, zpos, interpval, false ) )
+    if ( !IdxAble::interpolateRegWithUdf( data, zsz_, zpos, interpval, false ) )
 	return false;
 
     *res = interpval;
@@ -128,16 +128,16 @@ bool DataCubes::includes( const BinIDValue& bidv ) const
 	return false;
 
     const float zpos = bidv.value/zstep-z0;
-    return zpos<0 || zpos>zsz-1;
+    return zpos<0 || zpos>zsz_-1;
 }
 
 
 bool DataCubes::includes( const BinID& binid ) const
 {
     const int inlidx = inlsampling.nearestIndex( binid.inl );
-    if ( inlidx<0 || inlidx>=inlsz ) return false;
+    if ( inlidx<0 || inlidx>=inlsz_ ) return false;
     const int crlidx = crlsampling.nearestIndex( binid.crl );
-    if ( crlidx<0 || crlidx>=crlsz ) return false;
+    if ( crlidx<0 || crlidx>=crlsz_ ) return false;
     return true;
 }
 
@@ -145,26 +145,26 @@ bool DataCubes::includes( const BinID& binid ) const
 
 
 const Array3D<float>& DataCubes::getCube( int idx ) const
-{ return *cubes[idx]; }
+{ return *cubes_[idx]; }
 
 
 Array3D<float>& DataCubes::getCube( int idx )
-{ return *cubes[idx]; }
+{ return *cubes_[idx]; }
 
 
 CubeSampling DataCubes::cubeSampling() const
 {
     CubeSampling res(false);
 
-    if ( inlsz && crlsz && zsz )
+    if ( inlsz_ && crlsz_ && zsz_ )
     {
 	res.hrg.start = BinID( inlsampling.start, crlsampling.start );
-	res.hrg.stop = BinID( inlsampling.atIndex(inlsz-1),
-			      crlsampling.atIndex(crlsz-1) );
+	res.hrg.stop = BinID( inlsampling.atIndex(inlsz_-1),
+			      crlsampling.atIndex(crlsz_-1) );
 	res.hrg.step = BinID( inlsampling.step, crlsampling.step );
 
 	res.zrg.start = z0 * zstep;
-	res.zrg.stop = (z0+zsz-1) * zstep;
+	res.zrg.stop = (z0+zsz_-1) * zstep;
 	res.zrg.step = zstep;
     }
 
