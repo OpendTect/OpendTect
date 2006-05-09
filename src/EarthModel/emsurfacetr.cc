@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: emsurfacetr.cc,v 1.9 2006-05-03 14:39:26 cvsnanne Exp $
+ RCS:           $Id: emsurfacetr.cc,v 1.10 2006-05-09 16:08:53 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -244,7 +244,7 @@ bool dgbEMSurfaceTranslator::prepRead()
 {
     if ( reader_ ) delete reader_;
     BufferString unm = group() ? group()->userName() : 0;
-    reader_ = new EM::dgbSurfaceReader( *ioobj_, unm, 0 );
+    reader_ = new EM::dgbSurfaceReader( *ioobj_, unm );
     if ( !reader_->isOK() )
     {
 	errmsg_ = reader_->message();
@@ -301,7 +301,7 @@ Executor* dgbEMSurfaceTranslator::reader( EM::Surface& surf )
     Executor* res = reader_;
     if ( reader_ )
     {
-	reader_->setSurface( surface );
+	reader_->setOutput( surf );
 	if ( hasRangeSelection() )
 	{
 	    StepInterval<int> rrg, crg; getSels( rrg, crg );

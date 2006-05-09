@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          June 2003
- RCS:           $Id: emsurfaceio.cc,v 1.63 2006-05-09 14:49:04 cvskris Exp $
+ RCS:           $Id: emsurfaceio.cc,v 1.64 2006-05-09 16:08:53 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -63,11 +63,10 @@ BufferString dgbSurfaceReader::sSectionNameKey( int idx )
 
 
 dgbSurfaceReader::dgbSurfaceReader( const IOObj& ioobj,
-					const char* filetype,
-					Surface* surface )
+					const char* filetype )
     : ExecutorGroup( "Surface Reader" )
     , conn_( dynamic_cast<StreamConn*>(ioobj.getConn(Conn::Read)) )
-    , surface_( surface )
+    , surface_( 0 )
     , par_( 0 )
     , setsurfacepar_( false )
     , readrowrange_( 0 )
@@ -85,7 +84,7 @@ dgbSurfaceReader::dgbSurfaceReader( const IOObj& ioobj,
     , fullyread_( true )
     , version_( 1 )
 {
-    surface_->enableGeometryChecks( false );
+    if ( surface_ ) surface_->enableGeometryChecks( false );
     sectionnames_.allowNull();
 
     BufferString exnm = "Reading surface '"; exnm += ioobj.name(); exnm += "'";
@@ -102,6 +101,14 @@ dgbSurfaceReader::dgbSurfaceReader( const IOObj& ioobj,
     createAuxDataReader();
     error_ = !readHeaders( filetype );
 
+}
+
+
+void dgbSurfaceReader::setOutput( EM::Surface& ns )
+{
+    if ( surface_ ) surface_->unRef();
+    surface_ = &ns;
+    surface_->ref();
 }
 
 
@@ -255,6 +262,7 @@ dgbSurfaceReader::~dgbSurfaceReader()
     delete int32interpreter_;
     delete int64interpreter_;
     delete floatinterpreter_;
+    if ( surface_ ) surface_->unRef();
 }
 
 

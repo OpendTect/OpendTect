@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfaceio.h,v 1.21 2006-05-03 14:38:49 cvsnanne Exp $
+ RCS:		$Id: emsurfaceio.h,v 1.22 2006-05-09 16:08:53 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -23,6 +23,7 @@ ________________________________________________________________________
 class StreamConn;
 class IOObj;
 template <class T> class DataInterpreter;
+template <class T> class Array3D;
 
 namespace EM
 {
@@ -44,25 +45,23 @@ class dgbSurfaceReader : public ExecutorGroup
 {
 public:
 			dgbSurfaceReader(const IOObj& ioobj,
-					 const char* filetype,
-					 EM::Surface* surface );
+					 const char* filetype );
 			/*!< Sets up object and reads header.
 			\param ioobj	The IOObj with info about where to
 					read data.
 			\param filetype	The filetype that should be in
 					the file header.
-			\param surface	The surface that should be filled with
-					data. Note that a null pointer can
-					be given if the obj only is used
-					to get data from the header
 			*/
 
-				~dgbSurfaceReader();
-				/*!< Closes the stream */
+			~dgbSurfaceReader();
+			/*!< Closes the stream */
+
+    void			setOutput(EM::Surface&);
+    void			setOutput(Array3D<float>&,const RowCol& start,
+	    				  const RowCol& step);
 
     int				version() const		{ return version_; }
 
-    void			setSurface( EM::Surface* s ) { surface_ = s; }
     bool			isOK() const;
     void			setGeometry();
 
