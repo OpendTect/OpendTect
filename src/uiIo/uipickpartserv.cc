@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uipickpartserv.cc,v 1.32 2006-05-08 16:50:19 cvsbert Exp $
+ RCS:           $Id: uipickpartserv.cc,v 1.33 2006-05-09 14:56:44 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -81,12 +81,19 @@ bool uiPickPartServer::fetchPickSets()
 	    Pick::Set* ps = new Pick::Set( dlg.getName() );
 	    ps->color_ = pickcolor;
 	    rv = mkRandLocs( *ps, dlg.randPars() );
-	    if ( rv )	psg.add(ps);
-	    else	delete ps;
+	    if ( !rv )
+		delete ps;
+	    else
+		psg.add(ps);
 	}
-	if ( dlg.wantStore() )
-	    pErrMsg("TODO: pop up store set window");
 
+	PtrMan<IOObj> ioobj = dlg.storObj();
+	if ( ioobj )
+	{
+	    BufferString bs;
+	    if ( !PickSetGroupTranslator::store(psg,ioobj,bs,0,false) )
+		uiMSG().error( bs );
+	}
 	return rv;
     }
 
