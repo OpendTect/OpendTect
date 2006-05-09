@@ -4,13 +4,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          June 2003
- RCS:           $Id: emsurfaceio.cc,v 1.64 2006-05-09 16:08:53 cvskris Exp $
+ RCS:           $Id: emsurfaceio.cc,v 1.65 2006-05-09 22:33:25 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "emsurfaceio.h"
 
+#include "arraynd.h"
 #include "color.h"
 #include "ascstream.h"
 #include "datachar.h"
@@ -66,6 +67,7 @@ dgbSurfaceReader::dgbSurfaceReader( const IOObj& ioobj,
 					const char* filetype )
     : ExecutorGroup( "Surface Reader" )
     , conn_( dynamic_cast<StreamConn*>(ioobj.getConn(Conn::Read)) )
+    , cube_( 0 )
     , surface_( 0 )
     , par_( 0 )
     , setsurfacepar_( false )
@@ -111,6 +113,11 @@ void dgbSurfaceReader::setOutput( EM::Surface& ns )
     surface_->ref();
 }
 
+
+void dgbSurfaceReader::setOutput( Array3D<float>& cube )
+{
+    cube_ = &cube;
+}
 
 bool dgbSurfaceReader::readHeaders( const char* filetype )
 {
@@ -486,10 +493,10 @@ int dgbSurfaceReader::currentRow() const
 
 int dgbSurfaceReader::nextStep()
 {
-    if ( error_ || !surface_ )
+    if ( error_ || (!surface_ && !cube_) )
     {
-	if ( !surface_ ) 
-	    msg_ = "Internal: No Surface Set";
+	if ( !surface_ && !cube_ ) 
+	    msg_ = "Internal: No Output Set";
 
 	return ErrorOccurred;
     }
@@ -501,6 +508,7 @@ int dgbSurfaceReader::nextStep()
 
     if ( sectionindex_>=sectionids_.size() )
     {
+	if ( !surface_ ) return Finished;
 
 	int res = ExecutorGroup::nextStep();
 	if ( !res && !setsurfacepar_ )
@@ -862,10 +870,21 @@ bool dgbSurfaceReader::readVersion3Row( std::istream& strm,
 	    pos.z = zsd.atIndex( zidx );
 
 
-	if ( !surface_->sectionGeometry(sectionid) )
-	    createSection( sectionid );
+	if ( surface_ )
+	{
+	    if ( !surface_->sectionGeometry(sectionid) )
+		createSection( sectionid );
 
-	surface_->setPos( sectionid, rc.getSerialized(), pos, false );
+	    surface_->setPos( sectionid, rc.getSerialized(), pos, false );
+	}
+
+	if ( cube_ )
+	{
+	    cube_->set( readrowrange_->nearestIndex(rc.row),
+			readcolrange_->nearestIndex(rc.col),
+			sectionindex_, pos.z );
+	}
+
 	didread = true;
     }
 

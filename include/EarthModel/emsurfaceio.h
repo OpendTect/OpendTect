@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfaceio.h,v 1.22 2006-05-09 16:08:53 cvskris Exp $
+ RCS:		$Id: emsurfaceio.h,v 1.23 2006-05-09 22:33:25 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -57,8 +57,7 @@ public:
 			/*!< Closes the stream */
 
     void			setOutput(EM::Surface&);
-    void			setOutput(Array3D<float>&,const RowCol& start,
-	    				  const RowCol& step);
+    void			setOutput(Array3D<float>&);
 
     int				version() const		{ return version_; }
 
@@ -165,6 +164,7 @@ protected:
     DataInterpreter<int>*	int32interpreter_;
     DataInterpreter<float>*	floatinterpreter_;
     EM::Surface*		surface_;
+    Array3D<float>*		cube_;
 
     StepInterval<int>		rowrange_;
     StepInterval<int>		colrange_;
