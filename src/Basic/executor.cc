@@ -4,12 +4,14 @@
  * DATE     : 14-6-1996
 -*/
 
-static const char* rcsID = "$Id: executor.cc,v 1.20 2006-05-09 07:20:01 cvskris Exp $";
+static const char* rcsID = "$Id: executor.cc,v 1.21 2006-05-09 07:26:23 cvsnanne Exp $";
 
 #include "executor.h"
-#include "timefun.h"
-#include "oddirs.h"
+
 #include "errh.h"
+#include "oddirs.h"
+#include "progressmeter.h"
+#include "timefun.h"
 #include <iostream>
 
 const int Executor::ErrorOccurred	= -1;
@@ -52,11 +54,11 @@ bool Executor::execute( std::ostream* strm, bool isfirst, bool islast,
     if ( strm )
 	stream << '\t' << prevmsg << '\n';
 
+    ProgressMeter progressmeter( stream );
     bool go_on = true;
     bool newmsg = true;
     bool needendl = false;
     int nrdone = 0;
-    int nrdonedone = 0;
     int rv;
     while ( go_on )
     {
@@ -85,27 +87,21 @@ bool Executor::execute( std::ostream* strm, bool isfirst, bool islast,
 	    {
 		newmsg = false;
 		if ( !nrdone )
-		    stream << '\t' << nrDoneText() << ":\n\t\t";
-		stream << newnrdone;
-		nrdonedone = 1;
+		    stream << nrDoneText() << ":\n";
+		progressmeter.reset();
 		needendl = true;
 	    }
 	    else if ( newnrdone && newnrdone != nrdone )
 	    {
-		nrdonedone++;
-		needendl = nrdonedone%8 ? true : false;
-		stream << (nrdonedone%8 ? " " : "\n\t\t");
-		stream << newnrdone;
-		stream.flush();
+		++progressmeter;
 	    }
 	break;
 	}
 	nrdone = newnrdone;
 	prevmsg = curmsg;
-	if ( delaybetwnsteps )
-	    Time_sleep( delaybetwnsteps*0.001 );
     }
 
+    progressmeter.finish();
     if ( islast )
 	stream << "\n\nEnd of processing" << std::endl;
     return rv < 0 ? false : true;
@@ -127,7 +123,7 @@ ExecutorGroup::ExecutorGroup( const char* nm, bool p )
 	, executors_( *new ObjectSet<Executor> )
 	, nrdone_( 0 )
 	, currentexec_( 0 )
-    	, paralell_( p )
+    	, parallel_( p )
 {
 }
 
@@ -168,7 +164,7 @@ int ExecutorGroup::nextStep()
     int res = executorres_[currentexec_] = executors_[currentexec_]->doStep();
     if ( res == ErrorOccurred )
 	return ErrorOccurred;
-    else if ( paralell_ || res==Finished )
+    else if ( parallel_ || res==Finished )
 	res = goToNextExecutor() ? MoreToDo : Finished;
 
     nrdone_++;
@@ -206,7 +202,7 @@ int ExecutorGroup::totalNr() const
     const int nrexecs = executors_.size();
     if ( !nrexecs ) return -1;
 
-    if ( !paralell_ && !similarLeft() )
+    if ( !parallel_ && !similarLeft() )
 	return executors_[currentexec_]->totalNr();
 
     int totnr = 0;
@@ -228,7 +224,7 @@ int ExecutorGroup::nrDone() const
     if ( nrexecs < 1 )
 	return -1;
 
-    if ( paralell_ || similarLeft() )
+    if ( parallel_ || similarLeft() )
     {
 	int totnr = 0;
 	for ( int idx=0; idx<nrexecs; idx++ )
