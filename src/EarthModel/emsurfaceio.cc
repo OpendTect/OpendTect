@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          June 2003
- RCS:           $Id: emsurfaceio.cc,v 1.62 2006-05-09 14:40:14 cvskris Exp $
+ RCS:           $Id: emsurfaceio.cc,v 1.63 2006-05-09 14:49:04 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -882,7 +882,6 @@ void dgbSurfaceReader::createSection( const SectionID& sectionid )
     const int index = sectionids_.indexOf(sectionid);
     surface_->geometry().addSection( sectionnames_[index] ?
 			       *sectionnames_[index] : 0, sectionid, false );
-    surface_->enableGeometryChecks(false);
 }
 
 
