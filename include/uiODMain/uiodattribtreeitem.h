@@ -7,13 +7,13 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: uiodattribtreeitem.h,v 1.1 2006-05-08 16:49:48 cvsbert Exp $
+ RCS:		$Id: uiodattribtreeitem.h,v 1.2 2006-05-09 11:00:53 cvsbert Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "uiodtreeitem.h"
+#include "uioddatatreeitem.h"
 
 namespace Attrib { class SelSpec; };
 

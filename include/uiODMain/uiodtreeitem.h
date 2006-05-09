@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: uiodtreeitem.h,v 1.24 2006-05-08 16:49:48 cvsbert Exp $
+ RCS:		$Id: uiodtreeitem.h,v 1.25 2006-05-09 11:00:53 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -17,14 +17,10 @@ ________________________________________________________________________
 #include "menuhandler.h"
 
 class uiListView;
-class uiListViewItem;
-class uiMenuHandler;
 class uiODApplMgr;
-class uiParent;
 class uiPopupMenu;
 class uiSoViewer;
 
-namespace Attrib { class SelSpec; };
 
 class uiODTreeItem : public uiTreeItem
 {
@@ -83,73 +79,7 @@ public:
 };
 
 
-class uiODDataTreeItem;
-
-typedef uiODDataTreeItem* (*uiDataTreeItemCreator)(const Attrib::SelSpec&,
-						   const char*);
-
-
-/*!Base class for the attribs on a treeitem. */
-
-
-class uiODDataTreeItem : public uiTreeItem
-{
-public:
-    			uiODDataTreeItem(const char* parenttype);
-			~uiODDataTreeItem();
-
-    static const int	cPixmapWidth() { return 16; }
-    static const int	cPixmapHeight() { return 10; }
-
-    static uiODDataTreeItem*	create(const Attrib::SelSpec&,
-	    			       const char* parenttype);
-    				/*!<Creates an item based on the selspec. This
-				    is used to create custom items like
-				    the overlay item. */
-    static void			addFactory(uiDataTreeItemCreator);
-    				/*!<Adds custom create function for create
-				    function. */
-
-    bool		select();
-
-protected:
-    int			uiListViewItemType() const;
-    bool		init();
-
-    void		checkCB(CallBacker*);
-    bool		shouldSelect(int) const;
-
-    uiODApplMgr*	applMgr() const;
-    uiSoViewer*		viewer() const;
-    int			sceneID() const;
-    bool		isSelectable() const { return true; }
-    bool		isExpandable() const { return false; }
-    const char*		parentType() const { return parenttype_; }
-    int			displayID() const;
-    int			attribNr() const;
-    bool		showSubMenu();
-
-    virtual void	createMenuCB(CallBacker*);
-    virtual void	handleMenuCB(CallBacker*);
-    void		updateColumnText(int col);
-    virtual BufferString createDisplayName() const			= 0;
-
-    uiMenuHandler*	menu_;
-    MenuItem		movemnuitem_;
-    MenuItem		movetotopmnuitem_;
-    MenuItem		movetobottommnuitem_;
-    MenuItem		moveupmnuitem_;
-    MenuItem		movedownmnuitem_;
-
-    MenuItem		removemnuitem_;
-    MenuItem		changetransparencyitem_;
-    const char*		parenttype_;
-
-    static TypeSet<uiDataTreeItemCreator>	creators_;
-};
-
-
-#define mShowMenu bool showSubMenu();
+#define mShowMenu	bool showSubMenu();
 
 #define mDefineItem( type, inherited, parentitem, extrapublic ) \
 class uiOD##type##TreeItem : public uiOD##inherited \

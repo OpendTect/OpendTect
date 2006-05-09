@@ -3,76 +3,32 @@ ___________________________________________________________________
 
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
- Date: 		Jul 2003
- RCS:		$Id: uiodseis2dtreeitem.cc,v 1.1 2006-05-08 16:50:01 cvsbert Exp $
+ Date: 		May 2006
+ RCS:		$Id: uiodseis2dtreeitem.cc,v 1.2 2006-05-09 11:00:53 cvsbert Exp $
 ___________________________________________________________________
 
 -*/
 
-#include "uiodtreeitemimpl.h"
+#include "uiodseis2dtreeitem.h"
+
+#include "uimenu.h"
+#include "uiodapplmgr.h"
+#include "uivispartserv.h"
 
 #include "attribsel.h"
 #include "attribdesc.h"
 #include "attribdescset.h"
 #include "attribdataholder.h"
-#include "seisinfo.h"
-#include "errh.h"
-#include "emhorizon.h"
-#include "emhorizon2d.h"
-#include "emfault.h"
-#include "ptrman.h"
-#include "oddirs.h"
-#include "ioobj.h"
-#include "ioman.h"
 #include "linekey.h"
-#include "uimenu.h"
-#include "pickset.h"
-#include "pixmap.h"
-#include "settings.h"
-#include "colortab.h"
-#include "survinfo.h"
-#include "keystrs.h"
 #include "segposinfo.h"
-#include "zaxistransform.h"
 
 #include "uiattribpartserv.h"
-#include "uibinidtable.h"
-#include "uiempartserv.h"
-#include "uiexecutor.h"
-#include "uigeninput.h"
-#include "uigeninputdlg.h"
-#include "uilistview.h"
 #include "uimenuhandler.h"
-#include "uimsg.h"
-#include "uiodapplmgr.h"
-#include "uiodscenemgr.h"
-#include "uisoviewer.h"
-#include "uivisemobj.h"
-#include "uivispartserv.h"
-#include "uiwellattribpartserv.h"
-#include "uiwellpartserv.h"
-#include "uiwellpropdlg.h"
-#include "uipickpartserv.h"
-#include "uimpepartserv.h"
-#include "uiscenepropdlg.h"
 #include "uiseispartserv.h"
 #include "uislicesel.h"
-#include "uipickszdlg.h"
-#include "uicolor.h"
 #include "uicursor.h"
-#include "uigridlinesdlg.h"
 
 #include "visseis2ddisplay.h"
-#include "visrandomtrackdisplay.h"
-#include "viswelldisplay.h"
-#include "vispicksetdisplay.h"
-#include "visemobjdisplay.h"
-#include "vissurvscene.h"
-#include "visplanedatadisplay.h"
-#include "viscolortab.h"
-#include "viscolorseq.h"
-#include "visdataman.h"
-#include "visgridlines.h"
 
 
 uiODSeis2DParentTreeItem::uiODSeis2DParentTreeItem()

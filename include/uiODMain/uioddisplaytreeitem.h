@@ -7,15 +7,15 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: uioddisplaytreeitem.h,v 1.1 2006-05-08 16:49:48 cvsbert Exp $
+ RCS:		$Id: uioddisplaytreeitem.h,v 1.2 2006-05-09 11:00:53 cvsbert Exp $
 ________________________________________________________________________
 
 
 -*/
 
 #include "uiodtreeitem.h"
-
 class uiVisPartServer;
+class uiODDataTreeItem;
 namespace Attrib { class SelSpec; }
 
 
@@ -40,7 +40,7 @@ protected:
 
     virtual uiODDataTreeItem* createAttribItem(const Attrib::SelSpec*) const;
 
-    bool		shouldSelect( int selkey ) const;
+    bool		shouldSelect(int selkey) const;
     int			selectionKey() const;
     int			uiListViewItemType() const;
     virtual void	checkCB(CallBacker*);

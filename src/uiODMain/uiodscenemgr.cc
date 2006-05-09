@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.65 2006-05-08 16:50:01 cvsbert Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.66 2006-05-09 11:00:53 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "uiodapplmgr.h"
 #include "uiodmenumgr.h"
 #include "uiodtreeitemimpl.h"
+#include "uiodscenetreeitem.h"
 #include "uiempartserv.h"
 #include "uivispartserv.h"
 #include "uiattribpartserv.h"
