@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/01/2002
- RCS:           $Id: uitreeview.cc,v 1.22 2006-05-08 07:06:31 cvshelene Exp $
+ RCS:           $Id: uitreeview.cc,v 1.23 2006-05-09 08:03:13 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -91,7 +91,6 @@ uiListViewBody::uiListViewBody( uiListView& handle, uiParent* parnt,
 uiListViewBody::~uiListViewBody()
 {
     delete &messenger_;
-    delete scl_;
 }
 
 #define mTriggRet \
