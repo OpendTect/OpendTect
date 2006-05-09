@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2001
- RCS:           $Id: create_randpicks_2d.cc,v 1.2 2006-05-08 14:40:18 cvsnanne Exp $
+ RCS:           $Id: create_randpicks_2d.cc,v 1.3 2006-05-09 15:22:18 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -87,13 +87,13 @@ static int doWork( int argc, char** argv )
 	const int nrcoords = geometry.posns.size();
 	const int crdidx = Stat_getIndex( nrcoords );
 	const Coord& pos = geometry.posns[crdidx].coord;
-	const BinID bid = SI().transform( pos );
-	TypeSet<Coord3> positions;
-	horizon->geometry().getPos( bid, positions );
-	if ( !positions.size() || !positions[0].isDefined() )
-	    continue;
 
-	const Coord3 pickpos( pos, positions[0].z );
+	const BinID bid = SI().transform( pos );
+	const EM::SectionID sid = horizon->sectionID( 0 );
+	const float zpos = horizon->getPos( sid, bid.getSerialized() ).z;
+	if ( mIsUdf(zpos) ) continue;
+
+	const Coord3 pickpos( pos, zpos );
 	if ( picklocations.indexOf(pickpos) < 0 )
 	    picklocations += pickpos;
 

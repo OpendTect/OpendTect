@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2004
- RCS:           $Id: add_hor_z.cc,v 1.3 2006-05-08 14:40:18 cvsnanne Exp $
+ RCS:           $Id: add_hor_z.cc,v 1.4 2006-05-09 15:22:18 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -74,15 +74,13 @@ static int doWork( int argc, char** argv )
     {
 	Coord c( coords[idx] );
 	const BinID bid = SI().transform( c );
-	TypeSet<Coord3> positions;
-	horizon->geometry().getPos( bid, positions );
-	bool isudf = !positions[0].isDefined();
-	if ( isudf && !incudf ) continue;
+	const EM::SectionID sid = horizon->sectionID( 0 );
+	const float zpos = horizon->getPos( sid, bid.getSerialized() ).z;
+	if ( mIsUdf(zpos) && !incudf ) continue;
 
 	BufferString str;
 	str += c.x; str += "\t"; str += c.y; str += "\t";
-	if ( isudf )	str += sKey::FloatUdf;
-	else		str += positions[0].z;
+	str += mIsUdf(zpos) ? BufferString(sKey::FloatUdf) : BufferString(zpos);
 	*sd.ostrm << str << std::endl;
     }
 

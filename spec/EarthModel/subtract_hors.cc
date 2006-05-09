@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:           2005
- RCS:           $Id: subtract_hors.cc,v 1.5 2006-05-08 14:40:19 cvsnanne Exp $
+ RCS:           $Id: subtract_hors.cc,v 1.6 2006-05-09 15:22:18 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,19 +12,21 @@ ________________________________________________________________________
 
 
 #include "prog.h"
+
 #include "binidvalset.h"
+#include "ctxtioobj.h"
+#include "cubesampling.h"
 #include "emmanager.h"
 #include "emhorizon.h"
 #include "emsurfaceauxdata.h"
 #include "emsurfacegeometry.h"
 #include "emposid.h"
-#include "ranges.h"
-#include "position.h"
+#include "executor.h"
 #include "ioman.h"
 #include "ioobj.h"
-#include "ctxtioobj.h"
+#include "position.h"
+#include "ranges.h"
 #include "survinfo.h"
-#include "executor.h"
 
 
 static int prUsage( const char* msg = 0 )
@@ -77,31 +79,27 @@ static int doWork( int argc, char** argv )
     const int dataidx = addtohor.auxdata.addAuxData( attribname );
     if ( dataidx < 0 ) return prError( "Cannot add datavalues" );
 
+    EM::PosID posid( addtohor.id() );
     StepInterval<int> inlrg = addtohor.geometry().rowRange();
     StepInterval<int> crlrg = addtohor.geometry().colRange();
-    RowCol rc;
-    EM::PosID posid( addtohor.id() );
-    for ( rc.row=inlrg.start; rc.row<=inlrg.stop; rc.row+=inlrg.step )
+    HorSampling hs; hs.set( inlrg, crlrg );
+    HorSamplingIterator iter( hs );
+    BinID bid;
+    while ( iter.next(bid) )
     {
-	for ( rc.col=crlrg.start; rc.col<=crlrg.stop; rc.col+=crlrg.step )
+	const EM::SubID subid = bid.getSerialized();
+	const float z1 = horizon1->getPos( horizon1->sectionID(0), subid ).z;
+	const float z2 = horizon2->getPos( horizon2->sectionID(0), subid ).z;
+
+	float val = mUdf(float);
+	if ( !mIsUdf(z1) && !mIsUdf(z2) )
 	{
-	    TypeSet<Coord3> positions1;
-	    horizon1->geometry().getPos( rc, positions1 );
-	    TypeSet<Coord3> positions2;
-	    horizon1->geometry().getPos( rc, positions2 );
-	    Coord3 pos1 = positions1.size() ? positions1[0] : Coord3::udf();
-	    Coord3 pos2 = positions2.size() ? positions2[0] : Coord3::udf();
-
-	    float val = mUdf(float);
-	    if ( pos1.isDefined() && pos2.isDefined() )
-	    {
-		val = pos2.z - pos1.z;
-		if ( SI().zIsTime() ) val *= 1000;
-	    }
-
-	    posid.setSubID( rc.getSerialized() );
-	    addtohor.auxdata.setAuxDataVal( dataidx, posid, val );
+	    val = z2 - z1;
+	    if ( SI().zIsTime() ) val *= 1000;
 	}
+
+	posid.setSubID( subid );
+	addtohor.auxdata.setAuxDataVal( dataidx, posid, val );
     }
 
     std::cerr << "Saving data ..." << std::endl;
