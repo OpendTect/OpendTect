@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		11-7-1996
- RCS:		$Id: executor.h,v 1.15 2005-09-23 12:36:33 cvsbert Exp $
+ RCS:		$Id: executor.h,v 1.16 2006-05-09 07:19:37 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -132,13 +132,10 @@ public:
     virtual int		nrDone() const;
     virtual const char*	nrDoneText() const;
     
-    int			nrExecutors()
-    			    { return executors.size(); }
-    Executor*		getExecutor(int idx)
-    			    { return executors[idx]; }
+    int			nrExecutors() { return executors_.size(); }
+    Executor*		getExecutor(int idx) { return executors_[idx]; }
 
-    void		setNrDoneText( const char* txt )
-			    { nrdonetext = txt; }
+    void		setNrDoneText(const char* txt) { nrdonetext_ = txt; }
     			//!< If set, will use this and the counted nrdone
 
 protected:
@@ -147,12 +144,12 @@ protected:
     bool		goToNextExecutor();
     bool		similarLeft() const;
 
-    const bool		paralell;
-    int			currentexec;
-    int			nrdone;
-    BufferString	nrdonetext;
-    ObjectSet<Executor>& executors;
-    TypeSet<int>	executorres;
+    const bool		paralell_;
+    int			currentexec_;
+    int			nrdone_;
+    BufferString	nrdonetext_;
+    ObjectSet<Executor>& executors_;
+    TypeSet<int>	executorres_;
 
 };
 

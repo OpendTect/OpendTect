@@ -4,7 +4,7 @@
  * DATE     : 14-6-1996
 -*/
 
-static const char* rcsID = "$Id: executor.cc,v 1.19 2005-10-18 16:28:56 cvsbert Exp $";
+static const char* rcsID = "$Id: executor.cc,v 1.20 2006-05-09 07:20:01 cvskris Exp $";
 
 #include "executor.h"
 #include "timefun.h"
@@ -124,29 +124,29 @@ int Executor::doStep()
 
 ExecutorGroup::ExecutorGroup( const char* nm, bool p )
 	: Executor( nm )
-	, executors( *new ObjectSet<Executor> )
-	, nrdone( 0 )
-	, currentexec( 0 )
-    	, paralell( p )
+	, executors_( *new ObjectSet<Executor> )
+	, nrdone_( 0 )
+	, currentexec_( 0 )
+    	, paralell_( p )
 {
 }
 
 
 ExecutorGroup::~ExecutorGroup()
 {
-    deepErase( executors );
-    delete &executors;
+    deepErase( executors_ );
+    delete &executors_;
 }
 
 
 bool ExecutorGroup::similarLeft() const
 {
-    for ( int idx=currentexec+1; idx<executors.size(); idx++ )
+    for ( int idx=currentexec_+1; idx<executors_.size(); idx++ )
     {
-	if ( strcmp(executors[idx]->nrDoneText(),
-		    executors[idx-1]->nrDoneText())
-	  || strcmp(executors[idx]->message(),
-		    executors[idx-1]->message()) )
+	if ( strcmp(executors_[idx]->nrDoneText(),
+		    executors_[idx-1]->nrDoneText())
+	  || strcmp(executors_[idx]->message(),
+		    executors_[idx-1]->message()) )
 	    return false;
     }
     return true;
@@ -155,38 +155,38 @@ bool ExecutorGroup::similarLeft() const
 
 void ExecutorGroup::add( Executor* n )
 {
-    executors += n;
-    executorres += 1;
+    executors_ += n;
+    executorres_ += 1;
 }
 
 
 int ExecutorGroup::nextStep()
 {
-    const int nrexecs = executors.size();
+    const int nrexecs = executors_.size();
     if ( !nrexecs ) return Finished;
 
-    int res = executorres[currentexec] = executors[currentexec]->doStep();
+    int res = executorres_[currentexec_] = executors_[currentexec_]->doStep();
     if ( res == ErrorOccurred )
 	return ErrorOccurred;
-    else if ( paralell || res==Finished )
+    else if ( paralell_ || res==Finished )
 	res = goToNextExecutor() ? MoreToDo : Finished;
 
-    nrdone++;
+    nrdone_++;
     return res;
 }
 
 bool ExecutorGroup::goToNextExecutor()
 {
-    const int nrexecs = executors.size();
+    const int nrexecs = executors_.size();
     if ( !nrexecs ) return false;
 
     for ( int idx=0; idx<nrexecs; idx++ )
     {
-	currentexec++;
-	if ( currentexec==nrexecs )
-	    currentexec = 0;
+	currentexec_++;
+	if ( currentexec_==nrexecs )
+	    currentexec_ = 0;
 
-	if ( executorres[currentexec]>Finished )
+	if ( executorres_[currentexec_]>Finished )
 	    return true;
     }
 
@@ -196,23 +196,23 @@ bool ExecutorGroup::goToNextExecutor()
 
 const char* ExecutorGroup::message() const
 {
-    return executors.size() ? executors[currentexec]->message()
+    return executors_.size() ? executors_[currentexec_]->message()
 			    : Executor::message();
 }
 
 
 int ExecutorGroup::totalNr() const
 {
-    const int nrexecs = executors.size();
+    const int nrexecs = executors_.size();
     if ( !nrexecs ) return -1;
 
-    if ( !paralell && !similarLeft() )
-	return executors[currentexec]->totalNr();
+    if ( !paralell_ && !similarLeft() )
+	return executors_[currentexec_]->totalNr();
 
     int totnr = 0;
     for ( int idx=0; idx<nrexecs; idx++ )
     {
-	int nr = executors[idx]->totalNr();
+	int nr = executors_[idx]->totalNr();
 	if ( nr < 0 ) return -1;
 
 	totnr += nr;
@@ -224,29 +224,29 @@ int ExecutorGroup::totalNr() const
 
 int ExecutorGroup::nrDone() const
 {
-    const int nrexecs = executors.size();
+    const int nrexecs = executors_.size();
     if ( nrexecs < 1 )
 	return -1;
 
-    if ( paralell || similarLeft() )
+    if ( paralell_ || similarLeft() )
     {
 	int totnr = 0;
 	for ( int idx=0; idx<nrexecs; idx++ )
-	    totnr += executors[idx]->nrDone();
+	    totnr += executors_[idx]->nrDone();
 	return totnr;
     }
 
-    return executors[currentexec]->nrDone();
+    return executors_[currentexec_]->nrDone();
 }
 
 
 const char* ExecutorGroup::nrDoneText() const
 {
-    const char* txt = (const char*)nrdonetext;
+    const char* txt = (const char*)nrdonetext_;
     if ( *txt ) return txt;
 
-    if ( !executors.size() )
+    if ( !executors_.size() )
 	return Executor::nrDoneText();
 
-    return executors[currentexec]->nrDoneText();
+    return executors_[currentexec_]->nrDoneText();
 }
