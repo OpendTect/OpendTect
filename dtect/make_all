@@ -94,5 +94,6 @@ if ( $dodoc == yes ) then
     make doc MODS=.mods.od
     cd data/dTectDoc/Programmer/Generated
     ./mk_paths_relative
+    GenModDeps --html /d3/dgb/Pmake/ModDeps.od index.html
 endif
 
