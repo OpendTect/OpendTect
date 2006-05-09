@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.cc,v 1.42 2006-04-18 11:06:49 cvshelene Exp $
+ RCS:           $Id: uitable.cc,v 1.43 2006-05-09 08:34:15 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -483,7 +483,8 @@ void uiTable::setPixmap( const RowCol& rc, const ioPixmap& pm )
 void uiTable::setColor( const RowCol& rc, const Color& col )
 {
     QRect rect = body_->cellRect( rc.row, rc.col );
-    QPixmap pix( rect.width(), rect.height() );
+    const int widthbuffer = 10;
+    QPixmap pix( rect.width()*widthbuffer, rect.height() );
     QColor qcol( col.r(), col.g(), col.b() );
     pix.fill( qcol );
     body_->setPixmap( rc.row, rc.col, pix );
