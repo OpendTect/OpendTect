@@ -4,7 +4,7 @@
  * DATE     : 3-8-1994
 -*/
 
-static const char* rcsID = "$Id: ioman.cc,v 1.59 2006-04-25 14:33:29 cvsbert Exp $";
+static const char* rcsID = "$Id: ioman.cc,v 1.60 2006-05-09 13:30:10 cvsnanne Exp $";
 
 #include "ioman.h"
 #include "iodir.h"
@@ -38,10 +38,18 @@ static void clearSelHists()
 }
 
 
+#define mReset() \
+{ \
+    CallBackList cbs = IOM().surveyChanged.cbs; \
+    delete IOMan::theinst_; \
+    IOMan::theinst_ = 0; \
+    IOM().surveyChanged.cbs = cbs; \
+}
+
+
 bool IOMan::newSurvey()
 {
-    delete IOMan::theinst_;
-    IOMan::theinst_ = 0;
+    mReset();
     clearSelHists();
     SetSurveyNameDirty();
     IOM().surveyChanged.trigger();
@@ -52,8 +60,7 @@ bool IOMan::newSurvey()
 
 void IOMan::setSurvey( const char* survname )
 {
-    delete IOMan::theinst_;
-    IOMan::theinst_ = 0;
+    mReset();
     clearSelHists();
 
     delete SurveyInfo::theinst_;
@@ -245,7 +252,7 @@ bool IOMan::validSurveySetup( BufferString& errmsg )
 	return false;
     }
 
-    delete IOMan::theinst_; IOMan::theinst_ = 0;
+    mReset();
     return true;
 }
 
