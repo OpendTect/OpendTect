@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Apr 2002
- RCS:           $Id: attribdatacubes.h,v 1.9 2006-05-09 20:02:56 cvskris Exp $
+ RCS:           $Id: attribdatacubes.h,v 1.10 2006-05-10 21:23:47 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,8 +29,8 @@ public:
     				DataCubes();
 
     int				nrCubes() const { return cubes_.size(); }
-    void			addCube();
-    void			addCube(float);
+    bool			addCube(bool fileifnomem=false);
+    bool			addCube(float,bool fileifnomem=false);
     				//!<Adds the cube and inits it to the given val.
     void			removeCube(int);
 

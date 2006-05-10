@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribdatacubes.cc,v 1.12 2006-05-09 20:02:56 cvskris Exp $";
+static const char* rcsID = "$Id: attribdatacubes.cc,v 1.13 2006-05-10 21:23:48 cvskris Exp $";
 
 #include "attribdatacubes.h"
 #include "survinfo.h"
@@ -29,20 +29,32 @@ DataCubes::~DataCubes()
 { deepErase( cubes_ ); }
 
 
-void DataCubes::addCube()
+bool DataCubes::addCube( bool maydofile )
 {
     Array3DImpl<float>* arr = new Array3DImpl<float>( inlsz_, crlsz_, zsz_, false);
+    if ( !arr->getData() )
+    {
+	delete arr;
+	if ( maydofile )
+	    arr = new Array3DImpl<float>( inlsz_, crlsz_, zsz_, true );
+	else
+	    return false;
+    }
+
     cubes_ += arr;
+    return true;
 }
 
 
-void DataCubes::addCube( float val )
+bool DataCubes::addCube( float val, bool maydofile )
 {
-    addCube();
+    if ( !addCube( maydofile ) )
+	return false;
+
     setValue( cubes_.size()-1, val );
+    return true;
 }
     
-
 
 void DataCubes::removeCube( int idx )
 {
@@ -86,9 +98,19 @@ void DataCubes::setValue( int array, int inlidx, int crlidx, int zidx,
 void DataCubes::setValue( int array, float val )
 {
     float* vals = cubes_[array]->getData();
-    const float* stopptr = vals + cubes_[array]->info().getTotalSz();
-    while ( vals<stopptr )
-    	(*vals++) = val;
+    if ( vals )
+    {
+	const float* stopptr = vals + cubes_[array]->info().getTotalSz();
+	while ( vals<stopptr )
+	    (*vals++) = val;
+    }
+    else
+    {
+	ArrayND<float>::LinearStorage* stor = cubes_[array]->getStorage();
+	const int nrsamples = cubes_[array]->info().getTotalSz();
+	for ( int idx=0; idx<nrsamples; idx++ )
+	    stor->set( idx, val );
+    }
 }
 
 
