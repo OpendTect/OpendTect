@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		11-7-1996
- RCS:		$Id: executor.h,v 1.17 2006-05-09 07:26:12 cvsnanne Exp $
+ RCS:		$Id: executor.h,v 1.18 2006-05-10 20:58:28 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -142,11 +142,12 @@ protected:
 
     virtual int		nextStep();
     bool		goToNextExecutor();
-    bool		similarLeft() const;
+    void		findNextSumStop();
 
+    int			sumstart_;
+    int			sumstop_;
     const bool		parallel_;
     int			currentexec_;
-    int			nrdone_;
     BufferString	nrdonetext_;
     ObjectSet<Executor>& executors_;
     TypeSet<int>	executorres_;

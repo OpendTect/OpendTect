@@ -4,7 +4,7 @@
  * DATE     : 14-6-1996
 -*/
 
-static const char* rcsID = "$Id: executor.cc,v 1.21 2006-05-09 07:26:23 cvsnanne Exp $";
+static const char* rcsID = "$Id: executor.cc,v 1.22 2006-05-10 20:58:28 cvskris Exp $";
 
 #include "executor.h"
 
@@ -121,9 +121,9 @@ int Executor::doStep()
 ExecutorGroup::ExecutorGroup( const char* nm, bool p )
 	: Executor( nm )
 	, executors_( *new ObjectSet<Executor> )
-	, nrdone_( 0 )
 	, currentexec_( 0 )
     	, parallel_( p )
+    	, sumstart_( 0 )
 {
 }
 
@@ -135,17 +135,24 @@ ExecutorGroup::~ExecutorGroup()
 }
 
 
-bool ExecutorGroup::similarLeft() const
+void ExecutorGroup::findNextSumStop()
 {
-    for ( int idx=currentexec_+1; idx<executors_.size(); idx++ )
+    if ( !parallel_ )
     {
-	if ( strcmp(executors_[idx]->nrDoneText(),
-		    executors_[idx-1]->nrDoneText())
-	  || strcmp(executors_[idx]->message(),
-		    executors_[idx-1]->message()) )
-	    return false;
+	for ( int idx=currentexec_+1; idx<executors_.size(); idx++ )
+	{
+	    if ( strcmp(executors_[idx]->nrDoneText(),
+			executors_[idx-1]->nrDoneText())
+	      || strcmp(executors_[idx]->message(),
+			executors_[idx-1]->message()) )
+	    {
+		sumstop_ = idx-1;
+		return;
+	    }
+	}
     }
-    return true;
+
+    sumstop_ = executors_.size()-1;
 }
 
 
@@ -153,6 +160,8 @@ void ExecutorGroup::add( Executor* n )
 {
     executors_ += n;
     executorres_ += 1;
+
+    findNextSumStop();
 }
 
 
@@ -167,7 +176,6 @@ int ExecutorGroup::nextStep()
     else if ( parallel_ || res==Finished )
 	res = goToNextExecutor() ? MoreToDo : Finished;
 
-    nrdone_++;
     return res;
 }
 
@@ -183,7 +191,15 @@ bool ExecutorGroup::goToNextExecutor()
 	    currentexec_ = 0;
 
 	if ( executorres_[currentexec_]>Finished )
+	{
+	    if ( currentexec_>sumstop_ )
+	    {
+		sumstart_ = currentexec_;
+		findNextSumStop();
+	    }
+
 	    return true;
+	}
     }
 
     return false;
@@ -202,19 +218,17 @@ int ExecutorGroup::totalNr() const
     const int nrexecs = executors_.size();
     if ( !nrexecs ) return -1;
 
-    if ( !parallel_ && !similarLeft() )
-	return executors_[currentexec_]->totalNr();
-
-    int totnr = 0;
-    for ( int idx=0; idx<nrexecs; idx++ )
+    int res = 0;
+    for ( int idx=sumstart_; idx<=sumstop_; idx++ )
     {
-	int nr = executors_[idx]->totalNr();
-	if ( nr < 0 ) return -1;
+	const int nr = executors_[idx]->totalNr();
+	if ( nr<0 )
+	    return -1;
 
-	totnr += nr;
+	res += nr;
     }
 
-    return totnr;
+    return res;
 }
 
 
@@ -224,15 +238,11 @@ int ExecutorGroup::nrDone() const
     if ( nrexecs < 1 )
 	return -1;
 
-    if ( parallel_ || similarLeft() )
-    {
-	int totnr = 0;
-	for ( int idx=0; idx<nrexecs; idx++ )
-	    totnr += executors_[idx]->nrDone();
-	return totnr;
-    }
+    int res = 0;
+    for ( int idx=sumstart_; idx<=sumstop_; idx++ )
+	res += executors_[idx]->nrDone();
 
-    return executors_[currentexec_]->nrDone();
+    return res;
 }
 
 
