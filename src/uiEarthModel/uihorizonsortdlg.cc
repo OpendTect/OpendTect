@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		September 2005
- RCS:		$Id: uihorizonsortdlg.cc,v 1.2 2006-05-03 10:04:10 cvsnanne Exp $
+ RCS:		$Id: uihorizonsortdlg.cc,v 1.3 2006-05-10 21:27:29 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -76,18 +76,30 @@ bool uiHorizonSortDlg::acceptOK( CallBacker* )
     TypeSet<MultiID> horids;
     getSelectedHorizons( horids );
 
-    PtrMan<Executor> horreader = EM::EMM().objectLoader( horids );
+    TypeSet<MultiID> loadids;
+    for ( int idx=0; idx<horids.size(); idx++ )
+    {
+	const EM::ObjectID oid = EM::EMM().getObjectID( horids[idx] );
+	const EM::EMObject* emobj = EM::EMM().getObject(oid);
+	if ( !emobj || !emobj->isFullyLoaded() )
+	    loadids +=  horids[idx];
+    }
+
+    Executor* horreader = EM::EMM().objectLoader( loadids );
     if ( !horreader ) return false;
-    horreader->setName( "Reading horizons" );
-    uiExecutor dlg( this, *horreader );
+
+    ExecutorGroup execgrp("Reading horizons");
+    execgrp.add( horreader );
+
+    HorizonSorter* horsorter = new HorizonSorter( horids );
+    execgrp.add( horsorter );
+
+    uiExecutor dlg( this, execgrp );
     if ( !dlg.go() ) return false;
 
-    HorizonSorter sorter( horids );
-    uiExecutor sortdlg( this, sorter );
-    if ( !sortdlg.go() ) return false;
+    horsorter->getSortedList( horids );
+    deepUnRef( horizons_ );
 
-    sorter.getSortedList( horids );
-    horizons_.erase();
     for ( int idx=0; idx<horids.size(); idx++ )
     {
 	const EM::ObjectID objid = EM::EMM().getObjectID( horids[idx] );
@@ -99,6 +111,6 @@ bool uiHorizonSortDlg::acceptOK( CallBacker* )
 	horizons_ += horizon;
     }
 
-    bbox_.hrg = sorter.getBoundingBox();
+    bbox_.hrg = horsorter->getBoundingBox();
     return true;
 }
