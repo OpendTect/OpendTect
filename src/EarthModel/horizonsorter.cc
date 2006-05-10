@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          April 2006
- RCS:           $Id: horizonsorter.cc,v 1.5 2006-05-02 14:21:43 cvsnanne Exp $
+ RCS:           $Id: horizonsorter.cc,v 1.6 2006-05-10 21:26:48 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,31 +16,17 @@ ________________________________________________________________________
 #include "emhorizon.h"
 #include "emmanager.h"
 #include "ptrman.h"
+#include "survinfo.h"
 
 
 HorizonSorter::HorizonSorter( const TypeSet<MultiID>& ids )
     : Executor("Sort horizons")
     , unsortedids_(ids)
-    , totalnr_(0)
+    , totalnr_( ids.size() * (SI().inlRange(true).width()+1) )
     , nrdone_(0)
     , iterator_(0)
     , result_(0)
 {
-    PtrMan<Executor> horreader = EM::EMM().objectLoader( ids );
-    horreader->execute();
-
-    for ( int idx=0; idx<ids.size(); idx++ )
-    {
-	EM::ObjectID objid = EM::EMM().getObjectID( ids[idx] );
-	EM::EMObject* emobj = EM::EMM().getObject( objid );
-	emobj->ref();
-	mDynamicCastGet(EM::Horizon*,horizon,emobj);
-	if ( !horizon )
-	    emobj->unRef();
-	horizons_ += horizon;
-    }
-
-    init();
 }
 
 
@@ -55,7 +41,7 @@ HorizonSorter::~HorizonSorter()
 void HorizonSorter::init()
 {
     calcBoundingBox();
-    totalnr_ = hrg_.totalNr();
+    totalnr_ = hrg_.nrInl();
 
     delete iterator_;
     iterator_ = new HorSamplingIterator( hrg_ );
@@ -156,30 +142,53 @@ int HorizonSorter::totalNr() const		{ return totalnr_; }
 
 int HorizonSorter::nextStep()
 {
-    if ( !iterator_ ) return Finished;
-
-    if ( !iterator_->next(binid_) )
+    if ( !nrdone_ )
     {
-	sort();
-	return Finished;
+	PtrMan<Executor> horreader = EM::EMM().objectLoader( unsortedids_ );
+	horreader->execute();
+
+	for ( int idx=0; idx<unsortedids_.size(); idx++ )
+	{
+	    EM::ObjectID objid = EM::EMM().getObjectID( unsortedids_[idx] );
+	    EM::EMObject* emobj = EM::EMM().getObject( objid );
+	    emobj->ref();
+	    mDynamicCastGet(EM::Horizon*,horizon,emobj);
+	    if ( !horizon )
+		emobj->unRef();
+	    horizons_ += horizon;
+	}
+
+	init();
     }
 
-    const int nrhors = horizons_.size();
-    ArrPtrMan<float> depths = new float [nrhors];
-    for ( int idx=0; idx<nrhors; idx++ )
-	depths[idx] = horizons_[idx]->getPos( horizons_[idx]->sectionID(0),
-					      binid_.getSerialized() ).z;
+    if ( !iterator_ ) return Finished;
 
-    for ( int idx=0; idx<nrhors; idx++ )
+    const int previnl = binid_.inl;
+    while ( binid_.inl==previnl )
     {
-	if ( mIsUdf(depths[idx]) ) continue;
-	for ( int idy=idx+1; idy<nrhors; idy++ )
+	if ( !iterator_->next(binid_) )
 	{
-	    if ( mIsUdf(depths[idy]) ) continue;
+	    sort();
+	    return Finished;
+	}
 
-	    const int resultidx = depths[idx] <= depths[idy] ? 0 : 1;
-	    int val = result_->get( idx, idy, resultidx ); val++;
-	    result_->set( idx, idy, resultidx, val );
+	const int nrhors = horizons_.size();
+	ArrPtrMan<float> depths = new float [nrhors];
+	for ( int idx=0; idx<nrhors; idx++ )
+	    depths[idx] = horizons_[idx]->getPos( horizons_[idx]->sectionID(0),
+						  binid_.getSerialized() ).z;
+
+	for ( int idx=0; idx<nrhors; idx++ )
+	{
+	    if ( mIsUdf(depths[idx]) ) continue;
+	    for ( int idy=idx+1; idy<nrhors; idy++ )
+	    {
+		if ( mIsUdf(depths[idy]) ) continue;
+
+		const int resultidx = depths[idx] <= depths[idy] ? 0 : 1;
+		int val = result_->get( idx, idy, resultidx ); val++;
+		result_->set( idx, idy, resultidx, val );
+	    }
 	}
     }
 
