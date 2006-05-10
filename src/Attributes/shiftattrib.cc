@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: shiftattrib.cc,v 1.17 2006-03-20 16:32:02 cvsnanne Exp $";
+static const char* rcsID = "$Id: shiftattrib.cc,v 1.18 2006-05-10 11:10:02 cvshelene Exp $";
 
 #include "shiftattrib.h"
 #include "attribdataholder.h"
@@ -81,7 +81,8 @@ Shift::Shift( Desc& desc_ )
     if ( dosteer_ )
     {
 	time_ = mMAX(stepout_.inl*inldist(),stepout_.crl*crldist()) * mMAXDIP;
-	interval_ = Interval<float>( -time_/zFactor(), time_/zFactor() );
+	interval_ = Interval<float>( -time_, time_ );
+	time_ *= zFactor();
 	steeridx_ = getSteeringIndex( pos_ );
     }
     else
