@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          June 2003
- RCS:           $Id: emsurfaceio.cc,v 1.66 2006-05-10 13:54:15 cvskris Exp $
+ RCS:           $Id: emsurfaceio.cc,v 1.67 2006-05-10 21:26:07 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -1406,7 +1406,7 @@ bool dgbSurfaceWriter::writeNewSection( std::ostream& strm )
     }
     else
     {
-	nrrows_ = (lastrow-firstrow_)/rowrange_.step+1;
+	nrrows_ = sectionrange.nrSteps()+1;
     }
 
     sectionoffsets_ += strm.tellp();
