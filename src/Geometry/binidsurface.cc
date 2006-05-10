@@ -4,7 +4,7 @@
  * DATE     : Nov 2004
 -*/
 
-static const char* rcsID = "$Id: binidsurface.cc,v 1.6 2006-04-26 21:09:24 cvskris Exp $";
+static const char* rcsID = "$Id: binidsurface.cc,v 1.7 2006-05-10 15:23:07 cvskris Exp $";
 
 #include "binidsurface.h"
 
@@ -22,28 +22,38 @@ namespace Geometry
 
 BinIDSurface::BinIDSurface( const RCol& newstep )
     : ParametricSurface( RowCol(0,0), newstep ) 
-    , depths( 0 )
+    , depths_( 0 )
 { }
 
 
 BinIDSurface::BinIDSurface( const BinIDSurface& b )
     : ParametricSurface( b.origin_, b.step_ ) 
-    , depths( b.depths ? new Array2DImpl<float>(*b.depths) : 0 )
+    , depths_( b.depths_ ? new Array2DImpl<float>(*b.depths_) : 0 )
 { }
 
 
 BinIDSurface::~BinIDSurface()
-{ delete depths; }
+{ delete depths_; }
 
 
 BinIDSurface* BinIDSurface::clone() const
 { return new BinIDSurface(*this); }
 
 
+void BinIDSurface::setArray( const RCol& start, const RCol& step,
+			     Array2D<float>* na )
+{
+    delete depths_;
+    depths_ = na;
+    origin_ = start;
+    step_ = step;
+}
+
+
 bool BinIDSurface::insertRow(int row) 
 {
     mInsertStart( rowidx, row, nrRows() );
-    mCloneRowVariable( float, depths, computePosition(param).z, mUdf(float) )
+    mCloneRowVariable( float, depths_, computePosition(param).z, mUdf(float) )
     return true;
 }
 
@@ -51,7 +61,7 @@ bool BinIDSurface::insertRow(int row)
 bool BinIDSurface::insertCol(int col) 
 {
     mInsertStart( colidx, col, nrCols() );
-    mCloneColVariable( float, depths, computePosition(param).z, mUdf(float) )
+    mCloneColVariable( float, depths_, computePosition(param).z, mUdf(float) )
     return true;
 }
 
@@ -75,28 +85,28 @@ Coord3 BinIDSurface::getKnot( const RCol& rc, bool interpolifudf ) const
     const int index = getKnotIndex(rc);
     if ( index==-1 ) return Coord3::udf();
 
-    return Coord3(SI().transform(BinID(rc)), depths->getData()[index]);
+    return Coord3(SI().transform(BinID(rc)), depths_->getData()[index]);
 }
 
 
 void BinIDSurface::_setKnot( int idx, const Coord3& np )
 {
-    if ( !depths )
+    if ( !depths_ )
     {
-	depths = new Array2DImpl<float>( 1, 1 );
+	depths_ = new Array2DImpl<float>( 1, 1 );
 	idx = 0;
     }
 
-    depths->getData()[idx] = np.z;
+    depths_->getData()[idx] = np.z;
 }
 
 
 int BinIDSurface::nrRows() const
-{ return depths ? depths->info().getSize(rowDim()) : 0; }
+{ return depths_ ? depths_->info().getSize(rowDim()) : 0; }
 
 
 int BinIDSurface::nrCols() const
-{ return depths ? depths->info().getSize(colDim()) : 0; }
+{ return depths_ ? depths_->info().getSize(colDim()) : 0; }
 
 
 };
