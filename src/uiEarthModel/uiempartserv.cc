@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.80 2006-04-28 15:21:58 cvsnanne Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.81 2006-05-10 11:01:54 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -191,13 +191,35 @@ void uiEMPartServer::selectSurfaces( TypeSet<EM::ObjectID>& objids, bool ishor )
     EM::SurfaceIODataSelection sel( sd );
     uiobj->getSurfaceSelection( sel );
 
-    PtrMan<Executor> exec = em_.objectLoader( surfaceids, &sel );
+    Executor* exec = em_.objectLoader( surfaceids, &sel );
     if ( !exec ) return;
-    uiExecutor execdlg( appserv().parent(), *exec );
-    if ( !execdlg.go() ) return;
 
     for ( int idx=0; idx<surfaceids.size(); idx++ )
-	objids += em_.getObjectID( surfaceids[idx] );
+    {
+	EM::EMObject* obj = em_.getObject( em_.getObjectID(surfaceids[idx]) );
+	obj->ref();
+    }
+
+    uiExecutor execdlg( appserv().parent(), *exec );
+    if ( !execdlg.go() )
+    {
+	for ( int idx=0; idx<surfaceids.size(); idx++ )
+	{
+	    EM::EMObject* obj =
+			em_.getObject( em_.getObjectID(surfaceids[idx]) );
+	    obj->unRef();
+	}
+	return;
+    }
+
+    delete exec;
+    for ( int idx=0; idx<surfaceids.size(); idx++ )
+    {
+	const EM::ObjectID objid = em_.getObjectID( surfaceids[idx] );
+	EM::EMObject* obj = em_.getObject( objid );
+	obj->unRefNoDelete();
+	objids += objid;
+    }
 }
 
 
@@ -427,7 +449,7 @@ bool uiEMPartServer::loadSurface( const MultiID& mid,
     if ( em_.getObject(em_.getObjectID(mid)) )
 	return true;
 
-    PtrMan<Executor> exec = em_.objectLoader( mid, newsel );
+    Executor* exec = em_.objectLoader( mid, newsel );
     if ( !exec )
     {
 	PtrMan<IOObj> ioobj = IOM().get(mid);
@@ -445,6 +467,7 @@ bool uiEMPartServer::loadSurface( const MultiID& mid,
 	return false;
     }
 
+    delete exec;
     obj->unRefNoDelete();
     return true;
 }
