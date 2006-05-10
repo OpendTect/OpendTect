@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2004
- RCS:           $Id: od_process_attrib_em.cc,v 1.29 2006-03-13 11:00:25 cvsbert Exp $
+ RCS:           $Id: od_process_attrib_em.cc,v 1.30 2006-05-10 07:20:00 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,7 +33,7 @@ ________________________________________________________________________
 #include "keystrs.h"
 
 #include "emmanager.h"
-#include "emsurface.h"
+#include "emhorizon.h"
 #include "emsurfaceauxdata.h"
 #include "emsurfaceiodata.h"
 #include "emhorizonutils.h"
@@ -287,7 +287,7 @@ bool BatchProgram::go( std::ostream& strm )
 			EMM().objectLoader( *mid, ( iscubeoutp ? &sels : 0 ) );
 	if ( !loader || !loader->execute(&strm) ) 
 	{
-	    BufferString errstr = "Cannot load surface:";
+	    BufferString errstr = "Cannot load horizon:";
 	    errstr += mid->buf();
 	    mErrRetNoProc( errstr.buf() );
 	}
@@ -349,12 +349,12 @@ bool BatchProgram::go( std::ostream& strm )
 	if ( !process(strm,proc) ) return false;
         HorizonUtils::addSurfaceData( *(midset[0]), attribrefs, bivs );
 	EMObject* obj = EMM().getObject( EMM().getObjectID(*midset[0]) );
-	mDynamicCastGet(Surface*,surface,obj)
-	if ( !surface ) mErrRet( "Huh" );
+	mDynamicCastGet(Horizon*,horizon,obj)
+	if ( !horizon ) mErrRet( "Huh" );
 
-	SurfaceIOData sd; sd.use( *surface );
+	SurfaceIOData sd; sd.use( *horizon );
 	SurfaceIODataSelection sels( sd );
-	PtrMan<Executor> saver = surface->auxdata.auxDataSaver( -1, false );
+	PtrMan<Executor> saver = horizon->auxdata.auxDataSaver( -1, false );
 	if ( !saver || !saver->execute(&strm) )
 	    mErrRet( "Cannot save data" );
     }
