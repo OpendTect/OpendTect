@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          June 2003
- RCS:           $Id: emsurfaceio.cc,v 1.65 2006-05-09 22:33:25 cvskris Exp $
+ RCS:           $Id: emsurfaceio.cc,v 1.66 2006-05-10 13:54:15 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -86,7 +86,6 @@ dgbSurfaceReader::dgbSurfaceReader( const IOObj& ioobj,
     , fullyread_( true )
     , version_( 1 )
 {
-    if ( surface_ ) surface_->enableGeometryChecks( false );
     sectionnames_.allowNull();
 
     BufferString exnm = "Reading surface '"; exnm += ioobj.name(); exnm += "'";
@@ -433,7 +432,6 @@ void dgbSurfaceReader::setGeometry()
     }
 
 
-    isinited_ = true;
 }
 
 
@@ -504,7 +502,12 @@ int dgbSurfaceReader::nextStep()
     std::istream& strm = conn_->iStream();
 
     if ( !isinited_ )
+    {
+	isinited_ = true;
+
+	if ( surface_ ) surface_->enableGeometryChecks( false );
 	setGeometry();
+    }
 
     if ( sectionindex_>=sectionids_.size() )
     {
