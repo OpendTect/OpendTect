@@ -4,7 +4,7 @@
  * DATE     : Nov 2004
 -*/
 
-static const char* rcsID = "$Id: binidsurface.cc,v 1.7 2006-05-10 15:23:07 cvskris Exp $";
+static const char* rcsID = "$Id: binidsurface.cc,v 1.8 2006-05-10 15:26:16 cvskris Exp $";
 
 #include "binidsurface.h"
 
@@ -41,10 +41,10 @@ BinIDSurface* BinIDSurface::clone() const
 
 
 void BinIDSurface::setArray( const RCol& start, const RCol& step,
-			     Array2D<float>* na )
+			     Array2D<float>* na, bool takeover )
 {
     delete depths_;
-    depths_ = na;
+    depths_ = takeover ? na : new Array2DImpl<float>( *na );
     origin_ = start;
     step_ = step;
 }

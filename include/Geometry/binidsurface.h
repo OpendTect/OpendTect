@@ -7,7 +7,7 @@ CopyRight:     (C) dGB Beheer B.V.
 Author:        A.H. Bril
 Date:          23-10-1996
 Contents:      Ranges
-RCS:           $Id: binidsurface.h,v 1.3 2006-05-10 15:23:07 cvskris Exp $
+RCS:           $Id: binidsurface.h,v 1.4 2006-05-10 15:26:16 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,8 +32,8 @@ public:
     BinIDSurface*	clone() const;
 
     void		setArray(const RCol& start,const RCol& step,
-	    			 Array2D<float>*);
-    			/*!<Mem is taken over by me. */
+	    			 Array2D<float>*, bool takeover );
+    			/*!<Mem is taken over by me if takeover is true. */
     Array2D<float>*	getArray() { return depths_; }
     			/*Modyfy on your own responsibility.*/
 
