@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:           $Id: uibatchlaunch.cc,v 1.53 2006-05-08 15:33:32 cvsnanne Exp $
+ RCS:           $Id: uibatchlaunch.cc,v 1.54 2006-05-11 11:01:36 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -236,8 +236,10 @@ uiFullBatchDialog::uiFullBatchDialog( uiParent* p, const Setup& s )
 	: uiDialog(p,uiDialog::Setup(s.wintxt_,"X",0).oktext("Proceed")
 						     .modal(s.modal_))
     	, uppgrp(new uiGroup(this,"Upper group"))
-	, procprognm(s.procprognm_ ? s.procprognm_ : "process_attrib")
-	, multiprognm(s.multiprocprognm_ ? s.multiprocprognm_ : "SeisMMBatch")
+	, procprognm(s.procprognm_ != "" ? s.procprognm_
+					 : "process_attrib")
+	, multiprognm(s.multiprocprognm_ != "" ? s.multiprocprognm_
+					       : "SeisMMBatch")
     	, redo_(false)
 	, parfnamefld(0)
 {
