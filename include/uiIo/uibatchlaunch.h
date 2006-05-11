@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          Jan 2002
- RCS:           $Id: uibatchlaunch.h,v 1.16 2006-05-08 15:33:32 cvsnanne Exp $
+ RCS:           $Id: uibatchlaunch.h,v 1.17 2006-05-11 11:28:30 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -70,8 +70,8 @@ protected:
     public:
 			Setup(const char* wintxt)
 			    : wintxt_(wintxt)
-			    , procprognm_(0)
-			    , multiprocprognm_(0)
+			    , procprognm_("")
+			    , multiprocprognm_("")
 			    , modal_(true)
 			{}
 
