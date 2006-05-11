@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.cc,v 1.86 2006-05-05 21:06:31 cvskris Exp $
+ RCS:           $Id: uimpeman.cc,v 1.87 2006-05-11 10:31:35 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -380,8 +380,7 @@ void uiMPEMan::updateAttribNames()
 	    attribfld->setCurrentItem( (int)1 );
 	}
     }
-
-    updateButtonSensitivity(0);
+    attribSel(0);
 }
 
 
@@ -617,6 +616,12 @@ void uiMPEMan::seedConnectModeSel( CallBacker* )
 	return;
     seedpicker->setSeedConnectMode( seedconmodefld->currentItem() ); 
     turnSeedPickingOn(true);
+    if ( !seedpicker->doesModeUseVolume() )
+    {
+	toolbar->turnOn( showcubeidx, false );
+	showCubeCB(0);
+	showTracker(false);
+    }
     updateButtonSensitivity(0);
     if ( !seedpicker->doesModeUseSetup() )
        return;	
