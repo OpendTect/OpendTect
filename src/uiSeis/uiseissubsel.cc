@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          June 2004
- RCS:           $Id: uiseissubsel.cc,v 1.36 2006-05-05 16:26:10 cvsbert Exp $
+ RCS:           $Id: uiseissubsel.cc,v 1.37 2006-05-11 12:59:30 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -62,13 +62,13 @@ void uiSeisSubSel::setInput( const HorSampling& hs )
     if ( is2d_ )
     {
 	uiSeis2DSubSel::PosData data = sel2d->getInput();
-	data.isall_ = false; data.trcrg_ = hs.crlRange();
+	data.trcrg_ = hs.crlRange();
 	sel2d->setInput( data );
     }
     else
     {
 	uiBinIDSubSel::Data data = sel3d->getInput();
-	data.type_ = 1; data.cs_.hrg = hs;
+	data.cs_.hrg = hs;
 	sel3d->setInput( data );
     }
 }
@@ -79,13 +79,13 @@ void uiSeisSubSel::setInput( const StepInterval<float>& zrg )
     if ( is2d_ )
     {
 	uiSeis2DSubSel::PosData data = sel2d->getInput();
-	data.isall_ = false; data.zrg_ = zrg;
+	data.zrg_ = zrg;
 	sel2d->setInput( data );
     }
     else
     {
 	uiBinIDSubSel::Data data = sel3d->getInput();
-	data.type_ = 1; data.cs_.zrg = zrg;
+	data.cs_.zrg = zrg;
 	sel3d->setInput( data );
     }
 }
@@ -101,7 +101,7 @@ void uiSeisSubSel::setInput( const CubeSampling& cs )
     else
     {
 	uiBinIDSubSel::Data data = sel3d->getInput();
-	data.type_ = 1; data.cs_ = cs;
+	data.cs_ = cs;
 	sel3d->setInput( data );
     }
 }
