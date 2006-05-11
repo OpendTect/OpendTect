@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		May 2001
  Contents:	PickSet base classes
- RCS:		$Id: pickset.h,v 1.16 2006-05-08 16:50:19 cvsbert Exp $
+ RCS:		$Id: pickset.h,v 1.17 2006-05-11 12:56:24 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -110,7 +110,19 @@ protected:
 };
 
 
-class SetGroupMgr : public CallBacker
+/*!\brief Utility to manage pick set group lifecycles.
+          Also supports change notifications.
+ 
+ You can create your own set group manager for your own special pick sets.
+ There is a OD-wide SGMgr() available which is supposed to hold all 'plain'
+ picksets loaded in the OD-tree.
+
+ A new special-purpose manager is created by passing your own name to the
+ static getMgr() method.
+ 
+ */
+
+class SetGroupMgr : public UserIDObject
 {
 public:
 
@@ -130,28 +142,55 @@ public:
     			//!< SetGroup is already or becomes mine
     			//!< Note that replacement will trigger two callbacks
 
-    Notifier<SetGroupMgr> itemToBeRemoved; //!< Passes doomed grp as CallBacker*
-    Notifier<SetGroupMgr> itemAdded;       //!< passes new grp as CallBacker*
+    struct ChangeData : public CallBacker
+    {
+	enum Ev		{ Added, Changed, ToBeRemoved };
+
+			ChangeData( Ev e, const Set* s, const Location* l )
+			    : ev_(e), set_(s), loc_(l)	{}
+
+	Ev		ev_;
+	const Set*	set_;
+	const Location*	loc_;
+    };
+    
+    void		reportChange( ChangeData cd )
+			{ locationChanged.trigger( &cd ); }
+    void		reportChange( const SetGroup* s )
+			{ groupChanged.trigger( const_cast<SetGroup*>(s) ); }
+			//!< report a bunch of changes to a set
+
+    Notifier<SetGroupMgr> locationChanged;	//!< Passes ChangeData*
+    Notifier<SetGroupMgr> groupToBeRemoved;	//!< Passes Group*
+    Notifier<SetGroupMgr> groupAdded;		//!< passes Group*
+    Notifier<SetGroupMgr> groupChanged;		//!< passes Group*
+
+    static SetGroupMgr&	getMgr(const char*);
+
+    			SetGroupMgr( const char* nm )
+			: UserIDObject(nm)
+			, locationChanged(this), groupToBeRemoved(this)
+			, groupAdded(this), groupChanged(this)	{}
+			//!< creates an unmanaged SetGroupMgr
+			//!< Normally you don't want that, use getMgr() instead
 
 protected:
-    			SetGroupMgr()
-			    : itemAdded(this), itemToBeRemoved(this)	{}
 
     ObjectSet<SetGroup>	psgs_;
     ObjectSet<MultiID>	ids_;
-
-    friend SetGroupMgr&	SGMgr();
-    static SetGroupMgr*	theinst_;
 
     void		add(const MultiID&,SetGroup*);
     SetGroup*		find(const MultiID&) const;
     MultiID*		find(const SetGroup&) const;
 };
 
-SetGroupMgr& SGMgr();
+inline SetGroupMgr& SGMgr()
+{
+    return SetGroupMgr::getMgr(0);
+}
 
 
-}; // namespace
+}; // namespace Pick
 
 
 #endif

@@ -5,21 +5,12 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: pickset.cc,v 1.30 2006-05-08 20:22:19 cvsnanne Exp $";
+static const char* rcsID = "$Id: pickset.cc,v 1.31 2006-05-11 12:56:24 cvsbert Exp $";
 
 #include "pickset.h"
 #include "survinfo.h"
 #include "multiid.h"
 #include <ctype.h>
-
-Pick::SetGroupMgr* Pick::SetGroupMgr::theinst_ = 0;
-
-Pick::SetGroupMgr& Pick::SGMgr()
-{
-    if ( !Pick::SetGroupMgr::theinst_ )
-	Pick::SetGroupMgr::theinst_ = new Pick::SetGroupMgr;
-    return *Pick::SetGroupMgr::theinst_;
-}
 
 
 Pick::Location::~Location()
@@ -199,10 +190,41 @@ void Pick::SetGroup::add( Pick::Set*& ps )
 }
 
 
+static ObjectSet<Pick::SetGroupMgr>& getMgrs()
+{
+    static ObjectSet<Pick::SetGroupMgr>* mgrs = 0;
+    if ( !mgrs )
+    {
+	mgrs = new ObjectSet<Pick::SetGroupMgr>;
+	*mgrs += new Pick::SetGroupMgr(0);
+    }
+
+    return *mgrs;
+}
+
+
+Pick::SetGroupMgr& Pick::SetGroupMgr::getMgr( const char* nm )
+{
+    ObjectSet<Pick::SetGroupMgr>& mgrs = getMgrs();
+    if ( !nm || !*nm )
+	return *mgrs[0];
+
+    for ( int idx=1; idx<mgrs.size(); idx++ )
+    {
+	if ( mgrs[idx]->name() == nm )
+	    return *mgrs[idx];
+    }
+
+    Pick::SetGroupMgr* newmgr = new Pick::SetGroupMgr( nm );
+    mgrs += newmgr;
+    return *newmgr;
+}
+
+
 void Pick::SetGroupMgr::add( const MultiID& ky, SetGroup* sg )
 {
     psgs_ += sg; ids_ += new MultiID( ky );
-    itemAdded.trigger( sg );
+    groupAdded.trigger( sg );
 }
 
 
@@ -217,7 +239,7 @@ void Pick::SetGroupMgr::set( const MultiID& ky, SetGroup* sg )
     else if ( sg != oldsg )
     {
 	int idx = psgs_.indexOf( oldsg );
-	itemToBeRemoved.trigger( oldsg );
+	groupToBeRemoved.trigger( oldsg );
 	delete oldsg; psgs_.remove( idx );
 	delete ids_[idx]; ids_.remove( idx );
 	if ( sg )
