@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: uiattrsel.cc,v 1.11 2006-04-28 15:59:16 cvskris Exp $
+ RCS:           $Id: uiattrsel.cc,v 1.12 2006-05-11 20:02:51 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -366,6 +366,8 @@ void uiAttrSel::setNLAModel( const NLAModel* mdl )
 void uiAttrSel::setDesc( const Desc* ad )
 {
     attrdata_.attrset = ad ? ad->descSet() : 0;
+    if ( !ad ) return;
+
     const char* inp = ad->userRef();
     if ( inp[0] == '_' || (ad->isStored() && ad->dataType() == Seis::Dip) )
 	return;
