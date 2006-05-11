@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.cc,v 1.87 2006-05-11 10:31:35 cvsjaap Exp $
+ RCS:           $Id: uimpeman.cc,v 1.88 2006-05-11 18:13:21 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -90,7 +90,7 @@ uiMPEMan::uiMPEMan( uiParent* p, uiVisPartServer* ps )
     visBase::DM().selMan().selnotifier.notify(
 	    mCB(this,uiMPEMan,updateButtonSensitivity) );
     visBase::DM().selMan().deselnotifier.notify(
-	    mCB(this,uiMPEMan,updateButtonSensitivity));
+	    mCB(this,uiMPEMan,updateButtonSensitivity) );
 
     updateButtonSensitivity();
 }
@@ -377,7 +377,7 @@ void uiMPEMan::updateAttribNames()
 	    init = true;
 	    engine().setTrackMode( TrackPlane::Extend );
 	    showTracker( true );
-	    attribfld->setCurrentItem( (int)1 );
+	    attribfld->setCurrentItem( (int)0 );
 	}
     }
     attribSel(0);
@@ -423,6 +423,10 @@ void uiMPEMan::turnSeedPickingOn( bool yn )
     toolbar->turnOn( seedidx, yn );
     if ( yn )
     {
+	toolbar->turnOn( showcubeidx, false );
+	showCubeCB(0);
+	showTracker(false);
+
 	seedclickobject = -1;
 	if ( !clickcatcher )
 	{
@@ -605,6 +609,7 @@ void uiMPEMan::mouseEraseModeCB( CallBacker* )
 void uiMPEMan::addSeedCB( CallBacker* )
 {
     turnSeedPickingOn( toolbar->isOn(seedidx) );
+    updateButtonSensitivity(0);
 }
 
 
@@ -616,12 +621,6 @@ void uiMPEMan::seedConnectModeSel( CallBacker* )
 	return;
     seedpicker->setSeedConnectMode( seedconmodefld->currentItem() ); 
     turnSeedPickingOn(true);
-    if ( !seedpicker->doesModeUseVolume() )
-    {
-	toolbar->turnOn( showcubeidx, false );
-	showCubeCB(0);
-	showTracker(false);
-    }
     updateButtonSensitivity(0);
     if ( !seedpicker->doesModeUseSetup() )
        return;	
@@ -681,13 +680,14 @@ void uiMPEMan::updateButtonSensitivity( CallBacker* )
     MPE::EMTracker* tracker = getSelectedTracker();
     MPE::EMSeedPicker* seedpicker = tracker ? tracker->getSeedPicker(true) : 0;
     const bool isvoltrack = seedpicker ? seedpicker->doesModeUseVolume() : true;
+    const bool isseedpicking = toolbar->isOn(seedidx);
     
-    toolbar->setSensitive( extendidx, isvoltrack );
-    toolbar->setSensitive( retrackidx, isvoltrack );
-    toolbar->setSensitive( eraseidx, isvoltrack );
-    toolbar->setSensitive( moveplaneidx, isvoltrack );
-    toolbar->setSensitive( showcubeidx, isvoltrack );
-    toolbar->setSensitive( trackinvolidx, isvoltrack );
+    toolbar->setSensitive( extendidx, isvoltrack && !isseedpicking );
+    toolbar->setSensitive( retrackidx, isvoltrack && !isseedpicking );
+    toolbar->setSensitive( eraseidx, isvoltrack && !isseedpicking );
+    toolbar->setSensitive( moveplaneidx, isvoltrack && !isseedpicking );
+    toolbar->setSensitive( showcubeidx, isvoltrack && !isseedpicking );
+    toolbar->setSensitive( trackinvolidx, isvoltrack && !isseedpicking );
     
     //Track forward, backward, attrib, trans, nrstep
     mGetDisplays(false);
