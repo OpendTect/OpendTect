@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpewizard.cc,v 1.45 2006-05-08 13:44:43 cvsjaap Exp $
+ RCS:           $Id: uimpewizard.cc,v 1.46 2006-05-11 18:01:12 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -360,11 +360,14 @@ bool Wizard::finalizeCycle()
 {
     if ( objectcreated )
     {
-	EM::EMObject* emobj = EM::EMM().getObject( currentobject );
-	PtrMan<Executor> saver = emobj->saver();
-
-	if ( saver ) saver->execute();
 	adjustSeedBox();
+	if ( !seedbox.isEmpty() )
+	{
+	    EM::EMObject* emobj = EM::EMM().getObject( currentobject );
+	    PtrMan<Executor> saver = emobj->saver();
+	    if ( saver ) 
+		saver->execute();
+	}
     }
 
     return true;
@@ -647,8 +650,11 @@ void Wizard::setupChange( CallBacker* )
     picktxt->setSensitive( allowpicking );
     colorfld->setSensitive( allowpicking );
     seedpicker->blockSeedPick( !allowpicking );
-
     updateFinishButton(0);
+
+    if ( MPE::engine().activeVolume().nrInl()==1 || 
+	 MPE::engine().activeVolume().nrCrl()==1    )
+	mpeserv->loadAttribData();
 
     uiCursor::setOverride( uiCursor::Wait );
     seedpicker->reTrack();
