@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vismpe.cc,v 1.40 2006-03-12 13:39:11 cvsbert Exp $";
+static const char* rcsID = "$Id: vismpe.cc,v 1.41 2006-05-11 17:52:09 cvsjaap Exp $";
 
 #include "vismpe.h"
 
@@ -437,7 +437,8 @@ void MPEDisplay::showDragger( bool yn )
 {
     if ( yn==isDraggerShown() )
 	return;
-
+    if ( yn )
+	updateTexture();
     dragger_->turnOn( yn );
     movement.trigger();
 }
@@ -565,9 +566,17 @@ void MPEDisplay::updateBoxPosition( CallBacker* )
     NotifyStopper stop( dragger_->changed );
 
     const CubeSampling cube = engine_.activeVolume();
-    const Coord3 newwidth( cube.hrg.stop.inl-cube.hrg.start.inl,
-			   cube.hrg.stop.crl-cube.hrg.start.crl,
-			   cube.zrg.stop-cube.zrg.start );
+    Coord3 newwidth( cube.hrg.stop.inl-cube.hrg.start.inl,
+		     cube.hrg.stop.crl-cube.hrg.start.crl,
+		     cube.zrg.stop-cube.zrg.start );
+
+    // Workaround for deadlock in COIN's polar_decomp() or sqrt(), which
+    // occasionally occurs in case the box has one side of zero length.
+    if ( engine_.activeVolume().hrg.nrInl()==1 )
+	newwidth.x = 0.001 * engine_.activeVolume().hrg.step.inl;
+    if ( engine_.activeVolume().hrg.nrCrl()==1 )
+	newwidth.y = 0.001 * engine_.activeVolume().hrg.step.crl;
+
     boxdragger_->setWidth( newwidth );
     dragger_->setSize( newwidth );
 
@@ -583,7 +592,8 @@ void MPEDisplay::updateBoxPosition( CallBacker* )
 	    Interval<float>(cube.zrg.start,cube.zrg.stop) );
 
     setDraggerCenter( true );
-    updateTexture();
+    if ( isDraggerShown() )
+	updateTexture();
     movement.trigger();
 }
 
