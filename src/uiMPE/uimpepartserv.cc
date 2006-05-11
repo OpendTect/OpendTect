@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2004
- RCS:           $Id: uimpepartserv.cc,v 1.39 2006-05-04 21:22:30 cvskris Exp $
+ RCS:           $Id: uimpepartserv.cc,v 1.40 2006-05-11 18:06:20 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -209,7 +209,7 @@ bool uiMPEPartServer::showSetupDlg( const EM::ObjectID& emid,
     dlg.setHelpID( "108.0.1" );
     MPE::uiSetupSel* grp = new MPE::uiSetupSel( &dlg, attrset );
     grp->setType( emid, sid );
-    if ( dlg.go() )
+    if ( dlg.go() || !showcancelbutton )
     {
 	loadAttribData();
 	return true;
