@@ -2,12 +2,17 @@
 #_______________________________________________________________________________
 #
 # (C) dGB Beheer B.V.
-# $Id: od_xterm_exec,v 1.8 2004-12-24 08:51:27 dgb Exp $
+# $Id: od_xterm_exec,v 1.9 2006-05-11 12:54:54 cvsbert Exp $
 #
 # script to run in xterm for od_exec
 #_______________________________________________________________________________
 
-if ( $?DTECT_SCRIPT_VERBOSE ) set verbose=yes
+if ( $?DTECT_SCRIPT_VERBOSE ) then
+    echo "$0  ++++++"
+    echo "args: $*"
+    set verbose=yes
+    set echo=on
+endif
 
 set askclose=0
 

@@ -2,13 +2,18 @@
 #_______________________________________________________________________________
 #
 # (C) dGB Beheer B.V.
-# $Id: od_exec,v 1.48 2005-10-20 15:18:11 cvsarend Exp $
+# $Id: od_exec,v 1.49 2006-05-11 12:54:54 cvsbert Exp $
 #
 # module startup script
 #_______________________________________________________________________________
 
 
-if ( $?DTECT_SCRIPT_VERBOSE ) set verbose=yes
+if ( $?DTECT_SCRIPT_VERBOSE ) then
+    echo "$0  ++++++"
+    echo "args: $*"
+    set verbose=yes
+    set echo=on
+endif
 
 if ( ! $?DTECT_APPL ) then
     echo "$0 : Error : environment not initialized."
@@ -128,14 +133,14 @@ endif
 
 set prog="$1"
 
-if ( ! -e "$bindir/$1" ) then
+if ( ! -e "$bindir/$prog" ) then
     if ( $?DEBUG && -e "$bindir/G/$prog" ) then
 	set bindir="$bindir/G"
     else if ( -e "$bindir/O/$prog" ) then
 	set bindir="$bindir/O"
     endif
-    if ( ! -e "$bindir/$1" ) then
-    	if ( $binsubdir == lux64 ) then
+    if ( ! -e "$bindir/$prog" ) then
+    	if ( $binsubdir == lux64 && -e "$DTECT_APPL/bin/lux32/$prog" ) then
 	    set binsubdir=lux32
 	    set bindir="$DTECT_APPL/bin/$binsubdir"
 	endif
@@ -174,7 +179,7 @@ if ( $extrascript != "" ) then
 endif
 
 
-# win32 only
+# win32 only - when in dos box - handle separately
 if ( $indosbox == yes ) then
 
     if ( $issys == yes ) then
@@ -208,7 +213,7 @@ if ( $indosbox == yes ) then
         setenv args "$args -@-$arg-@-"
     end
 
-    echo "$args" | sed -e's/-@-/"/g' -e's/%/ /g' > "$tempbatfile"
+    echo "$args" | sed -e 's/-@-/"/g' -e 's/%/ /g' > "$tempbatfile"
     if ( $askclosebox == yes ) then
         echo "pause" >> "$tempbatfile"
     endif
@@ -224,7 +229,7 @@ if ( $indosbox == yes ) then
 
 endif
 
-set main_arg="$1"
+# Further only UNIX or not in dos box
 
 more_args:
 
@@ -245,6 +250,7 @@ endif
 
 
 if ( $issys == yes ) then
+
     if ( $?DTECT_SCRIPT_DEBUG ) echo "$0 : $xtermcmd $nicecmd $allargs"
     if ( $background == yes ) then
 	$xtermcmd $nicecmd $allargs &
@@ -255,7 +261,7 @@ else
     if ( $?DTECT_SCRIPT_DEBUG ) then
 	if ( $?COMSPEC ) then
 	    echo "$0 : analyse dll deps"
-	    cygcheck `cygpath -w "${bindir}/${main_arg}.exe"` 
+	    cygcheck `cygpath -w "${bindir}/${prog}.exe"` 
 	endif
 
 	echo "$0 : $xtermcmd $nicecmd $bindir/$allargs"
@@ -270,6 +276,8 @@ else
     else
 	$xtermcmd $nicecmd "$bindir"/$allargs
     endif
+
 endif
+
 
 exit $status

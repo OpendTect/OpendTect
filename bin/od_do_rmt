@@ -2,12 +2,17 @@
 #_______________________________________________________________________________
 #
 # (C) dGB Beheer B.V.
-# $Id: od_do_rmt,v 1.25 2005-08-25 09:34:30 cvsnanne Exp $
+# $Id: od_do_rmt,v 1.26 2006-05-11 12:54:54 cvsbert Exp $
 #
 # remote execution script
 #_______________________________________________________________________________
 
-if ( $?DTECT_SCRIPT_VERBOSE ) set verbose=yes
+if ( $?DTECT_SCRIPT_VERBOSE ) then
+    echo "$0  ++++++"
+    echo "args: $*"
+    set verbose=yes
+    set echo=on
+endif
 
 set comm=""
 set datahost="_none_"

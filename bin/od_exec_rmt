@@ -2,13 +2,17 @@
 #_______________________________________________________________________________
 #
 # (C) dGB Beheer B.V.
-# $Id: od_exec_rmt,v 1.36 2006-01-31 10:36:45 cvsbert Exp $
+# $Id: od_exec_rmt,v 1.37 2006-05-11 12:54:54 cvsbert Exp $
 #
 # module remote startup script
 #_______________________________________________________________________________
 
-if ( $?DTECT_SCRIPT_VERBOSE ) set verbose=yes
-
+if ( $?DTECT_SCRIPT_VERBOSE ) then
+    echo "$0  ++++++"
+    echo "args: $*"
+    set verbose=yes
+    set echo=on
+endif
 
 if ( $?DTECT_SCRIPT_DEBUG ) then
     echo "od_exec_rmt $*"
