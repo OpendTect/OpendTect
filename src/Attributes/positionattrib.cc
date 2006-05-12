@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          November 2002
- RCS:           $Id: positionattrib.cc,v 1.17 2006-05-12 07:55:37 cvshelene Exp $
+ RCS:           $Id: positionattrib.cc,v 1.18 2006-05-12 08:02:29 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -219,7 +219,7 @@ bool Position::computeData( const DataHolder& output, const BinID& relpos,
 	    int ds = samplegate.start;
 
 	    float sample = cursample;
-	    const int steeridx = dosteer_ : steerindexes_[idp] : -1;
+	    const int steeridx = dosteer_ ? steerindexes_[idp] : -1;
 	    if ( dosteer_ && steerdata_->series(steeridx) )
 		sample += steerdata_->series(steeridx)->value( 
 						cursample-steerdata_->z0_ );
