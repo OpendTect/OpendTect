@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: shiftattrib.cc,v 1.18 2006-05-10 11:10:02 cvshelene Exp $";
+static const char* rcsID = "$Id: shiftattrib.cc,v 1.19 2006-05-12 07:55:37 cvshelene Exp $";
 
 #include "shiftattrib.h"
 #include "attribdataholder.h"
@@ -168,6 +168,25 @@ const BinID* Shift::reqStepout( int inp, int out ) const
 
 
 const Interval<float>* Shift::reqZMargin( int inp, int ) const
-{ return inp==1 ? 0 : &interval_; }
+{ 
+   if ( inp==1 )
+	return 0;
+   
+   bool chgstart = mNINT(interval_.start*zFactor()) % mNINT(refstep*zFactor());
+   bool chgstop = mNINT(interval_.stop*zFactor()) % mNINT(refstep*zFactor());
+
+    if ( chgstart )
+    {
+	int minstart = (int)(interval_.start / refstep);
+	const_cast<Shift*>(this)->interval_.start = (minstart-1) * refstep;
+    }
+    if ( chgstop )
+    {
+	int minstop = (int)(interval_.stop / refstep);
+	const_cast<Shift*>(this)->interval_.stop = (minstop+1) * refstep;
+    }
+    
+    return &interval_;
+}
 
 }; // namespace Attrib

@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: volstatsattrib.cc,v 1.21 2006-04-03 13:35:31 cvshelene Exp $";
+static const char* rcsID = "$Id: volstatsattrib.cc,v 1.22 2006-05-12 07:55:37 cvshelene Exp $";
 
 #include "volstatsattrib.h"
 
@@ -205,11 +205,25 @@ const BinID* VolStats::reqStepout( int inp, int out ) const
 
 
 const Interval<float>* VolStats::reqZMargin( int inp, int ) const
-{ return inp==0 ? &gate_ : 0; }
+{     
+    if ( inp ) return 0;
+    
+    bool chgstart = mNINT(desgate_.start*zFactor()) % mNINT(refstep*zFactor());
+    bool chgstop = mNINT(desgate_.stop*zFactor()) % mNINT(refstep*zFactor());
 
-
-const Interval<float>* VolStats::desZMargin( int inp, int ) const
-{ return inp==0 ? &desgate_ : 0; }
+    if ( chgstart )
+    {
+	int minstart = (int)(desgate_.start / refstep);
+	const_cast<VolStats*>(this)->desgate_.start = (minstart-1) * refstep;
+    }
+    if ( chgstop )
+    {
+	int minstop = (int)(desgate_.stop / refstep);
+	const_cast<VolStats*>(this)->desgate_.stop = (minstop+1) * refstep;
+    }
+	
+    return &desgate_;
+}
 
 
 bool VolStats::computeData( const DataHolder& output, const BinID& relpos,

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: similarityattrib.h,v 1.16 2006-03-20 16:32:08 cvsnanne Exp $
+ RCS:           $Id: similarityattrib.h,v 1.17 2006-05-12 07:55:37 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -82,7 +82,6 @@ protected:
 
     const BinID*		reqStepout(int input,int output) const;
     const Interval<float>*	reqZMargin(int input,int output) const;
-    const Interval<float>*      desZMargin(int input,int output) const;
     bool			getTrcPos();
 
     BinID			pos0_;

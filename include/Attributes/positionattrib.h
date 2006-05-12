@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          November 2002
- RCS:           $Id: positionattrib.h,v 1.9 2006-03-20 16:32:08 cvsnanne Exp $
+ RCS:           $Id: positionattrib.h,v 1.10 2006-05-12 07:55:37 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -69,8 +69,7 @@ protected:
     				{ return &stepout_; }
     const Interval<float>*	reqZMargin(int input,int output) const
 				{ return &gate_; }
-    const Interval<float>*	desZMargin(int input,int output) const
-				{ return &desgate_; }
+    const Interval<float>*	desZMargin(int input,int output) const;
 
     BinID			stepout_;
     Interval<float>		gate_;

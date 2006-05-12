@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          November 2002
- RCS:           $Id: positionattrib.cc,v 1.16 2006-03-20 16:32:02 cvsnanne Exp $
+ RCS:           $Id: positionattrib.cc,v 1.17 2006-05-12 07:55:37 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -219,7 +219,7 @@ bool Position::computeData( const DataHolder& output, const BinID& relpos,
 	    int ds = samplegate.start;
 
 	    float sample = cursample;
-	    const int steeridx = steerindexes_[idp];
+	    const int steeridx = dosteer_ : steerindexes_[idp] : -1;
 	    if ( dosteer_ && steerdata_->series(steeridx) )
 		sample += steerdata_->series(steeridx)->value( 
 						cursample-steerdata_->z0_ );
@@ -260,5 +260,25 @@ bool Position::computeData( const DataHolder& output, const BinID& relpos,
 
     return true;
 }
+
+
+const Interval<float>* Position::desZMargin(int input,int output) const
+{
+    bool chgstart = mNINT(desgate_.start*zFactor()) % mNINT(refstep*zFactor());
+    bool chgstop = mNINT(desgate_.stop*zFactor()) % mNINT(refstep*zFactor());
+
+    if ( chgstart )
+    {
+	int minstart = (int)(desgate_.start / refstep);
+	const_cast<Position*>(this)->desgate_.start = (minstart-1) * refstep;
+    }
+    if ( chgstop )
+    {
+	int minstop = (int)(desgate_.stop / refstep);
+	const_cast<Position*>(this)->desgate_.stop = (minstop+1) * refstep;
+    }
+    return &desgate_;
+}
+
 
 } // namespace Attrib

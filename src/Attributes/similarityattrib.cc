@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          June 2005
- RCS:           $Id: similarityattrib.cc,v 1.26 2006-04-12 11:35:21 cvsnanne Exp $
+ RCS:           $Id: similarityattrib.cc,v 1.27 2006-05-12 07:55:37 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -150,8 +150,8 @@ Similarity::Similarity( Desc& desc_ )
     }
     getTrcPos();
 
-    const float extraz =
-	mMAX( stepout_.inl*inldist(), stepout_.crl*crldist() ) * mMAXDIP;
+    const float extraz = dosteer_ ?
+	mMAX( stepout_.inl*inldist(), stepout_.crl*crldist() ) * mMAXDIP : 0;
     desgate_ = Interval<float>( gate_.start-extraz, gate_.stop+extraz );
 }
 
@@ -332,9 +332,24 @@ const BinID* Similarity::reqStepout( int inp, int out ) const
 
 
 const Interval<float>* Similarity::reqZMargin( int inp, int ) const
-{ return inp ? 0 : &desgate_; }
+{ 
+    if ( inp ) return 0;
 
-const Interval<float>* Similarity::desZMargin( int inp, int ) const
-{ return inp ? 0 : &desgate_; }
+    bool chgstart = mNINT(desgate_.start*zFactor()) % mNINT(refstep*zFactor());
+    bool chgstop = mNINT(desgate_.stop*zFactor()) % mNINT(refstep*zFactor());
+
+    if ( chgstart )
+    {
+	int minstart = (int)(desgate_.start / refstep);
+	const_cast<Similarity*>(this)->desgate_.start = (minstart-1) * refstep;
+    }
+    if ( chgstop )
+    {
+	int minstop = (int)(desgate_.stop / refstep);
+	const_cast<Similarity*>(this)->desgate_.stop = (minstop+1) * refstep;
+    }
+    
+    return &desgate_;
+}
 
 }; //namespace
