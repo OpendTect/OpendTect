@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpewizard.h,v 1.20 2006-02-27 12:25:00 cvsjaap Exp $
+ RCS:           $Id: uimpewizard.h,v 1.21 2006-05-12 09:51:14 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,12 +30,12 @@ class uiLabeledSpinBox;
 class uiLabel;
 class uiPushButton;
 class uiSelLineStyle;
-class uiSeparator;
 class uiMPEPartServer;
+class uiTextEdit;
 
 namespace MPE {
 
-class uiSetupSel;
+class uiSetupGroup;
 
 class Wizard : public uiWizard
 {
@@ -49,6 +49,7 @@ public:
     void		setTrackingType(const char* typstr);
 
     static const int	sNamePage;
+    static const int	sTrackModePage;
     static const int	sSeedSetupPage;
     static const int	sFinalizePage;
 
@@ -59,28 +60,30 @@ protected:
 
     uiColorInput*	colorfld;
 
-    uiSetupSel*		setupgrp;
-    uiLabel*		picktxt;
+    uiSetupGroup*	setupgrp;
 
     uiButtonGroup*      hmodegrp;
     uiButtonGroup*      fmodegrp;
     uiButtonGroup*      modegrp;
-    uiSeparator*	modesep;
+    uiTextEdit*		infofld;
 
     uiGenInput*		anotherfld;
     uiGenInput*		typefld;
 
     uiIOObjSelGrp*	createNamePage();
+    uiGroup*		createTrackModePage();
     uiGroup*		createSeedSetupPage();
     uiGroup*		createFinalizePage();
 
-    bool		leaveNamePage(bool);
-    bool		leaveSeedSetupPage(bool);
-    bool		leaveFinalizePage(bool);
-
     bool		prepareNamePage();
+    bool		prepareTrackModePage();
     bool		prepareSeedSetupPage();
     bool		prepareFinalizePage();
+
+    bool		leaveNamePage(bool);
+    bool		leaveTrackModePage(bool);
+    bool		leaveSeedSetupPage(bool);
+    bool		leaveFinalizePage(bool);
 
     bool		finalizeCycle();
 
@@ -114,7 +117,6 @@ protected:
     BufferString	trackertype;
 
 private:
-    const char*		seedPickText( bool doesneedseed ) const;
 };
 
 }; // namespace MPE

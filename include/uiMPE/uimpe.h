@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		July 2005
- RCS:		$Id: uimpe.h,v 1.5 2005-12-14 19:02:32 cvskris Exp $
+ RCS:		$Id: uimpe.h,v 1.6 2006-05-12 09:51:14 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,9 +22,10 @@ the MPE::uiMPEEngine object, which is available through the static function
 MPE::uiMPE(). */
 
 
-#include "emposid.h"
+#include "bufstring.h"
 #include "callback.h"
-#include "uidialog.h"
+#include "emposid.h"
+#include "uigroup.h"
 
 class uiParent;
 
@@ -89,44 +90,43 @@ protected:
 };
 
 
-/*! Interface to track-setup dialogs. Implementations can be retrieved through
-    MPE::uiSetupDialogFactory. */
+/*! Interface to track-setup groups. Implementations can be retrieved through
+    MPE::uiSetupGroupFactory. */
 
 
-class uiSetupDialog : public uiDialog
+class uiSetupGroup : public uiGroup
 {
 public:
-				uiSetupDialog( uiParent*, const char* helpref );
-    virtual void		enableApplyButton( bool yn ) {}
-    virtual NotifierAccess*	applyButtonPressed() { return 0; }
+				uiSetupGroup(uiParent*,const char* helpref);
+    virtual void		setSectionTracker(SectionTracker*)	{}
     virtual bool		commitToTracker() const { return true; }
+
+    BufferString		helpref_;
 };
     
 
-/*! Factory function that can produce a MPE::uiSetupDialog* given a 
-    uiParent*, a MPE::SectionTracker* and an Attrib::DescSet*. \note that the
-    function should return a zero pointer if the MPE::SectionTracker* is of the
-    wrong kind. */
+/*! Factory function that can produce a MPE::uiSetupGroup* given a 
+    uiParent* and an Attrib::DescSet*. */
 
-typedef uiSetupDialog*(*uiSetupDlgCreationFunc)( uiParent*, SectionTracker*,
-					         const Attrib::DescSet* );
+typedef uiSetupGroup*(*uiSetupGrpCreationFunc)(uiParent*,const char* typestr,	
+					       const Attrib::DescSet*);
 
-/*! Factory that is able to create MPE::uiSetupDialog* given a uiParent*,
-    a MPE::SectionTracker* and an Attrib::DescSet*. Each class that wants to
+/*! Factory that is able to create MPE::uiSetupGroup* given a uiParent*,
+    and an Attrib::DescSet*. Each class that wants to
     be able to procuce instances of itself must register itself with the
     addFactory startup. */
 
-class uiSetupDialogFactory
+class uiSetupGroupFactory
 {
 public:
-    void		addFactory( uiSetupDlgCreationFunc f );
-    uiSetupDialog*	create( uiParent*,  SectionTracker*,
-	    			const Attrib::DescSet* );
+    void		addFactory(uiSetupGrpCreationFunc f);
+    uiSetupGroup*	create(uiParent*,const char* typestr,
+	    		       const Attrib::DescSet*);
 			/*!<Iterates through all added factory functions
 			    until one of the returns a non-zero pointer. */
 
 protected:
-    TypeSet<uiSetupDlgCreationFunc>	funcs;
+    TypeSet<uiSetupGrpCreationFunc>	funcs;
 
 };
 
@@ -139,7 +139,7 @@ class uiMPEEngine
 {
 public:
     uiEMEditorFactory		editorfact;
-    uiSetupDialogFactory	setupdlgfact;
+    uiSetupGroupFactory		setupgrpfact;
 };
 
 

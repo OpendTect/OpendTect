@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpewizard.cc,v 1.46 2006-05-11 18:01:12 cvsjaap Exp $
+ RCS:           $Id: uimpewizard.cc,v 1.47 2006-05-12 09:51:14 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,6 +26,8 @@ ________________________________________________________________________
 #include "mpeengine.h"
 #include "ptrman.h"
 #include "survinfo.h"
+
+#include "uibutton.h"
 #include "uibuttongroup.h"
 #include "uicolor.h"
 #include "uicursor.h"
@@ -36,21 +38,63 @@ ________________________________________________________________________
 #include "uilistbox.h"
 #include "uimsg.h"
 #include "uimpepartserv.h"
-#include "uimpesetup.h"
+#include "uimpe.h"
 #include "uiseparator.h"
 #include "uispinbox.h"
+#include "uitextedit.h"
 
 namespace MPE {
 
 int Wizard::defcolnr = 0;
 
 const int Wizard::sNamePage		= 0;
-const int Wizard::sSeedSetupPage	= 1;
-const int Wizard::sFinalizePage		= 2;
+const int Wizard::sTrackModePage	= 1;
+const int Wizard::sSeedSetupPage	= 2;
+const int Wizard::sFinalizePage		= 3;
+
+
+static const char* sTrackInVolInfo()
+{
+    return
+	"The horizon is (auto-) tracked inside a small track-volume.\n\n"
+	"Workflow:\n"
+	"1) Define settings\n"
+	"2) Pick seed(s) (remove ctrl-pick)\n"
+	"3) Finish wizard and position/resize track-volume\n"
+	"4) Use toolbar to auto-track, plane-by-plane track, and edit\n"
+	"5) Reposition track-volume and repeat step 4\n";
+}
+
+
+static const char* sLineTrackInfo()
+{
+    return
+	"The horizon is auto-tracked in the line direction only.\n\n"
+	"Workflow:\n"
+	"1) Define settings\n"
+	"2) Pick seeds (remove ctrl-pick)\n"
+	"3) Finish wizard\n"
+	"4) Scroll line to new position or open new line, and pick new seeds\n"
+	"5) Use 'Fill holes' to create continuous horizon\n";
+}
+
+
+static const char* sLineManualInfo()
+{
+    return
+	"The horizon is painted (linear interpolation) between picked seeds\n"
+        "in the line direction only.\n\n"
+	"Workflow:\n"
+	"1) Finish wizard\n"
+	"2) Pick seeds (remove ctrl-pick)\n"
+	"3) Scroll line to new position or open new line, and pick new seeds\n"
+	"4) Use 'Fill holes' to create continuous horizon\n";
+}
+
 
 
 Wizard::Wizard( uiParent* p, uiMPEPartServer* mps )
-    : uiWizard( p, uiDialog::Setup( "Tracking Wizard", "XXXXXXX Tracking", 
+    : uiWizard( p, uiDialog::Setup( "Tracking Wizard", "", 
 				    "" ).modal(false) )
     , mpeserv(mps)
     , sid(-1)
@@ -63,10 +107,12 @@ Wizard::Wizard( uiParent* p, uiMPEPartServer* mps )
 {
     objselgrp = createNamePage();
     addPage( objselgrp );
+    addPage( createTrackModePage() );
     addPage( createSeedSetupPage() );
 #ifdef __debug__
     //addPage( createFinalizePage() );
 #endif
+    setRotateMode( false );
 
     seedbox.setEmpty();
     setHelpID( "108.0.0" );
@@ -80,30 +126,15 @@ Wizard::~Wizard()
 
 uiIOObjSelGrp* Wizard::createNamePage()
 {
-    const IOObjContext* ctxttemplate = EM::EMM().getContext(trackertype);
+    const IOObjContext* ctxttemplate = EM::EMM().getContext( trackertype );
     if ( !ctxttemplate )
-    {
 	ctxttemplate = EM::EMM().getContext("Fault");
-    }
 
-    PtrMan<IOObjContext> ctxt = new IOObjContext(*ctxttemplate);
+    PtrMan<IOObjContext> ctxt = new IOObjContext( *ctxttemplate );
     ctxt->forread = false;
 
     const CtxtIOObj ctio( *ctxt );
     return new uiIOObjSelGrp( this, ctio );
-}
-
-
-const char* Wizard::seedPickText( bool doneedseed ) const
-{
-    if ( doneedseed )
-	return ( "Must pick seedpoint(s) by clicking on a slice.\n"
-		 "Remove seedpoints by ctrl-click on them,\n" 
-		 "or use shift-click instead to omit retracking." );
-    else
-	return ( "May pick seedpoint(s) by clicking on a slice.\n"
-		 "Remove seedpoints by ctrl-click on them,\n" 
-		 "or use shift-click instead to omit retracking." );
 }
 
 
@@ -114,37 +145,50 @@ const char* Wizard::seedPickText( bool doneedseed ) const
     { \
 	uiRadioButton* butptr = new uiRadioButton( hmodegrp, \
 			    typ##SeedPicker::seedConModeText(idx,false) ); \
-	butptr->activated.notify( mCB(this, Wizard, seedModeChange) ); \
+	butptr->activated.notify( mCB(this,Wizard,seedModeChange) ); \
     } \
-    xmodegrp->selectButton( typ##SeedPicker::defaultSeedConMode() ); \
-    xmodegrp->attach( alignedAbove, setupgrp ); \
-    modesep->attach( stretchedBelow, xmodegrp ); 
+    xmodegrp->selectButton( typ##SeedPicker::defaultSeedConMode() );
 
-uiGroup* Wizard::createSeedSetupPage()
+uiGroup* Wizard::createTrackModePage()
 {
     uiGroup* grp = new uiGroup( this, "Page 2" );
 
-    setupgrp = new uiSetupSel( grp, mpeserv->attrset );
-    setupgrp->setupchg.notify( mCB(this,Wizard,setupChange) );
-    
-    uiSeparator* sep1 = new uiSeparator( grp, "Separator 1" );
-    sep1->attach( stretchedBelow, setupgrp );
-    
-    picktxt = new uiLabel( grp, seedPickText(true) );
-    picktxt->attach( ensureBelow, sep1 );
-    picktxt->attach( alignedBelow, setupgrp );
-    
+    mDefSeedConModeGrp( hmodegrp, Horizon ); 
+//  mDefSeedConModeGrp( fmodegrp, Fault ); 
+
     colorfld = new uiColorInput( grp, Color::drawDef(defcolnr++), 
 				 "Object color" );
     colorfld->colorchanged.notify( mCB(this,Wizard,colorChangeCB) );
-    colorfld->attach( ensureBelow, picktxt );
-    colorfld->attach( alignedBelow, picktxt );
+    colorfld->attach( alignedBelow, hmodegrp );
 
-    modesep = new uiSeparator( grp, "Separator 0" );
-    modesep->attach( stretchedAbove, setupgrp );
-    
-    mDefSeedConModeGrp( hmodegrp, Horizon ); 
-    mDefSeedConModeGrp( fmodegrp, Fault ); 
+    uiSeparator* sep = new uiSeparator( grp );
+    sep->attach( stretchedBelow, colorfld, -2 );
+
+    uiLabel* infolbl = new uiLabel( grp, "Info:" );
+    infolbl->attach( alignedBelow, sep );
+
+    infofld = new uiTextEdit( grp, "Info", true );
+    infofld->setPrefHeightInChar( 9 );
+    infofld->setPrefWidthInChar( 80 );
+    infofld->attach( alignedBelow, infolbl );
+
+    return grp;
+}
+
+
+uiGroup* Wizard::createSeedSetupPage()
+{
+    // TODO: support both, horizons and faults
+    uiGroup* grp = new uiGroup( this, "Page 3" );
+    setupgrp = uiMPE().setupgrpfact.create( grp, EM::Horizon::typeStr(),
+	    				    mpeserv->attrset );
+
+    uiLabel* lbl = new uiLabel( grp,
+	    		"Evaluate settings by picking one or more seeds" );
+    lbl->attach( centeredBelow, setupgrp );
+    uiPushButton* applybut = new uiPushButton( grp, "Retrack", true );
+    applybut->activated.notify( mCB(this,Wizard,setupChange) );
+    applybut->attach( centeredBelow, lbl );
 
     return grp;
 }
@@ -172,7 +216,7 @@ uiGroup* Wizard::createFinalizePage()
 	typefld->attach( alignedBelow, anotherfld );
     }
 
-    anotherSel(0);
+//  anotherSel(0);
     return grp;
 }
 
@@ -269,7 +313,7 @@ bool Wizard::leaveNamePage( bool process )
 	modegrp = xmodegrp; \
     xmodegrp->display( xmodegrp==modegrp, true );
     
-bool Wizard::prepareSeedSetupPage()
+bool Wizard::prepareTrackModePage()
 {
     if ( currentobject!=-1 )
     {
@@ -285,22 +329,37 @@ bool Wizard::prepareSeedSetupPage()
 	return false;
 
     const int trackerid = mpeserv->getTrackerID( currentobject );
-
     EMTracker* tracker = MPE::engine().getTracker( trackerid );
     const EM::ObjectID objid = tracker->objectID();
     EM::EMObject* emobj = EM::EMM().getObject(objid);
     if ( sid==-1 )
         sid = emobj->sectionID( emobj->nrSections()-1 );
 
-    setupgrp->setType( objid, sid );
-
-    modegrp=0;
     mSelectSeedConModeGrp( hmodegrp, Horizon );
-    mSelectSeedConModeGrp( fmodegrp, Fault );
-    modesep->display( modegrp, true );	
+//  mSelectSeedConModeGrp( fmodegrp, Fault );
 
     seedModeChange(0);
     colorChangeCB(0);
+    return true;
+}
+
+
+bool Wizard::leaveTrackModePage( bool process )
+{
+    if ( currentPageIdx()==lastPage() )
+	return finalizeCycle();
+
+    return true;
+}
+
+
+bool Wizard::prepareSeedSetupPage()
+{
+    const int trackerid = mpeserv->getTrackerID( currentobject );
+    EMTracker* tracker = MPE::engine().getTracker( trackerid );
+    SectionTracker* sectiontracker = tracker->getSectionTracker( sid, true );
+    if ( !sectiontracker ) return false;
+    setupgrp->setSectionTracker( sectiontracker );
 
     mpeserv->sendEvent( uiMPEPartServer::evStartSeedPick );
     EMSeedPicker* seedpicker = tracker->getSeedPicker( true );
@@ -308,9 +367,11 @@ bool Wizard::prepareSeedSetupPage()
     if ( currentPageIdx()==lastPage() )
 	setRotateMode(false);
 
+    EM::EMObject* emobj = EM::EMM().getObject( currentobject );
     emobj->notifier.notify( mCB(this,Wizard,updateFinishButton) );
     updateFinishButton(0);
     initialhistorynr = EM::EMM().history().currentEventNr();
+
     return true;
 }
 
@@ -321,7 +382,7 @@ bool Wizard::leaveSeedSetupPage( bool process )
     mpeserv->sendEvent( uiMPEPartServer::evEndSeedPick );
     mpeserv->blockdataloading = false;
 
-    EM::EMObject* emobj = EM::EMM().getObject(currentobject);
+    EM::EMObject* emobj = EM::EMM().getObject( currentobject );
     emobj->notifier.remove( mCB(this,Wizard,updateFinishButton) );
     setButtonSensitive( uiDialog::CANCEL, true );
     if ( !process )
@@ -344,7 +405,7 @@ bool Wizard::prepareFinalizePage()
 }
 
 
-bool Wizard::leaveFinalizePage(bool process)
+bool Wizard::leaveFinalizePage( bool process )
 {
     if ( !process ) return true;
 
@@ -470,8 +531,9 @@ void Wizard::colorChangeCB( CallBacker* )
 
 
 #define mNamePage	0
-#define mSeedPage	1
-#define mFinalizePage	2
+#define mModePage	1
+#define mSeedPage	2
+#define mFinalizePage	3
 
 
 bool Wizard::preparePage( int page )
@@ -479,6 +541,7 @@ bool Wizard::preparePage( int page )
     switch ( page )
     {
 	case mNamePage:		return prepareNamePage();
+	case mModePage:		return prepareTrackModePage();
 	case mSeedPage:		return prepareSeedSetupPage();
 	case mFinalizePage:	return prepareFinalizePage();
     }
@@ -491,9 +554,10 @@ bool Wizard::leavePage( int page, bool process )
 {
     switch ( page )
     {
-	case mNamePage:		return leaveNamePage(process);
-	case mSeedPage:		return leaveSeedSetupPage(process);
-	case mFinalizePage:	return leaveFinalizePage(process);
+	case mNamePage:		return leaveNamePage( process);
+	case mModePage:		return leaveTrackModePage( process );
+	case mSeedPage:		return leaveSeedSetupPage( process );
+	case mFinalizePage:	return leaveFinalizePage( process );
     }
 
     return true;
@@ -627,17 +691,21 @@ bool Wizard::createTracker()
 
 void Wizard::seedModeChange( CallBacker* )
 {
-    mGetSeedPicker();
     const int newmode = modegrp ? modegrp->selectedId() : -1;
+    if ( newmode == 0 )
+	infofld->setText( sTrackInVolInfo() );
+    else if ( newmode == 1 )
+	infofld->setText( sLineTrackInfo() );
+    else
+	infofld->setText( sLineManualInfo() );
+
+    mGetSeedPicker();
     seedpicker->setSeedConnectMode( newmode );
-
     const bool needsetup = seedpicker->doesModeUseSetup();
-    setupgrp->setSensitive( needsetup );
-
     const bool newmodeneedseed = seedpicker->minSeedsToLeaveInitStage() > 0; 
-    picktxt->setText( seedPickText(newmodeneedseed) );
 
-    setupChange(0);
+    displayPage( sSeedSetupPage, needsetup );
+//  setupChange(0);
 }
 
 
@@ -645,10 +713,7 @@ void Wizard::setupChange( CallBacker* )
 {
     mGetSeedPicker();
 
-    const bool allowpicking = !setupgrp->sensitive() ||
-			      setupgrp->isSetToValidSetup(); 
-    picktxt->setSensitive( allowpicking );
-    colorfld->setSensitive( allowpicking );
+    const bool allowpicking = seedpicker->doesModeUseSetup();
     seedpicker->blockSeedPick( !allowpicking );
     updateFinishButton(0);
 
@@ -657,6 +722,7 @@ void Wizard::setupChange( CallBacker* )
 	mpeserv->loadAttribData();
 
     uiCursor::setOverride( uiCursor::Wait );
+    setupgrp->commitToTracker();
     seedpicker->reTrack();
     uiCursor::restoreOverride();
 }
@@ -664,7 +730,12 @@ void Wizard::setupChange( CallBacker* )
 
 void Wizard::updateFinishButton( CallBacker* )
 {
+/* TODO: This function is called for every time a position is added to horizon.
+	 Not necessary, so has to be changed. */
     mGetSeedPicker();
+    if ( seedpicker->nrSeeds() == 1 )
+	setupgrp->commitToTracker();
+
     const bool finishenabled = !seedpicker->isSeedPickBlocked() &&
 	       seedpicker->nrSeeds() >= seedpicker->minSeedsToLeaveInitStage();
     setButtonSensitive( uiDialog::CANCEL, finishenabled );

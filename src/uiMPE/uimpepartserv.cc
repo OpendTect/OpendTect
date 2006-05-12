@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2004
- RCS:           $Id: uimpepartserv.cc,v 1.40 2006-05-11 18:06:20 cvsjaap Exp $
+ RCS:           $Id: uimpepartserv.cc,v 1.41 2006-05-12 09:51:14 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,7 +18,7 @@ ________________________________________________________________________
 #include "emtracker.h"
 #include "survinfo.h"
 #include "uimpewizard.h"
-#include "uimpesetup.h"
+//#include "uimpesetup.h"
 #include "uimsg.h"
 #include "uicursor.h"
 #include "uisurfacerelationdlg.h"
@@ -138,7 +138,7 @@ bool uiMPEPartServer::addTracker( const char* trackertype )
     else wizard->reset();
 
     wizard->setTrackingType( trackertype );
-    wizard->setRotateMode(true);
+//  wizard->setRotateMode(true);
     wizard->go();
 
     return true;
@@ -202,6 +202,7 @@ bool uiMPEPartServer::showSetupDlg( const EM::ObjectID& emid,
 				    const EM::SectionID& sid,
 				    bool showcancelbutton )
 {
+/*
     uiDialog dlg( appserv().parent(), uiDialog::Setup("Tracking Setup") );
     if ( !showcancelbutton ) 
 	dlg.setCtrlStyle( uiDialog::LeaveOnly );
@@ -214,7 +215,7 @@ bool uiMPEPartServer::showSetupDlg( const EM::ObjectID& emid,
 	loadAttribData();
 	return true;
     }
-
+*/
     return false;
 }
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2005
- RCS:           $Id: uihorizontracksetup.cc,v 1.5 2006-05-04 21:18:52 cvskris Exp $
+ RCS:           $Id: uihorizontracksetup.cc,v 1.6 2006-05-12 09:51:14 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,6 +13,7 @@ ________________________________________________________________________
 
 #include "attribdescset.h"
 #include "attribsel.h"
+#include "emhorizon.h"
 #include "horizonadjuster.h"
 #include "sectiontracker.h"
 #include "survinfo.h"
@@ -21,59 +22,28 @@ ________________________________________________________________________
 #include "uigeninput.h"
 #include "uimsg.h"
 #include "uiseparator.h"
+#include "uitabstack.h"
 
-#define mErrRet(s) \
-{\
-    uiMSG().error( s );\
-    return false;\
-}
 
+#define mErrRet(s) { uiMSG().error( s ); return false; }
 
 namespace MPE
 {
 
-
-void uiHorizonSetupDialog::initClass()
+void uiHorizonSetupGroup::initClass()
 {
-    uiMPE().setupdlgfact.addFactory( uiHorizonSetupDialog::create );
+    uiMPE().setupgrpfact.addFactory( uiHorizonSetupGroup::create );
 }
 
 
-uiSetupDialog* uiHorizonSetupDialog::create( uiParent* p, SectionTracker* st,
-					     const Attrib::DescSet* ds )
+uiSetupGroup* uiHorizonSetupGroup::create( uiParent* p, const char* typestr,
+					   const Attrib::DescSet* ads )
 {
-    mDynamicCastGet(HorizonAdjuster*,horadj,st->adjuster());
-    if ( !horadj ) return 0;
+    if ( strcmp(typestr,EM::Horizon::typeStr()) )
+	return 0;
 
-    return new uiHorizonSetupDialog( p, st, ds );
+    return new uiHorizonSetupGroup( p, ads );
 }
-
-
-uiHorizonSetupDialog::uiHorizonSetupDialog( uiParent* p, SectionTracker* trkr,
-					    const Attrib::DescSet* ads )
-    : uiSetupDialog(p,"108.0.2")
-{
-    grp = new uiHorizonSetupGroup( this, trkr, ads );
-}
-
-
-bool uiHorizonSetupDialog::acceptOK( CallBacker* )
-{
-    return grp->commitToTracker();
-}
-
-
-void  uiHorizonSetupDialog::enableApplyButton( bool yn )
-{ grp->enableApplyButton( yn ); }
-
-
-NotifierAccess* uiHorizonSetupDialog::applyButtonPressed()
-{ return grp->applyButtonPressed(); }
-
-
-bool uiHorizonSetupDialog::commitToTracker() const
-{ return grp->commitToTracker(); }
-
 
 
 const char** uiHorizonSetupGroup::sKeyEventNames()
@@ -92,117 +62,79 @@ const VSEvent::Type* uiHorizonSetupGroup::cEventTypes()
 }
 
 
-uiHorizonSetupGroup::uiHorizonSetupGroup( uiParent* p, SectionTracker* tracker,
+uiHorizonSetupGroup::uiHorizonSetupGroup( uiParent* p,
 					  const Attrib::DescSet* ads )
-    : uiGroup(p,"Horizon Setup Group")
-    , sectiontracker_(tracker)
+    : uiSetupGroup(p,"")
+    , sectiontracker_(0)
     , attrset_(ads)
     , inpfld(0)
 {
-    SectionAdjuster* adjuster = sectiontracker_->adjuster();
-    mDynamicCastGet(HorizonAdjuster*,horadj,adjuster)
-    horadj_ = horadj;
+    tabgrp_ = new uiTabStack( this, "TabStack" );
+    uiGroup* eventgrp = createEventGroup();
+    tabgrp_->addTab( eventgrp, "Event" );
 
-    Attrib::DescID curid = adjuster->getAttributeSel(0) ?
-	adjuster->getAttributeSel(0)->id() : Attrib::DescID::undef(); 
+    uiGroup* simigrp = createSimiGroup();
+    tabgrp_->addTab( simigrp, "Similarity" );
+}
 
-    maingrp = new uiGroup( this, "main group" );
 
-    inpfld = new uiAttrSel( maingrp, attrset_, "Seismic data", curid );
-    inpfld->set2D( adjuster->is2D() );
-    maingrp->setHAlignObj( inpfld );
+uiGroup* uiHorizonSetupGroup::createEventGroup()
+{
+    uiGroup* grp = new uiGroup( tabgrp_->tabGroup(), "Event" );
 
-    uiSeparator* hseptop = new uiSeparator( maingrp, "top sep" );
-    hseptop->attach( stretchedBelow, inpfld );
+    inpfld = new uiAttrSel( grp, attrset_, "Seismic data" );
+    grp->setHAlignObj( inpfld );
 
-    uiGroup* trackgrp = new uiGroup( maingrp, "track group" );
-    uiGroup* simigrp = new uiGroup( trackgrp, "simi group" );
-    uiGroup* snapgrp = new uiGroup( trackgrp, "snap group" );
-    uiSeparator* vsep = new uiSeparator( trackgrp, "vert sep", false );
-    vsep->attach ( rightOf, simigrp );
-    vsep->attach( heightSameAs, simigrp );
-    snapgrp->attach( rightOf, vsep );
-    trackgrp->setHAlignObj( vsep );
-    trackgrp->attach( alignedBelow, inpfld );
-    trackgrp->attach( ensureBelow, hseptop );
-    
-    usesimifld = new uiGenInput( simigrp, "Use similarity", BoolInpSpec() );
-    usesimifld->valuechanged.notify(
-	    mCB(this,uiHorizonSetupGroup,selUseSimilarity) );
-    usesimifld->setValue( !horadj_->trackByValue() );
-    BufferString compwindtxt( "Compare window " );
-    compwindtxt += SI().getZUnit();
-    Interval<int> simiintv(
-	    mNINT(horadj_->similarityWindow().start * SI().zFactor()),
-	    mNINT(horadj_->similarityWindow().stop * SI().zFactor()) );
-    compwinfld = new uiGenInput( simigrp, compwindtxt,
-				 IntInpIntervalSpec(simiintv) );
-    compwinfld->attach( alignedBelow, usesimifld );
-    simithresholdfld = new uiGenInput( simigrp, "Similarity threshold(0-1)",
-				FloatInpSpec(horadj_->similarityThreshold()) );
-    simithresholdfld->attach( alignedBelow, compwinfld );
-    simigrp->setHAlignObj( usesimifld );
+    evfld = new uiGenInput( grp, "Event type",
+	    		    StringListInpSpec(sKeyEventNames()) );
+    evfld->attach( alignedBelow, inpfld );
 
-    evfld = new uiGenInput( snapgrp, "Event type",
-	    		    StringListInpSpec(sKeyEventNames()));
-    VSEvent::Type ev = horadj_->trackEvent();
-    int fldidx = ev == VSEvent::Min ? 0
-	      : (ev == VSEvent::Max ? 1
-              : (ev == VSEvent::ZCPosNeg ? 2 : 3) );
-    evfld->setValue( fldidx );
     BufferString srchwindtxt( "Search window " );
     srchwindtxt += SI().getZUnit();
-    Interval<int> srchintv(
-	    mNINT(horadj_->permittedZRange().start * SI().zFactor()),
-	    mNINT(horadj_->permittedZRange().stop * SI().zFactor()) );
-    srchgatefld = new uiGenInput( snapgrp, srchwindtxt,
-	    			    IntInpIntervalSpec(srchintv) );
+    srchgatefld = new uiGenInput( grp, srchwindtxt, IntInpIntervalSpec() );
     srchgatefld->attach( alignedBelow, evfld );
 
-    uiGroup* thresholdgrp = new uiGroup( snapgrp, "Amplitude threshold group" );
-    thresholdtypefld = new uiGenInput( thresholdgrp, "Threshold type",
-		       BoolInpSpec("Cut-off amplitude","Relative difference") );
+    thresholdtypefld = new uiGenInput( grp, "Threshold type",
+		BoolInpSpec("Cut-off amplitude","Relative difference") );
     thresholdtypefld->valuechanged.notify(
-	    		mCB(this,uiHorizonSetupGroup,selAmpThresholdType) );
-    ampthresholdfld = new uiGenInput ( thresholdgrp, "Value", FloatInpSpec() );
+			mCB(this,uiHorizonSetupGroup,selAmpThresholdType) );
+    thresholdtypefld->attach( alignedBelow, srchgatefld );
+
+    ampthresholdfld = new uiGenInput ( grp, "XXXXXXXXXXXXXX",
+	    			       FloatInpSpec() );
     ampthresholdfld->attach( alignedBelow, thresholdtypefld );
-    thresholdtypefld->setValue( horadj_->useAbsThreshold() );
-    thresholdgrp->setHAlignObj( thresholdtypefld );
-    thresholdgrp->attach( alignedBelow, srchgatefld );
 
-    uiSeparator* hsepbot = new uiSeparator( maingrp, "bot sep" );
-    hsepbot->attach( stretchedBelow, trackgrp );
-
-    extriffailfld = new uiGenInput( maingrp, "If tracking fails",
+    extriffailfld = new uiGenInput( grp, "If tracking fails",
 				    BoolInpSpec("Extrapolate","Stop") );
-    extriffailfld->attach( alignedBelow, trackgrp );
-    extriffailfld->attach( ensureBelow, hsepbot );
-    extriffailfld->setValue( !horadj_->removesOnFailure() );
+    extriffailfld->attach( alignedBelow, ampthresholdfld );
 
-    applybut = new uiPushButton( this, "&Apply", true );
-    applybut->attach( alignedBelow, maingrp );
+    return grp;
+}
 
-    initWin( 0 );
+
+uiGroup* uiHorizonSetupGroup::createSimiGroup()
+{
+    uiGroup* grp = new uiGroup( tabgrp_->tabGroup(), "Similarity" );
+
+    usesimifld = new uiGenInput( grp, "Use similarity", BoolInpSpec() );
+    usesimifld->valuechanged.notify(
+	    mCB(this,uiHorizonSetupGroup,selUseSimilarity) );
+
+    BufferString compwindtxt( "Compare window " );
+    compwindtxt += SI().getZUnit();
+    compwinfld = new uiGenInput( grp, compwindtxt, IntInpIntervalSpec() );
+    compwinfld->attach( alignedBelow, usesimifld );
+
+    simithresholdfld = new uiGenInput( grp, "Similarity threshold(0-1)",
+				       FloatInpSpec() );
+    simithresholdfld->attach( alignedBelow, compwinfld );
+    grp->setHAlignObj( usesimifld );
+    return grp;
 }
 
 
 uiHorizonSetupGroup::~uiHorizonSetupGroup()
 {
-}
-
-
-void  uiHorizonSetupGroup::enableApplyButton( bool yn )
-{ applybut->setSensitive( yn ); }
-
-
-NotifierAccess* uiHorizonSetupGroup::applyButtonPressed()
-{ return &applybut->activated; }
-
-
-void uiHorizonSetupGroup::initWin( CallBacker* cb )
-{
-    selUseSimilarity( cb );
-    selAmpThresholdType( cb );
 }
 
 
@@ -224,9 +156,60 @@ void uiHorizonSetupGroup::selAmpThresholdType( CallBacker* )
 }
 
 
+void uiHorizonSetupGroup::setSectionTracker( SectionTracker* st )
+{
+    sectiontracker_ = st;
+    mDynamicCastGet(HorizonAdjuster*,horadj,sectiontracker_->adjuster())
+    horadj_ = horadj;
+    if ( !horadj_ ) return;
+
+    initEventGroup();
+    selAmpThresholdType(0);
+    initSimiGroup();
+    selUseSimilarity(0);
+}
+
+
+void uiHorizonSetupGroup::initEventGroup()
+{
+    Attrib::DescID curid = horadj_->getAttributeSel(0) ?
+	horadj_->getAttributeSel(0)->id() : Attrib::DescID::undef();
+    if ( attrset_->getDesc(curid) )
+	inpfld->setDesc( attrset_->getDesc(curid) );
+    inpfld->set2D( horadj_->is2D() );
+
+    VSEvent::Type ev = horadj_->trackEvent();
+    const int fldidx = ev == VSEvent::Min ? 0
+			    : (ev == VSEvent::Max ? 1
+			    : (ev == VSEvent::ZCPosNeg ? 2 : 3) );
+    evfld->setValue( fldidx );
+
+    Interval<int> srchintv(
+	    mNINT(horadj_->permittedZRange().start * SI().zFactor()),
+	    mNINT(horadj_->permittedZRange().stop * SI().zFactor()) );
+    srchgatefld->setValue( srchintv );
+
+    thresholdtypefld->setValue( horadj_->useAbsThreshold() );
+    extriffailfld->setValue( !horadj_->removesOnFailure() );
+}
+
+
+void uiHorizonSetupGroup::initSimiGroup()
+{
+    usesimifld->setValue( !horadj_->trackByValue() );
+
+    Interval<int> simiintv(
+	    mNINT(horadj_->similarityWindow().start * SI().zFactor()),
+	    mNINT(horadj_->similarityWindow().stop * SI().zFactor()) );
+    compwinfld->setValue( simiintv );
+
+    simithresholdfld->setValue( horadj_->similarityThreshold() );
+}
+
+
 bool uiHorizonSetupGroup::commitToTracker() const
 {
-    if ( horadj_->getNrAttributes()<1 )
+    if ( !horadj_ || horadj_->getNrAttributes()<1 )
 	return false;
 	
     if ( !inpfld ) return true;

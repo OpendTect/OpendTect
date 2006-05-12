@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          March 2005
- RCS:           $Id: uimpe.cc,v 1.2 2005-12-14 18:52:52 cvskris Exp $
+ RCS:           $Id: uimpe.cc,v 1.3 2006-05-12 09:51:14 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,21 +45,22 @@ uiEMEditor* uiEMEditorFactory::create( uiParent* p, MPE::ObjectEditor* e ) const
 
 
 
-uiSetupDialog::uiSetupDialog( uiParent* p, const char* helpref )
-    : uiDialog( p, uiDialog::Setup("Tracking Setup",0,helpref).modal(false) )
+uiSetupGroup::uiSetupGroup( uiParent* p, const char* ref )
+    : uiGroup( p, "Tracking Setup" )
+    , helpref_(ref)
 {}
 
 
-void uiSetupDialogFactory::addFactory( uiSetupDlgCreationFunc f )
+void uiSetupGroupFactory::addFactory( uiSetupGrpCreationFunc f )
 { funcs += f; }
 
 
-uiSetupDialog* uiSetupDialogFactory::create( uiParent* p,  SectionTracker* st,
-					     const Attrib::DescSet* ds )
+uiSetupGroup* uiSetupGroupFactory::create( uiParent* p, const char* typestr,
+					   const Attrib::DescSet* ads )
 {
     for ( int idx=0; idx<funcs.size(); idx++ )
     {
-	uiSetupDialog* res = funcs[idx](p,st,ds);
+	uiSetupGroup* res = funcs[idx](p,typestr,ads);
 	if ( res ) return res;
     }
 
@@ -76,8 +77,8 @@ uiMPEEngine& uiMPE()
 	
 	//init standard classes
 	uiEMHorizonEditor::initClass();
-	uiHorizonSetupDialog::initClass();
-	uiFaultSetupDialog::initClass();
+	uiHorizonSetupGroup::initClass();
+	uiFaultSetupGroup::initClass();
     }
 
     return *uiengine;
