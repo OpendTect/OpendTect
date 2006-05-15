@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.cc,v 1.88 2006-05-11 18:13:21 cvsjaap Exp $
+ RCS:           $Id: uimpeman.cc,v 1.89 2006-05-15 12:04:06 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -418,9 +418,11 @@ bool uiMPEMan::isSeedPickingOn() const
 
 void uiMPEMan::turnSeedPickingOn( bool yn )
 {
+    if ( isSeedPickingOn() == yn )
+	return;
     blockattribsel = yn;
-
     toolbar->turnOn( seedidx, yn );
+
     if ( yn )
     {
 	toolbar->turnOn( showcubeidx, false );
@@ -620,8 +622,10 @@ void uiMPEMan::seedConnectModeSel( CallBacker* )
     if ( !seedpicker )
 	return;
     seedpicker->setSeedConnectMode( seedconmodefld->currentItem() ); 
-    turnSeedPickingOn(true);
+    
+    turnSeedPickingOn( !seedpicker->doesModeUseVolume() );
     updateButtonSensitivity(0);
+
     if ( !seedpicker->doesModeUseSetup() )
        return;	
 
@@ -739,14 +743,14 @@ void uiMPEMan::updateSeedPickState()
     if ( !seedpicker )
     {
 	seedconmodefld->addItem("No seed mode");
-	if ( toolbar->isOn(seedidx) )
+	if ( isSeedPickingOn() )
 	{
 	    turnSeedPickingOn( false );
 	    seedpickwason = true;
 	}
 	return;
     }
-    if ( toolbar->isOn(seedidx) )
+    if ( isSeedPickingOn() )
 	seedpickwason = false;
     if ( seedpickwason )
 	turnSeedPickingOn( true );
