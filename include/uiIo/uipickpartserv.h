@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uipickpartserv.h,v 1.22 2006-05-08 16:50:19 cvsbert Exp $
+ RCS:           $Id: uipickpartserv.h,v 1.23 2006-05-16 16:28:22 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,7 +22,7 @@ class Color;
 class BinIDRange;
 class SurfaceInfo;
 class RandLocGenPars;
-namespace Pick { class Set; class SetGroup; };
+namespace Pick { class Set; };
 
 
 /*! \brief Service provider for application level - seismics */
@@ -36,9 +36,9 @@ public:
     const char*			name() const		{ return "Picks"; }
 
 				// Services
-    void			impexpPickSet(bool);
-    bool			fetchPickSets();
-    bool			storePickSets();
+    void			impexpSet(bool);
+    bool			fetchSets();	//!< Fetch sets by user sel
+    bool			storeSets();	//!< Stores all changed sets
 
     static const int		evGetAvailableSets;
     static const int		evFetchPicks;
@@ -46,15 +46,17 @@ public:
     static const int		evGetHorDef;
 
 				// Interaction stuff
-    Pick::SetGroup&		group()			{ return psg; }
-    				//!< 1) Result of fetchPickSets()
-    				//!< 2) Must be filled on evFetchPicks
+    Pick::Set&			set()			{ return ps; }
+    				//!< Must be filled on evFetchPicks
+    ObjectSet<Pick::Set>&	setsFetched()		{ return pssfetched; }
+    				//!< Result of fetchPickSets(). Become yours.
     BufferStringSet&		availableSets()		{ return avsets; }
     const BoolTypeSet& 		selectedSets() const	{ return selsets; }
-    MultiID&			psgID()			{ return psgid; }
+    MultiID&			psID()			{ return psid; }
     const Color&		getPickColor()		{ return pickcolor; }
-    bool			storeSinglePickSet(Pick::Set*);
-    void			renamePickset(const char*,BufferString&);
+    bool			storeSet();	//!< Stores current set
+    bool			storeSetAs();	//!< Allows chosing new name
+    void			renameSet(const char*,BufferString&);
     void			setMisclassSet(const BinIDValueSet&);
 
     BinIDValueSet&		genDef() 		{ return gendef; }
@@ -64,11 +66,12 @@ public:
 
 protected:
 
-    Pick::SetGroup&		psg;
-    MultiID			psgid;
+    Pick::Set&			ps;
+    MultiID			psid;
     BufferStringSet		avsets;
     BoolTypeSet			selsets;
     Color&			pickcolor;
+    ObjectSet<Pick::Set>	pssfetched;
 
     BinIDValueSet 		gendef;
     ObjectSet<SurfaceInfo> 	hinfos;

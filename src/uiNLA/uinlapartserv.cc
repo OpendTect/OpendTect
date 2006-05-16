@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uinlapartserv.cc,v 1.36 2006-03-12 13:39:11 cvsbert Exp $
+ RCS:           $Id: uinlapartserv.cc,v 1.37 2006-05-16 16:28:22 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -87,7 +87,7 @@ void uiNLAPartServer::getBinIDValueSets(
     const NLACreationDesc& crdesc = creationDesc();
 
     if ( !crdesc.isdirect )
-	PickSetGroupTranslator::createBinIDValueSets( crdesc.outids, bivsets );
+	PickSetTranslator::createBinIDValueSets( crdesc.outids, bivsets );
     else
     {
 	Executor* ex = WellTranslator::createBinIDValueSets( crdesc.outids,

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		23-11-2002
- RCS:		$Id: trigonometry.h,v 1.14 2005-03-02 18:46:24 cvskris Exp $
+ RCS:		$Id: trigonometry.h,v 1.15 2006-05-16 16:28:22 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -176,9 +176,10 @@ class Sphere
 public:
 			Sphere(float r=0,float t=0,float p=0)
 			    : radius(r),theta(t),phi(p) {}
-			    
+
 			Sphere(const Coord3& crd)
 			    : radius(crd.x),theta(crd.y),phi(crd.z) {}
+    bool		operator ==( const Sphere& s ) const;
 
     float		radius;
     float		theta;
@@ -186,11 +187,20 @@ public:
 };
 
 
-    Sphere		cartesian2Spherical(const Coord3&,bool math);
-    			/*!< math=true: transformation done in math-system
-			     math=false: transformation done in geo-system */
-    Coord3		spherical2Cartesian(const Sphere&,bool math);
-    			/*!< math=true: transformation done in math-system
-			     math=false: transformation done in geo-system */
+Sphere cartesian2Spherical(const Coord3&,bool math);
+	    /*!< math=true: transformation done in math-system
+		 math=false: transformation done in geo-system */
+Coord3 spherical2Cartesian(const Sphere&,bool math);
+	    /*!< math=true: transformation done in math-system
+		 math=false: transformation done in geo-system */
+
+inline bool Sphere::operator ==( const Sphere& s ) const
+{
+    const float dr = radius-s.radius;
+    const float dt = theta-s.theta;
+    const float dp = phi-s.phi;
+    return mIsZero(dr,1e-8) && mIsZero(dt,1e-8) && mIsZero(dp,1e-8);
+}
+
 
 #endif

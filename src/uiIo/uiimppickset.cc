@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2002
- RCS:           $Id: uiimppickset.cc,v 1.18 2006-05-08 16:50:19 cvsbert Exp $
+ RCS:           $Id: uiimppickset.cc,v 1.19 2006-05-16 16:28:22 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,7 +30,7 @@ uiImpExpPickSet::uiImpExpPickSet( uiParent* p, bool imp )
     : uiDialog(p,uiDialog::Setup(imp ? "Import Pickset" : "Export PickSet",
 				 "Specify pickset parameters",
 				 imp ? "105.0.1" : "105.0.2"))
-    , ctio(*mMkCtxtIOObj(PickSetGroup))
+    , ctio(*mMkCtxtIOObj(PickSet))
     , import(imp)
     , xyfld(0)
 {
@@ -78,8 +78,8 @@ bool uiImpExpPickSet::doImport()
     }
 
     const char* psnm = objfld->getInput();
-    Pick::Set* ps = new Pick::Set( psnm );
-    ps->color_ = Color::DgbColor;
+    Pick::Set ps( psnm );
+    ps.color_ = Color::DgbColor;
 
     bool doxy = xyfld ? xyfld->getBoolValue() : true;
     bool firstpos = true;
@@ -96,27 +96,25 @@ bool uiImpExpPickSet::doImport()
         if ( firstpos )
         {
             firstpos = false;
-            doscale = ploc.z > 2 * SI().zRange(false).stop &&
-                      SI().zRange(false).includes( ploc.z / zfactor );
+            doscale = ploc.pos.z > 2 * SI().zRange(false).stop &&
+                      SI().zRange(false).includes( ploc.pos.z / zfactor );
         }
 
 	if ( doscale )
-	    ploc.z /= zfactor;
+	    ploc.pos.z /= zfactor;
 	if ( ploc.hasDir() )
 	{
 	    ploc.dir.theta *= M_PI/180;
 	    ploc.dir.phi *= M_PI/180;
 	}
 
-	*ps += ploc;
+	ps += ploc;
     }
 
     sdi.close();
 
-    Pick::SetGroup psg;
-    psg.add( ps );
     BufferString errmsg;
-    if ( !PickSetGroupTranslator::store(psg,ctio.ioobj,errmsg) )
+    if ( !PickSetTranslator::store(ps,ctio.ioobj,errmsg) )
 	mErrRet(errmsg);
 
     return true;
@@ -125,9 +123,9 @@ bool uiImpExpPickSet::doImport()
 
 bool uiImpExpPickSet::doExport()
 {
-    Pick::SetGroup psg;
+    Pick::Set ps;
     BufferString errmsg;
-    if ( !PickSetGroupTranslator::retrieve(psg,ctio.ioobj,errmsg) )
+    if ( !PickSetTranslator::retrieve(ps,ctio.ioobj,errmsg) )
 	mErrRet(errmsg);
 
     const char* fname = filefld->fileName();
@@ -138,19 +136,14 @@ bool uiImpExpPickSet::doExport()
 	mErrRet( "Could not open output file" )
     }
 
-    for ( int setidx=0; setidx<psg.nrSets(); setidx++ )
+    char buf[80];
+    for ( int locidx=0; locidx<ps.size(); locidx++ )
     {
-	Pick::Set& ps = *psg.get( setidx );
-	char buf[80];
-	for ( int locidx=0; locidx<ps.size(); locidx++ )
-	{
-	    ps[locidx].toString( buf );
-	    *sdo.ostrm << buf << '\n';
-	}
-
-	*sdo.ostrm << '\n';
+	ps[locidx].toString( buf );
+	*sdo.ostrm << buf << '\n';
     }
-   
+
+    *sdo.ostrm << '\n';
     sdo.close();
     return true;
 }

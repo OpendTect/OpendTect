@@ -4,7 +4,7 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.80 2006-05-08 16:50:19 cvsbert Exp $";
+static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.81 2006-05-16 16:28:22 cvsbert Exp $";
 
 #include "vispicksetdisplay.h"
 
@@ -79,7 +79,7 @@ void PickSetDisplay::copyFromPickSet( const Pick::Set& pickset )
     for ( int idx=0; idx<nrpicks; idx++ )
     {
 	const Pick::Location& loc = pickset[idx];
-	addPick( Coord3(loc.pos,loc.z), loc.dir );
+	addPick( loc.pos, loc.dir );
 	if ( loc.hasDir() ) hasdir = true;
     }
 

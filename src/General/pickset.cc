@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: pickset.cc,v 1.31 2006-05-11 12:56:24 cvsbert Exp $";
+static const char* rcsID = "$Id: pickset.cc,v 1.32 2006-05-16 16:28:22 cvsbert Exp $";
 
 #include "pickset.h"
 #include "survinfo.h"
@@ -22,7 +22,6 @@ Pick::Location::~Location()
 void Pick::Location::operator=( const Pick::Location& pl )
 {
     pos = pl.pos;
-    z = pl.z;
     dir = pl.dir;
     if ( pl.text )
     {
@@ -87,7 +86,7 @@ bool Pick::Location::fromString( const char* s, bool doxy )
 
     pos.x = xread;
     pos.y = yread;
-    z = zread;
+    pos.z = zread;
 
     // Check if data is in inl/crl rather than X and Y
     if ( !SI().isReasonable(pos) || !doxy )
@@ -96,7 +95,7 @@ bool Pick::Location::fromString( const char* s, bool doxy )
 	SI().snap( bid, BinID(0,0) );
 	Coord newpos = SI().transform( bid );
 	if ( SI().isReasonable(newpos) )
-	    pos = newpos;
+	    pos.x = newpos.x; pos.y = newpos.y;
     }
 
     // See if there's a direction, too
@@ -127,7 +126,7 @@ void Pick::Location::toString( char* str )
 	strcpy( str, getStringFromDouble(0,pos.x) );
 
     strcat( str, "\t" ); strcat( str, getStringFromDouble(0,pos.y) );
-    strcat( str, "\t" ); strcat( str, getStringFromFloat(0,z) );
+    strcat( str, "\t" ); strcat( str, getStringFromDouble(0,pos.z) );
 
     if ( hasDir() )
     {
@@ -156,56 +155,22 @@ void Pick::Location::getKey( const char* idkey, BufferString& val ) const
 }
 
 
-Pick::Set::Set( const char* nm )
-    : UserIDObject(nm)
-    , color_(Color::NoColor)
-    , pixsize_(3)
+static ObjectSet<Pick::SetMgr>& getMgrs()
 {
-}
-
-
-void Pick::SetGroup::add( Pick::Set*& ps )
-{
-    if ( !ps ) return;
-    const int pssz = ps->size();
-    if ( !pssz ) { delete ps; return; }
-
-    const int nrpss = sets.size();
-    int mrgnr = -1;
-    for ( int idx=0; idx<nrpss; idx++ )
-	if ( ps->name() == sets[idx]->name() )
-	    { mrgnr = idx; break; }
-    if ( mrgnr < 0 ) { sets += ps; return; }
-
-    Pick::Set& mrgps = *ps;
-    ps = sets[mrgnr];
-
-    for ( int idx=0; idx<pssz; idx++ )
-    {
-	if ( ps->indexOf( mrgps[idx] ) < 0 )
-	    *ps += mrgps[idx];
-    }
-
-    delete &mrgps;
-}
-
-
-static ObjectSet<Pick::SetGroupMgr>& getMgrs()
-{
-    static ObjectSet<Pick::SetGroupMgr>* mgrs = 0;
+    static ObjectSet<Pick::SetMgr>* mgrs = 0;
     if ( !mgrs )
     {
-	mgrs = new ObjectSet<Pick::SetGroupMgr>;
-	*mgrs += new Pick::SetGroupMgr(0);
+	mgrs = new ObjectSet<Pick::SetMgr>;
+	*mgrs += new Pick::SetMgr(0);
     }
 
     return *mgrs;
 }
 
 
-Pick::SetGroupMgr& Pick::SetGroupMgr::getMgr( const char* nm )
+Pick::SetMgr& Pick::SetMgr::getMgr( const char* nm )
 {
-    ObjectSet<Pick::SetGroupMgr>& mgrs = getMgrs();
+    ObjectSet<Pick::SetMgr>& mgrs = getMgrs();
     if ( !nm || !*nm )
 	return *mgrs[0];
 
@@ -215,22 +180,22 @@ Pick::SetGroupMgr& Pick::SetGroupMgr::getMgr( const char* nm )
 	    return *mgrs[idx];
     }
 
-    Pick::SetGroupMgr* newmgr = new Pick::SetGroupMgr( nm );
+    Pick::SetMgr* newmgr = new Pick::SetMgr( nm );
     mgrs += newmgr;
     return *newmgr;
 }
 
 
-void Pick::SetGroupMgr::add( const MultiID& ky, SetGroup* sg )
+void Pick::SetMgr::add( const MultiID& ky, Set* sg )
 {
-    psgs_ += sg; ids_ += new MultiID( ky );
-    groupAdded.trigger( sg );
+    pss_ += sg; ids_ += new MultiID( ky );
+    setAdded.trigger( sg );
 }
 
 
-void Pick::SetGroupMgr::set( const MultiID& ky, SetGroup* sg )
+void Pick::SetMgr::set( const MultiID& ky, Set* sg )
 {
-    SetGroup* oldsg = find( ky );
+    Set* oldsg = find( ky );
     if ( !oldsg )
     {
 	if ( sg )
@@ -238,9 +203,9 @@ void Pick::SetGroupMgr::set( const MultiID& ky, SetGroup* sg )
     }
     else if ( sg != oldsg )
     {
-	int idx = psgs_.indexOf( oldsg );
-	groupToBeRemoved.trigger( oldsg );
-	delete oldsg; psgs_.remove( idx );
+	int idx = pss_.indexOf( oldsg );
+	setToBeRemoved.trigger( oldsg );
+	delete oldsg; pss_.remove( idx );
 	delete ids_[idx]; ids_.remove( idx );
 	if ( sg )
 	    add( ky, sg );
@@ -248,22 +213,22 @@ void Pick::SetGroupMgr::set( const MultiID& ky, SetGroup* sg )
 }
 
 
-Pick::SetGroup* Pick::SetGroupMgr::find( const MultiID& ky ) const
+Pick::Set* Pick::SetMgr::find( const MultiID& ky ) const
 {
     for ( int idx=0; idx<size(); idx++ )
     {
 	if ( ky == *ids_[idx] )
-	    return const_cast<Pick::SetGroup*>( psgs_[idx] );
+	    return const_cast<Pick::Set*>( pss_[idx] );
     }
     return 0;
 }
 
 
-MultiID* Pick::SetGroupMgr::find( const Pick::SetGroup& sg ) const
+MultiID* Pick::SetMgr::find( const Pick::Set& sg ) const
 {
     for ( int idx=0; idx<size(); idx++ )
     {
-	if ( &sg == psgs_[idx] )
+	if ( &sg == pss_[idx] )
 	    return const_cast<MultiID*>( ids_[idx] );
     }
     return 0;

@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodpicksettreeitem.cc,v 1.2 2006-05-09 11:00:53 cvsbert Exp $
+ RCS:		$Id: uiodpicksettreeitem.cc,v 1.3 2006-05-16 16:28:22 cvsbert Exp $
 ___________________________________________________________________
 
 -*/
@@ -44,7 +44,7 @@ bool uiODPickSetParentTreeItem::showSubMenu()
     mnu.insertItem( new uiMenuItem("New/Load ..."), 0 );
     if ( children.size()>0 )
     {
-	mnu.insertItem( new uiMenuItem("Store ..."), 1);
+	mnu.insertItem( new uiMenuItem("Save changes"), 1);
 	mnu.insertSeparator();
 	mnu.insertItem( new uiMenuItem("Display picks only at sections"), 2 );
 	mnu.insertItem( new uiMenuItem("Show all picks"), 3 );
@@ -56,28 +56,20 @@ bool uiODPickSetParentTreeItem::showSubMenu()
     if ( mnuid<0 ) return false;
     if ( mnuid==0 )
     {
-	if ( !applMgr()->pickServer()->fetchPickSets() ) return -1;
-	Pick::SetGroup& psg = applMgr()->pickServer()->group();
-	if ( psg.nrSets() )
+	if ( !applMgr()->pickServer()->fetchSets() )
+	    return -1;
+
+	ObjectSet<Pick::Set>& pss = applMgr()->pickServer()->setsFetched();
+	for ( int idx=0; idx<pss.size(); idx++ )
 	{
-	    for ( int idx=0; idx<psg.nrSets(); idx++ )
-	    {
-		//TODO make sure it's not in list already
-		const Pick::Set* ps = psg.get( idx );
-		if ( ps )
-		    addChild( new uiODPickSetTreeItem(*ps), false );
-	    }
-	}
-	else
-	{
-	    Pick::Set pset( psg.name() );
-	    pset.color_ = applMgr()->getPickColor();
-	    addChild( new uiODPickSetTreeItem(pset), false );
+	    if ( !findChild(pss[idx]->name()) )
+		addChild( new uiODPickSetTreeItem(*pss[idx]), false );
 	}
     }
     else if ( mnuid==1 )
     {
-	applMgr()->storePickSets();
+	if ( !applMgr()->pickServer()->storeSets() )
+	    uiMSG().error( "Problem saving changes. Check write protection." );
     }
     else if ( mnuid==2 || mnuid==3 )
     {
@@ -171,6 +163,14 @@ void uiODPickSetTreeItem::createMenuCB( CallBacker* cb )
 }
 
 
+void uiODPickSetTreeItem::saveCurSet( visSurvey::PickSetDisplay* psd )
+{
+    psd->copyToPickSet( applMgr()->pickServer()->set() );
+    applMgr()->pickServer()->storeSet();
+    psd->setChanged( false );
+}
+
+
 void uiODPickSetTreeItem::handleMenuCB( CallBacker* cb )
 {
     uiODDisplayTreeItem::handleMenuCB(cb);
@@ -186,16 +186,13 @@ void uiODPickSetTreeItem::handleMenuCB( CallBacker* cb )
 	menu->setIsHandled(true);
 	BufferString newname;
 	const char* oldname = visserv->getObjectName( displayid_ );
-	applMgr()->pickServer()->renamePickset( oldname, newname );
+	applMgr()->pickServer()->renameSet( oldname, newname );
 	visserv->setObjectName( displayid_, newname );
     }
     else if ( mnuid==storemnuitem_.id )
     {
 	menu->setIsHandled( true );
-	Pick::Set* ps = new Pick::Set( psd->name() );
-	psd->copyToPickSet( *ps );
-	applMgr()->pickServer()->storeSinglePickSet( ps );
-	psd->setChanged( false );
+	saveCurSet( psd );
     }
     else if ( mnuid==dirmnuitem_.id )
     {
@@ -241,11 +238,7 @@ bool uiODPickSetTreeItem::askContinueAndSaveIfNeeded()
     else if ( retval == -1 )
 	return false;
     else
-    {
-	Pick::Set* ps = new Pick::Set( psd->name() );
-	psd->copyToPickSet( *ps );
-	applMgr()->pickServer()->storeSinglePickSet( ps );
-	psd->setChanged( false );
-    }
+	saveCurSet( psd );
+
     return true;
 }

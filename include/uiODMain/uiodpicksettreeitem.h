@@ -7,14 +7,15 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		May 2006
- RCS:		$Id: uiodpicksettreeitem.h,v 1.1 2006-05-09 11:00:53 cvsbert Exp $
+ RCS:		$Id: uiodpicksettreeitem.h,v 1.2 2006-05-16 16:28:22 cvsbert Exp $
 ________________________________________________________________________
 
 
 -*/
 
 #include "uioddisplaytreeitem.h"
-namespace Pick { class Set; }
+namespace Pick		{ class Set; }
+namespace visSurvey	{ class PickSetDisplay; }
 
 
 mDefineItem( PickSetParent, TreeItem, TreeTop, mShowMenu );
@@ -45,6 +46,7 @@ protected:
     void		handleMenuCB(CallBacker*);
     const char*		parentType() const
     			{ return typeid(uiODPickSetParentTreeItem).name(); }
+    void		saveCurSet(visSurvey::PickSetDisplay*);
 
     const Pick::Set*	ps_;
 

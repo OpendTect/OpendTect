@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Payraudeau
  Date:          February  2006
- RCS:           $Id: uifingerprintattrib.cc,v 1.8 2006-05-08 16:50:19 cvsbert Exp $
+ RCS:           $Id: uifingerprintattrib.cc,v 1.9 2006-05-16 16:28:22 cvsbert Exp $
 
 ________________________________________________________________________
 
@@ -65,7 +65,7 @@ static const char* statstrs[] =
 
 uiFingerPrintAttrib::uiFingerPrintAttrib( uiParent* p )
 	: uiAttrDescEd(p)
-    	, ctio_(*mMkCtxtIOObj(PickSetGroup))
+    	, ctio_(*mMkCtxtIOObj(PickSet))
 {
     refgrp_ = new uiButtonGroup( this, "Get values from", false );
     uiRadioButton* manualbut = new uiRadioButton( refgrp_, "Manual" );
@@ -312,7 +312,6 @@ void uiFingerPrintAttrib::calcPush(CallBacker*)
     else if ( refgrp_->selectedId() == 2 )
     {
 	BufferString errmsg;
-	Pick::SetGroup psg;
 	picksetfld_->processInput();
 	const IOObj* ioobj = picksetfld_->ctxtIOObj().ioobj;
 	if ( !ioobj )
@@ -322,7 +321,7 @@ void uiFingerPrintAttrib::calcPush(CallBacker*)
 	}
 	BufferStringSet ioobjids;
 	ioobjids.add( ioobj->key() );
-	PickSetGroupTranslator::createBinIDValueSets( ioobjids, values );
+	PickSetTranslator::createBinIDValueSets( ioobjids, values );
     }
     else
     {

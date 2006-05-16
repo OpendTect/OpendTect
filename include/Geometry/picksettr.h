@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		May 2001
- RCS:		$Id: picksettr.h,v 1.6 2006-05-08 16:50:19 cvsbert Exp $
+ RCS:		$Id: picksettr.h,v 1.7 2006-05-16 16:28:22 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,35 +15,31 @@ ________________________________________________________________________
 #include "transl.h"
 #include "bufstringset.h"
 class Conn;
-namespace Pick { class SetGroup; }
+namespace Pick { class Set; }
 class BinIDValueSet;
 
 
-class PickSetGroupTranslatorGroup : public TranslatorGroup
-{				    isTranslatorGroup(PickSetGroup)
+class PickSetTranslatorGroup : public TranslatorGroup
+{				    isTranslatorGroup(PickSet)
 public:
-    			mDefEmptyTranslatorGroupConstructor(PickSetGroup)
+    			mDefEmptyTranslatorGroupConstructor(PickSet)
 
     const char*		defExtension() const		{ return "pck"; }
 };
 
 
-class PickSetGroupTranslator : public Translator
+class PickSetTranslator : public Translator
 {
 public:
-    			mDefEmptyTranslatorBaseConstructor(PickSetGroup)
+    			mDefEmptyTranslatorBaseConstructor(PickSet)
 
-    virtual const char*	read(Pick::SetGroup&,Conn&,const bool* selarr=0) = 0;
+    virtual const char*	read(Pick::Set&,Conn&)		= 0;
 			//!< returns err msg or null on success
-    virtual const char*	write(const Pick::SetGroup&,Conn&,const bool* sa=0) = 0;
+    virtual const char*	write(const Pick::Set&,Conn&)	= 0;
 			//!< returns err msg or null on success
 
-    static bool		retrieve(Pick::SetGroup&,const IOObj*,BufferString&,
-				const bool* selarr=0);
-    static bool		store(const Pick::SetGroup&,const IOObj*,BufferString&,
-				const bool* selarr=0,bool domrg=false);
-    			//!< if domrg == true, if set already exists new set
-			//!< will be merged
+    static bool		retrieve(Pick::Set&,const IOObj*,BufferString&);
+    static bool		store(const Pick::Set&,const IOObj*,BufferString&);
 
     static void		createBinIDValueSets(const BufferStringSet& ioobjids,
 					     ObjectSet<BinIDValueSet>&);
@@ -51,14 +47,14 @@ public:
 };
 
 
-class dgbPickSetGroupTranslator : public PickSetGroupTranslator
-{			     isTranslator(dgb,PickSetGroup)
+class dgbPickSetTranslator : public PickSetTranslator
+{			     isTranslator(dgb,PickSet)
 public:
 
-    			mDefEmptyTranslatorConstructor(dgb,PickSetGroup)
+    			mDefEmptyTranslatorConstructor(dgb,PickSet)
 
-    const char*		read(Pick::SetGroup&,Conn&,const bool* s=0);
-    const char*		write(const Pick::SetGroup&,Conn&,const bool* s=0);
+    const char*		read(Pick::Set&,Conn&);
+    const char*		write(const Pick::Set&,Conn&);
 
 };
 

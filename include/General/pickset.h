@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		May 2001
  Contents:	PickSet base classes
- RCS:		$Id: pickset.h,v 1.17 2006-05-11 12:56:24 cvsbert Exp $
+ RCS:		$Id: pickset.h,v 1.18 2006-05-16 16:28:22 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,24 +28,23 @@ namespace Pick
 class Location
 {
 public:
-			Location( double x=0, double y=0, float f=0 )
-			: pos(x,y), z(f), text(0)			{}
+			Location( double x=0, double y=0, double z=0 )
+			: pos(x,y,z), text(0)			{}
 			Location( const Coord& c, float f=0 )
-			: pos(c), z(f), text(0)				{}
+			: pos(c,f), text(0)			{}
 			Location( const Coord3& c )
-			: pos(c.x,c.y), z(c.z), text(0)			{}
+			: pos(c), text(0)			{}
 			Location( const Coord3& c, const Coord3& d )
-			: pos(c.x,c.y), z(c.z), dir(d), text(0)		{}
+			: pos(c), dir(d), text(0)		{}
 			Location( const Coord3& c, const Sphere& d )
-			: pos(c.x,c.y), z(c.z), dir(d), text(0)		{}
+			: pos(c), dir(d), text(0)		{}
 			Location( const Location& pl )
-			: text(0)
-			{ *this = pl; }
+			: text(0)				{ *this = pl; }
 
 			~Location();
 
     inline bool		operator ==( const Location& pl ) const
-			{ return pos == pl.pos && mIsEqual(z,pl.z,mDefEps); }
+			{ return pos == pl.pos && dir == pl.dir; }
     inline bool		operator !=( const Location& pl ) const
 			{ return !(*this == pl); }
     void		operator =(const Location&);
@@ -53,11 +52,10 @@ public:
     bool		fromString(const char*,bool doxy=true);
     void		toString(char*);
 
-    Coord		pos;
-    float		z;
-
+    Coord3		pos;
     Sphere		dir; //!< Optional direction at location
     BufferString*	text; //!<Optional text at location
+
     void		setText(const char* key,const char* txt);
 
     inline bool		hasDir() const
@@ -69,52 +67,39 @@ public:
 };
 
 
-/*!\brief Group of picks with something in common */
+/*!\brief Set of picks with something in common */
 
 class Set : public UserIDObject
 	  , public TypeSet<Location>
 {
 public:
 
-			Set(const char* nm);
+			Set( const char* nm=0 )
+			    : UserIDObject(nm)
+			    , color_(Color::NoColor)
+			    , pixsize_(3)		{}
+			Set( const Set& s )
+			{ *this = s; }
+    Set&		operator =( const Set& s )
+			{
+			    if ( &s == this ) return *this;
+			    copy( s );
+			    setName( s.name() );
+			    color_ = s.color_; pixsize_ = s.pixsize_;
+			    return *this;
+			}
+
 
     Color		color_;		//!< Display color
     int			pixsize_;	//!< Display size in pixels
 };
 
 
-/*!\brief Set of Pick Groups */
-
-class SetGroup : public UserIDObject
-{
-public:
-
-			SetGroup( const char* nm=0 )
-			: UserIDObject(nm)	{}
-			~SetGroup()		{ clear(); }
-
-    int			nrSets() const		{ return sets.size(); }
-    Set*		get( int nr )		{ return sets[nr]; }
-    const Set*	get( int nr ) const	{ return sets[nr]; }
-    void		add(Set*&);
-			//!< Set becomes mine. Will merge if necessary.
-			//!< So Set may be deleted (will be set to null)
-    void		remove( int idx )
-			{ delete sets[idx]; sets.remove(idx); }
-    void		clear()			{ deepErase(sets); }
-
-protected:
-
-    ObjectSet<Set>	sets;
-
-};
-
-
-/*!\brief Utility to manage pick set group lifecycles.
+/*!\brief Utility to manage pick set lifecycles.
           Also supports change notifications.
  
- You can create your own set group manager for your own special pick sets.
- There is a OD-wide SGMgr() available which is supposed to hold all 'plain'
+ You can create your own set manager for your own special pick sets.
+ There is a OD-wide Mgr() available which is supposed to hold all 'plain'
  picksets loaded in the OD-tree.
 
  A new special-purpose manager is created by passing your own name to the
@@ -122,24 +107,24 @@ protected:
  
  */
 
-class SetGroupMgr : public UserIDObject
+class SetMgr : public UserIDObject
 {
 public:
 
-    int			size() const		{ return psgs_.size(); }
-    SetGroup&		get( int idx )		{ return *psgs_[idx]; }
-    const SetGroup&	get( int idx ) const	{ return *psgs_[idx]; }
+    int			size() const		{ return pss_.size(); }
+    Set&		get( int idx )		{ return *pss_[idx]; }
+    const Set&		get( int idx ) const	{ return *pss_[idx]; }
     const MultiID&	id( int idx ) const	{ return *ids_[idx]; }
 
     bool		isLoaded( const MultiID& i ) const { return find(i); }
-    bool		isLoaded( const SetGroup& s ) const { return find(s); }
-    SetGroup&		get( const MultiID& i )		{ return *find(i); }
-    const SetGroup&	get( const MultiID& i ) const	{ return *find(i); }
-    const MultiID&	get( const SetGroup& s ) const	{ return *find(s); }
+    bool		isLoaded( const Set& s ) const { return find(s); }
+    Set&		get( const MultiID& i )		{ return *find(i); }
+    const Set&		get( const MultiID& i ) const	{ return *find(i); }
+    const MultiID&	get( const Set& s ) const	{ return *find(s); }
 
-    void		set(const MultiID&,SetGroup*);
-    			//!< add, replace or remove (pass null SetGroup ptr).
-    			//!< SetGroup is already or becomes mine
+    void		set(const MultiID&,Set*);
+    			//!< add, replace or remove (pass null Set ptr).
+    			//!< Set is already or becomes mine
     			//!< Note that replacement will trigger two callbacks
 
     struct ChangeData : public CallBacker
@@ -156,37 +141,37 @@ public:
     
     void		reportChange( ChangeData cd )
 			{ locationChanged.trigger( &cd ); }
-    void		reportChange( const SetGroup* s )
-			{ groupChanged.trigger( const_cast<SetGroup*>(s) ); }
+    void		reportChange( const Set* s )
+			{ setChanged.trigger( const_cast<Set*>(s) ); }
 			//!< report a bunch of changes to a set
 
-    Notifier<SetGroupMgr> locationChanged;	//!< Passes ChangeData*
-    Notifier<SetGroupMgr> groupToBeRemoved;	//!< Passes Group*
-    Notifier<SetGroupMgr> groupAdded;		//!< passes Group*
-    Notifier<SetGroupMgr> groupChanged;		//!< passes Group*
+    Notifier<SetMgr> locationChanged;	//!< Passes ChangeData*
+    Notifier<SetMgr> setToBeRemoved;	//!< Passes Set*
+    Notifier<SetMgr> setAdded;		//!< passes Set*
+    Notifier<SetMgr> setChanged;	//!< passes Set*
 
-    static SetGroupMgr&	getMgr(const char*);
+    static SetMgr&	getMgr(const char*);
 
-    			SetGroupMgr( const char* nm )
+    			SetMgr( const char* nm )
 			: UserIDObject(nm)
-			, locationChanged(this), groupToBeRemoved(this)
-			, groupAdded(this), groupChanged(this)	{}
-			//!< creates an unmanaged SetGroupMgr
+			, locationChanged(this), setToBeRemoved(this)
+			, setAdded(this), setChanged(this)	{}
+			//!< creates an unmanaged SetMgr
 			//!< Normally you don't want that, use getMgr() instead
 
 protected:
 
-    ObjectSet<SetGroup>	psgs_;
+    ObjectSet<Set>	pss_;
     ObjectSet<MultiID>	ids_;
 
-    void		add(const MultiID&,SetGroup*);
-    SetGroup*		find(const MultiID&) const;
-    MultiID*		find(const SetGroup&) const;
+    void		add(const MultiID&,Set*);
+    Set*		find(const MultiID&) const;
+    MultiID*		find(const Set&) const;
 };
 
-inline SetGroupMgr& SGMgr()
+inline SetMgr& Mgr()
 {
-    return SetGroupMgr::getMgr(0);
+    return SetMgr::getMgr(0);
 }
 
 

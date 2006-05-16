@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Jul 2005
- RCS:		$Id: picksettr.cc,v 1.5 2006-05-08 20:22:19 cvsnanne Exp $
+ RCS:		$Id: picksettr.cc,v 1.6 2006-05-16 16:28:22 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,7 +24,7 @@ ________________________________________________________________________
 #include "keystrs.h"
 
 
-const IOObjContext& PickSetGroupTranslatorGroup::ioContext()
+const IOObjContext& PickSetTranslatorGroup::ioContext()
 {
     static IOObjContext* ctxt = 0;
 
@@ -42,7 +42,7 @@ const IOObjContext& PickSetGroupTranslatorGroup::ioContext()
 }
 
 
-int PickSetGroupTranslatorGroup::selector( const char* key )
+int PickSetTranslatorGroup::selector( const char* key )
 {
     int retval = defaultSelector( theInst().userName(), key );
     if ( retval ) return retval;
@@ -54,85 +54,40 @@ int PickSetGroupTranslatorGroup::selector( const char* key )
 }
 
 
-bool PickSetGroupTranslator::retrieve( Pick::SetGroup& psg, const IOObj* ioobj,
-				  BufferString& bs, const bool* selarr )
+bool PickSetTranslator::retrieve( Pick::Set& ps, const IOObj* ioobj,
+				  BufferString& bs )
 {
     if ( !ioobj ) { bs = "Cannot find object in data base"; return false; }
-    mDynamicCastGet(PickSetGroupTranslator*,t,ioobj->getTranslator())
-    if ( !t ) { bs = "Selected object is not a PickSet Group"; return false; }
-    PtrMan<PickSetGroupTranslator> tr = t;
+    mDynamicCastGet(PickSetTranslator*,t,ioobj->getTranslator())
+    if ( !t ) { bs = "Selected object is not a Pick Set"; return false; }
+    PtrMan<PickSetTranslator> tr = t;
     PtrMan<Conn> conn = ioobj->getConn( Conn::Read );
     if ( !conn )
         { bs = "Cannot open "; bs += ioobj->fullUserExpr(true); return false; }
-    bs = tr->read( psg, *conn, selarr );
+    bs = tr->read( ps, *conn );
     return bs == "";
 }
 
 
-bool PickSetGroupTranslator::store( const Pick::SetGroup& inppsg,
-				    const IOObj* ioobj,
-				    BufferString& bs, const bool* selarr,
-				    bool domrg )
+bool PickSetTranslator::store( const Pick::Set& ps, const IOObj* ioobj,
+				BufferString& bs )
 {
     if ( !ioobj ) { bs = "No object to store set in data base"; return false; }
-    mDynamicCastGet(PickSetGroupTranslator*,t,ioobj->getTranslator())
-    if ( !t ) { bs = "Selected object is not a PickSet Group"; return false; }
-
-    PtrMan<PickSetGroupTranslator> tr = t;
-    Pick::SetGroup mrgd;
-    if ( domrg )
-    {
-	Conn* conn = ioobj->getConn( Conn::Read );
-	if ( conn && !conn->bad() )
-	{
-	    delete conn;
-	    if ( !retrieve(mrgd,ioobj,bs) )
-		return false;
-	}
-
-	const int orgsz = mrgd.nrSets();
-	for ( int idx=0; idx<inppsg.nrSets(); idx++ )
-	{
-	    const Pick::Set& ps = *inppsg.get( idx );
-	    const UserIDString& nm = ps.name();
-	    bool found = false;
-	    for ( int iorg=0; iorg<orgsz; iorg++ )
-	    {
-		Pick::Set& mrgdps = *mrgd.get( iorg );
-		if ( nm == mrgdps.name() )
-		{
-		    found = true;
-		    mrgdps.copy( ps );
-		    mrgdps.pixsize_ = ps.pixsize_;
-		    mrgdps.color_ = ps.color_;
-		    mrgdps.color_.setTransparency( 0 );
-		    break;
-		}
-	    }
-	    if ( !found )
-	    {
-		Pick::Set* newps = new Pick::Set( ps.name() );
-		newps->copy( ps );
-		newps->pixsize_ = ps.pixsize_;
-		newps->color_ = ps.color_;
-		newps->color_.setTransparency( 0 );
-		mrgd.add( newps );
-	    }
-	}
-    }
+    mDynamicCastGet(PickSetTranslator*,tr,ioobj->getTranslator())
+    if ( !tr ) { bs = "Selected object is not a Pick Set"; return false; }
 
     bs = "";
-    const Pick::SetGroup& wrgrp = domrg ? mrgd : inppsg;
     PtrMan<Conn> conn = ioobj->getConn( Conn::Write );
     if ( !conn )
-        { bs = "Cannot open "; bs += ioobj->fullUserExpr(false); return false; }
-    bs = tr->write( wrgrp, *conn, selarr );
+        { bs = "Cannot open "; bs += ioobj->fullUserExpr(false); }
+    else
+	bs = tr->write( ps, *conn );
+    delete tr;
     return bs == "";
 }
 
 
-const char* dgbPickSetGroupTranslator::read( Pick::SetGroup& psg, Conn& conn,
-					     const bool* selarr )
+const char* dgbPickSetTranslator::read( Pick::Set& ps, Conn& conn )
 {
     if ( !conn.forRead() || !conn.isStream() )
 	return "Internal error: bad connection";
@@ -141,8 +96,8 @@ const char* dgbPickSetGroupTranslator::read( Pick::SetGroup& psg, Conn& conn,
     std::istream& strm = astrm.stream();
     if ( !strm.good() )
 	return "Cannot read from input file";
-    if ( !astrm.isOfFileType(mTranslGroupName(PickSetGroup)) )
-	return "Input file is not a Pick Set Group";
+    if ( !astrm.isOfFileType(mTranslGroupName(PickSet)) )
+	return "Input file is not a Pick Set";
     if ( atEndOfSection(astrm) ) astrm.next();
 
     float zfac = 1;
@@ -158,85 +113,74 @@ const char* dgbPickSetGroupTranslator::read( Pick::SetGroup& psg, Conn& conn,
     if ( atEndOfSection(astrm) )
 	return "Input file contains no pick sets";
 
-    psg.setName( conn.ioobj ? (const char*)conn.ioobj->name() : "" );
+    ps.setName( conn.ioobj ? (const char*)conn.ioobj->name() : "" );
 
+    Pick::Location loc;
+    // In old format we can find mulitple pick sets. Just gather them all
+    // in the pick set
     for ( int ips=0; !atEndOfSection(astrm); ips++ )
     {
-	Pick::Set* newps = selarr && !selarr[ips] ? 0
-			 : new Pick::Set( astrm.value() );
 	astrm.next();
 	if ( astrm.hasKeyword(sKey::Color) )
 	{
-	    if ( newps ) newps->color_.use( astrm.value() );
+	    ps.color_.use( astrm.value() );
 	    astrm.next();
 	}
 	if ( astrm.hasKeyword(sKey::Size) )
 	{
-	    if ( newps ) newps->pixsize_ = astrm.getVal();
+	    ps.pixsize_ = astrm.getVal();
 	    astrm.next();
 	}
-	Pick::Location loc;
 	while ( !atEndOfSection(astrm) )
 	{
 	    if ( !loc.fromString( astrm.keyWord() ) )
 		break;
-	    loc.z *= zfac;
-	    if ( newps ) *newps += loc;
+	    loc.pos.z *= zfac;
+	    ps += loc;
 	    astrm.next();
 	}
 	while ( !atEndOfSection(astrm) ) astrm.next();
 	astrm.next();
-
-	if ( newps ) psg.add( newps );
     }
 
-
-    return psg.nrSets() ? 0 : "No valid picks found";
+    return ps.size() ? 0 : "No valid picks found";
 }
 
 
-const char* dgbPickSetGroupTranslator::write( const Pick::SetGroup& psg,
-						Conn& conn, const bool* selarr )
+const char* dgbPickSetTranslator::write( const Pick::Set& ps, Conn& conn )
 {
     if ( !conn.forWrite() || !conn.isStream() )
 	return "Internal error: bad connection";
 
     ascostream astrm( ((StreamConn&)conn).oStream() );
-    astrm.putHeader( mTranslGroupName(PickSetGroup) );
+    astrm.putHeader( mTranslGroupName(PickSet) );
     std::ostream& strm = astrm.stream();
     if ( !strm.good() )
 	return "Cannot write to output Pick Set file";
 
-    for ( int iset=0; iset<psg.nrSets(); iset++ )
+    astrm.put( "Ref", ps.name() );
+    char buf[80];
+    if ( ps.color_ != Color::NoColor )
     {
-	if ( selarr && !selarr[iset] ) continue;
+	ps.color_.fill( buf );
+	astrm.put( sKey::Color, buf );
+    }
+    if ( ps.pixsize_ != 0 )
+	astrm.put( sKey::Size, ps.pixsize_ );
 
-	const Pick::Set& ps = *psg.get( iset );
-	astrm.put( "Ref", ps.name() );
-	char buf[80];
-	if ( ps.color_ != Color::NoColor )
-	{
-	    ps.color_.fill( buf );
-	    astrm.put( sKey::Color, buf );
-	}
-	if ( ps.pixsize_ != 0 )
-	    astrm.put( sKey::Size, ps.pixsize_ );
-
-	for ( int iloc=0; iloc<ps.size(); iloc++ )
-	{
-	    ps[iloc].toString( buf );
-	    strm << buf << '\n';
-	}
-	astrm.newParagraph();
-	if ( !strm.good() )
-	    return "Error during write to output Pick Set file";
+    for ( int iloc=0; iloc<ps.size(); iloc++ )
+    {
+	ps[iloc].toString( buf );
+	strm << buf << '\n';
     }
 
-    return 0;
+    astrm.newParagraph();
+    return strm.good() ? 0
+	:  "Error during write to output Pick Set file";
 }
 
 
-void PickSetGroupTranslator::createBinIDValueSets(
+void PickSetTranslator::createBinIDValueSets(
 			const BufferStringSet& ioobjids,
 			ObjectSet<BinIDValueSet>& bivsets )
 {
@@ -247,32 +191,24 @@ void PickSetGroupTranslator::createBinIDValueSets(
 	BufferString msg;
 	if ( !ioobj )
 	{
-	    msg = "Cannot find PickSet Group with key "; msg += key;
+	    msg = "Cannot find PickSet with key "; msg += key;
 	    ErrMsg( msg ); continue;
 	}
-	Pick::SetGroup psg;
-	if ( !retrieve(psg,ioobj,msg) )
+	Pick::Set ps;
+	if ( !retrieve(ps,ioobj,msg) )
 	    { ErrMsg( msg ); continue; }
 
-	const int nrsets = psg.nrSets();
-	if ( !nrsets ) continue;
+	const int nrpicks = ps.size();
+	if ( !nrpicks ) continue;
 
 	BinIDValueSet* bs = new BinIDValueSet( 1, true );
-	for ( int ips=0; ips<psg.nrSets(); ips++ )
-	{
-	    const Pick::Set& ps = *psg.get( ips );
-	    const int nrpicks = ps.size();
-	    if ( !nrpicks ) continue;
 
-	    for ( int ipck=0; ipck<nrpicks; ipck++ )
-	    {
-		Pick::Location pl( ps[ipck] );
-		bs->add( SI().transform(pl.pos), pl.z );
-	    }
+	for ( int ipck=0; ipck<nrpicks; ipck++ )
+	{
+	    Pick::Location pl( ps[ipck] );
+	    bs->add( SI().transform(pl.pos), pl.pos.z );
 	}
-	if ( bs->isEmpty() )
-	    delete bs;
-	else
-	    bivsets += bs;
+
+	bivsets += bs;
     }
 }

@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiodapplmgr.h,v 1.32 2006-05-08 16:49:47 cvsbert Exp $
+ RCS:           $Id: uiodapplmgr.h,v 1.33 2006-05-16 16:28:22 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,7 +31,7 @@ class uidTectMan;
 class uiPopupMenu;
 class uiSoViewer;
 class Coord;
-namespace Pick { class SetGroup; }
+namespace Pick { class Set; }
 
 /*!\brief Application level manager - ties part servers together
 
@@ -104,7 +104,7 @@ public:
     bool			selectAttrib( int id, int attrib );
     // PickSets
     const Color&		getPickColor();
-    void			getPickSetGroup(Pick::SetGroup& psg);
+    void			getPickSet(Pick::Set& psg);
     bool			storePickSets();
     bool			setPickSetDirs(int);
 

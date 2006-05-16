@@ -4,14 +4,13 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uipickpartserv.cc,v 1.33 2006-05-09 14:56:44 cvsbert Exp $
+ RCS:           $Id: uipickpartserv.cc,v 1.34 2006-05-16 16:28:22 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uipickpartserv.h"
 #include "uifetchpicks.h"
-#include "uistorepicks.h"
 #include "uiimppickset.h"
 #include "uimsg.h"
 #include "uigeninputdlg.h"
@@ -37,7 +36,7 @@ const int uiPickPartServer::evGetHorDef = 3;
 
 uiPickPartServer::uiPickPartServer( uiApplService& a )
 	: uiApplPartServer(a)
-    	, psg(*new Pick::SetGroup)
+    	, ps(*new Pick::Set)
 	, pickcolor(Color::DgbColor)
     	, gendef(2,true)
 {
@@ -46,62 +45,66 @@ uiPickPartServer::uiPickPartServer( uiApplService& a )
 
 uiPickPartServer::~uiPickPartServer()
 {
-    delete &psg;
+    delete &ps;
     deepErase( selhorids );
 }
 
 
-void uiPickPartServer::impexpPickSet( bool import )
+void uiPickPartServer::impexpSet( bool import )
 {
     uiImpExpPickSet dlg( appserv().parent(), import );
     dlg.go();
 }
 
 
-bool uiPickPartServer::fetchPickSets()
+bool uiPickPartServer::fetchSets()
 {
-    psg.clear();
     deepErase( hinfos );
     sendEvent( evGetHorInfo );
     BufferStringSet hornms;
     for ( int idx=0; idx<hinfos.size(); idx++ )
 	hornms.add( hinfos[idx]->name );
 
-    uiFetchPicks dlg( appserv().parent(), psgid, hornms );
+    deepErase( pssfetched );
+    uiFetchPicks dlg( appserv().parent(), psid, hornms );
     if ( !dlg.go() )
 	{ deepErase( hinfos ); return false; }
 
+    deepErase( pssfetched );
     if ( dlg.mkNew() )
-    { 
-	psg.setName( dlg.getName() );
+    {
+	Pick::Set* newps = new Pick::Set( dlg.getName() );
 	pickcolor = dlg.getPickColor();
 	bool rv = true;
 	if ( dlg.genRand() )
 	{
-	    Pick::Set* ps = new Pick::Set( dlg.getName() );
-	    ps->color_ = pickcolor;
-	    rv = mkRandLocs( *ps, dlg.randPars() );
-	    if ( !rv )
-		delete ps;
-	    else
-		psg.add(ps);
+	    newps->color_ = pickcolor;
+	    if ( !mkRandLocs(*newps,dlg.randPars()) )
+		{ delete newps; newps = 0; }
 	}
 
-	PtrMan<IOObj> ioobj = dlg.storObj();
-	if ( ioobj )
+	if ( newps )
 	{
-	    BufferString bs;
-	    if ( !PickSetGroupTranslator::store(psg,ioobj,bs,0,false) )
-		uiMSG().error( bs );
+	    pssfetched += newps;
+	    PtrMan<IOObj> ioobj = dlg.storObj();
+	    if ( newps && ioobj )
+	    {
+		BufferString bs;
+		if ( !PickSetTranslator::store(*newps,ioobj,bs) )
+		    uiMSG().error( bs );
+	    }
 	}
-	return rv;
     }
 
     BufferString bs;
     for ( int idx=0; dlg.ioobj(idx); idx++ )
     {
-	if ( !PickSetGroupTranslator::retrieve(psg,dlg.ioobj(idx),bs) )
+	Pick::Set* newps = new Pick::Set;
+	if ( PickSetTranslator::retrieve(*newps,dlg.ioobj(idx),bs) )
+	    pssfetched += newps;
+	else
 	{
+	    delete newps;
 	    if ( idx == 0 )
 	    {
 		uiMSG().error( bs );
@@ -116,7 +119,7 @@ bool uiPickPartServer::fetchPickSets()
 	}
     }
 
-    return true;
+    return pssfetched.size() > 0;
 }
 
 
@@ -169,79 +172,63 @@ bool uiPickPartServer::mkRandLocs( Pick::Set& ps, const RandLocGenPars& rp )
 }
 
 
-
-bool uiPickPartServer::storePickSets()
+bool uiPickPartServer::storeSets()
 {
-    avsets.erase();
-    sendEvent( evGetAvailableSets );
-    if ( !avsets.size() )
-	{ uiMSG().error( "No pick sets defined yet" ); return false; }
-
-    uiStorePicks dlg( appserv().parent(), psgid, avsets );
-    if ( !dlg.go() ) return false;
-
-    selsets.erase();
-    for ( int idx=0; idx<avsets.size(); idx++ )
-	selsets += dlg.selectedSets()[idx] ? char(1) : char(0);
-
-    psg.clear();
-    sendEvent( evFetchPicks );
-    if ( !psg.nrSets() ) return false;
-
-    BufferString bs;
-    if ( !PickSetGroupTranslator::store(psg,dlg.ioobj(),bs,0,dlg.merge()) )
-	{ uiMSG().error( bs ); return false; }
-
+    // TODO store all sets that have changed
+    uiMSG().error( "Not supported yet. Please save sets one by one" );
     return true;
 }
 
 
-bool uiPickPartServer::storeSinglePickSet( Pick::Set* ps )
+bool uiPickPartServer::storeSetAs()
 {
-    PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(PickSetGroup);
+    PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(PickSet);
     ctio->ctxt.forread = false;
     ctio->ctxt.maychdir = false;
-    ctio->setName( ps->name() );
+    ctio->setName( ps.name() );
     uiIOObjSelDlg dlg( appserv().parent(), *ctio );
     if ( !dlg.go() || !dlg.ioObj() )
 	return false;
 
-    psg.clear();
-    psg.add( ps );
     ctio->ioobj = 0;
     ctio->setObj( dlg.ioObj()->clone() );
     if ( !ctio->ioobj )
 	uiMSG().error("Cannot find pickset in data base");
     BufferString bs;
-    if ( !PickSetGroupTranslator::store( psg, ctio->ioobj, bs ) )
+    if ( !PickSetTranslator::store( ps, ctio->ioobj, bs ) )
 	{ uiMSG().error(bs); return false; }
 
     return true;
 }
 
 
-void uiPickPartServer::renamePickset( const char* oldnm, BufferString& newnm )
+bool uiPickPartServer::storeSet()
 {
-    DataInpSpec* inpspec = new StringInpSpec(oldnm);
+    //TODO implement, no user intervention
+    return storeSetAs();
+}
+
+
+void uiPickPartServer::renameSet( const char* oldnm, BufferString& newnm )
+{
     uiGenInputDlg dlg( appserv().parent(), "Rename Pickset", "Pickset name",
-			inpspec );
-    if ( dlg.go() )
+			new StringInpSpec(oldnm) );
+    if ( !dlg.go() )
+	newnm = oldnm;
+    else
     {
 	newnm = dlg.text();
-	if ( !strcmp(oldnm,newnm) )
-	{
-	    newnm = oldnm;
+	if ( newnm == oldnm )
 	    return;
-	}
 
 	avsets.erase();
 	sendEvent( evGetAvailableSets );
 	for ( int idx=0; idx<avsets.size(); idx++ )
 	{
-	    if ( avsets.get(idx) == newnm )
+	    if ( newnm == avsets.get(idx) )
 	    {
-		BufferString msg( "Pickset: "); msg += newnm;
-		msg += "\nalready exists.";
+		BufferString msg( "Pickset: '"); msg += newnm;
+		msg += "'\nalready exists.";
 		uiMSG().error( msg );
 		newnm = oldnm;
 		return;
@@ -249,26 +236,19 @@ void uiPickPartServer::renamePickset( const char* oldnm, BufferString& newnm )
 	}
 
     }
-    else
-	newnm = oldnm;
 }
 
 
 void uiPickPartServer::setMisclassSet( const BinIDValueSet& bivs )
 {
-    static const BufferString sMisClassStr = "Misclassified [NN]";
-
-    Pick::Set* pickset = new Pick::Set( sMisClassStr );
-    pickset->color_.set( 255, 0, 0 );
+    ps.erase();
+    ps.setName( "Misclassified [NN]" );
+    ps.color_.set( 240, 0, 0 );
     BinIDValueSet::Pos pos; BinIDValue biv;
     while ( bivs.next(pos,false) )
     {
 	bivs.get( pos, biv );
 	Coord pos = SI().transform( biv.binid );
-	*pickset += Pick::Location( pos.x, pos.y, biv.value );
+	ps += Pick::Location( pos.x, pos.y, biv.value );
     }
-
-    psg.clear();
-    psg.setName( sMisClassStr );
-    psg.add( pickset );
 }
