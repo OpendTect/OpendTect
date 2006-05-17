@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: horizon3dseedpicker.h,v 1.11 2006-05-08 13:41:58 cvsjaap Exp $
+ RCS:           $Id: horizon3dseedpicker.h,v 1.12 2006-05-17 09:03:13 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,6 +28,8 @@ public:
     EM::SectionID	getSectionID() const		{ return sectionid_; }
 
     bool		startSeedPick();
+    bool		stopSeedPick(bool iscancel=false);
+
     bool		addSeed(const Coord3&);
     bool		canAddSeed() const		{ return true; }
     bool		removeSeed(const EM::PosID&,
@@ -37,8 +39,8 @@ public:
     int			nrSeeds() const;
     int			minSeedsToLeaveInitStage() const;
 
-    bool		stopSeedPick(bool iscancel=false);
-
+    NotifierAccess*	seedChangeNotifier()		{ return &seedchange_; }
+    
     enum SeedModeOrder	{ TrackFromSeeds, 
 			  TrackBetweenSeeds, 
 			  DrawBetweenSeeds   };
@@ -56,7 +58,7 @@ public:
     bool		doesModeUseSetup() const;
 
 protected:
-    bool		retrackOnActiveLine( BinID startbid, 
+    bool		retrackOnActiveLine( const BinID& startbid, 
 					     bool startwasdefined,
 					     bool eraseonly=false);
     bool		retrackFromSeedList();
@@ -71,6 +73,9 @@ protected:
     EM::SectionID	sectionid_;
     MPE::EMTracker&	tracker_;
 
+    Notifier<HorizonSeedPicker>	
+			seedchange_;
+    
     int			seedconmode_;
     bool		blockpicking_;
 private: 

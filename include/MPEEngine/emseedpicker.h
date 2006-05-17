@@ -8,11 +8,12 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: emseedpicker.h,v 1.17 2006-05-08 13:41:58 cvsjaap Exp $
+ RCS:           $Id: emseedpicker.h,v 1.18 2006-05-17 09:03:13 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "callback.h"
 #include "emtracker.h"
 #include "position.h"
 #include "sets.h"
@@ -26,7 +27,7 @@ handles adding of seeds and retracking of events based on new seeds.
 An instance of the class is usually avaiable from the each EMTracker.
 */
 
-class EMSeedPicker
+class EMSeedPicker: public CallBackClass
 {
 public:
     virtual		~EMSeedPicker() {}
@@ -40,6 +41,7 @@ public:
     virtual bool	startSeedPick()				{ return false;}
     			/*!<Should be set when seedpicking
 			    is about to start. */
+    virtual bool	stopSeedPick(bool iscancel=false)	{ return true; }
 
     virtual bool	canAddSeed() const			{ return false;}
     virtual bool	addSeed(const Coord3&)			{ return false;}
@@ -49,9 +51,9 @@ public:
     virtual bool	reTrack()				{ return false;}
     virtual int		nrSeeds() const				{ return 0; }
     virtual int		minSeedsToLeaveInitStage() const	{ return 1; }
-    
-    virtual bool	stopSeedPick(bool iscancel=false)	{ return true; }
 
+    virtual NotifierAccess* seedChangeNotifier()		{ return 0; }
+    
     virtual void	setSeedConnectMode(int)			{ return; }
     virtual int		getSeedConnectMode() const		{ return -1; }
     virtual void	blockSeedPick(bool)			{ return; }
