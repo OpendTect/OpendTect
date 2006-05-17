@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizon3dseedpicker.cc,v 1.13 2006-05-08 13:49:44 cvsjaap Exp $";
+static const char* rcsID = "$Id: horizon3dseedpicker.cc,v 1.14 2006-05-17 09:12:12 cvsjaap Exp $";
 
 #include "horizonseedpicker.h"
 
@@ -27,6 +27,7 @@ namespace MPE
 
 HorizonSeedPicker::HorizonSeedPicker( MPE::EMTracker& t )
     : tracker_( t )
+    , seedchange_( this )
     , seedconmode_( defaultSeedConMode() )
     , blockpicking_( false )
 { }
@@ -76,7 +77,9 @@ bool HorizonSeedPicker::addSeed(const Coord3& seedcrd )
     seedlist_.erase(); seedpos_.erase(); 
     seedlist_ += pid;  seedpos_ += seedcrd;
 
-    return retrackOnActiveLine( seedbid, startwasdefined );
+    const bool res = retrackOnActiveLine( seedbid, startwasdefined );
+    seedchange_.trigger();
+    return res;
 }
 
 
@@ -93,7 +96,9 @@ bool HorizonSeedPicker::removeSeed( const EM::PosID& pid, bool retrack )
 
     seedlist_.erase(); seedpos_.erase(); 
 
-    return retrackOnActiveLine( seedbid, true, !retrack );
+    const bool res = retrackOnActiveLine( seedbid, true, !retrack );
+    seedchange_.trigger();
+    return res;
 }
 
 
@@ -105,7 +110,7 @@ bool HorizonSeedPicker::reTrack()
 }
 
 
-bool HorizonSeedPicker::retrackOnActiveLine( BinID startbid, 
+bool HorizonSeedPicker::retrackOnActiveLine( const BinID& startbid, 
 					     bool startwasdefined,
 					     bool eraseonly ) 
 {
@@ -115,38 +120,45 @@ bool HorizonSeedPicker::retrackOnActiveLine( BinID startbid,
     else
 	dir.inl = 0;
 
-    bool wholeline = false;
-    if ( !engine().activeVolume().hrg.includes(startbid) )
-    {
-	wholeline = true;
-	startbid = engine().activeVolume().hrg.start - dir;
-	startwasdefined = false;
-    }
-    
     trackbounds_.erase();
     TypeSet<EM::PosID> candidatejunctionpairs;
 
-    extendSeedListEraseInBetween( wholeline, startbid, startwasdefined, -dir, 
-				  candidatejunctionpairs );
-    extendSeedListEraseInBetween( wholeline, startbid, startwasdefined,  dir, 
-				  candidatejunctionpairs );
-    if ( eraseonly )
-       return true;
-
-    if ( !retrackFromSeedList() )
-	return false;
-
-    EM::EMObject* emobj = EM::EMM().getObject( tracker_.objectID() );  
-
-    for ( int idx=0; idx<candidatejunctionpairs.size(); idx+=2 )
+    if ( engine().activeVolume().hrg.includes(startbid) )
     {
-	if ( emobj->isDefined(candidatejunctionpairs[idx]) )
+	extendSeedListEraseInBetween( false, startbid, startwasdefined, 
+				      -dir, candidatejunctionpairs );
+	extendSeedListEraseInBetween( false, startbid, startwasdefined, 
+				      dir, candidatejunctionpairs );
+    }
+    else
+    {
+	// traverse whole active line
+	const BinID dummystartbid = engine().activeVolume().hrg.start;
+	extendSeedListEraseInBetween( true, dummystartbid, false, 
+				      -dir, candidatejunctionpairs );
+	extendSeedListEraseInBetween( true, dummystartbid-dir, false, 
+				      dir, candidatejunctionpairs );
+    }
+    
+    bool res = true;
+
+    if ( !eraseonly )
+    {
+	res = retrackFromSeedList();
+
+	EM::EMObject* emobj = EM::EMM().getObject( tracker_.objectID() );  
+
+	for ( int idx=0; idx<candidatejunctionpairs.size(); idx+=2 )
 	{
-	    emobj->setPosAttrib( candidatejunctionpairs[idx+1], 
-				 EM::EMObject::sSeedNode, true );
+	    if ( emobj->isDefined(candidatejunctionpairs[idx]) )
+	    {
+		emobj->setPosAttrib( candidatejunctionpairs[idx+1], 
+				     EM::EMObject::sSeedNode, true );
+	    }
 	}
     }
-    return true;
+
+    return res;
 }
 
 
