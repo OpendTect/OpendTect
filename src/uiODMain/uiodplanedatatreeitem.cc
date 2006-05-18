@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodplanedatatreeitem.cc,v 1.2 2006-05-09 11:00:53 cvsbert Exp $
+ RCS:		$Id: uiodplanedatatreeitem.cc,v 1.3 2006-05-18 09:36:42 cvsjaap Exp $
 ___________________________________________________________________
 
 -*/
@@ -172,6 +172,7 @@ void uiODPlaneDataTreeItem::handleMenuCB( CallBacker* cb )
 	pdd->getMovementNotification()->notify(
 		mCB(this,uiODPlaneDataTreeItem,updatePositionDlg) );
 	applMgr()->enableMenusAndToolbars( false );
+	applMgr()->visServer()->disabToolbars( false );
     }
     else if ( mnuid == gridlinesmnuitem_.id )
     {
