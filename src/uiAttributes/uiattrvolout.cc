@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:		$Id: uiattrvolout.cc,v 1.21 2006-05-08 15:34:12 cvsnanne Exp $
+ RCS:		$Id: uiattrvolout.cc,v 1.22 2006-05-18 15:00:22 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -258,7 +258,9 @@ bool uiAttrVolOut::fillPar( IOPar& iop )
 	DescSet descset;
 	if ( nlamodel )
 	    descset.usePar( nlamodel->pars() );
-	const Desc* desc = descset.getFirstStored( Only2D );
+
+	const Desc* desc = nlamodel ? descset.getFirstStored( Only2D )
+	    			    : clonedset->getFirstStored( Only2D );
 	if ( desc && desc->getMultiID(ky) )
 	{
 	    iop.set( "Input Line Set", ky );
