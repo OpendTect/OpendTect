@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribdesc.h,v 1.29 2006-04-18 07:30:00 cvshelene Exp $
+ RCS:           $Id: attribdesc.h,v 1.30 2006-05-19 14:33:11 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -104,6 +104,7 @@ public:
     enum SatisfyLevel	{ AllOk, Warning, Error };
     SatisfyLevel	isSatisfied() const;
 			/*!< Checks wether all inputs are satisfied. */
+    BufferString&	errMsg()		{ return errmsg; }
 
     bool		isIdenticalTo(const Desc&,bool cmpoutput=true) const;
     bool		isIdentifiedBy(const char*) const;
@@ -161,6 +162,7 @@ protected:
 
     DescStatusUpdater		statusupdater;
     DescChecker			descchecker;
+    BufferString        	errmsg;
 
 //    IOObj*              	getDefCubeIOObj(bool,bool) const;
 };
@@ -232,7 +234,7 @@ protected:
 	      const_cast<Attrib::ValParam*>(desc.getValParam(varstring));\
 	mDynamicCastGet(Attrib::ZGateParam*,gateparam##var,valparam##var);\
 	if ( gateparam##var ) \
-	    var = gateparam##var->getDefaultZGateValue();\
+	    var = gateparam##var->getDefaultGateValue();\
     }\
 }
 

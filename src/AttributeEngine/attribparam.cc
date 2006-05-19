@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribparam.cc,v 1.25 2006-04-25 08:02:58 cvsnanne Exp $";
+static const char* rcsID = "$Id: attribparam.cc,v 1.26 2006-05-19 14:33:11 cvshelene Exp $";
 
 #include "attribparam.h"
 #include "attribparamgroup.h"
@@ -157,97 +157,6 @@ void ValParam::fillDefStr( BufferString& res ) const
     if ( !getCompositeValue(val) && !isRequired() )
 	val = getDefaultValue();
     res += val;
-}
-
-
-ZGateParam::ZGateParam( const char* nm )
-      : ValParam( nm, new FloatInpIntervalSpec() )
-{}
-
-
-mParamClone( ZGateParam );
-
-
-bool ZGateParam::setCompositeValue( const char* gatestrvar )
-{
-    bool res = false;
-    const int gatestrsz = strlen( gatestrvar );
-    if ( gatestrvar[0] == '[' &&  gatestrvar[gatestrsz-1] == ']' )
-    {
-	int idx = 0;
-	for ( ; idx < gatestrsz; idx ++)
-	    if ( gatestrvar[idx] == ',' )
-		break;
-
-	if ( idx<gatestrsz )
-	{
-	    ArrPtrMan<char> valuestr = new char[gatestrsz];
-	    strncpy( valuestr, &gatestrvar[1], idx - 1 );
-	    valuestr[idx-1] = 0;
-	    spec_->setText( valuestr, 0 );
-
-	    strncpy( valuestr, &gatestrvar[idx+1], gatestrsz - idx - 2 );
-	    valuestr[gatestrsz - idx - 2] = 0;
-	    spec_->setText( valuestr, 1 );
-
-	    res = true;
-	}
-    }
-
-    return res;
-}
-
-
-void ZGateParam::setLimits( const Interval<float>& rg )
-{ reinterpret_cast<FloatInpIntervalSpec*>(spec_)->setLimits(rg); }
-
-
-void ZGateParam::setValue( const Interval<float>& gate )
-{ reinterpret_cast<FloatInpIntervalSpec*>(spec_)->setValue( gate ); }
-
-
-void ZGateParam::setDefaultValue( const Interval<float>& defaultgate )
-{ reinterpret_cast<FloatInpIntervalSpec*>(spec_)->setDefaultValue(defaultgate);}
-
-
-bool ZGateParam::getCompositeValue( BufferString& res ) const
-{
-    Interval<float> intv( spec_->getfValue(0), spec_->getfValue(1) );
-    toString( res, intv );
-    return true;
-}
-
-
-void ZGateParam::toString( BufferString& res, const Interval<float>& gate) const
-{
-    res = "[";
-    res += gate.start;
-    res += ",";
-    res += gate.stop;
-    res += "]";
-}
-
-
-Interval<float> ZGateParam::getValue() const
-{
-    FloatInpIntervalSpec* spec = reinterpret_cast<FloatInpIntervalSpec*>(spec_);
-    return Interval<float>( spec->value(0), spec->value(1) );
-}
-
-
-Interval<float> ZGateParam::getDefaultZGateValue() const
-{
-    FloatInpIntervalSpec* spec = reinterpret_cast<FloatInpIntervalSpec*>(spec_);
-    return Interval<float>( spec->defaultValue(0), spec->defaultValue(1) );
-}
-
-
-BufferString ZGateParam::getDefaultValue() const
-{
-    Interval<float> intv = getDefaultZGateValue();
-    BufferString res;
-    toString( res, intv );
-    return res;
 }
 
 

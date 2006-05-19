@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: paramsetget.h,v 1.7 2006-04-11 10:16:17 cvshelene Exp $
+ RCS:           $Id: paramsetget.h,v 1.8 2006-05-19 14:33:11 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,7 +16,7 @@ ________________________________________________________________________
 
 #define mSetFloatInterval( str, newval ) \
 { \
-    mDynamicCastGet(Attrib::ZGateParam*,param,desc.getParam(str)) \
+    mDynamicCastGet(Attrib::FloatGateParam*,param,desc.getParam(str)) \
     const Interval<float> oldval( param->getfValue(0), param->getfValue(1) ); \
     if ( chtr.set(oldval,newval) ) param->setValue( newval ); \
 }
@@ -155,9 +155,9 @@ if ( valparam##var ) \
     var.stop = valparam##var->getfValue(1); \
     if ( mIsUdf(var.start) || mIsUdf(var.stop) )\
     {\
-	mDynamicCastGet(Attrib::ZGateParam*,gateparam##var,valparam##var);\
+	mDynamicCastGet(Attrib::FloatGateParam*,gateparam##var,valparam##var);\
 	if ( gateparam##var ) \
-	    var = gateparam##var->getDefaultZGateValue();\
+	    var = gateparam##var->getDefaultGateValue();\
     }\
     setfunc; \
 }
