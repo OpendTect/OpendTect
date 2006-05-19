@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          23-02-2006
- RCS:           $Id: fingerprintattrib.h,v 1.3 2006-04-28 10:00:47 cvshelene Exp $
+ RCS:           $Id: fingerprintattrib.h,v 1.4 2006-05-19 14:34:02 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,32 +46,32 @@ public:
     static const char*		refposStr()	{ return "refpos"; }
     static const char*		refposzStr()	{ return "refposz"; }
     static const char*		valStr()	{ return "value"; }
-    static const char*		picksetStr()	{ return "pickset"; }
+    static const char*		rangeStr()	{ return "range"; }
+    static const char*		weightStr()	{ return "weight"; }
+    static const char*		valpicksetStr()	{ return "valpickset"; }
     static const char*		statstypeStr()	{ return "statstype"; }
-    static const char*		reftypeStr()	{ return "reftype"; }
+    static const char*		valreftypeStr()	{ return "valreftype"; }
+    static const char*		rgpicksetStr()	{ return "rgpickset"; }
+    static const char*		rgreftypeStr()	{ return "rgreftype"; }
 
 protected:
     static Provider*		createInstance(Desc&);
     static void			updateDesc(Desc&);
 
     bool			allowParallelComputation() const
-				{ return true; }
+				{ return false; }
 
     bool			getInputData(const BinID&,int zintv);
     bool			computeData(const DataHolder&,
 	    				    const BinID& relpos,
 					    int z0,int nrsamples) const;
+    TypeSet<float>		scaleVector(TypeSet<float>) const;
 
-    TypeSet<float>		vector_;
+    TypeSet<float>		refvector_;
+    TypeSet< Interval<float> >	ranges_;
+    TypeSet<int>		weights_;
+    int				vectorsize_;
     
-    // these parameters are only needed for the user interface
-    BinID			refpos_;
-    float			refposz_;
-    int				statstype_;
-    const char*			pickname_;
-    int				reftype_;
-    
-
     TypeSet<int>		dataidx_;
     ObjectSet<const DataHolder>	inputdata_;
 };
