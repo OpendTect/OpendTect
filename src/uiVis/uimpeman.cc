@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.cc,v 1.89 2006-05-15 12:04:06 cvsjaap Exp $
+ RCS:           $Id: uimpeman.cc,v 1.90 2006-05-21 15:46:31 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -261,6 +261,7 @@ void uiMPEMan::seedClick( CallBacker* )
 	
 	if ( !engine.activeVolume().includes(newvolume) )
 	{
+	    engine.swapCacheAndItsBackup();
 	    NotifyStopper notifystopper( engine.activevolumechange );
 	    engine.setActiveVolume( newvolume );
 	    notifystopper.restore();
@@ -366,8 +367,8 @@ void uiMPEMan::updateAttribNames()
 
     updateSelectedAttrib();
 
-    if ( !init && attribfld->size()>1 && attribspecs.size() &&
-	 engine().getAttribCache(*attribspecs[0]) )
+    if ( !init && attribfld->size()>1 && attribspecs.size() )
+         // && engine().getAttribCache(*attribspecs[0]) )
     {
 	MPE::EMTracker* tracker = getSelectedTracker();
 	MPE::EMSeedPicker* seedpicker = tracker ? 
@@ -377,7 +378,7 @@ void uiMPEMan::updateAttribNames()
 	    init = true;
 	    engine().setTrackMode( TrackPlane::Extend );
 	    showTracker( true );
-	    attribfld->setCurrentItem( (int)0 );
+	    attribfld->setCurrentItem( (int)1 );
 	}
     }
     attribSel(0);
@@ -456,6 +457,7 @@ void uiMPEMan::turnSeedPickingOn( bool yn )
 	if ( !oldactivevol.isEmpty() )
 	{
 	    //Restore old volume if it has been changed.
+	    engine().swapCacheAndItsBackup();
 	    NotifyStopper notifystopper( MPE::engine().activevolumechange );
 	    MPE::engine().setActiveVolume(oldactivevol);
 	    notifystopper.restore();
@@ -509,6 +511,9 @@ void uiMPEMan::attribSel( CallBacker* )
 {
     if ( blockattribsel )
 	return;
+
+    if ( attribfld->currentItem() ) 
+	visserv->loadPostponedData();
 
     uiCursorChanger cursorchanger( uiCursor::Wait );
 
@@ -750,10 +755,12 @@ void uiMPEMan::updateSeedPickState()
 	}
 	return;
     }
-    if ( isSeedPickingOn() )
-	seedpickwason = false;
+
     if ( seedpickwason )
+    {
 	turnSeedPickingOn( true );
+	seedpickwason = false;
+    }
 
     const EM::EMObject* emobj = EM::EMM().getObject( tracker->objectID() );
     mAddSeedConModeItems( seedconmodefld, Horizon );
@@ -805,6 +812,7 @@ void uiMPEMan::trackInVolume( CallBacker* )
     mGetDisplays(false);
     for ( int idx=0; idx<displays.size(); idx++ )
 	displays[idx]->updateMPEActiveVolume();
+    visserv->loadPostponedData();
 
     const TrackPlane::TrackMode tm = engine().trackPlane().getTrackMode();
     engine().setTrackMode(TrackPlane::Extend);
@@ -835,9 +843,14 @@ void uiMPEMan::showTracker( bool yn )
     if ( didtriggervolchange )
 	yn = false;
 
+    if ( yn && attribfld->currentItem() ) 
+	visserv->loadPostponedData();
+
+    uiCursor::setOverride( uiCursor::Wait );
     mGetDisplays(true)
     for ( int idx=0; idx<displays.size(); idx++ )
 	displays[idx]->showDragger( yn );
+    uiCursor::restoreOverride();
 }
 
 
@@ -884,6 +897,8 @@ void uiMPEMan::movePlaneCB( CallBacker* )
 void uiMPEMan::extendModeCB( CallBacker* )
 {
     const bool ison = toolbar->isOn( extendidx );
+    if ( ison ) 
+	visserv->loadPostponedData();
     showTracker( ison );
     engine().setTrackMode( ison ? TrackPlane::Extend : TrackPlane::None );
 }
@@ -892,6 +907,8 @@ void uiMPEMan::extendModeCB( CallBacker* )
 void uiMPEMan::retrackModeCB( CallBacker* )
 {
     const bool ison = toolbar->isOn( retrackidx );
+    if ( ison ) 
+	visserv->loadPostponedData();
     showTracker( ison );
     engine().setTrackMode( ison ? TrackPlane::ReTrack : TrackPlane::None );
 }
