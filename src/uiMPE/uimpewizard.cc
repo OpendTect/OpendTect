@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpewizard.cc,v 1.47 2006-05-12 09:51:14 cvsnanne Exp $
+ RCS:           $Id: uimpewizard.cc,v 1.48 2006-05-21 15:26:20 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -181,7 +181,7 @@ uiGroup* Wizard::createSeedSetupPage()
     // TODO: support both, horizons and faults
     uiGroup* grp = new uiGroup( this, "Page 3" );
     setupgrp = uiMPE().setupgrpfact.create( grp, EM::Horizon::typeStr(),
-	    				    mpeserv->attrset );
+	    				    mpeserv->attrset_ );
 
     uiLabel* lbl = new uiLabel( grp,
 	    		"Evaluate settings by picking one or more seeds" );
@@ -198,7 +198,7 @@ uiGroup* Wizard::createFinalizePage()
 {
     uiGroup* grp = new uiGroup( this, "Page 4" );
     BufferStringSet trackernames;
-    engine().getAvaliableTrackerTypes( trackernames );
+    engine().getAvailableTrackerTypes( trackernames );
 
     BufferString str("Do you want to track another ");
     str += trackernames.size()>1 ? "surface" : (const char*) trackernames[0];
@@ -367,8 +367,9 @@ bool Wizard::prepareSeedSetupPage()
     if ( currentPageIdx()==lastPage() )
 	setRotateMode(false);
 
-    EM::EMObject* emobj = EM::EMM().getObject( currentobject );
-    emobj->notifier.notify( mCB(this,Wizard,updateFinishButton) );
+    NotifierAccess* seedchangenotifier = seedpicker->seedChangeNotifier();
+    if ( seedchangenotifier ) 
+	seedchangenotifier->notify( mCB(this,Wizard,updateFinishButton) );
     updateFinishButton(0);
     initialhistorynr = EM::EMM().history().currentEventNr();
 
@@ -376,14 +377,24 @@ bool Wizard::prepareSeedSetupPage()
 }
 
 
+#define mGetSeedPicker( retfld ) \
+    const int trackerid = mpeserv->getTrackerID( currentobject ); \
+    if ( trackerid == -1 ) \
+	return retfld; \
+    EMTracker* tracker = engine().getTracker( trackerid ); \
+    if ( !tracker ) \
+	return retfld; \
+    EMSeedPicker* seedpicker = tracker->getSeedPicker( true ); \
+    if ( !seedpicker ) \
+	return retfld; 
+
 bool Wizard::leaveSeedSetupPage( bool process )
 {
-    mpeserv->blockdataloading = true;
-    mpeserv->sendEvent( uiMPEPartServer::evEndSeedPick );
-    mpeserv->blockdataloading = false;
+    mGetSeedPicker(false);
+    NotifierAccess* seedchangenotifier = seedpicker->seedChangeNotifier();
+    if ( seedchangenotifier ) 
+	seedchangenotifier->remove( mCB(this,Wizard,updateFinishButton) );
 
-    EM::EMObject* emobj = EM::EMM().getObject( currentobject );
-    emobj->notifier.remove( mCB(this,Wizard,updateFinishButton) );
     setButtonSensitive( uiDialog::CANCEL, true );
     if ( !process )
     {
@@ -485,26 +496,25 @@ void Wizard::restoreObject()
 }
 
 
-#define mGetSeedPicker( retfld ) \
-    const int trackerid = mpeserv->getTrackerID( currentobject ); \
-    if ( trackerid == -1 ) \
-	return retfld; \
-    EMTracker* tracker = engine().getTracker( trackerid ); \
-    if ( !tracker ) \
-	return retfld; \
-    EMSeedPicker* seedpicker = tracker->getSeedPicker( true ); \
-    if ( !seedpicker ) \
-	return retfld; 
-
 bool Wizard::isClosing( bool iscancel )
 {
+    mpeserv->blockDataLoading( true );
+    mpeserv->sendEvent( uiMPEPartServer::evEndSeedPick );
+    mpeserv->blockDataLoading( false );
     if ( iscancel )
+    {
 	restoreObject();
+    }
     else 
     {
 	mGetSeedPicker(false);
+	mpeserv->blockDataLoading( true );
 	if ( seedpicker->doesModeUseVolume() && !seedbox.isEmpty() )
 	    mpeserv->expandActiveVolume(seedbox);
+	if ( !seedpicker->doesModeUseVolume() )
+	    mpeserv->sendEvent( uiMPEPartServer::evStartSeedPick );
+	mpeserv->blockDataLoading( false );
+	mpeserv->postponeLoadingCurVol();
         mpeserv->sendEvent( uiMPEPartServer::evShowToolbar );
     }
     mpeserv->sendEvent( ::uiMPEPartServer::evWizardClosed );
@@ -659,7 +669,7 @@ bool Wizard::createTracker()
 	if ( !engine().getEditor(objid,false) )
 	    engine().getEditor(objid,true);
 
-	mpeserv->activetrackerid = id;
+	mpeserv->activetrackerid_ = id;
 	if ( !mpeserv->sendEvent( ::uiMPEPartServer::evAddTreeObject ) )
 	{
 	    pErrMsg("Could not add treeitem");
@@ -713,29 +723,26 @@ void Wizard::setupChange( CallBacker* )
 {
     mGetSeedPicker();
 
-    const bool allowpicking = seedpicker->doesModeUseSetup();
-    seedpicker->blockSeedPick( !allowpicking );
-    updateFinishButton(0);
+//    const bool allowpicking = seedpicker->doesModeUseSetup();
+//    seedpicker->blockSeedPick( !allowpicking );
+
+    setupgrp->commitToTracker();
 
     if ( MPE::engine().activeVolume().nrInl()==1 || 
 	 MPE::engine().activeVolume().nrCrl()==1    )
 	mpeserv->loadAttribData();
 
     uiCursor::setOverride( uiCursor::Wait );
-    setupgrp->commitToTracker();
     seedpicker->reTrack();
     uiCursor::restoreOverride();
 }
 
 
-void Wizard::updateFinishButton( CallBacker* )
+void Wizard::updateFinishButton( CallBacker* cb )
 {
-/* TODO: This function is called for every time a position is added to horizon.
-	 Not necessary, so has to be changed. */
-    mGetSeedPicker();
-    if ( seedpicker->nrSeeds() == 1 )
-	setupgrp->commitToTracker();
+    if ( cb ) setupChange(0);
 
+    mGetSeedPicker();
     const bool finishenabled = !seedpicker->isSeedPickBlocked() &&
 	       seedpicker->nrSeeds() >= seedpicker->minSeedsToLeaveInitStage();
     setButtonSensitive( uiDialog::CANCEL, finishenabled );
