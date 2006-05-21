@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2004
- RCS:           $Id: uimpepartserv.cc,v 1.41 2006-05-12 09:51:14 cvsnanne Exp $
+ RCS:           $Id: uimpepartserv.cc,v 1.42 2006-05-21 14:52:27 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,11 +40,12 @@ const int uiMPEPartServer::evCreate2DSelSpec	= 8;
 
 uiMPEPartServer::uiMPEPartServer( uiApplService& a, const Attrib::DescSet* ads )
     : uiApplPartServer(a)
-    , attrset( ads )
-    , wizard( 0 )
-    , activetrackerid(-1)
-    , eventattrselspec( 0 )
-    , blockdataloading( false )
+    , attrset_( ads )
+    , wizard_( 0 )
+    , activetrackerid_(-1)
+    , eventattrselspec_( 0 )
+    , blockdataloading_( false )
+    , postponedcs_( false )
 {
     MPE::initStandardClasses();
     MPE::engine().setActiveVolume( MPE::engine().getDefaultActiveVolume() );
@@ -61,12 +62,12 @@ uiMPEPartServer::~uiMPEPartServer()
 	    mCB(this, uiMPEPartServer, activeVolumeChange) );
     MPE::engine().loadEMObject.remove(
 	    mCB(this, uiMPEPartServer, loadEMObjectCB) );
-    delete wizard;
+    delete wizard_;
 }
 
 
 void uiMPEPartServer::setCurrentAttribDescSet( const Attrib::DescSet* ads )
-{ attrset = ads; }
+{ attrset_ = ads; }
 
 
 int uiMPEPartServer::getTrackerID( const EM::ObjectID& emid ) const
@@ -93,7 +94,7 @@ int uiMPEPartServer::getTrackerID( const char* trackername ) const
 
 
 void uiMPEPartServer::getTrackerTypes( BufferStringSet& res ) const
-{ MPE::engine().getAvaliableTrackerTypes(res); }
+{ MPE::engine().getAvailableTrackerTypes(res); }
 
 
 int uiMPEPartServer::addTracker( const EM::ObjectID& emid,
@@ -111,13 +112,14 @@ int uiMPEPartServer::addTracker( const EM::ObjectID& emid,
 
     //TODO: Fix for multi-section case
     const EM::SectionID sid =  emobj->sectionID(0);
-    blockdataloading = true;
+    blockDataLoading( true );
+    /*
     if ( !showSetupDlg( emid, sid, true ) )
     {
 	MPE::engine().removeTracker(res);
 	return -1;
     }
-    blockdataloading = false;
+    */
 
     if ( pickedpos.isDefined() ) 
     {
@@ -127,6 +129,8 @@ int uiMPEPartServer::addTracker( const EM::ObjectID& emid,
 	poscs.zrg.start = poscs.zrg.stop = pickedpos.z;
 	expandActiveVolume( poscs );
     }
+    blockDataLoading( false );
+    postponeLoadingCurVol();
 
     return res;
 }
@@ -134,12 +138,12 @@ int uiMPEPartServer::addTracker( const EM::ObjectID& emid,
 
 bool uiMPEPartServer::addTracker( const char* trackertype )
 {
-    if ( !wizard ) wizard = new MPE::Wizard( appserv().parent(), this );
-    else wizard->reset();
+    if ( !wizard_ ) wizard_ = new MPE::Wizard( appserv().parent(), this );
+    else wizard_->reset();
 
-    wizard->setTrackingType( trackertype );
-//  wizard->setRotateMode(true);
-    wizard->go();
+    wizard_->setTrackingType( trackertype );
+//  wizard_->setRotateMode(true);
+    wizard_->go();
 
     return true;
 }
@@ -161,8 +165,8 @@ bool uiMPEPartServer::canAddSeed( int trackerid ) const
 
 void uiMPEPartServer::addSeed( int trackerid )
 {
-    if ( !wizard ) wizard = new MPE::Wizard( appserv().parent(), this );
-    else wizard->reset();
+    if ( !wizard_ ) wizard_ = new MPE::Wizard( appserv().parent(), this );
+    else wizard_->reset();
 
     const MPE::EMTracker* tracker = MPE::engine().getTracker(trackerid);
     if ( !tracker ) return;
@@ -171,13 +175,13 @@ void uiMPEPartServer::addSeed( int trackerid )
     if ( !object ) return;
 
     //TODO Find a mechanism to get this work on multi-section objects
-    wizard->setObject( object->id(), object->sectionID(0) );
+    wizard_->setObject( object->id(), object->sectionID(0) );
 
-    wizard->displayPage(MPE::Wizard::sNamePage, false );
-    wizard->displayPage(MPE::Wizard::sFinalizePage, false );
-    wizard->setRotateMode( false );
+    wizard_->displayPage(MPE::Wizard::sNamePage, false );
+    wizard_->displayPage(MPE::Wizard::sFinalizePage, false );
+    wizard_->setRotateMode( false );
     
-    wizard->go();
+    wizard_->go();
 }
 
 
@@ -190,11 +194,11 @@ void uiMPEPartServer::enableTracking( int trackerid, bool yn )
 
 
 int uiMPEPartServer::activeTrackerID() const
-{ return activetrackerid; }
+{ return activetrackerid_; }
 
 
 const Attrib::SelSpec* uiMPEPartServer::getAttribSelSpec() const
-{ return eventattrselspec; }
+{ return eventattrselspec_; }
 
 
 
@@ -208,7 +212,7 @@ bool uiMPEPartServer::showSetupDlg( const EM::ObjectID& emid,
 	dlg.setCtrlStyle( uiDialog::LeaveOnly );
 
     dlg.setHelpID( "108.0.1" );
-    MPE::uiSetupSel* grp = new MPE::uiSetupSel( &dlg, attrset );
+    MPE::uiSetupSel* grp = new MPE::uiSetupSel( &dlg, attrset_ );
     grp->setType( emid, sid );
     if ( dlg.go() || !showcancelbutton )
     {
@@ -271,13 +275,37 @@ void uiMPEPartServer::set2DSelSpec(const Attrib::SelSpec& as)
 { lineselspec_ = as; }
 
 
+void uiMPEPartServer::blockDataLoading( bool yn )
+{
+    blockdataloading_ = yn;
+}
+
+
+void uiMPEPartServer::postponeLoadingCurVol()
+{
+    postponedcs_ = MPE::engine().activeVolume();
+}
+
+
+void uiMPEPartServer::loadPostponedVolume()
+{
+    if ( postponedcs_ == MPE::engine().activeVolume() )
+    {
+    	postponedcs_.setEmpty();
+	loadAttribData();
+    }
+    else    
+	postponedcs_.setEmpty();
+}
+
+
 void uiMPEPartServer::activeVolumeChange(CallBacker*)
 { loadAttribData(); }
 
 
 void uiMPEPartServer::loadAttribData()
 {
-    if ( blockdataloading )
+    if ( blockdataloading_ || postponedcs_ == MPE::engine().activeVolume() )
 	return;
 
     uiCursorChanger changer( uiCursor::Wait );
@@ -288,7 +316,7 @@ void uiMPEPartServer::loadAttribData()
 
     for ( int idx=0; idx<attribselspecs.size(); idx++ )
     {
-	eventattrselspec = attribselspecs[idx];
+	eventattrselspec_ = attribselspecs[idx];
 	sendEvent( evGetAttribData );
     }
 }
@@ -368,7 +396,7 @@ void uiMPEPartServer::fillPar( IOPar& par ) const
 
 bool uiMPEPartServer::usePar( const IOPar& par )
 {
-    delete wizard; wizard = 0;
+    delete wizard_; wizard_ = 0;
     bool res = MPE::engine().usePar( par );
     if ( res )
     {
