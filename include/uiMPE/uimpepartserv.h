@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          December 2004
- RCS:           $Id: uimpepartserv.h,v 1.22 2006-05-04 21:22:29 cvskris Exp $
+ RCS:           $Id: uimpepartserv.h,v 1.23 2006-05-21 14:04:04 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -104,6 +104,10 @@ public:
     static const int		evWizardClosed;
     static const int		evInitFromSession;
 
+    void			blockDataLoading(bool);
+    void			postponeLoadingCurVol();
+    void			loadPostponedVolume();
+
     void			fillPar(IOPar&) const;
     bool			usePar(const IOPar&);
 
@@ -114,15 +118,16 @@ protected:
     void			loadAttribData();
     void			loadEMObjectCB(CallBacker*);
 
-    const Attrib::DescSet*	attrset;
-    MPE::Wizard*		wizard;
-    bool			blockdataloading;
+    const Attrib::DescSet*	attrset_;
+    MPE::Wizard*		wizard_;
+    bool			blockdataloading_;
     				/*!<Is checked when cb is issued from the
 				    MPE::Engine about changed active volume */
+    CubeSampling		postponedcs_;
 
 				//Interaction variables
-    const Attrib::SelSpec*	eventattrselspec;
-    int				activetrackerid;
+    const Attrib::SelSpec*	eventattrselspec_;
+    int				activetrackerid_;
 
     				//2D interaction
     BufferString		linename_;
