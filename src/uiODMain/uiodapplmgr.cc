@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.135 2006-05-16 16:28:22 cvsbert Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.136 2006-05-21 14:24:42 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -786,7 +786,7 @@ bool uiODApplMgr::handleVisServEv( int evid )
 	sceneMgr().viewAll(0);
     else if ( evid == uiVisPartServer::evToHomePos )
 	sceneMgr().toHomePos(0);
-    else if (  evid == uiVisPartServer::evShowSetupDlg )
+    else if ( evid == uiVisPartServer::evShowSetupDlg )
     {
 	const int selobjvisid = visserv->getSelObjectId();
 	const MultiID selobjmid = visserv->getMultiID(selobjvisid);
@@ -798,6 +798,8 @@ bool uiODApplMgr::handleVisServEv( int evid )
 	const EM::SectionID sid = seedpicker ? seedpicker->getSectionID() : -1;
 	mpeserv->showSetupDlg( emid, sid, false );
     }
+    else if ( evid == uiVisPartServer::evLoadPostponedData )
+	mpeserv->loadPostponedVolume();
     else
 	pErrMsg("Unknown event from visserv");
 
