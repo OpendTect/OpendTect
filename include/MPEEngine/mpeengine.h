@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          23-10-1996
- RCS:           $Id: mpeengine.h,v 1.28 2006-04-26 20:29:53 cvskris Exp $
+ RCS:           $Id: mpeengine.h,v 1.29 2006-05-21 13:49:03 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -70,7 +70,7 @@ public:
     bool			trackAtCurrentPlane();
     Executor*			trackInVolume();
 
-    void			getAvaliableTrackerTypes(BufferStringSet&)const;
+    void			getAvailableTrackerTypes(BufferStringSet&)const;
 
     int				highestTrackerID() const;
     const EMTracker*		getTracker(int idx) const;
@@ -91,6 +91,7 @@ public:
     const Attrib::DataCubes*	getAttribCache(const Attrib::SelSpec&) const;
     bool			setAttribData( const Attrib::SelSpec&,
 					       const Attrib::DataCubes*);
+    void			swapCacheAndItsBackup();
 
     				/*Editors */
     ObjectEditor*		getEditor(const EM::ObjectID&,bool create);
@@ -118,6 +119,8 @@ protected:
 
     ObjectSet<const Attrib::DataCubes>	attribcache_;
     ObjectSet<Attrib::SelSpec>		attribcachespecs_;
+    ObjectSet<const Attrib::DataCubes>	attribbackupcache_;
+    ObjectSet<Attrib::SelSpec>		attribbackupcachespecs_;
 
     ObjectSet<TrackerFactory>	trackerfactories_;
     ObjectSet<EditorFactory>	editorfactories_;
