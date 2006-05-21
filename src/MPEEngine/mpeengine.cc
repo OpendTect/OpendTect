@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: mpeengine.cc,v 1.60 2006-04-26 20:29:51 cvskris Exp $";
+static const char* rcsID = "$Id: mpeengine.cc,v 1.61 2006-05-21 14:29:30 cvsjaap Exp $";
 
 #include "mpeengine.h"
 
@@ -58,6 +58,8 @@ Engine::~Engine()
     deepErase( editors_ );
     deepUnRef( attribcache_ );
     deepErase( attribcachespecs_ );
+    deepUnRef( attribbackupcache_ );
+    deepErase( attribbackupcachespecs_ );
     deepErase( trackerfactories_ );
     deepErase( editorfactories_ );
 }
@@ -172,7 +174,7 @@ void Engine::setTrackMode( TrackPlane::TrackMode tm )
 }
 
 
-void Engine::getAvaliableTrackerTypes( BufferStringSet& res ) const
+void Engine::getAvailableTrackerTypes( BufferStringSet& res ) const
 {
     res.deepErase();
     for ( int idx=0; idx<trackerfactories_.size(); idx++ )
@@ -350,6 +352,17 @@ bool Engine::setAttribData( const Attrib::SelSpec& as,
     }
 
     return true;
+}
+
+
+void Engine::swapCacheAndItsBackup()
+{
+    const ObjectSet<const Attrib::DataCubes> tempcache = attribcache_;
+    const ObjectSet<Attrib::SelSpec> tempcachespecs = attribcachespecs_;
+    attribcache_ = attribbackupcache_;
+    attribcachespecs_ = attribbackupcachespecs_;
+    attribbackupcache_ = tempcache;
+    attribbackupcachespecs_ = tempcachespecs;
 }
 
 
@@ -538,6 +551,8 @@ void Engine::init()
     deepErase( editors_ );
     deepUnRef( attribcache_ );
     deepErase( attribcachespecs_ );
+    deepUnRef( attribbackupcache_ );
+    deepErase( attribbackupcachespecs_ );
     setActiveVolume( getDefaultActiveVolume() );
 }
 
