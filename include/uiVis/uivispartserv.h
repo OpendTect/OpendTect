@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.168 2006-04-07 15:12:37 cvsjaap Exp $
+ RCS:           $Id: uivispartserv.h,v 1.169 2006-05-21 14:08:53 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -240,6 +240,9 @@ public:
 				     is handling left-mouse picks on other
 				     objects, so the picks won't be handled by
 				     the selman. */
+
+    static const int		evLoadPostponedData;
+    void 			loadPostponedData() const;
 
     static const int		evShowSetupDlg;
     bool			sendShowSetupDlgEvent();
