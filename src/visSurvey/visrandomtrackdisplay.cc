@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          January 2003
- RCS:           $Id: visrandomtrackdisplay.cc,v 1.71 2006-04-18 14:37:02 cvskris Exp $
+ RCS:           $Id: visrandomtrackdisplay.cc,v 1.72 2006-05-22 11:15:02 cvsnanne Exp $
  ________________________________________________________________________
 
 -*/
@@ -236,7 +236,7 @@ void RandomTrackDisplay::insertKnot( int knotidx, const BinID& bid )
 	dragger_->insertKnot( knotidx, Coord(sbid.inl,sbid.crl) );
 	texture_->clearAll();
 	for ( int idx=0; idx<nrAttribs(); idx++ )
-	    setData( idx, *cache_[idx] );
+	    if ( cache_[idx] ) setData( idx, *cache_[idx] );
 
 	moving_.trigger();
     }
@@ -874,6 +874,7 @@ int RandomTrackDisplay::usePar( const IOPar& par )
 	as_[0]->usePar( par );
 	texture_->setColorTab( 0, rt->getColorTab() );
 	rt->unRef();
+	turnOn( rt->isOn() );
     }
 
     Interval<float> intv;
