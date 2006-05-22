@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2004
- RCS:           $Id: uimpepartserv.cc,v 1.42 2006-05-21 14:52:27 cvsjaap Exp $
+ RCS:           $Id: uimpepartserv.cc,v 1.43 2006-05-22 09:20:50 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -206,20 +206,28 @@ bool uiMPEPartServer::showSetupDlg( const EM::ObjectID& emid,
 				    const EM::SectionID& sid,
 				    bool showcancelbutton )
 {
-/*
+    /*
+    const int trackerid = mpeserv->getTrackerID( emid );
+    EMTracker* tracker = MPE::engine().getTracker( trackerid );
+    SectionTracker* sectiontracker = tracker->getSectionTracker( sid, true );
+    if ( !sectiontracker ) return false;
+
     uiDialog dlg( appserv().parent(), uiDialog::Setup("Tracking Setup") );
     if ( !showcancelbutton ) 
 	dlg.setCtrlStyle( uiDialog::LeaveOnly );
-
     dlg.setHelpID( "108.0.1" );
-    MPE::uiSetupSel* grp = new MPE::uiSetupSel( &dlg, attrset_ );
-    grp->setType( emid, sid );
+
+    MPE::uiHorizonSetupGroup* grp =
+			new MPE::uiHorizonSetupGroup( &dlg, attrset_ );
+    grp->setSectionTracker( sectiontracker );
+    
     if ( dlg.go() || !showcancelbutton )
     {
-	loadAttribData();
+	grp->commitToTracker();
 	return true;
     }
-*/
+    */
+
     return false;
 }
 
