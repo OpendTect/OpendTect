@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfaceio.h,v 1.23 2006-05-09 22:33:25 cvskris Exp $
+ RCS:		$Id: emsurfaceio.h,v 1.24 2006-05-22 14:56:15 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -227,7 +227,8 @@ public:
     int			nrSections() const;
     EM::SectionID	sectionID( int ) const;
     const char*		sectionName( int ) const;
-    void		selSections(const TypeSet<EM::SectionID>&);
+    void		selSections(const TypeSet<EM::SectionID>&,
+	    			    bool add=false);
     			/*!< The given sectionIDs will be written. If this
 			     function is not called, all avaliable sections
 			     will be written.

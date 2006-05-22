@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          June 2003
- RCS:           $Id: emsurfaceio.cc,v 1.67 2006-05-10 21:26:07 cvskris Exp $
+ RCS:           $Id: emsurfaceio.cc,v 1.68 2006-05-22 14:56:15 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -1042,7 +1042,7 @@ dgbSurfaceWriter::dgbSurfaceWriter( const IOObj* ioobj,
     par_.set( dgbSurfaceReader::sKeyDBInfo(), surface.dbInfo() );
 
     for ( int idx=0; idx<nrSections(); idx++ )
-	sectionsel_ += sectionID(idx);
+	sectionsel_ += sectionID( idx );
 
     for ( int idx=0; idx<nrAuxVals(); idx++ )
     {
@@ -1090,15 +1090,6 @@ dgbSurfaceWriter::~dgbSurfaceWriter()
 
     }
 
-    for ( int idx=0; idx<sectionsel_.size(); idx++ )
-    {
-	const BufferString sectionname = surface_.sectionName(sectionsel_[idx]);
-	if ( !sectionname.size() )
-	    continue;
-
-	par_.set( dgbSurfaceReader::sSectionNameKey(idx), sectionname );
-    }
-
     ascostream astream( strm );
     astream.newParagraph();
     par_.putTo( astream );
@@ -1130,9 +1121,20 @@ const char* dgbSurfaceWriter::sectionName( int idx ) const
 }
 
 
-void dgbSurfaceWriter::selSections(const TypeSet<SectionID>& sel)
+void dgbSurfaceWriter::selSections(const TypeSet<SectionID>& sel, bool keep )
 {
-    sectionsel_ = sel;
+    if ( keep )
+    {
+	for ( int idx=0; idx<sel.size(); idx++ )
+	{
+	    if ( sectionsel_.indexOf(sel[idx]) == -1 )
+		sectionsel_ += sel[idx];
+	}
+    }
+    else
+    {
+	sectionsel_ = sel;
+    }
 }
 
 
@@ -1442,6 +1444,14 @@ bool dgbSurfaceWriter::writeNewSection( std::ostream& strm )
 
     oldsectionindex_ = sectionindex_;
     rowindex_ = 0;
+    const BufferString sectionname =
+	surface_.sectionName( sectionsel_[sectionindex_] );
+
+    if ( sectionname.size() )
+    {
+	par_.set( dgbSurfaceReader::sSectionNameKey(sectionindex_),
+		  sectionname );
+    }
 
     return true;
 }
