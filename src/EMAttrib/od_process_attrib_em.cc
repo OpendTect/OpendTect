@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2004
- RCS:           $Id: od_process_attrib_em.cc,v 1.30 2006-05-10 07:20:00 cvsnanne Exp $
+ RCS:           $Id: od_process_attrib_em.cc,v 1.31 2006-05-23 07:52:52 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -252,7 +252,7 @@ bool BatchProgram::go( std::ostream& strm )
     BufferString type;
     pars().get( "Output.1.Type",type );
    
-    bool iscubeoutp = !strcmp( type, Output::tskey );
+    const bool iscubeoutp = !strcmp( type, Output::tskey );
 
     BufferString errmsg;
     MultiID outpid;
@@ -265,12 +265,13 @@ bool BatchProgram::go( std::ostream& strm )
 
     PtrMan<IOPar> geompar = pars().subselect(sKey::Geometry);
     HorSampling horsamp;
-    if ( iscubeoutp )
+    if ( iscubeoutp && geompar )
     {
 	geompar->get( "In-line range", horsamp.start.inl, horsamp.stop.inl );
 	geompar->get( "Cross-line range", horsamp.start.crl, horsamp.stop.crl);
     }
 
+    ObjectSet<EMObject> objects;
     for ( int idx=0; idx<midset.size(); idx++ )
     {
 	MultiID* mid = midset[idx];
@@ -284,13 +285,17 @@ bool BatchProgram::go( std::ostream& strm )
 	    sels.selsections += idx;
 	sels.rg = horsamp;
 	PtrMan<Executor> loader = 
-			EMM().objectLoader( *mid, ( iscubeoutp ? &sels : 0 ) );
+			EMM().objectLoader( *mid, iscubeoutp ? &sels : 0 );
 	if ( !loader || !loader->execute(&strm) ) 
 	{
 	    BufferString errstr = "Cannot load horizon:";
 	    errstr += mid->buf();
 	    mErrRetNoProc( errstr.buf() );
 	}
+
+	EMObject* emobj = EMM().getObject( EMM().getObjectID(*mid) );
+	if ( emobj ) emobj->ref();
+	objects += emobj;
     }
 
     StorageProvider::initClass();
@@ -386,6 +391,7 @@ bool BatchProgram::go( std::ostream& strm )
     strm << "Successfully saved data." << std::endl;
 
     deepErase(midset);
+    deepUnRef( objects );
 
     return true;
 }
