@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.cc,v 1.90 2006-05-21 15:46:31 cvsjaap Exp $
+ RCS:           $Id: uimpeman.cc,v 1.91 2006-05-23 14:40:38 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,6 +39,7 @@ ________________________________________________________________________
 #include "viscolortab.h"
 #include "visdataman.h"
 #include "visdataman.h"
+#include "visplanedatadisplay.h"
 #include "vismpe.h"
 #include "vismpeseedcatcher.h"
 #include "visselman.h"
@@ -367,8 +368,8 @@ void uiMPEMan::updateAttribNames()
 
     updateSelectedAttrib();
 
-    if ( !init && attribfld->size()>1 && attribspecs.size() )
-         // && engine().getAttribCache(*attribspecs[0]) )
+    if ( !init && attribfld->size()>1 && attribspecs.size() &&
+	 engine().activeVolume() != engine().getDefaultActiveVolume() )
     {
 	MPE::EMTracker* tracker = getSelectedTracker();
 	MPE::EMSeedPicker* seedpicker = tracker ? 
