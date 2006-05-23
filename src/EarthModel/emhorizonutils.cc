@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          September 2005
- RCS:           $Id: emhorizonutils.cc,v 1.8 2006-04-27 15:29:13 cvskris Exp $
+ RCS:           $Id: emhorizonutils.cc,v 1.9 2006-05-23 07:52:35 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -135,10 +135,11 @@ void HorizonUtils::getPositions( std::ostream& strm, const MultiID& id,
 	if ( pid.objectID()==-1 )
 	    break;
 
-	if ( pid.sectionID()!=sid )
+	if ( pid.sectionID() != sid )
 	{	
 	    res = new BinIDValueSet( 1, false );
 	    data += res;
+	    sid = pid.sectionID();
 	}
 
 	const Coord3 crd = surface->getPos( pid );
