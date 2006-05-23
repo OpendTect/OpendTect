@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uicoherencyattrib.cc,v 1.3 2006-04-03 13:33:34 cvshelene Exp $";
+static const char* rcsID = "$Id: uicoherencyattrib.cc,v 1.4 2006-05-23 08:30:25 cvshelene Exp $";
 
 #include "uicoherencyattrib.h"
 #include "coherencyattrib.h"
@@ -87,7 +87,7 @@ bool uiCoherencyAttrib::getParameters( Attrib::Desc& desc )
     if ( strcmp(desc.attribName(), Coherency::attribName()) )
 	return false;
     
-    mSetBool( Coherency::typeStr(), is1fld->getBoolValue() ? 1 : 2 );
+    mSetInt( Coherency::typeStr(), is1fld->getBoolValue() ? 1 : 2 );
     mSetFloatInterval( Coherency::gateStr(), tgfld->getFInterval() );
     mSetFloat( Coherency::maxdipStr(), maxdipfld->getfValue() );
     mSetFloat( Coherency::ddipStr(), deltadipfld->getfValue() );
