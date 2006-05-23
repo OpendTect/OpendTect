@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2004
- RCS:           $Id: uimpepartserv.cc,v 1.43 2006-05-22 09:20:50 cvsnanne Exp $
+ RCS:           $Id: uimpepartserv.cc,v 1.44 2006-05-23 14:54:05 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,7 +18,7 @@ ________________________________________________________________________
 #include "emtracker.h"
 #include "survinfo.h"
 #include "uimpewizard.h"
-//#include "uimpesetup.h"
+#include "uihorizontracksetup.h"
 #include "uimsg.h"
 #include "uicursor.h"
 #include "uisurfacerelationdlg.h"
@@ -113,13 +113,12 @@ int uiMPEPartServer::addTracker( const EM::ObjectID& emid,
     //TODO: Fix for multi-section case
     const EM::SectionID sid =  emobj->sectionID(0);
     blockDataLoading( true );
-    /*
+
     if ( !showSetupDlg( emid, sid, true ) )
     {
 	MPE::engine().removeTracker(res);
 	return -1;
     }
-    */
 
     if ( pickedpos.isDefined() ) 
     {
@@ -206,27 +205,28 @@ bool uiMPEPartServer::showSetupDlg( const EM::ObjectID& emid,
 				    const EM::SectionID& sid,
 				    bool showcancelbutton )
 {
-    /*
-    const int trackerid = mpeserv->getTrackerID( emid );
-    EMTracker* tracker = MPE::engine().getTracker( trackerid );
-    SectionTracker* sectiontracker = tracker->getSectionTracker( sid, true );
-    if ( !sectiontracker ) return false;
+    const int trackerid = getTrackerID( emid );
+    MPE::EMTracker* tracker = MPE::engine().getTracker( trackerid );
+    MPE::SectionTracker* sectracker = tracker->getSectionTracker( sid, true );
+    if ( !sectracker ) return false;
 
     uiDialog dlg( appserv().parent(), uiDialog::Setup("Tracking Setup") );
     if ( !showcancelbutton ) 
 	dlg.setCtrlStyle( uiDialog::LeaveOnly );
     dlg.setHelpID( "108.0.1" );
 
-    MPE::uiHorizonSetupGroup* grp =
-			new MPE::uiHorizonSetupGroup( &dlg, attrset_ );
-    grp->setSectionTracker( sectiontracker );
+
+    EM::EMObject* emobj = EM::EMM().getObject( emid );
+    MPE::uiSetupGroup* grp = 
+	MPE::uiMPE().setupgrpfact.create( &dlg, emobj->getTypeStr(), attrset_ );
+    grp->setSectionTracker( sectracker );
     
     if ( dlg.go() || !showcancelbutton )
     {
 	grp->commitToTracker();
+	loadAttribData();
 	return true;
     }
-    */
 
     return false;
 }
