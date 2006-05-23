@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: coherencyattrib.h,v 1.5 2005-12-13 09:57:38 cvshelene Exp $
+ RCS:           $Id: coherencyattrib.h,v 1.6 2006-05-23 08:29:49 cvshelene Exp $
 ________________________________________________________________________
 
 Coherency type= gate= [maxdip=250] [ddip=10]
@@ -74,6 +74,7 @@ protected:
     float		ddip;
     BinID		stepout;
     Interval<float>	gate;
+    Interval<float>	desgate;
 
     float 		distinl;
     float		distcrl;

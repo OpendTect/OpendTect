@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: coherencyattrib.cc,v 1.10 2006-04-03 13:33:18 cvshelene Exp $";
+static const char* rcsID = "$Id: coherencyattrib.cc,v 1.11 2006-05-23 08:29:49 cvshelene Exp $";
 
 
 #include "coherencyattrib.h"
@@ -103,6 +103,9 @@ Coherency::Coherency( Desc& desc_ )
 
     mGetBinID( stepout, stepoutStr() );
     stepout.inl = abs( stepout.inl ); stepout.crl = abs( stepout.crl );
+
+    const float extraz = (stepout.inl*inldist()+stepout.crl*crldist()) * maxdip;
+    desgate = Interval<float>( gate.start-extraz, gate.stop+extraz );
 }
 
 
@@ -353,6 +356,22 @@ const BinID* Coherency::reqStepout( int inp, int out ) const
 
 
 const Interval<float>* Coherency::reqZMargin( int inp, int ) const
-{ return &gate; }
+{
+    bool chgstart = mNINT(desgate.start*zFactor()) % mNINT(refstep*zFactor());
+    bool chgstop = mNINT(desgate.stop*zFactor()) % mNINT(refstep*zFactor());
+
+    if ( chgstart )
+    {
+	int minstart = (int)(desgate.start / refstep);
+	const_cast<Coherency*>(this)->desgate.start = (minstart-1) * refstep;
+    }
+    if ( chgstop )
+    {
+	int minstop = (int)(desgate.stop / refstep);
+	const_cast<Coherency*>(this)->desgate.stop = (minstop+1) * refstep;
+    }
+
+    return &desgate;
+}
 
 } // namespace Attrib
