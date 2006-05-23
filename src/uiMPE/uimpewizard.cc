@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpewizard.cc,v 1.48 2006-05-21 15:26:20 cvsjaap Exp $
+ RCS:           $Id: uimpewizard.cc,v 1.49 2006-05-23 14:47:30 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -346,6 +346,8 @@ bool Wizard::prepareTrackModePage()
 
 bool Wizard::leaveTrackModePage( bool process )
 {
+    if ( !process ) restoreObject();
+	
     if ( currentPageIdx()==lastPage() )
 	return finalizeCycle();
 
