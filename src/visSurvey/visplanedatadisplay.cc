@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.125 2006-05-04 21:59:53 cvskris Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.126 2006-05-23 12:25:20 cvskris Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -597,14 +597,12 @@ void PlaneDataDisplay::setCubeSampling( CubeSampling cs )
     if ( !datatransform_ )
 	return;
 
-    CubeSampling transformcs = getCubeSampling( false, false );
-
     if ( datatransformvoihandle_==-1 )
 	datatransformvoihandle_ =
-	    datatransform_->addVolumeOfInterest( transformcs );
+	    datatransform_->addVolumeOfInterest( cs, true );
     else
 	datatransform_->setVolumeOfInterest( datatransformvoihandle_,
-					     transformcs );
+					     cs, true );
 }
 
 
