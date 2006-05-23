@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          18-4-1996
- RCS:           $Id: survinfo.cc,v 1.72 2006-05-05 14:59:02 cvsjaap Exp $
+ RCS:           $Id: survinfo.cc,v 1.73 2006-05-23 15:13:42 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -566,9 +566,9 @@ void SurveyInfo::setTr( RCol2Coord::RCTransform& tr, const char* str )
 void SurveyInfo::putTr( const RCol2Coord::RCTransform& tr,
 			  ascostream& astream, const char* key ) const
 {
-    FileMultiString fms;
-    fms += tr.a; fms += tr.b; fms += tr.c;
-    astream.put( key, fms );
+    char buf[1024];
+    sprintf( buf, "%.10lg`%.10lg`%.10lg", tr.a, tr.b, tr.c );
+    astream.put( key, buf );
 }
 
 
