@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: vishorizondisplay.cc,v 1.4 2006-05-04 16:27:41 cvskris Exp $
+ RCS:           $Id: vishorizondisplay.cc,v 1.5 2006-05-23 13:18:14 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -906,6 +906,7 @@ void HorizonDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
 void HorizonDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 {
     visBase::VisualObjectImpl::fillPar( par, saveids );
+    EMObjectDisplay::fillPar( par, saveids );
 
     if ( emobject_ && !emobject_->isFullyLoaded() )
     {
@@ -942,6 +943,9 @@ void HorizonDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 int HorizonDisplay::usePar( const IOPar& par )
 {
     int res = visBase::VisualObjectImpl::usePar( par );
+    if ( res!=1 ) return res;
+
+    res = EMObjectDisplay::usePar( par );
     if ( res!=1 ) return res;
 
     if ( scene_ )
