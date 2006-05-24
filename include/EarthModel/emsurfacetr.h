@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfacetr.h,v 1.2 2006-04-27 19:37:09 cvskris Exp $
+ RCS:		$Id: emsurfacetr.h,v 1.3 2006-05-24 07:46:56 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -91,6 +91,8 @@ public:
     virtual bool		implRename(const IOObj*,const char*,
 	    				   const CallBack* cb=0) const;
     virtual bool		implSetReadOnly(const IOObj*,bool) const;
+
+    static bool			getBinarySetting();
 
 protected:
 

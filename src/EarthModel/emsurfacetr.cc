@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: emsurfacetr.cc,v 1.10 2006-05-09 16:08:53 cvskris Exp $
+ RCS:           $Id: emsurfacetr.cc,v 1.11 2006-05-24 07:46:56 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -227,6 +227,14 @@ bool EMSurfaceTranslator::implSetReadOnly( const IOObj* ioobj, bool ro ) const
 }
 
 
+bool EMSurfaceTranslator::getBinarySetting()
+{
+    bool isbinary = true;
+    mSettUse(getYN,"dTect.Surface","Binary format",isbinary);
+    return isbinary;
+}
+
+
 dgbEMSurfaceTranslator::dgbEMSurfaceTranslator( const char* nm, const char* unm)
     : EMSurfaceTranslator(nm,unm)
     , reader_(0)
@@ -319,14 +327,11 @@ Executor* dgbEMSurfaceTranslator::reader( EM::Surface& surf )
     return res;
 }
 
-
 Executor* dgbEMSurfaceTranslator::getWriter()
 {
-    bool isbinary = true;
-    mSettUse(getYN,"dTect.Surface","Binary format",isbinary);
     BufferString unm = group() ? group()->userName() : 0;
-    EM::dgbSurfaceWriter* res = new EM::dgbSurfaceWriter(ioobj_,unm,
-							 *surface,isbinary);
+    EM::dgbSurfaceWriter* res =
+	new EM::dgbSurfaceWriter(ioobj_,unm, *surface,getBinarySetting());
     res->setWriteOnlyZ( writeOnlyZ() );
 
     if ( hasRangeSelection() && !sels_.rg.isEmpty() )
