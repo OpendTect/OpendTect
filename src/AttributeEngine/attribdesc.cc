@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribdesc.cc,v 1.41 2006-02-24 11:09:53 cvsbert Exp $";
+static const char* rcsID = "$Id: attribdesc.cc,v 1.42 2006-05-24 12:50:35 cvshelene Exp $";
 
 #include "attribdesc.h"
 
@@ -197,6 +197,9 @@ bool Desc::parseDefStr( const char* defstr )
     if ( statusupdater )
      statusupdater(*this);
 
+    if ( errmsg.size() )
+	return false;
+
     for ( int idx=0; idx<params.size(); idx++ )
     {
          if ( !params[idx]->isOK() )
@@ -279,21 +282,39 @@ bool Desc::is2D() const
     return ioobj && SeisTrcTranslator::is2D( *ioobj );
 }
 
+#define mErrRet(msg) \
+    const_cast<Desc*>(this)->errmsg = msg;\
+    return Error;\
+
+
 
 Desc::SatisfyLevel Desc::isSatisfied() const
 {
-    if ( seloutput==-1 || seloutput>nrOutputs()  ) return Error;
+    if ( seloutput==-1 || seloutput>nrOutputs()  )
+    {
+	BufferString msg = "Selected output is not correct";
+	mErrRet(msg)
+    }
 
     for ( int idx=0; idx<params.size(); idx++ )
     {
 	if ( !params[idx]->isOK() )
-	    return Error;
+	{
+	    BufferString msg = "Parameter '"; msg += params[idx]->getKey();
+	    msg += "' is not correct";
+	    mErrRet(msg)
+	}
     }
 
     for ( int idx=0; idx<inputs.size(); idx++ )
     {
 	if ( !inputspecs[idx].enabled ) continue;
-	if ( !inputs[idx] ) return Error;
+	if ( !inputs[idx] )
+	{
+	    BufferString msg = "'"; msg += inputspecs[idx].getDesc();
+	    msg += "' is not correct";
+	    mErrRet(msg)
+	}
     }
 
     return AllOk;
