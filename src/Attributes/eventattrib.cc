@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Helene Payraudeau
  Date:		February 2005
- RCS:		$Id: eventattrib.cc,v 1.17 2006-04-14 14:29:40 cvshelene Exp $
+ RCS:		$Id: eventattrib.cc,v 1.18 2006-05-24 12:36:04 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,7 +42,7 @@ void Event::initClass()
 
     desc->addOutputDataType( Seis::UnknowData );
 
-    InputSpec inputspec( "Data on which the Events should be computed", true );
+    InputSpec inputspec( "Input Data", true );
     desc->addInput( inputspec );
 
     desc->init();
