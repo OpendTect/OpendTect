@@ -7,7 +7,7 @@ CopyRight:     (C) dGB Beheer B.V.
 Author:        A.H. Bril
 Date:          23-10-1996
 Contents:      Ranges
-RCS:           $Id: binidsurface.h,v 1.4 2006-05-10 15:26:16 cvskris Exp $
+RCS:           $Id: binidsurface.h,v 1.5 2006-05-24 07:49:55 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,8 +39,8 @@ public:
 
     bool		insertRow(int row);
     bool		insertCol(int col);
-    bool		removeRow(int row);
-    bool		removeCol(int col);
+    bool		removeRow(int,int);
+    bool		removeCol(int,int);
 
     Coord3		getKnot( const RCol&, bool computeifudf ) const;
 

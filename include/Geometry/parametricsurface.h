@@ -7,7 +7,7 @@ CopyRight:     (C) dGB Beheer B.V.
 Author:        A.H. Bril
 Date:          23-10-1996
 Contents:      Ranges
-RCS:           $Id: parametricsurface.h,v 1.13 2006-04-26 21:11:48 cvskris Exp $
+RCS:           $Id: parametricsurface.h,v 1.14 2006-05-24 07:49:55 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,8 +35,8 @@ public:
 
     virtual bool	insertRow(int row) 			= 0;
     virtual bool	insertCol(int col) 			= 0;
-    virtual bool	removeRow(int row) 			= 0;
-    virtual bool	removeCol(int col) 			= 0;
+    virtual bool	removeRow(int startrow,int stoprow)  { return false; }
+    virtual bool	removeCol(int startcol,int stoprcol) { return false; }
 
     StepInterval<int>	rowRange() const;
     StepInterval<int>	colRange(int row) const;

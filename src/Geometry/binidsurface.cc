@@ -4,7 +4,7 @@
  * DATE     : Nov 2004
 -*/
 
-static const char* rcsID = "$Id: binidsurface.cc,v 1.8 2006-05-10 15:26:16 cvskris Exp $";
+static const char* rcsID = "$Id: binidsurface.cc,v 1.9 2006-05-24 07:49:55 cvskris Exp $";
 
 #include "binidsurface.h"
 
@@ -66,16 +66,74 @@ bool BinIDSurface::insertCol(int col)
 }
 
 
-bool BinIDSurface::removeRow( int row )
+bool BinIDSurface::removeRow( int start, int stop )
 {
-    pErrMsg( "not implemented ");
+    if ( start>stop )
+	return false;
+
+    const int curnrrows = nrRows();
+    const int curnrcols = nrCols();
+
+    const int startidx = rowIndex( start );
+    const int stopidx = rowIndex( stop );
+    if ( startidx<0 || startidx>=curnrrows || stopidx<0 || stopidx>=curnrrows )
+    { 
+	errmsg() = "Row to remove does not exist"; 
+	return false; 
+    }
+
+    const int nrremoved = stop-start+1;
+
+    Array2D<float>* newpositions = 
+	depths_ ? new Array2DImpl<float>( curnrrows-nrremoved, curnrcols ) : 0;
+    
+    for ( int idx=0; newpositions && idx<curnrrows-nrremoved; idx++ )
+    {
+	for ( int idy=0; idy<curnrcols; idy++ )
+	{
+	    const int srcrow = idx<startidx ? idx : idx+nrremoved;
+	    newpositions->set( idx, idy, depths_->get( srcrow, idy ) );
+	}
+    }
+
+    if ( newpositions ) { delete depths_; depths_ = newpositions; }
+    if ( !startidx )
+	origin_.row += step_.row*nrremoved;
+    
     return true;
 }
 
 
-bool BinIDSurface::removeCol( int col )
+bool BinIDSurface::removeCol( int start, int stop )
 {
-    pErrMsg( "not implemented ");
+    const int curnrrows = nrRows();
+    const int curnrcols = nrCols();
+
+    const int startidx = colIndex( start );
+    const int stopidx = colIndex( stop );
+    if ( startidx<0 || startidx>=curnrcols || stopidx<0 || stopidx>=curnrcols )
+    { 
+	errmsg() = "Column to remove does not exist"; 
+	return false; 
+    }
+
+    const int nrremoved = stop-start+1;
+
+    Array2D<float>* newpositions = 
+	depths_ ? new Array2DImpl<float>( curnrrows, curnrcols-nrremoved ) : 0;
+
+    for ( int idx=0; newpositions && idx<curnrrows; idx++ )
+    {
+	for ( int idy=0; idy<curnrcols-nrremoved; idy++ )
+	{
+	    const int srccol = idy<startidx ? idy : idy+nrremoved;
+	    newpositions->set( idx, idy, depths_->get( idx, srccol ) );
+	}
+    }
+    if ( newpositions ) { delete depths_; depths_ = newpositions; }
+    if ( !startidx )
+	origin_.col += step_.col*nrremoved;
+
     return true;
 }
 

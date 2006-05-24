@@ -4,7 +4,7 @@
  * DATE     : Nov 2004
 -*/
 
-static const char* rcsID = "$Id: parametricsurface.cc,v 1.21 2006-04-26 21:09:24 cvskris Exp $";
+static const char* rcsID = "$Id: parametricsurface.cc,v 1.22 2006-05-24 07:49:55 cvskris Exp $";
 
 #include "parametricsurface.h"
 
@@ -409,21 +409,30 @@ bool ParametricSurface::isAtSameEdge( const RCol& rc1, const RCol& rc2,
 	} \
  \
 	if ( founddefknot ) \
+	{ \
+	    if ( rc0!=rc0##rng.rc0start ) \
+	    { \
+		Interval<int> rg( rc0##rng.rc0start, prev ); \
+		rg.sort(); \
+		removefunc( rg.start, rg.stop ); \
+	    } \
 	    break; \
+	} \
 \
-	removefunc( rc0 ); \
+	prev = rc0; \
     } \
-    rc0##rng = rc0##Range(); 
+    rc0##rng = rc0##Range()
 
 void ParametricSurface::trimUndefParts()
 {
     StepInterval<int> rowrng = rowRange();
     StepInterval<int> colrng = colRange();
 
-    mRemovePart( row, start, +=, col, removeRow )
-    mRemovePart( row, stop,  -=, col, removeRow )
-    mRemovePart( col, start, +=, row, removeCol )
-    mRemovePart( col, stop,  -=, row, removeCol )
+    int prev;
+    mRemovePart( row, start, +=, col, removeRow );
+    mRemovePart( row, stop,  -=, col, removeRow );
+    mRemovePart( col, start, +=, row, removeCol );
+    mRemovePart( col, stop,  -=, row, removeCol );
 }
 
 /*
