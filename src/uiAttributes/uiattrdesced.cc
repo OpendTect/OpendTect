@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:		$Id: uiattrdesced.cc,v 1.10 2006-03-10 13:08:47 cvshelene Exp $
+ RCS:		$Id: uiattrdesced.cc,v 1.11 2006-05-24 12:55:37 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -236,6 +236,9 @@ const char* uiAttrDescEd::commit( Attrib::Desc* editdesc )
     editdesc->updateParams();
     getInput( *editdesc );
     getOutput( *editdesc );
+    if ( editdesc->isSatisfied() == Desc::Error )
+	errmsg = editdesc->errMsg();
+
     return errmsg.size() ? errmsg.buf() : 0;
 }
 
