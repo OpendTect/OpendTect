@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: shiftattrib.h,v 1.8 2006-03-20 16:32:08 cvsnanne Exp $
+ RCS:           $Id: shiftattrib.h,v 1.9 2006-05-24 12:11:02 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,7 +51,7 @@ protected:
     static void			updateDesc(Desc&);
 
     bool			allowParallelComputation() const
-    				{ return true; }
+    				{ return false; }
 
     bool			getInputOutput(int inp,TypeSet<int>& res) const;
     bool			getInputData(const BinID&,int zintv);
