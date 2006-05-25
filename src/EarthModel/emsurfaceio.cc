@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          June 2003
- RCS:           $Id: emsurfaceio.cc,v 1.68 2006-05-22 14:56:15 cvskris Exp $
+ RCS:           $Id: emsurfaceio.cc,v 1.69 2006-05-25 18:40:21 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -392,18 +392,21 @@ int dgbSurfaceReader::totalNr() const
 
 void dgbSurfaceReader::setGeometry()
 {
-    surface_->removeAll();
-    surface_->setDBInfo( dbinfo_ );
-    for ( int idx=0; idx<auxdatasel_.size(); idx++ )
+    if ( surface_ )
     {
-	if ( auxdatasel_[idx]>=auxdataexecs_.size() )
-	    continue;
+	surface_->removeAll();
+	surface_->setDBInfo( dbinfo_ );
+	for ( int idx=0; idx<auxdatasel_.size(); idx++ )
+	{
+	    if ( auxdatasel_[idx]>=auxdataexecs_.size() )
+		continue;
 
-	auxdataexecs_[auxdatasel_[idx]]->setSurface(
-		reinterpret_cast<Horizon&>(*surface_));
+	    auxdataexecs_[auxdatasel_[idx]]->setSurface(
+		    reinterpret_cast<Horizon&>(*surface_));
 
-	add( auxdataexecs_[auxdatasel_[idx]] );
-	auxdataexecs_.replace( auxdatasel_[idx], 0 );
+	    add( auxdataexecs_[auxdatasel_[idx]] );
+	    auxdataexecs_.replace( auxdatasel_[idx], 0 );
+	}
     }
 
     for ( int idx=0; idx<sectionsel_.size(); idx++ )
@@ -469,7 +472,7 @@ RowCol dgbSurfaceReader::getFileStep() const
 
 bool dgbSurfaceReader::shouldSkipRow( int row ) const
 {
-    if ( version_==1 || !isBinary() )
+    if ( version_==1 || (version_==2 && !isBinary()) )
 	return false;
 
     if ( sectionsel_.indexOf(sectionids_[sectionindex_])==-1 )
@@ -539,7 +542,7 @@ int dgbSurfaceReader::nextStep()
 	    return res;
     }
 
-    while ( isBinary() && shouldSkipRow( currentRow() ) )
+    while ( shouldSkipRow( currentRow() ) )
     {
 	fullyread_ = false;
 	const int res = skipRow( strm );
@@ -748,11 +751,10 @@ bool dgbSurfaceReader::readVersion2Row( std::istream& strm,
 
 int dgbSurfaceReader::skipRow( std::istream& strm )
 {
-    if ( !isBinary() )
-	return ErrorOccurred;
-
     if ( version_!=3 )
     {
+	if ( !isBinary() ) return ErrorOccurred;
+
 	const int nrcols = readInt32( strm );
 	if ( !strm ) return ErrorOccurred;
 
@@ -789,7 +791,6 @@ bool dgbSurfaceReader::prepareRowRead( std::istream& strm )
 
 void dgbSurfaceReader::goToNextRow()
 {
-
     rowindex_++;
     if ( rowindex_>=nrrows_ )
     {
@@ -1463,7 +1464,7 @@ bool dgbSurfaceWriter::writeRow( std::ostream& strm )
     const int row = firstrow_+rowindex_ *
 		    (writerowrange_?writerowrange_->step:rowrange_.step);
 
-    const SectionID sectionid = surface_.sectionID(sectionindex_);
+    const SectionID sectionid = sectionsel_[sectionindex_];
     TypeSet<Coord3> colcoords;
 
     int firstcol = -1;
