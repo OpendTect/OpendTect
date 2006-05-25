@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uitreeitemmanager.cc,v 1.26 2006-03-02 20:17:51 cvskris Exp $";
+static const char* rcsID = "$Id: uitreeitemmanager.cc,v 1.27 2006-05-25 13:35:43 cvskris Exp $";
 
 
 #include "uitreeitemmanager.h"
@@ -18,7 +18,7 @@ static const char* rcsID = "$Id: uitreeitemmanager.cc,v 1.26 2006-03-02 20:17:51
 
 
 uiTreeItem::uiTreeItem( const char* name__ )
-    : parent( 0 )
+    : parent_( 0 )
     , name_( name__ )
     , uilistviewitem( 0 )
 {
@@ -82,8 +82,8 @@ void uiTreeItem::updateSelection( int selid, bool downward )
 	for ( int idx=0; idx<children.size(); idx++ )
 	    children[idx]->updateSelection(selid,downward);
     }
-    else if ( parent )
-	parent->updateSelection( selid, false );
+    else if ( parent_ )
+	parent_->updateSelection( selid, false );
 }
 
 
@@ -95,7 +95,7 @@ bool uiTreeItem::shouldSelect( int selid ) const
 
 bool uiTreeItem::select(int selkey)
 {
-    return parent ? parent->select(selkey) : false;
+    return parent_ ? parent_->select(selkey) : false;
 }
 
 
@@ -185,11 +185,11 @@ void uiTreeItem::moveItem( uiTreeItem* below )
 
 void uiTreeItem::moveItemToTop()
 {
-    if ( parent && parent->getItem() && getItem() )
+    if ( parent_ && parent_->getItem() && getItem() )
     {
 	uiListViewItem* item = getItem();
-	parent->getItem()->takeItem( item );
-	parent->getItem()->insertItem( item );
+	parent_->getItem()->takeItem( item );
+	parent_->getItem()->insertItem( item );
     }
 }
 	
@@ -202,7 +202,7 @@ int uiTreeItem::uiListViewItemType() const
 
 uiParent* uiTreeItem::getUiParent()
 {
-    return parent ? parent->getUiParent() : 0;
+    return parent_ ? parent_->getUiParent() : 0;
 }
 
 
@@ -223,15 +223,15 @@ int uiTreeItem::siblingIndex() const
 
 uiTreeItem* uiTreeItem::siblingAbove()
 {
-    if ( !parent || !uilistviewitem ) return 0;
+    if ( !parent_ || !uilistviewitem ) return 0;
 
     uiListViewItem* itemabove = uilistviewitem->itemAbove();
     if ( !itemabove ) return 0;
 
-    for ( int idx=0; idx<parent->children.size(); idx++ )
+    for ( int idx=0; idx<parent_->children.size(); idx++ )
     {
-	if ( parent->children[idx]->getItem()==itemabove )
-	    return parent->children[idx];
+	if ( parent_->children[idx]->getItem()==itemabove )
+	    return parent_->children[idx];
     }
 
     return 0;
@@ -240,15 +240,15 @@ uiTreeItem* uiTreeItem::siblingAbove()
 
 uiTreeItem* uiTreeItem::siblingBelow()
 {
-    if ( !parent || !uilistviewitem ) return 0;
+    if ( !parent_ || !uilistviewitem ) return 0;
 
     uiListViewItem* itembelow = uilistviewitem->itemBelow();
     if ( !itembelow ) return 0;
 
-    for ( int idx=0; idx<parent->children.size(); idx++ )
+    for ( int idx=0; idx<parent_->children.size(); idx++ )
     {
-	if ( parent->children[idx]->getItem()==itembelow )
-	    return parent->children[idx];
+	if ( parent_->children[idx]->getItem()==itembelow )
+	    return parent_->children[idx];
     }
 
     return 0;
@@ -259,7 +259,7 @@ uiTreeItem* uiTreeItem::siblingBelow()
 if ( !strcmp(newitem->parentType(), typeid(*this).name()) ) \
 { \
     children += newitem; \
-    newitem->parent = this; \
+    newitem->parent_ = this; \
  \
     uiListViewItem* item = new uiListViewItem(uiparentlist, \
 		  uiListViewItem::Setup(newitem->name(), \
@@ -287,8 +287,8 @@ if ( downwards ) \
 	    return true; \
     } \
 } \
-else if ( parent ) \
-    return parent->addChild( newitem, below, downwards ); \
+else if ( parent_ ) \
+    return parent_->addChild( newitem, below, downwards ); \
  \
 return false; 
 

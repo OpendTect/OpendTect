@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uioddatatreeitem.cc,v 1.1 2006-05-09 11:00:53 cvsbert Exp $
+ RCS:		$Id: uioddatatreeitem.cc,v 1.2 2006-05-25 13:35:43 cvskris Exp $
 ___________________________________________________________________
 
 -*/
@@ -98,8 +98,9 @@ bool uiODDataTreeItem::init()
     uiVisPartServer* visserv = applMgr()->visServer();
     if ( visserv->canHaveMultipleAttribs( displayID() ) )
     {
-	uilistviewitem->stateChanged.notify(mCB(this,uiODDataTreeItem,checkCB));
-	uilistviewitem->setChecked( visserv->isAttribEnabled(displayID(),
+	uilistviewitem_->stateChanged.notify(
+		mCB( this, uiODDataTreeItem, checkCB ) );
+	uilistviewitem_->setChecked( visserv->isAttribEnabled(displayID(),
 		    		    attribNr() ) );
     }
 
@@ -111,7 +112,7 @@ void uiODDataTreeItem::checkCB( CallBacker* cb )
 {
     uiVisPartServer* visserv = applMgr()->visServer();
     visserv->enableAttrib( displayID(), attribNr(),
-	    		   uilistviewitem->isChecked() );
+	    		   uilistviewitem_->isChecked() );
 }
 
 
@@ -134,7 +135,7 @@ int uiODDataTreeItem::sceneID() const
 
 int uiODDataTreeItem::displayID() const
 {
-    mDynamicCastGet( uiODDisplayTreeItem*, odti, parent );
+    mDynamicCastGet( uiODDisplayTreeItem*, odti, parent_ );
     return odti ? odti->displayID() : -1;
 }
 
@@ -263,7 +264,7 @@ void uiODDataTreeItem::handleMenuCB( CallBacker* cb )
 	visserv->removeAttrib( displayID(), attribNr() );
 
 	prepareForShutdown();
-	parent->removeChild( this );
+	parent_->removeChild( this );
 	menu->setIsHandled( true );
     }
 }

@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		May 2006
- RCS:		$Id: uiodseis2dtreeitem.cc,v 1.2 2006-05-09 11:00:53 cvsbert Exp $
+ RCS:		$Id: uiodseis2dtreeitem.cc,v 1.3 2006-05-25 13:35:43 cvskris Exp $
 ___________________________________________________________________
 
 -*/
@@ -141,7 +141,7 @@ void uiOD2DLineSetTreeItem::createMenuCB( CallBacker* cb )
     mDynamicCastGet(uiMenuHandler*,menu,cb);
     mAddMenuItem( menu, &addlinesitm_, true, false );
 
-    if ( children.size() )
+    if ( children_.size() )
     {
 	Attrib::SelSpec as;
 	MenuItem* dummy = applMgr()->attrServer()->storedAttribMenuItem( as );
@@ -204,39 +204,39 @@ void uiOD2DLineSetTreeItem::handleMenuCB( CallBacker* cb )
 	menu->setIsHandled( true );
 	const char idx = storeditm_.itemIndex( mnuid );
 	const char* attribnm = storeditm_.getItem(idx)->text;
-	for ( int idx=0; idx<children.size(); idx++ )
-	    ((uiOD2DLineSetSubItem*)children[idx])->displayStoredData(attribnm);
+	for ( int idx=0; idx<children_.size(); idx++ )
+	   ((uiOD2DLineSetSubItem*)children_[idx])->displayStoredData(attribnm);
     }
     else if ( applMgr()->attrServer()->handleAttribSubMenu(mnuid,as) )
     {
 	menu->setIsHandled( true );
-	for ( int idx=0; idx<children.size(); idx++ )
-	    ((uiOD2DLineSetSubItem*)children[idx])->setAttrib( as );
+	for ( int idx=0; idx<children_.size(); idx++ )
+	    ((uiOD2DLineSetSubItem*)children_[idx])->setAttrib( as );
     }
     else if ( mnuid==removeitm_.id )
     {
 	menu->setIsHandled( true );
-	while( children.size() )
+	while( children_.size() )
 	{
-	    uiOD2DLineSetSubItem* itm = (uiOD2DLineSetSubItem*)children[0];
+	    uiOD2DLineSetSubItem* itm = (uiOD2DLineSetSubItem*)children_[0];
 	    applMgr()->visServer()->removeObject( itm->displayID(), sceneID() );
 	    removeChild( itm );
 	}
-	parent->removeChild( this );
+	parent_->removeChild( this );
     }
     else if ( mnuid==showlineitm_.id || mnuid==hidelineitm_.id )
     {
 	menu->setIsHandled( true );
 	const bool turnon = mnuid==showlineitm_.id;
-	for ( int idx=0; idx<children.size(); idx++ )
-	    children[idx]->setChecked( turnon );
+	for ( int idx=0; idx<children_.size(); idx++ )
+	    children_[idx]->setChecked( turnon );
     }
     else if ( mnuid==showlblitm_.id || mnuid==hidelblitm_.id )
     {
 	menu->setIsHandled( true );
 	const bool turnon = mnuid==showlblitm_.id;
-	for ( int idx=0; idx<children.size(); idx++ )
-	    ((uiOD2DLineSetSubItem*)children[idx])->showLineName( turnon );
+	for ( int idx=0; idx<children_.size(); idx++ )
+	    ((uiOD2DLineSetSubItem*)children_[idx])->showLineName( turnon );
     }
 }
 
@@ -278,7 +278,7 @@ bool uiOD2DLineSetSubItem::init()
     bool newdisplay = false;
     if ( displayid_==-1 )
     {
-	mDynamicCastGet(uiOD2DLineSetTreeItem*,lsitm,parent)
+	mDynamicCastGet(uiOD2DLineSetTreeItem*,lsitm,parent_)
 	if ( !lsitm ) return false;
 
 	visSurvey::Seis2DDisplay* s2d = visSurvey::Seis2DDisplay::create();
@@ -389,9 +389,9 @@ void uiOD2DLineSetSubItem::handleMenuCB( CallBacker* cb )
 
 bool uiOD2DLineSetSubItem::displayStoredData( const char* nm )
 {
-    if ( !children.size() ) return false;
+    if ( !children_.size() ) return false;
 
-    mDynamicCastGet( uiOD2DLineSetAttribItem*, lsai, children[0] );
+    mDynamicCastGet( uiOD2DLineSetAttribItem*, lsai, children_[0] );
     if ( !lsai ) return false;
 
     return lsai->displayStoredData(nm);
@@ -400,9 +400,9 @@ bool uiOD2DLineSetSubItem::displayStoredData( const char* nm )
 
 void uiOD2DLineSetSubItem::setAttrib( const Attrib::SelSpec& myas )
 {
-    if ( !children.size() ) return;
+    if ( !children_.size() ) return;
 
-    mDynamicCastGet( uiOD2DLineSetAttribItem*, lsai, children[0] );
+    mDynamicCastGet( uiOD2DLineSetAttribItem*, lsai, children_[0] );
     if ( !lsai ) return;
 
     lsai->setAttrib( myas );

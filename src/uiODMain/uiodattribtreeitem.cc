@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodattribtreeitem.cc,v 1.2 2006-05-09 11:00:53 cvsbert Exp $
+ RCS:		$Id: uiodattribtreeitem.cc,v 1.3 2006-05-25 13:35:43 cvskris Exp $
 ___________________________________________________________________
 
 -*/
@@ -45,7 +45,7 @@ uiODAttribTreeItem::~uiODAttribTreeItem()
 
 bool uiODAttribTreeItem::anyButtonClick( uiListViewItem* item )
 {
-    if ( item!=uilistviewitem )
+    if ( item!=uilistviewitem_ )
 	return uiTreeItem::anyButtonClick( item );
 
     if ( !select() ) return false;
@@ -206,7 +206,7 @@ void uiODAttribTreeItem::updateColumnText( int col )
 		const char* tablename = coltab->colorSeq().colors().name();
 		PtrMan<ioPixmap> pixmap =
 		    new ioPixmap(  tablename, cPixmapWidth(), cPixmapHeight() );
-		uilistviewitem->setPixmap( uiODSceneMgr::cColorColumn(),
+		uilistviewitem_->setPixmap( uiODSceneMgr::cColorColumn(),
 					   *pixmap );
 	    }
 	}

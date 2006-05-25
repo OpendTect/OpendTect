@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uioddisplaytreeitem.cc,v 1.2 2006-05-09 11:00:53 cvsbert Exp $
+ RCS:		$Id: uioddisplaytreeitem.cc,v 1.3 2006-05-25 13:35:43 cvskris Exp $
 ___________________________________________________________________
 
 -*/
@@ -75,8 +75,8 @@ uiODDisplayTreeItem::~uiODDisplayTreeItem()
 	menu->handlenotifier.remove(mCB(this,uiODDisplayTreeItem,handleMenuCB));
     }
 
-    if ( uilistviewitem->pixmap(0) )
-	delete uilistviewitem->pixmap(0);
+    if ( uilistviewitem_->pixmap(0) )
+	delete uilistviewitem_->pixmap(0);
 }
 
 
@@ -117,8 +117,8 @@ bool uiODDisplayTreeItem::init()
     }
 
     visserv->setSelObjectId( displayid_ );
-    uilistviewitem->setChecked( visserv->isOn(displayid_) );
-    uilistviewitem->stateChanged.notify( mCB(this,uiODDisplayTreeItem,checkCB));
+    uilistviewitem_->setChecked( visserv->isOn(displayid_) );
+    uilistviewitem_->stateChanged.notify(mCB(this,uiODDisplayTreeItem,checkCB));
 
     name_ = createDisplayName();
 
@@ -153,7 +153,7 @@ void uiODDisplayTreeItem::updateColumnText( int col )
 	    pixmap->fill( so->getColor() );
 	}
 
-	if ( pixmap ) uilistviewitem->setPixmap( uiODSceneMgr::cColorColumn(),
+	if ( pixmap ) uilistviewitem_->setPixmap( uiODSceneMgr::cColorColumn(),
 						 *pixmap );
     }
 
@@ -170,7 +170,7 @@ bool uiODDisplayTreeItem::showSubMenu()
 void uiODDisplayTreeItem::checkCB( CallBacker* )
 {
     if ( !visserv->isSoloMode() )
-	visserv->turnOn( displayid_, uilistviewitem->isChecked() );
+	visserv->turnOn( displayid_, uilistviewitem_->isChecked() );
 }
 
 
@@ -240,7 +240,7 @@ void uiODDisplayTreeItem::handleMenuCB( CallBacker* cb )
 	    pixmap = new ioPixmap( GetIconFileName("lock_small.png") );
 	else
 	    pixmap = new ioPixmap();
-	uilistviewitem->setPixmap( 0, *pixmap );
+	uilistviewitem_->setPixmap( 0, *pixmap );
 	ODMainWin()->sceneMgr().updateStatusBar();
     }
     else if ( mnuid==duplicatemnuitem_.id )
@@ -257,7 +257,7 @@ void uiODDisplayTreeItem::handleMenuCB( CallBacker* cb )
 	{
 	    prepareForShutdown();
 	    visserv->removeObject( displayid_, sceneID() );
-	    parent->removeChild( this );
+	    parent_->removeChild( this );
 	}
     }
     else if ( mnuid==addattribmnuitem_.id )

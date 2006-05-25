@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: uitreeitemmanager.h,v 1.23 2006-03-02 20:17:51 cvskris Exp $
+ RCS:		$Id: uitreeitemmanager.h,v 1.24 2006-05-25 13:35:43 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -149,7 +149,7 @@ protected:
     virtual bool		rightClick(uiListViewItem* item);
     virtual bool		anyButtonClick(uiListViewItem* item);
     virtual void		setListViewItem( uiListViewItem* );
-    uiListViewItem*		getItem() { return uilistviewitem; }
+    uiListViewItem*		getItem() { return uilistviewitem_; }
 
     virtual bool		showSubMenu() { return true; }
     virtual bool		select(int selkey);
@@ -164,13 +164,13 @@ protected:
     				/*!\returns true if the item should be marked
 				    as selected given the selectionkey. */
 
-    IOPar			properties;
+    IOPar			properties_;
 
-    uiTreeItem*			parent;
+    uiTreeItem*			parent_;
     BufferString		name_;
 
-    uiListViewItem*		uilistviewitem;
-    ObjectSet<uiTreeItem>	children;
+    uiListViewItem*		uilistviewitem_;
+    ObjectSet<uiTreeItem>	children_;
     friend			class uiTreeTopItem;
     friend			class uiODTreeTop;
 };
@@ -185,8 +185,8 @@ public:
     			/*!< Does only update the display */
     virtual void	updateColumnText(int col);
 
-    void		disabRightClick(bool yn) 	{ disabrightclick=yn; }
-    void		disabAnyClick(bool yn) 		{ disabanyclick=yn; }
+    void		disabRightClick(bool yn) 	{ disabrightclick_=yn; }
+    void		disabAnyClick(bool yn) 		{ disabanyclick_=yn; }
 
 
 			~uiTreeTopItem();
@@ -201,8 +201,8 @@ protected:
     virtual const char*	parentType() const { return 0; } 
     virtual uiParent*	getUiParent();
 
-    bool		disabrightclick;
-    bool		disabanyclick;
+    bool		disabrightclick_;
+    bool		disabanyclick_;
 };
 
 
@@ -241,8 +241,8 @@ public:
 
 protected:
 
-    ObjectSet<uiTreeItemFactory>	factories;
-    TypeSet<int>			placementidxs;
+    ObjectSet<uiTreeItemFactory>	factories_;
+    TypeSet<int>			placementidxs_;
 
 };
 
@@ -250,19 +250,19 @@ protected:
 template<class T>
 bool inline uiTreeItem::getProperty( const char* propertykey, T& res ) const
 {
-    if ( properties.get( propertykey, res ))
+    if ( properties_.get( propertykey, res ))
 	return true;
 
-    return parent ? parent->getProperty( propertykey, res ) : false;
+    return parent_ ? parent_->getProperty( propertykey, res ) : false;
 }
 
 
 inline bool uiTreeItem::getPropertyPtr( const char* propertykey, void*& res ) const
 {
-    if ( properties.getPtr( propertykey, res ))
+    if ( properties_.getPtr( propertykey, res ))
 	return true;
 
-    return parent ? parent->getPropertyPtr( propertykey, res ) : false;
+    return parent_ ? parent_->getPropertyPtr( propertykey, res ) : false;
 }
 
 
@@ -270,15 +270,15 @@ template<class T>
 void inline uiTreeItem::setProperty( const char* propertykey, const T& val )
 {
     if ( typeid(T)==typeid(void*) )
-	properties.set( propertykey, (int64)val );
+	properties_.set( propertykey, (int64)val );
     else
-	properties.set( propertykey, val );
+	properties_.set( propertykey, val );
 }
 
 
 void inline uiTreeItem::setPropertyPtr( const char* propertykey, void* val )
 {
-    properties.setPtr( propertykey, val );
+    properties_.setPtr( propertykey, val );
 }
 
 #endif

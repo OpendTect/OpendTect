@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visplanedatadisplay.h,v 1.78 2006-05-01 07:05:34 cvsnanne Exp $
+ RCS:		$Id: visplanedatadisplay.h,v 1.79 2006-05-25 13:35:43 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -18,7 +18,6 @@ ________________________________________________________________________
 #include "vissurvobj.h"
 #include "ranges.h"
 
-class CubeSampling;
 template <class T> class Array2D;
 
 namespace visBase

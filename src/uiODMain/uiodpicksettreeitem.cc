@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodpicksettreeitem.cc,v 1.3 2006-05-16 16:28:22 cvsbert Exp $
+ RCS:		$Id: uiodpicksettreeitem.cc,v 1.4 2006-05-25 13:35:43 cvskris Exp $
 ___________________________________________________________________
 
 -*/
@@ -42,7 +42,7 @@ bool uiODPickSetParentTreeItem::showSubMenu()
 
     uiPopupMenu mnu( getUiParent(), "Action" );
     mnu.insertItem( new uiMenuItem("New/Load ..."), 0 );
-    if ( children.size()>0 )
+    if ( children_.size()>0 )
     {
 	mnu.insertItem( new uiMenuItem("Save changes"), 1);
 	mnu.insertSeparator();
@@ -74,9 +74,9 @@ bool uiODPickSetParentTreeItem::showSubMenu()
     else if ( mnuid==2 || mnuid==3 )
     {
 	const bool showall = mnuid == 3;
-	for ( int idx=0; idx<children.size(); idx++ )
+	for ( int idx=0; idx<children_.size(); idx++ )
 	{
-	    mDynamicCastGet(uiODPickSetTreeItem*,itm,children[idx])
+	    mDynamicCastGet(uiODPickSetTreeItem*,itm,children_[idx])
 	    if ( !itm ) continue;
 
 	    itm->showAllPicks( showall );

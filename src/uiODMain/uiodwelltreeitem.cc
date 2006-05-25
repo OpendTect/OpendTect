@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		May 2006
- RCS:		$Id: uiodwelltreeitem.cc,v 1.3 2006-05-24 15:38:47 cvsnanne Exp $
+ RCS:		$Id: uiodwelltreeitem.cc,v 1.4 2006-05-25 13:35:43 cvskris Exp $
 ___________________________________________________________________
 
 -*/
@@ -48,7 +48,7 @@ bool uiODWellParentTreeItem::showSubMenu()
     uiPopupMenu mnu( getUiParent(), "Action" );
     mnu.insertItem( new uiMenuItem("Load ..."), 0 );
     mnu.insertItem( new uiMenuItem("New WellTrack ..."), 1 );
-    if ( children.size() )
+    if ( children_.size() )
 	mnu.insertItem( new uiMenuItem("Properties ..."), 2 );
     addStandardItems( mnu );
 
@@ -101,9 +101,9 @@ bool uiODWellParentTreeItem::showSubMenu()
 	    uiWellPropDlg dlg( getUiParent(), wds );
 	    dlg.go();
 
-	    for ( int idx=0; idx<children.size(); idx++ )
+	    for ( int idx=0; idx<children_.size(); idx++ )
 	    {
-		mDynamicCastGet(uiODWellTreeItem*,itm,children[idx])
+		mDynamicCastGet(uiODWellTreeItem*,itm,children_[idx])
 		if ( itm )
 		    itm->updateColumnText(uiODSceneMgr::cColorColumn());
 	    }

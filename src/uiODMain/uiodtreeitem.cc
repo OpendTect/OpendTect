@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.191 2006-05-09 11:00:53 cvsbert Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.192 2006-05-25 13:35:43 cvskris Exp $
 ___________________________________________________________________
 
 -*/
@@ -78,7 +78,7 @@ uiODApplMgr* uiODTreeTop::applMgr()
 TypeSet<int> uiODTreeTop::getDisplayIds( int& selectedid, bool usechecked )
 {
     TypeSet<int> dispids;
-    loopOverChildrenIds( dispids, selectedid, usechecked, children );
+    loopOverChildrenIds( dispids, selectedid, usechecked, children_ );
     return dispids;
 }
 
@@ -89,19 +89,19 @@ void uiODTreeTop::loopOverChildrenIds( TypeSet<int>& dispids, int& selectedid,
 {
     for ( int idx=0; idx<childrenlist.size(); idx++ )
 	loopOverChildrenIds( dispids, selectedid,
-			     usechecked, childrenlist[idx]->children );
+			     usechecked, childrenlist[idx]->children_ );
 
     for ( int idy=0; idy<childrenlist.size(); idy++ )
     {
 	mDynamicCastGet(uiODDisplayTreeItem*,disptreeitem,childrenlist[idy]);
 	if ( disptreeitem )
 	{
-	    if ( usechecked && childrenlist[idy]->uilistviewitem->isChecked() )
+	    if ( usechecked && childrenlist[idy]->uilistviewitem_->isChecked() )
 		dispids += disptreeitem->displayID();
 	    else if ( !usechecked )
 		dispids += disptreeitem->displayID();
 
-	    if ( childrenlist[idy]->uilistviewitem->isSelected() )
+	    if ( childrenlist[idy]->uilistviewitem_->isSelected() )
 		selectedid = disptreeitem->displayID();
 	}
     }
@@ -139,7 +139,7 @@ int uiODTreeItem::sceneID() const
 
 void uiODTreeItem::addStandardItems( uiPopupMenu& mnu )
 {
-    if ( children.size() < 2 ) return;
+    if ( children_.size() < 2 ) return;
 
     mnu.insertSeparator( 100 );
     mnu.insertItem( new uiMenuItem("Show all items"), 101 );
@@ -150,12 +150,12 @@ void uiODTreeItem::addStandardItems( uiPopupMenu& mnu )
 
 void uiODTreeItem::handleStandardItems( int mnuid )
 {
-    for ( int idx=0; idx<children.size(); idx++ )
+    for ( int idx=0; idx<children_.size(); idx++ )
     {
 	if ( mnuid == 101 )
-	    children[idx]->setChecked( true );
+	    children_[idx]->setChecked( true );
 	else if ( mnuid == 102 )
-	    children[idx]->setChecked( false );
+	    children_[idx]->setChecked( false );
     }
 
     if ( mnuid==103 )
@@ -164,9 +164,9 @@ void uiODTreeItem::handleStandardItems( int mnuid )
 	msg += " items will be removed.\nDo you want to continue?";
 	if ( !uiMSG().askGoOn(msg) ) return;
 
-	while ( children.size() )
+	while ( children_.size() )
 	{
-	    mDynamicCastGet(uiODDisplayTreeItem*,itm,children[0])
+	    mDynamicCastGet(uiODDisplayTreeItem*,itm,children_[0])
 	    if ( !itm ) continue;
 	    applMgr()->visServer()->removeObject( itm->displayID(), sceneID() );
 	    removeChild( itm );
@@ -187,7 +187,7 @@ void uiODTreeTop::removeFactoryCB(CallBacker* cb)
     mCBCapsuleUnpack(int,idx,cb);
     PtrMan<uiTreeItem> dummy = tfs->getFactory(idx)->create();
     const uiTreeItem* child = findChild( dummy->name() );
-    if ( children.indexOf(child)==-1 )
+    if ( children_.indexOf(child)==-1 )
 	return;
 
     removeChild( const_cast<uiTreeItem*>(child) );
