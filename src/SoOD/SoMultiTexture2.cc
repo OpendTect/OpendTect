@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2005
- RCS:           $Id: SoMultiTexture2.cc,v 1.13 2006-03-13 18:38:30 cvskris Exp $
+ RCS:           $Id: SoMultiTexture2.cc,v 1.14 2006-05-25 09:14:00 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -674,16 +674,17 @@ const unsigned char* SoMultiTexture2::createImage( SbVec2s& size, int& nc )
 	    ? RED | GREEN | BLUE | (lnc==4?OPACITY:0)
 	    : component[idx];
 
-	if ( !comp ) //nothing to do
-	    continue;
-
 	const int numcolors = idx>=numcolor.getNum() ? 0 : numcolor[idx];
-	const bool iscoltab = numcolors>0;
 	const unsigned char opacityval =
 	    idx>=opacity.getNum() ? 255 : opacity[idx];
 
-	if ( !opacityval )
+	if ( !comp || !opacityval ) //nothing to do
+	{
+	    coltabstart += numcolors;
 	    continue;
+	}
+
+	const bool iscoltab = numcolors>0;
 
 	mCondErrRet( iscoltab && lnc!=1,
 		     "Coltab image must be single component.");
@@ -697,7 +698,7 @@ const unsigned char* SoMultiTexture2::createImage( SbVec2s& size, int& nc )
 		     "Operations on opacity can ony be done with one or "
 		      "four components");
 
-	if ( !idx ) size = lsz;
+	if ( !nrimagesused ) size = lsz;
 	else mCondErrRet( size!=lsz, "Images have different size" );
 
 	if ( !hastransperancy && doopacity )
