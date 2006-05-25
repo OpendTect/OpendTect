@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodattribtreeitem.cc,v 1.3 2006-05-25 13:35:43 cvskris Exp $
+ RCS:		$Id: uiodattribtreeitem.cc,v 1.4 2006-05-25 18:24:16 cvskris Exp $
 ___________________________________________________________________
 
 -*/
@@ -19,8 +19,6 @@ ___________________________________________________________________
 #include "ptrman.h"
 #include "ioobj.h"
 #include "ioman.h"
-#include "pixmap.h"
-#include "colortab.h"
 #include "keystrs.h"
 
 #include "uiattribpartserv.h"
@@ -194,22 +192,7 @@ void uiODAttribTreeItem::updateColumnText( int col )
 	    return;
 	}
 	
-	PtrMan<ioPixmap> pixmap = 0;
-	if ( !so->hasColor() )
-	{
-	    int ctid = so->getColTabID( attribNr() );
-	    const visBase::DataObject* obj = ctid>=0 ? 
-				       visBase::DM().getObject( ctid ) : 0;
-	    mDynamicCastGet(const visBase::VisColorTab*,coltab,obj);
-	    if ( coltab )
-	    { 
-		const char* tablename = coltab->colorSeq().colors().name();
-		PtrMan<ioPixmap> pixmap =
-		    new ioPixmap(  tablename, cPixmapWidth(), cPixmapHeight() );
-		uilistviewitem_->setPixmap( uiODSceneMgr::cColorColumn(),
-					   *pixmap );
-	    }
-	}
+	if ( !so->hasColor() ) displayMiniCtab( so->getColTabID( attribNr()) );
     }
 
     uiODDataTreeItem::updateColumnText( col );

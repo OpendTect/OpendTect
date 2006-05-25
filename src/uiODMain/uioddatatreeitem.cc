@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uioddatatreeitem.cc,v 1.2 2006-05-25 13:35:43 cvskris Exp $
+ RCS:		$Id: uioddatatreeitem.cc,v 1.3 2006-05-25 18:24:16 cvskris Exp $
 ___________________________________________________________________
 
 -*/
@@ -19,6 +19,11 @@ ___________________________________________________________________
 
 #include "uimenuhandler.h"
 #include "uiodscenemgr.h"
+
+#include "viscolortab.h"
+#include "colortab.h"
+#include "pixmap.h"
+
 
 
 TypeSet<uiODDataTreeItem::Creator> uiODDataTreeItem::creators_;
@@ -276,4 +281,22 @@ void uiODDataTreeItem::updateColumnText( int col )
 	name_ = createDisplayName();
 
     uiTreeItem::updateColumnText( col );
+}
+
+
+void uiODDataTreeItem::displayMiniCtab( int ctabid )
+{
+    uiVisPartServer* visserv = applMgr()->visServer();
+    mDynamicCastGet( const visBase::VisColorTab*,coltab,
+	    	     visserv->getObject( ctabid ) );
+    if ( !coltab )
+    {
+	uiTreeItem::updateColumnText( uiODSceneMgr::cColorColumn() );
+	return;
+    }
+
+    const char* tablename = coltab->colorSeq().colors().name();
+    PtrMan<ioPixmap> pixmap =
+	new ioPixmap( tablename, cPixmapWidth(), cPixmapHeight() );
+    uilistviewitem_->setPixmap( uiODSceneMgr::cColorColumn(), *pixmap );
 }

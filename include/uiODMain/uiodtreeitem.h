@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: uiodtreeitem.h,v 1.25 2006-05-09 11:00:53 cvsbert Exp $
+ RCS:		$Id: uiodtreeitem.h,v 1.26 2006-05-25 18:24:16 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -27,11 +27,11 @@ class uiODTreeItem : public uiTreeItem
 public:
     			uiODTreeItem(const char*);
 
+    int			sceneID() const;
 protected:
 
     uiODApplMgr*	applMgr();
     uiSoViewer*		viewer();
-    int			sceneID() const;
 
     void		addStandardItems(uiPopupMenu&);
     void		handleStandardItems(int mnuid);

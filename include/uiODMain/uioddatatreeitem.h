@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		May 2006
- RCS:		$Id: uioddatatreeitem.h,v 1.1 2006-05-09 11:00:53 cvsbert Exp $
+ RCS:		$Id: uioddatatreeitem.h,v 1.2 2006-05-25 18:24:16 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -48,7 +48,7 @@ protected:
     int			uiListViewItemType() const;
     bool		init();
 
-    void		checkCB(CallBacker*);
+    virtual void	checkCB(CallBacker*);
     bool		shouldSelect(int) const;
 
     uiODApplMgr*	applMgr() const;
@@ -66,6 +66,8 @@ protected:
     void		updateColumnText(int col);
     virtual BufferString createDisplayName() const			= 0;
 
+    void		displayMiniCtab( int ctabid );
+
     uiMenuHandler*	menu_;
     MenuItem		movemnuitem_;
     MenuItem		movetotopmnuitem_;
@@ -76,7 +78,6 @@ protected:
     MenuItem		removemnuitem_;
     MenuItem		changetransparencyitem_;
     const char*		parenttype_;
-
 
     static TypeSet<Creator>	creators_;
 };
