@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          June 2003
- RCS:           $Id: emsurfaceio.cc,v 1.69 2006-05-25 18:40:21 cvskris Exp $
+ RCS:           $Id: emsurfaceio.cc,v 1.70 2006-05-26 13:09:08 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -434,7 +434,16 @@ void dgbSurfaceReader::setGeometry()
 	    readcolrange_->step *= -1;
     }
 
-
+    mDynamicCastGet( Horizon*, hor, surface_ );
+    if ( hor )
+    {
+	const RowCol filestep = getFileStep();
+	const RowCol loadedstep = readrowrange_ && readcolrange_
+	    ? RowCol(readrowrange_->step,readcolrange_->step)
+	    : filestep;
+   
+       hor->geometry().setStep( filestep, loadedstep );
+    }
 }
 
 
@@ -901,15 +910,6 @@ bool dgbSurfaceReader::readVersion3Row( std::istream& strm,
 
 void dgbSurfaceReader::createSection( const SectionID& sectionid )
 {
-    const RowCol filestep = getFileStep();
-    const RowCol loadedstep = readrowrange_ && readcolrange_
-			? RowCol(readrowrange_->step,readcolrange_->step)
-			: filestep;
-
-    mDynamicCastGet( Horizon*, hor, surface_ );
-    if ( hor )
-	hor->geometry().setStep( filestep, loadedstep );
-
     const int index = sectionids_.indexOf(sectionid);
     surface_->geometry().addSection( sectionnames_[index] ?
 			       *sectionnames_[index] : 0, sectionid, false );
