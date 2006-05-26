@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: emsurface.cc,v 1.83 2006-04-27 15:29:13 cvskris Exp $
+ RCS:           $Id: emsurface.cc,v 1.84 2006-05-26 13:08:38 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -121,7 +121,6 @@ Surface::Surface( EMManager& man)
 
 Surface::~Surface()
 {
-    removeAll();
     delete &relations;
 }
 
