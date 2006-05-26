@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emhorizon3d.h,v 1.44 2006-04-27 16:22:06 cvskris Exp $
+ RCS:		$Id: emhorizon3d.h,v 1.45 2006-05-26 13:03:59 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -60,6 +60,7 @@ protected:
     RowCol		loadedstep_;
     RowCol		step_;
     float		shift_;
+    bool		checksupport_;
 };
 
 
