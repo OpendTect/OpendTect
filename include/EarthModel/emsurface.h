@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurface.h,v 1.60 2006-04-27 15:29:13 cvskris Exp $
+ RCS:		$Id: emsurface.h,v 1.61 2006-05-26 12:27:30 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -49,7 +49,7 @@ public:
 					       bool addtohistory);
     bool			removeSection(SectionID,bool hist);
 
-    void			removeAll();
+    virtual void		removeAll();
 
     bool			isAtEdge(const EM::PosID&) const;
     bool			isLoaded() const;
