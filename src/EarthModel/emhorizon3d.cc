@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: emhorizon3d.cc,v 1.72 2006-05-26 13:04:01 cvskris Exp $
+ RCS:           $Id: emhorizon3d.cc,v 1.73 2006-05-26 13:14:41 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -518,7 +518,7 @@ int HorizonGeometry::getConnectedPos( const PosID& posid,
 
 Geometry::BinIDSurface* HorizonGeometry::createSectionGeometry() const
 {
-    Geometry::BinIDSurface* res = new Geometry::BinIDSurface( step_ );
+    Geometry::BinIDSurface* res = new Geometry::BinIDSurface( loadedstep_ );
     res->checkSupport( checksupport_ );
 
     return res;
