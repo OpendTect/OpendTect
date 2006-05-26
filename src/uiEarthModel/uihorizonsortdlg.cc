@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		September 2005
- RCS:		$Id: uihorizonsortdlg.cc,v 1.3 2006-05-10 21:27:29 cvskris Exp $
+ RCS:		$Id: uihorizonsortdlg.cc,v 1.4 2006-05-26 08:13:33 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,6 +23,8 @@ ________________________________________________________________________
 #include "executor.h"
 #include "horizonsorter.h"
 #include "ioobj.h"
+#include "iopar.h"
+#include "keystrs.h"
 #include "ptrman.h"
 
 
@@ -37,6 +39,18 @@ uiHorizonSortDlg::uiHorizonSortDlg( uiParent* p )
 uiHorizonSortDlg::~uiHorizonSortDlg()
 {
     deepUnRef( horizons_ );
+}
+
+
+void uiHorizonSortDlg::setParConstraints( const IOPar& parconstraints,
+					  bool includeconstraints,
+					  bool allowcnstrsabsent )
+{
+    CtxtIOObj ctio = ioobjselgrp_->getContext();
+    ctio.ctxt.parconstraints = parconstraints;
+    ctio.ctxt.includeconstraints = includeconstraints;
+    ctio.ctxt.allowcnstrsabsent = allowcnstrsabsent;
+    ioobjselgrp_->setContext( ctio );
 }
 
 

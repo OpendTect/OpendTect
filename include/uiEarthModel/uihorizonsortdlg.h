@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          January 2006
- RCS:           $Id: uihorizonsortdlg.h,v 1.1 2006-04-28 15:22:54 cvsnanne Exp $
+ RCS:           $Id: uihorizonsortdlg.h,v 1.2 2006-05-26 08:13:25 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,6 +19,7 @@ ________________________________________________________________________
 
 namespace EM { class Horizon; }
 
+class IOPar;
 class uiIOObjSelGrp;
 
 class uiHorizonSortDlg : public uiDialog
@@ -27,6 +28,9 @@ public:
 				uiHorizonSortDlg(uiParent*);
 				~uiHorizonSortDlg();
 
+    void			setParConstraints(const IOPar&,
+	    					  bool includeconstraints,
+						  bool allowcnstrsabsent);
     void			getSortedHorizons(
 					ObjectSet<EM::Horizon>&) const;
     CubeSampling		getBoundingBox() const	{ return bbox_; }
