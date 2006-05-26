@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: emhorizon3d.cc,v 1.71 2006-05-08 13:39:19 cvsjaap Exp $
+ RCS:           $Id: emhorizon3d.cc,v 1.72 2006-05-26 13:04:01 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -223,6 +223,7 @@ Horizon::~Horizon()
 void Horizon::removeAll()
 {
     Surface::removeAll();
+    geometry_.removeAll();
     auxdata.removeAll();
     edgelinesets.removeAll();
 }
@@ -345,6 +346,7 @@ HorizonGeometry::HorizonGeometry( Surface& surf )
     , step_( SI().inlStep(), SI().crlStep() )
     , loadedstep_( SI().inlStep(), SI().crlStep() )
     , shift_( 0 )
+    , checksupport_( true )
 {}
 
 
@@ -378,6 +380,8 @@ void HorizonGeometry::setStep( const RowCol& ns, const RowCol& loadedstep )
 {
     step_ = ns;
     loadedstep_ = loadedstep;
+    if ( nrSections() )
+        pErrMsg("Hey, this can only be done without sections.");
 }
 
 
@@ -418,9 +422,11 @@ float HorizonGeometry::getShift() const
 
 bool HorizonGeometry::enableChecks( bool yn )
 {
-    const bool res = isChecksEnabled();
+    const bool res = checksupport_;
     for ( int idx=0; idx<sections_.size(); idx++ )
 	((Geometry::BinIDSurface*)sections_[idx])->checkSupport(yn);
+
+    checksupport_ = yn;
 
     return res;
 }
@@ -428,8 +434,7 @@ bool HorizonGeometry::enableChecks( bool yn )
 
 bool HorizonGeometry::isChecksEnabled() const
 {
-    return sections_.size()
-	? ((Geometry::BinIDSurface*)sections_[0])->checksSupport() : true;
+    return checksupport_;
 }
 
 
@@ -512,7 +517,12 @@ int HorizonGeometry::getConnectedPos( const PosID& posid,
 
 
 Geometry::BinIDSurface* HorizonGeometry::createSectionGeometry() const
-{ return new Geometry::BinIDSurface( step_ ); }
+{
+    Geometry::BinIDSurface* res = new Geometry::BinIDSurface( step_ );
+    res->checkSupport( checksupport_ );
+
+    return res;
+}
 
 
 
