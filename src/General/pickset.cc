@@ -5,11 +5,12 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: pickset.cc,v 1.33 2006-05-29 08:02:32 cvsbert Exp $";
+static const char* rcsID = "$Id: pickset.cc,v 1.34 2006-05-29 14:29:26 cvsbert Exp $";
 
 #include "pickset.h"
 #include "survinfo.h"
 #include "multiid.h"
+#include "ioman.h"
 #include <ctype.h>
 
 
@@ -155,33 +156,32 @@ void Pick::Location::getKey( const char* idkey, BufferString& val ) const
 }
 
 
-static ObjectSet<Pick::SetMgr>& getMgrs()
+Pick::SetMgr& Pick::SetMgr::getMgr( const char* nm )
 {
     static ObjectSet<Pick::SetMgr>* mgrs = 0;
+    Pick::SetMgr* newmgr = 0;
     if ( !mgrs )
     {
 	mgrs = new ObjectSet<Pick::SetMgr>;
-	*mgrs += new Pick::SetMgr(0);
+	newmgr = new Pick::SetMgr( 0 );
+	    // ensure the first mgr has the 'empty' name
     }
-
-    return *mgrs;
-}
-
-
-Pick::SetMgr& Pick::SetMgr::getMgr( const char* nm )
-{
-    ObjectSet<Pick::SetMgr>& mgrs = getMgrs();
-    if ( !nm || !*nm )
-	return *mgrs[0];
-
-    for ( int idx=1; idx<mgrs.size(); idx++ )
+    else if ( (!nm || !*nm) )
+	return *((*mgrs)[0]);
+    else
     {
-	if ( mgrs[idx]->name() == nm )
-	    return *mgrs[idx];
+	for ( int idx=1; idx<mgrs->size(); idx++ )
+	{
+	    if ( (*mgrs)[idx]->name() == nm )
+		return *((*mgrs)[idx]);
+	}
     }
 
-    Pick::SetMgr* newmgr = new Pick::SetMgr( nm );
-    mgrs += newmgr;
+    if ( !newmgr )
+	newmgr = new Pick::SetMgr( nm );
+    *mgrs += newmgr;
+    IOM().surveyChanged.notify( mCB(newmgr,Pick::SetMgr,survChg) );
+    IOM().entryRemoved.notify( mCB(newmgr,Pick::SetMgr,objRm) );
     return *newmgr;
 }
 
@@ -303,4 +303,25 @@ void Pick::SetMgr::removeCBs( CallBacker* cb )
     setAdded.removeWith( cb );
     setChanged.removeWith( cb );
     setDispChanged.removeWith( cb );
+}
+
+
+void Pick::SetMgr::survChg( CallBacker* )
+{
+    locationChanged.cbs.erase();
+    setToBeRemoved.cbs.erase();
+    setAdded.cbs.erase();
+    setChanged.cbs.erase();
+    setDispChanged.cbs.erase();
+    deepErase( pss_ );
+    deepErase( ids_ );
+    changed_.erase();
+}
+
+
+void Pick::SetMgr::objRm( CallBacker* cb )
+{
+    mCBCapsuleUnpack(const MultiID&,ky,cb);
+    if ( indexOf(ky) >= 0 )
+	set( ky, 0 );
 }

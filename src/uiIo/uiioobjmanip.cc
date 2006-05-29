@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          25/05/2000
- RCS:           $Id: uiioobjmanip.cc,v 1.22 2006-05-29 08:02:32 cvsbert Exp $
+ RCS:           $Id: uiioobjmanip.cc,v 1.23 2006-05-29 14:29:26 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,6 +21,7 @@ ________________________________________________________________________
 #include "pixmap.h"
 #include "ptrman.h"
 #include "ioman.h"
+#include "iodir.h"
 #include "iostrm.h"
 #include "iopar.h"
 #include "transl.h"
@@ -318,10 +319,13 @@ bool uiIOObjManipGroup::renameEntry( Translator* tr )
 
 bool uiIOObjManipGroup::rmEntry( bool rmabl )
 {
-    if ( rmabl && !uiIOObj(*ioobj).removeImpl(true) )
-	return false;
-
-    entries.curRemoved();
+    if ( !rmabl )
+	IOM().dirPtr()->permRemove( ioobj->key() );
+    else
+    {
+	if ( !uiIOObj(*ioobj).removeImpl(true) )
+	    return false;
+    }
     return true;
 }
 

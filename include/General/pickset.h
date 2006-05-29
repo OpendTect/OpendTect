@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		May 2001
  Contents:	PickSet base classes
- RCS:		$Id: pickset.h,v 1.19 2006-05-29 08:02:32 cvsbert Exp $
+ RCS:		$Id: pickset.h,v 1.20 2006-05-29 14:29:26 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -187,6 +187,9 @@ protected:
     Set*		find(const MultiID&) const;
     MultiID*		find(const Set&) const;
     Set*		find(const char*) const;
+
+    void		survChg(CallBacker*);
+    void		objRm(CallBacker*);
 };
 
 inline SetMgr& Mgr()

@@ -4,7 +4,7 @@
  * DATE     : 3-8-1994
 -*/
 
-static const char* rcsID = "$Id: ioman.cc,v 1.62 2006-05-29 08:02:32 cvsbert Exp $";
+static const char* rcsID = "$Id: ioman.cc,v 1.63 2006-05-29 14:29:26 cvsbert Exp $";
 
 #include "ioman.h"
 #include "iodir.h"
@@ -38,12 +38,16 @@ static void clearSelHists()
 }
 
 #define mDestroyInst() \
-    CallBackSet cbs = IOM().surveyChanged.cbs; \
+    CallBackSet sccbs = IOM().surveyChanged.cbs; \
+    CallBackSet rmcbs = IOM().entryRemoved.cbs; \
+    CallBackSet dccbs = IOM().newIODir.cbs; \
     delete IOMan::theinst_; \
     IOMan::theinst_ = 0
 
 #define mFinishNewInst(dotrigger) \
-    IOM().surveyChanged.cbs = cbs; \
+    IOM().surveyChanged.cbs = sccbs; \
+    IOM().entryRemoved.cbs = rmcbs; \
+    IOM().newIODir.cbs = dccbs; \
     if ( dotrigger ) \
 	IOM().surveyChanged.trigger()
 
