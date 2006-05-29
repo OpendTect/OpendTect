@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          December 2004
- RCS:           $Id: uimpepartserv.h,v 1.23 2006-05-21 14:04:04 cvsjaap Exp $
+ RCS:           $Id: uimpepartserv.h,v 1.24 2006-05-29 15:19:05 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "multiid.h"
 #include "cubesampling.h"
 #include "emposid.h"
+#include "emtracker.h"
 
 class BufferStringSet;
 
@@ -108,6 +109,9 @@ public:
     void			postponeLoadingCurVol();
     void			loadPostponedVolume();
 
+    bool 			saveSetup(const MultiID&);
+    bool 			readSetup(const MultiID&);
+	
     void			fillPar(IOPar&) const;
     bool			usePar(const IOPar&);
 
@@ -117,6 +121,8 @@ protected:
     void			activeVolumeChange(CallBacker*);
     void			loadAttribData();
     void			loadEMObjectCB(CallBacker*);
+    void			mergeAttribSets(const Attrib::DescSet& newads,
+						MPE::EMTracker&);
 
     const Attrib::DescSet*	attrset_;
     MPE::Wizard*		wizard_;
