@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: horizon3dseedpicker.h,v 1.12 2006-05-17 09:03:13 cvsjaap Exp $
+ RCS:           $Id: horizon3dseedpicker.h,v 1.13 2006-05-29 15:06:43 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,7 +39,8 @@ public:
     int			nrSeeds() const;
     int			minSeedsToLeaveInitStage() const;
 
-    NotifierAccess*	seedChangeNotifier()		{ return &seedchange_; }
+    NotifierAccess*	aboutToAddRmSeedNotifier()	{ return &addrmseed_; }
+    NotifierAccess*	madeSurfChangeNotifier()	{ return &surfchange_; }
     
     enum SeedModeOrder	{ TrackFromSeeds, 
 			  TrackBetweenSeeds, 
@@ -73,11 +74,13 @@ protected:
     EM::SectionID	sectionid_;
     MPE::EMTracker&	tracker_;
 
-    Notifier<HorizonSeedPicker>	
-			seedchange_;
-    
     int			seedconmode_;
     bool		blockpicking_;
+
+    Notifier<HorizonSeedPicker>	
+			addrmseed_;
+    Notifier<HorizonSeedPicker>	
+			surfchange_;
 private: 
     void		extendSeedListEraseInBetween( 
 			    bool wholeline,const BinID& startbid,
