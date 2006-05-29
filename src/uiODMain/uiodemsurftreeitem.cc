@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodemsurftreeitem.cc,v 1.3 2006-05-25 13:35:43 cvskris Exp $
+ RCS:		$Id: uiodemsurftreeitem.cc,v 1.4 2006-05-29 15:36:37 cvsjaap Exp $
 ___________________________________________________________________
 
 -*/
@@ -321,7 +321,7 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB( CallBacker* cb )
     else if ( mnuid==changesetupmnuitem_.id )
     {
 	menu->setIsHandled(true);
-	applMgr()->mpeServer()->showSetupDlg( emid, sectionid );
+	applMgr()->mpeServer()->showSetupDlg( emid, sectionid, true );
     }
     else if ( mnuid==reloadmnuitem_.id )
     {
