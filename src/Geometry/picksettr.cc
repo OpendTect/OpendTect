@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Jul 2005
- RCS:		$Id: picksettr.cc,v 1.6 2006-05-16 16:28:22 cvsbert Exp $
+ RCS:		$Id: picksettr.cc,v 1.7 2006-05-29 08:02:32 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,6 +22,8 @@ ________________________________________________________________________
 #include "ioman.h"
 #include "errh.h"
 #include "keystrs.h"
+
+static const char* sKeyMarkerType = "Marker Type";
 
 
 const IOObjContext& PickSetTranslatorGroup::ioContext()
@@ -123,12 +125,17 @@ const char* dgbPickSetTranslator::read( Pick::Set& ps, Conn& conn )
 	astrm.next();
 	if ( astrm.hasKeyword(sKey::Color) )
 	{
-	    ps.color_.use( astrm.value() );
+	    ps.disp_.color_.use( astrm.value() );
 	    astrm.next();
 	}
 	if ( astrm.hasKeyword(sKey::Size) )
 	{
-	    ps.pixsize_ = astrm.getVal();
+	    ps.disp_.pixsize_ = astrm.getVal();
+	    astrm.next();
+	}
+	if ( astrm.hasKeyword(sKeyMarkerType) )
+	{
+	    ps.disp_.markertype_ = astrm.getVal();
 	    astrm.next();
 	}
 	while ( !atEndOfSection(astrm) )
@@ -160,13 +167,14 @@ const char* dgbPickSetTranslator::write( const Pick::Set& ps, Conn& conn )
 
     astrm.put( "Ref", ps.name() );
     char buf[80];
-    if ( ps.color_ != Color::NoColor )
+    if ( ps.disp_.color_ != Color::NoColor )
     {
-	ps.color_.fill( buf );
+	ps.disp_.color_.fill( buf );
 	astrm.put( sKey::Color, buf );
     }
-    if ( ps.pixsize_ != 0 )
-	astrm.put( sKey::Size, ps.pixsize_ );
+    if ( ps.disp_.pixsize_ != 0 )
+	astrm.put( sKey::Size, ps.disp_.pixsize_ );
+    astrm.put( sKeyMarkerType, ps.disp_.markertype_ );
 
     for ( int iloc=0; iloc<ps.size(); iloc++ )
     {
@@ -186,29 +194,33 @@ void PickSetTranslator::createBinIDValueSets(
 {
     for ( int idx=0; idx<ioobjids.size(); idx++ )
     {
-	MultiID key( ioobjids.get( idx ) );
-	PtrMan<IOObj>ioobj = IOM().get( key );
-	BufferString msg;
-	if ( !ioobj )
-	{
-	    msg = "Cannot find PickSet with key "; msg += key;
-	    ErrMsg( msg ); continue;
-	}
-	Pick::Set ps;
-	if ( !retrieve(ps,ioobj,msg) )
-	    { ErrMsg( msg ); continue; }
-
-	const int nrpicks = ps.size();
-	if ( !nrpicks ) continue;
-
 	BinIDValueSet* bs = new BinIDValueSet( 1, true );
+	bivsets += bs;
 
-	for ( int ipck=0; ipck<nrpicks; ipck++ )
+	MultiID key( ioobjids.get( idx ) );
+	const int setidx = Pick::Mgr().indexOf( key );
+	const Pick::Set* ps = setidx < 0 ? 0 : &Pick::Mgr().get( setidx );
+	Pick::Set* createdps = 0;
+	if ( !ps )
 	{
-	    Pick::Location pl( ps[ipck] );
+	    PtrMan<IOObj>ioobj = IOM().get( key );
+	    BufferString msg;
+	    if ( !ioobj )
+	    {
+		msg = "Cannot find PickSet with key "; msg += key;
+		ErrMsg( msg ); continue;
+	    }
+	    ps = createdps = new Pick::Set;
+	    if ( !retrieve(*createdps,ioobj,msg) )
+		{ ErrMsg( msg ); delete createdps; continue; }
+	}
+
+	for ( int ipck=0; ipck<ps->size(); ipck++ )
+	{
+	    Pick::Location pl( (*ps)[ipck] );
 	    bs->add( SI().transform(pl.pos), pl.pos.z );
 	}
 
-	bivsets += bs;
+	delete createdps;
     }
 }

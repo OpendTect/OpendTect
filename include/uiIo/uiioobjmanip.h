@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2003
- RCS:           $Id: uiioobjmanip.h,v 1.8 2004-12-24 10:35:57 bert Exp $
+ RCS:           $Id: uiioobjmanip.h,v 1.9 2006-05-29 08:02:32 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -97,11 +97,6 @@ protected:
     bool		doReloc(Translator*,IOStream&,IOStream&);
 
 };
-
-
-//! Removes the underlying file(s) that an IOObj describes, with warnings
-//!< if exist_lbl set to true, " existing " is added to message.
-bool uiRmIOObjImpl(IOObj&,bool exist_lbl=false);
 
 
 #endif

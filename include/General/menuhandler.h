@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2003
- RCS:           $Id: menuhandler.h,v 1.4 2005-08-10 16:17:14 cvskris Exp $
+ RCS:           $Id: menuhandler.h,v 1.5 2006-05-29 08:02:32 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,7 +20,7 @@ class BufferStringSet;
 class MenuItem;
 class MenuHandler;
 
-class MenuItemHolder : public CallBackClass
+class MenuItemHolder : public CallBacker
 {
 public:
     				MenuItemHolder();

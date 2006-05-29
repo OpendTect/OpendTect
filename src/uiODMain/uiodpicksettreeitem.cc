@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodpicksettreeitem.cc,v 1.4 2006-05-25 13:35:43 cvskris Exp $
+ RCS:		$Id: uiodpicksettreeitem.cc,v 1.5 2006-05-29 08:02:32 cvsbert Exp $
 ___________________________________________________________________
 
 -*/
@@ -20,14 +20,67 @@ ___________________________________________________________________
 #include "uimsg.h"
 #include "uiodscenemgr.h"
 #include "uipickpartserv.h"
-#include "uipickszdlg.h"
+#include "uipickpropdlg.h"
 #include "vispicksetdisplay.h"
 #include "vissurvscene.h"
 
 
 uiODPickSetParentTreeItem::uiODPickSetParentTreeItem()
     : uiODTreeItem( "PickSet" )
-{}
+    , display_on_add(false)
+{
+    Pick::Mgr().setAdded.notify( mCB(this,uiODPickSetParentTreeItem,setAdd) );
+    Pick::Mgr().setToBeRemoved.notify(
+	    			mCB(this,uiODPickSetParentTreeItem,setRm) );
+}
+
+
+uiODPickSetParentTreeItem::~uiODPickSetParentTreeItem()
+{
+    Pick::Mgr().removeCBs( this );
+}
+
+
+bool uiODPickSetParentTreeItem::init()
+{
+    for ( int idx=0; idx<Pick::Mgr().size(); idx++ )
+    {
+	uiODDisplayTreeItem* item =
+			new uiODPickSetTreeItem( -1, Pick::Mgr().get(idx) );
+	addChild( item, true );
+	item->setChecked( false );
+    }
+    return true;
+}
+
+
+void uiODPickSetParentTreeItem::setAdd( CallBacker* cb )
+{
+    mDynamicCastGet(Pick::Set*,ps,cb)
+    if ( !ps ) return;
+
+    uiODDisplayTreeItem* item = new uiODPickSetTreeItem( -1, *ps );
+    addChild( item, true );
+    item->setChecked( display_on_add );
+}
+
+
+void uiODPickSetParentTreeItem::setRm( CallBacker* cb )
+{
+    mDynamicCastGet(Pick::Set*,ps,cb)
+
+    for ( int idx=0; idx<children_.size(); idx++ )
+    {
+	mDynamicCastGet(uiODPickSetTreeItem*,itm,children_[idx])
+	if ( !itm ) continue;
+	if ( &itm->getSet() == ps )
+	{
+	    applMgr()->visServer()->removeObject( itm->displayID(), sceneID() );
+	    removeChild( itm );
+	    return;
+	}
+    }
+}
 
 
 bool uiODPickSetParentTreeItem::showSubMenu()
@@ -53,18 +106,15 @@ bool uiODPickSetParentTreeItem::showSubMenu()
     addStandardItems( mnu );
 
     const int mnuid = mnu.exec();
-    if ( mnuid<0 ) return false;
+    if ( mnuid<0 )
+	return false;
     if ( mnuid==0 )
     {
-	if ( !applMgr()->pickServer()->fetchSets() )
+	display_on_add = true;
+	bool res = applMgr()->pickServer()->fetchSets();
+	display_on_add = false;
+	if ( !res )
 	    return -1;
-
-	ObjectSet<Pick::Set>& pss = applMgr()->pickServer()->setsFetched();
-	for ( int idx=0; idx<pss.size(); idx++ )
-	{
-	    if ( !findChild(pss[idx]->name()) )
-		addChild( new uiODPickSetTreeItem(*pss[idx]), false );
-	}
     }
     else if ( mnuid==1 )
     {
@@ -92,46 +142,51 @@ bool uiODPickSetParentTreeItem::showSubMenu()
 
 uiTreeItem* uiODPickSetTreeItemFactory::create( int visid, uiTreeItem* ) const
 {
-    mDynamicCastGet( visSurvey::PickSetDisplay*, psd, 
-		     ODMainWin()->applMgr().visServer()->getObject(visid));
-    return psd ? new uiODPickSetTreeItem(visid) : 0;
+    mDynamicCastGet(visSurvey::PickSetDisplay*,psd, 
+		    ODMainWin()->applMgr().visServer()->getObject(visid));
+    return !psd ? 0 : new uiODPickSetTreeItem( visid, *psd->getSet() );
 }
 
 
-uiODPickSetTreeItem::uiODPickSetTreeItem( const Pick::Set& ps )
-    : ps_(new Pick::Set(ps))
-    , renamemnuitem_("Rename ...")
+uiODPickSetTreeItem::uiODPickSetTreeItem( int did, Pick::Set& ps )
+    : set_(ps)
     , storemnuitem_("Store ...")
+    , storeasmnuitem_("Store As ...")
     , dirmnuitem_("Set directions ...")
     , showallmnuitem_("Show all")
     , propertymnuitem_("Properties ...")
-{}
-
-
-uiODPickSetTreeItem::uiODPickSetTreeItem( int id )
-    : ps_(0)
-    , renamemnuitem_("Rename ...")
-    , storemnuitem_("Store ...")
-    , dirmnuitem_("Set directions ...")
-    , showallmnuitem_("Show all")
-    , propertymnuitem_("Properties ...")
-{ displayid_ = id; }
+{
+    displayid_ = did;
+    Pick::Mgr().setChanged.notify( mCB(this,uiODPickSetTreeItem,setChg) );
+}
 
 
 uiODPickSetTreeItem::~uiODPickSetTreeItem()
 { 
-    delete ps_; 
+    Pick::Mgr().removeCBs( this );
+}
+
+
+void uiODPickSetTreeItem::setChg( CallBacker* cb )
+{
+    mDynamicCastGet(Pick::Set*,ps,cb)
+    if ( !ps || &set_!=ps ) return;
+
+    mDynamicCastGet(visSurvey::PickSetDisplay*,psd,
+	    	    visserv->getObject(displayid_));
+    if ( psd ) psd->setName( ps->name() );
+    updateColumnText( uiODSceneMgr::cNameColumn() );
 }
 
 
 bool uiODPickSetTreeItem::init()
 {
-    if ( displayid_==-1 )
+    if ( displayid_ == -1 )
     {
 	visSurvey::PickSetDisplay* psd = visSurvey::PickSetDisplay::create();
 	displayid_ = psd->id();
-	psd->copyFromPickSet( *ps_ );
-	visserv->addObject(psd,sceneID(),true);
+	visserv->addObject( psd, sceneID(), true );
+	psd->setSet( &set_ );
     }
     else
     {
@@ -140,6 +195,7 @@ bool uiODPickSetTreeItem::init()
 	if ( !psd ) return false;
     }
 
+    updateColumnText( uiODSceneMgr::cColorColumn() );
     return uiODDisplayTreeItem::init();
 }
 
@@ -151,8 +207,8 @@ void uiODPickSetTreeItem::createMenuCB( CallBacker* cb )
     if ( menu->menuID()!=displayID() )
 	return;
 
-    mAddMenuItem( menu, &renamemnuitem_, true, false );
     mAddMenuItem( menu, &storemnuitem_, true, false );
+    mAddMenuItem( menu, &storeasmnuitem_, true, false );
     mAddMenuItem( menu, &dirmnuitem_, true, false );
 
     mDynamicCastGet(visSurvey::PickSetDisplay*,psd,
@@ -160,14 +216,6 @@ void uiODPickSetTreeItem::createMenuCB( CallBacker* cb )
 
     mAddMenuItem( menu, &showallmnuitem_, true, psd->allShown() );
     mAddMenuItem( menu, &propertymnuitem_, true, false );
-}
-
-
-void uiODPickSetTreeItem::saveCurSet( visSurvey::PickSetDisplay* psd )
-{
-    psd->copyToPickSet( applMgr()->pickServer()->set() );
-    applMgr()->pickServer()->storeSet();
-    psd->setChanged( false );
 }
 
 
@@ -179,33 +227,31 @@ void uiODPickSetTreeItem::handleMenuCB( CallBacker* cb )
     if ( menu->menuID()!=displayID() || mnuid==-1 || menu->isHandled() )
 	return;
 
-    mDynamicCastGet(visSurvey::PickSetDisplay*,psd,
-		    visserv->getObject(displayid_));
-    if ( mnuid==renamemnuitem_.id )
-    {
-	menu->setIsHandled(true);
-	BufferString newname;
-	const char* oldname = visserv->getObjectName( displayid_ );
-	applMgr()->pickServer()->renameSet( oldname, newname );
-	visserv->setObjectName( displayid_, newname );
-    }
-    else if ( mnuid==storemnuitem_.id )
+    if ( mnuid==storemnuitem_.id )
     {
 	menu->setIsHandled( true );
-	saveCurSet( psd );
+	applMgr()->storePickSet( set_ );
+    }
+    if ( mnuid==storeasmnuitem_.id )
+    {
+	menu->setIsHandled( true );
+	applMgr()->storePickSetAs( set_ );
     }
     else if ( mnuid==dirmnuitem_.id )
     {
 	menu->setIsHandled( true );
-	applMgr()->setPickSetDirs( displayid_ );
+	applMgr()->setPickSetDirs( set_ );
     }
     else if ( mnuid==showallmnuitem_.id )
     {
-	showAllPicks( !psd->allShown() );
+	mDynamicCastGet(visSurvey::PickSetDisplay*,psd,
+			visserv->getObject(displayid_));
+	if ( psd )
+	    showAllPicks( !psd->allShown() );
     }
     else if ( mnuid==propertymnuitem_.id )
     {
-	uiPickSizeDlg dlg( getUiParent(), psd );
+	uiPickPropDlg dlg( getUiParent(), set_ );
 	dlg.go();
     }
 
@@ -226,9 +272,9 @@ void uiODPickSetTreeItem::showAllPicks( bool yn )
 
 bool uiODPickSetTreeItem::askContinueAndSaveIfNeeded()
 {
-    mDynamicCastGet(visSurvey::PickSetDisplay*,psd,
-	    	    visserv->getObject(displayid_));
-    if ( !psd->hasChanged() ) return true;
+    const int setidx = Pick::Mgr().indexOf( set_ );
+    if ( setidx < 0 || !Pick::Mgr().isChanged(setidx) )
+	return true;
 
     BufferString warnstr = "This pickset has changed since the last save.\n"
 			   "Do you want to save it?";
@@ -238,7 +284,7 @@ bool uiODPickSetTreeItem::askContinueAndSaveIfNeeded()
     else if ( retval == -1 )
 	return false;
     else
-	saveCurSet( psd );
+	applMgr()->storePickSet( set_ );
 
     return true;
 }

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		May 2004
- RCS:		$Id: uivisemobj.h,v 1.18 2006-03-08 18:19:52 cvskris Exp $
+ RCS:		$Id: uivisemobj.h,v 1.19 2006-05-29 08:02:32 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -26,7 +26,7 @@ class uiVisPartServer;
 class MultiID;
 
 
-class uiVisEMObject : public CallBackClass
+class uiVisEMObject : public CallBacker
 {
 public:
     			uiVisEMObject(uiParent*,int displayid,

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		July 2005
- RCS:		$Id: uimpe.h,v 1.6 2006-05-12 09:51:14 cvsnanne Exp $
+ RCS:		$Id: uimpe.h,v 1.7 2006-05-29 08:02:32 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -48,7 +48,7 @@ class SectionTracker;
 \endcode
 */
 
-class uiEMEditor : public CallBackClass
+class uiEMEditor : public CallBacker
 {
 public:
     			uiEMEditor(uiParent*);

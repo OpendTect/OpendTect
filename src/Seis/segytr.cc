@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: segytr.cc,v 1.47 2006-03-12 13:39:10 cvsbert Exp $";
+static const char* rcsID = "$Id: segytr.cc,v 1.48 2006-05-29 08:02:32 cvsbert Exp $";
 
 #include "segytr.h"
 #include "seistrc.h"
@@ -49,9 +49,9 @@ SEGYSeisTrcTranslator::SEGYSeisTrcTranslator( const char* nm, const char* unm )
 	, ext_time_shift(mUdf(float))
 	, ext_sample_rate(mUdf(float))
 	, use_lino(false)
-	, do_string_dump(false)
 	, force_rev0(false)
-	, ntrheadstodump(5)
+	, dumpmode(None)
+    	, maxnrdump(5)
 {
 }
 
@@ -59,7 +59,7 @@ SEGYSeisTrcTranslator::SEGYSeisTrcTranslator( const char* nm, const char* unm )
 SEGYSeisTrcTranslator::~SEGYSeisTrcTranslator()
 {
     SegylikeSeisTrcTranslator::cleanUp();
-    dumpsd.close();
+    closeTraceDump();
     delete &dumpsd;
 }
 
@@ -117,10 +117,10 @@ bool SEGYSeisTrcTranslator::readTapeHeader()
     insd.step = binhead_dpos = pinfo.zrg.step;
     innrsamples = binhead_ns = binhead.hns;
 
-    if ( read_mode != Seis::Prod && itrc <= ntrheadstodump )
+    if ( dumpmode != None )
     {
 	dumpsd.close();
-	if ( do_string_dump )
+	if ( dumpmode == String )
 	    dumpsd.ostrm = new std::ostringstream;
 	else
 	{
@@ -188,26 +188,39 @@ int SEGYSeisTrcTranslator::nrSamplesRead() const
 }
 
 
+const char* SEGYSeisTrcTranslator::dumpFileName() const
+{
+    return dumpsd.fileName();
+}
+
+
+void SEGYSeisTrcTranslator::closeTraceDump()
+{
+    if ( dumpsd.usable() )
+    {
+	if ( dumpmode == String )
+	{
+	    mDynamicCastGet(std::ostringstream*,sstrm,dumpsd.ostrm)
+	    dumpstr = sstrm->str();
+	}
+	dumpsd.close();
+    }
+}
+
+
 void SEGYSeisTrcTranslator::interpretBuf( SeisTrcInfo& ti )
 {
     itrc++;
-    if ( itrc <= ntrheadstodump && dumpsd.usable() )
+    if ( dumpsd.usable() )
     {
 	if ( itrc == 1 )
 	    *dumpsd.ostrm << "\n\n\n";
 	*dumpsd.ostrm << "\nTrace header " << itrc << ":\n\n";
 	trhead.print( *dumpsd.ostrm );
-	if ( itrc != ntrheadstodump )
+	if ( itrc <= maxnrdump )
 	    *dumpsd.ostrm << std::endl;
 	else
-	{
-	    if ( do_string_dump )
-	    {
-		mDynamicCastGet(std::ostringstream*,sstrm,dumpsd.ostrm)
-		dumpstr = sstrm->str();
-	    }
-	    dumpsd.close();
-	}
+	    closeTraceDump();
     }
 
     trhead.fill( ti, ext_coord_scaling );

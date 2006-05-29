@@ -4,7 +4,7 @@
  * DATE     : 3-8-1994
 -*/
 
-static const char* rcsID = "$Id: ioman.cc,v 1.61 2006-05-26 07:26:13 cvsnanne Exp $";
+static const char* rcsID = "$Id: ioman.cc,v 1.62 2006-05-29 08:02:32 cvsbert Exp $";
 
 #include "ioman.h"
 #include "iodir.h"
@@ -37,37 +37,36 @@ static void clearSelHists()
 	grps[idx]->clearSelHist();
 }
 
-#define mReset() \
-{ \
+#define mDestroyInst() \
+    CallBackSet cbs = IOM().surveyChanged.cbs; \
     delete IOMan::theinst_; \
-    IOMan::theinst_ = 0; \
-}
+    IOMan::theinst_ = 0
+
+#define mFinishNewInst(dotrigger) \
+    IOM().surveyChanged.cbs = cbs; \
+    if ( dotrigger ) \
+	IOM().surveyChanged.trigger()
 
 
 bool IOMan::newSurvey()
 {
-    CallBackList cbs = IOM().surveyChanged.cbs;
-    mReset();
+    mDestroyInst();
     clearSelHists();
     SetSurveyNameDirty();
-    IOM().surveyChanged.cbs = cbs;
-    IOM().surveyChanged.trigger();
-
+    mFinishNewInst( true );
     return !IOM().bad();
 }
 
 
 void IOMan::setSurvey( const char* survname )
 {
-    CallBackList cbs = IOM().surveyChanged.cbs;
-    mReset();
+    mDestroyInst();
     clearSelHists();
 
     delete SurveyInfo::theinst_;
     SurveyInfo::theinst_ = 0;
     SetSurveyName( survname );
-    IOM().surveyChanged.cbs = cbs;
-    IOM().surveyChanged.trigger();
+    mFinishNewInst( true );
 }
 
 
@@ -253,9 +252,8 @@ bool IOMan::validSurveySetup( BufferString& errmsg )
 	return false;
     }
 
-    CallBackList cbs = IOM().surveyChanged.cbs;
-    mReset();
-    IOM().surveyChanged.cbs = cbs;
+    mDestroyInst();
+    mFinishNewInst( false );
     return true;
 }
 

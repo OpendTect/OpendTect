@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vispicksetdisplay.h,v 1.49 2006-05-08 16:50:19 cvsbert Exp $
+ RCS:		$Id: vispicksetdisplay.h,v 1.50 2006-05-29 08:02:32 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -20,7 +20,7 @@ ________________________________________________________________________
 class Color;
 class IOPar;
 class Sphere;
-namespace Pick { class Set; }
+namespace Pick { class Set; class Location; }
 
 namespace visBase
 {
@@ -48,79 +48,52 @@ class PickSetDisplay :	public visBase::VisualObjectImpl,
 public:
     static PickSetDisplay*	create()
 				mCreateDataObj(PickSetDisplay);
+    void			setSet(Pick::Set*); // once!
+    Pick::Set*			getSet()		{ return set_; }
 
-    bool			isPicking() const;
-
-    void			copyFromPickSet(const Pick::Set&);
-    void			copyToPickSet(Pick::Set&) const;
-
-    void			addPick(const Coord3&,const Sphere&);
-    void			addPick(const Coord3&);
-    bool			hasChanged() const	{ return haschanged; }
-    void			setChanged(bool yn)	{ haschanged = yn; }
-
-    BufferString		getManipulationString() const;
-    void			getMousePosInfo(const visBase::EventInfo&,
-						const Coord3& pos,float& val,
-						BufferString& info) const;
-
-    int				nrPicks() const;
-    Coord3			getPick(int idx) const;
-    Coord3			getDirection(int idx) const;
-    void			removePick(const Coord3&);
-    void			removeAll();
-
-    float			getInitScreenSize() const { return initsz; }
-    float			getPickScreenSize() const { return picksz; }
-    void			setScreenSize(float);
-
-    void			setColor(Color);
-    Color			getColor() const;
-    bool			hasColor() const	{ return true; }
-
-    void			setType(int);
-    int				getType() const;
-    BufferStringSet&		getMarkerTypes()	{ return markertypes; }
-
+    void			fullRedraw();
     void			showAll(bool yn);
     bool			allShown() const	{ return showall; }
-    void			otherObjectsMoved(
-				    const ObjectSet<const SurveyObject>&, int );
 
+    virtual BufferString	getManipulationString() const;
+    virtual void		getMousePosInfo(const visBase::EventInfo&,
+						const Coord3&,float&,
+						BufferString&) const;
+    virtual bool		hasColor() const	{ return true; }
+    virtual Color		getColor() const;
+    virtual bool		isPicking() const;
+    virtual void		otherObjectsMoved(
+				    const ObjectSet<const SurveyObject>&,int);
+    virtual NotifierAccess*	getManipulationNotifier() { return &visnotif_; }
+    virtual void		setDisplayTransformation(
+	    					visBase::Transformation*);
+    virtual visBase::Transformation* getDisplayTransformation();
+    virtual void		setSceneEventCatcher(visBase::EventCatcher*);
     virtual void                fillPar(IOPar&,TypeSet<int>&) const;
     virtual int                 usePar(const IOPar&);
 
-    NotifierAccess*		getManipulationNotifier() { return &changed; }
-
-    void			setDisplayTransformation(
-	    					visBase::Transformation*);
-    visBase::Transformation*	getDisplayTransformation();
-
-    void			setSceneEventCatcher(visBase::EventCatcher*);
-
 protected:
+
+    Pick::Set*			set_;
+    Notifier<PickSetDisplay>	visnotif_;
+
     virtual			~PickSetDisplay();
 
+    Pick::Location&		addPick(const Coord3&,const Sphere&,bool);
+    void			addDisplayPick(const Pick::Location&);
+
     void			pickCB(CallBacker* cb=0);
-
-    BufferStringSet		markertypes;
-    void			fillMarkerSet();
-
-    int				picktype;
-    float			picksz;
-    const float			initsz;
+    void			locChg(CallBacker* cb=0);
+    void			setChg(CallBacker* cb=0);
+    void			dispChg(CallBacker* cb=0);
 
     bool			showall;
-    bool			haschanged;
-
     int				mousepressid;
     Coord3		        mousepressposition;
 
     visBase::DataObjectGroup*	group;
     visBase::EventCatcher*	eventcatcher;
     visBase::Transformation*	transformation;
-
-    Notifier<PickSetDisplay>	changed;
 
     static const char*		nopickstr;
     static const char*		pickprefixstr;

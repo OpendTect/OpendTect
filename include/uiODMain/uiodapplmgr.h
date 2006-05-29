@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiodapplmgr.h,v 1.33 2006-05-16 16:28:22 cvsbert Exp $
+ RCS:           $Id: uiodapplmgr.h,v 1.34 2006-05-29 08:02:32 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -102,11 +102,12 @@ public:
     void			selectFault(MultiID&);
     void			selectStickSet(MultiID&);
     bool			selectAttrib( int id, int attrib );
+
     // PickSets
-    const Color&		getPickColor();
-    void			getPickSet(Pick::Set& psg);
     bool			storePickSets();
-    bool			setPickSetDirs(int);
+    bool			storePickSet(const Pick::Set&);
+    bool			storePickSetAs(const Pick::Set&);
+    bool			setPickSetDirs(Pick::Set&);
 
     // Work. Don't use unless expert.
     bool			getNewData(int visid, int attrib  );

@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		May 2001
  Contents:	PickSet base classes
- RCS:		$Id: pickset.h,v 1.18 2006-05-16 16:28:22 cvsbert Exp $
+ RCS:		$Id: pickset.h,v 1.19 2006-05-29 08:02:32 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -75,23 +75,30 @@ class Set : public UserIDObject
 public:
 
 			Set( const char* nm=0 )
-			    : UserIDObject(nm)
-			    , color_(Color::NoColor)
-			    , pixsize_(3)		{}
+			    : UserIDObject(nm)		{}
 			Set( const Set& s )
 			{ *this = s; }
     Set&		operator =( const Set& s )
 			{
 			    if ( &s == this ) return *this;
-			    copy( s );
-			    setName( s.name() );
-			    color_ = s.color_; pixsize_ = s.pixsize_;
+			    copy( s ); setName( s.name() ); disp_ = s.disp_;
 			    return *this;
 			}
 
 
-    Color		color_;		//!< Display color
-    int			pixsize_;	//!< Display size in pixels
+    struct Disp
+    {
+			Disp()
+			    : color_(Color::NoColor)
+			    , pixsize_(3)
+			    , markertype_(0)		{}
+	Color		color_;		//!< color
+	int		pixsize_;	//!< size in pixels
+	int		markertype_;	//!< MarkerStyle3D
+    };
+
+    Disp		disp_;
+
 };
 
 
@@ -116,15 +123,20 @@ public:
     const Set&		get( int idx ) const	{ return *pss_[idx]; }
     const MultiID&	id( int idx ) const	{ return *ids_[idx]; }
 
-    bool		isLoaded( const MultiID& i ) const { return find(i); }
-    bool		isLoaded( const Set& s ) const { return find(s); }
+    int			indexOf(const char*) const;
+    int			indexOf(const Set&) const;
+    int			indexOf(const MultiID&) const;
+
+    // Convenience. Check indexOf() if presence is not sure
     Set&		get( const MultiID& i )		{ return *find(i); }
     const Set&		get( const MultiID& i ) const	{ return *find(i); }
     const MultiID&	get( const Set& s ) const	{ return *find(s); }
+    Set&		get( const char* s )		{ return *find(s); }
+    const Set&		get( const char* s ) const	{ return *find(s); }
 
     void		set(const MultiID&,Set*);
     			//!< add, replace or remove (pass null Set ptr).
-    			//!< Set is already or becomes mine
+    			//!< Set is already, or becomes *mine*
     			//!< Note that replacement will trigger two callbacks
 
     struct ChangeData : public CallBacker
@@ -132,30 +144,36 @@ public:
 	enum Ev		{ Added, Changed, ToBeRemoved };
 
 			ChangeData( Ev e, const Set* s, const Location* l )
-			    : ev_(e), set_(s), loc_(l)	{}
+			    : ev_(e), set_(s), loc_(l)		{}
 
 	Ev		ev_;
 	const Set*	set_;
 	const Location*	loc_;
     };
     
-    void		reportChange( ChangeData cd )
-			{ locationChanged.trigger( &cd ); }
-    void		reportChange( const Set* s )
-			{ setChanged.trigger( const_cast<Set*>(s) ); }
-			//!< report a bunch of changes to a set
+    void		reportChange(CallBacker* sender,const ChangeData&);
+    void		reportChange(CallBacker* sender,const Set&);
+    void		reportDispChange(CallBacker* sender,const Set&);
 
-    Notifier<SetMgr> locationChanged;	//!< Passes ChangeData*
-    Notifier<SetMgr> setToBeRemoved;	//!< Passes Set*
-    Notifier<SetMgr> setAdded;		//!< passes Set*
-    Notifier<SetMgr> setChanged;	//!< passes Set*
+    Notifier<SetMgr>	locationChanged;//!< Passes ChangeData*
+    Notifier<SetMgr>	setToBeRemoved;	//!< Passes Set*
+    Notifier<SetMgr>	setAdded;	//!< passes Set*
+    Notifier<SetMgr>	setChanged;	//!< passes Set*
+    Notifier<SetMgr>	setDispChanged;	//!< passes Set*
+    void		removeCBs(CallBacker*);
+
+    bool		isChanged( int idx ) const
+			{ return idx < changed_.size() ? changed_[idx] : false;}
+    void		setUnChanged( int idx, bool yn=true )
+			{ if ( idx < changed_.size() ) changed_[idx] = !yn; }
 
     static SetMgr&	getMgr(const char*);
 
     			SetMgr( const char* nm )
 			: UserIDObject(nm)
 			, locationChanged(this), setToBeRemoved(this)
-			, setAdded(this), setChanged(this)	{}
+			, setAdded(this), setChanged(this)
+			, setDispChanged(this)		{}
 			//!< creates an unmanaged SetMgr
 			//!< Normally you don't want that, use getMgr() instead
 
@@ -163,10 +181,12 @@ protected:
 
     ObjectSet<Set>	pss_;
     ObjectSet<MultiID>	ids_;
+    BoolTypeSet		changed_;
 
     void		add(const MultiID&,Set*);
     Set*		find(const MultiID&) const;
     MultiID*		find(const Set&) const;
+    Set*		find(const char*) const;
 };
 
 inline SetMgr& Mgr()

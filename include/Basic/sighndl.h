@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: sighndl.h,v 1.6 2003-11-07 12:21:51 bert Exp $
+ RCS:           $Id: sighndl.h,v 1.7 2006-05-29 08:02:32 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,15 +42,15 @@ protected:
 				SignalHandling();
     static SignalHandling	theinst_;
 
-    CallBackList		conncbs;
-    CallBackList		chldcbs;
-    CallBackList		reinitcbs;
-    CallBackList		stopcbs;
-    CallBackList		contcbs;
-    CallBackList		alarmcbs;
-    CallBackList		killcbs;
+    CallBackSet			conncbs;
+    CallBackSet			chldcbs;
+    CallBackSet			reinitcbs;
+    CallBackSet			stopcbs;
+    CallBackSet			contcbs;
+    CallBackSet			alarmcbs;
+    CallBackSet			killcbs;
 
-    CallBackList&		getCBL(EvType);
+    CallBackSet&		getCBL(EvType);
 
 #ifndef __msvc__
 

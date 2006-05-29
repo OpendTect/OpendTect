@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvobj.h,v 1.60 2006-04-27 21:28:49 cvskris Exp $
+ RCS:		$Id: vissurvobj.h,v 1.61 2006-05-29 08:02:32 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -231,7 +231,7 @@ protected:
 */
 
 /*
-class SurveyParamManager : public CallBackClass
+class SurveyParamManager : public CallBacker
 {
 public:
     				SurveyParamManager();

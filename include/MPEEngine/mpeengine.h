@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          23-10-1996
- RCS:           $Id: mpeengine.h,v 1.29 2006-05-21 13:49:03 cvsjaap Exp $
+ RCS:           $Id: mpeengine.h,v 1.30 2006-05-29 08:02:32 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,7 +44,7 @@ class EditorFactory;
 class TrackPlane;
 class ObjectEditor;
 
-class Engine : public CallBackClass
+class Engine : public CallBacker
 {
     friend Engine&		engine();
 

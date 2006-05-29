@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:           $Id: uibatchprogs.cc,v 1.23 2006-03-01 13:45:46 cvsbert Exp $
+ RCS:           $Id: uibatchprogs.cc,v 1.24 2006-05-29 08:02:32 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,6 +24,7 @@ ________________________________________________________________________
 #include "filepath.h"
 #include "iopar.h"
 #include "oddirs.h"
+#include "envvars.h"
 #include "errh.h"
 #include <iostream>
 
@@ -89,10 +90,17 @@ public:
 
 BatchProgInfoList::BatchProgInfoList( const char* appnm )
 {
-    BufferString fnm( "BatchPrograms" );
-    if ( appnm && *appnm )
-	{ fnm += "."; fnm += appnm; }
-    fnm = GetDataFileName( fnm );
+    BufferString fnm;
+    const char* fromenv = GetEnvVar( "OD_BATCH_PROGRAMS_FILE" );
+    if ( fromenv && *fromenv )
+	fnm = fromenv;
+    else
+    {
+	fnm = "BatchPrograms";
+	if ( appnm && *appnm )
+	    { fnm += "."; fnm += appnm; }
+	fnm = GetDataFileName( fnm );
+    }
     if ( File_isEmpty(fnm.buf()) ) return;
 
     StreamData sd = StreamProvider( fnm ).makeIStream();

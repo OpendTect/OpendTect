@@ -8,21 +8,22 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		8-11-1995
  Contents:	Notification and Callbacks
- RCS:		$Id: callback.h,v 1.35 2005-09-30 09:30:20 cvsarend Exp $
+ RCS:		$Id: callback.h,v 1.36 2006-05-29 08:02:31 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include <gendefs.h>  // only needed for mTFriend and mProtected macros
+#include "sets.h"
+#include <string>
 
 /*!
 In any OO system callbacks to an unknown client must be possible. To be able
 to do this in for class instances, in C++ the called functions need to be:
 1) member of a certain pre-defined base class
 2) pre-specified in terms of arguments
-The following stuff tries to make sure that the base class can be chosen,
-but a nice 'empty' class is provided here. And, the Capsule mechanism ensures
-that any class can be passed as argument.
+The following stuff makes sure that there is a nice empty base class with that
+role. And, the Capsule mechanism ensures that any class can be passed as
+argument.
 
 There are some analogies with QT's signal/slot mechanism. We think our
 mechanism is more flexible in some ways, less in other ways (those we're not
@@ -31,17 +32,7 @@ interested in).
 */
 
 
-#ifndef CallBacker
-
-#   define CallBacker CallBackClass
-    class CallBackClass
-    { public: virtual void _a_dummy_virtual_enabling_dynamic_cast_() {} };
-
-#else
-
-    class CallBacker;
-
-#endif
+struct CallBacker { virtual void _a_dummy_virtual_enabling_dynamic_cast_() {} };
 
 
 typedef void (CallBacker::*CallBackFunction)(CallBacker*);
@@ -54,13 +45,8 @@ typedef void (CallBacker::*CallBackFunction)(CallBacker*);
 
 CallBack is simply a function pointer + object to call it on. It may be
 empty, in which case doCall() will simply do nothing. If you want to be
-able to send a CallBack, you must be a CallBacker.
-
-\NOTE: If you want a specific class to be the 'callback base class', you must
-define the CallBacker before including this header file. This can
-be done on the compiler command line ( ... -DCallBacker=MyClass ... ) or
-simply by defining it with #define. If you don't define it yourself, you'll
-get the dGB CallBackClass which is (almost) empty.
+able to send a CallBack, you must provide a 'sender' CallBacker* (usually
+'this').
 
 */
 
@@ -69,19 +55,19 @@ class CallBack
 public:
 			CallBack( CallBacker* o=0, CallBackFunction f=0 )
 			{ obj = o; fn = f; }
-    int			operator==( const CallBack& cb ) const
+    inline int		operator==( const CallBack& cb ) const
 			{ return obj == cb.obj && fn == cb.fn; }
-    int			operator!=( const CallBack& cb ) const
+    inline int		operator!=( const CallBack& cb ) const
 			{ return obj != cb.obj || fn != cb.fn; }
 
-    bool		willCall() const
+    inline bool		willCall() const
 			{ return obj && fn; }
-    void		doCall( CallBacker* o )
+    inline void		doCall( CallBacker* o )
 			{ if ( obj && fn ) (obj->*fn)( o ); }
 
-    CallBacker*		cbObj()			{ return obj; }
-    const CallBacker*	cbObj() const		{ return obj; }
-    CallBackFunction	cbFn() const		{ return fn; }
+    inline CallBacker*		cbObj()			{ return obj; }
+    inline const CallBacker*	cbObj() const		{ return obj; }
+    inline CallBackFunction	cbFn() const		{ return fn; }
 
 protected:
 
@@ -91,64 +77,59 @@ protected:
 };
 
 
-/*!\brief List of CallBacks.
-
-A simple list of CallBacks is required. Again, define CallBackList if
-needed. In that case, you'll need to support:
-
-1) An 'operator +=' to add a callback to the list
-2) An 'operator -=' to remove a callback from the list
-3) An 'operator [](int)' const that returns the i-th callback in the list.
-4) A method 'size() const' that returns the number of callbacks in the list
-5) A method 'doCall(CallBacker*)' that simply calls all the CallBacks' doCall
-   methods.
-
-If you do not define CallBackList you will get dGB's CallBackSet, which is
-based on a simple dumbed-down implementation a bit like the std lib's vector
-class.
-
-*/
-
-#ifndef CallBackList
-
-#define CallBackList CallBackSet
-#include <sets.h>
+/*!\brief TypeSet of CallBacks with a few extras. */
 
 class CallBackSet : public TypeSet<CallBack>
 {
 public:
 
-    void	doCall(CallBacker*,  const bool* enabledflag);
-    		/*!<\param enabledflag	If enabledflag points to a bool
-		  			(i.e. is non-zero) that bool will
-					be checked between each call. If the
-					bool is false, the traverse will stop
-					and the remaining cbs won't be called.
-					This makes it possible to terminate
-					a traverse during the traversal.
-		*/
+    void	doCall(CallBacker*,const bool* enabledflag=0,
+	    		CallBacker* exclude=0);
+    		/*!<\param enabledflag
+		  If enabledflag points to a bool (i.e. is non-zero) that bool
+		  will be checked between each call. If the bool is false, the
+		  traverse will stop and the remaining cbs won't be called.
+		  This makes it possible to terminate a traverse during the
+		  traversal.  */
+    void	removeWith(CallBacker*);
+    		//!< Removes callbacks to this caller
 };
 
-inline void CallBackSet::doCall( CallBacker* obj, const bool* enabledflag )
+inline void CallBackSet::doCall( CallBacker* obj,
+				 const bool* enabledflag,
+       				 CallBacker* exclude )
 {
     const bool enabled_ = true;
     const bool& enabled = enabledflag ? *enabledflag : enabled_;
 
     for ( int idx=0; enabled && idx<size(); idx++ )
-	(*this)[idx].doCall( obj );
+    {
+	CallBack& cb = (*this)[idx];
+	if ( cb.cbObj() != exclude )
+	    cb.doCall( obj );
+    }
 }
 
 
-#endif
+inline void CallBackSet::removeWith( CallBacker* cbrm )
+{
+    for ( int idx=0; idx<size(); idx++ )
+    {
+	CallBack& cb = (*this)[idx];
+	if ( cb.cbObj() == cbrm )
+	    { remove( idx ); idx--; }
+    }
+}
 
 
 /*!\brief Capsule class to wrap any class into a CallBacker.
 
-Because callback functions are defined as:
-void xxx( CallBacker* )
-you can also pass other info. For this reason, you can use the Capsule
-class, which isA CallBacker, but contains T data. For convenience, the
-originating CallBacker* is included, so the 'caller' will still be available.
+Callback functions are defined as:
+void clss::func( CallBacker* )
+Sometimes you want to pass other info. For this purpose, you can use the
+CBCapsule class, which isA CallBacker, but contains T data. For convenience,
+the originating CallBacker* is included, so the 'caller' will still be
+available.
 
 */
 
@@ -243,12 +224,6 @@ to 'publish' event notification abilities.
 
 */
 
-#ifndef NamedNotifierList
-
-#define NamedNotifierList NamedNotifierSet
-#include <sets.h>
-#include <string>
-
 class NamedNotifierSet
 {
 public:
@@ -274,8 +249,6 @@ inline NotifierAccess* NamedNotifierSet::find( const char* nm ) const
     return 0;
 }
 
-#endif
-
 
 /*!\brief implementation class for Notifier */
 
@@ -287,13 +260,23 @@ public:
     virtual void	notifyIfNotNotified( const CallBack& cb )
 			{ if ( cbs.indexOf(cb)==-1 ) notify(cb); }
     virtual void	remove( const CallBack& cb )	{ cbs -= cb; }
+    virtual void	removeWith(CallBacker*);
 
-    CallBackList	cbs;
+    CallBackSet		cbs;
     CallBacker*		cber;
 
 			i_Notifier()	{}
 
 };
+
+
+inline void i_Notifier::removeWith( CallBacker* cb )
+{
+    if ( cber == cb )
+	{ cbs.erase(); cber = 0; return; }
+
+    cbs.removeWith( cb );
+}
 
 
 /*!\brief class to help setup a callback handling.
@@ -342,8 +325,8 @@ public:
 
 			Notifier( T* c ) 			{ cber = c; }
 
-    inline void		trigger( CallBacker* c=0 )
-			{ cbs.doCall(c ? c : cber, &enabled); }
+    inline void		trigger( CallBacker* c=0, CallBacker* exclude=0 )
+			{ cbs.doCall(c ? c : cber, &enabled, exclude); }
 
 };
 

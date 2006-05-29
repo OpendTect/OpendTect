@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uigroup.h,v 1.31 2003-11-07 12:21:54 bert Exp $
+ RCS:           $Id: uigroup.h,v 1.32 2006-05-29 08:02:32 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -113,16 +113,6 @@ protected:
     void		uiobjDel( CallBacker* );
 
     void		setFrameStyle(int);
-
-};
-
-class NotifierAccess;
-
-class uiGroupCreater
-{
-public:
-
-    virtual uiGroup*		create(uiParent*,NamedNotifierList* =0)	= 0;
 
 };
 

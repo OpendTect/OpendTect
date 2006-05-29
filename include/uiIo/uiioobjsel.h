@@ -7,14 +7,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiioobjsel.h,v 1.44 2006-03-01 13:45:46 cvsbert Exp $
+ RCS:           $Id: uiioobjsel.h,v 1.45 2006-05-29 08:02:32 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include <uiiosel.h>
-#include <uidialog.h>
-#include <multiid.h>
+#include "uiiosel.h"
+#include "uidialog.h"
+#include "multiid.h"
 class IOObj;
 class IOStream;
 class CtxtIOObj;
@@ -51,6 +51,8 @@ public:
 					       const char* seltxt=0,
 					       bool multisel=false );
 				~uiIOObjSelGrp();
+
+    void			removeItem(const MultiID&);
 
     bool			processInput();
     				/*!< Processes the current selection so
@@ -164,11 +166,15 @@ public:
     virtual bool	fillPar(IOPar&) const;
     virtual void	usePar(const IOPar&);
 
+    void		setUnselectables( const ObjectSet<MultiID>& s )
+			{ deepCopy( unselabls, s ); }
+
 protected:
 
     CtxtIOObj&		ctio;
     bool		forread;
     BufferString	seltxt;
+    ObjectSet<MultiID>	unselabls;
 
     void		doObjSel(CallBacker*);
 
@@ -183,25 +189,5 @@ protected:
 
 };
 
-
-/*!\mainpage User Interface related to I/O
-
-  This module contains some basic classes that handle the selection and
-  management of an IOObj. An IOObj contains all info necessary to be able
-  to load or store an object from disk. In OpendTect, users select IOObj's,
-  not files (at least most often not direct but via na IOObj entry). Users
-  recognise the IOObj by its name. Every IOObj has a unique identifier, the
-  IOObj's key() which is a MultiID.
-
-  In order to make the right selection, the IOObj selectors must know the
-  context of the selection: what type of object, is it for read or write,
-  should the user be able to create a new entry, and so forth. That's why
-  you have to pass a CtxtIOObj .
-
-  Other objects have been stuffed into this module as there was space left.
-  More seriously, one can say that those objects are too OpendTect specific for
-  the uiTools directory, but too general for any specific UI directory.
-
-*/
 
 #endif

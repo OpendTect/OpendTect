@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Aug 2001
- RCS:		$Id: od_SEGYExaminer.cc,v 1.8 2005-08-26 18:19:28 cvsbert Exp $
+ RCS:		$Id: od_SEGYExaminer.cc,v 1.9 2006-05-29 08:02:32 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -99,8 +99,8 @@ void updateInp()
 	tr->usePar( iop );
     }
 
-    tr->dumpToString( true );
-    tr->ntrheadstodump = nrtrcs;
+    tr->setTrcDumpMode( SEGYSeisTrcTranslator::String );
+    tr->setMaxTrcsDumped( nrtrcs );
     if ( !tr->initRead( conn, Seis::PreScan ) )
     {
 	info = "No information:\n";
@@ -114,24 +114,21 @@ void updateInp()
     str += nrtrcs; str += " traces ...";
     outInfo( str );
     SeisTrc trc;
-    bool incompl = false;
-    int nrtr = 0;
-    while ( !tr->dumpingDone() )
+    bool stoppedatend = false;
+    while ( tr->nrTrcsDumped() < nrtrcs )
     {
 	if ( !tr->read(trc) )
-	{
-	    incompl = true;
-	    break;
-	}
-	nrtr++;
+	    { stoppedatend = true; break; }
     }
+    const int nrtrcdumped = tr->nrTrcsDumped();
+    tr->closeTraceDump();
 
     info = tr->dumpStr();
     str = "\n";
-    str += nrtr ? (incompl ? "Total traces present in file: "
-			   : "Traces displayed: ")
-		: "No traces found";
-    if ( nrtr ) str += nrtr;
+    str += nrtrcdumped < 1 ? "No traces found"
+	   : (stoppedatend ? "Total traces present in file: "
+			   : "Traces displayed: ");
+    if ( nrtrcdumped > 0 ) str += nrtrcdumped;
     info += str;
     outInfo( "Closing input stream" );
 }

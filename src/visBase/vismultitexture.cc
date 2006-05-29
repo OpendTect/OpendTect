@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vismultitexture.cc,v 1.15 2006-04-13 20:04:05 cvskris Exp $";
+static const char* rcsID = "$Id: vismultitexture.cc,v 1.16 2006-05-29 08:02:33 cvsbert Exp $";
 
 #include "vismultitexture2.h"
 
@@ -84,7 +84,7 @@ bool TextureColorIndexer::doWork( int start, int stop )
 }
 
 
-class TextureInfo : public CallBackClass
+class TextureInfo : public CallBacker
 {
 public:
     				TextureInfo( MultiTexture*, const char* name );

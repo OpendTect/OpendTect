@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uipickpartserv.h,v 1.23 2006-05-16 16:28:22 cvsbert Exp $
+ RCS:           $Id: uipickpartserv.h,v 1.24 2006-05-29 08:02:32 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,10 +19,11 @@ ________________________________________________________________________
 #include "bufstringset.h"
 
 class Color;
+class IOObj;
 class BinIDRange;
 class SurfaceInfo;
 class RandLocGenPars;
-namespace Pick { class Set; };
+namespace Pick { class Set; class SetMgr; };
 
 
 /*! \brief Service provider for application level - seismics */
@@ -36,29 +37,18 @@ public:
     const char*			name() const		{ return "Picks"; }
 
 				// Services
-    void			impexpSet(bool);
-    bool			fetchSets();	//!< Fetch sets by user sel
+    void			impexpSet(bool import);
+    bool			fetchSets();	//!< Fetch set(s) by user sel
     bool			storeSets();	//!< Stores all changed sets
+    bool			storeSet(const Pick::Set&);
+    bool			storeSetAs(const Pick::Set&);
+    void			setMisclassSet(const BinIDValueSet&);
 
-    static const int		evGetAvailableSets;
-    static const int		evFetchPicks;
     static const int		evGetHorInfo;
     static const int		evGetHorDef;
 
-				// Interaction stuff
-    Pick::Set&			set()			{ return ps; }
-    				//!< Must be filled on evFetchPicks
-    ObjectSet<Pick::Set>&	setsFetched()		{ return pssfetched; }
-    				//!< Result of fetchPickSets(). Become yours.
-    BufferStringSet&		availableSets()		{ return avsets; }
-    const BoolTypeSet& 		selectedSets() const	{ return selsets; }
-    MultiID&			psID()			{ return psid; }
-    const Color&		getPickColor()		{ return pickcolor; }
-    bool			storeSet();	//!< Stores current set
-    bool			storeSetAs();	//!< Allows chosing new name
-    void			renameSet(const char*,BufferString&);
-    void			setMisclassSet(const BinIDValueSet&);
 
+				// Interaction stuff
     BinIDValueSet&		genDef() 		{ return gendef; }
     ObjectSet<SurfaceInfo>& 	horInfos()		{ return hinfos; }
     const ObjectSet<MultiID>&	selHorIDs() const	{ return selhorids; }
@@ -66,19 +56,17 @@ public:
 
 protected:
 
-    Pick::Set&			ps;
-    MultiID			psid;
-    BufferStringSet		avsets;
-    BoolTypeSet			selsets;
-    Color&			pickcolor;
-    ObjectSet<Pick::Set>	pssfetched;
-
     BinIDValueSet 		gendef;
     ObjectSet<SurfaceInfo> 	hinfos;
     ObjectSet<MultiID>		selhorids;
     const BinIDRange*		selbr;
 
+    Pick::SetMgr&		setmgr;
+
+    bool			storeNewSet(Pick::Set*&) const;
     bool			mkRandLocs(Pick::Set&,const RandLocGenPars&);
+    IOObj*			getSetIOObj(const Pick::Set&) const;
+    bool			doStore(const Pick::Set&,const IOObj&) const;
 };
 
 

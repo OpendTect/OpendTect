@@ -7,7 +7,7 @@ CopyRight:     (C) dGB Beheer B.V.
 Author:        A.H. Bril
 Date:          23-10-1996
 Contents:      Ranges
-RCS:           $Id: geomelement.h,v 1.6 2006-04-26 21:01:53 cvskris Exp $
+RCS:           $Id: geomelement.h,v 1.7 2006-05-29 08:02:32 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,7 +19,7 @@ typedef int64 GeomPosID;
 namespace Geometry
 {
 
-class Element : public CallBackClass
+class Element : public CallBacker
 {
 public:
     				Element();

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		2-4-1996
- RCS:		$Id: segytr.h,v 1.16 2005-10-28 12:33:38 cvsbert Exp $
+ RCS:		$Id: segytr.h,v 1.17 2006-05-29 08:02:32 cvsbert Exp $
 ________________________________________________________________________
 
 Translators for SEGY files traces.
@@ -31,12 +31,14 @@ public:
     void		toSupported(DataCharacteristics&) const;
     void		usePar(const IOPar&);
 
-    void		dumpToString( bool yn=true )
-    			{ do_string_dump = yn; }
-    bool		dumpingDone() const
-    			{ return itrc >= ntrheadstodump; }
+    enum DumpMode	{ None, File, String };
+    void		setTrcDumpMode( DumpMode dm )	{ dumpmode = dm; }
+    int			nrTrcsDumped() const		{ return itrc; }
+    void		setMaxTrcsDumped( int nr )	{ maxnrdump = nr; }
+    void		closeTraceDump();
     const char*		dumpStr() const
     			{ return dumpstr.c_str(); }
+    const char*		dumpFileName() const;
 
     virtual const char*	defExtension() const		{ return "sgy"; }
 
@@ -49,7 +51,6 @@ public:
     static const char*	sForceRev0;
 
     int			numbfmt;
-    int			ntrheadstodump;
 
 protected:
 
@@ -64,8 +65,9 @@ protected:
     float		ext_coord_scaling;
     float		ext_time_shift;
     float		ext_sample_rate;
-    bool		do_string_dump;
+    DumpMode		dumpmode;
     mutable std::string	dumpstr;
+    int			maxnrdump;
     bool		use_lino;
     bool		force_rev0;
 

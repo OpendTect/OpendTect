@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          25/05/2000
- RCS:           $Id: uiioobjsel.cc,v 1.84 2006-03-13 16:25:13 cvsnanne Exp $
+ RCS:           $Id: uiioobjsel.cc,v 1.85 2006-05-29 08:02:32 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -111,6 +111,24 @@ uiIOObjSelGrp::~uiIOObjSelGrp()
 {
     delete &ctio;
     delete entrylist;
+}
+
+
+void uiIOObjSelGrp::removeItem( const MultiID& id )
+{
+    IODirEntry* cur = entrylist->current();
+    for ( int idx=0; idx<entrylist->size(); idx++ )
+    {
+	IODirEntry* entry = (*entrylist)[idx];
+	if ( entry->ioobj && entry->ioobj->key() == id )
+	{
+	    entrylist->remove( idx );
+	    if ( entry == cur )
+		entrylist->curRemoved();
+	    delete entry;
+	    return;
+	}
+    }
 }
 
 
@@ -518,7 +536,10 @@ void uiIOObjSel::objSel()
 
 uiIOObjRetDlg* uiIOObjSel::mkDlg()
 {
-    return new uiIOObjSelDlg( this, ctio, seltxt );
+    uiIOObjSelDlg* ret = new uiIOObjSelDlg( this, ctio, seltxt );
+    for ( int idx=0; idx<unselabls.size(); idx++ )
+	ret->selGrp()->removeItem( *unselabls[idx] );
+    return ret;
 }
 
 

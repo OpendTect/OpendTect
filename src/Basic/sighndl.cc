@@ -4,12 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          June 2000
- RCS:           $Id: sighndl.cc,v 1.24 2005-08-26 18:19:28 cvsbert Exp $
+ RCS:           $Id: sighndl.cc,v 1.25 2006-05-29 08:02:32 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: sighndl.cc,v 1.24 2005-08-26 18:19:28 cvsbert Exp $";
+static const char* rcsID = "$Id: sighndl.cc,v 1.25 2006-05-29 08:02:32 cvsbert Exp $";
 
 #include "sighndl.h"
 #include "strmdata.h"
@@ -32,7 +32,7 @@ SignalHandling SignalHandling::theinst_;
 
 void SignalHandling::startNotify( SignalHandling::EvType et, const CallBack& cb)
 {
-    CallBackList& cbs = theinst_.getCBL( et );
+    CallBackSet& cbs = theinst_.getCBL( et );
     if ( cbs.indexOf(cb) < 0 ) cbs += cb;
 #ifndef __win__
     if ( et == SignalHandling::Alarm )
@@ -53,12 +53,12 @@ void SignalHandling::startNotify( SignalHandling::EvType et, const CallBack& cb)
 
 void SignalHandling::stopNotify( SignalHandling::EvType et, const CallBack& cb )
 {
-    CallBackList& cbs = theinst_.getCBL( et );
+    CallBackSet& cbs = theinst_.getCBL( et );
     cbs -= cb;
 }
 
 
-CallBackList& SignalHandling::getCBL( SignalHandling::EvType et )
+CallBackSet& SignalHandling::getCBL( SignalHandling::EvType et )
 {
     switch ( et )
     {

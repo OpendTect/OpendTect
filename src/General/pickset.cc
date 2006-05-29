@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: pickset.cc,v 1.32 2006-05-16 16:28:22 cvsbert Exp $";
+static const char* rcsID = "$Id: pickset.cc,v 1.33 2006-05-29 08:02:32 cvsbert Exp $";
 
 #include "pickset.h"
 #include "survinfo.h"
@@ -186,50 +186,121 @@ Pick::SetMgr& Pick::SetMgr::getMgr( const char* nm )
 }
 
 
-void Pick::SetMgr::add( const MultiID& ky, Set* sg )
+void Pick::SetMgr::add( const MultiID& ky, Set* st )
 {
-    pss_ += sg; ids_ += new MultiID( ky );
-    setAdded.trigger( sg );
+    pss_ += st; ids_ += new MultiID( ky ); changed_ += false;
+    setAdded.trigger( st );
 }
 
 
-void Pick::SetMgr::set( const MultiID& ky, Set* sg )
+void Pick::SetMgr::set( const MultiID& ky, Set* newset )
 {
-    Set* oldsg = find( ky );
-    if ( !oldsg )
+    Set* oldset = find( ky );
+    if ( !oldset )
     {
-	if ( sg )
-	    add( ky, sg );
+	if ( newset )
+	    add( ky, newset );
     }
-    else if ( sg != oldsg )
+    else if ( newset != oldset )
     {
-	int idx = pss_.indexOf( oldsg );
-	setToBeRemoved.trigger( oldsg );
-	delete oldsg; pss_.remove( idx );
+	const int idx = pss_.indexOf( oldset );
+	setToBeRemoved.trigger( oldset );
+	delete oldset; pss_.remove( idx );
 	delete ids_[idx]; ids_.remove( idx );
-	if ( sg )
-	    add( ky, sg );
+	changed_.remove( idx );
+	if ( newset )
+	    add( ky, newset );
     }
+}
+
+
+int Pick::SetMgr::indexOf( const Pick::Set& st ) const
+{
+    return pss_.indexOf( &st );
+}
+
+
+int Pick::SetMgr::indexOf( const MultiID& ky ) const
+{
+    for ( int idx=0; idx<size(); idx++ )
+    {
+	if ( ky == *ids_[idx] )
+	    return idx;
+    }
+    return -1;
+}
+
+
+int Pick::SetMgr::indexOf( const char* nm ) const
+{
+    for ( int idx=0; idx<size(); idx++ )
+    {
+	if ( pss_[idx]->name() == nm )
+	    return idx;
+    }
+    return -1;
 }
 
 
 Pick::Set* Pick::SetMgr::find( const MultiID& ky ) const
 {
-    for ( int idx=0; idx<size(); idx++ )
-    {
-	if ( ky == *ids_[idx] )
-	    return const_cast<Pick::Set*>( pss_[idx] );
-    }
-    return 0;
+    const int idx = indexOf( ky );
+    return idx < 0 ? 0 : const_cast<Pick::Set*>( pss_[idx] );
 }
 
 
-MultiID* Pick::SetMgr::find( const Pick::Set& sg ) const
+MultiID* Pick::SetMgr::find( const Pick::Set& st ) const
 {
-    for ( int idx=0; idx<size(); idx++ )
+    const int idx = indexOf( st );
+    return idx < 0 ? 0 : const_cast<MultiID*>( ids_[idx] );
+}
+
+
+Pick::Set* Pick::SetMgr::find( const char* nm ) const
+{
+    const int idx = indexOf( nm );
+    return idx < 0 ? 0 : const_cast<Pick::Set*>( pss_[idx] );
+}
+
+
+void Pick::SetMgr::reportChange( CallBacker* sender, const ChangeData& cd )
+{
+    const int setidx = pss_.indexOf( cd.set_ );
+    if ( setidx >= 0 )
     {
-	if ( &sg == pss_[idx] )
-	    return const_cast<MultiID*>( ids_[idx] );
+	changed_[setidx] = true;
+	locationChanged.trigger( const_cast<ChangeData*>( &cd ), sender );
     }
-    return 0;
+}
+
+
+void Pick::SetMgr::reportChange( CallBacker* sender, const Set& s )
+{
+    const int setidx = pss_.indexOf( &s );
+    if ( setidx >= 0 )
+    {
+	changed_[setidx] = true;
+	setChanged.trigger( const_cast<Pick::Set*>(&s), sender );
+    }
+}
+
+
+void Pick::SetMgr::reportDispChange( CallBacker* sender, const Set& s )
+{
+    const int setidx = pss_.indexOf( &s );
+    if ( setidx >= 0 )
+    {
+	changed_[setidx] = true;
+	setDispChanged.trigger( const_cast<Pick::Set*>(&s), sender );
+    }
+}
+
+
+void Pick::SetMgr::removeCBs( CallBacker* cb )
+{
+    locationChanged.removeWith( cb );
+    setToBeRemoved.removeWith( cb );
+    setAdded.removeWith( cb );
+    setChanged.removeWith( cb );
+    setDispChanged.removeWith( cb );
 }

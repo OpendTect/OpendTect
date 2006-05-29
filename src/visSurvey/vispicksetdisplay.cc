@@ -4,7 +4,7 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.81 2006-05-16 16:28:22 cvsbert Exp $";
+static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.82 2006-05-29 08:02:33 cvsbert Exp $";
 
 #include "vispicksetdisplay.h"
 
@@ -33,22 +33,22 @@ const char* PickSetDisplay::showallstr = "Show all";
 const char* PickSetDisplay::shapestr = "Shape";
 const char* PickSetDisplay::sizestr = "Size";
 
+
 PickSetDisplay::PickSetDisplay()
     : VisualObjectImpl(true)
     , group( visBase::DataObjectGroup::create() )
     , eventcatcher( 0 )
-    , initsz(3)
-    , picktype(3)
-    , changed(this)
-    , showall(true)
-    , haschanged(false)
     , transformation( 0 )
+    , showall(true)
+    , set_(0)
+    , visnotif_(this)
 {
     group->ref();
     addChild( group->getInventorNode() );
-    setScreenSize(initsz);
 
-    fillMarkerSet();
+    Pick::Mgr().locationChanged.notify( mCB(this,PickSetDisplay,locChg) );
+    Pick::Mgr().setChanged.notify( mCB(this,PickSetDisplay,setChg) );
+    Pick::Mgr().setDispChanged.notify( mCB(this,PickSetDisplay,dispChg) );
 }
     
 
@@ -59,130 +59,34 @@ PickSetDisplay::~PickSetDisplay()
     group->unRef();
 
     if ( transformation ) transformation->unRef();
+    Pick::Mgr().removeCBs( this );
 }
 
 
-bool PickSetDisplay::isPicking() const
+void PickSetDisplay::setSet( Pick::Set* s )
 {
-    return isSelected() && !isLocked();
+    if ( set_ ) { pErrMsg("Cannot set set_ twice"); return; }
+    set_ = s;
+    fullRedraw();
 }
 
 
-void PickSetDisplay::copyFromPickSet( const Pick::Set& pickset )
+void PickSetDisplay::fullRedraw()
 {
-    setColor( pickset.color_ );
-    setName( pickset.name() );
-    setScreenSize( pickset.pixsize_ );
-    removeAll();
+    group->removeAll();
+    setName( set_->name() );
+    dispChg( 0 );
     bool hasdir = false;
-    const int nrpicks = pickset.size();
+    const int nrpicks = set_->size();
     for ( int idx=0; idx<nrpicks; idx++ )
     {
-	const Pick::Location& loc = pickset[idx];
-	addPick( loc.pos, loc.dir );
+	const Pick::Location& loc = (*set_)[idx];
+	addDisplayPick( loc );
 	if ( loc.hasDir() ) hasdir = true;
     }
 
-    if ( hasdir ) //show Arrows
-       setType( markertypes.size()-2 );
-
-    haschanged = false;
-}
-
-
-void PickSetDisplay::copyToPickSet( Pick::Set& pickset ) const
-{
-    pickset.setName( name() );
-    pickset.color_ = getMaterial()->getColor();
-    pickset.color_.setTransparency( 0 );
-    pickset.pixsize_ = (int)picksz;
-    for ( int idx=0; idx<nrPicks(); idx++ )
-	pickset += Pick::Location( getPick(idx), getDirection(idx) );
-}
-
-
-void PickSetDisplay::addPick( const Coord3& pos, const Sphere& dir )
-{
-    visBase::Marker* marker = visBase::Marker::create();
-    group->addObject( marker );
-
-    marker->setDisplayTransformation( transformation );
-    marker->setCenterPos( pos );
-    marker->setDirection( dir );
-    marker->setScreenSize( picksz );
-    marker->setType( (MarkerStyle3D::Type)picktype );
-    marker->setMaterial( 0 );
-
-    haschanged = true;
-    changed.trigger();
-}
-
-
-void PickSetDisplay::addPick( const Coord3& pos )
-{
-    addPick( pos, Sphere(0,0,0) );
-}
-
-
-int PickSetDisplay::nrPicks() const
-{
-    return group->size();
-}
-
-
-Coord3 PickSetDisplay::getPick( int idx ) const
-{
-    mDynamicCastGet(visBase::Marker*,marker,group->getObject(idx))
-    return marker ? marker->centerPos() : Coord3::udf();
-}
-
-
-Coord3 PickSetDisplay::getDirection( int idx ) const
-{
-    mDynamicCastGet(visBase::Marker*,marker,group->getObject(idx))
-    Sphere dir = marker ? marker->getDirection() : Sphere(0,0,0);
-    return Coord3(dir.radius,dir.theta,dir.phi);
-}
-
-
-void PickSetDisplay::removePick( const Coord3& pos )
-{
-    for ( int idx=0; idx<group->size(); idx++ )
-    {
-	mDynamicCastGet(visBase::Marker*, marker, group->getObject( idx ) );
-	if ( !marker ) continue;
-
-	if ( marker->centerPos() == pos )
-	{
-	    group->removeObject( idx );
-	    haschanged = true;
-	    changed.trigger();
-	    return;
-	}
-    }
-}
-
-
-void PickSetDisplay::removeAll()
-{
-    group->removeAll();
-}
-
-
-BufferString PickSetDisplay::getManipulationString() const
-{
-    BufferString str = "Nr. of picks: ";
-    str += nrPicks();
-    return str;
-}
-
-
-void PickSetDisplay::getMousePosInfo( const visBase::EventInfo&,
-				      const Coord3& pos, float& val,
-				      BufferString& info ) const
-{
-    val = mUdf(float);
-    info = getManipulationString();
+    // if ( hasdir )
+       //TODO: no longer necessary?  setType( (int)MarkerStyle3D::Arrow );
 }
 
 
@@ -198,90 +102,6 @@ void PickSetDisplay::showAll( bool yn )
 
 	marker->turnOn( true );
     }
-}
-
-
-void PickSetDisplay::otherObjectsMoved(
-			const ObjectSet<const SurveyObject>& objs, int )
-{
-    if ( showall ) return;
-    for ( int idx=0; idx<group->size(); idx++ )
-    {
-	mDynamicCastGet(visBase::Marker*,marker,group->getObject(idx))
-	if ( !marker ) continue;
-
-	Coord3 pos = marker->centerPos(true);
-	marker->turnOn( false );
-	for ( int idy=0; idy<objs.size(); idy++ )
-	{
-	    const float dist = objs[idy]->calcDist(pos);
-	    if ( dist < objs[idy]->maxDist() )
-	    {
-		marker->turnOn(true);
-		break;
-	    }
-	}
-    }
-}
-
-
-void PickSetDisplay::setScreenSize( float newsize )
-{
-    picksz = newsize;
-    for ( int idx=0; idx<group->size(); idx++ )
-    {
-	mDynamicCastGet(visBase::Marker*, marker, group->getObject( idx ) );
-	if ( !marker ) continue;
-
-	marker->setScreenSize( picksz );
-    }
-}
-
-
-void PickSetDisplay::setColor( Color col )
-{
-    (this)->getMaterial()->setColor( col );
-}
-
-
-Color PickSetDisplay::getColor() const
-{
-    return (this)->getMaterial()->getColor();
-}
-
-
-void PickSetDisplay::setType( int tp )
-{
-    if ( tp < 0 ) tp = 0;
-    for ( int idx=0; idx<group->size(); idx++ )
-    {
-	mDynamicCastGet(visBase::Marker*,marker,group->getObject(idx))
-	if ( !marker ) continue;
-	marker->setType( (MarkerStyle3D::Type)tp );
-    }
-
-    picktype = tp;
-}
-
-
-int PickSetDisplay::getType() const
-{
-    for ( int idx=0; idx<group->size(); idx++ )
-    {
-	mDynamicCastGet(visBase::Marker*,marker,group->getObject(idx))
-	if ( !marker ) continue;
-	return (int)marker->getType();
-    }
-
-    return -1;
-}
-
-
-void PickSetDisplay::fillMarkerSet()
-{
-    const char** names = MarkerStyle3D::TypeNames;
-    while ( *names )
-	markertypes.add( *names++ );
 }
 
 
@@ -322,8 +142,12 @@ void PickSetDisplay::pickCB( CallBacker* cb )
 		int removeidx = group->getFirstIdx(mousepressid);
 		if ( removeidx != -1 )
 		{
+		    Pick::SetMgr::ChangeData cd(
+			    Pick::SetMgr::ChangeData::ToBeRemoved,
+			    set_, &(*set_)[removeidx] );
 		    group->removeObject( removeidx );
-		    changed.trigger();
+		    Pick::Mgr().reportChange( this, cd );
+		    set_->remove( removeidx );
 		}
 	    }
 
@@ -358,7 +182,7 @@ void PickSetDisplay::pickCB( CallBacker* cb )
 		    mDynamicCastGet(SurveyObject*,so,
 			    	    visBase::DM().getObject(eventid))
 		    if ( so ) so->snapToTracePos( newpos );
-		    addPick( newpos );
+		    addDisplayPick( addPick(newpos,Sphere(0,0,0),true) );
 		}
 	    }
 
@@ -368,70 +192,150 @@ void PickSetDisplay::pickCB( CallBacker* cb )
 }
 
 
-void PickSetDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
+void PickSetDisplay::locChg( CallBacker* cb )
 {
-    visBase::VisualObjectImpl::fillPar( par, saveids );
+    mDynamicCastGet(Pick::SetMgr::ChangeData*,cd,cb)
+    if ( !cd )
+	{ pErrMsg("Wrong pointer passed"); return; }
+    else if ( cd->set_ != set_ || !cd->loc_ )
+	return;
 
-    const int nrpicks = group->size();
-    par.set( nopickstr, nrpicks );
+    if ( cd->ev_ == Pick::SetMgr::ChangeData::Added && cd->loc_ )
+	addDisplayPick( *cd->loc_ );
+    else if ( cd->ev_ == Pick::SetMgr::ChangeData::ToBeRemoved )
+	group->removeObject( set_->indexOf(*cd->loc_) );
 
-    for ( int idx=0; idx<nrpicks; idx++ )
-    {
-	const DataObject* so = group->getObject( idx );
-        mDynamicCastGet(const visBase::Marker*, marker, so );
-	BufferString key = pickprefixstr; key += idx;
-	Coord3 pos = marker->centerPos();
-	Sphere dir = marker->getDirection();
-	FileMultiString str; str += pos.x; str += pos.y; str += pos.z;
-	if ( dir.radius || dir.theta || dir.phi )
-	    { str += dir.radius; str += dir.theta; str += dir.phi; }
-	par.set( key, str.buf() );
-    }
-
-    par.setYN( showallstr, showall );
-
-    int type = getType();
-    par.set( shapestr, type );
-    par.set( sizestr, picksz );
+    visnotif_.trigger();
 }
 
 
-int PickSetDisplay::usePar( const IOPar& par )
+void PickSetDisplay::setChg( CallBacker* cb )
 {
-    int res =  visBase::VisualObjectImpl::usePar( par );
-    if ( res != 1 ) return res;
+    mDynamicCastGet(Pick::Set*,ps,cb)
+    if ( !ps )
+	{ pErrMsg("Wrong pointer passed"); return; }
+    else if ( ps != set_ )
+	return;
 
-    picktype = 0;
-    par.get( shapestr, picktype );
+    visnotif_.trigger();
+    fullRedraw();
+}
 
-    picksz = 5;
-    par.get( sizestr, picksz );
 
-    bool shwallpicks = true;
-    par.getYN( showallstr, shwallpicks );
-    showAll( shwallpicks );
+void PickSetDisplay::dispChg( CallBacker* )
+{
+    getMaterial()->setColor( set_->disp_.color_ );
+    if ( set_->size() < 1 )
+	{ visnotif_.trigger(); return; }
 
-    group->removeAll();
+    mDynamicCastGet(visBase::Marker*,firstmarker,group->getObject(0));
+    if ( !firstmarker ) return;
 
-    int nopicks = 0;
-    par.get( nopickstr, nopicks );
-    for ( int idx=0; idx<nopicks; idx++ )
+    const int oldpixsz = (int)(firstmarker->getScreenSize() + .5);
+    if ( oldpixsz != set_->disp_.pixsize_ )
     {
-	BufferString str;
-	BufferString key = pickprefixstr; key += idx;
-	if ( !par.get(key,str) )
-	    return -1;
-
-	FileMultiString fms( str );
-	Coord3 pos( atof(fms[0]), atof(fms[1]), atof(fms[2]) );
-	Sphere dir;
-	if ( fms.size() > 3 )
-	    dir = Sphere( atof(fms[3]), atof(fms[4]), atof(fms[5]) );
-	    
-	addPick( pos, dir );
+	for ( int idx=0; idx<group->size(); idx++ )
+	{
+	    mDynamicCastGet(visBase::Marker*,marker,group->getObject(idx));
+	    if ( marker )
+		marker->setScreenSize( set_->disp_.pixsize_ );
+	}
     }
 
-    return 1;
+    if ( (int)firstmarker->getType() != set_->disp_.markertype_ )
+    {
+	for ( int idx=0; idx<group->size(); idx++ )
+	{
+	    mDynamicCastGet(visBase::Marker*,marker,group->getObject(idx))
+	    if ( marker )
+		marker->setType( (MarkerStyle3D::Type)set_->disp_.markertype_ );
+	}
+    }
+
+    visnotif_.trigger();
+}
+
+
+Color PickSetDisplay::getColor() const
+{
+    return set_->disp_.color_;
+}
+
+
+bool PickSetDisplay::isPicking() const
+{
+    return isSelected() && !isLocked();
+}
+
+
+Pick::Location& PickSetDisplay::addPick( const Coord3& pos, const Sphere& dir,
+					 bool notif )
+{
+    *set_ += Pick::Location( pos, dir );
+    Pick::Location& pl = (*set_)[set_->size()-1];
+    if ( notif )
+    {
+	Pick::SetMgr::ChangeData cd( Pick::SetMgr::ChangeData::Added,
+				     set_, &pl);
+	Pick::Mgr().reportChange( this, cd );
+    }
+
+    return pl;
+}
+
+
+void PickSetDisplay::addDisplayPick( const Pick::Location& loc )
+{
+    visBase::Marker* marker = visBase::Marker::create();
+    group->addObject( marker );
+
+    marker->setDisplayTransformation( transformation );
+    marker->setCenterPos( loc.pos );
+    marker->setDirection( loc.dir );
+    marker->setScreenSize( set_->disp_.pixsize_ );
+    marker->setType( (MarkerStyle3D::Type)set_->disp_.markertype_ );
+    marker->setMaterial( 0 );
+}
+
+
+BufferString PickSetDisplay::getManipulationString() const
+{
+    BufferString str = "Nr. of picks: ";
+    str += set_->size();
+    return str;
+}
+
+
+void PickSetDisplay::getMousePosInfo( const visBase::EventInfo&,
+				      const Coord3& pos, float& val,
+				      BufferString& info ) const
+{
+    val = mUdf(float);
+    info = getManipulationString();
+}
+
+
+void PickSetDisplay::otherObjectsMoved(
+			const ObjectSet<const SurveyObject>& objs, int )
+{
+    if ( showall ) return;
+    for ( int idx=0; idx<group->size(); idx++ )
+    {
+	mDynamicCastGet(visBase::Marker*,marker,group->getObject(idx))
+	if ( !marker ) continue;
+
+	Coord3 pos = marker->centerPos(true);
+	marker->turnOn( false );
+	for ( int idy=0; idy<objs.size(); idy++ )
+	{
+	    const float dist = objs[idy]->calcDist(pos);
+	    if ( dist < objs[idy]->maxDist() )
+	    {
+		marker->turnOn(true);
+		break;
+	    }
+	}
+    }
 }
 
 
@@ -478,6 +382,69 @@ void PickSetDisplay::setSceneEventCatcher( visBase::EventCatcher* nevc )
 	eventcatcher->ref();
     }
 
+}
+
+
+void PickSetDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
+{
+    visBase::VisualObjectImpl::fillPar( par, saveids );
+
+    const int nrpicks = group->size();
+    par.set( nopickstr, nrpicks );
+
+    for ( int idx=0; idx<nrpicks; idx++ )
+    {
+	const DataObject* so = group->getObject( idx );
+        mDynamicCastGet(const visBase::Marker*, marker, so );
+	BufferString key = pickprefixstr; key += idx;
+	Coord3 pos = marker->centerPos();
+	Sphere dir = marker->getDirection();
+	FileMultiString str; str += pos.x; str += pos.y; str += pos.z;
+	if ( dir.radius || dir.theta || dir.phi )
+	    { str += dir.radius; str += dir.theta; str += dir.phi; }
+	par.set( key, str.buf() );
+    }
+
+    par.setYN( showallstr, showall );
+    par.set( shapestr, set_->disp_.markertype_ );
+    par.set( sizestr, set_->disp_.pixsize_ );
+}
+
+
+int PickSetDisplay::usePar( const IOPar& par )
+{
+    int res =  visBase::VisualObjectImpl::usePar( par );
+    if ( res != 1 ) return res;
+
+    par.get( shapestr, set_->disp_.markertype_ );
+    par.get( sizestr, set_->disp_.pixsize_ );
+
+    bool shwallpicks = true;
+    par.getYN( showallstr, shwallpicks );
+    showAll( shwallpicks );
+
+    group->removeAll();
+
+    int nopicks = 0;
+    par.get( nopickstr, nopicks );
+    for ( int idx=0; idx<nopicks; idx++ )
+    {
+	BufferString str;
+	BufferString key = pickprefixstr; key += idx;
+	if ( !par.get(key,str) )
+	    return -1;
+
+	FileMultiString fms( str );
+	Coord3 pos( atof(fms[0]), atof(fms[1]), atof(fms[2]) );
+	Sphere dir;
+	if ( fms.size() > 3 )
+	    dir = Sphere( atof(fms[3]), atof(fms[4]), atof(fms[5]) );
+
+	addDisplayPick( addPick(pos,dir,false) );
+    }
+
+    Pick::Mgr().reportChange( this, *set_ );
+    return 1;
 }
 
 }; // namespace visSurvey

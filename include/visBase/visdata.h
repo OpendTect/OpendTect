@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visdata.h,v 1.37 2006-05-08 14:36:12 cvsnanne Exp $
+ RCS:		$Id: visdata.h,v 1.38 2006-05-29 08:02:32 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -44,7 +44,7 @@ objects and is thus the only one that is allowed to delete it. The destructors
 on the inherited classes should thus be protected.
 */
 
-class DataObject : public CallBackClass
+class DataObject : public CallBacker
 { mRefCountImpl(DataObject);
 public:
 
@@ -126,7 +126,7 @@ class Factory;
 /*! The FactoryEntry knows how to create one visualization object, and it has a 
     function that can produce the object.  */
 
-class FactoryEntry : public CallBackClass
+class FactoryEntry : public CallBacker
 {
 public:
     			FactoryEntry( FactPtr, const char*);

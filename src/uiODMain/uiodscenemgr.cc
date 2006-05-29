@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.67 2006-05-09 13:51:09 cvsbert Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.68 2006-05-29 08:02:32 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -723,22 +723,6 @@ void uiODSceneMgr::disabTrees( bool yn )
 {
     for ( int idx=0; idx<scenes_.size(); idx++ )
 	scenes_[idx]->lv_->setSensitive( !yn );
-}
-
-
-int uiODSceneMgr::addPickSetItem( const Pick::Set& ps, int sceneid )
-{
-    for ( int idx=0; idx<scenes_.size(); idx++ )
-    {
-	Scene& scene = *scenes_[idx];
-	if ( sceneid >= 0 && sceneid != scene.sovwr_->sceneID() ) continue;
-
-	uiODPickSetTreeItem* itm = new uiODPickSetTreeItem( ps );
-	scene.itemmanager_->addChild( itm, false );
-	return itm->displayID();
-    }
-
-    return -1;
 }
 
 

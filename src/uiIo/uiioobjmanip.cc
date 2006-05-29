@@ -4,13 +4,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          25/05/2000
- RCS:           $Id: uiioobjmanip.cc,v 1.21 2005-11-04 12:25:08 cvsbert Exp $
+ RCS:           $Id: uiioobjmanip.cc,v 1.22 2006-05-29 08:02:32 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiioobjmanip.h"
 #include "iodirentry.h"
+#include "uiioobj.h"
 #include "uilistbox.h"
 #include "uifiledlg.h"
 #include "uigeninputdlg.h"
@@ -315,43 +316,12 @@ bool uiIOObjManipGroup::renameEntry( Translator* tr )
 }
 
 
-bool uiRmIOObjImpl( IOObj& ioob, bool askexist )
-{
-    BufferString mess = "Remove ";
-    if ( askexist ) mess += " existing ";
-    mess += " data file(s), at\n'";
-    if ( !ioob.isLink() )
-    {
-	mess += ioob.fullUserExpr(true);
-	mess += "'?";
-    }
-    else
-    {
-	FileNameString fullexpr( ioob.fullUserExpr(true) );
-	mess += FilePath(fullexpr).fileName();
-	mess += "'\n- and everything in it! - ?";
-    }
-    if ( !uiMSG().askGoOn(mess) )
-	return false;
-
-    if ( !fullImplRemove(ioob) )
-    {
-	BufferString mess = "Could not remove data file(s).\n";
-	mess += "Remove entry from list anyway?";
-	if ( !uiMSG().askGoOn(mess) )
-	    return false;
-    }
-    return true;
-}
-
-
 bool uiIOObjManipGroup::rmEntry( bool rmabl )
 {
-    if ( rmabl && !uiRmIOObjImpl( *ioobj, false ) )
+    if ( rmabl && !uiIOObj(*ioobj).removeImpl(true) )
 	return false;
 
     entries.curRemoved();
-    IOM().permRemove( ioobj->key() );
     return true;
 }
 
@@ -422,7 +392,7 @@ bool uiIOObjManipGroup::doReloc( Translator* tr, IOStream& iostrm,
     {
 	const bool newimplexist = tr ? tr->implExists(&chiostrm,true)
 				     : chiostrm.implExists(true);
-	if ( newimplexist && !uiRmIOObjImpl( chiostrm, true ) )
+	if ( newimplexist && !uiIOObj(chiostrm).removeImpl(false) )
 	    return false;
 
 	CallBack cb( mCB(this,uiIOObjManipGroup,relocCB) );
