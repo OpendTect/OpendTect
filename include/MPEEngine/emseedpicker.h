@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: emseedpicker.h,v 1.19 2006-05-29 08:02:32 cvsbert Exp $
+ RCS:           $Id: emseedpicker.h,v 1.20 2006-05-29 15:05:01 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -52,7 +52,8 @@ public:
     virtual int		nrSeeds() const				{ return 0; }
     virtual int		minSeedsToLeaveInitStage() const	{ return 1; }
 
-    virtual NotifierAccess* seedChangeNotifier()		{ return 0; }
+    virtual NotifierAccess* aboutToAddRmSeedNotifier()		{ return 0; }
+    virtual NotifierAccess* madeSurfChangeNotifier()		{ return 0; }
     
     virtual void	setSeedConnectMode(int)			{ return; }
     virtual int		getSeedConnectMode() const		{ return -1; }
