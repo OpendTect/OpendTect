@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          10-12-1999
- RCS:           $Id: attribparamgroup.h,v 1.3 2005-08-05 16:00:22 cvshelene Exp $
+ RCS:           $Id: attribparamgroup.h,v 1.4 2006-05-29 07:49:21 cvshelene Exp $
 ________________________________________________________________________
 */
 
@@ -128,6 +128,9 @@ bool ParamGroup<PT>::isEqual(const Param& b) const
 template <class PT> inline
 bool ParamGroup<PT>::isOK() const
 {
+    if ( !enabled_ ) return true;
+    if ( !sz ) return false;
+    
     for ( int idx=0; idx<sz; idx++ )
     {
 	if ( !params[idx]->isOK() )
