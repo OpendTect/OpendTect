@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          23-10-1996
- RCS:           $Id: mpeengine.h,v 1.30 2006-05-29 08:02:32 cvsbert Exp $
+ RCS:           $Id: mpeengine.h,v 1.31 2006-05-29 15:12:55 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -72,6 +72,7 @@ public:
 
     void			getAvailableTrackerTypes(BufferStringSet&)const;
 
+    int				nrTrackersAlive() const;
     int				highestTrackerID() const;
     const EMTracker*		getTracker(int idx) const;
     EMTracker*			getTracker(int idx);
@@ -102,6 +103,8 @@ public:
     void			addEditorFactory(EditorFactory*);
 
     const char*			errMsg() const;
+
+    BufferString		setupFileName( const MultiID& ) const;
 
     void			fillPar(IOPar&) const;
     bool			usePar(const IOPar&);
