@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodpicksettreeitem.cc,v 1.5 2006-05-29 08:02:32 cvsbert Exp $
+ RCS:		$Id: uiodpicksettreeitem.cc,v 1.6 2006-05-30 14:53:18 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -54,6 +54,17 @@ bool uiODPickSetParentTreeItem::init()
 }
 
 
+void uiODPickSetParentTreeItem::removeChild( uiTreeItem* child )
+{
+    mDynamicCastGet(uiODPickSetTreeItem*,itm,child)
+    const int setidx = Pick::Mgr().indexOf( itm->getSet() );
+    uiTreeItem::removeChild( child );
+    if ( setidx < 0 ) return;
+
+    Pick::Mgr().set( Pick::Mgr().id(setidx), 0 );
+}
+
+
 void uiODPickSetParentTreeItem::setAdd( CallBacker* cb )
 {
     mDynamicCastGet(Pick::Set*,ps,cb)
@@ -76,7 +87,7 @@ void uiODPickSetParentTreeItem::setRm( CallBacker* cb )
 	if ( &itm->getSet() == ps )
 	{
 	    applMgr()->visServer()->removeObject( itm->displayID(), sceneID() );
-	    removeChild( itm );
+	    uiTreeItem::removeChild( itm );
 	    return;
 	}
     }
@@ -162,7 +173,7 @@ uiODPickSetTreeItem::uiODPickSetTreeItem( int did, Pick::Set& ps )
 
 
 uiODPickSetTreeItem::~uiODPickSetTreeItem()
-{ 
+{
     Pick::Mgr().removeCBs( this );
 }
 
