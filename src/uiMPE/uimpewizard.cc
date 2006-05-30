@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpewizard.cc,v 1.49 2006-05-23 14:47:30 cvsjaap Exp $
+ RCS:           $Id: uimpewizard.cc,v 1.50 2006-05-30 07:34:31 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -369,15 +369,17 @@ bool Wizard::prepareSeedSetupPage()
     if ( currentPageIdx()==lastPage() )
 	setRotateMode(false);
 
-    NotifierAccess* seedchangenotifier = seedpicker->seedChangeNotifier();
-    if ( seedchangenotifier ) 
-	seedchangenotifier->notify( mCB(this,Wizard,updateFinishButton) );
+    NotifierAccess* addrmseednotifier = seedpicker->aboutToAddRmSeedNotifier();
+    if ( addrmseednotifier ) 
+	addrmseednotifier->notify( mCB(this,Wizard,setupChange) );
+    NotifierAccess* surfchangenotifier = seedpicker->madeSurfChangeNotifier();
+    if ( surfchangenotifier ) 
+	surfchangenotifier->notify( mCB(this,Wizard,updateFinishButton) );
     updateFinishButton(0);
     initialhistorynr = EM::EMM().history().currentEventNr();
 
     return true;
 }
-
 
 #define mGetSeedPicker( retfld ) \
     const int trackerid = mpeserv->getTrackerID( currentobject ); \
@@ -393,9 +395,19 @@ bool Wizard::prepareSeedSetupPage()
 bool Wizard::leaveSeedSetupPage( bool process )
 {
     mGetSeedPicker(false);
-    NotifierAccess* seedchangenotifier = seedpicker->seedChangeNotifier();
-    if ( seedchangenotifier ) 
-	seedchangenotifier->remove( mCB(this,Wizard,updateFinishButton) );
+    if ( process )
+    {
+	setupChange(0);
+        if ( seedpicker->isSeedPickBlocked() )
+	    return false;
+    }
+
+    NotifierAccess* addrmseednotifier = seedpicker->aboutToAddRmSeedNotifier();
+    if ( addrmseednotifier ) 
+	addrmseednotifier->remove( mCB(this,Wizard,setupChange) );
+    NotifierAccess* surfchangenotifier = seedpicker->madeSurfChangeNotifier();
+    if ( surfchangenotifier ) 
+	surfchangenotifier->remove( mCB(this,Wizard,updateFinishButton) );
 
     setButtonSensitive( uiDialog::CANCEL, true );
     if ( !process )
@@ -406,7 +418,6 @@ bool Wizard::leaveSeedSetupPage( bool process )
 
     if ( currentPageIdx()==lastPage() )
 	return finalizeCycle();
-
     return true;
 }
 
@@ -440,7 +451,10 @@ bool Wizard::finalizeCycle()
 	    EM::EMObject* emobj = EM::EMM().getObject( currentobject );
 	    PtrMan<Executor> saver = emobj->saver();
 	    if ( saver ) 
+	    {
 		saver->execute();
+		mpeserv->saveSetup( EM::EMM().getMultiID(currentobject) );
+	    }
 	}
     }
 
@@ -713,40 +727,33 @@ void Wizard::seedModeChange( CallBacker* )
 
     mGetSeedPicker();
     seedpicker->setSeedConnectMode( newmode );
-    const bool needsetup = seedpicker->doesModeUseSetup();
-    const bool newmodeneedseed = seedpicker->minSeedsToLeaveInitStage() > 0; 
 
-    displayPage( sSeedSetupPage, needsetup );
-//  setupChange(0);
+    displayPage( sSeedSetupPage, seedpicker->doesModeUseSetup() );
 }
 
 
 void Wizard::setupChange( CallBacker* )
 {
+    const bool actvolisplanar = MPE::engine().activeVolume().nrInl()==1 ||
+	                        MPE::engine().activeVolume().nrCrl()==1 ;
     mGetSeedPicker();
+    seedpicker->blockSeedPick( !setupgrp->commitToTracker() );
 
-//    const bool allowpicking = seedpicker->doesModeUseSetup();
-//    seedpicker->blockSeedPick( !allowpicking );
-
-    setupgrp->commitToTracker();
-
-    if ( MPE::engine().activeVolume().nrInl()==1 || 
-	 MPE::engine().activeVolume().nrCrl()==1    )
+   if ( !seedpicker->isSeedPickBlocked() && actvolisplanar )
 	mpeserv->loadAttribData();
-
+    
     uiCursor::setOverride( uiCursor::Wait );
     seedpicker->reTrack();
     uiCursor::restoreOverride();
 }
 
 
-void Wizard::updateFinishButton( CallBacker* cb )
+void Wizard::updateFinishButton( CallBacker* )
 {
-    if ( cb ) setupChange(0);
-
     mGetSeedPicker();
-    const bool finishenabled = !seedpicker->isSeedPickBlocked() &&
-	       seedpicker->nrSeeds() >= seedpicker->minSeedsToLeaveInitStage();
+
+    const bool finishenabled = seedpicker->nrSeeds() >= 
+					seedpicker->minSeedsToLeaveInitStage();
     setButtonSensitive( uiDialog::CANCEL, finishenabled );
 }
 
