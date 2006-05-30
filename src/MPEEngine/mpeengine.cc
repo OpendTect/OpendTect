@@ -8,19 +8,22 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: mpeengine.cc,v 1.61 2006-05-21 14:29:30 cvsjaap Exp $";
+static const char* rcsID = "$Id: mpeengine.cc,v 1.62 2006-05-30 07:11:18 cvsjaap Exp $";
 
 #include "mpeengine.h"
 
 #include "attribsel.h"
 #include "attribdatacubes.h"
 #include "bufstringset.h"
+#include "ctxtioobj.h"
 #include "emeditor.h"
 #include "emmanager.h"
 #include "emobject.h"
 #include "emtracker.h"
 #include "executor.h"
 #include "geomelement.h"
+#include "ioman.h"
+#include "ioobject.h"
 #include "iopar.h"
 #include "sectiontracker.h"
 #include "survinfo.h"
@@ -229,6 +232,18 @@ void Engine::removeTracker( int idx )
     setActiveVolume( getDefaultActiveVolume() );
 }
 
+
+int Engine::nrTrackersAlive() const
+{
+    int nrtrackers = 0;
+    for ( int idx=0; idx<trackers_.size(); idx++ )
+    {
+	if ( trackers_[idx] )
+	    nrtrackers++;
+    }
+    return nrtrackers;
+}
+	
 
 int Engine::highestTrackerID() const
 { return trackers_.size()-1; }
@@ -452,6 +467,23 @@ CubeSampling Engine::getDefaultActiveVolume()
     float z0 = SI().zRange(true).snap( cs.zrg.start ); cs.zrg.start = z0;
     float z1 = SI().zRange(true).snap( cs.zrg.stop ); cs.zrg.stop = z1;
     return cs;
+}
+
+
+
+BufferString Engine::setupFileName( const MultiID& mid ) const
+{
+    PtrMan<IOObj> ioobj = IOM().get( mid );
+    if ( ioobj )
+    {
+	FilePath setupfilenm( ioobj->fullUserExpr(true) );
+	setupfilenm.setExtension( "ts", true );
+	FilePath setuppath( IOObjContext::getDataDirName(IOObjContext::Surf) );
+	setupfilenm.setPath( setuppath.fullPath() );
+	return BufferString( setupfilenm.fullPath() );
+    }
+
+    return BufferString("");
 }
 
 
