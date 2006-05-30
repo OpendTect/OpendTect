@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visshape.h,v 1.15 2006-04-13 15:29:13 cvskris Exp $
+ RCS:		$Id: visshape.h,v 1.16 2006-05-30 07:00:58 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -78,12 +78,12 @@ public:
     void			fillPar( IOPar&, TypeSet<int>& ) const;
 
     SoNode*			getInventorNode();
-
-protected:
-    virtual			~Shape();
     void			insertNode( SoNode* );
     				/*!< Inserts the node _before_ the shape */
     void			removeNode( SoNode* );
+
+protected:
+    virtual			~Shape();
 
     SoNode*			shape_;
     SoSwitch*			onoff_;
