@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2004
- RCS:           $Id: visseis2ddisplay.cc,v 1.2 2006-05-03 18:54:19 cvskris Exp $
+ RCS:           $Id: visseis2ddisplay.cc,v 1.3 2006-05-30 08:29:49 cvsnanne Exp $
  ________________________________________________________________________
 
 -*/
@@ -32,7 +32,6 @@
 #include "seis2dline.h"
 #include "seisinfo.h"
 #include "survinfo.h"
-#include "trigonometry.h"
 
 
 mCreateFactoryEntry( visSurvey::Seis2DDisplay );
@@ -281,13 +280,6 @@ void visSurvey::Seis2DDisplay::setStrip( const TypeSet<Coord>& crds,
 					 int stripidx,
 					 const Interval<int>& crdinterval )
 {
-    TypeSet<double> x, y;
-    for ( int idx=0; idx<crds.size(); idx++ )
-	{ x += crds[idx].x; y += crds[idx].y; }
-    TypeSet<int> bpidxs;
-    IdxAble::getBendPoints( x, y, crds.size(), 0.5, bpidxs );
-    //TODO : use these bendpoints
-
     while ( stripidx>=planes.size() )
     {
 	visBase::TriangleStripSet* plane = visBase::TriangleStripSet::create();
@@ -317,53 +309,15 @@ void visSurvey::Seis2DDisplay::setStrip( const TypeSet<Coord>& crds,
 
     coords->setLocalTranslation( centercoord );
 
-    int curposidx=crdinterval.start; 
+    TypeSet<double> x, y;
+    for ( int idx=crdinterval.start; idx<crdinterval.stop; idx++ )
+	{ x += crds[idx].x; y += crds[idx].y; }
+    TypeSet<int> bpidxs;
+    IdxAble::getBendPoints( x, y, crds.size(), 0.5, bpidxs );
+
     int curknotidx=0;
-
-    mAddCoords( curknotidx, curposidx );
-
-    while ( true )
-    {
-	if ( curposidx==crdinterval.stop-1 )
-	{
-	    mAddCoords( curknotidx, crdinterval.stop );
-	    break;
-	}
-
-	for ( int idx=curposidx+2; idx<crdinterval.stop; idx++ )
-	{
-	    const Coord3 start( crds[curposidx], zrg.start );
-	    const Coord3 stop( crds[idx], zrg.start );
-	    const Coord3 direction = (stop-start).normalize();
-
-	    const float avgtracedist = stop.distance(start)/(idx-curposidx);
-
-	    bool stophere = false;
-	    for ( int idy=idx-1; idy>curposidx; idy-- )
-	    {
-		const Coord3 curpos( crds[idy], zrg.start );
-		const Coord3 computedpos = 
-		    		start + direction*avgtracedist*(idy-curposidx);
-
-		const float dist = curpos.distance(computedpos);
-		if ( dist>avgtracedist/16 )
-		{
-		    stophere = true;
-		    break;
-		}
-	    }
-
-	    if ( !stophere )
-		continue;
-
-	    mAddCoords( curknotidx, idx-1 );
-	    curposidx = idx-1;
-	    continue;
-	}
-
-	mAddCoords( curknotidx, crdinterval.stop );
-	break;
-    }
+    for ( int idx=0; idx<bpidxs.size(); idx++ )
+	mAddCoords( curknotidx, bpidxs[idx] );
 
     plane->setCoordIndex( curknotidx, -1 );
     plane->removeCoordIndexAfter( curknotidx );
