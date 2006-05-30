@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2005
- RCS:           $Id: uihorizontracksetup.cc,v 1.6 2006-05-12 09:51:14 cvsnanne Exp $
+ RCS:           $Id: uihorizontracksetup.cc,v 1.7 2006-05-30 07:18:43 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -210,7 +210,9 @@ void uiHorizonSetupGroup::initSimiGroup()
 bool uiHorizonSetupGroup::commitToTracker() const
 {
     if ( !horadj_ || horadj_->getNrAttributes()<1 )
-	return false;
+    {   uiMSG().warning( "Unable to apply tracking setup" ); 
+	return true;
+    }
 	
     if ( !inpfld ) return true;
 
