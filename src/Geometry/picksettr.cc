@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Jul 2005
- RCS:		$Id: picksettr.cc,v 1.7 2006-05-29 08:02:32 cvsbert Exp $
+ RCS:		$Id: picksettr.cc,v 1.8 2006-05-30 08:24:13 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,7 +36,7 @@ const IOObjContext& PickSetTranslatorGroup::ioContext()
 	ctxt->crlink = false;
 	ctxt->newonlevel = 1;
 	ctxt->needparent = false;
-	ctxt->maychdir = true;
+	ctxt->maychdir = false;
 	ctxt->stdseltype = IOObjContext::Loc;
     }
 
@@ -49,8 +49,7 @@ int PickSetTranslatorGroup::selector( const char* key )
     int retval = defaultSelector( theInst().userName(), key );
     if ( retval ) return retval;
 
-    if ( defaultSelector("Miscellaneous directory",key)
-      || defaultSelector("Locations directory",key) ) return 1;
+    if ( defaultSelector("Locations directory",key) ) return 1;
 
     return 0;
 }
