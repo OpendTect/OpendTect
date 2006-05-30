@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          23-02-2006
- RCS:           $Id: fingerprintattrib.h,v 1.4 2006-05-19 14:34:02 cvshelene Exp $
+ RCS:           $Id: fingerprintattrib.h,v 1.5 2006-05-30 14:30:40 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,6 +45,8 @@ public:
     static const char*		attribName()	{ return "FingerPrint"; }
     static const char*		refposStr()	{ return "refpos"; }
     static const char*		refposzStr()	{ return "refposz"; }
+    static const char*		reflinesetStr()	{ return "reflineset"; }
+    static const char*		ref2dlineStr()	{ return "ref2dline"; }
     static const char*		valStr()	{ return "value"; }
     static const char*		rangeStr()	{ return "range"; }
     static const char*		weightStr()	{ return "weight"; }
@@ -65,12 +67,12 @@ protected:
     bool			computeData(const DataHolder&,
 	    				    const BinID& relpos,
 					    int z0,int nrsamples) const;
-    TypeSet<float>		scaleVector(TypeSet<float>) const;
 
     TypeSet<float>		refvector_;
     TypeSet< Interval<float> >	ranges_;
     TypeSet<int>		weights_;
-    int				vectorsize_;
+    
+    TypeSet<float>		scaledref_;
     
     TypeSet<int>		dataidx_;
     ObjectSet<const DataHolder>	inputdata_;

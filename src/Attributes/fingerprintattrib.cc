@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          February 2006
- RCS:           $Id: fingerprintattrib.cc,v 1.4 2006-05-19 14:34:02 cvshelene Exp $
+ RCS:           $Id: fingerprintattrib.cc,v 1.5 2006-05-30 14:30:40 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,6 +13,7 @@ ________________________________________________________________________
 
 #include "attribdataholder.h"
 #include "attribdesc.h"
+#include "attribdescset.h"
 #include "attribfactory.h"
 #include "attribparam.h"
 #include "attribparamgroup.h"
@@ -23,6 +24,21 @@ ________________________________________________________________________
 
 namespace Attrib
 {
+
+static void scaleVector( const TypeSet<float>& rawvalues,
+			 const TypeSet< Interval<float> >& ranges,
+       			 TypeSet<float>& scaledvalues )
+{
+    if ( rawvalues.size() != ranges.size() ) return;
+
+    for ( int idx=0; idx<rawvalues.size(); idx++ )
+    {
+	float diff = ranges[idx].stop - ranges[idx].start;
+	float denom = mIsZero( diff , 0.001 ) ? 0.001 : diff;
+	scaledvalues += ( rawvalues[idx] - ranges[idx].start ) / denom;
+    }
+}
+
 
 void FingerPrint::initClass()
 {
@@ -37,6 +53,14 @@ void FingerPrint::initClass()
     refposz->setRequired( false );
     desc->addParam( refposz );
 
+    StringParam* reflineset = new StringParam( reflinesetStr() );
+    reflineset->setRequired( false );
+    desc->addParam( reflineset );
+    
+    StringParam* ref2dline = new StringParam( ref2dlineStr() );
+    ref2dline->setRequired( false );
+    desc->addParam( ref2dline );
+    
     FloatParam value( valStr() );
     ParamGroup<FloatParam>* valueset = 
 				new ParamGroup<FloatParam>(0,valStr(),value);
@@ -115,6 +139,10 @@ void FingerPrint::updateDesc( Desc& desc )
     desc.setParamEnabled( valpicksetStr(), type == 2 );
     desc.setParamEnabled( statstypeStr(), type == 2 );
     
+    const bool is2d = desc.descSet() ? desc.descSet()->is2D() : false;
+    desc.setParamEnabled( reflinesetStr(), type == 1 && is2d );
+    desc.setParamEnabled( ref2dlineStr(), type == 1 && is2d );
+    
     int rgtype = desc.getValParam(rgreftypeStr())->getIntValue();
     desc.setParamEnabled( rgpicksetStr(), rgtype == 1 );
 }
@@ -122,7 +150,6 @@ void FingerPrint::updateDesc( Desc& desc )
 
 FingerPrint::FingerPrint( Desc& dsc )
     : Provider( dsc )
-    , vectorsize_( 0 )
 {
     if ( !isOK() ) return;
 
@@ -147,22 +174,23 @@ FingerPrint::FingerPrint( Desc& dsc )
     {
 	const ValParam& param = (ValParam&)(*weightset)[idx];
 	weights_ += param.getIntValue(0);
-	vectorsize_++;
 	int nrtimes = weights_[idx]-1;
 	while ( nrtimes )
 	{
 	    refvector_+= refvector_[idx];
 	    ranges_ += ranges_[idx];
 	    nrtimes--;
-	    vectorsize_++;
 	}
     }
+    
+    scaleVector( refvector_, ranges_, scaledref_ );
 }
 
 
 bool FingerPrint::getInputData( const BinID& relpos, int zintv )
 {
-    while ( inputdata_.size() < vectorsize_ )
+    const int vectsz = refvector_.size();
+    while ( inputdata_.size() < vectsz )
 	inputdata_ += 0;
 
     for ( int idx=0; idx<inputs.size(); idx++ )
@@ -170,7 +198,7 @@ bool FingerPrint::getInputData( const BinID& relpos, int zintv )
 	const DataHolder* data = inputs[idx]->getData( relpos, zintv );
 	if ( !data ) return false;
 	inputdata_.replace( idx, data );
-	if ( dataidx_.size()< vectorsize_ ) 
+	if ( dataidx_.size()< vectsz ) 
 	    dataidx_ += getDataIndex( idx );
     }
 
@@ -181,7 +209,7 @@ bool FingerPrint::getInputData( const BinID& relpos, int zintv )
 	while ( nrtimes )
 	{
 	    inputdata_.replace( dataindex, inputdata_[idx] );
-	    if ( dataidx_.size()< vectorsize_ )
+	    if ( dataidx_.size()< vectsz )
 		dataidx_ += dataidx_[idx];
 	    nrtimes--;
 	    dataindex++;
@@ -192,26 +220,12 @@ bool FingerPrint::getInputData( const BinID& relpos, int zintv )
 }
 
 
-TypeSet<float> FingerPrint::scaleVector( TypeSet<float> rawvalues ) const
-{
-    TypeSet<float> scaledvalues;
-    if ( rawvalues.size() != ranges_.size() ) return scaledvalues;
-
-    for ( int idx=0; idx<rawvalues.size(); idx++ )
-    {
-	float diff = ranges_[idx].stop - ranges_[idx].start;
-	float denom = mIsZero( diff , 0.001 ) ? 0.001 : diff;
-	scaledvalues += ( rawvalues[idx] - ranges_[idx].start ) / denom;
-    }
-    return scaledvalues;
-}
-
 bool FingerPrint::computeData( const DataHolder& output, const BinID& relpos, 
 			      int z0, int nrsamples ) const
 {
     if ( !inputdata_.size() || !outputinterest[0] ) return false;
 
-    static TypeSet<float> scaledref = scaleVector( refvector_ );
+    TypeSet<float> scaledlocal;
     for ( int idx=0; idx<nrsamples; idx++ )
     {
 	const int cursample = idx + z0;
@@ -220,9 +234,10 @@ bool FingerPrint::computeData( const DataHolder& output, const BinID& relpos,
 	    localvals += inputdata_[inpidx]->series(dataidx_[inpidx])
 			 ->value( cursample-inputdata_[inpidx]->z0_ );
 
-	TypeSet<float> scaledlocal = scaleVector( localvals );
+	scaledlocal.erase();
+	scaleVector( localvals, ranges_, scaledlocal );
 
-	float val = similarity( scaledref, scaledlocal, scaledref.size() );
+	float val = similarity( scaledref_, scaledlocal, scaledref_.size() );
 	output.series(0)->setValue( cursample-output.z0_, val );
     }
 

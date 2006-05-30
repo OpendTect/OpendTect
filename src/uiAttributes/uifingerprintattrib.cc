@@ -4,21 +4,19 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Payraudeau
  Date:          February  2006
- RCS:           $Id: uifingerprintattrib.cc,v 1.10 2006-05-19 14:34:02 cvshelene Exp $
+ RCS:           $Id: uifingerprintattrib.cc,v 1.11 2006-05-30 14:30:41 cvshelene Exp $
 
 ________________________________________________________________________
 
 -*/
 
 #include "uifingerprintattrib.h"
+#include "uifingerprintcalcobj.h"
 #include "fingerprintattrib.h"
 #include "attribdesc.h"
-#include "attribsel.h"
 #include "attribparam.h"
 #include "attribparamgroup.h"
 #include "attribdescset.h"
-#include "attribprocessor.h"
-#include "attribengman.h"
 #include "uiattrsel.h"
 #include "uistepoutsel.h"
 #include "uiioobjsel.h"
@@ -28,25 +26,29 @@ ________________________________________________________________________
 #include "uigeninput.h"
 #include "uilabel.h"
 #include "uispinbox.h"
+#include "uicombobox.h"
 #include "uimsg.h"
 #include "pixmap.h"
 #include "ctxtioobj.h"
 #include "ioobj.h"
+#include "ioman.h"
 #include "oddirs.h"
 #include "binidvalset.h"
 #include "survinfo.h"
 #include "transl.h"
 #include "pickset.h"
 #include "picksettr.h"
-#include "runstat.h"
-#include "uiexecutor.h"
+#include "seistrctr.h"
+#include "seistrcsel.h"
+#include "uiseissel.h"
+#include "uiseisioobjinfo.h"
+#include "seis2dline.h"
+#include "segposinfo.h"
 #include "ptrman.h"
-#include "stats.h"
 
 using namespace Attrib;
 
-static const int sInitNrRows = 4;
-static const int sNrRandPicks = 100;
+static const int sInitNrRows = 3;
 
 static const char* valinpstrs[] =
 {
@@ -119,6 +121,16 @@ uiFingerPrintAttrib::uiFingerPrintAttrib( uiParent* p )
     getposbut_ = new uiToolButton( this, "", pm, cb );
     getposbut_->attach( rightOf, refposzfld_ );
 
+    linesetfld_ = new uiGenInput( this, "LineSet", StringInpSpec() );
+    linesetfld_-> attach( alignedBelow, refposfld_ );
+
+    CallBack sel2dcb = mCB(this,uiFingerPrintAttrib,fillIn2DPos);
+    sel2dbut_ = new uiPushButton( this, "&Select", sel2dcb, false);
+    sel2dbut_->attach( rightOf, linesetfld_ );
+
+    linefld_ = new uiLabeledComboBox( this, "Line name" );
+    linefld_-> attach( alignedBelow, linesetfld_ );
+
     picksetfld_ = new uiIOObjSel( this, ctio_, "Pickset file" );
     picksetfld_->attach( alignedBelow, (uiParent*)refgrp_ );
     picksetfld_->display(false);
@@ -127,7 +139,7 @@ uiFingerPrintAttrib::uiFingerPrintAttrib( uiParent* p )
 	    		       StringListInpSpec(statstrs) );
     statsfld_->attach( alignedBelow, picksetfld_ );
     statsfld_->display(false);
-    
+
     manlbl_ = new uiLabel( this, 
 	    		   "Please select some attributes and go to Advanced" );
     manlbl_->attach( alignedBelow, (uiParent*)refgrp_ );
@@ -143,8 +155,9 @@ uiFingerPrintAttrib::uiFingerPrintAttrib( uiParent* p )
     table_->setNrRows( sInitNrRows );
     table_->setColumnWidth(0,240);
     table_->setRowHeight( -1, 16 );
+    table_->setPrefHeight( 100 );
     table_->setToolTip( "Right-click to add, insert or remove an attribute" );
-    table_->attach( alignedBelow, statsfld_ );
+    table_->attach( alignedBelow, linefld_ );
     table_->rowInserted.notify( mCB(this,uiFingerPrintAttrib,insertRowCB) );
     table_->rowDeleted.notify( mCB(this,uiFingerPrintAttrib,deleteRowCB) );
 
@@ -202,6 +215,10 @@ void uiFingerPrintAttrib::deleteRowCB( CallBacker* cb )
 void uiFingerPrintAttrib::set2D( bool yn )
 {
     refposfld_->set2D( yn );
+    const bool needposflds = refgrp_->selectedId() == 1;
+    linesetfld_->display( yn && needposflds );
+    linefld_->display( yn && needposflds );
+    sel2dbut_->display( yn && needposflds );
 }
 
 
@@ -213,6 +230,11 @@ bool uiFingerPrintAttrib::setParameters( const Desc& desc )
     mIfGetBinID( FingerPrint::refposStr(), refpos, refposfld_->setBinID(refpos))
     mIfGetFloat( FingerPrint::refposzStr(), refposz,
 	    	 refposzfld_->setValue( refposz ) );
+
+    mIfGetString( FingerPrint::reflinesetStr(), ls, useLineSetID( ls ) )
+
+    mIfGetString( FingerPrint::ref2dlineStr(), line, 
+	    	  linefld_->box()->setCurrentItem(line.buf()) )
 
     mIfGetString( FingerPrint::valpicksetStr(), pick, 
 	    	  picksetfld_->setInput(pick) )
@@ -267,7 +289,8 @@ bool uiFingerPrintAttrib::setParameters( const Desc& desc )
 	    if ( !mIsUdf(param.getIntValue(0)) )
 		weights += param.getIntValue(0);
 	}
-	for ( int idx=0; idx<nrvals-weights.size(); idx++ )
+	const int initialwsz = weights.size();
+	for ( int idx=0; idx<nrvals-initialwsz; idx++ )
 	    weights += 1;
 
 	calcobj_->setWeights( weights );
@@ -303,6 +326,11 @@ bool uiFingerPrintAttrib::getParameters( Desc& desc )
     {
 	mSetBinID( FingerPrint::refposStr(), refposfld_->binID() );
 	mSetFloat( FingerPrint::refposzStr(), refposzfld_->getfValue() );
+	if ( desc.descSet() && desc.descSet()->is2D() )
+	{
+	    mSetString( FingerPrint::reflinesetStr(), lsid_ )
+	    mSetString( FingerPrint::ref2dlineStr(), linefld_->box()->text() )
+	}
     }
     else if ( refgrpval == 2 )
     {
@@ -365,8 +393,12 @@ void uiFingerPrintAttrib::refSel( CallBacker* )
 {
     const bool refbutchecked = refposbut_->isChecked();
     const bool pickbutchecked = picksetbut_->isChecked();
+    const bool is2d = refposfld_->is2D();
     refposfld_->display( refbutchecked );
     refposzfld_->display( refbutchecked );
+    linesetfld_->display( refbutchecked && is2d );
+    linefld_->display( refbutchecked && is2d );
+    sel2dbut_->display( refbutchecked && is2d );
     getposbut_->display( refbutchecked );
     picksetfld_->display( pickbutchecked );
     statsfld_->display( pickbutchecked );
@@ -407,19 +439,17 @@ void uiFingerPrintAttrib::calcPush(CallBacker*)
 {
     BufferString errmsg;
     BinIDValueSet* valuesset = createValuesBinIDSet( errmsg );
-    if ( calcobj_->getRgRefType() ==1 && !calcobj_->getRgRefPick().size() )
+    if ( calcobj_->getRgRefType()==1 && !calcobj_->getRgRefPick().size() )
     {
 	errmsg = "Please choose the pickset from which\n";
 	errmsg += "the ranges will be computed";
     }
-    BinIDValueSet* rangesset = calcobj_->createRangesBinIDSet();
     if ( errmsg.size() ) 
     {
 	uiMSG().error( errmsg );
 	return;
     }
-    calcobj_->setValRgSet( valuesset, true );
-    calcobj_->setValRgSet( rangesset, false );
+
     calcobj_->setDescSet( ads );
     BufferStringSet* refset = new BufferStringSet();
     for ( int idx=0; idx<attribflds_.size(); idx++ )
@@ -429,6 +459,9 @@ void uiFingerPrintAttrib::calcPush(CallBacker*)
 	    refset->add( inp );
     }
     calcobj_->setUserRefList( refset );
+    BinIDValueSet* rangesset = calcobj_->createRangesBinIDSet();
+    calcobj_->setValRgSet( valuesset, true );
+    calcobj_->setValRgSet( rangesset, false );
     calcobj_->computeValsAndRanges();
 }
 
@@ -438,18 +471,20 @@ BinIDValueSet* uiFingerPrintAttrib::createValuesBinIDSet(
 {
     if ( refgrp_->selectedId() == 1 )
     {
-	BinID refpos_ = refposfld_->binID();
-	float refposz_ = refposzfld_->getfValue() / SI().zFactor();
+	BinID refpos = refposfld_->is2D() ? get2DRefPos() : refposfld_->binID();
+	float refposz = refposzfld_->getfValue() / SI().zFactor();
 
-	if ( mIsUdf(refpos_.inl) || mIsUdf(refpos_.crl) || mIsUdf(refposz_) )
+	if ( mIsUdf(refpos.inl) || mIsUdf(refpos.crl) || mIsUdf(refposz) )
 	{
-	    //see if ok in 2d
-	    errmsg = "Please fill in the position fields first";
+	    if ( refposfld_->is2D() )
+		errmsg = "2D lineset is not OK";
+	    else
+		errmsg = "Please fill in the position fields first";
 	    return 0;
 	}
 
 	BinIDValueSet* bidvalset = new BinIDValueSet( 1, false );
-	bidvalset->add( refpos_, refposz_ );
+	bidvalset->add( refpos, refposz );
 	return bidvalset;
     }
     else if ( refgrp_->selectedId() == 2 )
@@ -475,6 +510,82 @@ BinIDValueSet* uiFingerPrintAttrib::createValuesBinIDSet(
 }
 
 
+void uiFingerPrintAttrib::fillIn2DPos(CallBacker*)
+{
+    PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(SeisTrc);
+    SeisSelSetup setup;
+    setup.pol2d( Only2D ).selattr( false );
+    uiSeisSelDlg dlg( this, *ctio, setup );
+    if ( !dlg.go() || !dlg.ioObj() ) return;
+
+    lsid_ = dlg.ioObj()->key();
+    BufferString lsname;
+    get2DLineSetName ( lsid_, lsname );
+    linesetfld_->setText( lsname );
+    BufferStringSet linenames;
+    uiSeisIOObjInfo objinfo( lsid_ );
+    objinfo.getLineNames( linenames );
+    linefld_->box()->empty();
+    for  ( int idx=0; idx<linenames.size();idx++ )
+	linefld_->box()->addItem( linenames.get(idx).buf() );
+}
+
+
+#define mGet2DLineSet(mid,retval) \
+    PtrMan<IOObj> ioobj = IOM().get( mid ); \
+    if ( !ioobj ) return retval; \
+    BufferString fnm = ioobj->fullUserExpr(true); \
+    Seis2DLineSet lineset( fnm );
+
+
+void uiFingerPrintAttrib::get2DLineSetName( const MultiID& mid,
+					    BufferString& setname ) const
+{
+    mGet2DLineSet(mid,)
+    setname = lineset.name();
+}
+
+
+BinID uiFingerPrintAttrib::get2DRefPos() const
+{
+    mGet2DLineSet( lsid_, BinID(mUdf(int),mUdf(int)) );
+    for ( int idx=0 ;idx<lineset.nrLines();idx++ )
+    {
+	LineKey lkey( linefld_->box()->text(), "Seis" );
+	const int lineindex = lineset.indexOf(lkey);
+	if ( lineindex > -1 )
+	{
+	    PosInfo::Line2DData* geometry = new PosInfo::Line2DData;
+	    if ( !lineset.getGeometry(lineindex,*geometry) )
+	    {
+		delete geometry;
+		return BinID(mUdf(int),mUdf(int));
+	    }
+	    StepInterval<int> trcrg;
+	    lineset.getRanges( lineindex, trcrg, geometry->zrg );
+	    const int trcnr = refposfld_->binID().crl;
+	    return SI().transform( geometry->posns[trcnr-trcrg.start].coord );
+	}
+    }
+    return BinID(mUdf(int),mUdf(int));
+}
+
+
+void uiFingerPrintAttrib::useLineSetID( const BufferString& ls )
+{
+    lsid_ = MultiID( ls );
+    BufferString lsname;
+    get2DLineSetName ( lsid_, lsname );
+    linesetfld_->setText( lsname );
+    BufferStringSet linenames;
+    uiSeisIOObjInfo objinfo( lsid_ );
+    objinfo.getLineNames( linenames );
+    linefld_->box()->empty();
+    for  ( int idx=0; idx<linenames.size();idx++ )
+	linefld_->box()->addItem( linenames.get(idx).buf() );
+}
+
+    
 uiFPAdvancedDlg::uiFPAdvancedDlg( uiParent* p, calcFingParsObject* calcobj,
        				  const BufferStringSet& attrrefset )
     : uiDialog( p, uiDialog::Setup("FingerPrint advanced options dialog","") )
@@ -530,7 +641,7 @@ void uiFPAdvancedDlg::prepareNumGroup( uiGroup* attrvalsgrp,
 	wgtflds_[idx]->attach( rightOf, valflds_[idx] );
 	minmaxflds_[idx]->attach( rightOf, wgtflds_[idx] );
 
-	if ( !idx )
+	if ( !idx || idx == 18 )
 	{
 	    uiLabel* txt = new uiLabel( attrvalsgrp, "Value" );
 	    txt->attach( centeredAbove, valflds_[idx] );
@@ -538,6 +649,8 @@ void uiFPAdvancedDlg::prepareNumGroup( uiGroup* attrvalsgrp,
 	    txt->attach( centeredAbove, wgtflds_[idx] );
 	    txt = new uiLabel( attrvalsgrp, "Minimum    Maximum" );
 	    txt->attach( centeredAbove, minmaxflds_[idx] );
+	    if ( idx == 18 )
+		valflds_[idx]->attach( rightOf, minmaxflds_[0] );
 	}
 	else
 	{
@@ -651,193 +764,5 @@ bool uiFPAdvancedDlg::acceptOK( CallBacker* cb )
     calcobj_.setWeights( weights );
     
     return true;
-}
-
-
-calcFingParsObject::calcFingParsObject( uiParent* p )
-    : parent_( p )
-{
-    posset_.allowNull(true);
-    while ( posset_.size() < 2 )
-	posset_ += 0;
-}
-
-
-calcFingParsObject::~calcFingParsObject()
-{
-    deepErase(posset_);
-    reflist_->deepErase();
-}
-
-
-void calcFingParsObject::setValRgSet( BinIDValueSet* positions, bool isvalset )
-{
-    delete( posset_.replace( isvalset ? 0 : 1, positions ) );
-}
-
-
-BinIDValueSet* calcFingParsObject::createRangesBinIDSet() const
-{
-    if ( rgreftype_ == 1 )
-    {
-	ObjectSet<BinIDValueSet> values;
-	BufferStringSet ioobjids;
-	ioobjids.add( getRgRefPick() );
-	PickSetTranslator::createBinIDValueSets( ioobjids, values );
-	return values[0];
-	values.erase();
-    }
-    else if ( rgreftype_ == 2 )
-    {
-	BinIDValueSet generalset(1, true);
-	BinID bid;
-	StepInterval<int> irg = SI().inlRange( true );
-	StepInterval<int> crg = SI().crlRange( true );
-	for ( bid.inl=irg.start; bid.inl<=irg.stop; bid.inl +=irg.step )
-	{
-	    for ( bid.crl=crg.start; bid.crl<=crg.stop; bid.crl += crg.step )
-		generalset.add( bid );
-	}
-	const int nrpts = generalset.totalSize();
-	if ( !nrpts ) return 0;
-
-	BinIDValueSet* rangesset = new BinIDValueSet( 2, true );
-	for ( int ipt=0; ipt<sNrRandPicks; ipt++ )
-	{
-	    const int ptidx = Stat_getIndex( nrpts );
-	    BinIDValueSet::Pos pos = generalset.getPos( ptidx );
-	    float z = SI().zRange(true).start + 
-				Stat_getRandom() * SI().zRange( true ).width();
-	    rangesset->add( generalset.getBinID(pos), z );
-	}
-
-	return rangesset;
-    }
-
-    return new BinIDValueSet( 1, false );
-}
-
-
-void calcFingParsObject::computeValsAndRanges()
-{
-    BufferString errmsg;
-    PtrMan<EngineMan> aem = createEngineMan();
-    PtrMan<Processor> proc = aem->createLocationOutput( errmsg, posset_ );
-    if ( !proc )
-    {
-	uiMSG().error(errmsg);
-	return;
-    }
-
-    proc->setName("Compute reference values");
-    uiExecutor dlg( parent_, *proc );
-    if ( !dlg.go() )
-    {
-	uiMSG().error("hey");
-	return;
-    }
-
-    extractAndSaveValsAndRanges();
-}
-
-
-void calcFingParsObject::extractAndSaveValsAndRanges()
-{
-    const int nrattribs = reflist_->size();
-    BinIDValueSet* valueset = posset_[0];
-    BinIDValueSet* rangeset = posset_[1];
-    TypeSet<float> vals( nrattribs, mUdf(float) );
-    TypeSet< Interval<float> > rgs( nrattribs, 
-	    			    Interval<float>(mUdf(float),mUdf(float)) );
-
-    if ( valueset->totalSize() == 1 )
-    {
-	const float* tmpvals = valueset->getVals( valueset->getPos(0) );
-	for ( int idx=0; idx<nrattribs; idx++ )
-	    vals[idx] = tmpvals[idx+1];
-    }
-    else if ( valueset->totalSize() > 1 )
-    {
-	ObjectSet< RunningStatistics<float> > statsset;
-	fillInStats( valueset, statsset );
-	if ( statstype_ > 1 ) // StdDev is not used
-	    const_cast<calcFingParsObject*>(this)->statstype_++;
-	
-	for ( int idx=0; idx<nrattribs; idx++ )
-	    vals[idx] = statsset[idx]->getValue((RunStats::StatType)statstype_);
-
-	deepErase( statsset );
-    }
-
-    if ( rangeset->totalSize() >= 1 )
-    {
-	ObjectSet< RunningStatistics<float> > stats;
-	fillInStats( rangeset, stats );
-	
-	for ( int idx=0; idx<nrattribs; idx++ )
-	    rgs[idx] = Interval<float>( stats[idx]->min(), stats[idx]->max());
-
-	deepErase( stats );
-    }
-	
-    int index = 0;
-    values_.erase(); ranges_.erase();
-    for ( int idx=0; idx<nrattribs; idx++ )
-    {
-	BufferString inp = reflist_->get(idx);
-	for ( int idxdesc=0; idxdesc<attrset_->nrDescs(); idxdesc++ )
-	{
-	    if ( !strcmp( inp, attrset_->desc(idxdesc)->userRef() ) )
-	    {
-		if ( vals.size() > index )
-		    values_ += vals[index];
-		if ( rgs.size() > index )
-		    ranges_ += rgs[index];
-		index++;
-	    }
-	}
-    }
-}
-
-
-EngineMan* calcFingParsObject::createEngineMan()
-{
-    EngineMan* aem = new EngineMan;
-    
-    TypeSet<SelSpec> attribspecs;
-    for ( int idx=0; idx<reflist_->size(); idx++ )
-    {
-	for ( int idxdesc=0; idxdesc<attrset_->nrDescs(); idxdesc++ )
-	{
-	    if ( !strcmp( reflist_->get(idx),
-			  attrset_->desc(idxdesc)->userRef() ) )
-	    {
-		SelSpec sp( 0, attrset_->desc(idxdesc)->id() );
-		attribspecs += sp;
-	    }
-	}
-    }
-
-    aem->setAttribSet( attrset_ );
-    aem->setAttribSpecs( attribspecs );
-
-    return aem;
-}
-
-
-void calcFingParsObject::fillInStats( BinIDValueSet* bidvalset,
-			ObjectSet< RunningStatistics<float> >& statsset ) const
-{
-    const int nrattribs = reflist_->size();
-    for ( int idx=0; idx<nrattribs; idx++ )
-	statsset += new RunningStatistics<float>;
-
-    BinIDValueSet::Pos pos;
-    while ( bidvalset->next(pos) )
-    {
-	const float* values = bidvalset->getVals( pos );
-	for ( int idx=0; idx<nrattribs; idx++ )
-	    *(statsset[idx]) += values[idx+1];
-    }
 }
 

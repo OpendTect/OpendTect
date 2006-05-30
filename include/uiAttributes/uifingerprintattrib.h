@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Payraudeau
  Date:          February 2006
- RCS:           $Id: uifingerprintattrib.h,v 1.7 2006-05-19 14:34:02 cvshelene Exp $
+ RCS:           $Id: uifingerprintattrib.h,v 1.8 2006-05-30 14:30:40 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "position.h"
 #include "ranges.h"
 #include "runstat.h"
+#include "multiid.h"
 
 class CtxtIOObj;
 class uiAttrSel;
@@ -27,11 +28,11 @@ class uiIOObjSel;
 class uiGenInput;
 class uiRadioButton;
 class uiToolButton;
+class uiPushButton;
 class uiButtonGroup;
 class uiSpinBox;
+class uiLabeledComboBox;
 class BinIDValueSet;
-class BufferStringSet;
-namespace Attrib { class EngineMan; }
 
 class uiFPAdvancedDlg;
 class calcFingParsObject;
@@ -54,13 +55,17 @@ protected:
     uiRadioButton*	refposbut_;
     uiRadioButton*	picksetbut_;
     uiToolButton*	getposbut_;
+    uiPushButton*	sel2dbut_;
     uiGenInput*		statsfld_;
     uiGenInput*		refposzfld_;
     uiStepOutSel*	refposfld_;
     uiIOObjSel*		picksetfld_;
     uiLabel*		manlbl_;
+    uiGenInput*		linesetfld_;
+    uiLabeledComboBox*	linefld_;
    
     CtxtIOObj&		ctio_;
+    MultiID		lsid_;
     ObjectSet<uiAttrSel> attribflds_;
 
     uiFPAdvancedDlg*	advanceddlg_;
@@ -77,59 +82,15 @@ protected:
     bool		getInput(Attrib::Desc&);
 
     BinIDValueSet*	createValuesBinIDSet(BufferString&) const;
+    void		get2DLineSetName(const MultiID&,BufferString&) const;
+    void		useLineSetID(const BufferString&);
+    BinID		get2DRefPos() const;
     
     void                getPosPush(CallBacker*);
     void                calcPush(CallBacker*);
     void                getAdvancedPush(CallBacker*);
     void		refSel(CallBacker*);
-};
-
-
-class calcFingParsObject
-{
-public:
-    			calcFingParsObject(uiParent*);
-			~calcFingParsObject();
-    void		setUserRefList( BufferStringSet* refset )
-    							{ reflist_ = refset; }
-    void		setDescSet( DescSet* ds )	{ attrset_ = ds; }
-    void                setWeights( TypeSet<int> wgs )  { weights_ = wgs; }
-    void		setRanges(TypeSet<Interval<float> > rg) {ranges_ = rg;}
-    void		setValues( TypeSet<float> vals ){ values_ = vals; }
-    void		setRgRefPick(const char* pickid){ rgpickset_ = pickid; }
-    void		setRgRefType( int type )	{ rgreftype_ = type; }
-    
-    TypeSet<int>        getWeights() const              { return weights_; }
-    TypeSet<float>	getValues() const		{ return values_; }
-    TypeSet< Interval<float> >	getRanges() const	{ return ranges_; }
-    BufferString	getRgRefPick() const		{ return rgpickset_; }
-    int			getRgRefType() const		{ return rgreftype_; }
-
-    void		clearValues()			{ values_.erase(); }
-    void		clearRanges()			{ ranges_.erase(); }
-    void		clearWeights()			{ weights_.erase(); }
-    
-    BinIDValueSet*      createRangesBinIDSet() const;
-    void		setValRgSet(BinIDValueSet*,bool);
-    void                computeValsAndRanges();
-protected:
-    
-    EngineMan*          createEngineMan();
-    void                extractAndSaveValsAndRanges();
-    void		fillInStats(BinIDValueSet*,
-	    			  ObjectSet< RunningStatistics<float> >&) const;
-
-    BufferStringSet*	reflist_;
-    DescSet*		attrset_;
-    int			statstype_;
-    TypeSet<float>	values_;
-    TypeSet<int>	weights_;
-    TypeSet< Interval<float> > ranges_;
-    ObjectSet<BinIDValueSet> posset_;
-    uiParent*		parent_;
-    BufferString	rgpickset_;
-    int			rgreftype_;
-
+    void		fillIn2DPos(CallBacker*);
 };
 
 #endif
