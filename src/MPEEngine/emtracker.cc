@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emtracker.cc,v 1.26 2006-05-08 14:39:51 cvsnanne Exp $";
+static const char* rcsID = "$Id: emtracker.cc,v 1.27 2006-05-30 07:06:25 cvsjaap Exp $";
 
 #include "emtracker.h"
 
@@ -262,9 +262,9 @@ void EMTracker::fillPar( IOPar& iopar ) const
 	SectionTracker* st = sectiontrackers[idx];
 	IOPar localpar;
 	localpar.set( sectionidStr(), st->sectionID() );
-	localpar.set( setupidStr(), st->setupID() );
+	st->fillPar( localpar );
 
-	BufferString key( "Section" ); key += idx;
+	BufferString key( IOPar::compKey("Section",idx) );
 	iopar.mergeComp( localpar, key );
     }
 }
@@ -275,7 +275,7 @@ bool EMTracker::usePar( const IOPar& iopar )
     int idx=0;
     while ( true )
     {
-	BufferString key( "Section" ); key += idx;
+	BufferString key( IOPar::compKey("Section",idx) );
 	PtrMan<IOPar> localpar = iopar.subselect( key );
 	if ( !localpar ) return true;
 
@@ -283,21 +283,28 @@ bool EMTracker::usePar( const IOPar& iopar )
 	if ( !localpar->get(sectionidStr(),sid) ) { idx++; continue; }
 	SectionTracker* st = getSectionTracker( (EM::SectionID)sid, true );
 	if ( !st ) { idx++; continue; }
+	
 	MultiID setupid;
-	if ( localpar->get(setupidStr(),setupid) )
+	if ( !localpar->get(setupidStr(),setupid) )
+	{
+	    st->usePar( *localpar );    
+	}
+	else  // old policy for restoring session
+	{
 	    st->setSetupID( setupid );
+	    PtrMan<IOObj> ioobj = IOM().get( setupid );
+	    if ( !ioobj ) { idx++; continue; }
 
-	PtrMan<IOObj> ioobj = IOM().get( setupid );
-	if ( !ioobj ) { idx++; continue; }
+	    MPE::Setup setup;
+	    BufferString bs;
+	    if ( !MPESetupTranslator::retrieve(setup,ioobj,bs) )
+		{ idx++; continue; }
 
-	MPE::Setup setup;
-	BufferString bs;
-	if ( !MPESetupTranslator::retrieve(setup,ioobj,bs) )
-	{ idx++; continue; }
-
-	IOPar setuppar;
-	setup.fillPar( setuppar );
-	st->usePar( setuppar );
+	    IOPar setuppar;
+	    setup.fillPar( setuppar );
+	    st->usePar( setuppar );
+	}
+	
 	idx++;
     }
 
