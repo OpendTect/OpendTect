@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2004
- RCS:           $Id: uimpepartserv.cc,v 1.44 2006-05-23 14:54:05 cvsjaap Exp $
+ RCS:           $Id: uimpepartserv.cc,v 1.45 2006-05-30 07:25:00 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,19 +13,24 @@ ________________________________________________________________________
 
 #include "attribdataholder.h"
 #include "attribdatacubes.h"
-#include "geomelement.h"
-#include "mpeengine.h"
-#include "emtracker.h"
-#include "survinfo.h"
-#include "uimpewizard.h"
-#include "uihorizontracksetup.h"
-#include "uimsg.h"
-#include "uicursor.h"
-#include "uisurfacerelationdlg.h"
+#include "attribdescset.h"
+#include "attribdesc.h"
 #include "emmanager.h"
+#include "emtracker.h"
 #include "emobject.h"
 #include "executor.h"
+#include "geomelement.h"
+#include "iopar.h"
+#include "mpeengine.h"
+#include "survinfo.h"
+#include "sectiontracker.h"
+#include "sectionadjuster.h"
+#include "uicursor.h"
 #include "uiexecutor.h"
+#include "uihorizontracksetup.h"
+#include "uimpewizard.h"
+#include "uimsg.h"
+#include "uisurfacerelationdlg.h"
 
 const int uiMPEPartServer::evGetAttribData	= 0;
 const int uiMPEPartServer::evStartSeedPick	= 1;
@@ -110,14 +115,16 @@ int uiMPEPartServer::addTracker( const EM::ObjectID& emid,
 	return -1;
     }
 
-    //TODO: Fix for multi-section case
-    const EM::SectionID sid =  emobj->sectionID(0);
     blockDataLoading( true );
 
-    if ( !showSetupDlg( emid, sid, true ) )
+    if ( !readSetup( emobj->multiID() ) )
     {
-	MPE::engine().removeTracker(res);
-	return -1;
+	const EM::SectionID sid = emobj->sectionID( 0 );
+	if ( !showSetupDlg( emid, sid, true ) )
+	{
+	    MPE::engine().removeTracker(res);
+	    return -1;
+	}
     }
 
     if ( pickedpos.isDefined() ) 
@@ -220,15 +227,17 @@ bool uiMPEPartServer::showSetupDlg( const EM::ObjectID& emid,
     MPE::uiSetupGroup* grp = 
 	MPE::uiMPE().setupgrpfact.create( &dlg, emobj->getTypeStr(), attrset_ );
     grp->setSectionTracker( sectracker );
-    
-    if ( dlg.go() || !showcancelbutton )
+   
+    do
     {
-	grp->commitToTracker();
-	loadAttribData();
-	return true;
+	if ( !dlg.go() && showcancelbutton )
+	    return false;
     }
+    while ( !grp->commitToTracker() );
 
-    return false;
+    saveSetup( EM::EMM().getMultiID(emid) );
+    loadAttribData();
+    return true;
 }
 
 
@@ -393,6 +402,95 @@ void uiMPEPartServer::loadEMObjectCB(CallBacker*)
 
     uiExecutor uiexec( appserv().parent(), *exec );
     uiexec.go();
+}
+
+
+bool uiMPEPartServer::saveSetup( const MultiID& mid )
+{
+    const EM::ObjectID emid = EM::EMM().getObjectID( mid );
+    const int trackerid = getTrackerID( emid );
+    if ( trackerid<0 ) return false;
+
+    MPE::EMTracker* tracker = MPE::engine().getTracker( trackerid );
+    IOPar iopar;
+    tracker->fillPar( iopar );
+    IOPar attrpar;
+    attrset_->fillPar( attrpar );
+    iopar.mergeComp( attrpar, "Attribs" );
+
+    BufferString setupfilenm = MPE::engine().setupFileName( mid );
+    iopar.write( setupfilenm, "Tracking Setup" );
+    return true;
+}
+
+
+bool uiMPEPartServer::readSetup( const MultiID& mid ) 
+{
+    BufferString setupfilenm = MPE::engine().setupFileName( mid );
+    if ( !File_exists(setupfilenm) ) return false;
+
+    const EM::ObjectID emid = EM::EMM().getObjectID( mid );
+    const int trackerid = getTrackerID( emid );
+    if ( trackerid<0 ) return false;
+
+    MPE::EMTracker* tracker = MPE::engine().getTracker( trackerid );
+    IOPar iopar;
+    iopar.read( setupfilenm, "Tracking Setup", true );
+    tracker->usePar( iopar );
+    PtrMan<IOPar> attrpar = iopar.subselect( "Attribs" );
+    if ( !attrpar ) return true;
+
+    Attrib::DescSet newads;
+    newads.usePar( *attrpar );
+    mergeAttribSets( newads, *tracker ); 
+    return true;
+}
+
+
+void uiMPEPartServer::mergeAttribSets( const Attrib::DescSet& newads,
+				       MPE::EMTracker& tracker )
+{
+    const EM::EMObject* emobj = EM::EMM().getObject( tracker.objectID() );
+    for ( int sidx=0; sidx<emobj->nrSections(); sidx++ )
+    {
+	const EM::SectionID sid = emobj->sectionID( sidx );
+	MPE::SectionTracker* st = tracker.getSectionTracker( sid, false );
+	if ( !st->adjuster() ) continue;
+
+	for ( int asidx=0; asidx<st->adjuster()->getNrAttributes(); asidx++ )
+	{
+	    const Attrib::SelSpec* as =
+			st->adjuster()->getAttributeSel( asidx );
+	    if ( !as || as->id()<0 ) continue;
+	    Attrib::DescID newid( -1, true );
+	    const Attrib::Desc* usedad = newads.getDesc( as->id() );
+	    for ( int ida=0; ida<attrset_->nrDescs(); ida++ )
+	    {
+		const Attrib::DescID descid = attrset_->getID( ida );
+		const Attrib::Desc* ad = attrset_->getDesc( descid );
+		if ( !ad ) continue;
+
+		if ( usedad->isIdenticalTo( *ad ) )
+		{
+		    newid = ad->id();
+		    break;
+		}
+	    }
+
+	    if ( newid < 0 )
+	    {
+		Attrib::DescSet* set = 
+		    const_cast<Attrib::DescSet*>(attrset_);
+		Attrib::Desc* newdesc = usedad->clone();
+		newdesc->setDescSet( set );
+		newid = set->addDesc( newdesc );
+	    }
+
+	    Attrib::SelSpec newas( *as );
+	    newas.setIDFromRef( *attrset_ );
+	    st->adjuster()->setAttributeSel( asidx, newas );
+	}
+    }
 }
 
 
