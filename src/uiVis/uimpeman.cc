@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.cc,v 1.91 2006-05-23 14:40:38 cvsjaap Exp $
+ RCS:           $Id: uimpeman.cc,v 1.92 2006-05-30 07:37:57 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -383,6 +383,7 @@ void uiMPEMan::updateAttribNames()
 	}
     }
     attribSel(0);
+    updateButtonSensitivity(0);
 }
 
 
@@ -636,7 +637,7 @@ void uiMPEMan::seedConnectModeSel( CallBacker* )
        return;	
 
     const SectionTracker* sectiontracker = 
-		       tracker->getSectionTracker( seedpicker->getSectionID() );
+		tracker->getSectionTracker( seedpicker->getSectionID(), true );
     if ( !sectiontracker || IOM().get(sectiontracker->setupID()) )
 	return;
     visserv->sendShowSetupDlgEvent();
@@ -774,7 +775,13 @@ void uiMPEMan::updateSeedPickState()
 void uiMPEMan::trackerAddedRemovedCB( CallBacker* )
 {
     seedpickwason = false;
-    updateButtonSensitivity();
+    if ( !engine().nrTrackersAlive() )
+    {
+	toolbar->turnOn( showcubeidx, false );
+	showCubeCB(0);
+	showTracker(false);
+    }	
+    updateAttribNames();
 }
 
 
