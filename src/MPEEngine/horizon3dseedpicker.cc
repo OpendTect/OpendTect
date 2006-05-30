@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizon3dseedpicker.cc,v 1.14 2006-05-17 09:12:12 cvsjaap Exp $";
+static const char* rcsID = "$Id: horizon3dseedpicker.cc,v 1.15 2006-05-30 06:48:48 cvsjaap Exp $";
 
 #include "horizonseedpicker.h"
 
@@ -27,7 +27,8 @@ namespace MPE
 
 HorizonSeedPicker::HorizonSeedPicker( MPE::EMTracker& t )
     : tracker_( t )
-    , seedchange_( this )
+    , addrmseed_( this )
+    , surfchange_( this )
     , seedconmode_( defaultSeedConMode() )
     , blockpicking_( false )
 { }
@@ -56,6 +57,8 @@ bool HorizonSeedPicker::startSeedPick()
 	
 bool HorizonSeedPicker::addSeed(const Coord3& seedcrd )
 {
+    addrmseed_.trigger();
+
     if ( blockpicking_ ) 
 	return true;
 
@@ -77,14 +80,14 @@ bool HorizonSeedPicker::addSeed(const Coord3& seedcrd )
     seedlist_.erase(); seedpos_.erase(); 
     seedlist_ += pid;  seedpos_ += seedcrd;
 
-    const bool res = retrackOnActiveLine( seedbid, startwasdefined );
-    seedchange_.trigger();
-    return res;
+    return retrackOnActiveLine( seedbid, startwasdefined );
 }
 
 
 bool HorizonSeedPicker::removeSeed( const EM::PosID& pid, bool retrack )
 {
+    addrmseed_.trigger();
+    
     if ( blockpicking_ ) 
 	return true;
     
@@ -96,9 +99,7 @@ bool HorizonSeedPicker::removeSeed( const EM::PosID& pid, bool retrack )
 
     seedlist_.erase(); seedpos_.erase(); 
 
-    const bool res = retrackOnActiveLine( seedbid, true, !retrack );
-    seedchange_.trigger();
-    return res;
+    return retrackOnActiveLine( seedbid, true, !retrack );
 }
 
 
@@ -158,6 +159,7 @@ bool HorizonSeedPicker::retrackOnActiveLine( const BinID& startbid,
 	}
     }
 
+    surfchange_.trigger();
     return res;
 }
 
