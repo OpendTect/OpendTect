@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: arrayndimpl.h,v 1.40 2006-03-23 11:54:18 cvsnanne Exp $
+ RCS:		$Id: arrayndimpl.h,v 1.41 2006-05-31 18:54:19 cvsnanne Exp $
 ________________________________________________________________________
 
 */
@@ -138,6 +138,17 @@ public:
 		    if ( strm_ ) close();
 		    File_remove( name_, false );
 		}
+
+    void	setTempStorageDir( const char* dir )
+		{
+		    if ( strm_ ) strm_->close();
+		    File_remove( name_, false );
+		    FilePath fp( name_ );
+		    fp.setPath( File_isDirectory(dir) && File_isWritable(dir)
+					? dir : "/tmp/" );
+		    name_ = fp.fullPath();
+		}
+
 private:
 
 #undef mChckStrm
@@ -178,16 +189,6 @@ private:
 		{
 		    if ( strm_ ) strm_->close();
 		    delete strm_; strm_ = 0;
-		}
-
-    void	setTempStorageDir( const char* dir )
-		{
-		    if ( strm_ ) strm_->close();
-		    File_remove( name_, false );
-		    FilePath fp( name_ );
-		    fp.setPath( File_isDirectory(dir) && File_isWritable(dir)
-					? dir : "/tmp/" );
-		    name_ = fp.fullPath();
 		}
 
 protected:
