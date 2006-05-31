@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribprovider.h,v 1.39 2006-04-11 15:16:31 cvshelene Exp $
+ RCS:           $Id: attribprovider.h,v 1.40 2006-05-31 18:32:05 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,13 +17,13 @@ ________________________________________________________________________
 #include "ranges.h"
 #include "sets.h"
 #include "linekey.h"
-#include "arrayndimpl.h"
 
 class BasicTask;
 class CubeSampling;
 class SeisRequester;
 class SeisSelData;
 class SeisTrcInfo;
+template <class T> class Array2DImpl;
 
 namespace Threads { class ThreadWorkManager; };
 

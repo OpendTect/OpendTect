@@ -6,15 +6,17 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Apr 2002
- RCS:           $Id: attribdatacubes.h,v 1.11 2006-05-31 09:21:34 cvskris Exp $
+ RCS:           $Id: attribdatacubes.h,v 1.12 2006-05-31 18:32:05 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "arrayndimpl.h"
 #include "cubesampling.h"
 #include "refcount.h"
 #include "samplingdata.h"
+
+template <class T> class Array3D;
+template <class T> class Array3DImpl;
 
 namespace Attrib
 {
