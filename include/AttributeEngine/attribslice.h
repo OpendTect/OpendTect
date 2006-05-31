@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Apr 2002
- RCS:           $Id: attribslice.h,v 1.3 2005-07-28 10:53:49 cvshelene Exp $
+ RCS:           $Id: attribslice.h,v 1.4 2006-05-31 18:53:37 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,7 +30,8 @@ class Slice : public Array2DImpl<float>
 { mRefCountImplNoDestructor(Slice);
 public:
 
-    			Slice( int nrows, int ncols, float udfval=0 );
+    			Slice(int nrows,int ncols,float udfval=0,
+			      bool file=false);
     float		undefValue() const;
     void		setUndefValue( float udfval, bool initdata=false );
 
