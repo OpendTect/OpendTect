@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: uiattrdesced.h,v 1.10 2006-04-18 11:09:05 cvshelene Exp $
+ RCS:           $Id: uiattrdesced.h,v 1.11 2006-05-31 09:29:40 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -108,6 +108,8 @@ protected:
     virtual bool	getInput(Desc&)			{ return true; }
     virtual bool	setOutput(const Desc&)		{ return true; }
     virtual bool	getOutput(Desc&);
+
+    virtual bool        areUIParsOK()			{ return true; }
 
     void		fillOutput(Desc&,int selout);
     void		fillInp(uiAttrSel*,Desc&,int);

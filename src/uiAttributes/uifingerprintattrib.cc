@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Payraudeau
  Date:          February  2006
- RCS:           $Id: uifingerprintattrib.cc,v 1.11 2006-05-30 14:30:41 cvshelene Exp $
+ RCS:           $Id: uifingerprintattrib.cc,v 1.12 2006-05-31 09:29:40 cvshelene Exp $
 
 ________________________________________________________________________
 
@@ -585,7 +585,21 @@ void uiFingerPrintAttrib::useLineSetID( const BufferString& ls )
 	linefld_->box()->addItem( linenames.get(idx).buf() );
 }
 
-    
+   
+bool uiFingerPrintAttrib::areUIParsOK()
+{
+    if ( !calcobj_->getValues().size() || !calcobj_->getRanges().size() )
+    {
+	errmsg = "Please fill in all values and ranges fields.\n";
+	errmsg+="Press on 'Calculate parameters' to let opendTect compute them";
+	errmsg += "\n or go to 'Advanced...' to do it manually";
+	return false;
+    }
+
+    return true;
+}
+
+
 uiFPAdvancedDlg::uiFPAdvancedDlg( uiParent* p, calcFingParsObject* calcobj,
        				  const BufferStringSet& attrrefset )
     : uiDialog( p, uiDialog::Setup("FingerPrint advanced options dialog","") )

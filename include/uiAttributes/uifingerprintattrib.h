@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Payraudeau
  Date:          February 2006
- RCS:           $Id: uifingerprintattrib.h,v 1.8 2006-05-30 14:30:40 cvshelene Exp $
+ RCS:           $Id: uifingerprintattrib.h,v 1.9 2006-05-31 09:29:40 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -91,6 +91,8 @@ protected:
     void                getAdvancedPush(CallBacker*);
     void		refSel(CallBacker*);
     void		fillIn2DPos(CallBacker*);
+
+    virtual bool	areUIParsOK();
 };
 
 #endif
