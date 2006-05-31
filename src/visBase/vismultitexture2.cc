@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vismultitexture2.cc,v 1.12 2006-04-20 15:04:40 cvsnanne Exp $";
+static const char* rcsID = "$Id: vismultitexture2.cc,v 1.13 2006-05-31 12:33:33 cvskris Exp $";
 
 
 #include "vismultitexture2.h"
@@ -419,8 +419,10 @@ void MultiTexture2::updateColorTables()
 
     unsigned char* arr = arrstart;
 
-    texture_->numcolor.deleteValues( nrtextures, -1 );
-    texture_->component.deleteValues( nrtextures, -1 );
+    if ( texture_->numcolor.getNum()>nrtextures )
+	texture_->numcolor.deleteValues( nrtextures, -1 );
+    if ( texture_->component.getNum()>nrtextures )
+	texture_->component.deleteValues( nrtextures, -1 );
 
     for ( int idx=0; idx<nrtextures; idx++ )
     {
@@ -469,7 +471,8 @@ void MultiTexture2::insertTextureInternal( int texturenr )
 
 void MultiTexture2::removeTextureInternal( int texturenr )
 {
-    texture_->image.deleteValues( texturenr, 1 );
+    if ( texture_->image.getNum()>texturenr )
+	texture_->image.deleteValues( texturenr, 1 );
 }
 
 
