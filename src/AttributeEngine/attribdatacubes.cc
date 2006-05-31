@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribdatacubes.cc,v 1.13 2006-05-10 21:23:48 cvskris Exp $";
+static const char* rcsID = "$Id: attribdatacubes.cc,v 1.14 2006-05-31 09:21:34 cvskris Exp $";
 
 #include "attribdatacubes.h"
 #include "survinfo.h"
@@ -164,6 +164,11 @@ bool DataCubes::includes( const BinID& binid ) const
 }
 
 
+bool DataCubes::includes( const CubeSampling& cs ) const
+{
+    return includes( BinIDValue( cs.hrg.start, cs.zrg.start ) ) &&
+           includes( BinIDValue( cs.hrg.stop, cs.zrg.stop ) );
+}
 
 
 const Array3D<float>& DataCubes::getCube( int idx ) const

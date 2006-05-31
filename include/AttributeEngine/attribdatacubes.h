@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Apr 2002
- RCS:           $Id: attribdatacubes.h,v 1.10 2006-05-10 21:23:47 cvskris Exp $
+ RCS:           $Id: attribdatacubes.h,v 1.11 2006-05-31 09:21:34 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,6 +45,7 @@ public:
 	    				 float* res,bool interpolate) const;
     bool			includes(const BinIDValue&) const;
     bool			includes(const BinID&) const;
+    bool			includes(const CubeSampling&) const;
 
 
     const Array3D<float>&	getCube(int idx) const;
