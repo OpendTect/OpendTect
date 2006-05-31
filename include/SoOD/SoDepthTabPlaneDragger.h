@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoDepthTabPlaneDragger.h,v 1.3 2003-11-07 12:21:54 bert Exp $
+ RCS:		$Id: SoDepthTabPlaneDragger.h,v 1.4 2006-05-31 08:05:11 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -30,25 +30,16 @@ class SoDepthTabPlaneDragger : public SoDragger
     typedef SoDragger inherited;
     SO_KIT_HEADER(SoDepthTabPlaneDragger);
 
-    SO_KIT_CATALOG_ENTRY_HEADER(tabForegroundLifter);
-    SO_KIT_CATALOG_ENTRY_HEADER(planeForegroundLifter);
-    SO_KIT_CATALOG_ENTRY_HEADER(cornerScaleCoords);
-    SO_KIT_CATALOG_ENTRY_HEADER(cornerScaleTab0);
-    SO_KIT_CATALOG_ENTRY_HEADER(cornerScaleTab1);
-    SO_KIT_CATALOG_ENTRY_HEADER(cornerScaleTab2);
-    SO_KIT_CATALOG_ENTRY_HEADER(cornerScaleTab3);
-    SO_KIT_CATALOG_ENTRY_HEADER(edgeScaleCoords);
-    SO_KIT_CATALOG_ENTRY_HEADER(edgeScaleTab0);
-    SO_KIT_CATALOG_ENTRY_HEADER(edgeScaleTab1);
-    SO_KIT_CATALOG_ENTRY_HEADER(edgeScaleTab2);
-    SO_KIT_CATALOG_ENTRY_HEADER(edgeScaleTab3);
     SO_KIT_CATALOG_ENTRY_HEADER(planeSwitch);
-    SO_KIT_CATALOG_ENTRY_HEADER(scaleTabHints);
-    SO_KIT_CATALOG_ENTRY_HEADER(scaleTabMaterial);
-    SO_KIT_CATALOG_ENTRY_HEADER(scaleTabMaterialBinding);
-    SO_KIT_CATALOG_ENTRY_HEADER(scaleTabNormal);
-    SO_KIT_CATALOG_ENTRY_HEADER(scaleTabNormalBinding);
-    SO_KIT_CATALOG_ENTRY_HEADER(scaleTabs);
+    SO_KIT_CATALOG_ENTRY_HEADER(greenTabsHints);
+    SO_KIT_CATALOG_ENTRY_HEADER(greenTabsMaterial);
+    SO_KIT_CATALOG_ENTRY_HEADER(greenTabsMaterialBinding);
+    SO_KIT_CATALOG_ENTRY_HEADER(greenTabsNormal);
+    SO_KIT_CATALOG_ENTRY_HEADER(greenTabsNormalBinding);
+    SO_KIT_CATALOG_ENTRY_HEADER(greenTabsSep);
+    SO_KIT_CATALOG_ENTRY_HEADER(greenTabsOffset);
+    SO_KIT_CATALOG_ENTRY_HEADER(greenTabsCoords);
+    SO_KIT_CATALOG_ENTRY_HEADER(greenTabs);
     SO_KIT_CATALOG_ENTRY_HEADER(translator);
 
 public:
@@ -89,15 +80,14 @@ private:
     void		createPrivateParts();
     SoNode*		getNodeFieldNode(const char *fieldname);
 
-    SoFieldSensor*	scaleFieldSensor;
-    SoFieldSensor*	translFieldSensor;
-    SbLineProjector*	lineProj;
-    int			whatkind;
-    int			constraintState;
-    float		prevsizex;
-    float		prevsizey;
-    SbVec3f		worldRestartPt;
-    SbVec3f		scaleCenter;
+    SoFieldSensor*	scaleFieldSensor_;
+    SoFieldSensor*	translFieldSensor_;
+    SbLineProjector*	lineProj_;
+    int			whatkind_;
+    int			constraintState_;
+    float		prevsizex_;
+    float		prevsizey_;
+    SbVec3f		scaleCenter_;
 };
 
 #endif

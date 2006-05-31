@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoDepthTabPlaneDragger.cc,v 1.8 2006-04-05 15:28:19 cvsnanne Exp $";
+static const char* rcsID = "$Id: SoDepthTabPlaneDragger.cc,v 1.9 2006-05-31 08:05:11 cvskris Exp $";
 
 
 #include "SoDepthTabPlaneDragger.h"
@@ -31,6 +31,7 @@ static const char* rcsID = "$Id: SoDepthTabPlaneDragger.cc,v 1.8 2006-04-05 15:2
 #include "Inventor/nodes/SoMaterialBinding.h"
 #include "Inventor/nodes/SoNormal.h"
 #include "Inventor/nodes/SoNormalBinding.h"
+#include "Inventor/nodes/SoPolygonOffset.h"
 #include "Inventor/nodes/SoSeparator.h"
 #include "Inventor/nodes/SoShapeHints.h"
 #include "Inventor/nodes/SoSwitch.h"
@@ -54,23 +55,6 @@ static const char* rcsID = "$Id: SoDepthTabPlaneDragger.cc,v 1.8 2006-04-05 15:2
 #define TABSIZE 10.0f 
 
 
-static float edgetab_lookup[] =
-{
-    0.0f, 1.0f,
-    1.0f, 0.0f,
-    0.0f, -1.0f,
-    -1.0f, 0.0f
-};
-
-static float cornertab_lookup[] =
-{
-    1.0f, 1.0f,
-    1.0f, -1.0f,
-    -1.0f, -1.0f,
-    -1.0f, 1.0f
-};
-
-
 static const char DEPTHTABPLANEDRAGGER_draggergeometry[] =
 "#Inventor V2.1 ascii\n"
 "\n"
@@ -84,6 +68,7 @@ static const char DEPTHTABPLANEDRAGGER_draggergeometry[] =
 "   ShapeHints { vertexOrdering COUNTERCLOCKWISE\n}"
 "   Coordinate3 { point [ -1 -1 0, 1 -1 0, 1 1 0, -1 1 0 ] }\n"
 "   DrawStyle { style LINES }\n"
+"   PolygonOffset { styles FILLED factor -1.0 units -1.0}\n"
 "   IndexedFaceSet { coordIndex [ 0, 1, 2, 3, -1, 3, 2, 1, 0 ] }\n"
 "}\n";
 
@@ -101,47 +86,28 @@ SoDepthTabPlaneDragger::SoDepthTabPlaneDragger()
 {
     SO_KIT_CONSTRUCTOR( SoDepthTabPlaneDragger );
 
-    SO_KIT_ADD_CATALOG_ENTRY(planeForegroundLifter,SoForegroundTranslation,true,
-	    		    geomSeparator, planeSwitch, false );
     SO_KIT_ADD_CATALOG_ENTRY(planeSwitch, SoSwitch, true,
-	    			geomSeparator, "", false);
+			    geomSeparator, "", false);
     SO_KIT_ADD_CATALOG_ENTRY(translator, SoSeparator, true,
-	    			planeSwitch, scaleTabs, true);
-    SO_KIT_ADD_CATALOG_ENTRY(scaleTabs, SoSeparator, true,
-	    			planeSwitch, "", true);
-    SO_KIT_ADD_CATALOG_ENTRY(scaleTabMaterial, SoMaterial, true,
-	    			scaleTabs, scaleTabHints, true);
-    SO_KIT_ADD_CATALOG_ENTRY(scaleTabHints, SoShapeHints, true,
-	    			scaleTabs, scaleTabMaterialBinding, true);
-    SO_KIT_ADD_CATALOG_ENTRY(scaleTabMaterialBinding, SoMaterialBinding,
-	    			true, scaleTabs, scaleTabNormalBinding, false);
-    SO_KIT_ADD_CATALOG_ENTRY(scaleTabNormalBinding, SoNormalBinding,
-	    			true, scaleTabs, scaleTabNormal, false);
-    SO_KIT_ADD_CATALOG_ENTRY(scaleTabNormal, SoNormal, true,
-	    			scaleTabs, tabForegroundLifter, false);
-    SO_KIT_ADD_CATALOG_ENTRY(tabForegroundLifter, SoForegroundTranslation, true,
-	    		        scaleTabs, edgeScaleCoords, false );
-    SO_KIT_ADD_CATALOG_ENTRY(edgeScaleCoords, SoCoordinate3, true,
-	    			scaleTabs, edgeScaleTab0, false);
-    SO_KIT_ADD_CATALOG_ENTRY(edgeScaleTab0, SoIndexedFaceSet, true,
-	    			scaleTabs, edgeScaleTab1, false);
-    SO_KIT_ADD_CATALOG_ENTRY(edgeScaleTab1, SoIndexedFaceSet, true,
-	    			scaleTabs, edgeScaleTab2, false);
-    SO_KIT_ADD_CATALOG_ENTRY(edgeScaleTab2, SoIndexedFaceSet, true,
-	    			scaleTabs, edgeScaleTab3, false);
-    SO_KIT_ADD_CATALOG_ENTRY(edgeScaleTab3, SoIndexedFaceSet, true,
-	    			scaleTabs, cornerScaleCoords, false);
-    SO_KIT_ADD_CATALOG_ENTRY(cornerScaleCoords, SoCoordinate3, true,
-	    			scaleTabs, cornerScaleTab0, false);
-    SO_KIT_ADD_CATALOG_ENTRY(cornerScaleTab0, SoIndexedFaceSet, true,
-	    			scaleTabs, cornerScaleTab1, false);
-    SO_KIT_ADD_CATALOG_ENTRY(cornerScaleTab1, SoIndexedFaceSet, true,
-	    			scaleTabs, cornerScaleTab2, false);
-    SO_KIT_ADD_CATALOG_ENTRY(cornerScaleTab2, SoIndexedFaceSet, true,
-	    			scaleTabs, cornerScaleTab3, false);
-    SO_KIT_ADD_CATALOG_ENTRY(cornerScaleTab3, SoIndexedFaceSet, true,
-	    			scaleTabs, "", false);
-
+			    planeSwitch, greenTabsSep, true);
+    SO_KIT_ADD_CATALOG_ENTRY(greenTabsSep, SoSeparator, true,
+			    planeSwitch, "", true);
+    SO_KIT_ADD_CATALOG_ENTRY(greenTabsMaterial, SoMaterial, true,
+			    greenTabsSep, greenTabsHints, true);
+    SO_KIT_ADD_CATALOG_ENTRY(greenTabsHints, SoShapeHints, true,
+			    greenTabsSep, greenTabsMaterialBinding, true);
+    SO_KIT_ADD_CATALOG_ENTRY(greenTabsMaterialBinding, SoMaterialBinding,
+			    true, greenTabsSep, greenTabsNormalBinding, false);
+    SO_KIT_ADD_CATALOG_ENTRY(greenTabsNormalBinding, SoNormalBinding,
+			    true, greenTabsSep, greenTabsNormal, false);
+    SO_KIT_ADD_CATALOG_ENTRY(greenTabsNormal, SoNormal, true,
+			    greenTabsSep, greenTabsCoords, false);
+    SO_KIT_ADD_CATALOG_ENTRY(greenTabsCoords, SoCoordinate3, true,
+			    greenTabsSep, greenTabsOffset, false);
+    SO_KIT_ADD_CATALOG_ENTRY(greenTabsOffset, SoPolygonOffset, true,
+			    greenTabsSep, greenTabs, false);
+    SO_KIT_ADD_CATALOG_ENTRY(greenTabs, SoIndexedFaceSet, true,
+			    greenTabsSep, "", false);
 
     if ( SO_KIT_IS_FIRST_INSTANCE() )
     {
@@ -162,31 +128,31 @@ SoDepthTabPlaneDragger::SoDepthTabPlaneDragger()
     SO_KIT_INIT_INSTANCE();
 
     setPartAsDefault("translator", "tabPlaneTranslator");
-    setPartAsDefault("scaleTabMaterial", "tabPlaneScaleTabMaterial");
-    setPartAsDefault("scaleTabHints", "tabPlaneScaleTabHints");
+    setPartAsDefault("greenTabsMaterial", "tabPlaneScaleTabMaterial");
+    setPartAsDefault("greenTabsHints", "tabPlaneScaleTabHints");
 
     SoSwitch* sw = SO_GET_ANY_PART(this, "planeSwitch", SoSwitch);
     SoInteractionKit::setSwitchValue(sw, SO_SWITCH_ALL);
 
     createPrivateParts();
-    prevsizex = prevsizey = 0.0f;
+    prevsizex_ = prevsizey_ = 0.0f;
     reallyAdjustScaleTabSize(NULL);
-    constraintState = CONSTRAINT_OFF;
-    whatkind = WHATKIND_NONE;
+    constraintState_ = CONSTRAINT_OFF;
+    whatkind_ = WHATKIND_NONE;
 
     addStartCallback(SoDepthTabPlaneDragger::startCB);
     addMotionCallback(SoDepthTabPlaneDragger::motionCB);
     addFinishCallback(SoDepthTabPlaneDragger::finishCB);
     addValueChangedCallback(SoDepthTabPlaneDragger::valueChangedCB);
 
-    lineProj = new SbLineProjector;
+    lineProj_ = new SbLineProjector;
 
-    translFieldSensor =
+    translFieldSensor_ =
 		new SoFieldSensor(SoDepthTabPlaneDragger::fieldSensorCB, this);
-    translFieldSensor->setPriority(0);
-    scaleFieldSensor =
+    translFieldSensor_->setPriority(0);
+    scaleFieldSensor_ =
 		new SoFieldSensor(SoDepthTabPlaneDragger::fieldSensorCB, this);
-    scaleFieldSensor->setPriority(0);
+    scaleFieldSensor_->setPriority(0);
 
     setUpConnections(true, true);
 }
@@ -194,9 +160,9 @@ SoDepthTabPlaneDragger::SoDepthTabPlaneDragger()
 
 SoDepthTabPlaneDragger::~SoDepthTabPlaneDragger()
 {
-    delete translFieldSensor;
-    delete scaleFieldSensor;
-    delete lineProj;
+    delete translFieldSensor_;
+    delete scaleFieldSensor_;
+    delete lineProj_;
 }
 
 
@@ -211,18 +177,18 @@ SbBool SoDepthTabPlaneDragger::setUpConnections(SbBool onoff, SbBool doitalways)
 
 	SoDepthTabPlaneDragger::fieldSensorCB(this, NULL);
 
-	if ( translFieldSensor->getAttachedField()!=&translation )
-	    translFieldSensor->attach(&translation);
+	if ( translFieldSensor_->getAttachedField()!=&translation )
+	    translFieldSensor_->attach(&translation);
 
-	if ( scaleFieldSensor->getAttachedField()!=&scaleFactor )
-	    scaleFieldSensor->attach(&scaleFactor);
+	if ( scaleFieldSensor_->getAttachedField()!=&scaleFactor )
+	    scaleFieldSensor_->attach(&scaleFactor);
     }
     else
     {
-	if ( translFieldSensor->getAttachedField()!=NULL )
-	    translFieldSensor->detach();
-	if ( scaleFieldSensor->getAttachedField()!=NULL )
-	    scaleFieldSensor->detach();
+	if ( translFieldSensor_->getAttachedField()!=NULL )
+	    translFieldSensor_->detach();
+	if ( scaleFieldSensor_->getAttachedField()!=NULL )
+	    scaleFieldSensor_->detach();
 
 	inherited::setUpConnections(onoff, doitalways);
     }
@@ -233,8 +199,7 @@ SbBool SoDepthTabPlaneDragger::setUpConnections(SbBool onoff, SbBool doitalways)
 
 void SoDepthTabPlaneDragger::setDefaultOnNonWritingFields(void)
 {
-    edgeScaleCoords.setDefault(true);
-    cornerScaleCoords.setDefault(true);
+    greenTabsCoords.setDefault(true);
 
     inherited::setDefaultOnNonWritingFields();
 }
@@ -249,14 +214,6 @@ void SoDepthTabPlaneDragger::fieldSensorCB(void* d, SoSensor*)
 
     const SbVec3f scale = thisp->scaleFactor.getValue();
     float avgscale = (scale[0]+scale[1])/2;
-
-    SoForegroundTranslation* tablifter =
-	SO_GET_ANY_PART(thisp, "tabForegroundLifter",SoForegroundTranslation);
-    tablifter->lift.setValue(avgscale*0.02);
-
-    SoForegroundTranslation* planelifter =
-	SO_GET_ANY_PART(thisp, "planeForegroundLifter",SoForegroundTranslation);
-    planelifter->lift.setValue(avgscale*0.01);
 }
 
 
@@ -268,15 +225,15 @@ void SoDepthTabPlaneDragger::valueChangedCB(void*, SoDragger* d)
     SbRotation rot, scaleOrient;
     matrix.getTransform(trans, rot, scale, scaleOrient);
 
-    thisp->translFieldSensor->detach();
+    thisp->translFieldSensor_->detach();
     if ( thisp->translation.getValue()!=trans )
 	thisp->translation = trans;
-    thisp->translFieldSensor->attach(&thisp->translation);
+    thisp->translFieldSensor_->attach(&thisp->translation);
 
-    thisp->scaleFieldSensor->detach();
+    thisp->scaleFieldSensor_->detach();
     if ( thisp->scaleFactor.getValue()!=scale )
 	thisp->scaleFactor = scale;
-    thisp->scaleFieldSensor->attach(&thisp->scaleFactor);
+    thisp->scaleFieldSensor_->attach(&thisp->scaleFactor);
 }
 
 
@@ -321,19 +278,19 @@ void SoDepthTabPlaneDragger::reallyAdjustScaleTabSize(SoGLRenderAction* action)
 	if ( isnan(sizey) ) sizey = 0.08f;
     }
 
-    if ( sizex==prevsizex && prevsizey==sizey )
+    if ( sizex==prevsizex_ && prevsizey_==sizey )
 	return;
 
-    prevsizex = sizex;
-    prevsizey = sizey;
+    prevsizex_ = sizex;
+    prevsizey_ = sizey;
 
     float halfx = sizex * 0.5f;
     float halfy = sizey * 0.5f;
 
     SoCoordinate3* coordnode =
-	SO_GET_ANY_PART(this, "edgeScaleCoords", SoCoordinate3);
+	SO_GET_ANY_PART(this, "greenTabsCoords", SoCoordinate3);
 
-    coordnode->point.setNum(16);
+    coordnode->point.setNum(32);
     SbVec3f* coords = coordnode->point.startEditing();
     {
 	coords[0].setValue(halfx, 1.0f, 0);
@@ -355,33 +312,26 @@ void SoDepthTabPlaneDragger::reallyAdjustScaleTabSize(SoGLRenderAction* action)
 	coords[13].setValue(-1.0f, -halfy, 0);
 	coords[14].setValue(-1.0f+sizex, -halfy, 0);
 	coords[15].setValue(-1.0f+sizex, halfy, 0);
-    }
 
-    coordnode->point.finishEditing();
+	coords[16].setValue(1.0f, 1.0f, 0);
+	coords[17].setValue(1.0f-sizex, 1.0f, 0);
+	coords[18].setValue(1.0f-sizex, 1.0f-sizey, 0);
+	coords[19].setValue(1.0f, 1.0f-sizey, 0);
 
-    coordnode = SO_GET_ANY_PART(this, "cornerScaleCoords", SoCoordinate3);
-    coordnode->point.setNum(16);
-    coords = coordnode->point.startEditing();
-    {
-	coords[0].setValue(1.0f, 1.0f, 0);
-	coords[1].setValue(1.0f-sizex, 1.0f, 0);
-	coords[2].setValue(1.0f-sizex, 1.0f-sizey, 0);
-	coords[3].setValue(1.0f, 1.0f-sizey, 0);
+	coords[20].setValue(1.0f, -1.0f, 0);
+	coords[21].setValue(1.0f, -1.0f+sizey, 0);
+	coords[22].setValue(1.0f-sizex, -1.0f+sizey, 0);
+	coords[23].setValue(1.0f-sizex, -1.0f, 0);
 
-	coords[4].setValue(1.0f, -1.0f, 0);
-	coords[5].setValue(1.0f, -1.0f+sizey, 0);
-	coords[6].setValue(1.0f-sizex, -1.0f+sizey, 0);
-	coords[7].setValue(1.0f-sizex, -1.0f, 0);
+	coords[24].setValue(-1.0f, -1.0f, 0);
+	coords[25].setValue(-1.0f+sizex, -1.0f, 0);
+	coords[26].setValue(-1.0f+sizex, -1.0f+sizey, 0);
+	coords[27].setValue(-1.0f, -1.0f+sizey, 0);
 
-	coords[8].setValue(-1.0f, -1.0f, 0);
-	coords[9].setValue(-1.0f+sizex, -1.0f, 0);
-	coords[10].setValue(-1.0f+sizex, -1.0f+sizey, 0);
-	coords[11].setValue(-1.0f, -1.0f+sizey, 0);
-
-	coords[12].setValue(-1.0f, 1.0f, 0);
-	coords[13].setValue(-1.0f, 1.0f-sizey, 0);
-	coords[14].setValue(-1.0f+sizex, 1.0f-sizey, 0);
-	coords[15].setValue(-1.0f+sizex, 1.0f, 0);
+	coords[28].setValue(-1.0f, 1.0f, 0);
+	coords[29].setValue(-1.0f, 1.0f-sizey, 0);
+	coords[30].setValue(-1.0f+sizex, 1.0f-sizey, 0);
+	coords[31].setValue(-1.0f+sizex, 1.0f, 0);
     }
 
     coordnode->point.finishEditing();
@@ -396,65 +346,36 @@ void SoDepthTabPlaneDragger::dragStart(void)
     SbBool found = FALSE;
     SbVec3f startpt = getLocalStartingPoint();
 
-    constraintState = CONSTRAINT_OFF;
+    constraintState_ = CONSTRAINT_OFF;
+    char xside = -2;
+    const float absx = fabs(startpt[0]);
+    if ( absx>1-prevsizex_ )
+	xside = startpt[0]>0 ? 1 : -1;
+    else if ( absx<prevsizex_ )
+	xside = 0;
 
-    if ( !found )
+    char yside = -2;
+    const float absy = fabs(startpt[1]);
+    if ( absy>1-prevsizey_ )
+	yside = startpt[1]>0 ? 1 : -1;
+    else if ( absy<prevsizey_ )
+	yside = 0;
+
+    if ( xside!=-2 && yside!=-2 )
     {
-	int i=0;
-	for ( ; i<4; i++ )
-	{
-	    SbString str;
-	    str.sprintf("edgeScaleTab%d", i);
+	if ( !xside )
+	    constraintState_ = CONSTRAINT_Y;
+	else if ( !yside )
+	    constraintState_ = CONSTRAINT_X;
 
-	    if ( pickpath->findNode(getNodeFieldNode(str.getString()))>=0 ||
-		 getSurrogatePartPickedName()==str.getString())
-		break;
-	}
-
-	if ( i<4 )
-	{
-	    found = TRUE;
-	    constraintState = i & 1 ? CONSTRAINT_X : CONSTRAINT_Y;
-	    whatkind = WHATKIND_SCALE;
-	    scaleCenter.setValue(-edgetab_lookup[i*2],
-		    		-edgetab_lookup[i*2+1], 0.0f);
-	}
-    }
-
-    if ( !found )
-    {
-	int i=0; 
-	for ( ; i<4; i++ )
-	{
-	    SbString str;
-	    str.sprintf("cornerScaleTab%d", i);
-	    if ( pickpath->findNode(getNodeFieldNode(str.getString()))>=0 ||
-	         getSurrogatePartPickedName() == str.getString())
-		break;
-	}
-	if ( i<4 )
-	{
-	    found = TRUE;
-	    whatkind = WHATKIND_SCALE;
-	    scaleCenter.setValue(-cornertab_lookup[i*2],
-		    -cornertab_lookup[i*2+1], 0.0f);
-	}
-    }
-
-    if ( !found )
-    {
-	found = TRUE;
-	whatkind = WHATKIND_TRANSLATE;
-    }
-
-    if ( whatkind == WHATKIND_SCALE )
-    {
-	lineProj->setLine(SbLine(scaleCenter, startpt));
+	whatkind_ = WHATKIND_SCALE;
+	scaleCenter_.setValue(-xside,-yside,0);
+	lineProj_->setLine(SbLine(scaleCenter_, startpt));
     }
     else
-    { // depth
-	lineProj->setLine(SbLine(startpt, startpt + SbVec3f(0, 0, 1)));
-	constraintState = CONSTRAINT_OFF;
+    {
+	whatkind_ = WHATKIND_TRANSLATE;
+	lineProj_->setLine(SbLine(startpt, startpt + SbVec3f(0, 0, 1)));
     }
 }
 
@@ -462,32 +383,32 @@ void SoDepthTabPlaneDragger::dragStart(void)
 
 void SoDepthTabPlaneDragger::drag(void)
 {
-    if ( whatkind==WHATKIND_SCALE )
+    if ( whatkind_==WHATKIND_SCALE )
     {
 	SbVec3f startpt = getLocalStartingPoint();
-	lineProj->setViewVolume(getViewVolume());
-	lineProj->setWorkingSpace(getLocalToWorldMatrix());
-	SbVec3f projpt = lineProj->project(getNormalizedLocaterPosition());
+	lineProj_->setViewVolume(getViewVolume());
+	lineProj_->setWorkingSpace(getLocalToWorldMatrix());
+	SbVec3f projpt = lineProj_->project(getNormalizedLocaterPosition());
 
-	SbVec3f center = scaleCenter;
-
-	float orglen = (startpt-center).length();
-	float currlen = (projpt-center).length();
+	float orglen = (startpt-scaleCenter_).length();
+	float currlen = (projpt-scaleCenter_).length();
 	float scale = 0.0f;
 
 	if ( orglen>0.0f )
 	    scale = currlen / orglen;
 
-	if ( scale>0.0f && (startpt-center).dot(projpt-center)<=0.0f)
+	if ( scale>0.0f &&
+		(startpt-scaleCenter_).dot(projpt-scaleCenter_)<=0.0f)
 	    scale = 0.0f;
 
 	SbVec3f scalevec(scale, scale, 1.0f);
-	if ( constraintState==CONSTRAINT_X )
+	if ( constraintState_==CONSTRAINT_X )
 	    scalevec[1] = 1.0f;
-	else if ( constraintState==CONSTRAINT_Y )
+	else if ( constraintState_==CONSTRAINT_Y )
 	    scalevec[0] = 1.0f;
 
-	SbMatrix motmat = appendScale(getStartMotionMatrix(), scalevec, center);
+	SbMatrix motmat =
+	    appendScale(getStartMotionMatrix(), scalevec, scaleCenter_);
 
 	SbVec3f trans, scalechange;
 	SbRotation rot, scaleorient;
@@ -515,10 +436,10 @@ void SoDepthTabPlaneDragger::drag(void)
     { // translate
 	const SbVec3f startpt = getLocalStartingPoint();
 
-	lineProj->setViewVolume(getViewVolume());
-	lineProj->setWorkingSpace(getLocalToWorldMatrix());
+	lineProj_->setViewVolume(getViewVolume());
+	lineProj_->setWorkingSpace(getLocalToWorldMatrix());
 	const SbVec3f newhitpt =
-	    		lineProj->project(getNormalizedLocaterPosition());
+	    		lineProj_->project(getNormalizedLocaterPosition());
 
 	SbVec3f motion = newhitpt-startpt;
 	SbMatrix motmat = appendTranslation(getStartMotionMatrix(), motion);
@@ -539,7 +460,7 @@ void SoDepthTabPlaneDragger::drag(void)
 
 
 void SoDepthTabPlaneDragger::dragFinish(void)
-{ whatkind = WHATKIND_NONE; }
+{ whatkind_ = WHATKIND_NONE; }
 
 
 void SoDepthTabPlaneDragger::startCB(void* , SoDragger* d)
@@ -565,55 +486,47 @@ void SoDepthTabPlaneDragger::finishCB(void*, SoDragger* d)
 
 void SoDepthTabPlaneDragger::createPrivateParts()
 {
-    SoForegroundTranslation* lifter =
-	SO_GET_ANY_PART(this, "tabForegroundLifter", SoForegroundTranslation);
-    lifter->lift.setValue(Z_OFFSET);
+    SoPolygonOffset* po = 
+	SO_GET_ANY_PART(this, "greenTabsOffset", SoPolygonOffset);
+    po->styles.setValue(SoPolygonOffset::FILLED );
+    po->factor.setValue( -2 );
+    po->units.setValue( -2 );
+    greenTabsOffset.setDefault(TRUE);
 
     SoMaterialBinding* mb =
-	SO_GET_ANY_PART(this, "scaleTabMaterialBinding", SoMaterialBinding);
+	SO_GET_ANY_PART(this, "greenTabsMaterialBinding", SoMaterialBinding);
     mb->value = SoMaterialBinding::OVERALL;
-    scaleTabMaterialBinding.setDefault(TRUE);
+    greenTabsMaterialBinding.setDefault(TRUE);
 
     SoNormalBinding* nb =
-	SO_GET_ANY_PART(this, "scaleTabNormalBinding", SoNormalBinding);
+	SO_GET_ANY_PART(this, "greenTabsNormalBinding", SoNormalBinding);
     nb->value = SoNormalBinding::OVERALL;
-    scaleTabNormalBinding.setDefault(TRUE);
+    greenTabsNormalBinding.setDefault(TRUE);
 
-    SoNormal* normal = SO_GET_ANY_PART(this, "scaleTabNormal", SoNormal);
+    SoNormal* normal = SO_GET_ANY_PART(this, "greenTabsNormal", SoNormal);
     normal->vector.setValue(SbVec3f(0.0f, 0.0f, 1.0f));
-    scaleTabNormal.setDefault(TRUE);
+    greenTabsNormal.setDefault(TRUE);
 
-    int idx = 0;
+    SoIndexedFaceSet* tabs = SO_GET_ANY_PART(this, "greenTabs",
+	    				     SoIndexedFaceSet);
+    int cii = 0;
+    int ci = 0;
+    tabs->coordIndex.setNum(40);
+    int32_t* ptr = tabs->coordIndex.startEditing();
     for ( int i=0; i<8; i++ )
     {
-	SbString str;
-	if ( i==0 || i==4)
-	    idx = 0;
-	if ( i<4 )
-	    str.sprintf("edgeScaleTab%d", i);
-	else
-	    str.sprintf("cornerScaleTab%d", i-4);
-
-	SoIndexedFaceSet* fs =
-	    (SoIndexedFaceSet*) getAnyPart(SbName(str.getString()), TRUE);
-
-	fs->coordIndex.setNum(5);
-
-	int32_t* ptr = fs->coordIndex.startEditing();
 	for ( int j=0; j<4; j++ )
-	    ptr[j] = idx++;
+	    ptr[cii++] = ci++;
 
-	ptr[4] = -1;
-
-	fs->coordIndex.finishEditing();
-	fs->normalIndex.setValue(0);
-	fs->materialIndex.setValue(0);
-
-	SoField* f = getField(SbName(str.getString()));
-	f->setDefault(TRUE);
+	ptr[cii++] = -1;
     }
 
-    SoSeparator *sep = SO_GET_ANY_PART(this, "scaleTabs", SoSeparator);
+    tabs->coordIndex.finishEditing();
+    tabs->normalIndex.setValue(0);
+    tabs->materialIndex.setValue(0);
+    greenTabs.setDefault(TRUE);
+
+    SoSeparator *sep = SO_GET_ANY_PART(this, "greenTabs", SoSeparator);
     sep->renderCaching = SoSeparator::OFF;
 }
 
