@@ -4,12 +4,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2002
- RCS:           $Id: viscoord.cc,v 1.22 2006-02-13 22:50:20 cvskris Exp $
+ RCS:           $Id: viscoord.cc,v 1.23 2006-05-31 12:42:53 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "viscoord.h"
+
+#include "errh.h"
 #include "thread.h"
 #include "vistransform.h"
 #include "UTMPosition.h"
@@ -223,7 +225,14 @@ void Coordinates::setPosWithoutLock( int idx, const Coord3& pos )
 void Coordinates::removePos( int idx, bool keepidxafter )
 {
     Threads::MutexLocker lock( mutex );
-    if ( idx==coords->point.getNum()-1 )
+    const int nrcoords = coords->point.getNum();
+    if ( idx>=nrcoords )
+    {
+	pErrMsg("Invalid index");
+	return;
+    }
+
+    if ( idx==nrcoords-1 )
     {
 	coords->point.deleteValues( idx );
 	unusedcoords -= idx;

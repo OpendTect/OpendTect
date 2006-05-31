@@ -4,12 +4,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2002
- RCS:           $Id: vistexturecoords.cc,v 1.9 2005-02-07 12:45:40 nanne Exp $
+ RCS:           $Id: vistexturecoords.cc,v 1.10 2006-05-31 12:42:53 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "vistexturecoords.h"
+
+#include "errh.h"
 #include "position.h"
 #include "thread.h"
 
@@ -86,7 +88,14 @@ int TextureCoords::addCoord( const Coord& pos )
 void TextureCoords::removeCoord(int idx)
 {
     Threads::MutexLocker lock( mutex );
-    if ( idx==coords->point.getNum()-1 )
+    const int nrcoords = coords->point.getNum();
+    if ( idx>=nrcoords )
+    {
+	pErrMsg("Invalid index");
+	return;
+    }
+
+    if ( idx==nrcoords-1 )
 	coords->point.deleteValues( idx );
     else
 	unusedcoords += idx;

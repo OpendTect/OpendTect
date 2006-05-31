@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          December 2003
- RCS:           $Id: visrandomtrackdragger.cc,v 1.2 2006-03-15 14:10:52 cvsnanne Exp $
+ RCS:           $Id: visrandomtrackdragger.cc,v 1.3 2006-05-31 12:42:53 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -149,6 +149,12 @@ void RandomTrackDragger::insertKnot( int idx, const Coord& knotpos )
 
 void RandomTrackDragger::removeKnot( int idx )
 {
+    if ( idx>=dragger_->knots.getNum() )
+    {
+	pErrMsg("Invalid index");
+	return;
+    }
+
     dragger_->knots.deleteValues( idx, 1 );
 }
 

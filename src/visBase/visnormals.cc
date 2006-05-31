@@ -4,13 +4,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2002
- RCS:           $Id: visnormals.cc,v 1.7 2005-02-07 12:45:40 nanne Exp $
+ RCS:           $Id: visnormals.cc,v 1.8 2006-05-31 12:42:53 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "visnormals.h"
 
+#include "errh.h"
 #include "trigonometry.h"
 #include "thread.h"
 
@@ -61,7 +62,14 @@ int Normals::addNormal( const Vector3& normal )
 void Normals::removeNormal(int idx)
 {
     Threads::MutexLocker lock( mutex );
-    if ( idx==normals->vector.getNum()-1 )
+    const int nrnormals = normals->vector.getNum();
+    if ( idx>=nrnormals )
+    {
+	pErrMsg("Invalid index");
+	return;
+    }
+    
+    if ( idx==nrnormals-1 )
     {
 	normals->vector.deleteValues( idx );
     }
