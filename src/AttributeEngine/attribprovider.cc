@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribprovider.cc,v 1.63 2006-04-11 15:16:31 cvshelene Exp $";
+static const char* rcsID = "$Id: attribprovider.cc,v 1.64 2006-05-31 09:26:42 cvshelene Exp $";
 
 #include "attribprovider.h"
 #include "attribstorprovider.h"
@@ -102,8 +102,13 @@ Provider* Provider::internalCreate( Desc& desc, ObjectSet<Provider>& existing,
     Provider* res = PF().create( desc );
     if ( !res )
     {
-	errstr = "No factory entry for"; errstr += " ";
-	errstr += desc.attribName(); errstr += " "; errstr += "attribute.";
+	if ( desc.errMsg().size() )
+	    errstr = desc.errMsg().buf();
+	else
+	    errstr = "No factory entry";
+	
+        errstr +=" for "; errstr += desc.attribName(); 
+	errstr += " "; errstr += "attribute.";
 	return 0;
     }
 
