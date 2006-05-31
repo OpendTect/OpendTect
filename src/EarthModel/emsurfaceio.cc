@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          June 2003
- RCS:           $Id: emsurfaceio.cc,v 1.70 2006-05-26 13:09:08 cvskris Exp $
+ RCS:           $Id: emsurfaceio.cc,v 1.71 2006-05-31 12:59:34 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -153,14 +153,19 @@ bool dgbSurfaceReader::readHeaders( const char* filetype )
     if ( version_==3 )
     {
 	const int64 nrsectionsoffset = readInt64( strm );
-	if ( !strm ) { msg_ = sMsgReadError(); return false; }
+	if ( !strm || !nrsectionsoffset )
+	{ msg_ = sMsgReadError(); return false; }
 
 	strm.seekg( nrsectionsoffset, std::ios::beg );
 	const int nrsections = readInt32( strm );
 	if ( !strm ) { msg_ = sMsgReadError(); return false; }
 
 	for ( int idx=0; idx<nrsections; idx++ )
-	    sectionoffsets_ += readInt64( strm );
+	{
+	    const int64 off = readInt64( strm );
+	    if ( !off ) { msg_ = sMsgReadError(); return false; }
+	    sectionoffsets_ += off;
+	}
 
 	for ( int idx=0; idx<nrsections; idx++ )
 	    sectionids_ += readInt32( strm );
@@ -459,7 +464,7 @@ bool dgbSurfaceReader::readRowOffsets( std::istream& strm )
     for ( int idx=0; idx<nrrows_; idx++ )
     {
 	rowoffsets_[idx] = readInt64( strm );
-	if ( !strm )
+	if ( !strm || !rowoffsets_[idx] )
 	{
 	    msg_ = sMsgReadError();
 	    return false;
