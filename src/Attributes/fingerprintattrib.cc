@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          February 2006
- RCS:           $Id: fingerprintattrib.cc,v 1.5 2006-05-30 14:30:40 cvshelene Exp $
+ RCS:           $Id: fingerprintattrib.cc,v 1.6 2006-05-31 09:27:49 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,19 +46,15 @@ void FingerPrint::initClass()
     desc->ref();
 
     BinIDParam* refpos = new BinIDParam( refposStr() );
-    refpos->setRequired( false );
     desc->addParam( refpos );
     
     FloatParam* refposz = new FloatParam( refposzStr() );
-    refposz->setRequired( false );
     desc->addParam( refposz );
 
     StringParam* reflineset = new StringParam( reflinesetStr() );
-    reflineset->setRequired( false );
     desc->addParam( reflineset );
     
     StringParam* ref2dline = new StringParam( ref2dlineStr() );
-    ref2dline->setRequired( false );
     desc->addParam( ref2dline );
     
     FloatParam value( valStr() );
@@ -77,11 +73,9 @@ void FingerPrint::initClass()
     desc->addParam( weightset );
     
     IntParam* statstype = new IntParam( statstypeStr() );
-    statstype->setRequired( false );
     desc->addParam( statstype );
     
     StringParam* valpickset = new StringParam( valpicksetStr() );
-    valpickset->setRequired( false );
     desc->addParam( valpickset );
     
     IntParam* valreftype = new IntParam( valreftypeStr() );
@@ -89,7 +83,6 @@ void FingerPrint::initClass()
     desc->addParam( valreftype );
     
     StringParam* rgpickset = new StringParam( rgpicksetStr() );
-    rgpickset->setRequired( false );
     desc->addParam( rgpickset );
     
     IntParam* rgreftype = new IntParam( rgreftypeStr() );
