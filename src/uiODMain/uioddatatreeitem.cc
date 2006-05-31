@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uioddatatreeitem.cc,v 1.3 2006-05-25 18:24:16 cvskris Exp $
+ RCS:		$Id: uioddatatreeitem.cc,v 1.4 2006-05-31 13:45:28 cvskris Exp $
 ___________________________________________________________________
 
 -*/
@@ -177,19 +177,33 @@ void uiODDataTreeItem::createMenuCB( CallBacker* cb )
 
     const bool islocked = visserv->isLocked( displayID() );
 
-    mAddMenuItem( &movemnuitem_, &movetotopmnuitem_,
-	    	  !islocked && !isfirst, false );
-    mAddMenuItem( &movemnuitem_, &moveupmnuitem_,
-	    	  !islocked && !isfirst, false );
-    mAddMenuItem( &movemnuitem_, &movedownmnuitem_,
-	    	  !islocked && !islast, false );
-    mAddMenuItem( &movemnuitem_, &movetobottommnuitem_,
-		  !islocked && !islast, false );
+    if ( !islocked && (!isfirst || !islast) )
+    {
+	mAddMenuItem( &movemnuitem_, &movetotopmnuitem_,
+		      !islocked && !isfirst, false );
+	mAddMenuItem( &movemnuitem_, &moveupmnuitem_,
+		      !islocked && !isfirst, false );
+	mAddMenuItem( &movemnuitem_, &movedownmnuitem_,
+		      !islocked && !islast, false );
+	mAddMenuItem( &movemnuitem_, &movetobottommnuitem_,
+		      !islocked && !islast, false );
 
-    mAddMenuItem( menu, &movemnuitem_, true, false );
+	mAddMenuItem( menu, &movemnuitem_, true, false );
+    }
+    else
+    {
+	mResetMenuItem( &changetransparencyitem_ );
+	mResetMenuItem( &movetotopmnuitem_ );
+	mResetMenuItem( &moveupmnuitem_ );
+	mResetMenuItem( &movedownmnuitem_ );
+	mResetMenuItem( &movetobottommnuitem_ );
+
+	mResetMenuItem( &movemnuitem_ );
+    }
+
     mAddMenuItem( menu, &removemnuitem_,
 		  !islocked && visserv->getNrAttribs( displayID())>1, false );
-    if ( visserv->canHaveMultipleAttribs(displayID()) )
+    if ( visserv->canHaveMultipleAttribs(displayID()) && hasTransparencyMenu() )
 	mAddMenuItem( menu, &changetransparencyitem_, true, false )
     else
 	mResetMenuItem( &changetransparencyitem_ );

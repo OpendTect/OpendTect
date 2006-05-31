@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		May 2006
- RCS:		$Id: uioddatatreeitem.h,v 1.2 2006-05-25 18:24:16 cvskris Exp $
+ RCS:		$Id: uioddatatreeitem.h,v 1.3 2006-05-31 13:45:28 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -50,6 +50,8 @@ protected:
 
     virtual void	checkCB(CallBacker*);
     bool		shouldSelect(int) const;
+
+    virtual bool	hasTransparencyMenu() const { return true; }
 
     uiODApplMgr*	applMgr() const;
     uiSoViewer*		viewer() const;
