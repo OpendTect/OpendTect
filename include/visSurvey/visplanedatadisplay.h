@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visplanedatadisplay.h,v 1.79 2006-05-25 13:35:43 cvskris Exp $
+ RCS:		$Id: visplanedatadisplay.h,v 1.80 2006-05-31 08:06:40 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -24,6 +24,7 @@ namespace visBase
 {
     class Coordinates;
     class DepthTabPlaneDragger;
+    class DrawStyle;
     class FaceSet;
     class GridLines;
     class MultiTexture2; 
@@ -149,6 +150,8 @@ protected:
     visBase::FaceSet*			rectangle_;
     visBase::GridLines*			gridlines_;
     Orientation				orientation_;
+    visBase::FaceSet*			draggerrect_;
+    visBase::DrawStyle*			draggerdrawstyle_;
 
 
     ObjectSet<Attrib::SelSpec>		as_;

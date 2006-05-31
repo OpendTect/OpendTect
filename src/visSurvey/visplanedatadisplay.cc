@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.126 2006-05-23 12:25:20 cvskris Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.127 2006-05-31 08:06:40 cvskris Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -23,6 +23,7 @@ static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.126 2006-05-23 12:25
 #include "viscolortab.h"
 #include "viscoord.h"
 #include "visdepthtabplanedragger.h"
+#include "visdrawstyle.h"
 #include "visgridlines.h"
 #include "vispickstyle.h"
 #include "visfaceset.h"
@@ -65,25 +66,30 @@ PlaneDataDisplay::PlaneDataDisplay()
     dragger_->rightClicked()->notify(
 	    		mCB(this,PlaneDataDisplay,draggerRightClick) );
 
-    RefMan<visBase::FaceSet> draggerrect = visBase::FaceSet::create();
-    draggerrect->removeSwitch();
-    draggerrect->setVertexOrdering(1);
-    draggerrect->getCoordinates()->addPos( Coord3(-1,-1,0) );
-    draggerrect->getCoordinates()->addPos( Coord3(1,-1,0) );
-    draggerrect->getCoordinates()->addPos( Coord3(1,1,0) );
-    draggerrect->getCoordinates()->addPos( Coord3(-1,1,0) );
-    draggerrect->setCoordIndex( 0, 0 );
-    draggerrect->setCoordIndex( 1, 1 );
-    draggerrect->setCoordIndex( 2, 2 );
-    draggerrect->setCoordIndex( 3, 3 );
-    draggerrect->setCoordIndex( 4, -1 );
+    draggerrect_ = visBase::FaceSet::create();
+    draggerrect_->ref();
+    draggerrect_->removeSwitch();
+    draggerrect_->setVertexOrdering(1);
+    draggerrect_->getCoordinates()->addPos( Coord3(-1,-1,0) );
+    draggerrect_->getCoordinates()->addPos( Coord3(1,-1,0) );
+    draggerrect_->getCoordinates()->addPos( Coord3(1,1,0) );
+    draggerrect_->getCoordinates()->addPos( Coord3(-1,1,0) );
+    draggerrect_->setCoordIndex( 0, 0 );
+    draggerrect_->setCoordIndex( 1, 1 );
+    draggerrect_->setCoordIndex( 2, 2 );
+    draggerrect_->setCoordIndex( 3, 3 );
+    draggerrect_->setCoordIndex( 4, -1 );
 
     draggermaterial_ = visBase::Material::create();
     draggermaterial_->ref();
-    draggermaterial_->setTransparency( 1 );
-    draggerrect->setMaterial( draggermaterial_ );
+    draggerrect_->setMaterial( draggermaterial_ );
 
-    dragger_->setOwnShape( draggerrect->getInventorNode() );
+    draggerdrawstyle_ = visBase::DrawStyle::create();
+    draggerdrawstyle_->ref();
+    draggerdrawstyle_->setDrawStyle( visBase::DrawStyle::Lines );
+    draggerrect_->insertNode( draggerdrawstyle_->getInventorNode() );
+
+    dragger_->setOwnShape( draggerrect_->getInventorNode() );
 
     rectanglepickstyle_->ref();
     addChild( rectanglepickstyle_->getInventorNode() );
@@ -132,9 +138,11 @@ PlaneDataDisplay::~PlaneDataDisplay()
     texture_->unRef();
     rectangle_->unRef();
     dragger_->unRef();
-    draggermaterial_->unRef();
     rectanglepickstyle_->unRef();
     gridlines_->unRef();
+    draggerrect_->unRef();
+    draggerdrawstyle_->unRef();
+    draggermaterial_->unRef();
 }
 
 
@@ -275,7 +283,24 @@ void PlaneDataDisplay::dataTransformCB( CallBacker* )
 void PlaneDataDisplay::draggerMotion( CallBacker* )
 {
     moving_.trigger();
-    draggermaterial_->setTransparency( 0.5 );
+
+    const CubeSampling dragcs = getCubeSampling(true,true);
+    const CubeSampling snappedcs = snapCubeSampling( dragcs );
+    const CubeSampling oldcs = getCubeSampling(false,true);
+
+    bool showplane = false;
+    if ( orientation_==Inline && dragcs.hrg.start.inl!=oldcs.hrg.start.inl )
+	showplane = true;
+    else if ( orientation_==Crossline &&
+	      dragcs.hrg.start.crl!=oldcs.hrg.start.crl )
+	showplane = true;
+    else if ( orientation_==Timeslice && dragcs.zrg.start!=oldcs.zrg.start )
+	showplane = true;
+   
+    draggerdrawstyle_->setDrawStyle( showplane
+	    ? visBase::DrawStyle::Filled
+	    : visBase::DrawStyle::Lines );
+    draggermaterial_->setTransparency( showplane ? 0.5 : 0 );
 }
 
 
@@ -364,7 +389,8 @@ void PlaneDataDisplay::resetManipulation()
 {
     CubeSampling cs = getCubeSampling( false, true );
     setDraggerPos( cs );
-    draggermaterial_->setTransparency( 1 );
+    draggerdrawstyle_->setDrawStyle( visBase::DrawStyle::Lines );
+    draggermaterial_->setTransparency( 0 );
 }
 
 
@@ -372,7 +398,8 @@ void PlaneDataDisplay::acceptManipulation()
 {
     CubeSampling cs = getCubeSampling( true, true );
     setCubeSampling( cs );
-    draggermaterial_->setTransparency( 1 );
+    draggerdrawstyle_->setDrawStyle( visBase::DrawStyle::Lines );
+    draggermaterial_->setTransparency( 0 );
     if ( gridlines_ ) gridlines_->setPlaneCubeSampling( cs );
 }
 
