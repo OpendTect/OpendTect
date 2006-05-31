@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2004
- RCS:           $Id: uimpepartserv.cc,v 1.45 2006-05-30 07:25:00 cvsjaap Exp $
+ RCS:           $Id: uimpepartserv.cc,v 1.46 2006-05-31 18:33:47 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "emtracker.h"
 #include "emobject.h"
 #include "executor.h"
+#include "filegen.h"
 #include "geomelement.h"
 #include "iopar.h"
 #include "mpeengine.h"

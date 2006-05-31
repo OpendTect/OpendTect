@@ -8,10 +8,11 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizonadjuster.cc,v 1.28 2006-05-03 08:26:55 cvsjaap Exp $";
+static const char* rcsID = "$Id: horizonadjuster.cc,v 1.29 2006-05-31 18:32:37 cvsnanne Exp $";
 
 #include "horizonadjuster.h"
 
+#include "arrayndimpl.h"
 #include "attribdatacubes.h"
 #include "attribsel.h"
 #include "emhorizon.h"

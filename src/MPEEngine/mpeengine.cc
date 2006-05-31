@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: mpeengine.cc,v 1.62 2006-05-30 07:11:18 cvsjaap Exp $";
+static const char* rcsID = "$Id: mpeengine.cc,v 1.63 2006-05-31 18:32:37 cvsnanne Exp $";
 
 #include "mpeengine.h"
 
@@ -21,6 +21,7 @@ static const char* rcsID = "$Id: mpeengine.cc,v 1.62 2006-05-30 07:11:18 cvsjaap
 #include "emobject.h"
 #include "emtracker.h"
 #include "executor.h"
+#include "filepath.h"
 #include "geomelement.h"
 #include "ioman.h"
 #include "ioobject.h"
