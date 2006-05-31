@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visplanedatadisplay.h,v 1.80 2006-05-31 08:06:40 cvskris Exp $
+ RCS:		$Id: visplanedatadisplay.h,v 1.81 2006-05-31 18:38:09 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -141,7 +141,7 @@ protected:
     void			setDraggerPos(const CubeSampling&);
     void			dataTransformCB(CallBacker*);
 
-    CubeSampling		snapCubeSampling(const CubeSampling&) const;
+    CubeSampling		snapPosition(const CubeSampling&) const;
 
     visBase::DepthTabPlaneDragger*	dragger_;
     visBase::Material*			draggermaterial_;

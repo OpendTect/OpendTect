@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.128 2006-05-31 18:32:23 cvsnanne Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.129 2006-05-31 18:38:09 cvskris Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -168,13 +168,23 @@ void PlaneDataDisplay::updateRanges()
     dragger_->setSpaceLimits( inlrg, crlrg, survey.zrg );
     dragger_->setSize( Coord3(inlrg.width(), crlrg.width(),survey.zrg.width()));
 
-    const CubeSampling cs = snapCubeSampling( survey );
-    if ( cs!=getCubeSampling(false,true) )
-	setCubeSampling( cs );
+    const CubeSampling curpos = getCubeSampling(false,true);
+    CubeSampling newpos;
+    if ( !curpos.isEmpty() )
+    {
+	newpos = curpos;
+	if ( !survey.includes( newpos ) )
+	    newpos.limitTo( survey );
+    }
+
+    newpos = snapPosition( curpos.isEmpty() ? survey : curpos );
+
+    if ( newpos!=getCubeSampling(false,true) )
+	setCubeSampling( newpos );
 }
 
 
-CubeSampling PlaneDataDisplay::snapCubeSampling( const CubeSampling& cs ) const
+CubeSampling PlaneDataDisplay::snapPosition( const CubeSampling& cs ) const
 {
     CubeSampling res( cs );
     const Interval<float> inlrg( res.hrg.start.inl, res.hrg.stop.inl );
@@ -286,7 +296,7 @@ void PlaneDataDisplay::draggerMotion( CallBacker* )
     moving_.trigger();
 
     const CubeSampling dragcs = getCubeSampling(true,true);
-    const CubeSampling snappedcs = snapCubeSampling( dragcs );
+    const CubeSampling snappedcs = snapPosition( dragcs );
     const CubeSampling oldcs = getCubeSampling(false,true);
 
     bool showplane = false;
@@ -308,7 +318,7 @@ void PlaneDataDisplay::draggerMotion( CallBacker* )
 void PlaneDataDisplay::draggerFinish( CallBacker* )
 {
     const CubeSampling cs = getCubeSampling(true,true);
-    const CubeSampling snappedcs = snapCubeSampling( cs );
+    const CubeSampling snappedcs = snapPosition( cs );
 
     if ( cs!=snappedcs )
 	setDraggerPos( snappedcs );
@@ -595,7 +605,7 @@ CubeSampling PlaneDataDisplay::getCubeSampling( int attrib ) const
 
 void PlaneDataDisplay::setCubeSampling( CubeSampling cs )
 {
-    cs = snapCubeSampling( cs );
+    cs = snapPosition( cs );
     const HorSampling& hrg = cs.hrg;
 
     visBase::Coordinates* coords = rectangle_->getCoordinates();
