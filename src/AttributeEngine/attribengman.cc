@@ -4,12 +4,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H.Payraudeau
  Date:          04/2005
- RCS:           $Id: attribengman.cc,v 1.56 2006-05-03 18:54:19 cvskris Exp $
+ RCS:           $Id: attribengman.cc,v 1.57 2006-05-31 18:27:22 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "attribengman.h"
+
+#include "arrayndimpl.h"
 #include "attribprocessor.h"
 #include "attriboutput.h"
 #include "attribprovider.h"

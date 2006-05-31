@@ -4,11 +4,12 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribprovider.cc,v 1.64 2006-05-31 09:26:42 cvshelene Exp $";
+static const char* rcsID = "$Id: attribprovider.cc,v 1.65 2006-05-31 18:27:22 cvsnanne Exp $";
 
 #include "attribprovider.h"
 #include "attribstorprovider.h"
 
+#include "arrayndimpl.h"
 #include "attribdataholder.h"
 #include "attribdesc.h"
 #include "attribdescset.h"

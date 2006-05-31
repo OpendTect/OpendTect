@@ -5,9 +5,10 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribdatacubes.cc,v 1.15 2006-05-31 09:46:21 cvskris Exp $";
+static const char* rcsID = "$Id: attribdatacubes.cc,v 1.16 2006-05-31 18:27:22 cvsnanne Exp $";
 
 #include "attribdatacubes.h"
+#include "arrayndimpl.h"
 #include "survinfo.h"
 #include "idxable.h"
 
