@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          10-12-1999
- RCS:           $Id: attribparamgroup.h,v 1.4 2006-05-29 07:49:21 cvshelene Exp $
+ RCS:           $Id: attribparamgroup.h,v 1.5 2006-05-31 09:28:40 cvshelene Exp $
 ________________________________________________________________________
 */
 
@@ -185,12 +185,11 @@ ParamGroup<PT>::ParamGroup( int startsz, const char* prefix_, const PT& templ_)
 
 template <class PT> inline
 ParamGroup<PT>::ParamGroup( const ParamGroup<PT>& a )
-    : Param ( a.prefix )
+    : Param ( a )
     , prefix( a.prefix )
     , templ( a.templ )
     , sz( a.sz )
 {
-    isgroup_ = true;
     for ( int idx=0; idx<a.params.size(); idx++ )
     {
 	PT* np = new PT( (PT&)a[idx] );
