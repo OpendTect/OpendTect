@@ -1,12 +1,12 @@
-#ifndef uimergeseis_h
-#define uimergeseis_h
+#ifndef uiseismmproc_h
+#define uiseismmproc_h
 /*+
 ________________________________________________________________________
 
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:           $Id: uiseismmproc.h,v 1.35 2006-02-20 18:49:48 cvsbert Exp $
+ RCS:           $Id: uiseismmproc.h,v 1.36 2006-06-01 19:42:55 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
