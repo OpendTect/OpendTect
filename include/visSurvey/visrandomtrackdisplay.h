@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		January 2003
- RCS:		$Id: visrandomtrackdisplay.h,v 1.46 2006-04-27 21:28:49 cvskris Exp $
+ RCS:		$Id: visrandomtrackdisplay.h,v 1.47 2006-06-01 07:30:15 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -113,7 +113,7 @@ public:
 
     void			getMousePosInfo(const visBase::EventInfo&,
 	    					const Coord3&,
-	    					float& val,
+	    					BufferString& val,
 	    					BufferString& info) const;
 
     int				getColTabID(int) const;

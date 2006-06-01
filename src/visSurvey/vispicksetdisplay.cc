@@ -4,7 +4,7 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.82 2006-05-29 08:02:33 cvsbert Exp $";
+static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.83 2006-06-01 07:30:15 cvskris Exp $";
 
 #include "vispicksetdisplay.h"
 
@@ -307,10 +307,10 @@ BufferString PickSetDisplay::getManipulationString() const
 
 
 void PickSetDisplay::getMousePosInfo( const visBase::EventInfo&,
-				      const Coord3& pos, float& val,
+				      const Coord3& pos, BufferString& val,
 				      BufferString& info ) const
 {
-    val = mUdf(float);
+    val = "";
     info = getManipulationString();
 }
 

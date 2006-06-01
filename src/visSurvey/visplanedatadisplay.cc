@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.129 2006-05-31 18:38:09 cvskris Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.130 2006-06-01 07:30:15 cvskris Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -882,14 +882,18 @@ int PlaneDataDisplay::selectedTexture( int attrib ) const
 
 void PlaneDataDisplay::getMousePosInfo( const visBase::EventInfo&,
 					const Coord3& pos,
-					float& val, 
+					BufferString& val, 
 					BufferString& info ) const
 {
     info = getManipulationString();
-    if ( cache_.size()<=0 || !cache_[0] ) { val = mUdf(float); return; }
+    if ( cache_.size()<=0 || !cache_[0] ) { val = "undef"; return; }
     const BinIDValue bidv( SI().transform(pos), pos.z );
-    if ( !cache_[0]->getValue(texture_->currentVersion(0),bidv,&val,false) )
-	{ val = mUdf(float); return; }
+
+    float fval;
+    if ( !cache_[0]->getValue(texture_->currentVersion(0),bidv,&fval,false) )
+        val = "undef";
+    else
+	val = fval;
 
     return;
 }

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: vishorizondisplay.cc,v 1.5 2006-05-23 13:18:14 cvsnanne Exp $
+ RCS:           $Id: vishorizondisplay.cc,v 1.6 2006-06-01 07:30:15 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -868,8 +868,8 @@ EM::SectionID HorizonDisplay::getSectionID( int visid ) const
 
 
 void HorizonDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
-				       const Coord3& pos,
-				       float& val, BufferString& info ) const
+				       const Coord3& pos, BufferString& val,
+				       BufferString& info ) const
 {
     EMObjectDisplay::getMousePosInfo( eventinfo, pos, val, info );
     if ( !emobject_ ) return;
@@ -899,7 +899,11 @@ void HorizonDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
     int curtexture = selectedTexture(0);
     if ( curtexture>bidvalset->nrVals()-1 ) curtexture = 0;
 
-    val = vals[curtexture+1];
+    const float fval = vals[curtexture+1];
+    if ( mIsUdf(fval) )
+	val = "undef";
+    else
+	val = fval;
 }
 
 

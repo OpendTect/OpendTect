@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: viswelldisplay.cc,v 1.61 2006-03-12 13:39:11 cvsbert Exp $";
+static const char* rcsID = "$Id: viswelldisplay.cc,v 1.62 2006-06-01 07:30:15 cvskris Exp $";
 
 #include "viswelldisplay.h"
 
@@ -323,10 +323,10 @@ int WellDisplay::logWidth() const
 
 void WellDisplay::getMousePosInfo( const visBase::EventInfo&,
 				   const Coord3& pos,
-				   float& val,
+				   BufferString& val,
 				   BufferString& info ) const
 {
-    val = -mUdf(float);
+    val = "";
     Well::Data* wd = Well::MGR().get( wellid_ );
     if ( !wd ) { info = ""; return; }
 

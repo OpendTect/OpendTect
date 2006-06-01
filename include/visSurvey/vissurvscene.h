@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvscene.h,v 1.38 2006-03-01 20:19:07 cvskris Exp $
+ RCS:		$Id: vissurvscene.h,v 1.39 2006-06-01 07:30:15 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -91,7 +91,7 @@ public:
     Notifier<Scene>		mouseposchange;
     Coord3			getMousePos(bool xyt) const;
     				/*! If not xyt it is inlcrlt */
-    float			getMousePosValue() const;
+    BufferString		getMousePosValue() const;
     BufferString		getMousePosString() const;
 
     void			objectMoved(CallBacker*);
@@ -133,7 +133,7 @@ protected:
     visBase::Marker*		marker_;
 
     Coord3			xytmousepos_;
-    float			mouseposval_;
+    BufferString		mouseposval_;
     BufferString		mouseposstr_;
     float			curzscale_;
 

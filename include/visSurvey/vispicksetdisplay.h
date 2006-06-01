@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vispicksetdisplay.h,v 1.50 2006-05-29 08:02:32 cvsbert Exp $
+ RCS:		$Id: vispicksetdisplay.h,v 1.51 2006-06-01 07:30:15 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -57,7 +57,7 @@ public:
 
     virtual BufferString	getManipulationString() const;
     virtual void		getMousePosInfo(const visBase::EventInfo&,
-						const Coord3&,float&,
+						const Coord3&,BufferString&,
 						BufferString&) const;
     virtual bool		hasColor() const	{ return true; }
     virtual Color		getColor() const;

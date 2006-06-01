@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: vissurvscene.cc,v 1.86 2006-05-23 12:24:39 cvskris Exp $
+ RCS:           $Id: vissurvscene.cc,v 1.87 2006-06-01 07:30:15 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -252,8 +252,8 @@ Coord3 Scene::getMousePos( bool xyt ) const
 }
 
 
-float Scene::getMousePosValue() const
-{ return mouseposval_; }
+BufferString Scene::getMousePosValue() const
+{ return BufferString(mouseposval_); }
 
 
 BufferString Scene::getMousePosString() const
@@ -295,7 +295,7 @@ void Scene::mouseMoveCB( CallBacker* cb )
     mCBCapsuleUnpack(const visBase::EventInfo&,eventinfo,cb);
     if ( eventinfo.type != visBase::MouseMovement ) return;
 
-    mouseposval_ = mUdf(float);
+    mouseposval_ = "";
     mouseposstr_ = "";
     xytmousepos_ = Coord3::udf();
 
@@ -313,15 +313,16 @@ void Scene::mouseMoveCB( CallBacker* cb )
 	    mDynamicCastGet(const SurveyObject*,so,pickedobj);
 	    if ( so )
 	    {
-		if ( mIsUdf(mouseposval_) )
+		if ( !mouseposval_[0] )
 		{
-		    float newmouseposval;
+		    BufferString newmouseposval;
 		    BufferString newstr;
 		    so->getMousePosInfo( eventinfo, xytmousepos_,
 			    		 newmouseposval, newstr );
 		    if ( newstr != "" )
 			mouseposstr_ = newstr;
-		    if ( !mIsUdf(newmouseposval) )
+
+		    if ( newmouseposval[0] )
 			mouseposval_ = newmouseposval;
 		}
 

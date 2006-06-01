@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viswelldisplay.h,v 1.35 2006-01-31 16:53:26 cvshelene Exp $
+ RCS:		$Id: viswelldisplay.h,v 1.36 2006-06-01 07:30:15 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -85,7 +85,7 @@ public:
     bool			logNameShown() const;
 
     void			getMousePosInfo(const visBase::EventInfo& pos,
-	    					const Coord3&,float& val,
+	    					const Coord3&,BufferString& val,
 						BufferString& info) const;
 
     virtual void                fillPar(IOPar&,TypeSet<int>&) const;

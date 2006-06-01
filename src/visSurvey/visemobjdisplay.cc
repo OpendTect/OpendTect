@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: visemobjdisplay.cc,v 1.86 2006-05-04 16:27:41 cvskris Exp $
+ RCS:           $Id: visemobjdisplay.cc,v 1.87 2006-06-01 07:30:15 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -462,9 +462,10 @@ void EMObjectDisplay::emChangeCB( CallBacker* cb )
 
 void EMObjectDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
 				       const Coord3& pos,
-				       float& val, BufferString& info ) const
+				       BufferString& val,
+				       BufferString& info ) const
 {
-    info = ""; val = pos.z;
+    info = ""; val = "";
     if ( !emobject_ ) return;
 
     info = emobject_->getTypeStr(); info += ": "; info += name();

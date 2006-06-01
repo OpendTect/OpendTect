@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          January 2003
- RCS:           $Id: visrandomtrackdisplay.cc,v 1.72 2006-05-22 11:15:02 cvsnanne Exp $
+ RCS:           $Id: visrandomtrackdisplay.cc,v 1.73 2006-06-01 07:30:15 cvskris Exp $
  ________________________________________________________________________
 
 -*/
@@ -462,10 +462,10 @@ void RandomTrackDisplay::setData( int attrib, const SeisTrcBuf& trcbuf )
 
 void RandomTrackDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
 					  const Coord3& pos,
-					  float& val,
+					  BufferString& val,
 					  BufferString& info ) const
 {
-    info = ""; mSetUdf(val);
+    info = ""; val = "";
     if ( !cache_[0] || !cache_[0]->size() ) return;
 
     BinID reqbid( SI().transform(pos) );
@@ -486,7 +486,13 @@ void RandomTrackDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
     const SeisTrc& trc = *cache_[0]->get( trcidx );
     const int sampidx = trc.nearestSample( pos.z );
     if ( sampidx >= 0 && sampidx < trc.size() )
-	val = trc.get( sampidx, 0 );
+    {
+	float fval = trc.get( sampidx, 0 );
+	if ( mIsUdf(fval) )
+	    val = "undef";
+	else
+	    val = fval;
+    }
 }
 
 

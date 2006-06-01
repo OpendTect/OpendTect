@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		January 2003
- RCS:		$Id: visseis2ddisplay.h,v 1.3 2006-05-04 20:56:45 cvskris Exp $
+ RCS:		$Id: visseis2ddisplay.h,v 1.4 2006-06-01 07:30:15 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -101,7 +101,7 @@ public:
     const TypeSet<float>*	getHistogram(int) const;
 
     void			getMousePosInfo(const visBase::EventInfo&,
-	    					const Coord3&,float&,
+	    					const Coord3&,BufferString&,
 	    					BufferString&) const;
     void			snapToTracePos(Coord3&);
 

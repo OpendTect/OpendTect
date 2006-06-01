@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.316 2006-05-21 14:55:47 cvsjaap Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.317 2006-06-01 07:30:15 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -74,7 +74,6 @@ uiVisPartServer::uiVisPartServer( uiApplService& a )
     , eventattrib_(-1)
     , selattrib_(-1)
     , eventmutex_(*new Threads::Mutex)
-    , mouseposval_(mUdf(float))
     , mouseposstr_("")
     , resetmanipmnuitem_("Reset Manipulation",sResetManipIdx)
     , changecolormnuitem_("Color...",sColorIdx)
@@ -576,14 +575,7 @@ Coord3 uiVisPartServer::getMousePos(bool xyt) const
 
 
 BufferString uiVisPartServer::getMousePosVal() const
-{
-    if ( mIsUdf(mouseposval_) )
-	return "undef";
-    else if ( mIsUdf(-mouseposval_) )
-	return "";
-    else
-	return BufferString(mouseposval_);
-}
+{ return mouseposval_; }
 
 
 BufferString uiVisPartServer::getInteractionMsg( int id ) const

@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2004
- RCS:           $Id: visseis2ddisplay.cc,v 1.3 2006-05-30 08:29:49 cvsnanne Exp $
+ RCS:           $Id: visseis2ddisplay.cc,v 1.4 2006-06-01 07:30:15 cvskris Exp $
  ________________________________________________________________________
 
 -*/
@@ -468,27 +468,29 @@ SurveyObject::AttribFormat Seis2DDisplay::getAttributeFormat() const
 
 
 void Seis2DDisplay::getMousePosInfo( const visBase::EventInfo&,
-				     const Coord3& pos, float& val,
+				     const Coord3& pos, BufferString& val,
 				     BufferString& info ) const
 {
     info = "Line: "; info += name();
-    if ( !cache_ || !cache_->size() ) { mSetUdf(val); return; }
+    val = "undef";
+    if ( !cache_ || !cache_->size() )  return;
 
     int dataidx = -1;
     float mindist;
     getNearestTrace( pos, dataidx, mindist );
     if ( dataidx < 0 )
-	{ mSetUdf(val); return; }
+	return;
 
     const DataHolder* dh = cache_->dataset_[dataidx];
-    if ( !dh )
-	{ mSetUdf(val); return; }
+    if ( !dh ) 
+	return;
 
     const int trcnr = cache_->trcinfoset_[dataidx]->nr;
     const int sampidx =
 	mNINT(pos.z/cache_->trcinfoset_[dataidx]->sampling.step)-dh->z0_;
-    val = sampidx < 0 || sampidx >= dh->nrsamples_ ? mUdf(float)
-			: dh->series(dh->validSeriesIdx()[0])->value(sampidx);
+    if ( sampidx >= 0 && sampidx < dh->nrsamples_ )
+	val = dh->series(dh->validSeriesIdx()[0])->value(sampidx);
+
     //use first valid idx: as for now we can't evaluate attributes in 2D...
     
     info += "   Tracenr: "; info += trcnr;

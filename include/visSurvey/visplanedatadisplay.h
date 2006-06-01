@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visplanedatadisplay.h,v 1.81 2006-05-31 18:38:09 cvskris Exp $
+ RCS:		$Id: visplanedatadisplay.h,v 1.82 2006-06-01 07:30:15 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -116,7 +116,7 @@ public:
 
     void			getMousePosInfo(const visBase::EventInfo&,
 	    					const Coord3&,
-	    					float& val,
+	    					BufferString& val,
 	    					BufferString& info) const;
 
     virtual void		fillPar(IOPar&, TypeSet<int>&) const;
