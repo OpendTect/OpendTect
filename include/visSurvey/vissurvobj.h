@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvobj.h,v 1.62 2006-06-01 07:30:15 cvskris Exp $
+ RCS:		$Id: vissurvobj.h,v 1.63 2006-06-01 12:33:01 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -210,6 +210,8 @@ protected:
     				SurveyObject() 
 				: scene_(0)
 				, locked_(false)	{};
+
+    static int			cValNameOffset() 	{ return 12; }
 
     BufferString		errmsg;
     Scene*			scene_;
