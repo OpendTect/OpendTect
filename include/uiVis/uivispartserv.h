@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.169 2006-05-21 14:08:53 cvsjaap Exp $
+ RCS:           $Id: uivispartserv.h,v 1.170 2006-06-01 11:29:49 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -291,7 +291,7 @@ protected:
     Coord3			xytmousepos_;
     Coord3			inlcrlmousepos_;
     float			zfactor_;
-    float			mouseposval_;
+    BufferString		mouseposval_;
     BufferString		mouseposstr_;
 
     bool			viewmode_;
