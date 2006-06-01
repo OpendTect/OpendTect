@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiseisfileman.cc,v 1.57 2006-03-12 13:39:11 cvsbert Exp $
+ RCS:           $Id: uiseisfileman.cc,v 1.58 2006-06-01 10:37:40 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,6 +21,7 @@ ________________________________________________________________________
 #include "seis2dline.h"
 #include "seiscbvs.h"
 #include "uiseisioobjinfo.h"
+#include "uiioobjsel.h"
 #include "uibutton.h"
 #include "uilistbox.h"
 #include "uimsg.h"
@@ -45,10 +46,12 @@ uiSeisFileMan::uiSeisFileMan( uiParent* p )
     : uiObjFileMan(p,uiDialog::Setup("Seismic file management",
                                      "Manage seismic cubes",
                                      "103.1.0").nrstatusflds(1),
-	    	   *mMkCtxtIOObj(SeisTrc) )
+	    	   SeisTrcTranslatorGroup::ioContext() )
 {
-    ctio.ctxt.trglobexpr = "CBVS`2D";
-    createDefaultUI( "cbvs" );
+    ctxt_.trglobexpr = "CBVS`2D";
+    createDefaultUI();
+
+    uiIOObjManipGroup* manipgrp = selgrp->getManipGroup();
 
     cpym2dbut = manipgrp->addButton( ioPixmap(GetIconFileName("copyobj.png")),
 	    			     mCB(this,uiSeisFileMan,copyMan2DPush),
@@ -64,7 +67,7 @@ uiSeisFileMan::uiSeisFileMan( uiParent* p )
 			      ioPixmap(GetIconFileName("dumpgeom.png")),
 			      "Dump geometry" );
 
-    topgrp->setPrefWidthInChar( cPrefWidth );
+    selgrp->setPrefWidthInChar( cPrefWidth );
     infofld->setPrefWidthInChar( cPrefWidth );
     selChg(0);
 }
@@ -77,27 +80,24 @@ uiSeisFileMan::~uiSeisFileMan()
 
 void uiSeisFileMan::ownSelChg()
 {
-    const bool is2d = ctio.ioobj && SeisTrcTranslator::is2D( *ctio.ioobj );
+    if ( !curioobj_ ) return;
+
+    uiIOObjManipGroup* manipgrp = selgrp->getManipGroup();
+    const bool is2d = curioobj_ && SeisTrcTranslator::is2D( *curioobj_ );
     manipgrp->useAlternative( cpym2dbut, is2d );
     manipgrp->useAlternative( mrgdmpbut, is2d );
     cpym2dbut->setSensitive( is2d
-	    		|| (ctio.ioobj && ctio.ioobj->implExists(true)) );
+	    		|| (curioobj_ && curioobj_->implExists(true)) );
 }
 
 
 void uiSeisFileMan::mkFileInfo()
 {
-    if ( !ctio.ioobj )
-    {
-	infofld->setText( "" );
-	return;
-    }
-
     BufferString txt;
-    const bool is2d = SeisTrcTranslator::is2D( *ctio.ioobj );
+    const bool is2d = SeisTrcTranslator::is2D( *curioobj_ );
     if ( is2d )
     {
-	BufferString fnm( ctio.ioobj->fullUserExpr(true) );
+	BufferString fnm( curioobj_->fullUserExpr(true) );
 	Seis2DLineSet lset( fnm );
 	txt += "Number of lines: "; txt += lset.nrLines();
     }
@@ -113,7 +113,7 @@ void uiSeisFileMan::mkFileInfo()
     CubeSampling cs;
     if ( !is2d )
     {
-	SeisIOObjInfo oinf( *ctio.ioobj );
+	SeisIOObjInfo oinf( *curioobj_ );
 	if ( oinf.getRanges(cs) )
 	{
 	    txt = "";
@@ -127,21 +127,21 @@ void uiSeisFileMan::mkFileInfo()
 	}
     }
 
-    if ( ctio.ioobj->pars().size() )
+    if ( curioobj_->pars().size() )
     {
-	if ( ctio.ioobj->pars().hasKey("Type") )
-	{ txt += "\nType: "; txt += ctio.ioobj->pars().find( "Type" ); }
+	if ( curioobj_->pars().hasKey("Type") )
+	{ txt += "\nType: "; txt += curioobj_->pars().find( "Type" ); }
 
 	const char* optstr = "Optimized direction";
-	if ( ctio.ioobj->pars().hasKey(optstr) )
+	if ( curioobj_->pars().hasKey(optstr) )
 	{ txt += "\nOptimized direction: ";
-	    txt += ctio.ioobj->pars().find(optstr); }
+	    txt += curioobj_->pars().find(optstr); }
     }
 
-    if ( !strcmp(ctio.ioobj->translator(),"CBVS") )
+    if ( !strcmp(curioobj_->translator(),"CBVS") )
     {
 	CBVSSeisTrcTranslator* tri = CBVSSeisTrcTranslator::getInstance();
-	if ( tri->initRead( new StreamConn(ctio.ioobj->fullUserExpr(true),
+	if ( tri->initRead( new StreamConn(curioobj_->fullUserExpr(true),
 				Conn::Read) ) )
 	{
 	    const BasicComponentInfo& bci = *tri->readMgr()->info().compinfo[0];
@@ -178,19 +178,19 @@ double uiSeisFileMan::getFileSize( const char* filenm )
 
 void uiSeisFileMan::mergeDump2DPush( CallBacker* )
 {
-    if ( !ctio.ioobj ) return;
-    const bool is2d = SeisTrcTranslator::is2D( *ctio.ioobj );
+    if ( !curioobj_ ) return;
+    const bool is2d = SeisTrcTranslator::is2D( *curioobj_ );
     if ( is2d )
     {
-	uiSeisDump2DGeom dlg( this, ctio.ioobj );
+	uiSeisDump2DGeom dlg( this, curioobj_ );
 	dlg.go();
     }
     else
     {
-	const MultiID key( ctio.ioobj->key() );
+	const MultiID key( curioobj_->key() );
 	uiMergeSeis dlg( this );
 	dlg.go();
-	manipgrp->refreshList( key );
+	selgrp->fullUpdate( key );
     }
 }
 
@@ -448,24 +448,24 @@ protected:
 
 void uiSeisFileMan::copyMan2DPush( CallBacker* )
 {
-    if ( !ctio.ioobj ) return;
+    if ( !curioobj_ ) return;
 
-    const bool is2d = SeisTrcTranslator::is2D( *ctio.ioobj );
-    const MultiID key( ctio.ioobj->key() );
+    const bool is2d = SeisTrcTranslator::is2D( *curioobj_ );
+    const MultiID key( curioobj_->key() );
 
     if ( is2d )
     {
-	uiSeis2DMan dlg( this, *ctio.ioobj );
+	uiSeis2DMan dlg( this, *curioobj_ );
 	dlg.go();
     }
     else
     {
-	mDynamicCastGet(const IOStream*,iostrm,ctio.ioobj)
+	mDynamicCastGet(const IOStream*,iostrm,curioobj_)
 	if ( !iostrm ) { pErrMsg("IOObj not IOStream"); return; }
 
 	uiSeisImpCBVS dlg( this, iostrm );
 	dlg.go();
     }
 
-    manipgrp->refreshList( key );
+    selgrp->fullUpdate( key );
 }

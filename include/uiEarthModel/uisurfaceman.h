@@ -6,13 +6,13 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uisurfaceman.h,v 1.9 2006-05-05 06:46:07 cvsnanne Exp $
+ RCS:           $Id: uisurfaceman.h,v 1.10 2006-06-01 10:37:40 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiobjfileman.h"
-
+class uiListBox;
 class BufferStringSet;
 
 

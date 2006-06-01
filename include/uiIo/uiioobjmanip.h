@@ -7,20 +7,21 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2003
- RCS:           $Id: uiioobjmanip.h,v 1.9 2006-05-29 08:02:32 cvsbert Exp $
+ RCS:           $Id: uiioobjmanip.h,v 1.10 2006-06-01 10:37:40 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uibuttongroup.h"
-class IODirEntryList;
 class IOObj;
-class IOStream;
 class MultiID;
-class Translator;
+class IOStream;
 class ioPixmap;
 class uiListBox;
+class Translator;
 class uiToolButton;
+class IODirEntryList;
+class BufferStringSet;
 
 
 class uiManipButGrp : public uiButtonGroup
@@ -55,44 +56,56 @@ protected:
 };
 
 
+class uiIOObjManipGroup;
+
+
+class uiIOObjManipGroupSubj : public CallBacker
+{
+public:
+				uiIOObjManipGroupSubj( uiObject* o )
+				    : obj_(o), grp_(0)		{}
+
+    virtual const MultiID*	curID() const			= 0;
+    virtual const char*		defExt() const			= 0;
+    virtual const BufferStringSet& names() const		= 0;
+
+    virtual void		chgsOccurred()			= 0;
+    virtual void		relocStart(const char*)		{}
+
+    uiIOObjManipGroup*	grp_;
+    uiObject*		obj_;
+};
+
+
 /*! \brief Buttongroup to manipulate an IODirEntryList. */
 
 class uiIOObjManipGroup : public uiManipButGrp
 {
 public:
-			uiIOObjManipGroup(uiListBox*,IODirEntryList&,
-				      const char* default_extension);
+
+			uiIOObjManipGroup(uiIOObjManipGroupSubj&);
 			~uiIOObjManipGroup();
 
-    void		selChg(CallBacker*);
-    void		refreshList(const MultiID& selkey);
-
-    Notifier<uiIOObjManipGroup>	preRelocation;
-    Notifier<uiIOObjManipGroup>	postRelocation;
-    const char*		curRelocationMsg() const	{ return relocmsg; }
+    void		selChg();
 
 protected:
 
-    IODirEntryList&	entries;
-    IOObj*		ioobj;
-    BufferString	defext;
-    BufferString	relocmsg;
+    uiIOObjManipGroupSubj& subj_;
 
-    uiListBox*		box;
     uiToolButton*	locbut;
     uiToolButton*	robut;
     uiToolButton*	renbut;
     uiToolButton*	rembut;
 
-    bool		gtIOObj();
+    IOObj*		gtIOObj() const;
     void		tbPush(CallBacker*);
     void		relocCB(CallBacker*);
 
-    bool		rmEntry(bool);
-    bool		renameEntry(Translator*);
-    bool		relocEntry(Translator*);
-    bool		readonlyEntry(Translator*);
-    void		commitChgs();
+    bool		rmEntry(IOObj*,bool);
+    bool		renameEntry(IOObj*,Translator*);
+    bool		relocEntry(IOObj*,Translator*);
+    bool		readonlyEntry(IOObj*,Translator*);
+    void		commitChgs(IOObj*);
 
     bool		doReloc(Translator*,IOStream&,IOStream&);
 

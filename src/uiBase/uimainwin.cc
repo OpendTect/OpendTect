@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.105 2006-05-04 20:43:32 cvsnanne Exp $
+ RCS:           $Id: uimainwin.cc,v 1.106 2006-06-01 10:37:40 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -1041,11 +1041,11 @@ void uiDialog::setCtrlStyle( uiDialog::CtrlStyle cs )
     switch ( cs )
     {
     case DoAndLeave:
-	setOkText( "Ok" );
-	setCancelText( "Cancel" );
+	setOkText( "&Ok" );
+	setCancelText( "&Cancel" );
     break;
     case DoAndStay:
-	setOkText( "Go" );
+	setOkText( "&Go" );
 	setCancelText( "&Dismiss" );
     break;
     case LeaveOnly:

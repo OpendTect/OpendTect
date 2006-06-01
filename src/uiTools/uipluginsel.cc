@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2006
- RCS:           $Id: uipluginsel.cc,v 1.4 2006-04-26 15:42:40 cvsnanne Exp $
+ RCS:           $Id: uipluginsel.cc,v 1.5 2006-06-01 10:37:40 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,7 +25,7 @@ uiPluginSel::uiPluginSel( uiParent* p )
 			.savetext("Show this dialog at startup"))
 {
     setCtrlStyle( uiDialog::LeaveOnly );
-    setCancelText( "Ok" );
+    setCancelText( "&Ok" );
     setSaveButtonChecked( true );
 
     ObjectSet<PluginManager::Data>& pimdata = PIM().getData();

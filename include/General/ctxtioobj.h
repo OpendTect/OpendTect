@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		7-1-1996
- RCS:		$Id: ctxtioobj.h,v 1.22 2005-07-21 11:29:48 cvsbert Exp $
+ RCS:		$Id: ctxtioobj.h,v 1.23 2006-06-01 10:37:40 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,7 +16,8 @@ ________________________________________________________________________
 #include "uidobj.h"
 #include "multiid.h"
 #include "enums.h"
-class IOObj;
+#include "ioobj.h"
+#include "iopar.h"
 class IOPar;
 class TranslatorGroup;
 
@@ -117,7 +118,8 @@ public:
 			{ setLinked(&ctxt); }
 			CtxtIOObj( const CtxtIOObj& ct )
 			: UserIDObject(""), ctxt(ct.ctxt)
-			, ioobj(ct.ioobj), iopar(ct.iopar)
+			, ioobj(ct.ioobj?ct.ioobj->clone():0)
+			, iopar(ct.iopar?new IOPar(*ct.iopar):0)
 			{ setLinked(&ctxt); }
     void		destroyAll();
 

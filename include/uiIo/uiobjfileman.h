@@ -6,18 +6,16 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uiobjfileman.h,v 1.2 2004-12-24 10:35:57 bert Exp $
+ RCS:           $Id: uiobjfileman.h,v 1.3 2006-06-01 10:37:40 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uidialog.h"
 
-class CtxtIOObj;
-class IODirEntryList;
-class uiIOObjManipGroup;
-class uiGroup;
-class uiListBox;
+class IOObj;
+class IOObjContext;
+class uiIOObjSelGrp;
 class uiTextEdit;
 
 
@@ -25,33 +23,27 @@ class uiObjFileMan : public uiDialog
 {
 public:
 				uiObjFileMan(uiParent*,const uiDialog::Setup&,
-					     CtxtIOObj&);
+					     const IOObjContext&);
 				~uiObjFileMan();
 
     static BufferString		getFileSizeString(double);
 
 protected:
 
-    uiGroup*			topgrp;
-    IODirEntryList*		entrylist;
-    uiListBox*			listfld;
     uiTextEdit*			infofld;
-    uiIOObjManipGroup*		manipgrp;
+    uiIOObjSelGrp*		selgrp;
 
-    CtxtIOObj&			ctio;
+    IOObj*			curioobj_;
+    IOObjContext&		ctxt_;
 
-    void			createDefaultUI(const char* extension);
+    void			createDefaultUI();
     BufferString		getFileInfo();
     virtual void		mkFileInfo()			=0;
     virtual double		getFileSize(const char*);
 
-    void			postIomChg(CallBacker*);
     void			selChg(CallBacker*);
     virtual void		ownSelChg()			{}
-    virtual void		rightClicked(CallBacker*)	{}
 
-    virtual void		relocMsg(CallBacker*);
-    virtual void		postReloc(CallBacker*);
 };
 
 

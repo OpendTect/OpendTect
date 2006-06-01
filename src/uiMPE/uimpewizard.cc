@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpewizard.cc,v 1.50 2006-05-30 07:34:31 cvsjaap Exp $
+ RCS:           $Id: uimpewizard.cc,v 1.51 2006-06-01 10:37:40 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -233,8 +233,7 @@ bool Wizard::prepareNamePage()
     PtrMan<IOObjContext> ctxt = new IOObjContext(*ctxttemplate);
     ctxt->forread = false;
 
-    const CtxtIOObj ctio( *ctxt );
-    objselgrp->setContext( ctio );
+    objselgrp->setContext( *ctxt );
 
     if ( objselgrp->getListField()->box()->size() )
 	objselgrp->getListField()->box()->selectAll(false);
@@ -267,7 +266,8 @@ bool Wizard::leaveNamePage( bool process )
 
     ioparentrycreated = !didexist;
 
-    const IOObj* ioobj = objselgrp->selected(0);
+    const int nrsel = objselgrp->nrSel();
+    PtrMan<IOObj> ioobj = nrsel > 0 ? IOM().get(objselgrp->selected(0)) : 0;
     if ( !ioobj )
     {
 	pErrMsg( "Could not get ioobj");

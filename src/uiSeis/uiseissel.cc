@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2001
- RCS:		$Id: uiseissel.cc,v 1.34 2005-09-28 21:17:37 cvskris Exp $
+ RCS:		$Id: uiseissel.cc,v 1.35 2006-06-01 10:37:40 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,7 +40,7 @@ uiSeisSelDlg::uiSeisSelDlg( uiParent* p, const CtxtIOObj& c,
 {
     const char* ttxt = p2d == No2D ? "Select Cube" : "Select Line Set";
     if ( p2d == Both2DAnd3D )
-	ttxt = selgrp->getContext().ctxt.forread
+	ttxt = selgrp->getCtxtIOObj().ctxt.forread
 	    ? "Select Input seismics"
 	    : "Select Output Seismics";
 
@@ -54,13 +54,13 @@ uiSeisSelDlg::uiSeisSelDlg( uiParent* p, const CtxtIOObj& c,
 	topgrp->setHAlignObj( listfld );
 	subsel = new uiSeisSubSel( selgrp );
 	subsel->attach( alignedBelow, topgrp );
-	if ( selgrp->getContext().iopar )
-	    subsel->usePar( *selgrp->getContext().iopar );
+	if ( selgrp->getCtxtIOObj().iopar )
+	    subsel->usePar( *selgrp->getCtxtIOObj().iopar );
     }
 
     if ( setup.selattr_ && p2d != No2D )
     {
-	if ( selgrp->getContext().ctxt.forread )
+	if ( selgrp->getCtxtIOObj().ctxt.forread )
 	    attrfld = new uiGenInput( selgrp,"Attribute", StringListInpSpec() );
 	else
 	    attrfld = new uiGenInput( selgrp, "Attribute (if any)" );
@@ -73,7 +73,7 @@ uiSeisSelDlg::uiSeisSelDlg( uiParent* p, const CtxtIOObj& c,
     }
 
     listfld->box()->selectionChanged.notify( mCB(this,uiSeisSelDlg,entrySel) );
-    selgrp->selectionChange(0); entrySel(0);
+    entrySel(0);
 }
 
 
@@ -127,7 +127,7 @@ void uiSeisSelDlg::entrySel( CallBacker* )
 
     const bool is2d = oinf.is2D();
     attrfld->display( is2d );
-    if ( !is2d || !selgrp->getContext().ctxt.forread ) return;
+    if ( !is2d || !selgrp->getCtxtIOObj().ctxt.forread ) return;
 
     BufferStringSet nms;
     oinf.getAttribNames( nms );

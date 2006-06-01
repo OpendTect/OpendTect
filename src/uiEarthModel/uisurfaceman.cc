@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2003
- RCS:           $Id: uisurfaceman.cc,v 1.30 2006-05-05 06:46:07 cvsnanne Exp $
+ RCS:           $Id: uisurfaceman.cc,v 1.31 2006-06-01 10:37:40 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,6 +29,7 @@ ________________________________________________________________________
 #include "uigeninputdlg.h"
 #include "uihorizonrelations.h"
 #include "uiioobjmanip.h"
+#include "uiioobjsel.h"
 #include "uiiosurfacedlg.h"
 #include "uilistbox.h"
 #include "uimsg.h"
@@ -39,19 +40,21 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, bool hor )
     : uiObjFileMan(p,uiDialog::Setup("Surface file management",
                                      hor ? "Manage horizons": "Manage faults",
                                      "104.2.0").nrstatusflds(1),
-	    	   hor ? *mMkCtxtIOObj(EMHorizon) : *mMkCtxtIOObj(EMFault) )
+	    	   hor ? EMHorizonTranslatorGroup::ioContext()
+		       : EMFaultTranslatorGroup::ioContext() )
 {
-    createDefaultUI( hor ? "hor" : "flt" );
+    createDefaultUI();
+    uiIOObjManipGroup* manipgrp = selgrp->getManipGroup();
 
     manipgrp->addButton( ioPixmap(GetIconFileName("copyobj.png")),
 	    		 mCB(this,uiSurfaceMan,copyCB), 
 			 hor ? "Copy horizon" : "Copy fault" );
 
-    attribfld = new uiListBox( topgrp, "Calculated attributes", true );
-    attribfld->attach( rightTo, manipgrp );
+    attribfld = new uiListBox( this, "Calculated attributes", true );
+    attribfld->attach( rightOf, selgrp );
     attribfld->setToolTip( "Calculated attributes" );
 
-    uiManipButGrp* butgrp = new uiManipButGrp( topgrp );
+    uiManipButGrp* butgrp = new uiManipButGrp( this );
     butgrp->addButton( uiManipButGrp::Remove, mCB(this,uiSurfaceMan,removeCB),
 		       "Remove selected attribute(s)" );
 #ifdef __debug__
@@ -60,12 +63,12 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, bool hor )
 #endif
     butgrp->attach( rightTo, attribfld );
 
-    uiPushButton* relbut = new uiPushButton( topgrp, "&Relations", false );
+    uiPushButton* relbut = new uiPushButton( this, "&Relations", false );
     relbut->activated.notify( mCB(this,uiSurfaceMan,setRelations) );
-    relbut->attach( alignedBelow, listfld );
-    relbut->attach( ensureBelow, manipgrp );
+    relbut->attach( alignedBelow, selgrp );
     relbut->attach( ensureBelow, attribfld );
 
+    infofld->attach( ensureBelow, relbut );
     selChg( this ); 
 }
 
@@ -77,9 +80,9 @@ uiSurfaceMan::~uiSurfaceMan()
 
 void uiSurfaceMan::removeCB( CallBacker* )
 {
-    if ( !ctio.ioobj ) return;
+    if ( !curioobj_ ) return;
 
-    if ( ctio.ioobj->implReadOnly() )
+    if ( curioobj_->implReadOnly() )
     {
 	uiMSG().error( "Could not remove attributes. Surface is read-only" );
 	return;
@@ -95,7 +98,7 @@ void uiSurfaceMan::removeCB( CallBacker* )
     for ( int ida=0; ida<attribnms.size(); ida++ )
     {
 	BufferString filenm = 
-	    EM::SurfaceAuxData::getAuxDataFileName( *ctio.ioobj, 
+	    EM::SurfaceAuxData::getAuxDataFileName( *curioobj_, 
 		    				    attribnms.get(ida) );
 	if ( !*filenm ) continue;
 
@@ -110,7 +113,7 @@ void uiSurfaceMan::removeCB( CallBacker* )
 
 void uiSurfaceMan::renameCB( CallBacker* )
 {
-    if ( !ctio.ioobj ) return;
+    if ( !curioobj_ ) return;
     BufferString attribnm = attribfld->getText();
     BufferString titl( "Rename '" ); titl += attribnm; titl += "'";
     uiGenInputDlg dlg( this, titl, "New name", new StringInpSpec(attribnm) );
@@ -125,11 +128,11 @@ void uiSurfaceMan::renameCB( CallBacker* )
 
 void uiSurfaceMan::copyCB( CallBacker* )
 {
-    if ( !ctio.ioobj ) return;
-    PtrMan<IOObj> ioobj = ctio.ioobj->clone();
+    if ( !curioobj_ ) return;
+    PtrMan<IOObj> ioobj = curioobj_->clone();
     uiCopySurface dlg( this, *ioobj );
     if ( dlg.go() )
-	postIomChg(0);
+	selgrp->fullUpdate( ioobj->key() );
 }
 
 
@@ -144,12 +147,6 @@ void uiSurfaceMan::fillAttribList( const BufferStringSet& strs )
 
 void uiSurfaceMan::mkFileInfo()
 {
-    if ( !ctio.ioobj )
-    {
-	infofld->setText( "" );
-	return;
-    }
-
 #define mRangeTxt(line) \
     txt += sd.rg.start.line; txt += " - "; txt += sd.rg.stop.line; \
     txt += " - "; txt += sd.rg.step.line; txt += "\n" \
@@ -157,7 +154,7 @@ void uiSurfaceMan::mkFileInfo()
     BufferString txt;
     BinIDSampler bs;
     EM::SurfaceIOData sd;
-    EM::EMM().getSurfaceData( ctio.ioobj->key(), sd );
+    EM::EMM().getSurfaceData( curioobj_->key(), sd );
     fillAttribList( sd.valnames );
     txt = "Inline range: "; mRangeTxt(inl);
     txt += "Crossline range: "; mRangeTxt(crl);

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2003
- RCS:           $Id: uiwellpartserv.cc,v 1.22 2006-02-14 13:32:20 cvshelene Exp $
+ RCS:           $Id: uiwellpartserv.cc,v 1.23 2006-06-01 10:37:40 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -78,7 +78,7 @@ bool uiWellPartServer::selectWells( ObjectSet<MultiID>& wellids )
     deepErase( wellids );
     const int nrsel = dlg.nrSel();
     for ( int idx=0; idx<nrsel; idx++ )
-	wellids += new MultiID( dlg.selected(idx)->key() );
+	wellids += new MultiID( dlg.selected(idx) );
 
     return wellids.size();
 }

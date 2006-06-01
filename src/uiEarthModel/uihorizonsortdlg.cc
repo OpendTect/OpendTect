@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		September 2005
- RCS:		$Id: uihorizonsortdlg.cc,v 1.4 2006-05-26 08:13:33 cvsnanne Exp $
+ RCS:		$Id: uihorizonsortdlg.cc,v 1.5 2006-06-01 10:37:40 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,24 +46,18 @@ void uiHorizonSortDlg::setParConstraints( const IOPar& parconstraints,
 					  bool includeconstraints,
 					  bool allowcnstrsabsent )
 {
-    CtxtIOObj ctio = ioobjselgrp_->getContext();
-    ctio.ctxt.parconstraints = parconstraints;
-    ctio.ctxt.includeconstraints = includeconstraints;
-    ctio.ctxt.allowcnstrsabsent = allowcnstrsabsent;
-    ioobjselgrp_->setContext( ctio );
+    IOObjContext ctxt = ioobjselgrp_->getCtxtIOObj().ctxt;
+    ctxt.parconstraints = parconstraints;
+    ctxt.includeconstraints = includeconstraints;
+    ctxt.allowcnstrsabsent = allowcnstrsabsent;
+    ioobjselgrp_->setContext( ctxt );
 }
 
 
 void uiHorizonSortDlg::getSelectedHorizons( TypeSet<MultiID>& horids ) const
 {
     for ( int idx=0; idx<ioobjselgrp_->nrSel(); idx++ )
-    {
-	const IOObj* ioobj = ioobjselgrp_->selected( idx );
-	if ( !ioobj ) continue;
-
-	const MultiID mid = ioobj->key();
-	horids += mid;
-    }
+	horids += ioobjselgrp_->selected( idx );
 }
 
 

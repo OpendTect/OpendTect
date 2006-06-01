@@ -4,20 +4,17 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiobjfileman.cc,v 1.7 2006-03-10 13:34:02 cvsbert Exp $
+ RCS:           $Id: uiobjfileman.cc,v 1.8 2006-06-01 10:37:40 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 
 #include "uiobjfileman.h"
-#include "iodirentry.h"
+#include "uiioobjsel.h"
 #include "ioobj.h"
-#include "iodir.h"
 #include "ioman.h"
 #include "ctxtioobj.h"
-#include "uilistbox.h"
-#include "uiioobjmanip.h"
 #include "uitextedit.h"
 #include "filegen.h"
 #include "filepath.h"
@@ -25,13 +22,14 @@ ________________________________________________________________________
 
 
 static const int cPrefHeight = 10;
-static const int cPrefWidth = 75;
+static const int cPrefWidth = 30;
 
 
 uiObjFileMan::uiObjFileMan( uiParent* p, const uiDialog::Setup& s,
-			    CtxtIOObj& ctio_ )
+			    const IOObjContext& ctxt )
     : uiDialog(p,s)
-    , ctio(ctio_)
+    , curioobj_(0)
+    , ctxt_(*new IOObjContext(ctxt))
 {
     setCtrlStyle( LeaveOnly );
 }
@@ -39,91 +37,41 @@ uiObjFileMan::uiObjFileMan( uiParent* p, const uiDialog::Setup& s,
 
 uiObjFileMan::~uiObjFileMan()
 {
-    IOM().newIODir.remove( mCB(this,uiObjFileMan,postIomChg) );
-    delete ctio.ioobj; delete &ctio;
+    delete curioobj_;
+    delete &ctxt_;
 }
 
 
-void uiObjFileMan::createDefaultUI( const char* ext )
+void uiObjFileMan::createDefaultUI()
 {
-    IOM().to( ctio.ctxt.stdSelKey() );
-    entrylist = new IODirEntryList( IOM().dirPtr(), ctio.ctxt );
-    IOM().newIODir.notify( mCB(this,uiObjFileMan,postIomChg) );
-
-    topgrp = new uiGroup( this, "Top things" );
-    listfld = new uiListBox( topgrp, "Objects" );
-    listfld->setHSzPol( uiObject::MedVar );
-    for ( int idx=0; idx<entrylist->size(); idx++ )
-	listfld->addItem( (*entrylist)[idx]->name() );
-    listfld->setCurrentItem(0);
-    listfld->selectionChanged.notify( mCB(this,uiObjFileMan,selChg) );
-    listfld->rightButtonClicked.notify( mCB(this,uiObjFileMan,rightClicked) );
-
-    manipgrp = new uiIOObjManipGroup( listfld, *entrylist, ext );
-    manipgrp->preRelocation.notify( mCB(this,uiObjFileMan,relocMsg) );
-    manipgrp->postRelocation.notify( mCB(this,uiObjFileMan,postReloc) );
-//  listfld->attach( heightSameAs, manipgrp );
+    IOM().to( ctxt_.stdSelKey() );
+    selgrp = new uiIOObjSelGrp( this, CtxtIOObj(ctxt_), 0, false );
+    selgrp->selectionChg.notify( mCB(this,uiObjFileMan,selChg) );
 
     infofld = new uiTextEdit( this, "File Info", true );
-    infofld->attach( centeredBelow, topgrp );
+    infofld->attach( ensureBelow, selgrp );
     infofld->setPrefHeightInChar( cPrefHeight );
-    infofld->setPrefWidthInChar( cPrefWidth );
+    // infofld->setPrefWidthInChar( cPrefWidth );
     infofld->setStretch( 2, 0 );
-    topgrp->setPrefWidthInChar( cPrefWidth );
-}
-
-
-void uiObjFileMan::postIomChg( CallBacker* cb )
-{
-    MultiID selkey;
-    if ( ctio.ioobj ) selkey = ctio.ioobj->key();
-    entrylist->fill( IOM().dirPtr() );
-    listfld->empty();
-    int selidx = -1;
-    for ( int idx=0; idx<entrylist->size(); idx++ )
-    {
-	const IODirEntry& de = *(*entrylist)[idx];
-	if ( de.ioobj && selkey == de.ioobj->key() )
-	    selidx = idx;
-	listfld->addItem( (*entrylist)[idx]->name() );
-    }
-    if ( selidx >= 0 )
-	listfld->setCurrentItem( selidx );
-    else if ( entrylist->size() > 0 )
-	listfld->setCurrentItem( 0 );
-
-    selChg(cb);
+    selgrp->setPrefWidthInChar( cPrefWidth );
 }
 
 
 void uiObjFileMan::selChg( CallBacker* cb )
 {
-    entrylist->setCurrent( listfld->currentItem() );
-    const IOObj* selioobj = entrylist->selected();
-    ctio.setObj( selioobj ? selioobj->clone() : 0 );
+    delete curioobj_;
+    curioobj_ = selgrp->nrSel() > 0 ? IOM().get(selgrp->selected(0)) : 0;
 
     ownSelChg();
-
-    mkFileInfo();
-    manipgrp->selChg( cb );
+    if ( curioobj_ )
+	mkFileInfo();
+    else
+	infofld->setText( "" );
 
     BufferString msg;
-    GetFreeMBOnDiskMsg( GetFreeMBOnDisk(ctio.ioobj), msg );
+    if ( curioobj_ )
+	GetFreeMBOnDiskMsg( GetFreeMBOnDisk(curioobj_), msg );
     toStatusBar( msg );
-}
-
-
-void uiObjFileMan::relocMsg( CallBacker* )
-{
-    toStatusBar( manipgrp->curRelocationMsg() );
-}
-
-
-void uiObjFileMan::postReloc( CallBacker* )
-{
-    int curidx = 
-	entrylist->ObjectSet<IODirEntry>::indexOf( entrylist->current() );
-    listfld->setCurrentItem( curidx );
 }
 
 
@@ -155,10 +103,13 @@ BufferString uiObjFileMan::getFileSizeString( double filesz )
 
 BufferString uiObjFileMan::getFileInfo()
 {
-    mDynamicCastGet(StreamConn*,conn,ctio.ioobj->getConn(Conn::Read))
+    BufferString txt;
+    if ( !curioobj_ )
+	return txt;
+
+    mDynamicCastGet(StreamConn*,conn,curioobj_->getConn(Conn::Read))
     if ( !conn ) { infofld->setText( "" ); return ""; }
 
-    BufferString txt;
     BufferString fname( conn->fileName() );
     FilePath fp( fname );
     txt += "Location: "; txt += fp.pathOnly();

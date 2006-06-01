@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: pickset.cc,v 1.34 2006-05-29 14:29:26 cvsbert Exp $";
+static const char* rcsID = "$Id: pickset.cc,v 1.35 2006-06-01 10:37:40 cvsbert Exp $";
 
 #include "pickset.h"
 #include "survinfo.h"
@@ -321,7 +321,7 @@ void Pick::SetMgr::survChg( CallBacker* )
 
 void Pick::SetMgr::objRm( CallBacker* cb )
 {
-    mCBCapsuleUnpack(const MultiID&,ky,cb);
+    mCBCapsuleUnpack(MultiID,ky,cb);
     if ( indexOf(ky) >= 0 )
 	set( ky, 0 );
 }

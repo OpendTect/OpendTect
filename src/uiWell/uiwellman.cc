@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          September 2003
- RCS:           $Id: uiwellman.cc,v 1.29 2006-03-01 13:45:47 cvsbert Exp $
+ RCS:           $Id: uiwellman.cc,v 1.30 2006-06-01 10:37:40 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,6 +23,7 @@ ________________________________________________________________________
 #include "wellwriter.h"
 #include "welltransl.h"
 #include "uiioobjmanip.h"
+#include "uiioobjsel.h"
 #include "uigroup.h"
 #include "uilistbox.h"
 #include "uitextedit.h"
@@ -42,45 +43,46 @@ ________________________________________________________________________
 uiWellMan::uiWellMan( uiParent* p )
     : uiObjFileMan(p,uiDialog::Setup("Well file management","Manage wells",
 				     "107.1.0").nrstatusflds(1),
-	           *mMkCtxtIOObj(Well))
+	           WellTranslatorGroup::ioContext() )
     , welldata(0)
     , wellrdr(0)
     , fname("")
 {
-    createDefaultUI( "well" );
+    createDefaultUI();
+    uiIOObjManipGroup* manipgrp = selgrp->getManipGroup();
 
-    logsfld = new uiListBox( topgrp, "Available logs", true );
-    logsfld->attach( rightTo, manipgrp );
+    uiGroup* logsgrp = new uiGroup( this, "Logs group" );
+    logsfld = new uiListBox( logsgrp, "Available logs", true );
     logsfld->setToolTip( "Available logs" );
 
-    uiManipButGrp* butgrp = new uiManipButGrp( topgrp );
+    uiPushButton* logsbut = new uiPushButton( logsgrp, "Add &Logs", false );
+    logsbut->activated.notify( mCB(this,uiWellMan,addLogs) );
+    logsbut->attach( centeredBelow, logsfld );
+    logsgrp->attach( rightOf, selgrp );
+
+    uiManipButGrp* butgrp = new uiManipButGrp( logsgrp );
     butgrp->addButton( uiManipButGrp::Rename, mCB(this,uiWellMan,renameLogPush),
 	    	       "Rename selected log" );
     butgrp->addButton( uiManipButGrp::Remove, mCB(this,uiWellMan,removeLogPush),
 	    	       "Remove selected log" );
     butgrp->addButton( ioPixmap(GetIconFileName("export.png")),
 	    	       mCB(this,uiWellMan,exportLogs), "Export log" );
-    butgrp->attach( rightTo, logsfld );
+    butgrp->attach( rightOf, logsfld );
     
-    uiPushButton* markerbut = new uiPushButton( topgrp, "&Markers", false);
+    uiPushButton* markerbut = new uiPushButton( this, "&Markers", false);
     markerbut->activated.notify( mCB(this,uiWellMan,edMarkers) );
-    markerbut->attach( alignedBelow, listfld );
-    markerbut->attach( ensureBelow, manipgrp );
+    markerbut->attach( ensureBelow, selgrp );
+    markerbut->attach( ensureBelow, logsgrp );
 
     uiPushButton* d2tbut = 0;
     if ( SI().zIsTime() )
     {
-	d2tbut = new uiPushButton( topgrp, "&Depth/Time Model", false );
+	d2tbut = new uiPushButton( this, "&Depth/Time Model", false );
 	d2tbut->activated.notify( mCB(this,uiWellMan,edD2T) );
 	d2tbut->attach( rightOf, markerbut );
     }
 
-    uiPushButton* logsbut = new uiPushButton( topgrp, "Add &Logs", false );
-    logsbut->activated.notify( mCB(this,uiWellMan,addLogs) );
-    logsbut->attach( alignedBelow, logsfld );
-    if ( d2tbut )
-	logsbut->attach( ensureRightOf, d2tbut );
-
+    infofld->attach( ensureBelow, markerbut );
     selChg( this );
 }
 
@@ -104,9 +106,9 @@ void uiWellMan::getCurrentWell()
     fname = ""; 
     delete wellrdr; wellrdr = 0;
     delete welldata; welldata = 0;
-    if ( !ctio.ioobj ) return;
+    if ( !curioobj_ ) return;
     
-    mDynamicCastGet(const IOStream*,iostrm,ctio.ioobj)
+    mDynamicCastGet(const IOStream*,iostrm,curioobj_)
     if ( !iostrm ) return;
     StreamProvider sp( iostrm->fileName() );
     sp.addPathIfNecessary( iostrm->dirName() );
@@ -141,8 +143,8 @@ void uiWellMan::edMarkers( CallBacker* )
 	mErrRet( "Cannot add markers without depth to time model" );
 
     Well::Data* wd;
-    if ( Well::MGR().isLoaded( ctio.ioobj->key() ) )
-	wd = Well::MGR().get( ctio.ioobj->key() );
+    if ( Well::MGR().isLoaded( curioobj_->key() ) )
+	wd = Well::MGR().get( curioobj_->key() );
     else
     {
 	if ( !welldata->markers().size() )
@@ -171,8 +173,8 @@ void uiWellMan::edD2T( CallBacker* )
 	mErrRet( "No depth to time model" );
 
     Well::Data* wd;
-    if ( Well::MGR().isLoaded( ctio.ioobj->key() ) )
-	wd = Well::MGR().get( ctio.ioobj->key() );
+    if ( Well::MGR().isLoaded( curioobj_->key() ) )
+	wd = Well::MGR().get( curioobj_->key() );
     else
 	wd = welldata;
 
@@ -202,7 +204,7 @@ void uiWellMan::addLogs( CallBacker* )
     Well::Writer wtr( fname, *welldata );
     wtr.putLogs();
     fillLogsFld();
-    const MultiID& key = ctio.ioobj->key();
+    const MultiID& key = curioobj_->key();
     Well::MGR().reload( key );
 
     mDeleteLogs();
@@ -269,7 +271,7 @@ void uiWellMan::removeLogPush( CallBacker* )
 	fillLogsFld();
     }
 
-    const MultiID& key = ctio.ioobj->key();
+    const MultiID& key = curioobj_->key();
     Well::MGR().reload( key );
 
     mDeleteLogs();
@@ -309,7 +311,7 @@ void uiWellMan::renameLogPush( CallBacker* )
     wtr.putLog( *sdo.ostrm, *log );
     sdo.close();
     fillLogsFld();
-    const MultiID& key = ctio.ioobj->key();
+    const MultiID& key = curioobj_->key();
     Well::MGR().reload( key );
     delete log;
 }
@@ -317,7 +319,7 @@ void uiWellMan::renameLogPush( CallBacker* )
 
 void uiWellMan::mkFileInfo()
 {
-    if ( !welldata || !wellrdr || !ctio.ioobj )
+    if ( !welldata || !wellrdr || !curioobj_ )
     {
 	infofld->setText( "" );
 	return;

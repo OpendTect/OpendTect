@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiioobjsel.h,v 1.45 2006-05-29 08:02:32 cvsbert Exp $
+ RCS:           $Id: uiioobjsel.h,v 1.46 2006-06-01 10:37:40 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,9 +15,9 @@ ________________________________________________________________________
 #include "uiiosel.h"
 #include "uidialog.h"
 #include "multiid.h"
+#include "ctxtioobj.h"
 class IOObj;
 class IOStream;
-class CtxtIOObj;
 class uiGenInput;
 class uiIOObjSelGrp;
 class IODirEntryList;
@@ -52,8 +52,7 @@ public:
 					       bool multisel=false );
 				~uiIOObjSelGrp();
 
-    void			removeItem(const MultiID&);
-
+    void			fullUpdate(const MultiID& kpselected);
     bool			processInput();
     				/*!< Processes the current selection so
 				     selected() can be queried. It also creates
@@ -61,47 +60,51 @@ public:
 				     new.  */
 
     int				nrSel() const;
-    const IOObj*		selected(int idx=0) const;
+    const MultiID&		selected(int idx=0) const;
     				/*!<\note that processInput should be called
 				          after selection, but before any call
 					  to this.  */
-    Notifier<uiIOObjSelGrp>	newstatusmessage;
+    Notifier<uiIOObjSelGrp>	selectionChg;
+    Notifier<uiIOObjSelGrp>	newStatusMsg;
     				/*!< Triggers when there is a new message for
 				     statusbars and similar */
-    const char*			statusmessage;
 
-    void			selectionChange(CallBacker* = 0);
-    				/*!< Updates the object when the selection has
-				     been changed.  */
-
-    void			setContext( const CtxtIOObj& );
-    const CtxtIOObj&		getContext() const	{ return ctio; }
+    void			setContext(const IOObjContext&);
+    const CtxtIOObj&		getCtxtIOObj() const	{ return ctio_; }
     uiGroup*			getTopGroup()		{ return topgrp; }
     uiGenInput*			getNameField()		{ return nmfld; }
     uiLabeledListBox*		getListField()		{ return listfld; }
+    uiIOObjManipGroup*		getManipGroup();
 
     virtual bool		fillPar(IOPar&) const;
     virtual void		usePar(const IOPar&);
 
 
 protected:
-    CtxtIOObj&		ctio;
-    IODirEntryList*	entrylist;
-    IOObj*		ioobj;
-    bool		ismultisel;
 
-    uiIOObjManipGroup*	manipgrp;
+    CtxtIOObj		ctio_;
+    ObjectSet<MultiID>	ioobjids_;
+    BufferStringSet	ioobjnms_;
+    bool		ismultisel_;
+
+    friend class	uiIOObjSelDlg;
+    friend class	uiIOObjSelGrpManipSubj;
+    uiIOObjSelGrpManipSubj* manipgrpsubj;
     uiLabeledListBox*	listfld;
     uiGenInput*		nmfld;
     uiGenInput*		filtfld;
     uiGroup*		topgrp;
 
-    void		preReloc( CallBacker* );
-
-    bool		createEntry( const char* );
-    void		fillList();
-    void		rebuildList(CallBacker* = 0 );
+    void		fullUpdate(int);
+    void		newList();
+    void		fillListBox();
+    void		setCur(int);
     void		toStatusBar( const char* );
+    bool		createEntry( const char* );
+
+    void		selChg(CallBacker*);
+    void		filtChg(CallBacker*);
+    IOObj*		getIOObj(int);
 };
 
 /*! \brief Dialog for selection of IOObjs
@@ -117,13 +120,15 @@ public:
 				      const char* seltxt=0,bool multisel=false);
 
     int			nrSel() const		{ return selgrp->nrSel(); }
-    const IOObj*	selected(int i) const	{ return selgrp->selected(i); }
-    const IOObj*	ioObj() const		{ return selgrp->selected(0); }
+    const MultiID&	selected( int i ) const	{ return selgrp->selected(i); }
+    const IOObj*	ioObj() const	{ return selgrp->getCtxtIOObj().ioobj; }
 
-    virtual void	fillPar(IOPar& p) const	{ selgrp->fillPar(p); }
-    virtual void	usePar(const IOPar& p)	{ selgrp->usePar(p); }
+    // virtual void	fillPar(IOPar& p) const	{ selgrp->fillPar(p); }
+    // virtual void	usePar(const IOPar& p)	{ selgrp->usePar(p); }
 
     uiIOObjSelGrp*	selGrp()		{ return selgrp; }
+    bool		fillPar( IOPar& i ) const { return selgrp->fillPar(i); }
+    void		usePar( const IOPar& i ) { selgrp->usePar(i); }
 
 protected:
 
@@ -161,7 +166,7 @@ public:
 					{ return existingUsrName(getInput()); }
 					//!< returns false is typed input is
 					//!< not an existing IOObj name
-    CtxtIOObj&		ctxtIOObj()		{ return ctio; }
+    CtxtIOObj&		ctxtIOObj()	{ return ctio; }
 
     virtual bool	fillPar(IOPar&) const;
     virtual void	usePar(const IOPar&);
