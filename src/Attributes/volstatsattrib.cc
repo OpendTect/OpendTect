@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: volstatsattrib.cc,v 1.23 2006-05-22 13:26:41 cvshelene Exp $";
+static const char* rcsID = "$Id: volstatsattrib.cc,v 1.24 2006-06-01 10:24:44 cvshelene Exp $";
 
 #include "volstatsattrib.h"
 
@@ -236,10 +236,10 @@ bool VolStats::computeData( const DataHolder& output, const BinID& relpos,
 				    mNINT(gate_.stop/refstep) );
     const int gatesz = samplegate.width() + 1;
 
+    RunningStatistics<float> stats;
     for ( int idx=0; idx<nrsamples; idx++ )
     {
 	const int cursample = z0 + idx;
-	RunningStatistics<float> stats;
 	for ( int posidx=0; posidx<nrpos; posidx++ )
 	{
 	    const DataHolder* dh = inputdata_[posidx];
