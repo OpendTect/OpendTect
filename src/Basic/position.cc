@@ -4,11 +4,12 @@
  * DATE     : 21-6-1996
 -*/
 
-static const char* rcsID = "$Id: position.cc,v 1.51 2006-05-05 18:54:15 cvskris Exp $";
+static const char* rcsID = "$Id: position.cc,v 1.52 2006-06-01 10:05:36 cvskris Exp $";
 
 #include "position.h"
 #include "bufstring.h"
 #include "undefval.h"
+#include "string2.h"
 #include <math.h>
 #include <string.h>
 #include <ctype.h>
