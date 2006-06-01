@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.130 2006-06-01 07:30:15 cvskris Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.131 2006-06-01 13:17:24 cvskris Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -886,14 +886,46 @@ void PlaneDataDisplay::getMousePosInfo( const visBase::EventInfo&,
 					BufferString& info ) const
 {
     info = getManipulationString();
-    if ( cache_.size()<=0 || !cache_[0] ) { val = "undef"; return; }
-    const BinIDValue bidv( SI().transform(pos), pos.z );
+    val = "undef";
 
-    float fval;
-    if ( !cache_[0]->getValue(texture_->currentVersion(0),bidv,&fval,false) )
-        val = "undef";
-    else
-	val = fval;
+    if ( !cache_.size() )
+	return;
+
+    const BinIDValue bidv( SI().transform(pos), pos.z );
+    for ( int idx=cache_.size()-1; idx>=0; idx-- )
+    {
+	const Attrib::DataCubes* cache = cache_[idx];
+	if ( !isAttribEnabled(idx) || !cache ||
+		texture_->getTextureTransparency(idx)==255 )
+	    continue;
+
+	const int version = texture_->currentVersion(idx);
+
+	float fval;
+	if ( cache->getValue( version, bidv, &fval, !isClassification(idx)) )
+	{
+	    if ( idx )
+	    {
+		const Color col = texture_->getColorTab(idx).color(fval);
+		if ( col.t()==255 )
+		    continue;
+	    }
+
+	    if ( !mIsUdf(fval) )
+	    {
+		val = fval;
+		if ( cache_.size()>1 )
+		{
+		    BufferString attribstr = "(";
+		    attribstr += as_[idx]->userRef();
+		    attribstr += ")";
+		    val.insertAt( cValNameOffset(), (const char*) attribstr );
+		}
+	    }
+
+	    return;
+	}
+    }
 
     return;
 }

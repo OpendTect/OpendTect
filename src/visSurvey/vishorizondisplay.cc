@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: vishorizondisplay.cc,v 1.6 2006-06-01 07:30:15 cvskris Exp $
+ RCS:           $Id: vishorizondisplay.cc,v 1.7 2006-06-01 13:17:24 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -872,38 +872,60 @@ void HorizonDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
 				       BufferString& info ) const
 {
     EMObjectDisplay::getMousePosInfo( eventinfo, pos, val, info );
-    if ( !emobject_ ) return;
+    if ( !emobject_ || !usesTexture() ) return;
 
     const EM::SectionID sid =
 	EMObjectDisplay::getSectionID(&eventinfo.pickedobjids);
-
-    if ( as_[0]->id()<-1 )
-	return;
 
     const int sectionidx = sids_.indexOf( sid );
     if ( sectionidx<0 ) return;
 
     mDynamicCastGet( visBase::ParametricSurface*,psurf, sections_[sectionidx]);
-
     if ( !psurf ) return;
-
-    const BinIDValueSet* bidvalset = psurf->getCache( 0 );
-    if ( !bidvalset || bidvalset->nrVals()<2 ) return;
 
     const BinID bid( SI().transform(pos) );
 
-    const BinIDValueSet::Pos setpos = bidvalset->findFirst( bid );
-    if ( setpos.i<0 || setpos.j<0 ) return;
+    for ( int idx=as_.size()-1; idx>=0; idx-- )
+    {
+	if ( as_[idx]->id()<-1 )
+	    return;
 
-    const float* vals = bidvalset->getVals( setpos );
-    int curtexture = selectedTexture(0);
-    if ( curtexture>bidvalset->nrVals()-1 ) curtexture = 0;
+	if ( !psurf->isTextureEnabled(idx) ||
+	       psurf->getTextureTransparency(idx)==255 )
+	    continue;
 
-    const float fval = vals[curtexture+1];
-    if ( mIsUdf(fval) )
-	val = "undef";
-    else
-	val = fval;
+	const BinIDValueSet* bidvalset = psurf->getCache( idx );
+	if ( !bidvalset || bidvalset->nrVals()<2 ) continue;
+
+	const BinIDValueSet::Pos setpos = bidvalset->findFirst( bid );
+	if ( setpos.i<0 || setpos.j<0 ) continue;
+
+	const float* vals = bidvalset->getVals( setpos );
+	int curtexture = selectedTexture(idx);
+	if ( curtexture>bidvalset->nrVals()-1 ) curtexture = 0;
+
+	const float fval = vals[curtexture+1];
+	if ( idx )
+	{
+	    const Color col = coltabs_[idx]->color(fval);
+	    if ( col.t()==255 )
+		continue;
+	}
+	    
+	if ( !mIsUdf(fval) )
+	{
+	    val = fval;
+	    if ( as_.size()>1 )
+	    {
+		BufferString attribstr = "(";
+		attribstr += as_[idx]->userRef();
+		attribstr += ")";
+		val.insertAt( 12, (const char*) attribstr );
+	    }
+	}
+
+	return;
+    }
 }
 
 
