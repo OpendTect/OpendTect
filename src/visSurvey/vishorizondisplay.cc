@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: vishorizondisplay.cc,v 1.7 2006-06-01 13:17:24 cvskris Exp $
+ RCS:           $Id: vishorizondisplay.cc,v 1.8 2006-06-01 13:53:36 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -920,7 +920,7 @@ void HorizonDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
 		BufferString attribstr = "(";
 		attribstr += as_[idx]->userRef();
 		attribstr += ")";
-		val.insertAt( 12, (const char*) attribstr );
+		val.insertAt( cValNameOffset(), (const char*) attribstr );
 	    }
 	}
 

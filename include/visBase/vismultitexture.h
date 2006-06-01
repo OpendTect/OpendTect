@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		Dec 2005
- RCS:		$Id: vismultitexture.h,v 1.5 2006-03-09 17:06:40 cvskris Exp $
+ RCS:		$Id: vismultitexture.h,v 1.6 2006-06-01 13:49:19 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -40,7 +40,7 @@ public:
     int			addTexture(const char* name);
     void		enableTexture(int texture,bool);
     bool		isTextureEnabled(int texture) const;
-    int			insertTexture(int, const char* name);
+    int			insertTexture(int,const char* name);
     void		removeTexture(int);
     void		swapTextures(int,int);
     virtual void	setTextureTransparency(int,unsigned char)	= 0;
@@ -52,33 +52,33 @@ public:
     void		setColorTab(int texture,VisColorTab&);
     VisColorTab&	getColorTab(int texture);
 
-    int			nrVersions( int texture ) const;
-    void		setNrVersions( int texture, int nrvers );
-    int			currentVersion( int texture ) const;
-    void		setCurrentVersion( int texture, int version );
+    int			nrVersions(int texture) const;
+    void		setNrVersions(int texture,int nrvers);
+    int			currentVersion(int texture) const;
+    void		setCurrentVersion(int texture,int version);
 
-    const TypeSet<float>* getHistogram( int texture, int version ) const;
+    const TypeSet<float>* getHistogram(int texture,int version) const;
 
 protected:
     			MultiTexture();
     			~MultiTexture();
-    bool		setTextureData( int texture, int version,
-	    				const float*, int sz, bool managedata );
-    bool		setTextureIndexData( int texture, int version,
-					     const unsigned char*, int sz,
-					     bool managedata );
+    bool		setTextureData(int texture,int version,
+	    			       const float*,int sz,bool managedata);
+    bool		setTextureIndexData(int texture,int version,
+					    const unsigned char*,int sz,
+					    bool managedata);
 
-    const unsigned char* getCurrentTextureIndexData( int texture ) const;
+    const unsigned char* getCurrentTextureIndexData(int texture) const;
 
     virtual void	updateColorTables() {}
-    virtual void	updateSoTextureInternal( int texture ) {}
-    virtual void	insertTextureInternal( int texture ) {}
-    virtual void	removeTextureInternal( int texture ) {}
+    virtual void	updateSoTextureInternal(int texture) {}
+    virtual void	insertTextureInternal(int texture) {}
+    virtual void	removeTextureInternal(int texture) {}
 
     ObjectSet<TextureInfo>	textureinfo_;
 
     friend		class TextureInfo;
-    void		textureChange( TextureInfo* );
+    void		textureChange(TextureInfo*);
 };
 
 
