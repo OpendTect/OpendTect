@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiioobjsel.h,v 1.46 2006-06-01 10:37:40 cvsbert Exp $
+ RCS:           $Id: uiioobjsel.h,v 1.47 2006-06-01 12:36:00 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,6 +23,7 @@ class uiIOObjSelGrp;
 class IODirEntryList;
 class uiLabeledListBox;
 class uiIOObjManipGroup;
+class uiIOObjSelGrpManipSubj;
 
 
 /*! \brief Dialog letting the user select an object.
