@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          25/05/2000
- RCS:           $Id: uiioobjsel.cc,v 1.86 2006-06-01 10:37:40 cvsbert Exp $
+ RCS:           $Id: uiioobjsel.cc,v 1.87 2006-06-01 12:35:31 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -343,6 +343,8 @@ bool uiIOObjSelGrp::fillPar( IOPar& iop ) const
     if ( !const_cast<uiIOObjSelGrp*>(this)->processInput() || !ctio_.ioobj )
 	return false;
     iop.set( "ID", ctio_.ioobj->key() );
+
+    return true;
 }
 
 
