@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vismpe.cc,v 1.42 2006-05-17 08:50:01 cvsjaap Exp $";
+static const char* rcsID = "$Id: vismpe.cc,v 1.43 2006-06-02 08:07:16 cvsjaap Exp $";
 
 #include "vismpe.h"
 
@@ -458,57 +458,59 @@ void MPEDisplay::rectangleMovedCB( CallBacker* )
 {
     if ( isSelected() ) return;
 
-    MPE::TrackPlane newplane = engine_.trackPlane();
-    CubeSampling& planebox = newplane.boundingBox();
-    getPlanePosition( planebox );
+    while( true ) {
+	MPE::TrackPlane newplane = engine_.trackPlane();
+	CubeSampling& planebox = newplane.boundingBox();
+	getPlanePosition( planebox );
 
-    if ( planebox==engine_.trackPlane().boundingBox() )
-	return;
+	if ( planebox==engine_.trackPlane().boundingBox() )
+	    return;
 
-    updateTextureCoords();
+	updateTextureCoords();
 
-    const CubeSampling& engineplane = engine_.trackPlane().boundingBox();
-    const int dim = dragger_->getDim();
-    if ( !dim && planebox.hrg.start.inl==engineplane.hrg.start.inl )
-	return;
-    if ( dim==1 && planebox.hrg.start.crl==engineplane.hrg.start.crl )
-	return;
-    if ( dim==2 && planebox.zrg.start==engineplane.zrg.start )
-	return;
+	const CubeSampling& engineplane = engine_.trackPlane().boundingBox();
+	const int dim = dragger_->getDim();
+	if ( !dim && planebox.hrg.start.inl==engineplane.hrg.start.inl )
+	    return;
+	if ( dim==1 && planebox.hrg.start.crl==engineplane.hrg.start.crl )
+	    return;
+	if ( dim==2 && mIsEqual( planebox.zrg.start, engineplane.zrg.start, 
+				 0.1*SI().zStep() ) )
+	    return;
 
-    if ( !dim )
-    {
-	const bool inc = planebox.hrg.start.inl>engineplane.hrg.start.inl;
-	int& start = planebox.hrg.start.inl;
-	int& stop =  planebox.hrg.stop.inl;
-	const int step = SI().inlStep();
-	start = stop = engineplane.hrg.start.inl + ( inc ? step : -step );
-	newplane.setMotion( inc ? step : -step, 0, 0 );
-    }
-    else if ( dim==1 )
-    {
-	const bool inc = planebox.hrg.start.crl>engineplane.hrg.start.crl;
-	int& start = planebox.hrg.start.crl;
-	int& stop =  planebox.hrg.stop.crl;
-	const int step = SI().crlStep();
-	start = stop = engineplane.hrg.start.crl + ( inc ? step : -step );
-	newplane.setMotion( 0, inc ? step : -step, 0 );
-    }
-    else 
-    {
-	const bool inc = planebox.zrg.start>engineplane.zrg.start;
-	float& start = planebox.zrg.start;
-	float& stop =  planebox.zrg.stop;
-	const double step = SI().zStep();
-//	start = stop = engineplane.zrg.start + ( inc ? step : -step );
-	newplane.setMotion( 0, 0, inc ? step : -step );
-    }
-
-    const MPE::TrackPlane::TrackMode trkmode = newplane.getTrackMode();
-    engine_.setTrackPlane( newplane, trkmode==MPE::TrackPlane::Extend
-	    			  || trkmode==MPE::TrackPlane::ReTrack
-				  || trkmode==MPE::TrackPlane::Erase );
-    movement.trigger();
+	if ( !dim )
+	{
+	    const bool inc = planebox.hrg.start.inl>engineplane.hrg.start.inl;
+	    int& start = planebox.hrg.start.inl;
+	    int& stop =  planebox.hrg.stop.inl;
+	    const int step = SI().inlStep();
+	    start = stop = engineplane.hrg.start.inl + ( inc ? step : -step );
+	    newplane.setMotion( inc ? step : -step, 0, 0 );
+	}
+	else if ( dim==1 )
+	{
+	    const bool inc = planebox.hrg.start.crl>engineplane.hrg.start.crl;
+	    int& start = planebox.hrg.start.crl;
+	    int& stop =  planebox.hrg.stop.crl;
+	    const int step = SI().crlStep();
+	    start = stop = engineplane.hrg.start.crl + ( inc ? step : -step );
+	    newplane.setMotion( 0, inc ? step : -step, 0 );
+	}
+	else 
+	{
+	    const bool inc = planebox.zrg.start>engineplane.zrg.start;
+	    float& start = planebox.zrg.start;
+	    float& stop =  planebox.zrg.stop;
+	    const double step = SI().zStep();
+	    start = stop = engineplane.zrg.start + ( inc ? step : -step );
+	    newplane.setMotion( 0, 0, inc ? step : -step );
+	}
+	const MPE::TrackPlane::TrackMode trkmode = newplane.getTrackMode();
+	engine_.setTrackPlane( newplane, trkmode==MPE::TrackPlane::Extend
+				      || trkmode==MPE::TrackPlane::ReTrack
+				      || trkmode==MPE::TrackPlane::Erase );
+	movement.trigger();
+	}
 }
 
 
@@ -578,10 +580,12 @@ void MPEDisplay::updateBoxPosition( CallBacker* )
 
     // Workaround for deadlock in COIN's polar_decomp() or sqrt(), which
     // occasionally occurs in case the box has one side of zero length.
-    if ( engine_.activeVolume().hrg.nrInl()==1 )
-	newwidth.x = 0.001 * engine_.activeVolume().hrg.step.inl;
-    if ( engine_.activeVolume().hrg.nrCrl()==1 )
-	newwidth.y = 0.001 * engine_.activeVolume().hrg.step.crl;
+    if ( cube.hrg.nrInl()==1 )
+	newwidth.x = 0.1 * cube.hrg.step.inl;
+    if ( cube.hrg.nrCrl()==1 )
+	newwidth.y = 0.1 * cube.hrg.step.crl;
+    if ( cube.nrZ()==1 )
+	newwidth.z = 0.1 * cube.zrg.step;
 
     boxdragger_->setWidth( newwidth );
     dragger_->setSize( newwidth );
