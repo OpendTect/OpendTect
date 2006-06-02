@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvey.cc,v 1.69 2006-03-01 13:45:46 cvsbert Exp $
+ RCS:           $Id: uisurvey.cc,v 1.70 2006-06-02 10:16:52 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,6 +46,25 @@ extern "C" const char* GetSurveyFileName();
 extern "C" void SetSurveyName(const char*);
 
 
+static BufferString getTrueDir( const char* dn )
+{
+    BufferString dirnm = dn;
+    FilePath fp;
+    while ( File_isLink(dirnm) )
+    {
+	BufferString newdirnm = File_linkTarget(dirnm);
+	fp.set( newdirnm );
+	if ( !fp.isAbsolute() )
+	{
+	    FilePath dirnmfp( dirnm );
+	    dirnmfp.setFileName( 0 );
+	    fp.setPath( dirnmfp.fullPath() );
+	}
+	dirnm = fp.fullPath();
+    }
+    return dirnm;
+}
+
 
 static bool copySurv( const char* from, const char* todirnm, int mb )
 {
@@ -71,8 +90,9 @@ static bool copySurv( const char* from, const char* todirnm, int mb )
     if ( !uiMSG().askGoOn( msg ) )
 	return false;
 
+    const BufferString fromdir = getTrueDir( FilePath(from).fullPath() );
+
     uiCursorChanger cc( uiCursor::Wait );
-    const BufferString fromdir = FilePath( from ).fullPath();
     if ( !File_copy( fromdir, todir, YES ) )
     {
         uiMSG().error( "Cannot copy the survey data" );
@@ -403,21 +423,28 @@ bool uiSurvey::survInfoDialog()
 void uiSurvey::rmButPushed( CallBacker* )
 {
     BufferString selnm( listbox->getText() );
+    const BufferString seldirnm = FilePath(GetBaseDataDir())
+					    .add(selnm).fullPath();
+    const BufferString truedirnm = getTrueDir( seldirnm );
+
     BufferString msg( "This will remove the entire survey:\n\t" );
     msg += selnm;
+    msg += "\nFull path: "; msg += truedirnm;
     msg += "\nAre you sure you wish to continue?";
     if ( !uiMSG().askGoOn( msg ) ) return;
 
-    msg = FilePath( GetBaseDataDir() ).add( selnm ).fullPath();
 
     uiCursor::setOverride( uiCursor::Wait );
-    bool rmres = File_remove( msg, YES );
+    bool rmres = File_remove( truedirnm, YES );
     uiCursor::restoreOverride();
     if ( !rmres )
     {
-        msg += "\nnot removed properly";
+        msg = truedirnm; msg += "\nnot removed properly";
         return;
     }
+
+    if ( seldirnm != truedirnm ) // must have been a link
+	File_remove( seldirnm, NO );
 
     updateSvyList();
     const char* ptr = GetSurveyName();
