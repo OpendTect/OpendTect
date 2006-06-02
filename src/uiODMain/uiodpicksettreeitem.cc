@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodpicksettreeitem.cc,v 1.6 2006-05-30 14:53:18 cvsnanne Exp $
+ RCS:		$Id: uiodpicksettreeitem.cc,v 1.7 2006-06-02 10:16:30 cvsbert Exp $
 ___________________________________________________________________
 
 -*/
@@ -161,7 +161,7 @@ uiTreeItem* uiODPickSetTreeItemFactory::create( int visid, uiTreeItem* ) const
 
 uiODPickSetTreeItem::uiODPickSetTreeItem( int did, Pick::Set& ps )
     : set_(ps)
-    , storemnuitem_("Store ...")
+    , storemnuitem_("Store")
     , storeasmnuitem_("Store As ...")
     , dirmnuitem_("Set directions ...")
     , showallmnuitem_("Show all")
