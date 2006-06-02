@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiobjfileman.cc,v 1.8 2006-06-01 10:37:40 cvsbert Exp $
+ RCS:           $Id: uiobjfileman.cc,v 1.9 2006-06-02 10:15:14 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -48,10 +48,9 @@ void uiObjFileMan::createDefaultUI()
     selgrp = new uiIOObjSelGrp( this, CtxtIOObj(ctxt_), 0, false );
     selgrp->selectionChg.notify( mCB(this,uiObjFileMan,selChg) );
 
-    infofld = new uiTextEdit( this, "File Info", true );
+    infofld = new uiTextEdit( this, "Object Info", true );
     infofld->attach( ensureBelow, selgrp );
     infofld->setPrefHeightInChar( cPrefHeight );
-    // infofld->setPrefWidthInChar( cPrefWidth );
     infofld->setStretch( 2, 0 );
     selgrp->setPrefWidthInChar( cPrefWidth );
 }
