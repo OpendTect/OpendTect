@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: vissurvscene.cc,v 1.88 2006-06-05 19:03:39 cvsnanne Exp $
+ RCS:           $Id: vissurvscene.cc,v 1.89 2006-06-05 19:35:04 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -357,7 +357,11 @@ ZAxisTransform* Scene::getDataTransform()
 
 void Scene::setMarkerPos( const Coord3& coord )
 {
-    const bool defined = coord.isDefined();
+    Coord3 displaypos = coord;
+    if ( datatransform_ && coord.isDefined() )
+	displaypos.z = datatransform_->transform( coord );
+
+    const bool defined = displaypos.isDefined();
     if ( !defined )
     {
 	if ( marker_ )
@@ -365,12 +369,6 @@ void Scene::setMarkerPos( const Coord3& coord )
 
 	return;
     }
-
-    const Coord3 displaypos( coord,
-	    datatransform_ ? datatransform_->transform(coord) : coord.z);
-    // TODO: check why coord.z is incorrect after transform
-    if ( fabs(coord.z) > 1e20 )
-	return;
 
     if ( !marker_ )
     {
