@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: vissurvscene.cc,v 1.87 2006-06-01 07:30:15 cvskris Exp $
+ RCS:           $Id: vissurvscene.cc,v 1.88 2006-06-05 19:03:39 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -368,6 +368,9 @@ void Scene::setMarkerPos( const Coord3& coord )
 
     const Coord3 displaypos( coord,
 	    datatransform_ ? datatransform_->transform(coord) : coord.z);
+    // TODO: check why coord.z is incorrect after transform
+    if ( fabs(coord.z) > 1e20 )
+	return;
 
     if ( !marker_ )
     {
