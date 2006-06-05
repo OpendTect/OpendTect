@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uioddatatreeitem.cc,v 1.4 2006-05-31 13:45:28 cvskris Exp $
+ RCS:		$Id: uioddatatreeitem.cc,v 1.5 2006-06-05 21:03:53 cvskris Exp $
 ___________________________________________________________________
 
 -*/
@@ -103,8 +103,7 @@ bool uiODDataTreeItem::init()
     uiVisPartServer* visserv = applMgr()->visServer();
     if ( visserv->canHaveMultipleAttribs( displayID() ) )
     {
-	uilistviewitem_->stateChanged.notify(
-		mCB( this, uiODDataTreeItem, checkCB ) );
+	checkStatusChange()->notify( mCB( this, uiODDataTreeItem, checkCB ) );
 	uilistviewitem_->setChecked( visserv->isAttribEnabled(displayID(),
 		    		    attribNr() ) );
     }
@@ -116,8 +115,7 @@ bool uiODDataTreeItem::init()
 void uiODDataTreeItem::checkCB( CallBacker* cb )
 {
     uiVisPartServer* visserv = applMgr()->visServer();
-    visserv->enableAttrib( displayID(), attribNr(),
-	    		   uilistviewitem_->isChecked() );
+    visserv->enableAttrib( displayID(), attribNr(), isChecked() );
 }
 
 

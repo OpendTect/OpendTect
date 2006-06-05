@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uitreeitemmanager.cc,v 1.28 2006-05-26 11:29:47 cvskris Exp $";
+static const char* rcsID = "$Id: uitreeitemmanager.cc,v 1.29 2006-06-05 21:03:53 cvskris Exp $";
 
 
 #include "uitreeitemmanager.h"
@@ -116,6 +116,18 @@ void uiTreeItem::setChecked( bool yn )
 {
     if ( uilistviewitem_ )
 	uilistviewitem_->setChecked( yn );
+}
+
+
+bool uiTreeItem::isChecked() const
+{
+    return uilistviewitem_ ? uilistviewitem_->isChecked() : false;
+}
+
+
+NotifierAccess* uiTreeItem::checkStatusChange() 
+{
+    return uilistviewitem_ ? &uilistviewitem_->stateChanged : 0;
 }
 
 
