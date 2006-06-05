@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.131 2006-06-01 13:17:24 cvskris Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.132 2006-06-05 15:36:03 cvskris Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -117,7 +117,6 @@ PlaneDataDisplay::PlaneDataDisplay()
     addChild( gridlines_->getInventorNode() );
 
     setOrientation( Inline );
-    updateRanges();
 
     as_ += new Attrib::SelSpec;
     cache_ += 0;
@@ -152,11 +151,11 @@ void PlaneDataDisplay::setOrientation( Orientation nt )
     orientation_ = nt;
 
     dragger_->setDim( (int) nt );
-    updateRanges();
+    updateRanges( true );
 }
 
 
-void PlaneDataDisplay::updateRanges()
+void PlaneDataDisplay::updateRanges( bool resetpos )
 {
     CubeSampling survey( SI().sampling(true) );
     if ( datatransform_ )
@@ -177,7 +176,7 @@ void PlaneDataDisplay::updateRanges()
 	    newpos.limitTo( survey );
     }
 
-    newpos = snapPosition( curpos.isEmpty() ? survey : curpos );
+    newpos = snapPosition( resetpos || curpos.isEmpty() ? survey : curpos );
 
     if ( newpos!=getCubeSampling(false,true) )
 	setCubeSampling( newpos );
