@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.317 2006-06-01 07:30:15 cvskris Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.318 2006-06-05 20:06:06 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -1269,11 +1269,9 @@ void uiVisPartServer::mouseMoveCB( CallBacker* cb )
     mDynamicCastGet(visSurvey::Scene*,scene,cb)
     if ( !scene ) return;
 
-    xytmousepos_ = scene->getMousePos(true);
-
-    const Coord3 worldpos( xytmousepos_, scene->getDataTransform() 
-	? scene->getDataTransform()->transformBack( xytmousepos_ )
-	: xytmousepos_.z );
+    Coord3 worldpos = xytmousepos_ = scene->getMousePos(true);
+    if ( xytmousepos_.isDefined() && scene->getDataTransform() )
+	worldpos.z = scene->getDataTransform()->transformBack( xytmousepos_ );
 
     for ( int idx=0; idx<scenes_.size(); idx++ )
     {
