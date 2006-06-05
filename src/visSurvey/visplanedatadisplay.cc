@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.132 2006-06-05 15:36:03 cvskris Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.133 2006-06-05 20:07:14 cvskris Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -58,6 +58,7 @@ PlaneDataDisplay::PlaneDataDisplay()
     , moving_(this)
     , movefinished_(this)
     , resolution_( 0 )
+    , orientation_( Inline )
 {
     cache_.allowNull( true );
     dragger_->ref();
@@ -91,6 +92,7 @@ PlaneDataDisplay::PlaneDataDisplay()
     draggerrect_->insertNode( draggerdrawstyle_->getInventorNode() );
 
     dragger_->setOwnShape( draggerrect_->getInventorNode() );
+    dragger_->setDim( (int) orientation_ );
 
     rectanglepickstyle_->ref();
     addChild( rectanglepickstyle_->getInventorNode() );
@@ -116,7 +118,7 @@ PlaneDataDisplay::PlaneDataDisplay()
     gridlines_->ref();
     addChild( gridlines_->getInventorNode() );
 
-    setOrientation( Inline );
+    updateRanges( true );
 
     as_ += new Attrib::SelSpec;
     cache_ += 0;
@@ -148,6 +150,9 @@ PlaneDataDisplay::~PlaneDataDisplay()
 
 void PlaneDataDisplay::setOrientation( Orientation nt )
 {
+    if ( orientation_==nt )
+	return;
+
     orientation_ = nt;
 
     dragger_->setDim( (int) nt );
@@ -167,16 +172,14 @@ void PlaneDataDisplay::updateRanges( bool resetpos )
     dragger_->setSpaceLimits( inlrg, crlrg, survey.zrg );
     dragger_->setSize( Coord3(inlrg.width(), crlrg.width(),survey.zrg.width()));
 
-    const CubeSampling curpos = getCubeSampling(false,true);
-    CubeSampling newpos;
-    if ( !curpos.isEmpty() )
+    CubeSampling newpos = getCubeSampling(false,true);
+    if ( !newpos.isEmpty() )
     {
-	newpos = curpos;
 	if ( !survey.includes( newpos ) )
 	    newpos.limitTo( survey );
     }
 
-    newpos = snapPosition( resetpos || curpos.isEmpty() ? survey : curpos );
+    newpos = snapPosition( resetpos || newpos.isEmpty() ? survey : newpos );
 
     if ( newpos!=getCubeSampling(false,true) )
 	setCubeSampling( newpos );
@@ -254,6 +257,7 @@ float PlaneDataDisplay::maxDist() const
 
 bool PlaneDataDisplay::setDataTransform( ZAxisTransform* zat )
 {
+    const bool haddatatransform = datatransform_;
     if ( datatransform_ )
     {
 	if ( datatransformvoihandle_!=-1 )
@@ -271,7 +275,7 @@ bool PlaneDataDisplay::setDataTransform( ZAxisTransform* zat )
     if ( datatransform_ )
     {
 	datatransform_->ref();
-	updateRanges();
+	updateRanges( !haddatatransform );
 	if ( datatransform_->changeNotifier() )
 	    datatransform_->changeNotifier()->notify(
 		    mCB(this, PlaneDataDisplay, dataTransformCB ));
