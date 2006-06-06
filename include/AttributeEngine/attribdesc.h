@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribdesc.h,v 1.30 2006-05-19 14:33:11 cvshelene Exp $
+ RCS:           $Id: attribdesc.h,v 1.31 2006-06-06 08:58:48 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -147,7 +147,8 @@ protected:
     bool			issteering;
     bool			hidden_;
     bool			needprovinit_;
-    bool 			is2d;
+    mutable bool 		is2d;
+    mutable bool 		is2ddetected;
     bool 			is2dset;
 
     TypeSet<InputSpec>		inputspecs;

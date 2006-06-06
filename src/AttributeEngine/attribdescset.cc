@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribdescset.cc,v 1.42 2006-05-24 12:50:35 cvshelene Exp $";
+static const char* rcsID = "$Id: attribdescset.cc,v 1.43 2006-06-06 08:58:48 cvshelene Exp $";
 
 #include "attribdescset.h"
 #include "attribstorprovider.h"
@@ -552,17 +552,14 @@ DescID DescSet::getFreeID() const
 
 bool DescSet::is2D() const
 {
-    static bool is2d = false;
-    if ( !firsttime ) return is2d;
+    bool is2d = false;
 
-    is2d = false;
     for ( int idx=0; idx<descs.size(); idx++ )
     {
 	const Desc& dsc = *descs[idx];
 	if ( !dsc.isStored() )
 	    continue;
 
-	const_cast<DescSet*>(this)->firsttime = false;
 	if ( dsc.is2D() )
 	{
 	    is2d = true;

@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribdesc.cc,v 1.42 2006-05-24 12:50:35 cvshelene Exp $";
+static const char* rcsID = "$Id: attribdesc.cc,v 1.43 2006-06-06 08:58:48 cvshelene Exp $";
 
 #include "attribdesc.h"
 
@@ -55,6 +55,7 @@ Desc::Desc( const char* attribname_, DescStatusUpdater updater, DescChecker dc )
     , is2d(false)
     , is2dset(false)
     , needprovinit_(false)
+    , is2ddetected(false)
 {
     mRefCountConstructor;
     inputs.allowNull(true);
@@ -73,6 +74,7 @@ Desc::Desc( const Desc& a )
     , needprovinit_( a.needprovinit_ )
     , is2d(false)
     , is2dset(false)
+    , is2ddetected(false)
 {
     mRefCountConstructor;
     inputs.allowNull(true);
@@ -141,6 +143,7 @@ bool Desc::parseDefStr( const char* defstr )
     BufferStringSet keys, vals;
     getKeysVals( defstr, keys, vals );
 
+    is2ddetected = false;
     for ( int idx=0; idx<params.size(); idx++ )
     {
 	bool found = false;
@@ -271,7 +274,7 @@ Desc* Desc::getInput( int input )
 
 bool Desc::is2D() const
 {
-    if ( is2dset )
+    if ( is2dset || is2ddetected )
 	return is2d;
     
     const ValParam* keypar = getValParam( StorageProvider::keyStr() );
@@ -279,7 +282,9 @@ bool Desc::is2D() const
 
     MultiID key = keypar->getStringValue();
     PtrMan<IOObj> ioobj = IOM().get( key );
-    return ioobj && SeisTrcTranslator::is2D( *ioobj );
+    is2d = ioobj && SeisTrcTranslator::is2D( *ioobj );
+    is2ddetected = true;
+    return is2d;
 }
 
 #define mErrRet(msg) \
@@ -357,7 +362,11 @@ DescID Desc::inputId( int idx ) const
 }
 
 
-void Desc::addParam( Param* param ) { params += param; }
+void Desc::addParam( Param* param )
+{
+    params += param;
+    is2ddetected = false;
+}
 
 
 const Param* Desc::getParam( const char* key ) const
