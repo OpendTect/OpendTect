@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: samplfunc.h,v 1.10 2006-03-14 14:58:51 cvsbert Exp $
+ RCS:           $Id: samplfunc.h,v 1.11 2006-06-06 18:21:35 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,11 +45,27 @@ public:
 
     RT				getValue( RT x ) const
 				{ 
-				    return periodic 
-					? IdxAble::interpolateYPeriodicReg(
-						*this, size(),
-						getIndex(x), period(),
-						extrapolate())  
+				    if ( !doInterpolate() )
+				    {
+					const int smpl = mNINT( getIndex(x) );
+					if ( smpl<0 || smpl>=size() )
+					    return mUdf(RT);
+					return (*this)[smpl];
+				    }
+
+				    if ( periodic )
+				    {
+					return 
+					    IdxAble::interpolateYPeriodicReg(
+						    *this, size(),
+						    getIndex(x), period(),
+						    extrapolate());
+				    }
+
+				    return hasUdfs() 
+					? IdxAble::interpolateRegWithUdf( *this,
+						size(), getIndex(x),
+						extrapolate())
 					: IdxAble::interpolateReg( *this,
 						size(), getIndex(x),
 						extrapolate());
@@ -60,7 +76,8 @@ protected:
 
 
     virtual bool		extrapolate() const { return false; }
-
+    virtual bool		hasUdfs() const { return false; }
+    virtual bool		doInterpolate() const { return true; }
 };
 
 
@@ -70,36 +87,45 @@ template <class RT, class T>
 class SampledFunctionImpl : public SampledFunction<RT,T>
 {
 public:
-			SampledFunctionImpl( const T& idxabl_, int sz_,
-			    float x0_=0, float dx_=1 )
-			    : idxabl( idxabl_ )
-			    , sz( sz_ )
-			    , x0( x0_ )
-			    , dx( dx_ )
+			SampledFunctionImpl(const T& idxabl,int sz,
+			    float x0=0,float dx=1 )
+			    : idxabl_( idxabl )
+			    , sz_( sz )
+			    , x0_( x0 )
+			    , dx_( dx )
 			    , period_ ( mUdf(float) )
+			    , hasudfs_( false )
+			    , interpolate_( true )
 			{}
 
-    RT			operator[](int idx) const { return idxabl[idx]; }
+    RT			operator[](int idx) const	{ return idxabl_[idx]; }
 
-    float		getDx() const { return dx; }
-    float		getX0() const { return x0; }
+    float		getDx() const			{ return dx_; }
+    float		getX0() const			{ return x0_; }
 
-    int			size() const { return sz; }
+    int			size() const			{ return sz_; }
 
-    float		period() const { return period_; }
-    void		setPeriod( float np ) { period_ = np; }
+    float		period() const			{ return period_; }
+    void		setPeriod(float np)		{ period_ = np; }
 
+    bool		hasUdfs() const			{ return hasudfs_; }
+    void		setHasUdfs(bool yn)		{ hasudfs_=yn; }
+
+    bool		doInterpolate() const		{ return interpolate_; }
+    void		setInterpolate( bool yn ) 	{ interpolate_=yn; }
 
 protected:
 
-    const T&		idxabl;
-    int			sz;
-    int			firstidx;
+    const T&		idxabl_;
+    int			sz_;
+    int			firstidx_;
 
-    float		dx;
-    float		x0;
+    float		dx_;
+    float		x0_;
 
     float		period_;
+    bool		hasudfs_;
+    bool		interpolate_;
 };
 
 #endif
