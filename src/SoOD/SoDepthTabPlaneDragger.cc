@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoDepthTabPlaneDragger.cc,v 1.9 2006-05-31 08:05:11 cvskris Exp $";
+static const char* rcsID = "$Id: SoDepthTabPlaneDragger.cc,v 1.10 2006-06-06 14:27:36 cvskris Exp $";
 
 
 #include "SoDepthTabPlaneDragger.h"
@@ -526,7 +526,7 @@ void SoDepthTabPlaneDragger::createPrivateParts()
     tabs->materialIndex.setValue(0);
     greenTabs.setDefault(TRUE);
 
-    SoSeparator *sep = SO_GET_ANY_PART(this, "greenTabs", SoSeparator);
+    SoSeparator *sep = SO_GET_ANY_PART(this, "translator", SoSeparator);
     sep->renderCaching = SoSeparator::OFF;
 }
 
