@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2004
- RCS:           $Id: uimpepartserv.cc,v 1.46 2006-05-31 18:33:47 cvsnanne Exp $
+ RCS:           $Id: uimpepartserv.cc,v 1.47 2006-06-06 15:06:05 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -124,6 +124,7 @@ int uiMPEPartServer::addTracker( const EM::ObjectID& emid,
 	if ( !showSetupDlg( emid, sid, true ) )
 	{
 	    MPE::engine().removeTracker(res);
+	    blockDataLoading( false );
 	    return -1;
 	}
     }
@@ -236,6 +237,7 @@ bool uiMPEPartServer::showSetupDlg( const EM::ObjectID& emid,
     }
     while ( !grp->commitToTracker() );
 
+    tracker->applySetupAsDefault( sid );
     saveSetup( EM::EMM().getMultiID(emid) );
     loadAttribData();
     return true;
