@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpewizard.cc,v 1.51 2006-06-01 10:37:40 cvsbert Exp $
+ RCS:           $Id: uimpewizard.cc,v 1.52 2006-06-06 15:01:08 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -450,11 +450,7 @@ bool Wizard::finalizeCycle()
 	{
 	    EM::EMObject* emobj = EM::EMM().getObject( currentobject );
 	    PtrMan<Executor> saver = emobj->saver();
-	    if ( saver ) 
-	    {
-		saver->execute();
-		mpeserv->saveSetup( EM::EMM().getMultiID(currentobject) );
-	    }
+	    if ( saver ) saver->execute();
 	}
     }
 
@@ -532,6 +528,8 @@ bool Wizard::isClosing( bool iscancel )
 	mpeserv->blockDataLoading( false );
 	mpeserv->postponeLoadingCurVol();
         mpeserv->sendEvent( uiMPEPartServer::evShowToolbar );
+	if ( seedpicker->doesModeUseSetup() )
+	    mpeserv->saveSetup( EM::EMM().getMultiID(currentobject) );
     }
     mpeserv->sendEvent( ::uiMPEPartServer::evWizardClosed );
     return true;
