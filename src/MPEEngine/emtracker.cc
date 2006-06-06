@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emtracker.cc,v 1.27 2006-05-30 07:06:25 cvsjaap Exp $";
+static const char* rcsID = "$Id: emtracker.cc,v 1.28 2006-06-06 14:36:57 cvsjaap Exp $";
 
 #include "emtracker.h"
 
@@ -37,8 +37,8 @@ namespace MPE
 {
 
 EMTracker::EMTracker( EM::EMObject* emo )
-    : isenabled (true)
-    , emobject(0)
+    : isenabled_(true)
+    , emobject_(0)
 {
     setEMObject(emo);
 }
@@ -46,23 +46,23 @@ EMTracker::EMTracker( EM::EMObject* emo )
 
 EMTracker::~EMTracker()
 {
-    deepErase( sectiontrackers );
+    deepErase( sectiontrackers_ );
     setEMObject(0);
 }
 
 
 BufferString EMTracker::objectName() const
-{ return emobject ? emobject->name() : 0; }
+{ return emobject_ ? emobject_->name() : 0; }
 
 
 
 EM::ObjectID EMTracker::objectID() const
-{ return emobject ? emobject->id() : -1; }
+{ return emobject_ ? emobject_->id() : -1; }
 
 
 bool EMTracker::trackSections( const TrackPlane& plane )
 {
-    if ( !emobject || !isenabled || plane.getTrackMode()==TrackPlane::Move ||
+    if ( !emobject_ || !isenabled_ || plane.getTrackMode()==TrackPlane::Move ||
 	    plane.getTrackMode()==TrackPlane::None )
 	return true;
 
@@ -72,17 +72,17 @@ bool EMTracker::trackSections( const TrackPlane& plane )
     if ( consistencychecker ) consistencychecker->reset();
 
     bool success = true;
-    for ( int idx=0; idx<emobject->nrSections(); idx++ )
+    for ( int idx=0; idx<emobject_->nrSections(); idx++ )
     {
-	const EM::SectionID sectionid = emobject->sectionID(idx);
+	const EM::SectionID sectionid = emobject_->sectionID(idx);
 	SectionTracker* sectiontracker = getSectionTracker(sectionid,true);
 	if ( !sectiontracker )
 	    continue;
 
-	EM::PosID posid( emobject->id(), sectionid );
+	EM::PosID posid( emobject_->id(), sectionid );
 	if ( !sectiontracker->trackWithPlane(plane) )
 	{
-	    errmsg = sectiontracker->errMsg();
+	    errmsg_ = sectiontracker->errMsg();
 	    success = false;
 	}
 	else if ( consistencychecker )
@@ -114,9 +114,9 @@ bool EMTracker::trackIntersections( const TrackPlane& )
 Executor* EMTracker::trackInVolume()
 {
     ExecutorGroup* res = 0;
-    for ( int idx=0; idx<emobject->nrSections(); idx++ )
+    for ( int idx=0; idx<emobject_->nrSections(); idx++ )
     {
-	const EM::SectionID sid = emobject->sectionID(idx);
+	const EM::SectionID sid = emobject_->sectionID(idx);
 	if ( !res )
 	{
 	    res = new ExecutorGroup("Autotracker", true );
@@ -132,17 +132,17 @@ Executor* EMTracker::trackInVolume()
 
 bool EMTracker::snapPositions( const TypeSet<EM::PosID>& pids ) 
 {
-    if ( !emobject ) return false;
+    if ( !emobject_ ) return false;
 
-    for ( int idx=0; idx<emobject->nrSections(); idx++ )
+    for ( int idx=0; idx<emobject_->nrSections(); idx++ )
     {
-	const EM::SectionID sid = emobject->sectionID(idx);
+	const EM::SectionID sid = emobject_->sectionID(idx);
 
 	TypeSet<EM::SubID> subids;
 	for ( int idy=0; idy<pids.size(); idy++ )
 	{
 	    const EM::PosID& pid = pids[idy];
-	    if ( pid.objectID()!= emobject->id() )
+	    if ( pid.objectID()!= emobject_->id() )
 		continue;
 	    if ( pid.sectionID()!=sid )
 		continue;
@@ -166,7 +166,7 @@ bool EMTracker::snapPositions( const TypeSet<EM::PosID>& pids )
 	{
 	    if ( res==-1 )
 	    {
-		errmsg = adjuster->errMsg();
+		errmsg_ = adjuster->errMsg();
 		adjuster->removeOnFailure(didremoveonfailure);
 		return false;
 	    }
@@ -183,9 +183,9 @@ CubeSampling EMTracker::getAttribCube( const Attrib::SelSpec& spec ) const
 {
     CubeSampling res( engine().activeVolume() );
 
-    for ( int sectidx=0; sectidx<sectiontrackers.size(); sectidx++ )
+    for ( int sectidx=0; sectidx<sectiontrackers_.size(); sectidx++ )
     {
-	CubeSampling cs = sectiontrackers[sectidx]->getAttribCube( spec );
+	CubeSampling cs = sectiontrackers_[sectidx]->getAttribCube( spec );
 	res.include( cs );
     }
 
@@ -196,10 +196,10 @@ CubeSampling EMTracker::getAttribCube( const Attrib::SelSpec& spec ) const
 
 void EMTracker::getNeededAttribs( ObjectSet<const Attrib::SelSpec>& res )
 {
-    for ( int sectidx=0; sectidx<sectiontrackers.size(); sectidx++ )
+    for ( int sectidx=0; sectidx<sectiontrackers_.size(); sectidx++ )
     {
 	ObjectSet<const Attrib::SelSpec> specs;
-	sectiontrackers[sectidx]->getNeededAttribs( specs );
+	sectiontrackers_[sectidx]->getNeededAttribs( specs );
 
 	for ( int idx=0; idx<specs.size(); idx++ )
 	{
@@ -211,15 +211,15 @@ void EMTracker::getNeededAttribs( ObjectSet<const Attrib::SelSpec>& res )
 }
 
 const char* EMTracker::errMsg() const
-{ return errmsg[0] ? (const char*) errmsg : 0; }
+{ return errmsg_[0] ? (const char*) errmsg_ : 0; }
 
 
 SectionTracker* EMTracker::getSectionTracker( EM::SectionID sid, bool create )
 {
-    for ( int idx=0; idx<sectiontrackers.size(); idx++ )
+    for ( int idx=0; idx<sectiontrackers_.size(); idx++ )
     {
-	if ( sectiontrackers[idx]->sectionID()==sid )
-	    return sectiontrackers[idx];
+	if ( sectiontrackers_[idx]->sectionID()==sid )
+	    return sectiontrackers_[idx];
     }
 
     if ( !create ) return 0;
@@ -231,35 +231,56 @@ SectionTracker* EMTracker::getSectionTracker( EM::SectionID sid, bool create )
 	return 0;
     }
 
-    if ( sectiontrackers.size() )
-    {
-	IOPar par;
-	sectiontrackers[0]->fillPar( par );
-	sectiontracker->usePar( par );
-    }
+    const int defaultsetupidx = sectiontrackers_.size()-1;
+    sectiontrackers_ += sectiontracker;
 
-    sectiontrackers += sectiontracker;
+    if ( defaultsetupidx >= 0 )
+	applySetupAsDefault( sectiontrackers_[defaultsetupidx]->sectionID() );
+    
     return sectiontracker;
 }
+
+
+void EMTracker::applySetupAsDefault( const EM::SectionID sid )
+{
+    SectionTracker* defaultsetuptracker(0);
+
+    for ( int idx=0; idx<sectiontrackers_.size(); idx++ )
+    {
+	if ( sectiontrackers_[idx]->sectionID() == sid )
+	    defaultsetuptracker = sectiontrackers_[idx];
+    }
+    if ( !defaultsetuptracker || !defaultsetuptracker->hasInitializedSetup() ) 
+	return;
+
+    IOPar par;
+    defaultsetuptracker->fillPar( par );
+
+    for ( int idx=0; idx<sectiontrackers_.size(); idx++ )
+    {
+	if ( !sectiontrackers_[idx]->hasInitializedSetup() )
+	    sectiontrackers_[idx]->usePar( par );
+    }
+}    
 
 
 void EMTracker::erasePositions( EM::SectionID sectionid,
 				const TypeSet<EM::SubID>& pos )
 {
-    EM::PosID posid( emobject->id(), sectionid );
+    EM::PosID posid( emobject_->id(), sectionid );
     for ( int idx=0; idx<pos.size(); idx++ )
     {
 	posid.setSubID( pos[idx] );
-	emobject->unSetPos( posid, true );
+	emobject_->unSetPos( posid, true );
     }
 }
 
 
 void EMTracker::fillPar( IOPar& iopar ) const
 {
-    for ( int idx=0; idx<sectiontrackers.size(); idx++ )
+    for ( int idx=0; idx<sectiontrackers_.size(); idx++ )
     {
-	SectionTracker* st = sectiontrackers[idx];
+	SectionTracker* st = sectiontrackers_[idx];
 	IOPar localpar;
 	localpar.set( sectionidStr(), st->sectionID() );
 	st->fillPar( localpar );
@@ -314,9 +335,9 @@ bool EMTracker::usePar( const IOPar& iopar )
 
 void EMTracker::setEMObject( EM::EMObject* no ) 
 {
-    if ( emobject ) emobject->unRef();
-    emobject = no;
-    if ( emobject ) emobject->ref();
+    if ( emobject_ ) emobject_->unRef();
+    emobject_ = no;
+    if ( emobject_ ) emobject_->ref();
 }
 
 
