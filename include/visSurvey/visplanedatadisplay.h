@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visplanedatadisplay.h,v 1.83 2006-06-05 15:36:03 cvskris Exp $
+ RCS:		$Id: visplanedatadisplay.h,v 1.84 2006-06-06 18:48:49 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -127,6 +127,7 @@ public:
     virtual bool		allowPicks() const		{ return true; }
 
     bool			setDataTransform(ZAxisTransform*);
+    const ZAxisTransform*	getDataTransform() const;
 
 protected:
 				~PlaneDataDisplay();

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvobj.h,v 1.63 2006-06-01 12:33:01 cvskris Exp $
+ RCS:		$Id: vissurvobj.h,v 1.64 2006-06-06 18:48:49 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -195,6 +195,7 @@ public:
     void			setScene(Scene*);
 
     virtual bool		setDataTransform( ZAxisTransform* );
+    virtual const ZAxisTransform* getDataTransform() const;
 
     virtual void		lock( bool yn )		{ locked_ = yn; }
     virtual bool		isLocked() const	{ return locked_; }
