@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribprovider.h,v 1.40 2006-05-31 18:32:05 cvsnanne Exp $
+ RCS:           $Id: attribprovider.h,v 1.41 2006-06-06 22:01:31 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -159,12 +159,72 @@ protected:
 
     void			computeRefStep(const ObjectSet<Provider>&);
     void			propagateRefStep(const ObjectSet<Provider>&);
+
     virtual const BinID*	desStepout(int input,int output) const;
+				/*!<The system will
+				    try to supply the attribute with the
+				    desired stepout, but will not take the
+				    desired stepout into account when computing
+				    the volume that can be computed.
+    				    \returns the desired stepout on \a input if
+				    \a output is going to be computed, or NULL
+				    if no stepout is desired. */
     virtual const BinID*	reqStepout(int input,int output) const;
+				/*!<The system
+				    will supply the attribute with the required
+				    stepout, and use it to compute the volume
+				    that can be computed.
+    				    \returns the required stepout on \a input if
+				    \a output is going to be computed, or NULL
+				    if no stepout is required.  */
     virtual const Interval<float>* desZMargin(int input,int output) const;
+				/*!<The gate is specified in
+				    the depth-unit of the survey (e.g. seconds,
+				    feet or meters), and is in addition to
+				    the gate specified in desZSampMargin. The
+				    system will try to supply the attribute with
+				    the desired gate, but will not take the
+				    desired gate into account when computing
+				    the volume that can be computed.
+    				    \returns the extra gate desired on
+				    \a input if \a output is going to be
+				    computed, or NULL if no extra gate
+				    is desired. */
     virtual const Interval<float>* reqZMargin(int input,int output) const;
+				 /*<The gate is specified in
+				    the depth-unit of the survey (e.g. seconds,
+				    feet or meters), and is in addition to
+				    the gate specified in reqZSampMargin. The
+				    system will supply the attribute with the
+				    required gate, and use it to compute the
+				    volume that can be computed.
+    				    \returns the extra gate required on
+				    \a input if \a output is going to be
+				    computed, or NULL if no extra gate
+				    is required. */
     virtual const Interval<int>* desZSampMargin(int input,int output) const;
+				/*!<The gate is specified in
+				    the trace samples, and is in addition to
+				    the gate specified in desZMargin. The system
+				    will try to supply the attribute with the
+				    desired gate, but will not take the
+				    desired gate into account when computing
+				    the volume that can be computed.
+    				    \returns the extra gate desired on
+				    \a input if \a output is going to be
+				    computed, or NULL if no extra gate
+				    is desired. */
     virtual const Interval<int>* reqZSampMargin(int input,int output) const;
+    				/*!<The gate is specified in
+				    the trace samples, and is in addition to
+				    the gate specified in reqZMargin. The system
+				    will supply the attribute with the required
+				    gate, and use it to compute the volume
+				    that can be computed.
+    				    \returns the extra gate required on
+				    \a input if \a output is going to be
+				    computed, or NULL if no extra gate
+				    is required. */
     virtual bool		getZStepStoredData(float& step) const
 				{return false;}
 
