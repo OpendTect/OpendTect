@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.318 2006-06-05 20:06:06 cvskris Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.319 2006-06-06 15:10:33 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -1366,12 +1366,18 @@ void uiVisPartServer::colTabChangeCB( CallBacker* )
 
 void uiVisPartServer::showMPEToolbar()
 {
-    mpetools_->updateAttribNames();
+    updateMPEToolbar();
     if ( !mpetools_->getToolBar()->isShown() )
     {
 	mpetools_->getToolBar()->display();
 	mpetools_->getToolBar()->undock();
     }
+}
+
+
+void uiVisPartServer::updateMPEToolbar()
+{
+    mpetools_->updateAttribNames();
 }
 
 
