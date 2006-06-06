@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          January 2005
- RCS:           $Id: sectionadjuster.h,v 1.16 2006-04-28 16:14:28 cvskris Exp $
+ RCS:           $Id: sectionadjuster.h,v 1.17 2006-06-06 14:07:36 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -48,6 +48,7 @@ public:
     virtual void		getNeededAttribs(
 	    			    ObjectSet<const Attrib::SelSpec>&) const;
     virtual bool		is2D() const			{ return false;}
+    virtual bool		hasInitializedSetup() const	{ return true; }
 
     virtual int			getNrAttributes() const		{ return 0; }
     virtual const Attrib::SelSpec* getAttributeSel( int idx ) const { return 0;}

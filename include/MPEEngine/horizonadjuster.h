@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          January 2005
- RCS:           $Id: horizonadjuster.h,v 1.16 2006-04-28 16:45:53 cvskris Exp $
+ RCS:           $Id: horizonadjuster.h,v 1.17 2006-06-06 14:07:36 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -65,6 +65,8 @@ public:
     int			getNrAttributes() const;
     const Attrib::SelSpec* getAttributeSel(int idx) const;
     void		setAttributeSel(int idx,const Attrib::SelSpec&);
+
+    bool		hasInitializedSetup() const;
 
     void		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
