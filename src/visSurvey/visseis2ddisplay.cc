@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2004
- RCS:           $Id: visseis2ddisplay.cc,v 1.4 2006-06-01 07:30:15 cvskris Exp $
+ RCS:           $Id: visseis2ddisplay.cc,v 1.5 2006-06-06 08:48:28 cvshelene Exp $
  ________________________________________________________________________
 
 -*/
@@ -313,7 +313,7 @@ void visSurvey::Seis2DDisplay::setStrip( const TypeSet<Coord>& crds,
     for ( int idx=crdinterval.start; idx<crdinterval.stop; idx++ )
 	{ x += crds[idx].x; y += crds[idx].y; }
     TypeSet<int> bpidxs;
-    IdxAble::getBendPoints( x, y, crds.size(), 0.5, bpidxs );
+    IdxAble::getBendPoints( x, y, x.size(), 0.5, bpidxs );
 
     int curknotidx=0;
     for ( int idx=0; idx<bpidxs.size(); idx++ )
