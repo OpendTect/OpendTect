@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.cc,v 1.92 2006-05-30 07:37:57 cvsjaap Exp $
+ RCS:           $Id: uimpeman.cc,v 1.93 2006-06-06 15:21:00 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -509,12 +509,12 @@ void uiMPEMan::showCubeCB( CallBacker* )
 }
 
 
-void uiMPEMan::attribSel( CallBacker* )
+void uiMPEMan::attribSel( CallBacker* cb )
 {
     if ( blockattribsel )
 	return;
 
-    if ( attribfld->currentItem() ) 
+    if ( cb && attribfld->currentItem() ) 
 	visserv->loadPostponedData();
 
     uiCursorChanger cursorchanger( uiCursor::Wait );
@@ -638,9 +638,8 @@ void uiMPEMan::seedConnectModeSel( CallBacker* )
 
     const SectionTracker* sectiontracker = 
 		tracker->getSectionTracker( seedpicker->getSectionID(), true );
-    if ( !sectiontracker || IOM().get(sectiontracker->setupID()) )
-	return;
-    visserv->sendShowSetupDlgEvent();
+    if ( sectiontracker && !sectiontracker->hasInitializedSetup() )
+	visserv->sendShowSetupDlgEvent();
 }
 
 
@@ -835,7 +834,8 @@ void uiMPEMan::trackInVolume( CallBacker* )
 	uiExecutor uiexec( toolbar, *exec );
 	if ( !uiexec.go() )
 	{
-	    uiMSG().error(engine().errMsg());
+	    if ( engine().errMsg() )
+		uiMSG().error( engine().errMsg() );
 	}
 	setHistoryLevel(currentevent);
     }
