@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.133 2006-06-05 20:07:14 cvskris Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.134 2006-06-06 18:23:48 cvskris Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -566,7 +566,7 @@ void PlaneDataDisplay::setClassification( int attrib, bool yn )
 
     if ( yn )
     {
-	while ( attrib<=isclassification_.size() )
+	while ( attrib>=isclassification_.size() )
 	    isclassification_ += false;
     }
     else if ( attrib>=isclassification_.size() )
@@ -778,11 +778,13 @@ void PlaneDataDisplay::setData( int attrib, const Attrib::DataCubes* datacubes )
 		    float* outputptr = tmparray->getData() +
 				    tmparray->info().getMemPos(inlidx,crlidx,0);
 
-		    const SampledFunctionImpl<float,const float*>
+		    SampledFunctionImpl<float,const float*>
 			inputfunc( inputptr,
 				   info.getSize(Attrib::DataCubes::cZDim()),
 				   datacubes->z0*datacubes->zstep,
 				   datacubes->zstep );
+		    inputfunc.setHasUdfs( true );
+		    inputfunc.setInterpolate( !isClassification(attrib) );
 
 		    reSample( inputfunc, outpsampler, outputptr, zsz );
 		}
