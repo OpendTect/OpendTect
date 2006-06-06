@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          January 2003
- RCS:           $Id: visrandomtrackdisplay.cc,v 1.73 2006-06-01 07:30:15 cvskris Exp $
+ RCS:           $Id: visrandomtrackdisplay.cc,v 1.74 2006-06-06 15:14:30 cvsnanne Exp $
  ________________________________________________________________________
 
 -*/
@@ -778,10 +778,10 @@ SurveyObject* RandomTrackDisplay::duplicate() const
     RandomTrackDisplay* rtd = create();
 
     rtd->setDepthInterval( getDataTraceRange() );
+    TypeSet<BinID> positions;
     for ( int idx=0; idx<nrKnots(); idx++ )
-    {
-	rtd->setKnotPos( idx, getKnotPos(idx) );
-    }
+	positions += getKnotPos( idx );
+    rtd->setKnotPositions( positions );
 
     return rtd;
 }
