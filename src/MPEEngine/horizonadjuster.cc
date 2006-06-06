@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizonadjuster.cc,v 1.29 2006-05-31 18:32:37 cvsnanne Exp $";
+static const char* rcsID = "$Id: horizonadjuster.cc,v 1.30 2006-06-06 14:28:49 cvsjaap Exp $";
 
 #include "horizonadjuster.h"
 
@@ -523,6 +523,12 @@ void HorizonAdjuster::setAttributeSel( int idx, const Attrib::SelSpec& as )
     if ( attrdata_ ) attrdata_->unRef();
     attrdata_ = engine().getAttribCache( *attribsel_ );
     if ( attrdata_ ) attrdata_->ref();
+}
+
+
+bool HorizonAdjuster::hasInitializedSetup() const
+{
+   return ( attribsel_ && attribsel_->id()>=0 );
 }
 
 

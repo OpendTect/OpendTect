@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: sectiontracker.cc,v 1.16 2006-05-03 07:51:25 cvsjaap Exp $";
+static const char* rcsID = "$Id: sectiontracker.cc,v 1.17 2006-06-06 14:28:49 cvsjaap Exp $";
 
 #include "sectiontracker.h"
 
@@ -276,6 +276,12 @@ void SectionTracker::setSetupID( const MultiID& id ) { setupid=id; }
 
 
 const MultiID& SectionTracker::setupID() const { return setupid; }
+
+
+bool SectionTracker::hasInitializedSetup() const
+{
+    return ( !adjuster_ || adjuster_->hasInitializedSetup() );
+}
 
 
 void SectionTracker::setDisplaySpec( const Attrib::SelSpec& as )
