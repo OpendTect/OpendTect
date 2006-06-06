@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.192 2006-05-25 13:35:43 cvskris Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.193 2006-06-06 20:37:02 cvskris Exp $
 ___________________________________________________________________
 
 -*/
@@ -96,7 +96,7 @@ void uiODTreeTop::loopOverChildrenIds( TypeSet<int>& dispids, int& selectedid,
 	mDynamicCastGet(uiODDisplayTreeItem*,disptreeitem,childrenlist[idy]);
 	if ( disptreeitem )
 	{
-	    if ( usechecked && childrenlist[idy]->uilistviewitem_->isChecked() )
+	    if ( usechecked && childrenlist[idy]->isChecked() )
 		dispids += disptreeitem->displayID();
 	    else if ( !usechecked )
 		dispids += disptreeitem->displayID();

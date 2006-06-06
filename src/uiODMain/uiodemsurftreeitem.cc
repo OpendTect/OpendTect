@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodemsurftreeitem.cc,v 1.5 2006-06-06 14:53:20 cvsjaap Exp $
+ RCS:		$Id: uiodemsurftreeitem.cc,v 1.6 2006-06-06 20:37:02 cvskris Exp $
 ___________________________________________________________________
 
 -*/
@@ -102,7 +102,7 @@ void uiODEarthModelSurfaceTreeItem::checkCB( CallBacker* cb )
 	return;
     }
 
-    if ( uilistviewitem_->isChecked() )
+    if ( isChecked() )
 	applMgr()->mpeServer()->enableTracking(trackerid, prevtrackstatus);
     else
     {
@@ -219,7 +219,7 @@ void uiODEarthModelSurfaceTreeItem::createMenuCB( CallBacker* cb )
 	return;
 
     MenuItem* trackmnu = menu->findItem(uiVisEMObject::trackingmenutxt);
-    if ( uilistviewitem_->isChecked() && trackmnu )
+    if ( isChecked() && trackmnu )
     {
 	uiMPEPartServer* mps = applMgr()->mpeServer();
 	mps->setCurrentAttribDescSet( applMgr()->attrServer()->curDescSet() );
