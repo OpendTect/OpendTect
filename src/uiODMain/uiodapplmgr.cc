@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.137 2006-05-29 08:02:32 cvsbert Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.138 2006-06-06 14:53:20 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -766,6 +766,7 @@ bool uiODApplMgr::handleVisServEv( int evid )
 					      tracker->getSeedPicker(false) : 0;
 	const EM::SectionID sid = seedpicker ? seedpicker->getSectionID() : -1;
 	mpeserv->showSetupDlg( emid, sid, false );
+	visserv->updateMPEToolbar();
     }
     else if ( evid == uiVisPartServer::evLoadPostponedData )
 	mpeserv->loadPostponedVolume();
