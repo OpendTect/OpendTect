@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Payraudeau
  Date:          February  2006
- RCS:           $Id: uifingerprintattrib.cc,v 1.12 2006-05-31 09:29:40 cvshelene Exp $
+ RCS:           $Id: uifingerprintattrib.cc,v 1.13 2006-06-07 15:38:56 cvshelene Exp $
 
 ________________________________________________________________________
 
@@ -161,6 +161,10 @@ uiFingerPrintAttrib::uiFingerPrintAttrib( uiParent* p )
     table_->rowInserted.notify( mCB(this,uiFingerPrintAttrib,insertRowCB) );
     table_->rowDeleted.notify( mCB(this,uiFingerPrintAttrib,deleteRowCB) );
 
+    BufferString lbl = "Right-click\nto add,\ninsert or\nremove\nan attribute";
+    uiLabel* tablelab = new uiLabel( this, lbl.buf() );
+    tablelab->attach( leftTo, table_ );
+
     CallBack cbcalc = mCB(this,uiFingerPrintAttrib,calcPush);
     uiPushButton* calcbut =
 		new uiPushButton( this, "Calculate &parameters", cbcalc, true);
@@ -206,7 +210,7 @@ void uiFingerPrintAttrib::insertRowCB( CallBacker* cb )
 
 void uiFingerPrintAttrib::deleteRowCB( CallBacker* cb )
 {
-    int deletedrowidx = table_->currentRow()<0 ? 0 : table_->currentRow()<0;
+    int deletedrowidx = table_->currentRow()<0 ? 0 : table_->currentRow()+1;
     delete attribflds_[deletedrowidx];
     attribflds_.remove( deletedrowidx );
 }
@@ -591,7 +595,7 @@ bool uiFingerPrintAttrib::areUIParsOK()
     if ( !calcobj_->getValues().size() || !calcobj_->getRanges().size() )
     {
 	errmsg = "Please fill in all values and ranges fields.\n";
-	errmsg+="Press on 'Calculate parameters' to let opendTect compute them";
+	errmsg+="Press on 'Calculate parameters' to let OpendTect compute them";
 	errmsg += "\n or go to 'Advanced...' to do it manually";
 	return false;
     }
