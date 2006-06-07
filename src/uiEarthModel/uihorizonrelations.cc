@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		April 2006
- RCS:		$Id: uihorizonrelations.cc,v 1.1 2006-05-05 06:46:07 cvsnanne Exp $
+ RCS:		$Id: uihorizonrelations.cc,v 1.2 2006-06-07 06:57:21 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,32 +39,31 @@ uiHorizonRelationsDlg::uiHorizonRelationsDlg( uiParent* p )
     : uiDialog(p,Setup("Horizon relations","",""))
 {
     read();
-    relationfld_ = new uiLabeledListBox( this, hornames_,
-	    				 "Order (top to bottom)",
+    relationfld_ = new uiLabeledListBox( this, "Order (top to bottom)",
 				         false, uiLabeledListBox::AboveLeft );
 
-    uiPushButton* orderbut = new uiPushButton( relationfld_, "&Update order",
+    uiPushButton* orderbut = new uiPushButton( relationfld_, "&Read Horizons",
 	    				       false );
-    orderbut->activated.notify( mCB(this,uiHorizonRelationsDlg,updateOrderCB) );
+    orderbut->activated.notify( mCB(this,uiHorizonRelationsDlg,readHorizonCB) );
     orderbut->attach( rightTo, relationfld_->box() );
 
-    uiPushButton* crossbut = new uiPushButton( relationfld_, "&Check crossings",
+    crossbut_ = new uiPushButton( relationfld_, "&Check crossings",
 					       false );
-    crossbut->activated.notify(
+    crossbut_->activated.notify(
 			mCB(this,uiHorizonRelationsDlg,checkCrossingsCB) );
-    crossbut->attach( alignedBelow, orderbut );
+    crossbut_->attach( alignedBelow, orderbut );
 
-    uiPushButton* waterbut = new uiPushButton( relationfld_, "&Make watertight",
-	    				       false );
-    waterbut->activated.notify(
+    waterbut_ = new uiPushButton( relationfld_, "&Make watertight", false );
+    waterbut_->activated.notify(
 			mCB(this,uiHorizonRelationsDlg,makeWatertightCB) );
-    waterbut->attach( alignedBelow, crossbut );
+    waterbut_->attach( alignedBelow, crossbut_ );
 
+    fillRelationField( hornames_ );
     setCtrlStyle( LeaveOnly );
 }
 
 
-void uiHorizonRelationsDlg::updateOrderCB( CallBacker* )
+void uiHorizonRelationsDlg::readHorizonCB( CallBacker* )
 {
     uiHorizonSortDlg dlg( this );
     if ( !dlg.go() ) return;
@@ -87,6 +86,8 @@ void uiHorizonRelationsDlg::fillRelationField( const BufferStringSet& strs )
 {
     relationfld_->box()->empty();
     relationfld_->box()->addItems( strs );
+    crossbut_->setSensitive( strs.size() > 1 );
+    waterbut_->setSensitive( strs.size() > 1 );
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		April 2006
- RCS:		$Id: uihorizonrelations.h,v 1.1 2006-05-05 06:46:07 cvsnanne Exp $
+ RCS:		$Id: uihorizonrelations.h,v 1.2 2006-06-07 06:57:14 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "multiid.h"
 
 class uiLabeledListBox;
+class uiPushButton;
 class BufferStringSet;
 
 class uiHorizonRelationsDlg : public uiDialog
@@ -27,6 +28,8 @@ public:
 
 protected:
     uiLabeledListBox*	relationfld_;
+    uiPushButton*	crossbut_;
+    uiPushButton*	waterbut_;
 
     BufferStringSet	hornames_;
     TypeSet<MultiID>	horids_;
@@ -35,7 +38,7 @@ protected:
     void		read();
     bool		write();
 
-    void		updateOrderCB(CallBacker*);
+    void		readHorizonCB(CallBacker*);
     void		checkCrossingsCB(CallBacker*);
     void		makeWatertightCB(CallBacker*);
     bool		rejectOK(CallBacker*);
