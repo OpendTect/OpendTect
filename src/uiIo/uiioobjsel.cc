@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          25/05/2000
- RCS:           $Id: uiioobjsel.cc,v 1.89 2006-06-02 19:12:59 cvsnanne Exp $
+ RCS:           $Id: uiioobjsel.cc,v 1.90 2006-06-07 10:04:47 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -199,8 +199,9 @@ void uiIOObjSelGrp::fullUpdate( const MultiID& ky )
 
 void uiIOObjSelGrp::fullUpdate( int curidx )
 {
-    BufferString nmflt = filtfld->text();
+    IOM().to( ctio_.ctxt.stdSelKey() );
     IODirEntryList del( IOM().dirPtr(), ctio_.ctxt );
+    BufferString nmflt = filtfld->text();
     if ( nmflt != "" && nmflt != "*" )
 	del.fill( IOM().dirPtr(), nmflt );
 
