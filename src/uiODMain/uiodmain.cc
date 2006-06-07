@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodmain.cc,v 1.42 2006-05-04 20:21:02 cvsnanne Exp $
+ RCS:           $Id: uiodmain.cc,v 1.43 2006-06-07 16:13:12 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -302,7 +302,8 @@ void uiODMain::doRestoreSession()
 	applMgr().nlaServer()->usePar( cursession->nlapars() );
     applMgr().attrServer()->usePar( cursession->attrpars() );
     applMgr().mpeServer()->usePar( cursession->mpepars() );
-    bool visok = applMgr().visServer()->usePar( cursession->vispars() );
+    const bool visok = applMgr().visServer()->usePar( cursession->vispars() );
+    sessionRestore.trigger();
 
     if ( visok )
     {
@@ -317,7 +318,7 @@ void uiODMain::doRestoreSession()
 	uiCursor::setOverride( uiCursor::Wait );
 	sceneMgr().cleanUp( true );
     }
-    sessionRestore.trigger();
+
     uiCursor::restoreOverride();
 }
 
