@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          April 2003
- RCS:           $Id: attribsetcreator.cc,v 1.3 2005-08-04 11:37:44 cvsnanne Exp $
+ RCS:           $Id: attribsetcreator.cc,v 1.4 2006-06-07 07:18:56 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "attribsetcreator.h"
 #include "attribdesc.h"
 #include "attribdescset.h"
+#include "attribfactory.h"
 #include "uiseparator.h"
 #include "uiioobjsel.h"
 #include "seistrctr.h"
@@ -246,17 +247,15 @@ static void addGate( BufferString& defstr, const char* gdidesc )
 Desc* AttributeSetCreator::getDesc( const char* gdidesc )
 {
     if ( ! gdidesc || !*gdidesc ) return 0;
-    return 0;
 
-/*
-    Desc* ad = 0;
     BufferString defstr;
-    if ( matchStringCI( "Energy", gdidesc ) )
+    if ( matchStringCI("Energy",gdidesc) )
     {
 	defstr = "Energy";
 	addGate( defstr, gdidesc );
+	defstr += "output=0";
     }
-    else if ( matchStringCI( "Reference time", gdidesc ) )
+    else if ( matchStringCI("Reference time",gdidesc) )
     {
 	defstr = "Reference output=2";
     }
@@ -271,7 +270,7 @@ Desc* AttributeSetCreator::getDesc( const char* gdidesc )
 	defstr = "Shift pos=0,0 steering=No time=";
 	defstr += offs;
     }
-    else if ( matchStringCI( "Similarity", gdidesc ) )
+    else if ( matchStringCI("Similarity",gdidesc) )
     {
 	defstr = "Similarity steering=No";
 	addGate( defstr, gdidesc );
@@ -298,18 +297,31 @@ Desc* AttributeSetCreator::getDesc( const char* gdidesc )
     }
 
     if ( defstr == "" )
-	ad = new StorageDesc( *attrset );
-    else
+	defstr = "Storage id=100010.x";
+
+    BufferString attribname;
+    if ( !Desc::getAttribName(defstr,attribname) )
     {
-	ad = new CalcAttribDesc( *attrset );
-	if ( !ad->setDefStr(defstr,false) )
-	    { delete ad; return 0; }
+	uiMSG().error( "Cannot find attribute name" );
+	return 0;
     }
 
-    ad->setUserRef( gdidesc );
-    attrset->addDesc( ad, -2 );
+    RefMan<Desc> desc = PF().createDescCopy( attribname );
+    if ( !desc )
+    {
+	BufferString err = "Cannot find factory-entry for "; err += attribname;
+	uiMSG().error( err );
+	return 0;
+    }
 
-    return ad;
-*/
-    return 0;
+    if ( !desc->isStored() && !desc->parseDefStr(defstr) )
+    {
+	BufferString err = "Cannot parse: "; err += defstr;
+	uiMSG().error( err );
+	return 0;
+    }
+
+    desc->setUserRef( gdidesc );
+    attrset->addDesc( desc );
+    return desc;
 }
