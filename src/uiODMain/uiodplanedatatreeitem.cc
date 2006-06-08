@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodplanedatatreeitem.cc,v 1.3 2006-05-18 09:36:42 cvsjaap Exp $
+ RCS:		$Id: uiodplanedatatreeitem.cc,v 1.4 2006-06-08 13:38:25 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -196,7 +196,7 @@ void uiODPlaneDataTreeItem::updatePositionDlg( CallBacker* )
 {
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,
 	    	    visserv->getObject(displayid_))
-    const CubeSampling newcs = pdd->getCubeSampling();
+    const CubeSampling newcs = pdd->getCubeSampling( true, true );
     positiondlg->setCubeSampling( newcs );
 }
 
