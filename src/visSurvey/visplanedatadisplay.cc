@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.136 2006-06-06 19:20:59 cvskris Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.137 2006-06-08 13:39:54 cvsnanne Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -118,7 +118,7 @@ PlaneDataDisplay::PlaneDataDisplay()
     gridlines_->ref();
     addChild( gridlines_->getInventorNode() );
 
-    updateRanges( true );
+    updateRanges( true, true );
 
     as_ += new Attrib::SelSpec;
     cache_ += 0;
@@ -156,11 +156,11 @@ void PlaneDataDisplay::setOrientation( Orientation nt )
     orientation_ = nt;
 
     dragger_->setDim( (int) nt );
-    updateRanges( true );
+    updateRanges( true, true );
 }
 
 
-void PlaneDataDisplay::updateRanges( bool resetpos )
+void PlaneDataDisplay::updateRanges( bool resetic, bool resetz )
 {
     CubeSampling survey( SI().sampling(true) );
     if ( datatransform_ )
@@ -179,7 +179,11 @@ void PlaneDataDisplay::updateRanges( bool resetpos )
 	    newpos.limitTo( survey );
     }
 
-    newpos = snapPosition( resetpos || newpos.isEmpty() ? survey : newpos );
+    if ( !resetic && resetz )
+	survey.hrg = newpos.hrg;
+
+    newpos = snapPosition( resetic || resetz || newpos.isEmpty() 
+	    						? survey : newpos );
 
     if ( newpos!=getCubeSampling(false,true) )
 	setCubeSampling( newpos );
@@ -275,7 +279,7 @@ bool PlaneDataDisplay::setDataTransform( ZAxisTransform* zat )
     if ( datatransform_ )
     {
 	datatransform_->ref();
-	updateRanges( !haddatatransform );
+	updateRanges( false, !haddatatransform );
 	if ( datatransform_->changeNotifier() )
 	    datatransform_->changeNotifier()->notify(
 		    mCB(this, PlaneDataDisplay, dataTransformCB ));
@@ -294,7 +298,7 @@ void PlaneDataDisplay::dataTransformCB( CallBacker* )
     for ( int idx=0; idx<cache_.size(); idx++ )
 	setData( idx, cache_[idx] );
 
-    updateRanges();
+    updateRanges( false, true );
 }
 
 

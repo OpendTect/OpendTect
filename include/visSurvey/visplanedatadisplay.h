@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visplanedatadisplay.h,v 1.84 2006-06-06 18:48:49 cvskris Exp $
+ RCS:		$Id: visplanedatadisplay.h,v 1.85 2006-06-08 13:39:54 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -133,7 +133,8 @@ protected:
 				~PlaneDataDisplay();
 
     void			setData(int attrib,const Attrib::DataCubes*);
-    void			updateRanges(bool resetpos=false);
+    void			updateRanges(bool resetinlcrl=false,
+	    				     bool resetz=false);
     void			manipChanged(CallBacker*);
     void			coltabChanged(CallBacker*);
     void			draggerMotion(CallBacker*);
