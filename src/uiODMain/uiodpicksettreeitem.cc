@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodpicksettreeitem.cc,v 1.9 2006-06-08 07:44:14 cvsnanne Exp $
+ RCS:		$Id: uiodpicksettreeitem.cc,v 1.10 2006-06-08 14:11:00 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -25,6 +25,15 @@ ___________________________________________________________________
 #include "vissurvscene.h"
 
 
+static bool canAddDisplay( int sceneid )
+{
+    mDynamicCastGet(visSurvey::Scene*,scene,
+	    	    ODMainWin()->applMgr().visServer()->getObject(sceneid));
+    if ( !scene ) return false;
+    return !scene->getDataTransform();
+}
+
+
 uiODPickSetParentTreeItem::uiODPickSetParentTreeItem()
     : uiODTreeItem( "PickSet" )
     , display_on_add(false)
@@ -43,6 +52,10 @@ uiODPickSetParentTreeItem::~uiODPickSetParentTreeItem()
 
 bool uiODPickSetParentTreeItem::init()
 {
+    // TODO: remove after transform for picks has been implemented
+    if ( !canAddDisplay(sceneID()) )
+	return true;
+
     for ( int idx=0; idx<Pick::Mgr().size(); idx++ )
     {
 	uiODDisplayTreeItem* item =
@@ -70,6 +83,10 @@ void uiODPickSetParentTreeItem::removeChild( uiTreeItem* child )
 
 void uiODPickSetParentTreeItem::setAdd( CallBacker* cb )
 {
+    // TODO: remove after transform for picks has been implemented
+    if ( !canAddDisplay(sceneID()) )
+	return;
+
     mDynamicCastGet(Pick::Set*,ps,cb)
     if ( !ps ) return;
 
@@ -99,9 +116,7 @@ void uiODPickSetParentTreeItem::setRm( CallBacker* cb )
 
 bool uiODPickSetParentTreeItem::showSubMenu()
 {
-    mDynamicCastGet(visSurvey::Scene*,scene,
-	    	    ODMainWin()->applMgr().visServer()->getObject(sceneID()));
-    if ( scene && scene->getDataTransform() )
+    if ( !canAddDisplay(sceneID()) )
     {
 	uiMSG().message( "Cannot add PickSets to this scene" );
 	return false;
