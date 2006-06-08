@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.68 2006-05-29 08:02:32 cvsbert Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.69 2006-06-08 14:11:27 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -70,6 +70,7 @@ uiODSceneMgr::uiODSceneMgr( uiODMain* a )
     , lasthrot_(0), lastvrot_(0), lastdval_(0)
     , tifs_(new uiTreeFactorySet)
     , sceneClosed(this)
+    , treeToBeAdded(this)
 {
 
     tifs_->addFactory( new uiODInlineTreeItemFactory, 1000 );
@@ -178,6 +179,7 @@ int uiODSceneMgr::addScene()
     scn.vwrGroup()->display( true, false, true );
     actMode(0);
     setZoomValue( scn.sovwr_->getCameraZoom() );
+    treeToBeAdded.trigger( sceneid );
     initTree( scn, vwridx );
 
     if ( scenes_.size() > 1 && scenes_[0] )

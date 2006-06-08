@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.h,v 1.34 2006-05-29 08:02:32 cvsbert Exp $
+ RCS:           $Id: uiodscenemgr.h,v 1.35 2006-06-08 14:11:27 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,6 +45,7 @@ public:
     void		removeScene(CallBacker*);
     void		setSceneName(int sceneid,const char*);
     CNotifier<uiODSceneMgr,int>	sceneClosed;
+    CNotifier<uiODSceneMgr,int>	treeToBeAdded;
 
     void		getScenePars(IOPar&);
     void		useScenePars(const IOPar&);
