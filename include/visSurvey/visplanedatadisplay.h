@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visplanedatadisplay.h,v 1.85 2006-06-08 13:39:54 cvsnanne Exp $
+ RCS:		$Id: visplanedatadisplay.h,v 1.86 2006-06-08 19:29:51 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -102,6 +102,9 @@ public:
     CubeSampling		getCubeSampling(bool manippos,
 	    					bool displayspace,
 						int attrib=-1) const;
+    void			getRandomPos( ObjectSet<BinIDValueSet>& ) const;
+    void			setRandomPosData( int attrib,
+					    const ObjectSet<BinIDValueSet>*);
     void			setCubeSampling(CubeSampling);
     bool			setDataVolume(int attrib,
 	    				      const Attrib::DataCubes*);
@@ -133,6 +136,9 @@ protected:
 				~PlaneDataDisplay();
 
     void			setData(int attrib,const Attrib::DataCubes*);
+    void			setData(int attrib,
+	    				const ObjectSet<BinIDValueSet>*);
+    void			updateRanges(bool resetpos=false);
     void			updateRanges(bool resetinlcrl=false,
 	    				     bool resetz=false);
     void			manipChanged(CallBacker*);
@@ -142,6 +148,7 @@ protected:
     void			draggerRightClick(CallBacker*);
     void			setDraggerPos(const CubeSampling&);
     void			dataTransformCB(CallBacker*);
+    void			setTextureCoords(int sz0,int sz1);
 
     CubeSampling		snapPosition(const CubeSampling&) const;
 
@@ -158,7 +165,8 @@ protected:
 
     ObjectSet<Attrib::SelSpec>		as_;
     BoolTypeSet				isclassification_;
-    ObjectSet<const Attrib::DataCubes>	cache_;
+    ObjectSet<const Attrib::DataCubes>	volumecache_;
+    ObjectSet<BinIDValueSet>		rposcache_;
 
     int				resolution_;
     BinID			curicstep_;
