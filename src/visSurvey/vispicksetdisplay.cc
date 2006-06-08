@@ -4,14 +4,16 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.84 2006-06-08 07:44:14 cvsnanne Exp $";
+static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.85 2006-06-08 09:28:49 cvsnanne Exp $";
 
 #include "vispicksetdisplay.h"
 
 #include "color.h"
+#include "iodir.h"
 #include "ioobj.h"
 #include "ioman.h"
 #include "iopar.h"
+#include "keystrs.h"
 #include "pickset.h"
 #include "picksettr.h"
 #include "survinfo.h"
@@ -413,8 +415,6 @@ int PickSetDisplay::usePar( const IOPar& par )
 
     int markertype = 0;
     int pixsize = 3;
-//  par.get( shapestr, set_->disp_.markertype_ );
-//  par.get( sizestr, set_->disp_.pixsize_ );
     par.get( shapestr, markertype );
     par.get( sizestr, pixsize );
 
@@ -427,8 +427,7 @@ int PickSetDisplay::usePar( const IOPar& par )
     int nopicks = 0;
     if ( par.get(nopickstr,nopicks) ) // old format
     {
-	return 1;
-	/*
+	Pick::Set* newps = new Pick::Set;
 	for ( int idx=0; idx<nopicks; idx++ )
 	{
 	    BufferString str;
@@ -442,9 +441,29 @@ int PickSetDisplay::usePar( const IOPar& par )
 	    if ( fms.size() > 3 )
 		dir = Sphere( atof(fms[3]), atof(fms[4]), atof(fms[5]) );
 
-	    addDisplayPick( addPick(pos,dir,false) );
+	    *newps += Pick::Location( pos, dir );
 	}
-	*/
+
+	newps->disp_.markertype_ = markertype;
+	newps->disp_.pixsize_ = pixsize;
+	newps->disp_.color_ = getMaterial()->getColor();
+
+	BufferString psname;
+	par.get( sKey::Name, psname );
+	newps->setName( psname );
+	setSet( newps );
+
+	PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(PickSet);
+	IOM().to( ctio->ctxt.stdSelKey() );
+	const IOObj* existioobj = IOM().getLocal( psname );
+	if ( existioobj )
+	    setid_ = existioobj->key();
+	else
+	{
+	    ctio->setName( psname );
+	    IOM().getEntry( *ctio );
+	    setid_ = ctio->ioobj->key();
+	}
     }
     else
     {
@@ -457,12 +476,15 @@ int PickSetDisplay::usePar( const IOPar& par )
 	Pick::Set* newps = new Pick::Set;
 	BufferString bs;
 	if ( PickSetTranslator::retrieve(*newps,ioobj,bs) )
+	{
+	    newps->disp_.markertype_ = markertype;
+	    newps->disp_.pixsize_ = pixsize;
 	    setSet( newps );
+	}
 	else
 	    return -1;
     }
 
-//  Pick::Mgr().reportChange( this, *set_ );
     return 1;
 }
 
