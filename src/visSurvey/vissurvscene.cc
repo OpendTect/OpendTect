@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: vissurvscene.cc,v 1.89 2006-06-05 19:35:04 cvskris Exp $
+ RCS:           $Id: vissurvscene.cc,v 1.90 2006-06-08 13:19:38 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,7 +32,8 @@ namespace visSurvey {
 
 const char* Scene::sKeyShowAnnot()			{ return "Show text"; }
 const char* Scene::sKeyShowScale()			{ return "Show scale"; }
-const char* Scene::sKeyShoCube()			{ return "Show cube"; }
+const char* Scene::sKeyShowCube()			{ return "Show cube"; }
+const char* Scene::sKeyZScale()				{ return "ZScale"; }
 
 Scene::Scene()
     : inlcrl2disptransform_(0)
@@ -469,7 +470,8 @@ void Scene::fillPar( IOPar& par, TypeSet<int>& saveids ) const
     
     par.setYN( sKeyShowAnnot(), isAnnotTextShown() );
     par.setYN( sKeyShowScale(), isAnnotScaleShown() );
-    par.setYN( sKeyShoCube(), isAnnotShown() );
+    par.setYN( sKeyShowCube(), isAnnotShown() );
+    par.set( sKeyZScale(), curzscale_ );
 }
 
 
@@ -498,9 +500,14 @@ int Scene::usePar( const IOPar& par )
     showAnnotScale( scaleshown );
 
     bool cubeshown = true;
-    par.getYN( sKeyShoCube(), cubeshown );
+    par.getYN( sKeyShowCube(), cubeshown );
     showAnnot( cubeshown );
 
+    float zscale = curzscale_;
+    par.get( sKeyZScale(), zscale );
+    if ( zscale != curzscale_ )
+	setZScale( zscale );
+    
     return 1;
 }
 

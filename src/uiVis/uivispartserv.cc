@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.320 2006-06-08 08:20:09 cvsnanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.321 2006-06-08 13:19:38 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -800,7 +800,6 @@ bool uiVisPartServer::setWorkingArea()
 	visBase::DataObject* obj = visBase::DM().getObject( sceneid );
 	mDynamicCastGet(visSurvey::Scene*,scene,obj)
 	if ( scene ) scene->setAnnotationCube( SI().sampling(true) );
-
     }
 
     return true;
@@ -885,16 +884,13 @@ void uiVisPartServer::fillPar( IOPar& par ) const
     for ( int idx=0; idx<scenes_.size(); idx++ )
 	storids += scenes_[idx]->id();
 
-    par.set( sKeyAppVel(),
-	     scenes_.size() ? scenes_[0]->getZScale()*1000 : 2000 );
-
     const CubeSampling& cs = SI().sampling( true );
     FileMultiString fms;
     fms += cs.hrg.start.inl; fms += cs.hrg.stop.inl; fms += cs.hrg.start.crl;
     fms += cs.hrg.stop.crl; fms += cs.zrg.start; fms += cs.zrg.stop;
     par.set( sKeyWorkArea(), fms );
 
-    visBase::DM().fillPar(par, storids);
+    visBase::DM().fillPar( par, storids );
 }
 
 
