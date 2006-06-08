@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          June 2003
- RCS:           $Id: emsurfaceio.cc,v 1.71 2006-05-31 12:59:34 cvskris Exp $
+ RCS:           $Id: emsurfaceio.cc,v 1.72 2006-06-08 18:11:20 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -597,7 +597,7 @@ int dgbSurfaceReader::nextStep()
 int dgbSurfaceReader::prepareNewSection( std::istream& strm )
 {
     const SectionID sectionid = sectionids_[sectionindex_];
-    if ( sectionsel_.indexOf(sectionid)==-1 )
+    if ( version_==3 && sectionsel_.indexOf(sectionid)==-1 )
     {
 	sectionindex_++;
 	return MoreToDo;
@@ -855,6 +855,7 @@ bool dgbSurfaceReader::readVersion3Row( std::istream& strm,
     RowCol rc( currentRow(), 0 );
     bool didread = false;
     const SectionID sectionid = sectionids_[sectionindex_];
+    const int cubezidx = sectionsel_.indexOf( sectionid );
     for ( ; colindex<nrcols; colindex++ )
     {
 	rc.col = firstcol+colindex*colrange_.step;
@@ -900,7 +901,7 @@ bool dgbSurfaceReader::readVersion3Row( std::istream& strm,
 	{
 	    cube_->set( readrowrange_->nearestIndex(rc.row),
 			readcolrange_->nearestIndex(rc.col),
-			sectionindex_, pos.z );
+			cubezidx, pos.z );
 	}
 
 	didread = true;
