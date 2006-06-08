@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: vishorizondisplay.cc,v 1.8 2006-06-01 13:53:36 cvskris Exp $
+ RCS:           $Id: vishorizondisplay.cc,v 1.9 2006-06-08 12:00:22 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -1028,6 +1028,7 @@ int HorizonDisplay::usePar( const IOPar& par )
 		if ( !coltab ) coltabid=-1;
 		coltabs_[attribnr]->unRef();
 		coltabs_.replace( attribnr, coltab );
+		coltabs_[attribnr]->ref();
 
 		for ( int idx=0; idx<sections_.size(); idx++ )
 		{
