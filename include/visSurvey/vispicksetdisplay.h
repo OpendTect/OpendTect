@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vispicksetdisplay.h,v 1.51 2006-06-01 07:30:15 cvskris Exp $
+ RCS:		$Id: vispicksetdisplay.h,v 1.52 2006-06-08 07:44:14 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -50,6 +50,7 @@ public:
 				mCreateDataObj(PickSetDisplay);
     void			setSet(Pick::Set*); // once!
     Pick::Set*			getSet()		{ return set_; }
+    const MultiID&		getSetID()		{ return setid_; }
 
     void			fullRedraw();
     void			showAll(bool yn);
@@ -75,6 +76,7 @@ public:
 protected:
 
     Pick::Set*			set_;
+    MultiID			setid_;
     Notifier<PickSetDisplay>	visnotif_;
 
     virtual			~PickSetDisplay();
@@ -100,6 +102,7 @@ protected:
     static const char*		showallstr;
     static const char*		shapestr;
     static const char*		sizestr;
+    static const char*		picksetidstr;
 };
 
 };

@@ -4,13 +4,16 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.83 2006-06-01 07:30:15 cvskris Exp $";
+static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.84 2006-06-08 07:44:14 cvsnanne Exp $";
 
 #include "vispicksetdisplay.h"
 
 #include "color.h"
+#include "ioobj.h"
+#include "ioman.h"
 #include "iopar.h"
 #include "pickset.h"
+#include "picksettr.h"
 #include "survinfo.h"
 #include "visevent.h"
 #include "visdataman.h"
@@ -32,6 +35,7 @@ const char* PickSetDisplay::pickprefixstr = "Pick ";
 const char* PickSetDisplay::showallstr = "Show all";
 const char* PickSetDisplay::shapestr = "Shape";
 const char* PickSetDisplay::sizestr = "Size";
+const char* PickSetDisplay::picksetidstr = "PickSet.ID";
 
 
 PickSetDisplay::PickSetDisplay()
@@ -67,6 +71,12 @@ void PickSetDisplay::setSet( Pick::Set* s )
 {
     if ( set_ ) { pErrMsg("Cannot set set_ twice"); return; }
     set_ = s;
+    if ( !set_ ) return;
+
+    const int setidx = Pick::Mgr().indexOf( *set_ );
+    if ( setidx>=0 )
+	setid_ = Pick::Mgr().id( setidx );
+
     fullRedraw();
 }
 
@@ -389,22 +399,7 @@ void PickSetDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 {
     visBase::VisualObjectImpl::fillPar( par, saveids );
 
-    const int nrpicks = group->size();
-    par.set( nopickstr, nrpicks );
-
-    for ( int idx=0; idx<nrpicks; idx++ )
-    {
-	const DataObject* so = group->getObject( idx );
-        mDynamicCastGet(const visBase::Marker*, marker, so );
-	BufferString key = pickprefixstr; key += idx;
-	Coord3 pos = marker->centerPos();
-	Sphere dir = marker->getDirection();
-	FileMultiString str; str += pos.x; str += pos.y; str += pos.z;
-	if ( dir.radius || dir.theta || dir.phi )
-	    { str += dir.radius; str += dir.theta; str += dir.phi; }
-	par.set( key, str.buf() );
-    }
-
+    par.set( picksetidstr, Pick::Mgr().get(*set_) );
     par.setYN( showallstr, showall );
     par.set( shapestr, set_->disp_.markertype_ );
     par.set( sizestr, set_->disp_.pixsize_ );
@@ -416,8 +411,12 @@ int PickSetDisplay::usePar( const IOPar& par )
     int res =  visBase::VisualObjectImpl::usePar( par );
     if ( res != 1 ) return res;
 
-    par.get( shapestr, set_->disp_.markertype_ );
-    par.get( sizestr, set_->disp_.pixsize_ );
+    int markertype = 0;
+    int pixsize = 3;
+//  par.get( shapestr, set_->disp_.markertype_ );
+//  par.get( sizestr, set_->disp_.pixsize_ );
+    par.get( shapestr, markertype );
+    par.get( sizestr, pixsize );
 
     bool shwallpicks = true;
     par.getYN( showallstr, shwallpicks );
@@ -426,24 +425,44 @@ int PickSetDisplay::usePar( const IOPar& par )
     group->removeAll();
 
     int nopicks = 0;
-    par.get( nopickstr, nopicks );
-    for ( int idx=0; idx<nopicks; idx++ )
+    if ( par.get(nopickstr,nopicks) ) // old format
     {
-	BufferString str;
-	BufferString key = pickprefixstr; key += idx;
-	if ( !par.get(key,str) )
+	return 1;
+	/*
+	for ( int idx=0; idx<nopicks; idx++ )
+	{
+	    BufferString str;
+	    BufferString key = pickprefixstr; key += idx;
+	    if ( !par.get(key,str) )
+		return -1;
+
+	    FileMultiString fms( str );
+	    Coord3 pos( atof(fms[0]), atof(fms[1]), atof(fms[2]) );
+	    Sphere dir;
+	    if ( fms.size() > 3 )
+		dir = Sphere( atof(fms[3]), atof(fms[4]), atof(fms[5]) );
+
+	    addDisplayPick( addPick(pos,dir,false) );
+	}
+	*/
+    }
+    else
+    {
+	if ( !par.get(picksetidstr,setid_) )
 	    return -1;
 
-	FileMultiString fms( str );
-	Coord3 pos( atof(fms[0]), atof(fms[1]), atof(fms[2]) );
-	Sphere dir;
-	if ( fms.size() > 3 )
-	    dir = Sphere( atof(fms[3]), atof(fms[4]), atof(fms[5]) );
+	PtrMan<IOObj> ioobj = IOM().get( setid_ );
+	if ( !ioobj ) return -1;
 
-	addDisplayPick( addPick(pos,dir,false) );
+	Pick::Set* newps = new Pick::Set;
+	BufferString bs;
+	if ( PickSetTranslator::retrieve(*newps,ioobj,bs) )
+	    setSet( newps );
+	else
+	    return -1;
     }
 
-    Pick::Mgr().reportChange( this, *set_ );
+//  Pick::Mgr().reportChange( this, *set_ );
     return 1;
 }
 
