@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.319 2006-06-06 15:10:33 cvsjaap Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.320 2006-06-08 08:20:09 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -904,6 +904,8 @@ void uiVisPartServer::turnOn( int id, bool yn, bool doclean )
 	yn = false;
 
     visBase::DataObject* dobj = visBase::DM().getObject( id );
+    if ( !dobj ) return;
+
     mDynamicCastGet(visBase::VisualObject*,vo,dobj)
     if ( vo ) vo->turnOn( yn );
 

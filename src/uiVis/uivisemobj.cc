@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Jan 2005
- RCS:           $Id: uivisemobj.cc,v 1.46 2006-04-27 16:04:37 cvskris Exp $
+ RCS:           $Id: uivisemobj.cc,v 1.47 2006-06-08 08:20:09 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,17 +50,17 @@ uiVisEMObject::uiVisEMObject( uiParent* uip, int newid, uiVisPartServer* vps )
     visSurvey::EMObjectDisplay* emod = getDisplay();
     if ( !emod ) return;
 
-    mDynamicCastGet( const visSurvey::HorizonDisplay*, hordisp, emod );
+    mDynamicCastGet(const visSurvey::HorizonDisplay*,hordisp,emod);
 
     uiCursorChanger cursorchanger( uiCursor::Wait );
 
     const MultiID mid = emod->getMultiID();
-    EM::ObjectID emid = EM::EMM().getObjectID(mid);
+    EM::ObjectID emid = EM::EMM().getObjectID( mid );
     if ( !EM::EMM().getObject(emid) )
     {
-	PtrMan<Executor> exec = 0;
+	Executor* exec = 0;
 	EM::SurfaceIOData sd;
-	if ( !EM::EMM().getSurfaceData( mid, sd ) )
+	if ( !EM::EMM().getSurfaceData(mid,sd) )
 	{
 	    EM::SurfaceIODataSelection sel( sd );
 	    sel.setDefault();
@@ -100,9 +100,20 @@ uiVisEMObject::uiVisEMObject( uiParent* uip, int newid, uiVisPartServer* vps )
 
 	if ( exec )
 	{
+	    emid = EM::EMM().getObjectID( mid );
+	    EM::EMObject* emobject = EM::EMM().getObject( emid );
+	    emobject->ref();
 	    uiExecutor dlg( uiparent, *exec );
-	    if ( dlg.go() )
-		emid = EM::EMM().getObjectID(mid);
+	    if ( !dlg.go() )
+	    {
+		emid = -1;
+		emobject->unRef();
+		emod->unRef();
+		return;
+	    }
+
+	    delete exec;
+	    emobject->unRefNoDelete();
 	}
     }
 
