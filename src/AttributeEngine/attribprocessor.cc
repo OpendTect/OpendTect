@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribprocessor.cc,v 1.40 2006-03-23 12:47:17 cvshelene Exp $";
+static const char* rcsID = "$Id: attribprocessor.cc,v 1.41 2006-06-08 13:06:03 cvshelene Exp $";
 
 #include "attribprocessor.h"
 
@@ -275,12 +275,11 @@ bool Processor::setZIntervals( TypeSet< Interval<int> >& localintervals,
 	if ( !outputs[idx]->wantsOutput(curbid) || curbid == prevbid_ ) 
 	    continue;
 
-	//just assume that intervals.size() will be != 0 only in
-	//case of arbitrary shapes or picks which will require only 
-	//one output.
 	if ( isset )
-	    localintervals[0].include( outputs[idx]->
-		    	getLocalZRange( curbid, provider->getRefStep() )[0] );
+	{
+	    localintervals.append ( outputs[idx]->
+			    getLocalZRange( curbid, provider->getRefStep() ) );
+	}
 	else
 	{
 	    localintervals = outputs[idx]->
