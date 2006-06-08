@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Payraudeau
  Date:          February  2006
- RCS:           $Id: uifingerprintattrib.cc,v 1.13 2006-06-07 15:38:56 cvshelene Exp $
+ RCS:           $Id: uifingerprintattrib.cc,v 1.14 2006-06-08 09:05:47 cvshelene Exp $
 
 ________________________________________________________________________
 
@@ -144,18 +144,22 @@ uiFingerPrintAttrib::uiFingerPrintAttrib( uiParent* p )
 	    		   "Please select some attributes and go to Advanced" );
     manlbl_->attach( alignedBelow, (uiParent*)refgrp_ );
     
-    table_ = new uiTable( this, uiTable::Setup().rowdesc("")
-						.rowgrow(true)
-						.defrowlbl("")
-						.fillcol(true)
-						.fillrow(false) );
+    table_ = new uiTable( this,uiTable::Setup().rowdesc("")
+					.rowgrow(true)
+					.minrowhgt(1.9)
+					.maxrowhgt(5)
+					.mincolwdt(3.7*uiObject::baseFldSize())
+					.maxcolwdt(6*uiObject::baseFldSize())
+					.defrowlbl("")
+					.fillcol(true)
+					.fillrow(true) );
 
     const char* collbls[] = { "Reference attributes", 0 };
     table_->setColumnLabels( collbls );
     table_->setNrRows( sInitNrRows );
     table_->setColumnWidth(0,240);
     table_->setRowHeight( -1, 16 );
-    table_->setPrefHeight( 100 );
+    table_->setPrefHeight( 125 );
     table_->setToolTip( "Right-click to add, insert or remove an attribute" );
     table_->attach( alignedBelow, linefld_ );
     table_->rowInserted.notify( mCB(this,uiFingerPrintAttrib,insertRowCB) );
