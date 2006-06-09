@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.cc,v 1.93 2006-06-06 15:21:00 cvsjaap Exp $
+ RCS:           $Id: uimpeman.cc,v 1.94 2006-06-09 06:37:26 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -306,6 +306,7 @@ void uiMPEMan::seedClick( CallBacker* )
 
 	seedpicker->addSeed( pos );
     }
+    visserv->makeSectionDisplayRefresh( clickedobject );
 
     uiCursor::restoreOverride();
     setHistoryLevel(currentevent);
