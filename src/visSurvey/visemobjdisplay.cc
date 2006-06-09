@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: visemobjdisplay.cc,v 1.87 2006-06-01 07:30:15 cvskris Exp $
+ RCS:           $Id: visemobjdisplay.cc,v 1.88 2006-06-09 06:53:44 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -301,6 +301,12 @@ void EMObjectDisplay::showPosAttrib( int attr, bool yn, const Color& color )
 	posattrmat->setColor( color );
 
 	updatePosAttrib(attr);
+	
+	if ( displayonlyatsections_ )
+	{
+	    setOnlyAtSectionsDisplay(false);
+	    setOnlyAtSectionsDisplay(true);
+	}
     }
     else if ( attribindex!=-1 && !yn )
     {
