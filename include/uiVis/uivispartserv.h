@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.171 2006-06-06 14:19:11 cvsjaap Exp $
+ RCS:           $Id: uivispartserv.h,v 1.172 2006-06-09 06:35:18 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -252,6 +252,7 @@ public:
     uiToolBar*			getTrackTB() const;
     void			initMPEStuff();
 
+    void			makeSectionDisplayRefresh(int id) const;
     bool			dumpOI(int id) const;
     
     bool			usePar(const IOPar&);

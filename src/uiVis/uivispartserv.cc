@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.321 2006-06-08 13:19:38 cvsnanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.322 2006-06-09 06:35:18 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -1101,6 +1101,15 @@ bool uiVisPartServer::dumpOI( int id ) const
     }
 
     return false;
+}
+
+
+void uiVisPartServer::makeSectionDisplayRefresh( int id ) const
+{
+    // fictitious trigger of plane movement to force refresh 
+    // in case of display at sections only.
+    mDynamicCastGet( visSurvey::SurveyObject*, so, getObject(id) );
+    if ( so ) so->resetManipulation();
 }
 
 
