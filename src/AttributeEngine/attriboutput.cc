@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attriboutput.cc,v 1.44 2006-05-03 18:54:19 cvskris Exp $";
+static const char* rcsID = "$Id: attriboutput.cc,v 1.45 2006-06-09 09:53:56 cvshelene Exp $";
 
 #include "attriboutput.h"
 #include "attribdataholder.h"
@@ -154,6 +154,7 @@ void DataCubesOutput::collectData( const DataHolder& data, float refstep,
 	    const int crlidx =
 		datacubes_->crlsampling.nearestIndex(info.binid.crl);
 
+	    if ( mIsUdf(val) ) continue;
 	    datacubes_->setValue( desout, inlidx, crlidx, idx, val);
 	}
     }
