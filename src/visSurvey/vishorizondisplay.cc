@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: vishorizondisplay.cc,v 1.9 2006-06-08 12:00:22 cvsnanne Exp $
+ RCS:           $Id: vishorizondisplay.cc,v 1.10 2006-06-09 06:50:00 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,6 +20,7 @@ ________________________________________________________________________
 #include "visdrawstyle.h"
 #include "visevent.h"
 #include "vishingeline.h"
+#include "vismarker.h"
 #include "vismpe.h"
 #include "visparametricsurface.h"
 #include "visplanedatadisplay.h"
@@ -68,6 +69,7 @@ HorizonDisplay::HorizonDisplay()
     , translation_(0)
     , edgelineradius_( 3.5 )
     , validtexture_( false )
+    , seedsatsectionsonly_( displayonlyatsections_ )
 {
     as_ += new Attrib::SelSpec;
     coltabs_ += visBase::VisColorTab::create();
@@ -1250,11 +1252,60 @@ void HorizonDisplay::updateIntersectionLines(
 }
 
 
+void HorizonDisplay::updateSectionSeeds( 
+	    const ObjectSet<const SurveyObject>& objs, int movedobj )
+{
+    // Only accept movement of this horizon if display_only_at_sections was 
+    // toggled, neglect enumerous callbacks from individual horizon position 
+    // changes, seed clicking in a plane triggers (fictitious) plane movement.
+    if ( movedobj==id() && seedsatsectionsonly_==displayonlyatsections_ )
+	return;
+    
+    bool refresh = movedobj==-1 || movedobj==id();
+    TypeSet<int> planelist;
+
+    for ( int idx=0; idx<objs.size(); idx++ )
+    {
+	mDynamicCastGet(const PlaneDataDisplay*,plane,objs[idx]);
+	if ( plane )
+	    planelist += idx; 
+	if ( plane && movedobj==plane->id() ) 
+	    refresh = true;
+    }
+
+    if ( !refresh ) return;
+
+    for ( int idx=0; idx<posattribmarkers_.size(); idx++ )
+    {
+	visBase::DataObjectGroup* group = posattribmarkers_[idx];
+	for ( int idy=0; idy<group->size(); idy++ )
+	{
+	    mDynamicCastGet(visBase::Marker*,marker,group->getObject(idy))
+	    if ( !marker ) continue;
+	
+	    marker->turnOn( !displayonlyatsections_ );
+	    Coord3 pos = marker->centerPos(true);
+	    for ( int idz=0; idz<planelist.size(); idz++ )
+		{
+		const float dist = objs[planelist[idz]]->calcDist(pos);
+		if ( dist < objs[planelist[idz]]->maxDist() )
+		{
+		    marker->turnOn(true);
+		    break;
+		}
+	    }
+	}
+    }
+    seedsatsectionsonly_ = displayonlyatsections_;
+}
+
+
 void HorizonDisplay::otherObjectsMoved(
 	    const ObjectSet<const SurveyObject>& objs, int whichobj )
-{ updateIntersectionLines(objs,whichobj); }
-
-
+{ 
+    updateIntersectionLines( objs, whichobj ); 
+    updateSectionSeeds( objs, whichobj );
+}
 
 
 }; // namespace visSurvey

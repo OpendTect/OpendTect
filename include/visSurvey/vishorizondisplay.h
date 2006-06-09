@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          May 2004
- RCS:           $Id: vishorizondisplay.h,v 1.3 2006-06-01 07:30:15 cvskris Exp $
+ RCS:           $Id: vishorizondisplay.h,v 1.4 2006-06-09 06:50:00 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -116,11 +116,14 @@ protected:
     void			emEdgeLineChangeCB(CallBacker*);
     void			edgeLineRightClickCB(CallBacker*);
     void			updateIntersectionLines(
-				   const ObjectSet<const SurveyObject>&,
-				   int whichobj );
+				    const ObjectSet<const SurveyObject>&,
+				    int whichobj );
+    void			updateSectionSeeds(
+				    const ObjectSet<const SurveyObject>&,
+				    int whichobj );
     void			otherObjectsMoved(
-				   const ObjectSet<const SurveyObject>&,
-				   int whichobj );
+				    const ObjectSet<const SurveyObject>&,
+				    int whichobj );
 
     mVisTrans*				translation_;
     ObjectSet<visBase::VisColorTab>	coltabs_;
@@ -144,6 +147,7 @@ protected:
 
     ObjectSet<Attrib::SelSpec>		as_;
     bool				validtexture_;
+    bool				seedsatsectionsonly_;
 
     static visBase::FactoryEntry	surfdispentry;
     static visBase::FactoryEntry	emobjentry;
