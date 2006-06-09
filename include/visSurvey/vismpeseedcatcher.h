@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vismpeseedcatcher.h,v 1.8 2006-05-05 21:00:51 cvskris Exp $
+ RCS:		$Id: vismpeseedcatcher.h,v 1.9 2006-06-09 06:27:15 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -65,7 +65,7 @@ protected:
     void			clickCB(CallBacker*);
 
     void 			sendPlanesContainingNode(
-					int visid, const EMObjectDisplay*,
+					const EMObjectDisplay*,
 					const visBase::EventInfo&);
 
     void			sendClickEvent( const EM::PosID,

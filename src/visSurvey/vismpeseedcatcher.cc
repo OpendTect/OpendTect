@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vismpeseedcatcher.cc,v 1.10 2006-05-05 21:11:07 cvskris Exp $";
+static const char* rcsID = "$Id: vismpeseedcatcher.cc,v 1.11 2006-06-09 06:27:15 cvsjaap Exp $";
 
 #include "vismpeseedcatcher.h"
 
@@ -143,7 +143,7 @@ void MPEClickCatcher::clickCB( CallBacker* cb )
 	    mDynamicCastGet( visSurvey::EMObjectDisplay*, emod, dataobj );
 	    if ( emod )
 	    {
-		sendPlanesContainingNode( visid, emod, eventinfo );
+		sendPlanesContainingNode( emod, eventinfo );
 		eventcatcher_->eventIsHandled();
 		break;
 	    }
@@ -204,8 +204,8 @@ void MPEClickCatcher::clickCB( CallBacker* cb )
 
 
 void MPEClickCatcher::sendPlanesContainingNode( 
-			    int visid, const visSurvey::EMObjectDisplay* emod,
-			    const visBase::EventInfo& eventinfo )
+				    const visSurvey::EMObjectDisplay* emod,
+				    const visBase::EventInfo& eventinfo )
 {
     const EM::PosID nodepid = emod->getPosAttribPosID( EM::EMObject::sSeedNode,
 						       eventinfo.pickedobjids );
@@ -237,7 +237,7 @@ void MPEClickCatcher::sendPlanesContainingNode(
 	if ( cs.hrg.includes(nodebid) && cs.zrg.includes(nodepos.z) )
 	{
 	    sendClickEvent( nodepid, eventinfo.ctrl, eventinfo.shift,
-			    eventinfo.pickedpos, visid, cs, 
+			    eventinfo.pickedpos, plane->id(), cs, 
 			    plane->getCacheVolume(false), 
 			    plane->getSelSpec(0) );
 	}
