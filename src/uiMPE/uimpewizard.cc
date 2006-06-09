@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpewizard.cc,v 1.52 2006-06-06 15:01:08 cvsjaap Exp $
+ RCS:           $Id: uimpewizard.cc,v 1.53 2006-06-09 06:40:30 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -485,10 +485,10 @@ void Wizard::restoreObject()
 	const MultiID mid = EM::EMM().getMultiID(currentobject);
 	PtrMan<IOObj> ioobj = IOM().get(mid);
 
-	if ( !ioobj || !fullImplRemove(*ioobj) ||
-	     !IOM().permRemove(mid) )
+	if ( ioobj )
 	{
-	    pErrMsg( "Could not remove object" );
+	    if ( !fullImplRemove(*ioobj) || !IOM().permRemove(mid) )
+		pErrMsg( "Could not remove object" );
 	}
 
     }
