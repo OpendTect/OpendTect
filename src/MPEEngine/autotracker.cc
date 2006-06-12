@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: autotracker.cc,v 1.7 2006-02-27 10:56:55 cvsjaap Exp $";
+static const char* rcsID = "$Id: autotracker.cc,v 1.8 2006-06-12 14:29:17 cvsjaap Exp $";
 
 #include "autotracker.h"
 
@@ -37,22 +37,20 @@ AutoTracker::AutoTracker( EMTracker& et, const EM::SectionID& sid )
     adjuster = sectiontracker->adjuster();
 
     PtrMan<EM::EMObjectIterator> iterator = emobject.createIterator(sectionid);
-    totalnr = iterator->maximumSize();
-
-    const CubeSampling activevolume = engine().activeVolume();
+    totalnr = engine().activeVolume().hrg.totalNr();
 
     while ( true )
     {
 	const EM::PosID pid = iterator->next();
 	if ( pid.objectID()==-1 )
 	    break;
-
-	if ( totalnr>0 ) totalnr--;
+	
+	BinID bid = SI().transform( emobject.getPos(pid) );
+	if ( engine().activeVolume().hrg.includes(bid) )
+	    totalnr--;
 	
 	addSeed(pid);
     }
-
-    totalnr = currentseeds.size();
 }
 
 
@@ -62,8 +60,6 @@ void AutoTracker::setNewSeeds( const TypeSet<EM::PosID>& seeds )
 
     for( int idx=0; idx<seeds.size(); ++idx )
 	addSeed(seeds[idx]);
-
-    totalnr = currentseeds.size();
 }
 
 
@@ -125,12 +121,10 @@ int AutoTracker::nextStep()
     //others are unsupported. Remove all unsupported nodes.
     sectiontracker->removeUnSupported( addedpos );
 
-    nrdone += currentseeds.size();
-
     // Make all new nodes seeds
     currentseeds = addedpos;
+    nrdone += currentseeds.size();
 
-    totalnr += currentseeds.size();
     return currentseeds.size() ? MoreToDo : Finished;
 }
 
