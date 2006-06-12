@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribstorprovider.cc,v 1.41 2006-04-04 10:22:48 cvshelene Exp $";
+static const char* rcsID = "$Id: attribstorprovider.cc,v 1.42 2006-06-12 09:00:41 cvshelene Exp $";
 
 #include "attribstorprovider.h"
 
@@ -90,7 +90,7 @@ void StorageProvider::updateDesc( Desc& desc )
 	BufferString type;
 	ioobj->pars().get( sKey::Type, type );
 	Seis::DataType datatype = 
-	    type == sKey::Steering ? Seis::Dip : Seis::Ampl;
+	    type == sKey::Steering ? Seis::Dip : Seis::UnknowData;
 	
 	const int nrattribs = transl->componentInfo().size();
 	desc.setNrOutputs( datatype, nrattribs );
