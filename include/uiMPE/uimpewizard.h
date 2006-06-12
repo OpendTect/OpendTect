@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpewizard.h,v 1.21 2006-05-12 09:51:14 cvsnanne Exp $
+ RCS:           $Id: uimpewizard.h,v 1.22 2006-06-12 14:39:48 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -100,6 +100,7 @@ protected:
     void		colorChangeCB(CallBacker*);
     void		anotherSel(CallBacker*);
     void		seedModeChange(CallBacker*);
+    void		retrackCB(CallBacker*);
     void		setupChange(CallBacker*);
     void		updateFinishButton(CallBacker*);
 

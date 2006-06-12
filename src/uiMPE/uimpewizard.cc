@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpewizard.cc,v 1.53 2006-06-09 06:40:30 cvsjaap Exp $
+ RCS:           $Id: uimpewizard.cc,v 1.54 2006-06-12 14:39:48 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -59,7 +59,7 @@ static const char* sTrackInVolInfo()
 	"The horizon is (auto-) tracked inside a small track-volume.\n\n"
 	"Workflow:\n"
 	"1) Define settings\n"
-	"2) Pick seed(s) (remove ctrl-pick)\n"
+	"2) Pick seed(s) (remove ctrl-pick, erase shift-pick)\n"
 	"3) Finish wizard and position/resize track-volume\n"
 	"4) Use toolbar to auto-track, plane-by-plane track, and edit\n"
 	"5) Reposition track-volume and repeat step 4\n";
@@ -72,7 +72,7 @@ static const char* sLineTrackInfo()
 	"The horizon is auto-tracked in the line direction only.\n\n"
 	"Workflow:\n"
 	"1) Define settings\n"
-	"2) Pick seeds (remove ctrl-pick)\n"
+	"2) Pick seeds (remove ctrl-pick, erase shift-pick)\n"
 	"3) Finish wizard\n"
 	"4) Scroll line to new position or open new line, and pick new seeds\n"
 	"5) Use 'Fill holes' to create continuous horizon\n";
@@ -86,7 +86,7 @@ static const char* sLineManualInfo()
         "in the line direction only.\n\n"
 	"Workflow:\n"
 	"1) Finish wizard\n"
-	"2) Pick seeds (remove ctrl-pick)\n"
+	"2) Pick seeds (remove ctrl-pick, erase shift-pick)\n"
 	"3) Scroll line to new position or open new line, and pick new seeds\n"
 	"4) Use 'Fill holes' to create continuous horizon\n";
 }
@@ -187,7 +187,7 @@ uiGroup* Wizard::createSeedSetupPage()
 	    		"Evaluate settings by picking one or more seeds" );
     lbl->attach( centeredBelow, setupgrp );
     uiPushButton* applybut = new uiPushButton( grp, "Retrack", true );
-    applybut->activated.notify( mCB(this,Wizard,setupChange) );
+    applybut->activated.notify( mCB(this,Wizard,retrackCB) );
     applybut->attach( centeredBelow, lbl );
 
     return grp;
@@ -397,7 +397,7 @@ bool Wizard::leaveSeedSetupPage( bool process )
     mGetSeedPicker(false);
     if ( process )
     {
-	setupChange(0);
+	retrackCB(0);
         if ( seedpicker->isSeedPickBlocked() )
 	    return false;
     }
@@ -727,6 +727,19 @@ void Wizard::seedModeChange( CallBacker* )
     seedpicker->setSeedConnectMode( newmode );
 
     displayPage( sSeedSetupPage, seedpicker->doesModeUseSetup() );
+}
+
+
+void Wizard::retrackCB( CallBacker* )
+{
+    EM::History& history = EM::EMM().history();
+    int cureventnr = history.currentEventNr();
+    if ( history.getLevel(cureventnr) == EM::History::cUserInteraction )
+	history.setLevel( cureventnr, 0 );
+
+    setupChange(0);
+
+    history.setCurEventAsUserInteraction();
 }
 
 
