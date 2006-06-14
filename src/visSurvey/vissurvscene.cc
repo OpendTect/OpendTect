@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: vissurvscene.cc,v 1.90 2006-06-08 13:19:38 cvsnanne Exp $
+ RCS:           $Id: vissurvscene.cc,v 1.91 2006-06-14 17:09:43 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -48,7 +48,7 @@ Scene::Scene()
     , curzscale_(-1)
     , datatransform_( 0 )
 {
-    events.eventhappened.notify( mCB(this,Scene,mouseMoveCB) );
+    events_.eventhappened.notify( mCB(this,Scene,mouseMoveCB) );
     setAmbientLight( 1 );
     init();
 }
@@ -74,7 +74,7 @@ void Scene::init()
 
 Scene::~Scene()
 {
-    events.eventhappened.remove( mCB(this,Scene,mouseMoveCB) );
+    events_.eventhappened.remove( mCB(this,Scene,mouseMoveCB) );
 
     int objidx = getFirstIdx( inlcrl2disptransform_ );
     if ( objidx >= 0 ) removeObject( objidx );

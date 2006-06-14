@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visscene.h,v 1.14 2005-10-10 21:55:25 cvskris Exp $
+ RCS:		$Id: visscene.h,v 1.15 2006-06-14 17:09:43 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -18,12 +18,12 @@ ________________________________________________________________________
 #include "visdatagroup.h"
 
 class SoEnvironment;
-class SoPolygonOffset;
 
 namespace visBase
 {
     class SelectionManager;
     class EventCatcher;
+    class PolygonOffset;
 
 /*!\brief
     Scene manages all DataObjects and has some managing
@@ -37,30 +37,30 @@ public:
     static Scene*	create()
 			mCreateDataObj(Scene);
 
-    void		addObject( DataObject* );
-    void		insertObject( int idx, DataObject* );
+    void		addObject(DataObject*);
+    void		insertObject(int idx,DataObject*);
 
-    void		setAmbientLight( float );
+    void		setAmbientLight(float);
     float		ambientLight() const;
 
-    bool		blockMouseSelection( bool yn );
+    bool		blockMouseSelection(bool yn);
     			/*!<\returns previous status. */
 
     SoNode*		getInventorNode();
 
 protected:
     virtual		~Scene();
-    EventCatcher&	events;
+    EventCatcher&	events_;
 
 private:
-    int			mousedownid;
+    int			mousedownid_;
 
-    void		mousePickCB( CallBacker* );
+    void		mousePickCB(CallBacker*);
 
-    SoEnvironment*	environment;
-    SoPolygonOffset*	polygonoffset;
-    SoGroup*		selroot;
-    bool		blockmousesel;
+    SoEnvironment*	environment_;
+    PolygonOffset*	polygonoffset_;
+    SoGroup*		selroot_;
+    bool		blockmousesel_;
 };
 
 };
