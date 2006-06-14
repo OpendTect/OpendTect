@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Mar 2002
- RCS:           $Id: vishingeline.cc,v 1.13 2006-04-27 16:00:40 cvskris Exp $
+ RCS:           $Id: vishingeline.cc,v 1.14 2006-06-14 13:45:54 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,17 +41,15 @@ EdgeLineSetDisplay::EdgeLineSetDisplay()
     , connect( true )
     , showdefault( true )
 {
+    getMaterial()->setAmbience(0);
+
     getMaterial()->setColor( Color(178,178,178), 0 );
-    getMaterial()->setAmbience(0, 0);
     getMaterial()->setDiffIntensity(1,0);
     getMaterial()->setColor( Color(0,0,255), mCutColor );
-    getMaterial()->setAmbience(0, mCutColor);
     getMaterial()->setDiffIntensity(1,mCutColor);
     getMaterial()->setColor( Color(255,0,0), mStopColor );
-    getMaterial()->setAmbience(0, mStopColor);
     getMaterial()->setDiffIntensity(1,mStopColor);
     getMaterial()->setColor( Color(0,255,0), mConnectColor );
-    getMaterial()->setAmbience(0, mConnectColor);
     getMaterial()->setDiffIntensity(1,mConnectColor);
 
     Settings::common().getYN(IOPar::compKey("dTect","Surface.Show default edgelinesegments"),showdefault);
