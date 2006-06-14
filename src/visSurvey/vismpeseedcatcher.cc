@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vismpeseedcatcher.cc,v 1.11 2006-06-09 06:27:15 cvsjaap Exp $";
+static const char* rcsID = "$Id: vismpeseedcatcher.cc,v 1.12 2006-06-14 07:07:44 cvsjaap Exp $";
 
 #include "vismpeseedcatcher.h"
 
@@ -17,7 +17,9 @@ static const char* rcsID = "$Id: vismpeseedcatcher.cc,v 1.11 2006-06-09 06:27:15
 #include "visevent.h"
 #include "visseis2ddisplay.h"
 #include "vismpe.h"
+#include "vissurvscene.h"
 #include "vistransform.h"
+#include "vistransmgr.h"
 #include "visplanedatadisplay.h"
 
 mCreateFactoryEntry( visSurvey::MPEClickCatcher );
@@ -143,7 +145,7 @@ void MPEClickCatcher::clickCB( CallBacker* cb )
 	    mDynamicCastGet( visSurvey::EMObjectDisplay*, emod, dataobj );
 	    if ( emod )
 	    {
-		sendPlanesContainingNode( emod, eventinfo );
+		sendUnderlyingPlanes( emod, eventinfo );
 		eventcatcher_->eventIsHandled();
 		break;
 	    }
@@ -203,20 +205,27 @@ void MPEClickCatcher::clickCB( CallBacker* cb )
 }
 
 
-void MPEClickCatcher::sendPlanesContainingNode( 
+void MPEClickCatcher::sendUnderlyingPlanes( 
 				    const visSurvey::EMObjectDisplay* emod,
 				    const visBase::EventInfo& eventinfo )
 {
-    const EM::PosID nodepid = emod->getPosAttribPosID( EM::EMObject::sSeedNode,
-						       eventinfo.pickedobjids );
-    if ( nodepid.objectID()==-1 ) 
-	return;
-
     const EM::EMObject* emobj = EM::EMM().getObject( emod->getObjectID() );
     if ( !emobj ) 
 	return;
+    
+    const EM::PosID nodepid = emod->getPosAttribPosID( EM::EMObject::sSeedNode,
+						       eventinfo.pickedobjids );
+    Coord3 nodepos =  emobj->getPos( nodepid );
+    
+    if ( !nodepos.isDefined() )
+    {
+	 if ( eventinfo.ctrl || eventinfo.shift ) return;
 
-    const Coord3 nodepos = emobj->getPos( nodepid );
+	 Scene* scene = STM().currentScene();
+	 const Coord3 disppos = scene->getZScaleTransform()->
+					transformBack( eventinfo.pickedpos );
+	 nodepos = scene->getUTM2DisplayTransform()->transformBack( disppos );
+    }
     const BinID nodebid = SI().transform( nodepos );
     
     TypeSet<int> planesinscene;
@@ -236,7 +245,7 @@ void MPEClickCatcher::sendPlanesContainingNode(
 	const CubeSampling cs = plane->getCubeSampling();
 	if ( cs.hrg.includes(nodebid) && cs.zrg.includes(nodepos.z) )
 	{
-	    sendClickEvent( nodepid, eventinfo.ctrl, eventinfo.shift,
+	    sendClickEvent( nodepid, eventinfo.ctrl, eventinfo.shift, 
 			    eventinfo.pickedpos, plane->id(), cs, 
 			    plane->getCacheVolume(false), 
 			    plane->getSelSpec(0) );
