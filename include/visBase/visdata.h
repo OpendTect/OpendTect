@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visdata.h,v 1.38 2006-05-29 08:02:32 cvsbert Exp $
+ RCS:		$Id: visdata.h,v 1.39 2006-06-14 17:05:12 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -71,7 +71,7 @@ public:
     virtual NotifierAccess*	rightClicked()		{ return 0; }
     virtual const TypeSet<int>*	rightClickedPath() const{ return 0; }
 
-    virtual void		setDisplayTransformation( Transformation* );
+    virtual void		setDisplayTransformation(Transformation*);
     				/*!< All positions going from the outside
 				     world to the vis should be transformed
 				     witht this transform. This enables us
@@ -90,19 +90,19 @@ public:
 				     in the vis.
 				 */
 
-    virtual int			usePar( const IOPar& );
+    virtual int			usePar(const IOPar&);
     				/*!< Returns -1 on error and 1 on success.
 				     If it returns 0 it is missing something.
 				     Parse everything else and retry later.
 				*/
 
-    virtual void		fillPar( IOPar&, TypeSet<int>& ) const;
+    virtual void		fillPar(IOPar&, TypeSet<int>&) const;
 			
     static const char*		sKeyType();
     static const char*		sKeyName();
 
-    bool			dumpOIgraph( const char* filename,
-	    				     bool binary=false);
+    bool			dumpOIgraph(const char* filename,
+	    				    bool binary=false);
 
 protected:
     friend class		SelectionManager;
