@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: vismaterial.cc,v 1.11 2005-02-07 12:45:40 nanne Exp $
+ RCS:           $Id: vismaterial.cc,v 1.12 2006-06-14 17:04:30 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,93 +20,122 @@ mCreateFactoryEntry( visBase::Material );
 namespace visBase
 {
 
-const char* Material::colorstr = "Color";
-const char* Material::ambiencestr = "Ambient Intensity";
-const char* Material::diffintensstr = "Diffuse Intensity";
-const char* Material::specintensstr = "Specular Intensity";
-const char* Material::emmintensstr = "Emmissive Intensity";
-const char* Material::shininessstr = "Shininess";
-const char* Material::transpstr = "Transparency";
+const char* Material::sKeyColor()		{ return "Color"; }
+const char* Material::sKeyAmbience()		{ return "Ambient Intensity"; }
+const char* Material::sKeyDiffIntensity()	{ return "Diffuse Intensity"; }
+const char* Material::sKeySpectralIntensity()	{ return "Specular Intensity"; }
+const char* Material::sKeyEmmissiveIntensity()	{ return "Emmissive Intensity";}
+const char* Material::sKeyShininess()		{ return "Shininess"; }
+const char* Material::sKeyTransparency()	{ return "Transparency"; }
 
 Material::Material()
-    : material( new SoMaterial )
+    : material_( new SoMaterial )
+    , ambience_( 0.8 )
+    , specularintensity_( 0 )
+    , emmissiveintensity_( 0 )
+    , shininess_( 0 )
+    , transparency_( 0 )
 {
-    material->ref();
+    material_->ref();
     setMinNrOfMaterials(0);
     updateMaterial(0);
 }
 
 
 Material::~Material()
-{ material->unref(); }
+{ material_->unref(); }
 
 
-#define mSetGetProperty( Type, func, var ) \
-void Material::set##func( Type n, int idx ) \
-{ \
-    setMinNrOfMaterials(idx); \
-    var[idx] = n; \
-    updateMaterial( idx ); \
-} \
-Type Material::get##func( int idx ) const \
-{ \
-    if ( idx>=0 && idx<var.size() ) \
-	return var[idx]; \
-    return var[0]; \
+void Material::setColor( const Color& n, int idx )
+{
+    setMinNrOfMaterials(idx);
+    color_[idx] = n;
+    updateMaterial( idx );
 }
 
 
-mSetGetProperty( const Color&, Color, color );
-mSetGetProperty( float, Ambience, ambience );
-mSetGetProperty( float, DiffIntensity, diffuseintencity );
-mSetGetProperty( float, SpecIntensity, specularintensity );
-mSetGetProperty( float, EmmIntensity, emmissiveintensity );
-mSetGetProperty( float, Shininess, shininess );
-mSetGetProperty( float, Transparency, transparency );
+const Color& Material::getColor( int idx ) const
+{
+    if ( idx>=0 && idx<color_.size() )
+	return color_[idx];
+    return color_[0];
+}
+
+
+void Material::setDiffIntensity( float n, int idx )
+{
+    setMinNrOfMaterials(idx);
+    diffuseintencity_[idx] = n;
+    updateMaterial( idx );
+}
+
+
+float Material::getDiffIntensity( int idx ) const
+{
+    if ( idx>=0 && idx<diffuseintencity_.size() )
+	return diffuseintencity_[idx];
+    return diffuseintencity_[0];
+}
+
+
+#define mSetGetProperty( Type, func, var ) \
+void Material::set##func( Type n ) \
+{ \
+    var = n; \
+    updateMaterial( 0 ); \
+} \
+Type Material::get##func() const \
+{ \
+    return var; \
+}
+
+
+mSetGetProperty( float, Ambience, ambience_ );
+mSetGetProperty( float, SpecIntensity, specularintensity_ );
+mSetGetProperty( float, EmmIntensity, emmissiveintensity_ );
+mSetGetProperty( float, Shininess, shininess_ );
+mSetGetProperty( float, Transparency, transparency_ );
 
 
 void Material::updateMaterial(int idx)
 {
-    material->ambientColor.set1Value( idx, color[idx].r() * ambience[idx]/255,
-				    color[idx].g() * ambience[idx]/255,
-				    color[idx].b() * ambience[idx]/255 );
+    if ( !idx )
+    {
+	material_->ambientColor.set1Value( 0, color_[0].r() * ambience_/255,
+					     color_[0].g() * ambience_/255,
+					     color_[0].b() * ambience_/255 );
+	material_->specularColor.set1Value( 0,
+		    color_[0].r() * specularintensity_/255,
+		    color_[0].g() * specularintensity_/255,
+		    color_[0].b() * specularintensity_/255 );
 
-    material->diffuseColor.set1Value( idx,
-		color[idx].r() * diffuseintencity[idx]/255,
-		color[idx].g() * diffuseintencity[idx]/255,
-		color[idx].b() * diffuseintencity[idx]/255 );
+	material_->emissiveColor.set1Value( idx,
+		    color_[0].r() * emmissiveintensity_/255,
+		    color_[0].g() * emmissiveintensity_/255,
+		    color_[0].b() * emmissiveintensity_/255);
 
-    material->specularColor.set1Value( idx,
-		color[idx].r() * specularintensity[idx]/255,
-		color[idx].g() * specularintensity[idx]/255,
-		color[idx].b() * specularintensity[idx]/255 );
+	material_->shininess.set1Value(0, shininess_ );
+	material_->transparency.set1Value(0, transparency_ );
+    }
 
-    material->emissiveColor.set1Value( idx,
-		color[idx].r() * emmissiveintensity[idx]/255,
-		color[idx].g() * emmissiveintensity[idx]/255,
-		color[idx].b() * emmissiveintensity[idx]/255);
-
-    material->shininess.set1Value(idx, shininess[idx] );
-    material->transparency.set1Value(idx, transparency[idx] );
+    material_->diffuseColor.set1Value( idx,
+		color_[idx].r() * diffuseintencity_[idx]/255,
+		color_[idx].g() * diffuseintencity_[idx]/255,
+		color_[idx].b() * diffuseintencity_[idx]/255 );
 }
 
 
 void Material::setMinNrOfMaterials(int minnr)
 {
-    while ( color.size()<=minnr )
+    while ( color_.size()<=minnr )
     {
-	color += Color(179,179,179);
-	ambience += 0.8;
-	diffuseintencity += 0.8;
-	specularintensity += 0;
-	emmissiveintensity += 0;
-	shininess += 0;
-	transparency += 0;
+	color_ += Color(179,179,179);
+	diffuseintencity_ += 0.8;
     }
 }
 
 
-SoNode* Material::getInventorNode() { return material; }
+SoNode* Material::getInventorNode() { return material_; }
 
 
 int Material::usePar( const IOPar& iopar )
@@ -116,26 +145,26 @@ int Material::usePar( const IOPar& iopar )
 
     int r,g,b;
 
-    if ( iopar.get( colorstr, r, g, b ) )
+    if ( iopar.get( sKeyColor(), r, g, b ) )
 	setColor( Color( r,g,b ));
 
     float val;
-    if ( iopar.get( ambiencestr, val ))
+    if ( iopar.get( sKeyAmbience(), val ))
 	setAmbience( val );
 
-    if ( iopar.get( diffintensstr, val ))
+    if ( iopar.get( sKeyDiffIntensity(), val ))
 	setDiffIntensity( val );
 
-    if ( iopar.get( specintensstr, val ))
+    if ( iopar.get( sKeySpectralIntensity(), val ))
 	setSpecIntensity( val );
 
-    if ( iopar.get( emmintensstr, val ))
+    if ( iopar.get( sKeyEmmissiveIntensity(), val ))
 	setEmmIntensity( val );
 
-    if ( iopar.get( shininessstr, val ))
+    if ( iopar.get( sKeyShininess(), val ))
 	setShininess( val );
 
-    if ( iopar.get( transpstr, val ))
+    if ( iopar.get( sKeyTransparency(), val ))
 	setTransparency( val );
 
     return 1;
@@ -147,13 +176,13 @@ void Material::fillPar( IOPar& iopar, TypeSet<int>& saveids ) const
     DataObject::fillPar( iopar, saveids );
 
     Color tmpcolor = getColor();
-    iopar.set( colorstr, tmpcolor.r(), tmpcolor.g(), tmpcolor.b() ) ;
-    iopar.set( ambiencestr, getAmbience() );
-    iopar.set( diffintensstr, getDiffIntensity() );
-    iopar.set( specintensstr, getSpecIntensity() );
-    iopar.set( emmintensstr, getEmmIntensity() );
-    iopar.set( shininessstr, getShininess() );
-    iopar.set( transpstr, getTransparency() );
+    iopar.set( sKeyColor(), tmpcolor.r(), tmpcolor.g(), tmpcolor.b() ) ;
+    iopar.set( sKeyAmbience(), getAmbience() );
+    iopar.set( sKeyDiffIntensity(), getDiffIntensity() );
+    iopar.set( sKeySpectralIntensity(), getSpecIntensity() );
+    iopar.set( sKeyEmmissiveIntensity(), getEmmIntensity() );
+    iopar.set( sKeyShininess(), getShininess() );
+    iopar.set( sKeyTransparency(), getTransparency() );
 }
 
 }; // namespace visBase

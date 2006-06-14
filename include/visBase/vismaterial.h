@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vismaterial.h,v 1.10 2005-09-14 11:45:20 cvsnanne Exp $
+ RCS:		$Id: vismaterial.h,v 1.11 2006-06-14 17:04:30 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -32,60 +32,60 @@ public:
     static Material*	create()
 			mCreateDataObj(Material);
 
-    void		setColor( const Color& nc, int matnr=0 );
+    void		setColor(const Color&,int=0);
     const Color&	getColor(int matnr=0) const;
 
-    void		setAmbience( float, int matnr=0 );
+    void		setDiffIntensity(float,int=0);
 			/*!< Should be between 0 and 1 */
-    float		getAmbience(int matnr=0) const;
+    float		getDiffIntensity(int=0) const;
 
-    void		setDiffIntensity( float, int matnr=0 );
+    void		setAmbience(float);
 			/*!< Should be between 0 and 1 */
-    float		getDiffIntensity(int matnr=0) const;
+    float		getAmbience() const;
 
-    void		setSpecIntensity( float, int matnr=0 );
+    void		setSpecIntensity(float);
 			/*!< Should be between 0 and 1 */
-    float		getSpecIntensity(int matnr=0) const;
+    float		getSpecIntensity() const;
 
-    void		setEmmIntensity( float, int matnr=0 );
+    void		setEmmIntensity(float);
 			/*!< Should be between 0 and 1 */
-    float		getEmmIntensity(int matnr=0) const;
+    float		getEmmIntensity() const;
 
-    void		setShininess( float, int matnr=0 );
+    void		setShininess(float);
 			/*!< Should be between 0 and 1 */
-    float		getShininess(int matnr=0) const;
+    float		getShininess() const;
 
-    void		setTransparency( float, int matnr=0 );
+    void		setTransparency(float);
 			/*!< Should be between 0 and 1 */
-    float		getTransparency(int matnr=0) const;
+    float		getTransparency() const;
 
     SoNode*		getInventorNode();
-    void		setDisplayTransformation( Transformation* ) {}
-    int			usePar( const IOPar& );
-    void		fillPar( IOPar&, TypeSet<int>& ) const;
+    void		setDisplayTransformation(Transformation*) {}
+    int			usePar(const IOPar&);
+    void		fillPar(IOPar&,TypeSet<int>&) const;
 
 protected:
 			~Material();
-    void		setMinNrOfMaterials(int minnr);
-    void		updateMaterial(int idx);
+    void		setMinNrOfMaterials(int);
+    void		updateMaterial(int);
 
-    TypeSet<Color>	color;
-    TypeSet<float>	ambience;
-    TypeSet<float>	diffuseintencity;
-    TypeSet<float>	specularintensity;
-    TypeSet<float>	emmissiveintensity;
-    TypeSet<float>	shininess;
-    TypeSet<float>	transparency;
+    TypeSet<Color>	color_;
+    TypeSet<float>	diffuseintencity_;
+    float		ambience_;
+    float		specularintensity_;
+    float		emmissiveintensity_;
+    float		shininess_;
+    float		transparency_;
 
-    SoMaterial*		material;
+    SoMaterial*		material_;
 
-    static const char*	colorstr;
-    static const char*	ambiencestr;
-    static const char*	diffintensstr;
-    static const char*	specintensstr;
-    static const char*	emmintensstr;
-    static const char*	shininessstr;
-    static const char*	transpstr;
+    static const char*	sKeyColor();
+    static const char*	sKeyAmbience();
+    static const char*	sKeyDiffIntensity();
+    static const char*	sKeySpectralIntensity();
+    static const char*	sKeyEmmissiveIntensity();
+    static const char*	sKeyShininess();
+    static const char*	sKeyTransparency();
 };
 
 }; // Namespace
