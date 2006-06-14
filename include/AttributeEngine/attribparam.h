@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribparam.h,v 1.24 2006-05-19 14:33:11 cvshelene Exp $
+ RCS:           $Id: attribparam.h,v 1.25 2006-06-14 17:36:58 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,6 +24,16 @@ template <class T> class Interval;
 
 namespace Attrib
 {
+
+/*! A parameter that is used by an attribute.
+
+Each attribute has a defenition string that defines how the attribute is
+computed. The defenition string has the format:
+
+AttribNameWithoutSpaces param1=value1 param2=value2,value3
+
+The paramater thus has a key (e.g. param1) and one or more associated values.
+*/
 
 class Param
 {
@@ -49,15 +59,17 @@ public:
 
     const char*			getKey() const		  { return key_.buf(); }
 
-
-    virtual bool		setCompositeValue( const char* ) 
+    				/*!Set all values from one composite string.*/
+    virtual bool		setCompositeValue(const char*) 
 				{ return false; }
-    virtual bool		setValues( BufferStringSet& )
+    				/*!Set all values from multiple strings.*/
+    virtual bool		setValues(BufferStringSet&)
 				{ return false; }
     virtual bool		getCompositeValue(BufferString&) const	=0;
+    				/*!<Put all values into one string. */
     
     virtual BufferString	getDefaultValue() const	  { return ""; } 
-    void			setKey( char* newkey )    { key_ = newkey; }
+    void			setKey(const char* newkey)    { key_ = newkey; }
 
     virtual void		fillDefStr(BufferString&) const		=0;			
 
