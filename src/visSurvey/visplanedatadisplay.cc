@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.138 2006-06-08 19:29:51 cvskris Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.139 2006-06-15 15:04:43 cvskris Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -357,8 +357,8 @@ void PlaneDataDisplay::draggerRightClick( CallBacker* cb )
 
 void PlaneDataDisplay::setDraggerPos( const CubeSampling& cs )
 {
-    const Coord3 center( (cs.hrg.start.inl+cs.hrg.stop.inl)/2,
-		         (cs.hrg.start.crl+cs.hrg.stop.crl)/2,
+    const Coord3 center( (cs.hrg.start.inl+cs.hrg.stop.inl)/2.0,
+		         (cs.hrg.start.crl+cs.hrg.stop.crl)/2.0,
 		         cs.zrg.center() );
     Coord3 width( cs.hrg.stop.inl-cs.hrg.start.inl,
 		  cs.hrg.stop.crl-cs.hrg.start.crl, cs.zrg.width() );
