@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Payraudeau
  Date:          February  2006
- RCS:           $Id: uifingerprintattrib.cc,v 1.14 2006-06-08 09:05:47 cvshelene Exp $
+ RCS:           $Id: uifingerprintattrib.cc,v 1.15 2006-06-15 12:49:34 cvshelene Exp $
 
 ________________________________________________________________________
 
@@ -438,6 +438,8 @@ void uiFingerPrintAttrib::getAdvancedPush(CallBacker*)
 	    refset->add( inp );
     }
     calcobj_->setUserRefList( refset );
+    if ( picksetbut_->isChecked() )
+	calcobj_->setValStatsType( statsfld_->getIntValue() );
     
     advanceddlg_->go();
 }
@@ -470,6 +472,9 @@ void uiFingerPrintAttrib::calcPush(CallBacker*)
     BinIDValueSet* rangesset = calcobj_->createRangesBinIDSet();
     calcobj_->setValRgSet( valuesset, true );
     calcobj_->setValRgSet( rangesset, false );
+    if ( picksetbut_->isChecked() )
+	calcobj_->setValStatsType( statsfld_->getIntValue() );
+
     calcobj_->computeValsAndRanges();
 }
 

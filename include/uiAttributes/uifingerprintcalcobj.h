@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Payraudeau
  Date:          June 2006
- RCS:           $Id: uifingerprintcalcobj.h,v 1.1 2006-05-30 14:30:40 cvshelene Exp $
+ RCS:           $Id: uifingerprintcalcobj.h,v 1.2 2006-06-15 12:49:34 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,6 +38,7 @@ public:
     void		setValues( TypeSet<float> vals ){ values_ = vals; }
     void		setRgRefPick(const char* pickid){ rgpickset_ = pickid; }
     void		setRgRefType( int type )	{ rgreftype_ = type; }
+    void		setValStatsType( int typ )	{ statstype_ = typ; }
     
     TypeSet<int>        getWeights() const              { return weights_; }
     TypeSet<float>	getValues() const		{ return values_; }
