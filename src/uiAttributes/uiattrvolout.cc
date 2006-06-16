@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:		$Id: uiattrvolout.cc,v 1.22 2006-05-18 15:00:22 cvshelene Exp $
+ RCS:		$Id: uiattrvolout.cc,v 1.23 2006-06-16 07:58:30 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -246,10 +246,9 @@ bool uiAttrVolOut::fillPar( IOPar& iop )
     {
 	key = keybase; key += Output::scalekey;
 	iop.set( key, sc->toString() );
+	delete sc;
     }
-    delete sc;
 
-    clonedset->removeDesc( nlamodelid );
     iop.set( "Target value", todofld->getAttrName() );
     BufferString linename;
     if ( todofld->is2D() )
