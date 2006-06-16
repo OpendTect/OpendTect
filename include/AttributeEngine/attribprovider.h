@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribprovider.h,v 1.41 2006-06-06 22:01:31 cvskris Exp $
+ RCS:           $Id: attribprovider.h,v 1.42 2006-06-16 13:59:48 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -64,10 +64,15 @@ public:
     virtual void		setBufferStepout(const BinID&);
     const BinID&		getBufferStepout() const;
     void			setDesiredVolume(const CubeSampling&);
+    				/*!< The desired volume is the ideal volume
+				  required by the user*/
     CubeSampling*		getDesiredVolume() const
 				    { return desiredvolume; }
     void			resetDesiredVolume(); 
     void                        setPossibleVolume( const CubeSampling& );
+    				/*!< The possible volume is the volume that can
+				  really be computed taking care of all margins
+				  and stepouts*/
     virtual bool		getPossibleVolume(int outp,CubeSampling&);
     int				getTotalNrPos(bool);
     void			setCurLineKey( const char* linename ); 
@@ -125,14 +130,27 @@ protected:
     virtual SeisRequester*	getSeisRequester() const;
     static Provider*		internalCreate(Desc&,ObjectSet<Provider>&, 
 					       bool& issame,BufferString&);
+    				/*!< Creates the provider needed and all its
+				  input providers*/
 
     virtual bool		getInputOutput(int input,TypeSet<int>&) const;
+    				/*!<Specifies the outputs needed for calculation
+				among all those provided by the input data; 
+				very usefull when steering used as input data*/
     virtual bool		getInputData(const BinID& relpos,int idx);
+    				/*!<Gets all imput data, 
+				including data for which a stepout is required*/
     virtual bool		computeData(const DataHolder& output,
 					    const BinID& relpos,
 					    int t0,int nrsamples) const
 				{ return false; }
+    				/*!<The system will use the algorithm specified
+				in this function to compute the attribute's 
+				outputs. The results will be stored as 
+				different series in the DataHolder output. */
     int				getDataIndex(int input) const;
+    				/*!<Gets the index of the serie needed in the 
+				input DataHolder*/
     void			fillInputRangesArray(
 					    Array2DImpl< Interval<int> >&,
 					    int,const Interval<int>&);
@@ -151,13 +169,22 @@ protected:
     bool			computeDesInputCube(int inp,int out,
 						    CubeSampling&,
 						    bool usestepout=true) const;
+    				/*!<The system uses the margin and stepout
+				requirements to compute the ideal desired 
+				volume for each input*/
 
     void			setUsedMultTimes();
+    				/*!<The same provider can be used multiple times
+				which allows the attribute to be computed 
+				only once*/
     bool			isUsedMultTimes()  { return isusedmulttimes; }
     bool			isNew2DLine() const
     				{ return prevtrcnr > currentbid.crl; }
 
     void			computeRefStep(const ObjectSet<Provider>&);
+    				/*!<If an attribute uses as inputs stored cubes
+				with a different z step the smallest one will 
+				be taken as reference step*/
     void			propagateRefStep(const ObjectSet<Provider>&);
 
     virtual const BinID*	desStepout(int input,int output) const;
