@@ -4,26 +4,26 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vislocationdisplay.cc,v 1.1 2006-06-09 18:39:43 cvskris Exp $";
+static const char* rcsID = "$Id: vislocationdisplay.cc,v 1.2 2006-06-19 21:34:22 cvskris Exp $";
 
 #include "vislocationdisplay.h"
 
+#include "ioman.h"
+#include "ioobj.h"
 #include "iopar.h"
 #include "pickset.h"
+#include "picksettr.h"
 #include "visevent.h"
 #include "visdataman.h"
-#include "vismarker.h"  //Should go when fill/usePar is updated
 #include "vismaterial.h"
 #include "vistransform.h"
-#include "separstr.h" //Should go when fill/usePar is updated
 
 namespace visSurvey {
 
-const char* LocationDisplay::nopickstr = "No Picks";
-const char* LocationDisplay::pickprefixstr = "Pick ";
-const char* LocationDisplay::showallstr = "Show all";
-const char* LocationDisplay::shapestr = "Shape";
-const char* LocationDisplay::sizestr = "Size";
+const char* LocationDisplay::sKeyID()		{ return "Location.ID"; }
+const char* LocationDisplay::sKeyShowAll()	{ return "Show all"; }
+const char* LocationDisplay::sKeyMarkerType()	{ return "Shape"; }
+const char* LocationDisplay::sKeyMarkerSize()	{ return "Size"; }
 
 
 LocationDisplay::LocationDisplay()
@@ -347,25 +347,10 @@ void LocationDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 {
     visBase::VisualObjectImpl::fillPar( par, saveids );
 
-    const int nrpicks = group_->size();
-    par.set( nopickstr, nrpicks );
-
-    for ( int idx=0; idx<nrpicks; idx++ )
-    {
-	const DataObject* so = group_->getObject( idx );
-        mDynamicCastGet(const visBase::Marker*, marker, so );
-	BufferString key = pickprefixstr; key += idx;
-	Coord3 pos = marker->centerPos();
-	Sphere dir = marker->getDirection();
-	FileMultiString str; str += pos.x; str += pos.y; str += pos.z;
-	if ( dir.radius || dir.theta || dir.phi )
-	    { str += dir.radius; str += dir.theta; str += dir.phi; }
-	par.set( key, str.buf() );
-    }
-
-    par.setYN( showallstr, showall_ );
-    par.set( shapestr, set_->disp_.markertype_ );
-    par.set( sizestr, set_->disp_.pixsize_ );
+    par.set( sKeyID(), Pick::Mgr().get(*set_) );
+    par.setYN( sKeyShowAll(), showall_ );
+    par.set( sKeyMarkerType(), set_->disp_.markertype_ );
+    par.set( sKeyMarkerSize(), set_->disp_.pixsize_ );
 }
 
 
@@ -374,34 +359,32 @@ int LocationDisplay::usePar( const IOPar& par )
     int res =  visBase::VisualObjectImpl::usePar( par );
     if ( res != 1 ) return res;
 
-    par.get( shapestr, set_->disp_.markertype_ );
-    par.get( sizestr, set_->disp_.pixsize_ );
+    int markertype = 0;
+    int pixsize = 3;
+    par.get( sKeyMarkerType(), markertype );
+    par.get( sKeyMarkerSize(), pixsize );
 
     bool shwallpicks = true;
-    par.getYN( showallstr, shwallpicks );
+    par.getYN( sKeyShowAll(), shwallpicks );
     showAll( shwallpicks );
 
-    group_->removeAll();
+    if ( !par.get(sKeyID(),storedmid_) )
+	return -1;
 
-    int nopicks = 0;
-    par.get( nopickstr, nopicks );
-    for ( int idx=0; idx<nopicks; idx++ )
+    PtrMan<IOObj> ioobj = IOM().get( storedmid_ );
+    if ( !ioobj ) return -1;
+
+    Pick::Set* newps = new Pick::Set;
+    BufferString bs;
+    if ( PickSetTranslator::retrieve(*newps,ioobj,bs) )
     {
-	BufferString str;
-	BufferString key = pickprefixstr; key += idx;
-	if ( !par.get(key,str) )
-	    return -1;
-
-	FileMultiString fms( str );
-	Coord3 pos( atof(fms[0]), atof(fms[1]), atof(fms[2]) );
-	Sphere dir;
-	if ( fms.size() > 3 )
-	    dir = Sphere( atof(fms[3]), atof(fms[4]), atof(fms[5]) );
-
-	addDisplayPick( addPick(pos,dir,false) );
+	newps->disp_.markertype_ = markertype;
+	newps->disp_.pixsize_ = pixsize;
+	setSet( newps );
     }
+    else
+	return -1;
 
-    Pick::Mgr().reportChange( this, *set_ );
     return 1;
 }
 

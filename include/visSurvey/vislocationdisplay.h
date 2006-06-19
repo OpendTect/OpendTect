@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		June 2006
- RCS:		$Id: vislocationdisplay.h,v 1.1 2006-06-09 18:39:43 cvskris Exp $
+ RCS:		$Id: vislocationdisplay.h,v 1.2 2006-06-19 21:34:22 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -44,6 +44,8 @@ class LocationDisplay :	public visBase::VisualObjectImpl,
 public:
     void			setSet(Pick::Set*); // once!
     Pick::Set*			getSet()		{ return set_; }
+
+    const MultiID&		getStoredID() const 	{ return storedmid_; }
 
     void			fullRedraw();
     void			showAll(bool yn);
@@ -95,11 +97,12 @@ protected:
     visBase::EventCatcher*	eventcatcher_;
     visBase::Transformation*	transformation_;
 
-    static const char*		nopickstr;
-    static const char*		pickprefixstr;
-    static const char*		showallstr;
-    static const char*		shapestr;
-    static const char*		sizestr;
+    MultiID			storedmid_;
+
+    static const char*		sKeyID();
+    static const char*		sKeyShowAll();
+    static const char*		sKeyMarkerType();
+    static const char*		sKeyMarkerSize();
 };
 
 };

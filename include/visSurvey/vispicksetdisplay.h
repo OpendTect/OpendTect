@@ -7,33 +7,17 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vispicksetdisplay.h,v 1.52 2006-06-08 07:44:14 cvsnanne Exp $
+ RCS:		$Id: vispicksetdisplay.h,v 1.53 2006-06-19 21:34:22 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "visobject.h"
-#include "vissurvobj.h"
-#include "bufstringset.h"
-
-class Color;
-class IOPar;
-class Sphere;
-namespace Pick { class Set; class Location; }
-
-namespace visBase
-{
-    class DataObjectGroup;
-    class EventCatcher;
-    class Transformation;
-};
+#include "vislocationdisplay.h"
 
 
 namespace visSurvey
 {
-
-class Scene;
 
 /*!\brief Used for displaying picks.
 
@@ -42,67 +26,23 @@ class Scene;
   visualized by a number of shapes.
 */
 
-class PickSetDisplay :	public visBase::VisualObjectImpl,
-			public visSurvey::SurveyObject
+class PickSetDisplay :	public LocationDisplay
 {
 public:
     static PickSetDisplay*	create()
 				mCreateDataObj(PickSetDisplay);
-    void			setSet(Pick::Set*); // once!
-    Pick::Set*			getSet()		{ return set_; }
-    const MultiID&		getSetID()		{ return setid_; }
 
-    void			fullRedraw();
-    void			showAll(bool yn);
-    bool			allShown() const	{ return showall; }
-
-    virtual BufferString	getManipulationString() const;
-    virtual void		getMousePosInfo(const visBase::EventInfo&,
-						const Coord3&,BufferString&,
-						BufferString&) const;
-    virtual bool		hasColor() const	{ return true; }
-    virtual Color		getColor() const;
-    virtual bool		isPicking() const;
-    virtual void		otherObjectsMoved(
-				    const ObjectSet<const SurveyObject>&,int);
-    virtual NotifierAccess*	getManipulationNotifier() { return &visnotif_; }
-    virtual void		setDisplayTransformation(
-	    					visBase::Transformation*);
-    virtual visBase::Transformation* getDisplayTransformation();
-    virtual void		setSceneEventCatcher(visBase::EventCatcher*);
-    virtual void                fillPar(IOPar&,TypeSet<int>&) const;
-    virtual int                 usePar(const IOPar&);
-
+    int				usePar(const IOPar&);
 protected:
+    visBase::VisualObject*	createLocation() const;
+    void			setPosition(int loc,const Coord3& pos,
+	    					    const Sphere& dir );
+    Coord3			getPosition(int loc) const;
+    ::Sphere			getDirection(int loc) const;
+    void			dispChg(CallBacker*);
 
-    Pick::Set*			set_;
-    MultiID			setid_;
-    Notifier<PickSetDisplay>	visnotif_;
-
-    virtual			~PickSetDisplay();
-
-    Pick::Location&		addPick(const Coord3&,const Sphere&,bool);
-    void			addDisplayPick(const Pick::Location&);
-
-    void			pickCB(CallBacker* cb=0);
-    void			locChg(CallBacker* cb=0);
-    void			setChg(CallBacker* cb=0);
-    void			dispChg(CallBacker* cb=0);
-
-    bool			showall;
-    int				mousepressid;
-    Coord3		        mousepressposition;
-
-    visBase::DataObjectGroup*	group;
-    visBase::EventCatcher*	eventcatcher;
-    visBase::Transformation*	transformation;
-
-    static const char*		nopickstr;
-    static const char*		pickprefixstr;
-    static const char*		showallstr;
-    static const char*		shapestr;
-    static const char*		sizestr;
-    static const char*		picksetidstr;
+    static const char*		sKeyNrPicks();
+    static const char*		sKeyPickPrefix();
 };
 
 };
