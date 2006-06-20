@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodemsurftreeitem.cc,v 1.6 2006-06-06 20:37:02 cvskris Exp $
+ RCS:		$Id: uiodemsurftreeitem.cc,v 1.7 2006-06-20 14:41:08 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -41,7 +41,8 @@ uiODDataTreeItem* uiODEarthModelSurfaceTreeItem::createAttribItem(
 
 uiODEarthModelSurfaceTreeItem::uiODEarthModelSurfaceTreeItem(
 						const EM::ObjectID& nemid )
-    : emid(nemid)
+    : uiODDisplayTreeItem()
+    , emid(nemid)
     , uivisemobj(0)
     , savemnuitem_("Save")
     , saveasmnuitem_("Save as ...")

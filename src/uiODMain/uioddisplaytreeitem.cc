@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uioddisplaytreeitem.cc,v 1.4 2006-06-05 21:03:53 cvskris Exp $
+ RCS:		$Id: uioddisplaytreeitem.cc,v 1.5 2006-06-20 14:41:08 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -112,7 +112,11 @@ bool uiODDisplayTreeItem::init()
 	{
 	    const Attrib::SelSpec* as = visserv->getSelSpec(displayid_,attrib);
 	    uiODDataTreeItem* item = createAttribItem( as );
-	    if ( item ) addChild( item, false );
+	    if ( item )
+	    {
+		addChild( item, false );
+		item->setChecked( visserv->isAttribEnabled(displayid_,attrib) );
+	    }
 	}
     }
 

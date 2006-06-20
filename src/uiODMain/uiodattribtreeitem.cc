@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodattribtreeitem.cc,v 1.4 2006-05-25 18:24:16 cvskris Exp $
+ RCS:		$Id: uiodattribtreeitem.cc,v 1.5 2006-06-20 14:41:08 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -49,8 +49,10 @@ bool uiODAttribTreeItem::anyButtonClick( uiListViewItem* item )
     if ( !select() ) return false;
 
     uiVisPartServer* visserv = applMgr()->visServer();
-    if ( !visserv->isClassification( displayID(), attribNr() ) )
-	applMgr()->modifyColorTable( displayID(), attribNr() );
+    if ( visserv->getColTabId(displayID(),attribNr()) < 0 )
+	return false;
+//  if ( !visserv->isClassification( displayID(), attribNr() ) )
+    applMgr()->modifyColorTable( displayID(), attribNr() );
 
     return true;
 }
@@ -80,7 +82,8 @@ void uiODAttribTreeItem::createSelMenu( MenuItem& mnu, int visid, int attrib,
 	if ( scene && scene->getDataTransform() )
 	{
 	    // TODO: get depthdomain key from scene
-	    subitem = attrserv->depthdomainAttribMenuItem( *as, sKey::Wheeler );
+	    subitem = attrserv->depthdomainAttribMenuItem( *as,
+		    				scene->getDepthDomainKey() );
 	    mAddMenuItem( &mnu, subitem, subitem->nrItems(), subitem->checked );
 	}
     }
