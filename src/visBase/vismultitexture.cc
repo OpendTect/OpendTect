@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vismultitexture.cc,v 1.17 2006-06-08 12:01:28 cvsnanne Exp $";
+static const char* rcsID = "$Id: vismultitexture.cc,v 1.18 2006-06-20 13:41:42 cvsnanne Exp $";
 
 #include "vismultitexture2.h"
 
@@ -173,6 +173,7 @@ TextureInfo::~TextureInfo()
     }
 
     versioncoltab_.erase();
+    deepErase( versionhistogram_ );
 }
 
 
