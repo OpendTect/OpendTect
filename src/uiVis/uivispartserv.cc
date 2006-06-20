@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.322 2006-06-09 06:35:18 cvsjaap Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.323 2006-06-20 14:48:09 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -638,17 +638,15 @@ void uiVisPartServer::setClassification( int id, int attrib, bool yn )
 
 bool uiVisPartServer::isAttribEnabled( int id, int attrib ) const
 {
-    mDynamicCastGet( visSurvey::SurveyObject*, so, getObject(id) );
+    mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
     return so ? so->isAttribEnabled( attrib ) : false;
 }
 
 
 void uiVisPartServer::enableAttrib( int id, int attrib, bool yn )
 {
-    mDynamicCastGet( visSurvey::SurveyObject*, so, getObject(id) );
-    if ( !so ) return;
-
-    so->enableAttrib( attrib, yn );
+    mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
+    if ( so ) so->enableAttrib( attrib, yn );
 }
 
 
@@ -919,7 +917,7 @@ void uiVisPartServer::turnOn( int id, bool yn, bool doclean )
 bool uiVisPartServer::isOn( int id ) const
 {
     const visBase::DataObject* dobj = visBase::DM().getObject( id );
-    mDynamicCastGet( const visBase::VisualObject*,vo,dobj)
+    mDynamicCastGet(const visBase::VisualObject*,vo,dobj)
     return vo ? vo->isOn() : false;
 }
 
