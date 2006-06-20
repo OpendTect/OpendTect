@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          July 2002
- RCS:           $Id: uiprintscenedlg.h,v 1.10 2006-03-30 20:49:46 cvsnanne Exp $
+ RCS:           $Id: uiprintscenedlg.h,v 1.11 2006-06-20 21:07:31 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,7 +22,7 @@ class uiFileInput;
 class uiGenInput;
 class uiLabeledComboBox;
 class uiSoViewer;
-class uiSpinBox;
+class uiLabeledSpinBox;
 
 class uiPrintSceneDlg : public uiDialog
 {
@@ -34,15 +34,18 @@ public:
 
 protected:
 
-    uiLabeledComboBox*	scenefld;
-    uiSpinBox*		heightfld;
-    uiSpinBox*		widthfld;
-    uiGenInput*		unitfld;
-    uiCheckBox*		lockfld;
-    uiGenInput*		dpifld;
-    uiFileInput*	fileinputfld;
+    uiLabeledComboBox*	scenefld_;
+    uiGenInput*		dovrmlfld_;
+    uiLabeledSpinBox*	heightfld_;
+    uiLabeledSpinBox*	widthfld_;
+    uiGenInput*		unitfld_;
+    uiCheckBox*		lockfld_;
+    uiGenInput*		dpifld_;
+    uiFileInput*	fileinputfld_;
 
+    void		updateFilter();
     void		fileSel(CallBacker*);
+    void		typeSel(CallBacker*);
     void		addFileExtension(BufferString&);
     bool		filenameOK() const;
 
@@ -61,9 +64,12 @@ protected:
     float		aspectratio;	// width / height
     const float		screendpi;
 
+    static BufferString	dirname_;
+
     void		updateSizes();
     const char*		getExtension() const;
 
+    static const char*	sVRMLExt()	{ return "wrl"; }
     static const char*	heightstr;
     static const char*	widthstr;
     static const char*	unitstr;
