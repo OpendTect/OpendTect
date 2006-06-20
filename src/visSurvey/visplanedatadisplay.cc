@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.140 2006-06-19 17:56:25 cvskris Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.141 2006-06-20 13:40:50 cvsnanne Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -1084,7 +1084,8 @@ void PlaneDataDisplay::getMousePosInfo( const visBase::EventInfo&,
 void PlaneDataDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 {
     visBase::VisualObject::fillPar( par, saveids );
-    
+
+    par.setYN( visBase::VisualObjectImpl::sKeyIsOn(), isOn() );
     par.set( sKeyOrientation(), OrientationRef(orientation_) );
     par.set( sKeyResolution(), resolution_ );
     getCubeSampling( false, true ).fillPar( par );
@@ -1096,6 +1097,9 @@ void PlaneDataDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 	const int coltabid = getColTabID(attrib);
 	attribpar.set( sKeyColTabID(), coltabid );
 	if ( saveids.indexOf( coltabid )==-1 ) saveids += coltabid;
+
+	attribpar.setYN( visBase::VisualObjectImpl::sKeyIsOn(),
+			 texture_->isTextureEnabled(attrib) );
 
 	BufferString key = sKeyAttribs();
 	key += attrib;
@@ -1112,7 +1116,7 @@ int PlaneDataDisplay::usePar( const IOPar& par )
     if ( res!=1 ) return res;
 
     int nrattribs;
-    if ( par.get( sKeyNrAttribs(), nrattribs ) ) //current format
+    if ( par.get(sKeyNrAttribs(),nrattribs) ) //current format
     {
 	Orientation ori;
 	EnumRef oriref = OrientationRef(ori);
@@ -1120,6 +1124,10 @@ int PlaneDataDisplay::usePar( const IOPar& par )
 	    setOrientation( ori );
 
 	par.get( sKeyResolution(), resolution_ );
+
+	bool ison = true;
+	par.getYN( visBase::VisualObjectImpl::sKeyIsOn(), ison );
+	turnOn( ison );
 
 	CubeSampling cs;
 	if ( cs.usePar( par ) )
@@ -1135,12 +1143,12 @@ int PlaneDataDisplay::usePar( const IOPar& par )
 		continue;
 
 	    int coltabid = -1;
-	    if ( attribpar->get( sKeyColTabID(), coltabid ) )
+	    if ( attribpar->get(sKeyColTabID(),coltabid) )
 	    {
 		visBase::DataObject* dataobj= visBase::DM().getObject(coltabid);
 		if ( !dataobj ) return 0;
 
-		mDynamicCastGet( const visBase::VisColorTab*, coltab, dataobj );
+		mDynamicCastGet(const visBase::VisColorTab*,coltab,dataobj);
 		if ( !coltab ) coltabid=-1;
 	    }
 
@@ -1158,6 +1166,10 @@ int PlaneDataDisplay::usePar( const IOPar& par )
 		       		 visBase::DM().getObject(coltabid) );
 		texture_->setColorTab( attribnr, *coltab );
 	    }
+
+	    bool ison = true;
+	    attribpar->getYN( visBase::VisualObjectImpl::sKeyIsOn(), ison );
+	    texture_->enableTexture( attribnr, ison );
 	}
     }
     else
