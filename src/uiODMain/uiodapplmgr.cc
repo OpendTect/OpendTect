@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.138 2006-06-06 14:53:20 cvsjaap Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.139 2006-06-20 14:40:48 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -377,12 +377,6 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
 	uiMSG().error( "Cannot find selected attribute" );
 	return false;
     } 
-    
-    if ( myas.isNLA() )
-    {
-	if ( nlaserv && nlaserv->isClassification() )
-	    visserv->setClipRate( visid, attrib, 0 );
-    }
 
     bool res = false;
     switch ( visserv->getAttributeFormat(visid) )
@@ -419,6 +413,11 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
 				attrserv->createOutput( cs, cache );
 
 	    if ( !newdata ) return false;
+	    const bool isclass = newdata->nrCubes()<1 ? false :
+			attrserv->isDataClassified( newdata->getCube(0) );
+	    if ( isclass ) 
+		visserv->setClipRate( visid, attrib, 0 );
+	    visserv->setClassification( visid, attrib, isclass );
 	    visserv->setCubeData( visid, attrib, newdata );
 	    res = true;
 	    break;
