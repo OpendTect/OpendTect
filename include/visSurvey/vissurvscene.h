@@ -7,13 +7,14 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvscene.h,v 1.40 2006-06-08 13:19:38 cvsnanne Exp $
+ RCS:		$Id: vissurvscene.h,v 1.41 2006-06-20 13:38:35 cvsnanne Exp $
 ________________________________________________________________________
 
 
 -*/
 
 #include "visscene.h"
+#include "bufstring.h"
 #include "position.h"
 
 class HorSampling;
@@ -106,6 +107,11 @@ public:
     void			setDataTransform( ZAxisTransform* );
     ZAxisTransform*		getDataTransform();
 
+    void			setDepthDomainKey( const char* key )
+				    { depthdomainkey_ = key; }
+    const char*			getDepthDomainKey() const
+				    { return depthdomainkey_; }
+
     void			setMarkerPos( const Coord3& );
     void			setMarkerSize( float );
     float			getMarkerSize() const;
@@ -136,6 +142,7 @@ protected:
     BufferString		mouseposval_;
     BufferString		mouseposstr_;
     float			curzscale_;
+    BufferString		depthdomainkey_;
 
     static const char*		sKeyShowAnnot();
     static const char*		sKeyShowScale();
