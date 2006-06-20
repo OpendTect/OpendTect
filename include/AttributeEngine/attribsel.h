@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Sep 2001
- RCS:           $Id: attribsel.h,v 1.9 2006-06-09 14:49:02 cvsnanne Exp $
+ RCS:           $Id: attribsel.h,v 1.10 2006-06-20 14:46:33 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -145,6 +145,8 @@ public:
     static void		getAttrNames(const char* defstr_or_,BufferStringSet&);
     			//!< 2D only
     void		fillStored(const char* filter=0);
+    static void		getSpecialItems(const char* key,BufferStringSet&);
+    			//!< Filters on given DepthDomain key
 
 protected:
 

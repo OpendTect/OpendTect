@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: uiattrsel.cc,v 1.12 2006-05-11 20:02:51 cvsnanne Exp $
+ RCS:           $Id: uiattrsel.cc,v 1.13 2006-06-20 14:46:33 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,11 +49,13 @@ uiAttrSelDlg::uiAttrSelDlg( uiParent* p, const char* seltxt,
 	: uiDialog(p,Setup("",0,atd.nlamodel?"":"101.1.1"))
 	, attrdata_(atd)
 	, selgrp_(0)
-	, storfld_(0)
-	, attrfld_(0)
+	, storoutfld_(0)
+	, attroutfld_(0)
 	, attr2dfld_(0)
 	, nlafld_(0)
 	, nlaoutfld_(0)
+    	, depthdomainfld_(0)
+	, depthdomoutfld_(0)
 	, in_action_(false)
 {
     attrinf_ = new SelInfo( atd.attrset, atd.nlamodel, pol2d, ignoreid );
@@ -76,44 +78,53 @@ uiAttrSelDlg::uiAttrSelDlg( uiParent* p, const char* seltxt,
 
     selgrp_ = new uiGroup( this, "Input selection" );
 
-    srcfld_ = new uiRadioButton( selgrp_, "Stored" );
-    srcfld_->activated.notify( mCB(this,uiAttrSelDlg,selDone) );
-    srcfld_->setSensitive( attrdata_.shwcubes );
+    storfld_ = new uiRadioButton( selgrp_, "Stored" );
+    storfld_->activated.notify( mCB(this,uiAttrSelDlg,selDone) );
+    storfld_->setSensitive( attrdata_.shwcubes );
 
-    calcfld_ = new uiRadioButton( selgrp_, "Attributes" );
-    calcfld_->attach( alignedBelow, srcfld_ );
-    calcfld_->setSensitive( haveattribs );
-    calcfld_->activated.notify( mCB(this,uiAttrSelDlg,selDone) );
+    attrfld_ = new uiRadioButton( selgrp_, "Attributes" );
+    attrfld_->attach( alignedBelow, storfld_ );
+    attrfld_->setSensitive( haveattribs );
+    attrfld_->activated.notify( mCB(this,uiAttrSelDlg,selDone) );
 
     if ( havenlaouts )
     {
-	nlafld_ = new uiRadioButton( selgrp_, attrdata_.nlamodel->nlaType(false) );
-	nlafld_->attach( alignedBelow, calcfld_ );
+	nlafld_ = new uiRadioButton( selgrp_,
+				     attrdata_.nlamodel->nlaType(false) );
+	nlafld_->attach( alignedBelow, attrfld_ );
 	nlafld_->setSensitive( havenlaouts );
 	nlafld_->activated.notify( mCB(this,uiAttrSelDlg,selDone) );
     }
 
+    if ( attrdata_.depthdomainkey != "" )
+    {
+	depthdomainfld_ = new uiRadioButton( selgrp_, attrdata_.depthdomainkey);
+	depthdomainfld_->attach( alignedBelow,
+				 havenlaouts ? nlafld_ : attrfld_ );
+	depthdomainfld_->activated.notify( mCB(this,uiAttrSelDlg,selDone) );
+    }
+
     if ( attrdata_.shwcubes )
     {
-	storfld_ = new uiListBox( this, attrinf_->ioobjnms );
-	storfld_->setHSzPol( uiObject::Wide );
-	storfld_->selectionChanged.notify( mCB(this,uiAttrSelDlg,cubeSel) );
-	storfld_->doubleClicked.notify( mCB(this,uiAttrSelDlg,accept) );
-	storfld_->attach( rightOf, selgrp_ );
+	storoutfld_ = new uiListBox( this, attrinf_->ioobjnms );
+	storoutfld_->setHSzPol( uiObject::Wide );
+	storoutfld_->selectionChanged.notify( mCB(this,uiAttrSelDlg,cubeSel) );
+	storoutfld_->doubleClicked.notify( mCB(this,uiAttrSelDlg,accept) );
+	storoutfld_->attach( rightOf, selgrp_ );
 	attr2dfld_ = new uiGenInput( this, "Stored Attribute",
 				    StringListInpSpec() );
-	attr2dfld_->attach( alignedBelow, storfld_ );
+	attr2dfld_->attach( alignedBelow, storoutfld_ );
 	filtfld_ = new uiGenInput( this, "Filter", "*" );
-	filtfld_->attach( alignedBelow, storfld_ );
+	filtfld_->attach( alignedBelow, storoutfld_ );
 	filtfld_->valuechanged.notify( mCB(this,uiAttrSelDlg,filtChg) );
     }
 
     if ( haveattribs )
     {
-	attrfld_ = new uiListBox( this, attrinf_->attrnms );
-	attrfld_->setHSzPol( uiObject::Wide );
-	attrfld_->doubleClicked.notify( mCB(this,uiAttrSelDlg,accept) );
-	attrfld_->attach( rightOf, selgrp_ );
+	attroutfld_ = new uiListBox( this, attrinf_->attrnms );
+	attroutfld_->setHSzPol( uiObject::Wide );
+	attroutfld_->doubleClicked.notify( mCB(this,uiAttrSelDlg,accept) );
+	attroutfld_->attach( rightOf, selgrp_ );
     }
 
     if ( havenlaouts )
@@ -122,6 +133,16 @@ uiAttrSelDlg::uiAttrSelDlg( uiParent* p, const char* seltxt,
 	nlaoutfld_->setHSzPol( uiObject::Wide );
 	nlaoutfld_->doubleClicked.notify( mCB(this,uiAttrSelDlg,accept) );
 	nlaoutfld_->attach( rightOf, selgrp_ );
+    }
+
+    if ( attrdata_.depthdomainkey != "" )
+    {
+	BufferStringSet nms;
+	SelInfo::getSpecialItems( attrdata_.depthdomainkey, nms );
+	depthdomoutfld_ = new uiListBox( this, nms );
+	depthdomoutfld_->setHSzPol( uiObject::Wide );
+	depthdomoutfld_->doubleClicked.notify( mCB(this,uiAttrSelDlg,accept) );
+	depthdomoutfld_->attach( rightOf, selgrp_ );
     }
 
     int seltyp = havenlaouts ? 2 : (haveattribs ? 1 : 0);
@@ -140,7 +161,7 @@ uiAttrSelDlg::uiAttrSelDlg( uiParent* p, const char* seltxt,
 	    seltyp = desc->isStored() ? 0 : 1;
 	    if ( seltyp == 1 )
 		attrcur = attrinf_->attrnms.indexOf( desc->userRef() );
-	    else if ( storfld_ )
+	    else if ( storoutfld_ )
 		storcur = attrinf_->ioobjnms.indexOf( desc->userRef() );
 	}
 	else
@@ -163,12 +184,12 @@ uiAttrSelDlg::uiAttrSelDlg( uiParent* p, const char* seltxt,
     if ( attrcur == -1 )		attrcur = attrinf_->attrnms.size()-1;
     if ( nlacur == -1 && havenlaouts )	nlacur = 0;
 
-    if ( storfld_  )			storfld_->setCurrentItem( storcur );
-    if ( attrfld_ && attrcur != -1 )	attrfld_->setCurrentItem( attrcur );
+    if ( storoutfld_  )			storoutfld_->setCurrentItem( storcur );
+    if ( attroutfld_ && attrcur != -1 )	attroutfld_->setCurrentItem( attrcur );
     if ( nlaoutfld_ && nlacur != -1 )	nlaoutfld_->setCurrentItem( nlacur );
 
-    if ( seltyp == 0 )		srcfld_->setChecked(true);
-    else if ( seltyp == 1 )	calcfld_->setChecked(true);
+    if ( seltyp == 0 )		storfld_->setChecked(true);
+    else if ( seltyp == 1 )	attrfld_->setChecked(true);
     else if ( nlafld_ )		nlafld_->setChecked(true);
 
     finaliseStart.notify( mCB( this,uiAttrSelDlg,doFinalise) );
@@ -190,7 +211,7 @@ void uiAttrSelDlg::doFinalise( CallBacker* )
 
 int uiAttrSelDlg::selType() const
 {
-    if ( calcfld_->isChecked() )
+    if ( attrfld_->isChecked() )
 	return 1;
     if ( nlafld_ && nlafld_->isChecked() )
 	return 2;
@@ -205,26 +226,26 @@ void uiAttrSelDlg::selDone( CallBacker* c )
     mDynamicCastGet(uiRadioButton*,but,c);
    
     bool dosrc, docalc, donla; 
-    if ( but == srcfld_ )
+    if ( but == storfld_ )
     { dosrc = true; docalc = donla = false; }
-    else if ( but == calcfld_ )
+    else if ( but == attrfld_ )
     { docalc = true; dosrc = donla = false; }
     else if ( but == nlafld_ )
     { donla = true; docalc = dosrc = false; }
 
     if ( but )
     {
-	srcfld_->setChecked( dosrc );
-	calcfld_->setChecked( docalc );
+	storfld_->setChecked( dosrc );
+	attrfld_->setChecked( docalc );
 	if ( nlafld_ ) nlafld_->setChecked( donla );
     }
 
     const int seltyp = selType();
-    if ( attrfld_ ) attrfld_->display( seltyp == 1 );
+    if ( attroutfld_ ) attroutfld_->display( seltyp == 1 );
     if ( nlaoutfld_ ) nlaoutfld_->display( seltyp == 2 );
-    if ( storfld_ )
+    if ( storoutfld_ )
     {
-	storfld_->display( seltyp == 0 );
+	storoutfld_->display( seltyp == 0 );
 	filtfld_->display( seltyp == 0 );
     }
 
@@ -234,13 +255,13 @@ void uiAttrSelDlg::selDone( CallBacker* c )
 
 void uiAttrSelDlg::filtChg( CallBacker* c )
 {
-    if ( !storfld_ || !filtfld_ ) return;
+    if ( !storoutfld_ || !filtfld_ ) return;
 
     attrinf_->fillStored( filtfld_->text() );
-    storfld_->empty();
-    storfld_->addItems( attrinf_->ioobjnms );
+    storoutfld_->empty();
+    storoutfld_->addItems( attrinf_->ioobjnms );
     if ( attrinf_->ioobjnms.size() )
-	storfld_->setCurrentItem( 0 );
+	storoutfld_->setCurrentItem( 0 );
 
     cubeSel( c );
 }
@@ -255,12 +276,12 @@ void uiAttrSelDlg::cubeSel( CallBacker* c )
 	return;
     }
 
-    int selidx = storfld_->currentItem();
+    int selidx = storoutfld_->currentItem();
     bool is2d_ = false;
     BufferString ioobjkey;
     if ( selidx >= 0 )
     {
-	ioobjkey = attrinf_->ioobjids.get( storfld_->currentItem() );
+	ioobjkey = attrinf_->ioobjids.get( storoutfld_->currentItem() );
 	is2d_ = SelInfo::is2D( ioobjkey.buf() );
     }
     attr2dfld_->display( is2d_ );
@@ -281,8 +302,8 @@ bool uiAttrSelDlg::getAttrData( bool needattrmatch )
     if ( !selgrp_ || !in_action_ ) return true;
 
     const int seltyp = selType();
-    int selidx = (seltyp ? (seltyp == 2 ? nlaoutfld_ : attrfld_) : storfld_)
-		    ->currentItem();
+    int selidx = (seltyp ? (seltyp == 2 ? nlaoutfld_ : attroutfld_) 
+	    		 : storoutfld_)->currentItem();
     if ( selidx < 0 )
 	return false;
 

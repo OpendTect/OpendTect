@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrsel.h,v 1.3 2006-04-28 15:59:16 cvskris Exp $
+ RCS:           $Id: uiattrsel.h,v 1.4 2006-06-20 14:46:33 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uidialog.h"
 #include "uiiosel.h"
 #include "attribdescid.h"
+#include "bufstring.h"
 
 namespace Attrib { class Desc; class DescSet; class SelInfo; class SelSpec; };
 
@@ -40,6 +41,7 @@ public:
     const NLAModel*		nlamodel;
     int				outputnr;
     bool			shwcubes;
+    BufferString		depthdomainkey;
 
     const Attrib::DescSet&	attrSet() const	{ return *attrset; }
 };
@@ -80,12 +82,15 @@ protected:
     bool		in_action_;
 
     uiGroup*		selgrp_;
-    uiRadioButton*	srcfld_;
-    uiRadioButton*	calcfld_;
+    uiRadioButton*	storfld_;
+    uiRadioButton*	attrfld_;
     uiRadioButton*	nlafld_;
-    uiListBox*		storfld_;
-    uiListBox*		attrfld_;
+    uiRadioButton*	depthdomainfld_;
+
+    uiListBox*		storoutfld_;
+    uiListBox*		attroutfld_;
     uiListBox*		nlaoutfld_;
+    uiListBox*		depthdomoutfld_;
     uiGenInput*		filtfld_;
     uiGenInput*		attr2dfld_;
 
