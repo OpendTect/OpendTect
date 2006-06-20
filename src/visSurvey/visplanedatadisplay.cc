@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.141 2006-06-20 13:40:50 cvsnanne Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.142 2006-06-20 15:28:07 cvsnanne Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -1167,7 +1167,7 @@ int PlaneDataDisplay::usePar( const IOPar& par )
 		texture_->setColorTab( attribnr, *coltab );
 	    }
 
-	    bool ison = true;
+	    ison = true;
 	    attribpar->getYN( visBase::VisualObjectImpl::sKeyIsOn(), ison );
 	    texture_->enableTexture( attribnr, ison );
 	}
