@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: attribsel.cc,v 1.15 2006-06-09 14:48:55 cvsnanne Exp $
+ RCS:           $Id: attribsel.cc,v 1.16 2006-06-20 14:47:07 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -310,5 +310,24 @@ void SelInfo::getAttrNames( const char* defstr, BufferStringSet& nms )
     if ( idx >= 0 )
 	nms.remove( idx );
 }
+
+
+void SelInfo::getSpecialItems( const char* depthdomainkey,
+			       BufferStringSet& nms )
+{
+    IOM().to( MultiID(IOObjContext::getStdDirData(IOObjContext::Seis)->id) );
+    const ObjectSet<IOObj>& ioobjs = IOM().dirPtr()->getObjs();
+    BufferStringSet ioobjnms;
+    for ( int idx=0; idx<ioobjs.size(); idx++ )
+    {
+	const IOObj& ioobj = *ioobjs[idx];
+	const char* res = ioobj.pars().find( sKey::DepthDomain );
+	if ( res && !strcmp(res,depthdomainkey) )
+	    nms.add( ioobj.name() );
+    }
+
+    nms.sort();
+}
+
 
 }; // namespace Attrib
