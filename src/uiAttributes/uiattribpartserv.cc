@@ -4,55 +4,59 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiattribpartserv.cc,v 1.33 2006-05-08 16:50:19 cvsbert Exp $
+ RCS:           $Id: uiattribpartserv.cc,v 1.34 2006-06-20 14:45:37 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiattribpartserv.h"
+
+#include "attribdatacubes.h"
+#include "attribdataholder.h"
 #include "attribdesc.h"
 #include "attribdescset.h"
-#include "attribdescsettr.h"
-#include "attribdataholder.h"
 #include "attribdescsetman.h"
-#include "attribprocessor.h"
-#include "attribstorprovider.h"
-#include "attribposvecoutput.h"
+#include "attribdescsettr.h"
 #include "attribengman.h"
 #include "attribfactory.h"
 #include "attribinit.h"
+#include "attribposvecoutput.h"
+#include "attribprocessor.h"
 #include "attribsel.h"
-#include "attribdatacubes.h"
-#include "executor.h"
-#include "ctxtioobj.h"
+#include "attribsetcreator.h"
+#include "attribstorprovider.h"
+
+#include "arraynd.h"
 #include "binidselimpl.h"
-#include "cubesampling.h"
 #include "binidvalset.h"
-#include "nlacrdesc.h"
-#include "nlamodel.h"
+#include "ctxtioobj.h"
+#include "cubesampling.h"
+#include "executor.h"
 #include "iodir.h"
 #include "iopar.h"
 #include "ioobj.h"
 #include "ioman.h"
-#include "ptrman.h"
-#include "survinfo.h"
-#include "seisinfo.h"
 #include "keystrs.h"
+#include "nlacrdesc.h"
+#include "nlamodel.h"
 #include "posvecdataset.h"
+#include "ptrman.h"
+#include "seisinfo.h"
+#include "survinfo.h"
 
+#include "uiattrdesced.h"
+#include "uiattrdescseted.h"
 #include "uiattrsel.h"
 #include "uiattrvolout.h"
-#include "uiattrdescseted.h"
-#include "uiioobjsel.h"
-#include "uiexecutor.h"
-#include "uimsg.h"
-#include "uimenu.h"
-#include "uisetpickdirs.h"
-#include "attribsetcreator.h"
-#include "uiseisioobjinfo.h"
-
 #include "uievaluatedlg.h"
-#include "uiattrdesced.h"
+#include "uiexecutor.h"
+#include "uiioobjsel.h"
+#include "uimenu.h"
+#include "uimsg.h"
+#include "uiseisioobjinfo.h"
+#include "uisetpickdirs.h"
+
+#include <math.h>
 
 using namespace Attrib;
 
@@ -400,6 +404,33 @@ bool uiAttribPartServer::createOutput( const BinIDValueSet& bidvalset,
 }
 
 
+static const int sMaxNrClasses = 100;
+//static const int sMaxNrVals = 100;
+
+bool uiAttribPartServer::isDataClassified( const Array3D<float>& array ) const
+{
+    const int sz0 = array.info().getSize( 0 );
+    const int sz1 = array.info().getSize( 1 );
+    const int sz2 = array.info().getSize( 2 );
+//    int nrint = 0;
+    for ( int x0=0; x0<sz0; x0++ )
+	for ( int x1=0; x1<sz1; x1++ )
+	    for ( int x2=0; x2<sz2; x2++ )
+	    {
+		const float val = array.get( x0, x1, x2 );
+		if ( mIsUdf(val) ) continue;
+		const int ival = mNINT(val);
+		if ( !mIsEqual(val,ival,mDefEps) || abs(ival)>sMaxNrClasses )
+		    return false;
+//		nrint++;
+//		if ( nrint > sMaxNrVals )
+//		    break;
+	    }
+
+    return true;
+}
+
+
 bool uiAttribPartServer::extractData( const NLACreationDesc& desc,
 				      const ObjectSet<BinIDValueSet>& bivsets,
 				      ObjectSet<PosVecDataSet>& outvds )
@@ -598,19 +629,8 @@ MenuItem* uiAttribPartServer::depthdomainAttribMenuItem( const SelSpec& as,
     depthdomainmnuitem.removeItems();
     depthdomainmnuitem.checked = false;
 
-    IOM().to( MultiID(IOObjContext::getStdDirData(IOObjContext::Seis)->id) );
-    const ObjectSet<IOObj>& ioobjs = IOM().dirPtr()->getObjs();
-
     BufferStringSet ioobjnms;
-    for ( int idx=0; idx<ioobjs.size(); idx++ )
-    {
-	const IOObj& ioobj = *ioobjs[idx];
-	const char* res = ioobj.pars().find( sKey::DepthDomain );
-	if ( res && !strcmp(res,key) )
-	    ioobjnms.add( ioobj.name() );
-    }
-
-    ioobjnms.sort();
+    SelInfo::getSpecialItems( key, ioobjnms );
     for ( int idx=0; idx<ioobjnms.size(); idx++ )
     {
 	const BufferString& nm = ioobjnms.get( idx );

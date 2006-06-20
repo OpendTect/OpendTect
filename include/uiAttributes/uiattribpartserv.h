@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiattribpartserv.h,v 1.13 2006-05-08 16:50:19 cvsbert Exp $
+ RCS:           $Id: uiattribpartserv.h,v 1.14 2006-06-20 14:45:31 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,29 +21,30 @@ ________________________________________________________________________
 
 namespace Attrib
 {
+    class DataCubes;
     class Data2DHolder;
     class Desc;
     class DescSet;
     class DescSetMan;
     class EngineMan;
     class SelSpec;
-    class DataCubes;
 };
 
-class CubeSampling;
 class BinID;
 class BinIDValueSet;
 class BufferStringSet;
+class CubeSampling;
 class Executor;
-class PosVecDataSet;
 class IOPar;
 class NLACreationDesc;
 class NLAModel;
+class PosVecDataSet;
 class SeisTrcBuf;
 class SeisTrcInfo;
 class uiAttribDescSetEd;
 namespace Pick { class Set; }
 template <class T> class Interval;
+template <class T> class Array3D;
 
 
 /*! \brief Service provider for application level - Attributes */
@@ -97,6 +98,7 @@ public:
     bool		createOutput(ObjectSet<BinIDValueSet>&);
     bool		createOutput( const BinIDValueSet& bidvalset,
 	    			      SeisTrcBuf&);
+    bool		isDataClassified(const Array3D<float>&) const;
 
     Attrib::DescID	createStored2DAttrib(const MultiID& lineset,
 	    				     const char* attribname);
