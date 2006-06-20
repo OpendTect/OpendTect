@@ -7,13 +7,13 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		Aug 2003
  Contents:	Plugins
- RCS:		$Id: plugins.h,v 1.16 2006-03-10 08:18:11 cvsnanne Exp $
+ RCS:		$Id: plugins.h,v 1.17 2006-06-20 07:15:23 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-
-#include "bufstringset.h"
+#include "bufstring.h"
+#include "sets.h"
 #ifdef __win__
 #include "windows.h"
 #endif
@@ -22,20 +22,7 @@ ________________________________________________________________________
 extern "C" {
 #endif
 
-#define PI_AUTO_INIT_NONE	0
-#define PI_AUTO_INIT_EARLY	1
-#define PI_AUTO_INIT_LATE	2
-
-/*!\brief Information about plugin for outside world */
-
-typedef struct {
-
-    const char*	dispname;
-    const char*	creator;
-    const char*	version;
-    const char*	text;
-
-} PluginInfo;
+#include "pluginbase.h"
 
 /* C Access. C++ should use PluginManager! */
 
@@ -45,7 +32,7 @@ void LoadAutoPlugins(int argc,char** argv,int inittype);
 int LoadPlugin(const char* libnm);
 
 #ifdef __win__
-  typedef HMODULE Handletype;
+    typedef HMODULE Handletype;
 #else
     typedef void* Handletype;
 #endif
