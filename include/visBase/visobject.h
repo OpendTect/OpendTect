@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visobject.h,v 1.38 2006-03-30 08:13:19 cvsnanne Exp $
+ RCS:		$Id: visobject.h,v 1.39 2006-06-20 13:42:53 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -86,6 +86,9 @@ public:
 
     SoNode*		getInventorNode();
 
+    static const char*	sKeyMaterialID();
+    static const char*	sKeyIsOn();
+
     virtual int		usePar(const IOPar&);
     virtual void	fillPar(IOPar&,TypeSet<int>&) const;
 
@@ -102,9 +105,6 @@ protected:
 
     SoSwitch*		onoff;
     Material*		material;
-
-    static const char*	materialidstr;
-    static const char*	isonstr;
 
 private:
     SoSeparator*	root;

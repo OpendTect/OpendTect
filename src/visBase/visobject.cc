@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visobject.cc,v 1.37 2006-04-12 13:10:34 cvsjaap Exp $";
+static const char* rcsID = "$Id: visobject.cc,v 1.38 2006-06-20 13:42:59 cvsnanne Exp $";
 
 #include "visobject.h"
 
@@ -21,8 +21,9 @@ static const char* rcsID = "$Id: visobject.cc,v 1.37 2006-04-12 13:10:34 cvsjaap
 namespace visBase
 {
 
-const char* VisualObjectImpl::materialidstr = "Material ID";
-const char* VisualObjectImpl::isonstr = "Is on";
+const char* VisualObjectImpl::sKeyMaterialID()	{ return "Material ID"; }
+const char* VisualObjectImpl::sKeyIsOn()	{ return "Is on"; }
+
 
 VisualObject::VisualObject( bool selectable )
     : isselectable(selectable)
@@ -130,7 +131,7 @@ int VisualObjectImpl::usePar( const IOPar& iopar )
     if ( res != 1 ) return res;
 
     int matid;
-    if ( iopar.get(materialidstr,matid) )
+    if ( iopar.get(sKeyMaterialID(),matid) )
     {
 	if ( matid==-1 ) setMaterial( 0 );
 	else
@@ -146,7 +147,7 @@ int VisualObjectImpl::usePar( const IOPar& iopar )
 	setMaterial( 0 );
 
     bool isonsw;
-    if ( iopar.getYN(isonstr,isonsw) )
+    if ( iopar.getYN(sKeyIsOn(),isonsw) )
 	VisualObjectImpl::turnOn( isonsw );
 
     return 1;
@@ -157,12 +158,12 @@ void VisualObjectImpl::fillPar( IOPar& iopar,
 					 TypeSet<int>& saveids ) const
 {
     VisualObject::fillPar( iopar, saveids );
-    iopar.set( materialidstr, material ? material->id() : -1 );
+    iopar.set( sKeyMaterialID(), material ? material->id() : -1 );
 
     if ( material && saveids.indexOf(material->id()) == -1 )
 	saveids += material->id();
 
-    iopar.setYN( isonstr, isOn() );
+    iopar.setYN( sKeyIsOn(), isOn() );
 }
 
 
