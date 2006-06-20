@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2005
- RCS:           $Id: SoMultiTexture2.cc,v 1.14 2006-05-25 09:14:00 cvskris Exp $
+ RCS:           $Id: SoMultiTexture2.cc,v 1.15 2006-06-20 14:41:49 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -459,6 +459,7 @@ SoMultiTexture2::~SoMultiTexture2()
     delete colorssensor_;
     delete operationsensor_;
     delete componentsensor_;
+    delete opacitysensor_;
 
     delete glimagemutex_;
     delete [] imagedata_;
