@@ -2,7 +2,7 @@
 #_______________________________________________________________________________
 #
 # (C) dGB Beheer B.V.
-# $Id: od_cr_dev_env,v 1.21 2006-05-03 09:00:26 cvsnanne Exp $
+# $Id: od_cr_dev_env,v 1.22 2006-06-21 09:48:03 cvsbert Exp $
 #
 # Script copies sources and libs into a development directory
 #
@@ -76,25 +76,25 @@ cd "$outdir"
 
 mkdir lib
 cd lib
-mkdir $PLFSUBDIR
-cd $PLFSUBDIR
+mkdir $binsubdir
+cd $binsubdir
 ln -s . G
 ln -s . O
 
 cd "$outdir"
 mkdir bin
 cd bin
-mkdir $PLFSUBDIR
-cd $PLFSUBDIR
+mkdir $binsubdir
+cd $binsubdir
 ln -s . G
 ln -s . O
 mkdir so
 cd so
 
 
-${cpcmd} "${inpdir}/bin/${PLFSUBDIR}/so"/*.${soext}* .
-if ( "$PLFSUBDIR" == "win" ) then
-    $cpcmd "$inpdir/bin/$PLFSUBDIR/so"/*.a .
+${cpcmd} "${inpdir}/bin/${binsubdir}/so"/*.${soext}* .
+if ( "$binsubdir" == "win" ) then
+    $cpcmd "$inpdir/bin/$binsubdir/so"/*.a .
 endif
 
 
@@ -102,7 +102,7 @@ cd "$outdir"
 
 foreach fil ( init.bash init.csh )
     sed -e "s%__WORK__%$outdir%" \
-        -e "s%__hdir__%$PLFSUBDIR%" \
+        -e "s%__hdir__%$binsubdir%" \
         -e "s%__DTECTAPPL__DIR__%$DTECT_APPL%" \
         "$inpdir/.$fil" > $fil
 end
