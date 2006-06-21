@@ -2,7 +2,7 @@
 #_______________________________________________________________________________
 #
 # (C) dGB Beheer B.V.
-# $Id: od_cr_dev_env,v 1.22 2006-06-21 09:48:03 cvsbert Exp $
+# $Id: od_cr_dev_env,v 1.23 2006-06-21 10:20:47 cvsbert Exp $
 #
 # Script copies sources and libs into a development directory
 #
@@ -73,6 +73,14 @@ if ( -d plugins ) then
 endif
 
 cd "$outdir"
+
+if ( ! $?binsubdir ) then
+    if ( $?PLFSUBDIR ) then
+	set binsubdir=PLFSUBDIR
+    else
+	set binsubdir=$HDIR
+    endif
+endif
 
 mkdir lib
 cd lib
