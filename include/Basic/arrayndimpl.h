@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: arrayndimpl.h,v 1.41 2006-05-31 18:54:19 cvsnanne Exp $
+ RCS:		$Id: arrayndimpl.h,v 1.42 2006-06-22 11:09:26 cvsnanne Exp $
 ________________________________________________________________________
 
 */
@@ -141,7 +141,7 @@ public:
 
     void	setTempStorageDir( const char* dir )
 		{
-		    if ( strm_ ) strm_->close();
+		    close();
 		    File_remove( name_, false );
 		    FilePath fp( name_ );
 		    fp.setPath( File_isDirectory(dir) && File_isWritable(dir)
