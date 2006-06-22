@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: vissurvscene.cc,v 1.91 2006-06-14 17:09:43 cvskris Exp $
+ RCS:           $Id: vissurvscene.cc,v 1.92 2006-06-22 09:54:37 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -239,6 +239,12 @@ void Scene::showAnnot( bool yn )
 
 bool Scene::isAnnotShown() const
 { return annot_->isOn(); }
+
+
+void Scene::setAnnotText( int dim, const char* txt )
+{
+    annot_->setText( dim, txt );
+}
 
 
 Coord3 Scene::getMousePos( bool xyt ) const

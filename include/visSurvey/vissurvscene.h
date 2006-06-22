@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvscene.h,v 1.41 2006-06-20 13:38:35 cvsnanne Exp $
+ RCS:		$Id: vissurvscene.h,v 1.42 2006-06-22 09:54:37 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -88,6 +88,7 @@ public:
     bool			isAnnotScaleShown() const;
     void			showAnnot(bool);
     bool			isAnnotShown() const;
+    void			setAnnotText(int dim,const char*);
 
     Notifier<Scene>		mouseposchange;
     Coord3			getMousePos(bool xyt) const;
