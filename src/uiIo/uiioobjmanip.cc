@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          25/05/2000
- RCS:           $Id: uiioobjmanip.cc,v 1.24 2006-06-01 10:37:40 cvsbert Exp $
+ RCS:           $Id: uiioobjmanip.cc,v 1.25 2006-06-22 15:54:32 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -345,6 +345,7 @@ bool uiIOObjManipGroup::doReloc( Translator* tr, IOStream& iostrm,
 				 : iostrm.implExists(true);
     BufferString newfname( chiostrm.getExpandedName(true) );
 
+    bool succeeded = true;
     if ( oldimplexist )
     {
 	const bool newimplexist = tr ? tr->implExists(&chiostrm,true)
@@ -353,14 +354,15 @@ bool uiIOObjManipGroup::doReloc( Translator* tr, IOStream& iostrm,
 	    return false;
 
 	CallBack cb( mCB(this,uiIOObjManipGroup,relocCB) );
-	if ( tr )
-	    tr->implRename( &iostrm, newfname, &cb );
-	else
-	    iostrm.implRename( newfname, &cb );
+	succeeded = tr  ? tr->implRename( &iostrm, newfname, &cb )
+			: iostrm.implRename( newfname, &cb );
     }
 
-    iostrm.setFileName( newfname );
-    return true;
+    if ( succeeded )
+	iostrm.setFileName( newfname );
+    else
+	uiMSG().error( "Relocation failed" );
+    return succeeded;
 }
 
 
