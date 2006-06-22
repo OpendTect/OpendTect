@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoLODMeshSurface.cc,v 1.28 2005-12-05 18:37:30 cvskris Exp $";
+static const char* rcsID = "$Id: SoLODMeshSurface.cc,v 1.29 2006-06-22 20:34:55 cvskris Exp $";
 
 #include "SoLODMeshSurface.h"
 
@@ -766,6 +766,7 @@ MeshSurfacePart::~MeshSurfacePart()
 	delete bboxes[idx];
 
     if ( bboxcache ) bboxcache->unref();
+    delete gluecache;
 }
 
 
@@ -2160,6 +2161,13 @@ SoLODMeshSurface::SoLODMeshSurface()
     SO_NODE_ADD_FIELD( nrColumns, (64) );
 
     coordinates.deleteValues(0,-1);
+}
+
+
+SoLODMeshSurface::~SoLODMeshSurface()
+{
+    for ( int idx=parts.getLength()-1; idx>=0; idx-- )
+	delete parts[idx];
 }
 
 
