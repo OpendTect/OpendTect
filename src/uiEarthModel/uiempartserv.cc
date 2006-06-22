@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.81 2006-05-10 11:01:54 cvsnanne Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.82 2006-06-22 18:46:46 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -191,7 +191,7 @@ void uiEMPartServer::selectSurfaces( TypeSet<EM::ObjectID>& objids, bool ishor )
     EM::SurfaceIODataSelection sel( sd );
     uiobj->getSurfaceSelection( sel );
 
-    Executor* exec = em_.objectLoader( surfaceids, &sel );
+    PtrMan<Executor> exec = em_.objectLoader( surfaceids, &sel );
     if ( !exec ) return;
 
     for ( int idx=0; idx<surfaceids.size(); idx++ )
@@ -209,10 +209,12 @@ void uiEMPartServer::selectSurfaces( TypeSet<EM::ObjectID>& objids, bool ishor )
 			em_.getObject( em_.getObjectID(surfaceids[idx]) );
 	    obj->unRef();
 	}
+
 	return;
     }
 
-    delete exec;
+    exec = 0; //We don't want executor to unref objs at end of function
+
     for ( int idx=0; idx<surfaceids.size(); idx++ )
     {
 	const EM::ObjectID objid = em_.getObjectID( surfaceids[idx] );
