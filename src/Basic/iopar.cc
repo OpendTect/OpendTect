@@ -4,7 +4,7 @@
  * DATE     : 21-12-1995
 -*/
 
-static const char* rcsID = "$Id: iopar.cc,v 1.52 2006-03-12 13:39:10 cvsbert Exp $";
+static const char* rcsID = "$Id: iopar.cc,v 1.53 2006-06-23 14:33:44 cvsjaap Exp $";
 
 #include "iopar.h"
 #include "multiid.h"
@@ -281,40 +281,72 @@ bool IOPar::get( const char* s, type& res ) const \
     return true; \
 }
 
-get1Val(int32,strtol(ptr, &endptr, 0));
+get1Val(int,strtol(ptr, &endptr, 0));
 get1Val(uint32,strtoul(ptr, &endptr, 0));
 get1Val(int64,strtoll(ptr, &endptr, 0));
 get1Val(uint64,strtoull(ptr, &endptr, 0));
 
-#define mGetMulti( type, function ) \
-bool IOPar::get( const char* s, TypeSet<type>& res ) const\
-{ \
-    const char* ptr = find(s); \
-    if ( !ptr || !*ptr ) return false;\
-\
-    FileMultiString fms(ptr);\
-\
-    TypeSet<type> tmpres;\
-    for ( int idx=0; idx<fms.size(); idx++ )\
-    {\
-	ptr = fms[idx];\
-	if ( !ptr || !*ptr ) return false;\
-\
-    	char* endptr;	\
-	tmpres += function; \
-	if ( ptr==endptr ) return false;\
-    }\
-\
-    res = tmpres;\
-\
-    return true; \
+
+template <class T>
+static bool iopget_typeset( const IOPar& iop, const char* s, TypeSet<T>& res )
+{
+    const char* ptr = iop.find(s); \
+    if ( !ptr || !*ptr ) return false;
+
+    int keyidx = 0;
+    while ( ptr && *ptr )
+    {
+	FileMultiString fms( ptr );
+	const int len = fms.size();
+	for ( int idx=0; idx<len; idx++ )
+	{
+	    const char* valstr = fms[idx];
+	    const T newval = Conv::to<T>( valstr ); 
+	    res += newval;
+	}
+
+	keyidx++;
+	BufferString newkey = IOPar::compKey(s,keyidx);
+	ptr = iop.find( newkey );
+    }
+    return true;
 }
 
-mGetMulti( int, strtol(ptr, &endptr, 0) );
-mGetMulti( int64, strtoll(ptr, &endptr, 0) );
-mGetMulti( uint64, strtoull(ptr, &endptr, 0) );
-mGetMulti( double, strtod(ptr, &endptr ) );
-mGetMulti( float, strtod(ptr, &endptr ) );
+
+bool IOPar::get( const char* s, TypeSet<int>& res ) const
+{
+    return iopget_typeset( *this, s, res );
+}
+
+
+bool IOPar::get( const char* s, TypeSet<uint32>& res ) const
+{
+    return iopget_typeset( *this, s, res );
+}
+
+
+bool IOPar::get( const char* s, TypeSet<int64>& res ) const
+{
+    return iopget_typeset( *this, s, res );
+}
+
+
+bool IOPar::get( const char* s, TypeSet<uint64>& res ) const
+{
+    return iopget_typeset( *this, s, res );
+}
+
+
+bool IOPar::get( const char* s, TypeSet<double>& res ) const
+{
+    return iopget_typeset( *this, s, res );
+}
+
+
+bool IOPar::get( const char* s, TypeSet<float>& res ) const
+{
+    return iopget_typeset( *this, s, res );
+}
 
 
 bool IOPar::get( const char* s, EnumRef& ref ) const
@@ -639,31 +671,59 @@ void IOPar::set( const char* keyw, const char* vals1, const char* vals2 )
 }
 
 
-#define mSetMulti(type ) \
-void IOPar::set( const char* keyw, const TypeSet<type>& vals ) \
-{\
-    if ( !vals.size() ) return;\
-\
-    type val = vals[0];\
-    FileMultiString fms( Conv::to<const char*>(val) );\
-\
-    const int nrvals = vals.size();\
-\
-    for ( int idx=1; idx<nrvals; idx++ )\
-    {\
-	val = vals[idx];\
-	fms += Conv::to<const char*>(val);\
-    }\
-\
-    set( keyw, fms );\
+const int mMaxFMSLineSize = 100;
+
+template <class T>
+static void iopset_typeset( IOPar& iop, const char* keyw, 
+			    const TypeSet<T>& vals )
+{
+    const int nrvals = vals.size();
+
+    int validx = 0; 
+    int keyidx = 0;
+   
+    while ( validx != nrvals )
+    {
+	T val = vals[ validx++ ];
+	FileMultiString fms( Conv::to<const char*>(val) );
+
+	for ( int cnt=1; cnt<mMaxFMSLineSize; cnt++ )
+	{
+	    if ( validx == nrvals ) break;
+	    
+	    val = vals[ validx++ ];
+	    fms += Conv::to<const char*>( val );
+	}
+	
+	BufferString newkey = keyidx ? IOPar::compKey(keyw,keyidx) : keyw;
+	iop.set( newkey, fms );
+	keyidx++;
+    }
 }
 
 
-mSetMulti( int );
-mSetMulti( int64 );
-mSetMulti( uint64 );
-mSetMulti( float );
-mSetMulti( double );
+void IOPar::set( const char* keyw, const TypeSet<int>& vals ) 
+{ return iopset_typeset( *this, keyw, vals ); }
+
+
+void IOPar::set( const char* keyw, const TypeSet<uint32>& vals ) 
+{ return iopset_typeset( *this, keyw, vals ); }
+
+
+void IOPar::set( const char* keyw, const TypeSet<int64>& vals )
+{ return iopset_typeset( *this, keyw, vals ); }
+
+
+void IOPar::set( const char* keyw, const TypeSet<uint64>& vals )
+{ return iopset_typeset( *this, keyw, vals ); }
+
+
+void IOPar::set( const char* keyw, const TypeSet<float>& vals )
+{ return iopset_typeset( *this, keyw, vals ); }
+
+
+void IOPar::set( const char* keyw, const TypeSet<double>& vals )
+{ return iopset_typeset( *this, keyw, vals ); }
 
 
 #define mSet1Val( type ) \
@@ -672,7 +732,7 @@ void IOPar::set( const char* keyw, type val ) \
     set( keyw, Conv::to<const char*>(val) );\
 }
 
-mSet1Val( int32 );
+mSet1Val( int );
 mSet1Val( uint32 );
 mSet1Val( int64 );
 mSet1Val( uint64 );
@@ -687,7 +747,7 @@ void IOPar::set( const char* s, type v1, type v2 ) \
     set( s, fms ); \
 }
 
-mSet2Val( int32 );
+mSet2Val( int );
 mSet2Val( uint32 );
 mSet2Val( int64 );
 mSet2Val( uint64 );
@@ -703,7 +763,7 @@ void IOPar::set( const char* s, type v1, type v2, type v3 ) \
     set( s, fms ); \
 }
 
-mSet3Val( int32 );
+mSet3Val( int );
 mSet3Val( uint32 );
 mSet3Val( int64 );
 mSet3Val( uint64 );
@@ -720,7 +780,7 @@ void IOPar::set( const char* s, type v1, type v2, type v3, type v4 ) \
     set( s, fms ); \
 }
 
-mSet4Val( int32 );
+mSet4Val( int );
 mSet4Val( uint32 );
 mSet4Val( int64 );
 mSet4Val( uint64 );

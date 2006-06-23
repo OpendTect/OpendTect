@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		21-12-1995
- RCS:		$Id: iopar.h,v 1.37 2006-02-20 18:49:48 cvsbert Exp $
+ RCS:		$Id: iopar.h,v 1.38 2006-06-23 14:33:44 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -92,7 +92,7 @@ public:
 			//!< returns null if not found
 
     bool		get(const char*, EnumRef&) const;
-    bool		get(const char*,int32&) const;
+    bool		get(const char*,int&) const;
     bool		get(const char*,uint32&) const;
     bool		get(const char*,int64&) const;
     bool		get(const char*,uint64&) const;
@@ -120,12 +120,12 @@ public:
     bool		get(const char*,int&,int&,int&) const;
     bool		get(const char*,int&,int&,float&) const;
 
-    bool		get(const char*, TypeSet<int32>& ) const;
-    bool		get(const char*, TypeSet<uint32>& ) const;
-    bool		get(const char*, TypeSet<int64>& ) const;
-    bool		get(const char*, TypeSet<uint64>& ) const;
-    bool		get(const char*, TypeSet<double>& ) const;
-    bool		get(const char*, TypeSet<float>& ) const;
+    bool		get(const char*,TypeSet<int>&) const;
+    bool		get(const char*,TypeSet<uint32>&) const;
+    bool		get(const char*,TypeSet<int64>&) const;
+    bool		get(const char*,TypeSet<uint64>&) const;
+    bool		get(const char*,TypeSet<double>&) const;
+    bool		get(const char*,TypeSet<float>&) const;
 
     bool		getSc(const char*,float&,float sc,
 			      bool set_undef_if_not_found) const;
@@ -165,7 +165,7 @@ public:
     void		set(const char*,type,type,type); \
     void		set(const char*,type,type,type,type);
 
-			mSet(int32);
+			mSet(int);
 			mSet(uint32);
 			mSet(int64);
 			mSet(uint64);
@@ -192,12 +192,12 @@ public:
 	    				const BufferString&);
     void		set(const char*,const BufferStringSet&);
 
-    void		set(const char*, const TypeSet<int32>& );
-    void		set(const char*, const TypeSet<uint32>& );
-    void		set(const char*, const TypeSet<int64>& );
-    void		set(const char*, const TypeSet<uint64>& );
-    void		set(const char*, const TypeSet<double>& );
-    void		set(const char*, const TypeSet<float>& );
+    void		set(const char*,const TypeSet<int>&);
+    void		set(const char*,const TypeSet<uint32>&);
+    void		set(const char*,const TypeSet<int64>&);
+    void		set(const char*,const TypeSet<uint64>&);
+    void		set(const char*,const TypeSet<double>&);
+    void		set(const char*,const TypeSet<float>&);
 
     void		add(const char*,const char*);
 			/*!< Only to save performance: responsibility for

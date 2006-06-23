@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          13/01/2005
- RCS:           $Id: convert.h,v 1.4 2006-03-12 13:39:09 cvsbert Exp $
+ RCS:           $Id: convert.h,v 1.5 2006-06-23 14:33:44 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -86,30 +86,32 @@ template <>
 inline void set( const char*& _to, const double& d )
     { _to = toString(d); }
 
-template <>
-inline void set( int32& _to, const char* const& s )
-{
-    if ( !s || !*s ) { return; }
 
-    char* endptr;  
-    int32 tmpval = strtol( s, &endptr, 0 );
-    if ( s != endptr )
-	_to = tmpval; 
-    else if ( Values::Undef<int32>::hasUdf() )
-	    Values::setUdf( _to ); 
-}
+#define mSetFromStrTo(type,function) \
+template <> \
+inline void set( type& _to, const char* const& s ) \
+{ \
+    if ( !s || !*s ) { return; } \
+\
+    char* endptr; \
+    type tmpval = function; \
+    if ( s != endptr ) \
+	_to = tmpval; \
+    else if ( Values::Undef<type>::hasUdf() ) \
+	    Values::setUdf( _to ); \
+} 
 
+mSetFromStrTo( int, strtol(s, &endptr, 0) );
+mSetFromStrTo( uint32, strtoul(s, &endptr, 0) );
+mSetFromStrTo( int64, strtoll(s, &endptr, 0) );
+mSetFromStrTo( uint64, strtoull(s, &endptr, 0) );
+mSetFromStrTo( double, strtod(s, &endptr ) );
+mSetFromStrTo( float, strtod(s, &endptr ) );
+
+    
 template <>
 inline void set( bool& _to, const char* const& s )
     { _to = yesNoFromString(s); }
-
-template <>
-inline void set( double& _to, const char* const& s )
-    { _to = atof(s); }
-
-template <>
-inline void set( float& _to, const char* const& s )
-    { _to = atof(s); }
 
 template <>
 inline void set( int32& _to, const float& f )
