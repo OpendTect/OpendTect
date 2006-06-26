@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.82 2006-06-22 18:46:46 cvskris Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.83 2006-06-26 16:28:32 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -213,7 +213,7 @@ void uiEMPartServer::selectSurfaces( TypeSet<EM::ObjectID>& objids, bool ishor )
 	return;
     }
 
-    exec = 0; //We don't want executor to unref objs at end of function
+    exec.erase(); //We don't want executor to unref objs at end of function
 
     for ( int idx=0; idx<surfaceids.size(); idx++ )
     {
