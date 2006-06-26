@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpewizard.cc,v 1.54 2006-06-12 14:39:48 cvsjaap Exp $
+ RCS:           $Id: uimpewizard.cc,v 1.55 2006-06-26 07:56:37 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -473,24 +473,24 @@ void Wizard::restoreObject()
 	EM::EMM().history().setCurrentEventAsLast();
     }
 
-    //This must come before tracker is removed since
-    //applman needs tracker to know what to remove.
-    if ( objectcreated )
-    {
-	mpeserv->sendEvent( ::uiMPEPartServer::evRemoveTreeObject );
-    }
-
     if ( ioparentrycreated )
     {
 	const MultiID mid = EM::EMM().getMultiID(currentobject);
 	PtrMan<IOObj> ioobj = IOM().get(mid);
-
+	
 	if ( ioobj )
 	{
 	    if ( !fullImplRemove(*ioobj) || !IOM().permRemove(mid) )
 		pErrMsg( "Could not remove object" );
 	}
+    }
 
+    // This must come before tracker is removed since
+    // applman needs tracker to know what to remove.
+    // And after io-stuff removal which needs valid MultiID 
+    if ( objectcreated )
+    {
+	mpeserv->sendEvent( ::uiMPEPartServer::evRemoveTreeObject );
     }
 
     if ( trackercreated )
@@ -499,7 +499,6 @@ void Wizard::restoreObject()
 	MPE::engine().removeTracker( trackerid );
     }
 
-    ioparentrycreated = false;
     trackercreated = false;
     objectcreated = false;
     currentobject = -1;
