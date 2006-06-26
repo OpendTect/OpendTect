@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.h,v 1.35 2006-05-29 08:02:32 cvsbert Exp $
+ RCS:           $Id: uimpeman.h,v 1.36 2006-06-26 07:51:00 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,6 +38,7 @@ public:
 
     void			deleteVisObjects();
     void			updateAttribNames();
+    void			validateSeedConMode();
     void			initFromDisplay();
 
     void			turnSeedPickingOn(bool);
