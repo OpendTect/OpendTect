@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          May 2004
- RCS:           $Id: vishorizondisplay.h,v 1.4 2006-06-09 06:50:00 cvsjaap Exp $
+ RCS:           $Id: vishorizondisplay.h,v 1.5 2006-06-26 07:52:44 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -147,7 +147,8 @@ protected:
 
     ObjectSet<Attrib::SelSpec>		as_;
     bool				validtexture_;
-    bool				seedsatsectionsonly_;
+    bool				isdisplayingonlyatsect_;
+    bool				updatepostponed_;
 
     static visBase::FactoryEntry	surfdispentry;
     static visBase::FactoryEntry	emobjentry;
