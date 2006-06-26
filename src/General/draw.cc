@@ -4,7 +4,7 @@
  * DATE     : 18-4-1996
 -*/
 
-static const char* rcsID = "$Id: draw.cc,v 1.50 2006-03-14 14:58:51 cvsbert Exp $";
+static const char* rcsID = "$Id: draw.cc,v 1.51 2006-06-26 21:46:51 cvskris Exp $";
 
 /*! \brief Several implementations for UI-related things.
 
@@ -339,6 +339,18 @@ Interval<float> ColorTable::getInterval() const
 	ret = Interval<float>( cvs[0].value, cvs[cvs.size()-1].value );
 
     return ret;
+}
+
+
+bool ColorTable::hasTransparency() const
+{
+    for ( int idx=cvs.size()-1; idx>=0; idx-- )
+    {
+	if ( cvs[idx].color.t() )
+	    return true;
+    }
+
+    return false;
 }
 
 
