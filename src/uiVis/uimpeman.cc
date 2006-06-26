@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.cc,v 1.94 2006-06-09 06:37:26 cvsjaap Exp $
+ RCS:           $Id: uimpeman.cc,v 1.95 2006-06-26 08:01:20 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -205,6 +205,7 @@ void uiMPEMan::deleteVisObjects()
     init = false;
 }
 
+
 void uiMPEMan::seedClick( CallBacker* )
 {
     MPE::Engine& engine = MPE::engine();
@@ -262,7 +263,8 @@ void uiMPEMan::seedClick( CallBacker* )
 	
 	if ( !engine.activeVolume().includes(newvolume) )
 	{
-	    engine.swapCacheAndItsBackup();
+	    if ( !didtriggervolchange )
+		engine.swapCacheAndItsBackup();
 	    NotifyStopper notifystopper( engine.activevolumechange );
 	    engine.setActiveVolume( newvolume );
 	    notifystopper.restore();
@@ -306,7 +308,7 @@ void uiMPEMan::seedClick( CallBacker* )
 
 	seedpicker->addSeed( pos );
     }
-    visserv->makeSectionDisplayRefresh( clickedobject );
+    visserv->makeSectionDisplayRefresh();
 
     uiCursor::restoreOverride();
     setHistoryLevel(currentevent);
@@ -460,7 +462,8 @@ void uiMPEMan::turnSeedPickingOn( bool yn )
 	if ( !oldactivevol.isEmpty() )
 	{
 	    //Restore old volume if it has been changed.
-	    engine().swapCacheAndItsBackup();
+	    if ( didtriggervolchange )
+		engine().swapCacheAndItsBackup();
 	    NotifyStopper notifystopper( MPE::engine().activevolumechange );
 	    MPE::engine().setActiveVolume(oldactivevol);
 	    notifystopper.restore();
@@ -629,18 +632,43 @@ void uiMPEMan::seedConnectModeSel( CallBacker* )
     MPE::EMSeedPicker* seedpicker = tracker ? tracker->getSeedPicker(true) : 0;
     if ( !seedpicker )
 	return;
+
+    const int oldseedconmode = seedpicker->getSeedConnectMode();
     seedpicker->setSeedConnectMode( seedconmodefld->currentItem() ); 
+
+    if ( seedpicker->doesModeUseSetup() )
+    {
+	const SectionTracker* sectiontracker = 
+	      tracker->getSectionTracker( seedpicker->getSectionID(), true );
+	if (  sectiontracker && !sectiontracker->hasInitializedSetup() )
+	    visserv->sendShowSetupDlgEvent();
+	if (  !sectiontracker || !sectiontracker->hasInitializedSetup() )
+	    seedpicker->setSeedConnectMode( oldseedconmode ); 
+    }
     
     turnSeedPickingOn( !seedpicker->doesModeUseVolume() );
     updateButtonSensitivity(0);
+}
 
-    if ( !seedpicker->doesModeUseSetup() )
-       return;	
+
+void uiMPEMan::validateSeedConMode()
+{
+    MPE::EMTracker* tracker = getSelectedTracker();
+    MPE::EMSeedPicker* seedpicker = tracker ? tracker->getSeedPicker(true) : 0;
+    if ( !seedpicker ) return;
 
     const SectionTracker* sectiontracker = 
 		tracker->getSectionTracker( seedpicker->getSectionID(), true );
-    if ( sectiontracker && !sectiontracker->hasInitializedSetup() )
-	visserv->sendShowSetupDlgEvent();
+    const bool setupavailable = sectiontracker && 
+				sectiontracker->hasInitializedSetup();
+    if ( setupavailable || !seedpicker->doesModeUseSetup() ) 
+	return;
+
+    const int defaultmode = seedpicker->defaultSeedConMode( false ); 
+    seedpicker->setSeedConnectMode( defaultmode );
+    
+    turnSeedPickingOn( !seedpicker->doesModeUseVolume() );
+    updateButtonSensitivity(0);
 }
 
 
@@ -649,6 +677,7 @@ void uiMPEMan::undoPush( CallBacker* )
     if ( !EM::EMM().history().unDo( 1, mEMHistoryUserInteractionLevel ) )
 	uiMSG().error("Could not undo everything.");
 
+    visserv->makeSectionDisplayRefresh();
     updateButtonSensitivity(0);
 }
 
@@ -658,6 +687,7 @@ void uiMPEMan::redoPush( CallBacker* )
     if ( !EM::EMM().history().reDo( 1, mEMHistoryUserInteractionLevel) )
 	uiMSG().error("Could not redo everything.");
 
+    visserv->makeSectionDisplayRefresh();
     updateButtonSensitivity(0);
 }
 
@@ -780,7 +810,8 @@ void uiMPEMan::trackerAddedRemovedCB( CallBacker* )
 	toolbar->turnOn( showcubeidx, false );
 	showCubeCB(0);
 	showTracker(false);
-    }	
+    }
+
     updateAttribNames();
 }
 
