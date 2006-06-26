@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2004
- RCS:           $Id: uimpepartserv.cc,v 1.47 2006-06-06 15:06:05 cvsjaap Exp $
+ RCS:           $Id: uimpepartserv.cc,v 1.48 2006-06-26 07:57:50 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -117,17 +117,7 @@ int uiMPEPartServer::addTracker( const EM::ObjectID& emid,
     }
 
     blockDataLoading( true );
-
-    if ( !readSetup( emobj->multiID() ) )
-    {
-	const EM::SectionID sid = emobj->sectionID( 0 );
-	if ( !showSetupDlg( emid, sid, true ) )
-	{
-	    MPE::engine().removeTracker(res);
-	    blockDataLoading( false );
-	    return -1;
-	}
-    }
+    readSetup( emobj->multiID() );
 
     if ( pickedpos.isDefined() ) 
     {
@@ -137,6 +127,7 @@ int uiMPEPartServer::addTracker( const EM::ObjectID& emid,
 	poscs.zrg.start = poscs.zrg.stop = pickedpos.z;
 	expandActiveVolume( poscs );
     }
+
     blockDataLoading( false );
     postponeLoadingCurVol();
 
@@ -458,7 +449,7 @@ void uiMPEPartServer::mergeAttribSets( const Attrib::DescSet& newads,
     {
 	const EM::SectionID sid = emobj->sectionID( sidx );
 	MPE::SectionTracker* st = tracker.getSectionTracker( sid, false );
-	if ( !st->adjuster() ) continue;
+	if ( !st || !st->adjuster() ) continue;
 
 	for ( int asidx=0; asidx<st->adjuster()->getNrAttributes(); asidx++ )
 	{
