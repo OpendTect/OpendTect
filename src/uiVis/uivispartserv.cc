@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.323 2006-06-20 14:48:09 cvsnanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.324 2006-06-26 08:03:25 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -1102,12 +1102,10 @@ bool uiVisPartServer::dumpOI( int id ) const
 }
 
 
-void uiVisPartServer::makeSectionDisplayRefresh( int id ) const
+void uiVisPartServer::makeSectionDisplayRefresh() const
 {
-    // fictitious trigger of plane movement to force refresh 
-    // in case of display at sections only.
-    mDynamicCastGet( visSurvey::SurveyObject*, so, getObject(id) );
-    if ( so ) so->resetManipulation();
+    for ( int idx=0; idx<scenes_.size(); idx++ )
+	scenes_[idx]->objectMoved(0);
 }
 
 
@@ -1382,6 +1380,7 @@ void uiVisPartServer::showMPEToolbar()
 
 void uiVisPartServer::updateMPEToolbar()
 {
+    mpetools_->validateSeedConMode();
     mpetools_->updateAttribNames();
 }
 
