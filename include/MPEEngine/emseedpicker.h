@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: emseedpicker.h,v 1.20 2006-05-29 15:05:01 cvsjaap Exp $
+ RCS:           $Id: emseedpicker.h,v 1.21 2006-06-26 07:48:58 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -60,7 +60,8 @@ public:
     virtual void	blockSeedPick(bool)			{ return; }
     virtual bool	isSeedPickBlocked() const		{ return false;}
     virtual bool        doesModeUseVolume() const		{ return true; }
-    virtual bool	doesModeUseSetup() const		{ return true;}
+    virtual bool	doesModeUseSetup() const		{ return true; }
+    virtual int		defaultSeedConMode(bool gotsetup) const { return -1; }
 
     virtual const char*	errMsg() const				{ return 0; }
 
