@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: horizon3dseedpicker.h,v 1.13 2006-05-29 15:06:43 cvsjaap Exp $
+ RCS:           $Id: horizon3dseedpicker.h,v 1.14 2006-06-26 07:49:48 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -48,8 +48,10 @@ public:
 
     static int		nrSeedConnectModes()		{ return 3; }
     static int		defaultSeedConMode()		{return TrackFromSeeds;}
+    int			defaultSeedConMode(
+				    bool gotsetup) const;
     static const char*	seedConModeText(int mode, 
-					bool abbrev=false); 
+				    bool abbrev=false); 
 
     int			getSeedConnectMode() const	{ return seedconmode_; }
     void		setSeedConnectMode(int scm)	{ seedconmode_ = scm; }
@@ -63,7 +65,10 @@ protected:
 					     bool startwasdefined,
 					     bool eraseonly=false);
     bool		retrackFromSeedList();
-    int			nrLateralConnections( const EM::PosID& ) const;
+    int 		nrLateralNeighbors(const EM::PosID& pid) const;
+    int 		nrLineNeighbors(const EM::PosID& pid,
+	    				bool pardir=true) const;
+
     bool		interpolateSeeds();
     CubeSampling	getTrackBox() const;
 
