@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizon3dseedpicker.cc,v 1.16 2006-06-12 14:34:29 cvsjaap Exp $";
+static const char* rcsID = "$Id: horizon3dseedpicker.cc,v 1.17 2006-06-26 07:55:02 cvsjaap Exp $";
 
 #include "horizonseedpicker.h"
 
@@ -92,14 +92,29 @@ bool HorizonSeedPicker::removeSeed( const EM::PosID& pid, bool retrack )
 	return true;
     
     EM::EMObject* emobj = EM::EMM().getObject( tracker_.objectID() );  
-    BinID seedbid = SI().transform( emobj->getPos(pid) );
+    const Coord3 oldpos = emobj->getPos(pid);
+    BinID seedbid = SI().transform( oldpos );
+    const bool attribwasnotremovedalready = 
+			    emobj->isPosAttrib( pid, EM::EMObject::sSeedNode );
 
-    if ( nrLateralConnections(pid) == 0 )
-	emobj->unSetPos( pid, true );
+    emobj->unSetPos( pid, true );
 
+    if ( !retrack && !nrLineNeighbors(pid) ) return true;
+    
     seedlist_.erase(); seedpos_.erase(); 
 
-    return retrackOnActiveLine( seedbid, true, !retrack );
+    const int res = retrackOnActiveLine( seedbid, true, !retrack );
+
+    if ( nrLateralNeighbors(pid) )
+    {
+	if ( !emobj->isDefined( pid ) )
+	    emobj->setPos( pid, oldpos, true );
+
+	if  ( attribwasnotremovedalready )
+	    emobj->setPosAttrib( pid, EM::EMObject::sSeedNode, true );
+    }
+
+    return res;
 }
 
 
@@ -316,6 +331,10 @@ bool HorizonSeedPicker::doesModeUseSetup() const
 { return seedconmode_!=DrawBetweenSeeds; }
 
 
+int HorizonSeedPicker::defaultSeedConMode( bool gotsetup ) const 
+{ return gotsetup ? defaultSeedConMode() : DrawBetweenSeeds; }
+
+
 bool HorizonSeedPicker::stopSeedPick( bool iscancel )
 {
     mGetHorizon(hor);
@@ -324,7 +343,14 @@ bool HorizonSeedPicker::stopSeedPick( bool iscancel )
 }
 
 
-int HorizonSeedPicker::nrLateralConnections( const EM::PosID& pid ) const
+int HorizonSeedPicker::nrLateralNeighbors( const EM::PosID& pid ) const
+{
+    return nrLineNeighbors( pid, false );
+}
+
+
+int HorizonSeedPicker::nrLineNeighbors( const EM::PosID& pid, 
+				         bool pardir ) const
 {
     EM::EMObject* emobj = EM::EMM().getObject( tracker_.objectID() );  
     BinID bid = SI().transform( emobj->getPos(pid) );
@@ -334,19 +360,19 @@ int HorizonSeedPicker::nrLateralConnections( const EM::PosID& pid ) const
     hor->geometry().getConnectedPos( pid, &neighpid );
     
     BinID dir = engine().activeVolume().hrg.step;
-    if ( engine().activeVolume().nrInl() == 1 )
-	dir.crl = 0;
-    else
+    if ( pardir == (engine().activeVolume().nrInl()==1) )
 	dir.inl = 0;
+    else
+	dir.crl = 0;
 
-    int nrlatcon = 0;
+    int total = 0;
     for ( int idx=0; idx<neighpid.size(); idx++ )
     {
 	BinID neighbid = SI().transform( emobj->getPos(neighpid[idx]) ); 
 	if ( bid.isNeighborTo(neighbid,dir) )
-	    nrlatcon++;
+	    total++;
     }
-    return nrlatcon;
+    return total;
 }
 
 
