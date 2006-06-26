@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		June 2006
- RCS:		$Id: vislocationdisplay.h,v 1.2 2006-06-19 21:34:22 cvskris Exp $
+ RCS:		$Id: vislocationdisplay.h,v 1.3 2006-06-26 21:51:06 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -17,13 +17,14 @@ ________________________________________________________________________
 #include "vissurvobj.h"
 
 class Sphere;
-namespace Pick { class Set; class Location; }
+namespace Pick { class Set; class Location; class SetMgr; }
 
 namespace visBase
 {
     class DataObjectGroup;
     class EventCatcher;
     class Transformation;
+    class PickStyle;
 };
 
 
@@ -43,6 +44,8 @@ class LocationDisplay :	public visBase::VisualObjectImpl,
 {
 public:
     void			setSet(Pick::Set*); // once!
+    void			setSetMgr(Pick::SetMgr*);
+    				/*!<Only used for notifications. */
     Pick::Set*			getSet()		{ return set_; }
 
     const MultiID&		getStoredID() const 	{ return storedmid_; }
@@ -61,9 +64,8 @@ public:
     virtual void		otherObjectsMoved(
 				    const ObjectSet<const SurveyObject>&,int);
     virtual NotifierAccess*	getManipulationNotifier() { return &visnotif_; }
-    virtual void		setDisplayTransformation(
-	    					visBase::Transformation*);
-    virtual visBase::Transformation* getDisplayTransformation();
+    virtual void		setDisplayTransformation(mVisTrans*);
+    virtual mVisTrans*		getDisplayTransformation();
     virtual void		setSceneEventCatcher(visBase::EventCatcher*);
     virtual void                fillPar(IOPar&,TypeSet<int>&) const;
     virtual int                 usePar(const IOPar&);
@@ -75,24 +77,30 @@ protected:
 	    					    const Sphere& dir )	    = 0;
     virtual Coord3			getPosition(int loc) const 	    = 0;
     virtual ::Sphere			getDirection(int loc) const 	    = 0;
-
-    Pick::Set*			set_;
-    Notifier<LocationDisplay>	visnotif_;
+    virtual bool			hasDirection() const { return false; }
 
     virtual			~LocationDisplay();
 
-    Pick::Location&		addPick(const Coord3&,const Sphere&,bool);
+    void			addPick(const Coord3&,const Sphere&,bool);
     void			addDisplayPick(const Pick::Location&);
 
-    void			pickCB(CallBacker* cb=0);
-    void			locChg(CallBacker* cb=0);
-    void			setChg(CallBacker* cb=0);
-    virtual void		dispChg(CallBacker* cb=0);
+    bool			getPickSurface(const visBase::EventInfo&,
+	    				       Coord3&) const;
+
+    void			pickCB(CallBacker* cb);
+    void			locChg(CallBacker* cb);
+    void			setChg(CallBacker* cb);
+    virtual void		dispChg(CallBacker* cb);
+
+    Pick::Set*			set_;
+    Pick::SetMgr*		picksetmgr_;
+    Notifier<LocationDisplay>	visnotif_;
+    int				waitsfordirectionid_;
 
     bool			showall_;
     int				mousepressid_;
-    Coord3		        mousepressposition_;
 
+    visBase::PickStyle*		pickstyle_;
     visBase::DataObjectGroup*	group_;
     visBase::EventCatcher*	eventcatcher_;
     visBase::Transformation*	transformation_;
