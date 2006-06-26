@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		May 2001
  Contents:	PickSet base classes
- RCS:		$Id: pickset.h,v 1.20 2006-05-29 14:29:26 cvsbert Exp $
+ RCS:		$Id: pickset.h,v 1.21 2006-06-26 21:48:13 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -121,7 +121,7 @@ public:
     int			size() const		{ return pss_.size(); }
     Set&		get( int idx )		{ return *pss_[idx]; }
     const Set&		get( int idx ) const	{ return *pss_[idx]; }
-    const MultiID&	id( int idx ) const	{ return *ids_[idx]; }
+    const MultiID&	id( int idx ) const;
 
     int			indexOf(const char*) const;
     int			indexOf(const Set&) const;
@@ -138,17 +138,19 @@ public:
     			//!< add, replace or remove (pass null Set ptr).
     			//!< Set is already, or becomes *mine*
     			//!< Note that replacement will trigger two callbacks
+    void		setID(int idx,const MultiID&);
 
     struct ChangeData : public CallBacker
     {
 	enum Ev		{ Added, Changed, ToBeRemoved };
 
-			ChangeData( Ev e, const Set* s, const Location* l )
+			ChangeData( Ev e, const Set* s, int l )
 			    : ev_(e), set_(s), loc_(l)		{}
 
 	Ev		ev_;
 	const Set*	set_;
-	const Location*	loc_;
+	const int	loc_;
+			//<refers to the idx in set_
     };
     
     void		reportChange(CallBacker* sender,const ChangeData&);
@@ -169,18 +171,14 @@ public:
 
     static SetMgr&	getMgr(const char*);
 
-    			SetMgr( const char* nm )
-			: UserIDObject(nm)
-			, locationChanged(this), setToBeRemoved(this)
-			, setAdded(this), setChanged(this)
-			, setDispChanged(this)		{}
+    			SetMgr( const char* nm );
 			//!< creates an unmanaged SetMgr
 			//!< Normally you don't want that, use getMgr() instead
 
 protected:
 
     ObjectSet<Set>	pss_;
-    ObjectSet<MultiID>	ids_;
+    TypeSet<MultiID>	ids_;
     BoolTypeSet		changed_;
 
     void		add(const MultiID&,Set*);

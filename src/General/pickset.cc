@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: pickset.cc,v 1.35 2006-06-01 10:37:40 cvsbert Exp $";
+static const char* rcsID = "$Id: pickset.cc,v 1.36 2006-06-26 21:48:13 cvskris Exp $";
 
 #include "pickset.h"
 #include "survinfo.h"
@@ -186,9 +186,17 @@ Pick::SetMgr& Pick::SetMgr::getMgr( const char* nm )
 }
 
 
+Pick::SetMgr::SetMgr( const char* nm )
+    : UserIDObject(nm)
+    , locationChanged(this), setToBeRemoved(this)
+    , setAdded(this), setChanged(this)
+    , setDispChanged(this)
+{}
+
+
 void Pick::SetMgr::add( const MultiID& ky, Set* st )
 {
-    pss_ += st; ids_ += new MultiID( ky ); changed_ += false;
+    pss_ += st; ids_ += ky; changed_ += false;
     setAdded.trigger( st );
 }
 
@@ -206,11 +214,21 @@ void Pick::SetMgr::set( const MultiID& ky, Set* newset )
 	const int idx = pss_.indexOf( oldset );
 	setToBeRemoved.trigger( oldset );
 	delete oldset; pss_.remove( idx );
-	delete ids_[idx]; ids_.remove( idx );
+	ids_.remove( idx );
 	changed_.remove( idx );
 	if ( newset )
 	    add( ky, newset );
     }
+}
+
+
+const MultiID& Pick::SetMgr::id( int idx ) const
+{ return ids_[idx]; }
+
+
+void Pick::SetMgr::setID( int idx, const MultiID& mid )
+{
+    ids_[idx] = mid;
 }
 
 
@@ -224,7 +242,7 @@ int Pick::SetMgr::indexOf( const MultiID& ky ) const
 {
     for ( int idx=0; idx<size(); idx++ )
     {
-	if ( ky == *ids_[idx] )
+	if ( ky == ids_[idx] )
 	    return idx;
     }
     return -1;
@@ -252,7 +270,7 @@ Pick::Set* Pick::SetMgr::find( const MultiID& ky ) const
 MultiID* Pick::SetMgr::find( const Pick::Set& st ) const
 {
     const int idx = indexOf( st );
-    return idx < 0 ? 0 : const_cast<MultiID*>( ids_[idx] );
+    return idx < 0 ? 0 : const_cast<MultiID*>( &ids_[idx] );
 }
 
 
@@ -314,7 +332,7 @@ void Pick::SetMgr::survChg( CallBacker* )
     setChanged.cbs.erase();
     setDispChanged.cbs.erase();
     deepErase( pss_ );
-    deepErase( ids_ );
+    ids_.erase();
     changed_.erase();
 }
 
