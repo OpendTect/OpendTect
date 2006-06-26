@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: vishorizondisplay.cc,v 1.10 2006-06-09 06:50:00 cvsjaap Exp $
+ RCS:           $Id: vishorizondisplay.cc,v 1.11 2006-06-26 07:53:55 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -69,7 +69,8 @@ HorizonDisplay::HorizonDisplay()
     , translation_(0)
     , edgelineradius_( 3.5 )
     , validtexture_( false )
-    , seedsatsectionsonly_( displayonlyatsections_ )
+    , isdisplayingonlyatsect_( false )
+    , updatepostponed_( false )
 {
     as_ += new Attrib::SelSpec;
     coltabs_ += visBase::VisColorTab::create();
@@ -1137,9 +1138,6 @@ void HorizonDisplay::updateIntersectionLines(
     mDynamicCastGet(const EM::Horizon*,horizon,emobject_);
     if ( !horizon ) return;
 
-    if ( whichobj==id() )
-	whichobj = -1;
-
     TypeSet<int> linestoupdate;
     BoolTypeSet lineshouldexist( intersectionlineids_.size(), false );
 
@@ -1175,8 +1173,11 @@ void HorizonDisplay::updateIntersectionLines(
 	    }
 	    else
 	    {
-		if ( whichobj==objectid && linestoupdate.indexOf(whichobj)==-1 )
-		    linestoupdate += whichobj;
+		if ( ( whichobj==objectid || whichobj==id() ) && 
+		     linestoupdate.indexOf(whichobj)==-1 )
+		{
+		    linestoupdate += objectid;
+		}
 
 		lineshouldexist[idy] = true;
 	    }
@@ -1255,12 +1256,6 @@ void HorizonDisplay::updateIntersectionLines(
 void HorizonDisplay::updateSectionSeeds( 
 	    const ObjectSet<const SurveyObject>& objs, int movedobj )
 {
-    // Only accept movement of this horizon if display_only_at_sections was 
-    // toggled, neglect enumerous callbacks from individual horizon position 
-    // changes, seed clicking in a plane triggers (fictitious) plane movement.
-    if ( movedobj==id() && seedsatsectionsonly_==displayonlyatsections_ )
-	return;
-    
     bool refresh = movedobj==-1 || movedobj==id();
     TypeSet<int> planelist;
 
@@ -1296,15 +1291,26 @@ void HorizonDisplay::updateSectionSeeds(
 	    }
 	}
     }
-    seedsatsectionsonly_ = displayonlyatsections_;
 }
 
 
 void HorizonDisplay::otherObjectsMoved(
 	    const ObjectSet<const SurveyObject>& objs, int whichobj )
 { 
+    if ( whichobj==id() && displayonlyatsections_==isdisplayingonlyatsect_ )
+    {
+	updatepostponed_ = true;
+	return;
+    }
+    else if ( updatepostponed_ )
+    {
+	updateIntersectionLines( objs, id() ); 
+	updateSectionSeeds( objs, id() );
+	updatepostponed_ = false;
+    }
     updateIntersectionLines( objs, whichobj ); 
     updateSectionSeeds( objs, whichobj );
+    isdisplayingonlyatsect_=displayonlyatsections_;
 }
 
 
