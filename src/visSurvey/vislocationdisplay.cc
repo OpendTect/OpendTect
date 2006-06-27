@@ -4,7 +4,7 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vislocationdisplay.cc,v 1.3 2006-06-26 21:50:37 cvskris Exp $";
+static const char* rcsID = "$Id: vislocationdisplay.cc,v 1.4 2006-06-27 21:21:05 cvskris Exp $";
 
 #include "vislocationdisplay.h"
 
@@ -34,7 +34,7 @@ LocationDisplay::LocationDisplay()
     , transformation_( 0 )
     , showall_(true)
     , set_(0)
-    , visnotif_(this)
+    , manip_(this)
     , picksetmgr_( 0 )
     , waitsfordirectionid_( -1 )
     , pickstyle_( 0 )
@@ -88,7 +88,6 @@ void LocationDisplay::fullRedraw()
 
     group_->removeAll();
     setName( set_->name() );
-    dispChg( 0 );
     bool hasdir = false;
     const int nrpicks = set_->size();
     for ( int idx=0; idx<nrpicks; idx++ )
@@ -130,7 +129,7 @@ void LocationDisplay::pickCB( CallBacker* cb )
 	    if ( dir.sqAbs()>=0 )
 	    {
 		 (*set_)[waitsfordirectionid_].dir =
-		     cartesian2Spherical( dir, false );
+		     cartesian2Spherical( dir, true );
 		Pick::SetMgr::ChangeData cd(
 			Pick::SetMgr::ChangeData::Changed,
 			set_, waitsfordirectionid_ );
@@ -203,6 +202,7 @@ void LocationDisplay::pickCB( CallBacker* cb )
 			    {
 				pickstyle_ = visBase::PickStyle::create();
 				insertChild( 0, pickstyle_->getInventorNode() );
+				pickstyle_->ref();
 			    }
 
 			    pickstyle_->setStyle(
@@ -251,13 +251,28 @@ bool LocationDisplay::getPickSurface( const visBase::EventInfo& evi,
     if ( !validpicksurface )
 	return false;
 
-    newpos = scene_->getZScaleTransform()->transformBack( evi.pickedpos );
-    if ( transformation_ ) newpos = transformation_->transformBack(newpos);
+    newpos = display2World( evi.pickedpos );
 
     mDynamicCastGet( SurveyObject*,so, visBase::DM().getObject(eventid))
     if ( so ) so->snapToTracePos( newpos );
 
     return true;
+}
+
+
+Coord3 LocationDisplay::display2World( const Coord3& pos ) const
+{
+    Coord3 res  = scene_->getZScaleTransform()->transformBack( pos );
+    if ( transformation_ ) res = transformation_->transformBack( res );
+    return res;
+}
+
+
+Coord3 LocationDisplay::world2Display( const Coord3& pos ) const
+{
+    Coord3 res = transformation_ ? transformation_->transform( pos ) : pos;
+    res = scene_->getZScaleTransform()->transform( res );
+    return res;
 }
 
 
@@ -278,8 +293,6 @@ void LocationDisplay::locChg( CallBacker* cb )
 	const Pick::Location& loc = (*cd->set_)[cd->loc_];
 	setPosition( cd->loc_, loc.pos, loc.dir );
     }
-
-    visnotif_.trigger();
 }
 
 
@@ -291,7 +304,7 @@ void LocationDisplay::setChg( CallBacker* cb )
     else if ( ps != set_ )
 	return;
 
-    visnotif_.trigger();
+    manip_.trigger();
     fullRedraw();
 }
 
@@ -299,10 +312,6 @@ void LocationDisplay::setChg( CallBacker* cb )
 void LocationDisplay::dispChg( CallBacker* )
 {
     getMaterial()->setColor( set_->disp_.color_ );
-    if ( set_->size() < 1 )
-	{ visnotif_.trigger(); return; }
-
-    visnotif_.trigger();
 }
 
 
@@ -368,7 +377,7 @@ void LocationDisplay::otherObjectsMoved(
     {
 	mDynamicCastGet(visBase::VisualObject*,vo,group_->getObject(idx))
 
-	const Coord3 pos = getPosition(idx);
+	const Coord3 pos = (*set_)[idx].pos;
 	vo->turnOn( false );
 	for ( int idy=0; idy<objs.size(); idy++ )
 	{
