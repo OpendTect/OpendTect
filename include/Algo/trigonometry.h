@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		23-11-2002
- RCS:		$Id: trigonometry.h,v 1.15 2006-05-16 16:28:22 cvsbert Exp $
+ RCS:		$Id: trigonometry.h,v 1.16 2006-06-27 21:04:20 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -52,15 +52,19 @@ Coord3 estimateAverageVector( const TypeSet<Coord3>&, bool normalize,
 class Quaternion
 {
 public:
-    			Quaternion( float s, float x, float y, float z );
-			Quaternion( float s, const Vector3& vec );
+    			Quaternion(float s,float x,float y,float z);
+			Quaternion(float s,const Vector3& vec);
 
-    Quaternion		operator+( const Quaternion& ) const;
-    Quaternion& 	operator+=( const Quaternion& );
-    Quaternion		operator-( const Quaternion& ) const;
-    Quaternion& 	operator-=( const Quaternion& );
-    Quaternion		operator*( const Quaternion& ) const;
-    Quaternion& 	operator*=( const Quaternion& );
+    void		setRotation(const Vector3& axis,float angle);
+    			//!<\note angle must be nonzero
+    void		rotate( const Coord3& from, Coord3& to ) const;
+
+    Quaternion		operator+(const Quaternion&) const;
+    Quaternion& 	operator+=(const Quaternion&);
+    Quaternion		operator-(const Quaternion&) const;
+    Quaternion& 	operator-=(const Quaternion&);
+    Quaternion		operator*(const Quaternion&) const;
+    Quaternion& 	operator*=(const Quaternion&);
 
     Quaternion		inverse() const;
 

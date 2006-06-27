@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: trigonometry.cc,v 1.25 2006-03-12 13:39:10 cvsbert Exp $";
+static const char* rcsID = "$Id: trigonometry.cc,v 1.26 2006-06-27 21:04:20 cvskris Exp $";
 
 #include "trigonometry.h"
 
@@ -124,6 +124,30 @@ Quaternion::Quaternion( float s_, const Vector3& vec_ )
 {}
 
 
+void Quaternion::setRotation( const Vector3& axis, float angle )
+{
+    const float halfangle = angle/2;
+    s = cos(halfangle);
+    const float sineval = sin(halfangle);
+
+    const Coord3 a = axis.normalize();
+
+    vec.x = a.x * sineval;
+    vec.y = a.y * sineval;
+    vec.z = a.z * sineval;
+}
+
+
+void Quaternion::rotate( const Coord3& v, Coord3& to ) const
+{
+    const Coord3 qvv = s*v + vec.cross(v);
+
+    const Coord3 iqvec = -vec;
+
+    to = (iqvec.dot(v))*iqvec+s*qvv+qvv.cross(iqvec);
+}
+    
+
 Quaternion Quaternion::operator+( const Quaternion& b ) const
 {
     return Quaternion( s+b.s, vec+b.vec);
@@ -149,8 +173,6 @@ Quaternion& Quaternion::operator-=( const Quaternion& b )
     (*this) = (*this) - b;
     return *this;
 }
-
-
 
 
 Quaternion Quaternion::operator*( const Quaternion& b ) const
