@@ -1,10 +1,11 @@
 /*+
+  //TODO set coldistratio_
 ________________________________________________________________________
 
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          May 2002
- RCS:           $Id: uiimphorizon.cc,v 1.66 2006-06-02 10:13:34 cvshelene Exp $
+ RCS:           $Id: uiimphorizon.cc,v 1.67 2006-06-27 15:47:37 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +17,7 @@ ________________________________________________________________________
 #include "emhorizon.h"
 
 #include "array2dinterpol.h"
+#include "arrayndimpl.h"
 #include "binidselimpl.h"
 #include "binidvalset.h"
 #include "ctxtioobj.h"
@@ -97,7 +99,7 @@ uiImportHorizon::uiImportHorizon( uiParent* p )
     interpolfld->setValue(false);
     interpolfld->attach( alignedBelow, udffld );
 
-    stepoutfld = new uiGenInput( midgrp, "Stepout", IntInpSpec() );
+    stepoutfld = new uiGenInput( midgrp, "Max hole size", IntInpSpec() );
     stepoutfld->setValue( sDefStepout );
     stepoutfld->setElemSzPol( uiObject::Small );
     stepoutfld->attach( rightTo, interpolfld );
@@ -470,15 +472,14 @@ bool uiImportHorizon::interpolateGrid( ObjectSet<BinIDValueSet>& sections )
 	    }
 	}
 
-	Array2DInterpolator<float> interpolator( arr );
-	interpolator.setInverseDistance( true );
-	interpolator.setAperture( stepoutfld->getIntValue() );
-	while ( true )
-	{
-	    const int res = interpolator.nextStep();
-	    if ( !res ) break;
-	    else if ( res == -1 ) return false;
-	}
+	Array2DInterpolator<float> interpolator( *arr );
+	interpolator.maxholesize_ = stepoutfld->getIntValue();
+	if ( mIsUdf(interpolator.maxholesize_) )
+	    interpolator.maxholesize_ = 0;
+	//TODO set coldistratio_
+	uiExecutor uiex( this, interpolator );
+	if ( !uiex.execute() )
+	    return false;
 
 	data.empty();
 	data.setNrVals( 1, false );

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: emhorizon3d.cc,v 1.73 2006-05-26 13:14:41 cvskris Exp $
+ RCS:           $Id: emhorizon3d.cc,v 1.74 2006-06-27 15:47:37 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "emhorizon.h"
 
 #include "array2dinterpol.h"
+#include "arrayndimpl.h"
 #include "binidsurface.h"
 #include "binidvalset.h"
 #include "emmanager.h"
@@ -287,15 +288,11 @@ void Horizon::interpolateHoles( int aperture )
 	    }
 	}
 
-	Array2DInterpolator<float> interpolator( arr );
-	interpolator.setInverseDistance( true );
-	interpolator.setAperture( aperture );
-	while ( true )
-	{
-	    const int res = interpolator.nextStep();
-	    if ( !res ) break;
-	    else if ( res == -1 ) return;
-	}
+	Array2DInterpolator<float> interpolator( *arr );
+	interpolator.maxholesize_ = aperture;
+	/* TODO aperture=max hole size and coldistratio_ needs to be set */
+	if ( !interpolator.execute() )
+	    return;
 
 	for ( int row=rowrg.start; row<=rowrg.stop; row+=rowrg.step )
 	{
