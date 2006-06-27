@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.324 2006-06-26 08:03:25 cvsjaap Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.325 2006-06-27 12:44:12 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -331,6 +331,29 @@ void uiVisPartServer::setSelObjectId( int id, int attrib )
     eventmutex_.lock();
     eventobjid_ = id;
     sendEvent( evSelection );
+}
+
+
+int uiVisPartServer::getSceneID( int visid ) const
+{
+    TypeSet<int> sceneids;
+    getChildIds( -1, sceneids );
+    for ( int idx=0; idx<sceneids.size(); idx++ )
+    {
+	TypeSet<int> childids;
+	getChildIds( sceneids[idx], childids );
+	if ( childids.indexOf(visid) > -1 )
+	    return sceneids[idx];
+    }
+
+    return -1;
+}
+
+
+const char* uiVisPartServer::getDepthDomainKey( int sceneid ) const
+{
+    const visSurvey::Scene* scene = getScene( sceneid );
+    return scene ? scene->getDepthDomainKey() : 0;
 }
 
 
