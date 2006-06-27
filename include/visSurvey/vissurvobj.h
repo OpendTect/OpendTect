@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvobj.h,v 1.64 2006-06-06 18:48:49 cvskris Exp $
+ RCS:		$Id: vissurvobj.h,v 1.65 2006-06-27 14:35:57 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -192,7 +192,7 @@ public:
     				/*!< Every patch should have a BinIDValueSet */
     virtual void		readAuxData()	{}
 
-    void			setScene(Scene*);
+    virtual void		setScene(Scene*);
 
     virtual bool		setDataTransform( ZAxisTransform* );
     virtual const ZAxisTransform* getDataTransform() const;
