@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		June 2006
- RCS:		$Id: vislocationdisplay.h,v 1.3 2006-06-26 21:51:06 cvskris Exp $
+ RCS:		$Id: vislocationdisplay.h,v 1.4 2006-06-27 21:21:47 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -63,7 +63,7 @@ public:
     virtual bool		isPicking() const;
     virtual void		otherObjectsMoved(
 				    const ObjectSet<const SurveyObject>&,int);
-    virtual NotifierAccess*	getManipulationNotifier() { return &visnotif_; }
+    virtual NotifierAccess*	getManipulationNotifier() { return &manip_; }
     virtual void		setDisplayTransformation(mVisTrans*);
     virtual mVisTrans*		getDisplayTransformation();
     virtual void		setSceneEventCatcher(visBase::EventCatcher*);
@@ -75,8 +75,6 @@ protected:
     virtual visBase::VisualObject*	createLocation() const		    = 0;
     virtual void			setPosition(int loc,const Coord3& pos,
 	    					    const Sphere& dir )	    = 0;
-    virtual Coord3			getPosition(int loc) const 	    = 0;
-    virtual ::Sphere			getDirection(int loc) const 	    = 0;
     virtual bool			hasDirection() const { return false; }
 
     virtual			~LocationDisplay();
@@ -86,6 +84,8 @@ protected:
 
     bool			getPickSurface(const visBase::EventInfo&,
 	    				       Coord3&) const;
+    Coord3			display2World(const Coord3&) const;
+    Coord3			world2Display(const Coord3&) const;
 
     void			pickCB(CallBacker* cb);
     void			locChg(CallBacker* cb);
@@ -94,7 +94,7 @@ protected:
 
     Pick::Set*			set_;
     Pick::SetMgr*		picksetmgr_;
-    Notifier<LocationDisplay>	visnotif_;
+    Notifier<LocationDisplay>	manip_;
     int				waitsfordirectionid_;
 
     bool			showall_;
