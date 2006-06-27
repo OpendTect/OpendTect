@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Payraudeau
  Date:          February  2006
- RCS:           $Id: uifingerprintattrib.cc,v 1.15 2006-06-15 12:49:34 cvshelene Exp $
+ RCS:           $Id: uifingerprintattrib.cc,v 1.16 2006-06-27 12:45:03 cvsnanne Exp $
 
 ________________________________________________________________________
 
@@ -185,6 +185,7 @@ uiFingerPrintAttrib::uiFingerPrintAttrib( uiParent* p )
 
 uiFingerPrintAttrib::~uiFingerPrintAttrib()
 {
+    deepErase( attribflds_ );
     delete ctio_.ioobj;
     delete &ctio_;
 }
@@ -192,7 +193,7 @@ uiFingerPrintAttrib::~uiFingerPrintAttrib()
 
 void uiFingerPrintAttrib::initTable( int nrrows )
 {
-    attribflds_.erase();
+    deepErase( attribflds_ );
     for ( int idx=0; idx<nrrows; idx++ )
     {
 	uiAttrSel* attrbox = new uiAttrSel( 0, 0, "" );
@@ -204,7 +205,7 @@ void uiFingerPrintAttrib::initTable( int nrrows )
 
 void uiFingerPrintAttrib::insertRowCB( CallBacker* cb )
 {
-    int newrowidx = table_->currentRow();
+    const int newrowidx = table_->currentRow();
     uiAttrSel* attrbox = new uiAttrSel( 0, 0, "" );
     attrbox->setDescSet( ads );
     attribflds_.insertAt( attrbox, newrowidx );
@@ -214,9 +215,12 @@ void uiFingerPrintAttrib::insertRowCB( CallBacker* cb )
 
 void uiFingerPrintAttrib::deleteRowCB( CallBacker* cb )
 {
-    int deletedrowidx = table_->currentRow()<0 ? 0 : table_->currentRow()+1;
-    delete attribflds_[deletedrowidx];
-    attribflds_.remove( deletedrowidx );
+    const int currow = table_->currentRow();
+    if ( currow<0 || currow >= attribflds_.size() )
+	return;
+
+    delete attribflds_[currow];
+    attribflds_.remove( currow );
 }
 
 
