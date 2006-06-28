@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodpicksettreeitem.cc,v 1.12 2006-06-28 15:58:40 cvsbert Exp $
+ RCS:		$Id: uiodpicksettreeitem.cc,v 1.13 2006-06-28 21:27:11 cvskris Exp $
 ___________________________________________________________________
 
 -*/
@@ -52,10 +52,6 @@ uiODPickSetParentTreeItem::~uiODPickSetParentTreeItem()
 
 bool uiODPickSetParentTreeItem::init()
 {
-    // TODO: remove after transform for picks has been implemented
-    if ( !canAddDisplay(sceneID()) )
-	return true;
-
     for ( int idx=0; idx<Pick::Mgr().size(); idx++ )
     {
 	uiODDisplayTreeItem* item =
