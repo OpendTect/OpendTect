@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		July 2004
- RCS:		$Id: binidvalset.h,v 1.11 2006-05-01 16:30:04 cvsbert Exp $
+ RCS:		$Id: binidvalset.h,v 1.12 2006-06-28 11:43:28 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -168,21 +168,45 @@ public:
     				//!< considers only 'reasonable' lines to add
     bool		putTo(std::ostream&) const;
 
-    			// Direct access to value arrays
-    inline float*	getVals( const Pos& p )		{ return gtVals(p); }
-    inline const float*	getVals( const Pos& p ) const	{ return gtVals(p); }
+    inline float*	getVals( const Pos& pos )
+			{ return valsets[pos.i]->arr() + nrvals*pos.j; }
+    			//!< Direct access to value arrays. No check on valid()!
+    inline const float*	getVals( const Pos& pos ) const
+			{ return valsets[pos.i]->arr() + nrvals*pos.j; }
+    			//!< Direct access to value arrays. No check on valid()!
 
 protected:
 
     const int			nrvals;
     TypeSet<int>		inls;
     ObjectSet< TypeSet<int> >	crlsets;
-    ObjectSet< TypeSet<float*> > valsets;
+    ObjectSet< TypeSet<float> > valsets;
     bool			allowdup;
 
-    void	addNew(Pos&,int,const float*);
-    void	sortPart(TypeSet<int>&,TypeSet<float*>&,int,int,int,bool);
-    float*	gtVals(const Pos&) const;
+    void		addNew(Pos&,int,const float*);
+    void		sortPart(const TypeSet<int>&,TypeSet<float>&,
+	    			 int,int,int,bool);
+
+    inline int		getInl( const Pos& pos ) const
+    			{ return inls[pos.i]; }
+    inline int		getCrl( const Pos& pos ) const
+    			{ return (*crlsets[pos.i])[pos.j]; }
+    inline TypeSet<int>& getCrlSet( const Pos& pos )
+			{ return *crlsets[pos.i]; }
+    inline const TypeSet<int>& getCrlSet( const Pos& pos ) const
+			{ return *crlsets[pos.i]; }
+    inline TypeSet<float>& getValSet( const Pos& pos )
+			{ return *valsets[pos.i]; }
+    inline const TypeSet<float>& getValSet( const Pos& pos ) const
+			{ return *valsets[pos.i]; }
+    inline TypeSet<int>& getCrlSet( int idx )
+			{ return *crlsets[idx]; }
+    inline const TypeSet<int>& getCrlSet( int idx ) const
+			{ return *crlsets[idx]; }
+    inline TypeSet<float>& getValSet( int idx )
+			{ return *valsets[idx]; }
+    inline const TypeSet<float>& getValSet( int idx ) const
+			{ return *valsets[idx]; }
 
 };
 
