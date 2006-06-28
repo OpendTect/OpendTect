@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		Mar 2002
  Contents:	Access to STL vector class with extensions
- RCS:		$Id: vectoraccess.h,v 1.21 2005-12-23 19:33:51 cvskris Exp $
+ RCS:		$Id: vectoraccess.h,v 1.22 2006-06-28 17:41:27 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,6 +50,10 @@ public:
     inline const T&	operator[]( int idx ) const
     			{ return (*const_cast<VectorAccess*>(this))[idx]; }
     inline unsigned int	size() const			{ return v.size(); }
+    inline void		setCapacity( int sz )		{ v.reserve(sz); }
+    			/*!<Allocates mem for sz, does not change size.*/
+    inline void		getCapacity() const		{ return v.capacity(); }
+    			/*!<\returns max size without reallocation.*/
     inline void		setSize( int sz, T val )	{ v.resize(sz,val); }
 
     inline VectorAccess& operator =( const VectorAccess& v2 )
