@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodpicksettreeitem.cc,v 1.11 2006-06-20 13:50:17 cvsnanne Exp $
+ RCS:		$Id: uiodpicksettreeitem.cc,v 1.12 2006-06-28 15:58:40 cvsbert Exp $
 ___________________________________________________________________
 
 -*/
@@ -130,6 +130,8 @@ bool uiODPickSetParentTreeItem::showSubMenu()
 	mnu.insertSeparator();
 	mnu.insertItem( new uiMenuItem("Display picks only at sections"), 2 );
 	mnu.insertItem( new uiMenuItem("Show all picks"), 3 );
+	mnu.insertSeparator();
+	mnu.insertItem( new uiMenuItem("Merge Sets"), 4 );
     }
 
     addStandardItems( mnu );
@@ -162,6 +164,8 @@ bool uiODPickSetParentTreeItem::showSubMenu()
 	    itm->updateColumnText( uiODSceneMgr::cColorColumn() );
 	}
     }
+    else if ( mnuid==4 )
+	applMgr()->pickServer()->mergeSets();
     else
 	handleStandardItems( mnuid );
 

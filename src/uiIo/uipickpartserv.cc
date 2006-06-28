@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uipickpartserv.cc,v 1.36 2006-06-28 13:32:50 cvsbert Exp $
+ RCS:           $Id: uipickpartserv.cc,v 1.37 2006-06-28 15:58:40 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -296,4 +296,94 @@ void uiPickPartServer::setMisclassSet( const BinIDValueSet& bivs )
 	if ( ioobj )
 	    doStore( *ps, *ioobj );
     }
+}
+
+
+class uiMergePickSets : public uiDialog
+{
+public:
+
+uiMergePickSets( uiParent* p )
+    : uiDialog(p,uiDialog::Setup("Merge Pick Sets","Specify sets to merge"))
+    , ctioin( PickSetTranslatorGroup::ioContext() )
+    , ctioout( PickSetTranslatorGroup::ioContext() )
+{
+    selfld = new uiIOObjSelGrp( this, ctioin, "Select Pick Sets to merge",
+	    			true );
+    ctioout.ctxt.forread = false;
+    outfld = new uiIOObjSel( this, ctioout, "Output merged set" );
+    outfld->attach( alignedBelow, selfld );
+}
+
+
+bool acceptOK( CallBacker* )
+{
+    nrsel = selfld->nrSel();
+    if ( nrsel < 2 )
+    {
+	uiMSG().error( "Please select at least two sets" );
+	return false;
+    }
+
+    if ( !outfld->commitInput(true) )
+    {
+	uiMSG().error( "Cannot create the output set" );
+	return false;
+    }
+    return true;
+}
+
+    uiIOObjSelGrp*	selfld;
+    uiIOObjSel*		outfld;
+    CtxtIOObj		ctioin;
+    CtxtIOObj		ctioout;
+
+    int			nrsel;
+
+};
+
+
+void uiPickPartServer::mergeSets()
+{
+    CtxtIOObj ctio( PickSetTranslatorGroup::ioContext() );
+    uiMergePickSets dlg( appserv().parent() );
+    if ( !dlg.go() ) return;
+
+    ObjectSet<const Pick::Set> pss;
+    ObjectSet<Pick::Set> pssread;
+    for ( int idx=0; idx<dlg.nrsel; idx++ )
+    {
+	const MultiID& ky = dlg.selfld->selected( idx );
+	int setidx = Pick::Mgr().indexOf( ky );
+	if ( setidx >= 0 )
+	    pss += &Pick::Mgr().get( setidx );
+	else
+	{
+	    Pick::Set* newset = new Pick::Set;
+	    IOObj* ioobj = IOM().get( ky );
+	    BufferString msg;
+	    if ( PickSetTranslator::retrieve(*newset,ioobj,msg) )
+		{ pss += newset; pssread += newset; }
+	    else
+		uiMSG().warning( msg );
+	    delete ioobj;
+	}
+    }
+
+    if ( pss.size() < 2 )
+    {
+	uiMSG().error( "Not enough valid sets selected for merge" );
+	deepErase( pssread ); return;
+    }
+
+    Pick::Set resset( *pss[0] );
+    resset.setName( dlg.ctioout.ioobj->name() );
+    for ( int idx=1; idx<pss.size(); idx ++ )
+	resset.append( *pss[idx] );
+
+    BufferString msg;
+    if ( !PickSetTranslator::store(resset,dlg.ctioout.ioobj,msg) )
+	uiMSG().error( msg );
+
+    deepErase( pssread );
 }
