@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: emrowcoliterator.cc,v 1.1 2006-04-26 21:15:37 cvskris Exp $
+ RCS:           $Id: emrowcoliterator.cc,v 1.2 2006-06-28 14:46:41 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,32 +30,32 @@ RowColIterator::RowColIterator( const Surface& surf,
 
 PosID RowColIterator::next()
 {
-    if ( !cursection_ )
+    do 
     {
-	if ( !initSection() )
-	    return PosID(-1,-1,-1);
-    }
-    else
-    {
-	rc_.col += colrg_.step;
-	if ( !colrg_.includes(rc_.col) )
+	if ( !cursection_ )
 	{
-	    rc_.row += rowrg_.step;
-	    if ( !rowrg_.includes(rc_.row) )
+	    if ( !initSection() )
+		return PosID(-1,-1,-1);
+	}
+	else
+	{
+	    rc_.col += colrg_.step;
+	    if ( !colrg_.includes(rc_.col) )
 	    {
-		cursection_ = 0;
-		if ( !nextSection() )
-		    return PosID(-1,-1,-1);
-	    }
+		rc_.row += rowrg_.step;
+		if ( !rowrg_.includes(rc_.row) )
+		{
+		    cursection_ = 0;
+		    if ( !nextSection() )
+			return PosID(-1,-1,-1);
+		}
 
-	    colrg_ = cursection_->colRange( rc_.row );
-	    rc_.col = colrg_.start;
+		colrg_ = cursection_->colRange( rc_.row );
+		rc_.col = colrg_.start;
+	    }
 	}
     }
-
-    if ( !cursection_->isKnotDefined( rc_ ) )
-	return next();
-
+    while ( !cursection_->isKnotDefined( rc_ ) );
 
     return PosID( surf_.id(), sid_, rc_.getSerialized() );
 }
