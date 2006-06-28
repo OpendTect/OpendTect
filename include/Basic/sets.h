@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		April 1995
  Contents:	Sets of simple objects
- RCS:		$Id: sets.h,v 1.34 2005-12-23 19:33:51 cvskris Exp $
+ RCS:		$Id: sets.h,v 1.35 2006-06-28 18:09:25 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -92,8 +92,16 @@ public:
     virtual void	append( const TypeSet<T>& ts )
 			{
 			    const unsigned int sz = ts.size();
-			    for ( unsigned int idx=0; idx<sz; idx++ )
-				*this += ts[idx];
+			    if ( !sz ) return;
+
+			    const int oldsz = size();
+			    setSize( sz+oldsz, ts[0] );
+			    if ( sz>1 )
+			    {
+				const T* src = ts.arr()+1;
+				T* dst = arr()+oldsz+1;
+				memcpy( dst, src, (sz-1)*sizeof(T) );
+			    }
 			}
 
     virtual inline void	createUnion( const TypeSet<T>& ts );
