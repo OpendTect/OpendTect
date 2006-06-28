@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uipickpartserv.h,v 1.24 2006-05-29 08:02:32 cvsbert Exp $
+ RCS:           $Id: uipickpartserv.h,v 1.25 2006-06-28 13:32:49 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,6 +43,7 @@ public:
     bool			storeSet(const Pick::Set&);
     bool			storeSetAs(const Pick::Set&);
     void			setMisclassSet(const BinIDValueSet&);
+    bool			pickSetsStored() const;
 
     static const int		evGetHorInfo;
     static const int		evGetHorDef;

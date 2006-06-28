@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiodapplmgr.h,v 1.34 2006-05-29 08:02:32 cvsbert Exp $
+ RCS:           $Id: uiodapplmgr.h,v 1.35 2006-06-28 13:32:50 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -108,6 +108,7 @@ public:
     bool			storePickSet(const Pick::Set&);
     bool			storePickSetAs(const Pick::Set&);
     bool			setPickSetDirs(Pick::Set&);
+    bool			pickSetsStored() const;
 
     // Work. Don't use unless expert.
     bool			getNewData(int visid, int attrib  );

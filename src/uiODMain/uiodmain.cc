@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodmain.cc,v 1.43 2006-06-07 16:13:12 cvsnanne Exp $
+ RCS:           $Id: uiodmain.cc,v 1.44 2006-06-28 13:32:50 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -343,14 +343,43 @@ bool uiODMain::closeOK()
     scenemgr->storePositions();
     ctabwin->storePosition();
 
-    int res = hasSessionChanged()
-	    ? uiMSG().askGoOnAfter( "Do you want to save this session?" )
-            : (int)!uiMSG().askGoOn( "Do you want to quit?" ) + 1;
+    bool askedanything = false;
 
-    if ( res == 0 )
-	saveSession();
-    else if ( res == 2 )
-	return false;
+    bool doask = false;
+    Settings::common().getYN( "dTect.Ask store session", doask );
+    if ( doask && hasSessionChanged() )
+    {
+	askedanything = true;
+	int res = uiMSG().askGoOnAfter( "Do you want to save this session?" );
+	if ( res == 0 )
+	    saveSession();
+	else if ( res == 2 )
+	    return false;
+    }
+
+    if ( !applmgr->pickSetsStored() )
+    {
+	doask = true;
+	Settings::common().getYN( "dTect.Ask store picks", doask );
+	if ( doask )
+	{
+	    askedanything = true;
+	    int res = uiMSG().askGoOnAfter( "Pick sets have changed.\n"
+					    "Store the changes now?");
+	    if ( res == 0 )
+		applmgr->storePickSets();
+	    else if ( res == 2 )
+		return false;
+	}
+    }
+
+    if ( !askedanything )
+    {
+	doask = false;
+	Settings::common().getYN( "dTect.Ask close", doask );
+	if ( doask && !uiMSG().askGoOn( "Do you want to quit?" ) )
+	    return false;
+    }
 
     removeDockWindow( ctabwin );
     delete scenemgr;

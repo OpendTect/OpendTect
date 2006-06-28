@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uipickpartserv.cc,v 1.35 2006-05-29 08:02:32 cvsbert Exp $
+ RCS:           $Id: uipickpartserv.cc,v 1.36 2006-06-28 13:32:50 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -220,6 +220,17 @@ bool uiPickPartServer::storeSets()
 	    continue;
 
 	storeSet( setmgr.get(idx) );
+    }
+    return true;
+}
+
+
+bool uiPickPartServer::pickSetsStored() const
+{
+    for ( int idx=0; idx<setmgr.size(); idx++ )
+    {
+	if ( setmgr.isChanged(idx) )
+	    return false;
     }
     return true;
 }

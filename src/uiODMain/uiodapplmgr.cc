@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.140 2006-06-26 08:00:16 cvsjaap Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.141 2006-06-28 13:32:50 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -357,6 +357,8 @@ bool uiODApplMgr::storePickSetAs( const Pick::Set& ps )
 { return pickserv->storeSetAs( ps ); }
 bool uiODApplMgr::setPickSetDirs( Pick::Set& ps )
 { return attrserv->setPickSetDirs( ps, nlaserv ? &nlaserv->getModel() : 0 ); }
+bool uiODApplMgr::pickSetsStored() const
+{ return pickserv->pickSetsStored(); }
 
 
 bool uiODApplMgr::getNewData( int visid, int attrib )
