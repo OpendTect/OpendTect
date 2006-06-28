@@ -4,14 +4,15 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          June 2003
- RCS:           $Id: emsurfaceio.cc,v 1.72 2006-06-08 18:11:20 cvskris Exp $
+ RCS:           $Id: emsurfaceio.cc,v 1.73 2006-06-28 21:30:29 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "emsurfaceio.h"
 
-#include "arraynd.h"
+#include "arrayndimpl.h"
+#include "binidsurface.h"
 #include "color.h"
 #include "ascstream.h"
 #include "datachar.h"
@@ -808,6 +809,8 @@ void dgbSurfaceReader::goToNextRow()
     rowindex_++;
     if ( rowindex_>=nrrows_ )
     {
+	surface_->geometry().sectionGeometry(sectionsel_[sectionindex_])->
+	    trimUndefParts();
 	sectionindex_++;
 	sectionsread_++;
 	nrdone_ = sectionsread_ *
@@ -919,6 +922,25 @@ void dgbSurfaceReader::createSection( const SectionID& sectionid )
     const int index = sectionids_.indexOf(sectionid);
     surface_->geometry().addSection( sectionnames_[index] ?
 			       *sectionnames_[index] : 0, sectionid, false );
+    mDynamicCastGet( Geometry::BinIDSurface*,bidsurf,
+	    	     surface_->geometry().sectionGeometry(sectionid) );
+    if ( !bidsurf )
+	return;
+
+    const StepInterval<int> inlrg = readrowrange_ ? *readrowrange_ : rowrange_;
+    const StepInterval<int> crlrg = readcolrange_ ? *readcolrange_ : colrange_;
+
+    Array2D<float>* arr = new Array2DImpl<float>( inlrg.nrSteps()+1,
+	    					  crlrg.nrSteps()+1 );
+    float* ptr = arr->getData();
+    for ( int idx=arr->info().getTotalSz()-1; idx>=0; idx-- )
+    {
+	*ptr = mUdf(float);
+	ptr++;
+    }
+
+    bidsurf->setArray( RowCol( inlrg.start, crlrg.start),
+	    	       RowCol( inlrg.step, crlrg.step ), arr, true );
 }
 
 
