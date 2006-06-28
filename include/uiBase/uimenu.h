@@ -7,12 +7,13 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: uimenu.h,v 1.25 2005-11-08 16:43:50 cvsarend Exp $
+ RCS:           $Id: uimenu.h,v 1.26 2006-06-28 10:09:34 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uihandle.h"
+#include "separstr.h"
 
 class uiParent;
 
@@ -36,6 +37,13 @@ class mQPopupMenu;
 template<class T> class ObjectSet;
 
 
+class MenuItemSeparString : public SeparString
+{
+public:
+    	MenuItemSeparString(const char* str=0) : SeparString(str,'`')	{}
+};
+
+
 class uiMenuItemContainer : public uiObjHandle
 {
 #ifdef USEQT4
@@ -55,6 +63,9 @@ public:
 
     int				nrItems() const;
     const ObjectSet<uiMenuItem>& items() const;
+
+    uiMenuItem*			find(const MenuItemSeparString&);
+    uiMenuItem*			find(const char* itmtxt);
 	
     int				insertItem(uiMenuItem*,int id=-1,int idx=-1);
     				/*!<\param id The id that is returned if the
