@@ -4,7 +4,7 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.86 2006-06-19 21:34:22 cvskris Exp $";
+static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.87 2006-06-28 21:19:23 cvskris Exp $";
 
 #include "vispicksetdisplay.h"
 
@@ -41,12 +41,11 @@ visBase::VisualObject* PickSetDisplay::createLocation() const
 }
 
 
-void PickSetDisplay::setPosition( int loc, const Coord3& pos,
-				  const Sphere& dir )
+void PickSetDisplay::setPosition( int idx, const Pick::Location& loc )
 {
-    mDynamicCastGet( visBase::Marker*, marker, group_->getObject(loc) );
-    marker->setCenterPos(pos);
-    marker->setDirection(dir);
+    mDynamicCastGet( visBase::Marker*, marker, group_->getObject(idx) );
+    marker->setCenterPos(loc.pos);
+    marker->setDirection(loc.dir);
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vispicksetdisplay.h,v 1.53 2006-06-19 21:34:22 cvskris Exp $
+ RCS:		$Id: vispicksetdisplay.h,v 1.54 2006-06-28 21:19:23 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -35,8 +35,7 @@ public:
     int				usePar(const IOPar&);
 protected:
     visBase::VisualObject*	createLocation() const;
-    void			setPosition(int loc,const Coord3& pos,
-	    					    const Sphere& dir );
+    void			setPosition(int loc,const Pick::Location&);
     Coord3			getPosition(int loc) const;
     ::Sphere			getDirection(int loc) const;
     void			dispChg(CallBacker*);

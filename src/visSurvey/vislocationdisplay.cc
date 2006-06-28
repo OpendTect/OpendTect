@@ -4,7 +4,7 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vislocationdisplay.cc,v 1.4 2006-06-27 21:21:05 cvskris Exp $";
+static const char* rcsID = "$Id: vislocationdisplay.cc,v 1.5 2006-06-28 21:19:23 cvskris Exp $";
 
 #include "vislocationdisplay.h"
 
@@ -18,6 +18,7 @@ static const char* rcsID = "$Id: vislocationdisplay.cc,v 1.4 2006-06-27 21:21:05
 #include "vismaterial.h"
 #include "vispickstyle.h"
 #include "vistransform.h"
+#include "zaxistransform.h"
 
 namespace visSurvey {
 
@@ -28,16 +29,17 @@ const char* LocationDisplay::sKeyMarkerSize()	{ return "Size"; }
 
 
 LocationDisplay::LocationDisplay()
-    : VisualObjectImpl(true)
+    : VisualObjectImpl( true )
     , group_( visBase::DataObjectGroup::create() )
     , eventcatcher_( 0 )
     , transformation_( 0 )
-    , showall_(true)
+    , showall_( true )
     , set_(0)
-    , manip_(this)
+    , manip_( this )
     , picksetmgr_( 0 )
     , waitsfordirectionid_( -1 )
     , pickstyle_( 0 )
+    , datatransform_( 0 )
 {
     group_->ref();
     addChild( group_->getInventorNode() );
@@ -56,6 +58,14 @@ LocationDisplay::~LocationDisplay()
     setSetMgr( 0 );
 
     if ( pickstyle_ ) pickstyle_->unRef();
+
+    if ( datatransform_ )
+    {
+	if ( datatransform_->changeNotifier() )
+	    datatransform_->changeNotifier()->remove(
+		mCB( this, LocationDisplay, fullRedraw) );
+	datatransform_->unRef();
+    }
 }
 
 
@@ -82,20 +92,38 @@ void LocationDisplay::setSetMgr( Pick::SetMgr* mgr )
     }
 }
 
-void LocationDisplay::fullRedraw()
+
+void LocationDisplay::fullRedraw( CallBacker* )
 {
     getMaterial()->setColor( set_->disp_.color_ );
-
-    group_->removeAll();
-    setName( set_->name() );
-    bool hasdir = false;
     const int nrpicks = set_->size();
-    for ( int idx=0; idx<nrpicks; idx++ )
+
+    invalidpicks_.erase();
+
+    int idx=0;
+    for ( ; idx<nrpicks; idx++ )
     {
-	const Pick::Location& loc = (*set_)[idx];
-	addDisplayPick( loc );
-	if ( loc.hasDir() ) hasdir = true;
+	bool turnon = true;
+	Pick::Location loc = (*set_)[idx];
+	if ( !transformPos( loc ) )
+	{
+	    invalidpicks_ += idx;
+	    turnon = false;
+	}
+
+	if ( idx<group_->size() )
+	    setPosition( idx, loc );
+	else
+	    addDisplayPick( loc );
+
+	mDynamicCastGet( visBase::VisualObject*, vo,
+			 group_->getObject( idx ) );
+	if ( vo ) vo->turnOn( turnon );
     }
+
+    while ( idx<group_->size() )
+	group_->removeObject( idx );
+
 }
 
 
@@ -252,6 +280,12 @@ bool LocationDisplay::getPickSurface( const visBase::EventInfo& evi,
 	return false;
 
     newpos = display2World( evi.pickedpos );
+    if ( datatransform_ )
+    {
+	newpos.z = datatransform_->transformBack( newpos );
+	if ( mIsUdf(newpos.z) )
+	    return false;
+    }
 
     mDynamicCastGet( SurveyObject*,so, visBase::DM().getObject(eventid))
     if ( so ) so->snapToTracePos( newpos );
@@ -276,6 +310,23 @@ Coord3 LocationDisplay::world2Display( const Coord3& pos ) const
 }
 
 
+bool LocationDisplay::transformPos( Pick::Location& loc ) const
+{
+    if ( !datatransform_ ) return true;
+
+    const float newdepth = datatransform_->transform( loc.pos );
+    if ( mIsUdf(newdepth) )
+	return false;
+
+    loc.pos.z = newdepth;
+
+    if ( loc.hasDir() )
+	pErrMsg("Direction not impl");
+
+    return true;
+}
+
+
 void LocationDisplay::locChg( CallBacker* cb )
 {
     mDynamicCastGet(Pick::SetMgr::ChangeData*,cd,cb)
@@ -285,13 +336,40 @@ void LocationDisplay::locChg( CallBacker* cb )
 	return;
 
     if ( cd->ev_==Pick::SetMgr::ChangeData::Added )
-	addDisplayPick( (*cd->set_)[cd->loc_] );
+    {
+	bool turnon = true;
+	Pick::Location loc = (*set_)[cd->loc_];
+	if ( !transformPos( loc ) )
+	{
+	    invalidpicks_ += cd->loc_;
+	    turnon = false;
+	}
+
+	addDisplayPick( loc );
+
+	mDynamicCastGet( visBase::VisualObject*, vo,
+			 group_->getObject( cd->loc_ ) );
+	if ( vo ) vo->turnOn( turnon );
+    }
     else if ( cd->ev_==Pick::SetMgr::ChangeData::ToBeRemoved )
 	group_->removeObject( cd->loc_ );
     else if ( cd->ev_==Pick::SetMgr::ChangeData::Changed )
     {
-	const Pick::Location& loc = (*cd->set_)[cd->loc_];
-	setPosition( cd->loc_, loc.pos, loc.dir );
+	bool turnon = true;
+	Pick::Location loc = (*set_)[cd->loc_];
+	if ( !transformPos( loc ) )
+	{
+	    if ( invalidpicks_.indexOf(cd->loc_)==-1 )
+		invalidpicks_ += cd->loc_;
+	    turnon = false;
+	}
+
+	addDisplayPick( loc );
+
+	mDynamicCastGet( visBase::VisualObject*, vo,
+			 group_->getObject( cd->loc_ ) );
+	if ( vo ) vo->turnOn( turnon );
+	setPosition( cd->loc_, loc );
     }
 }
 
@@ -348,7 +426,7 @@ void LocationDisplay::addDisplayPick( const Pick::Location& loc )
 
     const int idx = group_->size();
     group_->addObject( visobj );
-    setPosition( idx, loc.pos, loc.dir );
+    setPosition( idx, loc );
 }
 
 
@@ -478,6 +556,41 @@ int LocationDisplay::usePar( const IOPar& par )
 	return -1;
 
     return 1;
+}
+
+
+bool LocationDisplay::setDataTransform( ZAxisTransform* zat )
+{
+    if ( datatransform_==zat )
+	return true;
+
+    if ( datatransform_ )
+    {
+	if ( datatransform_->changeNotifier() )
+	    datatransform_->changeNotifier()->remove(
+		mCB( this, LocationDisplay, fullRedraw) );
+	datatransform_->unRef();
+    }
+
+    datatransform_ = zat;
+
+    if ( datatransform_ )
+    {
+	if ( datatransform_->changeNotifier() )
+	    datatransform_->changeNotifier()->notify(
+		mCB( this, LocationDisplay, fullRedraw) );
+
+	datatransform_->ref();
+    }
+
+    fullRedraw();
+    return true;
+}
+
+
+const ZAxisTransform* LocationDisplay::getDataTransform() const
+{
+    return datatransform_;
 }
 
 }; // namespace visSurvey

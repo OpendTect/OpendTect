@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		June 2006
- RCS:		$Id: vislocationdisplay.h,v 1.4 2006-06-27 21:21:47 cvskris Exp $
+ RCS:		$Id: vislocationdisplay.h,v 1.5 2006-06-28 21:19:23 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -50,7 +50,7 @@ public:
 
     const MultiID&		getStoredID() const 	{ return storedmid_; }
 
-    void			fullRedraw();
+    void			fullRedraw(CallBacker* =0);
     void			showAll(bool yn);
     bool			allShown() const	{ return showall_; }
 
@@ -70,11 +70,14 @@ public:
     virtual void                fillPar(IOPar&,TypeSet<int>&) const;
     virtual int                 usePar(const IOPar&);
 
+    bool			setDataTransform(ZAxisTransform*);
+    const ZAxisTransform*	getDataTransform() const;
+
 protected:
 					LocationDisplay();
     virtual visBase::VisualObject*	createLocation() const		    = 0;
-    virtual void			setPosition(int loc,const Coord3& pos,
-	    					    const Sphere& dir )	    = 0;
+    virtual void			setPosition(int idx,
+	    					    const Pick::Location&)  = 0;
     virtual bool			hasDirection() const { return false; }
 
     virtual			~LocationDisplay();
@@ -86,6 +89,7 @@ protected:
 	    				       Coord3&) const;
     Coord3			display2World(const Coord3&) const;
     Coord3			world2Display(const Coord3&) const;
+    bool			transformPos(Pick::Location&) const;
 
     void			pickCB(CallBacker* cb);
     void			locChg(CallBacker* cb);
@@ -97,6 +101,8 @@ protected:
     Notifier<LocationDisplay>	manip_;
     int				waitsfordirectionid_;
 
+    TypeSet<int>		invalidpicks_;
+
     bool			showall_;
     int				mousepressid_;
 
@@ -104,6 +110,7 @@ protected:
     visBase::DataObjectGroup*	group_;
     visBase::EventCatcher*	eventcatcher_;
     visBase::Transformation*	transformation_;
+    ZAxisTransform*		datatransform_;
 
     MultiID			storedmid_;
 
