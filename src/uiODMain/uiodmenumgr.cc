@@ -4,12 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.cc,v 1.44 2006-04-27 10:20:19 cvsbert Exp $
+ RCS:           $Id: uiodmenumgr.cc,v 1.45 2006-06-28 13:45:08 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.44 2006-04-27 10:20:19 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.45 2006-06-28 13:45:08 cvsbert Exp $";
 
 #include "uiodmenumgr.h"
 #include "uiodapplmgr.h"
@@ -287,8 +287,8 @@ void uiODMenuMgr::fillUtilMenu()
     mInsertItem( settmnu, "&Fonts ...", mSettFontsMnuItm );
     mInsertItem( settmnu, "&Mouse controls ...", mSettMouseMnuItm );
     mInsertItem( settmnu, "&Look and feel ...", mSettLkNFlMnuItm );
-    mInsertItem( settmnu, "&General ...", mSettGeneral );
     mInsertItem( settmnu, "&Shortcuts ...", mSettShortcutsMnuItm );
+    mInsertItem( settmnu, "&General ...", mSettGeneral );
 
     mInsertItem( utilmnu, "&Batch programs ...", mBatchProgMnuItm );
     mInsertItem( utilmnu, "&Plugins ...", mPluginsMnuItm );
