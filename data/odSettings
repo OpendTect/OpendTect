@@ -1,22 +1,28 @@
-dTect V1.1
+dTect V2.4
 Default settings
-Mon Oct 20 11:27:51 2003
+Wed Jun 28 15:42:01 2006
 !
-Printer                  :	lpr
-Seg-Y headers            :	/tmp/sgy_dump.txt
-Company                  :	
-In-line byte             :	5
-Cross-line byte          :	21
-X-coord byte             :	73
-Y-coord byte             :	77
-Font.def.Control         :	Helvetica`8`Normal`No
-Font.def.Small control	 : 	Helvetica`6`Normal`No
-Font.def.Large control	 : 	Helvetica`10`Normal`No
-Font.def.Graphics small  :	Helvetica`6`Normal`No
-Font.def.Graphics medium :	Helvetica`8`Normal`No
-Font.def.Graphics large  :	Helvetica`10`Bold`No
-Ui.ToolTips.enable       :	Yes
-dTect.Dump OI Menu	 :	No
-dTect.Color table.Name	 :	Red-White-Black
-dTect.MouseControls.Default :	Default
+Printer:			lpr
+Seg-Y headers:			/tmp/sgy_dump.txt
+Company:	
+In-line byte:			5
+Cross-line byte:		21
+X-coord byte:			73
+Y-coord byte:			77
+Font.def.Control:		Helvetica`8`Normal`No
+Font.def.Small control: 	Helvetica`6`Normal`No
+Font.def.Large control: 	Helvetica`10`Normal`No
+Font.def.Graphics small:	Helvetica`6`Normal`No
+Font.def.Graphics medium:	Helvetica`8`Normal`No
+Font.def.Graphics large:	Helvetica`10`Bold`No
+Ui.ToolTips.enable:		Yes
+dTect.Dump OI Menu:		No
+dTect.Color table.Name:		Red-White-Black
+dTect.MouseControls.Default:	Default
+dTect.Surface.Binary format:	No
+dTect.Select Plugins:		Yes
+dTect.Enable VRML:		No
+dTect.Ask close:		No
+dTect.Ask store session:	No
+dTect.Ask store picks:		Yes
 !
