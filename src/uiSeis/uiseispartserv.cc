@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiseispartserv.cc,v 1.38 2006-03-12 13:39:11 cvsbert Exp $
+ RCS:           $Id: uiseispartserv.cc,v 1.39 2006-06-29 16:34:09 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,6 +45,7 @@ uiSeisPartServer::uiSeisPartServer( uiApplService& a )
 {
     uiSEGYSurvInfoProvider* sip = new uiSEGYSurvInfoProvider( segyid );
     uiSurveyInfoEditor::addInfoProvider( sip );
+    SeisIOObjInfo::initDefault( sKey::Steering );
 }
 
 

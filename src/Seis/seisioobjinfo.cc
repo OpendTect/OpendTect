@@ -4,7 +4,7 @@
  * DATE     : June 2005
 -*/
 
-static const char* rcsID = "$Id: seisioobjinfo.cc,v 1.8 2006-03-12 13:39:10 cvsbert Exp $";
+static const char* rcsID = "$Id: seisioobjinfo.cc,v 1.9 2006-06-29 16:34:09 cvsbert Exp $";
 
 #include "seisioobjinfo.h"
 #include "seistrcsel.h"
@@ -21,6 +21,7 @@ static const char* rcsID = "$Id: seisioobjinfo.cc,v 1.8 2006-03-12 13:39:10 cvsb
 #include "binidselimpl.h"
 #include "cubesampling.h"
 #include "linekey.h"
+#include "keystrs.h"
 #include "errh.h"
 
 
@@ -253,4 +254,67 @@ BufferString SeisIOObjInfo::defKey2DispName( const char* defkey,
 					     const char* ioobjnm )
 {
     return LineKey::defKey2DispName( defkey, ioobjnm );
+}
+
+
+static BufferStringSet& getTypes()
+{
+    static BufferStringSet* types = 0;
+    if ( !types )
+	types = new BufferStringSet;
+    return *types;
+}
+
+static TypeSet<MultiID>& getIDs()
+{
+    static TypeSet<MultiID>* ids = 0;
+    if ( !ids )
+	ids = new TypeSet<MultiID>;
+    return *ids;
+}
+
+
+void SeisIOObjInfo::initDefault( const char* typ )
+{
+    BufferStringSet& typs = getTypes();
+    const int typidx = typs.indexOf( typ );
+    if ( typidx > -1 )
+	return;
+
+    IOObjContext ctxt( SeisTrcTranslatorGroup::ioContext() );
+    ctxt.parconstraints.set( sKey::Type, typ );
+    ctxt.includeconstraints = true;
+    ctxt.allowcnstrsabsent = typ && *typ ? false : true;
+    ctxt.trglobexpr = "CBVS";
+    int nrpresent = 0;
+    IOObj* ioobj = IOM().getFirst( ctxt, &nrpresent );
+    if ( !ioobj || nrpresent > 1 )
+	{ delete ioobj; return; }
+
+    typs.add( typ );
+    getIDs() += ioobj->key();
+}
+
+
+const MultiID& SeisIOObjInfo::getDefault( const char* typ )
+{
+    static const MultiID noid( "" );
+    const int typidx = getTypes().indexOf( typ );
+    return typidx < 0 ? noid : getIDs()[typidx];
+}
+
+
+void SeisIOObjInfo::setDefault( const MultiID& id, const char* typ )
+{
+    BufferStringSet& typs = getTypes();
+    TypeSet<MultiID>& ids = getIDs();
+
+    const int typidx = typs.indexOf( typ );
+    if ( typidx > -1 )
+	ids[typidx] = id;
+    else
+    {
+	typs.add( typ );
+	ids += id;
+    }
 }

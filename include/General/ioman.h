@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		3-8-1995
- RCS:		$Id: ioman.h,v 1.26 2006-04-25 14:33:29 cvsbert Exp $
+ RCS:		$Id: ioman.h,v 1.27 2006-06-29 16:34:09 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -64,7 +64,8 @@ public:
 			{ return getOfGroup(trgroupname,true,true); }
     IOObj*		getByName(const char* objname,
 			      const char* partrgname=0,const char* parname=0);
-    IOObj*		getFirst(const IOObjContext&) const;
+    IOObj*		getFirst(const IOObjContext&,int* nrpresent=0) const;
+    			//!< if interested in nrpresent pass valid address
 
     IODir*		dirPtr() const		{ return (IODir*)dirptr; }
     MultiID		key() const;		//!< of current IODir

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: uisteeringsel.cc,v 1.18 2006-03-12 13:39:11 cvsbert Exp $
+ RCS:           $Id: uisteeringsel.cc,v 1.19 2006-06-29 16:34:09 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,6 +26,7 @@ ________________________________________________________________________
 #include "keystrs.h"
 #include "seistrcsel.h"
 #include "seistrctr.h"
+#include "seisioobjinfo.h"
 #include "uiattrfact.h"
 #include "uigeninput.h"
 #include "uilabel.h"
@@ -272,6 +273,18 @@ uiSteerCubeSel::uiSteerCubeSel( uiParent* p, CtxtIOObj& c,
 			steer_seltxts)
 	, attrdata( ads )
 {
+    attachObj()->finaliseStart.notify( mCB(this,uiSteerCubeSel,doFinalise) );
+}
+
+
+void uiSteerCubeSel::doFinalise( CallBacker* c )
+{
+    if ( ctio.ioobj ) return;
+
+    const MultiID& defid = SeisIOObjInfo::getDefault( sKey::Steering );
+    ctio.setObj( IOM().get(defid) );
+    if ( ctio.ioobj )
+	updateInput();
 }
 
 

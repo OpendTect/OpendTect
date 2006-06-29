@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		25-10-1996
- RCS:		$Id: seisioobjinfo.h,v 1.5 2006-03-01 16:46:23 cvsnanne Exp $
+ RCS:		$Id: seisioobjinfo.h,v 1.6 2006-06-29 16:34:09 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -77,6 +77,11 @@ public:
 	    				       BufferStringSet& b,
 					       bool add=true ) const
 				{ getNmsSubSel(nm,b,add,true); }
+
+    static void		initDefault(const char* type=0);
+    			//!< Only does something if there is not yet a default
+    static const MultiID& getDefault(const char* type=0);
+    static void		setDefault(const MultiID&,const char* type=0);
 
 protected:
 

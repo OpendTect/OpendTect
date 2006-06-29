@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uisteeringsel.h,v 1.6 2005-08-24 10:02:00 cvsnanne Exp $
+ RCS:           $Id: uisteeringsel.h,v 1.7 2006-06-29 16:34:09 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -52,6 +52,7 @@ protected:
     void		update2D();
     CtxtIOObj&		getCtio(CtxtIOObj&);
 
+    void		doFinalise(CallBacker*);
 };
 
 
