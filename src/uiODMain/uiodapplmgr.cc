@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.141 2006-06-28 13:32:50 cvsbert Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.142 2006-06-29 20:23:02 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -336,8 +336,9 @@ bool uiODApplMgr::selectAttrib( int id, int attrib )
     const Attrib::SelSpec* as = visserv->getSelSpec( id, attrib );
     if ( !as ) return false;
 
+    const char* key = visserv->getDepthDomainKey( visserv->getSceneID(id) );
     Attrib::SelSpec myas( *as );
-    bool selok = attrserv->selectAttrib( myas );
+    const bool selok = attrserv->selectAttrib( myas, key );
     if ( selok )
 	visserv->setSelSpec( id, attrib, myas );
 

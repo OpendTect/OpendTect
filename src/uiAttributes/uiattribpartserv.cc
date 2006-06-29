@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiattribpartserv.cc,v 1.34 2006-06-20 14:45:37 cvsnanne Exp $
+ RCS:           $Id: uiattribpartserv.cc,v 1.35 2006-06-29 20:23:02 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -177,12 +177,13 @@ const NLAModel* uiAttribPartServer::getNLAModel() const
 }
 
 
-bool uiAttribPartServer::selectAttrib( SelSpec& selspec )
+bool uiAttribPartServer::selectAttrib( SelSpec& selspec, const char* depthkey )
 {
     uiAttrSelData attrdata( adsman->descSet() );
     attrdata.attribid = selspec.isNLA() ? SelSpec::cNoAttrib() : selspec.id();
     attrdata.outputnr = selspec.isNLA() ? selspec.id().asInt() : -1;
     attrdata.nlamodel = getNLAModel();
+    attrdata.depthdomainkey = depthkey;
     uiAttrSelDlg dlg( appserv().parent(), "View Data", attrdata, No2D );
     if ( !dlg.go() )
 	return false;

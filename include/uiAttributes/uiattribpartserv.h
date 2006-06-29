@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiattribpartserv.h,v 1.14 2006-06-20 14:45:31 cvsnanne Exp $
+ RCS:           $Id: uiattribpartserv.h,v 1.15 2006-06-29 20:23:02 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -83,7 +83,7 @@ public:
     bool		attrSetEditorActive() const	{ return attrsetdlg; }
     void		updateSelSpec(Attrib::SelSpec&) const;
 
-    bool		selectAttrib(Attrib::SelSpec&);
+    bool		selectAttrib(Attrib::SelSpec&,const char* depthdomkey);
     bool		setPickSetDirs(Pick::Set&,const NLAModel*);
     void		outputVol(MultiID&);
     bool		replaceSet(const IOPar&);

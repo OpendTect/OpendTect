@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrsel.h,v 1.4 2006-06-20 14:46:33 cvsnanne Exp $
+ RCS:           $Id: uiattrsel.h,v 1.5 2006-06-29 20:23:02 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,8 +22,8 @@ namespace Attrib { class Desc; class DescSet; class SelInfo; class SelSpec; };
 class CubeSampling;
 class IOObj;
 class NLAModel;
+class uiButtonGroup;
 class uiGenInput;
-class uiGroup;
 class uiListBox;
 class uiRadioButton;
 
@@ -81,7 +81,7 @@ protected:
     Attrib::SelInfo*	attrinf_;
     bool		in_action_;
 
-    uiGroup*		selgrp_;
+    uiButtonGroup*	selgrp_;
     uiRadioButton*	storfld_;
     uiRadioButton*	attrfld_;
     uiRadioButton*	nlafld_;
@@ -93,6 +93,9 @@ protected:
     uiListBox*		depthdomoutfld_;
     uiGenInput*		filtfld_;
     uiGenInput*		attr2dfld_;
+
+    void		createSelectionButtons();
+    void		createSelectionFields();
 
     bool		getAttrData(bool);
     void		doFinalise( CallBacker* );
