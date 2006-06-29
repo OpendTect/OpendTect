@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.83 2006-06-26 16:28:32 cvskris Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.84 2006-06-29 14:10:42 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,37 +12,37 @@ ________________________________________________________________________
 #include "uiempartserv.h"
 
 #include "binidselimpl.h"
-#include "emmanager.h"
-#include "emhistory.h"
-#include "emsurfaceiodata.h"
-#include "emsurfaceauxdata.h"
-#include "emposid.h"
-#include "emhorizon.h"
-#include "emfault.h"
-
-#include "datainpspec.h"
-#include "parametricsurface.h"
-#include "ctxtioobj.h"
-#include "ioobj.h"
-#include "ioman.h"
-#include "survinfo.h"
 #include "binidvalset.h"
-#include "binidselimpl.h"
-#include "surfaceinfo.h"
+#include "ctxtioobj.h"
 #include "cubesampling.h"
+#include "datainpspec.h"
+#include "emfault.h"
+#include "emhistory.h"
+#include "emhorizon.h"
+#include "emmanager.h"
+#include "emposid.h"
+#include "emsurfaceauxdata.h"
+#include "emsurfaceiodata.h"
+#include "ioman.h"
+#include "ioobj.h"
+#include "parametricsurface.h"
+#include "ptrman.h"
+#include "surfaceinfo.h"
+#include "survinfo.h"
+
+#include "uiexecutor.h"
+#include "uiexphorizon.h"
+#include "uigeninputdlg.h"
 #include "uiimphorizon.h"
 #include "uiimpfault.h"
-#include "uiexphorizon.h"
+#include "uiinterpolhorizondlg.h"
+#include "uiioobjsel.h"
 #include "uiiosurfacedlg.h"
-#include "uigeninputdlg.h"
 #include "uilistboxdlg.h"
+#include "uimenu.h"
+#include "uimsg.h"
 #include "uimultisurfaceread.h"
 #include "uisurfaceman.h"
-#include "uiexecutor.h"
-#include "uiioobjsel.h"
-#include "uimsg.h"
-#include "uimenu.h"
-#include "ptrman.h"
 
 #include <math.h>
 
@@ -150,6 +150,14 @@ bool uiEMPartServer::isFullyLoaded( const EM::ObjectID& emid ) const
 {
     const EM::EMObject* emobj = em_.getObject(emid);
     return emobj && emobj->isFullyLoaded();
+}
+
+
+void uiEMPartServer::fillHoles( const EM::ObjectID& emid )
+{
+    mDynamicCastGet(EM::Horizon*,hor,em_.getObject(emid))
+    uiInterpolHorizonDlg dlg( appserv().parent(), hor );
+    dlg.go();
 }
 
 

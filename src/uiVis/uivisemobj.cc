@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Jan 2005
- RCS:           $Id: uivisemobj.cc,v 1.47 2006-06-08 08:20:09 cvsnanne Exp $
+ RCS:           $Id: uivisemobj.cc,v 1.48 2006-06-29 14:10:42 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -218,7 +218,6 @@ void uiVisEMObject::setUpConnections()
     wireframemnuitem.text = "Wireframe";
     editmnuitem.text = "Edit";
     shiftmnuitem.text = "Shift ...";
-    fillholesitem.text = "Fill holes ...";
     showseedsmnuitem.text = "Show seeds";
     removesectionmnuitem.text ="Remove section";
     makepermnodemnuitem.text = "Make control permanent";
@@ -344,7 +343,6 @@ void uiVisEMObject::createMenuCB( CallBacker* cb )
 	!strcmp(getObjectType(displayid),EM::Horizon::typeStr())
 	&& !visserv->isLocked(displayid);
     mAddMenuItem( menu, &shiftmnuitem, enabmenu, false );
-    mAddMenuItem( menu, &fillholesitem, enabmenu, false );
 
     mAddMenuItem( &trackmenuitem, &editmnuitem, enabmenu,
 	    	  emod->isEditingEnabled() );
@@ -456,25 +454,6 @@ void uiVisEMObject::handleMenuCB( CallBacker* cb )
 
 	    visserv->triggerTreeUpdate();
 	}
-    }
-    else if ( mnuid==fillholesitem.id )
-    {
-	mDynamicCastGet(EM::Horizon*,emhzn,emobj);
-	if ( !emhzn ) return;
-
-	menu->setIsHandled(true);
-	BufferString lbl( "Aperture: " );
-	DataInpSpec* inpspec = new IntInpSpec( 5 );
-	uiGenInputDlg dlg( uiparent, "Interpolation aperture size ", 
-			   lbl, inpspec );
-	if ( !dlg.go() ) return;
-
-	uiCursorChanger cursorchanger( uiCursor::Wait );
-	const int aperture = dlg.getIntValue();
-	if ( aperture<1 )
-	    uiMSG().error( "Aperture size must be greater than 0" );
-	else
-	    emhzn->interpolateHoles( aperture );
     }
     else if ( mnuid==removesectionmnuitem.id )
     {

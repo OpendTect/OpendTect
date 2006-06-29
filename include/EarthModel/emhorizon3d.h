@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emhorizon3d.h,v 1.45 2006-05-26 13:03:59 cvskris Exp $
+ RCS:		$Id: emhorizon3d.h,v 1.46 2006-06-29 14:10:42 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -73,43 +73,47 @@ the knots.
 class Horizon : public Surface
 {
 public:
-    static const char*	typeStr();
-    static EMObject*	create(EMManager&);
-    static void		initClass(EMManager&);
-    void		removeAll();
+    static const char*		typeStr();
+    static EMObject*		create(EMManager&);
+    static void			initClass(EMManager&);
+    void			removeAll();
 
     HorizonGeometry&		geometry();
     const HorizonGeometry&	geometry() const;
 
-    void		interpolateHoles(int aperture);
+    Array2D<float>*		createArray2D(SectionID);
+    bool			setArray2D(const Array2D<float>&,SectionID,
+	    				   bool onlyfillundefs);
+    				//!< Returns true on succes
+    void			interpolateHoles(int aperture,bool extrapolate);
 
-    const char*		getTypeStr() const { return typeStr(); }
-    Executor*		importer(const ObjectSet<BinIDValueSet>&,
-	    			 const RowCol& step);
-    				/*!< Removes all data and creates 
-				  a section for every BinIDValueSet
-				*/
-    Executor*		auxDataImporter(const ObjectSet<BinIDValueSet>&,
+    const char*			getTypeStr() const { return typeStr(); }
+    Executor*			importer(const ObjectSet<BinIDValueSet>&,
+	    				 const RowCol& step);
+    					/*!< Removes all data and creates 
+					  a section for every BinIDValueSet
+					*/
+    Executor*			auxDataImporter(const ObjectSet<BinIDValueSet>&,
 	    				const BufferStringSet& attribnms,
 					const BoolTypeSet& attribsel);
 
-    SurfaceAuxData&	auxdata;
-    EdgeLineManager&	edgelinesets;
+    SurfaceAuxData&		auxdata;
+    EdgeLineManager&		edgelinesets;
 
 protected:
-	    		Horizon(EMManager&);
-	    		~Horizon();
-    void		fillPar(IOPar&) const;
-    bool		usePar( const IOPar& );
-    const IOObjContext&	getIOObjContext() const;
+	    			Horizon(EMManager&);
+	    			~Horizon();
+    void			fillPar(IOPar&) const;
+    bool			usePar( const IOPar& );
+    const IOObjContext&		getIOObjContext() const;
 
-    friend class	EMManager;
-    friend class	EMObject;
-    HorizonGeometry	geometry_;
+    friend class		EMManager;
+    friend class		EMObject;
+    HorizonGeometry		geometry_;
 };
 
 
-}; // Namespace
+}; // namespace EarthModel
 
 
 #endif

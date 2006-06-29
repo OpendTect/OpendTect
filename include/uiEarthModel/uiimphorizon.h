@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          May 2002
- RCS:           $Id: uiimphorizon.h,v 1.14 2006-02-23 17:36:37 cvskris Exp $
+ RCS:           $Id: uiimphorizon.h,v 1.15 2006-06-29 14:10:42 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,6 +51,7 @@ protected:
     uiGenInput*		udffld;
     uiGenInput*		interpolfld;
     uiGenInput*		stepoutfld;
+    uiGenInput*		extrapolatefld;
     uiIOObjSel*		outfld;
     uiCheckBox*		displayfld;
     uiPushButton*	attribbut;

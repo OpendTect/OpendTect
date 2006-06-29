@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: emhorizon3d.cc,v 1.74 2006-06-27 15:47:37 cvsbert Exp $
+ RCS:           $Id: emhorizon3d.cc,v 1.75 2006-06-29 14:10:42 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -246,17 +246,17 @@ bool Horizon::usePar( const IOPar& par )
 }
 
 
-HorizonGeometry&  Horizon::geometry()
+HorizonGeometry& Horizon::geometry()
 { return geometry_; }
 
 
-const HorizonGeometry&  Horizon::geometry() const
+const HorizonGeometry& Horizon::geometry() const
 { return geometry_; }
 
 
 const char* Horizon::typeStr() { return EMHorizonTranslatorGroup::keyword; }
 
-void Horizon::initClass(EMManager& emm)
+void Horizon::initClass( EMManager& emm )
 {
     emm.addFactory( new ObjectFactory( create,
 				       EMHorizonTranslatorGroup::ioContext(),
@@ -264,50 +264,74 @@ void Horizon::initClass(EMManager& emm)
 }
 
 
-void Horizon::interpolateHoles( int aperture )
+Array2D<float>* Horizon::createArray2D( SectionID sid )
+{
+    const StepInterval<int> rowrg = geometry_.rowRange( sid );
+    const StepInterval<int> colrg = geometry_.colRange( sid );
+    if ( rowrg.width(false)<1 || colrg.width(false)<1 )
+	return 0;
+
+    Array2DImpl<float>* arr =
+	    new Array2DImpl<float>( rowrg.nrSteps()+1, colrg.nrSteps()+1 );
+    for ( int row=rowrg.start; row<=rowrg.stop; row+=rowrg.step )
+    {
+	for ( int col=colrg.start; col<=colrg.stop; col+=colrg.step )
+	{
+	    const Coord3 pos = getPos( sid, RowCol(row,col).getSerialized() );
+	    arr->set( rowrg.getIndex(row), colrg.getIndex(col), pos.z );
+	}
+    }
+
+    return arr;
+}
+
+
+bool Horizon::setArray2D( const Array2D<float>& arr, SectionID sid, 
+			  bool onlyfillundefs )
+{
+    const StepInterval<int> rowrg = geometry_.rowRange( sid );
+    const StepInterval<int> colrg = geometry_.colRange( sid );
+    if ( rowrg.width(false)<1 || colrg.width(false)<1 )
+	return false;
+
+    for ( int row=rowrg.start; row<=rowrg.stop; row+=rowrg.step )
+    {
+	for ( int col=colrg.start; col<=colrg.stop; col+=colrg.step )
+	{
+	    const RowCol rc( row, col );
+	    Coord3 pos = getPos( sid, rc.getSerialized() );
+	    if ( pos.isDefined() && onlyfillundefs )
+		continue;
+
+	    pos.z = arr.get( rowrg.getIndex(row), colrg.getIndex(col));
+	    setPos( sid, rc.getSerialized(), pos, false );
+	}
+    }
+
+    return true;
+}
+
+
+void Horizon::interpolateHoles( int aperture, bool extrapolate )
 {
     for ( int idx=0; idx<geometry_.nrSections(); idx++ )
     {
-	SectionID sectionid = geometry_.sectionID( idx );
-	const StepInterval<int> rowrg = geometry_.rowRange(sectionid);
-	const StepInterval<int> colrg = geometry_.colRange(sectionid);
-	if ( rowrg.width(false)<1 || colrg.width(false)<1 )
-	    continue;
+	SectionID sid = geometry_.sectionID( idx );
+	const StepInterval<int> rowrg = geometry_.rowRange( sid );
+	const StepInterval<int> colrg = geometry_.colRange( sid );
 
-	Array2DImpl<float>* arr =
-		new Array2DImpl<float>( rowrg.nrSteps()+1, colrg.nrSteps()+1 );
-	if ( !arr ) return;
-
-	for ( int row=rowrg.start; row<=rowrg.stop; row+=rowrg.step )
-	{
-	    for ( int col=colrg.start; col<=colrg.stop; col+=colrg.step )
-	    {
-		const Coord3 pos =
-		    getPos( sectionid, RowCol(row,col).getSerialized() );
-		arr->set( rowrg.getIndex(row), colrg.getIndex(col), pos.z );
-	    }
-	}
-
+	Array2D<float>* arr = createArray2D( sid );
 	Array2DInterpolator<float> interpolator( *arr );
 	interpolator.maxholesize_ = aperture;
-	/* TODO aperture=max hole size and coldistratio_ needs to be set */
+	interpolator.coldistratio_ = colrg.step/rowrg.step;
+	interpolator.extrapolate_ = extrapolate;
 	if ( !interpolator.execute() )
-	    return;
-
-	for ( int row=rowrg.start; row<=rowrg.stop; row+=rowrg.step )
 	{
-	    for ( int col=colrg.start; col<=colrg.stop; col+=colrg.step )
-	    {
-		const RowCol rc( row, col );
-		Coord3 pos = getPos( sectionid, rc.getSerialized() );
-		if ( !pos.isDefined() )
-		{
-		    pos.z = arr->get( rowrg.getIndex(row), colrg.getIndex(col));
-		    setPos( sectionid, rc.getSerialized(), pos, true );
-		}
-	    }
+	    delete arr;
+	    return;
 	}
 
+	setArray2D( *arr, sid, true );
 	delete arr;
     }
 }

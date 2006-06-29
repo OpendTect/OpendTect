@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Sep 2002
- RCS:           $Id: uiempartserv.h,v 1.40 2006-04-28 15:22:03 cvsnanne Exp $
+ RCS:           $Id: uiempartserv.h,v 1.41 2006-06-29 14:10:42 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -52,6 +52,7 @@ public:
     bool		isChanged(const EM::ObjectID&) const;
     bool		isFullResolution(const EM::ObjectID&) const;
     bool		isFullyLoaded(const EM::ObjectID&) const;
+    void		fillHoles(const EM::ObjectID&);
     bool		askUserToSave(const EM::ObjectID&) const;
     			/*!<If object has changed, user is asked wether
 			    he wants to save it or not. If user want to

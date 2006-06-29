@@ -1,11 +1,10 @@
 /*+
-  //TODO set coldistratio_
 ________________________________________________________________________
 
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          May 2002
- RCS:           $Id: uiimphorizon.cc,v 1.67 2006-06-27 15:47:37 cvsbert Exp $
+ RCS:           $Id: uiimphorizon.cc,v 1.68 2006-06-29 14:10:42 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -104,9 +103,14 @@ uiImportHorizon::uiImportHorizon( uiParent* p )
     stepoutfld->setElemSzPol( uiObject::Small );
     stepoutfld->attach( rightTo, interpolfld );
 
+    extrapolatefld = new uiGenInput( midgrp, "Extrapolate",
+				     BoolInpSpec() );
+    extrapolatefld->setValue(false);
+    extrapolatefld->attach( alignedBelow, interpolfld );
+
     attribbut = new uiPushButton( midgrp, "Attribute &info",
 	    			  mCB(this,uiImportHorizon,attribSel), false );
-    attribbut->attach( alignedBelow, interpolfld );
+    attribbut->attach( alignedBelow, extrapolatefld );
 
     uiSeparator* sep2 = new uiSeparator( this, "Separator2" );
     sep2->attach( stretchedBelow, midgrp );
@@ -145,6 +149,7 @@ void uiImportHorizon::inputCB( CallBacker* )
 void uiImportHorizon::interpolSel( CallBacker* )
 {
     stepoutfld->display( interpolfld->getBoolValue() );
+    extrapolatefld->display( interpolfld->getBoolValue() );
 }
 
 
@@ -476,7 +481,9 @@ bool uiImportHorizon::interpolateGrid( ObjectSet<BinIDValueSet>& sections )
 	interpolator.maxholesize_ = stepoutfld->getIntValue();
 	if ( mIsUdf(interpolator.maxholesize_) )
 	    interpolator.maxholesize_ = 0;
-	//TODO set coldistratio_
+	interpolator.coldistratio_ = hs.step.crl/hs.step.inl;
+	interpolator.extrapolate_ = extrapolatefld->getBoolValue();
+
 	uiExecutor uiex( this, interpolator );
 	if ( !uiex.execute() )
 	    return false;
