@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Payraudeau
  Date:          February  2006
- RCS:           $Id: uifingerprintattrib.cc,v 1.16 2006-06-27 12:45:03 cvsnanne Exp $
+ RCS:           $Id: uifingerprintattrib.cc,v 1.17 2006-06-29 14:10:42 cvsnanne Exp $
 
 ________________________________________________________________________
 
@@ -185,7 +185,6 @@ uiFingerPrintAttrib::uiFingerPrintAttrib( uiParent* p )
 
 uiFingerPrintAttrib::~uiFingerPrintAttrib()
 {
-    deepErase( attribflds_ );
     delete ctio_.ioobj;
     delete &ctio_;
 }
@@ -193,7 +192,7 @@ uiFingerPrintAttrib::~uiFingerPrintAttrib()
 
 void uiFingerPrintAttrib::initTable( int nrrows )
 {
-    deepErase( attribflds_ );
+    attribflds_.erase(); 
     for ( int idx=0; idx<nrrows; idx++ )
     {
 	uiAttrSel* attrbox = new uiAttrSel( 0, 0, "" );
