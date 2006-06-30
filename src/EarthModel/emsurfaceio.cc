@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          June 2003
- RCS:           $Id: emsurfaceio.cc,v 1.73 2006-06-28 21:30:29 cvskris Exp $
+ RCS:           $Id: emsurfaceio.cc,v 1.74 2006-06-30 11:34:28 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -809,8 +809,9 @@ void dgbSurfaceReader::goToNextRow()
     rowindex_++;
     if ( rowindex_>=nrrows_ )
     {
-	surface_->geometry().sectionGeometry(sectionsel_[sectionindex_])->
-	    trimUndefParts();
+	if ( surface_ )
+	    surface_->geometry().
+		sectionGeometry(sectionsel_[sectionindex_])->trimUndefParts();
 	sectionindex_++;
 	sectionsread_++;
 	nrdone_ = sectionsread_ *
