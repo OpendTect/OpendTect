@@ -7,11 +7,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uipickpartserv.h,v 1.26 2006-06-28 15:58:40 cvsbert Exp $
+ RCS:           $Id: uipickpartserv.h,v 1.27 2006-06-30 10:15:49 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uipicksetmgr.h"
 #include "uiapplserv.h"
 #include "ranges.h"
 #include "multiid.h"
@@ -28,7 +29,8 @@ namespace Pick { class Set; class SetMgr; };
 
 /*! \brief Service provider for application level - seismics */
 
-class uiPickPartServer : public uiApplPartServer
+class uiPickPartServer  : public uiApplPartServer
+			, public uiPickSetMgr
 {
 public:
 				uiPickPartServer(uiApplService&);
@@ -39,36 +41,29 @@ public:
 				// Services
     void			impexpSet(bool import);
     bool			fetchSets();	//!< Fetch set(s) by user sel
-    bool			storeSets();	//!< Stores all changed sets
-    bool			storeSet(const Pick::Set&);
-    bool			storeSetAs(const Pick::Set&);
     void			setMisclassSet(const BinIDValueSet&);
-    void			mergeSets();
-    bool			pickSetsStored() const;
 
     static const int		evGetHorInfo;
     static const int		evGetHorDef;
 
 
 				// Interaction stuff
-    BinIDValueSet&		genDef() 		{ return gendef; }
-    ObjectSet<SurfaceInfo>& 	horInfos()		{ return hinfos; }
-    const ObjectSet<MultiID>&	selHorIDs() const	{ return selhorids; }
-    const BinIDRange*		selBinIDRange() const	{ return selbr; }
+    BinIDValueSet&		genDef() 		{ return gendef_; }
+    ObjectSet<SurfaceInfo>& 	horInfos()		{ return hinfos_; }
+    const ObjectSet<MultiID>&	selHorIDs() const	{ return selhorids_; }
+    const BinIDRange*		selBinIDRange() const	{ return selbr_; }
+
+    uiParent*			parent()
+    				{ return appserv().parent(); }
 
 protected:
 
-    BinIDValueSet 		gendef;
-    ObjectSet<SurfaceInfo> 	hinfos;
-    ObjectSet<MultiID>		selhorids;
-    const BinIDRange*		selbr;
+    BinIDValueSet 		gendef_;
+    ObjectSet<SurfaceInfo> 	hinfos_;
+    ObjectSet<MultiID>		selhorids_;
+    const BinIDRange*		selbr_;
 
-    Pick::SetMgr&		setmgr;
-
-    bool			storeNewSet(Pick::Set*&) const;
     bool			mkRandLocs(Pick::Set&,const RandLocGenPars&);
-    IOObj*			getSetIOObj(const Pick::Set&) const;
-    bool			doStore(const Pick::Set&,const IOObj&) const;
 };
 
 
