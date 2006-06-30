@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: uiattrsel.cc,v 1.14 2006-06-29 20:23:02 cvsnanne Exp $
+ RCS:           $Id: uiattrsel.cc,v 1.15 2006-06-30 07:20:08 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -313,6 +313,7 @@ bool uiAttrSelDlg::getAttrData( bool needattrmatch )
 {
     attrdata_.attribid = DescID::undef();
     attrdata_.outputnr = -1;
+    depthdomainkey_ = "";
     if ( !selgrp_ || !in_action_ ) return true;
 
     int selidx = -1;
@@ -339,6 +340,7 @@ bool uiAttrSelDlg::getAttrData( bool needattrmatch )
 	LineKey linekey( ioobj->key() );
 	DescSet& as = const_cast<DescSet&>( *attrdata_.attrset );
 	attrdata_.attribid = as.getStoredID( linekey, 0, true );
+	depthdomainkey_ = attrdata_.depthdomainkey;
     }
     else
     {

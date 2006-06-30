@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrsel.h,v 1.5 2006-06-29 20:23:02 cvsnanne Exp $
+ RCS:           $Id: uiattrsel.h,v 1.6 2006-06-30 07:20:08 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -74,12 +74,14 @@ public:
 			//!< -1 if not selected
     int			outputNr() const	{ return attrdata_.outputnr; }
 			//!< -1 if not selected
+    const char*		depthDomainKey() const	{ return depthdomainkey_; }
 
 protected:
 
     uiAttrSelData	attrdata_;
     Attrib::SelInfo*	attrinf_;
     bool		in_action_;
+    BufferString	depthdomainkey_;
 
     uiButtonGroup*	selgrp_;
     uiRadioButton*	storfld_;
