@@ -6,11 +6,12 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Jun 2006
- RCS:		$Id: sharedlibs.h,v 1.1 2006-06-30 11:46:50 cvsbert Exp $
+ RCS:		$Id: sharedlibs.h,v 1.2 2006-06-30 11:48:56 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "gendefs.h"
 #ifdef __win__
 #   include "windows.h"
     typedef HMODULE Handletype;
