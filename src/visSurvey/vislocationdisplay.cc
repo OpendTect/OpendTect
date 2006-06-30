@@ -4,7 +4,7 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vislocationdisplay.cc,v 1.5 2006-06-28 21:19:23 cvskris Exp $";
+static const char* rcsID = "$Id: vislocationdisplay.cc,v 1.6 2006-06-30 10:29:00 cvsnanne Exp $";
 
 #include "vislocationdisplay.h"
 
@@ -73,6 +73,7 @@ void LocationDisplay::setSet( Pick::Set* s )
 {
     if ( set_ ) { pErrMsg("Cannot set set_ twice"); return; }
     set_ = s;
+    setName( set_->name() );
     fullRedraw();
 }
 
