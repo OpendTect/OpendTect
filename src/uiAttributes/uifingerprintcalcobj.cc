@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Payraudeau
  Date:          June 2006
- RCS:           $Id: uifingerprintcalcobj.cc,v 1.1 2006-05-30 14:30:41 cvshelene Exp $
+ RCS:           $Id: uifingerprintcalcobj.cc,v 1.2 2006-06-30 11:32:09 cvsnanne Exp $
 
 ________________________________________________________________________
 
@@ -186,26 +186,24 @@ void calcFingParsObject::findLineSetID( MultiID& linesetid ) const
 }
 
 
-void calcFingParsObject::computeValsAndRanges()
+bool calcFingParsObject::computeValsAndRanges()
 {
     BufferString errmsg;
     PtrMan<EngineMan> aem = createEngineMan();
     PtrMan<Processor> proc = aem->createLocationOutput( errmsg, posset_ );
     if ( !proc )
     {
-	uiMSG().error(errmsg);
-	return;
+	uiMSG().error( errmsg );
+	return false;
     }
 
-    proc->setName("Compute reference values");
+    proc->setName( "Compute reference values" );
     uiExecutor dlg( parent_, *proc );
     if ( !dlg.go() )
-    {
-	uiMSG().error("hey");
-	return;
-    }
+	return false;
 
     extractAndSaveValsAndRanges();
+    return true;
 }
 
 

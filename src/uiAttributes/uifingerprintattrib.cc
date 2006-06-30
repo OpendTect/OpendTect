@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Payraudeau
  Date:          February  2006
- RCS:           $Id: uifingerprintattrib.cc,v 1.17 2006-06-29 14:10:42 cvsnanne Exp $
+ RCS:           $Id: uifingerprintattrib.cc,v 1.18 2006-06-30 11:32:08 cvsnanne Exp $
 
 ________________________________________________________________________
 
@@ -204,22 +204,22 @@ void uiFingerPrintAttrib::initTable( int nrrows )
 
 void uiFingerPrintAttrib::insertRowCB( CallBacker* cb )
 {
-    const int newrowidx = table_->currentRow();
+    const int newrow = table_->newCell().row;
     uiAttrSel* attrbox = new uiAttrSel( 0, 0, "" );
     attrbox->setDescSet( ads );
-    attribflds_.insertAt( attrbox, newrowidx );
-    table_->setCellObject( RowCol(newrowidx,0), attrbox->attachObj() );
+    attribflds_.insertAt( attrbox, newrow );
+    table_->setCellObject( RowCol(newrow,0), attrbox->attachObj() );
 }
 
 
 void uiFingerPrintAttrib::deleteRowCB( CallBacker* cb )
 {
-    const int currow = table_->currentRow();
-    if ( currow<0 || currow >= attribflds_.size() )
+    const int row2rm = table_->notifiedCell().row;
+    if ( row2rm<0 || row2rm >= attribflds_.size() )
 	return;
 
-    delete attribflds_[currow];
-    attribflds_.remove( currow );
+    delete attribflds_[row2rm];
+    attribflds_.remove( row2rm );
 }
 
 
@@ -736,7 +736,8 @@ void uiFPAdvancedDlg::calcPush( CallBacker* cb )
 
     BinIDValueSet* rangesset = calcobj_.createRangesBinIDSet();
     calcobj_.setValRgSet( rangesset, false );
-    calcobj_.computeValsAndRanges();
+    if ( !calcobj_.computeValsAndRanges() )
+	return;
 
     if ( calcobj_.getValues()[0] && !mIsUdf( calcobj_.getValues()[0] ) )
     {
