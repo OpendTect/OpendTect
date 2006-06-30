@@ -4,7 +4,7 @@
  * DATE     : 14-6-1996
 -*/
 
-static const char* rcsID = "$Id: executor.cc,v 1.22 2006-05-10 20:58:28 cvskris Exp $";
+static const char* rcsID = "$Id: executor.cc,v 1.23 2006-06-30 15:13:37 cvsnanne Exp $";
 
 #include "executor.h"
 
@@ -103,7 +103,7 @@ bool Executor::execute( std::ostream* strm, bool isfirst, bool islast,
 
     progressmeter.finish();
     if ( islast )
-	stream << "\n\nEnd of processing" << std::endl;
+	stream << "\n\nEnd of process: '" << name() << "'" << std::endl;
     return rv < 0 ? false : true;
 }
 
