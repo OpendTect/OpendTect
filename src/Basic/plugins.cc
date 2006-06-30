@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Aug 2003
- RCS:           $Id: plugins.cc,v 1.46 2006-04-25 16:53:11 cvsbert Exp $
+ RCS:           $Id: plugins.cc,v 1.47 2006-06-30 11:46:50 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -52,6 +52,77 @@ extern "C" {
 	return PIM().load( libnm ) ? YES : NO;
     }
 };
+
+
+SharedLibAccess::SharedLibAccess( const char* lnm )
+    	: handle_(0)
+{
+    if ( !lnm || !*lnm  )
+	return;
+
+#ifdef __win__
+
+    BufferString targetlibnm( lnm );
+    if ( File_isLink(lnm) )
+	targetlibnm = File_linkTarget(lnm);
+
+    if ( File_exists(targetlibnm) )
+    {
+	handle_ = LoadLibrary( targetlibnm );
+	if ( !handle_ )
+	{
+	    char* ptr = NULL;
+	    FormatMessage( FORMAT_MESSAGE_ALLOCATE_BUFFER |
+			   FORMAT_MESSAGE_FROM_SYSTEM, NULL,
+			   GetLastError(), 0, (char* )&ptr, 1024, NULL );
+	    ErrMsg( ptr );
+	}
+    }
+
+#else
+
+    if ( File_exists(lnm) )
+    {
+	handle_ = dlopen( lnm, RTLD_GLOBAL | RTLD_NOW );
+
+	if ( !handle_ )
+	    ErrMsg( dlerror() );
+    }
+
+#endif
+
+    if( DBG::isOn(DBG_SETTINGS) )
+    {
+	BufferString msg( "Attempt to get open handle for sh lib " );
+	msg += lnm; msg += handle_ ? " succeeded" : " failed";
+	DBG::message( msg );
+    }
+}
+
+
+void SharedLibAccess::close()
+{
+    if ( !handle_ ) return;
+#ifdef __win__
+    FreeLibrary( handle_ );
+#else
+    dlclose( handle_ );
+#endif
+    handle_ = 0;
+}
+
+
+void* SharedLibAccess::getFunction( const char* fnnm )
+{
+    if ( !handle_ )
+	return 0;
+
+#ifdef __win__
+    return GetProcAddress( handle_, fnnm );
+#else
+    return dlsym( handle_, fnnm );
+#endif
+}
 
 
 static char* errargv[] = { "<not set>", 0 };
@@ -217,67 +288,6 @@ const char* PluginManager::userName( const char* nm ) const
 }
 
 
-static Handletype getLibHandle( const char* lnm )
-{
-    if ( !lnm || !*lnm  )
-	return 0;
-
-    Handletype ret = 0;
-
-#ifdef __win__
-
-    BufferString targetlibnm( lnm );
-    if ( File_isLink(lnm) )
-	targetlibnm = File_linkTarget(lnm);
-
-    if ( File_exists(targetlibnm) )
-    {
-	ret = LoadLibrary( targetlibnm );
-	if ( !ret )
-	{
-	    char* ptr = NULL;
-	    FormatMessage( FORMAT_MESSAGE_ALLOCATE_BUFFER |
-			   FORMAT_MESSAGE_FROM_SYSTEM, NULL,
-			   GetLastError(), 0, (char* )&ptr, 1024, NULL );
-	    ErrMsg( ptr );
-	}
-    }
-
-#else
-
-    if ( File_exists(lnm) )
-    {
-	ret = dlopen( lnm, RTLD_GLOBAL | RTLD_NOW );
-
-	if ( !ret )
-	    ErrMsg( dlerror() );
-    }
-
-#endif
-
-    if( DBG::isOn(DBG_SETTINGS) )
-    {
-	BufferString msg( "Attempt to get handle for plugin " );
-	msg += lnm; msg += ret ? " succeeded" : " failed";
-	DBG::message( msg );
-    }
-
-    return ret;
-}
-
-
-static void closeLibHandle( Handletype& handle )
-{
-    if ( !handle ) return;
-#ifdef __win__
-    FreeLibrary( handle );
-#else
-    dlclose( handle );
-#endif
-    handle = 0;
-}
-
-
 static PluginInfo* mkEmptyInfo()
 {
     PluginInfo* piinf = new PluginInfo;
@@ -288,26 +298,21 @@ static PluginInfo* mkEmptyInfo()
     return piinf;
 }
 
-#ifdef __win__
-# define mFnGettter GetProcAddress
-#else
-# define mFnGettter dlsym
-#endif
 
-#define mGetFn(typ,fn,handle,nm1,nm2,libnm) \
-	typ fn = (typ)mFnGettter( handle, getFnName(libnm,nm1,nm2) )
+#define mGetFn(typ,sla,nm1,nm2,libnm) \
+	typ fn = sla ? (typ)sla->getFunction( getFnName(libnm,nm1,nm2) ) : 0
 
 
-static PluginInfo* getPluginInfo( Handletype handle, const char* libnm )
+static PluginInfo* getPluginInfo( SharedLibAccess* sla, const char* libnm )
 {
-    mGetFn(PluginInfoRetFn,fn,handle,"Get","PluginInfo",libnm);
+    mGetFn(PluginInfoRetFn,sla,"Get","PluginInfo",libnm);
     return fn ? (*fn)() : mkEmptyInfo();
 }
 
 
-static int getPluginType( Handletype handle, const char* libnm )
+static int getPluginType( SharedLibAccess* sla, const char* libnm )
 {
-    mGetFn(VoidIntRetFn,fn,handle,"Get","PluginType",libnm);
+    mGetFn(VoidIntRetFn,sla,"Get","PluginType",libnm);
     return fn ? (*fn)() : PI_AUTO_INIT_LATE;
 }
 
@@ -319,20 +324,20 @@ void PluginManager::openALOEntries()
 	Data& data = *data_[idx];
 	if ( data.autosource_ == Data::None )
 	    continue;
-	data.handle_ = getLibHandle( getFileName(data) );
-	if ( !data.handle_ )
+	data.sla_ = new SharedLibAccess( getFileName(data) );
+	if ( !data.sla_->isOK() )
 	{
 	    if ( data.autosource_ != Data::Both )
 		continue;
 
 	    data.autosource_ = Data::AppDir;
-	    data.handle_ = getLibHandle( getFileName(data) );
-	    if ( !data.handle_ )
-		continue;
+	    data.sla_ = new SharedLibAccess( getFileName(data) );
+	    if ( !data.sla_->isOK() )
+		{ delete data.sla_; data.sla_ = 0; continue; }
 	}
 
-	data.autotype_ = getPluginType( data.handle_, data.name_ );
-	data.info_ = getPluginInfo( data.handle_, data.name_ );
+	data.autotype_ = getPluginType( data.sla_, data.name_ );
+	data.info_ = getPluginInfo( data.sla_, data.name_ );
     }
 }
 
@@ -394,10 +399,10 @@ void PluginManager::mkALOList()
 }
 
 
-static bool loadPlugin( Handletype handle, int argc, char** argv,
+static bool loadPlugin( SharedLibAccess* sla, int argc, char** argv,
        			const char* libnm )
 {
-    mGetFn(ArgcArgvCCRetFn,fn,handle,"Init","Plugin",libnm);
+    mGetFn(ArgcArgvCCRetFn,sla,"Init","Plugin",libnm);
     if ( !fn )
     {
 	const BufferString libnmonly = FilePath(libnm).fileName();
@@ -425,20 +430,20 @@ static bool loadPlugin( Handletype handle, int argc, char** argv,
 bool PluginManager::load( const char* libnm )
 {
     Data* data = new Data( libnm );
-    data->handle_ = getLibHandle( libnm );
-    if ( !data->handle_ )
+    data->sla_ = new SharedLibAccess( libnm );
+    if ( !data->sla_->isOK() )
 	{ delete data; return false; }
 
     FilePath fp( libnm );
     const BufferString libnmonly( fp.fileName() );
-    if ( !loadPlugin(data->handle_,argc_,argv_,libnmonly) )
+    if ( !loadPlugin(data->sla_,argc_,argv_,libnmonly) )
     {
-	closeLibHandle( data->handle_ );
+	data->sla_->close();
 	delete data;
 	return false;
     }
 
-    data->info_ = getPluginInfo( data->handle_, libnmonly );
+    data->info_ = getPluginInfo( data->sla_, libnmonly );
     data_ += data;
     return true;
 }
@@ -449,17 +454,18 @@ void PluginManager::loadAuto( bool late )
     for ( int idx=0; idx<data_.size(); idx++ )
     {
 	Data& data = *data_[idx];
-	if ( !data.handle_ || data.autosource_==Data::None )
+	if ( !data.sla_ || !data.sla_->isOK() || data.autosource_==Data::None )
 	    continue;
 
 	const int pitype = late ? PI_AUTO_INIT_LATE : PI_AUTO_INIT_EARLY;
 	if ( data.autotype_ != pitype )
 	    continue;
 
-	if ( !loadPlugin(data.handle_,argc_,argv_,data.name_) )
+	if ( !loadPlugin(data.sla_,argc_,argv_,data.name_) )
 	{
 	    data.info_ = 0;
-	    closeLibHandle( data.handle_ );
+	    data.sla_->close();
+	    delete data.sla_; data.sla_ = 0;
 	}
 
 	static bool shw_load = GetEnvVarYN( "OD_SHOW_PLUGIN_LOAD" );

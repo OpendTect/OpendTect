@@ -7,16 +7,14 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		Aug 2003
  Contents:	Plugins
- RCS:		$Id: plugins.h,v 1.17 2006-06-20 07:15:23 cvsbert Exp $
+ RCS:		$Id: plugins.h,v 1.18 2006-06-30 11:46:50 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "sharedlibs.h"
 #include "bufstring.h"
 #include "sets.h"
-#ifdef __win__
-#include "windows.h"
-#endif
 
 #ifdef __cpp__
 extern "C" {
@@ -30,13 +28,6 @@ extern "C" {
 void LoadAutoPlugins(int argc,char** argv,int inittype);
 /*! To be called from program if needed */
 int LoadPlugin(const char* libnm);
-
-#ifdef __win__
-    typedef HMODULE Handletype;
-#else
-    typedef void* Handletype;
-#endif
-
 
 #ifdef __cpp__
 }
@@ -113,12 +104,14 @@ public:
 				    , info_(0)
 				    , autosource_(None)
 				    , autotype_(PI_AUTO_INIT_NONE)
-				    , handle_(0)	{}
+				    , sla_(0)	{}
+				~Data()		{ delete sla_; }
+
 	BufferString		name_;
 	const PluginInfo*	info_;
 	AutoSource		autosource_;
 	int			autotype_;
-	Handletype		handle_;
+	SharedLibAccess*	sla_;
 
     };
 
@@ -167,6 +160,7 @@ inline PluginManager& PIM()
     return *PluginManager::theinst_;
 }
 
-#endif
+#endif /* End of C++ only section */
+
 
 #endif
