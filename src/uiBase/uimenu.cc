@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: uimenu.cc,v 1.27 2006-06-28 10:09:34 cvsnanne Exp $
+ RCS:           $Id: uimenu.cc,v 1.28 2006-06-30 07:43:19 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -364,6 +364,8 @@ uiMenuItem* uiMenuItemContainer::find( const MenuItemSeparString& str )
 	mDynamicCastGet(uiPopupItem*,popupitm,itm)
 	parent = popupitm ? &popupitm->menu() : 0;
     }
+
+    return 0;
 }
 
 
