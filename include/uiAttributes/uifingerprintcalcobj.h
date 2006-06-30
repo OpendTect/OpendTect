@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Payraudeau
  Date:          June 2006
- RCS:           $Id: uifingerprintcalcobj.h,v 1.2 2006-06-15 12:49:34 cvshelene Exp $
+ RCS:           $Id: uifingerprintcalcobj.h,v 1.3 2006-06-30 11:32:35 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,7 +40,7 @@ public:
     void		setRgRefType( int type )	{ rgreftype_ = type; }
     void		setValStatsType( int typ )	{ statstype_ = typ; }
     
-    TypeSet<int>        getWeights() const              { return weights_; }
+    TypeSet<int>	getWeights() const		{ return weights_; }
     TypeSet<float>	getValues() const		{ return values_; }
     TypeSet< Interval<float> >	getRanges() const	{ return ranges_; }
     BufferString	getRgRefPick() const		{ return rgpickset_; }
@@ -50,9 +50,9 @@ public:
     void		clearRanges()			{ ranges_.erase(); }
     void		clearWeights()			{ weights_.erase(); }
     
-    BinIDValueSet*      createRangesBinIDSet() const;
+    BinIDValueSet*	createRangesBinIDSet() const;
     void		setValRgSet(BinIDValueSet*,bool);
-    void                computeValsAndRanges();
+    bool		computeValsAndRanges();
 protected:
     
     void		findLineSetID(MultiID&) const;
