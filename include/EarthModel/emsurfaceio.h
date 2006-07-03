@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfaceio.h,v 1.24 2006-05-22 14:56:15 cvskris Exp $
+ RCS:		$Id: emsurfaceio.h,v 1.25 2006-07-03 20:56:03 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -58,6 +58,11 @@ public:
 
     void			setOutput(EM::Surface&);
     void			setOutput(Array3D<float>&);
+    				/*!<\note only z-values will be put in array
+				    \note sizes of 1st and second dim must fit
+				   	  row/col selection.
+				    \note size in third dim must fit number of
+				          sections given by selSections. */
 
     int				version() const		{ return version_; }
 
