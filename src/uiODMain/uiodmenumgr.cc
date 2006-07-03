@@ -4,12 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.cc,v 1.45 2006-06-28 13:45:08 cvsbert Exp $
+ RCS:           $Id: uiodmenumgr.cc,v 1.46 2006-07-03 16:42:13 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.45 2006-06-28 13:45:08 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.46 2006-07-03 16:42:13 cvsbert Exp $";
 
 #include "uiodmenumgr.h"
 #include "uiodapplmgr.h"
@@ -26,6 +26,8 @@ static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.45 2006-06-28 13:45:08 cvsbe
 #include "pixmap.h"
 #include "oddirs.h"
 #include "timer.h"
+#include "dirlist.h"
+#include "filegen.h"
 #include "envvars.h"
 
 
@@ -273,8 +275,42 @@ void uiODMenuMgr::fillViewMenu()
 				mCB(this,uiODMenuMgr,handleClick) );
     stereoitm->insertItem( stereooffsetitm, mStereoOffsetMnuItm, 3 );
     stereooffsetitm->setEnabled( false );
+
+    mkViewIconsMnu();
+
     viewmnu->insertSeparator();
     viewmnu->insertItem( &appl.createDockWindowMenu() );
+}
+
+
+void uiODMenuMgr::mkViewIconsMnu()
+{
+    DirList dl( GetDataFileName(0), DirList::DirsOnly );
+    BufferStringSet setnms;
+    for ( int idx=0; idx<dl.size(); idx++ )
+    {
+	BufferString nm( dl.get(idx) );
+	char* ptr = nm.buf();
+	if ( matchString("icons.",ptr) )
+	    setnms.add( ptr + 6 );
+    }
+    if ( setnms.size() < 2 )
+	return;
+
+    uiPopupMenu* iconsmnu = new uiPopupMenu( &appl, "&Icons" );
+    viewmnu->insertItem( iconsmnu );
+    mInsertItem( iconsmnu, "&default", mViewIconsMnuItm+0 );
+    int nradded = 0;
+    for ( int idx=0; idx<setnms.size(); idx++ )
+    {
+	const BufferString& nm = setnms.get( idx );
+	if ( nm == "" || nm == "default" )
+	    continue;
+
+	nradded++;
+	BufferString mnunm( "&" ); mnunm += nm;
+	mInsertItem( iconsmnu, mnunm, mViewIconsMnuItm+nradded );
+    }
 }
 
 
@@ -444,6 +480,22 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
 
     default:
     {
+	if ( id >= mViewIconsMnuItm && id < mViewIconsMnuItm+100 )
+	{
+	    BufferString dirnm( "icons." );
+	    dirnm += itm->name().buf() + 1; // Skip the leading '&'
+	    const BufferString sourcedir( GetDataFileName(dirnm) );
+	    if ( !File_isDirectory(sourcedir) )
+	    {
+		uiMSG().error( "Icon directory seems to be invalid" );
+		break;
+	    }
+	    const BufferString targetdir( GetIconFileName(0) );
+	    File_remove( targetdir, YES );
+	    File_copy( sourcedir, targetdir, YES );
+	    for ( int idx=0; idx<uiToolBar::toolBars().size(); idx++ )
+		uiToolBar::toolBars()[idx]->reLoadPixMaps();
+	}
 	if ( id > mHelpMnu )
 	    helpmgr->handle( id, itm->name() );
 

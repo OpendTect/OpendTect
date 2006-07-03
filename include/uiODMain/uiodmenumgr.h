@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.h,v 1.15 2006-04-26 09:43:22 cvsbert Exp $
+ RCS:           $Id: uiodmenumgr.h,v 1.16 2006-07-03 16:42:13 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -119,6 +119,7 @@ protected:
     inline uiODSceneMgr& sceneMgr()	{ return appl.sceneMgr(); }
 
     void		showLogFile();
+    void		mkViewIconsMnu();
 };
 
 
