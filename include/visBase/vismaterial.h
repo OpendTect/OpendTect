@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vismaterial.h,v 1.11 2006-06-14 17:04:30 cvskris Exp $
+ RCS:		$Id: vismaterial.h,v 1.12 2006-07-03 14:21:44 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -31,6 +31,8 @@ class Material : public DataObject
 public:
     static Material*	create()
 			mCreateDataObj(Material);
+
+    Notifier<Material>	change;
 
     void		setColor(const Color&,int=0);
     const Color&	getColor(int matnr=0) const;

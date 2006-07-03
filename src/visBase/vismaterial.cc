@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: vismaterial.cc,v 1.12 2006-06-14 17:04:30 cvskris Exp $
+ RCS:           $Id: vismaterial.cc,v 1.13 2006-07-03 14:21:44 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,6 +35,7 @@ Material::Material()
     , emmissiveintensity_( 0 )
     , shininess_( 0 )
     , transparency_( 0 )
+    , change( this )
 {
     material_->ref();
     setMinNrOfMaterials(0);
@@ -122,6 +123,8 @@ void Material::updateMaterial(int idx)
 		color_[idx].r() * diffuseintencity_[idx]/255,
 		color_[idx].g() * diffuseintencity_[idx]/255,
 		color_[idx].b() * diffuseintencity_[idx]/255 );
+
+    change.trigger();
 }
 
 
