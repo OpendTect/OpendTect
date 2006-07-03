@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Jun 2006
- RCS:		$Id: sharedlibs.h,v 1.2 2006-06-30 11:48:56 cvsbert Exp $
+ RCS:		$Id: sharedlibs.h,v 1.3 2006-07-03 16:38:15 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,6 +18,11 @@ ________________________________________________________________________
 #else
     typedef void* Handletype;
 #endif
+
+
+/* Gives access to shared libs on runtime.
+   Plugins should be loaded via the Plugin Manager (see plugins.h).
+   */
 
 
 class SharedLibAccess
