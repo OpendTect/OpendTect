@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          30/05/2001
- RCS:           $Id: uitoolbar.cc,v 1.26 2005-10-31 16:14:07 cvsarend Exp $
+ RCS:           $Id: uitoolbar.cc,v 1.27 2006-07-03 16:39:47 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,8 +14,11 @@ ________________________________________________________________________
 #include "uibody.h"
 #include "uiobj.h"
 #include "uimainwin.h"
-#include "pixmap.h"
 #include "uiparentbody.h"
+#include "pixmap.h"
+#include "separstr.h"
+#include "filegen.h"
+#include "bufstringset.h"
 
 #include <qtoolbutton.h>
 #include <qapplication.h>
@@ -37,7 +40,6 @@ ________________________________________________________________________
 #include "i_qtoolbut.h"
 
 
-//class uiToolBarBody : public uiBodyImpl<uiToolBar,QToolBar>
 class uiToolBarBody : public uiParentBody
 {
 public:
@@ -45,6 +47,7 @@ public:
 			uiToolBarBody( uiToolBar& handle, mQToolBarClss& bar )
 			    : uiParentBody("ToolBar")
 			    , qbar(&bar)
+			    , tbar(handle)
 			    {}
 
 			~uiToolBarBody()	{ deepErase(receivers); }
@@ -64,6 +67,8 @@ public:
     void		display(bool yn=true);
 			//!< you must call this after all buttons are added
 
+    void		reLoadPixMaps();
+
 
     static mDockNmSpc::ToolBarDock
 			qdock(uiToolBar::ToolBarDock);
@@ -73,6 +78,7 @@ protected:
     virtual const QWidget*      managewidg_() const	{ return qbar; }
     virtual const QWidget*	qwidget_() const	{ return qbar; }
     mQToolBarClss*	qbar;
+    uiToolBar&			tbar;
     virtual void        attachChild ( constraintType tp,
                                       uiObject* child,
                                       uiObject* other, int margin,
@@ -84,8 +90,11 @@ protected:
 
 
 private:
+
     ObjectSet<i_QToolButReceiver> receivers; // for deleting
-    ObjectSet<QToolButton>	  buttons;
+    ObjectSet<QToolButton>	buttons;
+    BufferStringSet		pmsrcs;
+
 };
 
 
@@ -100,6 +109,7 @@ int uiToolBarBody::addButton(const ioPixmap& pm, const CallBack& cb,
 
     receivers += br;
     buttons += but;
+    pmsrcs.add( pm.source() );
 
     br->pressed.notify( cb );
     return buttons.size()-1;
@@ -109,6 +119,25 @@ int uiToolBarBody::addButton(const ioPixmap& pm, const CallBack& cb,
 void uiToolBarBody::turnOn( int idx, bool yn )
 {
     buttons[idx]->setOn( yn );
+}
+
+
+void uiToolBarBody::reLoadPixMaps()
+{
+    for ( int idx=0; idx<pmsrcs.size(); idx++ )
+    {
+	const BufferString& pmsrc = pmsrcs.get( idx );
+	if ( pmsrc[0] == '[' )
+	    continue;
+
+	FileMultiString fms( pmsrc );
+	const int len = fms.size();
+	const BufferString fnm( fms[0] );
+	if ( !File_exists(fnm) )
+	    continue;
+
+	buttons[idx]->setPixmap( QPixmap(fnm.buf(), len > 1 ? fms[1] : 0) );
+    }
 }
 
 
@@ -162,6 +191,15 @@ mDockNmSpc::ToolBarDock uiToolBarBody::qdock( uiToolBar::ToolBarDock d )
 }
 
 
+ObjectSet<uiToolBar>& uiToolBar::toolBars()
+{
+    static ObjectSet<uiToolBar>* ret = 0;
+    if ( !ret )
+	ret = new ObjectSet<uiToolBar>;
+    return *ret;
+}
+
+
 uiToolBar::uiToolBar( uiParent* parnt, const char* nm, ToolBarDock d,
 		      bool newline )
     : uiParent(nm,0)
@@ -171,11 +209,13 @@ uiToolBar::uiToolBar( uiParent* parnt, const char* nm, ToolBarDock d,
     qtoolbar = new mQToolBarClss( QString(nm), (mQMainWinClss*)qwidget, 
 	    		     tbdock, newline );
     setBody( &mkbody(nm,*qtoolbar) );
+    toolBars() += this;
 }
 
 
 uiToolBar::~uiToolBar()
 {
+    toolBars() -= this;
     delete body_;
 }
 
@@ -188,8 +228,10 @@ uiToolBarBody& uiToolBar::mkbody( const char* nm, mQToolBarClss& qtb )
 
 
 int uiToolBar::addButton( const ioPixmap& pm, const CallBack& cb,
-			  const char* nm, bool toggle)
-{ return body_->addButton(pm,cb,nm,toggle); }
+			  const char* nm, bool toggle )
+{
+    return body_->addButton( pm, cb, nm, toggle );
+}
 
 
 void uiToolBar::setLabel( const char* lbl )
@@ -250,6 +292,12 @@ void uiToolBar::setStretchableWidget( uiObject* obj )
 {
     if ( !obj ) return;
     qtoolbar->setStretchableWidget( obj->body()->qwidget() );
+}
+
+
+void uiToolBar::reLoadPixMaps()
+{
+    body_->reLoadPixMaps();
 }
 
 
