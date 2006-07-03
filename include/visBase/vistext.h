@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-22-2002
- RCS:		$Id: vistext.h,v 1.11 2005-02-11 11:13:25 nanne Exp $
+ RCS:		$Id: vistext.h,v 1.12 2006-07-03 19:03:38 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -18,16 +18,11 @@ ________________________________________________________________________
 
 class SoFont;
 class SoText2;
+class SoAsciiText;
 class SoTranslation;
 
 namespace visBase
 {
-
-/*!\brief
-is a text that always is facing the user. The size is set in printer points
-on the screen. It is advisable to turn off the text when doing a viewAll,
-since their sizes will corrupt the bounding box calculation.
-*/
 
 class Text : public VisualObjectImpl
 {
@@ -56,16 +51,22 @@ protected:
     				Text();
 				~Text();
 
-    SoTranslation*		textpos;
-    SoFont*			font;
-    Transformation*		transformation;
+    SoTranslation*		textpos_;
+    SoFont*			font_;
+    Transformation*		transformation_;
 
-    static const char*		stringstr;
-    static const char*		fontsizestr;
-    static const char*		justificationstr;
-    static const char*		positionstr;
+    static const char*		sKeyString();
+    static const char*		sKeyFontSize();
+    static const char*		sKeyJustification();
+    static const char*		sKeyPosition();
 };
 
+
+/*!\brief
+is a text that always is facing the user. The size is set in printer points
+on the screen. It is advisable to turn off the text when doing a viewAll,
+since their sizes will corrupt the bounding box calculation.
+*/
 
 class Text2 : public Text
 {
@@ -80,7 +81,27 @@ public:
     Justification		justification() const;
 
 protected:
-    SoText2*			text;
+    SoText2*			text_;
+
+};
+
+
+/*!Text that is not rotated to face text. */
+
+class TextBox : public Text
+{
+public:
+    static TextBox*		create()
+    				mCreateDataObj(TextBox);
+
+    void			setText(const char*);
+    const char*			getText() const;
+
+    void			setJustification(Justification);
+    Justification		justification() const;
+
+protected:
+    SoAsciiText*		text_;
 
 };
 
