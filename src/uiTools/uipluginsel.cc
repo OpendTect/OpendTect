@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2006
- RCS:           $Id: uipluginsel.cc,v 1.5 2006-06-01 10:37:40 cvsbert Exp $
+ RCS:           $Id: uipluginsel.cc,v 1.6 2006-07-03 16:41:40 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,7 +33,8 @@ uiPluginSel::uiPluginSel( uiParent* p )
     for ( int idx=0; idx<pimdata.size(); idx++ )
     {
 	PluginManager::Data& data = *pimdata[idx];
-	if ( data.handle_ && data.autotype_ == PI_AUTO_INIT_LATE )
+	if ( data.sla_ && data.sla_->isOK()
+	  && data.autotype_ == PI_AUTO_INIT_LATE )
 	{
 	    pluginnms_.add( data.name_ );
 	    piusrnms.add( PIM().userName(data.name_) );
