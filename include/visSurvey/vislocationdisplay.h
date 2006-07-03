@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		June 2006
- RCS:		$Id: vislocationdisplay.h,v 1.5 2006-06-28 21:19:23 cvskris Exp $
+ RCS:		$Id: vislocationdisplay.h,v 1.6 2006-07-03 14:16:47 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -69,6 +69,8 @@ public:
     virtual void		setSceneEventCatcher(visBase::EventCatcher*);
     virtual void                fillPar(IOPar&,TypeSet<int>&) const;
     virtual int                 usePar(const IOPar&);
+
+    int				getPickIdx(visBase::DataObject*) const;
 
     bool			setDataTransform(ZAxisTransform*);
     const ZAxisTransform*	getDataTransform() const;

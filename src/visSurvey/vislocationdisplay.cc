@@ -4,7 +4,7 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vislocationdisplay.cc,v 1.7 2006-07-03 06:20:08 cvsnanne Exp $";
+static const char* rcsID = "$Id: vislocationdisplay.cc,v 1.8 2006-07-03 14:16:47 cvskris Exp $";
 
 #include "vislocationdisplay.h"
 
@@ -555,6 +555,12 @@ int LocationDisplay::usePar( const IOPar& par )
 	return -1;
 
     return 1;
+}
+
+
+int LocationDisplay::getPickIdx( visBase::DataObject* dataobj ) const
+{
+    return group_->getFirstIdx( dataobj );
 }
 
 
