@@ -7,33 +7,33 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/12/1999
- RCS:           $Id: pixmap.h,v 1.10 2005-12-21 12:17:58 cvshelene Exp $
+ RCS:           $Id: pixmap.h,v 1.11 2006-07-03 16:39:11 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uidobj.h"
 #include "iodrawimpl.h"
-
 class QPixmap;
 class QBitmap;
 class QPaintDevice;
-
 class ArrayRGB;
 class Color;
 
-//! off-screen pixel-based paint device
-class ioPixmap : public UserIDObject , public ioDrawAreaImpl
+
+/*!\brief Off-screen pixel-based paint device */
+
+class ioPixmap : public UserIDObject,
+		 public ioDrawAreaImpl
 {
 public:
-			ioPixmap() : qpixmap( 0 ) {}
+			ioPixmap() : qpixmap_(0)		{}
 			ioPixmap(const ArrayRGB&);
-			ioPixmap(const char * xpm[]);
-			ioPixmap(int w, int h );
+			ioPixmap(const char* xpm[]);
+			ioPixmap(int w,int h);
 			ioPixmap(const QPixmap&);
 
-			/*! \brief Constructs a pixmap from the file fileName. 
-
+			/*! \brief Constructs a pixmap from a file.
 			If the file does not exist, or is of an unknown format,
 			the pixmap becomes a null pixmap. 
 
@@ -41,28 +41,29 @@ public:
 			using the specified format. If format is not specified
 			(default), the loader reads a few bytes from the header
 			to guess the file format. 
-
 			*/
-			ioPixmap(const char* fileName,const char* format=0);
+			ioPixmap(const char* filename,const char* fmt=0);
 			ioPixmap(const ioPixmap&);
-			ioPixmap(const char* tablename, int width, int height);
+			ioPixmap(const char* colortablename,int w,int h);
     virtual		~ioPixmap();
 
     void		convertFromArrayRGB(const ArrayRGB&);
 
-    QPixmap* 		Pixmap()		{ return qpixmap; }
-    const QPixmap*  	Pixmap() const		{ return qpixmap; }
+    QPixmap* 		Pixmap()		{ return qpixmap_; }
+    const QPixmap*  	Pixmap() const		{ return qpixmap_; }
 
     void		fill(const Color&);
 
     int			width();
     int         	height();
 
-    
+    const char*		source() const		{ return srcname_.buf(); }
+
 protected:
     
     virtual QPaintDevice* mQPaintDevice();         
-    QPixmap*		qpixmap; 
+    QPixmap*		qpixmap_; 
+    BufferString	srcname_;
 
 };
 
@@ -84,8 +85,8 @@ public:
 
 			*/
 			ioBitmap( const char* fileName, const char * format=0 ); 
-    QBitmap* 		Bitmap()		{ return (QBitmap*)qpixmap; }
-    const QBitmap*  	Bitmap() const		{ return (QBitmap*)qpixmap; }
+    QBitmap* 		Bitmap()		{ return (QBitmap*)qpixmap_; }
+    const QBitmap*  	Bitmap() const		{ return (QBitmap*)qpixmap_; }
 };
 
 
