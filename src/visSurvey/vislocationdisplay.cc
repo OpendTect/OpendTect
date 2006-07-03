@@ -4,7 +4,7 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vislocationdisplay.cc,v 1.6 2006-06-30 10:29:00 cvsnanne Exp $";
+static const char* rcsID = "$Id: vislocationdisplay.cc,v 1.7 2006-07-03 06:20:08 cvsnanne Exp $";
 
 #include "vislocationdisplay.h"
 
@@ -364,8 +364,6 @@ void LocationDisplay::locChg( CallBacker* cb )
 		invalidpicks_ += cd->loc_;
 	    turnon = false;
 	}
-
-	addDisplayPick( loc );
 
 	mDynamicCastGet( visBase::VisualObject*, vo,
 			 group_->getObject( cd->loc_ ) );
