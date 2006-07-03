@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          30/05/2001
- RCS:           $Id: uitoolbar.h,v 1.20 2005-10-31 16:13:58 cvsarend Exp $
+ RCS:           $Id: uitoolbar.h,v 1.21 2006-07-03 16:40:14 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -90,6 +90,9 @@ public:
     void		undock();
     bool		isShown() const;
     void		setNewLine(bool yn=true);
+    void		reLoadPixMaps();
+
+    static ObjectSet<uiToolBar>&	toolBars();
 
 protected:
 
