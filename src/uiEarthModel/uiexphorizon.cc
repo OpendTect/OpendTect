@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2002
- RCS:           $Id: uiexphorizon.cc,v 1.42 2006-04-27 15:29:13 cvskris Exp $
+ RCS:           $Id: uiexphorizon.cc,v 1.43 2006-07-04 11:21:49 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "emsurfaceiodata.h"
 #include "executor.h"
 #include "filegen.h"
+#include "filepath.h"
 #include "ioobj.h"
 #include "ptrman.h"
 #include "strmdata.h"
@@ -173,12 +174,27 @@ bool uiExportHorizon::writeAscii()
     const float zfac = SI().zIsTime() ? 1000 : 1;
     const int nrattribs = hor->auxdata.nrAuxData();
     TypeSet<int>& sections = sels.selsections;
+    const bool writemultiple = sections.size() > 1;
     for ( int idx=0; idx<sections.size(); idx++ )
     {
 	const int sectionidx = sections[idx];
 	BufferString fname( basename ); 
-	if ( sectionidx )
-	{ fname += "^"; fname += idx; }
+	if ( writemultiple )
+	{
+	    FilePath fp( fname );
+	    BufferString ext( fp.extension() );
+	    if ( ext == "" )
+		{ fname += "_"; fname += idx; }
+	    else
+	    {
+		fp.setExtension( 0 );
+		BufferString fnm = fp.fileName();
+		fnm += "_"; fname += idx;
+		fp.setFileName( fnm );
+		fp.setExtension( ext );
+		fname = fp.fullPath();
+	    }
+	}
 
 	StreamData sdo = StreamProvider( fname ).makeOStream();
 	if ( !sdo.usable() )
