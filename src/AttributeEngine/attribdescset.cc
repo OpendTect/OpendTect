@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribdescset.cc,v 1.43 2006-06-06 08:58:48 cvshelene Exp $";
+static const char* rcsID = "$Id: attribdescset.cc,v 1.44 2006-07-05 15:29:23 cvshelene Exp $";
 
 #include "attribdescset.h"
 #include "attribstorprovider.h"
@@ -338,7 +338,7 @@ bool DescSet::setAllInputDescs( int nrdescsnosteer, const IOPar& copypar,
 	if ( dsc.isSatisfied() == Desc::Error )
 	{
 	    BufferString err = dsc.errMsg(); err += " for ";
-	    err += dsc.attribName();
+	    err += dsc.userRef(); err += " attribute ";
 	    mHandleParseErr(err);
 	}
     }

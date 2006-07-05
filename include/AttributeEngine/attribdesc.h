@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribdesc.h,v 1.31 2006-06-06 08:58:48 cvshelene Exp $
+ RCS:           $Id: attribdesc.h,v 1.32 2006-07-05 15:29:23 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -80,7 +80,7 @@ public:
     int			nrOutputs() const;
     void	        selectOutput(int);
     int			selectedOutput() const;
-    Seis::DataType	dataType() const;
+    Seis::DataType	dataType(int target=-1) const;
     void		setStoredDataType(Seis::DataType);
     void		setSteering(bool yn)		{ issteering=yn; }
     bool		isSteering() const		{ return issteering; }

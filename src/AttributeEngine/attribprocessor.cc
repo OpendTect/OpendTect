@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribprocessor.cc,v 1.41 2006-06-08 13:06:03 cvshelene Exp $";
+static const char* rcsID = "$Id: attribprocessor.cc,v 1.42 2006-07-05 15:29:23 cvshelene Exp $";
 
 #include "attribprocessor.h"
 
@@ -207,6 +207,17 @@ void Processor::init()
 		globaloutputinterest += outpinterest_[idy];
 	}
 	outputs[idx]->setDesiredOutputs( outpinterest_ );
+
+	mDynamicCastGet( SeisTrcStorOutput*, storoutp, outputs[0] );
+	if ( storoutp )
+	{
+	    TypeSet<Seis::DataType> outptypes;
+	    for ( int ido=0; ido<outpinterest_.size(); ido++ )
+		outptypes += provider->getDesc().dataType(outpinterest_[ido]);
+
+	    for ( int idoutp=0; idoutp<outputs.size(); idoutp++ )
+		((SeisTrcStorOutput*)outputs[idoutp])->setOutpTypes(outptypes);
+	}
     }
 
     if ( outputs.size() && outputs[0]->getSelData().type_==Seis::Table )

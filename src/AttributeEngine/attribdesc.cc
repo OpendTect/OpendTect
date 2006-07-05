@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribdesc.cc,v 1.43 2006-06-06 08:58:48 cvshelene Exp $";
+static const char* rcsID = "$Id: attribdesc.cc,v 1.44 2006-07-05 15:29:23 cvshelene Exp $";
 
 #include "attribdesc.h"
 
@@ -225,12 +225,12 @@ int Desc::selectedOutput() const		{ return seloutput; }
 int Desc::nrInputs() const			{ return inputs.size(); }
 
 
-Seis::DataType Desc::dataType() const
+Seis::DataType Desc::dataType( int target ) const
 {
     if ( seloutput==-1 || !outputtypes.size() )
 	return Seis::UnknowData;
 
-    int outidx = seloutput;
+    int outidx = target == -1 ? seloutput : target;
     if ( outidx >= outputtypes.size() ) outidx = 0;
 
     const int link = outputtypelinks[outidx];
