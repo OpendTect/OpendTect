@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          June 2003
- RCS:           $Id: emsurfaceio.cc,v 1.76 2006-07-03 21:48:14 cvskris Exp $
+ RCS:           $Id: emsurfaceio.cc,v 1.77 2006-07-05 16:04:01 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -862,7 +862,7 @@ bool dgbSurfaceReader::readVersion3Row( std::istream& strm,
 	    if ( rc.col<readcolrange_->start )
 		continue;
 
-	    if ( rc.col>readcolrange_->start )
+	    if ( rc.col>readcolrange_->stop )
 		break;
 
 	    if ( (rc.col-readcolrange_->start)%readcolrange_->step )
