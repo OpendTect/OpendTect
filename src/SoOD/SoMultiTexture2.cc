@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2005
- RCS:           $Id: SoMultiTexture2.cc,v 1.15 2006-06-20 14:41:49 cvsnanne Exp $
+ RCS:           $Id: SoMultiTexture2.cc,v 1.16 2006-07-05 18:27:52 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -723,6 +723,9 @@ const unsigned char* SoMultiTexture2::createImage( SbVec2s& size, int& nc )
 	coltabstart += numcolors;
 	nrimagesused++;
     }
+
+    if ( !nrimagesused )
+	return 0;
 
     const int nrpixels = size[0]*size[1];
     nc = hastransperancy || !nrimagesused ? 4 : 3;
