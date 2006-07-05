@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H.Payraudeau
  Date:          04/2005
- RCS:           $Id: attribengman.cc,v 1.57 2006-05-31 18:27:22 cvsnanne Exp $
+ RCS:           $Id: attribengman.cc,v 1.58 2006-07-05 15:27:49 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -834,7 +834,8 @@ Processor* EngineMan::getProcessor( BufferString& errmsg )
 
 Processor* EngineMan::createTrcSelOutput( BufferString& errmsg,
 					  const BinIDValueSet& bidvalset,
-					  SeisTrcBuf& output, float outval )
+					  SeisTrcBuf& output, float outval,
+       					  Interval<float>* cubezbounds )
 {
     Processor* proc = getProcessor(errmsg);
     if ( !proc )
@@ -842,6 +843,8 @@ Processor* EngineMan::createTrcSelOutput( BufferString& errmsg,
 
     TrcSelectionOutput* attrout	= new TrcSelectionOutput( bidvalset, outval );
     attrout->setOutput( &output );
+    if ( cubezbounds )
+	attrout->setTrcsBounds( *cubezbounds );
 
     proc->addOutput( attrout );
 

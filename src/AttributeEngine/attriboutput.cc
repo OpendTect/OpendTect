@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attriboutput.cc,v 1.45 2006-06-09 09:53:56 cvshelene Exp $";
+static const char* rcsID = "$Id: attriboutput.cc,v 1.46 2006-07-05 15:27:49 cvshelene Exp $";
 
 #include "attriboutput.h"
 #include "attribdataholder.h"
@@ -408,7 +408,8 @@ void SeisTrcStorOutput::writeTrc()
 	    ObjectSet<SeisTrcTranslator::TargetComponentData>& cis
 		             = transl->componentInfo();
 	    for ( int idx=0; idx<cis.size(); idx++ )
-		cis[idx]->datatype = Seis::UnknowData;
+		cis[idx]->datatype = outptypes_.size() ? outptypes_[idx] : 
+		    					Seis::UnknowData;
 	}
 
 	storinited_ = true;
@@ -687,6 +688,13 @@ void TrcSelectionOutput::setOutput( SeisTrcBuf* outp_ )
     outpbuf_ = outp_;
     if ( outpbuf_ )
 	outpbuf_->erase();
+}
+
+
+void TrcSelectionOutput::setTrcsBounds( Interval<float> intv )
+{
+    stdstarttime_ = intv.start;
+    stdtrcsz_ = intv.stop - intv.start;
 }
 
 

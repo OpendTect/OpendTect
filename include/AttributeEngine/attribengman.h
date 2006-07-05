@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H.Payraudeau
  Date:          04/2005
- RCS:           $Id: attribengman.h,v 1.23 2006-05-03 18:54:19 cvskris Exp $
+ RCS:           $Id: attribengman.h,v 1.24 2006-07-05 15:27:49 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -90,7 +90,8 @@ public:
 
     Processor*		createTrcSelOutput(BufferString& errmsg,
 	    				   const BinIDValueSet& bidvalset,
-	    				   SeisTrcBuf&, float outval=0);
+	    				   SeisTrcBuf&, float outval=0,
+					   Interval<float>* cubezbounds = 0);
     int			getNrOutputsToBeProcessed(const Processor&) const;
 
     const char*		getCurUserRef() const;

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          September 2005
- RCS:           $Id: uiattrtrcselout.h,v 1.5 2006-02-22 12:32:09 cvshelene Exp $
+ RCS:           $Id: uiattrtrcselout.h,v 1.6 2006-07-05 15:27:49 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -52,6 +52,7 @@ protected:
     void                attrSel(CallBacker*);
     void		interpSel(CallBacker*);
     void		extraWidthSel(CallBacker*);
+    void                cubeBoundsSel(CallBacker*);
 
     void		createSingleHorUI();
     void		createTwoHorUI();
@@ -66,31 +67,34 @@ protected:
     void		createAddWidthFld(uiGroup*);
     void		createWidthFld(uiGroup*);
     void		createMainHorFld(uiGroup*);
+    void		createCubeBoundsFlds(uiGroup*);
     void		createOutputFld(uiGroup*);
 
     BufferString	createAddWidthLabel();
 
-    CtxtIOObj&		ctio;
-    CtxtIOObj&		ctio2;
-    CtxtIOObj&		ctioout;
-    Attrib::DescSet&	ads;
-    const MultiID&	nlaid;
-    const NLAModel*	nlamodel;
+    CtxtIOObj&		ctio_;
+    CtxtIOObj&		ctio2_;
+    CtxtIOObj&		ctioout_;
+    Attrib::DescSet&	ads_;
+    const MultiID&	nlaid_;
+    const NLAModel*	nlamodel_;
 
-    uiAttrSel*		attrfld;
-    uiIOObjSel*		objfld;
-    uiIOObjSel*		obj2fld;
-    uiGenInput*		gatefld;
-    uiGenInput*         extraztopfld;
-    uiGenInput*         extrazbotfld;
-    uiBinIDSubSel*	subselfld;
-    uiGenInput*		outsidevalfld;
-    uiGenInput*		interpfld;
-    uiGenInput*		nrsampfld;
-    uiGenInput*		mainhorfld;
-    uiGenInput*		widthfld;
-    uiGenInput*		addwidthfld;
-    uiSeisSel*          outpfld;
+    uiAttrSel*		attrfld_;
+    uiIOObjSel*		objfld_;
+    uiIOObjSel*		obj2fld_;
+    uiGenInput*		gatefld_;
+    uiGenInput*         extraztopfld_;
+    uiGenInput*         extrazbotfld_;
+    uiBinIDSubSel*	subselfld_;
+    uiGenInput*		outsidevalfld_;
+    uiGenInput*		interpfld_;
+    uiGenInput*		nrsampfld_;
+    uiGenInput*		mainhorfld_;
+    uiGenInput*		widthfld_;
+    uiGenInput*		addwidthfld_;
+    uiGenInput*		setcubeboundsfld_;
+    uiGenInput*		cubeboundsfld_;
+    uiSeisSel*          outpfld_;
     bool		usesinglehor_;
 };
 

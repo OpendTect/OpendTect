@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attriboutput.h,v 1.25 2006-05-03 18:54:19 cvskris Exp $
+ RCS:           $Id: attriboutput.h,v 1.26 2006-07-05 15:27:49 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "cubesampling.h"
 #include "ranges.h"
 #include "refcount.h"
+#include "seistype.h"
 
 class BinID;
 class BinIDValueSet;
@@ -111,6 +112,8 @@ public:
 	    				    const SeisTrcInfo&);
     void			writeTrc();
     TypeSet< Interval<int> >	getLocalZRange(const BinID&,float) const;
+    void			setOutpTypes(const TypeSet<Seis::DataType>& typ)
+				{ outptypes_ = typ; }
 
     static const char*		seisidkey;
     static const char*		attribkey;
@@ -133,6 +136,7 @@ protected:
     bool			storinited_;
     BufferString		attribname_;
     Scaler*                     scaler_;
+    TypeSet<Seis::DataType>	outptypes_;
 };
 
 
@@ -198,7 +202,8 @@ public:
 				{ return true;}
     bool			wantsOutput(const BinID&) const;
     void			setOutput(SeisTrcBuf*);
-    virtual void		collectData(const DataHolder&,float step,
+    void			setTrcsBounds(Interval<float>);
+    virtual void		collectData(const DataHolder&,float,
 	    				    const SeisTrcInfo&);
     TypeSet< Interval<int> >	getLocalZRange(const BinID&,float) const;
     

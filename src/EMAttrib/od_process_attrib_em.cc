@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2004
- RCS:           $Id: od_process_attrib_em.cc,v 1.31 2006-05-23 07:52:52 cvsnanne Exp $
+ RCS:           $Id: od_process_attrib_em.cc,v 1.32 2006-07-05 15:27:49 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -372,6 +372,7 @@ bool BatchProgram::go( std::ostream& strm )
 	int mainhoridx = 1;
 	float extrawidth =0;
 	Interval<float> extraz;
+	Interval<float>* zbounds;
 	geompar->get( "Outside Value", outval );
 	geompar->get( "ExtraZInterval", extraz.start, extraz.stop );
 	extraz.scale(1/SI().zFactor());
@@ -379,11 +380,15 @@ bool BatchProgram::go( std::ostream& strm )
 	geompar->get( "Leading Horizon", mainhoridx );
 	geompar->get( "Artificial Width", extrawidth );
 	extrawidth /= SI().zFactor();
+	if ( !geompar->get( "Z Boundaries", (*zbounds).start, (*zbounds).stop ))
+	    zbounds = 0;
+	else
+	    (*zbounds).scale( 1/SI().zFactor() );
 
 	HorizonUtils::getWantedPositions( strm, midset, bivs, horsamp, extraz,
 					  nrinterpsamp, mainhoridx, extrawidth);
 	Processor* proc = 
-	    	aem.createTrcSelOutput( errmsg, bivs, seisoutp, outval );
+	    aem.createTrcSelOutput( errmsg, bivs, seisoutp, outval, zbounds );
 	if ( !proc ) mErrRet( errmsg );
 	if ( !process( strm, proc, outpid, &seisoutp ) ) return false;
     }
