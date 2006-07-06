@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: coherencyattrib.cc,v 1.11 2006-05-23 08:29:49 cvshelene Exp $";
+static const char* rcsID = "$Id: coherencyattrib.cc,v 1.12 2006-07-06 12:51:53 cvshelene Exp $";
 
 
 #include "coherencyattrib.h"
@@ -89,6 +89,8 @@ Coherency::Coherency( Desc& desc_ )
     , imdh ( 0 )
 { 
     if ( !isOK() ) return;
+
+    inputdata.allowNull(true);
     
     mGetInt( type, typeStr() );
     
