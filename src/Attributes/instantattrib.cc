@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: instantattrib.cc,v 1.8 2005-12-23 16:09:46 cvsnanne Exp $
+ RCS:           $Id: instantattrib.cc,v 1.9 2006-07-06 12:12:50 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,12 +25,8 @@ namespace Attrib
 
 void Instantaneous::initClass()
 {
-    Desc* desc = new Desc( attribName(), updateDesc );
+    Desc* desc = new Desc( attribName() );
     desc->ref();
-
-    ZGateParam* gate = new ZGateParam( gateStr() );
-    gate->setLimits( Interval<float>(-1000,1000) );
-    desc->addParam( gate );
 
     desc->addInput( InputSpec("Real Data",true) );
     desc->addInput( InputSpec("Imag Data",true) );
@@ -57,20 +53,12 @@ Provider* Instantaneous::createInstance( Desc& desc )
 }
 
 
-void Instantaneous::updateDesc( Desc& desc )
-{
-    desc.setParamEnabled( gateStr(), false );
-}
-
-
 Instantaneous::Instantaneous( Desc& ds )
-    : Provider(ds)
+    : Provider( ds )
+    , sampgate1_( -1,1 )
+    , sampgate2_( -2,2 )
 {
     if ( !isOK() ) return;
-
-//  mGetFloatInterval( gate, gateStr() );
-//  gate.start = gate.start / zFactor(); gate.stop = gate.stop / zFactor();
-    gate_.start = -SI().zStep(); gate_.stop = SI().zStep();
 }
 
 
@@ -270,6 +258,17 @@ float Instantaneous::calcEnvWFreq( int cursample ) const
 float Instantaneous::calcThinBed( int cursample ) const
 {
     return calcFrequency( cursample ) - calcEnvWFreq( cursample );
+}
+
+
+const Interval<int>* Instantaneous::reqZSampMargin( int inp, int out ) const
+{
+    if ( out == 5 || out == 8 || out == 9 || out == 10 )
+	return &sampgate2_;
+    else if ( out == 2 || out == 4 || out == 7 || out == 11 || out == 12 )
+	return &sampgate1_;
+    else
+	return 0;
 }
 
 }; // namespace Attrib

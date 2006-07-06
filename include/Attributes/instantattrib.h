@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          May 2005
- RCS:           $Id: instantattrib.h,v 1.5 2005-12-23 16:09:46 cvsnanne Exp $
+ RCS:           $Id: instantattrib.h,v 1.6 2006-07-06 12:12:50 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,7 +31,6 @@ public:
     				Instantaneous(Desc&);
 
     static const char*		attribName()	{ return "Instantaneous"; }
-    static const char*		gateStr()	{ return "gate"; }
 
 protected:
     static Provider*		createInstance(Desc&);
@@ -42,13 +41,13 @@ protected:
     bool			computeData(const DataHolder&,const BinID& pos,
 	    				    int t0,int nrsamples) const;
 
-    const Interval<float>*	reqZMargin(int input,int output) const
-				{ return &gate_; }
+    const Interval<int>*	reqZSampMargin(int,int) const;
 
     bool			allowParallelComputation() const
     				{ return true; }
 
-    Interval<float>		gate_;
+    Interval<int>		sampgate1_;
+    Interval<int>		sampgate2_;
     const DataHolder*		realdata_;
     const DataHolder*		imagdata_;
     int				realidx_;
