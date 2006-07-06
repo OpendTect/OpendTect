@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          October 2002
- RCS:           $Id: uiprintscenedlg.cc,v 1.26 2006-06-20 21:07:31 cvskris Exp $
+ RCS:           $Id: uiprintscenedlg.cc,v 1.27 2006-07-06 13:25:33 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -375,8 +375,8 @@ bool uiPrintSceneDlg::acceptOK( CallBacker* )
 
     const int vwridx = scenefld_ ? scenefld_->box()->currentItem() : 0;
     const uiSoViewer* vwr = viewers[vwridx];
-    FilePath filename( fileinputfld_->fileName() );
-    dirname_ = filename.pathOnly();
+    FilePath filepath( fileinputfld_->fileName() );
+    dirname_ = filepath.pathOnly();
 
     uiCursorChanger cursorchanger( uiCursor::Wait );
 
@@ -399,10 +399,10 @@ bool uiPrintSceneDlg::acceptOK( CallBacker* )
 	root->unref();
 
 	SoOutput out;
-	if ( !out.openFile( (const char*) filename.fileName() ) )
+	if ( !out.openFile( filepath.fullPath().buf() ) )
 	{
 	    BufferString msg =  "Cannot open file ";
-	    msg += filename.fileName();
+	    msg += filepath.fullPath();
 	    msg += ".";
 	    
 	    uiMSG().error( msg );
@@ -439,7 +439,7 @@ bool uiPrintSceneDlg::acceptOK( CallBacker* )
     }
 
     const char* extension = getExtension();
-    if ( !sor->writeToFile((const char*) filename.fileName(),extension) )
+    if ( !sor->writeToFile(filepath.fullPath().buf(),extension) )
     {
 	uiMSG().error( "Couldn't write to specified file" );
 	return false;
