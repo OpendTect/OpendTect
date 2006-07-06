@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Aug 2003
- RCS:           $Id: plugins.cc,v 1.47 2006-06-30 11:46:50 cvsbert Exp $
+ RCS:           $Id: plugins.cc,v 1.48 2006-07-06 08:43:36 cvsdgb Exp $
 ________________________________________________________________________
 
 -*/
@@ -118,7 +118,7 @@ void* SharedLibAccess::getFunction( const char* fnnm )
 	return 0;
 
 #ifdef __win__
-    return GetProcAddress( handle_, fnnm );
+    return (void*)GetProcAddress( handle_, fnnm );
 #else
     return dlsym( handle_, fnnm );
 #endif
