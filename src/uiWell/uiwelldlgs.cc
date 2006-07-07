@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          October 2003
- RCS:           $Id: uiwelldlgs.cc,v 1.43 2006-03-21 14:51:54 cvsbert Exp $
+ RCS:           $Id: uiwelldlgs.cc,v 1.44 2006-07-07 15:00:22 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -126,7 +126,7 @@ class uiReadMarkerFile : public uiDialog
 {
 public:
 
-uiReadMarkerFile::uiReadMarkerFile( uiParent* p )
+uiReadMarkerFile( uiParent* p )
     : uiDialog(p,uiDialog::Setup("Import Markers",
 				 "Specify Marker import",
 				 "107.1.4"))

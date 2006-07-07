@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		9-4-1996
- RCS:		$Id: survinfo.h,v 1.49 2005-09-22 14:04:22 cvsnanne Exp $
+ RCS:		$Id: survinfo.h,v 1.50 2006-07-07 15:00:23 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -179,6 +179,9 @@ private:
     RCol2Coord::RCTransform	rdytr;
 
 };
+
+
+const SurveyInfo&	SI();
 
 
 #endif

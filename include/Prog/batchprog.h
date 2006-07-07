@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		14-9-1998
- RCS:		$Id: batchprog.h,v 1.32 2005-08-26 18:19:27 cvsbert Exp $
+ RCS:		$Id: batchprog.h,v 1.33 2006-07-07 15:00:22 cvskris Exp $
 ________________________________________________________________________
 
  Batch programs should include this header, and define a BatchProgram::go().
@@ -111,6 +111,7 @@ private:
 };
 
 
+int Execute_batch(int*,char**);
 inline const BatchProgram& BP() { return *BatchProgram::inst; }
 
 #ifdef __prog__

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          May 2002
- RCS:           $Id: uiimphorizon.cc,v 1.68 2006-06-29 14:10:42 cvsnanne Exp $
+ RCS:           $Id: uiimphorizon.cc,v 1.69 2006-07-07 15:00:22 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -533,8 +533,8 @@ AttribNameEditor( uiParent* p, const BufferStringSet& names )
 }
 
 
-void AttribNameEditor::getAttribNames( BufferStringSet& names,
-				       BoolTypeSet& doimp ) const
+void getAttribNames( BufferStringSet& names,
+		     BoolTypeSet& doimp ) const
 {
     names.erase();
     doimp.erase();

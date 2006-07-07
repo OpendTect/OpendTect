@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          23-10-1996
- RCS:           $Id: mpeengine.h,v 1.31 2006-05-29 15:12:55 cvsjaap Exp $
+ RCS:           $Id: mpeengine.h,v 1.32 2006-07-07 15:00:23 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -134,6 +134,8 @@ protected:
     static const char*		sKeyTrackPlane(){ return "Track Plane"; }
 };
 
+
+Engine&	engine();
 
 void initStandardClasses();
 

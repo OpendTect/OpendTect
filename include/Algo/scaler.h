@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		8-9-1995
  Contents:	Scaler objects
- RCS:		$Id: scaler.h,v 1.15 2005-02-23 14:45:12 cvsarend Exp $
+ RCS:		$Id: scaler.h,v 1.16 2006-07-07 15:00:23 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,7 +32,7 @@ is defined, aswell as a factory (Scaler::get).
 class Scaler
 {
 public:
-    static Scaler*	Scaler::get(const char*);
+    static Scaler*	get(const char*);
     virtual		~Scaler()		{}
     void		put(char*) const;
 
