@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Feb 2002
- RCS:           $Id: cubesampling.h,v 1.25 2006-03-12 13:39:09 cvsbert Exp $
+ RCS:           $Id: cubesampling.h,v 1.26 2006-07-07 09:46:51 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -47,6 +47,10 @@ struct HorSampling
     void		includeCrl( int crl );
     void		limitTo(const HorSampling&);
 
+    inline int		inlIdx( int inl ) const
+			{ return (inl - start.inl) / step.inl; }
+    inline int		crlIdx( int crl ) const
+			{ return (crl - start.crl) / step.crl; }
     int			nrInl() const;
     int			nrCrl() const;
     inline int		totalNr() const
@@ -79,6 +83,7 @@ struct HorSampling
     BinID		start;
     BinID		stop;
     BinID		step;
+
 };
 
 
@@ -135,6 +140,9 @@ public:
     HorSampling		hrg;
     StepInterval<float>	zrg;
 
+    inline int		inlIdx( int inl ) const	{ return hrg.inlIdx(inl); }
+    inline int		crlIdx( int crl ) const	{ return hrg.crlIdx(crl); }
+    inline int		zIdx( float z ) const	{ return zrg.getIndex(z); }
     inline int		nrInl() const		{ return hrg.nrInl(); }
     inline int		nrCrl() const		{ return hrg.nrCrl(); }
     inline int		nrZ() const		{ return zrg.nrSteps() + 1; }
