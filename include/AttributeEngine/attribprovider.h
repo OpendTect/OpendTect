@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribprovider.h,v 1.42 2006-06-16 13:59:48 cvshelene Exp $
+ RCS:           $Id: attribprovider.h,v 1.43 2006-07-07 20:08:47 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,14 +18,11 @@ ________________________________________________________________________
 #include "sets.h"
 #include "linekey.h"
 
-class BasicTask;
 class CubeSampling;
 class SeisRequester;
 class SeisSelData;
 class SeisTrcInfo;
 template <class T> class Array2DImpl;
-
-namespace Threads { class ThreadWorkManager; };
 
 #define mMAXDIP 300 * 1e-6
 
@@ -35,7 +32,7 @@ namespace Attrib
 class DataHolder;
 class DataHolderLineBuffer;
 class Desc;
-class ProviderBasicTask;
+class ProviderTask;
 
 
 /*!\brief provides the actual output to ... */
@@ -43,7 +40,7 @@ class ProviderBasicTask;
 class Provider
 {				mRefCountImpl(Provider);
 
-    friend class		ProviderBasicTask;
+    friend class		ProviderTask;
 
 public:
 
@@ -271,8 +268,7 @@ protected:
     TypeSet< Interval<int> >	localcomputezintervals;
     ObjectSet<Provider>		allexistingprov;
 
-    Threads::ThreadWorkManager*	threadmanager;
-    ObjectSet<BasicTask>	computetasks;
+    ProviderTask*		providertask_;
     DataHolderLineBuffer*	linebuffer;
     BinID			currentbid;
     int				prevtrcnr;

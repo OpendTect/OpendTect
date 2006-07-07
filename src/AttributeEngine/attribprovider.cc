@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribprovider.cc,v 1.66 2006-07-06 13:17:00 cvshelene Exp $";
+static const char* rcsID = "$Id: attribprovider.cc,v 1.67 2006-07-07 20:08:47 cvskris Exp $";
 
 #include "attribprovider.h"
 #include "attribstorprovider.h"
@@ -23,22 +23,25 @@ static const char* rcsID = "$Id: attribprovider.cc,v 1.66 2006-07-06 13:17:00 cv
 #include "seisinfo.h"
 #include "seistrcsel.h"
 #include "survinfo.h"
-#include "threadwork.h"
 
 
 namespace Attrib
 {
 
-class ProviderBasicTask : public BasicTask
+class ProviderTask : public ParallelTask
 {
 public:
 
-ProviderBasicTask( const Provider& p )
+ProviderTask( const Provider& p )
     : provider_( p )
 {}
 
-void setScope( const DataHolder* res, const BinID& relpos, int z0,
-	       int nrsamples )
+
+int minThreadSize() { return provider_.minTaskSize(); }
+
+
+void setVars( const DataHolder* res, const BinID& relpos, int z0,
+	      int nrsamples )
 {
     res_ = res;
     relpos_ = relpos;
@@ -46,11 +49,16 @@ void setScope( const DataHolder* res, const BinID& relpos, int z0,
     nrsamples_ = nrsamples;
 }
 
-int nextStep()
+
+int nrTimes() const { return nrsamples_; }
+
+
+bool doWork( int start, int stop )
 {
-    if ( !res_ ) return 0;
-    return provider_.computeData(*res_,relpos_,z0_,nrsamples_) ? 0 : -1;
+    if ( !res_ ) return true;
+    return provider_.computeData( *res_, relpos_, start+z0_, stop-start+1);
 }
+
 
 protected:
 
@@ -59,7 +67,6 @@ protected:
     BinID			relpos_;
     int				z0_;
     int				nrsamples_;
-
 };
 
 
@@ -165,7 +172,7 @@ Provider::Provider( Desc& nd )
     , possiblevolume( 0 ) 
     , outputinterest( nd.nrOutputs(), 0 )
     , bufferstepout( 0, 0 )
-    , threadmanager(new Threads::ThreadWorkManager)
+    , providertask_( 0 )
     , currentbid( -1, -1 )
     , curlinekey_( 0, 0 )
     , linebuffer( 0 )
@@ -197,8 +204,7 @@ Provider::~Provider()
 
     desc.unRef();
 
-    delete threadmanager;
-    deepErase( computetasks );
+    delete providertask_;
 
     delete linebuffer;
     delete possiblevolume;
@@ -874,33 +880,16 @@ const DataHolder* Provider::getData( const BinID& relpos, int idi )
     const int nrsamples = outdata->nrsamples_;
 
     bool success = false;
-    if ( !threadmanager || !allowParallelComputation() )
+    if ( !allowParallelComputation() )
 	success = computeData( *outdata, relpos, z0, nrsamples );
     else
     {
-	deepErase( computetasks );
-	if ( !computetasks.size() )
-	{
-	    const int nrthreads = threadmanager->nrThreads();
-	    const int mintasksize = minTaskSize();
-	    int nrtasks = nrthreads;
-	    while ( nrsamples/nrtasks < mintasksize && nrtasks>1 )
-		nrtasks--;
+	if ( !providertask_ )
+	    providertask_ = new ProviderTask( *this );
 
-	    const int tasksize = nrsamples/nrtasks;
-	    int nrdone = 0;
-	    for ( int idx=0; idx<nrtasks; idx++ )
-	    {
-		const int cursz = idx==nrtasks-1 ? nrsamples-nrdone : tasksize;
-		ProviderBasicTask* task = new ProviderBasicTask( *this );
-		computetasks += task;
-		task->setScope( outdata, relpos, z0+nrdone, cursz );
+	providertask_->setVars( outdata, relpos, z0, nrsamples );
 
-		nrdone += cursz;
-	    }
-	}
-
-	success = threadmanager->addWork( computetasks );
+	success = providertask_->execute();
     }
 
     if ( !success )
