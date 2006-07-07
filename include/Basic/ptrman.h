@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          10-12-1999
- RCS:           $Id: ptrman.h,v 1.11 2006-04-24 13:43:05 cvsjaap Exp $
+ RCS:           $Id: ptrman.h,v 1.12 2006-07-07 21:41:25 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,8 +51,8 @@ public: \
 \
     void			erase() \
 				{ EraseFunc; ptr_ = 0; } \
-    void			set( T* p ) \
-				{ erase(); ptr_=p; PostSet; }
+    void			set( T* p, bool doerase=true ) \
+				{ if ( doerase ) erase(); ptr_=p; PostSet; }
 
 #define mDefPtrMan3(Clss,PostSet, EraseFunc) \
 private: \
