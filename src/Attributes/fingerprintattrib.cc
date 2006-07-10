@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          February 2006
- RCS:           $Id: fingerprintattrib.cc,v 1.6 2006-05-31 09:27:49 cvshelene Exp $
+ RCS:           $Id: fingerprintattrib.cc,v 1.7 2006-07-10 20:11:22 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -184,7 +184,10 @@ bool FingerPrint::getInputData( const BinID& relpos, int zintv )
 {
     const int vectsz = refvector_.size();
     while ( inputdata_.size() < vectsz )
+    {
 	inputdata_ += 0;
+	dataidx_ += -1;
+    }
 
     for ( int idx=0; idx<inputs.size(); idx++ )
     {
@@ -192,7 +195,7 @@ bool FingerPrint::getInputData( const BinID& relpos, int zintv )
 	if ( !data ) return false;
 	inputdata_.replace( idx, data );
 	if ( dataidx_.size()< vectsz ) 
-	    dataidx_ += getDataIndex( idx );
+	    dataidx_[idx] = getDataIndex( idx );
     }
 
     int dataindex = inputs.size();
