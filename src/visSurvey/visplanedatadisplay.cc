@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.142 2006-06-20 15:28:07 cvsnanne Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.143 2006-07-10 13:25:00 cvskris Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -60,6 +60,7 @@ PlaneDataDisplay::PlaneDataDisplay()
     , movefinished_(this)
     , resolution_( 0 )
     , orientation_( Inline )
+    , onoffstatus_( true )
 {
     volumecache_.allowNull( true );
     rposcache_.allowNull( true );
@@ -150,6 +151,34 @@ PlaneDataDisplay::~PlaneDataDisplay()
     draggerdrawstyle_->unRef();
     draggermaterial_->unRef();
 }
+
+
+void PlaneDataDisplay::turnOn( bool yn )
+{
+    onoffstatus_ = yn;
+    updateMainSwitch();
+}
+
+
+void PlaneDataDisplay::updateMainSwitch()
+{
+    bool newstatus = onoffstatus_;
+    if ( newstatus )
+    {
+	newstatus = false;
+	for ( int idx=nrAttribs()-1; idx>=0; idx-- )
+	{
+	    if ( isAttribEnabled(idx) )
+	    {
+		newstatus = true;
+		break;
+	    }
+	}
+    }
+
+    VisualObjectImpl::turnOn( newstatus );
+}
+
 
 
 void PlaneDataDisplay::setOrientation( Orientation nt )
@@ -522,6 +551,7 @@ bool PlaneDataDisplay::addAttrib()
     texture_->addTexture("");
     texture_->setOperation( as_.size()-1, visBase::MultiTexture::BLEND );
 
+    updateMainSwitch();
     return true;
 }
 
@@ -540,6 +570,7 @@ bool PlaneDataDisplay::removeAttrib( int attrib )
 
     texture_->removeTexture( attrib );
 
+    updateMainSwitch();
     return true;
 }
 
@@ -627,6 +658,7 @@ bool PlaneDataDisplay::isAttribEnabled( int attrib ) const
 void PlaneDataDisplay::enableAttrib( int attrib, bool yn )
 {
     texture_->enableTexture( attrib, yn );
+    updateMainSwitch();
 }
 
 

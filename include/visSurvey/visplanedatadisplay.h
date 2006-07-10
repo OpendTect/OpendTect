@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visplanedatadisplay.h,v 1.86 2006-06-08 19:29:51 cvskris Exp $
+ RCS:		$Id: visplanedatadisplay.h,v 1.87 2006-07-10 13:25:00 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -51,7 +51,9 @@ class PlaneDataDisplay :  public visBase::VisualObjectImpl,
 {
 public:
 
-    bool			isInlCrl() const { return true; }
+    bool			isInlCrl() const	{ return true; }
+    bool			isOn() const	 	{ return onoffstatus_; }
+    void			turnOn(bool);
 
     enum Orientation		{ Inline=0, Crossline=1, Timeslice=2 };
     				DeclareEnumUtils(Orientation);
@@ -134,6 +136,7 @@ public:
 
 protected:
 				~PlaneDataDisplay();
+    void			updateMainSwitch();
 
     void			setData(int attrib,const Attrib::DataCubes*);
     void			setData(int attrib,
@@ -175,6 +178,7 @@ protected:
     int				datatransformvoihandle_;
     Notifier<PlaneDataDisplay>	moving_;
     Notifier<PlaneDataDisplay>	movefinished_;
+    bool			onoffstatus_;
 
 
     static const char*		sKeyOrientation() { return "Orientation"; }
