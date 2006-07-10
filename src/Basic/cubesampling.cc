@@ -4,7 +4,7 @@
  * DATE     : somewhere around 1999
 -*/
  
-static const char* rcsID = "$Id: cubesampling.cc,v 1.22 2006-07-07 09:46:51 cvsbert Exp $";
+static const char* rcsID = "$Id: cubesampling.cc,v 1.23 2006-07-10 14:43:54 cvskris Exp $";
 
 #include "cubesampling.h"
 #include "survinfo.h"
@@ -185,7 +185,7 @@ int HorSampling::nrCrl() const
     if ( !step.crl || (mIsUdf(start.crl) && mIsUdf(stop.crl)) )
 	return 0;
 
-    int ret = crlIdx( stop.inl );
+    int ret = crlIdx( stop.crl );
     return ret < 0 ? 1 - ret : ret + 1;
 }
 
