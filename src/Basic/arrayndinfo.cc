@@ -4,11 +4,11 @@
  * DATE     : 9-3-1999
 -*/
 
-static const char* rcsID = "$Id: arrayndinfo.cc,v 1.6 2006-04-04 20:51:58 cvskris Exp $";
+static const char* rcsID = "$Id: arrayndinfo.cc,v 1.7 2006-07-10 17:42:33 cvskris Exp $";
 
 #include <arrayndinfo.h>
 
-void ArrayNDInfo::getArrayPos( unsigned long mempos, int* pos ) const
+void ArrayNDInfo::getArrayPos( uint64 mempos, int* pos ) const
 {
     int ndim = getNDim();
     for ( int idx=0; idx<ndim; idx++ )
@@ -53,13 +53,13 @@ bool Array1DInfoImpl::setSize( int dim, int nsz )
 }
 
 
-unsigned long Array1DInfoImpl::getMemPos( const int* pos ) const
+uint64 Array1DInfoImpl::getMemPos( const int* pos ) const
 {
     return pos[0];
 }
 
 
-unsigned long Array1DInfoImpl::getMemPos( int p ) const
+uint64 Array1DInfoImpl::getMemPos( int p ) const
 {
     return p;
 }
@@ -103,15 +103,15 @@ bool Array2DInfoImpl::setSize( int dim, int nsz )
 }
 
 
-unsigned long Array2DInfoImpl::getMemPos( const int* pos ) const
+uint64 Array2DInfoImpl::getMemPos( const int* pos ) const
 {
-    return pos[0] * sz[1] + pos[1];
+    return (uint64) pos[0] * sz[1] + pos[1];
 }
 
 
-unsigned long Array2DInfoImpl::getMemPos( int p0, int p1 ) const
+uint64 Array2DInfoImpl::getMemPos( int p0, int p1 ) const
 {
-    return p0 * sz[1] + p1;
+    return (uint64) p0 * sz[1] + p1;
 }
 
 
@@ -132,9 +132,9 @@ bool Array2DInfoImpl::validPos( int p0, int p1 ) const
 
 
 
-unsigned long Array2DInfoImpl::calcTotalSz() const
+uint64 Array2DInfoImpl::calcTotalSz() const
 {
-    return sz[0] * sz[1];
+    return (uint64) sz[0] * sz[1];
 }
 
 
@@ -170,15 +170,15 @@ bool Array3DInfoImpl::setSize(int dim, int nsz)
 }
 
 
-unsigned long Array3DInfoImpl::getMemPos(const int* pos) const
+uint64 Array3DInfoImpl::getMemPos(const int* pos) const
 {
-    return pos[0] * sz[2] * sz[1] + pos[1] * sz[2] + pos[2]; 
+    return (uint64) pos[0] * sz[2] * sz[1] + pos[1] * sz[2] + pos[2]; 
 }
 
 
-unsigned long Array3DInfoImpl::getMemPos(int p0, int p1, int p2) const
+uint64 Array3DInfoImpl::getMemPos(int p0, int p1, int p2) const
 {
-    return p0 * sz[2] * sz[1] + p1 * sz[2] + p2;
+    return (uint64) p0 * sz[2] * sz[1] + p1 * sz[2] + p2;
 }
 
 
@@ -204,9 +204,9 @@ bool Array3DInfoImpl::validPos( int p0, int p1, int p2 ) const
 }
 
 
-unsigned long Array3DInfoImpl::calcTotalSz() const
+uint64 Array3DInfoImpl::calcTotalSz() const
 {
-    return sz[0] * sz[1] * sz[2];
+    return (uint64) sz[0] * sz[1] * sz[2];
 }	 
 
 
@@ -285,10 +285,10 @@ int ArrayNDInfoImpl::getSize( int dim ) const
 }
 
 
-unsigned long ArrayNDInfoImpl::getMemPos( const int* pos ) const
+uint64 ArrayNDInfoImpl::getMemPos( const int* pos ) const
 {
-    unsigned long valueNr = 0;
-    unsigned long multiplicator = 1;
+    uint64 valueNr = 0;
+    uint64 multiplicator = 1;
 
     for ( int idx = ndim-1; idx > -1; idx-- )
     {
@@ -311,10 +311,10 @@ bool ArrayNDInfoImpl::validPos( const int* pos ) const
 }
 
 
-unsigned long ArrayNDInfoImpl::calcTotalSz() const
+uint64 ArrayNDInfoImpl::calcTotalSz() const
 { 
     int NDim = getNDim();
-    unsigned long size = 1;
+    uint64 size = 1;
  
     for ( int idx = 0; idx < NDim; idx++ )
         size *= sizes[idx]; 

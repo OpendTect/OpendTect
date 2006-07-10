@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: arrayndimpl.h,v 1.42 2006-06-22 11:09:26 cvsnanne Exp $
+ RCS:		$Id: arrayndimpl.h,v 1.43 2006-07-10 17:42:33 cvskris Exp $
 ________________________________________________________________________
 
 */
@@ -27,22 +27,22 @@ class ArrayNDMemStor : public ArrayND<T>::LinearStorage
 public:
 
     bool	isOK() const			{ return ptr; }
-    T		get(int pos) const		{ return ptr[pos]; }
-    void	set(int pos, T val )		{ ptr[pos] = val; }
+    T		get(int64 pos) const		{ return ptr[pos]; }
+    void	set(int64 pos, T val )		{ ptr[pos] = val; }
 
     const T*	getData() const			{ return ptr; }
 
-    inline void	setSize( int nsz )		{ if ( sz == nsz ) return;
+    inline void	setSize( int64 nsz )		{ if ( sz == nsz ) return;
 						  sz = nsz; alloc(); }
-    int		size() const			{ return sz; }
+    int64	size() const			{ return sz; }
 
-		ArrayNDMemStor( int nsz )
+		ArrayNDMemStor( int64 nsz )
 		    : ptr (0), sz(nsz)		{ alloc(); }
     inline	~ArrayNDMemStor()		{ delete [] ptr; ptr = 0; }
 
 protected:
 
-    int		sz;
+    int64	sz;
     T*		ptr;
 
     inline void	alloc(); //!< Does the actual allocation of memory
@@ -74,7 +74,7 @@ public:
     if ( strm_->fail() ) \
 	{ mNonConstMem(close()); mNonConstMem(streamfail_) = true; return T();}
 
-    T		get( int pos ) const
+    T		get( int64 pos ) const
 		{
 		    Threads::MutexLocker mlock( mutex_ );
 		    if ( !strm_ ) const_cast<ArrayNDFileStor*>(this)->open();
@@ -94,7 +94,7 @@ public:
 #define mChckStrm \
     if ( strm_->fail() ) { close(); streamfail_ = true; return; }
 
-    void	set( int pos, T val ) 
+    void	set( int64 pos, T val ) 
 		{
 		    Threads::MutexLocker mlock( mutex_ );
 		    if ( !strm_ ) open();
@@ -109,7 +109,7 @@ public:
 
     const T*	getData() const { return 0; }
 
-    void	setSize( int nsz )
+    void	setSize( int64 nsz )
 		{
 		    Threads::MutexLocker mlock( mutex_ );
 		    if ( strm_ ) close();
@@ -118,9 +118,9 @@ public:
 		    open();
 		}
 
-    int		size() const { return sz_; }
+    int64	size() const { return sz_; }
 
-		ArrayNDFileStor( int nsz )
+		ArrayNDFileStor( int64 nsz )
 		    : sz_( nsz )
 		    , strm_( 0 )
 		    , name_(FilePath::getTempName("dat"))
@@ -195,7 +195,7 @@ protected:
 
     std::fstream*		strm_;
     BufferString		name_;
-    int				sz_;
+    int64			sz_;
     bool			openfailed_;
     bool			streamfail_;
     mutable Threads::Mutex	mutex_;

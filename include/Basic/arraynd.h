@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: arraynd.h,v 1.19 2005-04-01 10:05:56 cvsbert Exp $
+ RCS:		$Id: arraynd.h,v 1.20 2006-07-10 17:42:33 cvskris Exp $
 ________________________________________________________________________
 
 An ArrayND is an array with a given number of dimensions and a size. The
@@ -75,8 +75,8 @@ public:
 
 	virtual bool		isOK() const			= 0;
 
-	virtual T		get( int ) const		= 0;
-	virtual void		set( int, T )			= 0;
+	virtual T		get( int64 ) const		= 0;
+	virtual void		set( int64, T )			= 0;
 
 	virtual const T*	getData() const			= 0;
 	virtual T*		getData()
@@ -86,8 +86,8 @@ public:
 					    getData());
 				};
 
-	virtual int		size() const			= 0;
-	virtual void		setSize( int )			= 0;
+	virtual int64		size() const			= 0;
+	virtual void		setSize( int64 )		= 0;
 	virtual			~LinearStorage() {}
     };
 

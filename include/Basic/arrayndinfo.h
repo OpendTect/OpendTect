@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: arrayndinfo.h,v 1.6 2006-04-04 20:47:37 cvskris Exp $
+ RCS:		$Id: arrayndinfo.h,v 1.7 2006-07-10 17:42:33 cvskris Exp $
 ________________________________________________________________________
 
 An ArrayNDInfo contains the information about the size of ArrayND, and
@@ -31,16 +31,16 @@ public:
     virtual int		getSize(int dim) const	= 0;
     virtual bool	setSize(int dim,int sz) = 0;
  
-    inline unsigned long  getTotalSz() const	{ return totalSz; }
-    virtual unsigned long getMemPos(const int*) const		= 0;
-    virtual bool	  validPos(const int*) const		= 0;
-    virtual void	getArrayPos(unsigned long, int*) const;
+    inline uint64	getTotalSz() const	{ return totalSz; }
+    virtual uint64	getMemPos(const int*) const		= 0;
+    virtual bool	validPos(const int*) const		= 0;
+    virtual void	getArrayPos(uint64, int*) const;
 
 protected:
 
-    unsigned long 		totalSz;
+    uint64 		totalSz;
 
-    virtual unsigned long	calcTotalSz()	{ return getSize(0); }
+    virtual uint64	calcTotalSz()	{ return getSize(0); }
 
 };
 
@@ -63,7 +63,7 @@ public:
 
     int				getNDim() const			{ return 1; }
 
-    virtual unsigned long	getMemPos(int) const		= 0;
+    virtual uint64		getMemPos(int) const		= 0;
     virtual bool		validPos(int) const		= 0;
 
 };
@@ -75,7 +75,7 @@ public:
 
     int				getNDim() const			{ return 2; }
 
-    virtual unsigned long	getMemPos(int,int) const	= 0;
+    virtual uint64		getMemPos(int,int) const	= 0;
     virtual bool		validPos(int,int) const		= 0;
 
 };
@@ -87,7 +87,7 @@ public:
 
     int				getNDim() const			{ return 3; }
 
-    virtual unsigned long	getMemPos(int, int, int) const= 0;
+    virtual uint64		getMemPos(int, int, int) const= 0;
     virtual bool		validPos(int,int,int) const	= 0;
 
 };
@@ -105,10 +105,10 @@ public:
     int         	getSize(int dim) const; 
     bool        	setSize(int dim,int nsz);
 
-    unsigned long 	getMemPos(const int*) const;
+    uint64	 	getMemPos(const int*) const;
     bool          	validPos(const int*) const;
     
-    unsigned long	getMemPos(int) const;
+    uint64		getMemPos(int) const;
     bool		validPos( int p ) const
 			{ return p < 0 || p >= sz ? false : true; }
 
@@ -131,8 +131,8 @@ public:
     int                 getSize(int dim) const;
     bool                setSize(int dim,int nsz);
 
-    unsigned long       getMemPos(const int*) const;
-    unsigned long	getMemPos(int,int) const; 
+    uint64		getMemPos(const int*) const;
+    uint64		getMemPos(int,int) const; 
 
     bool                validPos(const int*) const;
     bool                validPos(int,int) const;
@@ -142,7 +142,7 @@ protected:
 
     int                 sz[2];
 
-    unsigned long       calcTotalSz() const;
+    uint64		calcTotalSz() const;
 
 };
 
@@ -159,8 +159,8 @@ public:
     int                 getSize(int dim) const; 
     bool                setSize(int dim,int nsz);
 
-    unsigned long       getMemPos(const int*) const;
-    unsigned long       getMemPos(int,int,int) const; 
+    uint64		getMemPos(const int*) const;
+    uint64		getMemPos(int,int,int) const; 
 
     bool                validPos(const int*) const;
     bool                validPos(int,int,int) const;
@@ -169,7 +169,7 @@ protected:
 
     int                 sz[3];
 
-    unsigned long       calcTotalSz() const;
+    uint64		calcTotalSz() const;
 
 };  
 
@@ -191,7 +191,7 @@ public:
     int                 getSize(int dim) const;
     bool                setSize(int dim,int nsz);
 
-    unsigned long       getMemPos(const int*) const;
+    uint64		getMemPos(const int*) const;
     bool                validPos(const int*) const;
 
 protected:
@@ -199,7 +199,7 @@ protected:
     int*		sizes;
     int 		ndim;
 
-    unsigned long       calcTotalSz() const;
+    uint64		calcTotalSz() const;
 
 };
 
