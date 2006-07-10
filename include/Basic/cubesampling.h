@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Feb 2002
- RCS:           $Id: cubesampling.h,v 1.26 2006-07-07 09:46:51 cvsbert Exp $
+ RCS:           $Id: cubesampling.h,v 1.27 2006-07-10 15:19:43 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -53,10 +53,8 @@ struct HorSampling
 			{ return (crl - start.crl) / step.crl; }
     int			nrInl() const;
     int			nrCrl() const;
-    inline int		totalNr() const
-			{ return nrInl() * nrCrl(); }
-    inline bool		isEmpty() const
-			{ return nrInl() < 1 || nrCrl() < 1; }
+    inline int		totalNr() const	{ return nrInl() * nrCrl(); }
+    inline bool		isEmpty() const { return nrInl() < 1 || nrCrl() < 1; }
 
     void		init(bool settoSI=true);
     			//!< Sets to survey values or mUdf(int) (but step 1)
@@ -146,7 +144,7 @@ public:
     inline int		nrInl() const		{ return hrg.nrInl(); }
     inline int		nrCrl() const		{ return hrg.nrCrl(); }
     inline int		nrZ() const		{ return zrg.nrSteps() + 1; }
-			// No totalNr(): doesn't fit into int in general
+    int64		totalNr() const;
     inline int		size( Dir d ) const	{ return d == Inl ? nrInl()
     						      : (d == Crl ? nrCrl()
 							          : nrZ()); }

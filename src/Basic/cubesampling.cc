@@ -4,7 +4,7 @@
  * DATE     : somewhere around 1999
 -*/
  
-static const char* rcsID = "$Id: cubesampling.cc,v 1.23 2006-07-10 14:43:54 cvskris Exp $";
+static const char* rcsID = "$Id: cubesampling.cc,v 1.24 2006-07-10 15:19:43 cvskris Exp $";
 
 #include "cubesampling.h"
 #include "survinfo.h"
@@ -323,6 +323,10 @@ CubeSampling::Dir CubeSampling::defaultDir() const
 
     return nrinl < nrcrl ? Inl : Crl;
 }
+
+
+int64 CubeSampling::totalNr() const
+{ return ((int64) nrZ()) * ((int64) hrg.totalNr()); }
 
 
 bool CubeSampling::includes( const CubeSampling& c ) const
