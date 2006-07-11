@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:		$Id: uimergeseis.cc,v 1.29 2005-06-02 14:11:53 cvsbert Exp $
+ RCS:		$Id: uimergeseis.cc,v 1.30 2006-07-11 18:00:37 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "seissingtrcproc.h"
 #include "seistrc.h"
 #include "seistrctr.h"
+#include "survinfo.h"
 #include "seistrcsel.h"
 #include "uiexecutor.h"
 #include "uimsg.h"
@@ -208,7 +209,7 @@ bool uiMergeSeis::handleInput( int& nrsamps, int& bps )
 
 	if ( !idx )
 	    prevzrg = cs.zrg;
-	else if ( cs.zrg != prevzrg )
+	else if ( !cs.zrg.isEqual(prevzrg,SI().zStep()/1000 ) )
 	{
 	    uiMSG().error( "Sorry, not implemented:\n"
 		    	   "Merge with different Z-ranges" );
