@@ -4,7 +4,7 @@
  * DATE     : 18-4-1996
 -*/
 
-static const char* rcsID = "$Id: draw.cc,v 1.51 2006-06-26 21:46:51 cvskris Exp $";
+static const char* rcsID = "$Id: draw.cc,v 1.52 2006-07-11 17:08:50 cvsbert Exp $";
 
 /*! \brief Several implementations for UI-related things.
 
@@ -39,7 +39,7 @@ DefineEnumNames(Alignment,Pos,3,"Alignment position")
     { "Start", "Middle", "Stop", 0 };
 
 
-// The some draw.h stuff
+// Then some draw.h stuff
 
 #define mToStringImpl( clss, par ) \
 void clss::toString( BufferString& bs ) const \
@@ -80,21 +80,44 @@ const char* ColorTable::sKeyName = "Color table name";
 const char* ColorTable::sKeyMarkColor = "Marker color";
 const char* ColorTable::sKeyUdfColor = "Undef color";
 const char* ColorTable::sKeyTransparency = "Transparency";
-bool ColorTable::tabparsinited = false;
-ObjectSet<IOPar> ColorTable::tabpars;
+static const char* sKeyCtbl = "Color table";
+
+static ObjectSet<IOPar>& stdTabPars()
+{
+    static ObjectSet<IOPar>* parset = 0;
+    if ( !parset )
+    {
+	parset = new ObjectSet<IOPar>;
+	ColorTable::getStdTabPars( *parset );
+    }
+    return *parset;
+}
+
+
+void ColorTable::getStdTabPars( ObjectSet<IOPar>& parset )
+{
+    StreamData sd = StreamProvider( GetDataFileName("ColTabs") ).makeIStream();
+    if ( !sd.usable() ) return;
+
+    ascistream astrm( *sd.istrm );
+    IOPar iopar( astrm );
+    sd.close();
+
+    add( iopar, 0, &parset );
+}
 
 
 ColorTable& ColorTable::operator=(const ColorTable& n )
 {
     setName( n.name() );
 
-    cvs = n.cvs;
-    undefcolor = n.undefcolor;
-    markcolor = n.markcolor;
+    cvs_ = n.cvs_;
+    undefcolor_ = n.undefcolor_;
+    markcolor_ = n.markcolor_;
 
-    collist = n.collist;
-    uselist = n.uselist;
-    translist = n.translist;
+    collist_ = n.collist_;
+    usetranslist_ = n.usetranslist_;
+    translist_ = n.translist_;
 
     return *this;
 }
@@ -105,24 +128,25 @@ bool ColorTable::operator==( const ColorTable& ct ) const
     bool res = false;
     if ( ct.name() != name() ||
 	 ct.getInterval() != getInterval() ||
-	 ct.undefcolor != undefcolor ||
-	 ct.markcolor != markcolor )		return false;
+	 ct.undefcolor_ != undefcolor_ ||
+	 ct.markcolor_ != markcolor_ )		return false;
 	 
-    if ( ct.cvs.size() != cvs.size() ) return false;
+    if ( ct.cvs_.size() != cvs_.size() ) return false;
     else
     {
-	for ( int idx=0; idx<cvs.size(); idx++ )
+	for ( int idx=0; idx<cvs_.size(); idx++ )
 	{
-	    if ( cvs[idx].value != ct.cvs[idx].value ||
-		 cvs[idx].color != ct.cvs[idx].color )		return false;
+	    if ( cvs_[idx].value != ct.cvs_[idx].value ||
+		 cvs_[idx].color != ct.cvs_[idx].color )
+		return false;
 	}
     }
 
-    if ( ct.translist.size() != translist.size() ) return false;
+    if ( ct.translist_.size() != translist_.size() ) return false;
     else
     {
-	for ( int idx=0; idx<translist.size(); idx++ )
-	    if ( translist[idx] != ct.translist[idx] )
+	for ( int idx=0; idx<translist_.size(); idx++ )
+	    if ( translist_[idx] != ct.translist_[idx] )
 		 return false;
     }
 
@@ -139,6 +163,7 @@ ColorTable* ColorTable::clone() const
     res->usePar( iopar );
     return res;
 }
+
 
 class ColorTableIndexer : public ParallelTask
 {
@@ -162,82 +187,84 @@ public:
     int			nrTimes() const { return nrtimes; }
 
 protected:
+
     int			nrtimes;
     float		x0_;
     float		dx_;
     const ColorTable&	ct_;
     Color*		res_;
+
 };
 
 
 void ColorTable::calcList( int nritems )
 {
-    uselist = false;		//Prevent list from usage while computing
-    const int sz = cvs.size();
+    usetranslist_ = false;	//Prevent list from usage while computing
+    const int sz = cvs_.size();
     if ( !sz || nritems<1 )
     {
-	collist.erase();
+	collist_.erase();
 	return;
     }
 
-    const ColorVal cv0( cvs[0] );
-    const ColorVal cv1( cvs[sz-1] );
+    const ColorVal cv0( cvs_[0] );
+    const ColorVal cv1( cvs_[sz-1] );
     const float dist = cv1.value - cv0.value;
-    collist.setSize( nritems );
+    collist_.setSize( nritems );
     if ( nritems == 1 )
-	collist[0] = color( cv0.value + dist / 2 );
+	collist_[0] = color( cv0.value + dist / 2 );
     else
     {
 	ColorTableIndexer comp( nritems, cv0.value, dist/(nritems-1),
-				*this, collist.arr() );
+				*this, collist_.arr() );
 	comp.execute();
     }
 
-    uselist = true;
+    usetranslist_ = true;
 }
 
 
 Color ColorTable::color( float v, bool use_undefcol ) const
 {
-    if ( mIsUdf(v) ) return undefcolor;
-    const int sz = cvs.size();
-    if ( sz == 0 ) return undefcolor;
+    if ( mIsUdf(v) ) return undefcolor_;
+    const int sz = cvs_.size();
+    if ( sz == 0 ) return undefcolor_;
 
-    ColorVal cv( cvs[0] );
+    ColorVal cv( cvs_[0] );
     if ( sz == 1 || mIsEqual(v,cv.value,mDefEps) )
 	return Color( cv.color.r(), cv.color.g(), cv.color.b(),
 		(int)(getTransparency( v ) + .5) );
 
-    bool isrev = cvs[0].value > cvs[1].value;
+    bool isrev = cvs_[0].value > cvs_[1].value;
     if ( (isrev && v>cv.value) || (!isrev && v<cv.value) ) 
 	if ( use_undefcol )	
-	    return undefcolor;
+	    return undefcolor_;
 	else
 	    v = cv.value;
 
-    ColorVal cv2 = cvs[sz-1];
+    ColorVal cv2 = cvs_[sz-1];
     if ( (isrev && v<cv2.value) || (!isrev && v>cv2.value) )
 	if ( use_undefcol )	
-	    return undefcolor;
+	    return undefcolor_;
 	else
 	    v = cv2.value;
 
-    if ( uselist )
+    if ( usetranslist_ )
     {
-	const int csz = collist.size();
-	if ( csz < 1 ) return undefcolor;
-	if ( csz == 1 ) return collist[0];
+	const int csz = collist_.size();
+	if ( csz < 1 ) return undefcolor_;
+	if ( csz == 1 ) return collist_[0];
 
 	float fcidx = ((v-cv.value) * (csz-1)) / (cv2.value-cv.value);
-	return collist[ ((int)(fcidx+.5)) ];
+	return collist_[ ((int)(fcidx+.5)) ];
     }
 
 
 #define mColRGBVal(c) ((cv2.value-v)*cv.color.c()+(v-cv.value)*cv2.color.c())
 
-    for ( int idx=1; idx<cvs.size(); idx++ )
+    for ( int idx=1; idx<cvs_.size(); idx++ )
     {
-	cv2 = cvs[idx];
+	cv2 = cvs_[idx];
 	if ( (isrev && v >= cv2.value) || (!isrev && v <= cv2.value) )
 	{
 	    if ( mIsEqual(v,cv2.value,mDefEps) )
@@ -253,20 +280,20 @@ Color ColorTable::color( float v, bool use_undefcol ) const
 	cv = cv2;
     }
 
-    return undefcolor;
+    return undefcolor_;
 }
 
 
 float ColorTable::getTransparency( float val ) const
 {
-    const int sz = cvs.size();
-    float valnorm = (val - cvs[0].value) / (cvs[sz-1].value - cvs[0].value);
-    for ( int idx=1; idx<translist.size(); idx ++)
+    const int sz = cvs_.size();
+    float valnorm = (val - cvs_[0].value) / (cvs_[sz-1].value - cvs_[0].value);
+    for ( int idx=1; idx<translist_.size(); idx ++)
     {
-	float x0 = translist[idx-1].x();
-	float y0 = translist[idx-1].y();
-	float x1 = translist[idx].x();
-	float y1 = translist[idx].y();
+	float x0 = translist_[idx-1].x();
+	float y0 = translist_[idx-1].y();
+	float x1 = translist_[idx].x();
+	float y1 = translist_[idx].y();
 	if ( valnorm >= x0 && valnorm <= x1 )
 	    return Interpolate::linear1D( x0, y0, x1, y1, valnorm );
     }
@@ -277,16 +304,16 @@ float ColorTable::getTransparency( float val ) const
 
 int ColorTable::colorIdx( float v, int undefid ) const
 {
-    const int sz = cvs.size();
+    const int sz = cvs_.size();
     if ( !sz ) return undefid;
 
-    const int csz = collist.size();
+    const int csz = collist_.size();
     if ( csz < 1 ) return undefid;
     if ( csz == 1 ) return 0;
 
 
-    float startval = cvs[0].value;
-    float stopval = cvs[sz-1].value;
+    float startval = cvs_[0].value;
+    float stopval = cvs_[sz-1].value;
 
     if ( mIsUdf( v ) ) return undefid;
 
@@ -309,25 +336,25 @@ int ColorTable::colorIdx( float v, int undefid ) const
 
 void ColorTable::scaleTo( const Interval<float>& intv )
 {
-    const int sz = cvs.size();
+    const int sz = cvs_.size();
     if ( !sz ) return;
-    if ( sz < 2 ) { cvs[0].value = (intv.start+intv.stop)*.5; return; }
+    if ( sz < 2 ) { cvs_[0].value = (intv.start+intv.stop)*.5; return; }
 
-    const float oldwidth = cvs[sz-1].value - cvs[0].value;
+    const float oldwidth = cvs_[sz-1].value - cvs_[0].value;
     const float newwidth = intv.stop - intv.start;
-    const float oldstart = cvs[0].value;
-    cvs[0].value = intv.start;
-    cvs[sz-1].value = intv.stop;
+    const float oldstart = cvs_[0].value;
+    cvs_[0].value = intv.start;
+    cvs_[sz-1].value = intv.stop;
     if ( !oldwidth )
     {
 	for ( int idx=1; idx<sz-1; idx++ )
-	    cvs[idx].value = intv.start + idx * newwidth / (sz-1);
+	    cvs_[idx].value = intv.start + idx * newwidth / (sz-1);
     }
     else
     {
 	const float fac = newwidth / oldwidth;
 	for ( int idx=1; idx<sz-1; idx++ )
-	    cvs[idx].value = intv.start + (cvs[idx].value - oldstart) * fac;
+	    cvs_[idx].value = intv.start + (cvs_[idx].value - oldstart) * fac;
     }
 }
 
@@ -335,8 +362,8 @@ void ColorTable::scaleTo( const Interval<float>& intv )
 Interval<float> ColorTable::getInterval() const
 {
     Interval<float> ret( mUdf(float), mUdf(float) );
-    if ( cvs.size() > 0 )
-	ret = Interval<float>( cvs[0].value, cvs[cvs.size()-1].value );
+    if ( cvs_.size() > 0 )
+	ret = Interval<float>( cvs_[0].value, cvs_[cvs_.size()-1].value );
 
     return ret;
 }
@@ -344,9 +371,9 @@ Interval<float> ColorTable::getInterval() const
 
 bool ColorTable::hasTransparency() const
 {
-    for ( int idx=cvs.size()-1; idx>=0; idx-- )
+    for ( int idx=cvs_.size()-1; idx>=0; idx-- )
     {
-	if ( cvs[idx].color.t() )
+	if ( cvs_[idx].color.t() )
 	    return true;
     }
 
@@ -374,15 +401,48 @@ static float getfromPar( const IOPar& iopar, Color& col, const char* key,
 }
 
 
+void ColorTable::fillPar( IOPar& iopar ) const
+{
+    iopar.set( sNameKey, name() );
+    FileMultiString fms;
+    fms += markcolor_.r(); fms += markcolor_.g(); fms += markcolor_.b();
+    iopar.set( sKeyMarkColor, fms );
+    fms = "";
+    fms += undefcolor_.r(); fms += undefcolor_.g(); fms += undefcolor_.b();
+    fms += undefcolor_.t();
+    iopar.set( sKeyUdfColor, fms );
+
+    for ( int idx=0; idx<cvs_.size(); idx++ )
+    {
+	fms = "";
+	fms += cvs_[idx].value;
+	fms += cvs_[idx].color.r();
+	fms += cvs_[idx].color.g();
+	fms += cvs_[idx].color.b();
+	fms += cvs_[idx].color.t();
+	BufferString str( ColorVal::sKey );
+	str += "."; str += idx;
+	iopar.set( str, fms );
+    }
+
+    for ( int idx=0; idx<translist_.size(); idx++ )
+    {
+	BufferString key( sKeyTransparency );
+	key += "."; key += idx;
+	iopar.set( key, translist_[idx].x(), translist_[idx].y() );
+    }
+}
+
+
 void ColorTable::usePar( const IOPar& iopar )
 {
     const char* res = iopar.find( sNameKey );
     if ( res ) setName( res );
-    getfromPar( iopar, markcolor, sKeyMarkColor );
-    getfromPar( iopar, undefcolor, sKeyUdfColor );
+    getfromPar( iopar, markcolor_, sKeyMarkColor );
+    getfromPar( iopar, undefcolor_, sKeyUdfColor );
 
-    cvs.erase();
-    translist.erase();
+    cvs_.erase();
+    translist_.erase();
     for ( int idx=0; ; idx++ )
     {
 	BufferString key( ColorVal::sKey );
@@ -395,7 +455,7 @@ void ColorTable::usePar( const IOPar& iopar )
 	    continue;
 	}
 
-	cvs += ColorVal( col, val );
+	cvs_ += ColorVal( col, val );
     }
 
     for ( int idx=0; ; idx++ )
@@ -405,54 +465,95 @@ void ColorTable::usePar( const IOPar& iopar )
 	float val;
 	float alpha;
 	if ( !iopar.get( key, val, alpha ) ) break;
-	translist += Geom::Point2D<float>(val,alpha);
+	translist_ += Geom::Point2D<float>(val,alpha);
     }
 
-    if ( !translist.size() )
+    if ( !translist_.size() )
     {
-	for ( int idx=0; idx<cvs.size(); idx++ )
+	for ( int idx=0; idx<cvs_.size(); idx++ )
 	{
-	    translist +=
-		Geom::Point2D<float>(cvs[idx].value,cvs[idx].color.t());
+	    translist_ +=
+		Geom::Point2D<float>(cvs_[idx].value,cvs_[idx].color.t());
 	}
     }
 
-    if ( uselist )
-	calcList( collist.size() );
+    if ( usetranslist_ )
+	calcList( collist_.size() );
 }
 
 
-void ColorTable::initTabs()
-{
-    StreamData sd = StreamProvider( GetDataFileName("ColTabs") ).makeIStream();
-    if ( !sd.usable() ) return;
-    ascistream astrm( *sd.istrm );
-    IOPar iopar( astrm );
-    add( iopar, 0, &tabpars );
-    if ( tabpars.size() )
-	tabparsinited = true;
-    sd.close();
-}
-
-
-void ColorTable::getNames( NamedBufferStringSet& names, bool usrct_only )
+void ColorTable::getNames( NamedBufferStringSet& names, ColorTable::Src opt )
 {
     names.deepErase();
-    names.setName( "Color table" );
+    names.setName( sKeyCtbl );
 
-    PtrMan<IOPar> iopar = Settings::common().subselect( names.name() );
-    if ( iopar && iopar->size() )
-	add( *iopar, &names, 0 );
+    if ( opt != ColorTable::Sys )
+    {
+	PtrMan<IOPar> iopar = Settings::common().subselect( names.name() );
+	if ( iopar && iopar->size() )
+	    add( *iopar, &names, 0 );
+	if ( opt == ColorTable::UsrDef ) return;
+    }
 
-    if ( usrct_only ) return;
-
-    if ( !tabparsinited ) initTabs();
+    ObjectSet<IOPar>& tabpars = stdTabPars();
     for ( int idx=0; idx<tabpars.size(); idx++ )
     {
 	const char* nm = tabpars[idx]->find( sNameKey );
 	if ( nm && *nm )
 	    names.addIfNew( nm );
     }
+}
+
+
+bool ColorTable::get( const char* nm, ColorTable& ct, ColorTable::Src opt )
+{
+    BufferString ctname = "Seismics";
+    if ( nm && *nm )
+	ctname = nm;
+    else
+    {
+	BufferString key( IOPar::compKey( "dTect", sKeyCtbl ) );
+	mSettUse(get,key.buf(),"Name",ctname);
+    }
+
+    if ( opt != ColorTable::Sys )
+    {
+	PtrMan<IOPar> iopar = Settings::common().subselect( sKeyCtbl );
+	if ( iopar && iopar->size() )
+	{
+	    for ( int idx=0; ; idx++ )
+	    {
+		PtrMan<IOPar> ctiopar = iopar->subselect( idx );
+		if ( !ctiopar || !ctiopar->size() )
+		{
+		    if ( !idx ) continue;
+		    break;
+		}
+		
+		if ( ctname == ctiopar->find( sNameKey ) )
+		{
+		    ct.usePar( *ctiopar );
+		    return true;
+		}
+	    }
+	}
+    }
+
+    if ( opt == ColorTable::UsrDef )
+	return false;
+
+    ObjectSet<IOPar>& tabpars = stdTabPars();
+    for ( int idx=0; idx<tabpars.size(); idx++ )
+    {
+	const IOPar& iop = *tabpars[idx];
+	if ( ctname == iop.find(sNameKey) )
+	{
+	    ct.usePar( iop );
+    	    return true;
+	}
+    }
+
+    return false;
 }
 
 
@@ -474,95 +575,8 @@ void ColorTable::add( const IOPar& iopar, BufferStringSet* names,
 	{
 	    if ( names )
 		{ names->add( res ); delete ctiopar; }
-	    else
+	    if ( pars )
 		*pars += ctiopar;
 	}
-    }
-}
-
-
-bool ColorTable::get( const char* nm, ColorTable& ct )
-{
-    BufferString ctname = "Seismics";
-    if ( !nm || !*nm )
-	mSettUse(get,"dTect.Color table","Name",ctname);
-    else
-	ctname = nm;
-
-    PtrMan<IOPar> iopar = Settings::common().subselect( "Color table" );
-    if ( iopar && iopar->size() )
-    {
-	for ( int idx=0; ; idx++ )
-	{
-	    PtrMan<IOPar> ctiopar = iopar->subselect( idx );
-	    if ( !ctiopar || !ctiopar->size() )
-	    {
-		if ( !idx ) continue;
-		break;
-	    }
-	    
-	    const char* res = (*ctiopar)[sNameKey];
-	    if ( !strcmp(res,ctname) )
-	    {
-		ct.usePar( *ctiopar );
-		return true;
-	    }
-	}
-    }
-
-    if ( !tabparsinited ) initTabs();
-    for ( int idx=0; idx<tabpars.size(); idx++ )
-    {
-	const IOPar& iop = *tabpars[idx];
-	if ( !strcmp(ctname,iop[sNameKey]) )
-	{
-	    ct.usePar( iop );
-    	    return true;
-	}
-    }
-
-    //NEXT version remove
-    if ( !strcmp(ctname,"Blue-Green-Magenta") )
-    { get( "Rainbow", ct ); return true; }
-    else if ( !strcmp(ctname,"White-Yellow-Red") )
-    { get( "SunRise", ct ); return true; }
-    else if ( !strcmp(ctname,"Blue-Cyan-WYR") )
-    { get( "Pastel", ct ); return true; }
-    else if ( !strcmp(ctname,"Blue-White-Blue") )
-    { get( "Blue Spirit", ct ); return true; }
-
-    return false;
-}
-
-
-void ColorTable::fillPar( IOPar& iopar ) const
-{
-    iopar.set( sNameKey, name() );
-    FileMultiString fms;
-    fms += markcolor.r(); fms += markcolor.g(); fms += markcolor.b();
-    iopar.set( sKeyMarkColor, fms );
-    fms = "";
-    fms += undefcolor.r(); fms += undefcolor.g(); fms += undefcolor.b();
-    fms += undefcolor.t();
-    iopar.set( sKeyUdfColor, fms );
-
-    for ( int idx=0; idx<cvs.size(); idx++ )
-    {
-	fms = "";
-	fms += cvs[idx].value;
-	fms += cvs[idx].color.r();
-	fms += cvs[idx].color.g();
-	fms += cvs[idx].color.b();
-	fms += cvs[idx].color.t();
-	BufferString str( ColorVal::sKey );
-	str += "."; str += idx;
-	iopar.set( str, fms );
-    }
-
-    for ( int idx=0; idx<translist.size(); idx++ )
-    {
-	BufferString key( sKeyTransparency );
-	key += "."; key += idx;
-	iopar.set( key, translist[idx].x(), translist[idx].y() );
     }
 }

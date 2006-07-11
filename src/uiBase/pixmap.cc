@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/12/1999
- RCS:           $Id: pixmap.cc,v 1.15 2006-07-11 08:22:41 cvsbert Exp $
+ RCS:           $Id: pixmap.cc,v 1.16 2006-07-11 17:08:50 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -102,8 +102,7 @@ ioPixmap::ioPixmap( const char* tablename, int width, int height )
     }
 
     ArrayRGB rgb( height, width );
-    ColorTable ctab;
-    ColorTable::get( tablename, ctab );
+    ColorTable ctab( tablename );
     ctab.calcList(width);
     
     Color color;

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Mar 2002
- RCS:           $Id: viscolortab.cc,v 1.26 2006-03-12 13:39:11 cvsbert Exp $
+ RCS:           $Id: viscolortab.cc,v 1.27 2006-07-11 17:08:50 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -119,7 +119,7 @@ int VisColorTab::colIndex( float val ) const
 Color VisColorTab::tableColor( int idx ) const
 {
     return idx==nrSteps()
-    	? colseq->colors().undefcolor : colseq->colors().tableColor(idx);
+    	? colseq->colors().undefcolor_ : colseq->colors().tableColor(idx);
 }
 
 
