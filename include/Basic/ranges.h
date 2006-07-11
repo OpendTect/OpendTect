@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		23-10-1996
  Contents:	Ranges
- RCS:		$Id: ranges.h,v 1.39 2006-05-08 21:55:13 cvskris Exp $
+ RCS:		$Id: ranges.h,v 1.40 2006-07-11 15:44:53 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,8 +32,9 @@ public:
     inline			Interval( const T& t1, const T& t2 );
     inline virtual Interval<T>* clone() const;
 
-    inline int		operator==( const Interval<T>& i ) const;
-    inline int		operator!=( const Interval<T>& i ) const;
+    inline bool		isEqual(const Interval<T>& i,const T& eps) const;
+    inline bool		operator==( const Interval<T>& i ) const;
+    inline bool		operator!=( const Interval<T>& i ) const;
     inline Interval<T>	operator+( const Interval<T>& i ) const;
 
     inline T		width( bool allowrev=true ) const;
@@ -88,33 +89,34 @@ template <class T>
 class StepInterval : public Interval<T>
 {
 public:
-    inline			StepInterval();
-    inline			StepInterval( const T& start, const T& stop,
-	    				      const T& step );
-    inline virtual cloneTp*	clone() const;
+    inline		StepInterval();
+    inline		StepInterval( const T& start, const T& stop,
+	    			      const T& step );
+    inline
+    virtual cloneTp*	clone() const;
 
-    inline T			atIndex( int idx ) const;
+    inline bool		isEqual(const StepInterval<T>& i,const T& eps) const;
+    inline T		atIndex( int idx ) const;
     template <class X>
-    inline int			getIndex( const X& t ) const;
+    inline int		getIndex( const X& t ) const;
     template <class X>
-    inline float		getfIndex( const X& t ) const;
+    inline float	getfIndex( const X& t ) const;
     template <class X>
-    inline int			nearestIndex( const X& x ) const;
+    inline int		nearestIndex( const X& x ) const;
     template <class X>
-    inline T			snap( const X& t ) const;
+    inline T		snap( const X& t ) const;
 
-    inline int			nrSteps() const;
-    virtual inline void		sort( bool asc=true );
-    inline void			scale(const T&);
+    inline int		nrSteps() const;
+    virtual inline void	sort( bool asc=true );
+    inline void		scale(const T&);
 
-    inline bool			isCompatible( const StepInterval<T>& b,
-	    					T eps=mDefEps) const;
-				/*!< epsilon refers to the steps,
-				  	i.e eps=0.1 allows b to be 0.1 steps
-					apart.
-				*/
+    inline bool		isCompatible( const StepInterval<T>& b,
+	    			      T eps=mDefEps) const;
+			/*!< epsilon refers to the steps,
+			  	i.e eps=0.1 allows b to be 0.1 steps apart.
+			*/
 
-     T				step;
+     T			step;
 
 };
 
@@ -366,12 +368,17 @@ Interval<T>* Interval<T>::clone() const
 
 
 template <class T> inline
-int Interval<T>::operator==( const Interval<T>& i ) const
+bool Interval<T>::isEqual( const Interval<T>& i, const T& eps ) const
+{ return mIsEqual(start,i.start,eps) && mIsEqual(stop,i.stop,eps); }
+
+
+template <class T> inline
+bool Interval<T>::operator==( const Interval<T>& i ) const
 { return start == i.start && stop == i.stop; }
 
 
 template <class T> inline
-int Interval<T>::operator!=( const Interval<T>& i ) const
+bool Interval<T>::operator!=( const Interval<T>& i ) const
 { return ! (i == *this); }
 
 
@@ -489,6 +496,11 @@ StepInterval<T>::StepInterval( const T& t1, const T& t2, const T& t3 )
 template <class T> inline
 cloneTp* StepInterval<T>::clone() const	
 { return new StepInterval<T>( *this ); }
+
+
+template <class T> inline
+bool StepInterval<T>::isEqual( const StepInterval<T>& i, const T& eps ) const
+{ return Interval<T>::isEqual(i,eps) && mIsEqual(step,i.step,eps); }
 
 
 template <class T> inline
