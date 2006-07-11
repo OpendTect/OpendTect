@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: uiattrsel.cc,v 1.15 2006-06-30 07:20:08 cvsnanne Exp $
+ RCS:           $Id: uiattrsel.cc,v 1.16 2006-07-11 08:04:27 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -155,7 +155,6 @@ void uiAttrSelDlg::createSelectionButtons()
     storfld_->setSensitive( attrdata_.shwcubes );
 
     attrfld_ = new uiRadioButton( selgrp_, "Attributes" );
-    attrfld_->attach( alignedBelow, storfld_ );
     attrfld_->setSensitive( haveattribs );
     attrfld_->activated.notify( mCB(this,uiAttrSelDlg,selDone) );
 
@@ -163,7 +162,6 @@ void uiAttrSelDlg::createSelectionButtons()
     {
 	nlafld_ = new uiRadioButton( selgrp_,
 				     attrdata_.nlamodel->nlaType(false) );
-	nlafld_->attach( alignedBelow, attrfld_ );
 	nlafld_->setSensitive( havenlaouts );
 	nlafld_->activated.notify( mCB(this,uiAttrSelDlg,selDone) );
     }
@@ -171,8 +169,6 @@ void uiAttrSelDlg::createSelectionButtons()
     if ( attrdata_.depthdomainkey != "" )
     {
 	depthdomainfld_ = new uiRadioButton( selgrp_, attrdata_.depthdomainkey);
-	depthdomainfld_->attach( alignedBelow,
-				 havenlaouts ? nlafld_ : attrfld_ );
 	depthdomainfld_->activated.notify( mCB(this,uiAttrSelDlg,selDone) );
     }
 }
