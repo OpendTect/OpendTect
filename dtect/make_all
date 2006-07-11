@@ -97,3 +97,4 @@ if ( $dodoc == yes ) then
     GenModDeps --html /d3/dgb/Pmake/ModDeps.od index.html
 endif
 
+touch /d3/dgb/dtect/build/status/${PLFSUBDIR}_done
