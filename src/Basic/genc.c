@@ -5,7 +5,7 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID = "$Id: genc.c,v 1.80 2006-03-12 13:39:10 cvsbert Exp $";
+static const char* rcsID = "$Id: genc.c,v 1.81 2006-07-11 08:37:10 cvsbert Exp $";
 
 #include "oddirs.h"
 #include "genc.h"
@@ -25,12 +25,8 @@ static const char* rcsID = "$Id: genc.c,v 1.80 2006-03-12 13:39:10 cvsbert Exp $
 # include <unistd.h>
 # define sDirSep	"/"
 #else
-//# include <process.h>
 # include <float.h>
-//# include "windows.h"
 # define sDirSep	"\\"
-# include "string2.h"
-
 #endif
 
 #ifdef __mac__
@@ -253,18 +249,6 @@ const char* GetProcFileName( const char* fname )
     strcpy( filenamebuf, mkFullPath( GetDataDir(), "Proc" ) );
     if ( fname && *fname )
 	strcpy( filenamebuf, mkFullPath( filenamebuf, fname ) );
-    return filenamebuf;
-}
-
-
-const char* GetIconFileName( const char* fname )
-{
-    static FileNameString filenamebuf;
-    strcpy( filenamebuf, mkFullPath( GetSoftwareDir(), "data" ) );
-    strcpy( filenamebuf, mkFullPath( filenamebuf, "icons" ) );
-    if ( fname && *fname )
-	strcpy( filenamebuf, mkFullPath( filenamebuf, fname ) );
-
     return filenamebuf;
 }
 
