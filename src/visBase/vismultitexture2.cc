@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vismultitexture2.cc,v 1.13 2006-05-31 12:33:33 cvskris Exp $";
+static const char* rcsID = "$Id: vismultitexture2.cc,v 1.14 2006-07-11 18:38:16 cvskris Exp $";
 
 
 #include "vismultitexture2.h"
@@ -473,6 +473,8 @@ void MultiTexture2::removeTextureInternal( int texturenr )
 {
     if ( texture_->image.getNum()>texturenr )
 	texture_->image.deleteValues( texturenr, 1 );
+
+    updateColorTables();
 }
 
 
