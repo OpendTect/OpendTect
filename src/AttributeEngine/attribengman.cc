@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H.Payraudeau
  Date:          04/2005
- RCS:           $Id: attribengman.cc,v 1.58 2006-07-05 15:27:49 cvshelene Exp $
+ RCS:           $Id: attribengman.cc,v 1.59 2006-07-11 15:27:24 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -287,7 +287,15 @@ const DataCubes* EngineMan::getDataCubesOutput( const Processor& proc )
 
     DataCubes* output = new DataCubes;
     output->ref();
-    output->setSizeAndPos(cs_);
+    if ( cache && cache->cubeSampling().zrg.step != cs_.zrg.step )
+    {
+	CubeSampling cswithcachestep = cs_;
+	cswithcachestep.zrg.step = cache->cubeSampling().zrg.step;
+	output->setSizeAndPos(cswithcachestep);
+    }
+    else
+	output->setSizeAndPos(cs_);
+
     for ( int idx=0; idx<cubeset[0]->nrCubes(); idx++ )
 	output->addCube(mUdf(float));
 
@@ -539,8 +547,7 @@ Processor* EngineMan::createDataCubesOutput( BufferString& errmsg,
 	cache = prev;
 	cache->ref();
 	const CubeSampling cachecs = cache->cubeSampling();
-	if ( !mRg(z).isCompatible( cs_.zrg, mStepEps )
-	  || mRg(h).step != cs_.hrg.step
+	if ( mRg(h).step != cs_.hrg.step
 	  || (mRg(h).start.inl - cs_.hrg.start.inl) % cs_.hrg.step.inl
 	  || (mRg(h).start.crl - cs_.hrg.start.crl) % cs_.hrg.step.crl 
 	  || mRg(h).start.inl > cs_.hrg.stop.inl
