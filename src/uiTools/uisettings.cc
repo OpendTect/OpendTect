@@ -4,16 +4,19 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          November 2001
- RCS:           $Id: uisettings.cc,v 1.16 2006-03-01 13:45:47 cvsbert Exp $
+ RCS:           $Id: uisettings.cc,v 1.17 2006-07-11 07:16:49 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uisettings.h"
+
+#include "ptrman.h"
 #include "settings.h"
+
+#include "uibutton.h"
 #include "uigeninput.h"
 #include "uimsg.h"
-#include "uibutton.h"
 #include "uiselsimple.h"
 
 
@@ -30,6 +33,7 @@ uiSettings::uiSettings( uiParent* p, const char* nm, const char* settskey )
     valfld->attach( alignedBelow, keyfld );
 }
 
+
 uiSettings::~uiSettings()
 {
 }
@@ -37,9 +41,10 @@ uiSettings::~uiSettings()
 
 void uiSettings::selPush( CallBacker* )
 {
+    PtrMan<IOPar> dtectsetts = setts.subselect( "dTect" );
     BufferStringSet keys;
-    for ( int idx=0; idx<setts.size(); idx++ )
-	keys.add( setts.getKey(idx) );
+    for ( int idx=0; idx<dtectsetts->size(); idx++ )
+	keys.add( dtectsetts->getKey(idx) );
     keys.sort();
     uiSelectFromList dlg( this, keys, keyfld->text(),
 	    		  "Select an existing setting" );
@@ -49,7 +54,7 @@ void uiSettings::selPush( CallBacker* )
 
     const char* key = keys.get( selidx ).buf();
     keyfld->setText( key );
-    valfld->setText( setts.find(key) );
+    valfld->setText( dtectsetts->find(key) );
 }
 
 
@@ -62,8 +67,7 @@ bool uiSettings::acceptOK( CallBacker* )
 	return false;
     }
 
-    setts.set( ky, valfld->text() );
-
+    setts.set( IOPar::compKey("dTect",ky), valfld->text() );
     if ( !setts.write() )
     {
 	uiMSG().error( "Cannot write settings" );
@@ -74,6 +78,7 @@ bool uiSettings::acceptOK( CallBacker* )
 }
 
 
+#define mIconsKey	"dTect.Icons"
 #define mCBarKey        "dTect.ColorBar"
 #define mHVKey          "show vertical"
 #define mTopKey         "show on top"
@@ -91,13 +96,14 @@ struct LooknFeelSettings
 };
 
 
+
 uiLooknFeelSettings::uiLooknFeelSettings( uiParent* p, const char* nm )
 	: uiDialog(p,uiDialog::Setup(nm,"Look and Feel Settings","0.2.3"))
 	, setts(Settings::common())
     	, lfsetts(*new LooknFeelSettings)
 	, changed(false)
 {
-    IOPar* iopar = setts.subselect( "Icons" );
+    IOPar* iopar = setts.subselect( mIconsKey );
     if ( iopar )
 	iopar->get( "size", lfsetts.iconsz );
     delete iopar; iopar = setts.subselect( mCBarKey );
@@ -139,10 +145,10 @@ bool uiLooknFeelSettings::acceptOK( CallBacker* )
 
     if ( newsetts.iconsz != lfsetts.iconsz )
     {
-	IOPar* iopar = setts.subselect( "Icons" );
+	IOPar* iopar = setts.subselect( mIconsKey );
 	if ( !iopar ) iopar = new IOPar;
 	iopar->set( "size", newsetts.iconsz );
-	setts.mergeComp( *iopar, "Icons" );
+	setts.mergeComp( *iopar, mIconsKey );
 	changed = true;
 	delete iopar;
     }
