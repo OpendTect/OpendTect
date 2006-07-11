@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.84 2006-06-29 14:10:42 cvsnanne Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.85 2006-07-11 14:49:27 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -528,9 +528,9 @@ void uiEMPartServer::getSurfaceDef( const TypeSet<EM::ObjectID>& selhorids,
 
     const BinID step( SI().inlStep(), SI().crlStep() );
     BinID bid;
-    for ( bid.inl=br->start.inl; bid.inl<br->stop.inl; bid.inl+=step.inl )
+    for ( bid.inl=br->start.inl; bid.inl<=br->stop.inl; bid.inl+=step.inl )
     {
-	for ( bid.crl=br->start.crl; bid.crl<br->stop.crl; bid.crl+=step.crl )
+	for ( bid.crl=br->start.crl; bid.crl<=br->stop.crl; bid.crl+=step.crl )
 	{
 	    const EM::SubID subid = bid.getSerialized();
 	    TypeSet<Coord3> z1pos, z2pos;
