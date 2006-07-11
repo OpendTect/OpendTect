@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          25/05/2000
- RCS:           $Id: uiioobjmanip.cc,v 1.25 2006-06-22 15:54:32 cvsbert Exp $
+ RCS:           $Id: uiioobjmanip.cc,v 1.26 2006-07-11 08:22:41 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -52,19 +52,26 @@ uiToolButton* uiManipButGrp::addButton( Type tp, const CallBack& cb,
     switch ( tp )
     {
 	case FileLocation:
-	    pm = new ioPixmap( GetIconFileName("filelocation.png") ); break;
+	    pm = new ioPixmap( "filelocation.png" ); break;
 	case Rename:
-	    pm = new ioPixmap( GetIconFileName("renameobj.png") ); break;
+	    pm = new ioPixmap( "renameobj.png" ); break;
 	case Remove:
-	    pm = new ioPixmap( GetIconFileName("trashcan.png") ); break;
+	    pm = new ioPixmap( "trashcan.png" ); break;
 	case ReadOnly:
-	    pm = new ioPixmap( GetIconFileName("readonly.png") ); break;
+	    pm = new ioPixmap( "readonly.png" ); break;
 	default:
 	    pErrMsg("Unknown toolbut typ");
-	    pm = new ioPixmap( GetIconFileName("home.png") ); break;
+	    pm = new ioPixmap( "home.png" ); break;
     }
 
     return addButton( *pm, cb, tooltip );
+}
+
+
+uiToolButton* uiManipButGrp::addButton( const char* pmnm, const CallBack& cb,
+					const char* tooltip )
+{
+    return addButton( ioPixmap(pmnm), cb, tooltip );
 }
 
 

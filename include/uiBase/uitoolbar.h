@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          30/05/2001
- RCS:           $Id: uitoolbar.h,v 1.21 2006-07-03 16:40:14 cvsbert Exp $
+ RCS:           $Id: uitoolbar.h,v 1.22 2006-07-11 08:22:41 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -47,12 +47,14 @@ public:
 				  ToolBarDock d=Top,bool newline=false);
 			~uiToolBar();
 
-    int 		addButton( const ioPixmap&, const CallBack& cb, 
-				   const char* nm="ToolBarButton",
-				   bool toggle=false );
+    int 		addButton( const char*, const CallBack&,
+				   const char* tooltip,bool toggle=false);
+    int 		addButton( const ioPixmap&,const CallBack&,
+				   const char* tooltip,bool toggle=false);
 
     void		setLabel(const char*);
 
+    void		setPixmap(int,const char*);
     void		setPixmap(int,const ioPixmap&);
     void		setToolTip(int,const char*);
     void		turnOn( int idx, bool yn );

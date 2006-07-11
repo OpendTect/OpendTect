@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiseisfileman.cc,v 1.58 2006-06-01 10:37:40 cvsbert Exp $
+ RCS:           $Id: uiseisfileman.cc,v 1.59 2006-07-11 08:22:41 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -53,18 +53,15 @@ uiSeisFileMan::uiSeisFileMan( uiParent* p )
 
     uiIOObjManipGroup* manipgrp = selgrp->getManipGroup();
 
-    cpym2dbut = manipgrp->addButton( ioPixmap(GetIconFileName("copyobj.png")),
+    cpym2dbut = manipgrp->addButton( ioPixmap("copyobj.png"),
 	    			     mCB(this,uiSeisFileMan,copyMan2DPush),
 	    			     "Copy cube" );
-    manipgrp->setAlternative( cpym2dbut,
-	    		      ioPixmap(GetIconFileName("man2d.png")),
-			      "Manage lines" );
+    manipgrp->setAlternative( cpym2dbut, ioPixmap("man2d.png"), "Manage lines");
 
-    mrgdmpbut = manipgrp->addButton( ioPixmap(GetIconFileName("mergeseis.png")),
+    mrgdmpbut = manipgrp->addButton( ioPixmap("mergeseis.png"),
 	    			     mCB(this,uiSeisFileMan,mergeDump2DPush),
 	    			     "Merge blocks of inlines into cube" );
-    manipgrp->setAlternative( mrgdmpbut,
-			      ioPixmap(GetIconFileName("dumpgeom.png")),
+    manipgrp->setAlternative( mrgdmpbut, ioPixmap("dumpgeom.png"),
 			      "Dump geometry" );
 
     selgrp->setPrefWidthInChar( cPrefWidth );

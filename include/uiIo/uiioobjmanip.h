@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2003
- RCS:           $Id: uiioobjmanip.h,v 1.10 2006-06-01 10:37:40 cvsbert Exp $
+ RCS:           $Id: uiioobjmanip.h,v 1.11 2006-07-11 08:22:41 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,6 +35,7 @@ public:
     enum Type		{ FileLocation, Rename, Remove, ReadOnly };
 
     uiToolButton*	addButton(Type,const CallBack&,const char* tip);
+    uiToolButton*	addButton(const char*,const CallBack&,const char*);
     uiToolButton*	addButton(const ioPixmap&,const CallBack&,const char*);
     void		setAlternative(uiToolButton*,const ioPixmap&,
 	    				const char*);

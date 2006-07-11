@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          30/05/2001
- RCS:           $Id: uitoolbar.cc,v 1.27 2006-07-03 16:39:47 cvsbert Exp $
+ RCS:           $Id: uitoolbar.cc,v 1.28 2006-07-11 08:22:41 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -53,15 +53,16 @@ public:
 			~uiToolBarBody()	{ deepErase(receivers); }
 
 
-    int 		addButton( const ioPixmap&, const CallBack& cb, 
-				   const char* nm="ToolBarButton",
-				   bool toggle=false );
+    int 		addButton(const ioPixmap&,const CallBack&, 
+				  const char*,bool);
+    int 		addButton(const char*,const CallBack&,const char*,bool);
     void		turnOn(int idx, bool yn );
     bool		isOn(int idx ) const;
     void		setSensitive(int idx, bool yn );
     void		setSensitive(bool yn);
     bool		isSensitive() const;
     void		setToolTip(int,const char*);
+    void		setPixmap(int,const char*);
     void		setPixmap(int,const ioPixmap&);
 
     void		display(bool yn=true);
@@ -98,7 +99,14 @@ private:
 };
 
 
-int uiToolBarBody::addButton(const ioPixmap& pm, const CallBack& cb,
+int uiToolBarBody::addButton( const char* fnm, const CallBack& cb,
+			      const char* nm, bool toggle )
+{
+    return addButton( ioPixmap( fnm ), cb, nm, toggle );
+}
+
+
+int uiToolBarBody::addButton( const ioPixmap& pm, const CallBack& cb,
 			      const char* nm, bool toggle )
 {
     i_QToolButReceiver* br= new i_QToolButReceiver;
@@ -150,6 +158,12 @@ bool uiToolBarBody::isOn( int idx ) const
 void uiToolBarBody::setSensitive( int idx, bool yn )
 {
     buttons[idx]->setEnabled( yn );
+}
+
+
+void uiToolBarBody::setPixmap( int idx, const char* fnm )
+{
+    setPixmap( idx, ioPixmap(fnm) );
 }
 
 
@@ -227,6 +241,13 @@ uiToolBarBody& uiToolBar::mkbody( const char* nm, mQToolBarClss& qtb )
 }
 
 
+int uiToolBar::addButton( const char* fnm, const CallBack& cb,
+			  const char* nm, bool toggle )
+{
+    return body_->addButton( fnm, cb, nm, toggle );
+}
+
+
 int uiToolBar::addButton( const ioPixmap& pm, const CallBack& cb,
 			  const char* nm, bool toggle )
 {
@@ -260,6 +281,12 @@ void uiToolBar::setSensitive( bool yn )
 void uiToolBar::setToolTip( int idx, const char* tip )
 {
     body_->setToolTip( idx, tip );
+}
+
+
+void uiToolBar::setPixmap( int idx, const char* fnm )
+{
+    body_->setPixmap( idx, fnm );
 }
 
 

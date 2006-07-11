@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          17/01/2002
- RCS:           $Id: uitabstack.cc,v 1.12 2006-02-02 09:52:34 cvsnanne Exp $
+ RCS:           $Id: uitabstack.cc,v 1.13 2006-07-11 08:22:41 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,7 +13,6 @@ ________________________________________________________________________
 #include "uitabbar.h"
 
 #include "uiobjbody.h"
-#include "pixmap.h"
 #include "sets.h"
 #include "qframe.h"
 

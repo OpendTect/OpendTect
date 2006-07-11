@@ -4,12 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.cc,v 1.46 2006-07-03 16:42:13 cvsbert Exp $
+ RCS:           $Id: uiodmenumgr.cc,v 1.47 2006-07-11 08:22:41 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.46 2006-07-03 16:42:13 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.47 2006-07-11 08:22:41 cvsbert Exp $";
 
 #include "uiodmenumgr.h"
 #include "uiodapplmgr.h"
@@ -285,26 +285,18 @@ void uiODMenuMgr::fillViewMenu()
 
 void uiODMenuMgr::mkViewIconsMnu()
 {
-    DirList dl( GetDataFileName(0), DirList::DirsOnly );
-    BufferStringSet setnms;
-    for ( int idx=0; idx<dl.size(); idx++ )
-    {
-	BufferString nm( dl.get(idx) );
-	char* ptr = nm.buf();
-	if ( matchString("icons.",ptr) )
-	    setnms.add( ptr + 6 );
-    }
-    if ( setnms.size() < 2 )
+    DirList dl( GetDataFileName(0), DirList::DirsOnly, "icons.*" );
+    if ( dl.size() < 2 )
 	return;
 
     uiPopupMenu* iconsmnu = new uiPopupMenu( &appl, "&Icons" );
     viewmnu->insertItem( iconsmnu );
-    mInsertItem( iconsmnu, "&default", mViewIconsMnuItm+0 );
+    mInsertItem( iconsmnu, "&Default", mViewIconsMnuItm+0 );
     int nradded = 0;
-    for ( int idx=0; idx<setnms.size(); idx++ )
+    for ( int idx=0; idx<dl.size(); idx++ )
     {
-	const BufferString& nm = setnms.get( idx );
-	if ( nm == "" || nm == "default" )
+	const BufferString nm( dl.get( idx ).buf() + 6 );
+	if ( nm == "" || nm == "Default" )
 	    continue;
 
 	nradded++;
@@ -336,8 +328,7 @@ void uiODMenuMgr::fillUtilMenu()
 
 
 #define mAddTB(tb,fnm,txt,togg,fn) \
-    tb->addButton( ioPixmap( GetIconFileName(fnm) ), \
-	    	   mCB(&applMgr(),uiODApplMgr,fn), txt, togg )
+    tb->addButton( fnm, mCB(&applMgr(),uiODApplMgr,fn), txt, togg )
 
 void uiODMenuMgr::fillDtectTB()
 {
@@ -348,8 +339,7 @@ void uiODMenuMgr::fillDtectTB()
 
 #undef mAddTB
 #define mAddTB(tb,fnm,txt,togg,fn) \
-    tb->addButton( ioPixmap( GetIconFileName(fnm) ), \
-	    	   mCB(this,uiODMenuMgr,fn), txt, togg )
+    tb->addButton( fnm , mCB(this,uiODMenuMgr,fn), txt, togg )
 
 
 void uiODMenuMgr::fillManTB()
@@ -365,8 +355,7 @@ void uiODMenuMgr::fillManTB()
 
 #undef mAddTB
 #define mAddTB(tb,fnm,txt,togg,fn) \
-    tb->addButton( ioPixmap( GetIconFileName(fnm) ), \
-	    	   mCB(&sceneMgr(),uiODSceneMgr,fn), txt, togg )
+    tb->addButton( fnm, mCB(&sceneMgr(),uiODSceneMgr,fn), txt, togg )
 
 void uiODMenuMgr::fillCoinTB()
 {
@@ -393,8 +382,8 @@ void uiODMenuMgr::setCameraPixmap( bool perspective )
 {
     cointb->setToolTip( cameraid, perspective ? "Switch to orthographic camera"
 					      : "Switch to perspective camera");
-    BufferString fnm( perspective ? "perspective.png" : "orthographic.png" );
-    cointb->setPixmap( cameraid, ioPixmap(GetIconFileName(fnm)) );
+    const char* fnm = perspective ? "perspective.png" : "orthographic.png";
+    cointb->setPixmap( cameraid, ioPixmap(fnm) );
 }
 
 
@@ -490,7 +479,7 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
 		uiMSG().error( "Icon directory seems to be invalid" );
 		break;
 	    }
-	    const BufferString targetdir( GetIconFileName(0) );
+	    const BufferString targetdir( GetDataFileName("icons.cur") );
 	    File_remove( targetdir, YES );
 	    File_copy( sourcedir, targetdir, YES );
 	    for ( int idx=0; idx<uiToolBar::toolBars().size(); idx++ )

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          25/08/1999
- RCS:           $Id: uiobj.cc,v 1.59 2005-11-10 14:31:05 cvsarend Exp $
+ RCS:           $Id: uiobj.cc,v 1.60 2006-07-11 08:22:41 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "i_layoutitem.h"
 #include "errh.h"
 #include "timer.h"
-#include "pixmap.h"
 #include "color.h"
 
 #include <qsettings.h> 

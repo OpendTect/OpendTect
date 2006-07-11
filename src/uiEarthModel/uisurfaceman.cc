@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2003
- RCS:           $Id: uisurfaceman.cc,v 1.31 2006-06-01 10:37:40 cvsbert Exp $
+ RCS:           $Id: uisurfaceman.cc,v 1.32 2006-07-11 08:22:41 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,8 +46,7 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, bool hor )
     createDefaultUI();
     uiIOObjManipGroup* manipgrp = selgrp->getManipGroup();
 
-    manipgrp->addButton( ioPixmap(GetIconFileName("copyobj.png")),
-	    		 mCB(this,uiSurfaceMan,copyCB), 
+    manipgrp->addButton( ioPixmap("copyobj.png"), mCB(this,uiSurfaceMan,copyCB),
 			 hor ? "Copy horizon" : "Copy fault" );
 
     attribfld = new uiListBox( this, "Calculated attributes", true );

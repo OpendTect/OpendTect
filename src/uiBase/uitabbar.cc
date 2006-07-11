@@ -4,14 +4,13 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          17/01/2002
- RCS:           $Id: uitabbar.cc,v 1.12 2006-03-10 13:34:02 cvsbert Exp $
+ RCS:           $Id: uitabbar.cc,v 1.13 2006-07-11 08:22:41 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uitabbar.h"
 #include "uiobjbody.h"
-#include "pixmap.h"
 #include "sets.h"
 
 #include "i_qtabbar.h"

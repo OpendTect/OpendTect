@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Aug 2005
- RCS:		$Id: oddirs.h,v 1.4 2006-02-17 17:27:14 cvsbert Exp $
+ RCS:		$Id: oddirs.h,v 1.5 2006-07-11 08:22:41 cvsbert Exp $
 ________________________________________________________________________
 
 For historic reasons, also dGB_ instead of DTECT_ or OD_ will be scanned.
@@ -163,10 +163,6 @@ const char*	GetDataFileName(const char*);
 
 const char*	GetProcFileName(const char*);
 		/*!< Job processing spec file in $DTECT_DATA/Proc.
-		  	Pass null for directory name. */
-
-const char*	GetIconFileName(const char*);
-		/*!< Icon file in $DTECT_APPL/data/icons.
 		  	Pass null for directory name. */
 
 const char*	SearchODFile(const char*);

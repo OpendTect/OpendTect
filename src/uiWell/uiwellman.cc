@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          September 2003
- RCS:           $Id: uiwellman.cc,v 1.30 2006-06-01 10:37:40 cvsbert Exp $
+ RCS:           $Id: uiwellman.cc,v 1.31 2006-07-11 08:22:41 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,12 +30,10 @@ ________________________________________________________________________
 #include "uibutton.h"
 #include "uigeninputdlg.h"
 #include "bufstringset.h"
-#include "pixmap.h"
 #include "filegen.h"
 #include "filepath.h"
 #include "strmprov.h"
 #include "ptrman.h"
-#include "oddirs.h"
 #include "uimsg.h"
 #include "survinfo.h"
 
@@ -65,8 +63,8 @@ uiWellMan::uiWellMan( uiParent* p )
 	    	       "Rename selected log" );
     butgrp->addButton( uiManipButGrp::Remove, mCB(this,uiWellMan,removeLogPush),
 	    	       "Remove selected log" );
-    butgrp->addButton( ioPixmap(GetIconFileName("export.png")),
-	    	       mCB(this,uiWellMan,exportLogs), "Export log" );
+    butgrp->addButton( "export.png", mCB(this,uiWellMan,exportLogs),
+	    	       "Export log" );
     butgrp->attach( rightOf, logsfld );
     
     uiPushButton* markerbut = new uiPushButton( this, "&Markers", false);

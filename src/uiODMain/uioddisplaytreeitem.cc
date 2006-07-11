@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uioddisplaytreeitem.cc,v 1.5 2006-06-20 14:41:08 cvsnanne Exp $
+ RCS:		$Id: uioddisplaytreeitem.cc,v 1.6 2006-07-11 08:22:41 cvsbert Exp $
 ___________________________________________________________________
 
 -*/
@@ -16,7 +16,6 @@ ___________________________________________________________________
 #include "uiodapplmgr.h"
 #include "uivispartserv.h"
 
-#include "oddirs.h"
 #include "pixmap.h"
 #include "uilistview.h"
 #include "uimenuhandler.h"
@@ -241,7 +240,7 @@ void uiODDisplayTreeItem::handleMenuCB( CallBacker* cb )
 	so->lock( !so->isLocked() );
 	PtrMan<ioPixmap> pixmap = 0;
 	if ( so->isLocked() )
-	    pixmap = new ioPixmap( GetIconFileName("lock_small.png") );
+	    pixmap = new ioPixmap( "lock_small.png" );
 	else
 	    pixmap = new ioPixmap();
 	uilistviewitem_->setPixmap( 0, *pixmap );

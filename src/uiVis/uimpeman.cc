@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.cc,v 1.95 2006-06-26 08:01:20 cvsjaap Exp $
+ RCS:           $Id: uimpeman.cc,v 1.96 2006-07-11 08:22:41 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,8 +23,6 @@ ________________________________________________________________________
 #include "ioman.h"
 #include "keystrs.h"
 #include "mpeengine.h"
-#include "oddirs.h"
-#include "pixmap.h"
 #include "sectiontracker.h"
 
 #include "uicombobox.h"
@@ -51,8 +49,7 @@ ________________________________________________________________________
 using namespace MPE;
 
 #define mAddButton(pm,func,tip,toggle) \
-    toolbar->addButton( ioPixmap( GetIconFileName(pm) ), \
-	    	    mCB(this,uiMPEMan,func), tip, toggle )
+    toolbar->addButton( pm, mCB(this,uiMPEMan,func), tip, toggle )
 
 #define mGetDisplays(create) \
     ObjectSet<visSurvey::MPEDisplay> displays; \
@@ -577,45 +574,6 @@ void uiMPEMan::transpChg( CallBacker* )
 void uiMPEMan::mouseEraseModeCB( CallBacker* )
 {
     mGetDisplays(false)
-    /*
-    if ( !mped ) return;
-    const bool ison = isOn( mouseeraseridx );
-    if ( ison )
-    {
-	setSensitive( extendidx, false );
-	setSensitive( retrackidx, false );
-	setSensitive( eraseidx, false );
-
-	trackerwasonbeforemouseerase = mped->isOn();
-
-	showTracker( false, (int)mped->getTrackMode() );
-
-	ioBitmap bitmap(GetIconFileName("eraserbitmap.png"));
-	ioBitmap bitmapmask(GetIconFileName("eraserbitmapmask.png"));
-	uiCursor::setOverride(&bitmap,&bitmapmask,2,25);
-    }
-    else
-    {
-	setSensitive( extendidx, true );
-	setSensitive( retrackidx, true );
-	setSensitive( eraseidx, true );
-
-	showTracker( trackerwasonbeforemouseerase, (int)mped->getTrackMode() );
-	uiCursor::restoreOverride();
-    }
-
-    TypeSet<int> surfvisids;
-    visBase::DM().getIds( typeid(visSurvey::SurfaceDisplay), surfvisids );
-
-    for ( int idx=0; idx<surfvisids.size(); idx++ )
-    {
-	mDynamicCastGet( visSurvey::SurfaceDisplay*, sd,
-		visBase::DM().getObject(surfvisids[idx]));
-	if ( !sd->getEditor() ) continue;
-
-	sd->getEditor()->setEraseWithMouse(ison);
-    }
-    */
 }
 
 

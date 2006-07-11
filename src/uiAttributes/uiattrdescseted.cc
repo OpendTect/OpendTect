@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrdescseted.cc,v 1.31 2006-06-16 11:53:58 cvshelene Exp $
+ RCS:           $Id: uiattrdescseted.cc,v 1.32 2006-07-11 08:22:41 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,9 +33,8 @@ ________________________________________________________________________
 #include "iostrm.h"
 #include "iopar.h"
 #include "iodir.h"
-#include "ptrman.h"
 #include "oddirs.h"
-#include "pixmap.h"
+#include "ptrman.h"
 #include "keystrs.h"
 
 #include "uigeninput.h"
@@ -110,8 +109,7 @@ void uiAttribDescSetEd::createMenuBar()
 
 
 #define mAddButton(pm,func,tip) \
-    toolbar->addButton( ioPixmap( GetIconFileName(pm) ), \
-	    		mCB(this,uiAttribDescSetEd,func), tip )
+    toolbar->addButton( pm, mCB(this,uiAttribDescSetEd,func), tip )
 
 void uiAttribDescSetEd::createToolBar()
 {

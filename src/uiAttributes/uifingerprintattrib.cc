@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Payraudeau
  Date:          February  2006
- RCS:           $Id: uifingerprintattrib.cc,v 1.18 2006-06-30 11:32:08 cvsnanne Exp $
+ RCS:           $Id: uifingerprintattrib.cc,v 1.19 2006-07-11 08:22:41 cvsbert Exp $
 
 ________________________________________________________________________
 
@@ -116,9 +116,8 @@ uiFingerPrintAttrib::uiFingerPrintAttrib( uiParent* p )
     refposzfld_->setElemSzPol( uiObject::Small );
     refposzfld_->attach( rightOf, refposfld_ );
     
-    CallBack cb = mCB(this,uiFingerPrintAttrib,getPosPush);
-    const ioPixmap pm( GetIconFileName("pick.png") );
-    getposbut_ = new uiToolButton( this, "", pm, cb );
+    getposbut_ = new uiToolButton( this, "", ioPixmap("pick.png"),
+	    			   mCB(this,uiFingerPrintAttrib,getPosPush) );
     getposbut_->attach( rightOf, refposzfld_ );
 
     linesetfld_ = new uiGenInput( this, "LineSet", StringInpSpec() );

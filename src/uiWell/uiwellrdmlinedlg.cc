@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          October 2005
- RCS:           $Id: uiwellrdmlinedlg.cc,v 1.9 2006-03-10 13:34:03 cvsbert Exp $
+ RCS:           $Id: uiwellrdmlinedlg.cc,v 1.10 2006-07-11 08:22:41 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,7 +20,6 @@ ________________________________________________________________________
 #include "uitable.h"
 #include "uimsg.h"
 #include "pixmap.h"
-#include "oddirs.h"
 #include "ptrman.h"
 #include "ioman.h"
 #include "ioobj.h"
@@ -91,8 +90,8 @@ void uiWell2RandomLineDlg::createFields( uiGroup* topgrp )
 
 void uiWell2RandomLineDlg::createSelectButtons( uiGroup* selbuttons )
 {
-    const ioPixmap pm0( GetIconFileName("rightarrow.png") );
-    const ioPixmap pm1( GetIconFileName("leftarrow.png") );
+    const ioPixmap pm0( "rightarrow.png" );
+    const ioPixmap pm1( "leftarrow.png" );
 
     uiLabel* sellbl = new uiLabel( selbuttons, "Select" );
     CallBack cb = mCB(this,uiWell2RandomLineDlg,selButPush);
@@ -108,8 +107,8 @@ void uiWell2RandomLineDlg::createSelectButtons( uiGroup* selbuttons )
 
 void uiWell2RandomLineDlg::createMoveButtons( uiGroup* movebuttons )
 {
-    const ioPixmap pm0( GetIconFileName("uparrow.png") );
-    const ioPixmap pm1( GetIconFileName("downarrow.png") );
+    const ioPixmap pm0( "uparrow.png" );
+    const ioPixmap pm1( "downarrow.png" );
 
     uiLabel* movelbl = new uiLabel( movebuttons, "Change \n order" );
     CallBack cb = mCB(this,uiWell2RandomLineDlg,moveButPush);

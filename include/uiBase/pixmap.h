@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/12/1999
- RCS:           $Id: pixmap.h,v 1.11 2006-07-03 16:39:11 cvsbert Exp $
+ RCS:           $Id: pixmap.h,v 1.12 2006-07-11 08:22:41 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,7 +21,18 @@ class ArrayRGB;
 class Color;
 
 
-/*!\brief Off-screen pixel-based paint device */
+/*!\brief Off-screen pixel-based paint device
+
+  The most important constructor is the one accepting a file name.
+  If the filename starts with '>', it is assumed to be a filename only, no
+  directory. The icon will be loaded from the $WORK/data/icons.cur directory,
+  or if not found there, from $WORK/data/icons.Default.
+  If the file does not exist, or is of an unknown format, the pixmap becomes a
+  null pixmap. If format is specified, attempts to read the pixmap using the
+  specified format. If format is not specified (default), the loader reads
+  a few bytes from the header to guess the file format. 
+
+*/
 
 class ioPixmap : public UserIDObject,
 		 public ioDrawAreaImpl
@@ -32,18 +43,8 @@ public:
 			ioPixmap(const char* xpm[]);
 			ioPixmap(int w,int h);
 			ioPixmap(const QPixmap&);
-
-			/*! \brief Constructs a pixmap from a file.
-			If the file does not exist, or is of an unknown format,
-			the pixmap becomes a null pixmap. 
-
-			If format is specified, attempts to read the pixmap 
-			using the specified format. If format is not specified
-			(default), the loader reads a few bytes from the header
-			to guess the file format. 
-			*/
-			ioPixmap(const char* filename,const char* fmt=0);
 			ioPixmap(const ioPixmap&);
+			ioPixmap(const char* filename,const char* fmt=0);
 			ioPixmap(const char* colortablename,int w,int h);
     virtual		~ioPixmap();
 
