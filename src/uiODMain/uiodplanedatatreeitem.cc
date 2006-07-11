@@ -4,29 +4,28 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodplanedatatreeitem.cc,v 1.4 2006-06-08 13:38:25 cvsnanne Exp $
+ RCS:		$Id: uiodplanedatatreeitem.cc,v 1.5 2006-07-11 07:35:21 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
 
 #include "uiodplanedatatreeitem.h"
 
-#include "uimenu.h"
-#include "uiodapplmgr.h"
-#include "uivispartserv.h"
-
-#include "survinfo.h"
-#include "zaxistransform.h"
-
+#include "uigridlinesdlg.h"
 #include "uilistview.h"
+#include "uimenu.h"
 #include "uimenuhandler.h"
+#include "uiodapplmgr.h"
 #include "uiodscenemgr.h"
 #include "uiseispartserv.h"
 #include "uislicesel.h"
-#include "uigridlinesdlg.h"
-
-#include "vissurvscene.h"
+#include "uivispartserv.h"
 #include "visplanedatadisplay.h"
+#include "vissurvscene.h"
+
+#include "settings.h"
+#include "survinfo.h"
+#include "zaxistransform.h"
 
 
 static const int sPositionIdx = 990;
@@ -43,9 +42,9 @@ static const int sGridLinesIdx = 980;
     return true
 
 
-uiODPlaneDataTreeItem::uiODPlaneDataTreeItem( int did, int dim_ )
-    : dim(dim_)
-    , positiondlg(0)
+uiODPlaneDataTreeItem::uiODPlaneDataTreeItem( int did, int dim )
+    : dim_(dim)
+    , positiondlg_(0)
     , positionmnuitem_("Position ...",sPositionIdx)
     , gridlinesmnuitem_("Gridlines ...",sGridLinesIdx)
 {
@@ -55,7 +54,7 @@ uiODPlaneDataTreeItem::uiODPlaneDataTreeItem( int did, int dim_ )
 
 uiODPlaneDataTreeItem::~uiODPlaneDataTreeItem()
 {
-    delete positiondlg;
+    delete positiondlg_;
 }
 
 
@@ -63,10 +62,19 @@ bool uiODPlaneDataTreeItem::init()
 {
     if ( displayid_==-1 )
     {
-	visSurvey::PlaneDataDisplay* pdd=visSurvey::PlaneDataDisplay::create();
+	visSurvey::PlaneDataDisplay* pdd =
+			visSurvey::PlaneDataDisplay::create();
 	displayid_ = pdd->id();
-	pdd->setOrientation( (visSurvey::PlaneDataDisplay::Orientation) dim );
+	pdd->setOrientation( (visSurvey::PlaneDataDisplay::Orientation)dim_ );
 	visserv->addObject( pdd, sceneID(), true );
+
+	BufferString res;
+	Settings::common().get( "dTect.Texture2D Resolution", res );
+	for ( int idx=0; idx<pdd->nrResolutions(); idx++ )
+	{
+	    if ( res == pdd->getResolutionName(idx) )
+		pdd->setResolution( idx );
+	}
     }
     else
     {
@@ -151,7 +159,7 @@ void uiODPlaneDataTreeItem::handleMenuCB( CallBacker* cb )
     {
 	menu->setIsHandled(true);
 	if ( !pdd ) return;
-	delete positiondlg;
+	delete positiondlg_;
 	CubeSampling maxcs = SI().sampling(true);
 	mDynamicCastGet(visSurvey::Scene*,scene,visserv->getObject(sceneID()))
 	if ( scene && scene->getDataTransform() )
@@ -162,13 +170,13 @@ void uiODPlaneDataTreeItem::handleMenuCB( CallBacker* cb )
 	    maxcs.zrg.stop = zintv.stop;
 	}
 
-	positiondlg = new uiSliceSel( getUiParent(),
+	positiondlg_ = new uiSliceSel( getUiParent(),
 				pdd->getCubeSampling(true,true), maxcs,
 				mCB(this,uiODPlaneDataTreeItem,updatePlanePos), 
-				(uiSliceSel::Type)dim );
-	positiondlg->windowClosed.notify( 
+				(uiSliceSel::Type)dim_ );
+	positiondlg_->windowClosed.notify( 
 		mCB(this,uiODPlaneDataTreeItem,posDlgClosed) );
-	positiondlg->go();
+	positiondlg_->go();
 	pdd->getMovementNotification()->notify(
 		mCB(this,uiODPlaneDataTreeItem,updatePositionDlg) );
 	applMgr()->enableMenusAndToolbars( false );
@@ -197,7 +205,7 @@ void uiODPlaneDataTreeItem::updatePositionDlg( CallBacker* )
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,
 	    	    visserv->getObject(displayid_))
     const CubeSampling newcs = pdd->getCubeSampling( true, true );
-    positiondlg->setCubeSampling( newcs );
+    positiondlg_->setCubeSampling( newcs );
 }
 
 
@@ -205,9 +213,9 @@ void uiODPlaneDataTreeItem::posDlgClosed( CallBacker* )
 {
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,
 	    	    visserv->getObject(displayid_))
-    CubeSampling newcs = positiondlg->getCubeSampling();
+    CubeSampling newcs = positiondlg_->getCubeSampling();
     bool samepos = newcs == pdd->getCubeSampling();
-    if ( positiondlg->uiResult() && !samepos )
+    if ( positiondlg_->uiResult() && !samepos )
     {
 	pdd->setCubeSampling( newcs );
 	pdd->resetManipulation();
