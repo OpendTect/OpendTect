@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: cbvsreader.cc,v 1.66 2006-03-12 13:39:10 cvsbert Exp $";
+static const char* rcsID = "$Id: cbvsreader.cc,v 1.67 2006-07-12 13:38:40 cvsnanne Exp $";
 
 /*!
 
@@ -31,6 +31,7 @@ The next 8 bytes are reserved for 2 integers:
 #include "survinfo.h"
 #include "envvars.h"
 #include "errh.h"
+#include "ptrman.h"
 
 
 CBVSReader::CBVSReader( std::istream* s, bool glob_info_only )
@@ -212,13 +213,7 @@ void CBVSReader::getAuxInfoSel( const char* ptr )
 
 bool CBVSReader::readComps()
 {
-#ifdef __msvc__
-    BufferString mscbuf(4*integersize);
-    char* ucbuf = (char*)mscbuf.buf();
-#else
-    char ucbuf[4*integersize];
-#endif
-
+    PtrMan<char> ucbuf = new char [4*integersize];
     strm_.read( ucbuf, integersize );
     nrcomps_ = iinterp.get( ucbuf, 0 );
     if ( nrcomps_ < 1 ) mErrRet("Corrupt CBVS format: No components defined")
