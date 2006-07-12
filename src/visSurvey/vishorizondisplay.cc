@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: vishorizondisplay.cc,v 1.11 2006-06-26 07:53:55 cvsjaap Exp $
+ RCS:           $Id: vishorizondisplay.cc,v 1.12 2006-07-12 17:59:24 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -407,6 +407,9 @@ bool HorizonDisplay::removeAttrib( int attrib )
 	if ( psurf )
 	    psurf->removeTexture( attrib );
     }
+
+    coltabs_[attrib]->unRef();
+    coltabs_.remove( attrib );
 
     delete as_[attrib];
     as_.remove( attrib );
