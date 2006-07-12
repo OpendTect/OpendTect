@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoDepthTabPlaneDragger.cc,v 1.10 2006-06-06 14:27:36 cvskris Exp $";
+static const char* rcsID = "$Id: SoDepthTabPlaneDragger.cc,v 1.11 2006-07-12 21:13:24 cvskris Exp $";
 
 
 #include "SoDepthTabPlaneDragger.h"
@@ -346,39 +346,44 @@ void SoDepthTabPlaneDragger::dragStart(void)
     SbBool found = FALSE;
     SbVec3f startpt = getLocalStartingPoint();
 
-    constraintState_ = CONSTRAINT_OFF;
-    char xside = -2;
-    const float absx = fabs(startpt[0]);
-    if ( absx>1-prevsizex_ )
-	xside = startpt[0]>0 ? 1 : -1;
-    else if ( absx<prevsizex_ )
-	xside = 0;
-
-    char yside = -2;
-    const float absy = fabs(startpt[1]);
-    if ( absy>1-prevsizey_ )
-	yside = startpt[1]>0 ? 1 : -1;
-    else if ( absy<prevsizey_ )
-	yside = 0;
-
-    if ( xside!=-2 && yside!=-2 )
+    bool scale = false;
+    SoNode* greentabs = getAnyPart(SbName("greenTabsSep"), false );
+    if ( greentabs )
     {
-	if ( !xside )
-	    constraintState_ = CONSTRAINT_Y;
-	else if ( !yside )
-	    constraintState_ = CONSTRAINT_X;
+	constraintState_ = CONSTRAINT_OFF;
+	char xside = -2;
+	const float absx = fabs(startpt[0]);
+	if ( absx>1-prevsizex_ )
+	    xside = startpt[0]>0 ? 1 : -1;
+	else if ( absx<prevsizex_ )
+	    xside = 0;
 
-	whatkind_ = WHATKIND_SCALE;
-	scaleCenter_.setValue(-xside,-yside,0);
-	lineProj_->setLine(SbLine(scaleCenter_, startpt));
+	char yside = -2;
+	const float absy = fabs(startpt[1]);
+	if ( absy>1-prevsizey_ )
+	    yside = startpt[1]>0 ? 1 : -1;
+	else if ( absy<prevsizey_ )
+	    yside = 0;
+
+	if ( xside!=-2 && yside!=-2 )
+	{
+	    if ( !xside )
+		constraintState_ = CONSTRAINT_Y;
+	    else if ( !yside )
+		constraintState_ = CONSTRAINT_X;
+	    whatkind_ = WHATKIND_SCALE;
+	    scaleCenter_.setValue(-xside,-yside,0);
+	    lineProj_->setLine(SbLine(scaleCenter_, startpt));
+	    scale = true;
+	}
     }
-    else
+
+    if ( !scale )
     {
 	whatkind_ = WHATKIND_TRANSLATE;
 	lineProj_->setLine(SbLine(startpt, startpt + SbVec3f(0, 0, 1)));
     }
 }
-
 
 
 void SoDepthTabPlaneDragger::drag(void)
