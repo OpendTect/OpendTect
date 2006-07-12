@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		24-01-2003
- RCS:		$Id: uiviscoltabed.h,v 1.7 2006-05-05 20:38:48 cvskris Exp $
+ RCS:		$Id: uiviscoltabed.h,v 1.8 2006-07-12 21:21:39 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -30,6 +30,7 @@ public:
     				uiVisColTabEd(uiParent*,bool vert=true);
 				~uiVisColTabEd();
 
+    int				getColTab() const;
     void			setColTab(int coltabid);
     void			setHistogram(const TypeSet<float>*);
     void			setPrefHeight(int);
@@ -47,13 +48,13 @@ protected:
 
     const CallBack		coltabcb;
 
-    visBase::VisColorTab*	coltab;
-    ColorTableEditor*		coltabed;
+    visBase::VisColorTab*	coltab_;
+    ColorTableEditor*		coltabed_;
 
-    ColorTable			colseq;
-    Interval<float>		coltabinterval;
-    bool			coltabautoscale;
-    float			coltabcliprate;
+    ColorTable			colseq_;
+    Interval<float>		coltabinterval_;
+    bool			coltabautoscale_;
+    float			coltabcliprate_;
 };
 
 
@@ -68,7 +69,7 @@ public:
 
 protected:
     bool			closeOK();
-    uiVisColTabEd*		coltabed;
+    uiVisColTabEd*		coltabed_;
 };
 
 

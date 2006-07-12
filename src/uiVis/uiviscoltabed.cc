@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiviscoltabed.cc,v 1.15 2006-07-12 18:16:51 cvskris Exp $";
+static const char* rcsID = "$Id: uiviscoltabed.cc,v 1.16 2006-07-12 21:21:39 cvskris Exp $";
 
 #include "uiviscoltabed.h"
 
@@ -22,8 +22,8 @@ static const char* rcsID = "$Id: uiviscoltabed.cc,v 1.15 2006-07-12 18:16:51 cvs
 
 uiVisColTabEd::uiVisColTabEd( uiParent* p, bool vert )
     : uiGroup( p, "ColorTable Editor" )
-    , coltabed( 0 )
-    , coltab( 0 )
+    , coltabed_( 0 )
+    , coltab_( 0 )
     , coltabcb( mCB(this,uiVisColTabEd,colTabChangedCB) )
     , sequenceChange( this )
 {
@@ -33,13 +33,13 @@ uiVisColTabEd::uiVisColTabEd( uiParent* p, bool vert )
     ColorTable ct( ctname );
     ct.scaleTo( Interval<float>(0,1) );
 
-    coltabed = new ColorTableEditor( this, ColorTableEditor::Setup()
+    coltabed_ = new ColorTableEditor( this, ColorTableEditor::Setup()
 	    			     .editable(true)
 	    			     .withclip(true)
 	    			     .key(setkey)
 	    			     .vertical(vert),
 	    			     &ct );
-    coltabed->tablechanged.notify(mCB(this, uiVisColTabEd, colTabEdChangedCB));
+    coltabed_->tablechanged.notify(mCB(this, uiVisColTabEd, colTabEdChangedCB));
     visBase::DM().removeallnotify.notify(mCB(this,uiVisColTabEd,delColTabCB));
     setColTab( -1 );
 }
@@ -47,107 +47,111 @@ uiVisColTabEd::uiVisColTabEd( uiParent* p, bool vert )
 
 uiVisColTabEd::~uiVisColTabEd()
 {
-    coltabed->tablechanged.remove(mCB(this,uiVisColTabEd, colTabEdChangedCB));
+    coltabed_->tablechanged.remove(mCB(this,uiVisColTabEd, colTabEdChangedCB));
     visBase::DM().removeallnotify.remove(mCB(this,uiVisColTabEd,delColTabCB));
     setColTab( -1 );
-    delete coltabed;
+    delete coltabed_;
 }
+
+
+int uiVisColTabEd::getColTab() const
+{ return coltab_ ? coltab_->id() : -1; }
 
 
 void uiVisColTabEd::setColTab( int id )
 {
-    if ( coltab && coltab->id()==id ) return;
+    if ( coltab_ && coltab_->id()==id ) return;
 
     visBase::DataObject* obj = id>=0 ? visBase::DM().getObject( id ) : 0;
     mDynamicCastGet(visBase::VisColorTab*,nct,obj);
 
-    if ( coltab )
+    if ( coltab_ )
     {
 	disableCallBacks();
-	coltab->unRef();
+	coltab_->unRef();
     }
 
-    coltab = nct;
-    if ( coltab )
+    coltab_ = nct;
+    if ( coltab_ )
     {
-	coltab->ref();
+	coltab_->ref();
 	enableCallBacks();
 	updateEditor();
     }
 
-    coltabed->setSensitive( coltab );
+    coltabed_->setSensitive( coltab_ );
 }
 
 
 void uiVisColTabEd::setHistogram( const TypeSet<float>* hist )
 {
-    coltabed->setHistogram( hist );
+    coltabed_->setHistogram( hist );
 }
 
 
 void uiVisColTabEd::setPrefHeight( int nv )
-{ coltabed->setPrefHeight( nv ); }
+{ coltabed_->setPrefHeight( nv ); }
 
 
 void uiVisColTabEd::colTabEdChangedCB( CallBacker* )
 {
-    if ( !coltab ) return;
+    if ( !coltab_ ) return;
     uiCursorChanger cursorchanger( uiCursor::Wait );
 
     bool seqchange = false;
     bool rangechange = false;
     bool autoscalechange = false;
 
-    bool oldrangechstatus = coltab->rangechange.enable( false );
-    bool oldseqchstatus = coltab->sequencechange.enable( false );
+    bool oldrangechstatus = coltab_->rangechange.enable( false );
+    bool oldseqchstatus = coltab_->sequencechange.enable( false );
 
-    ColorTable newct = *coltabed->getColorTable();
+    ColorTable newct = *coltabed_->getColorTable();
     newct.scaleTo( Interval<float>( 0, 1 ) );
-    if ( !(newct == colseq) )
+    if ( !(newct == colseq_) )
     {
 	seqchange = true;
-	coltab->colorSeq().colors() = newct;
-	coltab->colorSeq().colorsChanged();
-	colseq = newct;
+	coltab_->colorSeq().colors() = newct;
+	coltab_->colorSeq().colorsChanged();
+	colseq_ = newct;
     }
 
-    if ( coltabed->getColorTable()->getInterval() != coltabinterval )
+    if ( coltabed_->getColorTable()->getInterval() != coltabinterval_ )
     {
 	rangechange = true;
-	coltabinterval = coltabed->getColorTable()->getInterval();
-	coltab->scaleTo( coltabinterval );
+	coltabinterval_ = coltabed_->getColorTable()->getInterval();
+	coltab_->scaleTo( coltabinterval_ );
     }
 
-    if ( coltabed->autoScale() != coltabautoscale ||
-				    coltabcliprate != coltabed->getClipRate() )
+    if ( coltabed_->autoScale() != coltabautoscale_ ||
+				coltabcliprate_ != coltabed_->getClipRate() )
     {
 	autoscalechange = true;
-	coltabcliprate = coltabed->getClipRate();
-	coltab->setClipRate( coltabcliprate );
-	coltabautoscale = coltabed->autoScale();
-	coltab->setAutoScale( coltabautoscale );
+	coltabcliprate_ = coltabed_->getClipRate();
+	coltab_->setClipRate( coltabcliprate_ );
+	coltabautoscale_ = coltabed_->autoScale();
+	coltab_->setAutoScale( coltabautoscale_ );
     }
 
-    coltab->rangechange.enable(oldrangechstatus);
-    coltab->sequencechange.enable( oldseqchstatus );
+    coltab_->rangechange.enable(oldrangechstatus);
+    coltab_->sequencechange.enable( oldseqchstatus );
 
-    if ( autoscalechange && coltabed->autoScale() )
+    if ( autoscalechange && coltabed_->autoScale() )
     {
-	coltab->autoscalechange.remove(coltabcb);
-	coltab->triggerAutoScaleChange();
-	coltab->autoscalechange.notify(coltabcb);
+	coltab_->autoscalechange.remove(coltabcb);
+	coltab_->triggerAutoScaleChange();
+	coltab_->autoscalechange.notify(coltabcb);
     }
     else if ( rangechange )
     {
-	coltab->rangechange.remove(coltabcb);
-	coltab->triggerRangeChange();
-	coltab->rangechange.notify(coltabcb);
+	coltab_->rangechange.remove(coltabcb);
+	coltab_->triggerRangeChange();
+	coltab_->rangechange.notify(coltabcb);
     }
     else if ( seqchange )
     {
-	coltab->sequencechange.remove(coltabcb);
-	coltab->triggerSeqChange();
-	coltab->sequencechange.notify(coltabcb);
+	coltab_->sequencechange.remove(coltabcb);
+	coltab_->triggerSeqChange();
+	coltab_->sequencechange.notify(coltabcb);
 	sequenceChange.trigger();
     }
 }
@@ -163,32 +167,32 @@ void uiVisColTabEd::delColTabCB( CallBacker* )
 
 void uiVisColTabEd::updateEditor()
 {
-    coltabinterval = coltab->getInterval();
-    colseq = coltab->colorSeq().colors();
-    coltabautoscale = coltab->autoScale();
-    coltabcliprate = coltab->clipRate();
+    coltabinterval_ = coltab_->getInterval();
+    colseq_ = coltab_->colorSeq().colors();
+    coltabautoscale_ = coltab_->autoScale();
+    coltabcliprate_ = coltab_->clipRate();
 
-    ColorTable newct = colseq;
-    newct.scaleTo( coltabinterval );
-    coltabed->setColorTable( &newct );
-    coltabed->setAutoScale( coltabautoscale );
-    coltabed->setClipRate( coltabcliprate );
+    ColorTable newct = colseq_;
+    newct.scaleTo( coltabinterval_ );
+    coltabed_->setColorTable( &newct );
+    coltabed_->setAutoScale( coltabautoscale_ );
+    coltabed_->setClipRate( coltabcliprate_ );
 }
 
 
 void uiVisColTabEd::enableCallBacks()
 {
-    coltab->rangechange.notify( coltabcb );
-    coltab->sequencechange.notify( coltabcb );
-    coltab->autoscalechange.notify( coltabcb );
+    coltab_->rangechange.notify( coltabcb );
+    coltab_->sequencechange.notify( coltabcb );
+    coltab_->autoscalechange.notify( coltabcb );
 }
 
 
 void uiVisColTabEd::disableCallBacks()
 {
-    coltab->rangechange.remove(coltabcb);
-    coltab->sequencechange.remove(coltabcb);
-    coltab->autoscalechange.remove(coltabcb);
+    coltab_->rangechange.remove(coltabcb);
+    coltab_->sequencechange.remove(coltabcb);
+    coltab_->autoscalechange.remove(coltabcb);
 }
 
 
@@ -198,16 +202,16 @@ uiColorBarDialog::uiColorBarDialog( uiParent* p, int coltabid,
     	: uiDialog(p, uiDialog::Setup(title,0).modal(false)
 		   .oktext("Exit").dlgtitle("").canceltext(""))
 	, winClosing( this )
-	, coltabed( new uiVisColTabEd(this, true) )
+	, coltabed_( new uiVisColTabEd(this, true) )
 {
-    coltabed->setColTab( coltabid );
-    coltabed->setPrefHeight( 320 );
+    coltabed_->setColTab( coltabid );
+    coltabed_->setPrefHeight( 320 );
 }
 
 
 void uiColorBarDialog::uiColorBarDialog::setColTab( int id )
 {
-    coltabed->setColTab(id);
+    coltabed_->setColTab(id);
 }
 
 
