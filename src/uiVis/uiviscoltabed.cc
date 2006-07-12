@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiviscoltabed.cc,v 1.14 2006-05-05 20:38:48 cvskris Exp $";
+static const char* rcsID = "$Id: uiviscoltabed.cc,v 1.15 2006-07-12 18:16:51 cvskris Exp $";
 
 #include "uiviscoltabed.h"
 
@@ -41,6 +41,7 @@ uiVisColTabEd::uiVisColTabEd( uiParent* p, bool vert )
 	    			     &ct );
     coltabed->tablechanged.notify(mCB(this, uiVisColTabEd, colTabEdChangedCB));
     visBase::DM().removeallnotify.notify(mCB(this,uiVisColTabEd,delColTabCB));
+    setColTab( -1 );
 }
 
 
@@ -72,8 +73,9 @@ void uiVisColTabEd::setColTab( int id )
 	coltab->ref();
 	enableCallBacks();
 	updateEditor();
-        coltabed->setSensitive( coltab );
     }
+
+    coltabed->setSensitive( coltab );
 }
 
 
