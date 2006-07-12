@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          June 2003
- RCS:           $Id: emsurfaceio.cc,v 1.77 2006-07-05 16:04:01 cvskris Exp $
+ RCS:           $Id: emsurfaceio.cc,v 1.78 2006-07-12 20:24:45 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -1086,40 +1086,43 @@ dgbSurfaceWriter::dgbSurfaceWriter( const IOObj* ioobj,
 
 dgbSurfaceWriter::~dgbSurfaceWriter()
 {
-    std::ostream& strm = conn_->oStream();
-    const int64 nrsectionsoffset = strm.tellp();
-    writeInt32( strm, sectionsel_.size(), sEOL() );
-
-    for ( int idx=0; idx<sectionoffsets_.size(); idx++ )
-	writeInt64( strm, sectionoffsets_[idx], sEOL() );
-
-    for ( int idx=0; idx<sectionsel_.size(); idx++ )
-	writeInt32( strm, sectionsel_[idx], sEOL() );
-
-
-    const int64 secondparoffset = strm.tellp();
-    strm.seekp( nrsectionsoffsetoffset_, std::ios::beg );
-    writeInt64( strm, nrsectionsoffset, sEOL() );
-    strm.seekp( secondparoffset, std::ios::beg );
-
-    if ( writtenrowrange_.width(false)>=0 )
+    if ( conn_ )
     {
-	par_.set( dgbSurfaceReader::sKeyRowRange(),
-	    writtenrowrange_.start, writtenrowrange_.stop,
-	    writerowrange_ ? writerowrange_->step : rowrange_.step );
+	std::ostream& strm = conn_->oStream();
+	const int64 nrsectionsoffset = strm.tellp();
+	writeInt32( strm, sectionsel_.size(), sEOL() );
+
+	for ( int idx=0; idx<sectionoffsets_.size(); idx++ )
+	    writeInt64( strm, sectionoffsets_[idx], sEOL() );
+
+	for ( int idx=0; idx<sectionsel_.size(); idx++ )
+	    writeInt32( strm, sectionsel_[idx], sEOL() );
+
+
+	const int64 secondparoffset = strm.tellp();
+	strm.seekp( nrsectionsoffsetoffset_, std::ios::beg );
+	writeInt64( strm, nrsectionsoffset, sEOL() );
+	strm.seekp( secondparoffset, std::ios::beg );
+
+	if ( writtenrowrange_.width(false)>=0 )
+	{
+	    par_.set( dgbSurfaceReader::sKeyRowRange(),
+		writtenrowrange_.start, writtenrowrange_.stop,
+		writerowrange_ ? writerowrange_->step : rowrange_.step );
+	}
+
+	if ( writtencolrange_.width(false)>=0 )
+	{
+	    par_.set( dgbSurfaceReader::sKeyColRange(),
+		writtencolrange_.start, writtencolrange_.stop,
+		writecolrange_ ? writecolrange_->step : colrange_.step );
+
+	}
+
+	ascostream astream( strm );
+	astream.newParagraph();
+	par_.putTo( astream );
     }
-
-    if ( writtencolrange_.width(false)>=0 )
-    {
-	par_.set( dgbSurfaceReader::sKeyColRange(),
-	    writtencolrange_.start, writtencolrange_.stop,
-	    writecolrange_ ? writecolrange_->step : colrange_.step );
-
-    }
-
-    ascostream astream( strm );
-    astream.newParagraph();
-    par_.putTo( astream );
 
     surface_.unRef();
     delete &par_;
