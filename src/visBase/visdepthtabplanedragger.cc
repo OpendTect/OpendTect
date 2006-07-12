@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Jul 2003
- RCS:           $Id: visdepthtabplanedragger.cc,v 1.15 2006-01-13 15:40:15 cvskris Exp $
+ RCS:           $Id: visdepthtabplanedragger.cc,v 1.16 2006-07-12 20:42:26 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -109,7 +109,7 @@ void DepthTabPlaneDragger::setSize( const Coord3& scale, bool alldims )
 
 void DepthTabPlaneDragger::removeScaleTabs()
 {
-    dragger->setPart("scaleTabs", 0 );
+    dragger->setPart("greenTabsSep", 0 );
 }
 
 
