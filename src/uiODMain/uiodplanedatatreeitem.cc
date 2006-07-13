@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodplanedatatreeitem.cc,v 1.5 2006-07-11 07:35:21 cvsnanne Exp $
+ RCS:		$Id: uiodplanedatatreeitem.cc,v 1.6 2006-07-13 20:18:51 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -19,6 +19,7 @@ ___________________________________________________________________
 #include "uiodscenemgr.h"
 #include "uiseispartserv.h"
 #include "uislicesel.h"
+#include "uislicepos.h"
 #include "uivispartserv.h"
 #include "visplanedatadisplay.h"
 #include "vissurvscene.h"
@@ -54,6 +55,16 @@ uiODPlaneDataTreeItem::uiODPlaneDataTreeItem( int did, int dim )
 
 uiODPlaneDataTreeItem::~uiODPlaneDataTreeItem()
 {
+    mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,
+		    visserv->getObject(displayid_));
+    if ( pdd )
+    {
+	pdd->selection()->remove( mCB(this,uiODPlaneDataTreeItem,selChg) );
+	pdd->deSelection()->remove( mCB(this,uiODPlaneDataTreeItem,selChg) );
+	pdd->unRef();
+    }
+
+    visserv->getUiSlicePos()->setDisplay( 0 );
     delete positiondlg_;
 }
 
@@ -76,12 +87,14 @@ bool uiODPlaneDataTreeItem::init()
 		pdd->setResolution( idx );
 	}
     }
-    else
-    {
-	mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,
-			visserv->getObject(displayid_));
-	if ( !pdd ) return false;
-    }
+
+    mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,
+		    visserv->getObject(displayid_));
+    if ( !pdd ) return false;
+
+    pdd->ref();
+    pdd->selection()->notify( mCB(this,uiODPlaneDataTreeItem,selChg) );
+    pdd->deSelection()->notify( mCB(this,uiODPlaneDataTreeItem,selChg) );
 
     getItem()->moveForwdReq.notify(
 			mCB(this,uiODPlaneDataTreeItem,moveForwdCB) );
@@ -89,6 +102,14 @@ bool uiODPlaneDataTreeItem::init()
 			mCB(this,uiODPlaneDataTreeItem,moveBackwdCB) );
 
     return uiODDisplayTreeItem::init();
+}
+
+
+void uiODPlaneDataTreeItem::selChg( CallBacker* )
+{
+    mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,
+		    visserv->getObject(displayid_))
+    visserv->getUiSlicePos()->setDisplay( pdd->isSelected() ? pdd : 0 );
 }
 
 

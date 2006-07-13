@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.174 2006-06-27 12:44:12 cvsnanne Exp $
+ RCS:           $Id: uivispartserv.h,v 1.175 2006-07-13 20:18:51 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,6 +28,7 @@ class SeisTrcBuf;
 class SurfaceInfo;
 class uiMPEMan;
 class uiPopupMenu;
+class uiSlicePos;
 class uiToolBar;
 class uiMenuHandler;
 class uiVisModeMgr;
@@ -255,6 +256,9 @@ public:
     uiToolBar*			getTrackTB() const;
     void			initMPEStuff();
 
+    uiSlicePos*			getUiSlicePos() const
+    				{ return slicepostools_; }
+
     void			makeSectionDisplayRefresh() const;
     bool			dumpOI(int id) const;
     
@@ -292,6 +296,7 @@ protected:
     uiMenuHandler&		menu_;
 
     uiMPEMan*			mpetools_;
+    uiSlicePos*			slicepostools_;
 
     Coord3			xytmousepos_;
     Coord3			inlcrlmousepos_;

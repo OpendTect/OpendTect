@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.325 2006-06-27 12:44:12 cvsnanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.326 2006-07-13 20:18:51 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,6 +38,7 @@ ________________________________________________________________________
 #include "uimaterialdlg.h"
 #include "uimenuhandler.h"
 #include "uimpeman.h"
+#include "uislicepos.h"
 #include "uitoolbar.h"
 #include "uibinidsubsel.h"
 #include "uizscaledlg.h"
@@ -90,6 +91,9 @@ uiVisPartServer::uiVisPartServer( uiApplService& a )
 
     mpetools_ = new uiMPEMan( appserv().parent(), this );
     mpetools_->getToolBar()->display( false );
+
+    slicepostools_ = new uiSlicePos( appserv().parent() );
+    slicepostools_->getToolBar()->display( false );
 
     visBase::DM().selMan().selnotifier.notify( 
 	mCB(this,uiVisPartServer,selectObjCB) );

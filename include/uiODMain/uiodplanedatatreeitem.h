@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		May 2006
- RCS:		$Id: uiodplanedatatreeitem.h,v 1.2 2006-07-11 07:35:20 cvsnanne Exp $
+ RCS:		$Id: uiodplanedatatreeitem.h,v 1.3 2006-07-13 20:18:51 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -33,6 +33,7 @@ protected:
     void		updatePositionDlg(CallBacker*);
     void		movePlane(const CubeSampling&);
     void		posDlgClosed(CallBacker*);
+    void		selChg(CallBacker*);
     void		moveForwdCB(CallBacker*);
     void		moveBackwdCB(CallBacker*);
     void		movePlane(bool forward);
