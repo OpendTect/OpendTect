@@ -4,12 +4,13 @@
  * DATE     : Mar 2004
 -*/
 
-static const char* rcsID = "$Id: filepath.cc,v 1.17 2006-05-01 07:27:56 cvsnanne Exp $";
+static const char* rcsID = "$Id: filepath.cc,v 1.18 2006-07-13 12:39:38 cvsnanne Exp $";
 
 #include "filepath.h"
 #include "envvars.h"
 #include "msgh.h"
 #include <iostream>
+#include <time.h>
 
 #include "winutils.h"
 
