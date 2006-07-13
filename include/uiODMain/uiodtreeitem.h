@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: uiodtreeitem.h,v 1.26 2006-05-25 18:24:16 cvskris Exp $
+ RCS:		$Id: uiodtreeitem.h,v 1.27 2006-07-13 17:27:31 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -26,6 +26,7 @@ class uiODTreeItem : public uiTreeItem
 {
 public:
     			uiODTreeItem(const char*);
+    bool		anyButtonClick(uiListViewItem*);
 
     int			sceneID() const;
 protected:

@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.193 2006-06-06 20:37:02 cvskris Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.194 2006-07-13 17:27:31 cvskris Exp $
 ___________________________________________________________________
 
 -*/
@@ -111,6 +111,16 @@ void uiODTreeTop::loopOverChildrenIds( TypeSet<int>& dispids, int& selectedid,
 uiODTreeItem::uiODTreeItem( const char* name__ )
     : uiTreeItem( name__ )
 {}
+
+bool uiODTreeItem::anyButtonClick( uiListViewItem* item )
+{
+    if ( item!=uilistviewitem_ )
+	return uiTreeItem::anyButtonClick( item );
+
+    if ( !select() ) return false;
+
+    applMgr()->modifyColorTable( -1, -1 );
+}
 
 
 uiODApplMgr* uiODTreeItem::applMgr()
