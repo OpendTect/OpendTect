@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          June 2003
- RCS:           $Id: emsurfaceio.cc,v 1.78 2006-07-12 20:24:45 cvskris Exp $
+ RCS:           $Id: emsurfaceio.cc,v 1.79 2006-07-13 12:53:12 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -953,7 +953,7 @@ int dgbSurfaceReader::readInt16(std::istream& strm) const
     if ( int16interpreter_ )
     {
 	const int sz = int16interpreter_->nrBytes();
-	char buf[sz];
+	ArrPtrMan<char> buf = new char [sz];
 	strm.read(buf,sz);
 	return int16interpreter_->get(buf,0);
     }
@@ -970,7 +970,7 @@ int dgbSurfaceReader::readInt32(std::istream& strm) const
     if ( int32interpreter_ )
     {
 	const int sz = int32interpreter_->nrBytes();
-	char buf[sz];
+	ArrPtrMan<char> buf = new char [sz];
 	strm.read(buf,sz);
 	return int32interpreter_->get(buf,0);
     }
@@ -986,7 +986,7 @@ int64 dgbSurfaceReader::readInt64(std::istream& strm) const
     if ( int64interpreter_ )
     {
 	const int sz = int64interpreter_->nrBytes();
-	char buf[sz];
+	ArrPtrMan<char> buf = new char [sz];
 	strm.read(buf,sz);
 	return int64interpreter_->get(buf,0);
     }
@@ -1014,7 +1014,7 @@ double dgbSurfaceReader::readFloat(std::istream& strm) const
     if ( floatinterpreter_ )
     {
 	const int sz = floatinterpreter_->nrBytes();
-	char buf[sz];
+	ArrPtrMan<char> buf = new char [sz];
 	strm.read(buf,sz);
 	return floatinterpreter_->get(buf,0);
     }

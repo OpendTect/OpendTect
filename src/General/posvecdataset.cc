@@ -4,17 +4,20 @@
  * DATE     : Jan 2005
 -*/
 
-static const char* rcsID = "$Id: posvecdataset.cc,v 1.11 2006-03-12 13:39:10 cvsbert Exp $";
+static const char* rcsID = "$Id: posvecdataset.cc,v 1.12 2006-07-13 12:53:12 cvsnanne Exp $";
 
 #include "posvecdataset.h"
-#include "datacoldef.h"
-#include "survinfo.h"
-#include "iopar.h"
-#include "unitofmeasure.h"
+
 #include "ascstream.h"
+#include "datacoldef.h"
+#include "iopar.h"
+#include "keystrs.h"
+#include "ptrman.h"
 #include "separstr.h"
 #include "strmprov.h"
-#include "keystrs.h"
+#include "survinfo.h"
+#include "unitofmeasure.h"
+
 #include <iosfwd>
 
 
@@ -174,7 +177,7 @@ void PosVecDataSet::mergeColDefs( const PosVecDataSet& vds, ColMatchPol cmpol,
 void PosVecDataSet::merge( const PosVecDataSet& vds, OvwPolicy ovwpol,
 			   ColMatchPol cmpol )
 {
-    int colidxs[ vds.coldefs_.size() ];
+    ArrPtrMan<int> colidxs = new int [ vds.coldefs_.size() ];
     const int orgnrcds = coldefs_.size();
     mergeColDefs( vds, cmpol, colidxs );
     pars_.merge( vds.pars_ );

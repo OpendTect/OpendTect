@@ -4,16 +4,17 @@
  * DATE     : June 2001
 -*/
  
-static const char* rcsID = "$Id: nlacrdesc.cc,v 1.10 2005-06-08 16:45:34 cvsbert Exp $";
+static const char* rcsID = "$Id: nlacrdesc.cc,v 1.11 2006-07-13 12:53:12 cvsnanne Exp $";
 
 #include "nlacrdesc.h"
-#include "posvecdataset.h"
+
 #include "datacoldef.h"
-#include "ioman.h"
 #include "errh.h"
+#include "ioman.h"
+#include "linekey.h"
+#include "posvecdataset.h"
 #include "ptrman.h"
 #include "stats.h"
-#include "linekey.h"
 
 NLACreationDesc& NLACreationDesc::operator =(
 	const NLACreationDesc& sd )
@@ -84,7 +85,8 @@ const char* NLACreationDesc::prepareData( const ObjectSet<PosVecDataSet>& vdss,
     if ( needednrtest < 1  || needednrtest >= trainbvs.totalSize() )
 	return 0;
 
-    BinID bid; float vals[ trainbvs.nrVals() ];
+    BinID bid;
+    ArrPtrMan<float> vals = new float [trainbvs.nrVals()];
     while ( testbvs.totalSize() < needednrtest )
     {
 	const int randidx = Stat_getIndex( trainbvs.totalSize() );
@@ -105,7 +107,8 @@ int NLACreationDesc::addBVSData( const BinIDValueSet& bvs,
     BinIDValueSet::Pos pos;
     const int totnrvals = bvsout.nrVals();
     const int outnrvals = totnrvals - bvs.nrVals();
-    BinID bid; float vals[ totnrvals ];
+    BinID bid;
+    ArrPtrMan<float> vals = new float [totnrvals];
     while ( bvs.next( pos ) )
     {
 	bvs.get( pos, bid, vals );

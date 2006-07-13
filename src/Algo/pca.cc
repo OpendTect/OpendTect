@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: pca.cc,v 1.7 2004-07-21 12:16:44 nanne Exp $";
+static const char* rcsID = "$Id: pca.cc,v 1.8 2006-07-13 12:53:12 cvsnanne Exp $";
 
 
 #include "pca.h"
@@ -289,10 +289,9 @@ bool PCA::calculate()
 	}
     }
 
-
     // Now, get the eigenvalues
-   
-    float d[nrvars+1],e[nrvars+1];
+    ArrPtrMan<float> d = new float [nrvars+1];
+    ArrPtrMan<float> e = new float [nrvars+1];
     ObjectSet<float> a;
 
     float* ptr = covariancematrix.getData();

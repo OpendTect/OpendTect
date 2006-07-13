@@ -8,13 +8,14 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		23-10-1996
  Contents:	Ranges
- RCS:		$Id: ranges.h,v 1.40 2006-07-11 15:44:53 cvskris Exp $
+ RCS:		$Id: ranges.h,v 1.41 2006-07-13 12:53:12 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "general.h"
 #include "errh.h"
+#include "ptrman.h"
 
 
 /*!\brief interval of values.
@@ -224,9 +225,8 @@ bool IntervalND<T>::intersects( const IntervalND<T>& b ) const
 	return false;
     }
 
-    T vector[ndim];
-    bool isstart[ndim];
-
+    ArrPtrMan<T> vector = new T [ndim];
+    ArrPtrMan<bool> isstart = new bool [ndim];
     for ( int dim=0; dim<ndim; dim++ )
     {
 	vector[dim] = ranges[dim].start;

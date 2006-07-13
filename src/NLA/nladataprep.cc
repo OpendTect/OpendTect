@@ -4,7 +4,7 @@
  * DATE     : May 2005
 -*/
  
-static const char* rcsID = "$Id: nladataprep.cc,v 1.3 2006-03-12 13:39:10 cvsbert Exp $";
+static const char* rcsID = "$Id: nladataprep.cc,v 1.4 2006-07-13 12:53:12 cvsnanne Exp $";
 
 #include "nladataprep.h"
 #include "binidvalset.h"
@@ -53,7 +53,7 @@ void NLADataPreparer::balance( const NLADataPreparer::BalanceSetup& setup )
     }
 
     const int nrvals = bvs_.nrVals();
-    Interval<float> rgs[ nrvals ];
+    ArrPtrMan< Interval<float> > rgs = new Interval<float> [nrvals];
     BinIDValueSet::Pos pos; BinID bid;
     bool first_pos = true;
     while ( bvs_.next(pos) )
@@ -124,7 +124,7 @@ void NLADataPreparer::addVecs( BinIDValueSet& bvs, int nr, float noiselvl,
 	    bvsnew.add( bid, vals );
 	else
 	{
-	    float newvals[nrvals];
+	    ArrPtrMan<float> newvals = new float [nrvals];
 	    for ( int idx=0; idx<nrvals; idx++ )
 	    {
 		float wdth = rgs[idx].stop - rgs[idx].start;

@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribdesc.cc,v 1.44 2006-07-05 15:29:23 cvshelene Exp $";
+static const char* rcsID = "$Id: attribdesc.cc,v 1.45 2006-07-13 12:53:12 cvsnanne Exp $";
 
 #include "attribdesc.h"
 
@@ -487,7 +487,7 @@ void Desc::addOutputDataTypeSameAs( int input )
 
 bool Desc::getAttribName( const char* defstr_, BufferString& res )
 {
-    char defstr[strlen(defstr_)+1];
+    ArrPtrMan<char> defstr = new char [strlen(defstr_)+1];
     strcpy( defstr, defstr_ );
 
     int start = 0;
@@ -553,7 +553,7 @@ bool Desc::getParamString( const char* defstr, const char* key,
 
 		    lastpos --;
 
-		    char tmpres[lastpos-firstpos+2];
+		    ArrPtrMan<char> tmpres = new char [lastpos-firstpos+2];
 		    strncpy( tmpres, &defstr[firstpos], lastpos-firstpos+1 );
 		    tmpres[lastpos-firstpos+1] = 0;
 
@@ -642,7 +642,7 @@ void Desc::getKeysVals( const char* defstr, BufferStringSet& keys,
 	    spacepos --;
 
 	spacepos++;
-	char tmpkey[lastpos-spacepos+2];
+	ArrPtrMan<char> tmpkey = new char [lastpos-spacepos+2];
 	strncpy( tmpkey, &defstr[spacepos], lastpos-spacepos+1 );
 	tmpkey[lastpos-spacepos+1] = 0;
 	const char* tmp = tmpkey;
@@ -668,7 +668,7 @@ void Desc::getKeysVals( const char* defstr, BufferStringSet& keys,
 	    spacepos--;
 	}
 
-	char tmpval[spacepos-lastpos+2];
+	ArrPtrMan<char> tmpval = new char [spacepos-lastpos+2];
 	strncpy( tmpval, &defstr[lastpos], spacepos-lastpos+1 );
 	tmpval[spacepos-lastpos+1] = 0;
 	tmp = tmpval;
