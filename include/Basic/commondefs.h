@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Mar 2006
- RCS:		$Id: commondefs.h,v 1.2 2006-03-12 20:59:26 cvsbert Exp $
+ RCS:		$Id: commondefs.h,v 1.3 2006-07-14 18:48:00 cvskris Exp $
 ________________________________________________________________________
 
  Some very commonly used macros.
@@ -33,6 +33,19 @@ ________________________________________________________________________
 #define	YES 1
 #define	NO 0
 #define mMaxUserIDLength 127
+
+
+#ifdef __win__
+        
+#define mVariableLengthArr( type, varnm, __size ) \
+ArrPtrMan<type> varnm = new type[size]
+#else
+
+#define mVariableLengthArr( type, varnm, __size ) \
+type varnm[__size]
+
+#endif
+
 
 #ifdef __win__
 # include <stdio.h>
