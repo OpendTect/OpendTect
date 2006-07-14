@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: cbvsreader.cc,v 1.67 2006-07-12 13:38:40 cvsnanne Exp $";
+static const char* rcsID = "$Id: cbvsreader.cc,v 1.68 2006-07-14 18:51:22 cvskris Exp $";
 
 /*!
 
@@ -213,7 +213,7 @@ void CBVSReader::getAuxInfoSel( const char* ptr )
 
 bool CBVSReader::readComps()
 {
-    PtrMan<char> ucbuf = new char [4*integersize];
+    mVariableLengthArr( char, ucbuf, 4*integersize );
     strm_.read( ucbuf, integersize );
     nrcomps_ = iinterp.get( ucbuf, 0 );
     if ( nrcomps_ < 1 ) mErrRet("Corrupt CBVS format: No components defined")
