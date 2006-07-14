@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.cc,v 1.96 2006-07-11 08:22:41 cvsbert Exp $
+ RCS:           $Id: uimpeman.cc,v 1.97 2006-07-14 10:42:55 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -106,11 +106,11 @@ void uiMPEMan::addButtons()
     toolbar->addSeparator();
 
     trackinvolidx = mAddButton( "track_seed.png", trackInVolume,
-    				"Auto-tracking", false );
+    				"Auto-track", false );
     toolbar->addSeparator();
 
     showcubeidx = mAddButton( "trackcube.png", showCubeCB,
-	    		      "Show trackingarea", true );
+	    		      "Show track area", true );
     toolbar->addSeparator();
 
     moveplaneidx = mAddButton( "moveplane.png", movePlaneCB,
@@ -149,7 +149,7 @@ void uiMPEMan::addButtons()
 	    			   "Track forward", false );
 
     nrstepsbox = new uiSpinBox( toolbar );
-    nrstepsbox->setToolTip( "Nr of tracking steps" );
+    nrstepsbox->setToolTip( "Nr of track steps" );
     nrstepsbox->setMinValue( 1 );
     toolbar->addSeparator();
 
@@ -505,8 +505,8 @@ void uiMPEMan::showCubeCB( CallBacker* )
     for ( int idx=0; idx<displays.size(); idx++ )
 	displays[idx]->showBoxDragger( isshown );
 
-    toolbar->setToolTip( showcubeidx, isshown ? "Show trackingarea"
-	    				      : "Hide trackingarea" );
+    toolbar->setToolTip( showcubeidx, isshown ? "Hide track area"
+					      : "Show track area" );
 }
 
 
