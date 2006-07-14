@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2004
- RCS:           $Id: od_process_attrib_em.cc,v 1.32 2006-07-05 15:27:49 cvshelene Exp $
+ RCS:           $Id: od_process_attrib_em.cc,v 1.33 2006-07-14 14:30:48 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -365,30 +365,38 @@ bool BatchProgram::go( std::ostream& strm )
     }
     else
     {
-	BinIDValueSet bivs(2,false);
-	SeisTrcBuf seisoutp;
 	float outval;
-	int nrinterpsamp;
-	int mainhoridx = 1;
-	float extrawidth =0;
-	Interval<float> extraz;
-	Interval<float>* zbounds;
 	geompar->get( "Outside Value", outval );
+
+	Interval<float> extraz;
 	geompar->get( "ExtraZInterval", extraz.start, extraz.stop );
 	extraz.scale(1/SI().zFactor());
+
+	int nrinterpsamp = 0;
 	geompar->get( "Interpolation Stepout", nrinterpsamp );
+
+	int mainhoridx = 1;
 	geompar->get( "Leading Horizon", mainhoridx );
+
+	float extrawidth = 0;
 	geompar->get( "Artificial Width", extrawidth );
 	extrawidth /= SI().zFactor();
-	if ( !geompar->get( "Z Boundaries", (*zbounds).start, (*zbounds).stop ))
-	    zbounds = 0;
-	else
-	    (*zbounds).scale( 1/SI().zFactor() );
 
+	bool zboundsset = false;
+	Interval<float> zbounds;
+	if ( geompar->get("Z Boundaries",zbounds.start,zbounds.stop) )
+	{
+	    zboundsset = true;
+	    zbounds.scale( 1/SI().zFactor() );
+	}
+
+	BinIDValueSet bivs(2,false);
 	HorizonUtils::getWantedPositions( strm, midset, bivs, horsamp, extraz,
 					  nrinterpsamp, mainhoridx, extrawidth);
+	SeisTrcBuf seisoutp;
 	Processor* proc = 
-	    aem.createTrcSelOutput( errmsg, bivs, seisoutp, outval, zbounds );
+	    aem.createTrcSelOutput( errmsg, bivs, seisoutp, outval,
+		    		    zboundsset ? &zbounds : 0 );
 	if ( !proc ) mErrRet( errmsg );
 	if ( !process( strm, proc, outpid, &seisoutp ) ) return false;
     }
