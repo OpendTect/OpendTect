@@ -4,7 +4,7 @@
  * DATE     : 18-4-1996
 -*/
 
-static const char* rcsID = "$Id: draw.cc,v 1.52 2006-07-11 17:08:50 cvsbert Exp $";
+static const char* rcsID = "$Id: draw.cc,v 1.53 2006-07-17 15:34:46 cvsbert Exp $";
 
 /*! \brief Several implementations for UI-related things.
 
@@ -94,16 +94,45 @@ static ObjectSet<IOPar>& stdTabPars()
 }
 
 
-void ColorTable::getStdTabPars( ObjectSet<IOPar>& parset )
+static IOPar* readStdTabs()
 {
     StreamData sd = StreamProvider( GetDataFileName("ColTabs") ).makeIStream();
-    if ( !sd.usable() ) return;
+    IOPar* iop = 0;
+    if ( sd.usable() )
+    {
+	ascistream astrm( *sd.istrm );
+	iop = new IOPar( astrm );
+	sd.close();
+    }
+    return iop;
+}
 
-    ascistream astrm( *sd.istrm );
-    IOPar iopar( astrm );
-    sd.close();
 
-    add( iopar, 0, &parset );
+bool ColorTable::putStdTabPars( const ObjectSet<IOPar>& parset )
+{
+    StreamData sd = StreamProvider( GetDataFileName("ColTabs") ).makeOStream();
+    if ( !sd.usable() )
+	return false;
+
+    IOPar iop( "Standard color tables" );
+    for ( int idx=0; idx<parset.size(); idx++ )
+    {
+	BufferString nrstr; nrstr += idx+1;
+	iop.mergeComp( *parset[idx], nrstr.buf() );
+    }
+    ascostream astrm( *sd.ostrm );
+    astrm.putHeader( "Color table definitions" );
+    iop.putTo( astrm );
+    return true;
+}
+
+
+void ColorTable::getStdTabPars( ObjectSet<IOPar>& parset )
+{
+    IOPar* iopar = readStdTabs();
+    if ( iopar )
+	add( *iopar, 0, &parset );
+    delete iopar;
 }
 
 
