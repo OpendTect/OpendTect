@@ -4,7 +4,7 @@
  * DATE     : 21-12-1995
 -*/
 
-static const char* rcsID = "$Id: iopar.cc,v 1.53 2006-06-23 14:33:44 cvsjaap Exp $";
+static const char* rcsID = "$Id: iopar.cc,v 1.54 2006-07-17 15:32:50 cvsbert Exp $";
 
 #include "iopar.h"
 #include "multiid.h"
@@ -173,7 +173,7 @@ const char* IOPar::compKey( const char* key1, const char* key2 )
 IOPar* IOPar::subselect( int nr ) const
 {
     BufferString s; s+= nr;
-    return subselect( s );
+    return subselect( s.buf() );
 }
 
 
@@ -194,6 +194,28 @@ IOPar* IOPar::subselect( const char* key ) const
     if ( iopar->size() == 0 )
 	{ delete iopar; iopar = 0; }
     return iopar;
+}
+
+
+void IOPar::removeSubSelection( int nr )
+{
+    BufferString s; s+= nr;
+    return removeSubSelection( s.buf() );
+}
+
+
+void IOPar::removeSubSelection( const char* key )
+{
+    if ( !key ) return;
+
+    for ( int idx=0; idx<keys_.size(); idx++ )
+    {
+	const char* nm = keys_.get(idx).buf();
+	if ( !matchString(key,nm) ) continue;
+	nm += strlen(key);
+	if ( *nm == '.' && *(nm+1) )
+	    { remove( idx ); idx--; }
+    }
 }
 
 

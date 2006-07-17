@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		21-12-1995
- RCS:		$Id: iopar.h,v 1.38 2006-06-23 14:33:44 cvsjaap Exp $
+ RCS:		$Id: iopar.h,v 1.39 2006-07-17 15:32:50 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -68,13 +68,17 @@ public:
     void		merge(const IOPar&);
 			//!< merge entries using the set() command
     static const char*	compKey(const char*,const char*);
-			//!< The composite key
+			//!< The composite key: (a,b) -> a.b
     static const char*	compKey(const char*,int);
 			//!< The composite key where int will be --> string
     IOPar*		subselect(const char*) const;
 			//!< returns iopar with key that start with <str>.
     IOPar*		subselect(int) const;
 			//!< returns iopar with key that start with number.
+    void		removeSubSelection(const char*);
+			//!< removes with key that start with <str>.
+    void		removeSubSelection(int);
+			//!< removes with key that start with number.
     void		mergeComp(const IOPar&,const char*);
 			//!< merge entries, where IOPar's entries get a prefix
 
