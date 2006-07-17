@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          June 2003
- RCS:           $Id: emsurfaceio.cc,v 1.79 2006-07-13 12:53:12 cvsnanne Exp $
+ RCS:           $Id: emsurfaceio.cc,v 1.80 2006-07-17 12:51:53 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -1489,6 +1489,9 @@ bool dgbSurfaceWriter::writeNewSection( std::ostream& strm )
 
 bool dgbSurfaceWriter::writeRow( std::ostream& strm )
 {
+    if ( !colrange_.step || !rowrange_.step )
+	pErrMsg("Steps not set");
+
     rowoffsettable_ += strm.tellp();
     const int row = firstrow_+rowindex_ *
 		    (writerowrange_?writerowrange_->step:rowrange_.step);
