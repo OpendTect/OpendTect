@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: thread.h,v 1.21 2006-03-10 13:39:51 cvsbert Exp $
+ RCS:		$Id: thread.h,v 1.22 2006-07-17 15:26:22 cvskris Exp $
 ________________________________________________________________________
 
 */
@@ -61,6 +61,8 @@ protected:
     pthread_mutexattr_t	attr;
 
 };
+
+
 
 
 /*!\brief Is an object that is convenient to use when a mutex should be
@@ -138,6 +140,31 @@ protected:
     pthread_condattr_t		condattr;
 
 };
+
+
+/*! Lock that permits multiple readers to lock the object at the same time,
+but it will not allow any readers when writelocked, and no writelock is allowed
+when readlocked. */
+
+
+class ReadWriteLock
+{
+public:
+    			ReadWriteLock();
+    virtual		~ReadWriteLock();
+
+    void		readLock();
+    void		readUnLock();
+    void		writeLock();
+    void		writeUnLock();
+
+protected:
+    int			status_;
+    			//0 not locked, -1 write lock, else nr of readers
+    ConditionVar	statuscond_;
+};
+
+
 
 /*!\brief
 is the base class for all threads. Start it by creating it and give it the

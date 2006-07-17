@@ -4,7 +4,7 @@
  * DATE     : Mar 2000
 -*/
 
-static const char* rcsID = "$Id: thread.cc,v 1.21 2005-08-26 18:19:28 cvsbert Exp $";
+static const char* rcsID = "$Id: thread.cc,v 1.22 2006-07-17 15:26:22 cvskris Exp $";
 
 #include "thread.h"
 #include "callback.h"
@@ -12,6 +12,7 @@ static const char* rcsID = "$Id: thread.cc,v 1.21 2005-08-26 18:19:28 cvsbert Ex
 #include "debugmasks.h"
 #include "debug.h"
 #include "envvars.h"
+#include "errh.h"
 #include "errno.h" // for EBUSY
 
 
@@ -42,6 +43,73 @@ int Threads::Mutex::unlock()
 bool Threads::Mutex::tryLock()
 {
     return pthread_mutex_trylock( &mutex ) != EBUSY;
+}
+
+
+Threads::ReadWriteLock::ReadWriteLock()
+    : status_( 0 )
+{}
+
+
+Threads::ReadWriteLock::~ReadWriteLock()
+{}
+
+
+void Threads::ReadWriteLock::readLock()
+{
+    statuscond_.lock();
+    while ( status_<0 )
+	statuscond_.wait();
+    
+    status_ ++;
+    statuscond_.unlock();
+}
+
+
+void Threads::ReadWriteLock::readUnLock()
+{
+    statuscond_.lock();
+    if ( status_<1 )
+    {
+	pErrMsg( "Object is not readlocked.");
+    }
+    else
+    {
+	status_--;
+    }
+
+    if ( !status_ )
+	statuscond_.signal( false );
+
+    statuscond_.unlock();
+}
+
+
+void Threads::ReadWriteLock::writeLock()
+{
+    statuscond_.lock();
+    while ( status_!=0 )
+	statuscond_.wait();
+    
+    status_ --;
+    statuscond_.unlock();
+}
+    
+   
+void Threads::ReadWriteLock::writeUnLock()
+{
+    statuscond_.lock();
+    if ( status_!=-1 )
+    {
+	pErrMsg( "Object is not writelocked.");
+    }
+    else
+    {
+	status_++;
+    }
+
+    statuscond_.signal( true );
+    statuscond_.unlock();
 }
 
 
