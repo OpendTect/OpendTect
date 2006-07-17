@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.194 2006-07-13 17:27:31 cvskris Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.195 2006-07-17 07:36:58 cvshelene Exp $
 ___________________________________________________________________
 
 -*/
@@ -120,6 +120,7 @@ bool uiODTreeItem::anyButtonClick( uiListViewItem* item )
     if ( !select() ) return false;
 
     applMgr()->modifyColorTable( -1, -1 );
+    return true;
 }
 
 
