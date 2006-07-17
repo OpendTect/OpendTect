@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		4-11-1995
- RCS:		$Id: settings.h,v 1.7 2005-12-19 11:40:46 cvsbert Exp $
+ RCS:		$Id: settings.h,v 1.8 2006-07-17 15:33:31 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -42,11 +42,15 @@ public:
 				//!< read_before should be true: this is the
     				//!< protection against another update being
     				//!< screwed by this one
-    bool			reRead();
+    bool			reRead()	{ return doRead(false); }
 				//!< Needed in case you know that the file has
-    				//!< been changed by user or external routine
-    				//!< Not likely.
+    				//!< been changed by user or external routine.
+    				//!< It's not likely that you'll need this.
 
+    static Settings*		fetchExternal(const char* settings_name,
+					      const char* dtect_user,
+					      const char* usr_settings_dir);
+    				//!< for sysadm purposes
 
 protected:
 
@@ -55,6 +59,10 @@ protected:
 				~Settings()			{}
 
     FileNameString		fname;
+
+    static Settings*		doFetch(const char*,const char*,const char*,
+	    				bool);
+    bool			doRead(bool);
 };
 
 

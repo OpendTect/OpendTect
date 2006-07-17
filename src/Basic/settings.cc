@@ -5,7 +5,7 @@
  * FUNCTION : Default user settings
 -*/
  
-static const char* rcsID = "$Id: settings.cc,v 1.30 2006-02-20 18:49:48 cvsbert Exp $";
+static const char* rcsID = "$Id: settings.cc,v 1.31 2006-07-17 15:33:31 cvsbert Exp $";
 
 #include "settings.h"
 #include "filegen.h"
@@ -17,6 +17,9 @@ static const char* rcsID = "$Id: settings.cc,v 1.30 2006-02-20 18:49:48 cvsbert 
 #include <filegen.h>
 
 static const char* sKeyDeflt = "Default settings";
+static const char* sKeyCommon = "Common";
+#define mGetKey(key) (key && *key ? key : sKeyCommon)
+#define mIsCommon(key) (!key || !*key || !strcmp(key,sKeyCommon))
 
 static ObjectSet<Settings>& getSetts()
 {
@@ -27,54 +30,66 @@ static ObjectSet<Settings>& getSetts()
 }
 
 
-static void getFnm( const char* key, BufferString& fname )
-{
-    FilePath fp( GetSettingsDir() ); fp.add( "settings" );
-    fname = fp.fullPath();
-    if ( key )
-	{ fname += "_"; fname += key; }
-
-    const char* ptr = GetSoftwareUser();
-    if ( ptr )
-    {
-	fname += ".";
-	fname += ptr;
-    }
-}
-
-
-static const char* sKeyCommon = "Common";
-
 Settings& Settings::fetch( const char* key )
 {
-    BufferString settnm( key && *key ? key : sKeyCommon );
-
+    const char* settkey = mGetKey( key );
     ObjectSet<Settings>& settlist = getSetts();
     for ( int idx=0; idx<settlist.size(); idx++ )
-	if ( settlist[idx]->name() == settnm )
+	if ( settlist[idx]->name() == settkey )
 	    return *settlist[idx];
 
-    const bool iscommon = settnm == sKeyCommon;
-    BufferString fname;
-    getFnm( iscommon ? 0 : settnm.buf(), fname );
-    Settings* newsett = new Settings( fname );
-    newsett->setName( settnm );
-    if ( !newsett->reRead() && iscommon )
-	ErrMsg( "Cannot find valid .od/settings file" );
+    Settings* newsett = doFetch( key, GetSoftwareUser(), GetSettingsDir(),
+	    			 false );
+    if ( !newsett )
+    {
+	if ( mIsCommon(key) )
+	    ErrMsg( "Cannot find valid settings file in .od directory" );
+	newsett = new Settings( settkey );
+    }
 
+    newsett->setName( settkey );
     settlist += newsett;
     return *newsett;
 }
 
 
-bool Settings::reRead()
+Settings* Settings::fetchExternal( const char* key, const char* dtectusr,
+				   const char* dirnm )
 {
-    SafeFileIO sfio( fname, false );
+    return doFetch( key, dtectusr, dirnm, true );
+}
 
-    const bool do_write = File_isEmpty(fname);
+
+Settings* Settings::doFetch( const char* key, const char* dtectusr,
+			     const char* dirnm, bool ext )
+{
+    FilePath fp( dirnm ? dirnm : GetSettingsDir() );
+    fp.add( "settings" );
+    BufferString fname = fp.fullPath();
+    if ( !mIsCommon(key) )
+	{ fname += "_"; fname += key; }
+    if ( dtectusr && *dtectusr )
+	{ fname += "."; fname += dtectusr; }
+
+    Settings* ret = new Settings( fname );
+    ret->setName( mGetKey(key) );
+    if ( !ret->doRead(ext) )
+	{ delete ret; ret = 0; }
+
+    return ret;
+}
+
+
+bool Settings::doRead( bool ext )
+{
+    const bool empty_initially = File_isEmpty(fname);
     const bool iscommon = name() == sKeyCommon;
-    if ( !sfio.open(true) )
+
+    SafeFileIO sfio( fname, false );
+    if ( empty_initially || !sfio.open(true) )
     {
+	if ( ext ) return false;
+
 	BufferString tmplfname( iscommon ? "od" : name().buf() );
 	tmplfname += "Settings";
 	tmplfname = GetDataFileName(tmplfname);
@@ -112,7 +127,8 @@ bool Settings::reRead()
     }
     sfio.closeSuccess();
 
-    if ( do_write ) write( false );
+    if ( empty_initially )
+	write( false );
     return true;
 }
 
