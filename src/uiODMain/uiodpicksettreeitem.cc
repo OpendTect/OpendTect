@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodpicksettreeitem.cc,v 1.13 2006-06-28 21:27:11 cvskris Exp $
+ RCS:		$Id: uiodpicksettreeitem.cc,v 1.14 2006-07-17 21:24:35 cvskris Exp $
 ___________________________________________________________________
 
 -*/
@@ -27,6 +27,7 @@ ___________________________________________________________________
 
 static bool canAddDisplay( int sceneid )
 {
+    return true;
     mDynamicCastGet(visSurvey::Scene*,scene,
 	    	    ODMainWin()->applMgr().visServer()->getObject(sceneid));
     if ( !scene ) return false;
