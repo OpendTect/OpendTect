@@ -4,7 +4,7 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vislocationdisplay.cc,v 1.8 2006-07-03 14:16:47 cvskris Exp $";
+static const char* rcsID = "$Id: vislocationdisplay.cc,v 1.9 2006-07-17 21:23:12 cvskris Exp $";
 
 #include "vislocationdisplay.h"
 
@@ -96,6 +96,8 @@ void LocationDisplay::setSetMgr( Pick::SetMgr* mgr )
 
 void LocationDisplay::fullRedraw( CallBacker* )
 {
+    if ( !set_ ) return;
+
     getMaterial()->setColor( set_->disp_.color_ );
     const int nrpicks = set_->size();
 
@@ -110,6 +112,10 @@ void LocationDisplay::fullRedraw( CallBacker* )
 	{
 	    invalidpicks_ += idx;
 	    turnon = false;
+	}
+	else
+	{
+	    invalidpicks_ -= idx;
 	}
 
 	if ( idx<group_->size() )
@@ -321,7 +327,7 @@ bool LocationDisplay::transformPos( Pick::Location& loc ) const
 
     loc.pos.z = newdepth;
 
-    if ( loc.hasDir() )
+    if ( hasDirection() )
 	pErrMsg("Direction not impl");
 
     return true;
@@ -353,7 +359,10 @@ void LocationDisplay::locChg( CallBacker* cb )
 	if ( vo ) vo->turnOn( turnon );
     }
     else if ( cd->ev_==Pick::SetMgr::ChangeData::ToBeRemoved )
+    {
 	group_->removeObject( cd->loc_ );
+	invalidpicks_ -= cd->loc_;
+    }
     else if ( cd->ev_==Pick::SetMgr::ChangeData::Changed )
     {
 	bool turnon = true;
@@ -363,6 +372,10 @@ void LocationDisplay::locChg( CallBacker* cb )
 	    if ( invalidpicks_.indexOf(cd->loc_)==-1 )
 		invalidpicks_ += cd->loc_;
 	    turnon = false;
+	}
+	else
+	{
+	    invalidpicks_ -= cd->loc_;
 	}
 
 	mDynamicCastGet( visBase::VisualObject*, vo,
@@ -449,22 +462,47 @@ void LocationDisplay::getMousePosInfo( const visBase::EventInfo&,
 void LocationDisplay::otherObjectsMoved(
 			const ObjectSet<const SurveyObject>& objs, int )
 {
-    if ( showall_ ) return;
+    if ( showall_ && !invalidpicks_.size() ) return;
+
     for ( int idx=0; idx<group_->size(); idx++ )
     {
-	mDynamicCastGet(visBase::VisualObject*,vo,group_->getObject(idx))
+	mDynamicCastGet(visBase::VisualObject*,vo,group_->getObject(idx));
+
 
 	const Coord3 pos = (*set_)[idx].pos;
-	vo->turnOn( false );
-	for ( int idy=0; idy<objs.size(); idy++ )
+	bool newstatus;
+	if ( showall_ )
+	    newstatus = true;
+	else
 	{
-	    const float dist = objs[idy]->calcDist(pos);
-	    if ( dist<objs[idy]->maxDist() )
+	    newstatus = false;
+
+	    for ( int idy=0; idy<objs.size(); idy++ )
 	    {
-		vo->turnOn(true);
-		break;
+		const float dist = objs[idy]->calcDist(pos);
+		if ( dist<objs[idy]->maxDist() )
+		{
+		    newstatus = true;
+		    break;
+		}
 	    }
 	}
+
+	if ( newstatus && invalidpicks_.indexOf(idx)!=-1 )
+	{
+	    Pick::Location loc = (*set_)[idx];
+	    if ( transformPos( loc ) )
+	    {
+		invalidpicks_ -= idx;
+		setPosition( idx, loc );
+	    }
+	    else
+	    {
+		newstatus = false;
+	    }
+	}
+
+	vo->turnOn( newstatus );
     }
 }
 
