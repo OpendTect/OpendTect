@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          November 2001
- RCS:           $Id: uisettings.cc,v 1.17 2006-07-11 07:16:49 cvsnanne Exp $
+ RCS:           $Id: uisettings.cc,v 1.18 2006-07-17 15:36:23 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -139,7 +139,8 @@ bool uiLooknFeelSettings::acceptOK( CallBacker* )
 
     if ( newsetts.iconsz < 10 || newsetts.iconsz > 64 )
     {
-	uiMSG().error( "Please spcify a size in the range 10-64" );
+	uiMSG().setNextCaption( "Yeah right" );
+	uiMSG().error( "Please specify an icon size in the range 10-64" );
 	return false;
     }
 

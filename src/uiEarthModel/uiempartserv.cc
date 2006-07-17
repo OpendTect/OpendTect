@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.85 2006-07-11 14:49:27 cvsnanne Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.86 2006-07-17 15:36:23 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -170,7 +170,7 @@ bool uiEMPartServer::askUserToSave( const EM::ObjectID& emid ) const
     BufferString msg( emobj->getTypeStr() );
     msg += " '";
     msg += emobj->name(); msg += "' has changed.\nDo you want to save it?";
-    if ( uiMSG().notSaved( msg,0,false) )
+    if ( uiMSG().notSaved(msg,false) )
 	return storeObject(emid,!isFullyLoaded(emid) );
 
     return true;

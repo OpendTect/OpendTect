@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: uimsg.cc,v 1.29 2006-04-25 16:53:11 cvsbert Exp $
+ RCS:           $Id: uimsg.cc,v 1.30 2006-07-17 15:36:23 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -75,71 +75,94 @@ bool uiMsg::toStatusbar( const char* msg )
 }
 
 
-void uiMsg::message( const char* text, const char* caption )
+static BufferString& gtCaptn()
 {
-    uiCursorChanger uicursor( uiCursor::Arrow );
-    if ( !caption || !*caption ) caption = "Information";
-    QMessageBox::information( popParnt(),
-			      QString(caption), QString(text), QString("&Ok") );
+    static BufferString* captn = 0;
+    if ( !captn )
+	captn = new BufferString;
+    return *captn;
+}
 
+void uiMsg::setNextCaption( const char* s )
+{
+    gtCaptn() = s;
 }
 
 
-void uiMsg::warning( const char* text, const char* caption )
+#define mPrepCursor() \
+    uiCursorChanger cc( uiCursor::Arrow )
+#define mPrepTxt() \
+    mPrepCursor(); \
+    BufferString msg( text ); if ( p2 ) msg += p2; if ( p3 ) msg += p3
+#define mCapt(s) QString( getCaptn(s) )
+#define mTxt QString( msg.buf() )
+
+static const char* getCaptn( const char* s )
 {
-    uiCursorChanger uicursor( uiCursor::Arrow );
-    if ( !caption || !*caption ) caption = "Warning";
-    QMessageBox::warning( popParnt(),
-			  QString(caption), QString(text), QMessageBox::Ok,
-		          QMessageBox::NoButton, QMessageBox::NoButton );
+    if ( gtCaptn() == "" )
+	return s;
+
+    static BufferString oldcaptn;
+    oldcaptn = gtCaptn();
+    gtCaptn() = "";
+
+    return oldcaptn.buf();
 }
 
 
-void uiMsg::error( const char* text, const char* caption )
+#define mDeclArgs const char* text, const char* p2, const char* p3
+
+void uiMsg::message( mDeclArgs )
 {
-    uiCursorChanger uicursor( uiCursor::Arrow );
-    if ( !caption || !*caption ) caption = "Error";
-    QMessageBox::critical( popParnt(),
-			   QString(caption), QString(text), QString("&Ok") );
+    mPrepTxt();
+    QMessageBox::information( popParnt(), mCapt("Information"), mTxt,
+	    		      QString("&Ok") );
 }
 
 
-int uiMsg::notSaved( const char* text, const char* caption, bool cancelbutt )
+void uiMsg::warning( mDeclArgs )
 {
-    uiCursorChanger uicursor( uiCursor::Arrow );
-    if ( !caption || !*caption ) caption = "Data not saved";
+    mPrepTxt();
+    QMessageBox::warning( popParnt(), mCapt("Warning"), mTxt, QMessageBox::Ok,
+			  QMessageBox::NoButton, QMessageBox::NoButton );
+}
 
+
+void uiMsg::error( mDeclArgs )
+{
+    mPrepTxt();
+    QMessageBox::critical( popParnt(), mCapt("Error"), mTxt, QString("&Ok") );
+}
+
+
+int uiMsg::notSaved( const char* text, bool cancelbutt )
+{
+    mPrepCursor();
 #if QT_VERSION < 0x030200
-    int res = QMessageBox::information( popParnt(),QString(caption),
-	       QString(text),
-	       QString("&Save"), QString("&Don't save"),
-	       cancelbutt ? QString("&Cancel") : QString::null, 0, 2 );
+# define mQuestion information
 #else
-    int res = QMessageBox::question( popParnt(),QString(caption),QString(text),
-	       QString("&Save"), QString("&Don't save"),
-	       cancelbutt ? QString("&Cancel") : QString::null, 0, 2 );
+# define mQuestion question
 #endif
+    int res = QMessageBox::mQuestion( popParnt(), mCapt("Data not saved"),
+	       QString(text), QString("&Save"), QString("&Don't save"),
+	       cancelbutt ? QString("&Cancel") : QString::null, 0, 2 );
 
-    if ( res==0 ) return 1;
-    if ( res==1 ) return 0;
-    return -1;
+    return res == 0 ? 1 : (res == 1 ? 0 : -1);
 }
 
 
-void uiMsg::about( const char* text, const char* caption )
+void uiMsg::about( const char* text )
 {
-    uiCursorChanger uicursor( uiCursor::Arrow );
-    if ( !caption || !*caption ) caption = "About";
-    QMessageBox::about( popParnt(), QString(caption), QString(text) );
+    mPrepCursor();
+    QMessageBox::about( popParnt(), mCapt("About"), QString(text) );
 }
 
 
-bool uiMsg::askGoOn( const char* text, bool yn, const char* caption )
+bool uiMsg::askGoOn( const char* text, bool yn )
 {
-    uiCursorChanger uicursor( uiCursor::Arrow );
-    if ( !caption || !*caption ) caption = "Please specify";
+    mPrepCursor();
     return !QMessageBox::warning( popParnt(),
-				  QString(caption), QString(text),
+				  mCapt("Please specify"), QString(text),
 				  QString(yn?"&Yes":"&Ok"),
 				  QString(yn?"&No":"&Cancel"),
 				  QString::null,0,1);
@@ -147,26 +170,25 @@ bool uiMsg::askGoOn( const char* text, bool yn, const char* caption )
 
 
 
-int uiMsg::askGoOnAfter( const char* text, const char* cnclmsg,
-			 const char* caption )
+int uiMsg::askGoOnAfter( const char* text, const char* cnclmsg )
 {
-    uiCursorChanger uicursor( uiCursor::Arrow );
-    if ( !cnclmsg || !*cnclmsg ) cnclmsg = "&Cancel";
-    if ( !caption || !*caption ) caption = "Please specify";
-    return QMessageBox::warning( popParnt(), QString(caption), QString(text),
-				  QString("&Yes"), QString("&No"),
-				  QString(cnclmsg), 0, 2 );
+    mPrepCursor();
+    if ( !cnclmsg || !*cnclmsg )
+	cnclmsg = "&Cancel";
+    return QMessageBox::warning( popParnt(), mCapt("Please specify"),
+	    			 QString(text),
+				 QString("&Yes"), QString("&No"),
+				 QString(cnclmsg), 0, 2 );
 }
 
 
-bool uiMsg::showMsgNextTime( const char* text, const char* caption,
-			     const char* ntmsg )
+bool uiMsg::showMsgNextTime( const char* text, const char* ntmsg )
 {
-    uiCursorChanger uicursor( uiCursor::Arrow );
-    if ( !ntmsg || !*ntmsg ) ntmsg = "&Don't show this message again";
-    if ( !caption || !*caption ) caption = "Information";
-    return !QMessageBox::warning( popParnt(),
-				  QString(caption), QString(text),
+    mPrepCursor();
+    if ( !ntmsg || !*ntmsg )
+	ntmsg = "&Don't show this message again";
+    return !QMessageBox::warning( popParnt(), mCapt("Information"),
+	    			  QString(text),
 				  QString("&Ok"),
 				  QString(ntmsg),
 				  QString::null,0,1);
