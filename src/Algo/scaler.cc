@@ -5,15 +5,17 @@
  * FUNCTION : Scaler functions
 -*/
  
-static const char* rcsID = "$Id: scaler.cc,v 1.5 2006-03-12 13:39:10 cvsbert Exp $";
+static const char* rcsID = "$Id: scaler.cc,v 1.6 2006-07-18 11:32:19 cvsdgb Exp $";
 
 #include "scaler.h"
 #include "separstr.h"
 #include "string2.h"
 #include "undefval.h"
 #include "math2.h"
-#include <math.h>
+
 #include <limits.h>
+#include <math.h>
+#include <string.h>
 
 #ifndef LN_MAXDOUBLE
 # define LN_MAXDOUBLE 709.7
