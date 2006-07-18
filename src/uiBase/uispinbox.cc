@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2001
- RCS:           $Id: uispinbox.cc,v 1.19 2006-03-10 13:34:02 cvsbert Exp $
+ RCS:           $Id: uispinbox.cc,v 1.20 2006-07-18 10:46:17 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -250,5 +250,6 @@ uiLabeledSpinBox::uiLabeledSpinBox( uiParent* p, const char* txt, int dec,
 {
     sb = new uiSpinBox( this, dec, nm );
     lbl = new uiLabel( this, txt, sb );
+    lbl->setAlignment( uiLabel::AlignRight );
     setHAlignObj( sb );
 }
