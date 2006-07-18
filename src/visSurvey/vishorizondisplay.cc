@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: vishorizondisplay.cc,v 1.12 2006-07-12 17:59:24 cvskris Exp $
+ RCS:           $Id: vishorizondisplay.cc,v 1.13 2006-07-18 11:42:27 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -1265,10 +1265,24 @@ void HorizonDisplay::updateSectionSeeds(
     for ( int idx=0; idx<objs.size(); idx++ )
     {
 	mDynamicCastGet(const PlaneDataDisplay*,plane,objs[idx]);
-	if ( plane )
+	if ( plane && plane->getOrientation()!=PlaneDataDisplay::Timeslice )
+	{
 	    planelist += idx; 
-	if ( plane && movedobj==plane->id() ) 
-	    refresh = true;
+	    if ( movedobj==plane->id() ) 
+		refresh = true;
+	}
+
+	mDynamicCastGet( const MPEDisplay*, mped, objs[idx] );
+	if ( mped && mped->isDraggerShown() )
+	{
+	    CubeSampling cs;
+	    if ( mped->getPlanePosition(cs) && cs.nrZ()!=1 )
+	    {
+		planelist += idx; 
+		if ( movedobj==mped->id() ) 
+		    refresh = true;
+	    }
+	}
     }
 
     if ( !refresh ) return;
