@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizon3dseedpicker.cc,v 1.17 2006-06-26 07:55:02 cvsjaap Exp $";
+static const char* rcsID = "$Id: horizon3dseedpicker.cc,v 1.18 2006-07-18 12:05:17 cvsjaap Exp $";
 
 #include "horizonseedpicker.h"
 
@@ -130,11 +130,8 @@ bool HorizonSeedPicker::retrackOnActiveLine( const BinID& startbid,
 					     bool startwasdefined,
 					     bool eraseonly ) 
 {
-    BinID dir = engine().activeVolume().hrg.step;
-    if ( engine().activeVolume().nrCrl() == 1 )
-	dir.crl = 0;
-    else
-	dir.inl = 0;
+    BinID dir;
+    if ( !lineTrackDirection(dir) ) return false;
 
     trackbounds_.erase();
     TypeSet<EM::PosID> candidatejunctionpairs;
@@ -343,6 +340,28 @@ bool HorizonSeedPicker::stopSeedPick( bool iscancel )
 }
 
 
+bool HorizonSeedPicker::lineTrackDirection( BinID& dir ) const
+{
+    const CubeSampling* csptr = &engine().activeVolume();
+    dir = (*csptr).hrg.step;
+    
+    if ( (*csptr).nrInl()>1 && (*csptr).nrCrl()>1 )
+	csptr = &engine().trackPlane().boundingBox();
+
+    if ( (*csptr).nrInl()==1 && (*csptr).nrCrl()>1 )
+    {
+	dir.inl = 0; return true; 
+    }
+
+    if ( (*csptr).nrCrl()==1 && (*csptr).nrInl()>1 )
+    {
+	dir.crl = 0; return true; 
+    }
+
+    return false;
+}
+
+
 int HorizonSeedPicker::nrLateralNeighbors( const EM::PosID& pid ) const
 {
     return nrLineNeighbors( pid, false );
@@ -358,12 +377,10 @@ int HorizonSeedPicker::nrLineNeighbors( const EM::PosID& pid,
     TypeSet<EM::PosID> neighpid;
     mGetHorizon(hor);
     hor->geometry().getConnectedPos( pid, &neighpid );
-    
-    BinID dir = engine().activeVolume().hrg.step;
-    if ( pardir == (engine().activeVolume().nrInl()==1) )
-	dir.inl = 0;
-    else
-	dir.crl = 0;
+   
+    BinID dir;
+    if ( !lineTrackDirection(dir) )
+	return -1;
 
     int total = 0;
     for ( int idx=0; idx<neighpid.size(); idx++ )
@@ -378,14 +395,10 @@ int HorizonSeedPicker::nrLineNeighbors( const EM::PosID& pid,
 
 bool HorizonSeedPicker::interpolateSeeds()
 {
-    bool inlineactive = false; 
-    if ( engine().activeVolume().nrInl() == 1 ) 
-	inlineactive = true; 
-    else if ( engine().activeVolume().nrCrl() != 1 ) 
-	return false; 
-    const int step = inlineactive ? 
-		     engine().activeVolume().hrg.crlRange().step : 
-		     engine().activeVolume().hrg.inlRange().step ; 
+    BinID dir;
+    if ( !lineTrackDirection(dir) ) return false;
+
+    const int step = dir.inl ? dir.inl : dir.crl;
 
     const int nrseeds = seedlist_.size();
     if ( nrseeds<2 ) 
@@ -396,7 +409,7 @@ bool HorizonSeedPicker::interpolateSeeds()
     for ( int idx=0; idx<nrseeds; idx++ )
     {
 	const BinID seedbid = SI().transform( seedpos_[idx] );
-	sortval[idx] = inlineactive ? seedbid.crl : seedbid.inl;
+	sortval[idx] = dir.inl ? seedbid.inl : seedbid.crl;
 	sortidx[idx] = idx;
     }	
     sort_coupled( sortval, sortidx, nrseeds ); 
@@ -405,7 +418,7 @@ bool HorizonSeedPicker::interpolateSeeds()
 
     for ( int vtx=0; vtx<nrseeds-1; vtx++ ) 
     { 
-	const int diff = sortval[ vtx+1 ] - sortval[ vtx ]; 
+	const int diff = sortval[vtx+1] - sortval[vtx]; 
 	for ( int idx=step; idx<diff; idx+=step ) 
 	{ 
 	    const double frac = (double) idx / diff; 
