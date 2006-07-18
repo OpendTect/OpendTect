@@ -4,7 +4,7 @@
  * DATE     : Nov 2004
 -*/
 
-static const char* rcsID = "$Id: binidsurface.cc,v 1.9 2006-05-24 07:49:55 cvskris Exp $";
+static const char* rcsID = "$Id: binidsurface.cc,v 1.10 2006-07-18 18:10:36 cvskris Exp $";
 
 #include "binidsurface.h"
 
@@ -82,7 +82,7 @@ bool BinIDSurface::removeRow( int start, int stop )
 	return false; 
     }
 
-    const int nrremoved = stop-start+1;
+    const int nrremoved = stopidx-startidx+1;
 
     Array2D<float>* newpositions = 
 	depths_ ? new Array2DImpl<float>( curnrrows-nrremoved, curnrcols ) : 0;
@@ -117,7 +117,7 @@ bool BinIDSurface::removeCol( int start, int stop )
 	return false; 
     }
 
-    const int nrremoved = stop-start+1;
+    const int nrremoved = stopidx-startidx+1;
 
     Array2D<float>* newpositions = 
 	depths_ ? new Array2DImpl<float>( curnrrows, curnrcols-nrremoved ) : 0;
