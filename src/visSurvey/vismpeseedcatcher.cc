@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vismpeseedcatcher.cc,v 1.12 2006-06-14 07:07:44 cvsjaap Exp $";
+static const char* rcsID = "$Id: vismpeseedcatcher.cc,v 1.13 2006-07-18 11:41:06 cvsjaap Exp $";
 
 #include "vismpeseedcatcher.h"
 
@@ -168,7 +168,8 @@ void MPEClickCatcher::clickCB( CallBacker* cb )
 	    mDynamicCastGet( MPEDisplay*, mpedisplay, dataobj );
 	    if ( mpedisplay && mpedisplay->isDraggerShown() &&
 		 !mpedisplay->isManipulatorShown() &&
-		 mpedisplay->getPlanePosition(clickedcs_) ) 
+		 mpedisplay->getPlanePosition(clickedcs_) && 
+		 clickedcs_.nrZ()!=1 ) 
 	    {
 		sendClickEvent( EM::PosID(-1,-1,-1), eventinfo.ctrl, 
 				eventinfo.shift, eventinfo.pickedpos, 
@@ -227,7 +228,30 @@ void MPEClickCatcher::sendUnderlyingPlanes(
 	 nodepos = scene->getUTM2DisplayTransform()->transformBack( disppos );
     }
     const BinID nodebid = SI().transform( nodepos );
+
+    TypeSet<int> mpedisplays;
+    visBase::DM().getIds( typeid(visSurvey::MPEDisplay), mpedisplays ); 
     
+    for ( int idx=0; idx<mpedisplays.size(); idx++ )
+    {
+	visBase::DataObject* mpeobject = 
+				visBase::DM().getObject( mpedisplays[idx] );
+	if ( !mpeobject )
+	    continue;
+
+	CubeSampling cs;
+	mDynamicCastGet( MPEDisplay*, mpedisplay, mpeobject );
+	if ( mpedisplay && mpedisplay->isDraggerShown() &&
+	     !mpedisplay->isManipulatorShown() &&
+	     mpedisplay->getPlanePosition(cs) && cs.nrZ()!=1  && 
+	     cs.hrg.includes(nodebid) && cs.zrg.includes(nodepos.z) )
+	{
+	    sendClickEvent( nodepid, eventinfo.ctrl, eventinfo.shift, 
+			    eventinfo.pickedpos, mpedisplay->id(), cs, 0, 0 );
+	    return;
+	}
+    }
+
     TypeSet<int> planesinscene;
     visBase::DM().getIds( typeid(visSurvey::PlaneDataDisplay), planesinscene ); 
     
