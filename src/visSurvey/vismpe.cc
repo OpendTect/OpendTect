@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vismpe.cc,v 1.43 2006-06-02 08:07:16 cvsjaap Exp $";
+static const char* rcsID = "$Id: vismpe.cc,v 1.44 2006-07-18 11:43:17 cvsjaap Exp $";
 
 #include "vismpe.h"
 
@@ -24,6 +24,7 @@ static const char* rcsID = "$Id: vismpe.cc,v 1.43 2006-06-02 08:07:16 cvsjaap Ex
 #include "vispolyline.h"
 #include "vistexture3.h"
 #include "vistexturecoords.h"
+#include "vistransform.h"
 #include "attribsel.h"
 #include "attribdatacubes.h"
 #include "iopar.h"
@@ -227,6 +228,9 @@ bool MPEDisplay::getPlanePosition( CubeSampling& planebox ) const
 	planebox.zrg.stop = SI().zRange(true).snap(center.z);
 	planebox.zrg.start = planebox.zrg.stop;
     }
+
+    planebox.hrg.step = BinID( SI().inlStep(), SI().crlStep() );
+    planebox.zrg.step = SI().zRange(true).step;
 
     return true;
 }
@@ -439,11 +443,11 @@ float MPEDisplay::getDraggerTransparency() const
 }
 
 
-void MPEDisplay::showDragger( bool yn )
+void MPEDisplay::showDragger( bool yn, bool newtexture )
 {
     if ( yn==isDraggerShown() )
 	return;
-    if ( yn )
+    if ( yn && newtexture )
 	updateTexture();
     dragger_->turnOn( yn );
     movement.trigger();
@@ -689,6 +693,53 @@ void MPEDisplay::updateTextureCoords()
 	rectangle_->getTextureCoords()->setCoord( 3, 
 				Coord3(intv0.start,intv1.stop,relcoord) );
     }
+}
+
+
+float MPEDisplay::calcDist( const Coord3& pos ) const
+{
+    const mVisTrans* utm2display = scene_->getUTM2DisplayTransform();
+    const Coord3 xytpos = utm2display->transformBack( pos );
+    const BinID binid = SI().transform( Coord(xytpos.x,xytpos.y) );
+
+    CubeSampling cs; 
+    if ( !getPlanePosition(cs) )
+	return mUdf(float);
+
+    BinID inlcrldist( 0, 0 );
+    float zdiff = 0;
+
+    inlcrldist.inl =
+	binid.inl>=cs.hrg.start.inl && binid.inl<=cs.hrg.stop.inl
+	     ? 0
+	     : mMIN( abs(binid.inl-cs.hrg.start.inl),
+		     abs( binid.inl-cs.hrg.stop.inl) );
+    inlcrldist.crl =
+        binid.crl>=cs.hrg.start.crl && binid.crl<=cs.hrg.stop.crl
+             ? 0
+	     : mMIN( abs(binid.crl-cs.hrg.start.crl),
+		     abs( binid.crl-cs.hrg.stop.crl) );
+    zdiff = cs.zrg.includes(xytpos.z)
+	     ? 0
+	     : mMIN(xytpos.z-cs.zrg.start,xytpos.z-cs.zrg.stop) *
+	       SI().zFactor() * scene_->getZScale();
+
+    const float inldist =
+	SI().transform( BinID(0,0)).distance( SI().transform(BinID(1,0)));
+    const float crldist =
+	SI().transform( BinID(0,0)).distance( SI().transform(BinID(0,1)));
+    float inldiff = inlcrldist.inl * inldist;
+    float crldiff = inlcrldist.crl * crldist;
+
+    return sqrt( inldiff*inldiff + crldiff*crldiff + zdiff*zdiff );
+}
+
+    
+float MPEDisplay::maxDist() const
+{
+    float maxzdist = SI().zFactor() * scene_->getZScale() * SI().zStep() / 2;
+    return engine_.trackPlane().boundingBox().nrZ()==1 
+					? maxzdist : SurveyObject::sDefMaxDist;
 }
 
 
