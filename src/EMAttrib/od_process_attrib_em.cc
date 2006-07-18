@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2004
- RCS:           $Id: od_process_attrib_em.cc,v 1.33 2006-07-14 14:30:48 cvshelene Exp $
+ RCS:           $Id: od_process_attrib_em.cc,v 1.34 2006-07-18 09:20:24 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -220,7 +220,8 @@ static bool process( std::ostream& strm, Processor* proc,
 	    if ( !writer->put(*(tbuf->get(0))) )
 		{ mErrRet( writer->errMsg() ); }
 
-	    tbuf->remove(0);
+	    SeisTrc* trc = tbuf->remove(0);
+	    delete trc;
 	}
 
 	nriter++;
