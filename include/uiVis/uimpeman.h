@@ -7,13 +7,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.h,v 1.36 2006-06-26 07:51:00 cvsjaap Exp $
+ RCS:           $Id: uimpeman.h,v 1.37 2006-07-18 11:34:59 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiparent.h"
 #include "cubesampling.h"
+#include  "trackplane.h"
 
 namespace MPE { class EMTracker; };
 namespace visSurvey { class MPEDisplay; class MPEClickCatcher; }
@@ -54,8 +55,6 @@ protected:
     uiToolBar*			toolbar;
     
     uiVisPartServer*		visserv;
-    CubeSampling		oldactivevol;
-    bool			didtriggervolchange;
 
     visSurvey::MPEClickCatcher*	clickcatcher;
 
@@ -91,14 +90,16 @@ protected:
     void			retrackModeCB(CallBacker*);
     void			eraseModeCB(CallBacker*);
     void			mouseEraseModeCB(CallBacker*);
-    void			showTracker(bool);
+    void			showTracker(bool yn,bool newtexture=true);
+
+    bool			isPickingInWizard() const;
+    void			restoreActiveVol();
     
     MPE::EMTracker*		getSelectedTracker(); 
 
     void			setHistoryLevel(int);
 
     void			seedClick(CallBacker*);
-    int				seedclickobject;
 
     int				seedidx;
     int				clrtabidx;
@@ -112,6 +113,10 @@ protected:
 
     bool			init;
     bool			seedpickwason;
+
+    bool			trackerwasshown;
+    MPE::TrackPlane		oldtrackplane;
+    CubeSampling		oldactivevol;
 
     static const char*		sKeyNoAttrib() { return "No attribute"; }
 };
