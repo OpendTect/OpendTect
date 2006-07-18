@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.cc,v 1.97 2006-07-14 10:42:55 cvsnanne Exp $
+ RCS:           $Id: uimpeman.cc,v 1.98 2006-07-18 11:37:24 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,6 +24,7 @@ ________________________________________________________________________
 #include "keystrs.h"
 #include "mpeengine.h"
 #include "sectiontracker.h"
+#include "survinfo.h"
 
 #include "uicombobox.h"
 #include "uicursor.h"
@@ -65,10 +66,10 @@ uiMPEMan::uiMPEMan( uiParent* p, uiVisPartServer* ps )
     , visserv(ps)
     , init(false)
     , colbardlg(0)
-    , seedclickobject(-1)
     , blockattribsel(false)
-    , didtriggervolchange(false)
     , seedpickwason(false)
+    , oldactivevol(false)
+    , trackerwasshown(false)
 {
     toolbar = new uiToolBar(p,"Tracking controls");
 
@@ -219,26 +220,36 @@ void uiMPEMan::seedClick( CallBacker* )
 	return;
 
     const int clickedobject = clickcatcher->clickedObjectID();
-    if ( clickedobject==-1 )
+    if ( clickedobject == -1 )
 	return;
 
     MPE::EMSeedPicker* seedpicker = tracker->getSeedPicker(true);
-    if ( !seedpicker )
-	return;
-
-    if ( seedclickobject==-1 )
+    if ( !seedpicker || !seedpicker->canSetSectionID() ||
+	 !seedpicker->setSectionID(emobj->sectionID(0)) ||
+	 !seedpicker->startSeedPick() )
     {
-	didtriggervolchange = false;
-	if ( !seedpicker->canSetSectionID() ||
-	     !seedpicker->setSectionID(emobj->sectionID(0)) ||
-	     !seedpicker->startSeedPick() )
-	    return;
-	oldactivevol = engine.activeVolume(); 
+	return;
     }
+
+    Coord3 seedpos;
+    if ( pid.objectID() == -1 )
+    {
+	visSurvey::Scene* scene = visSurvey::STM().currentScene();
+	const Coord3 disppos = scene->getZScaleTransform()->
+				   transformBack( clickcatcher->clickedPos() );
+	seedpos = scene->getUTM2DisplayTransform()->transformBack(disppos);
+    }
+    else
+    {
+	seedpos = emobj->getPos(pid);
+    }
+
+    mGetDisplays(false);
+    const bool trackerisshown = displays.size() && 
+			        displays[0]->isDraggerShown();
 
     if ( tracker->is2D() )
     {
-	seedclickobject = clickedobject;
 	RefMan<const Attrib::DataCubes> cached =
 	    clickcatcher->clickedObjectData();
 
@@ -254,18 +265,36 @@ void uiMPEMan::seedClick( CallBacker* )
     }
     else
     {
-	const CubeSampling newvolume = clickcatcher->clickedObjectCS();
+	CubeSampling newvolume = engine.trackPlane().boundingBox();
+
+	BinID seedbid = SI().transform( seedpos );
+	if ( !trackerisshown || !newvolume.zrg.includes(seedpos.z) ||
+	     !newvolume.hrg.includes(seedbid) )
+	{
+	    newvolume = clickcatcher->clickedObjectCS();
+	}
+	
 	if ( newvolume.isEmpty() )
 	    return;
 	
 	if ( !engine.activeVolume().includes(newvolume) )
 	{
-	    if ( !didtriggervolchange )
+	    // Not allowed to pick on more than one plane in wizard stage
+	    if ( isPickingInWizard() && seedpicker->nrSeeds() )
+		return;
+
+	    if ( oldactivevol.isEmpty() )
+	    {
+		oldactivevol = engine.activeVolume();
+		trackerwasshown = trackerisshown;
+		oldtrackplane = engine.trackPlane();
+		showTracker( false );
 		engine.swapCacheAndItsBackup();
+	    }
+
 	    NotifyStopper notifystopper( engine.activevolumechange );
 	    engine.setActiveVolume( newvolume );
 	    notifystopper.restore();
-	    seedclickobject = clickedobject;
 
 	    RefMan<const Attrib::DataCubes> cached = 
 					    clickcatcher->clickedObjectData();
@@ -273,9 +302,6 @@ void uiMPEMan::seedClick( CallBacker* )
 		engine.setAttribData( *clickcatcher->clickedObjectDataSelSpec(),
 				      cached );
 
-	    didtriggervolchange = true;
-
-	    mGetDisplays( false );
 	    for ( int idx=0; idx<displays.size(); idx++ )
 		displays[idx]->turnOn( false );
 
@@ -293,22 +319,40 @@ void uiMPEMan::seedClick( CallBacker* )
 	else if ( clickcatcher->shiftClicked() )
 	    seedpicker->removeSeed( pid, false );
 	else
-	    seedpicker->addSeed( emobj->getPos(pid) );
+	    seedpicker->addSeed( seedpos );
     }
     else
-    {
-	visSurvey::Scene* scene = visSurvey::STM().currentScene();
-	const Coord3 disppos = scene->getZScaleTransform()->
-				   transformBack( clickcatcher->clickedPos() );
-	const Coord3 pos = scene->getUTM2DisplayTransform()->
-							transformBack(disppos);
-
-	seedpicker->addSeed( pos );
-    }
-    visserv->makeSectionDisplayRefresh();
-
+	seedpicker->addSeed( seedpos );
+    
     uiCursor::restoreOverride();
     setHistoryLevel(currentevent);
+    
+    if ( !isPickingInWizard() )
+	restoreActiveVol();
+    visserv->makeSectionDisplayRefresh();
+}
+
+
+void uiMPEMan::restoreActiveVol()
+{
+    MPE::Engine& engine = MPE::engine();
+    if ( !oldactivevol.isEmpty() ) 
+    {
+	engine.swapCacheAndItsBackup();
+	NotifyStopper notifystopper( engine.activevolumechange );
+	engine.setActiveVolume( oldactivevol );
+	notifystopper.restore();
+
+	mGetDisplays(false);
+	for ( int idx=0; idx<displays.size(); idx++ )
+	    displays[idx]->turnOn( true );
+
+	engine.setTrackPlane( oldtrackplane, false );
+	engine.activevolumechange.trigger();
+	showTracker( trackerwasshown, false );
+	oldactivevol.setEmpty();
+    }
+
 }
 
 
@@ -368,7 +412,7 @@ void uiMPEMan::updateAttribNames()
 
     updateSelectedAttrib();
 
-    if ( !init && attribfld->size()>1 && attribspecs.size() &&
+/*    if ( !init && attribfld->size()>1 && attribspecs.size() &&
 	 engine().activeVolume() != engine().getDefaultActiveVolume() )
     {
 	MPE::EMTracker* tracker = getSelectedTracker();
@@ -382,6 +426,7 @@ void uiMPEMan::updateAttribNames()
 	    attribfld->setCurrentItem( (int)1 );
 	}
     }
+*/
     attribSel(0);
     updateButtonSensitivity(0);
 }
@@ -408,7 +453,7 @@ void uiMPEMan::updateSelectedAttrib()
     else if ( userref==sKey::None )
 	userref = sKeyNoAttrib();
     
-    if ( userref ) 	
+    if ( userref && !blockattribsel ) 	
 	attribfld->setCurrentItem( userref );
 }
 
@@ -416,6 +461,12 @@ void uiMPEMan::updateSelectedAttrib()
 bool uiMPEMan::isSeedPickingOn() const
 {
     return clickcatcher && clickcatcher->isOn();
+}
+
+
+bool uiMPEMan::isPickingInWizard() const
+{
+    return isSeedPickingOn() && !seedconmodefld->sensitive();
 }
 
 
@@ -430,9 +481,7 @@ void uiMPEMan::turnSeedPickingOn( bool yn )
     {
 	toolbar->turnOn( showcubeidx, false );
 	showCubeCB(0);
-	showTracker(false);
 
-	seedclickobject = -1;
 	if ( !clickcatcher )
 	{
 	    clickcatcher = visSurvey::MPEClickCatcher::create();
@@ -445,7 +494,6 @@ void uiMPEMan::turnSeedPickingOn( bool yn )
 	}
 
 	clickcatcher->turnOn( true );
-	oldactivevol.setEmpty();
     }
     else
     {
@@ -456,26 +504,8 @@ void uiMPEMan::turnSeedPickingOn( bool yn )
 	    seedpicker->stopSeedPick();
 
 	if ( clickcatcher ) clickcatcher->turnOn( false );
-	if ( !oldactivevol.isEmpty() )
-	{
-	    //Restore old volume if it has been changed.
-	    if ( didtriggervolchange )
-		engine().swapCacheAndItsBackup();
-	    NotifyStopper notifystopper( MPE::engine().activevolumechange );
-	    MPE::engine().setActiveVolume(oldactivevol);
-	    notifystopper.restore();
 
-	    if ( didtriggervolchange )
-	    {
-		mGetDisplays( false );
-		for ( int idx=0; idx<displays.size(); idx++ )
-		    displays[idx]->turnOn( true );
-
-		MPE::engine().activevolumechange.trigger();
-	    }
-
-	    didtriggervolchange = false;
-	}
+	restoreActiveVol();
     }
 }
 
@@ -510,17 +540,20 @@ void uiMPEMan::showCubeCB( CallBacker* )
 }
 
 
-void uiMPEMan::attribSel( CallBacker* cb )
+void uiMPEMan::attribSel( CallBacker* )
 {
     if ( blockattribsel )
 	return;
 
-    if ( cb && attribfld->currentItem() ) 
+    mGetDisplays(false);
+    if ( displays.size() && displays[0]->isDraggerShown() && 
+	 attribfld->currentItem() )
+    {
 	visserv->loadPostponedData();
+    }
 
     uiCursorChanger cursorchanger( uiCursor::Wait );
 
-    mGetDisplays(false)
     if ( !attribfld->currentItem() )
     {
 	for ( int idx=0; idx<displays.size(); idx++ )
@@ -593,6 +626,7 @@ void uiMPEMan::seedConnectModeSel( CallBacker* )
 
     const int oldseedconmode = seedpicker->getSeedConnectMode();
     seedpicker->setSeedConnectMode( seedconmodefld->currentItem() ); 
+    turnSeedPickingOn( false );
 
     if ( seedpicker->doesModeUseSetup() )
     {
@@ -681,27 +715,27 @@ void uiMPEMan::updateButtonSensitivity( CallBacker* )
     const bool isvoltrack = seedpicker ? seedpicker->doesModeUseVolume() : true;
     const bool isseedpicking = toolbar->isOn(seedidx);
     
-    toolbar->setSensitive( extendidx, isvoltrack && !isseedpicking );
-    toolbar->setSensitive( retrackidx, isvoltrack && !isseedpicking );
-    toolbar->setSensitive( eraseidx, isvoltrack && !isseedpicking );
-    toolbar->setSensitive( moveplaneidx, isvoltrack && !isseedpicking );
-    toolbar->setSensitive( showcubeidx, isvoltrack && !isseedpicking );
-    toolbar->setSensitive( trackinvolidx, isvoltrack && !isseedpicking );
+    toolbar->setSensitive( extendidx, isvoltrack );
+    toolbar->setSensitive( retrackidx, isvoltrack );
+    toolbar->setSensitive( eraseidx, true );
+    toolbar->setSensitive( moveplaneidx, true );
+    toolbar->setSensitive( showcubeidx, !isseedpicking );
+    toolbar->setSensitive( trackinvolidx, isvoltrack );
     
     //Track forward, backward, attrib, trans, nrstep
     mGetDisplays(false);
     const bool trackerisshown = displays.size() &&
 				displays[0]->isDraggerShown();
 
-    toolbar->setSensitive( trackforwardidx, trackerisshown && isvoltrack );
-    toolbar->setSensitive( trackbackwardidx, trackerisshown && isvoltrack );
-    attribfld->setSensitive( trackerisshown && isvoltrack );
-    transfld->setSensitive( trackerisshown && isvoltrack );
-    nrstepsbox->setSensitive( trackerisshown && isvoltrack );
+    toolbar->setSensitive( trackforwardidx, trackerisshown );
+    toolbar->setSensitive( trackbackwardidx, trackerisshown );
+    attribfld->setSensitive( trackerisshown );
+    transfld->setSensitive( trackerisshown );
+    nrstepsbox->setSensitive( trackerisshown );
 
     //coltab
     toolbar->setSensitive( clrtabidx, trackerisshown && !colbardlg &&
-			   attribfld->currentItem()>0 && isvoltrack );
+			   attribfld->currentItem()>0 );
 
 
     //trackmode buttons
@@ -836,19 +870,17 @@ void uiMPEMan::trackInVolume( CallBacker* )
 }
 
 
-void uiMPEMan::showTracker( bool yn )
+void uiMPEMan::showTracker( bool yn, bool newtexture )
 {
-    if ( didtriggervolchange )
-	yn = false;
-
     if ( yn && attribfld->currentItem() ) 
 	visserv->loadPostponedData();
 
     uiCursor::setOverride( uiCursor::Wait );
     mGetDisplays(true)
     for ( int idx=0; idx<displays.size(); idx++ )
-	displays[idx]->showDragger( yn );
+	displays[idx]->showDragger( yn, newtexture );
     uiCursor::restoreOverride();
+    updateButtonSensitivity();
 }
 
 
