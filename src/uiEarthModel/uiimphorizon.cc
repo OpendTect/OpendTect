@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          May 2002
- RCS:           $Id: uiimphorizon.cc,v 1.69 2006-07-07 15:00:22 cvskris Exp $
+ RCS:           $Id: uiimphorizon.cc,v 1.70 2006-07-18 20:26:14 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -481,7 +481,7 @@ bool uiImportHorizon::interpolateGrid( ObjectSet<BinIDValueSet>& sections )
 	interpolator.maxholesize_ = stepoutfld->getIntValue();
 	if ( mIsUdf(interpolator.maxholesize_) )
 	    interpolator.maxholesize_ = 0;
-	interpolator.coldistratio_ = hs.step.crl/hs.step.inl;
+	interpolator.setStepRatio( hs.step.inl, hs.step.crl );
 	interpolator.extrapolate_ = extrapolatefld->getBoolValue();
 
 	uiExecutor uiex( this, interpolator );
