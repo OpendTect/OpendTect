@@ -4,15 +4,17 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		July 2006
- RCS:		$Id: uivisslicepos3d.cc,v 1.1 2006-07-13 20:18:51 cvsnanne Exp $
+ RCS:		$Id: uivisslicepos3d.cc,v 1.2 2006-07-19 15:21:25 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uislicepos.h"
 
+#include "uilabel.h"
 #include "uispinbox.h"
 #include "uitoolbar.h"
+#include "uivispartserv.h"
 #include "visplanedatadisplay.h"
 
 #include "cubesampling.h"
@@ -22,18 +24,22 @@ ________________________________________________________________________
 #define Display visSurvey::PlaneDataDisplay
 
 uiSlicePos::uiSlicePos( uiParent* p )
-    : toolbar_(new uiToolBar(p,"Slice position controls"))
+    : toolbar_(new uiToolBar(p,"Slice position"))
     , curpdd_(0)
+    , positionChg(this)
 {
     toolbar_->setCloseMode( 2 );
 
-    sliceposbox_ = new uiSpinBox( toolbar_, 0, "Slice position" );
+    sliceposbox_ = new uiLabeledSpinBox( toolbar_, "Crossline", 0,
+	    				 "Slice position" );
     sliceposbox_->setSensitive( curpdd_ );
-    sliceposbox_->valueChanged.notify( mCB(this,uiSlicePos,slicePosChg) );
+    sliceposbox_->box()->valueChanged.notify(
+	    			mCB(this,uiSlicePos,slicePosChg) );
 
-    slicestepbox_ = new uiSpinBox( toolbar_, 0, "Slice step" );
+    slicestepbox_ = new uiLabeledSpinBox( toolbar_, "Step", 0, "Slice step" );
     slicestepbox_->setSensitive( curpdd_ );
-    slicestepbox_->valueChanged.notify( mCB(this,uiSlicePos,sliceStepChg) );
+    slicestepbox_->box()->valueChanged.notify(
+	    			mCB(this,uiSlicePos,sliceStepChg) );
 
     laststeps_[0] = SI().inlStep();
     laststeps_[1] = SI().crlStep();
@@ -68,39 +74,28 @@ void uiSlicePos::setDisplay( Display* pdd )
 
     if ( !curpdd_ ) return;
 
+    setBoxLabel();
     setBoxRanges();
     setPosBoxValue();
     setStepBoxValue();
 }
 
 
-void uiSlicePos::updatePos( CallBacker* )
+int uiSlicePos::getDisplayID() const
 {
-    setPosBoxValue();
+    return curpdd_ ? curpdd_->id() : -1;
 }
 
 
-void uiSlicePos::setPosBoxValue()
+void uiSlicePos::setBoxLabel()
 {
-    if ( !curpdd_ ) return;
-
-    NotifyStopper posstop( sliceposbox_->valueChanged );
-
-    const CubeSampling cs = curpdd_->getCubeSampling();
     const Display::Orientation orientation = curpdd_->getOrientation();
     if ( orientation == Display::Inline )
-	sliceposbox_->setValue( cs.hrg.start.inl );
+	sliceposbox_->label()->setText( "Inline" );
     else if ( orientation == Display::Crossline )
-	sliceposbox_->setValue( cs.hrg.start.crl );
+	sliceposbox_->label()->setText( "Crossline" );
     else
-	sliceposbox_->setValue( cs.zrg.start*SI().zFactor() );
-}
-
-
-void uiSlicePos::setStepBoxValue()
-{
-    const Display::Orientation orientation = curpdd_->getOrientation();
-    slicestepbox_->setValue( laststeps_[(int)orientation] );
+	sliceposbox_->label()->setText( SI().zIsTime() ? "Time" : "Depth" );
 }
 
 
@@ -108,31 +103,63 @@ void uiSlicePos::setBoxRanges()
 {
     if ( !curpdd_ ) return;
 
-    NotifyStopper posstop( sliceposbox_->valueChanged );
-    NotifyStopper stepstop( slicestepbox_->valueChanged );
+    uiSpinBox* posbox = sliceposbox_->box();
+    uiSpinBox* stepbox = slicestepbox_->box();
+    NotifyStopper posstop( posbox->valueChanged );
+    NotifyStopper stepstop( stepbox->valueChanged );
 
     const CubeSampling& survey = SI().sampling( true );
     const Display::Orientation orientation = curpdd_->getOrientation();
     if ( orientation == Display::Inline )
     {
-	sliceposbox_->setInterval( survey.hrg.start.inl, survey.hrg.stop.inl );
-	slicestepbox_->setInterval( survey.hrg.step.inl,
-				    survey.hrg.stop.inl-survey.hrg.start.inl );
+	posbox->setInterval( survey.hrg.start.inl, survey.hrg.stop.inl );
+	stepbox->setInterval( survey.hrg.step.inl,
+			      survey.hrg.stop.inl-survey.hrg.start.inl,
+			      survey.hrg.step.inl );
     }
     else if ( orientation == Display::Crossline )
     {
-	sliceposbox_->setInterval( survey.hrg.start.crl, survey.hrg.stop.crl,
-				   survey.hrg.step.crl );
-	slicestepbox_->setInterval( survey.hrg.step.crl,
-				    survey.hrg.stop.crl-survey.hrg.start.crl );
+	posbox->setInterval( survey.hrg.start.crl, survey.hrg.stop.crl );
+	stepbox->setInterval( survey.hrg.step.crl,
+			      survey.hrg.stop.crl-survey.hrg.start.crl,
+			      survey.hrg.step.crl );
     }
     else
     {
 	const float zfac = SI().zFactor();
-	sliceposbox_->setInterval( survey.zrg.start*zfac, survey.zrg.stop*zfac);
-	slicestepbox_->setInterval( survey.zrg.step*zfac,
-				    (survey.zrg.stop-survey.zrg.start)*zfac );
+	posbox->setInterval( survey.zrg.start*zfac, survey.zrg.stop*zfac);
+	stepbox->setInterval( survey.zrg.step*zfac,
+			      (survey.zrg.stop-survey.zrg.start)*zfac,
+			      survey.zrg.step*zfac );
     }
+}
+
+
+void uiSlicePos::setPosBoxValue()
+{
+    if ( !curpdd_ ) return;
+
+    uiSpinBox* posbox = sliceposbox_->box();
+    NotifyStopper posstop( posbox->valueChanged );
+
+    const CubeSampling cs = curpdd_->getCubeSampling();
+    const Display::Orientation orientation = curpdd_->getOrientation();
+    if ( orientation == Display::Inline )
+	posbox->setValue( cs.hrg.start.inl );
+    else if ( orientation == Display::Crossline )
+	posbox->setValue( cs.hrg.start.crl );
+    else
+	posbox->setValue( cs.zrg.start*SI().zFactor() );
+}
+
+
+void uiSlicePos::setStepBoxValue()
+{
+    if ( !curpdd_ ) return;
+
+    const Display::Orientation orientation = curpdd_->getOrientation();
+    slicestepbox_->box()->setValue( laststeps_[(int)orientation] );
+    sliceStepChg( 0 );
 }
 
 
@@ -140,16 +167,21 @@ void uiSlicePos::slicePosChg( CallBacker* )
 {
     if ( !curpdd_ ) return;
 
-    CubeSampling cs = curpdd_->getCubeSampling();
+    uiSpinBox* posbox = sliceposbox_->box();
+    CubeSampling oldcs = curpdd_->getCubeSampling();
+    curcs_ = oldcs;
     const Display::Orientation orientation = curpdd_->getOrientation();
     if ( orientation == Display::Inline )
-	cs.hrg.start.inl = cs.hrg.stop.inl = sliceposbox_->getValue();
+	curcs_.hrg.start.inl = curcs_.hrg.stop.inl = posbox->getValue();
     else if ( orientation == Display::Crossline )
-	cs.hrg.start.crl = cs.hrg.stop.crl = sliceposbox_->getValue();
+	curcs_.hrg.start.crl = curcs_.hrg.stop.crl = posbox->getValue();
     else
-	cs.zrg.start = cs.zrg.stop = sliceposbox_->getValue()/SI().zFactor();
+	curcs_.zrg.start = curcs_.zrg.stop = posbox->getValue()/SI().zFactor();
 
-    curpdd_->setCubeSampling( cs );
+    if ( oldcs == curcs_ )
+	return;
+
+    positionChg.trigger();
 }
 
 
@@ -158,7 +190,13 @@ void uiSlicePos::sliceStepChg( CallBacker* )
     if ( !curpdd_ ) return;
 
     const Display::Orientation orientation = curpdd_->getOrientation();
-    laststeps_[(int)orientation] = slicestepbox_->getValue();
+    laststeps_[(int)orientation] = slicestepbox_->box()->getValue();
 
-    sliceposbox_->setStep( laststeps_[(int)orientation] );
+    sliceposbox_->box()->setStep( laststeps_[(int)orientation] );
+}
+
+
+void uiSlicePos::updatePos( CallBacker* )
+{
+    setPosBoxValue();
 }

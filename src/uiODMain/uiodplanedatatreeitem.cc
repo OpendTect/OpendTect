@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodplanedatatreeitem.cc,v 1.6 2006-07-13 20:18:51 cvsnanne Exp $
+ RCS:		$Id: uiodplanedatatreeitem.cc,v 1.7 2006-07-19 15:21:25 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -100,8 +100,20 @@ bool uiODPlaneDataTreeItem::init()
 			mCB(this,uiODPlaneDataTreeItem,moveForwdCB) );
     getItem()->moveBackwdReq.notify(
 			mCB(this,uiODPlaneDataTreeItem,moveBackwdCB) );
+    visserv->getUiSlicePos()->positionChg.notify(
+	    		mCB(this,uiODPlaneDataTreeItem,posChange) );
 
     return uiODDisplayTreeItem::init();
+}
+
+
+void uiODPlaneDataTreeItem::posChange( CallBacker* )
+{
+    uiSlicePos* slicepos = visserv->getUiSlicePos();
+    if ( slicepos->getDisplayID() != displayid_ )
+	return;
+
+    movePlaneAndCalcAttribs( slicepos->getCubeSampling() );
 }
 
 
@@ -237,15 +249,7 @@ void uiODPlaneDataTreeItem::posDlgClosed( CallBacker* )
     CubeSampling newcs = positiondlg_->getCubeSampling();
     bool samepos = newcs == pdd->getCubeSampling();
     if ( positiondlg_->uiResult() && !samepos )
-    {
-	pdd->setCubeSampling( newcs );
-	pdd->resetManipulation();
-	for ( int attrib=visserv->getNrAttribs(displayid_); attrib>=0; attrib--)
-	    visserv->calculateAttrib( displayid_, attrib, false );
-
-	updateColumnText( uiODSceneMgr::cNameColumn() );
-	updateColumnText(1);
-    }
+	movePlaneAndCalcAttribs( newcs );
 
     applMgr()->enableMenusAndToolbars( true );
     applMgr()->enableSceneManipulation( true );
@@ -261,18 +265,11 @@ void uiODPlaneDataTreeItem::updatePlanePos( CallBacker* cb )
     mDynamicCastGet(uiSliceSel*,dlg,cb)
     if ( !dlg ) return;
 
-    CubeSampling cs = dlg->getCubeSampling();
-    pdd->setCubeSampling( cs );
-    pdd->resetManipulation();
-    for ( int attrib=visserv->getNrAttribs(displayid_); attrib>=0; attrib--)
-	visserv->calculateAttrib( displayid_, attrib, false );
-
-    updateColumnText( uiODSceneMgr::cNameColumn() );
-    updateColumnText(1);
+    movePlaneAndCalcAttribs( dlg->getCubeSampling() );
 }
 
 
-void uiODPlaneDataTreeItem::movePlane( const CubeSampling& cs )
+void uiODPlaneDataTreeItem::movePlaneAndCalcAttribs( const CubeSampling& cs )
 {
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,
 	    	    visserv->getObject(displayid_))
@@ -281,8 +278,9 @@ void uiODPlaneDataTreeItem::movePlane( const CubeSampling& cs )
     pdd->resetManipulation();
     for ( int attrib=visserv->getNrAttribs(displayid_); attrib>=0; attrib--)
 	visserv->calculateAttrib( displayid_, attrib, false );
-    updateColumnText(0);
-    updateColumnText(1);
+
+    updateColumnText( uiODSceneMgr::cNameColumn() );
+    updateColumnText( uiODSceneMgr::cColorColumn() );
 }
 
 
@@ -324,7 +322,7 @@ void uiODPlaneDataTreeItem::movePlane( bool forward )
     else
 	return;
 
-    movePlane( cs );
+    movePlaneAndCalcAttribs( cs );
 }
 
 
