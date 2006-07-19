@@ -4,7 +4,7 @@
  * DATE     : 18-4-1996
 -*/
 
-static const char* rcsID = "$Id: draw.cc,v 1.53 2006-07-17 15:34:46 cvsbert Exp $";
+static const char* rcsID = "$Id: draw.cc,v 1.54 2006-07-19 16:03:51 cvsbert Exp $";
 
 /*! \brief Several implementations for UI-related things.
 
@@ -24,6 +24,7 @@ The main chunk is color table related.
 #include "interpol1d.h"
 #include "bufstringset.h"
 #include "strmprov.h"
+#include "filegen.h"
 
 #include <iostream>
 
@@ -110,9 +111,20 @@ static IOPar* readStdTabs()
 
 bool ColorTable::putStdTabPars( const ObjectSet<IOPar>& parset )
 {
-    StreamData sd = StreamProvider( GetDataFileName("ColTabs") ).makeOStream();
-    if ( !sd.usable() )
+    BufferString fname = GetDataFileName("ColTabs");
+    if ( File_exists(fname) && !File_isWritable(fname)
+	&& !File_makeWritable(fname,NO,YES) )
+    {
+	ErrMsg( "Cannot make standard color tables file writable" );
 	return false;
+    }
+
+    StreamData sd = StreamProvider( GetDataFileName("ColTabs") ).makeOStream();
+    if ( !sd.usable() || !sd.ostrm->good() )
+    {
+	ErrMsg( "Cannot open standard color tables file for write" );
+	return false;
+    }
 
     IOPar iop( "Standard color tables" );
     for ( int idx=0; idx<parset.size(); idx++ )
