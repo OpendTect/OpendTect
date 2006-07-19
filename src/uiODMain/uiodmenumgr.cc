@@ -4,12 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.cc,v 1.47 2006-07-11 08:22:41 cvsbert Exp $
+ RCS:           $Id: uiodmenumgr.cc,v 1.48 2006-07-19 16:03:06 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.47 2006-07-11 08:22:41 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.48 2006-07-19 16:03:06 cvsbert Exp $";
 
 #include "uiodmenumgr.h"
 #include "uiodapplmgr.h"
@@ -323,7 +323,7 @@ void uiODMenuMgr::fillUtilMenu()
     mInsertItem( utilmnu, "&Create Devel. Env. ...", mCrDevEnvMnuItm );
     const char* lmfnm = logMsgFileName();
     if ( lmfnm && *lmfnm )
-	mInsertItem( utilmnu, "Show log file ...", mShwLogFileMnuItm );
+	mInsertItem( utilmnu, "Show &log file ...", mShwLogFileMnuItm );
 }
 
 
