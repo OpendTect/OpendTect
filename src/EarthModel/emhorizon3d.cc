@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: emhorizon3d.cc,v 1.76 2006-07-18 20:26:14 cvskris Exp $
+ RCS:           $Id: emhorizon3d.cc,v 1.77 2006-07-19 21:37:54 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -294,6 +294,7 @@ bool Horizon::setArray2D( const Array2D<float>& arr, SectionID sid,
     if ( rowrg.width(false)<1 || colrg.width(false)<1 )
 	return false;
 
+    const bool didcheck = geometry().enableChecks( false );
     for ( int row=rowrg.start; row<=rowrg.stop; row+=rowrg.step )
     {
 	for ( int col=colrg.start; col<=colrg.stop; col+=colrg.step )
@@ -308,6 +309,7 @@ bool Horizon::setArray2D( const Array2D<float>& arr, SectionID sid,
 	}
     }
 
+    geometry().enableChecks( didcheck );
     return true;
 }
 
