@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          May 2002
- RCS:           $Id: uiimphorizon.h,v 1.15 2006-06-29 14:10:42 cvsnanne Exp $
+ RCS:           $Id: uiimphorizon.h,v 1.16 2006-07-20 16:30:21 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,6 +28,7 @@ class uiGenInput;
 class uiIOObjSel;
 class uiPushButton;
 class uiScaler;
+class uiImpHorArr2DInterpPars;
 
 
 /*! \brief Dialog for horizon selection */
@@ -48,10 +49,9 @@ protected:
     uiGenInput*		xyfld;
     uiScaler*		scalefld;
     uiBinIDSubSel*	subselfld;
-    uiGenInput*		udffld;
-    uiGenInput*		interpolfld;
-    uiGenInput*		stepoutfld;
-    uiGenInput*		extrapolatefld;
+    uiGenInput*		udfvalfld;
+    uiImpHorArr2DInterpPars* arr2dinterpfld;
+    uiGenInput*		filludffld;
     uiIOObjSel*		outfld;
     uiCheckBox*		displayfld;
     uiPushButton*	attribbut;
@@ -64,10 +64,10 @@ protected:
 	    			  const HorSampling*);
     bool		doWork();
     BinIDValueSet*	getBidValSet(const char*,bool,const HorSampling*);
-    bool		interpolateGrid(ObjectSet<BinIDValueSet>&);
+    bool		fillUdfs(ObjectSet<BinIDValueSet>&);
 
     void		inputCB(CallBacker*);
-    void		interpolSel(CallBacker*);
+    void		fillUdfSel(CallBacker*);
     void		scanFile(CallBacker*);
     void		attribSel(CallBacker*);
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          May 2002
- RCS:           $Id: uiimphorizon.cc,v 1.70 2006-07-18 20:26:14 cvskris Exp $
+ RCS:           $Id: uiimphorizon.cc,v 1.71 2006-07-20 16:30:22 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,6 +31,7 @@ ________________________________________________________________________
 #include "survinfo.h"
 #include "keystrs.h"
 
+#include "uiarray2dinterpol.h"
 #include "uicombobox.h"
 #include "uiexecutor.h"
 #include "uifileinput.h"
@@ -46,7 +47,51 @@ ________________________________________________________________________
 #include "uitable.h"
 
 
-static int sDefStepout = 3;
+class uiImpHorArr2DInterpPars : public uiCompoundParSel
+{
+public:
+
+uiImpHorArr2DInterpPars( uiParent* p, const Array2DInterpolatorPars* ps=0 )
+    : uiCompoundParSel( p, "Parameters for fill", "Set" )
+{
+    if ( ps ) pars_ = *ps;
+    butPush.notify( mCB(this,uiImpHorArr2DInterpPars,selChg) );
+}
+
+BufferString getSummary() const
+{
+    BufferString ret;
+    const bool havemaxsz = pars_.maxholesize_ > 0;
+    const bool havemaxsteps = pars_.maxnrsteps_ > 0;
+
+    if ( !havemaxsz && !havemaxsteps )
+	ret = pars_.extrapolate_ ? "Fill all" : "No extrapolation";
+    else
+    {
+	if ( havemaxsz )
+	    { ret = "Holes < "; ret += pars_.maxholesize_; ret += "; "; }
+	if ( havemaxsteps )
+	{
+	    ret += pars_.maxnrsteps_; ret += " iteration";
+	    if ( pars_.maxnrsteps_ > 1 ) ret += "s"; ret += "; ";
+	}
+	ret += pars_.extrapolate_ ? "everywhere" : "inside";
+    }
+    return ret;
+}
+
+
+void selChg( CallBacker* )
+{
+    uiArr2DInterpolParsDlg dlg( this, &pars_ );
+    if ( dlg.go() )
+	pars_ = dlg.getInput();
+}
+
+    Array2DInterpolatorPars	pars_;
+
+};
+
 
 uiImportHorizon::uiImportHorizon( uiParent* p )
     : uiDialog(p,uiDialog::Setup("Import Horizon",
@@ -88,29 +133,21 @@ uiImportHorizon::uiImportHorizon( uiParent* p )
     scalefld = new uiScaler( midgrp, scalelbl, true );
     scalefld->attach( alignedBelow, subselfld );
 
-    udffld = new uiGenInput( midgrp, "Undefined value",
+    udfvalfld = new uiGenInput( midgrp, "Value representing 'Undefined'",
 	    		     StringInpSpec(sKey::FloatUdf) );
-    udffld->attach( alignedBelow, scalefld );
+    udfvalfld->attach( alignedBelow, scalefld );
 
-    interpolfld = new uiGenInput( midgrp, "Interpolate to make regular grid",
-				  BoolInpSpec() );
-    interpolfld->valuechanged.notify( mCB(this,uiImportHorizon,interpolSel) );
-    interpolfld->setValue(false);
-    interpolfld->attach( alignedBelow, udffld );
+    filludffld = new uiGenInput( midgrp, "Fill undefined parts", BoolInpSpec());
+    filludffld->valuechanged.notify( mCB(this,uiImportHorizon,fillUdfSel) );
+    filludffld->setValue(false);
+    filludffld->attach( alignedBelow, udfvalfld );
 
-    stepoutfld = new uiGenInput( midgrp, "Max hole size", IntInpSpec() );
-    stepoutfld->setValue( sDefStepout );
-    stepoutfld->setElemSzPol( uiObject::Small );
-    stepoutfld->attach( rightTo, interpolfld );
-
-    extrapolatefld = new uiGenInput( midgrp, "Extrapolate",
-				     BoolInpSpec() );
-    extrapolatefld->setValue(false);
-    extrapolatefld->attach( alignedBelow, interpolfld );
+    arr2dinterpfld = new uiImpHorArr2DInterpPars( midgrp );
+    arr2dinterpfld->attach( alignedBelow, filludffld );
 
     attribbut = new uiPushButton( midgrp, "Attribute &info",
 	    			  mCB(this,uiImportHorizon,attribSel), false );
-    attribbut->attach( alignedBelow, extrapolatefld );
+    attribbut->attach( alignedBelow, arr2dinterpfld );
 
     uiSeparator* sep2 = new uiSeparator( this, "Separator2" );
     sep2->attach( stretchedBelow, midgrp );
@@ -128,7 +165,7 @@ uiImportHorizon::uiImportHorizon( uiParent* p )
     botgrp->attach( alignedBelow, midgrp );
     botgrp->attach( ensureBelow, sep2 );
 
-    interpolSel(0);
+    fillUdfSel(0);
 }
 
 
@@ -146,10 +183,10 @@ void uiImportHorizon::inputCB( CallBacker* )
 }
 
 
-void uiImportHorizon::interpolSel( CallBacker* )
+void uiImportHorizon::fillUdfSel( CallBacker* )
 {
-    stepoutfld->display( interpolfld->getBoolValue() );
-    extrapolatefld->display( interpolfld->getBoolValue() );
+    const bool dodisp = filludffld->getBoolValue();
+    arr2dinterpfld->display( filludffld->getBoolValue() );
 }
 
 
@@ -276,9 +313,9 @@ bool uiImportHorizon::doWork()
     if ( !sections.size() )
 	mErrRet( "Nothing to import" );
 
-    const bool dointerpolate = interpolfld->getBoolValue();
-    if ( dointerpolate )
-	interpolateGrid( sections );
+    const bool dofill = filludffld->getBoolValue();
+    if ( dofill )
+	fillUdfs( sections );
 
     const RowCol step( hs.step.inl, hs.step.crl );
     horizon->ref();
@@ -287,7 +324,7 @@ bool uiImportHorizon::doWork()
     importer.add( horizon->importer(sections,step) );
 
     ObjectSet<BinIDValueSet> attribvals;
-    if ( !dointerpolate && scanner.nrAttribValues()>0 )
+    if ( !dofill && scanner.nrAttribValues()>0 )
     {
 	for ( int sidx=0; sidx<sections.size(); sidx++ )
 	{
@@ -373,8 +410,8 @@ void uiImportHorizon::scanFile( CallBacker* )
     uiBinIDSubSel::Data subseldata = subselfld->getInput();
     subseldata.cs_.hrg = filehs_; subselfld->setInput( subseldata );
 
-    interpolfld->setValue(scanner.gapsFound(true) || scanner.gapsFound(false));
-    interpolSel(0);
+    filludffld->setValue(scanner.gapsFound(true) || scanner.gapsFound(false));
+    fillUdfSel(0);
     midgrp->setSensitive( true );
     button( OK )->setSensitive( true );
 
@@ -402,7 +439,7 @@ BinIDValueSet* uiImportHorizon::getBidValSet( const char* fnm, bool doscale,
 
     BinIDValueSet* set = new BinIDValueSet(1,false);
     const Scaler* scaler = scalefld->getScaler();
-    const float udfval = udffld->getfValue();
+    const float udfval = udfvalfld->getfValue();
     const bool doxy = xyfld->getBoolValue();
     float factor = 1;
     if ( doscale )
@@ -451,7 +488,7 @@ BinIDValueSet* uiImportHorizon::getBidValSet( const char* fnm, bool doscale,
 }
 
 
-bool uiImportHorizon::interpolateGrid( ObjectSet<BinIDValueSet>& sections )
+bool uiImportHorizon::fillUdfs( ObjectSet<BinIDValueSet>& sections )
 {
     HorSampling hs = subselfld->getInput().cs_.hrg;
 
@@ -478,12 +515,8 @@ bool uiImportHorizon::interpolateGrid( ObjectSet<BinIDValueSet>& sections )
 	}
 
 	Array2DInterpolator<float> interpolator( *arr );
-	interpolator.maxholesize_ = stepoutfld->getIntValue();
-	if ( mIsUdf(interpolator.maxholesize_) )
-	    interpolator.maxholesize_ = 0;
+	interpolator.pars() = arr2dinterpfld->pars_;
 	interpolator.setStepRatio( hs.step.inl, hs.step.crl );
-	interpolator.extrapolate_ = extrapolatefld->getBoolValue();
-
 	uiExecutor uiex( this, interpolator );
 	if ( !uiex.execute() )
 	    return false;
