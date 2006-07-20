@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodplanedatatreeitem.cc,v 1.7 2006-07-19 15:21:25 cvsnanne Exp $
+ RCS:		$Id: uiodplanedatatreeitem.cc,v 1.8 2006-07-20 11:04:16 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -63,6 +63,13 @@ uiODPlaneDataTreeItem::~uiODPlaneDataTreeItem()
 	pdd->deSelection()->remove( mCB(this,uiODPlaneDataTreeItem,selChg) );
 	pdd->unRef();
     }
+
+    getItem()->moveForwdReq.remove(
+			mCB(this,uiODPlaneDataTreeItem,moveForwdCB) );
+    getItem()->moveBackwdReq.remove(
+			mCB(this,uiODPlaneDataTreeItem,moveBackwdCB) );
+    visserv->getUiSlicePos()->positionChg.remove(
+	    		mCB(this,uiODPlaneDataTreeItem,posChange) );
 
     visserv->getUiSlicePos()->setDisplay( 0 );
     delete positiondlg_;
