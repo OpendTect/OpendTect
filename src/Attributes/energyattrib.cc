@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: energyattrib.cc,v 1.11 2006-04-03 13:35:31 cvshelene Exp $";
+static const char* rcsID = "$Id: energyattrib.cc,v 1.12 2006-07-20 11:21:38 cvsnanne Exp $";
 
 #include "energyattrib.h"
 
@@ -18,10 +18,11 @@ static const char* rcsID = "$Id: energyattrib.cc,v 1.11 2006-04-03 13:35:31 cvsh
 namespace Attrib
 {
 
+mAttrDefCreateInstance(Energy)
+    
 void Energy::initClass()
 {
-    Desc* desc = new Desc( attribName() );
-    desc->ref();
+    mAttrStartInitClass
 
     ZGateParam* gate = new ZGateParam( gateStr() );
     gate->setLimits( Interval<float>(-1000,1000) );
@@ -31,25 +32,7 @@ void Energy::initClass()
     desc->addInput( InputSpec("Input Data",true) );
     desc->addOutputDataType( Seis::UnknowData );
 
-    desc->init();
-
-    PF().addDesc( desc, createInstance );
-    desc->unRef();
-}
-
-
-Provider* Energy::createInstance( Desc& desc )
-{
-    Energy* res = new Energy( desc );
-    res->ref();
-    if ( !res->isOK() )
-    {
-        res->unRef();
-        return 0;
-    }
-
-    res->unRefNoDelete();
-    return res;
+    mAttrEndInitClass
 }
 
 

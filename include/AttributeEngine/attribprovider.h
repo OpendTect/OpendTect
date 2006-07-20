@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribprovider.h,v 1.43 2006-07-07 20:08:47 cvskris Exp $
+ RCS:           $Id: attribprovider.h,v 1.44 2006-07-20 11:21:38 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -292,5 +292,29 @@ int getSteeringIndex( const BinID& );
 
 
 }; // namespace Attrib
+
+#define mAttrDefCreateInstance(clss) \
+Provider* clss::createInstance( Desc& desc ) \
+{ \
+    clss* res = new clss( desc ); \
+    res->ref(); \
+    if ( !res->isOK() ) \
+    { \
+	res->unRef(); \
+	return 0; \
+    } \
+ \
+    res->unRefNoDelete(); \
+    return res; \
+}
+
+#define mAttrStartInitClass \
+    Desc* desc = new Desc( attribName()); \
+    desc->ref();
+
+#define mAttrEndInitClass \
+    desc->init(); \
+    PF().addDesc( desc, createInstance ); \
+    desc->unRef();
 
 #endif
