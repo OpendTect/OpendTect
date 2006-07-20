@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Huck
  Date:          July 2006
- RCS:           $Id: gapdeconattrib.cc,v 1.1 2006-07-19 13:35:51 cvshelene Exp $
+ RCS:           $Id: gapdeconattrib.cc,v 1.2 2006-07-20 15:25:59 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,12 +18,13 @@ ________________________________________________________________________
 
 namespace Attrib
 {
-
+    
+mAttrDefCreateInstance(GapDecon)
+    
 void GapDecon::initClass()
 {
-    Desc* desc = new Desc( attribName() );
-    desc->ref();
-
+    mAttrStartInitClass
+	
     IntParam* lagsize = new IntParam( lagsizeStr() );
     desc->addParam( lagsize );
 		
@@ -51,24 +52,7 @@ void GapDecon::initClass()
     desc->addInput( InputSpec("Input data",true) );
     desc->setNrOutputs( Seis::UnknowData, 5 );
 
-    PF().addDesc( desc, createInstance );
-    desc->unRef();
-}
-
-
-Provider* GapDecon::createInstance( Desc& desc )
-{
-    GapDecon* res = new GapDecon( desc );
-    res->ref();
-
-    if ( !res->isOK() )
-    {
-	res->unRef();
-	return 0;
-    }
-
-    res->unRefNoDelete();
-    return res;
+    mAttrEndInitClass
 }
 
 
