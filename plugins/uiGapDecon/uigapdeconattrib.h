@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          July 2006
- RCS:           $Id: uigapdeconattrib.h,v 1.1 2006-07-19 13:35:51 cvshelene Exp $
+ RCS:           $Id: uigapdeconattrib.h,v 1.2 2006-07-20 15:24:48 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ ________________________________________________________________________
 class uiAttrSel;
 class uiGenInput;
 class uiLabeledSpinBox;
+class uiPushButton;
 
 
 /*! \brief GapDecon Attribute description editor */
@@ -39,12 +40,15 @@ protected:
     uiGenInput*		isinpzerophasefld_;
     uiGenInput*		isoutzerophasefld_;
     uiLabeledSpinBox*	stepoutfld_;
+    uiPushButton*	exambut_;
 
     bool		setParameters(const Attrib::Desc&);
     bool		setInput(const Attrib::Desc&);
 
     bool		getParameters(Attrib::Desc&);
     bool		getInput(Attrib::Desc&);
+
+    void                examPush(CallBacker*);
 };
 
 

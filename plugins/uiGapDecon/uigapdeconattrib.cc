@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          July  2006
- RCS:           $Id: uigapdeconattrib.cc,v 1.1 2006-07-19 13:35:51 cvshelene Exp $
+ RCS:           $Id: uigapdeconattrib.cc,v 1.2 2006-07-20 15:24:17 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "uiattrsel.h"
 #include "uigeninput.h"
 #include "uispinbox.h"
+#include "uibutton.h"
 
 using namespace Attrib;
 
@@ -26,6 +27,10 @@ uiGapDeconAttrib::uiGapDeconAttrib( uiParent* p )
 
     gatefld_ = new uiGenInput(this,"Correlation window",FloatInpIntervalSpec());
     gatefld_->attach( alignedBelow, inpfld );
+
+    CallBack cbexam = mCB(this,uiGapDeconAttrib,examPush);
+    exambut_ = new uiPushButton( this, "&Examine", cbexam, true);
+    exambut_->attach( rightOf, gatefld_ );
 
     lagfld_ = new uiGenInput( this, "Lag size", IntInpSpec() );
     lagfld_->attach( alignedBelow, gatefld );
@@ -103,6 +108,12 @@ bool uiGapDeconAttrib::getInput( Attrib::Desc& desc )
     inpfld->processInput();
     fillInp( inpfld, desc, 0 );
     return true;
+}
+
+
+void uiGapDeconAttrib::examPush( CallBacker* cb )
+{
+    //TODO
 }
 
 
