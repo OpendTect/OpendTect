@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		May 2006
- RCS:		$Id: uiodplanedatatreeitem.h,v 1.3 2006-07-13 20:18:51 cvsnanne Exp $
+ RCS:		$Id: uiodplanedatatreeitem.h,v 1.4 2006-07-20 07:19:30 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -27,16 +27,20 @@ public:
 
 protected:
     BufferString	createDisplayName() const;
+
     void		createMenuCB(CallBacker*);
     void		handleMenuCB(CallBacker*);
+
     void		updatePlanePos(CallBacker*);
     void		updatePositionDlg(CallBacker*);
-    void		movePlane(const CubeSampling&);
     void		posDlgClosed(CallBacker*);
-    void		selChg(CallBacker*);
     void		moveForwdCB(CallBacker*);
     void		moveBackwdCB(CallBacker*);
     void		movePlane(bool forward);
+
+    void		selChg(CallBacker*);
+    void		posChange(CallBacker*);
+    void		movePlaneAndCalcAttribs(const CubeSampling&);
 
     int			dim_;
     MenuItem		positionmnuitem_;
