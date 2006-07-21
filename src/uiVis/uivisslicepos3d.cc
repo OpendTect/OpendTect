@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		July 2006
- RCS:		$Id: uivisslicepos3d.cc,v 1.2 2006-07-19 15:21:25 cvsnanne Exp $
+ RCS:		$Id: uivisslicepos3d.cc,v 1.3 2006-07-21 09:52:51 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -142,7 +142,7 @@ void uiSlicePos::setPosBoxValue()
     uiSpinBox* posbox = sliceposbox_->box();
     NotifyStopper posstop( posbox->valueChanged );
 
-    const CubeSampling cs = curpdd_->getCubeSampling();
+    const CubeSampling cs = curpdd_->getCubeSampling( true, true );
     const Display::Orientation orientation = curpdd_->getOrientation();
     if ( orientation == Display::Inline )
 	posbox->setValue( cs.hrg.start.inl );
@@ -168,7 +168,7 @@ void uiSlicePos::slicePosChg( CallBacker* )
     if ( !curpdd_ ) return;
 
     uiSpinBox* posbox = sliceposbox_->box();
-    CubeSampling oldcs = curpdd_->getCubeSampling();
+    CubeSampling oldcs = curpdd_->getCubeSampling( true, true );
     curcs_ = oldcs;
     const Display::Orientation orientation = curpdd_->getOrientation();
     if ( orientation == Display::Inline )
