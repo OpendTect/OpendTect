@@ -6,31 +6,33 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiodapplmgr.h,v 1.35 2006-06-28 13:32:50 cvsbert Exp $
+ RCS:           $Id: uiodapplmgr.h,v 1.36 2006-07-21 09:56:35 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiodmain.h"
+
+class uidTectMan;
 class uiApplPartServer;
-class uiNLAPartServer;
+class uiApplService;
 class uiAttribPartServer;
 class uiEMPartServer;
+class uiMPEPartServer;
+class uiNLAPartServer;
+class uiODApplService;
+class uiPopupMenu;
 class uiPickPartServer;
 class uiSeisPartServer;
-class uiMPEPartServer;
-class uiVisPartServer;
-class uiWellPartServer;
-class uiWellAttribPartServer;
-class uiODApplService;
-class uiApplService;
-class Color;
-class ODSession;
-class MultiID;
-class uidTectMan;
-class uiPopupMenu;
 class uiSoViewer;
+class uiVisPartServer;
+class uiWellAttribPartServer;
+class uiWellPartServer;
+
+class Color;
 class Coord;
+class MultiID;
+class ODSession;
 namespace Pick { class Set; }
 
 /*!\brief Application level manager - ties part servers together
@@ -121,7 +123,7 @@ public:
     void			manAttrCB(CallBacker*)	{ manageAttributes(); }
     void			outVolCB(CallBacker*)	{ createVol(); }
 
-    void			enableMenusAndToolbars(bool);
+    void			enableMenusAndToolBars(bool);
     void			enableTree(bool);
     void			enableSceneManipulation(bool);
     				/*!<Turns on/off viewMode and enables/disables

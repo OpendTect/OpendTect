@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.142 2006-06-29 20:23:02 cvsnanne Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.143 2006-07-21 09:56:34 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -219,11 +219,11 @@ void uiODApplMgr::impexpPickSet( bool imp )
 { pickserv->impexpSet(imp); }
 
 
-void uiODApplMgr::enableMenusAndToolbars( bool yn )
+void uiODApplMgr::enableMenusAndToolBars( bool yn )
 {
     sceneMgr().disabRightClick( !yn );
     visServer()->disabMenus( !yn );
-    visServer()->disabToolbars( !yn );
+    visServer()->disabToolBars( !yn );
     menuMgr().dtectTB()->setSensitive( yn );
     menuMgr().manTB()->setSensitive( yn );
     menuMgr().enableMenuBar( yn );
@@ -246,7 +246,7 @@ void uiODApplMgr::enableSceneManipulation( bool yn )
 
 void uiODApplMgr::manageAttributes()
 {
-    enableMenusAndToolbars( false );
+    enableMenusAndToolBars( false );
     enableSceneManipulation( false );
 
     attrserv->editSet(); 
@@ -612,7 +612,7 @@ bool uiODApplMgr::handleMPEServEv( int evid )
     }
     else if ( evid==uiMPEPartServer::evWizardClosed )
     {
-	enableMenusAndToolbars( true );
+	enableMenusAndToolBars( true );
 	enableTree( true );
     }
     else if ( evid==uiMPEPartServer::evGetAttribData )
@@ -654,8 +654,8 @@ bool uiODApplMgr::handleWellServEv( int evid )
 	TypeSet<Coord> coords;
 	wellserv->getRdmLineCoordinates( coords );
 	setupRdmLinePreview( coords );
-	enableTree(false);
-	enableMenusAndToolbars(false);
+	enableTree( false );
+	enableMenusAndToolBars( false );
     }
     if ( evid == uiWellPartServer::evCreateRdmLine )
     {
@@ -676,13 +676,13 @@ bool uiODApplMgr::handleWellServEv( int evid )
 			visserv->getObject(rdmlineid));
 	rtd->setKnotPositions( bidset );
 	enableTree( true );
-	enableMenusAndToolbars( true );
+	enableMenusAndToolBars( true );
     }
     if ( evid == uiWellPartServer::evCleanPreview )
     {
 	cleanPreview();
 	enableTree( true );
-	enableMenusAndToolbars( true );
+	enableMenusAndToolBars( true );
     }
     
     return true;
@@ -917,7 +917,7 @@ bool uiODApplMgr::handleAttribServEv( int evid )
     }
     else if ( evid==uiAttribPartServer::evAttrSetDlgClosed )
     {
-	enableMenusAndToolbars( true );
+	enableMenusAndToolBars( true );
 	enableSceneManipulation( true );
     }
     else if ( evid==uiAttribPartServer::evEvalAttrInit )

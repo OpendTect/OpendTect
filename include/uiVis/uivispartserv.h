@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.175 2006-07-13 20:18:51 cvsnanne Exp $
+ RCS:           $Id: uivispartserv.h,v 1.176 2006-07-21 09:56:34 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -141,7 +141,8 @@ public:
 
     bool		disabMenus(bool yn);
 			/*!<\returns The previous status. */
-    bool		disabToolbars(bool yn);
+    void		createToolBars();
+    bool		disabToolBars(bool yn);
 			/*!<\returns The previous status. */
 
     bool		showMenu(int id,int menutype=0,const TypeSet<int>* =0,

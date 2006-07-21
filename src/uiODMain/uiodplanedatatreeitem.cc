@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodplanedatatreeitem.cc,v 1.8 2006-07-20 11:04:16 cvsnanne Exp $
+ RCS:		$Id: uiodplanedatatreeitem.cc,v 1.9 2006-07-21 09:56:35 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -219,8 +219,8 @@ void uiODPlaneDataTreeItem::handleMenuCB( CallBacker* cb )
 	positiondlg_->go();
 	pdd->getMovementNotification()->notify(
 		mCB(this,uiODPlaneDataTreeItem,updatePositionDlg) );
-	applMgr()->enableMenusAndToolbars( false );
-	applMgr()->visServer()->disabToolbars( false );
+	applMgr()->enableMenusAndToolBars( false );
+	applMgr()->visServer()->disabToolBars( false );
     }
     else if ( mnuid == gridlinesmnuitem_.id )
     {
@@ -258,7 +258,7 @@ void uiODPlaneDataTreeItem::posDlgClosed( CallBacker* )
     if ( positiondlg_->uiResult() && !samepos )
 	movePlaneAndCalcAttribs( newcs );
 
-    applMgr()->enableMenusAndToolbars( true );
+    applMgr()->enableMenusAndToolBars( true );
     applMgr()->enableSceneManipulation( true );
     pdd->getMovementNotification()->remove(
 		mCB(this,uiODPlaneDataTreeItem,updatePositionDlg) );

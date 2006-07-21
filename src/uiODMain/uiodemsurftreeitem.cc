@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodemsurftreeitem.cc,v 1.7 2006-06-20 14:41:08 cvsnanne Exp $
+ RCS:		$Id: uiodemsurftreeitem.cc,v 1.8 2006-07-21 09:56:34 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -307,8 +307,8 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB( CallBacker* cb )
 	menu->setIsHandled(true);
 	if ( sectionid < 0 ) return;
 
-	applMgr()->enableMenusAndToolbars(false);
-	applMgr()->enableTree(false);
+	applMgr()->enableMenusAndToolBars( false );
+	applMgr()->enableTree( false );
 
 	if ( applMgr()->mpeServer()->addTracker(emid,menu->getPickedPos())!=-1 )
 	{
@@ -316,8 +316,8 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB( CallBacker* cb )
 	    applMgr()->visServer()->showMPEToolbar();
 	}
 
-	applMgr()->enableMenusAndToolbars(true);
-	applMgr()->enableTree(true);
+	applMgr()->enableMenusAndToolBars( true );
+	applMgr()->enableTree( true );
     }
     else if ( mnuid==changesetupmnuitem_.id )
     {

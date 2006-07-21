@@ -4,31 +4,32 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.cc,v 1.48 2006-07-19 16:03:06 cvsbert Exp $
+ RCS:           $Id: uiodmenumgr.cc,v 1.49 2006-07-21 09:56:34 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.48 2006-07-19 16:03:06 cvsbert Exp $";
-
 #include "uiodmenumgr.h"
-#include "uiodapplmgr.h"
-#include "uiodscenemgr.h"
-#include "uiodhelpmenumgr.h"
-#include "uiodstdmenu.h"
+
 #include "uicrdevenv.h"
-#include "uisettings.h"
 #include "uifilebrowser.h"
 #include "uimenu.h"
 #include "uimsg.h"
-#include "uitoolbar.h"
+#include "uiodapplmgr.h"
+#include "uiodhelpmenumgr.h"
+#include "uiodscenemgr.h"
+#include "uiodstdmenu.h"
+#include "uisettings.h"
 #include "uisoviewer.h"
-#include "pixmap.h"
-#include "oddirs.h"
-#include "timer.h"
+#include "uitoolbar.h"
+#include "uivispartserv.h"
+
 #include "dirlist.h"
-#include "filegen.h"
 #include "envvars.h"
+#include "filegen.h"
+#include "oddirs.h"
+#include "pixmap.h"
+#include "timer.h"
 
 
 uiODMenuMgr::uiODMenuMgr( uiODMain* a )
@@ -49,6 +50,8 @@ uiODMenuMgr::uiODMenuMgr( uiODMain* a )
     cointb->setVerticallyStretchable( true );
     mantb = new uiToolBar( &appl, "Manage data" );
     mantb->setVerticallyStretchable( true );
+
+    appl.applMgr().visServer()->createToolBars();
 }
 
 

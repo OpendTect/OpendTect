@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.326 2006-07-13 20:18:51 cvsnanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.327 2006-07-21 09:56:34 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -69,31 +69,27 @@ static const int sResolutionIdx = 500;
 
 uiVisPartServer::uiVisPartServer( uiApplService& a )
     : uiApplPartServer(a)
+    , menu_( *new uiMenuHandler(appserv().parent(),-1) )
+    , resetmanipmnuitem_("Reset Manipulation",sResetManipIdx)
+    , changecolormnuitem_("Color...",sColorIdx)
+    , changematerialmnuitem_("Properties ...",sPropertiesIdx)
+    , resmnuitem_("Resolution",sResolutionIdx)
+    , eventmutex_(*new Threads::Mutex)
     , viewmode_(false)
     , issolomode_(false)
     , eventobjid_(-1)
     , eventattrib_(-1)
     , selattrib_(-1)
-    , eventmutex_(*new Threads::Mutex)
     , mouseposstr_("")
-    , resetmanipmnuitem_("Reset Manipulation",sResetManipIdx)
-    , changecolormnuitem_("Color...",sColorIdx)
-    , changematerialmnuitem_("Properties ...",sPropertiesIdx)
-    , resmnuitem_("Resolution",sResolutionIdx)
     , blockmenus_(false)
-    , menu_( *new uiMenuHandler(appserv().parent(),-1) )
     , xytmousepos_(Coord3::udf())
     , zfactor_(1)
+    , mpetools_(0)
+    , slicepostools_(0)
 {
     menu_.ref();
     menu_.createnotifier.notify( mCB(this,uiVisPartServer,createMenuCB) );
     menu_.handlenotifier.notify( mCB(this,uiVisPartServer,handleMenuCB) );
-
-    mpetools_ = new uiMPEMan( appserv().parent(), this );
-    mpetools_->getToolBar()->display( false );
-
-    slicepostools_ = new uiSlicePos( appserv().parent() );
-    slicepostools_->getToolBar()->display( false );
 
     visBase::DM().selMan().selnotifier.notify( 
 	mCB(this,uiVisPartServer,selectObjCB) );
@@ -173,10 +169,30 @@ bool uiVisPartServer::disabMenus( bool yn )
 }
 
 
-bool uiVisPartServer::disabToolbars( bool yn )
+void uiVisPartServer::createToolBars()
 {
-    const bool res = !mpetools_->getToolBar()->sensitive();
-    mpetools_->getToolBar()->setSensitive( !yn );
+    mpetools_ = new uiMPEMan( appserv().parent(), this );
+    mpetools_->getToolBar()->display( false );
+
+    slicepostools_ = new uiSlicePos( appserv().parent() );
+    slicepostools_->getToolBar()->display( true );
+}
+
+
+bool uiVisPartServer::disabToolBars( bool yn )
+{
+    bool res = false;
+    if ( mpetools_ )
+    {
+	res = !mpetools_->getToolBar()->sensitive();
+	mpetools_->getToolBar()->setSensitive( !yn );
+    }
+
+    if ( slicepostools_ )
+    {
+	res = !slicepostools_->getToolBar()->sensitive();
+	slicepostools_->getToolBar()->setSensitive( !yn );
+    }
     return res;
 }
 
