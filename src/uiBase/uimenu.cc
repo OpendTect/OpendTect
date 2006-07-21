@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: uimenu.cc,v 1.28 2006-06-30 07:43:19 cvsnanne Exp $
+ RCS:           $Id: uimenu.cc,v 1.29 2006-07-21 18:56:56 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -212,8 +212,8 @@ uiMenuItem::uiMenuItem( const char* nm )
     , messenger_( *new i_MenuMessenger(this) ) 
     , id_(-1)
     , menu_(0)
-    , enabled(true)
-    , checked(false)
+    , enabled_(true)
+    , checked_(false)
 {}
 
 
@@ -223,8 +223,8 @@ uiMenuItem::uiMenuItem( const char* nm, const CallBack& cb )
     , messenger_( *new i_MenuMessenger(this) )
     , id_(-1)
     , menu_(0)
-    , enabled(true)
-    , checked(false)
+    , enabled_(true)
+    , checked_(false)
 { 
     activated.notify( cb ); 
 }
@@ -239,20 +239,20 @@ uiMenuItem::~uiMenuItem()
 bool uiMenuItem::isEnabled () const
 {
 #ifdef USEQT4
-    if ( !menu_ )		return enabled;
+    if ( !menu_ )		return enabled_;
     if ( menu_->bar() )		return menu_->bar()->isItemEnabled( id_ );
     if ( menu_->popup() )	return menu_->popup()->isItemEnabled( id_ );
 
-    return enabled;
+    return enabled_;
 #else
     return menu_ && menu_->qthing() ? menu_->qthing()->isItemEnabled( id_ )
-				    : enabled;
+				    : enabled_;
 #endif
 }
 
 void uiMenuItem::setEnabled ( bool yn )
 {
-    enabled = yn;
+    enabled_ = yn;
 
 #ifdef USEQT4
     if ( !menu_ ) return;
@@ -268,21 +268,21 @@ void uiMenuItem::setEnabled ( bool yn )
 bool uiMenuItem::isChecked () const
 {
 #ifdef USEQT4
-    if ( !menu_ )		return checked;
+    if ( !menu_ )		return checked_;
     if ( menu_->bar() )		return menu_->bar()->isItemChecked( id_ );
     if ( menu_->popup() )	return menu_->popup()->isItemChecked( id_ );
 
-    return checked;
+    return checked_;
 #else
     return menu_ && menu_->qthing() ? menu_->qthing()->isItemChecked( id_ )
-				    : checked; 
+				    : checked_; 
 #endif
 }
 
 
 void uiMenuItem::setChecked( bool yn )
 {
-    checked = yn;
+    checked_ = yn;
 
 #ifdef USEQT4
     if ( !menu_ ) return;

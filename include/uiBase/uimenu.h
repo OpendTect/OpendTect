@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: uimenu.h,v 1.26 2006-06-28 10:09:34 cvsnanne Exp $
+ RCS:           $Id: uimenu.h,v 1.27 2006-07-21 18:56:56 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -129,8 +129,14 @@ public:
 
     bool			isEnabled() const;
     void			setEnabled(bool);
+    				/*!<\note Should be set after object is given
+				          to it's parent, since parent will
+					  overwrite this setting. */
     bool			isChecked() const;
     void 			setChecked(bool);
+    				/*!<\note Should be set after object is given
+				          to it's parent, since parent will
+					  overwrite this setting. */
 
     Notifier<uiMenuItem>	activated;
 
@@ -150,8 +156,8 @@ private:
     i_MenuMessenger&            messenger_;
 
     int                         id_;
-    bool			checked;
-    bool			enabled;
+    bool			checked_;
+    bool			enabled_;
 
 };
 
