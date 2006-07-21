@@ -4,7 +4,7 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vislocationdisplay.cc,v 1.9 2006-07-17 21:23:12 cvskris Exp $";
+static const char* rcsID = "$Id: vislocationdisplay.cc,v 1.10 2006-07-21 16:47:27 cvskris Exp $";
 
 #include "vislocationdisplay.h"
 
@@ -466,10 +466,8 @@ void LocationDisplay::otherObjectsMoved(
 
     for ( int idx=0; idx<group_->size(); idx++ )
     {
-	mDynamicCastGet(visBase::VisualObject*,vo,group_->getObject(idx));
-
-
-	const Coord3 pos = (*set_)[idx].pos;
+	const Coord3 pos =
+	    scene_->getUTM2DisplayTransform()->transform( (*set_)[idx].pos );
 	bool newstatus;
 	if ( showall_ )
 	    newstatus = true;
@@ -502,6 +500,7 @@ void LocationDisplay::otherObjectsMoved(
 	    }
 	}
 
+	mDynamicCastGet(visBase::VisualObject*,vo,group_->getObject(idx));
 	vo->turnOn( newstatus );
     }
 }
