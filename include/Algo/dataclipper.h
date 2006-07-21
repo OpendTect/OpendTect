@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		09-02-2002
- RCS:		$Id: dataclipper.h,v 1.6 2003-11-07 12:21:50 bert Exp $
+ RCS:		$Id: dataclipper.h,v 1.7 2006-07-21 21:23:09 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -56,7 +56,7 @@ public:
     void			putData(float);
     void			putData(const float*, int );
 
-    void			calculateRange();
+    bool			calculateRange();
     				/*!< Will also reset the stats so the
 				     object becomes ready for new data
 				*/
