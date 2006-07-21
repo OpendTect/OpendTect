@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.143 2006-07-10 13:25:00 cvskris Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.144 2006-07-21 21:16:16 cvskris Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -755,6 +755,9 @@ void PlaneDataDisplay::setCubeSampling( CubeSampling cs )
     else
 	datatransform_->setVolumeOfInterest( datatransformvoihandle_,
 					     cs, true );
+
+    //Try to load data here, so other objects (i.e. picksets) may read the data.
+    datatransform_->loadDataIfMissing( datatransformvoihandle_ );
 }
 
 
@@ -1086,7 +1089,20 @@ void PlaneDataDisplay::getMousePosInfo( const visBase::EventInfo&,
 	    fval = set.getVals(setpos)[version+1];
 	}
 
-	if ( idx )
+
+	bool islowest = true;
+	for ( int idy=idx-1; idy>=0; idy-- )
+	{
+	    if ( (!volumecache_[idy] && !rposcache_[idy]) || 
+		 !isAttribEnabled(idy) ||
+		 texture_->getTextureTransparency(idy)==255 )
+		continue;
+
+	    islowest = false;
+	    break;
+	}    
+
+	if ( !islowest )
 	{
 	    const Color col = texture_->getColorTab(idx).color(fval);
 	    if ( col.t()==255 )
