@@ -4,7 +4,7 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vislocationdisplay.cc,v 1.10 2006-07-21 16:47:27 cvskris Exp $";
+static const char* rcsID = "$Id: vislocationdisplay.cc,v 1.11 2006-07-21 20:27:24 cvskris Exp $";
 
 #include "vislocationdisplay.h"
 
@@ -466,10 +466,15 @@ void LocationDisplay::otherObjectsMoved(
 
     for ( int idx=0; idx<group_->size(); idx++ )
     {
-	const Coord3 pos =
-	    scene_->getUTM2DisplayTransform()->transform( (*set_)[idx].pos );
+	Coord3 pos = (*set_)[idx].pos;
+	if ( datatransform_ ) pos.z = datatransform_->transform( pos );
+
+	pos = scene_->getUTM2DisplayTransform()->transform( pos );
+
 	bool newstatus;
-	if ( showall_ )
+	if ( !pos.isDefined() )
+	    newstatus = false;
+	else if ( showall_ )
 	    newstatus = true;
 	else
 	{
@@ -625,7 +630,9 @@ bool LocationDisplay::setDataTransform( ZAxisTransform* zat )
 	datatransform_->ref();
     }
 
+
     fullRedraw();
+    showAll( !datatransform_ ); 
     return true;
 }
 
