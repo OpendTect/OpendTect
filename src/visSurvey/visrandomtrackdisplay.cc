@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          January 2003
- RCS:           $Id: visrandomtrackdisplay.cc,v 1.74 2006-06-06 15:14:30 cvsnanne Exp $
+ RCS:           $Id: visrandomtrackdisplay.cc,v 1.75 2006-07-21 20:34:38 cvskris Exp $
  ________________________________________________________________________
 
 -*/
@@ -465,33 +465,59 @@ void RandomTrackDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
 					  BufferString& val,
 					  BufferString& info ) const
 {
-    info = ""; val = "";
-    if ( !cache_[0] || !cache_[0]->size() ) return;
-
-    BinID reqbid( SI().transform(pos) );
-    int trcidx = cache_[0]->find( reqbid );
-    if ( trcidx < 0 )
+    info = ""; val = "undef";
+    for ( int idx=as_.size()-1; idx>=0; idx-- )
     {
-	const BinID step( SI().inlStep(), SI().crlStep() );
-	BinID bid;
-	mFindTrc(1,0) mFindTrc(-1,0) mFindTrc(0,1) mFindTrc(0,-1)
-	if ( trcidx < 0 )
+	if ( !cache_[idx] || !cache_[idx]->size() || !isAttribEnabled(idx) ||
+		texture_->getTextureTransparency(idx)==255 )
+	    continue;
+
+	const int version = texture_->currentVersion(idx);
+
+	BinID reqbid( SI().transform(pos) );
+	int trcidx = cache_[idx]->find( reqbid );
+	if ( trcidx<0 )
 	{
-	    mFindTrc(1,1) mFindTrc(-1,1) mFindTrc(1,-1) mFindTrc(-1,-1)
+	    const BinID step( SI().inlStep(), SI().crlStep() );
+	    BinID bid;
+	    mFindTrc(1,0) mFindTrc(-1,0) mFindTrc(0,1) mFindTrc(0,-1)
+	    if ( trcidx<0 )
+	    {
+		mFindTrc(1,1) mFindTrc(-1,1) mFindTrc(1,-1) mFindTrc(-1,-1)
+	    }
+
+	    if ( trcidx<0 ) continue;
 	}
 
-	if ( trcidx < 0 ) return;
-    }
+	const SeisTrc& trc = *cache_[idx]->get( trcidx );
+	const int sampidx = trc.nearestSample( pos.z );
+	if ( sampidx>=0 && sampidx<trc.size() )
+	{
+	    const float fval = trc.get( sampidx, 0 );
+	    if ( idx )
+	    {
+		const Color col = texture_->getColorTab(idx).color(fval);
+		if ( col.t()==255 )
+		    continue;
+	    }
 
-    const SeisTrc& trc = *cache_[0]->get( trcidx );
-    const int sampidx = trc.nearestSample( pos.z );
-    if ( sampidx >= 0 && sampidx < trc.size() )
-    {
-	float fval = trc.get( sampidx, 0 );
-	if ( mIsUdf(fval) )
-	    val = "undef";
-	else
-	    val = fval;
+	    if ( !mIsUdf(fval) )
+	    {
+		val = fval;
+	    }
+
+	    if ( cache_.size()>1 )
+	    {
+
+		BufferString attribstr = "(";
+		attribstr += as_[idx]->userRef();
+		attribstr += ")";
+
+		val.insertAt( cValNameOffset(), (const char*)attribstr);
+	    }
+
+	    return;
+	}
     }
 }
 
