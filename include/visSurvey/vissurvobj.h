@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvobj.h,v 1.65 2006-06-27 14:35:57 cvskris Exp $
+ RCS:		$Id: vissurvobj.h,v 1.66 2006-07-21 16:47:41 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -40,10 +40,14 @@ namespace visSurvey
 class SurveyObject
 {
 public:
-    virtual float		calcDist(const Coord3&) const
+    virtual float		calcDist(const Coord3& pos) const
 				{ return mUdf(float); }
     				/*<\Calculates distance between pick and 
-				    object*/
+				    object.
+				    \note The distance is in display space.
+				    \param pos Position to be checked in
+				     	   displayspace.
+				 \ */
     virtual float		maxDist() const		{ return sDefMaxDist; }
     				/*<\Returns maximum allowed distance between 
 				    pick and object. If calcDist() > maxDist()
