@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: vishorizondisplay.cc,v 1.13 2006-07-18 11:42:27 cvsjaap Exp $
+ RCS:           $Id: vishorizondisplay.cc,v 1.14 2006-07-21 21:15:14 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -911,7 +911,18 @@ void HorizonDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
 	if ( curtexture>bidvalset->nrVals()-1 ) curtexture = 0;
 
 	const float fval = vals[curtexture+1];
-	if ( idx )
+	bool islowest = true;
+	for ( int idy=idx-1; idy>=0; idy-- )
+	{
+	    if ( !psurf->getCache(idy) || !isAttribEnabled(idy) ||
+		  psurf->getTextureTransparency(idy)==255 )
+		continue;
+							                 
+		islowest = false;
+		break;
+	}    
+
+	if ( !islowest )
 	{
 	    const Color col = coltabs_[idx]->color(fval);
 	    if ( col.t()==255 )

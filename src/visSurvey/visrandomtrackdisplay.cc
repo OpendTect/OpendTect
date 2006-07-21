@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          January 2003
- RCS:           $Id: visrandomtrackdisplay.cc,v 1.75 2006-07-21 20:34:38 cvskris Exp $
+ RCS:           $Id: visrandomtrackdisplay.cc,v 1.76 2006-07-21 21:15:14 cvskris Exp $
  ________________________________________________________________________
 
 -*/
@@ -494,7 +494,20 @@ void RandomTrackDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
 	if ( sampidx>=0 && sampidx<trc.size() )
 	{
 	    const float fval = trc.get( sampidx, 0 );
-	    if ( idx )
+
+	    bool islowest = true;
+	    for ( int idy=idx-1; idy>=0; idy-- )
+	    {
+		if ( !cache_[idy] || !cache_[idy]->size() ||
+		     !isAttribEnabled(idy) ||
+		     texture_->getTextureTransparency(idy)==255 )
+		    continue;
+
+		islowest = false;
+		break;
+	    }
+
+	    if ( !islowest )
 	    {
 		const Color col = texture_->getColorTab(idx).color(fval);
 		if ( col.t()==255 )
