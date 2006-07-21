@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodpicksettreeitem.cc,v 1.14 2006-07-17 21:24:35 cvskris Exp $
+ RCS:		$Id: uiodpicksettreeitem.cc,v 1.15 2006-07-21 18:56:04 cvskris Exp $
 ___________________________________________________________________
 
 -*/
@@ -23,16 +23,6 @@ ___________________________________________________________________
 #include "uipickpropdlg.h"
 #include "vispicksetdisplay.h"
 #include "vissurvscene.h"
-
-
-static bool canAddDisplay( int sceneid )
-{
-    return true;
-    mDynamicCastGet(visSurvey::Scene*,scene,
-	    	    ODMainWin()->applMgr().visServer()->getObject(sceneid));
-    if ( !scene ) return false;
-    return !scene->getDataTransform();
-}
 
 
 uiODPickSetParentTreeItem::uiODPickSetParentTreeItem()
@@ -80,10 +70,6 @@ void uiODPickSetParentTreeItem::removeChild( uiTreeItem* child )
 
 void uiODPickSetParentTreeItem::setAdd( CallBacker* cb )
 {
-    // TODO: remove after transform for picks has been implemented
-    if ( !canAddDisplay(sceneID()) )
-	return;
-
     mDynamicCastGet(Pick::Set*,ps,cb)
     if ( !ps ) return;
 
@@ -113,11 +99,9 @@ void uiODPickSetParentTreeItem::setRm( CallBacker* cb )
 
 bool uiODPickSetParentTreeItem::showSubMenu()
 {
-    if ( !canAddDisplay(sceneID()) )
-    {
-	uiMSG().message( "Cannot add PickSets to this scene" );
-	return false;
-    }
+    mDynamicCastGet(visSurvey::Scene*,scene,
+	    	    applMgr()->visServer()->getObject(sceneID()));
+    const bool hastransform = scene && scene->getDataTransform();
 
     uiPopupMenu mnu( getUiParent(), "Action" );
     mnu.insertItem( new uiMenuItem("New/Load ..."), 0 );
@@ -125,8 +109,13 @@ bool uiODPickSetParentTreeItem::showSubMenu()
     {
 	mnu.insertItem( new uiMenuItem("Save changes"), 1);
 	mnu.insertSeparator();
-	mnu.insertItem( new uiMenuItem("Display picks only at sections"), 2 );
-	mnu.insertItem( new uiMenuItem("Show all picks"), 3 );
+	uiMenuItem* filteritem =
+	    new uiMenuItem("Display picks only at sections");
+	mnu.insertItem( filteritem );
+	filteritem->setEnabled( !hastransform );
+	uiMenuItem* shwallitem = new uiMenuItem("Show all picks");
+	mnu.insertItem( shwallitem );
+	shwallitem->setEnabled( !hastransform );
 	mnu.insertSeparator();
 	mnu.insertItem( new uiMenuItem("Merge Sets"), 4 );
     }
@@ -247,7 +236,12 @@ void uiODPickSetTreeItem::createMenuCB( CallBacker* cb )
     mDynamicCastGet(visSurvey::PickSetDisplay*,psd,
 		    visserv->getObject(displayid_));
 
-    mAddMenuItem( menu, &showallmnuitem_, true, psd->allShown() );
+    mDynamicCastGet(visSurvey::Scene*,scene,
+	    	    applMgr()->visServer()->getObject(sceneID()));
+    const bool hastransform = scene && scene->getDataTransform();
+
+    mAddMenuItem( menu, &showallmnuitem_, !hastransform,
+	    	  hastransform ? false : psd->allShown() );
     mAddMenuItem( menu, &propertymnuitem_, true, false );
 }
 
