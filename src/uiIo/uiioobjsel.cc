@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          25/05/2000
- RCS:           $Id: uiioobjsel.cc,v 1.91 2006-06-29 16:34:09 cvsbert Exp $
+ RCS:           $Id: uiioobjsel.cc,v 1.92 2006-07-24 08:36:56 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -209,7 +209,10 @@ void uiIOObjSelGrp::fullUpdate( int curidx )
     deepErase( ioobjids_ );
     for ( int idx=0; idx<del.size(); idx++ )
     {
-	ioobjnms_.add( del[idx]->name() );
+	BufferString nm = del[idx]->name();
+	char* ptr = nm.buf();
+	skipLeadingBlanks( ptr );
+	ioobjnms_.add( ptr );
 	ioobjids_ += new MultiID(
 			del[idx]->ioobj ? del[idx]->ioobj->key() : udfmid );
     }
@@ -331,6 +334,7 @@ bool uiIOObjSelGrp::createEntry( const char* seltxt )
 
     ioobjnms_.add( ioobj->name() );
     ioobjids_ += new MultiID( ioobj->key() );
+    fillListBox();
     listfld->box()->setCurrentItem( ioobj->name() );
     if ( nmfld && ioobj->name() != seltxt )
 	nmfld->setText( ioobj->name() );
