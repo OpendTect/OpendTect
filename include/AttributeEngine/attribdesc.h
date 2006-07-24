@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribdesc.h,v 1.32 2006-07-05 15:29:23 cvshelene Exp $
+ RCS:           $Id: attribdesc.h,v 1.33 2006-07-24 06:50:01 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -112,6 +112,7 @@ public:
 
     			/* Interface to factory */
     void		addParam(Param*);
+    			/*!< Pointer becomes mine */
     const Param*	getParam(const char* key) const;
     Param*		getParam(const char* key);
     const ValParam*	getValParam(const char* key) const;
