@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizon3dseedpicker.cc,v 1.18 2006-07-18 12:05:17 cvsjaap Exp $";
+static const char* rcsID = "$Id: horizon3dseedpicker.cc,v 1.19 2006-07-24 11:41:12 cvsjaap Exp $";
 
 #include "horizonseedpicker.h"
 
@@ -340,7 +340,8 @@ bool HorizonSeedPicker::stopSeedPick( bool iscancel )
 }
 
 
-bool HorizonSeedPicker::lineTrackDirection( BinID& dir ) const
+bool HorizonSeedPicker::lineTrackDirection( BinID& dir, 
+					    bool perptotrackdir ) const
 {
     const CubeSampling* csptr = &engine().activeVolume();
     dir = (*csptr).hrg.step;
@@ -348,28 +349,33 @@ bool HorizonSeedPicker::lineTrackDirection( BinID& dir ) const
     if ( (*csptr).nrInl()>1 && (*csptr).nrCrl()>1 )
 	csptr = &engine().trackPlane().boundingBox();
 
-    if ( (*csptr).nrInl()==1 && (*csptr).nrCrl()>1 )
+    const bool inltracking = (*csptr).nrInl()==1 && (*csptr).nrCrl()>1;
+    const bool crltracking = (*csptr).nrCrl()==1 && (*csptr).nrInl()>1;
+
+    if ( !inltracking && !crltracking )
+	return false;
+
+    if ( !perptotrackdir && inltracking  ||  perptotrackdir && crltracking )
     {
-	dir.inl = 0; return true; 
+	dir.inl = 0; 
+    }
+    else
+    {
+	dir.crl = 0;
     }
 
-    if ( (*csptr).nrCrl()==1 && (*csptr).nrInl()>1 )
-    {
-	dir.crl = 0; return true; 
-    }
-
-    return false;
+    return true;
 }
 
 
 int HorizonSeedPicker::nrLateralNeighbors( const EM::PosID& pid ) const
 {
-    return nrLineNeighbors( pid, false );
+    return nrLineNeighbors( pid, true );
 }
 
 
 int HorizonSeedPicker::nrLineNeighbors( const EM::PosID& pid, 
-				         bool pardir ) const
+				        bool perptotrackdir ) const
 {
     EM::EMObject* emobj = EM::EMM().getObject( tracker_.objectID() );  
     BinID bid = SI().transform( emobj->getPos(pid) );
@@ -379,7 +385,7 @@ int HorizonSeedPicker::nrLineNeighbors( const EM::PosID& pid,
     hor->geometry().getConnectedPos( pid, &neighpid );
    
     BinID dir;
-    if ( !lineTrackDirection(dir) )
+    if ( !lineTrackDirection(dir,perptotrackdir) )
 	return -1;
 
     int total = 0;
