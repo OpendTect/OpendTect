@@ -4,7 +4,7 @@
  * DATE     : 18-4-1996
 -*/
 
-static const char* rcsID = "$Id: draw.cc,v 1.54 2006-07-19 16:03:51 cvsbert Exp $";
+static const char* rcsID = "$Id: draw.cc,v 1.55 2006-07-24 16:27:46 cvskris Exp $";
 
 /*! \brief Several implementations for UI-related things.
 
@@ -419,6 +419,30 @@ bool ColorTable::hasTransparency() const
     }
 
     return false;
+}
+
+
+void ColorTable::setTransparencyFromColVals()
+{
+    translist_.erase();
+    if ( !cvs_.size() )
+	return;
+
+    const Interval<float> range( cvs_[0].value, cvs_[cvs_.size()-1].value );
+
+    if ( cvs_.size()==1 || mIsZero( range.width(), mDefEps ) )
+    {
+	translist_ += Geom::Point2D<float>(0,cvs_[0].color.t() );
+	translist_ += Geom::Point2D<float>(1,cvs_[cvs_.size()-1].color.t() );
+    }
+    else
+    {
+	for ( int idx=0; idx<cvs_.size(); idx++ )
+    	{
+	    const float relpos = (cvs_[idx].value-range.start) / range.width();
+	    translist_ += Geom::Point2D<float>(relpos,cvs_[idx].color.t() );
+	}
+    }
 }
 
 
