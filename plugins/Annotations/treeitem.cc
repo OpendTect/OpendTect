@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2005
- RCS:           $Id: treeitem.cc,v 1.1 2006-07-03 20:02:06 cvskris Exp $
+ RCS:           $Id: treeitem.cc,v 1.2 2006-07-25 22:24:14 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -277,7 +277,7 @@ void SubItem::prepareForShutdown()
 	BufferString msg = "The annotation group ";
 	msg += name();
 	msg += " is not saved.\n\nDo you want to save it?";
-	if ( uiMSG().notSaved( msg,0,false ) )
+	if ( uiMSG().notSaved( msg,false ) )
 	    store();
     }
 }
