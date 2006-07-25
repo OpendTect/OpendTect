@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		11-4-1994
  Contents:	Extra string functions
- RCS:		$Id: string2.h,v 1.16 2005-11-02 13:59:31 cvsbert Exp $
+ RCS:		$Id: string2.h,v 1.17 2006-07-25 13:02:52 cvsbert Exp $
 ________________________________________________________________________
 -*/
 
@@ -55,6 +55,8 @@ void		replaceString(char*,const char*,const char*);
 void		removeCharacter(char*,char);
 /*!> cleans a string from non-alpha numeric by replacing with underscores. */
 void		cleanupString(char*,int,int,int);
+/*!> tells whether a string holds a parseable number */
+int		isNumberString(const char*,int int_only);
 
 /*!> returns the string for an int in a static buffer. You'll have to pass a
      C-style ('printf') format. */
