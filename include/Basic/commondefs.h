@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Mar 2006
- RCS:		$Id: commondefs.h,v 1.5 2006-07-18 08:37:19 cvsnanne Exp $
+ RCS:		$Id: commondefs.h,v 1.6 2006-07-25 12:44:25 cvsnanne Exp $
 ________________________________________________________________________
 
  Some very commonly used macros.
@@ -35,26 +35,24 @@ ________________________________________________________________________
 #define mMaxUserIDLength 127
 
 #ifndef M_PI
-#define M_PI 3.14159265358979323846
+# define M_PI 3.14159265358979323846
 #endif
 
 #ifndef M_PI_2
-#define M_PI_2 1.57079632679489661923
+# define M_PI_2 1.57079632679489661923
 #endif
 
 #ifndef M_PI_4
-#define M_PI_4 0.78539816339744830962
+# define M_PI_4 0.78539816339744830962
 #endif
 
 
 #ifdef __msvc__
-#define mVariableLengthArr( type, varnm, __size ) \
-ArrPtrMan<type> varnm = new type[size]
+# define mVariableLengthArr( type, varnm, __size ) \
+  ArrPtrMan<type> varnm = new type [__size]
 #else
-
-#define mVariableLengthArr( type, varnm, __size ) \
-type varnm[__size]
-
+# define mVariableLengthArr( type, varnm, __size ) \
+  type varnm[__size]
 #endif
 
 
@@ -64,10 +62,10 @@ type varnm[__size]
 #endif
 
 #ifdef __msvc__
-#include "msvcdefs.h"
+# include "msvcdefs.h"
 #else
 
-#define PATH_LENGTH		255
+# define PATH_LENGTH		255
 
 # define mPolyRet(base,clss)	clss
 # define mTFriend(T,clss)	template <class T> friend class clss
