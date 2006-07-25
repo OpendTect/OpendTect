@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		July 2006
- RCS:		$Id: uivisslicepos3d.cc,v 1.3 2006-07-21 09:52:51 cvsnanne Exp $
+ RCS:		$Id: uivisslicepos3d.cc,v 1.4 2006-07-25 11:02:52 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "visplanedatadisplay.h"
 
 #include "cubesampling.h"
+#include "ioman.h"
 #include "survinfo.h"
 
 
@@ -41,15 +42,23 @@ uiSlicePos::uiSlicePos( uiParent* p )
     slicestepbox_->box()->valueChanged.notify(
 	    			mCB(this,uiSlicePos,sliceStepChg) );
 
-    laststeps_[0] = SI().inlStep();
-    laststeps_[1] = SI().crlStep();
-    laststeps_[2] = mNINT( SI().zStep()*SI().zFactor() );
+    IOM().surveyChanged.notify( mCB(this,uiSlicePos,initSteps) );
+    initSteps();
 }
 
 
 uiSlicePos::~uiSlicePos()
 {
+    IOM().surveyChanged.remove( mCB(this,uiSlicePos,initSteps) );
     delete toolbar_;
+}
+
+
+void uiSlicePos::initSteps( CallBacker* )
+{
+    laststeps_[0] = SI().inlStep();
+    laststeps_[1] = SI().crlStep();
+    laststeps_[2] = mNINT( SI().zStep()*SI().zFactor() );
 }
 
 

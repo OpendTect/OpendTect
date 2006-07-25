@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2006
- RCS:           $Id: uivisslicepos3d.h,v 1.2 2006-07-19 15:21:25 cvsnanne Exp $
+ RCS:           $Id: uivisslicepos3d.h,v 1.3 2006-07-25 11:02:52 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -53,6 +53,7 @@ protected:
     void		slicePosChg(CallBacker*);
     void		sliceStepChg(CallBacker*);
     void		updatePos(CallBacker*);
+    void		initSteps(CallBacker* cb=0);
 };
 
 #endif
