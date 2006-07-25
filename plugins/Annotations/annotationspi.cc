@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2004
- RCS:           $Id: annotationspi.cc,v 1.1 2006-07-03 20:02:06 cvskris Exp $
+ RCS:           $Id: annotationspi.cc,v 1.2 2006-07-25 22:24:27 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,13 +14,13 @@ ________________________________________________________________________
 #include "uiodscenemgr.h"
 
 
-extern "C" int GetAnnotationsPluginType()
+extern "C" int GetnewAnnotationsPluginType()
 {
     return PI_AUTO_INIT_LATE;
 }
 
 
-extern "C" PluginInfo* GetAnnotationsPluginInfo()
+extern "C" PluginInfo* GetnewAnnotationsPluginInfo()
 {
     static PluginInfo retpii = {
 	"Annotations",
@@ -31,7 +31,7 @@ extern "C" PluginInfo* GetAnnotationsPluginInfo()
 }
 
 
-extern "C" const char* InitAnnotationsPlugin( int, char** )
+extern "C" const char* InitnewAnnotationsPlugin( int, char** )
 {
     ODMainWin()->sceneMgr().treeItemFactorySet()->addFactory(
 	    			new Annotations::TreeItemFactory, 10000 );
