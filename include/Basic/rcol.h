@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		12-8-1997
- RCS:		$Id: rcol.h,v 1.8 2005-02-23 14:45:12 cvsarend Exp $
+ RCS:		$Id: rcol.h,v 1.9 2006-07-25 12:44:50 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -162,7 +162,7 @@ RColLineBuilder<T>::RColLineBuilder( const RCol& start_,
    , dir( dir_ )
    , step( step_ )
    , line( line_ )
-   , dirlen( sqrt(dir_.r()*dir_.r()+dir_.c()*dir_.c()))
+   , dirlen( sqrt(float(dir_.r()*dir_.r()+dir_.c()*dir_.c())) )
 {}
 
 
