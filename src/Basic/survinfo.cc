@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          18-4-1996
- RCS:           $Id: survinfo.cc,v 1.73 2006-05-23 15:13:42 cvsbert Exp $
+ RCS:           $Id: survinfo.cc,v 1.74 2006-07-25 06:43:15 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -542,7 +542,7 @@ void SurveyInfo::snapZ( float& z, int dir ) const
 {
     const StepInterval<float>& zrg = cs_.zrg;
     const float eps = 1e-8;
-    const float idxeps = pow(2,-13);
+    const float idxeps = pow(2.,-13.);
 
     float snapzrgstop=zrg.stop;
     mSnapZ( snapzrgstop, -1, idxeps );
