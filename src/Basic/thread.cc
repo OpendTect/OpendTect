@@ -4,7 +4,7 @@
  * DATE     : Mar 2000
 -*/
 
-static const char* rcsID = "$Id: thread.cc,v 1.22 2006-07-17 15:26:22 cvskris Exp $";
+static const char* rcsID = "$Id: thread.cc,v 1.23 2006-07-25 06:42:28 cvsnanne Exp $";
 
 #include "thread.h"
 #include "callback.h"
@@ -202,9 +202,12 @@ static int getSysNrProc()
 
 #ifdef __win__
 
+/*
     struct _SYSTEM_INFO sysinfo;
     GetSystemInfo(&sysinfo);
-    ret = sysinfo.dwNumberOfProcessors; /* total number of CPUs */
+    ret = sysinfo.dwNumberOfProcessors; // total number of CPUs
+*/
+    ret = GetEnvVarIVal( "NUMBER_OF_PROCESSORS", 1 );
 
 #else
 
