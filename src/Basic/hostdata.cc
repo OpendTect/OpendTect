@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Apr 2002
- RCS:           $Id: hostdata.cc,v 1.30 2006-04-25 16:53:11 cvsbert Exp $
+ RCS:           $Id: hostdata.cc,v 1.31 2006-07-25 06:45:12 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,7 +22,7 @@ ________________________________________________________________________
 #include "filepath.h"
 #include "debugmasks.h"
 #include <iostream>
-# include <unistd.h>
+//#include <unistd.h>
 #ifdef __win__
 # include <windows.h>
 #else
