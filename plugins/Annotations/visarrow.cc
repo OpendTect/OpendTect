@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Jan 2005
- RCS:           $Id: visarrow.cc,v 1.1 2006-07-03 20:02:06 cvskris Exp $
+ RCS:           $Id: visarrow.cc,v 1.2 2006-07-25 22:23:22 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -95,6 +95,7 @@ visBase::VisualObject* ArrowAnnotationDisplay::createLocation() const
 {
     visBase::IndexedPolyLine* pl = visBase::IndexedPolyLine::create();
     pl->ref();
+    pl->setSelectable( true );
     updateLineShape( pl );
     pl->unRefNoDelete();
     return pl;
