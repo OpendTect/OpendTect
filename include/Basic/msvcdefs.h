@@ -7,10 +7,10 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Mar 2006
- RCS:		$Id: msvcdefs.h,v 1.1 2006-03-10 13:55:44 cvsbert Exp $
+ RCS:		$Id: msvcdefs.h,v 1.2 2006-07-26 15:34:03 cvsnanne Exp $
 ________________________________________________________________________
 
- For use with Microsoft Visual C++ 5.0 and 6.0 . Not maintained since 2002.
+ For use with Microsoft Visual C++ 5.0 and 6.0
 
 -*/
 
@@ -19,9 +19,12 @@ ________________________________________________________________________
 #define snprintf	_snprintf
 #define isnan		_isnan
 
-#ifndef M_PI
-# define M_PI           3.14159265358979323846
-#endif
+#define strncasecmp	strnicmp
+#define strcasecmp	stricmp
+
+typedef __int64		int64_t;
+#define __uint64	unsigned __int64
+typedef __uint64	uint64_t;
 
 
 // Index variable's scope is non-ANSI. This corrects that idiocy.
