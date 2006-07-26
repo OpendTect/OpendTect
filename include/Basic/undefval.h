@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          13/01/2005
- RCS:           $Id: undefval.h,v 1.7 2006-06-23 14:16:36 cvsjaap Exp $
+ RCS:           $Id: undefval.h,v 1.8 2006-07-26 15:33:30 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -119,10 +119,10 @@ template<>
 class Undef<float>
 {
 public:
-    static float	val()			{ return __mUndefValue; }
+    static float	val()			{ return (float)__mUndefValue; }
     static bool		hasUdf()		{ return true; }
     static bool		isUdf( float f )	{ return __mIsUndefined(f); }
-    static void		setUdf( float& f )	{ f = __mUndefValue; }
+    static void		setUdf( float& f )	{ f = (float)__mUndefValue; }
 };
 
 
