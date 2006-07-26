@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodattribtreeitem.cc,v 1.5 2006-06-20 14:41:08 cvsnanne Exp $
+ RCS:		$Id: uiodattribtreeitem.cc,v 1.6 2006-07-26 15:36:02 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -130,10 +130,10 @@ void uiODAttribTreeItem::handleMenuCB( CallBacker* cb )
 
 bool uiODAttribTreeItem::handleSelMenu( int mnuid, int visid, int attrib )
 {
-    if ( mnuid==-1 )
+    uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
+    if ( mnuid==-1 || visserv->isLocked(visid) )
 	return false;
 
-    uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
     const Attrib::SelSpec* as = visserv->getSelSpec( visid, attrib );
     if ( !as ) return false;
 
