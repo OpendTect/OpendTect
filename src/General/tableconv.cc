@@ -4,7 +4,7 @@
  * DATE     : Jul 2006
 -*/
 
-static const char* rcsID = "$Id: tableconv.cc,v 1.3 2006-07-26 15:48:39 cvsbert Exp $";
+static const char* rcsID = "$Id: tableconv.cc,v 1.4 2006-07-26 16:00:51 cvsbert Exp $";
 
 #include "tableconvimpl.h"
 
@@ -157,7 +157,7 @@ void SQLInsertTableExportHandler::addVal( std::ostream& strm, int col,
 {
     if ( col )
 	strm << ',';
-    const bool needsquotes = val && *val && !isNumber( val );
+    const bool needsquotes = !*val || !isNumber( val );
     if ( needsquotes )
 	strm << "'";
     if ( val && *val )

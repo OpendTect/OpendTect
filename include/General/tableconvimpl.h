@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Jul 2006
- RCS:		$Id: tableconvimpl.h,v 1.3 2006-07-26 15:48:39 cvsbert Exp $
+ RCS:		$Id: tableconvimpl.h,v 1.4 2006-07-26 16:00:51 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -55,8 +55,6 @@ protected:
 class SQLInsertTableExportHandler : public TableExportHandler
 {
 public:
-    			SQLInsertTableExportHandler();
-			~SQLInsertTableExportHandler();
 
     const char*		putRow(const BufferStringSet&,std::ostream&);
 
