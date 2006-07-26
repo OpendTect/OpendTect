@@ -8,15 +8,18 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		17-11-1999
  Contents:	Mathematical Functions
- RCS:		$Id: mathfunc.h,v 1.16 2005-08-22 22:21:58 cvskris Exp $
+ RCS:		$Id: mathfunc.h,v 1.17 2006-07-26 15:33:07 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 
 #include "position.h"
+#include "ptrman.h"
 #include "samplingdata.h"
+
 #include <math.h>
+
 class LinePars;
 
 
@@ -37,7 +40,7 @@ public:
     RT		getValue( const IDXABL& x ) const
     		{
 		    const int nrdim = getNrDim();
-		    PT pos[nrdim];
+		    mVariableLengthArr( PT, pos, nrdim );
 		    for ( int idx=0; idx<nrdim; idx++ )
 			pos[idx] = x[idx];
 		    return getValue( pos );
@@ -147,10 +150,10 @@ public:
 
     RT			getValue( PT lambda ) const
 			{
-			    const int ndim = func.getNrDim();
-			    PT pos[ndim];
-			    for ( int idx=0; idx<ndim; idx++ )
-				pos[idx] = P[idx]+N[idx]*lambda;
+			    const int nrdim = func.getNrDim();
+			    mVariableLengthArr( PT, pos, nrdim );
+			    for ( int idx=0; idx<nrdim; idx++ )
+				pos[idx] = P[idx] + N[idx]*lambda;
 
 			    return func.getValue( pos );
 			}
