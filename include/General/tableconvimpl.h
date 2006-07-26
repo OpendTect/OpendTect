@@ -7,12 +7,13 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Jul 2006
- RCS:		$Id: tableconvimpl.h,v 1.1 2006-07-26 08:32:47 cvsbert Exp $
+ RCS:		$Id: tableconvimpl.h,v 1.2 2006-07-26 10:52:09 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "tableconv.h"
+#include "bufstringset.h"
 
 
 class CSVTableImportHandler : public TableImportHandler
@@ -47,6 +48,22 @@ public:
     const char*		putRow(std::ostream&);
 
     std::ostringstream&	strstrm_;
+
+};
+
+
+class SQLInsertTableExportHandler : public TableExportHandler
+{
+public:
+    			SQLInsertTableExportHandler();
+			~SQLInsertTableExportHandler();
+
+    const char*		useColVal(int col,const char*);
+    const char*		putRow(std::ostream&);
+
+    std::ostringstream&	strstrm_;
+    BufferString	tblname_;
+    BufferStringSet	fields_;
 
 };
 

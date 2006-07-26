@@ -4,7 +4,7 @@
  * DATE     : Jul 2006
 -*/
 
-static const char* rcsID = "$Id: tableconv.cc,v 1.1 2006-07-26 08:32:47 cvsbert Exp $";
+static const char* rcsID = "$Id: tableconv.cc,v 1.2 2006-07-26 10:52:09 cvsbert Exp $";
 
 #include "tableconvimpl.h"
 #include <sstream>
@@ -36,12 +36,15 @@ int TableConverter::nextStep()
     while ( true )
     {
 	char c = readNewChar();
-	if ( istrm_.eof() ) return false;
+	if ( istrm_.eof() )
+	    return 0;
 
-	handleImpState( imphndlr_.add(c) );
+	TableImportHandler::State impstate = imphndlr_.add( c );
+	if ( !handleImpState(impstate) )
+	    return -1;
+	if ( impstate == TableImportHandler::EndRow )
+	    return 1;
     }
-
-    return true;
 }
 
 
@@ -155,6 +158,57 @@ const char* CSVTableExportHandler::useColVal( int col, const char* val )
 
 const char* CSVTableExportHandler::putRow( std::ostream& strm )
 {
+    strm << strstrm_.str().c_str() << std::endl;
+    strstrm_.str("");
+    return strm.good() ? 0 : "Error writing to output";
+}
+
+
+SQLInsertTableExportHandler::SQLInsertTableExportHandler()
+    : strstrm_(*new std::ostringstream)
+{
+}
+
+
+SQLInsertTableExportHandler::~SQLInsertTableExportHandler()
+{
+    delete &strstrm_;
+}
+
+
+const char* SQLInsertTableExportHandler::useColVal( int col, const char* val )
+{
+    if ( col )
+	strstrm_ << ',';
+    else
+    {
+	strstrm_ << "INSERT INTO " << tblname_;
+	if ( fields_.size() )
+	{
+	    strstrm_ << " (" << fields_.get(0).buf();
+	    for ( int idx=1; idx<fields_.size(); idx++ )
+		strstrm_ << ',' << fields_.get(idx).buf();
+	    strstrm_ << ')';
+
+	}
+	strstrm_ << " VALUES (";
+    }
+
+    const bool needsquotes = val && *val && !isNumber( val );
+    if ( needsquotes )
+	strstrm_ << "'";
+    if ( val && *val )
+	strstrm_ << val;
+    if ( needsquotes )
+	strstrm_ << "'";
+
+    return 0;
+}
+
+
+const char* SQLInsertTableExportHandler::putRow( std::ostream& strm )
+{
+    strstrm_ << ");";
     strm << strstrm_.str().c_str() << std::endl;
     strstrm_.str("");
     return strm.good() ? 0 : "Error writing to output";
