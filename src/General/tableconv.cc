@@ -4,10 +4,9 @@
  * DATE     : Jul 2006
 -*/
 
-static const char* rcsID = "$Id: tableconv.cc,v 1.2 2006-07-26 10:52:09 cvsbert Exp $";
+static const char* rcsID = "$Id: tableconv.cc,v 1.3 2006-07-26 15:48:39 cvsbert Exp $";
 
 #include "tableconvimpl.h"
-#include <sstream>
 
 
 void TableImportHandler::addToCol( char c )
@@ -63,13 +62,7 @@ bool TableConverter::handleImpState( TableImportHandler::State impstate )
 
 	if ( colSel() )
 	{
-	    const char* msg = exphndlr_.useColVal( selcolnr_,
-						   imphndlr_.getCol() );
-	    if ( msg && *msg )
-	    {
-		msg_ = msg;
-		return false;
-	    }
+	    row_.add( imphndlr_.getCol() );
 	    selcolnr_++;
 	}
 	colnr_++;
@@ -82,14 +75,18 @@ bool TableConverter::handleImpState( TableImportHandler::State impstate )
 	if ( !handleImpState(TableImportHandler::EndCol) )
 	    return false;
 
-	const char* msg = exphndlr_.putRow( ostrm_ );
-	if ( msg && *msg )
+	if ( !manipulator_ || manipulator_->accept(row_) )
 	{
-	    msg_ = msg;
-	    return false;
-	}
+	    const char* msg = exphndlr_.putRow( row_, ostrm_ );
+	    if ( msg && *msg )
+	    {
+		msg_ = msg;
+		return false;
+	    }
 
-	rowsdone_++;
+	    rowsdone_++;
+	}
+	row_.deepErase();
 	imphndlr_.newRow();
 
     return true; }
@@ -118,7 +115,7 @@ TableImportHandler::State CSVTableImportHandler::add( char c )
 	    return EndRow;
 	}
     }
-    else if ( c == ',' )
+    else if ( c == ',' && !instring_ )
     {
 	addToCol( '\0' );
 	return EndCol;
@@ -129,87 +126,100 @@ TableImportHandler::State CSVTableImportHandler::add( char c )
 }
 
 
-CSVTableExportHandler::CSVTableExportHandler()
-    : strstrm_(*new std::ostringstream)
-{
-}
-
-
-CSVTableExportHandler::~CSVTableExportHandler()
-{
-    delete &strstrm_;
-}
-
-
-const char* CSVTableExportHandler::useColVal( int col, const char* val )
+void CSVTableExportHandler::addVal( std::ostream& strm, int col,
+				    const char* val )
 {
     if ( col )
-	strstrm_ << ',';
-    const bool needsquotes = val && *val && !isNumber( val );
+	strm << ',';
+    const bool needsquotes = *val && !isNumber( val );
     if ( needsquotes )
-	strstrm_ << '"';
-    if ( val && *val )
-	strstrm_ << val;
+	strm << '"';
+    if ( *val )
+	strm << val;
     if ( needsquotes )
-	strstrm_ << '"';
-    return 0;
+	strm << '"';
 }
 
 
-const char* CSVTableExportHandler::putRow( std::ostream& strm )
+const char* CSVTableExportHandler::putRow( const BufferStringSet& row,
+					   std::ostream& strm )
 {
-    strm << strstrm_.str().c_str() << std::endl;
-    strstrm_.str("");
+    for ( int idx=0; idx<row.size(); idx++ )
+	addVal( strm, idx, row.get(idx) );
+    strm << std::endl;
+
     return strm.good() ? 0 : "Error writing to output";
 }
 
 
-SQLInsertTableExportHandler::SQLInsertTableExportHandler()
-    : strstrm_(*new std::ostringstream)
-{
-}
-
-
-SQLInsertTableExportHandler::~SQLInsertTableExportHandler()
-{
-    delete &strstrm_;
-}
-
-
-const char* SQLInsertTableExportHandler::useColVal( int col, const char* val )
+void SQLInsertTableExportHandler::addVal( std::ostream& strm, int col,
+					  const char* val )
 {
     if ( col )
-	strstrm_ << ',';
-    else
-    {
-	strstrm_ << "INSERT INTO " << tblname_;
-	if ( fields_.size() )
-	{
-	    strstrm_ << " (" << fields_.get(0).buf();
-	    for ( int idx=1; idx<fields_.size(); idx++ )
-		strstrm_ << ',' << fields_.get(idx).buf();
-	    strstrm_ << ')';
+	strm << ',';
+    const bool needsquotes = val && *val && !isNumber( val );
+    if ( needsquotes )
+	strm << "'";
+    if ( val && *val )
+	strm << val;
+    if ( needsquotes )
+	strm << "'";
+}
 
-	}
-	strstrm_ << " VALUES (";
+
+const char* SQLInsertTableExportHandler::putRow( const BufferStringSet& row,
+						 std::ostream& strm )
+{
+    if ( tblname_ == "" )
+	return "No table name provided";
+
+    strm << "INSERT INTO " << tblname_;
+    if ( colnms_.size() )
+    {
+	strm << " (" << colnms_.get(0).buf();
+	for ( int idx=1; idx<colnms_.size(); idx++ )
+	    strm << ',' << colnms_.get(idx).buf();
+	strm << ')';
+    }
+    strm << " VALUES (";
+
+    for ( int idx=0; idx<row.size(); idx++ )
+	addVal( strm, idx, row.get(idx) );
+
+    strm << ");" << std::endl;
+
+    return strm.good() ? 0 : "Error writing to output";
+}
+
+
+void TCDuplicateKeyRemover::setPrevKeys( const BufferStringSet& cols ) const
+{
+    if ( prevkeys_.size() < 1 )
+    {
+	for ( int idx=0; idx<keycols_.size(); idx++ )
+	    prevkeys_.add( "" );
     }
 
-    const bool needsquotes = val && *val && !isNumber( val );
-    if ( needsquotes )
-	strstrm_ << "'";
-    if ( val && *val )
-	strstrm_ << val;
-    if ( needsquotes )
-	strstrm_ << "'";
-
-    return 0;
+    for ( int idx=0; idx<keycols_.size(); idx++ )
+	prevkeys_.get(idx) = cols.get( keycols_[idx] );
 }
 
 
-const char* SQLInsertTableExportHandler::putRow( std::ostream& strm )
+bool TCDuplicateKeyRemover::accept( BufferStringSet& cols ) const
 {
-    strstrm_ << ");";
-    strm << strstrm_.str().c_str() << std::endl;
-    strstrm_.str("");
-    return strm.good() ? 0 : "Error writing to output";
+    nrdone_++;
+    if ( keycols_.size() < 1 )
+	return true;
+
+    if ( nrdone_ == 1 )
+	{ setPrevKeys( cols ); return true; }
+
+    for ( int idx=0; idx<keycols_.size(); idx++ )
+    {
+	if ( cols.get(keycols_[idx]) != prevkeys_.get(idx) )
+	    { setPrevKeys( cols ); return true; }
+    }
+
+    nrremoved_++;
+    return false;
 }

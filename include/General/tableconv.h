@@ -7,13 +7,14 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Jul 2006
- RCS:		$Id: tableconv.h,v 1.1 2006-07-26 08:32:47 cvsbert Exp $
+ RCS:		$Id: tableconv.h,v 1.2 2006-07-26 15:48:39 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "sets.h"
 #include "executor.h"
+#include "bufstringset.h"
 #include <iostream>
 
 
@@ -46,8 +47,7 @@ class TableExportHandler
 {
 public:
 
-    virtual const char*	useColVal(int col,const char*)	= 0;
-    virtual const char*	putRow(std::ostream&)		= 0;
+    virtual const char*	putRow(const BufferStringSet&,std::ostream&)	= 0;
 
     static bool		isNumber(const char*);
 };
@@ -63,6 +63,7 @@ public:
 			    , istrm_(is), ostrm_(os)
 			    , imphndlr_(i), exphndlr_(o)
 			    , rowsdone_(0)
+			    , manipulator_(0)
 			    , msg_("Importing")		{}
     // Setup
     TypeSet<int>	selcols_;
@@ -73,12 +74,22 @@ public:
     const char*		nrDoneText() const	{ return "Records read"; }
     int			nrDone() const		{ return rowsdone_; }
 
+    struct RowManipulator
+    {
+	virtual bool	accept(BufferStringSet&) const		= 0;
+			//!< if false returned, the row should not be written
+    };
+    void		setManipulator( const RowManipulator* m )
+						{ manipulator_ = m; }
+
 protected:
 
     std::istream&	istrm_;
     std::ostream&	ostrm_;
     TableImportHandler&	imphndlr_;
     TableExportHandler&	exphndlr_;
+    BufferStringSet	row_;
+    const RowManipulator* manipulator_;
 
     int			colnr_;
     int			selcolnr_;
