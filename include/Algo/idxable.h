@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert & Kris
  Date:		Mar 2006
- RCS:		$Id: idxable.h,v 1.5 2006-04-04 20:50:03 cvskris Exp $
+ RCS:		$Id: idxable.h,v 1.6 2006-07-26 07:21:51 cvsbert Exp $
 ________________________________________________________________________
 
 */
@@ -370,13 +370,13 @@ void findInSegment( int idx0, int idx1 )
 RT getMaxDxsqOnly( int idx0, int idx1, int& idx )
 {
     const RT x = (x_[idx0] + x_[idx1]) / 2;
-    RT dsqmax = 0;
+    RT dsqmax = 0; idx = idx0;
     for ( int ipt=idx0+1; ipt<idx1; ipt++ )
     {
 	const RT dx = x_[ipt] - x;
 	const RT dxsq = dx * dx;
 	if ( dxsq > dsqmax )
-	    dsqmax = dxsq;
+	    { dsqmax = dxsq; idx = ipt; }
     }
     return dsqmax;
 }
