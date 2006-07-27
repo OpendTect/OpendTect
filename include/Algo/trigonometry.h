@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		23-11-2002
- RCS:		$Id: trigonometry.h,v 1.16 2006-06-27 21:04:20 cvskris Exp $
+ RCS:		$Id: trigonometry.h,v 1.17 2006-07-27 21:31:25 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -53,7 +53,7 @@ class Quaternion
 {
 public:
     			Quaternion(float s,float x,float y,float z);
-			Quaternion(float s,const Vector3& vec);
+			Quaternion(const Vector3& axis,float angle);
 
     void		setRotation(const Vector3& axis,float angle);
     			//!<\note angle must be nonzero
@@ -68,8 +68,8 @@ public:
 
     Quaternion		inverse() const;
 
-    float		s;
-    Vector3		vec;
+    float		s_;
+    Vector3		vec_;
 };
 
 /*!\brief

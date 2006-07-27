@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: trigonometry.cc,v 1.26 2006-06-27 21:04:20 cvskris Exp $";
+static const char* rcsID = "$Id: trigonometry.cc,v 1.27 2006-07-27 21:31:25 cvskris Exp $";
 
 #include "trigonometry.h"
 
@@ -112,45 +112,46 @@ Coord3 estimateAverageVector( const TypeSet<Coord3>& vectors, bool normalize,
 }
 
 
-Quaternion::Quaternion( float s_, float x, float y, float z )
-    : vec( x, y, z )
-    , s( s_ )
+Quaternion::Quaternion( float s, float x, float y, float z )
+    : vec_( x, y, z )
+    , s_( s )
 { }
 
 
-Quaternion::Quaternion( float s_, const Vector3& vec_ )
-    : vec( vec_ )
-    , s( s_ )
-{}
+Quaternion::Quaternion( const Vector3& axis, float angle )
+{
+    setRotation( axis, angle );
+}
 
 
 void Quaternion::setRotation( const Vector3& axis, float angle )
 {
     const float halfangle = angle/2;
-    s = cos(halfangle);
+    s_ = cos(halfangle);
     const float sineval = sin(halfangle);
 
     const Coord3 a = axis.normalize();
 
-    vec.x = a.x * sineval;
-    vec.y = a.y * sineval;
-    vec.z = a.z * sineval;
+    vec_.x = a.x * sineval;
+    vec_.y = a.y * sineval;
+    vec_.z = a.z * sineval;
 }
 
 
 void Quaternion::rotate( const Coord3& v, Coord3& to ) const
 {
-    const Coord3 qvv = s*v + vec.cross(v);
+    const Coord3 qvv = s_*v + vec_.cross(v);
 
-    const Coord3 iqvec = -vec;
+    const Coord3 iqvec = -vec_;
 
-    to = (iqvec.dot(v))*iqvec+s*qvv+qvv.cross(iqvec);
+    to = (iqvec.dot(v))*iqvec+s_*qvv+qvv.cross(iqvec);
 }
     
 
 Quaternion Quaternion::operator+( const Quaternion& b ) const
 {
-    return Quaternion( s+b.s, vec+b.vec);
+    const Vector3 vec = vec_+b.vec_;
+    return Quaternion( s_+b.s_, vec.x, vec.y, vec.z );
 }
 
 
@@ -164,7 +165,8 @@ Quaternion& Quaternion::operator+=( const Quaternion& b )
 
 Quaternion Quaternion::operator-( const Quaternion& b ) const
 {
-    return Quaternion( s-b.s, vec-b.vec);
+    const Vector3 vec =  vec_-b.vec_;
+    return Quaternion( s_-b.s_, vec.x, vec.y, vec.z );
 }
 
 
@@ -177,8 +179,8 @@ Quaternion& Quaternion::operator-=( const Quaternion& b )
 
 Quaternion Quaternion::operator*( const Quaternion& b ) const
 {
-    return Quaternion( s*b.s-vec.dot(b.vec),
-	    s*b.vec + b.s*vec + vec.cross(b.vec));
+    const Vector3 vec = s_*b.vec_ + b.s_*vec_ + vec_.cross(b.vec_);
+    return Quaternion( s_*b.s_-vec_.dot(b.vec_), vec.x, vec.y, vec.z );
 }
 
 
@@ -191,7 +193,7 @@ Quaternion& Quaternion::operator*=( const Quaternion& b )
 
 Quaternion Quaternion::inverse() const
 {
-    return Quaternion( s, Vector3( -vec.x, -vec.y, -vec.z ));
+    return Quaternion( s_, -vec_.x, -vec_.y, -vec_.z );
 }
 
 Line3::Line3() {}
