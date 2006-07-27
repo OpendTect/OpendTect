@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: threadwork.cc,v 1.16 2005-12-09 09:25:52 cvsnanne Exp $";
+static const char* rcsID = "$Id: threadwork.cc,v 1.17 2006-07-27 13:46:05 cvskris Exp $";
 
 #include "threadwork.h"
 #include "basictask.h"
@@ -136,23 +136,23 @@ void Threads::WorkThread::doWork( CallBacker* )
 	    if ( retval<1 )
 	    {
 		if ( finishedcb ) finishedcb->doCall( this );
-		manager.workloadcond.lock();
+		manager.workloadcond_.lock();
 
-		if ( manager.workload.size() )
+		if ( manager.workload_.size() )
 		{
-		    task = manager.workload[0];
-		    finishedcb = manager.callbacks[0];
-		    manager.workload.remove( 0 );
-		    manager.callbacks.remove( 0 );
+		    task = manager.workload_[0];
+		    finishedcb = manager.callbacks_[0];
+		    manager.workload_.remove( 0 );
+		    manager.callbacks_.remove( 0 );
 		}
 		else
 		{
 		    task = 0;
 		    finishedcb = 0;
-		    manager.freethreads += this;
+		    manager.freethreads_ += this;
 		}
 
-		manager.workloadcond.unlock();
+		manager.workloadcond_.unlock();
 		manager.isidle.trigger(&manager);
 	    }
 	}
@@ -207,10 +207,10 @@ int Threads::WorkThread::getRetVal()
 
 
 Threads::ThreadWorkManager::ThreadWorkManager( int nrthreads )
-    : workloadcond( *new ConditionVar )
+    : workloadcond_( *new ConditionVar )
     , isidle( this )
 {
-    callbacks.allowNull(true);
+    callbacks_.allowNull(true);
 
     if ( nrthreads == -1 )
 	nrthreads = Threads::getNrProcessors();
@@ -218,120 +218,134 @@ Threads::ThreadWorkManager::ThreadWorkManager( int nrthreads )
     for ( int idx=0; idx<nrthreads; idx++ )
     {
 	WorkThread* wt = new WorkThread( *this );
-	threads += wt;
-	freethreads += wt;
+	threads_ += wt;
+	freethreads_ += wt;
     }
 }
 
 
 Threads::ThreadWorkManager::~ThreadWorkManager()
 {
-    deepErase( threads );
-    deepErase( workload );
-    delete &workloadcond;
+    deepErase( threads_ );
+    deepErase( workload_ );
+    delete &workloadcond_;
 }
 
 
 void Threads::ThreadWorkManager::addWork( BasicTask* newtask, CallBack* cb )
 {
-    const int nrthreads = threads.size();
+    const int nrthreads = threads_.size();
     if ( !nrthreads )
     {
 	while ( true )
 	{
 	    int retval = newtask->doStep();
-	    if ( retval<0 ) continue;
+	    if ( retval>0 ) continue;
 
 	    if ( cb ) cb->doCall( 0 );
 	    return;
 	}
     }
 
-    Threads::MutexLocker lock(workloadcond);
+    Threads::MutexLocker lock(workloadcond_);
 
-    const int nrfreethreads = freethreads.size();
+    const int nrfreethreads = freethreads_.size();
     if ( nrfreethreads )
     {
-	freethreads[nrfreethreads-1]->assignTask( *newtask, cb );
-	freethreads.remove( nrfreethreads-1 );
+	freethreads_[nrfreethreads-1]->assignTask( *newtask, cb );
+	freethreads_.remove( nrfreethreads-1 );
 	return;
     }
 
-    workload += newtask;
-    callbacks += cb;
+    workload_ += newtask;
+    callbacks_ += cb;
 }
 
 
 void Threads::ThreadWorkManager::removeWork( const BasicTask* task )
 {
-    workloadcond.lock();
+    workloadcond_.lock();
 
-    const int idx = workload.indexOf( task );
+    const int idx = workload_.indexOf( task );
     if ( idx==-1 )
     {
-	workloadcond.unlock();
-	for ( int idy=0; idy<threads.size(); idy++ )
-	    threads[idy]->cancelWork( task );
+	workloadcond_.unlock();
+	for ( int idy=0; idy<threads_.size(); idy++ )
+	    threads_[idy]->cancelWork( task );
 	return;
     }
 
-    workload.remove( idx );
-    callbacks.remove( idx );
-    workloadcond.unlock();
+    workload_.remove( idx );
+    callbacks_.remove( idx );
+    workloadcond_.unlock();
 }
 
 class ThreadWorkResultManager : public CallBacker
 {
 public:
-		    ThreadWorkResultManager( ObjectSet<BasicTask>&  tasks_ )
-			: nrtasks( tasks_.size() )
-			, nrfinished( 0 )
-			, error( false )
+		    ThreadWorkResultManager( int nrtasks )
+			: nrtasks_( nrtasks )
+			, nrfinished_( 0 )
+			, error_( false )
 		    {}
 
     bool	    isFinished() const
-		    { return nrfinished==nrtasks; }
+		    { return nrfinished_==nrtasks_; }
 
     bool	    hasErrors() const
-		    { return error; }
+		    { return error_; }
 
     void	    imFinished(CallBacker* cb )
 		    {
 			Threads::WorkThread* worker =
 				    dynamic_cast<Threads::WorkThread*>( cb );
-			rescond.lock();
-			if ( error || worker->getRetVal()==-1 )
-			    error = true;
+			rescond_.lock();
+			if ( error_ || worker->getRetVal()==-1 )
+			    error_ = true;
 
-			nrfinished++;
-			if ( nrfinished==nrtasks ) rescond.signal( false );
-			rescond.unlock();
+			nrfinished_++;
+			if ( nrfinished_==nrtasks_ ) rescond_.signal( false );
+			rescond_.unlock();
 		    }
 
-    Threads::ConditionVar	rescond;
+    Threads::ConditionVar	rescond_;
 
 protected:
-    int				nrtasks;
-    int				nrfinished;
-    bool			error;
+    int				nrtasks_;
+    int				nrfinished_;
+    bool			error_;
 };
 
 
 bool Threads::ThreadWorkManager::addWork( ObjectSet<BasicTask>& work )
 {
-    ThreadWorkResultManager resultman( work );
-    resultman.rescond.lock();
+    if ( !work.size() )
+	return true;
 
     const int nrwork = work.size();
+    ThreadWorkResultManager resultman( nrwork-1 );
+    resultman.rescond_.lock();
+
     CallBack cb( mCB( &resultman, ThreadWorkResultManager, imFinished ));
 
-    for ( int idx=0; idx<nrwork; idx++ )
+    for ( int idx=1; idx<nrwork; idx++ )
 	addWork( work[idx], &cb );
 
+    bool res = true;
+    while ( true )
+    {
+	int retval = work[0]->doStep();
+	if ( retval>0 ) continue;
+
+	if ( retval<0 )
+	    res = false;
+	break;
+    }
+
     while ( !resultman.isFinished() )
-	resultman.rescond.wait();
+	resultman.rescond_.wait();
 
-    resultman.rescond.unlock();
+    resultman.rescond_.unlock();
 
-    return !resultman.hasErrors();
+    return res && !resultman.hasErrors();
 }
