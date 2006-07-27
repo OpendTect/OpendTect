@@ -32,24 +32,7 @@ int main( int argc, char** argv )
 
     CSVTableExportHandler csvexp;
 
-    TCDuplicateKeyRemover tcdr;
-    tcdr.keycols_ += 0;
-    tcdr.keycols_ += 1;
-
     TableConverter tc( *sdin.istrm, csvimp, *sdout.ostrm, csvexp );
-    tc.setManipulator( &tcdr );
-    tc.selcols_ += 5 - 1;
-    tc.selcols_ += 6 - 1;
-    tc.selcols_ += 9 - 1;
-    tc.selcols_ += 10 - 1;
-    tc.selcols_ += 11 - 1;
-    tc.selcols_ += 12 - 1;
-    tc.selcols_ += 13 - 1;
-    tc.selcols_ += 14 - 1;
-    tc.selcols_ += 16 - 1;
-    tc.selcols_ += 20 - 1;
-    tc.selcols_ += 23 - 1;
-
     tc.execute( &std::cout );
 
     mRet( 0 );
