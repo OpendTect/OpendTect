@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: vistransform.h,v 1.13 2005-03-09 11:53:30 cvskris Exp $
+ RCS:		$Id: vistransform.h,v 1.14 2006-07-27 21:30:44 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,7 +17,9 @@ ________________________________________________________________________
 
 class SoMatrixTransform;
 class SbMatrix;
+class SoRotation;
 class SbVec3f;
+class Quaternion;
 
 namespace visBase
 {
@@ -44,7 +46,7 @@ public:
     static Transformation*	create()
 				mCreateDataObj(Transformation);
 
-    void		setRotation( const Coord3& vec, float angle );
+    void		setRotation(const Coord3& vec,float angle);
     void		setTranslation( const Coord3& );
     Coord3		getTranslation() const;
 
@@ -77,7 +79,27 @@ private:
     static const char*	matrixstr;
 };
 
+
+/*!Rotation of following objects in 3d.*/
+
+
+
+class Rotation : public DataObject
+{
+public:
+    static Rotation*	create()
+			mCreateDataObj(Rotation);
+
+    void		set(const Coord3& vec,float angle);
+    void		set(const Quaternion&);
+
+    SoNode*		getInventorNode();
+private:
+    virtual		~Rotation();
+
+    SoRotation*		rotation_;
 };
 
+};
 
 #endif

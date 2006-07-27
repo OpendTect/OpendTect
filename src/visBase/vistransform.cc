@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Feb 2002
- RCS:           $Id: vistransform.cc,v 1.18 2006-03-12 13:39:11 cvsbert Exp $
+ RCS:           $Id: vistransform.cc,v 1.19 2006-07-27 21:30:44 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,9 +14,11 @@ ________________________________________________________________________
 #include "trigonometry.h"
 
 #include <Inventor/nodes/SoMatrixTransform.h>
+#include <Inventor/nodes/SoRotation.h>
 #include <Inventor/SbLinear.h>
 
 mCreateFactoryEntry( visBase::Transformation );
+mCreateFactoryEntry( visBase::Rotation );
 
 namespace visBase
 {
@@ -219,14 +221,39 @@ int Transformation::usePar( const IOPar& par )
 }
 
 		  
-
-
-
-
 SoNode* Transformation::getInventorNode()
 {
     return transform_;
 }
+
+
+Rotation::Rotation()
+    : rotation_( new SoRotation )
+{
+    rotation_->ref();
+}
+
+
+Rotation::~Rotation()
+{
+    rotation_->unref();
+}
+
+
+void Rotation::set( const Coord3& vec, float angle )
+{
+    set( Quaternion( vec, angle ) );
+}
+
+
+void Rotation::set( const Quaternion& q )
+{
+    rotation_->rotation.setValue( q.vec_.x, q.vec_.y, q.vec_.z, q.s_ );
+}
+
+
+SoNode* Rotation::getInventorNode() { return rotation_; }
+
 
 
 }; // namespace visBase
