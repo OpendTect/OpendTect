@@ -4,18 +4,19 @@
  * DATE     : Jul 2006
 -*/
 
-static const char* rcsID = "$Id: tableconv.cc,v 1.5 2006-07-27 10:18:52 cvsbert Exp $";
+static const char* rcsID = "$Id: tableconv.cc,v 1.6 2006-07-27 14:58:08 cvsbert Exp $";
 
 #include "tableconvimpl.h"
 
 
 void TableImportHandler::addToCol( char c )
 {
-    if ( colpos_ < col_.bufSize() )
+    if ( colpos_ < col_.bufSize()-1 )
 	*(col_.buf() + colpos_) = c;
     else
     {
-	char buf[2]; buf[0] = c; buf[1] = '\0';
+	*(col_.buf() + colpos_) = '\0';
+	char buf[3]; buf[0] = c; buf[1] = ' '; buf[2] = '\0';
 	col_ += buf;
     }
     colpos_++;
