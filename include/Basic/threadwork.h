@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: threadwork.h,v 1.13 2005-12-09 09:25:52 cvsnanne Exp $
+ RCS:		$Id: threadwork.h,v 1.14 2006-07-27 13:46:26 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -47,7 +47,7 @@ public:
 				     and stop it if allready running
 				*/
 
-    int				nrThreads() const { return threads.size(); }
+    int				nrThreads() const { return threads_.size(); }
 
     Notifier<ThreadWorkManager>	isidle;
     
@@ -55,13 +55,13 @@ protected:
 
     friend class		WorkThread;
 
-    ObjectSet<BasicTask>	workload;
-    ObjectSet<CallBack>		callbacks;
-    ObjectSet<WorkThread>	threads;
+    ObjectSet<BasicTask>	workload_;
+    ObjectSet<CallBack>		callbacks_;
+    ObjectSet<WorkThread>	threads_;
 
-    ObjectSet<WorkThread>	freethreads;
+    ObjectSet<WorkThread>	freethreads_;
 
-    ConditionVar&		workloadcond;
+    ConditionVar&		workloadcond_;
 };
 
 }; // Namespace
