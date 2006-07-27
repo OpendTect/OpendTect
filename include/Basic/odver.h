@@ -7,14 +7,14 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Mar 2006
- RCS:		$Id: odver.h,v 1.1 2006-03-12 13:39:09 cvsbert Exp $
+ RCS:		$Id: odver.h,v 1.2 2006-07-27 09:44:27 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 
 #define mODMajorVersion		2
-#define mODMinorVersion		3
+#define mODMinorVersion		5
 
 
 /*!\mainpage Basic utilities
