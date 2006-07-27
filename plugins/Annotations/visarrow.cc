@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Jan 2005
- RCS:           $Id: visarrow.cc,v 1.2 2006-07-25 22:23:22 cvskris Exp $
+ RCS:           $Id: visarrow.cc,v 1.3 2006-07-27 21:32:12 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -124,13 +124,9 @@ void visSurvey::ArrowAnnotationDisplay::setPosition( int idx,
     d1 = d0+displayvector;
     line->getCoordinates()->setPos( 1, display2World( d1 ) );
 
-    static const float cos15 = (sqrt(6)-M_SQRT2)/4;
-    static const float sin15 = (sqrt(6)+M_SQRT2)/4;
-
-    const Coord3 planenormal( sin(loc.dir.phi)*sin15,
-	    		      cos(loc.dir.phi)*sin15, 0 );
-    const Quaternion plus30rot( cos15, planenormal );
-    const Quaternion minus30rot( -cos15, planenormal );
+    const Coord3 planenormal( sin(loc.dir.phi), cos(loc.dir.phi), 0 );
+    const Quaternion plus30rot(planenormal, M_PI_2/6);
+    const Quaternion minus30rot(planenormal, M_PI_2/6 );
     Coord3 arrowheadvec;
     minus30rot.rotate( displayvector*.3, arrowheadvec );
     line->getCoordinates()->setPos( 2, display2World(arrowheadvec+d1) );
