@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Jul 2006
- RCS:		$Id: tableconvimpl.h,v 1.4 2006-07-26 16:00:51 cvsbert Exp $
+ RCS:		$Id: tableconvimpl.h,v 1.5 2006-07-27 10:19:01 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -56,14 +56,30 @@ class SQLInsertTableExportHandler : public TableExportHandler
 {
 public:
 
+    			SQLInsertTableExportHandler()
+			    : startindex_(1)
+			    , stepindex_(1)
+		    	    , nrrows_(0)	    {}
+
     const char*		putRow(const BufferStringSet&,std::ostream&);
 
     BufferString	tblname_;	//!< name of the table: mandatory
     BufferStringSet	colnms_;	//!< names of the columns: optional
 
+    BufferString	indexcolnm_;	//!< if not empty, will add column
+    int			startindex_;	//!< if indexcolnm_ set, startindex
+    int			stepindex_;	//!< if indexcolnm_ set, step index
+
+    BufferStringSet	extracolvals_;	//!< Values for columns not in input
+    BufferStringSet	extracolnms_;	//!< Column names for extracolvals_
+
 protected:
 
     void		addVal(std::ostream&,int col,const char*);
+
+    int			nrrows_;
+    bool		addindex_;
+    int			nrextracols_;
 
 };
 
