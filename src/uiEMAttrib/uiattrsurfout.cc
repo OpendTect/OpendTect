@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2004
- RCS:           $Id: uiattrsurfout.cc,v 1.14 2006-05-08 15:39:34 cvsnanne Exp $
+ RCS:           $Id: uiattrsurfout.cc,v 1.15 2006-07-27 14:42:57 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -118,8 +118,14 @@ bool uiAttrSurfaceOut::fillPar( IOPar& iopar )
 	if ( !addNLA( nladescid ) )	return false;
     }
 
+    const Attrib::DescID targetid = nladescid < 0 ? attrfld->attribID()
+						  : nladescid;
     IOPar attrpar( "Attribute Descriptions" );
-    ads.fillPar( attrpar );
+    Attrib::DescSet* clonedset = ads.optimizeClone( targetid );
+    if ( !clonedset )
+	return false;
+    clonedset->fillPar( attrpar );
+	    
     for ( int idx=0; idx<attrpar.size(); idx++ )
     {
         const char* nm = attrpar.getKey(idx);
@@ -150,6 +156,7 @@ bool uiAttrSurfaceOut::fillPar( IOPar& iopar )
     ads.removeDesc( nladescid );
 
 //    ads.setRanges( iopar );////////TODO
+    delete clonedset;
     return true;
 }
 

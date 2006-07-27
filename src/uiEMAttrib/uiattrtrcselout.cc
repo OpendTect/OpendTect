@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          September 2005
- RCS:           $Id: uiattrtrcselout.cc,v 1.16 2006-07-05 15:27:49 cvshelene Exp $
+ RCS:           $Id: uiattrtrcselout.cc,v 1.17 2006-07-27 14:42:57 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -344,8 +344,15 @@ bool uiAttrTrcSelOut::fillPar( IOPar& iopar )
 	if ( !addNLA( nladescid ) )	return false;
     }
 
+    const Attrib::DescID targetid = nladescid < 0 ? attrfld_->attribID()
+						  : nladescid;
+    
     IOPar attrpar( "Attribute Descriptions" );
-    ads_.fillPar( attrpar );
+    Attrib::DescSet* clonedset = ads_.optimizeClone( targetid );
+    if ( !clonedset )
+	return false;
+    clonedset->fillPar( attrpar );
+    
     for ( int idx=0; idx<attrpar.size(); idx++ )
     {
         const char* nm = attrpar.getKey(idx);
@@ -445,6 +452,7 @@ bool uiAttrTrcSelOut::fillPar( IOPar& iopar )
     }
     
     ads_.removeDesc( nladescid );
+    delete clonedset;
 
     return true;
 }
