@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vismpe.cc,v 1.44 2006-07-18 11:43:17 cvsjaap Exp $";
+static const char* rcsID = "$Id: vismpe.cc,v 1.45 2006-07-28 13:58:10 cvsjaap Exp $";
 
 #include "vismpe.h"
 
@@ -54,6 +54,8 @@ MPEDisplay::MPEDisplay()
     , manipulated_(false)
     , movement( this )
     , boxDraggerStatusChange( this )
+    , curtexturecs_(false)
+    , curtextureas_(*new Attrib::SelSpec())
 {
     addChild( boxdragger_->getInventorNode() );
     boxdragger_->ref();
@@ -256,6 +258,10 @@ const char* MPEDisplay::getSelSpecUserRef() const
 
 void MPEDisplay::updateTexture()
 {
+    const CubeSampling displaycs = engine_.activeVolume();
+    if ( curtextureas_==as_ && curtexturecs_==displaycs )
+	return;
+
     RefMan<const Attrib::DataCubes> attrdata = engine_.getAttribCache( as_ );
     if ( !attrdata )
     {
@@ -268,9 +274,8 @@ void MPEDisplay::updateTexture()
 
     const Array3D<float>& data( attrdata->getCube(0) );
 
-    if ( getCubeSampling()!=attrdata->cubeSampling() )
+    if ( displaycs != attrdata->cubeSampling() )
     {
-	const CubeSampling displaycs = getCubeSampling();
 	const CubeSampling attrcs = attrdata->cubeSampling();
 	if ( !attrcs.includes( displaycs ) )
 	{
@@ -307,6 +312,8 @@ void MPEDisplay::updateTexture()
     else
 	texture_->setData( &data );
 
+    curtextureas_ = as_;
+    curtexturecs_ = displaycs;
     texture_->turnOn( true );
 }
 
@@ -393,7 +400,7 @@ void MPEDisplay::boxDraggerFinishCB(CallBacker*)
     const CubeSampling newcube = getBoxPosition();
     if ( newcube!=engine_.activeVolume() )
     {
-	if ( texture_ ) texture_->turnOn(false);
+//	if ( texture_ ) texture_->turnOn(false);
 	manipulated_ = true;
     }
 }
@@ -443,11 +450,11 @@ float MPEDisplay::getDraggerTransparency() const
 }
 
 
-void MPEDisplay::showDragger( bool yn, bool newtexture )
+void MPEDisplay::showDragger( bool yn )
 {
     if ( yn==isDraggerShown() )
 	return;
-    if ( yn && newtexture )
+    if ( yn )
 	updateTexture();
     dragger_->turnOn( yn );
     movement.trigger();
