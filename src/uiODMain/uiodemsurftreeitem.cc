@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodemsurftreeitem.cc,v 1.8 2006-07-21 09:56:34 cvsnanne Exp $
+ RCS:		$Id: uiodemsurftreeitem.cc,v 1.9 2006-07-28 13:55:21 cvsjaap Exp $
 ___________________________________________________________________
 
 -*/
@@ -110,6 +110,7 @@ void uiODEarthModelSurfaceTreeItem::checkCB( CallBacker* cb )
 	prevtrackstatus = applMgr()->mpeServer()->isTrackingEnabled(trackerid);
 	applMgr()->mpeServer()->enableTracking(trackerid,false);
     }
+    applMgr()->visServer()->updateMPEToolbar();
 }
 
 
@@ -354,5 +355,6 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB( CallBacker* cb )
 	const int trackerid = applMgr()->mpeServer()->getTrackerID(emid);
 	applMgr()->mpeServer()->enableTracking(trackerid,
 		!applMgr()->mpeServer()->isTrackingEnabled(trackerid));
+	applMgr()->visServer()->updateMPEToolbar();
     }
 }
