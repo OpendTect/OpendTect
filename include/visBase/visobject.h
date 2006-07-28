@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visobject.h,v 1.39 2006-06-20 13:42:53 cvsnanne Exp $
+ RCS:		$Id: visobject.h,v 1.40 2006-07-28 21:54:33 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -18,6 +18,7 @@ ________________________________________________________________________
 class SoSeparator;
 class SoNode;
 class SoSwitch;
+class Coord3;
 
 namespace visBase
 {
@@ -36,6 +37,7 @@ public:
     virtual void		setMaterial( Material* )		= 0;
     virtual Material*		getMaterial()				= 0;
 
+    virtual bool		getBoundingBox(Coord3& min,Coord3& max) const;
     virtual void		setSceneEventCatcher( EventCatcher* )	{}
 
     void			setSelectable(bool yn)	{ isselectable=yn; }

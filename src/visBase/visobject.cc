@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visobject.cc,v 1.39 2006-07-10 20:35:54 cvskris Exp $";
+static const char* rcsID = "$Id: visobject.cc,v 1.40 2006-07-28 21:54:34 cvskris Exp $";
 
 #include "visobject.h"
 
@@ -15,6 +15,7 @@ static const char* rcsID = "$Id: visobject.cc,v 1.39 2006-07-10 20:35:54 cvskris
 #include "vismaterial.h"
 #include "vistransform.h"
 
+#include <Inventor/actions/SoGetBoundingBoxAction.h>
 #include <Inventor/nodes/SoSeparator.h>
 #include <Inventor/nodes/SoSwitch.h>
 
@@ -171,6 +172,34 @@ void VisualObject::triggerRightClick( const EventInfo* eventinfo )
 {
     rcevinfo = eventinfo;
     rightClick.trigger();
+}
+
+
+bool VisualObject::getBoundingBox( Coord3& minpos, Coord3& maxpos ) const
+{
+    SbViewportRegion vp;
+    SoGetBoundingBoxAction action( vp );
+    action.apply( const_cast<SoNode*>(getInventorNode()) );
+    const SbBox3f bbox = action.getBoundingBox();
+
+    if ( bbox.isEmpty() )
+	return false;
+
+    const SbVec3f min = bbox.getMin();
+    const SbVec3f max = bbox.getMax();
+
+    minpos.x = min[0]; minpos.y = min[1]; minpos.z = min[2];
+    maxpos.x = max[0]; maxpos.y = max[1]; maxpos.z = max[2];
+
+    const Transformation* trans =
+	const_cast<VisualObject*>(this)->getDisplayTransformation();
+    if ( trans )
+    {
+	minpos = trans->transformBack( minpos );
+	maxpos = trans->transformBack( maxpos );
+    }
+
+    return true;
 }
 
 
