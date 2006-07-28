@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.h,v 1.37 2006-07-18 11:34:59 cvsjaap Exp $
+ RCS:           $Id: uimpeman.h,v 1.38 2006-07-28 13:48:31 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -90,7 +90,7 @@ protected:
     void			retrackModeCB(CallBacker*);
     void			eraseModeCB(CallBacker*);
     void			mouseEraseModeCB(CallBacker*);
-    void			showTracker(bool yn,bool newtexture=true);
+    void			showTracker(bool yn);
 
     bool			isPickingInWizard() const;
     void			restoreActiveVol();
