@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emtracker.cc,v 1.28 2006-06-06 14:36:57 cvsjaap Exp $";
+static const char* rcsID = "$Id: emtracker.cc,v 1.29 2006-07-28 13:51:54 cvsjaap Exp $";
 
 #include "emtracker.h"
 
@@ -74,12 +74,14 @@ bool EMTracker::trackSections( const TrackPlane& plane )
     bool success = true;
     for ( int idx=0; idx<emobject_->nrSections(); idx++ )
     {
-	const EM::SectionID sectionid = emobject_->sectionID(idx);
-	SectionTracker* sectiontracker = getSectionTracker(sectionid,true);
-	if ( !sectiontracker )
+	const EM::SectionID sid = emobject_->sectionID( idx );
+	SectionTracker* sectiontracker = getSectionTracker( sid, true );
+	if ( !sectiontracker ) continue;
+	if ( !sectiontracker->hasInitializedSetup() && 
+	     plane.getTrackMode()!=TrackPlane::Erase )
 	    continue;
 
-	EM::PosID posid( emobject_->id(), sectionid );
+	EM::PosID posid( emobject_->id(), sid );
 	if ( !sectiontracker->trackWithPlane(plane) )
 	{
 	    errmsg_ = sectiontracker->errMsg();
@@ -116,7 +118,17 @@ Executor* EMTracker::trackInVolume()
     ExecutorGroup* res = 0;
     for ( int idx=0; idx<emobject_->nrSections(); idx++ )
     {
-	const EM::SectionID sid = emobject_->sectionID(idx);
+	const EM::SectionID sid = emobject_->sectionID( idx );
+	SectionTracker* sectiontracker = getSectionTracker( sid, true );
+	if ( !sectiontracker || !sectiontracker->hasInitializedSetup() )
+	    continue;
+	
+	// check whether data loading was cancelled by user
+	ObjectSet<const Attrib::SelSpec> attrselset;
+	sectiontracker->getNeededAttribs( attrselset );
+	if ( !attrselset.size() || !engine().getAttribCache(*attrselset[0]) )
+	    continue;
+	
 	if ( !res )
 	{
 	    res = new ExecutorGroup("Autotracker", true );
