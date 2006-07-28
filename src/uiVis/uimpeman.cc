@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.cc,v 1.98 2006-07-18 11:37:24 cvsjaap Exp $
+ RCS:           $Id: uimpeman.cc,v 1.99 2006-07-28 13:56:09 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -349,7 +349,7 @@ void uiMPEMan::restoreActiveVol()
 
 	engine.setTrackPlane( oldtrackplane, false );
 	engine.activevolumechange.trigger();
-	showTracker( trackerwasshown, false );
+	showTracker( trackerwasshown );
 	oldactivevol.setEmpty();
     }
 
@@ -546,11 +546,10 @@ void uiMPEMan::attribSel( CallBacker* )
 	return;
 
     mGetDisplays(false);
-    if ( displays.size() && displays[0]->isDraggerShown() && 
-	 attribfld->currentItem() )
-    {
+    const bool trackerisshown = displays.size() &&
+			        displays[0]->isDraggerShown();
+    if ( trackerisshown && attribfld->currentItem() )
 	visserv->loadPostponedData();
-    }
 
     uiCursorChanger cursorchanger( uiCursor::Wait );
 
@@ -560,7 +559,8 @@ void uiMPEMan::attribSel( CallBacker* )
 	{
 	    Attrib::SelSpec spec( 0, Attrib::SelSpec::cNoAttrib() );
 	    displays[idx]->setSelSpec( 0, spec );
-	    displays[idx]->updateTexture();
+	    if ( trackerisshown )
+		displays[idx]->updateTexture();
 	}
     }
     else
@@ -576,7 +576,8 @@ void uiMPEMan::attribSel( CallBacker* )
 	    for ( int idy=0; idy<displays.size(); idy++ )
 	    {
 		displays[idy]->setSelSpec( 0, *spec );
-		displays[idy]->updateTexture();
+		if ( trackerisshown )
+		    displays[idy]->updateTexture();
 	    }
 	    break;
 	}	
@@ -687,17 +688,14 @@ void uiMPEMan::redoPush( CallBacker* )
 MPE::EMTracker* uiMPEMan::getSelectedTracker() 
 {
     const TypeSet<int>& selectedids = visBase::DM().selMan().selected();
-    if ( selectedids.size()!=1 || 
-	 visserv->isLocked(selectedids[0]) )
+    if ( selectedids.size()!=1 || visserv->isLocked(selectedids[0]) )
 	return 0;
     const MultiID mid = visserv->getMultiID( selectedids[0] );
-    if ( mid==-1 )
-	return 0;
     const EM::ObjectID oid = EM::EMM().getObjectID( mid );
     const int trackerid = MPE::engine().getTrackerByObject( oid );
-    if ( trackerid==-1 )
-	return 0;
-    return MPE::engine().getTracker( trackerid );
+    MPE::EMTracker* tracker = MPE::engine().getTracker( trackerid );
+
+    return tracker && tracker->isEnabled() ? tracker : 0;
 }
 
 
@@ -710,17 +708,17 @@ void uiMPEMan::updateButtonSensitivity( CallBacker* )
     //Seed button
     updateSeedPickState();
 
-    MPE::EMTracker* tracker = getSelectedTracker();
-    MPE::EMSeedPicker* seedpicker = tracker ? tracker->getSeedPicker(true) : 0;
-    const bool isvoltrack = seedpicker ? seedpicker->doesModeUseVolume() : true;
+//    MPE::EMTracker* tracker = getSelectedTracker();
+//    MPE::EMSeedPicker* seedpicker = tracker ? tracker->getSeedPicker(true) : 0;
+//    const bool isvoltrack = seedpicker ? seedpicker->doesModeUseVolume() : true;
     const bool isseedpicking = toolbar->isOn(seedidx);
     
-    toolbar->setSensitive( extendidx, isvoltrack );
-    toolbar->setSensitive( retrackidx, isvoltrack );
+    toolbar->setSensitive( extendidx, true );
+    toolbar->setSensitive( retrackidx, true );
     toolbar->setSensitive( eraseidx, true );
     toolbar->setSensitive( moveplaneidx, true );
     toolbar->setSensitive( showcubeidx, !isseedpicking );
-    toolbar->setSensitive( trackinvolidx, isvoltrack );
+    toolbar->setSensitive( trackinvolidx, true );
     
     //Track forward, backward, attrib, trans, nrstep
     mGetDisplays(false);
@@ -870,7 +868,7 @@ void uiMPEMan::trackInVolume( CallBacker* )
 }
 
 
-void uiMPEMan::showTracker( bool yn, bool newtexture )
+void uiMPEMan::showTracker( bool yn )
 {
     if ( yn && attribfld->currentItem() ) 
 	visserv->loadPostponedData();
@@ -878,7 +876,7 @@ void uiMPEMan::showTracker( bool yn, bool newtexture )
     uiCursor::setOverride( uiCursor::Wait );
     mGetDisplays(true)
     for ( int idx=0; idx<displays.size(); idx++ )
-	displays[idx]->showDragger( yn, newtexture );
+	displays[idx]->showDragger(yn);
     uiCursor::restoreOverride();
     updateButtonSensitivity();
 }
