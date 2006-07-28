@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: mpeengine.cc,v 1.63 2006-05-31 18:32:37 cvsnanne Exp $";
+static const char* rcsID = "$Id: mpeengine.cc,v 1.64 2006-07-28 13:52:23 cvsjaap Exp $";
 
 #include "mpeengine.h"
 
@@ -119,38 +119,28 @@ bool Engine::setTrackPlane( const TrackPlane& ntp, bool dotrack )
 }
 
 
+#define mTrackAtCurrentPlane(func) \
+    for ( int idx=0; idx<trackers_.size(); idx++ ) \
+    { \
+	if ( !trackers_[idx] || !trackers_[idx]->isEnabled() ) \
+	    continue; \
+	EM::ObjectID oid = trackers_[idx]->objectID(); \
+	if ( EM::EMM().getObject(oid)->isLocked() ) \
+	    continue; \
+	if ( !trackers_[idx]->func( trackplane_ ) ) \
+	{ \
+	    errmsg_ = "Error while tracking "; \
+	    errmsg_ += trackers_[idx]->objectName(); \
+	    errmsg_ += ": "; \
+	    errmsg_ += trackers_[idx]->errMsg(); \
+	    return false; \
+	} \
+    } 
+
 bool Engine::trackAtCurrentPlane()
 {
-    for ( int idx=0; idx<trackers_.size(); idx++ )
-    {
-	if ( !trackers_[idx] || !trackers_[idx]->isEnabled() )
-	    continue;
-
-	if ( !trackers_[idx]->trackSections( trackplane_ ) )
-	{
-	    errmsg_ = "Error while tracking ";
-	    errmsg_ += trackers_[idx]->objectName();
-	    errmsg_ += ": ";
-	    errmsg_ += trackers_[idx]->errMsg();
-	    return false;
-	}
-    }
-
-    for ( int idx=0; idx<trackers_.size(); idx++ )
-    {
-	if ( !trackers_[idx] || !trackers_[idx]->isEnabled() )
-	    continue;
-
-	if ( !trackers_[idx]->trackIntersections( trackplane_ ) )
-	{
-	    errmsg_ = "Error while tracking ";
-	    errmsg_ += trackers_[idx]->objectName();
-	    errmsg_ += ": ";
-	    errmsg_ += trackers_[idx]->errMsg();
-	    return false;
-	}
-    }
-
+    mTrackAtCurrentPlane(trackSections);
+    mTrackAtCurrentPlane(trackIntersections);
     return true;
 }
 
@@ -163,6 +153,10 @@ Executor* Engine::trackInVolume()
 	if ( !trackers_[idx] || !trackers_[idx]->isEnabled() )
 	    continue;
 
+	EM::ObjectID oid = trackers_[idx]->objectID();
+	if ( EM::EMM().getObject(oid)->isLocked() )
+	    continue;
+
 	if ( !res ) res = new ExecutorGroup("Autotrack", false );
 
 	res->add( trackers_[idx]->trackInVolume() );
@@ -170,6 +164,7 @@ Executor* Engine::trackInVolume()
 
     return res;
 }
+
 
 void Engine::setTrackMode( TrackPlane::TrackMode tm )
 {
