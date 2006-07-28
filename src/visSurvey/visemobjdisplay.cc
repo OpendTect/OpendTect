@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: visemobjdisplay.cc,v 1.88 2006-06-09 06:53:44 cvsjaap Exp $
+ RCS:           $Id: visemobjdisplay.cc,v 1.89 2006-07-28 13:57:01 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -555,6 +555,7 @@ NotifierAccess* EMObjectDisplay::getLockNotification() { return &locknotifier; }
 void EMObjectDisplay::lock( bool yn ) 
 {
     locked_ = yn;
+    if ( emobject_ ) emobject_->lock(yn);
     locknotifier.trigger();
 }
 
