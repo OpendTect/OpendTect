@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emobject.h,v 1.58 2006-05-02 14:14:39 cvsnanne Exp $
+ RCS:		$Id: emobject.h,v 1.59 2006-07-28 13:47:43 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -158,6 +158,9 @@ public:
     bool			isFullyLoaded() const	{ return fullyloaded; }
     void			setFullyLoaded(bool yn) { fullyloaded=yn; }
 
+    virtual bool		isLocked() const	{ return locked; }
+    virtual void		lock(bool yn)		{ locked=yn;}
+
     const char*			errMsg() const
     				{ return errmsg[0]
 				    ? (const char*) errmsg : (const char*) 0; }
@@ -190,6 +193,7 @@ protected:
 
     bool			changed;
     bool			fullyloaded;
+    bool			locked;
 
     static const char*		prefcolorstr;
     static const char*		nrposattrstr;
