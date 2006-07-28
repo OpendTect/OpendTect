@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		August 2002
- RCS:		$Id: vismpe.h,v 1.31 2006-07-18 11:33:57 cvsjaap Exp $
+ RCS:		$Id: vismpe.h,v 1.32 2006-07-28 13:49:34 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -55,7 +55,7 @@ public:
     bool			isBoxDraggerShown() const;
     void			setDraggerTransparency(float);
     float			getDraggerTransparency() const;
-    void			showDragger(bool yn,bool newtexture=true);
+    void			showDragger(bool yn);
     bool			isDraggerShown() const;
     void			moveMPEPlane(int nrsteps);
     visBase::Texture3*		getTexture() { return texture_; }
@@ -122,6 +122,9 @@ protected:
 
     Attrib::SelSpec&		as_;
     bool			manipulated_;
+
+    Attrib::SelSpec&		curtextureas_;
+    CubeSampling		curtexturecs_;
     
     int				lasteventnr_;
 
