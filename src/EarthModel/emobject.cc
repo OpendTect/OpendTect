@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emobject.cc,v 1.63 2006-05-02 14:14:39 cvsnanne Exp $";
+static const char* rcsID = "$Id: emobject.cc,v 1.64 2006-07-28 13:50:25 cvsjaap Exp $";
 
 #include "emobject.h"
 
@@ -90,6 +90,7 @@ EMObject::EMObject( EMManager& emm )
     , changed( false )
     , storageid( -1 )
     , fullyloaded( false )
+    , locked( false )
 {
     mRefCountConstructor;
     id_ = manager.addObject( this );
