@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2005
- RCS:           $Id: treeitem.h,v 1.1 2006-07-03 20:02:06 cvskris Exp $
+ RCS:           $Id: treeitem.h,v 1.2 2006-07-28 21:58:28 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -101,7 +101,7 @@ protected:
     virtual void	handleMenuCB(CallBacker*);
 
     virtual bool	hasScale() const		{ return false; }
-    void		setScale(float);
+    virtual void	setScale(float);
     void		setColor(Color);
     void		scaleChg(CallBacker*);
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Jan 2005
- RCS:           $Id: viscallout.cc,v 1.1 2006-07-03 20:02:06 cvskris Exp $
+ RCS:           $Id: viscallout.cc,v 1.2 2006-07-28 21:58:28 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,35 +13,16 @@ ________________________________________________________________________
 
 #include "pickset.h"
 #include "viscoord.h"
+#include "viscube.h"
 #include "vismarker.h"
 #include "visfaceset.h"
 #include "vismaterial.h"
 #include "vispolyline.h"
+#include "visrotationdragger.h"
 #include "vistext.h"
 #include "vistransform.h"
-//#include "visevent.h"
-//#include "color.h"
-//#include "iopar.h"
-//#include "linear.h"
-//#include "separstr.h"
-//#include "survinfo.h"
 
-//#include "SoForegroundTranslation.h"
-
-//#include <Inventor/nodes/SoAsciiText.h>
-//#include <Inventor/nodes/SoBaseColor.h>
-//#include <Inventor/nodes/SoFont.h>
-//#include <Inventor/nodes/SoRotation.h>
-//#include <Inventor/nodes/SoRotationXYZ.h>
-//#include <Inventor/nodes/SoScale.h>
-//#include <Inventor/nodes/SoSeparator.h>
-//#include <Inventor/nodes/SoSwitch.h>
-//#include <Inventor/nodes/SoTranslation.h>
-//#include <Inventor/actions/SoGetBoundingBoxAction.h>
-//
-//
-
-namespace visSurvey
+namespace Annotations
 {
 
 class Callout : public visBase::VisualObjectImpl
@@ -50,30 +31,46 @@ public:
     static Callout*		create()
 				mCreateDataObj(Callout);
 
-    void			setBoxScale(const Coord3&);
+    Sphere			getDirection() const;
+    Notifier<Callout>		moved;
+
     void			setPick(const Pick::Location&);
+    void			setTextSize(float ns);
     void			setMarkerMaterial(visBase::Material*);
     void			setBoxMaterial(visBase::Material*);
     void			setTextMaterial(visBase::Material*);
+    void			setScale(visBase::Transformation*);
+    visBase::Transformation*	getScale() { return scale_; }
+    void			reportChangedScale() { updateArrow(); }
 
     void			displayMarker(bool);
     void			setDisplayTransformation(mVisTrans*);
+    int				getMarkerID() const { return marker_->id(); }
 
-    void			setText(const char*);
 protected:
     				~Callout();
-
     void			updateCoords();
     void			updateArrow();
+    void			setText(const char*);
+    void			dragChanged(CallBacker*);
+    void			dragStop(CallBacker*);
 
     visBase::Transformation*	displaytrans_;
 
     visBase::Marker*		marker_; //In normal space
-    visBase::Transformation*	trans_;	 //Trans to object space
+
+    visBase::Transformation*	object2display_; //Trans to object space
+    visBase::Rotation*		rotation_; 
+    visBase::Transformation*	scale_;	 
 
     visBase::TextBox*		text_;		//In object space
-    visBase::FaceSet*		faceset_;	//In object space
-    visBase::IndexedPolyLine*	border_;	//In object space
+    visBase::FaceSet*		faceset_;	
+    visBase::IndexedPolyLine*	border_;	
+
+    visBase::RotationDragger*	rotdragger_;	
+    visBase::Cube*		rotfeedback_;	
+    visBase::Cube*		rotfeedbackactive_;
+    bool			isdragging_;
 };
 
 
@@ -85,9 +82,11 @@ mCreateFactoryEntry( Callout );
 #define mAddChild( var, rmswitch ) \
     var->ref(); \
     if ( rmswitch ) var->removeSwitch(); \
-    addChild( var->getInventorNode() )
+    addChild( var->getInventorNode() ); \
+    var->setSelectable( false )
 
-#define mBoxIdx	12
+#define mPickPosIdx	12
+#define mLastBoxCI	4
 
 Callout::Callout()
     : visBase::VisualObjectImpl( false )
@@ -95,18 +94,45 @@ Callout::Callout()
     , faceset_( visBase::FaceSet::create() )
     , border_( visBase::IndexedPolyLine::create() )
     , marker_( visBase::Marker::create() )
-    , trans_( visBase::Transformation::create() )
+    , object2display_( visBase::Transformation::create() )
+    , rotation_( visBase::Rotation::create() )
+    , rotdragger_( visBase::RotationDragger::create() )
+    , rotfeedback_( visBase::Cube::create() )
+    , rotfeedbackactive_( visBase::Cube::create() )
+    , scale_( 0 )
     , displaytrans_( 0 )
+    , isdragging_( false )
+    , moved( this )
 {
     mAddChild( marker_, false );
 
-    trans_->ref();
-    addChild( trans_->getInventorNode() );
+    object2display_->ref();
+    addChild( object2display_->getInventorNode() );
+
+    rotdragger_->ref();
+    rotdragger_->doAxisRotate();
+    addChild( rotdragger_->getInventorNode() );
+    rotdragger_->changed.notify( mCB( this, Callout, dragChanged ));
+    rotdragger_->finished.notify( mCB( this, Callout, dragStop ));
+
+    rotfeedback_->ref();
+    rotfeedback_->removeSwitch();
+    rotdragger_->setOwnFeedback( rotfeedback_, false );
+    rotfeedbackactive_->ref();
+    rotfeedbackactive_->removeSwitch();
+    
+    rotfeedbackactive_->setMaterial( visBase::Material::create() );
+    rotfeedbackactive_->getMaterial()->setColor( Color(255,0,0) );
+    rotdragger_->setOwnFeedback( rotfeedbackactive_, true );
+    rotation_->ref();
+    addChild( rotation_->getInventorNode() );
 
     mAddChild( text_, true );
     mAddChild( faceset_, true );
     mAddChild( border_, true );
     border_->setCoordinates( faceset_->getCoordinates() );
+    faceset_->getCoordinates()->setPos( mPickPosIdx, Coord3(0,0,0) );
+
 }
 
 
@@ -116,38 +142,88 @@ Callout::~Callout()
     faceset_->unRef();
     border_->unRef();
     marker_->unRef();
-    trans_->unRef();
+    object2display_->unRef();
+    rotation_->unRef();
+    rotfeedback_->unRef();
+    rotfeedbackactive_->unRef();
+    rotdragger_->unRef();
+    if ( scale_ ) scale_->unRef();
     if ( displaytrans_ ) displaytrans_->unRef();
 }
 
 
-void Callout::setBoxScale( const Coord3& ns )
+Sphere Callout::getDirection() const
 {
-    trans_->setScale( ns );
+    Coord3 boxpos = rotation_->transform( text_->position() );
+    if ( scale_ ) boxpos = scale_->transform( boxpos );
+    boxpos = object2display_->transform( boxpos );
+    if ( displaytrans_ ) boxpos = displaytrans_->transformBack( boxpos );
+
+    return cartesian2Spherical( boxpos-marker_->centerPos(), true );
 }
 
 
 void Callout::setPick( const Pick::Location& loc )
 {
+    if ( isdragging_ ) return;
+
     marker_->setCenterPos( loc.pos );
 
     const Coord3 vector = spherical2Cartesian( loc.dir, true );
     Coord3 boxpos = loc.pos+vector;
+    Coord3 pickpos = loc.pos;
     if ( displaytrans_ )
-	boxpos = displaytrans_->transform( boxpos );
-
-    trans_->setTranslation( boxpos );
-
-    const Coord3 transpos = trans_->transform( loc.pos );
-    faceset_->getCoordinates()->setPos( mBoxIdx, transpos );
-
-    if ( loc.text && strcmp( loc.text->buf(), text_->getText() ) )
     {
-	text_->setText( loc.text->buf() );
-
-	//Update Coords
+	boxpos = displaytrans_->transform( boxpos );
+	pickpos = displaytrans_->transform( pickpos );
     }
 
+    object2display_->setTranslation( pickpos );
+    boxpos = object2display_->transformBack( boxpos );
+    if ( scale_ ) boxpos = scale_->transformBack( boxpos );
+    boxpos = rotation_->transformBack( boxpos );
+    text_->setPosition( boxpos );
+
+    const Quaternion rot1( Coord3( 0,0,1 ), loc.dir.phi );
+    static const Quaternion rot2( Coord3( 1, 0, 0 ), M_PI_2 );
+
+    rotation_->set( rot1*rot2 );
+    rotdragger_->set( rot1 );
+
+    if ( loc.text && strcmp( loc.text->buf(), text_->getText() ) )
+	setText( loc.text->buf() );
+}
+
+
+void Callout::setTextSize( float ns )
+{
+    text_->setSize(ns);
+    updateCoords();
+
+    const Coord3 feedbacksz( ns/5, ns/5, ns/5 );
+    rotfeedback_->setWidth(feedbacksz);
+    rotfeedbackactive_->setWidth(feedbacksz);
+}
+
+
+void Callout::dragChanged( CallBacker* )
+{
+    isdragging_ = true;
+    const Quaternion rot1 = rotdragger_->get();
+
+    static const Quaternion rot2( Coord3( 1, 0, 0 ), M_PI_2 );
+
+    rotation_->set( rot1*rot2 );
+}
+
+
+void Callout::dragStop( CallBacker* )
+{
+    if ( !isdragging_ )
+	return;
+
+    isdragging_ = false;
+    moved.trigger();
 }
 
 
@@ -162,6 +238,22 @@ void Callout::setBoxMaterial( visBase::Material* mat )
 void Callout::setTextMaterial( visBase::Material* mat )
 { text_->setMaterial( mat ); }
 
+
+void Callout::setScale( visBase::Transformation* nt )
+{
+    if ( scale_ )
+    {
+	removeChild( scale_->getInventorNode() );
+	scale_->unRef();
+    }
+
+    const int insertidx = childIndex( rotdragger_->getInventorNode() );
+
+    scale_ = nt;
+    scale_->ref();
+    insertChild( insertidx, scale_->getInventorNode() );
+}
+    
 
 void Callout::displayMarker( bool yn )
 { marker_->turnOn( yn ); }
@@ -191,11 +283,100 @@ void Callout::setText( const char* txt )
 
 void Callout::updateCoords()
 {
+    Coord3 minpos, maxpos;
+    if ( text_->getBoundingBox(minpos, maxpos) )
+    {
+	const Coord3 c00 = minpos;
+	const Coord3 c01( minpos.x, maxpos.y, 0 );
+	const Coord3 c11( maxpos );
+	const Coord3 c10( maxpos.x, minpos.y, 0 );
+	faceset_->getCoordinates()->setPos( 0, c00 );
+	faceset_->getCoordinates()->setPos( 1, (2*c00+c01)/3 );
+	faceset_->getCoordinates()->setPos( 2, (c00+2*c01)/3 );
+	faceset_->getCoordinates()->setPos( 3, c01 );
+	faceset_->getCoordinates()->setPos( 4, (2*c01+c11)/3 );
+	faceset_->getCoordinates()->setPos( 5, (c01+2*c11)/3 );
+	faceset_->getCoordinates()->setPos( 6, c11 );
+	faceset_->getCoordinates()->setPos( 7, (2*c11+c10)/3 );
+	faceset_->getCoordinates()->setPos( 8, (c11+2*c10)/3 );
+	faceset_->getCoordinates()->setPos( 9, c10 );
+	faceset_->getCoordinates()->setPos( 10, (2*c10+c00)/3 );
+	faceset_->getCoordinates()->setPos( 11, (c10+2*c00)/3 );
+
+	const Coord3 feedbackpos( c11.x, c11.z, c11.y );
+	rotfeedback_->setCenterPos( feedbackpos );
+	rotfeedbackactive_->setCenterPos( feedbackpos );
+    }
+
+    if ( faceset_->nrCoordIndex()<2 )
+    {
+	for ( int idx=0; idx<4; idx++ )
+	    faceset_->setCoordIndex( idx, idx*3 );
+
+	faceset_->setCoordIndex( mLastBoxCI, -1 );
+    }
+
+    updateArrow();
 }
 
 
 void Callout::updateArrow()
 {
+
+    Interval<float> xrange, yrange;
+    for ( int idx=0; idx<12 && idx<faceset_->getCoordinates()->size(true);
+	    idx+=3 )
+    {
+	const Coord3 pos = faceset_->getCoordinates()->getPos( idx );
+	if ( !idx )
+	{
+	    xrange.start = xrange.stop = pos.x;
+	    yrange.start = yrange.stop = pos.y;
+	}
+	else
+	{
+	    xrange.include( pos.x );
+	    yrange.include( pos.y );
+	}
+    }
+
+    if ( faceset_->getCoordinates()->size(true)>mPickPosIdx )
+    {
+	const Coord3 pickpos =
+	    faceset_->getCoordinates()->getPos( mPickPosIdx );
+	if ( !mIsZero( pickpos.z, 1e-3) || !xrange.includes(pickpos.x) ||
+	     !yrange.includes(pickpos.y) )
+	{
+	    float minsqdist;
+	    int startidx;
+
+	    for ( int idx=0; idx<12; idx++ )
+	    {
+		const int nextidx = (idx+1)%12;
+		const Coord3 pos = faceset_->getCoordinates()->getPos( idx );
+		const Coord3 nextpos =
+		    faceset_->getCoordinates()->getPos( nextidx );
+
+		const float sqdist = pickpos.sqDistance(pos) +
+		    		     pickpos.sqDistance(nextpos);
+
+		if ( !idx || sqdist<minsqdist )
+		{
+		    startidx = idx;
+		    minsqdist = sqdist;
+		}
+	    }
+
+	    const int nextidx = (startidx+1)%12;
+	    faceset_->setCoordIndex( mLastBoxCI+1, startidx );
+	    faceset_->setCoordIndex( mLastBoxCI+2, mPickPosIdx );
+	    faceset_->setCoordIndex( mLastBoxCI+3, nextidx );
+	    faceset_->setCoordIndex( mLastBoxCI+4, -1 );
+	    return;
+	}
+    }
+
+    faceset_->removeCoordIndexAfter( mLastBoxCI );
 }
 
 
@@ -203,40 +384,11 @@ CalloutDisplay::CalloutDisplay()
     : markermaterial_( visBase::Material::create() )
     , boxmaterial_( visBase::Material::create() )
     , textmaterial_( visBase::Material::create() )
-    //: Text()
-    //, eventcatcher_(0)
-    //, movemarker_(false)
-    //, moveface_(false)
+    , scale_( 1 )
 {
     markermaterial_->ref();
     boxmaterial_->ref();
     textmaterial_->ref();
-    /*
-    setMaterial(0);
-    scale_ = new SoScale;
-    addChild( scale_ );
-
-    zrotation_ = new SoRotationXYZ;
-    zrotation_->axis = SoRotationXYZ::Z;
-    addChild( zrotation_ );
-
-    SoRotation* xrotation_ = new SoRotation;
-    const SbVec3f orgvec( 0, 1, 0 );
-    xrotation_->rotation.setValue( SbRotation(orgvec,SbVec3f(0,0,1)) );
-    addChild( xrotation_ );
-
-#define mAddOffset(off,val) \
-    SoForegroundTranslation* off = new SoForegroundTranslation; \
-    off->lift.setValue( val ); \
-    addChild( off );
-
-    mAddOffset(faceoffset,0.8)
-    createFaceNode();
-    createMarkerNode();
-    mAddOffset(linetxtoffset,0.5)
-    createLineNode();
-    createTextNode();
-    */
 }
 
 
@@ -249,18 +401,59 @@ CalloutDisplay::~CalloutDisplay()
 }
 
 
-void CalloutDisplay::setScale( const Coord3& ns )
+void CalloutDisplay::setScale( float ns )
 {
-    scale_ = ns;
+    scale_ = ns*10;
     for ( int idx=group_->size()-1; idx>=0; idx-- )
     {
 	mDynamicCastGet( Callout*, call, group_->getObject(idx) );
-	call->setBoxScale( ns );
+	call->setTextSize(scale_);
     }
 }
 
 
-Coord3 CalloutDisplay::getScale() const
+void CalloutDisplay::setScene( visSurvey::Scene* scene )
+{
+    if ( scene_ ) scene_->zscalechange.remove(
+	    mCB( this, CalloutDisplay, zScaleChangeCB));
+
+    visSurvey::SurveyObject::setScene( scene );
+
+    if ( scene_ ) scene_->zscalechange.notify(
+	    mCB( this, CalloutDisplay, zScaleChangeCB));
+}
+
+
+void CalloutDisplay::zScaleChangeCB( CallBacker* )
+{
+    if ( group_->size() )
+	setScaleTransform( group_->getObject(0) );
+}
+
+
+void CalloutDisplay::directionChangeCB( CallBacker* cb )
+{
+    mDynamicCastGet( Callout*, call, cb );
+    const int idx = group_->getFirstIdx( call );
+    if ( idx<0 )
+	return;
+
+    (*set_)[idx].dir = call->getDirection();
+    Pick::SetMgr::ChangeData cd( Pick::SetMgr::ChangeData::Changed,
+				set_, idx );
+    picksetmgr_->reportChange( 0, cd );
+}
+
+
+void CalloutDisplay::setScaleTransform( visBase::DataObject* dobj ) const
+{
+    mDynamicCastGet( Callout*, call, dobj );
+    call->getScale()->
+	setScale(Coord3(1,1,2/scene_->getZScale()));
+}
+
+
+float CalloutDisplay::getScale() const
 {
     return scale_;
 }
@@ -272,9 +465,39 @@ visBase::VisualObject* CalloutDisplay::createLocation() const
     res->setMarkerMaterial( markermaterial_ );
     res->setBoxMaterial( boxmaterial_ );
     res->setTextMaterial( textmaterial_ );
-    res->setBoxScale( scale_ );
+    res->setSelectable( true );
+    res->setTextSize( scale_ );
+    res->moved.notify( mCB( const_cast<CalloutDisplay*>(this), CalloutDisplay,
+			directionChangeCB ) );
+
+    if ( group_->size() )
+    {
+	mDynamicCastGet( Callout*, call, group_->getObject(0) );
+	res->setScale( call->getScale() );
+    }
+    else
+    {
+	res->setScale( visBase::Transformation::create() );
+	setScaleTransform( res );
+    }
 
     return res;
+}
+
+
+int CalloutDisplay::isMarkerClick(const TypeSet<int>& path) const
+{
+    for ( int idx=group_->size()-1; idx>=0; idx-- )
+    {
+	mDynamicCastGet( Callout*, callout, group_->getObject(idx) );
+	if ( !callout )
+	    continue;
+	
+	if ( callout && path.indexOf(callout->getMarkerID())!=-1 )
+	    return idx;
+    }
+
+    return -1;
 }
 
 
@@ -284,342 +507,4 @@ void CalloutDisplay::setPosition( int idx, const Pick::Location& pick )
     call->setPick( pick );
 }
 
-/*
-void CalloutDisplay::createTextNode()
-{
-    SoSeparator* sep = new SoSeparator;
-    SoBaseColor* color = new SoBaseColor;
-    color->rgb.setValue( 0, 0, 0 );
-    sep->addChild( color );
-    text_ = new SoAsciiText;
-    sep->addChild( text_ );
-    addChild( sep );
-    setSize( txtsize*10 );
-}
-
-
-void CalloutDisplay::createLineNode()
-{
-    Material* linemat = Material::create();
-    linemat->setColor( Color(255,0,0) );
-    border_ = IndexedPolyLine::create();
-    border_->setMaterial( linemat );
-    addChild( border_->getInventorNode() );
-}
-
-
-void CalloutDisplay::createFaceNode()
-{
-    faceset_ = FaceSet::create();
-    Material* facemat = Material::create();
-    facemat->setColor( Color(255,255,127) );
-    faceset_->setMaterial( facemat );
-    addChild( faceset_->getInventorNode() );
-}
-
-
-void CalloutDisplay::createMarkerNode()
-{
-    SoSeparator* markersep = new SoSeparator;
-    addChild( markersep );
-    SoBaseColor* markercolor = new SoBaseColor;
-    markercolor->rgb.setValue( 1, 0, 0 );
-    markersep->addChild( markercolor );
-    marker_ = visBase::Cube::create();
-    const float markersz = 2*txtsize;
-    marker_->setWidth( Coord3(markersz,markersz,markersz) );
-    marker_->setCenterPos( Coord3::udf() );
-    markersep->addChild( marker_->getInventorNode() );
-}
-
-
-void CalloutDisplay::setOrientation( int orientation )
-{
-    const RCol2Coord& b2c = SI().binID2Coord();
-    const RCol2Coord::RCTransform& xtr = b2c.getTransform(true);
-    const RCol2Coord::RCTransform& ytr = b2c.getTransform(false);
-    const float det = xtr.det( ytr );
-    const SbVec3f orgvec( 0, 1, 0 );
-
-    float zrot_angle = 0;
-    if ( orientation != 1 )
-    {
-	SbVec3f inlvec( ytr.c/det, -xtr.c/det, 0 );
-	inlvec.normalize();
-	const float angle = acos( orgvec.dot(inlvec) );
-	zrot_angle = det < 0 ? angle : -angle;
-    }
-    else
-    {
-	SbVec3f crlvec( -ytr.b/det, xtr.b/det, 0 );
-	crlvec.normalize();
-	const float angle = acos( orgvec.dot(crlvec) );
-	zrot_angle = det < 0 ? angle : -angle;
-    }
-
-    zrotation_->angle = zrot_angle;
-}
-
-
-void CalloutDisplay::displayMarker( bool yn )
-{
-    marker_->turnOn( yn );
-}
-
-
-void CalloutDisplay::setText( const char* newtext )
-{
-    text_->string.deleteValues(0);
-    SeparString sepstr( newtext, '\n' );
-    for ( int idx=0; idx<sepstr.size(); idx++ )
-	text_->string.set1Value( idx, sepstr[idx] );
-
-    updateBackground();
-}
-
-
-const char* CalloutDisplay::getText() const
-{
-    static BufferString res;
-    res = "";
-    for ( int idx=0; idx<text_->string.getNum(); idx++ )
-    {
-	if ( idx ) res += "\n";
-	res += text_->string[idx].getString();
-    }
-
-    return res;
-}
-
-
-void CalloutDisplay::setLocation( const Coord3& crd, const Coord3& arrowpos )
-{
-    setPosition( crd );
-    marker_->setCenterPos( arrowpos );
-    setArrowCoord();
-}
-
-
-Coord3 CalloutDisplay::getMarkerLocation() const
-{
-    return marker_->centerPos();
-}
-
-
-Coord3 CalloutDisplay::getLocation() const
-{
-    return position();
-}
-
-
-void CalloutDisplay::setJustification( Justification just )
-{
-    if ( just==Center )
-	text_->justification.setValue( SoAsciiText::CENTER );
-    else if ( just==Left )
-	text_->justification.setValue( SoAsciiText::LEFT );
-    else
-	text_->justification.setValue( SoAsciiText::RIGHT );
-}
-
-
-Text::Justification CalloutDisplay::justification() const
-{
-    if ( text_->justification.getValue() == SoAsciiText::CENTER )
-	return Center;
-    if ( text_->justification.getValue() == SoAsciiText::LEFT )
-	return Left;
-
-    return Right;
-}
-
-
-void CalloutDisplay::updateBackground()
-{
-    SbViewportRegion vp;
-    SoGetBoundingBoxAction action( vp );
-    action.apply( text_ );
-    float dx, dy, dz;
-    action.getBoundingBox().getSize( dx, dy, dz );
-    const SbVec3f& center = action.getCenter();
-    const float xrg[2] = { 0, txtsize*dx };
-    const float yrg[2] = { center[1] - dy/2, txtsize*(center[1] + dy/2) };
-    setBackgroundCoords( xrg, yrg );
-    setBackgroundIndices();
-    if ( !marker_->centerPos().isDefined() )
-	marker_->setCenterPos( Coord3(xrg[0],yrg[0]-txtsize*5,0) );
-    setArrowCoord();
-}
-
-
-void CalloutDisplay::updateArrowIndices( int startidx )
-{
-    Coordinates* facecoords = faceset_->getCoordinates();
-    faceset_->setCoordIndex( facecoords->size()+1, startidx );
-    faceset_->setCoordIndex( facecoords->size()+2, 12 );
-    faceset_->setCoordIndex( facecoords->size()+3, startidx+1 );
-    faceset_->setCoordIndex( facecoords->size()+4, -1 );
-}
-
-
-void CalloutDisplay::setArrowCoord()
-{
-    Coordinates& coords = *faceset_->getCoordinates();
-    const Coord3& markerpos = marker_->centerPos();
-    coords.setPos( 12, markerpos );
-
-    Coord crd0( coords.getPos(0) ); Coord crd1( coords.getPos(6) );
-    float ax = (crd0.y-crd1.y) / (crd0.x-crd1.x);
-    LinePars lp0( crd0.y-ax*crd0.x, ax );
-
-    crd0 = coords.getPos(3); crd1 = coords.getPos(9);
-    ax = (crd0.y-crd1.y) / (crd0.x-crd1.x);
-    LinePars lp1( crd0.y-ax*crd0.x, ax );
-
-#define mCompare(op1,op2) \
-    markerpos.y op1 lp0.getValue(markerpos.x) && \
-    markerpos.y op2 lp1.getValue(markerpos.x)
-
-    int startidx;
-    if ( mCompare(>,<) )
-	startidx = 1;
-    else if ( mCompare(>,>) )
-	startidx = 4;
-    else if ( mCompare(<,>) )
-	startidx = 7;
-    else
-	startidx = 10;
-
-    updateArrowIndices( startidx );
-}
-
-
-void CalloutDisplay::setBackgroundCoords( const float* xrg, const float* yrg )
-{
-    const float dx = xrg[1] - xrg[0];
-    const float dy = yrg[1] - yrg[0];
-
-#define mCrd(xy,p) xy##rg[0] + p*d##xy/8
-
-    Coordinates* coords = faceset_->getCoordinates();
-    coords->setPos( 0, Coord3(xrg[0],yrg[0],0) );
-    coords->setPos( 1, Coord3(xrg[0],mCrd(y,3),0) );
-    coords->setPos( 2, Coord3(xrg[0],mCrd(y,5),0) );
-
-    coords->setPos( 3, Coord3(xrg[0],yrg[1],0) );
-    coords->setPos( 4, Coord3(mCrd(x,3),yrg[1],0) );
-    coords->setPos( 5, Coord3(mCrd(x,5),yrg[1],0) );
-
-    coords->setPos( 6, Coord3(xrg[1],yrg[1],0) );
-    coords->setPos( 7, Coord3(xrg[1],mCrd(y,5),0) );
-    coords->setPos( 8, Coord3(xrg[1],mCrd(y,3),0) );
-
-    coords->setPos( 9, Coord3(xrg[1],yrg[0],0) );
-    coords->setPos( 10, Coord3(mCrd(x,5),yrg[0],0) );
-    coords->setPos( 11, Coord3(mCrd(x,3),yrg[0],0) );
-
-    Coordinates* linecoords = border_->getCoordinates();
-    for ( int idx=0; idx<coords->size(); idx++ )
-	linecoords->setPos( idx, coords->getPos(idx) );
-}
-
-
-void CalloutDisplay::setBackgroundIndices()
-{
-    Coordinates* facecoords = faceset_->getCoordinates();
-    if ( faceset_->nrCoordIndex() >= facecoords->size() ) return;
-
-    for ( int idx=0; idx<facecoords->size(); idx++ )
-    {
-	faceset_->setCoordIndex( idx, idx );
-	border_->setCoordIndex( idx, idx );
-    }
-
-    faceset_->setCoordIndex( facecoords->size(), -1 );
-    border_->setCoordIndex( facecoords->size(), 0 );
-    border_->setCoordIndex( facecoords->size()+1, -1 );
-}
-
-
-void CalloutDisplay::setScale( const Coord3& sc_ )
-{
-    scale_->scaleFactor.setValue( sc_.x, sc_.y, sc_.z );
-}
-
-
-Coord3 CalloutDisplay::getScale() const
-{
-    SbVec3f size = scale_->scaleFactor.getValue();
-    return Coord3( size[0], size[1], size[2] );
-}
-
-
-void CalloutDisplay::setDisplayTransformation( Transformation* nt )
-{
-    Text::setDisplayTransformation( nt );
-}
-
-
-void CalloutDisplay::setSceneEventCatcher( EventCatcher* ec )
-{
-    if ( eventcatcher_ )
-    {
-	eventcatcher_->eventhappened.remove( mCB(this,CalloutDisplay,mouseCB) );
-	eventcatcher_->unRef();
-    }
-
-    eventcatcher_ = ec;
-    if ( eventcatcher_ )
-    {
-	eventcatcher_->eventhappened.notify( mCB(this,CalloutDisplay,mouseCB) );
-	eventcatcher_->ref();
-    }
-}
-
-
-void CalloutDisplay::mouseCB( CallBacker* cb )
-{
-    if ( eventcatcher_->isEventHandled() ) return;
-
-    mCBCapsuleUnpack(const EventInfo&,eventinfo,cb);
-    const bool onmarker = eventinfo.pickedobjids.indexOf( marker_->id() ) >= 0;
-    const bool onface = eventinfo.pickedobjids.indexOf( id() ) >= 0;
-
-    if ( !eventinfo.mousebutton && eventinfo.type==visBase::MouseClick )
-    {
-	movemarker_ = eventinfo.pressed && onmarker;
-	moveface_ = eventinfo.pressed && onface;
-    }
-    else if ( eventinfo.type==visBase::MouseMovement && movemarker_ )
-    {
-	Coord3 pickpos = eventinfo.pickedpos;
-	if ( !pickpos.x && !pickpos.y ) return;
-	SbVec3f txtpos = textpos->translation.getValue();
-	txtpos[2] *= getScale().x / getScale().z; // correct for Z-transform
-	
-	Coord3 newpos( pickpos.x-txtpos[0], pickpos.z-txtpos[2], 0 );
-	newpos /= getScale().x;
-	
-	marker_->setCenterPos( newpos );
-	setArrowCoord();
-	bool tocheck = true;
-	eventcatcher_->eventIsHandled();
-    }
-    else if ( eventinfo.type==visBase::MouseMovement && moveface_ )
-    {
-	Coord3 pickpos = eventinfo.pickedpos;
-	if ( !pickpos.x && !pickpos.y ) return;
-
-	pickpos.z *= getScale().z / getScale().x;
-	pickpos = getDisplayTransformation()
-	    ? getDisplayTransformation()->transformBack( pickpos ) : pickpos;
-
-	setPosition( pickpos );
-	updateBackground();
-	eventcatcher_->eventIsHandled();
-    }
-}
-*/
-
-
-}; // namespace visBase
+}; // namespace

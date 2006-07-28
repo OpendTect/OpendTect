@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2005
- RCS:           $Id: treeitem.cc,v 1.2 2006-07-25 22:24:14 cvskris Exp $
+ RCS:           $Id: treeitem.cc,v 1.3 2006-07-28 21:58:28 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -523,15 +523,14 @@ bool TextSubItem::init()
 {
     if (  displayid_==-1 )
     {
-	visSurvey::CalloutDisplay* cd =
-	    visSurvey::CalloutDisplay::create();
+	CalloutDisplay* cd = CalloutDisplay::create();
 	visserv->addObject( cd, sceneID(), true );
 	displayid_ = cd->id();
 	cd->setName( name_ );
+	cd->setScale( defscale_ );
     }
 
-    mDynamicCastGet(visSurvey::CalloutDisplay*,cd,
-	    visserv->getObject(displayid_))
+    mDynamicCastGet(CalloutDisplay*,cd, visserv->getObject(displayid_))
     if ( !cd ) return false;
     cd->rightClicked()->notify( mCB(this,TextSubItem,rightclickCB) );
 
@@ -608,14 +607,8 @@ bool TextSubItem::editText( BufferString& str )
 
 void TextSubItem::setScale( float newscale )
 {
-    mDynamicCastGet( visSurvey::CalloutDisplay*,cd,
-		     visserv->getObject(displayid_) );
-
-    mDynamicCastGet(visSurvey::Scene*,scene,
-		    applMgr()->visServer()->getObject(sceneID()));
-
-    const float zscale = scene->getZScale();
-    cd->setScale( Coord3(newscale,newscale,2*newscale/zscale) );
+    mDynamicCastGet( CalloutDisplay*,cd, visserv->getObject(displayid_) );
+    cd->setScale( newscale );
 }
 
 /*

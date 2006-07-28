@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		January 2005
- RCS:		$Id: viscallout.h,v 1.1 2006-07-03 20:02:06 cvskris Exp $
+ RCS:		$Id: viscallout.h,v 1.2 2006-07-28 21:58:28 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -17,68 +17,42 @@ ________________________________________________________________________
 #include "vislocationdisplay.h"
 //#include "position.h"
 
-namespace visSurvey
+namespace Annotations
 {
 
 /*!\brief
   Callout
 */
 
-class Coordinates;
-class Cube;
-class EventCatcher;
-class FaceSet;
-class IndexedPolyLine;
-
-class CalloutDisplay : public LocationDisplay
+class CalloutDisplay : public visSurvey::LocationDisplay
 {
 public:
     static CalloutDisplay*	create()
     				mCreateDataObj(CalloutDisplay);
 
-    void			setScale(const Coord3&);
-    Coord3			getScale() const;
+    void			setScale(float);
+    float			getScale() const;
 
 protected:
      visBase::VisualObject*	createLocation() const;
      void			setPosition(int loc,const Pick::Location& );
      bool			hasDirection() const { return true; }
+     bool			hasText() const { return true; }
+     int			isMarkerClick(const TypeSet<int>&) const;
 
     				~CalloutDisplay();
-    Coord3			scale_;
+    float			scale_;
+    void			setScene(visSurvey::Scene*);
+    void			zScaleChangeCB(CallBacker*);
+    void			directionChangeCB(CallBacker*);
+    void			setScaleTransform(visBase::DataObject*) const;
+
     visBase::Material*		markermaterial_;
     visBase::Material*		boxmaterial_;
     visBase::Material*		textmaterial_;
 
-    /*
-    void			createFaceNode();
-    void			createMarkerNode();
-    void			createLineNode();
-    void			createTextNode();
-
-    SoAsciiText*		text_;
-    SoRotationXYZ*		zrotation_;
-    SoScale*			scale_;
-
-    FaceSet*			faceset_;
-    IndexedPolyLine*		border_;
-    Cube*			marker_;
-    EventCatcher*		eventcatcher_;
-
-    int				orientation_;
-    bool			movemarker_;
-    bool			moveface_;
-
-    void			updateBackground();
-    void			setBackgroundCoords(const float*,const float*);
-    void			setBackgroundIndices();
-    void			setArrowCoord();
-    void			updateArrowIndices(int);
-
-    void			mouseCB(CallBacker*);
-    */
 };
 
-} // namespace visBase
+} // namespace
 
 #endif
