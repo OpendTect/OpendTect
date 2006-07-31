@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H.Payraudeau
  Date:          04/2005
- RCS:           $Id: attribengman.cc,v 1.59 2006-07-11 15:27:24 cvshelene Exp $
+ RCS:           $Id: attribengman.cc,v 1.60 2006-07-31 11:18:56 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -658,7 +658,6 @@ AEMFeatureExtracter( EngineMan& aem, const BufferStringSet& inputs,
     ObjectSet<BinIDValueSet>& bvs = 
 	const_cast<ObjectSet<BinIDValueSet>&>(bivsets);
 
-    aem.computeIntersect2D(bvs);
     proc = aem.createLocationOutput( errmsg, bvs );
 }
 
@@ -704,16 +703,16 @@ Executor* EngineMan::createFeatureOutput( const BufferStringSet& inputs,
 
 void EngineMan::computeIntersect2D( ObjectSet<BinIDValueSet>& bivsets ) const
 {
-    if ( !inpattrset || !attrspecs_.size() )
+    if ( !procattrset || !attrspecs_.size() )
 	return;
 
-    if ( !inpattrset->is2D() )
+    if ( !procattrset->is2D() )
 	return;
 
-    Desc* storeddesc;
+    Desc* storeddesc = 0;
     for ( int idx=0; idx<attrspecs_.size(); idx++ )
     {
-	const Desc* desc = inpattrset->getDesc( attrspecs_[idx].id() );
+	const Desc* desc = procattrset->getDesc( attrspecs_[idx].id() );
 	if ( !desc ) continue;
 	if ( desc->isStored() )
 	{
@@ -730,6 +729,9 @@ void EngineMan::computeIntersect2D( ObjectSet<BinIDValueSet>& bivsets ) const
 	    }
 	}
     }
+
+    if ( !storeddesc )
+	return;
 
     const LineKey lk( storeddesc->getValParam(
 			StorageProvider::keyStr())->getStringValue(0) );
@@ -767,6 +769,7 @@ Processor* EngineMan::createLocationOutput( BufferString& errmsg,
     if ( !proc )
 	return 0; 
 
+    computeIntersect2D(bidzvset);
     ObjectSet<LocationOutput> outputs;
     for ( int idx=0; idx<bidzvset.size(); idx++ )
     {

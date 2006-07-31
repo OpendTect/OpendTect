@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          February 2004
- RCS:           $Id: uiwellattribsel.cc,v 1.14 2006-03-12 13:39:11 cvsbert Exp $
+ RCS:           $Id: uiwellattribsel.cc,v 1.15 2006-07-31 11:18:56 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -195,7 +195,6 @@ bool uiWellAttribSel::extractData( BinIDValueSet& bidset )
     BufferString errmsg;
     ObjectSet<BinIDValueSet> bivsset;
     bivsset += &bidset;
-    aem.computeIntersect2D( bivsset );
     PtrMan<Attrib::Processor> process =
 		aem.createLocationOutput( errmsg, bivsset );
     if ( !process ) mErrRet( errmsg );

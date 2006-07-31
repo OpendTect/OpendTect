@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2004
- RCS:           $Id: od_process_attrib_em.cc,v 1.34 2006-07-18 09:20:24 cvshelene Exp $
+ RCS:           $Id: od_process_attrib_em.cc,v 1.35 2006-07-31 11:18:56 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -348,7 +348,6 @@ bool BatchProgram::go( std::ostream& strm )
     {
 	ObjectSet<BinIDValueSet> bivs;
 	HorizonUtils::getPositions( strm, *(midset[0]), bivs );
-	aem.computeIntersect2D(bivs);
 	Processor* proc = aem.createLocationOutput( errmsg, bivs );
 	if ( !proc ) mErrRet( errmsg );
 
