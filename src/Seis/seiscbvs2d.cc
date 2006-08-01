@@ -4,7 +4,7 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID = "$Id: seiscbvs2d.cc,v 1.33 2005-12-06 10:21:32 cvsbert Exp $";
+static const char* rcsID = "$Id: seiscbvs2d.cc,v 1.34 2006-08-01 08:58:55 cvsnanne Exp $";
 
 #include "seiscbvs2d.h"
 #include "seiscbvs.h"
@@ -244,11 +244,17 @@ bool SeisCBVS2DLineIOProvider::getGeometry( const IOPar& iop,
     {
 	BufferString errmsg = "2D seismic line file '"; errmsg += fnm;
 	errmsg += "' does not exist";
-	ErrMsg(errmsg);
+	ErrMsg( errmsg );
 	return false;
     }
-    PtrMan<CBVSSeisTrcTranslator> tr = gtTransl( fnm, false );
-    if ( !tr ) return false;
+
+    BufferString errmsg;
+    PtrMan<CBVSSeisTrcTranslator> tr = gtTransl( fnm, false, &errmsg );
+    if ( !tr )
+    {
+	ErrMsg( errmsg );
+	return false;
+    }
 
     const CBVSInfo& cbvsinf = tr->readMgr()->info();
     TypeSet<Coord> coords; TypeSet<BinID> binids;
@@ -278,7 +284,7 @@ Executor* SeisCBVS2DLineIOProvider::getFetcher( const IOPar& iop,
     {
 	BufferString errmsg = "2D seismic line file '"; errmsg += fnm;
 	errmsg += "' does not exist";
-	ErrMsg(errmsg);
+	ErrMsg( errmsg );
 	return 0;
     }
 
