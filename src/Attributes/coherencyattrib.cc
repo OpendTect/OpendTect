@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: coherencyattrib.cc,v 1.12 2006-07-06 12:51:53 cvshelene Exp $";
+static const char* rcsID = "$Id: coherencyattrib.cc,v 1.13 2006-08-01 20:21:07 cvskris Exp $";
 
 
 #include "coherencyattrib.h"
@@ -21,30 +21,30 @@ namespace Attrib
 
 void Coherency::initClass()
 {
-    Desc* desc = new Desc( attribName(), updateDesc );
+    Desc* desc = new Desc( sKeyAttribName(), updateDesc );
     desc->ref();
 
-    IntParam* type = new IntParam( typeStr() );
+    IntParam* type = new IntParam( sKeyType() );
     type->setLimits( Interval<int>(1,2) );
     type->setDefaultValue( 2 );
     desc->addParam( type );
 
-    ZGateParam* gate = new ZGateParam( gateStr() );
+    ZGateParam* gate = new ZGateParam( sKeyGate() );
     gate->setLimits( Interval<float>(-mUdf(float),mUdf(float)) );
     gate->setDefaultValue( Interval<float>(-28,28) );
     desc->addParam( gate );
 
-    FloatParam* maxdip = new FloatParam( maxdipStr() );
+    FloatParam* maxdip = new FloatParam( sKeyMaxDip() );
     maxdip->setLimits( Interval<float>(0,mUdf(float)) );
     maxdip->setDefaultValue( 250 );
     desc->addParam( maxdip );
 
-    FloatParam* ddip = new FloatParam( ddipStr() );
+    FloatParam* ddip = new FloatParam( sKeyDDip() );
     ddip->setLimits( Interval<float>(0,mUdf(float)) );
     ddip->setDefaultValue( 10 );
     desc->addParam( ddip );
 
-    BinIDParam* stepout = new BinIDParam( stepoutStr() );
+    BinIDParam* stepout = new BinIDParam( sKeyStepout() );
     stepout->setDefaultValue( BinID(1,1) );
     stepout->setRequired( false );
     desc->addParam( stepout );
@@ -77,7 +77,7 @@ Provider* Coherency::createInstance( Desc& desc )
 
 void Coherency::updateDesc( Desc& desc )
 {
-    const ValParam* type = desc.getValParam( typeStr() );
+    const ValParam* type = desc.getValParam( sKeyType() );
     if ( type->getIntValue() == 2 )
 	desc.inputSpec(1).enabled = true;
 }
@@ -85,29 +85,29 @@ void Coherency::updateDesc( Desc& desc )
 
 Coherency::Coherency( Desc& desc_ )
     : Provider( desc_ )
-    , redh ( 0 )
-    , imdh ( 0 )
+    , realdataholder_ ( 0 )
+    , imagdataholder_ ( 0 )
 { 
     if ( !isOK() ) return;
 
-    inputdata.allowNull(true);
+    inputdata_.allowNull(true);
     
-    mGetInt( type, typeStr() );
+    mGetInt( type_, sKeyType() );
     
-    mGetFloatInterval( gate, gateStr() );
-    gate.start = gate.start / zFactor(); gate.stop = gate.stop / zFactor();
+    mGetFloatInterval( gate_, sKeyGate() );
+    gate_.start = gate_.start / zFactor(); gate_.stop = gate_.stop / zFactor();
 
-    mGetFloat( maxdip, maxdipStr() );
-    maxdip = maxdip/dipFactor();
+    mGetFloat( maxdip_, sKeyMaxDip() );
+    maxdip_ = maxdip_/dipFactor();
 
-    mGetFloat( ddip, ddipStr() );
-    ddip = ddip/dipFactor();
+    mGetFloat( ddip_, sKeyDDip() );
+    ddip_ = ddip_/dipFactor();
 
-    mGetBinID( stepout, stepoutStr() );
-    stepout.inl = abs( stepout.inl ); stepout.crl = abs( stepout.crl );
+    mGetBinID( stepout_, sKeyStepout() );
+    stepout_.inl = abs( stepout_.inl ); stepout_.crl = abs( stepout_.crl );
 
-    const float extraz = (stepout.inl*inldist()+stepout.crl*crldist()) * maxdip;
-    desgate = Interval<float>( gate.start-extraz, gate.stop+extraz );
+    const float extraz = (stepout_.inl*inldist()+stepout_.crl*crldist()) * maxdip_;
+    desgate_ = Interval<float>( gate_.start-extraz, gate_.stop+extraz );
 }
 
 
@@ -151,12 +151,12 @@ float Coherency::calc2( float s, const Interval<int>& rsg,
 
 	for ( int idy=0; idy<inlsz; idy++ )
 	{
-	    float inlpos = (idy - (inlsz/2)) * distinl;
+	    float inlpos = (idy - (inlsz/2)) * distinl_;
 	    for ( int idz=0; idz<crlsz; idz++ )
 	    {
 		ValueSeriesInterpolator<float> 
 		    	interp( re.get(idy,idz)->nrsamples_-1 );
-		float crlpos = (idz - (crlsz/2)) * distcrl;
+		float crlpos = (idz - (crlsz/2)) * distcrl_;
 		float place = s - re.get(idy,idz)->z0_ + idx + 
 		    	     (inlpos*inldip)/refstep + (crlpos*crldip)/refstep;
 		    
@@ -185,9 +185,9 @@ bool Coherency::computeData( const DataHolder& output, const BinID& relpos,
 {
     BinID step = inputs[0]->getStepoutStep();
 	
-    const_cast<Coherency*>(this)->distinl = fabs(inldist()*step.inl);
-    const_cast<Coherency*>(this)->distcrl = fabs(crldist()*step.crl);
-    return type == 1 ? computeData1(output, z0, nrsamples) 
+    const_cast<Coherency*>(this)->distinl_ = fabs(inldist()*step.inl);
+    const_cast<Coherency*>(this)->distcrl_ = fabs(crldist()*step.crl);
+    return type_ == 1 ? computeData1(output, z0, nrsamples) 
 		     : computeData2(output, z0, nrsamples);
 }
 
@@ -195,23 +195,23 @@ bool Coherency::computeData( const DataHolder& output, const BinID& relpos,
 bool Coherency::computeData1( const DataHolder& output, int z0, 
 			      int nrsamples ) const
 {
-    Interval<int> samplegate( mNINT(gate.start/refstep),
-				mNINT(gate.stop/refstep) );
+    Interval<int> samplegate( mNINT(gate_.start/refstep),
+				mNINT(gate_.stop/refstep) );
     for ( int idx=0; idx<nrsamples; idx++ )
     {
 	float cursamp = z0 + idx;
 	float maxcoh = -1;
 	float dipatmax;
 
-	float curdip = -maxdip;
+	float curdip = -maxdip_;
 
-	while ( curdip <= maxdip )
+	while ( curdip <= maxdip_ )
 	{
-	    float coh = calc1( cursamp, cursamp + (curdip * distinl)/refstep,
-				samplegate, *inputdata[0], *inputdata[1] );
+	    float coh = calc1( cursamp, cursamp + (curdip * distinl_)/refstep,
+				samplegate, *inputdata_[0], *inputdata_[1] );
 
 	    if ( coh > maxcoh ) { maxcoh = coh; dipatmax = curdip; }
-	    curdip += ddip;
+	    curdip += ddip_;
 	}
 	
 	float cohres = maxcoh;
@@ -219,15 +219,15 @@ bool Coherency::computeData1( const DataHolder& output, int z0,
 
 	maxcoh = -1;
 	
-	curdip = -maxdip;
+	curdip = -maxdip_;
 
-	while ( curdip <= maxdip )
+	while ( curdip <= maxdip_ )
 	{
-	    float coh = calc1( cursamp, cursamp + (curdip * distcrl)/refstep,
-				samplegate, *inputdata[0], *inputdata[2] );
+	    float coh = calc1( cursamp, cursamp + (curdip * distcrl_)/refstep,
+				samplegate, *inputdata_[0], *inputdata_[2] );
 
 	    if ( coh > maxcoh ) { maxcoh = coh; dipatmax = curdip; }
-	    curdip += ddip;
+	    curdip += ddip_;
 	}
 
 	cohres += maxcoh;
@@ -248,8 +248,8 @@ bool Coherency::computeData1( const DataHolder& output, int z0,
 bool Coherency::computeData2( const DataHolder& output, int z0, 
 			      int nrsamples ) const
 {
-    Interval<int> samplegate( mNINT(gate.start/refstep),
-				mNINT(gate.stop/refstep) );
+    Interval<int> samplegate( mNINT(gate_.start/refstep),
+				mNINT(gate_.stop/refstep) );
     for ( int idx=0; idx<nrsamples; idx++ )
     {
 	float cursample = z0 + idx;
@@ -257,24 +257,24 @@ bool Coherency::computeData2( const DataHolder& output, int z0,
 	float inldipatmax;
 	float crldipatmax;
 
-	float inldip = -maxdip;
+	float inldip = -maxdip_;
 
-	while ( inldip <= maxdip )
+	while ( inldip <= maxdip_ )
 	{
-	    float crldip = -maxdip;
+	    float crldip = -maxdip_;
 
-	    while ( crldip <= maxdip )
+	    while ( crldip <= maxdip_ )
 	    {
 		float coh = calc2( cursample, samplegate, inldip, 
-				    crldip, *redh, *imdh );
+				    crldip, *realdataholder_, *imagdataholder_ );
 
 		if ( coh > maxcoh )
 		    { maxcoh = coh; inldipatmax = inldip; crldipatmax = crldip;}
 
-		crldip += ddip;
+		crldip += ddip_;
 	    }
 
-	    inldip += ddip;
+	    inldip += ddip_;
 	}
 	
 	if ( outputinterest[0] ) 
@@ -298,10 +298,10 @@ bool Coherency::getInputOutput( int input, TypeSet<int>& res ) const
 bool Coherency::getInputData( const BinID& relpos, int idx )
 {
     const BinID bidstep = inputs[0]->getStepoutStep();
-    if ( type==1 )
+    if ( type_==1 )
     {
-	while ( inputdata.size() < 3 )
-	    inputdata += 0;
+	while ( inputdata_.size() < 3 )
+	    inputdata_ += 0;
 
 	const DataHolder* datac = inputs[0]->getData( relpos, idx );
 	const DataHolder* datai = 
@@ -312,22 +312,24 @@ bool Coherency::getInputData( const BinID& relpos, int idx )
 	    return false;
 
 	realidx_ = getDataIndex( 0 );
-	inputdata.replace( 0, datac );
-	inputdata.replace( 1, datai );
-	inputdata.replace( 2, datax );
+	inputdata_.replace( 0, datac );
+	inputdata_.replace( 1, datai );
+	inputdata_.replace( 2, datax );
     }
     else
     {
-	if ( !redh )
-	    redh = new Array2DImpl<DataHolder*>( stepout.inl * 2 + 1,
-						stepout.crl * 2 + 1 );
-	if ( !imdh )
-	    imdh = new Array2DImpl<DataHolder*>( stepout.inl * 2 + 1,
-	                                        stepout.crl * 2 + 1 );
+	if ( !realdataholder_ )
+	    realdataholder_ =
+		new Array2DImpl<DataHolder*>( stepout_.inl * 2 + 1,
+					      stepout_.crl * 2 + 1 );
+	if ( !imagdataholder_ )
+	    imagdataholder_ =
+		new Array2DImpl<DataHolder*>( stepout_.inl * 2 + 1,
+	                                      stepout_.crl * 2 + 1 );
 
-	for ( int idy=-stepout.inl; idy<=stepout.inl; idy++ )
+	for ( int idy=-stepout_.inl; idy<=stepout_.inl; idy++ )
 	{ 
-	    for ( int idz=-stepout.crl; idz<=stepout.crl; idz++ )
+	    for ( int idz=-stepout_.crl; idz<=stepout_.crl; idz++ )
 	    {
 		BinID bid = BinID( relpos.inl + idy * bidstep.inl, 
 				   relpos.crl + idz * bidstep.crl );
@@ -335,15 +337,15 @@ bool Coherency::getInputData( const BinID& relpos, int idx )
 		if ( !dh )
 		    return false;
 
-		redh->set(idy+stepout.inl,idz+stepout.crl, 
+		realdataholder_->set(idy+stepout_.inl,idz+stepout_.crl, 
 			const_cast<DataHolder*>(dh) );
 
 		const DataHolder* data = inputs[1]->getData( bid, idx );
 		if ( !data )
 		    return false;
 		
-		imdh->set(idy+stepout.inl,idz+stepout.crl, 
-			const_cast<DataHolder*>(data) );
+		imagdataholder_->set(idy+stepout_.inl,idz+stepout_.crl, 
+				     const_cast<DataHolder*>(data) );
 	    }
 	}
 	realidx_ = getDataIndex( 0 );
@@ -354,26 +356,26 @@ bool Coherency::getInputData( const BinID& relpos, int idx )
 
 
 const BinID* Coherency::reqStepout( int inp, int out ) const
-{ return &stepout; }
+{ return &stepout_; }
 
 
 const Interval<float>* Coherency::reqZMargin( int inp, int ) const
 {
-    bool chgstart = mNINT(desgate.start*zFactor()) % mNINT(refstep*zFactor());
-    bool chgstop = mNINT(desgate.stop*zFactor()) % mNINT(refstep*zFactor());
+    bool chgstart = mNINT(desgate_.start*zFactor()) % mNINT(refstep*zFactor());
+    bool chgstop = mNINT(desgate_.stop*zFactor()) % mNINT(refstep*zFactor());
 
     if ( chgstart )
     {
-	int minstart = (int)(desgate.start / refstep);
-	const_cast<Coherency*>(this)->desgate.start = (minstart-1) * refstep;
+	int minstart = (int)(desgate_.start / refstep);
+	const_cast<Coherency*>(this)->desgate_.start = (minstart-1) * refstep;
     }
     if ( chgstop )
     {
-	int minstop = (int)(desgate.stop / refstep);
-	const_cast<Coherency*>(this)->desgate.stop = (minstop+1) * refstep;
+	int minstop = (int)(desgate_.stop / refstep);
+	const_cast<Coherency*>(this)->desgate_.stop = (minstop+1) * refstep;
     }
 
-    return &desgate;
+    return &desgate_;
 }
 
 } // namespace Attrib

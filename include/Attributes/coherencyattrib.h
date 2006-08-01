@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: coherencyattrib.h,v 1.6 2006-05-23 08:29:49 cvshelene Exp $
+ RCS:           $Id: coherencyattrib.h,v 1.7 2006-08-01 20:21:07 cvskris Exp $
 ________________________________________________________________________
 
 Coherency type= gate= [maxdip=250] [ddip=10]
@@ -39,12 +39,12 @@ public:
     static void		initClass();
 			Coherency( Desc& );
 
-    static const char*	attribName()	{ return "Coherency"; }
-    static const char*	typeStr()	{ return "type"; }
-    static const char*	gateStr()	{ return "gate"; }
-    static const char*	maxdipStr()	{ return "maxdip"; }
-    static const char*	ddipStr()	{ return "ddip"; }
-    static const char*	stepoutStr()	{ return "stepout"; }
+    static const char*	sKeyAttribName(){ return "Coherency"; }
+    static const char*	sKeyType()	{ return "type"; }
+    static const char*	sKeyGate()	{ return "gate"; }
+    static const char*	sKeyMaxDip()	{ return "maxdip"; }
+    static const char*	sKeyDDip()	{ return "ddip"; }
+    static const char*	sKeyStepout()	{ return "stepout"; }
 
 protected:
     static Provider*	createInstance( Desc& );
@@ -64,28 +64,29 @@ protected:
     float 		calc2( float t, const Interval<int>& rsg,
 	                       float, float, const Array2DImpl<DataHolder*>& re,
 			       const Array2DImpl<DataHolder*>& im ) const;
+
+    bool		allowParallelComputation() const { return true; }
 	
 
     const BinID*		reqStepout( int input, int output ) const;
     const Interval<float>*	reqZMargin(int input, int output) const;
 
-    int			type;
-    float		maxdip;
-    float		ddip;
-    BinID		stepout;
-    Interval<float>	gate;
-    Interval<float>	desgate;
+    int			type_;
+    float		maxdip_;
+    float		ddip_;
+    BinID		stepout_;
+    Interval<float>	gate_;
+    Interval<float>	desgate_;
 
-    float 		distinl;
-    float		distcrl;
+    float 		distinl_;
+    float		distcrl_;
 
-    ObjectSet<const DataHolder>	inputdata;
-    Array2DImpl<DataHolder*>*	redh;
-    Array2DImpl<DataHolder*>*   imdh;
+    ObjectSet<const DataHolder>	inputdata_;
+    Array2DImpl<DataHolder*>*	realdataholder_;
+    Array2DImpl<DataHolder*>*   imagdataholder_;
 
     int			realidx_;
     int			imagidx_;
-
 };
 
 }; // namespace Attrib

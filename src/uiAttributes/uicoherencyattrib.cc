@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uicoherencyattrib.cc,v 1.4 2006-05-23 08:30:25 cvshelene Exp $";
+static const char* rcsID = "$Id: uicoherencyattrib.cc,v 1.5 2006-08-01 20:21:07 cvskris Exp $";
 
 #include "uicoherencyattrib.h"
 #include "coherencyattrib.h"
@@ -61,14 +61,14 @@ void uiCoherencyAttrib::is1Sel( CallBacker* )
 
 bool uiCoherencyAttrib::setParameters( const Attrib::Desc& desc )
 {
-    if ( strcmp(desc.attribName(),Coherency::attribName()) )
+    if ( strcmp(desc.attribName(),Coherency::sKeyAttribName()) )
 	return false;
 
-    mIfGetInt(Coherency::typeStr(),type,is1fld->setValue(type==1? true:false));
-    mIfGetFloatInterval( Coherency::gateStr(), gate, tgfld->setValue(gate) );
-    mIfGetFloat( Coherency::maxdipStr(),maxdip,maxdipfld->setValue(maxdip) );
-    mIfGetFloat( Coherency::ddipStr(),ddip,deltadipfld->setValue(ddip) );
-    mIfGetBinID(Coherency::stepoutStr(), stepout, stepoutfld->setBinID(stepout))
+    mIfGetInt(Coherency::sKeyType(),type,is1fld->setValue(type==1? true:false));
+    mIfGetFloatInterval( Coherency::sKeyGate(), gate, tgfld->setValue(gate) );
+    mIfGetFloat( Coherency::sKeyMaxDip(),maxdip,maxdipfld->setValue(maxdip) );
+    mIfGetFloat( Coherency::sKeyDDip(),ddip,deltadipfld->setValue(ddip) );
+    mIfGetBinID(Coherency::sKeyStepout(),stepout, stepoutfld->setBinID(stepout))
 
     is1Sel(0);
     return true;
@@ -84,14 +84,14 @@ bool uiCoherencyAttrib::setInput( const Attrib::Desc& desc )
 
 bool uiCoherencyAttrib::getParameters( Attrib::Desc& desc )
 {
-    if ( strcmp(desc.attribName(), Coherency::attribName()) )
+    if ( strcmp(desc.attribName(), Coherency::sKeyAttribName()) )
 	return false;
     
-    mSetInt( Coherency::typeStr(), is1fld->getBoolValue() ? 1 : 2 );
-    mSetFloatInterval( Coherency::gateStr(), tgfld->getFInterval() );
-    mSetFloat( Coherency::maxdipStr(), maxdipfld->getfValue() );
-    mSetFloat( Coherency::ddipStr(), deltadipfld->getfValue() );
-    mSetBinID( Coherency::stepoutStr(), stepoutfld->binID() );
+    mSetInt( Coherency::sKeyType(), is1fld->getBoolValue() ? 1 : 2 );
+    mSetFloatInterval( Coherency::sKeyGate(), tgfld->getFInterval() );
+    mSetFloat( Coherency::sKeyMaxDip(), maxdipfld->getfValue() );
+    mSetFloat( Coherency::sKeyDDip(), deltadipfld->getfValue() );
+    mSetBinID( Coherency::sKeyStepout(), stepoutfld->binID() );
     return true;
 }
 
