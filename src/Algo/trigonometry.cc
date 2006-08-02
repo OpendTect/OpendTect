@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: trigonometry.cc,v 1.27 2006-07-27 21:31:25 cvskris Exp $";
+static const char* rcsID = "$Id: trigonometry.cc,v 1.28 2006-08-02 21:28:13 cvskris Exp $";
 
 #include "trigonometry.h"
 
@@ -138,13 +138,13 @@ void Quaternion::setRotation( const Vector3& axis, float angle )
 }
 
 
-void Quaternion::rotate( const Coord3& v, Coord3& to ) const
+Coord3 Quaternion::rotate( const Coord3& v ) const
 {
     const Coord3 qvv = s_*v + vec_.cross(v);
 
     const Coord3 iqvec = -vec_;
 
-    to = (iqvec.dot(v))*iqvec+s_*qvv+qvv.cross(iqvec);
+    return (iqvec.dot(v))*iqvec+s_*qvv+qvv.cross(iqvec);
 }
     
 

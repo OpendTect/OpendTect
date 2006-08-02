@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		23-11-2002
- RCS:		$Id: trigonometry.h,v 1.17 2006-07-27 21:31:25 cvskris Exp $
+ RCS:		$Id: trigonometry.h,v 1.18 2006-08-02 21:28:13 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -57,7 +57,7 @@ public:
 
     void		setRotation(const Vector3& axis,float angle);
     			//!<\note angle must be nonzero
-    void		rotate( const Coord3& from, Coord3& to ) const;
+    Coord3		rotate(const Coord3&) const;
 
     Quaternion		operator+(const Quaternion&) const;
     Quaternion& 	operator+=(const Quaternion&);
