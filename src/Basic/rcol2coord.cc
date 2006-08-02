@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          18-4-1996
- RCS:           $Id: rcol2coord.cc,v 1.3 2006-03-12 13:39:10 cvsbert Exp $
+ RCS:           $Id: rcol2coord.cc,v 1.4 2006-08-02 18:48:51 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -86,3 +86,12 @@ Coord RCol2Coord::transformBackNoSnap( const Coord& coord ) const
     const double y = coord.y - ytr.a;
     return Coord( (x*ytr.c - y*xtr.c) / det, (y*xtr.b - x*ytr.b) / det );
 }
+
+
+Coord RCol2Coord::transform( const Coord& rc ) const
+{
+    return Coord( xtr.a + xtr.b*rc.x + xtr.c*rc.y,
+		  ytr.a + ytr.b*rc.x + ytr.c*rc.y );
+}
+
+

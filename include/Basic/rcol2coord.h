@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		9-4-1996
  Contents:	RowCol <-> Coord transform
- RCS:		$Id: rcol2coord.h,v 1.3 2005-04-28 13:43:44 cvskris Exp $
+ RCS:		$Id: rcol2coord.h,v 1.4 2006-08-02 18:48:51 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,6 +29,10 @@ public:
 
     bool		isValid() const		{ return xtr.valid(ytr); }
     Coord		transform(const RCol&) const;
+    Coord		transform(const Coord& rc) const;
+    			/*!< transforms a rowcol stored in a coord.  The 
+			     row is stored in the x-component, and the
+			     col is stored in the y-component. */
     RowCol		transformBack(const Coord&,
 	    			  const StepInterval<int>* inlrg=0,
 	    			  const StepInterval<int>* crlrg=0 ) const;
@@ -40,6 +44,7 @@ public:
     			/*!< transforms back, but does not snap. The 
 			     row is stored in the x-component, and the
 			     col is stored in the y-component. */
+
 
     bool		set3Pts(const Coord& c0,const Coord& c1,const Coord& c2,
 	    			const RCol& rc0,const RCol& rc1,int32 col2 ); 
