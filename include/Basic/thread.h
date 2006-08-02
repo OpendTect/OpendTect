@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: thread.h,v 1.22 2006-07-17 15:26:22 cvskris Exp $
+ RCS:		$Id: thread.h,v 1.23 2006-08-02 21:22:14 cvskris Exp $
 ________________________________________________________________________
 
 */
@@ -76,17 +76,25 @@ int function()
     //Do whatever you want to do
 }
 */
+
+
+
 class MutexLocker
 {
 public:
-			MutexLocker( Mutex& mutex_ )
-			    : mutex( mutex_ )	{ mutex.lock(); }
-			~MutexLocker()		{ mutex.unlock(); }
+		MutexLocker( Mutex& mutex )
+		    : mutex_( mutex )
+		    , islocked_( true ) { mutex_.lock(); }
+		~MutexLocker()          { if ( islocked_ ) mutex_.unlock(); }
+
+    void	unLock() { islocked_ = false; mutex_.unlock(); }
+		/*!<Use at own risk! To be safe, it should only be called
+		    by the process that created the lock. */
 
 protected:
 
-    Mutex&		mutex;
-
+    Mutex&	mutex_;
+    bool	islocked_;
 };
 
 
