@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2002
- RCS:           $Id: visrotationdragger.cc,v 1.1 2006-07-28 21:57:42 cvskris Exp $
+ RCS:           $Id: visrotationdragger.cc,v 1.2 2006-08-03 15:09:25 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -139,6 +139,7 @@ void RotationDragger::setOwnFeedback( DataObject* dobj, bool active )
     DataObject*& prev = active ? activefeedback_ : feedback_;
     if ( prev ) prev->unRef();
     prev = dobj;
+    dobj->ref();
 }
 
 
