@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiobjfileman.cc,v 1.10 2006-08-03 18:54:32 cvsnanne Exp $
+ RCS:           $Id: uiobjfileman.cc,v 1.11 2006-08-03 19:59:28 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -109,7 +109,7 @@ BufferString uiObjFileMan::getFileInfo()
     mDynamicCastGet(StreamConn*,conn,curioobj_->getConn(Conn::Read))
     if ( !conn )
     {
-	BufferString errtxt( "File not found: " );
+	BufferString errtxt( "File not found:\n" );
 	errtxt += curioobj_->fullUserExpr( true );
 	infofld->setText( errtxt );
 	return errtxt;
@@ -120,6 +120,7 @@ BufferString uiObjFileMan::getFileInfo()
     txt += "Location: "; txt += fp.pathOnly();
     txt += "\nFile name: "; txt += fp.fileName();
     txt += "\nFile size: "; txt += getFileSizeString( getFileSize(fname) );
+    txt += "\nLast modified: "; txt += File_getTime( fname );
     txt += "\n";
     conn->close();
     delete conn;
