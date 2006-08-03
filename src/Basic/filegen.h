@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		3-5-1994
  Contents:	File utitlities
- RCS:		$Id: filegen.h,v 1.17 2004-04-01 13:39:50 bert Exp $
+ RCS:		$Id: filegen.h,v 1.18 2006-08-03 19:58:22 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,6 +46,8 @@ int	File_createLink(const char* from,const char* to);
 /*! Size/disk space. Returns 0 on any error */
 int	File_getKbSize(const char*);
 int	File_getFreeMBytes(const char*);
+
+const char*	File_getTime(const char*);
 
 /*! Functions returning path */
 const char*	File_linkTarget(const char* linkname);
