@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2002
- RCS:           $Id: uigeninputdlg.cc,v 1.6 2005-01-12 16:13:43 arend Exp $
+ RCS:           $Id: uigeninputdlg.cc,v 1.7 2006-08-03 15:07:36 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "uigeninputdlg.h"
 #include "uigeninput.h"
 #include "uilabel.h"
+#include "uilineedit.h"
 #include "uimsg.h"
 
 
@@ -52,8 +53,24 @@ void uiGenInputGrp::build()
 	if ( idx )
 	    fld->attach( alignedBelow, flds[idx-1] );
     }
+
+
 }
 
+
+NotifierAccess* uiGenInputGrp::enterClose()
+{
+    if ( flds.size()==1 && flds[0]->nElements()==1 )
+    {
+	mDynamicCastGet( uiLineEdit*, ule, flds[0]->element( 0 ) );
+	if ( ule )
+	{
+	    return &ule->returnPressed;
+	}
+    }
+
+    return 0;
+}
 
 const char* uiGenInputGrp::text( int idx )
 { return flds[idx]->text( 0 ); }
@@ -91,6 +108,7 @@ uiGenInputDlg::uiGenInputDlg( uiParent* p, const char* dlgtitle,
 	: uiDialog(p,Setup("Input data",dlgtitle))
 {
     group = new uiGenInputGrp( this, dlgtitle, fldtxt, spec );
+    finaliseDone.notify( mCB( this, uiGenInputDlg, setEnterClose ) );
 }
 
 
@@ -99,6 +117,18 @@ uiGenInputDlg::uiGenInputDlg( uiParent* p, const char* dlgtitle,
 	: uiDialog(p,Setup("Input data",dlgtitle))
 {
     group = new uiGenInputGrp( this, dlgtitle, e );
+    finaliseDone.notify( mCB( this, uiGenInputDlg, setEnterClose ) );
+}
+
+
+void uiGenInputDlg::setEnterClose(CallBacker*)
+{
+    if ( group->enterClose() )
+    {
+	group->enterClose()->notify( mCB( this, uiDialog, accept ));
+	if ( group->nrFlds() )
+	    group->getFld(0)->setFocus();
+    }
 }
 
 

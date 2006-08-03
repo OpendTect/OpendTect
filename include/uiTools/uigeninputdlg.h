@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2002
- RCS:           $Id: uigeninputdlg.h,v 1.5 2005-01-12 16:13:43 arend Exp $
+ RCS:           $Id: uigeninputdlg.h,v 1.6 2006-08-03 15:07:35 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -57,6 +57,11 @@ public:
     uiGenInput*		getFld( int idx=0 )	{ return flds[idx]; }
 
     bool		acceptOK(CallBacker*);
+    NotifierAccess*	enterClose();
+    			/*!<\returns notifier when a simple text field is
+			             displayed. An eventual notifier will
+				     trigger if the user presses enter is
+				     pressed. */
 
 protected:
 
@@ -94,6 +99,7 @@ public:
     uiGenInput*		getFld( int idx=0 );
 
 protected:
+    void		setEnterClose(CallBacker*);
     bool		acceptOK(CallBacker*);
     uiGenInputGrp*	group;
 };
