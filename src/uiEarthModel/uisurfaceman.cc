@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2003
- RCS:           $Id: uisurfaceman.cc,v 1.32 2006-07-11 08:22:41 cvsbert Exp $
+ RCS:           $Id: uisurfaceman.cc,v 1.33 2006-08-03 19:59:00 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -153,10 +153,13 @@ void uiSurfaceMan::mkFileInfo()
     BufferString txt;
     BinIDSampler bs;
     EM::SurfaceIOData sd;
-    EM::EMM().getSurfaceData( curioobj_->key(), sd );
-    fillAttribList( sd.valnames );
-    txt = "Inline range: "; mRangeTxt(inl);
-    txt += "Crossline range: "; mRangeTxt(crl);
+    const char* res = EM::EMM().getSurfaceData( curioobj_->key(), sd );
+    if ( !res )
+    {
+	fillAttribList( sd.valnames );
+	txt = "Inline range: "; mRangeTxt(inl);
+	txt += "Crossline range: "; mRangeTxt(crl);
+    }
 
     txt += getFileInfo();
 
