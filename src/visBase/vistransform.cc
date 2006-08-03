@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Feb 2002
- RCS:           $Id: vistransform.cc,v 1.20 2006-07-28 21:53:53 cvskris Exp $
+ RCS:           $Id: vistransform.cc,v 1.21 2006-08-03 07:06:46 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -256,9 +256,7 @@ Coord3 Rotation::transform( const Coord3& input ) const
 {
     const float* rot = rotation_->rotation.getValue().getValue();
     const Quaternion q( rot[3], rot[0], rot[1], rot[2] );
-    Coord3 res;
-    q.rotate( input, res );
-    return res;
+    return q.rotate( input );
 }
 
 
@@ -266,9 +264,7 @@ Coord3 Rotation::transformBack( const Coord3& input ) const
 {
     const float* rot = rotation_->rotation.getValue().getValue();
     const Quaternion q( Quaternion(rot[3], rot[0], rot[1], rot[2]).inverse() );
-    Coord3 res;
-    q.rotate( input, res );
-    return res;
+    return q.rotate( input );
 }
 
 
