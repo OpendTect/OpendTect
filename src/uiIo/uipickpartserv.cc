@@ -4,16 +4,19 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uipickpartserv.cc,v 1.38 2006-06-30 10:15:49 cvsbert Exp $
+ RCS:           $Id: uipickpartserv.cc,v 1.39 2006-08-03 18:56:52 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uipickpartserv.h"
+
+#include "uicursor.h"
 #include "uifetchpicks.h"
 #include "uiimppickset.h"
 #include "uimsg.h"
-#include "uicursor.h"
+#include "uipicksetman.h"
+
 #include "pickset.h"
 #include "picksettr.h"
 #include "surfaceinfo.h"
@@ -38,6 +41,13 @@ uiPickPartServer::uiPickPartServer( uiApplService& a )
 uiPickPartServer::~uiPickPartServer()
 {
     deepErase( selhorids_ );
+}
+
+
+void uiPickPartServer::managePickSets()
+{
+    uiPickSetMan dlg( appserv().parent() );
+    dlg.go();
 }
 
 

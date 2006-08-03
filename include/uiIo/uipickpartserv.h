@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uipickpartserv.h,v 1.27 2006-06-30 10:15:49 cvsbert Exp $
+ RCS:           $Id: uipickpartserv.h,v 1.28 2006-08-03 18:56:52 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,6 +39,7 @@ public:
     const char*			name() const		{ return "Picks"; }
 
 				// Services
+    void			managePickSets();
     void			impexpSet(bool import);
     bool			fetchSets();	//!< Fetch set(s) by user sel
     void			setMisclassSet(const BinIDValueSet&);
