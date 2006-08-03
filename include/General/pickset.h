@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		May 2001
  Contents:	PickSet base classes
- RCS:		$Id: pickset.h,v 1.22 2006-07-11 11:42:14 cvsnanne Exp $
+ RCS:		$Id: pickset.h,v 1.23 2006-08-03 21:16:09 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -53,7 +53,17 @@ public:
     void		toString(char*);
 
     Coord3		pos;
-    Sphere		dir; //!< Optional direction at location
+    Sphere		dir; /*!< Optional direction at location.
+			          phi is defined as the direction's
+				  counter-clockwise angle from the x-axis in
+				  the x-y plane.
+				  theta is defined as the directions angle from
+				  the upward pointing z axis (i.e. opposite to
+				  survey-z-axis).
+			     \note theta and the radius are defined after thes
+			    	  SI().zFactor is applied to the z-coordinate.
+			     */
+			          
     BufferString*	text; //!<Optional text at location
 
     void		setText(const char* key,const char* txt);
