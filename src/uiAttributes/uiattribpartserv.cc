@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiattribpartserv.cc,v 1.37 2006-07-31 11:18:56 cvshelene Exp $
+ RCS:           $Id: uiattribpartserv.cc,v 1.38 2006-08-03 18:57:46 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -47,6 +47,7 @@ ________________________________________________________________________
 #include "uiattrdesced.h"
 #include "uiattrdescseted.h"
 #include "uiattrsel.h"
+#include "uiattrsetman.h"
 #include "uiattrvolout.h"
 #include "uievaluatedlg.h"
 #include "uiexecutor.h"
@@ -131,6 +132,13 @@ void uiAttribPartServer::getDirectShowAttrSpec( SelSpec& as ) const
        as.set( 0, SelSpec::cNoAttrib(), false, 0 );
    else
        as.set( *dirshwattrdesc );
+}
+
+
+void uiAttribPartServer::manageAttribSets()
+{
+    uiAttrSetMan dlg( appserv().parent() );
+    dlg.go();
 }
 
 
