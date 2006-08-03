@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: vistransform.h,v 1.15 2006-07-28 21:53:50 cvskris Exp $
+ RCS:		$Id: vistransform.h,v 1.16 2006-08-03 18:46:38 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -92,6 +92,7 @@ public:
 
     void		set(const Coord3& vec,float angle);
     void		set(const Quaternion&);
+    void		get(Quaternion&) const;
 
     Coord3		transform(const Coord3&) const;
     Coord3		transformBack(const Coord3&) const;
