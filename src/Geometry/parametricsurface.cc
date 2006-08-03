@@ -4,7 +4,7 @@
  * DATE     : Nov 2004
 -*/
 
-static const char* rcsID = "$Id: parametricsurface.cc,v 1.22 2006-05-24 07:49:55 cvskris Exp $";
+static const char* rcsID = "$Id: parametricsurface.cc,v 1.23 2006-08-03 14:22:50 cvskris Exp $";
 
 #include "parametricsurface.h"
 
@@ -32,14 +32,6 @@ ParametricSurface::~ParametricSurface()
 
 Coord3 ParametricSurface::computePosition( const Coord& param ) const
 {
-    RowCol rc00( (int)param.x, (int)param.y );
-    /*
-           TODO: Get p00-p11;
-	   const float one_minus_u = 1-u;
-	   return (one_minus_u*p00 + u*p10) * (1-v) +
-	  (one_minus_u*p01 + u*p11) * v;
-    */
-
     pErrMsg( "Not impl" );
     return Coord3::udf();
 }
