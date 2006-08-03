@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          25/05/2000
- RCS:           $Id: uiioobjsel.cc,v 1.92 2006-07-24 08:36:56 cvsjaap Exp $
+ RCS:           $Id: uiioobjsel.cc,v 1.93 2006-08-03 20:00:02 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -107,8 +107,7 @@ uiIOObjSelGrp::uiIOObjSelGrp( uiParent* p, const CtxtIOObj& c,
 		listfld->box()->optimumFieldWidth(25,60) );
     listfld->box()->setPrefHeightInChar( 8 );
     fullUpdate( 0 );
-    // listfld->attach( centeredBelow, filtfld );
-    filtfld->attach( rightAlignedAbove, listfld );
+    filtfld->attach( leftAlignedAbove, listfld );
     topgrp->setHAlignObj( listfld->box() );
 
     if ( ctio_.ioobj )
