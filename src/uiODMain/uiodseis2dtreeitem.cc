@@ -4,31 +4,34 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		May 2006
- RCS:		$Id: uiodseis2dtreeitem.cc,v 1.3 2006-05-25 13:35:43 cvskris Exp $
+ RCS:		$Id: uiodseis2dtreeitem.cc,v 1.4 2006-08-03 13:20:27 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
 
 #include "uiodseis2dtreeitem.h"
 
-#include "uimenu.h"
-#include "uiodapplmgr.h"
-#include "uivispartserv.h"
-
-#include "attribsel.h"
-#include "attribdesc.h"
-#include "attribdescset.h"
-#include "attribdataholder.h"
-#include "linekey.h"
-#include "segposinfo.h"
-
 #include "uiattribpartserv.h"
+#include "uicursor.h"
+#include "uigeninput.h"
+#include "uigeninputdlg.h"
+#include "uimenu.h"
 #include "uimenuhandler.h"
+#include "uimsg.h"
+#include "uiodapplmgr.h"
 #include "uiseispartserv.h"
 #include "uislicesel.h"
-#include "uicursor.h"
-
+#include "uivispartserv.h"
 #include "visseis2ddisplay.h"
+
+#include "attribdataholder.h"
+#include "attribdesc.h"
+#include "attribdescset.h"
+#include "attribsel.h"
+#include "linekey.h"
+#include "segposinfo.h"
+#include "survinfo.h"
+
 
 
 uiODSeis2DParentTreeItem::uiODSeis2DParentTreeItem()
@@ -46,7 +49,8 @@ bool uiODSeis2DParentTreeItem::showSubMenu()
     if ( mnuid < 0 ) return false;
 
     MultiID mid;
-    bool success = ODMainWin()->applMgr().seisServer()->select2DSeis( mid );
+    const bool success =
+	ODMainWin()->applMgr().seisServer()->select2DSeis( mid );
     if ( !success ) return false;
 
     uiOD2DLineSetTreeItem* newitm = new uiOD2DLineSetTreeItem( mid );
@@ -66,7 +70,7 @@ uiTreeItem* Seis2DTreeItemFactory::create( int visid,
 
     uiOD2DLineSetSubItem* newsubitm =
 	new uiOD2DLineSetSubItem( s2d->name(), visid );
-    mDynamicCastGet(uiOD2DLineSetSubItem*,subitm,treeitem);
+    mDynamicCastGet(uiOD2DLineSetSubItem*,subitm,treeitem)
     if ( subitm )
 	return newsubitm;
 
@@ -90,22 +94,33 @@ uiTreeItem* Seis2DTreeItemFactory::create( int visid,
 uiOD2DLineSetTreeItem::uiOD2DLineSetTreeItem( const MultiID& mid )
     : uiODTreeItem("")
     , setid_( mid )
-    , menuhandler_( 0 )
-    , addlinesitm_( "Add line(s) ..." )
-    , showitm_( "Show all" )
-    , hideitm_( "Hide all" )
-    , showlineitm_( "Lines" )
-    , hidelineitm_( "Lines" )
-    , showlblitm_( "Linenames" )
-    , hidelblitm_( "Linenames" )
-    , removeitm_( "Remove" )
-    , storeditm_( "Stored 2D data" )
-    , selattritm_( "Select Attribute" )
-{}
+    , menuhandler_(0)
+    , addlinesitm_("Add line(s) ...")
+    , showitm_("Show all")
+    , hideitm_("Hide all")
+    , showlineitm_("Lines")
+    , hidelineitm_("Lines")
+    , showlblitm_("Linenames")
+    , hidelblitm_("Linenames")
+    , removeitm_("Remove")
+    , storeditm_("Stored 2D data")
+    , selattritm_("Select Attribute")
+    , zrgitm_("Set Z-Range ...")
+{
+    assign(curzrg_,SI().zRange(true));
+}
 
 
 uiOD2DLineSetTreeItem::~uiOD2DLineSetTreeItem()
-{ 
+{
+    if ( menuhandler_ )
+    {
+	menuhandler_->createnotifier.remove(
+		mCB(this,uiOD2DLineSetTreeItem,createMenuCB) );
+	menuhandler_->handlenotifier.remove(
+		mCB(this,uiOD2DLineSetTreeItem,handleMenuCB) );
+	menuhandler_->unRef();
+    }
 }
 
 
@@ -118,6 +133,7 @@ bool uiOD2DLineSetTreeItem::showSubMenu()
 		mCB(this,uiOD2DLineSetTreeItem,createMenuCB) );
 	menuhandler_->handlenotifier.notify(
 		mCB(this,uiOD2DLineSetTreeItem,handleMenuCB) );
+	menuhandler_->ref();
     }
 
     menuhandler_->executeMenu( uiMenuHandler::fromTree );
@@ -168,6 +184,8 @@ void uiOD2DLineSetTreeItem::createMenuCB( CallBacker* cb )
 	mAddMenuItem( menu, &hideitm_, true, false );
 	mAddMenuItem( &hideitm_, &hidelineitm_, true, false );
 	mAddMenuItem( &hideitm_, &hidelblitm_, true, false );
+
+	mAddMenuItem( menu, &zrgitm_, true, false );
     }
     else
     {
@@ -178,6 +196,8 @@ void uiOD2DLineSetTreeItem::createMenuCB( CallBacker* cb )
 	mResetMenuItem( &hideitm_ );
 	mResetMenuItem( &hidelineitm_ );
 	mResetMenuItem( &hidelblitm_ );
+
+	mResetMenuItem( &zrgitm_ );
     }
 
     mAddMenuItem( menu, &removeitm_, true, false );
@@ -193,8 +213,8 @@ void uiOD2DLineSetTreeItem::handleMenuCB( CallBacker* cb )
 
     if ( mnuid==addlinesitm_.id )
     {
-	selectAddLines();
 	menu->setIsHandled(true);
+	selectAddLines();
 	return;
     }
 
@@ -216,7 +236,12 @@ void uiOD2DLineSetTreeItem::handleMenuCB( CallBacker* cb )
     else if ( mnuid==removeitm_.id )
     {
 	menu->setIsHandled( true );
-	while( children_.size() )
+	if ( children_.size()>0 &&
+	     !uiMSG().askGoOn("All lines in this lineset will be removed."
+			      "\nDo you want to continue?") )
+	    return;
+
+	while ( children_.size() )
 	{
 	    uiOD2DLineSetSubItem* itm = (uiOD2DLineSetSubItem*)children_[0];
 	    applMgr()->visServer()->removeObject( itm->displayID(), sceneID() );
@@ -237,6 +262,23 @@ void uiOD2DLineSetTreeItem::handleMenuCB( CallBacker* cb )
 	const bool turnon = mnuid==showlblitm_.id;
 	for ( int idx=0; idx<children_.size(); idx++ )
 	    ((uiOD2DLineSetSubItem*)children_[idx])->showLineName( turnon );
+    }
+    else if ( mnuid == zrgitm_.id )
+    {
+	menu->setIsHandled( true );
+
+	BufferString lbl( "Z-Range " ); lbl += SI().getZUnit();
+	Interval<int> intzrg( mNINT(curzrg_.start*1000), 
+			      mNINT(curzrg_.stop*1000) );
+	uiGenInputDlg dlg( getUiParent(), "Specify 2D line Z_Range", lbl,
+			   new IntInpIntervalSpec(intzrg) );
+	if ( !dlg.go() ) return;
+
+	intzrg = dlg.getFld()->getIInterval();
+	curzrg_.start = float(intzrg.start) / 1000;
+	curzrg_.stop = float(intzrg.stop) / 1000;
+	for ( int idx=0; idx<children_.size(); idx++ )
+	    ((uiOD2DLineSetSubItem*)children_[idx])->setZRange( curzrg_ );
     }
 }
 
@@ -292,22 +334,20 @@ bool uiOD2DLineSetSubItem::init()
     }
 
     mDynamicCastGet(visSurvey::Seis2DDisplay*,s2d,
-		    visserv->getObject(displayid_))
+	    	    visserv->getObject(displayid_))
     if ( !s2d ) return false;
 
     PtrMan<PosInfo::Line2DData> geometry = new PosInfo::Line2DData;
-    if ( !applMgr()->seisServer()->get2DLineGeometry( s2d->lineSetID(), name_,
-	  *geometry ) )
+    if ( !applMgr()->seisServer()->get2DLineGeometry(s2d->lineSetID(),name_,
+	  *geometry) )
 	return false;
 
     CubeSampling cs = s2d->getCubeSampling();
     s2d->setGeometry( *geometry, newdisplay ? 0 : &cs );
 
     if ( applMgr() )
-    {
 	applMgr()->getOtherFormatData.notify(
 	    mCB(this,uiOD2DLineSetSubItem,getNewData) );
-    }
 
     return uiODDisplayTreeItem::init();
 }
@@ -315,17 +355,16 @@ bool uiOD2DLineSetSubItem::init()
 
 BufferString uiOD2DLineSetSubItem::createDisplayName() const
 {
-    return BufferString( visserv->getObjectName( displayid_ ) );
+    return BufferString( visserv->getObjectName(displayid_) );
 }
 
 
-uiODDataTreeItem*
-uiOD2DLineSetSubItem::createAttribItem( const Attrib::SelSpec* as ) const
+uiODDataTreeItem* uiOD2DLineSetSubItem::createAttribItem(
+					const Attrib::SelSpec* as ) const
 {
     const char* parenttype = typeid(*this).name();
     uiODDataTreeItem* res = as
-	? uiOD2DLineSetAttribItem::create( *as, parenttype )
-	: 0;
+	? uiOD2DLineSetAttribItem::create( *as, parenttype ) : 0;
 
     if ( !res ) res = new uiOD2DLineSetAttribItem( parenttype );
     return res;
@@ -352,8 +391,9 @@ void uiOD2DLineSetSubItem::handleMenuCB( CallBacker* cb )
     mCBCapsuleUnpackWithCaller(int,mnuid,caller,cb);
     mDynamicCastGet(uiMenuHandler*,menu,caller);
     mDynamicCastGet(visSurvey::Seis2DDisplay*,s2d,
-    visserv->getObject(displayid_));
-    if ( !menu || !s2d || mnuid==-1 || menu->isHandled() )
+		    visserv->getObject(displayid_));
+    if ( !menu || !s2d || menu->menuID()!=displayID() || 
+	 mnuid==-1 || menu->isHandled() )
 	return;
 
     if ( mnuid==linenmitm_.id )
@@ -365,8 +405,9 @@ void uiOD2DLineSetSubItem::handleMenuCB( CallBacker* cb )
     {
 	menu->setIsHandled(true);
 	PtrMan<PosInfo::Line2DData> geometry = new PosInfo::Line2DData;
-	    !applMgr()->seisServer()->get2DLineGeometry( s2d->lineSetID(),
-	    s2d->name(), *geometry );
+	if ( !applMgr()->seisServer()->get2DLineGeometry(
+		    s2d->lineSetID(),s2d->name(),*geometry) )
+	    return;
 	CubeSampling maxcs = s2d->getCubeSampling();
 	assign( maxcs.zrg, geometry->zrg );
 	const TypeSet<PosInfo::Line2DPos>& pos = geometry->posns;
@@ -437,6 +478,25 @@ void uiOD2DLineSetSubItem::showLineName( bool yn )
     mDynamicCastGet(visSurvey::Seis2DDisplay*,s2d,
 		    visserv->getObject(displayid_))
     if ( s2d ) s2d->showLineName( yn );
+}
+
+
+void uiOD2DLineSetSubItem::setZRange( const Interval<float> newzrg )
+{
+    mDynamicCastGet(visSurvey::Seis2DDisplay*,s2d,
+		    visserv->getObject(displayid_))
+    if ( !s2d ) return;
+
+    PtrMan<PosInfo::Line2DData> geometry = new PosInfo::Line2DData;
+    if ( !applMgr()->seisServer()->get2DLineGeometry(
+		s2d->lineSetID(),s2d->name(),*geometry) )
+	return;
+    CubeSampling cs = s2d->getCubeSampling();
+    assign( cs.zrg, newzrg );
+
+    s2d->setGeometry( *geometry, &cs );
+    if ( s2d->getSelSpec(0) && s2d->getSelSpec(0)->id()>=0 )
+	visserv->calculateAttrib( displayid_, 0, false );
 }
 
 

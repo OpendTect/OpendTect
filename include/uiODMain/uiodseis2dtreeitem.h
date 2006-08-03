@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		May 2006
- RCS:		$Id: uiodseis2dtreeitem.h,v 1.1 2006-05-09 11:00:53 cvsbert Exp $
+ RCS:		$Id: uiodseis2dtreeitem.h,v 1.2 2006-08-03 13:20:27 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "uiodattribtreeitem.h"
 #include "uioddisplaytreeitem.h"
 #include "multiid.h"
+#include "ranges.h"
 
 
 mDefineItem( Seis2DParent, TreeItem, TreeTop, mShowMenu );
@@ -50,6 +51,7 @@ protected:
     bool                isExpandable() const            { return true; }
     const char*         parentType() const;
 
+    Interval<float>	curzrg_;
     MultiID             setid_;
     RefMan<uiMenuHandler> menuhandler_;
 
@@ -64,6 +66,7 @@ protected:
     MenuItem            storeditm_;
     MenuItem            selattritm_;
     MenuItem            coltabselitm_;
+    MenuItem            zrgitm_;
 };
 
 
@@ -75,6 +78,7 @@ public:
     bool		displayStoredData(const char*);
     void		setAttrib(const Attrib::SelSpec& );
     void		showLineName(bool);
+    void		setZRange(const Interval<float>);
 
 protected:
 			~uiOD2DLineSetSubItem();
