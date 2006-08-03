@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		January 2003
- RCS:		$Id: visseis2ddisplay.h,v 1.4 2006-06-01 07:30:15 cvskris Exp $
+ RCS:		$Id: visseis2ddisplay.h,v 1.5 2006-08-03 13:21:25 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -54,20 +54,15 @@ public:
 
     void			setLineName(const char*);
 
-    void			setSelSpec(int attrib, const Attrib::SelSpec&);
+    void			setSelSpec(int attrib,const Attrib::SelSpec&);
     const Attrib::SelSpec*	getSelSpec(int attrib) const;
 
     void			setCubeSampling(CubeSampling);
     CubeSampling		getCubeSampling() const;
 
-    void			setZLimits(Interval<float> zrg) 
-    						{zlimits = zrg; iszlset = true;}
-    Interval<float>		getZLimits() {return zlimits;}
-    bool			isZLimitSet() {return iszlset;}
-
     void			setGeometry(const PosInfo::Line2DData&,
 	    				    const CubeSampling* cs=0);
-    void			setTraceData( const Attrib::Data2DHolder& );
+    void			setTraceData(const Attrib::Data2DHolder&);
     const Attrib::Data2DHolder*	getCache() const		{return cache_;}
     void			clearTexture();
 
@@ -105,7 +100,7 @@ public:
 	    					BufferString&) const;
     void			snapToTracePos(Coord3&);
 
-    void			setLineSetID(const MultiID& mid)
+    void			setLineSetID( const MultiID& mid )
 				{ linesetid = mid; }
     const MultiID&		lineSetID() const	{ return linesetid; }
 
@@ -133,11 +128,9 @@ protected:
     Attrib::SelSpec&		as;
     CubeSampling&		cs;
     MultiID			linesetid;
-    Interval<float>		zlimits;
-    bool			iszlset;
 
     ObjectSet<visBase::TriangleStripSet>	planes;
-    visBase::Texture2*				texture;
+    visBase::Texture2*		texture;
 
     visBase::Transformation*	transformation;
     visBase::Text2*		linename;

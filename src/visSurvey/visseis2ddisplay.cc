@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2004
- RCS:           $Id: visseis2ddisplay.cc,v 1.5 2006-06-06 08:48:28 cvshelene Exp $
+ RCS:           $Id: visseis2ddisplay.cc,v 1.6 2006-08-03 13:21:25 cvsnanne Exp $
  ________________________________________________________________________
 
 -*/
@@ -53,7 +53,6 @@ Seis2DDisplay::Seis2DDisplay()
     , as(*new SelSpec)
     , cs(*new CubeSampling(false))
     , geomchanged(this)
-    , iszlset(false)
     , cache_( 0 )
 {
     texture->ref();
@@ -127,7 +126,7 @@ void Seis2DDisplay::setGeometry( const PosInfo::Line2DData& geometry,
     for ( int idx=0; idx<pos.size(); idx++ )
     {
 	if ( limits && (pos[idx].nr<limits->hrg.start.crl || 
-		        pos[idx].nr > limits->hrg.stop.crl) )
+		        pos[idx].nr>limits->hrg.stop.crl) )
 	    continue;
 	coords += pos[idx].coord;
     }
@@ -145,7 +144,6 @@ void Seis2DDisplay::setGeometry( const PosInfo::Line2DData& geometry,
     else if ( limits )
     {
 	cs = *limits;
-	setZLimits(zrg);
 	geomchanged.trigger();
     }
 }
@@ -180,24 +178,11 @@ void Seis2DDisplay::setData( const Attrib::Data2DHolder& dataset )
 	crds += trcinfo->coord;
     }
 
-    Interval<float> zrg(0,0);
-    int nrsamp;
     SamplingData<float> sd = dataset.trcinfoset_[0]->sampling;
-    
-    if ( isZLimitSet() )
-    {
-	zrg = getZLimits();
-	zrg.sort();
-	nrsamp = (int)( (zrg.stop-zrg.start) / sd.step );
-    }
-    else
-    {
-	nrsamp = dataset.dataset_[0]->nrsamples_;
-	zrg.start = sd.start;
-	zrg.stop = sd.start+sd.step*(nrsamp-1);
-    }
+    cs.zrg.step = sd.step;
+    const int nrsamp = cs.zrg.nrSteps();
     const int nrtrcs = dataset.size();
-    setPlaneCoordinates( crds, zrg );
+    setPlaneCoordinates( crds, cs.zrg );
 
     float val;
     PtrMan<Array2DImpl<float> > arr = new Array2DImpl<float>(nrsamp,nrtrcs);
@@ -211,7 +196,7 @@ void Seis2DDisplay::setData( const Attrib::Data2DHolder& dataset )
 	    continue;
 	}
 
-	int csample =  mNINT( zrg.start/sd.step );
+	int csample =  mNINT( cs.zrg.start/sd.step );
 	for ( int ids=0; ids<nrsamp; ids++ )
 	{
 	    val = dh && dh->dataPresent(csample) ? 
@@ -249,6 +234,8 @@ void Seis2DDisplay::setPlaneCoordinates( const TypeSet<Coord>& crds,
 
     for ( int idx=0; idx<stripinterval.size(); idx++ )
 	setStrip( crds, zrg, idx, stripinterval[idx] );
+
+    addLineName();
 
     for ( int idx=stripinterval.size(); idx<planes.size(); idx++ )
     {
@@ -310,20 +297,18 @@ void visSurvey::Seis2DDisplay::setStrip( const TypeSet<Coord>& crds,
     coords->setLocalTranslation( centercoord );
 
     TypeSet<double> x, y;
-    for ( int idx=crdinterval.start; idx<crdinterval.stop; idx++ )
+    for ( int idx=crdinterval.start; idx<=crdinterval.stop; idx++ )
 	{ x += crds[idx].x; y += crds[idx].y; }
     TypeSet<int> bpidxs;
     IdxAble::getBendPoints( x, y, x.size(), 0.5, bpidxs );
 
     int curknotidx=0;
     for ( int idx=0; idx<bpidxs.size(); idx++ )
-	mAddCoords( curknotidx, bpidxs[idx] );
+	mAddCoords( curknotidx, crdinterval.start+bpidxs[idx] );
 
     plane->setCoordIndex( curknotidx, -1 );
     plane->removeCoordIndexAfter( curknotidx );
     plane->removeTextureCoordIndexAfter( curknotidx );
-
-    addLineName();
 }
 
 
