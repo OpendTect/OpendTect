@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          December 2004
- RCS:           $Id: scalingattrib.cc,v 1.18 2006-04-11 15:17:58 cvshelene Exp $
+ RCS:           $Id: scalingattrib.cc,v 1.19 2006-08-03 08:04:34 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,10 +40,11 @@ static inline float interpolator( float fact1, float fact2,
 namespace Attrib
 {
 
+mAttrDefCreateInstance(Scaling)    
+    
 void Scaling::initClass()
 {
-    Desc* desc = new Desc( attribName(), updateDesc );
-    desc->ref();
+    mAttrStartInitClassWithUpdate
 
     EnumParam* scalingtype = new EnumParam( scalingTypeStr() );
     scalingtype->addEnum( scalingTypeNamesStr(mScalingTypeTPower) );
@@ -80,26 +81,10 @@ void Scaling::initClass()
     desc->addOutputDataType( Seis::UnknowData );
     desc->addInput( InputSpec("Input data",true) );
 
-    PF().addDesc( desc, createInstance );
-    desc->unRef();
+    mAttrEndInitClass
 }
 
     
-Provider* Scaling::createInstance( Desc& desc )
-{
-    Scaling* res = new Scaling( desc );
-    res->ref();
-    if ( !res->isOK() )
-    {
-	res->unRef();
-	return 0;
-    }
-
-    res->unRefNoDelete();
-    return res;
-}
-
-
 void Scaling::updateDesc( Desc& desc )
 {
     BufferString type = desc.getValParam( scalingTypeStr() )->getStringValue();

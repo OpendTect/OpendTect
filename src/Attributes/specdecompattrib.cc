@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          January 2004
- RCS:           $Id: specdecompattrib.cc,v 1.16 2006-04-25 16:53:11 cvsbert Exp $
+ RCS:           $Id: specdecompattrib.cc,v 1.17 2006-08-03 08:04:34 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,10 +30,11 @@ ________________________________________________________________________
 namespace Attrib
 {
 
+mAttrDefCreateInstance(SpecDecomp)
+    
 void SpecDecomp::initClass()
 {
-    Desc* desc = new Desc( attribName(), updateDesc );
-    desc->ref();
+    mAttrStartInitClassWithUpdate
 
     EnumParam* ttype = new EnumParam( transformTypeStr() );
     //Note: Ordering must be the same as numbering!
@@ -74,23 +75,7 @@ void SpecDecomp::initClass()
     desc->addInput( InputSpec("Imag data",true) );
     desc->addOutputDataType( Seis::UnknowData );
 
-    PF().addDesc( desc, createInstance );
-    desc->unRef();
-}
-
-
-Provider* SpecDecomp::createInstance( Desc& ds )
-{
-    SpecDecomp* res = new SpecDecomp( ds );
-    res->ref();
-    if ( !res->isOK() )
-    {
-	res->unRef();
-	return 0;
-    }
-
-    res->unRefNoDelete();
-    return res;
+    mAttrEndInitClass
 }
 
 

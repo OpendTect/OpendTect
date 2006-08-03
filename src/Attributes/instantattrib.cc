@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: instantattrib.cc,v 1.9 2006-07-06 12:12:50 cvshelene Exp $
+ RCS:           $Id: instantattrib.cc,v 1.10 2006-08-03 08:04:34 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,33 +23,17 @@ ________________________________________________________________________
 namespace Attrib
 {
 
+mAttrDefCreateInstance(Instantaneous)
+    
 void Instantaneous::initClass()
 {
-    Desc* desc = new Desc( attribName() );
-    desc->ref();
+    mAttrStartInitClass
 
     desc->addInput( InputSpec("Real Data",true) );
     desc->addInput( InputSpec("Imag Data",true) );
     desc->setNrOutputs( Seis::UnknowData, 13 );
 
-    desc->init();
-    PF().addDesc( desc, createInstance );
-    desc->unRef();
-}
-
-
-Provider* Instantaneous::createInstance( Desc& desc )
-{
-    Instantaneous* res = new Instantaneous( desc );
-    res->ref();
-    if ( !res->isOK() )
-    {
-	res->unRef();
-	return 0;
-    }
-
-    res->unRefNoDelete();
-    return res;
+    mAttrEndInitClass
 }
 
 

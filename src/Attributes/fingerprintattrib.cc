@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          February 2006
- RCS:           $Id: fingerprintattrib.cc,v 1.8 2006-07-21 09:19:14 cvsnanne Exp $
+ RCS:           $Id: fingerprintattrib.cc,v 1.9 2006-08-03 08:04:34 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,10 +40,11 @@ static void scaleVector( const TypeSet<float>& rawvalues,
 }
 
 
+mAttrDefCreateInstance(FingerPrint)
+
 void FingerPrint::initClass()
 {
-    Desc* desc = new Desc( attribName(), updateDesc );
-    desc->ref();
+    mAttrStartInitClassWithUpdate
 
     BinIDParam* refpos = new BinIDParam( refposStr() );
     desc->addParam( refpos );
@@ -92,24 +93,7 @@ void FingerPrint::initClass()
     desc->addInput( InputSpec("Input data",true) );
     desc->addOutputDataType( Seis::UnknowData );
 
-    PF().addDesc( desc, createInstance );
-    desc->unRef();
-}
-
-
-Provider* FingerPrint::createInstance( Desc& dsc )
-{
-    FingerPrint* res = new FingerPrint( dsc );
-    res->ref();
-
-    if ( !res->isOK() )
-    {
-	res->unRef();
-	return 0;
-    }
-
-    res->unRefNoDelete();
-    return res;
+    mAttrEndInitClass
 }
 
 

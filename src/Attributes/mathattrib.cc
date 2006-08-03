@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: mathattrib.cc,v 1.14 2006-07-10 20:11:22 cvskris Exp $
+ RCS:           $Id: mathattrib.cc,v 1.15 2006-08-03 08:04:34 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,34 +20,18 @@ ________________________________________________________________________
 namespace Attrib
 {
 
+mAttrDefCreateInstance(Math)
+    
 void Math::initClass()
 {
-    Desc* desc = new Desc( attribName(), updateDesc );
-    desc->ref();
+    mAttrStartInitClassWithUpdate
 
     desc->addParam( new StringParam(expressionStr()) );
 
     desc->addInput( InputSpec("Data",true) );
     desc->addOutputDataType( Seis::UnknowData );
-    desc->init();
 
-    PF().addDesc( desc, createInstance );
-    desc->unRef();
-}
-
-
-Provider* Math::createInstance( Desc& ds )
-{
-    Math* res = new Math( ds );
-    res->ref();
-    if ( !res->isOK() )
-    {
-	res->unRef();
-	return 0;
-    }
-
-    res->unRefNoDelete();
-    return res;
+    mAttrEndInitClass
 }
 
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          February 2003
- RCS:           $Id: freqfilterattrib.cc,v 1.17 2006-04-12 07:30:28 cvshelene Exp $
+ RCS:           $Id: freqfilterattrib.cc,v 1.18 2006-08-03 08:04:34 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -193,11 +193,12 @@ inline void static FFTBandPass( float df, float minfreq, float maxfreq,
 
 namespace Attrib
 {
-    
+
+mAttrDefCreateInstance(FreqFilter) 
+   
 void FreqFilter::initClass()
 {
-    Desc* desc = new Desc( attribName(), updateDesc );
-    desc->ref();
+    mAttrStartInitClassWithUpdate
 
     //Note: Ordering must be the same as numbering!
     EnumParam* filtertype = new EnumParam( filtertypeStr() );
@@ -236,23 +237,7 @@ void FreqFilter::initClass()
     desc->addInput( InputSpec("Real data",true) );
     desc->addInput( InputSpec("Imag data",true) );
 
-    PF().addDesc( desc, createInstance );
-    desc->unRef();
-}
-
-
-Provider* FreqFilter::createInstance( Desc& ds )
-{
-    FreqFilter* res = new FreqFilter( ds );
-    res->ref();
-    if ( !res->isOK() )
-    {
-	res->unRef();
-	return 0;
-    }
-
-    res->unRefNoDelete();
-    return res;
+    mAttrEndInitClass
 }
 
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: hilbertattrib.cc,v 1.14 2005-12-22 14:55:56 cvsnanne Exp $
+ RCS:           $Id: hilbertattrib.cc,v 1.15 2006-08-03 08:04:34 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,10 +20,11 @@ ________________________________________________________________________
 namespace Attrib
 {
 
+mAttrDefCreateInstance(Hilbert)
+    
 void Hilbert::initClass()
 {
-    Desc* desc = new Desc( attribName() );
-    desc->ref();
+    mAttrStartInitClass
 
     IntParam* halflen = new IntParam( halflenStr() );
     halflen->setDefaultValue( 30 );
@@ -33,26 +34,8 @@ void Hilbert::initClass()
 
     desc->addInput( InputSpec("Input data",true) );
     desc->addOutputDataType( Seis::UnknowData );
-    desc->init();
 
-    PF().addDesc( desc, createInstance );
-    desc->unRef();
-}
-
-
-Provider* Hilbert::createInstance( Desc& desc )
-{
-    Hilbert* res = new Hilbert( desc );
-    res->ref();
-
-    if ( !res->isOK() )
-    {
-	res->unRef();
-	return 0;
-    }
-
-    res->unRefNoDelete();
-    return res;
+    mAttrEndInitClass
 }
 
 

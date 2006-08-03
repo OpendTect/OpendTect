@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: convolveattrib.cc,v 1.13 2006-03-29 15:39:40 cvsnanne Exp $";
+static const char* rcsID = "$Id: convolveattrib.cc,v 1.14 2006-08-03 08:04:34 cvshelene Exp $";
 
 #include "convolveattrib.h"
 #include "attribdataholder.h"
@@ -23,10 +23,11 @@ static const char* rcsID = "$Id: convolveattrib.cc,v 1.13 2006-03-29 15:39:40 cv
 namespace Attrib
 {
 
+mAttrDefCreateInstance(Convolve)
+    
 void Convolve::initClass()
 {
-    Desc* desc = new Desc( attribName(), updateDesc );
-    desc->ref();
+    mAttrStartInitClassWithUpdate
 
     EnumParam* kernel = new EnumParam(kernelStr());
     //Note: Ordering must be the same as numbering!
@@ -51,8 +52,7 @@ void Convolve::initClass()
     desc->addOutputDataType( Seis::UnknowData );
     desc->addInput( InputSpec("Signal to be convolved",true) );
 
-    PF().addDesc( desc, createInstance );
-    desc->unRef();
+    mAttrEndInitClass
 }
 
 
@@ -98,22 +98,6 @@ const float Convolve::prewitt[] =
 	-1, 0, 1, 	/* Inline +1, Crossline =  0, Time = -dt -- +dt */
 	-1, 0, 1 	/* Inline +1, Crossline = +1, Time = -dt -- +dt */ 
 };
-
-
-Provider* Convolve::createInstance( Desc& ds )
-{
-    Convolve* res = new Convolve( ds );
-    res->ref();
-
-    if ( !res->isOK() )
-    {
-	res->unRef();
-	return 0;
-    }
-
-    res->unRefNoDelete();
-    return res;
-}
 
 
 void Convolve::updateDesc( Desc& desc )

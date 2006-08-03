@@ -4,7 +4,7 @@
  * DATE     : Oct 2005
 -*/
 
-static const char* rcsID = "$Id: evaluateattrib.cc,v 1.6 2006-07-10 20:11:22 cvskris Exp $";
+static const char* rcsID = "$Id: evaluateattrib.cc,v 1.7 2006-08-03 08:04:34 cvshelene Exp $";
 
 
 #include "evaluateattrib.h"
@@ -15,32 +15,12 @@ static const char* rcsID = "$Id: evaluateattrib.cc,v 1.6 2006-07-10 20:11:22 cvs
 
 namespace Attrib
 {
-
+mAttrDefCreateInstance(Evaluate)
+    
 void Evaluate::initClass()
 {
-    Desc* desc = new Desc( attribName() );
-    desc->ref();
-
-    desc->init();
-
-    PF().addDesc( desc, createInstance );
-    desc->unRef();
-}
-
-
-Provider* Evaluate::createInstance( Desc& desc )
-{
-    Evaluate* res = new Evaluate( desc );
-    res->ref();
-
-    if ( !res->isOK() )
-    {
-        res->unRef();
-        return 0;
-    }
-
-    res->unRefNoDelete();
-    return res;
+    mAttrStartInitClass
+    mAttrEndInitClass
 }
 
 

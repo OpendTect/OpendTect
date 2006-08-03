@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: shiftattrib.cc,v 1.19 2006-05-12 07:55:37 cvshelene Exp $";
+static const char* rcsID = "$Id: shiftattrib.cc,v 1.20 2006-08-03 08:04:34 cvshelene Exp $";
 
 #include "shiftattrib.h"
 #include "attribdataholder.h"
@@ -18,11 +18,12 @@ static const char* rcsID = "$Id: shiftattrib.cc,v 1.19 2006-05-12 07:55:37 cvshe
 namespace Attrib
 {
 
+mAttrDefCreateInstance(Shift)
+    
 void Shift::initClass()
 {
-    Desc* desc = new Desc( attribName(), updateDesc );
-    desc->ref();
-
+    mAttrStartInitClassWithUpdate
+    
     BinIDParam* pos = new BinIDParam( posStr() );
     pos->setDefaultValue( BinID(0,0) );
     desc->addParam( pos );
@@ -41,27 +42,10 @@ void Shift::initClass()
     steeringspec.issteering = true;
     desc->addInput( steeringspec );
 
-    PF().addDesc( desc, createInstance );
-    desc->unRef();
+    mAttrEndInitClass
 }
 
 
-Provider* Shift::createInstance( Desc& desc )
-{
-    Shift* res = new Shift( desc );
-    res->ref();
-
-    if ( !res->isOK() )
-    {
-	res->unRef();
-	return 0;
-    }
-
-    res->unRefNoDelete();
-    return res;
-}
-
-    
 void Shift::updateDesc( Desc& desc )
 {
     desc.inputSpec(1).enabled = desc.getValParam(steeringStr())->getBoolValue();

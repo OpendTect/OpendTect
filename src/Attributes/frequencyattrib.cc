@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: frequencyattrib.cc,v 1.10 2006-04-03 13:35:31 cvshelene Exp $";
+static const char* rcsID = "$Id: frequencyattrib.cc,v 1.11 2006-08-03 08:04:34 cvshelene Exp $";
 
 #include "frequencyattrib.h"
 #include "arrayndimpl.h"
@@ -28,10 +28,11 @@ static const char* rcsID = "$Id: frequencyattrib.cc,v 1.10 2006-04-03 13:35:31 c
 namespace Attrib
 {
 
+mAttrDefCreateInstance(Frequency)
+    
 void Frequency::initClass()
 {
-    Desc* desc = new Desc( attribName() );
-    desc->ref();
+    mAttrStartInitClass
 
     ZGateParam* gate = new ZGateParam( gateStr() );
     gate->setLimits( Interval<float>(-mLargestZGate,mLargestZGate) );
@@ -57,23 +58,7 @@ void Frequency::initClass()
     desc->addInput( InputSpec("Imag data",true) );
     desc->setNrOutputs( Seis::UnknowData, 8 );
 
-    PF().addDesc( desc, createInstance );
-    desc->unRef();
-}
-
-
-Provider* Frequency::createInstance( Desc& ds )
-{
-    Frequency* res = new Frequency( ds );
-    res->ref();
-    if ( !res->isOK() )
-    {
-	res->unRef();
-	return 0;
-    }
-
-    res->unRefNoDelete();
-    return res;
+    mAttrEndInitClass
 }
 
 

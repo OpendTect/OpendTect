@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          November 2002
- RCS:           $Id: positionattrib.cc,v 1.18 2006-05-12 08:02:29 cvshelene Exp $
+ RCS:           $Id: positionattrib.cc,v 1.19 2006-08-03 08:04:34 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,10 +29,11 @@ ________________________________________________________________________
 namespace Attrib
 {
 
+mAttrDefCreateInstance(Position)
+    
 void Position::initClass()
 {
-    Desc* desc = new Desc( attribName(), updateDesc );
-    desc->ref();
+    mAttrStartInitClassWithUpdate
 
     BinIDParam* stepout = new BinIDParam( stepoutStr() );
     stepout->setDefaultValue( BinID(0,0) );
@@ -62,24 +63,7 @@ void Position::initClass()
     steerspec.issteering = true;
     desc->addInput( steerspec );
 
-    PF().addDesc( desc, createInstance );
-    desc->unRef();
-}
-
-
-Provider* Position::createInstance( Desc& ds )
-{
-    Position* res = new Position( ds );
-    res->ref();
-
-    if ( !res->isOK() )
-    {
-	res->unRef();
-	return 0;
-    }
-
-    res->unRefNoDelete();
-    return res;
+    mAttrEndInitClass
 }
 
 

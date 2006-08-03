@@ -4,7 +4,7 @@
  * DATE     : July 2005
 -*/
 
-static const char* rcsID = "$Id: referenceattrib.cc,v 1.15 2006-01-04 09:54:28 cvsnanne Exp $";
+static const char* rcsID = "$Id: referenceattrib.cc,v 1.16 2006-08-03 08:04:34 cvshelene Exp $";
 
 
 #include "referenceattrib.h"
@@ -22,31 +22,15 @@ static const char* rcsID = "$Id: referenceattrib.cc,v 1.15 2006-01-04 09:54:28 c
 namespace Attrib
 {
 
+mAttrDefCreateInstance(Reference)
+    
 void Reference::initClass()
 {
-    Desc* desc = new Desc( attribName(), updateDesc );
-    desc->ref();
+    mAttrStartInitClassWithUpdate
 
     desc->addInput( InputSpec("Input Data",true) );
-    desc->init();
 
-    PF().addDesc( desc, createInstance );
-    desc->unRef();
-}
-
-
-Provider* Reference::createInstance( Desc& ds )
-{
-    Reference* res = new Reference( ds );
-    res->ref();
-    if ( !res->isOK() )
-    {
-        res->unRef();
-        return 0;
-    }
-
-    res->unRefNoDelete();
-    return res;
+    mAttrEndInitClass
 }
 
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Helene Payraudeau
  Date:		February 2005
- RCS:		$Id: eventattrib.cc,v 1.18 2006-05-24 12:36:04 cvshelene Exp $
+ RCS:		$Id: eventattrib.cc,v 1.19 2006-08-03 08:04:34 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,10 +23,11 @@ ________________________________________________________________________
 namespace Attrib
 {
 
+mAttrDefCreateInstance(Event)
+    
 void Event::initClass()
 {
-    Desc* desc = new Desc( attribName(), updateDesc );
-    desc->ref();
+    mAttrStartInitClassWithUpdate
 
     desc->addParam( new IntParam(eventTypeStr()) );
     						//0 = Extr, 1 = Max, 2 = Min,
@@ -45,26 +46,7 @@ void Event::initClass()
     InputSpec inputspec( "Input Data", true );
     desc->addInput( inputspec );
 
-    desc->init();
-
-    PF().addDesc( desc, createInstance );
-    desc->unRef();
-}
-
-
-Provider* Event::createInstance( Desc& desc )
-{
-    Event* res = new Event( desc );
-    res->ref();
-
-    if ( !res->isOK() )
-    {
-	res->unRef();
-	return 0;
-    }
-
-    res->unRefNoDelete();
-    return res;
+    mAttrEndInitClass
 }
 
 

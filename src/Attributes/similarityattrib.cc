@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          June 2005
- RCS:           $Id: similarityattrib.cc,v 1.27 2006-05-12 07:55:37 cvshelene Exp $
+ RCS:           $Id: similarityattrib.cc,v 1.28 2006-08-03 08:04:34 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,10 +27,11 @@ ________________________________________________________________________
 namespace Attrib
 {
 
+mAttrDefCreateInstance(Similarity)    
+    
 void Similarity::initClass()
 {
-    Desc* desc = new Desc( attribName(), updateDesc );
-    desc->ref();
+    mAttrStartInitClassWithUpdate
 
     ZGateParam* gate = new ZGateParam( gateStr() );
     gate->setLimits( Interval<float>(-1000,1000) );
@@ -73,24 +74,7 @@ void Similarity::initClass()
     steeringspec.issteering = true;
     desc->addInput( steeringspec );
 
-    PF().addDesc( desc, createInstance );
-    desc->unRef();
-}
-
-
-Provider* Similarity::createInstance( Desc& desc )
-{
-    Similarity* res = new Similarity( desc );
-    res->ref();
-
-    if ( !res->isOK() )
-    {
-	res->unRef();
-	return 0;
-    }
-
-    res->unRefNoDelete();
-    return res;
+    mAttrEndInitClass
 }
 
 

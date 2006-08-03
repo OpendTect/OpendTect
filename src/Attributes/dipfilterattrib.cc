@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: dipfilterattrib.cc,v 1.14 2006-04-12 11:33:41 cvsnanne Exp $";
+static const char* rcsID = "$Id: dipfilterattrib.cc,v 1.15 2006-08-03 08:04:34 cvshelene Exp $";
 
 
 #include "dipfilterattrib.h"
@@ -23,10 +23,11 @@ static const char* rcsID = "$Id: dipfilterattrib.cc,v 1.14 2006-04-12 11:33:41 c
 namespace Attrib
 {
 
+mAttrDefCreateInstance(DipFilter)
+    
 void DipFilter::initClass()
 {
-    Desc* desc = new Desc( attribName(), updateDesc );
-    desc->ref();
+    mAttrStartInitClassWithUpdate
 
     IntParam* size = new IntParam( sizeStr() );
     size->setLimits( Interval<int>(3,49) );
@@ -73,26 +74,7 @@ void DipFilter::initClass()
     desc->addOutputDataType( Seis::UnknowData );
 
     desc->addInput( InputSpec("Input data",true) );
-    desc->init();
-
-    PF().addDesc( desc, createInstance );
-    desc->unRef();
-}
-
-
-Provider* DipFilter::createInstance( Desc& desc )
-{
-    DipFilter* res = new DipFilter( desc );
-    res->ref();
-
-    if ( !res->isOK() )
-    {
-	res->unRef();
-	return 0;
-    }
-
-    res->unRefNoDelete();
-    return res;
+    mAttrEndInitClass
 }
 
 

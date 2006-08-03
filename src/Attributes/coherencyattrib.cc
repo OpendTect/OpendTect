@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: coherencyattrib.cc,v 1.13 2006-08-01 20:21:07 cvskris Exp $";
+static const char* rcsID = "$Id: coherencyattrib.cc,v 1.14 2006-08-03 08:06:12 cvshelene Exp $";
 
 
 #include "coherencyattrib.h"
@@ -19,6 +19,8 @@ static const char* rcsID = "$Id: coherencyattrib.cc,v 1.13 2006-08-01 20:21:07 c
 namespace Attrib
 {
 
+mAttrDefCreateInstance(Coherency)
+    
 void Coherency::initClass()
 {
     Desc* desc = new Desc( sKeyAttribName(), updateDesc );
@@ -53,25 +55,7 @@ void Coherency::initClass()
     desc->addInput( InputSpec("Imag data for Coherency",true) );
     desc->setNrOutputs( Seis::UnknowData, 3 );
 
-    desc->init();
-
-    PF().addDesc( desc, createInstance );
-    desc->unRef();
-}
-
-
-Provider* Coherency::createInstance( Desc& desc )
-{
-    Coherency* res = new Coherency( desc );
-    res->ref();
-    if ( !res->isOK() )
-    {
-	res->unRef();
-	return 0;
-    }
-
-    res->unRefNoDelete();
-    return res;
+    mAttrEndInitClass
 }
 
 
@@ -106,7 +90,8 @@ Coherency::Coherency( Desc& desc_ )
     mGetBinID( stepout_, sKeyStepout() );
     stepout_.inl = abs( stepout_.inl ); stepout_.crl = abs( stepout_.crl );
 
-    const float extraz = (stepout_.inl*inldist()+stepout_.crl*crldist()) * maxdip_;
+    const float extraz = 
+		    (stepout_.inl*inldist()+stepout_.crl*crldist()) * maxdip_;
     desgate_ = Interval<float>( gate_.start-extraz, gate_.stop+extraz );
 }
 

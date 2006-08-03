@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: volstatsattrib.cc,v 1.24 2006-06-01 10:24:44 cvshelene Exp $";
+static const char* rcsID = "$Id: volstatsattrib.cc,v 1.25 2006-08-03 08:04:34 cvshelene Exp $";
 
 #include "volstatsattrib.h"
 
@@ -35,11 +35,12 @@ static int outputtypes[] =
     -1
 };
 
- 
+
+mAttrDefCreateInstance(VolStats)
+
 void VolStats::initClass()
 {
-    Desc* desc = new Desc( attribName(), updateDesc );
-    desc->ref();
+    mAttrStartInitClassWithUpdate
 
     BinIDParam* stepout = new BinIDParam( stepoutStr() );
     stepout->setDefaultValue( BinID(1,1) );
@@ -70,23 +71,7 @@ void VolStats::initClass()
     while ( outputtypes[res++] != -1 )
 	desc->addOutputDataType( Seis::UnknowData );
 
-    PF().addDesc( desc, createInstance );
-    desc->unRef();
-}
-
-
-Provider* VolStats::createInstance( Desc& ds )
-{
-    VolStats* res = new VolStats( ds );
-    res->ref();
-    if ( !res->isOK() )
-    {
-	res->unRef();
-	return 0;
-    }
-
-    res->unRefNoDelete();
-    return res;
+    mAttrEndInitClass
 }
 
 
