@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribprovider.h,v 1.44 2006-07-20 11:21:38 cvsnanne Exp $
+ RCS:           $Id: attribprovider.h,v 1.45 2006-08-03 08:05:56 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -310,6 +310,10 @@ Provider* clss::createInstance( Desc& desc ) \
 
 #define mAttrStartInitClass \
     Desc* desc = new Desc( attribName()); \
+    desc->ref();
+
+#define mAttrStartInitClassWithUpdate \
+    Desc* desc = new Desc( attribName(), updateDesc ); \
     desc->ref();
 
 #define mAttrEndInitClass \
