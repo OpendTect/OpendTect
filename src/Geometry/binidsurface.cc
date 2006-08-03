@@ -4,7 +4,7 @@
  * DATE     : Nov 2004
 -*/
 
-static const char* rcsID = "$Id: binidsurface.cc,v 1.10 2006-07-18 18:10:36 cvskris Exp $";
+static const char* rcsID = "$Id: binidsurface.cc,v 1.11 2006-08-03 13:29:14 cvskris Exp $";
 
 #include "binidsurface.h"
 
@@ -34,6 +34,72 @@ BinIDSurface::BinIDSurface( const BinIDSurface& b )
 
 BinIDSurface::~BinIDSurface()
 { delete depths_; }
+
+#define mEstimateCorner( n1, ref, n2 ) \
+(n1+n2-ref)
+
+
+Coord3 BinIDSurface::computePosition( const Coord& param ) const
+{
+    const StepInterval<int> rowrange = rowRange();
+    const StepInterval<int> colrange = colRange();
+    int prevrowidx = rowrange.getIndex(param.x);
+    if ( prevrowidx<0 || prevrowidx>nrRows()-1 )
+	return Coord3::udf();
+    else if ( prevrowidx==nrRows()-1 )
+    {
+	if ( rowrange.atIndex(prevrowidx)>=param.x )
+	    prevrowidx--;
+	else
+	    return Coord3::udf();
+    }
+
+    int prevcolidx = colrange.getIndex(param.y);
+    if ( prevcolidx<0 || prevcolidx>nrCols()-1 )
+	return Coord3::udf();
+    else if ( prevcolidx==nrCols()-1 )
+    {
+	if ( colrange.atIndex(prevcolidx)>=param.y )
+	    prevcolidx--;
+	else
+	    return Coord3::udf();
+    }
+
+    float depth00 = depths_->get( prevrowidx, prevcolidx+1 );
+    float depth01 = depths_->get( prevrowidx, prevcolidx+1 );
+    float depth10 = depths_->get( prevrowidx+1, prevcolidx );
+    float depth11 = depths_->get( prevrowidx+1, prevcolidx+1 );
+
+    const bool udef00 = mIsUdf( depth00 );
+    const bool udef01 = mIsUdf( depth01 );
+    const bool udef10 = mIsUdf( depth10 );
+    const bool udef11 = mIsUdf( depth11 );
+
+    const char udefsum = udef00+udef01+udef10+udef11;
+    if ( udefsum>1 ) return Coord3::udf();
+
+    const float u = rowrange.getfIndex(param.x)-prevrowidx;
+    const float v = colrange.getfIndex(param.y)-prevcolidx;
+    const float one_minus_u = 1-u;
+
+    if ( udefsum==3 )
+    {
+	if ( udef00 )
+	    depth00 = mEstimateCorner( depth10, depth11, depth01 );
+	else if ( udef01 )
+	    depth01 = mEstimateCorner( depth00, depth10, depth11 );
+	else if ( udef10 )
+	    depth10 = mEstimateCorner( depth00, depth01, depth11 );
+	else //!def11
+	    depth11 = mEstimateCorner( depth10, depth00, depth01 );
+	
+    }
+
+    const float depth = (one_minus_u*depth00 + u*depth10) * (1-v) +
+		        (one_minus_u*depth01 + u*depth11) * v;
+
+    return Coord3(SI().binID2Coord().transform(param), depth );
+}
 
 
 BinIDSurface* BinIDSurface::clone() const
