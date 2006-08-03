@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: uiodstdmenu.h,v 1.17 2006-07-03 16:42:13 cvsbert Exp $
+ RCS:		$Id: uiodstdmenu.h,v 1.18 2006-08-03 19:00:46 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -60,13 +60,17 @@ ________________________________________________________________________
 #define mManHorMnuItm		(mFileManMnu + 20)
 #define mManFaultMnuItm		(mFileManMnu + 30)
 #define mManWellMnuItm		(mFileManMnu + 40)
+#define mManPickMnuItm		(mFileManMnu + 50)
+#define mManAttrMnuItm		(mFileManMnu + 60)
+#define mManNLAMnuItm		(mFileManMnu + 70)
+#define mManSessMnuItm		(mFileManMnu + 80)
 
 
 /* 'Processing' menu */
 
 #define mUseHorMnu       	(mProcMnu + 30)
 
-#define mManAttribsMnuItm	(mProcMnu + 10)
+#define mEditAttrMnuItm		(mProcMnu + 10)
 #define mCreateVolMnuItm	(mProcMnu + 20)
 #define mCreateSurfMnuItm	(mUseHorMnu + 1)
 #define mCompBetweenHorMnuItm	(mUseHorMnu + 2)

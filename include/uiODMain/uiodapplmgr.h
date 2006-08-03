@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiodapplmgr.h,v 1.36 2006-07-21 09:56:35 cvsnanne Exp $
+ RCS:           $Id: uiodapplmgr.h,v 1.37 2006-08-03 19:00:46 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -69,8 +69,7 @@ public:
 
     // File menu operations
     int				manageSurvey();
-    bool			manageNLA();
-    enum ObjType		{ Seis, Hor, Flt, Wll, Attr };
+    enum ObjType		{ Seis, Hor, Flt, Wll, Attr, NLA, Pick, Sess };
     enum ActType		{ Imp, Exp, Man };
     void			doOperation(ObjType,ActType,int opt=0);
     				//!< Not all combinations are available ...!
@@ -78,7 +77,8 @@ public:
     void			importLMKFault();
 
     // Processing menu operations
-    void			manageAttributes();
+    void			editAttribSet();
+    bool			editNLA();
     void			createVol();
     void			createSurfOutput();
     void			createHorCubeOutput();
@@ -120,7 +120,7 @@ public:
     void			modifyColorTable(int visid, int attrib );
     NotifierAccess*		colorTableSeqChange();
     void			manSurvCB(CallBacker*)	{ manageSurvey(); }
-    void			manAttrCB(CallBacker*)	{ manageAttributes(); }
+    void			manAttrCB(CallBacker*)	{ editAttribSet(); }
     void			outVolCB(CallBacker*)	{ createVol(); }
 
     void			enableMenusAndToolBars(bool);

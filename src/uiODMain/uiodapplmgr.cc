@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.143 2006-07-21 09:56:34 cvsnanne Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.144 2006-08-03 19:00:46 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -155,7 +155,7 @@ int uiODApplMgr::manageSurvey()
 }
 
 
-bool uiODApplMgr::manageNLA()
+bool uiODApplMgr::editNLA()
 {
     if ( !nlaserv ) return false;
 
@@ -207,7 +207,10 @@ void uiODApplMgr::doOperation( ObjType ot, ActType at, int opt )
 	}
     break;
     case Attr:
-	if ( at == Man ) manageAttributes();
+	if ( at == Man ) attrserv->manageAttribSets();
+    break;
+    case Pick:
+	if ( at == Man ) pickserv->managePickSets();
     break;
     }
 }
@@ -244,7 +247,7 @@ void uiODApplMgr::enableSceneManipulation( bool yn )
 }
 
 
-void uiODApplMgr::manageAttributes()
+void uiODApplMgr::editAttribSet()
 {
     enableMenusAndToolBars( false );
     enableSceneManipulation( false );

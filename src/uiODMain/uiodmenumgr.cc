@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.cc,v 1.49 2006-07-21 09:56:34 cvsnanne Exp $
+ RCS:           $Id: uiodmenumgr.cc,v 1.50 2006-08-03 19:00:46 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -211,6 +211,8 @@ void uiODMenuMgr::fillFileMenu()
     mInsertItem( manmnu, "&Faults ...", mManFaultMnuItm );
 #endif
 
+    mInsertItem( manmnu, "&AttributeSets ...", mManAttrMnuItm );
+    mInsertItem( manmnu, "&PickSets ...", mManPickMnuItm );
     mInsertItem( manmnu, "&Wells ...", mManWellMnuItm );
     filemnu->insertItem( manmnu );
 
@@ -227,7 +229,7 @@ void uiODMenuMgr::fillFileMenu()
 
 void uiODMenuMgr::fillProcMenu()
 {
-    mInsertItem( procmnu, "&Attributes ...", mManAttribsMnuItm );
+    mInsertItem( procmnu, "&Attributes ...", mEditAttrMnuItm );
     procmnu->insertSeparator();
     mInsertItem( procmnu, "&Create Seismic output ...", mCreateVolMnuItm );
     
@@ -417,16 +419,22 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mImpWellAsciiTrackMnuItm:  mDoOp(Imp,Wll,0); break;
     case mImpWellAsciiLogsMnuItm:  mDoOp(Imp,Wll,1); break;
     case mImpWellAsciiMarkersMnuItm:  mDoOp(Imp,Wll,2); break;
+    case mImpPickMnuItm: 	applMgr().impexpPickSet(true); break;
+    case mExpPickMnuItm: 	applMgr().impexpPickSet(false); break;
+    case mImpLmkFaultMnuItm: 	applMgr().importLMKFault(); break;
+
     case mManSeisMnuItm: 	mDoOp(Man,Seis,0); break;
     case mManHorMnuItm: 	mDoOp(Man,Hor,0); break;
     case mManFaultMnuItm: 	mDoOp(Man,Flt,0); break;
     case mManWellMnuItm: 	mDoOp(Man,Wll,0); break;
-    case mImpPickMnuItm: 	applMgr().impexpPickSet(true); break;
-    case mExpPickMnuItm: 	applMgr().impexpPickSet(false); break;
-    case mImpLmkFaultMnuItm: 	applMgr().importLMKFault(); break;
+    case mManPickMnuItm: 	mDoOp(Man,Pick,0); break;
+    case mManAttrMnuItm:	mDoOp(Man,Attr,0); break;
+    case mManNLAMnuItm:		mDoOp(Man,NLA,0); break;
+    case mManSessMnuItm:	mDoOp(Man,Sess,0); break;
+
     case mExitMnuItm: 		appl.exit(); break;
 
-    case mManAttribsMnuItm: 	applMgr().manageAttributes(); break;
+    case mEditAttrMnuItm: 	applMgr().editAttribSet(); break;
     case mCreateVolMnuItm: 	applMgr().createVol(); break;
     case mCreateSurfMnuItm: 	applMgr().createSurfOutput(); break;
     case mCompBetweenHorMnuItm:	applMgr().create2HorCubeOutput(); break;
