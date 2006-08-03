@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: visshape.cc,v 1.20 2006-04-13 15:29:08 cvskris Exp $";
+static const char* rcsID = "$Id: visshape.cc,v 1.21 2006-08-03 21:44:45 cvskris Exp $";
 
 #include "visshape.h"
 
@@ -242,6 +242,13 @@ void Shape::insertNode( SoNode*  node )
 }
 
 
+void Shape::replaceShape( SoNode* node )
+{
+    removeNode( shape_ );
+    root_->addChild( node );
+}
+
+
 void Shape::removeNode( SoNode* node )
 {
     while ( root_->findChild( node ) != -1 )
@@ -385,6 +392,16 @@ IndexedShape::IndexedShape( SoIndexedShape* shape )
     : VertexShape( shape )
     , indexedshape_( shape )
 {}
+
+
+void IndexedShape::replaceShape( SoNode* node )
+{
+    mDynamicCastGet( SoIndexedShape*, is, node );
+    if ( !is ) return;
+
+    indexedshape_ = is;
+    Shape::replaceShape( node );
+}
 
 
 #define setGetIndex( resourcename, fieldname )  \

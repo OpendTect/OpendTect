@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visshape.h,v 1.16 2006-05-30 07:00:58 cvskris Exp $
+ RCS:		$Id: visshape.h,v 1.17 2006-08-03 21:44:45 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -42,8 +42,6 @@ class TextureCoords;
 class Shape : public VisualObject
 {
 public:
-				Shape( SoNode* );
-
     void			turnOn(bool);
     bool			isOn() const;
     void			removeSwitch();
@@ -74,15 +72,18 @@ public:
 				 */
     int				getMaterialBinding() const;
 
-    int				usePar( const IOPar& );
-    void			fillPar( IOPar&, TypeSet<int>& ) const;
+    int				usePar(const IOPar&);
+    void			fillPar(IOPar&,TypeSet<int>&) const;
 
     SoNode*			getInventorNode();
     void			insertNode( SoNode* );
     				/*!< Inserts the node _before_ the shape */
-    void			removeNode( SoNode* );
+    void			removeNode(SoNode*);
+    virtual void		replaceShape(SoNode*);
+    SoNode*			getShape() { return shape_; }
 
 protected:
+				Shape( SoNode* );
     virtual			~Shape();
 
     SoNode*			shape_;
@@ -105,7 +106,6 @@ private:
 class VertexShape : public Shape
 {
 public:
-    			VertexShape( SoVertexShape* );
     void		setCoordinates( Coordinates* );
     Coordinates*	getCoordinates();
     const Coordinates*	getCoordinates() const;
@@ -128,7 +128,7 @@ public:
     bool		getNormalPerFaceBinding() const;
     			/*!< If yn==false, normals are set per vertex */
 
-    void		setVertexOrdering(int);
+    void		setVertexOrdering(int vo);
     			/*!\param vo=0 clockwise
 			   \param vo=1 counterclockwise
 			   \param vo=2 unknown
@@ -145,6 +145,7 @@ public:
     			/*!< 0: unknown; 1: solid */
 
 protected:
+    			VertexShape( SoVertexShape* );
     			~VertexShape();
 
     Normals*		normals_;
@@ -160,8 +161,6 @@ private:
 class IndexedShape : public VertexShape
 {
 public:
-    			IndexedShape( SoIndexedShape* );
-
     int			nrCoordIndex() const;
     void		setCoordIndex(int pos, int idx );
     void		removeCoordIndexAfter(int);
@@ -184,6 +183,11 @@ public:
 
 
     int			getClosestCoordIndex(const EventInfo&) const;
+    void		replaceShape(SoNode*);
+
+protected:
+    			IndexedShape( SoIndexedShape* );
+
 
 private:
 
