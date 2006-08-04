@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoDepthTabPlaneDragger.cc,v 1.11 2006-07-12 21:13:24 cvskris Exp $";
+static const char* rcsID = "$Id: SoDepthTabPlaneDragger.cc,v 1.12 2006-08-04 21:13:13 cvskris Exp $";
 
 
 #include "SoDepthTabPlaneDragger.h"
@@ -427,12 +427,18 @@ void SoDepthTabPlaneDragger::drag(void)
 	const SbVec3f minpos = minPos.getValue();
 	const SbVec3f maxpos = maxPos.getValue();
 
-	if (    newscale[0]>=minsize[0] && newscale[0]<=maxsize[0] &&
-		newscale[1]>=minsize[1] && newscale[1]<=maxsize[1] &&
-		newstart[0]>=minpos[0] && newstart[0]<=maxpos[0] &&
-		newstart[1]>=minpos[1] && newstart[1]<=maxpos[1] &&
-		newstop[0]>=minpos[0] && newstop[0]<=maxpos[0] &&
-		newstop[1]>=minpos[1] && newstop[1]<=maxpos[1] )
+	if (    newscale[0]>=minsize[0]*0.999 &&
+		newscale[0]<=maxsize[0]*1.001 &&
+		newscale[1]>=minsize[1]*0.999 &&
+		newscale[1]<=maxsize[1]*1.001 &&
+		newstart[0]>=minpos[0]*0.999 &&
+		newstart[0]<=maxpos[0]*1.001 &&
+		newstart[1]>=minpos[1]*0.999 &&
+		newstart[1]<=maxpos[1]*1.001 &&
+		newstop[0]>=minpos[0]*0.999 &&
+		newstop[0]<=maxpos[0]*1.001 &&
+		newstop[1]>=minpos[1]*0.999 &&
+		newstop[1]<=maxpos[1]*1.001 )
 	{
 	    setMotionMatrix(motmat);
 	}
