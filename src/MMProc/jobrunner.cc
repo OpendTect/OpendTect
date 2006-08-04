@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Oct 2004
- RCS:           $Id: jobrunner.cc,v 1.33 2006-03-12 13:39:10 cvsbert Exp $
+ RCS:           $Id: jobrunner.cc,v 1.34 2006-08-04 06:33:13 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -637,7 +637,7 @@ void JobRunner::handleStatusInfo( StatusInfo& si )
     case mPID_TAG :
 	ji->osprocid_ = si.status;
 	ji->state_ = JobInfo::Working;
-	ji->statusmsg_ = " inititalising";
+	ji->statusmsg_ = " initialising";
     break;
     case mPROC_STATUS :
 	ji->nrdone_ = si.status;
