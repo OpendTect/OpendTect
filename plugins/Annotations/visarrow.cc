@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Jan 2005
- RCS:           $Id: visarrow.cc,v 1.3 2006-07-27 21:32:12 cvskris Exp $
+ RCS:           $Id: visarrow.cc,v 1.4 2006-08-04 21:46:17 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -127,11 +127,10 @@ void visSurvey::ArrowAnnotationDisplay::setPosition( int idx,
     const Coord3 planenormal( sin(loc.dir.phi), cos(loc.dir.phi), 0 );
     const Quaternion plus30rot(planenormal, M_PI_2/6);
     const Quaternion minus30rot(planenormal, M_PI_2/6 );
-    Coord3 arrowheadvec;
-    minus30rot.rotate( displayvector*.3, arrowheadvec );
+    Coord3 arrowheadvec = minus30rot.rotate( displayvector*.3 );
     line->getCoordinates()->setPos( 2, display2World(arrowheadvec+d1) );
     
-    plus30rot.rotate( displayvector*.3, arrowheadvec );
+    arrowheadvec = plus30rot.rotate( displayvector*.3 );
     line->getCoordinates()->setPos( 3, display2World(arrowheadvec+d1) );
 }
 

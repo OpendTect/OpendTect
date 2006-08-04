@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Jan 2005
- RCS:           $Id: viscallout.cc,v 1.2 2006-07-28 21:58:28 cvskris Exp $
+ RCS:           $Id: viscallout.cc,v 1.3 2006-08-04 21:46:17 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,12 +13,14 @@ ________________________________________________________________________
 
 #include "pickset.h"
 #include "viscoord.h"
-#include "viscube.h"
+#include "vistristripset.h"
 #include "vismarker.h"
 #include "visfaceset.h"
 #include "vismaterial.h"
 #include "vispolyline.h"
 #include "visrotationdragger.h"
+#include "visdragger.h"
+#include "vispolygonoffset.h"
 #include "vistext.h"
 #include "vistransform.h"
 
@@ -52,8 +54,10 @@ protected:
     void			updateCoords();
     void			updateArrow();
     void			setText(const char*);
+    void			dragStart(CallBacker*);
     void			dragChanged(CallBacker*);
     void			dragStop(CallBacker*);
+    void			setupRotFeedback();
 
     visBase::Transformation*	displaytrans_;
 
@@ -63,13 +67,20 @@ protected:
     visBase::Rotation*		rotation_; 
     visBase::Transformation*	scale_;	 
 
-    visBase::TextBox*		text_;		//In object space
+    visBase::PolygonOffset*	textoffset_;	//In object space
+    visBase::TextBox*		text_;
     visBase::FaceSet*		faceset_;	
-    visBase::IndexedPolyLine*	border_;	
+    visBase::Dragger*		translationdragger_;	
 
     visBase::RotationDragger*	rotdragger_;	
-    visBase::Cube*		rotfeedback_;	
-    visBase::Cube*		rotfeedbackactive_;
+    visBase::TriangleStripSet*	rotfeedback_;	
+    visBase::TriangleStripSet*	rotfeedbackactive_;
+
+    float			rotfeedbackradius_;
+    Coord3			rotfeedbackpos_;
+    Coord3			dragstarttextpos_;
+    Coord3			dragstartdraggerpos_;
+
     bool			isdragging_;
 };
 
@@ -91,18 +102,21 @@ mCreateFactoryEntry( Callout );
 Callout::Callout()
     : visBase::VisualObjectImpl( false )
     , text_( visBase::TextBox::create() )
+    , textoffset_( visBase::PolygonOffset::create() )
     , faceset_( visBase::FaceSet::create() )
-    , border_( visBase::IndexedPolyLine::create() )
     , marker_( visBase::Marker::create() )
     , object2display_( visBase::Transformation::create() )
     , rotation_( visBase::Rotation::create() )
     , rotdragger_( visBase::RotationDragger::create() )
-    , rotfeedback_( visBase::Cube::create() )
-    , rotfeedbackactive_( visBase::Cube::create() )
+    , rotfeedback_( visBase::TriangleStripSet::create() )
+    , rotfeedbackactive_( visBase::TriangleStripSet::create() )
+    , translationdragger_( visBase::Dragger::create() )
     , scale_( 0 )
     , displaytrans_( 0 )
     , isdragging_( false )
     , moved( this )
+    , rotfeedbackpos_( 0, 0, 0 )
+    , rotfeedbackradius_( 1 )
 {
     mAddChild( marker_, false );
 
@@ -112,41 +126,66 @@ Callout::Callout()
     rotdragger_->ref();
     rotdragger_->doAxisRotate();
     addChild( rotdragger_->getInventorNode() );
+    rotfeedback_->setMaterial( visBase::Material::create() );
+    rotfeedback_->getMaterial()->setColor( Color(255,255,255) );
+    rotfeedback_->setVertexOrdering( 0 );
+    rotfeedback_->setShapeType( 1 );
     rotdragger_->changed.notify( mCB( this, Callout, dragChanged ));
     rotdragger_->finished.notify( mCB( this, Callout, dragStop ));
 
     rotfeedback_->ref();
     rotfeedback_->removeSwitch();
+    setupRotFeedback();
     rotdragger_->setOwnFeedback( rotfeedback_, false );
+
     rotfeedbackactive_->ref();
     rotfeedbackactive_->removeSwitch();
+    rotfeedbackactive_->replaceShape( rotfeedback_->getShape() );
     
     rotfeedbackactive_->setMaterial( visBase::Material::create() );
-    rotfeedbackactive_->getMaterial()->setColor( Color(255,0,0) );
+    rotfeedbackactive_->getMaterial()->setColor( Color(255,255,0) );
+    rotfeedback_->setVertexOrdering( 0 );
+    rotfeedback_->setShapeType( 1 );
+    rotfeedbackactive_->setCoordinates( rotfeedback_->getCoordinates() );
     rotdragger_->setOwnFeedback( rotfeedbackactive_, true );
     rotation_->ref();
     addChild( rotation_->getInventorNode() );
 
-    mAddChild( text_, true );
     mAddChild( faceset_, true );
-    mAddChild( border_, true );
-    border_->setCoordinates( faceset_->getCoordinates() );
     faceset_->getCoordinates()->setPos( mPickPosIdx, Coord3(0,0,0) );
+    faceset_->setVertexOrdering( 0 );
+    faceset_->setShapeType( 0 );
 
+    translationdragger_->ref();
+    translationdragger_->setDraggerType( visBase::Dragger::Translate2D );
+    translationdragger_->setRotation( Coord3(0,0,1), M_PI_2 );
+    translationdragger_->started.notify( mCB( this, Callout, dragStart ));
+    translationdragger_->motion.notify( mCB( this, Callout, dragChanged ));
+    translationdragger_->finished.notify( mCB( this, Callout, dragStop ));
+    addChild( translationdragger_->getInventorNode() );
+
+    textoffset_->ref();
+    textoffset_->setStyle( visBase::PolygonOffset::Filled );
+    //textoffset_->setFactor( -10 );
+    textoffset_->setUnits( -2 );
+
+    addChild( textoffset_->getInventorNode() );
+    mAddChild( text_, true );
 }
 
 
 Callout::~Callout()
 {
     text_->unRef();
+    textoffset_->unRef();
     faceset_->unRef();
-    border_->unRef();
     marker_->unRef();
     object2display_->unRef();
     rotation_->unRef();
     rotfeedback_->unRef();
     rotfeedbackactive_->unRef();
     rotdragger_->unRef();
+    translationdragger_->unRef();
     if ( scale_ ) scale_->unRef();
     if ( displaytrans_ ) displaytrans_->unRef();
 }
@@ -154,12 +193,21 @@ Callout::~Callout()
 
 Sphere Callout::getDirection() const
 {
-    Coord3 boxpos = rotation_->transform( text_->position() );
-    if ( scale_ ) boxpos = scale_->transform( boxpos );
-    boxpos = object2display_->transform( boxpos );
-    if ( displaytrans_ ) boxpos = displaytrans_->transformBack( boxpos );
+    Coord3 textpos = text_->position();
+    textpos = Coord3( textpos.x, textpos.z, textpos.y );
+    if ( scale_ ) textpos = scale_->transform( textpos );
 
-    return cartesian2Spherical( boxpos-marker_->centerPos(), true );
+    Sphere res;
+    res.theta = atan2( textpos.x, textpos.z );
+    res.radius = textpos.abs();
+
+    Quaternion phi( 0, 0, 0, 0 );
+    rotation_->get( phi );
+    static const Quaternion rot2( Coord3( 1, 0, 0 ), -M_PI_2 );
+    phi *= rot2;
+    Coord3 axis;
+    phi.getRotation( axis, res.phi );
+    return res;
 }
 
 
@@ -168,21 +216,16 @@ void Callout::setPick( const Pick::Location& loc )
     if ( isdragging_ ) return;
 
     marker_->setCenterPos( loc.pos );
-
-    const Coord3 vector = spherical2Cartesian( loc.dir, true );
-    Coord3 boxpos = loc.pos+vector;
     Coord3 pickpos = loc.pos;
     if ( displaytrans_ )
-    {
-	boxpos = displaytrans_->transform( boxpos );
 	pickpos = displaytrans_->transform( pickpos );
-    }
 
     object2display_->setTranslation( pickpos );
-    boxpos = object2display_->transformBack( boxpos );
-    if ( scale_ ) boxpos = scale_->transformBack( boxpos );
-    boxpos = rotation_->transformBack( boxpos );
-    text_->setPosition( boxpos );
+
+    Coord3 textpos( sin(loc.dir.theta)*loc.dir.radius, 0,
+	           cos(loc.dir.theta)*loc.dir.radius );
+    if ( scale_ ) textpos = scale_->transformBack( textpos );
+    text_->setPosition( Coord3( textpos.x, textpos.z, textpos.y) );
 
     const Quaternion rot1( Coord3( 0,0,1 ), loc.dir.phi );
     static const Quaternion rot2( Coord3( 1, 0, 0 ), M_PI_2 );
@@ -200,24 +243,44 @@ void Callout::setTextSize( float ns )
     text_->setSize(ns);
     updateCoords();
 
-    const Coord3 feedbacksz( ns/5, ns/5, ns/5 );
-    rotfeedback_->setWidth(feedbacksz);
-    rotfeedbackactive_->setWidth(feedbacksz);
+    rotfeedbackradius_ = ns/3;
+    setupRotFeedback();
+
+    const Coord3 feedbacksz( ns/6, ns/6, ns/6 );
+    translationdragger_->setSize( feedbacksz );
 }
 
 
-void Callout::dragChanged( CallBacker* )
+void Callout::dragStart( CallBacker* cb )
 {
-    isdragging_ = true;
-    const Quaternion rot1 = rotdragger_->get();
-
-    static const Quaternion rot2( Coord3( 1, 0, 0 ), M_PI_2 );
-
-    rotation_->set( rot1*rot2 );
+    dragstarttextpos_ = text_->position();
+    dragstartdraggerpos_ = translationdragger_->getPos();
 }
 
 
-void Callout::dragStop( CallBacker* )
+void Callout::dragChanged( CallBacker* cb )
+{
+    if ( cb==rotdragger_ )
+    {
+	isdragging_ = true;
+	const Quaternion rot1 = rotdragger_->get();
+
+	static const Quaternion rot2( Coord3( 1, 0, 0 ), M_PI_2 );
+
+	rotation_->set( rot1*rot2 );
+    }
+    else if ( cb==translationdragger_ )
+    {
+	isdragging_ = true;
+	Coord3 dragpos = translationdragger_->getPos();
+	dragpos.z = 0;
+	text_->setPosition( dragstarttextpos_+ dragpos -dragstartdraggerpos_ );
+	updateCoords();
+    }
+}
+
+
+void Callout::dragStop( CallBacker* cb )
 {
     if ( !isdragging_ )
 	return;
@@ -286,6 +349,12 @@ void Callout::updateCoords()
     Coord3 minpos, maxpos;
     if ( text_->getBoundingBox(minpos, maxpos) )
     {
+	const Coord3 center = (minpos+maxpos)/2;
+	Coord3 hwidth = (maxpos-minpos)/2;
+	hwidth.x *= 1.1;
+	minpos = center-hwidth;
+	maxpos = center+hwidth;
+
 	const Coord3 c00 = minpos;
 	const Coord3 c01( minpos.x, maxpos.y, 0 );
 	const Coord3 c11( maxpos );
@@ -303,9 +372,12 @@ void Callout::updateCoords()
 	faceset_->getCoordinates()->setPos( 10, (2*c10+c00)/3 );
 	faceset_->getCoordinates()->setPos( 11, (c10+2*c00)/3 );
 
-	const Coord3 feedbackpos( c11.x, c11.z, c11.y );
-	rotfeedback_->setCenterPos( feedbackpos );
-	rotfeedbackactive_->setCenterPos( feedbackpos );
+	const Coord3& dragcorner = fabs(c11.x)>fabs(c01.x) ? c11 : c01;
+
+	rotfeedbackpos_ =  Coord3( dragcorner.x, dragcorner.z, dragcorner.y );
+	setupRotFeedback();
+	if ( !isdragging_ )
+	    translationdragger_->setPos( dragcorner );
     }
 
     if ( faceset_->nrCoordIndex()<2 )
@@ -380,6 +452,131 @@ void Callout::updateArrow()
 }
 
 
+#define mArrowAngle (M_PI/8)
+
+
+void Callout::setupRotFeedback()
+{
+    const float angleperstep=M_PI/16;
+    const int nrsteps = 4;
+    const float width = rotfeedbackradius_*0.03;
+    const int coneres = 16;
+    const int cylinderres = 4;
+
+    TypeSet<Coord3> conebase;
+    const Coord3 center( rotfeedbackradius_, 0, 0 );
+    for ( int idx=0; idx<coneres; idx++ )
+    {
+	const float angle = (M_PI*2)/coneres*idx;
+	const float sina = sin( angle ) * width * 3;
+	const float cosa = cos( angle ) * width * 3;
+
+	conebase += Coord3( rotfeedbackradius_+cosa, 0, sina );
+    }
+
+    TypeSet<Coord3> circlepos;
+    for ( int idx=0; idx<cylinderres; idx++ )
+    {
+	const float angle = (M_PI*2)/cylinderres*idx;
+	const float sina = sin( angle ) * width;
+	const float cosa = cos( angle ) * width;
+
+	circlepos += Coord3( rotfeedbackradius_+cosa, 0, sina );
+    }
+
+    int ci = 0, cii=0;
+
+    float curangle = -(angleperstep*nrsteps)/2;
+    float arrowangle = curangle - mArrowAngle;
+
+    Quaternion rot( Coord3( 0, 0, 1 ), arrowangle );
+    rotfeedback_->getCoordinates()->setPos( ci++,
+	    rotfeedbackpos_+rot.rotate( center ) );
+
+    rot.setRotation( Coord3( 0, 0, 1 ), curangle );
+    rotfeedback_->getCoordinates()->setPos( ci++,
+	    rotfeedbackpos_+rot.rotate( center ) );
+
+    for ( int idx=0; idx<conebase.size(); idx++ )
+    {
+	rotfeedback_->getCoordinates()->setPos( ci++,
+		rotfeedbackpos_+rot.rotate( conebase[idx] ) );
+    }
+
+    int topidx = 0;
+    int centeridx = topidx+1;
+    int baseidx = centeridx+1;
+
+    for ( int idx=0; idx<conebase.size(); idx++ )
+    {
+	const int nextidx = (idx+1)%conebase.size();
+	rotfeedback_->setCoordIndex( cii++, topidx );
+	rotfeedback_->setCoordIndex( cii++, baseidx+idx );
+	rotfeedback_->setCoordIndex( cii++, baseidx+nextidx );
+	rotfeedback_->setCoordIndex( cii++, centeridx );
+	rotfeedback_->setCoordIndex( cii++, -1 );
+    }
+
+    int partstart = ci;
+    for ( int idx=0; idx<circlepos.size(); idx++ )
+    {
+	rotfeedback_->getCoordinates()->setPos( ci++,
+		rotfeedbackpos_+rot.rotate( circlepos[idx] ) );
+    }
+
+    curangle += angleperstep;
+    for ( int idx=0; idx<nrsteps; idx++, curangle+=angleperstep )
+    {
+	rot.setRotation( Coord3( 0, 0, 1 ), curangle );
+	for ( int idy=0; idy<circlepos.size(); idy++ )
+	{
+	    rotfeedback_->getCoordinates()->setPos( ci++,
+		    rotfeedbackpos_+rot.rotate( circlepos[idy] ) );
+	}
+
+	for ( int idy=0; idy<=circlepos.size(); idy++ )
+    	{
+	    const int index = idy%circlepos.size();
+	    rotfeedback_->setCoordIndex( cii++, partstart+index );
+	    rotfeedback_->setCoordIndex( cii++,
+		    partstart+index+circlepos.size() );
+	}
+
+	rotfeedback_->setCoordIndex( cii++, -1 );
+	partstart += circlepos.size();
+    }
+
+    baseidx = ci;
+
+    for ( int idx=0; idx<conebase.size(); idx++ )
+    {
+	rotfeedback_->getCoordinates()->setPos( ci++,
+	    rotfeedbackpos_+rot.rotate( conebase[idx] ) );
+    }
+
+    centeridx = ci;
+    rotfeedback_->getCoordinates()->setPos( ci++,
+	    rotfeedbackpos_+rot.rotate( center ) );
+
+    curangle += mArrowAngle-angleperstep;
+    rot.setRotation( Coord3( 0, 0, 1 ), curangle );
+
+    topidx =  ci;
+    rotfeedback_->getCoordinates()->setPos( ci++,
+	    rotfeedbackpos_+rot.rotate( center ) );
+
+    for ( int idx=0; idx<conebase.size(); idx++ )
+    {
+	const int nextidx = (idx+1)%conebase.size();
+	rotfeedback_->setCoordIndex( cii++, topidx );
+	rotfeedback_->setCoordIndex( cii++, baseidx+nextidx );
+	rotfeedback_->setCoordIndex( cii++, baseidx+idx );
+	rotfeedback_->setCoordIndex( cii++, centeridx );
+	rotfeedback_->setCoordIndex( cii++, -1 );
+    }
+}
+
+
 CalloutDisplay::CalloutDisplay()
     : markermaterial_( visBase::Material::create() )
     , boxmaterial_( visBase::Material::create() )
@@ -388,7 +585,9 @@ CalloutDisplay::CalloutDisplay()
 {
     markermaterial_->ref();
     boxmaterial_->ref();
+    boxmaterial_->setColor( Color(255, 255, 255) );
     textmaterial_->ref();
+    textmaterial_->setColor( Color(0, 0, 0) );
 }
 
 
