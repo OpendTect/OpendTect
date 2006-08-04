@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vismultitexture.cc,v 1.18 2006-06-20 13:41:42 cvsnanne Exp $";
+static const char* rcsID = "$Id: vismultitexture.cc,v 1.19 2006-08-04 21:31:47 cvskris Exp $";
 
 #include "vismultitexture2.h"
 
@@ -37,7 +37,7 @@ public:
     const unsigned int*		getHistogram() const { return globalhistogram_;}
 
 protected:
-    bool			doWork( int start, int stop );
+    bool			doWork(int start,int stop,int threadid);
     int				nrTimes() const { return sz_; }
 
     unsigned char*		indexcache_;
@@ -63,7 +63,7 @@ TextureColorIndexer::TextureColorIndexer( const float* inp,
 }
 
 
-bool TextureColorIndexer::doWork( int start, int stop )
+bool TextureColorIndexer::doWork( int start, int stop, int threadid )
 {
     unsigned int histogram[mNrColors];
     memset( histogram, 0, sizeof(int)*mNrColors );

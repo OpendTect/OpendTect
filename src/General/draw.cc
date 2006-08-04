@@ -4,7 +4,7 @@
  * DATE     : 18-4-1996
 -*/
 
-static const char* rcsID = "$Id: draw.cc,v 1.55 2006-07-24 16:27:46 cvskris Exp $";
+static const char* rcsID = "$Id: draw.cc,v 1.56 2006-08-04 21:31:47 cvskris Exp $";
 
 /*! \brief Several implementations for UI-related things.
 
@@ -218,7 +218,7 @@ public:
 			    , res_( res )
 			{}
 
-    bool		doWork( int start, int stop )
+    bool		doWork( int start, int stop, int threadid )
     			{
 			    for ( int idx=start; idx<=stop; idx++ )
 				res_[idx] = ct_.color( x0_+dx_*idx );
