@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		June 2006
- RCS:		$Id: vislocationdisplay.h,v 1.6 2006-07-03 14:16:47 cvskris Exp $
+ RCS:		$Id: vislocationdisplay.h,v 1.7 2006-08-04 21:19:59 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -81,10 +81,14 @@ protected:
     virtual void			setPosition(int idx,
 	    					    const Pick::Location&)  = 0;
     virtual bool			hasDirection() const { return false; }
+    virtual bool			hasText() const { return false; }
+    virtual int			isMarkerClick(const TypeSet<int>&) const;
+    virtual int			isDirMarkerClick(const TypeSet<int>&) const;
 
     virtual			~LocationDisplay();
 
-    void			addPick(const Coord3&,const Sphere&,bool);
+    bool			addPick(const Coord3&,const Sphere&,bool);
+    void			removePick(int);
     void			addDisplayPick(const Pick::Location&);
 
     bool			getPickSurface(const visBase::EventInfo&,
@@ -92,6 +96,7 @@ protected:
     Coord3			display2World(const Coord3&) const;
     Coord3			world2Display(const Coord3&) const;
     bool			transformPos(Pick::Location&) const;
+    void			setUnpickable(bool yn);
 
     void			pickCB(CallBacker* cb);
     void			locChg(CallBacker* cb);
@@ -102,6 +107,7 @@ protected:
     Pick::SetMgr*		picksetmgr_;
     Notifier<LocationDisplay>	manip_;
     int				waitsfordirectionid_;
+    int				waitsforpositionid_;
 
     TypeSet<int>		invalidpicks_;
 

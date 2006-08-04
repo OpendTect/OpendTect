@@ -4,7 +4,7 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vislocationdisplay.cc,v 1.11 2006-07-21 20:27:24 cvskris Exp $";
+static const char* rcsID = "$Id: vislocationdisplay.cc,v 1.12 2006-08-04 21:19:59 cvskris Exp $";
 
 #include "vislocationdisplay.h"
 
@@ -13,6 +13,7 @@ static const char* rcsID = "$Id: vislocationdisplay.cc,v 1.11 2006-07-21 20:27:2
 #include "iopar.h"
 #include "pickset.h"
 #include "picksettr.h"
+#include "survinfo.h"
 #include "visevent.h"
 #include "visdataman.h"
 #include "vismaterial.h"
@@ -38,8 +39,9 @@ LocationDisplay::LocationDisplay()
     , manip_( this )
     , picksetmgr_( 0 )
     , waitsfordirectionid_( -1 )
-    , pickstyle_( 0 )
+    , waitsforpositionid_( -1 )
     , datatransform_( 0 )
+    , pickstyle_( 0 )
 {
     group_->ref();
     addChild( group_->getInventorNode() );
@@ -160,7 +162,8 @@ void LocationDisplay::pickCB( CallBacker* cb )
 	Coord3 newpos;
 	if ( getPickSurface( eventinfo, newpos ) )
 	{
-	    const Coord3 dir = newpos - (*set_)[waitsfordirectionid_].pos;
+	    Coord3 dir = newpos - (*set_)[waitsfordirectionid_].pos;
+	    dir.z *= -SI().zFactor(); //convert to right dir-domain
 	    if ( dir.sqAbs()>=0 )
 	    {
 		 (*set_)[waitsfordirectionid_].dir =
@@ -170,6 +173,18 @@ void LocationDisplay::pickCB( CallBacker* cb )
 			set_, waitsfordirectionid_ );
 		picksetmgr_->reportChange( 0, cd );
 	    }
+	}
+    }
+    else if ( waitsforpositionid_!=-1 )
+    {
+	Coord3 newpos;
+	if ( getPickSurface( eventinfo, newpos ) )
+	{
+	    (*set_)[waitsforpositionid_].pos = newpos;
+	    Pick::SetMgr::ChangeData cd(
+		    Pick::SetMgr::ChangeData::Changed,
+		    set_, waitsforpositionid_ );
+	    picksetmgr_->reportChange( 0, cd );
 	}
     }
 
@@ -189,10 +204,32 @@ void LocationDisplay::pickCB( CallBacker* cb )
 	}
     }
 
-    if ( eventinfo.pressed )
+    if ( eventid==-1 )
+	return;
+
+    if ( waitsforpositionid_!=-1 || waitsfordirectionid_!=-1 )
+    {
+	setUnpickable( false );
+	waitsforpositionid_ = -1;
+	waitsfordirectionid_ = -1;
+	mousepressid_ = -1;
+    }
+    else if ( eventinfo.pressed )
     {
 	mousepressid_ = eventid;
-	eventcatcher_->eventIsHandled();
+
+	const int selfpickidx = isMarkerClick( eventinfo.pickedobjids );
+	if ( selfpickidx!=-1 )
+	{
+	    setUnpickable( true );
+	    waitsforpositionid_ = selfpickidx;
+	}
+	const int selfdirpickidx = isDirMarkerClick( eventinfo.pickedobjids );
+	if ( selfdirpickidx!=-1 )
+	{
+	    setUnpickable( true );
+	    waitsfordirectionid_ = selfpickidx;
+	}
     }
     else 
     {
@@ -202,14 +239,8 @@ void LocationDisplay::pickCB( CallBacker* cb )
 		 eventid==mousepressid_ )
 	    {
 		int removeidx = group_->getFirstIdx(mousepressid_);
-		if ( removeidx!=-1 && picksetmgr_ )
-		{
-		    Pick::SetMgr::ChangeData cd(
-			    Pick::SetMgr::ChangeData::ToBeRemoved,
-			    set_, removeidx );
-		    picksetmgr_->reportChange( 0, cd );
-		    set_->remove( removeidx );
-		}
+		if ( removeidx!=-1 )
+		    removePick( removeidx );
 	    }
 
 	    eventcatcher_->eventIsHandled();
@@ -222,36 +253,20 @@ void LocationDisplay::pickCB( CallBacker* cb )
 		Coord3 newpos;
 		if ( getPickSurface( eventinfo, newpos ) )
 		{
-		    if ( waitsfordirectionid_!=-1 )
+		    if ( addPick( newpos, Sphere(1,0,0), true ) )
 		    {
-			pickstyle_->setStyle( visBase::PickStyle::Shape );
-			waitsfordirectionid_ = -1;
-		    }
-		    else
-		    {
-			addPick( newpos, Sphere(1,0,0), true );
-
 			if ( hasDirection() )
 			{
-			    if ( !pickstyle_ )
-			    {
-				pickstyle_ = visBase::PickStyle::create();
-				insertChild( 0, pickstyle_->getInventorNode() );
-				pickstyle_->ref();
-			    }
-
-			    pickstyle_->setStyle(
-				    visBase::PickStyle::Unpickable );
-
+			    setUnpickable( true );
 			    waitsfordirectionid_ = set_->size()-1;
 			}
 		    }
 		}
 	    }
-
-	    eventcatcher_->eventIsHandled();
 	}
     }
+
+    eventcatcher_->eventIsHandled();
 }
 
 
@@ -331,6 +346,21 @@ bool LocationDisplay::transformPos( Pick::Location& loc ) const
 	pErrMsg("Direction not impl");
 
     return true;
+}
+
+
+void LocationDisplay::setUnpickable( bool yn )
+{
+    if ( yn && !pickstyle_ )
+    {
+	pickstyle_ = visBase::PickStyle::create();
+	insertChild( 0, pickstyle_->getInventorNode() );
+	pickstyle_->ref();
+    }
+
+    if ( pickstyle_ )
+	pickstyle_->setStyle( yn ? visBase::PickStyle::Unpickable
+				 : visBase::PickStyle::Shape );
 }
 
 
@@ -417,7 +447,7 @@ bool LocationDisplay::isPicking() const
 }
 
 
-void LocationDisplay::addPick( const Coord3& pos, const Sphere& dir,
+bool LocationDisplay::addPick( const Coord3& pos, const Sphere& dir,
 			       bool notif )
 {
     *set_ += Pick::Location( pos, dir );
@@ -428,6 +458,28 @@ void LocationDisplay::addPick( const Coord3& pos, const Sphere& dir,
 				     set_, locidx );
 	picksetmgr_->reportChange( 0, cd );
     }
+
+    if ( !hasText() ) return true;
+
+    if ( !(*set_)[locidx].text || !(*set_)[locidx].text->size() )
+    {
+	removePick( locidx );
+	return false;
+    }
+
+    return true;
+}
+
+
+void LocationDisplay::removePick( int removeidx )
+{
+    if ( !picksetmgr_ )
+	return;
+
+    Pick::SetMgr::ChangeData cd( Pick::SetMgr::ChangeData::ToBeRemoved,
+				 set_, removeidx );
+    picksetmgr_->reportChange( 0, cd );
+    set_->remove( removeidx );
 }
 
 
@@ -641,5 +693,13 @@ const ZAxisTransform* LocationDisplay::getDataTransform() const
 {
     return datatransform_;
 }
+
+
+int LocationDisplay::isMarkerClick(const TypeSet<int>&) const
+{ return -1; }
+
+
+int LocationDisplay::isDirMarkerClick(const TypeSet<int>&) const
+{ return -1; }
 
 }; // namespace visSurvey
