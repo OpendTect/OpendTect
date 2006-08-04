@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: volstatsattrib.cc,v 1.25 2006-08-03 08:04:34 cvshelene Exp $";
+static const char* rcsID = "$Id: volstatsattrib.cc,v 1.26 2006-08-04 21:22:36 cvskris Exp $";
 
 #include "volstatsattrib.h"
 
@@ -163,12 +163,22 @@ bool VolStats::getInputOutput( int input, TypeSet<int>& res ) const
 
 bool VolStats::getInputData( const BinID& relpos, int zintv )
 {
-    while ( inputdata_.size() < positions_.size() )
+    while ( inputdata_.size()<positions_.size() )
 	inputdata_ += 0;
 
     steeringdata_ = dosteer_ ? inputs[1]->getData( relpos, zintv ) : 0;
-    if ( dosteer_ && !steeringdata_ )
-	return false;
+    if ( dosteer_ )
+    {
+	if ( !steeringdata_ ) 
+	    return false;
+	
+	for ( int idx=positions_.size()-1; idx>=0; idx-- )
+	{
+	    const int steeridx = steerindexes_[idx];
+	    if ( !steeringdata_->series(steeridx) )
+		return false;
+	}
+    }
 
     const BinID bidstep = inputs[0]->getStepoutStep();
     const int nrpos = positions_.size();
