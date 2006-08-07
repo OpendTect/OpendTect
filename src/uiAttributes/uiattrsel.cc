@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: uiattrsel.cc,v 1.16 2006-07-11 08:04:27 cvsbert Exp $
+ RCS:           $Id: uiattrsel.cc,v 1.17 2006-08-07 11:57:56 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -133,6 +133,7 @@ uiAttrSelDlg::uiAttrSelDlg( uiParent* p, const char* seltxt,
 
 uiAttrSelDlg::~uiAttrSelDlg()
 {
+    delete selgrp_;
     delete attrinf_;
 }
 
