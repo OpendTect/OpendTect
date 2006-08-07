@@ -4,7 +4,7 @@
   - Author:	A.H. Bril
   - Date:	Oct 2003
   - Contents:	Plugins
-  - RCS:	$Id: plugins.html,v 1.32 2006-05-03 13:37:46 nanne Exp $
+  - RCS:	$Id: plugins.html,v 1.33 2006-08-07 07:43:48 bert Exp $
  -->
 
 <body background="../backg.png"><title>Plugins [OpendTect Programmer's manual V2.2]</title>
@@ -121,7 +121,9 @@ include make.Targets
 
 <p> First try <code>make -n</code> (make sure you have <a
 href="pmake.html">Pmake</a> initialised!). Notice that Pmake makes an
-awful lot of commands with a small specification. Anyway, after typing
+awful lot of commands with a small specification. This is because Pmake includes loads of make-code.</p>
+<p>An important remark here is that Pmake supports plugin generation fully when the subdirectory name is the same as the plugin (base-)name. Thus, subdirectory MyPlugin generates libMyPlugin.so (or libMyPlugin.dylib or MyPlugin.dll) which should contain an InitMyPlugin() function.</p>
+<p>Anyway, after typing
 <code>make</code> the plugin should be generated. The new plugin can
 be loaded from within OpendTect (Menu Utilities-Plugins; press the
 'Load new' button). At that point in time, the message 'Hello world'
@@ -149,10 +151,14 @@ Makefile needs to change. We need to add the line:
 
 <pre><code>MODDEP := uiBase </code></pre>
 
-Notice that this is added <i>before</i> the
+Notice that this is added <i>before</i> the make
 inclusions: It's a directive to establish all kinds of variables in
 the make includes. By typing <code>make -n</code> again you'll see
 that Pmake added some directives for the compiler. </p>
+
+<p>If you really want to see this working, make sure you add:
+<code>OWNC++FLAGS := -DPLAN_A</code>
+to the make file (or specify make <code>OWNC++FLAGS=-DPLAN_A</code> on the command line).</p>
 
 <br>
 <a name=real><h2>Realistic examples</h2>
@@ -170,7 +176,7 @@ clear. Although we fear that you might be scared by this code when you
 first see it, we hope that after the explanations below you will see
 some beauty in it and start to like it. </p>
 
-<p> Look in uihellopi.cc - the PLAN_B part. First of all, we nicely
+<p> Look in uihellopi.cc - the else of the PLAN_A part. First of all, we nicely
 define the other standard plugin functions:
 
 <pre><code>extern "C" int GetuiHelloPluginType()
@@ -195,12 +201,8 @@ correct plugins directory. </p>
 
 <p> The idea is to add a menu item 'Display Hello Message ...' to the
 'Utilities' menu of OpendTect. The Makefile and the example code are
-already prepared for this, you only need to define 'PLAN_B', for
-example on the command line:
-
-<code><pre>make PLAN_B=yes</code></pre>
-
- Apart from adding a flag so we can check for PLAN_B in the code, the
+already prepared for this.
+The
 <code>MODDEP := uiODMain</code> tells Pmake that the
 <code>uiODMain</code> headers, and the headers <code>uiODMain</code>
 depends on will be used. That is much more than the original
@@ -209,7 +211,7 @@ OpendTect.
 
 </p>
 
-<p> If <code>"make PLAN_B=yes"</code> does not compile anything
+<p> If <code>"make"</code> does not compile anything
 (because a uiHello.so already exists), you can try "<code>make
 uihellopi.rmlib</code>" first. </p>
 
@@ -231,7 +233,7 @@ class that can be accessed through the <code>uiODMain*
 ODMainWin()</code> global function. Once you have that, you can reach
 any object you need.</p>
 
-<p> To see where things start, go to the PLAN_B InituiHelloPlugin
+<p> To see where things start, go to the InituiHelloPlugin
 function at the bottom of uihellopi.cc to find: </p>
 
 <pre><code>extern "C" const char* InituiHelloPlugin( int, char** )
@@ -667,27 +669,10 @@ is defined. Otherwise, $USERPROFILE is used. Also see the specific
 notes in the <a href="windows.html#installplugins"> windows</a>
 documentation. </p>
 
-<h4>Sub-directories</h4>
-
-<p>Once you have located (and/or made) the directory where the
-plugins should be stored, you have 3 options of installing the
-plugins:</p>
-
-<li>Just install them in the $HDIR subdir.</li>
-
-<li>Make a subdir 'libs' to contain the plugins and use .alo
-files.</li>
-
-<li>Make a subdir '&lt;program name&gt;' for each program that uses
-the plugin and install the plugins there.</li>
-
-<p>The first option causes the plugins to be loaded in all programs
-that support OpendTect plugins,  while the last option requires
-managing multiple copies of the plugins under Windows, because Windows
-does not support symbolic linking. Therefore, the preferred method is
-to make use of .alo files. </p>
 
 <h4>Using .alo files</h4>
+
+<p>Once you have located (and/or made) the directory where the plugins should be stored, you have to make a subdir 'libs' to contain the plugins and use .alo files.</p>
 
 <p>Auto LOad files are simple text files that tell a program which
 plugins it is supposed to load from the 'libs' directory. Since
@@ -697,37 +682,33 @@ shared between multiple programs. OpendTect will scan for any file
 with this naming convention. So odmain.john.alo is perfectly OK.</p>
 
 <p>Since there are multiple vendors and/or plugin sets, each vendor
-can make his own .alo files. DtectMain, for example, will look at any
+can make his own .alo files. odmain, for example, will look at any
 file named odmain.*.alo. For this example, the default plugins are
 specified by odmain.base.alo, while dgb's plugins are specified by
 odmain.dgb.alo. This way, each vendor can make his own .alo files,
 without interfering with others.</p>
 
-<p>An .alo file is nothing more then a simple list of plugins, without
+<p>A .alo file is nothing more then a simple list of plugins, without
 extensions. For example, this is what odmain.base.alo files look like:
 </p>
 
 <pre><code>
 uiSeisIOSimple
+VolumeRender
 </code></pre>
 
 <p> Note that for each platform, a specific .alo file must be created.
-Usually, they will be the same, but some plugins might not (yet) be
+Usually, they will be the same, but some plugins might not be relevant or
 supported on all platforms. </p>
 
-<h4>Order of loading</h4>
-
-<p>The non-alo plugins will be loaded in alphabetical order. For .alo
-files the order is as specified in the file. The alo files themselves
-are handled in alphabetical order. </p>
+<p>The plugins in the .alo files are loaded in the order as specified in the file. The alo files themselves are handled in alphabetical order. </p>
 
 
 <br>
 <a name=dist><h2>Distributing your plugins:</h2>
 
 <p> The publishing and distribution of OpendTect plugins is pretty
-straightforward, especially if you use .alo files. The .alo files can
-be installed in the plugins/platform
+straightforward. The .alo files can be installed in the plugins/platform
 (<code>$DTECT_APPL/plugins/$HDIR</code>) directory, while the actual
 plugins come in the 'libs' sub-directory. </p>
 
