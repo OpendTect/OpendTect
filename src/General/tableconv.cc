@@ -4,7 +4,7 @@
  * DATE     : Jul 2006
 -*/
 
-static const char* rcsID = "$Id: tableconv.cc,v 1.6 2006-07-27 14:58:08 cvsbert Exp $";
+static const char* rcsID = "$Id: tableconv.cc,v 1.7 2006-08-08 15:40:24 cvsbert Exp $";
 
 #include "tableconvimpl.h"
 
@@ -214,6 +214,17 @@ const char* SQLInsertTableExportHandler::putRow( const BufferStringSet& row,
 
     nrrows_++;
     return strm.good() ? 0 : "Error writing to output";
+}
+
+
+bool TCEmptyFieldRemover::accept( BufferStringSet& cols ) const
+{
+    for ( int idx=0; idx<ckcols_.size(); idx++ )
+    {
+	if ( cols.get(ckcols_[idx]) == "" )
+	    return false;
+    }
+    return true;
 }
 
 

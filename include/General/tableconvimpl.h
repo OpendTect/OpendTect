@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Jul 2006
- RCS:		$Id: tableconvimpl.h,v 1.5 2006-07-27 10:19:01 cvsbert Exp $
+ RCS:		$Id: tableconvimpl.h,v 1.6 2006-08-08 15:40:24 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -80,6 +80,18 @@ protected:
     int			nrrows_;
     bool		addindex_;
     int			nrextracols_;
+
+};
+
+
+class TCEmptyFieldRemover : public TableConverter::RowManipulator
+{
+public:
+    			TCEmptyFieldRemover()		{}
+
+    bool		accept(BufferStringSet&) const;
+
+    TypeSet<int>	ckcols_; //!< column numbers
 
 };
 
