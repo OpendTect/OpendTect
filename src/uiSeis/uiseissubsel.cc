@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          June 2004
- RCS:           $Id: uiseissubsel.cc,v 1.37 2006-05-11 12:59:30 cvsbert Exp $
+ RCS:           $Id: uiseissubsel.cc,v 1.38 2006-08-08 07:02:26 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -483,7 +483,9 @@ void uiSeis2DSubSelDlg::setInput( const uiSeis2DSubSel::PosData& data )
     data_ = data;
     selfld->setValue( data_.isall_ );
     trcrgfld->setValue( data_.trcrg_ );
-    zrgfld->setValue( data_.zrg_ );
+    StepInterval<float> zrg = data_.zrg_;
+    zrg.scale( SI().zFactor() );
+    zrgfld->setValue( zrg );
     selChg();
 }
 
@@ -495,6 +497,7 @@ const uiSeis2DSubSel::PosData& uiSeis2DSubSelDlg::getInput() const
     {
 	data_.trcrg_ = trcrgfld->getIStepInterval();
 	data_.zrg_ = zrgfld->getFStepInterval();
+	data_.zrg_.scale( 1/SI().zFactor() );
     }
     return data_;
 }
