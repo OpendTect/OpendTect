@@ -90,7 +90,7 @@ void uiShortcutsList::init( const char* elementsel )
 {
     deepErase( keyslist_ );
     nameslist_.deepErase();
-    IOPar* pars = SCMgr().readShortcutsFile( elementsel );
+    PtrMan<IOPar> pars = SCMgr().readShortcutsFile( elementsel );
     if ( !pars ) return;
     
     int index = 0;
@@ -109,8 +109,6 @@ void uiShortcutsList::init( const char* elementsel )
 	keyslist_ += ev;
 	index++;
     }
-
-    delete pars;
 }
 
 
