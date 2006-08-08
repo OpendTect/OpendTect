@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visevent.h,v 1.15 2005-07-14 16:01:56 cvskris Exp $
+ RCS:		$Id: visevent.h,v 1.16 2006-08-08 11:21:54 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -46,7 +46,7 @@ public:
     static const char		middleMouseButton();
 
     Line3			mouseline;
-    				/*!<\The line projected from the mouse-position
+    				/*!< The line projected from the mouse-position
     						into the scene. The line is
 						in world coordinates.
 				*/
