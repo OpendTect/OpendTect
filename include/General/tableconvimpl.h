@@ -7,13 +7,64 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Jul 2006
- RCS:		$Id: tableconvimpl.h,v 1.6 2006-08-08 15:40:24 cvsbert Exp $
+ RCS:		$Id: tableconvimpl.h,v 1.7 2006-08-09 17:27:43 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "tableconv.h"
 #include "bufstringset.h"
+
+
+class WSTableImportSetup
+{
+public:
+    			WSTableImportSetup()
+			    : skiptype_(None)
+			    , skipnrlines_(0)
+			    , skipmatchfldidx_(0)
+			    , stopearly_(false)
+			    , stopmatchfldidx_(0)	{}
+
+    enum SkipType	{ None, Lines, Match };
+    SkipType		skiptype_;
+    int			skipnrlines_;
+    int			skipmatchfldidx_;
+    BufferString	skipmatchstr_;
+
+    bool		stopearly_;
+    int			stopmatchfldidx_;
+    BufferString	stopmatchstr_;
+};
+
+
+class WSTableImportHandler : public TableImportHandler
+{
+public:
+
+
+    			WSTableImportHandler()
+			: skipping_(false)
+			, insingqstring_(false)
+			, indoubqstring_(false)	{}
+
+    State		add(char);
+    const char*		getCol() const		{ return col_.buf(); }
+    const char*		errMsg() const		{ return col_.buf(); }
+
+    virtual void	newRow()		{}
+
+    WSTableImportSetup&	setup()			{ return setup_; }
+    const WSTableImportSetup& setup() const	{ return setup_; }
+
+protected:
+
+    WSTableImportSetup	setup_;
+    bool		skipping_;
+    bool		insingqstring_;
+    bool		indoubqstring_;
+
+};
 
 
 class CSVTableImportHandler : public TableImportHandler
@@ -35,6 +86,23 @@ public:
 protected:
 
     bool		instring_;
+
+};
+
+
+class WSTableExportHandler : public TableExportHandler
+{
+public:
+    			WSTableExportHandler()
+			: usesingquotes_(false)		{}
+
+    const char*		putRow(const BufferStringSet&,std::ostream&);
+
+    bool		usesingquotes_;
+    			//!< if val contains whitespc, single or double quotes?
+protected:
+
+    void		addVal(std::ostream&,int col,const char*);
 
 };
 

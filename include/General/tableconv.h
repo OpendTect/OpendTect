@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Jul 2006
- RCS:		$Id: tableconv.h,v 1.2 2006-07-26 15:48:39 cvsbert Exp $
+ RCS:		$Id: tableconv.h,v 1.3 2006-08-09 17:27:43 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,7 +49,15 @@ public:
 
     virtual const char*	putRow(const BufferStringSet&,std::ostream&)	= 0;
 
+    virtual bool	init(std::ostream&);
+    virtual void	finish(std::ostream&);
+
     static bool		isNumber(const char*);
+
+    BufferString	prepend_;
+    			//!< Before first record. Add newline if needed
+    BufferString	append_;
+    			//!< After last record
 };
 
 
@@ -62,7 +70,7 @@ public:
 			    : Executor("Data import")
 			    , istrm_(is), ostrm_(os)
 			    , imphndlr_(i), exphndlr_(o)
-			    , rowsdone_(0)
+			    , rowsdone_(0), selcolnr_(-1)
 			    , manipulator_(0)
 			    , msg_("Importing")		{}
     // Setup
