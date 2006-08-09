@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		July 2004
- RCS:		$Id: binidvalset.h,v 1.12 2006-06-28 11:43:28 cvsbert Exp $
+ RCS:		$Id: binidvalset.h,v 1.13 2006-08-09 14:14:18 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -167,6 +167,7 @@ public:
 				//!< re-structures but keeps allowdup
     				//!< considers only 'reasonable' lines to add
     bool		putTo(std::ostream&) const;
+    bool		areBinidValuesThere(const BinIDValues&) const;
 
     inline float*	getVals( const Pos& pos )
 			{ return valsets[pos.i]->arr() + nrvals*pos.j; }

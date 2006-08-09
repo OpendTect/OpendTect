@@ -4,7 +4,7 @@
  * DATE     : 21-6-1996
 -*/
 
-static const char* rcsID = "$Id: binidvalset.cc,v 1.16 2006-06-28 11:43:28 cvsbert Exp $";
+static const char* rcsID = "$Id: binidvalset.cc,v 1.17 2006-08-09 14:14:18 cvshelene Exp $";
 
 #include "binidvalset.h"
 #include "iopar.h"
@@ -962,3 +962,35 @@ void BinIDValueSet::usePar( const IOPar& iop, const char* ky )
 	}
     }
 }
+
+
+bool BinIDValueSet::areBinidValuesThere( const BinIDValues& bidvals ) const
+{
+    Pos pos = findFirst( bidvals.binid );
+    bool found = false;
+    BinID tmpbid;
+    while ( !found && pos.valid() )
+    {
+	if ( getBinID(pos) != bidvals.binid )
+	    break;
+	
+	TypeSet<float> valofset;
+	get( pos, tmpbid, valofset );
+	if ( valofset.size() == bidvals.size() )
+	{
+	    bool diff = false;
+	    for ( int idx=0; idx<valofset.size(); idx++ )
+	    {
+		if ( bidvals.value(idx) != valofset[idx] )
+		    diff = true;
+	    }
+	    found = !diff;
+	}
+	next( pos );
+    }
+    
+    return found;
+}
+
+
+
