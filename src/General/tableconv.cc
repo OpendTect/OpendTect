@@ -4,7 +4,7 @@
  * DATE     : Jul 2006
 -*/
 
-static const char* rcsID = "$Id: tableconv.cc,v 1.7 2006-08-08 15:40:24 cvsbert Exp $";
+static const char* rcsID = "$Id: tableconv.cc,v 1.8 2006-08-09 17:27:33 cvsbert Exp $";
 
 #include "tableconvimpl.h"
 
@@ -29,15 +29,39 @@ bool TableExportHandler::isNumber( const char* str )
 }
 
 
+bool TableExportHandler::init( std::ostream& strm )
+{
+    if ( *prepend_.buf() )
+	strm << prepend_;
+    return strm.good();
+}
+
+
+void TableExportHandler::finish( std::ostream& strm )
+{
+    if ( *append_.buf() )
+	strm << append_;
+}
+
+
 int TableConverter::nextStep()
 {
+    if ( selcolnr_ == -1 && !exphndlr_.init(ostrm_) )
+    {
+	msg_ = "Cannot write first output";
+	return -1;
+    }
+
     selcolnr_ = colnr_ = 0;
 
     while ( true )
     {
 	char c = readNewChar();
 	if ( istrm_.eof() )
+	{
+	    exphndlr_.finish( ostrm_ );
 	    return 0;
+	}
 
 	TableImportHandler::State impstate = imphndlr_.add( c );
 	if ( !handleImpState(impstate) )
@@ -102,6 +126,33 @@ bool TableConverter::handleImpState( TableImportHandler::State impstate )
 }
 
 
+TableImportHandler::State WSTableImportHandler::add( char c )
+{
+    if ( c == '"' && !insingqstring_ )
+	{ indoubqstring_ = !indoubqstring_; return InCol; }
+    else if ( c == '\'' && !indoubqstring_ )
+	{ insingqstring_ = !insingqstring_; return InCol; }
+    else if ( c == '\n' )
+    {
+	indoubqstring_ = insingqstring_ = false;
+	addToCol( '\0' );
+	return EndRow;
+    }
+    else if ( isspace(c) )
+    {
+	if ( *col_.buf() )
+	{
+	    addToCol( '\0' );
+	    return EndCol;
+	}
+	return InCol;
+    }
+
+    addToCol( c );
+    return InCol;
+}
+
+
 TableImportHandler::State CSVTableImportHandler::add( char c )
 {
     if ( c == '"' )
@@ -124,6 +175,36 @@ TableImportHandler::State CSVTableImportHandler::add( char c )
 
     addToCol( c );
     return InCol;
+}
+
+
+void WSTableExportHandler::addVal( std::ostream& strm, int col,
+				   const char* val )
+{
+    if ( col )
+	strm << '\t';
+    const bool needsquotes = !*val || strcspn( val, " \t" );
+    const char quotechar = usesingquotes_ ? '\'' : '"';
+    if ( strchr( val, quotechar ) )
+	replaceCharacter( (char*)val, quotechar, '`' );
+
+    if ( needsquotes )
+	strm << quotechar;
+    if ( *val )
+	strm << val;
+    if ( needsquotes )
+	strm << quotechar;
+}
+
+
+const char* WSTableExportHandler::putRow( const BufferStringSet& row,
+					  std::ostream& strm )
+{
+    for ( int idx=0; idx<row.size(); idx++ )
+	addVal( strm, idx, row.get(idx) );
+    strm << std::endl;
+
+    return strm.good() ? 0 : "Error writing to output";
 }
 
 
