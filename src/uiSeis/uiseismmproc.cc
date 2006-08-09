@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:		$Id: uiseismmproc.cc,v 1.104 2006-03-12 13:39:11 cvsbert Exp $
+ RCS:		$Id: uiseismmproc.cc,v 1.105 2006-08-09 10:35:34 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -286,22 +286,17 @@ void uiSeisMMProc::setNiceNess()
 
 void uiSeisMMProc::startWork( CallBacker* )
 {
-    if ( tmpstordirfld )
+    BufferString tmpstordir;
+    if ( !tmpstordirfld )
+	iop.get( sKey::TmpStor, tmpstordir );
+    else
     {
-	BufferString tmpstordir = tmpstordirfld->getInput();
+	tmpstordir = tmpstordirfld->getInput();
 	if ( !File_isWritable(tmpstordir) )
 	    mErrRet("The temporary storage directory is not writable")
 	tmpstordir = SeisJobExecProv::getDefTempStorDir( tmpstordir );
 	const_cast<IOPar&>(iop).set( sKey::TmpStor, tmpstordir );
 	tmpstordirfld->setSensitive( false );
-	if ( !File_isDirectory(tmpstordir) )
-	{
-	    if ( File_exists(tmpstordir) )
-		File_remove( tmpstordir, NO );
-	    File_createDir( tmpstordir, 0 );
-	}
-	if ( !File_isDirectory(tmpstordir) )
-	    mErrRet("Cannot create temporary storage directory")
     }
 
     jobprov = new SeisJobExecProv( progname, iop );
@@ -319,6 +314,16 @@ void uiSeisMMProc::startWork( CallBacker* )
     }
 
     mkJobRunner( nr_inl_job );
+
+    iop.get( sKey::TmpStor, tmpstordir );
+    if ( !File_isDirectory(tmpstordir) )
+    {
+	if ( File_exists(tmpstordir) )
+	    File_remove( tmpstordir, NO );
+	File_createDir( tmpstordir, 0 );
+    }
+    if ( !File_isDirectory(tmpstordir) )
+	mErrRet("Cannot create temporary storage directory")
 
     jobprov->pars().write( parfnm, sKey::Pars );
 

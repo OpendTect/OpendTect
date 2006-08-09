@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: seisjobexecprov.cc,v 1.22 2005-10-31 14:59:22 cvshelene Exp $";
+static const char* rcsID = "$Id: seisjobexecprov.cc,v 1.23 2006-08-09 10:35:34 cvsbert Exp $";
 
 #include "seisjobexecprov.h"
 #include "seistrctr.h"
@@ -191,6 +191,8 @@ bool SeisJobExecProv::isRestart() const
 }
 
 
+#define mSetInlsPerJob(n) iopar_.set( "Nr of Inlines per Job", n )
+
 JobDescProv* SeisJobExecProv::mk3DJobProv( int nrinlperjob )
 {
     const char* tmpstordir = iopar_.find( sKey::TmpStor );
@@ -199,13 +201,14 @@ JobDescProv* SeisJobExecProv::mk3DJobProv( int nrinlperjob )
 	iopar_.set( sKey::TmpStor, getDefTempStorDir() );
 	tmpstordir = iopar_.find( sKey::TmpStor );
     }
-    iopar_.set( "Nr of Inlines per Job", nrinlperjob );
     const bool havetempdir = File_isDirectory(tmpstordir);
 
     TypeSet<int> inlnrs;
     TypeSet<int>* ptrnrs = 0;
     BufferString rgkey = iopar_.find( "Inline Range Key" );
     if ( rgkey == "" ) rgkey = mOutKey("In-line range");
+
+    mSetInlsPerJob( nrinlperjob );
     InlineSplitJobDescProv jdp( iopar_, rgkey );
     jdp.getRange( todoinls_ );
 
@@ -213,6 +216,7 @@ JobDescProv* SeisJobExecProv::mk3DJobProv( int nrinlperjob )
     {
 	getMissingLines( inlnrs, rgkey );
 	ptrnrs = &inlnrs;
+	mSetInlsPerJob( 1 );
     }
     else if ( !File_createDir(tmpstordir,0) )
     {

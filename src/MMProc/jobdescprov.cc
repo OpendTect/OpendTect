@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Apr 2002
- RCS:           $Id: jobdescprov.cc,v 1.7 2006-03-12 13:39:10 cvsbert Exp $
+ RCS:           $Id: jobdescprov.cc,v 1.8 2006-08-09 10:35:33 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -141,46 +141,37 @@ int InlineSplitJobDescProv::nrJobs() const
 
 int InlineSplitJobDescProv::firstInlNr( int jid ) const
 {
-    if ( inls_ ) return (*inls_)[jid];
-
-    int inlnr = jid * ninlperjob_;
-
-    return inlrg_.atIndex(inlnr);
+    return inls_ ? (*inls_)[jid]
+	         : inlrg_.start + jid * inlrg_.step * ninlperjob_;
 }
 
 
 int InlineSplitJobDescProv::lastInlNr( int jid ) const
 {
-    if ( inls_ ) return (*inls_)[jid];
-
-    int inlnr = (( jid + 1 ) * ninlperjob_) - 1;
-    inlnr = mMIN( inlnr, inlrg_.nrSteps() );
-
-    return inlrg_.atIndex(inlnr);
+    return firstInlNr(jid) + inlrg_.step * (ninlperjob_ - 1);
 }
 
 
 void InlineSplitJobDescProv::getJob( int jid, IOPar& iop ) const
 {
     iop = inpiopar_;
-    const int frstinl = firstInlNr( jid );
-    const int lastinl = lastInlNr( jid );
-
     if ( *(const char*)singlekey_ )
-	iop.set( singlekey_, frstinl, lastinl, inlrg_.step );
+	iop.set( singlekey_, firstInlNr(jid), lastInlNr(jid), inlrg_.step );
     else
     {
-	iop.set( sKey::FirstInl, frstinl );
-	iop.set( sKey::LastInl, lastinl );
+	iop.set( sKey::FirstInl, firstInlNr(jid) );
+	iop.set( sKey::LastInl, lastInlNr(jid) );
     }
 }
 
 
 const char* InlineSplitJobDescProv::objName( int jid ) const
 {
-    objnm_ = ""; objnm_ += firstInlNr( jid );
-    if ( lastInlNr(jid) >  firstInlNr( jid ) )
-	{ objnm_ += "-"; objnm_ += lastInlNr(jid); }
+    const int firstinl = firstInlNr( jid );
+    const int lastinl = lastInlNr( jid );
+    objnm_ = ""; objnm_ += firstinl;
+    if ( lastinl > firstinl )
+	{ objnm_ += "-"; objnm_ += lastinl; }
 
     return objnm_.buf();
 }
