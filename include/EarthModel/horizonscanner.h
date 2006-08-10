@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		Feb 2004
- RCS:		$Id: horizonscanner.h,v 1.5 2006-04-21 13:33:36 cvsnanne Exp $
+ RCS:		$Id: horizonscanner.h,v 1.6 2006-08-10 13:51:37 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -57,6 +57,7 @@ protected:
     mutable int		totalnr;
     PosGeomDetector&	geomdetector;
     BufferStringSet	filenames;
+    BufferStringSet	rejectedlines;
 
     bool		firsttime;
     bool		isxy;

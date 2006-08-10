@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Feb 2005
- RCS:           $Id: horizonscanner.cc,v 1.11 2006-03-12 13:39:10 cvsbert Exp $
+ RCS:           $Id: horizonscanner.cc,v 1.12 2006-08-10 13:51:37 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -132,6 +132,14 @@ void HorizonScanner::report( IOPar& iopar ) const
     }
     else
 	iopar.add( "->", "No data values" );
+
+    if ( rejectedlines.size() > 0 )
+    {
+	iopar.add( "->", "Error" );
+	iopar.add( "These postions were rejected", "" );
+	for ( int idx=0; idx<rejectedlines.size(); idx++ )
+	    iopar.add( BufferString(idx), rejectedlines.get(idx) );
+    }
 }
 
 
@@ -229,11 +237,19 @@ bool HorizonScanner::analyzeData()
 }
 
 
+static bool isInsideSurvey( const BinID& bid, float zval )
+{
+    const CubeSampling& cs = SI().sampling( false );
+    return cs.hrg.includes( bid ) && cs.zrg.includes( zval );
+}
+
+
 int HorizonScanner::nextStep()
 {
     Coord crd;
     BinID bid;
     char buf[1024]; char valbuf[80];
+    rejectedlines.erase();
     for ( int idx=0; idx<filenames.size(); idx++ )
     {
 	StreamProvider sp( filenames.get(idx) );
@@ -262,8 +278,7 @@ int HorizonScanner::nextStep()
 		crd = SI().transform( bid );
 	    }
 
-	    geomdetector.add( bid, crd );
-
+	    bool validpos = true;
 	    int validx = 0;
 	    while ( *ptr )
 	    {
@@ -271,10 +286,21 @@ int HorizonScanner::nextStep()
 		if ( firsttime )
 		    valranges += Interval<float>(mUdf(float),-mUdf(float));
 		const float val = atof( valbuf );
+		if ( validx==0 && !isInsideSurvey(bid,val) )
+		{
+		    validpos = false;
+		    break;
+		}
+
 		if ( !mIsUdf(val) && validx<valranges.size() )
 		    valranges[validx].include( val, false );
 		validx++;
 	    }
+
+	    if ( validpos )
+		geomdetector.add( bid, crd );
+	    else
+		rejectedlines.add( buf );
 
 	    firsttime = false;
 
