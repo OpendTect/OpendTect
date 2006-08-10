@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribprovider.cc,v 1.68 2006-08-04 21:31:47 cvskris Exp $";
+static const char* rcsID = "$Id: attribprovider.cc,v 1.69 2006-08-10 06:46:09 cvshelene Exp $";
 
 #include "attribprovider.h"
 #include "attribstorprovider.h"
@@ -677,7 +677,8 @@ void Provider::updateCurrentInfo()
 	inputs[idx]->updateCurrentInfo();
 	if ( currentbid != inputs[idx]->getCurrentPosition() )
 	    currentbid = inputs[idx]->getCurrentPosition();
-	if ( curtrcinfo_ != inputs[idx]->getCurrentTrcInfo() )
+	if ( inputs[idx]->getCurrentTrcInfo() && 
+		curtrcinfo_ != inputs[idx]->getCurrentTrcInfo() )
 	    curtrcinfo_ = inputs[idx]->getCurrentTrcInfo();
 	if ( trcinfobid != inputs[idx]->getTrcInfoBid() )
 	    trcinfobid = inputs[idx]->getTrcInfoBid();
