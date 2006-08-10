@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: bufstring.cc,v 1.1 2006-06-01 12:23:39 cvskris Exp $";
+static const char* rcsID = "$Id: bufstring.cc,v 1.2 2006-08-10 19:48:48 cvsnanne Exp $";
 
 #include "bufstring.h"
 
@@ -44,31 +44,31 @@ BufferString::~BufferString()
 { delete [] buf_; }
 
 
-BufferString&	BufferString::operator=( const BufferString& bs )
+BufferString& BufferString::operator=( const BufferString& bs )
 { if ( &bs != this ) *this = bs.buf_; return *this; }
 
 
-BufferString&	BufferString::operator=( int i )
+BufferString& BufferString::operator=( int i )
 { *buf_ = '\0'; *this += i; return *this; }
 
 
-BufferString&	BufferString::operator=( double d )
+BufferString& BufferString::operator=( double d )
 { *buf_ = '\0'; *this += d; return *this; }
 
 
-BufferString&	BufferString::operator=( float f )
+BufferString& BufferString::operator=( float f )
 { *buf_ = '\0'; *this += f; return *this; }
 
 
-BufferString&	BufferString::operator+=( int i )
+BufferString& BufferString::operator+=( int i )
 { *this += getStringFromInt("%d",i); return *this; }
 
 
-BufferString&	BufferString::operator+=( double d )
+BufferString& BufferString::operator+=( double d )
 { *this += getStringFromDouble("%lg",d); return *this; }
 
 
-BufferString&	BufferString::operator+=( float f )
+BufferString& BufferString::operator+=( float f )
 { *this += getStringFromFloat("%g",f); return *this; }
 
 
@@ -87,28 +87,14 @@ BufferString::operator const char*() const
 { return buf_; }
 
 
-char* BufferString::buf()
-{ return buf_; }
-
-
-const char* BufferString::buf() const
-{ return buf_; }
-
-
-char& BufferString::operator [](int idx)
-{ return buf_[idx]; }
-
-
-const char& BufferString::operator [](int idx) const
-{ return buf_[idx]; }
-
-
-unsigned int BufferString::size() const
-{ return strlen(buf_); }
-
-
-unsigned int BufferString::bufSize() const
-{ return len_; }
+char* BufferString::buf()			{ return buf_; }
+const char* BufferString::buf() const		{ return buf_; }
+unsigned int BufferString::size() const		{ return strlen(buf_); }
+unsigned int BufferString::bufSize() const	{ return len_; }
+char& BufferString::lastChar()			{ return buf_[size()-1]; }
+const char& BufferString::lastChar() const	{ return buf_[size()-1]; }
+char& BufferString::operator [](int idx)	{ return buf_[idx]; }
+const char& BufferString::operator [](int idx) const	{ return buf_[idx]; }
 
 
 bool BufferString::operator==( const BufferString& s ) const
