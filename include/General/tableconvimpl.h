@@ -7,71 +7,49 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Jul 2006
- RCS:		$Id: tableconvimpl.h,v 1.7 2006-08-09 17:27:43 cvsbert Exp $
+ RCS:		$Id: tableconvimpl.h,v 1.8 2006-08-11 10:52:45 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "tableconv.h"
 #include "bufstringset.h"
+#include "globexpr.h"
 
 
-class WSTableImportSetup
+namespace Table
 {
-public:
-    			WSTableImportSetup()
-			    : skiptype_(None)
-			    , skipnrlines_(0)
-			    , skipmatchfldidx_(0)
-			    , stopearly_(false)
-			    , stopmatchfldidx_(0)	{}
 
-    enum SkipType	{ None, Lines, Match };
-    SkipType		skiptype_;
-    int			skipnrlines_;
-    int			skipmatchfldidx_;
-    BufferString	skipmatchstr_;
-
-    bool		stopearly_;
-    int			stopmatchfldidx_;
-    BufferString	stopmatchstr_;
-};
-
-
-class WSTableImportHandler : public TableImportHandler
+class WSImportHandler : public ImportHandler
 {
 public:
 
 
-    			WSTableImportHandler()
-			: skipping_(false)
-			, insingqstring_(false)
-			, indoubqstring_(false)	{}
+    			WSImportHandler( std::istream& s )
+			    : ImportHandler(s)
+			    , insingqstring_(false)
+			    , indoubqstring_(false)	{}
 
     State		add(char);
-    const char*		getCol() const		{ return col_.buf(); }
-    const char*		errMsg() const		{ return col_.buf(); }
+    const char*		getCol() const			{ return col_.buf(); }
+    const char*		errMsg() const			{ return col_.buf(); }
 
-    virtual void	newRow()		{}
-
-    WSTableImportSetup&	setup()			{ return setup_; }
-    const WSTableImportSetup& setup() const	{ return setup_; }
+    virtual void	newRow()			{}
 
 protected:
 
-    WSTableImportSetup	setup_;
-    bool		skipping_;
     bool		insingqstring_;
     bool		indoubqstring_;
 
 };
 
 
-class CSVTableImportHandler : public TableImportHandler
+class CSVImportHandler : public ImportHandler
 {
 public:
-    			CSVTableImportHandler()
-			    : nlreplace_('\n')
+    			CSVImportHandler( std::istream& s )
+			    : ImportHandler(s)
+			    , nlreplace_('\n')
 			    , instring_(false)	{}
 
     State		add(char);
@@ -90,46 +68,54 @@ protected:
 };
 
 
-class WSTableExportHandler : public TableExportHandler
+class WSExportHandler : public ExportHandler
 {
 public:
-    			WSTableExportHandler()
-			: usesingquotes_(false)		{}
 
-    const char*		putRow(const BufferStringSet&,std::ostream&);
+    enum ColWSHandl	{ None, Underscores, SingQuot, DoubQuot };
 
-    bool		usesingquotes_;
-    			//!< if val contains whitespc, single or double quotes?
+    			WSExportHandler( std::ostream& s,
+					 ColWSHandl w=Underscores )
+			    : ExportHandler(s)
+			    , colwshanld_(w)	{}
+
+    const char*		putRow(const BufferStringSet&);
+
+    ColWSHandl		colwshanld_;
+
 protected:
 
-    void		addVal(std::ostream&,int col,const char*);
+    void		addVal(int col,const char*);
 
 };
 
 
-class CSVTableExportHandler : public TableExportHandler
+class CSVExportHandler : public ExportHandler
 {
 public:
+    			CSVExportHandler( std::ostream& s )
+			    : ExportHandler(s)		{}
 
-    const char*		putRow(const BufferStringSet&,std::ostream&);
+    const char*		putRow(const BufferStringSet&);
 
 protected:
 
-    void		addVal(std::ostream&,int col,const char*);
+    void		addVal(int col,const char*);
 
 };
 
 
-class SQLInsertTableExportHandler : public TableExportHandler
+class SQLInsertExportHandler : public ExportHandler
 {
 public:
 
-    			SQLInsertTableExportHandler()
-			    : startindex_(1)
+    			SQLInsertExportHandler( std::ostream& s )
+			    : ExportHandler(s)
+			    , startindex_(1)
 			    , stepindex_(1)
 		    	    , nrrows_(0)	    {}
 
-    const char*		putRow(const BufferStringSet&,std::ostream&);
+    const char*		putRow(const BufferStringSet&);
 
     BufferString	tblname_;	//!< name of the table: mandatory
     BufferStringSet	colnms_;	//!< names of the columns: optional
@@ -143,7 +129,7 @@ public:
 
 protected:
 
-    void		addVal(std::ostream&,int col,const char*);
+    void		addVal(int col,const char*);
 
     int			nrrows_;
     bool		addindex_;
@@ -152,27 +138,93 @@ protected:
 };
 
 
-class TCEmptyFieldRemover : public TableConverter::RowManipulator
+/*!\brief Removes lines at start or stop of input.
+
+  Specify either a fixed number of lines, or an expression to match. For the
+  stop_, the count is from the start and it determines how many records pass.
+
+  */
+
+class StartStopManipulator : public Converter::RowManipulator
 {
 public:
-    			TCEmptyFieldRemover()		{}
+		StartStopManipulator()
+		    : startdone_(false)
+		    , count_(0)		{}
 
-    bool		accept(BufferStringSet&) const;
+    struct Criterion
+    {
+	enum Type	{ None, Records, Match };
 
-    TypeSet<int>	ckcols_; //!< column numbers
+			Criterion( Type t=None )
+			    : type_(t)
+			    , count_(1)
+			    , matchcolidx_(0)		{}
+
+	Type		type_;
+	int		count_;		//!< nr of lines or nr of matches
+	GlobExpr	matchexpr_;
+	int		matchcolidx_;	//!< specify -1 for any col
+
+    };
+
+    Criterion	start_;
+    Criterion	stop_;
+
+    bool	accept(BufferStringSet&) const;
+
+protected:
+
+    mutable bool startdone_;
+    mutable int	 count_;
+
+    void	updCount(const Criterion&,const BufferStringSet&) const;
+    bool	isGEMatch(const Criterion&,const BufferStringSet&) const;
 
 };
 
 
-class TCDuplicateKeyRemover : public TableConverter::RowManipulator
+/*!\brief Only passes records where col(s) (don't) match expression(s) */
+
+
+class RecordMatcher : public Converter::RowManipulator
 {
 public:
-    			TCDuplicateKeyRemover()
+    			RecordMatcher( bool a=true )
+			    : any_(a)	{}
+
+    bool		accept(BufferStringSet&) const;
+
+    bool		any_;		//!< If false, all need to match
+    bool		not_;		//!< If true, matches will not pass
+    TypeSet<int>	ckcols_;	//!< Column numbers (mand)
+    TypeSet<GlobExpr>	colvals_;	//!< Values associated (opt)
+    					//!< Not filled means check for empty
+
+protected:
+
+    static const GlobExpr emptyge_;
+
+};
+
+
+/*!\brief Removes records with identical keys
+
+  Will only compare with previous record, so make sure the input is sorted
+  on the keys.
+
+  */
+
+
+class DuplicateKeyRemover : public Converter::RowManipulator
+{
+public:
+    			DuplicateKeyRemover()
 			    : nrdone_(0), nrremoved_(0)	{}
 
     bool		accept(BufferStringSet&) const;
 
-    TypeSet<int>	keycols_; //!< column numbers
+    TypeSet<int>	keycols_; //!< column numbers (mand)
 
     int			nrRemoved() const		{ return nrremoved_; }
 
@@ -186,5 +238,6 @@ protected:
 
 };
 
+}; // namespace Table
 
 #endif

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Jul 2006
- RCS:		$Id: tableconv.h,v 1.3 2006-08-09 17:27:43 cvsbert Exp $
+ RCS:		$Id: tableconv.h,v 1.4 2006-08-11 10:52:44 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,12 +17,15 @@ ________________________________________________________________________
 #include "bufstringset.h"
 #include <iostream>
 
+namespace Table
+{
 
-class TableImportHandler
+class ImportHandler
 {
 public:
-    			TableImportHandler()
-			    : colpos_(0)	{}
+    			ImportHandler( std::istream& strm )
+			    : strm_(strm)
+			    , colpos_(0)	{}
 
     enum State		{ Error, InCol, EndCol, EndRow };
 
@@ -33,24 +36,36 @@ public:
     virtual void	newRow()		{}
     virtual void	newCol()		{ *col_.buf() = '\0';
 						  colpos_ = 0; }
+
+    inline char		readNewChar() const
+			{
+			    char c = strm_.peek();
+			    strm_.ignore( 1 );
+			    return c;
+			}
+    inline bool		atEnd() const		{ return strm_.eof(); }
+
 protected:
 
-    void		addToCol(char);
-
+    std::istream&	strm_;
     BufferString	col_;
     int			colpos_;
+
+    void		addToCol(char);
 
 };
 
 
-class TableExportHandler
+class ExportHandler
 {
 public:
+    			ExportHandler( std::ostream& strm )
+			    : strm_(strm)		{}
 
-    virtual const char*	putRow(const BufferStringSet&,std::ostream&)	= 0;
+    virtual const char*	putRow(const BufferStringSet&)	= 0;
 
-    virtual bool	init(std::ostream&);
-    virtual void	finish(std::ostream&);
+    virtual bool	init();
+    virtual void	finish();
 
     static bool		isNumber(const char*);
 
@@ -58,20 +73,25 @@ public:
     			//!< Before first record. Add newline if needed
     BufferString	append_;
     			//!< After last record
+
+protected:
+
+    std::ostream&	strm_;
+
+    inline const char*	getStrmMsg() const
+			{ return strm_.good() ? 0 : "Error writing to output"; }
+
 };
 
 
 
-class TableConverter : public Executor
+class Converter : public Executor
 {
 public:
-    			TableConverter( std::istream& is, TableImportHandler& i,
-					std::ostream& os, TableExportHandler& o)
+    			Converter( ImportHandler& i, ExportHandler& o )
 			    : Executor("Data import")
-			    , istrm_(is), ostrm_(os)
 			    , imphndlr_(i), exphndlr_(o)
 			    , rowsdone_(0), selcolnr_(-1)
-			    , manipulator_(0)
 			    , msg_("Importing")		{}
     // Setup
     TypeSet<int>	selcols_;
@@ -88,32 +108,28 @@ public:
 			//!< if false returned, the row should not be written
     };
     void		setManipulator( const RowManipulator* m )
-						{ manipulator_ = m; }
+			    { manipulators_.erase(); addManipulator(m); }
+    void		addManipulator( const RowManipulator* m )
+			    { manipulators_ += m; }
 
 protected:
 
-    std::istream&	istrm_;
-    std::ostream&	ostrm_;
-    TableImportHandler&	imphndlr_;
-    TableExportHandler&	exphndlr_;
+    ImportHandler&	imphndlr_;
+    ExportHandler&	exphndlr_;
     BufferStringSet	row_;
-    const RowManipulator* manipulator_;
+    ObjectSet<const RowManipulator> manipulators_;
 
     int			colnr_;
     int			selcolnr_;
     int			rowsdone_;
 
-    bool		handleImpState(TableImportHandler::State);
-    bool		colSel() const
+    bool		handleImpState(ImportHandler::State);
+    inline bool		colSel() const
 			{ return selcols_.size() < 1
 			      || selcols_.indexOf(colnr_) > -1; }
-    char		readNewChar() const
-			{
-			    char c = istrm_.peek();
-			    istrm_.ignore( 1 );
-			    return c;
-			}
 };
+
+}; // namespace Table
 
 
 #endif

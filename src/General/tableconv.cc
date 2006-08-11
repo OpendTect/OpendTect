@@ -4,12 +4,14 @@
  * DATE     : Jul 2006
 -*/
 
-static const char* rcsID = "$Id: tableconv.cc,v 1.8 2006-08-09 17:27:33 cvsbert Exp $";
+static const char* rcsID = "$Id: tableconv.cc,v 1.9 2006-08-11 10:52:45 cvsbert Exp $";
 
 #include "tableconvimpl.h"
 
+const GlobExpr Table::RecordMatcher::emptyge_;
 
-void TableImportHandler::addToCol( char c )
+
+void Table::ImportHandler::addToCol( char c )
 {
     if ( colpos_ < col_.bufSize()-1 )
 	*(col_.buf() + colpos_) = c;
@@ -23,30 +25,30 @@ void TableImportHandler::addToCol( char c )
 }
 
 
-bool TableExportHandler::isNumber( const char* str )
+bool Table::ExportHandler::isNumber( const char* str )
 {
     return isNumberString( str, NO );
 }
 
 
-bool TableExportHandler::init( std::ostream& strm )
+bool Table::ExportHandler::init()
 {
     if ( *prepend_.buf() )
-	strm << prepend_;
-    return strm.good();
+	strm_ << prepend_;
+    return strm_.good();
 }
 
 
-void TableExportHandler::finish( std::ostream& strm )
+void Table::ExportHandler::finish()
 {
     if ( *append_.buf() )
-	strm << append_;
+	strm_ << append_;
 }
 
 
-int TableConverter::nextStep()
+int Table::Converter::nextStep()
 {
-    if ( selcolnr_ == -1 && !exphndlr_.init(ostrm_) )
+    if ( selcolnr_ == -1 && !exphndlr_.init() )
     {
 	msg_ = "Cannot write first output";
 	return -1;
@@ -56,34 +58,34 @@ int TableConverter::nextStep()
 
     while ( true )
     {
-	char c = readNewChar();
-	if ( istrm_.eof() )
+	char c = imphndlr_.readNewChar();
+	if ( imphndlr_.atEnd() )
 	{
-	    exphndlr_.finish( ostrm_ );
+	    exphndlr_.finish();
 	    return 0;
 	}
 
-	TableImportHandler::State impstate = imphndlr_.add( c );
+	Table::ImportHandler::State impstate = imphndlr_.add( c );
 	if ( !handleImpState(impstate) )
 	    return -1;
-	if ( impstate == TableImportHandler::EndRow )
+	if ( impstate == Table::ImportHandler::EndRow )
 	    return 1;
     }
 }
 
 
-bool TableConverter::handleImpState( TableImportHandler::State impstate )
+bool Table::Converter::handleImpState( Table::ImportHandler::State impstate )
 {
     switch ( impstate )
     {
 
-    case TableImportHandler::Error:
+    case Table::ImportHandler::Error:
 
 	msg_ = imphndlr_.errMsg();
 
     return false;
 
-    case TableImportHandler::EndCol: {
+    case Table::ImportHandler::EndCol: {
 
 	if ( colSel() )
 	{
@@ -95,14 +97,22 @@ bool TableConverter::handleImpState( TableImportHandler::State impstate )
 
     return true; }
 
-    case TableImportHandler::EndRow: {
+    case Table::ImportHandler::EndRow: {
 
-	if ( !handleImpState(TableImportHandler::EndCol) )
+	if ( !handleImpState(Table::ImportHandler::EndCol) )
 	    return false;
 
-	if ( !manipulator_ || manipulator_->accept(row_) )
+	bool accepted = true;
+	for ( int idx=0; idx<manipulators_.size(); idx++ )
 	{
-	    const char* msg = exphndlr_.putRow( row_, ostrm_ );
+	    const RowManipulator* rm = manipulators_[idx];
+	    if ( rm && !rm->accept(row_) )
+		{ accepted = false; break; }
+	}
+
+	if ( accepted )
+	{
+	    const char* msg = exphndlr_.putRow( row_ );
 	    if ( msg && *msg )
 	    {
 		msg_ = msg;
@@ -111,6 +121,7 @@ bool TableConverter::handleImpState( TableImportHandler::State impstate )
 
 	    rowsdone_++;
 	}
+
 	row_.deepErase();
 	imphndlr_.newRow();
 
@@ -126,7 +137,7 @@ bool TableConverter::handleImpState( TableImportHandler::State impstate )
 }
 
 
-TableImportHandler::State WSTableImportHandler::add( char c )
+Table::ImportHandler::State Table::WSImportHandler::add( char c )
 {
     if ( c == '"' && !insingqstring_ )
 	{ indoubqstring_ = !indoubqstring_; return InCol; }
@@ -153,7 +164,7 @@ TableImportHandler::State WSTableImportHandler::add( char c )
 }
 
 
-TableImportHandler::State CSVTableImportHandler::add( char c )
+Table::ImportHandler::State Table::CSVImportHandler::add( char c )
 {
     if ( c == '"' )
 	{ instring_ = !instring_; return InCol; }
@@ -178,79 +189,94 @@ TableImportHandler::State CSVTableImportHandler::add( char c )
 }
 
 
-void WSTableExportHandler::addVal( std::ostream& strm, int col,
-				   const char* val )
+void Table::WSExportHandler::addVal( int col, const char* val )
 {
     if ( col )
-	strm << '\t';
-    const bool needsquotes = !*val || strcspn( val, " \t" );
-    const char quotechar = usesingquotes_ ? '\'' : '"';
-    if ( strchr( val, quotechar ) )
-	replaceCharacter( (char*)val, quotechar, '`' );
+	strm_ << '\t';
+
+    bool needsquotes = false;
+    const bool isquotecand = !*val || strcspn( val, " \t" );
+    const char quotechar = colwshanld_ == SingQuot ? '\'' : '"';
+
+    if ( colwshanld_ != None && (!*val || strcspn(val," \t")) )
+    {
+       if ( colwshanld_ >= SingQuot )
+       {
+	    needsquotes = true;
+	    if ( strchr( val, quotechar ) )
+		replaceCharacter( (char*)val, quotechar, '`' );
+	    	//TODO should in fact escape with '\\'
+       }
+       else
+       {
+	   char* ptr = (char*)val;
+	   while ( *ptr )
+	   {
+	       if ( *ptr == ' ' || *ptr == '\t' )
+		   *ptr = '_';
+	       ptr++;
+	   }
+       }
+    }
 
     if ( needsquotes )
-	strm << quotechar;
+	strm_ << quotechar;
     if ( *val )
-	strm << val;
+	strm_ << val;
     if ( needsquotes )
-	strm << quotechar;
+	strm_ << quotechar;
 }
 
 
-const char* WSTableExportHandler::putRow( const BufferStringSet& row,
-					  std::ostream& strm )
+const char* Table::WSExportHandler::putRow( const BufferStringSet& row )
 {
     for ( int idx=0; idx<row.size(); idx++ )
-	addVal( strm, idx, row.get(idx) );
-    strm << std::endl;
+	addVal( idx, row.get(idx) );
+    strm_ << std::endl;
 
-    return strm.good() ? 0 : "Error writing to output";
+    return getStrmMsg();
 }
 
 
-void CSVTableExportHandler::addVal( std::ostream& strm, int col,
-				    const char* val )
+void Table::CSVExportHandler::addVal( int col, const char* val )
 {
     if ( col )
-	strm << ',';
+	strm_ << ',';
     const bool needsquotes = *val && !isNumber( val );
     if ( needsquotes )
-	strm << '"';
+	strm_ << '"';
     if ( *val )
-	strm << val;
+	strm_ << val;
     if ( needsquotes )
-	strm << '"';
+	strm_ << '"';
 }
 
 
-const char* CSVTableExportHandler::putRow( const BufferStringSet& row,
-					   std::ostream& strm )
+const char* Table::CSVExportHandler::putRow( const BufferStringSet& row )
 {
     for ( int idx=0; idx<row.size(); idx++ )
-	addVal( strm, idx, row.get(idx) );
-    strm << std::endl;
+	addVal( idx, row.get(idx) );
+    strm_ << std::endl;
 
-    return strm.good() ? 0 : "Error writing to output";
+    return getStrmMsg();
 }
 
 
-void SQLInsertTableExportHandler::addVal( std::ostream& strm, int col,
-					  const char* val )
+void Table::SQLInsertExportHandler::addVal( int col, const char* val )
 {
     if ( col )
-	strm << ',';
+	strm_ << ',';
     const bool needsquotes = !*val || !isNumber( val );
     if ( needsquotes )
-	strm << "'";
+	strm_ << "'";
     if ( val && *val )
-	strm << val;
+	strm_ << val;
     if ( needsquotes )
-	strm << "'";
+	strm_ << "'";
 }
 
 
-const char* SQLInsertTableExportHandler::putRow( const BufferStringSet& row,
-						 std::ostream& strm )
+const char* Table::SQLInsertExportHandler::putRow( const BufferStringSet& row )
 {
     if ( nrrows_ == 0 )
     {
@@ -260,56 +286,73 @@ const char* SQLInsertTableExportHandler::putRow( const BufferStringSet& row,
 	nrextracols_ = extracolnms_.size();
     }
 
-    strm << "INSERT INTO " << tblname_;
+    strm_ << "INSERT INTO " << tblname_;
     if ( colnms_.size() )
     {
-	strm << " (";
+	strm_ << " (";
 
 	if ( addindex_ )
-	    strm << indexcolnm_;
+	    strm_ << indexcolnm_;
 	else
-	    strm << (nrextracols_ ? extracolnms_ : colnms_).get(0).buf();
+	    strm_ << (nrextracols_ ? extracolnms_ : colnms_).get(0).buf();
 
 	int idx0 = addindex_ ? 0 : 1;
 	for ( int idx=idx0; idx<nrextracols_; idx++ )
-	    strm << ',' << extracolnms_.get(idx).buf();
+	    strm_ << ',' << extracolnms_.get(idx).buf();
 	idx0 = addindex_ || nrextracols_ > 0 ? 0 : 1;
 	for ( int idx=idx0; idx<colnms_.size(); idx++ )
-	    strm << ',' << colnms_.get(idx).buf();
+	    strm_ << ',' << colnms_.get(idx).buf();
 
-	strm << ')';
+	strm_ << ')';
     }
 
-    strm << " VALUES (";
+    strm_ << " VALUES (";
 
     if ( addindex_ )
-	strm << startindex_ + nrrows_ * stepindex_;
+	strm_ << startindex_ + nrrows_ * stepindex_;
     int idxoffs = addindex_ ? 1 : 0;
     for ( int idx=0; idx<nrextracols_; idx++ )
-	addVal( strm, idx+idxoffs, extracolvals_.get(idx) );
+	addVal( idx+idxoffs, extracolvals_.get(idx) );
     idxoffs += nrextracols_;
     for ( int idx=0; idx<row.size(); idx++ )
-	addVal( strm, idx+idxoffs, row.get(idx) );
+	addVal( idx+idxoffs, row.get(idx) );
 
-    strm << ");" << std::endl;
+    strm_ << ");" << std::endl;
 
     nrrows_++;
-    return strm.good() ? 0 : "Error writing to output";
+    return getStrmMsg();
 }
 
 
-bool TCEmptyFieldRemover::accept( BufferStringSet& cols ) const
+bool Table::RecordMatcher::accept( BufferStringSet& cols ) const
 {
     for ( int idx=0; idx<ckcols_.size(); idx++ )
     {
-	if ( cols.get(ckcols_[idx]) == "" )
-	    return false;
+	const int colnr = ckcols_[idx];
+	const GlobExpr& ge = colvals_.size() <= idx ? emptyge_ : colvals_[idx];
+	if ( ge.matches(cols.get(colnr)) )
+	{
+	    if ( !any_ && not_)
+		return false;
+	    if ( any_ && !not_)
+		return true;
+	}
+	else
+	{
+	    if ( any_ && !not_)
+		return false;
+	    if ( !any_ && not_)
+		return true;
+	}
     }
-    return true;
+
+    // If it was any_, obviously we failed to find what we needed.
+    // If it was not any_, apparently everything was ok.
+    return !any_;
 }
 
 
-void TCDuplicateKeyRemover::setPrevKeys( const BufferStringSet& cols ) const
+void Table::DuplicateKeyRemover::setPrevKeys( const BufferStringSet& cols) const
 {
     if ( prevkeys_.size() < 1 )
     {
@@ -322,7 +365,7 @@ void TCDuplicateKeyRemover::setPrevKeys( const BufferStringSet& cols ) const
 }
 
 
-bool TCDuplicateKeyRemover::accept( BufferStringSet& cols ) const
+bool Table::DuplicateKeyRemover::accept( BufferStringSet& cols ) const
 {
     nrdone_++;
     if ( keycols_.size() < 1 )
@@ -339,4 +382,57 @@ bool TCDuplicateKeyRemover::accept( BufferStringSet& cols ) const
 
     nrremoved_++;
     return false;
+}
+
+
+bool Table::StartStopManipulator::isGEMatch(
+	const Table::StartStopManipulator::Criterion& crit,
+	const BufferStringSet& cols ) const
+{
+    if ( crit.matchcolidx_ >= cols.size() )
+	return false;
+
+    const int startidx = crit.matchcolidx_ < 0 ? 0 : crit.matchcolidx_;
+    const int stopidx = crit.matchcolidx_ < 0 ? cols.size() : startidx + 1;
+    for ( int idx=startidx; idx<stopidx; idx++ )
+    {
+	if ( crit.matchexpr_.matches(cols.get(idx).buf()) )
+	    return true;
+    }
+
+    return false;
+}
+
+
+void Table::StartStopManipulator::updCount(
+	const Table::StartStopManipulator::Criterion& crit,
+	const BufferStringSet& cols ) const
+{
+    if ( crit.type_ == Criterion::Records )
+	count_++;
+    else
+	count_ += isGEMatch( crit, cols ) ? 1 : 0;
+}
+
+
+bool Table::StartStopManipulator::accept( BufferStringSet& cols ) const
+{
+    if ( start_.type_ != Criterion::None && !startdone_ )
+    {
+	updCount( start_, cols );
+	if ( count_ >= start_.count_ )
+	    { startdone_ = true; count_ = 0; }
+	return false;
+    }
+
+    if ( stop_.type_ != Criterion::None )
+    {
+	if ( count_ >= stop_.count_ ) // To avoid detection after end
+	    return false;
+	updCount( stop_, cols );
+	if ( count_ >= stop_.count_ ) // To stop at detection of end
+	    return false;
+    }
+
+    return true;
 }
