@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Payraudeau
  Date:          February  2006
- RCS:           $Id: uifingerprintattrib.cc,v 1.19 2006-07-11 08:22:41 cvsbert Exp $
+ RCS:           $Id: uifingerprintattrib.cc,v 1.20 2006-08-11 08:01:35 cvshelene Exp $
 
 ________________________________________________________________________
 
@@ -208,6 +208,11 @@ void uiFingerPrintAttrib::insertRowCB( CallBacker* cb )
     attrbox->setDescSet( ads );
     attribflds_.insertAt( attrbox, newrow );
     table_->setCellObject( RowCol(newrow,0), attrbox->attachObj() );
+    
+    TypeSet<int> weights = calcobj_->getWeights();
+    weights.insert( newrow, 1);
+
+    calcobj_->setWeights( weights );
 }
 
 
@@ -219,6 +224,11 @@ void uiFingerPrintAttrib::deleteRowCB( CallBacker* cb )
 
     delete attribflds_[row2rm];
     attribflds_.remove( row2rm );
+    
+    TypeSet<int> weights = calcobj_->getWeights();
+    weights.remove( row2rm );
+
+    calcobj_->setWeights( weights );
 }
 
 
