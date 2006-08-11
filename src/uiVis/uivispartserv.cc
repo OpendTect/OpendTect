@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.327 2006-07-21 09:56:34 cvsnanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.328 2006-08-11 08:54:06 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -1277,11 +1277,16 @@ void uiVisPartServer::deselectObjCB( CallBacker* cb )
     mDynamicCastGet(visSurvey::SurveyObject*,so,dobj)
     if ( so )
     {    
-	if ( so->isManipulated() && !isLocked(oldsel) )
+	if ( so->isManipulated() )
 	{
-	    so->acceptManipulation();
-	    for ( int attrib=so->nrAttribs()-1; attrib>=0; attrib-- )
-		calculateAttrib( oldsel, attrib, false );
+	    if ( isLocked(oldsel) )
+		resetManipulation( oldsel );
+	    else
+	    {
+		so->acceptManipulation();
+		for ( int attrib=so->nrAttribs()-1; attrib>=0; attrib-- )
+		    calculateAttrib( oldsel, attrib, false );
+	    }
 	}
 
 	if ( !viewmode_ )
