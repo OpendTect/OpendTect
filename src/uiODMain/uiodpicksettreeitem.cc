@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodpicksettreeitem.cc,v 1.15 2006-07-21 18:56:04 cvskris Exp $
+ RCS:		$Id: uiodpicksettreeitem.cc,v 1.16 2006-08-11 08:58:04 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -26,7 +26,7 @@ ___________________________________________________________________
 
 
 uiODPickSetParentTreeItem::uiODPickSetParentTreeItem()
-    : uiODTreeItem( "PickSet" )
+    : uiODTreeItem("PickSet")
     , display_on_add(false)
 {
     Pick::Mgr().setAdded.notify( mCB(this,uiODPickSetParentTreeItem,setAdd) );
@@ -107,14 +107,14 @@ bool uiODPickSetParentTreeItem::showSubMenu()
     mnu.insertItem( new uiMenuItem("New/Load ..."), 0 );
     if ( children_.size()>0 )
     {
-	mnu.insertItem( new uiMenuItem("Save changes"), 1);
+	mnu.insertItem( new uiMenuItem("Save changes"), 1 );
 	mnu.insertSeparator();
 	uiMenuItem* filteritem =
-	    new uiMenuItem("Display picks only at sections");
-	mnu.insertItem( filteritem );
+	    new uiMenuItem( "Display picks only at sections" );
+	mnu.insertItem( filteritem, 2 );
 	filteritem->setEnabled( !hastransform );
-	uiMenuItem* shwallitem = new uiMenuItem("Show all picks");
-	mnu.insertItem( shwallitem );
+	uiMenuItem* shwallitem = new uiMenuItem( "Show all picks" );
+	mnu.insertItem( shwallitem, 3 );
 	shwallitem->setEnabled( !hastransform );
 	mnu.insertSeparator();
 	mnu.insertItem( new uiMenuItem("Merge Sets"), 4 );
