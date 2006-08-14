@@ -4,7 +4,7 @@
  * DATE     : Jan 2005
 -*/
 
-static const char* rcsID = "$Id: posvecdataset.cc,v 1.12 2006-07-13 12:53:12 cvsnanne Exp $";
+static const char* rcsID = "$Id: posvecdataset.cc,v 1.13 2006-08-14 09:34:22 cvsbert Exp $";
 
 #include "posvecdataset.h"
 
@@ -235,7 +235,7 @@ static StreamData getInpSD( const char* fnm, BufferString& errmsg,
     std::string buf; *sd.istrm >> buf;
     sd.istrm->seekg( 0, std::ios::beg );
     char c = sd.istrm->peek();
-    tabstyle = buf != "dTect";
+    tabstyle = buf != "dTect" && buf != "dGB-GDI";
     if ( !tabstyle )
     {
 	ascistream strm( *sd.istrm );
