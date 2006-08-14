@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          October 2002
- RCS:           $Id: uiprintscenedlg.cc,v 1.27 2006-07-06 13:25:33 cvsbert Exp $
+ RCS:           $Id: uiprintscenedlg.cc,v 1.28 2006-08-14 09:50:05 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -329,15 +329,9 @@ void uiPrintSceneDlg::fileSel( CallBacker* )
 
 void uiPrintSceneDlg::addFileExtension( BufferString& filename )
 {
-    char* ptr = strrchr( filename.buf(), '.' );
-    if ( !ptr )
-    { filename += "." ; filename += getExtension(); }
-    else
-    {
-	const int len = strlen( ptr );
-	filename[ filename.size()-len ] = 0;
-	filename += getExtension();
-    }
+    FilePath fp( filename.buf() );
+    fp.setExtension( getExtension() );
+    filename = fp.fullPath();
 }
 
 
