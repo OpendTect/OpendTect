@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.328 2006-08-11 08:54:06 cvsnanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.329 2006-08-14 07:38:04 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -515,8 +515,6 @@ const Attrib::DataCubes* uiVisPartServer::getCachedData(
 bool uiVisPartServer::setCubeData( int id, int attrib, 
 				   const Attrib::DataCubes* attribdata )
 {
-    if ( !attribdata  ) return false;
-
     mDynamicCastGet( visSurvey::SurveyObject*, so, getObject(id) );
     if ( !so )
 	return false;

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.144 2006-08-03 19:00:46 cvsnanne Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.145 2006-08-14 07:38:35 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -408,9 +408,8 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
 
 		RefMan<const Attrib::DataCubes> newdata =
 				calc->createAttrib( cs, cache );
-		if ( !newdata ) return false;
+		res = newdata;
 		visserv->setCubeData( visid, attrib, newdata );
-		res = true;
 		break;
 	    }
 
@@ -418,7 +417,12 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
 	    RefMan<const Attrib::DataCubes> newdata =
 				attrserv->createOutput( cs, cache );
 
-	    if ( !newdata ) return false;
+	    if ( !newdata )
+	    {
+		visserv->setCubeData( visid, attrib, 0 );
+		return false;
+	    }
+
 	    const bool isclass = newdata->nrCubes()<1 ? false :
 			attrserv->isDataClassified( newdata->getCube(0) );
 	    if ( isclass ) 
