@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiviscoltabed.cc,v 1.16 2006-07-12 21:21:39 cvskris Exp $";
+static const char* rcsID = "$Id: uiviscoltabed.cc,v 1.17 2006-08-14 09:17:06 cvsnanne Exp $";
 
 #include "uiviscoltabed.h"
 
@@ -21,11 +21,12 @@ static const char* rcsID = "$Id: uiviscoltabed.cc,v 1.16 2006-07-12 21:21:39 cvs
 
 
 uiVisColTabEd::uiVisColTabEd( uiParent* p, bool vert )
-    : uiGroup( p, "ColorTable Editor" )
-    , coltabed_( 0 )
-    , coltab_( 0 )
+    : uiGroup(p,"ColorTable Editor")
+    , coltabed_(0)
+    , coltab_(0)
     , coltabcb( mCB(this,uiVisColTabEd,colTabChangedCB) )
-    , sequenceChange( this )
+    , sequenceChange(this)
+    , coltabChange(this)
 {
     const char* setkey = "dTect.Color table.Name";
     BufferString ctname = "Seismics";
@@ -39,16 +40,16 @@ uiVisColTabEd::uiVisColTabEd( uiParent* p, bool vert )
 	    			     .key(setkey)
 	    			     .vertical(vert),
 	    			     &ct );
-    coltabed_->tablechanged.notify(mCB(this, uiVisColTabEd, colTabEdChangedCB));
-    visBase::DM().removeallnotify.notify(mCB(this,uiVisColTabEd,delColTabCB));
+    coltabed_->tablechanged.notify( mCB(this,uiVisColTabEd,colTabEdChangedCB) );
+    visBase::DM().removeallnotify.notify( mCB(this,uiVisColTabEd,delColTabCB) );
     setColTab( -1 );
 }
 
 
 uiVisColTabEd::~uiVisColTabEd()
 {
-    coltabed_->tablechanged.remove(mCB(this,uiVisColTabEd, colTabEdChangedCB));
-    visBase::DM().removeallnotify.remove(mCB(this,uiVisColTabEd,delColTabCB));
+    coltabed_->tablechanged.remove( mCB(this,uiVisColTabEd,colTabEdChangedCB) );
+    visBase::DM().removeallnotify.remove( mCB(this,uiVisColTabEd,delColTabCB) );
     setColTab( -1 );
     delete coltabed_;
 }
@@ -106,7 +107,7 @@ void uiVisColTabEd::colTabEdChangedCB( CallBacker* )
     bool oldseqchstatus = coltab_->sequencechange.enable( false );
 
     ColorTable newct = *coltabed_->getColorTable();
-    newct.scaleTo( Interval<float>( 0, 1 ) );
+    newct.scaleTo( Interval<float>(0,1) );
     if ( !(newct == colseq_) )
     {
 	seqchange = true;
@@ -132,28 +133,30 @@ void uiVisColTabEd::colTabEdChangedCB( CallBacker* )
 	coltab_->setAutoScale( coltabautoscale_ );
     }
 
-    coltab_->rangechange.enable(oldrangechstatus);
+    coltab_->rangechange.enable( oldrangechstatus );
     coltab_->sequencechange.enable( oldseqchstatus );
 
     if ( autoscalechange && coltabed_->autoScale() )
     {
-	coltab_->autoscalechange.remove(coltabcb);
+	coltab_->autoscalechange.remove( coltabcb );
 	coltab_->triggerAutoScaleChange();
-	coltab_->autoscalechange.notify(coltabcb);
+	coltab_->autoscalechange.notify( coltabcb );
     }
     else if ( rangechange )
     {
-	coltab_->rangechange.remove(coltabcb);
+	coltab_->rangechange.remove( coltabcb );
 	coltab_->triggerRangeChange();
-	coltab_->rangechange.notify(coltabcb);
+	coltab_->rangechange.notify( coltabcb );
     }
     else if ( seqchange )
     {
-	coltab_->sequencechange.remove(coltabcb);
+	coltab_->sequencechange.remove( coltabcb );
 	coltab_->triggerSeqChange();
-	coltab_->sequencechange.notify(coltabcb);
+	coltab_->sequencechange.notify( coltabcb );
 	sequenceChange.trigger();
     }
+
+    coltabChange.trigger();
 }
 
 
@@ -190,19 +193,19 @@ void uiVisColTabEd::enableCallBacks()
 
 void uiVisColTabEd::disableCallBacks()
 {
-    coltab_->rangechange.remove(coltabcb);
-    coltab_->sequencechange.remove(coltabcb);
-    coltab_->autoscalechange.remove(coltabcb);
+    coltab_->rangechange.remove( coltabcb );
+    coltab_->sequencechange.remove( coltabcb );
+    coltab_->autoscalechange.remove( coltabcb );
 }
 
 
 
 uiColorBarDialog::uiColorBarDialog( uiParent* p, int coltabid,
-				    const char* title)
+				    const char* title )
     	: uiDialog(p, uiDialog::Setup(title,0).modal(false)
 		   .oktext("Exit").dlgtitle("").canceltext(""))
 	, winClosing( this )
-	, coltabed_( new uiVisColTabEd(this, true) )
+	, coltabed_( new uiVisColTabEd(this,true) )
 {
     coltabed_->setColTab( coltabid );
     coltabed_->setPrefHeight( 320 );
@@ -215,9 +218,8 @@ void uiColorBarDialog::uiColorBarDialog::setColTab( int id )
 }
 
 
-bool uiColorBarDialog::closeOK( )
+bool uiColorBarDialog::closeOK()
 {
     winClosing.trigger( this );
     return true;
 }
-
