@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodmain.cc,v 1.44 2006-06-28 13:32:50 cvsbert Exp $
+ RCS:           $Id: uiodmain.cc,v 1.45 2006-08-14 09:20:09 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -195,10 +195,11 @@ bool uiODMain::buildUI()
     }
 
     ctabed = new uiVisColTabEd( ctabwin, isvert );
+    ctabed->coltabChange.notify( mCB(applmgr,uiODApplMgr,coltabChg) );
     if ( isvert )
     {
 	ctabed->setPrefHeight( cCTHeight );
-	ctabed->attach(hCentered);
+	ctabed->attach( hCentered );
     }
 
     moveDockWindow( *ctabwin, isontop ? uiMainWin::TornOff

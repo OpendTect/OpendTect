@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.145 2006-08-14 07:38:35 cvsnanne Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.146 2006-08-14 09:20:09 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -528,7 +528,6 @@ bool uiODApplMgr::evaluateAttribute( int visid, int attrib )
 }
 
 
-
 bool uiODApplMgr::handleEvent( const uiApplPartServer* aps, int evid )
 {
     if ( !aps ) return true;
@@ -992,7 +991,16 @@ void uiODApplMgr::pageUpDownPressed( bool up )
 
 void uiODApplMgr::modifyColorTable( int visid, int attrib )
 {
-    appl.colTabEd().setColTab( visserv->getColTabId(visid, attrib) );
+    appl.colTabEd().setColTab( visserv->getColTabId(visid,attrib) );
+    setHistogram( visid, attrib );
+}
+
+
+void uiODApplMgr::coltabChg( CallBacker* )
+{
+    const int visid = visserv->getEventObjId();
+    int attrib = visserv->getSelAttribNr();
+    if ( attrib == -1 ) attrib = 0;
     setHistogram( visid, attrib );
 }
 

@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiodapplmgr.h,v 1.37 2006-08-03 19:00:46 cvsnanne Exp $
+ RCS:           $Id: uiodapplmgr.h,v 1.38 2006-08-14 09:20:09 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -103,7 +103,7 @@ public:
     void			selectHorizon(MultiID&);
     void			selectFault(MultiID&);
     void			selectStickSet(MultiID&);
-    bool			selectAttrib( int id, int attrib );
+    bool			selectAttrib(int id,int attrib);
 
     // PickSets
     bool			storePickSets();
@@ -168,7 +168,8 @@ protected:
     bool			handleNLAServEv(int);
     bool			handleAttribServEv(int);
 
-    void			setHistogram( int visid, int attrib );
+    void			coltabChg(CallBacker*);
+    void			setHistogram(int visid,int attrib);
     void			setupRdmLinePreview(const TypeSet<Coord>&);
     void			cleanPreview();
 
