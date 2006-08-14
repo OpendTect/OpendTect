@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.144 2006-07-21 21:16:16 cvskris Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.145 2006-08-14 07:37:27 cvsnanne Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -816,7 +816,7 @@ bool PlaneDataDisplay::setDataVolume( int attrib,
 
     if ( volumecache_[attrib] ) volumecache_[attrib]->unRef();
     volumecache_.replace( attrib, datacubes );
-    datacubes->ref();
+    if ( datacubes ) datacubes->ref();
     return true;
 }
 
