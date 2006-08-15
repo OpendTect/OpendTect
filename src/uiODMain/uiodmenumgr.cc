@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.cc,v 1.50 2006-08-03 19:00:46 cvsnanne Exp $
+ RCS:           $Id: uiodmenumgr.cc,v 1.51 2006-08-15 11:32:56 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -205,14 +205,14 @@ void uiODMenuMgr::fillFileMenu()
     filemnu->insertItem( impmnu );
     filemnu->insertItem( expmnu );
     manmnu = new uiPopupMenu( &appl, "&Manage");
-    mInsertItem( manmnu, "&Seismics ...", mManSeisMnuItm );
-    mInsertItem( manmnu, "&Horizons ...", mManHorMnuItm );
+
+    mInsertItem( manmnu, "&AttributeSets ...", mManAttrMnuItm );
 #ifdef __debug__
     mInsertItem( manmnu, "&Faults ...", mManFaultMnuItm );
 #endif
-
-    mInsertItem( manmnu, "&AttributeSets ...", mManAttrMnuItm );
+    mInsertItem( manmnu, "&Horizons ...", mManHorMnuItm );
     mInsertItem( manmnu, "&PickSets ...", mManPickMnuItm );
+    mInsertItem( manmnu, "&Seismics ...", mManSeisMnuItm );
     mInsertItem( manmnu, "&Wells ...", mManWellMnuItm );
     filemnu->insertItem( manmnu );
 
