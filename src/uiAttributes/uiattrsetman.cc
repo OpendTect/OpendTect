@@ -4,18 +4,20 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          September 2003
- RCS:           $Id: uiattrsetman.cc,v 1.1 2006-08-03 18:57:46 cvsnanne Exp $
+ RCS:           $Id: uiattrsetman.cc,v 1.2 2006-08-15 11:37:49 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiattrsetman.h"
 
+#include "uiioobjsel.h"
 #include "uitextedit.h"
 
 #include "attribdescsettr.h"
 #include "ctxtioobj.h"
 
+static const int cPrefWidth = 75;
 
 uiAttrSetMan::uiAttrSetMan( uiParent* p )
     : uiObjFileMan(p,uiDialog::Setup("Attribute Set file management",
@@ -24,6 +26,9 @@ uiAttrSetMan::uiAttrSetMan( uiParent* p )
 	           AttribDescSetTranslatorGroup::ioContext())
 {
     createDefaultUI();
+    selgrp->setPrefWidthInChar( cPrefWidth );
+    infofld->setPrefWidthInChar( cPrefWidth );
+
     selChg( this );
 }
 

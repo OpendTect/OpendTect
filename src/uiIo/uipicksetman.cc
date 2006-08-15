@@ -4,18 +4,20 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          September 2003
- RCS:           $Id: uipicksetman.cc,v 1.1 2006-08-03 18:56:52 cvsnanne Exp $
+ RCS:           $Id: uipicksetman.cc,v 1.2 2006-08-15 11:37:49 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uipicksetman.h"
 
+#include "uiioobjsel.h"
 #include "uitextedit.h"
 
 #include "ctxtioobj.h"
 #include "picksettr.h"
 
+static const int cPrefWidth = 75;
 
 uiPickSetMan::uiPickSetMan( uiParent* p )
     : uiObjFileMan(p,uiDialog::Setup("PickSet file management",
@@ -24,6 +26,9 @@ uiPickSetMan::uiPickSetMan( uiParent* p )
 	           PickSetTranslatorGroup::ioContext())
 {
     createDefaultUI();
+    selgrp->setPrefWidthInChar( cPrefWidth );
+    infofld->setPrefWidthInChar( cPrefWidth );
+
     selChg( this );
 }
 
