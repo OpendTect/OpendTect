@@ -4,7 +4,7 @@
  * DATE     : 7-7-1994
 -*/
 
-static const char* rcsID = "$Id: ascstream.cc,v 1.17 2006-03-12 13:39:10 cvsbert Exp $";
+static const char* rcsID = "$Id: ascstream.cc,v 1.18 2006-08-15 14:38:31 cvsbert Exp $";
 
 #include "ascstream.h"
 #include "string2.h"
@@ -61,10 +61,25 @@ void ascostream::newParagraph()
 
 void ascostream::putKeyword( const char* keyword )
 {
-    if ( !keyword ) return;
+    if ( !keyword || !*keyword ) return;
+
+    BufferString towrite = keyword;
+    char* ptr = strchr( towrite.buf(), keyvalsep );
+    while ( ptr )
+    {
+	// Need to escape keyvalsep in keyword
+	const int offs = ptr - towrite.buf();
+	BufferString tmp( ptr + 1 );
+	char escbuf[3];
+	escbuf[0] = '\\'; escbuf[1] = keyvalsep; escbuf[2] = '\0';
+	*ptr = 0;
+	towrite += escbuf;
+	towrite += tmp;
+	ptr = strchr( towrite.buf() + offs + 2, keyvalsep );
+    }
 
     if ( tabs ) stream() << '\t';
-    stream() << keyword << keyvalsep;
+    stream() << towrite << keyvalsep;
     if ( keyvalsep != '=' )
 	stream() << ' ';
 }
@@ -184,6 +199,13 @@ ascistream& ascistream::next()
     tabbed = linebuf[0] == '\t';
 
     char* separptr = strchr( linebuf, keyvalsep );
+    while ( separptr && separptr != linebuf && *(separptr-1) == '\\' )
+    {
+	for ( char* ptr=separptr-1; *ptr; ptr++ )
+	    *ptr = *(ptr+1);
+	separptr = strchr( separptr+1, keyvalsep );
+    }
+
     char* startptr = separptr + 1;
     if ( separptr )
     {
