@@ -4,7 +4,7 @@
  * DATE     : 2-8-1994
 -*/
 
-static const char* rcsID = "$Id: iodir.cc,v 1.23 2005-11-04 12:23:07 cvsbert Exp $";
+static const char* rcsID = "$Id: iodir.cc,v 1.24 2006-08-15 15:35:28 cvsbert Exp $";
 
 #include "iodir.h"
 #include "iolink.h"
@@ -53,9 +53,31 @@ IODir::~IODir()
 }
 
 
+//TODO remove this crap and below when release 3.0 appears
+// Is just there to keep beta-release users happy
+#include "iopar.h"
+static bool needwriteomf_hack = false;
+static void changeHor2Chronostrat( IOObj* ioobj )
+{
+    if ( ioobj && ioobj->group() != "Horizon" ) return;
+
+    const char* typstr = ioobj->pars().find( "Type" );
+    if ( !typstr && *typstr != 'C' ) return;
+
+    ioobj->setGroup( "ChronoStratigraphy" );
+    ioobj->pars().removeWithKey( "Type" );
+    needwriteomf_hack = true;
+}
+
+
 bool IODir::build()
 {
-    return doRead( dirname_, this ) ? true : false;
+    needwriteomf_hack = false;
+    bool rv = doRead( dirname_, this );
+    if ( rv && needwriteomf_hack )
+	doWrite();
+    needwriteomf_hack = false;
+    return rv;
 }
 
 
@@ -130,6 +152,7 @@ IOObj* IODir::readOmf( std::istream& strm, const char* dirnm,
 
 	if ( dirptr )
 	{
+	    changeHor2Chronostrat( obj );
 	    retobj = obj;
 	    if ( id == 1 ) dirptr->setLinked( obj );
 	    dirptr->addObj( obj, false );
@@ -142,6 +165,7 @@ IOObj* IODir::readOmf( std::istream& strm, const char* dirnm,
 		delete obj;
 	    else
 	    {
+		changeHor2Chronostrat( obj );
 		retobj = obj;
 		retobj->setStandAlone( dirnm );
 		break;
