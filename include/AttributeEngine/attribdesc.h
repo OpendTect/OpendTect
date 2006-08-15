@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribdesc.h,v 1.33 2006-07-24 06:50:01 cvsnanne Exp $
+ RCS:           $Id: attribdesc.h,v 1.34 2006-08-15 17:34:49 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -95,7 +95,8 @@ public:
     int                 nrSpecs() const         { return inputspecs.size(); }
     InputSpec&		inputSpec(int);
     const InputSpec&	inputSpec(int) const;
-    bool        	setInput(int input,Desc*);
+    bool        	setInput(int,Desc*);
+    bool        	setInput(int,const Desc*);
     Desc*		getInput(int);
     const Desc*		getInput(int) const;
     bool		is2D() const;

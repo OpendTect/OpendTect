@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribdesc.cc,v 1.45 2006-07-13 12:53:12 cvsnanne Exp $";
+static const char* rcsID = "$Id: attribdesc.cc,v 1.46 2006-08-15 17:34:41 cvsbert Exp $";
 
 #include "attribdesc.h"
 
@@ -86,7 +86,7 @@ Desc::Desc( const Desc& a )
     {
 	addInput( a.inputSpec(idx) );
 	if ( a.inputs[idx] )
-	    setInput(idx,a.inputs[idx]);
+	    setInput( idx, a.inputs[idx] );
     }
 
     for ( int idx=0; idx<a.nrOutputs(); idx++ )
@@ -248,6 +248,12 @@ void Desc::setStoredDataType( Seis::DataType dt )
 	return;
 
     setNrOutputs( dt, 2 );
+}
+
+
+bool Desc::setInput( int inp, const Desc* nd )
+{
+    return setInput( inp, const_cast<Desc*>( nd ) );
 }
 
 
@@ -702,7 +708,7 @@ Desc* Desc::getStoredInput() const
 	if ( !inputs[idx] ) continue;
 
 	if ( inputs[idx]->isStored() )
-	    return inputs[idx];
+	    return const_cast<Desc*>( inputs[idx] );
 	else
 	    desc = inputs[idx]->getStoredInput();
     }
@@ -710,30 +716,5 @@ Desc* Desc::getStoredInput() const
     return desc;
 }
 
-
-/*
-IOObj* Desc::getDefCubeIOObj( bool issteering, bool is2d ) const;
-{
-    IOObjContext ctxt( SeisTrcTranslatorGroup::ioContext() );
-    if ( issteering && !is2d )
-    {
-        ctxt.ioparkeyval[0] = sKey::Type;
-        ctxt.ioparkeyval[1] = sKey::Steering;
-        ctxt.includekeyval = true;
-    }
-    ctxt.trglobexpr = is2d ? "2D" : "CBVS";
-    return IOM().getFirst( ctxt );
-}
-
-
-bool Desc::getDataLimits( CubeSampling& cs, const char* lk ) const
-{
-    CubeSampling lcs;
-    if (!SeisTrcTranslator::getRanges(getDefCubeIOObj(issteering,is2d),lcs,lk) )
-        return false;
-    cs = lcs;
-    return true;
-}
-*/
 
 }; // namespace Attrib
