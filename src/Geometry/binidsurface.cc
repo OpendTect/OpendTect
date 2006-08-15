@@ -4,7 +4,7 @@
  * DATE     : Nov 2004
 -*/
 
-static const char* rcsID = "$Id: binidsurface.cc,v 1.11 2006-08-03 13:29:14 cvskris Exp $";
+static const char* rcsID = "$Id: binidsurface.cc,v 1.12 2006-08-15 11:29:52 cvsnanne Exp $";
 
 #include "binidsurface.h"
 
@@ -46,7 +46,7 @@ Coord3 BinIDSurface::computePosition( const Coord& param ) const
     int prevrowidx = rowrange.getIndex(param.x);
     if ( prevrowidx<0 || prevrowidx>nrRows()-1 )
 	return Coord3::udf();
-    else if ( prevrowidx==nrRows()-1 )
+    else if ( prevrowidx>0 && prevrowidx==nrRows()-1 )
     {
 	if ( rowrange.atIndex(prevrowidx)>=param.x )
 	    prevrowidx--;
@@ -57,7 +57,7 @@ Coord3 BinIDSurface::computePosition( const Coord& param ) const
     int prevcolidx = colrange.getIndex(param.y);
     if ( prevcolidx<0 || prevcolidx>nrCols()-1 )
 	return Coord3::udf();
-    else if ( prevcolidx==nrCols()-1 )
+    else if ( prevcolidx>0 && prevcolidx==nrCols()-1 )
     {
 	if ( colrange.atIndex(prevcolidx)>=param.y )
 	    prevcolidx--;
@@ -65,7 +65,7 @@ Coord3 BinIDSurface::computePosition( const Coord& param ) const
 	    return Coord3::udf();
     }
 
-    float depth00 = depths_->get( prevrowidx, prevcolidx+1 );
+    float depth00 = depths_->get( prevrowidx, prevcolidx );
     float depth01 = depths_->get( prevrowidx, prevcolidx+1 );
     float depth10 = depths_->get( prevrowidx+1, prevcolidx );
     float depth11 = depths_->get( prevrowidx+1, prevcolidx+1 );
@@ -92,7 +92,6 @@ Coord3 BinIDSurface::computePosition( const Coord& param ) const
 	    depth10 = mEstimateCorner( depth00, depth01, depth11 );
 	else //!def11
 	    depth11 = mEstimateCorner( depth10, depth00, depth01 );
-	
     }
 
     const float depth = (one_minus_u*depth00 + u*depth10) * (1-v) +
