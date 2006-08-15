@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          July  2006
- RCS:           $Id: uigapdeconattrib.cc,v 1.3 2006-08-15 07:54:56 cvshelene Exp $
+ RCS:           $Id: uigapdeconattrib.cc,v 1.4 2006-08-15 09:41:16 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -119,16 +119,10 @@ void uiGapDeconAttrib::examPush( CallBacker* cb )
 }
 
 
-//see which param we would want to eval
-/*
+//TODO see which param we would want to eval
 void uiGapDeconAttrib::getEvalParams( TypeSet<EvalParam>& params ) const
 {
-    params += EvalParam( timegatestr, GapDecon::gateStr() );
-
-    if ( !strcmp(extstrs[3],extfld->text()) )
-	params += EvalParam( stepoutstr, GapDecon::stepoutStr() );
-    else
-	params += EvalParam( "Trace positions", GapDecon::pos0Str(),
-			     GapDecon::pos1Str() );
+    params += EvalParam( noiselevelstr, GapDecon::noiselevelStr() );
 }
-*/
+
+
