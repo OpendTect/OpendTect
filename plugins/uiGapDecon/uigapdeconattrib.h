@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          July 2006
- RCS:           $Id: uigapdeconattrib.h,v 1.2 2006-07-20 15:24:48 cvsnanne Exp $
+ RCS:           $Id: uigapdeconattrib.h,v 1.3 2006-08-15 07:54:56 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,7 +39,7 @@ protected:
     uiGenInput*		noiselvlfld_;
     uiGenInput*		isinpzerophasefld_;
     uiGenInput*		isoutzerophasefld_;
-    uiLabeledSpinBox*	stepoutfld_;
+    uiLabeledSpinBox*	nrtrcsfld_;
     uiPushButton*	exambut_;
 
     bool		setParameters(const Attrib::Desc&);

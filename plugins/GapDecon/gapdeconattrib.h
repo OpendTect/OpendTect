@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Huck
  Date:          14-07-2007
- RCS:           $Id: gapdeconattrib.h,v 1.1 2006-07-19 13:35:51 cvshelene Exp $
+ RCS:           $Id: gapdeconattrib.h,v 1.2 2006-08-15 07:54:56 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,7 +31,7 @@ public:
     static const char*		gateStr()	{ return "gate"; }
     static const char*		lagsizeStr()	{ return "lagsize"; }
     static const char*		gapsizeStr()	{ return "gapsize"; }
-    static const char*		nrtrcStr()	{ return "nrtrcmixed"; }
+    static const char*		nrtrcsStr()	{ return "nrtrcsmixed"; }
     static const char*		noiselevelStr()	{ return "noiselevel"; }
     static const char*		isinp0phaseStr(){ return "isinpzerophase"; }
     static const char*		isout0phaseStr(){ return "isoutzerophase"; }
@@ -59,7 +59,7 @@ protected:
 
     bool			isinpzerophase_;
     bool			isoutzerophase_;
-    int				stepout_;
+    BinID			stepout_;
 
     ObjectSet<const DataHolder>	inputdata_;
 };

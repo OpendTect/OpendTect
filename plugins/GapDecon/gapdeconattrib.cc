@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Huck
  Date:          July 2006
- RCS:           $Id: gapdeconattrib.cc,v 1.2 2006-07-20 15:25:59 cvsnanne Exp $
+ RCS:           $Id: gapdeconattrib.cc,v 1.3 2006-08-15 07:54:56 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,8 +34,8 @@ void GapDecon::initClass()
     IntParam* noiselevel = new IntParam( noiselevelStr() );
     desc->addParam( noiselevel );
 
-    IntParam* stepout = new IntParam( stepoutStr() );
-    desc->addParam( stepout );
+    IntParam* nrtrcs = new IntParam( nrtrcsStr() );
+    desc->addParam( nrtrcs );
 
     ZGateParam* gate = new ZGateParam( gateStr() );
     gate->setLimits( Interval<float>(-mLargestZGate,mLargestZGate) );
@@ -70,8 +70,9 @@ GapDecon::GapDecon( Desc& desc_ )
     mGetBool( isoutzerophase_, isout0phaseStr() );
     mGetInt( lagsize_, lagsizeStr() );
     mGetInt( gapsize_, gapsizeStr() );
-    mGetInt( stepout_, stepoutStr() );
-    stepout_ = stepout_/2;
+    int nrtrcs;
+    mGetInt( nrtrcs, nrtrcsStr() );
+    stepout_ = BinID( nrtrcs/2, nrtrcs/2 );
 
     mGetInt( noiselevel_, noiselevelStr() );
 }
