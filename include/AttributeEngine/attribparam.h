@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribparam.h,v 1.25 2006-06-14 17:36:58 cvskris Exp $
+ RCS:           $Id: attribparam.h,v 1.26 2006-08-15 17:37:46 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -121,7 +121,8 @@ public:
     void			setDefaultValue(bool,int idx=0);
     void			setDefaultValue(const char*,int idx=0);
 
-    DataInpSpec*		getSpec() { return spec_; }
+    DataInpSpec*		getSpec()	{ return spec_; }
+    const DataInpSpec*		getSpec() const	{ return spec_; }
 
     virtual bool		setCompositeValue(const char*);
     virtual bool		getCompositeValue(BufferString&) const;
