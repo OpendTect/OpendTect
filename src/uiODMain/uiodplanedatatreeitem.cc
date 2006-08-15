@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodplanedatatreeitem.cc,v 1.9 2006-07-21 09:56:35 cvsnanne Exp $
+ RCS:		$Id: uiodplanedatatreeitem.cc,v 1.10 2006-08-15 11:33:31 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -147,11 +147,14 @@ BufferString uiODPlaneDataTreeItem::createDisplayName() const
 	res = cs.hrg.start.crl;
     else
     {
-	float zfactor = 1;
 	mDynamicCastGet(visSurvey::Scene*,scene,visserv->getObject(sceneID()))
 	if ( scene && !scene->getDataTransform() )
-	    zfactor = SI().zFactor();
-	res = cs.zrg.start * zfactor;
+	{
+	    const float zval = cs.zrg.start * SI().zFactor();
+	    res = BufferString( SI().zIsTime() ? mNINT(zval) : zval );
+	}
+	else
+	    res = cs.zrg.start;
     }
 
     return res;
