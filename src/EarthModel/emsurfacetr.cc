@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: emsurfacetr.cc,v 1.11 2006-05-24 07:46:56 cvskris Exp $
+ RCS:           $Id: emsurfacetr.cc,v 1.12 2006-08-16 12:19:47 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,6 +42,7 @@ const IOObjContext& EMHorizonTranslatorGroup::ioContext()
 	ctxt->needparent = false;
 	ctxt->maychdir = false;
 	ctxt->stdseltype = IOObjContext::Surf;
+	ctxt->trglobexpr = mDGBKey;
     }
 
     // Due to static initialisation order ...
