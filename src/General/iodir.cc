@@ -4,7 +4,7 @@
  * DATE     : 2-8-1994
 -*/
 
-static const char* rcsID = "$Id: iodir.cc,v 1.25 2006-08-16 08:10:43 cvsbert Exp $";
+static const char* rcsID = "$Id: iodir.cc,v 1.26 2006-08-16 12:23:25 cvsnanne Exp $";
 
 #include "iodir.h"
 #include "iolink.h"
@@ -59,12 +59,12 @@ IODir::~IODir()
 static bool needwriteomf_hack = false;
 static void changeHor2Chronostrat( IOObj* ioobj )
 {
-    if ( ioobj && ioobj->group() != "Horizon" ) return;
+    if ( ioobj && strcmp(ioobj->group(),"Horizon") ) return;
 
     const char* typstr = ioobj->pars().find( "Type" );
-    if ( !typstr && *typstr != 'C' ) return;
+    if ( !typstr || *typstr != 'C' ) return;
 
-    ioobj->setGroup( "ChronoStratigraphy" );
+    ioobj->setTranslator( "ChronoStrat" );
     ioobj->pars().removeWithKey( "Type" );
     needwriteomf_hack = true;
 }
