@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:		$Id: uiseismmproc.cc,v 1.105 2006-08-09 10:35:34 cvsbert Exp $
+ RCS:		$Id: uiseismmproc.cc,v 1.106 2006-08-16 10:51:20 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -567,7 +567,7 @@ void uiSeisMMProc::stopPush( CallBacker* )
 void uiSeisMMProc::vwLogPush( CallBacker* )
 {
     BufferString hostnm( curUsedMachName() );
-    HostNFailInfo* hfi = 0;
+    const HostNFailInfo* hfi = 0;
     const ObjectSet<HostNFailInfo>& hi = jobrunner->hostInfo();
     for ( int idx=0; idx<hi.size(); idx++ )
     {

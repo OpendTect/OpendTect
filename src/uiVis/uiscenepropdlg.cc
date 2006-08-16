@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          February 2006
- RCS:           $Id: uiscenepropdlg.cc,v 1.2 2006-02-24 15:49:26 cvskris Exp $
+ RCS:           $Id: uiscenepropdlg.cc,v 1.3 2006-08-16 10:51:20 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -129,7 +129,8 @@ bool uiScenePropertyDlg::acceptOK( CallBacker* )
     }
 
     for ( int idx=0; idx<viewers_.size(); idx++ )
-	viewers_[idx]->setBackgroundColor( bgcolfld_->color() );
+	const_cast<uiSoViewer*>(viewers_[idx])->setBackgroundColor(
+					bgcolfld_->color() );
 
     return true;
 }

@@ -5,7 +5,7 @@
  * FUNCTION : CBVS File pack reading
 -*/
 
-static const char* rcsID = "$Id: cbvsinfo.cc,v 1.20 2006-01-06 13:28:30 cvsbert Exp $";
+static const char* rcsID = "$Id: cbvsinfo.cc,v 1.21 2006-08-16 10:51:20 cvsbert Exp $";
 
 #include "cbvsinfo.h"
 #include "binidselimpl.h"
@@ -159,7 +159,7 @@ bool CBVSInfo::SurvGeom::toNextBinID( BinID& bid ) const
     int iseg = -1;
     for ( int idx=0; idx<inlinf.segments.size(); idx++ )
     {
-	PosInfo::LineData::Segment& seg = inlinf.segments[idx];
+	const PosInfo::LineData::Segment& seg = inlinf.segments[idx];
 	if ( (seg.step > 0 && seg.start > bid.crl)
 	  || (seg.step < 0 && seg.start < bid.crl) )
 	    { iseg = idx; break; }

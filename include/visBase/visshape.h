@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visshape.h,v 1.17 2006-08-03 21:44:45 cvskris Exp $
+ RCS:		$Id: visshape.h,v 1.18 2006-08-16 10:51:19 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -34,10 +34,16 @@ class Coordinates;
 class Normals;
 class TextureCoords;
 
-/*!\brief
 
+#undef mDeclSetGetItem
+#define mDeclSetGetItem( ownclass, clssname, variable ) \
+protected: \
+    clssname*		   gt##clssname() const; \
+public: \
+    inline clssname*	   get##clssname()	 { return gt##clssname(); } \
+    inline const clssname* get##clssname() const { return gt##clssname(); } \
+    void		   set##clssname(clssname*)
 
-*/
 
 class Shape : public VisualObject
 {
@@ -51,25 +57,17 @@ public:
 				    effect. */
 
     void			setRenderCache(int mode);
-    				/*!<\param mode=0 off
-				    \param mode=1 on
-				    \param mode=2 auto (default)
-				*/
+				    //!<\param mode=0 off, 1=on, 2=auto (deflt)
     int				getRenderCache() const;
 
-    void			setTexture2( Texture2* );
-    Texture2*			getTexture2();
+    mDeclSetGetItem( Shape,	Texture2, texture2_ );
+    mDeclSetGetItem( Shape,	Texture3, texture3_ );
+    mDeclSetGetItem( Shape,	Material, material_ );
 
-    void			setTexture3( Texture3* );
-    Texture3*			getTexture3();
-
-    void			setMaterial( Material* );
-    Material*			getMaterial();
     void			setMaterialBinding( int );
     				/*!< 0 = Overall (default)
 				     1 = Per face
-				     2 = Per vertex
-				 */
+				     2 = Per vertex */
     int				getMaterialBinding() const;
 
     int				usePar(const IOPar&);
@@ -77,7 +75,7 @@ public:
 
     SoNode*			getInventorNode();
     void			insertNode( SoNode* );
-    				/*!< Inserts the node _before_ the shape */
+				    /*!< Inserts the node _before_ the shape */
     void			removeNode(SoNode*);
     virtual void		replaceShape(SoNode*);
     SoNode*			getShape() { return shape_; }
@@ -100,29 +98,26 @@ private:
 
     SoSeparator*		root_;
     SoMaterialBinding*		materialbinding_;
+
 };
 
 
 class VertexShape : public Shape
 {
 public:
-    void		setCoordinates( Coordinates* );
-    Coordinates*	getCoordinates();
-    const Coordinates*	getCoordinates() const;
+
+    mDeclSetGetItem( VertexShape, Coordinates, coords_ );
+    mDeclSetGetItem( VertexShape, Normals, normals_ );
+    mDeclSetGetItem( VertexShape, TextureCoords, texturecoords_ );
+
 
     void		setDisplayTransformation( Transformation* );
     			/*!<\note The transformation is forwarded to the
 			     the coordinates, if you change coordinates, 
-			     you will have to setTransformation again.
-			 */
+			     you will have to setTransformation again.  */
     Transformation*	getDisplayTransformation();
     			/*!<\note Direcly relayed to the coordinates */
 
-    void		setTextureCoords(TextureCoords*);
-    TextureCoords*	getTextureCoords();
-
-    void		setNormals( Normals* );
-    Normals*		getNormals();
     void		setNormalPerFaceBinding( bool yn );
     			/*!< If yn==false, normals are set per vertex */
     bool		getNormalPerFaceBinding() const;
@@ -156,6 +151,8 @@ private:
     SoNormalBinding*	normalbinding_;
     SoShapeHints*	shapehints_;
 };
+
+#undef mDeclSetGetItem
 
 
 class IndexedShape : public VertexShape

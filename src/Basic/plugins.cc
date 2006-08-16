@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Aug 2003
- RCS:           $Id: plugins.cc,v 1.48 2006-07-06 08:43:36 cvsdgb Exp $
+ RCS:           $Id: plugins.cc,v 1.49 2006-08-16 10:51:20 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -230,7 +230,7 @@ const PluginManager::Data* PluginManager::findDataWithDispName(
     if ( !nm || !*nm ) return 0;
     for ( int idx=0; idx<data_.size(); idx++ )
     {
-	Data* data = data_[idx];
+	const Data* data = data_[idx];
 	const PluginInfo* piinf = data->info_;
 	if ( piinf && piinf->dispname && !strcmp(piinf->dispname,nm) )
 	    return data;

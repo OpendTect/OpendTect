@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emtracker.cc,v 1.29 2006-07-28 13:51:54 cvsjaap Exp $";
+static const char* rcsID = "$Id: emtracker.cc,v 1.30 2006-08-16 10:51:20 cvsbert Exp $";
 
 #include "emtracker.h"
 
@@ -206,7 +206,7 @@ CubeSampling EMTracker::getAttribCube( const Attrib::SelSpec& spec ) const
 }
 
 
-void EMTracker::getNeededAttribs( ObjectSet<const Attrib::SelSpec>& res )
+void EMTracker::getNeededAttribs( ObjectSet<const Attrib::SelSpec>& res ) const
 {
     for ( int sectidx=0; sectidx<sectiontrackers_.size(); sectidx++ )
     {
@@ -292,7 +292,7 @@ void EMTracker::fillPar( IOPar& iopar ) const
 {
     for ( int idx=0; idx<sectiontrackers_.size(); idx++ )
     {
-	SectionTracker* st = sectiontrackers_[idx];
+	const SectionTracker* st = sectiontrackers_[idx];
 	IOPar localpar;
 	localpar.set( sectionidStr(), st->sectionID() );
 	st->fillPar( localpar );

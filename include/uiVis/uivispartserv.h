@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.176 2006-07-21 09:56:34 cvsnanne Exp $
+ RCS:           $Id: uivispartserv.h,v 1.177 2006-08-16 10:51:19 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -260,7 +260,7 @@ public:
     uiSlicePos*			getUiSlicePos() const
     				{ return slicepostools_; }
 
-    void			makeSectionDisplayRefresh() const;
+    void			makeSectionDisplayRefresh();
     bool			dumpOI(int id) const;
     
     bool			usePar(const IOPar&);

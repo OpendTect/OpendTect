@@ -4,7 +4,7 @@
  * DATE     : Jan 2001
 -*/
 
-static const char* rcsID = "$Id: transform.cc,v 1.4 2005-10-04 14:05:48 cvskris Exp $";
+static const char* rcsID = "$Id: transform.cc,v 1.5 2006-08-16 10:51:20 cvsbert Exp $";
 
 #include <transform.h>
 #include <arraynd.h>
@@ -51,7 +51,7 @@ bool GenericTransformND::init()
     {
 	const int sz = info->getSize( idx );
 
-	bool found = false;	
+	bool found = false;
 
 	for ( int idy=0; idy<owntransforms.size(); idy++ )
 	{
@@ -76,8 +76,8 @@ bool GenericTransformND::init()
 
     return true;
 }
-	
-	
+
+
 bool TransformND::isPossible( const ArrayNDInfo& in ) const
 {
     const int ndim = in.getNDim();
@@ -209,37 +209,37 @@ void GenericTransformND::transformND( const float* in, float* out,
 {
     const int ndim = info->getNDim();
     int nrsmall = info->getSize(dimnr);
-				
+
     int smallsz = 1;
     for ( int idx=dimnr+1; idx<ndim; idx++ )
 	smallsz *= info->getSize(idx);
-				
-    int off = 0;	
+
+    int off = 0;
     if ( ndim-dimnr==2 )
-    {		
-	Transform1D* smalltransform = transforms[ndim-1];
+    {
+	const Transform1D* smalltransform = transforms[ndim-1];
 	for ( int idx=0; idx<nrsmall; idx++ )
-	{				
+	{
 	    smalltransform->transform1D( in+off, out+off, 1 );
-	    off += smallsz;			
-	}				
-    }				
-    else		
-    {		
+	    off += smallsz;
+	}
+    }
+    else
+    {
 	for ( int idx=0; idx<nrsmall; idx++ )
-	{				
+	{
 	    transformND( in+off, out+off, dimnr+1 );
-	    off += smallsz;				
-	}					
-    }					
-				
-    off = 0;		
-    Transform1D* smalltransform = transforms[dimnr];
+	    off += smallsz;
+	}
+    }
+
+    off = 0;
+    const Transform1D* smalltransform = transforms[dimnr];
     for ( int idx=0; idx<smallsz; idx++ )
-    {					
+    {
 	smalltransform->transform1D( out+off, out+off, smallsz );
-	off++;						
-    }						
+	off++;
+    }
 }
 
 
@@ -248,36 +248,36 @@ void GenericTransformND::transformND( const float_complex* in,
 {
     const int ndim = info->getNDim();
     int nrsmall = info->getSize(dimnr);
-				
+
     int smallsz = 1;
     for ( int idx=1; idx<ndim; idx++ )
 	smallsz *= info->getSize(idx);
-				
-    int off = 0;	
+
+    int off = 0;
     if ( ndim-dimnr==2 )
-    {		
-	Transform1D* smalltransform = transforms[ndim-1];
+    {
+	const Transform1D* smalltransform = transforms[ndim-1];
 	for ( int idx=0; idx<nrsmall; idx++ )
-	{				
+	{
 	    smalltransform->transform1D( in+off, out+off, 1 );
-	    off += smallsz;			
-	}				
-    }				
-    else		
-    {		
+	    off += smallsz;
+	}
+    }
+    else
+    {
 	for ( int idx=0; idx<nrsmall; idx++ )
-	{				
+	{
 	    transformND( in+off, out+off, dimnr+1 );
-	    off += smallsz;				
-	}					
-    }					
-				
-    off = 0;		
-    Transform1D* smalltransform = transforms[dimnr];
+	    off += smallsz;
+	}
+    }
+
+    off = 0;
+    const Transform1D* smalltransform = transforms[dimnr];
     for ( int idx=0; idx<smallsz; idx++ )
-    {					
+    {
 	smalltransform->transform1D( out+off, out+off, smallsz );
-	off++;						
-    }						
+	off++;
+    }
 }
 

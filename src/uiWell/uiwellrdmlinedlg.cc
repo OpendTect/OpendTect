@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          October 2005
- RCS:           $Id: uiwellrdmlinedlg.cc,v 1.10 2006-07-11 08:22:41 cvsbert Exp $
+ RCS:           $Id: uiwellrdmlinedlg.cc,v 1.11 2006-08-16 10:51:20 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -137,7 +137,7 @@ void uiWell2RandomLineDlg::attachFields( uiGroup* selbuttons, uiGroup* topgrp,
 #define mRC(row,col) RowCol(row,col)
 
 #define mInsertRow(rowidx,text,val)\
-	selwellsbox_->insertRows( rowidx );\
+	selwellsbox_->insertRows( rowidx, 1 );\
 	selwellsbox_->setText( mRC(rowidx, 0), text );\
 	uiComboBox* box = new uiComboBox(0); \
 	box->addItems( sTypes ); \
@@ -159,7 +159,7 @@ void uiWell2RandomLineDlg::selButPush( CallBacker* cb )
 	    if ( emptyrow == -1 )
 	    {
 		emptyrow = selwellsbox_->nrRows();
-		selwellsbox_->insertRows( selwellsbox_->nrRows() );
+		selwellsbox_->insertRows( selwellsbox_->nrRows(), 1 );
 	    }
 	    selwellsbox_->setText(mRC(emptyrow, 0), wellsbox_->textOfItem(idx));
 	    uiComboBox* box = new uiComboBox(0);
@@ -193,7 +193,7 @@ void uiWell2RandomLineDlg::selButPush( CallBacker* cb )
 	    break;
 	}
 	while ( selwellsbox_->nrRows() < 5 )
-	    selwellsbox_->insertRows( selwellsbox_->nrRows() );
+	    selwellsbox_->insertRows( selwellsbox_->nrRows(), 1 );
 
 	int selectidx;
 	

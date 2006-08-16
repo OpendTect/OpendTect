@@ -4,7 +4,7 @@
  * DATE     : Oct 2001
 -*/
 
-static const char* rcsID = "$Id: seissingtrcproc.cc,v 1.33 2006-02-21 15:23:10 cvsbert Exp $";
+static const char* rcsID = "$Id: seissingtrcproc.cc,v 1.34 2006-08-16 10:51:20 cvsbert Exp $";
 
 #include "seissingtrcproc.h"
 #include "seisread.h"
@@ -246,7 +246,7 @@ const char* SeisSingleTraceProc::message() const
     const char* msg = curmsg_.buf();
     if ( !*msg && currentobj_ < rdrset_.size() )
     {
-	SeisTrcReader* currdr = rdrset_[currentobj_];
+	const SeisTrcReader* currdr = rdrset_[currentobj_];
 	static BufferString ret;
 	ret = "Handling ";
 	if ( !currdr->is2D() )

@@ -5,7 +5,7 @@
  * FUNCTION : CBVS Seismic data translator
 -*/
 
-static const char* rcsID = "$Id: seiscbvs.cc,v 1.68 2005-12-16 11:15:21 cvsbert Exp $";
+static const char* rcsID = "$Id: seiscbvs.cc,v 1.69 2006-08-16 10:51:20 cvsbert Exp $";
 
 #include "seiscbvs.h"
 #include "seisinfo.h"
@@ -175,7 +175,7 @@ bool CBVSSeisTrcTranslator::initRead_()
     innrsamples = info.nrsamples;
     for ( int idx=0; idx<nrcomp; idx++ )
     {
-	BasicComponentInfo& cinf = *info.compinfo[idx];
+	const BasicComponentInfo& cinf = *info.compinfo[idx];
 	addComp( cinf.datachar, cinf.name(), cinf.datatype );
     }
     pinfo.usrinfo = info.usertext;

@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: pickset.cc,v 1.36 2006-06-26 21:48:13 cvskris Exp $";
+static const char* rcsID = "$Id: pickset.cc,v 1.37 2006-08-16 10:51:20 cvsbert Exp $";
 
 #include "pickset.h"
 #include "survinfo.h"
@@ -113,7 +113,7 @@ bool Pick::Location::fromString( const char* s, bool doxy )
 }
 
 
-void Pick::Location::toString( char* str )
+void Pick::Location::toString( char* str ) const
 {
     if ( text )
     {

@@ -4,7 +4,7 @@
  * DATE     : 21-6-1996
 -*/
 
-static const char* rcsID = "$Id: binidvalset.cc,v 1.17 2006-08-09 14:14:18 cvshelene Exp $";
+static const char* rcsID = "$Id: binidvalset.cc,v 1.18 2006-08-16 10:51:20 cvsbert Exp $";
 
 #include "binidvalset.h"
 #include "iopar.h"
@@ -674,7 +674,7 @@ void BinIDValueSet::sortDuplicateBids( int valnr, bool asc )
 }
 
 
-void BinIDValueSet::sortPart( const TypeSet<int>& crls, TypeSet<float>& vals,
+void BinIDValueSet::sortPart( TypeSet<int>& crls, TypeSet<float>& vals,
 			      int valnr, int firstidx, int lastidx, bool asc )
 {
     int nridxs = lastidx - firstidx + 1;

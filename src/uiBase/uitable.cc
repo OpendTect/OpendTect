@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.cc,v 1.43 2006-05-09 08:34:15 cvsnanne Exp $
+ RCS:           $Id: uitable.cc,v 1.44 2006-08-16 10:51:20 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -710,7 +710,7 @@ void uiTable::rightClk()
     {
 	const int offset = (ret == inscolbef) ? 0 : 1;
 	newcell_ = RowCol( cur.row, cur.col + offset );
-	insertColumns( newcell_ );
+	insertColumns( newcell_, 1 );
 
 	if ( !setup_.defcollbl_ )
 	{
@@ -729,7 +729,7 @@ void uiTable::rightClk()
     {
 	const int offset = (ret == insrowbef) ? 0 : 1;
 	newcell_ = RowCol( cur.row + offset, cur.col );
-	insertRows( newcell_ );
+	insertRows( newcell_, 1 );
 
 	if ( !setup_.defrowlbl_ )
 	{
@@ -760,7 +760,7 @@ void uiTable::geometrySet_( CallBacker* cb )
 }
 
 
-void uiTable::updateCellSizes( uiSize* size )
+void uiTable::updateCellSizes( const uiSize* size )
 {
     if ( size ) lastsz = *size;
     else	size = &lastsz;
@@ -856,25 +856,25 @@ void uiTable::removeAllSelections()
 }
 
 
-bool uiTable::isRowSelected( int row )
+bool uiTable::isRowSelected( int row ) const
 {
     return body_->isRowSelected( row );
 }
 
 
-bool uiTable::isColumnSelected( int col )
+bool uiTable::isColumnSelected( int col ) const
 {
     return body_->isColumnSelected( col );
 }
 
 
-int uiTable::currentRow()
+int uiTable::currentRow() const
 {
     return body_->currentRow();
 }
 
 
-int uiTable::currentCol()
+int uiTable::currentCol() const
 {
     return body_->currentColumn();
 }

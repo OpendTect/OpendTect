@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: visemobjdisplay.cc,v 1.89 2006-07-28 13:57:01 cvsjaap Exp $
+ RCS:           $Id: visemobjdisplay.cc,v 1.90 2006-08-16 10:51:20 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -597,10 +597,10 @@ EM::PosID EMObjectDisplay::getPosAttribPosID( int attrib,
     if ( attribidx<0 )
 	return res;
 
-    visBase::DataObjectGroup* group = posattribmarkers_[attribidx];
+    const visBase::DataObjectGroup& group = *posattribmarkers_[attribidx];
     TypeSet<int> visids;
-    for ( int idx=1; idx<group->size(); idx++ )
-	visids += group->getObject( idx )->id();
+    for ( int idx=1; idx<group.size(); idx++ )
+	visids += group.getObject( idx )->id();
 
     for ( int idx=0; idx<path.size(); idx++ )
     {

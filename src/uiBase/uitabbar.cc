@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          17/01/2002
- RCS:           $Id: uitabbar.cc,v 1.13 2006-07-11 08:22:41 cvsbert Exp $
+ RCS:           $Id: uitabbar.cc,v 1.14 2006-08-16 10:51:20 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,7 +43,7 @@ uiTab::uiTab( uiGroup& grp )
 {}
 
 #ifndef USEQT4
-int uiTab::id()
+int uiTab::id() const
     { return body_.identifier(); }
 
 int uiTab::setName( const char* nm )
@@ -169,7 +169,7 @@ int uiTabBar::size() const
     { return body_->count(); }
 
 
-int uiTabBar::idOf( uiGroup* grp ) const
+int uiTabBar::idOf( const uiGroup* grp ) const
 {
     for ( int idx=0; idx<tabs_.size(); idx++ )
     {
@@ -185,7 +185,7 @@ int uiTabBar::idOf( uiGroup* grp ) const
 }
 
 #ifdef USEQT4
-int uiTabBar::idOf( uiTab* tab ) const
+int uiTabBar::idOf( const uiTab* tab ) const
 {
     for ( int idx=0; idx<tabs_.size(); idx++ )
     {
@@ -204,7 +204,8 @@ uiGroup* uiTabBar::page( int id ) const
 #else
     for ( int idx=0; idx<tabs_.size(); idx++ )
     {
-	if ( tabs_[idx]->id() == id ) return &tabs_[idx]->group();
+	if ( tabs_[idx]->id() == id )
+	    return const_cast<uiGroup*>( &tabs_[idx]->group() );
     }
 
     return 0;

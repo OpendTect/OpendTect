@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.h,v 1.30 2006-03-08 13:35:43 cvsnanne Exp $
+ RCS:           $Id: uitable.h,v 1.31 2006-08-16 10:51:19 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -102,18 +102,15 @@ public:
 
     int			nrRows() const;
     int			nrCols() const;
-    void		setNrRows( int nr);
-    void		setNrCols( int nr);
+    void		setNrRows(int);
+    void		setNrCols(int);
 
     Size		size() const	{ return Size( nrCols(), nrRows() ); }
-    void		setSize( const Size& s)
-			{
-			    setNrCols( s.width() );
-			    setNrRows( s.height() );
-			}
+    inline void		setSize( const Size& s)
+			{ setNrCols( s.width() ); setNrRows( s.height() ); }
 
-    int			columnWidth( int col ) const;
-    int			rowHeight( int row ) const;
+    int			columnWidth(int) const;
+    int			rowHeight(int) const;
 
     void		setLeftMargin(int);
     void		setColumnWidth(int col,int w);
@@ -123,12 +120,12 @@ public:
     void		setRowHeight(int row,int h);
     void		setRowHeightInChar(int row,float h);
 
-    void		setColumnStretchable( int col, bool stretch );
-    void		setRowStretchable( int row, bool stretch );
-    bool		isColumnStretchable( int col ) const;
-    bool		isRowStretchable( int row ) const;
+    void		setColumnStretchable(int,bool);
+    void		setRowStretchable(int,bool);
+    bool		isColumnStretchable(int) const;
+    bool		isRowStretchable(int) const;
 
-    void		setTableReadOnly( bool );
+    void		setTableReadOnly(bool);
     bool		isTableReadOnly() const;
 
     void		setColumnReadOnly(int,bool);
@@ -141,25 +138,25 @@ public:
     bool		isColumnHidden(int) const;
     bool		isRowHidden(int) const;
 
-    void		insertRows( int row, int count = 1 );
-    void		insertRows( const RowCol& rc, int count = 1 )
+    void		insertRows(int row,int count);
+    inline void		insertRows( const RowCol& rc, int count )
 			    { insertRows( rc.row, count ); }
-    void		insertColumns( int col, int count = 1 );
-    void		insertColumns( const RowCol& rc, int count = 1 )
+    void		insertColumns(int col,int count);
+    inline void		insertColumns( const RowCol& rc, int count )
 			    { insertColumns( rc.col, count ); }
-    void		removeRow( int row );
+    void		removeRow(int);
     void		removeRow( const RowCol& rc )
     				{ removeRow( rc.row ); }
     void		removeRows(const TypeSet<int>&);
-    void		removeColumn( int col );
+    void		removeColumn(int);
     void		removeColumn( const RowCol& rc )
     				{ removeColumn( rc.col ); }
     void		removeColumns(const TypeSet<int>&);
 
-    bool		isRowSelected(int row);
-    bool		isColumnSelected(int col);
-    int			currentRow();
-    int			currentCol();
+    bool		isRowSelected(int) const;
+    bool		isColumnSelected(int) const;
+    int			currentRow() const;
+    int			currentCol() const;
     void		selectRow(int row);
     void 		selectColumn(int col);
     void		removeAllSelections();
@@ -168,27 +165,27 @@ public:
     const char*		rowLabel(int) const;
     const char*		rowLabel( const RowCol& rc ) const
 			    { return rowLabel(rc.row); }
-    void		setRowLabel( int row, const char* label );
-    void		setRowLabels( const char** labels );
-    void		setRowLabels( const BufferStringSet& labels );
-    void		setRowLabel( const RowCol& rc, const char* label )
-			    { setRowLabel( rc.row, label ); }
+    void		setRowLabel(int,const char*);
+    void		setRowLabels(const char**);
+    void		setRowLabels(const BufferStringSet&);
+    void		setRowLabel( const RowCol& rc, const char* lbl )
+			    { setRowLabel( rc.row, lbl ); }
 
     const char*		columnLabel(int) const;
     const char*		columnLabel( const RowCol& rc ) const
 			    { return columnLabel(rc.col); }
-    void		setColumnLabel( int col, const char* label );
-    void		setColumnLabels( const char** labels );
-    void		setColumnLabels( const BufferStringSet& labels);
-    void		setColumnLabel( const RowCol& rc, const char* label )
-			    { setColumnLabel( rc.col, label ); }
+    void		setColumnLabel(int,const char*);
+    void		setColumnLabels(const char**);
+    void		setColumnLabels(const BufferStringSet&);
+    void		setColumnLabel( const RowCol& rc, const char* lbl )
+			    { setColumnLabel( rc.col, lbl ); }
     void		setDefaultRowLabels();
     void		setDefaultColLabels();
 
     Setup&		setup() 		{ return setup_; }
     const Setup&	setup() const		{ return setup_; }
 
-    const RowCol&		notifiedCell() const	{ return notifcell_; }
+    const RowCol&	notifiedCell() const	{ return notifcell_; }
     Notifier<uiTable>	valueChanged;
     Notifier<uiTable>	leftClicked;
     Notifier<uiTable>	rightClicked;
@@ -211,7 +208,7 @@ public:
     void		setValue(const RowCol&,float);
     void		setValue(const RowCol&,double);
 
-    void		setSelectionMode( SelectionMode );
+    void		setSelectionMode(SelectionMode);
     void		editCell(const RowCol&,bool replace=false);
 
 protected:
@@ -226,17 +223,17 @@ protected:
     void		rightClk();
 
     void		geometrySet_(CallBacker*);
-    void		updateCellSizes(uiSize* sz=0);
+    void		updateCellSizes(const uiSize* sz=0);
 
-    void		update( bool row, int rc );
+    void		update(bool row,int nr);
     void		removeRCs(const TypeSet<int>&,bool);
 
 private:
 
     uiTableBody*	body_;
-    uiTableBody&	mkbody(uiParent*, const char*, int, int);
+    uiTableBody&	mkbody(uiParent*,const char*,int,int);
 
-    uiSize		lastsz;
+    mutable uiSize	lastsz;
 
 };
 

@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		Jan 2005
  Contents:	Set with data vectors on positions
- RCS:		$Id: posvecdataset.h,v 1.7 2005-07-27 09:23:35 cvsbert Exp $
+ RCS:		$Id: posvecdataset.h,v 1.8 2006-08-16 10:51:19 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -52,6 +52,9 @@ public:
     int			nrCols() const		{ return coldefs_.size(); }
     DataColDef&		colDef( int idx )	{ return *coldefs_[idx]; }
     const DataColDef&	colDef( int idx ) const	{ return *coldefs_[idx]; }
+    int			findColDef(const DataColDef&,
+	    			   ColMatchPol p=RefExact) const;
+    			//!< returns -1 if no match
 
     const char*		name() const		{ return name_.buf(); }
     void		setName( const char* nm ) { name_ = nm; }

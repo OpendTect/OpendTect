@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uigeninput.cc,v 1.74 2006-03-12 13:39:11 cvsbert Exp $
+ RCS:           $Id: uigeninput.cc,v 1.75 2006-08-16 10:51:20 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -166,6 +166,7 @@ public:
 			}
 
     DataInpSpec&	spec()				{ return spec_; }
+    const DataInpSpec&	spec() const			{ return spec_; }
 
     bool                update( const DataInpSpec& nw )
 			{
@@ -899,7 +900,8 @@ DataInpSpec* uiGenInput::getInputSpecAndIndex( const int nr, int& idx ) const
 	inpidx++;
     }
 
-    return inpidx<inputs.size() && inputs[inpidx] ? inputs[inpidx] : 0;
+    return inpidx>=inputs.size() || !inputs[inpidx] ? 0
+	 : const_cast<DataInpSpec*>( inputs[inpidx] );
 }
 
 
@@ -908,7 +910,7 @@ uiInputFld* uiGenInput::getInputFldAndIndex( const int nr, int& idx ) const
     if ( nr < 0 || nr >= idxes.size() ) return 0;
 
     idx = idxes[nr].subidx;
-    return flds[idxes[nr].fldidx];
+    return const_cast<uiInputFld*>( flds[idxes[nr].fldidx] );
 }
 
 

@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: pca.cc,v 1.8 2006-07-13 12:53:12 cvsnanne Exp $";
+static const char* rcsID = "$Id: pca.cc,v 1.9 2006-08-16 10:51:20 cvsbert Exp $";
 
 
 #include "pca.h"
@@ -55,7 +55,7 @@ int PCACovarianceCalculator::nextStep()
 
     for ( int idx=0; idx<nrsamples; idx++ )
     {
-	TypeSet<float>& sample = *(samples[idx]);
+	const TypeSet<float>& sample = *(samples[idx]);
 	sum += (sample[row]-rowavg) *
 	       (sample[col]-colavg);
     }

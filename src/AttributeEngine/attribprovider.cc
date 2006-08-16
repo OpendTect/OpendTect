@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribprovider.cc,v 1.70 2006-08-10 07:25:27 cvshelene Exp $";
+static const char* rcsID = "$Id: attribprovider.cc,v 1.71 2006-08-16 10:51:19 cvsbert Exp $";
 
 #include "attribprovider.h"
 #include "attribstorprovider.h"
@@ -1052,8 +1052,8 @@ bool Provider::computeDesInputCube( int inp, int out, CubeSampling& res,
 
 	Interval<float> extraz = Interval<float>(extraz_.start + zrg.start,
 						 extraz_.stop + zrg.stop);
-	inputs[inp]->setSelData(seldata_);
-	inputs[inp]->setExtraZ(extraz);
+	const_cast<Provider*>(inputs[inp])->setSelData( seldata_ );
+	const_cast<Provider*>(inputs[inp])->setExtraZ( extraz );
     }
     
     if ( !desiredvolume )
@@ -1183,7 +1183,7 @@ void Provider::computeRefStep( const ObjectSet<Provider>& existing )
 void Provider::propagateRefStep( const ObjectSet<Provider>& existing )
 {
     for ( int idx=0; idx<existing.size(); idx++ )
-	existing[idx]->refstep = refstep;
+	const_cast<Provider*>(existing[idx])->refstep = refstep;
 }
 
 

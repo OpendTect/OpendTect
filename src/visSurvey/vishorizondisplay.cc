@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: vishorizondisplay.cc,v 1.14 2006-07-21 21:15:14 cvskris Exp $
+ RCS:           $Id: vishorizondisplay.cc,v 1.15 2006-08-16 10:51:20 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -446,7 +446,7 @@ unsigned char HorizonDisplay::getAttribTransparency( int attrib ) const
 {
     for ( int idx=0; idx<sections_.size(); idx++ )
     {
-	mDynamicCastGet(visBase::ParametricSurface*,psurf,sections_[idx]);
+	mDynamicCastGet(const visBase::ParametricSurface*,psurf,sections_[idx]);
 	if ( psurf )
 	    return psurf->getTextureTransparency( attrib );
     }
@@ -471,7 +471,7 @@ bool HorizonDisplay::isAttribEnabled( int attribnr ) const
     if ( !sections_.size() )
 	return true;
 
-    mDynamicCastGet(visBase::ParametricSurface*,psurf,sections_[0]);
+    mDynamicCastGet(const visBase::ParametricSurface*,psurf,sections_[0]);
     return psurf ? psurf->isTextureEnabled(attribnr) : true;
 }
 
@@ -523,7 +523,7 @@ void HorizonDisplay::getRandomPos( ObjectSet<BinIDValueSet>& data ) const
     deepErase( data );
     for ( int idx=0; idx<sections_.size(); idx++ )
     {
-	mDynamicCastGet(visBase::ParametricSurface*,psurf,sections_[idx]);
+	mDynamicCastGet(const visBase::ParametricSurface*,psurf,sections_[idx]);
 	if ( !psurf ) return;
 
 	data += new BinIDValueSet( 1, false );
@@ -540,7 +540,7 @@ void HorizonDisplay::getRandomPosCache( int attrib,
     data.allowNull( true );
     for ( int idx=0; idx<sections_.size(); idx++ )
     {
-	mDynamicCastGet(visBase::ParametricSurface*,psurf,sections_[idx]);
+	mDynamicCastGet(const visBase::ParametricSurface*,psurf,sections_[idx]);
 	if ( !psurf )
 	{
 	    data += 0;
@@ -886,7 +886,8 @@ void HorizonDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
     const int sectionidx = sids_.indexOf( sid );
     if ( sectionidx<0 ) return;
 
-    mDynamicCastGet( visBase::ParametricSurface*,psurf, sections_[sectionidx]);
+    mDynamicCastGet(const visBase::ParametricSurface*,psurf,
+	    	    sections_[sectionidx]);
     if ( !psurf ) return;
 
     const BinID bid( SI().transform(pos) );

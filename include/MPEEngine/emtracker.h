@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          23-10-1996
- RCS:           $Id: emtracker.h,v 1.24 2006-06-06 14:13:13 cvsjaap Exp $
+ RCS:           $Id: emtracker.h,v 1.25 2006-08-16 10:51:19 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,7 +51,7 @@ public:
 
     virtual CubeSampling	getAttribCube( const Attrib::SelSpec& ) const;
     void			getNeededAttribs(
-	    				ObjectSet<const Attrib::SelSpec>& );
+				    ObjectSet<const Attrib::SelSpec>&) const;
 
     SectionTracker*		getSectionTracker(EM::SectionID,
 	    					  bool create=false);

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          June 2005
- RCS:           $Id: attribposvecoutput.cc,v 1.6 2006-03-12 13:39:10 cvsbert Exp $
+ RCS:           $Id: attribposvecoutput.cc,v 1.7 2006-08-16 10:51:19 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -84,7 +84,8 @@ int PosVecOutputGen::nextStep()
 	    }
 
 	    if ( inps_.size() != bvss_[idx]->nrVals()-1 )
-		bvss_[idx]->setNrVals( inps_.size()+1 );
+		const_cast<BinIDValueSet*>(bvss_[idx])->setNrVals(
+						inps_.size()+1 );
 
 	    pvds->data() = *bvss_[idx];
 	    vdss_ += pvds;

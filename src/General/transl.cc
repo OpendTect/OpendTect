@@ -14,7 +14,7 @@
 #include "debugmasks.h"
 #include <iostream>
 
-static const char* rcsID = "$Id: transl.cc,v 1.20 2005-11-30 14:51:12 cvsbert Exp $";
+static const char* rcsID = "$Id: transl.cc,v 1.21 2006-08-16 10:51:20 cvsbert Exp $";
 
 
 TranslatorGroup::TranslatorGroup( const char* clssnm, const char* usrnm )
@@ -105,7 +105,7 @@ static TranslatorGroup* findGroup( const ObjectSet<TranslatorGroup>& grps,
     {
 	if ( ( user && grps[idx]->userName() == nm)
 	  || (!user && grps[idx]->clssName() == nm) )
-	    return grps[idx];
+	    return const_cast<TranslatorGroup*>( grps[idx] );
     }
 
     if ( iserr )

@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribstorprovider.cc,v 1.43 2006-07-05 15:29:23 cvshelene Exp $";
+static const char* rcsID = "$Id: attribstorprovider.cc,v 1.44 2006-08-16 10:51:19 cvsbert Exp $";
 
 #include "attribstorprovider.h"
 
@@ -290,7 +290,10 @@ bool StorageProvider::getPossibleVolume( int, CubeSampling& res )
 
 
 SeisRequester* StorageProvider::getSeisRequester() const
-{ return currentreq!=-1 && currentreq<rg.size() ? rg[currentreq] : 0; }
+{
+    return currentreq == -1 || currentreq >= rg.size()
+	 ? 0 : const_cast<SeisRequester*>( rg[currentreq] );
+}
 
 
 bool StorageProvider::initSeisRequester( int req )
@@ -479,7 +482,7 @@ bool StorageProvider::computeData( const DataHolder& output,
 				   int z0, int nrsamples ) const
 {
     BinID nullbid(0,0);
-    SeisTrc* trc;
+    const SeisTrc* trc;
     if ( relpos==nullbid )
 	trc = rg[currentreq]->get(0,0);
     else
@@ -521,7 +524,7 @@ bool StorageProvider::fillDataHolderWithTrc( const SeisTrc* trc,
 	    if ( outputinterest[idy] )
 	    {
 		float val = trc->getValue( curt, idy );
-		data.series(idy)->setValue(idx,val);
+		const_cast<DataHolder&>(data).series(idy)->setValue(idx,val);
 	    }
 	}
     }

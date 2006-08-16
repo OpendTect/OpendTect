@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          September 2005
- RCS:           $Id: emhorizonutils.cc,v 1.9 2006-05-23 07:52:35 cvsnanne Exp $
+ RCS:           $Id: emhorizonutils.cc,v 1.10 2006-08-16 10:51:20 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -287,7 +287,7 @@ void HorizonUtils::addSurfaceData( const MultiID& id,
     for ( int sectionidx=0; sectionidx<data.size(); sectionidx++ )
     {
 	const SectionID sectionid = horizon->sectionID( sectionidx );
-	BinIDValueSet& bivs = *data[sectionidx];
+	const BinIDValueSet& bivs = *data[sectionidx];
 
 	PosID posid( objid, sectionid );
 	BinIDValueSet::Pos pos;

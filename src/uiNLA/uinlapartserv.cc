@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uinlapartserv.cc,v 1.37 2006-05-16 16:28:22 cvsbert Exp $
+ RCS:           $Id: uinlapartserv.cc,v 1.38 2006-08-16 10:51:20 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -248,11 +248,11 @@ bool uiNLAPartServer::extractDirectData( const ObjectSet<PosVecDataSet>& vdss )
 	const BufferString outnm = crdesc.design.outputs.get(0);
 	for ( int idx=0; idx<vdss.size(); idx++ )
 	{
-	    PosVecDataSet& vds = *vdss[idx];
+	    PosVecDataSet& vds = const_cast<PosVecDataSet&>(*vdss[idx]);
 	    DataColDef* newdcd = new DataColDef( outnm );
 	    newdcd->ref_ = outnm;
 	    vds.add( newdcd );
-	    TypeSet<float>& res = *lde.results()[idx];
+	    const TypeSet<float>& res = *lde.results()[idx];
 	    const int ressz = res.size();
 
 	    BinIDValueSet::Pos pos;
@@ -396,7 +396,7 @@ const char* uiNLAPartServer::convertToClasses(
     lcd.useUserSels( usels );
     for ( int iset=0; iset<vdss.size(); iset++ )
     {
-	PosVecDataSet& vds( *vdss[iset] );
+	PosVecDataSet& vds = const_cast<PosVecDataSet&>( *vdss[iset] );
 	lcd.addCols( vds, valnm );
 	if ( !vds.data().isEmpty() )
 	    lcd.fillCols( vds, valnr );

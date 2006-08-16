@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Jan 2003
- RCS:           $Id: vistexture2.cc,v 1.35 2006-03-14 14:58:51 cvsbert Exp $
+ RCS:           $Id: vistexture2.cc,v 1.36 2006-08-16 10:51:20 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -331,7 +331,8 @@ int Texture2Set::nrTextures() const
 
 Texture2* Texture2Set::getTexture( int idx ) const
 {
-    return idx>=0 && idx<textureset.size() ? textureset[idx] : 0;
+    return idx<0 || idx>=textureset.size() ? 0
+	 : const_cast<Texture2*>( textureset[idx] );
 }
 
 

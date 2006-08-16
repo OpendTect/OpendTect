@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		April 1995
  Contents:	Sets of simple objects
- RCS:		$Id: sets.h,v 1.36 2006-06-30 09:52:58 cvsnanne Exp $
+ RCS:		$Id: sets.h,v 1.37 2006-08-16 10:51:19 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,8 +51,16 @@ public:
     virtual void	setSize( int sz, T val=T() ) { tvec.setSize(sz,val); }
     			/*!<\param val value assigned to added items
 			 	   if size is increased. */
-    virtual T&		operator[]( int idx ) const
-				{ return (T&)tvec[idx]; }
+    inline void		setValue( T val )
+    			{
+			    for ( int idx=size()-1; idx>=0; idx-- )
+				tvec[idx] = val;
+			}
+
+    virtual T&		operator[]( int idx )
+				{ return tvec[idx]; }
+    virtual const T&	operator[]( int idx ) const
+				{ return tvec[idx]; }
 
     virtual int		indexOf( const T& typ, bool forward=true ) const
 			{
@@ -276,18 +284,20 @@ public:
 
     virtual int		size() const
 				{ return ovec.size(); }
-    virtual T*		operator[]( int idx ) const
-				{ return (T*)(ovec[idx]); }
-    virtual T*		operator[]( const T* t ) const
+    virtual T*		operator[]( int idx )
+				{ return (T*)ovec[idx]; }
+    virtual const T*	operator[]( int idx ) const
+				{ return (const T*)ovec[idx]; }
+    virtual T*		operator[]( const T* t ) const //!< check + de-const
 			{
 			    int idx = indexOf(t);
-			    return idx < 0 ? 0 : (T*)t;
+			    return idx < 0 ? 0 : const_cast<T*>(t);
 			}
     virtual int		indexOf( const T* ptr ) const
 			{
 
 			    for ( int idx=0; idx<size(); idx++ )
-				if ( (T*)ovec[idx] == ptr ) return idx;
+				if ( (const T*)ovec[idx] == ptr ) return idx;
 			    return -1;
 			}
     virtual ObjectSet<T>& operator +=( T* ptr )
@@ -336,7 +346,7 @@ public:
 			{
 			    const int sz = os.size();
 			    for ( int idx=0; idx<sz; idx++ )
-				*this += os[idx];
+				*this += const_cast<T*>( os[idx] );
 			}
 
     virtual void	erase()				{ e_rase(); }

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Oct 2004
- RCS:           $Id: jobrunner.cc,v 1.34 2006-08-04 06:33:13 cvsnanne Exp $
+ RCS:           $Id: jobrunner.cc,v 1.35 2006-08-16 10:51:20 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -115,7 +115,7 @@ HostNFailInfo* JobRunner::hostNFailInfoFor( const HostData* hd ) const
     HostNFailInfo* hfi = 0;
     for ( int idx=0; idx<hostinfo_.size(); idx++ )
 	if ( &hostinfo_[idx]->hostdata_ == hd )
-	    { hfi = hostinfo_[idx]; break; }
+	    { hfi = const_cast<HostNFailInfo*>(hostinfo_[idx]); break; }
 
     return hfi;
 }
@@ -604,9 +604,8 @@ void JobRunner::showMachStatus( BufferStringSet& res ) const
 {
     for ( int ijob=0; ijob<jobinfos_.size(); ijob++ )
     {
-	JobInfo& ji = *jobinfos_[ijob];
-
-	bool active = isAssigned(ji);
+	const JobInfo& ji = *jobinfos_[ijob];
+	const bool active = isAssigned(ji);
 	    
 	if ( active && ji.hostdata_ )
 	{

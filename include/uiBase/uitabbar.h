@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          14/02/2003
- RCS:           $Id: uitabbar.h,v 1.10 2006-02-02 09:52:59 cvsnanne Exp $
+ RCS:           $Id: uitabbar.h,v 1.11 2006-08-16 10:51:19 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -53,9 +53,9 @@ public:
 
     Notifier<uiTabBar>  selected;
 
-    int			idOf(uiGroup* grp) const;
+    int			idOf(const uiGroup* grp) const;
 #ifdef USEQT4
-    int			idOf(uiTab* tab) const;
+    int			idOf(const uiTab* tab) const;
 #endif
     uiGroup*		page(int id) const;
 
@@ -74,11 +74,12 @@ friend class		uiTabBar;
 public:
 			uiTab(uiGroup&);
 #ifndef USEQT4
-    int			id();
+    int			id() const;
     int			setName(const char*);
 #endif
 
     uiGroup&		group()		{ return grp_; }
+    const uiGroup&	group() const	{ return grp_; }
 
 protected:
 

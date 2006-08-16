@@ -4,7 +4,7 @@
  * DATE     : Jan 2005
 -*/
 
-static const char* rcsID = "$Id: posvecdataset.cc,v 1.13 2006-08-14 09:34:22 cvsbert Exp $";
+static const char* rcsID = "$Id: posvecdataset.cc,v 1.14 2006-08-16 10:51:20 cvsbert Exp $";
 
 #include "posvecdataset.h"
 
@@ -142,6 +142,22 @@ void PosVecDataSet::removeColumn( int colidx )
 	delete cd;
 	data_.removeVal( colidx );
     }
+}
+
+
+int PosVecDataSet::findColDef( const DataColDef& mtchcd, ColMatchPol pol ) const
+{
+    const bool use_name = pol == NameExact || pol == NameStart;
+    const bool match_start = pol == NameStart || pol == RefStart;
+    for ( int idx=0; idx<coldefs_.size(); idx++ )
+    {
+	const DataColDef& cd = *coldefs_[idx];
+	DataColDef::MatchLevel ml = cd.compare(mtchcd,use_name);
+	if ( ml == DataColDef::Exact
+	  || (ml == DataColDef::Start && match_start) )
+	    return idx;
+    }
+    return -1;
 }
 
 
@@ -353,9 +369,6 @@ bool PosVecDataSet::getFrom( const char* fnm, BufferString& errmsg )
 	}
 	if ( !atEndOfSection(strm.next()) )
 	    pars().getFrom( strm );
-
-	if ( atEndOfSection(strm) )
-	    strm.next();
     }
 
     const int nrvals = nrCols();
@@ -370,9 +383,10 @@ bool PosVecDataSet::getFrom( const char* fnm, BufferString& errmsg )
     BinID bid; float* vals = new float [ nrvals ];
     while ( *sd.istrm )
     {
+	bid.inl = bid.crl = 0;
 	*sd.istrm >> bid.inl >> bid.crl;
 	if ( !bid.inl && !bid.crl )
-	    break;
+	    { sd.istrm->ignore( 10000, '\n' ); continue; }
 
 	for ( int idx=0; idx<nrvals; idx++ )
 	    *sd.istrm >> vals[idx];

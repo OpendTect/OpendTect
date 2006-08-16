@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attriblinebuffer.h,v 1.3 2005-07-28 10:53:49 cvshelene Exp $
+ RCS:           $Id: attriblinebuffer.h,v 1.4 2006-08-16 10:51:19 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,9 +29,13 @@ public:
 			~DataHolderLineBuffer();
 
     DataHolder*		createDataHolder( const BinID&, int t0, int nrsamples );
-    DataHolder*		getDataHolder(const BinID&) const;
     void		removeDataHolder(const BinID&);
     void		removeBefore( const BinID&, const BinID& );
+
+    DataHolder*		getDataHolder( const BinID& b )
+			{ return gtDataHolder(b); }
+    const DataHolder*	getDataHolder( const BinID& b ) const
+			{ return gtDataHolder(b); }
 
 protected:
     void		removeInline( int lineidx );
@@ -39,6 +43,7 @@ protected:
     TypeSet<int>			inlines;	
     ObjectSet<ObjectSet<DataHolder> >	inlinedata;
     ObjectSet<TypeSet<int> >		crossliness;
+    DataHolder*		gtDataHolder(const BinID&) const;
 };
 
 }; //Namespace

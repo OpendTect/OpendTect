@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          December 2004
- RCS:           $Id: uiscalingattrib.cc,v 1.7 2006-03-12 13:39:11 cvsbert Exp $
+ RCS:           $Id: uiscalingattrib.cc,v 1.8 2006-08-16 10:51:20 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -119,16 +119,14 @@ bool uiScalingAttrib::setParameters( const Desc& desc )
     if ( desc.getParam(Scaling::gateStr()) )
     {
 	mDescGetConstParamGroup(ZGateParam,gateset,desc,Scaling::gateStr())
-//	const Param* param = desc.getParam( Scaling::gateStr() );
-//	mDynamicCastGet(const ParamGroup<PT>*,gateset,param)
 	nrtgs = gateset->size();
     }
     
     while ( nrtgs > table->nrRows() )
-	table->insertRows(0);
+	table->insertRows( 0, 1 );
     
     while ( nrtgs < table->nrRows() && table->nrRows() > initnrrows )
-	table->removeRow(0);
+	table->removeRow( 0 );
 
     if ( desc.getParam(Scaling::gateStr()) )
     {

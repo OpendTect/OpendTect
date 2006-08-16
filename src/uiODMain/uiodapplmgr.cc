@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.146 2006-08-14 09:20:09 cvsnanne Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.147 2006-08-16 10:51:20 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -859,7 +859,12 @@ bool uiODApplMgr::handleNLAServEv( int evid )
 	if ( extrres )
 	{
 	    if ( dataextraction )
-		attrserv->curDescSet()->fillPar( nlaserv->storePars() );
+	    {
+		IOPar& iop = nlaserv->storePars();
+		attrserv->curDescSet()->fillPar( iop );
+		if ( iop.name() == "" )
+		    iop.setName( "Attributes" );
+	    }
 	    const char* res = nlaserv->prepareInputData( vdss );
 	    if ( res && *res && strcmp(res,uiNLAPartServer::sKeyUsrCancel) )
 		uiMSG().warning( res );

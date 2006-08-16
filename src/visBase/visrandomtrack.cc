@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Jan 2003
- RCS:           $Id: visrandomtrack.cc,v 1.35 2006-01-31 09:02:29 cvsnanne Exp $
+ RCS:           $Id: visrandomtrack.cc,v 1.36 2006-08-16 10:51:20 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -531,8 +531,7 @@ void RandomTrack::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 {
     VisualObjectImpl::fillPar( par, saveids );
 
-    Texture2* texture = sections[0]->getTexture2();
-    int textureid = texture->id();
+    int textureid = sections[0]->getTexture2()->id();
     par.set( textureidstr, textureid );
 
     Coord3 size = getDraggerSize();

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Jul 2003
- RCS:           $Id: visdepthtabplanedragger.cc,v 1.16 2006-07-12 20:42:26 cvskris Exp $
+ RCS:           $Id: visdepthtabplanedragger.cc,v 1.17 2006-08-16 10:51:20 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -349,7 +349,7 @@ void DepthTabPlaneDragger::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 
     par.set( dimstr, getDim() );
 
-    centers[dim] = center();
+    const_cast<Coord3&>(centers[dim]) = center();
     for ( int idx=0; idx<3; idx++ )
     {
 	BufferString str( centerstr );

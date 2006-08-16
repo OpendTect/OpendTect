@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexture.cc,v 1.35 2005-08-29 11:10:10 cvsbert Exp $";
+static const char* rcsID = "$Id: vistexture.cc,v 1.36 2006-08-16 10:51:20 cvsbert Exp $";
 
 #include "vistexture.h"
 
@@ -570,10 +570,6 @@ int Texture::nextPower2( int nr, int minnr, int maxnr ) const
 
     return newnr;
 }
-
-
-VisColTabMod& Texture::getColTabMod()
-{ return *coltabmod; }
 
 
 void Texture::setColorPars( bool rev, bool useclip,

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: uimenu.cc,v 1.29 2006-07-21 18:56:56 cvskris Exp $
+ RCS:           $Id: uimenu.cc,v 1.30 2006-08-16 10:51:20 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -373,9 +373,9 @@ uiMenuItem* uiMenuItemContainer::find( const char* itmtxt )
 {
     for ( int idx=0; idx<body_->nrItems(); idx++ )
     {
-	uiMenuItem* itm = body_->items()[idx];
+	const uiMenuItem* itm = body_->items()[idx];
 	if ( !strcmp(itm->name(),itmtxt) )
-	    return itm;
+	    return const_cast<uiMenuItem*>(itm);
     }
 
     return 0;

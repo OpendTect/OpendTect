@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		July 2004
- RCS:		$Id: binidvalset.h,v 1.13 2006-08-09 14:14:18 cvshelene Exp $
+ RCS:		$Id: binidvalset.h,v 1.14 2006-08-16 10:51:19 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -185,7 +185,7 @@ protected:
     bool			allowdup;
 
     void		addNew(Pos&,int,const float*);
-    void		sortPart(const TypeSet<int>&,TypeSet<float>&,
+    void		sortPart(TypeSet<int>&,TypeSet<float>&,
 	    			 int,int,int,bool);
 
     inline int		getInl( const Pos& pos ) const

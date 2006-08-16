@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vistexture.h,v 1.19 2004-05-05 11:27:38 kristofer Exp $
+ RCS:		$Id: vistexture.h,v 1.20 2006-08-16 10:51:19 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -77,7 +77,8 @@ public:
     void		setTextureQuality(float);
     float		getTextureQuality() const;
 
-    VisColTabMod&	getColTabMod();
+    VisColTabMod&	getColTabMod()		{ return *coltabmod; }
+    const VisColTabMod&	getColTabMod() const	{ return *coltabmod; }
     void		setColorPars(bool,bool,const Interval<float>&);
     const Interval<float>& getColorDataRange() const;
 

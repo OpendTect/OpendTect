@@ -4,7 +4,7 @@
  * DATE     : 3-8-1994
 -*/
 
-static const char* rcsID = "$Id: ioman.cc,v 1.64 2006-06-29 16:34:09 cvsbert Exp $";
+static const char* rcsID = "$Id: ioman.cc,v 1.65 2006-08-16 10:51:20 cvsbert Exp $";
 
 #include "ioman.h"
 #include "iodir.h"
@@ -34,7 +34,7 @@ static void clearSelHists()
     const ObjectSet<TranslatorGroup>& grps = TranslatorGroup::groups();
     const int sz = grps.size();
     for ( int idx=0; idx<grps.size(); idx++ )
-	grps[idx]->clearSelHist();
+	const_cast<TranslatorGroup*>(grps[idx])->clearSelHist();
 }
 
 #define mDestroyInst() \

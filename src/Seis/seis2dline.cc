@@ -4,7 +4,7 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID = "$Id: seis2dline.cc,v 1.51 2006-03-12 13:39:10 cvsbert Exp $";
+static const char* rcsID = "$Id: seis2dline.cc,v 1.52 2006-08-16 10:51:20 cvsbert Exp $";
 
 #include "seis2dline.h"
 #include "seistrctr.h"
@@ -129,9 +129,9 @@ void Seis2DLineSet::init( const char* fnm )
     const ObjectSet<Seis2DLineIOProvider>& liops = S2DLIOPs();
     for ( int idx=0; idx<liops.size(); idx++ )
     {
-	Seis2DLineIOProvider* liop = liops[idx];
+	const Seis2DLineIOProvider* liop = liops[idx];
 	if ( type == liop->type() )
-	    { liop_ = liop; break; }
+	    { liop_ = const_cast<Seis2DLineIOProvider*>(liop); break; }
     }
 }
 

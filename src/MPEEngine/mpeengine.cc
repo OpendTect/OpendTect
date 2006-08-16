@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: mpeengine.cc,v 1.64 2006-07-28 13:52:23 cvsjaap Exp $";
+static const char* rcsID = "$Id: mpeengine.cc,v 1.65 2006-08-16 10:51:20 cvsbert Exp $";
 
 #include "mpeengine.h"
 
@@ -289,7 +289,7 @@ void Engine::getNeededAttribs( ObjectSet<const Attrib::SelSpec>& res ) const
 {
     for ( int trackeridx=0; trackeridx<trackers_.size(); trackeridx++ )
     {
-	EMTracker* tracker = trackers_[trackeridx];
+	const EMTracker* tracker = trackers_[trackeridx];
 	if ( !tracker ) continue;
 
 	ObjectSet<const Attrib::SelSpec> specs;
@@ -488,7 +488,7 @@ void Engine::fillPar( IOPar& iopar ) const
     int trackeridx = 0;
     for ( int idx=0; idx<trackers_.size(); idx++ )
     {
-	EMTracker* tracker = trackers_[idx];
+	const EMTracker* tracker = trackers_[idx];
 	if ( !tracker ) continue;
 	
 	IOPar localpar;

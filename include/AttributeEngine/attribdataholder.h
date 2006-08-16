@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribdataholder.h,v 1.14 2006-05-05 20:35:16 cvskris Exp $
+ RCS:           $Id: attribdataholder.h,v 1.15 2006-08-16 10:51:19 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,8 +45,8 @@ public:
     ValueSeries<float>*	add(bool addnull=false);
 			//!< Adds an ArrayValueSeries if !addnull
 
-    int			nrSeries() const	{ return data_.size(); }
-    ValueSeries<float>*	series(int idx) const	{ return data_[idx]; }
+    int			nrSeries() const		{ return data_.size(); }
+    inline ValueSeries<float>* series( int idx ) const	{ return gtSer(idx); }
     void		replace(int idx,ValueSeries<float>*);
     bool                dataPresent(int samplenr) const;
     TypeSet<int>	validSeriesIdx() const;
@@ -57,6 +57,8 @@ public:
 protected:
 
     ObjectSet< ValueSeries<float> >	data_;
+    ValueSeries<float>*	gtSer( int idx ) const
+    			{ return const_cast<ValueSeries<float>*>(data_[idx]); }
 
 };
 

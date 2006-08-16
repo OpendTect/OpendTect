@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vismultitexture.cc,v 1.19 2006-08-04 21:31:47 cvskris Exp $";
+static const char* rcsID = "$Id: vismultitexture.cc,v 1.20 2006-08-16 10:51:20 cvsbert Exp $";
 
 #include "vismultitexture2.h"
 
@@ -108,7 +108,7 @@ public:
     void			setCurrentVersion( int );
     const unsigned char*	getCurrentData() const;
 
-    const TypeSet<float>*	getHistogram(int version);
+    const TypeSet<float>*	getHistogram(int version) const;
 
     bool			enabled_;
     char			components_;
@@ -408,7 +408,7 @@ const unsigned char* TextureInfo::getCurrentData() const
 { return versionindexdata_[currentversion_]; }
 
 
-const TypeSet<float>* TextureInfo::getHistogram( int version )
+const TypeSet<float>* TextureInfo::getHistogram( int version ) const
 {
     if ( version<0 || version>=nrVersions() )
 	return 0;

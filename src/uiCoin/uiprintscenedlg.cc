@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          October 2002
- RCS:           $Id: uiprintscenedlg.cc,v 1.28 2006-08-14 09:50:05 cvsnanne Exp $
+ RCS:           $Id: uiprintscenedlg.cc,v 1.29 2006-08-16 10:51:20 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -112,10 +112,7 @@ uiPrintSceneDlg::uiPrintSceneDlg( uiParent* p,
     {
 	BufferStringSet scenenms;
 	for ( int idx=0; idx<viewers.size(); idx++ )
-	{
-	    visBase::Scene* scene = viewers[idx]->getScene();
-	    scenenms.add( scene->name() );
-	}
+	    scenenms.add( viewers[idx]->getScene()->name() );
 
 	scenefld_ = new uiLabeledComboBox( this, scenenms, "Make snapshot of" );
 	scenefld_->box()->selectionChanged.notify( 

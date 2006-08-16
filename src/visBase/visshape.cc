@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: visshape.cc,v 1.21 2006-08-03 21:44:45 cvskris Exp $";
+static const char* rcsID = "$Id: visshape.cc,v 1.22 2006-08-16 10:51:20 cvsbert Exp $";
 
 #include "visshape.h"
 
@@ -112,7 +112,7 @@ int Shape::getRenderCache() const
 }
 
 
-#define setGetItem(ownclass, clssname, variable) \
+#define mDefSetGetItem(ownclass, clssname, variable) \
 void ownclass::set##clssname( clssname* newitem ) \
 { \
     if ( variable ) \
@@ -131,15 +131,15 @@ void ownclass::set##clssname( clssname* newitem ) \
 } \
  \
  \
-clssname* ownclass::get##clssname() \
+clssname* ownclass::gt##clssname() const \
 { \
-    return variable; \
+    return const_cast<clssname*>( variable ); \
 }
 
 
-setGetItem( Shape, Texture2, texture2_ );
-setGetItem( Shape, Texture3, texture3_ );
-setGetItem( Shape, Material, material_ );
+mDefSetGetItem( Shape, Texture2, texture2_ );
+mDefSetGetItem( Shape, Texture3, texture3_ );
+mDefSetGetItem( Shape, Material, material_ );
 
 
 void Shape::setMaterialBinding( int nv )
@@ -284,15 +284,10 @@ Transformation* VertexShape::getDisplayTransformation()
 { return  coords_->getDisplayTransformation(); }
 
 
-setGetItem( VertexShape, Coordinates, coords_ );
-setGetItem( VertexShape, Normals, normals_ );
-setGetItem( VertexShape, TextureCoords, texturecoords_ );
+mDefSetGetItem( VertexShape, Coordinates, coords_ );
+mDefSetGetItem( VertexShape, Normals, normals_ );
+mDefSetGetItem( VertexShape, TextureCoords, texturecoords_ );
 
-
-const Coordinates* VertexShape::getCoordinates() const
-{
-    return const_cast<VertexShape*>(this)->getCoordinates();
-}
 
 
 void VertexShape::setNormalPerFaceBinding( bool nv )
