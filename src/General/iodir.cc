@@ -4,7 +4,7 @@
  * DATE     : 2-8-1994
 -*/
 
-static const char* rcsID = "$Id: iodir.cc,v 1.24 2006-08-15 15:35:28 cvsbert Exp $";
+static const char* rcsID = "$Id: iodir.cc,v 1.25 2006-08-16 08:10:43 cvsbert Exp $";
 
 #include "iodir.h"
 #include "iolink.h"
@@ -91,7 +91,7 @@ const IOObj* IODir::main() const
 {
     for ( int idx=0; idx<objs_.size(); idx++ )
     {
-	IOObj* ioobj = objs_[idx];
+	const IOObj* ioobj = objs_[idx];
 	if ( ioobj->myKey() == 1 ) return ioobj;
     }
     return 0;
@@ -375,7 +375,7 @@ bool IODir::wrOmf( std::ostream& strm ) const
     // Then the links
     for ( int idx=0; idx<objs_.size(); idx++ )
     {
-	IOObj* obj = objs_[idx];
+	const IOObj* obj = objs_[idx];
 	if ( obj == mymain ) continue;
 	if ( obj->isLink() && !obj->put(astream) )
 	    mErrRet()
@@ -383,7 +383,7 @@ bool IODir::wrOmf( std::ostream& strm ) const
     // Then the normal objs
     for ( int idx=0; idx<objs_.size(); idx++ )
     {
-	IOObj* obj = objs_[idx];
+	const IOObj* obj = objs_[idx];
 	if ( obj == mymain ) continue;
 	if ( !obj->isLink() && !obj->put(astream) )
 	    mErrRet()
