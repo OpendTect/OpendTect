@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emobject.cc,v 1.65 2006-08-16 10:51:20 cvsbert Exp $";
+static const char* rcsID = "$Id: emobject.cc,v 1.66 2006-08-17 13:56:47 cvsjaap Exp $";
 
 #include "emobject.h"
 
@@ -24,18 +24,18 @@ using namespace EM;
 
 
 
-int EMObject::sPermanentControlNode	= 0;
-int EMObject::sTemporaryControlNode	= 1;
-int EMObject::sEdgeControlNode		= 2;
-int EMObject::sTerminationNode		= 3;
-int EMObject::sSeedNode			= 4;
-
+int EMObject::sPermanentControlNode	= PosAttrib::PermanentControlNode;
+int EMObject::sTemporaryControlNode	= PosAttrib::TemporaryControlNode;
+int EMObject::sEdgeControlNode		= PosAttrib::EdgeControlNode;
+int EMObject::sTerminationNode		= PosAttrib::TerminationNode;
+int EMObject::sSeedNode			= PosAttrib::SeedNode;
 
 const char* EMObject::prefcolorstr 	= "Color";
 const char* EMObject::posattrprefixstr 	= "Pos Attrib ";
 const char* EMObject::posattrsectionstr = " Section";
 const char* EMObject::posattrposidstr 	= " SubID";
 const char* EMObject::nrposattrstr 	= "Nr Pos Attribs";
+const char* EMObject::markerstylestr	= " Marker Style";
 
 
 ObjectFactory::ObjectFactory( EMObjectCreationFunc cf, 
@@ -169,6 +169,7 @@ Coord3 EMObject::getPos( const EM::SectionID& sid,
     return element ? element->getPosition( subid ) : Coord3::udf();
 }
 
+
 #define mRetErr( msg ) { errmsg = msg; return false; }
 
 bool EMObject::setPos(	const PosID& pid, const Coord3& newpos,
@@ -198,7 +199,7 @@ bool EMObject::setPos(	const SectionID& sid, const SubID& subid,
     {
 	for ( int idx=0; idx<posattribs.size(); idx++ )
 	{
-	    TypeSet<PosID>& nodes = *posattribs[idx];
+	    TypeSet<PosID>& nodes = posattribs[idx]->posids_;
 	    if ( !&nodes ) continue;
 
 	    const int idy = nodes.indexOf(pid);
@@ -320,13 +321,25 @@ bool EMObject::isDefined( const EM::SectionID& sid,
 }
 
 
-void EMObject:: removePosAttrib( int attr, bool addtohistory )
+void EMObject::addPosAttrib( int attr )
+{
+    if ( attribs.indexOf(attr) < 0 )
+    {
+	attribs += attr;
+	posattribs += new PosAttrib();
+	const int idx = attribs.indexOf(attr);
+	posattribs[idx]->type_ = (PosAttrib::Type) attr;
+    }
+}    
+
+
+void EMObject::removePosAttribList( int attr, bool addtohistory )
 {
     const int idx=attribs.indexOf(attr);
     if ( idx==-1 )
 	return;
 
-    const TypeSet<PosID>& attrlist = *posattribs[idx];
+    const TypeSet<PosID>& attrlist = posattribs[idx]->posids_;
 
     while ( attrlist.size() ) 
 	setPosAttrib( attrlist[0], attr, false, addtohistory );
@@ -341,18 +354,14 @@ void EMObject::setPosAttrib( const PosID& pid, int attr, bool yn,
     cbdata.pid0 = pid;
     cbdata.attrib = attr;
 
-    const int idx=attribs.indexOf(attr);
-    if ( idx==-1 )
+    if ( yn )
+	addPosAttrib( attr );
+
+    const int idx = attribs.indexOf(attr);
+    
+    if ( idx != -1 )
     {
-	if ( yn )
-	{
-	    attribs += attr;
-	    posattribs += new TypeSet<PosID>(1,pid);
-	}
-    }
-    else
-    {
-	TypeSet<PosID>& posids = *posattribs[idx];
+	TypeSet<PosID>& posids = posattribs[idx]->posids_;
 	const int idy=posids.indexOf(pid);
 
 	if ( idy==-1 )
@@ -380,7 +389,7 @@ void EMObject::setPosAttrib( const PosID& pid, int attr, bool yn,
 bool EMObject::isPosAttrib( const PosID& pid, int attr ) const
 {
     const int idx = attribs.indexOf( attr );
-    return idx != -1 && posattribs[idx]->indexOf( pid ) != -1;
+    return idx != -1 && posattribs[idx]->posids_.indexOf( pid ) != -1;
 }
 
 
@@ -404,10 +413,39 @@ int EMObject::addPosAttribName( const char* nm )
 }
 
 
-const TypeSet<PosID>* EMObject::getPosAttribList(int attr) const
+const TypeSet<PosID>* EMObject::getPosAttribList( int attr ) const
 {
     const int idx=attribs.indexOf(attr);
-    return idx!=-1 ? posattribs[idx] : 0;
+    return idx!=-1 ? &posattribs[idx]->posids_ : 0;
+}
+
+
+const MarkerStyle3D& EMObject::getPosAttrMarkerStyle( int attr ) 
+{
+    addPosAttrib( attr );
+    const int idx=attribs.indexOf(attr);
+    return posattribs[idx]->style_;
+}
+
+
+void EMObject::setPosAttrMarkerStyle( int attr, const MarkerStyle3D& ms ) 
+{
+    addPosAttrib( attr );
+    const int idx=attribs.indexOf(attr);
+    posattribs[idx]->style_ = ms;
+    
+    EMObjectCallbackData cbdata;
+    cbdata.event = EMObjectCallbackData::AttribChange;
+    cbdata.attrib = attr;
+    notifier.trigger( cbdata );
+    changed = true;
+}
+
+
+bool EMObject::isEmpty() const
+{
+    PtrMan<EM::EMObjectIterator> iterator = createIterator(-1);
+    return iterator->next().objectID()==-1;
 }
 
 
@@ -421,7 +459,7 @@ bool EMObject::usePar( const IOPar& par )
     }
 
     for ( int idx=0; idx<nrPosAttribs(); idx++ )
-	removePosAttrib( posAttrib(idx), false );
+	removePosAttribList( posAttrib(idx), false );
 
     int nrattribs = 0;
     par.get( nrposattrstr, nrattribs );
@@ -455,6 +493,12 @@ bool EMObject::usePar( const IOPar& par )
 	    const PosID pid = PosID( id(), sections[idy], subids[idy] );
 	    setPosAttrib( pid, attrib, true, false );
 	}
+	
+	BufferString markerstylekey = attribkey;
+	markerstylekey += markerstylestr;
+	BufferString markerstyleparstr;
+	if ( par.get(markerstylekey, markerstyleparstr) )
+	    posattribs[idx]->style_.fromString( markerstyleparstr );
     }
 
     return true;
@@ -491,6 +535,12 @@ void EMObject::fillPar( IOPar& par ) const
 
 	par.set( patchkey, attrpatches );
 	par.set( subidkey, subids );
+	
+	BufferString markerstylekey = attribkey;
+	markerstylekey += markerstylestr;
+	BufferString markerstyleparstr;
+	posattribs[idx]->style_.toString( markerstyleparstr );
+	par.set( markerstylekey, markerstyleparstr );
     }
 
     par.set( nrposattrstr, keyid );
@@ -505,7 +555,7 @@ void EMObject::posIDChangeCB(CallBacker* cb)
 
     for ( int idx=0; idx<posattribs.size(); idx++ )
     {
-	TypeSet<PosID>& nodes = *posattribs[idx];
+	TypeSet<PosID>& nodes = posattribs[idx]->posids_;
 	if ( !&nodes ) continue;
 
 	while ( true )
