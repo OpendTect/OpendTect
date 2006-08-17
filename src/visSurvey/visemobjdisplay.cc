@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: visemobjdisplay.cc,v 1.90 2006-08-16 10:51:20 cvsbert Exp $
+ RCS:           $Id: visemobjdisplay.cc,v 1.91 2006-08-17 14:02:10 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -174,7 +174,7 @@ void EMObjectDisplay::clickCB( CallBacker* cb )
 void EMObjectDisplay::removeEMStuff()
 {
     while ( posattribs_.size() )
-	showPosAttrib( posattribs_[0], false, Color(0,0,0) );
+	showPosAttrib( posattribs_[0], false );
 
     if ( editor_ )
     {
@@ -271,7 +271,7 @@ void EMObjectDisplay::updateFromMPE()
     if ( hastracker )
     {
 	setResolution( nrResolutions()-1 );
-	showPosAttrib( EM::EMObject::sSeedNode, true, Color(255,255,255) );
+	showPosAttrib( EM::EMObject::sSeedNode, true );
     }
 
     if ( MPE::engine().getEditor(getObjectID(),hastracker) )
@@ -279,7 +279,7 @@ void EMObjectDisplay::updateFromMPE()
 }
 
 
-void EMObjectDisplay::showPosAttrib( int attr, bool yn, const Color& color )
+void EMObjectDisplay::showPosAttrib( int attr, bool yn )
 {
     int attribindex = posattribs_.indexOf(attr);
     if ( yn )
@@ -295,10 +295,6 @@ void EMObjectDisplay::showPosAttrib( int attr, bool yn, const Color& color )
 	    group->addObject( visBase::Material::create() );
 	    attribindex = posattribs_.size()-1;
 	}
-
-	mDynamicCastGet(visBase::Material*, posattrmat,
-			posattribmarkers_[attribindex]->getObject(0) );
-	posattrmat->setColor( color );
 
 	updatePosAttrib(attr);
 	
@@ -389,7 +385,8 @@ void EMObjectDisplay::enableEditing( bool yn )
 {
     if ( yn && !editor_ )
     {
-	MPE::ObjectEditor* mpeeditor = MPE::engine().getEditor(getObjectID(),true);
+	MPE::ObjectEditor* mpeeditor = 
+	    			MPE::engine().getEditor(getObjectID(),true);
 
 	if ( !mpeeditor ) return;
 
@@ -570,6 +567,10 @@ void EMObjectDisplay::updatePosAttrib(int attrib)
     //Remove everything but material
     while ( posattribmarkers_[attribindex]->size()>1 )
 	posattribmarkers_[attribindex]->removeObject(1);
+    
+    mDynamicCastGet(visBase::Material*, posattrmat,
+		    posattribmarkers_[attribindex]->getObject(0) );
+    posattrmat->setColor( emobject_->getPosAttrMarkerStyle(attrib).color );
 
     if ( !pids )
 	return;
@@ -582,11 +583,14 @@ void EMObjectDisplay::updatePosAttrib(int attrib)
 	visBase::Marker* marker = visBase::Marker::create();
 	posattribmarkers_[attribindex]->addObject(marker);
 
+	marker->setMarkerStyle( emobject_->getPosAttrMarkerStyle(attrib) );
 	marker->setMaterial(0);
 	marker->setDisplayTransformation(transformation_);
 	marker->setCenterPos(pos);
     }
 }
+
+
 
 
 EM::PosID EMObjectDisplay::getPosAttribPosID( int attrib,
@@ -615,6 +619,6 @@ EM::PosID EMObjectDisplay::getPosAttribPosID( int attrib,
 
     return res;
 }
-    
+
 
 }; // namespace visSurvey
