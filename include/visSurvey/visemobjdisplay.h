@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          May 2004
- RCS:           $Id: visemobjdisplay.h,v 1.43 2006-06-01 07:30:15 cvskris Exp $
+ RCS:           $Id: visemobjdisplay.h,v 1.44 2006-08-17 13:59:59 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -54,7 +54,7 @@ public:
     virtual bool		updateFromEM();
     virtual void		updateFromMPE();
 
-    void			showPosAttrib( int attr, bool yn, const Color&);
+    void			showPosAttrib( int attr, bool yn);
     				/*!<Turns position attributes (as defined in
 				    EM::EMObject) to be marked with a marker. */
     bool			showsPosAttrib( int attr ) const;
