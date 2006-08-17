@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		April 1995
  Contents:	Sets of simple objects
- RCS:		$Id: sets.h,v 1.37 2006-08-16 10:51:19 cvsbert Exp $
+ RCS:		$Id: sets.h,v 1.38 2006-08-17 19:33:03 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -56,6 +56,9 @@ public:
 			    for ( int idx=size()-1; idx>=0; idx-- )
 				tvec[idx] = val;
 			}
+
+    virtual bool	validIdx( int idx ) const
+			{ return idx>=0 && idx<size(); }
 
     virtual T&		operator[]( int idx )
 				{ return tvec[idx]; }
@@ -277,13 +280,13 @@ public:
     ObjectSet<T>&	operator =( const ObjectSet<T>& os )
 				{ allow0 = os.allow0; copy(os); return *this; }
 
-    void		allowNull( bool yn_=true )
-				{ allow0 = yn_; }
-    bool		nullAllowed() const
-				{ return allow0; }
+    void		allowNull( bool yn_=true )	{ allow0 = yn_; }
+    bool		nullAllowed() const		{ return allow0; }
+    virtual int		size() const			{ return ovec.size(); }
 
-    virtual int		size() const
-				{ return ovec.size(); }
+    virtual bool	validIdx( int idx ) const
+			{ return idx>=0 && idx<size(); }
+
     virtual T*		operator[]( int idx )
 				{ return (T*)ovec[idx]; }
     virtual const T*	operator[]( int idx ) const
