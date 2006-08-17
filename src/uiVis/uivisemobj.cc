@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Jan 2005
- RCS:           $Id: uivisemobj.cc,v 1.48 2006-06-29 14:10:42 cvsnanne Exp $
+ RCS:           $Id: uivisemobj.cc,v 1.49 2006-08-17 13:58:46 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,6 +25,7 @@ ________________________________________________________________________
 #include "uimpe.h"
 #include "uimsg.h"
 #include "uimenuhandler.h"
+#include "uiseedpropdlg.h"
 #include "uivispartserv.h"
 #include "visdataman.h"
 #include "vishorizondisplay.h"
@@ -215,10 +216,10 @@ void uiVisEMObject::setUpConnections()
     singlecolmnuitem.text = "Use single color";
     trackmenuitem.text = uiVisEMObject::trackingmenutxt;
     showseedsmnuitem.text = "Show seeds";
+    seedpropmnuitem.text = "Seed properties ...";
     wireframemnuitem.text = "Wireframe";
     editmnuitem.text = "Edit";
     shiftmnuitem.text = "Shift ...";
-    showseedsmnuitem.text = "Show seeds";
     removesectionmnuitem.text ="Remove section";
     makepermnodemnuitem.text = "Make control permanent";
     removecontrolnodemnuitem.text = "Remove control";
@@ -354,6 +355,7 @@ void uiVisEMObject::createMenuCB( CallBacker* cb )
 			emobj->getPosAttribList(EM::EMObject::sSeedNode);
     mAddMenuItem( &trackmenuitem, &showseedsmnuitem, seeds && seeds->size(),
 	     emod->showsPosAttrib(EM::EMObject::sSeedNode) );
+    mAddMenuItem( &trackmenuitem, &seedpropmnuitem, true, false );
 
     mAddMenuItem( menu, &trackmenuitem, trackmenuitem.nrItems(), false );
 
@@ -413,8 +415,13 @@ void uiVisEMObject::handleMenuCB( CallBacker* cb )
     {
 	menu->setIsHandled(true);
 	emod->showPosAttrib( EM::EMObject::sSeedNode,
-			     !emod->showsPosAttrib(EM::EMObject::sSeedNode),
-			     Color(255,255,255 ));
+			     !emod->showsPosAttrib(EM::EMObject::sSeedNode) );
+    }
+    else if ( mnuid==seedpropmnuitem.id )
+    {
+	uiSeedPropDlg dlg( uiparent, emobj );
+	dlg.go();
+	menu->setIsHandled(true);
     }
     else if ( mnuid==editmnuitem.id )
     {
