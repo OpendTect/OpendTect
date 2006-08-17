@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          start of 2001
- RCS:           $Id: uiiosel.cc,v 1.42 2006-03-10 13:34:03 cvsbert Exp $
+ RCS:           $Id: uiiosel.cc,v 1.43 2006-08-17 08:49:17 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -320,6 +320,7 @@ const char* uiIOSelect::labelText() const
 
 void uiIOSelect::setLabelText( const char* s )
 {
+    inp_->label()->setPrefWidthInChar( strlen(s)+1 );
     return inp_->label()->setText( s );
 }
 
