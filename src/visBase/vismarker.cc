@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          July 2002
- RCS:           $Id: vismarker.cc,v 1.22 2006-03-01 19:53:31 cvskris Exp $
+ RCS:           $Id: vismarker.cc,v 1.23 2006-08-17 14:03:31 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,7 +43,7 @@ Marker::Marker()
     , rotation(0)
     , markerscale(new SoShapeScale)
     , shape(0)
-    , direction(0,0,0)
+    , direction(0.5,M_PI_2,0)
 {
     addChild( translation );
     addChild( markerscale );
