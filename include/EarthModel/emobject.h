@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emobject.h,v 1.59 2006-07-28 13:47:43 cvsjaap Exp $
+ RCS:		$Id: emobject.h,v 1.60 2006-08-17 13:44:50 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "multiid.h"
 #include "position.h"
 #include "refcount.h"
+#include "draw.h"
 
 class IOObj;
 class Executor;
@@ -64,6 +65,23 @@ public:
     			/*!<posid.objectID()==-1 when there are no more pids*/
     virtual int		aproximateSize() const { return -1; }
     virtual int		maximumSize() const { return -1; }
+};
+
+
+class PosAttrib
+{
+public:
+    			PosAttrib()
+			    : style_(MarkerStyle3D::Cube,5,Color::White) {}
+
+    enum Type		{ PermanentControlNode, TemporaryControlNode,
+			  EdgeControlNode, TerminationNode, SeedNode };
+
+
+    Type		type_;
+    TypeSet<PosID>	posids_;
+
+    MarkerStyle3D	style_;
 };
 
 
@@ -133,20 +151,24 @@ public:
 
     virtual EMObjectIterator*	createIterator(const EM::SectionID&) const
 				{ return 0; }
-    				/*!< creates an interator. If the sectionid is
+    				/*!< creates an iterator. If the sectionid is
 				     -1, all sections will be traversed. */
 
     virtual int			nrPosAttribs() const;
     virtual int			posAttrib(int idx) const;
-    virtual void		removePosAttrib( int attr,
-	    					 bool addtohistory=true );
+    virtual void		addPosAttrib(int attr);
+    virtual void		removePosAttribList(int attr,
+						    bool addtohistory=true);
     virtual void		setPosAttrib(const EM::PosID&,
 				    int attr,bool yn,bool addtohistory=true);
     				//!<Sets/unsets the posattrib depending on yn.
     virtual bool		isPosAttrib(const EM::PosID&,int attr) const;
     virtual const char*		posAttribName(int) const;
     virtual int			addPosAttribName(const char*);
-    const TypeSet<PosID>*	getPosAttribList(int) const;
+    const TypeSet<PosID>*	getPosAttribList(int attr) const;
+    const MarkerStyle3D&	getPosAttrMarkerStyle(int attr);
+    void			setPosAttrMarkerStyle(int attr, 
+						      const MarkerStyle3D&);
 
     CNotifier<EMObject,const EMObjectCallbackData&>	notifier;
 
@@ -154,6 +176,7 @@ public:
     virtual bool		isLoaded() const	{ return false; }
     virtual Executor*		saver()			{ return 0; }
     virtual bool		isChanged() const	{ return changed; }
+    virtual bool		isEmpty() const;
     virtual void		resetChangedFlag()	{ changed=false; }
     bool			isFullyLoaded() const	{ return fullyloaded; }
     void			setFullyLoaded(bool yn) { fullyloaded=yn; }
@@ -188,7 +211,7 @@ protected:
 
     Color&			preferredcolor;
 
-    ObjectSet<TypeSet<PosID> >	posattribs;
+    ObjectSet<PosAttrib>	posattribs;
     TypeSet<int>		attribs;
 
     bool			changed;
@@ -200,6 +223,8 @@ protected:
     static const char*		posattrprefixstr;
     static const char*		posattrsectionstr;
     static const char*		posattrposidstr;
+    
+    static const char*		markerstylestr;
 };
 
 
