@@ -4,7 +4,7 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.87 2006-06-28 21:19:23 cvskris Exp $";
+static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.88 2006-08-17 13:43:32 cvsjaap Exp $";
 
 #include "vispicksetdisplay.h"
 
@@ -31,9 +31,12 @@ PickSetDisplay::PickSetDisplay()
 {}
 
 
-visBase::VisualObject* PickSetDisplay::createLocation() const
+visBase::VisualObject* PickSetDisplay::createLocation( 
+					    const Pick::Location& loc) const
 {
     visBase::Marker* marker = visBase::Marker::create();
+    marker->setCenterPos( loc.pos );
+    marker->setDirection( loc.dir );
     marker->setType( (MarkerStyle3D::Type) set_->disp_.markertype_ );
     marker->setScreenSize( set_->disp_.pixsize_ );
     marker->setMaterial( 0 );
