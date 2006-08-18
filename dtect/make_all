@@ -47,7 +47,7 @@ goto parse_args
 do_it:
 
 if ( ! -d $WORK/dtect/build ) then
-    mkdir build
+    mkdir $WORK/dtect/build
 endif
 
 set depsdonefile="$WORK/dtect/build/deps_done"
