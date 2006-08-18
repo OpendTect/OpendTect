@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: genericnumer.h,v 1.18 2006-04-27 16:08:44 cvskris Exp $
+ RCS:           $Id: genericnumer.h,v 1.19 2006-08-18 15:35:08 cvshelene Exp $
 ________________________________________________________________________
 
 
@@ -167,6 +167,34 @@ void reSample( const FloatMathFunction& input, const A& samplevals,
 
 unsigned int greatestCommonDivisor( unsigned int u, unsigned int v );
 
+
+/*!>
+Compute z = x cross-correlated with y; i.e.,
+
+	   ifx+lx-1
+   z[i] =   sum    x[j]*y[i+j]  ;  i = ifz,...,ifz+lz-1
+	   j=ifx
+
+Cross correlation will be performed using GenericConvolve function, here is the
+method used:
+1) reverse the samples in the x array ->copy them to a temporary array,
+2) use the temporary array to call function GenericConvolve() 
+   with ifx set to 1-ifx-lx.
+*/
+
+template <class A, class B, class C>
+inline void genericCrossCorrelation( int lx, int ifx, const A* x, 
+			     	     int ly, int ify, const B* y,
+			     	     int lz, int ifz, C& z)
+{
+    A* xreversed = new A [lx];
+
+    for ( int i=0,j=lx-1; i<lx; ++i,--j)
+	xreversed[i] = x[j];
+    GenericConvolve( lx, 1-ifx-lx, xreversed, ly, ify, y, lz, ifz, z );
+    
+    delete [] xreversed;
+}
 
 
 #endif
