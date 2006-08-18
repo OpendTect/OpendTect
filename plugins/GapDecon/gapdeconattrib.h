@@ -6,8 +6,8 @@ ________________________________________________________________________
 
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Huck
- Date:          14-07-2007
- RCS:           $Id: gapdeconattrib.h,v 1.2 2006-08-15 07:54:56 cvshelene Exp $
+ Date:          14-07-2006
+ RCS:           $Id: gapdeconattrib.h,v 1.3 2006-08-18 15:33:57 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
