@@ -2,7 +2,7 @@
 
 set mods=.mods.dtect
 if ( $HDIR == lux || $HDIR == sun5 ) then
-    set mods=.mods
+    if ( $PLFSUBDIR != lux64 ) set mods=.mods
 endif
 set shallow=no
 set dodeps=yes
@@ -46,6 +46,15 @@ goto parse_args
 
 do_it:
 
+if ( ! -d $WORK/dtect/build ) then
+    mkdir build
+endif
+
+set depsdonefile="$WORK/dtect/build/deps_done"
+set makedonefile="$WORK/dtect/build/make_done"
+if ( -e $depsdonefile ) rm $depsdonefile
+if ( -e $makedonefile ) rm $makedonefile
+
 if ( $shallow == no ) then
     cdl
     echo "Removing all libs from " `pwd`
@@ -75,6 +84,7 @@ if ( $dodeps == yes ) then
 	cd plugins ; make dep
 	cd ../spec ; make dep
 	cd ..
+	touch $depsdonefile
     else
 	cd src ; ./cpdeps
 	cd ../plugins ; ./cpdeps
@@ -97,4 +107,4 @@ if ( $dodoc == yes ) then
     GenModDeps --html /d3/dgb/Pmake/ModDeps.od index.html
 endif
 
-touch /d3/dgb/dtect/build/status/${PLFSUBDIR}_done
+touch $makedonefile
