@@ -4,7 +4,7 @@
  * DATE     : 7-1-1996
 -*/
 
-static const char* rcsID = "$Id: ctxtioobj.cc,v 1.25 2005-10-04 14:05:47 cvskris Exp $";
+static const char* rcsID = "$Id: ctxtioobj.cc,v 1.26 2006-08-21 17:14:45 cvsbert Exp $";
 
 #include "ctxtioobj.h"
 #include "ioobj.h"
@@ -56,7 +56,7 @@ const IOObjContext::StdDirData* IOObjContext::getStdDirData(
 
 
 IOObjContext::IOObjContext( const TranslatorGroup* trg, const char* prefname )
-	: UserIDObject(prefname)
+	: NamedObject(prefname)
 	, trgroup(trg)
 	, parconstraints(*new IOPar)
 {
@@ -65,7 +65,7 @@ IOObjContext::IOObjContext( const TranslatorGroup* trg, const char* prefname )
 
 
 IOObjContext::IOObjContext( const IOObjContext& rp )
-	: UserIDObject("")
+	: NamedObject("")
 	, parconstraints(*new IOPar)
 {
     *this = rp;

@@ -8,25 +8,25 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		12-3-2001
  Contents:	Component information
- RCS:		$Id: basiccompinfo.h,v 1.7 2004-07-16 15:35:25 bert Exp $
+ RCS:		$Id: basiccompinfo.h,v 1.8 2006-08-21 17:14:44 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uidobj.h"
+#include "namedobj.h"
 #include "datachar.h"
 
 
 /*!\brief Info on one component */
 
-class BasicComponentInfo : public UserIDObject
+class BasicComponentInfo : public NamedObject
 {
 public:
 			BasicComponentInfo( const char* nm=0 )
-			: UserIDObject(nm)
+			: NamedObject(nm)
 			, datatype(0)				{}
 			BasicComponentInfo( const BasicComponentInfo& ci )
-			: UserIDObject((const char*)ci.name())
+			: NamedObject((const char*)ci.name())
 								{ *this = ci; }
     BasicComponentInfo&	operator=( const BasicComponentInfo& ci )
 			{

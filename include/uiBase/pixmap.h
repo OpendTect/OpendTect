@@ -7,12 +7,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/12/1999
- RCS:           $Id: pixmap.h,v 1.12 2006-07-11 08:22:41 cvsbert Exp $
+ RCS:           $Id: pixmap.h,v 1.13 2006-08-21 17:14:45 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uidobj.h"
+#include "namedobj.h"
 #include "iodrawimpl.h"
 class QPixmap;
 class QBitmap;
@@ -34,7 +34,7 @@ class Color;
 
 */
 
-class ioPixmap : public UserIDObject,
+class ioPixmap : public NamedObject,
 		 public ioDrawAreaImpl
 {
 public:

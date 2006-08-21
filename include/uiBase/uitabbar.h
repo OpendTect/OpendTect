@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          14/02/2003
- RCS:           $Id: uitabbar.h,v 1.11 2006-08-16 10:51:19 cvsbert Exp $
+ RCS:           $Id: uitabbar.h,v 1.12 2006-08-21 17:14:45 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -68,14 +68,14 @@ protected:
 };
 
 
-class uiTab : public UserIDObject
+class uiTab : public NamedObject
 {
 friend class		uiTabBar;
 public:
 			uiTab(uiGroup&);
 #ifndef USEQT4
     int			id() const;
-    int			setName(const char*);
+    void		setName(const char*);
 #endif
 
     uiGroup&		group()		{ return grp_; }

@@ -7,12 +7,12 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Feb 2004
- RCS:		$Id: unitofmeasure.h,v 1.4 2005-02-23 16:49:53 cvsbert Exp $
+ RCS:		$Id: unitofmeasure.h,v 1.5 2006-08-21 17:14:44 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uidobj.h"
+#include "namedobj.h"
 #include "property.h"
 #include "scaler.h"
 #include "repos.h"
@@ -31,7 +31,7 @@ UnitOfMeasureRepository& UoMR();
 
  */
 
-class UnitOfMeasure : public UserIDObject
+class UnitOfMeasure : public NamedObject
 {
 public:
 
@@ -40,7 +40,7 @@ public:
 			    , source_(Repos::Temp) {}
     			UnitOfMeasure( const char* n, const char* s, double f,
 				      PropertyRef::StdType t=PropertyRef::Other)
-			    : UserIDObject(n), symbol_(s)
+			    : NamedObject(n), symbol_(s)
 			    , scaler_(0,f), source_(Repos::Temp)
 			    , proptype_(t)	{}
 			UnitOfMeasure( const UnitOfMeasure& uom )

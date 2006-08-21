@@ -4,7 +4,7 @@
  * DATE     : 3-8-1994
 -*/
 
-static const char* rcsID = "$Id: ioman.cc,v 1.65 2006-08-16 10:51:20 cvsbert Exp $";
+static const char* rcsID = "$Id: ioman.cc,v 1.66 2006-08-21 17:14:45 cvsbert Exp $";
 
 #include "ioman.h"
 #include "iodir.h"
@@ -81,7 +81,7 @@ const char* IOMan::surveyName() const
 
 
 IOMan::IOMan( const char* rd )
-	: UserIDObject("IO Manager")
+	: NamedObject("IO Manager")
 	, dirptr(0)
 	, state_(IOMan::NeedInit)
     	, newIODir(this)

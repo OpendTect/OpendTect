@@ -4,7 +4,7 @@
  * DATE     : 18-4-1996
 -*/
 
-static const char* rcsID = "$Id: draw.cc,v 1.56 2006-08-04 21:31:47 cvskris Exp $";
+static const char* rcsID = "$Id: draw.cc,v 1.57 2006-08-21 17:14:45 cvsbert Exp $";
 
 /*! \brief Several implementations for UI-related things.
 
@@ -25,6 +25,7 @@ The main chunk is color table related.
 #include "bufstringset.h"
 #include "strmprov.h"
 #include "filegen.h"
+#include "keystrs.h"
 
 #include <iostream>
 
@@ -468,7 +469,7 @@ static float getfromPar( const IOPar& iopar, Color& col, const char* key,
 
 void ColorTable::fillPar( IOPar& iopar ) const
 {
-    iopar.set( sNameKey, name() );
+    iopar.set( sKey::Name, name() );
     FileMultiString fms;
     fms += markcolor_.r(); fms += markcolor_.g(); fms += markcolor_.b();
     iopar.set( sKeyMarkColor, fms );
@@ -501,7 +502,7 @@ void ColorTable::fillPar( IOPar& iopar ) const
 
 void ColorTable::usePar( const IOPar& iopar )
 {
-    const char* res = iopar.find( sNameKey );
+    const char* res = iopar.find( sKey::Name );
     if ( res ) setName( res );
     getfromPar( iopar, markcolor_, sKeyMarkColor );
     getfromPar( iopar, undefcolor_, sKeyUdfColor );
@@ -563,7 +564,7 @@ void ColorTable::getNames( NamedBufferStringSet& names, ColorTable::Src opt )
     ObjectSet<IOPar>& tabpars = stdTabPars();
     for ( int idx=0; idx<tabpars.size(); idx++ )
     {
-	const char* nm = tabpars[idx]->find( sNameKey );
+	const char* nm = tabpars[idx]->find( sKey::Name );
 	if ( nm && *nm )
 	    names.addIfNew( nm );
     }
@@ -595,7 +596,7 @@ bool ColorTable::get( const char* nm, ColorTable& ct, ColorTable::Src opt )
 		    break;
 		}
 		
-		if ( ctname == ctiopar->find( sNameKey ) )
+		if ( ctname == ctiopar->find( sKey::Name ) )
 		{
 		    ct.usePar( *ctiopar );
 		    return true;
@@ -611,7 +612,7 @@ bool ColorTable::get( const char* nm, ColorTable& ct, ColorTable::Src opt )
     for ( int idx=0; idx<tabpars.size(); idx++ )
     {
 	const IOPar& iop = *tabpars[idx];
-	if ( ctname == iop.find(sNameKey) )
+	if ( ctname == iop.find(sKey::Name) )
 	{
 	    ct.usePar( iop );
     	    return true;
@@ -635,7 +636,7 @@ void ColorTable::add( const IOPar& iopar, BufferStringSet* names,
 	    break;
 	}
 
-	const char* res = ctiopar->find( sNameKey );
+	const char* res = ctiopar->find( sKey::Name );
 	if ( res && *res )
 	{
 	    if ( names )

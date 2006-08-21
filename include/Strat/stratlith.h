@@ -7,13 +7,13 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: stratlith.h,v 1.4 2004-12-02 14:25:09 bert Exp $
+ RCS:		$Id: stratlith.h,v 1.5 2006-08-21 17:14:44 cvsbert Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "uidobj.h"
+#include "namedobj.h"
 #include "repos.h"
 
 namespace Strat
@@ -21,12 +21,12 @@ namespace Strat
 
 /*!\brief name and integer ID (in well logs). */
 
-class Lithology : public ::UserIDObject
+class Lithology : public ::NamedObject
 {
 public:
 
 			Lithology( const char* nm=0 )
-			: UserIDObject(nm)
+			: NamedObject(nm)
 			, id_(0)
 			, porous_(false)
 			, src_(Repos::Temp)		{}

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2001
- RCS:           $Id: uibody.h,v 1.9 2005-12-08 20:00:05 cvskris Exp $
+ RCS:           $Id: uibody.h,v 1.10 2006-08-21 17:14:45 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,7 +17,6 @@ ________________________________________________________________________
 
 class QWidget;
 
-//class uiBody : public UserIDObject
 class uiBody
 {
 public:

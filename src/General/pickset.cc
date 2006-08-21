@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: pickset.cc,v 1.37 2006-08-16 10:51:20 cvsbert Exp $";
+static const char* rcsID = "$Id: pickset.cc,v 1.38 2006-08-21 17:14:45 cvsbert Exp $";
 
 #include "pickset.h"
 #include "survinfo.h"
@@ -187,7 +187,7 @@ Pick::SetMgr& Pick::SetMgr::getMgr( const char* nm )
 
 
 Pick::SetMgr::SetMgr( const char* nm )
-    : UserIDObject(nm)
+    : NamedObject(nm)
     , locationChanged(this), setToBeRemoved(this)
     , setAdded(this), setChanged(this)
     , setDispChanged(this)

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          18/08/1999
- RCS:           $Id: i_layout.cc,v 1.71 2005-11-17 14:55:51 cvsdgb Exp $
+ RCS:           $Id: i_layout.cc,v 1.72 2006-08-21 17:14:45 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,7 +46,7 @@ i_LayoutMngr::i_LayoutMngr( QWidget* parnt,
 #else
     : QLayout(parnt,0,0,name)
 #endif
-    , UserIDObject(name)
+    , NamedObject(name)
     , minimumDone(false), preferredDone(false), ismain(false)
     , prefposStored( false )
     , managedBody(mngbdy), hspacing(-1), vspacing(8), borderspc(0)
@@ -139,7 +139,7 @@ QSize i_LayoutMngr::minimumSize() const
 	{
 	    BufferString msg;
 	    msg="Returning Minimum Size for ";
-	    msg += UserIDObject::name();
+	    msg += NamedObject::name();
 	    msg += ". (h,v)=(";
 	    msg += hsz;
 	    msg +=" , ";
@@ -174,7 +174,7 @@ QSize i_LayoutMngr::sizeHint() const
     {
 	BufferString msg;
 	msg="Very large preferred size for ";
-	msg += UserIDObject::name();
+	msg += NamedObject::name();
 	msg += ". (h,v)=(";
 	msg += mPos.hNrPics();
 	msg +=" , ";
@@ -569,7 +569,7 @@ void i_LayoutMngr::resizeTo( const QRect& targetRect )
 
 
 #ifdef __extensive_debug__
-    std::cout << "(Re)sizing:" << UserIDObject::name();
+    std::cout << "(Re)sizing:" << NamedObject::name();
     if ( isprefsz ) std::cout << " yes"; else 
 	{ std::cout << " no " << hgrow << " ," << vgrow; }
     std::cout << std::endl;
@@ -610,7 +610,7 @@ void i_LayoutMngr::setGeometry( const QRect &extRect )
     if( arend_debug )
     {
 	std::cout << "setGeometry called on: ";
-	std::cout << UserIDObject::name() << std::endl;
+	std::cout << NamedObject::name() << std::endl;
 
 	std::cout << "l: " << extRect.left() << " t: " << extRect.top();
 	std::cout << " hor: " << extRect.width();
@@ -636,7 +636,7 @@ void i_LayoutMngr::setGeometry( const QRect &extRect )
 	if( !store2prefpos )
 	{
 	    std::cout << "setGeometry called with wrong size on: ";
-	    std::cout << UserIDObject::name() << std::endl;
+	    std::cout << NamedObject::name() << std::endl;
 	    std::cout << "Width should be " << mPos.hNrPics();
 	    std::cout << ", is " << extRect.width();
 	    std::cout << ". Height should be " << mPos.vNrPics();

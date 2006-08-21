@@ -7,26 +7,26 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		May 2004
- RCS:		$Id: welldahobj.h,v 1.4 2006-03-21 14:53:00 cvsbert Exp $
+ RCS:		$Id: welldahobj.h,v 1.5 2006-08-21 17:14:44 cvsbert Exp $
 ________________________________________________________________________
 
 
 -*/
 
 #include "sets.h"
-#include "uidobj.h"
+#include "namedobj.h"
 
 namespace Well
 {
 
-class DahObj : public ::UserIDObject
+class DahObj : public ::NamedObject
 {
 public:
 
 			DahObj( const char* nm=0 )
-			: ::UserIDObject(nm)		{}
+			: ::NamedObject(nm)		{}
 			DahObj( const DahObj& d )
-			    : ::UserIDObject(d.name())
+			    : ::NamedObject(d.name())
 			    , dah_(d.dah_)		{}
 
     inline int		size() const			{ return dah_.size(); }

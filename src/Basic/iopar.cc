@@ -4,7 +4,7 @@
  * DATE     : 21-12-1995
 -*/
 
-static const char* rcsID = "$Id: iopar.cc,v 1.55 2006-07-26 15:34:31 cvsnanne Exp $";
+static const char* rcsID = "$Id: iopar.cc,v 1.56 2006-08-21 17:14:45 cvsbert Exp $";
 
 #include "iopar.h"
 #include "multiid.h"
@@ -22,7 +22,7 @@ static const char* rcsID = "$Id: iopar.cc,v 1.55 2006-07-26 15:34:31 cvsnanne Ex
 
 
 IOPar::IOPar( const char* nm )
-	: UserIDObject(nm)
+	: NamedObject(nm)
 	, keys_(*new BufferStringSet(true))
 	, vals_(*new BufferStringSet(true))
 {
@@ -30,7 +30,7 @@ IOPar::IOPar( const char* nm )
 
 
 IOPar::IOPar( ascistream& astream )
-	: UserIDObject("")
+	: NamedObject("")
 	, keys_(*new BufferStringSet(true))
 	, vals_(*new BufferStringSet(true))
 {
@@ -39,7 +39,7 @@ IOPar::IOPar( ascistream& astream )
 
 
 IOPar::IOPar( const IOPar& iop )
-	: UserIDObject(iop.name())
+	: NamedObject(iop.name())
 	, keys_(*new BufferStringSet(true))
 	, vals_(*new BufferStringSet(true))
 {

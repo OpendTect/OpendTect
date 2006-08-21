@@ -7,12 +7,12 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		11-7-1996
- RCS:		$Id: executor.h,v 1.18 2006-05-10 20:58:28 cvskris Exp $
+ RCS:		$Id: executor.h,v 1.19 2006-08-21 17:14:44 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uidobj.h"
+#include "namedobj.h"
 #include "basictask.h"
 #include <iosfwd>
 
@@ -36,12 +36,12 @@ a stream. Useful in batch situations.
 
 */
 
-class Executor : public UserIDObject
+class Executor : public NamedObject
 	       , public BasicTask
 {
 public:
 			Executor( const char* nm )
-			: UserIDObject(nm)
+			: NamedObject(nm)
 			, prestep(this), poststep(this)	{}
     virtual		~Executor()			{}
 

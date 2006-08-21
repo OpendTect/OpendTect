@@ -4,7 +4,7 @@
  * DATE     : 2-8-1994
 -*/
 
-static const char* rcsID = "$Id: ioobj.cc,v 1.21 2005-08-26 18:19:28 cvsbert Exp $";
+static const char* rcsID = "$Id: ioobj.cc,v 1.22 2006-08-21 17:14:45 cvsbert Exp $";
 
 #include "iodir.h"
 #include "ioman.h"
@@ -46,7 +46,7 @@ int IOObj::addProducer( IOObjProducer* prod )
 
 
 IOObj::IOObj( const char* nm, const char* ky )
-	: UserIDObject(nm)
+	: NamedObject(nm)
 	, key_(ky)
 	, dirname_(0)
 	, pars_(*new IOPar)
@@ -55,7 +55,7 @@ IOObj::IOObj( const char* nm, const char* ky )
 
 
 IOObj::IOObj( IOObj* l, const char* ky )
-	: UserIDObject(l)
+	: NamedObject(l)
 	, key_(ky)
 	, dirname_(0)
 	, pars_(*new IOPar)
@@ -84,13 +84,6 @@ void IOObj::copyFrom( const IOObj* obj )
 IOObj* IOObj::getParent() const
 {
     return IODir::getObj( parentKey() );
-}
-
-
-int IOObj::setName( const char* nm )
-{
-    if ( !nm || !*nm ) return NO;
-    return UserIDObject::setName(nm) ? YES : NO;
 }
 
 

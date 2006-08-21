@@ -7,14 +7,13 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2001
- RCS:           $Id: uiparent.h,v 1.12 2005-10-20 09:58:33 cvsarend Exp $
+ RCS:           $Id: uiparent.h,v 1.13 2006-08-21 17:14:45 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include <uidobj.h>
-#include <uiobj.h>
-#include <uilayout.h>
+#include "uiobj.h"
+#include "uilayout.h"
 
 class uiObjHandle;
 class uiObjectBody;

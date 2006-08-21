@@ -7,13 +7,13 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		7-1-1996
- RCS:		$Id: ctxtioobj.h,v 1.23 2006-06-01 10:37:40 cvsbert Exp $
+ RCS:		$Id: ctxtioobj.h,v 1.24 2006-08-21 17:14:44 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
  
  
-#include "uidobj.h"
+#include "namedobj.h"
 #include "multiid.h"
 #include "enums.h"
 #include "ioobj.h"
@@ -29,7 +29,7 @@ a certain TranslatorGroup.
 */
 
 
-class IOObjContext : public UserIDObject
+class IOObjContext : public NamedObject
 {
 public:
 
@@ -110,14 +110,14 @@ don't want that, you'll have to just assign.
 
 
 
-class CtxtIOObj : public UserIDObject
+class CtxtIOObj : public NamedObject
 {
 public:
 			CtxtIOObj( const IOObjContext& ct, IOObj* o=0 )
-			: UserIDObject(""), ctxt(ct), ioobj(o), iopar(0)
+			: NamedObject(""), ctxt(ct), ioobj(o), iopar(0)
 			{ setLinked(&ctxt); }
 			CtxtIOObj( const CtxtIOObj& ct )
-			: UserIDObject(""), ctxt(ct.ctxt)
+			: NamedObject(""), ctxt(ct.ctxt)
 			, ioobj(ct.ioobj?ct.ioobj->clone():0)
 			, iopar(ct.iopar?new IOPar(*ct.iopar):0)
 			{ setLinked(&ctxt); }

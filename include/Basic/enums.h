@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		4-2-1994; 20-10-1995
  Contents:	Enum <--> string conversion and generalized reference
- RCS:		$Id: enums.h,v 1.8 2005-10-07 20:25:22 cvskris Exp $
+ RCS:		$Id: enums.h,v 1.9 2006-08-21 17:14:44 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -140,7 +140,7 @@ const char* MyClass::Typenames[] =
 	    	   int notfoundval );
 #else
 
-#include <uidobj.h>
+#include "namedobj.h"
 
 extern "C" { int getEnum(const char*,const char**,int,int); }
 extern "C" { int getEnumDef(const char*,const char**,int,int,int); }
@@ -148,13 +148,13 @@ extern "C" { int getEnumDef(const char*,const char**,int,int,int); }
 
 /*\brief holds data pertinent for a certain enum */
 
-class EnumDef : public UserIDObject
+class EnumDef : public NamedObject
 {
     friend class	EnumRef;
 
 public:
 			EnumDef( const char* nm, const char* s[], int nrs=0 )
-				: UserIDObject(nm)
+				: NamedObject(nm)
 				, names(s)
 				, nrsign(nrs)	{}
 

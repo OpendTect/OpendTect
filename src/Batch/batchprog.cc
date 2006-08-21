@@ -5,7 +5,7 @@
  * FUNCTION : Batch Program 'driver'
 -*/
  
-static const char* rcsID = "$Id: batchprog.cc,v 1.82 2006-02-20 18:49:49 cvsbert Exp $";
+static const char* rcsID = "$Id: batchprog.cc,v 1.83 2006-08-21 17:14:45 cvsbert Exp $";
 
 #include "batchprog.h"
 #include "ioman.h"
@@ -42,7 +42,7 @@ static const char* rcsID = "$Id: batchprog.cc,v 1.82 2006-02-20 18:49:49 cvsbert
 BatchProgram* BatchProgram::inst;
 
 BatchProgram::BatchProgram( int* pac, char** av )
-	: UserIDObject("")
+	: NamedObject("")
 	, pargc(pac)
 	, argv_(av)
 	, argshift(2)
@@ -206,7 +206,7 @@ BatchProgram::~BatchProgram()
 
 const char* BatchProgram::progName() const
 {
-    static UserIDString ret;
+    static BufferString ret;
     ret = FilePath( fullpath ).fileName();
     return ret;
 }

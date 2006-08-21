@@ -5,7 +5,7 @@
  * FUNCTION : Wavelet
 -*/
 
-static const char* rcsID = "$Id: wavelet.cc,v 1.18 2006-03-12 13:39:11 cvsbert Exp $";
+static const char* rcsID = "$Id: wavelet.cc,v 1.19 2006-08-21 17:14:45 cvsbert Exp $";
 
 #include "wavelet.h"
 #include "seisinfo.h"
@@ -14,6 +14,7 @@ static const char* rcsID = "$Id: wavelet.cc,v 1.18 2006-03-12 13:39:11 cvsbert E
 #include "streamconn.h"
 #include "survinfo.h"
 #include "ioobj.h"
+#include "keystrs.h"
 #include "errh.h"
 #include "ptrman.h"
 
@@ -21,7 +22,7 @@ static const char* rcsID = "$Id: wavelet.cc,v 1.18 2006-03-12 13:39:11 cvsbert E
 
 
 Wavelet::Wavelet( const char* nm, int idxfsamp, float sr )
-	: UserIDObject(nm)
+	: NamedObject(nm)
 	, iw(idxfsamp)
 	, dpos(mIsUdf(sr)?SeisTrcInfo::defaultSampleInterval(true):sr)
 	, sz(0)
@@ -214,7 +215,7 @@ int dgbWaveletTranslator::read( Wavelet* wv, Conn& conn )
 	    wv->reSize( astream.getVal() );
         else if ( astream.hasKeyword( sIndex ) )
 	    iw = astream.getVal();
-        else if ( astream.hasKeyword(sNameKey) )
+        else if ( astream.hasKeyword(sKey::Name) )
 	    wv->setName( astream.value() );
         else if ( astream.hasKeyword( sSampRate ) )
 	    sr = astream.getValue();
@@ -237,7 +238,7 @@ int dgbWaveletTranslator::write( const Wavelet* wv, Conn& conn )
     head += " file";
     if ( !astream.putHeader( head ) ) return NO;
 
-    if ( *(const char*)wv->name() ) astream.put( sNameKey, wv->name() );
+    if ( *(const char*)wv->name() ) astream.put( sKey::Name, wv->name() );
     astream.put( sLength, wv->size() );
     astream.put( sIndex, -wv->centerSample() );
     astream.put( sSampRate, wv->sampleRate() * 1000 );

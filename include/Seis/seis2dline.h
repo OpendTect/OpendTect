@@ -7,13 +7,13 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		June 2004
- RCS:		$Id: seis2dline.h,v 1.34 2005-10-31 14:59:22 cvshelene Exp $
+ RCS:		$Id: seis2dline.h,v 1.35 2006-08-21 17:14:44 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
  
 #include "ranges.h"
-#include "uidobj.h"
+#include "namedobj.h"
 #include "linekey.h"
 #include "position.h"
 #include "seistrctr.h"
@@ -54,13 +54,13 @@ public:
 
 /*!\brief Set of 2D lines comparable with 3D seismic cube */
 
-class Seis2DLineSet : public UserIDObject
+class Seis2DLineSet : public NamedObject
 {
 public:
 			Seis2DLineSet( const char* fnm )
-			    	: UserIDObject("")	{ init( fnm ); }
+			    	: NamedObject("")	{ init( fnm ); }
 			Seis2DLineSet( const Seis2DLineSet& lg )
-			    	: UserIDObject(lg.name()) { init(lg.fname_); }
+			    	: NamedObject(lg.name()) { init(lg.fname_); }
     Seis2DLineSet&	operator=(const Seis2DLineSet&);
     virtual		~Seis2DLineSet();
     void		setReadOnly( bool yn=true )	{ readonly_ = yn; }

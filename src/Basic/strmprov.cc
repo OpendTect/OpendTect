@@ -36,12 +36,12 @@
 #include "binidsel.h"
 #include "strmoper.h"
 #include "callback.h"
-#include "uidobj.h"
+#include "namedobj.h"
 #include "debugmasks.h"
 #include "oddirs.h"
 
 
-static const char* rcsID = "$Id: strmprov.cc,v 1.67 2006-02-20 11:29:23 cvsnanne Exp $";
+static const char* rcsID = "$Id: strmprov.cc,v 1.68 2006-08-21 17:14:45 cvsbert Exp $";
 
 static FixedString<1024> oscommand;
 
@@ -743,8 +743,8 @@ static void mkRelocMsg( const char* oldnm, const char* newnm,BufferString& msg )
 
 void StreamProvider::sendCBMsg( const CallBack* cb, const char* msg )
 {
-    UserIDObject uidobj( msg );
-    CBCapsule<const char*> caps( ((const char*)msg), &uidobj );
+    NamedObject nobj( msg );
+    CBCapsule<const char*> caps( ((const char*)msg), &nobj );
     CallBack(*cb).doCall( &caps );
 }
 

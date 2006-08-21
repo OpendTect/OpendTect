@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: uimenu.h,v 1.27 2006-07-21 18:56:56 cvskris Exp $
+ RCS:           $Id: uimenu.h,v 1.28 2006-08-21 17:14:45 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -111,7 +111,7 @@ protected:
     messenger, so Qt's signals can be relayed.
 
 */
-class uiMenuItem : public UserIDObject
+class uiMenuItem : public NamedObject
 {
 #ifdef USEQT4
 template<class> friend class	uiMenuItemContainerBodyImpl;

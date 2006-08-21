@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: uimenu.cc,v 1.30 2006-08-16 10:51:20 cvsbert Exp $
+ RCS:           $Id: uimenu.cc,v 1.31 2006-08-21 17:14:45 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -207,7 +207,7 @@ private:
 //-----------------------------------------------------------------------
 
 uiMenuItem::uiMenuItem( const char* nm )
-    : UserIDObject(nm)
+    : NamedObject(nm)
     , activated(this)
     , messenger_( *new i_MenuMessenger(this) ) 
     , id_(-1)
@@ -218,7 +218,7 @@ uiMenuItem::uiMenuItem( const char* nm )
 
 
 uiMenuItem::uiMenuItem( const char* nm, const CallBack& cb )
-    : UserIDObject(nm )
+    : NamedObject(nm )
     , activated(this)
     , messenger_( *new i_MenuMessenger(this) )
     , id_(-1)

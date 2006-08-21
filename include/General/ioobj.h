@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		31-7-1995
- RCS:		$Id: ioobj.h,v 1.20 2005-10-20 09:42:51 cvsarend Exp $
+ RCS:		$Id: ioobj.h,v 1.21 2006-08-21 17:14:44 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
  
 #include "conn.h"
 #include "multiid.h"
+#include "namedobj.h"
 class IOPar;
 class CallBack;
 class ascistream;
@@ -39,7 +40,7 @@ public:
 
 The IOMan object manager manages IODir directories of IOObj objects. These
 objects contain the information needed to do the I/O needed for the storage
-that is accessed in the dGB software. IOObj objects not in the root IODir will
+that is accessed in OpendTect software. IOObj objects not in the root IODir will
 have a parent object, which may or may not be useful in relation to the IOObj.
 
 In any case, every IOObj has a unique key in the form of a MultiID. This key
@@ -54,12 +55,8 @@ If a link is removed, the entire tree below it is removed.
 */
 
 
-class IOObj : public UserIDObject
+class IOObj : public NamedObject
 {
-
-    friend class	IODir;
-    friend class	IOLink;
-
 public:
 
     IOObj*		clone() const;
@@ -95,8 +92,6 @@ public:
     virtual bool	removeQuery() const		{ return false; }
     virtual void	genDefaultImpl()		{}
 
-    virtual int		setName(const char*);
-    			//!< Set the user reference
     virtual const char*	dirName() const;
     			//!< The full path to the position in the tree
 			//!<\note may not be the directory of an implementation
@@ -137,6 +132,9 @@ protected:
     void		setKey( const char* nm )	{ key_ = nm; }
 
 private:
+
+    friend class	IODir;
+    friend class	IOLink;
 
     IOPar&		pars_;
     int			myKey() const;

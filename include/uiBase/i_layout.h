@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          18/08/1999
- RCS:           $Id: i_layout.h,v 1.37 2006-04-28 15:23:20 cvsnanne Exp $
+ RCS:           $Id: i_layout.h,v 1.38 2006-08-21 17:14:45 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -113,7 +113,7 @@ widget already present).
 
 
 */
-class i_LayoutMngr : public QLayout, public UserIDObject
+class i_LayoutMngr : public QLayout, public NamedObject
 {
     friend class	i_LayoutItem;
     friend class	uiGroupParentBody;

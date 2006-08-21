@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/06/2001
- RCS:           $Id: uiobjbody.h,v 1.38 2006-01-11 17:30:36 cvsbert Exp $
+ RCS:           $Id: uiobjbody.h,v 1.39 2006-08-21 17:14:45 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,7 +31,7 @@ class Color;
 #define USE_DISPLAY_TIMER 1
 
 
-class uiObjectBody : public uiBody, public UserIDObject
+class uiObjectBody : public uiBody, public NamedObject
 {
 friend class 		i_uiLayoutItem; 
 

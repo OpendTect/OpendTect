@@ -7,13 +7,13 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		3-8-1995
- RCS:		$Id: ioman.h,v 1.27 2006-06-29 16:34:09 cvsbert Exp $
+ RCS:		$Id: ioman.h,v 1.28 2006-08-21 17:14:44 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
  
 
-#include "uidobj.h"
+#include "namedobj.h"
 #include "multiid.h"
 #include "sets.h"
 class IOLink;
@@ -44,7 +44,7 @@ through getParList().
 inline IOMan& IOM();
 
 
-class IOMan : public UserIDObject
+class IOMan : public NamedObject
 {
 public:
 

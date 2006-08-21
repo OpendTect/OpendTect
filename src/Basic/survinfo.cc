@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          18-4-1996
- RCS:           $Id: survinfo.cc,v 1.74 2006-07-25 06:43:15 cvsnanne Exp $
+ RCS:           $Id: survinfo.cc,v 1.75 2006-08-21 17:14:45 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -140,7 +140,7 @@ SurveyInfo* SurveyInfo::read( const char* survdir )
     while ( !atEndOfSection(astream) )
     {
 	keyw = astream.keyWord();
-	if ( keyw == sNameKey )
+	if ( keyw == sKey::Name )
 	    si->setName( astream.value() );
 	else if ( keyw == sKeyWSProjName )
 	    si->wsprojnm_ = astream.value();
@@ -608,7 +608,7 @@ bool SurveyInfo::write( const char* basedir ) const
 	return false;
     }
 
-    astream.put( sNameKey, name() );
+    astream.put( sKey::Name, name() );
     FileMultiString fms;
     fms += cs_.hrg.start.inl; fms += cs_.hrg.stop.inl; fms += cs_.hrg.step.inl;
     astream.put( sKeyInlRange, fms );

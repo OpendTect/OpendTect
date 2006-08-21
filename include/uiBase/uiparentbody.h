@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/06/2001
- RCS:           $Id: uiparentbody.h,v 1.12 2003-11-07 12:21:54 bert Exp $
+ RCS:           $Id: uiparentbody.h,v 1.13 2006-08-21 17:14:45 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,13 +20,13 @@ ________________________________________________________________________
 
 #include "uigroup.h"
 
-class uiParentBody : public uiBody, public UserIDObject
+class uiParentBody : public uiBody, public NamedObject
 {
 friend class uiObjectBody;
 public:
 				//uiParentBody( const char* nm = "uiParentBody")
 				uiParentBody( const char* nm )
-				    : UserIDObject( nm )
+				    : NamedObject( nm )
 				    , finalised_( false )
 				    , destructing( 0xdeadbeef )
 				{}

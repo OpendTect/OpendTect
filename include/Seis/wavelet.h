@@ -1,5 +1,5 @@
-#ifndef wavelet_H
-#define wavelet_H
+#ifndef wavelet_h
+#define wavelet_h
 
 /*+
 ________________________________________________________________________
@@ -7,18 +7,18 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		24-3-1996
- RCS:		$Id: wavelet.h,v 1.10 2005-05-18 09:20:45 cvsbert Exp $
+ RCS:		$Id: wavelet.h,v 1.11 2006-08-21 17:14:44 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
  
-#include "uidobj.h"
+#include "namedobj.h"
 #include "transl.h"
 class Conn;
 class IOObj;
 
 
-class Wavelet : public UserIDObject
+class Wavelet : public NamedObject
 {
 public:
 			Wavelet(const char* nm=0,int idxfsamp=0,

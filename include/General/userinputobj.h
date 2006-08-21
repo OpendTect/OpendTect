@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/2/2002
- RCS:           $Id: userinputobj.h,v 1.11 2005-09-06 16:05:33 cvsbert Exp $
+ RCS:           $Id: userinputobj.h,v 1.12 2006-08-21 17:14:44 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,7 +17,6 @@ ________________________________________________________________________
 #include "initval.h"
 
 class CallBack;
-class PtrUserIDObjectSet;
 class BufferString;
 class BufferStringSet;
 template <class T> class ObjectSet;

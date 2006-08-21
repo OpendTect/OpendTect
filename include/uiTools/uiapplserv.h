@@ -7,24 +7,24 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Feb 2002
- RCS:		$Id: uiapplserv.h,v 1.8 2003-11-07 12:21:54 bert Exp $
+ RCS:		$Id: uiapplserv.h,v 1.9 2006-08-21 17:14:45 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 
-#include "uidobj.h"
+#include "namedobj.h"
 class uiParent;
 class uiApplPartServer;
 
 
 /*! \brief Services from application level to 'Part servers' */
 
-class uiApplService : public UserIDObject
+class uiApplService : public NamedObject
 {
 public:
 			uiApplService( const char* nm = 0 )
-			: UserIDObject(nm)				{}
+			: NamedObject(nm)				{}
 			//!< The name is the application name
 
     virtual uiParent*	parent() const					= 0;

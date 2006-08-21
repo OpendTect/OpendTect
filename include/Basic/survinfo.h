@@ -7,13 +7,13 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		9-4-1996
- RCS:		$Id: survinfo.h,v 1.50 2006-07-07 15:00:23 cvskris Exp $
+ RCS:		$Id: survinfo.h,v 1.51 2006-08-21 17:14:44 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
  
  
-#include "uidobj.h"
+#include "namedobj.h"
 #include "ranges.h"
 #include "rcol2coord.h"
 class ascostream;
@@ -35,7 +35,7 @@ Normally, you'll want to have the working area.
 
 */
 
-class SurveyInfo : public UserIDObject
+class SurveyInfo : public NamedObject
 {
 
     friend const SurveyInfo&	SI();

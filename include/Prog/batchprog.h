@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		14-9-1998
- RCS:		$Id: batchprog.h,v 1.33 2006-07-07 15:00:22 cvskris Exp $
+ RCS:		$Id: batchprog.h,v 1.34 2006-08-21 17:14:44 cvsbert Exp $
 ________________________________________________________________________
 
  Batch programs should include this header, and define a BatchProgram::go().
@@ -16,7 +16,7 @@ ________________________________________________________________________
 */
 
 #include "prog.h"
-#include "uidobj.h"
+#include "namedobj.h"
 #include "bufstringset.h"
 #include "genc.h"
 #include <iosfwd>
@@ -43,7 +43,7 @@ class MMSockCommunic;
 
 */
 
-class BatchProgram : public UserIDObject
+class BatchProgram : public NamedObject
 {
 public:
 

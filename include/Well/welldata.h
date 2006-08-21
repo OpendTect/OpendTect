@@ -7,14 +7,14 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: welldata.h,v 1.10 2004-05-21 16:55:42 bert Exp $
+ RCS:		$Id: welldata.h,v 1.11 2006-08-21 17:14:45 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "sets.h"
 #include "position.h"
-#include "uidobj.h"
+#include "namedobj.h"
 #include "callback.h"
 
 class IOPar;
@@ -29,12 +29,12 @@ class Marker;
 
 /*!\brief Infomation about a certain well */
 
-class Info : public ::UserIDObject
+class Info : public ::NamedObject
 {
 public:
 
 			Info( const char* nm )
-			    : ::UserIDObject(nm), surfaceelev(0)	{}
+			    : ::NamedObject(nm), surfaceelev(0)	{}
 
     void                fillPar(IOPar&) const;
     void                usePar(const IOPar&);

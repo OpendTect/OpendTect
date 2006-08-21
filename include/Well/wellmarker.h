@@ -7,24 +7,24 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: wellmarker.h,v 1.3 2003-11-07 12:21:52 bert Exp $
+ RCS:		$Id: wellmarker.h,v 1.4 2006-08-21 17:14:45 cvsbert Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "uidobj.h"
+#include "namedobj.h"
 #include "color.h"
 
 namespace Well
 {
 
-class Marker : public ::UserIDObject
+class Marker : public ::NamedObject
 {
 public:
 
 			Marker( const char* nm= 0 )
-			: ::UserIDObject(nm), dah(0), istop(true)
+			: ::NamedObject(nm), dah(0), istop(true)
 						{}
 
     BufferString	desc;

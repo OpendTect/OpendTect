@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          29/06/2001
- RCS:           $Id: i_layoutitem.h,v 1.27 2006-04-28 15:23:20 cvsnanne Exp $
+ RCS:           $Id: i_layoutitem.h,v 1.28 2006-08-21 17:14:45 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,7 +21,7 @@ ________________________________________________________________________
 class QLayoutItem;
 
 //! Wrapper around QLayoutItem class. Stores some dGB specific layout info.
-class i_LayoutItem : public uiBody, public UserIDObject
+class i_LayoutItem : public uiBody, public NamedObject
 {   
     friend class		i_LayoutMngr;
     friend class		i_LayoutIterator;

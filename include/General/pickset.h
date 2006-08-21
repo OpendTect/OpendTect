@@ -8,12 +8,12 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		May 2001
  Contents:	PickSet base classes
- RCS:		$Id: pickset.h,v 1.24 2006-08-16 10:51:19 cvsbert Exp $
+ RCS:		$Id: pickset.h,v 1.25 2006-08-21 17:14:44 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uidobj.h"
+#include "namedobj.h"
 #include "sets.h"
 #include "trigonometry.h"
 #include "color.h"
@@ -79,13 +79,13 @@ public:
 
 /*!\brief Set of picks with something in common */
 
-class Set : public UserIDObject
+class Set : public NamedObject
 	  , public TypeSet<Location>
 {
 public:
 
 			Set( const char* nm=0 )
-			    : UserIDObject(nm)		{}
+			    : NamedObject(nm)		{}
 			Set( const Set& s )
 			{ *this = s; }
     Set&		operator =( const Set& s )
@@ -124,7 +124,7 @@ public:
  
  */
 
-class SetMgr : public UserIDObject
+class SetMgr : public NamedObject
 {
 public:
 

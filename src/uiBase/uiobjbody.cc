@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/06/2001
- RCS:           $Id: uiobjbody.cc,v 1.8 2006-03-12 13:39:11 cvsbert Exp $
+ RCS:           $Id: uiobjbody.cc,v 1.9 2006-08-21 17:14:45 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,7 +27,7 @@ ________________________________________________________________________
     
 uiObjectBody::uiObjectBody( uiParent* parnt, const char* nm )
     : uiBody()
-    , UserIDObject( nm )
+    , NamedObject( nm )
     , layoutItem_( 0 )
     , parent_( parnt ? mParntBody(parnt) : 0  )
     , font_( 0 )

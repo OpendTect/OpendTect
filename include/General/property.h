@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: property.h,v 1.6 2005-02-23 16:49:53 cvsbert Exp $
+ RCS:		$Id: property.h,v 1.7 2006-08-21 17:14:44 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -15,7 +15,7 @@ ________________________________________________________________________
 
 #include "repos.h"
 #include "enums.h"
-#include "uidobj.h"
+#include "namedobj.h"
 
 class PropertyRefRepository;
 PropertyRefRepository& PrRR();
@@ -23,7 +23,7 @@ PropertyRefRepository& PrRR();
 
 /*!\brief Ref Data for a (usually petrophysical) property */
 
-class PropertyRef : public ::UserIDObject
+class PropertyRef : public NamedObject
 {
 public:
 
@@ -33,7 +33,7 @@ public:
 
 			PropertyRef( const char* nm=0, StdType t=Other,
 				     bool h=false )
-			: UserIDObject(nm)
+			: NamedObject(nm)
 			, stdtype_(t)
 			, hcaff_(h)
 			, source_(Repos::Survey)	{}

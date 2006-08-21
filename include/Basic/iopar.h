@@ -7,12 +7,12 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		21-12-1995
- RCS:		$Id: iopar.h,v 1.39 2006-07-17 15:32:50 cvsbert Exp $
+ RCS:		$Id: iopar.h,v 1.40 2006-08-21 17:14:44 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
  
-#include "uidobj.h"
+#include "namedobj.h"
 #include "sets.h"
 
 class BinID;
@@ -37,7 +37,7 @@ reading/writing to/from file, merging, and more.
 */
 
 
-class IOPar : public UserIDObject
+class IOPar : public NamedObject
 {
 public:
 			IOPar(const char* nm=0); //!< empty

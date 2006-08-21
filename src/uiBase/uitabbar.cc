@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          17/01/2002
- RCS:           $Id: uitabbar.cc,v 1.14 2006-08-16 10:51:20 cvsbert Exp $
+ RCS:           $Id: uitabbar.cc,v 1.15 2006-08-21 17:14:45 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,7 +35,7 @@ protected:
 #endif
 
 uiTab::uiTab( uiGroup& grp )
-    : UserIDObject( grp.name() )
+    : NamedObject( grp.name() )
 #ifndef USEQT4
     , body_( *new uiTabBody(*this,grp.name()) )
 #endif
@@ -46,10 +46,10 @@ uiTab::uiTab( uiGroup& grp )
 int uiTab::id() const
     { return body_.identifier(); }
 
-int uiTab::setName( const char* nm )
+void uiTab::setName( const char* nm )
 {
     body_.setText( nm );
-    return UserIDObject::setName( nm );
+    NamedObject::setName( nm );
 }
 #endif
 
