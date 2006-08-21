@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: mpeengine.cc,v 1.65 2006-08-16 10:51:20 cvsbert Exp $";
+static const char* rcsID = "$Id: mpeengine.cc,v 1.66 2006-08-21 08:44:02 cvsnanne Exp $";
 
 #include "mpeengine.h"
 
@@ -543,6 +543,7 @@ bool Engine::usePar( const IOPar& iopar )
 	    loadEMObject.trigger();
 	    oid = EM::EMM().getObjectID( midtoload );
 	    emobj = EM::EMM().getObject( oid );
+	    if ( emobj ) emobj->ref();
 	}
 
 	if ( !emobj )
@@ -553,12 +554,14 @@ bool Engine::usePar( const IOPar& iopar )
 
 	    oid = EM::EMM().getObjectID( midtoload );
 	    emobj = EM::EMM().getObject( oid );
+	    if ( emobj ) emobj->ref();
 	}
 
 	if ( !emobj )
 	    continue;
 	    
 	const int trackeridx = addTracker( emobj );
+	emobj->unRefNoDelete();
 	if ( trackeridx < 0 ) continue;
 	EMTracker* tracker = trackers_[trackeridx];
 	

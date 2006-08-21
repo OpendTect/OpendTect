@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2004
- RCS:           $Id: uimpepartserv.cc,v 1.48 2006-06-26 07:57:50 cvsjaap Exp $
+ RCS:           $Id: uimpepartserv.cc,v 1.49 2006-08-21 08:44:02 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -394,8 +394,18 @@ void uiMPEPartServer::loadEMObjectCB(CallBacker*)
     PtrMan<Executor> exec = EM::EMM().objectLoader( MPE::engine().midtoload );
     if ( !exec ) return;
 
+    const EM::ObjectID emid = EM::EMM().getObjectID( MPE::engine().midtoload );
+    EM::EMObject* emobj = EM::EMM().getObject( emid );
+    if ( !emobj ) return;
+
+    emobj->ref();
     uiExecutor uiexec( appserv().parent(), *exec );
-    uiexec.go();
+    const bool keepobj = uiexec.go();
+    exec.erase();
+    if ( keepobj )
+	emobj->unRefNoDelete();
+    else
+	emobj->unRef();
 }
 
 
