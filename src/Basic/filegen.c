@@ -5,7 +5,7 @@
  * FUNCTION : file utilities
 -*/
 
-static const char* rcsID = "$Id: filegen.c,v 1.69 2006-08-07 13:35:26 cvsnanne Exp $";
+static const char* rcsID = "$Id: filegen.c,v 1.70 2006-08-21 10:28:21 cvsnanne Exp $";
 
 #include "filegen.h"
 #include "string2.h"
@@ -195,6 +195,8 @@ const char* File_getTime( const char* fnm )
 	return 0;
 #ifdef __win__
     stat((char*)fnm,&statbuf);
+    // TODO: make this work on win32 (now undefined reference to ctime_r)
+    return 0;
 #endif
 
     (void)ctime_r( &statbuf.st_mtime, buf );
