@@ -4,7 +4,7 @@
   - Author:	A.H. Bril
   - Date:	Oct 2003
   - Contents:	Plugins
-  - RCS:	$Id: plugins.html,v 1.34 2006-08-07 11:49:20 dgb Exp $
+  - RCS:	$Id: plugins.html,v 1.35 2006-08-21 10:43:54 helene Exp $
  -->
 
 <body background="../backg.png"><title>Plugins [OpendTect Programmer's manual V2.4]</title>
@@ -535,11 +535,62 @@ function. If your input requires additional samples (timegate) or neighbouring
 traces (stepout), you will have to define <code>reqZMargin()</code> and 
 <code>reqStepout()</code> respectively. </p>
 
-
+<a name=cohrw><h5>computeData();</h5>
 <p> When we want to look at the actual work, the place to be is the
 <code><b>computeData()</b></code> method. This is the place where you define the
 mathematics for calculating the attribute. This function is called for each 
 trace of your output cube.</p>
+
+<p>In the computeData() method, we are faced with a number of Z ranges.
+To be able to support multi-threading, computeData must be ready to only
+process part of the trace. Then, also, we can have input cubes that are
+larger than requested or desired, or smaller than that. This delivers a
+rather nasty picture of Z indexes that we really cannot circumvent.
+To make things at least clear, the indexes are all related to the the
+absolute Z=0. This is where everything refers to. Then, we have different
+start Z indexes for each of the input cubes and the output cube. These are
+named 'z0_' in the corresponding DataHolders.</p>
+
+<center>
+<img src="fig_explainz0.png" alt="Explaining Z0">
+</center>
+
+<p>To show what indexes are involved, let's go for an example where we simply
+have one input cube from which we need to take the average of 5 consequent
+samples (2 above and 2 below) and put it in the output.
+
+We get the following code:</p>
+<pre><code>
+bool MatchDelta::computeData( const DataHolder& output, const BinID& relpos,
+                              int z0, int nrsamples ) const
+{
+    const ValueSeries<float>* inpseries
+                = inpcubedata_->series( getDataIndex(0) );
+    const int inpoffs = z0 - inpcubedata_->z0_;
+    const int outoffs = z0 - output.z0_;
+    const int lastinpz = inpcubedata_->z0_ + inpcubedata_->nrsamples_ - 1;
+
+    for ( int idx=0; idx &lt; nrsamples; idx++ )
+    {
+        const int inpz = inpoffs + idx;
+        const int curz = z0 + idx;
+        TypeSet<float> vals;
+        if ( inpcubedata_->z0_ < curz-1 )
+             vals +=inpseries->value( inpz - 2 );
+        if ( inpcubedata_->z0_ < curz )
+             vals += inpseries->value( inpz - 1 );
+        vals += inpseries->value( inpz );
+        if ( lastinpz >= curz )
+             vals += inpseries->value( inpz + 1 );
+        if ( lastinpz >= curz+1 )
+             vals += inpseries->value( inpz + 2 );
+
+	const float val = vals.size() ? gtAvg(vals) : mUdf(float);
+        output.series(0)->setValue( outoffs + idx, val );
+    }
+
+    return true;
+}</code></pre>
 
 
 <a name=cohui><h4>The <code>uiCoh</code> plugin</h4>
