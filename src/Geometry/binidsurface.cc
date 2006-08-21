@@ -4,7 +4,7 @@
  * DATE     : Nov 2004
 -*/
 
-static const char* rcsID = "$Id: binidsurface.cc,v 1.12 2006-08-15 11:29:52 cvsnanne Exp $";
+static const char* rcsID = "$Id: binidsurface.cc,v 1.13 2006-08-21 19:36:05 cvskris Exp $";
 
 #include "binidsurface.h"
 
@@ -43,7 +43,8 @@ Coord3 BinIDSurface::computePosition( const Coord& param ) const
 {
     const StepInterval<int> rowrange = rowRange();
     const StepInterval<int> colrange = colRange();
-    int prevrowidx = rowrange.getIndex(param.x);
+
+    int prevrowidx = rowrange.getIndex( param.x );
     if ( prevrowidx<0 || prevrowidx>nrRows()-1 )
 	return Coord3::udf();
     else if ( prevrowidx>0 && prevrowidx==nrRows()-1 )
@@ -65,37 +66,73 @@ Coord3 BinIDSurface::computePosition( const Coord& param ) const
 	    return Coord3::udf();
     }
 
+    float depth = mUdf(float);
+
     float depth00 = depths_->get( prevrowidx, prevcolidx );
-    float depth01 = depths_->get( prevrowidx, prevcolidx+1 );
-    float depth10 = depths_->get( prevrowidx+1, prevcolidx );
-    float depth11 = depths_->get( prevrowidx+1, prevcolidx+1 );
+    float depth01 = prevcolidx<nrCols()-1
+	? depths_->get( prevrowidx, prevcolidx+1 )
+	: mUdf(float);
+    float depth10 = prevrowidx<nrRows()-1
+	? depths_->get( prevrowidx+1, prevcolidx )
+	: mUdf(float);
+    float depth11 = prevcolidx<nrCols()-1 && prevrowidx<nrRows()-1
+	? depths_->get( prevrowidx+1, prevcolidx+1 )
+	: mUdf(float);
 
     const bool udef00 = mIsUdf( depth00 );
     const bool udef01 = mIsUdf( depth01 );
     const bool udef10 = mIsUdf( depth10 );
     const bool udef11 = mIsUdf( depth11 );
 
-    const char udefsum = udef00+udef01+udef10+udef11;
-    if ( udefsum>1 ) return Coord3::udf();
-
     const float u = rowrange.getfIndex(param.x)-prevrowidx;
-    const float v = colrange.getfIndex(param.y)-prevcolidx;
     const float one_minus_u = 1-u;
+    const float v = colrange.getfIndex(param.y)-prevcolidx;
+    const float one_minus_v = 1-v;
 
-    if ( udefsum==3 )
+    if ( mIsZero( u, 1e-3 ) )
     {
-	if ( udef00 )
-	    depth00 = mEstimateCorner( depth10, depth11, depth01 );
-	else if ( udef01 )
-	    depth01 = mEstimateCorner( depth00, depth10, depth11 );
-	else if ( udef10 )
-	    depth10 = mEstimateCorner( depth00, depth01, depth11 );
-	else //!def11
-	    depth11 = mEstimateCorner( depth10, depth00, depth01 );
+	if ( mIsZero( v, 1e-3 ) )
+	    depth = depth00;
+	else if ( mIsEqual( v, 1, 1e-3 ) )
+	    depth = depth01;
+	else if ( !udef00 && !udef01 )
+	    depth = v * depth01+one_minus_v*depth00;
     }
+    else if ( mIsEqual( u, 1, 1e-3 ) )
+    {
+	if ( mIsZero( v, 1e-3 ) )
+	    depth = depth10;
+	else if ( mIsEqual( v, 1, 1e-3 ) )
+	    depth = depth11;
+	else if ( !udef10 && !udef11 )
+	    depth = v * depth11+one_minus_v*depth10;
+    }
+    else if ( mIsZero( v, 1e-3 ) && !udef00 && !udef10 )
+	depth = u * depth10+one_minus_u*depth00;
+    else if ( mIsEqual( v, 1, 1e-3 ) && !udef01 && !udef11 )
+	depth = u * depth11+one_minus_u*depth01;
 
-    const float depth = (one_minus_u*depth00 + u*depth10) * (1-v) +
-		        (one_minus_u*depth01 + u*depth11) * v;
+    if ( mIsUdf(depth) && nrRows() && nrCols() )
+    {
+	const char udefsum = udef00+udef01+udef10+udef11;
+	if ( udefsum<=1 )
+	{
+	    if ( udefsum==1 )
+	    {
+		if ( udef00 )
+		    depth00 = mEstimateCorner( depth10, depth11, depth01 );
+		else if ( udef01 )
+		    depth01 = mEstimateCorner( depth00, depth10, depth11 );
+		else if ( udef10 )
+		    depth10 = mEstimateCorner( depth00, depth01, depth11 );
+		else //!def11
+		    depth11 = mEstimateCorner( depth10, depth00, depth01 );
+	    }
+
+	    depth = (one_minus_u*depth00 + u*depth10) * one_minus_v +
+		    (one_minus_u*depth01 + u*depth11) * v;
+	}
+    }
 
     return Coord3(SI().binID2Coord().transform(param), depth );
 }
