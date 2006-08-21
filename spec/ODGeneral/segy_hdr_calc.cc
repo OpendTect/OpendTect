@@ -44,11 +44,11 @@ int main( int argc, char** argv )
 	if ( instrm.bad() || instrm.eof() ) break;
 	++pm;
 
-	const int inl = IbmFormat::asInt( buf + 224 );
-	const int crl = IbmFormat::asInt( buf + 228 );
-	const double fcdp = 4728566 + (inl-996) * 4751 + (crl-2641) * 0.5;
+	const int inl = IbmFormat::asInt( buf + 4 );
+	const int crl = IbmFormat::asInt( buf + 20 );
+	const double fcdp = (inl - 170) * 1126.5 + crl - 378;
 	const int cdp = mNINT(fcdp);
-	IbmFormat::putInt( cdp, buf + 20 );
+	IbmFormat::putInt( cdp, buf );
 	outstrm.write( buf, trcbytes );
 	if ( !outstrm.good() )
 	    mErrRet("Cannot write trace")
