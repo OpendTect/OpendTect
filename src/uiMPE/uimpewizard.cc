@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpewizard.cc,v 1.55 2006-06-26 07:56:37 cvsjaap Exp $
+ RCS:           $Id: uimpewizard.cc,v 1.56 2006-08-22 15:00:34 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -104,6 +104,7 @@ Wizard::Wizard( uiParent* p, uiMPEPartServer* mps )
     , ioparentrycreated(false)
     , typefld(0)
     , anotherfld(0)
+    , initialhistorynr(mUdf(int))
 {
     objselgrp = createNamePage();
     addPage( objselgrp );
@@ -466,7 +467,7 @@ void Wizard::isStarting()
 
 void Wizard::restoreObject()
 {
-    if  ( !mIsUdf(initialhistorynr) )
+    if ( !mIsUdf(initialhistorynr) )
     {
 	EM::EMM().history().unDo(
 	                EM::EMM().history().currentEventNr()-initialhistorynr);
