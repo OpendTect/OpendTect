@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfauxdataio.h,v 1.13 2006-04-27 15:29:13 cvskris Exp $
+ RCS:		$Id: emsurfauxdataio.h,v 1.14 2006-08-22 12:54:57 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -60,6 +60,7 @@ public:
     static const char*		sKeyShift();
 
     static BufferString		createHovName(const char* base,int idx);
+    static BufferString		createSetupName(const char* base);
 
 protected:
 
