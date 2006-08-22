@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: emsurfacetr.cc,v 1.12 2006-08-16 12:19:47 cvsnanne Exp $
+ RCS:           $Id: emsurfacetr.cc,v 1.13 2006-08-22 12:53:13 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -173,10 +173,10 @@ Executor* EMSurfaceTranslator::writer( const IOObj& ioobj )
  \
     StreamProvider sp( basenm ); \
     sp.addPathIfNecessary( pathnm ); \
-    if ( !sp.fn ) return false;
+    bool res = sp.fn;
 
 #define mImplLoopStart \
-    if ( gap > 100 ) return true; \
+    if ( gap > 100 ) break; \
     StreamProvider loopsp( EM::dgbSurfDataWriter::createHovName(basenm,nr) ); \
     loopsp.addPathIfNecessary( pathnm );
 
@@ -195,7 +195,12 @@ bool EMSurfaceTranslator::implRemove( const IOObj* ioobj ) const
 	    gap++;
     }
 
-    return true;
+    StreamProvider setupsp( EM::dgbSurfDataWriter::createSetupName(basenm) );
+    setupsp.addPathIfNecessary( pathnm );
+    if ( setupsp.exists(true) )
+	setupsp.remove(false);
+
+    return res;
 }
 
 
@@ -216,7 +221,14 @@ bool EMSurfaceTranslator::implRename( const IOObj* ioobj, const char* newnm,
 	    gap++;
     }
 
-    return true;
+    StreamProvider oldsetupsp( EM::dgbSurfDataWriter::createSetupName(basenm) );
+    oldsetupsp.addPathIfNecessary( pathnm );
+    StreamProvider newsetupsp( EM::dgbSurfDataWriter::createSetupName(newnm) );
+    newsetupsp.addPathIfNecessary( pathnm );
+    if ( oldsetupsp.exists(true) )
+	oldsetupsp.rename( newsetupsp.fileName(), cb );
+    
+    return res;
 }
 
 
@@ -224,7 +236,7 @@ bool EMSurfaceTranslator::implSetReadOnly( const IOObj* ioobj, bool ro ) const
 {
     mImplStart(setReadOnly(ro));
 
-    return true;
+    return res;
 }
 
 
