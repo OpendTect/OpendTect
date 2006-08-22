@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.147 2006-08-16 10:51:20 cvsbert Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.148 2006-08-22 14:59:53 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -118,9 +118,9 @@ uiODApplMgr::~uiODApplMgr()
 void uiODApplMgr::resetServers()
 {
     if ( nlaserv ) nlaserv->reset();
-    delete attrserv; attrserv = new uiAttribPartServer( applservice );
-    delete mpeserv; mpeserv =
-	new uiMPEPartServer( applservice,  attrserv->curDescSet() );
+    delete attrserv; delete mpeserv;
+    attrserv = new uiAttribPartServer( applservice );
+    mpeserv = new uiMPEPartServer( applservice,  attrserv->curDescSet() );
     visserv->deleteAllObjects();
     emserv->removeHistory();
 }
@@ -146,7 +146,9 @@ int uiODApplMgr::manageSurvey()
 	}
 
 	if ( nlaserv ) nlaserv->reset();
-	delete attrserv; attrserv = new uiAttribPartServer( applservice );
+	delete attrserv; delete mpeserv;
+	attrserv = new uiAttribPartServer( applservice );
+	mpeserv = new uiMPEPartServer( applservice,  attrserv->curDescSet() );
 	if ( appl.sceneMgrAvailable() )
 	    sceneMgr().cleanUp( true );
 	MPE::engine().setActiveVolume( MPE::engine().getDefaultActiveVolume() );
