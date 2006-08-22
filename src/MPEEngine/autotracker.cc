@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: autotracker.cc,v 1.9 2006-07-28 13:51:18 cvsjaap Exp $";
+static const char* rcsID = "$Id: autotracker.cc,v 1.10 2006-08-22 12:51:22 cvsjaap Exp $";
 
 #include "autotracker.h"
 
@@ -47,9 +47,10 @@ AutoTracker::AutoTracker( EMTracker& et, const EM::SectionID& sid )
 	
 	BinID bid = SI().transform( emobject.getPos(pid) );
 	if ( engine().activeVolume().hrg.includes(bid) )
+	{
 	    totalnr--;
-	
-	addSeed(pid);
+	    addSeed(pid);
+	}
     }
 
     if ( !currentseeds.size() )
