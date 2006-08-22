@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.145 2006-08-14 07:37:27 cvsnanne Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.146 2006-08-22 12:58:44 cvsjaap Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -131,7 +131,7 @@ PlaneDataDisplay::PlaneDataDisplay()
 
 PlaneDataDisplay::~PlaneDataDisplay()
 {
-    dragger_->motion.notify( mCB(this,PlaneDataDisplay,draggerMotion) );
+    dragger_->motion.remove( mCB(this,PlaneDataDisplay,draggerMotion) );
     dragger_->finished.remove( mCB(this,PlaneDataDisplay,draggerFinish) );
     dragger_->rightClicked()->remove(
 	    		mCB(this,PlaneDataDisplay,draggerRightClick) );
