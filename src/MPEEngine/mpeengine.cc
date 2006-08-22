@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: mpeengine.cc,v 1.66 2006-08-21 08:44:02 cvsnanne Exp $";
+static const char* rcsID = "$Id: mpeengine.cc,v 1.67 2006-08-22 12:52:17 cvsjaap Exp $";
 
 #include "mpeengine.h"
 
@@ -19,6 +19,7 @@ static const char* rcsID = "$Id: mpeengine.cc,v 1.66 2006-08-21 08:44:02 cvsnann
 #include "emeditor.h"
 #include "emmanager.h"
 #include "emobject.h"
+#include "emsurfauxdataio.h"
 #include "emtracker.h"
 #include "executor.h"
 #include "filepath.h"
@@ -472,8 +473,9 @@ BufferString Engine::setupFileName( const MultiID& mid ) const
     PtrMan<IOObj> ioobj = IOM().get( mid );
     if ( ioobj )
     {
-	FilePath setupfilenm( ioobj->fullUserExpr(true) );
-	setupfilenm.setExtension( "ts", true );
+	const char* basenm = ioobj->name();
+	BufferString extdnm = EM::dgbSurfDataWriter::createSetupName( basenm );
+	FilePath setupfilenm( extdnm );
 	FilePath setuppath( IOObjContext::getDataDirName(IOObjContext::Surf) );
 	setupfilenm.setPath( setuppath.fullPath() );
 	return BufferString( setupfilenm.fullPath() );
