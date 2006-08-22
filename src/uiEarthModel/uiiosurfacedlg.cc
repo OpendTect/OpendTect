@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurfacedlg.cc,v 1.18 2006-04-27 15:29:13 cvskris Exp $
+ RCS:           $Id: uiiosurfacedlg.cc,v 1.19 2006-08-22 12:56:48 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,8 +15,10 @@ ________________________________________________________________________
 #include "emsurfaceiodata.h"
 #include "emsurfaceauxdata.h"
 #include "emsurfacetr.h"
+#include "emsurfauxdataio.h"
 #include "uimsg.h"
 #include "ctxtioobj.h"
+#include "filegen.h"
 #include "ioobj.h"
 #include "emsurface.h"
 #include "emhorizon.h"
@@ -194,6 +196,15 @@ bool uiCopySurface::acceptOK( CallBacker* )
 
     uiExecutor savedlg( this, *saver );
     if ( !savedlg.go() ) return false;
+
+    const BufferString oldsurfname = ioobj->fullUserExpr( true );
+    const BufferString newsurfname = newioobj->fullUserExpr( true );
+    const BufferString oldsetupname =
+		       EM::dgbSurfDataWriter::createSetupName( oldsurfname );
+    const BufferString newsetupname = 
+		       EM::dgbSurfDataWriter::createSetupName( newsurfname );
+    if ( File_exists(oldsetupname) ) 
+	File_copy( oldsetupname, newsetupname, false );
 
     return true;
 }
