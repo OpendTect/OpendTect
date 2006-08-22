@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Huck
  Date:          14-07-2006
- RCS:           $Id: gapdeconattrib.h,v 1.3 2006-08-18 15:33:57 cvshelene Exp $
+ RCS:           $Id: gapdeconattrib.h,v 1.4 2006-08-22 14:06:17 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -61,7 +61,13 @@ protected:
     bool			isoutzerophase_;
     BinID			stepout_;
 
-    ObjectSet<const DataHolder>	inputdata_;
+    bool			inited_;
+    int				nlag_;
+    int				ncorr_;
+    int				ngap_;
+    
+    const DataHolder*		inputdata_;
+    int				dataidx_;
 };
 
 } // namespace Attrib

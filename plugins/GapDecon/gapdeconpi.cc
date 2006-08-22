@@ -19,9 +19,9 @@ extern "C" PluginInfo* GetGapDeconPluginInfo()
 {
     static PluginInfo retpii = {
 	"GapDecon",
-	"dGB - Helene Huck",
+	"dGB - Helene",
 	"=od",
-	"Gap Decon attribute plugin.\n\n" };
+	"Gap Decon (Prediction Error Filter) attribute plugin.\n\n" };
     return &retpii;
 }
 

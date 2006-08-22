@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          July  2006
- RCS:           $Id: uigapdeconattrib.cc,v 1.4 2006-08-15 09:41:16 cvshelene Exp $
+ RCS:           $Id: uigapdeconattrib.cc,v 1.5 2006-08-22 14:06:17 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "uispinbox.h"
 #include "uibutton.h"
 #include "uilabel.h"
+#include "survinfo.h"
 
 using namespace Attrib;
 
@@ -26,29 +27,36 @@ uiGapDeconAttrib::uiGapDeconAttrib( uiParent* p )
 {
     inpfld_ = getInpFld();
 
-    gatefld_ = new uiGenInput(this,"Correlation window",FloatInpIntervalSpec());
+    BufferString gatestr = "Correlation window ";
+    gatestr += SI().getZUnit();
+    gatefld_ = new uiGenInput( this, gatestr, FloatInpIntervalSpec() );
     gatefld_->attach( alignedBelow, inpfld_ );
 
     CallBack cbexam = mCB(this,uiGapDeconAttrib,examPush);
     exambut_ = new uiPushButton( this, "&Examine", cbexam, true);
     exambut_->attach( rightOf, gatefld_ );
 
-    lagfld_ = new uiGenInput( this, "Lag size", IntInpSpec() );
+    BufferString lagstr = "Lag size ";
+    lagstr += SI().getZUnit();
+    lagfld_ = new uiGenInput( this, lagstr, IntInpSpec() );
     lagfld_->attach( alignedBelow, gatefld_ );
     
-    gapfld_ = new uiGenInput( this, "Gap size", IntInpSpec() );
+    BufferString gapstr = "Gap size ";
+    gapstr += SI().getZUnit();
+    gapfld_ = new uiGenInput( this, gapstr, IntInpSpec() );
     gapfld_->attach( alignedBelow, lagfld_ );
     
     noiselvlfld_ = new uiGenInput( this, "random noise added", IntInpSpec() );
-    gapfld_->attach( alignedBelow, lagfld_ );
+    noiselvlfld_->attach( alignedBelow, gapfld_ );
     uiLabel* percentlbl = new uiLabel( this, "%" );
     percentlbl->attach( rightOf, noiselvlfld_ );
     
-    BufferString stepoutlbl = "Smoothing parameter: nr traces mixed";
-    nrtrcsfld_ = new uiLabeledSpinBox( this, stepoutlbl );
+    nrtrcsfld_ = new uiLabeledSpinBox( this, "nr traces mixed" );
     nrtrcsfld_->box()->setMinValue( 1 );
     nrtrcsfld_->box()->setStep( 2, true );
-    nrtrcsfld_->attach( alignedBelow, gapfld_ );
+    nrtrcsfld_->attach( alignedBelow, noiselvlfld_ );
+    uiLabel* stepoutlbl = new uiLabel( this, "( Smoothing parameter )" );
+    stepoutlbl->attach( rightOf, nrtrcsfld_ );
     
     isinpzerophasefld_ = new uiGenInput( this, "Input is", 
 				 BoolInpSpec("Zero phase", "Minimum phase") );
@@ -122,7 +130,7 @@ void uiGapDeconAttrib::examPush( CallBacker* cb )
 //TODO see which param we would want to eval
 void uiGapDeconAttrib::getEvalParams( TypeSet<EvalParam>& params ) const
 {
-    params += EvalParam( noiselevelstr, GapDecon::noiselevelStr() );
+    params += EvalParam( "noise Level (%)", GapDecon::noiselevelStr() );
 }
 
 
