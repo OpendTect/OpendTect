@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.86 2006-07-17 15:36:23 cvsbert Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.87 2006-08-22 12:56:10 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -163,16 +163,32 @@ void uiEMPartServer::fillHoles( const EM::ObjectID& emid )
 
 bool uiEMPartServer::askUserToSave( const EM::ObjectID& emid ) const
 {
-    if ( !isChanged(emid) )
-	return true;
-
     const EM::EMObject* emobj = em_.getObject(emid);
-    BufferString msg( emobj->getTypeStr() );
-    msg += " '";
-    msg += emobj->name(); msg += "' has changed.\nDo you want to save it?";
-    if ( uiMSG().notSaved(msg,false) )
-	return storeObject(emid,!isFullyLoaded(emid) );
+    if ( !emobj )
+	return false;
+    const MultiID& mid = emobj->multiID();
+    PtrMan<IOObj> ioobj = IOM().get(mid);
+    if ( !ioobj )
+	return false;
+    const bool isempty = emobj->isEmpty();
+    const bool wasempty = !ioobj->implExists(false);
+    const bool changed = isChanged(emid) && ( !wasempty || !isempty );
+    bool allowsave = true;
 
+    if ( changed )
+    {
+	BufferString msg( emobj->getTypeStr() );
+	msg += " '";
+	msg += emobj->name(); msg += "' has changed.\nDo you want to save it?";
+        allowsave = uiMSG().notSaved( msg, false );
+    }
+
+    if ( isempty && allowsave || wasempty && !allowsave )
+	return fullImplRemove(*ioobj) && IOM().permRemove(mid);
+
+    if ( changed && allowsave ) 
+	return storeObject( emid, !isFullyLoaded(emid) );
+    
     return true;
 }
 
