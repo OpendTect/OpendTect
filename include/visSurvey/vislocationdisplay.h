@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		June 2006
- RCS:		$Id: vislocationdisplay.h,v 1.8 2006-08-17 13:43:32 cvsjaap Exp $
+ RCS:		$Id: vislocationdisplay.h,v 1.9 2006-08-23 07:33:52 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -77,8 +77,7 @@ public:
 
 protected:
 					LocationDisplay();
-    virtual visBase::VisualObject*	createLocation(const Pick::Location&) 
-								     const  = 0;
+    virtual visBase::VisualObject*	createLocation() const  = 0;
     virtual void			setPosition(int idx,
 	    					    const Pick::Location&)  = 0;
     virtual bool			hasDirection() const { return false; }

@@ -4,7 +4,7 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vislocationdisplay.cc,v 1.13 2006-08-17 13:43:32 cvsjaap Exp $";
+static const char* rcsID = "$Id: vislocationdisplay.cc,v 1.14 2006-08-23 07:33:52 cvsnanne Exp $";
 
 #include "vislocationdisplay.h"
 
@@ -485,11 +485,12 @@ void LocationDisplay::removePick( int removeidx )
 
 void LocationDisplay::addDisplayPick( const Pick::Location& loc )
 {
-    RefMan<visBase::VisualObject> visobj = createLocation( loc );
+    RefMan<visBase::VisualObject> visobj = createLocation();
     visobj->setDisplayTransformation( transformation_ );
 
     const int idx = group_->size();
     group_->addObject( visobj );
+    setPosition( idx, loc );
 }
 
 
@@ -545,7 +546,7 @@ void LocationDisplay::otherObjectsMoved(
 	if ( newstatus && invalidpicks_.indexOf(idx)!=-1 )
 	{
 	    Pick::Location loc = (*set_)[idx];
-	    if ( transformPos( loc ) )
+	    if ( transformPos(loc) )
 	    {
 		invalidpicks_ -= idx;
 		setPosition( idx, loc );
