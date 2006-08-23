@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          January 2003
- RCS:           $Id: visrandomtrackdisplay.cc,v 1.76 2006-07-21 21:15:14 cvskris Exp $
+ RCS:           $Id: visrandomtrackdisplay.cc,v 1.77 2006-08-23 19:02:20 cvskris Exp $
  ________________________________________________________________________
 
 -*/
@@ -87,8 +87,9 @@ RandomTrackDisplay::RandomTrackDisplay()
     triangles_->ref();
     addChild( triangles_->getInventorNode() );
     triangles_->setMaterial( 0 );
-    triangles_->setVertexOrdering(0);
-    triangles_->setShapeType(0);
+    triangles_->setVertexOrdering(
+	    visBase::VertexShape::cClockWiseVertexOrdering() );
+    triangles_->setShapeType( visBase::VertexShape::cUnknownShapeType() );
     triangles_->setTextureCoords( visBase::TextureCoords::create() );
 
     const StepInterval<float>& survinterval = SI().zRange(true);

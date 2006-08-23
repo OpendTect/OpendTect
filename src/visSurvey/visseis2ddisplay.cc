@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2004
- RCS:           $Id: visseis2ddisplay.cc,v 1.6 2006-08-03 13:21:25 cvsnanne Exp $
+ RCS:           $Id: visseis2ddisplay.cc,v 1.7 2006-08-23 19:02:20 cvskris Exp $
  ________________________________________________________________________
 
 -*/
@@ -272,9 +272,10 @@ void visSurvey::Seis2DDisplay::setStrip( const TypeSet<Coord>& crds,
 	visBase::TriangleStripSet* plane = visBase::TriangleStripSet::create();
 	plane->setNormalPerFaceBinding( true );
 	plane->setDisplayTransformation( transformation );
-	plane->setShapeType( 0 );
+	plane->setShapeType( visBase::VertexShape::cUnknownShapeType() );
 	plane->setTextureCoords(visBase::TextureCoords::create());
-	plane->setVertexOrdering( 1 );
+	plane->setVertexOrdering( 
+	       visBase::VertexShape::cCounterClockWiseVertexOrdering() );
 	plane->setMaterial( 0 );
 	planes += plane;
 	plane->ref();

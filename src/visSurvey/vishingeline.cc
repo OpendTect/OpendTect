@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Mar 2002
- RCS:           $Id: vishingeline.cc,v 1.14 2006-06-14 13:45:54 cvskris Exp $
+ RCS:           $Id: vishingeline.cc,v 1.15 2006-08-23 19:02:20 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -167,7 +167,8 @@ void EdgeLineSetDisplay::updateEdgeLineSetChangeCB(CallBacker*)
 	    polyline->ref();
 	    polyline->setDisplayTransformation( transformation );
 	    addChild( polyline->getInventorNode() );
-	    polyline->setMaterialBinding( 2 );
+	    polyline->setMaterialBinding(
+		    visBase::Shape::cPerVertexMaterialBinding() );
 	    polylinesegments += new TypeSet<int>;
 	    polylinesegmentpos += new TypeSet<int>;
 	}

@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.146 2006-08-22 12:58:44 cvsjaap Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.147 2006-08-23 19:02:20 cvskris Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -74,7 +74,8 @@ PlaneDataDisplay::PlaneDataDisplay()
     draggerrect_ = visBase::FaceSet::create();
     draggerrect_->ref();
     draggerrect_->removeSwitch();
-    draggerrect_->setVertexOrdering(1);
+    draggerrect_->setVertexOrdering(
+	    visBase::VertexShape::cCounterClockWiseVertexOrdering() );
     draggerrect_->getCoordinates()->addPos( Coord3(-1,-1,0) );
     draggerrect_->getCoordinates()->addPos( Coord3(1,-1,0) );
     draggerrect_->getCoordinates()->addPos( Coord3(1,1,0) );
@@ -111,8 +112,9 @@ PlaneDataDisplay::PlaneDataDisplay()
     rectangle_->setCoordIndex( 2, 2 );
     rectangle_->setCoordIndex( 3, 3 );
     rectangle_->setCoordIndex( 4, -1 );
-    rectangle_->setVertexOrdering(0);
-    rectangle_->setShapeType(0);
+    rectangle_->setVertexOrdering(
+	    visBase::VertexShape::cClockWiseVertexOrdering() );
+    rectangle_->setShapeType( visBase::VertexShape::cUnknownShapeType() );
 
     material->setColor( Color::White );
     material->setAmbience( 0.8 );

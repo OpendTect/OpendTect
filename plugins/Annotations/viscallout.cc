@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Jan 2005
- RCS:           $Id: viscallout.cc,v 1.3 2006-08-04 21:46:17 cvskris Exp $
+ RCS:           $Id: viscallout.cc,v 1.4 2006-08-23 19:02:20 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -128,8 +128,9 @@ Callout::Callout()
     addChild( rotdragger_->getInventorNode() );
     rotfeedback_->setMaterial( visBase::Material::create() );
     rotfeedback_->getMaterial()->setColor( Color(255,255,255) );
-    rotfeedback_->setVertexOrdering( 0 );
-    rotfeedback_->setShapeType( 1 );
+    rotfeedback_->setVertexOrdering( 
+	   visBase::VertexShape::cClockWiseVertexOrdering() );
+    rotfeedback_->setShapeType( visBase::VertexShape::cSolidShapeType() );
     rotdragger_->changed.notify( mCB( this, Callout, dragChanged ));
     rotdragger_->finished.notify( mCB( this, Callout, dragStop ));
 
@@ -145,7 +146,7 @@ Callout::Callout()
     rotfeedbackactive_->setMaterial( visBase::Material::create() );
     rotfeedbackactive_->getMaterial()->setColor( Color(255,255,0) );
     rotfeedback_->setVertexOrdering( 0 );
-    rotfeedback_->setShapeType( 1 );
+    rotfeedback_->setShapeType( visBase::VertexShape::cSolidShapeType() );
     rotfeedbackactive_->setCoordinates( rotfeedback_->getCoordinates() );
     rotdragger_->setOwnFeedback( rotfeedbackactive_, true );
     rotation_->ref();
@@ -154,7 +155,7 @@ Callout::Callout()
     mAddChild( faceset_, true );
     faceset_->getCoordinates()->setPos( mPickPosIdx, Coord3(0,0,0) );
     faceset_->setVertexOrdering( 0 );
-    faceset_->setShapeType( 0 );
+    faceset_->setShapeType( visBase::VertexShape::cUnknownShapeType() );
 
     translationdragger_->ref();
     translationdragger_->setDraggerType( visBase::Dragger::Translate2D );

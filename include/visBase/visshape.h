@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visshape.h,v 1.18 2006-08-16 10:51:19 cvsbert Exp $
+ RCS:		$Id: visshape.h,v 1.19 2006-08-23 19:02:20 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -65,9 +65,11 @@ public:
     mDeclSetGetItem( Shape,	Material, material_ );
 
     void			setMaterialBinding( int );
-    				/*!< 0 = Overall (default)
-				     1 = Per face
-				     2 = Per vertex */
+    static int			cOverallMaterialBinding()	{ return 0; }
+    static int			cPerFaceMaterialBinding()	{ return 1; }
+    static int			cPerVertexMaterialBinding()	{ return 2; }
+    static int			cPerPartMaterialBinding()	{ return 3; }
+
     int				getMaterialBinding() const;
 
     int				usePar(const IOPar&);
@@ -124,20 +126,20 @@ public:
     			/*!< If yn==false, normals are set per vertex */
 
     void		setVertexOrdering(int vo);
-    			/*!\param vo=0 clockwise
-			   \param vo=1 counterclockwise
-			   \param vo=2 unknown
-		        */
     int			getVertexOrdering() const;
+    static int		cClockWiseVertexOrdering()		{ return 0; }
+    static int		cCounterClockWiseVertexOrdering()	{ return 1; }
+    static int		cUnknownVertexOrdering()		{ return 2; }
 
     void		setFaceType(int);
-    			/*!< 0: unknown; 1: convex */
     int			getFaceType() const;
-    			/*!< 0: unknown; 1: convex */
+    static int		cUnknownFaceType()			{ return 0; }
+    static int		cConvexFaceType()			{ return 1; }
+
     void		setShapeType(int);
-    			/*!< 0: unknown; 1: solid */
     int			getShapeType() const;
-    			/*!< 0: unknown; 1: solid */
+    static int		cUnknownShapeType()			{ return 0; }
+    static int		cSolidShapeType()			{ return 1; }
 
 protected:
     			VertexShape( SoVertexShape* );

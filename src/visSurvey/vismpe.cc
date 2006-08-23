@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vismpe.cc,v 1.45 2006-07-28 13:58:10 cvsjaap Exp $";
+static const char* rcsID = "$Id: vismpe.cc,v 1.46 2006-08-23 19:02:20 cvskris Exp $";
 
 #include "vismpe.h"
 
@@ -73,7 +73,8 @@ MPEDisplay::MPEDisplay()
     draggerrect_->setSeparate(true);
     draggerrect_->ref();
 
-    rectangle_->setVertexOrdering(1);
+    rectangle_->setVertexOrdering(
+	    visBase::VertexShape::cCounterClockWiseVertexOrdering() );
 //  rectangle_->setFaceType(1);
     rectangle_->setMaterial( visBase::Material::create() );
     rectangle_->getCoordinates()->addPos( Coord3(-1,-1,0) );

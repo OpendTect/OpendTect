@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Jan 2002
- RCS:           $Id: visscene.cc,v 1.32 2006-06-14 17:09:43 cvskris Exp $
+ RCS:           $Id: visscene.cc,v 1.33 2006-08-23 19:02:20 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -100,6 +100,9 @@ SoNode* Scene::getInventorNode()
 {
     return selroot_;
 }
+
+
+EventCatcher& Scene::eventCatcher() { return events_; }
 
 
 void Scene::mousePickCB( CallBacker* cb )

@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: visshape.cc,v 1.22 2006-08-16 10:51:20 cvsbert Exp $";
+static const char* rcsID = "$Id: visshape.cc,v 1.23 2006-08-23 19:02:20 cvskris Exp $";
 
 #include "visshape.h"
 
@@ -144,41 +144,56 @@ mDefSetGetItem( Shape, Material, material_ );
 
 void Shape::setMaterialBinding( int nv )
 {
-    bool isindexed = dynamic_cast<IndexedShape*>( this );
+    const bool isindexed = dynamic_cast<IndexedShape*>( this );
 
     if ( !materialbinding_ )
     {
 	materialbinding_ = new SoMaterialBinding;
 	insertNode( materialbinding_ );
     }
-    if ( !nv )
+    if ( nv==cOverallMaterialBinding() )
     {
 	materialbinding_->value = SoMaterialBinding::OVERALL;
     }
-    else if ( nv==1 )
+    else if ( nv==cPerFaceMaterialBinding() )
     {
 	materialbinding_->value = isindexed ?
 	    SoMaterialBinding::PER_FACE_INDEXED : SoMaterialBinding::PER_FACE;
     }
-    else
+    else if ( nv==cPerVertexMaterialBinding() )
     {
 	materialbinding_->value = isindexed
 	    ? SoMaterialBinding::PER_VERTEX_INDEXED
 	    : SoMaterialBinding::PER_VERTEX;
+    }
+    else if ( nv==cPerPartMaterialBinding() )
+    {
+	materialbinding_->value = isindexed
+	    ? SoMaterialBinding::PER_PART_INDEXED
+	    : SoMaterialBinding::PER_PART;
     }
 }
 
 
 int Shape::getMaterialBinding() const
 {
-    if ( !materialbinding_ ) return 0;
-    return materialbinding_->value.getValue()==SoMaterialBinding::PER_FACE ||
-	   materialbinding_->value.getValue()==
-	   			SoMaterialBinding::PER_FACE_INDEXED ? 1 : 2;
+    if ( !materialbinding_ ) return cOverallMaterialBinding();
+
+    if (materialbinding_->value.getValue()==SoMaterialBinding::PER_FACE ||
+	materialbinding_->value.getValue()==SoMaterialBinding::PER_FACE_INDEXED)
+	return cPerFaceMaterialBinding();
+
+    if (materialbinding_->value.getValue()==SoMaterialBinding::PER_PART ||
+	materialbinding_->value.getValue()==SoMaterialBinding::PER_PART_INDEXED)
+	return cPerPartMaterialBinding();
+    
+    if (materialbinding_->value.getValue()==SoMaterialBinding::PER_VERTEX ||
+	materialbinding_->value.getValue()==
+	    SoMaterialBinding::PER_VERTEX_INDEXED)
+	return cPerVertexMaterialBinding();
+
+    return cOverallMaterialBinding();
 }
-
-
-
 
 
 void Shape::fillPar( IOPar& iopar, TypeSet<int>& saveids ) const
@@ -331,55 +346,60 @@ bool VertexShape::getNormalPerFaceBinding() const
 void VertexShape::setVertexOrdering( int nv )
 {
     mCheckCreateShapeHints()
-    if ( !nv )
+    if ( nv==cClockWiseVertexOrdering() )
 	shapehints_->vertexOrdering = SoShapeHints::CLOCKWISE;
-    else if ( nv==1 )
+    else if ( nv==cCounterClockWiseVertexOrdering() )
 	shapehints_->vertexOrdering = SoShapeHints::COUNTERCLOCKWISE;
-    else
+    else if ( nv==cUnknownVertexOrdering() )
 	shapehints_->vertexOrdering = SoShapeHints::UNKNOWN_ORDERING;
 }
 
 
 int VertexShape::getVertexOrdering() const
 {
-    if ( !shapehints_ ) return 2;
+    if ( !shapehints_ ) return cUnknownVertexOrdering();
 
     if ( shapehints_->vertexOrdering.getValue()==SoShapeHints::CLOCKWISE )
-	return 0;
+	return cClockWiseVertexOrdering();
     if ( shapehints_->vertexOrdering.getValue()==SoShapeHints::COUNTERCLOCKWISE )
-	return 1;
+	return cCounterClockWiseVertexOrdering();
 
-    return 2;
+    return cUnknownVertexOrdering();
 }
 
 
 void VertexShape::setFaceType( int ft )
 {
     mCheckCreateShapeHints()
-    shapehints_->faceType = !ft ? SoShapeHints::UNKNOWN_FACE_TYPE
-			       : SoShapeHints::CONVEX;
+    shapehints_->faceType = ft==cUnknownFaceType()
+	? SoShapeHints::UNKNOWN_FACE_TYPE
+	: SoShapeHints::CONVEX;
 }
 
 
 int VertexShape::getFaceType() const
 {
     return shapehints_ && 
-	shapehints_->faceType.getValue() == SoShapeHints::CONVEX ? 1 : 0;
+	    shapehints_->faceType.getValue()==SoShapeHints::CONVEX
+	? cConvexFaceType() : cUnknownFaceType();
 }
 
 
 void VertexShape::setShapeType( int st )
 {
     mCheckCreateShapeHints()
-    shapehints_->shapeType = !st ? SoShapeHints::UNKNOWN_SHAPE_TYPE
-			        : SoShapeHints::SOLID;
+    shapehints_->shapeType = st==cUnknownShapeType()
+	? SoShapeHints::UNKNOWN_SHAPE_TYPE
+	: SoShapeHints::SOLID;
 }
 
 
 int VertexShape::getShapeType() const
 {
     return shapehints_ && 
-	shapehints_->shapeType.getValue() == SoShapeHints::SOLID ? 1 : 0;
+	   shapehints_->shapeType.getValue()==SoShapeHints::SOLID
+	? cSolidShapeType()
+	: cUnknownShapeType();
 }
 
 
