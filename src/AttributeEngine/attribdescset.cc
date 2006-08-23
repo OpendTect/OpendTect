@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribdescset.cc,v 1.44 2006-07-05 15:29:23 cvshelene Exp $";
+static const char* rcsID = "$Id: attribdescset.cc,v 1.45 2006-08-23 14:08:42 cvshelene Exp $";
 
 #include "attribdescset.h"
 #include "attribstorprovider.h"
@@ -599,6 +599,7 @@ DescID DescSet::getStoredID( const char* lk, int selout, bool create )
     newdesc->selectOutput( selout );
     ValParam* keypar = newdesc->getValParam( StorageProvider::keyStr() );
     keypar->setValue( lk );
+    newdesc->updateParams();
     return addDesc( newdesc );
 }
 

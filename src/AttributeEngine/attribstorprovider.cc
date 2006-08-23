@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribstorprovider.cc,v 1.44 2006-08-16 10:51:19 cvsbert Exp $";
+static const char* rcsID = "$Id: attribstorprovider.cc,v 1.45 2006-08-23 14:08:42 cvshelene Exp $";
 
 #include "attribstorprovider.h"
 
@@ -102,10 +102,10 @@ void StorageProvider::updateDesc( Desc& desc )
 	    desc.setNrOutputs( Seis::Dip, nrattribs );
 	else
 	{
-	    for ( int idx=0; idx<nrattribs; idx++ )
+	    for ( int idx=1; idx<=nrattribs; idx++ )
 		if ( desc.nrOutputs() < idx )
 		    desc.addOutputDataType( (Seis::DataType)
-					transl->componentInfo()[idx]->datatype);
+				    transl->componentInfo()[idx-1]->datatype);
 	}
     }
 }
