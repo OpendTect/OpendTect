@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          18-4-1996
- RCS:           $Id: survinfo.cc,v 1.75 2006-08-21 17:14:45 cvsbert Exp $
+ RCS:           $Id: survinfo.cc,v 1.76 2006-08-23 12:42:11 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -524,35 +524,32 @@ void SurveyInfo::snapStep( BinID& s, BinID rounding ) const
 }
 
 #ifdef __sun__
-#define floorf floor
-#define ceilf ceil
+# define mFloorFn floorf
+# define mCeilFn ceilf
+#else
+# define mFloorFn floor
+# define mCeilFn ceil
 #endif
 
-
-#define mSnapZ(z,dir,idxeps) \
-{\
-    const float fidx = (z-zrg.start) / zrg.step; \
-    int targetidx = mNINT(fidx); \
-    if ( dir && !mIsEqual(fidx,targetidx,idxeps) ) \
-	targetidx = dir < 0 ? (int)(floor(fidx)) : (int)(ceil(fidx)); \
-    z = zrg.atIndex(targetidx); \
-}
 
 void SurveyInfo::snapZ( float& z, int dir ) const
 {
     const StepInterval<float>& zrg = cs_.zrg;
     const float eps = 1e-8;
-    const float idxeps = pow(2.,-13.);
 
-    float snapzrgstop=zrg.stop;
-    mSnapZ( snapzrgstop, -1, idxeps );
-
-    if ( z < zrg.start+eps )
+    if ( z < zrg.start + eps )
 	{ z = zrg.start; return; }
-    if ( z > snapzrgstop-eps )
-	{ z = snapzrgstop; return; }
+    if ( z > zrg.stop - eps )
+	{ z = zrg.stop; return; }
 
-    mSnapZ( z, dir, idxeps );
+    const float relidx = zrg.getfIndex( z );
+    int targetidx = mNINT(relidx);
+    const float zdiff = z - zrg.atIndex( targetidx );
+    if ( !mIsZero(zdiff,eps) && dir )
+	targetidx = (int)( dir < 0 ? mFloorFn(relidx) : mCeilFn(relidx) );
+    z = zrg.atIndex( targetidx );;
+    if ( z > zrg.stop - eps )
+	 z = zrg.stop;
 }
 
 
