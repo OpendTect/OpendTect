@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.177 2006-08-16 10:51:19 cvsbert Exp $
+ RCS:           $Id: uivispartserv.h,v 1.178 2006-08-24 15:14:57 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -114,7 +114,15 @@ public:
     const Attrib::SelSpec* getSelSpec(int id,int attrib) const;
     void		setSelSpec(int id,int attrib,const Attrib::SelSpec&);
     bool		isClassification(int id,int attrib) const;
+    			/*!<Specifies that the data is integers that should't
+			    be interpolated. */
     void		setClassification(int id, int attrib, bool yn);
+    			/*!<Specify that the data is integers that should't
+			    be interpolated. */
+    bool		isAngle(int id,int attrib) const;
+    			/*!<Specifies that the data is angles, i.e. -PI==PI. */
+    void		setAngleFlag(int id, int attrib, bool yn);
+    			/*!<Specify that the data is angles, i.e. -PI==PI. */
     bool		isAttribEnabled(int id,int attrib) const;
     void		enableAttrib(int id,int attrib,bool yn);
     

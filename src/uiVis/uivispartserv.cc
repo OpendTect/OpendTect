@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.330 2006-08-16 10:51:20 cvsbert Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.331 2006-08-24 15:14:57 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -674,6 +674,22 @@ void uiVisPartServer::setClassification( int id, int attrib, bool yn )
     if ( !so ) return;
 
     so->setClassification( attrib, yn );
+}
+
+
+bool uiVisPartServer::isAngle( int id, int attrib ) const
+{
+    mDynamicCastGet( visSurvey::SurveyObject*, so, getObject(id) );
+    return so ? so->isAngle( attrib ) : false;
+}
+
+
+void uiVisPartServer::setAngleFlag( int id, int attrib, bool yn )
+{
+    mDynamicCastGet( visSurvey::SurveyObject*, so, getObject(id) );
+    if ( !so ) return;
+
+    so->setAngleFlag( attrib, yn );
 }
 
 
