@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          January 2003
- RCS:           $Id: visrandomtrackdisplay.cc,v 1.77 2006-08-23 19:02:20 cvskris Exp $
+ RCS:           $Id: visrandomtrackdisplay.cc,v 1.78 2006-08-24 16:09:49 cvskris Exp $
  ________________________________________________________________________
 
 -*/
@@ -789,6 +789,13 @@ void RandomTrackDisplay::enableAttrib( int attrib, bool yn )
     texture_->enableTexture( attrib, yn );
 }
 
+
+bool RandomTrackDisplay::isAngle( int attrib ) const
+{ return texture_->isAngle( attrib ); }
+
+
+void RandomTrackDisplay::setAngleFlag( int attrib, bool yn )
+{ texture_->setAngleFlag( attrib, yn ); }
 
 
 float RandomTrackDisplay::calcDist( const Coord3& pos ) const

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: vishorizondisplay.cc,v 1.15 2006-08-16 10:51:20 cvsbert Exp $
+ RCS:           $Id: vishorizondisplay.cc,v 1.16 2006-08-24 16:09:49 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -475,6 +475,25 @@ bool HorizonDisplay::isAttribEnabled( int attribnr ) const
     return psurf ? psurf->isTextureEnabled(attribnr) : true;
 }
 
+
+bool HorizonDisplay::isAngle( int attribnr ) const
+{
+    if ( !sections_.size() )
+	return false;
+
+    mDynamicCastGet(const visBase::ParametricSurface*,psurf,sections_[0]);
+    return psurf ? psurf->isTextureAngle(attribnr) : false;
+}
+    
+
+void HorizonDisplay::setAngleFlag( int attribnr, bool yn )
+{
+    for ( int idx=sections_.size()-1; idx>=0; idx-- )
+    {
+	mDynamicCastGet(visBase::ParametricSurface*,psurf,sections_[idx]);
+	if ( psurf ) psurf->setTextureAngleFlag( attribnr, yn );
+    }
+}
 
 const Attrib::SelSpec* HorizonDisplay::getSelSpec( int attrib ) const
 { return as_[attrib]; }

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          May 2004
- RCS:           $Id: vishorizondisplay.h,v 1.5 2006-06-26 07:52:44 cvsjaap Exp $
+ RCS:           $Id: vishorizondisplay.h,v 1.6 2006-08-24 16:09:49 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -56,10 +56,11 @@ public:
     unsigned char		getAttribTransparency(int) const;
     void			enableAttrib(int attrib, bool yn);
     bool			isAttribEnabled(int attrib) const;
+    void			setAngleFlag(int attrib,bool yn);
+    bool			isAngle(int attrib) const;
     const Attrib::SelSpec*	getSelSpec(int) const;
     void			setSelSpec(int,const Attrib::SelSpec&);
     void			setDepthAsAttrib(int);
-
 
     bool			allowMaterialEdit() const { return true; }
     bool			hasColor() const;

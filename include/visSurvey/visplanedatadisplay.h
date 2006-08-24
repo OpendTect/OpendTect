@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visplanedatadisplay.h,v 1.87 2006-07-10 13:25:00 cvskris Exp $
+ RCS:		$Id: visplanedatadisplay.h,v 1.88 2006-08-24 16:09:49 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -95,6 +95,8 @@ public:
     void			setSelSpec(int,const Attrib::SelSpec&);
     bool 			isClassification(int attrib) const;
     void			setClassification(int attrib,bool yn);
+    bool 			isAngle(int attrib) const;
+    void			setAngleFlag(int attrib,bool yn);
     void			enableAttrib(int attrib,bool yn);
     bool			isAttribEnabled(int attrib) const;
     const TypeSet<float>*	getHistogram(int) const;
