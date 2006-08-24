@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiattribpartserv.cc,v 1.39 2006-08-14 08:14:51 cvshelene Exp $
+ RCS:           $Id: uiattribpartserv.cc,v 1.40 2006-08-24 14:50:58 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -316,8 +316,7 @@ void uiAttribPartServer::setTargetSelSpec( const SelSpec& selspec )
 
 
 EngineMan* uiAttribPartServer::createEngMan( const CubeSampling* cs, 
-					     const char* linekey,
-					     const DescSet* ads )
+					     const char* linekey )
 {
     if ( !adsman->descSet() )
 	{ pErrMsg("No attr set"); return false; }
@@ -325,7 +324,7 @@ EngineMan* uiAttribPartServer::createEngMan( const CubeSampling* cs,
 	{ pErrMsg("Nothing to do"); return false; }
 
     EngineMan* aem = new EngineMan;
-    aem->setAttribSet( ads ? ads : adsman->descSet() );
+    aem->setAttribSet( adsman->descSet() );
     aem->setNLAModel( getNLAModel() );
     aem->setAttribSpecs( targetspecs );
     if ( cs )
@@ -338,13 +337,13 @@ EngineMan* uiAttribPartServer::createEngMan( const CubeSampling* cs,
 
 
 const Attrib::DataCubes* uiAttribPartServer::createOutput(
-	const CubeSampling& cs, const DataCubes* cache, const DescSet* ads )
+	const CubeSampling& cs, const DataCubes* cache )
 {
-    PtrMan<EngineMan> aem = createEngMan( &cs, 0, ads );
+    PtrMan<EngineMan> aem = createEngMan( &cs, 0 );
     if ( !aem ) return 0;
 
     BufferString defstr;
-    const Attrib::DescSet* attrds = ads ? ads : adsman->descSet();
+    const Attrib::DescSet* attrds = adsman->descSet();
     if ( attrds && attrds->nrDescs() && attrds->getDesc(targetspecs[0].id()) )
     {
 	attrds->getDesc(targetspecs[0].id())->getDefStr(defstr);
@@ -410,6 +409,18 @@ bool uiAttribPartServer::createOutput( const BinIDValueSet& bidvalset,
     if ( !dlg.go() ) return false;
 
     return true;
+}
+
+bool uiAttribPartServer::isDataAngles() const
+{
+    if ( !adsman->descSet() || !targetspecs.size() )
+	return false;
+    
+    const Attrib::Desc* desc = adsman->descSet()->getDesc( targetspecs[0].id() );
+    if ( !desc )
+	return false;
+
+    return Seis::isAngle( desc->dataType() );
 }
 
 
@@ -789,12 +800,4 @@ void uiAttribPartServer::showSliceCB( CallBacker* cb )
 
     sliceidx = sel;
     sendEvent( evEvalShowSlice );
-}
-
-
-void uiAttribPartServer::getTargetAttribNames( BufferStringSet& nms ) const
-{
-    nms.erase();
-    for ( int idx=0; idx<targetspecs.size(); idx++ )
-	nms.add( targetspecs[idx].userRef() );
 }

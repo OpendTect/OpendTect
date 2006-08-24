@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiattribpartserv.h,v 1.16 2006-08-03 18:57:46 cvsnanne Exp $
+ RCS:           $Id: uiattribpartserv.h,v 1.17 2006-08-24 14:50:58 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -94,11 +94,15 @@ public:
 
     void		setTargetSelSpec(const Attrib::SelSpec&);
     const Attrib::DataCubes* createOutput(const CubeSampling&,
-				           const Attrib::DataCubes* prevslcs=0,
-				           const Attrib::DescSet* ads=0);
+				          const Attrib::DataCubes* prevslcs=0);
     bool		createOutput(ObjectSet<BinIDValueSet>&);
     bool		createOutput( const BinIDValueSet& bidvalset,
 	    			      SeisTrcBuf&);
+
+    bool		isDataAngles() const;
+    			/*!<\returns true if the target data is an
+				     angle, i.e. -PI==PI. */
+
     bool		isDataClassified(const Array3D<float>&) const;
 
     Attrib::DescID	createStored2DAttrib(const MultiID& lineset,
@@ -124,7 +128,6 @@ public:
 
     bool		handleAttribSubMenu(int mnuid,Attrib::SelSpec&) const;
 
-    void		getTargetAttribNames(BufferStringSet&) const;
     void		setEvaluateInfo(bool ae,bool as)
 			{ alloweval=ae; allowevalstor=as; }
 
@@ -143,8 +146,7 @@ protected:
     uiAttribDescSetEd*	attrsetdlg;
     Timer		attrsetclosetim;
 
-    Attrib::EngineMan*	createEngMan(const CubeSampling* cs=0,const char* lk=0,
-				     const Attrib::DescSet* ads=0);
+    Attrib::EngineMan*	createEngMan(const CubeSampling* cs=0,const char* lk=0);
 
     void		directShowAttr(CallBacker*);
 
