@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vismultitexture.cc,v 1.20 2006-08-16 10:51:20 cvsbert Exp $";
+static const char* rcsID = "$Id: vismultitexture.cc,v 1.21 2006-08-24 15:02:48 cvskris Exp $";
 
 #include "vismultitexture2.h"
 
@@ -91,6 +91,8 @@ public:
     				~TextureInfo();
     void			enable( bool yn );
     bool			isEnabled() const { return enabled_; }
+    void			setAngleFlag(bool yn) { isangle_ = yn; }
+    bool			isAngle() const { return isangle_; }
     int				nrVersions() const;
     void			setNrVersions(int);
 
@@ -110,7 +112,6 @@ public:
 
     const TypeSet<float>*	getHistogram(int version) const;
 
-    bool			enabled_;
     char			components_;
 
 protected:
@@ -129,6 +130,9 @@ protected:
     BufferString		name_;
     int				sz_;
     MultiTexture*		texture_;
+    bool			isangle_;
+    bool			enabled_;
+
 };
 
 
@@ -140,6 +144,7 @@ TextureInfo::TextureInfo( MultiTexture* nt, const char* nm )
     , sz_( 0 )
     , texture_( nt )
     , enabled_( true )
+    , isangle_( false )
 {
     versionindexdata_.allowNull(true);
     versionfloatdata_.allowNull(true);
@@ -479,6 +484,25 @@ bool MultiTexture::isTextureEnabled( int idx ) const
 
     return textureinfo_[idx]->isEnabled();
 }
+
+
+void MultiTexture::setAngleFlag( int idx, bool yn )
+{
+    if ( idx<0 || idx>=textureinfo_.size() )
+	return;
+
+    textureinfo_[idx]->setAngleFlag( yn );
+}
+
+
+bool MultiTexture::isAngle( int idx ) const
+{
+    if ( idx<0 || idx>=textureinfo_.size() )
+	return false;
+
+    return textureinfo_[idx]->isAngle();
+}
+
 
 
 

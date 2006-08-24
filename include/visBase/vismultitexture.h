@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		Dec 2005
- RCS:		$Id: vismultitexture.h,v 1.6 2006-06-01 13:49:19 cvskris Exp $
+ RCS:		$Id: vismultitexture.h,v 1.7 2006-08-24 15:02:48 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -40,6 +40,12 @@ public:
     int			addTexture(const char* name);
     void		enableTexture(int texture,bool);
     bool		isTextureEnabled(int texture) const;
+    void		setAngleFlag(int texture,bool);
+    			/*!<Indicate that the values in the texture are
+			    angles, i.e. -PI==PI */
+    bool		isAngle(int texture) const;
+    			/*!<Indicates that the values in the texture are
+			    angles, i.e. -PI==PI */
     int			insertTexture(int,const char* name);
     void		removeTexture(int);
     void		swapTextures(int,int);
