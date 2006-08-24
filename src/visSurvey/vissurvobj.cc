@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: vissurvobj.cc,v 1.36 2006-06-06 18:48:49 cvskris Exp $";
+static const char* rcsID = "$Id: vissurvobj.cc,v 1.37 2006-08-24 15:11:22 cvskris Exp $";
 
 #include "vissurvobj.h"
 
@@ -78,6 +78,14 @@ bool SurveyObject::isClassification(int) const
 
 
 void SurveyObject::setClassification( int, bool )
+{}
+
+
+bool SurveyObject::isAngle(int) const
+{ return false; }
+
+
+void SurveyObject::setAngleFlag( int, bool )
 {}
 
 

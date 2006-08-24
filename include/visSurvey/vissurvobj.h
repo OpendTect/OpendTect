@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvobj.h,v 1.66 2006-07-21 16:47:41 cvskris Exp $
+ RCS:		$Id: vissurvobj.h,v 1.67 2006-08-24 15:11:22 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -155,6 +155,8 @@ public:
     virtual int				getColTabID(int attrib) const;
     virtual bool 			isClassification(int attrib) const;
     virtual void			setClassification(int attrib,bool yn);
+    virtual bool 			isAngle(int attrib) const;
+    virtual void			setAngleFlag(int attrib,bool yn);
     virtual void			enableAttrib(int attrib,bool yn);
     virtual bool			isAttribEnabled(int attrib) const;
 
