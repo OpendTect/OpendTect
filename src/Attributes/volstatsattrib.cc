@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: volstatsattrib.cc,v 1.26 2006-08-04 21:22:36 cvskris Exp $";
+static const char* rcsID = "$Id: volstatsattrib.cc,v 1.27 2006-08-24 14:57:29 cvshelene Exp $";
 
 #include "volstatsattrib.h"
 
@@ -91,6 +91,7 @@ VolStats::VolStats( Desc& ds )
     : Provider( ds )
     , positions_(0,BinID(0,0))
     , desgate_(0,0)
+    , reqgate_(0,0)
 {
     if ( !isOK() ) return;
 
@@ -105,12 +106,14 @@ VolStats::VolStats( Desc& ds )
 
     if ( dosteer_ )
     {
-	float extraz = mMAX(stepout_.inl*inldist(), stepout_.crl*crldist()) 
-	    		* mMAXDIP;
-	desgate_ = Interval<float>( gate_.start-extraz, gate_.stop+extraz );
+	float maxso = mMAX(stepout_.inl*inldist(), stepout_.crl*crldist());
+	reqgate_ = Interval<float>( gate_.start-maxso*mMAXDIP, 
+				    gate_.stop+maxso*mMAXDIP );
+	desgate_ = Interval<float>( gate_.start-maxso*mMAXDIPSECURE, 
+				    gate_.stop+maxso*mMAXDIPSECURE );
     }
     else
-	desgate_ = gate_;
+	reqgate_ = gate_;
 
     BinID pos;
     for ( pos.inl=-stepout_.inl; pos.inl<=stepout_.inl; pos.inl++ )
@@ -204,6 +207,28 @@ const BinID* VolStats::reqStepout( int inp, int out ) const
 const Interval<float>* VolStats::reqZMargin( int inp, int ) const
 {     
     if ( inp ) return 0;
+    
+    bool chgstart = mNINT(reqgate_.start*zFactor()) % mNINT(refstep*zFactor());
+    bool chgstop = mNINT(reqgate_.stop*zFactor()) % mNINT(refstep*zFactor());
+
+    if ( chgstart )
+    {
+	int minstart = (int)(reqgate_.start / refstep);
+	const_cast<VolStats*>(this)->reqgate_.start = (minstart-1) * refstep;
+    }
+    if ( chgstop )
+    {
+	int minstop = (int)(reqgate_.stop / refstep);
+	const_cast<VolStats*>(this)->reqgate_.stop = (minstop+1) * refstep;
+    }
+	
+    return &reqgate_;
+}
+
+
+const Interval<float>* VolStats::desZMargin( int inp, int ) const
+{     
+    if ( inp || !dosteer_ ) return 0;
     
     bool chgstart = mNINT(desgate_.start*zFactor()) % mNINT(refstep*zFactor());
     bool chgstop = mNINT(desgate_.stop*zFactor()) % mNINT(refstep*zFactor());

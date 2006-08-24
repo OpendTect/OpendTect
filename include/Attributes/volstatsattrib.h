@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: volstatsattrib.h,v 1.11 2006-05-12 07:55:37 cvshelene Exp $
+ RCS:           $Id: volstatsattrib.h,v 1.12 2006-08-24 14:57:29 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -75,12 +75,14 @@ protected:
 
     const BinID*		reqStepout(int input,int output) const;
     const Interval<float>*	reqZMargin(int input,int output) const;
+    const Interval<float>*	desZMargin(int input,int output) const;
 
     BinID			stepout_;
     int				shape_;
     Interval<float>		gate_;
     bool			dosteer_;
     Interval<float>             desgate_;
+    Interval<float>             reqgate_;
 
     TypeSet<BinID>      	positions_;
     int				dataidx_;

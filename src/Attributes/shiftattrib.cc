@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: shiftattrib.cc,v 1.20 2006-08-03 08:04:34 cvshelene Exp $";
+static const char* rcsID = "$Id: shiftattrib.cc,v 1.21 2006-08-24 14:57:29 cvshelene Exp $";
 
 #include "shiftattrib.h"
 #include "attribdataholder.h"
@@ -64,9 +64,11 @@ Shift::Shift( Desc& desc_ )
 
     if ( dosteer_ )
     {
-	time_ = mMAX(stepout_.inl*inldist(),stepout_.crl*crldist()) * mMAXDIP;
-	interval_ = Interval<float>( -time_, time_ );
-	time_ *= zFactor();
+	float maxso = mMAX(stepout_.inl*inldist(),stepout_.crl*crldist());
+	interval_ = Interval<float>( -maxso*mMAXDIP, maxso*mMAXDIP );
+	desinterval_ = Interval<float>( -maxso*mMAXDIPSECURE, 
+					maxso*mMAXDIPSECURE );
+	time_ = maxso * mMAXDIP * zFactor();
 	steeridx_ = getSteeringIndex( pos_ );
     }
     else
@@ -171,6 +173,29 @@ const Interval<float>* Shift::reqZMargin( int inp, int ) const
     }
     
     return &interval_;
+}
+
+
+const Interval<float>* Shift::desZMargin( int inp, int ) const
+{ 
+   if ( inp==1 || !dosteer_ )
+	return 0;
+   
+   bool chgstart = mNINT(desinterval_.start*zFactor())%mNINT(refstep*zFactor());
+   bool chgstop = mNINT(desinterval_.stop*zFactor()) % mNINT(refstep*zFactor());
+
+    if ( chgstart )
+    {
+	int minstart = (int)(desinterval_.start / refstep);
+	const_cast<Shift*>(this)->desinterval_.start = (minstart-1) * refstep;
+    }
+    if ( chgstop )
+    {
+	int minstop = (int)(desinterval_.stop / refstep);
+	const_cast<Shift*>(this)->desinterval_.stop = (minstop+1) * refstep;
+    }
+    
+    return &desinterval_;
 }
 
 }; // namespace Attrib

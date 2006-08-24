@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          June 2005
- RCS:           $Id: similarityattrib.cc,v 1.28 2006-08-03 08:04:34 cvshelene Exp $
+ RCS:           $Id: similarityattrib.cc,v 1.29 2006-08-24 14:57:29 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -134,9 +134,14 @@ Similarity::Similarity( Desc& desc_ )
     }
     getTrcPos();
 
-    const float extraz = dosteer_ ?
-	mMAX( stepout_.inl*inldist(), stepout_.crl*crldist() ) * mMAXDIP : 0;
-    desgate_ = Interval<float>( gate_.start-extraz, gate_.stop+extraz );
+    const float maxdist = dosteer_ ? 
+	mMAX( stepout_.inl*inldist(), stepout_.crl*crldist() ) : 0;
+    
+    reqgate_ = Interval<float>( gate_.start-maxdist*mMAXDIP, 
+	    			gate_.stop+maxdist*mMAXDIP );
+    
+    desgate_ = Interval<float>( gate_.start-maxdist*mMAXDIPSECURE, 
+	    			gate_.stop+maxdist*mMAXDIPSECURE );
 }
 
 
@@ -319,6 +324,27 @@ const Interval<float>* Similarity::reqZMargin( int inp, int ) const
 { 
     if ( inp ) return 0;
 
+    bool chgstart = mNINT(reqgate_.start*zFactor()) % mNINT(refstep*zFactor());
+    bool chgstop = mNINT(reqgate_.stop*zFactor()) % mNINT(refstep*zFactor());
+
+    if ( chgstart )
+    {
+	int minstart = (int)(reqgate_.start / refstep);
+	const_cast<Similarity*>(this)->reqgate_.start = (minstart-1) * refstep;
+    }
+    if ( chgstop )
+    {
+	int minstop = (int)(reqgate_.stop / refstep);
+	const_cast<Similarity*>(this)->reqgate_.stop = (minstop+1) * refstep;
+    }
+    
+    return &reqgate_;
+}
+
+const Interval<float>* Similarity::desZMargin( int inp, int ) const
+{
+    if ( inp ) return 0;
+
     bool chgstart = mNINT(desgate_.start*zFactor()) % mNINT(refstep*zFactor());
     bool chgstop = mNINT(desgate_.stop*zFactor()) % mNINT(refstep*zFactor());
 
@@ -332,8 +358,9 @@ const Interval<float>* Similarity::reqZMargin( int inp, int ) const
 	int minstop = (int)(desgate_.stop / refstep);
 	const_cast<Similarity*>(this)->desgate_.stop = (minstop+1) * refstep;
     }
-    
+
     return &desgate_;
 }
+
 
 }; //namespace

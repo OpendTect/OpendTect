@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribprovider.h,v 1.45 2006-08-03 08:05:56 cvshelene Exp $
+ RCS:           $Id: attribprovider.h,v 1.46 2006-08-24 14:57:29 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,6 +25,7 @@ class SeisTrcInfo;
 template <class T> class Array2DImpl;
 
 #define mMAXDIP 300 * 1e-6
+#define mMAXDIPSECURE 2000 * 1e-6
 
 namespace Attrib
 {

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: shiftattrib.h,v 1.9 2006-05-24 12:11:02 cvshelene Exp $
+ RCS:           $Id: shiftattrib.h,v 1.10 2006-08-24 14:57:29 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -61,6 +61,7 @@ protected:
 
     const BinID*		reqStepout(int input,int output) const;
     const Interval<float>*	reqZMargin(int input,int output) const;
+    const Interval<float>*	desZMargin(int input,int output) const;
 
     BinID			pos_;
     float 			time_;
@@ -68,6 +69,7 @@ protected:
     
     BinID			stepout_;
     Interval<float>		interval_;
+    Interval<float>		desinterval_;
     int				dataidx_;
     int				steeridx_;
 

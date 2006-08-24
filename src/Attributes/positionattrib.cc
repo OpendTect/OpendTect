@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          November 2002
- RCS:           $Id: positionattrib.cc,v 1.19 2006-08-03 08:04:34 cvshelene Exp $
+ RCS:           $Id: positionattrib.cc,v 1.20 2006-08-24 14:57:29 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -110,8 +110,10 @@ Position::Position( Desc& desc_ )
 						   stepout_.crl*2+1 );
 
     const float maxso = mMAX( stepout_.inl*inldist(), stepout_.crl*crldist() );
-    const float extraz = maxso * mMAXDIP;
-    desgate_ = Interval<float>( gate_.start-extraz, gate_.stop+extraz );
+    reqgate_ = Interval<float>( gate_.start-maxso*mMAXDIP, 
+	    			gate_.stop+maxso*mMAXDIP );
+    desgate_ = Interval<float>( gate_.start-maxso*mMAXDIPSECURE, 
+	    			gate_.stop+maxso*mMAXDIPSECURE );
 }
 
 
@@ -243,6 +245,25 @@ bool Position::computeData( const DataHolder& output, const BinID& relpos,
     }
 
     return true;
+}
+
+
+const Interval<float>* Position::reqZMargin(int input,int output) const
+{
+    bool chgstart = mNINT(reqgate_.start*zFactor()) % mNINT(refstep*zFactor());
+    bool chgstop = mNINT(reqgate_.stop*zFactor()) % mNINT(refstep*zFactor());
+
+    if ( chgstart )
+    {
+	int minstart = (int)(reqgate_.start / refstep);
+	const_cast<Position*>(this)->reqgate_.start = (minstart-1) * refstep;
+    }
+    if ( chgstop )
+    {
+	int minstop = (int)(reqgate_.stop / refstep);
+	const_cast<Position*>(this)->reqgate_.stop = (minstop+1) * refstep;
+    }
+    return &reqgate_;
 }
 
 
