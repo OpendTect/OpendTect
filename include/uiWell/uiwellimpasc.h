@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2003
- RCS:           $Id: uiwellimpasc.h,v 1.6 2003-12-01 13:01:29 nanne Exp $
+ RCS:           $Id: uiwellimpasc.h,v 1.7 2006-08-24 19:10:46 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uidialog.h"
 
 class CtxtIOObj;
+class uiD2TModelGroup;
 class uiFileInput;
 class uiGenInput;
 class uiIOObjSel;
@@ -31,9 +32,9 @@ public:
 protected:
 
     uiFileInput*	infld;
-    uiFileInput*	d2tfld;
+    uiD2TModelGroup*	d2tgrp;
+
     uiGenInput*		unitfld;
-    uiGenInput*		tvdfld;
     uiGenInput*		idfld;
     uiGenInput*		coordfld;
     uiGenInput*		elevfld;

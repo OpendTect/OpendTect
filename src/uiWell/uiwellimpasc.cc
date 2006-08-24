@@ -4,29 +4,31 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2003
- RCS:           $Id: uiwellimpasc.cc,v 1.29 2006-03-22 12:39:48 cvsnanne Exp $
+ RCS:           $Id: uiwellimpasc.cc,v 1.30 2006-08-24 19:10:46 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiwellimpasc.h"
-#include "wellimpasc.h"
-#include "welldata.h"
-#include "welltransl.h"
-#include "welltrack.h"
+
 #include "ctxtioobj.h"
+#include "filegen.h"
 #include "ioobj.h"
 #include "iopar.h"
-#include "uiwellpartserv.h"
+#include "ptrman.h"
+#include "survinfo.h"
+#include "welldata.h"
+#include "wellimpasc.h"
+#include "welltrack.h"
+#include "welltransl.h"
+
+#include "uid2tmodelgrp.h"
 #include "uifileinput.h"
 #include "uigeninput.h"
 #include "uiioobjsel.h"
 #include "uilabel.h"
-#include "uiseparator.h"
 #include "uimsg.h"
-#include "filegen.h"
-#include "survinfo.h"
-#include "ptrman.h"
+#include "uiseparator.h"
 
 
 uiWellImportAsc::uiWellImportAsc( uiParent* p )
@@ -41,22 +43,15 @@ uiWellImportAsc::uiWellImportAsc( uiParent* p )
     infld->setDefaultSelectionDir(
 	    IOObjContext::getDataDirName(IOObjContext::WllInf) );
 
-    bool zistime = SI().zIsTime();
+    const bool zistime = SI().zIsTime();
     if ( zistime )
     {
-	d2tfld = new uiFileInput( this, "Depth to Time model file",
-				  uiFileInput::Setup().withexamine(true) );
-	d2tfld->setDefaultSelectionDir(
-		IOObjContext::getDataDirName(IOObjContext::WllInf) );
-	d2tfld->attach( alignedBelow, infld );
-
-	tvdfld = new uiGenInput( this, "Model is", BoolInpSpec("TVDSS","MD") );
-	tvdfld->setValue( false );
-	tvdfld->attach( alignedBelow, d2tfld );
+	d2tgrp = new uiD2TModelGroup( this, false );
+	d2tgrp->attach( alignedBelow, infld );
     }
 
     coordfld = new uiGenInput( this, "Surface coordinate", CoordInpSpec() );
-    coordfld->attach( alignedBelow, zistime ? (uiObject*)tvdfld
+    coordfld->attach( alignedBelow, zistime ? (uiObject*)d2tgrp
 	   				    : (uiObject*)infld );
 
     elevfld = new uiGenInput( this, "Elevation above surface", FloatInpSpec() );
@@ -129,14 +124,13 @@ bool uiWellImportAsc::doWork()
 	info.surfaceelev *= 0.3048;
 
     Well::AscImporter ascimp( *well );
-    const char* fname = infld->fileName();
-    const char* errmsg = ascimp.getTrack( fname, true, zinfeet );
+    const char* errmsg = ascimp.getTrack( infld->fileName(), true, zinfeet );
     if ( errmsg ) mErrRet( errmsg );
 
     if ( SI().zIsTime() )
     {
-	fname = d2tfld->fileName();
-	errmsg = ascimp.getD2T( fname, tvdfld->getBoolValue(), zinfeet );
+	errmsg = ascimp.getD2T( d2tgrp->fileName(), d2tgrp->isTVD(),
+				!d2tgrp->isTWT(), zinfeet );
 	if ( errmsg ) mErrRet( errmsg );
     }
 
@@ -157,7 +151,7 @@ bool uiWellImportAsc::checkInpFlds()
     if ( ! *infld->fileName() )
 	mErrRet( "Please select 'Well Track' file" )
 
-    if ( SI().zIsTime() && ! *d2tfld->fileName() )
+    if ( SI().zIsTime() && ! *d2tgrp->fileName() )
 	mErrRet( "Please select 'Depth to Time model' file" )
 
     if ( !outfld->commitInput(true) )

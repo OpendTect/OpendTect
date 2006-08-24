@@ -7,25 +7,26 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2003
- RCS:           $Id: uiwelldlgs.h,v 1.21 2006-01-23 14:32:26 cvsjaap Exp $
+ RCS:           $Id: uiwelldlgs.h,v 1.22 2006-08-24 19:10:46 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uidialog.h"
 #include "ranges.h"
-#include "position.h"
 
 class uiButtonGroup;
 class uiCheckBox;
+class uiD2TModelGroup;
 class uiFileInput;
 class uiGenInput;
 class uiIOObjSel;
 class uiLabel;
 class uiLabeledListBox;
-class StreamData;
 class uiTable;
+class Coord3;
 class CtxtIOObj;
+class StreamData;
 
 namespace Well
 { class Data; class LogSet; class Marker; class D2TModel; class Track; };
@@ -170,17 +171,14 @@ class uiStoreWellDlg : public uiDialog
 public:
     				uiStoreWellDlg(uiParent*,const BufferString&);
 				~uiStoreWellDlg();
-    void			setWellCoords(const TypeSet<Coord3>& newcoords)
-				{ wellcoords_ = newcoords; }
-				
+    void			setWellCoords(const TypeSet<Coord3>&);
+
 protected:
-				
-    uiFileInput*        d2tfld;
-    uiGenInput*         tvdfld;
-    uiGenInput*		unitfld;
-    uiIOObjSel*         outfld;
+
+    uiD2TModelGroup*	d2tgrp;
     uiGenInput*		usemodelfld;
     uiGenInput*		constvelfld;
+    uiIOObjSel*         outfld;
 
     virtual bool       	acceptOK(CallBacker*);
     bool                checkInpFlds();

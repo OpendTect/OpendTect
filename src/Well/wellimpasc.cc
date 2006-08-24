@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: wellimpasc.cc,v 1.34 2006-04-12 08:01:37 cvsnanne Exp $";
+static const char* rcsID = "$Id: wellimpasc.cc,v 1.35 2006-08-24 19:10:46 cvsnanne Exp $";
 
 #include "wellimpasc.h"
 #include "welldata.h"
@@ -91,7 +91,7 @@ const char* Well::AscImporter::getTrack( const char* fnm, bool tosurf,
 }
 
 
-const char* Well::AscImporter::getD2T( const char* fnm, bool istvd, 
+const char* Well::AscImporter::getD2T( const char* fnm, bool istvd, bool istwt,
 				       bool zinfeet )
 {
     mOpenFile( fnm );
@@ -103,13 +103,13 @@ const char* Well::AscImporter::getD2T( const char* fnm, bool istvd,
     d2t.erase();
 
     const float zfac = zinfeet ? 0.3048 : 1;
-    float z, val, prevdah = mUdf(float);
+    float z, tval, prevdah = mUdf(float);
     bool firstpos = true;
     bool t_in_ms = false;
     TypeSet<float> tms; TypeSet<float> dahs;
     while ( strm )
     {
-	strm >> z >> val;
+	strm >> z >> tval;
 	if ( !strm ) break;
 	if ( mIsUdf(z) ) continue;
 	z *= zfac;
@@ -121,7 +121,7 @@ const char* Well::AscImporter::getD2T( const char* fnm, bool istvd,
 	    prevdah = z;
 	}
 
-	tms += val;
+	tms += istwt ? tval : 2*tval;
 	dahs += z;
     }
     sd.close();

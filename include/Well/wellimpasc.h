@@ -7,15 +7,15 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: wellimpasc.h,v 1.16 2006-03-12 13:39:09 cvsbert Exp $
+ RCS:		$Id: wellimpasc.h,v 1.17 2006-08-24 19:10:46 cvsnanne Exp $
 ________________________________________________________________________
-
 
 -*/
 
 #include "ranges.h"
 #include "strmdata.h"
 #include "bufstringset.h"
+
 #include <iosfwd>
 
 class UnitOfMeasure;
@@ -33,10 +33,11 @@ public:
 			~AscImporter();
 
     const char*		getTrack(const char*,bool first_is_surface,
-	    			 bool depthinfeet=false);
-    const char*		getD2T(const char*,bool istvd,bool depthinfeet=false);
+	    			 bool depthinfeet);
+    const char*		getD2T(const char*,bool istvd,bool istwt,
+	    		       bool depthinfeet);
     const char*		getMarkers(const char*,bool istvd,
-	    			   bool depthinfeet=false);
+	    			   bool depthinfeet);
     Data&		getWellData() 				{ return wd; }
 
     class LasFileInfo
