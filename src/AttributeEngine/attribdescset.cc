@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribdescset.cc,v 1.45 2006-08-23 14:08:42 cvshelene Exp $";
+static const char* rcsID = "$Id: attribdescset.cc,v 1.46 2006-08-24 09:09:20 cvsnanne Exp $";
 
 #include "attribdescset.h"
 #include "attribstorprovider.h"
@@ -274,8 +274,17 @@ Desc* DescSet::createDesc( const BufferString& attrname, const IOPar& descpar,
 	}
     }
 
-    const char* userref = descpar.find( userRefStr() );
-    if ( userref ) dsc->setUserRef( userref );
+    BufferString userref;
+    if ( !dsc->isStored() )
+	userref = descpar.find( userRefStr() );
+    else
+    {
+	const ValParam* keypar = dsc->getValParam( StorageProvider::keyStr() );
+	const LineKey lk( keypar->getStringValue() );
+	PtrMan<IOObj> ioobj = IOM().get( MultiID(lk.lineName().buf()) );
+	userref = ioobj.ptr() ? ioobj->name() : "";
+    }
+    dsc->setUserRef( userref );
 
     bool ishidden = false;
     descpar.getYN( hiddenStr(), ishidden );
@@ -374,8 +383,8 @@ bool DescSet::usePar( const IOPar& par, BufferStringSet* errmsgs )
 
 	handleOldAttributes( attribname, *descpar, defstring );
 	
-	RefMan<Desc> dsc;
-	dsc = createDesc( attribname, *descpar, defstring, errmsgs );
+	RefMan<Desc> dsc =
+		createDesc( attribname, *descpar, defstring, errmsgs );
 	if ( !dsc )
 	    return false;
 
