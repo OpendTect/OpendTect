@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		29-5-99
- RCS:		$Id: seistype.h,v 1.7 2005-07-26 08:41:38 cvsbert Exp $
+ RCS:		$Id: seistype.h,v 1.8 2006-08-24 14:34:09 cvskris Exp $
 ________________________________________________________________________
 
 */
@@ -20,7 +20,8 @@ namespace Seis
     enum ReadMode	{ PreScan, Scan, Prod };
 
     enum DataType       { Ampl, Dip, Frequency, Phase, AVOGradient, 
-			  Azimuth, UnknowData };
+			  Azimuth, Classification, UnknowData };
+    bool		isAngle(DataType);
     const char*		nameOf(DataType);
     DataType		dataTypeOf(const char*);
     const char**	dataTypeNames();

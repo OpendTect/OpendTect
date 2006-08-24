@@ -5,7 +5,7 @@
  * FUNCTION : Seismic trace informtaion
 -*/
 
-static const char* rcsID = "$Id: seisinfo.cc,v 1.32 2006-03-12 13:39:10 cvsbert Exp $";
+static const char* rcsID = "$Id: seisinfo.cc,v 1.33 2006-08-24 14:34:09 cvskris Exp $";
 
 #include "seisinfo.h"
 #include "seistrc.h"
@@ -81,20 +81,29 @@ DefineEnumNames(SeisEnum,DataType,0,"Data type")
 	"Phase",
 	"AVO Gradient",
 	"Azimuth",
+	"Classification",
 	"Other",
 	0
 };
 
 const char* Seis::nameOf( Seis::DataType dt )
 { return eString(SeisEnum::DataType,dt); }
+
+bool Seis::isAngle( Seis::DataType dt )
+{ return dt==Seis::Phase || dt==Seis::Azimuth; }
+
 const char* Seis::nameOf( Seis::WaveType wt )
 { return eString(SeisEnum::WaveType,wt); }
+
 Seis::WaveType Seis::waveTypeOf( const char* s )
 { return eEnum(SeisEnum::WaveType,s); }
+
 Seis::DataType Seis::dataTypeOf( const char* s )
 { return eEnum(SeisEnum::DataType,s); }
+
 const char** Seis::dataTypeNames()
 { return SeisEnum::DataTypeNames; }
+
 const char** Seis::waveTypeNames()
 { return SeisEnum::WaveTypeNames; }
  
