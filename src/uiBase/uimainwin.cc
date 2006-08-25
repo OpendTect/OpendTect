@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.107 2006-07-11 08:22:41 cvsbert Exp $
+ RCS:           $Id: uimainwin.cc,v 1.108 2006-08-25 22:05:45 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -538,7 +538,7 @@ void uiMainWin::setSensitive( bool yn )
 	mQDockWindow* qdwin = dws.at( idx );
 	if ( qdwin ) qdwin->setEnabled( yn );
     }
-    menuBar()->setSensitive( yn );
+    if ( menuBar() ) menuBar()->setSensitive( yn );
     body_->setEnabled( yn );
 }
 
