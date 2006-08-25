@@ -4,38 +4,41 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          September 2003
- RCS:           $Id: uiwellman.cc,v 1.31 2006-07-11 08:22:41 cvsbert Exp $
+ RCS:           $Id: uiwellman.cc,v 1.32 2006-08-25 10:25:05 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiwellman.h"
-#include "uiwelldlgs.h"
+
+#include "bufstringset.h"
 #include "ioobj.h"
 #include "iostrm.h"
 #include "ctxtioobj.h"
-#include "wellman.h"
-#include "welldata.h"
-#include "welllogset.h"
-#include "welllog.h"
-#include "wellmarker.h"
-#include "wellreader.h"
-#include "wellwriter.h"
-#include "welltransl.h"
-#include "uiioobjmanip.h"
-#include "uiioobjsel.h"
-#include "uigroup.h"
-#include "uilistbox.h"
-#include "uitextedit.h"
-#include "uibutton.h"
-#include "uigeninputdlg.h"
-#include "bufstringset.h"
 #include "filegen.h"
 #include "filepath.h"
-#include "strmprov.h"
 #include "ptrman.h"
-#include "uimsg.h"
+#include "strmprov.h"
 #include "survinfo.h"
+#include "welldata.h"
+#include "welllog.h"
+#include "welllogset.h"
+#include "wellman.h"
+#include "wellmarker.h"
+#include "wellreader.h"
+#include "welltransl.h"
+#include "wellwriter.h"
+
+#include "uibutton.h"
+#include "uigeninputdlg.h"
+#include "uigroup.h"
+#include "uiioobjmanip.h"
+#include "uiioobjsel.h"
+#include "uilabel.h"
+#include "uilistbox.h"
+#include "uimsg.h"
+#include "uitextedit.h"
+#include "uiwelldlgs.h"
 
 
 uiWellMan::uiWellMan( uiParent* p )
@@ -50,8 +53,9 @@ uiWellMan::uiWellMan( uiParent* p )
     uiIOObjManipGroup* manipgrp = selgrp->getManipGroup();
 
     uiGroup* logsgrp = new uiGroup( this, "Logs group" );
+    uiLabel* lbl = new uiLabel( logsgrp, "Logs" );
     logsfld = new uiListBox( logsgrp, "Available logs", true );
-    logsfld->setToolTip( "Available logs" );
+    logsfld->attach( alignedBelow, lbl );
 
     uiPushButton* logsbut = new uiPushButton( logsgrp, "Add &Logs", false );
     logsbut->activated.notify( mCB(this,uiWellMan,addLogs) );
