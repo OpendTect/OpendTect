@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          18-4-1996
- RCS:           $Id: survinfo.cc,v 1.76 2006-08-23 12:42:11 cvsbert Exp $
+ RCS:           $Id: survinfo.cc,v 1.77 2006-08-25 09:46:33 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -523,14 +523,6 @@ void SurveyInfo::snapStep( BinID& s, BinID rounding ) const
     mSnapStep(crl)
 }
 
-#ifdef __sun__
-# define mFloorFn floorf
-# define mCeilFn ceilf
-#else
-# define mFloorFn floor
-# define mCeilFn ceil
-#endif
-
 
 void SurveyInfo::snapZ( float& z, int dir ) const
 {
@@ -546,7 +538,7 @@ void SurveyInfo::snapZ( float& z, int dir ) const
     int targetidx = mNINT(relidx);
     const float zdiff = z - zrg.atIndex( targetidx );
     if ( !mIsZero(zdiff,eps) && dir )
-	targetidx = (int)( dir < 0 ? mFloorFn(relidx) : mCeilFn(relidx) );
+	targetidx = (int)( dir < 0 ? floor(relidx) : ceil(relidx) );
     z = zrg.atIndex( targetidx );;
     if ( z > zrg.stop - eps )
 	 z = zrg.stop;
