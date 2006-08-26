@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.331 2006-08-24 15:14:57 cvskris Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.332 2006-08-26 15:50:17 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "seisbuf.h"
 #include "separstr.h"
 #include "survinfo.h"
+#include "uivispickretriever.h"
 #include "zaxistransform.h"
 
 #include "viscolortab.h"
@@ -86,6 +87,7 @@ uiVisPartServer::uiVisPartServer( uiApplService& a )
     , zfactor_(1)
     , mpetools_(0)
     , slicepostools_(0)
+    , pickretriever_( new uiVisPickRetriever )
 {
     menu_.ref();
     menu_.createnotifier.notify( mCB(this,uiVisPartServer,createMenuCB) );
@@ -97,6 +99,8 @@ uiVisPartServer::uiVisPartServer( uiApplService& a )
 	mCB(this,uiVisPartServer,deselectObjCB) );
 
     vismgr_ = new uiVisModeMgr(this);
+    pickretriever_->ref();
+    PickRetriever::setInstance( pickretriever_ );
 }
 
 
@@ -117,6 +121,7 @@ uiVisPartServer::~uiVisPartServer()
     delete &eventmutex_;
     delete mpetools_;
     menu_.unRef();
+    pickretriever_->unRef();
 }
 
 
@@ -144,6 +149,7 @@ int uiVisPartServer::addScene( visSurvey::Scene* newscene )
     newscene->mouseposchange.notify( mCB(this,uiVisPartServer,mouseMoveCB) );
     newscene->ref();
     scenes_ += newscene;
+    pickretriever_->addScene( newscene );
     return newscene->id();
 }
 
@@ -154,6 +160,7 @@ void uiVisPartServer::removeScene( int sceneid )
     if ( scene )
     {
 	scene->mouseposchange.remove( mCB(this,uiVisPartServer,mouseMoveCB) );
+	pickretriever_->removeScene( scene );
 	scene->unRef();
 	scenes_ -= scene;
 	return;

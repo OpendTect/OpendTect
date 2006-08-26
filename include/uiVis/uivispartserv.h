@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.178 2006-08-24 15:14:57 cvskris Exp $
+ RCS:           $Id: uivispartserv.h,v 1.179 2006-08-26 15:50:17 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,6 +31,7 @@ class uiPopupMenu;
 class uiSlicePos;
 class uiToolBar;
 class uiMenuHandler;
+class uiVisPickRetriever;
 class uiVisModeMgr;
 class Color;
 
@@ -341,6 +342,7 @@ protected:
 
     uiVisModeMgr*		vismgr_;
     bool			blockmenus_;
+    uiVisPickRetriever*		pickretriever_;
 };
 
 
