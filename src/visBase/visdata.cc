@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: visdata.cc,v 1.22 2006-04-27 17:57:12 cvskris Exp $";
+static const char* rcsID = "$Id: visdata.cc,v 1.23 2006-08-28 09:29:26 cvskris Exp $";
 
 #include "visdata.h"
 
@@ -51,7 +51,7 @@ void DataObject::setName( const char* nn )
 DataObject::DataObject()
     : id_( -1 )
     , name_( 0 )
-{ mRefCountConstructor; }
+{}
 
 
 DataObject::~DataObject()
