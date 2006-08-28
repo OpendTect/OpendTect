@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribdatacubes.cc,v 1.16 2006-05-31 18:27:22 cvsnanne Exp $";
+static const char* rcsID = "$Id: attribdatacubes.cc,v 1.17 2006-08-28 09:11:41 cvskris Exp $";
 
 #include "attribdatacubes.h"
 #include "arrayndimpl.h"
@@ -23,7 +23,7 @@ DataCubes::DataCubes()
     , inlsz_( 0 )
     , crlsz_( 0 )
     , zsz_( 0 )
-{ mRefCountConstructor; }
+{}
 
 
 DataCubes::~DataCubes()

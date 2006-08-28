@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribprovider.cc,v 1.71 2006-08-16 10:51:19 cvsbert Exp $";
+static const char* rcsID = "$Id: attribprovider.cc,v 1.72 2006-08-28 09:11:41 cvskris Exp $";
 
 #include "attribprovider.h"
 #include "attribstorprovider.h"
@@ -186,7 +186,6 @@ Provider::Provider( Desc& nd )
     , prevtrcnr( 0 )
     , needinterp( 0 )
 {
-    mRefCountConstructor;
     desc.ref();
     inputs.allowNull(true);
     for ( int idx=0; idx<desc.nrInputs(); idx++ )

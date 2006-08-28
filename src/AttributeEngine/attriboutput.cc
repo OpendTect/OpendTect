@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attriboutput.cc,v 1.46 2006-07-05 15:27:49 cvshelene Exp $";
+static const char* rcsID = "$Id: attriboutput.cc,v 1.47 2006-08-28 09:11:41 cvskris Exp $";
 
 #include "attriboutput.h"
 #include "attribdataholder.h"
@@ -48,9 +48,7 @@ const char* LocationOutput::surfidkey = "Surface ID";
 
 Output::Output()
     : seldata_(*new SeisSelData)
-{
-    mRefCountConstructor;
-}
+{}
 
 
 Output::~Output()

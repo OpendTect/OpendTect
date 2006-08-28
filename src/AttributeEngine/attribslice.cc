@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: attribslice.cc,v 1.4 2006-05-31 18:53:32 cvsnanne Exp $";
+static const char* rcsID = "$Id: attribslice.cc,v 1.5 2006-08-28 09:11:41 cvskris Exp $";
 
 #include "attribslice.h"
 
@@ -18,7 +18,6 @@ namespace Attrib
 Slice::Slice( int nrows, int ncols, float udfval, bool file )
     : Array2DImpl<float>(nrows,ncols,file)
 {
-    mRefCountConstructor;
     setUndefValue( udfval, true );
 }
 
