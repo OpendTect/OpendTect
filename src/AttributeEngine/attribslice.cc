@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: attribslice.cc,v 1.5 2006-08-28 09:11:41 cvskris Exp $";
+static const char* rcsID = "$Id: attribslice.cc,v 1.6 2006-08-28 09:28:47 cvskris Exp $";
 
 #include "attribslice.h"
 
@@ -39,7 +39,6 @@ void Slice::setUndefValue( float udfval, bool initdata )
 
 SliceSet::SliceSet()
 {
-    mRefCountConstructor;
     allowNull( true );
 }
 

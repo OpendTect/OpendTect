@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2003
- RCS:           $Id: menuhandler.cc,v 1.2 2005-08-10 16:17:14 cvskris Exp $
+ RCS:           $Id: menuhandler.cc,v 1.3 2006-08-28 09:28:32 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -174,9 +174,7 @@ MenuHandler::MenuHandler( int ni )
     : id_( ni )
     , createnotifier( this )
     , handlenotifier( this )
-{
-    mRefCountConstructor;
-}
+{}
 
 
 MenuHandler::~MenuHandler()

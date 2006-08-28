@@ -14,14 +14,14 @@
 #include "debugmasks.h"
 #include <iostream>
 
-static const char* rcsID = "$Id: transl.cc,v 1.21 2006-08-16 10:51:20 cvsbert Exp $";
+static const char* rcsID = "$Id: transl.cc,v 1.22 2006-08-28 09:28:32 cvskris Exp $";
 
 
 TranslatorGroup::TranslatorGroup( const char* clssnm, const char* usrnm )
     : clssname_(clssnm)
     , usrname_(usrnm)
     , selhist_(0)
-{ mRefCountConstructor;}
+{}
 
 
 int defaultSelector( const char* mytyp, const char* typ )

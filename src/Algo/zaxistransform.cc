@@ -4,7 +4,7 @@
  * DATE     : Oct 2005
 -*/
 
-static const char* rcsID = "$Id: zaxistransform.cc,v 1.7 2006-05-08 20:41:49 cvskris Exp $";
+static const char* rcsID = "$Id: zaxistransform.cc,v 1.8 2006-08-28 09:28:33 cvskris Exp $";
 
 #include "zaxistransform.h"
 
@@ -15,7 +15,7 @@ DefineEnumNames(ZAxisTransform,ZType,1,"Z Type")
 
 
 ZAxisTransform::ZAxisTransform()
-{ mRefCountConstructor; }
+{}
 
 
 ZAxisTransform::~ZAxisTransform()

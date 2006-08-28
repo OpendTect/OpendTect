@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribdesc.cc,v 1.47 2006-08-28 09:11:41 cvskris Exp $";
+static const char* rcsID = "$Id: attribdesc.cc,v 1.48 2006-08-28 09:28:47 cvskris Exp $";
 
 #include "attribdesc.h"
 
@@ -75,7 +75,6 @@ Desc::Desc( const Desc& a )
     , is2dset(false)
     , is2ddetected(false)
 {
-    mRefCountConstructor;
     inputs.allowNull(true);
 
     for ( int idx=0; idx<a.params.size(); idx++ )

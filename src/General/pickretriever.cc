@@ -4,7 +4,7 @@
  * DATE     : Oct 2005
 -*/
 
-static const char* rcsID = "$Id: pickretriever.cc,v 1.1 2006-08-26 15:48:10 cvskris Exp $";
+static const char* rcsID = "$Id: pickretriever.cc,v 1.2 2006-08-28 09:28:32 cvskris Exp $";
 
 #include "pickretriever.h"
 
@@ -12,7 +12,7 @@ RefMan<PickRetriever> PickRetriever::instance_ = 0;
 
 
 PickRetriever::PickRetriever()
-{ mRefCountConstructor; }
+{}
 
 
 PickRetriever::~PickRetriever()
