@@ -7,12 +7,13 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Jan 2003
- RCS:           $Id: positionlist.h,v 1.1 2006-05-03 14:46:29 cvskris Exp $
+ RCS:           $Id: positionlist.h,v 1.2 2006-08-28 09:08:22 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "refcount.h"
+#include "position.h"
 
 
 class Coord3;
@@ -21,11 +22,10 @@ class Coord3;
 class CoordList
 { mRefCountImplNoDestructor(CoordList);
 public:
-    			CoordList() { mRefCountConstructor; }
     virtual int		add(const Coord3&)				= 0;
-    virtual Coord3&	get(int) const					= 0;
-    virtual bool	set(int,const Coord3&) const			= 0;
-    virtual int		remove(int)					= 0;
+    virtual Coord3	get(int) const					= 0;
+    virtual void	set(int,const Coord3&) const			= 0;
+    virtual void	remove(int)					= 0;
 };
 
 
