@@ -7,14 +7,14 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viscoord.h,v 1.14 2006-02-13 22:50:23 cvskris Exp $
+ RCS:		$Id: viscoord.h,v 1.15 2006-08-28 08:56:47 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
 #include "callback.h"
-#include "position.h"
+#include "positionlist.h"
 #include "visdata.h"
 
 class SoCoordinate3;
@@ -90,14 +90,25 @@ protected:
     Transformation*	transformation;
 };
 
-class CoordinateMessage
+
+/*!Adapter between a CoordList and Coordinates. */
+
+
+class CoordListAdapter : public CoordList
 {
 public:
-    enum Event		{ ChangedPos, NrChanged } event;
-    unsigned long	coordnr;
-    unsigned long	newnr; //Only set when NrChanged
-};
+    		CoordListAdapter(Coordinates&);
 
+    int		add(const Coord3&);
+    Coord3	get(int) const;
+    void	set(int,const Coord3&);
+    void	remove(int);
+
+protected:
+    virtual		~CoordListAdapter();
+    Coordinates&	coords_;
+
+};
 
 };
 

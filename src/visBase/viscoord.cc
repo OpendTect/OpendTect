@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2002
- RCS:           $Id: viscoord.cc,v 1.23 2006-05-31 12:42:53 cvskris Exp $
+ RCS:           $Id: viscoord.cc,v 1.24 2006-08-28 08:56:47 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -308,6 +308,37 @@ void Coordinates::setPositions( const TypeSet<Coord3>& pos)
 
     coords->point.enableNotify( oldstatus );
     coords->point.touch();
+}
+
+
+CoordListAdapter::CoordListAdapter( Coordinates& c )
+    : coords_( c )
+{
+    coords_.ref();
+}
+
+
+CoordListAdapter::~CoordListAdapter()
+{
+    coords_.unRef();
+}
+
+
+int CoordListAdapter::add( const Coord3& p )
+{ return coords_.addPos( p ); }
+
+
+Coord3 CoordListAdapter::get( int idx ) const
+{ return coords_.getPos( idx, false ); }
+
+
+void CoordListAdapter::set( int idx, const Coord3& p )
+{ coords_.setPos( idx, p ); }
+
+
+void CoordListAdapter::remove( int idx )
+{
+    coords_.removePos( idx, true );
 }
 
 };
