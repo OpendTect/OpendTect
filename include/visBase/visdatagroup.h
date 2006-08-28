@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visdatagroup.h,v 1.2 2004-11-16 09:29:17 kristofer Exp $
+ RCS:		$Id: visdatagroup.h,v 1.3 2006-08-28 08:57:42 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -60,14 +60,14 @@ public:
 
     virtual SoNode*		getInventorNode();
 
-    void			setDisplayTransformation( Transformation* );
-    Transformation*		getDisplayTransformation( );
+    void			setDisplayTransformation(Transformation*);
+    Transformation*		getDisplayTransformation();
     				/*!\returns the trans of the first child
 					    with a trans, or null if none of
 					    the childrens has a trans */
 
-    void			fillPar( IOPar&, TypeSet<int>& ) const;
-    int				usePar( const IOPar& );
+    void			fillPar(IOPar&,TypeSet<int>&) const;
+    int				usePar(const IOPar&);
 
 protected:
     virtual			~DataObjectGroup();
@@ -82,9 +82,7 @@ private:
     SoGroup*			group;
     SoSeparator*		separator;
     bool			separate;
-
-
 };
-};
+}; //namespace
 
 #endif
