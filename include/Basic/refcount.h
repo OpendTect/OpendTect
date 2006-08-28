@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	K. Tingdahl
  Date:		13-11-2003
  Contents:	Basic functionality for reference counting
- RCS:		$Id: refcount.h,v 1.8 2006-05-04 21:02:49 cvskris Exp $
+ RCS:		$Id: refcount.h,v 1.9 2006-08-28 08:54:16 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,14 @@ ________________________________________________________________________
 #include "ptrman.h"
 
 template <class T> class ObjectSet;
+
+/*!The refcount itself. Used internally by refcounted objects. */
+class RefCount
+{
+public:
+    		RefCount() : refcount_( 0 ) {}
+    int		refcount_;
+};
 
 /*!
 Macros to set up reference counting in a class. A refcount class is set up
@@ -44,15 +52,7 @@ public:
 
 
 The macro will define a protected destructor, so you have to implement one
-(even if it's a dummy {}). In your constructor, you have to put the mRefCountConstructor macro:
-\code
-A::A(params)
-{
-    mRefCountConstructor;
-
-    //Your own stuff
-}
-\endcode
+(even if it's a dummy {}).
 
 ObjectSets with ref-counted objects can be modified by either:
 \code
@@ -70,14 +70,11 @@ PtrMan.
 
 */
 
-#define mRefCountConstructor \
-__refcount = 0
-
 #define mRefCountImplWithDestructor(ClassName, DestructorImpl ) \
 public: \
     void	ref() const \
 		{ \
-		    __refcount++; \
+		    __refcount.refcount_++; \
 		    refNotify(); \
 		} \
     void	unRef() const \
@@ -85,21 +82,21 @@ public: \
 		    unRefNotify(); \
 		    if ( !this ) \
 			return; \
-		    if ( !--__refcount ) \
+		    if ( !--__refcount.refcount_ ) \
 			delete this; \
 		} \
  \
     void	unRefNoDelete() const \
 		{ \
-		    __refcount--; \
+		    __refcount.refcount_--; \
     		    unRefNoDeleteNotify(); \
 		} \
-    int		nrRefs() const { return this ? __refcount : 0 ; } \
+    int		nrRefs() const { return this ? __refcount.refcount_ : 0 ; } \
 private: \
-    virtual void refNotify() const {} \
-    virtual void unRefNotify() const {} \
-    virtual void unRefNoDeleteNotify() const {} \
-    mutable int	__refcount;	\
+    virtual void	refNotify() const {} \
+    virtual void	unRefNotify() const {} \
+    virtual void	unRefNoDeleteNotify() const {} \
+    mutable RefCount	__refcount;	\
 protected: \
     		DestructorImpl; \
 private:
