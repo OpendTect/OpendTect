@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Payraudeau
  Date:          February  2006
- RCS:           $Id: uifingerprintattrib.cc,v 1.20 2006-08-11 08:01:35 cvshelene Exp $
+ RCS:           $Id: uifingerprintattrib.cc,v 1.21 2006-08-29 11:28:43 cvshelene Exp $
 
 ________________________________________________________________________
 
@@ -256,10 +256,15 @@ bool uiFingerPrintAttrib::setParameters( const Desc& desc )
     mIfGetString( FingerPrint::ref2dlineStr(), line, 
 	    	  linefld_->box()->setCurrentItem(line.buf()) )
 
-    mIfGetString( FingerPrint::valpicksetStr(), pick, 
-	    	  picksetfld_->setInput(pick) )
+    mIfGetString( FingerPrint::valpicksetStr(), pickidstr, 
+	    	  IOObj* ioobj = IOM().get( MultiID(pickidstr) );
+		  picksetfld_->ctxtIOObj().setObj( ioobj );
+	   	  picksetfld_->updateInput() )
 
     mIfGetInt( FingerPrint::valreftypeStr(), type, refgrp_->selectButton(type) )
+
+    mIfGetInt( FingerPrint::statstypeStr(), statsval,
+	       statsfld_->setValue(statsval) )
 
     refSel(0);
     

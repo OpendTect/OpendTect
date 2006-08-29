@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          February 2006
- RCS:           $Id: fingerprintattrib.cc,v 1.9 2006-08-03 08:04:34 cvshelene Exp $
+ RCS:           $Id: fingerprintattrib.cc,v 1.10 2006-08-29 11:28:42 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -74,6 +74,7 @@ void FingerPrint::initClass()
     desc->addParam( weightset );
     
     IntParam* statstype = new IntParam( statstypeStr() );
+    statstype->setDefaultValue( 0 );
     desc->addParam( statstype );
     
     StringParam* valpickset = new StringParam( valpicksetStr() );
