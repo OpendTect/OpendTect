@@ -4,7 +4,7 @@
  * DATE     : Dec 2004
 -*/
 
-static const char* rcsID = "$Id: geomelement.cc,v 1.5 2006-04-26 21:01:45 cvskris Exp $";
+static const char* rcsID = "$Id: geomelement.cc,v 1.6 2006-08-30 13:59:35 cvskris Exp $";
 
 #include "geomelement.h"
 #include "survinfo.h"
@@ -16,6 +16,7 @@ Element::Element()
     , movementnotifier( this )
     , ischanged_( false )
     , errmsg_( 0 )
+    , blockcbs_( false )
 { }
 
 
@@ -56,11 +57,34 @@ BufferString& Element::errmsg()
 }
 
 
+void Element::blockCallBacks( bool yn, bool flush )
+{
+    blockcbs_ = yn;
+    if ( blockcbs_ )
+	return;
+
+    if ( flush )
+    {
+	triggerNrPosCh( nrposchbuffer_ );
+	triggerMovement( movementbuffer_ );
+    }
+
+    nrposchbuffer_.erase();
+    movementbuffer_.erase();
+}
+
+
+
+
 void Element::triggerMovement( const TypeSet<GeomPosID>& gpids )
 {
     if ( !gpids.size() ) return;
 
-    movementnotifier.trigger( &gpids, this );
+    if ( blockcbs_ )
+	movementbuffer_.createUnion( gpids );
+    else
+	movementnotifier.trigger( &gpids, this );
+
     ischanged_ = true;
 }
 
@@ -68,14 +92,17 @@ void Element::triggerMovement( const TypeSet<GeomPosID>& gpids )
 void Element::triggerMovement( const GeomPosID& gpid )
 {
     TypeSet<GeomPosID> gpids( 1, gpid );
-    movementnotifier.trigger( &gpids, this );
-    ischanged_ = true;
+    triggerMovement( gpids );
 }
 
 
 void Element::triggerMovement()
 {
-    movementnotifier.trigger( 0, this );
+    if ( blockcbs_ )
+	getPosIDs( movementbuffer_, true );
+    else
+	movementnotifier.trigger( 0, this );
+
     ischanged_ = true;
 }
 
@@ -83,7 +110,12 @@ void Element::triggerMovement()
 void Element::triggerNrPosCh( const TypeSet<GeomPosID>& gpids )
 {
     if ( !gpids.size() ) return;
-    nrpositionnotifier.trigger( &gpids, this );
+
+    if ( blockcbs_ )
+	nrposchbuffer_.createUnion( gpids );
+    else
+	nrpositionnotifier.trigger( &gpids, this );
+
     ischanged_ = true;
 }
 
@@ -91,15 +123,18 @@ void Element::triggerNrPosCh( const TypeSet<GeomPosID>& gpids )
 void Element::triggerNrPosCh( const GeomPosID& gpid )
 {
     TypeSet<GeomPosID> gpids( 1, gpid );
-    nrpositionnotifier.trigger( &gpids, this );
-    ischanged_ = true;
+    triggerNrPosCh( gpids );
 }
 
 
 void Element::triggerNrPosCh()
 {
-    nrpositionnotifier.trigger( 0, this );
+    if ( blockcbs_ )
+	getPosIDs( nrposchbuffer_, true );
+    else
+	nrpositionnotifier.trigger( 0, this );
     ischanged_ = true;
 }
+
 }; //Namespace
 

@@ -7,7 +7,7 @@ CopyRight:     (C) dGB Beheer B.V.
 Author:        A.H. Bril
 Date:          23-10-1996
 Contents:      Ranges
-RCS:           $Id: geomelement.h,v 1.7 2006-05-29 08:02:32 cvsbert Exp $
+RCS:           $Id: geomelement.h,v 1.8 2006-08-30 13:59:35 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,7 +42,22 @@ public:
     CNotifier<Element,const TypeSet<GeomPosID>*>	movementnotifier;
     CNotifier<Element,const TypeSet<GeomPosID>*>	nrpositionnotifier;
 
+    void			blockCallBacks(bool yn,bool flush=true);
+    				/*!Block callbacks until further notice.
+				   If blocked, lists of added/changed positions
+				   will accumulate changes, so they can be
+				   flushed when the block is turned off.
+				   \param flush is only used when yn is false,
+					  and specifies whether a callback
+					  with all accumulted changes will
+					  be triggered.
+				*/
+    bool			blocksCallBacks() const { return blockcbs_; }
+
 protected:
+    bool			blockcbs_;
+    TypeSet<GeomPosID>		nrposchbuffer_;
+    TypeSet<GeomPosID>		movementbuffer_;
     void			triggerMovement(const TypeSet<GeomPosID>&);
     void			triggerMovement(const GeomPosID&);
     void			triggerMovement();
