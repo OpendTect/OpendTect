@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Huck
  Date:          July 2006
- RCS:           $Id: gapdeconattrib.cc,v 1.5 2006-08-22 14:06:17 cvshelene Exp $
+ RCS:           $Id: gapdeconattrib.cc,v 1.6 2006-08-30 15:05:38 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -154,25 +154,28 @@ bool GapDecon::computeData( const DataHolder& output, const BinID& relpos,
 
     if ( !inited_ )
     {
-	const_cast<GapDecon*>(this)->nlag_  = 
+	const_cast<GapDecon*>(this)->nlag_  = //maybe useless
 				    mNINT( lagsize_ / refstep / zFactor() );
 	const_cast<GapDecon*>(this)->ncorr_ = 
 				    mNINT( gate_.width() / refstep );
 	const_cast<GapDecon*>(this)->ngap_ = 
 				    mNINT( gapsize_ / refstep / zFactor() );
-	//lcorr = imaxlag[0] + 1;//TODO here only nlag usefull?
+	const_cast<GapDecon*>(this)->lcorr_ =  nlag_ + ngap_;
 	const_cast<GapDecon*>(this)->inited_ = true;
     }
 
-    float* wiener = new float[nlag_];
-    float* spiker = new float[nlag_];
-    float* autocorr = new float[nlag_];//TODO confirm with lcorr
-    memset( wiener, 0, nlag_ * sizeof( float ) );
-    memset( spiker, 0, nlag_ * sizeof( float ) );
-    memset( autocorr, 0, nlag_ * sizeof( float ) );
+    float* wiener = new float[ngap_];
+    float* spiker = new float[ngap_];
+    float* autocorr = new float[lcorr_];
+//    float* crosscorr = new float[nlag_];//TODO not in original code
+    memset( wiener, 0, ngap_ * sizeof( float ) );
+    memset( spiker, 0, ngap_ * sizeof( float ) );
+    memset( autocorr, 0, lcorr_ * sizeof( float ) );
+//    memset( crosscorr, 0, lcorr_ * sizeof( float ) );
     
-    float* crosscorr = autocorr;
-    //diff code source: in this plugin mincorr = minlag
+    
+    float* crosscorr = autocorr + nlag_;//first sample of gap is at 
+					//maxlag_+1 = nlag_ because minlag = 0
 
     //TODO :use the multiple trcs to get a "trc avg" which is then used for the 
     //autocorrelation -> why not using the volume statistic attribute to quickly
@@ -184,43 +187,34 @@ bool GapDecon::computeData( const DataHolder& output, const BinID& relpos,
 
     genericCrossCorrelation( ncorr_, startcorr, inputarr,
 			     ncorr_, startcorr, inputarr,
-			     nlag_, 0, autocorr );//TODO nlag_--lcorr
+			     lcorr_, 0, autocorr );
 
     if ( mIsZero( autocorr[0], 0.001 ) )
 	return false;
 
     float scale = 1/autocorr[0];
-    for ( int idx=0; idx<nlag_; idx++)  
+    for ( int idx=0; idx<ncorr_; idx++)  
 	autocorr[idx] *= scale;
 
+//    for ( int idx=0; idx<nlag_; idx++ )
+//	crosscorr[idx] = autocorr[idx];
+    
     autocorr[0] *= 1 + (float)noiselevel_/100;
 
-    //TODO trick, remove as soon as process is clear
-    float* autocorrmodif = new float[nlag_+1];//TODO confirm with lcorr
-    autocorrmodif[0] = 100;
-    for ( int idx=1; idx<nlag_+1; idx++ )
-	autocorrmodif[idx] = autocorr[idx-1];
-    
-    solveSymToeplitzsystem( nlag_, autocorrmodif, crosscorr, wiener, spiker );
+    solveSymToeplitzsystem( ngap_, autocorr, crosscorr, wiener, spiker );
 
-    int stoplagidx = startcorr + nlag_;
+    int stopgapidx = startcorr + nlag_+ ngap_;
+    int startgapidx = startcorr + nlag_;
     int inoffs = z0 - inputdata_->z0_;
     int outoffs = z0 - output.z0_;
     ValueSeries<float>* inparr = inputdata_->series(dataidx_);
-    Interval<int> gap( stoplagidx, stoplagidx+ngap_ );
     
-    //diff with SU: apply it only within specified gap
     for ( int idx = 0; idx < nrsamples; ++idx )
     {
-	int n = mMIN( idx, stoplagidx );
+	int n = mMIN( idx, stopgapidx );
 	float sum = inparr->value( idx + inoffs );
-
-	if ( gap.includes(idx) )
-	{
-	    for ( int lagidx= startcorr; lagidx < n; ++lagidx )//mincorr=minlag
-		sum -= wiener[lagidx-startcorr] * 
-					    inparr->value( idx-lagidx+inoffs );
-	}
+	for ( int gapidx= startgapidx; gapidx<n; ++gapidx )
+	    sum -= wiener[gapidx-startgapidx] *inparr->value(idx-gapidx+inoffs);
 	output.series(0)->setValue( idx + outoffs, sum );
     }
 

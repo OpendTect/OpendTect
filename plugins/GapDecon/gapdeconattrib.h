@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Huck
  Date:          14-07-2006
- RCS:           $Id: gapdeconattrib.h,v 1.4 2006-08-22 14:06:17 cvshelene Exp $
+ RCS:           $Id: gapdeconattrib.h,v 1.5 2006-08-30 15:05:38 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -64,6 +64,7 @@ protected:
     bool			inited_;
     int				nlag_;
     int				ncorr_;
+    int				lcorr_;
     int				ngap_;
     
     const DataHolder*		inputdata_;
