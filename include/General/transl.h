@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		21-10-1995
  Contents:	Translators
- RCS:		$Id: transl.h,v 1.23 2006-08-30 16:03:26 cvsbert Exp $
+ RCS:		$Id: transl.h,v 1.24 2006-08-30 16:39:25 cvsbert Exp $
 ________________________________________________________________________
 
 A translator is an object specific for a certain storage mechanism coupled with
@@ -150,7 +150,7 @@ protected:
 
 // Essential macros for implementing the concept
 
-  // In the class definition:
+  //! In the class definition of a TranslatorGroup class
 #define isTranslatorGroup(clss) \
 public: \
     static TranslatorGroup& theInst() { return *theinst_; } \
@@ -162,6 +162,7 @@ private: \
     static RefMan<TranslatorGroup> theinst_;
 
 
+  //! In the class definition of a Translator class
 #define isTranslator(spec,clss) \
 public: \
     Translator* getNew() const \
@@ -175,12 +176,13 @@ public: \
 private: \
     static int			listid_;
 
-  // In a source file:
+  //! In the source file of a TranslatorGroup class
 #define defineTranslatorGroup(clss,usrnm) \
 RefMan<TranslatorGroup> clss##TranslatorGroup::theinst_ \
     = &TranslatorGroup::addGroup( new clss##TranslatorGroup(#clss,usrnm) );
 
 
+  //! In the source file of a Translator class
 #define defineTranslator(spec,clss,usrnm) \
 int spec##clss##Translator::listid_ \
     = TranslatorGroup::getGroup( #clss , false ).add( \
@@ -190,21 +192,27 @@ spec##clss##Translator* spec##clss##Translator::getInstance() \
 const char* spec##clss##Translator::translKey() { return usrnm; }
 
 
-// Convenience macros when creating Translator(Group)-related classes
+  //! Convenience when the TranslatorGroup is not interesting 4 u.
+  //! Defines a simple empty TranslatorGroup class body
 #define mDefEmptyTranslatorGroupConstructor(clss) \
 	clss##TranslatorGroup( const char* nm, const char* unm ) \
     	: TranslatorGroup(nm,unm)		{}
 
+  //! Convenience when the Translator base class is not interesting 4 u.
+  //! Defines a simple empty Translator class body
 #define mDefEmptyTranslatorBaseConstructor(clss) \
 	clss##Translator( const char* nm, const char* unm ) \
     	: Translator(nm,unm)			{}
 
+  //! Convenience when the Translator is not interesting 4 u.
+  //! Defines a simple empty Translator subclass body
 #define mDefEmptyTranslatorConstructor(spec,clss) \
 	spec##clss##Translator( const char* nm, const char* unm ) \
     	: clss##Translator(nm,unm)		{}
 
-// Convenience macros when not interested in the classes, just for compliance
-// Declarations for header file:
+  //! Convenient when the entire Translator concept is not interesting 4 u.
+  //! Use this in your header file to comply with the concept, so you
+  //! can make use of OpendTect object selection, retrieval etc.
 #define mDeclEmptyTranslatorBundle(clss,fmt,defext) \
 struct clss##TranslatorGroup : public TranslatorGroup \
 {		   	isTranslatorGroup(clss) \
@@ -219,19 +227,26 @@ struct clss##Translator : public Translator \
  \
 struct fmt##clss##Translator : public clss##Translator \
 {			isTranslator(fmt,clss) \
-    			mDefEmptyTranslatorConstructor(dgb,clss) \
+    			mDefEmptyTranslatorConstructor(fmt,clss) \
 };
 
-// Definitions for .cc file:
+  //! Definitions for .cc file:
+  //! Convenience when the entire Translator concept is not interesting
+  //! This one can be convenient when a group has only one Translator
 #define mDefSimpleTranslatorInstances(clss,usrnm,fmt) \
 defineTranslatorGroup(clss,usrnm) \
 defineTranslator(fmt,clss,#fmt)
 
+  //! Definitions for .cc file:
+  //! This particular macro defines a simple object selection definition
 #define mDefSimpleTranslatorSelector(clss,usrnm) \
 int clss##TranslatorGroup::selector( const char* s ) \
 { return defaultSelector(usrnm,s); }
 
-#define mDefSimpleTranslatorioContext(clss,stdtyp) \
+  //! Definitions for .cc file:
+  //! Defines the function providing the IOObj context
+  //! This particular macro allows extension, setting extra members
+#define mDefSimpleTranslatorioContextWithExtra(clss,stdtyp,extra) \
 const IOObjContext& clss##TranslatorGroup::ioContext() \
 { \
     static IOObjContext* ctxt = 0; \
@@ -239,15 +254,40 @@ const IOObjContext& clss##TranslatorGroup::ioContext() \
     { \
 	ctxt = new IOObjContext( 0 ); \
 	ctxt->stdseltype = IOObjContext::stdtyp; \
+	extra; \
     } \
     ctxt->trgroup = &theInst(); \
     return *ctxt; \
 }
 
+  //! Definitions for .cc file:
+  //! Defines the function providing the IOObj context, no extras
+#define mDefSimpleTranslatorioContext(clss,stdtyp) \
+    mDefSimpleTranslatorioContextWithExtra(clss,stdtyp,)
+
+  //! Definitions for .cc file:
+  //! Defines all necessary functions to implement
+  //! This is the 'basic' one
 #define mDefSimpleTranslators(clss,usrnm,fmt,stdtyp) \
 mDefSimpleTranslatorInstances(clss,usrnm,fmt) \
 mDefSimpleTranslatorSelector(clss,usrnm) \
 mDefSimpleTranslatorioContext(clss,stdtyp)
+
+  //! Definitions for .cc file:
+  //! Defines all necessary functions to implement
+  //! This one allows adding code to set IOObjContext members
+#define mDefSimpleTranslatorsWithCtioExtra(clss,usrnm,fmt,stdtyp,extra) \
+mDefSimpleTranslatorInstances(clss,usrnm,fmt) \
+mDefSimpleTranslatorSelector(clss,usrnm) \
+mDefSimpleTranslatorioContextWithExtra(clss,stdtyp,extra)
+
+  //! Definitions for .cc file:
+  //! Defines all necessary functions to implement
+  //! This one sets the selkey
+  //! Therefore it's the one you want to use if you have your own data sub-dir.
+#define mDefSimpleTranslatorsWithSelKey(clss,usrnm,fmt,stdtyp,selky) \
+    mDefSimpleTranslatorsWithCtioExtra(clss,usrnm,fmt,stdtyp, \
+		ctxt->selkey = selky)
 
 
 // Convenience macros when using Translator(Group)-related classes
