@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emmanager.cc,v 1.48 2006-04-28 15:19:52 cvsnanne Exp $";
+static const char* rcsID = "$Id: emmanager.cc,v 1.49 2006-08-30 16:03:27 cvsbert Exp $";
 
 #include "emmanager.h"
 
@@ -132,7 +132,7 @@ MultiID EM::EMManager::findObject( const char* type,
 					const char* name ) const
 {
     const IOObjContext* context = getContext(type);
-    if ( IOM().to(IOObjContext::getStdDirData(context->stdseltype)->id) )
+    if ( IOM().to(context->getSelKey()) )
     {
 	PtrMan<IOObj> ioobj = IOM().getLocal( name );
 	IOM().back();

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          25/05/2000
- RCS:           $Id: uiioobjsel.cc,v 1.93 2006-08-03 20:00:02 cvsnanne Exp $
+ RCS:           $Id: uiioobjsel.cc,v 1.94 2006-08-30 16:03:27 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -95,7 +95,7 @@ uiIOObjSelGrp::uiIOObjSelGrp( uiParent* p, const CtxtIOObj& c,
     , newStatusMsg(this)
     , selectionChg(this)
 {
-    IOM().to( MultiID(IOObjContext::getStdDirData(ctio_.ctxt.stdseltype)->id) );
+    IOM().to( ctio_.ctxt.getSelKey() );
 
     topgrp = new uiGroup( this, "Top group" );
     filtfld = new uiGenInput( topgrp, "Filter", "*" );
@@ -198,7 +198,7 @@ void uiIOObjSelGrp::fullUpdate( const MultiID& ky )
 
 void uiIOObjSelGrp::fullUpdate( int curidx )
 {
-    IOM().to( ctio_.ctxt.stdSelKey() );
+    IOM().to( ctio_.ctxt.getSelKey() );
     IODirEntryList del( IOM().dirPtr(), ctio_.ctxt );
     BufferString nmflt = filtfld->text();
     if ( nmflt != "" && nmflt != "*" )
@@ -480,7 +480,7 @@ void uiIOObjSel::obtainIOObj()
 	if ( !strcmp(inp,itemusrnm) && ctio.ioobj ) return;
     }
 
-    IOM().to( ctio.ctxt.stdSelKey() );
+    IOM().to( ctio.ctxt.getSelKey() );
     const IOObj* ioobj = (*IOM().dirPtr())[inp];
     ctio.setObj( ioobj && ctio.ctxt.validIOObj(*ioobj) ? ioobj->clone() : 0 );
 }
@@ -496,7 +496,7 @@ void uiIOObjSel::processInput()
 
 bool uiIOObjSel::existingUsrName( const char* nm ) const
 {
-    IOM().to( ctio.ctxt.stdSelKey() );
+    IOM().to( ctio.ctxt.getSelKey() );
     return (*IOM().dirPtr())[nm];
 }
 

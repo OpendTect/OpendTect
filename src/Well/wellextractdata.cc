@@ -4,7 +4,7 @@
  * DATE     : May 2004
 -*/
 
-static const char* rcsID = "$Id: wellextractdata.cc,v 1.28 2006-03-16 11:05:33 cvsbert Exp $";
+static const char* rcsID = "$Id: wellextractdata.cc,v 1.29 2006-08-30 16:03:27 cvsbert Exp $";
 
 #include "wellextractdata.h"
 #include "wellreader.h"
@@ -58,7 +58,7 @@ Well::InfoCollector::InfoCollector( bool dologs, bool domarkers )
     , curidx_(0)
 {
     PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(Well);
-    IOM().to( ctio->ctxt.stdSelKey() );
+    IOM().to( ctio->ctxt.getSelKey() );
     direntries_ = new IODirEntryList( IOM().dirPtr(), ctio->ctxt );
     totalnr_ = direntries_->size();
     curmsg_ = totalnr_ ? "Gathering information" : "No wells";

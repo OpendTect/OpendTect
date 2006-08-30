@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		21-10-1995
  Contents:	Translators
- RCS:		$Id: transl.h,v 1.22 2005-11-01 03:14:43 cvskris Exp $
+ RCS:		$Id: transl.h,v 1.23 2006-08-30 16:03:26 cvsbert Exp $
 ________________________________________________________________________
 
 A translator is an object specific for a certain storage mechanism coupled with
@@ -202,6 +202,53 @@ const char* spec##clss##Translator::translKey() { return usrnm; }
 #define mDefEmptyTranslatorConstructor(spec,clss) \
 	spec##clss##Translator( const char* nm, const char* unm ) \
     	: clss##Translator(nm,unm)		{}
+
+// Convenience macros when not interested in the classes, just for compliance
+// Declarations for header file:
+#define mDeclEmptyTranslatorBundle(clss,fmt,defext) \
+struct clss##TranslatorGroup : public TranslatorGroup \
+{		   	isTranslatorGroup(clss) \
+    			mDefEmptyTranslatorGroupConstructor(clss) \
+    const char*		defExtension() const	{ return defext; } \
+}; \
+ \
+struct clss##Translator : public Translator \
+{ \
+    			mDefEmptyTranslatorBaseConstructor(clss) \
+}; \
+ \
+struct fmt##clss##Translator : public clss##Translator \
+{			isTranslator(fmt,clss) \
+    			mDefEmptyTranslatorConstructor(dgb,clss) \
+};
+
+// Definitions for .cc file:
+#define mDefSimpleTranslatorInstances(clss,usrnm,fmt) \
+defineTranslatorGroup(clss,usrnm) \
+defineTranslator(fmt,clss,#fmt)
+
+#define mDefSimpleTranslatorSelector(clss,usrnm) \
+int clss##TranslatorGroup::selector( const char* s ) \
+{ return defaultSelector(usrnm,s); }
+
+#define mDefSimpleTranslatorioContext(clss,stdtyp) \
+const IOObjContext& clss##TranslatorGroup::ioContext() \
+{ \
+    static IOObjContext* ctxt = 0; \
+    if ( !ctxt ) \
+    { \
+	ctxt = new IOObjContext( 0 ); \
+	ctxt->stdseltype = IOObjContext::stdtyp; \
+    } \
+    ctxt->trgroup = &theInst(); \
+    return *ctxt; \
+}
+
+#define mDefSimpleTranslators(clss,usrnm,fmt,stdtyp) \
+mDefSimpleTranslatorInstances(clss,usrnm,fmt) \
+mDefSimpleTranslatorSelector(clss,usrnm) \
+mDefSimpleTranslatorioContext(clss,stdtyp)
+
 
 // Convenience macros when using Translator(Group)-related classes
 #define mMkCtxtIOObj(clss) \

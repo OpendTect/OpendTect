@@ -4,7 +4,7 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.89 2006-08-23 07:33:52 cvsnanne Exp $";
+static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.90 2006-08-30 16:03:27 cvsbert Exp $";
 
 #include "vispicksetdisplay.h"
 
@@ -141,7 +141,7 @@ int PickSetDisplay::usePar( const IOPar& par )
 	setSet( newps );
 
 	PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(PickSet);
-	IOM().to( ctio->ctxt.stdSelKey() );
+	IOM().to( ctio->ctxt.getSelKey() );
 	const IOObj* existioobj = IOM().getLocal( psname );
 	if ( existioobj )
 	    storedmid_ = existioobj->key();

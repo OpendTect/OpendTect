@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Jun 2002
- RCS:		$Id: uiseiscbvsimp.cc,v 1.35 2006-02-17 17:27:14 cvsbert Exp $
+ RCS:		$Id: uiseiscbvsimp.cc,v 1.36 2006-08-30 16:03:27 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -104,7 +104,7 @@ void uiSeisImpCBVS::init( bool fromioobj )
 
     outctio_.ctxt.forread = false;
     outctio_.ctxt.trglobexpr = "CBVS";
-    IOM().to( outctio_.ctxt.stdSelKey() );
+    IOM().to( outctio_.ctxt.getSelKey() );
     outfld = new uiSeisSel( this, outctio_, SeisSelSetup().pol2d(No2D) );
     outfld->attach( alignedBelow, transffld );
 }

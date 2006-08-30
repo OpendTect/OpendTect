@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiattrinpdlg.cc,v 1.4 2005-08-26 18:19:28 cvsbert Exp $
+ RCS:           $Id: uiattrinpdlg.cc,v 1.5 2006-08-30 16:03:27 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -52,7 +52,7 @@ uiAttrInpDlg::uiAttrInpDlg( uiParent* p, const BufferStringSet& refset,
     txtfld->attach( alignedBelow, infolbl );
   
     IOM().setRootDir( GetDataDir() ); 
-    IOM().to( ctio.ctxt.stdSelKey() ); 
+    IOM().to( ctio.ctxt.getSelKey() ); 
     ctio.ctxt.forread = true;
     ctio.ctxt.parconstraints.set( sKey::Type, sKey::Steering );
     ctio.ctxt.includeconstraints = issteer;

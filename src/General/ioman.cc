@@ -4,7 +4,7 @@
  * DATE     : 3-8-1994
 -*/
 
-static const char* rcsID = "$Id: ioman.cc,v 1.66 2006-08-21 17:14:45 cvsbert Exp $";
+static const char* rcsID = "$Id: ioman.cc,v 1.67 2006-08-30 16:03:27 cvsbert Exp $";
 
 #include "ioman.h"
 #include "iodir.h"
@@ -129,7 +129,7 @@ void IOMan::init()
 	    // Apparently, this directory should have been in the survey
 	    // It is not. If it is a basic directory, we do not want to
 	    // continue. Otherwise, we want to create the directory.
-	    if ( !idx ) // 0=Seis, if this is missing, why go on?
+	    if ( idx == 0 ) // 0=Seis, if this is missing, why go on?
 	    {
 		BufferString msg( "Corrupt survey: missing directory: " );
 		msg += dirnm; ErrMsg( msg ); state_ = Bad; return;
@@ -446,7 +446,7 @@ IOObj* IOMan::getFirst( const IOObjContext& ctxt, int* nrfound ) const
 {
     if ( !ctxt.trgroup ) return 0;
 
-    IOM().to( ctxt.stdSelKey() );
+    IOM().to( ctxt.getSelKey() );
 
     const ObjectSet<IOObj>& ioobjs = dirptr->getObjs();
     IOObj* ret = 0; if ( nrfound ) *nrfound = 0;
@@ -544,19 +544,12 @@ MultiID IOMan::newKey() const
 }
 
 
-void IOMan::getEntry( CtxtIOObj& ctio, MultiID parentkey )
+void IOMan::getEntry( CtxtIOObj& ctio, MultiID overruleselkey )
 {
     ctio.setObj( 0 );
     if ( ctio.ctxt.name() == "" ) return;
 
-    if ( parentkey == "" )
-	parentkey = ctio.ctxt.parentkey;
-    if ( parentkey != "" )
-	to( parentkey );
-    else if ( ctio.ctxt.hasStdSelType()
-	   && ( ctio.ctxt.newonlevel != 2
-	     || dirPtr()->main()->key().nrKeys() < 3 ) )
-	to( ctio.ctxt.stdSelKey() );
+    to( overruleselkey == "" ? ctio.ctxt.getSelKey() : overruleselkey );
 
     const IOObj* ioobj = (*dirPtr())[ ctio.ctxt.name() ];
     ctio.ctxt.fillTrGroup();
@@ -567,7 +560,6 @@ void IOMan::getEntry( CtxtIOObj& ctio, MultiID parentkey )
     {
 	IOStream* iostrm = new IOStream( ctio.ctxt.name(), newKey(), NO );
 	dirPtr()->mkUniqueName( iostrm );
-	iostrm->setParentKey( parentkey );
 	iostrm->setGroup( ctio.ctxt.trgroup->userName() );
 	const Translator* tr = ctio.ctxt.trgroup->templates().size() ?
 	    			ctio.ctxt.trgroup->templates()[0] : 0;
@@ -585,10 +577,9 @@ void IOMan::getEntry( CtxtIOObj& ctio, MultiID parentkey )
 	delete tmptr;
 
 	ioobj = iostrm;
-	if ( ctio.ctxt.crlink )
-	    ioobj = new IOLink( ioobj->name(), (IOObj*)ioobj );
 	if ( ctio.ctxt.includeconstraints && !ctio.ctxt.allowcnstrsabsent )
 	    ioobj->pars().merge( ctio.ctxt.parconstraints );
+
 	dirPtr()->addObj( (IOObj*)ioobj );
     }
 

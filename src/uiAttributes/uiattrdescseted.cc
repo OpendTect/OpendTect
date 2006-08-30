@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrdescseted.cc,v 1.32 2006-07-11 08:22:41 cvsbert Exp $
+ RCS:           $Id: uiattrdescseted.cc,v 1.33 2006-08-30 16:03:27 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -211,7 +211,7 @@ void uiAttribDescSetEd::init()
     adsman->setSaved( inoutadsman->isSaved() );
 
     setid = inoutadsman->attrsetid_;
-    IOM().to( setctio.ctxt.stdSelKey() );
+    IOM().to( setctio.ctxt.getSelKey() );
     setctio.ioobj = IOM().get( setid );
     attrsetfld->setText( setctio.ioobj ? setctio.ioobj->name() : "" );
     cancelsetid = setid;

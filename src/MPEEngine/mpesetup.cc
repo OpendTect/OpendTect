@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: mpesetup.cc,v 1.3 2006-02-20 18:49:49 cvsbert Exp $
+ RCS:           $Id: mpesetup.cc,v 1.4 2006-08-30 16:03:27 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,32 +49,8 @@ void Setup::fillPar( IOPar& par ) const
 
 // MPESetupTranslatorGroup --------------------------------------------------
 
-int MPESetupTranslatorGroup::selector( const char* key )
-{
-    int retval = defaultSelector( theInst().userName(), key );
-    if ( retval ) return retval;
-
-    if ( defaultSelector(MPESetupTranslator::keyword,key) ) return 1;
-    return 0;
-}
-
-
-const IOObjContext& MPESetupTranslatorGroup::ioContext()
-{
-    static IOObjContext* ctxt = 0;
-    
-    if ( !ctxt )
-    {
-	ctxt = new IOObjContext( &theInst() );
-	ctxt->crlink = false;
-	ctxt->newonlevel = 1;
-	ctxt->needparent = false;
-	ctxt->maychdir = false;
-	ctxt->stdseltype = IOObjContext::Mdl;
-    }
-
-    return *ctxt;
-}
+mDefSimpleTranslatorSelector(MPESetup,MPESetupTranslator::keyword)
+mDefSimpleTranslatorioContext(MPESetup,Mdl)
 
 
 // MPESetupTranslator ---------------------------------------------------- 

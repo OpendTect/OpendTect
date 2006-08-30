@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uimultisurfaceread.cc,v 1.2 2006-04-25 10:41:06 cvsnanne Exp $
+ RCS:           $Id: uimultisurfaceread.cc,v 1.3 2006-08-30 16:03:27 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,7 +26,7 @@ ________________________________________________________________________
 uiMultiSurfaceRead::uiMultiSurfaceRead( uiParent* p, bool ishor )
     : uiIOSurface(p,true,ishor)
 {
-    IOM().to( MultiID(IOObjContext::getStdDirData(ctio.ctxt.stdseltype)->id) );
+    IOM().to( ctio.ctxt.getSelKey() );
     entrylist_ = new IODirEntryList( IOM().dirPtr(), ctio.ctxt );
 
     BufferString lbl( "Select " ); lbl += ishor ? "Horizon(s)" : "Fault(s)";

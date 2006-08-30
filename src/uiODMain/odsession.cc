@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: odsession.cc,v 1.10 2006-02-20 18:49:49 cvsbert Exp $";
+static const char* rcsID = "$Id: odsession.cc,v 1.11 2006-08-30 16:03:27 cvsbert Exp $";
 
 #include "odsession.h"
 #include "ptrman.h"
@@ -110,23 +110,7 @@ int ODSessionTranslatorGroup::selector( const char* key )
     return 0;
 }
 
-
-const IOObjContext& ODSessionTranslatorGroup::ioContext()
-{
-    static IOObjContext* ctxt = 0;
-    
-    if ( !ctxt )
-    {
-	ctxt = new IOObjContext( &theInst() );
-	ctxt->crlink = false;
-	ctxt->newonlevel = 1;
-	ctxt->needparent = false;
-	ctxt->maychdir = false;
-	ctxt->stdseltype = IOObjContext::Misc;
-    }
-
-    return *ctxt;
-}
+mDefSimpleTranslatorioContext(ODSession,Misc)
 
 
 bool ODSessionTranslator::retrieve( ODSession& session,

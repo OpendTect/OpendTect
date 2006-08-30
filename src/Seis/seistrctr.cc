@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: seistrctr.cc,v 1.70 2006-03-12 13:39:11 cvsbert Exp $";
+static const char* rcsID = "$Id: seistrctr.cc,v 1.71 2006-08-30 16:03:27 cvsbert Exp $";
 
 #include "seistrctr.h"
 #include "seisfact.h"
@@ -33,36 +33,8 @@ const char* SeisTrcTranslator::sKeyRegWrite = "Enforce Regular Write";
 const char* SeisTrcTranslator::sKeySIWrite = "Enforce SurveyInfo Write";
 
 
-int SeisTrcTranslatorGroup::selector( const char* key )
-{
-    int retval = defaultSelector( theInst().userName(), key );
-    if ( retval ) return retval;
-
-    if ( defaultSelector("Integration Framework",key)
-      || defaultSelector("Well group",key)
-      || defaultSelector("Seismic directory",key) )
-	return 1;
-
-    return 0;
-}
-
-
-const IOObjContext& SeisTrcTranslatorGroup::ioContext()
-{
-    static IOObjContext* ctxt = 0;
-    if ( !ctxt )
-    {
-	ctxt = new IOObjContext( &theInst() );
-	ctxt->crlink = false;
-	ctxt->needparent = false;
-	ctxt->stdseltype = IOObjContext::Seis;
-	ctxt->multi = true;
-	ctxt->newonlevel = 1;
-	ctxt->maychdir = false;
-    }
-
-    return *ctxt;
-}
+mDefSimpleTranslatorSelector(SeisTrc,sKeySeisTrcTranslatorGroup)
+mDefSimpleTranslatorioContext(SeisTrc,Seis)
 
 
 SeisTrcTranslator::ComponentData::ComponentData( const SeisTrc& trc, int icomp,

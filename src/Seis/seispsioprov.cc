@@ -4,9 +4,10 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID = "$Id: seispsioprov.cc,v 1.4 2005-08-15 16:15:01 cvsbert Exp $";
+static const char* rcsID = "$Id: seispsioprov.cc,v 1.5 2006-08-30 16:03:27 cvsbert Exp $";
 
 #include "seispsioprov.h"
+#include "seispsfact.h"
 #include "filegen.h"
 #include "ioobj.h"
 #include "iopar.h"
@@ -50,28 +51,8 @@ SeisPSWriter* SeisPSIOProviderFactory::getWriter( const IOObj& ioobj ) const
 }
 
 
-int SeisPSTranslatorGroup::selector( const char* key )
-{
-    return defaultSelector( theInst().userName(), key );
-}
-
-
-const IOObjContext& SeisPSTranslatorGroup::ioContext()
-{
-    static IOObjContext* ctxt = 0;
-
-    if ( !ctxt )
-    {
-	ctxt = new IOObjContext( &theInst() );
-	ctxt->crlink = false;
-	ctxt->newonlevel = 1;
-	ctxt->needparent = false;
-	ctxt->maychdir = false;
-	ctxt->stdseltype = IOObjContext::Seis;
-    }
-     
-    return *ctxt;
-}
+mDefSimpleTranslatorSelector(SeisPS,sKeySeisPSTranslatorGroup)
+mDefSimpleTranslatorioContext(SeisPS,Seis)
 
 
 bool CBVSSeisPSTranslator::implRemove( const IOObj* ioobj ) const

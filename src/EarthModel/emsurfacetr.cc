@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: emsurfacetr.cc,v 1.13 2006-08-22 12:53:13 cvsjaap Exp $
+ RCS:           $Id: emsurfacetr.cc,v 1.14 2006-08-30 16:03:27 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,87 +30,33 @@ ________________________________________________________________________
 
 const char* EMHorizonTranslatorGroup::keyword = "Horizon";
 
+mDefSimpleTranslatorSelector(EMHorizon,keyword)
+
 const IOObjContext& EMHorizonTranslatorGroup::ioContext()
 {
     static IOObjContext* ctxt = 0;
-
     if ( !ctxt )
     {
 	ctxt = new IOObjContext( 0 );
-	ctxt->crlink = false;
-	ctxt->newonlevel = 1;
-	ctxt->needparent = false;
-	ctxt->maychdir = false;
 	ctxt->stdseltype = IOObjContext::Surf;
 	ctxt->trglobexpr = mDGBKey;
     }
-
-    // Due to static initialisation order ...
     ctxt->trgroup = &theInst();
     return *ctxt;
-}
-
-
-int EMHorizonTranslatorGroup::selector( const char* key )
-{
-    return defaultSelector( keyword, key );
 }
 
 
 const char* EMHorizon2DTranslatorGroup::keyword = "Horizon 2D";
 
-const IOObjContext& EMHorizon2DTranslatorGroup::ioContext()
-{
-    static IOObjContext* ctxt = 0;
-
-    if ( !ctxt )
-    {
-	ctxt = new IOObjContext( 0 );
-	ctxt->crlink = false;
-	ctxt->newonlevel = 1;
-	ctxt->needparent = false;
-	ctxt->maychdir = false;
-	ctxt->stdseltype = IOObjContext::Surf;
-    }
-
-    // Due to static initialisation order ...
-    ctxt->trgroup = &theInst();
-    return *ctxt;
-}
-
-
-int EMHorizon2DTranslatorGroup::selector( const char* key )
-{
-    return defaultSelector( keyword, key );
-}
+mDefSimpleTranslatorSelector(EMHorizon2D,keyword)
+mDefSimpleTranslatorioContext(EMHorizon2D,Surf)
 
 
 const char* EMFaultTranslatorGroup::keyword = "Fault";
 
-const IOObjContext& EMFaultTranslatorGroup::ioContext()
-{
-    static IOObjContext* ctxt = 0;
+mDefSimpleTranslatorSelector(EMFault,keyword)
+mDefSimpleTranslatorioContext(EMFault,Surf)
 
-    if ( !ctxt )
-    {
-	ctxt = new IOObjContext( &theInst() );
-	ctxt->crlink = false;
-	ctxt->newonlevel = 1;
-	ctxt->needparent = false;
-	ctxt->maychdir = false;
-	ctxt->stdseltype = IOObjContext::Surf;
-    }
-
-    return *ctxt;
-}
-
-
-int EMFaultTranslatorGroup::selector( const char* key )
-{
-    return defaultSelector( keyword, key );
-}
-
-// *************************************************************************
 
 EMSurfaceTranslator::~EMSurfaceTranslator()
 {

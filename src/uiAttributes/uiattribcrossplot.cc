@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          March 2003
- RCS:           $Id: uiattribcrossplot.cc,v 1.2 2006-05-16 16:28:22 cvsbert Exp $
+ RCS:           $Id: uiattribcrossplot.cc,v 1.3 2006-08-30 16:03:27 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -62,7 +62,7 @@ uiAttribCrossPlot::uiAttribCrossPlot( uiParent* p, const DescSet& d )
     attrsfld->box()->setMultiSelect( true );
 
     pssfld = new uiLabeledListBox( this, "Evaluate at locations from" );
-    IOM().to( PickSetTranslatorGroup::ioContext().stdSelKey() );
+    IOM().to( PickSetTranslatorGroup::ioContext().getSelKey() );
     IODirEntryList del( IOM().dirPtr(), &PickSetTranslatorGroup::theInst(),
 	    		false, 0 );
     del.sort();

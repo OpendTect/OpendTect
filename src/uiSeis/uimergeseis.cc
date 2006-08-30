@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:		$Id: uimergeseis.cc,v 1.30 2006-07-11 18:00:37 cvskris Exp $
+ RCS:		$Id: uimergeseis.cc,v 1.31 2006-08-30 16:03:27 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -47,7 +47,7 @@ uiMergeSeis::uiMergeSeis( uiParent* p )
     , inpsz(0)
     , rev(false)
 {
-    IOM().to( ctio.ctxt.stdSelKey() );
+    IOM().to( ctio.ctxt.getSelKey() );
     const ObjectSet<IOObj>& ioobjs = IOM().dirPtr()->getObjs();
     BufferStringSet ioobjnms("Stored seismic data");
     for ( int idx=0; idx<ioobjs.size(); idx++ )

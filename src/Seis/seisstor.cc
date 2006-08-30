@@ -5,7 +5,7 @@
  * FUNCTION : Seismic data storage
 -*/
 
-static const char* rcsID = "$Id: seisstor.cc,v 1.22 2006-01-12 12:21:38 cvshelene Exp $";
+static const char* rcsID = "$Id: seisstor.cc,v 1.23 2006-08-30 16:03:27 cvsbert Exp $";
 
 #include "seisstor.h"
 #include "seistrctr.h"
@@ -149,7 +149,7 @@ void SeisStoreAccess::usePar( const IOPar& iopar )
 	res = iopar.find( sKey::Name );
 	if ( res && *res )
 	{
-	    IOM().to( SeisTrcTranslatorGroup::ioContext().stdSelKey() );
+	    IOM().to( SeisTrcTranslatorGroup::ioContext().getSelKey() );
 	    const IOObj* tryioobj = (*IOM().dirPtr())[ res ];
 	    if ( !tryioobj )
 		res = 0;

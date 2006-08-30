@@ -4,7 +4,7 @@
  * DATE     : 7-1-1996
 -*/
 
-static const char* rcsID = "$Id: ctxtioobj.cc,v 1.26 2006-08-21 17:14:45 cvsbert Exp $";
+static const char* rcsID = "$Id: ctxtioobj.cc,v 1.27 2006-08-30 16:03:27 cvsbert Exp $";
 
 #include "ctxtioobj.h"
 #include "ioobj.h"
@@ -74,10 +74,9 @@ IOObjContext::IOObjContext( const IOObjContext& rp )
 
 void IOObjContext::init()
 {
-    newonlevel = parentlevel = 0;
-    crlink = needparent = multi = false;
-    forread = maychdir = maydooper = true;
-    partrgroup		= 0;
+    newonlevel = 1;
+    multi = maychdir = false;
+    forread = maydooper = true;
     deftransl		= "";
     stdseltype		= None;
     includeconstraints	= true;
@@ -99,16 +98,12 @@ IOObjContext& IOObjContext::operator=( const IOObjContext& ct )
 	setName( ct.name() );
 	trgroup = ct.trgroup;
 	newonlevel = ct.newonlevel;
-	crlink = ct.crlink;
-	needparent = ct.needparent;
-	parentlevel = ct.parentlevel;
-	partrgroup = ct.partrgroup;
 	multi = ct.multi;
 	stdseltype = ct.stdseltype;
 	forread = ct.forread;
 	maychdir = ct.maychdir;
 	maydooper = ct.maydooper;
-	parentkey = ct.parentkey;
+	selkey = ct.selkey;
 	deftransl = ct.deftransl;
 	trglobexpr = ct.trglobexpr;
 	parconstraints = ct.parconstraints;
@@ -149,17 +144,12 @@ void IOObjContext::fillPar( IOPar& iopar ) const
     iopar.set( "Translator group", trgroup ? trgroup->userName().buf() :"" );
     iopar.set( "Data type", eString(IOObjContext::StdSelType,stdseltype) );
     iopar.set( "Level for new objects", newonlevel );
-    iopar.setYN( "Create new directory", crlink );
     iopar.setYN( "Multi-entries", multi );
     iopar.setYN( "Entries in other directories", maychdir );
-    iopar.setYN( "Parent needed", needparent );
-    iopar.set( "Translator group parent", partrgroup
-			? partrgroup->userName().buf() : "" );
-    iopar.set( "Parent level", parentlevel );
     iopar.setYN( "Selection.For read", forread );
     iopar.setYN( "Selection.Allow operations", maydooper );
     iopar.set( "Selection.Default translator", (const char*)deftransl );
-    iopar.set( "Selection.Parent key", (const char*)parentkey );
+    iopar.set( "Selection.Dir key", (const char*)selkey );
     iopar.set( "Selection.Allow Translators", trglobexpr );
     iopar.mergeComp( parconstraints, sKeySelConstr );
     iopar.setYN( IOPar::compKey(sKeySelConstr,"Include"), includeconstraints );
@@ -207,22 +197,15 @@ void IOObjContext::usePar( const IOPar& iopar )
     fillTrGroup();
 
     iopar.get( "Level for new objects", newonlevel );
-    iopar.getYN( "Create new directory", crlink );
     iopar.getYN( "Multi-entries", multi );
     iopar.getYN( "Entries in other directories", maychdir );
-    iopar.getYN( "Parent needed", needparent );
-
-    res = iopar.find( "Translator group parent" );
-    if ( res ) partrgroup = &TranslatorGroup::getGroup( res, true );
-
-    iopar.get( "Parent level", parentlevel );
     iopar.getYN( "Selection.For read", forread );
     iopar.getYN( "Selection.Allow operations", maydooper );
 
     res = iopar.find( "Selection.Default translator" );
     if ( res ) deftransl = res;
-    res = iopar.find( "Selection.Parent key" );
-    if ( res ) parentkey = res;
+    res = iopar.find( "Selection.Dir key" );
+    if ( res ) selkey = res;
     res = iopar.find( "Selection.Allow Translators" );
     if ( res ) trglobexpr = res;
 
@@ -302,7 +285,8 @@ void CtxtIOObj::setObj( IOObj* obj )
     if ( obj == ioobj ) return;
 
     delete ioobj; ioobj = obj;
-    if ( ioobj ) ctxt.parentkey = ioobj->parentKey();
+    if ( ioobj )
+	ctxt.selkey = ctxt.hasStdSelKey() ? "" : ioobj->parentKey();
 }
 
 

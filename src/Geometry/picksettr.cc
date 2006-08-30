@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Jul 2005
- RCS:		$Id: picksettr.cc,v 1.8 2006-05-30 08:24:13 cvsnanne Exp $
+ RCS:		$Id: picksettr.cc,v 1.9 2006-08-30 16:03:27 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,23 +25,7 @@ ________________________________________________________________________
 
 static const char* sKeyMarkerType = "Marker Type";
 
-
-const IOObjContext& PickSetTranslatorGroup::ioContext()
-{
-    static IOObjContext* ctxt = 0;
-
-    if ( !ctxt )
-    {
-	ctxt = new IOObjContext( &theInst() );
-	ctxt->crlink = false;
-	ctxt->newonlevel = 1;
-	ctxt->needparent = false;
-	ctxt->maychdir = false;
-	ctxt->stdseltype = IOObjContext::Loc;
-    }
-
-    return *ctxt;
-}
+mDefSimpleTranslatorioContext(PickSet,Loc)
 
 
 int PickSetTranslatorGroup::selector( const char* key )

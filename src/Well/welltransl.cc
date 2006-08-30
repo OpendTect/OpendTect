@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: welltransl.cc,v 1.9 2004-07-16 15:35:26 bert Exp $";
+static const char* rcsID = "$Id: welltransl.cc,v 1.10 2006-08-30 16:03:27 cvsbert Exp $";
 
 
 #include "welltransl.h"
@@ -17,29 +17,9 @@ static const char* rcsID = "$Id: welltransl.cc,v 1.9 2004-07-16 15:35:26 bert Ex
 #include "strmprov.h"
 #include "filepath.h"
 
-const IOObjContext& WellTranslatorGroup::ioContext()
-{
-    static IOObjContext* ctxt = 0;
+mDefSimpleTranslatorSelector(Well,sKeyWellTranslatorGroup)
+mDefSimpleTranslatorioContext(Well,WllInf)
 
-    if ( !ctxt )
-    {
-	ctxt = new IOObjContext( &theInst() );
-	ctxt->crlink = false;
-	ctxt->newonlevel = 1;
-	ctxt->needparent = false;
-	ctxt->maychdir = false;
-	ctxt->stdseltype = IOObjContext::WllInf;
-    }
-
-    return *ctxt;
-}
-
-
-int WellTranslatorGroup::selector( const char* key )
-{
-    int retval = defaultSelector( theInst().userName(), key );
-    return retval;
-}
 
 #define mImplStart(fn) \
     if ( !ioobj || strcmp(ioobj->translator(),"dGB") ) return false; \

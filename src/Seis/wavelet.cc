@@ -5,7 +5,7 @@
  * FUNCTION : Wavelet
 -*/
 
-static const char* rcsID = "$Id: wavelet.cc,v 1.19 2006-08-21 17:14:45 cvsbert Exp $";
+static const char* rcsID = "$Id: wavelet.cc,v 1.20 2006-08-30 16:03:27 cvsbert Exp $";
 
 #include "wavelet.h"
 #include "seisinfo.h"
@@ -165,24 +165,6 @@ void Wavelet::transform( float constant, float factor )
 }
 
 
-const IOObjContext& WaveletTranslatorGroup::ioContext()
-{
-    static IOObjContext* ctxt = 0;
-
-    if ( !ctxt )
-    {
-	ctxt = new IOObjContext( &theInst() );
-	ctxt->crlink = NO;
-	ctxt->newonlevel = 1;
-	ctxt->needparent = NO;
-	ctxt->maychdir = NO;
-	ctxt->stdseltype = IOObjContext::Seis;
-    }
-
-    return *ctxt;
-}
-
-
 int WaveletTranslatorGroup::selector( const char* key )
 {
     int retval = defaultSelector( theInst().userName(), key );
@@ -192,6 +174,8 @@ int WaveletTranslatorGroup::selector( const char* key )
       || defaultSelector("Seismic directory",key) ) return 1;
     return 0;
 }
+
+mDefSimpleTranslatorioContext(Wavelet,Seis)
 
 
 static char* sLength	= "Length";

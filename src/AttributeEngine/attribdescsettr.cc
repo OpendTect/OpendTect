@@ -4,7 +4,7 @@
  * DATE     : May 2001
 -*/
 
-static const char* rcsID = "$Id: attribdescsettr.cc,v 1.3 2006-02-20 18:49:48 cvsbert Exp $";
+static const char* rcsID = "$Id: attribdescsettr.cc,v 1.4 2006-08-30 16:03:26 cvsbert Exp $";
 
 #include "attribdescsettr.h"
 #include "attrfact.h"
@@ -16,32 +16,8 @@ static const char* rcsID = "$Id: attribdescsettr.cc,v 1.3 2006-02-20 18:49:48 cv
 #include "ptrman.h"
 
 
-const IOObjContext& AttribDescSetTranslatorGroup::ioContext()
-{
-    static IOObjContext* ctxt = 0;
-
-    if ( !ctxt )
-    {
-	ctxt = new IOObjContext( &theInst() );
-	ctxt->crlink = false;
-	ctxt->newonlevel = 1;
-	ctxt->needparent = false;
-	ctxt->maychdir = false;
-	ctxt->stdseltype = IOObjContext::Attr;
-    }
-
-    return *ctxt;
-}
-
-
-int AttribDescSetTranslatorGroup::selector( const char* key )
-{
-    int retval = defaultSelector( theInst().userName(), key );
-    if ( retval ) return retval;
-
-    if ( defaultSelector("Attribute definitions",key) ) return 1;
-    return 0;
-}
+mDefSimpleTranslatorSelector(AttribDescSet,sKeyAttribDescSetTranslatorGroup)
+mDefSimpleTranslatorioContext(AttribDescSet,Attr)
 
 
 bool AttribDescSetTranslator::retrieve( Attrib::DescSet& ads,

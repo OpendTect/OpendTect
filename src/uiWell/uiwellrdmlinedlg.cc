@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          October 2005
- RCS:           $Id: uiwellrdmlinedlg.cc,v 1.11 2006-08-16 10:51:20 cvsbert Exp $
+ RCS:           $Id: uiwellrdmlinedlg.cc,v 1.12 2006-08-30 16:03:27 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -213,7 +213,7 @@ void uiWell2RandomLineDlg::fillListBox()
 {
     PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(Well);
     ctio->ctxt.forread = true;
-    IOM().to( MultiID(IOObjContext::getStdDirData(ctio->ctxt.stdseltype)->id) );
+    IOM().to( ctio->ctxt.getSelKey() );
     IODirEntryList entrylist( IOM().dirPtr(), ctio->ctxt );
 
     for ( int idx=0; idx<entrylist.size(); idx++ )

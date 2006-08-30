@@ -7,13 +7,16 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		May 2001
- RCS:		$Id: attrfact.h,v 1.1 2005-06-02 07:17:06 cvsnanne Exp $
+ RCS:		$Id: attrfact.h,v 1.2 2006-08-30 16:03:26 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "attribdescsettr.h"
-defineTranslatorGroup(AttribDescSet,"Attribute definitions");
+
+#define sKeyAttribDescSetTranslatorGroup "Attribute definitions"
+
+defineTranslatorGroup(AttribDescSet,sKeyAttribDescSetTranslatorGroup);
 defineTranslator(dgb,AttribDescSet,mDGBKey);
 
 

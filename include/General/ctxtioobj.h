@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		7-1-1996
- RCS:		$Id: ctxtioobj.h,v 1.24 2006-08-21 17:14:44 cvsbert Exp $
+ RCS:		$Id: ctxtioobj.h,v 1.25 2006-08-30 16:03:26 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,6 +25,9 @@ class TranslatorGroup;
 
 Usually, this objects is obtained by calling the ioContext() method of
 a certain TranslatorGroup.
+
+Note, that if the StdSelType is set to None, you must provide the selkey or
+we'll be blobbing stuff in the root of the survey.
 
 */
 
@@ -50,16 +53,12 @@ public:
     StdSelType		stdseltype;
     const TranslatorGroup* trgroup;	//!< Mandatory, must never be 0
     int			newonlevel;	//!< level 0 is survey dir
-    bool		crlink;		//!< Create subdir with new entry
-    bool		needparent;	//!< Does object have a 'parent'
-    int			parentlevel;	//!< On what level can parent be found
-    const TranslatorGroup* partrgroup;	//!< If !0, parent needed for create
     bool		multi;		//!< If true, multi allowed
     bool		maychdir;	//!< If not, only select from curdir
 
     //! this selection only
     bool		forread;
-    MultiID		parentkey;	//!< If set, require this parent
+    MultiID		selkey;		//!< If set, overrules the 'standard'
     bool		maydooper;	//!< Will we allow add/remove etc?
     BufferString	deftransl;	//!< Translator to use for new entry
     BufferString	trglobexpr;	//!< Only select when matches globexpr
@@ -85,12 +84,16 @@ public:
     static BufferString		getDataDirName(StdSelType);
     				//!< Including legacy names - smart
 
-    inline bool		hasStdSelType() const	{ return stdseltype != None; }
-    MultiID		stdSelKey() const
-			{ return MultiID(getStdDirData(stdseltype)->id); }
+    inline bool		hasStdSelKey() const	{ return stdseltype != None; }
+    inline MultiID	getSelKey() const
+			{
+			    return *((const char*)selkey) ? selkey
+				 : MultiID( stdseltype == None ? ""
+				 : getStdDirData(stdseltype)->id );
+			}
     void		fillTrGroup();
     			//!< Uses stdseltype to make a trgroup
-    			//!< SHould never be necessary
+    			//!< Should never be necessary
 
 private:
 

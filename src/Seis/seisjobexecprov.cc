@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: seisjobexecprov.cc,v 1.23 2006-08-09 10:35:34 cvsbert Exp $";
+static const char* rcsID = "$Id: seisjobexecprov.cc,v 1.24 2006-08-30 16:03:27 cvsbert Exp $";
 
 #include "seisjobexecprov.h"
 #include "seistrctr.h"
@@ -307,7 +307,7 @@ MultiID SeisJobExecProv::tempStorID() const
     FilePath fp( iopar_.find(sKey::TmpStor) );
 
     // Is there already an entry?
-    IOM().to( ctio_.ctxt.stdSelKey() );
+    IOM().to( ctio_.ctxt.getSelKey() );
     IODirEntryList el( IOM().dirPtr(), ctio_.ctxt );
     const BufferString fnm( fp.fullPath() );
     for ( int idx=0; idx<el.size(); idx++ )

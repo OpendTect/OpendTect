@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emsticksettransl.cc,v 1.7 2004-04-28 21:30:59 bert Exp $";
+static const char* rcsID = "$Id: emsticksettransl.cc,v 1.8 2006-08-30 16:03:27 cvsbert Exp $";
 
 #include "emsticksettransl.h"
 
@@ -35,28 +35,9 @@ const char* lmkEMStickSetTranslator::distancunitestr="FAULT_DISTANCE_UNIT";
 const char* lmkEMStickSetTranslator::lineidstr="FAULT_LINEID";
 const char* lmkEMStickSetTranslator::tracestr="FAULT_TRACE";
 
-const IOObjContext& EMStickSetTranslatorGroup::ioContext()
-{
-    static IOObjContext* ctxt = 0;
 
-    if ( !ctxt )
-    {
-	ctxt = new IOObjContext( &theInst() );
-	ctxt->crlink = false;
-	ctxt->newonlevel = 1;
-	ctxt->needparent = false;
-	ctxt->maychdir = false;
-	ctxt->stdseltype = IOObjContext::Surf;
-    }
-
-    return *ctxt;
-}
-
-
-int EMStickSetTranslatorGroup::selector( const char* key )
-{
-    return defaultSelector( keyword, key );
-}
+mDefSimpleTranslatorSelector(EMStickSet,keyword)
+mDefSimpleTranslatorioContext(EMStickSet,Surf)
 
 
 Executor* EMStickSetTranslator::reader( EM::StickSet& hor, const IOObj* ioobj,
