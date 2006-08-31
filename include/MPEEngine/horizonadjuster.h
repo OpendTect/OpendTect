@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          January 2005
- RCS:           $Id: horizonadjuster.h,v 1.17 2006-06-06 14:07:36 cvsjaap Exp $
+ RCS:           $Id: horizonadjuster.h,v 1.18 2006-08-31 10:49:01 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -117,7 +117,8 @@ private:
      ValueSeriesEvent<float, float>
 	 		findExtreme( const ValueSeriesEvFinder<float, float>&,
 				 const Interval<float>& rg, float threshold,
-				 float& avgampl, bool& hasloopskips ) const;
+				 float& avgampl, bool& hasloopskips,
+				 float& troughampl) const;
      			/*!<\param avgamp	The average value from the
 						rg.start to the found extreme.
      			    \param threshold	The min/max amplitude that is

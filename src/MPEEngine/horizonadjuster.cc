@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizonadjuster.cc,v 1.30 2006-06-06 14:28:49 cvsjaap Exp $";
+static const char* rcsID = "$Id: horizonadjuster.cc,v 1.31 2006-08-31 10:49:01 cvsjaap Exp $";
 
 #include "horizonadjuster.h"
 
@@ -312,16 +312,30 @@ bool HorizonAdjuster::snap( const BinID& bid,
     {
 	float upampl;
 	bool uploopskip;
+	float uptroughampl;
 	ValueSeriesEvent<float,float> upevent =
-	    findExtreme(evfinder,uprg,threshold,upampl,uploopskip);
+	    findExtreme(evfinder,uprg,threshold,upampl,uploopskip,uptroughampl);
 
 	float dnampl;
 	bool dnloopskip;
+	float dntroughampl;
 	ValueSeriesEvent<float,float> dnevent =
-	    findExtreme(evfinder,dnrg,threshold,dnampl,dnloopskip);
+	    findExtreme(evfinder,dnrg,threshold,dnampl,dnloopskip,dntroughampl);
 
-	const bool upfound = !mIsUdf(upevent.pos);
-	const bool dnfound = !mIsUdf(dnevent.pos);
+	float troughthreshold = -0.1*threshold;
+	if ( evtype_==VSEvent::Min )
+	{
+	    troughthreshold *= -1;
+	    uptroughampl *= -1;
+	    dntroughampl *= -1;
+	    upampl *= -1;
+	    dnampl *= -1;
+	}
+
+	const bool upfound = !mIsUdf(upevent.pos) &&
+	    uptroughampl>=troughthreshold;
+	const bool dnfound = !mIsUdf(dnevent.pos) &&
+	    dntroughampl>=troughthreshold;
 
 	if ( !upfound && !dnfound )
 	    return false;
@@ -331,12 +345,6 @@ bool HorizonAdjuster::snap( const BinID& bid,
 		targetz = uploopskip ? dnevent.pos : upevent.pos;
 	    else
 	    {
-		if ( evtype_==VSEvent::Min )
-		{
-		    upampl *= -1;
-		    dnampl *= -1;
-		}
-
 		targetz = upampl>dnampl ?  upevent.pos : dnevent.pos;
 	    }
 	}
@@ -356,7 +364,7 @@ bool HorizonAdjuster::snap( const BinID& bid,
 ValueSeriesEvent<float,float> HorizonAdjuster::findExtreme(
 		    const ValueSeriesEvFinder<float, float>& eventfinder,
 		    const Interval<float>& rg, float threshold, float& avgampl,
-		    bool& hasloopskips ) const
+		    bool& hasloopskips, float& troughampl ) const
 {
     const SamplingData<float>& sd = eventfinder.samplingData();
     const ValueSeries<float>& valser = eventfinder.valueSeries();
@@ -385,15 +393,27 @@ ValueSeriesEvent<float,float> HorizonAdjuster::findExtreme(
     const int inc = amplsumrg.start>amplsumrg.stop ? -1 : 1;
     avgampl = 0;
     hasloopskips = false;
+    bool troughamplset = false;
+
     float prev = valser.value(amplsumrg.start);
     for ( int idx=amplsumrg.start;
 	  inc>0?idx<=amplsumrg.stop:idx>=amplsumrg.stop; idx+=inc )
     {
 	const float val = valser.value(idx);
+	if ( !troughamplset ||
+		(evtype_==VSEvent::Min && val>troughampl ) ||
+		(evtype_==VSEvent::Max && val<troughampl ) )
+	{
+	    troughamplset = true;
+	    troughampl = val;
+	}
+
 	if ( !hasloopskips &&
-		(evtype_==VSEvent::Min && val>prev ) ||
-		(evtype_==VSEvent::Max && val<prev ) )
+		((evtype_==VSEvent::Min && val>prev ) ||
+		 (evtype_==VSEvent::Max && val<prev )) )
+	{
 	    hasloopskips = true;
+	}
 
 	avgampl += val;
     }
