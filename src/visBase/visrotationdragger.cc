@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2002
- RCS:           $Id: visrotationdragger.cc,v 1.2 2006-08-03 15:09:25 cvskris Exp $
+ RCS:           $Id: visrotationdragger.cc,v 1.3 2006-09-01 07:45:43 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -92,23 +92,28 @@ bool RotationDragger::isOn() const
 }
 
 
+void RotationDragger::setCallbacks( SoDragger* dragger )
+{
+    dragger->addStartCallback( RotationDragger::startCB, this );
+    dragger->addMotionCallback( RotationDragger::motionCB, this );
+    dragger->addValueChangedCallback(
+	    RotationDragger::valueChangedCB, this );
+    dragger->addFinishCallback( RotationDragger::finishCB, this );
+}
+
+
+
 SoNode* RotationDragger::getInventorNode()
 {
     if ( !getDragger() )
     {
 	spheredragger_ = new SoRotateSphericalDragger;
 	spheredragger_->ref();
+	setCallbacks( spheredragger_ );
     }
 
-    if ( !onoff_ || !onoff_->getNumChildren()  )
-    {
-	if ( onoff_ ) onoff_->addChild( getDragger() );
-	getDragger()->addStartCallback( RotationDragger::startCB, this );
-	getDragger()->addMotionCallback( RotationDragger::motionCB, this );
-	getDragger()->addValueChangedCallback(RotationDragger::valueChangedCB,
-			this );
-	getDragger()->addFinishCallback( RotationDragger::finishCB, this );
-    }
+    if ( onoff_ && !onoff_->getNumChildren()  )
+	onoff_->addChild( getDragger() );
 
     return onoff_ ? (SoNode*)onoff_ : (SoNode*)getDragger();
 }
@@ -120,6 +125,8 @@ void RotationDragger::doAxisRotate()
 
     cyldragger_ = new SoRotateDiscDragger;
     cyldragger_->ref();
+    setCallbacks( cyldragger_ );
+
     if ( onoff_ ) onoff_->addChild( cyldragger_ );
 }
 

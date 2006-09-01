@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		July 2006
- RCS:		$Id: visrotationdragger.h,v 1.1 2006-07-28 21:57:42 cvskris Exp $
+ RCS:		$Id: visrotationdragger.h,v 1.2 2006-09-01 07:45:43 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -62,6 +62,7 @@ public:
 protected:
 				~RotationDragger();
     SoDragger*			getDragger();
+    void			setCallbacks( SoDragger* );
 
     static void			startCB( void*, SoDragger* );
     static void			motionCB( void*, SoDragger* );
