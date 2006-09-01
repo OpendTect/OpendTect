@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2005
- RCS:           $Id: treeitem.cc,v 1.3 2006-07-28 21:58:28 cvskris Exp $
+ RCS:           $Id: treeitem.cc,v 1.4 2006-09-01 07:50:32 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -391,7 +391,7 @@ void SubItem::store() const
 
 bool SubItem::doesNameExist( const char* nm, const char* mannm )
 {
-    IOM().to( PickSetTranslatorGroup::ioContext().stdSelKey() );
+    IOM().to( PickSetTranslatorGroup::ioContext().getSelKey() );
     PtrMan<IOObj> local = IOM().getLocal( nm );
     if ( !local )
 	return false;
@@ -431,12 +431,12 @@ void SubItem::storeAs( bool trywitoutdlg ) const
     Pick::SetMgr& mgr = Pick::SetMgr::getMgr( managerName() );
     const int setidx = mgr.indexOf( *set_ );
 
-    const char* name = set_->name();
+    const char* nm = set_->name();
     MultiID mid;
 
     if ( trywitoutdlg )
     {
-	const char res = createIOEntry( name, false, mid, managerName() );
+	const char res = createIOEntry( nm, false, mid, managerName() );
 	if ( res==-1 )
 	    return;
 	if ( res==0 )
@@ -452,7 +452,7 @@ void SubItem::storeAs( bool trywitoutdlg ) const
 	ctio.ctxt.maychdir = false;
 	ctio.ctxt.parconstraints.set( sKey::Type, managerName() );
 	ctio.ctxt.includeconstraints = true;
-	ctio.setName( name );
+	ctio.setName( nm );
 	uiIOObjSelDlg dlg( getUiParent(), ctio );
 	if ( !dlg.go() )
 	{

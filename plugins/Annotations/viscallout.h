@@ -7,15 +7,13 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		January 2005
- RCS:		$Id: viscallout.h,v 1.3 2006-08-04 21:46:17 cvskris Exp $
+ RCS:		$Id: viscallout.h,v 1.4 2006-09-01 07:50:32 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
-//#include "vistext.h"
 #include "vislocationdisplay.h"
-//#include "position.h"
 
 namespace Annotations
 {
@@ -35,6 +33,9 @@ public:
 
 protected:
      visBase::VisualObject*	createLocation() const;
+
+     void			showManipulator(bool);
+     bool			isManipulatorShown() const;
      void			setPosition(int loc,const Pick::Location& );
      bool			hasDirection() const { return true; }
      bool			hasText() const { return true; }

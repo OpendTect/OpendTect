@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Jan 2005
- RCS:           $Id: viscallout.cc,v 1.4 2006-08-23 19:02:20 cvskris Exp $
+ RCS:           $Id: viscallout.cc,v 1.5 2006-09-01 07:50:32 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,6 +46,8 @@ public:
     void			reportChangedScale() { updateArrow(); }
 
     void			displayMarker(bool);
+    				//!<Aslo controls the draggers. */
+    bool			isMarkerDisplayed() const;
     void			setDisplayTransformation(mVisTrans*);
     int				getMarkerID() const { return marker_->id(); }
 
@@ -68,7 +70,7 @@ protected:
     visBase::Transformation*	scale_;	 
 
     visBase::PolygonOffset*	textoffset_;	//In object space
-    visBase::TextBox*		text_;
+    visBase::TextBox*		fronttext_;
     visBase::FaceSet*		faceset_;	
     visBase::Dragger*		translationdragger_;	
 
@@ -80,6 +82,9 @@ protected:
     Coord3			rotfeedbackpos_;
     Coord3			dragstarttextpos_;
     Coord3			dragstartdraggerpos_;
+
+    visBase::Rotation*		backtextrotation_; //In backtext space
+    visBase::TextBox*		backtext_;
 
     bool			isdragging_;
 };
@@ -101,7 +106,9 @@ mCreateFactoryEntry( Callout );
 
 Callout::Callout()
     : visBase::VisualObjectImpl( false )
-    , text_( visBase::TextBox::create() )
+    , fronttext_( visBase::TextBox::create() )
+    , backtext_( visBase::TextBox::create() )
+    , backtextrotation_( visBase::Rotation::create() )
     , textoffset_( visBase::PolygonOffset::create() )
     , faceset_( visBase::FaceSet::create() )
     , marker_( visBase::Marker::create() )
@@ -124,6 +131,7 @@ Callout::Callout()
     addChild( object2display_->getInventorNode() );
 
     rotdragger_->ref();
+    rotdragger_->turnOn(true); //To create switch internally
     rotdragger_->doAxisRotate();
     addChild( rotdragger_->getInventorNode() );
     rotfeedback_->setMaterial( visBase::Material::create() );
@@ -170,14 +178,21 @@ Callout::Callout()
     //textoffset_->setFactor( -10 );
     textoffset_->setUnits( -2 );
 
-    addChild( textoffset_->getInventorNode() );
-    mAddChild( text_, true );
+    //addChild( textoffset_->getInventorNode() );
+    mAddChild( fronttext_, true );
+
+    backtextrotation_->ref();
+    backtextrotation_->set( Coord3( 0, 1, 0 ), M_PI );
+    addChild( backtextrotation_->getInventorNode() );
+    mAddChild( backtext_, true );
 }
 
 
 Callout::~Callout()
 {
-    text_->unRef();
+    fronttext_->unRef();
+    backtext_->unRef();
+    backtextrotation_->unRef();
     textoffset_->unRef();
     faceset_->unRef();
     marker_->unRef();
@@ -194,7 +209,7 @@ Callout::~Callout()
 
 Sphere Callout::getDirection() const
 {
-    Coord3 textpos = text_->position();
+    Coord3 textpos = fronttext_->position();
     textpos = Coord3( textpos.x, textpos.z, textpos.y );
     if ( scale_ ) textpos = scale_->transform( textpos );
 
@@ -224,9 +239,10 @@ void Callout::setPick( const Pick::Location& loc )
     object2display_->setTranslation( pickpos );
 
     Coord3 textpos( sin(loc.dir.theta)*loc.dir.radius, 0,
-	           cos(loc.dir.theta)*loc.dir.radius );
+	            cos(loc.dir.theta)*loc.dir.radius );
     if ( scale_ ) textpos = scale_->transformBack( textpos );
-    text_->setPosition( Coord3( textpos.x, textpos.z, textpos.y) );
+
+    fronttext_->setPosition( Coord3(textpos.x,textpos.z, 0.1));
 
     const Quaternion rot1( Coord3( 0,0,1 ), loc.dir.phi );
     static const Quaternion rot2( Coord3( 1, 0, 0 ), M_PI_2 );
@@ -234,14 +250,15 @@ void Callout::setPick( const Pick::Location& loc )
     rotation_->set( rot1*rot2 );
     rotdragger_->set( rot1 );
 
-    if ( loc.text && strcmp( loc.text->buf(), text_->getText() ) )
+    if ( loc.text && strcmp( loc.text->buf(), fronttext_->getText() ) )
 	setText( loc.text->buf() );
 }
 
 
 void Callout::setTextSize( float ns )
 {
-    text_->setSize(ns);
+    fronttext_->setSize(ns);
+    backtext_->setSize(ns);
     updateCoords();
 
     rotfeedbackradius_ = ns/3;
@@ -254,7 +271,8 @@ void Callout::setTextSize( float ns )
 
 void Callout::dragStart( CallBacker* cb )
 {
-    dragstarttextpos_ = text_->position();
+    dragstarttextpos_ = fronttext_->position();
+    dragstarttextpos_.z = 0;
     dragstartdraggerpos_ = translationdragger_->getPos();
 }
 
@@ -275,7 +293,9 @@ void Callout::dragChanged( CallBacker* cb )
 	isdragging_ = true;
 	Coord3 dragpos = translationdragger_->getPos();
 	dragpos.z = 0;
-	text_->setPosition( dragstarttextpos_+ dragpos -dragstartdraggerpos_ );
+	Coord3 newpos = dragstarttextpos_+ dragpos -dragstartdraggerpos_;
+	newpos.z = 0.1;
+	fronttext_->setPosition( newpos );
 	updateCoords();
     }
 }
@@ -300,7 +320,10 @@ void Callout::setBoxMaterial( visBase::Material* mat )
 
 
 void Callout::setTextMaterial( visBase::Material* mat )
-{ text_->setMaterial( mat ); }
+{
+    fronttext_->setMaterial( mat );
+    backtext_->setMaterial( mat );
+}
 
 
 void Callout::setScale( visBase::Transformation* nt )
@@ -320,7 +343,17 @@ void Callout::setScale( visBase::Transformation* nt )
     
 
 void Callout::displayMarker( bool yn )
-{ marker_->turnOn( yn ); }
+{
+    marker_->turnOn( yn );
+    rotdragger_->turnOn( yn );
+    translationdragger_->turnOn( yn );
+}
+
+
+bool Callout::isMarkerDisplayed() const
+{
+    return marker_->isOn();
+}
 
 
 void Callout::setDisplayTransformation( visBase::Transformation* nt )
@@ -340,7 +373,8 @@ void Callout::setDisplayTransformation( visBase::Transformation* nt )
 
 void Callout::setText( const char* txt )
 {
-    text_->setText( txt );
+    fronttext_->setText( txt );
+    backtext_->setText( txt );
     updateCoords();
 }
 
@@ -348,8 +382,9 @@ void Callout::setText( const char* txt )
 void Callout::updateCoords()
 {
     Coord3 minpos, maxpos;
-    if ( text_->getBoundingBox(minpos, maxpos) )
+    if ( fronttext_->getBoundingBox(minpos, maxpos) )
     {
+	minpos.z = maxpos.z = 0;
 	const Coord3 center = (minpos+maxpos)/2;
 	Coord3 hwidth = (maxpos-minpos)/2;
 	hwidth.x *= 1.1;
@@ -373,9 +408,15 @@ void Callout::updateCoords()
 	faceset_->getCoordinates()->setPos( 10, (2*c10+c00)/3 );
 	faceset_->getCoordinates()->setPos( 11, (c10+2*c00)/3 );
 
-	const Coord3& dragcorner = fabs(c11.x)>fabs(c01.x) ? c11 : c01;
+	const bool dragcorner11 = fabs(c11.x)>fabs(c01.x);
+	const Coord3& dragcorner = dragcorner11 ? c11 : c01;
 
 	rotfeedbackpos_ =  Coord3( dragcorner.x, dragcorner.z, dragcorner.y );
+	if ( dragcorner11 ) 
+	    rotfeedbackradius_ = fronttext_->size()/3;
+	else
+	    rotfeedbackradius_ = -fronttext_->size()/3;
+
 	setupRotFeedback();
 	if ( !isdragging_ )
 	    translationdragger_->setPos( dragcorner );
@@ -388,6 +429,11 @@ void Callout::updateCoords()
 
 	faceset_->setCoordIndex( mLastBoxCI, -1 );
     }
+
+    Coord3 backtextpos = fronttext_->position() +
+			 Coord3( maxpos.x-minpos.x-backtext_->size()/10, 0, 0 );
+    backtextpos = backtextrotation_->transform( backtextpos );
+    backtext_->setPosition( Coord3(backtextpos.x, backtextpos.y, 0.1) );
 
     updateArrow();
 }
@@ -674,6 +720,7 @@ visBase::VisualObject* CalloutDisplay::createLocation() const
     {
 	mDynamicCastGet( Callout*, call, group_->getObject(0) );
 	res->setScale( call->getScale() );
+	res->displayMarker( call->isMarkerDisplayed() );
     }
     else
     {
@@ -685,6 +732,35 @@ visBase::VisualObject* CalloutDisplay::createLocation() const
 }
 
 
+void CalloutDisplay::showManipulator( bool yn )
+{
+    if ( isManipulatorShown()==yn )
+	return;
+
+    for ( int idx=group_->size()-1; idx>=0; idx-- )
+    {
+	mDynamicCastGet( Callout*, callout, group_->getObject(idx) );
+	if ( !callout )
+	    continue;
+
+	callout->displayMarker( yn );
+    }
+}
+	
+
+bool CalloutDisplay::isManipulatorShown() const
+{
+    if ( !group_->size() )
+	return false;
+
+    mDynamicCastGet( Callout*, callout, group_->getObject(0) );
+    if ( !callout )
+	return false;
+
+    return callout->isMarkerDisplayed();
+}
+
+
 int CalloutDisplay::isMarkerClick(const TypeSet<int>& path) const
 {
     for ( int idx=group_->size()-1; idx>=0; idx-- )
@@ -693,7 +769,7 @@ int CalloutDisplay::isMarkerClick(const TypeSet<int>& path) const
 	if ( !callout )
 	    continue;
 	
-	if ( callout && path.indexOf(callout->getMarkerID())!=-1 )
+	if ( path.indexOf(callout->getMarkerID())!=-1 )
 	    return idx;
     }
 
