@@ -4,10 +4,8 @@
 /*+
 ________________________________________________________________________
 CopyRight:     (C) dGB Beheer B.V.
-Author:        A.H. Bril
-Date:          23-10-1996
-Contents:      Ranges
-RCS:           $Id: parametricsurface.h,v 1.14 2006-05-24 07:49:55 cvskris Exp $
+Author:        K. Tingdahl
+RCS:           $Id: parametricsurface.h,v 1.15 2006-09-05 21:35:49 cvskris Exp $
 ________________________________________________________________________
 
 -*/
