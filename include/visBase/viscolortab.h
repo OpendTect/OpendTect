@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viscolortab.h,v 1.12 2005-12-26 20:33:53 cvskris Exp $
+ RCS:		$Id: viscolortab.h,v 1.13 2006-09-05 20:53:06 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -33,23 +33,22 @@ public:
 				mCreateDataObj(VisColorTab);
 
     bool			autoScale() const;
-    void			setAutoScale( bool yn );
+    void			setAutoScale(bool yn);
     float			clipRate() const;
-    void			setClipRate( float );
-    void			scaleTo( const Interval<float>& rg );
-    void			scaleTo( const float* values, int nrvalues );
+    void			setClipRate(float);
+    void			scaleTo(const Interval<float>& rg);
+    void			scaleTo(const float* values, int nrvalues);
     				/*!< Does only work if autoscale is true */
     Interval<float>		getInterval() const;
 
-    void			setNrSteps( int );
+    void			setNrSteps(int);
     int				nrSteps() const;
-    int				colIndex( float val ) const;
-    				/*!< return 0-nrSteps()-1 
-				     nrSteps() = undef; */
-    Color			tableColor( int idx ) const;
+    int				colIndex(float val) const;
+    				/*!< return 0-nrSteps()-1 nrSteps() = undef; */
+    Color			tableColor(int idx) const;
     Color			color(float) const;
 
-    void			setColorSeq( ColorSequence* );
+    void			setColorSeq(ColorSequence*);
     const ColorSequence&	colorSeq() const;
     ColorSequence&		colorSeq();
 
@@ -61,24 +60,24 @@ public:
     void			triggerSeqChange();
     void			triggerAutoScaleChange();
 
-    int				usePar( const IOPar& );
-    void			fillPar( IOPar&, TypeSet<int>& ) const;
+    int				usePar(const IOPar&);
+    void			fillPar(IOPar&,TypeSet<int>&) const;
 
 protected:
     virtual			~VisColorTab();
 
     void			colorseqchanged();
 
-    ColorSequence*		colseq;
-    LinScaler&			scale;
+    ColorSequence*		colseq_;
+    LinScaler&			scale_;
 
-    bool			autoscale;
-    float			cliprate;
+    bool			autoscale_;
+    float			cliprate_;
 
-    static const char*		colorseqidstr;
-    static const char*		scalefactorstr;
-    static const char*		clipratestr;
-    static const char*		autoscalestr;
+    static const char*		sKeyColorSeqID();
+    static const char*		sKeyScaleFactor();
+    static const char*		sKeyClipRate();
+    static const char*		sKeyAutoScale();
 };
 
 }; // Namespace

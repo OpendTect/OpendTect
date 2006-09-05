@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viscolorseq.h,v 1.7 2003-11-07 12:21:54 bert Exp $
+ RCS:		$Id: viscolorseq.h,v 1.8 2006-09-05 20:53:06 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -33,24 +33,23 @@ public:
     static ColorSequence*	create()
 				mCreateDataObj(ColorSequence);
 
-    void			loadFromStorage( const char* nm );
+    void			loadFromStorage(const char* nm);
 			
-    ColorTable&		colors();
-    const ColorTable&	colors() const;
-    void		colorsChanged();
-			/*!< If you change the Colortable, notify me with
-			     this function
-			*/
+    ColorTable&			colors();
+    const ColorTable&		colors() const;
+    void			colorsChanged();
+				/*!< If you change the Colortable, notify me
+				     with this function */
 
     Notifier<ColorSequence>	change;
 
-    int				usePar( const IOPar& );
-    void			fillPar( IOPar&, TypeSet<int>& ) const;
+    int				usePar(const IOPar&);
+    void			fillPar(IOPar&,TypeSet<int>&) const;
 protected:
-    virtual		~ColorSequence();
+    virtual			~ColorSequence();
 
 
-    ColorTable&			coltab;
+    ColorTable&			coltab_;
 };
 
 }; // Namespace

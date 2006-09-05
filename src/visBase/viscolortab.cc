@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Mar 2002
- RCS:           $Id: viscolortab.cc,v 1.29 2006-07-21 21:29:30 cvskris Exp $
+ RCS:           $Id: viscolortab.cc,v 1.30 2006-09-05 20:53:06 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,20 +21,20 @@ mCreateFactoryEntry( visBase::VisColorTab );
 namespace visBase
 {
 
-const char* VisColorTab::colorseqidstr = "ColorSeq ID";
-const char* VisColorTab::scalefactorstr = "Scale Factor";
-const char* VisColorTab::clipratestr = "Cliprate";
-const char* VisColorTab::autoscalestr = "Auto scale";
+const char* VisColorTab::sKeyColorSeqID()	{ return "ColorSeq ID"; }
+const char* VisColorTab::sKeyScaleFactor()	{ return "Scale Factor"; }
+const char* VisColorTab::sKeyClipRate()		{ return "Cliprate"; }
+const char* VisColorTab::sKeyAutoScale()	{ return "Auto scale"; }
 
 
 VisColorTab::VisColorTab()
     : sequencechange( this )
     , rangechange( this )
     , autoscalechange( this )
-    , colseq( 0 )
-    , scale( *new LinScaler )
-    , autoscale( true )
-    , cliprate( 0.025 )
+    , colseq_( 0 )
+    , scale_( *new LinScaler )
+    , autoscale_( true )
+    , cliprate_( 0.025 )
 {
     setColorSeq( ColorSequence::create() );
 }
@@ -42,68 +42,69 @@ VisColorTab::VisColorTab()
 
 VisColorTab::~VisColorTab()
 {
-    if ( colseq )
+    if ( colseq_ )
     {
-	colseq->change.remove( mCB( this, VisColorTab, colorseqchanged ));
-	colseq->unRef();
+	colseq_->change.remove( mCB( this, VisColorTab, colorseqchanged ));
+	colseq_->unRef();
     }
 
-    delete &scale;
+    delete &scale_;
 }
 
 
 bool VisColorTab::autoScale() const
-{ return autoscale; }
+{ return autoscale_; }
 
 
 void VisColorTab::setAutoScale( bool yn )
 {
-    if ( yn==autoscale ) return;
+    if ( yn==autoscale_ ) return;
 
-    autoscale = yn;
-    if ( autoscale ) autoscalechange.trigger();
+    autoscale_ = yn;
+    if ( autoscale_ ) autoscalechange.trigger();
 }
 
 
 float VisColorTab::clipRate() const
 {
-    return cliprate;
+    return cliprate_;
 }
 
 
 void VisColorTab::setClipRate( float ncr )
 {
-    if ( mIsEqual(ncr,cliprate,mDefEps) ) return;
+    if ( mIsEqual(ncr,cliprate_,mDefEps) ) return;
 
-    cliprate = ncr;
-    if ( autoscale ) autoscalechange.trigger();
+    cliprate_ = ncr;
+    if ( autoscale_ ) autoscalechange.trigger();
 }
 
 
 void VisColorTab::scaleTo( const float* values, int nrvalues )
 {
-    DataClipper clipper( cliprate );
+    DataClipper clipper( cliprate_ );
     clipper.setApproxNrValues( nrvalues, 5000 );
     clipper.putData( values, nrvalues );
-    scaleTo( clipper.calculateRange() ? clipper.getRange() : Interval<float>( 0, 1 ) );
+    scaleTo( clipper.calculateRange() ?
+	     clipper.getRange() : Interval<float>( 0, 1 ) );
 }
 
 
 Color  VisColorTab::color( float val ) const
 {
-    return colseq->colors().color( scale.scale( val ), false );
+    return colseq_->colors().color( scale_.scale( val ), false );
 }
 
 
 void VisColorTab::setNrSteps( int idx )
 {
-    return colseq->colors().calcList( idx );
+    return colseq_->colors().calcList( idx );
 }
 
 
 int VisColorTab::nrSteps() const
 {
-    return colseq->colors().nrColors();
+    return colseq_->colors().nrColors();
 }
 
 
@@ -111,14 +112,14 @@ int VisColorTab::colIndex( float val ) const
 {
     if ( mIsUdf(val) )
 	return nrSteps();
-    return colseq->colors().colorIdx( scale.scale( val ), nrSteps() );
+    return colseq_->colors().colorIdx( scale_.scale( val ), nrSteps() );
 }
 
 
 Color VisColorTab::tableColor( int idx ) const
 {
     return idx==nrSteps()
-    	? colseq->colors().undefcolor_ : colseq->colors().tableColor(idx);
+    	? colseq_->colors().undefcolor_ : colseq_->colors().tableColor(idx);
 }
 
 
@@ -127,14 +128,14 @@ void VisColorTab::scaleTo( const Interval<float>& rg )
     float width = rg.width();
     if ( mIsZero(width,mDefEps) )
     {
-	scale.constant = rg.start;
-	scale.factor = 0;
+	scale_.constant = rg.start;
+	scale_.factor = 0;
     }
     else
     {
-	scale.factor = 1.0/rg.width();
-	if ( rg.start > rg.stop ) scale.factor *= -1;
-	scale.constant = -rg.start*scale.factor;
+	scale_.factor = 1.0/rg.width();
+	if ( rg.start > rg.stop ) scale_.factor *= -1;
+	scale_.constant = -rg.start*scale_.factor;
     }
 
     rangechange.trigger();
@@ -143,33 +144,33 @@ void VisColorTab::scaleTo( const Interval<float>& rg )
 
 Interval<float> VisColorTab::getInterval() const
 {
-    float start = -scale.constant / scale.factor;
-    float stop = start + 1 / scale.factor;
+    float start = -scale_.constant / scale_.factor;
+    float stop = start + 1 / scale_.factor;
     return Interval<float>(start,stop);
 }
 
 
 void VisColorTab::setColorSeq( ColorSequence* ns )
 {
-    if ( colseq )
+    if ( colseq_ )
     {
-	colseq->change.remove( mCB( this, VisColorTab, colorseqchanged ));
-	colseq->unRef();
+	colseq_->change.remove( mCB( this, VisColorTab, colorseqchanged ));
+	colseq_->unRef();
     }
 
-    colseq = ns;
-    colseq->ref();
-    colseq->change.notify( mCB( this, VisColorTab, colorseqchanged ));
+    colseq_ = ns;
+    colseq_->ref();
+    colseq_->change.notify( mCB( this, VisColorTab, colorseqchanged ));
     sequencechange.trigger();
 }
 
 
 const ColorSequence& VisColorTab::colorSeq() const
-{ return *colseq; }
+{ return *colseq_; }
 
 
 ColorSequence& VisColorTab::colorSeq()
-{ return *colseq; }
+{ return *colseq_; }
 
 
 void VisColorTab::colorseqchanged()
@@ -196,7 +197,7 @@ int VisColorTab::usePar( const IOPar& par )
     if ( res != 1 ) return res;
 
     int colseqid;
-    if ( !par.get( colorseqidstr, colseqid ) )
+    if ( !par.get( sKeyColorSeqID(), colseqid ) )
 	return -1;
 
     DataObject* dataobj = DM().getObject(colseqid);
@@ -208,17 +209,17 @@ int VisColorTab::usePar( const IOPar& par )
     setColorSeq( cs );
 
     float cliprate_ = 0.025;
-    par.get( clipratestr, cliprate_ );
+    par.get( sKeyClipRate(), cliprate_ );
     setClipRate( cliprate_ );
 
-    bool autoscale_ = true;
-    par.getYN( autoscalestr, autoscale_ );
-    setAutoScale( autoscale_ );
+    bool autoscale = true;
+    par.getYN( sKeyAutoScale(), autoscale );
+    setAutoScale( autoscale );
 
-    const char* scalestr = par.find( scalefactorstr );
+    const char* scalestr = par.find( sKeyScaleFactor() );
     if ( !scalestr ) return -1;
 
-    scale.fromString( scalestr );
+    scale_.fromString( scalestr );
     return 1;
 }
 
@@ -226,11 +227,11 @@ int VisColorTab::usePar( const IOPar& par )
 void VisColorTab::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 {
     DataObject::fillPar( par, saveids );
-    par.set( colorseqidstr, colseq->id() );
-    if ( saveids.indexOf(colseq->id())==-1 ) saveids += colseq->id();
-    par.set( scalefactorstr, scale.toString() );
-    par.set( clipratestr, cliprate );
-    par.setYN( autoscalestr, autoscale );
+    par.set( sKeyColorSeqID(), colseq_->id() );
+    if ( saveids.indexOf(colseq_->id())==-1 ) saveids += colseq_->id();
+    par.set( sKeyScaleFactor(), scale_.toString() );
+    par.set( sKeyClipRate(), cliprate_ );
+    par.setYN( sKeyAutoScale(), autoscale_ );
 }
 
 }; // namespace visBase
