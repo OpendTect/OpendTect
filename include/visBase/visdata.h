@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visdata.h,v 1.39 2006-06-14 17:05:12 cvskris Exp $
+ RCS:		$Id: visdata.h,v 1.40 2006-09-05 20:45:48 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -48,17 +48,18 @@ class DataObject : public CallBacker
 { mRefCountImpl(DataObject);
 public:
 
-    virtual const char*		getClassName() const { return "Not impl"; }
+    virtual const char*		getClassName() const	{ return "Not impl"; }
 
-    int				id() const { return id_; }
-    void			setID(int nid) { id_= nid; }
+    int				id() const		{ return id_; }
+    void			setID(int nid)		{ id_= nid; }
+
     const char*			name() const;
-    void			setName( const char* );
+    void			setName(const char*);
 
-    virtual SoNode*		getInventorNode() { return 0; }
+    virtual SoNode*		getInventorNode()	{ return 0; }
     virtual const SoNode*	getInventorNode() const;
 
-    virtual bool		selectable() const { return false; }
+    virtual bool		selectable() const	{ return false; }
     void			select() const;
     				/*<! Is here for convenience. Will rewire to
 				     SelectionManager.	*/
@@ -107,9 +108,9 @@ public:
 protected:
     friend class		SelectionManager;
     friend class		Scene;
-    virtual void		triggerSel()		{}
-    virtual void		triggerDeSel()		{}
-    virtual void		triggerRightClick(const EventInfo* =0) {}
+    virtual void		triggerSel()				{}
+    virtual void		triggerDeSel()				{}
+    virtual void		triggerRightClick(const EventInfo* =0)	{}
     
 				DataObject();
     virtual void		_init();
