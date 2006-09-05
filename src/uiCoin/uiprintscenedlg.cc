@@ -4,14 +4,13 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          October 2002
- RCS:           $Id: uiprintscenedlg.cc,v 1.29 2006-08-16 10:51:20 cvsbert Exp $
+ RCS:           $Id: uiprintscenedlg.cc,v 1.30 2006-09-05 10:45:39 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiprintscenedlg.h"
 
-#include "settings.h"
 #include "uibutton.h"
 #include "uicombobox.h"
 #include "uicursor.h"
@@ -21,25 +20,21 @@ ________________________________________________________________________
 #include "uiobj.h"
 #include "uisoviewer.h"
 #include "uispinbox.h"
-#include "iopar.h"
+
 #include "filegen.h"
 #include "filepath.h"
-#include "ptrman.h"
+#include "iopar.h"
 #include "oddirs.h"
+#include "ptrman.h"
+#include "settings.h"
 #include "visscene.h"
-
-#include <Inventor/SoOffscreenRenderer.h>
 
 #include <Inventor/actions/SoToVRML2Action.h>
 #include <Inventor/actions/SoWriteAction.h>
 #include <Inventor/VRMLnodes/SoVRMLGroup.h>
+#include <Inventor/SoOffscreenRenderer.h>
 #include <Inventor/SoOutput.h>
 
-
-const char* uiPrintSceneDlg::heightstr = "Height";
-const char* uiPrintSceneDlg::widthstr = "Width";
-const char* uiPrintSceneDlg::unitstr = "Unit";
-const char* uiPrintSceneDlg::resstr = "Resolution";
 
 BufferString uiPrintSceneDlg::dirname_ = "";
 
@@ -75,15 +70,20 @@ static void sCm2Inch( const SbVec2f& from, SbVec2f& to )
 static void sInch2Cm( const SbVec2f& from, SbVec2f& to )
 { to = from * 2.54; }
 
+
 #define mAttachToAbove( fld ) \
 	if ( fldabove ) fld->attach( alignedBelow, fldabove ); \
 	fldabove = fld
+
 uiPrintSceneDlg::uiPrintSceneDlg( uiParent* p,
 				  const ObjectSet<uiSoViewer>& vwrs )
     : uiDialog(p,uiDialog::Setup("Create snapshot",
 				 "Enter image size and filename","50.0.1"))
-    , viewers(vwrs)
-    , screendpi(SoOffscreenRenderer::getScreenPixelsPerInch())
+    , viewers_(vwrs)
+    , screendpi_(SoOffscreenRenderer::getScreenPixelsPerInch())
+    , sizepix_(*new SbVec2f)
+    , sizeinch_(*new SbVec2f)
+    , sizecm_(*new SbVec2f)
     , heightfld_(0)
     , scenefld_(0)
     , dovrmlfld_(0)
@@ -94,8 +94,7 @@ uiPrintSceneDlg::uiPrintSceneDlg( uiParent* p,
 
     bool showvrml = false;
     Settings::common().getYN( IOPar::compKey("dTect","Enable VRML"), showvrml );
-
-    if ( !nrfiletypes && !showvrml )
+    if ( nrfiletypes==0 && !showvrml )
     {
 	new uiLabel( this,
 	    "No output file types found.\n"
@@ -108,11 +107,11 @@ uiPrintSceneDlg::uiPrintSceneDlg( uiParent* p,
     sPixelSizeRange.stop = mMIN(maxres[0],maxres[1]);
 
     uiParent* fldabove = 0;
-    if ( viewers.size() > 1 )
+    if ( viewers_.size() > 1 )
     {
 	BufferStringSet scenenms;
-	for ( int idx=0; idx<viewers.size(); idx++ )
-	    scenenms.add( viewers[idx]->getScene()->name() );
+	for ( int idx=0; idx<viewers_.size(); idx++ )
+	    scenenms.add( viewers_[idx]->getScene()->name() );
 
 	scenefld_ = new uiLabeledComboBox( this, scenenms, "Make snapshot of" );
 	scenefld_->box()->selectionChanged.notify( 
@@ -130,7 +129,7 @@ uiPrintSceneDlg::uiPrintSceneDlg( uiParent* p,
 	mAttachToAbove( dovrmlfld_ );
     }
 
-    if ( nrfiletypes )
+    if ( nrfiletypes>0 )
     {
 	widthfld_ = new uiLabeledSpinBox( this, "Width", 2 );
 	widthfld_->box()->valueChanged.notify(
@@ -154,7 +153,7 @@ uiPrintSceneDlg::uiPrintSceneDlg( uiParent* p,
 	lockfld_->attach( alignedBelow, unitfld_ );
 
 	dpifld_ = new uiGenInput( this, "Resolution (dpi)", 
-				 IntInpSpec(mNINT(screendpi)) );
+				 IntInpSpec(mNINT(screendpi_)) );
 	dpifld_->setElemSzPol( uiObject::Small );
 	dpifld_->valuechanging.notify( mCB(this,uiPrintSceneDlg,dpiChg) );
 	mAttachToAbove( dpifld_ );
@@ -174,6 +173,12 @@ uiPrintSceneDlg::uiPrintSceneDlg( uiParent* p,
 
     updateFilter();
     sceneSel(0);
+}
+
+
+uiPrintSceneDlg::~uiPrintSceneDlg()
+{
+    delete &sizepix_, &sizeinch_, &sizecm_;
 }
 
 
@@ -217,12 +222,12 @@ void uiPrintSceneDlg::typeSel( CallBacker* )
 void uiPrintSceneDlg::sceneSel( CallBacker* )
 {
     const int vwridx = scenefld_ ? scenefld_->box()->currentItem() : 0;
-    const uiSoViewer* vwr = viewers[vwridx];
+    const uiSoViewer* vwr = viewers_[vwridx];
     const SbVec2s& winsz = vwr->getViewportSizePixels();
-    aspectratio = (float)winsz[0] / winsz[1];
-    sizepix.setValue( winsz[0], winsz[1] );
-    sPixels2Inch( sizepix, sizeinch, dpifld_->getValue() );
-    sInch2Cm( sizeinch, sizecm );
+    aspectratio_ = (float)winsz[0] / winsz[1];
+    sizepix_.setValue( winsz[0], winsz[1] );
+    sPixels2Inch( sizepix_, sizeinch_, dpifld_->getValue() );
+    sInch2Cm( sizeinch_, sizecm_ );
     unitChg(0);
 }
 
@@ -236,10 +241,10 @@ void uiPrintSceneDlg::sizeChg( CallBacker* cb )
     {
 	if ( box == widthfld_->box() )
 	    heightfld_->box()->setValue(
-		    widthfld_->box()->getFValue()/aspectratio );
+		    widthfld_->box()->getFValue()/aspectratio_ );
 	else
 	    widthfld_->box()->setValue(
-		    heightfld_->box()->getFValue()*aspectratio );
+		    heightfld_->box()->getFValue()*aspectratio_ );
     }
 
     updateSizes();
@@ -254,12 +259,12 @@ void uiPrintSceneDlg::unitChg( CallBacker* )
 
     const int sel = unitfld_->getIntValue();
     if ( !sel )
-	size = sizecm;
+	size = sizecm_;
     else if ( sel == 1 )
-	size = sizeinch;
+	size = sizeinch_;
     else if ( sel == 2 )
     {
-	size = sizepix;
+	size = sizepix_;
 	nrdec = 0;
 	range = sPixelSizeRange;
     }
@@ -279,7 +284,7 @@ void uiPrintSceneDlg::lockChg( CallBacker* )
     if ( !lockfld_->isChecked() ) return;
 
     const float width = widthfld_->box()->getFValue();
-    heightfld_->box()->setValue( width / aspectratio );
+    heightfld_->box()->setValue( width / aspectratio_ );
     updateSizes();
 }
 
@@ -297,21 +302,21 @@ void uiPrintSceneDlg::updateSizes()
     const int sel = unitfld_->getIntValue();
     if ( !sel )
     {
-	sizecm.setValue( width, height );
-	sCm2Inch( sizecm, sizeinch );
-	sInch2Pixels( sizeinch, sizepix, dpifld_->getValue() );
+	sizecm_.setValue( width, height );
+	sCm2Inch( sizecm_, sizeinch_ );
+	sInch2Pixels( sizeinch_, sizepix_, dpifld_->getValue() );
     }
     else if ( sel == 1 )
     {
-	sizeinch.setValue( width, height );
-	sInch2Cm( sizeinch, sizecm );
-	sInch2Pixels( sizeinch, sizepix, dpifld_->getValue() );
+	sizeinch_.setValue( width, height );
+	sInch2Cm( sizeinch_, sizecm_ );
+	sInch2Pixels( sizeinch_, sizepix_, dpifld_->getValue() );
     }
     else
     {
-	sizepix.setValue( width, height );
-	sPixels2Inch( sizepix, sizeinch, dpifld_->getValue() );
-	sInch2Cm( sizeinch, sizecm );
+	sizepix_.setValue( width, height );
+	sPixels2Inch( sizepix_, sizeinch_, dpifld_->getValue() );
+	sInch2Cm( sizeinch_, sizecm_ );
     }
 }
 
@@ -365,7 +370,7 @@ bool uiPrintSceneDlg::acceptOK( CallBacker* )
     if ( !filenameOK() ) return false;
 
     const int vwridx = scenefld_ ? scenefld_->box()->currentItem() : 0;
-    const uiSoViewer* vwr = viewers[vwridx];
+    const uiSoViewer* vwr = viewers_[vwridx];
     FilePath filepath( fileinputfld_->fileName() );
     dirname_ = filepath.pathOnly();
 
@@ -413,7 +418,7 @@ bool uiPrintSceneDlg::acceptOK( CallBacker* )
     if ( !widthfld_ ) return true;
 
     SbViewportRegion viewport;
-    viewport.setWindowSize( mNINT(sizepix[0]), mNINT(sizepix[1]) );
+    viewport.setWindowSize( mNINT(sizepix_[0]), mNINT(sizepix_[1]) );
     viewport.setPixelsPerInch( dpifld_->getfValue() );
 
     PtrMan<SoOffscreenRenderer> sor = new SoOffscreenRenderer(viewport);
@@ -461,9 +466,10 @@ const char* uiPrintSceneDlg::getExtension() const
 void uiPrintSceneDlg::fillPar( IOPar& par ) const
 {
     if ( !heightfld_ ) return;
-    par.set( heightstr, heightfld_->box()->getValue() );
-    par.set( widthstr, widthfld_->box()->getValue() );
-    par.set( unitstr, unitfld_->getIntValue() );
+    par.set( sKeyHeight(), heightfld_->box()->getValue() );
+    par.set( sKeyWidth(), widthfld_->box()->getValue() );
+    par.set( sKeyUnit(), unitfld_->getIntValue() );
+    par.set( sKeyRes(), dpifld_->getIntValue() );
 }
 
 
@@ -472,11 +478,12 @@ bool uiPrintSceneDlg::usePar( const IOPar& par )
     if ( !heightfld_ ) return false;
 
     float val;
-    if ( par.get(heightstr,val) ) heightfld_->box()->setValue(val);
-    if ( par.get(widthstr,val) ) widthfld_->box()->setValue(val);
+    if ( par.get(sKeyHeight(),val) ) heightfld_->box()->setValue( val );
+    if ( par.get(sKeyWidth(),val) ) widthfld_->box()->setValue( val );
 
     int ival;
-    if ( par.get(unitstr,ival) ) unitfld_->setValue(ival);
+    if ( par.get(sKeyUnit(),ival) ) unitfld_->setValue( ival );
+    if ( par.get(sKeyRes(),ival) ) dpifld_->setValue( ival );
 
     return true;
 }

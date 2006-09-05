@@ -6,28 +6,29 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          July 2002
- RCS:           $Id: uiprintscenedlg.h,v 1.11 2006-06-20 21:07:31 cvskris Exp $
+ RCS:           $Id: uiprintscenedlg.h,v 1.12 2006-09-05 10:45:39 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uidialog.h"
-#include <Inventor/SbLinear.h>
 
 class IOPar;
 class SbColor;
+class SbVec2f;
 class SoNode;
 class uiCheckBox;
 class uiFileInput;
 class uiGenInput;
 class uiLabeledComboBox;
-class uiSoViewer;
 class uiLabeledSpinBox;
+class uiSoViewer;
 
 class uiPrintSceneDlg : public uiDialog
 {
 public:
 			uiPrintSceneDlg(uiParent*,const ObjectSet<uiSoViewer>&);
+			~uiPrintSceneDlg();
 
     void		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
@@ -56,13 +57,13 @@ protected:
     void		dpiChg(CallBacker*);
     bool		acceptOK(CallBacker*);
 
-    const ObjectSet<uiSoViewer>& viewers;
+    const ObjectSet<uiSoViewer>& viewers_;
 
-    SbVec2f		sizepix;
-    SbVec2f		sizeinch;
-    SbVec2f		sizecm;
-    float		aspectratio;	// width / height
-    const float		screendpi;
+    SbVec2f&		sizepix_;
+    SbVec2f&		sizeinch_;
+    SbVec2f&		sizecm_;
+    float		aspectratio_;	// width / height
+    const float		screendpi_;
 
     static BufferString	dirname_;
 
@@ -70,10 +71,10 @@ protected:
     const char*		getExtension() const;
 
     static const char*	sVRMLExt()	{ return "wrl"; }
-    static const char*	heightstr;
-    static const char*	widthstr;
-    static const char*	unitstr;
-    static const char*	resstr;
+    static const char*	sKeyHeight()	{ return "Height"; }
+    static const char*	sKeyWidth()	{ return "Width"; }
+    static const char*	sKeyUnit()	{ return "Unit"; }
+    static const char*	sKeyRes()	{ return "Resolution"; }
 };
 
 #endif
