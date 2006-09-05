@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribprovider.h,v 1.46 2006-08-24 14:57:29 cvshelene Exp $
+ RCS:           $Id: attribprovider.h,v 1.47 2006-09-05 21:17:20 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -318,7 +318,6 @@ Provider* clss::createInstance( Desc& desc ) \
     desc->ref();
 
 #define mAttrEndInitClass \
-    desc->init(); \
     PF().addDesc( desc, createInstance ); \
     desc->unRef();
 
