@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodemsurftreeitem.cc,v 1.9 2006-07-28 13:55:21 cvsjaap Exp $
+ RCS:		$Id: uiodemsurftreeitem.cc,v 1.10 2006-09-05 13:56:51 cvsjaap Exp $
 ___________________________________________________________________
 
 -*/
@@ -293,6 +293,9 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB( CallBacker* cb )
     {
 	menu->setIsHandled(true);
 	applMgr()->EMServer()->storeObject( emid, false );
+
+	const MultiID mid = applMgr()->EMServer()->getStorageID(emid);
+	applMgr()->mpeServer()->saveSetup( mid );
     }
     else if ( mnuid==saveasmnuitem_.id )
     {
@@ -300,6 +303,9 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB( CallBacker* cb )
 	applMgr()->EMServer()->storeObject( emid, true );
 	applMgr()->visServer()->setObjectName( displayid_,
 		(const char*) applMgr()->EMServer()->getName(emid) );
+
+	const MultiID mid = applMgr()->EMServer()->getStorageID(emid);
+	applMgr()->mpeServer()->saveSetup( mid );
 
 	updateColumnText( uiODSceneMgr::cNameColumn() );
     }
