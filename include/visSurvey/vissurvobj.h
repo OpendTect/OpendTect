@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvobj.h,v 1.67 2006-08-24 15:11:22 cvskris Exp $
+ RCS:		$Id: vissurvobj.h,v 1.68 2006-09-05 20:38:23 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -226,50 +226,6 @@ protected:
 
     virtual void		setUpConnections()		{}
 };
-
-
-/*!\brief Manager for survey parameters and transformations
-
-  Manages the Z-scale of the survey, and the transformations between different
-  coordinate systems.<br>
-  inlcrl2displaytransform: transforms between inline/crossline and the
-  internal coordinate system.<br>
-  utm2displaytransform: transforms between x/y and the internal coordinate 
-  system.<br>
-  For more information, look at the class documentation of visSurvey::Scene.
-  
-*/
-
-/*
-class SurveyParamManager : public CallBacker
-{
-public:
-    				SurveyParamManager();
-				~SurveyParamManager();
-    void			setZScale( float );
-    float			getZScale() const;
-
-    visBase::Transformation*	getUTM2DisplayTransform();
-    visBase::Transformation*	getZScaleTransform();
-    visBase::Transformation*	getInlCrl2DisplayTransform();
-
-    Notifier<SurveyParamManager>	zscalechange;
-    static const char*		zscalestr;
-
-protected:
-    void			createTransforms();
-    static float		defzscale;
-
-    void			removeTransforms(CallBacker*);
-    
-    float			zscale;
-    visBase::Transformation*	utm2displaytransform;
-    visBase::Transformation*	zscaletransform;
-    visBase::Transformation*	inlcrl2displaytransform;
-};
-
-SurveyParamManager& SPM();
-*/
 
 
 }; // Namespace visSurvey
