@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		23-10-1996
  Contents:	Ranges
- RCS:		$Id: ranges.h,v 1.41 2006-07-13 12:53:12 cvsnanne Exp $
+ RCS:		$Id: ranges.h,v 1.42 2006-09-05 20:50:40 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -70,10 +70,7 @@ public:
     T			start;
     T			stop;
 
-protected:
-
     inline bool		isRev() const		{ return start > stop; }
-
 };
 
 
