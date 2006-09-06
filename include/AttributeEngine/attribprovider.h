@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribprovider.h,v 1.47 2006-09-05 21:17:20 cvskris Exp $
+ RCS:           $Id: attribprovider.h,v 1.48 2006-09-06 07:46:40 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -253,6 +253,12 @@ protected:
     virtual bool		getZStepStoredData(float& step) const
 				{return false;}
 
+    float			getInputValue(const DataHolder&,int inputidx,
+	    				      int sampleidx,int z0) const;
+    void			setOutputValue(const DataHolder& output,
+	    				       int outputidx,int sampleidx,
+					       int z0,float val) const;
+
     bool                        zIsTime() const;
     float			zFactor() const   {return zIsTime() ? 1000 : 1;}
     float			dipFactor() const {return zIsTime() ? 1e6: 1e3;}
@@ -290,6 +296,7 @@ protected:
 
 int getSteeringIndex( const BinID& );
 //!< For every position there is a single steering index ...?
+
 
 
 }; // namespace Attrib

@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribprovider.cc,v 1.72 2006-08-28 09:11:41 cvskris Exp $";
+static const char* rcsID = "$Id: attribprovider.cc,v 1.73 2006-09-06 07:46:40 cvsnanne Exp $";
 
 #include "attribprovider.h"
 #include "attribstorprovider.h"
@@ -1318,6 +1318,26 @@ void Provider::resetDesiredVolume()
 	if ( inputs[idx] )
 	    inputs[idx]->resetDesiredVolume();
     }
+}
+
+
+float Provider::getInputValue( const DataHolder& input, int inputidx,
+			       int sampleidx, int z0 ) const
+{
+    const int sidx = z0 - input.z0_ + sampleidx;
+    return input.series(inputidx) ? input.series(inputidx)->value( sidx )
+				  : mUdf(float);
+}
+
+
+void Provider::setOutputValue( const DataHolder& output, int outputidx,
+			       int sampleidx, int z0, float val ) const
+{
+    if ( !outputinterest.validIdx(outputidx) || !outputinterest[outputidx] )
+	return;
+
+    const int sidx = z0 - output.z0_ + sampleidx;
+    output.series(outputidx)->setValue( sidx, val );
 }
 
 
