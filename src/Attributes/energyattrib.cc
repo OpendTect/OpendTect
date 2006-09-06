@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: energyattrib.cc,v 1.12 2006-07-20 11:21:38 cvsnanne Exp $";
+static const char* rcsID = "$Id: energyattrib.cc,v 1.13 2006-09-06 07:47:06 cvsnanne Exp $";
 
 #include "energyattrib.h"
 
@@ -66,31 +66,21 @@ bool Energy::computeData( const DataHolder& output, const BinID& relpos,
     if ( !inputdata_ || !inputdata_->nrSeries() || !output.nrSeries() )
 	return false;
 
-    ValueSeries<float>* res = output.series(0);
-    if ( !res ) return false;
-
     RunningStatistics<float> calc;
 
     Interval<int> samplegate( mNINT(gate_.start/refstep),
 			      mNINT(gate_.stop/refstep) );
     const int sz = samplegate.width() + 1;
-    int csample = z0 + samplegate.start;
     for ( int idx=0; idx<sz; idx++ )
-    {
-	const int csamp = csample + idx;
-	calc += inputdata_->series(dataidx_)->value( csamp-inputdata_->z0_ );
-    }
+	calc += getInputValue( *inputdata_, dataidx_, samplegate.start+idx, z0);
 
-    const int z0_offset = z0-output.z0_;
-    res->setValue( z0_offset, calc.sqSum()/sz );
+    setOutputValue( output, 0, 0, z0, calc.sqSum()/sz );
 
     calc.lock();
-    csample = z0 + samplegate.stop;
     for ( int idx=1; idx<nrsamples; idx++ )
     {
-	const int csamp = csample + idx;
-	calc += inputdata_->series(dataidx_)->value( csamp-inputdata_->z0_ );
-	res->setValue( z0_offset+idx, calc.sqSum()/sz );
+	calc += getInputValue( *inputdata_, dataidx_, samplegate.stop+idx, z0 );
+	setOutputValue( output, 0, idx, z0, calc.sqSum()/sz );
     }
 
     return true;
