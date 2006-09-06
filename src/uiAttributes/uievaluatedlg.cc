@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          March 2003
- RCS:           $Id: uievaluatedlg.cc,v 1.8 2006-03-01 13:45:46 cvsbert Exp $
+ RCS:           $Id: uievaluatedlg.cc,v 1.9 2006-09-06 19:55:14 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -292,7 +292,7 @@ void uiEvaluateDlg::calcPush( CallBacker* )
     const int nrsteps = nrstepsfld->box()->getValue();
     for ( int idx=0; idx<nrsteps; idx++ )
     {
-	Desc* newad = idx ? srcad.clone() : &srcad;
+	Desc* newad = idx ? new Desc(srcad) : &srcad;
 	if ( !newad ) return;
 	pargrp->updatePars( *newad, idx );
 	pargrp->updateDesc( *newad, idx );
