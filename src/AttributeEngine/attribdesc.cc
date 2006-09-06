@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribdesc.cc,v 1.48 2006-08-28 09:28:47 cvskris Exp $";
+static const char* rcsID = "$Id: attribdesc.cc,v 1.49 2006-09-06 17:23:50 cvskris Exp $";
 
 #include "attribdesc.h"
 
@@ -44,88 +44,84 @@ const char* Desc::sKeyInlDipComp() { return "inl_dip"; }
 const char* Desc::sKeyCrlDipComp() { return "crl_dip"; }
 
 
-Desc::Desc( const char* attribname_, DescStatusUpdater updater, DescChecker dc )
-    : ds(0)
-    , attribname(attribname_)
-    , statusupdater(updater)
-    , descchecker(dc)
-    , issteering(false)
-    , seloutput(0)
-    , hidden_(false)
-    , is2d(false)
-    , is2dset(false)
-    , needprovinit_(false)
-    , is2ddetected(false)
+Desc::Desc( const char* attribname, DescStatusUpdater updater )
+    : descset_( 0 )
+    , attribname_( attribname )
+    , statusupdater_( updater )
+    , issteering_( false )
+    , seloutput_( 0 )
+    , hidden_( false )
+    , is2d_( false )
+    , is2dset_( false )
+    , needprovinit_( false )
+    , is2ddetected_( false )
 {
-    inputs.allowNull(true);
+    inputs_.allowNull(true);
 }
 
 
 Desc::Desc( const Desc& a )
-    : ds( a.ds )
-    , attribname( a.attribname )
-    , statusupdater( a.statusupdater )
-    , descchecker( a.descchecker )
+    : descset_( a.descset_ )
+    , attribname_( a.attribname_ )
+    , statusupdater_( a.statusupdater_ )
     , hidden_( a.hidden_ )
-    , issteering( a.issteering )
-    , seloutput( a.seloutput )
-    , userref( a.userref )
+    , issteering_( a.issteering_ )
+    , seloutput_( a.seloutput_ )
+    , userref_( a.userref_ )
     , needprovinit_( a.needprovinit_ )
-    , is2d(false)
-    , is2dset(false)
-    , is2ddetected(false)
+    , is2d_(false)
+    , is2dset_(false)
+    , is2ddetected_(false)
 {
-    inputs.allowNull(true);
+    inputs_.allowNull(true);
 
-    for ( int idx=0; idx<a.params.size(); idx++ )
-	addParam( a.params[idx]->clone() );
+    for ( int idx=0; idx<a.params_.size(); idx++ )
+	addParam( a.params_[idx]->clone() );
 
-    for ( int idx=0; idx<a.inputs.size(); idx++ )
+    for ( int idx=0; idx<a.inputs_.size(); idx++ )
     {
 	addInput( a.inputSpec(idx) );
-	if ( a.inputs[idx] )
-	    setInput( idx, a.inputs[idx] );
+	if ( a.inputs_[idx] )
+	    setInput( idx, a.inputs_[idx] );
     }
 
     for ( int idx=0; idx<a.nrOutputs(); idx++ )
-	addOutputDataType( a.outputtypes[idx] );
+	addOutputDataType( a.outputtypes_[idx] );
 }
 
 
 Desc::~Desc()
 {
-    deepErase( params );
-    deepUnRef( inputs );
+    deepErase( params_ );
+    deepUnRef( inputs_ );
 }
 
 
-Desc* Desc::clone() const			{ return new Desc( *this ); }
+const char* Desc::attribName() const		{ return attribname_; }
 
-const char* Desc::attribName() const		{ return attribname; }
+void Desc::setDescSet( DescSet* nds )		{ descset_ = nds; }
 
-void Desc::setDescSet( DescSet* nds )		{ ds = nds; }
-
-DescSet* Desc::descSet() const			{ return ds; }
+DescSet* Desc::descSet() const			{ return descset_; }
 
 DescID Desc::id() const
-{ return ds ? ds->getID(*this) : DescID(-1,true); }
+{ return descset_ ? descset_->getID(*this) : DescID(-1,true); }
 
 
 bool Desc::getDefStr( BufferString& res ) const
 {
     res = attribName();
-    for ( int idx=0; idx<params.size(); idx++ )
+    for ( int idx=0; idx<params_.size(); idx++ )
     {
-	if ( !params[idx]->isEnabled() ) continue;
+	if ( !params_[idx]->isEnabled() ) continue;
 	res += " ";
 
-	params[idx]->fillDefStr( res );
+	params_[idx]->fillDefStr( res );
     }
 
-    if ( seloutput!=-1 )
+    if ( seloutput_!=-1 )
     {
 	res += " output=";
-	res += seloutput;
+	res += seloutput_;
     }
 
     return true;
@@ -135,22 +131,22 @@ bool Desc::getDefStr( BufferString& res ) const
 bool Desc::parseDefStr( const char* defstr )
 {
     BufferString defstrnm;
-    if ( !getAttribName(defstr,defstrnm) || defstrnm!=attribname )
+    if ( !getAttribName(defstr,defstrnm) || defstrnm!=attribname_ )
 	return false;
 
     BufferStringSet keys, vals;
     getKeysVals( defstr, keys, vals );
 
-    is2ddetected = false;
-    for ( int idx=0; idx<params.size(); idx++ )
+    is2ddetected_ = false;
+    for ( int idx=0; idx<params_.size(); idx++ )
     {
 	bool found = false;
-	if ( !params[idx]->isGroup() )
+	if ( !params_[idx]->isGroup() )
 	{
 	    BufferString paramval;
 	    for ( int idy=0; idy<keys.size(); idy++ )
 	    {
-		if ( keys.get(idy) == params[idx]->getKey() )
+		if ( keys.get(idy) == params_[idx]->getKey() )
 		{
 		    paramval = vals.get(idy);
 		    found = true;
@@ -160,13 +156,13 @@ bool Desc::parseDefStr( const char* defstr )
 
 	    if ( !found )
 	    {
-		if ( params[idx]->isRequired() )
+		if ( params_[idx]->isRequired() )
 		     continue;
 		else
-		    paramval = params[idx]->getDefaultValue();
+		    paramval = params_[idx]->getDefaultValue();
 	    }
 
-	    if ( !params[idx]->setCompositeValue(paramval) )
+	    if ( !params_[idx]->setCompositeValue(paramval) )
 		return false;
 	}
 	else
@@ -175,7 +171,7 @@ bool Desc::parseDefStr( const char* defstr )
 	    int valueidx = 0;
 	    for ( int idy=0; idy<keys.size(); idy++ )
 	    {
-		BufferString keystring = params[idx]->getKey();
+		BufferString keystring = params_[idx]->getKey();
 		keystring += valueidx;
 		if ( keys.get(idy) == keystring )
 		{
@@ -186,24 +182,24 @@ bool Desc::parseDefStr( const char* defstr )
 	    }
 	    if ( !found )
 	    {
-		if ( params[idx]->isRequired() )
+		if ( params_[idx]->isRequired() )
 		    continue;
 	    }
 
-	    if ( !params[idx]->setValues(paramvalset) )
+	    if ( !params_[idx]->setValues(paramvalset) )
 		return false;
 	}
     }
 
-    if ( statusupdater )
-     statusupdater(*this);
+    if ( statusupdater_ )
+     statusupdater_(*this);
 
-    if ( errmsg.size() )
+    if ( errmsg_.size() )
 	return false;
 
-    for ( int idx=0; idx<params.size(); idx++ )
+    for ( int idx=0; idx<params_.size(); idx++ )
     {
-         if ( !params[idx]->isOK() )
+         if ( !params_[idx]->isOK() )
 	     return false;
     }
      
@@ -215,112 +211,103 @@ bool Desc::parseDefStr( const char* defstr )
 }
 
 
-const char* Desc::userRef() const		{ return userref; }
-void Desc::setUserRef( const char* str )	{ userref = str; }
-int Desc::nrOutputs() const			{ return outputtypes.size(); }
-void Desc::selectOutput( int outp )		{ seloutput = outp; }
-int Desc::selectedOutput() const		{ return seloutput; }
-int Desc::nrInputs() const			{ return inputs.size(); }
+const char* Desc::userRef() const		{ return userref_; }
+void Desc::setUserRef( const char* str )	{ userref_ = str; }
+int Desc::nrOutputs() const			{ return outputtypes_.size(); }
+void Desc::selectOutput( int outp )		{ seloutput_ = outp; }
+int Desc::selectedOutput() const		{ return seloutput_; }
+int Desc::nrInputs() const			{ return inputs_.size(); }
 
 
 Seis::DataType Desc::dataType( int target ) const
 {
-    if ( seloutput==-1 || !outputtypes.size() )
+    if ( seloutput_==-1 || !outputtypes_.size() )
 	return Seis::UnknowData;
 
-    int outidx = target == -1 ? seloutput : target;
-    if ( outidx >= outputtypes.size() ) outidx = 0;
+    int outidx = target==-1 ? seloutput_ : target;
+    if ( outidx >= outputtypes_.size() ) outidx = 0;
 
-    const int link = outputtypelinks[outidx];
+    const int link = outputtypelinks_[outidx];
     if ( link == -1 )
-	return outputtypes[outidx];
+	return outputtypes_[outidx];
 
-    return link < inputs.size() && inputs[link] ? inputs[link]->dataType()
+    return link < inputs_.size() && inputs_[link] ? inputs_[link]->dataType()
 						: Seis::UnknowData;
-}
-
-
-void Desc::setStoredDataType( Seis::DataType dt )
-{
-    if ( dt != Seis::Dip )
-	return;
-
-    setNrOutputs( dt, 2 );
 }
 
 
 bool Desc::setInput( int inp, const Desc* nd )
 {
-    return setInput( inp, const_cast<Desc*>( nd ) );
+    return setInput_( inp, const_cast<Desc*>( nd ) );
 }
 
 
-bool Desc::setInput( int input, Desc* nd )
+bool Desc::setInput_( int input, Desc* nd )
 {
-    if ( nd && (inputspecs[input].forbiddenDts.indexOf(nd->dataType())!=-1 ||
-		inputspecs[input].issteering!=nd->isSteering()) )
+    if ( nd && (inputspecs_[input].forbiddenDts.indexOf(nd->dataType())!=-1 ||
+		inputspecs_[input].issteering!=nd->isSteering()) )
 	return false;
 
-    if ( inputs[input] ) inputs[input]->unRef();
-    inputs.replace( input, nd );
-    if ( inputs[input] ) inputs[input]->ref();
+    if ( inputs_[input] ) inputs_[input]->unRef();
+    inputs_.replace( input, nd );
+    if ( inputs_[input] ) inputs_[input]->ref();
 
     return true;
 }
 
 
 const Desc* Desc::getInput( int input ) const
-{ return input>=0 && input<inputs.size() ? inputs[input] : 0; }
+{ return input>=0 && input<inputs_.size() ? inputs_[input] : 0; }
 
 Desc* Desc::getInput( int input )
-{ return input>=0 && input<inputs.size() ? inputs[input] : 0; }
+{ return input>=0 && input<inputs_.size() ? inputs_[input] : 0; }
 
 
 bool Desc::is2D() const
 {
-    if ( is2dset || is2ddetected )
-	return is2d;
+    if ( is2dset_ || is2ddetected_ )
+	return is2d_;
     
     const ValParam* keypar = getValParam( StorageProvider::keyStr() );
     if ( !keypar ) return false;
 
     MultiID key = keypar->getStringValue();
     PtrMan<IOObj> ioobj = IOM().get( key );
-    is2d = ioobj && SeisTrcTranslator::is2D( *ioobj );
-    is2ddetected = true;
-    return is2d;
+    is2d_ = ioobj && SeisTrcTranslator::is2D( *ioobj );
+    is2ddetected_ = true;
+    return is2d_;
 }
 
 #define mErrRet(msg) \
-    const_cast<Desc*>(this)->errmsg = msg;\
+    const_cast<Desc*>(this)->errmsg_ = msg;\
     return Error;\
 
 
 
 Desc::SatisfyLevel Desc::isSatisfied() const
 {
-    if ( seloutput==-1 || seloutput>nrOutputs()  )
+    if ( seloutput_==-1 || seloutput_>nrOutputs()  )
     {
 	BufferString msg = "Selected output is not correct";
 	mErrRet(msg)
     }
 
-    for ( int idx=0; idx<params.size(); idx++ )
+    for ( int idx=0; idx<params_.size(); idx++ )
     {
-	if ( !params[idx]->isOK() )
+	if ( !params_[idx]->isOK() )
 	{
-	    BufferString msg = "Parameter '"; msg += params[idx]->getKey();
+	    BufferString msg = "Parameter '"; msg += params_[idx]->getKey();
 	    msg += "' is not correct";
 	    mErrRet(msg)
 	}
     }
 
-    for ( int idx=0; idx<inputs.size(); idx++ )
+    for ( int idx=0; idx<inputs_.size(); idx++ )
     {
-	if ( !inputspecs[idx].enabled ) continue;
-	if ( !inputs[idx] )
+	if ( !inputspecs_[idx].enabled ) continue;
+	if ( !inputs_[idx] )
 	{
-	    BufferString msg = "'"; msg += inputspecs[idx].getDesc();
+	    BufferString msg = "'"; msg += inputspecs_[idx].getDesc();
 	    msg += "' is not correct";
 	    mErrRet(msg)
 	}
@@ -330,46 +317,50 @@ Desc::SatisfyLevel Desc::isSatisfied() const
 }
 
 
+const BufferString& Desc::errMsg() const
+{ return errmsg_; }
+
+
 bool Desc::isIdenticalTo( const Desc& desc, bool cmpoutput ) const
 {
     if ( this==&desc ) return true;
 
-    if ( params.size()!=desc.params.size() || 
-	    				inputs.size()!=desc.inputs.size() )
+    if ( params_.size()!=desc.params_.size() || 
+	    				inputs_.size()!=desc.inputs_.size() )
 	return false;
 
-    for ( int idx=0; idx<params.size(); idx++ )
+    for ( int idx=0; idx<params_.size(); idx++ )
     {
-	if ( *params[idx]!=*desc.params[idx] )
+	if ( *params_[idx]!=*desc.params_[idx] )
 	    return false;
     }
 
-    for ( int idx=0; idx<inputs.size(); idx++ )
+    for ( int idx=0; idx<inputs_.size(); idx++ )
     {
-	if ( inputs[idx]==desc.inputs[idx] ) continue;
+	if ( inputs_[idx]==desc.inputs_[idx] ) continue;
 
-	if ( !inputs[idx] && !desc.inputs[idx] ) continue;
+	if ( !inputs_[idx] && !desc.inputs_[idx] ) continue;
 
-	if ( !desc.inputs[idx] || 
-	     !inputs[idx]->isIdenticalTo(*desc.inputs[idx], true) )
+	if ( !desc.inputs_[idx] || 
+	     !inputs_[idx]->isIdenticalTo(*desc.inputs_[idx], true) )
 	    return false;
     }
 
-    return cmpoutput ? seloutput==desc.seloutput : true;
+    return cmpoutput ? seloutput_==desc.seloutput_ : true;
 }
 
 
 DescID Desc::inputId( int idx ) const
 {
-    const bool valididx = idx >= 0 && idx < inputs.size();
-    return valididx && inputs[idx] ? inputs[idx]->id() : DescID(-1,true);
+    const bool valididx = idx >= 0 && idx < inputs_.size();
+    return valididx && inputs_[idx] ? inputs_[idx]->id() : DescID(-1,true);
 }
 
 
 void Desc::addParam( Param* param )
 {
-    params += param;
-    is2ddetected = false;
+    params_ += param;
+    is2ddetected_ = false;
 }
 
 
@@ -436,27 +427,27 @@ bool Desc::isParamRequired( const char* key ) const
 
 void Desc::updateParams()
 {
-    if ( statusupdater ) statusupdater(*this);
+    if ( statusupdater_ ) statusupdater_(*this);
 }
 
 
 void Desc::addInput( const InputSpec& is )
 {
-    inputspecs += is;
-    inputs += 0;
+    inputspecs_ += is;
+    inputs_ += 0;
 }
 
 
 bool Desc::removeInput( int idx )
 {
-    inputspecs.remove(idx);
-    inputs.remove(idx);
+    inputspecs_.remove(idx);
+    inputs_.remove(idx);
     return true;
 }
 
 
 
-InputSpec& Desc::inputSpec( int input ) { return inputspecs[input]; }
+InputSpec& Desc::inputSpec( int input ) { return inputspecs_[input]; }
 
 
 const InputSpec& Desc::inputSpec( int input ) const
@@ -465,8 +456,8 @@ const InputSpec& Desc::inputSpec( int input ) const
 
 void Desc::removeOutputs()
 {
-    outputtypes.erase();
-    outputtypelinks.erase();
+    outputtypes_.erase();
+    outputtypelinks_.erase();
 }
 
 
@@ -479,13 +470,13 @@ void Desc::setNrOutputs( Seis::DataType dt, int nroutp )
 	
 
 void Desc::addOutputDataType( Seis::DataType dt )
-{ outputtypes+=dt; outputtypelinks+=-1; }
+{ outputtypes_+=dt; outputtypelinks_+=-1; }
 
 
 void Desc::addOutputDataTypeSameAs( int input )
 {
-    outputtypes += Seis::UnknowData;
-    outputtypelinks += input;
+    outputtypes_ += Seis::UnknowData;
+    outputtypelinks_ += input;
 }
 	
 
@@ -576,10 +567,10 @@ bool Desc::getParamString( const char* defstr, const char* key,
 
 Param* Desc::findParam( const char* key )
 {
-    for ( int idx=0; idx<params.size(); idx++ )
+    for ( int idx=0; idx<params_.size(); idx++ )
     {
-	if ( !strcmp(params[idx]->getKey(),key) )
-	    return params[idx];
+	if ( !strcmp(params_[idx]->getKey(),key) )
+	    return params_[idx];
     }
 
     return 0;
@@ -588,7 +579,7 @@ Param* Desc::findParam( const char* key )
 
 bool Desc::isStored() const
 {
-    return !strcmp(attribName(),StorageProvider::attribName());
+    return !strcmp( attribName(), StorageProvider::attribName() );
 }
 
 
@@ -604,7 +595,7 @@ bool Desc::getMultiID( MultiID& mid ) const
 
 bool Desc::isIdentifiedBy( const char* str ) const
 {
-    if ( userref == str )
+    if ( userref_==str )
 	return true;
 
     if ( isStored() )
@@ -612,7 +603,7 @@ bool Desc::isIdentifiedBy( const char* str ) const
 	LineKey lk( str );
 	BufferString defstr; getDefStr(defstr);
 	BufferString parstr;
-	if ( !getParamString(defstr,params[0]->getKey(),parstr) )
+	if ( !getParamString(defstr,params_[0]->getKey(),parstr) )
 	    return false;
 
 	const bool is2ddefstr = 
@@ -691,24 +682,24 @@ void Desc::changeStoredID( const char* newid )
 }
 
 
-void Desc::set2d( bool is2dstudy )
+void Desc::set2D( bool is2dstudy )
 {
-    is2dset = true;
-    is2d = is2dstudy;
+    is2dset_ = true;
+    is2d_ = is2dstudy;
 }
 
 
 Desc* Desc::getStoredInput() const
 {
     Desc* desc = 0;
-    for ( int idx=0; idx<inputs.size(); idx++ )
+    for ( int idx=0; idx<inputs_.size(); idx++ )
     {
-	if ( !inputs[idx] ) continue;
+	if ( !inputs_[idx] ) continue;
 
-	if ( inputs[idx]->isStored() )
-	    return const_cast<Desc*>( inputs[idx] );
+	if ( inputs_[idx]->isStored() )
+	    return const_cast<Desc*>( inputs_[idx] );
 	else
-	    desc = inputs[idx]->getStoredInput();
+	    desc = inputs_[idx]->getStoredInput();
     }
 
     return desc;

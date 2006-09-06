@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribdescset.cc,v 1.46 2006-08-24 09:09:20 cvsnanne Exp $";
+static const char* rcsID = "$Id: attribdescset.cc,v 1.47 2006-09-06 17:23:50 cvskris Exp $";
 
 #include "attribdescset.h"
 #include "attribstorprovider.h"
@@ -27,7 +27,7 @@ DescSet* DescSet::clone() const
     DescSet* descset = new DescSet();
     for ( int idx=0; idx<nrDescs(); idx++ )
     {
-	Desc* nd = descs[idx]->clone();
+	Desc* nd = new Desc( *descs[idx] );
 	nd->setDescSet( descset );
 	descset->addDesc( nd, ids[idx] );
     }
@@ -294,7 +294,7 @@ Desc* DescSet::createDesc( const BufferString& attrname, const IOPar& descpar,
     {
 	const char* type = descpar.find( "Datatype" ); 
 	if ( type && !strcmp( type, "Dip" ) )
-	    dsc->setStoredDataType(Seis::Dip);
+	    dsc->setNrOutputs( Seis::Dip, 2 );
     }
 
     int selout = 0;
@@ -635,7 +635,7 @@ DescSet* DescSet::optimizeClone( const TypeSet<DescID>& targets ) const
 	    return 0;
 	}
 
-	Desc* nd = dsc->clone();
+	Desc* nd = new Desc( *dsc );
 	nd->setDescSet( res );
 	res->addDesc( nd, needednode );
 

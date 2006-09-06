@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribstorprovider.cc,v 1.45 2006-08-23 14:08:42 cvshelene Exp $";
+static const char* rcsID = "$Id: attribstorprovider.cc,v 1.46 2006-09-06 17:23:50 cvskris Exp $";
 
 #include "attribstorprovider.h"
 
@@ -145,7 +145,7 @@ bool StorageProvider::init()
 	const SeisTrcReader* reader = rg[req]->reader();
 	if ( !reader ) { deepErase(rg); return false; }
 
-	desc.set2d(reader->is2D());
+	desc.set2D( reader->is2D() );
 	if ( reader->is2D() )
 	{
 	    const Seis2DLineSet* lset = reader->lineSet();

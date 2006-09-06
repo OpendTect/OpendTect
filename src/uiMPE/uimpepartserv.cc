@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2004
- RCS:           $Id: uimpepartserv.cc,v 1.49 2006-08-21 08:44:02 cvsnanne Exp $
+ RCS:           $Id: uimpepartserv.cc,v 1.50 2006-09-06 17:23:50 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -485,7 +485,7 @@ void uiMPEPartServer::mergeAttribSets( const Attrib::DescSet& newads,
 	    {
 		Attrib::DescSet* set = 
 		    const_cast<Attrib::DescSet*>(attrset_);
-		Attrib::Desc* newdesc = usedad->clone();
+		Attrib::Desc* newdesc = new Attrib::Desc( *usedad );
 		newdesc->setDescSet( set );
 		newid = set->addDesc( newdesc );
 	    }

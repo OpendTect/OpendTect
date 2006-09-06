@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribdesc.h,v 1.34 2006-08-15 17:34:49 cvsbert Exp $
+ RCS:           $Id: attribdesc.h,v 1.35 2006-09-06 17:23:50 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,14 +30,13 @@ class Param;
 class ValParam;
 
 typedef void(*DescStatusUpdater)(Desc&);
-typedef bool(*DescChecker)(const Desc&);
 
 class InputSpec
 {
 public:
     				InputSpec( const char* d, bool enabled_ )
 				    : desc(d), enabled(enabled_)
-				    , issteering(false)	{}
+				    , issteering(false)		{}
 
     const char*        		getDesc() const { return desc; }
 
@@ -50,62 +49,72 @@ public:
 };
 
 
+/*!Description of an attribute in an Attrib::DescSet. Each attribute has
+   a name (e.g. "Similarity"), a user reference (e.g. "My similarity"), and at
+   least one output. In addition, it may have parameters and inputs. If it has
+   multiple outputs, only one of the outputs are selected.
+
+   The attrib name, the parameters and the selected output number together form
+   a definition string that define what the attribute calculates.
+
+   Each Desc has DescID that is unique within it's DescSet.
+ */
 
 class Desc
 { mRefCountImpl(Desc);
 public:
 
 			Desc(const Desc&);
-			Desc(const char* basename,DescStatusUpdater updater=0,
-			     DescChecker=0);
-//    void		erase() { deepErase( params );
-//	    			deepUnRef( inputs ); }
+			Desc(const char* attrname,DescStatusUpdater updater=0);
 
     const char*		attribName() const;
-    Desc*		clone() const;
-    bool		init()				{ return true; }
 
     void		setDescSet(DescSet*);
     DescSet*		descSet() const;
-
     DescID		id() const;
 
     bool		getDefStr(BufferString&) const;
     bool		parseDefStr(const char*);
-    void		getKeysVals(const char*,BufferStringSet&,
-	    			    BufferStringSet&);
+
     const char*         userRef() const;
     void                setUserRef(const char*);
 
     int			nrOutputs() const;
     void	        selectOutput(int);
     int			selectedOutput() const;
-    Seis::DataType	dataType(int target=-1) const;
-    void		setStoredDataType(Seis::DataType);
-    void		setSteering(bool yn)		{ issteering=yn; }
-    bool		isSteering() const		{ return issteering; }
+
+    Seis::DataType	dataType(int output=-1) const;
+    			/*!<\param output specifies which outut that is 
+				   equiried, or -1 for the selected output. */
+
+    void		setSteering(bool yn)		{ issteering_=yn; }
+    bool		isSteering() const		{ return issteering_; }
+
     void		setHidden(bool yn)		{ hidden_ = yn; }
+    			/*!<If hidden, it won't show up in UI. */
     bool		isHidden() const		{ return hidden_; }
+    			/*!<If hidden, it won't show up in UI. */
+
     bool		isStored() const;
     bool		getMultiID(MultiID&) const;
+
     void		setNeedProvInit( bool yn=true )	{ needprovinit_ = yn; }
     bool		needProvInit() const		{ return needprovinit_;}
 
     int			nrInputs() const;
-    int                 nrSpecs() const         { return inputspecs.size(); }
     InputSpec&		inputSpec(int);
     const InputSpec&	inputSpec(int) const;
-    bool        	setInput(int,Desc*);
     bool        	setInput(int,const Desc*);
     Desc*		getInput(int);
     const Desc*		getInput(int) const;
     bool		is2D() const;
-    void		set2d(bool);
+    void		set2D(bool);
 
     enum SatisfyLevel	{ AllOk, Warning, Error };
     SatisfyLevel	isSatisfied() const;
 			/*!< Checks wether all inputs are satisfied. */
-    BufferString&	errMsg()		{ return errmsg; }
+
+    const BufferString&	errMsg() const;
 
     bool		isIdenticalTo(const Desc&,bool cmpoutput=true) const;
     bool		isIdentifiedBy(const char*) const;
@@ -143,31 +152,36 @@ public:
     static const char*  sKeyCrlDipComp();
     
 protected:
+
+    bool 		       	setInput_(int,Desc*);
     Param*			findParam(const char* key);
-    TypeSet<Seis::DataType>	outputtypes;
-    TypeSet<int>		outputtypelinks;
-    bool			issteering;
+
+    void			getKeysVals(const char* defstr,
+	    				    BufferStringSet& keys,
+					    BufferStringSet& vals);
+    				/*!<Fills \akeys and \avals with pairs of
+				    parameters from the defstr. */
+    TypeSet<Seis::DataType>	outputtypes_;
+    TypeSet<int>		outputtypelinks_;
+    bool			issteering_;
     bool			hidden_;
     bool			needprovinit_;
-    mutable bool 		is2d;
-    mutable bool 		is2ddetected;
-    bool 			is2dset;
+    mutable bool 		is2d_;
+    mutable bool 		is2ddetected_;
+    bool 			is2dset_;
 
-    TypeSet<InputSpec>		inputspecs;
-    ObjectSet<Desc>		inputs;
+    TypeSet<InputSpec>		inputspecs_;
+    ObjectSet<Desc>		inputs_;
 
-    BufferString		attribname;
-    ObjectSet<Param>		params;
+    BufferString		attribname_;
+    ObjectSet<Param>		params_;
 
-    BufferString        	userref;
-    int				seloutput;
-    DescSet*			ds;
+    BufferString        	userref_;
+    int				seloutput_;
+    DescSet*			descset_;
 
-    DescStatusUpdater		statusupdater;
-    DescChecker			descchecker;
-    BufferString        	errmsg;
-
-//    IOObj*              	getDefCubeIOObj(bool,bool) const;
+    DescStatusUpdater		statusupdater_;
+    BufferString        	errmsg_;
 };
 
 }; // namespace Attrib
