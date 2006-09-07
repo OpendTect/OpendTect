@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Mar 2002
- RCS:           $Id: viscolortab.cc,v 1.30 2006-09-05 20:53:06 cvskris Exp $
+ RCS:           $Id: viscolortab.cc,v 1.31 2006-09-07 10:47:29 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -125,18 +125,17 @@ Color VisColorTab::tableColor( int idx ) const
 
 void VisColorTab::scaleTo( const Interval<float>& rg )
 {
-    float width = rg.width();
+    Interval<float> valrg = rg;
+    const float width = valrg.width();
     if ( mIsZero(width,mDefEps) )
     {
-	scale_.constant = rg.start;
-	scale_.factor = 0;
+	valrg.start--;
+	valrg.stop++;
     }
-    else
-    {
-	scale_.factor = 1.0/rg.width();
-	if ( rg.start > rg.stop ) scale_.factor *= -1;
-	scale_.constant = -rg.start*scale_.factor;
-    }
+
+    scale_.factor = 1.0/valrg.width();
+    if ( valrg.start > valrg.stop ) scale_.factor *= -1;
+    scale_.constant = -valrg.start*scale_.factor;
 
     rangechange.trigger();
 }
@@ -144,8 +143,8 @@ void VisColorTab::scaleTo( const Interval<float>& rg )
 
 Interval<float> VisColorTab::getInterval() const
 {
-    float start = -scale_.constant / scale_.factor;
-    float stop = start + 1 / scale_.factor;
+    const float start = -scale_.constant / scale_.factor;
+    const float stop = start + 1 / scale_.factor;
     return Interval<float>(start,stop);
 }
 
