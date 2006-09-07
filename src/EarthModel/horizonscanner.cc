@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Feb 2005
- RCS:           $Id: horizonscanner.cc,v 1.12 2006-08-10 13:51:37 cvsnanne Exp $
+ RCS:           $Id: horizonscanner.cc,v 1.13 2006-09-07 09:34:17 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -250,6 +250,11 @@ int HorizonScanner::nextStep()
     BinID bid;
     char buf[1024]; char valbuf[80];
     rejectedlines.erase();
+
+    float fac = 1;
+    if ( doscale )
+	fac = SI().zIsTime() ? 0.001 : (SI().zInMeter() ? .3048 : 3.28084);
+
     for ( int idx=0; idx<filenames.size(); idx++ )
     {
 	StreamProvider sp( filenames.get(idx) );
@@ -286,7 +291,7 @@ int HorizonScanner::nextStep()
 		if ( firsttime )
 		    valranges += Interval<float>(mUdf(float),-mUdf(float));
 		const float val = atof( valbuf );
-		if ( validx==0 && !isInsideSurvey(bid,val) )
+		if ( validx==0 && !isInsideSurvey(bid,fac*val) )
 		{
 		    validpos = false;
 		    break;
@@ -299,7 +304,7 @@ int HorizonScanner::nextStep()
 
 	    if ( validpos )
 		geomdetector.add( bid, crd );
-	    else
+	    else if ( rejectedlines.size()<1024 )
 		rejectedlines.add( buf );
 
 	    firsttime = false;
