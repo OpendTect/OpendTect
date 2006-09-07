@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uioddatatreeitem.cc,v 1.6 2006-07-26 15:36:02 cvsnanne Exp $
+ RCS:		$Id: uioddatatreeitem.cc,v 1.7 2006-09-07 08:50:44 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -310,8 +310,7 @@ void uiODDataTreeItem::displayMiniCtab( int ctabid )
 	return;
     }
 
-    const char* tablename = coltab->colorSeq().colors().name();
-    PtrMan<ioPixmap> pixmap =
-	new ioPixmap( tablename, cPixmapWidth(), cPixmapHeight() );
+    PtrMan<ioPixmap> pixmap = new ioPixmap( coltab->colorSeq().colors(),
+	    				    cPixmapWidth(), cPixmapHeight() );
     uilistviewitem_->setPixmap( uiODSceneMgr::cColorColumn(), *pixmap );
 }

@@ -7,18 +7,20 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/12/1999
- RCS:           $Id: pixmap.h,v 1.13 2006-08-21 17:14:45 cvsbert Exp $
+ RCS:           $Id: pixmap.h,v 1.14 2006-09-07 08:50:44 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "namedobj.h"
 #include "iodrawimpl.h"
-class QPixmap;
+
 class QBitmap;
 class QPaintDevice;
+class QPixmap;
 class ArrayRGB;
 class Color;
+class ColorTable;
 
 
 /*!\brief Off-screen pixel-based paint device
@@ -45,7 +47,7 @@ public:
 			ioPixmap(const QPixmap&);
 			ioPixmap(const ioPixmap&);
 			ioPixmap(const char* filename,const char* fmt=0);
-			ioPixmap(const char* colortablename,int w,int h);
+			ioPixmap(const ColorTable&,int w,int h);
     virtual		~ioPixmap();
 
     void		convertFromArrayRGB(const ArrayRGB&);

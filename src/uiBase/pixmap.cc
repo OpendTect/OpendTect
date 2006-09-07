@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/12/1999
- RCS:           $Id: pixmap.cc,v 1.16 2006-07-11 17:08:50 cvsbert Exp $
+ RCS:           $Id: pixmap.cc,v 1.17 2006-09-07 08:50:44 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -90,29 +90,26 @@ ioPixmap::ioPixmap( const char* fnm, const char* fmt )
 }
 
     
-ioPixmap::ioPixmap( const char* tablename, int width, int height )
+ioPixmap::ioPixmap( const ColorTable& ctabin, int width, int height )
     : qpixmap_(0)
     , srcname_("[colortable]")
 {
-    if ( !tablename || !*tablename )
+    ColorTable ctab = ctabin;
+    ctab.calcList( width );
+    if ( ctab.nrColors() == 0 )
     {
 	qpixmap_ = new QPixmap( width, height );
-	fill( Color(255,255,255) );
 	return;
     }
 
     ArrayRGB rgb( height, width );
-    ColorTable ctab( tablename );
-    ctab.calcList(width);
-    
-    Color color;
     for ( int idx1=0; idx1<rgb.info().getSize(1); idx1++ )
     {
-	color = ctab.tableColor(idx1);
-	
+	const Color color = ctab.tableColor( idx1 );
 	for ( int idx2=0; idx2<rgb.info().getSize(0); idx2++ )
 	    rgb.set( idx2, idx1, color );
     }
+
     qpixmap_ = new QPixmap;
     convertFromArrayRGB( rgb );
 }
