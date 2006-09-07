@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          13/8/2000
- RCS:           $Id: uiworld2ui.h,v 1.8 2005-08-19 13:48:01 cvskris Exp $
+ RCS:           $Id: uiworld2ui.h,v 1.9 2006-09-07 15:44:24 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -79,11 +79,11 @@ public:
 			    p0 = wr.topLeft();
 			    fac.setXY( wr.width()/(sz.hNrPics()-1),
 				       wr.height()/(sz.vNrPics()-1));
-			    if ( wr.left() > wr.right() ) fac.setX( -fac.x() );
-			    if ( wr.top() > wr.bottom() ) fac.setY( -fac.y() );
+			    if ( wr.left() > wr.right() ) fac.x = -fac.x;
+			    if ( wr.top() > wr.bottom() ) fac.y = -fac.y;
 			    wrdrect_ = wr;
 			    uisize_ = sz;
-			    uiorigin.setX(0); uiorigin.setY(0);
+			    uiorigin.x = 0; uiorigin.y = 0;
 			}
     void		set( const uiRect& rc, const uiWorldRect& wr )
 			{
@@ -144,8 +144,8 @@ public:
 
     inline uiWorldPoint	transform( uiPoint p ) const
 			{
-			    return uiWorldPoint( toWorldX( p.x() ),
-			    			 toWorldY( p.y() ) );
+			    return uiWorldPoint( toWorldX( p.x ),
+			    			 toWorldY( p.y ) );
 			}
     inline uiWorldRect	transform( uiRect area ) const
 			{
@@ -154,7 +154,7 @@ public:
 			}
     inline uiPoint	transform( uiWorldPoint p ) const
 			{
-			    return uiPoint( toUiX( p.x() ), toUiY( p.y() ) );
+			    return uiPoint( toUiX( p.x ), toUiY( p.y ) );
 			}
     inline uiRect	transform( uiWorldRect area ) const
 			{
@@ -166,19 +166,19 @@ public:
 			// set rather than be returned.
     inline void		transform( const uiPoint& upt,
 	    			   Geom::Point2D<float>& pt ) const
-    			{ pt.setXY( toWorldX(upt.x()), toWorldY(upt.y()) ); }
+    			{ pt.setXY( toWorldX(upt.x), toWorldY(upt.y) ); }
     inline void		transform( const Geom::Point2D<float>& pt,
 	    			   uiPoint& upt) const
-    			{  upt.setXY( toUiX( pt.x() ), toUiY( pt.y() ) ); };
+    			{  upt.setXY( toUiX( pt.x ), toUiY( pt.y ) ); };
     
     inline int		toUiX ( float wrdx ) const
-    			{ return (int)((wrdx-p0.x())/fac.x()+uiorigin.x()+.5); }
+    			{ return (int)((wrdx-p0.x)/fac.x+uiorigin.x+.5); }
     inline int		toUiY ( float wrdy ) const
-    			{ return (int)((wrdy-p0.y())/fac.y()+uiorigin.y()+.5); }
+    			{ return (int)((wrdy-p0.y)/fac.y+uiorigin.y+.5); }
     inline float	toWorldX ( int uix ) const
-    			{ return p0.x() + (uix-uiorigin.x())*fac.x(); }
+    			{ return p0.x + (uix-uiorigin.x)*fac.x; }
     inline float	toWorldY ( int uiy ) const
-    			{ return p0.y() + (uiy-uiorigin.y())*fac.y(); }
+    			{ return p0.y + (uiy-uiorigin.y)*fac.y; }
 
     uiWorldRect		xyRng2WrdRect( float minx, float maxx,
     				       float miny, float maxy )

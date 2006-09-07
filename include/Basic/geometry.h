@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2000
- RCS:           $Id: geometry.h,v 1.18 2005-05-18 08:27:16 cvskris Exp $
+ RCS:           $Id: geometry.h,v 1.19 2006-09-07 15:44:23 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,34 +22,30 @@ template <class T>
 class Point2D
 {
 public:
-			Point2D ( T xx = 0, T yy = 0 ) : x_(xx), y_(yy) {}
+				Point2D ( T xx = 0, T yy = 0 );
+    virtual			~Point2D()				{}
 
-    inline const T&	x() const	{ return x_; }
-    inline const T&	y() const	{ return y_; }
-    inline void		setX( T xx )	{ x_ = xx ; }  
-    inline void		setY( T yy )	{ y_ = yy ; }  
-    inline void		setXY( T xx, T yy ) { x_ = xx ; y_ = yy; }  
-    inline Point2D<T>&	zero()		{ x_ = y_ = 0; return *this; }
-    inline Point2D<T>&	operator -()	{ x_ = -x_; y_ = -y_; return *this; }
+    inline void			setXY( T xx, T yy );
+    inline Point2D<T>&		zero();
+    inline Point2D<T>		operator -();
 
-    inline bool		operator ==( const Point2D<T>& p ) const
-			{ return p.x_ == x_ && p.y_ == y_; }
-    inline bool		operator !=( const Point2D<T>& p ) const
-			{ return p.x_ != x_ || p.y_ != y_; }
-    inline Point2D<T>&	operator +=( const Point2D<T>& p )
-			{ x_ += p.x_; y_ += p.y_; return *this; }
-    inline Point2D<T>&	operator -=( const Point2D<T>& p )
-			{ x_ -= p.x_; y_ -= p.y_; return *this; }
-    inline Point2D<T>	operator +( const Point2D<T>& p ) const
-			{ return Point2D<T>(x_+p.x_,y_+p.y_); }
-    inline Point2D<T>	operator -( const Point2D<T>& p ) const
-			{ return Point2D<T>(x_-p.x_,y_-p.y_); }
+    virtual inline T&		operator[]( int idx );
+    virtual inline T		operator[]( int idx ) const;
+
+    virtual inline bool		operator ==( const Point2D<T>& p ) const;
+    virtual inline bool		operator !=( const Point2D<T>& p ) const;
+    virtual inline Point2D<T>&	operator+=( T dist );
+    virtual inline Point2D<T>&	operator*=( T factor );
+    virtual inline Point2D<T>&	operator/=( T den );
+    inline Point2D<T>&		operator +=( const Point2D<T>& p );
+    inline Point2D<T>&		operator -=( const Point2D<T>& p );
+    inline Point2D<T>		operator +( const Point2D<T>& p ) const;
+    inline Point2D<T>		operator -( const Point2D<T>& p ) const;
+    inline Point2D<T>		operator *( const T factor ) const;
+    inline Point2D<T>		operator /( const T den ) const;
     
-protected:
-
-    T 	x_;
-    T 	y_;
-
+    T 				x;
+    T 				y;
 };
 
 
@@ -123,19 +119,19 @@ public:
     inline Point2D<T>	bottomLeft() const {return Point2D<T>(bottom(),left());}
     inline Point2D<T>	bottomRight() const { return bottomRight_; }
     inline Point2D<T>	centre() const 		
-                        { return Point2D<T>( (topLeft_.x()+bottomRight_.x())/2,
-					   (topLeft_.y()+bottomRight_.y())/2 ); 
+                        { return Point2D<T>( (topLeft_.x+bottomRight_.x)/2,
+					   (topLeft_.y+bottomRight_.y)/2 ); 
                         }
     inline void		setTopLeft( Point2D<T> tl )	{ topLeft_ = tl; }
     inline void		setBottomRight( Point2D<T> br )	{ bottomRight_ = br; }
     inline void		setTopRight( Point2D<T> tr )
-			{ topLeft_.setY(tr.y()); bottomRight_.setX(tr.x()); }
+			{ topLeft_.y = tr.y; bottomRight_.setX(tr.x); }
     inline void		setBottomLeft( Point2D<T> tr )
-			{ topLeft_.setX(tr.x()); bottomRight_.setY(tr.y()); }
+			{ topLeft_.setX(tr.x); bottomRight_.y = tr.y; }
 
     inline bool		isInside(const Point2D<T>&) const;
     inline bool		isOutside( const Point2D<T>& p ) const
-			{ return xOutside(p.x()) || yOutside(p.y()); }
+			{ return xOutside(p.x) || yOutside(p.y); }
     inline bool		isOnSide( const Point2D<T>& p ) const
 			{ return !isInside(p) && !isOutside(p); }
     inline bool		contains( const Point2D<T>& p ) const
@@ -161,14 +157,14 @@ public:
 			{ return revY() ? bottom()-top() : top()-bottom(); }
     inline Rect<T>	grownBy(double sidesincreasebyfactor=1) const;
 
-    inline T 		left() const 		{ return topLeft_.x(); }
-    inline T 		top() const 		{ return topLeft_.y(); }
-    inline T 		right() const 		{ return bottomRight_.x(); }
-    inline T 		bottom() const		{ return bottomRight_.y(); }
-    inline void 	setLeft( T val )	{ topLeft_.setX( val ); }
-    inline void 	setTop( T val )		{ topLeft_.setY( val ); }
-    inline void 	setRight( T val )	{ bottomRight_.setX( val ); }
-    inline void 	setBottom( T val )	{ bottomRight_.setY( val ); }
+    inline T 		left() const 		{ return topLeft_.x; }
+    inline T 		top() const 		{ return topLeft_.y; }
+    inline T 		right() const 		{ return bottomRight_.x; }
+    inline T 		bottom() const		{ return bottomRight_.y; }
+    inline void 	setLeft( T val )	{ topLeft_.x = val; }
+    inline void 	setTop( T val )		{ topLeft_.y = val; }
+    inline void 	setRight( T val )	{ bottomRight_.x = val; }
+    inline void 	setBottom( T val )	{ bottomRight_.y = val; }
 
     void		checkCorners( bool leftislow=true, bool topislow=true )
 			{ 
@@ -189,15 +185,15 @@ protected:
 
     inline void		swapHor() 
 			{ 
-			    T t = topLeft_.x(); 
-			    topLeft_.setX( bottomRight_.x() );
+			    T t = topLeft_.x; 
+			    topLeft_.setX( bottomRight_.x );
 			    bottomRight_.setX( t );
 			}
     inline void		swapVer() 
 			{ 
-			    T t = topLeft_.y(); 
-			    topLeft_.setY( bottomRight_.y() );
-			    bottomRight_.setY( t );
+			    T t = topLeft_.y; 
+			    topLeft_.y = bottomRight_.y;
+			    bottomRight_.y =  t;
 			}
 
     Point2D<T>		topLeft_;
@@ -211,12 +207,97 @@ protected:
 };
 
 
+template <class T> inline
+Point2D<T>::Point2D ( T xx , T yy )
+    : x(xx), y(yy)
+{}
+
+
+template <class T> inline
+void Point2D<T>::setXY( T xx, T yy )
+{ x = xx ; y = yy; }  
+
+
+template <class T> inline
+Point2D<T>& Point2D<T>::zero()
+{ x = y = 0; return *this; }
+
+
+template <class T> inline
+Point2D<T> Point2D<T>::operator -()
+{ return Point2D<T>( -x, -y ); }
+
+
+template <class T> inline
+T& Point2D<T>::operator[]( int idx )
+{ return idx ? y : x; }
+
+
+template <class T> inline
+T Point2D<T>::operator[]( int idx ) const
+{ return idx ? y : x; }
+
+
+template <class T> inline
+bool Point2D<T>::operator ==( const Point2D<T>& p ) const
+{ return p.x == x && p.y == y; }
+
+
+template <class T> inline
+bool Point2D<T>::operator !=( const Point2D<T>& p ) const
+{ return !(*this==p); }
+
+template <class T> inline
+Point2D<T>& Point2D<T>::operator+=( T dist )
+{ x += dist; y += dist; return *this; }
+
+
+template <class T> inline
+Point2D<T>& Point2D<T>::operator*=( T factor )
+{ x *= factor; y *= factor; return *this; }
+
+
+template <class T> inline
+Point2D<T>& Point2D<T>::operator/=( T den )
+{ x /= den; y /= den; return *this; }
+
+
+template <class T> inline
+Point2D<T>& Point2D<T>::operator +=( const Point2D<T>& p )
+{ x += p.x; y += p.y; return *this; }
+
+
+template <class T> inline
+Point2D<T>& Point2D<T>::operator -=( const Point2D<T>& p )
+{ x -= p.x; y -= p.y; return *this; }
+
+
+template <class T> inline
+Point2D<T> Point2D<T>::operator +( const Point2D<T>& p ) const
+{ return Point2D<T>(x+p.x,y+p.y); }
+
+
+template <class T> inline
+Point2D<T> Point2D<T>::operator -( const Point2D<T>& p ) const
+{ return Point2D<T>(x-p.x,y-p.y); }
+
+
+template <class T> inline
+Point2D<T> Point2D<T>::operator *( const T factor ) const
+{ return Point2D<T>(factor*x,factor*y); }
+
+
+template <class T> inline
+Point2D<T> Point2D<T>::operator /( const T den ) const
+{ return Point2D<T>(x/den,y/den); }
+
+
 template <class T>
 inline bool Rect<T>::isInside( const Point2D<T>& pt ) const
 {
     return pt != topLeft_ && pt != bottomRight_
-	&& ( (pt.x() - left() > 0) == (right() - pt.x() > 0) )
-	&& ( (pt.y() - bottom() > 0) == (top() - pt.y() > 0) );
+	&& ( (pt.x - left() > 0) == (right() - pt.x > 0) )
+	&& ( (pt.y - bottom() > 0) == (top() - pt.y > 0) );
 }
 
 
@@ -271,23 +352,23 @@ inline void Rect<T>::fitIn( const Rect<T>& r )
 {
     if ( revX() )
     {
-	if ( r.left() < left() ) topLeft_.setX(r.left());
-	if ( r.right() > right() ) bottomRight_.setX(r.right());
+	if ( r.left() < left() ) topLeft_.x = r.left();
+	if ( r.right() > right() ) bottomRight_.x = r.right();
     }
     else
     {
-	if ( r.left() > left() ) topLeft_.setX(r.left());
-	if ( r.right() < right() ) bottomRight_.setX(r.right());
+	if ( r.left() > left() ) topLeft_.x = r.left();
+	if ( r.right() < right() ) bottomRight_.x = r.right();
     }
     if ( revY() )
     {
-	if ( r.bottom() < bottom() ) bottomRight_.setY(r.bottom());
-	if ( r.top() > top() ) topLeft_.setY(r.top());
+	if ( r.bottom() < bottom() ) bottomRight_.y = r.bottom();
+	if ( r.top() > top() ) topLeft_.y = r.top();
     }
     else
     {
-	if ( r.bottom() > bottom() ) bottomRight_.setY(r.bottom());
-	if ( r.top() < top() ) topLeft_.setY(r.top());
+	if ( r.bottom() > bottom() ) bottomRight_.y = r.bottom();
+	if ( r.top() < top() ) topLeft_.y = r.top();
     }
 }
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uicanvas.cc,v 1.25 2006-01-31 16:39:07 cvshelene Exp $
+ RCS:           $Id: uicanvas.cc,v 1.26 2006-09-07 15:44:24 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -408,7 +408,7 @@ void uiScrollView::resizeContents( int w, int h )
     { body_->resizeContents(w,h); }
 
 void uiScrollView::setContentsPos( uiPoint topLeft )
-    { body_->setContentsPos(topLeft.x(),topLeft.y()); }
+    { body_->setContentsPos(topLeft.x,topLeft.y); }
 
 
 uiRect uiScrollView::visibleArea() const

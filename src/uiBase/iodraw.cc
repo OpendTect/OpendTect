@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/12/1999
- RCS:           $Id: iodraw.cc,v 1.15 2005-11-17 13:17:09 cvsdgb Exp $
+ RCS:           $Id: iodraw.cc,v 1.16 2006-09-07 15:44:24 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -76,7 +76,7 @@ void ioDrawTool::drawLine( const TypeSet<uiPoint>& pts, int pt0, int nr )
 #endif
 
     for ( int idx=0; idx<nrpoints; idx++ )
-	qarray.setPoint( (unsigned int)idx, pts[idx+pt0].x(), pts[idx+pt0].y());
+	qarray.setPoint( (unsigned int)idx, pts[idx+pt0].x, pts[idx+pt0].y);
 
     qpainter->drawPolyline( qarray );
 }
@@ -94,7 +94,7 @@ void ioDrawTool::drawPolygon( const TypeSet<uiPoint>& pts, int pt0, int nr )
 #endif
 
     for ( int idx=0; idx<nrpoints; idx++ )
-	qarray.setPoint( (unsigned int)idx, pts[idx+pt0].x(), pts[idx+pt0].y());
+	qarray.setPoint( (unsigned int)idx, pts[idx+pt0].x, pts[idx+pt0].y);
 
     qpainter->drawPolygon( qarray );
 }
@@ -250,7 +250,7 @@ void ioDrawTool::drawPixmap (const uiPoint destTopLeft, ioPixmap* pm,
     QRect src( QPoint(srcAreaInPixmap.left(),srcAreaInPixmap.top()),
 	       QPoint(srcAreaInPixmap.right(),srcAreaInPixmap.bottom()) );
     
-    QPoint dest( destTopLeft.x()-x0, destTopLeft.y()-y0 );
+    QPoint dest( destTopLeft.x-x0, destTopLeft.y-y0 );
 
     qpainter->drawPixmap( dest, *pm->Pixmap(), src );
 
@@ -310,18 +310,18 @@ void ioDrawTool::drawMarker( uiPoint pt, const MarkerStyle2D& mstyle,
     switch ( mstyle.type )
     {
     case MarkerStyle2D::Square:
-	drawRect( pt.x()-mstyle.size, pt.y()-mstyle.size,
+	drawRect( pt.x-mstyle.size, pt.y-mstyle.size,
 		  2 * mstyle.size, 2 * mstyle.size );
         break;
     case MarkerStyle2D::Circle:
-	drawEllipse( pt.x() - mstyle.size, pt.y() - mstyle.size,
+	drawEllipse( pt.x - mstyle.size, pt.y - mstyle.size,
 		     2*mstyle.size, 2*mstyle.size );
         break;
     case MarkerStyle2D::Cross:
-	drawLine( pt.x()-mstyle.size, pt.y()-mstyle.size,
-		  pt.x()+mstyle.size, pt.y()+mstyle.size );
-	drawLine( pt.x()-mstyle.size, pt.y()+mstyle.size,
-		  pt.x()+mstyle.size, pt.y()-mstyle.size );
+	drawLine( pt.x-mstyle.size, pt.y-mstyle.size,
+		  pt.x+mstyle.size, pt.y+mstyle.size );
+	drawLine( pt.x-mstyle.size, pt.y+mstyle.size,
+		  pt.x+mstyle.size, pt.y-mstyle.size );
         break;
     }
 
@@ -335,7 +335,7 @@ void ioDrawTool::drawMarker( uiPoint pt, const MarkerStyle2D& mstyle,
 	    yoffs = below ? mstyle.size+1 : -mstyle.size-1;
 	}
 
-	drawText( uiPoint(pt.x(),pt.y()+yoffs), txt, al, false );
+	drawText( uiPoint(pt.x,pt.y+yoffs), txt, al, false );
     }
 }
 

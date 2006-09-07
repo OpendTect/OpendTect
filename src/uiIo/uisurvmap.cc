@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvmap.cc,v 1.5 2004-07-29 21:41:26 bert Exp $
+ RCS:           $Id: uisurvmap.cc,v 1.6 2006-09-07 15:44:24 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -87,20 +87,20 @@ void uiSurveyMap::drawMap( const SurveyInfo* survinfo )
     dt.setFont( uiFontList::get(FontData::key(FontData::GraphicsSmall)) );
     for ( int idx=0; idx<4; idx++ )
     {
-	bool bot = cpt[idx].y() > h/2;
+	bool bot = cpt[idx].y > h/2;
 	Alignment al( Alignment::Middle, bot ? Alignment::Middle
 	       				     : Alignment::Start);
         BinID bid = survinfo->transform( mapcnr[idx] );
         int spacing =  bot ? 20 : -20;
 	BufferString annot;
         annot += bid.inl; annot += "/"; annot += bid.crl;
-        dt.drawText( cpt[idx].x(), cpt[idx].y()+spacing, annot, al );
+        dt.drawText( cpt[idx].x, cpt[idx].y+spacing, annot, al );
         double xcoord = double( int( mapcnr[idx].x*10 + .5 ) ) / 10;
         double ycoord = double( int( mapcnr[idx].y*10 + .5 ) ) / 10;
         annot = "";
         annot += "("; annot += xcoord; annot += ",";
         annot += ycoord; annot += ")";
-        dt.drawText( cpt[idx].x(), mNINT(cpt[idx].y()+1.5*spacing), annot, al );
+        dt.drawText( cpt[idx].x, mNINT(cpt[idx].y+1.5*spacing), annot, al );
     }
 
     dt.endDraw();

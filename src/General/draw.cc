@@ -4,7 +4,7 @@
  * DATE     : 18-4-1996
 -*/
 
-static const char* rcsID = "$Id: draw.cc,v 1.57 2006-08-21 17:14:45 cvsbert Exp $";
+static const char* rcsID = "$Id: draw.cc,v 1.58 2006-09-07 15:44:24 cvskris Exp $";
 
 /*! \brief Several implementations for UI-related things.
 
@@ -332,10 +332,10 @@ float ColorTable::getTransparency( float val ) const
     float valnorm = (val - cvs_[0].value) / (cvs_[sz-1].value - cvs_[0].value);
     for ( int idx=1; idx<translist_.size(); idx ++)
     {
-	float x0 = translist_[idx-1].x();
-	float y0 = translist_[idx-1].y();
-	float x1 = translist_[idx].x();
-	float y1 = translist_[idx].y();
+	float x0 = translist_[idx-1].x;
+	float y0 = translist_[idx-1].y;
+	float x1 = translist_[idx].x;
+	float y1 = translist_[idx].y;
 	if ( valnorm >= x0 && valnorm <= x1 )
 	    return Interpolate::linear1D( x0, y0, x1, y1, valnorm );
     }
@@ -495,7 +495,7 @@ void ColorTable::fillPar( IOPar& iopar ) const
     {
 	BufferString key( sKeyTransparency );
 	key += "."; key += idx;
-	iopar.set( key, translist_[idx].x(), translist_[idx].y() );
+	iopar.set( key, translist_[idx].x, translist_[idx].y );
     }
 }
 

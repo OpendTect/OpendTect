@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
  
-static const char* rcsID = "$Id: linear.cc,v 1.7 2005-08-26 18:19:28 cvsbert Exp $";
+static const char* rcsID = "$Id: linear.cc,v 1.8 2006-09-07 15:44:24 cvskris Exp $";
 
 
 #include "linear.h"
@@ -96,7 +96,7 @@ void LinStats2D::use( const float* xvals, const float* yvals, int nrpts )
 void LinStats2D::use( const Geom::Point2D<float>* vals, int nrpts )
 {
     if ( nrpts < 1 ) return;
-    calcLS( *this, &vals[0].x(), &vals[0].y(), nrpts, 2 );
+    calcLS( *this, &vals[0].x, &vals[0].y, nrpts, 2 );
 }
 
 

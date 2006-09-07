@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2000
- RCS:           $Id: uigeom.h,v 1.10 2005-05-18 08:27:22 cvskris Exp $
+ RCS:           $Id: uigeom.h,v 1.11 2006-09-07 15:44:24 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -68,13 +68,13 @@ public:
 			    : l_(l), t_(t), r_(r), b_(b)	{}
 
                         uiRect( uiPoint tl, uiPoint br )
-			    : l_(tl.x()), t_(tl.y()), r_(br.x()), b_(br.y()) {}
+			    : l_(tl.x), t_(tl.y), r_(br.x), b_(br.y) {}
 
                         uiRect( uiPoint tl, int wdt, int hgt, 
 				bool hgtwdt_in_pics=true )
-			    : l_(tl.x()), t_(tl.y())
-			    , r_(tl.x() + wdt - (hgtwdt_in_pics ? 1 : 0))
-			    , b_(tl.y() + hgt - (hgtwdt_in_pics ? 1 : 0))
+			    : l_(tl.x), t_(tl.y)
+			    , r_(tl.x + wdt - (hgtwdt_in_pics ? 1 : 0))
+			    , b_(tl.y + hgt - (hgtwdt_in_pics ? 1 : 0))
 			    {}
 
     inline int		left() const		{ return l_; }
@@ -204,14 +204,14 @@ public:
 
     inline bool		isInside(const uiPoint& pt) const
 	{
-	    return pt.x() != t_ && pt.y() != l_
-		&& pt.y() != r_ && pt.x() != b_
-		&& ( (pt.x() - left() > 0) == (right() - pt.x() > 0) )
-		&& ( (pt.y() - bottom() > 0) == (top() - pt.y() > 0) );
+	    return pt.x != t_ && pt.y != l_
+		&& pt.y != r_ && pt.x != b_
+		&& ( (pt.x - left() > 0) == (right() - pt.x > 0) )
+		&& ( (pt.y - bottom() > 0) == (top() - pt.y > 0) );
 	}
 
     inline bool		isOutside( const uiPoint& p ) const
-			{ return xOutside(p.x()) || yOutside(p.y()); }
+			{ return xOutside(p.x) || yOutside(p.y); }
     inline bool		isOnSide( const uiPoint& p ) const
 			{ return !isInside(p) && !isOutside(p); }
     inline bool		contains( const uiPoint& p ) const
