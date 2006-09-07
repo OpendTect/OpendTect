@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.cc,v 1.51 2006-08-15 11:32:56 cvsnanne Exp $
+ RCS:           $Id: uiodmenumgr.cc,v 1.52 2006-09-07 20:28:44 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -183,7 +183,12 @@ void uiODMenuMgr::fillFileMenu()
 	mInsertItem( impseissgy, "&Pre-Stack ...", mImpSeisSEGYPSMnuItm );
     impseis->insertItem( impseissgy );
     mInsertItem( impseis, "&CBVS ...", mImpSeisCBVSMnuItm );
-    mInsertItem( imphor, "&Ascii ...", mImpHorAsciiMnuItm );
+
+    uiPopupMenu* imphorasc = new uiPopupMenu( &appl, "&Ascii" );
+    mInsertItem( imphorasc, "&Geometry ...", mImpHorAsciiMnuItm );
+    mInsertItem( imphorasc, "&Attributes ...", mImpHorAsciiAttribMnuItm );
+    imphor->insertItem( imphorasc );
+
     uiPopupMenu* impwellasc = new uiPopupMenu( &appl, "&Ascii" );
     mInsertItem( impwellasc, "&Track ...", mImpWellAsciiTrackMnuItm );
     mInsertItem( impwellasc, "&Logs ...", mImpWellAsciiLogsMnuItm );
@@ -415,10 +420,11 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mExpSeisSEGY2DMnuItm: 	mDoOp(Exp,Seis,1); break;
     case mExpSeisSEGYPSMnuItm: 	mDoOp(Exp,Seis,2); break;
     case mImpHorAsciiMnuItm: 	mDoOp(Imp,Hor,0); break;
+    case mImpHorAsciiAttribMnuItm: mDoOp(Imp,Hor,1); break;
     case mExpHorAsciiMnuItm: 	mDoOp(Exp,Hor,0); break;
-    case mImpWellAsciiTrackMnuItm:  mDoOp(Imp,Wll,0); break;
-    case mImpWellAsciiLogsMnuItm:  mDoOp(Imp,Wll,1); break;
-    case mImpWellAsciiMarkersMnuItm:  mDoOp(Imp,Wll,2); break;
+    case mImpWellAsciiTrackMnuItm: mDoOp(Imp,Wll,0); break;
+    case mImpWellAsciiLogsMnuItm: mDoOp(Imp,Wll,1); break;
+    case mImpWellAsciiMarkersMnuItm: mDoOp(Imp,Wll,2); break;
     case mImpPickMnuItm: 	applMgr().impexpPickSet(true); break;
     case mExpPickMnuItm: 	applMgr().impexpPickSet(false); break;
     case mImpLmkFaultMnuItm: 	applMgr().importLMKFault(); break;
