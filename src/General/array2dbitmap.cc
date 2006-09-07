@@ -4,7 +4,7 @@
  * DATE     : Sep 2006
 -*/
 
-static const char* rcsID = "$Id: array2dbitmap.cc,v 1.1 2006-09-07 18:50:19 cvsbert Exp $";
+static const char* rcsID = "$Id: array2dbitmap.cc,v 1.2 2006-09-07 19:05:17 cvsbert Exp $";
 
 #include "array2dbitmap.h"
 #include "arrayndimpl.h"
@@ -187,9 +187,17 @@ int A2DBitmapGenerator::bitmapSize( int dim ) const
 }
 
 
+void A2DBitmapGenerator::setBitmap( A2DBitMap& bm )
+{
+    bitmap_ = &bm;
+    setup_.setBitmapSizes( bitmapSize(0), bitmapSize(1) );
+}
+
+
 void A2DBitmapGenerator::fill()
 {
-    setup_.setBitmapSizes( bitmapSize(0), bitmapSize(1) );
+    if ( !bitmap_ ) return;
+    setBitmap( *bitmap_ );
     if ( !setup_.nrXPix() || !setup_.nrYPix() )
 	return;
 
