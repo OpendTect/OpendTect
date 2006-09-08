@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vismpe.cc,v 1.46 2006-08-23 19:02:20 cvskris Exp $";
+static const char* rcsID = "$Id: vismpe.cc,v 1.47 2006-09-08 10:02:01 cvsjaap Exp $";
 
 #include "vismpe.h"
 
@@ -42,7 +42,7 @@ const Color MPEDisplay::reTrackColor = Color(130,255,130);
 const Color MPEDisplay::eraseColor = Color(255,130,130);
 
 MPEDisplay::MPEDisplay()
-    : VisualObjectImpl(true )
+    : VisualObjectImpl(true)
     , boxdragger_(visBase::BoxDragger::create())
     , rectangle_(visBase::FaceSet::create())
     , draggerrect_(visBase::DataObjectGroup::create())
@@ -60,7 +60,7 @@ MPEDisplay::MPEDisplay()
     addChild( boxdragger_->getInventorNode() );
     boxdragger_->ref();
     boxdragger_->finished.notify( mCB(this,MPEDisplay,boxDraggerFinishCB) );
-    boxdragger_->turnOn(false);
+    boxdragger_->turnOn( false );
 
     const HorSampling& hs = SI().sampling(true).hrg;
     const Interval<float> survinlrg( hs.start.inl, hs.stop.inl );
@@ -70,7 +70,7 @@ MPEDisplay::MPEDisplay()
 
     boxdragger_->setSpaceLimits( survinlrg, survcrlrg, survzrg );
 
-    draggerrect_->setSeparate(true);
+    draggerrect_->setSeparate( true );
     draggerrect_->ref();
 
     rectangle_->setVertexOrdering(
@@ -115,6 +115,7 @@ MPEDisplay::MPEDisplay()
     setDraggerCenter( true );
     updateBoxPosition(0);
     updatePlaneColor(0);
+    turnOn( true );
 }
 
 
@@ -261,7 +262,10 @@ void MPEDisplay::updateTexture()
 {
     const CubeSampling displaycs = engine_.activeVolume();
     if ( curtextureas_==as_ && curtexturecs_==displaycs )
+    {
+	texture_->turnOn( true );
 	return;
+    }
 
     RefMan<const Attrib::DataCubes> attrdata = engine_.getAttribCache( as_ );
     if ( !attrdata )
@@ -773,7 +777,7 @@ int MPEDisplay::usePar( const IOPar& par )
     if ( res!=1 ) return res;
 
     int textureid;
-    if ( par.get( sKeyTexture(), textureid ) )
+    if ( par.get(sKeyTexture(),textureid) )
     {
 	mDynamicCastGet( visBase::Texture3*, texture,
 		         visBase::DM().getObject(textureid) );
@@ -788,6 +792,7 @@ int MPEDisplay::usePar( const IOPar& par )
     if ( as_.usePar( par ) )
 	updateTexture();
 
+    turnOn( true );
     return 1;
 }
 
