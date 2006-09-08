@@ -4,18 +4,18 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          September 2006
- RCS:           $Id: annotbuffill.cc,v 1.2 2006-09-07 15:15:24 cvshelene Exp $
+ RCS:           $Id: annotbuffill.cc,v 1.3 2006-09-08 14:55:47 cvshelene Exp $
  ________________________________________________________________________
 
 -*/
 
 #include "annotbuffill.h"
-#include "arrayrgb.h"
+#include "uirgbarray.h"
 #include "uiworld2ui.h"
 
 
 void AnnotBufferFiller::fillBuffer( const uiWorldRect& worldareatofill,
-				    ArrayRGB& buffer ) const
+				    uiRGBArray& buffer ) const
 {
     //just for testing purpose
     const_cast<AnnotBufferFiller*>(this)->dummytest();
@@ -32,13 +32,13 @@ void AnnotBufferFiller::fillBuffer( const uiWorldRect& worldareatofill,
 
 //assumes that buffer size corresponds to imagebuffer.w2u_ size and pos
 void AnnotBufferFiller::fillInterWithBufArea( const uiWorldRect& worldarea, 
-				              int lineidx, ArrayRGB& buf) const
+				              int lineidx, uiRGBArray& buf)const
 {
     TypeSet<dPoint> pts = lines_[lineidx]->pts_;
     if ( pts.size() == 1 )
     {
 	iPoint ipt = w2u_->transform( pts[0] );
-	buf.set( ipt.x(), ipt.y(), lines_[lineidx]->linestyle_.color );
+	buf.set( ipt.x, ipt.y, lines_[lineidx]->linestyle_.color );
     }
     else
     {
@@ -64,13 +64,13 @@ void AnnotBufferFiller::fillInterWithBufArea( const uiWorldRect& worldarea,
 
 
 void AnnotBufferFiller::setLine( const iPoint& startpt, const iPoint& stoppt,
-				 int lidx, ArrayRGB& buffer ) const
+				 int lidx, uiRGBArray& buffer ) const
 {
     //TODO
-    const int deltax = abs( stoppt.x() - startpt.x() );
-    const int deltay = abs( stoppt.y() - startpt.y() );
-    const int signx = stoppt.x()>=startpt.x() ? 1 : -1;
-    const int signy = stoppt.y()>=startpt.y() ? 1 : -1;
+    const int deltax = abs( stoppt.x - startpt.x );
+    const int deltay = abs( stoppt.y - startpt.y );
+    const int signx = stoppt.x>=startpt.x ? 1 : -1;
+    const int signy = stoppt.y>=startpt.y ? 1 : -1;
     const bool ismaindirx = deltax >= deltay;
     const int nrpoints = ismaindirx ? deltax + 1 : deltay + 1;
     int discriminator = ismaindirx ? 2*deltay - deltax : 2*deltax - deltay;
@@ -85,10 +85,11 @@ void AnnotBufferFiller::setLine( const iPoint& startpt, const iPoint& stoppt,
     //TODO later on : use line size 
     for ( int idx=0; idx<nrpoints; idx++ )
     {
-	buffer.set( curpt.y(), curpt.x(), lines_[lidx]->linestyle_.color );
+	buffer.set( curpt.x, curpt.y, lines_[lidx]->linestyle_.color );
 	discriminator += discriminator<0 ? dincnegd : dincposd;
-	curpt.setX( curpt.x() + (discriminator<0 ? xincnegd : xincposd) );
-	curpt.setY( curpt.y() + (discriminator<0 ? yincnegd : yincposd) );
+	int xcoord = curpt.x + (discriminator<0 ? xincnegd : xincposd);
+	int ycoord = curpt.y + (discriminator<0 ? yincnegd : yincposd);
+	curpt.setXY( xcoord, ycoord );
     }
 }
 

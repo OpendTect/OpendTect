@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          04/09/2006
- RCS:           $Id: annotbuffill.h,v 1.2 2006-09-07 15:15:24 cvshelene Exp $
+ RCS:           $Id: annotbuffill.h,v 1.3 2006-09-08 14:55:47 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,9 +16,9 @@ ________________________________________________________________________
 #include "draw.h"
 
 class uiWorld2Ui;
-class ArrayRGB;
+class uiRGBArray;
 
-/*! \brief: Fills an ArrayRGB ( image buffer ) used to draw annotations 
+/*! \brief: Fills an uiRGBArray ( image buffer ) used to draw annotations 
   on 2D images
 
 */
@@ -47,9 +47,9 @@ public:
 			~AnnotBufferFiller()		{ deepErase(lines_); }
 
     void		setW2UI( const uiWorld2Ui* w )	{ w2u_ = w; }
-    void		fillBuffer(const uiWorldRect&,ArrayRGB&) const;
+    void		fillBuffer(const uiWorldRect&,uiRGBArray&) const;
     void		fillInterWithBufArea(const uiWorldRect&,int,
-	    				     ArrayRGB&) const;
+	    				     uiRGBArray&) const;
 
 
 protected:
@@ -57,9 +57,9 @@ protected:
     const uiWorld2Ui*	w2u_;
     ObjectSet<LineInfo> lines_;
 
-    void		setPoint(const iPoint&,int,ArrayRGB&) const;
+    void		setPoint(const iPoint&,int,uiRGBArray&) const;
     void		setLine(const iPoint&,const iPoint&,
-	    			int,ArrayRGB&) const;
+	    			int,uiRGBArray&) const;
     bool		isLineOutside(const LineInfo*,const uiWorldRect&) const;
     dPoint		computeIntersect(const dPoint&,const dPoint&,
 	    				 const uiWorldRect&)const;
