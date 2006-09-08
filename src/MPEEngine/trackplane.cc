@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: trackplane.cc,v 1.6 2006-03-12 13:39:10 cvsbert Exp $";
+static const char* rcsID = "$Id: trackplane.cc,v 1.7 2006-09-08 09:39:01 cvsjaap Exp $";
    
 
 #include "trackplane.h"
@@ -28,7 +28,7 @@ DefineEnumNames( TrackPlane, TrackMode, 0, "Tracking modes" )
 
 
 TrackPlane::TrackPlane( const BinID& start, const BinID& stop, float time )
-    : trackmode(Extend)
+    : trackmode(None)
 {
     cubesampling.hrg.start = start;
     cubesampling.hrg.stop = stop;
@@ -39,7 +39,7 @@ TrackPlane::TrackPlane( const BinID& start, const BinID& stop, float time )
 
 TrackPlane::TrackPlane( const BinID& start, const BinID& stop,
 	      float starttime, float stoptime )
-    : trackmode(Extend)
+    : trackmode(None)
 {
     cubesampling.hrg.start = start;
     cubesampling.hrg.stop = stop;

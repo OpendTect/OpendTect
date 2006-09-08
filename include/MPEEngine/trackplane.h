@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: trackplane.h,v 1.6 2005-10-07 21:48:48 cvskris Exp $
+ RCS:		$Id: trackplane.h,v 1.7 2006-09-08 09:38:34 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -40,7 +40,7 @@ public:
 			       const BinID& stop,
 			       float starttime,
 			       float stoptime );
-			TrackPlane() : trackmode(Extend) {}
+			TrackPlane() : trackmode(None) {}
 
     bool		isVertical() const;
     const CubeSampling&	boundingBox() const { return cubesampling; }
