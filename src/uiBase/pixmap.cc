@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/12/1999
- RCS:           $Id: pixmap.cc,v 1.17 2006-09-07 08:50:44 cvsnanne Exp $
+ RCS:           $Id: pixmap.cc,v 1.18 2006-09-08 13:25:28 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "arraynd.h"
 #include "arrayndimpl.h"
 #include "arrayrgb.h"
+#include "uirgbarray.h"
 #include "colortab.h"
 #include "separstr.h"
 #include "filegen.h"
@@ -39,6 +40,14 @@ ioPixmap::ioPixmap( const ArrayRGB& anImage )
     , srcname_("[ArrayRGB]")
 {
     convertFromArrayRGB( anImage );
+}
+
+
+ioPixmap::ioPixmap( const uiRGBArray& anImage )
+    : qpixmap_(new QPixmap)
+    , srcname_("[uiRGBArray]")
+{
+    convertFromRGBArray( anImage );
 }
 
 
@@ -123,6 +132,19 @@ ioPixmap::~ioPixmap()
 
 
 void ioPixmap::convertFromArrayRGB( const ArrayRGB& theImage )
+{
+    releaseDrawTool();
+
+    if( !qpixmap_ ) qpixmap_ = new QPixmap;
+#ifdef USEQT4
+    *qpixmap_ = QPixmap::fromImage( theImage.Image(), Qt::OrderedAlphaDither);
+#else
+    qpixmap_->convertFromImage( theImage.Image(), Qt::OrderedAlphaDither);
+#endif
+}    
+
+
+void ioPixmap::convertFromRGBArray( const uiRGBArray& theImage )
 {
     releaseDrawTool();
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/12/1999
- RCS:           $Id: pixmap.h,v 1.14 2006-09-07 08:50:44 cvsnanne Exp $
+ RCS:           $Id: pixmap.h,v 1.15 2006-09-08 13:25:28 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,7 +18,8 @@ ________________________________________________________________________
 class QBitmap;
 class QPaintDevice;
 class QPixmap;
-class ArrayRGB;
+class ArrayRGB;	//will go in the end, replaced by : uiRGBArray
+class uiRGBArray;
 class Color;
 class ColorTable;
 
@@ -42,6 +43,7 @@ class ioPixmap : public NamedObject,
 public:
 			ioPixmap() : qpixmap_(0)		{}
 			ioPixmap(const ArrayRGB&);
+			ioPixmap(const uiRGBArray&);
 			ioPixmap(const char* xpm[]);
 			ioPixmap(int w,int h);
 			ioPixmap(const QPixmap&);
@@ -51,6 +53,7 @@ public:
     virtual		~ioPixmap();
 
     void		convertFromArrayRGB(const ArrayRGB&);
+    void		convertFromRGBArray(const uiRGBArray&);
 
     QPixmap* 		Pixmap()		{ return qpixmap_; }
     const QPixmap*  	Pixmap() const		{ return qpixmap_; }
