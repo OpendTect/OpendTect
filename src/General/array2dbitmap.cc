@@ -4,7 +4,7 @@
  * DATE     : Sep 2006
 -*/
 
-static const char* rcsID = "$Id: array2dbitmap.cc,v 1.2 2006-09-07 19:05:17 cvsbert Exp $";
+static const char* rcsID = "$Id: array2dbitmap.cc,v 1.3 2006-09-08 10:48:27 cvsbert Exp $";
 
 #include "array2dbitmap.h"
 #include "arrayndimpl.h"
@@ -32,6 +32,13 @@ Interval<float> A2DBitMapInpData::scale( float clipratio ) const
 
 
 void A2DBitMapInpData::collectData()
+{
+    selectData();
+    quickSort( statpts_.arr(), statpts_.size() );
+}
+
+
+void A2DBitMapInpData::selectData()
 {
     const int szdim0 = data_.info().getSize( 0 );
     const int szdim1 = data_.info().getSize( 1 );

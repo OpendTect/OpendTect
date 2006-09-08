@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Sep 2006
- RCS:           $Id: array2dbitmap.h,v 1.1 2006-09-07 18:50:19 cvsbert Exp $
+ RCS:           $Id: array2dbitmap.h,v 1.2 2006-09-08 10:48:27 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -63,6 +63,8 @@ protected:
 
     Array2D<float>&	data_;
     TypeSet<float>	statpts_;
+
+    void		selectData();
 
 };
 
