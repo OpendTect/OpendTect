@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: mpeengine.cc,v 1.68 2006-09-05 13:48:20 cvsjaap Exp $";
+static const char* rcsID = "$Id: mpeengine.cc,v 1.69 2006-09-08 09:49:46 cvsjaap Exp $";
 
 #include "mpeengine.h"
 
@@ -498,7 +498,7 @@ void Engine::fillPar( IOPar& iopar ) const
 	localpar.set( sKeyObjectID(),EM::EMM().getMultiID(tracker->objectID()));
 	localpar.setYN( sKeyEnabled(), tracker->isEnabled() );
 
-	tracker->fillPar( localpar );
+//	tracker->fillPar( localpar );
 
 	BufferString key( trackeridx );
 	iopar.mergeComp( localpar, key );
@@ -572,6 +572,7 @@ bool Engine::usePar( const IOPar& iopar )
 	localpar->getYN( sKeyEnabled(), doenable );
 	tracker->enable( doenable );
 
+	// old restore session policy without separate tracking setup file
 	tracker->usePar( *localpar );
     }
 
