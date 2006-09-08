@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.h,v 1.38 2006-07-28 13:48:31 cvsjaap Exp $
+ RCS:           $Id: uimpeman.h,v 1.39 2006-09-08 09:46:19 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -78,6 +78,7 @@ protected:
     void			trackBackward(CallBacker*);
     void			trackForward(CallBacker*);
     void			trackInVolume(CallBacker*);
+    void			treeItemSelCB(CallBacker*);
 
     void			updateSeedPickState();
     void			trackerAddedRemovedCB(CallBacker*);
