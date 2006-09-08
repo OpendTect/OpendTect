@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          December 2004
- RCS:           $Id: uimpepartserv.h,v 1.24 2006-05-29 15:19:05 cvsjaap Exp $
+ RCS:           $Id: uimpepartserv.h,v 1.25 2006-09-08 09:45:02 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -109,6 +109,7 @@ public:
     void			postponeLoadingCurVol();
     void			loadPostponedVolume();
 
+    void			loadTrackSetupCB(CallBacker*);
     bool 			saveSetup(const MultiID&);
     bool 			readSetup(const MultiID&);
 	
@@ -130,6 +131,7 @@ protected:
     				/*!<Is checked when cb is issued from the
 				    MPE::Engine about changed active volume */
     CubeSampling		postponedcs_;
+    bool			blocknextloadsetup_;
 
 				//Interaction variables
     const Attrib::SelSpec*	eventattrselspec_;
