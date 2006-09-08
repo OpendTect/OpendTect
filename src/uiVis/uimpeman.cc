@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.cc,v 1.99 2006-07-28 13:56:09 cvsjaap Exp $
+ RCS:           $Id: uimpeman.cc,v 1.100 2006-09-08 09:58:36 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -66,7 +66,7 @@ uiMPEMan::uiMPEMan( uiParent* p, uiVisPartServer* ps )
     , visserv(ps)
     , init(false)
     , colbardlg(0)
-    , blockattribsel(false)
+//  , blockattribsel(false)
     , seedpickwason(false)
     , oldactivevol(false)
     , trackerwasshown(false)
@@ -87,7 +87,7 @@ uiMPEMan::uiMPEMan( uiParent* p, uiVisPartServer* ps )
     engine().trackeraddremove.notify(
 	    		mCB(this,uiMPEMan,trackerAddedRemovedCB) );
     visBase::DM().selMan().selnotifier.notify(
-	    mCB(this,uiMPEMan,updateButtonSensitivity) );
+	    mCB(this,uiMPEMan,treeItemSelCB) );
     visBase::DM().selMan().deselnotifier.notify(
 	    mCB(this,uiMPEMan,updateButtonSensitivity) );
 
@@ -169,7 +169,7 @@ uiMPEMan::~uiMPEMan()
     engine().trackeraddremove.remove(
 	    		mCB(this,uiMPEMan,trackerAddedRemovedCB) );
     visBase::DM().selMan().selnotifier.remove(
-	    mCB(this,uiMPEMan,updateButtonSensitivity) );
+	    mCB(this,uiMPEMan,treeItemSelCB) );
     visBase::DM().selMan().deselnotifier.remove(
 	    mCB(this,uiMPEMan,updateButtonSensitivity) );
 }
@@ -453,7 +453,7 @@ void uiMPEMan::updateSelectedAttrib()
     else if ( userref==sKey::None )
 	userref = sKeyNoAttrib();
     
-    if ( userref && !blockattribsel ) 	
+    if ( userref ) //&& !blockattribsel ) 	
 	attribfld->setCurrentItem( userref );
 }
 
@@ -474,7 +474,7 @@ void uiMPEMan::turnSeedPickingOn( bool yn )
 {
     if ( isSeedPickingOn() == yn )
 	return;
-    blockattribsel = yn;
+//  blockattribsel = yn;
     toolbar->turnOn( seedidx, yn );
 
     if ( yn )
@@ -484,7 +484,19 @@ void uiMPEMan::turnSeedPickingOn( bool yn )
 
 	if ( !clickcatcher )
 	{
-	    clickcatcher = visSurvey::MPEClickCatcher::create();
+	    TypeSet<int> catcherids;
+	    visserv->findObject( typeid(visSurvey::MPEClickCatcher), 
+		    		 catcherids );
+	    if ( catcherids.size() )
+	    {
+		visBase::DataObject* dobj = visserv->getObject( catcherids[0] );
+	        clickcatcher = 
+		    reinterpret_cast<visSurvey::MPEClickCatcher*>( dobj );
+	    }
+	    else
+	    {
+		clickcatcher = visSurvey::MPEClickCatcher::create();
+	    }
 	    clickcatcher->ref();
 
 	    TypeSet<int> scenes;
@@ -542,8 +554,8 @@ void uiMPEMan::showCubeCB( CallBacker* )
 
 void uiMPEMan::attribSel( CallBacker* )
 {
-    if ( blockattribsel )
-	return;
+//  if ( blockattribsel )
+//      return;
 
     mGetDisplays(false);
     const bool trackerisshown = displays.size() &&
@@ -644,14 +656,26 @@ void uiMPEMan::seedConnectModeSel( CallBacker* )
 }
 
 
+void uiMPEMan::treeItemSelCB( CallBacker* )
+{
+    validateSeedConMode();
+    updateButtonSensitivity(0);
+}
+
+
 void uiMPEMan::validateSeedConMode()
 {
     MPE::EMTracker* tracker = getSelectedTracker();
-    MPE::EMSeedPicker* seedpicker = tracker ? tracker->getSeedPicker(true) : 0;
+    if ( !tracker ) 
+	return;
+    const EM::EMObject* emobj = EM::EMM().getObject( tracker->objectID() );
+    if ( !emobj ) 
+	return;
+    MPE::EMSeedPicker* seedpicker = tracker->getSeedPicker(true);
     if ( !seedpicker ) return;
 
     const SectionTracker* sectiontracker = 
-		tracker->getSectionTracker( seedpicker->getSectionID(), true );
+			tracker->getSectionTracker( emobj->sectionID(0), true );
     const bool setupavailable = sectiontracker && 
 				sectiontracker->hasInitializedSetup();
     if ( setupavailable || !seedpicker->doesModeUseSetup() ) 
@@ -660,7 +684,6 @@ void uiMPEMan::validateSeedConMode()
     const int defaultmode = seedpicker->defaultSeedConMode( false ); 
     seedpicker->setSeedConnectMode( defaultmode );
     
-    turnSeedPickingOn( !seedpicker->doesModeUseVolume() );
     updateButtonSensitivity(0);
 }
 
@@ -708,9 +731,6 @@ void uiMPEMan::updateButtonSensitivity( CallBacker* )
     //Seed button
     updateSeedPickState();
 
-//    MPE::EMTracker* tracker = getSelectedTracker();
-//    MPE::EMSeedPicker* seedpicker = tracker ? tracker->getSeedPicker(true) : 0;
-//    const bool isvoltrack = seedpicker ? seedpicker->doesModeUseVolume() : true;
     const bool isseedpicking = toolbar->isOn(seedidx);
     
     toolbar->setSensitive( extendidx, true );
@@ -963,7 +983,8 @@ void uiMPEMan::initFromDisplay()
 	    transfld->setValue( displays[idx]->getDraggerTransparency() );
 	}
     }
-
+    
+    showTracker( engine().trackPlane().getTrackMode()!=TrackPlane::None );
     updateSelectedAttrib();
     updateButtonSensitivity(0);
 }
