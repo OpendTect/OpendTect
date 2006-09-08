@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Huck
  Date:          July 2006
- RCS:           $Id: gapdeconattrib.cc,v 1.6 2006-08-30 15:05:38 cvshelene Exp $
+ RCS:           $Id: gapdeconattrib.cc,v 1.7 2006-09-08 14:50:56 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,6 +29,9 @@ static inline
 void solveSymToeplitzsystem(int systdim, float* r, float* g, float* f, float* a)
 {
     if ( r[0] < 0.001 && r[0] > -0.001 ) return; //check mIsZero(r[0],0.001)
+
+    if ( systdim<1 )
+	return;
 
     a[0] = 1;
     float v = r[0];
@@ -164,15 +167,13 @@ bool GapDecon::computeData( const DataHolder& output, const BinID& relpos,
 	const_cast<GapDecon*>(this)->inited_ = true;
     }
 
-    float* wiener = new float[ngap_];
-    float* spiker = new float[ngap_];
-    float* autocorr = new float[lcorr_];
-//    float* crosscorr = new float[nlag_];//TODO not in original code
+    mVariableLengthArr( float, wiener, ngap_ );
+    mVariableLengthArr( float, spiker, ngap_ );
+    ArrPtrMan<float> autocorr = new float[lcorr_];
+
     memset( wiener, 0, ngap_ * sizeof( float ) );
     memset( spiker, 0, ngap_ * sizeof( float ) );
     memset( autocorr, 0, lcorr_ * sizeof( float ) );
-//    memset( crosscorr, 0, lcorr_ * sizeof( float ) );
-    
     
     float* crosscorr = autocorr + nlag_;//first sample of gap is at 
 					//maxlag_+1 = nlag_ because minlag = 0
@@ -185,20 +186,18 @@ bool GapDecon::computeData( const DataHolder& output, const BinID& relpos,
     int startcorr = mNINT( gate_.start / refstep / zFactor() );
     float* inputarr = inputdata_->series(dataidx_)->arr();
 
-    genericCrossCorrelation( ncorr_, startcorr, inputarr,
+    float* autocorrptr = autocorr;
+    genericCrossCorrelation<float,float,float*>( ncorr_, startcorr, inputarr,
 			     ncorr_, startcorr, inputarr,
-			     lcorr_, 0, autocorr );
+			     lcorr_, 0, autocorrptr );
 
     if ( mIsZero( autocorr[0], 0.001 ) )
 	return false;
 
     float scale = 1/autocorr[0];
-    for ( int idx=0; idx<ncorr_; idx++)  
+    for ( int idx=0; idx<lcorr_; idx++)  
 	autocorr[idx] *= scale;
 
-//    for ( int idx=0; idx<nlag_; idx++ )
-//	crosscorr[idx] = autocorr[idx];
-    
     autocorr[0] *= 1 + (float)noiselevel_/100;
 
     solveSymToeplitzsystem( ngap_, autocorr, crosscorr, wiener, spiker );
@@ -217,13 +216,33 @@ bool GapDecon::computeData( const DataHolder& output, const BinID& relpos,
 	    sum -= wiener[gapidx-startgapidx] *inparr->value(idx-gapidx+inoffs);
 	output.series(0)->setValue( idx + outoffs, sum );
     }
+/*
+    //few lines to test autocorr filtered with gapdecon
+    float* inputoutarr = output.series(0)->arr();
+    genericCrossCorrelation<float,float,float*>( ncorr_, startcorr, inputoutarr,
+						 ncorr_, startcorr, inputoutarr,
+						 lcorr_, 0, autocorrptr );
 
-    delete [] wiener; delete [] spiker; delete [] autocorr;
+    float scale2 = 1/autocorr[0];
+    for ( int idx=0; idx<lcorr_; idx++)
+	autocorr[idx] *= scale2;
+
+    Interval<int> gap( startcorr, startcorr + lcorr_ );
+    for ( int idx = 0; idx < nrsamples; ++idx )
+    {
+	float sum = 0;
+	if ( gap.includes(idx) )
+	    sum += autocorr[ idx - startcorr ];
+	output.series(0)->setValue( idx + outoffs, sum );
+    }
+    //
+*/
     return true;
 }
 
 
 const BinID* GapDecon::reqStepout( int inp, int out ) const
-{ return inp ? 0 : &stepout_; }
+{ return 0; }//to fit with fake 2dline -> 3d
+//{ return inp ? 0 : &stepout_; }
 
 }; //namespace
