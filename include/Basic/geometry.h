@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2000
- RCS:           $Id: geometry.h,v 1.19 2006-09-07 15:44:23 cvskris Exp $
+ RCS:           $Id: geometry.h,v 1.20 2006-09-08 15:56:32 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,6 +43,11 @@ public:
     inline Point2D<T>		operator -( const Point2D<T>& p ) const;
     inline Point2D<T>		operator *( const T factor ) const;
     inline Point2D<T>		operator /( const T den ) const;
+
+    inline double		abs() const;
+    inline T			sqAbs() const;
+    inline double		distTo(const Point2D<T>&) const;
+    inline T			sqDistTo(const Point2D<T>&) const;
     
     T 				x;
     T 				y;
@@ -290,6 +295,30 @@ Point2D<T> Point2D<T>::operator *( const T factor ) const
 template <class T> inline
 Point2D<T> Point2D<T>::operator /( const T den ) const
 { return Point2D<T>(x/den,y/den); }
+
+
+template <class T> inline
+double Point2D<T>::abs() const
+{ return sqrt( sqAbs() ); }
+
+
+template <class T> inline
+T Point2D<T>::sqAbs() const
+{ return x*x + y*y; }
+
+
+template <class T> inline
+double Point2D<T>::distTo( const Point2D<T>& pt ) const
+{ return sqrt( sqDistTo(pt) ); }
+
+
+template <class T> inline
+T Point2D<T>::sqDistTo( const Point2D<T>& pt ) const
+{
+    const T xdiff = x-pt.x;
+    const T ydiff = y-pt.y;
+    return xdiff*xdiff+ydiff*ydiff;
+}
 
 
 template <class T>
