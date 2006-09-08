@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2004
- RCS:           $Id: uimpepartserv.cc,v 1.50 2006-09-06 17:23:50 cvskris Exp $
+ RCS:           $Id: uimpepartserv.cc,v 1.51 2006-09-08 09:51:43 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -52,6 +52,7 @@ uiMPEPartServer::uiMPEPartServer( uiApplService& a, const Attrib::DescSet* ads )
     , eventattrselspec_( 0 )
     , blockdataloading_( false )
     , postponedcs_( false )
+    , blocknextloadsetup_(false)
 {
     MPE::initStandardClasses();
     MPE::engine().setActiveVolume( MPE::engine().getDefaultActiveVolume() );
@@ -59,6 +60,8 @@ uiMPEPartServer::uiMPEPartServer( uiApplService& a, const Attrib::DescSet* ads )
 	    mCB(this, uiMPEPartServer, activeVolumeChange) );
     MPE::engine().loadEMObject.notify(
 	    mCB(this, uiMPEPartServer, loadEMObjectCB) );
+    MPE::engine().trackeraddremove.notify(
+	    mCB(this, uiMPEPartServer, loadTrackSetupCB) );
 }
 
 
@@ -68,6 +71,8 @@ uiMPEPartServer::~uiMPEPartServer()
 	    mCB(this, uiMPEPartServer, activeVolumeChange) );
     MPE::engine().loadEMObject.remove(
 	    mCB(this, uiMPEPartServer, loadEMObjectCB) );
+    MPE::engine().trackeraddremove.remove(
+	    mCB(this, uiMPEPartServer, loadTrackSetupCB) );
     delete wizard_;
 }
 
@@ -117,7 +122,6 @@ int uiMPEPartServer::addTracker( const EM::ObjectID& emid,
     }
 
     blockDataLoading( true );
-    readSetup( emobj->multiID() );
 
     if ( pickedpos.isDefined() ) 
     {
@@ -139,6 +143,8 @@ bool uiMPEPartServer::addTracker( const char* trackertype )
 {
     if ( !wizard_ ) wizard_ = new MPE::Wizard( appserv().parent(), this );
     else wizard_->reset();
+
+    blocknextloadsetup_ = true;
 
     wizard_->setTrackingType( trackertype );
 //  wizard_->setRotateMode(true);
@@ -229,7 +235,6 @@ bool uiMPEPartServer::showSetupDlg( const EM::ObjectID& emid,
     while ( !grp->commitToTracker() );
 
     tracker->applySetupAsDefault( sid );
-    saveSetup( EM::EMM().getMultiID(emid) );
     loadAttribData();
     return true;
 }
@@ -428,6 +433,28 @@ bool uiMPEPartServer::saveSetup( const MultiID& mid )
 }
 
 
+void uiMPEPartServer::loadTrackSetupCB( CallBacker* )
+{
+    if ( blocknextloadsetup_ )
+    {
+	blocknextloadsetup_ = false;
+	return;
+    }
+
+    const int trackerid = MPE::engine().highestTrackerID();
+    MPE::EMTracker* emtracker = MPE::engine().getTracker( trackerid );
+    if ( !emtracker ) return;
+    const EM::EMObject* emobj = EM::EMM().getObject( emtracker->objectID() );
+    if ( !emobj ) return;
+    const EM::SectionID sid = emobj->sectionID(0);
+    const MPE::SectionTracker* sectracker = 
+			       emtracker->getSectionTracker( sid, true );
+    
+    if ( sectracker && !sectracker->hasInitializedSetup() ) 
+	readSetup( emobj->multiID() );
+}
+
+
 bool uiMPEPartServer::readSetup( const MultiID& mid ) 
 {
     BufferString setupfilenm = MPE::engine().setupFileName( mid );
@@ -512,6 +539,9 @@ bool uiMPEPartServer::usePar( const IOPar& par )
     {
 	if ( !sendEvent(evInitFromSession) )
 	    return false;
+
+	if ( MPE::engine().nrTrackersAlive() )
+	    sendEvent( evShowToolbar );
 
 	loadAttribData();
     }
