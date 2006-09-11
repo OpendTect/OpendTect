@@ -4,20 +4,22 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          December 2004
- RCS:           $Id: uiscalingattrib.cc,v 1.8 2006-08-16 10:51:20 cvsbert Exp $
+ RCS:           $Id: uiscalingattrib.cc,v 1.9 2006-09-11 06:59:31 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiscalingattrib.h"
 #include "scalingattrib.h"
+
 #include "attribdesc.h"
 #include "attribparam.h"
 #include "attribparamgroup.h"
+#include "survinfo.h"
+#include "uiattribfactory.h"
+#include "uiattrsel.h"
 #include "uigeninput.h"
 #include "uitable.h"
-#include "uiattrsel.h"
-#include "survinfo.h"
 
 using namespace Attrib;
 
@@ -44,6 +46,8 @@ static const char* scalingtypestr[] =
     0
 };
 
+
+mInitUI( uiScalingAttrib, "Scaling" )
 
 uiScalingAttrib::uiScalingAttrib( uiParent* p )
 	: uiAttrDescEd(p)
@@ -83,6 +87,10 @@ uiScalingAttrib::uiScalingAttrib( uiParent* p )
 
     setHAlignObj( inpfld );
 }
+
+
+const char* uiScalingAttrib::getAttribName() const
+{ return Scaling::attribName(); }
 
 
 void uiScalingAttrib::typeSel( CallBacker* )

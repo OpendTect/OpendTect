@@ -4,26 +4,31 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2004
- RCS:           $Id: uispecdecompattrib.cc,v 1.10 2006-04-03 13:30:32 cvshelene Exp $
+ RCS:           $Id: uispecdecompattrib.cc,v 1.11 2006-09-11 06:59:32 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uispecdecompattrib.h"
 #include "specdecompattrib.h"
+
 #include "attribdesc.h"
 #include "attribparam.h"
-#include "wavelettrans.h"
-#include "survinfo.h"
 #include "cubesampling.h"
+#include "survinfo.h"
+#include "wavelettrans.h"
+#include "uiattribfactory.h"
 #include "uiattrsel.h"
 #include "uigeninput.h"
-#include "uispinbox.h"
 #include "uilabel.h"
+#include "uispinbox.h"
 
 using namespace Attrib;
 
 static float sDefaultFreqStep = 5;
+
+
+mInitUI( uiSpecDecompAttrib, "Spectral Decomp" )
 
 uiSpecDecompAttrib::uiSpecDecompAttrib( uiParent* p )
     : uiAttrDescEd(p)
@@ -60,6 +65,10 @@ uiSpecDecompAttrib::uiSpecDecompAttrib( uiParent* p )
     typeSel(0);
     setHAlignObj( inpfld );
 }
+
+
+const char* uiSpecDecompAttrib::getAttribName() const
+{ return SpecDecomp::attribName(); }
 
 
 void uiSpecDecompAttrib::inputSel( CallBacker* )

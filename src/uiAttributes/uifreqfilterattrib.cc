@@ -4,15 +4,17 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2001
- RCS:           $Id: uifreqfilterattrib.cc,v 1.9 2006-04-03 13:30:32 cvshelene Exp $
+ RCS:           $Id: uifreqfilterattrib.cc,v 1.10 2006-09-11 06:59:31 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uifreqfilterattrib.h"
 #include "freqfilterattrib.h"
+
 #include "attribdesc.h"
 #include "attribparam.h"
+#include "uiattribfactory.h"
 #include "uiattrsel.h"
 #include "uigeninput.h"
 #include "uispinbox.h"
@@ -42,6 +44,8 @@ static const char* typestrs[] =
     0
 };
 
+
+mInitUI( uiFreqFilterAttrib, "Frequency Filter")
 
 uiFreqFilterAttrib::uiFreqFilterAttrib( uiParent* p )
 	: uiAttrDescEd(p)
@@ -75,6 +79,10 @@ uiFreqFilterAttrib::uiFreqFilterAttrib( uiParent* p )
     mainObject()->finaliseDone.notify( mCB(this,uiFreqFilterAttrib,finaliseCB));
     setHAlignObj( inpfld );
 }
+
+
+const char* uiFreqFilterAttrib::getAttribName() const
+{ return FreqFilter::attribName(); }
 
 
 void uiFreqFilterAttrib::finaliseCB( CallBacker* )

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: paramsetget.h,v 1.8 2006-05-19 14:33:11 cvshelene Exp $
+ RCS:           $Id: paramsetget.h,v 1.9 2006-09-11 07:04:12 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,14 +18,14 @@ ________________________________________________________________________
 { \
     mDynamicCastGet(Attrib::FloatGateParam*,param,desc.getParam(str)) \
     const Interval<float> oldval( param->getfValue(0), param->getfValue(1) ); \
-    if ( chtr.set(oldval,newval) ) param->setValue( newval ); \
+    if ( chtr_.set(oldval,newval) ) param->setValue( newval ); \
 }
 
 #define mSetFloat( str, newval ) \
 { \
     Attrib::ValParam* param = desc.getValParam( str ); \
     const float oldval = param->getfValue(); \
-    if ( chtr.set(oldval,newval) ) \
+    if ( chtr_.set(oldval,newval) ) \
         param->setValue( newval ); \
 }
 
@@ -33,7 +33,7 @@ ________________________________________________________________________
 { \
     Attrib::ValParam* param = desc.getValParam( str ); \
     const int oldval = param->getIntValue(); \
-    if ( chtr.set(oldval,newval) ) \
+    if ( chtr_.set(oldval,newval) ) \
         param->setValue( newval ); \
 }
 
@@ -41,7 +41,7 @@ ________________________________________________________________________
 { \
     mDynamicCastGet(Attrib::BoolParam*,param,desc.getValParam(str)) \
     const bool oldval = param->getBoolValue(); \
-    if ( chtr.set(oldval,newval) ) \
+    if ( chtr_.set(oldval,newval) ) \
 	param->setValue( newval ); \
     else\
     	param->setSet();\
@@ -51,7 +51,7 @@ ________________________________________________________________________
 { \
     mDynamicCastGet(Attrib::EnumParam*,param,desc.getValParam(str)) \
     const int oldval = param->getIntValue(); \
-    if ( chtr.set(oldval,newval) ) \
+    if ( chtr_.set(oldval,newval) ) \
 	param->setValue( newval ); \
     else\
     	param->setSet();\
@@ -61,7 +61,7 @@ ________________________________________________________________________
 { \
     mDynamicCastGet(Attrib::BinIDParam*,param,desc.getValParam(str)) \
     const BinID oldval = param->getValue(); \
-    if ( chtr.set(oldval,newval) ) \
+    if ( chtr_.set(oldval,newval) ) \
     { param->setValue( newval.inl, 0 ); param->setValue( newval.crl, 1 ); } \
 }
 
@@ -70,7 +70,7 @@ ________________________________________________________________________
 { \
     Attrib::ValParam* param = desc.getValParam( str ); \
     BufferString oldval = param->getStringValue(); \
-    if ( chtr.set(oldval,newval) ) \
+    if ( chtr_.set(oldval,newval) ) \
         param->setValue( newval ); \
 }
 

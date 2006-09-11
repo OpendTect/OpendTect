@@ -4,19 +4,21 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May  2005
- RCS:           $Id: uisimilarityattrib.cc,v 1.10 2006-04-03 13:30:32 cvshelene Exp $
+ RCS:           $Id: uisimilarityattrib.cc,v 1.11 2006-09-11 06:59:32 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uisimilarityattrib.h"
 #include "similarityattrib.h"
+
 #include "attribdesc.h"
 #include "attribparam.h"
+#include "uiattribfactory.h"
 #include "uiattrsel.h"
 #include "uigeninput.h"
-#include "uistepoutsel.h"
 #include "uisteeringsel.h"
+#include "uistepoutsel.h"
 
 using namespace Attrib;
 
@@ -48,6 +50,8 @@ static const char* outpstrsext[] =
 };
 
 
+mInitUI( uiSimilarityAttrib, "Similarity" )
+
 uiSimilarityAttrib::uiSimilarityAttrib( uiParent* p )
 	: uiAttrDescEd(p)
 {
@@ -78,6 +82,10 @@ uiSimilarityAttrib::uiSimilarityAttrib( uiParent* p )
 
     extSel(0);
 }
+
+
+const char* uiSimilarityAttrib::getAttribName() const
+{ return Similarity::attribName(); }
 
 
 void uiSimilarityAttrib::set2D( bool yn )

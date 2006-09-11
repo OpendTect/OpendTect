@@ -4,22 +4,26 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2001
- RCS:           $Id: uishiftattrib.cc,v 1.7 2006-03-10 13:34:02 cvsbert Exp $
+ RCS:           $Id: uishiftattrib.cc,v 1.8 2006-09-11 06:59:32 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uishiftattrib.h"
 #include "shiftattrib.h"
+
 #include "attribdesc.h"
 #include "attribparam.h"
+#include "uiattribfactory.h"
 #include "uiattrsel.h"
-#include "uisteeringsel.h"
 #include "uigeninput.h"
+#include "uisteeringsel.h"
 #include "uistepoutsel.h"
 
 using namespace Attrib;
 
+
+mInitUI( uiShiftAttrib, "Reference shift" )
 
 uiShiftAttrib::uiShiftAttrib( uiParent* p )
 	: uiAttrDescEd(p)
@@ -44,6 +48,10 @@ uiShiftAttrib::uiShiftAttrib( uiParent* p )
     shiftSel(0);
     setHAlignObj( inpfld );
 }
+
+
+const char* uiShiftAttrib::getAttribName() const
+{ return Shift::attribName(); }
 
 
 void uiShiftAttrib::set2D( bool yn )

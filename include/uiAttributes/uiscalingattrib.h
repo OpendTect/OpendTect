@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          December 2004
- RCS:           $Id: uiscalingattrib.h,v 1.3 2005-08-12 11:12:17 cvsnanne Exp $
+ RCS:           $Id: uiscalingattrib.h,v 1.4 2006-09-11 07:04:12 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,10 +25,13 @@ class uiTable;
 class uiScalingAttrib : public uiAttrDescEd
 {
 public:
-
+    static void		initClass();
 			uiScalingAttrib(uiParent*);
 
+    const char*		getAttribName() const;
+
 protected:
+    static uiAttrDescEd* createInstance(uiParent*);
 
     uiAttrSel*		inpfld;
     uiGenInput*		typefld;

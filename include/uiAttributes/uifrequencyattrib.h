@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2001
- RCS:           $Id: uifrequencyattrib.h,v 1.2 2005-08-22 15:33:53 cvsnanne Exp $
+ RCS:           $Id: uifrequencyattrib.h,v 1.3 2006-09-11 07:04:12 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,12 +23,14 @@ class uiImagAttrSel;
 class uiFrequencyAttrib : public uiAttrDescEd
 {
 public:
-
+    static void		initClass();
 			uiFrequencyAttrib(uiParent*);
 
+    const char*		getAttribName() const;
     void		getEvalParams(TypeSet<EvalParam>&) const;
 
 protected:
+    static uiAttrDescEd* createInstance(uiParent*);
 
     uiImagAttrSel*	inpfld;
     uiGenInput*         gatefld;

@@ -4,19 +4,20 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2001
- RCS:           $Id: uiinstantattrib.cc,v 1.3 2006-03-10 13:34:02 cvsbert Exp $
+ RCS:           $Id: uiinstantattrib.cc,v 1.4 2006-09-11 06:59:31 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiinstantattrib.h"
 #include "instantattrib.h"
+
 #include "attribdesc.h"
+#include "uiattribfactory.h"
 #include "uiattrsel.h"
 #include "uigeninput.h"
 
 using namespace Attrib;
-
 
 const char* uiInstantaneousAttrib::outstrs[] =
 {
@@ -37,6 +38,8 @@ const char* uiInstantaneousAttrib::outstrs[] =
 };
 
 
+mInitUI( uiInstantaneousAttrib, "Instantaneous" )
+
 uiInstantaneousAttrib::uiInstantaneousAttrib( uiParent* p )
 	: uiAttrDescEd(p)
 {
@@ -48,6 +51,10 @@ uiInstantaneousAttrib::uiInstantaneousAttrib( uiParent* p )
 
     setHAlignObj( inpfld );
 }
+
+
+const char* uiInstantaneousAttrib::getAttribName() const
+{ return Instantaneous::attribName(); }
 
 
 bool uiInstantaneousAttrib::setParameters( const Desc& desc )

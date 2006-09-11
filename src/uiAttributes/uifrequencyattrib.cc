@@ -4,15 +4,17 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2001
- RCS:           $Id: uifrequencyattrib.cc,v 1.7 2006-04-03 13:30:32 cvshelene Exp $
+ RCS:           $Id: uifrequencyattrib.cc,v 1.8 2006-09-11 06:59:31 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uifrequencyattrib.h"
 #include "frequencyattrib.h"
+
 #include "attribdesc.h"
 #include "attribparam.h"
+#include "uiattribfactory.h"
 #include "uiattrsel.h"
 #include "uigeninput.h"
 
@@ -45,6 +47,8 @@ static const char* outpstrs[] =
 };
 
 
+mInitUI( uiFrequencyAttrib,"Frequency" )
+
 uiFrequencyAttrib::uiFrequencyAttrib( uiParent* p )
 	: uiAttrDescEd(p)
 {
@@ -66,6 +70,10 @@ uiFrequencyAttrib::uiFrequencyAttrib( uiParent* p )
 
     setHAlignObj( inpfld );
 }
+
+
+const char* uiFrequencyAttrib::getAttribName() const
+{ return Frequency::attribName(); }
 
 
 bool uiFrequencyAttrib::setParameters( const Attrib::Desc& desc )
@@ -118,8 +126,7 @@ bool uiFrequencyAttrib::getInput( Attrib::Desc& desc )
 
 bool uiFrequencyAttrib::getOutput( Attrib::Desc& desc )
 {
-    mChgTrackGetSet( chtr, (&desc), selectedOutput,
-	    	selectOutput, outpfld->getIntValue() );
+    fillOutput( desc, outpfld->getIntValue() );
     return true;
 }
 

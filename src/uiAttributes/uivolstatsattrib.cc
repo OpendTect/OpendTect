@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: uivolstatsattrib.cc,v 1.6 2005-09-01 12:10:45 cvsnanne Exp $
+ RCS:           $Id: uivolstatsattrib.cc,v 1.7 2006-09-11 06:59:32 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,8 +14,9 @@ ________________________________________________________________________
 
 #include "attribdesc.h"
 #include "attribparam.h"
-#include "uigeninput.h"
+#include "uiattribfactory.h"
 #include "uiattrsel.h"
+#include "uigeninput.h"
 #include "uisteeringsel.h"
 #include "uistepoutsel.h"
 
@@ -33,6 +34,8 @@ static const char* outpstrs[] =
 	0
 };
 
+
+mInitUI( uiVolumeStatisticsAttrib, "Volume Statistics" )
 
 uiVolumeStatisticsAttrib::uiVolumeStatisticsAttrib( uiParent* p )
     : uiAttrDescEd(p)
@@ -57,6 +60,10 @@ uiVolumeStatisticsAttrib::uiVolumeStatisticsAttrib( uiParent* p )
 
     setHAlignObj( inpfld );
 }
+
+
+const char* uiVolumeStatisticsAttrib::getAttribName() const
+{ return VolStats::attribName(); }
 
 
 void uiVolumeStatisticsAttrib::set2D( bool yn )

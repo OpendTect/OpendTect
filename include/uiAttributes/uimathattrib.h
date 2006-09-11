@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2001
- RCS:           $Id: uimathattrib.h,v 1.2 2005-06-09 13:12:35 cvsnanne Exp $
+ RCS:           $Id: uimathattrib.h,v 1.3 2006-09-11 07:04:12 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,10 +24,13 @@ class uiPushButton;
 class uiMathAttrib : public uiAttrDescEd
 {
 public:
-
+    static void		initClass();
 			uiMathAttrib(uiParent*);
 
+    const char*		getAttribName() const;
+
 protected:
+    static uiAttrDescEd* createInstance(uiParent*);
 
     uiGenInput*         inpfld;
     uiPushButton*	parsebut;

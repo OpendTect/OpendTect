@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:		$Id: uienergyattrib.cc,v 1.5 2006-04-03 13:30:32 cvshelene Exp $
+ RCS:		$Id: uienergyattrib.cc,v 1.6 2006-09-11 06:59:31 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,11 +15,14 @@ ________________________________________________________________________
 
 #include "attribdesc.h"
 #include "attribparam.h"
+#include "uiattribfactory.h"
 #include "uiattrsel.h"
 #include "uigeninput.h"
 
 using namespace Attrib;
 
+
+mInitUI( uiEnergyAttrib, "Energy" )
 
 uiEnergyAttrib::uiEnergyAttrib( uiParent* p )
 	: uiAttrDescEd(p)
@@ -32,7 +35,11 @@ uiEnergyAttrib::uiEnergyAttrib( uiParent* p )
 }
 
 
-bool uiEnergyAttrib::setParameters( const Attrib::Desc& desc )
+const char* uiEnergyAttrib::getAttribName() const
+{ return Energy::attribName(); }
+
+
+bool uiEnergyAttrib::setParameters( const Desc& desc )
 {
     if ( strcmp(desc.attribName(),Energy::attribName()) )
 	return false;
@@ -42,14 +49,14 @@ bool uiEnergyAttrib::setParameters( const Attrib::Desc& desc )
 }
 
 
-bool uiEnergyAttrib::setInput( const Attrib::Desc& desc )
+bool uiEnergyAttrib::setInput( const Desc& desc )
 {
     putInp( inpfld, desc, 0 );
     return true;
 }
 
 
-bool uiEnergyAttrib::getParameters( Attrib::Desc& desc )
+bool uiEnergyAttrib::getParameters( Desc& desc )
 {
     if ( strcmp(desc.attribName(),Energy::attribName()) )
 	return false;
@@ -59,7 +66,7 @@ bool uiEnergyAttrib::getParameters( Attrib::Desc& desc )
 }
 
 
-bool uiEnergyAttrib::getInput( Attrib::Desc& desc )
+bool uiEnergyAttrib::getInput( Desc& desc )
 {
     fillInp( inpfld, desc, 0 );
     return true;

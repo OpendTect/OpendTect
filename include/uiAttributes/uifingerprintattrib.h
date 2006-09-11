@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Payraudeau
  Date:          February 2006
- RCS:           $Id: uifingerprintattrib.h,v 1.9 2006-05-31 09:29:40 cvshelene Exp $
+ RCS:           $Id: uifingerprintattrib.h,v 1.10 2006-09-11 07:04:12 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,13 +42,15 @@ class calcFingParsObject;
 class uiFingerPrintAttrib : public uiAttrDescEd
 {
 public:
-
+    static void		initClass();
 			uiFingerPrintAttrib(uiParent*);
 			~uiFingerPrintAttrib();
 
     void		set2D(bool);
+    const char*		getAttribName() const;
 
 protected:
+    static uiAttrDescEd* createInstance(uiParent*);
 
     uiTable*            table_;
     uiButtonGroup*      refgrp_;

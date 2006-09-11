@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: uienergyattrib.h,v 1.2 2005-08-22 15:33:53 cvsnanne Exp $
+ RCS:           $Id: uienergyattrib.h,v 1.3 2006-09-11 07:04:12 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,18 +19,20 @@ namespace Attrib { class Desc; };
 class uiAttrSel;
 class uiGenInput;
 
-
-/*! \brief Enery Attribute description editor */
+/*! \brief Energy Attribute ui */
 
 class uiEnergyAttrib : public uiAttrDescEd
 {
 public:
 
+    static void		initClass();
 			uiEnergyAttrib(uiParent*);
 
+    const char*		getAttribName() const;
     void		getEvalParams(TypeSet<EvalParam>&) const;
 
 protected:
+    static uiAttrDescEd* createInstance(uiParent*);
 
     uiAttrSel*		inpfld;
     uiGenInput*		gatefld;

@@ -4,16 +4,18 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2001
- RCS:           $Id: uimathattrib.cc,v 1.6 2006-04-03 13:30:32 cvshelene Exp $
+ RCS:           $Id: uimathattrib.cc,v 1.7 2006-09-11 06:59:31 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uimathattrib.h"
 #include "mathattrib.h"
-#include "mathexpression.h"
+
 #include "attribdesc.h"
 #include "attribparam.h"
+#include "mathexpression.h"
+#include "uiattribfactory.h"
 #include "uiattrsel.h"
 #include "uibutton.h"
 #include "uigeninput.h"
@@ -22,6 +24,9 @@ ________________________________________________________________________
 using namespace Attrib;
 
 const int cNrVars = 6;
+
+
+mInitUI( uiMathAttrib, "Mathematics" )
 
 uiMathAttrib::uiMathAttrib( uiParent* p )
 	: uiAttrDescEd(p)
@@ -46,6 +51,10 @@ uiMathAttrib::uiMathAttrib( uiParent* p )
 
     setHAlignObj( inpfld );
 }
+
+
+const char* uiMathAttrib::getAttribName() const
+{ return Math::attribName(); }
 
 
 void uiMathAttrib::parsePush( CallBacker* )

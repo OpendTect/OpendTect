@@ -4,18 +4,19 @@
  CopyRight:	(C) dGB Beheer B.V.
  Author:	H. Payraudeau
  Date:		February 2005
- RCS:		$Id: uieventattrib.cc,v 1.4 2006-04-11 10:13:36 cvshelene Exp $
+ RCS:		$Id: uieventattrib.cc,v 1.5 2006-09-11 06:59:31 cvsnanne Exp $
  ________________________________________________________________________
 
 -*/
 
 #include "uieventattrib.h"
 #include "eventattrib.h"
+
 #include "attribdesc.h"
 #include "attribparam.h"
-#include "uigeninput.h"
+#include "uiattribfactory.h"
 #include "uiattrsel.h"
-#include "datainpspec.h"
+#include "uigeninput.h"
 
 
 static const char* evtypestrs[] =
@@ -40,6 +41,8 @@ static const char* outpstrs[] =
     0	
 };
 
+
+mInitUI( uiEventAttrib, "Event" )
 
 uiEventAttrib::uiEventAttrib( uiParent* p )
         : uiAttrDescEd(p)
@@ -71,6 +74,10 @@ uiEventAttrib::uiEventAttrib( uiParent* p )
 
     setHAlignObj( issinglefld );
 }
+
+
+const char* uiEventAttrib::getAttribName() const
+{ return Event::attribName(); }
 
 
 void uiEventAttrib::isSingleSel( CallBacker* )

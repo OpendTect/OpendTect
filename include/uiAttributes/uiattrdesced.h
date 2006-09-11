@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: uiattrdesced.h,v 1.11 2006-05-31 09:29:40 cvshelene Exp $
+ RCS:           $Id: uiattrdesced.h,v 1.12 2006-09-11 07:04:12 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -52,18 +52,6 @@ public:
 };
 
 
-/*! \brief Attribute description editor creater */
-
-class uiAttrDescEdCreater
-{
-public:
-
-    virtual			~uiAttrDescEdCreater()		{}
-    virtual uiAttrDescEd*	create(uiParent*) const		= 0;
-
-};
-
-
 /*! \brief Attribute description editor */
 
 class uiAttrDescEd : public uiGroup
@@ -73,15 +61,15 @@ public:
     virtual		~uiAttrDescEd();
 
     void		setDesc(Desc*,DescSetMan*);
-    void		setDescSet( DescSet* ds )	{ ads = ds; }
-    Desc*		curDesc()			{ return attrdesc; }
-    const Desc*		curDesc() const			{ return attrdesc; }
+    void		setDescSet( DescSet* ds )	{ ads_ = ds; }
+    Desc*		curDesc()			{ return desc_; }
+    const Desc*		curDesc() const			{ return desc_; }
     virtual const char*	commit(Desc* desc=0);
 			//!< returns null on success, error message otherwise
     			//!< If attribdesc is non-zero, that desc will be
     			//!< filled. If not, the internal desc will be filled.
 
-    virtual void	set2D( bool yn )		{}
+    virtual void	set2D(bool yn)			{}
 
     virtual int		getOutputIdx(float val) const	{ return (int)val; }
     virtual float	getOutputValue(int idx) const	{ return (float)idx; }
@@ -89,7 +77,10 @@ public:
 
     virtual void	getEvalParams(TypeSet<EvalParam>&) const {}
 
-    virtual const char* getAttribName() const		{ return 0; }
+    virtual const char* getAttribName() const		= 0;
+    void		setDisplayName(const char* nm ) { dispname_ = nm; }
+    const char*		getDisplayName() const		{ return dispname_; }
+
     virtual bool	useIfZIsTime() const		{ return true; }
     virtual bool	useIfZIsDepth() const		{ return true; }
 
@@ -124,20 +115,28 @@ protected:
     BufferString	shiftLabel() const;
     bool		zIsTime() const;
 
-    ChangeTracker	chtr;
+    ChangeTracker	chtr_;
     uiAttrSel*		getInpFld(const char* txt=0,const uiAttrSelData* =0);
     uiImagAttrSel*	getImagInpFld();
     void		attrInpSel(CallBacker*);
 
-    BufferString	errmsg;
-    DescSet*		ads;
+    BufferString	errmsg_;
+    DescSet*		ads_;
 
 private:
 
-    Desc*	attrdesc;
-    DescSetMan*	adsman;
-
+    BufferString	dispname_;
+    Desc*		desc_;
+    DescSetMan*		adsman_;
 };
+
+
+#define mInitUI( clss, displaynm ) \
+void clss::initClass() \
+{ uiAF().add( displaynm, createInstance ); } \
+\
+uiAttrDescEd* clss::createInstance( uiParent* p ) \
+{ return new clss( p ); }
 
 
 #endif

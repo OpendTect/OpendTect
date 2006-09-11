@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Payraudeau
  Date:          February  2006
- RCS:           $Id: uifingerprintattrib.cc,v 1.21 2006-08-29 11:28:43 cvshelene Exp $
+ RCS:           $Id: uifingerprintattrib.cc,v 1.22 2006-09-11 06:59:31 cvsnanne Exp $
 
 ________________________________________________________________________
 
@@ -13,10 +13,12 @@ ________________________________________________________________________
 #include "uifingerprintattrib.h"
 #include "uifingerprintcalcobj.h"
 #include "fingerprintattrib.h"
+
 #include "attribdesc.h"
 #include "attribparam.h"
 #include "attribparamgroup.h"
 #include "attribdescset.h"
+#include "uiattribfactory.h"
 #include "uiattrsel.h"
 #include "uistepoutsel.h"
 #include "uiioobjsel.h"
@@ -94,6 +96,8 @@ class uiFPAdvancedDlg: public uiDialog
     BufferString        errmsg_;
 };
 
+
+mInitUI( uiFingerPrintAttrib, "FingerPrint" )
 
 uiFingerPrintAttrib::uiFingerPrintAttrib( uiParent* p )
 	: uiAttrDescEd(p)
@@ -189,6 +193,10 @@ uiFingerPrintAttrib::~uiFingerPrintAttrib()
 }
 
 
+const char* uiFingerPrintAttrib::getAttribName() const
+{ return FingerPrint::attribName(); }
+
+
 void uiFingerPrintAttrib::initTable( int nrrows )
 {
     attribflds_.erase(); 
@@ -205,7 +213,7 @@ void uiFingerPrintAttrib::insertRowCB( CallBacker* cb )
 {
     const int newrow = table_->newCell().row;
     uiAttrSel* attrbox = new uiAttrSel( 0, 0, "" );
-    attrbox->setDescSet( ads );
+    attrbox->setDescSet( ads_ );
     attribflds_.insertAt( attrbox, newrow );
     table_->setCellObject( RowCol(newrow,0), attrbox->attachObj() );
     
@@ -446,7 +454,7 @@ void uiFingerPrintAttrib::getAdvancedPush(CallBacker*)
     
     BinIDValueSet* valuesset = createValuesBinIDSet( advanceddlg_->errmsg_ );
     calcobj_->setValRgSet( valuesset, true );
-    calcobj_->setDescSet( ads );
+    calcobj_->setDescSet( ads_ );
     BufferStringSet* refset = new BufferStringSet();
     for ( int idx=0; idx<attribflds_.size(); idx++ )
     {
@@ -477,7 +485,7 @@ void uiFingerPrintAttrib::calcPush(CallBacker*)
 	return;
     }
 
-    calcobj_->setDescSet( ads );
+    calcobj_->setDescSet( ads_ );
     BufferStringSet* refset = new BufferStringSet();
     for ( int idx=0; idx<attribflds_.size(); idx++ )
     {
@@ -620,9 +628,9 @@ bool uiFingerPrintAttrib::areUIParsOK()
 {
     if ( !calcobj_->getValues().size() || !calcobj_->getRanges().size() )
     {
-	errmsg = "Please fill in all values and ranges fields.\n";
-	errmsg+="Press on 'Calculate parameters' to let OpendTect compute them";
-	errmsg += "\n or go to 'Advanced...' to do it manually";
+	errmsg_ = "Please fill in all values and ranges fields.\n";
+	errmsg_ += "Press on 'Calculate parameters' to let OpendTect compute\n";
+	errmsg_ += "them or go to 'Advanced...' to do it manually";
 	return false;
     }
 

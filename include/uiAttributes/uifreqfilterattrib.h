@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2001
- RCS:           $Id: uifreqfilterattrib.h,v 1.4 2005-08-22 15:33:53 cvsnanne Exp $
+ RCS:           $Id: uifreqfilterattrib.h,v 1.5 2006-09-11 07:04:12 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,12 +25,14 @@ class uiLabeledSpinBox;
 class uiFreqFilterAttrib : public uiAttrDescEd
 {
 public:
-
+    static void		initClass();
 			uiFreqFilterAttrib(uiParent*);
 
+    const char*		getAttribName() const;
     void		getEvalParams(TypeSet<EvalParam>&) const;
 
 protected:
+    static uiAttrDescEd* createInstance(uiParent*);
 
     uiImagAttrSel*      inpfld;
     uiGenInput*         isfftfld;

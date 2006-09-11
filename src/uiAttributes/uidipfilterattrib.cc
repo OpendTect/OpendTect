@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2001
- RCS:           $Id: uidipfilterattrib.cc,v 1.8 2006-04-03 13:30:32 cvshelene Exp $
+ RCS:           $Id: uidipfilterattrib.cc,v 1.9 2006-09-11 06:59:31 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,9 +12,11 @@ ________________________________________________________________________
 #include "ui3dfilterattrib.h"
 #include "dipfilterattrib.h"
 #include "convolveattrib.h"
+
 #include "attribdesc.h"
 #include "attribparam.h"
 #include "attribfactory.h"
+#include "uiattribfactory.h"
 #include "uiattrsel.h"
 #include "uigeninput.h"
 #include "uispinbox.h"
@@ -53,6 +55,8 @@ static const char* outpstrs[] =
         0
 };
 
+
+mInitUI( ui3DFilterAttrib, "3D Filter" )
 
 ui3DFilterAttrib::ui3DFilterAttrib( uiParent* p )
 	: uiAttrDescEd(p)

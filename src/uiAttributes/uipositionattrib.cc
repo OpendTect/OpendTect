@@ -4,22 +4,23 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          November 2002
- RCS:           $Id: uipositionattrib.cc,v 1.3 2005-08-22 15:33:53 cvsnanne Exp $
+ RCS:           $Id: uipositionattrib.cc,v 1.4 2006-09-11 06:59:31 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uipositionattrib.h"
 #include "positionattrib.h"
+
 #include "attribdesc.h"
 #include "attribparam.h"
+#include "uiattribfactory.h"
 #include "uiattrsel.h"
-#include "uisteeringsel.h"
 #include "uigeninput.h"
+#include "uisteeringsel.h"
 #include "uistepoutsel.h"
 
 using namespace Attrib;
-
 
 static const char* opstrs[] =
 {
@@ -29,6 +30,8 @@ static const char* opstrs[] =
 	0
 };
 
+
+mInitUI( uiPositionAttrib, "Position" )
 
 uiPositionAttrib::uiPositionAttrib( uiParent* p )
 	: uiAttrDescEd(p)
@@ -52,6 +55,10 @@ uiPositionAttrib::uiPositionAttrib( uiParent* p )
 
     setHAlignObj( inpfld );
 }
+
+
+const char* uiPositionAttrib::getAttribName() const
+{ return Position::attribName(); }
 
 
 void uiPositionAttrib::set2D( bool yn )

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Payraudeau
  Date:          July 2005
- RCS:		$Id: uireferenceattrib.cc,v 1.6 2006-01-04 09:54:28 cvsnanne Exp $
+ RCS:		$Id: uireferenceattrib.cc,v 1.7 2006-09-11 06:59:31 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
 
 #include "attribdesc.h"
 #include "attribparam.h"
+#include "uiattribfactory.h"
 #include "uiattrsel.h"
 #include "uigeninput.h"
 
@@ -47,6 +48,8 @@ static const char* outpstrs2d[] =
 };
 
 
+mInitUI( uiReferenceAttrib, "Reference" )
+
 uiReferenceAttrib::uiReferenceAttrib( uiParent* p )
     : uiAttrDescEd(p)
     , is2d_(false)
@@ -64,6 +67,10 @@ uiReferenceAttrib::uiReferenceAttrib( uiParent* p )
 
     setHAlignObj( outpfld3d );
 }
+
+
+const char* uiReferenceAttrib::getAttribName() const
+{ return Reference::attribName(); }
 
 
 void uiReferenceAttrib::set2D( bool yn )

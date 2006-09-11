@@ -4,15 +4,17 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:		$Id: uiattrdesced.cc,v 1.12 2006-05-31 09:29:40 cvshelene Exp $
+ RCS:		$Id: uiattrdesced.cc,v 1.13 2006-09-11 06:59:31 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiattrdesced.h"
+#include "uiattribfactory.h"
 #include "uiattrsel.h"
-#include "uisteeringsel.h"
 #include "uilabel.h"
+#include "uisteeringsel.h"
+
 #include "attribdesc.h"
 #include "attribdescset.h"
 #include "attribdescsetman.h"
@@ -20,7 +22,6 @@ ________________________________________________________________________
 #include "attribprovider.h"
 #include "iopar.h"
 #include "survinfo.h"
-#include "uiattrfact.h"
 
 using namespace Attrib;
 
@@ -32,7 +33,7 @@ const char* uiAttrDescEd::filterszstr = "Filter size";
 
 uiAttrDescEd::uiAttrDescEd( uiParent* p )
     : uiGroup(p,"")
-    , attrdesc(0)
+    , desc_(0)
 {
 }
 
@@ -44,11 +45,11 @@ uiAttrDescEd::~uiAttrDescEd()
 
 void uiAttrDescEd::setDesc( Attrib::Desc* desc, Attrib::DescSetMan* adsm )
 {
-    attrdesc = desc;
-    adsman = adsm;
-    if ( attrdesc )
+    desc_ = desc;
+    adsman_ = adsm;
+    if ( desc_ )
     {
-	chtr.setVar( adsman->unSaved() );
+	chtr_.setVar( adsman_->unSaved() );
 	setParameters( *desc );
 	setInput( *desc );
 	setOutput( *desc );
@@ -66,16 +67,16 @@ void uiAttrDescEd::fillInp( uiAttrSel* fld, Attrib::Desc& desc, int inp )
 
     const Attrib::Desc* inpdesc = desc.getInput( inp );
     if ( inpdesc )
-	chtr.set( inpdesc->id(), attribid );
+	chtr_.set( inpdesc->id(), attribid );
     else
-	chtr.setChanged( true );
+	chtr_.setChanged( true );
 
-    if ( !desc.setInput( inp, desc.descSet()->getDesc(attribid) ) )
+    if ( !desc.setInput(inp,desc.descSet()->getDesc(attribid)) )
     {
-	errmsg += "The suggested attribute for input"; errmsg += inp;
-	errmsg += " is incompatible with the input (wrong datatype)";
+	errmsg_ += "The suggested attribute for input"; errmsg_ += inp;
+	errmsg_ += " is incompatible with the input (wrong datatype)";
     }
-    
+
     mDynamicCastGet(const uiImagAttrSel*,imagfld,fld)
     if ( imagfld )
 	desc.setInput( inp+1, desc.descSet()->getDesc(imagfld->imagID()) );
@@ -90,14 +91,14 @@ void uiAttrDescEd::fillInp( uiSteeringSel* fld, Attrib::Desc& desc, int inp )
     const DescID descid = fld->descID();
     const Attrib::Desc* inpdesc = desc.getInput( inp );
     if ( inpdesc )
-	chtr.set( inpdesc->id(), descid );
+	chtr_.set( inpdesc->id(), descid );
     else
-	chtr.setChanged( true );
+	chtr_.setChanged( true );
 
     if ( !desc.setInput( inp, desc.descSet()->getDesc(descid) ) )
     {
-	errmsg += "The suggested attribute for input"; errmsg += inp;
-	errmsg += " is incompatible with the input (wrong datatype)";
+	errmsg_ += "The suggested attribute for input"; errmsg_ += inp;
+	errmsg_ += " is incompatible with the input (wrong datatype)";
     }
 }
 
@@ -111,22 +112,22 @@ void uiAttrDescEd::fillInp( uiSteerCubeSel* fld, Attrib::Desc& desc, int inp )
     const DescID inlid = fld->inlDipID();
     const Attrib::Desc* inpdesc = desc.getInput( inp );
     if ( inpdesc )
-	chtr.set( inpdesc->id(), inlid );
+	chtr_.set( inpdesc->id(), inlid );
     else
-	chtr.setChanged( true );
+	chtr_.setChanged( true );
 
     if ( !desc.setInput( inp, desc.descSet()->getDesc(inlid) ) )
     {
-	errmsg += "The suggested attribute for input"; errmsg += inp;
-	errmsg += " is incompatible with the input (wrong datatype)";
+	errmsg_ += "The suggested attribute for input"; errmsg_ += inp;
+	errmsg_ += " is incompatible with the input (wrong datatype)";
     }
 
     const DescID crlid = fld->crlDipID();
     inpdesc = desc.getInput( inp+1 );
     if ( inpdesc )
-	chtr.set( inpdesc->id(), crlid );
+	chtr_.set( inpdesc->id(), crlid );
     else
-	chtr.setChanged( true );
+	chtr_.setChanged( true );
 
     desc.setInput( inp+1, desc.descSet()->getDesc(crlid) );
 }
@@ -134,7 +135,7 @@ void uiAttrDescEd::fillInp( uiSteerCubeSel* fld, Attrib::Desc& desc, int inp )
 
 void uiAttrDescEd::fillOutput( Attrib::Desc& desc, int selout )
 {
-    if ( chtr.set(desc.selectedOutput(),selout) )
+    if ( chtr_.set(desc.selectedOutput(),selout) )
 	desc.selectOutput( selout );
 }
 
@@ -158,10 +159,10 @@ uiImagAttrSel* uiAttrDescEd::getImagInpFld()
 
 void uiAttrDescEd::attrInpSel( CallBacker* cb )
 {
-    if ( !adsman || !adsman->descSet() ) return;
+    if ( !adsman_ || !adsman_->descSet() ) return;
     mDynamicCastGet(uiAttrSel*,as,cb)
     if ( as )
-	set2D( adsman->descSet()->is2D() );
+	set2D( adsman_->descSet()->is2D() );
 }
 
 
@@ -174,7 +175,7 @@ void uiAttrDescEd::putInp( uiAttrSel* inpfld, const Attrib::Desc& ad,
     else
     {
 	inpfld->setDesc( inpdesc );
-	inpfld->updateHistory( adsman->inputHistory() );
+	inpfld->updateHistory( adsman_->inputHistory() );
     }
 }
 
@@ -188,7 +189,7 @@ void uiAttrDescEd::putInp( uiSteerCubeSel* inpfld, const Attrib::Desc& ad,
     else
     {
 	inpfld->setDesc( inpdesc );
-	inpfld->updateHistory( adsman->inputHistory() );
+	inpfld->updateHistory( adsman_->inputHistory() );
     }
 }
 
@@ -228,19 +229,19 @@ bool uiAttrDescEd::zIsTime() const
 
 const char* uiAttrDescEd::commit( Attrib::Desc* editdesc )
 {
-    if ( !editdesc ) editdesc = attrdesc;
+    if ( !editdesc ) editdesc = desc_;
     if ( !editdesc ) return 0;
 
     getParameters( *editdesc );
-    errmsg = Provider::prepare( *editdesc );
+    errmsg_ = Provider::prepare( *editdesc );
     editdesc->updateParams();
     getInput( *editdesc );
     getOutput( *editdesc );
     if ( editdesc->isSatisfied() == Desc::Error )
-	errmsg = editdesc->errMsg();
+	errmsg_ = editdesc->errMsg();
 
     areUIParsOK();
-    return errmsg.size() ? errmsg.buf() : 0;
+    return errmsg_.size() ? errmsg_.buf() : 0;
 }
 
 
