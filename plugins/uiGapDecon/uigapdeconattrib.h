@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          July 2006
- RCS:           $Id: uigapdeconattrib.h,v 1.3 2006-08-15 07:54:56 cvshelene Exp $
+ RCS:           $Id: uigapdeconattrib.h,v 1.4 2006-09-11 13:14:10 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,12 +25,14 @@ class uiPushButton;
 class uiGapDeconAttrib : public uiAttrDescEd
 {
 public:
-
+    static void		initClass();
 			uiGapDeconAttrib(uiParent*);
 
     void		getEvalParams(TypeSet<EvalParam>&) const;
+    const char*		getAttribName() const;
 
 protected:
+    static uiAttrDescEd* createInstance(uiParent*);
 
     uiAttrSel*		inpfld_;
     uiGenInput*		gatefld_;

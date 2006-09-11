@@ -4,22 +4,26 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
+ RCS:		$Id: uicoherencyattrib.cc,v 1.6 2006-09-11 13:14:10 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uicoherencyattrib.cc,v 1.5 2006-08-01 20:21:07 cvskris Exp $";
-
 #include "uicoherencyattrib.h"
 #include "coherencyattrib.h"
+
 #include "attribdesc.h"
 #include "attribparam.h"
+#include "uiattribfactory.h"
 #include "uiattrsel.h"
-#include "uisteeringsel.h"
 #include "uigeninput.h"
+#include "uisteeringsel.h"
 #include "uistepoutsel.h"
 
 using namespace Attrib;
+
+
+mInitUI( uiCoherencyAttrib, "Coherency" )
 
 uiCoherencyAttrib::uiCoherencyAttrib( uiParent* p )
 	: uiAttrDescEd(p)
@@ -46,6 +50,10 @@ uiCoherencyAttrib::uiCoherencyAttrib( uiParent* p )
 }
 
 
+const char* uiCoherencyAttrib::getAttribName() const
+{ return Coherency::attribName(); }
+
+
 void uiCoherencyAttrib::set2D( bool yn )
 {
     inpfld->set2D( yn );
@@ -61,7 +69,7 @@ void uiCoherencyAttrib::is1Sel( CallBacker* )
 
 bool uiCoherencyAttrib::setParameters( const Attrib::Desc& desc )
 {
-    if ( strcmp(desc.attribName(),Coherency::sKeyAttribName()) )
+    if ( strcmp(desc.attribName(),Coherency::attribName()) )
 	return false;
 
     mIfGetInt(Coherency::sKeyType(),type,is1fld->setValue(type==1? true:false));
@@ -84,7 +92,7 @@ bool uiCoherencyAttrib::setInput( const Attrib::Desc& desc )
 
 bool uiCoherencyAttrib::getParameters( Attrib::Desc& desc )
 {
-    if ( strcmp(desc.attribName(), Coherency::sKeyAttribName()) )
+    if ( strcmp(desc.attribName(),Coherency::attribName()) )
 	return false;
     
     mSetInt( Coherency::sKeyType(), is1fld->getBoolValue() ? 1 : 2 );

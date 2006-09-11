@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: coherencyattrib.h,v 1.7 2006-08-01 20:21:07 cvskris Exp $
+ RCS:           $Id: coherencyattrib.h,v 1.8 2006-09-11 13:14:10 cvsnanne Exp $
 ________________________________________________________________________
 
 Coherency type= gate= [maxdip=250] [ddip=10]
@@ -39,7 +39,7 @@ public:
     static void		initClass();
 			Coherency( Desc& );
 
-    static const char*	sKeyAttribName(){ return "Coherency"; }
+    static const char*	attribName()	{ return "Coherency"; }
     static const char*	sKeyType()	{ return "type"; }
     static const char*	sKeyGate()	{ return "gate"; }
     static const char*	sKeyMaxDip()	{ return "maxdip"; }

@@ -4,23 +4,27 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          July  2006
- RCS:           $Id: uigapdeconattrib.cc,v 1.5 2006-08-22 14:06:17 cvshelene Exp $
+ RCS:           $Id: uigapdeconattrib.cc,v 1.6 2006-09-11 13:14:10 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uigapdeconattrib.h"
 #include "gapdeconattrib.h"
+
 #include "attribdesc.h"
 #include "attribparam.h"
-#include "uiattrsel.h"
-#include "uigeninput.h"
-#include "uispinbox.h"
-#include "uibutton.h"
-#include "uilabel.h"
 #include "survinfo.h"
+#include "uiattribfactory.h"
+#include "uiattrsel.h"
+#include "uibutton.h"
+#include "uigeninput.h"
+#include "uilabel.h"
+#include "uispinbox.h"
 
 using namespace Attrib;
+
+mInitUI( uiGapDeconAttrib, "GapDecon" )
 
 uiGapDeconAttrib::uiGapDeconAttrib( uiParent* p )
 	: uiAttrDescEd(p)
@@ -68,6 +72,10 @@ uiGapDeconAttrib::uiGapDeconAttrib( uiParent* p )
     
     setHAlignObj( gatefld_ );
 }
+
+
+const char* uiGapDeconAttrib::getAttribName() const
+{ return GapDecon::attribName(); }
 
 
 bool uiGapDeconAttrib::setParameters( const Attrib::Desc& desc )

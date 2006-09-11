@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: coherencyattrib.cc,v 1.14 2006-08-03 08:06:12 cvshelene Exp $";
+static const char* rcsID = "$Id: coherencyattrib.cc,v 1.15 2006-09-11 13:14:10 cvsnanne Exp $";
 
 
 #include "coherencyattrib.h"
@@ -23,7 +23,7 @@ mAttrDefCreateInstance(Coherency)
     
 void Coherency::initClass()
 {
-    Desc* desc = new Desc( sKeyAttribName(), updateDesc );
+    Desc* desc = new Desc( attribName(), updateDesc );
     desc->ref();
 
     IntParam* type = new IntParam( sKeyType() );
