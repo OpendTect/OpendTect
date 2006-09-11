@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.88 2006-09-07 20:28:44 cvsnanne Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.89 2006-09-11 13:23:20 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -118,6 +118,7 @@ bool uiEMPartServer::ioHorizon( bool imp )
 bool uiEMPartServer::importHorizonAttribute()
 {
     uiMSG().message( "Not implemented yet" );
+    return true;
 }
 
 
