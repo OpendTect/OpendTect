@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2003
- RCS:           $Id: uiwellimpasc.cc,v 1.30 2006-08-24 19:10:46 cvsnanne Exp $
+ RCS:           $Id: uiwellimpasc.cc,v 1.31 2006-09-11 13:54:44 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -130,7 +130,7 @@ bool uiWellImportAsc::doWork()
     if ( SI().zIsTime() )
     {
 	errmsg = ascimp.getD2T( d2tgrp->fileName(), d2tgrp->isTVD(),
-				!d2tgrp->isTWT(), zinfeet );
+				d2tgrp->isTWT(), zinfeet );
 	if ( errmsg ) mErrRet( errmsg );
     }
 
