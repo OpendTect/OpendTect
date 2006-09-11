@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Contents:	Defines that encapsulate system things
- RCS:		$Id: plfdefs.h,v 1.17 2006-01-10 15:45:41 cvsbert Exp $
+ RCS:		$Id: plfdefs.h,v 1.18 2006-09-11 09:19:00 cvsbert Exp $
 ________________________________________________________________________
 
 */
@@ -21,7 +21,6 @@ HDIR can be:
 
 	lux		Linux
 	sun5		Sun Solaris 5.x
-	sgi		SGI IRIX 6.x
 	win		M$ Windows
 	mac		Apple Mac OSX
 
@@ -37,7 +36,6 @@ OS type:
 
 Machine:
 
-	__sgi__		Silicon graphics
 	__sun__		Sun
 	__ibm__		IBM RS/6000
 	__pc__		PC
@@ -82,9 +80,6 @@ Always defined:
 #ifdef ibm
 # define __unix__ 1
 #endif
-#ifdef sgi
-# define __unix__ 1
-#endif
 #ifdef mac
 # define __unix__ 1
 #endif
@@ -105,18 +100,10 @@ Always defined:
 /*____________________________________________________________________________*/
 /* Machine type	*/
 
-#undef __sgi__
 #undef __sun__
 #undef __ibm__
 #undef __pc__
 #undef __little__
-#ifdef sgi
-# define __sgi__ 1
-#endif
-#ifdef __sgi
-# undef __sgi__
-# define __sgi__ 2
-#endif
 #ifdef sun5
 # define __sun__ 1
 #endif

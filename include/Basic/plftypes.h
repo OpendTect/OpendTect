@@ -7,14 +7,14 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Contents:	Platform dependent types
- RCS:		$Id: plftypes.h,v 1.4 2004-12-17 12:53:12 arend Exp $
+ RCS:		$Id: plftypes.h,v 1.5 2006-09-11 09:19:00 cvsbert Exp $
 ________________________________________________________________________
 
 */
 
 #include "plfdefs.h"
 
-#if defined(__sun__) || defined(__sgi__)
+#ifdef __sun__
 # include <sys/types.h>
 #else
 # include <stdint.h>

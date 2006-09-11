@@ -4,7 +4,7 @@
  * DATE     : Mar 2000
 -*/
 
-static const char* rcsID = "$Id: thread.cc,v 1.23 2006-07-25 06:42:28 cvsnanne Exp $";
+static const char* rcsID = "$Id: thread.cc,v 1.24 2006-09-11 09:19:00 cvsbert Exp $";
 
 #include "thread.h"
 #include "callback.h"
@@ -214,11 +214,6 @@ static int getSysNrProc()
     int maxnrproc = sysconf(_SC_CHILD_MAX);
 
 // also see: www.ks.uiuc.edu/Research/vmd/doxygen/VMDThreads_8C-source.html
-#ifdef sgi
- 
-   int nrprocessors = sysconf(_SC_NPROC_ONLN);
-
-#else
 # ifdef mac
 
     host_basic_info_data_t hostInfo;
@@ -235,7 +230,6 @@ static int getSysNrProc()
     int nrprocessors = sysconf(_SC_NPROCESSORS_ONLN);
 
 # endif
-#endif
 
     if ( maxnrproc == -1 && nrprocessors == -1 )
 	ret = 2;

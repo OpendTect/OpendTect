@@ -4,12 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          June 2003
- RCS:           $Id: debug.cc,v 1.21 2005-12-02 07:53:47 cvsdgb Exp $
+ RCS:           $Id: debug.cc,v 1.22 2006-09-11 09:19:00 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: debug.cc,v 1.21 2005-12-02 07:53:47 cvsdgb Exp $";
+static const char* rcsID = "$Id: debug.cc,v 1.22 2006-09-11 09:19:00 cvsbert Exp $";
 
 #include "debug.h"
 #include "debugmasks.h"
@@ -133,9 +133,6 @@ void putProgInfo( int argc, char** argv )
 # ifdef sol64
     msg += " (64 bits)";
 # endif
-#endif
-#ifdef sgi
-    msg += "IRIX";
 #endif
 #ifdef mac
     msg += "Mac OS/X";

@@ -2,7 +2,7 @@
 #---------------------------------------------------------
 # Author: de Groot - Bril Earth Sciences ( A.H.Bril )
 # Pmake Environment initialization C-shell script
-# $Id: PMinit.csh,v 1.7 2006-01-10 14:41:12 cvsbert Exp $
+# $Id: PMinit.csh,v 1.8 2006-09-11 09:19:00 cvsbert Exp $
 #---------------------------------------------------------
 
 if ( ! $?HDIR ) then
@@ -14,8 +14,6 @@ if ( ! $?HDIR ) then
 	setenv HDIR lux
     else if ( "$HDIR" == "Darwin" ) then
 	setenv HDIR mac
-    else if ( "$HDIR" == "IRIX" || "$HDIR" == "IRIX64" ) then
-	setenv HDIR sgi
     else if ( $?COMSPEC ) then
 	setenv HDIR win
     endif

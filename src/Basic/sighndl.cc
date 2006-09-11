@@ -4,12 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          June 2000
- RCS:           $Id: sighndl.cc,v 1.27 2006-07-26 15:35:15 cvsnanne Exp $
+ RCS:           $Id: sighndl.cc,v 1.28 2006-09-11 09:19:00 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: sighndl.cc,v 1.27 2006-07-26 15:35:15 cvsnanne Exp $";
+static const char* rcsID = "$Id: sighndl.cc,v 1.28 2006-09-11 09:19:00 cvsbert Exp $";
 
 #include "sighndl.h"
 #include "strmdata.h"
@@ -138,10 +138,6 @@ SignalHandling::SignalHandling()
     mCatchSignal( SIGPIPE );	/* Write on a pipe, no one listening */
     mCatchSignal( SIGHUP );	/* Hangup */
 
-# ifndef sgi 
-    /* SGI seems to use SIGCLD when starting child processes, f.e. system() */
-    mCatchSignal( SIGCLD );	/* Child status changed */
-# endif
 #endif
 
     }
