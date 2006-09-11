@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: uiattrdesced.h,v 1.12 2006-09-11 07:04:12 cvsnanne Exp $
+ RCS:           $Id: uiattrdesced.h,v 1.13 2006-09-11 07:08:37 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,6 +50,18 @@ public:
     bool		evaloutput_;
 
 };
+
+
+/*! \brief Attribute description editor creater */
+
+class uiAttrDescEdCreater
+{
+public:
+    virtual			~uiAttrDescEdCreater()		{}
+    virtual uiAttrDescEd*	create(uiParent*) const		= 0;
+
+};
+
 
 
 /*! \brief Attribute description editor */
