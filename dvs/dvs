@@ -20,22 +20,29 @@ if ( ! $?DGB_CVS_DIR ) then
 endif
 source $DGB_CVS_DIR/set_dvs_env.csh
 
-set cvsrtt=`echo $CVSROOT`
+if ( ! $?OD_WORKDIR ) then
+    set oddir="od"
+else
+    set oddir=`echo $OD_WORKDIR`
+endif
+
+set dgbdir=`echo $oddir | sed 's/od/dgb/'`
+set curcvsroot=`echo $CVSROOT`
 
 if ( -e ./CVS/Repository ) then
-    set curcvsrt=`cat ./CVS/Root`
-    if ( $curcvsrt != $OD_CVSROOT && $curcvsrt != $DGB_CVSROOT ) then
-	echo "The repository in ./CVS/Root differs from OD_ or DGB_CVSROOT"
-	echo "./CVS/ROOT  : $curcvsrt"
-	echo "OD_CVSROOT  : $OD_CVSROOT"
-	echo "DGB_CVSROOT : $DGB_CVSROOT"
+    set curcvsroot=`cat ./CVS/Root`
+    set curcvsrepos=`cat ./CVS/Repository`
+    set currel=$curcvsrepos:h:h:h:h:h:h
+    if ( $currel != $oddir && $currel != $dgbdir ) then
+	echo "The release you're working in differs from OD_WORKDIR"
+	echo "./CVS/Repository : $currel"
+	echo "OD_WORKDIR       : $oddir"
 	exit 1
     endif
-    set cvsrtt=$curcvsrt
 endif
 
 set cvsremoteargs=""
-if ( `echo $cvsrtt | grep $DGB_CVS_HOST` == "" ) then
+if ( `echo $curcvsroot | grep $DGB_CVS_HOST` == "" ) then
     set cvsremoteargs="-z3"
 endif
 
