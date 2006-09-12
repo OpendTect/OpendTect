@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribdataholder.cc,v 1.4 2006-05-05 20:35:16 cvskris Exp $";
+static const char* rcsID = "$Id: attribdataholder.cc,v 1.5 2006-09-12 10:24:59 cvsnanne Exp $";
 
 #include "attribdataholder.h"
 
@@ -114,7 +114,7 @@ CubeSampling Data2DHolder::getCubeSampling() const
 	{
 	    trcrange.start = trcrange.stop = curtrcnr;
 	    zrange.start = start;
-	    zrange.start = stop;
+	    zrange.stop = stop;
 	    zstep = trcinfoset_[idx]->sampling.step;
 	}
 	else
@@ -155,7 +155,10 @@ bool Data2DHolder::fillDataCube( DataCubes& res ) const
     const StepInterval<int> trcrange( cs.hrg.start.crl, cs.hrg.stop.crl,
 				      cs.hrg.step.crl );
     res.setSizeAndPos( getCubeSampling() );
-    res.setValue( 0, mUdf(float) );
+    if ( res.nrCubes() == 0 )
+	res.addCube( mUdf(float) );
+    else
+	res.setValue( 0, mUdf(float) );
 
     Array3D<float>& array = res.getCube( 0 );
     float* arrptr = array.getData();
