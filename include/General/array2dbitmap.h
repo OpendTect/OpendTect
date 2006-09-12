@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Sep 2006
- RCS:           $Id: array2dbitmap.h,v 1.2 2006-09-08 10:48:27 cvsbert Exp $
+ RCS:           $Id: array2dbitmap.h,v 1.3 2006-09-12 15:44:36 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -194,6 +194,8 @@ protected:
     const float*		dim0pos_;
     Interval<float>		dim0rg_;
     Interval<float>		dim1rg_;
+    float			dim0perpix_;
+    float			dim1perpix_;
     Interval<float>		scalerg_;
     float			scalewidth_;
 
