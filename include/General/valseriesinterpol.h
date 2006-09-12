@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril & Kris Tingdahl
  Date:          Mar 2005
- RCS:           $Id: valseriesinterpol.h,v 1.3 2006-03-21 07:07:27 cvsnanne Exp $
+ RCS:           $Id: valseriesinterpol.h,v 1.4 2006-09-12 14:05:45 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,7 +36,6 @@ public:
 
     inline T		value(const ValueSeries<T>&,T pos) const;
 
-    bool		vdamine_;
     int			maxidx_;
     T			snapdist_;
     T			udfval_;
