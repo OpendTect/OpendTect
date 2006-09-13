@@ -4,7 +4,7 @@
   - Author:	A.H. Bril
   - Date:	Oct 2003
   - Contents:	Plugins
-  - RCS:	$Id: plugins.html,v 1.35 2006-08-21 10:43:54 helene Exp $
+  - RCS:	$Id: plugins.html,v 1.36 2006-09-13 16:35:30 helene Exp $
  -->
 
 <body background="../backg.png"><title>Plugins [OpendTect Programmer's manual V2.4]</title>
@@ -592,6 +592,36 @@ bool MatchDelta::computeData( const DataHolder& output, const BinID& relpos,
     return true;
 }</code></pre>
 
+<p>Two new functions are very handy to avoid dealing yourself with all the indexes:<code><b>getInputValue()</b></code> and <code><b>setOutputValue()</b></code>.
+These virtual functions are defined in "attribprovider.h/cc"; using them, the piece of code written above would look like this:</p>
+
+<pre><code>
+bool MatchDelta::computeData( const DataHolder& output, const BinID& relpos,
+                              int z0, int nrsamples ) const
+{
+    const int lastinpz = inpcubedata_->z0_ + inpcubedata_->nrsamples_ - 1;
+
+    for ( int idx=0; idx &lt; nrsamples; idx++ )
+    {
+        const int curz = z0 + idx;
+        TypeSet<float> vals;
+        if ( inpcubedata_->z0_ < curz-1 )
+             vals += getInputValue( *inpcubedata_, getDataIndex(0), idx-2, z0 );
+        if ( inpcubedata_->z0_ < curz )
+             vals += getInputValue( *inpcubedata_, getDataIndex(0), idx-1, z0 );
+        vals += getInputValue( *inpcubedata_, getDataIndex(0), idx, z0 );
+        if ( lastinpz >= curz )
+	     vals += getInputValue( *inpcubedata_, getDataIndex(0), idx+1, z0 );
+        if ( lastinpz >= curz+1 )
+             vals += getInputValue( *inpcubedata_, getDataIndex(0), idx+2, z0 );
+
+        const float val = vals.size() ? gtAvg(vals) : mUdf(float);
+	setOutputValue( output, 0, idx, z0, val );
+    }
+	
+    return true;
+}
+</code></pre>
 
 <a name=cohui><h4>The <code>uiCoh</code> plugin</h4>
 
