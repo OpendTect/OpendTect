@@ -4,7 +4,7 @@
  * DATE     : Sep 2006
 -*/
 
-static const char* rcsID = "$Id: array2dbitmap.cc,v 1.5 2006-09-13 13:06:39 cvsbert Exp $";
+static const char* rcsID = "$Id: array2dbitmap.cc,v 1.6 2006-09-13 15:49:17 cvsbert Exp $";
 
 #include "array2dbitmapimpl.h"
 #include "arraynd.h"
@@ -151,8 +151,8 @@ void A2DBitmapPosSetup::setBitmapSizes( int n0, int n1 ) const
     // Don't like to declare all mutable as they shld be const everyhwere else
     self.nrxpix_ = n0; self.nrypix_ = n1;
     self.dim0rg_.sort(); self.dim1rg_.sort();
-    self.pixperdim0_ = nrxpix_ / dim0rg_.width();
-    self.pixperdim1_ = nrypix_ / dim1rg_.width();
+    self.pixperdim0_ = (nrxpix_-1) / dim0rg_.width();
+    self.pixperdim1_ = (nrypix_-1) / dim1rg_.width();
 }
 
 
@@ -308,16 +308,19 @@ void WVAA2DBitmapGenerator::drawTrace( int idim0 )
     }
 }
 
-#define mChkValRange() \
-    if ( mIsUdf(val) ) return; \
-    else if ( val < scalerg_.start ) val = scalerg_.start; \
+#define mApplyValClipping(val) \
+    if ( val < scalerg_.start ) val = scalerg_.start; \
     else if ( val > scalerg_.stop ) val = scalerg_.stop
+
+#define mPrepVal() \
+    if ( mIsUdf(val) ) return; \
+    mApplyValClipping(val)
 
 
 void WVAA2DBitmapGenerator::drawVal( int idim0, int iy, float val,
 				     float prevval )
 {
-    mChkValRange();
+    mPrepVal();
 
     const float middim0pos = dim0pos_[idim0];
     const float stripstart = middim0pos - stripwidth_ / 2;
@@ -343,6 +346,7 @@ void WVAA2DBitmapGenerator::drawVal( int idim0, int iy, float val,
     if ( wvapars().drawwiggles_ && setup_.isInside(0,valdim0pos) )
     {
 	if ( mIsUdf(prevval) ) prevval = val;
+	mApplyValClipping( prevval );
 	const float prevratio = (prevval - scalerg_.start) / scalewidth_;
 	const float prevvaldim0pos = stripstart + prevratio * stripwidth_;
 	const int prevvalpix = setup_.getPix( 0, prevvaldim0pos );
@@ -421,11 +425,16 @@ VDA2DBitmapGenerator::VDA2DBitmapGenerator( const A2DBitMapInpData& d,
 
 void VDA2DBitmapGenerator::doFill()
 {
-    strippixs_ = setup_.avgDist(0) * setup_.getPixPerDim(0);
+    const float avgdim0dist = setup_.avgDist( 0 );
+    strippixs_ = avgdim0dist * setup_.getPixPerDim(0);
 
     for ( int idim0=0; idim0<szdim0_; idim0++ )
     {
-	if ( setup_.isInside(0,dim0pos_[idim0]) )
+	float pos2chk = dim0pos_[idim0];
+	if ( pos2chk < dim0rg_.start ) pos2chk += avgdim0dist*.5;
+	if ( pos2chk > dim0rg_.stop ) pos2chk -= avgdim0dist*.5;
+
+	if ( setup_.isInside(0,pos2chk) )
 	    drawStrip( idim0 );
     }
 }
@@ -467,7 +476,8 @@ void VDA2DBitmapGenerator::drawStrip( int idim0 )
 		break;
 	}
     }
-    drawPixLines( pixs2do );
+
+    drawPixLines( idim0, pixs2do );
 }
 
 
@@ -481,7 +491,8 @@ void VDA2DBitmapGenerator::drawStrip( int idim0 )
     idim0 < szdim0_-1 ? (idim1 < szdim1_-1 \
 		      ? inpdata.get( idim0+1, idim1+1 ) : v10) : v01
 
-void VDA2DBitmapGenerator::drawPixLines( const Interval<int>& xpixs2do )
+void VDA2DBitmapGenerator::drawPixLines( int stripdim0,
+					 const Interval<int>& xpixs2do )
 {
     const float dim0eps = setup_.dimEps( 0 );
     const float dim1eps = setup_.dimEps( 1 );
@@ -492,8 +503,10 @@ void VDA2DBitmapGenerator::drawPixLines( const Interval<int>& xpixs2do )
     for ( int ix=xpixs2do.start; ix<=xpixs2do.stop; ix++ )
     {
 	const float dim0pos = dim0rg_.start + ix * dim0perpix_;
-	const int idim0 = (int)floor( dim0pos + dim0eps );
-	const float dim0offs = dim0pos - idim0;
+	const float dim0offs = dim0pos - floor( dim0pos + dim0eps );
+	int idim0 = stripdim0;
+	if ( dim0pos_[stripdim0] > dim0pos && stripdim0 > 0 )
+	    idim0--;
 
 	for ( int iy=0; iy<setup_.nrYPix(); iy++ )
 	{
@@ -565,7 +578,7 @@ void VDA2DBitmapGenerator::fillInterpPars(
 
 void VDA2DBitmapGenerator::drawVal( int ix, int iy, float val )
 {
-    mChkValRange();
+    mPrepVal();
 
     const float valratio = (val - scalerg_.start) / scalewidth_;
     const char bmval = (char)(VDA2DBitmapGenPars::cMinFill

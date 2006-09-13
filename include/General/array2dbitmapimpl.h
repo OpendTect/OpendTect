@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Sep 2006
- RCS:           $Id: array2dbitmapimpl.h,v 1.1 2006-09-12 15:44:36 cvsbert Exp $
+ RCS:           $Id: array2dbitmapimpl.h,v 1.2 2006-09-13 15:49:17 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -120,7 +120,7 @@ protected:
     void			doFill();
 
     void			drawStrip(int);
-    void			drawPixLines(const Interval<int>&);
+    void			drawPixLines(int,const Interval<int>&);
     void			fillInterpPars(
 	    				Interpolate::PolyReg2DWithUdf<float>&,
 					int,int);
