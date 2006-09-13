@@ -4,7 +4,7 @@
  * DATE     : Sep 2006
 -*/
 
-static const char* rcsID = "$Id: array2dbitmap.cc,v 1.4 2006-09-12 15:44:36 cvsbert Exp $";
+static const char* rcsID = "$Id: array2dbitmap.cc,v 1.5 2006-09-13 13:06:39 cvsbert Exp $";
 
 #include "array2dbitmapimpl.h"
 #include "arraynd.h"
@@ -24,6 +24,8 @@ const char VDA2DBitmapGenPars::cMaxFill		= 120;
 #define cNrFillSteps 241
 #define mMaxNrStatPts 2000
 #define mMinNrStatPts 100
+#define mXPMStartLn '"'
+#define mXPMEndLn "\",\n"
 
 
 Interval<float> A2DBitMapInpData::scale( float clipratio ) const
@@ -306,12 +308,16 @@ void WVAA2DBitmapGenerator::drawTrace( int idim0 )
     }
 }
 
+#define mChkValRange() \
+    if ( mIsUdf(val) ) return; \
+    else if ( val < scalerg_.start ) val = scalerg_.start; \
+    else if ( val > scalerg_.stop ) val = scalerg_.stop
+
 
 void WVAA2DBitmapGenerator::drawVal( int idim0, int iy, float val,
 				     float prevval )
 {
-    if ( mIsUdf(val) )
-	return;
+    mChkValRange();
 
     const float middim0pos = dim0pos_[idim0];
     const float stripstart = middim0pos - stripwidth_ / 2;
@@ -365,21 +371,31 @@ bool WVAA2DBitmapGenerator::dump( std::ostream& strm ) const
     if ( !bitmap_ || nrxpix == 0 || nrypix == 0 )
 	return false;
 
+    strm << "/* XPM */\nstatic char*wva[]={\n";
+    strm << '"' << nrxpix << ' ' << nrypix << ' ' << "5 1"
+		<< mXPMEndLn;
+    strm << "\"l c #0000ff" << mXPMEndLn;
+    strm << "\"r c #ff0000" << mXPMEndLn;
+    strm << "\"0 c #00ff00" << mXPMEndLn;
+    strm << "\"w c #000000" << mXPMEndLn;
+    strm << "\"e c #ffffff" << mXPMEndLn;
+
     for ( int iy=0; iy<nrypix; iy++ )
     {
+	strm << mXPMStartLn;
 	for ( int ix=0; ix<nrxpix; ix++ )
 	{
 	    char c = bitmap_->get( ix, iy );
 	    switch ( c )
 	    {
-	    case WVAA2DBitmapGenPars::cWiggFill:	strm << '.';	break;
-	    case WVAA2DBitmapGenPars::cZeroLineFill:	strm << '|';	break;
-	    case WVAA2DBitmapGenPars::cLeftFill:	strm << '(';	break;
-	    case WVAA2DBitmapGenPars::cRightFill:	strm << ')';	break;
-	    default:					strm << ' ';	break;
+	    case WVAA2DBitmapGenPars::cWiggFill:	strm << 'w';	break;
+	    case WVAA2DBitmapGenPars::cZeroLineFill:	strm << '0';	break;
+	    case WVAA2DBitmapGenPars::cLeftFill:	strm << 'l';	break;
+	    case WVAA2DBitmapGenPars::cRightFill:	strm << 'r';	break;
+	    default:					strm << 'e';	break;
 	    }
 	}
-	strm << '\n';
+	strm << mXPMEndLn;
     }
 
     return true;
@@ -451,6 +467,7 @@ void VDA2DBitmapGenerator::drawStrip( int idim0 )
 		break;
 	}
     }
+    drawPixLines( pixs2do );
 }
 
 
@@ -548,13 +565,21 @@ void VDA2DBitmapGenerator::fillInterpPars(
 
 void VDA2DBitmapGenerator::drawVal( int ix, int iy, float val )
 {
-    if ( mIsUdf(val) )
-	return;
+    mChkValRange();
 
     const float valratio = (val - scalerg_.start) / scalewidth_;
     const char bmval = (char)(VDA2DBitmapGenPars::cMinFill
 	    		      + valratio * cNrFillSteps - .5);
     bitmap_->set( ix, iy, bmval );
+}
+
+
+static void getColValHex( int idx, char* ptr )
+{
+    int major = idx / 15;
+    int minor = idx % 16;
+    ptr[0] = major < 10 ? '0' + major : 'a' + major - 10;
+    ptr[1] = minor < 10 ? '0' + minor : 'a' + minor - 10;
 }
 
 
@@ -564,20 +589,55 @@ bool VDA2DBitmapGenerator::dump( std::ostream& strm ) const
     if ( !bitmap_ || nrxpix == 0 || nrypix == 0 )
 	return false;
 
+    const float fac = ((float)51) / (cNrFillSteps - 1);
+    char prevc = -1; int nrcols = 0;
+    for ( int idx=0; idx<cNrFillSteps; idx++ )
+    {
+	char c = (char)(fac * idx + .5);
+	if ( c != prevc ) nrcols++;
+	prevc = c;
+    }
+
+    strm << "/* XPM */\nstatic char*vd[]={\n";
+    strm << '"' << nrxpix << ' ' << nrypix << ' ' << nrcols+1 << " 1"
+		<< mXPMEndLn;
+    strm << '"' << ". c #00ff00" << mXPMEndLn;
+
+    char buf[7];
+    for ( int idx=0; idx<cNrFillSteps; idx++ )
+    {
+	char c = (char)(fac * idx + .5);
+	if ( c == prevc ) continue;
+	prevc = c;
+
+	if ( c < 26 )	c += 'a';
+	else		c += 'A' - 26;
+
+	getColValHex( idx, buf );
+	getColValHex( idx, buf+2 );
+	getColValHex( idx, buf+4 );
+	buf[6] = '\0';
+
+	strm << '"' << c << " c #" << buf << mXPMEndLn;
+    }
+
     for ( int iy=0; iy<nrypix; iy++ )
     {
+	strm << mXPMStartLn;
 	for ( int ix=0; ix<nrxpix; ix++ )
 	{
 	    int c = ((int)bitmap_->get(ix,iy)) - VDA2DBitmapGenPars::cMinFill;
 	    if ( c < 0 || c >= cNrFillSteps )
-		strm << ' ';
+		strm << '.';
 	    else
 	    {
-		char out = (char)(33 + 90 * VDA2DBitmapGenPars::offset(c) + .5);
+		char out = (char)(fac * c + .5);
+		if ( out < 26 )	out += 'a';
+		else		out += 'A' - 26;
 		strm << out;
 	    }
 	}
-	strm << '\n';
+	strm << mXPMEndLn;
     }
 
     return true;
