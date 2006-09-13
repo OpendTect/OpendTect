@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.149 2006-09-07 20:28:44 cvsnanne Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.150 2006-09-13 15:10:57 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -272,36 +272,21 @@ void uiODApplMgr::createVol()
 }
 
 
-void uiODApplMgr::createHorCubeOutput()
+void uiODApplMgr::createHorOutput( HorOutType type )
 {
-    MultiID nlaid;
-    if ( nlaserv )
-	nlaid = nlaserv->modelId();
-    uiAttrTrcSelOut dlg( &appl, *attrserv->curDescSet(), 
-		         nlaserv ? &nlaserv->getModel() : 0, nlaid, true );
-    dlg.go();
-}
-
-
-void uiODApplMgr::create2HorCubeOutput()
-{
-    MultiID nlaid;
-    if ( nlaserv )
-	nlaid = nlaserv->modelId();
-    uiAttrTrcSelOut dlg( &appl, *attrserv->curDescSet(), 
-		         nlaserv ? &nlaserv->getModel() : 0, nlaid, false );
-    dlg.go();
-}
-
-
-void uiODApplMgr::createSurfOutput()
-{
-    MultiID nlaid;
-    if ( nlaserv )
-	nlaid = nlaserv->modelId();
-    uiAttrSurfaceOut dlg( &appl, *attrserv->curDescSet(), 
-	    		  nlaserv ? &nlaserv->getModel() : 0, nlaid );
-    dlg.go();
+    const NLAModel* nlamodel = nlaserv ? &nlaserv->getModel() : 0;
+    const MultiID nlaid = nlaserv ? nlaserv->modelId() : "";
+    if ( type==OnHor )
+    {
+	uiAttrSurfaceOut dlg( &appl, *attrserv->curDescSet(), nlamodel, nlaid );
+	dlg.go();
+    }
+    else
+    {
+	uiAttrTrcSelOut dlg( &appl, *attrserv->curDescSet(), nlamodel, nlaid,
+	       		     type==AroundHor );
+	dlg.go();
+    }
 }
 
 

@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiodapplmgr.h,v 1.38 2006-08-14 09:20:09 cvsnanne Exp $
+ RCS:           $Id: uiodapplmgr.h,v 1.39 2006-09-13 15:10:57 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -80,9 +80,8 @@ public:
     void			editAttribSet();
     bool			editNLA();
     void			createVol();
-    void			createSurfOutput();
-    void			createHorCubeOutput();
-    void			create2HorCubeOutput();
+    enum HorOutType		{ OnHor, AroundHor, BetweenHors };
+    void			createHorOutput(HorOutType);
     void			reStartProc();
 
     // View menu operations

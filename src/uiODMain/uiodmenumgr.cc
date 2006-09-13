@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.cc,v 1.52 2006-09-07 20:28:44 cvsnanne Exp $
+ RCS:           $Id: uiodmenumgr.cc,v 1.53 2006-09-13 15:10:57 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -442,9 +442,12 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
 
     case mEditAttrMnuItm: 	applMgr().editAttribSet(); break;
     case mCreateVolMnuItm: 	applMgr().createVol(); break;
-    case mCreateSurfMnuItm: 	applMgr().createSurfOutput(); break;
-    case mCompBetweenHorMnuItm:	applMgr().create2HorCubeOutput(); break;
-    case mCompAlongHorMnuItm: 	applMgr().createHorCubeOutput(); break;
+    case mCreateSurfMnuItm: 	applMgr().createHorOutput(
+					uiODApplMgr::OnHor); break;
+    case mCompBetweenHorMnuItm:	applMgr().createHorOutput(
+					uiODApplMgr::BetweenHors); break;
+    case mCompAlongHorMnuItm: 	applMgr().createHorOutput(
+					uiODApplMgr::AroundHor); break;
     case mReStartMnuItm: 	applMgr().reStartProc(); break;
     case mAddSceneMnuItm:	sceneMgr().tile(); // leave this, or --> crash!
 				sceneMgr().addScene(); break;
