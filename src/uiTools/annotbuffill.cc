@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          September 2006
- RCS:           $Id: annotbuffill.cc,v 1.3 2006-09-08 14:55:47 cvshelene Exp $
+ RCS:           $Id: annotbuffill.cc,v 1.4 2006-09-14 17:17:31 cvsbert Exp $
  ________________________________________________________________________
 
 -*/
@@ -44,8 +44,8 @@ void AnnotBufferFiller::fillInterWithBufArea( const uiWorldRect& worldarea,
     {
 	for ( int idx=1; idx<pts.size(); idx++ )
 	{
-	    bool isprevoutside = worldarea.isOutside( pts[idx-1] );
-	    bool iscuroutside = worldarea.isOutside( pts[idx] );
+	    bool isprevoutside = worldarea.isOutside( pts[idx-1], 1e-6 );
+	    bool iscuroutside = worldarea.isOutside( pts[idx], 1e-6 );
 	    dPoint segstart = pts[idx-1];
 	    dPoint segstop = pts[idx];
 	    if ( isprevoutside && iscuroutside )
@@ -100,7 +100,7 @@ bool AnnotBufferFiller::isLineOutside( const LineInfo* linfo,
     bool found = false;
     for ( int idx=0; idx<linfo->pts_.size(); idx++ )
     {
-	if ( !warea.isOutside( linfo->pts_[idx] ) )
+	if ( !warea.isOutside( linfo->pts_[idx], 1e-6 ) )
 	    found = true;
     }
 

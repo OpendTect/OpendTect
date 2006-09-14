@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2000
- RCS:           $Id: geometry.h,v 1.20 2006-09-08 15:56:32 cvskris Exp $
+ RCS:           $Id: geometry.h,v 1.21 2006-09-14 17:17:31 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -98,24 +98,26 @@ protected:
 
 This class is a bit more complicated than would be expected at first sight.
 This is caused by the problem of coordinate system sign. For example, in
-user interfaces, top is a lower number than bottom. But foor normal
-coordinates, this is (of course) not the case.
+user interfaces, top is a lower number than bottom. But for normal
+coordinates, this is (of course) not the case. Still, also for floating point
+types, reverse axes are common.
+
 */
 
 template <class T>
-class Rect 
+class Rectangle
 {
 public:
-			Rect ( T l = 0 , T t = 0, T r = 0 , T b = 0 ) 
+			Rectangle( T l = 0 , T t = 0, T r = 0 , T b = 0 ) 
 			: topLeft_( Point2D<T>(l,t)) 
 			, bottomRight_( Point2D<T>(r,b) ) {}
-			Rect ( Point2D<T> tl, Point2D<T> br ) 
+			Rectangle( Point2D<T> tl, Point2D<T> br ) 
 			: topLeft_( tl ) , bottomRight_( br ) {} 
 
-    inline bool		operator ==( const Rect<T>& r ) const
+    inline bool		operator ==( const Rectangle<T>& r ) const
 			{ return   r.topLeft_ == topLeft_
 				&& r.bottomRight_ == bottomRight_; }
-    inline bool		operator !=( const Rect<T>& r ) const
+    inline bool		operator !=( const Rectangle<T>& r ) const
 			{ return   r.topLeft_ != topLeft_
 				|| r.bottomRight_ != bottomRight_; }
 
@@ -134,33 +136,14 @@ public:
     inline void		setBottomLeft( Point2D<T> tr )
 			{ topLeft_.setX(tr.x); bottomRight_.y = tr.y; }
 
-    inline bool		isInside(const Point2D<T>&) const;
-    inline bool		isOutside( const Point2D<T>& p ) const
-			{ return xOutside(p.x) || yOutside(p.y); }
-    inline bool		isOnSide( const Point2D<T>& p ) const
-			{ return !isInside(p) && !isOutside(p); }
-    inline bool		contains( const Point2D<T>& p ) const
-			{ return !isOutside(p); }
+    inline void		fitIn(const Rectangle<T>&);
 
-    inline bool		contains( const Rect<T>& other ) const
-			{
-			    return contains(other.topLeft())
-				&& contains(other.bottomRight());
-			}
-    inline bool		isInside( const Rect<T>& other ) const
-			{
-			    return other.isInside(topLeft())
-				&& other.isInside(bottomRight());
-			}
-    inline void		fitIn(const Rect<T>&);
-
-    inline bool		operator >(const Rect<T>&) const;
+    inline bool		operator >(const Rectangle<T>&) const;
 
     inline T 		width() const
 			{ return revX() ? left()-right() : right() - left(); }
     inline T 		height() const
 			{ return revY() ? bottom()-top() : top()-bottom(); }
-    inline Rect<T>	grownBy(double sidesincreasebyfactor=1) const;
 
     inline T 		left() const 		{ return topLeft_.x; }
     inline T 		top() const 		{ return topLeft_.y; }
@@ -181,9 +164,9 @@ public:
     inline		operator Size2D<T>() const	{ return size(); }
     inline void 	zero()	{ topLeft_.zero(); bottomRight_.zero(); }
 
-    inline Rect<T>&	operator +=( const Point2D<T>& p )
+    inline Rectangle<T>&	operator +=( const Point2D<T>& p )
 			{ topLeft_ += p; bottomRight_ += p; return *this; }
-    inline Rect<T>&	operator -=( const Point2D<T>& p )
+    inline Rectangle<T>&	operator -=( const Point2D<T>& p )
 			{ topLeft_ -= p; bottomRight_ -= p; return *this; }
 
 protected:
@@ -206,9 +189,98 @@ protected:
 
     inline bool		revX() const		{ return left() > right(); }
     inline bool		revY() const		{ return bottom() > top(); }
+};
+
+
+/*!\brief Integer rectangle class.
+
+  The difference with the floating point type rectangle is in range handling.
+  In the float world, everything must be epsiloned. Integer rectangles are
+  more straightforward.
+
+*/
+
+
+template <class T>
+class PixRectangle : public Rectangle<T>
+{
+public:
+			PixRectangle( T l = 0 , T t = 0, T r = 0 , T b = 0 ) 
+			: Rectangle<T>(l,t,r,b)		{}
+			PixRectangle( Point2D<T> tl, Point2D<T> br ) 
+			: Rectangle<T>(tl,br)		{}
+
+    inline bool		isInside( const Point2D<T>& p ) const
+			{ return !xOutside( p.x ) && !yOutside( p.y )
+			      && !isOnSide( p ); }
+    inline bool		isOutside( const Point2D<T>& p ) const
+			{ return xOutside(p.x) || yOutside(p.y); }
+    inline bool		isOnSide(const Point2D<T>&) const;
+    inline bool		contains( const Point2D<T>& p ) const
+			{ return !isOutside(p); }
+
+    inline bool		contains( const PixRectangle<T>& other ) const
+			{
+			    return contains(other.topLeft_)
+				&& contains(other.bottomRight_);
+			}
+    inline bool		isInside( const PixRectangle<T>& other ) const
+			{
+			    return other.isInside(this->topLeft_)
+				&& other.isInside(this->bottomRight_);
+			}
+
+    inline PixRectangle<T> grownBy(double sidesincreasebyfactor=1) const;
+
+protected:
 
     inline bool		xOutside(T) const;
     inline bool		yOutside(T) const;
+};
+
+
+/*!\brief Floating-point rectangle class.
+
+  The difference with the integer type rectangle is in range handling. In the
+  float world, everything must be epsiloned.
+  with inside and outside.
+
+*/
+
+template <class T>
+class PosRectangle : public Rectangle<T>
+{
+public:
+			PosRectangle( T l = 0 , T t = 0, T r = 0 , T b = 0 ) 
+			: Rectangle<T>(l,t,r,b)		{}
+			PosRectangle( Point2D<T> tl, Point2D<T> br ) 
+			: Rectangle<T>(tl,br)		{}
+
+    inline bool		isOutside( const Point2D<T>& p, T eps ) const
+			{ return xOutside(p.x,eps) || yOutside(p.y,eps); }
+    inline bool		isInside(const Point2D<T>&,T eps) const;
+    inline bool		isOnSide(const Point2D<T>& p,T eps) const;
+
+    inline bool		contains( const Point2D<T>& p, T eps ) const
+			{ return !isOutside(p,eps); }
+
+    inline bool		contains( const PosRectangle<T>& other, T eps ) const
+			{
+			    return contains(other.topLeft_,eps)
+				&& contains(other.bottomRight_,eps);
+			}
+    inline bool		isInside( const PosRectangle<T>& other, T eps ) const
+			{
+			    return other.isInside(this->topLeft_,eps)
+				&& other.isInside(this->bottomRight_,eps);
+			}
+
+    inline PosRectangle<T> grownBy(T sidesincreasebyfactor=1) const;
+
+protected:
+
+    inline bool		xOutside(T,T) const;
+    inline bool		yOutside(T,T) const;
 };
 
 
@@ -317,52 +389,102 @@ T Point2D<T>::sqDistTo( const Point2D<T>& pt ) const
 {
     const T xdiff = x-pt.x;
     const T ydiff = y-pt.y;
-    return xdiff*xdiff+ydiff*ydiff;
+    return xdiff*xdiff + ydiff*ydiff;
 }
 
 
 template <class T>
-inline bool Rect<T>::isInside( const Point2D<T>& pt ) const
+inline bool PixRectangle<T>::xOutside( T x ) const
 {
-    return pt != topLeft_ && pt != bottomRight_
-	&& ( (pt.x - left() > 0) == (right() - pt.x > 0) )
-	&& ( (pt.y - bottom() > 0) == (top() - pt.y > 0) );
+    return this->revX() ? (x > this->left() || x < this->right())
+			: (x < this->left() || x > this->right());
 }
 
 
 template <class T>
-inline bool Rect<T>::xOutside( T x ) const
+inline bool PixRectangle<T>::yOutside( T y ) const
 {
-    return x != left() && x != right() && (x-left() > 0 == x-right() > 0);
+    return this->revY() ? (y > this->bottom() || y < this->top())
+			: (y < this->bottom() || y > this->top());
 }
 
 
 template <class T>
-inline bool Rect<T>::yOutside( T y ) const
+inline bool PixRectangle<T>::isOnSide( const Point2D<T>& pt ) const
 {
-    return y != bottom() && y != top() && (y-bottom() > 0 == y-top() > 0);
+    return (pt.x == this->left() || pt.x == this->right())
+	&& (pt.y == this->top()  || pt.y == this->bottom());
 }
 
 
 template <class T>
-inline T widerPos( T x1, T x2, double f )
-{ return (T)(x1 + f * (x1 - x2)); }
-
-inline int widerPos( int x1, int x2, double f )
-{ return mNINT(x1 + f * (x1 - x2)); }
+inline bool PosRectangle<T>::xOutside( T x, T eps ) const
+{
+    return this->revX() ? (x-this->left() > eps || this->right()-x > eps)
+			: (this->left()-x > eps || x-this->right() > eps);
+}
 
 
 template <class T>
-inline Rect<T> Rect<T>::grownBy( double f ) const
+inline bool PosRectangle<T>::yOutside( T y, T eps ) const
+{
+    return this->revY() ? (y-this->bottom() > eps || this->bottom()-y > eps)
+			: (this->bottom()-y > eps || y-this->bottom() > eps);
+}
+
+
+template <class T>
+inline bool PosRectangle<T>::isOnSide( const Point2D<T>& pt, T eps ) const
+{
+    if ( xOutside(pt.x) || yOutside(pt.y) ) return false;
+    return fabs(pt.x - this->left()) < eps || fabs(pt.x - this->right()) < eps
+        || fabs(pt.y - this->top()) < eps || fabs(pt.y - this->bottom()) < eps;
+}
+
+
+template <class T>
+inline bool PosRectangle<T>::isInside( const Point2D<T>& pt, T eps ) const
+{
+    return (this->revX() ? (this->left()-pt.x>eps && pt.x-this->right()>eps)
+			 : (pt.x-this->left()>eps && this->right()-pt.x>eps))
+	&& (this->revY() ? (pt.y-this->bottom()<-eps && this->top()-pt.y<-eps)
+			 : (this->bottom()-pt.y<-eps && pt.y-this->top()<-eps));
+}
+
+
+template <class T>
+inline T iwiderPos( int x1, int x2, double f )
+{ return (T)mNINT(x1 + f * (x1 - x2)); }
+
+template <class T>
+inline T fwiderPos( T x1, T x2, T f )
+{ return x1 + f * (x1 - x2); }
+
+
+template <class T>
+inline PixRectangle<T> PixRectangle<T>::grownBy( double f ) const
 {
     f *= .5;
-    return Rect<T>( widerPos(left(),right(),f), widerPos(top(),bottom(),f),
-		    widerPos(right(),left(),f), widerPos(bottom(),top(),f) );
+    return PixRectangle<T>( iwiderPos(this->left(),this->right(),f),
+			    iwiderPos(this->top(),this->bottom(),f),
+			    iwiderPos(this->right(),this->left(),f),
+			    iwiderPos(this->bottom(),this->top(),f) );
 }
 
 
 template <class T>
-inline bool Rect<T>::operator >( const Rect<T>& r ) const
+inline PosRectangle<T> PosRectangle<T>::grownBy( T f ) const
+{
+    f *= .5;
+    return PosRectangle<T>( fwiderPos(this->left(),this->right(),f),
+			    fwiderPos(this->top(),this->bottom(),f),
+			    fwiderPos(this->right(),this->left(),f),
+			    fwiderPos(this->bottom(),this->top(),f) );
+}
+
+
+template <class T>
+inline bool Rectangle<T>::operator >( const Rectangle<T>& r ) const
 {
     Size2D<T> diff( width()-r.width(), height()-r.height() );
 
@@ -377,7 +499,7 @@ inline bool Rect<T>::operator >( const Rect<T>& r ) const
 
 
 template <class T>
-inline void Rect<T>::fitIn( const Rect<T>& r )
+inline void Rectangle<T>::fitIn( const Rectangle<T>& r )
 {
     if ( revX() )
     {
@@ -402,4 +524,5 @@ inline void Rect<T>::fitIn( const Rect<T>& r )
 }
 
 }; // namespace Geom
+
 #endif
