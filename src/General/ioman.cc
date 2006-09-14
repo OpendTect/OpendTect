@@ -4,7 +4,7 @@
  * DATE     : 3-8-1994
 -*/
 
-static const char* rcsID = "$Id: ioman.cc,v 1.69 2006-09-14 11:21:19 cvsbert Exp $";
+static const char* rcsID = "$Id: ioman.cc,v 1.70 2006-09-14 14:24:17 cvsbert Exp $";
 
 #include "ioman.h"
 #include "iodir.h"
@@ -282,9 +282,12 @@ bool IOMan::setRootDir( const char* dirnm )
 
 bool IOMan::to( const IOLink* link )
 {
-    if ( !link && curlvl == 0 )
+    if ( bad() )
+	return link ? to( link->link()->key() ) : to( prevkey );
+    else if ( !link && curlvl == 0 )
 	return false;
-    if ( bad() ) return link ? to( link->link()->key() ) : to( prevkey );
+    else if ( dirptr && link && link->key() == dirptr->key() )
+	return true;
 
     FilePath fp( curDir() );
     fp.add( link ? (const char*)link->dirname : ".." );
@@ -298,6 +301,9 @@ bool IOMan::to( const IOLink* link )
 
 bool IOMan::to( const MultiID& ky )
 {
+    if ( dirptr && ky == dirptr->key() )
+	return true;
+
     MultiID currentkey;
     IOObj* refioobj = IODir::getObj( ky );
     if ( !refioobj )
@@ -511,15 +517,19 @@ void IOMan::back()
 
 const char* IOMan::curDir() const
 {
-    if ( !bad() ) return dirptr->dirName();
-    return rootdir;
+    return dirptr ? dirptr->dirName() : (const char*)rootdir;
 }
 
 
 MultiID IOMan::key() const
 {
-    if ( !bad() ) return dirptr->key();
-    return MultiID( "" );
+    return MultiID(dirptr ? dirptr->key() : "");
+}
+
+
+MultiID IOMan::newKey() const
+{
+    return dirptr ? dirptr->newKey() : MultiID( "" );
 }
 
 
@@ -543,13 +553,6 @@ bool IOMan::setDir( const char* dirname )
     if ( needtrigger )
 	newIODir.trigger();
     return true;
-}
-
-
-MultiID IOMan::newKey() const
-{
-    if ( bad() ) return MultiID( "" );
-    return dirptr->newKey();
 }
 
 
