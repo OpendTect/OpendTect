@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: uiattrdesced.h,v 1.13 2006-09-11 07:08:37 cvsnanne Exp $
+ RCS:           $Id: uiattrdesced.h,v 1.14 2006-09-14 20:12:29 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -90,6 +90,8 @@ public:
     virtual void	getEvalParams(TypeSet<EvalParam>&) const {}
 
     virtual const char* getAttribName() const		= 0;
+    virtual bool	isUIFor( const char* attrnm ) const
+			{ return !strcmp(attrnm,getAttribName()); }
     void		setDisplayName(const char* nm ) { dispname_ = nm; }
     const char*		getDisplayName() const		{ return dispname_; }
 
