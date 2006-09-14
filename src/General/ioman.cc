@@ -4,7 +4,7 @@
  * DATE     : 3-8-1994
 -*/
 
-static const char* rcsID = "$Id: ioman.cc,v 1.67 2006-08-30 16:03:27 cvsbert Exp $";
+static const char* rcsID = "$Id: ioman.cc,v 1.68 2006-09-14 08:01:44 cvsbert Exp $";
 
 #include "ioman.h"
 #include "iodir.h"
@@ -19,65 +19,17 @@ static const char* rcsID = "$Id: ioman.cc,v 1.67 2006-08-30 16:03:27 cvsbert Exp
 #include "errh.h"
 #include "strmprov.h"
 #include "survinfo.h"
+#include "ascstream.h"
+#include "timefun.h"
+
 #include <stdlib.h>
+#include <sstream>
 
 IOMan*	IOMan::theinst_	= 0;
-void	IOMan::stop()	{ delete theinst_; theinst_ = 0; }
 extern "C" void SetSurveyName(const char*);
 extern "C" const char* GetSurveyName();
 extern "C" void SetSurveyNameDirty();
 extern "C" const char* GetBaseDataDir();
-
-
-static void clearSelHists()
-{
-    const ObjectSet<TranslatorGroup>& grps = TranslatorGroup::groups();
-    const int sz = grps.size();
-    for ( int idx=0; idx<grps.size(); idx++ )
-	const_cast<TranslatorGroup*>(grps[idx])->clearSelHist();
-}
-
-#define mDestroyInst() \
-    CallBackSet sccbs = IOM().surveyChanged.cbs; \
-    CallBackSet rmcbs = IOM().entryRemoved.cbs; \
-    CallBackSet dccbs = IOM().newIODir.cbs; \
-    delete IOMan::theinst_; \
-    IOMan::theinst_ = 0
-
-#define mFinishNewInst(dotrigger) \
-    IOM().surveyChanged.cbs = sccbs; \
-    IOM().entryRemoved.cbs = rmcbs; \
-    IOM().newIODir.cbs = dccbs; \
-    if ( dotrigger ) \
-	IOM().surveyChanged.trigger()
-
-
-bool IOMan::newSurvey()
-{
-    mDestroyInst();
-    clearSelHists();
-    SetSurveyNameDirty();
-    mFinishNewInst( true );
-    return !IOM().bad();
-}
-
-
-void IOMan::setSurvey( const char* survname )
-{
-    mDestroyInst();
-    clearSelHists();
-
-    delete SurveyInfo::theinst_;
-    SurveyInfo::theinst_ = 0;
-    SetSurveyName( survname );
-    mFinishNewInst( true );
-}
-
-
-const char* IOMan::surveyName() const
-{
-    return GetSurveyName();
-}
 
 
 IOMan::IOMan( const char* rd )
@@ -178,6 +130,61 @@ bool IOMan::isReady() const
 }
 
 
+#define mDestroyInst() \
+    CallBackSet sccbs = IOM().surveyChanged.cbs; \
+    CallBackSet rmcbs = IOM().entryRemoved.cbs; \
+    CallBackSet dccbs = IOM().newIODir.cbs; \
+    delete IOMan::theinst_; \
+    IOMan::theinst_ = 0; \
+    clearSelHists()
+
+#define mFinishNewInst(dotrigger) \
+    IOM().surveyChanged.cbs = sccbs; \
+    IOM().entryRemoved.cbs = rmcbs; \
+    IOM().newIODir.cbs = dccbs; \
+    if ( dotrigger ) \
+    { \
+	setupCustomDataDirs(); \
+	IOM().surveyChanged.trigger(); \
+    }
+
+
+static void clearSelHists()
+{
+    const ObjectSet<TranslatorGroup>& grps = TranslatorGroup::groups();
+    const int sz = grps.size();
+    for ( int idx=0; idx<grps.size(); idx++ )
+	const_cast<TranslatorGroup*>(grps[idx])->clearSelHist();
+}
+
+
+bool IOMan::newSurvey()
+{
+    mDestroyInst();
+
+    SetSurveyNameDirty();
+    mFinishNewInst( true );
+    return !IOM().bad();
+}
+
+
+void IOMan::setSurvey( const char* survname )
+{
+    mDestroyInst();
+
+    delete SurveyInfo::theinst_;
+    SurveyInfo::theinst_ = 0;
+    SetSurveyName( survname );
+    mFinishNewInst( true );
+}
+
+
+const char* IOMan::surveyName() const
+{
+    return GetSurveyName();
+}
+
+
 static bool validOmf( const char* dir )
 {
     FilePath fp( dir ); fp.add( ".omf" );
@@ -193,10 +200,12 @@ static bool validOmf( const char* dir )
     return true;
 }
 
+
 extern "C" const char* GetSurveyFileName();
 
 #define mErrRet(str) \
     { errmsg = str; return false; }
+
 #define mErrRetNotODDir(fname) \
     { \
         errmsg = "$DTECT_DATA="; errmsg += GetBaseDataDir(); \
@@ -690,4 +699,140 @@ bool IOMan::permRemove( const MultiID& ky )
     CBCapsule<MultiID> caps( ky, this );
     entryRemoved.trigger( &caps );
     return true;
+}
+
+
+class SurveyDataTreePreparer
+{
+public:
+    			SurveyDataTreePreparer( const IOMan::CustomDirData& dd )
+			    : dirdata_(dd)		{}
+
+    bool		prepDirdata();
+    bool		prepSurv();
+    bool		createDataTree();
+    bool		createRootEntry();
+
+    const IOMan::CustomDirData&	dirdata_;
+    BufferString	errmsg_;
+};
+
+
+#undef mErrRet
+#define mErrRet(s1,s2,s3) \
+	{ errmsg_ = s1; errmsg_ += s2; errmsg_ += s3; return false; }
+
+
+bool SurveyDataTreePreparer::prepDirdata()
+{
+    IOMan::CustomDirData* dd = const_cast<IOMan::CustomDirData*>( &dirdata_ );
+
+    replaceCharacter( dd->desc_.buf(), ':', ';' );
+
+    dd->dirnm_ = dd->dirname_;
+    cleanupString( dd->dirnm_.buf(), NO, NO, NO );
+
+    if ( dd->idnumber_ < 10000 || dd->idnumber_ > 99999 )
+	mErrRet("Invalid ID passed for '",dd->desc_,"'")
+
+    dd->dirid_ = "";
+    dd->dirid_.setID( 200000 + dd->idnumber_, 0 );
+
+    return true;
+}
+
+
+bool SurveyDataTreePreparer::prepSurv()
+{
+    PtrMan<IOObj> ioobj = IOM().get( dirdata_.dirid_ );
+    if ( ioobj ) return true;
+
+    IOM().to( 0 );
+    if ( !createDataTree() )
+	return false;
+
+    // Maybe the parent entry is already there, then this would succeeed now:
+    ioobj = IOM().get( dirdata_.dirid_ );
+    if ( ioobj ) return true;
+
+    return createRootEntry();
+}
+
+
+bool SurveyDataTreePreparer::createDataTree()
+{
+    FilePath fp( IOM().dirPtr()->dirName() );
+    fp.add( dirdata_.dirnm_ );
+    const BufferString mydirnm( fp.fullPath() );
+    if ( File_exists(mydirnm) )
+	// the physical directory is there, maybe the parent entry isn't created
+	return true;
+
+    if ( !File_createDir(mydirnm,0) )
+	mErrRet( "Cannot create '", dirdata_.dirnm_, "' directory in survey" );
+
+    fp.add( ".omf" );
+    StreamData sd = StreamProvider( fp.fullPath() ).makeOStream();
+    if ( !sd.usable() )
+    {
+	File_remove( mydirnm, YES );
+	mErrRet( "Could not create '.omf' file in ", dirdata_.dirnm_,
+		 " directory" );
+    }
+
+    *sd.ostrm << GetProjectVersionName();
+    *sd.ostrm << "\nObject Management file\n";
+    *sd.ostrm << Time_getFullDateString();
+    *sd.ostrm << "\n!\nID: " << dirdata_.dirid_ << "\n!\n"
+	      << dirdata_.desc_ << ": 1\n"
+	      << dirdata_.desc_ << " directory: Gen`Stream\n"
+	     	"$Name: Main\n!"
+	      << std::endl;
+    sd.close();
+    return true;
+}
+
+
+bool SurveyDataTreePreparer::createRootEntry()
+{
+    BufferString parentry( "@" ); parentry += dirdata_.dirid_;
+    parentry += ": "; parentry += dirdata_.dirnm_;
+    parentry += "\n!\n";
+    std::string parentrystr( parentry.buf() );
+    std::istringstream parstrm( parentrystr );
+    ascistream ascstrm( parstrm, NO ); ascstrm.next();
+    IOLink* iol = IOLink::get( ascstrm, 0 );
+    if ( !IOM().dirPtr()->addObj(iol,YES) )
+	mErrRet( "Couldn't add ", dirdata_.dirnm_, " directory to root .omf" )
+    return true;
+}
+
+
+ObjectSet<IOMan::CustomDirData>& getCDDs()
+{
+    static ObjectSet<IOMan::CustomDirData>* cdds = 0;
+    if ( !cdds )
+	cdds = new ObjectSet<IOMan::CustomDirData>;
+    return *cdds;
+}
+
+
+const MultiID& IOMan::addCustomDataDir( const IOMan::CustomDirData& dd )
+{
+    CustomDirData* newdd = new IOMan::CustomDirData( dd );
+    getCDDs() += newdd;
+    setupCustomDataDirs();
+    return newdd->dirid_;
+}
+
+
+void IOMan::setupCustomDataDirs()
+{
+    const ObjectSet<IOMan::CustomDirData>& cdds = getCDDs();
+    for ( int idx=0; idx<cdds.size(); idx++ )
+    {
+	SurveyDataTreePreparer sdtp( *cdds[idx] );
+	if ( !sdtp.prepDirdata() || !sdtp.prepSurv() )
+	    ErrMsg( sdtp.errmsg_ );
+    }
 }

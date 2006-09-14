@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		3-8-1995
- RCS:		$Id: ioman.h,v 1.28 2006-08-21 17:14:44 cvsbert Exp $
+ RCS:		$Id: ioman.h,v 1.29 2006-09-14 08:01:44 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -91,6 +91,32 @@ public:
 			     set the survey to 'name', thus bypassing the
 			     .od/survey file */
 
+    class CustomDirData
+    {
+    public:
+			CustomDirData( int idnr, const char* dirnm,
+					const char* desc="Custom data" )
+			    : idnumber_(idnr)
+			    , dirname_(dirnm)
+			    , desc_(desc)		{}
+
+	int		idnumber_; //!< Required: 10000 < idnumber_ < 100000
+				   //!< Take a nice wild number
+	BufferString	dirname_; //!< The subdirectory name in the tree
+	BufferString	desc_; //!< Short description, mainly for error messages
+			       //!< Example: "Geostatistical data"
+    private:
+
+	friend class	SurveyDataTreePreparer;
+	friend class	IOMan;
+	MultiID		dirid_;
+	BufferString	dirnm_;
+
+    };
+    static const MultiID& addCustomDataDir(const CustomDirData&);
+    			//!< Need to do this only once per OD run
+    			//!< At survey change, dir will automatically be added
+
     bool		setRootDir(const char*);
     bool		setFileName(MultiID,const char*);
     const char*		generateFileName(Translator*,const char*);
@@ -110,11 +136,12 @@ private:
     MultiID		prevkey;
     FileNameString	rootdir;
 
-    static IOMan*	theinst_;
+    void		init();
 			IOMan(const char* rd=0);
     			~IOMan();
-    void		init();
-    static void		stop();
+
+    static IOMan*	theinst_;
+    static void		setupCustomDataDirs();
 
     bool		setDir(const char*);
 
