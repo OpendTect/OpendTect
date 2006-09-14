@@ -4,7 +4,7 @@
  * DATE     : 7-1-1996
 -*/
 
-static const char* rcsID = "$Id: ctxtioobj.cc,v 1.27 2006-08-30 16:03:27 cvsbert Exp $";
+static const char* rcsID = "$Id: ctxtioobj.cc,v 1.28 2006-09-14 14:24:01 cvsbert Exp $";
 
 #include "ctxtioobj.h"
 #include "ioobj.h"
@@ -286,7 +286,7 @@ void CtxtIOObj::setObj( IOObj* obj )
 
     delete ioobj; ioobj = obj;
     if ( ioobj )
-	ctxt.selkey = ctxt.hasStdSelKey() ? "" : ioobj->parentKey();
+	ctxt.selkey = ctxt.hasStdSelKey() ? "" : ioobj->key().upLevel().buf();
 }
 
 
