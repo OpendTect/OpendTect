@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Sep 2006
- RCS:           $Id: array2dbitmap.h,v 1.3 2006-09-12 15:44:36 cvsbert Exp $
+ RCS:           $Id: array2dbitmap.h,v 1.4 2006-09-14 15:04:09 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -71,11 +71,20 @@ protected:
 
 /*! \brief Array2D Bitmap generation setup
 
-The first dimension may be irregularly sampled. The second dimension must
-be 100% regular. For the first dimension, you set up the axis by providing
-the positions in a float array. If you don't provide that array, one will be
-generated, the postions are assumed to be: 0 1 2 ..., which is also what
-is done for the second dimension (which has to be regular).
+This class allows 'zooming' into the data, and an irregularly positioned
+first dimension.
+
+If this class wouldn't exist, both dimensions of the Array2D have to have
+100% regular positioning. But if for example the data contains samples
+of a 2-D seismic line with gaps, this is not the case. That is why you can add
+positioning in one dimension. The second dimension is assumed to be regular,
+step 1, starting at 0.
+
+Thus, the first dimension may be irregularly sampled. For the first dimension,
+you can set up the axis by providing the positions in a float array. If you
+don't provide that array, one will be generated, the postions are assumed to
+be: 0 1 2 ..., which is the same as for the second dimension (which can never
+be irregular).
 
 Then, you can zoom in by setting the different ranges. The default ranges will
 be -0.5 to N-0.5, i.e. half a distance between the cols/rows is added on all
@@ -106,10 +115,8 @@ public:
     int			dimSize( int dim ) const
     			{ return dim ? szdim1_ : szdim0_; }
 
-    			// 'zoom in' (or out)
-    void		setDim0Range( const Interval<float>& r ) { dim0rg_ = r;}
-    void		setDim1Range( const Interval<float>& r ) { dim1rg_ = r;}
-
+    void		setDimRange( int dim, const Interval<float>& r )
+    			{ (dim ? dim1rg_ : dim0rg_) = r; }	//!< 'zooming'
     inline const Interval<float>& dimRange( int dim ) const
     			{ return dim ? dim1rg_ : dim0rg_; }
     inline float	avgDist( int dim ) const
