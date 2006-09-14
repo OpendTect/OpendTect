@@ -5,7 +5,7 @@
  * FUNCTION : Connections
 -*/
 
-static const char* rcsID = "$Id: conn.cc,v 1.22 2006-05-01 07:27:56 cvsnanne Exp $";
+static const char* rcsID = "$Id: conn.cc,v 1.23 2006-09-14 09:57:08 cvsbert Exp $";
 
 #include "errh.h"
 #include "strmprov.h"
@@ -35,6 +35,9 @@ const char* logMsgFileName()
     return logmsgfnm.buf();
 }
 
+
+int gLogFilesRedirectCode = -1; // Not set. 0 = stderr, 1 = log file
+
 #define mErrRet(s) \
     { \
 	strm = &std::cerr; \
@@ -44,9 +47,9 @@ const char* logMsgFileName()
 
 static std::ostream& logMsgStrm()
 {
-#ifdef __win__
-    return std::cerr;
-#else
+    if ( gLogFilesRedirectCode < 1 )
+	return std::cerr;
+
     static std::ostream* strm = 0;
     if ( strm ) return *strm;
 
@@ -89,7 +92,6 @@ static std::ostream& logMsgStrm()
 
     strm = sd.ostrm;
     return *strm;
-#endif
 }
 
 

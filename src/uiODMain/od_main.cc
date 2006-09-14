@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H.Bril
  Date:          Mar 2002
- RCS:           $Id: od_main.cc,v 1.15 2006-08-15 11:32:32 cvsnanne Exp $
+ RCS:           $Id: od_main.cc,v 1.16 2006-09-14 09:57:09 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,6 +22,7 @@ ________________________________________________________________________
 #endif
 
 extern int ODMain(int,char**);
+extern int gLogFilesRedirectCode;
 
 
 inline static bool isPromised( const char* claim )
@@ -32,6 +33,13 @@ inline static bool isPromised( const char* claim )
 
 int main( int argc, char** argv )
 {
+#ifndef __win__
+    gLogFilesRedirectCode = 1;
+	// Only odmain should make log files, not process_attrib and so forth
+	// Didn't fancy putting anything about this in header files
+	// Hence the global 'hidden' variable
+#endif
+
     if ( !isPromised("OD_I_AM_JUST_EVALUATING")		 // Hmmm.
       && !isPromised("OD_I_AM_NOT_A_COMMERCIAL_USER")	 // Good.
       && !isPromised("OD_I_PAID_MAINT_SUPP_FEE")	 // Better.
