@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2001
- RCS:           $Id: uidipfilterattrib.cc,v 1.9 2006-09-11 06:59:31 cvsnanne Exp $
+ RCS:           $Id: uidipfilterattrib.cc,v 1.10 2006-09-14 20:12:57 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -116,6 +116,20 @@ ui3DFilterAttrib::ui3DFilterAttrib( uiParent* p )
 }
 
 
+const char* ui3DFilterAttrib::getAttribName() const
+{
+    return kernelfld->getIntValue() == 3 ? DipFilter::attribName() 
+					 : Convolve::attribName();
+}
+
+
+bool ui3DFilterAttrib::isUIFor( const char* attrnm ) const
+{
+    return !strcmp(attrnm,DipFilter::attribName()) ||
+	   !strcmp(attrnm,Convolve::attribName());
+}
+
+
 void ui3DFilterAttrib::set2D( bool yn )
 {
     inpfld->set2D( yn );
@@ -179,13 +193,6 @@ void ui3DFilterAttrib::kernelSel( CallBacker* cb )
 	    kernelfld->setValue( kernelval );
 	}
     }
-}
-
-
-const char* ui3DFilterAttrib::getAttribName() const
-{
-    return kernelfld->getIntValue() == 3 ? DipFilter::attribName() 
-					 : Convolve::attribName();
 }
 
 
