@@ -4,7 +4,7 @@
  * DATE     : 3-8-1994
 -*/
 
-static const char* rcsID = "$Id: ioman.cc,v 1.68 2006-09-14 08:01:44 cvsbert Exp $";
+static const char* rcsID = "$Id: ioman.cc,v 1.69 2006-09-14 11:21:19 cvsbert Exp $";
 
 #include "ioman.h"
 #include "iodir.h"
@@ -144,7 +144,7 @@ bool IOMan::isReady() const
     IOM().newIODir.cbs = dccbs; \
     if ( dotrigger ) \
     { \
-	setupCustomDataDirs(); \
+	setupCustomDataDirs(-1); \
 	IOM().surveyChanged.trigger(); \
     }
 
@@ -708,7 +708,7 @@ public:
     			SurveyDataTreePreparer( const IOMan::CustomDirData& dd )
 			    : dirdata_(dd)		{}
 
-    bool		prepDirdata();
+    bool		prepDirData();
     bool		prepSurv();
     bool		createDataTree();
     bool		createRootEntry();
@@ -723,20 +723,19 @@ public:
 	{ errmsg_ = s1; errmsg_ += s2; errmsg_ += s3; return false; }
 
 
-bool SurveyDataTreePreparer::prepDirdata()
+bool SurveyDataTreePreparer::prepDirData()
 {
     IOMan::CustomDirData* dd = const_cast<IOMan::CustomDirData*>( &dirdata_ );
 
     replaceCharacter( dd->desc_.buf(), ':', ';' );
+    cleanupString( dd->dirname_.buf(), NO, NO, NO );
 
-    dd->dirnm_ = dd->dirname_;
-    cleanupString( dd->dirnm_.buf(), NO, NO, NO );
+    int nr = dd->selkey_.ID( 0 );
+    if ( nr <= 200000 )
+	mErrRet("Invalid selection key passed for '",dd->desc_,"'")
 
-    if ( dd->idnumber_ < 10000 || dd->idnumber_ > 99999 )
-	mErrRet("Invalid ID passed for '",dd->desc_,"'")
-
-    dd->dirid_ = "";
-    dd->dirid_.setID( 200000 + dd->idnumber_, 0 );
+    dd->selkey_ = "";
+    dd->selkey_.setID( 0, nr );
 
     return true;
 }
@@ -744,7 +743,7 @@ bool SurveyDataTreePreparer::prepDirdata()
 
 bool SurveyDataTreePreparer::prepSurv()
 {
-    PtrMan<IOObj> ioobj = IOM().get( dirdata_.dirid_ );
+    PtrMan<IOObj> ioobj = IOM().get( dirdata_.selkey_ );
     if ( ioobj ) return true;
 
     IOM().to( 0 );
@@ -752,7 +751,7 @@ bool SurveyDataTreePreparer::prepSurv()
 	return false;
 
     // Maybe the parent entry is already there, then this would succeeed now:
-    ioobj = IOM().get( dirdata_.dirid_ );
+    ioobj = IOM().get( dirdata_.selkey_ );
     if ( ioobj ) return true;
 
     return createRootEntry();
@@ -762,28 +761,28 @@ bool SurveyDataTreePreparer::prepSurv()
 bool SurveyDataTreePreparer::createDataTree()
 {
     FilePath fp( IOM().dirPtr()->dirName() );
-    fp.add( dirdata_.dirnm_ );
+    fp.add( dirdata_.dirname_ );
     const BufferString mydirnm( fp.fullPath() );
     if ( File_exists(mydirnm) )
 	// the physical directory is there, maybe the parent entry isn't created
 	return true;
 
     if ( !File_createDir(mydirnm,0) )
-	mErrRet( "Cannot create '", dirdata_.dirnm_, "' directory in survey" );
+	mErrRet( "Cannot create '", dirdata_.dirname_, "' directory in survey");
 
     fp.add( ".omf" );
     StreamData sd = StreamProvider( fp.fullPath() ).makeOStream();
     if ( !sd.usable() )
     {
 	File_remove( mydirnm, YES );
-	mErrRet( "Could not create '.omf' file in ", dirdata_.dirnm_,
+	mErrRet( "Could not create '.omf' file in ", dirdata_.dirname_,
 		 " directory" );
     }
 
     *sd.ostrm << GetProjectVersionName();
     *sd.ostrm << "\nObject Management file\n";
     *sd.ostrm << Time_getFullDateString();
-    *sd.ostrm << "\n!\nID: " << dirdata_.dirid_ << "\n!\n"
+    *sd.ostrm << "\n!\nID: " << dirdata_.selkey_ << "\n!\n"
 	      << dirdata_.desc_ << ": 1\n"
 	      << dirdata_.desc_ << " directory: Gen`Stream\n"
 	     	"$Name: Main\n!"
@@ -795,44 +794,63 @@ bool SurveyDataTreePreparer::createDataTree()
 
 bool SurveyDataTreePreparer::createRootEntry()
 {
-    BufferString parentry( "@" ); parentry += dirdata_.dirid_;
-    parentry += ": "; parentry += dirdata_.dirnm_;
+    BufferString parentry( "@" ); parentry += dirdata_.selkey_;
+    parentry += ": "; parentry += dirdata_.dirname_;
     parentry += "\n!\n";
     std::string parentrystr( parentry.buf() );
     std::istringstream parstrm( parentrystr );
     ascistream ascstrm( parstrm, NO ); ascstrm.next();
     IOLink* iol = IOLink::get( ascstrm, 0 );
     if ( !IOM().dirPtr()->addObj(iol,YES) )
-	mErrRet( "Couldn't add ", dirdata_.dirnm_, " directory to root .omf" )
+	mErrRet( "Couldn't add ", dirdata_.dirname_, " directory to root .omf" )
     return true;
 }
 
 
-ObjectSet<IOMan::CustomDirData>& getCDDs()
+TypeSet<IOMan::CustomDirData>& getCDDs()
 {
-    static ObjectSet<IOMan::CustomDirData>* cdds = 0;
+    static TypeSet<IOMan::CustomDirData>* cdds = 0;
     if ( !cdds )
-	cdds = new ObjectSet<IOMan::CustomDirData>;
+	cdds = new TypeSet<IOMan::CustomDirData>;
     return *cdds;
 }
 
 
 const MultiID& IOMan::addCustomDataDir( const IOMan::CustomDirData& dd )
 {
-    CustomDirData* newdd = new IOMan::CustomDirData( dd );
-    getCDDs() += newdd;
-    setupCustomDataDirs();
-    return newdd->dirid_;
+    SurveyDataTreePreparer sdtp( dd );
+    if ( !sdtp.prepDirData() )
+    {
+	ErrMsg( sdtp.errmsg_ );
+	static MultiID none( "" );
+	return none;
+    }
+
+    TypeSet<IOMan::CustomDirData>& cdds = getCDDs();
+    for ( int idx=0; idx<cdds.size(); idx++ )
+    {
+	const IOMan::CustomDirData& cdd = cdds[idx];
+	if ( cdd.selkey_ == dd.selkey_ )
+	    return cdd.selkey_;
+    }
+
+    cdds += dd;
+    int idx = cdds.size() - 1;
+    setupCustomDataDirs( idx );
+    return cdds[idx].selkey_;
 }
 
 
-void IOMan::setupCustomDataDirs()
+void IOMan::setupCustomDataDirs( int taridx )
 {
-    const ObjectSet<IOMan::CustomDirData>& cdds = getCDDs();
+    const TypeSet<IOMan::CustomDirData>& cdds = getCDDs();
     for ( int idx=0; idx<cdds.size(); idx++ )
     {
-	SurveyDataTreePreparer sdtp( *cdds[idx] );
-	if ( !sdtp.prepDirdata() || !sdtp.prepSurv() )
+	if ( taridx >= 0 && idx != taridx )
+	    continue;
+
+	SurveyDataTreePreparer sdtp( cdds[idx] );
+	if ( !sdtp.prepSurv() )
 	    ErrMsg( sdtp.errmsg_ );
     }
 }

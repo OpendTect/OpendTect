@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		3-8-1995
- RCS:		$Id: ioman.h,v 1.29 2006-09-14 08:01:44 cvsbert Exp $
+ RCS:		$Id: ioman.h,v 1.30 2006-09-14 11:21:19 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -94,25 +94,23 @@ public:
     class CustomDirData
     {
     public:
-			CustomDirData( int idnr, const char* dirnm,
+			CustomDirData( const char* selkey, const char* dirnm,
 					const char* desc="Custom data" )
-			    : idnumber_(idnr)
+			    : selkey_(selkey)
 			    , dirname_(dirnm)
 			    , desc_(desc)		{}
 
-	int		idnumber_; //!< Required: 10000 < idnumber_ < 100000
-				   //!< Take a nice wild number
+	MultiID		selkey_; //!< Make sure your selkey > 200000
+				 //!< Lower than that will be refused!
+				 //!< Example: "218745"
 	BufferString	dirname_; //!< The subdirectory name in the tree
 	BufferString	desc_; //!< Short description, mainly for error messages
 			       //!< Example: "Geostatistical data"
-    private:
 
-	friend class	SurveyDataTreePreparer;
-	friend class	IOMan;
-	MultiID		dirid_;
-	BufferString	dirnm_;
-
+	bool		operator ==( const CustomDirData& cdd ) const
+	    		{ return selkey_ == cdd.selkey_; }
     };
+
     static const MultiID& addCustomDataDir(const CustomDirData&);
     			//!< Need to do this only once per OD run
     			//!< At survey change, dir will automatically be added
@@ -141,7 +139,7 @@ private:
     			~IOMan();
 
     static IOMan*	theinst_;
-    static void		setupCustomDataDirs();
+    static void		setupCustomDataDirs(int);
 
     bool		setDir(const char*);
 
