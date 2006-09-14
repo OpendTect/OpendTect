@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          26/07/2000
- RCS:           $Id: draw.h,v 1.10 2006-03-01 19:51:57 cvskris Exp $
+ RCS:           $Id: draw.h,v 1.11 2006-09-14 22:19:31 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,6 +41,10 @@ public:
 				       Color col=Color::Black,
 				       const char* fk=0 )
 			: type(tp), size(sz), color(col), fontkey(fk)	{}
+
+    bool		operator==(const MarkerStyle2D& a) const
+			{ return a.type==type && a.size==size &&
+			         a.color==color && a.fontkey==a.fontkey; }
 
     Type		type;
     int			size;
