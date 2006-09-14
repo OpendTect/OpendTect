@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H.Bril
  Date:          Mar 2002
- RCS:           $Id: od_main.cc,v 1.16 2006-09-14 09:57:09 cvsbert Exp $
+ RCS:           $Id: od_main.cc,v 1.17 2006-09-14 10:10:46 cvsdgb Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,6 +50,8 @@ int main( int argc, char** argv )
 	    "In doubt, consult http://opendtect.org/rel/LICENSE.txt.";
 
 	std::cerr << msg << std::endl;
+	if ( gLogFilesRedirectCode == 1 )
+	    UsrMsg( msg );
     }
 
     od_putProgInfo( argc, argv );
