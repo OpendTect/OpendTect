@@ -1,6 +1,6 @@
-dTect V1.1
+dTect V2.6
 Object Management file
-Wed Oct 22 14:00:22 2003
+Thu Sep 14 15:34:45 2006
 !
 ID: 0
 !
@@ -25,8 +25,4 @@ ID: 0
 Survey root: 1
 Survey Info: dGB`Stream
 $Name: .survey
-!
-Basic acoustic dictionary: 2
-Framework Dictionary: dGB`Stream
-$Name: BasicAcDict
 !
