@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        B. Bril & H. Huck
  Date:          08/09/06
- RCS:           $Id: uirgbarray.h,v 1.1 2006-09-08 13:25:28 cvshelene Exp $
+ RCS:           $Id: uirgbarray.h,v 1.2 2006-09-15 14:36:29 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,6 +21,7 @@ class uiRGBArray
 {
 public:
                         uiRGBArray();
+			uiRGBArray(const uiRGBArray&);
     virtual		~uiRGBArray();
 
     void                setSize(int,int);

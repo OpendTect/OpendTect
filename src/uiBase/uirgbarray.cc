@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril & H. Huck
  Date:          08/09/2006
- RCS:           $Id: uirgbarray.cc,v 1.1 2006-09-08 13:25:28 cvshelene Exp $
+ RCS:           $Id: uirgbarray.cc,v 1.2 2006-09-15 14:36:29 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,6 +22,12 @@ ________________________________________________________________________
 uiRGBArray::uiRGBArray()
         : qimg_(new QImage)
 {
+}
+
+uiRGBArray::uiRGBArray( const uiRGBArray& rgbarr )
+{
+    qimg_ = new QImage( rgbarr.Image() );
+    qimg_->detach();
 }
 
 uiRGBArray::~uiRGBArray() 
