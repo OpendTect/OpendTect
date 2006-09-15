@@ -4,7 +4,7 @@
  * DATE     : Mar 2000
 -*/
 
-static const char* rcsID = "$Id: od_process_attrib.cc,v 1.17 2006-09-15 11:58:49 cvsbert Exp $";
+static const char* rcsID = "$Id: od_process_attrib.cc,v 1.18 2006-09-15 12:42:09 cvshelene Exp $";
 
 #include "attribstorprovider.h"
 #include "attribdescset.h"
@@ -239,10 +239,13 @@ bool BatchProgram::go( std::ostream& strm )
 		    mRetJobErr( "Cannot reach next position" )
 		break;
 	    }
+	    
+	    if ( res >= 0 )
+	    {
+		nriter++;
+		proc->outputs[0]->writeTrc();
+	    }
 	}
-
-	nriter++;
-	proc->outputs[0]->writeTrc();
     }
 
     mStrmWithProcID( "Processing done; Closing down" );
