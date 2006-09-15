@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Sep 2006
- RCS:           $Id: array2dbitmap.h,v 1.4 2006-09-14 15:04:09 cvsbert Exp $
+ RCS:           $Id: array2dbitmap.h,v 1.5 2006-09-15 11:50:06 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -90,12 +90,16 @@ Then, you can zoom in by setting the different ranges. The default ranges will
 be -0.5 to N-0.5, i.e. half a distance between the cols/rows is added on all
 sides as border.
 
-The positions in dim 0 *must* be sorted, only the distances may vary.
-The average distance between the positions is used to calculate the
+The positions in dim 0 *must* be sorted, *ascending*. Only the distances may
+vary. The average distance between the positions is used to calculate the
 default border.
 
-Dim 0 <-> X
-Dim 1 <-> Y
+Dim 0 <-> X ...  left-to-right
+Dim 1 <-> Y ...  Top to bottom
+
+This classs is _not_ intended to support direct world coordinates and that
+kind of things. It just enables most simple bitmap generations. You may still
+need a (usually linear) transformation in both directions for display.
 
 */
 
@@ -170,7 +174,7 @@ public:
 
     void		setBitmap(A2DBitMap&);
     A2DBitMap&		bitmap()		{ return *bitmap_; }
-    const A2DBitMap&	 bitmap() const		{ return *bitmap_; }
+    const A2DBitMap&	bitmap() const		{ return *bitmap_; }
     int			bitmapSize(int dim) const;
 
     void		initBitmap();	//!< with A2DBitmapGenPars::cNoFill
