@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2000
- RCS:           $Id: geometry.h,v 1.23 2006-09-15 09:23:38 cvshelene Exp $
+ RCS:           $Id: geometry.h,v 1.24 2006-09-15 21:58:25 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,6 +24,9 @@ class Point2D
 public:
 				Point2D ( T xx = 0, T yy = 0 );
     virtual			~Point2D()				{}
+
+    template <class TT>
+    Point2D<T>&			setFrom(const Point2D<TT>& a);
 
     inline void			setXY( T xx, T yy );
     inline Point2D<T>&		zero();
@@ -44,10 +47,13 @@ public:
     inline Point2D<T>		operator *( const T factor ) const;
     inline Point2D<T>		operator /( const T den ) const;
 
+    inline bool			isDefined() const;
     inline double		abs() const;
     inline T			sqAbs() const;
     inline double		distTo(const Point2D<T>&) const;
     inline T			sqDistTo(const Point2D<T>&) const;
+
+    static Point2D<T>		udf() { return Point2D<T>( mUdf(T), mUdf(T) ); }
     
     T 				x;
     T 				y;
@@ -111,7 +117,7 @@ public:
 			Rectangle( T l = 0 , T t = 0, T r = 0 , T b = 0 ) 
 			: topLeft_( Point2D<T>(l,t)) 
 			, bottomRight_( Point2D<T>(r,b) ) {}
-			Rectangle( Point2D<T> tl, Point2D<T> br ) 
+			Rectangle( const Point2D<T>& tl, const Point2D<T>& br ) 
 			: topLeft_( tl ) , bottomRight_( br ) {} 
 
     inline bool		operator ==( const Rectangle<T>& r ) const
@@ -174,8 +180,8 @@ protected:
     inline void		swapHor() 
 			{ 
 			    T t = topLeft_.x; 
-			    topLeft_.setX( bottomRight_.x );
-			    bottomRight_.setX( t );
+			    topLeft_.x = bottomRight_.x;
+			    bottomRight_.x =  t;
 			}
     inline void		swapVer() 
 			{ 
@@ -289,7 +295,10 @@ Point2D<T>::Point2D ( T xx , T yy )
     : x(xx), y(yy)
 {}
 
-
+template <class T> template <class TT> inline
+Point2D<T>& Point2D<T>::setFrom( const Point2D<TT>& a )
+{ x=a.x; y=a.y; return *this;}
+    				
 template <class T> inline
 void Point2D<T>::setXY( T xx, T yy )
 { x = xx ; y = yy; }  
@@ -367,6 +376,11 @@ Point2D<T> Point2D<T>::operator *( const T factor ) const
 template <class T> inline
 Point2D<T> Point2D<T>::operator /( const T den ) const
 { return Point2D<T>(x/den,y/den); }
+
+
+template <class T> inline
+bool Point2D<T>::isDefined() const
+{ return !mIsUdf(x) && !mIsUdf(y); }
 
 
 template <class T> inline
