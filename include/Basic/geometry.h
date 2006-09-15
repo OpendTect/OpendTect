@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2000
- RCS:           $Id: geometry.h,v 1.22 2006-09-15 08:36:34 cvshelene Exp $
+ RCS:           $Id: geometry.h,v 1.23 2006-09-15 09:23:38 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -428,8 +428,8 @@ inline bool PosRectangle<T>::xOutside( T x, T eps ) const
 template <class T>
 inline bool PosRectangle<T>::yOutside( T y, T eps ) const
 {
-    return this->revY() ? (y-this->top() > eps || this->bottom()-y > eps)
-			: (this->top()-y > eps || y-this->bottom() > eps);
+    return this->revY() ? (this->top()-y > eps || y-this->bottom() > eps)
+			: (y-this->top() > eps || this->bottom()-y > eps);
 }
 
 
