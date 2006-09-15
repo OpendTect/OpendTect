@@ -4,7 +4,7 @@
  * DATE     : Mar 2000
 -*/
 
-static const char* rcsID = "$Id: od_process_attrib.cc,v 1.16 2006-03-13 08:12:09 cvshelene Exp $";
+static const char* rcsID = "$Id: od_process_attrib.cc,v 1.17 2006-09-15 11:58:49 cvsbert Exp $";
 
 #include "attribstorprovider.h"
 #include "attribdescset.h"
@@ -36,95 +36,58 @@ static const char* rcsID = "$Id: od_process_attrib.cc,v 1.16 2006-03-13 08:12:09
 	{ delete proc; proc = 0; }
 
 defineTranslatorGroup(AttribDescSet,"Attribute definitions");
-/*	
-    { delete proc; proc = 0; }
-    
-    Don't delete AttribDescSetProcessor, because it takes too much time 
-    ( >2 min. ), especially the destruction of the SeisTrcBuf. 
-*/
 
 
-#define mErrRet(s) \
-{ \
-    strm << ( stepout ? "0 0" : "0" ) << std::endl; \
-    bp.errorMsg(s,true); \
-    return false; \
-}
+#define mRetError(s) \
+{ errorMsg(s); mDestroyWorkers; return false; }
 
-static bool attribSetQuery( std::ostream& strm, const IOPar& iopar,
-			    BatchProgram& bp, bool stepout )
-{
-    Attrib::DescSet initialset;
-    PtrMan<IOPar> attribs = iopar.subselect("Attributes");
-    if ( !initialset.usePar( *attribs ) )
-	mErrRet( initialset.errMsg() )
+#define mRetHostErr(s) \
+	{  \
+	    if ( comm ) comm->setState( MMSockCommunic::HostError ); \
+	    mRetError(s) \
+	}
 
-    const char* res = iopar.find( "Output.1.Attributes.0" );
-    if ( !res )
-	mErrRet( "No target attribute found" )
-    Attrib::DescID outid( atoi(res), true );
-    if ( !initialset.getDesc(outid) )
-	mErrRet( "Target attribute not present in attribute set" )
+#define mRetJobErr(s) \
+	{  \
+	    if ( comm ) comm->setState( MMSockCommunic::JobError ); \
+	    mRetError(s) \
+	}
 
-    return true;
-}
+#define mRetFileProb(fdesc,fnm,s) \
+	{ \
+	    BufferString msg(fdesc); \
+	    msg += " ("; msg += fnm; msg += ") "; msg += s; \
+	    mRetHostErr( msg ); \
+	}
 
+#define mStrmWithProcID(s) \
+    strm << "\n[" << process_id << "]: " << s << "." << std::endl
 
-#define mRetError(s)	{ errorMsg(s); mDestroyWorkers; return false; }
-
-#define mRetHostErr(s)	{  \
-    if ( comm ) comm->setState( MMSockCommunic::HostError ); \
-    mRetError(s) \
-}
-
-#define mRetJobErr(s)	 {  \
-    if ( comm ) comm->setState( MMSockCommunic::JobError ); \
-    mRetError(s) \
-}
-
+#define mSetCommState(State) \
+	if ( comm ) \
+	{ \
+	    comm->setState( MMSockCommunic::State ); \
+	    if ( !comm->updateState() ) \
+		mRetHostErr( comm->errMsg() ) \
+	}
 
 bool BatchProgram::go( std::ostream& strm )
 {
+    strm << "Processing on " << HostData::localHostName()  << '.' << std::endl;
+
     const int process_id = GetPID();
-
-    Attrib::initAttribClasses();
-    if ( cmdLineOpts().size() )
-    {
-	BufferString opt = *cmdLineOpts()[0];
-	bool ismaxstepout = opt == "maxstepout";
-	if ( ismaxstepout || opt == "validate" )
-	    return attribSetQuery( strm, pars(), *this, ismaxstepout );
-    }
-
-    strm << "Processing on " << HostData::localHostName();
-    strm << '.' << std::endl;
-
     Attrib::Processor* proc = 0;
+    Attrib::initAttribClasses();
     
     const char* tempdir = pars().find(sKey::TmpStor);
-
     if ( tempdir && *tempdir )
     {
 	if ( !File_exists(tempdir) )
-	{
-	    BufferString msg(sKey::TmpStor);
-	    msg += " ("; msg += tempdir; msg += ") does not exist.";
-	    mRetHostErr( msg );
-	}
-
-	if ( !File_isDirectory(tempdir) )
-	{
-	    BufferString msg(sKey::TmpStor);
-	    msg += " ("; msg += tempdir; msg += ") is not a directory.";
-	    mRetHostErr( msg );
-	}
-
-	if ( !File_isWritable(tempdir) )
-	{
-	    BufferString msg(sKey::TmpStor);
-	    msg += " ("; msg += tempdir; msg += ") is not writeable.";
-	    mRetHostErr( msg );
-	}
+	    mRetFileProb(sKey::TmpStor,tempdir,"does not exist")
+	else if ( !File_isDirectory(tempdir) )
+	    mRetFileProb(sKey::TmpStor,tempdir,"is not a directory")
+	else if ( !File_isWritable(tempdir) )
+	    mRetFileProb(sKey::TmpStor,tempdir,"is not writeable")
     }
 
     Seis2DLineSet::installPreSet( pars(), SeisJobExecProv::sKeyOutputLS,
@@ -149,10 +112,8 @@ bool BatchProgram::go( std::ostream& strm )
 	PtrMan<IOObj> ioobj = IOM().get( seisid );
 	if ( !ioobj )
 	{
-	    BufferString msg("Cannot find output Seismic Object! for '");
-	    msg += seisid;
-	    msg += "' ...";
-	    mRetHostErr( msg );
+	    BufferString msg( "Cannot find output Seismic Object with ID '" );
+	    msg += seisid; msg += "' ..."; mRetHostErr( msg );
 	}
 
 	FilePath fp( ioobj->fullUserExpr(false) );
@@ -162,15 +123,13 @@ bool BatchProgram::go( std::ostream& strm )
 	    fp.add( ioobj->fullUserExpr(false) );
 	}
 	BufferString dirnm = fp.pathOnly();
-	if ( !File_isDirectory(dirnm) || !File_isWritable(dirnm) )
+	const bool isdir = File_isDirectory( dirnm );
+	if ( !isdir || !File_isWritable(dirnm) )
 	{
-	    BufferString msg("Output directory for '");
-	    msg += ioobj->name();
-	    msg += "' (";
-	    msg += dirnm;
-	    msg += File_isDirectory(dirnm) ? ") is not writeable." 
-					   : ") does not exist.";
-	    mRetHostErr( msg );
+	    BufferString fdesc("Output directory for '");
+	    fdesc += ioobj->name(); fdesc += "'";
+	    mRetFileProb(fdesc,dirnm,
+		    	 isdir ? "is not writeable" : "does not exist")
 	}
     }
     strm.flush();
@@ -195,13 +154,11 @@ bool BatchProgram::go( std::ostream& strm )
     }
 
     PtrMan<IOPar> outputs = pars().subselect("Output");
-
     if ( !outputs )
 	mRetJobErr( "No outputs found" )
 
     PtrMan<Attrib::EngineMan> attrengman = new Attrib::EngineMan();
-    int indexoutp = 0;
-    BufferString linename;
+    int indexoutp = 0; BufferString linename;
     while ( true )
     {
         BufferString multoutpstr = IOPar::compKey( "Output", indexoutp );
@@ -215,29 +172,22 @@ bool BatchProgram::go( std::ostream& strm )
 	}
 	linename = output->find(sKey::LineKey);
 	indexoutp++;
-    }    
+    }
     BufferString errmsg;
     proc = attrengman->usePar( pars(), attribset, linename, errmsg );
-    if ( !proc ) mRetError( errmsg );
-    
-    ProgressMeter progressmeter(strm);
+    if ( !proc )
+	mRetJobErr( errmsg );
 
-    bool cont = true;
-    bool loading = true;
+    mSetCommState(Working);
 
-    if ( comm )
-    {
-	comm->setState(MMSockCommunic::Working);   
-	if( !comm->sendState() ) mRetHostErr( comm->errMsg() )	    
-    }
-
-    const double sleeptime = GetEnvVarDVal( "OD_BATCH_SLEEP_TIME", 1 );
     double startup_wait = 0;
     pars().get( "Startup delay time", startup_wait );
-    Time_sleep( startup_wait );  
+    Time_sleep( startup_wait );
 
-    int nriter = 0;
-    int nrdone = 0;
+    const double pause_sleep_time = GetEnvVarDVal( "OD_BATCH_SLEEP_TIME", 1 );
+    ProgressMeter progressmeter(strm);
+    bool cont = true; bool loading = true;
+    int nriter = 0, nrdone = 0;
 
     while ( true )
     {
@@ -246,36 +196,24 @@ bool BatchProgram::go( std::ostream& strm )
 	if ( pauseRequested() )
 	{ 
 	    paused = true;
-
-	    if ( comm )
-	    {
-		comm->setState( MMSockCommunic::Paused );
-		if ( !comm->updateState() ) mRetHostErr( comm->errMsg() )
-	    }
-
-	    Time_sleep( sleeptime );  
+	    mSetCommState(Paused);
+	    Time_sleep( pause_sleep_time );  
 	}
 	else
 	{
 	    if ( paused )
 	    {
 		paused = false;
-		if ( comm )
-		{
-		    comm->setState( MMSockCommunic::Working );
-		    if ( !comm->updateState() ) mRetHostErr( comm->errMsg())
-		}
+		mSetCommState(Working);
 	    }
-	    int res = proc->nextStep();
 
-	    if ( nriter==0 )
+	    const int res = proc->nextStep();
+
+	    if ( nriter == 0 )
 	    {
-		int totalnr = 0;
-		totalnr += proc->totalNr();
-		strm << std::endl;
-		strm << "Estimated number of positions to be processed"
-		     <<"(regular survey): "<< totalnr << std::endl;
-		strm << "Loading cube data ..." << std::endl;
+		strm << "\nEstimated number of positions to be processed"
+		     <<"(assuming regular input): "<< proc->totalNr()
+		     << "\nLoading cube data ..." << std::endl;
 	    }
 
 	    if ( res > 0 )
@@ -283,8 +221,7 @@ bool BatchProgram::go( std::ostream& strm )
 		if ( loading )
 		{
 		    loading = false;
-		    strm << "\n["<<process_id<<"]: Processing started."
-			 << std::endl;
+		    mStrmWithProcID( "Processing started" );
 		}
 
 		if ( comm && !comm->updateProgress( nriter + 1 ) )
@@ -303,18 +240,17 @@ bool BatchProgram::go( std::ostream& strm )
 		break;
 	    }
 	}
+
 	nriter++;
 	proc->outputs[0]->writeTrc();
     }
 
-    strm << "\n["<<process_id<<"]: Processing done. Closing up." << std::endl;
+    mStrmWithProcID( "Processing done; Closing down" );
 
     // It is VERY important workers are destroyed BEFORE the last sendState!!!
     mDestroyWorkers
     progressmeter.finish();
-
-    strm << "\n["<<process_id<<"]: Threads closed. Writing finish status"
-	 << std::endl;
+    mStrmWithProcID( "Threads closed; Writing finish status" );
 
     if ( !comm ) return true;
 
@@ -322,12 +258,9 @@ bool BatchProgram::go( std::ostream& strm )
     bool ret = comm->sendState();
 
     if ( ret )
-	strm << "[" <<process_id<< "]: Successfully wrote finish status."
-	     << std::endl;
+	mStrmWithProcID( "Successfully wrote finish status" );
     else
-    strm << "[" <<process_id<< "]: Could not write finish status."
-	 << std::endl;
-
+	mStrmWithProcID( "Could not write finish status" );
     return ret;
 }
 
