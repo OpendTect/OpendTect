@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.89 2006-09-11 13:23:20 cvsnanne Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.90 2006-09-18 15:32:16 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -168,35 +168,41 @@ void uiEMPartServer::fillHoles( const EM::ObjectID& emid )
 }
 
 
-bool uiEMPartServer::askUserToSave( const EM::ObjectID& emid ) const
+#define mMkMsg(s) \
+	BufferString msg( emobj->getTypeStr() ); \
+	msg += " '"; msg += emobj->name(); msg += "' "; msg += s; \
+	msg += ".\nDo you want to save it?"
+
+void uiEMPartServer::askUserToSave( const EM::ObjectID& emid ) const
 {
     const EM::EMObject* emobj = em_.getObject(emid);
-    if ( !emobj )
-	return false;
+    if ( !emobj || emobj->isEmpty() ) return;
+
     const MultiID& mid = emobj->multiID();
     PtrMan<IOObj> ioobj = IOM().get(mid);
+    bool mustsave = false;
     if ( !ioobj )
-	return false;
-    const bool isempty = emobj->isEmpty();
-    const bool wasempty = !ioobj->implExists(false);
-    const bool changed = isChanged(emid) && ( !wasempty || !isempty );
-    bool allowsave = true;
-
-    if ( changed )
     {
-	BufferString msg( emobj->getTypeStr() );
-	msg += " '";
-	msg += emobj->name(); msg += "' has changed.\nDo you want to save it?";
-        allowsave = uiMSG().notSaved( msg, false );
+	mMkMsg( "was removed from storage" );
+        mustsave = uiMSG().askGoOn( msg );
+	if ( !mustsave ) return;
+
+	const IOObjContext* ctxt = EM::EMM().getContext( emobj->getTypeStr() );
+	CtxtIOObj ctio( *ctxt ); ctio.setName( emobj->name() );
+	IOM().getEntry( ctio ); IOM().commitChanges( *ctio.ioobj );
+	ioobj = ctio.ioobj;
     }
 
-    if ( isempty && allowsave || wasempty && !allowsave )
-	return fullImplRemove(*ioobj) && IOM().permRemove(mid);
+    if ( !mustsave )
+    {
+	if ( !isChanged(emid) )
+	    return;
+	mMkMsg( "has changed" );
+	if ( !uiMSG().askGoOn(msg,false) )
+	    return;
+    }
 
-    if ( changed && allowsave ) 
-	return storeObject( emid, !isFullyLoaded(emid) );
-    
-    return true;
+    storeObject( emid, !isFullyLoaded(emid) );
 }
 
 
