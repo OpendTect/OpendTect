@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          January 2003
- RCS:           $Id: visrandomtrackdisplay.cc,v 1.78 2006-08-24 16:09:49 cvskris Exp $
+ RCS:           $Id: visrandomtrackdisplay.cc,v 1.79 2006-09-18 11:26:39 cvsnanne Exp $
  ________________________________________________________________________
 
 -*/
@@ -876,7 +876,7 @@ int RandomTrackDisplay::usePar( const IOPar& par )
     if ( res != 1 ) return res;
 
     int nrattribs;
-    if ( par.get( sKeyNrAttribs(), nrattribs ) ) //current format
+    if ( par.get(sKeyNrAttribs(),nrattribs) ) //current format
     {
 	bool firstattrib = true;
 	for ( int attrib=0; attrib<nrattribs; attrib++ )
@@ -916,7 +916,7 @@ int RandomTrackDisplay::usePar( const IOPar& par )
     else //For old pars
     {
 	int trackid;
-	if ( !par.get( sKeyTrack(), trackid ) ) return -1;
+	if ( !par.get(sKeyTrack(),trackid) ) return -1;
 	mDynamicCastGet(visBase::RandomTrack*,rt,
 			visBase::DM().getObject(trackid));
 	
@@ -927,6 +927,7 @@ int RandomTrackDisplay::usePar( const IOPar& par )
 	as_[0]->usePar( par );
 	texture_->setColorTab( 0, rt->getColorTab() );
 	rt->unRef();
+	setMaterial( rt->getMaterial() );
 	turnOn( rt->isOn() );
     }
 
