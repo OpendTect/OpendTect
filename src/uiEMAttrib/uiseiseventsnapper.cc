@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          September 2006
- RCS:           $Id: uiseiseventsnapper.cc,v 1.1 2006-09-19 09:28:11 cvsnanne Exp $
+ RCS:           $Id: uiseiseventsnapper.cc,v 1.2 2006-09-19 09:46:30 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -117,9 +117,10 @@ bool uiSeisEventSnapper::acceptOK( CallBacker* )
     if ( !readHorizon() )
 	mErrRet( "Cannot read horizon" );
 
+// TODO: loop over all sections
+    EM::SectionID sid = horizon_->sectionID( 0 );
     BinIDValueSet bivs( 1, false );
-    horizon_->geometry().fillBinIDValueSet( bivs );
-
+    horizon_->geometry().fillBinIDValueSet( sid, bivs );
 
     SeisEventSnapper snapper( *seisctio_.ioobj, bivs );
     snapper.setEvent( (VSEvent::Type)eventfld_->getIntValue() );
