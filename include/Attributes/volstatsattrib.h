@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: volstatsattrib.h,v 1.12 2006-08-24 14:57:29 cvshelene Exp $
+ RCS:           $Id: volstatsattrib.h,v 1.13 2006-09-19 15:03:06 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,7 +36,7 @@ Outputs:
 4       Max
 5       Sum
 6       Normalized Variance
-
+7	Most Frequent
 */
 
 

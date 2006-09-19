@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: uivolstatsattrib.cc,v 1.7 2006-09-11 06:59:32 cvsnanne Exp $
+ RCS:           $Id: uivolstatsattrib.cc,v 1.8 2006-09-19 15:03:07 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,6 +31,7 @@ static const char* outpstrs[] =
 	"Max",
 	"Sum",
 	"NormVariance",
+	"Most Frequent",
 	0
 };
 

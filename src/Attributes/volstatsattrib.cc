@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: volstatsattrib.cc,v 1.27 2006-08-24 14:57:29 cvshelene Exp $";
+static const char* rcsID = "$Id: volstatsattrib.cc,v 1.28 2006-09-19 15:03:06 cvshelene Exp $";
 
 #include "volstatsattrib.h"
 
@@ -32,6 +32,7 @@ static int outputtypes[] =
     RunStats::Max,
     RunStats::Sum,
     RunStats::NormVariance,
+    RunStats::MostFreq,
     -1
 };
 
