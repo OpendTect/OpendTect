@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/02/2003
- RCS:           $Id: i_layoutitem.cc,v 1.6 2005-11-17 15:04:09 cvsdgb Exp $
+ RCS:           $Id: i_layoutitem.cc,v 1.7 2006-09-19 19:00:46 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -56,7 +56,7 @@ void i_LayoutItem::invalidate()
 
 uiSize i_LayoutItem::actualsize( bool include_border ) const
 { 
-    return curpos(setGeom).getsize(); 
+    return curpos(setGeom).size(); 
 }
 
 

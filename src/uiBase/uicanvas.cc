@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uicanvas.cc,v 1.26 2006-09-07 15:44:24 cvskris Exp $
+ RCS:           $Id: uicanvas.cc,v 1.27 2006-09-19 19:00:46 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "i_uidrwbody.h"
 
 #include "iodrawtool.h"
-#include "uimouse.h"
+#include "mouseevent.h"
 
 #ifdef USEQT4
 # include <q3scrollview.h>
@@ -156,8 +156,9 @@ uiRect uiScrollViewBody::visibleArea() const
     uiSize vpSize = actualsize(false);
 
     uiPoint tl( contentsX(), contentsY() );
-    return uiRect( tl, mMAX( visibleWidth(), vpSize.hNrPics()),
-                       mMAX( visibleHeight(), vpSize.vNrPics()) );
+    return uiRect( contentsX(), contentsY(),
+	    mMAX( visibleWidth(), vpSize.hNrPics()-1),
+	    mMAX( visibleHeight(), vpSize.vNrPics())-1 );
 }
 
 
@@ -171,7 +172,7 @@ void uiScrollViewBody::drawContents ( QPainter * p, int clipx,
         return;
     }
 
-    handlePaintEvent( uiRect( uiPoint(clipx,clipy), clipw, cliph) );
+    handlePaintEvent( uiRect( clipx,clipy, clipw-1, cliph-1) );
 }
 
 
@@ -226,9 +227,9 @@ void uiScrollViewBody::contentsMousePressEvent ( QMouseEvent * e )
     else
     {
 	OD::ButtonState bSt = ( OD::ButtonState )(  mButState( e ) );
-	uiMouseEvent evt( bSt, e->x(), e->y() );
+	MouseEvent evt( bSt, e->x(), e->y() );
 
-	handle_.mousepressed.trigger( evt, handle_ );
+	handle_.getMouseEventHandler().triggerButtonPressed( evt );
     } 
 }
 
@@ -291,9 +292,9 @@ void uiScrollViewBody::contentsMouseMoveEvent( QMouseEvent * e )
     else
     {
 	OD::ButtonState bSt = ( OD::ButtonState )(  mButState( e ) );
-	uiMouseEvent evt( bSt, e->x(), e->y() );
+	MouseEvent evt( bSt, e->x(), e->y() );
 
-	handle_.mousemoved.trigger( evt, handle_ );
+	handle_.getMouseEventHandler().triggerMovement( evt );
     } 
 }
 
@@ -326,9 +327,9 @@ void uiScrollViewBody::contentsMouseReleaseEvent ( QMouseEvent * e )
     else
     {
 	OD::ButtonState bSt = ( OD::ButtonState )(  mButState( e ) );
-	uiMouseEvent evt( bSt, e->x(), e->y() );
+	MouseEvent evt( bSt, e->x(), e->y() );
 
-	handle_.mousereleased.trigger( evt, handle_ );
+	handle_.getMouseEventHandler().triggerButtonReleased( evt );
     } 
 }
 
@@ -336,8 +337,8 @@ void uiScrollViewBody::contentsMouseReleaseEvent ( QMouseEvent * e )
 void uiScrollViewBody::contentsMouseDoubleClickEvent ( QMouseEvent * e )
 {
     OD::ButtonState bSt = ( OD::ButtonState )(  mButState( e ) );
-    uiMouseEvent evt( bSt, e->x(), e->y() );
-    handle_.mousedoubleclicked.trigger( evt, handle_ );
+    MouseEvent evt( bSt, e->x(), e->y() );
+    handle_.getMouseEventHandler().triggerDoubleClick( evt );
 }
 
 
@@ -355,10 +356,8 @@ uiCanvasBody& uiCanvas::mkbody( uiParent* p,const char* nm)
 
 uiScrollView::uiScrollView( uiParent* p, const char *nm )
     : uiDrawableObj( p,nm, mkbody(p,nm) )
-    , mousepressed(this)
-    , mousemoved( this )
-    , mousereleased( this )
-    , mousedoubleclicked( this ) {}
+{}
+
 
 uiScrollViewBody& uiScrollView::mkbody( uiParent* p,const char* nm)
 {
@@ -449,4 +448,8 @@ float  uiScrollView::aspectRatio()
 
 void uiScrollView::setMouseTracking( bool yn )
     { body_->viewport()->setMouseTracking(yn); }
+
+
+MouseEventHandler& uiScrollView::getMouseEventHandler()
+{ return mousehandler_; }
 

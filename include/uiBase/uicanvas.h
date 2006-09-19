@@ -7,14 +7,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uicanvas.h,v 1.11 2006-01-31 16:37:55 cvshelene Exp $
+ RCS:           $Id: uicanvas.h,v 1.12 2006-09-19 19:00:46 cvskris Exp $
 ________________________________________________________________________
 
 -*/
-#include "uidrawable.h"
-#include "uimouse.h"
 
-class	uiMouseEvent;
+#include "uidrawable.h"
+#include "mouseevent.h"
+
 class	uiCanvasBody;
 class	uiScrollViewBody;
 
@@ -88,14 +88,12 @@ public:
     float			aspectRatio();
  
     				// revieve mouse events w/o pressing button
-    void			setMouseTracking( bool yn = true );
+    void			setMouseTracking(bool yn = true);
 
-    CNotifier<uiScrollView,const uiMouseEvent&>	mousepressed;
-    CNotifier<uiScrollView,const uiMouseEvent&>	mousemoved;
-    CNotifier<uiScrollView,const uiMouseEvent&>	mousereleased;
-    CNotifier<uiScrollView,const uiMouseEvent&>	mousedoubleclicked;
+    MouseEventHandler&		getMouseEventHandler(); 
 
 private:
+    MouseEventHandler		mousehandler_;
 
     uiScrollViewBody*		body_;
     uiScrollViewBody&		mkbody(uiParent*,const char*);

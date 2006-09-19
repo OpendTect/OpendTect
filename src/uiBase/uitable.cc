@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.cc,v 1.45 2006-09-19 18:55:35 cvskris Exp $
+ RCS:           $Id: uitable.cc,v 1.46 2006-09-19 19:00:46 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -755,7 +755,7 @@ void uiTable::geometrySet_( CallBacker* cb )
 //    if ( !mainwin() ||  mainwin()->poppedUp() ) return;
     mCBCapsuleUnpack(uiRect&,sz,cb);
 
-    uiSize size = sz.getsize();
+    uiSize size = sz.size();
     updateCellSizes( &size );
 }
 
