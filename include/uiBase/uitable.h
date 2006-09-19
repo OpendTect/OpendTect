@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.h,v 1.31 2006-08-16 10:51:19 cvsbert Exp $
+ RCS:           $Id: uitable.h,v 1.32 2006-09-19 18:55:35 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,7 +20,7 @@ class uiLabel;
 class ioPixmap;
 class uiTableBody;
 class UserInputObj;
-class uiMouseEvent;
+class MouseEvent;
 class BufferStringSet;
 
 
@@ -218,7 +218,7 @@ protected:
 
     mutable Setup	setup_;
 
-    CNotifier<uiTable,const uiMouseEvent&>	clicked;
+    CNotifier<uiTable,const MouseEvent&>	clicked;
     void		clicked_(CallBacker*);
     void		rightClk();
 

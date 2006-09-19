@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.cc,v 1.44 2006-08-16 10:51:20 cvsbert Exp $
+ RCS:           $Id: uitable.cc,v 1.45 2006-09-19 18:55:35 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -648,7 +648,7 @@ void uiTable::setSelectionMode( SelectionMode m )
 
 void uiTable::clicked_( CallBacker* cb )
 {
-    mCBCapsuleUnpack(const uiMouseEvent&,ev,cb);
+    mCBCapsuleUnpack(const MouseEvent&,ev,cb);
 
     if ( ev.buttonState() & OD::RightButton )
 	{ rightClk(); rightClicked.trigger(); return; }
