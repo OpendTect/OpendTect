@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emhorizon3d.h,v 1.46 2006-06-29 14:10:42 cvsnanne Exp $
+ RCS:		$Id: emhorizon3d.h,v 1.47 2006-09-19 09:27:52 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -29,38 +29,41 @@ namespace EM
 class HorizonGeometry : public RowColSurfaceGeometry
 {
 public:
-    			HorizonGeometry( Surface& );
+				HorizonGeometry(Surface&);
 
     const Geometry::BinIDSurface* sectionGeometry(const SectionID&) const;
-    Geometry::BinIDSurface*	  sectionGeometry(const SectionID&);
+    Geometry::BinIDSurface*	sectionGeometry(const SectionID&);
 
-    bool		removeSection(const SectionID&, bool hist);
-    SectionID		cloneSection(const SectionID& sid);
+    bool			removeSection(const SectionID&,bool hist);
+    SectionID			cloneSection(const SectionID& sid);
 
-    void		setShift(float);
-    float		getShift() const;
+    void			setShift(float);
+    float			getShift() const;
 
-    bool		isFullResolution() const;
-    RowCol		loadedStep() const;
-    RowCol		step() const;
-    void		setStep(const RowCol& step,const RowCol& loadedstep);
+    bool			isFullResolution() const;
+    RowCol			loadedStep() const;
+    RowCol			step() const;
+    void			setStep(const RowCol& step,
+	    				const RowCol& loadedstep);
 
-    bool		enableChecks(bool yn);
-    bool		isChecksEnabled() const;
-    bool		isNodeOK(const PosID&) const;
+    bool			enableChecks(bool yn);
+    bool			isChecksEnabled() const;
+    bool			isNodeOK(const PosID&) const;
 
-    bool		isAtEdge(const PosID& pid) const;
-    PosID		getNeighbor(const PosID&,const RowCol&) const;
-    int			getConnectedPos(const PosID&,TypeSet<PosID>*) const;
+    bool			isAtEdge(const PosID& pid) const;
+    PosID			getNeighbor(const PosID&,const RowCol&) const;
+    int				getConnectedPos(const PosID&,
+	    					TypeSet<PosID>*) const;
 
+    void			fillBinIDValueSet(BinIDValueSet&) const;
 
 protected:
-    Geometry::BinIDSurface* createSectionGeometry() const;
+    Geometry::BinIDSurface*	createSectionGeometry() const;
 
-    RowCol		loadedstep_;
-    RowCol		step_;
-    float		shift_;
-    bool		checksupport_;
+    RowCol			loadedstep_;
+    RowCol			step_;
+    float			shift_;
+    bool			checksupport_;
 };
 
 
