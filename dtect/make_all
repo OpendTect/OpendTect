@@ -66,8 +66,11 @@ endif
 cdw
 
 if ( $doupd == yes ) then
+    set oddir=$WORK:t
+    set dgbdir=`echo $oddir | sed 's/od/dgb/'`
     cd ..
-    dvs update
+    echo "dvs update $oddir $dgbdir"
+    dvs update $oddir $dgbdir
     cdw
 endif
 
