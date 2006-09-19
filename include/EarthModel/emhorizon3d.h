@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emhorizon3d.h,v 1.47 2006-09-19 09:27:52 cvsnanne Exp $
+ RCS:		$Id: emhorizon3d.h,v 1.48 2006-09-19 09:43:05 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -35,7 +35,7 @@ public:
     Geometry::BinIDSurface*	sectionGeometry(const SectionID&);
 
     bool			removeSection(const SectionID&,bool hist);
-    SectionID			cloneSection(const SectionID& sid);
+    SectionID			cloneSection(const SectionID&);
 
     void			setShift(float);
     float			getShift() const;
@@ -55,7 +55,8 @@ public:
     int				getConnectedPos(const PosID&,
 	    					TypeSet<PosID>*) const;
 
-    void			fillBinIDValueSet(BinIDValueSet&) const;
+    void			fillBinIDValueSet(const SectionID&,
+	    					  BinIDValueSet&) const;
 
 protected:
     Geometry::BinIDSurface*	createSectionGeometry() const;

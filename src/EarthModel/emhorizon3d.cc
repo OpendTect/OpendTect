@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: emhorizon3d.cc,v 1.80 2006-09-19 09:27:52 cvsnanne Exp $
+ RCS:           $Id: emhorizon3d.cc,v 1.81 2006-09-19 09:43:05 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -557,11 +557,11 @@ void HorizonGeometry::fillBinIDValueSet( const SectionID& sid,
     BinID bid;
     while ( true )
     {
-	const EM::PosID pid = it->next();
-	if ( posid.objectID()==-1 )
+	const PosID pid = it->next();
+	if ( pid.objectID()==-1 )
 	    break;
 
-	const Coord3 crd = surface_->getPos( posid );
+	const Coord3 crd = surface_.getPos( pid );
 	if ( crd.isDefined() )
 	{
 	    bid.setSerialized( pid.subID() );
