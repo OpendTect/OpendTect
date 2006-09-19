@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribdesc.cc,v 1.49 2006-09-06 17:23:50 cvskris Exp $";
+static const char* rcsID = "$Id: attribdesc.cc,v 1.50 2006-09-19 17:55:14 cvskris Exp $";
 
 #include "attribdesc.h"
 
@@ -219,6 +219,22 @@ int Desc::selectedOutput() const		{ return seloutput_; }
 int Desc::nrInputs() const			{ return inputs_.size(); }
 
 
+void Desc::getDependencies(TypeSet<Attrib::DescID>& deps) const
+{
+    for ( int idx=nrInputs()-1; idx>=0; idx-- )
+    {
+	if ( !inputs_[idx] )
+	    continue;
+
+	if ( deps.indexOf(inputs_[idx]->id())!=-1 )
+	    continue;
+
+	deps += inputs_[idx]->id();
+	inputs_[idx]->getDependencies(deps);
+    }
+}
+
+
 Seis::DataType Desc::dataType( int target ) const
 {
     if ( seloutput_==-1 || !outputtypes_.size() )
@@ -310,6 +326,18 @@ Desc::SatisfyLevel Desc::isSatisfied() const
 	    BufferString msg = "'"; msg += inputspecs_[idx].getDesc();
 	    msg += "' is not correct";
 	    mErrRet(msg)
+	}
+	else
+	{
+	    TypeSet<Attrib::DescID> deps( 1, inputs_[idx]->id() );
+	    inputs_[idx]->getDependencies( deps );
+
+	    if ( deps.indexOf( id() )!=-1 )
+	    {
+		BufferString msg = "'"; msg += inputspecs_[idx].getDesc();
+		msg += "' is dependent on itself";
+		mErrRet(msg);
+	    }
 	}
     }
 

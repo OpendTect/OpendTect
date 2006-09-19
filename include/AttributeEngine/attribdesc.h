@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribdesc.h,v 1.35 2006-09-06 17:23:50 cvskris Exp $
+ RCS:           $Id: attribdesc.h,v 1.36 2006-09-19 17:55:14 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -107,6 +107,10 @@ public:
     bool        	setInput(int,const Desc*);
     Desc*		getInput(int);
     const Desc*		getInput(int) const;
+    void		getDependencies(TypeSet<Attrib::DescID>&) const;
+    			/*!<Generates list of attributes this attribute
+			    is dependant on. */
+
     bool		is2D() const;
     void		set2D(bool);
 
@@ -153,14 +157,15 @@ public:
     
 protected:
 
-    bool 		       	setInput_(int,Desc*);
-    Param*			findParam(const char* key);
+    bool 	       	setInput_(int,Desc*);
+    Param*		findParam(const char* key);
 
-    void			getKeysVals(const char* defstr,
-	    				    BufferStringSet& keys,
-					    BufferStringSet& vals);
-    				/*!<Fills \akeys and \avals with pairs of
-				    parameters from the defstr. */
+    void		getKeysVals(const char* defstr,
+	    			    BufferStringSet& keys,
+				    BufferStringSet& vals);
+    			/*!<Fills \akeys and \avals with pairs of
+			    parameters from the defstr. */
+
     TypeSet<Seis::DataType>	outputtypes_;
     TypeSet<int>		outputtypelinks_;
     bool			issteering_;
@@ -181,7 +186,7 @@ protected:
     DescSet*			descset_;
 
     DescStatusUpdater		statusupdater_;
-    BufferString        	errmsg_;
+    BufferString		errmsg_;
 };
 
 }; // namespace Attrib
