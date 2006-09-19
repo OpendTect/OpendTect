@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpewizard.cc,v 1.56 2006-08-22 15:00:34 cvsnanne Exp $
+ RCS:           $Id: uimpewizard.cc,v 1.57 2006-09-19 12:22:27 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "ctxtioobj.h"
 #include "emhistory.h"
 #include "emmanager.h"
-#include "emobject.h"
+#include "emhorizon.h"
 #include "emseedpicker.h"
 #include "emsurfacetr.h"
 #include "executor.h"
