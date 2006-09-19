@@ -4,14 +4,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: emsurfaceauxdata.cc,v 1.10 2006-04-27 15:29:13 cvskris Exp $
+ RCS:           $Id: emsurfaceauxdata.cc,v 1.11 2006-09-19 12:09:45 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "emsurfaceauxdata.h"
 
-#include "emsurface.h"
+#include "emhorizon.h"
 #include "emsurfacegeometry.h"
 #include "emsurfacetr.h"
 #include "emsurfauxdataio.h"

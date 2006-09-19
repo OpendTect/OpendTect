@@ -4,17 +4,20 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emmanager.cc,v 1.49 2006-08-30 16:03:27 cvsbert Exp $";
+static const char* rcsID = "$Id: emmanager.cc,v 1.50 2006-09-19 12:09:45 cvsnanne Exp $";
 
 #include "emmanager.h"
 
 #include "ctxtioobj.h"
+#include "emfault.h"
 #include "emhistory.h"
-#include "emsurfacetr.h"
+#include "emhorizon.h"
+#include "emhorizon2d.h"
 #include "emhorizontaltube.h"
-#include "emsticksettransl.h"
 #include "emobject.h"
+#include "emsticksettransl.h"
 #include "emsurfaceiodata.h"
+#include "emsurfacetr.h"
 #include "errh.h"
 #include "executor.h"
 #include "iodir.h"
@@ -32,22 +35,25 @@ EM::EMManager& EM::EMM()
 }
 
 
-EM::EMManager::EMManager()
-    : history_( *new EM::History(*this) )
+namespace EM
+{
+
+EMManager::EMManager()
+    : history_( *new History(*this) )
     , freeid( 0 )
 {
     init();
 }
 
 
-EM::EMManager::~EMManager()
+EMManager::~EMManager()
 {
     empty();
     delete &history_;
 }
 
 
-void EM::EMManager::empty()
+void EMManager::empty()
 {   
     for ( int idx=0; idx<objects.size(); idx++ )
     {
@@ -71,15 +77,11 @@ void EM::EMManager::empty()
 }
 
 
-const EM::History& EM::EMManager::history() const
-{ return history_; }
+const History& EMManager::history() const	{ return history_; }
+History& EMManager::history()			{ return history_; }
 
 
-EM::History& EM::EMManager::history()
-{ return history_; }
-
-
-BufferString EM::EMManager::objectName(const MultiID& mid) const
+BufferString EMManager::objectName( const MultiID& mid ) const
 {
     if ( getObject(getObjectID(mid)) )
 	return getObject(getObjectID(mid))->name();
@@ -91,7 +93,7 @@ BufferString EM::EMManager::objectName(const MultiID& mid) const
 }
 
 
-const char* EM::EMManager::objectType( const MultiID& mid ) const
+const char* EMManager::objectType( const MultiID& mid ) const
 {
     if ( getObject(getObjectID(mid)) )
 	return getObject(getObjectID(mid))->getTypeStr();
@@ -105,20 +107,20 @@ const char* EM::EMManager::objectType( const MultiID& mid ) const
 }
 
 
-void EM::EMManager::init()
+void EMManager::init()
 {
-    Horizon::initClass(*this);
-    Fault::initClass(*this);
+    Horizon::initClass( *this );
+    Fault::initClass( *this );
     HorizontalTube::initClass(*this);
     StickSet::initClass(*this);
     Horizon2D::initClass(*this);
 } 
 
 
-EM::ObjectID EM::EMManager::createObject( const char* type, const char* name )
+ObjectID EMManager::createObject( const char* type, const char* name )
 {
     const ObjectFactory* fact = getFactory( type );
-    EM::EMObject* object = fact ? fact->createObject( name, false ) : 0;
+    EMObject* object = fact ? fact->createObject( name, false ) : 0;
 
     if ( !object )
 	return -1;
@@ -128,8 +130,7 @@ EM::ObjectID EM::EMManager::createObject( const char* type, const char* name )
 } 
 
 
-MultiID EM::EMManager::findObject( const char* type,
-					const char* name ) const
+MultiID EMManager::findObject( const char* type, const char* name ) const
 {
     const IOObjContext* context = getContext(type);
     if ( IOM().to(context->getSelKey()) )
@@ -143,8 +144,7 @@ MultiID EM::EMManager::findObject( const char* type,
 }
 
 
-
-EM::EMObject* EM::EMManager::getObject( const EM::ObjectID& id )
+EMObject* EMManager::getObject( const ObjectID& id )
 {
     for ( int idx=0; idx<objects.size(); idx++ )
     {
@@ -156,11 +156,11 @@ EM::EMObject* EM::EMManager::getObject( const EM::ObjectID& id )
 }
 
 
-const EM::EMObject* EM::EMManager::getObject( const EM::ObjectID& id ) const
-{ return const_cast<EM::EMManager*>(this)->getObject(id); }
+const EMObject* EMManager::getObject( const ObjectID& id ) const
+{ return const_cast<EMManager*>(this)->getObject(id); }
 
 
-EM::ObjectID EM::EMManager::getObjectID( const MultiID& mid ) const
+ObjectID EMManager::getObjectID( const MultiID& mid ) const
 {
     for ( int idx=0; idx<objects.size(); idx++ )
     {
@@ -172,14 +172,14 @@ EM::ObjectID EM::EMManager::getObjectID( const MultiID& mid ) const
 }
 
 
-MultiID EM::EMManager::getMultiID( const EM::ObjectID& oid ) const
+MultiID EMManager::getMultiID( const ObjectID& oid ) const
 {
     const EMObject* emobj = getObject(oid);
     return emobj ? emobj->multiID() : MultiID(-1);
 }
 
 
-EM::ObjectID EM::EMManager::addObject( EM::EMObject* obj )
+ObjectID EMManager::addObject( EMObject* obj )
 {
     if ( !obj )
     {
@@ -192,13 +192,13 @@ EM::ObjectID EM::EMManager::addObject( EM::EMObject* obj )
 }
 
 
-void EM::EMManager::removeObject( EM::EMObject* obj )
+void EMManager::removeObject( EMObject* obj )
 {
     objects -= obj;
 }
 
 
-EM::EMObject* EM::EMManager::createTempObject( const char* type )
+EMObject* EMManager::createTempObject( const char* type )
 {
     const ObjectFactory* fact = getFactory( type );
     if ( !fact ) return 0;
@@ -207,12 +207,12 @@ EM::EMObject* EM::EMManager::createTempObject( const char* type )
 }
 
 
-EM::ObjectID EM::EMManager::objectID(int idx) const
+ObjectID EMManager::objectID( int idx ) const
 { return idx>=0 && idx<objects.size() ? objects[idx]->id() : -1; }
 
 
-Executor* EM::EMManager::objectLoader( const TypeSet<MultiID>& mids,
-       				       const SurfaceIODataSelection* iosel )
+Executor* EMManager::objectLoader( const TypeSet<MultiID>& mids,
+				   const SurfaceIODataSelection* iosel )
 {
     ExecutorGroup* execgrp = new ExecutorGroup( "Reading" );
     execgrp->setNrDoneText( "Nr done" );
@@ -227,8 +227,8 @@ Executor* EM::EMManager::objectLoader( const TypeSet<MultiID>& mids,
 }
 
 
-Executor* EM::EMManager::objectLoader( const MultiID& mid,
-				       const SurfaceIODataSelection* iosel )
+Executor* EMManager::objectLoader( const MultiID& mid,
+				   const SurfaceIODataSelection* iosel )
 {
     ObjectID id = getObjectID( mid );
     EMObject* obj = getObject( id );
@@ -242,7 +242,7 @@ Executor* EM::EMManager::objectLoader( const MultiID& mid,
 	obj = fact ? fact->loadObject( mid ) : 0;
     }
 
-    mDynamicCastGet(EM::Surface*,surface,obj)
+    mDynamicCastGet(Surface*,surface,obj)
     if ( surface )
 	return surface->geometry().loader(iosel);
     else if ( obj )
@@ -252,8 +252,7 @@ Executor* EM::EMManager::objectLoader( const MultiID& mid,
 }
 
 
-const char* EM::EMManager::getSurfaceData( const MultiID& id,
-					   EM::SurfaceIOData& sd )
+const char* EMManager::getSurfaceData( const MultiID& id, SurfaceIOData& sd )
 {
     PtrMan<IOObj> ioobj = IOM().get( id );
     if ( !ioobj )
@@ -278,7 +277,7 @@ const char* EM::EMManager::getSurfaceData( const MultiID& id,
 	    return msg.buf();
 	}
 
-	const EM::SurfaceIOData& newsd = tr->selections().sd;
+	const SurfaceIOData& newsd = tr->selections().sd;
 	sd.rg = newsd.rg;
 	deepCopy( sd.sections, newsd.sections );
 	deepCopy( sd.valnames, newsd.valnames );
@@ -290,7 +289,7 @@ const char* EM::EMManager::getSurfaceData( const MultiID& id,
 }
 
 
-void EM::EMManager::addFactory( ObjectFactory* fact )
+void EMManager::addFactory( ObjectFactory* fact )
 {
     const ObjectFactory* existingfact = getFactory( fact->typeStr() );
     if ( existingfact )
@@ -303,14 +302,14 @@ void EM::EMManager::addFactory( ObjectFactory* fact )
 }
 
 
-const IOObjContext* EM::EMManager::getContext( const char* type ) const
+const IOObjContext* EMManager::getContext( const char* type ) const
 {
     const ObjectFactory* fact = getFactory( type );
     return fact ? &fact->ioContext() : 0;
 }
 
 
-const EM::ObjectFactory* EM::EMManager::getFactory( const char* type ) const
+const ObjectFactory* EMManager::getFactory( const char* type ) const
 {
     for ( int idx=0; idx<objectfactories.size(); idx++ )
     {
@@ -322,3 +321,5 @@ const EM::ObjectFactory* EM::EMManager::getFactory( const char* type ) const
 
     return 0;
 }
+
+} // namespace EM

@@ -7,23 +7,30 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfacetr.h,v 1.3 2006-05-24 07:46:56 cvskris Exp $
+ RCS:		$Id: emsurfacetr.h,v 1.4 2006-09-19 12:09:45 cvsnanne Exp $
 ________________________________________________________________________
 
 
 -*/
 
 #include "transl.h"
-#include "emhorizon.h"
-#include "emhorizon2d.h"
-#include "emfault.h"
 #include "emsurfaceiodata.h"
 
-namespace EM { class dgbSurfaceReader; };
+class Executor;
+class IOObj;
+
+namespace EM
+{
+    class dgbSurfaceReader;
+    class Fault;
+    class Horizon;
+    class Horizon2D;
+    class Surface;
+}
 
 typedef EM::Horizon 	EMHorizon;
 typedef EM::Horizon2D	EMHorizon2D;
-typedef EM::Fault   	EMFault;
+typedef EM::Fault	EMFault;
 
 
 /*!\brief Read/write EM::Horizon to storage */
