@@ -4,7 +4,7 @@
  * DATE     : September 2006
 -*/
 
-static const char* rcsID = "$Id: mouseevent.cc,v 1.1 2006-09-12 18:40:54 cvskris Exp $";
+static const char* rcsID = "$Id: mouseevent.cc,v 1.2 2006-09-19 19:13:40 cvskris Exp $";
 
 #include "mouseevent.h"
 
@@ -31,6 +31,7 @@ MouseEventHandler::MouseEventHandler()
 
 void MouseEventHandler::triggerMovement( const MouseEvent& ev )
 {
+    ishandled_ = false;
     event_ = &ev;
     movement.trigger();
 }
@@ -38,6 +39,7 @@ void MouseEventHandler::triggerMovement( const MouseEvent& ev )
 
 void MouseEventHandler::triggerButtonPressed( const MouseEvent& ev )
 {
+    ishandled_ = false;
     event_ = &ev;
     buttonPressed.trigger();
 }
@@ -45,6 +47,7 @@ void MouseEventHandler::triggerButtonPressed( const MouseEvent& ev )
 
 void MouseEventHandler::triggerButtonReleased( const MouseEvent& ev )
 {
+    ishandled_ = false;
     event_ = &ev;
     buttonReleased.trigger();
 }
@@ -52,6 +55,7 @@ void MouseEventHandler::triggerButtonReleased( const MouseEvent& ev )
 
 void MouseEventHandler::triggerDoubleClick( const MouseEvent& ev )
 {
+    ishandled_ = false;
     event_ = &ev;
     doubleClick.trigger();
 }
