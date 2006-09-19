@@ -44,12 +44,13 @@ set old=$PWD
 set workdir=`cd $WORK; pwd; cd $old`
 
 echo workdir: $workdir
+set reldir=$workdir:t
 
 set rep="s%^${workdir}%%"
 
 set cvsfil=`echo "$fil/$1" | sed -e "$rep" -e "s%^\/%%"`
 
-cvs co -p $rev $cvsfil > /tmp/mdiff.$$
+dvs co -p $rev $reldir/$cvsfil > /tmp/mdiff.$$
 
 tkdiff /tmp/mdiff.$$ $*
 \rm /tmp/mdiff.$$
