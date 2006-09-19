@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2003
- RCS:           $Id: uimenuhandler.h,v 1.2 2005-07-11 21:20:19 cvskris Exp $
+ RCS:           $Id: uimenuhandler.h,v 1.3 2006-09-19 15:38:30 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -64,6 +64,9 @@ public:
     const Coord3&		getPickedPos() const { return positionxyz; }
     void			setPickedPos(const Coord3& pickedpos)
 					{ positionxyz=pickedpos; }
+    const Geom::Point2D<double>& get2DPickedPos() const { return positionxy; }
+    void			set2DPickedPos(const Geom::Point2D<double>& pos)
+					{ positionxy=pos; }
     
     static const int		fromTree;
     static const int		fromScene;
@@ -75,6 +78,7 @@ protected:
     int				menutype;
     const TypeSet<int>*		path;
     Coord3			positionxyz;
+    Geom::Point2D<double>	positionxy;
     				~uiMenuHandler() {}
 };
 
