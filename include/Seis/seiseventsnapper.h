@@ -7,17 +7,20 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          September 2006
- RCS:           $Id: seiseventsnapper.h,v 1.1 2006-09-14 20:10:39 cvsnanne Exp $
+ RCS:           $Id: seiseventsnapper.h,v 1.2 2006-09-20 15:22:51 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "executor.h"
+#include "samplingdata.h"
+#include "seistrc.h"
 #include "valseriesevent.h"
 
 class BinIDValueSet;
 class IOObj;
 class SeisRequester;
+class SeisTrc;
 
 class SeisEventSnapper : public Executor
 {
@@ -39,11 +42,15 @@ public:
 protected:
 
     virtual int			nextStep();
+    float			findNearestEvent(const SeisTrc&,
+	    					 float tarz) const;
 
     BinIDValueSet&		positions_;
     SeisRequester*		req_;
     Interval<float>		searchgate_;
     VSEvent::Type		eventtype_;
+    SamplingData<float>		sd_;
+    int				nrsamples_;
 
     int				totalnr_;
     int				nrdone_;

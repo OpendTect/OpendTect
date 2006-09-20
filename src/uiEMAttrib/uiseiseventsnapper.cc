@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          September 2006
- RCS:           $Id: uiseiseventsnapper.cc,v 1.2 2006-09-19 09:46:30 cvsnanne Exp $
+ RCS:           $Id: uiseiseventsnapper.cc,v 1.3 2006-09-20 15:22:51 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,18 +45,21 @@ uiSeisEventSnapper::uiSeisEventSnapper( uiParent* p )
     seisfld_ = new uiSeisSel( this, seisctio_, SeisSelSetup() );
     seisfld_->attach( alignedBelow, horinfld_ );
 
-    eventfld_ = new uiGenInput( this, "Event",
-	    			StringListInpSpec(VSEvent::TypeNames) );
+    BufferStringSet eventnms( VSEvent::TypeNames );
+    eventnms.remove(0);
+    eventfld_ = new uiGenInput( this, "Event", StringListInpSpec(eventnms) );
     eventfld_->attach( alignedBelow, seisfld_ );
 
     BufferString gatelbl( "Search gate " ); gatelbl += SI().getZUnit();
     gatefld_ = new uiGenInput( this, gatelbl, FloatInpIntervalSpec() );
+    gatefld_->attach( alignedBelow, eventfld_ );
 
     savefld_ = new uiGenInput( this, "Save snapped horizon",
 			       BoolInpSpec("As new","Overwrite",false) );
     savefld_->valuechanged.notify( mCB(this,uiSeisEventSnapper,saveSel) );
-    savefld_->attach( alignedBelow, eventfld_ );
+    savefld_->attach( alignedBelow, gatefld_ );
 
+    horoutctio_.ctxt.forread = false;
     horoutfld_ = new uiIOObjSel( this, horoutctio_, "Output horizon" );
     horoutfld_->attach( alignedBelow, savefld_ );
     saveSel(0);
@@ -110,6 +113,27 @@ bool uiSeisEventSnapper::readHorizon()
 
 #define mErrRet(msg) { uiMSG().error(msg); return false; }
 
+bool uiSeisEventSnapper::saveHorizon()
+{
+    PtrMan<Executor> exec = 0;
+    const bool saveas = savefld_ && savefld_->getBoolValue();
+    if ( !saveas )
+	exec = horizon_->saver();
+    else
+    {
+	const MultiID& mid = horoutfld_->ctxtIOObj().ioobj->key();
+	horizon_->setMultiID( mid );
+	exec = horizon_->geometry().saver( 0, &mid );
+    }
+
+    if ( !exec ) return false;
+
+    uiExecutor dlg( this, *exec );
+    const bool res = dlg.go();
+    return res;
+}
+
+
 bool uiSeisEventSnapper::acceptOK( CallBacker* )
 {
     if ( !seisctio_.ioobj )
@@ -123,10 +147,27 @@ bool uiSeisEventSnapper::acceptOK( CallBacker* )
     horizon_->geometry().fillBinIDValueSet( sid, bivs );
 
     SeisEventSnapper snapper( *seisctio_.ioobj, bivs );
-    snapper.setEvent( (VSEvent::Type)eventfld_->getIntValue() );
-    snapper.setSearchGate( gatefld_->getFInterval() );
+    snapper.setEvent( VSEvent::Type(eventfld_->getIntValue()+1) );
+    Interval<float> rg = gatefld_->getFInterval();
+    rg.scale( 1 / SI().zFactor() );
+    snapper.setSearchGate( rg );
     uiExecutor dlg( this, snapper );
-    dlg.go();
+    if ( !dlg.go() )
+	return false;
+
+    BinIDValueSet::Pos pos;
+    while ( bivs.next(pos) )
+    {
+	BinID bid; float z;
+	bivs.get( pos, bid, z );
+	horizon_->setPos( sid, bid.getSerialized(), Coord3(0,0,z), false );
+    }
+
+    if ( !saveHorizon() )
+	mErrRet( "Cannot save horizon" )
 
     return true;
 }
+
+
+

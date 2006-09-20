@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          September 2006
- RCS:           $Id: uiseiseventsnapper.h,v 1.1 2006-09-19 09:28:11 cvsnanne Exp $
+ RCS:           $Id: uiseiseventsnapper.h,v 1.2 2006-09-20 15:22:51 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,6 +41,7 @@ protected:
     virtual bool	acceptOK(CallBacker*);
     void		saveSel(CallBacker*);
     bool		readHorizon();
+    bool		saveHorizon();
 
     EM::Horizon*	horizon_;
     CtxtIOObj&		horinctio_;
