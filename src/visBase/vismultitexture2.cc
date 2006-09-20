@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vismultitexture2.cc,v 1.14 2006-07-11 18:38:16 cvskris Exp $";
+static const char* rcsID = "$Id: vismultitexture2.cc,v 1.15 2006-09-20 15:20:33 cvskris Exp $";
 
 
 #include "vismultitexture2.h"
@@ -126,6 +126,9 @@ void MultiTexture2::setTextureTransparency( int texturenr, unsigned char trans )
 
 unsigned char MultiTexture2::getTextureTransparency( int texturenr ) const
 {
+    if ( texturenr>=texture_->opacity.getNum() )
+	return 0;
+
     return 255-texture_->opacity[texturenr];
 }
 
@@ -144,15 +147,13 @@ void MultiTexture2::setOperation( int texturenr, MultiTexture::Operation op )
 
 MultiTexture::Operation MultiTexture2::getOperation( int texturenr ) const
 {
-    MultiTexture::Operation res;
-    if ( texture_->operation[texturenr]==SoMultiTexture2::BLEND )
-	res = MultiTexture::BLEND;
+    if ( texturenr>=texture_->operation.getNum() ||
+	 texture_->operation[texturenr]==SoMultiTexture2::BLEND )
+	return MultiTexture::BLEND;
     else if ( texture_->operation[texturenr]==SoMultiTexture2::REPLACE )
-	res = MultiTexture::REPLACE;
-    else
-	res = MultiTexture::ADD;
+	return MultiTexture::REPLACE;
 
-    return res;
+    return MultiTexture::ADD;
 }
 
 
