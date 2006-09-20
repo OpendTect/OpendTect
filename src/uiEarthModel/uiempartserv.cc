@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.90 2006-09-18 15:32:16 cvsbert Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.91 2006-09-20 15:20:45 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -198,7 +198,7 @@ void uiEMPartServer::askUserToSave( const EM::ObjectID& emid ) const
 	if ( !isChanged(emid) )
 	    return;
 	mMkMsg( "has changed" );
-	if ( !uiMSG().askGoOn(msg,false) )
+	if ( !uiMSG().askGoOn(msg) )
 	    return;
     }
 
