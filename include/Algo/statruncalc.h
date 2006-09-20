@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl (org) / Bert Bril (rev)
  Date:          10-12-1999 / Sep 2006
- RCS:           $Id: statruncalc.h,v 1.1 2006-09-20 15:07:33 cvsbert Exp $
+ RCS:           $Id: statruncalc.h,v 1.2 2006-09-20 16:39:11 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,8 +26,9 @@ namespace Stats
 
 /*!\brief setup for the Stats::RunCalc object */
 
-struct RunCalcSetup
+class RunCalcSetup
 {
+public:
     			RunCalcSetup( bool weighted=false )
 			    : weighted_(weighted)
 			    , needextreme_(false)
@@ -83,24 +84,27 @@ public:
 
 			RunCalc( const RunCalcSetup& s )
 			    : setup_(s)		{ clear(); }
-
     inline void		clear();
+    bool		isWeighted() const	{ return setup_.weighted_; }
 
     inline RunCalc<T>&	addValue(T data,T weight=1);
     inline RunCalc<T>&	removeValue(T data,T weight=1);
     inline double	getValue(Type) const;
+    inline int		getIndex(Type) const; //!< only for Median, Min and Max
 
     inline RunCalc<T>&	operator +=( T t )	{ return addValue(t); }
     inline bool		hasUndefs() const	{ return nrused_ != nradded_; }
+    inline int		size( bool used=true ) const
+    			{ return used ? nrused_ : nradded_; }
 
     inline double	mean() const;
     inline double	variance() const; 
     inline double	normvariance() const;
-    inline T		min(int* index_of_min=0) const;
-    inline T		max(int* index_of_max=0) const;
     inline T		mostFreq() const;
     inline T		sum() const;
-    inline T		median() const;
+    inline T		min(int* index_of_min=0) const;
+    inline T		max(int* index_of_max=0) const;
+    inline T		median(int* index_of_median=0) const;
     inline T		sqSum() const;
     inline double	rms() const;
     inline double	stdDev() const;
@@ -136,6 +140,43 @@ inline bool RunCalc<float>::isZero( const float& val ) const
 template <>
 inline bool RunCalc<double>::isZero( const double& val ) const
 { return mIsZero(val,1e-10); }
+
+
+/*!\brief RunCalc manager which buffers a part of the data.
+ 
+  Allows calculating running stats on a window only. Once the window is full,
+  WindowedCalc will remove the first value added (fifo).
+ 
+ */
+
+template <class T>
+class WindowedCalc
+{
+public:
+			WindowedCalc( const RunCalcSetup& rcs, int sz )
+			    : calc_(rcs)
+			    , sz_(sz)
+			    , wts_(calc_.isWeighted() ? new T [sz] : 0)
+			    , vals_(new T [sz])	{ clear(); }
+			~WindowedCalc()	
+				{ delete [] vals_; delete [] wts_; }
+    inline void		clear();
+
+    inline WindowedCalc& addValue(T data,T weight=1);
+    inline WindowedCalc& operator +=( T t )	{ return addValue(t); }
+
+    const RunCalc<T>&	runCalc() const		{ return calc_; }
+
+protected:
+
+    RunCalc<T>	calc_; // has to be before wts_ (see constructor inits)
+    const int	sz_;
+    T*		wts_;
+    T*		vals_;
+    int		posidx_;
+    bool	full_;
+
+};
 
 
 
@@ -284,6 +325,21 @@ double RunCalc<T>::getValue( Stats::Type t ) const
 }
 
 
+template <class T> inline
+int RunCalc<T>::getIndex( Type t ) const
+{
+    int ret;
+    switch ( t )
+    {
+	case Min:		min( &ret );	break;
+	case Max:		max( &ret );	break;
+	case Median:		median( &ret );	break;
+	default:		ret = 0;	break;
+    }
+    return ret;
+}
+
+
 #undef mChkEmpty
 #define mChkEmpty(typ) \
     if ( nrused_ < 1 ) return mUdf(typ);
@@ -328,14 +384,26 @@ inline T RunCalc<T>::mostFreq() const
 
 
 template <class T>
-inline T RunCalc<T>::median() const
+inline T RunCalc<T>::median( int* idx_of_med ) const
 {
+    if ( idx_of_med ) *idx_of_med = 0;
     const int sz = vals_.size();
     if ( sz < 3 )
 	return sz < 1 ? mUdf(T) : vals_[0];
 
-    quickSort( const_cast<T*>(vals_.arr()), vals_.size() );
-    return vals_[ sz / 2 ];
+    const int mididx = sz / 2;
+    T* valarr = const_cast<T*>( vals_.arr() );
+    if ( !idx_of_med )
+	quickSort( valarr, sz );
+    else
+    {
+	int* idxs = new int [sz];
+	for ( int idx=0; idx<sz; idx++ ) idxs[idx] = idx;
+	quickSort( valarr, idxs, sz );
+	*idx_of_med = idxs[ mididx ];
+	delete [] idxs;
+    }
+    return vals_[ mididx ];
 }
 
 
@@ -411,6 +479,36 @@ inline T RunCalc<T>::max( int* index_of_max ) const
     mChkEmpty(T);
 
     return maxval_;
+}
+
+
+template <class T> inline
+void WindowedCalc<T>::clear()
+{
+    posidx_ = 0; full_ = false;
+    calc_.clear();
+}
+
+
+template <class T>
+inline WindowedCalc<T>&	WindowedCalc<T>::addValue( T val, T wt )
+{
+    if ( full_ )
+	calc_.removeValue( vals_[posidx_], wts_ ? wts_[posidx_] : 1 );
+
+    calc_.addValue( val, wt );
+
+    vals_[posidx_] = val;
+    if ( wts_ ) wts_[posidx_] = wt;
+
+    posidx_++;
+    if ( posidx_ >= sz_ )
+    {
+	full_ = true;
+	posidx_ = 0;
+    }
+
+    return *this;
 }
 
 #undef mChkEmpty
