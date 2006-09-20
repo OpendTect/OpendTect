@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          September 2005
- RCS:           $Id: mouseevent.h,v 1.1 2006-09-12 18:40:11 cvskris Exp $
+ RCS:           $Id: mouseevent.h,v 1.2 2006-09-20 15:59:41 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,10 +23,15 @@ public:
  				MouseEvent(OD::ButtonState st=OD::NoButton,
 				      int xx=0, int yy=0 );
 
-    OD::ButtonState		buttonState() const	{ return butstate_; }
-    const Geom::Point2D<int>&	pos() const 		{ return pos_; }
-    int				x() const		{ return pos_.x; }
-    int				y() const		{ return pos_.y; }
+    OD::ButtonState		buttonState() const;
+
+    bool			ctrlStatus() const;
+    bool			altStatus() const;
+    bool			shiftStatus() const;
+
+    const Geom::Point2D<int>&	pos() const;
+    int				x() const;
+    int				y() const;
 
     bool			operator ==( const MouseEvent& ev ) const;
     bool			operator !=( const MouseEvent& ev ) const;
