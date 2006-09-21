@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          June 2004
- RCS:           $Id: uiseissubsel.cc,v 1.38 2006-08-08 07:02:26 cvsnanne Exp $
+ RCS:           $Id: uiseissubsel.cc,v 1.39 2006-09-21 17:47:52 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -144,7 +144,7 @@ bool uiSeisSubSel::getSampling( HorSampling& hs ) const
 }
 
 
-bool uiSeisSubSel::getZRange( Interval<float>& zrg ) const
+bool uiSeisSubSel::getZRange( StepInterval<float>& zrg ) const
 {
     if ( is2d_ )
 	zrg = sel2d->getInput().zrg_;

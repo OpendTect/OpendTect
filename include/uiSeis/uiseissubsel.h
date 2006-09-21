@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          June 2004
- RCS:           $Id: uiseissubsel.h,v 1.15 2006-05-05 16:26:10 cvsbert Exp $
+ RCS:           $Id: uiseissubsel.h,v 1.16 2006-09-21 17:47:52 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,7 +42,7 @@ public:
     void		setInput(const IOObj&);
     bool		isAll() const;
     bool		getSampling(HorSampling&) const;
-    bool		getZRange(Interval<float>&) const;
+    bool		getZRange(StepInterval<float>&) const;
 
     virtual void	usePar(const IOPar&);
     virtual bool	fillPar(IOPar&) const;
