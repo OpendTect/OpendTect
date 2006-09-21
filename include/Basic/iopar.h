@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		21-12-1995
- RCS:		$Id: iopar.h,v 1.40 2006-08-21 17:14:44 cvsbert Exp $
+ RCS:		$Id: iopar.h,v 1.41 2006-09-21 12:02:46 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,7 +21,6 @@ class BufferStringSet;
 class Coord;
 class Color;
 class Coord3;
-class EnumRef;
 class MultiID;
 class ascistream;
 class ascostream;
@@ -95,7 +94,6 @@ public:
     const char*		find(const char*) const;
 			//!< returns null if not found
 
-    bool		get(const char*, EnumRef&) const;
     bool		get(const char*,int&) const;
     bool		get(const char*,uint32&) const;
     bool		get(const char*,int64&) const;
@@ -177,7 +175,6 @@ public:
 			mSet(double);
 #undef mSet
     
-    void		set(const char*, const EnumRef&);
     void		set(const char*,const char*);
     void		set(const char*,const char*,const char*);
     void		set(const char*,int,int,float);

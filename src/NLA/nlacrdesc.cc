@@ -4,7 +4,7 @@
  * DATE     : June 2001
 -*/
  
-static const char* rcsID = "$Id: nlacrdesc.cc,v 1.11 2006-07-13 12:53:12 cvsnanne Exp $";
+static const char* rcsID = "$Id: nlacrdesc.cc,v 1.12 2006-09-21 12:02:47 cvsbert Exp $";
 
 #include "nlacrdesc.h"
 
@@ -14,7 +14,7 @@ static const char* rcsID = "$Id: nlacrdesc.cc,v 1.11 2006-07-13 12:53:12 cvsnann
 #include "linekey.h"
 #include "posvecdataset.h"
 #include "ptrman.h"
-#include "stats.h"
+#include "statrand.h"
 
 NLACreationDesc& NLACreationDesc::operator =(
 	const NLACreationDesc& sd )
@@ -89,7 +89,7 @@ const char* NLACreationDesc::prepareData( const ObjectSet<PosVecDataSet>& vdss,
     ArrPtrMan<float> vals = new float [trainbvs.nrVals()];
     while ( testbvs.totalSize() < needednrtest )
     {
-	const int randidx = Stat_getIndex( trainbvs.totalSize() );
+	const int randidx = Stats::RandGen::getIndex( trainbvs.totalSize() );
 	BinIDValueSet::Pos pos = trainbvs.getPos( randidx );
 	trainbvs.get( pos, bid, vals );
 	trainbvs.remove( pos );

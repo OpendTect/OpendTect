@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          November 2002
- RCS:           $Id: positionattrib.cc,v 1.20 2006-08-24 14:57:29 cvshelene Exp $
+ RCS:           $Id: positionattrib.cc,v 1.21 2006-09-21 12:02:46 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,7 +17,7 @@ ________________________________________________________________________
 #include "attribfactory.h"
 #include "attribparam.h"
 #include "attribsteering.h"
-#include "runstat.h"
+#include "statruncalc.h"
 #include "valseriesinterpol.h"
 
 
@@ -187,14 +187,18 @@ bool Position::computeData( const DataHolder& output, const BinID& relpos,
 
     const Interval<int> samplegate( mNINT(gate_.start/refstep),
 				    mNINT(gate_.stop/refstep) );
-    
-    RunningStatistics<float> stats;
+
+    const Stats::Type statstype =  oper_ == 2 ? Stats::Median
+				: (oper_ == 1 ? Stats::Max
+					      : Stats::Min );
+    Stats::RunCalc<float> stats( Stats::RunCalcSetup().require(statstype) );
 
     for ( int idx=0; idx<nrsamples; idx++ )
     {
 	const int cursample = z0 + idx;
 	TypeSet<BinIDValue> bidv;
 	stats.clear();
+
 	for ( int idp=0; idp<nrpos; idp++ )
 	{
 	    const DataHolder* dh = inputdata_[idp];
@@ -218,17 +222,9 @@ bool Position::computeData( const DataHolder& output, const BinID& relpos,
 		ds++;
 	    }
 	}
-
 	if ( !stats.size() ) return false;
-	int posidx;
-	float outval;
-	switch ( oper_ )
-	{
-	    case 0: { outval = stats.min( &posidx ); } break;
-	    case 1: { outval = stats.max( &posidx ); } break;
-	    case 2: { outval = stats.median( &posidx ); } break;
-	}
 
+	const int posidx = stats.getIndex( statstype );
 	BinID bid = bidv[posidx].binid;
 	float sample = bidv[posidx].value;
 	const DataHolder* odata = outdata_->get( bid.inl+stepout_.inl, 

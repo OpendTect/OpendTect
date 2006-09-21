@@ -6,9 +6,9 @@ ________________________________________________________________________
 
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
- Date:		4-2-1994; 20-10-1995
- Contents:	Enum <--> string conversion and generalized reference
- RCS:		$Id: enums.h,v 1.9 2006-08-21 17:14:44 cvsbert Exp $
+ Date:		4-2-1994
+ Contents:	Enum <--> string conversion
+ RCS:		$Id: enums.h,v 1.10 2006-09-21 12:02:46 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,12 +24,13 @@ matched (0=all). Make absolutely sure the char** namearr has a closing
 ' ... ,0 };'.
 
 Normally, you'll have a class with an enum member. In that case, you'll want to
-use the EnumDef and EnumRef classes. These are normally almost hidden by a few
+use the EnumDef classes. These are normally almost hidden by a few
 simple macros:
 * DeclareEnumUtils(enm) will make sure the enum will have a string conversion.
 * DeclareEnumUtilsWithVar(enm,varnm) will also create an instance variable with
   accessors.
 * DefineEnumNames(clss,enm,deflen,prettynm) defines the names.
+* For namespaces, you can use DeclareNameSpaceEnumUtils only
 
 The 'Declare' macros should be placed in the public section of the class.
 Example of usage:
@@ -75,30 +76,26 @@ class MyClass
 public:
 
     enum			State { Good, Bad, Ugly };
-    staticEnumRef		StateRef(State&);
     static const EnumDef&	StateDef();
     static const char**		StateNamesGet();
     static const char*		StateNames[];
 
 protected:
 
-    static const EnumDef	StateDef_;
+    static const EnumDef	StateDefinition;
 
 public:
 
     enum			Type { Yes, No, Maybe };
     Type			type() const { return type_; }
-    void			setType(Type _e _) { type_ = _e_; }
-    EnumRef			typeRef() const
-				    { return EnumRef( (int&)type_, TypeDef_ ); }
-    static EnumRef		TypeRef(Type&);
+    void			setType(Type _e_) { type_ = _e_; }
     static const EnumDef&	TypeDef();
     static const char**		TypeNamesGet();
     static const char*		TypeNames[];
 
 protected:
 
-    static const EnumDef	TypeDef_;
+    static const EnumDef	TypeDefinition;
 
     Type			type_;
 
@@ -110,19 +107,15 @@ and, in myclass.cc:
 
 \code
 
-EnumRef MyClass::StateRef(State& _e_) { return EnumRef((int&)_e_, StateDef_); }
-
-const EnumDef& MyClass::StateDef()    { return StateDef_; }
-const EnumDef MyClass::StateDef_      ("My class state",MyClass::Statenames,1);
+const EnumDef& MyClass::StateDef()    { return StateDefinition; }
+const EnumDef MyClass::StateDefinition      ("My class state",MyClass::Statenames,1);
 
 const char* MyClass::Statenames[] =
         { "Good", "Bad", "Not very handsome", 0 };
 
 
-EnumRef MyClass::TypeRef(Type& _e_) { return EnumRef( (int&)_e_, TypeDef_ ); }
-
-const EnumDef& MyClass::TypeDef()   { return TypeDef_; }
-const EnumDef MyClass::TypeDef_     ( "My class type", MyClass::Typenames, 0 );
+const EnumDef& MyClass::TypeDef()   { return TypeDefinition; }
+const EnumDef MyClass::TypeDefinition     ( "My class type", MyClass::Typenames, 0 );
 
 const char* MyClass::Typenames[] =
         { "Yes", "No", "Not sure", 0 };
@@ -132,7 +125,7 @@ const char* MyClass::Typenames[] =
 -*/
 
 
-#include <string2.h>
+#include "string2.h"
 
 #ifndef __cpp__
     int getEnum(const char*,char** namearr,int startnr,int nr_chars_to_match);
@@ -150,101 +143,70 @@ extern "C" { int getEnumDef(const char*,const char**,int,int,int); }
 
 class EnumDef : public NamedObject
 {
-    friend class	EnumRef;
-
 public:
 			EnumDef( const char* nm, const char* s[], int nrs=0 )
 				: NamedObject(nm)
-				, names(s)
+				, names_(s)
 				, nrsign(nrs)	{}
 
-    int			convert(const char* s) const
-			{ return getEnum(s,names,0,nrsign); }
-    const char*		convert( int i ) const
-			{ return names[i]; }
+    inline int		convert( const char* s ) const
+			{ return getEnum(s,names_,0,nrsign); }
+    inline const char*	convert( int i ) const
+			{ return names_[i]; }
 
-    int			size() const
-			{ int i=0; while ( names[i] ) i++; return i; }
+    inline int		size() const
+			{ int i=0; while ( names_[i] ) i++; return i; }
 
-    const char**	names;
+protected:
 
-private:
-    int		nrsign;
-};
+    const char**	names_;
+    int			nrsign;
 
-
-/*\brief provides a generalised reference to a certain enum */
-
-class EnumRef
-{
-public:
-			EnumRef( int& i, const EnumDef& ed ) : val(i) , def_(ed)
-						{}
-			EnumRef(const EnumRef& r) : val(r.val) , def_(r.def_)
-						{}
-
-    EnumRef&	operator=( int i )
-		{ if ( i < def_.size() ) val = i; return *this; }
-    EnumRef&	operator=(const char*);
-
-    int		get() const			{ return val; }
-    		operator const char*() const
-						{ return def_.convert(val); }
-
-    const EnumDef&	def() const		{ return def_; }
-
-private:
-    int&		val;
-    const EnumDef&	def_;
 };
 
 
 #define DeclareEnumUtils(enm) \
 public: \
-    static EnumRef enm##Ref(enm&); \
-    static const EnumRef enm##Ref(const enm&); \
     static const EnumDef& enm##Def(); \
     static const char* enm##Names[];\
     static const char** enm##NamesGet();\
 protected: \
-    static const EnumDef enm##Def_; \
+    static const EnumDef enm##Definition; \
 public:
+
+#define DeclareNameSpaceEnumUtils(enm) \
+    extern const EnumDef& enm##Def(); \
+    extern const char* enm##Names[];\
+    extern const char** enm##NamesGet();\
+    extern const EnumDef enm##Definition;
 
 #define DeclareEnumUtilsWithVar(enm,varnm) \
 public: \
     enm varnm() const { return varnm##_; } \
     void set##enm(enm _e_) { varnm##_ = _e_; } \
-    EnumRef varnm##Ref() const \
-    { return EnumRef( (int&)varnm##_, enm##Def_ ); } \
     DeclareEnumUtils(enm) \
 protected: \
     enm varnm##_; \
 public:
 
+
 #define DefineEnumNames(clss,enm,deflen,prettynm) \
-EnumRef clss::enm##Ref( enm& _e_ ) \
-    { return EnumRef( (int&)_e_, enm##Def_ ); } \
-const EnumRef clss::enm##Ref( const enm& _e_ ) \
-    { return EnumRef( (int&)_e_, enm##Def_ ); } \
-const EnumDef& clss::enm##Def() \
-    { return enm##Def_; } \
-const EnumDef clss::enm##Def_ \
+const EnumDef clss::enm##Definition \
 	( prettynm, clss::enm##Names, deflen ); \
+const EnumDef& clss::enm##Def() \
+    { return enm##Definition; } \
 const char** clss::enm##NamesGet() \
     { return enm##Names; }  \
 const char* clss::enm##Names[] =
 
-inline EnumRef&	EnumRef::operator=( const char* s )
-{
-    if ( s )
-    {
-	int i = def_.convert(s);
-	if ( i || caseInsensitiveEqual(s,def_.names[0],def_.nrsign) )
-	    val = i;
-    }
-    return *this;
-}
-
+#define DefineNameSpaceEnumNames(nmspc,enm,deflen,prettynm) \
+const EnumDef nmspc::enm##Definition \
+	( prettynm, nmspc::enm##Names, deflen ); \
+const EnumDef& nmspc::enm##Def() \
+    { return nmspc::enm##Definition; } \
+const char** nmspc::enm##NamesGet() \
+    { return nmspc::enm##Names; }  \
+const char* nmspc::enm##Names[] =
 
 
 #define eString(enm,vr)	(enm##Def().convert((int)vr))
@@ -253,7 +215,7 @@ inline EnumRef&	EnumRef::operator=( const char* s )
 //!< this is the actual string -> enum
 #define eKey(enm)	(enm##Def().name())
 //!< this is the 'pretty name' of the enum
-#define eRef(enm,vr)	(enm##Ref(vr))
+
 
 #endif /* #ifndef __cpp__ */
 

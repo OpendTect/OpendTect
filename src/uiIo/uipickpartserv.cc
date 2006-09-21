@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uipickpartserv.cc,v 1.39 2006-08-03 18:56:52 cvsnanne Exp $
+ RCS:           $Id: uipickpartserv.cc,v 1.40 2006-09-21 12:02:47 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,7 +23,7 @@ ________________________________________________________________________
 #include "color.h"
 #include "ioobj.h"
 #include "survinfo.h"
-#include "stats.h"
+#include "statrand.h"
 #include "ptrman.h"
 
 const int uiPickPartServer::evGetHorInfo = 0;
@@ -124,7 +124,7 @@ bool uiPickPartServer::mkRandLocs( Pick::Set& ps, const RandLocGenPars& rp )
 {
     uiCursorChanger cursorlock( uiCursor::Wait );
 
-    Stat_initRandom(0);
+    Stats::RandGen::init();
     selbr_ = &rp.bidrg;
     const bool do2hors = !rp.iscube && rp.horidx2 >= 0 && 
 			 rp.horidx2 != rp.horidx;
@@ -156,10 +156,10 @@ bool uiPickPartServer::mkRandLocs( Pick::Set& ps, const RandLocGenPars& rp )
     BinID bid; Interval<float> zrg;
     for ( int ipt=0; ipt<rp.nr; ipt++ )
     {
-	const int ptidx = Stat_getIndex( nrpts );
+	const int ptidx = Stats::RandGen::getIndex( nrpts );
 	BinIDValueSet::Pos pos = gendef_.getPos( ptidx );
 	gendef_.get( pos, bid, zrg.start, zrg.stop );
-	float val = zrg.start + Stat_getRandom() * zrg.width();
+	float val = zrg.start + Stats::RandGen::get() * zrg.width();
 
 	ps += Pick::Location( SI().transform(bid), val );
     }

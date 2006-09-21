@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Payraudeau
  Date:          June 2006
- RCS:           $Id: uifingerprintcalcobj.cc,v 1.2 2006-06-30 11:32:09 cvsnanne Exp $
+ RCS:           $Id: uifingerprintcalcobj.cc,v 1.3 2006-09-21 12:02:47 cvsbert Exp $
 
 ________________________________________________________________________
 
@@ -29,7 +29,7 @@ ________________________________________________________________________
 #include "runstat.h"
 #include "uiexecutor.h"
 #include "ptrman.h"
-#include "stats.h"
+#include "statrand.h"
 
 using namespace Attrib;
 
@@ -70,15 +70,15 @@ static void create2DRandPicks( const MultiID& lsetid, BinIDValueSet* rangesset )
     const int nrlines = geoms.size();
     while ( rangesset->totalSize() < sNrRandPicks )
     {
-	const int lineidx = Stat_getIndex( nrlines );
+	const int lineidx = Stats::RandGen::getIndex( nrlines );
 	PosInfo::Line2DData& geometry = *geoms[lineidx];
 	const int nrcoords = geometry.posns.size();
-	const int crdidx = Stat_getIndex( nrcoords );
+	const int crdidx = Stats::RandGen::getIndex( nrcoords );
 	const Coord& pos = geometry.posns[crdidx].coord;
 
 	const BinID bid = SI().transform( pos );
 	const float zpos = geometry.zrg.start +
-				    Stat_getRandom() * geometry.zrg.width();
+				    Stats::RandGen::get()*geometry.zrg.width();
 	rangesset->add( bid, zpos );
     }
 }
@@ -91,11 +91,11 @@ static void create3DRandPicks( BinIDValueSet* rangesset )
     {
 	StepInterval<int> irg = SI().inlRange( true );
 	StepInterval<int> crg = SI().crlRange( true );
-	bid.inl = mNINT( irg.start + Stat_getRandom() * irg.nrSteps() );
-	bid.crl = mNINT( crg.start + Stat_getRandom() * crg.nrSteps() );
+	bid.inl = mNINT( irg.start + Stats::RandGen::get() * irg.nrSteps() );
+	bid.crl = mNINT( crg.start + Stats::RandGen::get() * crg.nrSteps() );
 	SI().snap( bid );
-	const float z = SI().zRange(true).start + 
-				Stat_getRandom() * SI().zRange( true ).width();
+	const float z = SI().zRange(true).start
+	    	      + Stats::RandGen::get() * SI().zRange(true).width();
 	rangesset->add( bid, z );
     }
 }
@@ -224,21 +224,23 @@ void calcFingParsObject::extractAndSaveValsAndRanges()
     }
     else if ( valueset->totalSize() > 1 )
     {
-	ObjectSet< RunningStatistics<float> > statsset;
-	fillInStats( valueset, statsset );
-	if ( statstype_ > 1 ) // StdDev is not used
-	    const_cast<calcFingParsObject*>(this)->statstype_++;
+	ObjectSet< Stats::RunCalc<float> > statsset;
+
+	Stats::Type styp = (Stats::Type)(statstype_ +
+				(statstype_ < (int)Stats::StdDev ? 0 : 1));
+			    //!< StdDev not used, so skip it
+	fillInStats( valueset, statsset, styp );
 	
 	for ( int idx=0; idx<nrattribs; idx++ )
-	    vals[idx] = statsset[idx]->getValue((RunStats::StatType)statstype_);
+	    vals[idx] = statsset[idx]->getValue(styp);
 
 	deepErase( statsset );
     }
 
     if ( rangeset->totalSize() >= 1 )
     {
-	ObjectSet< RunningStatistics<float> > stats;
-	fillInStats( rangeset, stats );
+	ObjectSet< Stats::RunCalc<float> > stats;
+	fillInStats( rangeset, stats, Stats::Min );
 	
 	for ( int idx=0; idx<nrattribs; idx++ )
 	    rgs[idx] = Interval<float>( stats[idx]->min(), stats[idx]->max());
@@ -276,11 +278,13 @@ EngineMan* calcFingParsObject::createEngineMan()
 
 
 void calcFingParsObject::fillInStats( BinIDValueSet* bidvalset,
-			ObjectSet< RunningStatistics<float> >& statsset ) const
+			ObjectSet< Stats::RunCalc<float> >& statsset,
+       			Stats::Type styp ) const
 {
     const int nrattribs = reflist_->size();
     for ( int idx=0; idx<nrattribs; idx++ )
-	statsset += new RunningStatistics<float>;
+	statsset += new Stats::RunCalc<float>(
+			Stats::RunCalcSetup().require(styp) );
 
     BinIDValueSet::Pos pos;
     while ( bidvalset->next(pos) )

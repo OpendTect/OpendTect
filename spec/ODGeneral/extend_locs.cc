@@ -5,7 +5,7 @@
  * FUNCTION : Create extra picks from locations file
 -*/
 
-static const char* rcsID = "$Id: extend_locs.cc,v 1.6 2005-08-26 18:19:27 cvsbert Exp $";
+static const char* rcsID = "$Id: extend_locs.cc,v 1.7 2006-09-21 12:02:46 cvsbert Exp $";
 
 #include "prog.h"
 #include "strmprov.h"
@@ -34,7 +34,7 @@ int main( int argc, char** argv )
 	std::cout << "Using standard input." << std::endl;
     std::istream& instrm = *sdin.istrm;
 
-    Stat_initRandom(0);
+    Stats::RandGen::init();
  
     if ( !instrm )
     {
@@ -59,19 +59,19 @@ int main( int argc, char** argv )
 	outstrm << bid.inl << '\t' << bid.crl << '\t' << timeval <<'\n';
 	bid.inl -= SI().inlStep();
 	outstrm << bid.inl << '\t' << bid.crl << '\t'
-		<< timeval + (Stat_getRandom()-.5)*20 <<'\n';
+		<< timeval + (Stats::RandGen::get()-.5)*20 <<'\n';
 	bid.inl += SI().inlStep();
 	bid.crl -= SI().crlStep();
 	outstrm << bid.inl << '\t' << bid.crl << '\t'
-		<< timeval + (Stat_getRandom()-.5)*20 <<'\n';
+		<< timeval + (Stats::RandGen::get()-.5)*20 <<'\n';
 	bid.inl += SI().inlStep();
 	bid.crl += SI().crlStep();
 	outstrm << bid.inl << '\t' << bid.crl << '\t'
-		<< timeval + (Stat_getRandom()-.5)*20 <<'\n';
+		<< timeval + (Stats::RandGen::get()-.5)*20 <<'\n';
 	bid.inl -= SI().inlStep();
 	bid.crl += SI().crlStep();
 	outstrm << bid.inl << '\t' << bid.crl << '\t'
-		<< timeval + (Stat_getRandom()-.5)*20 <<'\n';
+		<< timeval + (Stats::RandGen::get()-.5)*20 <<'\n';
     }
 
     sdin.close(); sdout.close();

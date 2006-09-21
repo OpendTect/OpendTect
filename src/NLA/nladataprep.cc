@@ -4,11 +4,11 @@
  * DATE     : May 2005
 -*/
  
-static const char* rcsID = "$Id: nladataprep.cc,v 1.4 2006-07-13 12:53:12 cvsnanne Exp $";
+static const char* rcsID = "$Id: nladataprep.cc,v 1.5 2006-09-21 12:02:47 cvsbert Exp $";
 
 #include "nladataprep.h"
 #include "binidvalset.h"
-#include "stats.h"
+#include "statrand.h"
 
 
 void NLADataPreparer::limitRange( const Interval<float>& r )
@@ -87,7 +87,7 @@ void NLADataPreparer::balance( const NLADataPreparer::BalanceSetup& setup )
 	bvss[clss]->add( bid, vals );
     }
 
-    Stat_initRandom( 0 );
+    Stats::RandGen::init();
     bvs_.empty();
     for ( int idx=0; idx<setup.nrclasses; idx++ )
     {
@@ -116,7 +116,7 @@ void NLADataPreparer::addVecs( BinIDValueSet& bvs, int nr, float noiselvl,
     const bool nonoise = noiselvl < 1e-6 || noiselvl > 1 + 1e-6;
     for ( int idx=0; idx<nr; idx++ )
     {
-	int dupidx = Stat_getIndex( orgsz );
+	int dupidx = Stats::RandGen::getIndex( orgsz );
 	BinIDValueSet::Pos pos = bvs.getPos( dupidx );
 	const float* vals = bvs.getVals( pos );
 	bvs.get( pos, bid );
@@ -129,7 +129,7 @@ void NLADataPreparer::addVecs( BinIDValueSet& bvs, int nr, float noiselvl,
 	    {
 		float wdth = rgs[idx].stop - rgs[idx].start;
 		wdth *= noiselvl;
-		newvals[idx] = vals[idx] + ((Stat_getRandom()-.5) * wdth);
+		newvals[idx] = vals[idx] + ((Stats::RandGen::get()-.5) * wdth);
 	    }
 	    bvsnew.add( bid, newvals );
 	}
@@ -149,7 +149,7 @@ void NLADataPreparer::removeVecs( BinIDValueSet& bvs, int nr )
     TypeSet<int> rmidxs;
     while ( rmidxs.size() < nr )
     {
-	int rmidx = Stat_getIndex( orgsz );
+	int rmidx = Stats::RandGen::getIndex( orgsz );
 	if ( rmidxs.indexOf(rmidx) < 0 )
 	{
 	    rmidxs += rmidx;

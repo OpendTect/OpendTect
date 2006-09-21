@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.149 2006-08-24 16:09:49 cvskris Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.150 2006-09-21 12:02:47 cvsbert Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -1144,7 +1144,7 @@ void PlaneDataDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
     visBase::VisualObject::fillPar( par, saveids );
 
     par.setYN( visBase::VisualObjectImpl::sKeyIsOn(), isOn() );
-    par.set( sKeyOrientation(), OrientationRef(orientation_) );
+    par.set( sKeyOrientation(), eString(Orientation,orientation_) );
     par.set( sKeyResolution(), resolution_ );
     getCubeSampling( false, true ).fillPar( par );
 
@@ -1176,10 +1176,9 @@ int PlaneDataDisplay::usePar( const IOPar& par )
     int nrattribs;
     if ( par.get(sKeyNrAttribs(),nrattribs) ) //current format
     {
-	Orientation ori;
-	EnumRef oriref = OrientationRef(ori);
-	if ( par.get( sKeyOrientation(), oriref ) )
-	    setOrientation( ori );
+	const char* orires = par.find( sKeyOrientation() );
+	if ( orires && *orires )
+	    setOrientation( eEnum(Orientation,orires) );
 
 	par.get( sKeyResolution(), resolution_ );
 

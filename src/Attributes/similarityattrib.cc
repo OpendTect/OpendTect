@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          June 2005
- RCS:           $Id: similarityattrib.cc,v 1.29 2006-08-24 14:57:29 cvshelene Exp $
+ RCS:           $Id: similarityattrib.cc,v 1.30 2006-09-21 12:02:47 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,7 +17,7 @@ ________________________________________________________________________
 #include "attribparam.h"
 #include "attribsteering.h"
 #include "genericnumer.h"
-#include "runstat.h"
+#include "statruncalc.h"
 
 #define mExtensionNone		0
 #define mExtensionRot90		1
@@ -250,9 +250,17 @@ bool Similarity::computeData( const DataHolder& output, const BinID& relpos,
 						   : inputdata_.size()/2;
     const int firstsample = inputdata_[0] ? z0-inputdata_[0]->z0_ : z0;
 
+    Stats::RunCalcSetup rcsetup;
+    if ( outputinterest[0] ) rcsetup.require( Stats::Average );
+    if ( outputinterest[1] ) rcsetup.require( Stats::Median );
+    if ( outputinterest[2] ) rcsetup.require( Stats::Variance );
+    if ( outputinterest[3] ) rcsetup.require( Stats::Min );
+    if ( outputinterest[4] ) rcsetup.require( Stats::Max );
+    Stats::RunCalc<float> stats( rcsetup );
+
     for ( int idx=0; idx<nrsamples; idx++ )
     {
-	RunningStatistics<float> stats;
+	stats.clear();
 	for ( int pair=0; pair<nrpairs; pair++ )
 	{
 	    const int idx0 = extension_==mExtensionCube ? pos0s_[pair] : pair*2;
@@ -291,7 +299,7 @@ bool Similarity::computeData( const DataHolder& output, const BinID& relpos,
 	}
 
 	const int outidx = z0 - output.z0_ + idx;
-	if ( !stats.size() )
+	if ( stats.size() < 1 )
 	{
 	    for ( int sidx=0; sidx<outputinterest.size(); sidx++ )
 		if ( outputinterest[sidx] ) 

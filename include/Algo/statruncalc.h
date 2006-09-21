@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl (org) / Bert Bril (rev)
  Date:          10-12-1999 / Sep 2006
- RCS:           $Id: statruncalc.h,v 1.3 2006-09-21 10:07:59 cvsbert Exp $
+ RCS:           $Id: statruncalc.h,v 1.4 2006-09-21 12:02:46 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -152,7 +152,7 @@ inline bool RunCalc<double>::isZero( const double& val ) const
 /*!\brief RunCalc manager which buffers a part of the data.
  
   Allows calculating running stats on a window only. Once the window is full,
-  WindowedCalc will remove the first value added (fifo).
+  WindowedCalc will replace the first value added (fifo).
  
  */
 

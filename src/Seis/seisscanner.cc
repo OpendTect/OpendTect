@@ -4,7 +4,7 @@
  * DATE     : Feb 2004
 -*/
 
-static const char* rcsID = "$Id: seisscanner.cc,v 1.29 2006-03-12 13:39:10 cvsbert Exp $";
+static const char* rcsID = "$Id: seisscanner.cc,v 1.30 2006-09-21 12:02:47 cvsbert Exp $";
 
 #include "seisscanner.h"
 #include "seisinfo.h"
@@ -18,7 +18,7 @@ static const char* rcsID = "$Id: seisscanner.cc,v 1.29 2006-03-12 13:39:10 cvsbe
 #include "oddirs.h"
 #include "ioobj.h"
 #include "iopar.h"
-#include "stats.h"
+#include "statrand.h"
 #include "conn.h"
 #include "errh.h"
 #include "math2.h"
@@ -40,7 +40,7 @@ SeisScanner::SeisScanner( const IOObj& ioobj, int mtr )
 {
     is3d = geomdtector.is3D();
     init();
-    Stat_initRandom(0);
+    Stats::RandGen::init();
 }
 
 
@@ -325,7 +325,7 @@ bool SeisScanner::doValueWork()
     const bool adddistribvals = nrdistribvals < mMaxNrDistribVals;
     float thresh = 1. / (1. + 0.01 * geomdtector.nrpositions);
     const bool selected_trc = !adddistribvals
-			   && Stat_getRandom() < 0.01;
+			   && Stats::RandGen::get() < 0.01;
     unsigned int selsieve = (unsigned int)(1. + 0.01 * geomdtector.nrpositions);
     if ( selsieve > 10 ) selsieve = 10;
     float sievethresh = 1. / selsieve;
@@ -374,9 +374,9 @@ bool SeisScanner::doValueWork()
 
 	if ( nrdistribvals < mMaxNrDistribVals )
 	    distribvals[nrdistribvals++] = val;
-	else if ( selected_trc && Stat_getRandom() < sievethresh )
+	else if ( selected_trc && Stats::RandGen::get() < sievethresh )
 	{
-	    int arrnr = Stat_getIndex(nrdistribvals);
+	    int arrnr = Stats::RandGen::getIndex(nrdistribvals);
 	    distribvals[ arrnr ] = val;
 	}
     }

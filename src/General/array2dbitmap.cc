@@ -4,13 +4,13 @@
  * DATE     : Sep 2006
 -*/
 
-static const char* rcsID = "$Id: array2dbitmap.cc,v 1.6 2006-09-13 15:49:17 cvsbert Exp $";
+static const char* rcsID = "$Id: array2dbitmap.cc,v 1.7 2006-09-21 12:02:47 cvsbert Exp $";
 
 #include "array2dbitmapimpl.h"
 #include "arraynd.h"
 #include "sorting.h"
 #include "interpol2d.h"
-#include "stats.h"
+#include "statrand.h"
 #include <math.h>
 
 const char A2DBitmapGenPars::cNoFill		= -127;
@@ -57,10 +57,10 @@ void A2DBitMapInpData::selectData()
     if ( totnrsamps > mMaxNrStatPts )
     {
 	const int maxtries = mMaxNrStatPts * 1000;
-	Stat_initRandom( 0 );
+	Stats::RandGen::init();
 	for ( int itry=0; itry<maxtries; itry++ )
 	{
-	    const int totidx = Stat_getIndex( totnrsamps );
+	    const int totidx = Stats::RandGen::getIndex( totnrsamps );
 	    const float val = data_.get( totidx / szdim1, totidx % szdim1 );
 	    if ( !mIsUdf(val) )
 	    {

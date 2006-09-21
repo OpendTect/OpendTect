@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: frequencyattrib.cc,v 1.11 2006-08-03 08:04:34 cvshelene Exp $";
+static const char* rcsID = "$Id: frequencyattrib.cc,v 1.12 2006-09-21 12:02:46 cvsbert Exp $";
 
 #include "frequencyattrib.h"
 #include "arrayndimpl.h"
@@ -18,7 +18,7 @@ static const char* rcsID = "$Id: frequencyattrib.cc,v 1.11 2006-08-03 08:04:34 c
 #include "oddirs.h"
 #include "samplfunc.h"
 #include "simpnumer.h"
-#include "stats.h"
+#include "statrand.h"
 #include "strmprov.h"
 
 #include <iostream>
@@ -98,7 +98,7 @@ Frequency::~Frequency()
 	    {
 		FilePath fp( GetDataDir() );
 		BufferString filename( "frequency." );
-		filename += Stat_getIndex(mUdf(int));
+		filename += Stats::RandGen::getIndex(mUdf(int));
 		filename = fp.add( filename ).fullPath();
 		StreamData sd = StreamProvider( filename ).makeOStream();
 		if ( sd.usable() )

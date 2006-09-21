@@ -7,13 +7,13 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Payraudeau
  Date:          June 2006
- RCS:           $Id: uifingerprintcalcobj.h,v 1.3 2006-06-30 11:32:35 cvsnanne Exp $
+ RCS:           $Id: uifingerprintcalcobj.h,v 1.4 2006-09-21 12:02:46 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "ranges.h"
-#include "runstat.h"
+#include "statruncalc.h"
 #include "multiid.h"
 
 class uiParent;
@@ -61,7 +61,8 @@ protected:
     void                saveValsAndRanges(const TypeSet<float>&,
 	    				  const TypeSet< Interval<float> >&);
     void		fillInStats(BinIDValueSet*,
-				ObjectSet< RunningStatistics<float> >&) const;
+				ObjectSet< Stats::RunCalc<float> >&,
+				Stats::Type) const;
 
     BufferStringSet*	reflist_;
     DescSet*		attrset_;

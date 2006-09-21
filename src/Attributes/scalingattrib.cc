@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          December 2004
- RCS:           $Id: scalingattrib.cc,v 1.19 2006-08-03 08:04:34 cvshelene Exp $
+ RCS:           $Id: scalingattrib.cc,v 1.20 2006-09-21 12:02:47 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "attribfactory.h"
 #include "attribparam.h"
 #include "attribparamgroup.h"
-#include "runstat.h"
+#include "statruncalc.h"
 
 #define mStatsTypeRMS	0
 #define mStatsTypeMean	1
@@ -160,7 +160,14 @@ bool Scaling::getInputData( const BinID& relpos, int zintv )
 void Scaling::getScaleFactorsFromStats( const TypeSet<Interval<int> >& sgates,
 					TypeSet<float>& scalefactors ) const
 {
-    RunningStatistics<float> stats;
+    Stats::Type statstype = Stats::Max;
+    if ( statstype_ == mStatsTypeRMS )
+	statstype = Stats::RMS;
+    else if ( statstype_ == mStatsTypeMean )
+	statstype = Stats::Average;
+
+    Stats::RunCalc<float> stats( Stats::RunCalcSetup().require(statstype) );
+
     for ( int sgidx=0; sgidx<gates_.size(); sgidx++ )
     {
 	const Interval<int>& sg = sgates[sgidx];
@@ -176,14 +183,7 @@ void Scaling::getScaleFactorsFromStats( const TypeSet<Interval<int> >& sgates,
 	    stats += fabs( series->value(idx-inputdata_->z0_) );
 	}
 
-	float val = 1;
-	if ( statstype_ == mStatsTypeRMS )
-	    val = stats.rms();
-	else if ( statstype_ == mStatsTypeMean )
-	    val = stats.mean();
-	else
-	    val = stats.max();
-
+	float val = (float)stats.getValue( statstype );
 	scalefactors += !mIsZero(val,mDefEps) ? 1/val : 1;
 	stats.clear();
     }

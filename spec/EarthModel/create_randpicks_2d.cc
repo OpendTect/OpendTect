@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2001
- RCS:           $Id: create_randpicks_2d.cc,v 1.3 2006-05-09 15:22:18 cvsnanne Exp $
+ RCS:           $Id: create_randpicks_2d.cc,v 1.4 2006-09-21 12:02:46 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,7 +22,7 @@ ________________________________________________________________________
 #include "ptrman.h"
 #include "segposinfo.h"
 #include "seis2dline.h"
-#include "stats.h"
+#include "statrand.h"
 #include "strmprov.h"
 #include "survinfo.h"
 
@@ -39,6 +39,8 @@ static int doWork( int argc, char** argv )
 	    	     "xyz_filename " << std::endl;
 	return 1;
     }
+
+    Stats::RandGen::init();
 
     const int nrpicks = atoi( argv[3] );
     BufferString fname( argv[4] );
@@ -82,10 +84,10 @@ static int doWork( int argc, char** argv )
     int nrpicksadded = 0;
     while ( true )
     {
-	const int lineidx = Stat_getIndex( nrlines );
+	const int lineidx = Stats::RandGen::getIndex( nrlines );
 	PosInfo::Line2DData& geometry = *geoms[lineidx];
 	const int nrcoords = geometry.posns.size();
-	const int crdidx = Stat_getIndex( nrcoords );
+	const int crdidx = Stats::RandGen::getIndex( nrcoords );
 	const Coord& pos = geometry.posns[crdidx].coord;
 
 	const BinID bid = SI().transform( pos );

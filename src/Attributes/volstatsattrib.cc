@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: volstatsattrib.cc,v 1.28 2006-09-19 15:03:06 cvshelene Exp $";
+static const char* rcsID = "$Id: volstatsattrib.cc,v 1.29 2006-09-21 12:02:47 cvsbert Exp $";
 
 #include "volstatsattrib.h"
 
@@ -13,7 +13,7 @@ static const char* rcsID = "$Id: volstatsattrib.cc,v 1.28 2006-09-19 15:03:06 cv
 #include "attribfactory.h"
 #include "attribparam.h"
 #include "attribsteering.h"
-#include "runstat.h"
+#include "statruncalc.h"
 #include "valseriesinterpol.h"
 
 #define mShapeRectangle	 0
@@ -25,14 +25,14 @@ namespace Attrib
 
 static int outputtypes[] =
 {
-    RunStats::Mean,
-    RunStats::Median,
-    RunStats::Variance,
-    RunStats::Min,
-    RunStats::Max,
-    RunStats::Sum,
-    RunStats::NormVariance,
-    RunStats::MostFreq,
+    Stats::Average,
+    Stats::Median,
+    Stats::Variance,
+    Stats::Min,
+    Stats::Max,
+    Stats::Sum,
+    Stats::NormVariance,
+    Stats::MostFreq,
     -1
 };
 
@@ -257,10 +257,23 @@ bool VolStats::computeData( const DataHolder& output, const BinID& relpos,
 				    mNINT(gate_.stop/refstep) );
     const int gatesz = samplegate.width() + 1;
 
-    RunningStatistics<float> stats;
-    for ( int idx=0; idx<nrsamples; idx++ )
+    Stats::RunCalcSetup rcsetup;
+    for ( int outidx=0; outidx<outputinterest.size(); outidx++ )
     {
-	const int cursample = z0 + idx;
+	if ( outputinterest[outidx] )
+	    rcsetup.require( (Stats::Type)outputtypes[outidx] );
+    }
+    int statsz = 0;
+    for ( int posidx=0; posidx<nrpos; posidx++ )
+    {
+	if ( inputdata_[posidx] )
+	    statsz += gatesz;
+    }
+    Stats::WindowedCalc<float> stats( rcsetup, statsz );
+
+    for ( int isamp=0; isamp<nrsamples; isamp++ )
+    {
+	const int cursample = z0 + isamp;
 	for ( int posidx=0; posidx<nrpos; posidx++ )
 	{
 	    const DataHolder* dh = inputdata_[posidx];
@@ -276,7 +289,7 @@ bool VolStats::computeData( const DataHolder& output, const BinID& relpos,
 
 	    ValueSeriesInterpolator<float> interp( dh->nrsamples_-1 );
 
-	    if ( !idx )
+	    if ( !isamp )
 	    {
 		int s = samplegate.start;
 		for ( int idz=0; idz<gatesz; idz++ )
@@ -295,18 +308,15 @@ bool VolStats::computeData( const DataHolder& output, const BinID& relpos,
 	    }
 	}
 
-	if ( !idx ) stats.lock();
-
         const int nroutp = outputinterest.size();
 	for ( int outidx=0; outidx<nroutp; outidx++ )
 	{
 	    if ( outputinterest[outidx] == 0 )
 		continue;
 
-	    const float outval = stats.size() 
-		? stats.getValue( (RunStats::StatType)outputtypes[outidx] )
-		: mUdf(float);
-	    const int sampleidx = z0-output.z0_+idx;
+	    const float outval = stats.runCalc().getValue(
+		    			(Stats::Type)outputtypes[outidx] );
+	    const int sampleidx = z0-output.z0_+isamp;
 	    output.series(outidx)->setValue( sampleidx, outval );
 	}
     }

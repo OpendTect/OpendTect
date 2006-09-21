@@ -4,11 +4,11 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: dataclipper.cc,v 1.12 2006-07-21 21:23:09 cvskris Exp $";
+static const char* rcsID = "$Id: dataclipper.cc,v 1.13 2006-09-21 12:02:47 cvsbert Exp $";
 
 
 #include "dataclipper.h"
-#include "stats.h"
+#include "statrand.h"
 #include "sorting.h"
 #include "undefval.h"
 
@@ -23,7 +23,7 @@ DataClipper::DataClipper( float cr0, float cr1 )
     if ( cliprate1 < 0 )
 	cliprate1 = cliprate0;
 
-    Stat_initRandom( 0 );
+    Stats::RandGen::init();
 } 
 
 
@@ -48,7 +48,7 @@ void DataClipper::putData( float v )
 {
     if ( subselect )
     {
-	double rand = Stat_getRandom();
+	double rand = Stats::RandGen::get();
 
 	if ( rand > sampleprob )
 	    return;
@@ -67,7 +67,7 @@ void DataClipper::putData( const float* vals, int nrvals )
 	{
 	    for ( int idx=0; idx<nrvals; idx++ )
 	    {
-		double rand = Stat_getRandom();
+		double rand = Stats::RandGen::get();
 		if ( rand > sampleprob )
 		    continue;
 
@@ -79,7 +79,7 @@ void DataClipper::putData( const float* vals, int nrvals )
 	{
 	    for ( int idx=0; idx<nrsamples; idx++ )
 	    {
-		double rand = Stat_getRandom();
+		double rand = Stats::RandGen::get();
 		rand *= (nrvals-1);
 		float val =  vals[mNINT(rand)];
 		if ( !mIsUdf( val ) )

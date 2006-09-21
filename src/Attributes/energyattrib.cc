@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: energyattrib.cc,v 1.13 2006-09-06 07:47:06 cvsnanne Exp $";
+static const char* rcsID = "$Id: energyattrib.cc,v 1.14 2006-09-21 12:02:46 cvsbert Exp $";
 
 #include "energyattrib.h"
 
@@ -12,7 +12,7 @@ static const char* rcsID = "$Id: energyattrib.cc,v 1.13 2006-09-06 07:47:06 cvsn
 #include "attribdesc.h"
 #include "attribfactory.h"
 #include "attribparam.h"
-#include "runstat.h"
+#include "statruncalc.h"
 
 
 namespace Attrib
@@ -66,21 +66,19 @@ bool Energy::computeData( const DataHolder& output, const BinID& relpos,
     if ( !inputdata_ || !inputdata_->nrSeries() || !output.nrSeries() )
 	return false;
 
-    RunningStatistics<float> calc;
-
     Interval<int> samplegate( mNINT(gate_.start/refstep),
 			      mNINT(gate_.stop/refstep) );
     const int sz = samplegate.width() + 1;
-    for ( int idx=0; idx<sz; idx++ )
-	calc += getInputValue( *inputdata_, dataidx_, samplegate.start+idx, z0);
+    Stats::WindowedCalc<float> wcalc(
+	    Stats::RunCalcSetup().require(Stats::SqSum), sz);
 
-    setOutputValue( output, 0, 0, z0, calc.sqSum()/sz );
-
-    calc.lock();
-    for ( int idx=1; idx<nrsamples; idx++ )
+    for ( int idx=0; idx<sz+nrsamples; idx++ )
     {
-	calc += getInputValue( *inputdata_, dataidx_, samplegate.stop+idx, z0 );
-	setOutputValue( output, 0, idx, z0, calc.sqSum()/sz );
+	wcalc += getInputValue( *inputdata_, dataidx_, samplegate.start+idx,z0);
+	const int outidx = idx - sz + 1;
+	if ( outidx >= 0 )
+	    setOutputValue( output, 0, outidx, z0,
+		    	    wcalc.runCalc().sqSum() / sz );
     }
 
     return true;

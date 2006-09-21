@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizonadjuster.cc,v 1.31 2006-08-31 10:49:01 cvsjaap Exp $";
+static const char* rcsID = "$Id: horizonadjuster.cc,v 1.32 2006-09-21 12:02:47 cvsbert Exp $";
 
 #include "horizonadjuster.h"
 
@@ -556,7 +556,7 @@ void HorizonAdjuster::fillPar( IOPar& iopar ) const
 {
     SectionAdjuster::fillPar( iopar );
     if ( attribsel_ ) attribsel_->fillPar( iopar );
-    iopar.set( sKeyTrackEvent(), VSEvent::TypeRef(evtype_) );
+    iopar.set( sKeyTrackEvent(), eString(VSEvent::Type,evtype_) );
     iopar.set( sKeyPermittedZRange(), permzrange_.start, permzrange_.stop );
     iopar.set( sKeyValueThreshold(), ampthreshold_ );
     iopar.set( sKeyAllowedVariance(), allowedvar_);
@@ -569,8 +569,6 @@ void HorizonAdjuster::fillPar( IOPar& iopar ) const
 
 bool HorizonAdjuster::usePar( const IOPar& iopar )
 {
-    EnumRef tmpref = VSEvent::TypeRef(evtype_);
-
     PtrMan<IOPar> oldpar = iopar.subselect("attrval.Attrib 0");
     if ( !attribsel_ ) attribsel_ = new Attrib::SelSpec;
     if ( !oldpar || !attribsel_->usePar(*oldpar) )
@@ -579,16 +577,17 @@ bool HorizonAdjuster::usePar( const IOPar& iopar )
 	    return false;
     }
 
-    return
-	SectionAdjuster::usePar( iopar ) &&
-	iopar.get( sKeyTrackEvent(),  tmpref ) &&
-	iopar.get( sKeyPermittedZRange(),permzrange_.start,permzrange_.stop ) &&
-	iopar.get( sKeyValueThreshold(), ampthreshold_ ) &&
-	iopar.get( sKeyAllowedVariance(), allowedvar_) &&
-	iopar.getYN( sKeyUseAbsThreshold(), useabsthreshold_ ) &&
-	iopar.get( sKeySimWindow(),similaritywin_.start,similaritywin_.stop ) &&
-	iopar.get( sKeySimThreshold(), similaritythreshold_ ) &&
-	iopar.getYN( sKeyTrackByValue(), trackbyvalue_ );
+    const char* res = iopar.find( sKeyTrackEvent() );
+    if ( res && *res ) evtype_ = eEnum(VSEvent::Type,res);
+    iopar.get( sKeyPermittedZRange(),permzrange_.start,permzrange_.stop );
+    iopar.get( sKeyValueThreshold(), ampthreshold_ );
+    iopar.get( sKeyAllowedVariance(), allowedvar_);
+    iopar.getYN( sKeyUseAbsThreshold(), useabsthreshold_ );
+    iopar.get( sKeySimWindow(),similaritywin_.start,similaritywin_.stop );
+    iopar.get( sKeySimThreshold(), similaritythreshold_ );
+    iopar.getYN( sKeyTrackByValue(), trackbyvalue_ );
+
+    return SectionAdjuster::usePar( iopar );
 }
 
 

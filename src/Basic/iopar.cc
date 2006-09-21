@@ -4,7 +4,7 @@
  * DATE     : 21-12-1995
 -*/
 
-static const char* rcsID = "$Id: iopar.cc,v 1.56 2006-08-21 17:14:45 cvsbert Exp $";
+static const char* rcsID = "$Id: iopar.cc,v 1.57 2006-09-21 12:02:47 cvsbert Exp $";
 
 #include "iopar.h"
 #include "multiid.h"
@@ -371,26 +371,6 @@ bool IOPar::get( const char* s, TypeSet<float>& res ) const
 }
 
 
-bool IOPar::get( const char* s, EnumRef& ref ) const
-{
-    const char* ptr = find( s );
-    if ( !ptr || !*ptr )
-	return false;
-
-    const int backupval = ref.get();
-    ref = -1;
-    ref = ptr;
-    if ( ref.get()<0 )
-    {
-	ref = backupval;
-	return false;
-    }
-
-    return true;
-}
-
-
-
 bool IOPar::get( const char* s, int& i1, int& i2 ) const
 {
     const char* ptr = find( s );
@@ -663,12 +643,6 @@ bool IOPar::getPtr( const char* s, void*& res ) const
     if ( !ptr || !*ptr ) return false;
 
     return sscanf( ptr, "%p", &res ) > 0;
-}
-
-
-void IOPar::set( const char* keyw, const EnumRef& ref )
-{
-    set( keyw, (const char*) ref );
 }
 
 
