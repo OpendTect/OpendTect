@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: uivolstatsattrib.cc,v 1.8 2006-09-19 15:03:07 cvshelene Exp $
+ RCS:           $Id: uivolstatsattrib.cc,v 1.9 2006-09-21 17:52:30 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "uiattribfactory.h"
 #include "uiattrsel.h"
 #include "uigeninput.h"
+#include "uispinbox.h"
 #include "uisteeringsel.h"
 #include "uistepoutsel.h"
 
@@ -50,11 +51,17 @@ uiVolumeStatisticsAttrib::uiVolumeStatisticsAttrib( uiParent* p )
     shapefld->attach( alignedBelow, gatefld );
     
     stepoutfld = new uiStepOutSel( this );
+    stepoutfld->valueChanged.notify(
+			mCB(this,uiVolumeStatisticsAttrib,stepoutChg) );
     stepoutfld->attach( alignedBelow, shapefld );
+
+    nrtrcsfld = new uiLabeledSpinBox( this, "Min nr of valid traces" );
+    nrtrcsfld->box()->setMinValue( 1 );
+    nrtrcsfld->attach( alignedBelow, stepoutfld );
 
     outpfld = new uiGenInput( this, "Output statistic", 
 			      StringListInpSpec(outpstrs) );
-    outpfld->attach( alignedBelow, stepoutfld );
+    outpfld->attach( alignedBelow, nrtrcsfld );
 
     steerfld = new uiSteeringSel( this, 0 );
     steerfld->attach( alignedBelow, outpfld );
@@ -76,6 +83,17 @@ void uiVolumeStatisticsAttrib::set2D( bool yn )
 }
 
 
+void uiVolumeStatisticsAttrib::stepoutChg( CallBacker* )
+{
+    const BinID so = stepoutfld->binID();
+    int nrtrcs = 1;
+    if ( !mIsUdf(so.inl) && !mIsUdf(so.crl) )
+	nrtrcs = (so.inl*2+1) * (so.crl*2+1);
+    nrtrcsfld->box()->setInterval( 1, nrtrcs );
+    nrtrcsfld->box()->setValue( nrtrcs );
+}
+
+
 bool uiVolumeStatisticsAttrib::setParameters( const Desc& desc )
 {
     if ( strcmp(desc.attribName(),VolStats::attribName()) )
@@ -87,6 +105,7 @@ bool uiVolumeStatisticsAttrib::setParameters( const Desc& desc )
 	         stepoutfld->setBinID(stepout) );
     mIfGetEnum( VolStats::shapeStr(), shape,
 	        shapefld->setValue(shape) );
+    stepoutChg(0);
     return true;
 }
 

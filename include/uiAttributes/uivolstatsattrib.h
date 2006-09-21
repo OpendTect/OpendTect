@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uivolstatsattrib.h,v 1.4 2006-09-11 07:04:12 cvsnanne Exp $
+ RCS:           $Id: uivolstatsattrib.h,v 1.5 2006-09-21 17:52:30 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ ________________________________________________________________________
 namespace Attrib { class Desc; };
 class uiGenInput;
 class uiAttrSel;
+class uiLabeledSpinBox;
 class uiSteeringSel;
 class uiStepOutSel;
 
@@ -40,9 +41,11 @@ protected:
     uiGenInput*		gatefld;
     uiGenInput*		shapefld;
     uiStepOutSel*	stepoutfld;
+    uiLabeledSpinBox*	nrtrcsfld;
     uiGenInput*		outpfld;
 
     virtual void	set2D(bool);
+    void		stepoutChg(CallBacker*);
 
     bool		setParameters(const Attrib::Desc&);
     bool		setInput(const Attrib::Desc&);
