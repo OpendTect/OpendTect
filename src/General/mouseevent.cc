@@ -4,7 +4,7 @@
  * DATE     : September 2006
 -*/
 
-static const char* rcsID = "$Id: mouseevent.cc,v 1.3 2006-09-20 15:59:41 cvskris Exp $";
+static const char* rcsID = "$Id: mouseevent.cc,v 1.4 2006-09-21 14:35:35 cvskris Exp $";
 
 #include "mouseevent.h"
 
@@ -16,6 +16,18 @@ MouseEvent::MouseEvent(OD::ButtonState st, int xx, int yy )
 
 OD::ButtonState MouseEvent::buttonState() const
 { return butstate_; }
+
+
+bool MouseEvent::leftButton() const
+{ return butstate_ & OD::LeftButton; }
+
+
+bool MouseEvent::rightButton() const
+{ return butstate_ & OD::RightButton; }
+
+
+bool MouseEvent::middleButton() const
+{ return butstate_ & OD::MidButton; }
 
 
 bool MouseEvent::ctrlStatus() const

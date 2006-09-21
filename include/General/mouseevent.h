@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          September 2005
- RCS:           $Id: mouseevent.h,v 1.2 2006-09-20 15:59:41 cvskris Exp $
+ RCS:           $Id: mouseevent.h,v 1.3 2006-09-21 14:35:35 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,6 +25,9 @@ public:
 
     OD::ButtonState		buttonState() const;
 
+    bool			leftButton() const;
+    bool			rightButton() const;
+    bool			middleButton() const;
     bool			ctrlStatus() const;
     bool			altStatus() const;
     bool			shiftStatus() const;
