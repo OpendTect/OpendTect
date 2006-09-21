@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uislicesel.cc,v 1.40 2006-05-02 14:15:19 cvsnanne Exp $
+ RCS:           $Id: uislicesel.cc,v 1.41 2006-09-21 15:17:45 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -55,13 +55,13 @@ uiSliceSel::uiSliceSel( uiParent* p, const CubeSampling& curcs,
 
     if ( !isvol_ && !is2d_ )
     {
-	uiButton* applybut = new uiPushButton( this, "&Apply", true );
-	applybut->activated.notify( mCB(this,uiSliceSel,applyPush) );
-	mainObject()->setTabOrder( (uiObject*)z0fld, (uiObject*)applybut );
-	applybut->attach( alignedBelow, z0fld );
-	uiButton* scrollbut = new uiPushButton( this, "&Scroll", false );
-	scrollbut->activated.notify( mCB(this,uiSliceSel,scrollPush) );
-	scrollbut->attach( rightOf, isinl_ ? inl0fld : (iscrl_?crl0fld:z0fld) );
+	applybut_ = new uiPushButton( this, "&Apply", true );
+	applybut_->activated.notify( mCB(this,uiSliceSel,applyPush) );
+	mainObject()->setTabOrder( (uiObject*)z0fld, (uiObject*)applybut_ );
+	applybut_->attach( alignedBelow, z0fld );
+	scrollbut_ = new uiPushButton( this, "&Scroll", false );
+	scrollbut_->activated.notify( mCB(this,uiSliceSel,scrollPush) );
+	scrollbut_->attach( rightOf, isinl_ ? inl0fld : (iscrl_?crl0fld:z0fld));
     }
 
     setCubeSampling( curcs );
@@ -435,3 +435,17 @@ bool uiSliceSel::acceptOK( CallBacker* )
     readInput();
     return true;
 }
+
+
+void uiSliceSel::disableApplyButton()
+{
+    applybut_->display( false );
+}
+
+
+void uiSliceSel::disableScrollButton()
+{
+    scrollbut_->display( false );
+}
+
+
