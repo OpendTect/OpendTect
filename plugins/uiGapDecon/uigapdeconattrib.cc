@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          July  2006
- RCS:           $Id: uigapdeconattrib.cc,v 1.6 2006-09-11 13:14:10 cvsnanne Exp $
+ RCS:           $Id: uigapdeconattrib.cc,v 1.7 2006-09-21 15:15:29 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,16 +13,37 @@ ________________________________________________________________________
 #include "gapdeconattrib.h"
 
 #include "attribdesc.h"
+#include "attribdescset.h"
+#include "attribfactory.h"
 #include "attribparam.h"
 #include "survinfo.h"
 #include "uiattribfactory.h"
 #include "uiattrsel.h"
+#include "uislicesel.h"
 #include "uibutton.h"
 #include "uigeninput.h"
 #include "uilabel.h"
 #include "uispinbox.h"
+#include "cubesampling.h"
+#include "volstatsattrib.h"
+#include "hilbertattrib.h"
 
 using namespace Attrib;
+
+
+class uiGDPositionDlg: public uiDialog
+{
+    public:
+			uiGDPositionDlg(uiParent*,const CubeSampling&);
+			~uiGDPositionDlg();
+
+    void                popUpPosDlg();
+
+    uiGenInput*		inlcrlfld_;
+    CubeSampling	cs_;
+    uiSliceSel*		posdlg_; 
+};
+
 
 mInitUI( uiGapDeconAttrib, "GapDecon" )
 
@@ -99,7 +120,29 @@ bool uiGapDeconAttrib::setParameters( const Attrib::Desc& desc )
 
 bool uiGapDeconAttrib::setInput( const Attrib::Desc& desc )
 {
-    putInp( inpfld_, desc, 0 );
+    bool isinp0ph = isinpzerophasefld_->getBoolValue();
+    int nrtrcsmixed = nrtrcsfld_->box()->getValue();
+
+    if ( nrtrcsmixed == 1 && !isinp0ph )
+    {
+	putInp( inpfld_, desc, 0 );
+	return true;
+    }
+    const Desc* neededdesc = desc.getInput(0);
+    if ( isinp0ph && neededdesc )
+	neededdesc = neededdesc->getInput(0);
+    if ( nrtrcsmixed != 1 && neededdesc )
+	neededdesc = neededdesc->getInput(0);
+
+    if ( !neededdesc )
+	inpfld_->setDescSet( desc.descSet() );
+    else
+    {
+	inpfld_->setDesc( neededdesc );
+//	inpfld_->updateHistory( adsman_->inputHistory() );
+    }
+
+    inpfld_->setIgnoreDesc(&desc);
     return true;
 }
 
@@ -123,8 +166,31 @@ bool uiGapDeconAttrib::getParameters( Attrib::Desc& desc )
 
 bool uiGapDeconAttrib::getInput( Attrib::Desc& desc )
 {
-    inpfld_->processInput();
-    fillInp( inpfld_, desc, 0 );
+    bool isinp0ph = isinpzerophasefld_->getBoolValue();
+    bool isout0ph = isoutzerophasefld_->getBoolValue();
+    int nrtrcsmixed = nrtrcsfld_->box()->getValue();
+
+    if ( nrtrcsmixed == 1 && !isinp0ph && !isout0ph )
+    {
+	inpfld_->processInput();
+	fillInp( inpfld_, desc, 0 );
+	return true;
+    }
+    else
+    {
+	DescID inputid = DescID::undef(); //in that case use the input field
+	if ( nrtrcsmixed != 1 )
+	    inputid = createVolStatsDesc( desc, nrtrcsmixed );
+	if ( isinp0ph )
+	    createHilbertDesc( desc, inputid );
+
+	if ( !desc.setInput( 0, desc.descSet()->getDesc(inputid)) )
+	{
+	    errmsg_ += "The suggested attribute for input 0";
+	    errmsg_ += " is incompatible with the input (wrong datatype)";
+	}
+    }
+
     return true;
 }
 
@@ -132,6 +198,12 @@ bool uiGapDeconAttrib::getInput( Attrib::Desc& desc )
 void uiGapDeconAttrib::examPush( CallBacker* cb )
 {
     //TODO
+    CubeSampling cs;
+    inpfld_->getRanges(cs);
+    positiondlg_ = new uiGDPositionDlg( this, cs );
+    positiondlg_->go();
+    if ( positiondlg_->uiResult() == 1 )
+	positiondlg_->popUpPosDlg();
 }
 
 
@@ -142,3 +214,165 @@ void uiGapDeconAttrib::getEvalParams( TypeSet<EvalParam>& params ) const
 }
 
 
+DescID uiGapDeconAttrib::createVolStatsDesc( Desc& desc, int nrtrcsmixed )
+{
+    inpfld_->processInput();
+    const DescID inpid = inpfld_->attribID();
+    DescSet* descset = const_cast<DescSet*>(desc.descSet());
+    BinID userbid = descset->is2D() ? BinID(0,nrtrcsmixed)
+				    : BinID(nrtrcsmixed,nrtrcsmixed);
+    Interval<float> gate(0,0);
+    TypeSet<DescID> attribids;
+    descset->getIds( attribids );
+    for ( int idx=0; idx<attribids.size(); idx++ )
+    {
+	const Desc* dsc = descset->getDesc( attribids[idx] );
+	if ( !passStdCheck( dsc, VolStats::attribName(), 0 , 0 , inpid ) )
+	    continue;
+
+	if ( !passVolStatsCheck( dsc, userbid, gate ) )
+	    continue;
+	
+	return attribids[idx];
+    }
+
+    Desc* newdesc = createNewDesc( descset, inpid, VolStats::attribName(), 0, 0,
+	    			   "_mixingavg" );
+    if ( !newdesc )
+	return DescID::undef();
+
+    mDynamicCastGet( Attrib::BinIDParam*,bidparam,
+		     newdesc->getValParam(VolStats::stepoutStr()) )
+    bidparam->setValue( userbid.inl, 0 ); bidparam->setValue( userbid.crl, 1 );
+    mDynamicCastGet( Attrib::FloatGateParam*,gateparam,
+		     newdesc->getValParam(VolStats::gateStr()) )
+    gateparam->setValue( gate );
+
+    return descset->addDesc( newdesc );
+}
+
+
+bool uiGapDeconAttrib::passStdCheck( const Desc* dsc, const char* attribnm,
+				     int seloutidx, int inpidx, DescID inpid )
+{
+    if ( strcmp( dsc->attribName(), attribnm ) )
+	return false;
+
+    if ( dsc->selectedOutput() != seloutidx )
+	return false;
+    
+    const Desc* inputdesc = dsc->getInput( inpidx );
+    if ( !inputdesc || inputdesc->id() != inpid )
+	return false;
+
+    return true;
+}
+
+
+bool uiGapDeconAttrib::passVolStatsCheck( const Desc* dsc, BinID userbid, 
+					  Interval<float> gate )
+{
+    Attrib::ValParam* valpar = const_cast<Attrib::ValParam*>(
+	    dsc->getValParam(VolStats::stepoutStr()));
+    mDynamicCastGet(Attrib::BinIDParam*,bidpar,valpar);
+    if ( bidpar && bidpar->getValue() != userbid )
+	return false;
+    
+    Attrib::ValParam* valpar2 = const_cast<Attrib::ValParam*>(
+	    dsc->getValParam(VolStats::gateStr()));
+    mDynamicCastGet(Attrib::FloatGateParam*,gatepar,valpar2);
+    if ( gatepar && gatepar->getValue() != gate )
+	return false;
+
+    return true;
+}
+
+
+Desc* uiGapDeconAttrib::createNewDesc( DescSet* descset, DescID inpid, 
+				       const char* attribnm, int seloutidx, 
+				       int inpidx, BufferString specref )
+{
+    Desc* inpdesc = descset->getDesc( inpid );
+    Desc* newdesc = PF().createDescCopy( attribnm );
+    if ( !newdesc || !inpdesc ) 
+	return 0;
+
+    newdesc->selectOutput( seloutidx );
+    newdesc->setInput( inpidx, inpdesc );
+    newdesc->setHidden( true );
+    BufferString usrref = "_"; usrref += inpdesc->userRef(); usrref += specref;
+    newdesc->setUserRef( usrref );
+    return newdesc;
+}
+
+
+void uiGapDeconAttrib::createHilbertDesc( Desc& desc, DescID& inputid )
+{
+    //TODO
+    if ( inputid == DescID::undef() )
+    {
+	inpfld_->processInput();
+	inputid = inpfld_->attribID();
+    }
+    
+    DescSet* descset = const_cast<DescSet*>(desc.descSet());
+    TypeSet<DescID> attribids;
+    descset->getIds( attribids );
+    for ( int idx=0; idx<attribids.size(); idx++ )
+    {
+	const Desc* dsc = descset->getDesc( attribids[idx] );
+	if ( !passStdCheck( dsc, Hilbert::attribName(), 0 , 0 , inputid ) )
+	    continue;
+
+	inputid = attribids[idx];
+	return;
+    }
+
+    Desc* newdesc = createNewDesc( descset, inputid, Hilbert::attribName(), 0,
+	    			   0, "_imag" );
+    inputid = newdesc ? descset->addDesc( newdesc ) : DescID::undef();
+}
+
+
+DescID uiGapDeconAttrib::createInvHilbertDesc( Desc& desc )
+{
+    //TODO
+    return DescID(3,0);
+}
+//-----------------------------------------------------------------------------
+
+uiGDPositionDlg::uiGDPositionDlg( uiParent* p, const CubeSampling& cs )
+    : uiDialog( p, uiDialog::Setup("Gap Decon viewer position dialog","") )
+    , cs_( cs )
+{
+    inlcrlfld_ = new uiGenInput( this, "Compute autocorrelation on:",
+	    			 BoolInpSpec("Inline","Crossline") );
+}
+
+
+uiGDPositionDlg::~uiGDPositionDlg()
+{
+    delete posdlg_;
+}
+
+    
+void uiGDPositionDlg::popUpPosDlg()
+{
+    CallBack dummycb;
+    bool isinl = inlcrlfld_->getValue();
+    CubeSampling inputcs = cs_;
+    if ( isinl )
+	inputcs.hrg.inlRange().stop = inputcs.hrg.inlRange().start;
+    else
+	inputcs.hrg.crlRange().stop = inputcs.hrg.crlRange().start;
+    
+    posdlg_ = new uiSliceSel( 0, inputcs, cs_, dummycb, 
+			      isinl ? uiSliceSel::Inl : uiSliceSel::Crl );
+    posdlg_->disableApplyButton();
+    posdlg_->disableScrollButton();
+    if ( !posdlg_->go() )
+	return;
+
+    CubeSampling cs = posdlg_->getCubeSampling();
+    return;
+}
