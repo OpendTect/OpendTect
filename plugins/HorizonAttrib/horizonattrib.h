@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          September 2006
- RCS:           $Id: horizonattrib.h,v 1.1 2006-09-22 09:21:29 cvsnanne Exp $
+ RCS:           $Id: horizonattrib.h,v 1.2 2006-09-22 15:12:44 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,8 @@ ________________________________________________________________________
 #include "attribprovider.h"
 #include "bufstring.h"
 #include "multiid.h"
+
+namespace EM { class Horizon; }
 
 namespace Attrib
 {
@@ -25,7 +27,10 @@ class Horizon : public Provider
 {
 public:
     static void		initClass();
-			Horizon( Desc& );
+			Horizon(Desc&);
+			~Horizon();
+
+    virtual void	prepareForComputeData();
 
     static const char*	attribName()	{ return "Horizon"; }
     static const char*	sKeyHorID()	{ return "horid"; }
@@ -35,15 +40,16 @@ protected:
     static Provider*	createInstance( Desc& );
     static void		updateDesc( Desc& );
 
-    bool		getInputData(const BinID&,int intv);
-    bool		computeData(const DataHolder&,const BinID& relpos,
+    virtual bool	getInputData(const BinID&,int intv);
+    virtual bool	computeData(const DataHolder&,const BinID& relpos,
 	    			    int z0,int nrsamples) const;
 
-    bool		allowParallelComputation() const { return true; }
+    virtual bool	allowParallelComputation() const { return true; }
 
     MultiID		horid_;
     BufferString	filenm_;
 
+    EM::Horizon*	horizon_;
     const DataHolder*	inputdata_;
     int			dataidx_;
 };
