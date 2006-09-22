@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: uivolstatsattrib.cc,v 1.9 2006-09-21 17:52:30 cvsnanne Exp $
+ RCS:           $Id: uivolstatsattrib.cc,v 1.10 2006-09-22 08:21:12 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,6 +33,7 @@ static const char* outpstrs[] =
 	"Sum",
 	"NormVariance",
 	"Most Frequent",
+	"RMS",
 	0
 };
 
@@ -90,7 +91,6 @@ void uiVolumeStatisticsAttrib::stepoutChg( CallBacker* )
     if ( !mIsUdf(so.inl) && !mIsUdf(so.crl) )
 	nrtrcs = (so.inl*2+1) * (so.crl*2+1);
     nrtrcsfld->box()->setInterval( 1, nrtrcs );
-    nrtrcsfld->box()->setValue( nrtrcs );
 }
 
 
@@ -105,6 +105,8 @@ bool uiVolumeStatisticsAttrib::setParameters( const Desc& desc )
 	         stepoutfld->setBinID(stepout) );
     mIfGetEnum( VolStats::shapeStr(), shape,
 	        shapefld->setValue(shape) );
+    mIfGetInt( VolStats::nrtrcsStr(), nrtrcs,
+	       nrtrcsfld->box()->setValue(nrtrcs) );
     stepoutChg(0);
     return true;
 }
@@ -134,6 +136,7 @@ bool uiVolumeStatisticsAttrib::getParameters( Desc& desc )
     mSetBinID( VolStats::stepoutStr(), stepoutfld->binID() );
     mSetEnum( VolStats::shapeStr(), shapefld->getBoolValue() );
     mSetBool( VolStats::steeringStr(), steerfld->willSteer() );
+    mSetInt( VolStats::nrtrcsStr(), nrtrcsfld->box()->getValue() );
 
     return true;
 }

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: volstatsattrib.h,v 1.13 2006-09-19 15:03:06 cvshelene Exp $
+ RCS:           $Id: volstatsattrib.h,v 1.14 2006-09-22 08:21:12 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,6 +37,7 @@ Outputs:
 5       Sum
 6       Normalized Variance
 7	Most Frequent
+8	RMS
 */
 
 
@@ -55,6 +56,7 @@ public:
     static const char*		shapeStr()	  { return "shape"; }
     static const char*		gateStr()	  { return "gate"; }
     static const char*		absolutegateStr() { return "absolutegate"; }
+    static const char*		nrtrcsStr()	  { return "nrtrcs"; }
     static const char*		steeringStr()	  { return "steering"; }
     static const char*		shapeTypeStr(int);
     void			initSteering();
@@ -80,6 +82,7 @@ protected:
     BinID			stepout_;
     int				shape_;
     Interval<float>		gate_;
+    int				minnrtrcs_;
     bool			dosteer_;
     Interval<float>             desgate_;
     Interval<float>             reqgate_;

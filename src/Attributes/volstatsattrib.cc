@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: volstatsattrib.cc,v 1.29 2006-09-21 12:02:47 cvsbert Exp $";
+static const char* rcsID = "$Id: volstatsattrib.cc,v 1.30 2006-09-22 08:21:12 cvsnanne Exp $";
 
 #include "volstatsattrib.h"
 
@@ -33,6 +33,7 @@ static int outputtypes[] =
     Stats::Sum,
     Stats::NormVariance,
     Stats::MostFreq,
+    Stats::RMS,
     -1
 };
 
@@ -43,8 +44,9 @@ void VolStats::initClass()
 {
     mAttrStartInitClassWithUpdate
 
+    const BinID defstepout( 1, 1 );
     BinIDParam* stepout = new BinIDParam( stepoutStr() );
-    stepout->setDefaultValue( BinID(1,1) );
+    stepout->setDefaultValue( defstepout );
     desc->addParam( stepout );
 
     EnumParam* shape = new EnumParam( shapeStr() );
@@ -57,6 +59,10 @@ void VolStats::initClass()
     ZGateParam* gate = new ZGateParam( gateStr() );
     gate->setLimits( Interval<float>(-mLargestZGate,mLargestZGate) );
     desc->addParam( gate );
+
+    IntParam* nrtrcs = new IntParam( nrtrcsStr() );
+    nrtrcs->setDefaultValue( (defstepout.inl*2+1) * (defstepout.crl*2+1) );
+    desc->addParam( nrtrcs );
 
     BoolParam* steering = new BoolParam( steeringStr() );
     steering->setDefaultValue( false );
@@ -99,6 +105,7 @@ VolStats::VolStats( Desc& ds )
     inputdata_.allowNull(true);
     
     mGetBinID( stepout_, stepoutStr() );
+    mGetInt( minnrtrcs_, nrtrcsStr() );
     mGetEnum( shape_, shapeStr() );
     mGetFloatInterval( gate_, gateStr() );
     gate_.scale( 1/zFactor() );
@@ -171,30 +178,44 @@ bool VolStats::getInputData( const BinID& relpos, int zintv )
 	inputdata_ += 0;
 
     steeringdata_ = dosteer_ ? inputs[1]->getData( relpos, zintv ) : 0;
-    if ( dosteer_ )
-    {
-	if ( !steeringdata_ ) 
-	    return false;
-	
-	for ( int idx=positions_.size()-1; idx>=0; idx-- )
-	{
-	    const int steeridx = steerindexes_[idx];
-	    if ( !steeringdata_->series(steeridx) )
-		return false;
-	}
-    }
+    if ( dosteer_ && !steeringdata_ )
+	return false;
 
     const BinID bidstep = inputs[0]->getStepoutStep();
     const int nrpos = positions_.size();
 
+    int nrvalidtrcs = 0;
     for ( int posidx=0; posidx<nrpos; posidx++ )
     {
+	const bool atcenterpos = positions_[posidx] == BinID(0,0);
 	const BinID truepos = relpos + positions_[posidx] * bidstep;
 	const DataHolder* indata = inputs[0]->getData( truepos, zintv );
-	if ( !indata ) return false;
+	if ( !indata )
+	{
+	    if ( atcenterpos )
+		return false;
+	    else
+		continue;
+	}
+
+	if ( dosteer_ )
+	{
+	    const int steeridx = steerindexes_[posidx];
+	    if ( !steeringdata_->series(steeridx) )
+	    {
+		if ( atcenterpos )
+		    return false;
+		else
+		    continue;
+	    }
+	}
 
 	inputdata_.replace( posidx, indata );
+	nrvalidtrcs++;
     }
+
+    if ( nrvalidtrcs < minnrtrcs_ )
+	return false;
 
     dataidx_ = getDataIndex( 0 );
     return true;
