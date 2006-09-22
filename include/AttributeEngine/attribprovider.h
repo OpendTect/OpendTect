@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribprovider.h,v 1.48 2006-09-06 07:46:40 cvsnanne Exp $
+ RCS:           $Id: attribprovider.h,v 1.49 2006-09-22 12:03:31 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -84,8 +84,8 @@ public:
 				*/
     void			computeNewStartPos(BinID&);
     int				alignInputs(ObjectSet<Provider>&);
-    int 			comparePosAndAlign(Provider*, bool, Provider*, 
-	    					   bool, bool);
+    int 			comparePosAndAlign(Provider*,bool,Provider*, 
+	    					   bool,bool);
     void			resetMoved();
     void                        resetZIntervals();
 
@@ -109,12 +109,14 @@ public:
 
     ObjectSet<Provider>&	getInputs() 		{ return inputs; }
 
-    virtual void		initSteering(){};
-    virtual void		initSteering( const BinID& ){};
+    virtual void		initSteering()			{}
+    virtual void		initSteering(const BinID&)	{}
     void			setOutputInterestSize();
     
     BinID			getTrcInfoBid() const	{ return trcinfobid; }
 
+    virtual void		prepareForComputeData()		{}
+    				/*!< Everything is known now. */
     static const char*		prepare(Desc&);
     				//!< Must be called before getting
     				//!< inputs/outputs etc. from a Desc
