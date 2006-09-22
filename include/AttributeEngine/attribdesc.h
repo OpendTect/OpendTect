@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribdesc.h,v 1.36 2006-09-19 17:55:14 cvskris Exp $
+ RCS:           $Id: attribdesc.h,v 1.37 2006-09-22 12:03:58 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -64,107 +64,111 @@ class Desc
 { mRefCountImpl(Desc);
 public:
 
-			Desc(const Desc&);
-			Desc(const char* attrname,DescStatusUpdater updater=0);
+				Desc(const Desc&);
+				Desc(const char* attrname,
+				     DescStatusUpdater updater=0);
 
-    const char*		attribName() const;
+    const char*			attribName() const;
 
-    void		setDescSet(DescSet*);
-    DescSet*		descSet() const;
-    DescID		id() const;
+    void			setDescSet(DescSet*);
+    DescSet*			descSet() const;
+    DescID			id() const;
 
-    bool		getDefStr(BufferString&) const;
-    bool		parseDefStr(const char*);
+    bool			getDefStr(BufferString&) const;
+    bool			parseDefStr(const char*);
 
-    const char*         userRef() const;
-    void                setUserRef(const char*);
+    const char*			userRef() const;
+    void			setUserRef(const char*);
 
-    int			nrOutputs() const;
-    void	        selectOutput(int);
-    int			selectedOutput() const;
+    int				nrOutputs() const;
+    void			selectOutput(int);
+    int				selectedOutput() const;
 
-    Seis::DataType	dataType(int output=-1) const;
-    			/*!<\param output specifies which outut that is 
-				   equiried, or -1 for the selected output. */
+    Seis::DataType		dataType(int output=-1) const;
+				/*!<\param output specifies which outut that is 
+				     requiried, or -1 for the selected output.*/
 
-    void		setSteering(bool yn)		{ issteering_=yn; }
-    bool		isSteering() const		{ return issteering_; }
+    void			setSteering( bool yn )	{ issteering_=yn; }
+    bool			isSteering() const	{ return issteering_; }
 
-    void		setHidden(bool yn)		{ hidden_ = yn; }
-    			/*!<If hidden, it won't show up in UI. */
-    bool		isHidden() const		{ return hidden_; }
-    			/*!<If hidden, it won't show up in UI. */
+    void			setHidden( bool yn )	{ hidden_ = yn; }
+    				/*!<If hidden, it won't show up in UI. */
+    bool			isHidden() const	{ return hidden_; }
+    				/*!<If hidden, it won't show up in UI. */
 
-    bool		isStored() const;
-    bool		getMultiID(MultiID&) const;
+    bool			isStored() const;
+    bool			getMultiID(MultiID&) const;
 
-    void		setNeedProvInit( bool yn=true )	{ needprovinit_ = yn; }
-    bool		needProvInit() const		{ return needprovinit_;}
+    void			setNeedProvInit( bool yn=true )
+    				{ needprovinit_ = yn; }
+    bool			needProvInit() const
+    				{ return needprovinit_;}
 
-    int			nrInputs() const;
-    InputSpec&		inputSpec(int);
-    const InputSpec&	inputSpec(int) const;
-    bool        	setInput(int,const Desc*);
-    Desc*		getInput(int);
-    const Desc*		getInput(int) const;
-    void		getDependencies(TypeSet<Attrib::DescID>&) const;
-    			/*!<Generates list of attributes this attribute
-			    is dependant on. */
+    int				nrInputs() const;
+    InputSpec&			inputSpec(int);
+    const InputSpec&		inputSpec(int) const;
+    bool        		setInput(int,const Desc*);
+    Desc*			getInput(int);
+    const Desc*			getInput(int) const;
+    void			getDependencies(TypeSet<Attrib::DescID>&) const;
+    				/*!<Generates list of attributes this attribute
+				    is dependant on. */
 
-    bool		is2D() const;
-    void		set2D(bool);
+    bool			is2D() const;
+    void			set2D(bool);
 
-    enum SatisfyLevel	{ AllOk, Warning, Error };
-    SatisfyLevel	isSatisfied() const;
-			/*!< Checks wether all inputs are satisfied. */
+    enum SatisfyLevel		{ AllOk, Warning, Error };
+    SatisfyLevel		isSatisfied() const;
+				/*!< Checks wether all inputs are satisfied. */
 
-    const BufferString&	errMsg() const;
+    const BufferString&		errMsg() const;
 
-    bool		isIdenticalTo(const Desc&,bool cmpoutput=true) const;
-    bool		isIdentifiedBy(const char*) const;
-    DescID		inputId(int idx) const;
+    bool			isIdenticalTo(const Desc&,
+	    				      bool cmpoutput=true) const;
+    bool			isIdentifiedBy(const char*) const;
+    DescID			inputId(int idx) const;
 
-    			/* Interface to factory */
-    void		addParam(Param*);
-    			/*!< Pointer becomes mine */
-    const Param*	getParam(const char* key) const;
-    Param*		getParam(const char* key);
-    const ValParam*	getValParam(const char* key) const;
-    ValParam*		getValParam(const char* key);
-    void		setParamEnabled(const char* key,bool yn=true);
-    bool		isParamEnabled(const char* key) const;
-    void		setParamRequired(const char* key,bool yn=true);
-    bool		isParamRequired(const char* key) const;
+    				/* Interface to factory */
+    void			addParam(Param*);
+    				/*!< Pointer becomes mine */
+    const Param*		getParam(const char* key) const;
+    Param*			getParam(const char* key);
+    const ValParam*		getValParam(const char* key) const;
+    ValParam*			getValParam(const char* key);
+    void			setParamEnabled(const char* key,bool yn=true);
+    bool			isParamEnabled(const char* key) const;
+    void			setParamRequired(const char* key,bool yn=true);
+    bool			isParamRequired(const char* key) const;
 
-    void		updateParams();
-    void		changeStoredID(const char*);
+    void			updateParams();
+    void			changeStoredID(const char*);
 
-    void		addInput(const InputSpec&);
-    bool		removeInput(int idx);
-    void		removeOutputs();
-    void		addOutputDataType(Seis::DataType);
-    void		setNrOutputs(Seis::DataType,int);
-    void		addOutputDataTypeSameAs(int);
+    void			addInput(const InputSpec&);
+    bool			removeInput(int idx);
+    void			removeOutputs();
+    void			addOutputDataType(Seis::DataType);
+    void			setNrOutputs(Seis::DataType,int);
+    void			addOutputDataTypeSameAs(int);
 
-    static bool		getAttribName(const char* defstr,BufferString&);
-    static bool		getParamString(const char* defstr,const char* key,
-				       BufferString&);
+    static bool			getAttribName(const char* defstr,BufferString&);
+    static bool			getParamString(const char* defstr,
+	    				       const char* key,BufferString&);
 
-    Desc*		getStoredInput() const;
+    Desc*			getStoredInput() const;
     
-    static const char*  sKeyInlDipComp();
-    static const char*  sKeyCrlDipComp();
+    static const char*		sKeyInlDipComp();
+    static const char*		sKeyCrlDipComp();
     
 protected:
 
-    bool 	       	setInput_(int,Desc*);
-    Param*		findParam(const char* key);
+    bool			setInput_(int,Desc*);
+    Param*			findParam(const char* key);
 
-    void		getKeysVals(const char* defstr,
+    void			getKeysVals(const char* defstr,
 	    			    BufferStringSet& keys,
 				    BufferStringSet& vals);
-    			/*!<Fills \akeys and \avals with pairs of
-			    parameters from the defstr. */
+				/*!<Fills \akeys and \avals with pairs of
+				    parameters from the defstr. */
 
     TypeSet<Seis::DataType>	outputtypes_;
     TypeSet<int>		outputtypelinks_;
