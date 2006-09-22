@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.150 2006-09-13 15:10:57 cvsnanne Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.151 2006-09-22 08:24:00 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,16 +17,15 @@ ________________________________________________________________________
 #include "uivispartserv.h"
 #include "uimpepartserv.h"
 #include "uiattribpartserv.h"
+#include "uiemattribpartserv.h"
+#include "uiempartserv.h"
 #include "uinlapartserv.h"
 #include "uiseispartserv.h"
-#include "uiempartserv.h"
 #include "uiwellpartserv.h"
 #include "uiwellattribpartserv.h"
 #include "vispicksetdisplay.h"
-#include "visrandomtrackdisplay.h"
 #include "vispolylinedisplay.h"
-#include "uiattrsurfout.h"
-#include "uiattrtrcselout.h"
+#include "visrandomtrackdisplay.h"
 
 #include "emseedpicker.h"
 #include "emtracker.h"
@@ -91,6 +90,7 @@ uiODApplMgr::uiODApplMgr( uiODMain& a )
     attrserv = new uiAttribPartServer( applservice );
     seisserv = new uiSeisPartServer( applservice );
     emserv = new uiEMPartServer( applservice );
+    emattrserv = new uiEMAttribPartServer( applservice );
     wellserv = new uiWellPartServer( applservice );
     wellattrserv = new uiWellAttribPartServer( applservice );
     mpeserv = new uiMPEPartServer( applservice, attrserv->curDescSet() );
@@ -263,30 +263,22 @@ void uiODApplMgr::editAttribSet()
 }
 
 
+void uiODApplMgr::createHorOutput( int tp )
+{
+    uiEMAttribPartServer::HorOutType type =
+	  tp==0 ? uiEMAttribPartServer::OnHor :
+	( tp==1 ? uiEMAttribPartServer::AroundHor : 
+	  	  uiEMAttribPartServer::BetweenHors );
+    emattrserv->createHorizonOutput( type );
+}
+
+
 void uiODApplMgr::createVol()
 {
     MultiID nlaid;
     if ( nlaserv )
 	nlaid = nlaserv->modelId();
     attrserv->outputVol( nlaid );
-}
-
-
-void uiODApplMgr::createHorOutput( HorOutType type )
-{
-    const NLAModel* nlamodel = nlaserv ? &nlaserv->getModel() : 0;
-    const MultiID nlaid = nlaserv ? nlaserv->modelId() : "";
-    if ( type==OnHor )
-    {
-	uiAttrSurfaceOut dlg( &appl, *attrserv->curDescSet(), nlamodel, nlaid );
-	dlg.go();
-    }
-    else
-    {
-	uiAttrTrcSelOut dlg( &appl, *attrserv->curDescSet(), nlamodel, nlaid,
-	       		     type==AroundHor );
-	dlg.go();
-    }
 }
 
 

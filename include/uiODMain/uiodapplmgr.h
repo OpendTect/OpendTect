@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiodapplmgr.h,v 1.39 2006-09-13 15:10:57 cvsnanne Exp $
+ RCS:           $Id: uiodapplmgr.h,v 1.40 2006-09-22 08:24:00 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ class uidTectMan;
 class uiApplPartServer;
 class uiApplService;
 class uiAttribPartServer;
+class uiEMAttribPartServer;
 class uiEMPartServer;
 class uiMPEPartServer;
 class uiNLAPartServer;
@@ -57,6 +58,7 @@ public:
     uiSeisPartServer*		seisServer()		{ return seisserv; }
     uiAttribPartServer*		attrServer()		{ return attrserv; }
     uiEMPartServer*		EMServer() 		{ return emserv; }
+    uiEMAttribPartServer*	EMAttribServer()	{ return emattrserv; }
     uiWellPartServer*		wellServer()		{ return wellserv; }
     uiWellAttribPartServer* 	wellAttribServer()	{ return wellattrserv; }
     uiMPEPartServer*		mpeServer()		{ return mpeserv; }
@@ -80,8 +82,7 @@ public:
     void			editAttribSet();
     bool			editNLA();
     void			createVol();
-    enum HorOutType		{ OnHor, AroundHor, BetweenHors };
-    void			createHorOutput(HorOutType);
+    void			createHorOutput(int);
     void			reStartProc();
 
     // View menu operations
@@ -152,6 +153,7 @@ protected:
     uiAttribPartServer*		attrserv;
     uiSeisPartServer*		seisserv;
     uiEMPartServer*		emserv;
+    uiEMAttribPartServer*	emattrserv;
     uiWellPartServer*		wellserv;
     uiWellAttribPartServer* 	wellattrserv;
     uiMPEPartServer*		mpeserv;

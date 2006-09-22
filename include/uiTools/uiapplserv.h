@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Feb 2002
- RCS:		$Id: uiapplserv.h,v 1.9 2006-08-21 17:14:45 cvsbert Exp $
+ RCS:		$Id: uiapplserv.h,v 1.10 2006-09-22 08:24:00 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -57,6 +57,8 @@ public:
     const uiApplService& appserv() const	{ return uias_; }
 
 protected:
+
+    uiParent*		parent() const		{ return uias_.parent(); }
 
     bool		sendEvent( int evid ) const
     			{ return const_cast<uiApplService&>(appserv())
