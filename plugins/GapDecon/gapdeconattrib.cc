@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Huck
  Date:          July 2006
- RCS:           $Id: gapdeconattrib.cc,v 1.7 2006-09-08 14:50:56 cvshelene Exp $
+ RCS:           $Id: gapdeconattrib.cc,v 1.8 2006-09-22 15:31:27 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -86,6 +86,7 @@ void GapDecon::initClass()
     desc->addParam( gapsize );
     
     IntParam* noiselevel = new IntParam( noiselevelStr() );
+    noiselevel->setDefaultValue( 1 );
     desc->addParam( noiselevel );
 
     IntParam* nrtrcs = new IntParam( nrtrcsStr() );
@@ -103,6 +104,11 @@ void GapDecon::initClass()
     BoolParam* isoutputzerophase = new BoolParam( isout0phaseStr() );
     isoutputzerophase->setDefaultValue( true );
     desc->addParam( isoutputzerophase );
+
+    BoolParam* useonlyacorr = new BoolParam( onlyacorrStr() );
+    useonlyacorr->setDefaultValue( false );
+    useonlyacorr->setRequired( false );
+    desc->addParam( useonlyacorr );
 
     desc->addInput( InputSpec("Input data",true) );
     desc->setNrOutputs( Seis::UnknowData, 5 );
@@ -132,6 +138,7 @@ GapDecon::GapDecon( Desc& desc_ )
     stepout_ = BinID( nrtrcs/2, nrtrcs/2 );
 
     mGetInt( noiselevel_, noiselevelStr() );
+    mGetBool( useonlyacorr_, onlyacorrStr() );
 }
 
 
@@ -151,13 +158,13 @@ bool GapDecon::getInputData( const BinID& relpos, int zintv )
 
 
 bool GapDecon::computeData( const DataHolder& output, const BinID& relpos, 
-			      int z0, int nrsamples ) const
+			    int z0, int nrsamples ) const
 {
     if ( !inputdata_ ) return false;
 
     if ( !inited_ )
     {
-	const_cast<GapDecon*>(this)->nlag_  = //maybe useless
+	const_cast<GapDecon*>(this)->nlag_  = 
 				    mNINT( lagsize_ / refstep / zFactor() );
 	const_cast<GapDecon*>(this)->ncorr_ = 
 				    mNINT( gate_.width() / refstep );
@@ -198,21 +205,30 @@ bool GapDecon::computeData( const DataHolder& output, const BinID& relpos,
     for ( int idx=0; idx<lcorr_; idx++)  
 	autocorr[idx] *= scale;
 
-    autocorr[0] *= 1 + (float)noiselevel_/100;
-
-    solveSymToeplitzsystem( ngap_, autocorr, crosscorr, wiener, spiker );
+    if ( !useonlyacorr_ )
+    {
+	autocorr[0] *= 1 + (float)noiselevel_/100;
+	solveSymToeplitzsystem( ngap_, autocorr, crosscorr, wiener, spiker );
+    }
 
     int stopgapidx = startcorr + nlag_+ ngap_;
     int startgapidx = startcorr + nlag_;
     int inoffs = z0 - inputdata_->z0_;
     int outoffs = z0 - output.z0_;
     ValueSeries<float>* inparr = inputdata_->series(dataidx_);
+
+    if ( useonlyacorr_ )
+    {
+	for ( int idx = 0; idx < lcorr_; ++idx )
+	    output.series(0)->setValue( idx+outoffs, autocorr[idx] );
+	return true;
+    }
     
     for ( int idx = 0; idx < nrsamples; ++idx )
     {
 	int n = mMIN( idx, stopgapidx );
 	float sum = inparr->value( idx + inoffs );
-	for ( int gapidx= startgapidx; gapidx<n; ++gapidx )
+	for ( int gapidx=startgapidx; gapidx<n; ++gapidx )
 	    sum -= wiener[gapidx-startgapidx] *inparr->value(idx-gapidx+inoffs);
 	output.series(0)->setValue( idx + outoffs, sum );
     }

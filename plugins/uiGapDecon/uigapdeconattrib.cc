@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          July  2006
- RCS:           $Id: uigapdeconattrib.cc,v 1.7 2006-09-21 15:15:29 cvshelene Exp $
+ RCS:           $Id: uigapdeconattrib.cc,v 1.8 2006-09-22 15:31:27 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -97,6 +97,12 @@ uiGapDeconAttrib::uiGapDeconAttrib( uiParent* p )
 
 const char* uiGapDeconAttrib::getAttribName() const
 { return GapDecon::attribName(); }
+
+
+void uiGapDeconAttrib::set2D( bool yn )
+{
+    exambut_->display(!yn);
+}
 
 
 bool uiGapDeconAttrib::setParameters( const Attrib::Desc& desc )

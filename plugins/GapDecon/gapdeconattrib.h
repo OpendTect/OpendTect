@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Huck
  Date:          14-07-2006
- RCS:           $Id: gapdeconattrib.h,v 1.5 2006-08-30 15:05:38 cvshelene Exp $
+ RCS:           $Id: gapdeconattrib.h,v 1.6 2006-09-22 15:31:27 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,6 +35,7 @@ public:
     static const char*		noiselevelStr()	{ return "noiselevel"; }
     static const char*		isinp0phaseStr(){ return "isinpzerophase"; }
     static const char*		isout0phaseStr(){ return "isoutzerophase"; }
+    static const char*		onlyacorrStr()	{ return "onlyautocorr"; }
 
 protected:
 
@@ -60,6 +61,7 @@ protected:
     bool			isinpzerophase_;
     bool			isoutzerophase_;
     BinID			stepout_;
+    bool			useonlyacorr_;
 
     bool			inited_;
     int				nlag_;
