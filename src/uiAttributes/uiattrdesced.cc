@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:		$Id: uiattrdesced.cc,v 1.14 2006-09-19 17:55:14 cvskris Exp $
+ RCS:		$Id: uiattrdesced.cc,v 1.15 2006-09-22 12:49:45 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -207,18 +207,17 @@ void uiAttrDescEd::putInp( uiSteeringSel* inpfld, const Attrib::Desc& ad,
 }
 
 
-BufferString uiAttrDescEd::gateLabel() const
+BufferString uiAttrDescEd::zDepLabel( const char* pre, const char* post ) const
 {
-    BufferString lbl( SI().zIsTime() ? "Time " : "Depth " );
-    lbl += "gate "; lbl += SI().getZUnit();
-    return lbl;
-}
+    BufferString lbl;
+    char zstr[6]; strcpy( zstr, zIsTime() ? "Time" : "Depth" );
+    if ( pre )
+	{ lbl += pre; lbl += " "; zstr[0] = tolower( zstr[0] ); }
 
-
-BufferString uiAttrDescEd::shiftLabel() const
-{
-    BufferString lbl( SI().zIsTime() ? "Time " : "Depth " );
-    lbl += "shift "; lbl += SI().getZUnit();
+    lbl += zstr;
+    if ( post )
+	{ lbl += " "; lbl += post; }
+    lbl += " "; lbl += SI().getZUnit();
     return lbl;
 }
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: uiattrdesced.h,v 1.14 2006-09-14 20:12:29 cvsnanne Exp $
+ RCS:           $Id: uiattrdesced.h,v 1.15 2006-09-22 12:49:52 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -125,8 +125,11 @@ protected:
     void		putInp(uiSteerCubeSel*,const Desc&,int inpnr);
     void		putInp(uiSteeringSel*,const Desc&,int inpnr);
 
-    BufferString	gateLabel() const;
-    BufferString	shiftLabel() const;
+    BufferString	zDepLabel(const char* pre,const char* post) const;
+    BufferString	gateLabel() const
+			{ return zDepLabel( 0, "gate" ); }
+    BufferString	shiftLabel() const
+			{ return zDepLabel( 0, "shift" ); }
     bool		zIsTime() const;
 
     ChangeTracker	chtr_;
