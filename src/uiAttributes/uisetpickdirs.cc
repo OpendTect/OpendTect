@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Nov 2003
- RCS:           $Id: uisetpickdirs.cc,v 1.5 2006-05-08 16:50:19 cvsbert Exp $
+ RCS:           $Id: uisetpickdirs.cc,v 1.6 2006-09-22 12:50:29 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,7 +21,6 @@ ________________________________________________________________________
 #include "uilabel.h"
 #include "uimsg.h"
 #include "sorting.h"
-#include "runstat.h"
 #include "scaler.h"
 #include "binidvalset.h"
 

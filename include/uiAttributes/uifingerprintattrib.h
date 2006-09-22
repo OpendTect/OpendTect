@@ -7,16 +7,13 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Payraudeau
  Date:          February 2006
- RCS:           $Id: uifingerprintattrib.h,v 1.10 2006-09-11 07:04:12 cvsnanne Exp $
+ RCS:           $Id: uifingerprintattrib.h,v 1.11 2006-09-22 12:50:29 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiattrdesced.h"
-#include "uidialog.h"
 #include "position.h"
-#include "ranges.h"
-#include "runstat.h"
 #include "multiid.h"
 
 class CtxtIOObj;
@@ -50,6 +47,7 @@ public:
     const char*		getAttribName() const;
 
 protected:
+
     static uiAttrDescEd* createInstance(uiParent*);
 
     uiTable*            table_;
@@ -95,6 +93,7 @@ protected:
     void		fillIn2DPos(CallBacker*);
 
     virtual bool	areUIParsOK();
+
 };
 
 #endif
