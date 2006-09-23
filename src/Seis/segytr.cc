@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: segytr.cc,v 1.48 2006-05-29 08:02:32 cvsbert Exp $";
+static const char* rcsID = "$Id: segytr.cc,v 1.49 2006-09-23 14:04:17 cvskris Exp $";
 
 #include "segytr.h"
 #include "seistrc.h"
@@ -226,10 +226,20 @@ void SEGYSeisTrcTranslator::interpretBuf( SeisTrcInfo& ti )
     trhead.fill( ti, ext_coord_scaling );
     if ( is_prestack )
     {
-	Coord c1( trhead.getCoord(true,ext_coord_scaling) );
-	Coord c2( trhead.getCoord(false,ext_coord_scaling) );
-	fillOffsAzim( ti, c1, c2 );
-	ti.coord = Coord( (c1.x+c2.x)*.5, (c1.y+c2.y)*.5 );
+	static bool useoffs = GetEnvVarYN( "DTECT_SEGY_USE_OFFSETFLD" );
+	if ( useoffs )
+	{
+	    if ( !mIsUdf(ext_coord_scaling) && !mIsUdf(ti.offset) )
+		ti.offset *= ext_coord_scaling;
+	    ti.coord = SI().transform( ti.binid );
+	}
+	else
+	{
+	    Coord c1( trhead.getCoord(true,ext_coord_scaling) );
+	    Coord c2( trhead.getCoord(false,ext_coord_scaling) );
+	    fillOffsAzim( ti, c1, c2 );
+	    ti.coord = Coord( (c1.x+c2.x)*.5, (c1.y+c2.y)*.5 );
+	}
     }
     if ( use_lino ) ti.binid.inl = pinfo.nr;
     float scfac = trhead.postScale( numbfmt ? numbfmt : 1 );
