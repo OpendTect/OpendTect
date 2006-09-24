@@ -4,12 +4,13 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          July  2006
- RCS:           $Id: uigapdeconattrib.cc,v 1.8 2006-09-22 15:31:27 cvshelene Exp $
+ RCS:           $Id: uigapdeconattrib.cc,v 1.9 2006-09-24 13:18:28 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uigapdeconattrib.h"
+#include "uigdexamacorr.h"
 #include "gapdeconattrib.h"
 
 #include "attribdesc.h"
@@ -38,6 +39,7 @@ class uiGDPositionDlg: public uiDialog
 			~uiGDPositionDlg();
 
     void                popUpPosDlg();
+    const CubeSampling&	getCubeSampling();
 
     uiGenInput*		inlcrlfld_;
     CubeSampling	cs_;
@@ -48,7 +50,8 @@ class uiGDPositionDlg: public uiDialog
 mInitUI( uiGapDeconAttrib, "GapDecon" )
 
 uiGapDeconAttrib::uiGapDeconAttrib( uiParent* p )
-	: uiAttrDescEd(p)
+	: uiAttrDescEd ( p )
+    	, acorrview_ ( new GapDeconACorrView(this) )
 {
     inpfld_ = getInpFld();
 
@@ -95,6 +98,12 @@ uiGapDeconAttrib::uiGapDeconAttrib( uiParent* p )
 }
 
 
+uiGapDeconAttrib::~uiGapDeconAttrib()
+{
+    delete acorrview_;
+}
+
+    
 const char* uiGapDeconAttrib::getAttribName() const
 { return GapDecon::attribName(); }
 
@@ -203,13 +212,16 @@ bool uiGapDeconAttrib::getInput( Attrib::Desc& desc )
 
 void uiGapDeconAttrib::examPush( CallBacker* cb )
 {
-    //TODO
     CubeSampling cs;
     inpfld_->getRanges(cs);
     positiondlg_ = new uiGDPositionDlg( this, cs );
     positiondlg_->go();
     if ( positiondlg_->uiResult() == 1 )
 	positiondlg_->popUpPosDlg();
+
+    acorrview_->setCubesampling( positiondlg_->getCubeSampling() );
+    acorrview_->setInputID( inpfld_->attribID() );
+    acorrview_->setCorrWin( gatefld_->getFInterval() );
 }
 
 
@@ -376,9 +388,11 @@ void uiGDPositionDlg::popUpPosDlg()
 			      isinl ? uiSliceSel::Inl : uiSliceSel::Crl );
     posdlg_->disableApplyButton();
     posdlg_->disableScrollButton();
-    if ( !posdlg_->go() )
-	return;
+    posdlg_->go();
+}
 
-    CubeSampling cs = posdlg_->getCubeSampling();
-    return;
+
+const CubeSampling& uiGDPositionDlg::getCubeSampling()
+{
+    return posdlg_->getCubeSampling();
 }

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          July 2006
- RCS:           $Id: uigapdeconattrib.h,v 1.6 2006-09-22 15:31:27 cvshelene Exp $
+ RCS:           $Id: uigapdeconattrib.h,v 1.7 2006-09-24 13:18:28 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,6 +22,7 @@ class uiGenInput;
 class uiLabeledSpinBox;
 class uiPushButton;
 class uiGDPositionDlg;
+class GapDeconACorrView;
 
 using namespace Attrib;
 
@@ -32,6 +33,7 @@ class uiGapDeconAttrib : public uiAttrDescEd
 public:
     static void		initClass();
 			uiGapDeconAttrib(uiParent*);
+			~uiGapDeconAttrib();
 
     void                set2D(bool);
     void		getEvalParams(TypeSet<EvalParam>&) const;
@@ -51,6 +53,7 @@ protected:
     uiPushButton*	exambut_;
 
     uiGDPositionDlg*	positiondlg_;
+    GapDeconACorrView*	acorrview_;
     bool		setParameters(const Desc&);
     bool		setInput(const Desc&);
 
