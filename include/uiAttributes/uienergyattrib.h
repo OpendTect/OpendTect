@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: uienergyattrib.h,v 1.3 2006-09-11 07:04:12 cvsnanne Exp $
+ RCS:           $Id: uienergyattrib.h,v 1.4 2006-09-24 13:55:16 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,14 +34,17 @@ public:
 protected:
     static uiAttrDescEd* createInstance(uiParent*);
 
-    uiAttrSel*		inpfld;
-    uiGenInput*		gatefld;
+    uiAttrSel*		inpfld_;
+    uiGenInput*		gatefld_;
+    uiGenInput*         outpfld_;
 
     bool		setParameters(const Attrib::Desc&);
     bool		setInput(const Attrib::Desc&);
+    bool                setOutput(const Attrib::Desc&);
 
     bool		getParameters(Attrib::Desc&);
     bool		getInput(Attrib::Desc&);
+    bool                getOutput(Attrib::Desc&);
 };
 
 #endif

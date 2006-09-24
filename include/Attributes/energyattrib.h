@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: energyattrib.h,v 1.7 2005-12-23 16:09:46 cvsnanne Exp $
+ RCS:           $Id: energyattrib.h,v 1.8 2006-09-24 13:55:16 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,6 +31,8 @@ Input:
 
 Outputs:
 0		The energy
+1		Square root of the energy
+2		Ln of the energy
 */
     
 

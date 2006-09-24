@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:		$Id: uienergyattrib.cc,v 1.6 2006-09-11 06:59:31 cvsnanne Exp $
+ RCS:		$Id: uienergyattrib.cc,v 1.7 2006-09-24 13:55:16 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,17 +21,28 @@ ________________________________________________________________________
 
 using namespace Attrib;
 
+static const char* outpstrs[] =
+{
+    "Energy",
+    "Sqrt ( Energy )",
+    "Ln ( Energy )",
+    0
+};
+
 
 mInitUI( uiEnergyAttrib, "Energy" )
 
 uiEnergyAttrib::uiEnergyAttrib( uiParent* p )
 	: uiAttrDescEd(p)
 {
-    inpfld = getInpFld();
+    inpfld_ = getInpFld();
 
-    gatefld = new uiGenInput( this, gateLabel(), FloatInpIntervalSpec() );
-    gatefld->attach( alignedBelow, inpfld );
-    setHAlignObj( gatefld );
+    gatefld_ = new uiGenInput( this, gateLabel(), FloatInpIntervalSpec() );
+    gatefld_->attach( alignedBelow, inpfld_ );
+
+    outpfld_ = new uiGenInput( this, "Output", StringListInpSpec(outpstrs) );
+    outpfld_->attach( alignedBelow, gatefld_ );
+    setHAlignObj( gatefld_ );
 }
 
 
@@ -44,14 +55,21 @@ bool uiEnergyAttrib::setParameters( const Desc& desc )
     if ( strcmp(desc.attribName(),Energy::attribName()) )
 	return false;
 
-    mIfGetFloatInterval( Energy::gateStr(), gate, gatefld->setValue(gate) );
+    mIfGetFloatInterval( Energy::gateStr(), gate, gatefld_->setValue(gate) );
     return true;
 }
 
 
 bool uiEnergyAttrib::setInput( const Desc& desc )
 {
-    putInp( inpfld, desc, 0 );
+    putInp( inpfld_, desc, 0 );
+    return true;
+}
+
+
+bool uiEnergyAttrib::setOutput( const Attrib::Desc& desc )
+{
+    outpfld_->setValue( desc.selectedOutput() );
     return true;
 }
 
@@ -61,14 +79,21 @@ bool uiEnergyAttrib::getParameters( Desc& desc )
     if ( strcmp(desc.attribName(),Energy::attribName()) )
 	return false;
 
-    mSetFloatInterval( Energy::gateStr(), gatefld->getFInterval() );
+    mSetFloatInterval( Energy::gateStr(), gatefld_->getFInterval() );
     return true;
 }
 
 
 bool uiEnergyAttrib::getInput( Desc& desc )
 {
-    fillInp( inpfld, desc, 0 );
+    fillInp( inpfld_, desc, 0 );
+    return true;
+}
+
+
+bool uiEnergyAttrib::getOutput( Attrib::Desc& desc )
+{
+    fillOutput( desc, outpfld_->getIntValue() );
     return true;
 }
 

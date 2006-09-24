@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: energyattrib.cc,v 1.15 2006-09-21 14:57:37 cvsbert Exp $";
+static const char* rcsID = "$Id: energyattrib.cc,v 1.16 2006-09-24 13:55:16 cvshelene Exp $";
 
 #include "energyattrib.h"
 
@@ -30,7 +30,7 @@ void Energy::initClass()
     desc->addParam( gate );
 
     desc->addInput( InputSpec("Input Data",true) );
-    desc->addOutputDataType( Seis::UnknowData );
+    desc->setNrOutputs( Seis::UnknowData, 3 );
 
     mAttrEndInitClass
 }
@@ -78,8 +78,15 @@ bool Energy::computeData( const DataHolder& output, const BinID& relpos,
 	wcalc += getInputValue( *inputdata_, dataidx_, samplegate.start+idx,z0);
 	const int outidx = idx - sz + 1;
 	if ( outidx >= 0 )
-	    setOutputValue( output, 0, outidx, z0,
-		    	    wcalc.runCalc().sqSum() / sz );
+	{
+	    float val = wcalc.runCalc().sqSum() / sz;
+	    if ( outputinterest[0] )
+		setOutputValue( output, 0, outidx, z0, val );
+	    if ( outputinterest[1] )
+		setOutputValue( output, 1, outidx, z0, sqrt(val) );
+	    if ( outputinterest[2] )
+		setOutputValue( output, 2, outidx, z0, log(val) );
+	}
     }
 
     return true;
