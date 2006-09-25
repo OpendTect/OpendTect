@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          September 2006
- RCS:           $Id: uihorizonattrib.h,v 1.1 2006-09-22 15:14:43 cvsnanne Exp $
+ RCS:           $Id: uihorizonattrib.h,v 1.2 2006-09-25 13:42:21 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,18 +36,21 @@ public:
 protected:
     static uiAttrDescEd* createInstance(uiParent*);
 
-    uiAttrSel*		inpfld;
-    uiIOObjSel*		horfld;
-    uiGenInput*		outputfld;
+    uiAttrSel*		inpfld_;
+    uiIOObjSel*		horfld_;
+    uiGenInput*		outputfld_;
 
     CtxtIOObj&		horctio_;
 
-    bool                setParameters(const Attrib::Desc&);
-    bool                setInput(const Attrib::Desc&);
-
-    bool                getParameters(Attrib::Desc&);
-    bool                getInput(Attrib::Desc&);
+    virtual bool	setParameters(const Attrib::Desc&);
+    virtual bool	setInput(const Attrib::Desc&);
+    virtual bool	setOutput(const Attrib::Desc&);
+    virtual bool	getParameters(Attrib::Desc&);
+    virtual bool	getInput(Attrib::Desc&);
+    virtual bool	getOutput(Attrib::Desc&);
     virtual void	set2D(bool);
+
+    void		horSel(CallBacker*);
 };
 
 

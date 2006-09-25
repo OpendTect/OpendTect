@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		September 2006
- RCS:		$Id: horizonattrib.cc,v 1.2 2006-09-22 15:12:44 cvsnanne Exp $
+ RCS:		$Id: horizonattrib.cc,v 1.3 2006-09-25 13:42:21 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "attribparam.h"
 #include "emhorizon.h"
 #include "emmanager.h"
+#include "emsurfaceauxdata.h"
 #include "emsurfaceiodata.h"
 #include "executor.h"
 #include "ptrman.h"
@@ -46,6 +47,13 @@ void Horizon::initClass()
 
 void Horizon::updateDesc( Desc& desc )
 {
+    BufferString idstr = desc.getValParam( sKeyHorID() )->getStringValue();
+    MultiID horid( idstr.buf() );
+    EM::SurfaceIOData iodata;
+    const char* err = EM::EMM().getSurfaceData( horid, iodata );
+    if ( err ) return;
+
+    desc.setNrOutputs( Seis::UnknowData, iodata.valnames.size()+2 );
 }
 
 
@@ -91,9 +99,14 @@ void Horizon::prepareForComputeData()
     }
 
     EM::SurfaceIOData sd;
+    EM::EMM().getSurfaceData( horid_, sd );
     EM::SurfaceIODataSelection sel( sd );
     if ( getDesiredVolume() )
 	sel.rg = getDesiredVolume()->hrg;
+
+    for ( int idx=0; idx<sd.valnames.size(); idx++ )
+	sel.selvalues += idx;
+
     PtrMan<Executor> loader = em.objectLoader( horid_, &sel );
     if ( !loader ) return;
 
@@ -114,16 +127,33 @@ bool Horizon::computeData( const DataHolder& output, const BinID& relpos,
     if ( !horizon_ ) return false;
 
     const BinID bid = currentbid + relpos;
-    EM::SectionID sid = horizon_->sectionID( 0 );
-    const float zval = horizon_->getPos( sid, bid.getSerialized() ).z;
+    const EM::PosID posid( horizon_->id(), horizon_->sectionID(0),
+	    		   bid.getSerialized() );
+    const float zval = horizon_->getPos( posid ).z;
+
+    int attribidx = 0;
+    TypeSet<float> outputvalues( nrOutputs(), mUdf(float) );
+    for ( int idx=0; idx<nrOutputs(); idx++ )
+    {
+	if ( idx==0 && isOutputEnabled(0) )
+	    outputvalues[0] = zval;
+	else if ( idx==1 && isOutputEnabled(1) )
+	    outputvalues[1] =
+	    		getInterpolInputValue( *inputdata_, dataidx_, zval );
+	else if ( isOutputEnabled(idx) )
+	{
+	    outputvalues[idx] = horizon_->auxdata.getAuxDataVal( attribidx,
+		    						 posid );
+	    attribidx++;
+	}
+    }
+
     for ( int idx=0; idx<nrsamples; idx++ )
     {
-	if ( isOutputEnabled(0) )
-	    setOutputValue( output, 0, idx, z0, zval );
-	if ( isOutputEnabled(1) )
+	for ( int outidx=0; outidx<nrOutputs(); outidx++ )
 	{
-	    const float val = getInputValue( *inputdata_, dataidx_, idx, z0 );
-	    setOutputValue( output, 1, idx, z0, val );
+	    if ( isOutputEnabled(outidx) )
+		setOutputValue( output, outidx, idx, z0, outputvalues[outidx] );
 	}
     }
 
