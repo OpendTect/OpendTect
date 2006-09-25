@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribprovider.cc,v 1.73 2006-09-06 07:46:40 cvsnanne Exp $";
+static const char* rcsID = "$Id: attribprovider.cc,v 1.74 2006-09-25 13:41:15 cvsnanne Exp $";
 
 #include "attribprovider.h"
 #include "attribstorprovider.h"
@@ -23,6 +23,7 @@ static const char* rcsID = "$Id: attribprovider.cc,v 1.73 2006-09-06 07:46:40 cv
 #include "seisinfo.h"
 #include "seistrcsel.h"
 #include "survinfo.h"
+#include "valseriesinterpol.h"
 
 
 namespace Attrib
@@ -1318,6 +1319,24 @@ void Provider::resetDesiredVolume()
 	if ( inputs[idx] )
 	    inputs[idx]->resetDesiredVolume();
     }
+}
+
+
+float Provider::getInterpolInputValue( const DataHolder& input, int inputidx,
+				       float zval ) const
+{
+    ValueSeriesInterpolator<float> interp( input.nrsamples_-1 );
+    const float samplepos = (zval/getRefStep()) - input.z0_;
+    return interp.value( *input.series(inputidx), samplepos );
+}
+
+
+float Provider::getInterpolInputValue( const DataHolder& input, int inputidx,
+				       float sampleidx, int z0 ) const
+{
+    ValueSeriesInterpolator<float> interp( input.nrsamples_-1 );
+    const float samplepos = float(z0-input.z0_) + sampleidx;
+    return interp.value( *input.series(inputidx), samplepos );
 }
 
 

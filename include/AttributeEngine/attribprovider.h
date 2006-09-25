@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribprovider.h,v 1.49 2006-09-22 12:03:31 cvshelene Exp $
+ RCS:           $Id: attribprovider.h,v 1.50 2006-09-25 13:41:15 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -56,6 +56,8 @@ public:
 	    				int idx=0);
     const DataHolder*		getDataDontCompute(const BinID& relpos) const;
 
+    int				nrOutputs() const
+    				{ return outputinterest.size(); }
     void			enableOutput(int output,bool yn=true);
     bool			isOutputEnabled(int output) const;
 
@@ -255,6 +257,12 @@ protected:
     virtual bool		getZStepStoredData(float& step) const
 				{return false;}
 
+    float			getInterpolInputValue(const DataHolder&,
+						      int inputidx,
+						      float zval) const;
+    float			getInterpolInputValue(const DataHolder&,
+						      int inputidx,float sample,
+						      int z0) const;
     float			getInputValue(const DataHolder&,int inputidx,
 	    				      int sampleidx,int z0) const;
     void			setOutputValue(const DataHolder& output,
