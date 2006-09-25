@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: emsurfaceauxdata.cc,v 1.11 2006-09-19 12:09:45 cvsnanne Exp $
+ RCS:           $Id: emsurfaceauxdata.cc,v 1.12 2006-09-25 13:39:27 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -117,7 +117,9 @@ void SurfaceAuxData::removeAuxData( int dataidx )
 
 float SurfaceAuxData::getAuxDataVal( int dataidx, const PosID& posid ) const
 {
-    if ( !auxdata[dataidx] ) return mUdf(float);
+    if ( !auxdata.validIdx(dataidx) || !auxdata[dataidx] )
+	return mUdf(float);
+
     const int sectionidx = horizon_.sectionIndex( posid.sectionID() );
     if ( sectionidx==-1 ) return mUdf(float);
 
