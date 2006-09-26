@@ -8,12 +8,13 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vismultitexture2.cc,v 1.15 2006-09-20 15:20:33 cvskris Exp $";
+static const char* rcsID = "$Id: vismultitexture2.cc,v 1.16 2006-09-26 22:01:07 cvskris Exp $";
 
 
 #include "vismultitexture2.h"
 
 #include "arrayndimpl.h"
+#include "array2dresample.h"
 #include "interpol2d.h"
 #include "errh.h"
 #include "simpnumer.h"
@@ -250,78 +251,8 @@ void MultiTexture2::nearestValInterp( const Array2D<float>& inp,
 void MultiTexture2::polyInterp( const Array2D<float>& inp,
 				Array2D<float>& out ) const
 {
-    const int inpsize0 = inp.info().getSize( 0 );
-    const int inpsize1 = inp.info().getSize( 1 );
-    const int outsize0 = out.info().getSize( 0 );
-    const int outsize1 = out.info().getSize( 1 );
-    const float x0step = (inpsize0-1)/(float)(outsize0-1);
-    const float x1step = (inpsize1-1)/(float)(outsize1-1);
-
-
-    float val; const float udf = mUdf(float);
-    Interpolate::PolyReg2DWithUdf<float> interpol;
-    int interpolx1=-1;
-
-    for ( int x0=0; x0<outsize0; x0++ )
-    {
-	const float x0pos=x0*x0step;
-	const int x0idx = (int)x0pos;
-	const float x0relpos = x0pos-x0idx;
-	const bool x0m1udf = x0idx == 0;
-	const bool x0p2udf = x0idx >= inpsize0-2;
-	const bool x0p1udf = x0idx == inpsize0-1;
-
-	interpolx1=-1;
-
-	for ( int x1=0; x1<outsize1; x1++ )
-	{
-	    const float x1pos = x1*x1step;
-	    const int x1idx = (int)x1pos;
-	    const float x1relpos = x1pos-x1idx;
-
-	    {
-		const bool x1m1udf = x1idx == 0;
-		const bool x1p2udf = x1idx >= inpsize1-2;
-		const bool x1p1udf = x1idx == inpsize1-1;
-
-		const float vm10 = x0m1udf ? udf
-		    : inp.get( x0idx-1, x1idx );
-		const float vm11 = x0m1udf || x1p1udf ? udf
-		    : inp.get( x0idx-1, x1idx+1 );
-		const float v0m1 = x1m1udf ? udf
-		    : inp.get( x0idx, x1idx-1 );
-		const float v00 =
-		    inp.get( x0idx, x1idx );
-		const float v01 = x1p1udf ? udf
-		    : inp.get( x0idx, x1idx+1 );
-		const float v02 = x1p2udf ? udf
-		    : inp.get( x0idx, x1idx+2 );
-		const float v1m1 = x0p1udf || x1m1udf ? udf
-		    : inp.get( x0idx+1, x1idx-1 );
-		const float v10 = x0p1udf ? udf
-		    : inp.get( x0idx+1, x1idx );
-		const float v11 = x0p1udf || x1p1udf ? udf
-		    : inp.get( x0idx+1, x1idx+1 );
-		const float v12 = x0p1udf || x1p2udf ? udf
-		    : inp.get( x0idx+1, x1idx+2 );
-		const float v20 = x0p2udf ? udf
-		    : inp.get( x0idx+2, x1idx );
-		const float v21 = x0p2udf || x1p1udf ? udf
-		    : inp.get( x0idx+2, x1idx+1 );
-
-		interpol.set( vm10, vm11,
-			v0m1, v00,  v01,  v02,
-			v1m1, v10,  v11,  v12,
-			      v20,  v21 );
-
-		interpolx1 = x1idx;
-	    }
-
-	    val = interpol.apply( x0relpos, x1relpos );
-
-	    out.set( x0, x1, val );
-	}
-    }
+    Array2DReSampler<float,float> resampler( inp, out, true );
+    resampler.execute();
 }
 
 
