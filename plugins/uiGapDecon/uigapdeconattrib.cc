@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          July  2006
- RCS:           $Id: uigapdeconattrib.cc,v 1.9 2006-09-24 13:18:28 cvshelene Exp $
+ RCS:           $Id: uigapdeconattrib.cc,v 1.10 2006-09-26 15:43:45 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,6 +28,7 @@ ________________________________________________________________________
 #include "cubesampling.h"
 #include "volstatsattrib.h"
 #include "hilbertattrib.h"
+#include "uimsg.h"
 
 using namespace Attrib;
 
@@ -212,16 +213,31 @@ bool uiGapDeconAttrib::getInput( Attrib::Desc& desc )
 
 void uiGapDeconAttrib::examPush( CallBacker* cb )
 {
+    if ( mIsUdf(gatefld_->getFInterval().start) || 
+	 mIsUdf(gatefld_->getFInterval().stop) ||
+	 inpfld_->attribID() == DescID::undef() )
+    {
+	BufferString errmsg = "Please, first, fill in the Input Data and the ";
+	errmsg += "Correlation window fields";
+	uiMSG().error( errmsg );
+	return;
+    }
+    
     CubeSampling cs;
     inpfld_->getRanges(cs);
     positiondlg_ = new uiGDPositionDlg( this, cs );
     positiondlg_->go();
-    if ( positiondlg_->uiResult() == 1 )
+    if ( positiondlg_->uiResult() == 1 ) 
 	positiondlg_->popUpPosDlg();
 
-    acorrview_->setCubesampling( positiondlg_->getCubeSampling() );
-    acorrview_->setInputID( inpfld_->attribID() );
-    acorrview_->setCorrWin( gatefld_->getFInterval() );
+    if ( positiondlg_->posdlg_->uiResult() == 1 )
+    {
+	acorrview_->setCubesampling( positiondlg_->getCubeSampling() );
+	acorrview_->setInputID( inpfld_->attribID() );
+	acorrview_->setCorrWin( gatefld_->getFInterval() );
+	acorrview_->setDescSet( ads_ );
+	acorrview_->computeAutocorr();
+    }
 }
 
 
@@ -384,10 +400,11 @@ void uiGDPositionDlg::popUpPosDlg()
     else
 	inputcs.hrg.crlRange().stop = inputcs.hrg.crlRange().start;
     
-    posdlg_ = new uiSliceSel( 0, inputcs, cs_, dummycb, 
+    posdlg_ = new uiSliceSel( this, inputcs, cs_, dummycb, 
 			      isinl ? uiSliceSel::Inl : uiSliceSel::Crl );
     posdlg_->disableApplyButton();
     posdlg_->disableScrollButton();
+    posdlg_->setModal( true );
     posdlg_->go();
 }
 

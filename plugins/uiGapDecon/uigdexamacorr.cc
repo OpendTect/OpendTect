@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          Sep  2006
- RCS:           $Id: uigdexamacorr.cc,v 1.1 2006-09-24 13:18:28 cvshelene Exp $
+ RCS:           $Id: uigdexamacorr.cc,v 1.2 2006-09-26 15:43:45 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,8 +13,13 @@ ________________________________________________________________________
 #include "uigapdeconattrib.h"
 #include "gapdeconattrib.h"
 
+#include "attribparam.h"
+#include "attribsel.h"
+#include "attribdesc.h"
+#include "attribdescset.h"
 #include "attribengman.h"
 #include "attribprocessor.h"
+#include "attribfactory.h"
 #include "uiexecutor.h"
 #include "uimsg.h"
 #include "ptrman.h"
@@ -54,25 +59,26 @@ EngineMan* GapDeconACorrView::createEngineMan()
     EngineMan* aem = new EngineMan;
 
     TypeSet<SelSpec> attribspecs;
-    Desc* inpdesc = attrset_->getDesc( inpid_ );
+    Desc* inpdesc = dset_->getDesc( inpid_ );
     Desc* newdesc = PF().createDescCopy( GapDecon::attribName() );
     if ( !newdesc || !inpdesc )
 	return 0;
 
-    mDynamicCastGet( Attrib::FloatGateParam*,gateparam,
+    mDynamicCastGet( FloatGateParam*,gateparam,
 		     newdesc->getValParam(GapDecon::gateStr()) )
     gateparam->setValue( gate_ );
-    mDynamicCastGet( Attrib::BoolParam*,boolparam,
-	    		newdesc->getValParam(GapDecon::onlyacorrStr()) )
+    mDynamicCastGet( BoolParam*,boolparam,
+		     newdesc->getValParam(GapDecon::onlyacorrStr()) )
     boolparam->setValue( true );
+    newdesc->updateParams();
     newdesc->selectOutput( 0 );
     newdesc->setInput( 0, inpdesc );
     newdesc->setHidden( true );
     newdesc->setUserRef( "autocorrelation" );
-    SelSpec sp( 0, attrset_->addDesc( newdesc ) );
+    SelSpec sp( 0, dset_->addDesc( newdesc ) );
     attribspecs += sp;
 
-    aem->setAttribSet( attrset_ );
+    aem->setAttribSet( dset_ );
     aem->setAttribSpecs( attribspecs );
     aem->setCubeSampling( cs_ );
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          July 2006
- RCS:           $Id: uigapdeconattrib.h,v 1.7 2006-09-24 13:18:28 cvshelene Exp $
+ RCS:           $Id: uigapdeconattrib.h,v 1.8 2006-09-26 15:43:45 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,7 +24,6 @@ class uiPushButton;
 class uiGDPositionDlg;
 class GapDeconACorrView;
 
-using namespace Attrib;
 
 /*! \brief GapDecon Attribute description editor */
 
@@ -54,20 +53,22 @@ protected:
 
     uiGDPositionDlg*	positiondlg_;
     GapDeconACorrView*	acorrview_;
-    bool		setParameters(const Desc&);
-    bool		setInput(const Desc&);
+    bool		setParameters(const Attrib::Desc&);
+    bool		setInput(const Attrib::Desc&);
 
-    bool		getParameters(Desc&);
-    bool		getInput(Desc&);
+    bool		getParameters(Attrib::Desc&);
+    bool		getInput(Attrib::Desc&);
 
     void                examPush(CallBacker*);
-    bool		passStdCheck(const Desc*,const char*,int,int,DescID);
-    bool		passVolStatsCheck(const Desc*,BinID,Interval<float>);
-    Desc* 		createNewDesc(DescSet*,DescID,const char*,
-	    			      int,int,BufferString);
-    DescID		createVolStatsDesc(Desc&,int);
-    void		createHilbertDesc(Desc&,DescID&);
-    DescID		createInvHilbertDesc(Desc&);
+    bool		passStdCheck(const Attrib::Desc*,const char*,int,int,
+	    			     Attrib::DescID);
+    bool		passVolStatsCheck(const Attrib::Desc*,BinID,
+	    				  Interval<float>);
+    Attrib::Desc* 	createNewDesc(Attrib::DescSet*,Attrib::DescID,
+	    			      const char*,int,int,BufferString);
+    Attrib::DescID	createVolStatsDesc(Attrib::Desc&,int);
+    void		createHilbertDesc(Attrib::Desc&,Attrib::DescID&);
+    Attrib::DescID	createInvHilbertDesc(Attrib::Desc&);
 };
 
 

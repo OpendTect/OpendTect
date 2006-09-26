@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          Sep 2006
- RCS:           $Id: uigdexamacorr.h,v 1.1 2006-09-24 13:18:28 cvshelene Exp $
+ RCS:           $Id: uigdexamacorr.h,v 1.2 2006-09-26 15:43:45 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,9 +16,7 @@ ________________________________________________________________________
 #include "cubesampling.h"
 #include "attribdescid.h"
 
-using namespace Attrib;
-
-class EngineMan;
+namespace Attrib { class EngineMan; class DescSet; }
 
 /*! \brief GapDecon Attribute autocorrelation preview in a 2d viewer */
 
@@ -28,17 +26,19 @@ public:
     			GapDeconACorrView(uiParent*);
     bool                computeAutocorr();
     void		setCubesampling( CubeSampling cs )	{ cs_ = cs; }
-    void		setInputID( DescID id )			{ inpid_ = id; }
+    void		setInputID( Attrib::DescID id )		{ inpid_ = id; }
     void		setCorrWin( Interval<float> win )	{ gate_ = win; }
+    void                setDescSet( Attrib::DescSet* ds )      	{ dset_ = ds; }
 
 protected:
-    EngineMan*          createEngineMan();
-    void                extractAndSaveVals();
+    Attrib::EngineMan*	createEngineMan();
+    void		extractAndSaveVals();
 
     CubeSampling	cs_;
-    DescID		inpid_;
+    Attrib::DescID	inpid_;
     Interval<float>	gate_;
     uiParent*		parent_;
+    Attrib::DescSet*    dset_;
 };
 
 
