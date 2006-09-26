@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Aug 2005
- RCS:		$Id: oddirs.h,v 1.5 2006-07-11 08:22:41 cvsbert Exp $
+ RCS:		$Id: oddirs.h,v 1.6 2006-09-26 10:24:22 cvsbert Exp $
 ________________________________________________________________________
 
 For historic reasons, also dGB_ instead of DTECT_ or OD_ will be scanned.
@@ -32,9 +32,9 @@ extern "C" {
  program data, etc. is located.
 
  On windows:
-    DTECT_WINDATA
+    DTECT_WINAPPL
  On unix:
-    DTECT_DATA
+    DTECT_APPL
 
  If that fails, it will try to extract the location out of argv[0] 
 
