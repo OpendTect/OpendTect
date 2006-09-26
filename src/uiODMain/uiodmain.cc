@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodmain.cc,v 1.45 2006-08-14 09:20:09 cvsnanne Exp $
+ RCS:           $Id: uiodmain.cc,v 1.46 2006-09-26 18:54:42 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -67,7 +67,8 @@ int ODMain( int argc, char** argv )
     if ( dodlg && pimdata.size() )
     {
 	uiPluginSel dlg( odmain );
-	dlg.go();
+	if ( dlg.nrPlugins() )
+	    dlg.go();
     }
     PIM().loadAuto( true );
     if ( !odmain->ensureGoodSurveySetup() )
