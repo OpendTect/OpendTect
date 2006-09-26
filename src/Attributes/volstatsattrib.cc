@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: volstatsattrib.cc,v 1.30 2006-09-22 08:21:12 cvsnanne Exp $";
+static const char* rcsID = "$Id: volstatsattrib.cc,v 1.31 2006-09-26 08:51:20 cvsnanne Exp $";
 
 #include "volstatsattrib.h"
 
@@ -62,6 +62,7 @@ void VolStats::initClass()
 
     IntParam* nrtrcs = new IntParam( nrtrcsStr() );
     nrtrcs->setDefaultValue( (defstepout.inl*2+1) * (defstepout.crl*2+1) );
+    nrtrcs->setRequired( false );
     desc->addParam( nrtrcs );
 
     BoolParam* steering = new BoolParam( steeringStr() );
