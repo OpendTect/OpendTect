@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: segytr.cc,v 1.49 2006-09-23 14:04:17 cvskris Exp $";
+static const char* rcsID = "$Id: segytr.cc,v 1.50 2006-09-27 20:24:34 cvskris Exp $";
 
 #include "segytr.h"
 #include "seistrc.h"
@@ -34,6 +34,8 @@ const char* SEGYSeisTrcTranslator::sExternalCoordScaling
 	= "Coordinate scaling overrule";
 const char* SEGYSeisTrcTranslator::sUseLiNo
 	= "Use tape header line number for inline";
+const char* SEGYSeisTrcTranslator::sUseOffset
+	= "Use tape header offset";
 
 
 SEGYSeisTrcTranslator::SEGYSeisTrcTranslator( const char* nm, const char* unm )
@@ -49,6 +51,7 @@ SEGYSeisTrcTranslator::SEGYSeisTrcTranslator( const char* nm, const char* unm )
 	, ext_time_shift(mUdf(float))
 	, ext_sample_rate(mUdf(float))
 	, use_lino(false)
+	, use_offset(false)
 	, force_rev0(false)
 	, dumpmode(None)
     	, maxnrdump(5)
@@ -226,8 +229,7 @@ void SEGYSeisTrcTranslator::interpretBuf( SeisTrcInfo& ti )
     trhead.fill( ti, ext_coord_scaling );
     if ( is_prestack )
     {
-	static bool useoffs = GetEnvVarYN( "DTECT_SEGY_USE_OFFSETFLD" );
-	if ( useoffs )
+	if ( use_offset )
 	{
 	    if ( !mIsUdf(ext_coord_scaling) && !mIsUdf(ti.offset) )
 		ti.offset *= ext_coord_scaling;
@@ -315,6 +317,7 @@ void SEGYSeisTrcTranslator::usePar( const IOPar& iopar )
     iopar.get( sExternalCoordScaling, ext_coord_scaling );
     iopar.get( sExternalTimeShift, ext_time_shift );
     iopar.get( sExternalSampleRate, ext_sample_rate );
+    iopar.getYN( sUseOffset, use_offset );
     iopar.getYN( sUseLiNo, use_lino );
     iopar.getYN( sForceRev0, force_rev0 );
 }
