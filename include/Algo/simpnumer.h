@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	Bert BRil & Kris Tingdahl
  Date:		12-4-1999
  Contents:	'Simple' numerical functions
- RCS:		$Id: simpnumer.h,v 1.18 2005-05-18 09:20:45 cvsbert Exp $
+ RCS:		$Id: simpnumer.h,v 1.19 2006-09-27 12:18:26 cvskris Exp $
 ________________________________________________________________________
 
 */
@@ -23,6 +23,21 @@ ________________________________________________________________________
 #ifndef M_PIl
 # define M_PIl          3.1415926535897932384626433832795029L
 #endif
+
+/*!>Handles roundoff errors when looking for the previous sample in an array.*/
+
+
+inline int getPrevSample( float target, int size, float& relpos )
+{
+    int sampl = (int) target;
+    relpos = target-sampl;
+    if ( sampl==-1 && mIsEqual(relpos,1,1e-3) )
+    { sampl = 0; relpos = 0; }
+    else if ( sampl==size && mIsZero(relpos,1e-3) )
+    { sampl = size-1; relpos = 1; }
+
+    return sampl;
+}
 
 
 /*!>
