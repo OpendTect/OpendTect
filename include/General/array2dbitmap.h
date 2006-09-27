@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Sep 2006
- RCS:           $Id: array2dbitmap.h,v 1.5 2006-09-15 11:50:06 cvsbert Exp $
+ RCS:           $Id: array2dbitmap.h,v 1.6 2006-09-27 20:23:22 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -47,10 +47,9 @@ class A2DBitMapInpData
 {
 public:
 
-    			A2DBitMapInpData( Array2D<float>& d )
+    			A2DBitMapInpData( const Array2D<float>& d )
 			    : data_(d)	{ collectData(); }
 
-    Array2D<float>&	data()		{ return data_; }
     const Array2D<float>& data() const	{ return data_; }
     int			nrPts() const	{ return statpts_.size(); }
     Interval<float>	scale(float clipratio) const;
@@ -61,8 +60,8 @@ public:
 
 protected:
 
-    Array2D<float>&	data_;
-    TypeSet<float>	statpts_;
+    const Array2D<float>&	data_;
+    TypeSet<float>		statpts_;
 
     void		selectData();
 
