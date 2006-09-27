@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uicanvas.cc,v 1.27 2006-09-19 19:00:46 cvskris Exp $
+ RCS:           $Id: uicanvas.cc,v 1.28 2006-09-27 20:15:49 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -451,5 +451,10 @@ void uiScrollView::setMouseTracking( bool yn )
 
 
 MouseEventHandler& uiScrollView::getMouseEventHandler()
-{ return mousehandler_; }
+{
+    if ( !body_->viewport()->hasMouseTracking() )
+	body_->viewport()->setMouseTracking(true);
+
+    return mousehandler_;
+}
 
