@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          July  2006
- RCS:           $Id: uigapdeconattrib.cc,v 1.10 2006-09-26 15:43:45 cvshelene Exp $
+ RCS:           $Id: uigapdeconattrib.cc,v 1.11 2006-09-27 15:12:41 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -52,7 +52,7 @@ mInitUI( uiGapDeconAttrib, "GapDecon" )
 
 uiGapDeconAttrib::uiGapDeconAttrib( uiParent* p )
 	: uiAttrDescEd ( p )
-    	, acorrview_ ( new GapDeconACorrView(this) )
+    	, acorrview_ ( new GapDeconACorrView(0) )
 {
     inpfld_ = getInpFld();
 
@@ -236,7 +236,8 @@ void uiGapDeconAttrib::examPush( CallBacker* cb )
 	acorrview_->setInputID( inpfld_->attribID() );
 	acorrview_->setCorrWin( gatefld_->getFInterval() );
 	acorrview_->setDescSet( ads_ );
-	acorrview_->computeAutocorr();
+	if ( acorrview_->computeAutocorr() )
+	    acorrview_->createAndDisplay2DViewer();
     }
 }
 
