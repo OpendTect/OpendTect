@@ -4,7 +4,7 @@
  * DATE     : Sep 2006
 -*/
 
-static const char* rcsID = "$Id: array2dbitmap.cc,v 1.8 2006-09-26 15:19:41 cvsbert Exp $";
+static const char* rcsID = "$Id: array2dbitmap.cc,v 1.9 2006-09-27 20:20:15 cvskris Exp $";
 
 #include "array2dbitmapimpl.h"
 #include "arraynd.h"
@@ -120,7 +120,7 @@ void A2DBitmapPosSetup::setPositions( float* p )
 
     Interval<float> posbounds;
     dim0avgdist_ = 1;
-    if ( !dim0pos_ )
+    if ( !dim0pos_ || mIsEqual( dim0pos_[0], dim0pos_[szdim0_-1], 1e-8 ) )
     {
 	dim0pos_ = new float [szdim0_];
 	for ( int idx=0; idx<szdim0_; idx++ )
@@ -329,11 +329,12 @@ void WVAA2DBitmapGenerator::drawVal( int idim0, int iy, float val,
     mPrepVal();
 
     const float middim0pos = dim0pos_[idim0];
-    const float stripstart = middim0pos - stripwidth_ / 2;
-    const float valratio = (val - scalerg_.start) / scalewidth_;
-    const float valdim0pos = stripstart + valratio * stripwidth_;
 
-    const bool isleft = val < (wvapars().medismid_ ? data_.midVal() : 0);
+    const float midval = (wvapars().medismid_ ? data_.midVal() : 0);
+    const float valratio = (val - midval) / scalewidth_;
+    const float valdim0pos = middim0pos + valratio * stripwidth_;
+
+    const bool isleft = val< midval;
     const int midpix = setup_.getPix( 0, middim0pos );
     const int valpix = setup_.getPix( 0, valdim0pos );
 
@@ -353,8 +354,8 @@ void WVAA2DBitmapGenerator::drawVal( int idim0, int iy, float val,
     {
 	if ( mIsUdf(prevval) ) prevval = val;
 	mApplyValClipping( prevval );
-	const float prevratio = (prevval - scalerg_.start) / scalewidth_;
-	const float prevvaldim0pos = stripstart + prevratio * stripwidth_;
+	const float prevratio = (prevval - midval) / scalewidth_;
+	const float prevvaldim0pos = middim0pos + prevratio * stripwidth_;
 	const int prevvalpix = setup_.getPix( 0, prevvaldim0pos );
 
 	int from, to;
