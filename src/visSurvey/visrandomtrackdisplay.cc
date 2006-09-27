@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          January 2003
- RCS:           $Id: visrandomtrackdisplay.cc,v 1.79 2006-09-18 11:26:39 cvsnanne Exp $
+ RCS:           $Id: visrandomtrackdisplay.cc,v 1.80 2006-09-27 11:18:47 cvsnanne Exp $
  ________________________________________________________________________
 
 -*/
@@ -72,9 +72,12 @@ RandomTrackDisplay::RandomTrackDisplay()
     }
 
     namenr_ = highestnamenr+1;
-
     BufferString nm( "Random Line "); nm += namenr_;
     setName( nm );
+
+    material->setColor( Color::White );
+    material->setAmbience( 0.8 );
+    material->setDiffIntensity( 0.8 );
 
     dragger_->ref();
     addChild( dragger_->getInventorNode() );
