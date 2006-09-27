@@ -5,7 +5,7 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID = "$Id: genc.c,v 1.81 2006-07-11 08:37:10 cvsbert Exp $";
+static const char* rcsID = "$Id: genc.c,v 1.82 2006-09-27 10:53:11 cvsdgb Exp $";
 
 #include "oddirs.h"
 #include "genc.h"
@@ -639,6 +639,14 @@ int ExitProgram( int ret )
     if ( od_debug_isOn(DBG_PROGSTART) )
 	printf( "\nExitProgram (PID: %d) at %s\n",
 		GetPID(), Time_getFullDateString() );
+
+// On Mac OpendTect crashes when calling the usual exit and shows error message:
+// dyld: odmain bad address of lazy symbol pointer passed to stub_binding_helper
+// _Exit does not call registered exit functions and prevents crash
+#ifdef __mac__
+    _Exit(0);
+    return 0;
+#endif
 
 #ifdef __win__
 
