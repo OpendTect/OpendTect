@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          September 2006
- RCS:		$Id: uihorizonattrib.cc,v 1.2 2006-09-25 13:42:21 cvsnanne Exp $
+ RCS:		$Id: uihorizonattrib.cc,v 1.3 2006-09-28 13:09:04 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -75,7 +75,10 @@ bool uiHorizonAttrib::setParameters( const Attrib::Desc& desc )
 		  IOObj* ioobj = IOM().get( MultiID(horidstr) );
 		  horfld_->ctxtIOObj().setObj( ioobj );
 		  horfld_->updateInput() )
-    horSel(0);
+
+    if ( horctio_.ioobj )
+	horSel(0);
+
     return true;
 }
 
