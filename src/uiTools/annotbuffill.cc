@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          September 2006
- RCS:           $Id: annotbuffill.cc,v 1.5 2006-09-28 09:56:17 cvshelene Exp $
+ RCS:           $Id: annotbuffill.cc,v 1.6 2006-09-28 15:46:54 cvshelene Exp $
  ________________________________________________________________________
 
 -*/
@@ -17,9 +17,6 @@
 void AnnotBufferFiller::fillBuffer( const uiWorldRect& worldareatofill,
 				    uiRGBArray& buffer ) const
 {
-    //just for testing purpose
-    const_cast<AnnotBufferFiller*>(this)->dummytest();
-    
     for ( int idx=0; idx<lines_.size(); idx++ )
 	fillInterWithBufArea( worldareatofill, idx, buffer );
 }
@@ -102,6 +99,15 @@ dPoint AnnotBufferFiller::computeIntersect( const dPoint& pt1,
     //TODO
     
    return pt1;
+}
+
+
+void AnnotBufferFiller::addLineInfo( const LineStyle& ls, TypeSet<dPoint> ptset)
+{
+    LineInfo* linfo = new LineInfo();
+    linfo->linestyle_ = ls;
+    linfo->pts_ = ptset;
+    lines_ += linfo;
 }
 
 

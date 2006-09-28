@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          04/09/2006
- RCS:           $Id: annotbuffill.h,v 1.3 2006-09-08 14:55:47 cvshelene Exp $
+ RCS:           $Id: annotbuffill.h,v 1.4 2006-09-28 15:46:54 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,6 +46,7 @@ public:
 
 			~AnnotBufferFiller()		{ deepErase(lines_); }
 
+    void		addLineInfo(const LineStyle&, TypeSet<dPoint>);
     void		setW2UI( const uiWorld2Ui* w )	{ w2u_ = w; }
     void		fillBuffer(const uiWorldRect&,uiRGBArray&) const;
     void		fillInterWithBufArea(const uiWorldRect&,int,
