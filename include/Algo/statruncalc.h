@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl (org) / Bert Bril (rev)
  Date:          10-12-1999 / Sep 2006
- RCS:           $Id: statruncalc.h,v 1.4 2006-09-21 12:02:46 cvsbert Exp $
+ RCS:           $Id: statruncalc.h,v 1.5 2006-09-28 17:10:38 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,6 +42,8 @@ protected:
 
     template <class T>
     friend class	RunCalc;
+    template <class T>
+    friend class	WindowedCalc;
 
     bool		weighted_;
     bool		needextreme_;
@@ -85,6 +87,7 @@ public:
 			RunCalc( const RunCalcSetup& s )
 			    : setup_(s)		{ clear(); }
     inline void		clear();
+    const RunCalcSetup&	setup() const		{ return setup_; }
     bool		isWeighted() const	{ return setup_.weighted_; }
 
     inline RunCalc<T>&	addValue(T data,T weight=1);
@@ -172,7 +175,25 @@ public:
     inline WindowedCalc& addValue(T data,T weight=1);
     inline WindowedCalc& operator +=( T t )	{ return addValue(t); }
 
-    const RunCalc<T>&	runCalc() const		{ return calc_; }
+    inline int		getIndex(Type) const;
+    			//!< Only use for Min, Max or Median
+    inline double	getValue(Type) const;
+
+#   undef		mDefEqFn
+#   define		mDefEqFn(ret,fn) \
+    inline ret		fn() const	{ return calc_.fn(); }
+    mDefEqFn(double,	mean)
+    mDefEqFn(double,	variance)
+    mDefEqFn(double,	normvariance)
+    mDefEqFn(T,		mostFreq)
+    mDefEqFn(T,		sum)
+    mDefEqFn(T,		sqSum)
+    mDefEqFn(double,	rms)
+    mDefEqFn(double,	stdDev)
+#   undef		mDefEqFn
+    inline T		median( int* i=0 )	{ return calc_.median(i); }
+    inline T		min(int* i=0) const;
+    inline T		max(int* i=0) const;
 
 protected:
 
@@ -183,6 +204,7 @@ protected:
     int		posidx_;
     bool	full_;
 
+    inline void	fillCalc(RunCalc<T>&) const;
 };
 
 
@@ -554,6 +576,59 @@ void WindowedCalc<T>::clear()
 {
     posidx_ = 0; full_ = false;
     calc_.clear();
+}
+
+
+template <class T> inline
+void WindowedCalc<T>::fillCalc( RunCalc<T>& calc ) const
+{
+    const int lastidx = full_ ? sz_ - 1 : posidx_;
+    for ( int idx=posidx_+1; idx<=lastidx; idx++ )
+	calc.addValue( vals_[idx], wts_ ? wts_[idx] : 1 );
+    for ( int idx=0; idx<=posidx_; idx++ )
+	calc.addValue( vals_[idx], wts_ ? wts_[idx] : 1 );
+}
+
+
+template <class T> inline
+double WindowedCalc<T>::getValue( Type t ) const
+{
+    if ( t == Min )
+	return min();
+    else if ( t == Max )
+	return max();
+
+    return calc_.getValue( t );
+}
+
+
+template <class T> inline
+int WindowedCalc<T>::getIndex( Type t ) const
+{
+    if ( t == Min )
+	{ int ret; min( &ret ); return ret; }
+    else if ( t == Max )
+	{ int ret; max( &ret ); return ret; }
+
+    return calc_.getIndex( t );
+}
+
+
+template <class T> inline
+T WindowedCalc<T>::min( int* index_of_min ) const
+{
+    RunCalc<T> calc( RunCalcSetup().require(Stats::Min) );
+    fillCalc( calc );
+    return calc.min( index_of_min );
+}
+
+
+template <class T> inline
+T WindowedCalc<T>::max( int* index_of_max ) const
+{
+    RunCalc<T> calc( RunCalcSetup().require(Stats::Max) );
+    fillCalc( calc );
+    return calc.max( index_of_max );
 }
 
 

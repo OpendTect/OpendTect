@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: volstatsattrib.cc,v 1.31 2006-09-26 08:51:20 cvsnanne Exp $";
+static const char* rcsID = "$Id: volstatsattrib.cc,v 1.32 2006-09-28 17:10:39 cvsbert Exp $";
 
 #include "volstatsattrib.h"
 
@@ -291,7 +291,7 @@ bool VolStats::computeData( const DataHolder& output, const BinID& relpos,
 	if ( inputdata_[posidx] )
 	    statsz += gatesz;
     }
-    Stats::WindowedCalc<float> stats( rcsetup, statsz );
+    Stats::WindowedCalc<float> wcalc( rcsetup, statsz );
 
     for ( int isamp=0; isamp<nrsamples; isamp++ )
     {
@@ -317,7 +317,7 @@ bool VolStats::computeData( const DataHolder& output, const BinID& relpos,
 		for ( int idz=0; idz<gatesz; idz++ )
 		{
 		    const float samplepos = cursample + shift + s;
-		    stats += interp.value( *dh->series(dataidx_),
+		    wcalc += interp.value( *dh->series(dataidx_),
 					   samplepos-dh->z0_ );
 		    s++;
 		}
@@ -325,7 +325,7 @@ bool VolStats::computeData( const DataHolder& output, const BinID& relpos,
 	    else
 	    {
 		const float samplepos = cursample + shift + samplegate.stop;
-		stats += interp.value( *dh->series(dataidx_),
+		wcalc += interp.value( *dh->series(dataidx_),
 					samplepos-dh->z0_ );
 	    }
 	}
@@ -336,7 +336,7 @@ bool VolStats::computeData( const DataHolder& output, const BinID& relpos,
 	    if ( outputinterest[outidx] == 0 )
 		continue;
 
-	    const float outval = stats.runCalc().getValue(
+	    const float outval = wcalc.getValue(
 		    			(Stats::Type)outputtypes[outidx] );
 	    const int sampleidx = z0-output.z0_+isamp;
 	    output.series(outidx)->setValue( sampleidx, outval );
