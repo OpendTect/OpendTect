@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          July  2006
- RCS:           $Id: uigapdeconattrib.cc,v 1.11 2006-09-27 15:12:41 cvshelene Exp $
+ RCS:           $Id: uigapdeconattrib.cc,v 1.12 2006-09-28 16:39:52 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -397,9 +397,30 @@ void uiGDPositionDlg::popUpPosDlg()
     bool isinl = inlcrlfld_->getValue();
     CubeSampling inputcs = cs_;
     if ( isinl )
-	inputcs.hrg.inlRange().stop = inputcs.hrg.inlRange().start;
+    {
+	float crlwidth = inputcs.hrg.crlRange().width();
+	inputcs.hrg.stop.inl = inputcs.hrg.start.inl;
+	inputcs.hrg.stop.crl = 
+	    mMIN( inputcs.hrg.start.crl + crlwidth/2 + 100,
+		  inputcs.hrg.stop.crl );
+	inputcs.hrg.start.crl = 
+	    mMAX( inputcs.hrg.start.crl + crlwidth/2 - 100, 
+		  inputcs.hrg.start.crl );
+    }
     else
-	inputcs.hrg.crlRange().stop = inputcs.hrg.crlRange().start;
+    {
+	float inlwidth = inputcs.hrg.inlRange().width();
+	inputcs.hrg.stop.crl = inputcs.hrg.start.crl;
+	inputcs.hrg.stop.inl = 
+	    mMIN( inputcs.hrg.start.inl + inlwidth/2 + 100,
+		  inputcs.hrg.stop.inl );
+	inputcs.hrg.start.inl = 
+	    mMAX( inputcs.hrg.start.inl + inlwidth/2 - 100,
+		  inputcs.hrg.start.inl );
+    }
+
+    if ( inputcs.zrg.nrSteps() > 200 )
+	inputcs.zrg.stop = inputcs.zrg.start + inputcs.zrg.width()/4;
     
     posdlg_ = new uiSliceSel( this, inputcs, cs_, dummycb, 
 			      isinl ? uiSliceSel::Inl : uiSliceSel::Crl );

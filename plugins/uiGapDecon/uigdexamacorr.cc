@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          Sep  2006
- RCS:           $Id: uigdexamacorr.cc,v 1.3 2006-09-27 15:12:41 cvshelene Exp $
+ RCS:           $Id: uigdexamacorr.cc,v 1.4 2006-09-28 16:39:52 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -101,6 +101,8 @@ EngineMan* GapDeconACorrView::createEngineMan()
 
     aem->setAttribSet( dset_ );
     aem->setAttribSpecs( attribspecs );
+//    CubeSampling cs = cs_;
+//    cs.hrg.step.inl = cs.hrg.step.inl*5;
     aem->setCubeSampling( cs_ );
 
     return aem;
