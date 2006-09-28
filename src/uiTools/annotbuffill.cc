@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          September 2006
- RCS:           $Id: annotbuffill.cc,v 1.4 2006-09-14 17:17:31 cvsbert Exp $
+ RCS:           $Id: annotbuffill.cc,v 1.5 2006-09-28 09:56:17 cvshelene Exp $
  ________________________________________________________________________
 
 -*/
@@ -13,7 +13,7 @@
 #include "uirgbarray.h"
 #include "uiworld2ui.h"
 
-
+//TODO check for intersect before starting interpol, as for now it's enough
 void AnnotBufferFiller::fillBuffer( const uiWorldRect& worldareatofill,
 				    uiRGBArray& buffer ) const
 {
@@ -21,12 +21,7 @@ void AnnotBufferFiller::fillBuffer( const uiWorldRect& worldareatofill,
     const_cast<AnnotBufferFiller*>(this)->dummytest();
     
     for ( int idx=0; idx<lines_.size(); idx++ )
-    {
-	if ( isLineOutside(lines_[idx], worldareatofill) )
-	    continue;
-	else
-	    fillInterWithBufArea( worldareatofill, idx, buffer );
-    }
+	fillInterWithBufArea( worldareatofill, idx, buffer );
 }
 
 
@@ -37,6 +32,8 @@ void AnnotBufferFiller::fillInterWithBufArea( const uiWorldRect& worldarea,
     TypeSet<dPoint> pts = lines_[lineidx]->pts_;
     if ( pts.size() == 1 )
     {
+	if ( worldarea.isOutside( pts[0], 1e-6 ) )
+	    return;
 	iPoint ipt = w2u_->transform( pts[0] );
 	buf.set( ipt.x, ipt.y, lines_[lineidx]->linestyle_.color );
     }
@@ -44,19 +41,8 @@ void AnnotBufferFiller::fillInterWithBufArea( const uiWorldRect& worldarea,
     {
 	for ( int idx=1; idx<pts.size(); idx++ )
 	{
-	    bool isprevoutside = worldarea.isOutside( pts[idx-1], 1e-6 );
-	    bool iscuroutside = worldarea.isOutside( pts[idx], 1e-6 );
-	    dPoint segstart = pts[idx-1];
-	    dPoint segstop = pts[idx];
-	    if ( isprevoutside && iscuroutside )
-		continue;
-	    else if ( isprevoutside )
-		segstart = computeIntersect( pts[idx-1], pts[idx], worldarea );
-	    else if ( iscuroutside )
-		segstop = computeIntersect( pts[idx-1], pts[idx], worldarea );
-
-	    iPoint coordsegstart = w2u_->transform( segstart );
-	    iPoint coordsegstop = w2u_->transform( segstop );
+	    iPoint coordsegstart = w2u_->transform( pts[idx-1] );
+	    iPoint coordsegstop = w2u_->transform( pts[idx] );
 	    setLine( coordsegstart, coordsegstop, lineidx, buf );
 	}
     }	
@@ -66,7 +52,6 @@ void AnnotBufferFiller::fillInterWithBufArea( const uiWorldRect& worldarea,
 void AnnotBufferFiller::setLine( const iPoint& startpt, const iPoint& stoppt,
 				 int lidx, uiRGBArray& buffer ) const
 {
-    //TODO
     const int deltax = abs( stoppt.x - startpt.x );
     const int deltay = abs( stoppt.y - startpt.y );
     const int signx = stoppt.x>=startpt.x ? 1 : -1;
@@ -85,7 +70,9 @@ void AnnotBufferFiller::setLine( const iPoint& startpt, const iPoint& stoppt,
     //TODO later on : use line size 
     for ( int idx=0; idx<nrpoints; idx++ )
     {
-	buffer.set( curpt.x, curpt.y, lines_[lidx]->linestyle_.color );
+	if ( curpt.x>0 && curpt.x<=buffer.getSize(true) && 
+	     curpt.y>0 && curpt.y<=buffer.getSize(false) )
+	    buffer.set( curpt.x, curpt.y, lines_[lidx]->linestyle_.color );
 	discriminator += discriminator<0 ? dincnegd : dincposd;
 	int xcoord = curpt.x + (discriminator<0 ? xincnegd : xincposd);
 	int ycoord = curpt.y + (discriminator<0 ? yincnegd : yincposd);
