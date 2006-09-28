@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		23-10-1996
  Contents:	Ranges
- RCS:		$Id: ranges.h,v 1.42 2006-09-05 20:50:40 cvskris Exp $
+ RCS:		$Id: ranges.h,v 1.43 2006-09-28 16:57:01 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,29 +42,30 @@ public:
     inline T		center() const;
     inline void		shift( const T& len );
     inline void		widen( const T& len, bool allowrev=true );
-    inline void		scale(const T&);
+    inline virtual void	scale(const T&);
 
-    template <class TT>
-    inline bool		includes( const TT& t, bool allowrev=true ) const;
-    template <class TT>
-    inline bool		overlaps(const Interval<TT>& t,bool allrev=true) const;
-    inline void		include( const T& i, bool allowrev=true );
-    inline void		include( const Interval<T>& i, bool allowrev=true );
-
-    inline T		atIndex( int idx, const T& step ) const;
-
+    inline T		atIndex(int, const T& step) const;
     template <class X>
-    inline int		getIndex( const X& t, const T& step ) const;
-
+    inline int		getIndex(const X&,const T& step) const;
     template <class X>
-    inline float	getfIndex( const X& t, const T& step ) const;
-
-    template <class X>
-    inline X		limitValue( const X& t ) const;
-		
-
+    inline float	getfIndex(const X&,const T& step) const;
     template <class X>
     inline int		nearestIndex( const X& x, const T& step ) const;
+
+    template <class X>
+    inline void		limitTo( const Interval<X>& i )
+    			{ start = i.limitValue(start);
+			  stop  = i.limitValue(stop); }
+    template <class X>
+    inline X		limitValue(const X&) const;
+
+    template <class X>
+    inline bool		overlaps(const Interval<X>&,bool allrev=true) const;
+    template <class X>
+    inline bool		includes(const X&, bool allowrev=true ) const;
+    inline void		include(const T&, bool allowrev=true);
+    inline void		include(const Interval<T>&,bool allowrev=true);
+
     virtual void	sort( bool asc=true );
 
     T			start;
@@ -94,22 +95,22 @@ public:
     virtual cloneTp*	clone() const;
 
     inline bool		isEqual(const StepInterval<T>& i,const T& eps) const;
-    inline T		atIndex( int idx ) const;
+    inline T		atIndex(int) const;
     template <class X>
-    inline int		getIndex( const X& t ) const;
+    inline int		getIndex(const X&) const;
     template <class X>
-    inline float	getfIndex( const X& t ) const;
+    inline float	getfIndex(const X&) const;
     template <class X>
-    inline int		nearestIndex( const X& x ) const;
+    inline int		nearestIndex(const X&) const;
     template <class X>
-    inline T		snap( const X& t ) const;
+    inline T		snap(const X&) const;
 
     inline int		nrSteps() const;
     virtual inline void	sort( bool asc=true );
     inline void		scale(const T&);
 
-    inline bool		isCompatible( const StepInterval<T>& b,
-	    			      T eps=mDefEps) const;
+    inline bool		isCompatible(const StepInterval<T>&,
+	    			     T eps=mDefEps) const;
 			/*!< epsilon refers to the steps,
 			  	i.e eps=0.1 allows b to be 0.1 steps apart.
 			*/
@@ -133,15 +134,15 @@ public:
     bool			isSet() const { return isset; }
 
     const Interval<T>&		getRange(int dim) const { return ranges[dim]; }
-    template <class TT> inline
-    void 			setRange( const TT& val );
-    template <class TT> inline
-    void			setRange( const TT& start, const TT& stop);
-    template <class TT> inline
-    void			include( const TT& val );
+    template <class X> inline
+    void 			setRange(const X& val);
+    template <class X> inline
+    void			setRange(const X& start, const X& stop);
+    template <class X> inline
+    void			include(const X& val);
 
-    template <class TT> inline
-    bool			includes( const TT& val ) const;
+    template <class X> inline
+    bool			includes( const X& val ) const;
     inline bool			intersects( const IntervalND<T>& ) const;
 
 protected:
@@ -153,8 +154,8 @@ protected:
 };
 
 
-template <class T> template <class TT> inline
-void IntervalND<T>::setRange( const TT& val )
+template <class T> template <class X> inline
+void IntervalND<T>::setRange( const X& val )
 {
     for ( int dim=0; dim<ndim; dim++ )
 	ranges[dim].start = ranges[dim].stop = val[dim];
@@ -164,8 +165,8 @@ void IntervalND<T>::setRange( const TT& val )
 
 
 
-template <class T> template <class TT> inline
-void IntervalND<T>::setRange( const TT& start, const TT& stop)
+template <class T> template <class X> inline
+void IntervalND<T>::setRange( const X& start, const X& stop)
 {
     for ( int dim=0; dim<ndim; dim++ )
     {
@@ -177,8 +178,8 @@ void IntervalND<T>::setRange( const TT& start, const TT& stop)
 }
 
 
-template <class T> template <class TT> inline
-void IntervalND<T>::include( const TT& val )
+template <class T> template <class X> inline
+void IntervalND<T>::include( const X& val )
 {
 #ifdef __debug__
     if ( !isset )
@@ -192,8 +193,8 @@ void IntervalND<T>::include( const TT& val )
 }
 
 
-template <class T> template <class TT> inline
-bool IntervalND<T>::includes( const TT& val ) const
+template <class T> template <class X> inline
+bool IntervalND<T>::includes( const X& val ) const
 {
 #ifdef __debug__
     if ( !isset )
@@ -414,8 +415,8 @@ void Interval<T>::scale( const T& factor )
 { start *= factor; stop *= factor; }
 
 
-template <class T> template <class TT> inline
-bool Interval<T>::includes( const TT& t, bool allowrev ) const
+template <class T> template <class X> inline
+bool Interval<T>::includes( const X& t, bool allowrev ) const
 {
     return allowrev && isRev()
 	? t>=stop && start>=t
@@ -423,8 +424,8 @@ bool Interval<T>::includes( const TT& t, bool allowrev ) const
 }
 
 
-template <class T> template <class TT> inline
-bool Interval<T>::overlaps( const Interval<TT>& t, bool allowrev ) const
+template <class T> template <class X> inline
+bool Interval<T>::overlaps( const Interval<X>& t, bool allowrev ) const
 {
     return includes( t.start, allowrev ) || includes( t.stop, allowrev ) ||
 	   t.includes( start, allowrev ) || t.includes( stop, allowrev );
