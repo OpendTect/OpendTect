@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribprovider.h,v 1.50 2006-09-25 13:41:15 cvsnanne Exp $
+ RCS:           $Id: attribprovider.h,v 1.51 2006-09-28 13:38:48 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -117,7 +117,7 @@ public:
     
     BinID			getTrcInfoBid() const	{ return trcinfobid; }
 
-    virtual void		prepareForComputeData()		{}
+    virtual void		prepareForComputeData();
     				/*!< Everything is known now. */
     static const char*		prepare(Desc&);
     				//!< Must be called before getting

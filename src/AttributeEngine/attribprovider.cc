@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribprovider.cc,v 1.74 2006-09-25 13:41:15 cvsnanne Exp $";
+static const char* rcsID = "$Id: attribprovider.cc,v 1.75 2006-09-28 13:38:48 cvsnanne Exp $";
 
 #include "attribprovider.h"
 #include "attribstorprovider.h"
@@ -1357,6 +1357,14 @@ void Provider::setOutputValue( const DataHolder& output, int outputidx,
 
     const int sidx = z0 - output.z0_ + sampleidx;
     output.series(outputidx)->setValue( sidx, val );
+}
+
+
+void Provider::prepareForComputeData()
+{
+    for ( int idx=0; idx<inputs.size(); idx++ )
+	if ( inputs[idx] ) inputs[idx]->prepareForComputeData();
+	
 }
 
 
