@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.cc,v 1.100 2006-09-08 09:58:36 cvsjaap Exp $
+ RCS:           $Id: uimpeman.cc,v 1.101 2006-09-29 11:17:35 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -66,10 +66,8 @@ uiMPEMan::uiMPEMan( uiParent* p, uiVisPartServer* ps )
     , visserv(ps)
     , init(false)
     , colbardlg(0)
-//  , blockattribsel(false)
     , seedpickwason(false)
     , oldactivevol(false)
-    , trackerwasshown(false)
 {
     toolbar = new uiToolBar(p,"Tracking controls");
 
@@ -86,6 +84,8 @@ uiMPEMan::uiMPEMan( uiParent* p, uiVisPartServer* ps )
 	    		mCB(this,uiMPEMan,updateButtonSensitivity) );
     engine().trackeraddremove.notify(
 	    		mCB(this,uiMPEMan,trackerAddedRemovedCB) );
+    SurveyInfo& si = const_cast<SurveyInfo&>( SI() );
+    si.workRangeChg.notify( mCB(this,uiMPEMan,workAreaChgCB) );
     visBase::DM().selMan().selnotifier.notify(
 	    mCB(this,uiMPEMan,treeItemSelCB) );
     visBase::DM().selMan().deselnotifier.notify(
@@ -168,6 +168,8 @@ uiMPEMan::~uiMPEMan()
 	    		mCB(this,uiMPEMan,updateButtonSensitivity) );
     engine().trackeraddremove.remove(
 	    		mCB(this,uiMPEMan,trackerAddedRemovedCB) );
+    SurveyInfo& si = const_cast<SurveyInfo&>( SI() );
+    si.workRangeChg.remove( mCB(this,uiMPEMan,workAreaChgCB) );
     visBase::DM().selMan().selnotifier.remove(
 	    mCB(this,uiMPEMan,treeItemSelCB) );
     visBase::DM().selMan().deselnotifier.remove(
@@ -277,7 +279,7 @@ void uiMPEMan::seedClick( CallBacker* )
 	if ( newvolume.isEmpty() )
 	    return;
 	
-	if ( !engine.activeVolume().includes(newvolume) )
+	if ( newvolume != engine.activeVolume() )
 	{
 	    // Not allowed to pick on more than one plane in wizard stage
 	    if ( isPickingInWizard() && seedpicker->nrSeeds() )
@@ -286,9 +288,7 @@ void uiMPEMan::seedClick( CallBacker* )
 	    if ( oldactivevol.isEmpty() )
 	    {
 		oldactivevol = engine.activeVolume();
-		trackerwasshown = trackerisshown;
 		oldtrackplane = engine.trackPlane();
-		showTracker( false );
 		engine.swapCacheAndItsBackup();
 	    }
 
@@ -296,16 +296,27 @@ void uiMPEMan::seedClick( CallBacker* )
 	    engine.setActiveVolume( newvolume );
 	    notifystopper.restore();
 
-	    RefMan<const Attrib::DataCubes> cached = 
+	    if ( newvolume.zrg.isEqual( SI().sampling(false).zrg, mDefEps ) )
+	    {
+		RefMan<const Attrib::DataCubes> cached = 
 					    clickcatcher->clickedObjectData();
-	    if ( cached )
-		engine.setAttribData( *clickcatcher->clickedObjectDataSelSpec(),
-				      cached );
+		if ( cached )
+		{
+		    engine.setAttribData( 
+			    *clickcatcher->clickedObjectDataSelSpec(), cached );
+		}
+	    }
 
 	    for ( int idx=0; idx<displays.size(); idx++ )
-		displays[idx]->turnOn( false );
+		displays[idx]->freezeBoxPosition( true );
+
+	    if ( !seedpicker->doesModeUseSetup() )
+		visserv->toggleBlockDataLoad();
 
 	    engine.activevolumechange.trigger();
+
+	    if ( !seedpicker->doesModeUseSetup() )
+		visserv->toggleBlockDataLoad();
 	}
     }
 
@@ -342,14 +353,13 @@ void uiMPEMan::restoreActiveVol()
 	NotifyStopper notifystopper( engine.activevolumechange );
 	engine.setActiveVolume( oldactivevol );
 	notifystopper.restore();
+	engine.setTrackPlane( oldtrackplane, false );
+	engine.activevolumechange.trigger();
 
 	mGetDisplays(false);
 	for ( int idx=0; idx<displays.size(); idx++ )
-	    displays[idx]->turnOn( true );
+	    displays[idx]->freezeBoxPosition( false );
 
-	engine.setTrackPlane( oldtrackplane, false );
-	engine.activevolumechange.trigger();
-	showTracker( trackerwasshown );
 	oldactivevol.setEmpty();
     }
 
@@ -360,7 +370,6 @@ uiToolBar* uiMPEMan::getToolBar() const
 { 
     return toolbar; 
 }
-
 
 
 visSurvey::MPEDisplay* uiMPEMan::getDisplay( int sceneid, bool create )
@@ -453,7 +462,7 @@ void uiMPEMan::updateSelectedAttrib()
     else if ( userref==sKey::None )
 	userref = sKeyNoAttrib();
     
-    if ( userref ) //&& !blockattribsel ) 	
+    if ( userref )  	
 	attribfld->setCurrentItem( userref );
 }
 
@@ -474,7 +483,6 @@ void uiMPEMan::turnSeedPickingOn( bool yn )
 {
     if ( isSeedPickingOn() == yn )
 	return;
-//  blockattribsel = yn;
     toolbar->turnOn( seedidx, yn );
 
     if ( yn )
@@ -554,9 +562,6 @@ void uiMPEMan::showCubeCB( CallBacker* )
 
 void uiMPEMan::attribSel( CallBacker* )
 {
-//  if ( blockattribsel )
-//      return;
-
     mGetDisplays(false);
     const bool trackerisshown = displays.size() &&
 			        displays[0]->isDraggerShown();
@@ -820,6 +825,7 @@ void uiMPEMan::trackerAddedRemovedCB( CallBacker* )
 	toolbar->turnOn( showcubeidx, false );
 	showCubeCB(0);
 	showTracker(false);
+	engine().setActiveVolume( engine().getDefaultActiveVolume() );
     }
 
     updateAttribNames();
@@ -902,6 +908,22 @@ void uiMPEMan::showTracker( bool yn )
 }
 
 
+void uiMPEMan::workAreaChgCB( CallBacker* )
+{
+    mGetDisplays(true)
+    for ( int idx=0; idx<displays.size(); idx++ )
+	displays[idx]->updateBoxSpace();
+
+    if ( !SI().sampling(true).includes( engine().activeVolume() ) )
+    {
+	toolbar->turnOn( showcubeidx, false );
+	showCubeCB(0);
+	showTracker( false );
+	engine().setActiveVolume( engine().getDefaultActiveVolume() );
+    }
+}
+
+
 void uiMPEMan::setColorbarCB(CallBacker*)
 {
     if ( colbardlg || !toolbar->isOn(clrtabidx) )
@@ -972,6 +994,9 @@ void uiMPEMan::eraseModeCB( CallBacker* )
 
 void uiMPEMan::initFromDisplay()
 {
+    // compatibility for session files where box outside workarea
+    workAreaChgCB(0);
+
     mGetDisplays(false)
     for ( int idx=0; idx<displays.size(); idx++ )
     {
@@ -984,7 +1009,14 @@ void uiMPEMan::initFromDisplay()
 	}
     }
     
-    showTracker( engine().trackPlane().getTrackMode()!=TrackPlane::None );
+    bool showtracker = engine().trackPlane().getTrackMode()!=TrackPlane::None;
+    if ( !engine().nrTrackersAlive() )
+    {
+	engine().setTrackMode( TrackPlane::None );
+	showtracker = false;
+    }
+
+    showTracker( showtracker );
     updateSelectedAttrib();
     updateButtonSensitivity(0);
 }
