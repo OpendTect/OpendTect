@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpewizard.cc,v 1.57 2006-09-19 12:22:27 cvsnanne Exp $
+ RCS:           $Id: uimpewizard.cc,v 1.58 2006-09-29 11:14:02 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -59,7 +59,8 @@ static const char* sTrackInVolInfo()
 	"The horizon is (auto-) tracked inside a small track-volume.\n\n"
 	"Workflow:\n"
 	"1) Define settings\n"
-	"2) Pick seed(s) (remove ctrl-pick, erase shift-pick)\n"
+	"2) Pick seed(s) on inline/crossline"
+	  " (remove ctrl-pick, erase shift-pick)\n"
 	"3) Finish wizard and position/resize track-volume\n"
 	"4) Use toolbar to auto-track, plane-by-plane track, and edit\n"
 	"5) Reposition track-volume and repeat step 4\n";
@@ -72,7 +73,8 @@ static const char* sLineTrackInfo()
 	"The horizon is auto-tracked in the line direction only.\n\n"
 	"Workflow:\n"
 	"1) Define settings\n"
-	"2) Pick seeds (remove ctrl-pick, erase shift-pick)\n"
+	"2) Pick seeds on inline/crossline"
+	  " (remove ctrl-pick, erase shift-pick)\n"
 	"3) Finish wizard\n"
 	"4) Scroll line to new position or open new line, and pick new seeds\n"
 	"5) Use 'Fill holes' to create continuous horizon\n";
@@ -86,7 +88,8 @@ static const char* sLineManualInfo()
         "in the line direction only.\n\n"
 	"Workflow:\n"
 	"1) Finish wizard\n"
-	"2) Pick seeds (remove ctrl-pick, erase shift-pick)\n"
+	"2) Pick seeds on inline/crossline"
+          " (remove ctrl-pick, erase shift-pick)\n"
 	"3) Scroll line to new position or open new line, and pick new seeds\n"
 	"4) Use 'Fill holes' to create continuous horizon\n";
 }
@@ -282,7 +285,7 @@ bool Wizard::leaveNamePage( bool process )
     EM::EMObject* emobj = EM::EMM().getObject( objid );
     if ( emobj )
     {
-	uiMSG().error("An object with this name exist and is currently\n"
+	uiMSG().error("An object with this name exists and is currently\n"
 		      "loaded. Please select another name or quit the\n"
 		      "wizard and remove the object with this name from\n"
 		      "the tree.");
@@ -413,6 +416,7 @@ bool Wizard::leaveSeedSetupPage( bool process )
     setButtonSensitive( uiDialog::CANCEL, true );
     if ( !process )
     {
+	mpeserv->sendEvent( uiMPEPartServer::evEndSeedPick );
 	restoreObject();
 	return true;
     }
@@ -485,6 +489,8 @@ void Wizard::restoreObject()
 		pErrMsg( "Could not remove object" );
 	}
     }
+
+    NotifyStopper notifystopper( MPE::engine().trackeraddremove );
 
     // This must come before tracker is removed since
     // applman needs tracker to know what to remove.
@@ -666,6 +672,8 @@ void Wizard::updateDialogTitle()
 
 bool Wizard::createTracker()
 {
+    NotifyStopper notifystopper( MPE::engine().trackeraddremove );
+
     if ( currentobject==-1 )
     {
 	const char* nm = objselgrp->getNameField()->text();
