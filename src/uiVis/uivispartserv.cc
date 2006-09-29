@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.332 2006-08-26 15:50:17 cvskris Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.333 2006-09-29 11:18:16 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -57,6 +57,7 @@ const int uiVisPartServer::evToHomePos			= 10;
 const int uiVisPartServer::evPickingStatusChange	= 11;
 const int uiVisPartServer::evShowSetupDlg		= 12;
 const int uiVisPartServer::evLoadPostponedData		= 13;
+const int uiVisPartServer::evToggleBlockDataLoad	= 14;
 
 
 const char* uiVisPartServer::sKeyAppVel()		{ return "AppVel"; }
@@ -1040,6 +1041,10 @@ void uiVisPartServer::loadPostponedData() const
     sendEvent( evLoadPostponedData );
 }
  
+void uiVisPartServer::toggleBlockDataLoad() const
+{
+    sendEvent( evToggleBlockDataLoad );
+}
 
 #define mGetScene( prepostfix ) \
 prepostfix visSurvey::Scene* \
