@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          18-4-1996
- RCS:           $Id: survinfo.cc,v 1.77 2006-08-25 09:46:33 cvsbert Exp $
+ RCS:           $Id: survinfo.cc,v 1.78 2006-09-29 11:10:09 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -62,6 +62,7 @@ SurveyInfo::SurveyInfo()
     , zistime_(true)
     , zinfeet_(false)
     , pars_(*new IOPar(sKeySurvDefs))
+    , workRangeChg(this)
 {
     rdxtr.b = rdytr.c = 1;
     set3binids[2].crl = 0;
@@ -72,6 +73,7 @@ SurveyInfo::SurveyInfo( const SurveyInfo& si )
     : cs_(*new CubeSampling(false))
     , wcs_(*new CubeSampling(false))
     , pars_(*new IOPar(sKeySurvDefs))
+    , workRangeChg(this)
 {
     *this = si;
 }
@@ -272,6 +274,13 @@ void SurveyInfo::setRange( const CubeSampling& cs, bool work )
     wcs_.limitTo( cs_ );
     wcs_.hrg.step = cs_.hrg.step;
     wcs_.zrg.step = cs_.zrg.step;
+}
+
+
+void SurveyInfo::setWorkRange( const CubeSampling& cs )
+{
+    setRange( cs, true);
+    workRangeChg.trigger();
 }
 
 
