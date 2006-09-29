@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          Sep 2006
- RCS:           $Id: uigdexamacorr.h,v 1.3 2006-09-27 15:12:41 cvshelene Exp $
+ RCS:           $Id: uigdexamacorr.h,v 1.4 2006-09-29 12:02:07 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,7 +32,7 @@ public:
     void                createAndDisplay2DViewer();
     void		setCubesampling( CubeSampling cs )	{ cs_ = cs; }
     void		setInputID( Attrib::DescID id )		{ inpid_ = id; }
-    void		setCorrWin( Interval<float> win )	{ gate_ = win; }
+    void		setCorrWin( Interval<float> cw )	{ gate_ = cw; }
     void                setDescSet( Attrib::DescSet* ds )      	{ dset_ = ds; }
 
 protected:
