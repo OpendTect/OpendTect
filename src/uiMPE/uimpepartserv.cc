@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2004
- RCS:           $Id: uimpepartserv.cc,v 1.51 2006-09-08 09:51:43 cvsjaap Exp $
+ RCS:           $Id: uimpepartserv.cc,v 1.52 2006-09-29 11:12:21 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -52,7 +52,6 @@ uiMPEPartServer::uiMPEPartServer( uiApplService& a, const Attrib::DescSet* ads )
     , eventattrselspec_( 0 )
     , blockdataloading_( false )
     , postponedcs_( false )
-    , blocknextloadsetup_(false)
 {
     MPE::initStandardClasses();
     MPE::engine().setActiveVolume( MPE::engine().getDefaultActiveVolume() );
@@ -143,8 +142,6 @@ bool uiMPEPartServer::addTracker( const char* trackertype )
 {
     if ( !wizard_ ) wizard_ = new MPE::Wizard( appserv().parent(), this );
     else wizard_->reset();
-
-    blocknextloadsetup_ = true;
 
     wizard_->setTrackingType( trackertype );
 //  wizard_->setRotateMode(true);
@@ -291,6 +288,12 @@ void uiMPEPartServer::set2DSelSpec(const Attrib::SelSpec& as)
 { lineselspec_ = as; }
 
 
+bool uiMPEPartServer::isDataLoadingBlocked() const
+{
+    return blockdataloading_;
+}
+
+
 void uiMPEPartServer::blockDataLoading( bool yn )
 {
     blockdataloading_ = yn;
@@ -316,7 +319,14 @@ void uiMPEPartServer::loadPostponedVolume()
 
 
 void uiMPEPartServer::activeVolumeChange(CallBacker*)
-{ loadAttribData(); }
+{
+    if ( MPE::engine().activeVolume()==MPE::engine().getDefaultActiveVolume() )
+    {
+	postponeLoadingCurVol();
+	return;
+    }
+    loadAttribData();
+}
 
 
 void uiMPEPartServer::loadAttribData()
@@ -416,9 +426,20 @@ void uiMPEPartServer::loadEMObjectCB(CallBacker*)
 
 bool uiMPEPartServer::saveSetup( const MultiID& mid )
 {
+    bool madetemptracker = false;
     const EM::ObjectID emid = EM::EMM().getObjectID( mid );
-    const int trackerid = getTrackerID( emid );
-    if ( trackerid<0 ) return false;
+    int trackerid = getTrackerID( emid );
+    
+    if ( trackerid<0 )
+    {
+	EM::EMObject* emobj = EM::EMM().getObject( emid );
+	if ( !emobj ) 
+	    return false;
+	trackerid = MPE::engine().addTracker( emobj );
+        if ( trackerid == -1 ) 
+	    return false;
+	madetemptracker = true;
+    }
 
     MPE::EMTracker* tracker = MPE::engine().getTracker( trackerid );
     IOPar iopar;
@@ -429,18 +450,16 @@ bool uiMPEPartServer::saveSetup( const MultiID& mid )
 
     BufferString setupfilenm = MPE::engine().setupFileName( mid );
     iopar.write( setupfilenm, "Tracking Setup" );
+
+    if ( madetemptracker )
+	MPE::engine().removeTracker( trackerid );
+    
     return true;
 }
 
 
 void uiMPEPartServer::loadTrackSetupCB( CallBacker* )
 {
-    if ( blocknextloadsetup_ )
-    {
-	blocknextloadsetup_ = false;
-	return;
-    }
-
     const int trackerid = MPE::engine().highestTrackerID();
     MPE::EMTracker* emtracker = MPE::engine().getTracker( trackerid );
     if ( !emtracker ) return;
@@ -495,6 +514,7 @@ void uiMPEPartServer::mergeAttribSets( const Attrib::DescSet& newads,
 	    if ( !as || as->id()<0 ) continue;
 	    Attrib::DescID newid( -1, true );
 	    const Attrib::Desc* usedad = newads.getDesc( as->id() );
+	    if ( !usedad ) continue;
 	    for ( int ida=0; ida<attrset_->nrDescs(); ida++ )
 	    {
 		const Attrib::DescID descid = attrset_->getID( ida );
