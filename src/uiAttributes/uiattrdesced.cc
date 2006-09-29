@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:		$Id: uiattrdesced.cc,v 1.15 2006-09-22 12:49:45 cvsbert Exp $
+ RCS:		$Id: uiattrdesced.cc,v 1.16 2006-09-29 11:35:39 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -177,8 +177,6 @@ void uiAttrDescEd::putInp( uiAttrSel* inpfld, const Attrib::Desc& ad,
 	inpfld->setDesc( inpdesc );
 	inpfld->updateHistory( adsman_->inputHistory() );
     }
-
-    inpfld->setIgnoreDesc(&ad);
 }
 
 
