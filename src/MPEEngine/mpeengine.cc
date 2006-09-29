@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: mpeengine.cc,v 1.69 2006-09-08 09:49:46 cvsjaap Exp $";
+static const char* rcsID = "$Id: mpeengine.cc,v 1.70 2006-09-29 11:11:32 cvsjaap Exp $";
 
 #include "mpeengine.h"
 
@@ -213,20 +213,13 @@ int Engine::addTracker( EM::EMObject* obj )
 
 void Engine::removeTracker( int idx )
 {
-    if ( idx<0 || idx>=trackers_.size() )
+    if ( idx<0 || idx>=trackers_.size() || !trackers_[idx] )
 	return;
 
     delete trackers_[idx];
     trackers_.replace( idx, 0 );
-    trackeraddremove.trigger();
-   
-    for ( int idy=0; idy<trackers_.size(); idy++ )
-    {
-	if ( trackers_[idy] )
-	    return;
-    }
 
-    setActiveVolume( getDefaultActiveVolume() );
+    trackeraddremove.trigger();
 }
 
 
