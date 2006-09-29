@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vismpe.cc,v 1.47 2006-09-08 10:02:01 cvsjaap Exp $";
+static const char* rcsID = "$Id: vismpe.cc,v 1.48 2006-09-29 11:18:59 cvsjaap Exp $";
 
 #include "vismpe.h"
 
@@ -61,14 +61,7 @@ MPEDisplay::MPEDisplay()
     boxdragger_->ref();
     boxdragger_->finished.notify( mCB(this,MPEDisplay,boxDraggerFinishCB) );
     boxdragger_->turnOn( false );
-
-    const HorSampling& hs = SI().sampling(true).hrg;
-    const Interval<float> survinlrg( hs.start.inl, hs.stop.inl );
-    const Interval<float> survcrlrg( hs.start.crl, hs.stop.crl );
-    const Interval<float> survzrg( SI().zRange(true).start,
-	    			   SI().zRange(true).stop );
-
-    boxdragger_->setSpaceLimits( survinlrg, survcrlrg, survzrg );
+    updateBoxSpace();
 
     draggerrect_->setSeparate( true );
     draggerrect_->ref();
@@ -585,6 +578,21 @@ void MPEDisplay::mouseClickCB( CallBacker* cb )
 }
 
 
+void MPEDisplay::freezeBoxPosition( bool yn )
+{
+    if ( yn )
+    {
+    	engine_.activevolumechange.remove( 
+				   mCB(this,MPEDisplay,updateBoxPosition) );
+    }
+    else
+    {
+    	engine_.activevolumechange.notifyIfNotNotified( 
+				   mCB(this,MPEDisplay,updateBoxPosition) );
+    }
+}
+
+
 void MPEDisplay::updateBoxPosition( CallBacker* )
 {
     NotifyStopper stop( dragger_->changed );
@@ -621,6 +629,18 @@ void MPEDisplay::updateBoxPosition( CallBacker* )
     if ( isDraggerShown() )
 	updateTexture();
     movement.trigger();
+}
+
+
+void MPEDisplay::updateBoxSpace()
+{
+    const HorSampling& hs = SI().sampling(true).hrg;
+    const Interval<float> survinlrg( hs.start.inl, hs.stop.inl );
+    const Interval<float> survcrlrg( hs.start.crl, hs.stop.crl );
+    const Interval<float> survzrg( SI().zRange(true).start,
+	    			   SI().zRange(true).stop );
+
+    boxdragger_->setSpaceLimits( survinlrg, survcrlrg, survzrg );
 }
 
 
