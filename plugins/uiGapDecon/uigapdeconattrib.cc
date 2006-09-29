@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          July  2006
- RCS:           $Id: uigapdeconattrib.cc,v 1.12 2006-09-28 16:39:52 cvshelene Exp $
+ RCS:           $Id: uigapdeconattrib.cc,v 1.13 2006-09-29 10:06:12 cvsdgb Exp $
 ________________________________________________________________________
 
 -*/
@@ -401,10 +401,10 @@ void uiGDPositionDlg::popUpPosDlg()
 	float crlwidth = inputcs.hrg.crlRange().width();
 	inputcs.hrg.stop.inl = inputcs.hrg.start.inl;
 	inputcs.hrg.stop.crl = 
-	    mMIN( inputcs.hrg.start.crl + crlwidth/2 + 100,
+	    mMIN( mNINT(inputcs.hrg.start.crl + crlwidth/2 + 100),
 		  inputcs.hrg.stop.crl );
 	inputcs.hrg.start.crl = 
-	    mMAX( inputcs.hrg.start.crl + crlwidth/2 - 100, 
+	    mMAX( mNINT(inputcs.hrg.start.crl + crlwidth/2 - 100),
 		  inputcs.hrg.start.crl );
     }
     else
@@ -412,10 +412,10 @@ void uiGDPositionDlg::popUpPosDlg()
 	float inlwidth = inputcs.hrg.inlRange().width();
 	inputcs.hrg.stop.crl = inputcs.hrg.start.crl;
 	inputcs.hrg.stop.inl = 
-	    mMIN( inputcs.hrg.start.inl + inlwidth/2 + 100,
+	    mMIN( mNINT(inputcs.hrg.start.inl + inlwidth/2 + 100),
 		  inputcs.hrg.stop.inl );
 	inputcs.hrg.start.inl = 
-	    mMAX( inputcs.hrg.start.inl + inlwidth/2 - 100,
+	    mMAX( mNINT(inputcs.hrg.start.inl + inlwidth/2 - 100),
 		  inputcs.hrg.start.inl );
     }
 
