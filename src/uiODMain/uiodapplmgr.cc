@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.151 2006-09-22 08:24:00 cvsnanne Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.152 2006-09-29 11:15:38 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -762,6 +762,8 @@ bool uiODApplMgr::handleVisServEv( int evid )
     }
     else if ( evid == uiVisPartServer::evLoadPostponedData )
 	mpeserv->loadPostponedVolume();
+    else if ( evid == uiVisPartServer::evToggleBlockDataLoad )
+	mpeserv->blockDataLoading( !mpeserv->isDataLoadingBlocked() );
     else
 	pErrMsg("Unknown event from visserv");
 
