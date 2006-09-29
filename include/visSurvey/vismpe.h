@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		August 2002
- RCS:		$Id: vismpe.h,v 1.32 2006-07-28 13:49:34 cvsjaap Exp $
+ RCS:		$Id: vismpe.h,v 1.33 2006-09-29 11:03:45 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -69,6 +69,8 @@ public:
 				     selspec.id==NoAttrib, or a zeropointer 
 				     if selspec.id==notsel */ 
     void			updateTexture();
+    void			updateBoxSpace();
+    void			freezeBoxPosition(bool yn);
 
     NotifierAccess*		getMovementNotification() { return  &movement; }
     Notifier<MPEDisplay>	boxDraggerStatusChange;
