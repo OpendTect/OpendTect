@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.179 2006-08-26 15:50:17 cvskris Exp $
+ RCS:           $Id: uivispartserv.h,v 1.180 2006-09-29 11:00:33 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -257,6 +257,9 @@ public:
 
     static const int		evLoadPostponedData;
     void 			loadPostponedData() const;
+    
+    static const int		evToggleBlockDataLoad;
+    void 			toggleBlockDataLoad() const;
 
     static const int		evShowSetupDlg;
     bool			sendShowSetupDlgEvent();
