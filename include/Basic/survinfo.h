@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		9-4-1996
- RCS:		$Id: survinfo.h,v 1.51 2006-08-21 17:14:44 cvsbert Exp $
+ RCS:		$Id: survinfo.h,v 1.52 2006-09-29 10:52:06 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -56,8 +56,8 @@ public:
     float		zStep() const;
     int			maxNrTraces(bool work) const;
 
-    void		setWorkRange( const CubeSampling& cs )
-			{ setRange(cs,true); }
+    void		setWorkRange(const CubeSampling&);
+    Notifier<SurveyInfo> workRangeChg;
 
     void		checkInlRange(Interval<int>&,bool work) const;
 			//!< Makes sure range is inside
