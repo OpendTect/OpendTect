@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          September 2006
- RCS:           $Id: annotbuffill.cc,v 1.6 2006-09-28 15:46:54 cvshelene Exp $
+ RCS:           $Id: annotbuffill.cc,v 1.7 2006-10-02 11:17:13 cvshelene Exp $
  ________________________________________________________________________
 
 -*/
@@ -13,26 +13,52 @@
 #include "uirgbarray.h"
 #include "uiworld2ui.h"
 
+
+AnnotBufferFiller::AnnotBufferFiller( const uiWorld2Ui* w )
+    : w2u_(w)
+    , dispannotlines_(true)
+    , disphorgdlines_(true)
+    , dispvertgdlines_(true)
+{
+}
+
+
+AnnotBufferFiller::~AnnotBufferFiller()
+{
+    deepErase( annotlines_ );
+    deepErase( horgdlines_ );
+    deepErase( vertgdlines_ );
+}
+
+
 //TODO check for intersect before starting interpol, as for now it's enough
 void AnnotBufferFiller::fillBuffer( const uiWorldRect& worldareatofill,
 				    uiRGBArray& buffer ) const
 {
-    for ( int idx=0; idx<lines_.size(); idx++ )
-	fillInterWithBufArea( worldareatofill, idx, buffer );
+    ObjectSet<LineInfo> lines;
+    if ( dispannotlines_ )
+	lines.append( annotlines_ );
+    if ( disphorgdlines_ )
+	lines.append( horgdlines_ );
+    if ( dispvertgdlines_ )
+	lines.append( vertgdlines_ );
+    
+    for ( int idx=0; idx<lines.size(); idx++ )
+	fillInterWithBufArea( worldareatofill, lines[idx], buffer );
 }
 
 
 //assumes that buffer size corresponds to imagebuffer.w2u_ size and pos
 void AnnotBufferFiller::fillInterWithBufArea( const uiWorldRect& worldarea, 
-				              int lineidx, uiRGBArray& buf)const
+				  const LineInfo* line, uiRGBArray& buf) const
 {
-    TypeSet<dPoint> pts = lines_[lineidx]->pts_;
+    TypeSet<dPoint> pts = line->pts_;
     if ( pts.size() == 1 )
     {
 	if ( worldarea.isOutside( pts[0], 1e-6 ) )
 	    return;
 	iPoint ipt = w2u_->transform( pts[0] );
-	buf.set( ipt.x, ipt.y, lines_[lineidx]->linestyle_.color );
+	buf.set( ipt.x, ipt.y, line->linestyle_.color );
     }
     else
     {
@@ -40,14 +66,14 @@ void AnnotBufferFiller::fillInterWithBufArea( const uiWorldRect& worldarea,
 	{
 	    iPoint coordsegstart = w2u_->transform( pts[idx-1] );
 	    iPoint coordsegstop = w2u_->transform( pts[idx] );
-	    setLine( coordsegstart, coordsegstop, lineidx, buf );
+	    setLine( coordsegstart, coordsegstop, line, buf );
 	}
     }	
 }
 
 
 void AnnotBufferFiller::setLine( const iPoint& startpt, const iPoint& stoppt,
-				 int lidx, uiRGBArray& buffer ) const
+				 const LineInfo* line, uiRGBArray& buffer )const
 {
     const int deltax = abs( stoppt.x - startpt.x );
     const int deltay = abs( stoppt.y - startpt.y );
@@ -69,7 +95,7 @@ void AnnotBufferFiller::setLine( const iPoint& startpt, const iPoint& stoppt,
     {
 	if ( curpt.x>0 && curpt.x<=buffer.getSize(true) && 
 	     curpt.y>0 && curpt.y<=buffer.getSize(false) )
-	    buffer.set( curpt.x, curpt.y, lines_[lidx]->linestyle_.color );
+	    buffer.set( curpt.x, curpt.y, line->linestyle_.color );
 	discriminator += discriminator<0 ? dincnegd : dincposd;
 	int xcoord = curpt.x + (discriminator<0 ? xincnegd : xincposd);
 	int ycoord = curpt.y + (discriminator<0 ? yincnegd : yincposd);
@@ -102,12 +128,18 @@ dPoint AnnotBufferFiller::computeIntersect( const dPoint& pt1,
 }
 
 
-void AnnotBufferFiller::addLineInfo( const LineStyle& ls, TypeSet<dPoint> ptset)
+void AnnotBufferFiller::addLineInfo( const LineStyle& ls, TypeSet<dPoint> ptset,
+				     bool ishgrid, bool isvgrid )
 {
     LineInfo* linfo = new LineInfo();
     linfo->linestyle_ = ls;
     linfo->pts_ = ptset;
-    lines_ += linfo;
+    if ( ishgrid )
+	horgdlines_ += linfo;
+    else if ( isvgrid )
+	vertgdlines_ += linfo;
+    else
+	annotlines_ += linfo;
 }
 
 
@@ -119,7 +151,28 @@ void AnnotBufferFiller::dummytest()
     linfo->linestyle_ = lstyle;
     linfo->pts_ += dPoint( 125, 0.5 );
     linfo->pts_ += dPoint( 200, 1.8 );
-    lines_ += linfo;
+    annotlines_ += linfo;
 }
 
 
+void AnnotBufferFiller::eraseGridLines( bool hor )
+{
+    if ( hor )
+    {
+	int sz=horgdlines_.size();
+	for ( int idx=sz-1; idx>=0; idx-- )
+	{
+	    delete horgdlines_[idx];
+	    horgdlines_.remove(idx);
+	}
+    }
+    else
+    {
+	int sz=vertgdlines_.size();
+	for ( int idx=sz-1; idx>=0; idx-- )
+	{
+	    delete vertgdlines_[idx];
+	    vertgdlines_.remove(idx);
+	}
+    }
+}
