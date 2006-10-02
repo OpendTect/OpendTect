@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          July 2006
- RCS:           $Id: uigapdeconattrib.h,v 1.8 2006-09-26 15:43:45 cvshelene Exp $
+ RCS:           $Id: uigapdeconattrib.h,v 1.9 2006-10-02 14:36:14 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -48,6 +48,7 @@ protected:
     uiGenInput*		noiselvlfld_;
     uiGenInput*		isinpzerophasefld_;
     uiGenInput*		isoutzerophasefld_;
+    uiGenInput*		wantmixfld_;
     uiLabeledSpinBox*	nrtrcsfld_;
     uiPushButton*	exambut_;
 
@@ -60,6 +61,7 @@ protected:
     bool		getInput(Attrib::Desc&);
 
     void                examPush(CallBacker*);
+    void                mixSel(CallBacker*);
     bool		passStdCheck(const Attrib::Desc*,const char*,int,int,
 	    			     Attrib::DescID);
     bool		passVolStatsCheck(const Attrib::Desc*,BinID,

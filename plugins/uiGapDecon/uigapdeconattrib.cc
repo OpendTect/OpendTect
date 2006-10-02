@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          July  2006
- RCS:           $Id: uigapdeconattrib.cc,v 1.13 2006-09-29 10:06:12 cvsdgb Exp $
+ RCS:           $Id: uigapdeconattrib.cc,v 1.14 2006-10-02 14:36:14 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -79,13 +79,17 @@ uiGapDeconAttrib::uiGapDeconAttrib( uiParent* p )
     noiselvlfld_->attach( alignedBelow, gapfld_ );
     uiLabel* percentlbl = new uiLabel( this, "%" );
     percentlbl->attach( rightOf, noiselvlfld_ );
+
+    wantmixfld_ = new uiGenInput( this, "Use trace mixing", BoolInpSpec() );
+    wantmixfld_->valuechanged.notify( mCB(this,uiGapDeconAttrib,mixSel) );
+    wantmixfld_->attach( alignedBelow, noiselvlfld_ );
+    uiLabel* stepoutlbl = new uiLabel( this, "( Smoothing parameter )" );
+    stepoutlbl->attach( rightOf, wantmixfld_ );
     
     nrtrcsfld_ = new uiLabeledSpinBox( this, "nr traces mixed" );
-    nrtrcsfld_->box()->setMinValue( 1 );
+    nrtrcsfld_->box()->setMinValue( 3 );
     nrtrcsfld_->box()->setStep( 2, true );
-    nrtrcsfld_->attach( alignedBelow, noiselvlfld_ );
-    uiLabel* stepoutlbl = new uiLabel( this, "( Smoothing parameter )" );
-    stepoutlbl->attach( rightOf, nrtrcsfld_ );
+    nrtrcsfld_->attach( alignedBelow, wantmixfld_ );
     
     isinpzerophasefld_ = new uiGenInput( this, "Input is", 
 				 BoolInpSpec("Zero phase", "Minimum phase") );
@@ -115,6 +119,12 @@ void uiGapDeconAttrib::set2D( bool yn )
 }
 
 
+void uiGapDeconAttrib::mixSel( CallBacker* )
+{
+    nrtrcsfld_->display( wantmixfld_->getBoolValue() );
+}
+
+
 bool uiGapDeconAttrib::setParameters( const Attrib::Desc& desc )
 {
     if ( strcmp(desc.attribName(),GapDecon::attribName()) )
@@ -123,13 +133,17 @@ bool uiGapDeconAttrib::setParameters( const Attrib::Desc& desc )
     mIfGetFloatInterval( GapDecon::gateStr(), gate, gatefld_->setValue(gate) )
     mIfGetInt( GapDecon::lagsizeStr(), lagsz, lagfld_->setValue(lagsz) )
     mIfGetInt( GapDecon::gapsizeStr(), gapsz, gapfld_->setValue(gapsz) )
-    mIfGetInt( GapDecon::nrtrcsStr(), nrtmixed, nrtrcsfld_->box()->
-	    						setValue(nrtmixed) )
+    int nrtrcsmix;
+    mIfGetInt( GapDecon::nrtrcsStr(), ntrcs, 
+	       nrtrcsfld_->box()->setValue(ntrcs); nrtrcsmix = ntrcs; )
+    wantmixfld_->setValue( nrtrcsmix>1 );
     mIfGetInt( GapDecon::noiselevelStr(), nlvl, noiselvlfld_->setValue(nlvl) )
     mIfGetBool( GapDecon::isinp0phaseStr(), isinp0ph, 
 	    	isinpzerophasefld_->setValue(isinp0ph) )
     mIfGetBool( GapDecon::isout0phaseStr(), isout0ph, 
 	    	isoutzerophasefld_->setValue(isout0ph) )
+
+    mixSel(0);
     return true;
 }
 
@@ -171,7 +185,8 @@ bool uiGapDeconAttrib::getParameters( Attrib::Desc& desc )
     mSetFloatInterval( GapDecon::gateStr(), gatefld_->getFInterval() );
     mSetInt( GapDecon::lagsizeStr(), lagfld_->getIntValue() );
     mSetInt( GapDecon::gapsizeStr(), gapfld_->getIntValue() );
-    mSetInt( GapDecon::nrtrcsStr(), nrtrcsfld_->box()->getValue() );
+    bool domixing = wantmixfld_->getBoolValue();
+    mSetInt( GapDecon::nrtrcsStr(),domixing? nrtrcsfld_->box()->getValue() :1 );
     mSetInt( GapDecon::noiselevelStr(), noiselvlfld_->getIntValue() );
     mSetBool( GapDecon::isinp0phaseStr(), isinpzerophasefld_->getBoolValue() );
     mSetBool( GapDecon::isout0phaseStr(), isoutzerophasefld_->getBoolValue() );
@@ -382,6 +397,7 @@ uiGDPositionDlg::uiGDPositionDlg( uiParent* p, const CubeSampling& cs )
 {
     inlcrlfld_ = new uiGenInput( this, "Compute autocorrelation on:",
 	    			 BoolInpSpec("Inline","Crossline") );
+    setOkText("Next >>" );
 }
 
 
