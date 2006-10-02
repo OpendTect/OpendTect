@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Huck
  Date:          14-07-2006
- RCS:           $Id: gapdeconattrib.h,v 1.7 2006-09-29 14:42:53 cvsdgb Exp $
+ RCS:           $Id: gapdeconattrib.h,v 1.8 2006-10-02 12:34:22 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,21 +37,21 @@ public:
     static const char*		isout0phaseStr(){ return "isoutzerophase"; }
     static const char*		onlyacorrStr()	{ return "onlyautocorr"; }
 
+    void                        prepareForComputeData();
+
 protected:
 
     static Provider*		createInstance(Desc&);
     static void			updateDesc(Desc&);
 
     bool			allowParallelComputation() const
-				{ return false; }
+				{ return true; }
 
     bool			getInputOutput(int inp,TypeSet<int>& res) const;
     bool			getInputData(const BinID&,int zintv);
     bool			computeData(const DataHolder&,
 	    				    const BinID& relpos,
 					    int z0,int nrsamples) const;
-
-    const BinID*		reqStepout(int input,int output) const;
 
     Interval<float>		gate_;
     int				lagsize_;
@@ -63,7 +63,6 @@ protected:
     BinID			stepout_;
     bool			useonlyacorr_;
 
-    bool			inited_;
     int				nlag_;
     int				ncorr_;
     int				lcorr_;

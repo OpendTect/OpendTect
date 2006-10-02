@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Huck
  Date:          July 2006
- RCS:           $Id: gapdeconattrib.cc,v 1.9 2006-09-26 15:43:45 cvshelene Exp $
+ RCS:           $Id: gapdeconattrib.cc,v 1.10 2006-10-02 12:34:22 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -131,7 +131,6 @@ void GapDecon::updateDesc( Desc& desc )
 
 GapDecon::GapDecon( Desc& desc_ )
     : Provider( desc_ )
-    , inited_( false )
     , ncorr_( 0 )
     , nlag_( 0 )
     , ngap_( 0 )
@@ -176,25 +175,23 @@ bool GapDecon::getInputData( const BinID& relpos, int zintv )
 }
 
 
+void GapDecon::prepareForComputeData()
+{
+    ncorr_ = mNINT( gate_.width() / refstep );
+    if ( !useonlyacorr_ )
+    {
+	nlag_ = mNINT( lagsize_ / refstep / zFactor() );
+	ngap_ = mNINT( gapsize_ / refstep / zFactor() );
+    }
+
+    lcorr_ =  nlag_? nlag_+ngap_ : ncorr_;
+}
+
+
 bool GapDecon::computeData( const DataHolder& output, const BinID& relpos, 
 			    int z0, int nrsamples ) const
 {
     if ( !inputdata_ ) return false;
-
-    if ( !inited_ )
-    {
-	const_cast<GapDecon*>(this)->ncorr_ = 
-				    mNINT( gate_.width() / refstep );
-	if ( !useonlyacorr_ )
-	{
-	    const_cast<GapDecon*>(this)->nlag_  = 
-					mNINT( lagsize_ / refstep / zFactor() );
-	    const_cast<GapDecon*>(this)->ngap_ = 
-					mNINT( gapsize_ / refstep / zFactor() );
-	}
-	const_cast<GapDecon*>(this)->lcorr_ =  nlag_? nlag_+ngap_ : ncorr_;
-	const_cast<GapDecon*>(this)->inited_ = true;
-    }
 
     int safencorr = mMIN( ncorr_, inputdata_->nrsamples_ );	
     int safelcorr = mMIN( lcorr_, inputdata_->nrsamples_ );	
@@ -274,10 +271,5 @@ bool GapDecon::computeData( const DataHolder& output, const BinID& relpos,
 */
     return true;
 }
-
-
-const BinID* GapDecon::reqStepout( int inp, int out ) const
-{ return 0; }//to fit with fake 2dline -> 3d
-//{ return inp ? 0 : &stepout_; }
 
 }; //namespace
