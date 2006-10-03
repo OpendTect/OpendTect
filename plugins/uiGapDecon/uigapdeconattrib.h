@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          July 2006
- RCS:           $Id: uigapdeconattrib.h,v 1.9 2006-10-02 14:36:14 cvshelene Exp $
+ RCS:           $Id: uigapdeconattrib.h,v 1.10 2006-10-03 15:07:43 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -70,7 +70,6 @@ protected:
 	    			      const char*,int,int,BufferString);
     Attrib::DescID	createVolStatsDesc(Attrib::Desc&,int);
     void		createHilbertDesc(Attrib::Desc&,Attrib::DescID&);
-    Attrib::DescID	createInvHilbertDesc(Attrib::Desc&);
 };
 
 

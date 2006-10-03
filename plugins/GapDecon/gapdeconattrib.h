@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Huck
  Date:          14-07-2006
- RCS:           $Id: gapdeconattrib.h,v 1.8 2006-10-02 12:34:22 cvshelene Exp $
+ RCS:           $Id: gapdeconattrib.h,v 1.9 2006-10-03 15:07:43 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -47,7 +47,6 @@ protected:
     bool			allowParallelComputation() const
 				{ return true; }
 
-    bool			getInputOutput(int inp,TypeSet<int>& res) const;
     bool			getInputData(const BinID&,int zintv);
     bool			computeData(const DataHolder&,
 	    				    const BinID& relpos,
@@ -69,7 +68,9 @@ protected:
     int				ngap_;
     
     const DataHolder*		inputdata_;
+    const DataHolder*		inputdatamixed_;
     int				dataidx_;
+    int				dataidxmixed_;
 };
 
 } // namespace Attrib

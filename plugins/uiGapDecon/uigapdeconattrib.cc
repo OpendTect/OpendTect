@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          July  2006
- RCS:           $Id: uigapdeconattrib.cc,v 1.14 2006-10-02 14:36:14 cvshelene Exp $
+ RCS:           $Id: uigapdeconattrib.cc,v 1.15 2006-10-03 15:07:43 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -151,7 +151,8 @@ bool uiGapDeconAttrib::setParameters( const Attrib::Desc& desc )
 bool uiGapDeconAttrib::setInput( const Attrib::Desc& desc )
 {
     bool isinp0ph = isinpzerophasefld_->getBoolValue();
-    int nrtrcsmixed = nrtrcsfld_->box()->getValue();
+    int nrtrcsmixed = wantmixfld_->getBoolValue() ? 
+		      nrtrcsfld_->box()->getValue() : 1;
 
     if ( nrtrcsmixed == 1 && !isinp0ph )
     {
@@ -161,18 +162,12 @@ bool uiGapDeconAttrib::setInput( const Attrib::Desc& desc )
     const Desc* neededdesc = desc.getInput(0);
     if ( isinp0ph && neededdesc )
 	neededdesc = neededdesc->getInput(0);
-    if ( nrtrcsmixed != 1 && neededdesc )
-	neededdesc = neededdesc->getInput(0);
 
     if ( !neededdesc )
 	inpfld_->setDescSet( desc.descSet() );
     else
-    {
 	inpfld_->setDesc( neededdesc );
-//	inpfld_->updateHistory( adsman_->inputHistory() );
-    }
 
-    inpfld_->setIgnoreDesc(&desc);
     return true;
 }
 
@@ -198,30 +193,40 @@ bool uiGapDeconAttrib::getParameters( Attrib::Desc& desc )
 bool uiGapDeconAttrib::getInput( Attrib::Desc& desc )
 {
     bool isinp0ph = isinpzerophasefld_->getBoolValue();
-    bool isout0ph = isoutzerophasefld_->getBoolValue();
-    int nrtrcsmixed = nrtrcsfld_->box()->getValue();
+    int nrtrcsmixed = wantmixfld_->getBoolValue() ? 
+		      nrtrcsfld_->box()->getValue() : 1;
 
-    if ( nrtrcsmixed == 1 && !isinp0ph && !isout0ph )
+    //create first input
+    if ( !isinp0ph )
     {
 	inpfld_->processInput();
 	fillInp( inpfld_, desc, 0 );
-	return true;
     }
     else
     {
-	DescID inputid = DescID::undef(); //in that case use the input field
-	if ( nrtrcsmixed != 1 )
-	    inputid = createVolStatsDesc( desc, nrtrcsmixed );
-	if ( isinp0ph )
-	    createHilbertDesc( desc, inputid );
-
+	DescID inputid = DescID::undef();
+	createHilbertDesc( desc, inputid );
 	if ( !desc.setInput( 0, desc.descSet()->getDesc(inputid)) )
 	{
 	    errmsg_ += "The suggested attribute for input 0";
 	    errmsg_ += " is incompatible with the input (wrong datatype)";
 	}
     }
+    
+    if ( nrtrcsmixed != 1 )
+    {
+	//create mixed input 
+	DescID mixedinputid = DescID::undef(); 
+	mixedinputid = createVolStatsDesc( desc, nrtrcsmixed );
+	if ( isinp0ph )
+	    createHilbertDesc( desc, mixedinputid );
 
+	if ( !desc.setInput( 1, desc.descSet()->getDesc(mixedinputid)) )
+	{
+	    errmsg_ += "The suggested attribute for input 1";
+	    errmsg_ += " is incompatible with the input (wrong datatype)";
+	}
+    }
     return true;
 }
 
@@ -358,7 +363,6 @@ Desc* uiGapDeconAttrib::createNewDesc( DescSet* descset, DescID inpid,
 
 void uiGapDeconAttrib::createHilbertDesc( Desc& desc, DescID& inputid )
 {
-    //TODO
     if ( inputid == DescID::undef() )
     {
 	inpfld_->processInput();
@@ -383,12 +387,6 @@ void uiGapDeconAttrib::createHilbertDesc( Desc& desc, DescID& inputid )
     inputid = newdesc ? descset->addDesc( newdesc ) : DescID::undef();
 }
 
-
-DescID uiGapDeconAttrib::createInvHilbertDesc( Desc& desc )
-{
-    //TODO
-    return DescID(3,0);
-}
 //-----------------------------------------------------------------------------
 
 uiGDPositionDlg::uiGDPositionDlg( uiParent* p, const CubeSampling& cs )

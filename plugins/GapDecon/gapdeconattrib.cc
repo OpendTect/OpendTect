@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Huck
  Date:          July 2006
- RCS:           $Id: gapdeconattrib.cc,v 1.10 2006-10-02 12:34:22 cvshelene Exp $
+ RCS:           $Id: gapdeconattrib.cc,v 1.11 2006-10-03 15:07:43 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -111,6 +111,7 @@ void GapDecon::initClass()
     desc->addParam( useonlyacorr );
 
     desc->addInput( InputSpec("Input data",true) );
+    desc->addInput( InputSpec("Mixed Input data",false) );
     desc->setNrOutputs( Seis::UnknowData, 5 );
 
     mAttrEndInitClass
@@ -126,6 +127,12 @@ void GapDecon::updateDesc( Desc& desc )
     desc.setParamEnabled( noiselevelStr(), !onlyacorr );
     desc.setParamEnabled( isinp0phaseStr(), !onlyacorr );
     desc.setParamEnabled( isout0phaseStr(), !onlyacorr );
+
+    if ( !onlyacorr )
+    {
+	int nrtrcs = desc.getValParam( nrtrcsStr() )->getIntValue();
+	desc.inputSpec(1).enabled = nrtrcs>1;
+    }
 }
 
 
@@ -160,16 +167,13 @@ GapDecon::GapDecon( Desc& desc_ )
 }
 
 
-bool GapDecon::getInputOutput( int input, TypeSet<int>& res ) const
-{
-    return Provider::getInputOutput( input, res );
-}
-
-
 bool GapDecon::getInputData( const BinID& relpos, int zintv )
 {
     inputdata_ = inputs[0]->getData( relpos, zintv );
     dataidx_ = getDataIndex( 0 );
+
+    inputdatamixed_ = inputs[1] ? inputs[1]->getData( relpos, zintv ) : 0;
+    dataidxmixed_ = inputdatamixed_ ? getDataIndex( 1 ) : -1;
 
     return inputdata_;
 }
@@ -185,6 +189,8 @@ void GapDecon::prepareForComputeData()
     }
 
     lcorr_ =  nlag_? nlag_+ngap_ : ncorr_;
+
+    Provider::prepareForComputeData();
 }
 
 
@@ -206,8 +212,10 @@ bool GapDecon::computeData( const DataHolder& output, const BinID& relpos,
     float* crosscorr = autocorr + nlag_;//first sample of gap is at 
 					//maxlag_+1 = nlag_ because minlag = 0
 
-    int startcorr = mNINT( gate_.start / refstep / zFactor() );
-    float* inputarr = inputdata_->series(dataidx_)->arr();
+    int startcorr = mNINT( gate_.start / refstep );
+    float* inputarr = inputdatamixed_ && inputdatamixed_->series(dataidxmixed_)
+       		      ? inputdatamixed_->series(dataidxmixed_)->arr()
+		      : inputdata_->series(dataidx_)->arr();
 
     float* autocorrptr = autocorr;
     genericCrossCorrelation<float,float,float*>( safencorr, startcorr, inputarr,
@@ -230,23 +238,22 @@ bool GapDecon::computeData( const DataHolder& output, const BinID& relpos,
     int stopgapidx = startcorr + nlag_+ ngap_;
     int startgapidx = startcorr + nlag_;
     int inoffs = z0 - inputdata_->z0_;
-    int outoffs = z0 - output.z0_;
-    ValueSeries<float>* inparr = inputdata_->series(dataidx_);
 
     if ( useonlyacorr_ )
     {
 	for ( int idx = 0; idx < safelcorr; ++idx )
-	    output.series(0)->setValue( idx+outoffs, autocorr[idx] );
+	    setOutputValue( output, 0, idx, z0, autocorr[idx] );
 	return true;
     }
     
+    ValueSeries<float>* inparr = inputdata_->series(dataidx_);
     for ( int idx = 0; idx < nrsamples; ++idx )
     {
 	int n = mMIN( idx, stopgapidx );
 	float sum = inparr->value( idx + inoffs );
 	for ( int gapidx=startgapidx; gapidx<n; ++gapidx )
 	    sum -= wiener[gapidx-startgapidx] *inparr->value(idx-gapidx+inoffs);
-	output.series(0)->setValue( idx + outoffs, sum );
+	setOutputValue( output, 0, idx, z0, sum );
     }
 /*
     //few lines to test autocorr filtered with gapdecon
