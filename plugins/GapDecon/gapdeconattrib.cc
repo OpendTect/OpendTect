@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Huck
  Date:          July 2006
- RCS:           $Id: gapdeconattrib.cc,v 1.11 2006-10-03 15:07:43 cvshelene Exp $
+ RCS:           $Id: gapdeconattrib.cc,v 1.12 2006-10-04 15:13:09 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -89,20 +89,20 @@ void GapDecon::initClass()
     noiselevel->setDefaultValue( 1 );
     desc->addParam( noiselevel );
 
-    IntParam* nrtrcs = new IntParam( nrtrcsStr() );
-    nrtrcs->setDefaultValue( 3 );
-    desc->addParam( nrtrcs );
+    IntParam* stepout = new IntParam( stepoutStr() );
+    stepout->setDefaultValue( 1 );
+    desc->addParam( stepout );
 
     ZGateParam* gate = new ZGateParam( gateStr() );
     gate->setLimits( SI().zRange(true) );
     desc->addParam( gate );
     
     BoolParam* isinputzerophase = new BoolParam( isinp0phaseStr() );
-    isinputzerophase->setDefaultValue( true );
+    isinputzerophase->setDefaultValue( false );
     desc->addParam( isinputzerophase );
 
     BoolParam* isoutputzerophase = new BoolParam( isout0phaseStr() );
-    isoutputzerophase->setDefaultValue( true );
+    isoutputzerophase->setDefaultValue( false );
     desc->addParam( isoutputzerophase );
 
     BoolParam* useonlyacorr = new BoolParam( onlyacorrStr() );
@@ -123,15 +123,15 @@ void GapDecon::updateDesc( Desc& desc )
     bool onlyacorr = desc.getValParam( onlyacorrStr() )->getBoolValue();
     desc.setParamEnabled( lagsizeStr(), !onlyacorr );
     desc.setParamEnabled( gapsizeStr(), !onlyacorr );
-    desc.setParamEnabled( nrtrcsStr(), !onlyacorr );
+    desc.setParamEnabled( stepoutStr(), !onlyacorr );
     desc.setParamEnabled( noiselevelStr(), !onlyacorr );
     desc.setParamEnabled( isinp0phaseStr(), !onlyacorr );
     desc.setParamEnabled( isout0phaseStr(), !onlyacorr );
 
     if ( !onlyacorr )
     {
-	int nrtrcs = desc.getValParam( nrtrcsStr() )->getIntValue();
-	desc.inputSpec(1).enabled = nrtrcs>1;
+	int stepout = desc.getValParam( stepoutStr() )->getIntValue();
+	desc.inputSpec(1).enabled = stepout>0;
     }
 }
 
@@ -158,10 +158,6 @@ GapDecon::GapDecon( Desc& desc_ )
 	mGetBool( isoutzerophase_, isout0phaseStr() );
 	mGetInt( lagsize_, lagsizeStr() );
 	mGetInt( gapsize_, gapsizeStr() );
-	int nrtrcs;
-	mGetInt( nrtrcs, nrtrcsStr() );
-	stepout_ = BinID( nrtrcs/2, nrtrcs/2 );
-
 	mGetInt( noiselevel_, noiselevelStr() );
     }
 }

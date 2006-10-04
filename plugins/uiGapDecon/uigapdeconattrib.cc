@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          July  2006
- RCS:           $Id: uigapdeconattrib.cc,v 1.15 2006-10-03 15:07:43 cvshelene Exp $
+ RCS:           $Id: uigapdeconattrib.cc,v 1.16 2006-10-04 15:13:10 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -62,7 +62,7 @@ uiGapDeconAttrib::uiGapDeconAttrib( uiParent* p )
     gatefld_->attach( alignedBelow, inpfld_ );
 
     CallBack cbexam = mCB(this,uiGapDeconAttrib,examPush);
-    exambut_ = new uiPushButton( this, "&Examine", cbexam, true);
+    exambut_ = new uiPushButton( this, "&Examine ...", cbexam, true);
     exambut_->attach( rightOf, gatefld_ );
 
     BufferString lagstr = "Lag size ";
@@ -75,29 +75,33 @@ uiGapDeconAttrib::uiGapDeconAttrib( uiParent* p )
     gapfld_ = new uiGenInput( this, gapstr, IntInpSpec() );
     gapfld_->attach( alignedBelow, lagfld_ );
     
-    noiselvlfld_ = new uiGenInput( this, "random noise added", IntInpSpec() );
+    noiselvlfld_ = new uiGenInput( this, "Random noise added", IntInpSpec() );
     noiselvlfld_->attach( alignedBelow, gapfld_ );
     uiLabel* percentlbl = new uiLabel( this, "%" );
     percentlbl->attach( rightOf, noiselvlfld_ );
 
-    wantmixfld_ = new uiGenInput( this, "Use trace mixing", BoolInpSpec() );
+    wantmixfld_ = new uiGenInput( this, "Use trace averaging", BoolInpSpec() );
     wantmixfld_->valuechanged.notify( mCB(this,uiGapDeconAttrib,mixSel) );
     wantmixfld_->attach( alignedBelow, noiselvlfld_ );
-    uiLabel* stepoutlbl = new uiLabel( this, "( Smoothing parameter )" );
-    stepoutlbl->attach( rightOf, wantmixfld_ );
+//    uiLabel* stepoutlbl = new uiLabel( this, "( Smoothing parameter )" );
+//    stepoutlbl->attach( rightOf, wantmixfld_ );
     
-    nrtrcsfld_ = new uiLabeledSpinBox( this, "nr traces mixed" );
-    nrtrcsfld_->box()->setMinValue( 3 );
-    nrtrcsfld_->box()->setStep( 2, true );
-    nrtrcsfld_->attach( alignedBelow, wantmixfld_ );
+    stepoutfld_ = new uiLabeledSpinBox( this, "stepout" );
+    stepoutfld_->box()->setMinValue( 1 );
+    stepoutfld_->box()->setStep( 1, true );
+    stepoutfld_->attach( rightOf, wantmixfld_ );
     
     isinpzerophasefld_ = new uiGenInput( this, "Input is", 
 				 BoolInpSpec("Zero phase", "Minimum phase") );
-    isinpzerophasefld_->attach( alignedBelow, nrtrcsfld_ );
+    isinpzerophasefld_->attach( alignedBelow, wantmixfld_ );
     
     isoutzerophasefld_ = new uiGenInput( this, "Output is", 
 				 BoolInpSpec("Zero phase", "Minimum phase") );
     isoutzerophasefld_->attach( alignedBelow, isinpzerophasefld_ );
+
+    CallBack cbqc = mCB(this,uiGapDeconAttrib,qCPush);
+    qcbut_ = new uiPushButton( this, "Check &parameters ...", cbqc, true);
+    qcbut_->attach( alignedBelow, isoutzerophasefld_ );
     
     setHAlignObj( gatefld_ );
 }
@@ -121,7 +125,7 @@ void uiGapDeconAttrib::set2D( bool yn )
 
 void uiGapDeconAttrib::mixSel( CallBacker* )
 {
-    nrtrcsfld_->display( wantmixfld_->getBoolValue() );
+    stepoutfld_->display( wantmixfld_->getBoolValue() );
 }
 
 
@@ -133,10 +137,10 @@ bool uiGapDeconAttrib::setParameters( const Attrib::Desc& desc )
     mIfGetFloatInterval( GapDecon::gateStr(), gate, gatefld_->setValue(gate) )
     mIfGetInt( GapDecon::lagsizeStr(), lagsz, lagfld_->setValue(lagsz) )
     mIfGetInt( GapDecon::gapsizeStr(), gapsz, gapfld_->setValue(gapsz) )
-    int nrtrcsmix;
-    mIfGetInt( GapDecon::nrtrcsStr(), ntrcs, 
-	       nrtrcsfld_->box()->setValue(ntrcs); nrtrcsmix = ntrcs; )
-    wantmixfld_->setValue( nrtrcsmix>1 );
+    int stout;
+    mIfGetInt( GapDecon::stepoutStr(), stepout, 
+	       stepoutfld_->box()->setValue(stepout); stout = stepout; )
+    wantmixfld_->setValue( stout>0 );
     mIfGetInt( GapDecon::noiselevelStr(), nlvl, noiselvlfld_->setValue(nlvl) )
     mIfGetBool( GapDecon::isinp0phaseStr(), isinp0ph, 
 	    	isinpzerophasefld_->setValue(isinp0ph) )
@@ -151,10 +155,10 @@ bool uiGapDeconAttrib::setParameters( const Attrib::Desc& desc )
 bool uiGapDeconAttrib::setInput( const Attrib::Desc& desc )
 {
     bool isinp0ph = isinpzerophasefld_->getBoolValue();
-    int nrtrcsmixed = wantmixfld_->getBoolValue() ? 
-		      nrtrcsfld_->box()->getValue() : 1;
+    int stepout = wantmixfld_->getBoolValue() ? stepoutfld_->box()->getValue() 
+					      : 0;
 
-    if ( nrtrcsmixed == 1 && !isinp0ph )
+    if ( stepout == 0 && !isinp0ph )
     {
 	putInp( inpfld_, desc, 0 );
 	return true;
@@ -181,7 +185,8 @@ bool uiGapDeconAttrib::getParameters( Attrib::Desc& desc )
     mSetInt( GapDecon::lagsizeStr(), lagfld_->getIntValue() );
     mSetInt( GapDecon::gapsizeStr(), gapfld_->getIntValue() );
     bool domixing = wantmixfld_->getBoolValue();
-    mSetInt( GapDecon::nrtrcsStr(),domixing? nrtrcsfld_->box()->getValue() :1 );
+    mSetInt( GapDecon::stepoutStr(), 
+	     domixing? stepoutfld_->box()->getValue() : 0 );
     mSetInt( GapDecon::noiselevelStr(), noiselvlfld_->getIntValue() );
     mSetBool( GapDecon::isinp0phaseStr(), isinpzerophasefld_->getBoolValue() );
     mSetBool( GapDecon::isout0phaseStr(), isoutzerophasefld_->getBoolValue() );
@@ -193,8 +198,8 @@ bool uiGapDeconAttrib::getParameters( Attrib::Desc& desc )
 bool uiGapDeconAttrib::getInput( Attrib::Desc& desc )
 {
     bool isinp0ph = isinpzerophasefld_->getBoolValue();
-    int nrtrcsmixed = wantmixfld_->getBoolValue() ? 
-		      nrtrcsfld_->box()->getValue() : 1;
+    int stepout = wantmixfld_->getBoolValue() ? 
+		  stepoutfld_->box()->getValue() : 0;
 
     //create first input
     if ( !isinp0ph )
@@ -213,11 +218,11 @@ bool uiGapDeconAttrib::getInput( Attrib::Desc& desc )
 	}
     }
     
-    if ( nrtrcsmixed != 1 )
+    if ( stepout > 0 )
     {
 	//create mixed input 
 	DescID mixedinputid = DescID::undef(); 
-	mixedinputid = createVolStatsDesc( desc, nrtrcsmixed );
+	mixedinputid = createVolStatsDesc( desc, stepout );
 	if ( isinp0ph )
 	    createHilbertDesc( desc, mixedinputid );
 
@@ -252,10 +257,12 @@ void uiGapDeconAttrib::examPush( CallBacker* cb )
 
     if ( positiondlg_->posdlg_->uiResult() == 1 )
     {
-	acorrview_->setCubesampling( positiondlg_->getCubeSampling() );
-	acorrview_->setInputID( inpfld_->attribID() );
-	acorrview_->setCorrWin( gatefld_->getFInterval() );
-	acorrview_->setDescSet( ads_ );
+	DescSet* dset = ads_->clone();
+	DescID inpid = inpfld_->attribID();
+	DescID gapdecid = createGapDeconDesc( inpid, inpid, dset, true );
+	acorrview_->setAttribID( gapdecid );
+	acorrview_->setCubeSampling( positiondlg_->getCubeSampling() );
+	acorrview_->setDescSet( dset );
 	if ( acorrview_->computeAutocorr() )
 	    acorrview_->createAndDisplay2DViewer();
     }
@@ -269,13 +276,13 @@ void uiGapDeconAttrib::getEvalParams( TypeSet<EvalParam>& params ) const
 }
 
 
-DescID uiGapDeconAttrib::createVolStatsDesc( Desc& desc, int nrtrcsmixed )
+DescID uiGapDeconAttrib::createVolStatsDesc( Desc& desc, int stepout )
 {
     inpfld_->processInput();
     const DescID inpid = inpfld_->attribID();
     DescSet* descset = const_cast<DescSet*>(desc.descSet());
-    BinID userbid = descset->is2D() ? BinID(0,nrtrcsmixed)
-				    : BinID(nrtrcsmixed,nrtrcsmixed);
+    BinID userbid = descset->is2D() ? BinID(0,stepout)
+				    : BinID(stepout,stepout);
     Interval<float> gate(0,0);
     TypeSet<DescID> attribids;
     descset->getIds( attribids );
@@ -386,6 +393,129 @@ void uiGapDeconAttrib::createHilbertDesc( Desc& desc, DescID& inputid )
 	    			   0, "_imag" );
     inputid = newdesc ? descset->addDesc( newdesc ) : DescID::undef();
 }
+
+
+DescID uiGapDeconAttrib::createGapDeconDesc( DescID& inp0id, DescID inp1id,
+					     DescSet* dset, bool onlyacorr )
+{
+    if ( inp0id == DescID::undef() )
+    {
+	inpfld_->processInput();
+	inp0id = inpfld_->attribID();
+    }
+
+    Desc* newdesc = createNewDesc( dset, inp0id, GapDecon::attribName(),0,0,"");
+    if ( !newdesc )
+	return DescID::undef();
+
+    mDynamicCastGet( FloatGateParam*,gateparam,
+		     newdesc->getValParam(GapDecon::gateStr()) )
+    gateparam->setValue( gatefld_->getFInterval() );
+
+    mDynamicCastGet( BoolParam*,boolparam,
+		     newdesc->getValParam(GapDecon::onlyacorrStr()) )
+    boolparam->setValue( onlyacorr );
+
+    if ( !onlyacorr )
+    {
+	fillInGDDescParams( newdesc );
+	
+	Desc* inp1desc = inp1id != DescID::undef() ? dset->getDesc( inp1id ) :0;
+	if ( inp1desc )
+	    newdesc->setInput( 1, inp1desc );
+    }
+    
+    newdesc->updateParams();
+    newdesc->setUserRef( "autocorrelation" );
+    return dset->addDesc( newdesc );
+}
+
+   
+void uiGapDeconAttrib::fillInGDDescParams( Desc* newdesc )
+{
+    mDynamicCastGet( IntParam*,lagparam, 
+		     newdesc->getValParam(GapDecon::lagsizeStr()) )
+    lagparam->setValue( lagfld_->getIntValue() );
+    
+    mDynamicCastGet( IntParam*,gapparam, 
+		     newdesc->getValParam(GapDecon::gapsizeStr()) )
+    gapparam->setValue( gapfld_->getIntValue() );
+    
+    mDynamicCastGet( IntParam*,noiselvlparam, 
+		     newdesc->getValParam(GapDecon::noiselevelStr()) )
+    gapparam->setValue( noiselvlfld_->getIntValue() );
+
+    int stepout = wantmixfld_->getBoolValue() ?
+		  stepoutfld_->box()->getValue() : 0;
+    mDynamicCastGet( IntParam*,stepoutparam, 
+		     newdesc->getValParam(GapDecon::stepoutStr()) )
+    stepoutparam->setValue( stepout );
+
+    mDynamicCastGet( BoolParam*,outphparam, 
+		     newdesc->getValParam(GapDecon::isout0phaseStr()) )
+    outphparam->setValue( isoutzerophasefld_->getBoolValue() );
+}
+
+
+void uiGapDeconAttrib::qCPush( CallBacker* cb )
+{
+    BufferString errmsg;
+    if ( mIsUdf(gatefld_->getFInterval().start) || 
+	 mIsUdf(gatefld_->getFInterval().stop) )
+	errmsg = "Please fill in the 'Correlation window' field";
+    else if ( inpfld_->attribID() == DescID::undef() )
+	errmsg = "Please fill in the input data";
+    else if ( mIsUdf(lagfld_->getIntValue()) )
+	errmsg = "Please fill in the 'Lag size' field";
+    else if ( mIsUdf(gapfld_->getIntValue()) )
+	errmsg = "Please fill in the 'Gap size' field";
+   
+    if ( errmsg.size() )
+    { 
+	uiMSG().error( errmsg );
+	return;
+    }
+   
+    CubeSampling cs;
+    inpfld_->getRanges(cs);
+    positiondlg_ = new uiGDPositionDlg( this, cs );
+    positiondlg_->go();
+    if ( positiondlg_->uiResult() == 1 ) 
+	positiondlg_->popUpPosDlg();
+
+    if ( positiondlg_->posdlg_->uiResult() == 1 )
+    {
+	DescID inp0id = DescID::undef();
+	DescID inp1id = DescID::undef();
+	DescSet* dset = ads_->clone();
+	prepareInputDescs( inp0id, inp1id, dset );
+	DescID gapdecid = createGapDeconDesc( inp0id, inp1id, dset, false );
+	acorrview_->setAttribID( gapdecid );
+	acorrview_->setCubeSampling( positiondlg_->getCubeSampling() );
+	acorrview_->setDescSet( dset );
+	if ( acorrview_->computeAutocorr() )
+	    acorrview_->createAndDisplay2DViewer();
+    }
+}
+
+
+void uiGapDeconAttrib::prepareInputDescs( DescID& inp0id, DescID& inp1id, 
+					  DescSet* dset )
+{
+    Desc* newdesc = PF().createDescCopy( GapDecon::attribName() );
+    if ( !newdesc )
+	return;
+
+    newdesc->ref();
+    newdesc->setDescSet( dset );
+    getInput( *newdesc );
+
+    inp0id = newdesc->inputId(0);
+    inp1id = newdesc->inputId(1);
+
+    newdesc->unRef();
+}
+
 
 //-----------------------------------------------------------------------------
 

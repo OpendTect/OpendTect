@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          July 2006
- RCS:           $Id: uigapdeconattrib.h,v 1.10 2006-10-03 15:07:43 cvshelene Exp $
+ RCS:           $Id: uigapdeconattrib.h,v 1.11 2006-10-04 15:13:10 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,8 +49,9 @@ protected:
     uiGenInput*		isinpzerophasefld_;
     uiGenInput*		isoutzerophasefld_;
     uiGenInput*		wantmixfld_;
-    uiLabeledSpinBox*	nrtrcsfld_;
+    uiLabeledSpinBox*	stepoutfld_;
     uiPushButton*	exambut_;
+    uiPushButton*	qcbut_;
 
     uiGDPositionDlg*	positiondlg_;
     GapDeconACorrView*	acorrview_;
@@ -61,6 +62,7 @@ protected:
     bool		getInput(Attrib::Desc&);
 
     void                examPush(CallBacker*);
+    void                qCPush(CallBacker*);
     void                mixSel(CallBacker*);
     bool		passStdCheck(const Attrib::Desc*,const char*,int,int,
 	    			     Attrib::DescID);
@@ -70,6 +72,11 @@ protected:
 	    			      const char*,int,int,BufferString);
     Attrib::DescID	createVolStatsDesc(Attrib::Desc&,int);
     void		createHilbertDesc(Attrib::Desc&,Attrib::DescID&);
+    Attrib::DescID	createGapDeconDesc(Attrib::DescID&,Attrib::DescID,
+	    				   DescSet*,bool);
+    void		prepareInputDescs(Attrib::DescID&,Attrib::DescID&,
+	    				  Attrib::DescSet*);
+    void		fillInGDDescParams(Attrib::Desc*);
 };
 
 

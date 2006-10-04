@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          Sep 2006
- RCS:           $Id: uigdexamacorr.h,v 1.4 2006-09-29 12:02:07 cvsnanne Exp $
+ RCS:           $Id: uigdexamacorr.h,v 1.5 2006-10-04 15:13:10 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,10 +30,10 @@ public:
     			~GapDeconACorrView();
     bool                computeAutocorr();
     void                createAndDisplay2DViewer();
-    void		setCubesampling( CubeSampling cs )	{ cs_ = cs; }
-    void		setInputID( Attrib::DescID id )		{ inpid_ = id; }
-    void		setCorrWin( Interval<float> cw )	{ gate_ = cw; }
-    void                setDescSet( Attrib::DescSet* ds )      	{ dset_ = ds; }
+    void		setCubeSampling( CubeSampling cs )	{ cs_ = cs; }
+    void		setAttribID( Attrib::DescID id )	{ attribid_=id;}
+    void                setDescSet(Attrib::DescSet*);
+    			//<! descset becomes mine!
 
 protected:
     Attrib::EngineMan*	createEngineMan();
@@ -41,8 +41,7 @@ protected:
     void		displayWiggles(bool);
 
     CubeSampling	cs_;
-    Attrib::DescID	inpid_;
-    Interval<float>	gate_;
+    Attrib::DescID	attribid_;
     Attrib::DescSet*    dset_;
     Array2D<float>*	autocorr2darr_;
     uiFlatDisp::VertViewer*	viewer2d_;

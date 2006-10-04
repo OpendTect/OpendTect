@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          Sep  2006
- RCS:           $Id: uigdexamacorr.cc,v 1.4 2006-09-28 16:39:52 cvshelene Exp $
+ RCS:           $Id: uigdexamacorr.cc,v 1.5 2006-10-04 15:13:10 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,7 +31,7 @@ using namespace Attrib;
 
 GapDeconACorrView::GapDeconACorrView( uiParent* p )
     : uiMainWin( p, "Auto-correlation viewer", 0, false, true )
-    , inpid_( DescID::undef() )
+    , attribid_( DescID::undef() )
     , autocorr2darr_( 0 )
     , viewer2d_( 0 )
 {
@@ -45,6 +45,9 @@ GapDeconACorrView::~GapDeconACorrView()
     
     if ( viewer2d_ )
 	delete viewer2d_;
+    
+    if ( dset_ )
+	delete dset_;
 }
 
 
@@ -80,23 +83,7 @@ EngineMan* GapDeconACorrView::createEngineMan()
     EngineMan* aem = new EngineMan;
 
     TypeSet<SelSpec> attribspecs;
-    Desc* inpdesc = dset_->getDesc( inpid_ );
-    Desc* newdesc = PF().createDescCopy( GapDecon::attribName() );
-    if ( !newdesc || !inpdesc )
-	return 0;
-
-    mDynamicCastGet( FloatGateParam*,gateparam,
-		     newdesc->getValParam(GapDecon::gateStr()) )
-    gateparam->setValue( gate_ );
-    mDynamicCastGet( BoolParam*,boolparam,
-		     newdesc->getValParam(GapDecon::onlyacorrStr()) )
-    boolparam->setValue( true );
-    newdesc->updateParams();
-    newdesc->selectOutput( 0 );
-    newdesc->setInput( 0, inpdesc );
-    newdesc->setHidden( true );
-    newdesc->setUserRef( "autocorrelation" );
-    SelSpec sp( 0, dset_->addDesc( newdesc ) );
+    SelSpec sp( 0, attribid_ );
     attribspecs += sp;
 
     aem->setAttribSet( dset_ );
@@ -151,4 +138,13 @@ void GapDeconACorrView::displayWiggles( bool yn )
 {
     viewer2d_->context().ddpars_.dispvd_ = !yn;
     viewer2d_->context().ddpars_.dispwva_ = yn;
+}
+
+
+void GapDeconACorrView::setDescSet( Attrib::DescSet* ds )
+{
+    if ( dset_ )
+	delete dset_;
+
+    dset_ = ds;
 }
