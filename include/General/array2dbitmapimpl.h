@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Sep 2006
- RCS:           $Id: array2dbitmapimpl.h,v 1.2 2006-09-13 15:49:17 cvsbert Exp $
+ RCS:           $Id: array2dbitmapimpl.h,v 1.3 2006-10-04 17:02:27 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -55,8 +55,6 @@ public:
     WVAA2DBitmapGenPars&	wvapars()		{ return gtPars(); }
     const WVAA2DBitmapGenPars&	wvapars() const		{ return gtPars(); }
 
-    bool			dump(std::ostream&) const;
-
 protected:
 
     inline WVAA2DBitmapGenPars& gtPars() const
@@ -72,20 +70,25 @@ protected:
 
     void			drawTrace(int);
     void			drawVal(int,int,float,float);
+
+    bool			dumpXPM(std::ostream&) const;
 };
 
 
-namespace Interpolate { template <class T> class PolyReg2DWithUdf; }
+namespace Interpolate { template <class T> class Applier2D; }
 
 
 struct VDA2DBitmapGenPars : public A2DBitmapGenPars
 {
-			VDA2DBitmapGenPars()	{}
+			VDA2DBitmapGenPars()
+			: lininterp_(false)	{}
 
-    static const char	cMinFill;		// => -120
-    static const char	cMaxFill;		// => 120
+    bool		lininterp_;	//!< Use bi-linear interpol, not poly
 
-    static float	offset(char);		//!< cMinFill -> 0, 0 -> 0.5
+    static const char	cMinFill;	// => -120
+    static const char	cMaxFill;	// => 120
+
+    static float	offset(char);	//!< cMinFill -> 0, 0 -> 0.5
 
 };
 
@@ -103,8 +106,6 @@ public:
     VDA2DBitmapGenPars&		vdpars()	{ return gtPars(); }
     const VDA2DBitmapGenPars&	vdpars() const	{ return gtPars(); }
 
-    bool			dump(std::ostream&) const;
-
 protected:
 
     inline VDA2DBitmapGenPars& gtPars() const
@@ -121,10 +122,11 @@ protected:
 
     void			drawStrip(int);
     void			drawPixLines(int,const Interval<int>&);
-    void			fillInterpPars(
-	    				Interpolate::PolyReg2DWithUdf<float>&,
-					int,int);
+    void			fillInterpPars(Interpolate::Applier2D<float>&,
+					       int,int);
     void			drawVal(int,int,float);
+
+    bool			dumpXPM(std::ostream&) const;
 };
 
 

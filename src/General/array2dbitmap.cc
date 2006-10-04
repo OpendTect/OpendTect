@@ -4,13 +4,14 @@
  * DATE     : Sep 2006
 -*/
 
-static const char* rcsID = "$Id: array2dbitmap.cc,v 1.9 2006-09-27 20:20:15 cvskris Exp $";
+static const char* rcsID = "$Id: array2dbitmap.cc,v 1.10 2006-10-04 17:02:27 cvsbert Exp $";
 
 #include "array2dbitmapimpl.h"
 #include "arraynd.h"
 #include "sorting.h"
 #include "interpol2d.h"
 #include "statrand.h"
+#include "envvars.h"
 #include <math.h>
 
 const char A2DBitmapGenPars::cNoFill		= -127;
@@ -239,6 +240,35 @@ void A2DBitmapGenerator::fill()
     doFill();
 }
 
+
+static inline int gtPrettyBMVal( char c )
+{
+    static const float rgmax = 1000;
+    float v = (c - VDA2DBitmapGenPars::cMinFill) * (rgmax + 1)
+	    / (VDA2DBitmapGenPars::cMaxFill-VDA2DBitmapGenPars::cMinFill) - .5;
+    int ret = mNINT(v);
+    return ret < 0 ? 0 : (ret > rgmax+.5 ? (int)rgmax : ret);
+}
+
+bool A2DBitmapGenerator::dump( std::ostream& strm ) const
+{
+    const int nrxpix = setup_.nrXPix(); const int nrypix = setup_.nrYPix();
+    if ( !bitmap_ || nrxpix == 0 || nrypix == 0 )
+	return false;
+
+    if ( !GetEnvVarYN("OD_DUMP_A2DBITMAP_NUMBERS" ) && dumpXPM(strm) )
+	return true;
+
+    for ( int iy=0; iy<nrypix; iy++ )
+    {
+	strm << gtPrettyBMVal( bitmap_->get(0,iy) );
+	for ( int ix=1; ix<nrxpix; ix++ )
+	    strm << '\t' << gtPrettyBMVal( bitmap_->get(ix,iy) );
+	strm << std::endl;
+    }
+    return true;
+}
+
 //---
 
 
@@ -376,11 +406,9 @@ void WVAA2DBitmapGenerator::drawVal( int idim0, int iy, float val,
 }
 
 
-bool WVAA2DBitmapGenerator::dump( std::ostream& strm ) const
+bool WVAA2DBitmapGenerator::dumpXPM( std::ostream& strm ) const
 {
     const int nrxpix = setup_.nrXPix(); const int nrypix = setup_.nrYPix();
-    if ( !bitmap_ || nrxpix == 0 || nrypix == 0 )
-	return false;
 
     strm << "/* XPM */\nstatic char*wva[]={\n";
     strm << '"' << nrxpix << ' ' << nrypix << ' ' << "5 1"
@@ -491,12 +519,12 @@ void VDA2DBitmapGenerator::drawStrip( int idim0 )
 #define mV00Val \
     inpdata.get( idim0, idim1 )
 #define mV10Val \
-    idim0 < szdim0_-1 ? inpdata.get( idim0+1, idim1 ) : v00
+    idim0 < szdim0_-1 ? inpdata.get( idim0+1, idim1 ) : v[0]
 #define mV01Val \
-    idim1 < szdim1_-1 ? inpdata.get( idim0, idim1+1 ) : v00
+    idim1 < szdim1_-1 ? inpdata.get( idim0, idim1+1 ) : v[0]
 #define mV11Val \
     idim0 < szdim0_-1 ? (idim1 < szdim1_-1 \
-		      ? inpdata.get( idim0+1, idim1+1 ) : v10) : v01
+		      ? inpdata.get( idim0+1, idim1+1 ) : v[2]) : v[1]
 
 void VDA2DBitmapGenerator::drawPixLines( int stripdim0,
 					 const Interval<int>& xpixs2do )
@@ -504,16 +532,28 @@ void VDA2DBitmapGenerator::drawPixLines( int stripdim0,
     const float dim0eps = setup_.dimEps( 0 );
     const float dim1eps = setup_.dimEps( 1 );
     int previdim1 = mUdf(int);
-    Interpolate::PolyReg2DWithUdf<float> pr2d;
+
+    PtrMan< Interpolate::Applier2D<float> > interp = 0;
+    if ( vdpars().lininterp_ )
+	interp = new Interpolate::LinearReg2DWithUdf<float>;
+    else
+    {
+	const float pixperval0 = setup_.nrXPix() / ((float)szdim0_);
+	const float pixperval1 = setup_.nrYPix() / ((float)szdim1_);
+	const float xstretch = pixperval0 / pixperval1;
+	interp = new Interpolate::PolyReg2DWithUdf<float>( xstretch );
+    }
     const Array2D<float>& inpdata = data_.data();
 
     for ( int ix=xpixs2do.start; ix<=xpixs2do.stop; ix++ )
     {
 	const float dim0pos = dim0rg_.start + ix * dim0perpix_;
-	const float dim0offs = dim0pos - floor( dim0pos + dim0eps );
 	int idim0 = stripdim0;
 	if ( dim0pos_[stripdim0] > dim0pos && stripdim0 > 0 )
 	    idim0--;
+	const float v0dim0pos = dim0pos_[idim0];
+	const float v1dim0pos = idim0<szdim0_-1 ? dim0pos_[idim0+1] : dim0pos+1;
+	const float dim0offs = (dim0pos-v0dim0pos) / (v1dim0pos-v0dim0pos);
 
 	for ( int iy=0; iy<setup_.nrYPix(); iy++ )
 	{
@@ -525,23 +565,21 @@ void VDA2DBitmapGenerator::drawPixLines( int stripdim0,
 	    const float dim1offs = dim1pos - idim1;
 
 	    if ( !pars_.nointerpol_ && idim1 != previdim1 )
-		fillInterpPars( pr2d, idim0, idim1 );
+		fillInterpPars( *interp, idim0, idim1 );
 
 	    float val;
 	    if ( !pars_.nointerpol_ )
-		val = pr2d.apply( dim0offs, dim1offs );
+		val = interp->apply( dim0offs, dim1offs );
 	    else
 	    {
-		const float v00 = mV00Val;
-		val = v00;
+		float v[4]; val = v[0] = mV00Val;
 		if ( dim0offs > 0.5 || dim1offs > 0.5 )
 		{
-		    const float v10 = mV10Val;
-		    const float v01 = mV01Val;
+		    v[1] = mV01Val; v[2] = mV10Val;
 		    if ( dim0offs > 0.5 && dim1offs > 0.5 )
 			val = mV11Val;
 		    else
-			val = dim0offs > 0.5 ? v10 : v01;
+			val = dim0offs > 0.5 ? v[2] : v[1];
 		}
 	    }
 	    drawVal( ix, iy, val );
@@ -553,33 +591,37 @@ void VDA2DBitmapGenerator::drawPixLines( int stripdim0,
 
 
 void VDA2DBitmapGenerator::fillInterpPars(
-	Interpolate::PolyReg2DWithUdf<float>& pr2d, int idim0, int idim1 )
+	Interpolate::Applier2D<float>& interp, int idim0, int idim1 )
 {
+    float v[12];
     const Array2D<float>& inpdata = data_.data();
 
-    const float v00 = mV00Val;
-    const float v01 = mV01Val;
-    const float v10 = mV10Val;
-    const float v11 = mV11Val;
+    v[0] = mV00Val;
+    v[1] = mV01Val;
+    v[2] = mV10Val;
+    v[3] = mV11Val;
 
-    const float vm10 = idim0 > 0
-		     ? inpdata.get(idim0-1,idim1) : v00;
-    const float vm11 = idim0 > 0 ? (idim1 < szdim1_-1
-	    	     ? inpdata.get(idim0-1,idim1+1) : vm10) : v01;
-    const float v02  = idim1 < szdim1_-2
-		     ? inpdata.get(idim0,idim1+2) : v01;
-    const float v0m1 = idim1 > 0
-		     ? inpdata.get(idim0,idim1-1) : v00;
-    const float v1m1 = idim0 < szdim0_-1 ? (idim1 > 0
-	    	     ? inpdata.get(idim0+1,idim1-1) : v0m1) : v10;
-    const float v12  = idim0 < szdim0_-1 ? (idim1 < szdim1_-2
-	    	     ? inpdata.get(idim0+1,idim1+2) : v11) : v02;
-    const float v20  = idim0 < szdim0_-2
-		     ? inpdata.get(idim0+2,idim1) : v10;
-    const float v21  = idim0 < szdim0_-2 ? (idim1 < szdim1_-1
-	    	     ? inpdata.get(idim0+2,idim1+1) : v10) : v20;
+    if ( !vdpars().lininterp_ )
+    {
+	v[4] = idim0 > 0
+			 ? inpdata.get(idim0-1,idim1) : v[0];
+	v[5] = idim0 > 0 ? (idim1 < szdim1_-1
+			 ? inpdata.get(idim0-1,idim1+1) : v[4]) : v[1];
+	v[6] = idim1 > 0
+			 ? inpdata.get(idim0,idim1-1) : v[0];
+	v[7]  = idim1 < szdim1_-2
+			 ? inpdata.get(idim0,idim1+2) : v[1];
+	v[8] = idim0 < szdim0_-1 ? (idim1 > 0
+			 ? inpdata.get(idim0+1,idim1-1) : v[4]) : v[2];
+	v[9]  = idim0 < szdim0_-1 ? (idim1 < szdim1_-2
+			 ? inpdata.get(idim0+1,idim1+2) : v[3]) : v[7];
+	v[10]  = idim0 < szdim0_-2
+			 ? inpdata.get(idim0+2,idim1) : v[2];
+	v[11]  = idim0 < szdim0_-2 ? (idim1 < szdim1_-1
+			 ? inpdata.get(idim0+2,idim1+1) : v[2]) : v[10];
+    }
 
-    pr2d.set( vm10, vm11, v0m1, v00, v01, v02, v1m1, v10, v11, v12, v20, v21 );
+    interp.set( v );
 }
 
 
@@ -603,12 +645,9 @@ static void getColValHex( int idx, char* ptr )
 }
 
 
-bool VDA2DBitmapGenerator::dump( std::ostream& strm ) const
+bool VDA2DBitmapGenerator::dumpXPM( std::ostream& strm ) const
 {
     const int nrxpix = setup_.nrXPix(); const int nrypix = setup_.nrYPix();
-    if ( !bitmap_ || nrxpix == 0 || nrypix == 0 )
-	return false;
-
     const float fac = ((float)51) / (cNrFillSteps - 1);
     char prevc = -1; int nrcols = 0;
     for ( int idx=0; idx<cNrFillSteps; idx++ )

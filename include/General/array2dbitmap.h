@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Sep 2006
- RCS:           $Id: array2dbitmap.h,v 1.6 2006-09-27 20:23:22 cvskris Exp $
+ RCS:           $Id: array2dbitmap.h,v 1.7 2006-10-04 17:02:27 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -178,7 +178,7 @@ public:
 
     void		initBitmap();	//!< with A2DBitmapGenPars::cNoFill
     void		fill();
-    virtual bool	dump(std::ostream&)	{ return false; }
+    bool		dump(std::ostream&) const;
 
     A2DBitmapGenPars&		pars()		{ return pars_; }
     const A2DBitmapGenPars&	pars() const	{ return pars_; }
@@ -210,6 +210,7 @@ protected:
     float			scalewidth_;
 
     virtual void		doFill()		= 0;
+    virtual bool		dumpXPM(std::ostream&) const { return false; }
 
 };
 

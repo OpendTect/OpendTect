@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Mar 2006
- RCS:		$Id: interpol2d.h,v 1.7 2006-09-27 15:18:05 cvskris Exp $
+ RCS:		$Id: interpol2d.h,v 1.8 2006-10-04 17:02:27 cvsbert Exp $
 ________________________________________________________________________
 
 */
@@ -17,43 +17,78 @@ ________________________________________________________________________
 namespace Interpolate
 {
 
+/*!\brief specification for a 2D interpolator
+
+  The 'set' method accepts values arranged like this:
+<pre>
+    7 9
+  5 1 3 11
+  4 0 2 10
+    6 8
+</pre>
+The interpolation is supposed to take place in the 0-1-3-2 'base square'.
+
+In some cases, you don't have or don;t want to provide data outside the base
+square.  If you want to be 100% sure that any applier is able to use the data,
+make sure that at least 0-3 are filled (possibly with undefineds) and set the
+v[4] to null.
+
+The 'apply' method needs the relative distance in x and y direction from
+the origin (where v[0] is located), and should therefore generally be between
+0 and 1, although you can also use the classes to extrapolate.
+
+  */
+
+template <class T>
+struct Applier2D
+{
+    virtual void	set(const T*)				= 0;
+    virtual T		apply(float x,float y) const		= 0;
+};
+
+
 /*!\brief Linear 2D interpolation. */
 
 template <class T>
-class LinearReg2D
+class LinearReg2D : public Applier2D<T>
 {
 public:
 
     inline		LinearReg2D();
+    inline		LinearReg2D(const T*);
+    inline		LinearReg2D(T v00,T v10,T v01,T v11);
 
-    inline		LinearReg2D( const T* const* v );
-    inline		LinearReg2D( T v00, T v10, T v01, T v11 );
+    inline void		set(const T*);
+    inline void		set(T v00,T v01,T v10,T v11);
+    inline T		apply(float x,float y) const;
 
-    inline void		set( T v00, T v10, T v01, T v11 );
-    inline T		apply( float x, float y ) const;
+protected:
 
-    T	a_[4];
+    T			a_[4];
 };
 
 
 template <class T>
-inline T linearReg2D( T v00, T v10, T v01, T v11, float x, float y )
-{ return LinearReg2D<T>( v00, v10, v01, v11 ).apply ( x, y ); }
+inline T linearReg2D( T v00, T v01, T v10, T v11, float x, float y )
+{ return LinearReg2D<T>( v00, v01, v10, v11 ).apply ( x, y ); }
 
 
 /*!\brief Linear 2D interpolation with standard undef handling.  */
 
 template <class T>
-class LinearReg2DWithUdf
+class LinearReg2DWithUdf : public Applier2D<T>
 {
 public:
 
     inline		LinearReg2DWithUdf();
-    inline		LinearReg2DWithUdf( const T* const* v );
-    inline		LinearReg2DWithUdf( T v00, T v10, T v01, T v11 );
+    inline		LinearReg2DWithUdf(const T*);
+    inline		LinearReg2DWithUdf(T v00,T v10,T v01,T v11);
 
-    inline void		set( T v00, T v10, T v01, T v11 );
-    inline T		apply( float x, float y ) const;
+    inline void		set(const T*);
+    inline void		set(T v00,T v01,T v10,T v11);
+    inline T		apply(float x,float y) const;
+
+protected:
 
     LinearReg2D<T>	intp_;
     bool		haveudf_;
@@ -65,45 +100,55 @@ public:
 
 
 template <class T>
-inline T linearReg2DWithUdf( T v00, T v10, T v01, T v11, float x, float y )
+inline T linearReg2DWithUdf( T v00, T v01, T v10, T v11, float x, float y )
 {
-    return LinearReg2DWithUdf<T>( v00, v10, v01, v11 ).apply ( x, y );
+    return LinearReg2DWithUdf<T>( v00, v01, v10, v11 ).apply( x, y );
 }
 
 
-/*!<\brief Interpolate 2D regularly sampled, using a 2nd order surface. */
+/*!<\brief Interpolate 2D regularly sampled, using a 2nd order surface.
+
+  Contrary to teh linear approach it does matter whether deltaX is different
+  from deltaY. That is why you can supply an xstretch. If xstretch > 1 then
+  the deltaX < deltaY, moreover: xstretch = deltaY / deltaX;
+ */
 
 template <class T>
-class PolyReg2D
+class PolyReg2D : public Applier2D<T>
 {
 public:
 
-    inline		PolyReg2D();
-    inline		PolyReg2D( const T* const* v );
+    inline		PolyReg2D(float xstretch=1);
+    inline		PolyReg2D(const T*,float xstretch=1);
+    inline 		PolyReg2D(T vm10,T vm11,
+			   T v0m1,T v00, T v01,T v02,
+			   T v1m1,T v10, T v11,T v12,
+				  T v20, T v21,		float xstretch=1);
 
-    inline 		PolyReg2D( T vm10, T vm11,
-			   T v0m1, T v00,  T v01, T v02,
-			   T v1m1, T v10,  T v11, T v12,
-				   T v20,  T v21 );
+    inline void		set(const T*);
+    inline void		set(	T vm10,T vm11,
+			 T v0m1,T v00, T v01, T v02,
+			 T v1m1,T v10, T v11, T v12,
+				T v20, T v21);
 
-    inline void		set( T vm10, T vm11,
-		     T v0m1, T v00,  T v01, T v02,
-		     T v1m1, T v10,  T v11, T v12,
-			     T v20,  T v21 );
+    inline T		apply(float x,float y) const;
 
-    inline T		apply( float x, float y ) const;
+protected:
 
     PolyReg1D<T>	ix0_, ix1_, iy0_, iy1_;
     T			vm10_, v0m1_, v20_, v02_;
     T			delxm1_, delym1_, delx2_, dely2_;
+    float		xs_;
+
 };
 
 
 template <class T>
 inline T polyReg2D( T vm10, T vm11, T v0m1, T v00, T v01, T v02,
-	   T v1m1, T v10, T v11, T v12, T v20, T v21, float x, float y )
+	   T v1m1, T v10, T v11, T v12, T v20, T v21, float x, float y,
+	   float xs=1 )
 {
-    return PolyReg2D<T>(vm10,vm11,v0m1,v00,v01,v02,v1m1,v10,v11,v12,v20,v21)
+    return PolyReg2D<T>(vm10,vm11,v0m1,v00,v01,v02,v1m1,v10,v11,v12,v20,v21,xs)
 	  .apply( x, y );
 }
 
@@ -117,32 +162,29 @@ inline T polyReg2D( T vm10, T vm11, T v0m1, T v00, T v01, T v02,
   */
 
 template <class T>
-class PolyReg2DWithUdf
+class PolyReg2DWithUdf : public Applier2D<T>
 {
 public:
 
-    inline		PolyReg2DWithUdf();
-    inline		PolyReg2DWithUdf( const T* const* v );
-
+    inline		PolyReg2DWithUdf(float xstretch=1);
+    inline		PolyReg2DWithUdf(const T*,float xstretch=1);
     inline		PolyReg2DWithUdf(T vm10,T vm11,T v0m1,T v00,T v01,T v02,
-				         T v1m1,T v10,T v11,T v12,T v20,T v21 );
+				         T v1m1,T v10,T v11,T v12,T v20,T v21,
+					 float xstretch=1);
 
-    inline void		fillOuter2Inner( T vm10, T vm11, T v0m1, T v02,
-					 T v1m1, T v12, T v20, T v21,
-					 T& v00, T& v10, T& v01, T& v11 );
+    inline void		set(const T*);
+    inline void		set(	T vm10,T vm11,
+			 T v0m1,T v00, T v01, T v02,
+			 T v1m1,T v10, T v11, T v12,
+				T v20, T v21);
 
-    inline void		fillInner2Inner( T& v00, T& v10, T& v01, T& v11 );
+    inline T		apply(float x,float y) const;
 
-    inline void		fillInner2Outer( T v00, T v10, T v01, T v11,
-					 T& vm10, T& vm11, T& v0m1, T& v02,
-					 T& v1m1, T& v12, T& v20, T& v21 );
+protected:
 
-    inline void		set( T vm10, T vm11,
-		     T v0m1, T v00,  T v01, T v02,
-		     T v1m1, T v10,  T v11, T v12,
-			     T v20,  T v21 );
-
-    inline T		apply( float x, float y ) const;
+    inline void		fillOuter2Inner(T,T,T,T,T,T,T,T,T&,T&,T&,T&);
+    inline void		fillInner2Inner(T&,T&,T&,T&);
+    inline void		fillInner2Outer(T,T,T,T,T&,T&,T&,T&,T&,T&,T&,T&);
 
     PolyReg2D<T>	intp_;
     bool		haveudf_;
@@ -173,26 +215,32 @@ inline T polyReg2DWithUdf( T vm10, T vm11, T v0m1, T v00, T v01, T v02,
 //LinearReg2D Implementation
 
 template <class T> inline
-LinearReg2D<T>::LinearReg2D()
-{}
+LinearReg2D<T>::LinearReg2D() {}
 
 
 template <class T> inline
-LinearReg2D<T>::LinearReg2D( const T* const* v )
+LinearReg2D<T>::LinearReg2D( const T* v )
 {
-    set( v[0][0], v[1][0], v[0][1], v[1][1] );
+    set( v[0], v[1], v[2], v[3] );
 }
 
 
 template <class T> inline
-LinearReg2D<T>::LinearReg2D( T v00, T v10, T v01, T v11 )
+LinearReg2D<T>::LinearReg2D( T v00, T v01, T v10, T v11 )
 {
-    set( v00, v10, v01, v11 );
+    set( v00, v01, v10, v11 );
 }
 
 
 template <class T> inline
-void LinearReg2D<T>::set( T v00, T v10, T v01, T v11 )
+void LinearReg2D<T>::set( const T* v )
+{
+    set( v[0], v[1], v[2], v[3] );
+}
+
+
+template <class T> inline
+void LinearReg2D<T>::set( T v00, T v01, T v10, T v11 )
 {
     a_[0] = v00;
     a_[1] = v10 - v00;
@@ -211,18 +259,29 @@ T LinearReg2D<T>::apply( float x, float y ) const
 // LinearReg2DWithUdf Implementation
 //
 template <class T> inline
-LinearReg2DWithUdf<T>::LinearReg2DWithUdf()
-{}
+LinearReg2DWithUdf<T>::LinearReg2DWithUdf() {}
 
 
 template <class T> inline
-LinearReg2DWithUdf<T>::LinearReg2DWithUdf( const T* const* v )
-{ set( v[0][0], v[1][0], v[0][1], v[1][1] ); }
+LinearReg2DWithUdf<T>::LinearReg2DWithUdf( const T* v )
+{
+    set( v[0], v[1], v[2], v[3] );
+}
 
 
 template <class T> inline
-LinearReg2DWithUdf<T>::LinearReg2DWithUdf( T v00, T v10, T v01, T v11 )
-{ set( v00, v10, v01, v11 ); }
+LinearReg2DWithUdf<T>::LinearReg2DWithUdf( T v00, T v01, T v10, T v11 )
+{
+    set( v00, v01, v10, v11 );
+}
+
+
+template <class T> inline
+void LinearReg2DWithUdf<T>::set( const T* v )
+{
+    set( v[0], v[1], v[2], v[3] );
+}
+
 
 #define mFillIfUdfFromSquare(nd,left,right,opp) \
     if ( u##nd##_ ) \
@@ -235,9 +294,8 @@ LinearReg2DWithUdf<T>::LinearReg2DWithUdf( T v00, T v10, T v01, T v11 )
 				: (v##left + v##right) / 2; \
     }
 
-
 template <class T> inline
-void LinearReg2DWithUdf<T>::set( T v00, T v10, T v01, T v11 )
+void LinearReg2DWithUdf<T>::set( T v00, T v01, T v10, T v11 )
 {
     u00_ = mIsUdf(v00);
     u10_ = mIsUdf(v10);
@@ -253,7 +311,7 @@ void LinearReg2DWithUdf<T>::set( T v00, T v10, T v01, T v11 )
 	mFillIfUdfFromSquare(11,10,01,00)
     }
 
-    intp_.set( v00, v10, v01, v11 );
+    intp_.set( v00, v01, v10, v11 );
 }
 
 
@@ -278,16 +336,16 @@ T LinearReg2DWithUdf<T>::apply( float x, float y ) const
 
 //PolyReg2D Implementation
 template <class T> inline
-PolyReg2D<T>::PolyReg2D() {}
+PolyReg2D<T>::PolyReg2D( float xs )
+    : xs_(xs)
+{}
 
 
 template <class T> inline
-PolyReg2D<T>::PolyReg2D( const T* const* v )
+PolyReg2D<T>::PolyReg2D( const T* v, float xs )
+    : xs_(xs)
 {
-	set( v[0][1], v[0][2],
-    v[1][0], v[1][1], v[1][2], v[1][3],
-    v[2][0], v[2][1], v[2][2], v[2][3],
-	     v[3][1], v[3][2] );
+    set( v );
 }
 
 
@@ -295,9 +353,22 @@ template <class T> inline
 PolyReg2D<T>::PolyReg2D( T vm10, T vm11,
 	         T v0m1, T v00,  T v01, T v02,
 	         T v1m1, T v10,  T v11, T v12,
-		         T v20,  T v21 )
+		         T v20,  T v21, float xs )
+    : xs_(xs)
 {
     set( vm10, vm11, v0m1, v00, v01, v02, v1m1, v10, v11, v12, v20, v21 );
+}
+
+
+template <class T> inline
+void PolyReg2D<T>::set( const T* v )
+{
+    if ( v[4] )
+	set( v[4], v[5], v[6], v[0], v[1], v[7], v[8], v[2], v[3],
+	     v[9], v[10], v[11] );
+    else
+	set( v[0], v[1], v[0], v[0], v[1], v[1], v[2], v[2], v[3],
+	     v[3], v[2], v[3] );
 }
 
 
@@ -341,8 +412,9 @@ T PolyReg2D<T>::apply( float x, float y ) const
     const T esty = polyReg1D( vym1, vy0, vy1, vy2, y );
     const float distfromedgex = x > 0.5 ? 1 - x : x;
     const float distfromedgey = y > 0.5 ? 1 - y : y;
-    return (distfromedgey * estx + distfromedgex * esty)
-	 / (distfromedgey + distfromedgex);
+    // wtx == distfromedgey;
+    const float wty = distfromedgex * xs_;
+    return (distfromedgey * estx + wty * esty) / (distfromedgey + wty);
 }
 
 
@@ -350,31 +422,46 @@ T PolyReg2D<T>::apply( float x, float y ) const
 //PolyReg2DWithUdf Implementation
 
 template <class T> inline
-PolyReg2DWithUdf<T>::PolyReg2DWithUdf()	{}
+PolyReg2DWithUdf<T>::PolyReg2DWithUdf( float xs )
+    : intp_(xs)
+{
+}
 
 
 template <class T> inline
-PolyReg2DWithUdf<T>::PolyReg2DWithUdf( const T* const* v )
+PolyReg2DWithUdf<T>::PolyReg2DWithUdf( const T* v, float xs )
+    : intp_(xs)
 {
-	set( v[0][1], v[0][2],
-    v[1][0], v[1][1], v[1][2], v[1][3],
-    v[2][0], v[2][1], v[2][2], v[2][3],
-	     v[3][1], v[3][2] );
+    set( v );
 }
 
 
 template <class T> inline
 PolyReg2DWithUdf<T>::PolyReg2DWithUdf( T vm10,T vm11,T v0m1,T v00,T v01, T v02,
-				       T v1m1,T v10, T v11, T v12, T v20,T v21 )
+				       T v1m1,T v10, T v11, T v12, T v20,T v21,
+				       float xs )
+    : intp_(xs)
 {
     set( vm10, vm11, v0m1, v00, v01, v02, v1m1, v10, v11, v12, v20, v21 );
 }
 
 
 template <class T> inline
+void PolyReg2DWithUdf<T>::set( const T* v )
+{
+    if ( v[4] )
+	set( v[4], v[5], v[6], v[0], v[1], v[7], v[8], v[2], v[3],
+	     v[9], v[10], v[11] );
+    else
+	set( v[0], v[1], v[0], v[0], v[1], v[1], v[2], v[2], v[3],
+	     v[3], v[2], v[3] );
+}
+
+
+template <class T> inline
 void PolyReg2DWithUdf<T>::fillOuter2Inner( T vm10, T vm11, T v0m1, T v02,
 					   T v1m1, T v12, T v20, T v21,
-					   T& v00, T& v10, T& v01, T& v11 )
+					   T& v00, T& v01, T& v10, T& v11 )
 {
 #define mFillWithEither(nd,cand1,cand2) \
     if ( u##nd##_ ) \
@@ -393,7 +480,7 @@ void PolyReg2DWithUdf<T>::fillOuter2Inner( T vm10, T vm11, T v0m1, T v02,
 
 
 template <class T> inline
-void PolyReg2DWithUdf<T>::fillInner2Inner( T& v00, T& v10, T& v01, T& v11 )
+void PolyReg2DWithUdf<T>::fillInner2Inner( T& v00, T& v01, T& v10, T& v11 )
 {
     bool kpu00 = u00_, kpu10 = u10_, kpu01 = u01_, kpu11 = u11_;
     u00_ = mIsUdf(v00); u10_ = mIsUdf(v10);
@@ -410,7 +497,7 @@ void PolyReg2DWithUdf<T>::fillInner2Inner( T& v00, T& v10, T& v01, T& v11 )
 
 
 template <class T> inline
-void PolyReg2DWithUdf<T>::fillInner2Outer( T v00, T v10, T v01, T v11,
+void PolyReg2DWithUdf<T>::fillInner2Outer( T v00, T v01, T v10, T v11,
 					   T& vm10, T& vm11, T& v0m1, T& v02,
 					   T& v1m1, T& v12, T& v20, T& v21 )
 {
@@ -453,10 +540,10 @@ void PolyReg2DWithUdf<T>::set( T vm10, T vm11,
 	if ( haveudf_ )
 	{
 	    fillOuter2Inner( vm10, vm11, v0m1, v02, v1m1, v12, v20, v21,
-			     v00, v10, v01, v11 );
-	    fillInner2Inner( v00, v10, v01, v11 );
+			     v00, v01, v10, v11 );
+	    fillInner2Inner( v00, v01, v10, v11 );
 	}
-	fillInner2Outer( v00, v10, v01, v11,
+	fillInner2Outer( v00, v01, v10, v11,
 			 vm10, vm11, v0m1, v02, v1m1, v12, v20, v21 );
     }
 
