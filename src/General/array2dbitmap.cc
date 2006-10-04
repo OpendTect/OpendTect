@@ -4,7 +4,7 @@
  * DATE     : Sep 2006
 -*/
 
-static const char* rcsID = "$Id: array2dbitmap.cc,v 1.10 2006-10-04 17:02:27 cvsbert Exp $";
+static const char* rcsID = "$Id: array2dbitmap.cc,v 1.11 2006-10-04 17:17:03 cvsbert Exp $";
 
 #include "array2dbitmapimpl.h"
 #include "arraynd.h"
@@ -256,7 +256,7 @@ bool A2DBitmapGenerator::dump( std::ostream& strm ) const
     if ( !bitmap_ || nrxpix == 0 || nrypix == 0 )
 	return false;
 
-    if ( !GetEnvVarYN("OD_DUMP_A2DBITMAP_NUMBERS" ) && dumpXPM(strm) )
+    if ( !GetEnvVarYN("OD_DUMP_A2DBITMAP_AS_NUMBERS" ) && dumpXPM(strm) )
 	return true;
 
     for ( int iy=0; iy<nrypix; iy++ )

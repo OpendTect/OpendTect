@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Mar 2006
- RCS:		$Id: interpol2d.h,v 1.8 2006-10-04 17:02:27 cvsbert Exp $
+ RCS:		$Id: interpol2d.h,v 1.9 2006-10-04 17:17:03 cvsbert Exp $
 ________________________________________________________________________
 
 */
@@ -27,15 +27,17 @@ namespace Interpolate
     6 8
 </pre>
 The interpolation is supposed to take place in the 0-1-3-2 'base square'.
+This looks crazy but the idea is that 0-3 are always needed, and the rest is
+provided bottom-left to top-right.
 
-In some cases, you don't have or don;t want to provide data outside the base
+In some cases, you don't have or don't want to provide data outside the base
 square.  If you want to be 100% sure that any applier is able to use the data,
-make sure that at least 0-3 are filled (possibly with undefineds) and set the
-v[4] to null.
+make sure that the size is at least 5, that 0-3 are filled (possibly with
+undefineds) and set the v[4] to -mUdf(T) (that is a minus there).
 
 The 'apply' method needs the relative distance in x and y direction from
 the origin (where v[0] is located), and should therefore generally be between
-0 and 1, although you can also use the classes to extrapolate.
+0 and 1, although you can also use the classes for near extrapolation.
 
   */
 
@@ -212,7 +214,7 @@ inline T polyReg2DWithUdf( T vm10, T vm11, T v0m1, T v00, T v01, T v02,
 	    			v21).apply( x, y );
 }
 
-//LinearReg2D Implementation
+//--- LinearReg2D Implementation
 
 template <class T> inline
 LinearReg2D<T>::LinearReg2D() {}
@@ -256,8 +258,8 @@ T LinearReg2D<T>::apply( float x, float y ) const
 }
 
 
-// LinearReg2DWithUdf Implementation
-//
+//---  LinearReg2DWithUdf Implementation
+
 template <class T> inline
 LinearReg2DWithUdf<T>::LinearReg2DWithUdf() {}
 
@@ -334,7 +336,9 @@ T LinearReg2DWithUdf<T>::apply( float x, float y ) const
 }
 
 
-//PolyReg2D Implementation
+//--- PolyReg2D Implementation
+
+
 template <class T> inline
 PolyReg2D<T>::PolyReg2D( float xs )
     : xs_(xs)
@@ -363,7 +367,7 @@ PolyReg2D<T>::PolyReg2D( T vm10, T vm11,
 template <class T> inline
 void PolyReg2D<T>::set( const T* v )
 {
-    if ( v[4] )
+    if ( !mIsUdf(-v[4]) )
 	set( v[4], v[5], v[6], v[0], v[1], v[7], v[8], v[2], v[3],
 	     v[9], v[10], v[11] );
     else
@@ -419,7 +423,7 @@ T PolyReg2D<T>::apply( float x, float y ) const
 
 
 
-//PolyReg2DWithUdf Implementation
+//--- PolyReg2DWithUdf Implementation
 
 template <class T> inline
 PolyReg2DWithUdf<T>::PolyReg2DWithUdf( float xs )
@@ -449,7 +453,7 @@ PolyReg2DWithUdf<T>::PolyReg2DWithUdf( T vm10,T vm11,T v0m1,T v00,T v01, T v02,
 template <class T> inline
 void PolyReg2DWithUdf<T>::set( const T* v )
 {
-    if ( v[4] )
+    if ( !mIsUdf(-v[4]) )
 	set( v[4], v[5], v[6], v[0], v[1], v[7], v[8], v[2], v[3],
 	     v[9], v[10], v[11] );
     else

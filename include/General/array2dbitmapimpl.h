@@ -6,13 +6,15 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Sep 2006
- RCS:           $Id: array2dbitmapimpl.h,v 1.3 2006-10-04 17:02:27 cvsbert Exp $
+ RCS:           $Id: array2dbitmapimpl.h,v 1.4 2006-10-04 17:17:03 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "array2dbitmap.h"
 
+
+/*! \brief Common pars for A2DBitmapGenerators */
 
 struct WVAA2DBitmapGenPars : public A2DBitmapGenPars
 {
@@ -43,7 +45,6 @@ struct WVAA2DBitmapGenPars : public A2DBitmapGenPars
 
 
 /*! \brief Wiggles/Variable Area Drawing on A2DBitmap's. */
-
 
 class WVAA2DBitmapGenerator : public A2DBitmapGenerator
 {
@@ -94,7 +95,6 @@ struct VDA2DBitmapGenPars : public A2DBitmapGenPars
 
 
 /*! \brief Wiggles/Variable Area Drawing on A2DBitmap's. */
-
 
 class VDA2DBitmapGenerator : public A2DBitmapGenerator
 {

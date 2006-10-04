@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Sep 2006
- RCS:           $Id: array2dbitmap.h,v 1.7 2006-10-04 17:02:27 cvsbert Exp $
+ RCS:           $Id: array2dbitmap.h,v 1.8 2006-10-04 17:17:03 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -198,7 +198,7 @@ protected:
     A2DBitmapGenPars&		pars_;
     A2DBitMap*			bitmap_;
 
-    // handy vars, duplicated from respective objects
+				// handy, duplicated from respective objects
     int				szdim0_;
     int				szdim1_;
     const float*		dim0pos_;
