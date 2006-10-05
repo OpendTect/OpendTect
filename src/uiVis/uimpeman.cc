@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.cc,v 1.101 2006-09-29 11:17:35 cvsjaap Exp $
+ RCS:           $Id: uimpeman.cc,v 1.102 2006-10-05 08:51:48 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -1006,6 +1006,7 @@ void uiMPEMan::initFromDisplay()
 	if ( idx==0 )
 	{
 	    transfld->setValue( displays[idx]->getDraggerTransparency() );
+	    toolbar->turnOn( showcubeidx, displays[idx]->isBoxDraggerShown() );
 	}
     }
     
