@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: mpeengine.cc,v 1.70 2006-09-29 11:11:32 cvsjaap Exp $";
+static const char* rcsID = "$Id: mpeengine.cc,v 1.71 2006-10-05 08:46:24 cvsjaap Exp $";
 
 #include "mpeengine.h"
 
@@ -20,6 +20,7 @@ static const char* rcsID = "$Id: mpeengine.cc,v 1.70 2006-09-29 11:11:32 cvsjaap
 #include "emmanager.h"
 #include "emobject.h"
 #include "emsurfauxdataio.h"
+#include "emseedpicker.h"
 #include "emtracker.h"
 #include "executor.h"
 #include "filepath.h"
@@ -491,6 +492,11 @@ void Engine::fillPar( IOPar& iopar ) const
 	localpar.set( sKeyObjectID(),EM::EMM().getMultiID(tracker->objectID()));
 	localpar.setYN( sKeyEnabled(), tracker->isEnabled() );
 
+	EMSeedPicker* seedpicker = 
+	    		const_cast<EMTracker*>(tracker)->getSeedPicker(false);
+	if ( seedpicker ) 
+	    localpar.set( sKeySeedConMode(), seedpicker->getSeedConnectMode() );
+
 //	tracker->fillPar( localpar );
 
 	BufferString key( trackeridx );
@@ -564,6 +570,12 @@ bool Engine::usePar( const IOPar& iopar )
 	bool doenable = true;
 	localpar->getYN( sKeyEnabled(), doenable );
 	tracker->enable( doenable );
+
+	int seedconmode = -1;
+	localpar->get( sKeySeedConMode(), seedconmode );
+	EMSeedPicker* seedpicker = tracker->getSeedPicker(true);
+	if ( seedpicker && seedconmode!=-1 )
+	    seedpicker->setSeedConnectMode( seedconmode );
 
 	// old restore session policy without separate tracking setup file
 	tracker->usePar( *localpar );
