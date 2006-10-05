@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          23-10-1996
- RCS:           $Id: mpeengine.h,v 1.32 2006-07-07 15:00:23 cvskris Exp $
+ RCS:           $Id: mpeengine.h,v 1.33 2006-10-05 08:44:24 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -132,6 +132,7 @@ protected:
     static const char*		sKeyObjectID()	{ return "ObjectID"; }
     static const char*		sKeyEnabled()	{ return "Is enabled"; }
     static const char*		sKeyTrackPlane(){ return "Track Plane"; }
+    static const char*		sKeySeedConMode(){ return "Seed Connect Mode"; }
 };
 
 
