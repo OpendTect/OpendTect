@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          December 2004
- RCS:           $Id: uimpepartserv.h,v 1.26 2006-09-29 10:53:03 cvsjaap Exp $
+ RCS:           $Id: uimpepartserv.h,v 1.27 2006-10-05 08:45:10 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -111,6 +111,8 @@ public:
     void			loadPostponedVolume();
 
     void			loadTrackSetupCB(CallBacker*);
+    bool 			prepareSaveSetupAs(const MultiID&);
+    bool 			saveSetupAs(const MultiID&);
     bool 			saveSetup(const MultiID&);
     bool 			readSetup(const MultiID&);
 	
@@ -136,6 +138,7 @@ protected:
 				//Interaction variables
     const Attrib::SelSpec*	eventattrselspec_;
     int				activetrackerid_;
+    int				temptrackerid_;
 
     				//2D interaction
     BufferString		linename_;
