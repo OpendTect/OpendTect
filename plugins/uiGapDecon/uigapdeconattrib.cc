@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          July  2006
- RCS:           $Id: uigapdeconattrib.cc,v 1.16 2006-10-04 15:13:10 cvshelene Exp $
+ RCS:           $Id: uigapdeconattrib.cc,v 1.17 2006-10-05 15:25:14 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -120,6 +120,7 @@ const char* uiGapDeconAttrib::getAttribName() const
 void uiGapDeconAttrib::set2D( bool yn )
 {
     exambut_->display(!yn);
+    qcbut_->display(!yn);
 }
 
 
@@ -250,6 +251,13 @@ void uiGapDeconAttrib::examPush( CallBacker* cb )
     
     CubeSampling cs;
     inpfld_->getRanges(cs);
+    Interval<float> gate = gatefld_->getFInterval();
+    gate.scale(1/SI().zFactor());
+    if ( cs.zrg.start < gate.start )
+	cs.zrg.start = gate.start;
+    if ( cs.zrg.stop > gate.stop )
+	cs.zrg.stop = gate.stop;
+
     positiondlg_ = new uiGDPositionDlg( this, cs );
     positiondlg_->go();
     if ( positiondlg_->uiResult() == 1 ) 
@@ -426,7 +434,7 @@ DescID uiGapDeconAttrib::createGapDeconDesc( DescID& inp0id, DescID inp1id,
     }
     
     newdesc->updateParams();
-    newdesc->setUserRef( "autocorrelation" );
+    newdesc->setUserRef( onlyacorr ? "autocorrelation" : "gapdecon" );
     return dset->addDesc( newdesc );
 }
 
@@ -443,7 +451,7 @@ void uiGapDeconAttrib::fillInGDDescParams( Desc* newdesc )
     
     mDynamicCastGet( IntParam*,noiselvlparam, 
 		     newdesc->getValParam(GapDecon::noiselevelStr()) )
-    gapparam->setValue( noiselvlfld_->getIntValue() );
+    noiselvlparam->setValue( noiselvlfld_->getIntValue() );
 
     int stepout = wantmixfld_->getBoolValue() ?
 		  stepoutfld_->box()->getValue() : 0;
@@ -478,6 +486,13 @@ void uiGapDeconAttrib::qCPush( CallBacker* cb )
    
     CubeSampling cs;
     inpfld_->getRanges(cs);
+    Interval<float> gate = gatefld_->getFInterval();
+    gate.scale(1/SI().zFactor());
+    if ( cs.zrg.start < gate.start )
+	cs.zrg.start = gate.start;
+    if ( cs.zrg.stop > gate.stop )
+	cs.zrg.stop = gate.stop;
+	    
     positiondlg_ = new uiGDPositionDlg( this, cs );
     positiondlg_->go();
     if ( positiondlg_->uiResult() == 1 ) 
@@ -490,7 +505,8 @@ void uiGapDeconAttrib::qCPush( CallBacker* cb )
 	DescSet* dset = ads_->clone();
 	prepareInputDescs( inp0id, inp1id, dset );
 	DescID gapdecid = createGapDeconDesc( inp0id, inp1id, dset, false );
-	acorrview_->setAttribID( gapdecid );
+	DescID autocorrid = createGapDeconDesc( gapdecid, inp1id, dset, true );
+	acorrview_->setAttribID( autocorrid );
 	acorrview_->setCubeSampling( positiondlg_->getCubeSampling() );
 	acorrview_->setDescSet( dset );
 	if ( acorrview_->computeAutocorr() )

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          Sep  2006
- RCS:           $Id: uigdexamacorr.cc,v 1.5 2006-10-04 15:13:10 cvshelene Exp $
+ RCS:           $Id: uigdexamacorr.cc,v 1.6 2006-10-05 15:25:14 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,6 +34,7 @@ GapDeconACorrView::GapDeconACorrView( uiParent* p )
     , attribid_( DescID::undef() )
     , autocorr2darr_( 0 )
     , viewer2d_( 0 )
+    , dset_( 0 )
 {
 }
 
@@ -116,9 +117,10 @@ void GapDeconACorrView::extractAndSaveVals( const DataCubes* dtcube )
 void GapDeconACorrView::createAndDisplay2DViewer()
 {
     viewer2d_ = new uiFlatDisp::VertViewer(this);
-    displayWiggles( true );
+    displayWiggles( false );
     
     viewer2d_->context().darkbg_ = true;
+    viewer2d_->context().ddpars_.vd_.ctab_= "Seismics";
     viewer2d_->context().ddpars_.wva_.overlap_ = 0.8;
     viewer2d_->context().ddpars_.wva_.left_= Color(255,0,0);
     viewer2d_->context().ddpars_.wva_.right_= Color(0,0,255);
@@ -128,8 +130,9 @@ void GapDeconACorrView::createAndDisplay2DViewer()
     viewer2d_->context().posdata_.x1rg_ = 
 		StepInterval<double>(x1rg.start, x1rg.stop, x1rg.step);
     viewer2d_->context().posdata_.x2rg_ = 
-		StepInterval<double>(cs_.zrg.start, cs_.zrg.stop, cs_.zrg.step);
-    viewer2d_->setData( true, autocorr2darr_, "Seismic data");
+		StepInterval<double>(0, cs_.zrg.stop-cs_.zrg.start, 
+				     cs_.zrg.step);
+    viewer2d_->setData( false, autocorr2darr_, "Seismic data");
     show();
 }
 

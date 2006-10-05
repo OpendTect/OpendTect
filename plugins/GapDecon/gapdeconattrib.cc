@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Huck
  Date:          July 2006
- RCS:           $Id: gapdeconattrib.cc,v 1.12 2006-10-04 15:13:09 cvshelene Exp $
+ RCS:           $Id: gapdeconattrib.cc,v 1.13 2006-10-05 15:25:14 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,8 @@ ________________________________________________________________________
 #include "attribparam.h"
 #include "survinfo.h"
 #include "genericnumer.h"
+
+#define	HALFLENGTH	30
 
 
 /*!> Solves a symmetric Toeplitz linear system of equations rf=g 
@@ -67,6 +69,21 @@ void solveSymToeplitzsystem(int systdim, float* r, float* g, float* f, float* a)
 	for ( i=0; i<=j; i++ )
 	    f[i] -= coef*a[j-i];
     }
+}
+
+
+static inline float* makeHilbFilt( int hlen )
+{
+    float* h = new float[hlen*2+1];
+    h[hlen] = 0;
+    for ( int i=1; i<=hlen; i++ )
+    {
+	const float taper = 0.54 + 0.46 * cos( M_PI*(float)i / (float)(hlen) );
+	h[hlen+i] = taper * ( -(float)(i%2)*2.0 / (M_PI*(float)(i)) );
+	h[hlen-i] = -h[hlen+i];
+    }
+
+    return h;
 }
 
 
@@ -159,6 +176,8 @@ GapDecon::GapDecon( Desc& desc_ )
 	mGetInt( lagsize_, lagsizeStr() );
 	mGetInt( gapsize_, gapsizeStr() );
 	mGetInt( noiselevel_, noiselevelStr() );
+	if ( isoutzerophase_ )
+	    hilbfilter_ = makeHilbFilt(HALFLENGTH);
     }
 }
 
@@ -188,6 +207,32 @@ void GapDecon::prepareForComputeData()
 
     Provider::prepareForComputeData();
 }
+
+
+class Masker
+{
+public:
+Masker( const DataHolder* dh, int shift, float avg, int dataidx )
+    : data_(dh )
+    , avg_(avg)
+    , shift_(shift)
+    , dataidx_(dataidx) {}
+
+float operator[]( int idx ) const
+{
+    const int pos = shift_ + idx;
+    if ( pos < 0 )
+	return data_->series(dataidx_)->value(0) - avg_;
+    if ( pos >= data_->nrsamples_ )
+	return data_->series(dataidx_)->value(data_->nrsamples_-1) - avg_;
+    return data_->series(dataidx_)->value( pos ) - avg_;
+}
+
+    const DataHolder*   data_;
+    const int           shift_;
+    float               avg_;
+    int                 dataidx_;
+};
 
 
 bool GapDecon::computeData( const DataHolder& output, const BinID& relpos, 
@@ -249,9 +294,37 @@ bool GapDecon::computeData( const DataHolder& output, const BinID& relpos,
 	float sum = inparr->value( idx + inoffs );
 	for ( int gapidx=startgapidx; gapidx<n; ++gapidx )
 	    sum -= wiener[gapidx-startgapidx] *inparr->value(idx-gapidx+inoffs);
-	setOutputValue( output, 0, idx, z0, sum );
+	setOutputValue( output, 0, idx, z0, isoutzerophase_ ? -sum : sum );
     }
-/*
+
+    if ( isoutzerophase_ )
+    {
+	const int shift = z0 - output.z0_;
+	DataHolder* tmpdh = output.clone();
+	Masker masker( tmpdh, shift, 0, 0 );
+	float avg = 0;
+	int nrsampleused = nrsamples;
+	for ( int idx=0; idx<nrsamples; idx++ )
+	{
+	    float val = masker[idx];
+	    if ( mIsUdf(val) )
+	    {
+		avg += 0;
+		nrsampleused--;
+	    }
+	    else
+		avg += val;
+	}
+
+	masker.avg_ = avg / nrsampleused;
+	float* outparr = output.series(0)->arr();
+	GenericConvolve( HALFLENGTH*2+1, -HALFLENGTH, hilbfilter_, nrsamples,
+			 0, masker, nrsamples, 0, outparr );
+
+	delete tmpdh;
+    }
+
+/*    
     //few lines to test autocorr filtered with gapdecon
     float* inputoutarr = output.series(0)->arr();
     genericCrossCorrelation<float,float,float*>( ncorr_, startcorr, inputoutarr,
@@ -262,17 +335,17 @@ bool GapDecon::computeData( const DataHolder& output, const BinID& relpos,
     for ( int idx=0; idx<lcorr_; idx++)
 	autocorr[idx] *= scale2;
 
-    Interval<int> gap( startcorr, startcorr + lcorr_ );
     for ( int idx = 0; idx < nrsamples; ++idx )
     {
 	float sum = 0;
-	if ( gap.includes(idx) )
-	    sum += autocorr[ idx - startcorr ];
-	output.series(0)->setValue( idx + outoffs, sum );
+	if ( idx<lcorr_ )
+	    sum += autocorr[ idx ];
+	setOutputValue( output, 0, idx, z0, sum );
     }
     //
 */
     return true;
 }
+
 
 }; //namespace

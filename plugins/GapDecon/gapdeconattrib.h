@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Huck
  Date:          14-07-2006
- RCS:           $Id: gapdeconattrib.h,v 1.10 2006-10-04 15:13:10 cvshelene Exp $
+ RCS:           $Id: gapdeconattrib.h,v 1.11 2006-10-05 15:25:14 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -71,6 +71,8 @@ protected:
     const DataHolder*		inputdatamixed_;
     int				dataidx_;
     int				dataidxmixed_;
+
+    const float*		hilbfilter_;
 };
 
 } // namespace Attrib
