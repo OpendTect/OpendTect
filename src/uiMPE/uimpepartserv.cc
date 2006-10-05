@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2004
- RCS:           $Id: uimpepartserv.cc,v 1.52 2006-09-29 11:12:21 cvsjaap Exp $
+ RCS:           $Id: uimpepartserv.cc,v 1.53 2006-10-05 08:48:40 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -52,6 +52,7 @@ uiMPEPartServer::uiMPEPartServer( uiApplService& a, const Attrib::DescSet* ads )
     , eventattrselspec_( 0 )
     , blockdataloading_( false )
     , postponedcs_( false )
+    , temptrackerid_(-1)
 {
     MPE::initStandardClasses();
     MPE::engine().setActiveVolume( MPE::engine().getDefaultActiveVolume() );
@@ -424,36 +425,51 @@ void uiMPEPartServer::loadEMObjectCB(CallBacker*)
 }
 
 
+bool uiMPEPartServer::prepareSaveSetupAs( const MultiID& oldmid )
+{
+    const EM::ObjectID emid = EM::EMM().getObjectID( oldmid );
+    if ( getTrackerID(emid) >= 0 )
+	return true;
+
+    EM::EMObject* emobj = EM::EMM().getObject( emid );
+    if ( !emobj ) 
+	return false;
+    temptrackerid_ = MPE::engine().addTracker( emobj );
+    return temptrackerid_ >= 0; 
+}
+
+
+bool uiMPEPartServer::saveSetupAs( const MultiID& newmid )
+{
+    const int res = saveSetup( newmid );
+    MPE::engine().removeTracker( temptrackerid_ );
+    temptrackerid_ = -1;
+    return res;
+}
+
+
 bool uiMPEPartServer::saveSetup( const MultiID& mid )
 {
-    bool madetemptracker = false;
     const EM::ObjectID emid = EM::EMM().getObjectID( mid );
-    int trackerid = getTrackerID( emid );
-    
-    if ( trackerid<0 )
-    {
-	EM::EMObject* emobj = EM::EMM().getObject( emid );
-	if ( !emobj ) 
-	    return false;
-	trackerid = MPE::engine().addTracker( emobj );
-        if ( trackerid == -1 ) 
-	    return false;
-	madetemptracker = true;
-    }
-
+    const int trackerid = getTrackerID( emid );
+    if ( trackerid<0 ) return false;
     MPE::EMTracker* tracker = MPE::engine().getTracker( trackerid );
+
     IOPar iopar;
     tracker->fillPar( iopar );
+    ObjectSet<const Attrib::SelSpec> usedattribs;
+    MPE::engine().getNeededAttribs( usedattribs );
+    TypeSet<Attrib::DescID> usedattribids;
+    for ( int idx=0; idx<usedattribs.size(); idx++ )
+	usedattribids += usedattribs[idx]->id();
+    Attrib::DescSet* ads = attrset_->optimizeClone( usedattribids );
     IOPar attrpar;
-    attrset_->fillPar( attrpar );
+    ads->fillPar( attrpar );
     iopar.mergeComp( attrpar, "Attribs" );
 
     BufferString setupfilenm = MPE::engine().setupFileName( mid );
     iopar.write( setupfilenm, "Tracking Setup" );
 
-    if ( madetemptracker )
-	MPE::engine().removeTracker( trackerid );
-    
     return true;
 }
 
