@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vismpe.cc,v 1.48 2006-09-29 11:18:59 cvsjaap Exp $";
+static const char* rcsID = "$Id: vismpe.cc,v 1.49 2006-10-05 08:52:24 cvsjaap Exp $";
 
 #include "vismpe.h"
 
@@ -788,6 +788,7 @@ void MPEDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 
     as_.fillPar( par );
     par.set( sKeyTransperancy(), getDraggerTransparency() );
+    par.setYN( sKeyBoxShown(), isBoxDraggerShown() );
 }
 
 
@@ -809,10 +810,15 @@ int MPEDisplay::usePar( const IOPar& par )
     par.get( sKeyTransperancy(), transparency );
     setDraggerTransparency( transparency );
 
+    bool dispboxdragger = false;
+    par.getYN( sKeyBoxShown(), dispboxdragger );
+
     if ( as_.usePar( par ) )
 	updateTexture();
 
     turnOn( true );
+    showBoxDragger( dispboxdragger );
+    
     return 1;
 }
 
