@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.cc,v 1.48 2006-10-05 15:34:51 cvsbert Exp $
+ RCS:           $Id: uitable.cc,v 1.49 2006-10-05 15:38:56 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -633,21 +633,18 @@ float uiTable::getfValue( const RowCol& rc ) const
 
 void uiTable::setValue( const RowCol& rc, int i )
 {
-// TODO: if cellobject on this rc, set to cellobject
     setText( rc, Conv::to<const char*>(i) );
 }
 
 
 void uiTable::setValue( const RowCol& rc, float f )
 {
-// TODO: if cellobject on this rc, set to cellobject
     setText( rc, mIsUdf(f) ? "" : Conv::to<const char*>(f) );
 }
 
 
 void uiTable::setValue( const RowCol& rc, double d )
 {
-// TODO: if cellobject on this rc, set to cellobject
     setText( rc, mIsUdf(d) ? "" : Conv::to<const char*>(d) );
 }
 
