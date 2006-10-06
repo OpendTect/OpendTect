@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: wellimpasc.h,v 1.17 2006-08-24 19:10:46 cvsnanne Exp $
+ RCS:		$Id: wellimpasc.h,v 1.18 2006-10-06 11:48:32 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,11 +45,13 @@ public:
     public:
 			LasFileInfo()
 			    : zrg(mUdf(float),mUdf(float))
+			    , depthcolnr(-1)
 			    , undefval(-999.25)	{}
 			~LasFileInfo()		{ deepErase(lognms); }
 
 	BufferStringSet	lognms;
 	Interval<float>	zrg;
+	int		depthcolnr;
 	float		undefval;
 	BufferString	zunitstr;
 
@@ -72,11 +74,13 @@ protected:
 
     Data&		wd;
 
-    mutable BufferStringSet	unitmeasstrs;
-    mutable ObjectSet<const UnitOfMeasure>	convs;
+    mutable BufferStringSet	unitmeasstrs_;
+    mutable ObjectSet<const UnitOfMeasure>	convs_;
     bool		useconvs_;
 
     void		parseHeader(char*,char*&,char*&,char*&) const;
+    const char*		getLogData(std::istream&,const BoolTypeSet&,
+	    			   const LasFileInfo&,bool,int,int);
 
 };
 

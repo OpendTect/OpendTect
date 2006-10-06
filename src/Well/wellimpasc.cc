@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: wellimpasc.cc,v 1.35 2006-08-24 19:10:46 cvsnanne Exp $";
+static const char* rcsID = "$Id: wellimpasc.cc,v 1.36 2006-10-06 11:48:32 cvsbert Exp $";
 
 #include "wellimpasc.h"
 #include "welldata.h"
@@ -19,6 +19,7 @@ static const char* rcsID = "$Id: wellimpasc.cc,v 1.35 2006-08-24 19:10:46 cvsnan
 #include "survinfo.h"
 #include <iostream>
 
+
 inline static StreamData getSD( const char* fnm )
 {
     StreamProvider sp( fnm );
@@ -29,7 +30,7 @@ inline static StreamData getSD( const char* fnm )
 
 Well::AscImporter::~AscImporter()
 {
-    unitmeasstrs.deepErase();
+    unitmeasstrs_.deepErase();
 }
 
 
@@ -183,21 +184,23 @@ const char* Well::AscImporter::getLogInfo( const char* fnm,
 }
 
 #define mIsKey(s) caseInsensitiveEqual(keyw,s,0)
+#define mErrRet(s) { lfi.depthcolnr = -1; return s; }
 
 const char* Well::AscImporter::getLogInfo( std::istream& strm,
 					   LasFileInfo& lfi ) const
 {
-    convs.allowNull();
-    convs.erase();
+    convs_.allowNull();
+    convs_.erase();
 
-    char linebuf[1024]; char wordbuf[64];
+    char linebuf[4096]; char wordbuf[64];
     const char* ptr;
     char section = '-';
-    bool hasdepthlog = false;
+    lfi.depthcolnr = -1;
+    int colnr = 0;
 
     while ( strm )
     {
-	strm.getline( linebuf, 1024 );
+	strm.getline( linebuf, 4096 );
 	ptr = linebuf; skipLeadingBlanks(ptr);
 	if ( *ptr == '#' || *ptr == '\0' ) continue;
 
@@ -210,7 +213,6 @@ const char* Well::AscImporter::getLogInfo( std::istream& strm,
 	else if ( section == '-' )
 	{
 	    // This is not LAS really, just one line of header and then go
-	    int qnr = 0;
 	    skipLeadingBlanks(ptr);
 	    while ( *ptr )
 	    {
@@ -223,20 +225,20 @@ const char* Well::AscImporter::getLogInfo( std::istream& strm,
 		    char* closeparptr = strchr( unstr, ')' );
 		    if ( closeparptr ) *closeparptr = '\0';
 		}
-		if ( qnr == 0 )
-		    hasdepthlog = matchStringCI("dept",wordbuf);
+		if ( lfi.depthcolnr < 0 && matchStringCI("dept",wordbuf) )
+		    lfi.depthcolnr = colnr;
 		else
 		{
-		    if ( qnr == 1 && ( !strcmp(wordbuf,"in:")
+		    if ( colnr == 1 && ( !strcmp(wordbuf,"in:")
 				    || isdigit(wordbuf[0]) || wordbuf[0] == '+'
 				    || wordbuf[1] == '-' || wordbuf[2] == '.' ))
-			return "Invalid LAS-like file";
+			mErrRet( "Invalid LAS-like file" )
 
 		    lfi.lognms += new BufferString( wordbuf );
 		}
-		convs += UnitOfMeasure::getGuessed( unstr );
-		unitmeasstrs.add( unstr );
-		qnr++;
+		convs_ += UnitOfMeasure::getGuessed( unstr );
+		unitmeasstrs_.add( unstr );
+		colnr++;
 	    }
 	    break;
 	}
@@ -248,22 +250,44 @@ const char* Well::AscImporter::getLogInfo( std::istream& strm,
 	switch ( section )
 	{
 	case 'C':
-	    if ( (mIsKey("dept") || mIsKey("depth")) && !hasdepthlog )
-		hasdepthlog = true;
+
+	    if ( lfi.depthcolnr < 0 && (mIsKey("dept") || mIsKey("depth")) )
+		lfi.depthcolnr = colnr;
 	    else
 	    {
-		if ( !info || !*info )
-		    info = keyw;
-		if ( *info >= '0' && *info <= '9' )
+		BufferString lognm( info );
+		if ( lognm == "" )
+		    lognm = keyw;
+		else if ( *lognm.buf() >= '0' && *lognm.buf() <= '9' )
 		{
-		    const char* newptr = getNextWord( info, wordbuf );
-		    if ( newptr && *newptr ) skipLeadingBlanks(newptr);
-		    if ( newptr && *newptr ) info = (char*)newptr;
+		    // Leading curve number. Remove it.
+		    BufferString newnm( lognm );
+		    char* newptr = (char*)getNextWord( newnm.buf(), wordbuf );
+		    if ( newptr && *newptr )
+			{ skipLeadingBlanks(newptr); }
+		    if ( newptr && *newptr )
+			lognm = newptr;
 		}
-		lfi.lognms += new BufferString( info );
+		if ( matchString("Name = ",lognm.buf()) )
+		{
+		    // Possible HRS 'encoding'. Awful for user display.
+		    BufferString newnm = lognm.buf() + 7;
+		    char* newptr = strstr( newnm, " - Type = " );
+		    if ( !newptr )
+			lognm = newnm;
+		    else
+		    {
+			*newptr = '\0'; lognm = newnm; lognm += " (";
+			newptr += 10; lognm += newptr; lognm += ")";
+		    }
+		}
+		lfi.lognms += new BufferString( lognm );
 	    }
-	    convs += UnitOfMeasure::getGuessed( val1 );
-	    unitmeasstrs.add( val1 );
+
+	    colnr++;
+	    convs_ += UnitOfMeasure::getGuessed( val1 );
+	    unitmeasstrs_.add( val1 );
+
 	break;
 	case 'W':
 	    if ( mIsKey("STRT") )
@@ -283,26 +307,28 @@ const char* Well::AscImporter::getLogInfo( std::istream& strm,
 	}
     }
 
-    if ( !convs.size() )
-	return "Could not read log units";
+    if ( !convs_.size() )
+	mErrRet( "Could not any valid log in file" )
 
     lfi.zrg.sort();
-    if ( convs[0] )
+    const UnitOfMeasure* unmeas = convs_[lfi.depthcolnr];
+    if ( unmeas )
     {
-	lfi.zunitstr = convs[0]->symbol();
+	lfi.zunitstr = unmeas->symbol();
 	if ( !mIsUdf(lfi.zrg.start) )
-	    lfi.zrg.start = convs[0]->internalValue(lfi.zrg.start);
+	    lfi.zrg.start = unmeas->internalValue(lfi.zrg.start);
 	if ( !mIsUdf(lfi.zrg.stop) )
-	    lfi.zrg.stop = convs[0]->internalValue(lfi.zrg.stop);
+	    lfi.zrg.stop = unmeas->internalValue(lfi.zrg.stop);
     }
-    const char* ret = strm.good() ? 0 : "Only header found; No data";
 
-    if ( !lfi.lognms.size() )
-	ret = "No logs present";
-    else if ( !hasdepthlog )
-	ret = "'DEPTH' not present";
+    if ( !strm.good() )
+	mErrRet( "Only header found; No data" )
+    else if ( lfi.lognms.size() < 1 )
+	mErrRet( "No logs present" )
+    else if ( lfi.depthcolnr < 0 )
+	mErrRet( "'DEPTH' not present in file" )
 
-    return ret;
+    return 0;
 }
 
 
@@ -353,81 +379,103 @@ const char* Well::AscImporter::getLogs( std::istream& strm,
 	return res;
     if ( lfi.lognms.size() == 0 )
 	return "No logs selected";
+    if ( inplfi.depthcolnr < 0 )
+	return "Input file is invalid";
 
-    const int prevnrlogs = wd.logs().size();
+    if ( lfi.depthcolnr < 0 )
+	const_cast<LasFileInfo&>(lfi).depthcolnr = inplfi.depthcolnr;
+    const int addstartidx = wd.logs().size();
     BoolTypeSet issel( inplfi.lognms.size(), false );
+
     for ( int idx=0; idx<inplfi.lognms.size(); idx++ )
     {
-	int globidx = idx + 1;
-	if ( indexOf(lfi.lognms,*inplfi.lognms[idx]) >= 0 )
+	const int colnr = idx + (idx >= lfi.depthcolnr ? 1 : 0);
+	const BufferString& lognm = inplfi.lognms.get(idx);
+	const bool ispresent = indexOf( lfi.lognms, lognm ) >= 0;
+	if ( !ispresent )
+	    continue;
+
+	issel[idx] = true;
+	Well::Log* newlog = new Well::Log( lognm );
+	BufferString unlbl;
+	if ( convs_[colnr] )
 	{
-	    issel[idx] = true;
-	    Well::Log* newlog = new Well::Log( inplfi.lognms[idx]->buf() );
-	    BufferString unlbl;
-	    if ( convs[globidx] )
-	    {
-		if ( useconvs_ )
-		    unlbl = "Converted to SI from ";
-		unlbl += unitmeasstrs.get( globidx );
-	    }
-	    newlog->setUnitMeasLabel( unlbl );
-	    wd.logs().add( newlog );
+	    if ( useconvs_ )
+		unlbl = "Converted to SI from ";
+	    unlbl += unitmeasstrs_.get( colnr );
 	}
+	newlog->setUnitMeasLabel( unlbl );
+	wd.logs().add( newlog );
     }
 
-    float val; double dpth, prevdpth = -1e30;
+    return getLogData( strm, issel, lfi, istvd, addstartidx,
+	    		inplfi.lognms.size() + 1 );
+}
+
+
+const char* Well::AscImporter::getLogData( std::istream& strm,
+	const BoolTypeSet& issel, const LasFileInfo& lfi,
+	bool istvd, int addstartidx, int totalcols )
+{
     Interval<float> reqzrg;
     assign( reqzrg, lfi.zrg );
     reqzrg.sort();
-    bool havestart = !mIsUdf(reqzrg.start);
-    bool havestop = !mIsUdf(reqzrg.stop);
+    const bool havestart = !mIsUdf(reqzrg.start);
+    const bool havestop = !mIsUdf(reqzrg.stop);
 
-    TypeSet<float> vals;
+    float prevdpth = mUdf(float);
+    int nradded = 0;
     while ( true )
     {
-	strm >> dpth;
-	if ( strm.fail() || strm.eof() ) break;
-	if ( mIsEqual(dpth,lfi.undefval,mDefEps) )
-	    dpth = mUdf(float);
-	else if ( convs[0] )
-	    dpth = convs[0]->internalValue( dpth );
-
-	bool douse = reqzrg.includes( dpth );
-	if ( mIsUdf(dpth) )
-	    douse = false;
-	else
-	{
-	    bool atstop = mIsEqual(reqzrg.stop,dpth,1e-5);
-	    bool atstart = mIsEqual(reqzrg.start,dpth,1e-5);
-	    if ( atstop || atstart )
-		douse = true;
-	}
-
-	if ( mIsEqual(prevdpth,dpth,mDefEps) )
-	    douse = false;
-	else
-	    prevdpth = dpth;
-
-	vals.erase();
-	for ( int ilog=0; ilog<inplfi.lognms.size(); ilog++ )
+	TypeSet<float> vals;
+	bool atend = false;
+	float val;
+	for ( int icol=0; icol<totalcols; icol++ )
 	{
 	    strm >> val;
-	    if ( !douse || !issel[ilog] ) continue;
-
+	    if ( strm.fail() || (icol<totalcols-1 && strm.eof()) )
+		{ atend = true; break; }
 	    if ( mIsEqual(val,lfi.undefval,mDefEps) )
 		val = mUdf(float);
-	    else if ( useconvs_ && convs[ilog+1] )
-		val = convs[ilog+1]->internalValue( val );
-
+	    else if ( useconvs_ && convs_[icol] )
+		val = convs_[icol]->internalValue( val );
 	    vals += val;
 	}
-	if ( !vals.size() ) continue;
+	if ( atend )
+	    break;
+
+	float dpth = vals[ lfi.depthcolnr ];
+	if ( mIsUdf(dpth) )
+	    continue;
+
+	if ( convs_[lfi.depthcolnr] )
+	    dpth = convs_[lfi.depthcolnr]->internalValue( dpth );
+
+	if ( (havestart && dpth < reqzrg.start - mDefEps)
+	  || mIsEqual(prevdpth,dpth,mDefEps) )
+	    continue;
+	else if ( havestop && dpth > reqzrg.stop + mDefEps )
+	    break;
+
+
+	TypeSet<float> selvals;
+	for ( int icol=0; icol<totalcols; icol++ )
+	{
+	    if ( icol != lfi.depthcolnr && issel[icol] )
+		selvals += vals[icol];
+	}
+	if ( !selvals.size() ) continue;
 
 	const float z = istvd ? wd.track().getDahForTVD( dpth, prevdpth )
 	    		      : dpth;
-	for ( int idx=0; idx<vals.size(); idx++ )
-	    wd.logs().getLog(prevnrlogs+idx).addValue( z, vals[idx] );
+	for ( int idx=0; idx<selvals.size(); idx++ )
+	    wd.logs().getLog(addstartidx+idx).addValue( z, selvals[idx] );
+
+	nradded++; prevdpth = dpth;
     }
+
+    if ( nradded == 0 )
+	return "No matching log data found";
 
     wd.logs().updateDahIntvs();
     return 0;
