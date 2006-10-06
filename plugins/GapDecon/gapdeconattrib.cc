@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Huck
  Date:          July 2006
- RCS:           $Id: gapdeconattrib.cc,v 1.13 2006-10-05 15:25:14 cvshelene Exp $
+ RCS:           $Id: gapdeconattrib.cc,v 1.14 2006-10-06 07:21:48 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -71,7 +71,7 @@ void solveSymToeplitzsystem(int systdim, float* r, float* g, float* f, float* a)
     }
 }
 
-
+//TODO separate the hilbert algo from the attribute itself
 static inline float* makeHilbFilt( int hlen )
 {
     float* h = new float[hlen*2+1];
