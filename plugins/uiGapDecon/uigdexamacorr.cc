@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          Sep  2006
- RCS:           $Id: uigdexamacorr.cc,v 1.6 2006-10-05 15:25:14 cvshelene Exp $
+ RCS:           $Id: uigdexamacorr.cc,v 1.7 2006-10-06 07:21:29 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,6 +26,7 @@ ________________________________________________________________________
 #include "uimsg.h"
 #include "ptrman.h"
 #include "uiflatvertview.h"
+#include "colortab.h"
 
 using namespace Attrib;
 
@@ -118,19 +119,20 @@ void GapDeconACorrView::createAndDisplay2DViewer()
 {
     viewer2d_ = new uiFlatDisp::VertViewer(this);
     displayWiggles( false );
-    
-    viewer2d_->context().darkbg_ = true;
-    viewer2d_->context().ddpars_.vd_.ctab_= "Seismics";
-    viewer2d_->context().ddpars_.wva_.overlap_ = 0.8;
-    viewer2d_->context().ddpars_.wva_.left_= Color(255,0,0);
-    viewer2d_->context().ddpars_.wva_.right_= Color(0,0,255);
-    viewer2d_->context().ddpars_.wva_.wigg_= Color(255,255,255);
+
+    FlatDisp::Context& ctxt = viewer2d_->context();
+    ctxt.darkbg_ = true;
+    ColorTable defctab( 0 );
+    ctxt.ddpars_.vd_.ctab_ = defctab.name();
+    ctxt.ddpars_.wva_.overlap_ = 0.8;
+    ctxt.ddpars_.wva_.left_= Color(255,0,0);
+    ctxt.ddpars_.wva_.right_= Color(0,0,255);
+    ctxt.ddpars_.wva_.wigg_= Color(255,255,255);
     StepInterval<int> x1rg = cs_.nrInl()==1 ? cs_.hrg.crlRange() 
 					    : cs_.hrg.inlRange();
-    viewer2d_->context().posdata_.x1rg_ = 
-		StepInterval<double>(x1rg.start, x1rg.stop, x1rg.step);
-    viewer2d_->context().posdata_.x2rg_ = 
-		StepInterval<double>(0, cs_.zrg.stop-cs_.zrg.start, 
+    ctxt.posdata_.x1rg_ = StepInterval<double>(x1rg.start,x1rg.stop,x1rg.step);
+    ctxt.posdata_.x2rg_ = 
+		StepInterval<double>(0,cs_.zrg.stop-cs_.zrg.start, 
 				     cs_.zrg.step);
     viewer2d_->setData( false, autocorr2darr_, "Seismic data");
     show();
