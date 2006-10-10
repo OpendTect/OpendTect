@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Payraudeau
  Date:          July 2005
- RCS:		$Id: uireferenceattrib.cc,v 1.7 2006-09-11 06:59:31 cvsnanne Exp $
+ RCS:		$Id: uireferenceattrib.cc,v 1.8 2006-10-10 17:46:05 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -48,7 +48,8 @@ static const char* outpstrs2d[] =
 };
 
 
-mInitUI( uiReferenceAttrib, "Reference" )
+mInitAttribUI(uiReferenceAttrib,Reference,"Reference",sKeyPositionGrp)
+
 
 uiReferenceAttrib::uiReferenceAttrib( uiParent* p )
     : uiAttrDescEd(p)
@@ -67,10 +68,6 @@ uiReferenceAttrib::uiReferenceAttrib( uiParent* p )
 
     setHAlignObj( outpfld3d );
 }
-
-
-const char* uiReferenceAttrib::getAttribName() const
-{ return Reference::attribName(); }
 
 
 void uiReferenceAttrib::set2D( bool yn )

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:		$Id: uiattrdesced.cc,v 1.16 2006-09-29 11:35:39 cvshelene Exp $
+ RCS:		$Id: uiattrdesced.cc,v 1.17 2006-10-10 17:46:05 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,6 +29,15 @@ const char* uiAttrDescEd::timegatestr = "Time gate";
 const char* uiAttrDescEd::stepoutstr = "Stepout";
 const char* uiAttrDescEd::frequencystr = "Frequency";
 const char* uiAttrDescEd::filterszstr = "Filter size";
+
+const char* uiAttrDescEd::sKeyOtherGrp = "Other";
+const char* uiAttrDescEd::sKeyBasicGrp = "Basic";
+const char* uiAttrDescEd::sKeyFilterGrp = "Filters";
+const char* uiAttrDescEd::sKeyFreqGrp = "Frequency";
+const char* uiAttrDescEd::sKeyPatternGrp = "Patterns";
+const char* uiAttrDescEd::sKeyStatsGrp = "Statistics";
+const char* uiAttrDescEd::sKeyPositionGrp = "Positions";
+const char* uiAttrDescEd::sKeyDipGrp = "Dip";
 
 
 uiAttrDescEd::uiAttrDescEd( uiParent* p )

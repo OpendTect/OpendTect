@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:		$Id: uicoherencyattrib.cc,v 1.6 2006-09-11 13:14:10 cvsnanne Exp $
+ RCS:		$Id: uicoherencyattrib.cc,v 1.7 2006-10-10 17:46:05 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,7 +14,6 @@ ________________________________________________________________________
 
 #include "attribdesc.h"
 #include "attribparam.h"
-#include "uiattribfactory.h"
 #include "uiattrsel.h"
 #include "uigeninput.h"
 #include "uisteeringsel.h"
@@ -22,8 +21,8 @@ ________________________________________________________________________
 
 using namespace Attrib;
 
+mInitAttribUI(uiCoherencyAttrib,Coherency,"Coherency",sKeyBasicGrp)
 
-mInitUI( uiCoherencyAttrib, "Coherency" )
 
 uiCoherencyAttrib::uiCoherencyAttrib( uiParent* p )
 	: uiAttrDescEd(p)
@@ -48,10 +47,6 @@ uiCoherencyAttrib::uiCoherencyAttrib( uiParent* p )
 
     setHAlignObj( tgfld );
 }
-
-
-const char* uiCoherencyAttrib::getAttribName() const
-{ return Coherency::attribName(); }
 
 
 void uiCoherencyAttrib::set2D( bool yn )

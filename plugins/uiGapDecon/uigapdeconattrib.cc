@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          July  2006
- RCS:           $Id: uigapdeconattrib.cc,v 1.17 2006-10-05 15:25:14 cvshelene Exp $
+ RCS:           $Id: uigapdeconattrib.cc,v 1.18 2006-10-10 17:46:05 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,7 +18,6 @@ ________________________________________________________________________
 #include "attribfactory.h"
 #include "attribparam.h"
 #include "survinfo.h"
-#include "uiattribfactory.h"
 #include "uiattrsel.h"
 #include "uislicesel.h"
 #include "uibutton.h"
@@ -31,6 +30,8 @@ ________________________________________________________________________
 #include "uimsg.h"
 
 using namespace Attrib;
+
+mInitAttribUI(uiGapDeconAttrib,GapDecon,"GapDecon",sKeyFilterGrp)
 
 
 class uiGDPositionDlg: public uiDialog
@@ -47,8 +48,6 @@ class uiGDPositionDlg: public uiDialog
     uiSliceSel*		posdlg_; 
 };
 
-
-mInitUI( uiGapDeconAttrib, "GapDecon" )
 
 uiGapDeconAttrib::uiGapDeconAttrib( uiParent* p )
 	: uiAttrDescEd ( p )
@@ -113,10 +112,6 @@ uiGapDeconAttrib::~uiGapDeconAttrib()
 }
 
     
-const char* uiGapDeconAttrib::getAttribName() const
-{ return GapDecon::attribName(); }
-
-
 void uiGapDeconAttrib::set2D( bool yn )
 {
     exambut_->display(!yn);

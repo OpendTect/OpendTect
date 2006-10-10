@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: uivolstatsattrib.cc,v 1.10 2006-09-22 08:21:12 cvsnanne Exp $
+ RCS:           $Id: uivolstatsattrib.cc,v 1.11 2006-10-10 17:46:05 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,8 +37,9 @@ static const char* outpstrs[] =
 	0
 };
 
+mInitAttribUI(uiVolumeStatisticsAttrib,VolStats,"Volume Statistics",
+	      sKeyStatsGrp)
 
-mInitUI( uiVolumeStatisticsAttrib, "Volume Statistics" )
 
 uiVolumeStatisticsAttrib::uiVolumeStatisticsAttrib( uiParent* p )
     : uiAttrDescEd(p)
@@ -69,10 +70,6 @@ uiVolumeStatisticsAttrib::uiVolumeStatisticsAttrib( uiParent* p )
 
     setHAlignObj( inpfld );
 }
-
-
-const char* uiVolumeStatisticsAttrib::getAttribName() const
-{ return VolStats::attribName(); }
 
 
 void uiVolumeStatisticsAttrib::set2D( bool yn )

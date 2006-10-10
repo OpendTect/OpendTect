@@ -4,14 +4,15 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrdescseted.cc,v 1.33 2006-08-30 16:03:27 cvsbert Exp $
+ RCS:           $Id: uiattrdescseted.cc,v 1.34 2006-10-10 17:46:05 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiattrdescseted.h"
 #include "uiattrdesced.h"
-#include "uiattrfact.h"
+#include "uiattribfactory.h"
+#include "uiattrtypesel.h"
 #include "attribfactory.h"
 #include "attribdesc.h"
 #include "attribdescset.h"
@@ -158,30 +159,23 @@ void uiAttribDescSetEd::createGroups()
     uiGroup* degrp = new uiGroup( rightgrp, "DescEdGroup" );
     degrp->setStretch( 1, 1 );
 
-    attrtypefld = new uiLabeledComboBox( degrp, "Attribute type" );
-    attrtypefld->box()->setCurrentItem( 0 );
-    attrtypefld->box()->selectionChanged.notify(
-			mCB(this,uiAttribDescSetEd,attrTypSel) );
-
+    attrtypefld = new uiAttrTypeSel( degrp );
+    attrtypefld->selChg.notify( mCB(this,uiAttribDescSetEd,attrTypSel) );
     desceds.allowNull();
-    BufferStringSet attrnms;
-    for ( int iattr=0; iattr<uiAttribFactory::nrNames(); iattr++ )
-	attrnms.add( uiAttribFactory::name(iattr) );
-
-    attrnms.sort();
-    for ( int idx=0; idx<attrnms.size(); idx++ )
+    for ( int idx=0; idx<uiAF().size(); idx++ )
     {
-	const char* attrnm = attrnms.get( idx );
-	uiAttrDescEd* de = uiAttribFactory::create( degrp, attrnm );
+	const char* attrnm = uiAF().getDisplayName(idx);
+	uiAttrDescEd* de = uiAF().create( degrp, attrnm, true );
+
+	if ( (SI().zIsTime() && !de->useIfZIsTime()) || 
+	     (!SI().zIsTime() && !de->useIfZIsDepth()) )
+	    { delete de; continue; }
+
+	attrtypefld->add( uiAF().getGroupName(idx), attrnm );
 	desceds += de;
 	de->attach( alignedBelow, attrtypefld );
-	if ( (SI().zIsTime() && de->useIfZIsTime()) || 
-	     (!SI().zIsTime() && de->useIfZIsDepth()) )
-	    attrtypefld->box()->addItem( attrnm );
-
     }
-    attrnms.deepErase();
-
+    attrtypefld->update();
     degrp->setHAlignObj( attrtypefld );
 
     attrnmfld = new uiLineEdit( rightgrp );
@@ -306,12 +300,9 @@ void uiAttribDescSetEd::addPush( CallBacker* )
     if ( !(curde = curDescEd()) )
 	mErrRet( "Cannot add without a valid attribute type" )
 
-    BufferString attribname = curde->getAttribName();
-    if ( !attribname.size() )
-    {
-	const char* attrstr = attrtypefld->box()->text();
-	attribname = uiAttribFactory::defNameForName( attrstr );
-    }
+    BufferString attribname = curde->attribName();
+    if ( attribname == "" )
+	attribname = uiAF().attrNameOf( attrtypefld->attr() );
 
     Desc* newdesc = PF().createDescCopy( attribname );
     if ( !newdesc )
@@ -407,33 +398,17 @@ void uiAttribDescSetEd::updateFields( bool set_type )
     uiAttrDescEd* curde = 0;
     if ( set_type )
     {
-	if ( !desc )
-	{
-	    const char* nm =
-		uiAttribFactory::nameForDefName( "RefTime" );
-	    attrtypefld->box()->setCurrentItem( nm );
-	    curde = curDescEd();
-	}
-	else
-	{
-	    BufferString typenm = desc->attribName();
-	    const char* nm =
-		uiAttribFactory::nameForDefName( getAttrTypeName( typenm ) );
-	    if ( nm )
-		attrtypefld->box()->setCurrentItem( nm );
-	    curde = curDescEd();
-	}
+	BufferString typenm = desc ? desc->attribName() : "RefTime";
+	attrtypefld->setAttr( uiAF().dispNameOf(typenm) );
+	curde = curDescEd();
     }
     if ( !curde )
 	curde = curDescEd();
 
-    BufferString attribname = curde->getAttribName();
-    if ( !attribname.size() )
-    {
-	const char* attrstr = attrtypefld->box()->text();
-	attribname = uiAttribFactory::defNameForName( attrstr );
-    }
-    bool isrightdesc = desc && !strcmp( desc->attribName(), attribname );
+    BufferString attribname = curde ? curde->attribName() : "";
+    if ( attribname == "" )
+	attribname = uiAF().attrNameOf( attrtypefld->attr() );
+    const bool isrightdesc = desc && attribname == desc->attribName();
 
     Desc* dummydesc = PF().createDescCopy( attribname );
     if ( !dummydesc )
@@ -462,28 +437,15 @@ void uiAttribDescSetEd::updateFields( bool set_type )
 }
 
 
-const char* uiAttribDescSetEd::getAttrTypeName( const char* nm )
-{
-    const char* convdipnm = "3DFilter";
-
-    if ( !strcmp(nm,"Convolve") || !strcmp(nm,"DipFilter") )
-	return convdipnm;
-    
-    return nm;
-}
-
-
 bool uiAttribDescSetEd::doCommit( bool useprev )
 {
     Desc* usedesc = useprev ? prevdesc : curDesc();
     if ( !usedesc )
 	return false;
     
-    const char* attrstr = attrtypefld->box()->text();
-    const char* newattr = uiAttribFactory::defNameForName( attrstr );
-    BufferString type = usedesc->attribName();
-    const char* oldattr = getAttrTypeName( type );
-    if ( strcmp(newattr,oldattr) )
+    BufferString newattr = uiAF().attrNameOf( attrtypefld->attr() );
+    BufferString oldattr = usedesc->attribName();
+    if ( oldattr != newattr )
     {
 	if ( !uiMSG().askGoOn("This action will change the attribute type.\n"
 			      "Do you want to continue?") )
@@ -551,8 +513,8 @@ Desc* uiAttribDescSetEd::curDesc() const
 
 uiAttrDescEd* uiAttribDescSetEd::curDescEd()
 {
-    const char* attrstr = attrtypefld->box()->text();
-    const char* attrnm = uiAttribFactory::defNameForName( attrstr );
+    const char* attrstr = attrtypefld->attr();
+    BufferString attrnm = uiAF().attrNameOf( attrstr );
     if ( !attrnm ) attrnm = attrstr;
 
     uiAttrDescEd* ret = 0;
@@ -561,7 +523,7 @@ uiAttrDescEd* uiAttribDescSetEd::curDescEd()
 	uiAttrDescEd* de = desceds[idx];
 	if ( !de ) continue;
 
-	if ( de->name() == attrnm )
+	if ( attrnm == de->attribName() )
 	    return de;
     }
     return ret;
@@ -704,7 +666,7 @@ void uiAttribDescSetEd::openSet( CallBacker* )
 		    BufferString msg = "The attribute: '";
 		    msg += ad->userRef();
 		    msg += "' will be removed\n";
-		    msg += "Storage ID is not valid";
+		    msg += "Storage ID is no longer valid";
 		    uiMSG().message( msg );
 		    attrset->removeDesc( ad->id() );
 		    idx--;

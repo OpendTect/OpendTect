@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2001
- RCS:           $Id: uidipfilterattrib.cc,v 1.10 2006-09-14 20:12:57 cvsnanne Exp $
+ RCS:           $Id: uidipfilterattrib.cc,v 1.11 2006-10-10 17:46:05 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -56,17 +56,12 @@ static const char* outpstrs[] =
 };
 
 
-mInitUI( ui3DFilterAttrib, "3D Filter" )
+mInitAttribUI(ui3DFilterAttrib,DipFilter,"3D Filter",sKeyFilterGrp)
+
 
 ui3DFilterAttrib::ui3DFilterAttrib( uiParent* p )
 	: uiAttrDescEd(p)
 {
-    if ( !zIsTime() )
-    {
-	kerstrs[3] = "Dip filter";
-	outpstrs[3] = "Depth gradient";
-    }
-
     inpfld = getInpFld();
 
     kernelfld = new uiGenInput( this, "Filter type",
@@ -113,20 +108,6 @@ ui3DFilterAttrib::ui3DFilterAttrib( uiParent* p )
 
     kernelSel(0);
     setHAlignObj( inpfld );
-}
-
-
-const char* ui3DFilterAttrib::getAttribName() const
-{
-    return kernelfld->getIntValue() == 3 ? DipFilter::attribName() 
-					 : Convolve::attribName();
-}
-
-
-bool ui3DFilterAttrib::isUIFor( const char* attrnm ) const
-{
-    return !strcmp(attrnm,DipFilter::attribName()) ||
-	   !strcmp(attrnm,Convolve::attribName());
 }
 
 
@@ -184,7 +165,7 @@ void ui3DFilterAttrib::kernelSel( CallBacker* cb )
 
     if ( cb )
     {
-	Desc* dummydesc = PF().createDescCopy( getAttribName() );
+	Desc* dummydesc = PF().createDescCopy( attribName() );
 	if ( dummydesc )
 	{
 	    dummydesc->ref();
@@ -198,32 +179,24 @@ void ui3DFilterAttrib::kernelSel( CallBacker* cb )
 
 bool ui3DFilterAttrib::setParameters( const Desc& desc )
 {
-    if ( !strcmp(desc.attribName(),Convolve::attribName()) )
-    {
-	mIfGetEnum( Convolve::kernelStr(), kernel, kernelfld->setValue(kernel) )
-	mIfGetEnum( Convolve::shapeStr(), shape, shapefld->setValue(shape) )
-	mIfGetInt( Convolve::sizeStr(), size, szfld->box()->setValue(size) )
-    }
-    else if ( !strcmp(desc.attribName(),DipFilter::attribName()) )
-    {
-	mIfGetInt( DipFilter::sizeStr(), size, szfld->box()->setValue(size) )
-	mIfGetEnum( DipFilter::typeStr(), type, fltrtpfld->setValue(type) )
-	mIfGetFloat( DipFilter::minvelStr(), minvel,
-		     velfld->setValue(minvel,0) )
-	mIfGetFloat( DipFilter::maxvelStr(), maxvel,
-		     velfld->setValue(maxvel,1) )
-	mIfGetBool( DipFilter::filteraziStr(), filterazi,
-		    azifld->setValue(filterazi) )
-	mIfGetFloat( DipFilter::minaziStr(), minazi,
-		     aziintfld->setValue(minazi,0) )
-	mIfGetFloat( DipFilter::maxaziStr(), maxazi,
-		     aziintfld->setValue(maxazi,1) )
-	mIfGetFloat( DipFilter::taperlenStr(), taperlen,
-		     taperfld->setValue(taperlen) )
-	kernelfld->setValue( 3 );
-    }
-    else
+    if ( strcmp(desc.attribName(),DipFilter::attribName()) )
 	return false;
+
+    mIfGetInt( DipFilter::sizeStr(), size, szfld->box()->setValue(size) )
+    mIfGetEnum( DipFilter::typeStr(), type, fltrtpfld->setValue(type) )
+    mIfGetFloat( DipFilter::minvelStr(), minvel,
+		 velfld->setValue(minvel,0) )
+    mIfGetFloat( DipFilter::maxvelStr(), maxvel,
+		 velfld->setValue(maxvel,1) )
+    mIfGetBool( DipFilter::filteraziStr(), filterazi,
+		azifld->setValue(filterazi) )
+    mIfGetFloat( DipFilter::minaziStr(), minazi,
+		 aziintfld->setValue(minazi,0) )
+    mIfGetFloat( DipFilter::maxaziStr(), maxazi,
+		 aziintfld->setValue(maxazi,1) )
+    mIfGetFloat( DipFilter::taperlenStr(), taperlen,
+		 taperfld->setValue(taperlen) )
+    kernelfld->setValue( 3 );
 
     kernelSel(0);
     return true;
@@ -251,25 +224,17 @@ bool ui3DFilterAttrib::setOutput( const Desc& desc )
 
 bool ui3DFilterAttrib::getParameters( Desc& desc )
 {
-    if ( !strcmp(desc.attribName(),Convolve::attribName()) )
-    {
-	mSetEnum( Convolve::kernelStr(), kernelfld->getIntValue() );
-	mSetEnum( Convolve::shapeStr(), shapefld->getIntValue() );
-	mSetInt( Convolve::sizeStr(), szfld->box()->getValue() );
-    }
-    else if ( !strcmp(desc.attribName(),DipFilter::attribName()) )
-    {
-	mSetInt( DipFilter::sizeStr(), szfld->box()->getValue() );
-	mSetEnum( DipFilter::typeStr(), fltrtpfld->getIntValue() );
-	mSetFloat( DipFilter::minvelStr(), velfld->getfValue(0) );
-	mSetFloat( DipFilter::maxvelStr(), velfld->getfValue(1) );
-	mSetBool( DipFilter::filteraziStr(), azifld->getBoolValue() );
-	mSetFloat( DipFilter::minaziStr(), aziintfld->getfValue(0) );
-	mSetFloat( DipFilter::maxaziStr(), aziintfld->getfValue(1) );
-	mSetFloat( DipFilter::taperlenStr(), taperfld->getfValue() );
-    }
-    else
+    if ( strcmp(desc.attribName(),DipFilter::attribName()) )
 	return false;
+
+    mSetInt( DipFilter::sizeStr(), szfld->box()->getValue() );
+    mSetEnum( DipFilter::typeStr(), fltrtpfld->getIntValue() );
+    mSetFloat( DipFilter::minvelStr(), velfld->getfValue(0) );
+    mSetFloat( DipFilter::maxvelStr(), velfld->getfValue(1) );
+    mSetBool( DipFilter::filteraziStr(), azifld->getBoolValue() );
+    mSetFloat( DipFilter::minaziStr(), aziintfld->getfValue(0) );
+    mSetFloat( DipFilter::maxaziStr(), aziintfld->getfValue(1) );
+    mSetFloat( DipFilter::taperlenStr(), taperfld->getfValue() );
 
     return true;
 }

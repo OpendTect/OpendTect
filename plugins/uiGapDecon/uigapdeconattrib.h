@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          July 2006
- RCS:           $Id: uigapdeconattrib.h,v 1.11 2006-10-04 15:13:10 cvshelene Exp $
+ RCS:           $Id: uigapdeconattrib.h,v 1.12 2006-10-10 17:46:05 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,16 +30,14 @@ class GapDeconACorrView;
 class uiGapDeconAttrib : public uiAttrDescEd
 {
 public:
-    static void		initClass();
+
 			uiGapDeconAttrib(uiParent*);
 			~uiGapDeconAttrib();
 
     void                set2D(bool);
     void		getEvalParams(TypeSet<EvalParam>&) const;
-    const char*		getAttribName() const;
 
 protected:
-    static uiAttrDescEd* createInstance(uiParent*);
 
     uiAttrSel*		inpfld_;
     uiGenInput*		gatefld_;
@@ -77,6 +75,8 @@ protected:
     void		prepareInputDescs(Attrib::DescID&,Attrib::DescID&,
 	    				  Attrib::DescSet*);
     void		fillInGDDescParams(Attrib::Desc*);
+
+    			mDeclReqAttribUIFns
 };
 
 

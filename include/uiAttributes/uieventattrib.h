@@ -7,7 +7,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Payraudeau
  Date:          February 2005
- RCS:           $Id: uieventattrib.h,v 1.3 2006-09-11 07:04:12 cvsnanne Exp $
+ RCS:           $Id: uieventattrib.h,v 1.4 2006-10-10 17:46:05 cvsbert Exp $
  ________________________________________________________________________
 
 -*/
@@ -24,13 +24,10 @@ class uiGenInput;
 class uiEventAttrib : public uiAttrDescEd
 {
 public:
-    static void		initClass();
+
                         uiEventAttrib(uiParent*);
 
-    const char*		getAttribName() const;
-
 protected:
-    static uiAttrDescEd* createInstance(uiParent*);
 
     uiAttrSel*          inpfld;
     uiGenInput*         issinglefld;
@@ -49,6 +46,8 @@ protected:
 
     void		isSingleSel(CallBacker*);
     void                isGateSel(CallBacker*);
+
+    			mDeclReqAttribUIFns
 };
 
 

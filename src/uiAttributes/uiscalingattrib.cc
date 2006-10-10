@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          December 2004
- RCS:           $Id: uiscalingattrib.cc,v 1.9 2006-09-11 06:59:31 cvsnanne Exp $
+ RCS:           $Id: uiscalingattrib.cc,v 1.10 2006-10-10 17:46:05 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,8 +46,8 @@ static const char* scalingtypestr[] =
     0
 };
 
+mInitAttribUI(uiScalingAttrib,Scaling,"Scaling",sKeyBasicGrp)
 
-mInitUI( uiScalingAttrib, "Scaling" )
 
 uiScalingAttrib::uiScalingAttrib( uiParent* p )
 	: uiAttrDescEd(p)
@@ -87,10 +87,6 @@ uiScalingAttrib::uiScalingAttrib( uiParent* p )
 
     setHAlignObj( inpfld );
 }
-
-
-const char* uiScalingAttrib::getAttribName() const
-{ return Scaling::attribName(); }
 
 
 void uiScalingAttrib::typeSel( CallBacker* )

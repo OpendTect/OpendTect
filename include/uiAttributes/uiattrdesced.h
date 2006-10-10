@@ -7,12 +7,13 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: uiattrdesced.h,v 1.15 2006-09-22 12:49:52 cvsbert Exp $
+ RCS:           $Id: uiattrdesced.h,v 1.16 2006-10-10 17:46:05 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uigroup.h"
+#include "uiattribfactory.h"
 #include "changetracker.h"
 #include "paramsetget.h"
 #include "bufstring.h"
@@ -64,7 +65,13 @@ public:
 
 
 
-/*! \brief Attribute description editor */
+/*! \brief Attribute description editor
+ 
+ Required functions are declared in the macro mDeclReqAttribUIFns. Two of
+ those, attribName() and createInstance() are implemented by the mInitAttribUI
+ macro.
+
+ */
 
 class uiAttrDescEd : public uiGroup
 {
@@ -89,11 +96,9 @@ public:
 
     virtual void	getEvalParams(TypeSet<EvalParam>&) const {}
 
-    virtual const char* getAttribName() const		= 0;
-    virtual bool	isUIFor( const char* attrnm ) const
-			{ return !strcmp(attrnm,getAttribName()); }
+    virtual const char* attribName() const		= 0;
+    const char*		displayName() const		{ return dispname_; }
     void		setDisplayName(const char* nm ) { dispname_ = nm; }
-    const char*		getDisplayName() const		{ return dispname_; }
 
     virtual bool	useIfZIsTime() const		{ return true; }
     virtual bool	useIfZIsDepth() const		{ return true; }
@@ -137,8 +142,18 @@ protected:
     uiImagAttrSel*	getImagInpFld();
     void		attrInpSel(CallBacker*);
 
+    BufferString	attrnm_;
     BufferString	errmsg_;
     DescSet*		ads_;
+
+    static const char*	sKeyOtherGrp;
+    static const char*	sKeyBasicGrp;
+    static const char*	sKeyFilterGrp;
+    static const char*	sKeyFreqGrp;
+    static const char*	sKeyPatternGrp;
+    static const char*	sKeyStatsGrp;
+    static const char*	sKeyPositionGrp;
+    static const char*	sKeyDipGrp;
 
 private:
 
@@ -148,12 +163,38 @@ private:
 };
 
 
-#define mInitUI( clss, displaynm ) \
+#define mDeclReqAttribUIFns \
+protected: \
+    static uiAttrDescEd* createInstance(uiParent*); \
+    static int factoryid_; \
+public: \
+    static void initClass(); \
+    virtual const char* attribName() const; \
+    static int factoryID() { return factoryid_; }
+
+
+#define mInitAttribUI( clss, attr, displaynm, grp ) \
+\
+int clss::factoryid_ = -1; \
+\
 void clss::initClass() \
-{ uiAF().add( displaynm, createInstance ); } \
+{ \
+    if ( factoryid_ < 0 ) \
+	factoryid_ = uiAF().add( displaynm, attr::attribName(), grp, \
+		     clss::createInstance ); \
+} \
 \
 uiAttrDescEd* clss::createInstance( uiParent* p ) \
-{ return new clss( p ); }
+{ \
+    uiAttrDescEd* de = new clss( p ); \
+    de->setDisplayName( displaynm ); \
+    return de; \
+} \
+\
+const char* clss::attribName() const \
+{ \
+    return attr::attribName(); \
+}
 
 
 #endif

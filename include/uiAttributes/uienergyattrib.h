@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: uienergyattrib.h,v 1.4 2006-09-24 13:55:16 cvshelene Exp $
+ RCS:           $Id: uienergyattrib.h,v 1.5 2006-10-10 17:46:05 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,14 +25,11 @@ class uiEnergyAttrib : public uiAttrDescEd
 {
 public:
 
-    static void		initClass();
 			uiEnergyAttrib(uiParent*);
 
-    const char*		getAttribName() const;
     void		getEvalParams(TypeSet<EvalParam>&) const;
 
 protected:
-    static uiAttrDescEd* createInstance(uiParent*);
 
     uiAttrSel*		inpfld_;
     uiGenInput*		gatefld_;
@@ -45,6 +42,8 @@ protected:
     bool		getParameters(Attrib::Desc&);
     bool		getInput(Attrib::Desc&);
     bool                getOutput(Attrib::Desc&);
+
+    			mDeclReqAttribUIFns
 };
 
 #endif

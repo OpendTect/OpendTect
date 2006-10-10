@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2001
- RCS:           $Id: uifrequencyattrib.h,v 1.3 2006-09-11 07:04:12 cvsnanne Exp $
+ RCS:           $Id: uifrequencyattrib.h,v 1.4 2006-10-10 17:46:05 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,14 +23,12 @@ class uiImagAttrSel;
 class uiFrequencyAttrib : public uiAttrDescEd
 {
 public:
-    static void		initClass();
+
 			uiFrequencyAttrib(uiParent*);
 
-    const char*		getAttribName() const;
     void		getEvalParams(TypeSet<EvalParam>&) const;
 
 protected:
-    static uiAttrDescEd* createInstance(uiParent*);
 
     uiImagAttrSel*	inpfld;
     uiGenInput*         gatefld;
@@ -45,6 +43,8 @@ protected:
     bool		getParameters(Attrib::Desc&);
     bool		getInput(Attrib::Desc&);
     bool		getOutput(Attrib::Desc&);
+
+    			mDeclReqAttribUIFns
 };
 
 #endif

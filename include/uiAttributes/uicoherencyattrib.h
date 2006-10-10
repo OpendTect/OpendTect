@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uicoherencyattrib.h,v 1.2 2006-09-11 13:14:10 cvsnanne Exp $
+ RCS:           $Id: uicoherencyattrib.h,v 1.3 2006-10-10 17:46:05 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,13 +27,10 @@ class uiStepOutSel;
 class uiCoherencyAttrib : public uiAttrDescEd
 {
 public:
-    static void		initClass();
+
 			uiCoherencyAttrib(uiParent*);
 
-    const char*		getAttribName() const;
-
 protected:
-    static uiAttrDescEd* createInstance(uiParent*);
 
     uiImagAttrSel*	inpfld;
     uiGenInput*		is1fld;
@@ -50,6 +47,8 @@ protected:
     bool                getParameters(Attrib::Desc&);
     bool                getInput(Attrib::Desc&);
     virtual void	set2D(bool);
+
+			mDeclReqAttribUIFns
 };
 
 

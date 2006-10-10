@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2004
- RCS:           $Id: uispecdecompattrib.cc,v 1.11 2006-09-11 06:59:32 cvsnanne Exp $
+ RCS:           $Id: uispecdecompattrib.cc,v 1.12 2006-10-10 17:46:05 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,8 +27,8 @@ using namespace Attrib;
 
 static float sDefaultFreqStep = 5;
 
+mInitAttribUI(uiSpecDecompAttrib,SpecDecomp,"Spectral Decomp",sKeyFreqGrp)
 
-mInitUI( uiSpecDecompAttrib, "Spectral Decomp" )
 
 uiSpecDecompAttrib::uiSpecDecompAttrib( uiParent* p )
     : uiAttrDescEd(p)
@@ -65,10 +65,6 @@ uiSpecDecompAttrib::uiSpecDecompAttrib( uiParent* p )
     typeSel(0);
     setHAlignObj( inpfld );
 }
-
-
-const char* uiSpecDecompAttrib::getAttribName() const
-{ return SpecDecomp::attribName(); }
 
 
 void uiSpecDecompAttrib::inputSel( CallBacker* )

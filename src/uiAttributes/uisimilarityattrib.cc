@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May  2005
- RCS:           $Id: uisimilarityattrib.cc,v 1.11 2006-09-11 06:59:32 cvsnanne Exp $
+ RCS:           $Id: uisimilarityattrib.cc,v 1.12 2006-10-10 17:46:05 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,8 +49,8 @@ static const char* outpstrsext[] =
 	0
 };
 
+mInitAttribUI(uiSimilarityAttrib,Similarity,"Similarity",sKeyBasicGrp)
 
-mInitUI( uiSimilarityAttrib, "Similarity" )
 
 uiSimilarityAttrib::uiSimilarityAttrib( uiParent* p )
 	: uiAttrDescEd(p)
@@ -82,10 +82,6 @@ uiSimilarityAttrib::uiSimilarityAttrib( uiParent* p )
 
     extSel(0);
 }
-
-
-const char* uiSimilarityAttrib::getAttribName() const
-{ return Similarity::attribName(); }
 
 
 void uiSimilarityAttrib::set2D( bool yn )

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: uisteeringsel.cc,v 1.19 2006-06-29 16:34:09 cvsbert Exp $
+ RCS:           $Id: uisteeringsel.cc,v 1.20 2006-10-10 17:46:05 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,7 +27,7 @@ ________________________________________________________________________
 #include "seistrcsel.h"
 #include "seistrctr.h"
 #include "seisioobjinfo.h"
-#include "uiattrfact.h"
+#include "uiattribfactory.h"
 #include "uigeninput.h"
 #include "uilabel.h"
 #include "uimsg.h"
@@ -48,7 +48,7 @@ uiSteeringSel::uiSteeringSel( uiParent* p, const Attrib::DescSet* ads )
     , is2d_(false)
     , notypechange_(false)
 {
-    const char* res = uiAttribFactory::defNameForName( "Curvature" );
+    const char* res = uiAF().attrNameOf( "Curvature" );
     if ( !res )
     {
 	nosteerlbl_ = new uiLabel( this, "<Steering unavailable>" );

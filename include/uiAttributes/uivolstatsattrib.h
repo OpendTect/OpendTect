@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uivolstatsattrib.h,v 1.5 2006-09-21 17:52:30 cvsnanne Exp $
+ RCS:           $Id: uivolstatsattrib.h,v 1.6 2006-10-10 17:46:05 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,14 +27,12 @@ class uiStepOutSel;
 class uiVolumeStatisticsAttrib : public uiAttrDescEd
 {
 public:
-    static void		initClass();
+
 			uiVolumeStatisticsAttrib(uiParent*);
 
-    const char*		getAttribName() const;
     void		getEvalParams(TypeSet<EvalParam>& params) const;
 
 protected:
-    static uiAttrDescEd* createInstance(uiParent*);
 
     uiAttrSel*		inpfld;
     uiSteeringSel*	steerfld;
@@ -54,6 +52,8 @@ protected:
     bool		getParameters(Attrib::Desc&);
     bool		getInput(Attrib::Desc&);
     bool		getOutput(Attrib::Desc&);
+
+    			mDeclReqAttribUIFns
 };
 
 

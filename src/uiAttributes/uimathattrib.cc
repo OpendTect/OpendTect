@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2001
- RCS:           $Id: uimathattrib.cc,v 1.7 2006-09-11 06:59:31 cvsnanne Exp $
+ RCS:           $Id: uimathattrib.cc,v 1.8 2006-10-10 17:46:05 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,8 +25,8 @@ using namespace Attrib;
 
 const int cNrVars = 6;
 
+mInitAttribUI(uiMathAttrib,Math,"Mathematics",sKeyBasicGrp)
 
-mInitUI( uiMathAttrib, "Mathematics" )
 
 uiMathAttrib::uiMathAttrib( uiParent* p )
 	: uiAttrDescEd(p)
@@ -51,10 +51,6 @@ uiMathAttrib::uiMathAttrib( uiParent* p )
 
     setHAlignObj( inpfld );
 }
-
-
-const char* uiMathAttrib::getAttribName() const
-{ return Math::attribName(); }
 
 
 void uiMathAttrib::parsePush( CallBacker* )

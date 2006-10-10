@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          September 2006
- RCS:           $Id: uiattribfactory.h,v 1.1 2006-09-11 06:53:42 cvsnanne Exp $
+ RCS:           $Id: uiattribfactory.h,v 1.2 2006-10-10 17:46:05 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,21 +20,49 @@ class uiParent;
 /*! \brief Factory for attrib editors.  */
 
 
-typedef uiAttrDescEd* (*CreateFunc)(uiParent*);
+typedef uiAttrDescEd* (*uiAttrDescEdCreateFunc)(uiParent*);
 
 class uiAttributeFactory
 {
 public:
-    void		add(const char* displaynm,CreateFunc fc);
-    uiAttrDescEd*	create(uiParent*,const char* nm);
 
-    int			size() const;
-    const char*		getDisplayName(int) const;
-    bool		hasAttribute(const char* dispnm) const;
+    int			add(const char* displaynm,const char* attrnm,
+	    		    const char* grpnm,uiAttrDescEdCreateFunc);
+    uiAttrDescEd*	create(uiParent*,const char* nm,bool dispnm=true) const;
+
+    int			size() const	{ return entries_.size(); }
+    const char*		getDisplayName( int idx ) const
+					{ return entries_[idx]->dispnm_; }
+    const char*		getGroupName( int idx ) const
+					{ return entries_[idx]->grpnm_; }
+
+    const char*		dispNameOf(const char*) const;
+    const char*		attrNameOf(const char*) const;
 
 protected:
-    BufferStringSet	displaynames_;
-    TypeSet<CreateFunc>	funcs_;
+
+    struct Entry
+    {
+				Entry(	const char* dn, const char* an,
+					const char* gn,
+					uiAttrDescEdCreateFunc fn )
+				    : dispnm_(dn)
+				    , attrnm_(an)
+				    , grpnm_(gn)
+				    , crfn_(fn)		{}
+
+	BufferString		dispnm_;
+	BufferString		attrnm_;
+	BufferString		grpnm_;
+	uiAttrDescEdCreateFunc	crfn_;
+    };
+
+    ObjectSet<Entry>	entries_;
+
+    Entry*		getEntry(const char*,bool) const;
+
+    friend uiAttributeFactory&	uiAF();
+    void			fillStd();
 };
 
 uiAttributeFactory& uiAF();

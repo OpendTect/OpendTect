@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2001
- RCS:           $Id: uifrequencyattrib.cc,v 1.8 2006-09-11 06:59:31 cvsnanne Exp $
+ RCS:           $Id: uifrequencyattrib.cc,v 1.9 2006-10-10 17:46:05 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -47,7 +47,8 @@ static const char* outpstrs[] =
 };
 
 
-mInitUI( uiFrequencyAttrib,"Frequency" )
+mInitAttribUI(uiFrequencyAttrib,Frequency,"Frequency",sKeyFreqGrp)
+
 
 uiFrequencyAttrib::uiFrequencyAttrib( uiParent* p )
 	: uiAttrDescEd(p)
@@ -70,10 +71,6 @@ uiFrequencyAttrib::uiFrequencyAttrib( uiParent* p )
 
     setHAlignObj( inpfld );
 }
-
-
-const char* uiFrequencyAttrib::getAttribName() const
-{ return Frequency::attribName(); }
 
 
 bool uiFrequencyAttrib::setParameters( const Attrib::Desc& desc )

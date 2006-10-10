@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:		$Id: uiattribfactory.cc,v 1.1 2006-09-11 06:53:42 cvsnanne Exp $
+ RCS:		$Id: uiattribfactory.cc,v 1.2 2006-10-10 17:46:05 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,41 +14,113 @@ ________________________________________________________________________
 #include "ptrman.h"
 
 
-void uiAttributeFactory::add( const char* displaynm, CreateFunc fc )
+uiAttributeFactory& uiAF()
 {
-    if ( displaynames_.indexOf(displaynm) != -1 )
-	return;
-
-    funcs_ += fc;
-    displaynames_.add( displaynm );
+    static PtrMan<uiAttributeFactory> inst = 0;
+    if ( !inst )
+    {
+	inst = new uiAttributeFactory;
+	inst->fillStd();
+    }
+    return *inst;
 }
 
 
-uiAttrDescEd* uiAttributeFactory::create( uiParent* p, const char* nm )
+int uiAttributeFactory::add( const char* dispnm, const char* attrnm,
+			     const char* grpnm, uiAttrDescEdCreateFunc fn )
 {
-    const int idx = displaynames_.indexOf( nm );
-    uiAttrDescEd* ed = funcs_.validIdx(idx) ? funcs_[idx](p) : 0;
-    if ( ed ) ed->setDisplayName( nm );
+    Entry* entry = getEntry( dispnm, true );
+    if ( !entry )
+	entry = getEntry( attrnm, false );
+
+    if ( entry )
+    {
+	entry->dispnm_ = dispnm;
+	entry->attrnm_ = attrnm;
+	entry->grpnm_ = grpnm;
+	entry->crfn_ = fn;
+    }
+    else
+    {
+	entry = new Entry( dispnm, attrnm, grpnm, fn );
+	entries_ += entry;
+    }
+
+    return entries_.size() - 1;
+}
+
+
+uiAttrDescEd* uiAttributeFactory::create( uiParent* p, const char* nm,
+					  bool isdisp ) const
+{
+    Entry* entry = getEntry( nm, isdisp );
+    if ( !entry ) return 0;
+
+    uiAttrDescEd* ed = entry->crfn_( p );
+    if ( ed ) ed->setDisplayName( entry->dispnm_ );
     return ed;
 }
 
 
-int uiAttributeFactory::size() const
-{ return displaynames_.size(); }
-
-const char* uiAttributeFactory::getDisplayName( int idx ) const
-{ return displaynames_.validIdx(idx) ? displaynames_.get( idx ).buf() : 0; }
-
-
-bool uiAttributeFactory::hasAttribute( const char* dispnm ) const
+uiAttributeFactory::Entry* uiAttributeFactory::getEntry( const char* nm,
+							 bool isdisp ) const
 {
-    return displaynames_.indexOf( dispnm ) != -1;
+    for ( int idx=0; idx<entries_.size(); idx++ )
+    {
+	if ( (isdisp && entries_[idx]->dispnm_ == nm)
+	  || (!isdisp && entries_[idx]->attrnm_ == nm) )
+	    return const_cast<uiAttributeFactory*>( this )->entries_[idx];
+    }
+
+    return 0;
 }
 
 
-uiAttributeFactory& uiAF()
+const char* uiAttributeFactory::dispNameOf( const char* attrnm ) const
 {
-    static PtrMan<uiAttributeFactory> inst = 0;
-    if ( !inst ) inst = new uiAttributeFactory;
-    return *inst;
+    Entry* entry = getEntry( attrnm, false );
+    return entry ? ((const char*)entry->dispnm_) : 0;
+}
+
+
+const char* uiAttributeFactory::attrNameOf( const char* attrnm ) const
+{
+    const Entry* entry = getEntry( attrnm, true );
+    return entry ? ((const char*)entry->attrnm_) : 0;
+}
+
+#include "ui3dfilterattrib.h"
+#include "uienergyattrib.h"
+#include "uieventattrib.h"
+#include "uifingerprintattrib.h"
+#include "uifrequencyattrib.h"
+#include "uifreqfilterattrib.h"
+#include "uiinstantattrib.h"
+#include "uimathattrib.h"
+#include "uipositionattrib.h"
+#include "uireferenceattrib.h"
+#include "uiscalingattrib.h"
+#include "uishiftattrib.h"
+#include "uisimilarityattrib.h"
+#include "uispecdecompattrib.h"
+#include "uivolstatsattrib.h"
+
+
+void uiAttributeFactory::fillStd()
+{
+    ui3DFilterAttrib::initClass();
+    uiEnergyAttrib::initClass();
+    uiEventAttrib::initClass();
+    uiFingerPrintAttrib::initClass();
+    uiFrequencyAttrib::initClass();
+    uiFreqFilterAttrib::initClass();
+    uiInstantaneousAttrib::initClass();
+    uiMathAttrib::initClass();
+    uiPositionAttrib::initClass();
+    uiReferenceAttrib::initClass();
+    uiScalingAttrib::initClass();
+    uiShiftAttrib::initClass();
+    uiSimilarityAttrib::initClass();
+    uiSpecDecompAttrib::initClass();
+    uiVolumeStatisticsAttrib::initClass();
 }

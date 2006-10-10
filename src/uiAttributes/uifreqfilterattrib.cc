@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2001
- RCS:           $Id: uifreqfilterattrib.cc,v 1.10 2006-09-11 06:59:31 cvsnanne Exp $
+ RCS:           $Id: uifreqfilterattrib.cc,v 1.11 2006-10-10 17:46:05 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,7 +45,8 @@ static const char* typestrs[] =
 };
 
 
-mInitUI( uiFreqFilterAttrib, "Frequency Filter")
+mInitAttribUI(uiFreqFilterAttrib,FreqFilter,"Frequency Filter",sKeyFilterGrp)
+
 
 uiFreqFilterAttrib::uiFreqFilterAttrib( uiParent* p )
 	: uiAttrDescEd(p)
@@ -79,10 +80,6 @@ uiFreqFilterAttrib::uiFreqFilterAttrib( uiParent* p )
     mainObject()->finaliseDone.notify( mCB(this,uiFreqFilterAttrib,finaliseCB));
     setHAlignObj( inpfld );
 }
-
-
-const char* uiFreqFilterAttrib::getAttribName() const
-{ return FreqFilter::attribName(); }
 
 
 void uiFreqFilterAttrib::finaliseCB( CallBacker* )

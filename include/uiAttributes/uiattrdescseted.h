@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrdescseted.h,v 1.4 2006-02-17 17:26:12 cvsbert Exp $
+ RCS:           $Id: uiattrdescseted.h,v 1.5 2006-10-10 17:46:05 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,8 +24,8 @@ namespace Attrib
 };
 
 class uiAttrDescEd;
+class uiAttrTypeSel;
 class uiGenInput;
-class uiLabeledComboBox;
 class uiLineEdit;
 class uiListBox;
 class uiPushButton;
@@ -72,7 +72,7 @@ protected:
 
     uiToolBar*		toolbar;
     uiListBox*		attrlistfld;
-    uiLabeledComboBox*	attrtypefld;
+    uiAttrTypeSel*	attrtypefld;
     uiPushButton*	rmbut;
     uiPushButton*	addbut;
     uiPushButton*	revbut;
@@ -115,7 +115,6 @@ protected:
     bool		validName(const char*) const;
     bool		setUserRef(Attrib::Desc*);
     void		updateAttrName();
-    const char*		getAttrTypeName(const char*);
     bool		doSetIO(bool);
 
     void		createMenuBar();

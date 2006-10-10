@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2001
- RCS:           $Id: uiinstantattrib.cc,v 1.4 2006-09-11 06:59:31 cvsnanne Exp $
+ RCS:           $Id: uiinstantattrib.cc,v 1.5 2006-10-10 17:46:05 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,7 +38,8 @@ const char* uiInstantaneousAttrib::outstrs[] =
 };
 
 
-mInitUI( uiInstantaneousAttrib, "Instantaneous" )
+mInitAttribUI(uiInstantaneousAttrib,Instantaneous,"Instantaneous",sKeyBasicGrp)
+
 
 uiInstantaneousAttrib::uiInstantaneousAttrib( uiParent* p )
 	: uiAttrDescEd(p)
@@ -51,10 +52,6 @@ uiInstantaneousAttrib::uiInstantaneousAttrib( uiParent* p )
 
     setHAlignObj( inpfld );
 }
-
-
-const char* uiInstantaneousAttrib::getAttribName() const
-{ return Instantaneous::attribName(); }
 
 
 bool uiInstantaneousAttrib::setParameters( const Desc& desc )

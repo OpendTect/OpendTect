@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		Oct 2003
  Contents:	Set of BufferStrings
- RCS:		$Id: bufstringset.h,v 1.5 2006-02-15 17:33:15 cvsbert Exp $
+ RCS:		$Id: bufstringset.h,v 1.6 2006-10-10 17:46:05 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,7 +43,8 @@ public:
     bool		addIfNew(const char*);	//!< returns whether added
     BufferString&	get( int idx )		{ return *((*this)[idx]); }
     const BufferString&	get( int idx ) const	{ return *((*this)[idx]); }
-    void		sort( BufferStringSet* slave=0 );
+    void		sort(BufferStringSet* slave=0);
+    int*		getSortIndexes() const; //!< returns new int [size()]
     int			indexOf(const char*) const;
     						//!< returns -1 if not found
     inline int		maxLength() const;

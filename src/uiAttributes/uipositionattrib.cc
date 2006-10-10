@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          November 2002
- RCS:           $Id: uipositionattrib.cc,v 1.4 2006-09-11 06:59:31 cvsnanne Exp $
+ RCS:           $Id: uipositionattrib.cc,v 1.5 2006-10-10 17:46:05 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,8 +30,8 @@ static const char* opstrs[] =
 	0
 };
 
+mInitAttribUI(uiPositionAttrib,Position,"Position",sKeyPositionGrp)
 
-mInitUI( uiPositionAttrib, "Position" )
 
 uiPositionAttrib::uiPositionAttrib( uiParent* p )
 	: uiAttrDescEd(p)
@@ -55,10 +55,6 @@ uiPositionAttrib::uiPositionAttrib( uiParent* p )
 
     setHAlignObj( inpfld );
 }
-
-
-const char* uiPositionAttrib::getAttribName() const
-{ return Position::attribName(); }
 
 
 void uiPositionAttrib::set2D( bool yn )

@@ -7,8 +7,6 @@
 static const char* rcsID = "$Id";
 
 #include "uigapdeconattrib.h"
-#include "uiattrfact.h"
-
 #include "plugins.h"
 
 extern "C" int GetuiGapDeconPluginType()
@@ -21,20 +19,15 @@ extern "C" PluginInfo* GetuiGapDeconPluginInfo()
 {
     static PluginInfo retpi = {
 	"GapDecon User Interface",
-	"dGB",
+	"dGB (Helene)",
 	"=od",
-	"User interface for Gap Decon plugin.\n\n"
-        "Usage of Gap Decon may be subject to patent laws!" };
+	"User interface for Gap Decon plugin." };
     return &retpi;
 }
 
 
-mDeclAttrDescEd(GapDecon)
-
 extern "C" const char* InituiGapDeconPlugin( int, char** )
 {
-    uiAttribFactory::add( "GapDecon", "GapDecon",
-	    		  new uiGapDeconAttrDescEdCreater);
-
+    uiGapDeconAttrib::initClass();
     return 0; // All OK - no error messages
 }

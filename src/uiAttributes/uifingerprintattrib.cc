@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Payraudeau
  Date:          February  2006
- RCS:           $Id: uifingerprintattrib.cc,v 1.22 2006-09-11 06:59:31 cvsnanne Exp $
+ RCS:           $Id: uifingerprintattrib.cc,v 1.23 2006-10-10 17:46:05 cvsbert Exp $
 
 ________________________________________________________________________
 
@@ -71,6 +71,9 @@ static const char* statstrs[] =
 	0
 };
 
+mInitAttribUI(uiFingerPrintAttrib,FingerPrint,"FingerPrint",sKeyPatternGrp)
+
+
 class uiFPAdvancedDlg: public uiDialog
 {
     public:
@@ -96,8 +99,6 @@ class uiFPAdvancedDlg: public uiDialog
     BufferString        errmsg_;
 };
 
-
-mInitUI( uiFingerPrintAttrib, "FingerPrint" )
 
 uiFingerPrintAttrib::uiFingerPrintAttrib( uiParent* p )
 	: uiAttrDescEd(p)
@@ -191,10 +192,6 @@ uiFingerPrintAttrib::~uiFingerPrintAttrib()
     delete ctio_.ioobj;
     delete &ctio_;
 }
-
-
-const char* uiFingerPrintAttrib::getAttribName() const
-{ return FingerPrint::attribName(); }
 
 
 void uiFingerPrintAttrib::initTable( int nrrows )

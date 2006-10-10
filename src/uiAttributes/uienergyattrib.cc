@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:		$Id: uienergyattrib.cc,v 1.7 2006-09-24 13:55:16 cvshelene Exp $
+ RCS:		$Id: uienergyattrib.cc,v 1.8 2006-10-10 17:46:05 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,7 +30,8 @@ static const char* outpstrs[] =
 };
 
 
-mInitUI( uiEnergyAttrib, "Energy" )
+mInitAttribUI(uiEnergyAttrib,Energy,"Energy",sKeyBasicGrp)
+
 
 uiEnergyAttrib::uiEnergyAttrib( uiParent* p )
 	: uiAttrDescEd(p)
@@ -44,10 +45,6 @@ uiEnergyAttrib::uiEnergyAttrib( uiParent* p )
     outpfld_->attach( alignedBelow, gatefld_ );
     setHAlignObj( gatefld_ );
 }
-
-
-const char* uiEnergyAttrib::getAttribName() const
-{ return Energy::attribName(); }
 
 
 bool uiEnergyAttrib::setParameters( const Desc& desc )

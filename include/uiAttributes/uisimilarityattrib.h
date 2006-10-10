@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: uisimilarityattrib.h,v 1.3 2006-09-11 07:04:12 cvsnanne Exp $
+ RCS:           $Id: uisimilarityattrib.h,v 1.4 2006-10-10 17:46:05 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,15 +25,13 @@ class uiSteeringSel;
 class uiSimilarityAttrib : public uiAttrDescEd
 {
 public:
-    static void		initClass();
+
 			uiSimilarityAttrib(uiParent*);
 
     void		set2D(bool);
-    const char*		getAttribName() const;
     void		getEvalParams(TypeSet<EvalParam>&) const;
 
 protected:
-    static uiAttrDescEd* createInstance(uiParent*);
 
     uiAttrSel*		inpfld;
     uiSteeringSel*	steerfld;
@@ -53,6 +51,8 @@ protected:
     bool		getOutput(Attrib::Desc&);
 
     void		extSel(CallBacker*);
+
+    			mDeclReqAttribUIFns
 };
 
 

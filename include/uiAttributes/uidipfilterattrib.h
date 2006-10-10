@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2001
- RCS:           $Id: uidipfilterattrib.h,v 1.6 2006-09-14 20:12:47 cvsnanne Exp $
+ RCS:           $Id: uidipfilterattrib.h,v 1.7 2006-10-10 17:46:05 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,15 +23,12 @@ class uiLabeledSpinBox;
 class ui3DFilterAttrib : public uiAttrDescEd
 {
 public:
-    static void		initClass();
+
 			ui3DFilterAttrib(uiParent*);
 
-    virtual const char*	getAttribName() const;
-    virtual bool	isUIFor(const char* attrnm) const;
     virtual void	getEvalParams(TypeSet<EvalParam>&) const;
 
 protected:
-    static uiAttrDescEd* createInstance(uiParent*);
 
     uiAttrSel*          inpfld;
     uiLabeledSpinBox*	szfld;
@@ -57,8 +54,9 @@ protected:
     void		filtSel(CallBacker*);
     void		aziSel(CallBacker*);
     void		kernelSel(CallBacker*);
-};
 
+    			mDeclReqAttribUIFns
+};
 
 
 #endif

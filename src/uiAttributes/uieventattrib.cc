@@ -4,7 +4,7 @@
  CopyRight:	(C) dGB Beheer B.V.
  Author:	H. Payraudeau
  Date:		February 2005
- RCS:		$Id: uieventattrib.cc,v 1.5 2006-09-11 06:59:31 cvsnanne Exp $
+ RCS:		$Id: uieventattrib.cc,v 1.6 2006-10-10 17:46:05 cvsbert Exp $
  ________________________________________________________________________
 
 -*/
@@ -42,7 +42,8 @@ static const char* outpstrs[] =
 };
 
 
-mInitUI( uiEventAttrib, "Event" )
+mInitAttribUI(uiEventAttrib,Event,"Event",sKeyPatternGrp)
+
 
 uiEventAttrib::uiEventAttrib( uiParent* p )
         : uiAttrDescEd(p)
@@ -74,10 +75,6 @@ uiEventAttrib::uiEventAttrib( uiParent* p )
 
     setHAlignObj( issinglefld );
 }
-
-
-const char* uiEventAttrib::getAttribName() const
-{ return Event::attribName(); }
 
 
 void uiEventAttrib::isSingleSel( CallBacker* )

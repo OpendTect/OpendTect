@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Payraudeau
  Date:          July 2005
- RCS:           $Id: uireferenceattrib.h,v 1.4 2006-09-11 07:04:12 cvsnanne Exp $
+ RCS:           $Id: uireferenceattrib.h,v 1.5 2006-10-10 17:46:05 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,14 +25,9 @@ class uiReferenceAttrib : public uiAttrDescEd
 {
 public:
 
-    static void		initClass();
 			uiReferenceAttrib(uiParent*);
 
-
-    const char*		getAttribName() const;
-
 protected:
-    static uiAttrDescEd* createInstance(uiParent*);
 
     uiAttrSel*          inpfld;
     uiGenInput*		outpfld3d;
@@ -52,6 +47,8 @@ protected:
     bool                getParameters(Attrib::Desc&);
 
     virtual void        set2D(bool);
+
+    			mDeclReqAttribUIFns
 };
 
 #endif
