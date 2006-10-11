@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          September 2006
- RCS:		$Id: uihorizonattrib.cc,v 1.3 2006-09-28 13:09:04 cvsnanne Exp $
+ RCS:		$Id: uihorizonattrib.cc,v 1.4 2006-10-11 06:59:24 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,8 +30,8 @@ using namespace Attrib;
 
 static const char* sDefHorOut[] = { "Z", "Input data", 0 };
 
+mInitAttribUI(uiHorizonAttrib,Horizon,"Horizon",sKeyPositionGrp)
 
-mInitUI( uiHorizonAttrib, "Horizon" )
 
 uiHorizonAttrib::uiHorizonAttrib( uiParent* p )
     : uiAttrDescEd(p)
@@ -54,10 +54,6 @@ uiHorizonAttrib::~uiHorizonAttrib()
 {
     delete horctio_.ioobj; delete &horctio_;
 }
-
-
-const char* uiHorizonAttrib::getAttribName() const
-{ return Horizon::attribName(); }
 
 
 void uiHorizonAttrib::set2D( bool yn )

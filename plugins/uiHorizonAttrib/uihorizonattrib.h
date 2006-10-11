@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          September 2006
- RCS:           $Id: uihorizonattrib.h,v 1.2 2006-09-25 13:42:21 cvsnanne Exp $
+ RCS:           $Id: uihorizonattrib.h,v 1.3 2006-10-11 06:59:24 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,14 +27,11 @@ class uiIOObjSel;
 class uiHorizonAttrib : public uiAttrDescEd
 {
 public:
-    static void		initClass();
+
 			uiHorizonAttrib(uiParent*);
 			~uiHorizonAttrib();
 
-    const char*		getAttribName() const;
-
 protected:
-    static uiAttrDescEd* createInstance(uiParent*);
 
     uiAttrSel*		inpfld_;
     uiIOObjSel*		horfld_;
@@ -51,6 +48,8 @@ protected:
     virtual void	set2D(bool);
 
     void		horSel(CallBacker*);
+
+    			mDeclReqAttribUIFns
 };
 
 
