@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrtypesel.cc,v 1.1 2006-10-11 10:39:04 cvsbert Exp $
+ RCS:           $Id: uiattrtypesel.cc,v 1.2 2006-10-11 15:55:26 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -153,16 +153,10 @@ int uiAttrTypeSel::curGrpIdx() const
     if ( grpnms_.size() < 1 )
 	return -1;
 
-    int grpidx = grpfld->currentItem();
-    if ( !idxs_ )
-	return grpidx;
-
-    for ( int idx=0; idx<grpnms_.size(); idx++ )
-	if ( idxs_[idx] == grpidx )
-	    return idx;
-
-    return -1;
+    const int grpitem = grpfld->currentItem();
+    return idxs_ ? idxs_[grpitem] : grpitem;
 }
+
 
 void uiAttrTypeSel::updAttrNms( const char* selattrnm )
 {
