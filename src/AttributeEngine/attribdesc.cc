@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribdesc.cc,v 1.50 2006-09-19 17:55:14 cvskris Exp $";
+static const char* rcsID = "$Id: attribdesc.cc,v 1.51 2006-10-11 12:30:40 cvsdgb Exp $";
 
 #include "attribdesc.h"
 
@@ -302,7 +302,9 @@ bool Desc::is2D() const
 
 Desc::SatisfyLevel Desc::isSatisfied() const
 {
-    if ( seloutput_==-1 || seloutput_>nrOutputs()  )
+    if ( seloutput_==-1 )
+	    // || seloutput_>nrOutputs()  )
+	    //TODO NN descs return only one output. Needs solution!
     {
 	BufferString msg = "Selected output is not correct";
 	mErrRet(msg)
