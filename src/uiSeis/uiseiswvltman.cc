@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiseiswvltman.cc,v 1.1 2006-10-16 14:58:29 cvsbert Exp $
+ RCS:           $Id: uiseiswvltman.cc,v 1.2 2006-10-16 16:45:07 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,18 +16,16 @@ ________________________________________________________________________
 #include "iostrm.h"
 #include "iopar.h"
 #include "ctxtioobj.h"
+#include "color.h"
 #include "survinfo.h"
 #include "statruncalc.h"
 
-#include "uiioobjsel.h"
 #include "uibutton.h"
-#include "uilistbox.h"
-#include "uimsg.h"
-#include "uiioobjmanip.h"
+#include "uicanvas.h"
+#include "uiioobjsel.h"
 #include "uitextedit.h"
-
-
-static const int cPrefWidth = 50;
+#include "iodrawtool.h"
+#include "draw.h"
 
 
 uiSeisWvltMan::uiSeisWvltMan( uiParent* p )
@@ -37,15 +35,39 @@ uiSeisWvltMan::uiSeisWvltMan( uiParent* p )
 	    	   WaveletTranslatorGroup::ioContext() )
 {
     createDefaultUI();
-    uiIOObjManipGroup* manipgrp = selgrp->getManipGroup();
 
-    selgrp->setPrefWidthInChar( cPrefWidth );
-    infofld->setPrefWidthInChar( cPrefWidth );
+    uiPushButton* impbut = new uiPushButton( this, "&Import", false );
+    impbut->activated.notify( mCB(this,uiSeisWvltMan,impPush) );
+    impbut->attach( alignedBelow, selgrp );
+    uiPushButton* crbut = new uiPushButton( this, "&Create standard", false );
+    crbut->activated.notify( mCB(this,uiSeisWvltMan,crPush) );
+    crbut->attach( rightAlignedBelow, selgrp );
+
+    wvltfld = new uiCanvas( this, "Wavelet disp canvas" );
+    wvltfld->setBackgroundColor( Color::White );
+    wvltfld->attach( ensureRightOf, selgrp );
+    wvltfld->setStretch( 1, 1 );
+    wvltfld->attach( heightSameAs, selgrp );
+
+    infofld->attach( ensureBelow, impbut );
+    selgrp->setPrefWidthInChar( 50 );
+    infofld->setPrefWidthInChar( 60 );
+    wvltfld->setPrefWidthInChar( 10 );
     selChg(0);
 }
 
 
 uiSeisWvltMan::~uiSeisWvltMan()
+{
+}
+
+
+void uiSeisWvltMan::impPush( CallBacker* )
+{
+}
+
+
+void uiSeisWvltMan::crPush( CallBacker* )
 {
 }
 
@@ -69,6 +91,13 @@ void uiSeisWvltMan::mkFileInfo()
     }
 
     txt += getFileInfo();
-
     infofld->setText( txt );
+
+    if ( wvlt )
+    {
+	wvltfld->drawTool()->drawText( 1, 1, wvlt->name(), Alignment::Start,
+		true, true );
+    }
+
+    delete wvlt;
 }

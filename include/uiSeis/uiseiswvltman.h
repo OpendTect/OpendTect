@@ -6,14 +6,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uiseiswvltman.h,v 1.1 2006-10-16 14:58:29 cvsbert Exp $
+ RCS:           $Id: uiseiswvltman.h,v 1.2 2006-10-16 16:45:07 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiobjfileman.h"
 
-class uiToolButton;
+class uiCanvas;
 
 class uiSeisWvltMan : public uiObjFileMan
 {
@@ -23,7 +23,12 @@ public:
 
 protected:
 
+    uiCanvas*		wvltfld;
+
     void		mkFileInfo();
+
+    void		impPush(CallBacker*);
+    void		crPush(CallBacker*);
 };
 
 
