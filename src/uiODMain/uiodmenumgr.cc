@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.cc,v 1.54 2006-09-22 08:24:00 cvsnanne Exp $
+ RCS:           $Id: uiodmenumgr.cc,v 1.55 2006-10-16 14:58:29 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -168,13 +168,14 @@ void uiODMenuMgr::fillFileMenu()
     uiPopupMenu* impfault = new uiPopupMenu( &appl, "&Faults" );
     uiPopupMenu* impwell = new uiPopupMenu( &appl, "&Wells" );
     impmnu->insertItem( impseis );
-    mInsertItem( impmnu, "&Picksets ...", mImpPickMnuItm );
     impmnu->insertItem( imphor );
 #ifdef __debug__
     impmnu->insertItem( impfault );
     mInsertItem( impfault, "&Landmark ...", mImpLmkFaultMnuItm );
 #endif
     impmnu->insertItem( impwell );
+    mInsertItem( impmnu, "&Picksets ...", mImpPickMnuItm );
+    mInsertItem( impmnu, "&Wavelets ...", mImpWvltMnuItm );
 
     uiPopupMenu* impseissgy = new uiPopupMenu( &appl, "&SEG-Y" );
     mInsertItem( impseissgy, "&3-D ...", mImpSeisSEGY3DMnuItm );
@@ -203,9 +204,9 @@ void uiODMenuMgr::fillFileMenu()
     expseis->insertItem( expseissgy );
     uiPopupMenu* exphor = new uiPopupMenu( &appl, "&Horizons" );
     expmnu->insertItem( expseis );
-    mInsertItem( expmnu, "&Picksets ...", mExpPickMnuItm );
     expmnu->insertItem( exphor );
     mInsertItem( exphor, "&Ascii ...", mExpHorAsciiMnuItm );
+    mInsertItem( expmnu, "&Picksets ...", mExpPickMnuItm );
 
     filemnu->insertItem( impmnu );
     filemnu->insertItem( expmnu );
@@ -216,9 +217,10 @@ void uiODMenuMgr::fillFileMenu()
     mInsertItem( manmnu, "&Faults ...", mManFaultMnuItm );
 #endif
     mInsertItem( manmnu, "&Horizons ...", mManHorMnuItm );
-    mInsertItem( manmnu, "&PickSets ...", mManPickMnuItm );
     mInsertItem( manmnu, "&Seismics ...", mManSeisMnuItm );
     mInsertItem( manmnu, "&Wells ...", mManWellMnuItm );
+    mInsertItem( manmnu, "&PickSets ...", mManPickMnuItm );
+    mInsertItem( manmnu, "&Wavelets ...", mManWvltMnuItm );
     filemnu->insertItem( manmnu );
 
     filemnu->insertSeparator();
@@ -425,8 +427,9 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mImpWellAsciiTrackMnuItm: mDoOp(Imp,Wll,0); break;
     case mImpWellAsciiLogsMnuItm: mDoOp(Imp,Wll,1); break;
     case mImpWellAsciiMarkersMnuItm: mDoOp(Imp,Wll,2); break;
-    case mImpPickMnuItm: 	applMgr().impexpPickSet(true); break;
-    case mExpPickMnuItm: 	applMgr().impexpPickSet(false); break;
+    case mImpPickMnuItm: 	mDoOp(Imp,Pick,0); break;
+    case mExpPickMnuItm: 	mDoOp(Exp,Pick,0); break;
+    case mImpWvltMnuItm: 	mDoOp(Imp,Wvlt,0); break;
     case mImpLmkFaultMnuItm: 	applMgr().importLMKFault(); break;
 
     case mManSeisMnuItm: 	mDoOp(Man,Seis,0); break;
@@ -434,6 +437,7 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mManFaultMnuItm: 	mDoOp(Man,Flt,0); break;
     case mManWellMnuItm: 	mDoOp(Man,Wll,0); break;
     case mManPickMnuItm: 	mDoOp(Man,Pick,0); break;
+    case mManWvltMnuItm: 	mDoOp(Man,Wvlt,0); break;
     case mManAttrMnuItm:	mDoOp(Man,Attr,0); break;
     case mManNLAMnuItm:		mDoOp(Man,NLA,0); break;
     case mManSessMnuItm:	mDoOp(Man,Sess,0); break;

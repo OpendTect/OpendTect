@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiseispartserv.h,v 1.18 2005-10-31 14:59:22 cvshelene Exp $
+ RCS:           $Id: uiseispartserv.h,v 1.19 2006-10-16 14:58:29 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -53,6 +53,7 @@ public:
     bool		handleGatherSubMenu(int mnuid,const BinID&);
 
     void		manageSeismics();
+    void		manageWavelets();
 
 protected:
 

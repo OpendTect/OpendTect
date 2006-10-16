@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.152 2006-09-29 11:15:38 cvsjaap Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.153 2006-10-16 14:58:29 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -218,15 +218,21 @@ void uiODApplMgr::doOperation( ObjType ot, ActType at, int opt )
     break;
     case Pick:
 	if ( at == Man ) pickserv->managePickSets();
+	switch ( at )
+	{
+	case Imp:	pickserv->impexpSet( true );	break;
+	case Exp:	pickserv->impexpSet( false );	break;
+	case Man:	pickserv->managePickSets();	break;
+	}
+    break;
+    case Wvlt:
+	seisserv->manageWavelets();
     break;
     }
 }
 
 void uiODApplMgr::importLMKFault()
 { emserv->importLMKFault(); }
-
-void uiODApplMgr::impexpPickSet( bool imp )
-{ pickserv->impexpSet(imp); }
 
 
 void uiODApplMgr::enableMenusAndToolBars( bool yn )

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: uiodstdmenu.h,v 1.19 2006-09-07 20:28:44 cvsnanne Exp $
+ RCS:		$Id: uiodstdmenu.h,v 1.20 2006-10-16 14:58:29 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -50,8 +50,9 @@ ________________________________________________________________________
 #define mImpWellAsciiTrackMnuItm (mFileImpMnu + 40)
 #define mImpWellAsciiLogsMnuItm	(mFileImpMnu + 41)
 #define mImpWellAsciiMarkersMnuItm (mFileImpMnu + 42)
-#define mImpPickMnuItm		(mFileImpMnu + 50)
-#define mImpLmkFaultMnuItm	(mFileImpMnu + 60)
+#define mImpLmkFaultMnuItm	(mFileImpMnu + 50)
+#define mImpPickMnuItm		(mFileImpMnu + 60)
+#define mImpWvltMnuItm		(mFileImpMnu + 70)
 #define mExpSeisSEGY3DMnuItm	(mFileExpMnu + 10)
 #define mExpSeisSEGY2DMnuItm	(mFileExpMnu + 11)
 #define mExpSeisSEGYPSMnuItm	(mFileExpMnu + 12)
@@ -62,9 +63,10 @@ ________________________________________________________________________
 #define mManFaultMnuItm		(mFileManMnu + 30)
 #define mManWellMnuItm		(mFileManMnu + 40)
 #define mManPickMnuItm		(mFileManMnu + 50)
-#define mManAttrMnuItm		(mFileManMnu + 60)
-#define mManNLAMnuItm		(mFileManMnu + 70)
-#define mManSessMnuItm		(mFileManMnu + 80)
+#define mManWvltMnuItm		(mFileManMnu + 60)
+#define mManAttrMnuItm		(mFileManMnu + 70)
+#define mManNLAMnuItm		(mFileManMnu + 80)
+#define mManSessMnuItm		(mFileManMnu + 90)
 
 
 /* 'Processing' menu */
