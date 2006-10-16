@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl (org) / Bert Bril (rev)
  Date:          10-12-1999 / Sep 2006
- RCS:           $Id: statruncalc.h,v 1.5 2006-09-28 17:10:38 cvsbert Exp $
+ RCS:           $Id: statruncalc.h,v 1.6 2006-10-16 14:58:11 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -91,6 +91,7 @@ public:
     bool		isWeighted() const	{ return setup_.weighted_; }
 
     inline RunCalc<T>&	addValue(T data,T weight=1);
+    inline RunCalc<T>&	addValues(int sz,const T* data,const T* weights=0);
     inline RunCalc<T>&	replaceValue(T olddata,T newdata,T wt=1);
     inline RunCalc<T>&	removeValue(T data,T weight=1);
 
@@ -328,6 +329,16 @@ RunCalc<T>& RunCalc<T>::addValue( T val, T wt )
 
     return *this;
 }
+
+
+template <class T> inline
+RunCalc<T>& RunCalc<T>::addValues( int sz, const T* data, const T* weights )
+{
+    for ( int idx=0; idx<sz; idx++ )
+	addValue( data[idx], weights ? weights[idx] : 1 );
+    return *this;
+}
+
 
 template <class T> inline
 bool RunCalc<T>::findMedIdx( T val ) const
