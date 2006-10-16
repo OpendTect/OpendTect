@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vismultiattribsurvobj.h,v 1.1 2006-09-05 20:34:59 cvskris Exp $
+ RCS:		$Id: vismultiattribsurvobj.h,v 1.2 2006-10-16 20:43:07 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -26,8 +26,8 @@ namespace visSurvey
 */
 
 
-class MultiTextureSurveyObject : public SurveyObject,
-			         public visBase::VisualObjectImpl
+class MultiTextureSurveyObject : public visBase::VisualObjectImpl,
+				 public SurveyObject
 {
 public:
     void			turnOn(bool yn);
@@ -81,6 +81,7 @@ protected:
     virtual void		swapCache(int,int)			= 0;
     virtual void		emptyCache(int)				= 0;
     virtual bool		hasCache(int) const			= 0;
+    virtual void		_init();
 
     visBase::MultiTexture2*	texture_;
     int				resolution_;
