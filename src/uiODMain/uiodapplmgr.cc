@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.153 2006-10-16 14:58:29 cvsbert Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.154 2006-10-17 07:58:57 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -271,6 +271,7 @@ void uiODApplMgr::editAttribSet()
 
 void uiODApplMgr::createHorOutput( int tp )
 {
+    emattrserv->setDescSet( attrserv->curDescSet() );
     uiEMAttribPartServer::HorOutType type =
 	  tp==0 ? uiEMAttribPartServer::OnHor :
 	( tp==1 ? uiEMAttribPartServer::AroundHor : 
