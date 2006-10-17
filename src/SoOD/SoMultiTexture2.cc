@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2005
- RCS:           $Id: SoMultiTexture2.cc,v 1.16 2006-07-05 18:27:52 cvskris Exp $
+ RCS:           $Id: SoMultiTexture2.cc,v 1.17 2006-10-17 19:24:27 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -249,7 +249,7 @@ bool SoMultiTextureProcessor::prepare( int idx )
 	    ? SoMultiTexture2::RED | SoMultiTexture2::GREEN |
 	      SoMultiTexture2::BLUE | (nc_==4?SoMultiTexture2::OPACITY:0)
 	    : texture_->component[idx];
-    if ( !comp )
+    if ( !texture_->enabled[idx] || !comp )
 	return false;
 
     imagemask_[0] = comp & (SoMultiTexture2::RED^-1);
@@ -400,6 +400,7 @@ SoMultiTexture2::SoMultiTexture2()
     , colorssensor_( 0 )
     , operationsensor_( 0 )
     , componentsensor_( 0 )
+    , enabledsensor_( 0 )
     , opacitysensor_( 0 )
     , glimagemutex_( new SbMutex )
     , glimagevalid_(false)
@@ -417,6 +418,7 @@ SoMultiTexture2::SoMultiTexture2()
     SO_NODE_ADD_FIELD( colors, (SbVec2s(0,0), 0, 0) );
     SO_NODE_ADD_FIELD( operation, (BLEND) );
     SO_NODE_ADD_FIELD( component, (RED|GREEN|BLUE|OPACITY) );
+    SO_NODE_ADD_FIELD( enabled, (true) );
     SO_NODE_ADD_FIELD( blendColor, (0, 0, 0) );
     SO_NODE_ADD_FIELD( wrapS, (SoTexture2::REPEAT) );
     SO_NODE_ADD_FIELD( wrapT, (SoTexture2::REPEAT) );
@@ -448,6 +450,7 @@ SoMultiTexture2::SoMultiTexture2()
     mImageSensor( colors );
     mImageSensor( operation );
     mImageSensor( component );
+    mImageSensor( enabled );
     mImageSensor( opacity );
 }
 
@@ -459,6 +462,7 @@ SoMultiTexture2::~SoMultiTexture2()
     delete colorssensor_;
     delete operationsensor_;
     delete componentsensor_;
+    delete enabledsensor_;
     delete opacitysensor_;
 
     delete glimagemutex_;
@@ -679,7 +683,7 @@ const unsigned char* SoMultiTexture2::createImage( SbVec2s& size, int& nc )
 	const unsigned char opacityval =
 	    idx>=opacity.getNum() ? 255 : opacity[idx];
 
-	if ( !comp || !opacityval ) //nothing to do
+	if ( !enabled[idx] || !comp || !opacityval ) //nothing to do
 	{
 	    coltabstart += numcolors;
 	    continue;

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		Dec 2005
- RCS:		$Id: SoMultiTexture2.h,v 1.5 2006-03-09 17:04:18 cvskris Exp $
+ RCS:		$Id: SoMultiTexture2.h,v 1.6 2006-10-17 19:24:27 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -15,6 +15,7 @@ ________________________________________________________________________
 
 #include <Inventor/nodes/SoSubNode.h>
 #include <Inventor/fields/SoSFColor.h>
+#include <Inventor/fields/SoMFBool.h>
 #include <Inventor/fields/SoSFImage.h>
 #include <Inventor/fields/SoMFEnum.h>
 #include <Inventor/fields/SoMFShort.h>
@@ -81,6 +82,8 @@ public:
     SoMFShort		component;
     			/*!< Component for each image. */
 
+    SoMFBool		enabled;
+
     SoSFColor		blendColor;
     			/*!<See SoTexture2 for documentation. */
 
@@ -113,6 +116,7 @@ protected:
     SoFieldSensor*	colorssensor_;
     SoFieldSensor*	operationsensor_;
     SoFieldSensor*	componentsensor_;
+    SoFieldSensor*	enabledsensor_;
     SoFieldSensor*	opacitysensor_;
 
     SbMutex*		glimagemutex_;
