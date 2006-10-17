@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribdescset.cc,v 1.49 2006-09-29 11:09:25 cvsjaap Exp $";
+static const char* rcsID = "$Id: attribdescset.cc,v 1.50 2006-10-17 09:04:48 cvshelene Exp $";
 
 #include "attribdescset.h"
 #include "attribstorprovider.h"
@@ -367,8 +367,6 @@ bool DescSet::setAllInputDescs( int nrdescsnosteer, const IOPar& copypar,
 bool DescSet::usePar( const IOPar& par, BufferStringSet* errmsgs )
 {
     removeAll();
-    if ( errmsgs ) deepErase( *errmsgs );
-
     int maxid = 1024;
     par.get( highestIDStr(), maxid );
     IOPar copypar(par);
@@ -399,7 +397,13 @@ bool DescSet::usePar( const IOPar& par, BufferStringSet* errmsgs )
 
 	const char* emsg = Provider::prepare( *dsc );
 	if ( emsg )
-	    { errmsgs->add( emsg ); res = false; continue; }
+	 { 
+	     if ( errmsgs )
+		 errmsgs->add( emsg );
+	     
+	     res = false; 
+	     continue;
+	 }
 	
 	dsc->updateParams();
 	addDesc( dsc, DescID(id,true) );
