@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodemsurftreeitem.cc,v 1.11 2006-10-05 08:49:28 cvsjaap Exp $
+ RCS:		$Id: uiodemsurftreeitem.cc,v 1.12 2006-10-17 21:07:13 cvskris Exp $
 ___________________________________________________________________
 
 -*/
@@ -217,6 +217,7 @@ void uiODEarthModelSurfaceTreeItem::createMenuCB( CallBacker* cb )
 {
     uiODDisplayTreeItem::createMenuCB(cb);
     mDynamicCastGet(uiMenuHandler*,menu,cb);
+
     if ( menu->menuID()!=displayID() )
 	return;
 
