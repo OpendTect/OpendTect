@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vismultiattribsurvobj.h,v 1.2 2006-10-16 20:43:07 cvskris Exp $
+ RCS:		$Id: vismultiattribsurvobj.h,v 1.3 2006-10-17 07:25:15 cvshelene Exp $
 ________________________________________________________________________
 
 
@@ -81,7 +81,7 @@ protected:
     virtual void		swapCache(int,int)			= 0;
     virtual void		emptyCache(int)				= 0;
     virtual bool		hasCache(int) const			= 0;
-    virtual void		_init();
+    virtual void		_init()					{}
 
     visBase::MultiTexture2*	texture_;
     int				resolution_;
