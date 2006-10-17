@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visdata.h,v 1.41 2006-09-26 18:41:28 cvskris Exp $
+ RCS:		$Id: visdata.h,v 1.42 2006-10-17 13:00:42 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -173,7 +173,7 @@ protected:
 }								\
 								\
 private:							\
-    static clss* createInternal()				\
+    static visBase::DataObject* createInternal()		\
     {								\
 	clss* res = new clss;					\
 	res->_init();						\
