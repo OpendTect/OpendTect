@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vismultitexture2.cc,v 1.16 2006-09-26 22:01:07 cvskris Exp $";
+static const char* rcsID = "$Id: vismultitexture2.cc,v 1.17 2006-10-17 19:26:14 cvskris Exp $";
 
 
 #include "vismultitexture2.h"
@@ -78,6 +78,7 @@ MultiTexture2::MultiTexture2()
 
     texture_->setNrThreads( Threads::getNrProcessors() );
     onoff_->addChild( texture_ );
+    turnOn( true );
 }
 
 
@@ -318,7 +319,7 @@ void MultiTexture2::updateSoTextureInternal( int texturenr )
     const unsigned char* texture = getCurrentTextureIndexData(texturenr);
     if ( size_.row<0 || size_.col<0 || !texture )
     {
-	texture_->component.set1Value( texturenr, 0 );
+	texture_->enabled.set1Value( texturenr, false );
 	return;
     }
 
@@ -355,14 +356,18 @@ void MultiTexture2::updateColorTables()
 	texture_->numcolor.deleteValues( nrtextures, -1 );
     if ( texture_->component.getNum()>nrtextures )
 	texture_->component.deleteValues( nrtextures, -1 );
+    if ( texture_->enabled.getNum()>nrtextures )
+	texture_->enabled.deleteValues( nrtextures, -1 );
 
     for ( int idx=0; idx<nrtextures; idx++ )
     {
 	if ( !isTextureEnabled(idx) || !getCurrentTextureIndexData(idx) )
 	{
-	    texture_->component.set1Value( idx, 0 );
+	    texture_->enabled.set1Value( idx, false );
 	    continue;
 	}
+
+	texture_->enabled.set1Value( idx, true );
 
 	const VisColorTab& ctab = getColorTab( idx );
 	const int nrsteps = ctab.nrSteps();
