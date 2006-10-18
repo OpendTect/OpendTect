@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Sep 2006
- RCS:           $Id: array2dbitmap.h,v 1.8 2006-10-04 17:17:03 cvsbert Exp $
+ RCS:           $Id: array2dbitmap.h,v 1.9 2006-10-18 10:52:53 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -176,7 +176,10 @@ public:
     const A2DBitMap&	bitmap() const		{ return *bitmap_; }
     int			bitmapSize(int dim) const;
 
-    void		initBitmap();	//!< with A2DBitmapGenPars::cNoFill
+    static void		initBitmap(A2DBitMap&);	//!< with cNoFill
+    void		initBitmap()
+    			{ if ( bitmap_ ) initBitmap( *bitmap_ ); }
+
     void		fill();
     bool		dump(std::ostream&) const;
 
