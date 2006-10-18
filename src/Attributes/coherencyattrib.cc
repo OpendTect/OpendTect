@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: coherencyattrib.cc,v 1.15 2006-09-11 13:14:10 cvsnanne Exp $";
+static const char* rcsID = "$Id: coherencyattrib.cc,v 1.16 2006-10-18 12:19:58 cvshelene Exp $";
 
 
 #include "coherencyattrib.h"
@@ -96,6 +96,13 @@ Coherency::Coherency( Desc& desc_ )
 }
 
 
+Coherency::~Coherency()
+{
+    if ( realdataholder_ ) delete realdataholder_;
+    if ( imagdataholder_ ) delete imagdataholder_;
+}
+
+    
 float Coherency::calc1( float s1, float s2, const Interval<int>& sg,
 			   const DataHolder& dh1, const DataHolder& dh2 ) const
 {
