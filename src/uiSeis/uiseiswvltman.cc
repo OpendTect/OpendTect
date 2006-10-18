@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiseiswvltman.cc,v 1.3 2006-10-18 10:53:25 cvsbert Exp $
+ RCS:           $Id: uiseiswvltman.cc,v 1.4 2006-10-18 14:50:08 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,6 +49,7 @@ uiSeisWvltMan::uiSeisWvltMan( uiParent* p )
     fdctxt_.annot_.x2name_ = SI().zIsTime() ? "Time" : "Depth";
     fdctxt_.ddpars_.dispvd_ = false;
     fdctxt_.ddpars_.dispwva_ = true;
+    fdctxt_.ddpars_.wva_.drawmid_= true;
     fdctxt_.ddpars_.wva_.overlap_ = 0;
     fdctxt_.ddpars_.wva_.clipperc_ = 0;
     wvltfld = new uiSectionDisp( this, fdctxt_ );
