@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		24-3-1996
- RCS:		$Id: wavelet.h,v 1.11 2006-08-21 17:14:44 cvsbert Exp $
+ RCS:		$Id: wavelet.h,v 1.12 2006-10-18 10:57:57 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,10 +36,12 @@ public:
     float*		samples()		{ return samps; }
     const float*	samples() const		{ return samps; }
     float		sampleRate() const	{ return dpos; }
-    unsigned short	suDt() const	{ return (unsigned short)(dpos*1e6+.5); }
     int			centerSample() const	{ return -iw; }
+    StepInterval<float>	samplePositions() const
+    			{ return StepInterval<float>( iw*dpos, (sz+iw-1)*dpos,
+						      dpos ); }
 
-    void		reSize(int); // destroys info present!
+    void		reSize(int); // destroys current sample data!
     void		set(int center,float samplerate);
 
     void		transform(float,float);
