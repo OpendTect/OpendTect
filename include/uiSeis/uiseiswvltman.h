@@ -6,14 +6,17 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uiseiswvltman.h,v 1.2 2006-10-16 16:45:07 cvsbert Exp $
+ RCS:           $Id: uiseiswvltman.h,v 1.3 2006-10-18 10:53:25 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiobjfileman.h"
 
-class uiCanvas;
+class uiSectionDisp;
+template <class T> class Array2D;
+namespace FlatDisp { class Data; class Context; }
+
 
 class uiSeisWvltMan : public uiObjFileMan
 {
@@ -23,7 +26,10 @@ public:
 
 protected:
 
-    uiCanvas*		wvltfld;
+    uiSectionDisp*	wvltfld;
+    Array2D<float>*	fda2d_;
+    FlatDisp::Data*	fddata_;
+    FlatDisp::Context&	fdctxt_;
 
     void		mkFileInfo();
 
