@@ -4,7 +4,7 @@
  CopyRight:	(C) dGB Beheer B.V.
  Author:	H. Payraudeau
  Date:		February 2005
- RCS:		$Id: uieventattrib.cc,v 1.6 2006-10-10 17:46:05 cvsbert Exp $
+ RCS:		$Id: uieventattrib.cc,v 1.7 2006-10-19 09:52:46 cvshelene Exp $
  ________________________________________________________________________
 
 -*/
@@ -107,7 +107,7 @@ bool uiEventAttrib::setParameters( const Attrib::Desc& desc )
 	        issinglefld->setValue(issingleevent) );
     mIfGetBool( Attrib::Event::tonextStr(), tonext,
 		tonextfld->setValue(tonext) );
-    mIfGetEnum( Attrib::Event::eventTypeStr(), eventtype, 
+    mIfGetInt( Attrib::Event::eventTypeStr(), eventtype, 
 	        evtypefld->setValue(eventtype) );
     mIfGetFloatInterval( Attrib::Event::gateStr(), gate,
 			 gatefld->setValue(gate) );

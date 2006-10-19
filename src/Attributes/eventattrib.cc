@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Helene Payraudeau
  Date:		February 2005
- RCS:		$Id: eventattrib.cc,v 1.19 2006-08-03 08:04:34 cvshelene Exp $
+ RCS:		$Id: eventattrib.cc,v 1.20 2006-10-19 09:52:46 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,10 +29,12 @@ void Event::initClass()
 {
     mAttrStartInitClassWithUpdate
 
-    desc->addParam( new IntParam(eventTypeStr()) );
+    IntParam* evtype = new IntParam( eventTypeStr() );
     						//0 = Extr, 1 = Max, 2 = Min,
-                                                 //3 = ZC, 4 = npZC, 5 = pnZC,
-                                                 //6 = GateMax, 7 = GateMin
+						 //3 = ZC, 4 = npZC, 5 = pnZC,
+						 //6 = GateMax, 7 = GateMin
+    evtype->setDefaultValue(0);
+    desc->addParam( evtype );
         
     desc->addParam( new BoolParam(issingleeventStr()) );
     desc->addParam( new BoolParam(tonextStr()) );
