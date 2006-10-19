@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uimultisurfaceread.cc,v 1.3 2006-08-30 16:03:27 cvsbert Exp $
+ RCS:           $Id: uimultisurfaceread.cc,v 1.4 2006-10-19 11:53:45 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,6 +25,7 @@ ________________________________________________________________________
 
 uiMultiSurfaceRead::uiMultiSurfaceRead( uiParent* p, bool ishor )
     : uiIOSurface(p,true,ishor)
+    , singleSurfaceSelected(this)
 {
     IOM().to( ctio.ctxt.getSelKey() );
     entrylist_ = new IODirEntryList( IOM().dirPtr(), ctio.ctxt );
@@ -37,6 +38,8 @@ uiMultiSurfaceRead::uiMultiSurfaceRead( uiParent* p, bool ishor )
     surfacefld_->box()->setCurrentItem( 0 );
     surfacefld_->box()->selectionChanged.notify(
 	    				mCB(this,uiMultiSurfaceRead,selCB) );
+    surfacefld_->box()->doubleClicked.notify(
+	    				mCB(this,uiMultiSurfaceRead,dClck) );
 
     mkSectionFld( true );
     sectionfld->attach( rightTo, surfacefld_ );
@@ -49,6 +52,12 @@ uiMultiSurfaceRead::uiMultiSurfaceRead( uiParent* p, bool ishor )
 uiMultiSurfaceRead::~uiMultiSurfaceRead()
 {
     delete entrylist_;
+}
+
+
+void uiMultiSurfaceRead::dClck( CallBacker* )
+{
+    singleSurfaceSelected.trigger();
 }
 
 

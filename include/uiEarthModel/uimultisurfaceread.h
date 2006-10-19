@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uimultisurfaceread.h,v 1.2 2006-04-25 16:25:11 cvsnanne Exp $
+ RCS:           $Id: uimultisurfaceread.h,v 1.3 2006-10-19 11:53:45 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,11 +28,14 @@ public:
     void		getSurfaceIds(TypeSet<MultiID>&) const;
     void		getSurfaceSelection(EM::SurfaceIODataSelection&) const;
 
+    Notifier<uiMultiSurfaceRead>	singleSurfaceSelected;
+
 protected:
 
     IODirEntryList*	entrylist_;
     uiLabeledListBox*	surfacefld_;
 
+    void		dClck(CallBacker*);
     void		selCB(CallBacker*);
 };
 

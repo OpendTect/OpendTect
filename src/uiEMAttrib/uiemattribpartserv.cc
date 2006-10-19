@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          September 2006
- RCS:           $Id: uiemattribpartserv.cc,v 1.2 2006-09-22 08:24:00 cvsnanne Exp $
+ RCS:           $Id: uiemattribpartserv.cc,v 1.3 2006-10-19 11:53:45 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,9 @@ ________________________________________________________________________
 #include "uiattrsurfout.h"
 #include "uiattrtrcselout.h"
 #include "uiseiseventsnapper.h"
+#include "emmanager.h"
+#include "ioman.h"
+#include "ioobj.h"
 
 
 uiEMAttribPartServer::uiEMAttribPartServer( uiApplService& a )
@@ -42,10 +45,12 @@ void uiEMAttribPartServer::createHorizonOutput( HorOutType type )
 }
 
 
-void uiEMAttribPartServer::snapHorizon()
+void uiEMAttribPartServer::snapHorizon( const EM::ObjectID& emid )
 {
-    uiSeisEventSnapper dlg( parent() );
+    IOObj* ioobj = IOM().get( EM::EMM().getMultiID(emid) );
+    uiSeisEventSnapper dlg( parent(), ioobj );
     dlg.go();
+    delete ioobj;
 }
 
 

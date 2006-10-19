@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          September 2006
- RCS:           $Id: uiseiseventsnapper.cc,v 1.3 2006-09-20 15:22:51 cvsnanne Exp $
+ RCS:           $Id: uiseiseventsnapper.cc,v 1.4 2006-10-19 11:53:45 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,13 +33,15 @@ ________________________________________________________________________
 #include "valseriesevent.h"
 
 
-uiSeisEventSnapper::uiSeisEventSnapper( uiParent* p )
+uiSeisEventSnapper::uiSeisEventSnapper( uiParent* p, const IOObj* inp )
     : uiDialog(p,Setup("Snap horizon to seismic event","",""))
     , horinctio_(*mMkCtxtIOObj(EMHorizon))
     , horoutctio_(*mMkCtxtIOObj(EMHorizon))
     , seisctio_(*mMkCtxtIOObj(SeisTrc))
     , horizon_(0)
 {
+    if ( inp )
+	horinctio_.setObj( inp->clone() );
     horinfld_ = new uiIOObjSel( this, horinctio_, "Horizon to snap" );
 
     seisfld_ = new uiSeisSel( this, seisctio_, SeisSelSetup() );
@@ -119,6 +121,8 @@ bool uiSeisEventSnapper::saveHorizon()
     const bool saveas = savefld_ && savefld_->getBoolValue();
     if ( !saveas )
 	exec = horizon_->saver();
+    else if ( !horoutfld_->ctxtIOObj().ioobj )
+	mErrRet( "Cannot continue: write permission problem" )
     else
     {
 	const MultiID& mid = horoutfld_->ctxtIOObj().ioobj->key();

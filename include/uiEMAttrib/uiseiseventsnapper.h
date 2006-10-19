@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          September 2006
- RCS:           $Id: uiseiseventsnapper.h,v 1.2 2006-09-20 15:22:51 cvsnanne Exp $
+ RCS:           $Id: uiseiseventsnapper.h,v 1.3 2006-10-19 11:53:45 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ ________________________________________________________________________
 namespace EM { class Horizon; }
 
 class CtxtIOObj;
+class IOObj;
 class uiGenInput;
 class uiIOObjSel;
 class uiSeisSel;
@@ -26,7 +27,7 @@ class uiSeisSel;
 class uiSeisEventSnapper : public uiDialog
 {
 public:
-			uiSeisEventSnapper(uiParent*);
+			uiSeisEventSnapper(uiParent*,const IOObj*);
 			~uiSeisEventSnapper();
 
 protected:

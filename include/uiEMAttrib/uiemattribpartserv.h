@@ -7,13 +7,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          September 2006
- RCS:           $Id: uiemattribpartserv.h,v 1.2 2006-09-22 08:24:00 cvsnanne Exp $
+ RCS:           $Id: uiemattribpartserv.h,v 1.3 2006-10-19 11:53:45 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiapplserv.h"
 #include "multiid.h"
+#include "emposid.h"
 
 namespace Attrib { class DescSet; }
 class NLAModel;
@@ -31,7 +32,7 @@ public:
     enum HorOutType		{ OnHor, AroundHor, BetweenHors };
     void			createHorizonOutput(HorOutType);
 
-    void			snapHorizon();
+    void			snapHorizon(const EM::ObjectID&);
 
     void			setNLA( const NLAModel* mdl, const MultiID& id )
 				{ nlamodel_ = mdl; nlaid_ = id; }
