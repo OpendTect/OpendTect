@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiattribpartserv.cc,v 1.40 2006-08-24 14:50:58 cvskris Exp $
+ RCS:           $Id: uiattribpartserv.cc,v 1.41 2006-10-19 21:13:21 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -356,10 +356,11 @@ const Attrib::DataCubes* uiAttribPartServer::createOutput(
     if ( !process )
 	{ uiMSG().error(errmsg); return 0; }
 
+    bool success = true;
     if ( aem->getNrOutputsToBeProcessed(*process) != 0 )
     {
 	uiExecutor dlg( appserv().parent(), *process );
-	dlg.go();
+	success = dlg.go();
     }
 
     const Attrib::DataCubes* output = aem->getDataCubesOutput( *process );
@@ -368,9 +369,22 @@ const Attrib::DataCubes* uiAttribPartServer::createOutput(
 	delete process;
 	return 0;
     }
+
     output->ref();
     delete process;
-    output->unRefNoDelete();
+
+    if ( !success )
+    {
+	if ( !uiMSG().askGoOn("Attribute loading/calculation aborted.\n"
+		"Do you want to use the partially loaded/computed data?", true ) )
+	{
+	    output->unRef();
+	    output = 0;
+	}
+    }
+
+    if ( output )
+	output->unRefNoDelete();
 
     return output;
 }
