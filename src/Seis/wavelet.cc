@@ -5,7 +5,7 @@
  * FUNCTION : Wavelet
 -*/
 
-static const char* rcsID = "$Id: wavelet.cc,v 1.20 2006-08-30 16:03:27 cvsbert Exp $";
+static const char* rcsID = "$Id: wavelet.cc,v 1.21 2006-10-19 16:40:36 cvsbert Exp $";
 
 #include "wavelet.h"
 #include "seisinfo.h"
@@ -45,7 +45,7 @@ Wavelet::Wavelet( bool isricker, float fpeak, float sr, float scale )
     iw = (int)( -( 1 + 1. / (fpeak*dpos) ) );
 
     BufferString nm( isricker ? "Ricker " : "Sinc " );
-    nm += fpeak; nm += " Hz";
+    nm += " (Central freq="; nm += fpeak; nm += ")";
     setName( nm );
 
     int lw = 1 - 2*iw;
@@ -103,35 +103,36 @@ Wavelet* Wavelet::get( const IOObj* ioobj )
 	newwv = new Wavelet;
 	if ( !tr->read( newwv, *connptr ) )
 	{
-	    ErrMsg( "Format error for Wavelet" );
+	    ErrMsg( "Problem reading Wavelet from file (format error?)" );
 	    delete newwv;
 	    newwv = 0;
 	}
     }
     else
-	ErrMsg( "Cannot create data stream for Wavelet" );
+	ErrMsg( "Cannot open Wavelet file" );
 
     delete connptr; delete tr;
     return newwv;
 }
 
 
-int Wavelet::put( const IOObj* ioobj ) const
+bool Wavelet::put( const IOObj* ioobj ) const
 {
-    if ( !ioobj ) return NO;
+    if ( !ioobj ) return false;
     WaveletTranslator* tr = (WaveletTranslator*)ioobj->getTranslator();
-    if ( !tr ) return NO;
-    int retval = NO;
+    if ( !tr ) return false;
+    bool retval = false;
 
     Conn* connptr = ioobj->getConn( Conn::Write );
     if ( connptr && !connptr->bad() )
     {
 	if ( tr->write( this, *connptr ) )
-	    retval = YES;
-	else ErrMsg( "Format error for Dictionary" );
+	    retval = true;
+	else
+	    ErrMsg( "Cannot write Wavelet" );
     }
     else
-	ErrMsg( "Cannot create data stream for Dictionary" );
+	ErrMsg( "Cannot open Wavelet file for write" );
 
     delete connptr; delete tr;
     return retval;
@@ -183,13 +184,13 @@ static char* sIndex	= "Index First Sample";
 static char* sSampRate	= "Sample Rate";
 
 
-int dgbWaveletTranslator::read( Wavelet* wv, Conn& conn )
+bool dgbWaveletTranslator::read( Wavelet* wv, Conn& conn )
 {
-    if ( !conn.forRead() || !conn.isStream() )	return NO;
+    if ( !conn.forRead() || !conn.isStream() )	return false;
 
     ascistream astream( ((StreamConn&)conn).iStream() );
     if ( !astream.isOfFileType(mTranslGroupName(Wavelet)) )
-	return NO;
+	return false;
 
     const float scfac = 1000;
     int iw = 0; float sr = scfac * SI().zStep();
@@ -213,19 +214,19 @@ int dgbWaveletTranslator::read( Wavelet* wv, Conn& conn )
 }
 
 
-int dgbWaveletTranslator::write( const Wavelet* wv, Conn& conn )
+bool dgbWaveletTranslator::write( const Wavelet* wv, Conn& conn )
 {
-    if ( !conn.forWrite() || !conn.isStream() )	return NO;
+    if ( !conn.forWrite() || !conn.isStream() )	return false;
 
     ascostream astream( ((StreamConn&)conn).oStream() );
     UserIDString head( mTranslGroupName(Wavelet) );
     head += " file";
-    if ( !astream.putHeader( head ) ) return NO;
+    if ( !astream.putHeader( head ) ) return false;
 
     if ( *(const char*)wv->name() ) astream.put( sKey::Name, wv->name() );
     astream.put( sLength, wv->size() );
     astream.put( sIndex, -wv->centerSample() );
-    astream.put( sSampRate, wv->sampleRate() * 1000 );
+    astream.put( sSampRate, wv->sampleRate() * SI().zFactor() );
     astream.newParagraph();
     for ( int idx=0; idx<wv->size(); idx++ )
 	astream.stream() << wv->samples()[idx] << '\n';

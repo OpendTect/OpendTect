@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		24-3-1996
- RCS:		$Id: wavelet.h,v 1.12 2006-10-18 10:57:57 cvsbert Exp $
+ RCS:		$Id: wavelet.h,v 1.13 2006-10-19 16:40:36 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,7 +30,7 @@ public:
     virtual		~Wavelet();
 
     static Wavelet*	get(const IOObj*);
-    int			put(const IOObj*) const;
+    bool		put(const IOObj*) const;
 
     int			size() const		{ return sz; }
     float*		samples()		{ return samps; }
@@ -70,8 +70,8 @@ class WaveletTranslator : public Translator
 public:
 			mDefEmptyTranslatorBaseConstructor(Wavelet)
 
-    virtual int		read(Wavelet*,Conn&)		= 0;
-    virtual int		write(const Wavelet*,Conn&)	= 0;
+    virtual bool	read(Wavelet*,Conn&)		= 0;
+    virtual bool	write(const Wavelet*,Conn&)	= 0;
 
 };
 
@@ -82,8 +82,8 @@ class dgbWaveletTranslator : public WaveletTranslator
 public:
     			mDefEmptyTranslatorConstructor(dgb,Wavelet)
 
-    int			read(Wavelet*,Conn&);
-    int			write(const Wavelet*,Conn&);
+    bool		read(Wavelet*,Conn&);
+    bool		write(const Wavelet*,Conn&);
 
 };
 
