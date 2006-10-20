@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          December 2004
- RCS:           $Id: uiscalingattrib.cc,v 1.10 2006-10-10 17:46:05 cvsbert Exp $
+ RCS:           $Id: uiscalingattrib.cc,v 1.11 2006-10-20 13:26:53 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -138,10 +138,8 @@ bool uiScalingAttrib::setParameters( const Desc& desc )
 	for ( int idx=0; idx<gateset->size(); idx++ )
 	{
 	    const ValParam& param = (ValParam&)(*gateset)[idx];
-	    table->setValue( RowCol(idx,startcol), 
-		    	     param.getfValue(0) );
-	    table->setValue( RowCol(idx,stopcol), 
-		    	     param.getfValue(1) );
+	    table->setValue( RowCol(idx,startcol), param.getfValue(0) );
+	    table->setValue( RowCol(idx,stopcol), param.getfValue(1) );
 	}
     }
 
@@ -151,8 +149,7 @@ bool uiScalingAttrib::setParameters( const Desc& desc )
 	for ( int idx=0; idx< factorset->size(); idx++ )
 	{
 	    const ValParam& param = (ValParam&)(*factorset)[idx];
-	    table->setValue( RowCol(idx,factcol),
-		    	     param.getfValue(0) );
+	    table->setValue( RowCol(idx,factcol), param.getfValue(0) );
 	}
     }
 
