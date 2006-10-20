@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: shiftattrib.h,v 1.10 2006-08-24 14:57:29 cvshelene Exp $
+ RCS:           $Id: shiftattrib.h,v 1.11 2006-10-20 19:43:15 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -47,6 +47,7 @@ public:
     void			initSteering();
 
 protected:
+    				~Shift() {}
     static Provider*		createInstance(Desc&);
     static void			updateDesc(Desc&);
 

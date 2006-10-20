@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          19-10-2005
- RCS:           $Id: evaluateattrib.h,v 1.3 2006-01-12 20:37:38 cvsnanne Exp $
+ RCS:           $Id: evaluateattrib.h,v 1.4 2006-10-20 19:43:15 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,6 +36,7 @@ public:
     static const char*		attribName()		{ return "Evaluate"; }
 
 protected:
+    				~Evaluate() {}
     static Provider*		createInstance(Desc&);
 
     bool			allowParallelComputation() const

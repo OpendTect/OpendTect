@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          May 2005
- RCS:           $Id: mathattrib.h,v 1.7 2006-03-29 09:00:12 cvsnanne Exp $
+ RCS:           $Id: mathattrib.h,v 1.8 2006-10-20 19:43:15 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,6 +36,7 @@ public:
     static const char*		expressionStr()		{ return "expression"; }
 
 protected:
+    				~Math()	{}
     static Provider*		createInstance(Desc&);
     static void			updateDesc(Desc&);
 

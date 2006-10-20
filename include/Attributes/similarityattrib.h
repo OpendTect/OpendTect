@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: similarityattrib.h,v 1.18 2006-08-24 14:57:29 cvshelene Exp $
+ RCS:           $Id: similarityattrib.h,v 1.19 2006-10-20 19:43:15 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -68,6 +68,7 @@ public:
     void			initSteering();
 
 protected:
+    				~Similarity() {}
     static Provider*		createInstance(Desc&);
     static void			updateDesc(Desc&);
 

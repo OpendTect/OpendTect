@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Helene Payraudeau
  Date:		February 2005
- RCS:		$Id: eventattrib.h,v 1.13 2006-04-14 14:29:40 cvshelene Exp $
+ RCS:		$Id: eventattrib.h,v 1.14 2006-10-20 19:43:15 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,6 +46,7 @@ public:
 				{ return "issingleevent"; }
 
 protected:
+    				~Event() {}
     static Provider*		createInstance(Desc&);
     static void			updateDesc(Desc&);
 

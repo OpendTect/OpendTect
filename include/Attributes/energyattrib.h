@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: energyattrib.h,v 1.8 2006-09-24 13:55:16 cvshelene Exp $
+ RCS:           $Id: energyattrib.h,v 1.9 2006-10-20 19:43:15 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,6 +46,7 @@ public:
     static const char*  gateStr()		{ return "gate"; }
 
 protected:
+    			~Energy() {}
     static Provider*    createInstance(Desc&);
 
     bool		allowParallelComputation() const	{ return true; }

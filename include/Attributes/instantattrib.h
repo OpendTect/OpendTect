@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          May 2005
- RCS:           $Id: instantattrib.h,v 1.6 2006-07-06 12:12:50 cvshelene Exp $
+ RCS:           $Id: instantattrib.h,v 1.7 2006-10-20 19:43:15 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,6 +33,7 @@ public:
     static const char*		attribName()	{ return "Instantaneous"; }
 
 protected:
+    				~Instantaneous() {}
     static Provider*		createInstance(Desc&);
     static void			updateDesc(Desc&);
 

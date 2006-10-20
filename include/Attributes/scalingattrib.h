@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          December 2004
- RCS:           $Id: scalingattrib.h,v 1.11 2006-04-14 14:30:10 cvshelene Exp $
+ RCS:           $Id: scalingattrib.h,v 1.12 2006-10-20 19:43:15 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -48,7 +48,7 @@ public:
     static const char*	scalingTypeNamesStr(int type);
 
 protected:
-
+			~Scaling() {}
     static Provider*	createInstance(Desc&);
     static void		updateDesc(Desc&);
 

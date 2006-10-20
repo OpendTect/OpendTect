@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          23-02-2006
- RCS:           $Id: fingerprintattrib.h,v 1.5 2006-05-30 14:30:40 cvshelene Exp $
+ RCS:           $Id: fingerprintattrib.h,v 1.6 2006-10-20 19:43:15 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -57,6 +57,7 @@ public:
     static const char*		rgreftypeStr()	{ return "rgreftype"; }
 
 protected:
+    				~FingerPrint() {}
     static Provider*		createInstance(Desc&);
     static void			updateDesc(Desc&);
 

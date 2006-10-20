@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: dipfilterattrib.h,v 1.8 2006-04-14 14:30:10 cvshelene Exp $
+ RCS:           $Id: dipfilterattrib.h,v 1.9 2006-10-20 19:43:15 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -91,8 +91,10 @@ public:
     static const char*	filterTypeNamesStr(int);
 
 protected:
+			~DipFilter() {}
     static Provider*	createInstance(Desc&);
     static void		updateDesc(Desc&);
+
 
     bool		allowParallelComputation() const	{ return true; }
 

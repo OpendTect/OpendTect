@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene PAYRAUDEAU
  Date:          July 2005
- RCS:           $Id: referenceattrib.h,v 1.7 2005-12-23 16:09:46 cvsnanne Exp $
+ RCS:           $Id: referenceattrib.h,v 1.8 2006-10-20 19:43:15 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -55,6 +55,7 @@ public:
     static const char*  is2DStr()       	{ return "is2D"; }
 
 protected:
+    			~Reference() {}
     static Provider*    createInstance(Desc&);
     static void         updateDesc(Desc&);
 

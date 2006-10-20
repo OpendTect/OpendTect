@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: hilbertattrib.h,v 1.9 2006-10-18 12:19:58 cvshelene Exp $
+ RCS:           $Id: hilbertattrib.h,v 1.10 2006-10-20 19:43:15 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,12 +28,12 @@ class Hilbert : public Provider
 public:
     static void			initClass();
 				Hilbert(Desc&);
-				~Hilbert()	{ delete [] hilbfilter_; }
 
     static const char*		attribName()	{ return "Hilbert"; }
     static const char*		halflenStr()	{ return "halflen"; }
 
 protected:
+				~Hilbert()	{ delete [] hilbfilter_; }
     static Provider*		createInstance(Desc&);
 
     bool			getInputOutput(int inp,TypeSet<int>& res) const;
