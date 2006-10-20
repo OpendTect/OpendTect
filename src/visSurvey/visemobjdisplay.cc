@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: visemobjdisplay.cc,v 1.91 2006-08-17 14:02:10 cvsjaap Exp $
+ RCS:           $Id: visemobjdisplay.cc,v 1.92 2006-10-20 08:54:35 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,6 +32,7 @@ const char* EMObjectDisplay::sKeyEdit = "Edit";
 const char* EMObjectDisplay::sKeyOnlyAtSections = "Display only on sections";
 const char* EMObjectDisplay::sKeyLineStyle = "Linestyle";
 const char* EMObjectDisplay::sKeySections = "Displayed Sections";
+const char* EMObjectDisplay::sKeyPosAttrShown = "Pos Attribs shown";
 
 
 EMObjectDisplay::EMObjectDisplay()
@@ -48,7 +49,11 @@ EMObjectDisplay::EMObjectDisplay()
     , locknotifier( this )
     , drawstyle_( visBase::DrawStyle::create() )
     , nontexturecolisset_( false )
+    , enableedit_( true )
+    , restoresessupdate_( false )
 {
+    parposattrshown_.erase();
+
     drawstyle_->ref();
     addChild( drawstyle_->getInventorNode() );
 
@@ -202,6 +207,7 @@ EM::PosID EMObjectDisplay::findClosestNode(const Coord3&) const
 
 bool EMObjectDisplay::setEMObject( const EM::ObjectID& newid )
 {
+    
     EM::EMObject* emobject = em_.getObject( newid );
     if ( !emobject ) return false;
 
@@ -211,7 +217,11 @@ bool EMObjectDisplay::setEMObject( const EM::ObjectID& newid )
     emobject_->ref();
     emobject_->notifier.notify( mCB(this,EMObjectDisplay,emChangeCB) );
 
-    return updateFromEM();
+    restoresessupdate_ = !editor_ && parmid_!=MultiID(-1);
+    bool res = updateFromEM();
+    restoresessupdate_ = false;
+
+    return res;
 }
 
 
@@ -259,6 +269,12 @@ bool EMObjectDisplay::updateFromEM()
 	nontexturecolisset_ = true;
     }
 
+    while ( parposattrshown_.size() )
+    {
+	showPosAttrib( parposattrshown_[0], true );
+	parposattrshown_.remove(0);
+    }
+
     hasmoved.trigger();
     return true;
 }
@@ -268,14 +284,14 @@ void EMObjectDisplay::updateFromMPE()
 {
     const bool hastracker =
 	MPE::engine().getTrackerByObject(getObjectID()) >= 0;
-    if ( hastracker )
+    if ( hastracker && !restoresessupdate_ )
     {
 	setResolution( nrResolutions()-1 );
 	showPosAttrib( EM::EMObject::sSeedNode, true );
+	enableedit_ = true;
     }
 
-    if ( MPE::engine().getEditor(getObjectID(),hastracker) )
-	enableEditing(true);
+    enableEditing( enableedit_ );
 }
 
 
@@ -502,6 +518,8 @@ void EMObjectDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 	lineStyle()->toString( str );
 	par.set( sKeyLineStyle, str );
     }
+
+    par.set( sKeyPosAttrShown, posattribs_ );
 }
 
 
@@ -525,19 +543,15 @@ int EMObjectDisplay::usePar( const IOPar& par )
 	setLineStyle( ls );
     }
 
-    // Editing may not be moved further down, since the enableEditing call
-    // will change the wireframe, resolution++
-    bool enableedit = false;
-    par.getYN( sKeyEdit, enableedit );
-    enableEditing( enableedit );
+    par.getYN( sKeyEdit, enableedit_ );
 
     nontexturecolisset_ = par.get(sKey::Color,(int&)nontexturecol_.rgb() );
-
-    int resolution = 0;
 
     bool filter = false;
     par.getYN( sKeyOnlyAtSections, filter );
     setOnlyAtSectionsDisplay(filter);
+
+    par.get( sKeyPosAttrShown, parposattrshown_ );
 
     return 1;
 }
