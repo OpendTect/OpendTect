@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: vishorizondisplay.cc,v 1.16 2006-08-24 16:09:49 cvskris Exp $
+ RCS:           $Id: vishorizondisplay.cc,v 1.17 2006-10-20 08:56:17 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -71,6 +71,7 @@ HorizonDisplay::HorizonDisplay()
     , validtexture_( false )
     , isdisplayingonlyatsect_( false )
     , updatepostponed_( false )
+    , resolution_(0)
 {
     as_ += new Attrib::SelSpec;
     coltabs_ += visBase::VisColorTab::create();
@@ -235,20 +236,25 @@ bool HorizonDisplay::updateFromEM()
     if ( !EMObjectDisplay::updateFromEM() )
 	return false;
 
-    if ( usestexture_ ) useTexture( true );
+    useTexture( usestexture_ );
     return true;
 }
 
 
-
-
 void HorizonDisplay::updateFromMPE()
 {
-    const bool hastracker = MPE::engine().getTrackerByObject(getObjectID()) >= 0;
-    if ( hastracker )
+    const bool hastracker = MPE::engine().getTrackerByObject(getObjectID())>=0;
+	
+    if ( hastracker && !restoresessupdate_ )
     {
 	useWireframe( true );
 	useTexture( false );
+    }
+
+    if ( displayedRowRange().nrSteps()<=1 || displayedColRange().nrSteps()<=1 )
+    {
+	useWireframe( true );
+	setResolution( nrResolutions()-1 );
     }
 
     EMObjectDisplay::updateFromMPE();
@@ -687,7 +693,6 @@ void HorizonDisplay::removeSectionDisplay( const EM::SectionID& sid )
 };
 
 
-
 bool HorizonDisplay::addSection( const EM::SectionID& sid )
 {
     visBase::ParametricSurface* surf = visBase::ParametricSurface::create();
@@ -701,7 +706,7 @@ bool HorizonDisplay::addSection( const EM::SectionID& sid )
 	surf->setColorTab( idx, *coltabs_[idx] );
 
     surf->useWireframe( useswireframe_ );
-    surf->setResolution( getResolution()-1 );
+    surf->setResolution( resolution_-1 );
 
     surf->ref();
     surf->setMaterial( 0 );
@@ -824,6 +829,7 @@ int HorizonDisplay::getResolution() const
 
 void HorizonDisplay::setResolution( int res )
 {
+    resolution_ = res;
     for ( int idx=0; idx<sections_.size(); idx++ )
     {
 	mDynamicCastGet(visBase::ParametricSurface*,ps,sections_[idx]);
