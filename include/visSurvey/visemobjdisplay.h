@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          May 2004
- RCS:           $Id: visemobjdisplay.h,v 1.44 2006-08-17 13:59:59 cvsjaap Exp $
+ RCS:           $Id: visemobjdisplay.h,v 1.45 2006-10-20 08:49:05 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -119,6 +119,7 @@ protected:
 
     ObjectSet<visBase::DataObjectGroup>	posattribmarkers_;
     TypeSet<int>			posattribs_;
+    TypeSet<int>			parposattrshown_;
 
     EM::EMManager&			em_;
     EM::EMObject*			emobject_;
@@ -131,6 +132,8 @@ protected:
     mutable bool			nontexturecolisset_;
     visBase::DrawStyle*			drawstyle_;
     bool				displayonlyatsections_;
+    bool				enableedit_;
+    bool				restoresessupdate_;
 
     static const char*			sKeyEarthModelID;
     static const char*			sKeyResolution;
@@ -138,6 +141,7 @@ protected:
     static const char*			sKeyOnlyAtSections;
     static const char*			sKeyLineStyle;
     static const char*			sKeySections;
+    static const char*			sKeyPosAttrShown;
 };
 
 
