@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.154 2006-10-17 07:58:57 cvshelene Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.155 2006-10-20 12:06:29 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -217,7 +217,6 @@ void uiODApplMgr::doOperation( ObjType ot, ActType at, int opt )
 	if ( at == Man ) attrserv->manageAttribSets();
     break;
     case Pick:
-	if ( at == Man ) pickserv->managePickSets();
 	switch ( at )
 	{
 	case Imp:	pickserv->impexpSet( true );	break;
@@ -226,7 +225,11 @@ void uiODApplMgr::doOperation( ObjType ot, ActType at, int opt )
 	}
     break;
     case Wvlt:
-	seisserv->manageWavelets();
+	switch ( at )
+	{
+	case Imp:	seisserv->importWavelets();	break;
+	default:	seisserv->manageWavelets();	break;
+	}
     break;
     }
 }

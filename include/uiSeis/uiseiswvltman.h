@@ -4,9 +4,9 @@
 ________________________________________________________________________
 
  CopyRight:     (C) dGB Beheer B.V.
- Author:        N. Hemstra
- Date:          April 2002
- RCS:           $Id: uiseiswvltman.h,v 1.3 2006-10-18 10:53:25 cvsbert Exp $
+ Author:        Bert
+ Date:          Oct 2006
+ RCS:           $Id: uiseiswvltman.h,v 1.4 2006-10-20 12:06:29 cvsbert Exp $
 ________________________________________________________________________
 
 -*/

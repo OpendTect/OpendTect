@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiseispartserv.cc,v 1.40 2006-10-16 14:58:29 cvsbert Exp $
+ RCS:           $Id: uiseispartserv.cc,v 1.41 2006-10-20 12:06:29 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,6 +33,7 @@ ________________________________________________________________________
 #include "uiseiscbvsimp.h"
 #include "uiseisfileman.h"
 #include "uiseiswvltman.h"
+#include "uiseiswvltimp.h"
 #include "uiseisioobjinfo.h"
 #include "uisegysip.h"
 #include "uiseissel.h"
@@ -70,6 +71,13 @@ bool uiSeisPartServer::exportSeis( int opt )
 void uiSeisPartServer::manageSeismics()
 {
     uiSeisFileMan dlg( appserv().parent() );
+    dlg.go();
+}
+
+
+void uiSeisPartServer::importWavelets()
+{
+    uiSeisWvltImp dlg( appserv().parent() );
     dlg.go();
 }
 

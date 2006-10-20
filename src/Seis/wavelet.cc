@@ -5,7 +5,7 @@
  * FUNCTION : Wavelet
 -*/
 
-static const char* rcsID = "$Id: wavelet.cc,v 1.21 2006-10-19 16:40:36 cvsbert Exp $";
+static const char* rcsID = "$Id: wavelet.cc,v 1.22 2006-10-20 12:06:29 cvsbert Exp $";
 
 #include "wavelet.h"
 #include "seisinfo.h"
@@ -60,7 +60,10 @@ Wavelet::Wavelet( bool isricker, float fpeak, float sr, float scale )
 	else if ( isricker )
 	    samps[idx] = scale * exp(-x2) * (1-2*x2);
 	else
+	{
 	    samps[idx] = scale * exp(-x2) * sin(x)/x;
+	    if ( samps[idx] < 0 ) samps[idx] = 0;
+	}
 	pos += dpos;
     }
 }

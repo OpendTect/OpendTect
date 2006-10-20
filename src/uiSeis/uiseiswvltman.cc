@@ -4,13 +4,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiseiswvltman.cc,v 1.5 2006-10-19 16:43:12 cvsbert Exp $
+ RCS:           $Id: uiseiswvltman.cc,v 1.6 2006-10-20 12:06:29 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 
 #include "uiseiswvltman.h"
+#include "uiseiswvltimp.h"
 #include "wavelet.h"
 #include "ioobj.h"
 #include "iostrm.h"
@@ -40,12 +41,15 @@ uiSeisWvltMan::uiSeisWvltMan( uiParent* p )
 {
     createDefaultUI();
 
-    uiPushButton* impbut = new uiPushButton( this, "&Import", false );
+    uiGroup* butgrp = new uiGroup( this, "Imp/Create buttons" );
+    uiPushButton* impbut = new uiPushButton( butgrp, "&Import", false );
     impbut->activated.notify( mCB(this,uiSeisWvltMan,impPush) );
-    impbut->attach( alignedBelow, selgrp );
-    uiPushButton* crbut = new uiPushButton( this, "&Create standard", false );
+    impbut->setPrefWidthInChar( 15 );
+    uiPushButton* crbut = new uiPushButton( butgrp, "&Generate", false );
     crbut->activated.notify( mCB(this,uiSeisWvltMan,crPush) );
-    crbut->attach( rightAlignedBelow, selgrp );
+    crbut->attach( rightOf, impbut );
+    crbut->setPrefWidthInChar( 15 );
+    butgrp->attach( centeredBelow, selgrp );
 
     fdctxt_.annot_.x1name_ = "Amplitude";
     fdctxt_.annot_.x2name_ = SI().zIsTime() ? "Time" : "Depth";
@@ -59,7 +63,8 @@ uiSeisWvltMan::uiSeisWvltMan( uiParent* p )
     wvltfld->setStretch( 1, 1 );
     wvltfld->setData( fddata_ );
 
-    infofld->attach( ensureBelow, impbut );
+    infofld->attach( ensureBelow, butgrp );
+    infofld->attach( ensureBelow, wvltfld );
     selgrp->setPrefWidthInChar( 50 );
     infofld->setPrefWidthInChar( 60 );
     wvltfld->setPrefWidthInChar( 10 );
@@ -77,7 +82,9 @@ uiSeisWvltMan::~uiSeisWvltMan()
 
 void uiSeisWvltMan::impPush( CallBacker* )
 {
-    uiMSG().message( "TODO: needs implementation" );
+    uiSeisWvltImp dlg( this );
+    if ( dlg.go() )
+	selgrp->fullUpdate( dlg.selKey() );
 }
 
 
