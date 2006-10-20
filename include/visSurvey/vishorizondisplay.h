@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          May 2004
- RCS:           $Id: vishorizondisplay.h,v 1.6 2006-08-24 16:09:49 cvskris Exp $
+ RCS:           $Id: vishorizondisplay.h,v 1.7 2006-10-20 08:50:23 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -143,6 +143,7 @@ protected:
 
     bool				usestexture_;
     bool				useswireframe_;
+    int					resolution_;
     int					curtextureidx_;
     float				edgelineradius_;
 
