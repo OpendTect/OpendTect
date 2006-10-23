@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: sectiontracker.cc,v 1.17 2006-06-06 14:28:49 cvsjaap Exp $";
+static const char* rcsID = "$Id: sectiontracker.cc,v 1.18 2006-10-23 09:16:23 cvsjaap Exp $";
 
 #include "sectiontracker.h"
 
@@ -21,6 +21,7 @@ static const char* rcsID = "$Id: sectiontracker.cc,v 1.17 2006-06-06 14:28:49 cv
 #include "sectionadjuster.h"
 #include "sectionextender.h"
 #include "sectionselector.h"
+#include "survinfo.h"
 
 namespace MPE 
 {
@@ -71,7 +72,6 @@ void SectionTracker::reset()
 }
 
 
-
 bool SectionTracker::trackWithPlane( const TrackPlane& plane )
 {
     if ( !selector_ && !extender_ )
@@ -86,9 +86,12 @@ bool SectionTracker::trackWithPlane( const TrackPlane& plane )
     if ( !select() )
 	return false;
 
+    TypeSet<EM::SubID> lockedseeds;
+    getLockedSeeds( lockedseeds );
+
     if ( plane.getTrackMode()==TrackPlane::Erase )
     {
-	if ( !erasePositions(selector_->selectedPositions(),true) )
+	if ( !erasePositions(selector_->selectedPositions(),lockedseeds,true) )
 	{
 	    errmsg = "Could not remove all nodes since that would "
 		     "divide the section in multiple parts.";
@@ -98,8 +101,11 @@ bool SectionTracker::trackWithPlane( const TrackPlane& plane )
 	return true;
     }
 
-    extender_->setDirection(plane.motion());
-    if ( !extend() )
+    extender_->setDirection( plane.motion() );
+    extender_->excludePositions( &lockedseeds );
+    const bool res = extend();
+    extender_->excludePositions(0);
+    if ( !res ) 
 	return false;
 
     TypeSet<EM::SubID> addedpos = extender_->getAddedPositions();
@@ -138,8 +144,8 @@ void SectionTracker::removeUnSupported( TypeSet<EM::SubID>& subids ) const
 }
 
 
-
 bool SectionTracker::erasePositions( const TypeSet<EM::SubID>& origsubids,
+				     const TypeSet<EM::SubID>& excludedpos,
 				     bool addtohistory ) const
 {
     TypeSet<EM::SubID> subids( origsubids );
@@ -152,7 +158,8 @@ bool SectionTracker::erasePositions( const TypeSet<EM::SubID>& origsubids,
 	for ( int idx=0; idx<subids.size(); idx++ )
 	{
 	    pid.setSubID(subids[idx]);
-	    if ( emobject.unSetPos(pid,addtohistory) )
+	    if ( excludedpos.indexOf(subids[idx])!=-1 || 
+		 emobject.unSetPos(pid,addtohistory) )
 	    {
 		subids.remove(idx--);
 		change = true;
@@ -161,6 +168,29 @@ bool SectionTracker::erasePositions( const TypeSet<EM::SubID>& origsubids,
     }
 
     return subids.size() ? false : true;
+}
+
+
+void SectionTracker::getLockedSeeds( TypeSet<EM::SubID>& lockedseeds ) 
+{
+    lockedseeds.erase();
+    if ( !emobject.isPosAttribLocked( EM::EMObject::sSeedNode ) )
+	return;
+
+    const TypeSet<EM::PosID>* seedlist = 
+	emobject.getPosAttribList( EM::EMObject::sSeedNode );
+    const int nrseeds = seedlist ? seedlist->size() : 0;
+
+    for ( int idx=0; idx<nrseeds; idx++ )
+    {
+	const Coord3 seedpos = emobject.getPos( (*seedlist)[idx] );
+	const BinID seedbid = SI().transform( seedpos );
+	if ( (*seedlist)[idx].sectionID()==sid && 
+	     engine().activeVolume().hrg.includes(seedbid) )
+	{
+	    lockedseeds += (*seedlist)[idx].subID();
+	}
+    }
 }
 
 
