@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Payraudeau
  Date:          February  2006
- RCS:           $Id: uifingerprintattrib.cc,v 1.23 2006-10-10 17:46:05 cvsbert Exp $
+ RCS:           $Id: uifingerprintattrib.cc,v 1.24 2006-10-23 09:16:50 cvshelene Exp $
 
 ________________________________________________________________________
 
@@ -50,7 +50,7 @@ ________________________________________________________________________
 
 using namespace Attrib;
 
-static const int sInitNrRows = 3;
+static const int sInitNrRows = 4;
 
 static const char* valinpstrs[] =
 {
@@ -150,10 +150,10 @@ uiFingerPrintAttrib::uiFingerPrintAttrib( uiParent* p )
     
     table_ = new uiTable( this,uiTable::Setup().rowdesc("")
 					.rowgrow(true)
-					.minrowhgt(1.9)
-					.maxrowhgt(5)
-					.mincolwdt(3.7*uiObject::baseFldSize())
-					.maxcolwdt(6*uiObject::baseFldSize())
+					.minrowhgt(1.5)
+					.maxrowhgt(1.8)
+					.mincolwdt(3*uiObject::baseFldSize())
+					.maxcolwdt(4*uiObject::baseFldSize())
 					.defrowlbl("")
 					.fillcol(true)
 					.fillrow(true) );
@@ -162,8 +162,9 @@ uiFingerPrintAttrib::uiFingerPrintAttrib( uiParent* p )
     table_->setColumnLabels( collbls );
     table_->setNrRows( sInitNrRows );
     table_->setColumnWidth(0,240);
-    table_->setRowHeight( -1, 16 );
-    table_->setPrefHeight( 125 );
+    table_->setRowHeight( -1, 4 );
+    table_->setStretch( 0, 0 );
+    table_->setPrefHeightInChar( 8 );
     table_->setToolTip( "Right-click to add, insert or remove an attribute" );
     table_->attach( alignedBelow, linefld_ );
     table_->rowInserted.notify( mCB(this,uiFingerPrintAttrib,insertRowCB) );
