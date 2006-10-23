@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		Feb 2001
  Contents:	Binary data interpretation
- RCS:		$Id: bindatadesc.h,v 1.8 2003-12-24 11:07:22 bert Exp $
+ RCS:		$Id: bindatadesc.h,v 1.9 2006-10-23 22:12:18 cvskris Exp $
 ________________________________________________________________________
 
 */
@@ -90,7 +90,7 @@ public:
 			{ return !isEqual(dc); }
     inline bool		isEqual( const BinDataDesc& dc ) const
 			{
-			    unsigned char c11, c12, c21, c22;
+			    unsigned char c11=0, c12=0, c21=0, c22=0;
 			    dump(c11,c12); dc.dump(c21,c22);
 			    return c11 == c21 && c12 == c22;
 			}
