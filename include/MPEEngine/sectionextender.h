@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: sectionextender.h,v 1.12 2006-05-01 17:28:18 cvskris Exp $
+ RCS:           $Id: sectionextender.h,v 1.13 2006-10-23 09:11:28 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,7 +34,7 @@ class SectionSourceSelector;
 class SectionExtender : public BasicTask
 {
 public:
-    				SectionExtender( const EM::SectionID& si = -1 );
+    				SectionExtender(const EM::SectionID& si = -1);
     EM::SectionID		sectionID() const;
 
     virtual void		reset();
@@ -42,6 +42,8 @@ public:
     virtual const BinIDValue*	getDirection() const;
 
     void			setStartPositions(const TypeSet<EM::SubID> ns);
+    void			excludePositions(const TypeSet<EM::SubID>*); 
+    bool			isExcludedPos(const EM::SubID&) const; 
     int				nextStep();
     
     void			extendInVolume(const BinID& bidstep,
@@ -51,20 +53,22 @@ public:
     const TypeSet<EM::SubID>&	getAddedPositionsSource() const;
 
     const CubeSampling&		getExtBoundary() const;
-    void			setExtBoundary( const CubeSampling& );
+    void			setExtBoundary(const CubeSampling&);
     void			unsetExtBoundary();
 
     const char*			errMsg() const;
-    virtual void		fillPar( IOPar& ) const {}
-    virtual bool		usePar( const IOPar& ) { return true; }
+    virtual void		fillPar(IOPar&) const {}
+    virtual bool		usePar(const IOPar&) { return true; }
 
 protected:
-    void			addTarget( const EM::SubID& target,
-	    				   const EM::SubID& src );
+    void			addTarget(const EM::SubID& target,
+	    				  const EM::SubID& src );
 
     TypeSet<EM::SubID>		addedpos_;
     TypeSet<EM::SubID>		addedpossrc_;
     TypeSet<EM::SubID>		startpos_;
+    
+    const TypeSet<EM::SubID>*	excludedpos_;
 
     CubeSampling		extboundary_;
 
