@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          Sep 2006
- RCS:           $Id: uigdexamacorr.h,v 1.5 2006-10-04 15:13:10 cvshelene Exp $
+ RCS:           $Id: uigdexamacorr.h,v 1.6 2006-10-23 15:23:26 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,13 +23,13 @@ namespace uiFlatDisp { class VertViewer; }
 
 /*! \brief GapDecon Attribute autocorrelation preview in a 2d viewer */
 
-class GapDeconACorrView : public uiMainWin
+class GapDeconACorrView
 {
 public:
     			GapDeconACorrView(uiParent*);
     			~GapDeconACorrView();
     bool                computeAutocorr();
-    void                createAndDisplay2DViewer();
+    void                createAndDisplay2DViewer(bool);
     void		setCubeSampling( CubeSampling cs )	{ cs_ = cs; }
     void		setAttribID( Attrib::DescID id )	{ attribid_=id;}
     void                setDescSet(Attrib::DescSet*);
@@ -38,13 +38,16 @@ public:
 protected:
     Attrib::EngineMan*	createEngineMan();
     void		extractAndSaveVals(const Attrib::DataCubes*);
-    void		displayWiggles(bool);
+    void		displayWiggles(bool,bool);
 
+    uiMainWin*		examwin_;
+    uiMainWin*		qcwin_;
     CubeSampling	cs_;
     Attrib::DescID	attribid_;
     Attrib::DescSet*    dset_;
     Array2D<float>*	autocorr2darr_;
-    uiFlatDisp::VertViewer*	viewer2d_;
+    uiFlatDisp::VertViewer*	examviewer2d_;
+    uiFlatDisp::VertViewer*	qcviewer2d_;
 };
 
 

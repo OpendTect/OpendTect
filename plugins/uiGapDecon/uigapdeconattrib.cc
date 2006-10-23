@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          July  2006
- RCS:           $Id: uigapdeconattrib.cc,v 1.18 2006-10-10 17:46:05 cvsbert Exp $
+ RCS:           $Id: uigapdeconattrib.cc,v 1.19 2006-10-23 15:23:26 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -267,7 +267,7 @@ void uiGapDeconAttrib::examPush( CallBacker* cb )
 	acorrview_->setCubeSampling( positiondlg_->getCubeSampling() );
 	acorrview_->setDescSet( dset );
 	if ( acorrview_->computeAutocorr() )
-	    acorrview_->createAndDisplay2DViewer();
+	    acorrview_->createAndDisplay2DViewer(false);
     }
 }
 
@@ -505,7 +505,7 @@ void uiGapDeconAttrib::qCPush( CallBacker* cb )
 	acorrview_->setCubeSampling( positiondlg_->getCubeSampling() );
 	acorrview_->setDescSet( dset );
 	if ( acorrview_->computeAutocorr() )
-	    acorrview_->createAndDisplay2DViewer();
+	    acorrview_->createAndDisplay2DViewer(true);
     }
 }
 
