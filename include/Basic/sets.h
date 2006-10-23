@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		April 1995
  Contents:	Sets of simple objects
- RCS:		$Id: sets.h,v 1.39 2006-09-14 11:11:01 cvsbert Exp $
+ RCS:		$Id: sets.h,v 1.40 2006-10-23 14:55:59 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -343,12 +343,13 @@ public:
 			}
 
     virtual void	erase()				{ e_rase(); }
-    virtual void	remove( int idx )		{ ovec.remove(idx); }
-    virtual inline void	removeFast( int idx );
+    virtual inline T*	remove( int idx );
+    			/*!<\returns the removed pointer. */
+    virtual inline T*	removeFast( int idx );
     			/*!<Moves the last pointer to the position of the
 			  	removed pointer, and removes the last item,
 				thus avoiding the memmove.
-			*/
+			   \returns the removed pointer.  */
     virtual void	remove( int i1, int i2 )	{ ovec.remove(i1,i2); }
 
 
@@ -438,12 +439,23 @@ inline void sort( ObjectSet<T>& os )
 }
 
 template <class T>
-inline void ObjectSet<T>::removeFast(int idx)
+inline T* ObjectSet<T>::removeFast(int idx)
 {
+    T* res = (T*)ovec[idx];
     const int last = size()-1;
     if ( idx!=last )
 	ovec[idx]=ovec[last];
     ovec.remove(last);
+    return res;
+}
+
+
+template <class T>
+inline T* ObjectSet<T>::remove(int idx)
+{
+    T* res = (T*)ovec[idx];
+    ovec.remove(idx);
+    return res;
 }
 
 #endif

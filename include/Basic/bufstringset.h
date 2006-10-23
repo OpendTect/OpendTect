@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		Oct 2003
  Contents:	Set of BufferStrings
- RCS:		$Id: bufstringset.h,v 1.6 2006-10-10 17:46:05 cvsbert Exp $
+ RCS:		$Id: bufstringset.h,v 1.7 2006-10-23 14:55:59 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -54,7 +54,7 @@ public:
 
     // Overriding ObjectSet's methods - different in case of being owner
     virtual void	erase();	// becomes deepErase if owner
-    virtual void	remove(int);	// etc.
+    virtual BufferString* remove(int);	// etc.
     virtual void	remove(int,int);
 
 protected:
