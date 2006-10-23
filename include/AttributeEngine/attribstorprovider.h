@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribstorprovider.h,v 1.17 2006-03-28 12:23:06 cvsnanne Exp $
+ RCS:           $Id: attribstorprovider.h,v 1.18 2006-10-23 15:01:31 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "attribprovider.h"
 #include "cubesampling.h"
 #include "seisreq.h"
+#include "datachar.h"
 
 namespace Attrib
 {
@@ -58,11 +59,14 @@ protected:
 					      const DataHolder&) const;
     bool		getZStepStoredData(float& step) const
 			{ step = storedvolume.zrg.step; return true; }
+
+    BinDataDesc		getOutputFormat(int output) const;
     
     bool 		checkDataOK( StepInterval<int> trcrg,
 	                             StepInterval<float>zrg );
     bool 		checkDataOK();
 
+    TypeSet<BinDataDesc> datachar_;
     SeisReqGroup	rg;
     int			currentreq;
 

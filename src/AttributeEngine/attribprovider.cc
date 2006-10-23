@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribprovider.cc,v 1.75 2006-09-28 13:38:48 cvsnanne Exp $";
+static const char* rcsID = "$Id: attribprovider.cc,v 1.76 2006-10-23 15:01:31 cvskris Exp $";
 
 #include "attribprovider.h"
 #include "attribstorprovider.h"
@@ -24,6 +24,7 @@ static const char* rcsID = "$Id: attribprovider.cc,v 1.75 2006-09-28 13:38:48 cv
 #include "seistrcsel.h"
 #include "survinfo.h"
 #include "valseriesinterpol.h"
+#include "convmemvalseries.h"
 
 
 namespace Attrib
@@ -859,28 +860,39 @@ const DataHolder* Provider::getData( const BinID& relpos, int idi )
 	return 0;
     }
     
+    const int nrsamples = outdata->nrsamples_;
     for ( int idx=0; idx<outputinterest.size(); idx++ )
     {
 	while ( outdata->nrSeries()<=idx )
-	    outdata->add();
+	    outdata->add( true );
 	
 	if ( outputinterest[idx]<=0 ) 
 	{
-	    if ( outdata->series(idx) && outdata->series(idx)->arr() )
+	    if ( outdata->series(idx) )
 		outdata->replace( idx, 0 );
 
 	    continue;
 	}
 
-	if ( !outdata->series(idx)->arr() )
+	if ( !outdata->series(idx) )
 	{
-	    float* ptr = new float[outdata->nrsamples_];
-	    outdata->replace( idx, new ArrayValueSeries<float>(ptr) );
+	    ValueSeries<float>* valptr = 0;
+	    float dummy;
+	    static const BinDataDesc floatdatadesc( dummy );
+	    const BinDataDesc outputformat = getOutputFormat( idx );
+	    if ( outputformat==floatdatadesc )
+	    {
+		float* ptr = new float[nrsamples];
+		valptr = new ArrayValueSeries<float>(ptr);
+	    }
+	    else
+		valptr = new ConvMemValueSeries<float>( nrsamples, outputformat );
+
+	    outdata->replace( idx, valptr );
 	}
     }
 
     const int z0 = outdata->z0_;
-    const int nrsamples = outdata->nrsamples_;
 
     bool success = false;
     if ( !allowParallelComputation() )
@@ -1023,6 +1035,12 @@ void Provider::setInput( int inp, Provider* np )
 	inputs[inp]->updateInputReqs(-1);
 	inputs[inp]->updateStorageReqs(-1);
     }
+}
+
+BinDataDesc Provider::getOutputFormat( int output ) const
+{
+    float dummy;
+    return BinDataDesc( dummy );
 }
 
 

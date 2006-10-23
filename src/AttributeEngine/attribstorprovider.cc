@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribstorprovider.cc,v 1.46 2006-09-06 17:23:50 cvskris Exp $";
+static const char* rcsID = "$Id: attribstorprovider.cc,v 1.47 2006-10-23 15:01:31 cvskris Exp $";
 
 #include "attribstorprovider.h"
 
@@ -246,6 +246,16 @@ int StorageProvider::moveToNextTrace( BinID startpos, bool firstcheck )
 		SeisTrc* trc = rg[currentreq]->get(0,0);
 		if ( trc )
 		{
+		    for ( int idx=0; idx<trc->nrComponents(); idx++ )
+		    {
+			if ( datachar_.size()<=idx )
+			    datachar_ +=
+				trc->data().getInterpreter()->dataChar();
+			else
+			    datachar_[idx] =
+				trc->data().getInterpreter()->dataChar();
+		    }
+
 		    curtrcinfo_ = &trc->info();
 		    currentbid = desc.is2D()? BinID( 0, curtrcinfo_->nr ) 
 					    : curtrcinfo_->binid;
@@ -530,6 +540,15 @@ bool StorageProvider::fillDataHolderWithTrc( const SeisTrc* trc,
     }
 
     return true;
+}
+
+
+BinDataDesc StorageProvider::getOutputFormat( int output ) const
+{
+    if ( output>=datachar_.size() )
+	return Provider::getOutputFormat( output );
+
+    return datachar_[output];
 }
 
 

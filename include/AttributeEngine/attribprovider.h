@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribprovider.h,v 1.51 2006-09-28 13:38:48 cvsnanne Exp $
+ RCS:           $Id: attribprovider.h,v 1.52 2006-10-23 15:01:31 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,6 +23,7 @@ class SeisRequester;
 class SeisSelData;
 class SeisTrcInfo;
 template <class T> class Array2DImpl;
+class BinDataDesc;
 
 #define mMAXDIP 300 * 1e-6
 #define mMAXDIPSECURE 2000 * 1e-6
@@ -167,6 +168,7 @@ protected:
     void			removeDataHolder(const BinID& relpos);
     void			setInput(int input,Provider*);
     void			addParent( Provider* prov ) { parents += prov; }
+    virtual BinDataDesc		getOutputFormat(int output) const;
 
     bool			computeDesInputCube(int inp,int out,
 						    CubeSampling&,
