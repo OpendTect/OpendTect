@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emobject.cc,v 1.68 2006-09-11 07:11:58 cvsnanne Exp $";
+static const char* rcsID = "$Id: emobject.cc,v 1.69 2006-10-23 09:14:59 cvsjaap Exp $";
 
 #include "emobject.h"
 
@@ -328,6 +328,7 @@ void EMObject::addPosAttrib( int attr )
 	posattribs += new PosAttrib();
 	const int idx = attribs.indexOf( attr );
 	posattribs[idx]->type_ = (PosAttrib::Type)attr;
+	posattribs[idx]->locked_ = false;
     }
 }    
 
@@ -429,6 +430,21 @@ void EMObject::setPosAttrMarkerStyle( int attr, const MarkerStyle3D& ms )
     cbdata.attrib = attr;
     notifier.trigger( cbdata );
     changed = true;
+}
+
+
+void EMObject::lockPosAttrib( int attr, bool yn )
+{
+    addPosAttrib( attr );
+    const int idx=attribs.indexOf( attr );
+    posattribs[idx]->locked_ = yn;
+}
+
+
+bool EMObject::isPosAttribLocked( int attr ) const
+{
+    const int idx=attribs.indexOf( attr );
+    return idx!=-1 ? posattribs[idx]->locked_ : false; 
 }
 
 
