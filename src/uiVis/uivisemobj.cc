@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Jan 2005
- RCS:           $Id: uivisemobj.cc,v 1.49 2006-08-17 13:58:46 cvsjaap Exp $
+ RCS:           $Id: uivisemobj.cc,v 1.50 2006-10-23 09:17:31 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -215,8 +215,10 @@ void uiVisEMObject::setUpConnections()
 {
     singlecolmnuitem.text = "Use single color";
     trackmenuitem.text = uiVisEMObject::trackingmenutxt;
-    showseedsmnuitem.text = "Show seeds";
-    seedpropmnuitem.text = "Seed properties ...";
+    seedsmenuitem.text = "Seeds";
+    showseedsmnuitem.text = "Show";
+    seedpropmnuitem.text = "Properties ...";
+    lockseedsmnuitem.text = "Lock";
     wireframemnuitem.text = "Wireframe";
     editmnuitem.text = "Edit";
     shiftmnuitem.text = "Shift ...";
@@ -352,10 +354,16 @@ void uiVisEMObject::createMenuCB( CallBacker* cb )
 		      hordisp->usesWireframe() );
    
     const TypeSet<EM::PosID>* seeds =
-			emobj->getPosAttribList(EM::EMObject::sSeedNode);
-    mAddMenuItem( &trackmenuitem, &showseedsmnuitem, seeds && seeds->size(),
-	     emod->showsPosAttrib(EM::EMObject::sSeedNode) );
-    mAddMenuItem( &trackmenuitem, &seedpropmnuitem, true, false );
+			      emobj->getPosAttribList(EM::EMObject::sSeedNode);
+    showseedsmnuitem.text = emod->showsPosAttrib(EM::EMObject::sSeedNode) ?
+			    "Hide" : "Show" ;	
+    mAddMenuItem( &seedsmenuitem, &showseedsmnuitem, seeds && seeds->size(),
+	    	  false );
+    mAddMenuItem( &seedsmenuitem, &seedpropmnuitem, true, false );
+    lockseedsmnuitem.text = emobj->isPosAttribLocked(EM::EMObject::sSeedNode) ?
+			    "Unlock" : "Lock" ;	
+    mAddMenuItem( &seedsmenuitem, &lockseedsmnuitem, true, false );
+    mAddMenuItem( &trackmenuitem,&seedsmenuitem,seedsmenuitem.nrItems(),false );
 
     mAddMenuItem( menu, &trackmenuitem, trackmenuitem.nrItems(), false );
 
@@ -421,6 +429,12 @@ void uiVisEMObject::handleMenuCB( CallBacker* cb )
     {
 	uiSeedPropDlg dlg( uiparent, emobj );
 	dlg.go();
+	menu->setIsHandled(true);
+    }
+    else if ( mnuid==lockseedsmnuitem.id )
+    {
+	emobj->lockPosAttrib( EM::EMObject::sSeedNode, 
+			!emobj->isPosAttribLocked(EM::EMObject::sSeedNode) );
 	menu->setIsHandled(true);
     }
     else if ( mnuid==editmnuitem.id )
