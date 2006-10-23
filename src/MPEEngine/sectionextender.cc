@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: sectionextender.cc,v 1.8 2006-05-01 17:28:20 cvskris Exp $";
+static const char* rcsID = "$Id: sectionextender.cc,v 1.9 2006-10-23 09:15:46 cvsjaap Exp $";
 
 #include "sectionextender.h"
 #include "mpeengine.h"
@@ -21,6 +21,7 @@ namespace MPE
 SectionExtender::SectionExtender( const EM::SectionID& si)
     : sid_( si )
     , extboundary_( false )
+    , excludedpos_( 0 )
 {}
 
 
@@ -31,6 +32,7 @@ void SectionExtender::reset()
 {
     addedpos_.erase();
     addedpossrc_.erase();
+    excludedpos_ = 0;
 }
 
 
@@ -42,6 +44,16 @@ const BinIDValue* SectionExtender::getDirection() const { return 0; }
 
 void SectionExtender::setStartPositions( const TypeSet<EM::SubID> ns )
 { startpos_ = ns; }
+
+
+void SectionExtender::excludePositions( const TypeSet<EM::SubID>* exclpos )
+{ excludedpos_ = exclpos; }
+
+
+bool SectionExtender::isExcludedPos( const EM::SubID& pos ) const
+{
+    return excludedpos_ && excludedpos_->indexOf(pos)!=-1;
+}
 
 
 int SectionExtender::nextStep() { return 0; }
@@ -96,7 +108,7 @@ void SectionExtender::unsetExtBoundary()
 void SectionExtender::addTarget( const EM::SubID& target,
 			         const EM::SubID& src )
 {
-    if ( addedpos_.indexOf(target)!=-1 )
+    if ( addedpos_.indexOf(target)!=-1 || isExcludedPos(target) )
 	return;
 
     addedpossrc_ += src;
