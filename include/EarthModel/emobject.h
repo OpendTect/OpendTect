@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emobject.h,v 1.60 2006-08-17 13:44:50 cvsjaap Exp $
+ RCS:		$Id: emobject.h,v 1.61 2006-10-23 09:10:10 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -77,11 +77,12 @@ public:
     enum Type		{ PermanentControlNode, TemporaryControlNode,
 			  EdgeControlNode, TerminationNode, SeedNode };
 
-
     Type		type_;
     TypeSet<PosID>	posids_;
 
     MarkerStyle3D	style_;
+
+    bool		locked_;    
 };
 
 
@@ -169,6 +170,8 @@ public:
     const MarkerStyle3D&	getPosAttrMarkerStyle(int attr);
     void			setPosAttrMarkerStyle(int attr, 
 						      const MarkerStyle3D&);
+    virtual void		lockPosAttrib(int attr,bool yn);
+    virtual bool		isPosAttribLocked(int attr) const;
 
     CNotifier<EMObject,const EMObjectCallbackData&>	notifier;
 
