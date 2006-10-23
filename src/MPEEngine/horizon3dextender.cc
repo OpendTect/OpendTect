@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizon3dextender.cc,v 1.6 2006-05-01 17:28:20 cvskris Exp $";
+static const char* rcsID = "$Id: horizon3dextender.cc,v 1.7 2006-10-23 09:22:41 cvsjaap Exp $";
 
 #include "horizonextender.h"
 
@@ -126,7 +126,8 @@ int HorizonExtender::nextStep()
 		    continue;
 
 
-		if ( surface.setPos( neighbor, Coord3(0,0,depth), true) )
+		if ( !isExcludedPos(neighbor.subID()) &&
+		     surface.setPos(neighbor, Coord3(0,0,depth), true) )
 		{
 		    addTarget( neighbor.subID(), srcbid.getSerialized() );
 		    change = true;
