@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: sectiontracker.h,v 1.10 2006-06-06 14:07:36 cvsjaap Exp $
+ RCS:           $Id: sectiontracker.h,v 1.11 2006-10-23 09:12:43 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -74,16 +74,19 @@ public:
 
     void			getNeededAttribs(
 	    			    ObjectSet<const Attrib::SelSpec>&) const;
-    virtual CubeSampling	getAttribCube( const Attrib::SelSpec& ) const;
+    virtual CubeSampling	getAttribCube(const Attrib::SelSpec&) const;
 
     void			fillPar(IOPar&) const;
     bool			usePar(const IOPar&);
 
-    void			removeUnSupported( TypeSet<EM::SubID>& ) const;
+    void			removeUnSupported(TypeSet<EM::SubID>&) const;
 protected:
 
-    bool			erasePositions( const TypeSet<EM::SubID>&,
-	    					bool addtohistory ) const;
+    bool			erasePositions(
+	    				const TypeSet<EM::SubID>& selectedpos,
+					const TypeSet<EM::SubID>& excludedpos,
+	    				bool addtohistory) const;
+    void			getLockedSeeds(TypeSet<EM::SubID>& lockedseeds);
 
     EM::EMObject&		emobject;
     EM::SectionID		sid;
