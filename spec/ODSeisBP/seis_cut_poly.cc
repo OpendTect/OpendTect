@@ -4,7 +4,7 @@
  * DATE     : 2-12-2005
 -*/
 
-static const char* rcsID = "$Id: seis_cut_poly.cc,v 1.2 2005-12-23 11:30:38 cvsjaap Exp $";
+static const char* rcsID = "$Id: seis_cut_poly.cc,v 1.3 2006-10-23 16:10:17 cvsbert Exp $";
 
 #include "prog.h"
 #include "batchprog.h"
@@ -18,6 +18,8 @@ static const char* rcsID = "$Id: seis_cut_poly.cc,v 1.2 2005-12-23 11:30:38 cvsj
 #include "progressmeter.h"
 #include "separstr.h"
 #include "survinfo.h"
+#include "pickset.h"
+#include "picksettr.h"
 #include "ptrman.h"
 #include <math.h>
 
@@ -129,34 +131,57 @@ static bool isInside( const TypeSet<Coord>& poly, const Coord& point,
 }
 
 
+#define mErrRet(s) { strm << s << std::endl; return false; }
+
 bool BatchProgram::go( std::ostream& strm )
 { 
     PtrMan<IOObj> inioobj = getIOObjFromPars( "Input Seismics", false,
 				    SeisTrcTranslatorGroup::ioContext(), true );
-    PtrMan<IOObj> outioobj = getIOObjFromPars( "Output Seismics", false,
+    PtrMan<IOObj> outioobj = getIOObjFromPars( "Output Seismics", true,
 				    SeisTrcTranslatorGroup::ioContext(), true );
     if ( !outioobj || !inioobj )
-	return false;
+	mErrRet("Need input and output seismics")
+
+    const char* vrtcspsid = pars().find( "Vertices PickSet.ID" );
+
+    TypeSet<BinID> edgebids, exclbids;
+    if ( vrtcspsid )
+    {
+	PtrMan<IOObj> ioobj = IOM().get( MultiID(vrtcspsid) );
+	if ( !ioobj )
+	    mErrRet("Cannot find pickset ID in object manager")
+	Translator* tr = ioobj->getTranslator();
+	mDynamicCastGet(PickSetTranslator*,pstr,tr)
+	if ( !pstr )
+	    mErrRet("Invalid object ID (probably not a Pick Set entry")
+	PtrMan<Conn> conn = ioobj->getConn( Conn::Read );
+	if ( !conn || conn->bad() )
+	    mErrRet("Cannot open Pick Set")
+	PtrMan<Pick::Set> pickset = new Pick::Set;
+	const char* errmsg = pstr->read( *pickset, *conn );
+	if ( errmsg && *errmsg )
+	    mErrRet("Cannot read Pick Set")
+
+	for ( int idx=0; idx<pickset->size(); idx++ )
+	    edgebids += SI().transform( (*pickset)[idx].pos );
+    }
 
     PtrMan<IOPar> edgesubpar = pars().subselect( "Edge" );
     PtrMan<IOPar> exclsubpar = pars().subselect( "Exclude" );
-    if ( !edgesubpar || !exclsubpar )
-	{ strm << "No positions defined" << std::endl; return false; }
-
-    TypeSet<BinID> edgebids, exclbids;
     for ( int idx=0; ; idx++ )
     {
 	BufferString idxstr; idxstr += idx;
-	const char* edgestr = edgesubpar->find( idxstr.buf() );
-	const char* exclstr = exclsubpar->find( idxstr.buf() );
+	const char* edgestr = edgesubpar ? edgesubpar->find( idxstr.buf() ) : 0;
+	const char* exclstr = exclsubpar ? exclsubpar->find( idxstr.buf() ) : 0;
 	if ( !edgestr && !exclstr )
 	    { if ( !idx ) continue; else break; }
 
 	addBid( edgestr, edgebids );
 	addBid( exclstr, exclbids );
     }
+
     if ( edgebids.size() < 3 && exclbids.size() < 1 )
-	{ strm << "Less than 3 valid positions defined\n"; return false; }
+	mErrRet("Less than 3 valid positions defined")
 
     TypeSet<Coord> edgecoords;
     for ( int idx=0; idx<edgebids.size(); idx++ )
@@ -179,8 +204,8 @@ bool BatchProgram::go( std::ostream& strm )
 	    ++(*pm);
 	else
 	{
-	    strm << "\nCannot write: " << wrr.errMsg() << std::endl;
-	    return false;
+	    BufferString msg( "\nCannot write: " ); msg += wrr.errMsg();
+	    mErrRet( msg );
 	}
     }
 

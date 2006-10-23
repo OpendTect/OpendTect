@@ -8,8 +8,14 @@ Copy only part of a cube
 Input Seismics.ID: 100010.3
 Output Seismics.Name: Very Irregular SubCube
 
+-- Vertices of the polygon can be defined here (see below)
+-- or read from a Pick Set:
+-- Vertices PickSet.ID: 100070.4
+
 -- Define a polygon, which will be closed by connecting first and last point.
 -- Traces inside the polygon will be copied to output
+-- If you already have loaded a pick set, these points will be added after the
+-- last pick.
 Edge.1: 1400`1500
 Edge.2: 1550`1600
 Edge.3: 1550`1650
