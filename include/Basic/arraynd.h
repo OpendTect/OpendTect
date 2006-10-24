@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: arraynd.h,v 1.20 2006-07-10 17:42:33 cvskris Exp $
+ RCS:		$Id: arraynd.h,v 1.21 2006-10-24 15:11:33 cvskris Exp $
 ________________________________________________________________________
 
 An ArrayND is an array with a given number of dimensions and a size. The
@@ -53,6 +53,10 @@ public:
 					{ return true; }
     virtual void			set( const int*, T )	= 0;
 
+    virtual bool			canSetStorage() const { return false; }
+    virtual void			setStorage(LinearStorage* s){ delete s;}
+    					/*!<becomes mine */
+
     inline LinearStorage*		getStorage();
     inline T*				getData();
     virtual T*				get1D( const int* i );
@@ -72,9 +76,10 @@ public:
     class LinearStorage
     {
     public:
-
+		
 	virtual bool		isOK() const			= 0;
 
+	virtual T		operator[](int64 p) const { return get(p); }
 	virtual T		get( int64 ) const		= 0;
 	virtual void		set( int64, T )			= 0;
 
