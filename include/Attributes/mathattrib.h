@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          May 2005
- RCS:           $Id: mathattrib.h,v 1.8 2006-10-20 19:43:15 cvskris Exp $
+ RCS:           $Id: mathattrib.h,v 1.9 2006-10-24 15:21:36 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,6 +34,10 @@ public:
 
     static const char*		attribName()		{ return "Math"; }
     static const char*		expressionStr()		{ return "expression"; }
+    static const char*		cstStr()		{ return "constant"; }
+
+    static void 		getInputTable(const MathExpression*,
+					      TypeSet<int>&,bool);
 
 protected:
     				~Math()	{}
@@ -51,7 +55,9 @@ protected:
 private:
     ObjectSet<const DataHolder>	inputdata_;
     TypeSet<int>		inputidxs_;
-    TypeSet<int>		inputtable_;
+    TypeSet<int>		varsinputtable_;
+    TypeSet<int>		cstsinputtable_;
+    TypeSet<float>		csts_;
     MathExpression*		expression_;
 };
 

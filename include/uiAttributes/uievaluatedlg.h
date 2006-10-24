@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          March 2003
- RCS:           $Id: uievaluatedlg.h,v 1.2 2005-09-08 10:26:06 cvsnanne Exp $
+ RCS:           $Id: uievaluatedlg.h,v 1.3 2006-10-24 15:21:36 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -59,6 +59,7 @@ protected:
 
     BufferString		parstr1_;
     BufferString		parstr2_;
+    int				pgidx_;
     bool			evaloutput_;
     const uiAttrDescEd&		desced_;
 };

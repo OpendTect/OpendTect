@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: uiattrdesced.h,v 1.17 2006-10-24 12:37:28 cvshelene Exp $
+ RCS:           $Id: uiattrdesced.h,v 1.18 2006-10-24 15:21:36 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,19 +35,20 @@ class EvalParam
 {
 public:
     			EvalParam( const char* lbl, const char* par1=0,
-				   const char* par2=0 )
-			    : label_(lbl), par1_(par1), par2_(par2)
+				   const char* par2=0, int idx=mUdf(int) )
+			    : label_(lbl), par1_(par1), par2_(par2), pgidx_(idx)
 			    , evaloutput_(false)	{}
 
     bool		operator==(const EvalParam& ep) const
 			{
 			    return label_==ep.label_ && par1_==ep.par1_ &&
-				   par2_==ep.par2_;
+				   par2_==ep.par2_, pgidx_==ep.pgidx_;
 			}
 
     BufferString	label_;
     BufferString	par1_;
     BufferString	par2_;
+    int			pgidx_;
     bool		evaloutput_;
 
 };

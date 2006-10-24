@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: mathattrib.cc,v 1.15 2006-08-03 08:04:34 cvshelene Exp $
+ RCS:           $Id: mathattrib.cc,v 1.16 2006-10-24 15:21:36 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "attribdesc.h"
 #include "attribfactory.h"
 #include "attribparam.h"
+#include "attribparamgroup.h"
 #include "mathexpression.h"
 
 namespace Attrib
@@ -28,6 +29,11 @@ void Math::initClass()
 
     desc->addParam( new StringParam(expressionStr()) );
 
+    FloatParam cst( cstStr() );
+    ParamGroup<FloatParam>* cstset = 
+			new ParamGroup<FloatParam>( 0, cstStr(), cst );
+    desc->addParam( cstset );
+
     desc->addInput( InputSpec("Data",true) );
     desc->addOutputDataType( Seis::UnknowData );
 
@@ -35,18 +41,19 @@ void Math::initClass()
 }
 
 
-static void getInputTable( const MathExpression* me, TypeSet<int>& inputtable )
+void Math::getInputTable( const MathExpression* me, TypeSet<int>& inptab, 
+			  bool iscst )
 {
     const int nrvar = me->getNrVariables();
     for ( int idx=0; idx<nrvar; idx++ )
     {
 	char name[8];
-	snprintf( name, 8, "x%d", idx );
+	snprintf( name, 8,iscst ? "c%d" : "x%d", idx );
 	for ( int idy=0; idy<nrvar; idy++ )
 	{
 	    if ( !strcmp(name,me->getVariableStr(idy)) )
 	    {
-		inputtable += idy;
+		inptab += idy;
 		break;
 	    }
 	}
@@ -63,15 +70,18 @@ void Math::updateDesc( Desc& desc )
 			MathExpression::parse( expr->getStringValue() );
     if ( !formula ) return;
 
-    TypeSet<int> inputtable;
-    getInputTable( formula, inputtable );
+    TypeSet<int> inptab;
+    getInputTable( formula, inptab, false );
 
     while ( desc.nrInputs() )
 	desc.removeInput(0);
 
-    for ( int idx=0; idx<formula->getNrVariables(); idx++ )
-	desc.addInput( 
-		InputSpec(formula->getVariableStr(inputtable[idx]),true) );
+    for ( int idx=0; idx<inptab.size(); idx++ )
+	desc.addInput( InputSpec(formula->getVariableStr(inptab[idx]),true) );
+    
+    TypeSet<int> csttab;
+    getInputTable( formula, csttab, true );
+    desc.setParamEnabled( cstStr(), csttab.size() );
 }
 
 
@@ -86,6 +96,15 @@ Math::Math( Desc& desc )
     if ( !expr ) return;
 
     expression_ = MathExpression::parse( expr->getStringValue() );
+
+    mDescGetParamGroup(FloatParam,cstset,desc,cstStr())
+    for ( int idx=0; idx<cstset->size(); idx++ )
+    {
+	const ValParam& param = (ValParam&)(*cstset)[idx];
+	csts_ += param.getfValue();
+    }
+    
+    getInputTable( expression_, cstsinputtable_, true );
 }
 
 
@@ -97,14 +116,16 @@ bool Math::getInputOutput( int input, TypeSet<int>& res ) const
 
 bool Math::getInputData( const BinID& relpos, int zintv )
 {
-    const int nrvar = expression_->getNrVariables();
-    while ( inputdata_.size() < nrvar )
+    if ( !varsinputtable_.size() )
+	getInputTable( expression_, varsinputtable_, false );
+
+    while ( inputdata_.size() < varsinputtable_.size() )
     {
 	inputdata_ += 0;
 	inputidxs_ += -1;
     }
 
-    for ( int varidx=0; varidx<nrvar; varidx++ )
+    for ( int varidx=0; varidx<varsinputtable_.size(); varidx++ )
     {
 	const DataHolder* data = inputs[varidx]->getData( relpos, zintv );
 	if ( !data ) return false;
@@ -112,9 +133,6 @@ bool Math::getInputData( const BinID& relpos, int zintv )
 	inputdata_.replace( varidx, data );
 	inputidxs_[varidx] = getDataIndex( varidx );
     }
-
-    if ( !inputtable_.size() )
-	getInputTable( expression_, inputtable_ );
 
     return true;
 }
@@ -126,22 +144,26 @@ bool Math::computeData( const DataHolder& output, const BinID& relpos,
     PtrMan<MathExpression> mathobj = expression_ ? expression_->clone() : 0;
     if ( !mathobj ) return false;
 
+    const int nrxvars = varsinputtable_.size();
+    const int nrcstvars = cstsinputtable_.size();
     const int nrvar = mathobj->getNrVariables();
-    if ( inputtable_.size() != nrvar ) return false;
-
+    if ( (nrxvars + nrcstvars) != nrvar ) 
+	return false;
     
     for ( int idx=0; idx<nrsamples; idx++ )
     {
 	const int cursample = z0 + idx;
-	for ( int varidx=0; varidx<nrvar; varidx++ )
+	for ( int varidx=0; varidx<nrxvars; varidx++ )
 	{
 	    ValueSeries<float>* serie = 
 		inputdata_[varidx]->series( inputidxs_[varidx] );
 	    const float val = 
 		serie->value( cursample - inputdata_[varidx]->z0_ );
-	    const int variable = inputtable_[varidx];
+	    const int variable = varsinputtable_[varidx];
 	    mathobj->setVariable( variable, val );
 	}
+	for ( int cstidx=0; cstidx<nrcstvars; cstidx++ )
+	    mathobj->setVariable( cstsinputtable_[cstidx], csts_[cstidx] );
 
 	const int outidx = z0 - output.z0_ + idx;
 	output.series(0)->setValue( outidx, mathobj->getValue() );

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          March 2003
- RCS:           $Id: uievaluatedlg.cc,v 1.9 2006-09-06 19:55:14 cvskris Exp $
+ RCS:           $Id: uievaluatedlg.cc,v 1.10 2006-10-24 15:21:36 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,6 +20,7 @@ ________________________________________________________________________
 #include "uiattrdesced.h"
 
 #include "attribparam.h"
+#include "attribparamgroup.h"
 #include "attribdesc.h"
 #include "attribdescset.h"
 #include "attribsel.h"
@@ -40,6 +41,7 @@ AttribParamGroup::AttribParamGroup( uiParent* p, const uiAttrDescEd& ade,
     , parstr2_(evalparam.par2_)
     , parlbl_(evalparam.label_)
     , evaloutput_(evalparam.evaloutput_)
+    , pgidx_(evalparam.pgidx_)
     , desced_(ade)
 {
     if ( evaloutput_ )
@@ -53,6 +55,12 @@ AttribParamGroup::AttribParamGroup( uiParent* p, const uiAttrDescEd& ade,
     const ValParam* valpar1 = ade.curDesc()->getValParam( parstr1_ );
     const ValParam* valpar2 = ade.curDesc()->getValParam( parstr2_ );
 
+    if ( !valpar1 && !valpar2 && !mIsUdf(pgidx_) )
+    {
+	mDescGetConstParamGroup(ValParam,paramset,(*ade.curDesc()),parstr1_);
+	valpar1 = &(ValParam&)(*paramset)[pgidx_];
+    }
+    
     DataInpSpec* initspec1 = 0; DataInpSpec* initspec2 = 0;
     DataInpSpec* incrspec1 = 0; DataInpSpec* incrspec2 = 0;
     if ( valpar1 )
@@ -123,6 +131,12 @@ void AttribParamGroup::createInputSpecs( const Attrib::ValParam* param,
 void AttribParamGroup::updatePars( Attrib::Desc& desc, int idx )
 {
     ValParam* valpar1 = desc.getValParam( parstr1_ );
+    if ( !valpar1 && !mIsUdf(pgidx_) )
+    {
+	mDescGetConstParamGroup(FloatParam,paramset,desc,parstr1_);
+	valpar1 = &(ValParam&)(*paramset)[pgidx_];
+    }
+	
     mDynamicCastGet(ZGateParam*,gatepar,valpar1)
     mDynamicCastGet(BinIDParam*,bidpar,valpar1)
     mDynamicCastGet(FloatParam*,fpar,valpar1)

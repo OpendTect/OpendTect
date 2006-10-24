@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2001
- RCS:           $Id: uimathattrib.h,v 1.4 2006-10-10 17:46:05 cvsbert Exp $
+ RCS:           $Id: uimathattrib.h,v 1.5 2006-10-24 15:21:36 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,13 +27,16 @@ public:
 
 			uiMathAttrib(uiParent*);
 
+    void                getEvalParams(TypeSet<EvalParam>&) const;
+
 protected:
 
-    uiGenInput*         inpfld;
-    uiPushButton*	parsebut;
-    ObjectSet<uiAttrSel> attribflds;
+    uiGenInput*         inpfld_;
+    uiPushButton*	parsebut_;
+    ObjectSet<uiAttrSel>  attribflds_;
+    ObjectSet<uiGenInput> cstsflds_;
 
-    int			nrvariables;
+    int			nrvariables_;
     void 		parsePush(CallBacker*);
 
     bool		setParameters(const Attrib::Desc&);
@@ -41,6 +44,7 @@ protected:
 
     bool		getParameters(Attrib::Desc&);
     bool		getInput(Attrib::Desc&);
+    
 
     			mDeclReqAttribUIFns
 };
