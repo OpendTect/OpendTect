@@ -4,15 +4,17 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrtypesel.cc,v 1.2 2006-10-11 15:55:26 cvsbert Exp $
+ RCS:           $Id: uiattrtypesel.cc,v 1.3 2006-10-24 12:37:28 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiattrtypesel.h"
+#include "uiattrdesced.h"
 #include "uicombobox.h"
 #include "uiattribfactory.h"
 #include "attribdesc.h"
+#include "survinfo.h"
 
 using namespace Attrib;
 
@@ -62,11 +64,14 @@ void uiAttrTypeSel::empty()
 void uiAttrTypeSel::fill( BufferStringSet* selgrps )
 {
     empty();
+    const int forbiddendomtyp = (int)(SI().zIsTime() ? uiAttrDescEd::Depth
+	    					     : uiAttrDescEd::Time);
 
     for ( int iattr=0; iattr<uiAF().size(); iattr++ )
     {
 	const char* grpnm = uiAF().getGroupName( iattr );
-	if ( !selgrps || selgrps->indexOf(grpnm) >= 0 )
+	if ( uiAF().domainType(iattr) != forbiddendomtyp
+	  && (!selgrps || selgrps->indexOf(grpnm) >= 0) )
 	    add( grpnm, uiAF().getDisplayName(iattr) );
     }
 

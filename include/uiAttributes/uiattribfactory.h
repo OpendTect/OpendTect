@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          September 2006
- RCS:           $Id: uiattribfactory.h,v 1.2 2006-10-10 17:46:05 cvsbert Exp $
+ RCS:           $Id: uiattribfactory.h,v 1.3 2006-10-24 12:37:28 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,7 +27,7 @@ class uiAttributeFactory
 public:
 
     int			add(const char* displaynm,const char* attrnm,
-	    		    const char* grpnm,uiAttrDescEdCreateFunc);
+	    		    const char* grpnm,uiAttrDescEdCreateFunc,int);
     uiAttrDescEd*	create(uiParent*,const char* nm,bool dispnm=true) const;
 
     int			size() const	{ return entries_.size(); }
@@ -35,6 +35,10 @@ public:
 					{ return entries_[idx]->dispnm_; }
     const char*		getGroupName( int idx ) const
 					{ return entries_[idx]->grpnm_; }
+    int			domainType( int idx ) const
+					{ return entries_[idx]->domtyp_; }
+    				//!< Is, in fact, uiAttrDescEd::DomainType
+    				//!< Not used to avoid dependency
 
     const char*		dispNameOf(const char*) const;
     const char*		attrNameOf(const char*) const;
@@ -45,15 +49,18 @@ protected:
     {
 				Entry(	const char* dn, const char* an,
 					const char* gn,
-					uiAttrDescEdCreateFunc fn )
+					uiAttrDescEdCreateFunc fn,
+				    	int dt )
 				    : dispnm_(dn)
 				    , attrnm_(an)
 				    , grpnm_(gn)
+				    , domtyp_(dt)
 				    , crfn_(fn)		{}
 
 	BufferString		dispnm_;
 	BufferString		attrnm_;
 	BufferString		grpnm_;
+	int			domtyp_;
 	uiAttrDescEdCreateFunc	crfn_;
     };
 

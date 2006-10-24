@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:		$Id: uiattribfactory.cc,v 1.2 2006-10-10 17:46:05 cvsbert Exp $
+ RCS:		$Id: uiattribfactory.cc,v 1.3 2006-10-24 12:37:28 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,7 +27,8 @@ uiAttributeFactory& uiAF()
 
 
 int uiAttributeFactory::add( const char* dispnm, const char* attrnm,
-			     const char* grpnm, uiAttrDescEdCreateFunc fn )
+			     const char* grpnm, uiAttrDescEdCreateFunc fn,
+       			     int domtyp	)
 {
     Entry* entry = getEntry( dispnm, true );
     if ( !entry )
@@ -39,10 +40,11 @@ int uiAttributeFactory::add( const char* dispnm, const char* attrnm,
 	entry->attrnm_ = attrnm;
 	entry->grpnm_ = grpnm;
 	entry->crfn_ = fn;
+	entry->domtyp_ = domtyp;
     }
     else
     {
-	entry = new Entry( dispnm, attrnm, grpnm, fn );
+	entry = new Entry( dispnm, attrnm, grpnm, fn, domtyp );
 	entries_ += entry;
     }
 
@@ -57,7 +59,11 @@ uiAttrDescEd* uiAttributeFactory::create( uiParent* p, const char* nm,
     if ( !entry ) return 0;
 
     uiAttrDescEd* ed = entry->crfn_( p );
-    if ( ed ) ed->setDisplayName( entry->dispnm_ );
+    if ( ed )
+    {
+	ed->setDisplayName( entry->dispnm_ );
+	ed->setDomainType( (uiAttrDescEd::DomainType)entry->domtyp_ );
+    }
     return ed;
 }
 

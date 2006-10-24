@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrdescseted.cc,v 1.34 2006-10-10 17:46:05 cvsbert Exp $
+ RCS:           $Id: uiattrdescseted.cc,v 1.35 2006-10-24 12:37:28 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -164,14 +164,15 @@ void uiAttribDescSetEd::createGroups()
     desceds.allowNull();
     for ( int idx=0; idx<uiAF().size(); idx++ )
     {
+	uiAttrDescEd::DomainType dt =
+	    	(uiAttrDescEd::DomainType)uiAF().domainType( idx );
+	if ( dt == uiAttrDescEd::Depth && SI().zIsTime()
+		|| dt == uiAttrDescEd::Time && !SI().zIsTime() )
+	    continue;
+
 	const char* attrnm = uiAF().getDisplayName(idx);
-	uiAttrDescEd* de = uiAF().create( degrp, attrnm, true );
-
-	if ( (SI().zIsTime() && !de->useIfZIsTime()) || 
-	     (!SI().zIsTime() && !de->useIfZIsDepth()) )
-	    { delete de; continue; }
-
 	attrtypefld->add( uiAF().getGroupName(idx), attrnm );
+	uiAttrDescEd* de = uiAF().create( degrp, attrnm, true );
 	desceds += de;
 	de->attach( alignedBelow, attrtypefld );
     }

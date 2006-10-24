@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: uiattrdesced.h,v 1.16 2006-10-10 17:46:05 cvsbert Exp $
+ RCS:           $Id: uiattrdesced.h,v 1.17 2006-10-24 12:37:28 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -100,8 +100,9 @@ public:
     const char*		displayName() const		{ return dispname_; }
     void		setDisplayName(const char* nm ) { dispname_ = nm; }
 
-    virtual bool	useIfZIsTime() const		{ return true; }
-    virtual bool	useIfZIsDepth() const		{ return true; }
+    enum DomainType	{ Both, Time, Depth };
+    DomainType		domainType() const		{ return domtyp_; }
+    void		setDomainType( DomainType t )	{ domtyp_ = t; }
 
     static const char*	timegatestr;
     static const char*	frequencystr;
@@ -143,6 +144,7 @@ protected:
     void		attrInpSel(CallBacker*);
 
     BufferString	attrnm_;
+    DomainType		domtyp_;
     BufferString	errmsg_;
     DescSet*		ads_;
 
@@ -173,7 +175,7 @@ public: \
     static int factoryID() { return factoryid_; }
 
 
-#define mInitAttribUI( clss, attr, displaynm, grp ) \
+#define mInitAttribUIPars( clss, attr, displaynm, grp, domtyp ) \
 \
 int clss::factoryid_ = -1; \
 \
@@ -181,13 +183,14 @@ void clss::initClass() \
 { \
     if ( factoryid_ < 0 ) \
 	factoryid_ = uiAF().add( displaynm, attr::attribName(), grp, \
-		     clss::createInstance ); \
+		     clss::createInstance, (int)domtyp ); \
 } \
 \
 uiAttrDescEd* clss::createInstance( uiParent* p ) \
 { \
     uiAttrDescEd* de = new clss( p ); \
     de->setDisplayName( displaynm ); \
+    de->setDomainType( domtyp ); \
     return de; \
 } \
 \
@@ -196,5 +199,7 @@ const char* clss::attribName() const \
     return attr::attribName(); \
 }
 
+#define mInitAttribUI( clss, attr, displaynm, grp ) \
+    mInitAttribUIPars(clss,attr,displaynm,grp,uiAttrDescEd::Both)
 
 #endif
