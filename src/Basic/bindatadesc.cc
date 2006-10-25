@@ -5,7 +5,7 @@
  * FUNCTION : Binary data descritpion
 -*/
 
-static const char* rcsID = "$Id: bindatadesc.cc,v 1.5 2003-11-07 12:21:57 bert Exp $";
+static const char* rcsID = "$Id: bindatadesc.cc,v 1.6 2006-10-25 16:03:34 cvskris Exp $";
 
 #include "bindatadesc.h"
 #include <stdio.h>
@@ -79,7 +79,7 @@ void BinDataDesc::set( const char* s )
 }
 
 
-void BinDataDesc::dump( unsigned char& c, unsigned char& ) const
+void BinDataDesc::dump( unsigned char& c, unsigned char&  b ) const
 {
     _BDD_union bdd;
     bdd.c = 0;
@@ -89,6 +89,7 @@ void BinDataDesc::dump( unsigned char& c, unsigned char& ) const
     while ( nb > 1 ) { bdd.b.bytepow++; nb /= 2; }
 
     c = bdd.c;
+    b = 0;
 }
 
 
