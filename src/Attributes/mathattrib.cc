@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: mathattrib.cc,v 1.16 2006-10-24 15:21:36 cvshelene Exp $
+ RCS:           $Id: mathattrib.cc,v 1.17 2006-10-25 11:20:45 cvshelene Exp $
 ________________________________________________________________________
 
 -*/

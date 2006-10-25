@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          March 2003
- RCS:           $Id: uievaluatedlg.cc,v 1.10 2006-10-24 15:21:36 cvshelene Exp $
+ RCS:           $Id: uievaluatedlg.cc,v 1.11 2006-10-25 11:20:45 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,6 +33,12 @@ static const char* sKeyInit = "Initial value";
 static const char* sKeyIncr = "Increment";
 
 
+#define mGetValParFromGroup( T, str, desc )\
+{\
+    mDescGetConstParamGroup(T,str,desc,parstr1_);\
+    valpar1 = &(ValParam&)(*str)[pgidx_];\
+}
+    
 AttribParamGroup::AttribParamGroup( uiParent* p, const uiAttrDescEd& ade,
 				    const EvalParam& evalparam )
     : uiGroup(p,"")
@@ -57,8 +63,10 @@ AttribParamGroup::AttribParamGroup( uiParent* p, const uiAttrDescEd& ade,
 
     if ( !valpar1 && !valpar2 && !mIsUdf(pgidx_) )
     {
-	mDescGetConstParamGroup(ValParam,paramset,(*ade.curDesc()),parstr1_);
-	valpar1 = &(ValParam&)(*paramset)[pgidx_];
+	mGetValParFromGroup(FloatParam,fpset,(*ade.curDesc()));
+	if ( !valpar1 ) mGetValParFromGroup( IntParam, ipset, (*ade.curDesc()));
+	if ( !valpar1 ) mGetValParFromGroup(ZGateParam,zgpset,(*ade.curDesc()));
+//	if ( !valpar1 ) mGetValParFromGroup(BinIDParam,bpset,(*ade.curDesc()));
     }
     
     DataInpSpec* initspec1 = 0; DataInpSpec* initspec2 = 0;
@@ -133,8 +141,10 @@ void AttribParamGroup::updatePars( Attrib::Desc& desc, int idx )
     ValParam* valpar1 = desc.getValParam( parstr1_ );
     if ( !valpar1 && !mIsUdf(pgidx_) )
     {
-	mDescGetConstParamGroup(FloatParam,paramset,desc,parstr1_);
-	valpar1 = &(ValParam&)(*paramset)[pgidx_];
+	mGetValParFromGroup( FloatParam, fparamset, desc );
+	if ( !valpar1 ) mGetValParFromGroup( IntParam, iparamset, desc );
+	if ( !valpar1 ) mGetValParFromGroup( ZGateParam, zgparamset, desc );
+//	if ( !valpar1 ) mGetValParFromGroup( BinIDParam, bidparamset, desc );
     }
 	
     mDynamicCastGet(ZGateParam*,gatepar,valpar1)
