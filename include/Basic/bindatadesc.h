@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		Feb 2001
  Contents:	Binary data interpretation
- RCS:		$Id: bindatadesc.h,v 1.9 2006-10-23 22:12:18 cvskris Exp $
+ RCS:		$Id: bindatadesc.h,v 1.10 2006-10-25 09:34:07 cvsbert Exp $
 ________________________________________________________________________
 
 */
@@ -33,6 +33,10 @@ These are:
 
 The info from this class can be stringified (user readable string) or dumped
 binary into two unsigned chars.
+
+In normal work one will use the DataCharacteristics subclass, which can also
+provide a 'run-time' data interpreter class for fast conversion to internal
+data types.
 
 */
 
