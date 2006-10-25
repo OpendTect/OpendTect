@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          10-12-1999
- RCS:           $Id: attribparamgroup.h,v 1.5 2006-05-31 09:28:40 cvshelene Exp $
+ RCS:           $Id: attribparamgroup.h,v 1.6 2006-10-25 09:39:59 cvshelene Exp $
 ________________________________________________________________________
 */
 
@@ -116,8 +116,8 @@ bool ParamGroup<PT>::isEqual(const Param& b) const
 	for ( int idy=0; 
 		idy<params[idx]->getSpec()->nElems(); idy++ )
 	{
-	    if ( strcmp( params[idx]->getSpec()->text(idx),
-		    	pgr->params[idx]->getSpec()->text(idx)) )
+	    BufferString txt( params[idx]->getSpec()->text(idx) );
+	    if ( txt != pgr->params[idx]->getSpec()->text(idx) )
 		return false;
 	}
     }
