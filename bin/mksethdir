@@ -2,7 +2,7 @@
 #_______________________________________________________________________________
 #
 # (C) dGB Beheer B.V.
-# $Id: mksethdir,v 1.13 2004-12-10 10:56:10 dgb Exp $
+# $Id: mksethdir,v 1.14 2006-10-25 17:05:48 cvsbert Exp $
 #
 # HDIR variable setup
 # usage from a csh-script:
@@ -61,6 +61,7 @@ else if ( $binsubdir == lux ) then
     if ( -d $ROOT_DIR/bin/lux64 ) then
 	if ( `uname -a | grep _64 | wc -l` == 1 ) set binsubdir=lux64
     endif
+    if ( `uname -a | grep ia64 | wc -l` == 1 ) set binsubdir=luxia64
 
 endif
 

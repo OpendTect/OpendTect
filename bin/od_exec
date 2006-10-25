@@ -2,7 +2,7 @@
 #_______________________________________________________________________________
 #
 # (C) dGB Beheer B.V.
-# $Id: od_exec,v 1.49 2006-05-11 12:54:54 cvsbert Exp $
+# $Id: od_exec,v 1.50 2006-10-25 17:05:48 cvsbert Exp $
 #
 # module startup script
 #_______________________________________________________________________________
@@ -25,6 +25,10 @@ if ( $?COMSPEC ) then
     set binsubdir=win
 else
     eval `"$DTECT_APPL/bin/mksethdir"`
+endif
+if ( $binsubdir == luxia64 ) then
+	echo "Warning: IA64 Linux not supported. Trying x32 emulation."
+	set binsubdir=lux32
 endif
 
 set bindir="$DTECT_APPL/bin/$binsubdir"
