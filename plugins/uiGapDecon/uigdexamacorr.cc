@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          Sep 2006
- RCS:           $Id: uigdexamacorr.cc,v 1.9 2006-10-26 10:31:43 cvshelene Exp $
+ RCS:           $Id: uigdexamacorr.cc,v 1.10 2006-10-26 11:54:29 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -136,7 +136,7 @@ void GapDeconACorrView::createAndDisplay2DViewer( bool isqc )
 
     uiFlatDisp::VertViewer* viewer2d = isqc ? qcviewer2d_ : examviewer2d_;
     
-    FlatDisp::Context& ctxt = viewer2d->context();
+    FlatDisp::Context ctxt;
     ctxt.darkbg_ = true;
     ColorTable defctab( 0 );
     ctxt.ddpars_.vd_.ctab_ = defctab.name();
@@ -152,8 +152,8 @@ void GapDeconACorrView::createAndDisplay2DViewer( bool isqc )
     ctxt.posdata_.x2rg_ = 
 		StepInterval<double>(0,cs_.zrg.stop-cs_.zrg.start, 
 				     cs_.zrg.step);
+    viewer2d->setContext( ctxt );
     viewer2d->setData( false, autocorr2darr_, "Seismic data");
-    viewer2d->contextChanged(true);
     isqc ? qcwin_->show() : examwin_->show();
 }
 
