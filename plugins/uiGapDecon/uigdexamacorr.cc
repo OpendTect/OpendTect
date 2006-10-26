@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          Sep 2006
- RCS:           $Id: uigdexamacorr.cc,v 1.8 2006-10-23 15:23:26 cvshelene Exp $
+ RCS:           $Id: uigdexamacorr.cc,v 1.9 2006-10-26 10:31:43 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -153,6 +153,7 @@ void GapDeconACorrView::createAndDisplay2DViewer( bool isqc )
 		StepInterval<double>(0,cs_.zrg.stop-cs_.zrg.start, 
 				     cs_.zrg.step);
     viewer2d->setData( false, autocorr2darr_, "Seismic data");
+    viewer2d->contextChanged(true);
     isqc ? qcwin_->show() : examwin_->show();
 }
 
