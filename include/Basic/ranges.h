@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		23-10-1996
  Contents:	Ranges
- RCS:		$Id: ranges.h,v 1.43 2006-09-28 16:57:01 cvsbert Exp $
+ RCS:		$Id: ranges.h,v 1.44 2006-10-30 20:16:47 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -114,6 +114,8 @@ public:
 			/*!< epsilon refers to the steps,
 			  	i.e eps=0.1 allows b to be 0.1 steps apart.
 			*/
+    inline T		snapStep( const T& inpstep ) const;
+    			/*!<Snaps inpstep to a positive multiple of step. */
 
      T			step;
 
@@ -539,6 +541,16 @@ void StepInterval<T>::scale( const T& factor )
 {
     Interval<T>::scale( factor );
     step *= factor;
+}
+
+
+template <class T> inline
+T StepInterval<T>::snapStep( const T& inputstep ) const
+{
+    const float relstep = (float) inputstep/step;
+    int nrsteps = mNINT(relstep);
+    if ( nrsteps<1 ) nrsteps = 1;
+    return step*nrsteps;
 }
 
 
