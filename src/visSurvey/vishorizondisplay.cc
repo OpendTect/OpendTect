@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: vishorizondisplay.cc,v 1.17 2006-10-20 08:56:17 cvsjaap Exp $
+ RCS:           $Id: vishorizondisplay.cc,v 1.18 2006-10-30 21:52:05 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -433,6 +433,7 @@ bool HorizonDisplay::swapAttribs( int a0, int a1 )
     }
 
     as_.swap( a0, a1 );
+    coltabs_.swap( a0, a1 );
     return true;
 }
 
