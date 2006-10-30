@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Oct 2006
- RCS:		$Id: tabledef.h,v 1.1 2006-10-30 17:03:40 cvsbert Exp $
+ RCS:		$Id: tabledef.h,v 1.2 2006-10-30 17:12:51 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,6 +46,10 @@ public:
 			    s->add( elemnm );
 			    add( s );
 			}
+			~FormatInfo()
+			{
+			    deepErase( elements_ );
+			}
 
     void		add( BufferStringSet* bss )	{ elements_ += bss; }
 
@@ -76,6 +80,11 @@ public:
 			    : NamedObject(nm)
 			    , nrhdrlines_(0)
 			    , tokencol_(-1)		{}
+			~FormatDesc()
+			{
+			    deepErase( headerinfos_ );
+			    deepErase( bodyinfos_ );
+			}
 
     ObjectSet<FormatInfo> headerinfos_;
     ObjectSet<FormatInfo> bodyinfos_;
