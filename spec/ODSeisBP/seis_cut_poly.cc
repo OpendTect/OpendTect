@@ -4,7 +4,7 @@
  * DATE     : 2-12-2005
 -*/
 
-static const char* rcsID = "$Id: seis_cut_poly.cc,v 1.3 2006-10-23 16:10:17 cvsbert Exp $";
+static const char* rcsID = "$Id: seis_cut_poly.cc,v 1.4 2006-10-30 17:03:13 cvsbert Exp $";
 
 #include "prog.h"
 #include "batchprog.h"
@@ -24,14 +24,15 @@ static const char* rcsID = "$Id: seis_cut_poly.cc,v 1.3 2006-10-23 16:10:17 cvsb
 #include <math.h>
 
 
-static void addBid( const char* str, TypeSet<BinID>& bids )
+static void addCoord( const char* str, TypeSet<Coord>& coords )
 {
     if ( !str || !*str ) return;
 
     FileMultiString fms( str );
     if ( fms.size() < 2 ) return;
 
-    bids += BinID( atoi(fms[0]), atoi(fms[1]) );
+    BinID bid( atoi(fms[0]), atoi(fms[1]) );
+    coords += SI().transform( bid );
 }
 
 
@@ -112,7 +113,7 @@ static bool isEdgeCrossing( const Coord& raydir, const Coord& raysrc,
 //! and checks for odd number of edge crossings with polygon.
 
 static bool isInside( const TypeSet<Coord>& poly, const Coord& point,
-		      double eps = mDefEps, bool onborderisinside = true )
+		      bool incborder, double eps = mDefEps )
 {
     const Coord arbitrarydir( 1, 0 );
 
@@ -123,7 +124,7 @@ static bool isInside( const TypeSet<Coord>& poly, const Coord& point,
 	const Coord& vtxnext = poly[ idx+1 < poly.size() ? idx+1 : 0 ] ;
 
 	if ( isOnSegment( point, vtxcurr, vtxnext, eps ) )
-	    return onborderisinside;
+	    return incborder;
 	if ( isEdgeCrossing( arbitrarydir, point, vtxcurr, vtxnext ) )
 	    nrcrossingsodd = !nrcrossingsodd;
     }
@@ -144,7 +145,7 @@ bool BatchProgram::go( std::ostream& strm )
 
     const char* vrtcspsid = pars().find( "Vertices PickSet.ID" );
 
-    TypeSet<BinID> edgebids, exclbids;
+    TypeSet<Coord> edgecoords;
     if ( vrtcspsid )
     {
 	PtrMan<IOObj> ioobj = IOM().get( MultiID(vrtcspsid) );
@@ -163,29 +164,25 @@ bool BatchProgram::go( std::ostream& strm )
 	    mErrRet("Cannot read Pick Set")
 
 	for ( int idx=0; idx<pickset->size(); idx++ )
-	    edgebids += SI().transform( (*pickset)[idx].pos );
+	    edgecoords += (*pickset)[idx].pos;
     }
 
     PtrMan<IOPar> edgesubpar = pars().subselect( "Edge" );
-    PtrMan<IOPar> exclsubpar = pars().subselect( "Exclude" );
-    for ( int idx=0; ; idx++ )
+    if ( edgesubpar && edgesubpar->size() )
     {
-	BufferString idxstr; idxstr += idx;
-	const char* edgestr = edgesubpar ? edgesubpar->find( idxstr.buf() ) : 0;
-	const char* exclstr = exclsubpar ? exclsubpar->find( idxstr.buf() ) : 0;
-	if ( !edgestr && !exclstr )
-	    { if ( !idx ) continue; else break; }
-
-	addBid( edgestr, edgebids );
-	addBid( exclstr, exclbids );
+	for ( int idx=0; ; idx++ )
+	{
+	    BufferString idxstr; idxstr += idx;
+	    const char* edgestr = edgesubpar->find( idxstr.buf() );
+	    if ( !edgestr )
+		{ if ( !idx ) continue; else break; }
+	    addCoord( edgestr, edgecoords );
+	}
     }
 
-    if ( edgebids.size() < 3 && exclbids.size() < 1 )
+    if ( edgecoords.size() < 3 )
 	mErrRet("Less than 3 valid positions defined")
 
-    TypeSet<Coord> edgecoords;
-    for ( int idx=0; idx<edgebids.size(); idx++ )
-	edgecoords += SI().transform( edgebids[idx] );
 
     SeisTrcReader rdr( inioobj );
     SeisTrcWriter wrr( outioobj );
@@ -194,10 +191,12 @@ bool BatchProgram::go( std::ostream& strm )
 
     ProgressMeter* pm = new ProgressMeter( strm );
     int nrexcl = 0;
+    bool needinside = true; pars().getYN( "Select inside", needinside );
+    bool incborder = true; pars().getYN( "Border is inside", incborder );
     while ( rdr.get(trc) )
     {
-	if ( !isInside( edgecoords, trc.info().coord )
-	  || exclbids.indexOf(trc.info().binid) >= 0 )
+	const bool inside = isInside( edgecoords, trc.info().coord, incborder );
+	if ( (needinside && !inside) || (!needinside && inside) )
 	    { nrexcl++; continue; }
 
 	if ( wrr.put(trc) )
