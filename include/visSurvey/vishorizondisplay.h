@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          May 2004
- RCS:           $Id: vishorizondisplay.h,v 1.7 2006-10-20 08:50:23 cvsjaap Exp $
+ RCS:           $Id: vishorizondisplay.h,v 1.8 2006-10-30 22:49:07 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -127,7 +127,6 @@ protected:
 				    int whichobj );
 
     mVisTrans*				translation_;
-    ObjectSet<visBase::VisColorTab>	coltabs_;
 
     ObjectSet<EdgeLineSetDisplay>	edgelinedisplays_;
 
@@ -148,6 +147,7 @@ protected:
     float				edgelineradius_;
 
     ObjectSet<Attrib::SelSpec>		as_;
+    ObjectSet<visBase::VisColorTab>	coltabs_;
     bool				validtexture_;
     bool				isdisplayingonlyatsect_;
     bool				updatepostponed_;
