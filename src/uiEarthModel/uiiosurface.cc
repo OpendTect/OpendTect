@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurface.cc,v 1.38 2006-05-03 15:26:48 cvsbert Exp $
+ RCS:           $Id: uiiosurface.cc,v 1.39 2006-10-30 20:44:53 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -137,7 +137,8 @@ void uiIOSurface::fillRangeFld( const HorSampling& hrg )
 {
     if ( !rgfld ) return;
     uiBinIDSubSel::Data subseldata = rgfld->getInput();
-    subseldata.cs_.hrg = hrg; rgfld->setInput( subseldata );
+    subseldata.cs_.hrg = subseldata.allowedrange_.hrg = hrg;
+    rgfld->setInput( subseldata );
 }
 
 
