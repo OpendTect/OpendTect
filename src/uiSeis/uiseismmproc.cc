@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:		$Id: uiseismmproc.cc,v 1.106 2006-08-16 10:51:20 cvsbert Exp $
+ RCS:		$Id: uiseismmproc.cc,v 1.107 2006-10-31 12:26:22 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -315,15 +315,18 @@ void uiSeisMMProc::startWork( CallBacker* )
 
     mkJobRunner( nr_inl_job );
 
-    iop.get( sKey::TmpStor, tmpstordir );
-    if ( !File_isDirectory(tmpstordir) )
+    if ( !is2d )
     {
-	if ( File_exists(tmpstordir) )
-	    File_remove( tmpstordir, NO );
-	File_createDir( tmpstordir, 0 );
+	iop.get( sKey::TmpStor, tmpstordir );
+	if ( !File_isDirectory(tmpstordir) )
+	{
+	    if ( File_exists(tmpstordir) )
+		File_remove( tmpstordir, NO );
+	    File_createDir( tmpstordir, 0 );
+	}
+	if ( !File_isDirectory(tmpstordir) )
+	    mErrRet("Cannot create temporary storage directory")
     }
-    if ( !File_isDirectory(tmpstordir) )
-	mErrRet("Cannot create temporary storage directory")
 
     jobprov->pars().write( parfnm, sKey::Pars );
 
