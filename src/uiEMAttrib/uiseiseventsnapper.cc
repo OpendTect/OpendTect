@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          September 2006
- RCS:           $Id: uiseiseventsnapper.cc,v 1.4 2006-10-19 11:53:45 cvsbert Exp $
+ RCS:           $Id: uiseiseventsnapper.cc,v 1.5 2006-11-01 14:31:17 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -121,7 +121,7 @@ bool uiSeisEventSnapper::saveHorizon()
     const bool saveas = savefld_ && savefld_->getBoolValue();
     if ( !saveas )
 	exec = horizon_->saver();
-    else if ( !horoutfld_->ctxtIOObj().ioobj )
+    else if ( !horoutfld_->commitInput(true) )
 	mErrRet( "Cannot continue: write permission problem" )
     else
     {
