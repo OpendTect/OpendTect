@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.92 2006-10-19 11:53:45 cvsbert Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.93 2006-11-01 14:21:26 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,8 +33,9 @@ ________________________________________________________________________
 #include "uiexecutor.h"
 #include "uiexphorizon.h"
 #include "uigeninputdlg.h"
-#include "uiimphorizon.h"
 #include "uiimpfault.h"
+#include "uiimphorattrib.h"
+#include "uiimphorizon.h"
 #include "uiinterpolhorizondlg.h"
 #include "uiioobjsel.h"
 #include "uiiosurfacedlg.h"
@@ -117,8 +118,8 @@ bool uiEMPartServer::ioHorizon( bool imp )
 
 bool uiEMPartServer::importHorizonAttribute()
 {
-    uiMSG().message( "Not implemented yet" );
-    return true;
+    uiImportHorAttrib dlg( appserv().parent() );
+    return dlg.go();
 }
 
 
