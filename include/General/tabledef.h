@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Oct 2006
- RCS:		$Id: tabledef.h,v 1.2 2006-10-30 17:12:51 cvsbert Exp $
+ RCS:		$Id: tabledef.h,v 1.3 2006-11-01 17:06:40 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,13 +21,19 @@ ________________________________________________________________________
 namespace Table
 {
 
+    enum ReqSpec	{ Optional=0, Required=1 };
+
 /*!\brief Logical piece of information, present in tables.
 
- In many cases, data can be present or offered in various ways. For example, a
+ In most simple situations, you need to know the column of some data, or the
+ row/col of a header. Then you just describe it as:
+ FormatInfo fi( Table::Optional, "Sample rate" );
+
+ In some cases, data can be present or offered in various ways. For example, a
  position in the survey can be given as inline/crossline or X and Y. This would
  be specified as follows:
 
- FormatInfo fi( "Position" );
+ FormatInfo fi( "Position", Table::Required );
  fi.add( new BufferStringSet( {"Inline","Xline"}, 2 ) );
  fi.add( new BufferStringSet( {"X-coord","Y-coord"}, 2 ) );
 
@@ -36,20 +42,15 @@ namespace Table
 class FormatInfo : public NamedObject
 {
 public:
-    			FormatInfo( const char* nm, bool optional=false,
-				 const char* elemnm=0 )
+
+    			FormatInfo( ReqSpec rs, const char* elemnm )
+			    : NamedObject((const char*)0)
+			    , req_(rs)		{ init(elemnm); }
+    			FormatInfo( const char* nm, ReqSpec rs,
+				    const char* elemnm=0 )
 			    : NamedObject(nm)
-			    , optional_(optional)
-    			{
-			    if ( !elemnm || !*elemnm ) return;
-			    BufferStringSet* s = new BufferStringSet;
-			    s->add( elemnm );
-			    add( s );
-			}
-			~FormatInfo()
-			{
-			    deepErase( elements_ );
-			}
+			    , req_(rs)		{ init(elemnm); }
+			~FormatInfo()		{ deepErase( elements_ ); }
 
     void		add( BufferStringSet* bss )	{ elements_ += bss; }
 
@@ -65,8 +66,20 @@ public:
     };
 
     ObjectSet<BufferStringSet>	elements_;
-    bool		optional_;
+    ReqSpec		req_;
     mutable Selection	selection_;
+
+protected:
+
+    void		init( const char* elemnm )
+    			{
+			    if ( elemnm && *elemnm )
+			    {
+				BufferStringSet* s = new BufferStringSet;
+				s->add( elemnm );
+				add( s );
+			    }
+			}
 
 };
 

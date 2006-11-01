@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2006
- RCS:           $Id: uitblimpexpdatasel.cc,v 1.1 2006-10-30 17:04:08 cvsbert Exp $
+ RCS:           $Id: uitblimpexpdatasel.cc,v 1.2 2006-11-01 17:06:40 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -129,6 +129,8 @@ uiTableImpDataSel::uiTableImpDataSel( uiParent* p, Table::FormatDesc& fd )
     uiGroup* bfldsgrp = mkElemFlds( fd_.bodyinfos_, bodyelems_, false );
     if ( bfldsgrp )
 	bfldsgrp->attach( alignedBelow, hdrendfld );
+
+    setHAlignObj( hdrendfld );
 }
 
 
