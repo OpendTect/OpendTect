@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Oct 2006
- RCS:		$Id: tabledef.h,v 1.3 2006-11-01 17:06:40 cvsbert Exp $
+ RCS:		$Id: tabledef.h,v 1.4 2006-11-02 18:24:00 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -62,6 +62,14 @@ public:
 
 	int		elem_;
 	TypeSet<RowCol>	pos_;
+
+	BufferStringSet	vals_;	//!< when !havePos(ifld)
+
+	bool		havePos( int ifld ) const
+	    		{ return ifld < pos_.size() && pos_[ifld].c() >= 0; }
+	const char*	getVal( int ifld ) const
+	    		{ return ifld >= vals_.size() ? "" :
+				 vals_.get(ifld).buf(); }
 
     };
 
