@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.cc,v 1.55 2006-10-16 14:58:29 cvsbert Exp $
+ RCS:           $Id: uiodmenumgr.cc,v 1.56 2006-11-03 16:04:38 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,6 +30,7 @@ ________________________________________________________________________
 #include "oddirs.h"
 #include "pixmap.h"
 #include "timer.h"
+#include "ioman.h"
 
 
 uiODMenuMgr::uiODMenuMgr( uiODMain* a )
@@ -52,6 +53,7 @@ uiODMenuMgr::uiODMenuMgr( uiODMain* a )
     mantb->setVerticallyStretchable( true );
 
     appl.applMgr().visServer()->createToolBars();
+    IOM().surveyChanged.notify( mCB(this,uiODMenuMgr,updateDTectToolBar) );
 }
 
 
@@ -535,4 +537,11 @@ void uiODMenuMgr::showLogFile()
     su.scroll2bottom(true); su.modal(true);
     uiFileBrowser fb( &appl, su );
     fb.go();
+}
+
+
+void uiODMenuMgr::updateDTectToolBar( CallBacker* )
+{
+    dtecttb->clear();
+    fillDtectTB();
 }
