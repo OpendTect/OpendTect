@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Oct 2006
- RCS:		$Id: tabledef.h,v 1.4 2006-11-02 18:24:00 cvsbert Exp $
+ RCS:		$Id: tabledef.h,v 1.5 2006-11-03 13:18:49 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -52,8 +52,8 @@ public:
 			    , req_(rs)		{ init(elemnm); }
 			~FormatInfo()		{ deepErase( elements_ ); }
 
-    void		add( BufferStringSet* bss )	{ elements_ += bss; }
-
+    void		add( BufferStringSet* bss ) { elements_ += bss; }
+    bool		isOptional() const	{ return req_ == Optional; }
 
     /*!\brief Selected element/positioning */
     struct Selection
