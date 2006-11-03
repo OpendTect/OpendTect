@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2001
- RCS:           $Id: uispinbox.cc,v 1.20 2006-07-18 10:46:17 cvsnanne Exp $
+ RCS:           $Id: uispinbox.cc,v 1.21 2006-11-03 13:27:51 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -216,15 +216,15 @@ int uiSpinBox::step() const
 float uiSpinBox::fstep() const
 { return (float)body_->mGetStep() / factor; }
 
-void uiSpinBox::setStep( int step_, bool dosnap_ )		
-{ setStep( (float)step_, dosnap_ ); }
+void uiSpinBox::setStep( int step_, bool snapcur )		
+{ setStep( (float)step_, snapcur ); }
 
 
-void uiSpinBox::setStep( float step_, bool dosnap_ )
+void uiSpinBox::setStep( float step_, bool snapcur )
 {
     if ( !step_ ) step_ = 1;
     body_->mSetStep( mNINT(step_*factor) );
-    dosnap = dosnap_;
+    dosnap = snapcur;
     snapToStep(0);
 }
 
