@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		9-4-1996
- RCS:		$Id: survinfo.h,v 1.53 2006-11-03 08:51:12 cvsnanne Exp $
+ RCS:		$Id: survinfo.h,v 1.54 2006-11-03 16:02:25 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "namedobj.h"
 #include "ranges.h"
 #include "rcol2coord.h"
+//#include "general.h"
 class ascostream;
 class IOPar;
 class CubeSampling;
@@ -69,13 +70,15 @@ public:
 			//!< Returns true when pos is inside survey-range
 
     const UnitOfMeasure* zUnit() const;
-    inline bool		zIsTime() const	 { return zistime_; }
-    inline bool		zInMeter() const { return !zistime_ && !zinfeet_; }
-    inline bool		zInFeet() const	 { return !zistime_ && zinfeet_; }
+    inline bool		zIsTime() const		{ return zistime_; }
+    inline bool		zInMeter() const	{ return !zistime_ &&!zinfeet_;}
+    inline bool		zInFeet() const		{ return !zistime_ && zinfeet_;}
     void		setZUnit(bool istime,bool infeet=false);
     const char*		getZUnit(bool withparens=true) const;
     float		zFactor() const		{ return zistime_ ? 1000 : 1; }
     			//!< Factor between real and displayed unit
+    void		setSurvType( Pol2D typ)	{ survtype_ = typ; }
+    Pol2D		getSurvType() const	{ return survtype_; }
 
     void		snap(BinID&,BinID direction=BinID(0,0)) const;
 			//!< dir = 0 : auto; -1 round downward, 1 round upward
@@ -88,7 +91,7 @@ public:
     BinID		transform(const Coord&) const;
     			/*!<\note The returned BinID will be snapped according
 			  	  to the work step. */
-    const RCol2Coord&	binID2Coord() const		{ return b2c_; }
+    const RCol2Coord&	binID2Coord() const	{ return b2c_; }
     void		get3Pts(Coord c[3],BinID b[2],int& xline) const;
 
     Coord		minCoord(bool work) const;
@@ -99,13 +102,11 @@ public:
 			//!< Checks if in or near survey
 
     			// Project name will be stored
-    const char*		getWSProjName() const
-			{ return wsprojnm_; }
+    const char*		getWSProjName() const	{ return wsprojnm_; }
     void		setWSProjName( const char* nm ) const
 			{ const_cast<SurveyInfo*>(this)->wsprojnm_ = nm; }
     			// Password only in memory this session
-    const char*		getWSPwd() const
-			{ return wspwd_; }
+    const char*		getWSPwd() const	{ return wspwd_; }
     void		setWSPwd( const char* nm ) const
 			{ const_cast<SurveyInfo*>(this)->wspwd_ = nm; }
 
@@ -114,6 +115,7 @@ public:
     static const char*	sKeyZRange;
     static const char*	sKeyWSProjName;
     static const char*	sKeyDpthInFt; //!< 'Depth in feet' Y/N (UI default)
+    static const char*	sKeySurvType;
 
     bool		isValid() const		{ return valid_; }
     const char*		comment() const		{ return comment_; }
@@ -156,6 +158,8 @@ protected:
     RCol2Coord		b2c_;
     BinID		set3binids[3];
     Coord		set3coords[3];
+
+    Pol2D		survtype_;
 
     static SurveyInfo*	theinst_;
     static bool		dowarnings_;

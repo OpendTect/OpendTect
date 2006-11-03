@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          18-4-1996
- RCS:           $Id: survinfo.cc,v 1.78 2006-09-29 11:10:09 cvsjaap Exp $
+ RCS:           $Id: survinfo.cc,v 1.79 2006-11-03 16:02:25 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,6 +34,7 @@ const char* SurveyInfo::sKeyCrlRange = "Cross-line range";
 const char* SurveyInfo::sKeyZRange = "Z range";
 const char* SurveyInfo::sKeyWSProjName = "Workstation Project Name";
 const char* SurveyInfo::sKeyDpthInFt = "Show depth in feet";
+const char* SurveyInfo::sKeySurvType = "Survey Type";
 
 
 SurveyInfo* SurveyInfo::theinst_ = 0;
@@ -63,6 +64,7 @@ SurveyInfo::SurveyInfo()
     , zinfeet_(false)
     , pars_(*new IOPar(sKeySurvDefs))
     , workRangeChg(this)
+    , survtype_(No2D)
 {
     rdxtr.b = rdytr.c = 1;
     set3binids[2].crl = 0;
@@ -101,6 +103,7 @@ SurveyInfo& SurveyInfo::operator =( const SurveyInfo& si )
     zistime_ = si.zistime_;
     zinfeet_ = si.zinfeet_;
     b2c_ = si.b2c_;
+    survtype_ = si.survtype_;
     for ( int idx=0; idx<3; idx++ )
     {
 	set3binids[idx] = si.set3binids[idx];
