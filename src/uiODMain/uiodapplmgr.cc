@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.155 2006-10-20 12:06:29 cvsbert Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.156 2006-11-03 09:43:56 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -136,14 +136,10 @@ int uiODApplMgr::manageSurvey()
 	return 1;
     else
     {
-	bool saved = attrserv->setSaved();
-        BufferString msg( "Current attribute set is not saved.\nSave now?" );
-        if ( !saved && uiMSG().askGoOn( msg ) )
-	{
-	    IOM().setRootDir( prevnm );
-	    attrserv->saveSet();
-	    IOM().setRootDir( GetDataDir() );
-	}
+	IOM().setRootDir( prevnm );
+	bool anythingasked = false;
+	appl.askStore( anythingasked );
+	IOM().setRootDir( GetDataDir() );
 
 	if ( nlaserv ) nlaserv->reset();
 	delete attrserv; delete mpeserv;

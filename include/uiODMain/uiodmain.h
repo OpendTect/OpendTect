@@ -6,12 +6,13 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmain.h,v 1.10 2004-04-13 08:04:29 nanne Exp $
+ RCS:           $Id: uiodmain.h,v 1.11 2006-11-03 09:43:56 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uimainwin.h"
+
 class IOPar;
 class uicMain;
 class uiODMain;
@@ -50,6 +51,9 @@ public:
     IOPar&		sessionPars();	//!< On session save or restore
     					//!< notification, to get/put data
 
+    bool		askStore(bool& askedanything);
+    			/*!< Asks user if session, picksets or attributesets
+			     need to be stored. */
     bool		hasSessionChanged(); /*!< Compares current session with 
     						  last saved. */
     void		saveSession();	//!< pops up the save session dialog

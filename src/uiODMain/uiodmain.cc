@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodmain.cc,v 1.46 2006-09-26 18:54:42 cvskris Exp $
+ RCS:           $Id: uiodmain.cc,v 1.47 2006-11-03 09:43:56 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -337,16 +337,8 @@ bool uiODMain::go()
 }
 
 
-bool uiODMain::closeOK()
+bool uiODMain::askStore( bool& askedanything )
 {
-    if ( failed ) return true;
-
-    menumgr->storePositions();
-    scenemgr->storePositions();
-    ctabwin->storePosition();
-
-    bool askedanything = false;
-
     bool doask = false;
     Settings::common().getYN( "dTect.Ask store session", doask );
     if ( doask && hasSessionChanged() )
@@ -359,25 +351,51 @@ bool uiODMain::closeOK()
 	    return false;
     }
 
-    if ( !applmgr->pickSetsStored() )
+    doask = true;
+    Settings::common().getYN( "dTect.Ask store picks", doask );
+    if ( doask && !applmgr->pickSetsStored() )
     {
-	doask = true;
-	Settings::common().getYN( "dTect.Ask store picks", doask );
-	if ( doask )
-	{
-	    askedanything = true;
-	    int res = uiMSG().askGoOnAfter( "Pick sets have changed.\n"
-					    "Store the changes now?");
-	    if ( res == 0 )
-		applmgr->storePickSets();
-	    else if ( res == 2 )
-		return false;
-	}
+	askedanything = true;
+	int res = uiMSG().askGoOnAfter( "Pick sets have changed.\n"
+					"Store the changes now?");
+	if ( res == 0 )
+	    applmgr->storePickSets();
+	else if ( res == 2 )
+	    return false;
     }
+
+    doask = true;
+    Settings::common().getYN( "dTect.Ask store attributeset", doask );
+    if ( doask && !applmgr->attrServer()->setSaved() )
+    {
+	askedanything = true;
+	int res = uiMSG().askGoOnAfter( "Current attribute set has changed.\n"
+					"Store the changes now?" );
+	if ( res == 0 )
+	    applmgr->attrServer()->saveSet();
+	else if ( res == 2 )
+	    return false;
+    }
+
+    return true;
+}
+
+
+bool uiODMain::closeOK()
+{
+    if ( failed ) return true;
+
+    menumgr->storePositions();
+    scenemgr->storePositions();
+    ctabwin->storePosition();
+
+    bool askedanything = false;
+    if ( !askStore(askedanything) )
+	return false;
 
     if ( !askedanything )
     {
-	doask = false;
+	bool doask = false;
 	Settings::common().getYN( "dTect.Ask close", doask );
 	if ( doask && !uiMSG().askGoOn( "Do you want to quit?" ) )
 	    return false;
