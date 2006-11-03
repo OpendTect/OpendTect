@@ -4,14 +4,13 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2001
- RCS:           $Id: uidipfilterattrib.cc,v 1.11 2006-10-10 17:46:05 cvsbert Exp $
+ RCS:           $Id: uidipfilterattrib.cc,v 1.12 2006-11-03 16:01:36 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "ui3dfilterattrib.h"
 #include "dipfilterattrib.h"
-#include "convolveattrib.h"
 
 #include "attribdesc.h"
 #include "attribparam.h"
@@ -24,19 +23,8 @@ ________________________________________________________________________
 using namespace Attrib;
 
 const int cMinVal = 3;
-const int cMaxVal_conv = 29;
-const int cMaxVal_dipf = 49;
+const int cMaxVal = 49;
 const int cStepVal = 2;
-
-static const char* kerstrs[] =
-{
-        "LowPass (smoothing filter)",
-        "Laplacian (edge enhancing filter)",
-        "Prewitt (gradient filter)",
-	"Velocity fan filter",
-        0
-};
-
 
 static const char* fltrstrs[] =
 {
@@ -46,17 +34,7 @@ static const char* fltrstrs[] =
 	0
 };
 
-static const char* outpstrs[] =
-{
-	"Average gradient",
-        "Inline gradient",
-        "Crossline gradient",
-        "Time gradient",
-        0
-};
-
-
-mInitAttribUI(ui3DFilterAttrib,DipFilter,"3D Filter",sKeyFilterGrp)
+mInitAttribUI(ui3DFilterAttrib,DipFilter,"Velocity Fan Filter",sKeyFilterGrp)
 
 
 ui3DFilterAttrib::ui3DFilterAttrib( uiParent* p )
@@ -64,15 +42,10 @@ ui3DFilterAttrib::ui3DFilterAttrib( uiParent* p )
 {
     inpfld = getInpFld();
 
-    kernelfld = new uiGenInput( this, "Filter type",
-                                StringListInpSpec( kerstrs ) );
-    kernelfld->attach( alignedBelow, inpfld );
-    kernelfld->valuechanged.notify( mCB(this,ui3DFilterAttrib,kernelSel) );
-
     szfld = new uiLabeledSpinBox( this, "Filter size" );
     szfld->box()->setMinValue( cMinVal );
     szfld->box()->setStep( cStepVal, true );
-    szfld->attach( alignedBelow, kernelfld );
+    szfld->attach( alignedBelow, inpfld );
 
     BufferString fltrlbl;
     fltrlbl = zIsTime() ? "Velocity " : "Dip ";
@@ -100,13 +73,6 @@ ui3DFilterAttrib::ui3DFilterAttrib( uiParent* p )
     taperfld = new uiGenInput( this, "Taper length (%)", FloatInpSpec() );
     taperfld->attach( alignedBelow, aziintfld );
 
-    shapefld = new uiGenInput( this, "Shape", BoolInpSpec( "Sphere", "Cube" ) );
-    shapefld->attach( alignedBelow, szfld );
-
-    outpfld = new uiGenInput( this, "Output", StringListInpSpec(outpstrs) );
-    outpfld->attach( alignedBelow, kernelfld );
-
-    kernelSel(0);
     setHAlignObj( inpfld );
 }
 
@@ -114,19 +80,6 @@ ui3DFilterAttrib::ui3DFilterAttrib( uiParent* p )
 void ui3DFilterAttrib::set2D( bool yn )
 {
     inpfld->set2D( yn );
-
-    const int oldval = outpfld->getIntValue();
-    BufferStringSet strs;
-    if ( yn )
-    {
-	strs.add( "Line gradient" );
-	strs.add( outpstrs[3] );
-    }
-    else
-	strs = outpstrs;
-
-    outpfld->newSpec( StringListInpSpec(strs), 0 );
-    outpfld->setValue( oldval );
 }
 
 
@@ -143,37 +96,6 @@ void ui3DFilterAttrib::filtSel( CallBacker* )
 void ui3DFilterAttrib::aziSel( CallBacker* )
 {
     aziintfld->display( azifld->getBoolValue() );
-}
-
-
-void ui3DFilterAttrib::kernelSel( CallBacker* cb )
-{
-    int kernelval = kernelfld->getIntValue();
-    bool dipf = kernelval == 3;
-
-    szfld->display( kernelval != 2 );
-    szfld->box()->setMaxValue( dipf ? cMaxVal_dipf : cMaxVal_conv );
-    fltrtpfld->display( dipf );
-    velfld->display( dipf );
-    azifld->display( dipf );
-    aziintfld->display( dipf );
-    taperfld->display( dipf );
-    shapefld->display( kernelval < 2 );
-    outpfld->display( kernelval == 2 );
-
-    if ( dipf ) { aziSel(0); filtSel(0); }
-
-    if ( cb )
-    {
-	Desc* dummydesc = PF().createDescCopy( attribName() );
-	if ( dummydesc )
-	{
-	    dummydesc->ref();
-	    setParameters( *dummydesc );
-	    dummydesc->unRef();
-	    kernelfld->setValue( kernelval );
-	}
-    }
 }
 
 
@@ -196,9 +118,6 @@ bool ui3DFilterAttrib::setParameters( const Desc& desc )
 		 aziintfld->setValue(maxazi,1) )
     mIfGetFloat( DipFilter::taperlenStr(), taperlen,
 		 taperfld->setValue(taperlen) )
-    kernelfld->setValue( 3 );
-
-    kernelSel(0);
     return true;
 }
 
@@ -206,18 +125,6 @@ bool ui3DFilterAttrib::setParameters( const Desc& desc )
 bool ui3DFilterAttrib::setInput( const Desc& desc )
 {
     putInp( inpfld, desc, 0 );
-    return true;
-}
-
-
-bool ui3DFilterAttrib::setOutput( const Desc& desc )
-{
-    if ( kernelfld->getIntValue() == 2 )
-    {
-	const int selout = desc.selectedOutput();
-	outpfld->setValue( inpfld->is2D() ? selout-2 : selout );
-    }
-
     return true;
 }
 
@@ -247,22 +154,7 @@ bool ui3DFilterAttrib::getInput( Desc& desc )
 }
 
 
-bool ui3DFilterAttrib::getOutput( Desc& desc )
-{
-    int selout = 0;
-    if ( kernelfld->getIntValue() == 2 )
-    {
-	const int index = outpfld->getIntValue();
-	selout = inpfld->is2D() ? index + 2 : index;
-    }
-    
-    fillOutput( desc, selout );
-    return true;
-}
-
-
 void ui3DFilterAttrib::getEvalParams( TypeSet<EvalParam>& params ) const
 {
-    if ( kernelfld->getIntValue() != 2 )
-	params += EvalParam( filterszstr, DipFilter::sizeStr() );
+    params += EvalParam( filterszstr, DipFilter::sizeStr() );
 }
