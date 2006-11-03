@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.69 2006-06-08 14:11:27 cvsnanne Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.70 2006-11-03 08:46:32 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -173,7 +173,6 @@ int uiODSceneMgr::addScene()
     visServ().setObjectName( sceneid, title );
     scn.sovwr_->display();
     scn.sovwr_->viewAll();
-    scn.sovwr_->saveHomePos();
     scn.sovwr_->viewmodechanged.notify( mWSMCB(viewModeChg) );
     scn.sovwr_->pageupdown.notify( mCB(this,uiODSceneMgr,pageUpDownPressed) );
     scn.vwrGroup()->display( true, false, true );
