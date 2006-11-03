@@ -25,4 +25,6 @@ dTect.Enable VRML:		No
 dTect.Ask close:		No
 dTect.Ask store session:	No
 dTect.Ask store picks:		Yes
+dTect.Ask store attributeset:	Yes
+dTect.Zoom factor:		1
 !
