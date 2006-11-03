@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: wellimpasc.cc,v 1.36 2006-10-06 11:48:32 cvsbert Exp $";
+static const char* rcsID = "$Id: wellimpasc.cc,v 1.37 2006-11-03 13:28:36 cvsbert Exp $";
 
 #include "wellimpasc.h"
 #include "welldata.h"
@@ -419,9 +419,10 @@ const char* Well::AscImporter::getLogData( std::istream& strm,
 {
     Interval<float> reqzrg;
     assign( reqzrg, lfi.zrg );
-    reqzrg.sort();
     const bool havestart = !mIsUdf(reqzrg.start);
     const bool havestop = !mIsUdf(reqzrg.stop);
+    if ( havestart && havestop )
+	reqzrg.sort();
 
     float prevdpth = mUdf(float);
     int nradded = 0;
