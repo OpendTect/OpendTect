@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2001
- RCS:           $Id: uispinbox.h,v 1.10 2005-10-04 14:35:53 cvskris Exp $
+ RCS:           $Id: uispinbox.h,v 1.11 2006-11-03 13:27:20 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,6 +33,7 @@ public:
 
     void		setValue(int);
     void		setValue(float);
+    void		setValue( double d )	{ setValue( ((float)d) ); }
     int			getValue() const;
     float		getFValue() const;
 
@@ -46,20 +47,28 @@ public:
     void		setInterval(const StepInterval<float>&);
     StepInterval<float> getFInterval() const;
 
+    void		setInterval( double v0,double v1,double vs=1)
+			{ setInterval(StepInterval<float>(v0,v1,vs)); }
+    void		setInterval( const StepInterval<double>& si )
+			{ setInterval(StepInterval<float>(si.start,si.stop,
+				    			  si.step)); }
+
     void		setMinValue(int);
     void		setMinValue(float);
+    void		setMinValue( double d )	{ setMinValue( (float)d ); }
     int			minValue() const;
     float		minFValue() const;
 
     void		setMaxValue(int);
     void		setMaxValue(float);
+    void		setMaxValue( double d )	{ setMaxValue( (float)d ); }
     int			maxValue() const;
     float		maxFValue() const;
 
-    void		setStep(float,bool dosnap_=false);
-    void		setStep(int,bool dosnap_=false);
-    			/*!< if dosnap_ is true, value in spinbox will be 
-    				snapped to a value equal to N*step */
+    void		setStep(int,bool snap_cur_value=false);
+    void		setStep(float,bool snap_cur_value=false);
+    void		setStep( double d, bool scv=false )
+    			{ setStep( ((float)d),scv ); }
     float		fstep() const;
     int			step() const;
 
