@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          30/05/2001
- RCS:           $Id: uitoolbar.cc,v 1.28 2006-07-11 08:22:41 cvsbert Exp $
+ RCS:           $Id: uitoolbar.cc,v 1.29 2006-11-03 16:02:59 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -69,6 +69,7 @@ public:
 			//!< you must call this after all buttons are added
 
     void		reLoadPixMaps();
+    void		clear();
 
 
     static mDockNmSpc::ToolBarDock
@@ -188,6 +189,12 @@ void uiToolBarBody::setSensitive( bool yn )
 bool uiToolBarBody::isSensitive() const
 {
     return qwidget() ? qwidget()->isEnabled() : false;
+}
+
+
+void uiToolBarBody::clear()
+{
+    qbar->clear();
 }
 
 
@@ -326,6 +333,10 @@ void uiToolBar::reLoadPixMaps()
 {
     body_->reLoadPixMaps();
 }
+
+
+void uiToolBar::clear()
+{ body_->clear(); }
 
 
 #define mSetFunc(func,var) \
