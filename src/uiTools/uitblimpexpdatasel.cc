@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2006
- RCS:           $Id: uitblimpexpdatasel.cc,v 1.3 2006-11-02 18:24:38 cvsbert Exp $
+ RCS:           $Id: uitblimpexpdatasel.cc,v 1.4 2006-11-03 13:29:39 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,7 +42,8 @@ uiTableImpDataSelElem( uiParent* p, Table::FormatInfo& fi, bool ishdr )
     if ( ishdr_ )
     {
 	rightmostcb = specfld = new uiComboBox( this, "Specify/read" );
-	specfld->addItem( "specify" ); specfld->addItem( "read" );
+	specfld->addItem( "provide" ); specfld->addItem( "read" );
+	specfld->setPrefWidthInChar( 9 );
 	if ( elemfld )
 	    specfld->attach( rightOf, elemfld );
 	specfld->selectionChanged.notify( boxcb );
@@ -94,7 +95,14 @@ void addBox( int ielem, int ifld )
     ObjectSet<uiSpinBox>& colboxes = *boxes_[ielem];
     uiSpinBox* spinbox = new uiSpinBox( this );
     colboxes += spinbox;
-    if ( ishdr_ ) spinbox->setNrDecimals( 1 );
+    if ( !ishdr_ )
+	spinbox->setInterval( 1, 999, 1 );
+    else
+    {
+	spinbox->setNrDecimals( 2 );
+	spinbox->setInterval( 1.1, 999.99, 1.0 );
+    }
+
     if ( !fi_.selection_.havePos(ifld) )
     {
 	if ( ishdr_ )
@@ -107,9 +115,9 @@ void addBox( int ielem, int ifld )
     {
 	const RowCol& rc = fi_.selection_.pos_[ifld];
 	if ( ishdr_ )
-	    spinbox->setValue( (float)(rc.r() + 0.1 * rc.c()) );
+	    spinbox->setValue( (float)(rc.r() + 0.1 * rc.c() + 1) );
 	else
-	    spinbox->setValue( rc.c() );
+	    spinbox->setValue( rc.c() + 1 );
     }
 
     if ( ifld )
@@ -159,11 +167,48 @@ void boxChg( CallBacker* )
     }
 }
 
-
 bool commit()
 {
-//TODO
-return true;
+    const int selelem = elemfld ? elemfld->currentItem() : 0;
+    const BufferStringSet& flds = *fi_.elements_[selelem];
+    const bool readelem = !specfld || specfld->currentItem() == 1;
+    if ( !readelem && !fi_.isOptional() )
+    {
+	ObjectSet<uiGenInput>& colinps = *inps_[selelem];
+	for ( int idx=0; idx<colinps.size(); idx++ )
+	{
+	    if ( ! *colinps[idx]->text() )
+	    {
+		errmsg_ = "Please enter a value for ";
+		errmsg_ += fi_.elements_[selelem]->get(idx).buf();
+		return false;
+	    }
+	}
+    }
+
+    fi_.selection_.elem_ = selelem;
+    fi_.selection_.pos_.erase();
+    fi_.selection_.vals_.erase();
+
+    if ( readelem )
+    {
+	ObjectSet<uiSpinBox>& colboxes = *boxes_[selelem];
+	for ( int idx=0; idx<colboxes.size(); idx++ )
+	{
+	    float val = colboxes[idx]->getFValue();
+	    const int col = (int)(val + 0.001);
+	    const int row = (int)(10 * (val - col) + .5);
+	    fi_.selection_.pos_ += RowCol( row-1, col-1 );
+	}
+    }
+    else
+    {
+	ObjectSet<uiGenInput>& colinps = *inps_[selelem];
+	for ( int idx=0; idx<colinps.size(); idx++ )
+	    fi_.selection_.vals_.add( colinps[idx]->text() );
+    }
+
+    return true;
 }
 
     Table::FormatInfo&			fi_;
@@ -180,7 +225,7 @@ return true;
 
 };
 
-int uiTableImpDataSelElem::defrow_ = 0;
+int uiTableImpDataSelElem::defrow_ = 1;
 
 
 uiTableImpDataSel::uiTableImpDataSel( uiParent* p, Table::FormatDesc& fd )
@@ -188,7 +233,7 @@ uiTableImpDataSel::uiTableImpDataSel( uiParent* p, Table::FormatDesc& fd )
 	, fd_(fd)
 	, errmsg_(0)
 {
-    uiTableImpDataSelElem::defrow_ = 0;
+    uiTableImpDataSelElem::defrow_ = 1;
     uiGroup* hfldsgrp = mkElemFlds( fd_.headerinfos_, hdrelems_, true );
 
     int maxhdrline = 0;
@@ -226,7 +271,7 @@ uiGroup* uiTableImpDataSel::mkElemFlds( ObjectSet<Table::FormatInfo>& infos,
     if ( infos.size() < 1 )
 	return 0;
 
-    uiTableImpDataSelElem::defrow_ = 0;
+    uiTableImpDataSelElem::defrow_ = 1;
     uiGroup* grp = new uiGroup( this, ishdr ? "Header fields" : "Body fields" );
     for ( int idx=0; idx<infos.size(); idx++ )
     {
