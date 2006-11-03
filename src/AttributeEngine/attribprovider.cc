@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribprovider.cc,v 1.76 2006-10-23 15:01:31 cvskris Exp $";
+static const char* rcsID = "$Id: attribprovider.cc,v 1.77 2006-11-03 16:07:00 cvshelene Exp $";
 
 #include "attribprovider.h"
 #include "attribstorprovider.h"
@@ -844,16 +844,16 @@ const DataHolder* Provider::getData( const BinID& relpos, int idi )
 	return 0;
 
     const DataHolder* constres = getDataDontCompute(relpos);
-    if ( constres && constres->z0_ == localcomputezintervals[idi].start 
-	    && constres->nrsamples_ == localcomputezintervals[idi].width()+1 )
+    Interval<int> loczinterval( localcomputezintervals[idi] );
+    if ( constres && constres->z0_ == loczinterval.start 
+	    && constres->nrsamples_ == loczinterval.width()+1 )
 	return constres;
 
     if ( !linebuffer )
 	linebuffer = new DataHolderLineBuffer;
     DataHolder* outdata =
-        linebuffer->createDataHolder( currentbid+relpos,
-				      localcomputezintervals[idi].start,
-				      localcomputezintervals[idi].width()+1 );
+        linebuffer->createDataHolder( currentbid+relpos, loczinterval.start,
+				      loczinterval.width()+1 );
     if ( !outdata || !getInputData(relpos, idi) )
     {
 	if ( outdata ) linebuffer->removeDataHolder( currentbid+relpos );
@@ -886,7 +886,7 @@ const DataHolder* Provider::getData( const BinID& relpos, int idi )
 		valptr = new ArrayValueSeries<float>(ptr);
 	    }
 	    else
-		valptr = new ConvMemValueSeries<float>( nrsamples, outputformat );
+		valptr = new ConvMemValueSeries<float>( nrsamples,outputformat);
 
 	    outdata->replace( idx, valptr );
 	}
