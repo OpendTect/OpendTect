@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		9-4-1996
- RCS:		$Id: survinfo.h,v 1.52 2006-09-29 10:52:06 cvsjaap Exp $
+ RCS:		$Id: survinfo.h,v 1.53 2006-11-03 08:51:12 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -132,8 +132,9 @@ public:
 			     inline axis to the crossline axis. */
 
     bool		write(const char* basedir=0) const;
-    			//!< write to .survey file
+    			//!< Write to .survey file
     void		savePars(const char* basedir=0) const;
+    			//!< Write to .defs file
 
 protected:
 
@@ -144,7 +145,7 @@ protected:
     BufferString	dirname;
 
     bool		zistime_;
-    bool		zinfeet_; //!< only relevant if zistime_
+    bool		zinfeet_; //!< only relevant if zistime_ equals false
     BufferString	comment_;
     BufferString	wsprojnm_;
     BufferString	wspwd_;
