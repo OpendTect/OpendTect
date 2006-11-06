@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Nov 2002
- RCS:           $Id: emsurfacegeometry.cc,v 1.34 2006-04-27 15:29:13 cvskris Exp $
+ RCS:           $Id: emsurfacegeometry.cc,v 1.35 2006-11-06 10:45:07 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -1028,7 +1028,8 @@ void SurfaceGeometry::fillPar( IOPar& par ) const
 { }
 
 
-EMObjectIterator* SurfaceGeometry::createIterator( const SectionID& ) const
+EMObjectIterator* SurfaceGeometry::createIterator( const SectionID&,
+       						   const CubeSampling* ) const
 { return 0; }
 
 
@@ -1163,10 +1164,11 @@ StepInterval<int> RowColSurfaceGeometry::colRange( int row ) const
     return res;
 }
 
-EMObjectIterator* RowColSurfaceGeometry::createIterator( const SectionID& sid ) const
-{
-    return new RowColIterator( surface_, sid );
-}
 
+EMObjectIterator* RowColSurfaceGeometry::createIterator( 
+			const SectionID& sid, const CubeSampling* cs ) const
+{
+    return new RowColIterator( surface_, sid, cs );
+}
 
 }; //namespace
