@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          23-10-1996
- RCS:           $Id: autotracker.h,v 1.4 2006-02-27 10:45:07 cvsjaap Exp $
+ RCS:           $Id: autotracker.h,v 1.5 2006-11-06 10:38:34 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,6 +19,7 @@ ________________________________________________________________________
 
 namespace EM { class EMObject; };
 namespace Attrib { class SelSpec; }
+namespace Geometry { class Element; }
 
 namespace MPE
 {
@@ -31,28 +32,32 @@ class EMTracker;
 class AutoTracker : public Executor
 {
 public:
-				AutoTracker( EMTracker&, const EM::SectionID& );
-    void			setNewSeeds( const TypeSet<EM::PosID>& );
+				AutoTracker(EMTracker&,const EM::SectionID&);
+				~AutoTracker();
+    void			setNewSeeds(const TypeSet<EM::PosID>&);
     int				nextStep();
-    void			setTrackBoundary( const CubeSampling& );
+    void			setTrackBoundary(const CubeSampling&);
     void			unsetTrackBoundary();
-    int				nrDone() const { return nrdone; }
-    int				totalNr() const { return totalnr; }
+    int				nrDone() const		{ return nrdone_; }
+    int				totalNr() const		{ return totalnr_; }
 
 protected:
-    bool			addSeed( const EM::PosID& );
-    int				nrdone;
-    int				totalnr;
+    bool			addSeed(const EM::PosID&);
+    void			manageCBbuffer(bool block);
+    int				nrdone_;
+    int				totalnr_;
+    int				nrflushes_;
+    int				flushcntr_;
 
-    const EM::SectionID		sectionid;
-    TypeSet<EM::SubID>		blacklist;
-    TypeSet<int>		blacklistscore;
-    TypeSet<EM::SubID>		currentseeds;
-    EMTracker&			emtracker;
-    EM::EMObject&		emobject;
-    SectionTracker*		sectiontracker;
-    SectionExtender*		extender;
-    SectionAdjuster*		adjuster;
+    const EM::SectionID		sectionid_;
+    TypeSet<EM::SubID>		blacklist_;
+    TypeSet<int>		blacklistscore_;
+    TypeSet<EM::SubID>		currentseeds_;
+    EM::EMObject&		emobject_;
+    SectionTracker*		sectiontracker_;
+    SectionExtender*		extender_;
+    SectionAdjuster*		adjuster_;
+    Geometry::Element*          geomelem_;
 };
 
 
