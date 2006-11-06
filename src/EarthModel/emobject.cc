@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emobject.cc,v 1.69 2006-10-23 09:14:59 cvsjaap Exp $";
+static const char* rcsID = "$Id: emobject.cc,v 1.70 2006-11-06 10:42:26 cvsjaap Exp $";
 
 #include "emobject.h"
 
@@ -146,6 +146,10 @@ bool EMObject::setSectionName( const SectionID&, const char*, bool )
 
 const Geometry::Element* EMObject::sectionGeometry( const SectionID& sec ) const
 { return const_cast<EMObject*>(this)->sectionGeometryInternal(sec); }
+
+
+Geometry::Element* EMObject::sectionGeometry( const SectionID& sec ) 
+{ return sectionGeometryInternal(sec); }
 
 
 Geometry::Element* EMObject::sectionGeometryInternal( const SectionID& sec )
