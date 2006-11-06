@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: emhorizon3d.cc,v 1.81 2006-09-19 09:43:05 cvsnanne Exp $
+ RCS:           $Id: emhorizon3d.cc,v 1.82 2006-11-06 10:41:43 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "binidsurface.h"
 #include "binidvalset.h"
 #include "emmanager.h"
+#include "emrowcoliterator.h"
 #include "emsurfaceauxdata.h"
 #include "emsurfaceedgeline.h"
 #include "emsurfacetr.h"
@@ -569,5 +570,18 @@ void HorizonGeometry::fillBinIDValueSet( const SectionID& sid,
 	}
     }
 }
+
+
+EMObjectIterator* HorizonGeometry::createIterator( const SectionID& sid, 
+						   const CubeSampling* cs) const
+{
+    if ( !cs )
+        return new RowColIterator( surface_, sid, cs );
+
+    const StepInterval<int> rowrg = cs->hrg.inlRange();
+    const StepInterval<int> colrg = cs->hrg.crlRange();
+    return new RowColIterator( surface_, sid, rowrg, colrg );
+}
+
 
 } // namespace EM
