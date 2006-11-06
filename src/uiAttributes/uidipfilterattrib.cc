@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2001
- RCS:           $Id: uidipfilterattrib.cc,v 1.12 2006-11-03 16:01:36 cvshelene Exp $
+ RCS:           $Id: uidipfilterattrib.cc,v 1.13 2006-11-06 14:59:22 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -74,6 +74,8 @@ ui3DFilterAttrib::ui3DFilterAttrib( uiParent* p )
     taperfld->attach( alignedBelow, aziintfld );
 
     setHAlignObj( inpfld );
+    filtSel(0);
+    aziSel(0);
 }
 
 
@@ -118,6 +120,8 @@ bool ui3DFilterAttrib::setParameters( const Desc& desc )
 		 aziintfld->setValue(maxazi,1) )
     mIfGetFloat( DipFilter::taperlenStr(), taperlen,
 		 taperfld->setValue(taperlen) )
+    filtSel(0);
+    aziSel(0);
     return true;
 }
 

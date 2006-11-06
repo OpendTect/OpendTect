@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Huck
  Date:          Nov 2006
- RCS:           $Id: uiconvolveattrib.h,v 1.1 2006-11-03 16:01:36 cvshelene Exp $
+ RCS:           $Id: uiconvolveattrib.h,v 1.2 2006-11-06 14:59:22 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,7 +18,7 @@ class uiAttrSel;
 class uiGenInput;
 class uiLabeledSpinBox;
 
-/*! \brief DipFilter Attribute description editor */
+/*! \brief Convolve Attribute description editor */
 
 class uiConvolveAttrib : public uiAttrDescEd
 {
@@ -30,11 +30,11 @@ public:
 
 protected:
 
-    uiAttrSel*          inpfld;
-    uiLabeledSpinBox*	szfld;
-    uiGenInput*         kernelfld;
-    uiGenInput*         shapefld;
-    uiGenInput*         outpfld;
+    uiAttrSel*          inpfld_;
+    uiLabeledSpinBox*	szfld_;
+    uiGenInput*         kernelfld_;
+    uiGenInput*         shapefld_;
+    uiGenInput*         outpfld_;
 
     bool		setParameters(const Attrib::Desc&);
     bool		setInput(const Attrib::Desc&);

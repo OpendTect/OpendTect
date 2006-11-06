@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Huck
  Date:          November 2006
- RCS:           $Id: uiconvolveattrib.cc,v 1.1 2006-11-03 16:01:36 cvshelene Exp $
+ RCS:           $Id: uiconvolveattrib.cc,v 1.2 2006-11-06 14:59:22 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,34 +51,34 @@ mInitAttribUI(uiConvolveAttrib,Convolve,"Convolve",sKeyFilterGrp)
 uiConvolveAttrib::uiConvolveAttrib( uiParent* p )
 	: uiAttrDescEd(p)
 {
-    inpfld = getInpFld();
+    inpfld_ = getInpFld();
 
-    kernelfld = new uiGenInput( this, "Filter type",
+    kernelfld_ = new uiGenInput( this, "Filter type",
                                 StringListInpSpec( kerstrs ) );
-    kernelfld->attach( alignedBelow, inpfld );
-    kernelfld->valuechanged.notify( mCB(this,uiConvolveAttrib,kernelSel) );
+    kernelfld_->attach( alignedBelow, inpfld_ );
+    kernelfld_->valuechanged.notify( mCB(this,uiConvolveAttrib,kernelSel) );
 
-    szfld = new uiLabeledSpinBox( this, "Filter size" );
-    szfld->box()->setMinValue( cMinVal );
-    szfld->box()->setStep( cStepVal, true );
-    szfld->attach( alignedBelow, kernelfld );
+    szfld_ = new uiLabeledSpinBox( this, "Filter size" );
+    szfld_->box()->setMinValue( cMinVal );
+    szfld_->box()->setStep( cStepVal, true );
+    szfld_->attach( alignedBelow, kernelfld_ );
 
-    shapefld = new uiGenInput( this, "Shape", BoolInpSpec( "Sphere", "Cube" ) );
-    shapefld->attach( alignedBelow, szfld );
+    shapefld_ = new uiGenInput( this, "Shape", BoolInpSpec( "Sphere", "Cube" ));
+    shapefld_->attach( alignedBelow, szfld_ );
 
-    outpfld = new uiGenInput( this, "Output", StringListInpSpec(outpstrs) );
-    outpfld->attach( alignedBelow, kernelfld );
+    outpfld_ = new uiGenInput( this, "Output", StringListInpSpec(outpstrs) );
+    outpfld_->attach( alignedBelow, kernelfld_ );
 
     kernelSel(0);
-    setHAlignObj( inpfld );
+    setHAlignObj( inpfld_ );
 }
 
 
 void uiConvolveAttrib::set2D( bool yn )
 {
-    inpfld->set2D( yn );
+    inpfld_->set2D( yn );
 
-    const int oldval = outpfld->getIntValue();
+    const int oldval = outpfld_->getIntValue();
     BufferStringSet strs;
     if ( yn )
     {
@@ -88,30 +88,30 @@ void uiConvolveAttrib::set2D( bool yn )
     else
 	strs = outpstrs;
 
-    outpfld->newSpec( StringListInpSpec(strs), 0 );
-    outpfld->setValue( oldval );
+    outpfld_->newSpec( StringListInpSpec(strs), 0 );
+    outpfld_->setValue( oldval );
 }
 
 
 void uiConvolveAttrib::kernelSel( CallBacker* cb )
 {
-    int kernelval = kernelfld->getIntValue();
+    int kernelval = kernelfld_->getIntValue();
 
-    szfld->display( kernelval != 2 );
-    szfld->box()->setMaxValue( cMaxVal );
-    shapefld->display( kernelval < 2 );
-    outpfld->display( kernelval == 2 );
+    szfld_->display( kernelval != 2 );
+    szfld_->box()->setMaxValue( cMaxVal );
+    shapefld_->display( kernelval < 2 );
+    outpfld_->display( kernelval == 2 );
 }
 
 
 bool uiConvolveAttrib::setParameters( const Desc& desc )
 {
-    if ( !strcmp(desc.attribName(),Convolve::attribName()) )
+    if ( strcmp(desc.attribName(),Convolve::attribName()) )
 	return false;
 
-    mIfGetEnum( Convolve::kernelStr(), kernel, kernelfld->setValue(kernel) )
-    mIfGetEnum( Convolve::shapeStr(), shape, shapefld->setValue(shape) )
-    mIfGetInt( Convolve::sizeStr(), size, szfld->box()->setValue(size) )
+    mIfGetEnum( Convolve::kernelStr(), kernel, kernelfld_->setValue(kernel) )
+    mIfGetEnum( Convolve::shapeStr(), shape, shapefld_->setValue(shape) )
+    mIfGetInt( Convolve::sizeStr(), size, szfld_->box()->setValue(size) )
 
     kernelSel(0);
     return true;
@@ -120,17 +120,17 @@ bool uiConvolveAttrib::setParameters( const Desc& desc )
 
 bool uiConvolveAttrib::setInput( const Desc& desc )
 {
-    putInp( inpfld, desc, 0 );
+    putInp( inpfld_, desc, 0 );
     return true;
 }
 
 
 bool uiConvolveAttrib::setOutput( const Desc& desc )
 {
-    if ( kernelfld->getIntValue() == 2 )
+    if ( kernelfld_->getIntValue() == 2 )
     {
 	const int selout = desc.selectedOutput();
-	outpfld->setValue( inpfld->is2D() ? selout-2 : selout );
+	outpfld_->setValue( inpfld_->is2D() ? selout-2 : selout );
     }
 
     return true;
@@ -139,12 +139,12 @@ bool uiConvolveAttrib::setOutput( const Desc& desc )
 
 bool uiConvolveAttrib::getParameters( Desc& desc )
 {
-    if ( !strcmp(desc.attribName(),Convolve::attribName()) )
+    if ( strcmp(desc.attribName(),Convolve::attribName()) )
 	return false;
 
-    mSetEnum( Convolve::kernelStr(), kernelfld->getIntValue() );
-    mSetEnum( Convolve::shapeStr(), shapefld->getIntValue() );
-    mSetInt( Convolve::sizeStr(), szfld->box()->getValue() );
+    mSetEnum( Convolve::kernelStr(), kernelfld_->getIntValue() );
+    mSetEnum( Convolve::shapeStr(), shapefld_->getIntValue() );
+    mSetInt( Convolve::sizeStr(), szfld_->box()->getValue() );
 
     return true;
 }
@@ -152,7 +152,7 @@ bool uiConvolveAttrib::getParameters( Desc& desc )
 
 bool uiConvolveAttrib::getInput( Desc& desc )
 {
-    fillInp( inpfld, desc, 0 );
+    fillInp( inpfld_, desc, 0 );
     return true;
 }
 
@@ -160,10 +160,10 @@ bool uiConvolveAttrib::getInput( Desc& desc )
 bool uiConvolveAttrib::getOutput( Desc& desc )
 {
     int selout = 0;
-    if ( kernelfld->getIntValue() == 2 )
+    if ( kernelfld_->getIntValue() == 2 )
     {
-	const int index = outpfld->getIntValue();
-	selout = inpfld->is2D() ? index + 2 : index;
+	const int index = outpfld_->getIntValue();
+	selout = inpfld_->is2D() ? index + 2 : index;
     }
     
     fillOutput( desc, selout );
@@ -173,6 +173,6 @@ bool uiConvolveAttrib::getOutput( Desc& desc )
 
 void uiConvolveAttrib::getEvalParams( TypeSet<EvalParam>& params ) const
 {
-    if ( kernelfld->getIntValue() != 2 )
+    if ( kernelfld_->getIntValue() != 2 )
 	params += EvalParam( filterszstr, Convolve::sizeStr() );
 }
