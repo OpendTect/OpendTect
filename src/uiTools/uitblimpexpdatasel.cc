@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2006
- RCS:           $Id: uitblimpexpdatasel.cc,v 1.4 2006-11-03 13:29:39 cvsbert Exp $
+ RCS:           $Id: uitblimpexpdatasel.cc,v 1.5 2006-11-06 15:08:16 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,12 +28,12 @@ uiTableImpDataSelElem( uiParent* p, Table::FormatInfo& fi, bool ishdr )
     , specfld(0)
     , ishdr_(ishdr)
 {
-    if ( fi_.elements_.size() < 1 )
+    if ( fi_.nrElements() < 1 )
 	return;
 
     uiComboBox* rightmostcb = 0;
     const CallBack boxcb( mCB(this,uiTableImpDataSelElem,boxChg) );
-    if ( fi_.elements_.size() > 1 )
+    if ( fi_.nrElements() > 1 )
     {
 	rightmostcb = elemfld = new uiComboBox( this, "Element choice" );
 	elemfld->selectionChanged.notify( boxcb );
@@ -50,20 +50,30 @@ uiTableImpDataSelElem( uiParent* p, Table::FormatInfo& fi, bool ishdr )
 	specfld->setCurrentItem( fi_.selection_.havePos(0) ? 1 : 0 );
     }
 
-    for ( int ielem=0; ielem<fi_.elements_.size(); ielem++ )
+    for ( int ielem=0; ielem<fi_.nrElements(); ielem++ )
     {
-	const BufferStringSet& flds = *fi_.elements_[ielem];
+	const char* elemnm = fi_.elementName( ielem );
+	const BufferStringSet* elemdef = fi_.elementDef( ielem );
 	if ( elemfld )
-	    elemfld->addItem( fi_.name() );
+	    elemfld->addItem( elemnm );
 
 	BufferString lbltxt;
-	for ( int ifld=0; ifld<flds.size(); ifld++ )
+	if ( !elemdef )
+	    lbltxt = elemnm;
+	else
 	{
-	    lbltxt += flds.get(ifld);
-	    if ( ifld < flds.size()-1 ) lbltxt += "/";
+	    for ( int ifld=0; ifld<elemdef->size(); ifld++ )
+	    {
+		if ( ifld ) lbltxt += "/";
+		lbltxt += elemdef->get(ifld);
+	    }
 	}
 	if ( !ishdr_ )
-	    { lbltxt += " column"; if ( flds.size() > 1 ) lbltxt += "s"; }
+	{
+	    lbltxt += " column";
+	    if ( elemdef && elemdef->size() > 1 )
+		lbltxt += "s";
+	}
 	uiLabel* lbl = new uiLabel( this, lbltxt );
 	if ( rightmostcb )
 	    lbl->attach( rightOf, rightmostcb );
@@ -81,8 +91,8 @@ void mkColFlds( int ielem )
     if ( ishdr_ )
 	inps_ += new ObjectSet<uiGenInput>;
 
-    const BufferStringSet& flds = *fi_.elements_[ielem];
-    for ( int ifld=0; ifld<flds.size(); ifld++ )
+    const int nrflds = fi_.nrElements();
+    for ( int ifld=0; ifld<nrflds; ifld++ )
     {
 	addBox( ielem, ifld );
 	if ( ishdr_ )
@@ -150,7 +160,7 @@ void boxChg( CallBacker* )
     const int selelemidx = elemfld ? elemfld->currentItem() : 0;
     const bool isspec = specfld && specfld->currentItem() == 0;
 
-    for ( int ielem=0; ielem<fi_.elements_.size(); ielem++ )
+    for ( int ielem=0; ielem<fi_.nrElements(); ielem++ )
     {
 	const bool isselelem = ielem == selelemidx;
 	lbls_[ielem]->display( isselelem );
@@ -170,7 +180,6 @@ void boxChg( CallBacker* )
 bool commit()
 {
     const int selelem = elemfld ? elemfld->currentItem() : 0;
-    const BufferStringSet& flds = *fi_.elements_[selelem];
     const bool readelem = !specfld || specfld->currentItem() == 1;
     if ( !readelem && !fi_.isOptional() )
     {
@@ -180,7 +189,7 @@ bool commit()
 	    if ( ! *colinps[idx]->text() )
 	    {
 		errmsg_ = "Please enter a value for ";
-		errmsg_ += fi_.elements_[selelem]->get(idx).buf();
+		errmsg_ += fi_.elementName(selelem);
 		return false;
 	    }
 	}
