@@ -7,15 +7,15 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		29-1-98
- RCS:		$Id: seisbuf.h,v 1.12 2005-04-26 18:57:15 cvskris Exp $
+ RCS:		$Id: seisbuf.h,v 1.13 2006-11-06 15:37:33 cvsbert Exp $
 ________________________________________________________________________
 
 */
 
 
-#include <seistrc.h>
-#include <ranges.h>
-#include <executor.h>
+#include "seistrc.h"
+#include "ranges.h"
+#include "executor.h"
 class SeisTrc;
 class BinID;
 class SeisTrcWriter;
@@ -64,9 +64,6 @@ public:
 			{ SeisTrc* t = trcs[idx]; if ( t ) trcs -= t; return t;}
 
     void		fill(SeisPacketInfo&) const;
-    void		transferData(FloatList&,int takeeach=1,
-				     int icomp=0) const;
-    			//!< makes a copy of data
 
     void		revert();
     bool		isSorted(bool ascend=true,int siattrnr=6) const;

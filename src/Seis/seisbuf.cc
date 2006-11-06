@@ -4,7 +4,7 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID = "$Id: seisbuf.cc,v 1.25 2006-08-16 10:51:20 cvsbert Exp $";
+static const char* rcsID = "$Id: seisbuf.cc,v 1.26 2006-11-06 15:37:33 cvsbert Exp $";
 
 #include "seisbuf.h"
 #include "seisinfo.h"
@@ -163,18 +163,6 @@ void SeisTrcBuf::enforceNrTrcs( int nrrequired, int seisinf_attrnr )
 	}
 
 	prevval = val;
-    }
-}
-
-
-void SeisTrcBuf::transferData( FloatList& fl, int takeeach, int icomp ) const
-{
-    for ( int idx=0; idx<size(); idx+=takeeach )
-    {
-	const SeisTrc& trc = *get( idx );
-	const int trcsz = trc.size();
-	for ( int isamp=0; isamp<trcsz; isamp++ )
-	    fl += trc.get( isamp, icomp );
     }
 }
 
