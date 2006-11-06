@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfacegeometry.h,v 1.21 2006-05-05 19:43:51 cvskris Exp $
+ RCS:		$Id: emsurfacegeometry.h,v 1.22 2006-11-06 10:35:55 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -123,7 +123,8 @@ public:
 			  \retval	-2	Side could not be determined
 			*/
 
-    virtual EMObjectIterator*	createIterator(const EM::SectionID&) const;
+    virtual EMObjectIterator*	createIterator(const EM::SectionID&,
+	    				       const CubeSampling* =0) const;
 
 
     virtual bool	usePar(const IOPar&);
@@ -162,7 +163,8 @@ public:
     StepInterval<int>		colRange() const;
     StepInterval<int>		colRange(int row) const;
 
-    EMObjectIterator*		createIterator(const EM::SectionID&) const;
+    virtual EMObjectIterator*	createIterator(const EM::SectionID&,
+	    				       const CubeSampling* =0) const;
 
     //Interval<float>	getZRange(const Interval<int>& rowrg,
 	    			  //const Interval<int>& colrg) const;
