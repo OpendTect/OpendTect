@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurface.h,v 1.61 2006-05-26 12:27:30 cvskris Exp $
+ RCS:		$Id: emsurface.h,v 1.62 2006-11-06 10:34:59 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -62,7 +62,8 @@ public:
     virtual bool		usePar(const IOPar&);
     virtual void		fillPar(IOPar&) const;
 
-    virtual EMObjectIterator*	createIterator(const SectionID&) const;
+    virtual EMObjectIterator*	createIterator(const SectionID&,
+	    				       const CubeSampling* =0) const;
 
     bool			enableGeometryChecks(bool);
     bool			isGeometryChecksEnabled() const;
