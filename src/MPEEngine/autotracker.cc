@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: autotracker.cc,v 1.10 2006-08-22 12:51:22 cvsjaap Exp $";
+static const char* rcsID = "$Id: autotracker.cc,v 1.11 2006-11-06 10:48:06 cvsjaap Exp $";
 
 #include "autotracker.h"
 
@@ -26,18 +26,22 @@ namespace MPE
 
 AutoTracker::AutoTracker( EMTracker& et, const EM::SectionID& sid )
     : Executor("Autotracker")
-    , emtracker( et )
-    , emobject( *EM::EMM().getObject(et.objectID()) )
-    , sectionid( sid )
-    , sectiontracker( et.getSectionTracker(sid,true) )
-    , nrdone( 0 )
-    , totalnr( 0 )
+    , emobject_( *EM::EMM().getObject(et.objectID()) )
+    , sectionid_( sid )
+    , sectiontracker_( et.getSectionTracker(sid,true) )
+    , nrdone_( 0 )
+    , totalnr_( 0 )
+    , nrflushes_( 0 )
+    , flushcntr_( 0 )
 {
-    extender = sectiontracker->extender();
-    adjuster = sectiontracker->adjuster();
+    geomelem_ = emobject_.sectionGeometry(sectionid_);
+    extender_ = sectiontracker_->extender();
+    adjuster_ = sectiontracker_->adjuster();
 
-    PtrMan<EM::EMObjectIterator> iterator = emobject.createIterator(sectionid);
-    totalnr = engine().activeVolume().hrg.totalNr();
+    PtrMan<EM::EMObjectIterator>iterator = 
+	    emobject_.createIterator( sectionid_, &engine().activeVolume() );
+
+    totalnr_ = extender_->maxNrPosInExtArea();
 
     while ( true )
     {
@@ -45,22 +49,45 @@ AutoTracker::AutoTracker( EMTracker& et, const EM::SectionID& sid )
 	if ( pid.objectID()==-1 )
 	    break;
 	
-	BinID bid = SI().transform( emobject.getPos(pid) );
-	if ( engine().activeVolume().hrg.includes(bid) )
-	{
-	    totalnr--;
-	    addSeed(pid);
-	}
+	totalnr_--;
+	addSeed(pid);
     }
 
-    if ( !currentseeds.size() )
-	totalnr = 0;
+    if ( !currentseeds_.size() )
+	totalnr_ = 0;
+}
+
+
+AutoTracker::~AutoTracker()
+{
+    manageCBbuffer( false );
+    geomelem_->trimUndefParts();
+}
+
+
+void AutoTracker::manageCBbuffer( bool block )
+{
+    if ( !block )
+    {
+	geomelem_->blockCallBacks( false, true );
+	nrflushes_ = 0; flushcntr_ = 0; 
+	return;
+    }
+    
+    // progressive flushing (i.e. wait one extra cycle for every next flush)
+    flushcntr_++;
+    if ( flushcntr_ >= nrflushes_ )
+    {
+	flushcntr_ = 0;
+	geomelem_->blockCallBacks( true, true );
+	nrflushes_++;
+    }
 }
 
 
 void AutoTracker::setNewSeeds( const TypeSet<EM::PosID>& seeds )
 {
-    currentseeds.erase();
+    currentseeds_.erase();
 
     for( int idx=0; idx<seeds.size(); ++idx )
 	addSeed(seeds[idx]);
@@ -69,34 +96,39 @@ void AutoTracker::setNewSeeds( const TypeSet<EM::PosID>& seeds )
 
 int AutoTracker::nextStep()
 {
-    extender->reset();
-    extender->setDirection( BinIDValue(BinID(0,0), mUdf(float)) );
-    extender->setStartPositions(currentseeds);
+    manageCBbuffer( true );
+
+    if ( !nrdone_ )
+	extender_->preallocExtArea();
+
+    extender_->reset();
+    extender_->setDirection( BinIDValue(BinID(0,0), mUdf(float)) );
+    extender_->setStartPositions(currentseeds_);
     int res;
-    while ( (res=extender->nextStep())>0 )
+    while ( (res=extender_->nextStep())>0 )
 	;
 
-    TypeSet<EM::SubID> addedpos = extender->getAddedPositions();
-    TypeSet<EM::SubID> addedpossrc = extender->getAddedPositionsSource();
+    TypeSet<EM::SubID> addedpos = extender_->getAddedPositions();
+    TypeSet<EM::SubID> addedpossrc = extender_->getAddedPositionsSource();
 
     //Remove nodes that have failed 8 times before
     for ( int idx=0; idx<addedpos.size(); idx++ )
     {
-	const int blacklistidx = blacklist.indexOf(addedpos[idx]);
+	const int blacklistidx = blacklist_.indexOf(addedpos[idx]);
 	if ( blacklistidx<0 ) continue;
-	if ( blacklistscore[blacklistidx]>7 )
+	if ( blacklistscore_[blacklistidx]>7 )
 	{
-	    const EM::PosID pid( emobject.id(), sectionid, addedpos[idx] );
-	    emobject.unSetPos(pid,false);
+	    const EM::PosID pid( emobject_.id(), sectionid_, addedpos[idx] );
+	    emobject_.unSetPos(pid,false);
 	    addedpos.remove(idx);
 	    addedpossrc.remove(idx);
 	    idx--;
 	}
     }
 
-    adjuster->reset();    
-    adjuster->setPositions(addedpos, &addedpossrc);
-    while ( (res=adjuster->nextStep())>0 )
+    adjuster_->reset();    
+    adjuster_->setPositions(addedpos, &addedpossrc);
+    while ( (res=adjuster_->nextStep())>0 )
 	;
 
     //Not needed anymore, so we avoid hazzles below if we simply empty it
@@ -105,15 +137,15 @@ int AutoTracker::nextStep()
     //Add positions that have failed to blacklist
     for ( int idx=0; idx<addedpos.size(); idx++ )
     {
-	const EM::PosID pid( emobject.id(), sectionid, addedpos[idx] );
-	if ( !emobject.isDefined(pid) )
+	const EM::PosID pid( emobject_.id(), sectionid_, addedpos[idx] );
+	if ( !emobject_.isDefined(pid) )
 	{
-	    const int blacklistidx = blacklist.indexOf(addedpos[idx]);
-	    if ( blacklistidx!=-1 ) blacklistscore[blacklistidx]++;
+	    const int blacklistidx = blacklist_.indexOf(addedpos[idx]);
+	    if ( blacklistidx!=-1 ) blacklistscore_[blacklistidx]++;
 	    else
 	    {
-		blacklist += addedpos[idx];
-		blacklistscore += 1;
+		blacklist_ += addedpos[idx];
+		blacklistscore_ += 1;
 	    }
 
 	    addedpos.remove(idx);
@@ -123,35 +155,35 @@ int AutoTracker::nextStep()
 
     //Some positions failed in the optimization, wich may lead to that
     //others are unsupported. Remove all unsupported nodes.
-    sectiontracker->removeUnSupported( addedpos );
+    sectiontracker_->removeUnSupported( addedpos );
 
     // Make all new nodes seeds
-    currentseeds = addedpos;
-    nrdone += currentseeds.size();
-
-    return currentseeds.size() ? MoreToDo : Finished;
+    currentseeds_ = addedpos;
+    nrdone_ += currentseeds_.size();
+    
+    return currentseeds_.size() ? MoreToDo : Finished;
 }
 
 
 void AutoTracker::setTrackBoundary( const CubeSampling& cs )
-{ extender->setExtBoundary( cs ); }
+{ extender_->setExtBoundary( cs ); }
 
 
 void AutoTracker::unsetTrackBoundary()
-{ extender->unsetExtBoundary(); }
+{ extender_->unsetExtBoundary(); }
 
 
 bool AutoTracker::addSeed( const EM::PosID& pid )
 {
-    if ( pid.sectionID()!=sectionid )	return false;
-    if ( !emobject.isAtEdge(pid) )	return false;
+    if ( pid.sectionID()!=sectionid_ )	return false;
+    if ( !emobject_.isAtEdge(pid) )	return false;
 
-    const Coord3& pos = emobject.getPos(pid);
+    const Coord3& pos = emobject_.getPos(pid);
     if ( !engine().activeVolume().zrg.includes(pos.z) )	return false;
     const BinID bid = SI().transform(pos);
     if ( !engine().activeVolume().hrg.includes(bid) )	return false;
 
-    currentseeds += pid.subID();
+    currentseeds_ += pid.subID();
     return true;
 }
 
