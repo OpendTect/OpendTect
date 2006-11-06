@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizon3dextender.cc,v 1.7 2006-10-23 09:22:41 cvsjaap Exp $";
+static const char* rcsID = "$Id: horizon3dextender.cc,v 1.8 2006-11-06 10:49:04 cvsjaap Exp $";
 
 #include "horizonextender.h"
 
@@ -35,6 +35,17 @@ HorizonExtender::HorizonExtender( EM::Horizon& surface_,
 
 void HorizonExtender::setDirection( const BinIDValue& bdval )
 { direction =  bdval; }
+
+
+int HorizonExtender::maxNrPosInExtArea() const
+{ return getExtBoundary().hrg.totalNr(); }
+
+
+void HorizonExtender::preallocExtArea()
+{
+    const HorSampling hrg = getExtBoundary().hrg;
+    surface.geometry().sectionGeometry(sid_)->expandWithUdf(hrg.start,hrg.stop);
+}
 
 
 int HorizonExtender::nextStep()
