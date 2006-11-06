@@ -5,7 +5,7 @@
  * FUNCTION : Wavelet
 -*/
 
-static const char* rcsID = "$Id: wavelet.cc,v 1.23 2006-11-06 15:07:57 cvsbert Exp $";
+static const char* rcsID = "$Id: wavelet.cc,v 1.24 2006-11-06 16:04:27 cvsbert Exp $";
 
 #include "wavelet.h"
 #include "seisinfo.h"
@@ -256,10 +256,38 @@ Table::FormatDesc* WaveletAscIO::getDesc()
 }
 
 
-Wavelet* WaveletAscIO::get( std::istream& ) const
+#define mErrRet(s) { errmsg_ = s; return 0; }
+
+Wavelet* WaveletAscIO::get( std::istream& strm ) const
 {
-    errmsg_ = "TODO: WaveletAscIO::get not implemented";
-    return 0;
+    if ( !getHdrVals(strm) )
+	return 0;
+
+    int centersmp = mUdf(int);
+    if ( vals_.get(0) != "" )
+    {
+	centersmp = atoi(vals_.get(0));
+	if ( centersmp < 0 ) centersmp = -centersmp;
+    }
+    float sr = atof( vals_.get(1) );
+    if ( sr == 0 || mIsUdf(sr) )
+	sr = SI().zStep() * SI().zFactor();
+    else if ( sr < 0 )
+	sr = -sr;
+    sr /= SI().zFactor();
+
+    TypeSet<float> samps;
+    while ( getNextBodyVals(strm) )
+	samps += atof(vals_.get(0));
+    if ( samps.size() < 1 )
+	errmsg_ = "No data samples found";
+    if ( mIsUdf(centersmp) || centersmp > samps.size() )
+	centersmp = samps.size() / 2;
+
+    Wavelet* ret = new Wavelet( "", centersmp, sr );
+    ret->reSize( samps.size() );
+    memcpy( ret->samples(), samps.arr(), ret->size() * sizeof(float) );
+    return ret;
 }
 
 
