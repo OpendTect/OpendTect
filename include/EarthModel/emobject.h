@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emobject.h,v 1.61 2006-10-23 09:10:10 cvsjaap Exp $
+ RCS:		$Id: emobject.h,v 1.62 2006-11-06 10:33:16 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -111,6 +111,7 @@ public:
     					{ return false; }
 
     const Geometry::Element*	sectionGeometry(const SectionID&) const;
+    Geometry::Element*		sectionGeometry(const SectionID&);
 
     const Color&		preferredColor() const;
     void			setPreferredColor(const Color&);
@@ -150,7 +151,8 @@ public:
 				     linked to the posid given
 				*/
 
-    virtual EMObjectIterator*	createIterator(const EM::SectionID&) const
+    virtual EMObjectIterator*	createIterator(const EM::SectionID&, 
+	    				       const CubeSampling* =0) const
 				{ return 0; }
     				/*!< creates an iterator. If the sectionid is
 				     -1, all sections will be traversed. */
