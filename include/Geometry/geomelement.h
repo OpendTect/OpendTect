@@ -7,7 +7,7 @@ CopyRight:     (C) dGB Beheer B.V.
 Author:        A.H. Bril
 Date:          23-10-1996
 Contents:      Ranges
-RCS:           $Id: geomelement.h,v 1.8 2006-08-30 13:59:35 cvskris Exp $
+RCS:           $Id: geomelement.h,v 1.9 2006-11-06 10:37:15 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -47,9 +47,8 @@ public:
 				   If blocked, lists of added/changed positions
 				   will accumulate changes, so they can be
 				   flushed when the block is turned off.
-				   \param flush is only used when yn is false,
-					  and specifies whether a callback
-					  with all accumulted changes will
+				   \param flush specifies whether a callback
+					  with all accumulated changes will
 					  be triggered.
 				*/
     bool			blocksCallBacks() const { return blockcbs_; }
