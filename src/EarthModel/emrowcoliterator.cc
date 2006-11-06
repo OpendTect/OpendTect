@@ -4,24 +4,45 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: emrowcoliterator.cc,v 1.2 2006-06-28 14:46:41 cvsjaap Exp $
+ RCS:           $Id: emrowcoliterator.cc,v 1.3 2006-11-06 10:43:29 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "emrowcoliterator.h"
 
-#include "rowcolsurface.h"
+#include "cubesampling.h"
 #include "emsurface.h"
+#include "rowcolsurface.h"
+#include "survinfo.h"
 
 using namespace EM;
 
-RowColIterator::RowColIterator( const Surface& surf,
-				const SectionID& sectionid )
+RowColIterator::RowColIterator( const Surface& surf, const SectionID& sectionid,
+       				const CubeSampling* cs	)
     : surf_( surf )
     , sid_( sectionid )
     , cursection_( 0 )
     , allsids_( sectionid==-1 )
+    , csbound_( cs )
+    , rowcolbounded_( false )
+{
+    if ( allsids_ )
+	sid_ = surf_.sectionID(0);
+}
+
+
+RowColIterator::RowColIterator( const Surface& surf, const SectionID& sectionid,
+       				const StepInterval<int> rowbnd,
+				const StepInterval<int> colbnd )
+    : surf_( surf )
+    , sid_( sectionid )
+    , cursection_( 0 )
+    , allsids_( sectionid==-1 )
+    , csbound_( 0 )
+    , rowcolbounded_( true )
+    , rowbound_( rowbnd )
+    , colbound_( colbnd )
 {
     if ( allsids_ )
 	sid_ = surf_.sectionID(0);
@@ -30,7 +51,7 @@ RowColIterator::RowColIterator( const Surface& surf,
 
 PosID RowColIterator::next()
 {
-    do 
+    while ( true ) 
     {
 	if ( !cursection_ )
 	{
@@ -51,11 +72,23 @@ PosID RowColIterator::next()
 		}
 
 		colrg_ = cursection_->colRange( rc_.row );
+		if ( rowcolbounded_ )
+		    colrg_.limitTo( colbound_ );
 		rc_.col = colrg_.start;
 	    }
 	}
+	if ( !cursection_->isKnotDefined( rc_ ) )
+	    continue;
+
+	if ( !csbound_ ) 
+	    break;
+
+	pos_ = surf_.getPos( sid_, rc_.getSerialized() );
+	bid_ = SI().transform( pos_ );
+
+	if ( csbound_->hrg.includes(bid_) && csbound_->zrg.includes(pos_.z) )
+	    break;
     }
-    while ( !cursection_->isKnotDefined( rc_ ) );
 
     return PosID( surf_.id(), sid_, rc_.getSerialized() );
 }
@@ -82,11 +115,18 @@ int RowColIterator::maximumSize( const SectionID& cursid ) const
 	    	     surf_.sectionGeometry(cursid) );
     if ( !rcs ) return 0;
 
-    const StepInterval<int> rowrg = rcs->rowRange();
+    StepInterval<int> rowrg = rcs->rowRange();
+    if ( rowcolbounded_ )
+	rowrg.limitTo( rowbound_ );
 
     int res = 0;
     for ( int row=rowrg.start; row<=rowrg.stop; row+=rowrg.step )
-	res += rcs->colRange( row ).nrSteps()+1;
+    {
+	StepInterval<int> colrg = rcs->colRange( row );
+	if ( rowcolbounded_ )
+	    colrg.limitTo( colbound_ );
+	res += colrg.nrSteps()+1;
+    }
 
     return res;
 }
@@ -103,6 +143,11 @@ bool RowColIterator::initSection()
 
     rowrg_ = rcs->rowRange();
     colrg_ = rcs->colRange( rowrg_.start );
+    if ( rowcolbounded_ )
+    {
+	rowrg_.limitTo( rowbound_ );
+	colrg_.limitTo( colbound_ );
+    }
 
     rc_.row = rowrg_.start;
     rc_.col = colrg_.start;
