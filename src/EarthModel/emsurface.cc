@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: emsurface.cc,v 1.84 2006-05-26 13:08:38 cvskris Exp $
+ RCS:           $Id: emsurface.cc,v 1.85 2006-11-06 10:44:29 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -193,9 +193,10 @@ void Surface::fillPar( IOPar& par ) const
 }
 
 
-EMObjectIterator* Surface::createIterator( const SectionID& sid ) const
+EMObjectIterator* Surface::createIterator( const SectionID& sid, 
+					   const CubeSampling* cs ) const
 {
-    return geometry().createIterator( sid );
+    return geometry().createIterator( sid, cs );
 }
 
 
