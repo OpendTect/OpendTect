@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: sectionextender.h,v 1.13 2006-10-23 09:11:28 cvsjaap Exp $
+ RCS:           $Id: sectionextender.h,v 1.14 2006-11-06 10:40:35 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -55,6 +55,9 @@ public:
     const CubeSampling&		getExtBoundary() const;
     void			setExtBoundary(const CubeSampling&);
     void			unsetExtBoundary();
+
+    virtual int			maxNrPosInExtArea() const { return -1; }
+    virtual void		preallocExtArea() {}
 
     const char*			errMsg() const;
     virtual void		fillPar(IOPar&) const {}
