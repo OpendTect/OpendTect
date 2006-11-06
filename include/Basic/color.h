@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		22-3-2000
- RCS:		$Id: color.h,v 1.7 2005-09-06 11:09:40 cvsbert Exp $
+ RCS:		$Id: color.h,v 1.8 2006-11-06 16:18:11 cvsnanne Exp $
 ________________________________________________________________________
 
 Color is an RGB color object, with a transparancy. The storage is in a 4-byte
@@ -82,16 +82,12 @@ public:
     static Color	Wheat;
     static Color	LightGrey;
 
-    static const Color&	drawDef(int);
-    static const Color&	randDrawColor();
-
     static unsigned char getUChar( float v )
     { return v > 254.5 ? 255 : (v < 0.5 ? 0 : (unsigned char)(v+.5)); }
 
 protected:
 
     unsigned int	col_;
-
 };
 
 

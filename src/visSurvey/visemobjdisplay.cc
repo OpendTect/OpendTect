@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: visemobjdisplay.cc,v 1.92 2006-10-20 08:54:35 cvsjaap Exp $
+ RCS:           $Id: visemobjdisplay.cc,v 1.93 2006-11-06 16:18:12 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,15 +13,17 @@ ________________________________________________________________________
 
 #include "emmanager.h"
 #include "emobject.h"
+#include "iopar.h"
+#include "keystrs.h"
 #include "mpeengine.h"
+#include "randcolor.h"
+
 #include "visdrawstyle.h"
 #include "visevent.h"
 #include "vismarker.h"
 #include "vismaterial.h"
 #include "vismpeeditor.h"
 #include "vistransform.h"
-#include "keystrs.h"
-#include "iopar.h"
 
 
 namespace visSurvey
@@ -386,7 +388,7 @@ Color EMObjectDisplay::getColor() const
 
     if ( !nontexturecolisset_ )
     {
-	nontexturecol_ = Color::randDrawColor();
+	nontexturecol_ = getRandomColor();
 	nontexturecolisset_ = true;
     }
 

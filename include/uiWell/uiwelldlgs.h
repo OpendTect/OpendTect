@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2003
- RCS:           $Id: uiwelldlgs.h,v 1.22 2006-08-24 19:10:46 cvsnanne Exp $
+ RCS:           $Id: uiwelldlgs.h,v 1.23 2006-11-06 16:18:11 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -164,7 +164,7 @@ protected:
     void			writeLogs(StreamData&);
 };
 
-/*! \brief dialog for storing edited or home-made wells*/
+/*! \brief Dialog for storing edited or home-made wells */
 
 class uiStoreWellDlg : public uiDialog
 {
@@ -192,13 +192,15 @@ protected:
 };
 
 
-/*! \brief dialog for user made wells */
+/*! \brief Dialog for user made wells */
 
 class uiColorInput;
+
 class uiNewWellDlg : public uiDialog
 {
 public:
     				uiNewWellDlg(uiParent*);
+
     const Color&		getWellColor();
     const char* 		getName() const;
 				
@@ -207,9 +209,6 @@ protected:
     uiColorInput*		colsel;
 
     virtual bool        	acceptOK(CallBacker*);
+};
 
-private:
-    static int          	defcolnr;
-
-}; 
 #endif

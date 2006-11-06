@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          October 2003
- RCS:           $Id: uiwelldlgs.cc,v 1.45 2006-08-24 19:10:46 cvsnanne Exp $
+ RCS:           $Id: uiwelldlgs.cc,v 1.46 2006-11-06 16:18:12 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,6 +28,7 @@ ________________________________________________________________________
 #include "ioobj.h"
 #include "iopar.h"
 #include "oddirs.h"
+#include "randcolor.h"
 #include "strmdata.h"
 #include "strmprov.h"
 #include "survinfo.h"
@@ -887,13 +888,12 @@ bool uiStoreWellDlg::setWellTrack( Well::Data* well )
 
 
 //============================================================================
-int uiNewWellDlg::defcolnr = 0;
 
 uiNewWellDlg::uiNewWellDlg( uiParent* p )
         : uiDialog(p,uiDialog::Setup("New Well Dialog","") )
 {
     nmfld = new uiGenInput( this, "Name for new Well" );
-    colsel = new uiColorInput( this, Color::drawDef(defcolnr++), "Color" );
+    colsel = new uiColorInput( this, getRandomColor(), "Color" );
     colsel->attach( alignedBelow, nmfld );
 }
 

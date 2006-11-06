@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpewizard.cc,v 1.58 2006-09-29 11:14:02 cvsjaap Exp $
+ RCS:           $Id: uimpewizard.cc,v 1.59 2006-11-06 16:18:12 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,6 +25,7 @@ ________________________________________________________________________
 #include "ioobj.h"
 #include "mpeengine.h"
 #include "ptrman.h"
+#include "randcolor.h"
 #include "survinfo.h"
 
 #include "uibutton.h"
@@ -44,8 +45,6 @@ ________________________________________________________________________
 #include "uitextedit.h"
 
 namespace MPE {
-
-int Wizard::defcolnr = 0;
 
 const int Wizard::sNamePage		= 0;
 const int Wizard::sTrackModePage	= 1;
@@ -160,8 +159,7 @@ uiGroup* Wizard::createTrackModePage()
     mDefSeedConModeGrp( hmodegrp, Horizon ); 
 //  mDefSeedConModeGrp( fmodegrp, Fault ); 
 
-    colorfld = new uiColorInput( grp, Color::drawDef(defcolnr++), 
-				 "Object color" );
+    colorfld = new uiColorInput( grp, getRandomColor(), "Object color" );
     colorfld->colorchanged.notify( mCB(this,Wizard,colorChangeCB) );
     colorfld->attach( alignedBelow, hmodegrp );
 
@@ -326,7 +324,7 @@ bool Wizard::prepareTrackModePage()
     }
     else
     {
-	colorfld->setColor( Color::drawDef(defcolnr) );
+	colorfld->setColor( getRandomColor() );
     }
 
     if ( !createTracker() )
@@ -632,9 +630,6 @@ void Wizard::adjustSeedBox()
 
 void Wizard::reset()
 {
-    if ( objectcreated )
-	defcolnr++;
-
     sid = -1;
     objectcreated = false;
     ioparentrycreated = false;
