@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Oct 2006
- RCS:		$Id: tabledef.h,v 1.5 2006-11-03 13:18:49 cvsbert Exp $
+ RCS:		$Id: tabledef.h,v 1.6 2006-11-06 15:07:11 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,8 +34,8 @@ namespace Table
  be specified as follows:
 
  FormatInfo fi( "Position", Table::Required );
- fi.add( new BufferStringSet( {"Inline","Xline"}, 2 ) );
- fi.add( new BufferStringSet( {"X-coord","Y-coord"}, 2 ) );
+ fi.add( "Inl/Crl", new BufferStringSet( {"Inline","Xline"}, 2 ) );
+ fi.add( "X/Y", new BufferStringSet( {"X-coord","Y-coord"}, 2 ) );
 
 */
 
@@ -46,14 +46,22 @@ public:
     			FormatInfo( ReqSpec rs, const char* elemnm )
 			    : NamedObject((const char*)0)
 			    , req_(rs)		{ init(elemnm); }
-    			FormatInfo( const char* nm, ReqSpec rs,
-				    const char* elemnm=0 )
+    			FormatInfo( const char* nm, ReqSpec rs )
 			    : NamedObject(nm)
-			    , req_(rs)		{ init(elemnm); }
-			~FormatInfo()		{ deepErase( elements_ ); }
+			    , req_(rs)		{ init(0); }
+			~FormatInfo()		{ deepErase( elemdefs_ ); }
 
-    void		add( BufferStringSet* bss ) { elements_ += bss; }
+    void		add( const char* elmnm, BufferStringSet* elmdef=0 )
+    						{ elemnms_.add( elmnm );
+						  elemdefs_ += elmdef; }
+
     bool		isOptional() const	{ return req_ == Optional; }
+    int			nrElements() const	{ return elemnms_.size(); }
+    const char*		elementName( int idx ) const
+						{ return elemnms_.get(idx); }
+    const BufferStringSet* elementDef( int idx ) const
+						{ return elemdefs_[idx]; }
+				//!< may return null
 
     /*!\brief Selected element/positioning */
     struct Selection
@@ -73,20 +81,19 @@ public:
 
     };
 
-    ObjectSet<BufferStringSet>	elements_;
-    ReqSpec		req_;
     mutable Selection	selection_;
 
 protected:
 
+    ReqSpec		req_;
+    BufferStringSet	elemnms_;
+    ObjectSet<BufferStringSet> elemdefs_;
+
     void		init( const char* elemnm )
     			{
+			    elemdefs_.allowNull();
 			    if ( elemnm && *elemnm )
-			    {
-				BufferStringSet* s = new BufferStringSet;
-				s->add( elemnm );
-				add( s );
-			    }
+				add( elemnm, 0 );
 			}
 
 };
