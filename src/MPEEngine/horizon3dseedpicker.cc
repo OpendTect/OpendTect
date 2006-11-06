@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizon3dseedpicker.cc,v 1.19 2006-07-24 11:41:12 cvsjaap Exp $";
+static const char* rcsID = "$Id: horizon3dseedpicker.cc,v 1.20 2006-11-06 10:49:38 cvsjaap Exp $";
 
 #include "horizonseedpicker.h"
 
@@ -343,14 +343,11 @@ bool HorizonSeedPicker::stopSeedPick( bool iscancel )
 bool HorizonSeedPicker::lineTrackDirection( BinID& dir, 
 					    bool perptotrackdir ) const
 {
-    const CubeSampling* csptr = &engine().activeVolume();
-    dir = (*csptr).hrg.step;
+    const CubeSampling& activevol = engine().activeVolume();
+    dir = activevol.hrg.step;
     
-    if ( (*csptr).nrInl()>1 && (*csptr).nrCrl()>1 )
-	csptr = &engine().trackPlane().boundingBox();
-
-    const bool inltracking = (*csptr).nrInl()==1 && (*csptr).nrCrl()>1;
-    const bool crltracking = (*csptr).nrCrl()==1 && (*csptr).nrInl()>1;
+    const bool inltracking = activevol.nrInl()==1 && activevol.nrCrl()>1;
+    const bool crltracking = activevol.nrCrl()==1 && activevol.nrInl()>1;
 
     if ( !inltracking && !crltracking )
 	return false;
