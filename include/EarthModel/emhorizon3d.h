@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emhorizon3d.h,v 1.48 2006-09-19 09:43:05 cvsnanne Exp $
+ RCS:		$Id: emhorizon3d.h,v 1.49 2006-11-06 10:32:37 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -57,6 +57,9 @@ public:
 
     void			fillBinIDValueSet(const SectionID&,
 	    					  BinIDValueSet&) const;
+
+    EMObjectIterator*   	createIterator(const EM::SectionID&,
+					       const CubeSampling* =0) const;
 
 protected:
     Geometry::BinIDSurface*	createSectionGeometry() const;
