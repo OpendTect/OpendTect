@@ -4,7 +4,7 @@
  * DATE     : Nov 2004
 -*/
 
-static const char* rcsID = "$Id: binidsurface.cc,v 1.13 2006-08-21 19:36:05 cvskris Exp $";
+static const char* rcsID = "$Id: binidsurface.cc,v 1.14 2006-11-06 10:45:55 cvsjaap Exp $";
 
 #include "binidsurface.h"
 
@@ -235,6 +235,50 @@ bool BinIDSurface::removeCol( int start, int stop )
     if ( newpositions ) { delete depths_; depths_ = newpositions; }
     if ( !startidx )
 	origin_.col += step_.col*nrremoved;
+
+    return true;
+}
+
+
+bool BinIDSurface::expandWithUdf( const RCol& start, const RCol& stop )
+{
+    const int oldnrrows = nrRows();
+    const int oldnrcols = nrCols();
+
+    int startrowidx = rowIndex( start.r() );
+    startrowidx = startrowidx>=0 ? 0 : startrowidx;
+    int startcolidx = colIndex( start.c() );
+    startcolidx = startcolidx>=0 ? 0 : startcolidx;
+    int stoprowidx = rowIndex( stop.r() );
+    stoprowidx = stoprowidx<oldnrrows ? oldnrrows-1 : stoprowidx;
+    int stopcolidx = colIndex( stop.c() );
+    stopcolidx = stopcolidx<oldnrcols ? oldnrcols-1 : stopcolidx;
+    
+    const int newnrrows = stoprowidx-startrowidx+1;
+    const int newnrcols = stopcolidx-startcolidx+1;
+    
+    Array2D<float>* newpositions = 
+	depths_ ? new Array2DImpl<float>( newnrrows, newnrcols ) : 0;
+
+    for ( int idx=0; newpositions && idx<newnrrows; idx++ )
+    {
+	for ( int idy=0; idy<newnrcols; idy++ )
+	    newpositions->set( idx, idy, mUdf(float) );
+    }
+
+    for ( int idx=0; newpositions && idx<oldnrrows; idx++ )
+    {
+	for ( int idy=0; idy<oldnrcols; idy++ )
+	{
+	    newpositions->set( idx-startrowidx, idy-startcolidx, 
+		    	       depths_->get( idx, idy ) );
+	}
+    }
+
+    if ( newpositions ) { delete depths_; depths_ = newpositions; }
+    
+    origin_.row += step_.row*startrowidx;
+    origin_.col += step_.col*startcolidx;
 
     return true;
 }
