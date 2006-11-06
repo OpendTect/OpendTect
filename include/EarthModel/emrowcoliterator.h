@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		April 2006
- RCS:		$Id: emrowcoliterator.h,v 1.1 2006-04-26 21:15:40 cvskris Exp $
+ RCS:		$Id: emrowcoliterator.h,v 1.2 2006-11-06 10:33:51 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -24,7 +24,11 @@ namespace EM
 class RowColIterator : public EMObjectIterator
 {
 public:
-    			RowColIterator(const Surface&,const SectionID&);
+    			RowColIterator(const Surface&,const SectionID&,
+				       const CubeSampling* =0);
+    			RowColIterator(const Surface&,const SectionID&,
+				       const StepInterval<int> rowbnd,
+				       const StepInterval<int> colbnd);
     PosID		next();
     int			maximumSize() const;
     int			maximumSize(const SectionID&) const;
@@ -40,6 +44,13 @@ protected:
     StepInterval<int>			colrg_;
     bool				allsids_;
     const Surface&			surf_;
+    
+    const CubeSampling*			csbound_;
+    const StepInterval<int>		rowbound_;
+    const StepInterval<int>		colbound_;
+    const bool				rowcolbounded_;
+    Coord3				pos_;
+    BinID				bid_;
 };
 
 
