@@ -4,7 +4,7 @@
  * DATE     : Dec 2004
 -*/
 
-static const char* rcsID = "$Id: geomelement.cc,v 1.6 2006-08-30 13:59:35 cvskris Exp $";
+static const char* rcsID = "$Id: geomelement.cc,v 1.7 2006-11-06 10:46:28 cvsjaap Exp $";
 
 #include "geomelement.h"
 #include "survinfo.h"
@@ -59,21 +59,21 @@ BufferString& Element::errmsg()
 
 void Element::blockCallBacks( bool yn, bool flush )
 {
-    blockcbs_ = yn;
-    if ( blockcbs_ )
-	return;
-
     if ( flush )
     {
+	blockcbs_ = false;
 	triggerNrPosCh( nrposchbuffer_ );
 	triggerMovement( movementbuffer_ );
     }
 
+    blockcbs_ = yn;
+
+    if ( blockcbs_ && !flush )
+	return;
+    
     nrposchbuffer_.erase();
     movementbuffer_.erase();
 }
-
-
 
 
 void Element::triggerMovement( const TypeSet<GeomPosID>& gpids )
@@ -81,7 +81,7 @@ void Element::triggerMovement( const TypeSet<GeomPosID>& gpids )
     if ( !gpids.size() ) return;
 
     if ( blockcbs_ )
-	movementbuffer_.createUnion( gpids );
+	movementbuffer_.append( gpids );
     else
 	movementnotifier.trigger( &gpids, this );
 
@@ -112,7 +112,7 @@ void Element::triggerNrPosCh( const TypeSet<GeomPosID>& gpids )
     if ( !gpids.size() ) return;
 
     if ( blockcbs_ )
-	nrposchbuffer_.createUnion( gpids );
+	nrposchbuffer_.append( gpids );
     else
 	nrpositionnotifier.trigger( &gpids, this );
 
