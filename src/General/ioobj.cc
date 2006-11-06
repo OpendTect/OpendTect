@@ -4,7 +4,7 @@
  * DATE     : 2-8-1994
 -*/
 
-static const char* rcsID = "$Id: ioobj.cc,v 1.22 2006-08-21 17:14:45 cvsbert Exp $";
+static const char* rcsID = "$Id: ioobj.cc,v 1.23 2006-11-06 13:09:19 cvsnanne Exp $";
 
 #include "iodir.h"
 #include "ioman.h"
@@ -12,7 +12,6 @@ static const char* rcsID = "$Id: ioobj.cc,v 1.22 2006-08-21 17:14:45 cvsbert Exp
 #include "iostrm.h"
 #include "iopar.h"
 #include "iostrm.h"
-#include "iox.h"
 #include "transl.h"
 #include "oddirs.h"
 #include "ascstream.h"
