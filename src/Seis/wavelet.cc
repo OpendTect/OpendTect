@@ -5,7 +5,7 @@
  * FUNCTION : Wavelet
 -*/
 
-static const char* rcsID = "$Id: wavelet.cc,v 1.22 2006-10-20 12:06:29 cvsbert Exp $";
+static const char* rcsID = "$Id: wavelet.cc,v 1.23 2006-11-06 15:07:57 cvsbert Exp $";
 
 #include "wavelet.h"
 #include "seisinfo.h"
@@ -17,6 +17,7 @@ static const char* rcsID = "$Id: wavelet.cc,v 1.22 2006-10-20 12:06:29 cvsbert E
 #include "keystrs.h"
 #include "errh.h"
 #include "ptrman.h"
+#include "tabledef.h"
 
 #include <math.h>
 
@@ -236,4 +237,34 @@ bool dgbWaveletTranslator::write( const Wavelet* wv, Conn& conn )
     astream.newParagraph();
 
     return astream.stream().good();
+}
+
+
+Table::FormatDesc* WaveletAscIO::getDesc()
+{
+    Table::FormatDesc* fd = new Table::FormatDesc( "Wavelet" );
+    fd->headerinfos_ += new Table::FormatInfo( Table::Optional,
+					       "Center sample (empty=mid)" );
+    BufferString txt( "Sample interval " ); txt += SI().getZUnit();
+    Table::FormatInfo* fi = new Table::FormatInfo( Table::Required, txt );
+    float dispsi = SI().zStep() * SI().zFactor();
+    fi->selection_.vals_ += new BufferString( dispsi );
+    fd->headerinfos_ += fi;
+    fd->bodyinfos_ += new Table::FormatInfo( Table::Required, "Data samples" );
+
+    return fd;
+}
+
+
+Wavelet* WaveletAscIO::get( std::istream& ) const
+{
+    errmsg_ = "TODO: WaveletAscIO::get not implemented";
+    return 0;
+}
+
+
+bool WaveletAscIO::put( std::ostream& ) const
+{
+    errmsg_ = "TODO: WaveletAscIO::put not implemented";
+    return false;
 }
