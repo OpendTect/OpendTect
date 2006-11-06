@@ -7,13 +7,14 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		24-3-1996
- RCS:		$Id: wavelet.h,v 1.13 2006-10-19 16:40:36 cvsbert Exp $
+ RCS:		$Id: wavelet.h,v 1.14 2006-11-06 15:07:44 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
  
 #include "namedobj.h"
 #include "transl.h"
+#include "ranges.h"
 class Conn;
 class IOObj;
 
@@ -84,6 +85,30 @@ public:
 
     bool		read(Wavelet*,Conn&);
     bool		write(const Wavelet*,Conn&);
+
+};
+
+
+namespace Table { class FormatDesc; }
+
+class WaveletAscIO
+{
+public:
+    				WaveletAscIO( const Table::FormatDesc& fd )
+				    : fd_(fd)			{}
+
+    static Table::FormatDesc*	getDesc();
+    const Table::FormatDesc&	desc() const		{ return fd_; }
+
+    Wavelet*			get(std::istream&) const;
+    bool			put(std::ostream&) const;
+
+    const char*			errMsg() const		{ return errmsg_; }
+
+protected:
+
+    mutable BufferString	errmsg_;
+    const Table::FormatDesc&	fd_;
 
 };
 
