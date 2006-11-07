@@ -5,7 +5,7 @@
  * FUNCTION : Wavelet
 -*/
 
-static const char* rcsID = "$Id: wavelet.cc,v 1.24 2006-11-06 16:04:27 cvsbert Exp $";
+static const char* rcsID = "$Id: wavelet.cc,v 1.25 2006-11-07 17:51:31 cvsbert Exp $";
 
 #include "wavelet.h"
 #include "seisinfo.h"
@@ -268,6 +268,7 @@ Wavelet* WaveletAscIO::get( std::istream& strm ) const
     {
 	centersmp = atoi(vals_.get(0));
 	if ( centersmp < 0 ) centersmp = -centersmp;
+	centersmp -= 1; // Users start at 1
     }
     float sr = atof( vals_.get(1) );
     if ( sr == 0 || mIsUdf(sr) )
@@ -277,7 +278,7 @@ Wavelet* WaveletAscIO::get( std::istream& strm ) const
     sr /= SI().zFactor();
 
     TypeSet<float> samps;
-    while ( getNextBodyVals(strm) )
+    while ( getNextBodyVals(strm) > 0 )
 	samps += atof(vals_.get(0));
     if ( samps.size() < 1 )
 	errmsg_ = "No data samples found";

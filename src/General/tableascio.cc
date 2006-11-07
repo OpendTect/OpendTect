@@ -1,10 +1,10 @@
 /*+
  * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : A.H. Bril
- * DATE     : Jul 2006
+ * DATE     : Nov 2006
 -*/
 
-static const char* rcsID = "$Id: tableascio.cc,v 1.2 2006-11-07 12:26:27 cvsbert Exp $";
+static const char* rcsID = "$Id: tableascio.cc,v 1.3 2006-11-07 17:51:31 cvsbert Exp $";
 
 #include "tableascio.h"
 #include "tabledef.h"
@@ -64,14 +64,14 @@ const char* putHdrRow( const BufferStringSet& bs )
 		continue;
 
 	    const RowCol& rc( fi.selection_.pos_[sid.subnr_] );
-	    if ( rc.r() == rownr_ + 1 )
+	    if ( rc.r() == rownr_ )
 	    {
-		if ( bs.size() < rc.c() )
+		if ( rc.c() >= bs.size() )
 		    return mkErrMsg( fi, sid, selelem, rc,
-			    	     "Column not present in header" );
+			    	     "Data not present in header" );
 		else
 		{
-		    elemvals_.add( bs.get(rc.c()-1) );
+		    elemvals_.add( bs.get(rc.c()) );
 		    elemids_ += sid;
 		}
 	    }
@@ -79,7 +79,7 @@ const char* putHdrRow( const BufferStringSet& bs )
     }
 
     rownr_++;
-    ready_ = ready_ || rownr_ > aio_.fd_.nrHdrLines();
+    ready_ = ready_ || rownr_ >= aio_.fd_.nrHdrLines();
     return ready_ ? finishHdr() : 0;
 }
 
@@ -92,8 +92,8 @@ const char* finishHdr()
 	const int selelem = fi.selection_.elem_;
 	for ( sid.subnr_=0; sid.subnr_<fi.nrSubElements(selelem); sid.subnr_++ )
 	{
-	    if ( fi.selection_.havePos(sid.subnr_) )
-		aio_.vals_.add( fi.selection_.vals_.get(sid.subnr_) );
+	    if ( !fi.selection_.havePos(sid.subnr_) )
+		aio_.addVal( fi.selection_.vals_.get(sid.subnr_) );
 	    else
 	    {
 		bool found = false;
@@ -101,7 +101,7 @@ const char* finishHdr()
 		{
 		    if ( elemids_[idx] == sid )
 		    {
-			aio_.vals_.add(elemvals_.get(idx));
+			aio_.addVal(elemvals_.get(idx));
 			found = true; break;
 		    }
 		}
@@ -123,10 +123,14 @@ const char* mkErrMsg( const FormatInfo& fi, SubID sid, int selelem,
     errmsg_ += " (";
     errmsg_ += fi.subElementName( selelem, sid.subnr_ );
     errmsg_ += ")";
-    if ( rc.r() >= 0 )
+    if ( rc.c() >= 0 )
     {
-	errmsg_ += "\nSpecified at row/col ";
-	errmsg_ += rc.r(); errmsg_ += "/"; errmsg_ += rc.c();
+	errmsg_ += "\nwas specified at ";
+	if ( rc.r() < 0 )
+	    errmsg_ += "column ";
+	else
+	    { errmsg_ += "row/col "; errmsg_ += rc.r()+1; errmsg_ += "/"; }
+	errmsg_ += rc.c()+1;
     }
     return errmsg_;
 }
@@ -134,7 +138,26 @@ const char* mkErrMsg( const FormatInfo& fi, SubID sid, int selelem,
 
 const char* putBodyRow( const BufferStringSet& bs )
 {
-    return "TODO: AscIOImp_ExportHandler::putBodyRow not implemented";
+    for ( SubID sid(0,0); sid.finr_<aio_.fd_.bodyinfos_.size(); sid.finr_++ )
+    {
+	const Table::FormatInfo& fi = *aio_.fd_.bodyinfos_[sid.finr_];
+	const int selelem = fi.selection_.elem_;
+	for ( sid.subnr_=0; sid.subnr_<fi.nrSubElements(selelem); sid.subnr_++ )
+	{
+	    if ( !fi.selection_.havePos(sid.subnr_) )
+		aio_.addVal( fi.selection_.vals_.get(sid.subnr_) );
+	    else
+	    {
+		const RowCol& rc( fi.selection_.pos_[sid.subnr_] );
+		if ( rc.c() < bs.size() )
+		    aio_.addVal( bs.get(rc.c()) );
+		else
+		    return mkErrMsg( fi, sid, selelem, RowCol(rc.c(),-1),
+			    	     "Column missing in file" );
+	    }
+	}
+    }
+    return 0;
 }
 
     AscIO&		aio_;
@@ -149,26 +172,44 @@ const char* putBodyRow( const BufferStringSet& bs )
 
 }; // namespace Table
 
+Table::AscIO::~AscIO()
+{
+    delete imphndlr_;
+    delete exphndlr_;
+    delete cnvrtr_;
+}
+
 
 #define mErrRet(s) { errmsg_ = s; return false; }
 
 bool Table::AscIO::getHdrVals( std::istream& strm ) const
 {
     const int nrhdrlines = fd_.nrHdrLines();
-    if ( nrhdrlines > 0 )
+    if ( nrhdrlines < 1 )
     {
-	Table::WSImportHandler imphndlr( strm );
-	Table::AscIOImp_ExportHandler exphndlr( *this, true );
-	Table::Converter cnvrtr( imphndlr, exphndlr );
+	for ( SubID sid(0,0); sid.finr_<fd_.headerinfos_.size(); sid.finr_++ )
+	{
+	    const Table::FormatInfo& fi = *fd_.headerinfos_[sid.finr_];
+	    const int selelem = fi.selection_.elem_;
+	    for ( sid.subnr_=0; sid.subnr_<fi.nrSubElements(selelem);
+		  sid.subnr_++ )
+		addVal( fi.selection_.vals_.get(sid.subnr_) );
+	}
+    }
+    else
+    {
+	Table::WSImportHandler hdrimphndlr( strm );
+	Table::AscIOImp_ExportHandler hdrexphndlr( *this, true );
+	Table::Converter hdrcnvrtr( hdrimphndlr, hdrexphndlr );
 	for ( int idx=0; idx<nrhdrlines; idx++ )
 	{
-	    int res = cnvrtr.nextStep();
+	    int res = hdrcnvrtr.nextStep();
 	    if ( res < 0 )
-		mErrRet( cnvrtr.message() )
-	    else if ( res == 0 || exphndlr.ready_ )
+		mErrRet( hdrcnvrtr.message() )
+	    else if ( res == 0 || hdrexphndlr.ready_ )
 		break;
 	}
-	if ( !exphndlr.ready_ || !strm.good() )
+	if ( !hdrexphndlr.ready_ || !strm.good() )
 	    mErrRet( "File header does not comply with format description" )
     }
 
@@ -179,10 +220,17 @@ bool Table::AscIO::getHdrVals( std::istream& strm ) const
 }
 
 
-bool Table::AscIO::getNextBodyVals( std::istream& strm ) const
+int Table::AscIO::getNextBodyVals( std::istream& strm ) const
 {
-    errmsg_ = "TODO: Table::AscIO::getNextBodyVals not implemented";
-    return false;
+    if ( !cnvrtr_ )
+    {
+	AscIO& self = *const_cast<AscIO*>(this);
+	self.imphndlr_ = new Table::WSImportHandler( strm );
+	self.exphndlr_ = new Table::AscIOImp_ExportHandler( *this, false );
+	self.cnvrtr_ = new Table::Converter( *imphndlr_, *exphndlr_ );
+    }
+
+    return cnvrtr_->nextStep();
 }
 
 
