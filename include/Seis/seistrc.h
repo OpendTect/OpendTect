@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: seistrc.h,v 1.24 2005-03-09 12:22:16 cvsbert Exp $
+ RCS:		$Id: seistrc.h,v 1.25 2006-11-07 11:46:28 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,8 +15,8 @@ ________________________________________________________________________
 #include "seisinfo.h"
 #include "tracedata.h"
 #include "datachar.h"
-#include "datatrc.h"
 #include "valseries.h"
+
 class Socket;
 template <class T> class ValueSeriesInterpolator;
 
@@ -126,57 +126,6 @@ protected:
 
     SeisTrc&	trc;
     int		icomp;
-
-};
-
-/*!> Seismic traces conforming the DataTrace interface.
-
-One of the components of a SeisTrc can be selected to form a DataTrace.
-
-*/
-
-#ifndef mXFunctionIterTp
-# define mXFunctionIterTp mPolyRet(FunctionIter,XFunctionIter)
-#endif
-
-class SeisDataTrc : public DataTrace
-{
-public:
-
-			SeisDataTrc( SeisTrc& t, int comp=0 )
-			: trc(t), ismutable(true), curcomp(comp)
-							{}
-			SeisDataTrc( const SeisTrc& t, int comp=0 )
-			: trc(const_cast<SeisTrc&>(t)), ismutable(false)
-			, curcomp(comp)			{}
-    void		setComponent( int c )		{ curcomp = c; }
-    int			component() const		{ return curcomp; }
-
-    inline bool		set( int idx, float v )
-			{ if ( ismutable ) trc.data().setValue( idx, v, curcomp );
-			  return ismutable; }
-    inline float	operator[]( int i ) const
-			{ return trc.get( i, curcomp ); }
-    int			getIndex( float val ) const
-			{ return trc.info().nearestSample( val ); }
-    float		getX( int idx ) const
-			{ return trc.samplePos( idx ); }
-    float		getValue( float v ) const
-			{ return trc.getValue( v, curcomp ); }
-
-    inline int		size() const	{ return trc.size(); }
-    inline float	step() const	{ return trc.info().sampling.step; }
-    float		start() const	{ return trc.startPos(); }
-
-    bool		isMutable() const	{ return ismutable; }
-
-protected:
-
-    SeisTrc&		trc;
-    int			curcomp;
-    bool		ismutable;
-
-    mXFunctionIterTp*	mkIter(bool, bool) const;
 
 };
 

@@ -5,7 +5,7 @@
  * FUNCTION : Seismic trace functions
 -*/
 
-static const char* rcsID = "$Id: seistrc.cc,v 1.30 2005-09-06 16:08:35 cvsbert Exp $";
+static const char* rcsID = "$Id: seistrc.cc,v 1.31 2006-11-07 11:46:28 cvsnanne Exp $";
 
 #include "seistrc.h"
 #include "simpnumer.h"
@@ -252,69 +252,3 @@ bool SeisTrc::getFrom( Socket& sock, BufferString* errbuf )
 
     return true;
 } 
-
-
-class SeisDataTrcIter : public XFunctionIter
-{
-public:
-SeisDataTrcIter( SeisDataTrc* xf, bool bw, bool isc ) : XFunctionIter(xf,bw,isc)
-{
-    reset();
-}
-
-inline void reset()
-{
-    idx_ = td().size();
-    if ( idx_ && !bw_ ) idx_ = 1;
-}
-
-inline float x() const
-{
-    return td().start() + (idx_-1) * td().step();
-}
-
-inline float y() const
-{
-    return idx_ ? td()[idx_-1] : 0;
-}
-
-bool next()
-{
-    if ( !idx_ ) return false;
-
-    if ( bw_ ) idx_--;
-    else if ( ++idx_ > td().size() ) idx_ = 0;
-
-    return idx_;
-}
-
-bool setValue( float v )
-{
-    if ( !idx_ || !canSet() ) return false;
-
-    td().set( idx_-1, v );
-
-    return idx_;
-}
-
-bool remove( float v )
-{
-    if ( !idx_ || !canSet() ) return false;
-
-    const int sz = td().size();
-    for ( int idx=idx_; idx<sz; idx++ )
-	td().set( idx-1, td()[idx] );
-
-    return true;
-}
-
-inline const	SeisDataTrc& td() const	{ return *((SeisDataTrc*)func_); }
-inline		SeisDataTrc& td()	{ return *((SeisDataTrc*)func_); }
-
-};
-
-
-mXFunctionIterTp* SeisDataTrc::mkIter( bool bw, bool isc ) const
-{
-    return new SeisDataTrcIter( const_cast<SeisDataTrc*>(this), bw, isc );
-}
