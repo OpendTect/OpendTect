@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Nov 2006
- RCS:		$Id: tableascio.h,v 1.1 2006-11-06 16:04:27 cvsbert Exp $
+ RCS:		$Id: tableascio.h,v 1.2 2006-11-07 12:26:27 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,6 +37,9 @@ protected:
     const Table::FormatDesc&	fd_;
     mutable BufferString	errmsg_;
     BufferStringSet		vals_;
+
+    friend class		AscIOImp_ExportHandler;
+    friend class		AscIOExp_ImportHandler;
 
     bool			getHdrVals(std::istream&) const;
     bool			getNextBodyVals(std::istream&) const;

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2006
- RCS:           $Id: uitblimpexpdatasel.cc,v 1.5 2006-11-06 15:08:16 cvsbert Exp $
+ RCS:           $Id: uitblimpexpdatasel.cc,v 1.6 2006-11-07 12:26:27 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -256,7 +256,7 @@ uiTableImpDataSel::uiTableImpDataSel( uiParent* p, Table::FormatDesc& fd )
     if ( fd_.nrhdrlines_ < maxhdrline )
 	fd_.nrhdrlines_ = maxhdrline;
 
-    //TODO support setting tokencol_
+    // No support for setting tokencol_ (yet?) ...
     BufferString valstr( fd_.token_ );
     if ( valstr == "" ) valstr = "0";
     if ( fd_.nrhdrlines_ > 0 ) valstr = fd_.nrhdrlines_;

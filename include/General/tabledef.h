@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Oct 2006
- RCS:		$Id: tabledef.h,v 1.6 2006-11-06 15:07:11 cvsbert Exp $
+ RCS:		$Id: tabledef.h,v 1.7 2006-11-07 12:26:27 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -57,11 +57,17 @@ public:
 
     bool		isOptional() const	{ return req_ == Optional; }
     int			nrElements() const	{ return elemnms_.size(); }
-    const char*		elementName( int idx ) const
-						{ return elemnms_.get(idx); }
-    const BufferStringSet* elementDef( int idx ) const
-						{ return elemdefs_[idx]; }
+    const char*		elementName( int ielem ) const
+						{ return elemnms_.get(ielem); }
+    const BufferStringSet* elementDef( int ielem ) const
+						{ return elemdefs_[ielem]; }
 				//!< may return null
+    int			nrSubElements( int ielem ) const
+			{ return !elemdefs_[ielem] ? 1
+			    			   : elemdefs_[ielem]->size(); }
+    const char*		subElementName( int ielem, int isub ) const
+			{ return isub < nrSubElements(ielem)
+			       ? elemdefs_[ielem]->get(isub).buf() : ""; }
 
     /*!\brief Selected element/positioning */
     struct Selection
@@ -70,14 +76,13 @@ public:
 
 	int		elem_;
 	TypeSet<RowCol>	pos_;
+	BufferStringSet	vals_;	//!< when !havePos(isub)
 
-	BufferStringSet	vals_;	//!< when !havePos(ifld)
-
-	bool		havePos( int ifld ) const
-	    		{ return ifld < pos_.size() && pos_[ifld].c() >= 0; }
-	const char*	getVal( int ifld ) const
-	    		{ return ifld >= vals_.size() ? "" :
-				 vals_.get(ifld).buf(); }
+	bool		havePos( int isub ) const
+	    		{ return isub < pos_.size() && pos_[isub].c() >= 0; }
+	const char*	getVal( int isub ) const
+	    		{ return isub >= vals_.size() ? "" :
+				 vals_.get(isub).buf(); }
 
     };
 
@@ -121,6 +126,11 @@ public:
     BufferString	token_;
     int			tokencol_;	//!< if < 0 token can be in any col
 
+    bool		needToken() const
+    			{ return nrhdrlines_ < 0 && token_ != ""; }
+    int			nrHdrLines() const
+			{ return needToken() ? mUdf(int)
+			       : nrhdrlines_ > 0 ? nrhdrlines_ : 0; }
 };
 
 }; // namespace Table
