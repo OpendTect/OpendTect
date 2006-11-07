@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.cc,v 1.56 2006-11-03 16:04:38 cvshelene Exp $
+ RCS:           $Id: uiodmenumgr.cc,v 1.57 2006-11-07 15:12:08 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -53,7 +53,8 @@ uiODMenuMgr::uiODMenuMgr( uiODMain* a )
     mantb->setVerticallyStretchable( true );
 
     appl.applMgr().visServer()->createToolBars();
-    IOM().surveyChanged.notify( mCB(this,uiODMenuMgr,updateDTectToolBar) );
+//TODO: do not remove!! Helene for 2D/3D  
+//    IOM().surveyChanged.notify( mCB(this,uiODMenuMgr,updateDTectToolBar) );
 }
 
 
