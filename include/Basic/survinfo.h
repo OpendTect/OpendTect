@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		9-4-1996
- RCS:		$Id: survinfo.h,v 1.54 2006-11-03 16:02:25 cvshelene Exp $
+ RCS:		$Id: survinfo.h,v 1.55 2006-11-07 08:47:53 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,10 +17,10 @@ ________________________________________________________________________
 #include "ranges.h"
 #include "rcol2coord.h"
 //#include "general.h"
+
 class ascostream;
 class IOPar;
 class CubeSampling;
-class UnitOfMeasure;
 
 
 /*!\brief Holds survey general information.
@@ -69,7 +69,6 @@ public:
     bool		includes(const BinID&,const float,bool work) const;
 			//!< Returns true when pos is inside survey-range
 
-    const UnitOfMeasure* zUnit() const;
     inline bool		zIsTime() const		{ return zistime_; }
     inline bool		zInMeter() const	{ return !zistime_ &&!zinfeet_;}
     inline bool		zInFeet() const		{ return !zistime_ && zinfeet_;}

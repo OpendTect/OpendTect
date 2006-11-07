@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          18-4-1996
- RCS:           $Id: survinfo.cc,v 1.79 2006-11-03 16:02:25 cvshelene Exp $
+ RCS:           $Id: survinfo.cc,v 1.80 2006-11-07 08:47:53 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,7 +12,6 @@ ________________________________________________________________________
 #include "survinfo.h"
 #include "ascstream.h"
 #include "filepath.h"
-#include "unitofmeasure.h"
 #include "cubesampling.h"
 #include "keystrs.h"
 #include "undefval.h"
@@ -409,15 +408,6 @@ const char* SurveyInfo::getZUnit( bool wb ) const
     if ( wb ) lbl += ")";
     
     return lbl.buf();
-}
-
-
-const UnitOfMeasure* SurveyInfo::zUnit() const
-{
-    if ( zistime_ )
-	return UoMR().get("Seconds");
-
-    return UoMR().get( zinfeet_ ? "Feet" : "Meter");
 }
 
 
