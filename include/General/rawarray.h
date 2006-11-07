@@ -7,8 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		1-9-95
- Contents:	A Data trace is an XFunction with iteration
- RCS:		$Id: rawarray.h,v 1.2 2003-11-07 12:21:51 bert Exp $
+ RCS:		$Id: rawarray.h,v 1.3 2006-11-07 11:44:27 cvsnanne Exp $
 ________________________________________________________________________
 
 */
