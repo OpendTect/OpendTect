@@ -4,13 +4,12 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID = "$Id: seisbuf.cc,v 1.26 2006-11-06 15:37:33 cvsbert Exp $";
+static const char* rcsID = "$Id: seisbuf.cc,v 1.27 2006-11-07 10:48:23 cvsnanne Exp $";
 
 #include "seisbuf.h"
 #include "seisinfo.h"
 #include "seistrcsel.h"
 #include "seiswrite.h"
-#include "xfuncimpl.h"
 #include "ptrman.h"
 #include "sorting.h"
 
