@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: convolveattrib.cc,v 1.14 2006-08-03 08:04:34 cvshelene Exp $";
+static const char* rcsID = "$Id: convolveattrib.cc,v 1.15 2006-11-08 16:20:15 cvshelene Exp $";
 
 #include "convolveattrib.h"
 #include "attribdataholder.h"
@@ -12,6 +12,11 @@ static const char* rcsID = "$Id: convolveattrib.cc,v 1.14 2006-08-03 08:04:34 cv
 #include "attribfactory.h"
 #include "attribparam.h"
 #include "ptrman.h"
+#include "ioman.h"
+#include "ioobj.h"
+#include "wavelet.h"
+#include "genericnumer.h"
+
 
 #define mShapeCube	0
 #define mShapeSphere    1
@@ -19,6 +24,7 @@ static const char* rcsID = "$Id: convolveattrib.cc,v 1.14 2006-08-03 08:04:34 cv
 #define mKernelFunctionLowPass		0
 #define mKernelFunctionLaplacian	1
 #define mKernelFunctionPrewitt		2
+#define mKernelFunctionWavelet		3
 
 namespace Attrib
 {
@@ -34,6 +40,7 @@ void Convolve::initClass()
     kernel->addEnum( kernelTypeStr(mKernelFunctionLowPass) );
     kernel->addEnum( kernelTypeStr(mKernelFunctionLaplacian) );
     kernel->addEnum( kernelTypeStr(mKernelFunctionPrewitt) );
+    kernel->addEnum( kernelTypeStr(mKernelFunctionWavelet) );
     kernel->setDefaultValue( mKernelFunctionLowPass );
     desc->addParam(kernel);
 
@@ -48,6 +55,9 @@ void Convolve::initClass()
     sizepar->setLimits( Interval<int>(0,30) );
     sizepar->setDefaultValue( 3 );
     desc->addParam( sizepar );
+
+    StringParam* waveletid = new StringParam( waveletStr() );
+    desc->addParam( waveletid );
 
     desc->addOutputDataType( Seis::UnknowData );
     desc->addInput( InputSpec("Signal to be convolved",true) );
@@ -103,18 +113,17 @@ const float Convolve::prewitt[] =
 void Convolve::updateDesc( Desc& desc )
 {
     const ValParam* kernel = desc.getValParam( kernelStr() );
-    if ( !strcmp( kernel->getStringValue(0), 
-		  kernelTypeStr(mKernelFunctionPrewitt) ) )
-    {
-	desc.setParamEnabled(sizeStr(),false);
-	desc.setParamEnabled(shapeStr(),false);
+    bool isprewitt = !strcmp( kernel->getStringValue(0),
+	    		      kernelTypeStr(mKernelFunctionPrewitt) );
+    bool iswavelet = !strcmp( kernel->getStringValue(0),
+	    		      kernelTypeStr(mKernelFunctionWavelet) );
+    bool needsz = !(isprewitt || iswavelet);
+    desc.setParamEnabled(sizeStr(),needsz);
+    desc.setParamEnabled(shapeStr(),needsz);
+    desc.setParamEnabled(waveletStr(),iswavelet);
+    
+    if ( isprewitt ) 
 	desc.setNrOutputs( Seis::UnknowData, 4 );
-    }
-    else
-    {
-	desc.setParamEnabled(sizeStr(),true);
-	desc.setParamEnabled(shapeStr(),true);
-    }
 }
 
 
@@ -122,7 +131,8 @@ const char* Convolve::kernelTypeStr(int type)
 {
     if ( type==mKernelFunctionLowPass ) return "LowPass";
     if ( type==mKernelFunctionLaplacian ) return "Laplacian";
-    return "Prewitt";
+    if ( type==mKernelFunctionPrewitt ) return "Prewitt";
+    return "Wavelet";
 }
 
 
@@ -134,34 +144,34 @@ const char* Convolve::shapeTypeStr(int type)
 
 
 const float* Convolve::Kernel::getKernel(  ) const 
-{ return kernel; }
+{ return kernel_; }
 
 
 const BinID& Convolve::Kernel::getStepout( ) const
-{ return stepout; }
+{ return stepout_; }
 
 
 int Convolve::Kernel::nrSubKernels(  ) const
-{ return nrsubkernels; }
+{ return nrsubkernels_; }
 
 
 int Convolve::Kernel::getSubKernelSize() const
 {
-    int inl = 1 + stepout.inl * 2;
-    int crl = 1 + stepout.crl * 2;
-    int sgw = 1 + sg.width();
+    int inl = 1 + stepout_.inl * 2;
+    int crl = 1 + stepout_.crl * 2;
+    int sgw = 1 + sg_.width();
     return inl * crl * sgw;
 }
 
 
 const Interval<int>& Convolve::Kernel::getSG( ) const
-{ return sg; }
+{ return sg_; }
 
 
 Convolve::Kernel::Kernel( int kernelfunc, int shapetype, int size)
-    : kernel( 0 )
-    , sum( 0 )
-    , nrsubkernels( 1 )
+    : kernel_( 0 )
+    , sum_( 0 )
+    , nrsubkernels_( 1 )
 {
     if ( kernelfunc == -1 && shapetype == -1 && size == 0 )
 	return;
@@ -169,49 +179,49 @@ Convolve::Kernel::Kernel( int kernelfunc, int shapetype, int size)
     if ( kernelfunc==mKernelFunctionLowPass || 
 	    kernelfunc==mKernelFunctionLaplacian )
     {
-	nrsubkernels = 1;
+	nrsubkernels_ = 1;
 	const int hsz = size/2;
 
-	stepout = BinID(hsz,hsz);
-	sg = Interval<int>(-hsz,hsz);
+	stepout_ = BinID(hsz,hsz);
+	sg_ = Interval<int>(-hsz,hsz);
 
-	kernel = new float[getSubKernelSize()];
+	kernel_ = new float[getSubKernelSize()];
 	const int value = kernelfunc==mKernelFunctionLowPass ? 1 : -1;
 
 	const int limit2 = hsz*hsz;
 
 	int pos = 0;
 
-	for ( int inl=-stepout.inl; inl<=stepout.inl; inl++ )
+	for ( int inl=-stepout_.inl; inl<=stepout_.inl; inl++ )
 	{
-	    for ( int crl=-stepout.crl; crl<=stepout.crl; crl++ )
+	    for ( int crl=-stepout_.crl; crl<=stepout_.crl; crl++ )
 	    {
-		for ( int tidx=sg.start; tidx<=sg.stop; tidx++ )
+		for ( int tidx=sg_.start; tidx<=sg_.stop; tidx++ )
 		{
 		    float nv =
 			( shapetype==mShapeSphere && 
 			  limit2<inl*inl+crl*crl+tidx*tidx )
 			? 0 : value;
-		    kernel[pos++] = nv;
-		    sum += nv;
+		    kernel_[pos++] = nv;
+		    sum_ += nv;
 		}
 	    }
 	}
 
 	if ( kernelfunc==mKernelFunctionLaplacian )
 	{
-	    kernel[getSubKernelSize()/2] -= sum;
-	    sum = 0;
+	    kernel_[getSubKernelSize()/2] -= sum_;
+	    sum_ = 0;
 	}
     }
     else if ( kernelfunc==mKernelFunctionPrewitt )
     {
-	nrsubkernels = 3;
-	stepout = BinID(1,1);
-	sg=Interval<int>(-1,1);
+	nrsubkernels_ = 3;
+	stepout_ = BinID(1,1);
+	sg_=Interval<int>(-1,1);
 	int sz = getSubKernelSize()*nrSubKernels();
-	kernel = new float[sz];
-	memcpy( kernel, Convolve::prewitt, sz*sizeof(float) );
+	kernel_ = new float[sz];
+	memcpy( kernel_, Convolve::prewitt, sz*sizeof(float) );
     }
 
     int subkernelsize = getSubKernelSize();
@@ -220,52 +230,63 @@ Convolve::Kernel::Kernel( int kernelfunc, int shapetype, int size)
     {
 	float subkernelsum = 0;
 	for ( int idx=0; idx<subkernelsize; idx++ )
-	    subkernelsum += kernel[idy*subkernelsize+idx];
+	    subkernelsum += kernel_[idy*subkernelsize+idx];
 
 	if ( !mIsZero(subkernelsum,mDefEps) )
 	{
 	    for ( int idx=0; idx<subkernelsize; idx++ )
 	    {
-		kernel[idy*subkernelsize+idx] /= subkernelsum;
+		kernel_[idy*subkernelsize+idx] /= subkernelsum;
 	    }
 	}
 
-	sum += subkernelsum;
+	sum_ += subkernelsum;
     }
 }
     
 
 
 Convolve::Kernel::~Kernel()
-{ delete [] kernel; }
+{ delete [] kernel_; }
 
 
 Convolve::Convolve( Desc& ds )
     : Provider(ds)
-    , shape (-1)
-    , size(0)
-    , stepout(0,0)
-    , kernel(0)
+    , shape_ (-1)
+    , size_(0)
+    , stepout_(0,0)
+    , kernel_(0)
+    , wavelet_(0)
 {
     if ( !isOK() ) return;
 
-    inputdata.allowNull( true );
+    inputdata_.allowNull( true );
 
-    mGetEnum( kerneltype, kernelStr() );
-    if ( kerneltype != mKernelFunctionPrewitt )
+    mGetEnum( kerneltype_, kernelStr() );
+    if ( kerneltype_ == mKernelFunctionLowPass || 
+	    kerneltype_ == mKernelFunctionLaplacian )
     {
-	mGetEnum( shape, shapeStr() );
-	mGetInt( size, sizeStr() );
+	mGetEnum( shape_, shapeStr() );
+	mGetInt( size_, sizeStr() );
+    }
+    else if ( kerneltype_ == mKernelFunctionWavelet )
+    {
+	BufferString wavidstr;
+	mGetString( wavidstr, waveletStr() );
+	IOObj* ioobj = IOM().get( MultiID(wavidstr) );
+	wavelet_ = Wavelet::get( ioobj );
+	return;
     }
 
-    kernel = new Kernel( kerneltype, shape , size );
-    stepout = kernel->getStepout();
+    kernel_ = new Kernel( kerneltype_, shape_ , size_ );
+    stepout_ = kernel_->getStepout();
 }
 
 
 Convolve::~Convolve()
 {
-    delete kernel;
+    if ( kernel_ ) delete kernel_;
+    if ( wavelet_ ) delete wavelet_;
 }
 
 
@@ -277,25 +298,24 @@ bool Convolve::getInputOutput( int input, TypeSet<int>& res ) const
 
 bool Convolve::getInputData( const BinID& relpos, int idx )
 {
-    stepout = kernel->getStepout();
-    int sz = (1+stepout.inl*2) * (1+stepout.crl*2);
+    int sz = (1+stepout_.inl*2) * (1+stepout_.crl*2);
     
-    while ( inputdata.size()< sz )
-	inputdata += 0;
+    while ( inputdata_.size()< sz )
+	inputdata_ += 0;
 
     const BinID bidstep = inputs[0]->getStepoutStep();
     BinID truepos;
     int index = 0;
-    for (int inl=-stepout.inl; inl<=stepout.inl; inl++ )
+    for (int inl=-stepout_.inl; inl<=stepout_.inl; inl++ )
     {
-	for (int crl=-stepout.crl; crl<=stepout.crl; crl++ )
+	for (int crl=-stepout_.crl; crl<=stepout_.crl; crl++ )
 	{
 	    truepos.inl = inl * bidstep.inl;
 	    truepos.crl = crl * bidstep.crl;
 	    const DataHolder* data = inputs[0]->getData( relpos+truepos, idx );
 	    if ( !data )
 		return false;
-	    inputdata.replace( index++, data );
+	    inputdata_.replace( index++, data );
 	}
     }
     dataidx_ = getDataIndex( 0 );
@@ -305,34 +325,35 @@ bool Convolve::getInputData( const BinID& relpos, int idx )
 
 
 const BinID* Convolve::reqStepout( int inp, int out ) const
-{ return &stepout; }
+{ return &stepout_; }
 
 
 const Interval<float>* Convolve::reqZMargin( int inp, int ) const
 {
-    Interval<float> tg( kernel->getSG().start *refstep, 
-	    		kernel->getSG().stop * refstep );
-    const_cast<Convolve*>(this)->interval = tg;
-    return &interval;
+    if ( !kernel_ ) return 0;
+    Interval<float> tg( kernel_->getSG().start *refstep, 
+	    		kernel_->getSG().stop * refstep );
+    const_cast<Convolve*>(this)->interval_ = tg;
+    return &interval_;
 }
 
 
-bool Convolve::computeData( const DataHolder& output, const BinID& relpos,
-	                    int z0, int nrsamples ) const
+bool Convolve::computeDataKernel( const DataHolder& output, int z0,
+				  int nrsamples ) const
 {
-    const int nrofkernels = kernel->nrSubKernels();
-    const int subkernelsz = kernel->getSubKernelSize();
-    const float* kernelvals = kernel->getKernel();
+    const int nrofkernels = kernel_->nrSubKernels();
+    const int subkernelsz = kernel_->getSubKernelSize();
+    const float* kernelvals = kernel_->getKernel();
 
-    const int nrtraces = (1+stepout.inl*2) * (1+stepout.crl*2);
+    const int nrtraces = (1+stepout_.inl*2) * (1+stepout_.crl*2);
 
     ArrPtrMan<bool> docalculate = new bool[nrofkernels];
     const bool customcalc = !outputinterest[0];
     for ( int idx=0; idx<nrofkernels; idx++ )
 	docalculate[idx] = customcalc ? outputinterest[idx+1] : true;
 
-    const Interval<int> sg = kernel->getSG();
-    const int sgwidth = 1 + sg.width();
+    const Interval<int> sg_ = kernel_->getSG();
+    const int sgwidth = 1 + sg_.width();
 
     for ( int idx=0; idx<nrsamples; idx++ )
     {
@@ -343,15 +364,15 @@ bool Convolve::computeData( const DataHolder& output, const BinID& relpos,
 
 	for ( int idy=0; idy<nrtraces; idy++)
 	{
-	    if ( !inputdata[idy] )
+	    if ( !inputdata_[idy] )
 		continue;
 	    
 	    const int valoffset = idy * sgwidth;
 
 	    ArrPtrMan<float> vals = new float[sgwidth];
 	    for ( int valindex=0; valindex<sgwidth; valindex++ )
-		vals[valindex] = inputdata[idy]->series(dataidx_)->
-		   value( cursample-inputdata[idy]->z0_ + (sg.start+valindex) );
+		vals[valindex] = inputdata_[idy]->series(dataidx_)->
+		   value( cursample-inputdata_[idy]->z0_ +(sg_.start+valindex));
 
 	    for ( int kidx=0; kidx<nrofkernels; kidx++ )
 	    {
@@ -385,5 +406,39 @@ bool Convolve::computeData( const DataHolder& output, const BinID& relpos,
 
     return true;
 }
+
+
+bool Convolve::computeDataWavelet( const DataHolder& output, int z0,
+				   int nrsamples ) const
+{
+    if ( !inputdata_[0] || !wavelet_ ) return false;
+
+    int waveletsz = wavelet_->size();
+    int wavfirstidx = -wavelet_->centerSample();
+    float* wavarr = wavelet_->samples();
+    int inpshift = z0-inputdata_[0]->z0_;
+    float* outp = output.series(0)->arr();
+    GenericConvolve( waveletsz, wavfirstidx, wavarr, inputdata_[0]->nrsamples_,
+		     inpshift, *inputdata_[0]->series(dataidx_),
+		     nrsamples, 0, outp );
+    
+    return true;
+}
+
+
+bool Convolve::computeData( const DataHolder& output, const BinID& relpos,
+	                    int z0, int nrsamples ) const
+{
+    return kerneltype_==mKernelFunctionWavelet
+		? computeDataWavelet( output, z0, nrsamples )
+		: computeDataKernel( output, z0, nrsamples );
+}
+
+
+bool Convolve::allowParallelComputation() const
+{
+    return kerneltype_==mKernelFunctionWavelet ? false : true;
+}
+
 
 } // namespace Attrib
