@@ -4,41 +4,42 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiseispartserv.cc,v 1.41 2006-10-20 12:06:29 cvsbert Exp $
+ RCS:           $Id: uiseispartserv.cc,v 1.42 2006-11-08 15:27:47 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiseispartserv.h"
+
+#include "arrayndimpl.h"
 #include "ctxtioobj.h"
-#include "seistrcsel.h"
-#include "ioobj.h"
 #include "iodir.h"
+#include "ioobj.h"
 #include "ioman.h"
-#include "uiexecutor.h"
-#include "uimsg.h"
-#include "seistrctr.h"
-#include "seis2dline.h"
-#include "ptrman.h"
 #include "keystrs.h"
-#include "seispsioprov.h"
+#include "ptrman.h"
 #include "seisbuf.h"
+#include "seistrcsel.h"
+#include "seistrctr.h"
+#include "seispsioprov.h"
 #include "seispsread.h"
-#include "seissectview.h"
+#include "seis2dline.h"
 #include "segposinfo.h"
 
+#include "uiexecutor.h"
+#include "uiflatvertview.h"
+#include "uilistboxdlg.h"
 #include "uimenu.h"
 #include "uimergeseis.h"
-#include "uiseissegyimpexp.h"
+#include "uimsg.h"
+#include "uisegysip.h"
 #include "uiseiscbvsimp.h"
 #include "uiseisfileman.h"
-#include "uiseiswvltman.h"
-#include "uiseiswvltimp.h"
 #include "uiseisioobjinfo.h"
-#include "uisegysip.h"
+#include "uiseissegyimpexp.h"
 #include "uiseissel.h"
-#include "uilistboxdlg.h"
-
+#include "uiseiswvltimp.h"
+#include "uiseiswvltman.h"
 
 
 uiSeisPartServer::uiSeisPartServer( uiApplService& a )
@@ -210,7 +211,9 @@ MenuItem* uiSeisPartServer::storedGathersSubMenu( bool createnew )
 
     return &storedgathermenuitem;
 }
-	    
+
+
+#define mErrRet(msg) { uiMSG().error(msg); return false; }
 
 bool uiSeisPartServer::handleGatherSubMenu( int mnuid, const BinID& bid )
 {
@@ -221,41 +224,56 @@ bool uiSeisPartServer::handleGatherSubMenu( int mnuid, const BinID& bid )
 	IOM().getLocal( storedgathermenuitem.getItem(mnuindex)->text );
 
     if ( !ioobj )
-    { 
-	uiMSG().error( "No valid gather selected" ); 
-	return false;
-    }
+	mErrRet( "No valid gather selected" )
 
     SeisPSReader* rdr = SPSIOPF().getReader( *ioobj, bid.inl );
     if ( !rdr )
-    {
-	uiMSG().error( "This Pre-Stack data store cannot be handeled" );
-        return false;
-    }
-    
+	mErrRet( "This Pre-Stack data store cannot be handeled" )
+
     SeisTrcBuf tbuf;
     if ( !rdr->getGather(bid,tbuf) )
+	mErrRet( rdr->errMsg() )
+
+    if ( tbuf.size() == 0 )
+	mErrRet( "Gather is empty" )
+
+    const int nrsamples = tbuf.get(0)->size();
+    PtrMan< Array2DImpl<float> > a2d =
+		new Array2DImpl<float>( tbuf.size(), nrsamples );
+    for ( int trcidx=0; trcidx<tbuf.size(); trcidx++ )
     {
-        uiMSG().error( rdr->errMsg() );
-        return false;
-    }
-    
-    SeisSectionViewer svw;
-    svw.title = "Gather from ["; svw.title += ioobj->name();
-    svw.title += "] at ";
-    svw.title += bid.inl; svw.title += "/"; svw.title += bid.crl;
-    svw.minimal = true;
-    
-    PtrMan<Executor> exec = svw.preparer();
-    if ( !exec->execute() )
-    {
-        uiMSG().error( exec->message() );
-        return false;
+	const SeisTrc& trc = *tbuf.get( trcidx );
+	for ( int sidx=0; sidx<nrsamples; sidx++ )
+	    a2d->set( trcidx, sidx, trc.get(sidx,0) );
     }
 
-    for ( int idx=0; idx<tbuf.size(); idx++ )
-        svw.add( tbuf.get(idx) );
+    FlatDisp::Context fdctxt;
+    fdctxt.annot_.x1name_ = "";
+    fdctxt.annot_.x2name_ = "";
+    fdctxt.ddpars_.dispvd_ = false;
+    fdctxt.ddpars_.dispwva_ = true;
+    fdctxt.ddpars_.wva_.drawmid_= true;
+    fdctxt.ddpars_.wva_.overlap_ = 0;
+    fdctxt.ddpars_.wva_.clipperc_ = 0;
+    const SeisTrc& firsttrc = *tbuf.get(0);
+    const SeisTrc& lasttrc = *tbuf.get(tbuf.size()-1);
+    fdctxt.posdata_.x1rg_.start = firsttrc.info().nr;
+    fdctxt.posdata_.x1rg_.stop = lasttrc.info().nr;
+    fdctxt.posdata_.x1rg_.step = 1;
+    fdctxt.posdata_.x2rg_.start = firsttrc.info().sampling.start;
+    fdctxt.posdata_.x2rg_.stop = firsttrc.info().sampling.start +
+				firsttrc.size()*firsttrc.info().sampling.step;
+    fdctxt.posdata_.x2rg_.step = firsttrc.info().sampling.step;
 
-    svw.close();
+    BufferString title( "Gather from [" ); title += ioobj->name();
+    title += "] at "; title += bid.inl; title += "/"; title += bid.crl;
+    uiDialog psdlg( appserv().parent(),
+	    	    uiDialog::Setup("PS Display",title,"") );
+    psdlg.setCtrlStyle( uiDialog::LeaveOnly );
+    uiFlatDisp::VertViewer* vwr = new uiFlatDisp::VertViewer( &psdlg );
+    vwr->setContext( fdctxt );
+    vwr->setData( true, a2d, "" );
+    psdlg.go();
+
     return true;
 }
