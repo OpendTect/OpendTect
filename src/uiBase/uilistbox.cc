@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: uilistbox.cc,v 1.64 2006-03-10 13:34:02 cvsbert Exp $
+ RCS:           $Id: uilistbox.cc,v 1.65 2006-11-09 23:00:18 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -160,7 +160,7 @@ void uiListBox::setSelected( int idx, bool yn )
 
 void uiListBox::selectAll( bool yn )
 {
-    if ( body_->selectionMode() != mQListBox::Extended ) return;
+    if ( yn && body_->selectionMode()!=mQListBox::Extended ) return;
 
     const int sz = body_->count();
     for ( int idx=0; idx<sz; idx++ )
