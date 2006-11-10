@@ -5,7 +5,7 @@
  * FUNCTION : Seismic trace informtaion
 -*/
 
-static const char* rcsID = "$Id: seisinfo.cc,v 1.33 2006-08-24 14:34:09 cvskris Exp $";
+static const char* rcsID = "$Id: seisinfo.cc,v 1.34 2006-11-10 13:51:48 cvsbert Exp $";
 
 #include "seisinfo.h"
 #include "seistrc.h"
@@ -150,7 +150,7 @@ int SeisTrcInfo::attrNr( const char* nm )
 }
 
 
-double SeisTrcInfo::getAttr( int attrnr ) const
+double SeisTrcInfo::getAttrValue( int attrnr ) const
 {
     switch ( attrnr )
     {
@@ -167,13 +167,20 @@ double SeisTrcInfo::getAttr( int attrnr ) const
 }
 
 
+int SeisTrcInfo::defDispAttr( const SeisTrcInfo& ti ) const
+{
+    if ( !mIsZero(ti.offset-offset,1e-4) )	return 7; // PS gather
+    else if ( ti.nr != nr )			return 0; // 2D
+    else if ( ti.binid.crl != binid.crl )	return 6; // 3D inline
+    else if ( ti.binid.inl != binid.inl )	return 5; // 3D crossline
+    else if ( !mIsZero(ti.coord.x-coord.x,.1) ) return 3; // Non-NS line
+    else					return 4; // The rest
+}
+
+
 bool SeisTrcInfo::dataPresent( float t, int trcsz ) const
 {
-    if ( t < sampling.start || t > samplePos(trcsz-1) )
-	return false;
-    if ( mIsUdf(mute_pos) || t > mute_pos )
-	return true;
-    return false;
+    return t > sampling.start-1e-6 && t < samplePos(trcsz-1) + 1e-6;
 }
 
 

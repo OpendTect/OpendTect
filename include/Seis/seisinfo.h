@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		25-10-1996
- RCS:		$Id: seisinfo.h,v 1.19 2005-07-26 08:41:38 cvsbert Exp $
+ RCS:		$Id: seisinfo.h,v 1.20 2006-11-10 13:51:37 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -59,12 +59,10 @@ public:
 			SeisTrcInfo()
 			: sampling(0,defaultSampleInterval()), nr(0)
 			, pick(mUdf(float)), refpos(mUdf(float))
-			, offset(0), azimuth(0)
-			, new_packet(NO), stack_count(1)
-			, mute_pos(mUdf(float)), taper_length(0)
+			, offset(0), azimuth(0), new_packet(false)
 			{}
 
-	    // persistent
+					// Attr number (see below)
     SamplingData<float>	sampling;
     int			nr;		// 0
     float		pick;		// 1
@@ -73,12 +71,7 @@ public:
     BinID		binid;		// 5 6
     float		offset;		// 7
     float		azimuth;	// 8
-
-	    // temporary
-    bool		new_packet;
-    int			stack_count;
-    float		mute_pos;
-    float		taper_length;
+    bool		new_packet;	// not stored
 
     void		fillPar(IOPar&) const;
     void		usePar(const IOPar&);
@@ -91,11 +84,14 @@ public:
     void		gettr(SUsegy&) const;
     void		puttr(const SUsegy&);
 
-    static const char*	attrName( int idx )	{ return attrnames[idx]; }
+    // Attrs are invented so you can get a header value without knowing
+    // what it is. Useful e.g to let user decide what to display
     static int		nrAttrs()		{ return 9; }
+    static const char*	attrName( int idx )	{ return attrnames[idx]; }
+    static const char**	attrNames()		{ return attrnames; }
     static int		attrNr(const char*);
-    static const char*	attrnames[];
-    double		getAttr(int) const;
+    double		getAttrValue(int) const;
+    int			defDispAttr(const SeisTrcInfo& next) const;
 
     static const char*	sSamplingInfo;
     static const char*	sNrSamples;
@@ -103,6 +99,10 @@ public:
 
     void		putTo(PosAuxInfo&) const;
     void		getFrom(const PosAuxInfo&);
+
+private:
+
+    static const char*	attrnames[];
 
 };
 

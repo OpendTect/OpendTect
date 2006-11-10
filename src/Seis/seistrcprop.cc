@@ -5,7 +5,7 @@
  * FUNCTION : Seismic trace functions
 -*/
 
-static const char* rcsID = "$Id: seistrcprop.cc,v 1.14 2006-03-12 13:39:10 cvsbert Exp $";
+static const char* rcsID = "$Id: seistrcprop.cc,v 1.15 2006-11-10 13:51:48 cvsbert Exp $";
 
 #include "seistrcprop.h"
 #include "seistrc.h"
@@ -35,7 +35,7 @@ ValueSeriesEvent<float,float> SeisTrcPropCalc::find( VSEvent::Type typ,
 #define mEndCompLoop }
 
 
-void SeisTrcPropChg::stack( const SeisTrc& trc2, bool alongpick )
+void SeisTrcPropChg::stack( const SeisTrc& trc2, bool alongpick, float wght )
 {
     float pick = trc2.info().pick;
     if ( alongpick && (mIsUdf(pick) || mIsUdf(trc.info().pick)) )
@@ -46,9 +46,6 @@ void SeisTrcPropChg::stack( const SeisTrc& trc2, bool alongpick )
 	diff = trc.info().pick - pick;
 	if ( mIsZero(diff,mDefEps) ) alongpick = NO;
     }
-
-    const float wght = trc.info().stack_count;
-    mtrc().info().stack_count++;
 
     mStartCompLoop
     const int sz = trc.size();
@@ -286,9 +283,6 @@ void SeisTrcPropChg::topMute( float mpos, float taperlen )
     if ( taperlen < 0 || mIsUdf(taperlen) )
 	taperlen = 0;
 
-    mtrc().info().mute_pos = mpos;
-    mtrc().info().taper_length = taperlen;
-
     float pos = trc.startPos();
     while ( pos < mpos + mDefEps )
     {
@@ -324,9 +318,6 @@ void SeisTrcPropChg::tailMute( float mpos, float taperlen )
 
     if ( taperlen < 0 || mIsUdf(taperlen) )
 	taperlen = 0;
-
-    mtrc().info().mute_pos = mpos;
-    mtrc().info().taper_length = taperlen;
 
     float pos = mpos;
     while ( pos <= trc.samplePos(endidx)  )

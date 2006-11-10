@@ -4,7 +4,7 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID = "$Id: seisbuf.cc,v 1.27 2006-11-07 10:48:23 cvsnanne Exp $";
+static const char* rcsID = "$Id: seisbuf.cc,v 1.28 2006-11-10 13:51:48 cvsbert Exp $";
 
 #include "seisbuf.h"
 #include "seisinfo.h"
@@ -87,10 +87,10 @@ bool SeisTrcBuf::isSorted( bool ascending, int seisinf_attrnr ) const
     const int sz = size();
     if ( sz < 2 ) return true;
 
-    float prevval = get(0)->info().getAttr(seisinf_attrnr);
+    float prevval = get(0)->info().getAttrValue(seisinf_attrnr);
     for ( int idx=1; idx<sz; idx++ )
     {
-	float val = get(idx)->info().getAttr(seisinf_attrnr);
+	float val = get(idx)->info().getAttrValue(seisinf_attrnr);
 	float diff = val - prevval;
 	if ( !mIsZero(diff,mDefEps) )
 	{
@@ -115,7 +115,7 @@ void SeisTrcBuf::sort( bool ascending, int seisinf_attrnr )
     for ( int idx=0; idx<sz; idx++ )
     {
 	idxs[idx] = idx;
-	vals[idx] = get(idx)->info().getAttr(seisinf_attrnr);
+	vals[idx] = get(idx)->info().getAttrValue(seisinf_attrnr);
     }
     sort_coupled( (float*)vals, (int*)idxs, sz );
     ObjectSet<SeisTrc> tmp;
@@ -133,12 +133,12 @@ void SeisTrcBuf::enforceNrTrcs( int nrrequired, int seisinf_attrnr )
     SeisTrc* prevtrc = get(0);
     if ( !prevtrc ) return;
 
-    float prevval = prevtrc->info().getAttr(seisinf_attrnr);
+    float prevval = prevtrc->info().getAttrValue(seisinf_attrnr);
     int nrwithprevval = 1;
     for ( int idx=1; idx<=size(); idx++ )
     {
 	SeisTrc* trc = idx==size() ? 0 : get(idx);
-	float val = trc ? trc->info().getAttr(seisinf_attrnr) : 0;
+	float val = trc ? trc->info().getAttrValue(seisinf_attrnr) : 0;
 
 	if ( trc && mIsEqual(prevval,val,mDefEps) )
 	{

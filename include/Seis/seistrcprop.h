@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: seistrcprop.h,v 1.6 2005-05-20 11:50:10 cvsbert Exp $
+ RCS:		$Id: seistrcprop.h,v 1.7 2006-11-10 13:51:37 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -56,7 +56,7 @@ public:
 		: SeisTrcPropCalc(t,ic)		{}
 
     void	puttr(const SUsegy&);
-    void	stack(const SeisTrc&,bool alongref=NO);
+    void	stack(const SeisTrc&,bool alongref=false,float wght=1);
     void	scale(float fac,float shft=0);
     void	normalize(bool aroundzero);
     void	corrNormalize();
