@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2001
- RCS:           $Id: uispinbox.h,v 1.11 2006-11-03 13:27:20 cvsbert Exp $
+ RCS:           $Id: uispinbox.h,v 1.12 2006-11-10 13:55:02 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -72,8 +72,10 @@ public:
     float		fstep() const;
     int			step() const;
 
-    void		setSuffix(const char*);
+    const char*		prefix() const;
+    void		setPrefix(const char*);
     const char*		suffix() const;
+    void		setSuffix(const char*);
 
     void		doSnap(bool yn)			{ dosnap = yn; }
 

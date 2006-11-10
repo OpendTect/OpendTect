@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2001
- RCS:           $Id: uispinbox.cc,v 1.21 2006-11-03 13:27:51 cvsbert Exp $
+ RCS:           $Id: uispinbox.cc,v 1.22 2006-11-10 13:54:41 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -226,6 +226,20 @@ void uiSpinBox::setStep( float step_, bool snapcur )
     body_->mSetStep( mNINT(step_*factor) );
     dosnap = snapcur;
     snapToStep(0);
+}
+
+
+void uiSpinBox::setPrefix( const char* suffix )
+{
+    body_->setPrefix( suffix );
+}
+
+
+const char* uiSpinBox::prefix() const
+{
+    static BufferString res;
+    res = (const char*) body_->prefix();
+    return res;
 }
 
 
