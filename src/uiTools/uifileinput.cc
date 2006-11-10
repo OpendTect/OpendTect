@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/08/2000
- RCS:           $Id: uifileinput.cc,v 1.35 2006-03-01 13:45:47 cvsbert Exp $
+ RCS:           $Id: uifileinput.cc,v 1.36 2006-11-10 13:53:25 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -145,5 +145,8 @@ void uiFileInput::getFileNames( BufferStringSet& list ) const
 
 void uiFileInput::examineFile( CallBacker* )
 {
-    ExecuteScriptCommand( "FileBrowser", fileName() );
+    if ( excb_.willCall() )
+	excb_.doCall( this );
+    else
+	ExecuteScriptCommand( "FileBrowser", fileName() );
 }

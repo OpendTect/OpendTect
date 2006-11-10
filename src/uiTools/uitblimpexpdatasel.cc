@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2006
- RCS:           $Id: uitblimpexpdatasel.cc,v 1.6 2006-11-07 12:26:27 cvsbert Exp $
+ RCS:           $Id: uitblimpexpdatasel.cc,v 1.7 2006-11-10 13:53:26 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -68,12 +68,6 @@ uiTableImpDataSelElem( uiParent* p, Table::FormatInfo& fi, bool ishdr )
 		lbltxt += elemdef->get(ifld);
 	    }
 	}
-	if ( !ishdr_ )
-	{
-	    lbltxt += " column";
-	    if ( elemdef && elemdef->size() > 1 )
-		lbltxt += "s";
-	}
 	uiLabel* lbl = new uiLabel( this, lbltxt );
 	if ( rightmostcb )
 	    lbl->attach( rightOf, rightmostcb );
@@ -87,9 +81,12 @@ uiTableImpDataSelElem( uiParent* p, Table::FormatInfo& fi, bool ishdr )
 
 void mkColFlds( int ielem )
 {
-    boxes_ += new ObjectSet<uiSpinBox>;
+    colboxes_ += new ObjectSet<uiSpinBox>;
     if ( ishdr_ )
+    {
+	rowboxes_ += new ObjectSet<uiSpinBox>;
 	inps_ += new ObjectSet<uiGenInput>;
+    }
 
     const int nrflds = fi_.nrElements();
     for ( int ifld=0; ifld<nrflds; ifld++ )
@@ -102,42 +99,49 @@ void mkColFlds( int ielem )
 
 void addBox( int ielem, int ifld )
 {
-    ObjectSet<uiSpinBox>& colboxes = *boxes_[ielem];
-    uiSpinBox* spinbox = new uiSpinBox( this );
-    colboxes += spinbox;
-    if ( !ishdr_ )
-	spinbox->setInterval( 1, 999, 1 );
-    else
+    ObjectSet<uiSpinBox>& colboxes = *colboxes_[ielem];
+    uiSpinBox* colspinbox = new uiSpinBox( this );
+    colspinbox->setInterval( 1, 999, 1 );
+    colspinbox->setPrefix( "col:" );
+    colboxes += colspinbox;
+
+    uiSpinBox* rowspinbox = 0;
+    if ( ishdr_ )
     {
-	spinbox->setNrDecimals( 2 );
-	spinbox->setInterval( 1.1, 999.99, 1.0 );
+	rowspinbox = new uiSpinBox( this );
+	rowspinbox->setInterval( 1, 999, 1 );
+	rowspinbox->setPrefix( "row:" );
+	*rowboxes_[ielem] += rowspinbox;
     }
 
     if ( !fi_.selection_.havePos(ifld) )
     {
-	if ( ishdr_ )
-	    spinbox->setValue( (float)(defrow_ + 0.1) );
-	else
-	    spinbox->setValue( defrow_ );
-	defrow_++;
+	colspinbox->setValue( defcol_ );
+	if ( !ishdr_ ) defcol_++;
+	else if ( rowspinbox )
+	    { rowspinbox->setValue( defrow_ ); defrow_++; }
     }
     else
     {
 	const RowCol& rc = fi_.selection_.pos_[ifld];
-	if ( ishdr_ )
-	    spinbox->setValue( (float)(rc.r() + 0.1 * rc.c() + 1) );
-	else
-	    spinbox->setValue( rc.c() + 1 );
+	if ( rowspinbox )
+	    rowspinbox->setValue( rc.r() + 1 );
+	colspinbox->setValue( rc.c() + 1 );
     }
 
-    if ( ifld )
-	spinbox->attach( rightOf, colboxes[ifld-1] );
+    uiSpinBox* leftbox = rowspinbox ? rowspinbox : colspinbox;
+
+    if ( ifld != 0 )
+	leftbox->attach( rightOf, colboxes[ifld-1] );
     else
     {
-	spinbox->attach( rightOf, lbls_[ielem] );
+	leftbox->attach( rightOf, lbls_[ielem] );
 	if ( ielem == 0 )
-	    setHAlignObj( spinbox );
+	    setHAlignObj( leftbox );
     }
+
+    if ( rowspinbox )
+	colspinbox->attach( rightOf, rowspinbox );
 }
 
 void addInp( int ielem, int ifld )
@@ -165,9 +169,14 @@ void boxChg( CallBacker* )
 	const bool isselelem = ielem == selelemidx;
 	lbls_[ielem]->display( isselelem );
 
-	ObjectSet<uiSpinBox>& colboxes = *boxes_[ielem];
+	ObjectSet<uiSpinBox>& colboxes = *colboxes_[ielem];
+	ObjectSet<uiSpinBox>* rowboxes = ielem < rowboxes_.size()
+	    			       ? rowboxes_[ielem] : 0;
 	for ( int ifld=0; ifld<colboxes.size(); ifld++ )
+	{
 	    colboxes[ifld]->display( isselelem && !isspec );
+	    (*rowboxes)[ifld]->display( isselelem && !isspec );
+	}
 	if ( ishdr_ )
 	{
 	    ObjectSet<uiGenInput>& colinps = *inps_[ielem];
@@ -201,13 +210,15 @@ bool commit()
 
     if ( readelem )
     {
-	ObjectSet<uiSpinBox>& colboxes = *boxes_[selelem];
+	ObjectSet<uiSpinBox>& colboxes = *colboxes_[selelem];
+	ObjectSet<uiSpinBox>* rowboxes = rowboxes_.size() > selelem
+	    			       ? rowboxes_[selelem] : 0;
 	for ( int idx=0; idx<colboxes.size(); idx++ )
 	{
-	    float val = colboxes[idx]->getFValue();
-	    const int col = (int)(val + 0.001);
-	    const int row = (int)(10 * (val - col) + .5);
-	    fi_.selection_.pos_ += RowCol( row-1, col-1 );
+	    RowCol rc( -1, colboxes[idx]->getValue() );
+	    if ( rowboxes )
+		rc.r() = (*rowboxes)[idx]->getValue();
+	    fi_.selection_.pos_ += rc;
 	}
     }
     else
@@ -226,15 +237,20 @@ bool commit()
 
     uiComboBox*				elemfld;
     uiComboBox*				specfld;
-    ObjectSet< ObjectSet<uiSpinBox> >	boxes_;
+    ObjectSet< ObjectSet<uiSpinBox> >	colboxes_;
+    ObjectSet< ObjectSet<uiSpinBox> >	rowboxes_;
     ObjectSet< ObjectSet<uiGenInput> >	inps_;
     ObjectSet< uiLabel >		lbls_;
 
     static int				defrow_;
+    static int				defcol_;
+    static void				initDefs()
+    					{ defrow_ = defcol_ = 1; }
 
 };
 
 int uiTableImpDataSelElem::defrow_ = 1;
+int uiTableImpDataSelElem::defcol_ = 1;
 
 
 uiTableImpDataSel::uiTableImpDataSel( uiParent* p, Table::FormatDesc& fd )
@@ -242,7 +258,6 @@ uiTableImpDataSel::uiTableImpDataSel( uiParent* p, Table::FormatDesc& fd )
 	, fd_(fd)
 	, errmsg_(0)
 {
-    uiTableImpDataSelElem::defrow_ = 1;
     uiGroup* hfldsgrp = mkElemFlds( fd_.headerinfos_, hdrelems_, true );
 
     int maxhdrline = 0;
@@ -280,7 +295,7 @@ uiGroup* uiTableImpDataSel::mkElemFlds( ObjectSet<Table::FormatInfo>& infos,
     if ( infos.size() < 1 )
 	return 0;
 
-    uiTableImpDataSelElem::defrow_ = 1;
+    uiTableImpDataSelElem::initDefs();
     uiGroup* grp = new uiGroup( this, ishdr ? "Header fields" : "Body fields" );
     for ( int idx=0; idx<infos.size(); idx++ )
     {

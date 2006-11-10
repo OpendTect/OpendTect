@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          21/9/2000
- RCS:           $Id: uifileinput.h,v 1.21 2006-02-20 11:29:23 cvsnanne Exp $
+ RCS:           $Id: uifileinput.h,v 1.22 2006-11-10 13:53:15 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -65,6 +65,8 @@ public:
     void		setFilter( const char* fltr )	   { filter_ = fltr; }
     const char*		selectedFilter() const		   { return selfltr_; }
     void		setSelectedFilter( const char* f ) { selfltr_ = f; }
+    void		setExamine( const CallBack& cb )   { excb_ = cb; }
+    			//!< Overrules the simple stand-alone file browser
 
     const char*		fileName() const;
     void		getFileNames(BufferStringSet&) const;
@@ -89,6 +91,7 @@ protected:
     BufferString	defseldir_;
     BufferString	selfltr_;
     bool		addallexts_;
+    CallBack		excb_;
 
     bool		selmodset_;
     uiFileDialog::Mode  selmode_;
