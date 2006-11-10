@@ -4,7 +4,7 @@
  * DATE     : Nov 2006
 -*/
 
-static const char* rcsID = "$Id: tableascio.cc,v 1.3 2006-11-07 17:51:31 cvsbert Exp $";
+static const char* rcsID = "$Id: tableascio.cc,v 1.4 2006-11-10 13:57:19 cvsbert Exp $";
 
 #include "tableascio.h"
 #include "tabledef.h"
@@ -138,6 +138,7 @@ const char* mkErrMsg( const FormatInfo& fi, SubID sid, int selelem,
 
 const char* putBodyRow( const BufferStringSet& bs )
 {
+    aio_.vals_.erase();
     for ( SubID sid(0,0); sid.finr_<aio_.fd_.bodyinfos_.size(); sid.finr_++ )
     {
 	const Table::FormatInfo& fi = *aio_.fd_.bodyinfos_[sid.finr_];
