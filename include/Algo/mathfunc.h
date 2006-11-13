@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		17-11-1999
  Contents:	Mathematical Functions
- RCS:		$Id: mathfunc.h,v 1.17 2006-07-26 15:33:07 cvsnanne Exp $
+ RCS:		$Id: mathfunc.h,v 1.18 2006-11-13 16:21:13 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -128,7 +128,50 @@ public:
 };
 
 
-/*! \brief A MathFunction that cuts through another mathfunctioin with
+
+/*!\brief MathFunction based on bend points
+
+  The object maintains sorted positions (in X), so you cannot bluntly stuff
+  X and Y in. You cannot change or remove positions; instead make a copy.
+
+  SnapType is only relevant when InterpolType == Snap.
+
+ */
+
+class PointBasedMathFunction : public FloatMathFunction
+{
+public:
+
+    enum InterpolType	{ Linear, Poly, Snap };
+    enum SnapType	{ Nearest, Prev, Next };
+
+    			PointBasedMathFunction( InterpolType t,
+						SnapType s=Nearest )
+			    : itype_(t)
+			    , stype_(s)		{}
+
+    int			size() const		{ return x_.size(); }
+    void		add(float x, float y);
+    float		getValue( float x ) const
+			{ return itype_ == Snap ? snapVal(x) : interpVal(x); }
+
+    const TypeSet<float>& xVals() const		{ return x_; }
+    const TypeSet<float>& yVals() const		{ return y_; }
+
+protected:
+
+    InterpolType	itype_;
+    SnapType		stype_;
+    TypeSet<float>	x_;
+    TypeSet<float>	y_;
+
+    int			baseIdx(float) const;
+    float		snapVal(float) const;
+    float		interpVal(float) const;
+};
+
+
+/*! \brief A MathFunction that cuts through another mathfunction with
            higher number of dimensions.
 
 A starting point (P) and a vector (N) is used to project a line through
