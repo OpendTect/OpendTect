@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		17-11-1999
  Contents:	Mathematical Functions
- RCS:		$Id: mathfunc.h,v 1.18 2006-11-13 16:21:13 cvsbert Exp $
+ RCS:		$Id: mathfunc.h,v 1.19 2006-11-14 13:07:44 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -136,6 +136,13 @@ public:
 
   SnapType is only relevant when InterpolType == Snap.
 
+  If the given point is outside the 'defined' X-range, the value can be undef
+  or the first/last defined point's value, depending on the 'extrapol_'
+  setting. If no point at all is defined you will always get undef.
+
+  You can add undefined Y-values, but not undef X-values (those add()'s simply
+  return). Undef sections are therefore supported.
+
  */
 
 class PointBasedMathFunction : public FloatMathFunction
@@ -148,7 +155,8 @@ public:
     			PointBasedMathFunction( InterpolType t,
 						SnapType s=Nearest )
 			    : itype_(t)
-			    , stype_(s)		{}
+			    , stype_(s)
+			    , extrapol_(true)	{}
 
     int			size() const		{ return x_.size(); }
     void		add(float x, float y);
@@ -158,16 +166,20 @@ public:
     const TypeSet<float>& xVals() const		{ return x_; }
     const TypeSet<float>& yVals() const		{ return y_; }
 
+    void		setExtrapolate( bool yn ) { extrapol_ = yn; }
+
 protected:
 
     InterpolType	itype_;
     SnapType		stype_;
+    bool		extrapol_;
     TypeSet<float>	x_;
     TypeSet<float>	y_;
 
     int			baseIdx(float) const;
     float		snapVal(float) const;
     float		interpVal(float) const;
+    float		outsideVal(float) const;
 };
 
 

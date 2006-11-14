@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
  
-static const char* rcsID = "$Id: mathfunc.cc,v 1.1 2006-11-13 16:21:13 cvsbert Exp $";
+static const char* rcsID = "$Id: mathfunc.cc,v 1.2 2006-11-14 13:07:44 cvsbert Exp $";
 
 
 #include "mathfunc.h"
@@ -63,6 +63,14 @@ void PointBasedMathFunction::add( float x, float y )
 }
 
 
+float PointBasedMathFunction::outsideVal( float x ) const
+{
+    if ( !extrapol_ ) return mUdf(float);
+    const int sz = x_.size();
+    return x-x_[0] < x_[sz-1]-x ? x_[0] : x_[sz-1];
+}
+
+
 #define mInitFn() \
     const int sz = x_.size(); \
     if ( sz < 1 ) return mUdf(float)
@@ -74,9 +82,9 @@ float PointBasedMathFunction::snapVal( float x ) const
     const int baseidx = baseIdx( x );
 
     if ( stype_ == Prev )
-	return baseidx < 0 ? mUdf(float) : y_[baseidx];
+	return baseidx < 0 ? outsideVal(x) : y_[baseidx];
     else if ( stype_ == Next )
-	return y_[ baseidx < sz-1 ? baseidx+1 : sz - 1 ];
+	return baseidx > sz-2 ? outsideVal(x) : y_[ baseidx+1 ];
 
     if ( baseidx < 0 )
 	return y_[0];
@@ -90,7 +98,7 @@ float PointBasedMathFunction::interpVal( float x ) const
 {
     mInitFn();
     if ( x < x_[0] || x > x_[sz-1] )
-	return mUdf(float);
+	return outsideVal(x);
     else if ( sz < 2 )
 	return y_[0];
 
