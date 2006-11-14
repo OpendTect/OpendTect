@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	K. Tingdahl
  Date:		13-11-2003
  Contents:	Basic functionality for reference counting
- RCS:		$Id: refcount.h,v 1.9 2006-08-28 08:54:16 cvskris Exp $
+ RCS:		$Id: refcount.h,v 1.10 2006-11-14 12:36:42 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,6 +22,8 @@ class RefCount
 {
 public:
     		RefCount() : refcount_( 0 ) {}
+    		RefCount(const RefCount&) : refcount_( 0 ) {}
+
     int		refcount_;
 };
 
