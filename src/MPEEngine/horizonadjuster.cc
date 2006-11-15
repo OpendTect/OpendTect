@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizonadjuster.cc,v 1.32 2006-09-21 12:02:47 cvsbert Exp $";
+static const char* rcsID = "$Id: horizonadjuster.cc,v 1.33 2006-11-15 09:00:44 cvsnanne Exp $";
 
 #include "horizonadjuster.h"
 
@@ -280,7 +280,7 @@ bool HorizonAdjuster::snap( const BinID& bid,
     const float* arr = cube.getData() +
 		       cube.info().getMemPos( inlidx, crlidx, 0 );
 
-    const ArrayValueSeries<float> valarr( const_cast<float*>(arr) );
+    const ArrayValueSeries<float> valarr( const_cast<float*>(arr), false );
     const SamplingData<float> sd( zrg.start, zrg.step );
     ValueSeriesEvFinder<float, float>
 			    evfinder( valarr, attrdata_->getZSz()-1, sd);
