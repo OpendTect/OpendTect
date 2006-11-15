@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.71 2006-11-15 09:05:50 cvsnanne Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.72 2006-11-15 12:56:04 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -791,7 +791,6 @@ uiODSceneMgr::Scene::Scene( uiWorkSpace* wsp )
 
 uiODSceneMgr::Scene::~Scene()
 {
-    delete vwrGroup();
     delete sovwr_;
     delete itemmanager_;
     delete treeWin();
