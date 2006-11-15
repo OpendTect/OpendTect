@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Sep 1994, Aug 2006
- RCS:		$Id: factory.h,v 1.2 2006-11-15 12:35:34 cvskris Exp $
+ RCS:		$Id: factory.h,v 1.3 2006-11-15 14:46:51 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -97,27 +97,43 @@ public:
 
 Two macros are available to make a static accessfuncion for the factory:
 \code
-mDefineFactoryWithParam( ClassName, ParamClass, FunctionName );
+mDefineFactory1Param( ClassName, ParamClass, FunctionName );
 \endcode
 
 that will create a static function that returns an instance to
-FactoryWithParam<ClassName,ParamClass>. The static function must be implemented
+Factory1Param<ClassName,ParamClass>. The static function must be implemented
 in a src-file with the macro
 
 \code
-mImplFactoryWithParam( ClassName, ParamClass, FunctionName );
+mImplFactory1Param( ClassName, ParamClass, FunctionName );
 \endcode
 
 */
 
 
 template <class T, class P>
-class FactoryWithParam
+class Factory1Param
 {
 public:
     typedef			T* (*Creator)(P);
     inline void			addCreator(Creator,const char* nm);
     inline T*			create(const char* nm, P, bool chknm=true)const;
+    const BufferStringSet&	getNames() const { return names_; }
+protected:
+
+    BufferStringSet		names_;
+    TypeSet<Creator>		creators_;
+};
+
+
+template <class T, class P0, class P1>
+class Factory2Param
+{
+public:
+    typedef			T* (*Creator)(P0,P1);
+    inline void			addCreator(Creator,const char* nm);
+    inline T*			create(const char* nm, P0, P1,
+	    			       bool chknm=true)const;
     const BufferStringSet&	getNames() const { return names_; }
 protected:
 
@@ -145,7 +161,7 @@ T* Factory<T>::create( const char* name ) const
 
 
 template <class T, class P> inline
-void FactoryWithParam<T,P>::addCreator( Creator cr, const char* name )
+void Factory1Param<T,P>::addCreator( Creator cr, const char* name )
 {
     names_.add( name );
     creators_ += cr;
@@ -153,7 +169,7 @@ void FactoryWithParam<T,P>::addCreator( Creator cr, const char* name )
 
 
 template <class T, class P> inline
-T* FactoryWithParam<T,P>::create( const char* name, P data, bool chk ) const
+T* Factory1Param<T,P>::create( const char* name, P data, bool chk ) const
 {
     if ( chk )
     {
@@ -173,6 +189,36 @@ T* FactoryWithParam<T,P>::create( const char* name, P data, bool chk ) const
 }
 
 
+template <class T, class P0, class P1> inline
+void Factory2Param<T,P0,P1>::addCreator( Creator cr, const char* name )
+{
+    names_.add( name );
+    creators_ += cr;
+}
+
+
+template <class T, class P0, class P1> inline
+T* Factory2Param<T,P0,P1>::create( const char* name, P0 p0, P1 p1,
+				   bool chk ) const
+{
+    if ( chk )
+    {
+	const int idx = names_.indexOf( name );
+	if ( idx<0 ) return 0;
+
+	return creators_[idx]( p0,p1 );
+    }
+
+    for ( int idx=0; idx<creators_.size(); idx++ )
+    {
+	T* res = creators_[idx]( p0, p1 );
+	if ( res ) return res;
+    }
+
+    return 0;
+}
+
+
 #define mDefineFactory( T, funcname ) \
 Factory<T>& funcname()
 
@@ -185,14 +231,26 @@ Factory<T>& funcname() \
 } 
 
 
-#define mDefineFactoryWithParam( T, P, funcname ) \
-FactoryWithParam<T,P>& funcname()
+#define mDefineFactory1Param( T, P, funcname ) \
+Factory1Param<T,P>& funcname()
 
 
-#define mImplFactoryWithParam( T, P, funcname ) \
-FactoryWithParam<T,P>& funcname() \
+#define mImplFactory1Param( T, P, funcname ) \
+Factory1Param<T,P>& funcname() \
 { \
-    static FactoryWithParam<T,P> inst; \
+    static Factory1Param<T,P> inst; \
+    return inst; \
+} 
+
+
+#define mDefineFactory2Param( T, P0, P1, funcname ) \
+Factory2Param<T,P0,P1>& funcname()
+
+
+#define mImplFactory2Param( T, P0, P1, funcname ) \
+Factory2Param<T,P0,P1>& funcname() \
+{ \
+    static Factory2Param<T,P0,P1> inst; \
     return inst; \
 } 
 #endif
