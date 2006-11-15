@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril & Kris Tingdahl
  Date:          Mar 2005
- RCS:           $Id: valseries.h,v 1.1 2005-03-08 11:55:44 cvsbert Exp $
+ RCS:           $Id: valseries.h,v 1.2 2006-11-15 07:43:25 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,7 +46,7 @@ class ArrayValueSeries : public ValueSeries<T>
 {
 public:
 
-    		ArrayValueSeries( T* ptr, bool memmine=false )
+    		ArrayValueSeries( T* ptr, bool memmine )
 		    : ptr_(ptr), mine_(memmine)	{}
     		~ArrayValueSeries()		{ if ( mine_ ) delete [] ptr_; }
 
