@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/01/2002
- RCS:           $Id: uitreeview.cc,v 1.23 2006-05-09 08:03:13 cvsnanne Exp $
+ RCS:           $Id: uitreeview.cc,v 1.24 2006-11-15 16:37:46 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -190,6 +190,24 @@ uiListViewBody& uiListView::mkbody( uiParent* p, const char* nm, int nl)
 {
     body_ = new uiListViewBody(*this,p,nm,nl);
     return *body_;
+}
+
+
+void uiListView::setHScrollBarMode( ScrollMode mode )
+{
+    QScrollView::ScrollBarMode qmode;
+    if ( mode==AlwaysOn ) qmode = QScrollView::AlwaysOn;
+    else if ( mode==AlwaysOff ) qmode = QScrollView::AlwaysOff;
+    body_->setHScrollBarMode( qmode );
+}
+
+
+void uiListView::setVScrollBarMode( ScrollMode mode )
+{
+    QScrollView::ScrollBarMode qmode;
+    if ( mode==AlwaysOn ) qmode = QScrollView::AlwaysOn;
+    else if ( mode==AlwaysOff ) qmode = QScrollView::AlwaysOff;
+    body_->setVScrollBarMode( qmode );
 }
 
 

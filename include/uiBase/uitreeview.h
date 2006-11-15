@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          29/01/2002
- RCS:           $Id: uitreeview.h,v 1.18 2006-05-05 14:43:14 cvshelene Exp $
+ RCS:           $Id: uitreeview.h,v 1.19 2006-11-15 16:37:46 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,28 +38,32 @@ class uiListView : public uiObject
 
 public:
 
-			uiListView( uiParent* parnt,
-				    const char* nm = "uiListView",
-				    int preferredNrLines=0,
-				    bool rootdecorated = true );
+			uiListView(uiParent* parnt,
+				   const char* nm="uiListView",
+				   int preferredNrLines=0,
+				   bool rootdecorated=true);
 
     virtual		~uiListView()			{}
 
 			// 0: use nr itms in list
-    void		setLines( int prefNrLines );
+    void		setLines(int prefNrLines);
+
+    enum		ScrollMode { AlwaysOn, AlwaysOff, Auto };
+    void		setHScrollBarMode(ScrollMode);
+    void		setVScrollBarMode(ScrollMode);
 
     int			treeStepSize() const;
-    void		setTreeStepSize( int );
+    void		setTreeStepSize(int);
 
     bool		rootDecorated() const;
-    void		setRootDecorated( bool yn );
+    void		setRootDecorated(bool yn);
 
     // take & insert are meant to MOVE an item to another point in the tree 
-    void		takeItem( uiListViewItem* );
-    void		insertItem( uiListViewItem* );
+    void		takeItem(uiListViewItem*);
+    void		insertItem(uiListViewItem*);
 
 			// returns index of new column
-    int			addColumn( const char* label, int size = -1);
+    int			addColumn(const char* label,int size=-1);
 
     void		removeColumn( int index );
     void		setColumnText( int column, const char* label );
