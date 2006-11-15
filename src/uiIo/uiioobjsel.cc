@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          25/05/2000
- RCS:           $Id: uiioobjsel.cc,v 1.94 2006-08-30 16:03:27 cvsbert Exp $
+ RCS:           $Id: uiioobjsel.cc,v 1.95 2006-11-15 12:56:32 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,6 +44,7 @@ public:
 uiIOObjSelGrpManipSubj( uiIOObjSelGrp* sg )
     : uiIOObjManipGroupSubj(sg->listfld->box())
     , selgrp_(sg)
+    , manipgrp_(0)
 {
     selgrp_->selectionChg.notify( mCB(this,uiIOObjSelGrpManipSubj,selChg) );
 }
@@ -71,7 +72,7 @@ void chgsOccurred()
 
 void selChg( CallBacker* )
 {
-    manipgrp_->selChg();
+    if ( manipgrp_ ) manipgrp_->selChg();
 }
 
 void relocStart( const char* msg )
@@ -147,6 +148,7 @@ uiIOObjSelGrp::uiIOObjSelGrp( uiParent* p, const CtxtIOObj& c,
 uiIOObjSelGrp::~uiIOObjSelGrp()
 {
     deepErase( ioobjids_ );
+    delete manipgrpsubj->manipgrp_;
     delete manipgrpsubj;
 }
 
