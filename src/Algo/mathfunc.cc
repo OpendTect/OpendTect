@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
  
-static const char* rcsID = "$Id: mathfunc.cc,v 1.2 2006-11-14 13:07:44 cvsbert Exp $";
+static const char* rcsID = "$Id: mathfunc.cc,v 1.3 2006-11-15 17:05:40 cvsbert Exp $";
 
 
 #include "mathfunc.h"
@@ -80,11 +80,6 @@ float PointBasedMathFunction::snapVal( float x ) const
 {
     mInitFn();
     const int baseidx = baseIdx( x );
-
-    if ( stype_ == Prev )
-	return baseidx < 0 ? outsideVal(x) : y_[baseidx];
-    else if ( stype_ == Next )
-	return baseidx > sz-2 ? outsideVal(x) : y_[ baseidx+1 ];
 
     if ( baseidx < 0 )
 	return y_[0];

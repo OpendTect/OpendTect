@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		17-11-1999
  Contents:	Mathematical Functions
- RCS:		$Id: mathfunc.h,v 1.19 2006-11-14 13:07:44 cvsbert Exp $
+ RCS:		$Id: mathfunc.h,v 1.20 2006-11-15 17:05:40 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -134,8 +134,6 @@ public:
   The object maintains sorted positions (in X), so you cannot bluntly stuff
   X and Y in. You cannot change or remove positions; instead make a copy.
 
-  SnapType is only relevant when InterpolType == Snap.
-
   If the given point is outside the 'defined' X-range, the value can be undef
   or the first/last defined point's value, depending on the 'extrapol_'
   setting. If no point at all is defined you will always get undef.
@@ -150,28 +148,28 @@ class PointBasedMathFunction : public FloatMathFunction
 public:
 
     enum InterpolType	{ Linear, Poly, Snap };
-    enum SnapType	{ Nearest, Prev, Next };
 
-    			PointBasedMathFunction( InterpolType t,
-						SnapType s=Nearest )
+    			PointBasedMathFunction( InterpolType t=Linear,
+			       			bool extr=true )
 			    : itype_(t)
-			    , stype_(s)
-			    , extrapol_(true)	{}
+			    , extrapol_(extr)	{}
 
     int			size() const		{ return x_.size(); }
-    void		add(float x, float y);
+    void		add(float x,float y);
     float		getValue( float x ) const
 			{ return itype_ == Snap ? snapVal(x) : interpVal(x); }
 
     const TypeSet<float>& xVals() const		{ return x_; }
     const TypeSet<float>& yVals() const		{ return y_; }
 
+    InterpolType	interpolType() const	{ return itype_; }
+    bool		extrapolate() const	{ return extrapol_; }
+    void		setInterpolType( InterpolType t ) { itype_ = t; }
     void		setExtrapolate( bool yn ) { extrapol_ = yn; }
 
 protected:
 
     InterpolType	itype_;
-    SnapType		stype_;
     bool		extrapol_;
     TypeSet<float>	x_;
     TypeSet<float>	y_;
