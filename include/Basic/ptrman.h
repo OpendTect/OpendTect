@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          10-12-1999
- RCS:           $Id: ptrman.h,v 1.12 2006-07-07 21:41:25 cvskris Exp $
+ RCS:           $Id: ptrman.h,v 1.13 2006-11-15 19:53:50 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -72,6 +72,7 @@ For Arrays, use the ArrPtrMan class.
 
 */
 mDefPtrMan1(PtrMan, , delete ptr_ )
+inline PtrMan<T>& operator=(const PtrMan<T>& p ); //Will give linkerror is used
 mDefPtrMan2(PtrMan, , delete ptr_ )
 mDefPtrMan3(PtrMan, , delete ptr_ )
 
@@ -81,6 +82,8 @@ For Non-arrays, use the PtrMan class.
 
 */
 mDefPtrMan1(ArrPtrMan, , delete [] ptr_)
+//Will give linkerror is used
+inline ArrPtrMan<T>& operator=(const ArrPtrMan<T>& p );
 mDefPtrMan2(ArrPtrMan, , delete [] ptr_)
 mDefPtrMan3(ArrPtrMan, , delete [] ptr_)
 

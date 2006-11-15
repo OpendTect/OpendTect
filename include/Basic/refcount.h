@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	K. Tingdahl
  Date:		13-11-2003
  Contents:	Basic functionality for reference counting
- RCS:		$Id: refcount.h,v 1.10 2006-11-14 12:36:42 cvskris Exp $
+ RCS:		$Id: refcount.h,v 1.11 2006-11-15 19:53:50 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -128,6 +128,7 @@ mDeepRef(Ref,ref,);
 mDeepRef(UnRefNoDelete,unRefNoDelete,);
 
 mDefPtrMan1(RefMan, if ( ptr_ ) ptr_->ref(), if ( ptr_ ) ptr_->unRef() )
+inline RefMan<T>& operator=(const RefMan<T>& p ) { set(p.ptr_); return *this; }
 mDefPtrMan2(RefMan, if ( ptr_ ) ptr_->ref(), if ( ptr_ ) ptr_->unRef() )
 mDefPtrMan3(RefMan, if ( ptr_ ) ptr_->ref(), if ( ptr_ ) ptr_->unRef() )
 
