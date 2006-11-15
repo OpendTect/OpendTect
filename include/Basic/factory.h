@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Sep 1994, Aug 2006
- RCS:		$Id: factory.h,v 1.1 2006-11-14 19:32:56 cvskris Exp $
+ RCS:		$Id: factory.h,v 1.2 2006-11-15 12:35:34 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -117,7 +117,7 @@ class FactoryWithParam
 public:
     typedef			T* (*Creator)(P);
     inline void			addCreator(Creator,const char* nm);
-    inline T*			create(const char* nm, P) const;
+    inline T*			create(const char* nm, P, bool chknm=true)const;
     const BufferStringSet&	getNames() const { return names_; }
 protected:
 
@@ -153,12 +153,23 @@ void FactoryWithParam<T,P>::addCreator( Creator cr, const char* name )
 
 
 template <class T, class P> inline
-T* FactoryWithParam<T,P>::create( const char* name, P data ) const
+T* FactoryWithParam<T,P>::create( const char* name, P data, bool chk ) const
 {
-    const int idx = names_.indexOf( name );
-    if ( idx<0 ) return 0;
+    if ( chk )
+    {
+	const int idx = names_.indexOf( name );
+	if ( idx<0 ) return 0;
 
-    return creators_[idx]( data );
+	return creators_[idx]( data );
+    }
+
+    for ( int idx=0; idx<creators_.size(); idx++ )
+    {
+	T* res = creators_[idx]( data );
+	if ( res ) return res;
+    }
+
+    return 0;
 }
 
 
