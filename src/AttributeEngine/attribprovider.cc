@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribprovider.cc,v 1.77 2006-11-03 16:07:00 cvshelene Exp $";
+static const char* rcsID = "$Id: attribprovider.cc,v 1.78 2006-11-15 07:45:33 cvsnanne Exp $";
 
 #include "attribprovider.h"
 #include "attribstorprovider.h"
@@ -883,7 +883,7 @@ const DataHolder* Provider::getData( const BinID& relpos, int idi )
 	    if ( outputformat==floatdatadesc )
 	    {
 		float* ptr = new float[nrsamples];
-		valptr = new ArrayValueSeries<float>(ptr);
+		valptr = new ArrayValueSeries<float>( ptr, true );
 	    }
 	    else
 		valptr = new ConvMemValueSeries<float>( nrsamples,outputformat);
