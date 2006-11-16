@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
  
-static const char* rcsID = "$Id: mathfunc.cc,v 1.3 2006-11-15 17:05:40 cvsbert Exp $";
+static const char* rcsID = "$Id: mathfunc.cc,v 1.4 2006-11-16 22:21:54 cvskris Exp $";
 
 
 #include "mathfunc.h"
@@ -31,7 +31,7 @@ int PointBasedMathFunction::baseIdx( float x ) const
     int ilo = 0; int ihi = sz - 1;
     while ( ihi - ilo > 1 )
     {
-	int imid = (ihi-ilo) / 2;
+	int imid = (ihi+ilo) / 2;
 	if ( x < x_[imid] )
 	    ihi = imid;
 	else
