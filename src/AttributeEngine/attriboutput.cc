@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attriboutput.cc,v 1.47 2006-08-28 09:11:41 cvskris Exp $";
+static const char* rcsID = "$Id: attriboutput.cc,v 1.48 2006-11-16 15:22:28 cvshelene Exp $";
 
 #include "attriboutput.h"
 #include "attribdataholder.h"
@@ -96,6 +96,15 @@ TypeSet< Interval<int> > DataCubesOutput::getLocalZRange( const BinID&,
 }
 
 
+void DataCubesOutput::adjustInlCrlStep( const CubeSampling& cs )
+{
+    if ( cs.hrg.step.inl > desiredvolume_.hrg.step.inl )
+	desiredvolume_.hrg.step.inl = cs.hrg.step.inl;
+    if ( cs.hrg.step.crl > desiredvolume_.hrg.step.crl )
+	desiredvolume_.hrg.step.crl = cs.hrg.step.crl;
+}
+
+
 #define mGetSz(dir)\
 	dir##sz = (desiredvolume_.hrg.stop.dir - desiredvolume_.hrg.start.dir)\
 		  /desiredvolume_.hrg.step.dir + 1;\
@@ -111,16 +120,12 @@ void DataCubesOutput::collectData( const DataHolder& data, float refstep,
     {
 	datacubes_ = new Attrib::DataCubes;
 	datacubes_->ref();
-	int step = desiredvolume_.hrg.step.inl>SI().inlStep() ? 
-		   SI().inlStep() : desiredvolume_.hrg.step.inl;
 	datacubes_->inlsampling= StepInterval<int>(desiredvolume_.hrg.start.inl,
 						   desiredvolume_.hrg.stop.inl,
-						   step);
-	step = desiredvolume_.hrg.step.crl>SI().crlStep() ?
-	       SI().crlStep() : desiredvolume_.hrg.step.crl;
+						   desiredvolume_.hrg.step.inl);
 	datacubes_->crlsampling= StepInterval<int>(desiredvolume_.hrg.start.crl,
 						   desiredvolume_.hrg.stop.crl,
-						   step);
+						   desiredvolume_.hrg.step.crl);
 	datacubes_->z0 = mNINT(desiredvolume_.zrg.start/refstep);
 	datacubes_->zstep = refstep;
 	int inlsz, crlsz, zsz;

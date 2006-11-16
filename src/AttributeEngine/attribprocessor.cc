@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribprocessor.cc,v 1.43 2006-09-22 12:03:38 cvshelene Exp $";
+static const char* rcsID = "$Id: attribprocessor.cc,v 1.44 2006-11-16 15:22:28 cvshelene Exp $";
 
 #include "attribprocessor.h"
 
@@ -271,6 +271,9 @@ void Processor::init()
 	
 	provider->setDesiredVolume( globalcs );
     }
+
+    for ( int idx=0; idx<outputs.size(); idx++ )
+	outputs[idx]->adjustInlCrlStep( *provider->getPossibleVolume() );
 
     provider->prepareForComputeData();
     isinited = true;

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attriboutput.h,v 1.26 2006-07-05 15:27:49 cvshelene Exp $
+ RCS:           $Id: attriboutput.h,v 1.27 2006-11-16 15:22:28 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -55,6 +55,7 @@ public:
     virtual void		writeTrc()		{};
     const SeisSelData&		getSelData()		{ return seldata_; }
     const LineKey&		curLineKey() const;
+    virtual void		adjustInlCrlStep(const CubeSampling&)	{};
 
     static const char*		outputstr;
     static const char*          cubekey;
@@ -84,6 +85,7 @@ public:
     virtual void		collectData(const DataHolder&,float step,
 	    				    const SeisTrcInfo&);
     TypeSet< Interval<int> >	getLocalZRange(const BinID&,float) const;
+    virtual void		adjustInlCrlStep(const CubeSampling&);
     
 protected:
     CubeSampling		desiredvolume_;

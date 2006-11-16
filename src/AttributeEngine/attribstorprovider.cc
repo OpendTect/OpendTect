@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribstorprovider.cc,v 1.48 2006-10-26 13:06:38 cvshelene Exp $";
+static const char* rcsID = "$Id: attribstorprovider.cc,v 1.49 2006-11-16 15:22:29 cvshelene Exp $";
 
 #include "attribstorprovider.h"
 
@@ -295,6 +295,8 @@ bool StorageProvider::getPossibleVolume( int, CubeSampling& res )
     mAdjustIf(res.hrg.stop.inl,>,possiblevolume->hrg.stop.inl);
     mAdjustIf(res.hrg.stop.crl,>,possiblevolume->hrg.stop.crl);
     mAdjustIf(res.zrg.stop,>,possiblevolume->zrg.stop);
+    mAdjustIf(res.hrg.step.inl,<,possiblevolume->hrg.step.inl);
+    mAdjustIf(res.hrg.step.crl,<,possiblevolume->hrg.step.crl);
     return true;
 }
 

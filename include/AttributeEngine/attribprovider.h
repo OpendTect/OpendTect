@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribprovider.h,v 1.52 2006-10-23 15:01:31 cvskris Exp $
+ RCS:           $Id: attribprovider.h,v 1.53 2006-11-16 15:22:28 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -68,13 +68,15 @@ public:
     				/*!< The desired volume is the ideal volume
 				  required by the user*/
     CubeSampling*		getDesiredVolume() const
-				    { return desiredvolume; }
+				{ return desiredvolume; }
     void			resetDesiredVolume(); 
     void                        setPossibleVolume( const CubeSampling& );
     				/*!< The possible volume is the volume that can
 				  really be computed taking care of all margins
 				  and stepouts*/
     virtual bool		getPossibleVolume(int outp,CubeSampling&);
+    CubeSampling*		getPossibleVolume() const
+    				{ return possiblevolume; }
     int				getTotalNrPos(bool);
     void			setCurLineKey( const char* linename ); 
     virtual void		adjust2DLineStoredVolume(bool adjuststep=false);
