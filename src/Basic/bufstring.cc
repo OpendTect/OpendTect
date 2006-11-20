@@ -4,14 +4,14 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: bufstring.cc,v 1.2 2006-08-10 19:48:48 cvsnanne Exp $";
+static const char* rcsID = "$Id: bufstring.cc,v 1.3 2006-11-20 16:12:03 cvsnanne Exp $";
 
 #include "bufstring.h"
 
 #include <iostream>
+#include <stdlib.h>
 #include "string2.h"
 #include <string.h>
-#include <stdlib.h>
 
 
 
@@ -83,18 +83,16 @@ void BufferString::insertAt( int idx, const char* str )
 }
 
 
-BufferString::operator const char*() const
-{ return buf_; }
-
-
 char* BufferString::buf()			{ return buf_; }
 const char* BufferString::buf() const		{ return buf_; }
+bool BufferString::isEmpty() const		{ return size() == 0; }
 unsigned int BufferString::size() const		{ return strlen(buf_); }
 unsigned int BufferString::bufSize() const	{ return len_; }
 char& BufferString::lastChar()			{ return buf_[size()-1]; }
 const char& BufferString::lastChar() const	{ return buf_[size()-1]; }
 char& BufferString::operator [](int idx)	{ return buf_[idx]; }
 const char& BufferString::operator [](int idx) const	{ return buf_[idx]; }
+BufferString::operator const char*() const	{ return buf_; }
 
 
 bool BufferString::operator==( const BufferString& s ) const
