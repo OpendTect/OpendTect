@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Nov 2006
- RCS:           $Id: array2dfilter.h,v 1.2 2006-11-17 13:09:41 cvsbert Exp $
+ RCS:           $Id: array2dfilter.h,v 1.3 2006-11-20 16:13:44 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -82,18 +82,17 @@ protected:
     Array2DFilterPars	pars_;
     Stats::RunCalc<float>* calc_;
     T**			bufs_;
-    int*		idxs_;
+    int*		colnrs_;
 
     const int		rowsize_;
     const int		colsize_;
     const int		nrcols_;
-    const int		nrrows_;
     int			nrcolsdone_;
 
     inline void		releaseAll();
     inline bool		manageBufs(int);
-    inline void		filterCol();
-    inline void		doPoint(int);
+    inline void		filterCol(int);
+    inline void		doPoint(int,int,int);
 
 };
 
@@ -108,7 +107,6 @@ Array2DFilterer<T>::Array2DFilterer( Array2D<T>& a, const Array2DFilterPars& p )
     , rowsize_(a.info().getSize(0))
     , colsize_(a.info().getSize(1))
     , nrcols_(2 * p.stepout_.c() + 1)
-    , nrrows_(2 * p.stepout_.r() + 1)
     , nrcolsdone_(0)
 {
     if ( rowsize_ < 2 * p.stepout_.r() + 1
@@ -117,15 +115,17 @@ Array2DFilterer<T>::Array2DFilterer( Array2D<T>& a, const Array2DFilterPars& p )
 	{ nrcolsdone_ = colsize_; return; }
 
     bufs_ = new T* [ nrcols_ ];
-    idxs_ = new int [ nrcols_ ];
+    colnrs_ = new int [ nrcols_ ];
+    int iidx = 0;
     for ( int idx=0; idx<nrcols_; idx++ )
     {
 	bufs_[idx] = new T [rowsize_];
-	idxs_[idx] = idx;
-	int inpcol = idx < pars_.stepout_.c() ? 0 : idx - pars_.stepout_.c();
-	if ( inpcol >= colsize_ ) inpcol = colsize_ - 1;
-	for ( int irow=0; irow<rowsize_; irow++ )
-	    bufs_[idx][irow] = arr_.get( irow, inpcol );
+	colnrs_[idx] = idx - pars_.stepout_.c();
+	if ( colnrs_[idx] >= 0 && colnrs_[idx] < colsize_ )
+	{
+	    for ( int irow=0; irow<rowsize_; irow++ )
+		bufs_[idx][irow] = arr_.get( irow, colnrs_[idx] );
+	}
     }
     if ( !bufs_[nrcols_-1] )
 	{ releaseAll(); ErrMsg("Memory full"); nrcolsdone_ = colsize_; return; }
@@ -163,7 +163,7 @@ template <class T> inline int Array2DFilterer<T>::nextStep()
     if ( !manageBufs(nrcolsdone_) )
 	return Executor::Finished;
 
-    filterCol();
+    filterCol( nrcolsdone_ );
     nrcolsdone_++;
     return Executor::MoreToDo;
 }
@@ -171,75 +171,82 @@ template <class T> inline int Array2DFilterer<T>::nextStep()
 
 template <class T> inline bool Array2DFilterer<T>::manageBufs( int col )
 {
-    if ( col == 0 || col >= colsize_ )
+    if ( col == 0 )
+	return true;
+    else if ( col >= colsize_ )
 	return false;
 
-    T* fillbuf;
-    for ( int idx=0; idx<nrcols_; idx++ )
+    int mincol = colnrs_[0]; int maxcol = mincol;
+    int mincolidx = 0;
+    for ( int idx=1; idx<nrcols_; idx++ )
     {
-	if ( idxs_[idx] != 0 )
-	    idxs_[idx]--;
-	else
-	{
-	    idxs_[idx] = nrcols_ - 1;
-	    fillbuf = bufs_[idx];
-	}
+	if ( colnrs_[idx] < mincol )
+	    { mincol = colnrs_[idx]; mincolidx = idx; }
+	if ( colnrs_[idx] > maxcol )
+	    maxcol = colnrs_[idx];
     }
 
-    int inpcol = col + pars_.stepout_.c();
-    if ( inpcol >= colsize_ )
-	inpcol = colsize_ - 1;
+    const int newcolnr = maxcol + 1;
+    colnrs_[mincolidx] = newcolnr;
+    if ( newcolnr >= colsize_ )
+	return true;
 
+    T* fillbuf = bufs_[mincolidx];
     for ( int irow=0; irow<rowsize_; irow++ )
-	fillbuf[irow] = arr_.get( irow, inpcol );
+	fillbuf[irow] = arr_.get( irow, newcolnr );
 
     return true;
 }
 
 
-template <class T> inline void Array2DFilterer<T>::filterCol()
+template <class T> inline void Array2DFilterer<T>::filterCol( int col )
 {
+    int colidx = 0;
+    for ( int icol=0; icol<nrcols_; icol++ )
+    {
+	if ( colnrs_[icol] == col )
+	    { colidx = icol; break; }
+    }
+
     for ( int irow=0; irow<rowsize_; irow++ )
     {
-	if ( !pars_.filludf_ )
-	{
-	    const T v00 = bufs_[ idxs_[nrcols_/2] ][irow];
-	    if ( mIsUdf(v00) )
-		continue;
-	}
-	doPoint( irow );
+	if ( pars_.filludf_ || !mIsUdf(bufs_[colidx][irow]) )
+	    doPoint( irow, col, colidx );
     }
 }
 
 
 template <class T>
-inline void Array2DFilterer<T>::doPoint( int row )
+inline void Array2DFilterer<T>::doPoint( int row, int col, int colidx )
 {
     calc_->clear();
 
     int startrow = row - pars_.stepout_.r();
     if ( startrow < 0 ) startrow = 0;
     int endrow = row + pars_.stepout_.r();
-    if ( endrow <= nrrows_ ) endrow = nrrows_-1;
+    if ( endrow >= rowsize_ ) endrow = rowsize_-1;
 
-    const int centercol = idxs_[colsize_/2];
     for ( int icol=0; icol<nrcols_; icol++ )
     {
-	const int realcol = idxs_[icol];
-	const T* buf = bufs_[ idxs_[icol] ];
+	if ( colnrs_[icol] < 0 || colnrs_[icol] >= colsize_ )
+	    continue;
+
+	const T* buf = bufs_[ icol ];
+	const int coldist = colnrs_[icol] - colnrs_[colidx];
+
 	for ( int irow=startrow; irow<=endrow; irow++ )
 	{
 	    if ( !calc_->isWeighted() )
 		*calc_ += buf[irow];
 	    else
 	    {
-		float wt = (row - irow) * (row - irow)
-		    	 + (centercol - realcol) * (centercol - realcol);
+		float wt = (row - irow) * (row - irow) + coldist * coldist;
 		wt = 1 / (1 + pars_.distfac_ * wt);
 		calc_->addValue( buf[irow], wt );
 	    }
 	}
-	arr_.set( row, realcol, calc_->getValue(pars_.type_) );
+
+	arr_.set( row, col, calc_->getValue(pars_.type_) );
     }
 }
 
