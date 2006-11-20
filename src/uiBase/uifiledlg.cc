@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/09/2000
- RCS:           $Id: uifiledlg.cc,v 1.26 2006-03-30 20:49:46 cvsnanne Exp $
+ RCS:           $Id: uifiledlg.cc,v 1.27 2006-11-20 16:17:56 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,19 +35,15 @@ public:
 			    dgbQFileDialog( const QString& dirName,
 				const QString& filter=QString::null,
 				QWidget* parent=0,
-				const char* name=0, bool modal = FALSE )
-#ifdef USEQT4
-				: QFileDialog( parent, QString(name),
-					       dirName, filter )
-#else
-				: QFileDialog( dirName, filter, parent, name )
-#endif
-			    { setModal(modal); }
+				const char* name=0, bool modal=FALSE )
+				: QFileDialog( dirName, filter, parent, name,
+				       	       modal )
+			    {}
 
 			    dgbQFileDialog( QWidget* parent=0,
-				const char* name=0, bool modal = FALSE )
-				: QFileDialog( parent, name )
-			    { setModal(modal); }
+				const char* name=0, bool modal=FALSE )
+				: QFileDialog( parent, name, modal )
+			    {}
 
 
 };
