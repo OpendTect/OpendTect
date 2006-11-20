@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		12-4-2000
  Contents:	Variable buffer length strings with minimum size.
- RCS:		$Id: bufstring.h,v 1.23 2006-08-10 19:48:48 cvsnanne Exp $
+ RCS:		$Id: bufstring.h,v 1.24 2006-11-20 14:14:11 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,6 +50,7 @@ public:
    const char&		operator [](int) const;
    char&		lastChar();
    const char&		lastChar() const;
+   bool			isEmpty() const;
    unsigned int		size() const;
    unsigned int		bufSize() const;
    void			setBufSize(unsigned int);

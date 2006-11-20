@@ -1,5 +1,5 @@
-#ifndef sets_H
-#define sets_H
+#ifndef sets_h
+#define sets_h
 
 /*+
 ________________________________________________________________________
@@ -8,16 +8,16 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		April 1995
  Contents:	Sets of simple objects
- RCS:		$Id: sets.h,v 1.40 2006-10-23 14:55:59 cvskris Exp $
+ RCS:		$Id: sets.h,v 1.41 2006-11-20 14:14:11 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #ifndef gendefs_H
-#include <gendefs.h>
+#include "gendefs.h"
 #endif
 #ifndef vectoraccess_h
-#include <vectoraccess.h>
+#include "vectoraccess.h"
 #endif
 
 /*!\brief Set of (small) copyable elements
@@ -40,14 +40,13 @@ public:
 
 			TypeSet( int nr, T typ ) { setSize( nr, typ ); }
 			TypeSet( const TypeSet<T>& t )
-				{ append( t ); }
-    virtual		~TypeSet()
-				{}
+			    { append( t ); }
+    virtual		~TypeSet() {}
     TypeSet<T>&		operator =( const TypeSet<T>& ts )
-				{ return copy(ts); }
+			    { return copy(ts); }
 
     virtual int		size() const
-				{ return tvec.size(); }
+			    { return tvec.size(); }
     virtual void	setSize( int sz, T val=T() ) { tvec.setSize(sz,val); }
     			/*!<\param val value assigned to added items
 			 	   if size is increased. */
@@ -57,13 +56,15 @@ public:
 				tvec[idx] = val;
 			}
 
+    virtual bool	isEmpty() const
+			    { return tvec.size() == 0; }
     virtual bool	validIdx( int idx ) const
-			{ return idx>=0 && idx<size(); }
+			    { return idx>=0 && idx<size(); }
 
     virtual T&		operator[]( int idx )
-				{ return tvec[idx]; }
+			    { return tvec[idx]; }
     virtual const T&	operator[]( int idx ) const
-				{ return tvec[idx]; }
+			    { return tvec[idx]; }
 
     virtual int		indexOf( const T& typ, bool forward=true ) const
 			{
@@ -83,9 +84,10 @@ public:
 			}
 
     TypeSet<T>&	operator +=( const T& typ )
-				{ tvec.push_back(typ); return *this; }
+			    { tvec.push_back(typ); return *this; }
     TypeSet<T>&	operator -=( const T& typ )
-				{ tvec.erase(typ); return *this; }
+			    { tvec.erase(typ); return *this; }
+
     virtual TypeSet<T>&	copy( const TypeSet<T>& ts )
 			{
 			    if ( &ts != this )
@@ -262,20 +264,22 @@ class ObjectSet
 {
 public:
     			ObjectSet() : allow0(false)
-				{}
+			    {}
     			ObjectSet( const ObjectSet<T>& t )
-				{ *this = t; }
+			    { *this = t; }
     virtual		~ObjectSet()
-				{}
+			    {}
     ObjectSet<T>&	operator =( const ObjectSet<T>& os )
-				{ allow0 = os.allow0; copy(os); return *this; }
+			    { allow0 = os.allow0; copy(os); return *this; }
 
     void		allowNull( bool yn_=true )	{ allow0 = yn_; }
     bool		nullAllowed() const		{ return allow0; }
     virtual int		size() const			{ return ovec.size(); }
 
+    virtual bool	isEmpty() const
+			    { return ovec.size() == 0; }
     virtual bool	validIdx( int idx ) const
-			{ return idx>=0 && idx<size(); }
+			    { return idx>=0 && idx<size(); }
 
     virtual T*		operator[]( int idx )
 				{ return (T*)ovec[idx]; }
