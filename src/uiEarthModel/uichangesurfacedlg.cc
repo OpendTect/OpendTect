@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra / Bert Bril
  Date:		Sep 2005 / Nov 2006
- RCS:		$Id: uichangesurfacedlg.cc,v 1.3 2006-11-21 17:04:02 cvsbert Exp $
+ RCS:		$Id: uichangesurfacedlg.cc,v 1.4 2006-11-21 17:47:25 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "uiexecutor.h"
 #include "uigeninput.h"
 #include "uiioobjsel.h"
+#include "uistepoutsel.h"
 #include "uimsg.h"
 
 #include "array2dinterpol.h"
@@ -224,7 +225,7 @@ uiArr2DInterpolPars* uiInterpolHorizonDlg::a2dInterp()
 
 
 uiInterpolHorizonDlg::uiInterpolHorizonDlg( uiParent* p, EM::Horizon* hor )
-    : uiChangeSurfaceDlg(p,hor,"Horizon interpolator")
+    : uiChangeSurfaceDlg(p,hor,"Horizon interpolation")
 {
     parsgrp_ = new uiArr2DInterpolPars( this );
     attachPars();
@@ -260,4 +261,32 @@ const char* uiInterpolHorizonDlg::infoMsg( const Executor* ex ) const
     }
 
     return infomsg_;
+}
+
+
+//---- uiFilterHorizonDlg
+
+uiFilterHorizonDlg::uiFilterHorizonDlg( uiParent* p, EM::Horizon* hor )
+    : uiChangeSurfaceDlg(p,hor,"Horizon filtering")
+{
+    parsgrp_ = new uiGroup( this, "Hor filter pars group" );
+    medianfld_ = new uiGenInput( parsgrp_, "Filter type",
+	    			 BoolInpSpec("Median","Average") );
+    stepoutfld_ = new uiStepOutSel( parsgrp_, "Filter stepout" );
+    stepoutfld_->setVal(true,2); stepoutfld_->setVal(false,2);
+    stepoutfld_->attach( alignedBelow, medianfld_ );
+
+    parsgrp_->setHAlignObj( medianfld_ );
+    attachPars();
+}
+
+
+Executor* uiFilterHorizonDlg::getWorker( Array2D<float>& a2d,
+					   const StepInterval<int>& rowrg,
+					   const StepInterval<int>& colrg )
+{
+    Array2DFilterPars pars( medianfld_->getBoolValue()
+	    		  ? Stats::Median : Stats::Average );
+    pars.stepout_ = RowCol( stepoutfld_->val(true), stepoutfld_->val(false) );
+    return new Array2DFilterer<float>( a2d, pars );
 }

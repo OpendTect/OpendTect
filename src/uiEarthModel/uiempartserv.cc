@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.95 2006-11-21 17:04:02 cvsbert Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.96 2006-11-21 17:47:25 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -165,6 +165,14 @@ void uiEMPartServer::fillHoles( const EM::ObjectID& emid )
 {
     mDynamicCastGet(EM::Horizon*,hor,em_.getObject(emid))
     uiInterpolHorizonDlg dlg( appserv().parent(), hor );
+    dlg.go();
+}
+
+
+void uiEMPartServer::filterSurface( const EM::ObjectID& emid )
+{
+    mDynamicCastGet(EM::Horizon*,hor,em_.getObject(emid))
+    uiFilterHorizonDlg dlg( appserv().parent(), hor );
     dlg.go();
 }
 

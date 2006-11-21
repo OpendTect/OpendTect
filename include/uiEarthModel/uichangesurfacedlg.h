@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          June 2006
- RCS:           $Id: uichangesurfacedlg.h,v 1.2 2006-11-21 17:04:02 cvsbert Exp $
+ RCS:           $Id: uichangesurfacedlg.h,v 1.3 2006-11-21 17:47:25 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -75,6 +75,25 @@ protected:
     uiArr2DInterpolPars*	a2dInterp();
 
     const char*			infoMsg(const Executor*) const;
+    Executor*			getWorker(Array2D<float>&,
+	    				  const StepInterval<int>&,
+					  const StepInterval<int>&);
+
+};
+
+
+class uiStepOutSel;
+
+class uiFilterHorizonDlg : public uiChangeSurfaceDlg
+{
+public:
+				uiFilterHorizonDlg(uiParent*,EM::Horizon*);
+
+protected:
+
+    uiGenInput*			medianfld_;
+    uiStepOutSel*		stepoutfld_;
+
     Executor*			getWorker(Array2D<float>&,
 	    				  const StepInterval<int>&,
 					  const StepInterval<int>&);
