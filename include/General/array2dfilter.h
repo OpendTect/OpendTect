@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Nov 2006
- RCS:           $Id: array2dfilter.h,v 1.3 2006-11-20 16:13:44 cvsbert Exp $
+ RCS:           $Id: array2dfilter.h,v 1.4 2006-11-21 17:46:33 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -240,7 +240,8 @@ inline void Array2DFilterer<T>::doPoint( int row, int col, int colidx )
 		*calc_ += buf[irow];
 	    else
 	    {
-		float wt = (row - irow) * (row - irow) + coldist * coldist;
+		float wt = pars_.rowdist_ * (row - irow) * (row - irow)
+		         + coldist * coldist;
 		wt = 1 / (1 + pars_.distfac_ * wt);
 		calc_->addValue( buf[irow], wt );
 	    }
