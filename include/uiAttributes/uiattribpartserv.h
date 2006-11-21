@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiattribpartserv.h,v 1.17 2006-08-24 14:50:58 cvskris Exp $
+ RCS:           $Id: uiattribpartserv.h,v 1.18 2006-11-21 16:23:26 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -93,6 +93,9 @@ public:
     void		getPossibleOutputs(BufferStringSet&) const;
 
     void		setTargetSelSpec(const Attrib::SelSpec&);
+    const TypeSet<Attrib::SelSpec>& getTargetSelSpecs() const
+			    { return targetspecs; }
+
     const Attrib::DataCubes* createOutput(const CubeSampling&,
 				          const Attrib::DataCubes* prevslcs=0);
     bool		createOutput(ObjectSet<BinIDValueSet>&);
