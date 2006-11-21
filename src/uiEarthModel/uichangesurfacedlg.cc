@@ -2,9 +2,9 @@
 ________________________________________________________________________
 
  CopyRight:	(C) dGB Beheer B.V.
- Author:	Nanne Hemstra
- Date:		September 2005
- RCS:		$Id: uichangesurfacedlg.cc,v 1.2 2006-11-21 14:00:07 cvsbert Exp $
+ Author:	Nanne Hemstra / Bert Bril
+ Date:		Sep 2005 / Nov 2006
+ RCS:		$Id: uichangesurfacedlg.cc,v 1.3 2006-11-21 17:04:02 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,8 +31,9 @@ ________________________________________________________________________
 #include "errh.h"
 
 
-uiChangeSurfaceDlg::uiChangeSurfaceDlg( uiParent* p, EM::Horizon* hor )
-    : uiDialog(p,Setup("Horizon manipulation","",""))
+uiChangeSurfaceDlg::uiChangeSurfaceDlg( uiParent* p, EM::Horizon* hor,
+					const char* txt )
+    : uiDialog(p,Setup(txt,"","104.0.3"))
     , horizon_(hor)
     , inputfld_(0)
     , outputfld_(0)
@@ -137,7 +138,9 @@ bool uiChangeSurfaceDlg::doProcessing()
 	    ErrMsg( msg ); continue;
 	}
 
-	PtrMan<Executor> worker = getWorker( *arr );
+	PtrMan<Executor> worker = getWorker( *arr,
+			horizon_->geometry().rowRange(sid),
+			horizon_->geometry().colRange(sid) );
 	uiExecutor dlg( this, *worker );
 	if ( !dlg.go() )
 	{
@@ -148,7 +151,7 @@ bool uiChangeSurfaceDlg::doProcessing()
 
 	if ( !savefld_ )
 	{
-	    BufferString msg = infoMsg();
+	    BufferString msg = infoMsg( worker );
 	    if ( !msg.isEmpty() )
 		uiMSG().message( msg );
 	}
@@ -209,4 +212,52 @@ bool uiChangeSurfaceDlg::acceptOK( CallBacker* )
 	return false;
 
     return true;
+}
+
+
+//---- uiInterpolHorizonDlg
+
+uiArr2DInterpolPars* uiInterpolHorizonDlg::a2dInterp()
+{
+    return (uiArr2DInterpolPars*)parsgrp_;
+}
+
+
+uiInterpolHorizonDlg::uiInterpolHorizonDlg( uiParent* p, EM::Horizon* hor )
+    : uiChangeSurfaceDlg(p,hor,"Horizon interpolator")
+{
+    parsgrp_ = new uiArr2DInterpolPars( this );
+    attachPars();
+}
+
+
+Executor* uiInterpolHorizonDlg::getWorker( Array2D<float>& a2d,
+					   const StepInterval<int>& rowrg,
+					   const StepInterval<int>& colrg )
+{
+    Array2DInterpolator<float>* ret = new Array2DInterpolator<float>( a2d );
+    ret->pars() = a2dInterp()->getInput();
+    ret->setStepRatio( rowrg.step, colrg.step );
+    return ret;
+}
+
+
+const char* uiInterpolHorizonDlg::infoMsg( const Executor* ex ) const
+{
+    mDynamicCastGet(const Array2DInterpolator<float>*,interp,ex)
+    if ( !interp ) { pErrMsg("Huh?"); return 0; }
+    int maxlvl = 0;
+    const int nrfilled = interp->nrInterpolated( &maxlvl );
+    if ( nrfilled == 0 )
+	infomsg_ = "No nodes filled - no interpolations";
+    else if ( nrfilled == 1 )
+	infomsg_ = "One node filled";
+    else
+    {
+	infomsg_ = nrfilled; infomsg_ += " nodes filled in ";
+	infomsg_ += maxlvl; infomsg_ += " step";
+	if ( maxlvl > 1 ) infomsg_ += "s";
+    }
+
+    return infomsg_;
 }

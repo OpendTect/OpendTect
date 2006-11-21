@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.94 2006-11-21 14:00:07 cvsbert Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.95 2006-11-21 17:04:02 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,7 +36,7 @@ ________________________________________________________________________
 #include "uiimpfault.h"
 #include "uiimphorattrib.h"
 #include "uiimphorizon.h"
-#include "uiinterpolhorizondlg.h"
+#include "uichangesurfacedlg.h"
 #include "uiioobjsel.h"
 #include "uiiosurfacedlg.h"
 #include "uilistboxdlg.h"
