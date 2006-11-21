@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: vishorizondisplay.cc,v 1.18 2006-10-30 21:52:05 cvskris Exp $
+ RCS:           $Id: vishorizondisplay.cc,v 1.19 2006-11-21 07:51:43 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -346,6 +346,7 @@ bool HorizonDisplay::getOnlyAtSectionsDisplay() const
 
 void HorizonDisplay::selectTexture( int attrib, int textureidx )
 {
+    curtextureidx_ = textureidx;
     for ( int idx=0; idx<sections_.size(); idx++ )
     {
 	mDynamicCastGet(visBase::ParametricSurface*,psurf,sections_[idx]);
@@ -353,8 +354,8 @@ void HorizonDisplay::selectTexture( int attrib, int textureidx )
 	    psurf->selectActiveVersion( attrib, textureidx );
     }
 
-    mDynamicCastGet(EM::Horizon*,emsurf, emobject_)
-    if ( !emsurf ) return;
+    mDynamicCastGet(EM::Horizon*,emsurf,emobject_)
+    if ( !emsurf || emsurf->auxdata.nrAuxData() == 0 ) return;
 
     if ( textureidx >= emsurf->auxdata.nrAuxData() )
 	setSelSpec( 0, Attrib::SelSpec(0,Attrib::SelSpec::cAttribNotSel()) );
@@ -363,8 +364,6 @@ void HorizonDisplay::selectTexture( int attrib, int textureidx )
 	BufferString attrnm = emsurf->auxdata.auxDataName( textureidx );
 	setSelSpec( 0, Attrib::SelSpec(attrnm,Attrib::SelSpec::cOtherAttrib()));
     }
-
-    curtextureidx_ = textureidx;
 }
 
 
