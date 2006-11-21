@@ -4,7 +4,7 @@
  * DATE     : June 2005
 -*/
 
-static const char* rcsID = "$Id: seisioobjinfo.cc,v 1.9 2006-06-29 16:34:09 cvsbert Exp $";
+static const char* rcsID = "$Id: seisioobjinfo.cc,v 1.10 2006-11-21 07:48:16 cvsnanne Exp $";
 
 #include "seisioobjinfo.h"
 #include "seistrcsel.h"
@@ -287,9 +287,9 @@ void SeisIOObjInfo::initDefault( const char* typ )
     ctxt.allowcnstrsabsent = typ && *typ ? false : true;
     ctxt.trglobexpr = "CBVS";
     int nrpresent = 0;
-    IOObj* ioobj = IOM().getFirst( ctxt, &nrpresent );
+    PtrMan<IOObj> ioobj = IOM().getFirst( ctxt, &nrpresent );
     if ( !ioobj || nrpresent > 1 )
-	{ delete ioobj; return; }
+	return;
 
     typs.add( typ );
     getIDs() += ioobj->key();
