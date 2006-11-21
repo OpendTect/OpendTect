@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Huck
  Date:          Nov 2006
- RCS:           $Id: uiconvolveattrib.h,v 1.3 2006-11-08 16:20:15 cvshelene Exp $
+ RCS:           $Id: uiconvolveattrib.h,v 1.4 2006-11-21 16:23:43 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,6 +27,7 @@ class uiConvolveAttrib : public uiAttrDescEd
 public:
 
 			uiConvolveAttrib(uiParent*);
+			~uiConvolveAttrib();
 
     virtual void	getEvalParams(TypeSet<EvalParam>&) const;
 

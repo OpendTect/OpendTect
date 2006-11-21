@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Huck
  Date:          November 2006
- RCS:           $Id: uiconvolveattrib.cc,v 1.3 2006-11-08 16:20:15 cvshelene Exp $
+ RCS:           $Id: uiconvolveattrib.cc,v 1.4 2006-11-21 16:23:43 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -82,6 +82,13 @@ uiConvolveAttrib::uiConvolveAttrib( uiParent* p )
 
     kernelSel(0);
     setHAlignObj( inpfld_ );
+}
+
+
+uiConvolveAttrib::~uiConvolveAttrib()
+{
+    delete ctio_.ioobj;
+    delete &ctio_;
 }
 
 
