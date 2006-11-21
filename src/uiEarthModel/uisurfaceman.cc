@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2003
- RCS:           $Id: uisurfaceman.cc,v 1.33 2006-08-03 19:59:00 cvsnanne Exp $
+ RCS:           $Id: uisurfaceman.cc,v 1.34 2006-11-21 14:00:07 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -89,7 +89,7 @@ void uiSurfaceMan::removeCB( CallBacker* )
 
     BufferStringSet attribnms;
     attribfld->getSelectedItems( attribnms );
-    if ( !attribnms.size() || 
+    if ( attribnms.isEmpty() || 
 	    !uiMSG().askGoOn("All selected attributes will be removed.\n"
 			     "Do you want to continue?") )
 	return;

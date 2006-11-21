@@ -4,7 +4,7 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID = "$Id: seiscbvsps.cc,v 1.13 2006-03-12 13:39:10 cvsbert Exp $";
+static const char* rcsID = "$Id: seiscbvsps.cc,v 1.14 2006-11-21 14:00:07 cvsbert Exp $";
 
 #include "seiscbvsps.h"
 #include "seispsioprov.h"
@@ -70,7 +70,7 @@ SeisCBVSPSReader::SeisCBVSPSReader( const char* dirnm, int inl )
 	    while ( *ptr && !isdigit(*ptr) ) ptr++;
 	    while ( *ptr && isdigit(*ptr) ) ptr++;
 	    *ptr = '\0';
-	    if ( fnm == "" ) continue;
+	    if ( fnm.isEmpty() ) continue;
 
 	    addInl( atoi(fnm.buf()) );
 	}
@@ -180,7 +180,7 @@ bool SeisCBVSPSReader::getGather( int crl, SeisTrcBuf& gath ) const
 	{
 	    delete trc;
 	    errmsg_ = curtr_->errMsg();
-	    return errmsg_ == "";
+	    return errmsg_.isEmpty();
 	}
 	else if ( trc->info().binid.inl != bid.crl )
 	    { delete trc; return true; }

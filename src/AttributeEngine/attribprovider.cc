@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribprovider.cc,v 1.79 2006-11-16 15:22:28 cvshelene Exp $";
+static const char* rcsID = "$Id: attribprovider.cc,v 1.80 2006-11-21 14:00:06 cvsbert Exp $";
 
 #include "attribprovider.h"
 #include "attribstorprovider.h"
@@ -129,7 +129,7 @@ Provider* Provider::internalCreate( Desc& desc, ObjectSet<Provider>& existing,
 
     res->ref();
     
-    if ( desc.selectedOutput()!=-1 && !existing.size() )
+    if ( desc.selectedOutput()!=-1 && existing.isEmpty() )
 	res->enableOutput( desc.selectedOutput(), true );
 
     existing += res;
@@ -493,9 +493,9 @@ int Provider::moveToNextTrace( BinID startpos, bool firstcheck )
 	}
     }
 
-    if ( !movinginputs.size() && needmove )
+    if ( movinginputs.isEmpty() && needmove )
     {
-	if ( !inputs.size() && !desc.isStored() )
+	if ( inputs.isEmpty() && !desc.isStored() )
 	{
 	    if ( currentbid.inl == -1 && currentbid.crl == -1 )
 	    {
@@ -531,7 +531,7 @@ int Provider::moveToNextTrace( BinID startpos, bool firstcheck )
 	    return res;
     }
 
-    if ( movinginputs.size() > 0 )
+    if ( !movinginputs.isEmpty() )
     {
 	currentbid = movinginputs[0]->getCurrentPosition();
 	curtrcinfo_ = movinginputs[0]->getCurrentTrcInfo();
@@ -959,7 +959,7 @@ const char* Provider::prepare( Desc& desc )
     errmsg = "";
     if ( prov )
 	errmsg = prov->errMsg();
-    if ( errmsg == "" )
+    if ( errmsg.isEmpty() )
     {
 	errmsg = "Cannot initialise '"; errmsg += desc.attribName();
 	errmsg += "' Attribute properly";

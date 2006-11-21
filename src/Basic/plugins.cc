@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Aug 2003
- RCS:           $Id: plugins.cc,v 1.49 2006-08-16 10:51:20 cvsbert Exp $
+ RCS:           $Id: plugins.cc,v 1.50 2006-11-21 14:00:06 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -178,7 +178,7 @@ void PluginManager::getDefDirs()
 {
     bool fromenv = false;
     BufferString dnm = GetEnvVar( "OD_APPL_PLUGIN_DIR" );
-    if ( dnm == "" )
+    if ( dnm.isEmpty() )
 	dnm = GetSoftwareDir();
     else
 	fromenv = true;
@@ -192,7 +192,7 @@ void PluginManager::getDefDirs()
 
     fromenv = false;
     dnm = GetEnvVar( "OD_USER_PLUGIN_DIR" );
-    if ( dnm == "" )
+    if ( dnm.isEmpty() )
 	dnm = GetSettingsDir();
     else
 	fromenv = true;

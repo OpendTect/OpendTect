@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.333 2006-09-29 11:18:16 cvsjaap Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.334 2006-11-21 14:00:08 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -207,7 +207,7 @@ bool uiVisPartServer::disabToolBars( bool yn )
 
 bool uiVisPartServer::blockMouseSelection( bool yn )
 {
-    if ( !scenes_.size() ) return false;
+    if ( scenes_.isEmpty() ) return false;
 
     const bool res = scenes_[0]->blockMouseSelection( yn );
     for ( int idx=1; idx<scenes_.size(); idx++ )

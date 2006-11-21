@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: energyattrib.cc,v 1.18 2006-09-28 17:10:39 cvsbert Exp $";
+static const char* rcsID = "$Id: energyattrib.cc,v 1.19 2006-11-21 14:00:06 cvsbert Exp $";
 
 #include "energyattrib.h"
 
@@ -63,7 +63,7 @@ bool Energy::getInputData( const BinID& relpos, int zintv )
 bool Energy::computeData( const DataHolder& output, const BinID& relpos,
 			  int z0, int nrsamples ) const
 {
-    if ( !inputdata_ || !inputdata_->nrSeries() || !output.nrSeries() )
+    if ( !inputdata_ || inputdata_->isEmpty() || output.isEmpty() )
 	return false;
 
     Interval<int> samplegate( mNINT(gate_.start/refstep),

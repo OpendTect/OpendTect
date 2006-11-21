@@ -4,7 +4,7 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID = "$Id: seis2dline.cc,v 1.52 2006-08-16 10:51:20 cvsbert Exp $";
+static const char* rcsID = "$Id: seis2dline.cc,v 1.53 2006-11-21 14:00:07 cvsbert Exp $";
 
 #include "seis2dline.h"
 #include "seistrctr.h"
@@ -70,7 +70,7 @@ bool TwoDSeisTrcTranslator::initRead_()
 
     if ( seldata )
 	curlinekey = seldata->linekey_;
-    if ( curlinekey.lineName() != "" && lset.indexOf(curlinekey) < 0 )
+    if ( !curlinekey.lineName().isEmpty() && lset.indexOf(curlinekey) < 0 )
 	{ errmsg = "Cannot find line key in line set"; return false; }
     CubeSampling cs( true );
     errmsg = lset.getCubeSampling( cs, curlinekey );
@@ -177,7 +177,7 @@ void Seis2DLineSet::readFile( bool mklock, BufferString* type )
     SafeFileIO sfio( fname_, true );
     if ( !sfio.open(true) )
     {
-	if ( name() == "" )
+	if ( name().isEmpty() )
 	{
 	    FilePath fp( fname_ );
 	    fp.setExtension( 0 );
@@ -353,7 +353,7 @@ Executor* Seis2DLineSet::lineFetcher( int ipar, SeisTrcBuf& tbuf, int ntps,
 
 Seis2DLinePutter* Seis2DLineSet::linePutter( IOPar* newiop )
 {
-    if ( !newiop || newiop->name() == "" )
+    if ( !newiop || newiop->name().isEmpty() )
     {
 	ErrMsg("No data for line add provided");
 	return 0;
@@ -588,8 +588,8 @@ const char* Seis2DLineSet::getCubeSampling( CubeSampling& cs,
     if ( anm == LineKey::sKeyDefAttrib )
 	const_cast<BufferString&>( anm ) = "";
 
-    const bool haveln = lnm != "";
-    const bool haveattr = anm != "";
+    const bool haveln = !lnm.isEmpty();
+    const bool haveattr = !anm.isEmpty();
     const int nrlines = nrLines();
     const char* errmsg = "No matches found for line selection";
     for ( int iln=0; iln<nrlines; iln++ )
@@ -745,13 +745,13 @@ Seis2DGeomDumper( const Seis2DLineSet& l, std::ostream& o, bool inr, float z,
     {
 	LineKey lnky( lk );
 	attrnm = lnky.attrName();
-	if ( lnky.lineName() != "" )
+	if ( !lnky.lineName().isEmpty() )
 	{
 	    curidx = ls.indexOf( lk );
 	    if ( curidx < 0 )
 	    {
 		curmsg = "Could not find '";
-		if ( attrnm != "" )
+		if ( !attrnm.isEmpty() )
 		    { curmsg += attrnm; curmsg += "' for '"; }
 		curmsg += lnky.lineName(); curmsg += "' in line set";
 		return;
@@ -760,7 +760,7 @@ Seis2DGeomDumper( const Seis2DLineSet& l, std::ostream& o, bool inr, float z,
 	}
     }
 
-    if ( attrnm == "" )
+    if ( attrnm.isEmpty() )
 	attrnm = LineKey::sKeyDefAttrib;
     totalnr = lastidx - curidx + 1;
     curmsg = "Extracting geometry";

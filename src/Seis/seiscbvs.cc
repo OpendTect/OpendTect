@@ -5,7 +5,7 @@
  * FUNCTION : CBVS Seismic data translator
 -*/
 
-static const char* rcsID = "$Id: seiscbvs.cc,v 1.69 2006-08-16 10:51:20 cvsbert Exp $";
+static const char* rcsID = "$Id: seiscbvs.cc,v 1.70 2006-11-21 14:00:07 cvsbert Exp $";
 
 #include "seiscbvs.h"
 #include "seisinfo.h"
@@ -493,7 +493,7 @@ void CBVSSeisTrcTranslator::blockDumped( int nrtrcs )
 
 const IOPar* CBVSSeisTrcTranslator::parSpec( Conn::State ) const
 {
-    if ( !datatypeparspec.size() )
+    if ( datatypeparspec.isEmpty() )
     {
 	FileMultiString fms;
 	const char* ptr = DataCharacteristics::UserTypeNames[0];

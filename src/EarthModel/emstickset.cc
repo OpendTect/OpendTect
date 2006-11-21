@@ -9,7 +9,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emstickset.cc,v 1.9 2005-10-06 19:13:37 cvskris Exp $";
+static const char* rcsID = "$Id: emstickset.cc,v 1.10 2006-11-21 14:00:07 cvsbert Exp $";
 
 #include "emstickset.h"
 
@@ -124,9 +124,9 @@ bool EM::StickSet::setPos( const StickID& stickid, const KnotID& knotid,
     const int firstknot = firstknots[idx];
 
     int relpos = knotid-firstknot;
-    if ( !stick.size() || relpos==stick.size() )
+    if ( stick.isEmpty() || relpos==stick.size() )
     {
-	if ( !stick.size() )
+	if ( stick.isEmpty() )
 	{
 	    firstknots[idx] = knotid;
 	}

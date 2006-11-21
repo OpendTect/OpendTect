@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.108 2006-08-25 22:05:45 cvskris Exp $
+ RCS:           $Id: uimainwin.cc,v 1.109 2006-11-21 14:00:07 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -876,12 +876,12 @@ void uiDialogBody::initChildren()
 
 uiObject* uiDialogBody::createChildren()
 {
-    if ( setup.oktext_ != "" )
+    if ( !setup.oktext_.isEmpty() )
 	okBut = new uiPushButton( centralWidget_, setup.oktext_, true );
-    if ( setup.canceltext_ != "" )
+    if ( !setup.canceltext_.isEmpty() )
 	cnclBut = new uiPushButton( centralWidget_, setup.canceltext_, true );
 
-    if ( setup.savebutton_ && setup.savetext_ != "" )
+    if ( setup.savebutton_ && !setup.savetext_.isEmpty() )
     {
 	if ( setup.savebutispush_ )
 	    saveBut_pb= new uiPushButton( centralWidget_, setup.savetext_,
@@ -892,7 +892,7 @@ uiObject* uiDialogBody::createChildren()
 	    saveBut_cb->setChecked( setup.savechecked_ );
 	}
     }
-    if ( setup.helpid_ != "" )
+    if ( !setup.helpid_.isEmpty() )
     {
 	const ioPixmap pixmap( "contexthelp.png" );
 	helpBut = new uiToolButton( centralWidget_, "&Help button", pixmap );
@@ -904,7 +904,7 @@ uiObject* uiDialogBody::createChildren()
 	helpBut->setToolTip( shwhid ? setup.helpid_.buf()
 				    : "Help on this window" );
     }
-    if ( !setup.menubar_ && setup.dlgtitle_ != "" )
+    if ( !setup.menubar_ && !setup.dlgtitle_.isEmpty() )
     {
 	title = new uiLabel( centralWidget_, setup.dlgtitle_ );
 

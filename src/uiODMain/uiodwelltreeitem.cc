@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		May 2006
- RCS:		$Id: uiodwelltreeitem.cc,v 1.5 2006-09-18 08:09:14 cvsnanne Exp $
+ RCS:		$Id: uiodwelltreeitem.cc,v 1.6 2006-11-21 14:00:08 cvsbert Exp $
 ___________________________________________________________________
 
 -*/
@@ -58,7 +58,7 @@ bool uiODWellParentTreeItem::showSubMenu()
     {
 	ObjectSet<MultiID> emwellids;
 	applMgr()->selectWells( emwellids );
-	if ( !emwellids.size() )
+	if ( emwellids.isEmpty() )
 	    return false;
 
 	for ( int idx=emwellids.size()-1; idx>=0; idx-- )
@@ -93,7 +93,7 @@ bool uiODWellParentTreeItem::showSubMenu()
 	    wds += wd;
 	}
 
-	if ( !wds.size() ) return false;
+	if ( wds.isEmpty() ) return false;
 
 	if ( mnuid == 2 )
 	{

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Feb 2005
- RCS:           $Id: horizonscanner.cc,v 1.13 2006-09-07 09:34:17 cvsnanne Exp $
+ RCS:           $Id: horizonscanner.cc,v 1.14 2006-11-21 14:00:07 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -133,7 +133,7 @@ void HorizonScanner::report( IOPar& iopar ) const
     else
 	iopar.add( "->", "No data values" );
 
-    if ( rejectedlines.size() > 0 )
+    if ( !rejectedlines.isEmpty() )
     {
 	iopar.add( "->", "Error" );
 	iopar.add( "These postions were rejected", "" );

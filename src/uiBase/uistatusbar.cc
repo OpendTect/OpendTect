@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          30/05/2000
- RCS:           $Id: uistatusbar.cc,v 1.11 2006-02-01 21:54:01 cvskris Exp $
+ RCS:           $Id: uistatusbar.cc,v 1.12 2006-11-21 14:00:07 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,7 +33,7 @@ public:
 
     void		message( const char* msg, int idx, int msecs )
 			{ 
-			    if ( msgs.size() > 0 && msgs[0] )
+			    if ( !msgs.isEmpty() )
 			    {
 #ifdef __debug__
 				if ( msecs >= 0 )

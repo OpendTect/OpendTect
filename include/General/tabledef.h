@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Oct 2006
- RCS:		$Id: tabledef.h,v 1.7 2006-11-07 12:26:27 cvsbert Exp $
+ RCS:		$Id: tabledef.h,v 1.8 2006-11-21 14:00:06 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -127,7 +127,7 @@ public:
     int			tokencol_;	//!< if < 0 token can be in any col
 
     bool		needToken() const
-    			{ return nrhdrlines_ < 0 && token_ != ""; }
+    			{ return nrhdrlines_ < 0 && !token_.isEmpty(); }
     int			nrHdrLines() const
 			{ return needToken() ? mUdf(int)
 			       : nrhdrlines_ > 0 ? nrhdrlines_ : 0; }

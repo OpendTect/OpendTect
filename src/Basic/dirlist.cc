@@ -4,7 +4,7 @@
  * DATE     : 3-8-1994
 -*/
 
-static const char* rcsID = "$Id: dirlist.cc,v 1.9 2004-04-01 13:39:50 bert Exp $";
+static const char* rcsID = "$Id: dirlist.cc,v 1.10 2006-11-21 14:00:06 cvsbert Exp $";
 
 #include "dirlist.h"
 #include "globexpr.h"
@@ -33,7 +33,7 @@ DirList::DirList( const char* dirname, DirList::Type t, const char* msk )
 void DirList::update()
 {
     deepErase();
-    const bool havemask = mask_ != "";
+    const bool havemask = !mask_.isEmpty();
     GlobExpr ge( mask_.buf() );
     FilePath fp( dir_ ); fp.add( "X" );
 

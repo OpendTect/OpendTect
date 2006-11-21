@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: vishorizondisplay.cc,v 1.19 2006-11-21 07:51:43 cvsnanne Exp $
+ RCS:           $Id: vishorizondisplay.cc,v 1.20 2006-11-21 14:00:08 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -147,7 +147,7 @@ EM::PosID HorizonDisplay::findClosestNode( const Coord3& pickedpos ) const
 	closestnodes += EM::PosID( emobject_->id(), sids_[idx], pickedsubid );
     }
 
-    if ( !closestnodes.size() ) return EM::PosID( -1, -1, -1 );
+    if ( closestnodes.isEmpty() ) return EM::PosID( -1, -1, -1 );
 
     EM::PosID closestnode = closestnodes[0];
     float mindist = mUdf(float);
@@ -369,7 +369,7 @@ void HorizonDisplay::selectTexture( int attrib, int textureidx )
 
 SurveyObject::AttribFormat HorizonDisplay::getAttributeFormat() const
 {
-    if ( !sections_.size() ) return SurveyObject::None;
+    if ( sections_.isEmpty() ) return SurveyObject::None;
     mDynamicCastGet(const visBase::ParametricSurface*,ps,sections_[0]);
     return ps ? SurveyObject::RandomPos : SurveyObject::None;
 }
@@ -474,7 +474,7 @@ void HorizonDisplay::enableAttrib( int attribnr, bool yn )
 
 bool HorizonDisplay::isAttribEnabled( int attribnr ) const
 {
-    if ( !sections_.size() )
+    if ( sections_.isEmpty() )
 	return true;
 
     mDynamicCastGet(const visBase::ParametricSurface*,psurf,sections_[0]);
@@ -484,7 +484,7 @@ bool HorizonDisplay::isAttribEnabled( int attribnr ) const
 
 bool HorizonDisplay::isAngle( int attribnr ) const
 {
-    if ( !sections_.size() )
+    if ( sections_.isEmpty() )
 	return false;
 
     mDynamicCastGet(const visBase::ParametricSurface*,psurf,sections_[0]);
@@ -518,7 +518,7 @@ void HorizonDisplay::setDepthAsAttrib( int attrib )
     ObjectSet<BinIDValueSet> positions;
     getRandomPos( positions );
 
-    if ( !positions.size() )
+    if ( positions.isEmpty() )
     {
 	useTexture( false );
 	return;
@@ -790,7 +790,7 @@ void HorizonDisplay::emEdgeLineChangeCB(CallBacker* cb)
 
 int HorizonDisplay::nrResolutions() const
 {
-    if ( !sections_.size() ) return 1;
+    if ( sections_.isEmpty() ) return 1;
 
     mDynamicCastGet(const visBase::ParametricSurface*,ps,sections_[0]);
     return ps ? ps->nrResolutions()+1 : 1;
@@ -820,7 +820,7 @@ BufferString HorizonDisplay::getResolutionName( int res ) const
 
 int HorizonDisplay::getResolution() const
 {
-    if ( !sections_.size() ) return 0;
+    if ( sections_.isEmpty() ) return 0;
 
     mDynamicCastGet(const visBase::ParametricSurface*,ps,sections_[0]);
     return ps ? ps->currentResolution()+1 : 0;

@@ -4,7 +4,7 @@
  * DATE     : May 2004
 -*/
 
-static const char* rcsID = "$Id: wellextractdata.cc,v 1.29 2006-08-30 16:03:27 cvsbert Exp $";
+static const char* rcsID = "$Id: wellextractdata.cc,v 1.30 2006-11-21 14:00:07 cvsbert Exp $";
 
 #include "wellextractdata.h"
 #include "wellreader.h"
@@ -469,7 +469,7 @@ void Well::LogDataExtracter::getGenTrackData( const BinIDValueSet& bivs,
 	res += mUdf(float);
     }
 
-    if ( !bvpos.valid() || !track.size() )
+    if ( !bvpos.valid() || track.isEmpty() )
 	{ res.erase(); return; }
 
     BinID b( biv.binid.inl+SI().inlStep(),  biv.binid.crl+SI().crlStep() );

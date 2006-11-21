@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          start of 2001
- RCS:           $Id: uiiosel.cc,v 1.43 2006-08-17 08:49:17 cvsnanne Exp $
+ RCS:           $Id: uiiosel.cc,v 1.44 2006-11-21 14:00:08 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -340,7 +340,7 @@ void uiIOFileSelect::doFileSel( CallBacker* c )
     BufferString caption( "Select " );
     caption += labelText();
     uiFileDialog fd( this, forread, getInput(),
-		     filter == "" ? 0 : (const char*)filter, caption );
+		     filter.isEmpty() ? 0 : (const char*)filter, caption );
     if ( seldir )
 	fd.setMode( uiFileDialog::DirectoryOnly );
 

@@ -4,7 +4,7 @@
  * DATE     : 21-12-1995
 -*/
 
-static const char* rcsID = "$Id: iopar.cc,v 1.57 2006-09-21 12:02:47 cvsbert Exp $";
+static const char* rcsID = "$Id: iopar.cc,v 1.58 2006-11-21 14:00:06 cvsbert Exp $";
 
 #include "iopar.h"
 #include "multiid.h"
@@ -226,7 +226,7 @@ void IOPar::mergeComp( const IOPar& iopar, const char* ky )
     while ( ptr != key.buf() && *ptr == '.' )
 	*ptr = '\0';
 
-    const bool havekey = key != "";
+    const bool havekey = !key.isEmpty();
 
     BufferString buf;
     for ( int idx=0; idx<iopar.size(); idx++ )
@@ -940,7 +940,7 @@ void IOPar::getFrom( ascistream& strm )
 void IOPar::putTo( ascostream& strm ) const
 {
     strm.tabsOff();
-    if ( name() != "" )
+    if ( !name().isEmpty() )
 	strm.put( name() );
     for ( int idx=0; idx<size(); idx++ )
 	strm.put( keys_.get(idx), vals_.get(idx) );
@@ -1059,7 +1059,7 @@ bool IOPar::write( std::ostream& strm, const char* typ ) const
 
 void IOPar::dumpPretty( std::ostream& strm ) const
 {
-    if ( name() != "" )
+    if ( !name().isEmpty() )
 	strm << "> " << name() << " <\n";
 
     int maxlen = 0;

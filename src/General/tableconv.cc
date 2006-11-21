@@ -4,7 +4,7 @@
  * DATE     : Jul 2006
 -*/
 
-static const char* rcsID = "$Id: tableconv.cc,v 1.9 2006-08-11 10:52:45 cvsbert Exp $";
+static const char* rcsID = "$Id: tableconv.cc,v 1.10 2006-11-21 14:00:07 cvsbert Exp $";
 
 #include "tableconvimpl.h"
 
@@ -280,9 +280,9 @@ const char* Table::SQLInsertExportHandler::putRow( const BufferStringSet& row )
 {
     if ( nrrows_ == 0 )
     {
-	if ( tblname_ == "" )
+	if ( tblname_.isEmpty() )
 	    return "No table name provided";
-	addindex_ = indexcolnm_ != "";
+	addindex_ = !indexcolnm_.isEmpty();
 	nrextracols_ = extracolnms_.size();
     }
 

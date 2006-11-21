@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: wellimpasc.cc,v 1.37 2006-11-03 13:28:36 cvsbert Exp $";
+static const char* rcsID = "$Id: wellimpasc.cc,v 1.38 2006-11-21 14:00:07 cvsbert Exp $";
 
 #include "wellimpasc.h"
 #include "welldata.h"
@@ -126,7 +126,7 @@ const char* Well::AscImporter::getD2T( const char* fnm, bool istvd, bool istwt,
 	dahs += z;
     }
     sd.close();
-    if ( !tms.size() ) return "No valid Depth/Time points found";
+    if ( tms.isEmpty() ) return "No valid Depth/Time points found";
 
     const bool t_in_sec = tms[tms.size()-1] < 2 * SI().zRange(false).stop;
 
@@ -256,7 +256,7 @@ const char* Well::AscImporter::getLogInfo( std::istream& strm,
 	    else
 	    {
 		BufferString lognm( info );
-		if ( lognm == "" )
+		if ( lognm.isEmpty() )
 		    lognm = keyw;
 		else if ( *lognm.buf() >= '0' && *lognm.buf() <= '9' )
 		{
@@ -307,7 +307,7 @@ const char* Well::AscImporter::getLogInfo( std::istream& strm,
 	}
     }
 
-    if ( !convs_.size() )
+    if ( convs_.isEmpty() )
 	mErrRet( "Could not any valid log in file" )
 
     lfi.zrg.sort();
@@ -465,7 +465,7 @@ const char* Well::AscImporter::getLogData( std::istream& strm,
 	    if ( icol != lfi.depthcolnr && issel[icol] )
 		selvals += vals[icol];
 	}
-	if ( !selvals.size() ) continue;
+	if ( selvals.isEmpty() ) continue;
 
 	const float z = istvd ? wd.track().getDahForTVD( dpth, prevdpth )
 	    		      : dpth;

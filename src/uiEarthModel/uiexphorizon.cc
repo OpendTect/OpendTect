@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2002
- RCS:           $Id: uiexphorizon.cc,v 1.43 2006-07-04 11:21:49 cvsbert Exp $
+ RCS:           $Id: uiexphorizon.cc,v 1.44 2006-11-21 14:00:07 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -129,7 +129,7 @@ bool uiExportHorizon::writeAscii()
     const bool addzpos = zfld->getBoolValue();
     const bool dogf = typfld->getIntValue() == 2;
     BufferString udfstr = udffld->text();
-    if ( udfstr == "" ) udfstr = sKey::FloatUdf;
+    if ( udfstr.isEmpty() ) udfstr = sKey::FloatUdf;
 
     BufferString basename = outfld->fileName();
 
@@ -159,7 +159,7 @@ bool uiExportHorizon::writeAscii()
 			     "Do you wish to continue?") )
 	return false;
 
-    if ( sels.selvalues.size() > 0 )
+    if ( !sels.selvalues.isEmpty() )
     {
 	ExecutorGroup exgrp( "Reading aux data" );
 	for ( int idx=0; idx<sels.selvalues.size(); idx++ )
@@ -183,7 +183,7 @@ bool uiExportHorizon::writeAscii()
 	{
 	    FilePath fp( fname );
 	    BufferString ext( fp.extension() );
-	    if ( ext == "" )
+	    if ( ext.isEmpty() )
 		{ fname += "_"; fname += idx; }
 	    else
 	    {

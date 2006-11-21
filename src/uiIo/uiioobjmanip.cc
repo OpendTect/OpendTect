@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          25/05/2000
- RCS:           $Id: uiioobjmanip.cc,v 1.26 2006-07-11 08:22:41 cvsbert Exp $
+ RCS:           $Id: uiioobjmanip.cc,v 1.27 2006-11-21 14:00:08 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -297,7 +297,7 @@ bool uiIOObjManipGroup::relocEntry( IOObj* ioobj, Translator* tr )
     BufferString oldfnm( iostrm->getExpandedName(true) );
     BufferString filefilt( "*" );
     BufferString defext( subj_.defExt() );
-    if ( defext != "" )
+    if ( !defext.isEmpty() )
     {
 	filefilt += "."; filefilt += defext;
 	filefilt += ";;*";

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		15-1-2000
- RCS:		$Id: compoundkey.h,v 1.5 2004-04-01 13:39:50 bert Exp $
+ RCS:		$Id: compoundkey.h,v 1.6 2006-11-21 14:00:06 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,6 +44,7 @@ public:
     inline bool		operator!=(const char* s) const	{ return id != s; }
     inline bool		operator!=(const CompoundKey& u) const
 							{ return id != u.id; }
+    inline bool		isEmpty() const			{ return id.isEmpty(); }
     inline		operator const char*() const	{ return id; }
     inline char*	buf()				{ return id.buf(); }
 

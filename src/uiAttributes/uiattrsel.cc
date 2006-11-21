@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: uiattrsel.cc,v 1.17 2006-08-07 11:57:56 cvsnanne Exp $
+ RCS:           $Id: uiattrsel.cc,v 1.18 2006-11-21 14:00:07 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -60,7 +60,7 @@ uiAttrSelDlg::uiAttrSelDlg( uiParent* p, const char* seltxt,
 	, in_action_(false)
 {
     attrinf_ = new SelInfo( atd.attrset, atd.nlamodel, pol2d, ignoreid );
-    if ( !attrinf_->ioobjnms.size() )
+    if ( attrinf_->ioobjnms.isEmpty() )
     {
 	new uiLabel( this, "No seismic data available.\n"
 			   "Please import data first" );
@@ -167,7 +167,7 @@ void uiAttrSelDlg::createSelectionButtons()
 	nlafld_->activated.notify( mCB(this,uiAttrSelDlg,selDone) );
     }
 
-    if ( attrdata_.depthdomainkey != "" )
+    if ( !attrdata_.depthdomainkey.isEmpty() )
     {
 	depthdomainfld_ = new uiRadioButton( selgrp_, attrdata_.depthdomainkey);
 	depthdomainfld_->activated.notify( mCB(this,uiAttrSelDlg,selDone) );
@@ -211,7 +211,7 @@ void uiAttrSelDlg::createSelectionFields()
 	nlaoutfld_->attach( rightOf, selgrp_ );
     }
 
-    if ( attrdata_.depthdomainkey != "" )
+    if ( !attrdata_.depthdomainkey.isEmpty() )
     {
 	BufferStringSet nms;
 	SelInfo::getSpecialItems( attrdata_.depthdomainkey, nms );

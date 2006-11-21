@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          November 2001
- RCS:           $Id: uisettings.cc,v 1.18 2006-07-17 15:36:23 cvsbert Exp $
+ RCS:           $Id: uisettings.cc,v 1.19 2006-11-21 14:00:08 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -61,7 +61,7 @@ void uiSettings::selPush( CallBacker* )
 bool uiSettings::acceptOK( CallBacker* )
 {
     const BufferString ky = keyfld->text();
-    if ( ky == "" )
+    if ( ky.isEmpty() )
     {
 	uiMSG().error( "Please enter a keyword to set" );
 	return false;

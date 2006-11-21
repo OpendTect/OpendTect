@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emsurfaceedgeline.cc,v 1.30 2006-04-27 15:29:13 cvskris Exp $";
+static const char* rcsID = "$Id: emsurfaceedgeline.cc,v 1.31 2006-11-21 14:00:07 cvsbert Exp $";
    
 
 #include "emsurfaceedgeline.h"
@@ -126,7 +126,7 @@ void EdgeLineSegment::insert( int p1, const RowCol& rc )
 
 void EdgeLineSegment::insert( int p1, const TypeSet<RowCol>& rcs )
 {
-    if ( !rcs.size() ) return;
+    if ( rcs.isEmpty() ) return;
     if ( p1>=size() )
 	nodes.append( rcs );
     else

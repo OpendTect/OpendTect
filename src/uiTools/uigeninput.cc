@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uigeninput.cc,v 1.75 2006-08-16 10:51:20 cvsbert Exp $
+ RCS:           $Id: uigeninput.cc,v 1.76 2006-11-21 14:00:08 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -736,7 +736,7 @@ void uiGenInput::updateSpecs()
 void uiGenInput::doFinalise()
 {
     if ( finalised )		return;
-    if ( !inputs.size() )	{ pErrMsg("No inputs specified :("); return; }
+    if ( inputs.isEmpty() )	{ pErrMsg("No inputs specified :("); return; }
 
     uiObject* lastElem = createInpFld( *inputs[0] ).mainObj();
     setHAlignObj( lastElem );
@@ -757,7 +757,7 @@ void uiGenInput::doFinalise()
     for( int i=1; i<inputs.size(); i++ )
 	lastElem = createInpFld( *inputs[i] ).mainObj();
 
-    if ( selText != "" )
+    if ( !selText.isEmpty() )
     {
 	selbut = new uiPushButton( this, selText, false );
 	selbut->activated.notify( mCB(this,uiGenInput,doSelect_) );

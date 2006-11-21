@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          18-4-1996
- RCS:           $Id: survinfo.cc,v 1.80 2006-11-07 08:47:53 cvsnanne Exp $
+ RCS:           $Id: survinfo.cc,v 1.81 2006-11-21 14:00:06 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -139,7 +139,7 @@ SurveyInfo* SurveyInfo::read( const char* survdir )
 
     si->dirname = fpsurvdir.fileName();
     si->datadir = fpsurvdir.pathOnly();
-    if ( !survdir || si->dirname == "" ) return si;
+    if ( !survdir || si->dirname.isEmpty() ) return si;
 
     while ( !atEndOfSection(astream) )
     {
@@ -610,7 +610,7 @@ bool SurveyInfo::write( const char* basedir ) const
     fms += cs_.zrg.step; fms += zistime_ ? "T" : ( zinfeet_ ? "F" : "D" );
     astream.put( sKeyZRange, fms );
 
-    if ( wsprojnm_ != "" )
+    if ( !wsprojnm_.isEmpty() )
 	astream.put( sKeyWSProjName, wsprojnm_ );
 
     writeSpecLines( astream );
@@ -674,7 +674,7 @@ void SurveyInfo::writeSpecLines( ascostream& astream ) const
 
 void SurveyInfo::savePars( const char* basedir ) const
 {
-    if ( !pars_.size() ) return;
+    if ( pars_.isEmpty() ) return;
 
     if ( !basedir || !*basedir )
 	basedir = GetDataDir();

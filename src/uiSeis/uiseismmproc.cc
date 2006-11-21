@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:		$Id: uiseismmproc.cc,v 1.107 2006-10-31 12:26:22 cvsbert Exp $
+ RCS:		$Id: uiseismmproc.cc,v 1.108 2006-11-21 14:00:08 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -108,7 +108,7 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const IOPar& ip,
     if ( !is2d )
     {
 	BufferString tmpstordir = iop.find( sKey::TmpStor );
-	isrestart = tmpstordir != "";
+	isrestart = !tmpstordir.isEmpty();
 	if ( !isrestart )
 	{
 	    tmpstordir = SeisJobExecProv::getDefTempStorDir();
@@ -129,7 +129,7 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const IOPar& ip,
 	    tmpstordirfld = new uiIOFileSelect( this,
 			    sKey::TmpStor, false, tmpstordir );
 	    tmpstordirfld->usePar( uiIOFileSelect::tmpstoragehistory );
-	    if ( tmpstordir != "" && File_isDirectory(tmpstordir) )
+	    if ( !tmpstordir.isEmpty() && File_isDirectory(tmpstordir) )
 		tmpstordirfld->setInput( tmpstordir );
 	    tmpstordirfld->selectDirectory( true );
 	    tmpstordirfld->stretchHor( true );
@@ -643,7 +643,7 @@ void uiSeisMMProc::jobFailed( CallBacker* cb )
     addObjNm( msg, jobrunner, ji.descnr_ );
     if ( ji.hostdata_ )
 	{ msg += " on "; msg += ji.hostdata_->name(); }
-    if ( ji.infomsg_ != "" )
+    if ( !ji.infomsg_.isEmpty() )
 	{ msg += ": "; msg += ji.infomsg_; }
     progrfld->append( msg );
 }
@@ -652,7 +652,7 @@ void uiSeisMMProc::jobFailed( CallBacker* cb )
 void uiSeisMMProc::infoMsgAvail( CallBacker* cb )
 {
     const JobInfo& ji = jobrunner->curJobInfo();
-    if ( ji.infomsg_ == "" ) { pErrMsg("huh?"); return; }
+    if ( ji.infomsg_.isEmpty() ) { pErrMsg("huh?"); return; }
 
     BufferString msg( "Info for " );
     addObjNm( msg, jobrunner, ji.descnr_ );

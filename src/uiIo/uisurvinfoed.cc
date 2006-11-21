@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvinfoed.cc,v 1.76 2006-03-12 13:39:11 cvsbert Exp $
+ RCS:           $Id: uisurvinfoed.cc,v 1.77 2006-11-21 14:00:08 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -102,7 +102,7 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo* si_ )
     static int sipidx = addInfoProvider( new uiCopySurveySIP );
 
     orgstorepath = survinfo ? survinfo->datadir.buf() : rootdir.buf();
-    isnew = !survinfo || orgdirname == "";
+    isnew = !survinfo || orgdirname.isEmpty();
 
     if ( !isnew )
     {
@@ -621,7 +621,7 @@ const char* uiSurveyInfoEditor::dirName()
 bool uiSurveyInfoEditor::setRanges()
 {
     BufferString survnm( survnmfld->text() );
-    if ( survnm == "" ) survnm = dirnmfld->text();
+    if ( survnm.isEmpty() ) survnm = dirnmfld->text();
     survinfo->setName( survnm );
 
     StepInterval<int> irg( inlfld->getIStepInterval() );

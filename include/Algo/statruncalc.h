@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl (org) / Bert Bril (rev)
  Date:          10-12-1999 / Sep 2006
- RCS:           $Id: statruncalc.h,v 1.6 2006-10-16 14:58:11 cvsbert Exp $
+ RCS:           $Id: statruncalc.h,v 1.7 2006-11-21 14:00:06 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -102,6 +102,7 @@ public:
     inline bool		hasUndefs() const	{ return nrused_ != nradded_; }
     inline int		size( bool used=true ) const
     			{ return used ? nrused_ : nradded_; }
+    inline bool		isEmpty() const		{ return size() == 0; }
 
     inline double	mean() const;
     inline double	variance() const; 
@@ -361,7 +362,7 @@ template <class T> inline
 RunCalc<T>& RunCalc<T>::replaceValue( T oldval, T newval, T wt )
 {
     remExceptMed( oldval, wt );
-    if ( !addExceptMed( newval, wt ) || !setup_.needmed_ || vals_.size() < 1 )
+    if ( !addExceptMed( newval, wt ) || !setup_.needmed_ || vals_.isEmpty() )
 	return *this;
 
     int iwt = 1;
@@ -384,7 +385,7 @@ RunCalc<T>& RunCalc<T>::replaceValue( T oldval, T newval, T wt )
 template <class T> inline
 RunCalc<T>& RunCalc<T>::removeValue( T val, T wt )
 {
-    if ( !remExceptMed(val,wt) || !setup_.needmed_ || vals_.size() < 1 )
+    if ( !remExceptMed(val,wt) || !setup_.needmed_ || vals_.isEmpty() )
 	return *this;
 
     int iwt = 1;
@@ -467,7 +468,7 @@ inline double RunCalc<T>::mean() const
 template <class T>
 inline T RunCalc<T>::mostFreq() const
 {
-    if ( clss_.size() < 1 )
+    if ( clss_.isEmpty() )
 	return mUdf(T);
 
     int maxocc = occs_[0]; int ret = clss_[0];

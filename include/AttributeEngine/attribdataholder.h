@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribdataholder.h,v 1.15 2006-08-16 10:51:19 cvsbert Exp $
+ RCS:           $Id: attribdataholder.h,v 1.16 2006-11-21 14:00:06 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,6 +51,8 @@ public:
     bool                dataPresent(int samplenr) const;
     TypeSet<int>	validSeriesIdx() const;
 
+    inline bool		isEmpty() const		{ return nrSeries() == 0; }
+
     int			z0_;	//!< See class comments
     int			nrsamples_;
 
@@ -68,11 +70,15 @@ protected:
 class Data2DHolder
 { mRefCountImpl(Data2DHolder);
 public:
-    int				size() const { return dataset_.size(); }
+
+    inline int			size() const	{ return dataset_.size(); }
     bool			fillDataCube(DataCubes&) const;
     CubeSampling		getCubeSampling() const;
     ObjectSet<DataHolder>	dataset_;
     ObjectSet<SeisTrcInfo>	trcinfoset_;
+
+    inline bool			isEmpty() const	{ return size() == 0; }
+
 };
 
 

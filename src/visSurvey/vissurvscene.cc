@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: vissurvscene.cc,v 1.92 2006-06-22 09:54:37 cvsnanne Exp $
+ RCS:           $Id: vissurvscene.cc,v 1.93 2006-11-21 14:00:08 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -326,7 +326,7 @@ void Scene::mouseMoveCB( CallBacker* cb )
 		    BufferString newstr;
 		    so->getMousePosInfo( eventinfo, xytmousepos_,
 			    		 newmouseposval, newstr );
-		    if ( newstr != "" )
+		    if ( !newstr.isEmpty() )
 			mouseposstr_ = newstr;
 
 		    if ( newmouseposval[0] )

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H.Payraudeau
  Date:          04/2005
- RCS:           $Id: attribengman.cc,v 1.60 2006-07-31 11:18:56 cvshelene Exp $
+ RCS:           $Id: attribengman.cc,v 1.61 2006-11-21 14:00:06 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -173,7 +173,7 @@ void EngineMan::setExecutorName( Executor* ex )
     if ( !ex ) return;
 
     BufferString usernm( getCurUserRef() );
-    if ( usernm == "" || !inpattrset ) return;
+    if ( usernm.isEmpty() || !inpattrset ) return;
 
     if ( curattridx < 0 || curattridx >= attrspecs_.size() )
 	ex->setName( "Processing attribute" );
@@ -237,7 +237,7 @@ void EngineMan::setAttribSet( const DescSet* ads )
 const char* EngineMan::getCurUserRef() const
 {
     const int idx = curattridx;
-    if ( !attrspecs_.size() || attrspecs_[idx].id() < 0 ) return "";
+    if ( attrspecs_.isEmpty() || attrspecs_[idx].id() < 0 ) return "";
 
     SelSpec& ss = const_cast<EngineMan*>(this)->attrspecs_[idx];
     if ( attrspecs_[idx].isNLA() )
@@ -282,7 +282,7 @@ const DataCubes* EngineMan::getDataCubesOutput( const Processor& proc )
 	cache->ref();
     }
 
-    if ( !cubeset.size() )
+    if ( cubeset.isEmpty() )
 	return 0;
 
     DataCubes* output = new DataCubes;
@@ -366,7 +366,7 @@ void EngineMan::setCubeSampling( const CubeSampling& newcs )
 DescSet* EngineMan::createNLAADS( DescID& nladescid, BufferString& errmsg,
        				  const DescSet* addtoset )
 {
-    if ( !attrspecs_.size() ) return 0;
+    if ( attrspecs_.isEmpty() ) return 0;
     DescSet* descset = addtoset ? addtoset->clone() : new DescSet;
     if ( !addtoset && !descset->usePar(nlamodel->pars()) )
     {
@@ -467,7 +467,7 @@ DescID EngineMan::createEvaluateADS( DescSet& descset,
 				     const TypeSet<DescID>& outids,
 				     BufferString& errmsg )
 {
-    if ( !outids.size() ) return DescID::undef();
+    if ( outids.isEmpty() ) return DescID::undef();
     if ( outids.size() == 1 ) return outids[0];
 
     Desc* desc = PF().createDescCopy( "Evaluate" );

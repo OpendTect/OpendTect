@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          October 2003
- RCS:           $Id: uiwelldlgs.cc,v 1.46 2006-11-06 16:18:12 cvsnanne Exp $
+ RCS:           $Id: uiwelldlgs.cc,v 1.47 2006-11-21 14:00:08 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -304,7 +304,7 @@ void uiD2TModelDlg::readNew( CallBacker* )
     Well::AscImporter ascimp( wd );
     BufferString errmsg = ascimp.getD2T( dlg.fnm, dlg.istvd,
 	    				 dlg.istwt, dlg.isft );
-    if ( errmsg != "" )
+    if ( !errmsg.isEmpty() )
 	uiMSG().error( "Please select a valid file" );
     else
     {

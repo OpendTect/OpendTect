@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          March 2003
- RCS:           $Id: uiattribcrossplot.cc,v 1.3 2006-08-30 16:03:27 cvsbert Exp $
+ RCS:           $Id: uiattribcrossplot.cc,v 1.4 2006-11-21 14:00:07 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -57,7 +57,7 @@ uiAttribCrossPlot::uiAttribCrossPlot( uiParent* p, const DescSet& d )
 	    attrdefs_.add( defkey );
 	}
     }
-    if ( attrsfld->box()->size() > 0 )
+    if ( !attrsfld->box()->isEmpty() )
 	attrsfld->box()->setCurrentItem( int(0) );
     attrsfld->box()->setMultiSelect( true );
 
@@ -111,7 +111,7 @@ bool uiAttribCrossPlot::acceptOK( CallBacker* )
 
     ObjectSet<BinIDValueSet> bivsets;
     PickSetTranslator::createBinIDValueSets( psssel, bivsets );
-    bool havedata = bivsets.size() > 0;
+    bool havedata = !bivsets.isEmpty();
     if ( havedata )
     {
 	havedata = false;

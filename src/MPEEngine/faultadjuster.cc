@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: faultadjuster.cc,v 1.2 2006-04-27 15:53:13 cvskris Exp $";
+static const char* rcsID = "$Id: faultadjuster.cc,v 1.3 2006-11-21 14:00:07 cvsbert Exp $";
 
 #include "faultadjuster.h"
 
@@ -58,7 +58,7 @@ int FaultAdjuster::nextStep()
 
 	TypeSet<BinID> targetbids;
 	getTargetPositions( subid, pidsrc_.size()?&pidsrc_[idx]:0, targetbids );
-	if ( !targetbids.size() ) continue;
+	if ( targetbids.isEmpty() ) continue;
 
 	float minmaxval = attr->trackHigh() ? -mUndefValue : mUndefValue;
 	int minmaxidx = -1;

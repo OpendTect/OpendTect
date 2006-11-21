@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: uilistbox.h,v 1.31 2006-04-28 15:23:20 cvsnanne Exp $
+ RCS:           $Id: uilistbox.h,v 1.32 2006-11-21 14:00:06 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -56,6 +56,7 @@ public:
     void		setMultiSelect(bool yn=true);
 
     int			size() const;
+    inline bool		isEmpty() const		{ return size() == 0; }
     bool		isPresent(const char*) const;
     bool		isSelected(int) const;
     int			nrSelected() const;

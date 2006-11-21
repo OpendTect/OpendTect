@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attriblinebuffer.cc,v 1.8 2006-08-16 10:51:19 cvsbert Exp $";
+static const char* rcsID = "$Id: attriblinebuffer.cc,v 1.9 2006-11-21 14:00:06 cvsbert Exp $";
 
 #include "attriblinebuffer.h"
 
@@ -110,7 +110,7 @@ void DataHolderLineBuffer::removeBefore( const BinID& bid,
 		}
 	    }
 
-	    if ( !crosslines.size() )
+	    if ( crosslines.isEmpty() )
 		removeline = true;
 	}
 

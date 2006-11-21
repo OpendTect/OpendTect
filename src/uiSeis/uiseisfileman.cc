@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiseisfileman.cc,v 1.60 2006-08-03 19:40:52 cvsnanne Exp $
+ RCS:           $Id: uiseisfileman.cc,v 1.61 2006-11-21 14:00:08 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -149,7 +149,7 @@ void uiSeisFileMan::mkFileInfo()
 	delete tri;
     }
 
-    if ( txt.size() > 0 ) txt += "\n";
+    if ( !txt.isEmpty() ) txt += "\n";
     txt += getFileInfo();
 
     infofld->setText( txt );
@@ -302,7 +302,7 @@ void attribSel( CallBacker* )
     BufferStringSet linenms, attribnms;
     linelist->box()->getSelectedItems( linenms );
     attriblist->box()->getSelectedItems( attribnms );
-    if ( !linenms.size() || !attribnms.size() )
+    if ( linenms.isEmpty() || attribnms.isEmpty() )
     { infofld->setText(""); return; }
 
     const LineKey linekey( linenms.get(0), attribnms.get(0) );
@@ -338,8 +338,8 @@ void removeAttrib( CallBacker* )
 {
     BufferStringSet attribnms;
     attriblist->box()->getSelectedItems( attribnms );
-    if ( !attribnms.size() || 
-	    !uiMSG().askGoOn("All selected attributes will be removed.\n"
+    if ( attribnms.isEmpty()
+      || !uiMSG().askGoOn("All selected attributes will be removed.\n"
 			     "Do you want to continue?") )
 	return;
 
@@ -375,7 +375,7 @@ void renameLine( CallBacker* )
 {
     BufferStringSet linenms;
     linelist->box()->getSelectedItems( linenms );
-    if ( !linenms.size() ) return;
+    if ( linenms.isEmpty() ) return;
 
     const char* linenm = linenms.get(0);
     BufferString newnm;
@@ -401,7 +401,7 @@ void renameAttrib( CallBacker* )
 {
     BufferStringSet attribnms;
     attriblist->box()->getSelectedItems( attribnms );
-    if ( !attribnms.size() ) return;
+    if ( attribnms.isEmpty() ) return;
 
     const char* attribnm = attribnms.get(0);
     BufferString newnm;

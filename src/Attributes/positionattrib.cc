@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          November 2002
- RCS:           $Id: positionattrib.cc,v 1.21 2006-09-21 12:02:46 cvsbert Exp $
+ RCS:           $Id: positionattrib.cc,v 1.22 2006-11-21 14:00:06 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -180,7 +180,7 @@ bool Position::getInputData( const BinID& relpos, int zintv )
 bool Position::computeData( const DataHolder& output, const BinID& relpos,
 			    int z0, int nrsamples ) const
 {
-    if ( !inputdata_.size() || !outdata_ ) return false;
+    if ( inputdata_.isEmpty() || !outdata_ ) return false;
     
     const int nrpos = positions_.size();
     const int cposnr = (int)(nrpos/2);
@@ -202,7 +202,7 @@ bool Position::computeData( const DataHolder& output, const BinID& relpos,
 	for ( int idp=0; idp<nrpos; idp++ )
 	{
 	    const DataHolder* dh = inputdata_[idp];
-	    if ( !dh || !dh->nrSeries() || !dh->series(inidx_) ) 
+	    if ( !dh || dh->isEmpty() || !dh->series(inidx_) ) 
 		continue;
 
 	    ValueSeriesInterpolator<float> interp( dh->nrsamples_-1 );
@@ -222,7 +222,7 @@ bool Position::computeData( const DataHolder& output, const BinID& relpos,
 		ds++;
 	    }
 	}
-	if ( !stats.size() ) return false;
+	if ( stats.isEmpty() ) return false;
 
 	const int posidx = stats.getIndex( statstype );
 	BinID bid = bidv[posidx].binid;
@@ -231,7 +231,7 @@ bool Position::computeData( const DataHolder& output, const BinID& relpos,
 						bid.crl+stepout_.crl );
 
 	float val = 0;
-	if ( odata && odata->nrSeries() && odata->series(outidx_) )
+	if ( odata && !odata->isEmpty() && odata->series(outidx_) )
 	{
 	    ValueSeriesInterpolator<float> intp( odata->nrsamples_-1 );
 	    val = intp.value( *(odata->series(outidx_)), sample-odata->z0_ );

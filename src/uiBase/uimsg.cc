@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: uimsg.cc,v 1.30 2006-07-17 15:36:23 cvsbert Exp $
+ RCS:           $Id: uimsg.cc,v 1.31 2006-11-21 14:00:07 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -99,7 +99,7 @@ void uiMsg::setNextCaption( const char* s )
 
 static const char* getCaptn( const char* s )
 {
-    if ( gtCaptn() == "" )
+    if ( gtCaptn().isEmpty() )
 	return s;
 
     static BufferString oldcaptn;

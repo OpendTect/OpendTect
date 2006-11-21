@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: faultextender.cc,v 1.5 2006-05-02 06:32:20 cvsnanne Exp $";
+static const char* rcsID = "$Id: faultextender.cc,v 1.6 2006-11-21 14:00:07 cvsbert Exp $";
 
 #include "faultextender.h"
 
@@ -47,7 +47,7 @@ int FaultExtender::nextStep()
     for ( int idx=0; idx<startpos.size(); idx++ )
 	rcs += RowCol( startpos[idx] );
 
-    if ( !rcs.size() )
+    if ( rcs.isEmpty() )
 	return 0;
 
     mDynamicCastGet(const Geometry::CubicBezierSurface*,surface,

@@ -4,7 +4,7 @@
  * DATE     : Dec 2003
 -*/
 
-static const char* rcsID = "$Id: stratunit.cc,v 1.10 2005-01-26 11:48:31 bert Exp $";
+static const char* rcsID = "$Id: stratunit.cc,v 1.11 2006-11-21 14:00:07 cvsbert Exp $";
 
 #include "stratunitref.h"
 #include "stratlith.h"
@@ -156,7 +156,7 @@ Strat::NodeUnitRef::~NodeUnitRef()
 Strat::UnitRef* Strat::NodeUnitRef::fnd( const char* unitkey ) const
 {
     if ( !unitkey || !*unitkey )
-	return code() == "" ? (Strat::UnitRef*)this : 0;
+	return code().isEmpty() ? (Strat::UnitRef*)this : 0;
 
     CompoundKey ck( unitkey );
     const BufferString codelvl1( ck.key(0) );

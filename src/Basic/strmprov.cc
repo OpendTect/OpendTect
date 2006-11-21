@@ -41,7 +41,7 @@
 #include "oddirs.h"
 
 
-static const char* rcsID = "$Id: strmprov.cc,v 1.68 2006-08-21 17:14:45 cvsbert Exp $";
+static const char* rcsID = "$Id: strmprov.cc,v 1.69 2006-11-21 14:00:06 cvsbert Exp $";
 
 static FixedString<1024> oscommand;
 
@@ -210,7 +210,7 @@ StreamProvider::StreamProvider( const char* hostnm, const char* fnm,
 	, fname(fnm?fnm:sStdIO)
     	, rshcomm("rsh")
 {
-    if ( fname == "" ) isbad = true;
+    if ( fname.isEmpty() ) isbad = true;
 }
 
 
@@ -289,7 +289,7 @@ void StreamProvider::set( const char* devname )
 
 bool StreamProvider::isNormalFile() const
 {
-    return type_ == StreamConn::File && hostname == "";
+    return type_ == StreamConn::File && hostname.isEmpty();
 }
 
 

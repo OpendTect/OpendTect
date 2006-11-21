@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		September 2005
- RCS:		$Id: uichangesurfacedlg.cc,v 1.1 2006-11-20 16:57:42 cvsbert Exp $
+ RCS:		$Id: uichangesurfacedlg.cc,v 1.2 2006-11-21 14:00:07 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -149,7 +149,7 @@ bool uiChangeSurfaceDlg::doProcessing()
 	if ( !savefld_ )
 	{
 	    BufferString msg = infoMsg();
-	    if ( msg != "" )
+	    if ( !msg.isEmpty() )
 		uiMSG().message( msg );
 	}
 

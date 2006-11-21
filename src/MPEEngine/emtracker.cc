@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emtracker.cc,v 1.30 2006-08-16 10:51:20 cvsbert Exp $";
+static const char* rcsID = "$Id: emtracker.cc,v 1.31 2006-11-21 14:00:07 cvsbert Exp $";
 
 #include "emtracker.h"
 
@@ -126,7 +126,7 @@ Executor* EMTracker::trackInVolume()
 	// check whether data loading was cancelled by user
 	ObjectSet<const Attrib::SelSpec> attrselset;
 	sectiontracker->getNeededAttribs( attrselset );
-	if ( !attrselset.size() || !engine().getAttribCache(*attrselset[0]) )
+	if ( attrselset.isEmpty() || !engine().getAttribCache(*attrselset[0]) )
 	    continue;
 	
 	if ( !res )

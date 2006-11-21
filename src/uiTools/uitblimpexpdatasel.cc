@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2006
- RCS:           $Id: uitblimpexpdatasel.cc,v 1.7 2006-11-10 13:53:26 cvsbert Exp $
+ RCS:           $Id: uitblimpexpdatasel.cc,v 1.8 2006-11-21 14:00:08 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -273,7 +273,7 @@ uiTableImpDataSel::uiTableImpDataSel( uiParent* p, Table::FormatDesc& fd )
 
     // No support for setting tokencol_ (yet?) ...
     BufferString valstr( fd_.token_ );
-    if ( valstr == "" ) valstr = "0";
+    if ( valstr.isEmpty() ) valstr = "0";
     if ( fd_.nrhdrlines_ > 0 ) valstr = fd_.nrhdrlines_;
     hdrendfld = new uiGenInput( this, "Header stops after (nr lines, or token)",
 				valstr );
@@ -327,7 +327,7 @@ bool uiTableImpDataSel::commit()
     mDoCommit(bodyelems_)
 
     BufferString txt = hdrendfld->text();
-    if ( txt == "" )
+    if ( txt.isEmpty() )
 	fd_.nrhdrlines_ = 0;
     else if ( isNumberString(txt.buf(),YES) )
 	fd_.nrhdrlines_ = atoi( txt.buf() );

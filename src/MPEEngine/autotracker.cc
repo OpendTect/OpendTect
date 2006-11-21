@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: autotracker.cc,v 1.11 2006-11-06 10:48:06 cvsjaap Exp $";
+static const char* rcsID = "$Id: autotracker.cc,v 1.12 2006-11-21 14:00:07 cvsbert Exp $";
 
 #include "autotracker.h"
 
@@ -53,7 +53,7 @@ AutoTracker::AutoTracker( EMTracker& et, const EM::SectionID& sid )
 	addSeed(pid);
     }
 
-    if ( !currentseeds_.size() )
+    if ( currentseeds_.isEmpty() )
 	totalnr_ = 0;
 }
 

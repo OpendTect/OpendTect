@@ -4,7 +4,7 @@
  * DATE     : 3-8-1994
 -*/
 
-static const char* rcsID = "$Id: ioman.cc,v 1.70 2006-09-14 14:24:17 cvsbert Exp $";
+static const char* rcsID = "$Id: ioman.cc,v 1.71 2006-11-21 14:00:07 cvsbert Exp $";
 
 #include "ioman.h"
 #include "iodir.h"
@@ -219,7 +219,7 @@ bool IOMan::validSurveySetup( BufferString& errmsg )
 {
     errmsg = "";
     const BufferString basedatadir( GetBaseDataDir() );
-    if ( basedatadir == "" )
+    if ( basedatadir.isEmpty() )
 	mErrRet("Please set the environment variable DTECT_DATA.")
     else if ( !File_exists(basedatadir) )
 	mErrRetNotODDir(0)
@@ -316,7 +316,7 @@ bool IOMan::to( const MultiID& ky )
     else				currentkey = ky;
     delete refioobj;
 
-    IODir* newdir = currentkey == ""
+    IODir* newdir = currentkey.isEmpty()
 	? new IODir( rootdir ) : new IODir( currentkey );
     if ( !newdir || newdir->bad() ) return false;
 
@@ -559,9 +559,9 @@ bool IOMan::setDir( const char* dirname )
 void IOMan::getEntry( CtxtIOObj& ctio, MultiID overruleselkey )
 {
     ctio.setObj( 0 );
-    if ( ctio.ctxt.name() == "" ) return;
+    if ( ctio.ctxt.name().isEmpty() ) return;
 
-    to( overruleselkey == "" ? ctio.ctxt.getSelKey() : overruleselkey );
+    to( overruleselkey.isEmpty() ? ctio.ctxt.getSelKey() : overruleselkey );
 
     const IOObj* ioobj = (*dirPtr())[ ctio.ctxt.name() ];
     ctio.ctxt.fillTrGroup();
@@ -575,10 +575,10 @@ void IOMan::getEntry( CtxtIOObj& ctio, MultiID overruleselkey )
 	iostrm->setGroup( ctio.ctxt.trgroup->userName() );
 	const Translator* tr = ctio.ctxt.trgroup->templates().size() ?
 	    			ctio.ctxt.trgroup->templates()[0] : 0;
-	BufferString trnm( ctio.ctxt.deftransl != ""
-			 ? ctio.ctxt.deftransl.buf()
-			 : (tr ? tr->userName().buf() : "") );
-	if ( trnm == "" )
+	BufferString trnm( ctio.ctxt.deftransl.isEmpty()
+			 ? (tr ? tr->userName().buf() : "")
+			 : ctio.ctxt.deftransl.buf() );
+	if ( trnm.isEmpty() )
 	    trnm = ctio.ctxt.stdseltype == IOObjContext::Seis ? "CBVS" : "dGB";
 	iostrm->setTranslator( trnm );
 

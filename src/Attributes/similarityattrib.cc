@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          June 2005
- RCS:           $Id: similarityattrib.cc,v 1.30 2006-09-21 12:02:47 cvsbert Exp $
+ RCS:           $Id: similarityattrib.cc,v 1.31 2006-11-21 14:00:06 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -240,7 +240,7 @@ bool Similarity::getInputData( const BinID& relpos, int zintv )
 bool Similarity::computeData( const DataHolder& output, const BinID& relpos, 
 			      int z0, int nrsamples ) const
 {
-    if ( !inputdata_.size() ) return false;
+    if ( inputdata_.isEmpty() ) return false;
 
     const Interval<int> samplegate( mNINT(gate_.start/refstep),
 				    mNINT(gate_.stop/refstep) );

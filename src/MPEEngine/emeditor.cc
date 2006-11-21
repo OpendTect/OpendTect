@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emeditor.cc,v 1.17 2006-04-27 15:53:13 cvskris Exp $";
+static const char* rcsID = "$Id: emeditor.cc,v 1.18 2006-11-21 14:00:07 cvsbert Exp $";
 
 #include "emeditor.h"
 
@@ -112,7 +112,7 @@ bool ObjectEditor::setPosition(const Coord3& np)
 
 void ObjectEditor::finishEdit()
 {
-    if ( !changedpids.size() )
+    if ( changedpids.isEmpty() )
 	return;
 
     if ( snapafterthisedit )

@@ -5,7 +5,7 @@
  * FUNCTION : Seg-Y headers
 -*/
 
-static const char* rcsID = "$Id: segyhdr.cc,v 1.39 2006-03-12 13:39:10 cvsbert Exp $";
+static const char* rcsID = "$Id: segyhdr.cc,v 1.40 2006-11-21 14:00:07 cvsbert Exp $";
 
 
 #include "segyhdr.h"
@@ -145,7 +145,7 @@ void SegyTxtHeader::setPosInfo( const SegyTraceheaderDef& thd )
     if ( info2d )
     {
 	mPutBytePosSize( 8, "Trace number: ", trnr );
-	if ( thd.linename != "" )
+	if ( !thd.linename.isEmpty() )
 	{
 	    LineKey lk( thd.linename );
 	    putAt( 3, 6, 20, "Line name:" );

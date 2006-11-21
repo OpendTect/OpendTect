@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: wellreader.cc,v 1.20 2006-03-12 13:39:11 cvsbert Exp $";
+static const char* rcsID = "$Id: wellreader.cc,v 1.21 2006-11-21 14:00:07 cvsbert Exp $";
 
 #include "wellreader.h"
 #include "welldata.h"
@@ -178,7 +178,7 @@ bool Well::Reader::getOldTimeWell( std::istream& strm ) const
 	strm >> c3.x >> c3.y >> c3.z;
 	if ( !strm || c3.distance(c0) < 1 ) break;
 
-	if ( wd.track().size() > 0 )
+	if ( !wd.track().isEmpty() )
 	    dah += c3.distance( prevc );
 	wd.track().addPoint( c3, c3.z, dah );
 	prevc = c3;
@@ -299,7 +299,7 @@ Well::Log* Well::Reader::rdLogHdr( std::istream& strm, int idx ) const
 	if ( astrm.hasKeyword(Well::Log::sKeyUnitLbl) )
 	    newlog->setUnitMeasLabel( astrm.value() );
     }
-    if ( newlog->name() == "" )
+    if ( newlog->name().isEmpty() )
     {
 	BufferString nm( "[" ); nm += idx+1; nm += "]";
 	newlog->setName( nm );
@@ -346,7 +346,7 @@ bool Well::Reader::getMarkers( std::istream& strm ) const
 
     ascistream astrm( strm, NO );
     IOPar iopar( astrm );
-    if ( !iopar.size() ) return false;
+    if ( iopar.isEmpty() ) return false;
 
     BufferString bs;
     for ( int idx=1;  ; idx++ )

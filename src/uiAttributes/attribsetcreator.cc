@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          April 2003
- RCS:           $Id: attribsetcreator.cc,v 1.4 2006-06-07 07:18:56 cvsnanne Exp $
+ RCS:           $Id: attribsetcreator.cc,v 1.5 2006-11-21 14:00:07 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -296,7 +296,7 @@ Desc* AttributeSetCreator::getDesc( const char* gdidesc )
 	}
     }
 
-    if ( defstr == "" )
+    if ( defstr.isEmpty() )
 	defstr = "Storage id=100010.x";
 
     BufferString attribname;

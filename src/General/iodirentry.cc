@@ -6,7 +6,7 @@
 
 -*/
  
-static const char* rcsID = "$Id: iodirentry.cc,v 1.19 2006-08-21 17:14:45 cvsbert Exp $";
+static const char* rcsID = "$Id: iodirentry.cc,v 1.20 2006-11-21 14:00:07 cvsbert Exp $";
 
 #include "iodirentry.h"
 #include "ctxtioobj.h"
@@ -122,7 +122,7 @@ void IODirEntryList::fill( IODir* iodir, const char* nmfilt )
 
     delete ge;
     sort();
-    if ( lastiokey == "" )
+    if ( lastiokey.isEmpty() )
 	{ if ( size() > curset ) setCurrent( curset ); }
     else
 	setSelected( lastiokey );
@@ -138,7 +138,7 @@ void IODirEntryList::setSelected( const MultiID& iniokey )
 	MultiID iokey( iniokey );
 	if ( !entry->ioobj )
 	{
-	    if ( iokey == "" )
+	    if ( iokey.isEmpty() )
 		matches = true;
 	}
 	else
@@ -150,7 +150,7 @@ void IODirEntryList::setSelected( const MultiID& iniokey )
 		while ( 1 )
 		{
 		    iokey = iokey.upLevel();
-		    if ( iokey == "" ) break;
+		    if ( iokey.isEmpty() ) break;
 		    if ( iokey == entry->ioobj->key() )
 			matches = true;
 		}

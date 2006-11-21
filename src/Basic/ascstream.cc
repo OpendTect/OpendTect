@@ -4,7 +4,7 @@
  * DATE     : 7-7-1994
 -*/
 
-static const char* rcsID = "$Id: ascstream.cc,v 1.18 2006-08-15 14:38:31 cvsbert Exp $";
+static const char* rcsID = "$Id: ascstream.cc,v 1.19 2006-11-21 14:00:06 cvsbert Exp $";
 
 #include "ascstream.h"
 #include "string2.h"
@@ -29,7 +29,7 @@ static BufferString& getPVN()
 extern "C" const char* GetProjectVersionName()
 {
     BufferString& pvn = getPVN();
-    if ( pvn == "" )
+    if ( pvn.isEmpty() )
     {
 	pvn = "dTect";
 	pvn += " V";
@@ -276,11 +276,11 @@ ascistream::EntryType ascistream::type() const
 {
     if ( !streamptr || !stream().good() )
 	return EndOfFile;
-    if ( keybuf == "" )
+    if ( keybuf.isEmpty() )
 	return Empty;
     if ( *(const char*)keybuf == *mParagraphMarker )
 	return ParagraphMark;
-    if ( valbuf == "" )
+    if ( valbuf.isEmpty() )
 	return Keyword;
 
     return KeyVal;
@@ -289,7 +289,7 @@ ascistream::EntryType ascistream::type() const
 
 bool ascistream::hasKeyword( const char* keyw ) const
 {
-    if ( !keyw ) return keybuf == "";
+    if ( !keyw ) return keybuf.isEmpty();
     skipLeadingBlanks(keyw);
     return keybuf == keyw;
 }
@@ -297,7 +297,7 @@ bool ascistream::hasKeyword( const char* keyw ) const
 
 bool ascistream::hasValue( const char* val ) const
 {
-    if ( !val ) return valbuf == "";
+    if ( !val ) return valbuf.isEmpty();
     skipLeadingBlanks(val);
     return valbuf == val;
 }

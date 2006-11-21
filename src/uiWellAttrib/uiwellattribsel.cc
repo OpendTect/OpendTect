@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          February 2004
- RCS:           $Id: uiwellattribsel.cc,v 1.15 2006-07-31 11:18:56 cvshelene Exp $
+ RCS:           $Id: uiwellattribsel.cc,v 1.16 2006-11-21 14:00:08 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -111,7 +111,7 @@ bool uiWellAttribSel::acceptOK( CallBacker* )
     TypeSet<BinIDValueSet::Pos> positions;
     TypeSet<float> mdepths;
     getPositions( bidset, positions, mdepths );
-    if ( !positions.size() )
+    if ( positions.isEmpty() )
 	mErrRet( "No positions extracted from well" )
 
     if ( !extractData(bidset) )
@@ -135,7 +135,7 @@ bool uiWellAttribSel::inputsOK()
 	mErrRet( "No valid attribute selected" )
 
     BufferString lognm = lognmfld->text();
-    if ( lognm == "" )
+    if ( lognm.isEmpty() )
 	mErrRet( "Please provide logname" );
 
     sellogidx_ = wd_.logs().indexOf( lognm );

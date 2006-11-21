@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: viswelldisplay.cc,v 1.62 2006-06-01 07:30:15 cvskris Exp $";
+static const char* rcsID = "$Id: viswelldisplay.cc,v 1.63 2006-11-21 14:00:08 cvsbert Exp $";
 
 #include "viswelldisplay.h"
 
@@ -102,7 +102,7 @@ void WellDisplay::fullRedraw( CallBacker* )
     if ( !wd ) return;
    
     TypeSet<Coord3> trackpos = getTrackPos( wd );
-    if ( !trackpos.size() )
+    if ( trackpos.isEmpty() )
 	return;
 
     well_->setTrack( trackpos );
@@ -242,7 +242,7 @@ void WellDisplay::displayLog( int logidx, int lognr, bool logrthm,
 			      const Interval<float>* range )
 {
     Well::Data* wd = Well::MGR().get( wellid_ );
-    if ( !wd || !wd->logs().size() ) return;
+    if ( !wd || wd->logs().isEmpty() ) return;
 
     Well::Log& log = wd->logs().getLog(logidx);
     const int logsz = log.size();
@@ -282,7 +282,7 @@ void WellDisplay::displayLog( const char* lognm, bool logarthm,
 			      const Interval<float>& range, int lognr )
 {
     Well::Data* wd = Well::MGR().get( wellid_ );
-    if ( !wd || !wd->logs().size() ) return;
+    if ( !wd || wd->logs().isEmpty() ) return;
 
     int logidx = -1;
     for ( int idx=0; idx<wd->logs().size(); idx++ )
@@ -629,7 +629,7 @@ void WellDisplay::showKnownPositions()
     if ( !wd ) return;
    
     TypeSet<Coord3> trackpos = getTrackPos( wd );
-    if ( !trackpos.size() )
+    if ( trackpos.isEmpty() )
 	return;
 
     for ( int idx=0; idx<trackpos.size(); idx++ )

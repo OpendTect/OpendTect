@@ -4,7 +4,7 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID = "$Id: seiscbvs2d.cc,v 1.34 2006-08-01 08:58:55 cvsnanne Exp $";
+static const char* rcsID = "$Id: seiscbvs2d.cc,v 1.35 2006-11-21 14:00:07 cvsbert Exp $";
 
 #include "seiscbvs2d.h"
 #include "seiscbvs.h"
@@ -27,7 +27,7 @@ static const char* rcsID = "$Id: seiscbvs2d.cc,v 1.34 2006-08-01 08:58:55 cvsnan
 static BufferString getFileName( const char* fnm )
 {
     BufferString ret = fnm;
-    if ( ret == "" ) return ret;
+    if ( ret.isEmpty() ) return ret;
 
     FilePath fp( ret );
     if ( !fp.isAbsolute() )
@@ -64,7 +64,7 @@ bool SeisCBVS2DLineIOProvider::isEmpty( const IOPar& iop ) const
     if ( !isUsable(iop) ) return true;
 
     BufferString fnm = getFileName( iop );
-    return fnm == "" || File_isEmpty(fnm);
+    return fnm.isEmpty() || File_isEmpty(fnm);
 }
 
 
@@ -405,7 +405,7 @@ Seis2DLinePutter* SeisCBVS2DLineIOProvider::getAdder( IOPar& iop,
     if ( !Seis2DLineIOProvider::isUsable(iop) ) return 0;
 
     BufferString fnm = iop.find( sKey::FileName );
-    if ( fnm == "" )
+    if ( fnm.isEmpty() )
     {
 	if ( previop )
 	    fnm = CBVSIOMgr::baseFileName(previop->find(sKey::FileName));

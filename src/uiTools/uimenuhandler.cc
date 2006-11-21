@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2003
- RCS:           $Id: uimenuhandler.cc,v 1.3 2005-08-10 14:44:43 cvskris Exp $
+ RCS:           $Id: uimenuhandler.cc,v 1.4 2006-11-21 14:00:08 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -57,7 +57,7 @@ bool uiMenuHandler::executeMenu( int menutype_, const TypeSet<int>* path_ )
 uiPopupMenu* uiMenuHandler::createMenu( const ObjectSet<MenuItem>& subitms,
 					const MenuItem* item )
 {
-    if ( !subitms.size() )
+    if ( subitms.isEmpty() )
 	return 0;
 
     uiPopupMenu* menu = item ? new uiPopupMenu( parent, item->text )

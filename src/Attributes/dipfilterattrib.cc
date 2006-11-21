@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: dipfilterattrib.cc,v 1.15 2006-08-03 08:04:34 cvshelene Exp $";
+static const char* rcsID = "$Id: dipfilterattrib.cc,v 1.16 2006-11-21 14:00:06 cvsbert Exp $";
 
 
 #include "dipfilterattrib.h"
@@ -337,7 +337,7 @@ bool DipFilter::getInputData( const BinID& relpos, int index )
 bool DipFilter::computeData( const DataHolder& output, const BinID& relpos,
 			     int z0, int nrsamples ) const
 {
-    if ( !outputinterest.size() ) return false;
+    if ( outputinterest.isEmpty() ) return false;
 
     const int hsz = size/2;
     for ( int idx=0; idx<nrsamples; idx++)

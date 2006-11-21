@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          09/02/2001
- RCS:           $Id: uitextedit.cc,v 1.27 2005-10-31 16:31:02 cvsarend Exp $
+ RCS:           $Id: uitextedit.cc,v 1.28 2006-11-21 14:00:07 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -83,7 +83,7 @@ void uiTextEditBase::readFromFile( const char* src )
 	    nrnewlines = 0;
 	}
     }
-    if ( newcontents != "" )
+    if ( !newcontents.isEmpty() )
 	contents += newcontents;
 
     sd.close();

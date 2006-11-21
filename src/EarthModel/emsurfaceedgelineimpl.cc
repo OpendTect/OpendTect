@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emsurfaceedgelineimpl.cc,v 1.23 2006-04-27 15:29:13 cvskris Exp $";
+static const char* rcsID = "$Id: emsurfaceedgelineimpl.cc,v 1.24 2006-11-21 14:00:07 cvsbert Exp $";
 
 
 
@@ -412,7 +412,7 @@ bool SurfaceCutLine::isAtCuttingEdge(int idx) const
     TypeSet<PosID> cuttingnodes;
     cuttinghorizon_->geometry().findPos( xinterval,yinterval,zinterval,
 				      &cuttingnodes );
-    if ( !cuttingnodes.size() )
+    if ( cuttingnodes.isEmpty() )
 	return false;
     
     int closestaboveidx = -1, closestbelowidx = -1;
@@ -814,7 +814,7 @@ float SurfaceCutLine::computeScore( const RowCol& targetrc,
     if ( !getCuttingPositions( pos, cuttingnodes ) )
 	return mUdf(float);
     
-    if ( !cuttingnodes.size() )
+    if ( cuttingnodes.isEmpty() )
     {
 	// If we don't find any cutting nodes, it might be that they are spaced
 	// with double spacing here (which is bad). If there is a cutting node

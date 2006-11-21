@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: emhorizon3d.cc,v 1.82 2006-11-06 10:41:43 cvsjaap Exp $
+ RCS:           $Id: emhorizon3d.cc,v 1.83 2006-11-21 14:00:07 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -56,7 +56,7 @@ AuxDataImporter( Horizon& hor, const ObjectSet<BinIDValueSet>& sects,
 	if ( !attribsel[attribidx] ) continue;
 
 	BufferString nm = attribnames.get( attribidx );
-	if ( !nm.size() )
+	if ( nm.isEmpty() )
 	    { nm = "Imported attribute "; nm += attribidx; }
 
 	horizon.auxdata.addAuxData( nm );

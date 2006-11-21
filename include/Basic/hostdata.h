@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Apr 2002
- RCS:           $Id: hostdata.h,v 1.21 2005-11-16 14:54:19 cvsarend Exp $
+ RCS:           $Id: hostdata.h,v 1.22 2006-11-21 14:00:06 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,7 +19,7 @@ class HostDataList;
 class ShareData;
 
 #define mRetNoneIfEmpty( bs ) \
-    if ( bs == "" ) return "_none_"; \
+    if ( bs.isEmpty() ) return "_none_"; \
     return bs;
 
 /*\brief Host name and aliases */

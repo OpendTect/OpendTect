@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Jul 2006
- RCS:		$Id: tableconv.h,v 1.4 2006-08-11 10:52:44 cvsbert Exp $
+ RCS:		$Id: tableconv.h,v 1.5 2006-11-21 14:00:06 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -125,7 +125,7 @@ protected:
 
     bool		handleImpState(ImportHandler::State);
     inline bool		colSel() const
-			{ return selcols_.size() < 1
+			{ return selcols_.isEmpty()
 			      || selcols_.indexOf(colnr_) > -1; }
 };
 

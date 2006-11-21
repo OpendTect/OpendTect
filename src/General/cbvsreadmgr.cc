@@ -5,7 +5,7 @@
  * FUNCTION : CBVS File pack reading
 -*/
 
-static const char* rcsID = "$Id: cbvsreadmgr.cc,v 1.52 2006-03-12 13:39:10 cvsbert Exp $";
+static const char* rcsID = "$Id: cbvsreadmgr.cc,v 1.53 2006-11-21 14:00:07 cvsbert Exp $";
 
 #include "cbvsreadmgr.h"
 #include "cbvsreader.h"
@@ -46,7 +46,7 @@ CBVSReadMgr::CBVSReadMgr( const char* fnm, const CubeSampling* cs,
     if ( !fnm || !strcmp(fnm,StreamProvider::sStdIO) )
     {
 	addReader( &std::cin, cs, glob_info_only );
-	if ( !readers_.size() )
+	if ( readers_.isEmpty() )
 	    errmsg_ = "Standard input contains no relevant data";
 	else
 	    createInfo();
@@ -72,7 +72,7 @@ CBVSReadMgr::CBVSReadMgr( const char* fnm, const CubeSampling* cs,
 	if ( single_file ) break;
     }
 
-    if ( !readers_.size() )
+    if ( readers_.isEmpty() )
     {
 	if ( foundone )
 	    mkErrMsg( errmsg_, basefname_, "contains no relevant data" );
@@ -235,7 +235,7 @@ bool CBVSReadMgr::addReader( std::istream* strm, const CubeSampling* cs,
 	return false;
     }
 
-    if ( !readers_.size() )
+    if ( readers_.isEmpty() )
 	haveaux_ = newrdr->hasAuxInfo();
     else if ( vertical_ )
 	newrdr->fetchAuxInfo( false );

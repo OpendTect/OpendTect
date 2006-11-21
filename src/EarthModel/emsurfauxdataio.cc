@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Jun 2003
- RCS:           $Id: emsurfauxdataio.cc,v 1.28 2006-08-22 12:54:23 cvsjaap Exp $
+ RCS:           $Id: emsurfauxdataio.cc,v 1.29 2006-11-21 14:00:07 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -114,7 +114,7 @@ int dgbSurfDataWriter::nextStep()
     PosID posid( surf_.id() );
     for ( int idx=0; idx<chunksize_; idx++ )
     {
-	while ( !subids_.size() )
+	while ( subids_.isEmpty() )
 	{
 	    if ( nrdone_ )
 	    {
@@ -154,7 +154,7 @@ int dgbSurfDataWriter::nextStep()
 		values_ += auxval;
 	    }
 
-	    if ( !subids_.size() )
+	    if ( subids_.isEmpty() )
 		mErrRetWrite("No data available for this surface")
 
 	    if ( !writeInt(sectionid) || !writeInt(subids_.size()) )

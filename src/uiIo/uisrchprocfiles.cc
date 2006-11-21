@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Feb 2006
- RCS:           $Id: uisrchprocfiles.cc,v 1.2 2006-03-12 13:39:11 cvsbert Exp $
+ RCS:           $Id: uisrchprocfiles.cc,v 1.3 2006-11-21 14:00:08 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -67,14 +67,14 @@ const char* uiSrchProcFiles::fileName() const
 void uiSrchProcFiles::srchDir( CallBacker* )
 {
     const BufferString key( ctio_.ioobj ? ctio_.ioobj->key().buf() : "" );
-    if ( key == "" ) return;
+    if ( key.isEmpty() ) return;
 
     uiMainWin* oldmw = uiMSG().setMainWin( this );
     	// Otherwise the error box pulls up OD main win. No idea why.
     toStatusBar( "Scanning directory" );
     const BufferString msk( maskfld->text() );
     const BufferString dirnm( dirfld->text() );
-    DirList dl( dirnm, DirList::FilesOnly, msk == "" ? 0 : msk.buf() );
+    DirList dl( dirnm, DirList::FilesOnly, msk.isEmpty() ? 0 : msk.buf() );
     if ( dl.size() == 0 )
 	mRet( "No matching files found" )
 

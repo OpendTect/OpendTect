@@ -5,7 +5,7 @@
  * FUNCTION : Utilities for win32, amongst others path conversion
 -*/
 
-static const char* rcsID = "$Id: winutils.cc,v 1.13 2006-07-18 11:32:19 cvsdgb Exp $";
+static const char* rcsID = "$Id: winutils.cc,v 1.14 2006-11-21 14:00:06 cvsbert Exp $";
 
 
 #include "winutils.h"
@@ -136,7 +136,7 @@ const char* getCleanWinPath( const char* path )
 const char* getCygDir()
 {
     static BufferString answer;
-    if ( answer != "" )  return answer;
+    if ( !answer.isEmpty() )  return answer;
 
     HKEY hKeyRoot = HKEY_CURRENT_USER;
     LPTSTR subkey="Software\\Cygnus Solutions\\Cygwin\\mounts v2\\/";

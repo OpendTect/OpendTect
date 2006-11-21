@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrdescseted.cc,v 1.35 2006-10-24 12:37:28 cvshelene Exp $
+ RCS:           $Id: uiattrdescseted.cc,v 1.36 2006-11-21 14:00:07 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -302,7 +302,7 @@ void uiAttribDescSetEd::addPush( CallBacker* )
 	mErrRet( "Cannot add without a valid attribute type" )
 
     BufferString attribname = curde->attribName();
-    if ( attribname == "" )
+    if ( attribname.isEmpty() )
 	attribname = uiAF().attrNameOf( attrtypefld->attr() );
 
     Desc* newdesc = PF().createDescCopy( attribname );
@@ -346,7 +346,7 @@ void uiAttribDescSetEd::rmPush( CallBacker* )
 
 void uiAttribDescSetEd::handleSensitivity()
 {
-    bool havedescs = attrdescs.size() > 0;
+    bool havedescs = !attrdescs.isEmpty();
     rmbut->setSensitive( havedescs );
     revbut->setSensitive( havedescs );
 }
@@ -382,7 +382,7 @@ void uiAttribDescSetEd::newList( int newcur )
     attrlistfld->empty();
     attrlistfld->addItems( userattrnames );
     if ( newcur < 0 ) newcur = 0;
-    if ( userattrnames.size() > 0 )
+    if ( !userattrnames.isEmpty() )
     {
 	attrlistfld->setCurrentItem( newcur );
 	prevdesc = curDesc();
@@ -407,7 +407,7 @@ void uiAttribDescSetEd::updateFields( bool set_type )
 	curde = curDescEd();
 
     BufferString attribname = curde ? curde->attribName() : "";
-    if ( attribname == "" )
+    if ( attribname.isEmpty() )
 	attribname = uiAF().attrNameOf( attrtypefld->attr() );
     const bool isrightdesc = desc && attribname == desc->attribName();
 
@@ -597,7 +597,7 @@ bool uiAttribDescSetEd::doSetIO( bool forread )
 {
     if ( !setctio.ioobj )
     {
-	if ( setid == "" ) return false;
+	if ( setid.isEmpty() ) return false;
 
 	setctio.ioobj = IOM().get( setid );
 	if ( !setctio.ioobj ) 
@@ -610,7 +610,7 @@ bool uiAttribDescSetEd::doSetIO( bool forread )
     ||  !forread && 
 	!AttribDescSetTranslator::store(*attrset,setctio.ioobj,bs) )
 	mErrRetFalse(bs)
-    if ( bs != "" )
+    if ( !bs.isEmpty() )
 	pErrMsg( bs );
 
     if ( forread )
@@ -915,7 +915,7 @@ void uiAttribDescSetEd::replaceStoredAttr()
 		usrrefs.addIfNew( ad->userRef() );
         }
 
-	if ( !usrrefs.size() )
+	if ( usrrefs.isEmpty() )
 	    continue;
 
 	Desc* ad = attrset->getDesc( storedid );

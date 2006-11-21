@@ -4,7 +4,7 @@
  * DATE     : 2-8-1994
 -*/
 
-static const char* rcsID = "$Id: iodir.cc,v 1.26 2006-08-16 12:23:25 cvsnanne Exp $";
+static const char* rcsID = "$Id: iodir.cc,v 1.27 2006-11-21 14:00:07 cvsbert Exp $";
 
 #include "iodir.h"
 #include "iolink.h"
@@ -355,7 +355,7 @@ bool IODir::wrOmf( std::ostream& strm ) const
     ascostream astream( strm );
     if ( !astream.putHeader( "Object Management file" ) )
 	mErrRet()
-    FileMultiString fms( key_ == "" ? "0" : (const char*)key_ );
+    FileMultiString fms( key_.isEmpty() ? "0" : (const char*)key_ );
     for ( int idx=0; idx<objs_.size(); idx++ )
     {
 	const MultiID currentkey = objs_[idx]->key();

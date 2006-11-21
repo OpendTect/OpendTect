@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Nov 2002
- RCS:           $Id: emsurfacegeometry.cc,v 1.35 2006-11-06 10:45:07 cvsjaap Exp $
+ RCS:           $Id: emsurfacegeometry.cc,v 1.36 2006-11-21 14:00:07 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -972,7 +972,7 @@ Executor* SurfaceGeometry::loader( const SurfaceIODataSelection* newsel )
     {
 	sel.rg = newsel->rg;
 	sel.selvalues = newsel->selvalues;
-	if ( newsel->selsections.size() > 0 )
+	if ( !newsel->selsections.isEmpty() )
 	    sel.selsections = newsel->selsections;
     }
     else

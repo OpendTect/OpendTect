@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          March 2003
- RCS:           $Id: uievaluatedlg.cc,v 1.11 2006-10-25 11:20:45 cvshelene Exp $
+ RCS:           $Id: uievaluatedlg.cc,v 1.12 2006-11-21 14:00:07 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -235,7 +235,7 @@ uiEvaluateDlg::uiEvaluateDlg( uiParent* p, uiAttrDescEd& ade, bool store )
 
     TypeSet<EvalParam> params;
     desced_.getEvalParams( params );
-    if ( !params.size() ) return;
+    if ( params.isEmpty() ) return;
 
     haspars_ = true;
     BufferStringSet strs;
@@ -341,11 +341,9 @@ void uiEvaluateDlg::calcPush( CallBacker* )
 	specs_ += as;
     }
 
-    if ( !specs_.size() )
-    {
+    if ( specs_.isEmpty() )
 	return;
-    }
-    
+
     calccb.trigger();
 
     if ( enabstore_ ) storefld->setSensitive( true );

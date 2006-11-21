@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          October 2002
- RCS:           $Id: uiprintscenedlg.cc,v 1.30 2006-09-05 10:45:39 cvsnanne Exp $
+ RCS:           $Id: uiprintscenedlg.cc,v 1.31 2006-11-21 14:00:07 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -164,7 +164,7 @@ uiPrintSceneDlg::uiPrintSceneDlg( uiParent* p,
 				    uiFileInput::Setup()
 				    .forread(false)
 	   			    .allowallextensions(false) );
-    if ( !dirname_.size() )
+    if ( dirname_.isEmpty() )
 	dirname_ = FilePath(GetDataDir()).add("Misc").fullPath();
     fileinputfld_->setDefaultSelectionDir( dirname_ );
     fileinputfld_->setReadOnly();
@@ -340,7 +340,7 @@ void uiPrintSceneDlg::addFileExtension( BufferString& filename )
 bool uiPrintSceneDlg::filenameOK() const
 {
     BufferString filename = fileinputfld_->fileName();
-    if ( !filename.size() )
+    if ( filename.isEmpty() )
     {
 	uiMSG().error( "Please select filename" );
 	return false;

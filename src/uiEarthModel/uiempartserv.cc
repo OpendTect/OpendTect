@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.93 2006-11-01 14:21:26 cvsnanne Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.94 2006-11-21 14:00:07 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -319,7 +319,7 @@ int uiEMPartServer::showLoadAuxDataDlg( const EM::ObjectID& id )
 
     TypeSet<int> selattribs;
     dlg.box()->getSelectedItems( selattribs );
-    if ( !selattribs.size() ) return -1;
+    if ( selattribs.isEmpty() ) return -1;
 
     hor->auxdata.removeAll();
     PtrMan<Executor> exec = hor->auxdata.auxDataLoader( selattribs[0] );
@@ -393,7 +393,7 @@ int uiEMPartServer::setAuxData( const EM::ObjectID& id,
 {
     mDynamicCastAll(id);
     if ( !hor ) { uiMSG().error( "Cannot find horizon" ); return -1; }
-    if ( !data.size() ) { uiMSG().error( "No data calculated" ); return -1; }
+    if ( data.isEmpty() ) { uiMSG().error( "No data calculated" ); return -1; }
 
     const int nrdatavals = data[0]->nrVals();
     if ( idx>=nrdatavals ) return -1;
@@ -537,7 +537,7 @@ void uiEMPartServer::getSurfaceDef( const TypeSet<EM::ObjectID>& selhorids,
 {
     bivs.empty(); bivs.setNrVals( 2, false );
     PtrMan<BinIDRange> sibr = 0;
-    if ( !selhorids.size() ) return;
+    if ( selhorids.isEmpty() ) return;
     else if ( !br )
     {
 	sibr = new BinIDRange; br = sibr;
@@ -572,7 +572,7 @@ void uiEMPartServer::getSurfaceDef( const TypeSet<EM::ObjectID>& selhorids,
 		    z1pos += hor->getPos( sid, subid );
 	    }
 
-	    if ( !z1pos.size() ) continue;
+	    if ( z1pos.isEmpty() ) continue;
 
 	    if ( !hor2 )
 	    {
@@ -588,7 +588,7 @@ void uiEMPartServer::getSurfaceDef( const TypeSet<EM::ObjectID>& selhorids,
 			z2pos += hor2->getPos( sid, subid );
 		}
 
-		if ( !z2pos.size() ) continue;
+		if ( z2pos.isEmpty() ) continue;
 
 		Interval<float> zintv;
 		float dist = 999999;

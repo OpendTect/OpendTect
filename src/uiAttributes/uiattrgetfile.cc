@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrgetfile.cc,v 1.5 2006-03-12 13:39:11 cvsbert Exp $
+ RCS:           $Id: uiattrgetfile.cc,v 1.6 2006-11-21 14:00:07 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -112,7 +112,7 @@ void uiGetFileForAttrSet::selChg( CallBacker* )
 bool uiGetFileForAttrSet::acceptOK( CallBacker* )
 {
     fname_ = fileinpfld->fileName();
-    if ( fname_ == "" || !File_exists(fname_) )
+    if ( fname_.isEmpty() || !File_exists(fname_) )
     {
 	uiMSG().error( "Please enter the filename" );
 	return false;

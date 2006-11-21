@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          June 2004
- RCS:           $Id: uiseissubsel.cc,v 1.39 2006-09-21 17:47:52 cvsnanne Exp $
+ RCS:           $Id: uiseissubsel.cc,v 1.40 2006-11-21 14:00:08 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -356,7 +356,7 @@ void uiSeis2DSubSel::setInput( const IOObj& ioobj )
 
     oinf.getLineNames( curlnms_ );
     lnmsfld->newSpec( StringListInpSpec(curlnms_), 0 );
-    const bool prevok = prevlnm != "" && curlnms_.indexOf(prevlnm) >= 0;
+    const bool prevok = !prevlnm.isEmpty() && curlnms_.indexOf(prevlnm) >= 0;
     if ( multiln_ )
 	lnmsfld->setChecked( prevok );
 
@@ -401,7 +401,7 @@ void uiSeis2DSubSel::usePar( const IOPar& iopar )
     else
     {
 	lnmsfld->setText( lnm );
-	if ( multiln_ ) lnmsfld->setChecked( lnm != "" );
+	if ( multiln_ ) lnmsfld->setChecked( !lnm.isEmpty() );
     }
 }
 
@@ -411,7 +411,7 @@ bool uiSeis2DSubSel::fillPar( IOPar& iopar ) const
     data_.fillPar( iopar );
 
     BufferString lnm( selectedLine() );
-    if ( lnm == "" )
+    if ( lnm.isEmpty() )
 	iopar.removeWithKey( sKey::LineKey );
     else
 	iopar.set( sKey::LineKey, lnm );

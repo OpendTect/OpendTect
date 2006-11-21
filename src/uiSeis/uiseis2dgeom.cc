@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:		$Id: uiseis2dgeom.cc,v 1.6 2006-03-12 13:39:11 cvsbert Exp $
+ RCS:		$Id: uiseis2dgeom.cc,v 1.7 2006-11-21 14:00:08 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -94,7 +94,7 @@ bool uiSeisDump2DGeom::acceptOK( CallBacker* )
         return false;
     }
     BufferString fnm( outfld->fileName() );
-    if ( fnm == "" )
+    if ( fnm.isEmpty() )
     {
         uiMSG().error( "Please enter the output file name" );
         return false;

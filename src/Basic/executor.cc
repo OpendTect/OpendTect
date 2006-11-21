@@ -4,7 +4,7 @@
  * DATE     : 14-6-1996
 -*/
 
-static const char* rcsID = "$Id: executor.cc,v 1.23 2006-06-30 15:13:37 cvsnanne Exp $";
+static const char* rcsID = "$Id: executor.cc,v 1.24 2006-11-21 14:00:06 cvsbert Exp $";
 
 #include "executor.h"
 
@@ -251,7 +251,7 @@ const char* ExecutorGroup::nrDoneText() const
     const char* txt = (const char*)nrdonetext_;
     if ( *txt ) return txt;
 
-    if ( !executors_.size() )
+    if ( executors_.isEmpty() )
 	return Executor::nrDoneText();
 
     return executors_[currentexec_]->nrDoneText();

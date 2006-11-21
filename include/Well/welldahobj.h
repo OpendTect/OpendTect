@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		May 2004
- RCS:		$Id: welldahobj.h,v 1.5 2006-08-21 17:14:44 cvsbert Exp $
+ RCS:		$Id: welldahobj.h,v 1.6 2006-11-21 14:00:06 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -36,6 +36,7 @@ public:
 			{ dah_.remove(idx); removeAux(idx); }
     virtual void	erase()
 			{ dah_.erase(); eraseAux(); }
+    inline bool		isEmpty() const			{ return size() == 0; }
 
     float		dahStep(bool min_else_average) const;
 

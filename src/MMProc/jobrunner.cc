@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Oct 2004
- RCS:           $Id: jobrunner.cc,v 1.35 2006-08-16 10:51:20 cvsbert Exp $
+ RCS:           $Id: jobrunner.cc,v 1.36 2006-11-21 14:00:07 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -529,7 +529,7 @@ bool JobRunner::haveIncomplete() const
 
 bool JobRunner::stopAll()
 {
-    while( hostinfo_.size() > 0 )
+    while( !hostinfo_.isEmpty() )
 	removeHost(0); 
 	
     return true;

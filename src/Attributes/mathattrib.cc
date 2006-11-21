@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: mathattrib.cc,v 1.17 2006-10-25 11:20:45 cvshelene Exp $
+ RCS:           $Id: mathattrib.cc,v 1.18 2006-11-21 14:00:06 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -116,7 +116,7 @@ bool Math::getInputOutput( int input, TypeSet<int>& res ) const
 
 bool Math::getInputData( const BinID& relpos, int zintv )
 {
-    if ( !varsinputtable_.size() )
+    if ( varsinputtable_.isEmpty() )
 	getInputTable( expression_, varsinputtable_, false );
 
     while ( inputdata_.size() < varsinputtable_.size() )

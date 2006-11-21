@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvey.cc,v 1.70 2006-06-02 10:16:52 cvsbert Exp $
+ RCS:           $Id: uisurvey.cc,v 1.71 2006-11-21 14:00:08 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -358,7 +358,7 @@ bool acceptOK( CallBacker* )
 	mErrRet( "This is not an OpendTect survey directory" );
 
     newdirnm = newdirnmfld->text();
-    if ( newdirnm == "" )
+    if ( newdirnm.isEmpty() )
 	{ inpSel(0); newdirnm = newdirnmfld->text(); }
     cleanupString( newdirnm.buf(), NO, NO, YES );
 
@@ -479,7 +479,7 @@ void uiSurvey::tutButPushed( CallBacker* )
 void uiSurvey::updateSvyList()
 {
     mkDirList();
-    if ( !dirlist.size() ) updateInfo(0);
+    if ( dirlist.isEmpty() ) updateInfo(0);
     listbox->empty();
     listbox->addItems( dirlist );
 }
@@ -488,7 +488,7 @@ void uiSurvey::updateSvyList()
 bool uiSurvey::updateSvyFile()
 {
     BufferString seltxt( listbox->getText() );
-    if ( seltxt == "" ) return true;
+    if ( seltxt.isEmpty() ) return true;
 
     if ( !writeSurveyName( seltxt ) )
     {
@@ -694,7 +694,7 @@ void uiSurvey::updateViewsGlobal()
     if ( usr && *usr )
 	{ capt += " ["; capt += usr; capt += "]"; }
 
-    if ( SI().name() != "" )
+    if ( !SI().name().isEmpty() )
     {
 	capt += ": ";
 	capt += SI().name();

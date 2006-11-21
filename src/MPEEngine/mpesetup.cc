@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: mpesetup.cc,v 1.4 2006-08-30 16:03:27 cvsbert Exp $
+ RCS:           $Id: mpesetup.cc,v 1.5 2006-11-21 14:00:07 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -74,7 +74,7 @@ bool MPESetupTranslator::retrieve( MPESetup& setup, const IOObj* ioobj,
     }
 
     err = tr->read( setup, *conn );
-    bool rv = err == "";
+    bool rv = err.isEmpty();
     if ( rv ) err = tr->warningMsg();
     return rv;
 }
@@ -97,7 +97,7 @@ bool MPESetupTranslator::store( const MPESetup& setup, const IOObj* ioobj,
     }
 
     err = tr->write( setup, *conn );
-    bool rv = err == "";
+    bool rv = err.isEmpty();
     if ( rv ) err = tr->warningMsg();
     return rv;
 }
@@ -112,7 +112,7 @@ const char* dgbMPESetupTranslator::read( MPESetup& setup, Conn& conn )
     ascistream astream( ((StreamConn&)conn).iStream() );
 
     IOPar iopar( astream );
-    if ( !iopar.size() )
+    if ( iopar.isEmpty() )
 	return "Empty input file";
 
     if ( !setup.usePar( iopar ))

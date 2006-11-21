@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.157 2006-11-15 08:06:26 cvsnanne Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.158 2006-11-21 14:00:08 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -564,7 +564,7 @@ bool uiODApplMgr::handleMPEServEv( int evid )
 	const EM::ObjectID emid = mpeserv->getEMObjectID(trackerid);
 	TypeSet<int> sceneids;
 	visserv->getChildIds( -1, sceneids );
-	if ( !sceneids.size() ) return false;
+	if ( sceneids.isEmpty() ) return false;
 
 	const int sdid = sceneMgr().addEMItem( emid, sceneids[0] );
 	if ( sdid==-1 )
@@ -692,7 +692,7 @@ bool uiODApplMgr::handleEMServEv( int evid )
     {
 	TypeSet<int> sceneids;
 	visserv->getChildIds( -1, sceneids );
-	if ( !sceneids.size() ) return false;
+	if ( sceneids.isEmpty() ) return false;
 
 	const EM::ObjectID emid = emserv->selEMID();
 	sceneMgr().addEMItem( emid, sceneids[0] );
@@ -842,7 +842,7 @@ bool uiODApplMgr::handleNLAServEv( int evid )
 	if ( dataextraction )
 	{
 	    nlaserv->getBinIDValueSets( bivss );
-	    if ( !bivss.size() )
+	    if ( bivss.isEmpty() )
 		{ uiMSG().error("No valid data locations found"); return false;}
 	}
 	ObjectSet<PosVecDataSet> vdss;
@@ -855,7 +855,7 @@ bool uiODApplMgr::handleNLAServEv( int evid )
 	    {
 		IOPar& iop = nlaserv->storePars();
 		attrserv->curDescSet()->fillPar( iop );
-		if ( iop.name() == "" )
+		if ( iop.name().isEmpty() )
 		    iop.setName( "Attributes" );
 	    }
 	    const char* res = nlaserv->prepareInputData( vdss );

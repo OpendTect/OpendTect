@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribdescset.cc,v 1.50 2006-10-17 09:04:48 cvshelene Exp $";
+static const char* rcsID = "$Id: attribdescset.cc,v 1.51 2006-11-21 14:00:06 cvsbert Exp $";
 
 #include "attribdescset.h"
 #include "attribstorprovider.h"
@@ -381,7 +381,7 @@ bool DescSet::usePar( const IOPar& par, BufferStringSet* errmsgs )
 	handleStorageOldFormat( *descpar );
 
 	BufferString defstring = descpar->find( definitionStr() );
-	if ( !defstring.size() )
+	if ( defstring.isEmpty() )
 	    mHandleParseErr( "No attribute definition string specified" );
 
 	BufferString attribname;

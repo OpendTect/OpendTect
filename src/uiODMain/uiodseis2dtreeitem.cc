@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		May 2006
- RCS:		$Id: uiodseis2dtreeitem.cc,v 1.4 2006-08-03 13:20:27 cvsnanne Exp $
+ RCS:		$Id: uiodseis2dtreeitem.cc,v 1.5 2006-11-21 14:00:08 cvsbert Exp $
 ___________________________________________________________________
 
 -*/
@@ -411,7 +411,7 @@ void uiOD2DLineSetSubItem::handleMenuCB( CallBacker* cb )
 	CubeSampling maxcs = s2d->getCubeSampling();
 	assign( maxcs.zrg, geometry->zrg );
 	const TypeSet<PosInfo::Line2DPos>& pos = geometry->posns;
-	if ( !pos.size() ) { pErrMsg( "Huh" ); return; }
+	if ( pos.isEmpty() ) { pErrMsg( "Huh" ); return; }
 
 	maxcs.hrg.start.crl = pos[0].nr;
 	maxcs.hrg.stop.crl = pos[pos.size()-1].nr;
@@ -430,7 +430,7 @@ void uiOD2DLineSetSubItem::handleMenuCB( CallBacker* cb )
 
 bool uiOD2DLineSetSubItem::displayStoredData( const char* nm )
 {
-    if ( !children_.size() ) return false;
+    if ( children_.isEmpty() ) return false;
 
     mDynamicCastGet( uiOD2DLineSetAttribItem*, lsai, children_[0] );
     if ( !lsai ) return false;
@@ -441,7 +441,7 @@ bool uiOD2DLineSetSubItem::displayStoredData( const char* nm )
 
 void uiOD2DLineSetSubItem::setAttrib( const Attrib::SelSpec& myas )
 {
-    if ( !children_.size() ) return;
+    if ( children_.isEmpty() ) return;
 
     mDynamicCastGet( uiOD2DLineSetAttribItem*, lsai, children_[0] );
     if ( !lsai ) return;

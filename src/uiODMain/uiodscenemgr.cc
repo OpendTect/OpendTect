@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.72 2006-11-15 12:56:04 cvsnanne Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.73 2006-11-21 14:00:08 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -136,7 +136,7 @@ uiODSceneMgr::~uiODSceneMgr()
 
 void uiODSceneMgr::initMenuMgrDepObjs()
 {
-    if ( !scenes_.size() )
+    if ( scenes_.isEmpty() )
 	addScene();
 }
 
@@ -296,7 +296,7 @@ void uiODSceneMgr::useScenePars( const IOPar& sessionpar )
 
 void uiODSceneMgr::viewModeChg( CallBacker* cb )
 {
-    if ( !scenes_.size() ) return;
+    if ( scenes_.isEmpty() ) return;
 
     mDynamicCastGet(uiSoViewer*,sovwr_,cb)
     if ( sovwr_ ) setToViewMode( sovwr_->isViewing() );
@@ -366,7 +366,7 @@ void uiODSceneMgr::updateStatusBar()
     const BufferString valstr = visServ().getMousePosVal();
     if ( haspos )
     {
-	msg = valstr == "" ? "" : "Value = ";
+	msg = valstr.isEmpty() ? "" : "Value = ";
 	msg += valstr;
     }
     else
@@ -375,7 +375,7 @@ void uiODSceneMgr::updateStatusBar()
     appl_.statusBar()->message( msg, mValueField );
 
     msg = haspos ? visServ().getMousePosString() : "";
-    if ( msg == "" )
+    if ( msg.isEmpty() )
     {
 	const int selid = visServ().getSelObjectId();
 	msg = visServ().getInteractionMsg( selid );
@@ -392,7 +392,7 @@ void uiODSceneMgr::updateStatusBar()
 
 void uiODSceneMgr::setKeyBindings()
 {
-    if ( !scenes_.size() ) return;
+    if ( scenes_.isEmpty() ) return;
 
     BufferStringSet keyset;
     scenes_[0]->sovwr_->getAllKeyBindings( keyset );
@@ -413,7 +413,7 @@ int uiODSceneMgr::getStereoType() const
 
 void uiODSceneMgr::setStereoType( int type )
 {
-    if ( !scenes_.size() ) return;
+    if ( scenes_.isEmpty() ) return;
 
     uiSoViewer::StereoType stereotype = (uiSoViewer::StereoType)type;
     const float stereooffset = scenes_[0]->sovwr_->getStereoOffset();
@@ -556,7 +556,7 @@ void uiODSceneMgr::switchCameraType( CallBacker* )
 {
     ObjectSet<uiSoViewer> vwrs;
     getSoViewers( vwrs );
-    if ( !vwrs.size() ) return;
+    if ( vwrs.isEmpty() ) return;
     mDoAllScenes(sovwr_,toggleCameraType,);
     const bool isperspective = vwrs[0]->isCameraPerspective();
     menuMgr().setCameraPixmap( isperspective );

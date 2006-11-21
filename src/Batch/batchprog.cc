@@ -5,7 +5,7 @@
  * FUNCTION : Batch Program 'driver'
 -*/
  
-static const char* rcsID = "$Id: batchprog.cc,v 1.84 2006-08-30 16:03:27 cvsbert Exp $";
+static const char* rcsID = "$Id: batchprog.cc,v 1.85 2006-11-21 14:00:06 cvsbert Exp $";
 
 #include "batchprog.h"
 #include "ioman.h"
@@ -336,13 +336,13 @@ IOObj* BatchProgram::getIOObjFromPars(	const char* bsky, bool mknew,
     BufferString iopkey( basekey ); iopkey += ".";
     iopkey += "ID";
     BufferString res = pars().find( iopkey );
-    if ( res == "" )
+    if ( res.isEmpty() )
     {
 	iopkey = basekey; res = pars().find( iopkey );
-	if ( res == "" )
+	if ( res.isEmpty() )
 	{
 	    iopkey += ".Name"; res = pars().find( iopkey );
-	    if ( res == "" )
+	    if ( res.isEmpty() )
 	    {
 		if ( msgiffail )
 		    *sdout.ostrm << "Please specify '" << iopkey

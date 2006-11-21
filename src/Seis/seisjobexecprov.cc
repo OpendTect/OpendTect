@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: seisjobexecprov.cc,v 1.24 2006-08-30 16:03:27 cvsbert Exp $";
+static const char* rcsID = "$Id: seisjobexecprov.cc,v 1.25 2006-11-21 14:00:07 cvsbert Exp $";
 
 #include "seisjobexecprov.h"
 #include "seistrctr.h"
@@ -78,7 +78,7 @@ const char* SeisJobExecProv::outputKey( const IOPar& iopar )
 {
     static BufferString res;
     res = iopar.find( sKeySeisOutIDKey );
-    if ( res == "" ) res = mOutKey("Seismic ID");
+    if ( res.isEmpty() ) res = mOutKey("Seismic ID");
     return res.buf();
 }
 
@@ -206,7 +206,7 @@ JobDescProv* SeisJobExecProv::mk3DJobProv( int nrinlperjob )
     TypeSet<int> inlnrs;
     TypeSet<int>* ptrnrs = 0;
     BufferString rgkey = iopar_.find( "Inline Range Key" );
-    if ( rgkey == "" ) rgkey = mOutKey("In-line range");
+    if ( rgkey.isEmpty() ) rgkey = mOutKey("In-line range");
 
     mSetInlsPerJob( nrinlperjob );
     InlineSplitJobDescProv jdp( iopar_, rgkey );
@@ -225,7 +225,7 @@ JobDescProv* SeisJobExecProv::mk3DJobProv( int nrinlperjob )
     }
 
     tmpstorid_ = tempStorID();
-    if ( tmpstorid_ == "" )
+    if ( tmpstorid_.isEmpty() )
 	return 0;
 
     IOPar jpiopar( iopar_ );

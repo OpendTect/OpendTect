@@ -5,7 +5,7 @@
  * FUNCTION : Wavelet
 -*/
 
-static const char* rcsID = "$Id: wavelet.cc,v 1.25 2006-11-07 17:51:31 cvsbert Exp $";
+static const char* rcsID = "$Id: wavelet.cc,v 1.26 2006-11-21 14:00:07 cvsbert Exp $";
 
 #include "wavelet.h"
 #include "seisinfo.h"
@@ -264,7 +264,7 @@ Wavelet* WaveletAscIO::get( std::istream& strm ) const
 	return 0;
 
     int centersmp = mUdf(int);
-    if ( vals_.get(0) != "" )
+    if ( !vals_.get(0).isEmpty() )
     {
 	centersmp = atoi(vals_.get(0));
 	if ( centersmp < 0 ) centersmp = -centersmp;

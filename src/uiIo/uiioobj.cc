@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiioobj.cc,v 1.2 2006-08-30 16:03:27 cvsbert Exp $";
+static const char* rcsID = "$Id: uiioobj.cc,v 1.3 2006-11-21 14:00:08 cvsbert Exp $";
 
 #include "uiioobj.h"
 #include "uimsg.h"
@@ -61,7 +61,7 @@ bool uiIOObj::removeImpl( bool rmentry )
 
 bool uiIOObj::fillCtio( CtxtIOObj& ctio, bool warnifexist )
 {
-    if ( ctio.name() == "" )
+    if ( ctio.name().isEmpty() )
     {
 	if ( !ctio.ioobj )
 	    return false;

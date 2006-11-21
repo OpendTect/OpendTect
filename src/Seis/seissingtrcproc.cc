@@ -4,7 +4,7 @@
  * DATE     : Oct 2001
 -*/
 
-static const char* rcsID = "$Id: seissingtrcproc.cc,v 1.34 2006-08-16 10:51:20 cvsbert Exp $";
+static const char* rcsID = "$Id: seissingtrcproc.cc,v 1.35 2006-11-21 14:00:07 cvsbert Exp $";
 
 #include "seissingtrcproc.h"
 #include "seisread.h"
@@ -71,7 +71,7 @@ SeisSingleTraceProc::SeisSingleTraceProc( ObjectSet<IOObj> objset,
 					  const char* msg )
     mInitVars();
 
-    if ( !objset.size() )
+    if ( objset.isEmpty() )
     {
 	curmsg_ = "No input specified";
 	return;
@@ -254,7 +254,7 @@ const char* SeisSingleTraceProc::message() const
 	else
 	{
 	    LineKey lk( currdr->lineKey() );
-	    if ( lk == "" )
+	    if ( lk.isEmpty() )
 		ret += "data";
 	    else
 		{ ret += "'"; ret += lk; ret += "'"; }

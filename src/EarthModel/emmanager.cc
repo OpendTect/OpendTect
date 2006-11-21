@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emmanager.cc,v 1.50 2006-09-19 12:09:45 cvsnanne Exp $";
+static const char* rcsID = "$Id: emmanager.cc,v 1.51 2006-11-21 14:00:07 cvsbert Exp $";
 
 #include "emmanager.h"
 
@@ -256,7 +256,7 @@ const char* EMManager::getSurfaceData( const MultiID& id, SurfaceIOData& sd )
 {
     PtrMan<IOObj> ioobj = IOM().get( id );
     if ( !ioobj )
-	return id == "" ? 0 : "Object Manager cannot find surface";
+	return id.isEmpty() ? 0 : "Object Manager cannot find surface";
 
     const char* grpname = ioobj->group();
     if ( !strcmp(grpname,EMHorizonTranslatorGroup::keyword) ||
@@ -271,7 +271,7 @@ const char* EMManager::getSurfaceData( const MultiID& id, SurfaceIOData& sd )
 	{
 	    static BufferString msg;
 	    msg = tr->errMsg();
-	    if ( msg == "" )
+	    if ( msg.isEmpty() )
 		{ msg = "Cannot read '"; msg += ioobj->name(); msg += "'"; }
 
 	    return msg.buf();

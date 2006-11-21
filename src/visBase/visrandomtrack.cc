@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Jan 2003
- RCS:           $Id: visrandomtrack.cc,v 1.36 2006-08-16 10:51:20 cvsbert Exp $
+ RCS:           $Id: visrandomtrack.cc,v 1.37 2006-11-21 14:00:08 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -457,7 +457,7 @@ void RandomTrack::rebuild()
 	sections.remove( idx );
     }
 
-    if ( !sections.size() ) return;
+    if ( sections.isEmpty() ) return;
 
     Coordinates* coords = sections[0]->getCoordinates();
     if ( transformation ) coords->setDisplayTransformation( transformation );

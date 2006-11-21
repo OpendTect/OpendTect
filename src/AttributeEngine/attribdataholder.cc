@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribdataholder.cc,v 1.5 2006-09-12 10:24:59 cvsnanne Exp $";
+static const char* rcsID = "$Id: attribdataholder.cc,v 1.6 2006-11-21 14:00:06 cvsbert Exp $";
 
 #include "attribdataholder.h"
 
@@ -96,7 +96,7 @@ Data2DHolder::~Data2DHolder()
 CubeSampling Data2DHolder::getCubeSampling() const
 {
     CubeSampling res;
-    if ( !trcinfoset_.size() )
+    if ( trcinfoset_.isEmpty() )
 	return res;
 
     StepInterval<int> trcrange;
@@ -148,7 +148,7 @@ CubeSampling Data2DHolder::getCubeSampling() const
 
 bool Data2DHolder::fillDataCube( DataCubes& res ) const
 {
-    if ( !dataset_.size() )
+    if ( dataset_.isEmpty() )
 	return false;
 
     const CubeSampling cs = getCubeSampling();

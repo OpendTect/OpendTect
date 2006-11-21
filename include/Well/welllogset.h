@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: welllogset.h,v 1.8 2006-03-12 13:39:10 cvsbert Exp $
+ RCS:		$Id: welllogset.h,v 1.9 2006-11-21 14:00:06 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -41,6 +41,8 @@ public:
 
     void		add(Log*);		//!< becomes mine
     Log*		remove(int);		//!< becomes yours
+
+    bool		isEmpty() const		{ return size() == 0; }
 
 protected:
 

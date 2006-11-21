@@ -4,7 +4,7 @@
  * DATE     : 2-8-1994
 -*/
 
-static const char* rcsID = "$Id: ioobj.cc,v 1.23 2006-11-06 13:09:19 cvsnanne Exp $";
+static const char* rcsID = "$Id: ioobj.cc,v 1.24 2006-11-21 14:00:07 cvsbert Exp $";
 
 #include "iodir.h"
 #include "ioman.h"
@@ -168,7 +168,7 @@ IOObj* IOObj::produce( const char* typ, const char* nm, const char* keyin,
 
     if ( !nm || !*nm ) nm = "?";
     MultiID ky( keyin );
-    if ( ky == "" && IOM().dirPtr() )
+    if ( ky.isEmpty() && IOM().dirPtr() )
 	ky = IOM().dirPtr()->newKey();
 
     const ObjectSet<const IOObjProducer>& prods = getProducers();
@@ -251,7 +251,7 @@ int IOObj::put( ascostream& astream ) const
 {
     if ( !isLink() )
     {
-	if ( parentKey() == "" )
+	if ( parentKey().isEmpty() )
 	    astream.put( name(), myKey() );
 	else
 	{
@@ -295,7 +295,7 @@ bool areEqual( const IOObj* o1, const IOObj* o2 )
 static void mkStd( MultiID& ky )
 {
     if ( ky.ID(ky.nrKeys()-1) == 1 ) ky = ky.upLevel();
-    if ( ky == "" ) ky = "0";
+    if ( ky.isEmpty() ) ky = "0";
 }
 
 

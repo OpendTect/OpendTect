@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Jan 2005
- RCS:           $Id: uivispickretriever.cc,v 1.1 2006-08-26 15:50:17 cvskris Exp $
+ RCS:           $Id: uivispickretriever.cc,v 1.2 2006-11-21 14:00:08 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -81,9 +81,9 @@ void uiVisPickRetriever::pickCB( CallBacker* cb )
     if ( !scene || scene->eventCatcher().isEventHandled() )
 	return;
 
-    if ( (allowedscenes_.size() &&
-	   allowedscenes_.indexOf( scene->id() )==-1) ||
-	 !eventinfo.pickedobjids.size() )
+    if ( (!allowedscenes_.isEmpty() &&
+	  allowedscenes_.indexOf( scene->id() )==-1)
+	  || eventinfo.pickedobjids.isEmpty() )
 	status_ = Failed;
     else
     {

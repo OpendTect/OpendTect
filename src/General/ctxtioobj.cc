@@ -4,7 +4,7 @@
  * DATE     : 7-1-1996
 -*/
 
-static const char* rcsID = "$Id: ctxtioobj.cc,v 1.28 2006-09-14 14:24:01 cvsbert Exp $";
+static const char* rcsID = "$Id: ctxtioobj.cc,v 1.29 2006-11-21 14:00:07 cvsbert Exp $";
 
 #include "ctxtioobj.h"
 #include "ioobj.h"
@@ -177,7 +177,7 @@ void IOObjContext::fillTrGroup()
 	mCase(Mdl,"EarthModel");
 	case IOObjContext::NLA:
 	    trgroup = &TranslatorGroup::getGroup( "NonLinear Analysis", true );
-	    if ( trgroup->userName() == "" )
+	    if ( trgroup->userName().isEmpty() )
 	    trgroup = &TranslatorGroup::getGroup( "Neural network", true );
 	default:
 	    trgroup = &TranslatorGroup::getGroup( "Seismic Data", true );
@@ -313,7 +313,7 @@ void CtxtIOObj::destroyAll()
 
 int CtxtIOObj::fillObj( const MultiID& uid )
 {
-    if ( ioobj && (ctxt.name() == ioobj->name() || ctxt.name() == "") )
+    if ( ioobj && (ctxt.name() == ioobj->name() || ctxt.name().isEmpty()) )
 	return 1;
     IOM().getEntry( *this, uid );
     return ioobj ? 2 : 0;

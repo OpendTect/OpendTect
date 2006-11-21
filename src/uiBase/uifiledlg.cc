@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/09/2000
- RCS:           $Id: uifiledlg.cc,v 1.27 2006-11-20 16:17:56 cvsnanne Exp $
+ RCS:           $Id: uifiledlg.cc,v 1.28 2006-11-21 14:00:07 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -141,16 +141,16 @@ int uiFileDialog::go()
 
 	if ( priv )
 	{
-	    if ( oktxt_ != "" && priv->acceptButton )
+	    if ( !oktxt_.isEmpty() && priv->acceptButton )
 		priv->acceptButton->setText( (const char*)oktxt_ );
 
-	    if ( cnclxt_ != "" && priv->rejectButton )
+	    if ( !cnclxt_.isEmpty() && priv->rejectButton )
 		priv->rejectButton->setText( (const char*)cnclxt_ );
 	}
     }
 #else
-    if ( oktxt_ != "" ) fd->okB->setText( (const char*)oktxt_ );
-    if ( cnclxt_ != "") fd->cancelB->setText( (const char*)cnclxt_ );
+    if ( !oktxt_.isEmpty() ) fd->okB->setText( (const char*)oktxt_ );
+    if ( !cnclxt_.isEmpty()) fd->cancelB->setText( (const char*)cnclxt_ );
 #endif
 
 

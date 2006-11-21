@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		21-12-1995
- RCS:		$Id: iopar.h,v 1.41 2006-09-21 12:02:46 cvsbert Exp $
+ RCS:		$Id: iopar.h,v 1.42 2006-11-21 14:00:06 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -48,6 +48,7 @@ public:
 			{ return isEqual(iop); }
     void		getFrom(ascistream&);
     void		putTo(ascostream&) const;
+    inline bool		isEmpty() const		{ return size() == 0; }
 
 			// serialisation
     void		getFrom(const char*);

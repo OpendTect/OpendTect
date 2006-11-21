@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: threadwork.cc,v 1.17 2006-07-27 13:46:05 cvskris Exp $";
+static const char* rcsID = "$Id: threadwork.cc,v 1.18 2006-11-21 14:00:06 cvsbert Exp $";
 
 #include "threadwork.h"
 #include "basictask.h"
@@ -319,7 +319,7 @@ protected:
 
 bool Threads::ThreadWorkManager::addWork( ObjectSet<BasicTask>& work )
 {
-    if ( !work.size() )
+    if ( work.isEmpty() )
 	return true;
 
     const int nrwork = work.size();

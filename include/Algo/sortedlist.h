@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		19-4-2000
  Contents:	Array sorting
- RCS:		$Id: sortedlist.h,v 1.8 2004-07-21 11:13:17 nanne Exp $
+ RCS:		$Id: sortedlist.h,v 1.9 2006-11-21 14:00:06 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -114,7 +114,7 @@ int SortedList<T>::getPos( const T& typ ) const
 template <class T> inline
 int SortedList<T>::indexOf( const T& typ ) const
 {
-    if ( !tvec.size() ) return -1;
+    if ( tvec.isEmpty() ) return -1;
 
     int pos = getPos( typ );
 

@@ -79,7 +79,7 @@ bool SeisTrcWriter::prepareWork( const SeisTrc& trc )
 	errmsg += ioobj->name(); errmsg += "'";
 	return false;
     }
-    if ( is2d && !lkp && ( !seldata || seldata->linekey_ == "" ) )
+    if ( is2d && !lkp && ( !seldata || seldata->linekey_.isEmpty() ) )
     {
 	errmsg = "Internal: 2D seismic can only be stored if line key known";
 	return false;
@@ -183,10 +183,10 @@ bool SeisTrcWriter::ensureRightConn( const SeisTrc& trc, bool first )
 bool SeisTrcWriter::next2DLine()
 {
     LineKey lk = lkp ? lkp->lineKey() : seldata->linekey_;
-    if ( attrib != "" )
+    if ( !attrib.isEmpty() )
 	lk.setAttrName( attrib );
     BufferString lnm = lk.lineName();
-    if ( lnm == "" )
+    if ( lnm.isEmpty() )
     {
 	errmsg = "Cannot write to empty line name";
 	return false;

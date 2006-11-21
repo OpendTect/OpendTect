@@ -4,7 +4,7 @@
  * DATE     : Mar 2004
 -*/
 
-static const char* rcsID = "$Id: filepath.cc,v 1.18 2006-07-13 12:39:38 cvsnanne Exp $";
+static const char* rcsID = "$Id: filepath.cc,v 1.19 2006-11-21 14:00:06 cvsbert Exp $";
 
 #include "filepath.h"
 #include "envvars.h"
@@ -122,7 +122,7 @@ void FilePath::setFileName( const char* fnm )
 	if ( lvls_.size() )
 	    lvls_.remove( lvls_.size()-1 );
     }
-    else if ( !lvls_.size() )
+    else if ( lvls_.isEmpty() )
 	add( fnm );
     else
     {
@@ -136,7 +136,7 @@ void FilePath::setPath( const char* pth )
 {
     BufferString fnm( lvls_.size() ? lvls_.get(lvls_.size()-1) : 0 );
     set( pth );
-    if ( fnm != "" )
+    if ( !fnm.isEmpty() )
 	add( fnm );
 }
 
@@ -185,7 +185,7 @@ int FilePath::nrLevels() const
 
 const char* FilePath::extension() const
 {
-    if ( !lvls_.size() )
+    if ( lvls_.isEmpty() )
 	return 0;
 
     const char* ret = strrchr( fileName().buf(), '.' );

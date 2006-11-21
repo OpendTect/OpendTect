@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: well.cc,v 1.40 2006-03-21 14:53:00 cvsbert Exp $";
+static const char* rcsID = "$Id: well.cc,v 1.41 2006-11-21 14:00:07 cvsbert Exp $";
 
 #include "welldata.h"
 #include "welltrack.h"
@@ -137,7 +137,7 @@ void Well::LogSet::add( Well::Log* l )
 
 void Well::LogSet::updateDahIntv( const Well::Log& wl )
 {
-    if ( !wl.size() ) return;
+    if ( wl.isEmpty() ) return;
 
     if ( mIsUdf(dahintv.start) )
 	{ dahintv.start = wl.dah(0); dahintv.stop = wl.dah(wl.size()-1); }

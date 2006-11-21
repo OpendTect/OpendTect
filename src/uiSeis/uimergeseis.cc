@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:		$Id: uimergeseis.cc,v 1.31 2006-08-30 16:03:27 cvsbert Exp $
+ RCS:		$Id: uimergeseis.cc,v 1.32 2006-11-21 14:00:08 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -217,7 +217,7 @@ bool uiMergeSeis::handleInput( int& nrsamps, int& bps )
 	}
     }
 
-    if ( type == "" )
+    if ( type.isEmpty() )
 	ctio.ioobj->pars().removeWithKey( typekey );
     else
 	ctio.ioobj->pars().set( typekey, type );

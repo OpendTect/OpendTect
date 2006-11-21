@@ -4,7 +4,7 @@
  * DATE     : 18-4-1996
 -*/
 
-static const char* rcsID = "$Id: draw.cc,v 1.58 2006-09-07 15:44:24 cvskris Exp $";
+static const char* rcsID = "$Id: draw.cc,v 1.59 2006-11-21 14:00:07 cvsbert Exp $";
 
 /*! \brief Several implementations for UI-related things.
 
@@ -404,7 +404,7 @@ void ColorTable::scaleTo( const Interval<float>& intv )
 Interval<float> ColorTable::getInterval() const
 {
     Interval<float> ret( mUdf(float), mUdf(float) );
-    if ( cvs_.size() > 0 )
+    if ( !cvs_.isEmpty() )
 	ret = Interval<float>( cvs_[0].value, cvs_[cvs_.size()-1].value );
 
     return ret;
@@ -426,7 +426,7 @@ bool ColorTable::hasTransparency() const
 void ColorTable::setTransparencyFromColVals()
 {
     translist_.erase();
-    if ( !cvs_.size() )
+    if ( cvs_.isEmpty() )
 	return;
 
     const Interval<float> range( cvs_[0].value, cvs_[cvs_.size()-1].value );
@@ -534,7 +534,7 @@ void ColorTable::usePar( const IOPar& iopar )
 	translist_ += Geom::Point2D<float>(val,alpha);
     }
 
-    if ( !translist_.size() )
+    if ( translist_.isEmpty() )
     {
 	for ( int idx=0; idx<cvs_.size(); idx++ )
 	{

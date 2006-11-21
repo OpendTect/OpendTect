@@ -4,12 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodhelpmenumgr.cc,v 1.5 2006-03-01 16:46:49 cvsnanne Exp $
+ RCS:           $Id: uiodhelpmenumgr.cc,v 1.6 2006-11-21 14:00:08 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiodhelpmenumgr.cc,v 1.5 2006-03-01 16:46:49 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodhelpmenumgr.cc,v 1.6 2006-11-21 14:00:08 cvsbert Exp $";
 
 #include "uiodhelpmenumgr.h"
 #include "uiodmenumgr.h"
@@ -61,7 +61,7 @@ bool uiODHelpDocInfo::getFrom( std::istream& strm, const char* dirnm )
 	}
     }
 
-    return nm != "";
+    return !nm.isEmpty();
 }
 
 

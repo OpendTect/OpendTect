@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.cc,v 1.102 2006-10-05 08:51:48 cvsjaap Exp $
+ RCS:           $Id: uimpeman.cc,v 1.103 2006-11-21 14:00:08 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -445,14 +445,14 @@ void uiMPEMan::updateSelectedAttrib()
 {
     mGetDisplays(false);
 
-    if ( !displays.size() )
+    if ( displays.isEmpty() )
 	return;
 
     ObjectSet<const Attrib::SelSpec> attribspecs;
     engine().getNeededAttribs( attribspecs );
 
     const char* userref = displays[0]->getSelSpecUserRef();
-    if ( !userref && attribspecs.size() )
+    if ( !userref && !attribspecs.isEmpty() )
     {
 	for ( int idx=0; idx<displays.size(); idx++ )
 	    displays[idx]->setSelSpec( 0, *attribspecs[0] );

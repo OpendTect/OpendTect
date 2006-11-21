@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		April 2006
- RCS:		$Id: uihorizonrelations.cc,v 1.2 2006-06-07 06:57:21 cvsnanne Exp $
+ RCS:		$Id: uihorizonrelations.cc,v 1.3 2006-11-21 14:00:07 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -114,7 +114,7 @@ void uiHorizonRelationsDlg::read()
 
 	MultiID mid( idstr );
 	BufferString horname = EM::EMM().objectName( mid );
-	if ( horname == "" ) continue;
+	if ( horname.isEmpty() ) continue;
 
 	horids_ += mid;
 	hornames_.add( horname );

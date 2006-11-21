@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          February 2006
- RCS:           $Id: fingerprintattrib.cc,v 1.10 2006-08-29 11:28:42 cvshelene Exp $
+ RCS:           $Id: fingerprintattrib.cc,v 1.11 2006-11-21 14:00:06 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -204,7 +204,7 @@ bool FingerPrint::getInputData( const BinID& relpos, int zintv )
 bool FingerPrint::computeData( const DataHolder& output, const BinID& relpos, 
 			       int z0, int nrsamples ) const
 {
-    if ( !inputdata_.size() || !outputinterest[0] ) return false;
+    if ( inputdata_.isEmpty() || !outputinterest[0] ) return false;
 
     TypeSet<float> scaledlocal;
     for ( int idx=0; idx<nrsamples; idx++ )

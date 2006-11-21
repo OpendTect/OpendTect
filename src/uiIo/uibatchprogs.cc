@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:           $Id: uibatchprogs.cc,v 1.24 2006-05-29 08:02:32 cvsbert Exp $
+ RCS:           $Id: uibatchprogs.cc,v 1.25 2006-11-21 14:00:08 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -127,7 +127,7 @@ BatchProgInfoList::BatchProgInfoList( const char* appnm )
 	    {
 		char* ptr = const_cast<char*>(astrm.value());
 		while ( *ptr && *ptr == '>' ) *ptr++ = ' ';
-		if ( bpi->comments != "" )
+		if ( !bpi->comments.isEmpty() )
 		    bpi->comments += "\n";
 		bpi->comments += astrm.value();
 	    }
@@ -205,7 +205,7 @@ uiBatchProgLaunch::uiBatchProgLaunch( uiParent* p, const char* appnm )
 	    }
 	    (*inplst) += newinp;
 	}
-	if ( bpi.exampleinput != "" )
+	if ( !bpi.exampleinput.isEmpty() )
 	{
 	    if ( !exbut )
 	    {
@@ -245,7 +245,7 @@ void uiBatchProgLaunch::progSel( CallBacker* )
     }
 
     if ( exbut )
-	exbut->display( bpi.exampleinput != "" );
+	exbut->display( !bpi.exampleinput.isEmpty() );
 }
 
 
@@ -253,7 +253,7 @@ void uiBatchProgLaunch::exButPush( CallBacker* )
 {
     const int selidx = progfld->box()->currentItem();
     const BatchProgInfo& bpi = *pil[selidx];
-    if ( bpi.exampleinput == "" )
+    if ( bpi.exampleinput.isEmpty() )
 	{ pErrMsg("In CB that shouldn't be called for entry"); return; }
     BufferString sourceex( GetDataFileName(bpi.exampleinput) );
     if ( File_isEmpty(sourceex) )

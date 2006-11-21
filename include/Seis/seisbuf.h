@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		29-1-98
- RCS:		$Id: seisbuf.h,v 1.13 2006-11-06 15:37:33 cvsbert Exp $
+ RCS:		$Id: seisbuf.h,v 1.14 2006-11-21 14:00:06 cvsbert Exp $
 ________________________________________________________________________
 
 */
@@ -50,7 +50,8 @@ public:
 			    else trcs.erase();
 			}
 
-    int			size() const		{ return trcs.size(); }
+    inline int		size() const		{ return trcs.size(); }
+    inline bool		isEmpty() const		{ return trcs.isEmpty(); }
     void		insert(SeisTrc*,int);
     void		add( SeisTrc* t )	{ trcs += t; }
     void		add(SeisTrcBuf&);	//!< shallow copy if not owner

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          June 2002
- RCS:           $Id: uisetdatadir.cc,v 1.17 2005-08-29 11:10:09 cvsbert Exp $
+ RCS:           $Id: uisetdatadir.cc,v 1.18 2006-11-21 14:00:08 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,7 +39,7 @@ uiSetDataDir::uiSetDataDir( uiParent* p )
     BufferString oddirnm, basedirnm;
     const char* titltxt = 0;
 
-    if ( olddatadir != "" )
+    if ( !olddatadir.isEmpty() )
     {
 	if ( oldok )
 	{
@@ -116,13 +116,13 @@ bool uiSetDataDir::isOK( const char* d )
 bool uiSetDataDir::acceptOK( CallBacker* )
 {
     BufferString datadir = basedirfld->text();
-    if ( datadir == "" || !File_isDirectory(datadir) )
+    if ( datadir.isEmpty() || !File_isDirectory(datadir) )
 	mErrRet( "Please enter a valid (existing) location" )
 
     if ( oddirfld )
     {
 	BufferString oddirnm = oddirfld->text();
-	if ( oddirnm == "" )
+	if ( oddirnm.isEmpty() )
 	    mErrRet( "Please enter a (sub-)directory name" )
 
 	datadir = FilePath( datadir ).add( oddirnm ).fullPath();

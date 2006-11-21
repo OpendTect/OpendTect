@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          September 2003
- RCS:           $Id: uiwellman.cc,v 1.32 2006-08-25 10:25:05 cvsnanne Exp $
+ RCS:           $Id: uiwellman.cc,v 1.33 2006-11-21 14:00:08 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -149,7 +149,7 @@ void uiWellMan::edMarkers( CallBacker* )
 	wd = Well::MGR().get( curioobj_->key() );
     else
     {
-	if ( !welldata->markers().size() )
+	if ( welldata->markers().isEmpty() )
 	    wellrdr->getMarkers();
 	wd = welldata;
     }

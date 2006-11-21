@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Apr 2002
- RCS:           $Id: hostdata.cc,v 1.32 2006-07-26 15:35:15 cvsnanne Exp $
+ RCS:           $Id: hostdata.cc,v 1.33 2006-11-21 14:00:06 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -328,7 +328,7 @@ void HostDataList::handleLocal()
     }
 
     BufferString hnm( HostData::localHostName() );
-    if ( hnm == "" ) return;
+    if ( hnm.isEmpty() ) return;
     if ( !localhd )
     {
 	localhd = new HostData( hnm, __iswin__ );

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiattribpartserv.cc,v 1.41 2006-10-19 21:13:21 cvskris Exp $
+ RCS:           $Id: uiattribpartserv.cc,v 1.42 2006-11-21 14:00:07 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -320,7 +320,8 @@ EngineMan* uiAttribPartServer::createEngMan( const CubeSampling* cs,
 {
     if ( !adsman->descSet() )
 	{ pErrMsg("No attr set"); return false; }
-    else if ( !targetspecs.size() || targetspecs[0].id()==SelSpec::cNoAttrib() )
+    else if ( targetspecs.isEmpty()
+	   || targetspecs[0].id() == SelSpec::cNoAttrib() )
 	{ pErrMsg("Nothing to do"); return false; }
 
     EngineMan* aem = new EngineMan;
@@ -427,7 +428,7 @@ bool uiAttribPartServer::createOutput( const BinIDValueSet& bidvalset,
 
 bool uiAttribPartServer::isDataAngles() const
 {
-    if ( !adsman->descSet() || !targetspecs.size() )
+    if ( !adsman->descSet() || targetspecs.isEmpty() )
 	return false;
     
     const Attrib::Desc* desc = adsman->descSet()->getDesc( targetspecs[0].id() );
@@ -492,7 +493,7 @@ bool uiAttribPartServer::extractData( const NLACreationDesc& desc,
 	BufferString errmsg;
 	if ( !vds->getFrom(ioobj->fullUserExpr(true),errmsg) )
 	    { uiMSG().error( errmsg ); delete vds; return false; }
-	if ( !vds->pars().size() || vds->data().isEmpty() )
+	if ( vds->pars().isEmpty() || vds->data().isEmpty() )
 	    { uiMSG().error( "Invalid Training set specified" );
 		delete vds; return false; }
 	outvds += vds;
@@ -523,7 +524,7 @@ void uiAttribPartServer::usePar( const IOPar& iopar )
 	    errmsg += "\n";
 	    errmsg += errmsgs.get( idx );
 	}
-	if ( errmsg != "" )
+	if ( !errmsg.isEmpty() )
 	    uiMSG().error( errmsg );
 
 	sendEvent( evNewAttrSet );

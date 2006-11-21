@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: odsession.cc,v 1.11 2006-08-30 16:03:27 cvsbert Exp $";
+static const char* rcsID = "$Id: odsession.cc,v 1.12 2006-11-21 14:00:08 cvsbert Exp $";
 
 #include "odsession.h"
 #include "ptrman.h"
@@ -124,7 +124,7 @@ bool ODSessionTranslator::retrieve( ODSession& session,
     if ( !conn )
 	{ err = "Cannot open "; err += ioobj->fullUserExpr(true); return false;}
     err = tr->read( session, *conn );
-    bool rv = err == "";
+    bool rv = err.isEmpty();
     if ( rv ) err = tr->warningMsg();
     return rv;
 }
@@ -142,7 +142,7 @@ bool ODSessionTranslator::store( const ODSession& session,
     if ( !conn )
     { err = "Cannot open "; err += ioobj->fullUserExpr(false); return false; }
     err = tr->write( session, *conn );
-    return err == "";
+    return err.isEmpty();
 }
 
 
@@ -162,7 +162,7 @@ const char* dgbODSessionTranslator::read( ODSession& session, Conn& conn )
 	return "Cannot read session files older than d-Tect V1.5";
 
     IOPar iopar( astream );
-    if ( !iopar.size() )
+    if ( iopar.isEmpty() )
 	return "Empty input file";
 
     if ( !session.usePar( iopar ))

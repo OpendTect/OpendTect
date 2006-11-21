@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribdesc.cc,v 1.51 2006-10-11 12:30:40 cvsdgb Exp $";
+static const char* rcsID = "$Id: attribdesc.cc,v 1.52 2006-11-21 14:00:06 cvsbert Exp $";
 
 #include "attribdesc.h"
 
@@ -237,7 +237,7 @@ void Desc::getDependencies(TypeSet<Attrib::DescID>& deps) const
 
 Seis::DataType Desc::dataType( int target ) const
 {
-    if ( seloutput_==-1 || !outputtypes_.size() )
+    if ( seloutput_==-1 || outputtypes_.isEmpty() )
 	return Seis::UnknowData;
 
     int outidx = target==-1 ? seloutput_ : target;
@@ -355,8 +355,8 @@ bool Desc::isIdenticalTo( const Desc& desc, bool cmpoutput ) const
 {
     if ( this==&desc ) return true;
 
-    if ( params_.size()!=desc.params_.size() || 
-	    				inputs_.size()!=desc.inputs_.size() )
+    if ( params_.size() != desc.params_.size()
+      || inputs_.size() != desc.inputs_.size() )
 	return false;
 
     for ( int idx=0; idx<params_.size(); idx++ )

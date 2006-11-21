@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Payraudeau
  Date:          February  2006
- RCS:           $Id: uifingerprintattrib.cc,v 1.24 2006-10-23 09:16:50 cvshelene Exp $
+ RCS:           $Id: uifingerprintattrib.cc,v 1.25 2006-11-21 14:00:07 cvsbert Exp $
 
 ________________________________________________________________________
 
@@ -472,12 +472,12 @@ void uiFingerPrintAttrib::calcPush(CallBacker*)
 {
     BufferString errmsg;
     BinIDValueSet* valuesset = createValuesBinIDSet( errmsg );
-    if ( calcobj_->getRgRefType()==1 && !calcobj_->getRgRefPick().size() )
+    if ( calcobj_->getRgRefType()==1 && calcobj_->getRgRefPick().isEmpty() )
     {
 	errmsg = "Please choose the pickset from which\n";
 	errmsg += "the ranges will be computed";
     }
-    if ( errmsg.size() ) 
+    if ( !errmsg.isEmpty() ) 
     {
 	uiMSG().error( errmsg );
 	return;
@@ -624,7 +624,7 @@ void uiFingerPrintAttrib::useLineSetID( const BufferString& ls )
    
 bool uiFingerPrintAttrib::areUIParsOK()
 {
-    if ( !calcobj_->getValues().size() || !calcobj_->getRanges().size() )
+    if ( calcobj_->getValues().isEmpty() || calcobj_->getRanges().isEmpty() )
     {
 	errmsg_ = "Please fill in all values and ranges fields.\n";
 	errmsg_ += "Press on 'Calculate parameters' to let OpendTect compute\n";

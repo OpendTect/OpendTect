@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:           $Id: uibatchlaunch.cc,v 1.54 2006-05-11 11:01:36 cvsbert Exp $
+ RCS:           $Id: uibatchlaunch.cc,v 1.55 2006-11-21 14:00:08 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -67,7 +67,7 @@ uiBatchLaunch::uiBatchLaunch( uiParent* p, const IOPar& ip,
     finaliseDone.notify( mCB(this,uiBatchLaunch,remSel) );
     HostDataList hdl;
     rshcomm = hdl.rshComm();
-    if ( rshcomm == "" ) rshcomm = "rsh";
+    if ( rshcomm.isEmpty() ) rshcomm = "rsh";
     nicelvl = hdl.defNiceLevel();
 
     BufferString dispstr( "Remote (using " );
@@ -93,7 +93,7 @@ uiBatchLaunch::uiBatchLaunch( uiParent* p, const IOPar& ip,
     remhostfld->attach( alignedBelow, remfld );
 
     static BufferString fname = "";
-    if ( fname == "" )
+    if ( fname.isEmpty() )
     {
 	fname = GetProcFileName( "log" );
 	if ( GetSoftwareUser() )
@@ -162,7 +162,7 @@ bool uiBatchLaunch::acceptOK( CallBacker* )
     if ( dormt )
     {
 	hostname = remhostfld->text();
-	if ( hostname == "" )
+	if ( hostname.isEmpty() )
 	{
 	    uiMSG().error( "Please specify the name of the remote host" );
 	    return false;
@@ -172,7 +172,7 @@ bool uiBatchLaunch::acceptOK( CallBacker* )
     const int sel = selected();
     BufferString fname = sel == 0 ? "window"
 		       : (sel == 2 ? "stdout" : filefld->fileName());
-    if ( fname == "" ) fname = "/dev/null";
+    if ( fname.isEmpty() ) fname = "/dev/null";
     iop.set( sKey::LogFile, fname );
     iop.set( sKey::Survey, IOM().surveyName() );
 
@@ -187,7 +187,7 @@ bool uiBatchLaunch::acceptOK( CallBacker* )
 	return true;
     }
 
-    if ( parfname == "" )
+    if ( parfname.isEmpty() )
 	getProcFilename( sSingBaseNm, sSingBaseNm, parfname );
     if ( !writeProcFile(iop,parfname) )
 	return false;
@@ -236,10 +236,9 @@ uiFullBatchDialog::uiFullBatchDialog( uiParent* p, const Setup& s )
 	: uiDialog(p,uiDialog::Setup(s.wintxt_,"X",0).oktext("Proceed")
 						     .modal(s.modal_))
     	, uppgrp(new uiGroup(this,"Upper group"))
-	, procprognm(s.procprognm_ != "" ? s.procprognm_
-					 : "process_attrib")
-	, multiprognm(s.multiprocprognm_ != "" ? s.multiprocprognm_
-					       : "SeisMMBatch")
+	, procprognm(s.procprognm_.isEmpty() ? "process_attrib" : s.procprognm_)
+	, multiprognm(s.multiprocprognm_.isEmpty() ? "SeisMMBatch"
+						   : s.multiprocprognm_)
     	, redo_(false)
 	, parfnamefld(0)
 {
@@ -296,7 +295,7 @@ bool uiFullBatchDialog::acceptOK( CallBacker* cb )
 {
     if ( !prepareProcessing() ) return false;
     BufferString inpfnm = parfnamefld->fileName();
-    if ( inpfnm == "" )
+    if ( inpfnm.isEmpty() )
 	getProcFilename( 0, "tmp_proc", inpfnm );
     else if ( !FilePath(inpfnm).isAbsolute() )
 	getProcFilename( inpfnm, sSingBaseNm, inpfnm );

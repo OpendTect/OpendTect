@@ -5,7 +5,7 @@
  * FUNCTION : Seismic data reader
 -*/
 
-static const char* rcsID = "$Id: seisread.cc,v 1.65 2006-11-10 13:51:48 cvsbert Exp $";
+static const char* rcsID = "$Id: seisread.cc,v 1.66 2006-11-21 14:00:07 cvsbert Exp $";
 
 #include "seisread.h"
 #include "seistrctr.h"
@@ -402,7 +402,7 @@ bool SeisTrcReader::mkNextFetcher()
     curlineidx++; tbuf->deepErase();
     LineKey lk( seldata ? seldata->linekey_ : "" );
     const BufferString attrnm = lk.attrName();
-    const bool islinesel = lk.lineName() != "";
+    const bool islinesel = !lk.lineName().isEmpty();
     const bool istable = seldata && seldata->type_ == Seis::Table;
     const int nrlines = lset->nrLines();
 
@@ -486,10 +486,10 @@ bool SeisTrcReader::readNext2D()
 int SeisTrcReader::get2D( SeisTrcInfo& ti )
 {
     if ( !fetcher && !mkNextFetcher() )
-	return errmsg == "" ? 0 : -1;
+	return errmsg.isEmpty() ? 0 : -1;
 
     if ( !readNext2D() )
-	return errmsg == "" ? 0 : -1;
+	return errmsg.isEmpty() ? 0 : -1;
 
     inforead = true;
     SeisTrcInfo& trcti = tbuf->get( 0 )->info();

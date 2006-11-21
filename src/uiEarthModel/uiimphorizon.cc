@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          May 2002
- RCS:           $Id: uiimphorizon.cc,v 1.72 2006-11-06 16:18:12 cvsnanne Exp $
+ RCS:           $Id: uiimphorizon.cc,v 1.73 2006-11-21 14:00:07 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -311,7 +311,7 @@ bool uiImportHorizon::doWork()
 
     ObjectSet<BinIDValueSet> sections;
     if ( !readFiles(sections,scanner.needZScaling(),&hs) ) return false;
-    if ( !sections.size() )
+    if ( sections.isEmpty() )
 	mErrRet( "Nothing to import" );
 
     const bool dofill = filludffld->getBoolValue();
@@ -468,7 +468,7 @@ BinIDValueSet* uiImportHorizon::getBidValSet( const char* fnm, bool doscale,
 	    values += atof( valbuf );
 	}
 	
-	if ( !values.size() ) continue;
+	if ( values.isEmpty() ) continue;
 	if ( set->nrVals() != values.size() )
 	    set->setNrVals( values.size() );
 

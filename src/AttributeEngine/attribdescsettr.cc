@@ -4,7 +4,7 @@
  * DATE     : May 2001
 -*/
 
-static const char* rcsID = "$Id: attribdescsettr.cc,v 1.4 2006-08-30 16:03:26 cvsbert Exp $";
+static const char* rcsID = "$Id: attribdescsettr.cc,v 1.5 2006-11-21 14:00:06 cvsbert Exp $";
 
 #include "attribdescsettr.h"
 #include "attrfact.h"
@@ -31,7 +31,7 @@ bool AttribDescSetTranslator::retrieve( Attrib::DescSet& ads,
     if ( !conn )
 	{ bs = "Cannot open "; bs += ioobj->fullUserExpr(true); return false; }
     bs = tr->read( ads, *conn );
-    bool rv = bs == "";
+    bool rv = bs.isEmpty();
     if ( rv ) bs = tr->warningMsg();
     return rv;
 }
@@ -48,7 +48,7 @@ bool AttribDescSetTranslator::store( const Attrib::DescSet& ads,
     if ( !conn )
 	{ bs = "Cannot open "; bs += ioobj->fullUserExpr(false); return false; }
     bs = tr->write( ads, *conn );
-    return bs == "";
+    return bs.isEmpty();
 }
 
 

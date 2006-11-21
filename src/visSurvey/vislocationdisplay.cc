@@ -4,7 +4,7 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vislocationdisplay.cc,v 1.14 2006-08-23 07:33:52 cvsnanne Exp $";
+static const char* rcsID = "$Id: vislocationdisplay.cc,v 1.15 2006-11-21 14:00:08 cvsbert Exp $";
 
 #include "vislocationdisplay.h"
 
@@ -514,7 +514,7 @@ void LocationDisplay::getMousePosInfo( const visBase::EventInfo&,
 void LocationDisplay::otherObjectsMoved(
 			const ObjectSet<const SurveyObject>& objs, int )
 {
-    if ( showall_ && !invalidpicks_.size() ) return;
+    if ( showall_ && invalidpicks_.isEmpty() ) return;
 
     for ( int idx=0; idx<group_->size(); idx++ )
     {

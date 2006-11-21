@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Oct 2003
- RCS:           $Id: uipluginman.cc,v 1.17 2006-03-10 13:31:08 cvsbert Exp $
+ RCS:           $Id: uipluginman.cc,v 1.18 2006-11-21 14:00:08 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -63,7 +63,7 @@ void uiPluginMan::fillList()
     }
     loaded.sort(); notloaded.sort();
     listfld->addItems( loaded );
-    if ( notloaded.size() > 0 )
+    if ( !notloaded.isEmpty() )
     {
 	listfld->addItem( "------------------" );
 	listfld->addItems( notloaded );
@@ -138,7 +138,7 @@ void uiPluginMan::loadPush( CallBacker* )
 #endif
 
     static BufferString loaddir;
-    if ( loaddir == "" )
+    if ( loaddir.isEmpty() )
     {
 	loaddir = PIM().getAutoDir( true );
 	if ( !File_exists(loaddir) )

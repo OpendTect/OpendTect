@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          Jan 2004
- RCS:           $Id: uicrdevenv.cc,v 1.21 2006-05-08 14:38:15 cvsnanne Exp $
+ RCS:           $Id: uicrdevenv.cc,v 1.22 2006-11-21 14:00:08 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -159,7 +159,7 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
 	}
     }
 
-    if ( workdirnm == "" )
+    if ( workdirnm.isEmpty() )
     {
 	BufferString worksubdirm = "ODWork";
 
@@ -203,7 +203,7 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
 	workdirnm = FilePath( basedirnm ).add( worksubdirm ).fullPath();
     }
 
-    if ( workdirnm == "" ) return;
+    if ( workdirnm.isEmpty() ) return;
 	
     if ( File_exists(workdirnm) )
     {
@@ -273,13 +273,13 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
 bool uiCrDevEnv::acceptOK( CallBacker* )
 {
     BufferString workdir = basedirfld->text();
-    if ( workdir == "" || !File_isDirectory(workdir) )
+    if ( workdir.isEmpty() || !File_isDirectory(workdir) )
 	mErrRet( "Please enter a valid (existing) location" )
 
     if ( workdirfld )
     {
 	BufferString workdirnm = workdirfld->text();
-	if ( workdirnm == "" )
+	if ( workdirnm.isEmpty() )
 	    mErrRet( "Please enter a (sub-)directory name" )
 
 	workdir = FilePath( workdir ).add( workdirnm ).fullPath();

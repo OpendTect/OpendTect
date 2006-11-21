@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexture.cc,v 1.36 2006-08-16 10:51:20 cvsbert Exp $";
+static const char* rcsID = "$Id: vistexture.cc,v 1.37 2006-11-21 14:00:08 cvsbert Exp $";
 
 #include "vistexture.h"
 
@@ -332,7 +332,7 @@ void Texture::makeColorIndexes()
 {
     if ( !datacache ) return;
 
-    if ( !colorindexers.size() )
+    if ( colorindexers.isEmpty() )
     {
 	for ( int idx=0; idx<Threads::getNrProcessors(); idx++ )
 	{
@@ -495,7 +495,7 @@ void Texture::makeTexture()
 
     unsigned char* texture = getTexturePtr();
 
-    if ( !texturemakers.size() )
+    if ( texturemakers.isEmpty() )
     {
 	for ( int idx=0; idx<Threads::getNrProcessors(); idx++ )
 	{

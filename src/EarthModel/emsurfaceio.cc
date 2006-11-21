@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          June 2003
- RCS:           $Id: emsurfaceio.cc,v 1.82 2006-07-20 15:03:10 cvskris Exp $
+ RCS:           $Id: emsurfaceio.cc,v 1.83 2006-11-21 14:00:07 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -1518,10 +1518,10 @@ bool dgbSurfaceWriter::writeRow( std::ostream& strm )
 				RowCol(row,col).getSerialized() );
 	const Coord3 pos = surface_.getPos(posid);
 
-	if ( !colcoords.size() && !pos.isDefined() )
+	if ( colcoords.isEmpty() && !pos.isDefined() )
 	    continue;
 
-	if ( !colcoords.size() )
+	if ( colcoords.isEmpty() )
 	    firstcol = col;
 
 	colcoords += pos;

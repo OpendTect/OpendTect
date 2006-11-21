@@ -5,7 +5,7 @@
  * FUNCTION : Help viewing
 -*/
  
-static const char* rcsID = "$Id: helpview.cc,v 1.27 2005-09-26 12:57:32 cvsbert Exp $";
+static const char* rcsID = "$Id: helpview.cc,v 1.28 2006-11-21 14:00:07 cvsbert Exp $";
 
 #include "helpview.h"
 #include "ascstream.h"
@@ -131,7 +131,7 @@ static bool GetBrowser( BufferString& defaultBrowser, BufferString& browserArgs)
 
     RegCloseKey(mykey);
 
-    return ( defaultBrowser != "" );
+    return ( !defaultBrowser.isEmpty() );
 }
 
 #endif
@@ -212,7 +212,7 @@ void HelpViewer::use( const char* url, const char* wintitl )
     cmd += " HtmlViewer \"";
     cmd += url; cmd += "\" ";
     BufferString title( wintitl );
-    if ( title == "" )
+    if ( title.isEmpty() )
 	title = "Documentation for OpendTect";
     cleanupString( title.buf(), NO, YES, YES );
     cmd += title;
@@ -320,10 +320,10 @@ BufferString HelpViewer::getLinkNameForWinID( const char* inpwinid )
 	for ( int idx=2; idx>lvl; idx-- )
 	    code[idx] = "";
 	wid = code[0];
-	if ( code[1] != "" )
+	if ( !code[1].isEmpty() )
 	{
 	    wid += code[1];
-	    if ( code[2] != "" )
+	    if ( !code[2].isEmpty() )
 		wid += code[2];
 	}
 	if ( wid != winid.buf() ) continue;
@@ -363,7 +363,7 @@ BufferString HelpViewer::getLinkNameForWinID( const char* inpwinid )
 BufferString HelpViewer::getURLForLinkName( const char* lnm, const char* scope )
 {
     BufferString linknm( lnm );
-    if ( linknm == "" )
+    if ( linknm.isEmpty() )
 	linknm = sMainIndex;
     BufferString htmlfnm;
     if ( linknm != sMainIndex )
@@ -389,7 +389,7 @@ BufferString HelpViewer::getURLForLinkName( const char* lnm, const char* scope )
 
     FilePath fp( GetSoftwareDir() );
     fp.add( "data" ).add( subdirNm(scope) );
-    if ( htmlfnm == "" )
+    if ( htmlfnm.isEmpty() )
 	htmlfnm = "index.html";
     fp.add( htmlfnm );
     BufferString url = fp.fullPath();
@@ -415,6 +415,6 @@ BufferString HelpViewer::getURLForWinID( const char* winid )
 	return BufferString( GetDataFileName(sNotInstHtml) );
 
     BufferString lnm = getLinkNameForWinID( winid );
-    if ( lnm == "" ) return lnm;
+    if ( lnm.isEmpty() ) return lnm;
     return getURLForLinkName( lnm, scope );
 }

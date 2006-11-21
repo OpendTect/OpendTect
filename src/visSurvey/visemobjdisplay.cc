@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: visemobjdisplay.cc,v 1.93 2006-11-06 16:18:12 cvsnanne Exp $
+ RCS:           $Id: visemobjdisplay.cc,v 1.94 2006-11-21 14:00:08 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -496,7 +496,7 @@ void EMObjectDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
     if ( sid==-1 ) return;
 
     BufferString sectionname = emobject_->sectionName(sid);
-    if ( !sectionname.size() ) sectionname = sid;
+    if ( sectionname.isEmpty() ) sectionname = sid;
     info += ", Section: "; info += sectionname;
 }
 

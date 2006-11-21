@@ -4,7 +4,7 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID = "$Id: seispsioprov.cc,v 1.5 2006-08-30 16:03:27 cvsbert Exp $";
+static const char* rcsID = "$Id: seispsioprov.cc,v 1.6 2006-11-21 14:00:07 cvsbert Exp $";
 
 #include "seispsioprov.h"
 #include "seispsfact.h"
@@ -23,7 +23,7 @@ SeisPSIOProviderFactory& SPSIOPF()
 
 const SeisPSIOProvider* SeisPSIOProviderFactory::provider( const char* t ) const
 {
-    if ( !provs_.size() )	return 0;
+    if ( provs_.isEmpty() )	return 0;
     else if ( !t )		return provs_[0];
 
     for ( int idx=0; idx<provs_.size(); idx++ )
@@ -37,7 +37,7 @@ const SeisPSIOProvider* SeisPSIOProviderFactory::provider( const char* t ) const
 SeisPSReader* SeisPSIOProviderFactory::getReader( const IOObj& ioobj,
 						  int inl ) const
 {
-    if ( !provs_.size() ) return 0;
+    if ( provs_.isEmpty() ) return 0;
     const SeisPSIOProvider* prov = provider( ioobj.translator() );
     return prov ? prov->makeReader( ioobj.fullUserExpr(true), inl ) : 0;
 }
@@ -45,7 +45,7 @@ SeisPSReader* SeisPSIOProviderFactory::getReader( const IOObj& ioobj,
 
 SeisPSWriter* SeisPSIOProviderFactory::getWriter( const IOObj& ioobj ) const
 {
-    if ( !provs_.size() ) return 0;
+    if ( provs_.isEmpty() ) return 0;
     const SeisPSIOProvider* prov = provider( ioobj.translator() );
     return prov ? prov->makeWriter( ioobj.fullUserExpr(false) ) : 0;
 }

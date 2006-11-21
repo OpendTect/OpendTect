@@ -4,7 +4,7 @@
  * DATE     : 12-1-2004
 -*/
 
-static const char* rcsID = "$Id: datainpspec.cc,v 1.18 2006-04-20 07:26:06 cvshelene Exp $";
+static const char* rcsID = "$Id: datainpspec.cc,v 1.19 2006-11-21 14:00:07 cvsbert Exp $";
 
 #include "datainpspec.h"
 #include "iopar.h"
@@ -315,7 +315,7 @@ StringListInpSpec::~StringListInpSpec()
 
 
 bool StringListInpSpec::isUndef( int idx ) const
-{ return !(strings_.size() && cur_ >= 0); }
+{ return strings_.isEmpty() || cur_ < 0; }
 
 
 DataInpSpec* StringListInpSpec::clone() const

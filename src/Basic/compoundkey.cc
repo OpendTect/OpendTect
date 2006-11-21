@@ -5,7 +5,7 @@
  * FUNCTION : Unit IDs
 -*/
  
-static const char* rcsID = "$Id: compoundkey.cc,v 1.3 2003-11-07 12:21:57 bert Exp $";
+static const char* rcsID = "$Id: compoundkey.cc,v 1.4 2006-11-21 14:00:06 cvsbert Exp $";
 
 #include "multiid.h"
 #include "globexpr.h"
@@ -42,7 +42,7 @@ char* CompoundKey::fromKey( int keynr, bool tobuf ) const
 
 int CompoundKey::nrKeys() const
 {
-    if ( id == "" ) return 0;
+    if ( id.isEmpty() ) return 0;
 
     int nrkeys = 1;
     const char* ptr = id;
@@ -73,7 +73,7 @@ void CompoundKey::setKey( int ikey, const char* s )
 
 CompoundKey CompoundKey::upLevel() const
 {
-    if ( id == "" ) return CompoundKey("");
+    if ( id.isEmpty() ) return CompoundKey("");
     CompoundKey newid( *this );
 
     int nrkeys = nrKeys();

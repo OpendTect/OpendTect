@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribstorprovider.cc,v 1.49 2006-11-16 15:22:29 cvshelene Exp $";
+static const char* rcsID = "$Id: attribstorprovider.cc,v 1.50 2006-11-21 14:00:06 cvsbert Exp $";
 
 #include "attribstorprovider.h"
 
@@ -80,7 +80,7 @@ void StorageProvider::updateDesc( Desc& desc )
 	if ( !issteering )
 	{
 	    SeisTrcTranslator* transl = rdr.seisTranslator();
-	    if ( !transl || !transl->componentInfo().size() )
+	    if ( !transl || transl->componentInfo().isEmpty() )
 		desc.setNrOutputs( Seis::UnknowData, 1 );//why only 1 ?
 	    else
 		desc.setNrOutputs( (Seis::DataType)
@@ -135,7 +135,7 @@ bool StorageProvider::init()
     IOPar iopar;
     iopar.set( IOPar::compKey( SeisRequester::sKeysubsel, "ID" ) , mid );
     rg.usePar( iopar );
-    if ( !rg.size() ) return false;
+    if ( rg.isEmpty() ) return false;
 
     bool isset = false;
     for ( int req=0; req<rg.size(); req++ )
@@ -380,7 +380,7 @@ bool StorageProvider::setSeisRequesterSelection( int req )
 	    seldata->linekey_.setAttrName( curlinekey_.attrName() );
 	    StepInterval<int> trcrg;
 	    StepInterval<float> zrg;
-	    if ( (const char*)curlinekey_.lineName() != "" )
+	    if ( !curlinekey_.lineName().isEmpty() )
 	    {
 		seldata->linekey_.setLineName( curlinekey_.lineName() );
 		int idx = lset->indexOf( curlinekey_ );

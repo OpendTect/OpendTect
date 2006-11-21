@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/08/2000
- RCS:           $Id: uifileinput.cc,v 1.36 2006-11-10 13:53:25 cvsbert Exp $
+ RCS:           $Id: uifileinput.cc,v 1.37 2006-11-21 14:00:08 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -84,7 +84,7 @@ void uiFileInput::doSelect( CallBacker* )
 {
     BufferString fname = text();
     BufferString oldfltr = selfltr_;
-    if ( fname == "" )	fname = defseldir_;
+    if ( fname.isEmpty() )	fname = defseldir_;
 
     uiFileDialog dlg( this, forread_, fname, filter_ );
     dlg.setSelectedFilter( selfltr_ );
@@ -123,7 +123,7 @@ const char* uiFileInput::fileName() const
     static BufferString fname;
     fname = text();
     FilePath fp( fname );
-    if ( !fp.isAbsolute() && fname != "" && defseldir_ != "" )
+    if ( !fp.isAbsolute() && !fname.isEmpty() && !defseldir_.isEmpty() )
     {
 	fp.insert( defseldir_ );
 	fname = fp.fullPath(); //fname is cleaned here.

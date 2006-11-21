@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizon3dseedpicker.cc,v 1.20 2006-11-06 10:49:38 cvsjaap Exp $";
+static const char* rcsID = "$Id: horizon3dseedpicker.cc,v 1.21 2006-11-21 14:00:07 cvsbert Exp $";
 
 #include "horizonseedpicker.h"
 
@@ -242,7 +242,7 @@ void HorizonSeedPicker::extendSeedListEraseInBetween(
 
 bool HorizonSeedPicker::retrackFromSeedList()
 {
-    if ( !seedlist_.size() )
+    if ( seedlist_.isEmpty() )
 	return true;
     if ( blockpicking_ ) 
 	return true;

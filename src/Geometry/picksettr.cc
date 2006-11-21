@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Jul 2005
- RCS:		$Id: picksettr.cc,v 1.9 2006-08-30 16:03:27 cvsbert Exp $
+ RCS:		$Id: picksettr.cc,v 1.10 2006-11-21 14:00:07 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,7 +50,7 @@ bool PickSetTranslator::retrieve( Pick::Set& ps, const IOObj* ioobj,
     if ( !conn )
         { bs = "Cannot open "; bs += ioobj->fullUserExpr(true); return false; }
     bs = tr->read( ps, *conn );
-    return bs == "";
+    return bs.isEmpty();
 }
 
 
@@ -68,7 +68,7 @@ bool PickSetTranslator::store( const Pick::Set& ps, const IOObj* ioobj,
     else
 	bs = tr->write( ps, *conn );
     delete tr;
-    return bs == "";
+    return bs.isEmpty();
 }
 
 

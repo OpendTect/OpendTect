@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2004
- RCS:           $Id: visseis2ddisplay.cc,v 1.7 2006-08-23 19:02:20 cvskris Exp $
+ RCS:           $Id: visseis2ddisplay.cc,v 1.8 2006-11-21 14:00:08 cvsbert Exp $
  ________________________________________________________________________
 
 -*/
@@ -168,7 +168,7 @@ void Seis2DDisplay::setTraceData( const Attrib::Data2DHolder& dataset )
 
 void Seis2DDisplay::setData( const Attrib::Data2DHolder& dataset )
 {
-    if ( !dataset.size() ) return;
+    if ( dataset.isEmpty() ) return;
 
     TypeSet<Coord> crds;
     for ( int trcinfoidx=0; trcinfoidx<dataset.size(); trcinfoidx++ )
@@ -315,7 +315,7 @@ void visSurvey::Seis2DDisplay::setStrip( const TypeSet<Coord>& crds,
 
 void Seis2DDisplay::addLineName()
 {
-    if ( !planes.size() ) return;
+    if ( planes.isEmpty() ) return;
     visBase::Coordinates* coords = planes[0]->getCoordinates();
     if ( !coords ) return;
     Coord3 pos = coords->getPos( 0 );
