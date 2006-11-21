@@ -19,38 +19,8 @@ else
     set rev=""
 endif
 
-set fil=`pwd`
-
-#set moduledir=$fil:t 
-#if (-e $WORK/include/$moduledir/$1 ) then
-#    set cvsfil=include/$moduledir/$1
-#else if (-e $WORK/src/$moduledir/$1 ) then
-#    set cvsfil=src/$moduledir/$1
-#else if (-e $WORK/tsrc/$moduledir/$1 ) then
-#    set cvsfil=tsrc/$moduledir/$1
-#else if (-e $WORK/spec/$moduledir/$1 ) then
-#    set cvsfil=spec/$moduledir/$1
-#else if (-e $WORK/data/$1 ) then
-#    set cvsfil=data/$1
-#else if (-e $WORK/bin/$1 ) then
-#    set cvsfil=bin/$1
-#else if ( -e $WORK/plugins/$moduledir/$1 ) then
-#    set cvsfil=plugins/$moduledir/$1
-#else
-#   set cvsfil=""
-#endif
-
-set old=$PWD
-set workdir=`cd $WORK; pwd; cd $old`
-
-echo workdir: $workdir
-set reldir=$workdir:t
-
-set rep="s%^${workdir}%%"
-
-set cvsfil=`echo "$fil/$1" | sed -e "$rep" -e "s%^\/%%"`
-
-dvs co -p $rev $reldir/$cvsfil > /tmp/mdiff.$$
+set repos=`cat ./CVS/Repository`
+dvs co -p $rev $repos/$1 > /tmp/mdiff.$$
 
 tkdiff /tmp/mdiff.$$ $*
 \rm /tmp/mdiff.$$
