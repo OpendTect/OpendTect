@@ -18,10 +18,10 @@ extern "C" int GetuiGapDeconPluginType()
 extern "C" PluginInfo* GetuiGapDeconPluginInfo()
 {
     static PluginInfo retpi = {
-	"GapDecon User Interface",
+	"Gap Decon",
 	"dGB (Helene)",
 	"=od",
-	"User interface for Gap Decon plugin." };
+	"User Interface for Gap Decon attribute plugin." };
     return &retpi;
 }
 
