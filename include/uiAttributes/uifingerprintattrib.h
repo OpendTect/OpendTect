@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Payraudeau
  Date:          February 2006
- RCS:           $Id: uifingerprintattrib.h,v 1.12 2006-10-10 17:46:05 cvsbert Exp $
+ RCS:           $Id: uifingerprintattrib.h,v 1.13 2006-11-23 12:55:40 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,7 +20,6 @@ class CtxtIOObj;
 class uiAttrSel;
 class uiTable;
 class uiLabel;
-class uiStepOutSel;
 class uiIOObjSel;
 class uiGenInput;
 class uiRadioButton;
@@ -54,8 +53,9 @@ protected:
     uiToolButton*	getposbut_;
     uiPushButton*	sel2dbut_;
     uiGenInput*		statsfld_;
+    uiGenInput*		refposfld_;
+    uiGenInput*		refpos2dfld_;
     uiGenInput*		refposzfld_;
-    uiStepOutSel*	refposfld_;
     uiIOObjSel*		picksetfld_;
     uiLabel*		manlbl_;
     uiGenInput*		linesetfld_;
@@ -64,6 +64,7 @@ protected:
     CtxtIOObj&		ctio_;
     MultiID		lsid_;
     ObjectSet<uiAttrSel> attribflds_;
+    bool		is2d_;
 
     uiFPAdvancedDlg*	advanceddlg_;
     calcFingParsObject*	calcobj_;

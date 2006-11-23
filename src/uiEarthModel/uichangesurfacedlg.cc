@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra / Bert Bril
  Date:		Sep 2005 / Nov 2006
- RCS:		$Id: uichangesurfacedlg.cc,v 1.4 2006-11-21 17:47:25 cvsbert Exp $
+ RCS:		$Id: uichangesurfacedlg.cc,v 1.5 2006-11-23 12:55:40 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -272,8 +272,10 @@ uiFilterHorizonDlg::uiFilterHorizonDlg( uiParent* p, EM::Horizon* hor )
     parsgrp_ = new uiGroup( this, "Hor filter pars group" );
     medianfld_ = new uiGenInput( parsgrp_, "Filter type",
 	    			 BoolInpSpec("Median","Average") );
-    stepoutfld_ = new uiStepOutSel( parsgrp_, "Filter stepout" );
-    stepoutfld_->setVal(true,2); stepoutfld_->setVal(false,2);
+    uiStepOutSel::Setup setup;
+    setup.seltxt( "Filter stepout" ).lbl1( "row" ).lbl2( "col" );
+    stepoutfld_ = new uiStepOutSel( parsgrp_, setup );
+    stepoutfld_->setVals( 2 );
     stepoutfld_->attach( alignedBelow, medianfld_ );
 
     parsgrp_->setHAlignObj( medianfld_ );

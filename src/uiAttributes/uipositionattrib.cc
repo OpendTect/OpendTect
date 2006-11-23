@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          November 2002
- RCS:           $Id: uipositionattrib.cc,v 1.5 2006-10-10 17:46:05 cvsbert Exp $
+ RCS:           $Id: uipositionattrib.cc,v 1.6 2006-11-23 12:55:40 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,7 +38,7 @@ uiPositionAttrib::uiPositionAttrib( uiParent* p )
 {
     inpfld = getInpFld( "Input attribute" );
 
-    stepoutfld = new uiStepOutSel( this );
+    stepoutfld = new uiStepOutSel( this, uiStepOutSel::Setup() );
     stepoutfld->attach( alignedBelow, inpfld );
 
     gatefld = new uiGenInput( this, gateLabel(), FloatInpIntervalSpec() );
@@ -96,7 +96,7 @@ bool uiPositionAttrib::getParameters( Desc& desc )
 	return false;
 
     mSetFloatInterval( Position::gateStr(), gatefld->getFInterval() );
-    mSetBinID( Position::stepoutStr(), stepoutfld->binID() );
+    mSetBinID( Position::stepoutStr(), stepoutfld->getBinID() );
     mSetEnum( Position::operStr(), operfld->getIntValue() );
     mSetBool( Position::steeringStr(), steerfld->willSteer() );
 

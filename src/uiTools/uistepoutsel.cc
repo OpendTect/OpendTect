@@ -8,82 +8,114 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uistepoutsel.cc,v 1.1 2006-11-21 17:47:26 cvsbert Exp $";
+static const char* rcsID = "$Id: uistepoutsel.cc,v 1.2 2006-11-23 12:55:40 cvsbert Exp $";
 
 #include "uistepoutsel.h"
-#include "uigeninput.h"
-#include "separstr.h"
+#include "uispinbox.h"
+#include "uilabel.h"
 
 
-uiStepOutSel::uiStepOutSel( uiParent* p, const char* seltxt, bool sngl )
-    : uiGroup(p,"Stepout")
-    , is2d(false)
-    , shown(true)
-    , single(sngl)
+uiStepOutSel::uiStepOutSel( uiParent* p, const uiStepOutSel::Setup& setup )
+    : uiGroup(p,setup.seltxt_)
     , valueChanged(this)
+    , fld2(0)
 {
-    BufferString seltxt2d = "Trace Stepout";
-    BufferString seltxt3d = "Inl/Crl Stepout";
-    if ( seltxt )
+    uiLabel* lbl = new uiLabel( this, setup.seltxt_ );
+    fld1 = new uiSpinBox( this, 0, "spinbox 1" );
+    BufferString prefx = setup.lbl1_; prefx += ":";
+    fld1->setPrefix( prefx );
+    fld1->attach( rightOf, lbl );
+    fld1->valueChanged.notify( mCB(this,uiStepOutSel,valChg) );
+    if ( !setup.single_ )
     {
-	FileMultiString fms( seltxt );
-	seltxt2d = fms[0];
-	if ( fms.size() > 1 )
-	    seltxt3d = fms[1];
-	else
-	    seltxt3d = seltxt2d;
+	fld2 = new uiSpinBox( this, 0, "spinbox 2" );
+	prefx = setup.lbl2_; prefx += ":";
+	fld2->setPrefix( prefx );
+	fld2->attach( rightOf, fld1 );
+	fld2->valueChanged.notify( mCB(this,uiStepOutSel,valChg) );
     }
-    inp2dfld = new uiGenInput( this, seltxt2d, IntInpSpec() );
-    inp2dfld->valuechanging.notify( mCB(this,uiStepOutSel,valChg) );
-    inp3dfld = single ? new uiGenInput( this, seltxt3d, IntInpSpec() )
-	     : new uiGenInput( this, seltxt3d, BinIDInpSpec() );
-    inp3dfld->valuechanging.notify( mCB(this,uiStepOutSel,valChg) );
 
-    setHAlignObj( inp2dfld );
-    mainObject()->finaliseDone.notify( mCB(this,uiStepOutSel,update) );
+    setHAlignObj( fld1 );
 }
 
 
-void uiStepOutSel::update( CallBacker* )
+int uiStepOutSel::val( bool dir1 ) const
 {
-    inp2dfld->display( is2d && shown );
-    inp3dfld->display( !is2d && shown );
+    return dir1 ? fld1->getValue() : (fld2 ? fld2->getValue() : mUdf(int));
+}
+
+
+void uiStepOutSel::setVal( bool dir1, int v )
+{
+    if ( dir1 )
+	fld1->setValue( v );
+    else if ( fld2 )
+	fld2->setValue( v );
+}
+
+
+void uiStepOutSel::setVals( int v )
+{
+    fld1->setValue( v );
+    if ( fld2 )
+	fld2->setValue( v );
 }
 
 
 void uiStepOutSel::set2D( bool yn )
 {
-    is2d = yn;
-    update(0);
-}
-
-
-void uiStepOutSel::display( bool yn, bool shrk, bool maximz )
-{
-    shown = yn;
-    uiGroup::display( yn, shrk, maximz );
-    update(0);
-}
-
-
-int uiStepOutSel::val( bool inl ) const
-{
-    if ( is2d )
-	return inl ? 0 : inp2dfld->getIntValue(0);
+    if ( yn )
+    {
+	setLabel( true, "nr" );
+	allowInp( false, false );
+    }
     else
-	return inp3dfld->getIntValue( (single||inl) ? 0 : 1 );
+    {
+	setLabel( true, "inl" );
+	setLabel( false, "crl" );
+	allowInp( false, true );
+    }
 }
 
 
-void uiStepOutSel::setVal( bool inl, int v )
+void uiStepOutSel::setLabel( bool dir1, const char* s )
 {
-    if ( !inl )
-	inp2dfld->setValue( v, 0 );
+    BufferString lbl( s ); lbl += ":";
+    if ( dir1 )
+	fld1->setPrefix( lbl );
+    else if ( fld2 )
+	fld2->setPrefix( lbl );
+}
 
-    if ( single || inl )
-	inp3dfld->setValue( v, 0 );
+
+void uiStepOutSel::allowInp( bool dir1, bool yn )
+{
+    if ( dir1 )
+	fld1->setSensitive( yn );
+    else if ( fld2 )
+	fld2->setSensitive( yn );
+}
+
+
+bool uiStepOutSel::dir2Active() const
+{
+    return fld2 && fld2->sensitive();
+}
+
+
+void uiStepOutSel::setBinID( const BinID& bid )
+{
+    if ( dir2Active() )
+	{ setVal(true,bid.inl); setVal(false,bid.crl); }
     else
-	inp3dfld->setValue( v, 1 );
+	setVal(true,bid.crl);
+}
+
+
+BinID uiStepOutSel::getBinID() const
+{
+    return dir2Active() ? BinID( val(true), val(false) )
+			: BinID( 0, val(true) );
 }
 
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2001
- RCS:           $Id: uishiftattrib.cc,v 1.9 2006-10-10 17:46:05 cvsbert Exp $
+ RCS:           $Id: uishiftattrib.cc,v 1.10 2006-11-23 12:55:40 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,7 +30,7 @@ uiShiftAttrib::uiShiftAttrib( uiParent* p )
 {
     inpfld = getInpFld();
 
-    stepoutfld = new uiStepOutSel( this, "Trace shift`Inl/Crl shift" );
+    stepoutfld = new uiStepOutSel( this, uiStepOutSel::Setup().seltxt("Shift"));
     stepoutfld->attach( alignedBelow, inpfld );
 
     const char* zstr = zIsTime() ? "Time" : "Depth";
@@ -96,7 +96,7 @@ bool uiShiftAttrib::getParameters( Desc& desc )
     const bool dotime = typefld->getBoolValue();
     mSetFloat( Shift::timeStr(), dotime ? timefld->getfValue() : 0 );
     mSetBool( Shift::steeringStr(), dotime ? false : steerfld->willSteer() );
-    mSetBinID( Shift::posStr(), stepoutfld->binID() );
+    mSetBinID( Shift::posStr(), stepoutfld->getBinID() );
 
     return true;
 }

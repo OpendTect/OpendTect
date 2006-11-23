@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May  2005
- RCS:           $Id: uisimilarityattrib.cc,v 1.12 2006-10-10 17:46:05 cvsbert Exp $
+ RCS:           $Id: uisimilarityattrib.cc,v 1.13 2006-11-23 12:55:40 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -64,11 +64,12 @@ uiSimilarityAttrib::uiSimilarityAttrib( uiParent* p )
     extfld->valuechanged.notify( mCB(this,uiSimilarityAttrib,extSel) );
     extfld->attach( alignedBelow, gatefld );
     
-    pos0fld = new uiStepOutSel( this, "Trace positions" );
+    pos0fld = new uiStepOutSel( this,
+	    		uiStepOutSel::Setup().seltxt("Trace positions") );
     pos0fld->attach( alignedBelow, extfld );
-    pos1fld = new uiStepOutSel( this, "&" );
+    pos1fld = new uiStepOutSel( this, uiStepOutSel::Setup().seltxt("&") );
     pos1fld->attach( rightOf, pos0fld );
-    stepoutfld = new uiStepOutSel( this );
+    stepoutfld = new uiStepOutSel( this, uiStepOutSel::Setup() );
     stepoutfld->attach( alignedBelow, extfld );
 
     outpstatsfld = new uiGenInput( this, "Output statistic",
@@ -166,11 +167,11 @@ bool uiSimilarityAttrib::getParameters( Attrib::Desc& desc )
 
     const char* ext = extfld->text();
     if ( !strcmp(ext,extstrs[3]) )
-    {	mSetBinID( Similarity::stepoutStr(), stepoutfld->binID() ); }
+    {	mSetBinID( Similarity::stepoutStr(), stepoutfld->getBinID() ); }
     else
     {
-	mSetBinID( Similarity::pos0Str(), pos0fld->binID() );
-	mSetBinID( Similarity::pos1Str(), pos1fld->binID() );
+	mSetBinID( Similarity::pos0Str(), pos0fld->getBinID() );
+	mSetBinID( Similarity::pos1Str(), pos1fld->getBinID() );
     }
 
     BufferStringSet strs( extstrs );

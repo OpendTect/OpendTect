@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: uivolstatsattrib.cc,v 1.11 2006-10-10 17:46:05 cvsbert Exp $
+ RCS:           $Id: uivolstatsattrib.cc,v 1.12 2006-11-23 12:55:40 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -52,7 +52,7 @@ uiVolumeStatisticsAttrib::uiVolumeStatisticsAttrib( uiParent* p )
     shapefld = new uiGenInput( this, "Shape", BoolInpSpec("Cylinder","Cube") );
     shapefld->attach( alignedBelow, gatefld );
     
-    stepoutfld = new uiStepOutSel( this );
+    stepoutfld = new uiStepOutSel( this, uiStepOutSel::Setup() );
     stepoutfld->valueChanged.notify(
 			mCB(this,uiVolumeStatisticsAttrib,stepoutChg) );
     stepoutfld->attach( alignedBelow, shapefld );
@@ -83,7 +83,7 @@ void uiVolumeStatisticsAttrib::set2D( bool yn )
 
 void uiVolumeStatisticsAttrib::stepoutChg( CallBacker* )
 {
-    const BinID so = stepoutfld->binID();
+    const BinID so = stepoutfld->getBinID();
     int nrtrcs = 1;
     if ( !mIsUdf(so.inl) && !mIsUdf(so.crl) )
 	nrtrcs = (so.inl*2+1) * (so.crl*2+1);
@@ -130,7 +130,7 @@ bool uiVolumeStatisticsAttrib::getParameters( Desc& desc )
 	return false;
 
     mSetFloatInterval( VolStats::gateStr(), gatefld->getFInterval() );
-    mSetBinID( VolStats::stepoutStr(), stepoutfld->binID() );
+    mSetBinID( VolStats::stepoutStr(), stepoutfld->getBinID() );
     mSetEnum( VolStats::shapeStr(), shapefld->getBoolValue() );
     mSetBool( VolStats::steeringStr(), steerfld->willSteer() );
     mSetInt( VolStats::nrtrcsStr(), nrtrcsfld->box()->getValue() );

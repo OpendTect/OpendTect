@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:		$Id: uicoherencyattrib.cc,v 1.7 2006-10-10 17:46:05 cvsbert Exp $
+ RCS:		$Id: uicoherencyattrib.cc,v 1.8 2006-11-23 12:55:40 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,7 +42,7 @@ uiCoherencyAttrib::uiCoherencyAttrib( uiParent* p )
     deltadipfld = new uiGenInput( this, "Delta dip", FloatInpSpec() );
     deltadipfld->attach( alignedBelow, maxdipfld );
 
-    stepoutfld = new uiStepOutSel( this );
+    stepoutfld = new uiStepOutSel( this, uiStepOutSel::Setup() );
     stepoutfld->attach( alignedBelow, deltadipfld );
 
     setHAlignObj( tgfld );
@@ -94,7 +94,7 @@ bool uiCoherencyAttrib::getParameters( Attrib::Desc& desc )
     mSetFloatInterval( Coherency::sKeyGate(), tgfld->getFInterval() );
     mSetFloat( Coherency::sKeyMaxDip(), maxdipfld->getfValue() );
     mSetFloat( Coherency::sKeyDDip(), deltadipfld->getfValue() );
-    mSetBinID( Coherency::sKeyStepout(), stepoutfld->binID() );
+    mSetBinID( Coherency::sKeyStepout(), stepoutfld->getBinID() );
     return true;
 }
 
