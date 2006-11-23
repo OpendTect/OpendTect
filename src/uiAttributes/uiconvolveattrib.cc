@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Huck
  Date:          November 2006
- RCS:           $Id: uiconvolveattrib.cc,v 1.4 2006-11-21 16:23:43 cvsnanne Exp $
+ RCS:           $Id: uiconvolveattrib.cc,v 1.5 2006-11-23 17:22:02 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -76,7 +76,7 @@ uiConvolveAttrib::uiConvolveAttrib( uiParent* p )
     outpfld_ = new uiGenInput( this, "Output", StringListInpSpec(outpstrs) );
     outpfld_->attach( alignedBelow, kernelfld_ );
 
-    waveletfld_ = new uiIOObjSel( this, ctio_, "Wavelet file" );
+    waveletfld_ = new uiIOObjSel( this, ctio_ );
     waveletfld_->attach( alignedBelow, kernelfld_ );
     waveletfld_->display(false);
 
