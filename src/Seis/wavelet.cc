@@ -5,7 +5,7 @@
  * FUNCTION : Wavelet
 -*/
 
-static const char* rcsID = "$Id: wavelet.cc,v 1.26 2006-11-21 14:00:07 cvsbert Exp $";
+static const char* rcsID = "$Id: wavelet.cc,v 1.27 2006-11-23 17:10:26 cvsbert Exp $";
 
 #include "wavelet.h"
 #include "seisinfo.h"
@@ -256,7 +256,7 @@ Table::FormatDesc* WaveletAscIO::getDesc()
 }
 
 
-#define mErrRet(s) { errmsg_ = s; return 0; }
+#define mErrRet(s) { if ( s ) errmsg_ = s; return 0; }
 
 Wavelet* WaveletAscIO::get( std::istream& strm ) const
 {
@@ -267,8 +267,8 @@ Wavelet* WaveletAscIO::get( std::istream& strm ) const
     if ( !vals_.get(0).isEmpty() )
     {
 	centersmp = atoi(vals_.get(0));
-	if ( centersmp < 0 ) centersmp = -centersmp;
-	centersmp -= 1; // Users start at 1
+	if ( centersmp > 0 )
+	    centersmp = -centersmp + 1; // Users start at 1
     }
     float sr = atof( vals_.get(1) );
     if ( sr == 0 || mIsUdf(sr) )
@@ -278,12 +278,20 @@ Wavelet* WaveletAscIO::get( std::istream& strm ) const
     sr /= SI().zFactor();
 
     TypeSet<float> samps;
-    while ( getNextBodyVals(strm) > 0 )
-	samps += atof(vals_.get(0));
-    if ( samps.size() < 1 )
-	errmsg_ = "No data samples found";
+    while ( true )
+    {
+	int ret = getNextBodyVals( strm );
+	if ( ret < 0 ) mErrRet(0)
+	if ( ret == 0 ) break;
+
+	const char* vstr = vals_.get( 0 ).buf();
+	if ( isNumberString(vstr,NO) )
+	    samps += atof( vstr );
+    }
+    if ( samps.isEmpty() )
+	mErrRet( "No valid data samples found" )
     if ( mIsUdf(centersmp) || centersmp > samps.size() )
-	centersmp = samps.size() / 2;
+	centersmp = -samps.size() / 2;
 
     Wavelet* ret = new Wavelet( "", centersmp, sr );
     ret->reSize( samps.size() );

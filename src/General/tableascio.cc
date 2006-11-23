@@ -4,7 +4,7 @@
  * DATE     : Nov 2006
 -*/
 
-static const char* rcsID = "$Id: tableascio.cc,v 1.4 2006-11-10 13:57:19 cvsbert Exp $";
+static const char* rcsID = "$Id: tableascio.cc,v 1.5 2006-11-23 17:10:26 cvsbert Exp $";
 
 #include "tableascio.h"
 #include "tabledef.h"
@@ -120,9 +120,9 @@ const char* mkErrMsg( const FormatInfo& fi, SubID sid, int selelem,
 {
     errmsg_ = msg; errmsg_ += ":\n";
     errmsg_ += fi.elementName( selelem );
-    errmsg_ += " (";
-    errmsg_ += fi.subElementName( selelem, sid.subnr_ );
-    errmsg_ += ")";
+    const char* senm = fi.subElementName( selelem, sid.subnr_ );
+    if ( senm && *senm )
+	{ errmsg_ += " ("; errmsg_ += senm; errmsg_ += ")"; }
     if ( rc.c() >= 0 )
     {
 	errmsg_ += "\nwas specified at ";
@@ -231,7 +231,10 @@ int Table::AscIO::getNextBodyVals( std::istream& strm ) const
 	self.cnvrtr_ = new Table::Converter( *imphndlr_, *exphndlr_ );
     }
 
-    return cnvrtr_->nextStep();
+    int ret = cnvrtr_->nextStep();
+    if ( ret < 0 )
+	errmsg_ = cnvrtr_->message();
+    return ret;
 }
 
 

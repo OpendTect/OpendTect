@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2006
- RCS:           $Id: uitblimpexpdatasel.cc,v 1.8 2006-11-21 14:00:08 cvsbert Exp $
+ RCS:           $Id: uitblimpexpdatasel.cc,v 1.9 2006-11-23 17:10:26 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -125,7 +125,7 @@ void addBox( int ielem, int ifld )
     {
 	const RowCol& rc = fi_.selection_.pos_[ifld];
 	if ( rowspinbox )
-	    rowspinbox->setValue( rc.r() + 1 );
+	    rowspinbox->setValue( rc.r() + 1 ); // Users tend to start at 1
 	colspinbox->setValue( rc.c() + 1 );
     }
 
@@ -215,9 +215,16 @@ bool commit()
 	    			       ? rowboxes_[selelem] : 0;
 	for ( int idx=0; idx<colboxes.size(); idx++ )
 	{
-	    RowCol rc( -1, colboxes[idx]->getValue() );
+	    RowCol rc( 0, colboxes[idx]->getValue() );
 	    if ( rowboxes )
 		rc.r() = (*rowboxes)[idx]->getValue();
+	    if ( mIsUdf(rc.r()) || mIsUdf(rc.c()) )
+	    {
+		errmsg_ = "Please enter the psoition in the file for ";
+		errmsg_ += fi_.elementName(selelem);
+		return false;
+	    }
+	    rc.r()--; rc.c()--; // Users tend to start at 1
 	    fi_.selection_.pos_ += rc;
 	}
     }

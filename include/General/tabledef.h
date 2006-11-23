@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Oct 2006
- RCS:		$Id: tabledef.h,v 1.8 2006-11-21 14:00:06 cvsbert Exp $
+ RCS:		$Id: tabledef.h,v 1.9 2006-11-23 17:10:26 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -66,7 +66,7 @@ public:
 			{ return !elemdefs_[ielem] ? 1
 			    			   : elemdefs_[ielem]->size(); }
     const char*		subElementName( int ielem, int isub ) const
-			{ return isub < nrSubElements(ielem)
+			{ return isub < nrSubElements(ielem) && elemdefs_[ielem]
 			       ? elemdefs_[ielem]->get(isub).buf() : ""; }
 
     /*!\brief Selected element/positioning */
