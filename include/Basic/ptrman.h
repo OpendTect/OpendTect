@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          10-12-1999
- RCS:           $Id: ptrman.h,v 1.13 2006-11-15 19:53:50 cvskris Exp $
+ RCS:           $Id: ptrman.h,v 1.14 2006-11-23 19:08:58 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,15 +38,6 @@ public: \
     inline T&			operator *()		{ return *ptr_; } \
 
 #define mDefPtrMan2(Clss,PostSet, EraseFunc) \
-    inline bool			operator ==( const Clss& p ) const \
-				{ return ptr_ == p.ptr_; } \
-    inline bool			operator ==( const T* p ) const \
-				{ return ptr_ == p; } \
-    inline bool			operator !=( const Clss& p ) const \
-				{ return ptr_ != p.ptr_; } \
-    inline bool			operator !=( const T* p ) const \
-				{ return ptr_ != p; } \
-\
     inline bool			operator !() const { return !ptr_; } \
 \
     void			erase() \
