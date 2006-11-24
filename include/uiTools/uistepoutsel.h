@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uistepoutsel.h,v 1.2 2006-11-23 12:55:40 cvsbert Exp $
+ RCS:           $Id: uistepoutsel.h,v 1.3 2006-11-24 13:45:18 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,14 +34,12 @@ public:
 			    : seltxt_("Stepout")
 			    , lbl1_("inl")
 			    , lbl2_("crl")
-			    , single_(false)
-			    , couple_(false)		{}
+			    , single_(false)		{}
 
 	mDefSetupMemb(BufferString,seltxt)
 	mDefSetupMemb(BufferString,lbl1)
 	mDefSetupMemb(BufferString,lbl2)
 	mDefSetupMemb(bool,single)
-	mDefSetupMemb(bool,couple)
     };
 
 			uiStepOutSel(uiParent*,const Setup&);

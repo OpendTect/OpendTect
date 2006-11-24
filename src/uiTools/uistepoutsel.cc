@@ -8,11 +8,20 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uistepoutsel.cc,v 1.2 2006-11-23 12:55:40 cvsbert Exp $";
+static const char* rcsID = "$Id: uistepoutsel.cc,v 1.3 2006-11-24 13:45:18 cvsbert Exp $";
 
 #include "uistepoutsel.h"
 #include "uispinbox.h"
 #include "uilabel.h"
+
+
+inline static BufferString mkPrefx( const char* lbl )
+{
+    BufferString ret( lbl );
+    if ( !ret.isEmpty() )
+	ret += ":";
+    return ret;
+}
 
 
 uiStepOutSel::uiStepOutSel( uiParent* p, const uiStepOutSel::Setup& setup )
@@ -22,15 +31,13 @@ uiStepOutSel::uiStepOutSel( uiParent* p, const uiStepOutSel::Setup& setup )
 {
     uiLabel* lbl = new uiLabel( this, setup.seltxt_ );
     fld1 = new uiSpinBox( this, 0, "spinbox 1" );
-    BufferString prefx = setup.lbl1_; prefx += ":";
-    fld1->setPrefix( prefx );
+    fld1->setPrefix( mkPrefx(setup.lbl1_) );
     fld1->attach( rightOf, lbl );
     fld1->valueChanged.notify( mCB(this,uiStepOutSel,valChg) );
     if ( !setup.single_ )
     {
 	fld2 = new uiSpinBox( this, 0, "spinbox 2" );
-	prefx = setup.lbl2_; prefx += ":";
-	fld2->setPrefix( prefx );
+	fld2->setPrefix( mkPrefx(setup.lbl2_) );
 	fld2->attach( rightOf, fld1 );
 	fld2->valueChanged.notify( mCB(this,uiStepOutSel,valChg) );
     }
@@ -80,11 +87,10 @@ void uiStepOutSel::set2D( bool yn )
 
 void uiStepOutSel::setLabel( bool dir1, const char* s )
 {
-    BufferString lbl( s ); lbl += ":";
     if ( dir1 )
-	fld1->setPrefix( lbl );
+	fld1->setPrefix( mkPrefx(s) );
     else if ( fld2 )
-	fld2->setPrefix( lbl );
+	fld2->setPrefix( mkPrefx(s) );
 }
 
 
