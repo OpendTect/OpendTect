@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          25/05/2000
- RCS:           $Id: uiioobjsel.cc,v 1.96 2006-11-21 14:00:08 cvsbert Exp $
+ RCS:           $Id: uiioobjsel.cc,v 1.97 2006-11-24 11:13:37 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -148,7 +148,8 @@ uiIOObjSelGrp::uiIOObjSelGrp( uiParent* p, const CtxtIOObj& c,
 uiIOObjSelGrp::~uiIOObjSelGrp()
 {
     deepErase( ioobjids_ );
-    delete manipgrpsubj->manipgrp_;
+    if ( manipgrpsubj )
+	delete manipgrpsubj->manipgrp_;
     delete manipgrpsubj;
 }
 
