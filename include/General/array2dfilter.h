@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Nov 2006
- RCS:           $Id: array2dfilter.h,v 1.4 2006-11-21 17:46:33 cvsbert Exp $
+ RCS:           $Id: array2dfilter.h,v 1.5 2006-11-24 13:44:36 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -87,6 +87,7 @@ protected:
     const int		rowsize_;
     const int		colsize_;
     const int		nrcols_;
+    const bool		linefilt_;
     int			nrcolsdone_;
 
     inline void		releaseAll();
@@ -107,6 +108,7 @@ Array2DFilterer<T>::Array2DFilterer( Array2D<T>& a, const Array2DFilterPars& p )
     , rowsize_(a.info().getSize(0))
     , colsize_(a.info().getSize(1))
     , nrcols_(2 * p.stepout_.c() + 1)
+    , linefilt_(p.stepout_.r() == 0 || p.stepout_.c() == 0)
     , nrcolsdone_(0)
 {
     if ( rowsize_ < 2 * p.stepout_.r() + 1
@@ -231,11 +233,21 @@ inline void Array2DFilterer<T>::doPoint( int row, int col, int colidx )
 	if ( colnrs_[icol] < 0 || colnrs_[icol] >= colsize_ )
 	    continue;
 
+	const bool issidecol = colnrs_[icol] == col - pars_.stepout_.c()
+			    || colnrs_[icol] == col + pars_.stepout_.c();
+	const bool iscentercol = colnrs_[icol] == col;
+
 	const T* buf = bufs_[ icol ];
 	const int coldist = colnrs_[icol] - colnrs_[colidx];
 
 	for ( int irow=startrow; irow<=endrow; irow++ )
 	{
+	    const bool issiderow = irow == startrow || irow == endrow;
+	    if ( !linefilt_
+	      && ( (issidecol && irow != row)
+		|| (issiderow && !iscentercol) ) )
+		continue;
+
 	    if ( !calc_->isWeighted() )
 		*calc_ += buf[irow];
 	    else
@@ -246,9 +258,9 @@ inline void Array2DFilterer<T>::doPoint( int row, int col, int colidx )
 		calc_->addValue( buf[irow], wt );
 	    }
 	}
-
-	arr_.set( row, col, calc_->getValue(pars_.type_) );
     }
+
+    arr_.set( row, col, calc_->getValue(pars_.type_) );
 }
 
 
