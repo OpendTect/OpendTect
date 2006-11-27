@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          January 2003
- RCS:           $Id: visrandomtrackdisplay.cc,v 1.80 2006-09-27 11:18:47 cvsnanne Exp $
+ RCS:           $Id: visrandomtrackdisplay.cc,v 1.81 2006-11-27 13:27:45 cvsnanne Exp $
  ________________________________________________________________________
 
 -*/
@@ -841,6 +841,7 @@ void RandomTrackDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 {
     visBase::VisualObjectImpl::fillPar( par, saveids );
 
+    
     const Interval<float> depthrg = getDataTraceRange();
     par.set( sKeyDepthInterval(), depthrg.start, depthrg.stop );
 
@@ -865,6 +866,8 @@ void RandomTrackDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 	const int coltabid = getColTabID(attrib);
 	attribpar.set( sKeyColTabID(), coltabid );
 	if ( saveids.indexOf( coltabid )==-1 ) saveids += coltabid;
+
+	attribpar.setYN( sKeyIsOn(), texture_->isTextureEnabled(attrib) );
 
 	BufferString key = sKeyAttribs();
 	key += attrib;
@@ -891,11 +894,10 @@ int RandomTrackDisplay::usePar( const IOPar& par )
 		continue;
 
 	    int coltabid = -1;
-	    if ( attribpar->get( sKeyColTabID(), coltabid ) )
+	    if ( attribpar->get(sKeyColTabID(),coltabid) )
 	    {
 		visBase::DataObject* dataobj= visBase::DM().getObject(coltabid);
 		if ( !dataobj ) return 0;
-
 		mDynamicCastGet( const visBase::VisColorTab*, coltab, dataobj );
 		if ( !coltab ) coltabid=-1;
 	    }
@@ -914,6 +916,10 @@ int RandomTrackDisplay::usePar( const IOPar& par )
 		visBase::DM().getObject(coltabid) );
 		texture_->setColorTab( attribnr, *coltab );
 	    }
+
+	    bool ison = true;
+	    attribpar->getYN( sKeyIsOn(), ison );
+	    texture_->enableTexture( attribnr, ison );
 	}
     }
     else //For old pars

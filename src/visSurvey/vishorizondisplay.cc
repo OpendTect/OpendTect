@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: vishorizondisplay.cc,v 1.20 2006-11-21 14:00:08 cvsbert Exp $
+ RCS:           $Id: vishorizondisplay.cc,v 1.21 2006-11-27 13:27:45 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -195,6 +195,16 @@ void HorizonDisplay::removeEMStuff()
     if ( emhorizon )
 	emhorizon->edgelinesets.addremovenotify.remove(
 			mCB(this,HorizonDisplay,emEdgeLineChangeCB ));
+
+    while ( !edgelinedisplays_.isEmpty() )
+    {
+	EdgeLineSetDisplay* elsd = edgelinedisplays_[0];
+	edgelinedisplays_ -= elsd;
+	elsd->rightClicked()->remove(
+		 mCB(this,HorizonDisplay,edgeLineRightClickCB) );
+	removeChild( elsd->getInventorNode() );
+	elsd->unRef();
+    }
 
     EMObjectDisplay::removeEMStuff();
 }
@@ -972,147 +982,6 @@ void HorizonDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
 }
 
 
-void HorizonDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
-{
-    visBase::VisualObjectImpl::fillPar( par, saveids );
-    EMObjectDisplay::fillPar( par, saveids );
-
-    if ( emobject_ && !emobject_->isFullyLoaded() )
-    {
-	par.set( sKeyRowRange, displayedRowRange().start,
-		 displayedRowRange().stop,
-		 displayedRowRange().step );
-	par.set( sKeyColRange, displayedColRange().start,
-		  displayedColRange().stop,
-		  displayedColRange().step );
-    }
-
-    par.setYN( sKeyTexture, usesTexture() );
-    par.setYN( sKeyWireFrame, usesWireframe() );
-    par.set( sKeyShift, getTranslation().z );
-    par.set( sKeyResolution, getResolution() );
-
-    for ( int attrib=as_.size()-1; attrib>=0; attrib-- )
-    {
-	IOPar attribpar;
-	as_[attrib]->fillPar( attribpar );
-	const int coltabid = coltabs_[attrib]->id();
-	attribpar.set( sKeyColTabID(), coltabid );
-	if ( saveids.indexOf( coltabid )==-1 ) saveids += coltabid;
-
-	BufferString key = sKeyAttribs();
-	key += attrib;
-	par.mergeComp( attribpar, key );
-    }
-
-    par.set( sKeyNrAttribs(), as_.size() );
-}
-
-
-int HorizonDisplay::usePar( const IOPar& par )
-{
-    int res = visBase::VisualObjectImpl::usePar( par );
-    if ( res!=1 ) return res;
-
-    res = EMObjectDisplay::usePar( par );
-    if ( res!=1 ) return res;
-
-    if ( scene_ )
-	setDisplayTransformation( scene_->getUTM2DisplayTransform() );
-
-    if ( !par.get(sKeyEarthModelID,parmid_) )
-	return -1;
-
-    par.get( sKeyRowRange, parrowrg_.start, parrowrg_.stop, parrowrg_.step );
-    par.get( sKeyColRange, parcolrg_.start, parcolrg_.stop, parcolrg_.step );
-
-    if ( !par.getYN(sKeyTexture,usestexture_) )
-	usestexture_ = true;
-
-    bool usewireframe = false;
-    par.getYN( sKeyWireFrame, usewireframe );
-    useWireframe( usewireframe );
-
-    int resolution = 0;
-    par.get( sKeyResolution, resolution );
-    setResolution( resolution );
-
-    Coord3 shift( 0, 0, 0 );
-    par.get( sKeyShift, shift.z );
-    setTranslation( shift );
-
-    int nrattribs;
-    if ( par.get(sKeyNrAttribs(),nrattribs) ) //Current format
-    {
-	bool firstattrib = true;
-	for ( int attrib=0; attrib<nrattribs; attrib++ )
-	{
-	    BufferString key = sKeyAttribs();
-	    key += attrib;
-	    PtrMan<const IOPar> attribpar = par.subselect( key );
-	    if ( !attribpar )
-		continue;
-
-	    if ( !firstattrib )
-		addAttrib();
-	    else
-		firstattrib = false;
-
-	    const int attribnr = as_.size()-1;
-
-	    int coltabid = -1;
-	    if ( attribpar->get(sKeyColTabID(),coltabid) )
-	    {
-		visBase::DataObject* dataobj = 
-		    			visBase::DM().getObject( coltabid );
-		if ( !dataobj ) return 0;
-
-		mDynamicCastGet(visBase::VisColorTab*,coltab,dataobj);
-		if ( !coltab ) coltabid=-1;
-		coltabs_[attribnr]->unRef();
-		coltabs_.replace( attribnr, coltab );
-		coltabs_[attribnr]->ref();
-
-		for ( int idx=0; idx<sections_.size(); idx++ )
-		{
-		    mDynamicCastGet(visBase::ParametricSurface*,psurf,
-			    	    sections_[idx]);
-		    if ( psurf )
-			psurf->setColorTab( attribnr, *coltab );
-		}
-	    }
-
-	    as_[attribnr]->usePar( *attribpar );
-	}
-    }
-    else //old format
-    {
-	as_[0]->usePar( par );
-	int coltabid = -1;
-	par.get( sKeyColorTableID, coltabid );
-	if ( coltabid>-1 )
-	{
-	    DataObject* dataobj = visBase::DM().getObject( coltabid );
-	    if ( !dataobj ) return 0;
-
-	    mDynamicCastGet( visBase::VisColorTab*, coltab, dataobj );
-	    if ( !coltab ) return -1;
-	    if ( coltabs_[0] ) coltabs_[0]->unRef();
-	    coltabs_.replace( 0, coltab );
-	    coltab->ref();
-	    for ( int idx=0; idx<sections_.size(); idx++ )
-	    {
-		mDynamicCastGet( visBase::ParametricSurface*,psurf,
-				 sections_[idx]);
-		if ( psurf ) psurf->setColorTab( 0, *coltab);
-	    }
-	}
-    }
-
-    return 1;
-}
-
-
 #define mEndLine \
 { \
     if ( cii<2 || ( cii>2 && line->getCoordIndex(cii-2)==-1 ) ) \
@@ -1365,6 +1234,155 @@ void HorizonDisplay::otherObjectsMoved(
     updateIntersectionLines( objs, whichobj ); 
     updateSectionSeeds( objs, whichobj );
     isdisplayingonlyatsect_=displayonlyatsections_;
+}
+
+
+void HorizonDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
+{
+    visBase::VisualObjectImpl::fillPar( par, saveids );
+    EMObjectDisplay::fillPar( par, saveids );
+
+    if ( emobject_ && !emobject_->isFullyLoaded() )
+    {
+	par.set( sKeyRowRange, displayedRowRange().start,
+		 displayedRowRange().stop,
+		 displayedRowRange().step );
+	par.set( sKeyColRange, displayedColRange().start,
+		  displayedColRange().stop,
+		  displayedColRange().step );
+    }
+
+    par.setYN( sKeyTexture, usesTexture() );
+    par.setYN( sKeyWireFrame, usesWireframe() );
+    par.set( sKeyShift, getTranslation().z );
+    par.set( sKeyResolution, getResolution() );
+
+    for ( int attrib=as_.size()-1; attrib>=0; attrib-- )
+    {
+	IOPar attribpar;
+	as_[attrib]->fillPar( attribpar );
+	const int coltabid = coltabs_[attrib]->id();
+	attribpar.set( sKeyColTabID(), coltabid );
+	if ( saveids.indexOf( coltabid )==-1 ) saveids += coltabid;
+
+	attribpar.setYN( sKeyIsOn(), isAttribEnabled(attrib) );
+
+	BufferString key = sKeyAttribs();
+	key += attrib;
+	par.mergeComp( attribpar, key );
+    }
+
+    par.set( sKeyNrAttribs(), as_.size() );
+}
+
+
+int HorizonDisplay::usePar( const IOPar& par )
+{
+    int res = visBase::VisualObjectImpl::usePar( par );
+    if ( res!=1 ) return res;
+
+    res = EMObjectDisplay::usePar( par );
+    if ( res!=1 ) return res;
+
+    if ( scene_ )
+	setDisplayTransformation( scene_->getUTM2DisplayTransform() );
+
+    if ( !par.get(sKeyEarthModelID,parmid_) )
+	return -1;
+
+    par.get( sKeyRowRange, parrowrg_.start, parrowrg_.stop, parrowrg_.step );
+    par.get( sKeyColRange, parcolrg_.start, parcolrg_.stop, parcolrg_.step );
+
+    if ( !par.getYN(sKeyTexture,usestexture_) )
+	usestexture_ = true;
+
+    bool usewireframe = false;
+    par.getYN( sKeyWireFrame, usewireframe );
+    useWireframe( usewireframe );
+
+    int resolution = 0;
+    par.get( sKeyResolution, resolution );
+    setResolution( resolution );
+
+    Coord3 shift( 0, 0, 0 );
+    par.get( sKeyShift, shift.z );
+    setTranslation( shift );
+
+    int nrattribs;
+    if ( par.get(sKeyNrAttribs(),nrattribs) ) //Current format
+    {
+	bool firstattrib = true;
+	for ( int attrib=0; attrib<nrattribs; attrib++ )
+	{
+	    BufferString key = sKeyAttribs();
+	    key += attrib;
+	    PtrMan<const IOPar> attribpar = par.subselect( key );
+	    if ( !attribpar )
+		continue;
+
+	    if ( !firstattrib )
+		addAttrib();
+	    else
+		firstattrib = false;
+
+	    const int attribnr = as_.size()-1;
+
+	    bool ison = true;
+	    attribpar->getYN( sKeyIsOn(), ison );
+
+	    int coltabid = -1;
+	    if ( attribpar->get(sKeyColTabID(),coltabid) )
+	    {
+		visBase::DataObject* dataobj = 
+		    			visBase::DM().getObject( coltabid );
+		if ( !dataobj ) return 0;
+
+		mDynamicCastGet(visBase::VisColorTab*,coltab,dataobj);
+		if ( !coltab ) coltabid=-1;
+		coltabs_[attribnr]->unRef();
+		coltabs_.replace( attribnr, coltab );
+		coltabs_[attribnr]->ref();
+
+		for ( int idx=0; idx<sections_.size(); idx++ )
+		{
+		    mDynamicCastGet(visBase::ParametricSurface*,psurf,
+			    	    sections_[idx]);
+		    if ( psurf )
+		    {
+			psurf->setColorTab( attribnr, *coltab );
+			psurf->enableTexture( attribnr, ison );
+		    }
+		}
+	    }
+
+	    as_[attribnr]->usePar( *attribpar );
+	}
+    }
+    else //old format
+    {
+	as_[0]->usePar( par );
+	int coltabid = -1;
+	par.get( sKeyColorTableID, coltabid );
+	if ( coltabid>-1 )
+	{
+	    DataObject* dataobj = visBase::DM().getObject( coltabid );
+	    if ( !dataobj ) return 0;
+
+	    mDynamicCastGet( visBase::VisColorTab*, coltab, dataobj );
+	    if ( !coltab ) return -1;
+	    if ( coltabs_[0] ) coltabs_[0]->unRef();
+	    coltabs_.replace( 0, coltab );
+	    coltab->ref();
+	    for ( int idx=0; idx<sections_.size(); idx++ )
+	    {
+		mDynamicCastGet( visBase::ParametricSurface*,psurf,
+				 sections_[idx]);
+		if ( psurf ) psurf->setColorTab( 0, *coltab);
+	    }
+	}
+    }
+
+    return 1;
 }
 
 
