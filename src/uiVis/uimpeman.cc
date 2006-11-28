@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.cc,v 1.103 2006-11-21 14:00:08 cvsbert Exp $
+ RCS:           $Id: uimpeman.cc,v 1.104 2006-11-28 12:00:58 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -296,7 +296,8 @@ void uiMPEMan::seedClick( CallBacker* )
 	    engine.setActiveVolume( newvolume );
 	    notifystopper.restore();
 
-	    if ( newvolume.zrg.isEqual( SI().sampling(false).zrg, mDefEps ) )
+	    const float zrgeps = 0.01 * SI().zStep();
+	    if ( newvolume.zrg.isEqual(SI().sampling(false).zrg,zrgeps) )
 	    {
 		RefMan<const Attrib::DataCubes> cached = 
 					    clickcatcher->clickedObjectData();
