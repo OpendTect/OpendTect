@@ -57,6 +57,9 @@ if ( $shallow == no ) then
 	\rm *.lib
 	\rm *.dll
 	\rm *.dll.a
+    else if ( $HDIR == mac ) then
+	\rm *.dylib
+	\rm *.a
     else
 	\rm *.a
     endif
