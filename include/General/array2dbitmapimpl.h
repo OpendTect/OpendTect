@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Sep 2006
- RCS:           $Id: array2dbitmapimpl.h,v 1.4 2006-10-04 17:17:03 cvsbert Exp $
+ RCS:           $Id: array2dbitmapimpl.h,v 1.5 2006-11-29 18:09:04 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,18 +23,18 @@ struct WVAA2DBitmapGenPars : public A2DBitmapGenPars
 		  , drawmid_(false)
 		  , fillleft_(false)
 		  , fillright_(true)
-		  , medismid_(false)
+		  , midvalue_(0)
 		  , overlap_(0.5)	{}
 
     bool	drawwiggles_;	//!< Draw the wiggles themselves
     bool	drawmid_;	//!< Draw mid line for each trace
     bool	fillleft_;	//!< Fill the left loops
     bool	fillright_;	//!< Fill the right loops
-    bool	medismid_;	//!< Use the median data value, not 0, as mid
 
     float	overlap_;	//!< If > 0, part of the trace is drawn on
     				//!< both neighbours' display strip
     				//!< If < 0, uses less than entire strip
+    float	midvalue_;	//!< if mUdf(float), use the median data value
 
     static const char	cZeroLineFill;		// => -126
     static const char	cWiggFill;		// => -125
@@ -70,7 +70,7 @@ protected:
     void			doFill();
 
     void			drawTrace(int);
-    void			drawVal(int,int,float,float);
+    void			drawVal(int,int,float,float,float,float);
 
     bool			dumpXPM(std::ostream&) const;
 };
