@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiseiswvltman.cc,v 1.6 2006-10-20 12:06:29 cvsbert Exp $
+ RCS:           $Id: uiseiswvltman.cc,v 1.7 2006-11-29 16:58:32 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -58,7 +58,7 @@ uiSeisWvltMan::uiSeisWvltMan( uiParent* p )
     fdctxt_.ddpars_.wva_.drawmid_= true;
     fdctxt_.ddpars_.wva_.overlap_ = 0;
     fdctxt_.ddpars_.wva_.clipperc_ = 0;
-    wvltfld = new uiSectionDisp( this, fdctxt_ );
+    wvltfld = new uiSectionDisp( this, fdctxt_, uiSize(50,mUdf(int),true) );
     wvltfld->attach( ensureRightOf, selgrp );
     wvltfld->setStretch( 1, 1 );
     wvltfld->setData( fddata_ );
@@ -67,7 +67,6 @@ uiSeisWvltMan::uiSeisWvltMan( uiParent* p )
     infofld->attach( ensureBelow, wvltfld );
     selgrp->setPrefWidthInChar( 50 );
     infofld->setPrefWidthInChar( 60 );
-    wvltfld->setPrefWidthInChar( 10 );
     selChg(0);
 }
 
