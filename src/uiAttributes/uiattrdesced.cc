@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:		$Id: uiattrdesced.cc,v 1.17 2006-10-10 17:46:05 cvsbert Exp $
+ RCS:		$Id: uiattrdesced.cc,v 1.18 2006-11-29 09:30:29 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,6 +38,16 @@ const char* uiAttrDescEd::sKeyPatternGrp = "Patterns";
 const char* uiAttrDescEd::sKeyStatsGrp = "Statistics";
 const char* uiAttrDescEd::sKeyPositionGrp = "Positions";
 const char* uiAttrDescEd::sKeyDipGrp = "Dip";
+
+
+const char* uiAttrDescEd::getInputAttribName( uiAttrSel* inpfld,
+					      const Desc& desc )
+{
+    Attrib::DescID did = inpfld->attribID();
+    Attrib::Desc* attrd = desc.descSet()->getDesc(did);
+
+    return attrd ? attrd->attribName() : "";
+}
 
 
 uiAttrDescEd::uiAttrDescEd( uiParent* p )
@@ -258,3 +268,6 @@ bool uiAttrDescEd::getOutput( Attrib::Desc& desc )
     desc.selectOutput( 0 );
     return true;
 }
+
+
+

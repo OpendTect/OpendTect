@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: uiattrdesced.h,v 1.18 2006-10-24 15:21:36 cvshelene Exp $
+ RCS:           $Id: uiattrdesced.h,v 1.19 2006-11-29 09:30:29 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -104,6 +104,8 @@ public:
     enum DomainType	{ Both, Time, Depth };
     DomainType		domainType() const		{ return domtyp_; }
     void		setDomainType( DomainType t )	{ domtyp_ = t; }
+
+    static const char*	getInputAttribName(uiAttrSel*,const Desc&);
 
     static const char*	timegatestr;
     static const char*	frequencystr;
