@@ -4,7 +4,7 @@
  * DATE     : Sep 2006
 -*/
 
-static const char* rcsID = "$Id: array2dbitmap.cc,v 1.12 2006-10-18 10:52:53 cvsbert Exp $";
+static const char* rcsID = "$Id: array2dbitmap.cc,v 1.13 2006-11-29 18:08:37 cvsbert Exp $";
 
 #include "array2dbitmapimpl.h"
 #include "arraynd.h"
@@ -282,22 +282,6 @@ void WVAA2DBitmapGenerator::doFill()
 {
     stripwidth_ = 2 * (0.5 + wvapars().overlap_) * setup_.avgDist(0);
 
-    // Draw a mid line, if wanted, before anything else
-    // In that way it will be overprinted by everything else
-    if ( wvapars().drawmid_ )
-    {
-	for ( int idim0=0; idim0<szdim0_; idim0++ )
-	{
-	    const float middim0pos = dim0pos_[idim0];
-	    if ( !setup_.isInside(0,middim0pos) )
-		continue;
-
-	    const int midpix = setup_.getPix( 0, middim0pos );
-	    for ( int iy=0; iy<setup_.nrYPix(); iy++ )
-		bitmap_->set( midpix, iy, WVAA2DBitmapGenPars::cZeroLineFill );
-	}
-    }
-
     for ( int idim0=0; idim0<szdim0_; idim0++ )
     {
 	if ( setup_.isInside(0,dim0pos_[idim0]) )
@@ -313,6 +297,11 @@ void WVAA2DBitmapGenerator::drawTrace( int idim0 )
     float prevval = mUdf(float);
     Interpolate::PolyReg1DWithUdf<float> pr1d;
     const Array2D<float>& inpdata = data_.data();
+
+    float midval = wvapars().midvalue_;
+    if ( mIsUdf(midval) ) midval = data_.midVal();
+    const float midratio = (midval - scalerg_.start) / scalewidth_;
+    float middim0pos = dim0pos_[idim0] + (midratio-0.5) * stripwidth_;
 
     for ( int iy=0; iy<setup_.nrYPix(); iy++ )
     {
@@ -336,7 +325,7 @@ void WVAA2DBitmapGenerator::drawTrace( int idim0 )
 
 	float val = pars_.nointerpol_ ? (dim1offs < 0.5 ? v0 : v1)
 	    			      : pr1d.apply( dim1offs );
-	drawVal( idim0, iy, val, prevval );
+	drawVal( idim0, iy, val, prevval, midval, middim0pos );
 
 	prevval = val;
 	previdim1 = idim1;
@@ -353,19 +342,21 @@ void WVAA2DBitmapGenerator::drawTrace( int idim0 )
 
 
 void WVAA2DBitmapGenerator::drawVal( int idim0, int iy, float val,
-				     float prevval )
+				     float prevval,
+				     float midval, float middim0pos )
 {
     mPrepVal();
 
-    const float middim0pos = dim0pos_[idim0];
+    const float centerdim0pos = dim0pos_[idim0];
+    const float valratio = (val - scalerg_.start) / scalewidth_;
+    const float valdim0pos = centerdim0pos + (valratio-0.5) * stripwidth_;
 
-    const float midval = (wvapars().medismid_ ? data_.midVal() : 0);
-    const float valratio = (val - midval) / scalewidth_;
-    const float valdim0pos = middim0pos + valratio * stripwidth_;
-
-    const bool isleft = val< midval;
+    const bool isleft = val < midval;
     const int midpix = setup_.getPix( 0, middim0pos );
     const int valpix = setup_.getPix( 0, valdim0pos );
+
+    if ( wvapars().drawmid_ && midpix >= 0 && midpix < setup_.nrXPix() )
+	bitmap_->set( midpix, iy, WVAA2DBitmapGenPars::cZeroLineFill );
 
     if ( isleft && wvapars().fillleft_ )
     {
@@ -383,8 +374,9 @@ void WVAA2DBitmapGenerator::drawVal( int idim0, int iy, float val,
     {
 	if ( mIsUdf(prevval) ) prevval = val;
 	mApplyValClipping( prevval );
-	const float prevratio = (prevval - midval) / scalewidth_;
-	const float prevvaldim0pos = middim0pos + prevratio * stripwidth_;
+	const float prevvalratio = (prevval - scalerg_.start) / scalewidth_;
+	const float prevvaldim0pos = centerdim0pos
+	    			   + (prevvalratio-0.5) * stripwidth_;
 	const int prevvalpix = setup_.getPix( 0, prevvaldim0pos );
 
 	int from, to;
