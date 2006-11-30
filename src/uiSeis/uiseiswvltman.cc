@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiseiswvltman.cc,v 1.7 2006-11-29 16:58:32 cvshelene Exp $
+ RCS:           $Id: uiseiswvltman.cc,v 1.8 2006-11-30 15:40:31 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -204,6 +204,7 @@ void uiSeisWvltMan::mkFileInfo()
 	delete wvlt;
     }
 
+    wvltfld->setData( fddata_ );
     wvltfld->forceReDraw();
     infofld->setText( txt );
 }
