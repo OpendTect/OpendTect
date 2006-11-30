@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.158 2006-11-21 14:00:08 cvsbert Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.159 2006-11-30 12:12:48 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -948,8 +948,8 @@ bool uiODApplMgr::handleAttribServEv( int evid )
     {
 	const int visid = visserv->getEventObjId();
 	const int sliceidx = attrserv->getSliceIdx();
-	const int attrnr = visserv->getSelAttribNr()==-1
-	    ? 0 : visserv->getSelAttribNr();
+	const int attrnr =
+	    visserv->getSelAttribNr()==-1 ? 0 : visserv->getSelAttribNr();
 	visserv->selectTexture( visid, attrnr, sliceidx );
 	modifyColorTable( visid, attrnr );
 	sceneMgr().updateTrees();
@@ -957,12 +957,25 @@ bool uiODApplMgr::handleAttribServEv( int evid )
     else if ( evid==uiAttribPartServer::evEvalStoreSlices )
     {
 	const int visid = visserv->getEventObjId();
+	const int attrnr =
+	    visserv->getSelAttribNr()==-1 ? 0 : visserv->getSelAttribNr();
 	const uiVisPartServer::AttribFormat format = 
 	    				visserv->getAttributeFormat( visid );
 	if ( format!=uiVisPartServer::RandomPos ) return false;
-	const MultiID mid = visserv->getMultiID(visid);
-	const EM::ObjectID emid = emserv->getObjectID(mid);
-	emserv->storeAuxData( emid );
+
+	ObjectSet<const BinIDValueSet> data;
+	visserv->getRandomPosCache( visid, attrnr, data );
+	if ( data.isEmpty() ) return false;
+
+	const MultiID mid = visserv->getMultiID( visid );
+	const EM::ObjectID emid = emserv->getObjectID( mid );
+	const TypeSet<Attrib::SelSpec>& specs = attrserv->getTargetSelSpecs();
+	const int nrvals = data[0]->nrVals()-1;
+	for ( int idx=0; idx<nrvals; idx++ )
+	{
+	    emserv->setAuxData( emid, data, specs[idx].userRef(), idx );
+	    emserv->storeAuxData( emid );
+	}
     }
     else
 	pErrMsg("Unknown event from attrserv");
