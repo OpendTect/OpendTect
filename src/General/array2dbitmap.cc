@@ -4,7 +4,7 @@
  * DATE     : Sep 2006
 -*/
 
-static const char* rcsID = "$Id: array2dbitmap.cc,v 1.13 2006-11-29 18:08:37 cvsbert Exp $";
+static const char* rcsID = "$Id: array2dbitmap.cc,v 1.14 2006-11-30 17:56:07 cvsbert Exp $";
 
 #include "array2dbitmapimpl.h"
 #include "arraynd.h"
@@ -152,8 +152,8 @@ void A2DBitmapPosSetup::setBitmapSizes( int n0, int n1 ) const
     // Don't like to declare all mutable as they shld be const everyhwere else
     self.nrxpix_ = n0; self.nrypix_ = n1;
     self.dim0rg_.sort(); self.dim1rg_.sort();
-    self.pixperdim0_ = (nrxpix_-1) / dim0rg_.width();
-    self.pixperdim1_ = (nrypix_-1) / dim1rg_.width();
+    self.pixperdim0_ = nrxpix_ / dim0rg_.width();
+    self.pixperdim1_ = nrypix_ / dim1rg_.width();
 }
 
 
@@ -355,9 +355,6 @@ void WVAA2DBitmapGenerator::drawVal( int idim0, int iy, float val,
     const int midpix = setup_.getPix( 0, middim0pos );
     const int valpix = setup_.getPix( 0, valdim0pos );
 
-    if ( wvapars().drawmid_ && midpix >= 0 && midpix < setup_.nrXPix() )
-	bitmap_->set( midpix, iy, WVAA2DBitmapGenPars::cZeroLineFill );
-
     if ( isleft && wvapars().fillleft_ )
     {
 	for ( int ix=valpix; ix<=midpix; ix++ )
@@ -369,6 +366,9 @@ void WVAA2DBitmapGenerator::drawVal( int idim0, int iy, float val,
 	for ( int ix=midpix; ix<=valpix; ix++ )
 	    bitmap_->set( ix, iy, WVAA2DBitmapGenPars::cRightFill );
     }
+
+    if ( wvapars().drawmid_ && midpix >= 0 && midpix < setup_.nrXPix() )
+	bitmap_->set( midpix, iy, WVAA2DBitmapGenPars::cZeroLineFill );
 
     if ( wvapars().drawwiggles_ && setup_.isInside(0,valdim0pos) )
     {

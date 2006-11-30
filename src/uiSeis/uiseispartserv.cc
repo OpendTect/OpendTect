@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiseispartserv.cc,v 1.43 2006-11-21 14:00:08 cvsbert Exp $
+ RCS:           $Id: uiseispartserv.cc,v 1.44 2006-11-30 17:56:07 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -252,9 +252,8 @@ bool uiSeisPartServer::handleGatherSubMenu( int mnuid, const BinID& bid )
     fdctxt.annot_.x2name_ = "";
     fdctxt.ddpars_.dispvd_ = false;
     fdctxt.ddpars_.dispwva_ = true;
-    fdctxt.ddpars_.wva_.drawmid_= true;
-    fdctxt.ddpars_.wva_.overlap_ = 0;
-    fdctxt.ddpars_.wva_.clipperc_ = 0;
+    fdctxt.ddpars_.wva_.overlap_ = 1;
+    fdctxt.ddpars_.wva_.clipperc_ = 1;
     const SeisTrc& firsttrc = *tbuf.get(0);
     const SeisTrc& lasttrc = *tbuf.get(tbuf.size()-1);
     fdctxt.posdata_.x1rg_.start = firsttrc.info().nr;
