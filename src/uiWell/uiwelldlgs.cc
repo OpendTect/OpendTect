@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          October 2003
- RCS:           $Id: uiwelldlgs.cc,v 1.47 2006-11-21 14:00:08 cvsbert Exp $
+ RCS:           $Id: uiwelldlgs.cc,v 1.48 2006-11-30 12:39:34 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -360,6 +360,11 @@ bool uiD2TModelDlg::acceptOK( CallBacker* )
 
 static const float defundefval = -999.25;
 static const float feetfac = 0.3048;
+#ifdef __win__
+    static const char* lasfileflt = "Las files (*.las;*.dat)";
+#else
+    static const char* lasfileflt = "Las files (*.las;*.dat;*.LAS;*.DAT)";
+#endif
 
 
 uiLoadLogsDlg::uiLoadLogsDlg( uiParent* p, Well::Data& wd_ )
@@ -367,7 +372,7 @@ uiLoadLogsDlg::uiLoadLogsDlg( uiParent* p, Well::Data& wd_ )
     , wd(wd_)
 {
     lasfld = new uiFileInput( this, "Input (pseudo-)LAS logs file",
-			      uiFileInput::Setup().filter("*.las;;*.dat")
+			      uiFileInput::Setup().filter(lasfileflt)
 			      			  .withexamine(true) );
     lasfld->setDefaultSelectionDir( GetDataDir() );
     lasfld->valuechanged.notify( mCB(this,uiLoadLogsDlg,lasSel) );
