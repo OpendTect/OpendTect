@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emtracker.cc,v 1.31 2006-11-21 14:00:07 cvsbert Exp $";
+static const char* rcsID = "$Id: emtracker.cc,v 1.32 2006-12-01 16:35:59 cvsjaap Exp $";
 
 #include "emtracker.h"
 
@@ -163,7 +163,7 @@ bool EMTracker::snapPositions( const TypeSet<EM::PosID>& pids )
 	}
 
 	SectionTracker* sectiontracker = getSectionTracker(sid,true);
-	if ( !sectiontracker )
+	if ( !sectiontracker || !sectiontracker->hasInitializedSetup() )
 	    continue;
 
 	SectionAdjuster* adjuster = sectiontracker->adjuster();
