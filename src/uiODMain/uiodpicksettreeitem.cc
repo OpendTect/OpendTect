@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodpicksettreeitem.cc,v 1.16 2006-08-11 08:58:04 cvsnanne Exp $
+ RCS:		$Id: uiodpicksettreeitem.cc,v 1.17 2006-12-01 16:44:38 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -240,8 +240,7 @@ void uiODPickSetTreeItem::createMenuCB( CallBacker* cb )
 	    	    applMgr()->visServer()->getObject(sceneID()));
     const bool hastransform = scene && scene->getDataTransform();
 
-    mAddMenuItem( menu, &showallmnuitem_, !hastransform,
-	    	  hastransform ? false : psd->allShown() );
+    mAddMenuItem( menu, &showallmnuitem_, true, psd->allShown() );
     mAddMenuItem( menu, &propertymnuitem_, true, false );
 }
 
