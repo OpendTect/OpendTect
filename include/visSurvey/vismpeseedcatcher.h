@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vismpeseedcatcher.h,v 1.10 2006-06-14 07:07:44 cvsjaap Exp $
+ RCS:		$Id: vismpeseedcatcher.h,v 1.11 2006-12-01 16:33:07 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -59,6 +59,8 @@ public:
     const MultiID&		clickedObjectLineSet() const;
     const char*			clickedObjectLineName() const;
     const Attrib::Data2DHolder*	clickedObjectLineData() const;
+
+    static bool			isClickable(int visid);
 
 protected:
 				~MPEClickCatcher();
