@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.cc,v 1.104 2006-11-28 12:00:58 cvsnanne Exp $
+ RCS:           $Id: uimpeman.cc,v 1.105 2006-12-01 16:55:23 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -64,7 +64,6 @@ using namespace MPE;
 uiMPEMan::uiMPEMan( uiParent* p, uiVisPartServer* ps )
     : clickcatcher(0)
     , visserv(ps)
-    , init(false)
     , colbardlg(0)
     , seedpickwason(false)
     , oldactivevol(false)
@@ -201,8 +200,6 @@ void uiMPEMan::deleteVisObjects()
 	clickcatcher->unRef();
 	clickcatcher = 0;
     }
-
-    init = false;
 }
 
 
@@ -224,6 +221,13 @@ void uiMPEMan::seedClick( CallBacker* )
     const int clickedobject = clickcatcher->clickedObjectID();
     if ( clickedobject == -1 )
 	return;
+
+    if ( clickcatcher->clickedObjectLineData() != 0 )
+    {
+	uiMSG().warning("Tracking and seed picking of 2D horizons " 
+			"not yet provided.");
+	return;
+    }
 
     MPE::EMSeedPicker* seedpicker = tracker->getSeedPicker(true);
     if ( !seedpicker || !seedpicker->canSetSectionID() ||
@@ -296,16 +300,14 @@ void uiMPEMan::seedClick( CallBacker* )
 	    engine.setActiveVolume( newvolume );
 	    notifystopper.restore();
 
-	    const float zrgeps = 0.01 * SI().zStep();
-	    if ( newvolume.zrg.isEqual(SI().sampling(false).zrg,zrgeps) )
+	    const Attrib::SelSpec* clickedas = 
+				   clickcatcher->clickedObjectDataSelSpec();
+	    if ( clickedas && !engine.cacheIncludes(*clickedas,newvolume) )
 	    {
-		RefMan<const Attrib::DataCubes> cached = 
+		RefMan<const Attrib::DataCubes> clickeddata = 
 					    clickcatcher->clickedObjectData();
-		if ( cached )
-		{
-		    engine.setAttribData( 
-			    *clickcatcher->clickedObjectDataSelSpec(), cached );
-		}
+		if ( clickeddata )
+		    engine.setAttribData( *clickedas, clickeddata );
 	    }
 
 	    for ( int idx=0; idx<displays.size(); idx++ )
@@ -363,7 +365,6 @@ void uiMPEMan::restoreActiveVol()
 
 	oldactivevol.setEmpty();
     }
-
 }
 
 
@@ -421,22 +422,6 @@ void uiMPEMan::updateAttribNames()
     attribfld->setCurrentItem( oldsel );
 
     updateSelectedAttrib();
-
-/*    if ( !init && attribfld->size()>1 && attribspecs.size() &&
-	 engine().activeVolume() != engine().getDefaultActiveVolume() )
-    {
-	MPE::EMTracker* tracker = getSelectedTracker();
-	MPE::EMSeedPicker* seedpicker = tracker ? 
-					tracker->getSeedPicker(true) : 0;
-	if ( !seedpicker || seedpicker->doesModeUseVolume() )
-	{
-	    init = true;
-	    engine().setTrackMode( TrackPlane::Extend );
-	    showTracker( true );
-	    attribfld->setCurrentItem( (int)1 );
-	}
-    }
-*/
     attribSel(0);
     updateButtonSensitivity(0);
 }
@@ -691,6 +676,13 @@ void uiMPEMan::validateSeedConMode()
     seedpicker->setSeedConnectMode( defaultmode );
     
     updateButtonSensitivity(0);
+}
+
+
+void uiMPEMan::introduceMPEDisplay()
+{
+    toolbar->turnOn( showcubeidx, true );
+    showCubeCB(0);
 }
 
 
