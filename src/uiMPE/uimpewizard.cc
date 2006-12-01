@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpewizard.cc,v 1.59 2006-11-06 16:18:12 cvsnanne Exp $
+ RCS:           $Id: uimpewizard.cc,v 1.60 2006-12-01 16:40:21 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -527,11 +527,15 @@ bool Wizard::isClosing( bool iscancel )
 	mpeserv->blockDataLoading( true );
 	if ( seedpicker->doesModeUseVolume() && !seedbox.isEmpty() )
 	    mpeserv->expandActiveVolume(seedbox);
+
 	if ( !seedpicker->doesModeUseVolume() )
 	    mpeserv->sendEvent( uiMPEPartServer::evStartSeedPick );
+	else
+	    mpeserv->sendEvent( uiMPEPartServer::evMPEDispIntro );
+	
 	mpeserv->blockDataLoading( false );
 	mpeserv->postponeLoadingCurVol();
-        mpeserv->sendEvent( uiMPEPartServer::evShowToolbar );
+	mpeserv->sendEvent( uiMPEPartServer::evShowToolbar );
 	if ( seedpicker->doesModeUseSetup() )
 	    mpeserv->saveSetup( EM::EMM().getMultiID(currentobject) );
     }
