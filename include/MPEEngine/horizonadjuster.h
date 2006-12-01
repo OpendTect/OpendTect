@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          January 2005
- RCS:           $Id: horizonadjuster.h,v 1.18 2006-08-31 10:49:01 cvsjaap Exp $
+ RCS:           $Id: horizonadjuster.h,v 1.19 2006-12-01 16:25:35 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,7 +51,7 @@ public:
     VSEvent::Type	trackEvent() const;
 
     void		setAmplitudeThreshold(float th);
-    float		amplitudeTreshold() const;
+    float		amplitudeThreshold() const;
     void 		setAllowedVariance(float v);
     float 		allowedVariance() const;
     void		setUseAbsThreshold(bool abs);
@@ -59,7 +59,7 @@ public:
                                                           
     void		setSimilarityWindow(const Interval<float>& rg);
     Interval<float>	similarityWindow() const;
-    void		setSimiliarityThreshold(float th);
+    void		setSimilarityThreshold(float th);
     float		similarityThreshold();
 
     int			getNrAttributes() const;
