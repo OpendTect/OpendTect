@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          September 2003
- RCS:           $Id: uiwellman.cc,v 1.33 2006-11-21 14:00:08 cvsbert Exp $
+ RCS:           $Id: uiwellman.cc,v 1.34 2006-12-01 14:35:23 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -328,7 +328,6 @@ void uiWellMan::mkFileInfo()
     }
 
     BufferString txt;
-    txt += getFileInfo();
 
 #define mAddWellInfo(key,str) \
     if ( str.size() ) \
@@ -345,5 +344,6 @@ void uiWellMan::mkFileInfo()
     mAddWellInfo(Well::Info::sKeystate,info.state)
     mAddWellInfo(Well::Info::sKeycounty,info.county)
 
+    txt += getFileInfo();
     infofld->setText( txt );
 }

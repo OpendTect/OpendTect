@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.cc,v 1.58 2006-11-21 14:00:08 cvsbert Exp $
+ RCS:           $Id: uiodmenumgr.cc,v 1.59 2006-12-01 14:35:23 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -220,10 +220,10 @@ void uiODMenuMgr::fillFileMenu()
     mInsertItem( manmnu, "&Faults ...", mManFaultMnuItm );
 #endif
     mInsertItem( manmnu, "&Horizons ...", mManHorMnuItm );
-    mInsertItem( manmnu, "&Seismics ...", mManSeisMnuItm );
-    mInsertItem( manmnu, "&Wells ...", mManWellMnuItm );
     mInsertItem( manmnu, "&PickSets ...", mManPickMnuItm );
-    mInsertItem( manmnu, "&Wavelets ...", mManWvltMnuItm );
+    mInsertItem( manmnu, "&Seismics ...", mManSeisMnuItm );
+    mInsertItem( manmnu, "Wa&velets ...", mManWvltMnuItm );
+    mInsertItem( manmnu, "&Wells ...", mManWellMnuItm );
     filemnu->insertItem( manmnu );
 
     filemnu->insertSeparator();

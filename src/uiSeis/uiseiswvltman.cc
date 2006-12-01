@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiseiswvltman.cc,v 1.9 2006-11-30 17:56:07 cvsbert Exp $
+ RCS:           $Id: uiseiswvltman.cc,v 1.10 2006-12-01 14:35:23 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -176,7 +176,7 @@ void uiSeisWvltMan::crPush( CallBacker* )
 
 void uiSeisWvltMan::mkFileInfo()
 {
-    BufferString txt = getFileInfo();
+    BufferString txt;
     Wavelet* wvlt = Wavelet::get( curioobj_ );
 
     if ( !wvlt )
@@ -206,5 +206,7 @@ void uiSeisWvltMan::mkFileInfo()
 
     wvltfld->setData( fddata_ );
     wvltfld->forceReDraw();
+
+    txt += getFileInfo();
     infofld->setText( txt );
 }
