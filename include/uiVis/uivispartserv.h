@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.180 2006-09-29 11:00:33 cvsjaap Exp $
+ RCS:           $Id: uivispartserv.h,v 1.181 2006-12-01 16:32:35 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "sets.h"
 #include "thread.h"
 #include "uiapplserv.h"
+#include "vismpeseedcatcher.h"
 
 class BinIDValueSet;
 class BufferStringSet;
@@ -80,6 +81,7 @@ public:
 			    Don't use the argument when calling from outside.
 			*/
     void		removeScene(int);
+    bool		clickablesInScene(int) const;
 
     void		getChildIds(int id,TypeSet<int>&) const;
 			/*!< Gets a scenes' children or a volumes' parts
@@ -266,6 +268,7 @@ public:
     
     void			showMPEToolbar();
     void			updateMPEToolbar();
+    void			introduceMPEDisplay();
     uiToolBar*			getTrackTB() const;
     void			initMPEStuff();
 
