@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		22-3-2000
- RCS:		$Id: color.h,v 1.8 2006-11-06 16:18:11 cvsnanne Exp $
+ RCS:		$Id: color.h,v 1.9 2006-12-01 16:37:01 cvsnanne Exp $
 ________________________________________________________________________
 
 Color is an RGB color object, with a transparancy. The storage is in a 4-byte
@@ -26,6 +26,8 @@ public:
 			Color( unsigned char r_=255, unsigned char g_=255,
 				unsigned char b_=255, unsigned char t_=0 )
 			{ set( r_, g_, b_, t_ ); }
+			Color( unsigned int rgb )
+			{ col_ = rgb; }
 
     inline bool		operator ==( const Color& c ) const
 			{ return col_ == c.col_; }
