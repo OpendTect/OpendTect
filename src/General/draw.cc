@@ -4,7 +4,7 @@
  * DATE     : 18-4-1996
 -*/
 
-static const char* rcsID = "$Id: draw.cc,v 1.59 2006-11-21 14:00:07 cvsbert Exp $";
+static const char* rcsID = "$Id: draw.cc,v 1.60 2006-12-01 16:41:59 cvsnanne Exp $";
 
 /*! \brief Several implementations for UI-related things.
 
@@ -78,11 +78,10 @@ mFromStringImpl( LineStyle, width )
 // And the ColorTable stuff ...
 
 const char* ColorVal::sKey = "Value-Color";
-const char* ColorTable::sKeyName = "Color table name";
 const char* ColorTable::sKeyMarkColor = "Marker color";
 const char* ColorTable::sKeyUdfColor = "Undef color";
 const char* ColorTable::sKeyTransparency = "Transparency";
-static const char* sKeyCtbl = "Color table";
+const char* ColorTable::sKeyCtbl = "Color table";
 
 static ObjectSet<IOPar>& stdTabPars()
 {
