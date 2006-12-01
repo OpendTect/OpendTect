@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.159 2006-11-30 12:12:48 cvsnanne Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.160 2006-12-01 16:59:40 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -562,11 +562,8 @@ bool uiODApplMgr::handleMPEServEv( int evid )
     {
 	const int trackerid = mpeserv->activeTrackerID();
 	const EM::ObjectID emid = mpeserv->getEMObjectID(trackerid);
-	TypeSet<int> sceneids;
-	visserv->getChildIds( -1, sceneids );
-	if ( sceneids.isEmpty() ) return false;
-
-	const int sdid = sceneMgr().addEMItem( emid, sceneids[0] );
+	const int sceneid = mpeserv->getCurSceneID();
+	const int sdid = sceneMgr().addEMItem( emid, sceneid );
 	if ( sdid==-1 )
 	    return false;
 
@@ -635,6 +632,8 @@ bool uiODApplMgr::handleMPEServEv( int evid )
     }
     else if ( evid==uiMPEPartServer::evShowToolbar )
 	visserv->showMPEToolbar();
+    else if ( evid==uiMPEPartServer::evMPEDispIntro )
+	visserv->introduceMPEDisplay();
     else if ( evid==uiMPEPartServer::evInitFromSession )
 	visserv->initMPEStuff();
     else
