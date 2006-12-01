@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vismpeseedcatcher.cc,v 1.13 2006-07-18 11:41:06 cvsjaap Exp $";
+static const char* rcsID = "$Id: vismpeseedcatcher.cc,v 1.14 2006-12-01 16:52:07 cvsjaap Exp $";
 
 #include "vismpeseedcatcher.h"
 
@@ -119,6 +119,23 @@ const Attrib::Data2DHolder* MPEClickCatcher::clickedObjectLineData() const
 { return linedata_; }
 
 
+bool MPEClickCatcher::isClickable( int visid )
+{
+    visBase::DataObject* dataobj = visBase::DM().getObject( visid );
+    if ( !dataobj )
+	return false;
+    mDynamicCastGet( PlaneDataDisplay*, plane, dataobj );
+    if ( plane && plane->getOrientation()!=PlaneDataDisplay::Timeslice )
+	return true;
+    CubeSampling planarcs;
+    mDynamicCastGet( MPEDisplay*, mpedisplay, dataobj );
+    if ( mpedisplay && mpedisplay->isDraggerShown() &&  
+	 mpedisplay->getPlanePosition(planarcs) && planarcs.nrZ()!=1 ) 
+	return true;
+
+    return false;
+}
+
 
 void MPEClickCatcher::clickCB( CallBacker* cb )
 {
@@ -165,15 +182,15 @@ void MPEClickCatcher::clickCB( CallBacker* cb )
 		break;
 	    }
 
+	    CubeSampling planarcs;
 	    mDynamicCastGet( MPEDisplay*, mpedisplay, dataobj );
 	    if ( mpedisplay && mpedisplay->isDraggerShown() &&
-		 !mpedisplay->isManipulatorShown() &&
-		 mpedisplay->getPlanePosition(clickedcs_) && 
-		 clickedcs_.nrZ()!=1 ) 
+		 mpedisplay->getPlanePosition(planarcs) && 
+		 planarcs.nrZ()!=1 ) 
 	    {
 		sendClickEvent( EM::PosID(-1,-1,-1), eventinfo.ctrl, 
 				eventinfo.shift, eventinfo.pickedpos, 
-				visid, clickedcs_, 0, 0 );
+				visid, planarcs, 0, 0 );
 		eventcatcher_->eventIsHandled();
 		break;
 	    }
@@ -242,7 +259,6 @@ void MPEClickCatcher::sendUnderlyingPlanes(
 	CubeSampling cs;
 	mDynamicCastGet( MPEDisplay*, mpedisplay, mpeobject );
 	if ( mpedisplay && mpedisplay->isDraggerShown() &&
-	     !mpedisplay->isManipulatorShown() &&
 	     mpedisplay->getPlanePosition(cs) && cs.nrZ()!=1  && 
 	     cs.hrg.includes(nodebid) && cs.zrg.includes(nodepos.z) )
 	{
