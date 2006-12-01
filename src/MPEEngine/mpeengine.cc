@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: mpeengine.cc,v 1.71 2006-10-05 08:46:24 cvsjaap Exp $";
+static const char* rcsID = "$Id: mpeengine.cc,v 1.72 2006-12-01 16:38:24 cvsjaap Exp $";
 
 #include "mpeengine.h"
 
@@ -358,6 +358,21 @@ bool Engine::setAttribData( const Attrib::SelSpec& as,
     }
 
     return true;
+}
+
+
+bool Engine::cacheIncludes( const Attrib::SelSpec& as, 
+			    const CubeSampling& cs ) const
+{
+    const Attrib::DataCubes* cache = getAttribCache( as );
+    if ( !cache ) 
+	return false;
+
+    CubeSampling cachedcs = cache->cubeSampling();
+    const float zrgeps = 0.01 * SI().zStep();
+    cachedcs.zrg.widen( zrgeps );  
+    
+    return cachedcs.includes( cs );
 }
 
 
