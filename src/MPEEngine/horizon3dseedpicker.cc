@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizon3dseedpicker.cc,v 1.21 2006-11-21 14:00:07 cvsbert Exp $";
+static const char* rcsID = "$Id: horizon3dseedpicker.cc,v 1.22 2006-12-01 16:37:52 cvsjaap Exp $";
 
 #include "horizonseedpicker.h"
 
@@ -79,6 +79,9 @@ bool HorizonSeedPicker::addSeed(const Coord3& seedcrd )
 
     seedlist_.erase(); seedpos_.erase(); 
     seedlist_ += pid;  seedpos_ += seedcrd;
+
+    if ( seedconmode_ != DrawBetweenSeeds )
+	tracker_.snapPositions( seedlist_ );
 
     return retrackOnActiveLine( seedbid, startwasdefined );
 }
@@ -151,6 +154,9 @@ bool HorizonSeedPicker::retrackOnActiveLine( const BinID& startbid,
 				      -dir, candidatejunctionpairs );
 	extendSeedListEraseInBetween( true, dummystartbid-dir, false, 
 				      dir, candidatejunctionpairs );
+	
+	if ( seedconmode_ != DrawBetweenSeeds )
+	    tracker_.snapPositions( seedlist_ );
     }
     
     bool res = true;
@@ -248,7 +254,7 @@ bool HorizonSeedPicker::retrackFromSeedList()
 	return true;
     if ( seedconmode_ == DrawBetweenSeeds )
 	return interpolateSeeds(); 
-   
+    
     const TrackPlane::TrackMode tm = engine().trackPlane().getTrackMode();
     engine().setTrackMode( TrackPlane::Extend );
 
