@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.h,v 1.40 2006-09-29 10:59:44 cvsjaap Exp $
+ RCS:           $Id: uimpeman.h,v 1.41 2006-12-01 16:31:43 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,6 +40,7 @@ public:
     void			deleteVisObjects();
     void			updateAttribNames();
     void			validateSeedConMode();
+    void			introduceMPEDisplay();
     void			initFromDisplay();
 
     void			turnSeedPickingOn(bool);
@@ -112,7 +113,6 @@ protected:
     int				trackinvolidx;
     bool			trackerwasonbeforemouseerase;
 
-    bool			init;
     bool			seedpickwason;
 
     MPE::TrackPlane		oldtrackplane;
