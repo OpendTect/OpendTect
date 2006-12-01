@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          December 2005
- RCS:           $Id: uihorizontracksetup.h,v 1.4 2006-05-12 09:51:14 cvsnanne Exp $
+ RCS:           $Id: uihorizontracksetup.h,v 1.5 2006-12-01 16:27:25 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -55,6 +55,7 @@ protected:
 
     void			selUseSimilarity(CallBacker*);
     void			selAmpThresholdType(CallBacker*);
+    void			selEventType(CallBacker*);
 
     uiTabStack*			tabgrp_;
     uiAttrSel*			inpfld;
