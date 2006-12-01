@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H.Payraudeau
  Date:          04/2005
- RCS:           $Id: attribengman.cc,v 1.61 2006-11-21 14:00:06 cvsbert Exp $
+ RCS:           $Id: attribengman.cc,v 1.62 2006-12-01 16:34:33 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -620,14 +620,14 @@ Processor* EngineMan::createDataCubesOutput( BufferString& errmsg,
 
 	if ( mRg(z).start > cs_.zrg.start + mStepEps*cs_.zrg.step )
 	{
-	    todocs.zrg.stop = mRg(z).start - cs_.zrg.step;
+	    todocs.zrg.stop = mMAX(mRg(z).start-cs_.zrg.step, todocs.zrg.start);
 	    mAddAttrOut( todocs )
 	}
 	    
 	if ( mRg(z).stop < cs_.zrg.stop - mStepEps*cs_.zrg.step )
 	{
 	    todocs.zrg = cs_.zrg;
-	    todocs.zrg.start = mRg(z).stop + cs_.zrg.step;
+	    todocs.zrg.start = mMIN(mRg(z).stop+cs_.zrg.step, todocs.zrg.stop);
 	    mAddAttrOut( todocs )
 	}
     }
