@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2004
- RCS:           $Id: uimpepartserv.cc,v 1.53 2006-10-05 08:48:40 cvsjaap Exp $
+ RCS:           $Id: uimpepartserv.cc,v 1.54 2006-12-01 16:39:21 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,6 +42,7 @@ const int uiMPEPartServer::evInitFromSession	= 5;
 const int uiMPEPartServer::evRemoveTreeObject	= 6;
 const int uiMPEPartServer::evWizardClosed	= 7;
 const int uiMPEPartServer::evCreate2DSelSpec	= 8;
+const int uiMPEPartServer::evMPEDispIntro	= 9;
 
 
 uiMPEPartServer::uiMPEPartServer( uiApplService& a, const Attrib::DescSet* ads )
@@ -53,6 +54,7 @@ uiMPEPartServer::uiMPEPartServer( uiApplService& a, const Attrib::DescSet* ads )
     , blockdataloading_( false )
     , postponedcs_( false )
     , temptrackerid_(-1)
+    , cursceneid_(-1)
 {
     MPE::initStandardClasses();
     MPE::engine().setActiveVolume( MPE::engine().getDefaultActiveVolume() );
@@ -139,8 +141,10 @@ int uiMPEPartServer::addTracker( const EM::ObjectID& emid,
 }
 
 
-bool uiMPEPartServer::addTracker( const char* trackertype )
+bool uiMPEPartServer::addTracker( const char* trackertype, int addedtosceneid )
 {
+    cursceneid_ = addedtosceneid;
+
     if ( !wizard_ ) wizard_ = new MPE::Wizard( appserv().parent(), this );
     else wizard_->reset();
 
@@ -344,7 +348,14 @@ void uiMPEPartServer::loadAttribData()
     for ( int idx=0; idx<attribselspecs.size(); idx++ )
     {
 	eventattrselspec_ = attribselspecs[idx];
-	sendEvent( evGetAttribData );
+	const CubeSampling desiredcs = getAttribVolume( *eventattrselspec_ );
+
+	CubeSampling possiblecs;
+	if ( !desiredcs.getIntersection(SI().sampling(false),possiblecs) )
+	    continue; 
+
+	if ( !MPE::engine().cacheIncludes(*eventattrselspec_,possiblecs) )
+	    sendEvent( evGetAttribData );
     }
 }
 
