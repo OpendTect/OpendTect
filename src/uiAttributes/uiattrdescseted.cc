@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrdescseted.cc,v 1.36 2006-11-21 14:00:07 cvsbert Exp $
+ RCS:           $Id: uiattrdescseted.cc,v 1.37 2006-12-01 09:31:10 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -944,6 +944,11 @@ void uiAttribDescSetEd::replaceStoredAttr()
     }
 
     attrset->removeUnused( true );
+    if ( found2d )
+    {
+	for ( int idx=0; idx< attrset->nrDescs(); idx++ )
+	    attrset->desc(idx)->set2D(true);
+    }
 }
 
 
