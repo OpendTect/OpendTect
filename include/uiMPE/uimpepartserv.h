@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          December 2004
- RCS:           $Id: uimpepartserv.h,v 1.27 2006-10-05 08:45:10 cvsjaap Exp $
+ RCS:           $Id: uimpepartserv.h,v 1.28 2006-12-01 16:30:46 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,9 +41,9 @@ public:
     int				getTrackerID(const EM::ObjectID&) const;
     int				getTrackerID(const char* name) const;
     void			getTrackerTypes(BufferStringSet&) const;
-    bool			addTracker( const char* trackertype); 
-    int				addTracker( const EM::ObjectID&,
-	    				    const Coord3& pos );
+    bool			addTracker(const char* trackertype,int sceneid);
+    int				addTracker(const EM::ObjectID&,
+	    				   const Coord3& pos);
     				/*!<Creates a new tracker for the object and
 				    returns the trackerid of it or -1 if it
 				    failed.
@@ -53,6 +53,7 @@ public:
 					   pos, otherwise, it will be expanded
 					   to include pos. */
     EM::ObjectID		getEMObjectID(int trackerid) const;
+    int				getCurSceneID() const { return cursceneid_; }
 
     bool			canAddSeed(int trackerid) const;
     void			addSeed(int trackerid);
@@ -102,6 +103,7 @@ public:
     static const int		evRemoveTreeObject;
     				/*!<Get trackerid via activeTrackerID */
     static const int		evShowToolbar;
+    static const int		evMPEDispIntro;
     static const int		evWizardClosed;
     static const int		evInitFromSession;
 
@@ -139,6 +141,7 @@ protected:
     const Attrib::SelSpec*	eventattrselspec_;
     int				activetrackerid_;
     int				temptrackerid_;
+    int				cursceneid_;
 
     				//2D interaction
     BufferString		linename_;
