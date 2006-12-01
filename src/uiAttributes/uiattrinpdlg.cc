@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiattrinpdlg.cc,v 1.5 2006-08-30 16:03:27 cvsbert Exp $
+ RCS:           $Id: uiattrinpdlg.cc,v 1.6 2006-12-01 12:42:54 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,7 +29,6 @@ ________________________________________________________________________
 static const char* seislbl[] = { "Select Seismics", 0 };
 static const char* steerlbl[] = { "Select Steering cube", 0 };
 
-
 uiAttrInpDlg::uiAttrInpDlg( uiParent* p, const BufferStringSet& refset, 
 			    bool issteer )
     : uiDialog(p,uiDialog::Setup("Attribute set definition",
@@ -37,6 +36,7 @@ uiAttrInpDlg::uiAttrInpDlg( uiParent* p, const BufferStringSet& refset,
 			       : "Select Seismic input",
 				 "101.1.2"))
     , ctio(*mMkCtxtIOObj(SeisTrc))
+    , issteer_(issteer)
 {
     BufferString infotxt( "Provide input for the following attributes: " );
     uiLabel* infolbl = new uiLabel( this, infotxt );
@@ -101,5 +101,9 @@ const char* uiAttrInpDlg::getUserRef() const
 
 const char* uiAttrInpDlg::getKey() const
 {
-    return inpfld->getKey();
+    static LineKey lk;
+    lk.setLineName( ctio.ioobj->key() );
+    if ( is2D() && issteer_ )
+	lk.setAttrName( sKey::Steering );
+    return lk;
 }
