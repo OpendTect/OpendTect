@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizonadjuster.cc,v 1.33 2006-11-15 09:00:44 cvsnanne Exp $";
+static const char* rcsID = "$Id: horizonadjuster.cc,v 1.34 2006-12-01 16:37:01 cvsjaap Exp $";
 
 #include "horizonadjuster.h"
 
@@ -86,7 +86,7 @@ void HorizonAdjuster::setAmplitudeThreshold( float th )
 { ampthreshold_ = th; }
 
 
-float HorizonAdjuster::amplitudeTreshold() const
+float HorizonAdjuster::amplitudeThreshold() const
 { return ampthreshold_; }
 
 
@@ -114,7 +114,7 @@ Interval<float> HorizonAdjuster::similarityWindow() const
 { return similaritywin_; }
 
 
-void HorizonAdjuster::setSimiliarityThreshold( float th )
+void HorizonAdjuster::setSimilarityThreshold( float th )
 { similaritythreshold_ = th; }
 
 
@@ -148,16 +148,20 @@ int HorizonAdjuster::nextStep()
     {
 	BinID bid;
 	bid.setSerialized( pids_[idx] );
-	BinID refbid;
-	if ( pidsrc_.size() > idx )
-	    refbid.setSerialized( pidsrc_[idx] );
-	else
-	    refbid = BinID(-1,-1);
-	
 	float targetz;
-	const bool res = trackByValue()
-	    ? trackByAmplitude( refbid, bid, targetz )
-	    : trackBySimilarity( refbid, bid, targetz );
+	bool res;
+	if ( pidsrc_.size() > idx )
+	{
+	    BinID refbid;
+	    refbid.setSerialized( pidsrc_[idx] );
+	    res = trackByValue() ? trackByAmplitude( refbid, bid, targetz )
+			         : trackBySimilarity( refbid, bid, targetz );
+	}
+	else
+	{
+	    targetz = horizon_.getPos( sectionid_, bid.getSerialized() ).z;
+	    res = snap( bid, amplitudeThreshold(), targetz );
+	}
 
 	if ( res )
 	    setHorizonPick( bid, targetz );
@@ -322,7 +326,7 @@ bool HorizonAdjuster::snap( const BinID& bid,
 	ValueSeriesEvent<float,float> dnevent =
 	    findExtreme(evfinder,dnrg,threshold,dnampl,dnloopskip,dntroughampl);
 
-	float troughthreshold = -0.1*threshold;
+	float troughthreshold = !mIsUdf(threshold) ? -0.1*threshold : 0;
 	if ( evtype_==VSEvent::Min )
 	{
 	    troughthreshold *= -1;
@@ -331,11 +335,12 @@ bool HorizonAdjuster::snap( const BinID& bid,
 	    upampl *= -1;
 	    dnampl *= -1;
 	}
+	
+	const bool uptrough = uploopskip && uptroughampl<=troughthreshold;
+	const bool dntrough = dnloopskip && dntroughampl<=troughthreshold;
 
-	const bool upfound = !mIsUdf(upevent.pos) &&
-	    uptroughampl>=troughthreshold;
-	const bool dnfound = !mIsUdf(dnevent.pos) &&
-	    dntroughampl>=troughthreshold;
+	const bool upfound = !mIsUdf(upevent.pos) && !uptrough;
+	const bool dnfound = !mIsUdf(dnevent.pos) && !dntrough;
 
 	if ( !upfound && !dnfound )
 	    return false;
@@ -345,7 +350,7 @@ bool HorizonAdjuster::snap( const BinID& bid,
 		targetz = uploopskip ? dnevent.pos : upevent.pos;
 	    else
 	    {
-		targetz = upampl>dnampl ?  upevent.pos : dnevent.pos;
+		targetz = upampl>dnampl ? upevent.pos : dnevent.pos;
 	    }
 	}
 	else 
@@ -427,9 +432,9 @@ bool HorizonAdjuster::trackByAmplitude( const BinID& refbid,
 				        const BinID& targetbid,
 				        float& targetz ) const
 {
-    targetz =  horizon_.getPos( sectionid_, targetbid.getSerialized() ).z;
+    targetz = horizon_.getPos( sectionid_, targetbid.getSerialized() ).z;
     if ( useAbsThreshold() )
-	return snap( targetbid, amplitudeTreshold(), targetz );
+	return snap( targetbid, amplitudeThreshold(), targetz );
 
     const float refdepth =
 		horizon_.getPos( sectionid_, refbid.getSerialized() ).z;
