@@ -56,12 +56,7 @@ Standard color tables
 4.Value-Color.4: 0.819095`117`190`179`255
 4.Value-Color.5: 1`42`42`126`255
 4.Transparency.0: 0`0
-4.Transparency.1: 0.201005`0
-4.Transparency.2: 0.452261`0
-4.Transparency.3: 0.497487`0
-4.Transparency.4: 0.547739`0
-4.Transparency.5: 0.698492`0
-4.Transparency.6: 1`0
+4.Transparency.1: 1`0
 4.Undef color: 200`200`200`0
 4.Marker color: 0`0`0
 
