@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.334 2006-11-21 14:00:08 cvsbert Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.335 2006-12-01 16:50:24 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,6 +25,7 @@ ________________________________________________________________________
 #include "visdataman.h"
 #include "visemobjdisplay.h"
 #include "visevent.h"
+#include "vismpeseedcatcher.h"
 #include "visobject.h"
 #include "visselman.h"
 #include "vissurvobj.h"
@@ -38,6 +39,7 @@ ________________________________________________________________________
 #include "uifiledlg.h"
 #include "uimaterialdlg.h"
 #include "uimenuhandler.h"
+#include "uimsg.h"
 #include "uimpeman.h"
 #include "uislicepos.h"
 #include "uitoolbar.h"
@@ -166,6 +168,31 @@ void uiVisPartServer::removeScene( int sceneid )
 	scenes_ -= scene;
 	return;
     }
+}
+
+
+bool uiVisPartServer::clickablesInScene( int sceneid ) const
+{
+    TypeSet<int> sceneobjids;
+    getChildIds( sceneid, sceneobjids );
+    for ( int idx=0; idx<sceneobjids.size(); idx++ )
+    {
+	const int objid = sceneobjids[idx];
+	if ( isOn(objid) && visSurvey::MPEClickCatcher::isClickable(objid) )
+	{
+	    if ( !hasAttrib(objid) )
+		return true;
+
+	    for ( int attrid=getNrAttribs(objid)-1; attrid>=0; attrid-- )
+	    {
+		if ( isAttribEnabled(objid,attrid) )
+		    return true;
+	    }
+	}
+    }
+    
+    uiMSG().warning("Please display a clickable object in your scene first.");
+    return false;
 }
 
 
@@ -1040,11 +1067,13 @@ void uiVisPartServer::loadPostponedData() const
 {
     sendEvent( evLoadPostponedData );
 }
- 
+
+
 void uiVisPartServer::toggleBlockDataLoad() const
 {
     sendEvent( evToggleBlockDataLoad );
 }
+
 
 #define mGetScene( prepostfix ) \
 prepostfix visSurvey::Scene* \
@@ -1457,6 +1486,10 @@ void uiVisPartServer::updateMPEToolbar()
     mpetools_->validateSeedConMode();
     mpetools_->updateAttribNames();
 }
+
+
+void uiVisPartServer::introduceMPEDisplay()
+{ mpetools_->introduceMPEDisplay(); }
 
 
 uiToolBar* uiVisPartServer::getTrackTB() const
