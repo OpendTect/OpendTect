@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2005
- RCS:           $Id: uihorizontracksetup.cc,v 1.7 2006-05-30 07:18:43 cvsjaap Exp $
+ RCS:           $Id: uihorizontracksetup.cc,v 1.8 2006-12-01 16:38:52 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -88,6 +88,7 @@ uiGroup* uiHorizonSetupGroup::createEventGroup()
     evfld = new uiGenInput( grp, "Event type",
 	    		    StringListInpSpec(sKeyEventNames()) );
     evfld->attach( alignedBelow, inpfld );
+    evfld->valuechanged.notify( mCB(this,uiHorizonSetupGroup,selEventType) );
 
     BufferString srchwindtxt( "Search window " );
     srchwindtxt += SI().getZUnit();
@@ -151,10 +152,19 @@ void uiHorizonSetupGroup::selAmpThresholdType( CallBacker* )
     const bool absthreshold = thresholdtypefld->getBoolValue();
     ampthresholdfld->setTitleText( absthreshold ? "Amplitude value"
 						: "Allowed difference (%)" );
-    ampthresholdfld->setValue( absthreshold ? horadj_->amplitudeTreshold()
+    ampthresholdfld->setValue( absthreshold ? horadj_->amplitudeThreshold()
 	    				    : horadj_->allowedVariance()*100 );
 }
 
+
+void uiHorizonSetupGroup::selEventType( CallBacker* )
+{
+    const VSEvent::Type ev = cEventTypes()[ evfld->getIntValue() ];
+    const bool thresholdneeded = ev==VSEvent::Min || ev==VSEvent::Max;
+    thresholdtypefld->setSensitive( thresholdneeded );
+    ampthresholdfld->setSensitive( thresholdneeded );
+}
+    
 
 void uiHorizonSetupGroup::setSectionTracker( SectionTracker* st )
 {
@@ -164,6 +174,7 @@ void uiHorizonSetupGroup::setSectionTracker( SectionTracker* st )
     if ( !horadj_ ) return;
 
     initEventGroup();
+    selEventType(0);
     selAmpThresholdType(0);
     initSimiGroup();
     selUseSimilarity(0);
@@ -245,7 +256,7 @@ bool uiHorizonSetupGroup::commitToTracker() const
 	float mgate = simithresholdfld->getfValue();
 	if ( mgate > 1 || mgate <= 0)
 	    mErrRet( "Similarity threshold must be within 0 to 1" );
-	horadj_->setSimiliarityThreshold(mgate);
+	horadj_->setSimilarityThreshold(mgate);
     }
 	    
     bool useabs = thresholdtypefld->getBoolValue();
