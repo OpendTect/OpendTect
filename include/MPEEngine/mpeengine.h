@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          23-10-1996
- RCS:           $Id: mpeengine.h,v 1.33 2006-10-05 08:44:24 cvsjaap Exp $
+ RCS:           $Id: mpeengine.h,v 1.34 2006-12-01 16:26:38 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -92,6 +92,8 @@ public:
     const Attrib::DataCubes*	getAttribCache(const Attrib::SelSpec&) const;
     bool			setAttribData( const Attrib::SelSpec&,
 					       const Attrib::DataCubes*);
+    bool			cacheIncludes(const Attrib::SelSpec&,
+					      const CubeSampling&) const;
     void			swapCacheAndItsBackup();
 
     				/*Editors */
