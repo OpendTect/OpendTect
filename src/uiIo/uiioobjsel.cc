@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          25/05/2000
- RCS:           $Id: uiioobjsel.cc,v 1.97 2006-11-24 11:13:37 cvsnanne Exp $
+ RCS:           $Id: uiioobjsel.cc,v 1.98 2006-12-01 16:42:22 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -265,6 +265,7 @@ void uiIOObjSelGrp::selChg( CallBacker* cb )
     if ( ismultisel_ ) return;
 
     PtrMan<IOObj> ioobj = getIOObj( listfld->box()->currentItem() );
+    ctio_.setObj( ioobj ? ioobj->clone() : 0 );
     if ( cb && nmfld )
 	nmfld->setText( ioobj ? ioobj->name() : "" );
     BufferString nm( ioobj ? ioobj->fullUserExpr(ctio_.ctxt.forread) : "" );
