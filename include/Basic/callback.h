@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		8-11-1995
  Contents:	Notification and Callbacks
- RCS:		$Id: callback.h,v 1.36 2006-05-29 08:02:31 cvsbert Exp $
+ RCS:		$Id: callback.h,v 1.37 2006-12-04 14:47:28 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -101,10 +101,15 @@ inline void CallBackSet::doCall( CallBacker* obj,
 {
     const bool enabled_ = true;
     const bool& enabled = enabledflag ? *enabledflag : enabled_;
+    if ( !enabled ) return;
 
-    for ( int idx=0; enabled && idx<size(); idx++ )
+    TypeSet<CallBack> cbscopy = *this;
+    for ( int idx=0; idx<cbscopy.size(); idx++ )
     {
-	CallBack& cb = (*this)[idx];
+	CallBack& cb = cbscopy[idx];
+	if ( indexOf(cb)==-1 )
+	    continue;
+
 	if ( cb.cbObj() != exclude )
 	    cb.doCall( obj );
     }
