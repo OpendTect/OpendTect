@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvey.cc,v 1.71 2006-11-21 14:00:08 cvsbert Exp $
+ RCS:           $Id: uisurvey.cc,v 1.72 2006-12-05 16:14:31 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -147,12 +147,13 @@ static void fill()
 
 
 uiSurvey::uiSurvey( uiParent* p, bool isgdi )
-	: uiDialog(p,uiDialog::Setup("Survey selection",
-		   "Select and setup survey","0.3.1"))
-    	, initialdatadir(GetBaseDataDir())
-	, survinfo(0)
-	, survmap(0)
-	, mapcanvas(0)
+    : uiDialog(p,uiDialog::Setup("Survey selection",
+	       "Select and setup survey","0.3.1"))
+    , initialdatadir(GetBaseDataDir())
+    , survinfo(0)
+    , survmap(0)
+    , mapcanvas(0)
+    , surveyToBeChanged(this)
 {
     SurveyInfo::produceWarnings( false );
     const int lbwidth = 250;
@@ -641,15 +642,18 @@ bool uiSurvey::rejectOK( CallBacker* )
 }
 
 
+#define mRetFalse { SurveyInfo::produceWarnings( false ); return false; }
+
 bool uiSurvey::acceptOK( CallBacker* )
 {
     writeComments();
     SurveyInfo::produceWarnings( true );
-    if ( !updateSvyFile() || !IOMan::newSurvey() )
-    {
-	SurveyInfo::produceWarnings( false );
-	return false;
-    }
+    if ( !updateSvyFile() )
+	mRetFalse
+
+    surveyToBeChanged.trigger();
+    if ( !IOMan::newSurvey() )
+	mRetFalse
 
     newSurvey();
     updateViewsGlobal();
