@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: uimenu.h,v 1.28 2006-08-21 17:14:45 cvsbert Exp $
+ RCS:           $Id: uimenu.h,v 1.29 2006-12-05 16:32:33 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,6 +33,7 @@ template<class> class uiMenuItemContainerBodyImpl;
 
 class QMenuBar;
 class mQPopupMenu;
+class QEvent;
 
 template<class T> class ObjectSet;
 
@@ -137,7 +138,10 @@ public:
     				/*!<\note Should be set after object is given
 				          to it's parent, since parent will
 					  overwrite this setting. */
+    
+    bool			handleEvent( const QEvent* ev );
 
+    void			activate();
     Notifier<uiMenuItem>	activated;
 
     int				id() const			{ return id_; }

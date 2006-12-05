@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: uimenu.cc,v 1.31 2006-08-21 17:14:45 cvsbert Exp $
+ RCS:           $Id: uimenu.cc,v 1.32 2006-12-05 16:32:33 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,8 @@ ________________________________________________________________________
 #include "uiobjbody.h"
 #include "uibody.h"
 
+#include <qapplication.h>
+#include <qevent.h>
 #include <qmenudata.h>
 #include <qmenubar.h>
 #include <qcursor.h>
@@ -319,6 +321,27 @@ int uiMenuItem::index() const
 #else
     return menu_ && menu_->qthing() ? menu_->qthing()->indexOf( id_ ) : -1;
 #endif
+}
+
+
+static const int sQEventActivate = QEvent::User + 0;
+
+bool uiMenuItem::handleEvent( const QEvent* ev )
+{
+    if ( ev->type() == sQEventActivate )
+    {
+	activated.trigger();
+	return true;
+    }
+
+    return false;
+}
+
+
+void uiMenuItem::activate()
+{
+    QCustomEvent* activateevent = new QCustomEvent( sQEventActivate );
+    QApplication::postEvent( &messenger_ , activateevent );
 }
 
 
