@@ -4,7 +4,7 @@
  * DATE     : Nov 2006
 -*/
 
-static const char* rcsID = "$Id: seisimporter.cc,v 1.1 2006-12-05 12:09:14 cvsbert Exp $";
+static const char* rcsID = "$Id: seisimporter.cc,v 1.2 2006-12-05 15:21:41 cvsbert Exp $";
 
 #include "seisimporter.h"
 #include "seisbuf.h"
@@ -156,16 +156,21 @@ int SeisImporter::readIntoBuf()
 	    return Executor::ErrorOccurred;
 	}
 
-	return buf_.isEmpty() ? ReadWrite : WriteBuf;
+	state_ = buf_.isEmpty() ? ReadWrite : WriteBuf;
+	return Executor::MoreToDo;
     }
 
-    //TODO use the info we have to make importing safer
     buf_.add( trc );
-    return WriteBuf;
+
+    //TODO use the info we have to make importing safer
+    state_ = WriteBuf;
+    return Executor::MoreToDo;
 }
 
 
 Executor* SeisImporter::mkPostProc()
 {
+    if ( crlsorted_ )
+	return 0; //TODO inl/crl re-sorting Executor needed
     return 0;
 }
