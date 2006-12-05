@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Nov 2006
- RCS:		$Id: seisimporter.h,v 1.1 2006-12-05 12:09:26 cvsbert Exp $
+ RCS:		$Id: seisimporter.h,v 1.2 2006-12-05 16:49:09 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -75,6 +75,7 @@ protected:
 
     int			doWrite(const SeisTrc&);
     int			readIntoBuf();
+    int			analyseBuf();
     Executor*		mkPostProc();
 
     mutable BufferString	errmsg_;

@@ -4,12 +4,13 @@
  * DATE     : Nov 2006
 -*/
 
-static const char* rcsID = "$Id: seisimporter.cc,v 1.2 2006-12-05 15:21:41 cvsbert Exp $";
+static const char* rcsID = "$Id: seisimporter.cc,v 1.3 2006-12-05 16:49:09 cvsbert Exp $";
 
 #include "seisimporter.h"
 #include "seisbuf.h"
 #include "seistrc.h"
 #include "seiswrite.h"
+#include "survinfo.h"
 #include "ptrman.h"
 
 
@@ -160,9 +161,32 @@ int SeisImporter::readIntoBuf()
 	return Executor::MoreToDo;
     }
 
-    buf_.add( trc );
+    if ( Seis::is2D(geomtype_) || SI().isReasonable(trc->info().binid) )
+    {
+	buf_.add( trc );
+	return analyseBuf();
+    }
+    return Executor::MoreToDo;
+}
 
-    //TODO use the info we have to make importing safer
+
+int SeisImporter::analyseBuf()
+{
+    const int bufsz = buf_.size();
+    if ( bufsz < 2 ) return Executor::MoreToDo;
+
+    /*TODO difficult to auto-detect inline- or crossline-sorting
+    const SeisTrc* prevtrc = buf_.get( 0 );
+    for ( int idx=1; idx<bufsz; idx++ )
+    {
+	const SeisTrc* trc = buf_.get( idx );
+	if ( trc->info().binid.inl != prevtrc->info().binid.inl )
+	    inlchgs++;
+	if ( trc->info().binid.crl != prevtrc->info().binid.crl )
+	    crlchgs++;
+    }
+    */
+
     state_ = WriteBuf;
     return Executor::MoreToDo;
 }
