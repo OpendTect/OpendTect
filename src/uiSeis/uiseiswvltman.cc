@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiseiswvltman.cc,v 1.10 2006-12-01 14:35:23 cvsbert Exp $
+ RCS:           $Id: uiseiswvltman.cc,v 1.11 2006-12-05 15:53:56 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,7 +33,7 @@ ________________________________________________________________________
 uiSeisWvltMan::uiSeisWvltMan( uiParent* p )
     : uiObjFileMan(p,uiDialog::Setup("Wavelet management",
                                      "Manage wavelets",
-                                     "").nrstatusflds(1),
+                                     "103.3.0").nrstatusflds(1),
 	    	   WaveletTranslatorGroup::ioContext() )
     , fdctxt_(*new FlatDisp::Context(false))
     , fda2d_(0)
@@ -93,7 +93,8 @@ public:
 
 uiSeisWvltManCrWvlt( uiParent* p )
     : uiDialog(p,uiDialog::Setup("Create Wavelet",
-				 "Specify wavelet creation parameters"))
+				 "Specify wavelet creation parameters",
+				 "103.3.2"))
     , ctio_(*mMkCtxtIOObj(Wavelet))
 {
     isrickfld = new uiGenInput( this, "Wavelet type",
