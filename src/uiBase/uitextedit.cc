@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          09/02/2001
- RCS:           $Id: uitextedit.cc,v 1.28 2006-11-21 14:00:07 cvsbert Exp $
+ RCS:           $Id: uitextedit.cc,v 1.29 2006-12-05 15:21:09 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,16 +26,22 @@ ________________________________________________________________________
 #endif
 
 
-int uiTextEditBase::defaultWidth_	= 640;
-int uiTextEditBase::defaultHeight_	= 480;
+int uiTextEditBase::defaultWidth_ = 600;
+int uiTextEditBase::defaultHeight_ = 450;
+// mMaxLineLength defined in ascstream.h
 
 
 uiTextEditBase::uiTextEditBase( uiParent* p, const char* nm, uiObjectBody& bdy )
     : uiObject(p,nm,bdy)
-{}
+{
+}
 
 
-void uiTextEditBase::setText( const char* txt)	{ qte().setText(txt); }
+void uiTextEditBase::setText( const char* txt )
+{
+    qte().setText(txt);
+}
+
 
 const char* uiTextEditBase::text() const
 { 
@@ -59,16 +65,17 @@ void uiTextEditBase::readFromFile( const char* src )
     BufferString contents;
     BufferString newcontents;
 
-    char buf[1024]; int lines_left = 131072;
+    char buf[mMaxLineLength]; int lines_left = maxLines();
     int nrnewlines = 0;
     while ( 1 )
     {
-	if ( !sd.istrm->getline(buf,1024) )
+	if ( !sd.istrm->getline(buf,mMaxLineLength) )
 	    break;
+
 	lines_left--;
 	if ( lines_left < 0 )
 	{
-	    newcontents += "\n--------File exceeds 131072 lines -----";
+	    newcontents += "\n-------- More lines follow -----";
 	    break;
 	}
 	{
@@ -83,11 +90,11 @@ void uiTextEditBase::readFromFile( const char* src )
 	    nrnewlines = 0;
 	}
     }
+
     if ( !newcontents.isEmpty() )
 	contents += newcontents;
 
     sd.close();
-
     setText( contents );
 }
 
@@ -210,13 +217,14 @@ uiTextBrowserBody::uiTextBrowserBody( uiTextBrowser& handle, uiParent* p,
 //-------------------------------------------------------
 
 uiTextBrowser::uiTextBrowser(uiParent* parnt, const char* nm, bool forcePTxt )
-    : uiTextEditBase( parnt, nm, mkbody(parnt, nm, forcePTxt) )	
+    : uiTextEditBase( parnt, nm, mkbody(parnt,nm,forcePTxt) )	
     , goneforwardorback(this)
     , linkhighlighted(this)
     , linkclicked(this)
     , cangoforw_( false )
     , cangobackw_( false )
     , forceplaintxt_( forcePTxt )
+    , maxlines_(50000)
 {
 }
 
@@ -250,6 +258,12 @@ void uiTextBrowser::setSource( const char* src )
     }
     else
 	body_->setSource(src);
+}
+
+
+void uiTextBrowser::setMaxLines( int ml )
+{
+    maxlines_ = ml;
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          09/02/2001
- RCS:           $Id: uitextedit.h,v 1.13 2005-10-31 16:31:02 cvsarend Exp $
+ RCS:           $Id: uitextedit.h,v 1.14 2006-12-05 15:21:09 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -53,6 +53,7 @@ protected:
 
     static int          defaultWidth_;
     static int          defaultHeight_;
+    virtual int		maxLines() const		{ return -1; }
 
     mutable BufferString result;
 };
@@ -88,7 +89,7 @@ public:
 
     const char*		source() const;
     void		setSource( const char* ); 
-
+    void		setMaxLines(int);
 
     void		backward();
     void		forward();
@@ -97,7 +98,6 @@ public:
 
     int			nrLines();
     void		scrollToBottom();
-
 
     bool		canGoForward()		{ return cangoforw_; }
     bool		canGoBackward()		{ return cangobackw_; }
@@ -114,7 +114,9 @@ protected:
     bool		cangoforw_;
     bool		cangobackw_;
     bool		forceplaintxt_;
+    int			maxlines_;
 
+    virtual int		maxLines() const		{ return maxlines_; }
 
     virtual mQTextEditClss& qte();
 
