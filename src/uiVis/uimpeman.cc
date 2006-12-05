@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.cc,v 1.105 2006-12-01 16:55:23 cvsjaap Exp $
+ RCS:           $Id: uimpeman.cc,v 1.106 2006-12-05 15:08:36 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -63,6 +63,7 @@ using namespace MPE;
 
 uiMPEMan::uiMPEMan( uiParent* p, uiVisPartServer* ps )
     : clickcatcher(0)
+    , clickablesceneid(-1)
     , visserv(ps)
     , colbardlg(0)
     , seedpickwason(false)
@@ -193,8 +194,8 @@ void uiMPEMan::deleteVisObjects()
 
     if ( clickcatcher )
     {
-	if ( scenes.size() )
-	    visserv->removeObject( clickcatcher->id(), scenes[0] );
+	if ( clickablesceneid>=0 )
+	    visserv->removeObject( clickcatcher->id(), clickablesceneid );
 
 	clickcatcher->click.remove( mCB(this,uiMPEMan,seedClick) );
 	clickcatcher->unRef();
@@ -492,14 +493,11 @@ void uiMPEMan::turnSeedPickingOn( bool yn )
 		clickcatcher = visSurvey::MPEClickCatcher::create();
 	    }
 	    clickcatcher->ref();
-
-	    TypeSet<int> scenes;
-	    visserv->getChildIds( -1, scenes );
-	    visserv->addObject( clickcatcher, scenes[0], false );
 	    clickcatcher->click.notify(mCB(this,uiMPEMan,seedClick));
 	}
 
 	clickcatcher->turnOn( true );
+	updateClickCatcher();
     }
     else
     {
@@ -513,6 +511,22 @@ void uiMPEMan::turnSeedPickingOn( bool yn )
 
 	restoreActiveVol();
     }
+}
+
+
+void uiMPEMan::updateClickCatcher()
+{
+    const TypeSet<int>& selectedids = visBase::DM().selMan().selected();
+    if ( !clickcatcher || selectedids.size()!=1 ) 
+	return;
+
+    const int newsceneid = visserv->getSceneID( selectedids[0] );
+    if ( newsceneid<0 || newsceneid == clickablesceneid )
+	return;
+    
+    visserv->removeObject( clickcatcher->id(), clickablesceneid );
+    visserv->addObject( clickcatcher, newsceneid, false );
+    clickablesceneid = newsceneid;
 }
 
 
@@ -650,6 +664,7 @@ void uiMPEMan::seedConnectModeSel( CallBacker* )
 void uiMPEMan::treeItemSelCB( CallBacker* )
 {
     validateSeedConMode();
+    updateClickCatcher();
     updateButtonSensitivity(0);
 }
 

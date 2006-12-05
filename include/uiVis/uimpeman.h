@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.h,v 1.41 2006-12-01 16:31:43 cvsjaap Exp $
+ RCS:           $Id: uimpeman.h,v 1.42 2006-12-05 15:08:36 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -58,6 +58,7 @@ protected:
     uiVisPartServer*		visserv;
 
     visSurvey::MPEClickCatcher*	clickcatcher;
+    int				clickablesceneid;
 
     uiComboBox*			seedconmodefld;
     uiComboBox*			attribfld;
@@ -102,6 +103,7 @@ protected:
     void			setHistoryLevel(int);
 
     void			seedClick(CallBacker*);
+    void			updateClickCatcher();
 
     int				seedidx;
     int				clrtabidx;
