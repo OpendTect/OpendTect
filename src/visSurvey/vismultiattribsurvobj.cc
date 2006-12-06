@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: vismultiattribsurvobj.cc,v 1.1 2006-09-05 20:34:59 cvskris Exp $";
+static const char* rcsID = "$Id: vismultiattribsurvobj.cc,v 1.2 2006-12-06 17:32:59 cvskris Exp $";
 
 #include "vismultiattribsurvobj.h"
 
@@ -19,6 +19,7 @@ static const char* rcsID = "$Id: vismultiattribsurvobj.cc,v 1.1 2006-09-05 20:34
 namespace visSurvey {
 
 const char* MultiTextureSurveyObject::sKeyResolution()	{ return "Resolution"; }
+const char* MultiTextureSurveyObject::sKeyTextTrans()	{ return "Trans"; }
 
 MultiTextureSurveyObject::MultiTextureSurveyObject()
     : VisualObjectImpl(true)
@@ -33,8 +34,6 @@ MultiTextureSurveyObject::MultiTextureSurveyObject()
     material->setColor( Color::White );
     material->setAmbience( 0.8 );
     material->setDiffIntensity( 0.8 );
-
-    addAttrib();
 }
 
 
@@ -44,6 +43,10 @@ MultiTextureSurveyObject::~MultiTextureSurveyObject()
     setDataTransform( 0 );
     texture_->unRef();
 }
+
+
+void MultiTextureSurveyObject::_init()
+{ visBase::DataObject::_init(); addAttrib(); }
 
 
 void MultiTextureSurveyObject::turnOn( bool yn )
@@ -94,8 +97,12 @@ bool MultiTextureSurveyObject::addAttrib()
     as_ += new Attrib::SelSpec;
     addCache();
 
-    texture_->addTexture("");
-    texture_->setOperation( as_.size()-1, visBase::MultiTexture::BLEND );
+    while ( texture_->nrTextures()<as_.size() )
+    {
+	texture_->addTexture("");
+	texture_->setOperation( texture_->nrTextures()-1,
+				visBase::MultiTexture::BLEND );
+    }
 
     updateMainSwitch();
     return true;
@@ -271,6 +278,8 @@ void MultiTextureSurveyObject::fillPar( IOPar& par,
 
 	attribpar.setYN( visBase::VisualObjectImpl::sKeyIsOn(),
 			 texture_->isTextureEnabled(attrib) );
+	attribpar.set( sKeyTextTrans(),
+			 texture_->getTextureTransparency(attrib) );
 
 	BufferString key = sKeyAttribs();
 	key += attrib;
@@ -332,6 +341,10 @@ int MultiTextureSurveyObject::usePar( const IOPar& par )
 	    ison = true;
 	    attribpar->getYN( visBase::VisualObjectImpl::sKeyIsOn(), ison );
 	    texture_->enableTexture( attribnr, ison );
+
+	    unsigned int trans = 0;
+	    attribpar->get( sKeyTextTrans(), trans );
+	    texture_->setTextureTransparency( attribnr, trans );
 	}
     }
 
