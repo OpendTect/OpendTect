@@ -8,14 +8,16 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vismultitexture.cc,v 1.21 2006-08-24 15:02:48 cvskris Exp $";
+static const char* rcsID = "$Id: vismultitexture.cc,v 1.22 2006-12-06 17:31:40 cvskris Exp $";
 
 #include "vismultitexture2.h"
 
 #include "basictask.h"
 #include "errh.h"
+#include "ranges.h"
 #include "thread.h"
 #include "viscolortab.h"
+#include "colortab.h"
 
 
 #define mNrColors	255
@@ -450,6 +452,36 @@ MultiTexture::MultiTexture()
 
 MultiTexture::~MultiTexture()
 { deepErase( textureinfo_ ); }
+
+
+void MultiTexture::copySettingsFrom( int targettexture, const MultiTexture& src,
+				     int srctexture )
+{
+    if ( targettexture<0 || targettexture>=nrTextures() ||
+	 srctexture<0 || srctexture>=src.nrTextures() )
+	return;
+
+    enableTexture( targettexture, src.isTextureEnabled(srctexture) );
+    setAngleFlag( targettexture, src.isAngle(srctexture) );
+    setTextureTransparency( targettexture,
+	    		    src.getTextureTransparency(srctexture) );
+    setOperation( targettexture, src.getOperation(srctexture) );
+    setComponents( targettexture, src.getComponents(srctexture) );
+    setCurrentVersion( targettexture, src.currentVersion(srctexture) );
+
+    VisColorTab& targetctab = getColorTab( targettexture );
+    const VisColorTab& srcctab = getColorTab( srctexture );
+    targetctab.setAutoScale( srcctab.autoScale() );
+    targetctab.setClipRate( srcctab.clipRate() );
+    targetctab.scaleTo( srcctab.getInterval() );
+    targetctab.setNrSteps( srcctab.nrSteps() );
+
+    ColorSequence& targetcseq = targetctab.colorSeq();
+    const ColorSequence& srccseq = srcctab.colorSeq();
+    targetcseq.colors() = srccseq.colors();
+    targetcseq.colorsChanged();
+}
+
 
 
 int MultiTexture::nrTextures() const
