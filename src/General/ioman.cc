@@ -4,7 +4,7 @@
  * DATE     : 3-8-1994
 -*/
 
-static const char* rcsID = "$Id: ioman.cc,v 1.71 2006-11-21 14:00:07 cvsbert Exp $";
+static const char* rcsID = "$Id: ioman.cc,v 1.72 2006-12-06 12:39:01 cvsnanne Exp $";
 
 #include "ioman.h"
 #include "iodir.h"
@@ -38,6 +38,7 @@ IOMan::IOMan( const char* rd )
 	, state_(IOMan::NeedInit)
     	, newIODir(this)
     	, entryRemoved(this)
+    	, surveyToBeChanged(this)
     	, surveyChanged(this)
 {
     rootdir = rd && *rd ? rd : GetDataDir();
@@ -130,7 +131,10 @@ bool IOMan::isReady() const
 }
 
 
-#define mDestroyInst() \
+#define mDestroyInst(dotrigger) \
+    if ( dotrigger ) \
+	IOM().surveyToBeChanged.trigger(); \
+    CallBackSet s2bccbs = IOM().surveyToBeChanged.cbs; \
     CallBackSet sccbs = IOM().surveyChanged.cbs; \
     CallBackSet rmcbs = IOM().entryRemoved.cbs; \
     CallBackSet dccbs = IOM().newIODir.cbs; \
@@ -139,6 +143,7 @@ bool IOMan::isReady() const
     clearSelHists()
 
 #define mFinishNewInst(dotrigger) \
+    IOM().surveyToBeChanged.cbs = s2bccbs; \
     IOM().surveyChanged.cbs = sccbs; \
     IOM().entryRemoved.cbs = rmcbs; \
     IOM().newIODir.cbs = dccbs; \
@@ -160,7 +165,7 @@ static void clearSelHists()
 
 bool IOMan::newSurvey()
 {
-    mDestroyInst();
+    mDestroyInst( true );
 
     SetSurveyNameDirty();
     mFinishNewInst( true );
@@ -170,7 +175,7 @@ bool IOMan::newSurvey()
 
 void IOMan::setSurvey( const char* survname )
 {
-    mDestroyInst();
+    mDestroyInst( true );
 
     delete SurveyInfo::theinst_;
     SurveyInfo::theinst_ = 0;
@@ -265,7 +270,7 @@ bool IOMan::validSurveySetup( BufferString& errmsg )
 	return false;
     }
 
-    mDestroyInst();
+    mDestroyInst( false );
     mFinishNewInst( false );
     return true;
 }

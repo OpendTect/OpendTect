@@ -1,5 +1,5 @@
-#ifndef ioman_H
-#define ioman_H
+#ifndef ioman_h
+#define ioman_h
 
 /*+
 ________________________________________________________________________
@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		3-8-1995
- RCS:		$Id: ioman.h,v 1.30 2006-09-14 11:21:19 cvsbert Exp $
+ RCS:		$Id: ioman.h,v 1.31 2006-12-06 12:39:01 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,16 +16,16 @@ ________________________________________________________________________
 #include "namedobj.h"
 #include "multiid.h"
 #include "sets.h"
-class IOLink;
-class IOParList;
-class IOPar;
-class CtxtIOObj;
-class IOObjContext;
-class Translator;
-class IODir;
-class IOObj;
-class IOMan;
 
+class CtxtIOObj;
+class IODir;
+class IOLink;
+class IOMan;
+class IOObj;
+class IOObjContext;
+class IOPar;
+class IOParList;
+class Translator;
 
 /*!\brief manages the Meta-data store for the IOObj's. This info
 is read from the .omf files.
@@ -42,7 +42,6 @@ through getParList().
 */
 
 inline IOMan& IOM();
-
 
 class IOMan : public NamedObject
 {
@@ -123,6 +122,7 @@ public:
 
     Notifier<IOMan>	newIODir;
     Notifier<IOMan>	entryRemoved; // CallBacker will be CBCapsule<MultiID>
+    Notifier<IOMan>	surveyToBeChanged;
     Notifier<IOMan>	surveyChanged;
 
 private:
