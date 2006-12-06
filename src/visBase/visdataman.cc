@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: visdataman.cc,v 1.33 2006-09-08 09:59:44 cvsjaap Exp $";
+static const char* rcsID = "$Id: visdataman.cc,v 1.34 2006-12-06 17:30:19 cvskris Exp $";
 
 #include "visdataman.h"
 #include "visdata.h"
@@ -108,7 +108,7 @@ bool DataManager::usePar( const IOPar& par )
 	    }
 
 	    const char* type = iopar->find( DataObject::sKeyType() );
-	    DataObject* obj = factory().create( type );
+	    RefMan<DataObject> obj = factory().create( type );
 	    if ( !obj ) { lefttodo.remove(idx); idx--; continue; }
 
 	    int no = objects_.indexOf( obj );
@@ -118,12 +118,7 @@ bool DataManager::usePar( const IOPar& par )
 	    if ( res==-1 )
 		return false;
 	    if ( res==0 )
-	    {
-		//Remove object			
-		obj->ref();
-		obj->unRef();
 		continue;
-	    }
 
 	    createdobj += obj;
 	    obj->ref();
