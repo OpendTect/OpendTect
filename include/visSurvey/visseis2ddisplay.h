@@ -7,34 +7,32 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		January 2003
- RCS:		$Id: visseis2ddisplay.h,v 1.5 2006-08-03 13:21:25 cvsnanne Exp $
+ RCS:		$Id: visseis2ddisplay.h,v 1.6 2006-12-06 17:36:10 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
 
-#include "visobject.h"
-#include "vissurvobj.h"
+#include "vismultiattribsurvobj.h"
 #include "multiid.h"
 
-class ColorTable;
-class CubeSampling;
+//class ColorTable;
 class SeisTrcInfo;
 
 namespace Attrib 
 { 
-    class SelSpec; 
+    //class SelSpec; 
     class Data2DHolder;
 }
 
 namespace visBase
 {
-    class Material;
+    //class Material;
     class Text2;
     class Transformation;
     class TriangleStripSet;
-    class Texture2;
+    //class MultiTexture2;
 };
 
 namespace PosInfo { class Line2DData; }
@@ -46,7 +44,7 @@ namespace visSurvey
 
 */
 
-class Seis2DDisplay :  public visBase::VisualObjectImpl, public SurveyObject
+class Seis2DDisplay : public MultiTextureSurveyObject
 {
 public:
     static Seis2DDisplay*	create()
@@ -54,17 +52,25 @@ public:
 
     void			setLineName(const char*);
 
-    void			setSelSpec(int attrib,const Attrib::SelSpec&);
-    const Attrib::SelSpec*	getSelSpec(int attrib) const;
+    void			setGeometry(const PosInfo::Line2DData&);
+    const StepInterval<float>&	getMaxZRange() const;
+    bool			setZRange(const Interval<int>&);
+    				/*!<The values in the range refers to samples
+				    in the interval retrieved by getMaxZRange().
+    				    \returns wether a cache update is enough.
+				*/
+				
+    const Interval<int>&	getZRange() const;
 
-    void			setCubeSampling(CubeSampling);
-    CubeSampling		getCubeSampling() const;
+    bool			setTraceNrRange(const Interval<int>&);
+    				/*!<\returns wether a cache update is enough.*/
+    const Interval<int>&	getTraceNrRange() const;
+    const Interval<int>&	getMaxTraceNrRange() const;
 
-    void			setGeometry(const PosInfo::Line2DData&,
-	    				    const CubeSampling* cs=0);
-    void			setTraceData(const Attrib::Data2DHolder&);
-    const Attrib::Data2DHolder*	getCache() const		{return cache_;}
-    void			clearTexture();
+    void			setTraceData(int attrib,
+	    				     const Attrib::Data2DHolder&);
+    const Attrib::Data2DHolder*	getCache(int attrib) const;
+    void			updateDataFromCache();
 
     bool			allowPicks() const		{ return true; }
     bool			allowMaterialEdit() const	{ return true; }
@@ -86,59 +92,65 @@ public:
     void			setResolution(int);
 
     SurveyObject::AttribFormat 	getAttributeFormat() const;
-
-    void			getColTabDef(ColorTable&,Interval<float>& scl,
-	    				     float& cliprate) const;
-    void			setColTabDef(const ColorTable&,
-	    				     const Interval<float>& scl,
-					     float cliprate);
-    int				getColTabID(int) const;
-    const TypeSet<float>*	getHistogram(int) const;
-
     void			getMousePosInfo(const visBase::EventInfo&,
 	    					const Coord3&,BufferString&,
 	    					BufferString&) const;
     void			snapToTracePos(Coord3&);
 
-    void			setLineSetID( const MultiID& mid )
-				{ linesetid = mid; }
-    const MultiID&		lineSetID() const	{ return linesetid; }
+    void			setLineSetID(const MultiID& mid);
+    const MultiID&		lineSetID() const;
 
     NotifierAccess*		getMovementNotification()	
-    				{ return &geomchanged; }
+    				{ return &geomchanged_; }
 
-    virtual void		fillPar(IOPar&,TypeSet<int>&) const;
-    virtual int			usePar(const IOPar&);
+    void			fillPar(IOPar&,TypeSet<int>&) const;
+    int				usePar(const IOPar&);
 
 protected:
 				~Seis2DDisplay();
+    virtual void		addCache();
+    void			removeCache(int);
+    void			swapCache(int,int);
+    void			emptyCache(int);
+    bool			hasCache(int) const;
+    float			getCacheValue(int attrib,int version,
+					      const Coord3&) const;
 
-    void			setPlaneCoordinates(const TypeSet<Coord>&,
-						    const Interval<float>&);
+    void			updateVizPath();
+    				/*!<Sets the coordinates to the path in
+				    geometry_, limited by the current
+				    trcnrrg_. Will also update the
+				    z-coordinates & texture coordinates.*/
+
     void			setStrip(const TypeSet<Coord>&,
 	    				 const Interval<float>&,
-					 int stripidx, const Interval<int>& );
-    void			addLineName();
-    void			setData(const Attrib::Data2DHolder&);
+					 int stripidx,const Interval<int>&);
+    void			updateLineNamePos();
+    void			setData(int attrib,const Attrib::Data2DHolder&);
     void			getNearestTrace(const Coord3&,int& idx,
 						float& sqdist) const;
 
-    const Attrib::Data2DHolder*	cache_;
+    ObjectSet<const Attrib::Data2DHolder>	cache_;
+    MultiID					linesetid_;
 
-    Attrib::SelSpec&		as;
-    CubeSampling&		cs;
-    MultiID			linesetid;
+    PosInfo::Line2DData&			geometry_;
+    Interval<int>				zrg_;
+    Interval<int>				trcnrrg_;
+    Interval<int>				maxtrcnrrg_;
 
-    ObjectSet<visBase::TriangleStripSet>	planes;
-    visBase::Texture2*		texture;
+    ObjectSet<visBase::TriangleStripSet>	planes_;
 
-    visBase::Transformation*	transformation;
-    visBase::Text2*		linename;
+    visBase::Transformation*			transformation_;
+    visBase::Text2*				linename_;
+    Notifier<Seis2DDisplay>			geomchanged_;
 
-    Notifier<Seis2DDisplay>	geomchanged;
+    static const char*				sKeyLineSetID();
+    static const char*				sKeyTrcNrRange();
+    static const char*				sKeyZRange();
+    static const char*				sKeyShowLineName();
 
-    static const char*		linesetidstr;
-    static const char*		textureidstr;
+						//Old format
+    static const char*				sKeyTextureID();
 };
 
 };

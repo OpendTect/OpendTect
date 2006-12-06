@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vismpeseedcatcher.cc,v 1.14 2006-12-01 16:52:07 cvsjaap Exp $";
+static const char* rcsID = "$Id: vismpeseedcatcher.cc,v 1.15 2006-12-06 17:36:10 cvskris Exp $";
 
 #include "vismpeseedcatcher.h"
 
@@ -199,7 +199,7 @@ void MPEClickCatcher::clickCB( CallBacker* cb )
 	    if ( seis2ddisplay )
 	    {
 		RefMan<const Attrib::Data2DHolder> cache =
-						seis2ddisplay->getCache();
+						seis2ddisplay->getCache(0);
 		RefMan<Attrib::DataCubes> cube = 0;
 
 		if ( cache )

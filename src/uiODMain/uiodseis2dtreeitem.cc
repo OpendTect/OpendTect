@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		May 2006
- RCS:		$Id: uiodseis2dtreeitem.cc,v 1.5 2006-11-21 14:00:08 cvsbert Exp $
+ RCS:		$Id: uiodseis2dtreeitem.cc,v 1.6 2006-12-06 17:36:10 cvskris Exp $
 ___________________________________________________________________
 
 -*/
@@ -342,8 +342,7 @@ bool uiOD2DLineSetSubItem::init()
 	  *geometry) )
 	return false;
 
-    CubeSampling cs = s2d->getCubeSampling();
-    s2d->setGeometry( *geometry, newdisplay ? 0 : &cs );
+    s2d->setGeometry( *geometry );
 
     if ( applMgr() )
 	applMgr()->getOtherFormatData.notify(
@@ -404,33 +403,64 @@ void uiOD2DLineSetSubItem::handleMenuCB( CallBacker* cb )
     else if ( mnuid==positionitm_.id )
     {
 	menu->setIsHandled(true);
-	PtrMan<PosInfo::Line2DData> geometry = new PosInfo::Line2DData;
-	if ( !applMgr()->seisServer()->get2DLineGeometry(
-		    s2d->lineSetID(),s2d->name(),*geometry) )
-	    return;
-	CubeSampling maxcs = s2d->getCubeSampling();
-	assign( maxcs.zrg, geometry->zrg );
-	const TypeSet<PosInfo::Line2DPos>& pos = geometry->posns;
-	if ( pos.isEmpty() ) { pErrMsg( "Huh" ); return; }
 
-	maxcs.hrg.start.crl = pos[0].nr;
-	maxcs.hrg.stop.crl = pos[pos.size()-1].nr;
+	CubeSampling maxcs;
+	assign( maxcs.zrg, s2d->getMaxZRange()  );
+	maxcs.hrg.start.crl = s2d->getMaxTraceNrRange().start;
+	maxcs.hrg.stop.crl = s2d->getMaxTraceNrRange().stop;
 
-	CallBack dummycb;
-	uiSliceSel positiondlg( getUiParent(), s2d->getCubeSampling(),
-				maxcs, dummycb, uiSliceSel::TwoD );
+	CubeSampling curcs;
+	curcs.zrg.start = maxcs.zrg.atIndex( s2d->getZRange().start );
+	curcs.zrg.stop = maxcs.zrg.atIndex( s2d->getZRange().stop );
+	curcs.hrg.start.crl = s2d->getTraceNrRange().start;
+	curcs.hrg.stop.crl = s2d->getTraceNrRange().stop;
+
+	CallBack dummy;
+	uiSliceSel positiondlg( getUiParent(), curcs,
+				maxcs, dummy, uiSliceSel::TwoD );
 	if ( !positiondlg.go() ) return;
-	CubeSampling cs = positiondlg.getCubeSampling();
-	s2d->setGeometry( *geometry, &cs );
-	if ( s2d->getSelSpec(0) && s2d->getSelSpec(0)->id()>=0 )
-	    visserv->calculateAttrib( displayid_, 0, false );
+	const CubeSampling newcs = positiondlg.getCubeSampling();
+
+	bool doupdate = false;
+	bool usecache = true;
+	const Interval<int> nzrg(maxcs.zrg.nearestIndex(newcs.zrg.start),
+				 maxcs.zrg.nearestIndex(newcs.zrg.stop));
+	const Interval<int> ntrcnrrg(newcs.hrg.start.crl,newcs.hrg.stop.crl);
+
+	if ( nzrg!=s2d->getZRange() )
+	{
+	    doupdate = true;
+	    if ( !s2d->setZRange( nzrg ) )
+		usecache = false;
+	}
+
+	if ( ntrcnrrg!=s2d->getTraceNrRange() )
+	{
+	    doupdate = true;
+	    if ( !s2d->setTraceNrRange( ntrcnrrg ) )
+		usecache = false;
+	}
+
+	if ( doupdate )
+	{
+	    if ( usecache )
+		s2d->updateDataFromCache();
+	    else
+	    {
+		for ( int idx=s2d->nrAttribs()-1; idx>=0; idx-- )
+		{
+		    if ( s2d->getSelSpec(idx) && s2d->getSelSpec(idx)->id()>=0 )
+			visserv->calculateAttrib( displayid_, idx, false );
+		}
+	    }
+	}
     }
 }
 
 
 bool uiOD2DLineSetSubItem::displayStoredData( const char* nm )
 {
-    if ( children_.isEmpty() ) return false;
+    if ( !children_.size() ) return false;
 
     mDynamicCastGet( uiOD2DLineSetAttribItem*, lsai, children_[0] );
     if ( !lsai ) return false;
@@ -441,7 +471,7 @@ bool uiOD2DLineSetSubItem::displayStoredData( const char* nm )
 
 void uiOD2DLineSetSubItem::setAttrib( const Attrib::SelSpec& myas )
 {
-    if ( children_.isEmpty() ) return;
+    if ( !children_.size() ) return;
 
     mDynamicCastGet( uiOD2DLineSetAttribItem*, lsai, children_[0] );
     if ( !lsai ) return;
@@ -458,18 +488,26 @@ void uiOD2DLineSetSubItem::getNewData( CallBacker* cb )
 		    visserv->getObject(displayid_))
     if ( !s2d ) return;
 
-    const Attrib::SelSpec& as = *s2d->getSelSpec(0);
-    const CubeSampling cs = s2d->getCubeSampling();
+    CubeSampling cs;
+    cs.hrg.start.crl = s2d->getTraceNrRange().start;
+    cs.hrg.stop.crl = s2d->getTraceNrRange().stop;
+    cs.zrg.start = s2d->getMaxZRange().atIndex(s2d->getZRange().start);
+    cs.zrg.stop = s2d->getMaxZRange().atIndex(s2d->getZRange().stop);
 
     const char* objnm = s2d->name();
-    applMgr()->attrServer()->setTargetSelSpec( as );
-    RefMan<Attrib::Data2DHolder> dataset = new Attrib::Data2DHolder;
 
-    if ( !applMgr()->attrServer()->create2DOutput( cs, objnm, *dataset) )
-	return;
-    if ( dataset->size() )
-	s2d->setTraceData( *dataset );
+    for ( int idx=s2d->nrAttribs()-1; idx>=0; idx-- )
+    {
+	const Attrib::SelSpec& as = *s2d->getSelSpec(idx);
+	applMgr()->attrServer()->setTargetSelSpec( as );
+	RefMan<Attrib::Data2DHolder> dataset = new Attrib::Data2DHolder;
 
+	if ( !applMgr()->attrServer()->create2DOutput( cs, objnm, *dataset) )
+	    continue;
+
+	if ( dataset->size() )
+	    s2d->setTraceData( idx, *dataset );
+    }
 }
 
 
@@ -487,16 +525,20 @@ void uiOD2DLineSetSubItem::setZRange( const Interval<float> newzrg )
 		    visserv->getObject(displayid_))
     if ( !s2d ) return;
 
-    PtrMan<PosInfo::Line2DData> geometry = new PosInfo::Line2DData;
-    if ( !applMgr()->seisServer()->get2DLineGeometry(
-		s2d->lineSetID(),s2d->name(),*geometry) )
-	return;
-    CubeSampling cs = s2d->getCubeSampling();
-    assign( cs.zrg, newzrg );
-
-    s2d->setGeometry( *geometry, &cs );
-    if ( s2d->getSelSpec(0) && s2d->getSelSpec(0)->id()>=0 )
-	visserv->calculateAttrib( displayid_, 0, false );
+    const StepInterval<float>& maxrg = s2d->getMaxZRange();
+    if ( s2d->setZRange( Interval<int>( maxrg.nearestIndex(newzrg.start),
+		    			maxrg.nearestIndex(newzrg.stop))) )
+    {
+	s2d->updateDataFromCache();
+    }
+    else
+    {
+	for ( int idx=s2d->nrAttribs()-1; idx>=0; idx-- )
+	{
+	    if ( s2d->getSelSpec(idx) && s2d->getSelSpec(idx)->id()>=0 )
+		visserv->calculateAttrib( displayid_, idx, false );
+	}
+    }
 }
 
 
@@ -519,7 +561,8 @@ void uiOD2DLineSetAttribItem::createMenuCB( CallBacker* cb )
 
     uiSeisPartServer* seisserv = applMgr()->seisServer();
     uiAttribPartServer* attrserv = applMgr()->attrServer();
-    const Attrib::SelSpec& as = *visserv->getSelSpec( displayID(), 0 );
+    const Attrib::SelSpec& as = *visserv->getSelSpec( displayID(),
+	    					      attribNr() );
     const char* objnm = visserv->getObjectName( displayID() );
 
     BufferStringSet attribnames;
@@ -582,9 +625,10 @@ void uiOD2DLineSetAttribItem::handleMenuCB( CallBacker* cb )
     }
     else if ( mnuid==attrnoneitm_.id )
     {
+	//TODO
 	uiCursorChanger cursorchgr( uiCursor::Wait );
 	menu->setIsHandled(true);
-	s2d->clearTexture();
+	//s2d->clearTexture();
 	updateColumnText(0);
     }
 }
@@ -609,15 +653,20 @@ bool uiOD2DLineSetAttribItem::displayStoredData( const char* attribnm )
     attrserv->setTargetSelSpec( myas );
     RefMan<Attrib::Data2DHolder> dataset = new Attrib::Data2DHolder;
 
-    if ( !applMgr()->attrServer()->create2DOutput( s2d->getCubeSampling(),
-	    linekey, *dataset) )
+    CubeSampling cs;
+    cs.hrg.start.crl = s2d->getTraceNrRange().start;
+    cs.hrg.stop.crl = s2d->getTraceNrRange().stop;
+    cs.zrg.start = s2d->getMaxZRange().atIndex(s2d->getZRange().start);
+    cs.zrg.stop = s2d->getMaxZRange().atIndex(s2d->getZRange().stop);
+
+    if ( !applMgr()->attrServer()->create2DOutput( cs, linekey, *dataset) )
 	return false;
 
     if ( dataset->size() )
     {
 	uiCursorChanger cursorchgr( uiCursor::Wait );
-	s2d->setSelSpec( 0, myas );
-	s2d->setTraceData( *dataset );
+	s2d->setSelSpec( attribNr(), myas );
+	s2d->setTraceData( attribNr(), *dataset );
     }
     updateColumnText(0);
     setChecked( s2d->isOn() );
@@ -632,7 +681,12 @@ void uiOD2DLineSetAttribItem::setAttrib( const Attrib::SelSpec& myas )
     mDynamicCastGet(visSurvey::Seis2DDisplay*,s2d,
 		    visserv->getObject(displayID()))
 
-    CubeSampling cs = s2d->getCubeSampling();
+    CubeSampling cs;
+    cs.hrg.start.crl = s2d->getTraceNrRange().start;
+    cs.hrg.stop.crl = s2d->getTraceNrRange().stop;
+    cs.zrg.start = s2d->getMaxZRange().atIndex(s2d->getZRange().start);
+    cs.zrg.stop = s2d->getMaxZRange().atIndex(s2d->getZRange().stop);
+
     BufferString linekey = s2d->name();
     applMgr()->attrServer()->setTargetSelSpec( myas );
     RefMan<Attrib::Data2DHolder> dataset = new Attrib::Data2DHolder;
@@ -643,8 +697,8 @@ void uiOD2DLineSetAttribItem::setAttrib( const Attrib::SelSpec& myas )
 
     if ( dataset->size() )
     {
-	s2d->setSelSpec( 0, myas );
-	s2d->setTraceData( *dataset );
+	s2d->setSelSpec( attribNr(), myas );
+	s2d->setTraceData( attribNr(), *dataset );
     }
 
     updateColumnText(0);

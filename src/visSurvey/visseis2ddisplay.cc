@@ -4,35 +4,38 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2004
- RCS:           $Id: visseis2ddisplay.cc,v 1.8 2006-11-21 14:00:08 cvsbert Exp $
+ RCS:           $Id: visseis2ddisplay.cc,v 1.9 2006-12-06 17:36:10 cvskris Exp $
  ________________________________________________________________________
 
 -*/
 
 
 #include "visseis2ddisplay.h"
+
 #include "vistristripset.h"
 #include "viscoord.h"
 #include "vistexturecoords.h"
 #include "vistransform.h"
 #include "viscolortab.h"
 #include "visdataman.h"
-#include "vistexture2.h"
+#include "vismultitexture2.h"
 #include "vistext.h"
-#include "vismaterial.h"
-#include "viscolortab.h"
+//#include "vismaterial.h"
+//#include "viscolortab.h"
 
 #include "arrayndimpl.h"
 #include "attribdataholder.h"
-#include "attribsel.h"
-#include "colortab.h"
+//#include "colortab.h"
 #include "idxable.h"
 #include "iopar.h"
 #include "segposinfo.h"
-#include "seis2dline.h"
+//#include "seis2dline.h"
 #include "seisinfo.h"
-#include "survinfo.h"
+//#include "survinfo.h"
 
+//For parsing old pars
+#include "attribsel.h"
+#include "vistexture2.h"
 
 mCreateFactoryEntry( visSurvey::Seis2DDisplay );
 
@@ -41,207 +44,261 @@ using namespace Attrib;
 namespace visSurvey
 {
 
-const char* Seis2DDisplay::linesetidstr = "LineSet ID";
-const char* Seis2DDisplay::textureidstr = "Texture ID";
+const char* Seis2DDisplay::sKeyLineSetID()	{ return "LineSet ID"; }
+const char* Seis2DDisplay::sKeyTrcNrRange()	{ return "Trc Nr Range"; }
+const char* Seis2DDisplay::sKeyZRange()		{ return "Z Range"; }
+const char* Seis2DDisplay::sKeyShowLineName()	{ return "Show linename"; }
+const char* Seis2DDisplay::sKeyTextureID()	{ return "Texture ID"; }
 
 
 Seis2DDisplay::Seis2DDisplay()
-    : VisualObjectImpl(true)
-    , transformation(0)
-    , texture(visBase::Texture2::create())
-    , linename(0)
-    , as(*new SelSpec)
-    , cs(*new CubeSampling(false))
-    , geomchanged(this)
-    , cache_( 0 )
+    : transformation_(0)
+    , linename_(0)
+    , geometry_( *new PosInfo::Line2DData )
+    , geomchanged_(this)
+    , maxtrcnrrg_( INT_MAX, INT_MIN )
+    , zrg_(-1,-1)
+    , trcnrrg_(-1,-1)
 {
-    texture->ref();
-    addChild( texture->getInventorNode() );
-    texture->turnOn(true);
-
-    getMaterial()->setAmbience( 0.8 );
-    getMaterial()->setDiffIntensity( 0.8 );
-    cs.hrg.start.inl = cs.hrg.stop.inl = 0;
+    geometry_.zrg.start = geometry_.zrg.stop = mUdf(float);
+    cache_.allowNull();
 }
 
 
 Seis2DDisplay::~Seis2DDisplay()
 {
-    if ( linename )
-	removeChild( linename->getInventorNode() );
-    for ( int idx=0; idx<planes.size(); idx++ )
+    if ( linename_ ) removeChild( linename_->getInventorNode() );
+
+    for ( int idx=0; idx<planes_.size(); idx++ )
     {
-	removeChild( planes[idx]->getInventorNode() );
-	planes[idx]->unRef();
+	removeChild( planes_[idx]->getInventorNode() );
+	planes_[idx]->unRef();
     }
 
-    removeChild( texture->getInventorNode() );
-    texture->unRef();
+    delete &geometry_;
 
-    if ( transformation ) transformation->unRef();
-    delete &as;
-    delete &cs;
-
-    if ( cache_ ) cache_->unRef();
-    cache_ = 0;
+    if ( transformation_ ) transformation_->unRef();
+    deepUnRef( cache_ );
 }
 
 
 void Seis2DDisplay::setLineName( const char* lnm )
 {
     setName( lnm );
-    if ( linename )
-	linename->setText( lnm );
+    if ( linename_ )
+	linename_->setText( lnm );
 }
 
 
-void Seis2DDisplay::setSelSpec( int attrib, const SelSpec& as_ )
+void Seis2DDisplay::setGeometry( const PosInfo::Line2DData& geometry )
 {
-    if ( attrib ) return;
-    as = as_;
-    if ( cache_ ) cache_->unRef();
-    cache_ = 0;
-}
+    geometry_ = geometry;
+    const TypeSet<PosInfo::Line2DPos>& linepositions = geometry.posns;
+    maxtrcnrrg_.start = INT_MAX; maxtrcnrrg_.stop = INT_MIN;
 
+    for ( int idx=linepositions.size()-1; idx>=0; idx-- )
+	maxtrcnrrg_.include( linepositions[idx].nr, false );
 
-const SelSpec* Seis2DDisplay::getSelSpec( int attrib ) const
-{
-    return !attrib ? &as : 0;
-}
-
-
-void Seis2DDisplay::setCubeSampling( CubeSampling cs_ )
-{ cs = cs_; }
-
-
-CubeSampling Seis2DDisplay::getCubeSampling() const
-{ return cs; }
-
-
-void Seis2DDisplay::setGeometry( const PosInfo::Line2DData& geometry, 
-				 const CubeSampling* limits )
-{
-    const TypeSet<PosInfo::Line2DPos>& pos = geometry.posns;
-    TypeSet<Coord> coords;
-    for ( int idx=0; idx<pos.size(); idx++ )
+    if ( zrg_.start==-1 )
     {
-	if ( limits && (pos[idx].nr<limits->hrg.start.crl || 
-		        pos[idx].nr>limits->hrg.stop.crl) )
-	    continue;
-	coords += pos[idx].coord;
+	zrg_.start = 0;
+	zrg_.stop = geometry_.zrg.nrSteps();
+	trcnrrg_ = maxtrcnrrg_;
     }
 
-    Interval<float> zrg;
-    assign( zrg, limits ? limits->zrg : geometry.zrg );
-    setPlaneCoordinates( coords, zrg );
-
-    if ( cs.isEmpty() )
-    {
-	assign( cs.zrg, geometry.zrg );
-	cs.hrg.start.crl = pos[0].nr;
-	cs.hrg.stop.crl = pos[pos.size()-1].nr;
-    }
-    else if ( limits )
-    {
-	cs = *limits;
-	geomchanged.trigger();
-    }
+    updateVizPath();
+    geomchanged_.trigger();
 }
 
 
-void Seis2DDisplay::clearTexture()
+const StepInterval<float>& Seis2DDisplay::getMaxZRange() const
+{ return geometry_.zrg; }
+
+
+bool Seis2DDisplay::setZRange( const Interval<int>& nzrg )
 {
-    SelSpec as_; setSelSpec( 0, as_ );
-    texture->setData( 0, (visBase::Texture::DataType)0 );
+    if ( mIsUdf(geometry_.zrg.start) )
+    {
+	pErrMsg("Geometry not set");
+	return false;
+    }
+
+    const Interval<int> zrg( mMAX( nzrg.start, 0 ),
+	    		     mMIN( nzrg.stop, geometry_.zrg.nrSteps()) );
+
+    if ( !zrg.width() || zrg_==zrg )
+	return false;
+
+    const bool isbigger = !zrg_.includes( zrg.start, false ) ||
+			  !zrg_.includes( zrg.stop, false );
+
+    zrg_ = zrg;
+
+    updateVizPath();
+    return !isbigger;
 }
 
 
-void Seis2DDisplay::setTraceData( const Attrib::Data2DHolder& dataset )
+const Interval<int>& Seis2DDisplay::getZRange() const
+{ return zrg_; }
+
+
+bool Seis2DDisplay::setTraceNrRange( const Interval<int>& trcrg )
 {
-    setData( dataset );
-    if ( cache_ ) cache_->unRef();
+    if ( maxtrcnrrg_.isRev() )
+    {
+	pErrMsg("Geometry not set");
+	return false;
+    }
 
-    cache_ = &dataset;
-    cache_->ref();
+    const Interval<int> rg( maxtrcnrrg_.limitValue( trcrg.start ),
+			    maxtrcnrrg_.limitValue( trcrg.stop ) );
+
+    if ( !rg.width() || trcnrrg_==rg )
+	return false;
+
+    const bool isbigger = !trcnrrg_.includes( rg.start, false ) ||
+			  !trcnrrg_.includes( rg.stop, false );
+    trcnrrg_ = rg;
+
+    updateVizPath();
+
+    return !isbigger;
 }
 
 
-void Seis2DDisplay::setData( const Attrib::Data2DHolder& dataset )
+const Interval<int>& Seis2DDisplay::getTraceNrRange() const
+{ return trcnrrg_; }
+
+
+const Interval<int>& Seis2DDisplay::getMaxTraceNrRange() const
+{ return maxtrcnrrg_; }
+
+
+void Seis2DDisplay::setTraceData( int attrib,
+				  const Attrib::Data2DHolder& dataset )
+{
+    setData( attrib, dataset );
+    if ( cache_[attrib] ) cache_[attrib]->unRef();
+
+    cache_.replace( attrib, &dataset );
+    cache_[attrib]->ref();
+}
+
+
+const Attrib::Data2DHolder* Seis2DDisplay::getCache( int attrib ) const
+{ return cache_[attrib]; }
+
+
+void Seis2DDisplay::setData( int attrib,
+			     const Attrib::Data2DHolder& dataset )
 {
     if ( dataset.isEmpty() ) return;
 
-    TypeSet<Coord> crds;
-    for ( int trcinfoidx=0; trcinfoidx<dataset.size(); trcinfoidx++ )
-    {
-	const SeisTrcInfo* trcinfo = dataset.trcinfoset_[trcinfoidx];
-	if ( !trcinfo ) continue;
-	crds += trcinfo->coord;
-    }
+    const SamplingData<float>& sd = dataset.trcinfoset_[0]->sampling;
 
-    SamplingData<float> sd = dataset.trcinfoset_[0]->sampling;
-    cs.zrg.step = sd.step;
-    const int nrsamp = cs.zrg.nrSteps();
-    const int nrtrcs = dataset.size();
-    setPlaneCoordinates( crds, cs.zrg );
+    const int nrsamp = zrg_.width()+1;
 
-    float val;
-    PtrMan<Array2DImpl<float> > arr = new Array2DImpl<float>(nrsamp,nrtrcs);
+    PtrMan<Array2DImpl<float> > arr =
+	new Array2DImpl<float>( nrsamp,trcnrrg_.width()+1 );
+
+    float* arrptr = arr->getData();
+    const int totalsz = arr->info().getTotalSz();
+    for ( int idx=0; idx<totalsz; idx++ )
+	(*arrptr++) = mUdf(float);
+
     for ( int dataidx=0; dataidx<dataset.size(); dataidx++ )
     {
+	const int trcnr = dataset.trcinfoset_[dataidx]->nr;
+	if ( !trcnrrg_.includes( trcnr ) )
+	    continue;
+
+	const int trcidx = trcnr-trcnrrg_.start;
+
 	const DataHolder* dh = dataset.dataset_[dataidx];
 	if ( !dh )
-	{
-	    for ( int ids=0; ids<nrsamp; ids++ )
-		arr->set( ids, dataidx, mUdf(float) );
 	    continue;
-	}
 
-	int csample =  mNINT( cs.zrg.start/sd.step );
-	for ( int ids=0; ids<nrsamp; ids++ )
+	const float firstz = geometry_.zrg.atIndex( zrg_.start );
+	const float firstdhsamplef = sd.getIndex( firstz );
+	const int firstdhsample = sd.nearestIndex( firstz );
+	const bool samplebased = mIsEqual(firstdhsamplef,firstdhsample,1e-3) &&
+	    			 mIsEqual(sd.step,geometry_.zrg.step,1e-3 );
+
+	const ValueSeries<float>* dataseries =
+	    dh->series(dh->validSeriesIdx()[0]);
+
+	if ( samplebased )
 	{
-	    val = dh && dh->dataPresent(csample) ? 
-		    dh->series(dh->validSeriesIdx()[0])->value(csample-dh->z0_)
-		    : mUdf(float);
-	    //use first valid idx: as for now we can't evaluate attributes in 2D
-	    arr->set( ids, dataidx, val );
-	    csample++;
+	    for ( int idx=0; idx<nrsamp; idx++ )
+	    {
+		const int sample = firstdhsample+idx;
+		float val;
+		if ( dh->dataPresent( sample ) )
+		    val = dataseries->value( sample-dh->z0_ );
+		else
+		    val=mUdf(float);
+
+		arr->set( idx, trcidx, val );
+	    }
+	}
+	else
+	{
+	    pErrMsg("Not impl"); 
 	}
     }
 
-    texture->setData( arr, (visBase::Texture::DataType)0 );
+    if ( !resolution_ )
+	texture_->setData( attrib, 0, arr, true );
+    else
+    {
+	texture_->setDataOversample( attrib, 0, resolution_,
+				     !isClassification( attrib ), arr, true );
+    }
 }
 
 
-void Seis2DDisplay::setPlaneCoordinates( const TypeSet<Coord>& crds,
-					 const Interval<float>& zrg )
-{
-    const int nrcrds = crds.size();
-    if ( nrcrds<2 ) return;
 
-    TypeSet<Interval<int> > stripinterval;
-    int currentstart = 0;
-    for ( int idx=1; idx<crds.size(); idx++ )
+void Seis2DDisplay::updateVizPath()
+{
+    TypeSet<Coord> coords;
+    for ( int idx=0; idx<geometry_.posns.size(); idx++ )
     {
-	if ( crds[currentstart].sqDistance(crds[idx])>1e10 )
-	{
-	    stripinterval += Interval<int>(currentstart,idx);
-	    currentstart = idx;
-	}
+	if ( !trcnrrg_.includes( geometry_.posns[idx].nr ) ) continue;
+	coords += geometry_.posns[idx].coord;
     }
 
-    if ( currentstart!=crds.size()-1 )
-	stripinterval += Interval<int>(currentstart,crds.size()-1);
+    const Interval<float> zrg( geometry_.zrg.atIndex( zrg_.start ),
+			       geometry_.zrg.atIndex( zrg_.stop ) );
 
-    for ( int idx=0; idx<stripinterval.size(); idx++ )
-	setStrip( crds, zrg, idx, stripinterval[idx] );
-
-    addLineName();
-
-    for ( int idx=stripinterval.size(); idx<planes.size(); idx++ )
+    const int nrcrds = coords.size();
+    TypeSet<Interval<int> > stripinterval;
+    if ( nrcrds>1 )
     {
-	removeChild( planes[idx]->getInventorNode() );
-	planes[idx]->unRef();
-	planes.remove(idx);
+	int currentstart = 0;
+	for ( int idx=1; idx<coords.size(); idx++ )
+	{
+	    if ( coords[currentstart].sqDistance(coords[idx])>1e10 )
+	    {
+		stripinterval += Interval<int>(currentstart,idx);
+		currentstart = idx;
+	    }
+	}
+
+	if ( currentstart!=coords.size()-1 )
+	    stripinterval += Interval<int>(currentstart,coords.size()-1);
+
+	for ( int idx=0; idx<stripinterval.size(); idx++ )
+	    setStrip( coords, zrg, idx, stripinterval[idx] );
+
+	updateLineNamePos();
+    }
+
+    for ( int idx=stripinterval.size(); idx<planes_.size(); idx++ )
+    {
+	removeChild( planes_[idx]->getInventorNode() );
+	planes_[idx]->unRef();
+	planes_.remove(idx);
 	idx--;
     }
 }
@@ -267,22 +324,22 @@ void visSurvey::Seis2DDisplay::setStrip( const TypeSet<Coord>& crds,
 					 int stripidx,
 					 const Interval<int>& crdinterval )
 {
-    while ( stripidx>=planes.size() )
+    while ( stripidx>=planes_.size() )
     {
 	visBase::TriangleStripSet* plane = visBase::TriangleStripSet::create();
 	plane->setNormalPerFaceBinding( true );
-	plane->setDisplayTransformation( transformation );
+	plane->setDisplayTransformation( transformation_ );
 	plane->setShapeType( visBase::VertexShape::cUnknownShapeType() );
 	plane->setTextureCoords(visBase::TextureCoords::create());
 	plane->setVertexOrdering( 
 	       visBase::VertexShape::cCounterClockWiseVertexOrdering() );
 	plane->setMaterial( 0 );
-	planes += plane;
+	planes_ += plane;
 	plane->ref();
 	addChild( plane->getInventorNode() );
     }
 
-    visBase::TriangleStripSet* plane = planes[stripidx];
+    visBase::TriangleStripSet* plane = planes_[stripidx];
     visBase::Coordinates* coords = plane->getCoordinates();
     for ( int idx=0; idx<coords->size(true); idx++ )
 	coords->removePos( idx );
@@ -313,70 +370,40 @@ void visSurvey::Seis2DDisplay::setStrip( const TypeSet<Coord>& crds,
 }
 
 
-void Seis2DDisplay::addLineName()
+void Seis2DDisplay::updateLineNamePos()
 {
-    if ( planes.isEmpty() ) return;
-    visBase::Coordinates* coords = planes[0]->getCoordinates();
+    if ( planes_.isEmpty() || !linename_ ) return;
+
+    visBase::Coordinates* coords = planes_[0]->getCoordinates();
     if ( !coords ) return;
+
     Coord3 pos = coords->getPos( 0 );
-
-    if ( !linename )
-    {
-	linename = visBase::Text2::create();
-	insertChild( 0, linename->getInventorNode() );
-	linename->turnOn( true );
-	linename->setText( name() );
-	linename->setJustification( visBase::Text::Right );
-	if ( transformation )
-	    linename->setDisplayTransformation( transformation );
-    }
-
-    linename->setPosition( pos );
-}
-
-
-void Seis2DDisplay::getColTabDef( ColorTable& coltab, Interval<float>& scale,
-				  float& cliprate ) const
-{
-    visBase::VisColorTab& ct = texture->getColorTab();
-    coltab = ct.colorSeq().colors();
-    scale = ct.getInterval();
-    cliprate = ct.clipRate();
-}
-
-
-void Seis2DDisplay::setColTabDef( const ColorTable& coltab,
-				  const Interval<float>& scale,
-				  float cliprate )
-{
-    visBase::VisColorTab& ct = texture->getColorTab();
-    const bool equalcolorseq = ct.colorSeq().colors() == coltab;
-    if ( !equalcolorseq )
-	ct.colorSeq().loadFromStorage( coltab.name() );
-
-    if ( !mIsUdf(scale.start) && !mIsUdf(scale.stop) )
-	ct.scaleTo( scale );
-    if ( !mIsUdf(cliprate) )
-	ct.setClipRate( cliprate );
+    linename_->setPosition( pos );
 }
 
 
 SurveyObject* Seis2DDisplay::duplicate() const
 {
     Seis2DDisplay* s2dd = create();
-    s2dd->setCubeSampling( getCubeSampling() );
+    s2dd->setGeometry( geometry_ );
+    s2dd->setZRange( zrg_ );
+    s2dd->setTraceNrRange( trcnrrg_ );
     s2dd->setResolution( getResolution() );
-    s2dd->setLineSetID( linesetid );
+
+    s2dd->setLineSetID( linesetid_ );
     s2dd->setLineName( name() );
 
-    const int ctid = s2dd->getColTabID(0);
-    visBase::DataObject* obj = ctid>=0 ? visBase::DM().getObject( ctid ) : 0;
-    mDynamicCastGet(visBase::VisColorTab*,nct,obj);
-    if ( nct )
+    for ( int idx=0; idx<nrAttribs(); idx++ )
     {
-	visBase::VisColorTab& ct = texture->getColorTab();
-	const char* ctnm = ct.colorSeq().colors().name();
-	nct->colorSeq().loadFromStorage( ctnm );
+	if ( idx )
+	    s2dd->addAttrib();
+
+	s2dd->setSelSpec( idx, *getSelSpec(idx) );
+	s2dd->texture_->copySettingsFrom( idx,
+		(const visBase::MultiTexture&) *texture_, idx );
+
+	if ( getCache( idx ) )
+	    s2dd->setData( idx, *getCache( idx ) );
     }
 
     return s2dd;
@@ -395,62 +422,90 @@ float Seis2DDisplay::calcDist( const Coord3& pos ) const
 
 void Seis2DDisplay::setDisplayTransformation( visBase::Transformation* tf )
 {
-    if ( transformation ) transformation->unRef();
-    transformation = tf;
-    transformation->ref();
-    for ( int idx=0; idx<planes.size(); idx++ )
-	planes[idx]->setDisplayTransformation( transformation );
-    if ( linename )
-	linename->setDisplayTransformation( transformation );
+    if ( transformation_ ) transformation_->unRef();
+    transformation_ = tf;
+    transformation_->ref();
+    for ( int idx=0; idx<planes_.size(); idx++ )
+	planes_[idx]->setDisplayTransformation( transformation_ );
+    if ( linename_ )
+	linename_->setDisplayTransformation( transformation_ );
 }
 
 
 visBase::Transformation* Seis2DDisplay::getDisplayTransformation()
 {
-    return transformation;
+    return transformation_;
 }
 
 
 void Seis2DDisplay::showLineName( bool yn )
-{ if ( linename ) linename->turnOn( yn ); }
+{
+    if ( linename_ ) linename_->turnOn( yn );
+    else if ( yn )
+    {
+	linename_ = visBase::Text2::create();
+	linename_->ref();
+	updateLineNamePos();
+    }
+}
 
 bool Seis2DDisplay::lineNameShown() const
-{ return linename ? linename->isOn() : false; }
-
-
-int Seis2DDisplay::getColTabID(int attrib) const
-{ 
-    if ( attrib )
-	return -1;
-
-    return texture->getColorTab().id();
-}
-
-
-const TypeSet<float>* Seis2DDisplay::getHistogram(int attrib) const
-{
-    if ( attrib )
-	return 0;
-
-    return &texture->getHistogram();
-}
-
-
-int Seis2DDisplay::getResolution() const
-{
-    return texture->getResolution();
-}
+{ return linename_ ? linename_->isOn() : false; }
 
 
 void Seis2DDisplay::setResolution( int res )
 {
-    texture->setResolution( res );
-    if ( cache_ ) setData( *cache_ );
+    if ( res==resolution_ )
+	return;
+
+    texture_->clearAll();
+
+    resolution_ = res;
+    updateDataFromCache();
 }
+
+
+int Seis2DDisplay::getResolution() const
+{ return resolution_; }
 
 
 SurveyObject::AttribFormat Seis2DDisplay::getAttributeFormat() const
 { return SurveyObject::OtherFormat; }
+
+
+void Seis2DDisplay::addCache()
+{ cache_ += 0; }
+
+
+void Seis2DDisplay::removeCache( int attrib )
+{
+    if ( cache_[attrib] ) cache_[attrib]->unRef();
+    cache_.remove( attrib );
+}
+
+
+void Seis2DDisplay::swapCache( int a0, int a1 )
+{ cache_.swap( a0, a1 ); }
+
+
+void Seis2DDisplay::emptyCache( int attrib )
+{
+    if ( cache_[attrib] )
+	cache_[attrib]->unRef();
+
+    cache_.replace( attrib, 0 );
+}
+
+
+bool Seis2DDisplay::hasCache( int attrib ) const
+{ return cache_[attrib] && cache_[attrib]->size(); }
+
+
+void Seis2DDisplay::updateDataFromCache()
+{
+    for ( int idx=nrAttribs()-1; idx>=0; idx-- )
+	if ( cache_[idx] ) setData( idx, *cache_[idx] );
+}
 
 
 void Seis2DDisplay::getMousePosInfo( const visBase::EventInfo&,
@@ -458,28 +513,30 @@ void Seis2DDisplay::getMousePosInfo( const visBase::EventInfo&,
 				     BufferString& info ) const
 {
     info = "Line: "; info += name();
-    val = "undef";
-    if ( !cache_ || !cache_->size() )  return;
+    getValueString( pos, val );
 
+// TODO    info += "   Tracenr: "; info += trcnr;
+}
+
+
+float Seis2DDisplay::getCacheValue( int attrib, int version,
+				    const Coord3& pos ) const
+{
     int dataidx = -1;
     float mindist;
     getNearestTrace( pos, dataidx, mindist );
-    if ( dataidx < 0 )
-	return;
+    if ( dataidx<0 || !cache_[attrib] || !cache_[attrib]->dataset_[dataidx] )
+	return mUdf(float);
 
-    const DataHolder* dh = cache_->dataset_[dataidx];
-    if ( !dh ) 
-	return;
-
-    const int trcnr = cache_->trcinfoset_[dataidx]->nr;
+    const DataHolder* dh = cache_[attrib]->dataset_[dataidx];
+    const int trcnr = cache_[attrib]->trcinfoset_[dataidx]->nr;
     const int sampidx =
-	mNINT(pos.z/cache_->trcinfoset_[dataidx]->sampling.step)-dh->z0_;
-    if ( sampidx >= 0 && sampidx < dh->nrsamples_ )
-	val = dh->series(dh->validSeriesIdx()[0])->value(sampidx);
+       mNINT(pos.z/cache_[attrib]->trcinfoset_[dataidx]->sampling.step)-dh->z0_;
 
-    //use first valid idx: as for now we can't evaluate attributes in 2D...
-    
-    info += "   Tracenr: "; info += trcnr;
+    if ( sampidx >= 0 && sampidx < dh->nrsamples_ )
+	return dh->series(dh->validSeriesIdx()[version])->value(sampidx);
+
+    return mUdf(float);
 }
 
 
@@ -489,29 +546,36 @@ void Seis2DDisplay::snapToTracePos( Coord3& pos )
     float mindist;
     getNearestTrace( pos, trcidx, mindist );
 
-    if ( trcidx < 0 ) return;
-    const Coord& crd = cache_->trcinfoset_[trcidx]->coord;
+    if ( trcidx<0 ) return;
+
+    const Coord& crd = geometry_.posns[trcidx].coord;
     pos.x = crd.x; pos.y = crd.y; 
 }
 
 
-void Seis2DDisplay::getNearestTrace( const Coord3& pos, int& trcidx, 
-				     float& mindist ) const
+void Seis2DDisplay::setLineSetID( const MultiID& mid )
+{ linesetid_ = mid; }
+
+
+const MultiID& Seis2DDisplay::lineSetID() const
+{ return linesetid_; }
+
+
+void Seis2DDisplay::getNearestTrace( const Coord3& pos,
+				     int& trcidx, float& mindist ) const
 {
     trcidx = -1;
     mSetUdf(mindist);
 
-    if ( cache_ )
+    for ( int idx=geometry_.posns.size()-1; idx>=0; idx-- )
     {
-	for ( int idx=0; idx<cache_->size(); idx++ )
+	if ( !trcnrrg_.includes( geometry_.posns[idx].nr ) ) continue;
+
+	const float dist = pos.Coord::sqDistance( geometry_.posns[idx].coord );
+	if ( dist<mindist )
 	{
-	    const float dist =
-		pos.Coord::sqDistance( cache_->trcinfoset_[idx]->coord );
-	    if ( dist < mindist )
-	    {
-		mindist = dist;
-		trcidx = idx;
-	    }
+	    mindist = dist;
+	    trcidx = idx;
 	}
     }
 }
@@ -519,46 +583,49 @@ void Seis2DDisplay::getNearestTrace( const Coord3& pos, int& trcidx,
 
 void Seis2DDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 {
-    visBase::VisualObjectImpl::fillPar( par, saveids );
+    visSurvey::MultiTextureSurveyObject::fillPar( par, saveids );
 
-    par.set( linesetidstr, linesetid );
-    par.set( textureidstr, texture->id() );
-    if ( saveids.indexOf(texture->id())==-1 ) 
-	saveids += texture->id();
-
-    as.fillPar( par );
-    cs.fillPar( par );
+    par.set( sKeyLineSetID(), linesetid_ );
+    par.setYN( sKeyShowLineName(), lineNameShown() );
+    par.set( sKeyTrcNrRange(), trcnrrg_.start, trcnrrg_.stop );
+    par.set( sKeyZRange(), zrg_.start, zrg_.stop );
 }
 
 
 int Seis2DDisplay::usePar( const IOPar& par )
 {
-    int res =  visBase::VisualObjectImpl::usePar( par );
-    if ( res != 1 ) return res;
-
     int textureid = -1;
-    if ( par.get(textureidstr,textureid) )
-    {
+    if ( par.get(sKeyTextureID(),textureid) )
+    { //old format
+	//TODO
+	int res =  visBase::VisualObjectImpl::usePar( par );
+	if ( res != 1 ) return res;
+
 	DataObject* text = visBase::DM().getObject( textureid );
 	if ( !text ) return 0;
-	if ( typeid(*text) != typeid(visBase::Texture2) ) return -1;
+	if ( typeid(*text)!=typeid(visBase::Texture2) ) return -1;
 
-	if ( texture )
-	{
-	    removeChild( texture->getInventorNode() );
-	    texture->unRef();
-	}
+	RefMan<visBase::Texture2> texture =
+	    reinterpret_cast<visBase::Texture2*>(text);
+	texture_->setColorTab( 0, texture->getColorTab() );
+	Attrib::SelSpec as;
+	as.usePar( par );
+	setSelSpec( 0, as );
+    }
+    else //new format
+    {
+	int res =  visSurvey::MultiTextureSurveyObject::usePar( par );
+	if ( res!=1 ) return res;
 
-	texture = (visBase::Texture2*)text;
-	texture->ref();
-	insertChild( 0, texture->getInventorNode() );
+	par.get( sKeyTrcNrRange(), trcnrrg_.start, trcnrrg_.stop );
+	par.get( sKeyZRange(), zrg_.start, zrg_.stop );
+	bool showlinename = false;
+	par.getYN( sKeyShowLineName(), showlinename );
+	showLineName( showlinename );
     }
 
     setLineName( name() );
-
-    cs.usePar( par );
-    as.usePar( par );
-    par.get( linesetidstr, linesetid );
+    par.get( sKeyLineSetID(), linesetid_ );
 
     return 1;
 }
