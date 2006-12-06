@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvey.cc,v 1.72 2006-12-05 16:14:31 cvsnanne Exp $
+ RCS:           $Id: uisurvey.cc,v 1.73 2006-12-06 12:39:26 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -153,7 +153,6 @@ uiSurvey::uiSurvey( uiParent* p, bool isgdi )
     , survinfo(0)
     , survmap(0)
     , mapcanvas(0)
-    , surveyToBeChanged(this)
 {
     SurveyInfo::produceWarnings( false );
     const int lbwidth = 250;
@@ -642,18 +641,13 @@ bool uiSurvey::rejectOK( CallBacker* )
 }
 
 
-#define mRetFalse { SurveyInfo::produceWarnings( false ); return false; }
 
 bool uiSurvey::acceptOK( CallBacker* )
 {
     writeComments();
     SurveyInfo::produceWarnings( true );
-    if ( !updateSvyFile() )
-	mRetFalse
-
-    surveyToBeChanged.trigger();
-    if ( !IOMan::newSurvey() )
-	mRetFalse
+    if ( !updateSvyFile() || !IOMan::newSurvey() )
+    { SurveyInfo::produceWarnings( false ); return false; }
 
     newSurvey();
     updateViewsGlobal();
