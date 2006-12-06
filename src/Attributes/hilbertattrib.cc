@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: hilbertattrib.cc,v 1.15 2006-08-03 08:04:34 cvshelene Exp $
+ RCS:           $Id: hilbertattrib.cc,v 1.16 2006-12-06 11:34:49 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -47,7 +47,7 @@ Hilbert::Hilbert( Desc& ds )
     mGetInt( halflen_, halflenStr() );
     hilbfilterlen_ = halflen_ * 2 + 1;
     hilbfilter_ = makeHilbFilt( halflen_ );
-    gate_ = Interval<float>( -halflen_-3, halflen_+3 );
+    zmargin_ = Interval<int>( -halflen_, halflen_ );
 }
 
 
@@ -64,14 +64,6 @@ bool Hilbert::getInputData( const BinID& relpos, int intv )
     return inputdata_;
 }
 
-/*
-const Interval<float>* Hilbert::desZMargin( int inp, int ) const
-{
-    const_cast<Interval<float>*>(&timegate)->start = gate.start * refstep;
-    const_cast<Interval<float>*>(&timegate)->stop =  gate.stop * refstep;
-    return &timegate; 
-}
-*/
 
 float* Hilbert::makeHilbFilt( int hlen )
 {
@@ -122,8 +114,9 @@ bool Hilbert::computeData( const DataHolder& output, const BinID& relpos,
     const int shift = z0 - inputdata_->z0_;
     Masker masker( inputdata_, shift, 0, dataidx_ );
     float avg = 0;
-    int nrsampleused = nrsamples;
-    for ( int idx=0; idx<nrsamples; idx++ )
+    int nrsamptooutput = nrsamples<hilbfilterlen_ ? hilbfilterlen_ : nrsamples;
+    int nrsampleused = nrsamptooutput;
+    for ( int idx=0; idx<nrsamptooutput; idx++ )
     {
 	float val = masker[idx];
 	if ( mIsUdf(val) )
@@ -136,11 +129,22 @@ bool Hilbert::computeData( const DataHolder& output, const BinID& relpos,
     }
 
     masker.avg_ = avg / nrsampleused;
-    float* outp = output.series(0)->arr();
-    GenericConvolve( hilbfilterlen_, -halflen_, hilbfilter_, nrsamples,
-		     0, masker, nrsamples, 0, outp );
+    float* newarr = new float[hilbfilterlen_];
+    float* outp = nrsamples>=hilbfilterlen_ ? output.series(0)->arr() : newarr;
+    GenericConvolve( hilbfilterlen_, -halflen_, hilbfilter_,
+		     inputdata_->nrsamples_, 0, masker,
+		     nrsamptooutput, 0, outp );
 
+    if ( nrsamples<hilbfilterlen_ )
+    {
+	int startshift = (hilbfilterlen_-nrsamples)/2 + 1;
+	for ( int idx=0; idx<nrsamples; idx++ )
+	    output.series(0)->setValue( idx, outp[startshift+idx] );
+    }
+       
+    delete [] newarr;
     return true;
 }
+
 
 }; // namespace Attrib

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: hilbertattrib.h,v 1.10 2006-10-20 19:43:15 cvskris Exp $
+ RCS:           $Id: hilbertattrib.h,v 1.11 2006-12-06 11:34:49 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,14 +43,13 @@ protected:
 
     bool			allowParallelComputation() const
     				{ return false; }
-
-//    const Interval<float>*	desZMargin(int input,int output) const;
+    const Interval<int>*        desZSampMargin(int input,int output) const
+				{ return &zmargin_; }
 
     const DataHolder*		inputdata_;
     int				dataidx_;
 
-    Interval<float>		gate_;
-    Interval<float>		timegate_;
+    Interval<int>		zmargin_;
     int				halflen_;
     int				hilbfilterlen_;
     const float*		hilbfilter_;
