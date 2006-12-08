@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:           $Id: uibatchprogs.cc,v 1.25 2006-11-21 14:00:08 cvsbert Exp $
+ RCS:           $Id: uibatchprogs.cc,v 1.26 2006-12-08 13:57:51 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,6 +25,7 @@ ________________________________________________________________________
 #include "iopar.h"
 #include "oddirs.h"
 #include "envvars.h"
+#include "dirlist.h"
 #include "errh.h"
 #include <iostream>
 
@@ -83,27 +84,30 @@ class BatchProgInfoList : public ObjectSet<BatchProgInfo>
 {
 public:
 
-			BatchProgInfoList(const char*);
+			BatchProgInfoList();
 			~BatchProgInfoList()	{ deepErase(*this); }
+
+    void		getEntries(const char*);
 };
 
 
-BatchProgInfoList::BatchProgInfoList( const char* appnm )
+BatchProgInfoList::BatchProgInfoList()
 {
-    BufferString fnm;
     const char* fromenv = GetEnvVar( "OD_BATCH_PROGRAMS_FILE" );
     if ( fromenv && *fromenv )
-	fnm = fromenv;
+	getEntries( fromenv );
     else
     {
-	fnm = "BatchPrograms";
-	if ( appnm && *appnm )
-	    { fnm += "."; fnm += appnm; }
-	fnm = GetDataFileName( fnm );
+	DirList dl( GetDataFileName(0), DirList::FilesOnly, "BatchPrograms*" );
+	for ( int idx=0; idx<dl.size(); idx++ )
+	    getEntries( dl.fullPath(idx) );
     }
-    if ( File_isEmpty(fnm.buf()) ) return;
+}
 
-    StreamData sd = StreamProvider( fnm ).makeIStream();
+void BatchProgInfoList::getEntries( const char* fnm )
+{
+    if ( File_isEmpty(fnm) ) return;
+    StreamData sd = StreamProvider(fnm).makeIStream();
     if ( !sd.usable() ) return;
 
     ascistream astrm( *sd.istrm, true );
@@ -135,21 +139,22 @@ BatchProgInfoList::BatchProgInfoList( const char* appnm )
 
 	if ( bpi ) *this += bpi;
     }
+
     sd.close();
 }
 
 
-uiBatchProgLaunch::uiBatchProgLaunch( uiParent* p, const char* appnm )
+uiBatchProgLaunch::uiBatchProgLaunch( uiParent* p )
         : uiDialog(p,uiDialog::Setup("Run batch program",
 		   "Specify batch program and parameters","0.1.5"))
-	, pil(*new BatchProgInfoList(appnm))
+	, pil(*new BatchProgInfoList)
 	, progfld(0)
 	, browser(0)
 	, exbut(0)
 {
     if ( pil.size() < 1 )
     {
-	new uiLabel( this, "No 'BatchPrograms[.xxx]' file present" );
+	new uiLabel( this, "Not found any BatchPrograms.* file in application");
 	return;
     }
 
