@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvinfoed.cc,v 1.77 2006-11-21 14:00:08 cvsbert Exp $
+ RCS:           $Id: uisurvinfoed.cc,v 1.78 2006-12-08 13:38:19 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,7 +24,6 @@ ________________________________________________________________________
 #include "uimain.h"
 #include "uifiledlg.h"
 #include "ioobj.h" // for GetFreeMBOnDiskMsg
-#include "ioman.h"
 #include "oddirs.h"
 #include "filegen.h"
 #include "filepath.h"
@@ -84,25 +83,22 @@ bool getInfo( uiDialog* dlg, CubeSampling& cs, Coord crd[3] )
 };
 
 
-uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo* si_ )
+uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo& si )
 	: uiDialog(p,uiDialog::Setup("Survey setup",
 				     "Specify survey parameters","0.3.2")
 				     .nrstatusflds(1))
 	, rootdir(GetBaseDataDir())
-	, orgdirname(si_?si_->dirname.buf():"")
-	, survinfo(si_)
+	, orgdirname(si_.dirname.buf())
+	, si_(si)
 	, survparchanged(this)
 	, x0fld(0)
 	, dirnamechanged(false)
-	, globcurdirname(SI().dirname)
 	, sipfld(0)
 {
-    if ( !survinfo ) return;
-
     static int sipidx = addInfoProvider( new uiCopySurveySIP );
 
-    orgstorepath = survinfo ? survinfo->datadir.buf() : rootdir.buf();
-    isnew = !survinfo || orgdirname.isEmpty();
+    orgstorepath = si_.datadir.buf();
+    isnew = orgdirname.isEmpty();
 
     if ( !isnew )
     {
@@ -140,12 +136,11 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo* si_ )
 	    return;
 	File_makeWritable( dirnm, YES, YES );
     }
-    newSurvey( orgdirname );
 
     dirnmfld = new uiGenInput( this, "Survey directory name", 
 			       StringInpSpec( isnew ? "" : orgdirname.buf()) );
     survnmfld = new uiGenInput( this, "Full Survey name",
-	    			StringInpSpec(survinfo->name()) );
+	    			StringInpSpec(si_.name()) );
     survnmfld->attach( alignedBelow, dirnmfld );
 
     pathfld = new uiGenInput( this, "Location on disk",
@@ -326,33 +321,32 @@ static void setZValFld( uiGenInput* zfld, int nr, float val, float fac )
 
 void uiSurveyInfoEditor::setValues()
 {
-    const SurveyInfo& si = *survinfo;
-    const CubeSampling& cs = si.sampling( false );
+    const CubeSampling& cs = si_.sampling( false );
     const HorSampling& hs = cs.hrg;
     StepInterval<int> inlrg( hs.start.inl, hs.stop.inl, hs.step.inl );
     StepInterval<int> crlrg( hs.start.crl, hs.stop.crl, hs.step.crl );
     inlfld->setValue( inlrg );
     crlfld->setValue( crlrg );
 
-    const StepInterval<float>& zrg = si.zRange( false );
-    const float zfac = si.zFactor();
+    const StepInterval<float>& zrg = si_.zRange( false );
+    const float zfac = si_.zFactor();
     setZValFld( zfld, 0, zrg.start, zfac );
     setZValFld( zfld, 1, zrg.stop, zfac );
     setZValFld( zfld, 2, zrg.step, zfac );
 
-    timefld->setChecked( si.zIsTime() );
-    meterfld->setChecked( si.zInMeter() );
-    feetfld->setChecked( si.zInFeet() );
+    timefld->setChecked( si_.zIsTime() );
+    meterfld->setChecked( si_.zInMeter() );
+    feetfld->setChecked( si_.zInFeet() );
 
-    x0fld->setValue( si.b2c_.getTransform(true).a );
-    xinlfld->setValue( si.b2c_.getTransform(true).b );
-    xcrlfld->setValue( si.b2c_.getTransform(true).c );
-    y0fld->setValue( si.b2c_.getTransform(false).a );
-    yinlfld->setValue( si.b2c_.getTransform(false).b );
-    ycrlfld->setValue( si.b2c_.getTransform(false).c );
+    x0fld->setValue( si_.b2c_.getTransform(true).a );
+    xinlfld->setValue( si_.b2c_.getTransform(true).b );
+    xcrlfld->setValue( si_.b2c_.getTransform(true).c );
+    y0fld->setValue( si_.b2c_.getTransform(false).a );
+    yinlfld->setValue( si_.b2c_.getTransform(false).b );
+    ycrlfld->setValue( si_.b2c_.getTransform(false).c );
 
     Coord c[3]; BinID b[2]; int xline;
-    si.get3Pts( c, b, xline );
+    si_.get3Pts( c, b, xline );
     if ( b[0].inl )
     {
 	ic0fld->setValue( b[0] );
@@ -360,22 +354,14 @@ void uiSurveyInfoEditor::setValues()
 	ic2fld->setValue( b[1] );
 	if ( !c[0].x && !c[0].y && !c[1].x && !c[1].y && !c[2].x && !c[2].y)
 	{
-	    c[0] = si.transform( b[0] );
-	    c[1] = si.transform( b[1] );
-	    c[2] = si.transform( BinID(b[0].inl,xline) );
+	    c[0] = si_.transform( b[0] );
+	    c[1] = si_.transform( b[1] );
+	    c[2] = si_.transform( BinID(b[0].inl,xline) );
 	}
 	xy0fld->setValue( c[0] );
 	xy1fld->setValue( c[2] );
 	xy2fld->setValue( c[1] );
     }
-}
-
-
-void uiSurveyInfoEditor::newSurvey( const char* nm )
-{
-    delete SurveyInfo::theinst_;
-    SurveyInfo::theinst_ = 0;
-    IOMan::setSurvey( nm );
 }
 
 
@@ -462,13 +448,12 @@ bool uiSurveyInfoEditor::appButPushed()
     {
 	if ( !setCoords() ) return false;
 
-	SurveyInfo& si = *survinfo;
-	x0fld->setValue( si.b2c_.getTransform(true).a );
-	xinlfld->setValue( si.b2c_.getTransform(true).b );
-	xcrlfld->setValue( si.b2c_.getTransform(true).c );
-	y0fld->setValue( si.b2c_.getTransform(false).a );
-	yinlfld->setValue( si.b2c_.getTransform(false).b );
-	ycrlfld->setValue( si.b2c_.getTransform(false).c );
+	x0fld->setValue( si_.b2c_.getTransform(true).a );
+	xinlfld->setValue( si_.b2c_.getTransform(true).b );
+	xcrlfld->setValue( si_.b2c_.getTransform(true).c );
+	y0fld->setValue( si_.b2c_.getTransform(false).a );
+	yinlfld->setValue( si_.b2c_.getTransform(false).b );
+	ycrlfld->setValue( si_.b2c_.getTransform(false).c );
 	overrule->setChecked( false );
     }
     else
@@ -485,7 +470,7 @@ void uiSurveyInfoEditor::doFinalise( CallBacker* )
     pathfld->setReadOnly( true );
     updStatusBar( orgstorepath );
 
-    if ( survinfo->sampling(false).hrg.totalNr() )
+    if ( si_.sampling(false).hrg.totalNr() )
 	setValues();
 
     chgSetMode(0);
@@ -501,7 +486,6 @@ bool uiSurveyInfoEditor::rejectOK( CallBacker* )
 	if ( File_exists(dirnm) )
 	    File_remove( dirnm, YES );
     }
-    newSurvey( globcurdirname );
     return true;
 }
 
@@ -519,13 +503,12 @@ bool uiSurveyInfoEditor::acceptOK( CallBacker* )
 	dirnmfld->setText( newdirnm );
 
     dirnamechanged = orgdirname != newdirnm;
-    survinfo->dirname = newdirnm;
+    si_.dirname = newdirnm;
 
     if ( !appButPushed() )
 	return false;
     else if ( mUseAdvanced() )
-	survinfo->get3Pts( survinfo->set3coords, survinfo->set3binids,
-			   survinfo->set3binids[2].crl );
+	si_.get3Pts( si_.set3coords, si_.set3binids, si_.set3binids[2].crl );
 
     BufferString newstorepath = pathfld->text();
 
@@ -577,7 +560,7 @@ bool uiSurveyInfoEditor::acceptOK( CallBacker* )
 	    return false;
     }
 
-    survinfo->dirname = newdirnm;
+    si_.dirname = newdirnm;
     BufferString linkpos = FilePath(rootdir).add(newdirnm).fullPath(); 
     if ( File_exists(linkpos) )
     {
@@ -596,13 +579,12 @@ bool uiSurveyInfoEditor::acceptOK( CallBacker* )
 	}
     }
 
-    if ( !survinfo->write(rootdir) )
+    if ( !si_.write(rootdir) )
     {
         uiMSG().error( "Failed to write survey info.\nNo changes committed." );
 	return false;
     }
     
-    newSurvey( globcurdirname );
     return true;
 }
 
@@ -622,11 +604,11 @@ bool uiSurveyInfoEditor::setRanges()
 {
     BufferString survnm( survnmfld->text() );
     if ( survnm.isEmpty() ) survnm = dirnmfld->text();
-    survinfo->setName( survnm );
+    si_.setName( survnm );
 
     StepInterval<int> irg( inlfld->getIStepInterval() );
     StepInterval<int> crg( crlfld->getIStepInterval() );
-    CubeSampling cs( survinfo->sampling(false) );
+    CubeSampling cs( si_.sampling(false) );
     HorSampling& hs = cs.hrg;
     hs.start.inl = irg.start; hs.start.crl = crg.start;
     hs.stop.inl = irg.stop;   hs.stop.crl = crg.stop;
@@ -634,22 +616,22 @@ bool uiSurveyInfoEditor::setRanges()
     if ( hs.step.inl < 1 ) hs.step.inl = 1;
     if ( hs.step.crl < 1 ) hs.step.crl = 1;
 
-    survinfo->setZUnit( timefld->isChecked(), meterfld->isChecked() );
+    si_.setZUnit( timefld->isChecked(), meterfld->isChecked() );
     cs.zrg = zfld->getFStepInterval();
     if ( mIsUdf(cs.zrg.start) || mIsUdf(cs.zrg.stop) || mIsUdf(cs.zrg.step) )
 	mErrRet("Please enter the Z Range")
-    const float zfac = 1. / survinfo->zFactor();
+    const float zfac = 1. / si_.zFactor();
     if ( !mIsEqual(zfac,1,0.0001) )
 	{ cs.zrg.start *= zfac; cs.zrg.stop *= zfac; cs.zrg.step *= zfac; }
     if ( mIsZero(cs.zrg.step,1e-8) )
-	cs.zrg.step = survinfo->zIsTime() ? 0.004 : 1;
+	cs.zrg.step = si_.zIsTime() ? 0.004 : 1;
     cs.normalise();
     if ( !hs.totalNr() )
 	mErrRet("Please specify inline/crossline ranges")
     if ( cs.zrg.nrSteps() == 0 )
 	mErrRet("Please specify a valid Z range")
 
-    survinfo->setRange( cs, false );
+    si_.setRange( cs, false );
     return true;
 }
 
@@ -664,7 +646,7 @@ bool uiSurveyInfoEditor::setCoords()
     c[1] = xy2fld->getCoord();
     c[2] = xy1fld->getCoord();
   
-    const char* msg = survinfo->set3Pts( c, b, xline );
+    const char* msg = si_.set3Pts( c, b, xline );
     if ( msg ) { uiMSG().error( msg ); return false; }
 
     return true;
@@ -683,17 +665,17 @@ bool uiSurveyInfoEditor::setRelation()
         return false;
     }
 
-    survinfo->b2c_.setTransforms( xtr, ytr );
+    si_.b2c_.setTransforms( xtr, ytr );
     return true;
 }
 
 
 void uiSurveyInfoEditor::sipbutPush( CallBacker* cb )
 {
-    int sipidx = sipfld ? sipfld->currentItem() : sipbuts.indexOf( cb );
+    const int sipidx = sipfld ? sipfld->currentItem() : sipbuts.indexOf( cb );
     if ( sipidx < 0 ) { pErrMsg("Huh?"); return; }
 
-    survinfo->setZUnit( timefld->isChecked(), meterfld->isChecked() );
+    si_.setZUnit( timefld->isChecked(), meterfld->isChecked() );
 
     uiSurvInfoProvider* sip = survInfoProvs()[sipidx];
     PtrMan<uiDialog> dlg = sip->dialog( this );
@@ -707,23 +689,23 @@ void uiSurveyInfoEditor::sipbutPush( CallBacker* cb )
     {
 	const bool isdpth = sip->tdInfo() == uiSurvInfoProvider::Depth;
 	if ( isdpth && feetfld->isChecked() )
-	    survinfo->setZUnit( false, true );
+	    si_.setZUnit( false, true );
 	else
-	    survinfo->setZUnit( !isdpth, false );
+	    si_.setZUnit( !isdpth, false );
     }
 
     if ( mIsUdf(cs.zrg.start) )
-	cs.zrg = survinfo->zRange(false);
+	cs.zrg = si_.zRange(false);
 
-    survinfo->setRange(cs,false);
+    si_.setRange(cs,false);
     BinID bid[2];
     bid[0].inl = cs.hrg.start.inl; bid[0].crl = cs.hrg.start.crl;
     bid[1].inl = cs.hrg.stop.inl; bid[1].crl = cs.hrg.stop.crl;
-    survinfo->set3Pts( crd, bid, cs.hrg.stop.crl );
+    si_.set3Pts( crd, bid, cs.hrg.stop.crl );
     setValues();
 
-    survinfo->setWSProjName( SI().getWSProjName() );
-    survinfo->setWSPwd( SI().getWSPwd() );
+    si_.setWSProjName( SI().getWSProjName() );
+    si_.setWSPwd( SI().getWSPwd() );
 }
 
 

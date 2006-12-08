@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvinfoed.h,v 1.21 2005-04-26 15:11:54 cvsbert Exp $
+ RCS:           $Id: uisurvinfoed.h,v 1.22 2006-12-08 13:38:19 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,15 +15,16 @@ ________________________________________________________________________
 #include "uidialog.h"
 #include "uigroup.h"
 #include "ranges.h"
+
+class Coord;
+class CubeSampling;
+class SurveyInfo;
 class uiCheckBox;
 class uiComboBox;
 class uiGenInput;
+class uiLabel;
 class uiPushButton;
 class uiRadioButton;
-class CubeSampling;
-class SurveyInfo;
-class uiLabel;
-class Coord;
 
 
 /*\brief Interface for survey info provider
@@ -58,7 +59,7 @@ class uiSurveyInfoEditor : public uiDialog
 {
 
 public:
-			uiSurveyInfoEditor(uiParent*,SurveyInfo*);
+			uiSurveyInfoEditor(uiParent*,SurveyInfo&);
 
     bool		dirnmChanged() const	{ return dirnamechanged; }
     const char*		dirName();
@@ -74,22 +75,23 @@ public:
     			
 protected:
 
-    SurveyInfo*		survinfo;
+    SurveyInfo&		si_;;
     BufferString	orgdirname;
     BufferString	orgstorepath;
-    BufferString	globcurdirname;
     const FileNameString rootdir;
     bool		isnew;
 
     uiGenInput*		survnmfld;
     uiGenInput*		dirnmfld;
     uiGenInput*		pathfld;
+
     uiGenInput*		inlfld;
     uiGenInput*		crlfld;
     uiGenInput*		zfld;
     uiRadioButton*	timefld;
     uiRadioButton*	meterfld;
     uiRadioButton*	feetfld;
+
     uiGenInput*		x0fld;
     uiGenInput*		xinlfld;
     uiGenInput*		xcrlfld;
@@ -125,8 +127,6 @@ protected:
     void		pathbutPush(CallBacker*);
     void		unitPush(CallBacker*);
     void		updStatusBar(const char*);
-    void		newSurvey(const char*);
-
 };
 
 #endif

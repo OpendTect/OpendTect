@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvey.cc,v 1.73 2006-12-06 12:39:26 cvsnanne Exp $
+ RCS:           $Id: uisurvey.cc,v 1.74 2006-12-08 13:38:19 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -408,14 +408,14 @@ void uiSurvey::mkDirList()
 
 bool uiSurvey::survInfoDialog()
 {
-    uiSurveyInfoEditor dlg( this, survinfo );
+    uiSurveyInfoEditor dlg( this, *survinfo );
     dlg.survparchanged.notify( mCB(this,uiSurvey,updateInfo) );
     if ( !dlg.go() )
 	return false;
 
     updateSvyList();
     listbox->setCurrentItem( dlg.dirName() );
-    updateSvyFile();
+//    updateSvyFile();
     return true;
 }
 
@@ -452,6 +452,7 @@ void uiSurvey::rmButPushed( CallBacker* )
     {
         BufferString newsel( listbox->getText() );
         writeSurveyName( newsel );
+	if ( button(CANCEL) ) button(CANCEL)->setSensitive( false );
     }
 }
 
