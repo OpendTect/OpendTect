@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiodapplmgr.h,v 1.41 2006-10-16 14:58:29 cvsbert Exp $
+ RCS:           $Id: uiodapplmgr.h,v 1.42 2006-12-08 16:04:12 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -168,6 +168,7 @@ protected:
     bool		handleNLAServEv(int);
     bool		handleAttribServEv(int);
 
+    void		surveyToBeChanged(CallBacker*);
     void		coltabChg(CallBacker*);
     void		setHistogram(int visid,int attrib);
     void		setupRdmLinePreview(const TypeSet<Coord>&);
