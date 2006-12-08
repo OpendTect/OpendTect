@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Helene Payraudeau
  Date:		February 2005
- RCS:		$Id: eventattrib.cc,v 1.20 2006-10-19 09:52:46 cvshelene Exp $
+ RCS:		$Id: eventattrib.cc,v 1.21 2006-12-08 15:43:10 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -202,7 +202,7 @@ void Event::singleEvent( TypeSet<float>& output, int nrsamples, int z0 ) const
 	{
 	    ev = nextev;
 	    nextev = findNextEvent( nextev, 1, zc, inputdata->nrsamples_, z0 );
-	    if ( outputinterest[0] || outputinterest[2] )
+	    if ( isOutputEnabled(0) || isOutputEnabled(2) )
 	    {
 		sg.start = ev.pos + 1;
 		sg.stop = sg.start + SGWIDTH;
@@ -212,10 +212,10 @@ void Event::singleEvent( TypeSet<float>& output, int nrsamples, int z0 ) const
 
 	if ( cursample > ev.pos && cursample < nextev.pos )
 	{
-	    if ( outputinterest[0] )
+	    if ( isOutputEnabled(0) )
 		output[idx] = mIsUdf( nextev.pos ) || mIsUdf( ev.pos ) ?
 			      mUdf(float) : extrev.val/(nextev.pos-ev.pos);
-	    else if ( outputinterest[1] )
+	    else if ( isOutputEnabled(1) )
 	    {
 		if ( mIsUdf( ev.pos ) ) 
 		    output[idx] = mUdf( float );
@@ -230,7 +230,7 @@ void Event::singleEvent( TypeSet<float>& output, int nrsamples, int z0 ) const
 		    output[idx] = fabs( (nextsampval - lastsampval) / 2 );
 		}
 	    }
-	    else if ( outputinterest[2] )
+	    else if ( isOutputEnabled(2) )
 	    {
 		if ( mIsUdf( ev.pos ) ||  mIsUdf( extrev.pos ) 
 		     || mIsUdf( nextev.pos ) ) 
@@ -363,13 +363,12 @@ bool Event::computeData( const DataHolder& output, const BinID& relpos,
 
     for ( int idx=0; idx<nrsamples; idx++ )
     {
-	const int outidx = z0 - output.z0_ + idx;
-	if ( outputinterest[0] ) 
-	    output.series(0)->setValue( outidx, outp[idx] );
-	else if ( outputinterest[1] ) 
-	    output.series(1)->setValue( outidx, outp[idx] );
-	else if ( outputinterest[2] )
-	    output.series(2)->setValue( outidx, outp[idx] );
+	if ( isOutputEnabled(0) ) 
+	    setOutputValue( output, 0, idx, z0, outp[idx] );
+	else if ( isOutputEnabled(1) ) 
+	    setOutputValue( output, 1, idx, z0, outp[idx] );
+	else if ( isOutputEnabled(2) )
+	    setOutputValue( output, 2, idx, z0, outp[idx] );
     }
 
     return true;

@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: convolveattrib.cc,v 1.15 2006-11-08 16:20:15 cvshelene Exp $";
+static const char* rcsID = "$Id: convolveattrib.cc,v 1.16 2006-12-08 15:43:10 cvshelene Exp $";
 
 #include "convolveattrib.h"
 #include "attribdataholder.h"
@@ -331,9 +331,6 @@ const BinID* Convolve::reqStepout( int inp, int out ) const
 const Interval<float>* Convolve::reqZMargin( int inp, int ) const
 {
     if ( !kernel_ ) return 0;
-    Interval<float> tg( kernel_->getSG().start *refstep, 
-	    		kernel_->getSG().stop * refstep );
-    const_cast<Convolve*>(this)->interval_ = tg;
     return &interval_;
 }
 
@@ -348,16 +345,15 @@ bool Convolve::computeDataKernel( const DataHolder& output, int z0,
     const int nrtraces = (1+stepout_.inl*2) * (1+stepout_.crl*2);
 
     ArrPtrMan<bool> docalculate = new bool[nrofkernels];
-    const bool customcalc = !outputinterest[0];
+    const bool customcalc = !isOutputEnabled(0);
     for ( int idx=0; idx<nrofkernels; idx++ )
-	docalculate[idx] = customcalc ? outputinterest[idx+1] : true;
+	docalculate[idx] = customcalc ? isOutputEnabled(idx+1) : true;
 
     const Interval<int> sg_ = kernel_->getSG();
     const int sgwidth = 1 + sg_.width();
 
     for ( int idx=0; idx<nrsamples; idx++ )
     {
-	const int cursample = z0 + idx;
 	ArrPtrMan<float> res = new float[nrofkernels];
 	for ( int idy=0; idy<nrofkernels; idy++ )
 	    res[idy] = 0;
@@ -371,8 +367,8 @@ bool Convolve::computeDataKernel( const DataHolder& output, int z0,
 
 	    ArrPtrMan<float> vals = new float[sgwidth];
 	    for ( int valindex=0; valindex<sgwidth; valindex++ )
-		vals[valindex] = inputdata_[idy]->series(dataidx_)->
-		   value( cursample-inputdata_[idy]->z0_ +(sg_.start+valindex));
+		vals[valindex] = getInputValue( *inputdata_[idy], dataidx_,
+					        idx+sg_.start+valindex, z0 );
 
 	    for ( int kidx=0; kidx<nrofkernels; kidx++ )
 	    {
@@ -386,21 +382,20 @@ bool Convolve::computeDataKernel( const DataHolder& output, int z0,
 
 	}
 
-	const int outidx = z0 - output.z0_ + idx;
-	if ( outputinterest[0] )
+	if ( isOutputEnabled(0) )
 	{
 	    float ressum = 0;
 	    for ( int idy=0; idy<nrofkernels; idy++)
 		ressum += res[idy];
 
-	    output.series(0)->setValue( outidx, ressum/nrofkernels );
+	    setOutputValue( output, 0, idx, z0, ressum/nrofkernels );
 	}
 
 	if ( nrofkernels>1 )
 	{
 	    for ( int idy=0; idy<nrofkernels; idy++ )
-		if ( outputinterest[idy+1] ) 
-		    output.series(idy+1)->setValue( outidx, res[idy] );
+		if ( isOutputEnabled(idy+1) )
+		   setOutputValue( output, idy+1, idx, z0, res[idy] ); 
 	}
     }
 
@@ -438,6 +433,14 @@ bool Convolve::computeData( const DataHolder& output, const BinID& relpos,
 bool Convolve::allowParallelComputation() const
 {
     return kerneltype_==mKernelFunctionWavelet ? false : true;
+}
+
+
+void Convolve::prepareForComputeData()
+{
+    if ( !kernel_ ) return;
+    interval_ = Interval<float>( kernel_->getSG().start *refstep,
+				 kernel_->getSG().stop * refstep );
 }
 
 

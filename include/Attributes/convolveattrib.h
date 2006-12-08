@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: convolveattrib.h,v 1.10 2006-11-08 16:20:15 cvshelene Exp $
+ RCS:           $Id: convolveattrib.h,v 1.11 2006-12-08 15:43:10 cvshelene Exp $
 ________________________________________________________________________
 
     
@@ -63,6 +63,8 @@ public:
     static const char*  	shapeTypeStr(int);
 
     static const float  	prewitt[];
+
+    void                        prepareForComputeData();
 
 protected:
     				~Convolve();

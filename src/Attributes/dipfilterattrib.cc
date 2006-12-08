@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: dipfilterattrib.cc,v 1.17 2006-11-30 16:36:13 cvshelene Exp $";
+static const char* rcsID = "$Id: dipfilterattrib.cc,v 1.18 2006-12-08 15:43:10 cvshelene Exp $";
 
 
 #include "dipfilterattrib.h"
@@ -342,7 +342,6 @@ bool DipFilter::computeData( const DataHolder& output, const BinID& relpos,
     const int hsz = size/2;
     for ( int idx=0; idx<nrsamples; idx++)
     {
-	const int cursample = z0 + idx;
 	int dhoff = 0;
 	int nrvalues = 0;
 	float sum = 0;
@@ -355,12 +354,13 @@ bool DipFilter::computeData( const DataHolder& output, const BinID& relpos,
 
 		Interval<int> dhinterval( dh->z0_, dh->z0_+dh->nrsamples_ );
 
-		int s = cursample - hsz;
+		int s = idx - hsz;
 		for ( int idt=0; idt<size; idt++ )
 		{
-		    if ( dhinterval.includes(s) && s-dh->z0_<dh->nrsamples_ )
+		    if ( dhinterval.includes(s+z0) && 
+			 s+z0-dh->z0_<dh->nrsamples_ )
 		    {
-			sum += dh->series(dataidx_)->value(s-dh->z0_) *
+			sum += getInputValue( *dh, dataidx_, s, z0 ) *
 			       kernel.get( idi, idc, idt );
 			nrvalues++;
 		    }
@@ -370,9 +370,8 @@ bool DipFilter::computeData( const DataHolder& output, const BinID& relpos,
 	    }
 	}
 
-	const int outidx = z0 - output.z0_ + idx;
-	if ( outputinterest[0] )
-	    output.series(0)->setValue( outidx, nrvalues ? sum/nrvalues
+	if ( isOutputEnabled(0) )
+	    setOutputValue( output, 0, idx, z0, nrvalues ? sum/nrvalues
 		   					 : mUdf(float) );
     }
 
