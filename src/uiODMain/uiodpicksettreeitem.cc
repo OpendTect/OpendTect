@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodpicksettreeitem.cc,v 1.17 2006-12-01 16:44:38 cvsnanne Exp $
+ RCS:		$Id: uiodpicksettreeitem.cc,v 1.18 2006-12-08 15:55:16 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -231,7 +231,7 @@ void uiODPickSetTreeItem::createMenuCB( CallBacker* cb )
 
     mAddMenuItem( menu, &storemnuitem_, true, false );
     mAddMenuItem( menu, &storeasmnuitem_, true, false );
-    mAddMenuItem( menu, &dirmnuitem_, true, false );
+//    mAddMenuItem( menu, &dirmnuitem_, true, false );
 
     mDynamicCastGet(visSurvey::PickSetDisplay*,psd,
 		    visserv->getObject(displayid_));
