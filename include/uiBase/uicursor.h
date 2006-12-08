@@ -7,13 +7,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          12/05/2004
- RCS:           $Id: uicursor.h,v 1.5 2004-09-15 06:33:23 kristofer Exp $
+ RCS:           $Id: uicursor.h,v 1.6 2006-12-08 15:58:03 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
-
-class ioBitmap;
-
 
 class uiCursor 
 {
@@ -70,10 +67,6 @@ public:
     is pushed onto the top of the stack.
 */
     static void		setOverride(Shape,bool replace=false);
-    static void		setOverride( const ioBitmap* shape,
-	    			     const ioBitmap* mask = 0, int hotX=-1,
-				     int hotY=-1,
-	    			     bool replace=false);
     static void		restoreOverride();
 };
 
@@ -87,10 +80,6 @@ class uiCursorChanger
 public:
 		uiCursorChanger(uiCursor::Shape cs)
 			{ uiCursor::setOverride(cs); }
-		uiCursorChanger( const ioBitmap* shape,
-				 const ioBitmap* mask = 0,
-				 int hotX=-1, int hotY=-1 )
-		{ uiCursor::setOverride( shape, mask, hotX, hotY ); }
 		~uiCursorChanger() { uiCursor::restoreOverride(); }
 };
 
