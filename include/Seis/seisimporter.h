@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Nov 2006
- RCS:		$Id: seisimporter.h,v 1.2 2006-12-05 16:49:09 cvsbert Exp $
+ RCS:		$Id: seisimporter.h,v 1.3 2006-12-08 13:57:02 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,9 +16,12 @@ ________________________________________________________________________
 #include "executor.h"
 #include "bufstring.h"
 class IOObj;
+class BinID;
 class SeisTrc;
 class SeisTrcBuf;
 class SeisTrcWriter;
+class BinIDSorting;
+class BinIDSortingAnalyser;
 
 
 /*!\brief Helps import or export of seismic data. */
@@ -66,6 +69,10 @@ protected:
     SeisTrcWriter&	wrr_;
     SeisTrcBuf&		buf_;
     SeisTrc&		trc_;
+    BinID&		prevbinid_;
+    int			sort2ddir_;
+    BinIDSorting*	sorting_;
+    BinIDSortingAnalyser* sortanal_;
     Seis::GeomType	geomtype_;
     State		state_;
     int			nrread_;
@@ -73,12 +80,13 @@ protected:
     bool		crlsorted_;
     Executor*		postproc_;
 
-    int			doWrite(const SeisTrc&);
+    bool		needInlCrlSwap() const;
+    bool		sortingOk(const SeisTrc&);
+    int			doWrite(SeisTrc&);
     int			readIntoBuf();
-    int			analyseBuf();
     Executor*		mkPostProc();
 
-    mutable BufferString	errmsg_;
+    mutable BufferString errmsg_;
     mutable BufferString	hndlmsg_;
 
 };

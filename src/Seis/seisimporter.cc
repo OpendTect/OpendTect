@@ -4,14 +4,16 @@
  * DATE     : Nov 2006
 -*/
 
-static const char* rcsID = "$Id: seisimporter.cc,v 1.3 2006-12-05 16:49:09 cvsbert Exp $";
+static const char* rcsID = "$Id: seisimporter.cc,v 1.4 2006-12-08 13:57:02 cvsbert Exp $";
 
 #include "seisimporter.h"
 #include "seisbuf.h"
 #include "seistrc.h"
 #include "seiswrite.h"
 #include "survinfo.h"
+#include "binidsorting.h"
 #include "ptrman.h"
+#include "errh.h"
 
 
 SeisImporter::SeisImporter( SeisImporter::Reader* r, SeisTrcWriter& w,
@@ -25,9 +27,12 @@ SeisImporter::SeisImporter( SeisImporter::Reader* r, SeisTrcWriter& w,
     	, state_(ReadBuf)
     	, nrread_(0)
     	, nrwritten_(0)
-    	, crlsorted_(0)
     	, postproc_(0)
     	, removenulltrcs_(false)
+	, sortanal_(new BinIDSortingAnalyser(gt))
+	, sorting_(0)
+	, prevbinid_(*new BinID(mUdf(int),mUdf(int)))
+	, sort2ddir_(0)
 {
 }
 
@@ -37,8 +42,11 @@ SeisImporter::~SeisImporter()
     buf_.deepErase();
     delete postproc_;
     delete rdr_;
+    delete sorting_;
+    delete sortanal_;
     delete &buf_;
     delete &trc_;
+    delete &prevbinid_;
 }
 
 
@@ -107,14 +115,15 @@ int SeisImporter::nextStep()
     {
 	mDoRead( trc_ )
 	if ( !atend )
-	{
-	    if ( crlsorted_ )
-		Swap( trc_.info().binid.inl, trc_.info().binid.crl );
-
-	    return doWrite( trc_ );
-	}
+	    return sortingOk(trc_) ? doWrite(trc_) : Executor::ErrorOccurred;
 
 	postproc_ = mkPostProc();
+	if ( !postproc_ && needInlCrlSwap() )
+	{
+	    errmsg_ = "Your data was loaded with swapped inline/crossline\n"
+		      "Please use the batch program 'cbvs_swap_inlcrl' now\n";
+	    return Executor::ErrorOccurred;
+	}
 	return postproc_ ? Executor::MoreToDo : Executor::Finished;
     }
 
@@ -122,10 +131,19 @@ int SeisImporter::nextStep()
 }
 
 
-int SeisImporter::doWrite( const SeisTrc& trc )
+bool SeisImporter::needInlCrlSwap() const
+{
+    return sorting_ && !sorting_->inlSorted();
+}
+
+
+int SeisImporter::doWrite( SeisTrc& trc )
 {
     if ( removenulltrcs_ && trc.isNull() )
 	return Executor::MoreToDo;
+
+    if ( needInlCrlSwap() )
+	Swap( trc.info().binid.inl, trc.info().binid.crl );
 
     if ( wrr_.put(trc) )
     {
@@ -164,37 +182,76 @@ int SeisImporter::readIntoBuf()
     if ( Seis::is2D(geomtype_) || SI().isReasonable(trc->info().binid) )
     {
 	buf_.add( trc );
-	return analyseBuf();
+	if ( !sortingOk(*trc) )
+	    return Executor::ErrorOccurred;
+	if ( !sortanal_ )
+	    state_ = WriteBuf;
     }
+
     return Executor::MoreToDo;
 }
 
 
-int SeisImporter::analyseBuf()
+bool SeisImporter::sortingOk( const SeisTrc& trc )
 {
-    const int bufsz = buf_.size();
-    if ( bufsz < 2 ) return Executor::MoreToDo;
-
-    /*TODO difficult to auto-detect inline- or crossline-sorting
-    const SeisTrc* prevtrc = buf_.get( 0 );
-    for ( int idx=1; idx<bufsz; idx++ )
+    bool rv = true;
+    if ( Seis::is2D(geomtype_) )
     {
-	const SeisTrc* trc = buf_.get( idx );
-	if ( trc->info().binid.inl != prevtrc->info().binid.inl )
-	    inlchgs++;
-	if ( trc->info().binid.crl != prevtrc->info().binid.crl )
-	    crlchgs++;
-    }
-    */
+	if ( sort2ddir_ != 0 )
+	{
+	    rv = (sort2ddir_ < 0 && trc.info().nr <= prevbinid_.crl)
+	      || (sort2ddir_ > 0 && trc.info().nr >= prevbinid_.crl);
+	      if ( !rv )
+	      {
+		  errmsg_ = "Importing stopped because trace number found: ";
+		  errmsg_ += trc.info().nr;
+		  errmsg_ += "\nviolates earlier trace number sorting";
+	      }
+	}
+	else if ( !mIsUdf(prevbinid_.crl) && prevbinid_.crl != trc.info().nr )
+	    sort2ddir_ = prevbinid_.crl < trc.info().nr ? 1 : -1;
 
-    state_ = WriteBuf;
-    return Executor::MoreToDo;
+	prevbinid_.crl = trc.info().nr;
+    }
+    else
+    {
+	if ( sorting_ )
+	{
+	    if ( !sorting_->isValid(prevbinid_,trc_.info().binid) )
+	    {
+		char buf[30]; trc_.info().binid.fill( buf );
+		errmsg_ = "Importing stopped because trace position found: ";
+		errmsg_ += buf;
+		errmsg_ += "\nviolates previous trace sorting:\n";
+		errmsg_ += sorting_->description();
+		rv = false;
+	    }
+	}
+	else
+	{
+	    if ( sortanal_->add(trc.info().binid) )
+	    {
+		sorting_ = new BinIDSorting( sortanal_->getSorting() );
+		delete sortanal_; sortanal_ = 0;
+	    }
+	    else if ( *sortanal_->errMsg() )
+	    {
+		errmsg_ = sortanal_->errMsg();
+		rv = false;
+	    }
+	}
+	prevbinid_ = trc.info().binid;
+    }
+    return rv;
 }
 
 
 Executor* SeisImporter::mkPostProc()
 {
-    if ( crlsorted_ )
-	return 0; //TODO inl/crl re-sorting Executor needed
+    if ( needInlCrlSwap() )
+    {
+	pErrMsg( "TODO: inl/crl re-sorting Executor needed" );
+	return 0;
+    }
     return 0;
 }

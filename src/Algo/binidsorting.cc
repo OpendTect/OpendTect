@@ -4,7 +4,7 @@
  * DATE     : Dec 2006
 -*/
 
-static const char* rcsID = "$Id: binidsorting.cc,v 1.1 2006-12-06 11:59:53 cvsbert Exp $";
+static const char* rcsID = "$Id: binidsorting.cc,v 1.2 2006-12-08 13:57:02 cvsbert Exp $";
 
 #include "binidsorting.h"
 #include "undefval.h"
@@ -13,6 +13,11 @@ static const char* rcsID = "$Id: binidsorting.cc,v 1.1 2006-12-06 11:59:53 cvsbe
 bool BinIDSorting::isValid( const BinID& prev, const BinID& cur,
 			    bool inlsort, bool inlupw, bool crlupw )
 {
+    if ( mIsUdf(prev.inl) || mIsUdf(prev.crl) )
+	return true;
+    else if ( mIsUdf(cur.inl) || mIsUdf(cur.crl) )
+	return false;
+
     const int previnl = inlupw ? prev.inl : -prev.inl;
     const int curinl = inlupw ? cur.inl : -cur.inl;
     const int prevcrl = crlupw ? prev.crl : -prev.crl;
@@ -28,10 +33,11 @@ const char* BinIDSorting::description( bool inlsort, bool inlupw, bool crlupw )
 {
     static BufferString ret;
     ret = inlsort ? "In-" : "Cross-";
-    ret += "line sorted; In-lines go ";
-    ret += inlupw ? "up" : "down";
-    ret += "; Cross-lines go ";
-    ret += crlupw ? "up" : "down";
+    ret += "line sorted; In-lines ";
+    ret += inlupw ? "in" : "de";
+    ret += "crease; Cross-lines ";
+    ret += crlupw ? "in" : "de";
+    ret += "crease";
     return ret;
 }
 
