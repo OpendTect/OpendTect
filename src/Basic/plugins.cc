@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Aug 2003
- RCS:           $Id: plugins.cc,v 1.50 2006-11-21 14:00:06 cvsbert Exp $
+ RCS:           $Id: plugins.cc,v 1.51 2006-12-08 13:58:42 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -345,7 +345,6 @@ void PluginManager::openALOEntries()
 void PluginManager::getALOEntries( const char* dirnm, bool usrdir )
 {
     DirList dl( dirnm, DirList::FilesOnly );
-    dl.sort();
     const BufferString prognm = getProgNm( argv_[0] );
     for ( int idx=0; idx<dl.size(); idx++ )
     {
@@ -355,8 +354,7 @@ void PluginManager::getALOEntries( const char* dirnm, bool usrdir )
 	*strchr( fnm.buf(), '.' ) = '\0';
 	if ( fnm != prognm ) continue;
 
-	FilePath fp( dirnm ); fp.add( dl.get(idx) );
-	StreamData sd = StreamProvider( fp.fullPath() ).makeIStream(false);
+	StreamData sd = StreamProvider( dl.fullPath(idx) ).makeIStream(false);
 	if ( !sd.usable() ) { sd.close(); continue; }
 
 	char buf[128];

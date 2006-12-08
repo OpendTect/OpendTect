@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Apr 2003
- RCS:           $Id: uibatchprogs.h,v 1.5 2003-11-07 12:21:54 bert Exp $
+ RCS:           $Id: uibatchprogs.h,v 1.6 2006-12-08 13:58:42 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,7 +26,7 @@ class uiBatchProgLaunch : public uiDialog
 {
 public:
 
-			uiBatchProgLaunch(uiParent*,const char* appnm=0);
+			uiBatchProgLaunch(uiParent*);
 			~uiBatchProgLaunch();
 
 protected:

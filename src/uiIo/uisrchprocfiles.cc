@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Feb 2006
- RCS:           $Id: uisrchprocfiles.cc,v 1.3 2006-11-21 14:00:08 cvsbert Exp $
+ RCS:           $Id: uisrchprocfiles.cc,v 1.4 2006-12-08 13:58:42 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -79,13 +79,10 @@ void uiSrchProcFiles::srchDir( CallBacker* )
 	mRet( "No matching files found" )
 
     BufferStringSet fnms;
-    const FilePath dirfp( dirnm );
     for ( int idx=0; idx<dl.size(); idx++ )
     {
-	const BufferString fnm( dl.get(idx) );
-	FilePath fp( dirfp ); fp.add( fnm );
-	IOPar iop;
-	if ( !iop.read(fp.fullPath(),sKey::Pars,true) )
+	IOPar iop; const BufferString fnm( dl.fullPath(idx) );
+	if ( !iop.read(fnm,sKey::Pars,true) )
 	    continue;
 	const char* res = iop.find( iopkey_ );
 	if ( res && key == res )
@@ -104,7 +101,7 @@ void uiSrchProcFiles::srchDir( CallBacker* )
 	sel = dlg.selection();
     }
 
-    FilePath fp( dirfp ); fp.add( fnms.get(sel) );
+    FilePath fp( dirnm ); fp.add( fnms.get(sel) );
     fnamefld->setText( fp.fullPath() );
     mRet(0)
 }

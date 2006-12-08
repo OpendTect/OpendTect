@@ -4,7 +4,7 @@
  * DATE     : 3-8-1994
 -*/
 
-static const char* rcsID = "$Id: dirlist.cc,v 1.10 2006-11-21 14:00:06 cvsbert Exp $";
+static const char* rcsID = "$Id: dirlist.cc,v 1.11 2006-12-08 13:58:42 cvsbert Exp $";
 
 #include "dirlist.h"
 #include "globexpr.h"
@@ -91,4 +91,22 @@ void DirList::update()
     }
     closedir(dirp);
 #endif
+
+    sort();
+}
+
+
+const char* DirList::fullPath( int idx ) const
+{
+    static BufferString ret;
+    ret = "";
+
+    if ( idx < size() )
+    {
+	FilePath fp( dirName() );
+	fp.add( (*this).get(idx) );
+	ret = fp.fullPath();
+    }
+
+    return ret.buf();
 }
