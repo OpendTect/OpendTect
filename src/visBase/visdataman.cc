@@ -4,16 +4,17 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: visdataman.cc,v 1.34 2006-12-06 17:30:19 cvskris Exp $";
+static const char* rcsID = "$Id: visdataman.cc,v 1.35 2006-12-08 12:36:47 cvsnanne Exp $";
 
 #include "visdataman.h"
 #include "visdata.h"
 #include "visselman.h"
+#include "envvars.h"
+#include "errh.h"
 #include "iopar.h"
 #include "ptrman.h"
-#include "errh.h"
 
-#include "Inventor/SoPath.h"
+#include <Inventor/SoPath.h>
 
 namespace visBase
 {
@@ -111,10 +112,14 @@ bool DataManager::usePar( const IOPar& par )
 	    RefMan<DataObject> obj = factory().create( type );
 	    if ( !obj ) { lefttodo.remove(idx); idx--; continue; }
 
-	    int no = objects_.indexOf( obj );
-	    obj->setID(lefttodo[idx]);  
-
-	    int res = obj->usePar( *iopar );
+	    obj->setID( lefttodo[idx] );
+	    const int res = obj->usePar( *iopar );
+	    if ( GetEnvVarYN("OD_DEBUG_RESTORE_SESSION") )
+	    {
+		BufferString str( "[" ); str += lefttodo[idx]; str += "]";
+		std::cerr << str << " " << type << '\t' 
+		    	  << "Status: " << res << std::endl;
+	    }
 	    if ( res==-1 )
 		return false;
 	    if ( res==0 )
@@ -122,7 +127,7 @@ bool DataManager::usePar( const IOPar& par )
 
 	    createdobj += obj;
 	    obj->ref();
-	   
+
 	    lefttodo.remove( idx );
 	    idx--;
 	    change = true;
