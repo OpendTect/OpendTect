@@ -53,3 +53,6 @@ lmhostid
 	Comment: Display the FlexLM hostid of this machine
 	Comment: May be required for commercial plugins.
 !
+csh: Sys
+	Comment: Runs a C-shell with the OpendTect environment
+!
