@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.161 2006-12-08 15:58:49 cvsnanne Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.162 2006-12-11 19:38:57 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -84,6 +84,8 @@ uiODApplMgr::uiODApplMgr( uiODMain& a )
 	, applservice(*new uiODApplService(&a,*this))
     	, nlaserv(0)
     	, getOtherFormatData( this )
+	, otherformatvisid_( -1 )
+	, otherformatattrib_( -1 )
 {
     pickserv = new uiPickPartServer( applservice );
     visserv = new uiVisPartServer( applservice );
@@ -481,7 +483,11 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
 	}
 	case uiVisPartServer::OtherFormat :
 	{
-	    getOtherFormatData.trigger( visid );
+	    otherformatvisid_ = visid;
+	    otherformatattrib_ = attrib;
+	    getOtherFormatData.trigger();
+	    otherformatvisid_ = -1;
+	    otherformatattrib_ = -1;
 	    return true;
 	}
 	default :

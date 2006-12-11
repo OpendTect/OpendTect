@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		May 2006
- RCS:		$Id: uiodseis2dtreeitem.cc,v 1.6 2006-12-06 17:36:10 cvskris Exp $
+ RCS:		$Id: uiodseis2dtreeitem.cc,v 1.7 2006-12-11 19:38:57 cvskris Exp $
 ___________________________________________________________________
 
 -*/
@@ -482,8 +482,11 @@ void uiOD2DLineSetSubItem::setAttrib( const Attrib::SelSpec& myas )
 
 void uiOD2DLineSetSubItem::getNewData( CallBacker* cb )
 {
-    mCBCapsuleUnpack(int,visid,cb);
+    const int visid = applMgr()->otherFormatVisID();
     if ( visid != displayid_ ) return;
+
+    const int attrib = applMgr()->otherFormatAttrib();
+
     mDynamicCastGet(visSurvey::Seis2DDisplay*,s2d,
 		    visserv->getObject(displayid_))
     if ( !s2d ) return;
@@ -496,18 +499,15 @@ void uiOD2DLineSetSubItem::getNewData( CallBacker* cb )
 
     const char* objnm = s2d->name();
 
-    for ( int idx=s2d->nrAttribs()-1; idx>=0; idx-- )
-    {
-	const Attrib::SelSpec& as = *s2d->getSelSpec(idx);
-	applMgr()->attrServer()->setTargetSelSpec( as );
-	RefMan<Attrib::Data2DHolder> dataset = new Attrib::Data2DHolder;
+    const Attrib::SelSpec& as = *s2d->getSelSpec( attrib );
+    applMgr()->attrServer()->setTargetSelSpec( as );
+    RefMan<Attrib::Data2DHolder> dataset = new Attrib::Data2DHolder;
 
-	if ( !applMgr()->attrServer()->create2DOutput( cs, objnm, *dataset) )
-	    continue;
+    if ( !applMgr()->attrServer()->create2DOutput( cs, objnm, *dataset) )
+	return;
 
-	if ( dataset->size() )
-	    s2d->setTraceData( idx, *dataset );
-    }
+    if ( dataset->size() )
+	s2d->setTraceData( attrib, *dataset );
 }
 
 

@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiodapplmgr.h,v 1.42 2006-12-08 16:04:12 cvsnanne Exp $
+ RCS:           $Id: uiodapplmgr.h,v 1.43 2006-12-11 19:38:57 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -128,15 +128,17 @@ public:
     			/*!<Turns on/off viewMode and enables/disables
 			    the possibility to go to actMode. */
 
-    CNotifier<uiODApplMgr,int> getOtherFormatData;
-    			/*!<Is triggered with the visid when the
-			    vispartserver wants data, but the format
-			    (as reported by
+    Notifier<uiODApplMgr> getOtherFormatData;
+    			/*!<Is triggered when the vispartserver wants data,
+			    but the format (as reported by
 			    uiVisPartServer::getAttributeFormat() ) is
 			    uiVisPartServer::OtherFormat. If you manage
 			    a visobject with OtherFormat, you can
 			    connect here to be notified when the object
-			    needs data. */
+			    needs data. The visid and attribidx is retrieved
+			    by otherFormatVisID and otherFormatAttrib. */
+    int			otherFormatVisID() const { return otherformatvisid_; }
+    int			otherFormatAttrib() const { return otherformatattrib_; }
 
 protected:
 
@@ -178,6 +180,9 @@ protected:
 
     inline uiODSceneMgr& sceneMgr()	{ return appl.sceneMgr(); }
     inline uiODMenuMgr&	 menuMgr()	{ return appl.menuMgr(); }
+
+    int			otherformatvisid_;
+    int			otherformatattrib_;
 
     friend class	uiODMain;
 };
