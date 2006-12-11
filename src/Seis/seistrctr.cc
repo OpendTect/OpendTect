@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: seistrctr.cc,v 1.71 2006-08-30 16:03:27 cvsbert Exp $";
+static const char* rcsID = "$Id: seistrctr.cc,v 1.72 2006-12-11 14:53:40 cvsbert Exp $";
 
 #include "seistrctr.h"
 #include "seisfact.h"
@@ -261,7 +261,8 @@ void SeisTrcTranslator::fillOffsAzim( SeisTrcInfo& ti, const Coord& gp,
 
 bool SeisTrcTranslator::write( const SeisTrc& trc )
 {
-    if ( !inpfor_ ) commitSelections();
+    if ( !inpfor_ && !commitSelections() )
+	return false;
 
     if ( !inlCrlSorted() )
     {
