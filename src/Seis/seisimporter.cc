@@ -4,7 +4,7 @@
  * DATE     : Nov 2006
 -*/
 
-static const char* rcsID = "$Id: seisimporter.cc,v 1.5 2006-12-11 10:45:40 cvsbert Exp $";
+static const char* rcsID = "$Id: seisimporter.cc,v 1.6 2006-12-11 14:35:49 cvsbert Exp $";
 
 #include "seisimporter.h"
 #include "seisbuf.h"
@@ -200,7 +200,9 @@ bool SeisImporter::sortingOk( const SeisTrc& trc )
     {
 	bid.crl = trc.info().nr;
 	bid.inl = prevbinid_.inl;
-	if ( trc.info().new_packet && !mIsUdf(prevbinid_.inl) )
+	if ( mIsUdf(bid.inl) )
+	    bid.inl = 0;
+	else if ( trc.info().new_packet )
 	    bid.inl = prevbinid_.inl + 1;
     }
 
@@ -213,7 +215,7 @@ bool SeisImporter::sortingOk( const SeisTrc& trc )
 	    {
 		errmsg_ = "Importing stopped at trace number: ";
 		errmsg_ += trc.info().nr;
-		errmsg_ += "because:\n";
+		errmsg_ += "\nbecause before this trace, the rule was:\n";
 	    }
 	    else
 	    {
