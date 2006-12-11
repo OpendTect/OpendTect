@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		January 2003
- RCS:		$Id: visseis2ddisplay.h,v 1.6 2006-12-06 17:36:10 cvskris Exp $
+ RCS:		$Id: visseis2ddisplay.h,v 1.7 2006-12-11 19:40:50 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -127,7 +127,7 @@ protected:
 					 int stripidx,const Interval<int>&);
     void			updateLineNamePos();
     void			setData(int attrib,const Attrib::Data2DHolder&);
-    void			getNearestTrace(const Coord3&,int& idx,
+    bool			getNearestTrace(const Coord3&,int& idx,
 						float& sqdist) const;
 
     ObjectSet<const Attrib::Data2DHolder>	cache_;

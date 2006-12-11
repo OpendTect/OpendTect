@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2004
- RCS:           $Id: visseis2ddisplay.cc,v 1.9 2006-12-06 17:36:10 cvskris Exp $
+ RCS:           $Id: visseis2ddisplay.cc,v 1.10 2006-12-11 19:40:50 cvskris Exp $
  ________________________________________________________________________
 
 -*/
@@ -301,6 +301,8 @@ void Seis2DDisplay::updateVizPath()
 	planes_.remove(idx);
 	idx--;
     }
+
+    texture_->clearAll();
 }
 
 
@@ -515,17 +517,27 @@ void Seis2DDisplay::getMousePosInfo( const visBase::EventInfo&,
     info = "Line: "; info += name();
     getValueString( pos, val );
 
-// TODO    info += "   Tracenr: "; info += trcnr;
+    int dataidx = -1;
+    float mindist;
+    if ( getNearestTrace( pos, dataidx, mindist ) )
+    {
+	info += "   Tracenr: ";
+	info += geometry_.posns[dataidx].nr;
+    }
 }
 
 
 float Seis2DDisplay::getCacheValue( int attrib, int version,
 				    const Coord3& pos ) const
 {
+    if ( attrib>=cache_.size() || !cache_[attrib] )
+	return mUdf(float);
+
     int dataidx = -1;
     float mindist;
-    getNearestTrace( pos, dataidx, mindist );
-    if ( dataidx<0 || !cache_[attrib] || !cache_[attrib]->dataset_[dataidx] )
+    if ( !getNearestTrace( pos, dataidx, mindist ) || 
+	 dataidx>=cache_[attrib]->dataset_.size() ||
+	 !cache_[attrib]->dataset_[dataidx] )
 	return mUdf(float);
 
     const DataHolder* dh = cache_[attrib]->dataset_[dataidx];
@@ -561,7 +573,7 @@ const MultiID& Seis2DDisplay::lineSetID() const
 { return linesetid_; }
 
 
-void Seis2DDisplay::getNearestTrace( const Coord3& pos,
+bool Seis2DDisplay::getNearestTrace( const Coord3& pos,
 				     int& trcidx, float& mindist ) const
 {
     trcidx = -1;
@@ -578,6 +590,8 @@ void Seis2DDisplay::getNearestTrace( const Coord3& pos,
 	    trcidx = idx;
 	}
     }
+
+    return trcidx!=-1;
 }
 
 
@@ -596,8 +610,7 @@ int Seis2DDisplay::usePar( const IOPar& par )
 {
     int textureid = -1;
     if ( par.get(sKeyTextureID(),textureid) )
-    { //old format
-	//TODO
+    {
 	int res =  visBase::VisualObjectImpl::usePar( par );
 	if ( res != 1 ) return res;
 
