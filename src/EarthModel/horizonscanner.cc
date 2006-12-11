@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Feb 2005
- RCS:           $Id: horizonscanner.cc,v 1.14 2006-11-21 14:00:07 cvsbert Exp $
+ RCS:           $Id: horizonscanner.cc,v 1.15 2006-12-11 11:52:30 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -131,7 +131,7 @@ void HorizonScanner::report( IOPar& iopar ) const
 	}
     }
     else
-	iopar.add( "->", "No data values" );
+	iopar.add( "->", "No attribute data values" );
 
     if ( !rejectedlines.isEmpty() )
     {
