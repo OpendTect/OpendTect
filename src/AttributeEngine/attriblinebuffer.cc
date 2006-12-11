@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attriblinebuffer.cc,v 1.9 2006-11-21 14:00:06 cvsbert Exp $";
+static const char* rcsID = "$Id: attriblinebuffer.cc,v 1.10 2006-12-11 11:23:23 cvshelene Exp $";
 
 #include "attriblinebuffer.h"
 
@@ -89,36 +89,49 @@ void DataHolderLineBuffer::removeDataHolder( const BinID& bid )
 }
 
 
+#define removeWithOp( op )\
+{\
+    for ( int idx=0; idx<inlines.size(); idx++ )\
+    {\
+	bool removeline = false;\
+	if ( direction.inl*inlines[idx] op direction.inl*bid.inl )\
+	    removeline = true;\
+	else if ( inlines[idx]==bid.inl )\
+	{\
+	    TypeSet<int>& crosslines = *crossliness[idx];\
+	    for ( int idy=crosslines.size()-1; idy>=0; idy-- )\
+	    {\
+		if ( direction.crl*crosslines[idy] op direction.crl*bid.crl )\
+		{\
+		    delete (*inlinedata[idx])[idy];\
+		    inlinedata[idx]->remove(idy);\
+		    crosslines.remove(idy);\
+		}\
+	    }\
+\
+	    if ( crosslines.isEmpty() )\
+		removeline = true;\
+	}\
+\
+	if ( !removeline )\
+	    continue;\
+\
+	removeInline( idx-- );\
+    }\
+}
+
+
 void DataHolderLineBuffer::removeBefore( const BinID& bid, 
 					const BinID& direction )
 {
-    for ( int idx=0; idx<inlines.size(); idx++ )
-    {
-	bool removeline = false;
-	if ( direction.inl*inlines[idx]<direction.inl*bid.inl )
-	    removeline = true;
-	else if ( inlines[idx]==bid.inl )
-	{
-	    TypeSet<int>& crosslines = *crossliness[idx];
-	    for ( int idy=crosslines.size()-1; idy>=0; idy-- )
-	    {
-		if ( direction.crl*crosslines[idy]<direction.crl*bid.crl )
-		{
-		    delete (*inlinedata[idx])[idy];
-		    inlinedata[idx]->remove(idy);
-		    crosslines.remove(idy);
-		}
-	    }
+    removeWithOp( < );
+}
 
-	    if ( crosslines.isEmpty() )
-		removeline = true;
-	}
 
-	if ( !removeline )
-	    continue;
-
-	removeInline( idx-- );
-    }
+void DataHolderLineBuffer::removeAllExcept( const BinID& bid )
+{
+    const BinID direction(1,1);
+    removeWithOp( != );
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribprovider.h,v 1.53 2006-11-16 15:22:28 cvshelene Exp $
+ RCS:           $Id: attribprovider.h,v 1.54 2006-12-11 11:23:23 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -171,6 +171,7 @@ protected:
     void			setInput(int input,Provider*);
     void			addParent( Provider* prov ) { parents += prov; }
     virtual BinDataDesc		getOutputFormat(int output) const;
+    virtual bool		doNotReUseDH() const		{ return false;}
 
     bool			computeDesInputCube(int inp,int out,
 						    CubeSampling&,

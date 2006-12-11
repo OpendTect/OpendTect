@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attriblinebuffer.h,v 1.4 2006-08-16 10:51:19 cvsbert Exp $
+ RCS:           $Id: attriblinebuffer.h,v 1.5 2006-12-11 11:23:23 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,6 +31,7 @@ public:
     DataHolder*		createDataHolder( const BinID&, int t0, int nrsamples );
     void		removeDataHolder(const BinID&);
     void		removeBefore( const BinID&, const BinID& );
+    void		removeAllExcept( const BinID& );
 
     DataHolder*		getDataHolder( const BinID& b )
 			{ return gtDataHolder(b); }

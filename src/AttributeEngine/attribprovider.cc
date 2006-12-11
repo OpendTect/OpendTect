@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribprovider.cc,v 1.80 2006-11-21 14:00:06 cvsbert Exp $";
+static const char* rcsID = "$Id: attribprovider.cc,v 1.81 2006-12-11 11:23:23 cvshelene Exp $";
 
 #include "attribprovider.h"
 #include "attribstorprovider.h"
@@ -700,6 +700,12 @@ bool Provider::setCurrentPosition( const BinID& bid )
     
     if ( linebuffer )
     {
+	if ( doNotReUseDH() )
+	{
+	    linebuffer->removeAllExcept( currentbid );
+	    return true;
+	}
+	
 	const BinID step = getStepoutStep();
 	BinID dir = BinID(1,1);
 	dir.inl *= step.inl/abs(step.inl); dir.crl *= step.crl/abs(step.crl);
