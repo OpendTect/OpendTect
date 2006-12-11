@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribdataholder.h,v 1.16 2006-11-21 14:00:06 cvsbert Exp $
+ RCS:           $Id: attribdataholder.h,v 1.17 2006-12-11 17:13:51 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -75,7 +75,11 @@ public:
     bool			fillDataCube(DataCubes&) const;
     CubeSampling		getCubeSampling() const;
     ObjectSet<DataHolder>	dataset_;
+    				/*!<\note that z0 on the dataholder refers
+				 	  to samples in trcinfoset_.sampling. */
     ObjectSet<SeisTrcInfo>	trcinfoset_;
+    				/*!<\note that the sampling is the same
+					  for all traces. */
 
     inline bool			isEmpty() const	{ return size() == 0; }
 
