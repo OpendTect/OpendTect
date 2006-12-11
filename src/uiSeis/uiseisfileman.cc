@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiseisfileman.cc,v 1.61 2006-11-21 14:00:08 cvsbert Exp $
+ RCS:           $Id: uiseisfileman.cc,v 1.62 2006-12-11 14:34:55 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -202,6 +202,8 @@ uiSeis2DMan( uiParent* p, const IOObj& ioobj )
 				 "Manage 2D seismic lines",
 				 "103.1.3"))
 {
+    setCtrlStyle( LeaveOnly );
+
     objinfo = new uiSeisIOObjInfo( ioobj );
     lineset = new Seis2DLineSet( ioobj.fullUserExpr(true) );
 
