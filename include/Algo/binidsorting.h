@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Dec 2006
- RCS:		$Id: binidsorting.h,v 1.1 2006-12-06 11:59:53 cvsbert Exp $
+ RCS:		$Id: binidsorting.h,v 1.2 2006-12-11 10:45:40 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,36 +16,45 @@ ________________________________________________________________________
 #include "bufstring.h"
 
 
-/*!\brief BinID sorting parameters */
+/*!\brief BinID sorting parameters
+
+  Note that in 2D, inl == line number, crl == trace number
+ 
+ */
 
 class BinIDSorting
 {
 public:
-    			BinIDSorting() : state_(0)	{}
+    			BinIDSorting( bool is2d )
+			    : is2d_(is2d), state_(0)	{}
 
     bool		isValid(const BinID& prev,const BinID& cur) const;
     const char*		description() const;
 
-    void		set(bool inl,bool inlupw,bool crlupw);
     bool		inlSorted() const
 			{ return state_ < 4; }
-    bool		inlUpward() const
+    bool		inlUpward() const //!< ignored in 2D
 			{ return (state_ % 2) < 1; }
     bool		crlUpward() const
 			{ return (state_ % 4) < 2; }
 
-    static bool		isValid(const BinID& prev,const BinID& cur,
+    void		set(bool inl,bool inlupw,bool crlupw);
+    			//!< In 2D, 'inl' is ignored and inlupw irrelevant
+
+    static bool		isValid(bool is2d,const BinID& prev,const BinID& cur,
 	    			bool inlsorted,bool inlupward,bool crlupward);
-    static const char*	description(bool inlsorted,bool inlupward,
+    static const char*	description(bool is2d,bool inlsorted,bool inlupward,
 	    			    bool crlupward);
 
 protected:
 
     friend class	BinIDSortingAnalyser;
 
-    			BinIDSorting( int st ) : state_(st)	{}
+    			BinIDSorting( bool is2d, int st )
+			    : is2d_(is2d), state_(st)	{}
 
     int			state_;
+    bool		is2d_;
 
 };
 
@@ -53,8 +62,7 @@ protected:
 class BinIDSortingAnalyser
 {
 public:
-    			BinIDSortingAnalyser(BinID bid=
-						BinID(mUdf(int),mUdf(int)));
+    			BinIDSortingAnalyser(bool is2d);
 
     bool		add(const BinID&);
     			//!< returns whether analysis phase is finished
@@ -65,9 +73,10 @@ public:
 
 protected:
 
-    BufferString	errmsg_;
     BinID		prev_;
+    bool		is2d_;
     bool		st_[8];
+    BufferString	errmsg_;
 
 };
 

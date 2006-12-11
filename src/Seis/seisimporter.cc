@@ -4,7 +4,7 @@
  * DATE     : Nov 2006
 -*/
 
-static const char* rcsID = "$Id: seisimporter.cc,v 1.4 2006-12-08 13:57:02 cvsbert Exp $";
+static const char* rcsID = "$Id: seisimporter.cc,v 1.5 2006-12-11 10:45:40 cvsbert Exp $";
 
 #include "seisimporter.h"
 #include "seisbuf.h"
@@ -29,7 +29,7 @@ SeisImporter::SeisImporter( SeisImporter::Reader* r, SeisTrcWriter& w,
     	, nrwritten_(0)
     	, postproc_(0)
     	, removenulltrcs_(false)
-	, sortanal_(new BinIDSortingAnalyser(gt))
+	, sortanal_(new BinIDSortingAnalyser(Seis::is2D(gt)))
 	, sorting_(0)
 	, prevbinid_(*new BinID(mUdf(int),mUdf(int)))
 	, sort2ddir_(0)
@@ -133,7 +133,7 @@ int SeisImporter::nextStep()
 
 bool SeisImporter::needInlCrlSwap() const
 {
-    return sorting_ && !sorting_->inlSorted();
+    return !Seis::is2D(geomtype_) && sorting_ && !sorting_->inlSorted();
 }
 
 
@@ -194,54 +194,53 @@ int SeisImporter::readIntoBuf()
 
 bool SeisImporter::sortingOk( const SeisTrc& trc )
 {
-    bool rv = true;
-    if ( Seis::is2D(geomtype_) )
+    const bool is2d = Seis::is2D(geomtype_);
+    BinID bid( trc.info().binid );
+    if ( is2d )
     {
-	if ( sort2ddir_ != 0 )
-	{
-	    rv = (sort2ddir_ < 0 && trc.info().nr <= prevbinid_.crl)
-	      || (sort2ddir_ > 0 && trc.info().nr >= prevbinid_.crl);
-	      if ( !rv )
-	      {
-		  errmsg_ = "Importing stopped because trace number found: ";
-		  errmsg_ += trc.info().nr;
-		  errmsg_ += "\nviolates earlier trace number sorting";
-	      }
-	}
-	else if ( !mIsUdf(prevbinid_.crl) && prevbinid_.crl != trc.info().nr )
-	    sort2ddir_ = prevbinid_.crl < trc.info().nr ? 1 : -1;
-
-	prevbinid_.crl = trc.info().nr;
+	bid.crl = trc.info().nr;
+	bid.inl = prevbinid_.inl;
+	if ( trc.info().new_packet && !mIsUdf(prevbinid_.inl) )
+	    bid.inl = prevbinid_.inl + 1;
     }
-    else
+
+    bool rv = true;
+    if ( sorting_ )
     {
-	if ( sorting_ )
+	if ( !sorting_->isValid(prevbinid_,bid) )
 	{
-	    if ( !sorting_->isValid(prevbinid_,trc_.info().binid) )
+	    if ( is2d )
 	    {
-		char buf[30]; trc_.info().binid.fill( buf );
+		errmsg_ = "Importing stopped at trace number: ";
+		errmsg_ += trc.info().nr;
+		errmsg_ += "because:\n";
+	    }
+	    else
+	    {
+		char buf[30]; bid.fill( buf );
 		errmsg_ = "Importing stopped because trace position found: ";
 		errmsg_ += buf;
 		errmsg_ += "\nviolates previous trace sorting:\n";
-		errmsg_ += sorting_->description();
-		rv = false;
 	    }
+	    errmsg_ += sorting_->description();
+	    rv = false;
 	}
-	else
-	{
-	    if ( sortanal_->add(trc.info().binid) )
-	    {
-		sorting_ = new BinIDSorting( sortanal_->getSorting() );
-		delete sortanal_; sortanal_ = 0;
-	    }
-	    else if ( *sortanal_->errMsg() )
-	    {
-		errmsg_ = sortanal_->errMsg();
-		rv = false;
-	    }
-	}
-	prevbinid_ = trc.info().binid;
     }
+    else
+    {
+	if ( sortanal_->add(bid) )
+	{
+	    sorting_ = new BinIDSorting( sortanal_->getSorting() );
+	    delete sortanal_; sortanal_ = 0;
+	}
+	else if ( *sortanal_->errMsg() )
+	{
+	    errmsg_ = sortanal_->errMsg();
+	    rv = false;
+	}
+    }
+
+    prevbinid_ = bid;
     return rv;
 }
 
