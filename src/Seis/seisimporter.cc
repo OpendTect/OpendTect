@@ -4,7 +4,7 @@
  * DATE     : Nov 2006
 -*/
 
-static const char* rcsID = "$Id: seisimporter.cc,v 1.6 2006-12-11 14:35:49 cvsbert Exp $";
+static const char* rcsID = "$Id: seisimporter.cc,v 1.7 2006-12-12 17:47:45 cvsbert Exp $";
 
 #include "seisimporter.h"
 #include "seisbuf.h"
@@ -28,11 +28,9 @@ SeisImporter::SeisImporter( SeisImporter::Reader* r, SeisTrcWriter& w,
     	, nrread_(0)
     	, nrwritten_(0)
     	, postproc_(0)
-    	, removenulltrcs_(false)
 	, sortanal_(new BinIDSortingAnalyser(Seis::is2D(gt)))
 	, sorting_(0)
-	, prevbinid_(*new BinID(mUdf(int),mUdf(int)))
-	, sort2ddir_(0)
+	, prevbid_(*new BinID(mUdf(int),mUdf(int)))
 {
 }
 
@@ -40,13 +38,15 @@ SeisImporter::SeisImporter( SeisImporter::Reader* r, SeisTrcWriter& w,
 SeisImporter::~SeisImporter()
 {
     buf_.deepErase();
-    delete postproc_;
+
     delete rdr_;
     delete sorting_;
     delete sortanal_;
+    delete postproc_;
+
     delete &buf_;
     delete &trc_;
-    delete &prevbinid_;
+    delete &prevbid_;
 }
 
 
@@ -139,9 +139,6 @@ bool SeisImporter::needInlCrlSwap() const
 
 int SeisImporter::doWrite( SeisTrc& trc )
 {
-    if ( removenulltrcs_ && trc.isNull() )
-	return Executor::MoreToDo;
-
     if ( needInlCrlSwap() )
 	Swap( trc.info().binid.inl, trc.info().binid.crl );
 
@@ -199,17 +196,17 @@ bool SeisImporter::sortingOk( const SeisTrc& trc )
     if ( is2d )
     {
 	bid.crl = trc.info().nr;
-	bid.inl = prevbinid_.inl;
+	bid.inl = prevbid_.inl;
 	if ( mIsUdf(bid.inl) )
 	    bid.inl = 0;
 	else if ( trc.info().new_packet )
-	    bid.inl = prevbinid_.inl + 1;
+	    bid.inl = prevbid_.inl + 1;
     }
 
     bool rv = true;
     if ( sorting_ )
     {
-	if ( !sorting_->isValid(prevbinid_,bid) )
+	if ( !sorting_->isValid(prevbid_,bid) )
 	{
 	    if ( is2d )
 	    {
@@ -242,7 +239,7 @@ bool SeisImporter::sortingOk( const SeisTrc& trc )
 	}
     }
 
-    prevbinid_ = bid;
+    prevbid_ = bid;
     return rv;
 }
 
