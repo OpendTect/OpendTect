@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          May 2002
- RCS:		$Id: uiseisfmtscale.cc,v 1.14 2006-12-12 11:16:58 cvsbert Exp $
+ RCS:		$Id: uiseisfmtscale.cc,v 1.15 2006-12-12 17:48:55 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,14 +20,14 @@ ________________________________________________________________________
 #include "uigeninput.h"
 
 
-uiSeisFmtScale::uiSeisFmtScale( uiParent* p, Seis::GeomType gt )
+uiSeisFmtScale::uiSeisFmtScale( uiParent* p, Seis::GeomType gt, bool forexp )
 	: uiGroup(p,"Seis format and scale")
 	, geom_(gt)
 	, issteer_(false)
 	, imptypefld(0)
 	, optimfld(0)
 {
-    if ( !Seis::is2D(geom_) )
+    if ( !forexp && !Seis::is2D(geom_) )
 	imptypefld = new uiGenInput( this, "Storage",
 		     StringListInpSpec(DataCharacteristics::UserTypeNames) );
 

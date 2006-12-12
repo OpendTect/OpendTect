@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          May 2002
- RCS:		$Id: uiseistransf.cc,v 1.35 2006-12-12 11:16:58 cvsbert Exp $
+ RCS:		$Id: uiseistransf.cc,v 1.36 2006-12-12 17:48:55 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,7 +41,7 @@ uiSeisTransfer::uiSeisTransfer( uiParent* p, const uiSeisTransfer::Setup& s )
     else
 	selfld = new uiSeis3DSubSel( this, setup_.withstep_ );
 
-    scfmtfld = new uiSeisFmtScale( this, setup_.geom_ );
+    scfmtfld = new uiSeisFmtScale( this, setup_.geom_, !setup_.fornewentry_ );
     scfmtfld->attach( alignedBelow, selfld->attachObj() );
 
     remnullfld = new uiGenInput( this, "Null traces",
