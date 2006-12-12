@@ -4,14 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2001
- RCS:		$Id: uiseissel.cc,v 1.35 2006-06-01 10:37:40 cvsbert Exp $
+ RCS:		$Id: uiseissel.cc,v 1.36 2006-12-12 11:16:58 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiseissel.h"
-#include "uibinidsubsel.h"
-#include "uiseissubsel.h"
 #include "uiseisioobjinfo.h"
 #include "uilistbox.h"
 #include "uicombobox.h"
@@ -35,7 +33,6 @@ uiSeisSelDlg::uiSeisSelDlg( uiParent* p, const CtxtIOObj& c,
 			    const SeisSelSetup& setup )
 	: uiIOObjSelDlg(p,getCtio(c,setup),"",false)
 	, p2d(setup.pol2d_)
-	, subsel(0)
 	, attrfld(0)
 {
     const char* ttxt = p2d == No2D ? "Select Cube" : "Select Line Set";
@@ -49,24 +46,13 @@ uiSeisSelDlg::uiSeisSelDlg( uiParent* p, const CtxtIOObj& c,
     uiGroup* topgrp = selgrp->getTopGroup();
     uiLabeledListBox* listfld = selgrp->getListField();
 
-    if ( setup.subsel_ )
-    {
-	topgrp->setHAlignObj( listfld );
-	subsel = new uiSeisSubSel( selgrp );
-	subsel->attach( alignedBelow, topgrp );
-	if ( selgrp->getCtxtIOObj().iopar )
-	    subsel->usePar( *selgrp->getCtxtIOObj().iopar );
-    }
-
     if ( setup.selattr_ && p2d != No2D )
     {
 	if ( selgrp->getCtxtIOObj().ctxt.forread )
 	    attrfld = new uiGenInput( selgrp,"Attribute", StringListInpSpec() );
 	else
 	    attrfld = new uiGenInput( selgrp, "Attribute (if any)" );
-	if ( subsel )
-	    attrfld->attach( alignedBelow, subsel );
-	else if ( selgrp->getNameField() )
+	if ( selgrp->getNameField() )
 	    attrfld->attach( alignedBelow, selgrp->getNameField() );
 	else
 	    attrfld->attach( ensureBelow, topgrp );
@@ -117,11 +103,6 @@ void uiSeisSelDlg::entrySel( CallBacker* )
 	return;
 
     uiSeisIOObjInfo oinf(*ioobj,false);
-    if ( subsel )
-    {
-	subsel->set2D( oinf.is2D() );
-	subsel->setInput( *ioobj );
-    }
 
     if ( !attrfld ) return;
 
@@ -138,7 +119,6 @@ void uiSeisSelDlg::entrySel( CallBacker* )
 void uiSeisSelDlg::fillPar( IOPar& iopar ) const
 {
     uiIOObjSelDlg::fillPar( iopar );
-    if ( subsel ) subsel->fillPar( iopar );
     if ( attrfld ) iopar.set( sKey::Attribute, attrfld->text() );
 }
 
@@ -146,7 +126,6 @@ void uiSeisSelDlg::fillPar( IOPar& iopar ) const
 void uiSeisSelDlg::usePar( const IOPar& iopar )
 {
     uiIOObjSelDlg::usePar( iopar );
-    if ( subsel ) subsel->usePar( iopar );
     if ( attrfld )
     {
 	entrySel(0);

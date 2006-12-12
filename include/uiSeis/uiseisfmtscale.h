@@ -6,12 +6,13 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2002
- RCS:           $Id: uiseisfmtscale.h,v 1.9 2005-08-15 16:17:07 cvsbert Exp $
+ RCS:           $Id: uiseisfmtscale.h,v 1.10 2006-12-12 11:16:57 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uigroup.h"
+#include "seistype.h"
 class uiGenInput;
 class uiScaler;
 class Scaler;
@@ -22,21 +23,17 @@ class uiSeisFmtScale : public uiGroup
 {
 public:
 
-			uiSeisFmtScale(uiParent*,bool with_format=true,
-						 bool prestack=false);
+			uiSeisFmtScale(uiParent*,Seis::GeomType);
     void		updateFrom(const IOObj&);
 
     Scaler*		getScaler() const;
     int			getFormat() const;
-    			//!< actually returns DataCharacteristics::UserType
+    			//!< returns (int)DataCharacteristics::UserType
     bool		horOptim() const;
     void		updateIOObj(IOObj*) const;
 
-    bool		is2D() const		{ return is2d; }
-    void		set2D(bool);
-    bool		isSteer() const		{ return issteer; }
+    bool		isSteering() const	{ return issteer_; }
     void		setSteering(bool);
-    bool		isPS() const		{ return isps; }
 
 protected:
 
@@ -44,11 +41,10 @@ protected:
     uiGenInput*		optimfld;
     uiScaler*		scalefld;
 
-    bool		is2d;
-    bool		issteer;
-    bool		isps;
+    Seis::GeomType	geom_;
+    bool		issteer_;
 
-    void		updFldsForType(CallBacker*);
+    void		updSteer(CallBacker*);
 
 };
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:		$Id: uiseis2dgeom.cc,v 1.7 2006-11-21 14:00:08 cvsbert Exp $
+ RCS:		$Id: uiseis2dgeom.cc,v 1.8 2006-12-12 11:16:58 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,8 +41,7 @@ uiSeisDump2DGeom::uiSeisDump2DGeom( uiParent* p, const IOObj* ioobj )
 	ctio.setObj( ioobj->clone() );
 	mainObject()->finaliseStart.notify( cb );
     }
-    seisfld = new uiSeisSel( this, ctio,
-	    	  SeisSelSetup().pol2d(Only2D).subsel(false) );
+    seisfld = new uiSeisSel( this, ctio, SeisSelSetup().pol2d(Only2D) );
     seisfld->selectiondone.notify( cb );
 
     lnmsfld = new uiGenInput( this, "One line only",

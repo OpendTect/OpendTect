@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          May 2002
- RCS:		$Id: uiseistransf.cc,v 1.34 2005-08-15 16:17:07 cvsbert Exp $
+ RCS:		$Id: uiseistransf.cc,v 1.35 2006-12-12 11:16:58 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,31 +30,45 @@ ________________________________________________________________________
 #include "errh.h"
 
 
-uiSeisTransfer::uiSeisTransfer( uiParent* p, const uiSeisTransfer::Setup& setup)
-	// bool with_format, bool fne, bool withstep, bool multi2dlines 
+uiSeisTransfer::uiSeisTransfer( uiParent* p, const uiSeisTransfer::Setup& s )
 	: uiGroup(p,"Seis transfer pars")
-	, is2d(false)
-	, isps(setup.prestack_)
-	, issteer(false)
+	, setup_(s)
 {
-    selfld = new uiSeisSubSel( this, setup.fornewentry_, setup.withstep_,
-	    				setup.multi2dlines_ );
+    const bool is2d = Seis::is2D(setup_.geom_);
+    if ( is2d )
+	selfld = new uiSeis2DSubSel( this, setup_.fornewentry_,
+				     setup_.multi2dlines_ );
+    else
+	selfld = new uiSeis3DSubSel( this, setup_.withstep_ );
 
-    scfmtfld = new uiSeisFmtScale( this, setup.withformat_, isps );
-    scfmtfld->attach( alignedBelow, selfld );
+    scfmtfld = new uiSeisFmtScale( this, setup_.geom_ );
+    scfmtfld->attach( alignedBelow, selfld->attachObj() );
 
     remnullfld = new uiGenInput( this, "Null traces",
 				 BoolInpSpec("Discard","Pass") );
     remnullfld->attach( alignedBelow, scfmtfld );
 
     setHAlignObj( remnullfld );
-    mainwin()->finaliseDone.notify( mCB(this,uiSeisTransfer,updFldsForType) );
+}
+
+
+uiSeis2DSubSel* uiSeisTransfer::selFld2D()
+{
+    mDynamicCastGet(uiSeis2DSubSel*,ret,selfld)
+    return ret;
+}
+
+
+uiSeis3DSubSel* uiSeisTransfer::selFld3D()
+{
+    mDynamicCastGet(uiSeis3DSubSel*,ret,selfld)
+    return ret;
 }
 
 
 void uiSeisTransfer::updateFrom( const IOObj& ioobj )
 {
-    setInput(ioobj);
+    setInput( ioobj );
 }
 
 
@@ -62,36 +76,11 @@ void uiSeisTransfer::setInput( const IOObj& ioobj )
 {
     scfmtfld->updateFrom( ioobj );
     selfld->setInput( ioobj );
-    is2d = selfld->is2D();
-    issteer = scfmtfld->isSteer();
-}
-
-
-void uiSeisTransfer::updFldsForType( CallBacker* )
-{
-    selfld->set2D( is2d );
-    scfmtfld->setSteering( issteer );
-    scfmtfld->set2D( is2d );
-}
-
-
-void uiSeisTransfer::setSteering( bool yn )
-{
-    issteer = yn;
-    updFldsForType(0);
-}
-
-
-void uiSeisTransfer::set2D( bool yn )
-{
-    is2d = yn;
-    updFldsForType(0);
 }
 
 
 int uiSeisTransfer::maxBytesPerSample() const
 {
-    if ( issteer ) return 4;
     DataCharacteristics dc(
 	    (DataCharacteristics::UserType)scfmtfld->getFormat() );
     return (int)dc.nrBytes();
@@ -103,7 +92,7 @@ SeisIOObjInfo::SpaceInfo uiSeisTransfer::spaceInfo() const
     int ntr = selfld->expectedNrTraces();
     SeisIOObjInfo::SpaceInfo si( selfld->expectedNrSamples(), ntr,
 				   maxBytesPerSample() );
-    if ( is2d )
+    if ( Seis::is2D(setup_.geom_) )
 	si.expectednrtrcs = ntr;
 
     return si;
@@ -113,6 +102,12 @@ SeisIOObjInfo::SpaceInfo uiSeisTransfer::spaceInfo() const
 bool uiSeisTransfer::removeNull() const
 {
     return remnullfld->getBoolValue();
+}
+
+
+void uiSeisTransfer::setSteering( bool yn )
+{
+    scfmtfld->setSteering( yn );
 }
 
 
@@ -131,7 +126,7 @@ SeisResampler* uiSeisTransfer::getResampler() const
     CubeSampling cs;
     selfld->getSampling( cs.hrg );
     selfld->getZRange( cs.zrg );
-    return new SeisResampler( cs, is2d );
+    return new SeisResampler( cs, Seis::is2D(setup_.geom_) );
 }
 
 

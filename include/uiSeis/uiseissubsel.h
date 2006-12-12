@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          June 2004
- RCS:           $Id: uiseissubsel.h,v 1.16 2006-09-21 17:47:52 cvsnanne Exp $
+ RCS:           $Id: uiseissubsel.h,v 1.17 2006-12-12 11:16:57 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,15 +25,36 @@ class uiSeis2DSubSel;
 class BufferStringSet;
 
 
-class uiSeisSubSel : public uiGroup
+class uiSeisSubSel
+{
+public:
+    virtual bool	isAll() const					= 0;
+    virtual void	getSampling(HorSampling&) const			= 0;
+    virtual void	getZRange(StepInterval<float>&) const		= 0;
+    virtual bool	fillPar(IOPar&) const				= 0;
+    virtual int		expectedNrSamples() const			= 0;
+    virtual int		expectedNrTraces() const			= 0;
+
+    virtual void	clear()						= 0;
+
+    virtual void	setInput(const IOObj&)				= 0;
+    virtual void	setInput(const HorSampling&)			= 0;
+    virtual void	setInput(const StepInterval<float>& zrg)	= 0;
+    virtual void	setInput(const CubeSampling&);
+    virtual void	usePar(const IOPar&)				= 0;
+
+    virtual uiCompoundParSel*	compoundParSel()			= 0;
+    virtual uiObject*		attachObj()				= 0;
+
+};
+
+
+class uiSeis3DSubSel : public uiGroup
+		     , public uiSeisSubSel
 {
 public:
 
-    			uiSeisSubSel(uiParent*,bool for_new_entry=false,
-				     bool withstep=true,bool multi2dlnes=false);
-
-    bool		is2D() const		{ return is2d_; }
-    void		set2D( bool yn )	{ is2d_ = yn; typChg(0); }
+    			uiSeis3DSubSel(uiParent*,bool withstep=false);
 
     void		clear();
     void		setInput(const HorSampling&);
@@ -41,8 +62,8 @@ public:
     void		setInput(const CubeSampling&);
     void		setInput(const IOObj&);
     bool		isAll() const;
-    bool		getSampling(HorSampling&) const;
-    bool		getZRange(StepInterval<float>&) const;
+    void		getSampling(HorSampling&) const;
+    void		getZRange(StepInterval<float>&) const;
 
     virtual void	usePar(const IOPar&);
     virtual bool	fillPar(IOPar&) const;
@@ -50,32 +71,23 @@ public:
     int			expectedNrSamples() const;
     int			expectedNrTraces() const;
 
-    void		notifySing2DLineSel(const CallBack&);
-    bool		isSing2DLine() const;
-    const char*		selectedLine() const;
-    void		setSelectedLine(const char*);
-
-    uiSeis2DSubSel*	sel2D()			{ return sel2d; }
-    			//!< Can be null
-    uiBinIDSubSel*	sel3D()			{ return sel3d; }
-    			//!< Can be null
+    uiCompoundParSel*	compoundParSel();
+    uiObject*		attachObj()		{ return uiGroup::attachObj(); }
 
 protected:
 
-    bool		is2d_;
-    uiSeis2DSubSel*	sel2d;
-    uiBinIDSubSel*	sel3d;
-
-    void		typChg(CallBacker*);
+    uiBinIDSubSel*	selfld;
 
 };
 
 
 class uiSeis2DSubSel : public uiCompoundParSel
+		     , public uiSeisSubSel
 { 	
 public:
 
-			uiSeis2DSubSel(uiParent*,bool for_new_entry,bool mln);
+			uiSeis2DSubSel(uiParent*,bool for_new_entry,
+						 bool multiline);
 			~uiSeis2DSubSel();
 
     class PosData
@@ -97,7 +109,17 @@ public:
     void		clear();
     void		setInput(const PosData&);
     void		setInput(const IOObj&);
+    void		setInput(const StepInterval<float>&);
+    void		setInput(const HorSampling&);
     const PosData&	getInput() const		{ return data_; }
+    void		getSampling(HorSampling&) const;
+    void		getZRange( StepInterval<float>& zrg ) const
+							{ zrg = data_.zrg_; }
+    bool		isAll() const			{ return data_.isall_; }
+    int			expectedNrSamples() const
+    			{ return data_.expectedNrSamples(); }
+    int			expectedNrTraces() const
+    			{ return data_.expectedNrTraces(); }
 
     virtual void	usePar(const IOPar&);
     virtual bool	fillPar(IOPar&) const;
@@ -109,6 +131,10 @@ public:
     void		setSelectedLine(const char*);
 
     const BufferStringSet& curLineNames() const		{ return curlnms_; }
+
+    uiCompoundParSel*	compoundParSel()		{ return this; }
+    uiObject*		attachObj()
+    				{ return uiCompoundParSel::attachObj(); }
 
 protected:
 

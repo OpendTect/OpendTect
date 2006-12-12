@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiseispartserv.cc,v 1.44 2006-11-30 17:56:07 cvsbert Exp $
+ RCS:           $Id: uiseispartserv.cc,v 1.45 2006-12-12 11:16:58 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -58,7 +58,12 @@ bool uiSeisPartServer::ioSeis( int opt, bool forread )
     if ( opt == 3 )
 	dlg = new uiSeisImpCBVS( appserv().parent() );
     else
-	dlg = new uiSeisSegYImpExp( appserv().parent(), forread, segyid, opt );
+    {
+	Seis::GeomType gt = opt == 0 ? Seis::Vol
+	    		 : (opt == 1 ? Seis::Line
+				     : Seis::VolPS);
+	dlg = new uiSeisSegYImpExp( appserv().parent(), forread, segyid, gt );
+    }
     return dlg->go();
 }
 

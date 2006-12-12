@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          May 2002
- RCS:		$Id: uiseisfmtscale.cc,v 1.13 2005-08-15 16:17:07 cvsbert Exp $
+ RCS:		$Id: uiseisfmtscale.cc,v 1.14 2006-12-12 11:16:58 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,15 +20,14 @@ ________________________________________________________________________
 #include "uigeninput.h"
 
 
-uiSeisFmtScale::uiSeisFmtScale( uiParent* p, bool wfmt, bool ps )
+uiSeisFmtScale::uiSeisFmtScale( uiParent* p, Seis::GeomType gt )
 	: uiGroup(p,"Seis format and scale")
+	, geom_(gt)
+	, issteer_(false)
 	, imptypefld(0)
 	, optimfld(0)
-	, is2d(false)
-	, issteer(false)
-	, isps(ps)
 {
-    if ( wfmt )
+    if ( !Seis::is2D(geom_) )
 	imptypefld = new uiGenInput( this, "Storage",
 		     StringListInpSpec(DataCharacteristics::UserTypeNames) );
 
@@ -36,7 +35,7 @@ uiSeisFmtScale::uiSeisFmtScale( uiParent* p, bool wfmt, bool ps )
     if ( imptypefld )
 	scalefld->attach( alignedBelow, imptypefld );
 
-    if ( wfmt && !isps )
+    if ( imptypefld && !Seis::isPS(geom_) )
     {
 	optimfld = new uiGenInput( this, "Optimize horizontal slice access",
 				   BoolInpSpec() );
@@ -45,40 +44,27 @@ uiSeisFmtScale::uiSeisFmtScale( uiParent* p, bool wfmt, bool ps )
     }
 
     setHAlignObj( scalefld );
-    mainwin()->finaliseDone.notify( mCB(this,uiSeisFmtScale,updFldsForType) );
+    mainwin()->finaliseDone.notify( mCB(this,uiSeisFmtScale,updSteer) );
 }
 
 
 void uiSeisFmtScale::setSteering( bool yn )
 {
-    issteer = yn;
-    updFldsForType(0);
+    issteer_ = yn;
+    updSteer( 0 );
 }
 
 
-void uiSeisFmtScale::set2D( bool yn )
+void uiSeisFmtScale::updSteer( CallBacker* )
 {
-    is2d = yn;
-    updFldsForType(0);
-}
-
-
-void uiSeisFmtScale::updFldsForType( CallBacker* )
-{
-    if ( issteer )
+    if ( issteer_ )
     {
 	scalefld->setUnscaled();
 	if ( imptypefld ) imptypefld->setValue( 0 );
     }
-    scalefld->setSensitive( !issteer );
-    if ( optimfld ) optimfld->display( !is2d );
+    scalefld->setSensitive( !issteer_ );
     if ( imptypefld )
-    {
-	if ( is2d )
-	    imptypefld->display( false );
-	else
-	    imptypefld->setSensitive( !issteer );
-    }
+	imptypefld->setSensitive( !issteer_ );
 }
 
 
@@ -96,7 +82,7 @@ int uiSeisFmtScale::getFormat() const
 
 bool uiSeisFmtScale::horOptim() const
 {
-    return !is2d && optimfld ? optimfld->getBoolValue() : false;
+    return optimfld ? optimfld->getBoolValue() : false;
 }
 
 
@@ -121,7 +107,7 @@ void uiSeisFmtScale::updateFrom( const IOObj& ioobj )
 
 void uiSeisFmtScale::updateIOObj( IOObj* ioobj ) const
 {
-    if ( !ioobj || is2d ) return;
+    if ( !ioobj || Seis::is2D(geom_) ) return;
 
     const int tp = getFormat();
     ioobj->pars().set( "Data storage", DataCharacteristics::UserTypeNames[tp] );

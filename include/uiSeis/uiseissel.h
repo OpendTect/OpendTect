@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2001
- RCS:           $Id: uiseissel.h,v 1.17 2005-07-26 16:15:28 cvsbert Exp $
+ RCS:           $Id: uiseissel.h,v 1.18 2006-12-12 11:16:57 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,7 +32,6 @@ public:
 
 protected:
 
-    uiSeisSubSel*	subsel;
     uiGenInput*		attrfld;
     BufferString	orgkeyvals;
     Pol2D		p2d;

@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          June 2002
- RCS:           $Id: uiseistransf.h,v 1.20 2005-08-15 16:17:07 cvsbert Exp $
+ RCS:           $Id: uiseistransf.h,v 1.21 2006-12-12 11:16:57 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,6 +19,8 @@ class uiGenInput;
 class SeisSelData;
 class uiSeisSubSel;
 class SeisResampler;
+class uiSeis2DSubSel;
+class uiSeis3DSubSel;
 class uiSeisFmtScale;
 
 
@@ -30,18 +32,16 @@ public:
     {
     public:
 			Setup()
-			    : withformat_(true)	//!< Can user select storage?
+			    : geom_(Seis::Vol)
 			    , withstep_(true) //!< Can user specify steps?
 			    , multi2dlines_(false) //!< Allow 'all' lines (2D)
 			    , fornewentry_(true) //!< New line or existing (2D)
-			    , prestack_(false) //!< Pre-Stack seismics?
 			    			{}
 
-	mDefSetupMemb(bool,withformat)
+	mDefSetupMemb(Seis::GeomType,geom)
 	mDefSetupMemb(bool,fornewentry)
 	mDefSetupMemb(bool,withstep)
 	mDefSetupMemb(bool,multi2dlines)
-	mDefSetupMemb(bool,prestack)
     };
 
 			uiSeisTransfer(uiParent*,const Setup&);
@@ -57,12 +57,11 @@ public:
     uiSeisFmtScale*	scfmtfld;
     uiGenInput*		remnullfld;
 
-    void		setInput(const IOObj&);
-    bool		is2D() const		{ return is2d; }
-    void		set2D(bool);
-    bool		isSteer() const		{ return issteer; }
+    uiSeis2DSubSel*	selFld2D(); //!< null when not 2D
+    uiSeis3DSubSel*	selFld3D(); //!< null when not 3D
+
     void		setSteering(bool);
-    bool		isPS() const		{ return isps; }
+    void		setInput(const IOObj&);
     void		getSelData(SeisSelData&) const;
     SeisResampler*	getResampler() const; //!< may return null
 
@@ -73,11 +72,7 @@ public:
 
 protected:
 
-    bool		is2d;
-    bool		isps;
-    bool		issteer;
-
-    void		updFldsForType(CallBacker*);
+    Setup		setup_;
 
 };
 

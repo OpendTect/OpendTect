@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:		$Id: uiattrvolout.cc,v 1.23 2006-06-16 07:58:30 cvshelene Exp $
+ RCS:		$Id: uiattrvolout.cc,v 1.24 2006-12-12 11:16:57 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -72,10 +72,12 @@ uiAttrVolOut::uiAttrVolOut( uiParent* p, const DescSet& ad,
     todofld->selectiondone.notify( mCB(this,uiAttrVolOut,attrSel) );
 
     transffld = new uiSeisTransfer( uppgrp, uiSeisTransfer::Setup()
+	    	.geom(ad.is2D() ? Seis::Line : Seis::Vol)
 	    	.fornewentry(false).withstep(false).multi2dlines(true) );
     transffld->attach( alignedBelow, todofld );
-    transffld->selfld->notifySing2DLineSel(
-	    		mCB(this,uiAttrVolOut,singLineSel) );
+    if ( transffld->selFld2D() )
+	transffld->selFld2D()->singLineSel.notify(
+				mCB(this,uiAttrVolOut,singLineSel) );
 
     ctio.ctxt.forread = false;
     setTypeAttr( ctio, true );
@@ -107,11 +109,11 @@ CtxtIOObj& uiAttrVolOut::mkCtxtIOObj()
 
 void uiAttrVolOut::singLineSel( CallBacker* )
 {
-    const bool is2d = todofld->is2D();
-    if ( !is2d ) return;
-    singmachfld->setValue( transffld->selfld->isSing2DLine() );
+    if ( !transffld->selFld2D() ) return;
+
+    singmachfld->setValue( transffld->selFld2D()->isSingLine() );
     singTogg( 0 );
-    singmachfld->display( !is2d );
+    singmachfld->display( false );
 }
 
 
@@ -119,7 +121,6 @@ void uiAttrVolOut::attrSel( CallBacker* )
 {
     CubeSampling cs;
     const bool is2d = todofld->is2D();
-    transffld->set2D( is2d );
     if ( todofld->getRanges(cs) )
 	transffld->selfld->setInput( cs );
     Pol2D p2d = is2d ? Only2D : No2D;

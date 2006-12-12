@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          June 2004
- RCS:           $Id: uiseissubsel.cc,v 1.40 2006-11-21 14:00:08 cvsbert Exp $
+ RCS:           $Id: uiseissubsel.cc,v 1.41 2006-12-12 11:16:58 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,185 +25,108 @@ ________________________________________________________________________
 #include "uimsg.h"
 
 
-uiSeisSubSel::uiSeisSubSel( uiParent* p, bool for_new_entry, bool wstep,
-			    bool m2dln )
-    	: uiGroup(p,"Gen seis subsel")
-	, is2d_(false)
-{
-    sel2d = new uiSeis2DSubSel( this, for_new_entry, m2dln );
-    sel3d = new uiBinIDSubSel( this, uiBinIDSubSel::Setup()
-				     .withtable(false).withz(true)
-				     .withstep(wstep) );
-    sel3d->attach( alignedWith, sel2d );
-
-    setHAlignObj( sel2d );
-    mainObject()->finaliseDone.notify( mCB(this,uiSeisSubSel,typChg) );
-}
-
-
-void uiSeisSubSel::typChg( CallBacker* )
-{
-    sel2d->display( is2d_ );
-    sel3d->display( !is2d_ );
-}
-
-
-void uiSeisSubSel::clear()
-{
-    if ( is2d_ )
-	sel2d->clear();
-    else
-	sel3d->clear();
-}
-
-
-void uiSeisSubSel::setInput( const HorSampling& hs )
-{
-    if ( is2d_ )
-    {
-	uiSeis2DSubSel::PosData data = sel2d->getInput();
-	data.trcrg_ = hs.crlRange();
-	sel2d->setInput( data );
-    }
-    else
-    {
-	uiBinIDSubSel::Data data = sel3d->getInput();
-	data.cs_.hrg = hs;
-	sel3d->setInput( data );
-    }
-}
-
-
-void uiSeisSubSel::setInput( const StepInterval<float>& zrg )
-{
-    if ( is2d_ )
-    {
-	uiSeis2DSubSel::PosData data = sel2d->getInput();
-	data.zrg_ = zrg;
-	sel2d->setInput( data );
-    }
-    else
-    {
-	uiBinIDSubSel::Data data = sel3d->getInput();
-	data.cs_.zrg = zrg;
-	sel3d->setInput( data );
-    }
-}
-
-
 void uiSeisSubSel::setInput( const CubeSampling& cs )
 {
-    if ( is2d_ )
-    {
-	setInput( cs.hrg );
-	setInput( cs.zrg );
-    }
+    setInput( cs.hrg );
+    setInput( cs.zrg );
+}
+
+
+uiSeis3DSubSel::uiSeis3DSubSel( uiParent* p, bool wstep )
+    	: uiGroup(p,"3D seis subsel")
+{
+    selfld = new uiBinIDSubSel( this, uiBinIDSubSel::Setup()
+				     .withtable(false).withz(true)
+				     .withstep(wstep) );
+    setHAlignObj( selfld );
+}
+
+
+void uiSeis3DSubSel::clear()
+{
+    selfld->clear();
+}
+
+
+uiCompoundParSel* uiSeis3DSubSel::compoundParSel()
+{
+    return selfld;
+}
+
+
+void uiSeis3DSubSel::setInput( const HorSampling& hs )
+{
+    uiBinIDSubSel::Data data = selfld->getInput();
+    data.cs_.hrg = hs;
+    selfld->setInput( data );
+}
+
+
+void uiSeis3DSubSel::setInput( const StepInterval<float>& zrg )
+{
+    uiBinIDSubSel::Data data = selfld->getInput();
+    data.cs_.zrg = zrg;
+    selfld->setInput( data );
+}
+
+
+void uiSeis3DSubSel::setInput( const CubeSampling& cs )
+{
+    uiBinIDSubSel::Data data = selfld->getInput();
+    data.cs_ = cs;
+    selfld->setInput( data );
+}
+
+
+void uiSeis3DSubSel::setInput( const IOObj& ioobj )
+{
+    uiSeisIOObjInfo oinf(ioobj,false); CubeSampling cs;
+    if ( !oinf.getRanges(cs) )
+	clear();
     else
-    {
-	uiBinIDSubSel::Data data = sel3d->getInput();
-	data.cs_ = cs;
-	sel3d->setInput( data );
-    }
+	setInput( cs );
 }
 
 
-void uiSeisSubSel::setInput( const IOObj& ioobj )
+bool uiSeis3DSubSel::isAll() const
 {
-    set2D( SeisTrcTranslator::is2D(ioobj) );
-    if ( is2d_ )
-	sel2d->setInput( ioobj );
-    else
-    {
-	uiSeisIOObjInfo oinf(ioobj,false); CubeSampling cs;
-	if ( !oinf.getRanges(cs) )
-	    clear();
-	else
-	    setInput( cs );
-    }
+    return selfld->getInput().isAll();
 }
 
 
-bool uiSeisSubSel::isAll() const
+void uiSeis3DSubSel::getSampling( HorSampling& hs ) const
 {
-    return is2d_ ? sel2d->getInput().isall_ : sel3d->getInput().isAll();
+    hs = selfld->getInput().cs_.hrg;
 }
 
 
-bool uiSeisSubSel::getSampling( HorSampling& hs ) const
+void uiSeis3DSubSel::getZRange( StepInterval<float>& zrg ) const
 {
-    if ( !is2d_ )
-	hs = sel3d->getInput().cs_.hrg;
-    else
-    {
-	uiSeis2DSubSel::PosData data = sel2d->getInput();
-	hs.start.crl = data.trcrg_.start;
-	hs.stop.crl = data.trcrg_.stop;
-	hs.step.crl = data.trcrg_.step;
-    }
-    return true;
+    zrg = selfld->getInput().cs_.zrg;
 }
 
 
-bool uiSeisSubSel::getZRange( StepInterval<float>& zrg ) const
+bool uiSeis3DSubSel::fillPar( IOPar& iop ) const
 {
-    if ( is2d_ )
-	zrg = sel2d->getInput().zrg_;
-    else
-	zrg = sel3d->getInput().cs_.zrg;
-    return true;
+    return selfld->fillPar(iop);
 }
 
 
-bool uiSeisSubSel::fillPar( IOPar& iop ) const
+void uiSeis3DSubSel::usePar( const IOPar& iop )
 {
-    return is2d_ ? sel2d->fillPar(iop) : sel3d->fillPar(iop);
+    selfld->usePar( iop );
 }
 
 
-void uiSeisSubSel::usePar( const IOPar& iop )
+int uiSeis3DSubSel::expectedNrSamples() const
 {
-    if ( is2d_ )
-	sel2d->usePar( iop );
-    else
-	sel3d->usePar( iop );
+    return selfld->getInput().expectedNrSamples();
 }
 
 
-int uiSeisSubSel::expectedNrSamples() const
+int uiSeis3DSubSel::expectedNrTraces() const
 {
-    return is2d_ ? sel2d->getInput().expectedNrSamples()
-		 : sel3d->getInput().expectedNrSamples();
-}
-
-
-int uiSeisSubSel::expectedNrTraces() const
-{
-    return is2d_ ? sel2d->getInput().expectedNrTraces()
-		 : sel3d->getInput().expectedNrTraces();
-}
-
-
-void uiSeisSubSel::notifySing2DLineSel( const CallBack& cb )
-{
-    sel2d->singLineSel.notify( cb );
-}
-
-bool uiSeisSubSel::isSing2DLine() const
-{
-    return is2d_ ? sel2d->isSingLine() : false;
-}
-
-
-const char* uiSeisSubSel::selectedLine() const
-{
-    return is2d_ ? sel2d->selectedLine() : "";
-}
-
-
-void uiSeisSubSel::setSelectedLine( const char* nm )
-{
-    if ( is2d_ )
-	sel2d->setSelectedLine( nm );
+    return selfld->getInput().expectedNrTraces();
 }
 
 
@@ -338,9 +261,32 @@ void uiSeis2DSubSel::clear()
 }
 
 
+void uiSeis2DSubSel::getSampling( HorSampling& hs ) const
+{
+    hs.start.crl = data_.trcrg_.start;
+    hs.stop.crl = data_.trcrg_.stop;
+    hs.step.crl = data_.trcrg_.step;
+}
+
+
+
 void uiSeis2DSubSel::setInput( const PosData& data )
 {
     data_ = data;
+    updateSummary();
+}
+
+
+void uiSeis2DSubSel::setInput( const StepInterval<float>& zrg )
+{
+    data_.zrg_ = zrg;
+    updateSummary();
+}
+
+
+void uiSeis2DSubSel::setInput( const HorSampling& hs )
+{
+    data_.trcrg_ = hs.crlRange();
     updateSummary();
 }
 
