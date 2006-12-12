@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Nov 2006
- RCS:		$Id: seisimporter.h,v 1.3 2006-12-08 13:57:02 cvsbert Exp $
+ RCS:		$Id: seisimporter.h,v 1.4 2006-12-12 17:46:50 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,8 +19,8 @@ class IOObj;
 class BinID;
 class SeisTrc;
 class SeisTrcBuf;
-class SeisTrcWriter;
 class BinIDSorting;
+class SeisTrcWriter;
 class BinIDSortingAnalyser;
 
 
@@ -59,8 +59,6 @@ public:
     int			totalNr() const;
     int			nextStep();
 
-    bool		removenulltrcs_;
-
 protected:
 
     enum State		{ ReadBuf, WriteBuf, ReadWrite };
@@ -69,7 +67,7 @@ protected:
     SeisTrcWriter&	wrr_;
     SeisTrcBuf&		buf_;
     SeisTrc&		trc_;
-    BinID&		prevbinid_;
+    BinID&		prevbid_;
     int			sort2ddir_;
     BinIDSorting*	sorting_;
     BinIDSortingAnalyser* sortanal_;
@@ -87,7 +85,7 @@ protected:
     Executor*		mkPostProc();
 
     mutable BufferString errmsg_;
-    mutable BufferString	hndlmsg_;
+    mutable BufferString hndlmsg_;
 
 };
 
