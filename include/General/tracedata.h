@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: tracedata.h,v 1.4 2003-11-07 12:21:51 bert Exp $
+ RCS:		$Id: tracedata.h,v 1.5 2006-12-12 17:45:06 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include <datainterp.h>
 
 typedef DataInterpreter<float> TraceDataInterpreter;
+class Scaler;
 
 
 /*!\brief A set of data buffers and their interpreters.
@@ -73,11 +74,16 @@ public:
 				     bool cleardata=false);
     void		delComponent(int);
     void		setComponent(const DataCharacteristics&,int icomp=0);
-    void		reSize(int,int icomp=0,bool copydata=false);
+
+    void		reSize(int,int icomp=-1,bool copydata=false);
+				//!< -1 = all data buffers
+    void		scale(const Scaler&,int icomp=-1);
+				//!< -1 = all data buffers
     void		zero(int icomp=-1);
-			//!< -1 = zero all data buffers
+				//!< -1 = all data buffers
+
     void		handleDataSwapping();
-			//! pre-swaps all buffers that need it
+				//! pre-swaps all buffers that need it
 	
 
 protected:

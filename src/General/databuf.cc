@@ -8,6 +8,7 @@
 
 #include "tracedata.h"
 #include "datachar.h"
+#include "scaler.h"
 #ifdef mac
 #include <malloc/malloc.h>
 #else
@@ -216,10 +217,13 @@ void TraceData::delComponent( int icomp )
 }
 
 
-void TraceData::reSize( int n, int icomp, bool copydata )
+void TraceData::reSize( int n, int compnr, bool copydata )
 {
-    if ( icomp < nrcomp_ )
-	data_[icomp]->reSize( n, copydata );
+    for ( int icomp=0; icomp<nrcomp_; icomp++ )
+    {
+	if ( compnr < 0 || compnr == icomp )
+	    data_[icomp]->reSize( n, copydata );
+    }
 }
 
 
@@ -229,6 +233,22 @@ void TraceData::setComponent( const DataCharacteristics& dc, int icomp )
 
     data_[icomp]->reByte( dc.nrBytes() );
     *interp_[icomp] = dc;
+}
+
+
+void TraceData::scale( const Scaler& sclr, int compnr )
+{
+    if ( compnr < -1 || compnr >= nrcomp_ ) return;
+    const int endcomp = compnr < 0 ? nrcomp_-1 : compnr;
+    for ( int icomp=(compnr>=0?compnr:0); icomp<=endcomp; icomp++ )
+    {
+	const int sz = size(icomp);
+	for ( int isamp=0; isamp<sz; isamp++ )
+	{
+	    float val = getValue( isamp, icomp );
+	    setValue( isamp, sclr.scale(val), icomp );
+	}
+    }
 }
 
 
