@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uimaterialdlg.h,v 1.7 2005-10-20 10:27:35 cvsarend Exp $
+ RCS:           $Id: uimaterialdlg.h,v 1.8 2006-12-13 09:30:45 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,75 +29,74 @@ class uiPropertyGrp : public uiGroup
 public:
     			uiPropertyGrp(uiParent* p, const char* nm)
 			    : uiGroup(p,nm) {}
-    virtual bool	rejectOK( CallBacker* ) { return true; }
-    virtual bool	acceptOK( CallBacker* ) { return true; }
-    virtual void	doFinalise( CallBacker* ) {}
+
+    virtual bool	rejectOK(CallBacker*)		{ return true; }
+    virtual bool	acceptOK(CallBacker*)		{ return true; }
+    virtual void	doFinalise(CallBacker*)		{}
 };
 
 
 class uiMaterialGrp : public uiPropertyGrp
 {
 public:
-			uiMaterialGrp(uiParent*,visSurvey::SurveyObject*,
-				      bool ambience=true,
-				      bool diffusecolor=true,
-				      bool specularcolor=true,
-				      bool emmissivecolor=true,
-				      bool shininess=true,
-				      bool transparency=true,
-			       	      bool color=false	);
+				uiMaterialGrp(uiParent*,
+					      visSurvey::SurveyObject*,
+					      bool ambience=true,
+					      bool diffusecolor=true,
+					      bool specularcolor=true,
+					      bool emmissivecolor=true,
+					      bool shininess=true,
+					      bool transparency=true,
+					      bool color=false);
 
 protected:
+    void			createSlider(bool,uiSlider*&,const char*);
 
-    visBase::Material*		material;
-    visSurvey::SurveyObject*	survobj;
+    visBase::Material*		material_;
+    visSurvey::SurveyObject*	survobj_;
 
-    uiColorInput*	colinp;
+    uiColorInput*		colinp_;
+    uiSlider*			ambslider_;
+    uiSlider*			diffslider_;
+    uiSlider*			specslider_;
+    uiSlider*			emisslider_;
+    uiSlider*			shineslider_;
+    uiSlider*			transslider_;
+    uiGroup*			prevobj_;
 
-    uiSlider*		ambslider;
-    uiSlider*		diffslider;
-    uiSlider*		specslider;
-    uiSlider*		emisslider;
-    uiSlider*		shineslider;
-    uiSlider*		transslider;
-
-    void		doFinalise(CallBacker*);
-    void		ambSliderMove(CallBacker*);
-    void		diffSliderMove(CallBacker*);
-    void		specSliderMove(CallBacker*);
-    void		emisSliderMove(CallBacker*);
-    void		shineSliderMove(CallBacker*);
-    void		transSliderMove(CallBacker*);
-    void		colorChangeCB(CallBacker*);
+    void			doFinalise(CallBacker*);
+    void			sliderMove(CallBacker*);
+    void			colorChangeCB(CallBacker*);
 };
 
 
 class uiLineStyleGrp : public uiPropertyGrp
 {
 public:
-    				uiLineStyleGrp( uiParent*,
-						visSurvey::SurveyObject* );
+    				uiLineStyleGrp(uiParent*,
+					       visSurvey::SurveyObject*);
 
 protected:
     bool			rejectOK(CallBacker*);
     void			changedCB(CallBacker*);
 
-    visSurvey::SurveyObject*	survobj;
-    LineStyle			backup;
-    uiSelLineStyle*		field;
+    visSurvey::SurveyObject*	survobj_;
+    LineStyle			backup_;
+    uiSelLineStyle*		field_;
 };
 
 
 class uiPropertiesDlg : public uiDialog
 {
 public:
-			uiPropertiesDlg(uiParent*,visSurvey::SurveyObject*);
+				uiPropertiesDlg(uiParent*,
+						visSurvey::SurveyObject*);
 protected:
-    ObjectSet<uiPropertyGrp>	tabs;
-    uiTabStack*			tabstack;
+    ObjectSet<uiPropertyGrp>	tabs_;
+    uiTabStack*			tabstack_;
 
-    visSurvey::SurveyObject*	survobj;
-    visBase::VisualObject*	visobj;
+    visSurvey::SurveyObject*	survobj_;
+    visBase::VisualObject*	visobj_;
 
     void			doFinalise(CallBacker*);
     bool			acceptOK(CallBacker*);

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uimaterialdlg.cc,v 1.9 2005-09-06 08:41:44 cvsnanne Exp $
+ RCS:           $Id: uimaterialdlg.cc,v 1.10 2006-12-13 09:30:45 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,73 +19,73 @@ ________________________________________________________________________
 #include "visobject.h"
 #include "vissurvobj.h"
 
-const int cMinVal = 0;
-const int cMaxVal = 100;
-const int cStepVal = 10;
-
+static const StepInterval<float> sSliderInterval( 0, 100, 10 );
 
 uiLineStyleGrp::uiLineStyleGrp( uiParent* p, visSurvey::SurveyObject* so )
-    : uiPropertyGrp( p, "Line style" )
-    , survobj( so )
-    , backup( *so->lineStyle() )
+    : uiPropertyGrp(p,"Line style")
+    , survobj_(so)
+    , backup_(*so->lineStyle())
 {
-    field = new uiSelLineStyle( this, backup, "Line style", true,
-	    			so->hasSpecificLineColor(), true );
-    field->changed.notify( mCB(this,uiLineStyleGrp,changedCB) );
+    field_ = new uiSelLineStyle( this, backup_, "Line style", true,
+				 so->hasSpecificLineColor(), true );
+    field_->changed.notify( mCB(this,uiLineStyleGrp,changedCB) );
 }
 
 
-void uiLineStyleGrp::changedCB(CallBacker*)
+void uiLineStyleGrp::changedCB( CallBacker* )
 {
-    survobj->setLineStyle(field->getStyle());
+    survobj_->setLineStyle( field_->getStyle() );
 }
 
 
-bool uiLineStyleGrp::rejectOK(CallBacker*)
+bool uiLineStyleGrp::rejectOK( CallBacker* )
 {
-    survobj->setLineStyle(backup);
+    survobj_->setLineStyle( backup_ );
     return true;
 }
 
 
 uiPropertiesDlg::uiPropertiesDlg( uiParent* p, visSurvey::SurveyObject* so )
     : uiDialog(p,"Display properties")
-    , survobj( so )
-    , visobj( dynamic_cast<visBase::VisualObject*>(so) )
-    , tabstack( new uiTabStack(this,"TabStack") )
+    , survobj_(so)
+    , visobj_(dynamic_cast<visBase::VisualObject*>(so))
+    , tabstack_(new uiTabStack(this,"TabStack"))
 {
-    if ( survobj->allowMaterialEdit() && visobj->getMaterial() )
+    if ( survobj_->allowMaterialEdit() && visobj_->getMaterial() )
     {
-	uiPropertyGrp* grp = new uiMaterialGrp(tabstack->tabGroup(),
-				survobj,
+	uiPropertyGrp* grp = new uiMaterialGrp( tabstack_->tabGroup(),
+				survobj_,
 				true, true, false, false, false, true,
-				survobj->hasColor() );
-	tabstack->addTab(grp);
-	tabs += grp;
+				survobj_->hasColor() );
+	tabstack_->addTab( grp );
+	tabs_ += grp;
     }
 
-    if ( survobj->lineStyle() )
+    if ( survobj_->lineStyle() )
     {
-	uiPropertyGrp* grp = new uiLineStyleGrp(tabstack->tabGroup(), survobj );
-	tabstack->addTab(grp);
-	tabs += grp;
+	uiPropertyGrp* grp =
+	    new uiLineStyleGrp( tabstack_->tabGroup(), survobj_ );
+	tabstack_->addTab( grp );
+	tabs_ += grp;
     }
 
     setCancelText( "" );
-
     finaliseStart.notify( mCB(this,uiPropertiesDlg,doFinalise) );
 }
 
 
-void uiPropertiesDlg::doFinalise(CallBacker* cb)
-{ for ( int idx=0; idx<tabs.size(); idx++ ) tabs[idx]->doFinalise(cb); }
-
-
-bool uiPropertiesDlg::acceptOK(CallBacker* cb)
+void uiPropertiesDlg::doFinalise( CallBacker* cb )
 {
-    for ( int idx=0; idx<tabs.size(); idx++ )
+    for ( int idx=0; idx<tabs_.size(); idx++ )
+	tabs_[idx]->doFinalise( cb );
+}
+
+
+bool uiPropertiesDlg::acceptOK( CallBacker* cb )
+{
+    for ( int idx=0; idx<tabs_.size(); idx++ )
     {
-	if ( !tabs[idx]->acceptOK(cb) )
+	if ( !tabs_[idx]->acceptOK(cb) )
 	    return false;
     }
 
@@ -93,11 +93,11 @@ bool uiPropertiesDlg::acceptOK(CallBacker* cb)
 }
 
 
-bool uiPropertiesDlg::rejectOK(CallBacker* cb)
+bool uiPropertiesDlg::rejectOK( CallBacker* cb )
 {
-    for ( int idx=0; idx<tabs.size(); idx++ )
+    for ( int idx=0; idx<tabs_.size(); idx++ )
     {
-	if ( !tabs[idx]->rejectOK(cb) )
+	if ( !tabs_[idx]->rejectOK(cb) )
 	    return false;
     }
 
@@ -109,182 +109,85 @@ uiMaterialGrp::uiMaterialGrp( uiParent* p, visSurvey::SurveyObject* so,
        bool ambience, bool diffusecolor, bool specularcolor,
        bool emmissivecolor, bool shininess, bool transparency, bool color )
     : uiPropertyGrp(p,"Material")
-    , material( dynamic_cast<visBase::VisualObject*>(so)->getMaterial() )
-    , survobj( so )
-    , ambslider( 0 )
-    , diffslider( 0 )
-    , specslider( 0 )
-    , emisslider( 0 )
-    , shineslider( 0 )
-    , transslider( 0 )
-    , colinp( 0 )
+    , material_(dynamic_cast<visBase::VisualObject*>(so)->getMaterial())
+    , survobj_(so)
+    , ambslider_(0)
+    , diffslider_(0)
+    , specslider_(0)
+    , emisslider_(0)
+    , shineslider_(0)
+    , transslider_(0)
+    , colinp_(0)
+    , prevobj_(0)
 {
-    uiGroup* prevslider = 0;
-
     if ( so->hasColor() )
     {
-	colinp = new uiColorInput(this,Color(0,0,0),"Base color");
-	colinp->colorchanged.notify( mCB(this,uiMaterialGrp,colorChangeCB) );
-	colinp->setSensitive( color );
-	prevslider = colinp;
+	colinp_ = new uiColorInput(this,Color(0,0,0),"Base color");
+	colinp_->colorchanged.notify( mCB(this,uiMaterialGrp,colorChangeCB) );
+	colinp_->setSensitive( color );
+	prevobj_ = colinp_;
     }
 
-    if ( ambience )
-    {
-	uiSliderExtra* se = new uiSliderExtra( this, "Ambient reflectivity" );
-	ambslider = se->sldr();
-	ambslider->valueChanged.notify( 
-				mCB(this,uiMaterialGrp,ambSliderMove) );
-	if ( prevslider ) se->attach( alignedBelow, prevslider );
-	prevslider = se;
-    }
-
-    if ( diffusecolor )
-    {
-	uiSliderExtra* se = new uiSliderExtra( this, "Diffuse reflectivity" );
-	diffslider = se->sldr();
-	diffslider->valueChanged.notify( 
-				mCB(this,uiMaterialGrp,diffSliderMove) );
-	if ( prevslider ) se->attach( alignedBelow, prevslider );
-	prevslider = se;
-    }
-
-    if ( specularcolor )
-    {
-	uiSliderExtra* se = new uiSliderExtra( this, "Specular reflectivity" );
-	specslider = se->sldr();
-	specslider->valueChanged.notify( 
-				mCB(this,uiMaterialGrp,specSliderMove) );
-	if ( prevslider ) se->attach( alignedBelow, prevslider );
-	prevslider = se;
-    }
-
-    if ( emmissivecolor )
-    {
-	uiSliderExtra* se = new uiSliderExtra( this, "Emissive intensity" );
-	emisslider = se->sldr();
-	emisslider->valueChanged.notify(
-				mCB(this,uiMaterialGrp,emisSliderMove) );
-	if ( prevslider ) se->attach( alignedBelow, prevslider );
-	prevslider = se;
-    }
-
-    if ( shininess )
-    {
-	uiSliderExtra* se = new uiSliderExtra( this, "Shininess" );
-	shineslider = se->sldr();
-	shineslider->valueChanged.notify( 
-				mCB(this,uiMaterialGrp,shineSliderMove) );
-	if ( prevslider ) se->attach( alignedBelow, prevslider );
-	prevslider = se;
-    }
-
-    if ( transparency )
-    {
-	uiSliderExtra* se = new uiSliderExtra( this, "Transparency" );
-	transslider = se->sldr();
-	transslider->valueChanged.notify(
-				mCB(this,uiMaterialGrp,transSliderMove) );
-	if ( prevslider ) se->attach( alignedBelow, prevslider );
-	prevslider = se;
-    }
-
+    createSlider( ambience, ambslider_, "Ambient reflectivity" );
+    createSlider( diffusecolor, diffslider_, "Diffuse reflectivity" );
+    createSlider( specularcolor, specslider_, "Specular reflectivity" );
+    createSlider( emmissivecolor, emisslider_, "Emissive intensity" );
+    createSlider( shininess, shineslider_, "Shininess" );
+    createSlider( transparency, transslider_, "Transparency" );
 }
 
+
+void uiMaterialGrp::createSlider( bool domk, uiSlider*& slider,
+				  const char* lbltxt )
+{
+    if ( !domk ) return;
+
+    uiSliderExtra* se = new uiSliderExtra( this, lbltxt );
+    slider = se->sldr();
+    slider->valueChanged.notify( mCB(this,uiMaterialGrp,sliderMove) );
+    if ( prevobj_ ) se->attach( alignedBelow, prevobj_ );
+    prevobj_ = se;
+}
+
+
+#define mFinalise( sldr, fn ) \
+if ( sldr ) \
+{ \
+    sldr->setInterval( sSliderInterval ); \
+    sldr->setValue( material_->fn()*100 ); \
+}
 
 void uiMaterialGrp::doFinalise( CallBacker* )
 {
-    if ( ambslider )
-    {
-	ambslider->setMinValue( cMinVal );
-	ambslider->setMaxValue( cMaxVal );
-	ambslider->setTickStep( cStepVal );
-	ambslider->setValue( material->getAmbience()*100 );
-    }
+    mFinalise( ambslider_, getAmbience )
+    mFinalise( diffslider_, getDiffIntensity )
+    mFinalise( specslider_, getSpecIntensity )
+    mFinalise( emisslider_, getEmmIntensity )
+    mFinalise( shineslider_, getShininess )
+    mFinalise( transslider_, getTransparency )
 
-    if ( diffslider )
-    {
-	diffslider->setMinValue( cMinVal );
-	diffslider->setMaxValue( cMaxVal );
-	diffslider->setTickStep( cStepVal );
-	diffslider->setValue( material->getDiffIntensity()*100 );
-    }
-
-    if ( specslider )
-    {
-	specslider->setMinValue( cMinVal );
-	specslider->setMaxValue( cMaxVal );
-	specslider->setTickStep( cStepVal );
-	specslider->setValue( material->getSpecIntensity()*100 );
-    }
-
-    if ( emisslider )
-    {
-	emisslider->setMinValue( cMinVal );
-	emisslider->setMaxValue( cMaxVal );
-	emisslider->setTickStep( cStepVal );
-	emisslider->setValue( material->getEmmIntensity()*100 );
-    }
-
-    if ( shineslider )
-    {
-	shineslider->setMinValue( cMinVal );
-	shineslider->setMaxValue( cMaxVal );
-	shineslider->setTickStep( cStepVal );
-	shineslider->setValue( material->getShininess()*100 );
-    }
-
-    if ( transslider )
-    {
-	transslider->setMinValue( cMinVal );
-	transslider->setMaxValue( cMaxVal );
-	transslider->setTickStep( cStepVal );
-	transslider->setValue( material->getTransparency()*100 );
-    }
-
-    if ( colinp ) colinp->setColor( material->getColor() );
+    if ( colinp_ ) colinp_->setColor( material_->getColor() );
 }
 
 
-void uiMaterialGrp::ambSliderMove( CallBacker* )
+void uiMaterialGrp::sliderMove( CallBacker* cb )
 {
-    if ( ambslider )
-	material->setAmbience( ambslider->getValue()/100 );
-}
+    mDynamicCastGet(uiSlider*,sldr,cb)
+    if ( !sldr ) return;
 
-void uiMaterialGrp::diffSliderMove( CallBacker* )
-{
-    if ( diffslider )
-	material->setDiffIntensity( diffslider->getValue()/100 );
+    if ( sldr == ambslider_ )
+	material_->setAmbience( ambslider_->getValue()/100 );
+    else if ( sldr == diffslider_ )
+	material_->setDiffIntensity( diffslider_->getValue()/100 );
+    else if ( sldr == specslider_ )
+	material_->setSpecIntensity( specslider_->getValue()/100 );
+    else if ( sldr == specslider_ )
+	material_->setEmmIntensity( emisslider_->getValue()/100 );
+    else if ( sldr == shineslider_ )
+	material_->setShininess( shineslider_->getValue()/100 );
+    else if ( sldr == transslider_ )
+	material_->setTransparency( transslider_->getValue()/100 );
 }
-
-void uiMaterialGrp::specSliderMove( CallBacker* )
-{
-    if ( specslider )
-	material->setSpecIntensity( specslider->getValue()/100 );
-}
-
-void uiMaterialGrp::emisSliderMove( CallBacker* )
-{
-    if ( specslider )
-	material->setEmmIntensity( emisslider->getValue()/100 );
-}
-
-void uiMaterialGrp::shineSliderMove( CallBacker* )
-{
-    if ( shineslider )
-	material->setShininess( shineslider->getValue()/100 );
-}
-
-void uiMaterialGrp::transSliderMove( CallBacker* )
-{
-    if ( transslider )
-	material->setTransparency( transslider->getValue()/100 );
-}
-
 
 void uiMaterialGrp::colorChangeCB(CallBacker*)
-{
-    if ( colinp ) survobj->setColor( colinp->color() );
-}
-
+{ if ( colinp_ ) survobj_->setColor( colinp_->color() ); }
