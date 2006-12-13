@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodmain.cc,v 1.48 2006-12-13 08:57:01 cvsnanne Exp $
+ RCS:           $Id: uiodmain.cc,v 1.49 2006-12-13 16:33:15 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -340,6 +340,8 @@ bool uiODMain::go()
 
 bool uiODMain::askStore( bool& askedanything )
 {
+    if ( !applmgr->attrServer() ) return false;
+
     bool doask = false;
     Settings::common().getYN( "dTect.Ask store session", doask );
     if ( doask && hasSessionChanged() )

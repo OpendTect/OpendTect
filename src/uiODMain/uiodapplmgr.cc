@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.162 2006-12-11 19:38:57 cvskris Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.163 2006-12-13 16:33:15 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -157,9 +157,10 @@ void uiODApplMgr::surveyToBeChanged( CallBacker* cb )
     appl.askStore( anythingasked );
 
     if ( nlaserv ) nlaserv->reset();
-    delete attrserv; delete mpeserv;
+    delete attrserv; attrserv = 0;
+    delete mpeserv; mpeserv = 0;
     if ( appl.sceneMgrAvailable() )
-    sceneMgr().cleanUp( false );
+	sceneMgr().cleanUp( false );
 }
 
 
