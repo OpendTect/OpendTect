@@ -4,7 +4,7 @@
  * DATE     : 18-4-1996
 -*/
 
-static const char* rcsID = "$Id: draw.cc,v 1.60 2006-12-01 16:41:59 cvsnanne Exp $";
+static const char* rcsID = "$Id: draw.cc,v 1.61 2006-12-13 08:57:01 cvsnanne Exp $";
 
 /*! \brief Several implementations for UI-related things.
 
@@ -619,6 +619,17 @@ bool ColorTable::get( const char* nm, ColorTable& ct, ColorTable::Src opt )
     }
 
     return false;
+}
+
+
+void ColorTable::add( const ColorTable& ctab )
+{
+    NamedBufferStringSet names;
+    getNames( names, UsrDef );
+    const int newidx = names.size();
+    IOPar par; ctab.fillPar( par );
+    Settings::common().mergeComp( par, IOPar::compKey(sKeyCtbl,newidx) );
+    Settings::common().write();
 }
 
 

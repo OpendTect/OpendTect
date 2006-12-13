@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiviscoltabed.cc,v 1.17 2006-08-14 09:17:06 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiviscoltabed.cc,v 1.18 2006-12-13 08:57:01 cvsnanne Exp $";
 
 #include "uiviscoltabed.h"
 
@@ -197,6 +197,10 @@ void uiVisColTabEd::disableCallBacks()
     coltab_->sequencechange.remove( coltabcb );
     coltab_->autoscalechange.remove( coltabcb );
 }
+
+
+void uiVisColTabEd::updateColTabList()
+{ coltabed_->updateColTabList(); }
 
 
 

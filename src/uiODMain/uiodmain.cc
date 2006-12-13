@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodmain.cc,v 1.47 2006-11-03 09:43:56 cvsnanne Exp $
+ RCS:           $Id: uiodmain.cc,v 1.48 2006-12-13 08:57:01 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -274,6 +274,7 @@ void uiODMain::restoreSession()
     cursession = &sess;
     doRestoreSession();
     cursession = &lastsession; lastsession.clear();
+    ctabed->updateColTabList();
     mDelCtioRet()
 }
 

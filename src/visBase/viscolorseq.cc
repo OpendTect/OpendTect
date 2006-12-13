@@ -4,12 +4,13 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Nov 2003
- RCS:           $Id: viscolorseq.cc,v 1.14 2006-09-05 20:53:06 cvskris Exp $
+ RCS:           $Id: viscolorseq.cc,v 1.15 2006-12-13 08:57:01 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "viscolorseq.h"
+#include "bufstringset.h"
 #include "colortab.h"
 #include "envvars.h"
 
@@ -67,6 +68,14 @@ int ColorSequence::usePar( const IOPar& par )
     if ( res != 1 ) return res;
 
     coltab_.usePar( par );
+
+    NamedBufferStringSet coltabnames;
+    ColorTable::getNames( coltabnames, ColorTable::Both );
+    if ( coltabnames.indexOf(coltab_.name()) >= 0 )
+	ColorTable::get( coltab_.name(), coltab_ );
+    else
+	ColorTable::add( coltab_ );
+
     return 1;
 }
 
