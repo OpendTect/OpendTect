@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          10/12/1999
- RCS:           $Id: uimain.cc,v 1.29 2006-04-25 16:53:11 cvsbert Exp $
+ RCS:           $Id: uimain.cc,v 1.30 2006-12-13 09:05:44 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -110,22 +110,8 @@ void uiMain::init( QApplication* qap, int argc, char **argv )
     else
 	themain = this;
 
-    IOPar* iopar = Settings::common().subselect( "Icons" );
-    if ( !iopar ) iopar = new IOPar;
-
-    bool insettings = false;
-    int iconsz = 24; insettings |= iopar->get( "size", iconsz );
-
-    if ( !insettings )
-    {
-	iopar->set( "size", iconsz );
-
-	Settings::common().mergeComp( *iopar, "Icons" );
-	Settings::common().write();
-    }
-
-    delete iopar;
-
+    int iconsz = 24;
+    Settings::common().get( "dTect.Icons.size", iconsz );
     setIconSize( iconsz );
 
     QApplication::setColorSpec( QApplication::ManyColor );
