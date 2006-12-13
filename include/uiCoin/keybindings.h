@@ -7,7 +7,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Dec 2002
- RCS:           $Id: keybindings.h,v 1.5 2004-09-01 12:38:07 nanne Exp $
+ RCS:           $Id: keybindings.h,v 1.6 2006-12-13 08:18:33 cvsnanne Exp $
 ________________________________________________________________________
 
 */
@@ -67,7 +67,7 @@ public:
                                 KeyBindMan();
                                 ~KeyBindMan();
 
-    void                        setKeyBindings(const char*);
+    void                        setKeyBindings(const char*,bool saveinsett);
     void                        getAllKeyBindings(BufferStringSet&);
     const char*			getCurrentKeyBindings() const
 				{ return curkeyb; }

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          July 2003
- RCS:           $Id: keybindings.cc,v 1.7 2006-02-20 18:49:49 cvsbert Exp $
+ RCS:           $Id: keybindings.cc,v 1.8 2006-12-13 08:18:33 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -77,7 +77,7 @@ KeyBindMan::KeyBindMan()
     sd.close();
 
     mSettUse(get,"dTect.MouseControls","Default",curkeyb);
-    setKeyBindings( curkeyb );
+    setKeyBindings( curkeyb, false );
 }
 
 
@@ -87,11 +87,14 @@ KeyBindMan::~KeyBindMan()
 }
 
 
-void KeyBindMan::setKeyBindings( const char* name )
+void KeyBindMan::setKeyBindings( const char* name, bool saveinsett )
 {
-    curkeyb = BufferString(name);
-    mSettUse(set,"dTect.MouseControls","Default",curkeyb);
-    Settings::common().write();
+    curkeyb = name;
+    if ( saveinsett )
+    {
+	mSettUse(set,"dTect.MouseControls","Default",curkeyb);
+	Settings::common().write();
+    }
 
     KeyBindings keys;
     for ( int idx=0; idx<keyset.size(); idx++ )
