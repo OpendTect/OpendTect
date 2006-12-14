@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		May 2006
- RCS:		$Id: uiodrandlinetreeitem.cc,v 1.2 2006-05-09 11:00:53 cvsbert Exp $
+ RCS:		$Id: uiodrandlinetreeitem.cc,v 1.3 2006-12-14 21:44:35 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -15,24 +15,20 @@ ___________________________________________________________________
 #include "uiodapplmgr.h"
 #include "uivispartserv.h"
 
+#include "ctxtioobj.h"
+#include "ptrman.h"
+#include "randomlinetr.h"
+#include "randomlinegeom.h"
 #include "survinfo.h"
 
 #include "uibinidtable.h"
 #include "uidialog.h"
+#include "uiioobjsel.h"
 #include "uimenuhandler.h"
 #include "uimsg.h"
 #include "uiodscenemgr.h"
 #include "uiwellpartserv.h"
 #include "visrandomtrackdisplay.h"
-
-#define mParentShowSubMenu( creation ) \
-    uiPopupMenu mnu( getUiParent(), "Action" ); \
-    mnu.insertItem( new uiMenuItem("Add"), 0 ); \
-    addStandardItems( mnu ); \
-    const int mnuid = mnu.exec(); \
-    if ( mnuid == 0 ) creation; \
-    handleStandardItems( mnuid ); \
-    return true
 
 
 uiTreeItem* uiODRandomLineTreeItemFactory::create( int visid, uiTreeItem* ) const
@@ -55,18 +51,40 @@ bool uiODRandomLineParentTreeItem::showSubMenu()
 	    	    ODMainWin()->applMgr().visServer()->getObject(sceneID()));
     if ( scene && scene->getDataTransform() )
     {
-	uiMSG().message( "Cannot add Random lines to this scene" );
+	uiMSG().message( "Cannot add Random lines to this scene (yet)" );
 	return false;
     }
 
-    mParentShowSubMenu( addChild(new uiODRandomLineTreeItem(-1),false); );
+    uiPopupMenu mnu( getUiParent(), "Action" );
+    mnu.insertItem( new uiMenuItem("Add"), 0 );
+    mnu.insertItem( new uiMenuItem("Load ..."), 1 );
+    addStandardItems( mnu );
+    const int mnuid = mnu.exec();
+    if ( mnuid == 0 )
+	addChild( new uiODRandomLineTreeItem(-1), false );
+    else if ( mnuid == 1 )
+    {
+    	PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj( RandomLine );
+	ctio->ctxt.forread = true;
+	uiIOObjSelDlg dlg( getUiParent(), *ctio, "Select", false );
+	if ( !dlg.go() )
+	    return false;
+
+	Geometry::RandomLine geom;
+	BufferString errmsg;
+	RandomLineTranslator::retrieve( geom, dlg.ioObj(), errmsg );
+    }
+
+    handleStandardItems( mnuid );
+    return true;
 }
 
 
 uiODRandomLineTreeItem::uiODRandomLineTreeItem( int id )
     : editnodesmnuitem_("Edit nodes ...")
     , insertnodemnuitem_("Insert node")
-    , usewellsmnuitem_("Create from wells...")
+    , usewellsmnuitem_("Create from wells ...")
+    , savemnuitem_("Save ...")
 { displayid_ = id; } 
 
 
@@ -125,6 +143,7 @@ void uiODRandomLineTreeItem::createMenuCB( CallBacker* cb )
     }
     mAddMenuItem( menu, &usewellsmnuitem_, !visserv->isLocked(displayid_), 
 	    	  false );
+    mAddMenuItem( menu, &savemnuitem_, true, false );
 }
 
 
@@ -153,6 +172,23 @@ void uiODRandomLineTreeItem::handleMenuCB( CallBacker* cb )
     {
 	menu->setIsHandled(true);
 	applMgr()->wellServer()->selectWellCoordsForRdmLine();
+    }
+    else if ( mnuid == savemnuitem_.id )
+    {
+	PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj( RandomLine );
+	ctio->ctxt.forread = false;
+	uiIOObjSelDlg dlg( getUiParent(), *ctio, "Select", false );
+	if ( !dlg.go() )
+	    return;
+	    
+	TypeSet<BinID> bids;
+	rtd->getAllKnotPos( bids );
+	Geometry::RandomLine geom;
+	geom.setZRange( rtd->getDepthInterval() );
+	for ( int idx=0; idx<bids.size(); idx++ )
+	    geom.addNode( bids[idx] );
+	BufferString bs;
+	RandomLineTranslator::store( geom, dlg.ioObj(), bs );
     }
 }
 
