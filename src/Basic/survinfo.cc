@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          18-4-1996
- RCS:           $Id: survinfo.cc,v 1.81 2006-11-21 14:00:06 cvsbert Exp $
+ RCS:           $Id: survinfo.cc,v 1.82 2006-12-14 14:30:52 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,7 +33,7 @@ const char* SurveyInfo::sKeyCrlRange = "Cross-line range";
 const char* SurveyInfo::sKeyZRange = "Z range";
 const char* SurveyInfo::sKeyWSProjName = "Workstation Project Name";
 const char* SurveyInfo::sKeyDpthInFt = "Show depth in feet";
-const char* SurveyInfo::sKeySurvType = "Survey Type";
+const char* SurveyInfo::sKeySurvDataType = "Survey Data Type";
 
 
 SurveyInfo* SurveyInfo::theinst_ = 0;
@@ -63,7 +63,7 @@ SurveyInfo::SurveyInfo()
     , zinfeet_(false)
     , pars_(*new IOPar(sKeySurvDefs))
     , workRangeChg(this)
-    , survtype_(No2D)
+    , survdatatype_(No2D)
 {
     rdxtr.b = rdytr.c = 1;
     set3binids[2].crl = 0;
@@ -102,7 +102,7 @@ SurveyInfo& SurveyInfo::operator =( const SurveyInfo& si )
     zistime_ = si.zistime_;
     zinfeet_ = si.zinfeet_;
     b2c_ = si.b2c_;
-    survtype_ = si.survtype_;
+    survdatatype_ = si.survdatatype_;
     for ( int idx=0; idx<3; idx++ )
     {
 	set3binids[idx] = si.set3binids[idx];
@@ -177,6 +177,8 @@ SurveyInfo* SurveyInfo::read( const char* survdir )
 		si->zinfeet_ = *fms[3] == 'F';
 	    }
 	}
+	else if ( keyw == sKeySurvDataType )
+	    si->setSurvDataType( namesToPol2D(astream.value()) );
 	else
 	    si->handleLineRead( keyw, astream.value() );
 
@@ -600,6 +602,7 @@ bool SurveyInfo::write( const char* basedir ) const
     }
 
     astream.put( sKey::Name, name() );
+    astream.put( sKeySurvDataType, pol2DNames(getSurvDataType()) );
     FileMultiString fms;
     fms += cs_.hrg.start.inl; fms += cs_.hrg.stop.inl; fms += cs_.hrg.step.inl;
     astream.put( sKeyInlRange, fms );
@@ -681,3 +684,11 @@ void SurveyInfo::savePars( const char* basedir ) const
 
     pars_.write( FilePath(basedir).add(sKeyDefsFile).fullPath(), sKeySurvDefs );
 }
+
+
+bool SurveyInfo::has2D() const
+{ return survdatatype_ == Only2D || survdatatype_ == Both2DAnd3D; }
+
+
+bool SurveyInfo::has3D() const
+{ return survdatatype_ == No2D || survdatatype_ == Both2DAnd3D; }

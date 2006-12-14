@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		23-10-1996
  Contents:	Extension of genc.h with C++ stuff.
- RCS:		$Id: general.h,v 1.10 2005-09-19 15:49:36 cvsbert Exp $
+ RCS:		$Id: general.h,v 1.11 2006-12-14 14:30:51 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,6 +42,27 @@ inline const char* className( const T& t )
 //! Defines policy for selection of 2D vs 3D seismics
 enum Pol2D	{ No2D=-1, Both2DAnd3D=0, Only2D=1 };
 
+inline const char* pol2DNames( Pol2D tp )
+{
+    if ( tp == No2D )
+	return "Only 3D";
+    else if ( tp == Only2D )
+	return "Only 2D";
+    else
+	return "Both 2D and 3D";
+}
+		
+
+inline Pol2D namesToPol2D( const char* str )
+{
+    if ( !strcmp( str, pol2DNames( No2D ) ) )
+	return No2D;
+    else if ( !strcmp( str, pol2DNames( Only2D ) ) )
+	return Only2D;
+    else
+	return Both2DAnd3D;
+}
+		
 //! Catches bad_alloc and sets ptr to null as normal.
 #define mTryAlloc(var,stmt) \
 	try { var = new stmt; } catch ( std::bad_alloc ) { var = 0; }

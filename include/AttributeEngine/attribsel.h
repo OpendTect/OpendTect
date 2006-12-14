@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Sep 2001
- RCS:           $Id: attribsel.h,v 1.10 2006-06-20 14:46:33 cvsnanne Exp $
+ RCS:           $Id: attribsel.h,v 1.11 2006-12-14 14:30:51 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,10 +43,12 @@ public:
 			SelSpec( const char* r=0, DescID i=cAttribNotSel(),
 				 bool n=false, const char* objr=0 )
 			: ref_(r), id_(i), isnla_(n)
-			, objref_(objr)		{}
+			, objref_(objr)
+			, is2d_(false)		{}
 
     const DescID&	id() const		{ return id_; }
     bool		isNLA() const		{ return isnla_; }
+    bool		is2D() const		{ return is2d_; }
     const char*		userRef() const		{ return ref_; }
     const char*		objectRef() const	{ return objref_; }
     const char*		defString() const	{ return defstring_; }
@@ -74,6 +76,7 @@ public:
     void		setIDFromRef(const DescSet&);
     void		setRefFromID(const NLAModel&);
     void		setRefFromID(const DescSet&);
+    void		set2DFlag()			{ is2d_ = true; }
 
     const StepInterval<int>&	discrSpec() const	{ return discrspec_; }
     void		setDiscrSpec( const StepInterval<int>& ds )
@@ -95,6 +98,7 @@ protected:
     DescID		id_;
     bool		isnla_;
     StepInterval<int>	discrspec_;
+    bool		is2d_;
 
     static const char*	sKeyRef();
     static const char*	sKeyObjRef();

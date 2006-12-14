@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.h,v 1.18 2006-11-03 16:04:38 cvshelene Exp $
+ RCS:           $Id: uiodmenumgr.h,v 1.19 2006-12-14 14:30:52 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -66,6 +66,8 @@ public:
     void		enableMenuBar(bool);
     void		enableActButton(bool);
     void		setCameraPixmap(bool isperspective);
+
+    Notifier<uiODMenuMgr> dTectTBChanged;
 
 protected:
 

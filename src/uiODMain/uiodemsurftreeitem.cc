@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodemsurftreeitem.cc,v 1.12 2006-10-17 21:07:13 cvskris Exp $
+ RCS:		$Id: uiodemsurftreeitem.cc,v 1.13 2006-12-14 14:30:52 cvshelene Exp $
 ___________________________________________________________________
 
 -*/
@@ -225,7 +225,8 @@ void uiODEarthModelSurfaceTreeItem::createMenuCB( CallBacker* cb )
     if ( isChecked() && trackmnu )
     {
 	uiMPEPartServer* mps = applMgr()->mpeServer();
-	mps->setCurrentAttribDescSet( applMgr()->attrServer()->curDescSet() );
+	//TODO false set to make it compile: change!!!!!!!
+	mps->setCurrentAttribDescSet( applMgr()->attrServer()->curDescSet(false) );
 
 	EM::SectionID section = -1;
 	if ( uivisemobj->nrSections()==1 )

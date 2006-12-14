@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvinfoed.cc,v 1.78 2006-12-08 13:38:19 cvsnanne Exp $
+ RCS:           $Id: uisurvinfoed.cc,v 1.79 2006-12-14 14:30:52 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -155,8 +155,21 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo& si )
     pathbut->activated.notify( mCB(this,uiSurveyInfoEditor,pathbutPush) );
 #endif
 
+    only2dfld = new uiRadioButton( this, pol2DNames(Only2D) );
+    only2dfld->attach( alignedBelow, pathfld );
+    only2dfld->activated.notify( mCB(this,uiSurveyInfoEditor,survTypePush) );
+    only3dfld = new uiRadioButton( this, pol2DNames(No2D) );
+    only3dfld->setChecked( true );
+    only3dfld->attach( rightTo, only2dfld );
+    only3dfld->activated.notify( mCB(this,uiSurveyInfoEditor,survTypePush) );
+    both2d3dfld = new uiRadioButton( this, pol2DNames(Both2DAnd3D) );
+    both2d3dfld->attach( rightTo,only3dfld );
+    both2d3dfld->activated.notify( mCB(this,uiSurveyInfoEditor,survTypePush) );
+    uiLabel* survtypelbl = new uiLabel( this, "Survey is" );
+    survtypelbl->attach( leftOf, only2dfld );
+
     uiSeparator* horsep1 = new uiSeparator( this );
-    horsep1->attach( stretchedBelow, pathfld, -2 );
+    horsep1->attach( stretchedBelow, only2dfld, -2 );
 
     const int nrprovs = survInfoProvs().size();
     uiObject* sipobj = 0;
@@ -470,6 +483,11 @@ void uiSurveyInfoEditor::doFinalise( CallBacker* )
     pathfld->setReadOnly( true );
     updStatusBar( orgstorepath );
 
+    Pol2D survtyp = si_.getSurvDataType();
+    only2dfld->setChecked( survtyp == Only2D );
+    only3dfld->setChecked( survtyp == No2D );
+    both2d3dfld->setChecked( survtyp == Both2DAnd3D );
+    
     if ( si_.sampling(false).hrg.totalNr() )
 	setValues();
 
@@ -504,6 +522,11 @@ bool uiSurveyInfoEditor::acceptOK( CallBacker* )
 
     dirnamechanged = orgdirname != newdirnm;
     si_.dirname = newdirnm;
+    
+    Pol2D typ = No2D;
+    if ( only2dfld->isChecked() ) typ = Only2D;
+    if ( both2d3dfld->isChecked() ) typ = Both2DAnd3D;
+    si_.setSurvDataType( typ );
 
     if ( !appButPushed() )
 	return false;
@@ -750,6 +773,25 @@ void uiSurveyInfoEditor::unitPush( CallBacker* cb )
     timefld->setChecked( doms );
     meterfld->setChecked( domtr );
     feetfld->setChecked( doft );
+}
+
+
+void uiSurveyInfoEditor::survTypePush( CallBacker* cb )
+{
+    mDynamicCastGet(uiRadioButton*,but,cb)
+    if ( !but ) return;
+
+    bool do2d, do3d, doboth;
+    if ( but == only2dfld )
+    { do2d = true; do3d = doboth = false; }
+    else if ( but == only3dfld )
+    { do3d = true; do2d = doboth = false; }
+    else if ( but == both2d3dfld )
+    { doboth = true; do2d = do3d = false; }
+
+    only2dfld->setChecked( do2d );
+    only3dfld->setChecked( do3d );
+    both2d3dfld->setChecked( doboth );
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          November 2001
- RCS:           $Id: attribdescsetman.h,v 1.1 2005-06-02 07:17:06 cvsnanne Exp $
+ RCS:           $Id: attribdescsetman.h,v 1.2 2006-12-14 14:30:51 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,12 +25,13 @@ class DescSetMan
 {
 public:
 
-			DescSetMan(DescSet* ads=0,bool destr_on_del=true );
+			DescSetMan(bool,DescSet* ads=0,bool destr_on_del=true );
 			~DescSetMan();
 
     DescSet*		descSet()			{ return ads_; }
     void		setDescSet(DescSet*);
 
+    bool		is2D() const			{ return is2d_; }
     bool		isSaved() const          	{ return !unsaved_; }
     void		setSaved( bool yn=true ) const
                         { const_cast<DescSetMan*>(this)->unsaved_ = !yn; }
@@ -45,6 +46,7 @@ public:
 protected:
 
     DescSet*		ads_;
+    bool		is2d_;
     bool		unsaved_;
     bool		destrondel_;
 

@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		May 2006
- RCS:		$Id: uiodwelltreeitem.cc,v 1.6 2006-11-21 14:00:08 cvsbert Exp $
+ RCS:		$Id: uiodwelltreeitem.cc,v 1.7 2006-12-14 14:30:52 cvshelene Exp $
 ___________________________________________________________________
 
 -*/
@@ -230,8 +230,9 @@ void uiODWellTreeItem::handleMenuCB( CallBacker* cb )
     if ( mnuid == attrmnuitem_.id )
     {
 	menu->setIsHandled( true );
+	//TODO false set to make it compile: change!!!!!!
 	applMgr()->wellAttribServer()->setAttribSet( 
-				*applMgr()->attrServer()->curDescSet() );
+				*applMgr()->attrServer()->curDescSet(false) );
 	applMgr()->wellAttribServer()->createAttribLog( wellid );
     }
     else if ( mnuid==sellogmnuitem_.id )

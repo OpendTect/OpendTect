@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrdescseted.cc,v 1.37 2006-12-01 09:31:10 cvshelene Exp $
+ RCS:           $Id: uiattrdescseted.cc,v 1.38 2006-12-14 14:30:52 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -65,7 +65,8 @@ static bool evaldlgpoppedup = false;
 using namespace Attrib;
 
 uiAttribDescSetEd::uiAttribDescSetEd( uiParent* p, DescSetMan* adsm )
-    : uiDialog(p,uiDialog::Setup("Attribute Set","","101.0.0")
+    : uiDialog(p,uiDialog::Setup( adsm->is2D() ? "Attribute Set 2D"
+					: "Attribute Set 3D","","101.0.0")
 	.savebutton(true).savetext("Save on OK  ")
 	.menubar(true)
 	.modal(false))
@@ -417,7 +418,7 @@ void uiAttribDescSetEd::updateFields( bool set_type )
     
     dummydesc->ref();
     dummydesc->setDescSet( attrset );
-    const bool is2d = attrset->is2D();
+    const bool is2d = adsman ? adsman->is2D() : attrset->is2D();
     for ( int idx=0; idx<desceds.size(); idx++ )
     {
 	uiAttrDescEd* de = desceds[idx];
@@ -955,4 +956,15 @@ void uiAttribDescSetEd::replaceStoredAttr()
 void uiAttribDescSetEd::removeNotUsedAttr()
 {
      if ( attrset ) attrset->removeUnused();
+}
+
+
+bool uiAttribDescSetEd::is2D() const
+{
+    if ( adsman ) 
+	return adsman->is2D();
+    else if ( attrset ) 
+	return attrset->is2D();
+    else 
+	return false;
 }

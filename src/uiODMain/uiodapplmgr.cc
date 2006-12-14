@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.163 2006-12-13 16:33:15 cvsbert Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.164 2006-12-14 14:30:52 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -79,6 +79,7 @@ public:
 };
 
 
+//TODO : would that mean we need 2 mpeserv?
 uiODApplMgr::uiODApplMgr( uiODMain& a )
 	: appl(a)
 	, applservice(*new uiODApplService(&a,*this))
@@ -95,7 +96,8 @@ uiODApplMgr::uiODApplMgr( uiODMain& a )
     emattrserv = new uiEMAttribPartServer( applservice );
     wellserv = new uiWellPartServer( applservice );
     wellattrserv = new uiWellAttribPartServer( applservice );
-    mpeserv = new uiMPEPartServer( applservice, attrserv->curDescSet() );
+	//TODO false set to make it compile change!!!!!!!
+    mpeserv = new uiMPEPartServer( applservice, attrserv->curDescSet(false) );
 
     IOM().surveyToBeChanged.notify( mCB(this,uiODApplMgr,surveyToBeChanged) );
 }
@@ -121,16 +123,19 @@ uiODApplMgr::~uiODApplMgr()
 }
 
 
+//TODO : would that mean we need 2 mpeserv?
 void uiODApplMgr::resetServers()
 {
     if ( nlaserv ) nlaserv->reset();
     delete attrserv; delete mpeserv;
     attrserv = new uiAttribPartServer( applservice );
-    mpeserv = new uiMPEPartServer( applservice,  attrserv->curDescSet() );
+	//TODO false set to make it compile change!!!!!!!
+    mpeserv = new uiMPEPartServer( applservice,  attrserv->curDescSet(false) );
     visserv->deleteAllObjects();
     emserv->removeHistory();
 }
 
+//TODO : would that mean we need 2 mpeserv?
 //TODO verify that the descsets are both saved
 int uiODApplMgr::manageSurvey()
 {
@@ -144,7 +149,8 @@ int uiODApplMgr::manageSurvey()
     {
 	sceneMgr().addScene();
 	attrserv = new uiAttribPartServer( applservice );
-	mpeserv = new uiMPEPartServer( applservice,  attrserv->curDescSet() );
+	//TODO false set to make it compile change!!!!!!!
+	mpeserv = new uiMPEPartServer( applservice,  attrserv->curDescSet(false) );
 	MPE::engine().setActiveVolume( MPE::engine().getDefaultActiveVolume() );
 	return 2;
     }
@@ -164,10 +170,11 @@ void uiODApplMgr::surveyToBeChanged( CallBacker* cb )
 }
 
 
-bool uiODApplMgr::editNLA()
+bool uiODApplMgr::editNLA( bool is2d )
 {
     if ( !nlaserv ) return false;
 
+    nlaserv->set2DEvent( is2d );
     bool res = nlaserv->go();
     if ( !res ) attrserv->setNLAName( nlaserv->modelName() );
     return res;
@@ -272,16 +279,24 @@ void uiODApplMgr::enableSceneManipulation( bool yn )
 
 void uiODApplMgr::editAttribSet()
 {
-    enableMenusAndToolBars( false );
-    enableSceneManipulation( false );
-
-    attrserv->editSet(); 
+    editAttribSet( SI().has2D() );
 }
 
 
+void uiODApplMgr::editAttribSet( bool is2d )
+{
+    enableMenusAndToolBars( false );
+    enableSceneManipulation( false );
+
+    attrserv->editSet( is2d ); 
+}
+
+
+//TODO give both?
 void uiODApplMgr::createHorOutput( int tp )
 {
-    emattrserv->setDescSet( attrserv->curDescSet() );
+	//TODO false set to make it compile change!!!!!!!
+    emattrserv->setDescSet( attrserv->curDescSet(false) );
     uiEMAttribPartServer::HorOutType type =
 	  tp==0 ? uiEMAttribPartServer::OnHor :
 	( tp==1 ? uiEMAttribPartServer::AroundHor : 
@@ -290,12 +305,15 @@ void uiODApplMgr::createHorOutput( int tp )
 }
 
 
-void uiODApplMgr::createVol()
+void uiODApplMgr::createVol( bool is2d )
 {
     MultiID nlaid;
     if ( nlaserv )
+    {
+	nlaserv->set2DEvent( is2d );
 	nlaid = nlaserv->modelId();
-    attrserv->outputVol( nlaid );
+    }
+    attrserv->outputVol( nlaid, is2d );
 }
 
 
@@ -342,7 +360,8 @@ bool uiODApplMgr::selectAttrib( int id, int attrib )
 
     const char* key = visserv->getDepthDomainKey( visserv->getSceneID(id) );
     Attrib::SelSpec myas( *as );
-    const bool selok = attrserv->selectAttrib( myas, key );
+	//TODO false set to make it compile change!!!!!!!
+    const bool selok = attrserv->selectAttrib( myas, key, false );
     if ( selok )
 	visserv->setSelSpec( id, attrib, myas );
 
@@ -560,8 +579,14 @@ void* uiODApplMgr::deliverObject( const uiApplPartServer* aps, int id )
 {
     if ( aps == attrserv )
     {
-	if ( id == uiAttribPartServer::objNLAModel )
+	bool isnlamod2d = id == uiAttribPartServer::objNLAModel2D;
+	bool isnlamod3d = id == uiAttribPartServer::objNLAModel3D;
+	if ( isnlamod2d || isnlamod3d  )
+	{
+	    if ( nlaserv )
+		nlaserv->set2DEvent( isnlamod2d );
 	    return nlaserv ? (void*)(&nlaserv->getModel()) : 0;
+	}
     }
     else
 	pErrMsg("deliverObject for unsupported part server");
@@ -795,14 +820,16 @@ bool uiODApplMgr::handleNLAServEv( int evid )
 {
     if ( evid == uiNLAPartServer::evIs2D )
     {
-	const Attrib::DescSet* ads = attrserv->curDescSet();
+	//TODO false set to make it compile change!!!!!!!
+	const Attrib::DescSet* ads = attrserv->curDescSet(false);
 	return ads ? ads->is2D() : false;
     }
     else if ( evid == uiNLAPartServer::evPrepareWrite )
     {
 	// Before NLA model can be written, the AttribSet's IOPar must be
 	// made available as it almost certainly needs to be stored there.
-	const Attrib::DescSet* ads = attrserv->curDescSet();
+	//TODO false set to make it compile change!!!!!!!
+	const Attrib::DescSet* ads = attrserv->curDescSet(false);
 	if ( !ads ) return false;
 	IOPar& iopar = nlaserv->modelPars();
 	iopar.clear();
@@ -813,17 +840,20 @@ bool uiODApplMgr::handleNLAServEv( int evid )
     }
     else if ( evid == uiNLAPartServer::evPrepareRead )
     {
-	bool saved = attrserv->setSaved();
+	//TODO false set to make it compile change!!!!!!!
+	bool saved = attrserv->setSaved(false);
         const char* msg = "Current attribute set is not saved.\nSave now?";
+	//TODO false set to make it compile change!!!!!!!
         if ( !saved && uiMSG().askGoOn( msg ) )
-	    attrserv->saveSet();
+	    attrserv->saveSet(false);
     }
     else if ( evid == uiNLAPartServer::evReadFinished )
     {
 	// New NLA Model available: replace the attribute set!
 	// Create new attrib set from NLA model's IOPar
 
-	attrserv->replaceSet( nlaserv->modelPars() );
+	//TODO false set to make it compile change!!!!!!!
+	attrserv->replaceSet( nlaserv->modelPars(), false );
 	wellattrserv->setNLAModel( &nlaserv->getModel() );
     }
     else if ( evid == uiNLAPartServer::evGetInputNames )
@@ -832,7 +862,8 @@ bool uiODApplMgr::handleNLAServEv( int evid )
 	// Should be:
 	// * All attributes (stored ones filtered out)
 	// * All cubes - between []
-	attrserv->getPossibleOutputs( nlaserv->inputNames() );
+	//TODO false set to make it compile change!!!!!!!
+	attrserv->getPossibleOutputs( false, nlaserv->inputNames() );
 	if ( nlaserv->inputNames().size() == 0 )
 	    { uiMSG().error( "No usable input" ); return false; }
     }
@@ -840,8 +871,9 @@ bool uiODApplMgr::handleNLAServEv( int evid )
     {
 	BufferStringSet linekeys;
 	nlaserv->getNeededStoredInputs( linekeys );
+	//TODO false set to make it compile change!!!!!!!
 	for ( int idx=0; idx<linekeys.size(); idx++ )
-            attrserv->addToDescSet( linekeys.get(idx) );
+            attrserv->addToDescSet( linekeys.get(idx), false );
     }
     else if ( evid == uiNLAPartServer::evGetData )
     {
@@ -849,7 +881,8 @@ bool uiODApplMgr::handleNLAServEv( int evid )
 	// Query the server and make sure the relevant data is extracted
 	// Put data in the training and test posvec data sets
 
-	if ( !attrserv->curDescSet() ) { pErrMsg("Huh"); return false; }
+	//TODO false set to make it compile change!!!!!!1
+	if ( !attrserv->curDescSet(false) ) { pErrMsg("Huh"); return false; }
 	ObjectSet<BinIDValueSet> bivss;
 	const bool dataextraction = nlaserv->willDoExtraction();
 	if ( dataextraction )
@@ -867,15 +900,17 @@ bool uiODApplMgr::handleNLAServEv( int evid )
 	    if ( dataextraction )
 	    {
 		IOPar& iop = nlaserv->storePars();
-		attrserv->curDescSet()->fillPar( iop );
+	//TODO false set to make it compile change!!!!!!
+		attrserv->curDescSet(false)->fillPar( iop );
 		if ( iop.name().isEmpty() )
 		    iop.setName( "Attributes" );
 	    }
 	    const char* res = nlaserv->prepareInputData( vdss );
 	    if ( res && *res && strcmp(res,uiNLAPartServer::sKeyUsrCancel) )
 		uiMSG().warning( res );
+	//TODO false set to make it compile change!!!!!!!
 	    if ( !dataextraction ) // i.e. if we have just read a PosVecDataSet
-		attrserv->replaceSet( vdss[0]->pars() );
+		attrserv->replaceSet( vdss[0]->pars(), false );
 	}
 	deepErase(vdss);
     }
@@ -905,7 +940,8 @@ bool uiODApplMgr::handleNLAServEv( int evid )
 	if ( !attrserv->createAttributeSet(nlaserv->modelInputs(),&attrset) )
 	    return false;
 	attrset.fillPar( nlaserv->modelPars() );
-	attrserv->replaceSet( nlaserv->modelPars() );
+	//TODO false set to make it compile change!!!!!!!
+	attrserv->replaceSet( nlaserv->modelPars(), false );
     }
     else
 
@@ -930,7 +966,8 @@ bool uiODApplMgr::handleAttribServEv( int evid )
     }
     else if ( evid==uiAttribPartServer::evNewAttrSet )
     {
-	mpeserv->setCurrentAttribDescSet( attrserv->curDescSet() );
+	//TODO false set to make it compile change!!!!!!
+	mpeserv->setCurrentAttribDescSet( attrserv->curDescSet(false) );
     }
     else if ( evid==uiAttribPartServer::evAttrSetDlgClosed )
     {

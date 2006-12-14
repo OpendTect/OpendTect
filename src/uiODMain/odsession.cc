@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: odsession.cc,v 1.12 2006-11-21 14:00:08 cvsbert Exp $";
+static const char* rcsID = "$Id: odsession.cc,v 1.13 2006-12-14 14:30:52 cvshelene Exp $";
 
 #include "odsession.h"
 #include "ptrman.h"
@@ -15,7 +15,9 @@ static const char* rcsID = "$Id: odsession.cc,v 1.12 2006-11-21 14:00:08 cvsbert
 
 const char* ODSession::visprefix = "Vis";
 const char* ODSession::sceneprefix = "Scene";
-const char* ODSession::attrprefix = "Attribs";
+const char* ODSession::attrprefix = "Attribs";	//backward comp 2.4
+const char* ODSession::attr2dprefix = "2D.Attribs";
+const char* ODSession::attr3dprefix = "3D.Attribs";
 const char* ODSession::nlaprefix = "NLA";
 const char* ODSession::trackprefix = "Tracking";
 const char* ODSession::pluginprefix = "Plugins";
@@ -25,7 +27,9 @@ void ODSession::clear()
 {
     vispars_.clear();
     scenepars_.clear();
-    attrpars_.clear();
+    attrpars_.clear();				//backward comp 2.4
+    attrpars2d_.clear();
+    attrpars3d_.clear();
     nlapars_.clear();
     mpepars_.clear();
     pluginpars_.clear();
@@ -38,7 +42,9 @@ ODSession& ODSession::operator=( const ODSession& sess )
     {
 	vispars_ = sess.vispars_;
 	scenepars_ = sess.scenepars_;
-	attrpars_ = sess.attrpars_;
+	attrpars_ = sess.attrpars_;		//backward comp 2.4
+	attrpars2d_ = sess.attrpars2d_;
+	attrpars3d_ = sess.attrpars3d_;
 	nlapars_ = sess.nlapars_;
 	mpepars_ = sess.mpepars_;
 	pluginpars_ = sess.pluginpars_;
@@ -50,8 +56,9 @@ ODSession& ODSession::operator=( const ODSession& sess )
 bool ODSession::operator==( const ODSession& sess ) const
 {
     return vispars_ == sess.vispars_
-//	&& scenepars_ == sess.scenepars_
-	&& attrpars_ == sess.attrpars_
+	&& attrpars_ == sess.attrpars_		//backward comp 2.4
+	&& attrpars2d_ == sess.attrpars2d_
+	&& attrpars3d_ == sess.attrpars3d_
 	&& nlapars_ == sess.nlapars_
 	&& mpepars_ == sess.mpepars_
 	&& pluginpars_ == sess.pluginpars_;
@@ -65,15 +72,21 @@ bool ODSession::usePar( const IOPar& par )
     vispars_ = *vissubpars;
 
     PtrMan<IOPar> scenesubpars = par.subselect(sceneprefix);
-    if ( !scenesubpars || !scenesubpars->size() )
-	scenesubpars = par.subselect("Windows"); // backward compat 1.0
     if ( scenesubpars )
         scenepars_ = *scenesubpars;
 
     PtrMan<IOPar> attrsubpars = par.subselect(attrprefix);
     if ( attrsubpars )
-	attrpars_ = *attrsubpars;
+	attrpars_ = *attrsubpars;		//backward comp 2.4
 
+    PtrMan<IOPar> attr2dsubpars = par.subselect(attr2dprefix);
+    if ( attr2dsubpars )
+	attrpars2d_ = *attr2dsubpars;
+
+    PtrMan<IOPar> attr3dsubpars = par.subselect(attr3dprefix);
+    if ( attr3dsubpars )
+	attrpars3d_ = *attr3dsubpars;
+    
     PtrMan<IOPar> nlasubpars = par.subselect(nlaprefix);
     if ( nlasubpars )
 	nlapars_ = *nlasubpars;
@@ -94,10 +107,23 @@ void ODSession::fillPar( IOPar& par ) const
 {
     par.mergeComp( vispars_, visprefix );
     par.mergeComp( scenepars_, sceneprefix );
-    par.mergeComp( attrpars_, attrprefix );
+    par.mergeComp( attrpars_, attrprefix );	//backward comp 2.4
+    par.mergeComp( attrpars2d_, attr2dprefix );
+    par.mergeComp( attrpars3d_, attr3dprefix );
     par.mergeComp( nlapars_, nlaprefix );
     par.mergeComp( mpepars_, trackprefix );
     par.mergeComp( pluginpars_, pluginprefix );
+}
+
+
+IOPar& ODSession::attrpars( bool is2d )
+{
+    if ( !attrpars2d_.size() && !attrpars3d_.size() && attrpars_.size() )
+	return attrpars_;			//backward comp 2.4
+    else if ( is2d )
+	return attrpars2d_;
+    else
+	return attrpars3d_;
 }
 
 

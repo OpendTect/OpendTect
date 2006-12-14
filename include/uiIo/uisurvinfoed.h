@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvinfoed.h,v 1.22 2006-12-08 13:38:19 cvsnanne Exp $
+ RCS:           $Id: uisurvinfoed.h,v 1.23 2006-12-14 14:30:51 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -75,7 +75,7 @@ public:
     			
 protected:
 
-    SurveyInfo&		si_;;
+    SurveyInfo&		si_;
     BufferString	orgdirname;
     BufferString	orgstorepath;
     const FileNameString rootdir;
@@ -84,7 +84,9 @@ protected:
     uiGenInput*		survnmfld;
     uiGenInput*		dirnmfld;
     uiGenInput*		pathfld;
-
+    uiRadioButton*	only2dfld;
+    uiRadioButton*	only3dfld;
+    uiRadioButton*	both2d3dfld;
     uiGenInput*		inlfld;
     uiGenInput*		crlfld;
     uiGenInput*		zfld;
@@ -126,6 +128,7 @@ protected:
     void		chgSetMode(CallBacker*);
     void		pathbutPush(CallBacker*);
     void		unitPush(CallBacker*);
+    void		survTypePush(CallBacker*);
     void		updStatusBar(const char*);
 };
 

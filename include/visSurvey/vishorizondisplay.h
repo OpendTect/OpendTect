@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          May 2004
- RCS:           $Id: vishorizondisplay.h,v 1.8 2006-10-30 22:49:07 cvskris Exp $
+ RCS:           $Id: vishorizondisplay.h,v 1.9 2006-12-14 14:30:52 cvshelene Exp $
 ________________________________________________________________________
 
 
@@ -47,6 +47,9 @@ public:
     void			selectTexture(int,int);
 
     SurveyObject::AttribFormat	getAttributeFormat() const;
+    Pol2D                       getAllowedDataType() const      
+    				{ return Both2DAnd3D; }
+    
     bool			canHaveMultipleAttribs() const;
     int				nrAttribs() const;
     bool			addAttrib();

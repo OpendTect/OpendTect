@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		May 2006
- RCS:		$Id: uiodseis2dtreeitem.cc,v 1.7 2006-12-11 19:38:57 cvskris Exp $
+ RCS:		$Id: uiodseis2dtreeitem.cc,v 1.8 2006-12-14 14:30:52 cvshelene Exp $
 ___________________________________________________________________
 
 -*/
@@ -160,7 +160,8 @@ void uiOD2DLineSetTreeItem::createMenuCB( CallBacker* cb )
     if ( children_.size() )
     {
 	Attrib::SelSpec as;
-	MenuItem* dummy = applMgr()->attrServer()->storedAttribMenuItem( as );
+	MenuItem* dummy = applMgr()->attrServer()->
+					    storedAttribMenuItem( as, true );
 	dummy->removeItems();
 
 	BufferStringSet allstored;
@@ -169,10 +170,11 @@ void uiOD2DLineSetTreeItem::createMenuCB( CallBacker* cb )
 	storeditm_.createItems( allstored );
 	mAddMenuItem( &selattritm_, &storeditm_, storeditm_.nrItems(), false );
 
-	MenuItem* attrmenu = applMgr()->attrServer()->calcAttribMenuItem( as );
+	MenuItem* attrmenu = applMgr()->attrServer()->
+	    					calcAttribMenuItem( as, true );
 	mAddMenuItem( &selattritm_, attrmenu, attrmenu->nrItems(), false );
 
-	MenuItem* nla = applMgr()->attrServer()->nlaAttribMenuItem( as );
+	MenuItem* nla = applMgr()->attrServer()->nlaAttribMenuItem( as, true );
 	if ( nla && nla->nrItems() )
 	    mAddMenuItem( &selattritm_, nla, true, false );
 
@@ -570,7 +572,7 @@ void uiOD2DLineSetAttribItem::createMenuCB( CallBacker* cb )
     const int idx = attribnames.indexOf( "Steering" );
     if ( idx>=0 ) attribnames.remove( idx );
 
-    const Attrib::DescSet* ads = attrserv->curDescSet();
+    const Attrib::DescSet* ads = attrserv->curDescSet(true);
     const Attrib::Desc* desc = ads->getDesc( as.id() );
     const bool isstored = desc && desc->isStored();
 
@@ -589,10 +591,10 @@ void uiOD2DLineSetAttribItem::createMenuCB( CallBacker* cb )
 
     mAddMenuItem( &selattrmnuitem_, &storeditm_, true, docheckparent );
 
-    MenuItem* attrmenu = attrserv->calcAttribMenuItem(as);
+    MenuItem* attrmenu = attrserv->calcAttribMenuItem( as, true );
     mAddMenuItem( &selattrmnuitem_, attrmenu, attrmenu->nrItems(), false );
 
-    MenuItem* nla = attrserv->nlaAttribMenuItem(as);
+    MenuItem* nla = attrserv->nlaAttribMenuItem( as, true );
     if ( nla && nla->nrItems() )
 	mAddMenuItem( &selattrmnuitem_, nla, true, false );
 
@@ -650,6 +652,7 @@ bool uiOD2DLineSetAttribItem::displayStoredData( const char* attribnm )
     Attrib::SelSpec myas( *as );
     LineKey linekey( s2d->name(), attribnm );
     myas.set( attribnm, attribid, false, 0 );
+    myas.set2DFlag();
     attrserv->setTargetSelSpec( myas );
     RefMan<Attrib::Data2DHolder> dataset = new Attrib::Data2DHolder;
 

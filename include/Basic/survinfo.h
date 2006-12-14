@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		9-4-1996
- RCS:		$Id: survinfo.h,v 1.55 2006-11-07 08:47:53 cvsnanne Exp $
+ RCS:		$Id: survinfo.h,v 1.56 2006-12-14 14:30:51 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -76,8 +76,10 @@ public:
     const char*		getZUnit(bool withparens=true) const;
     float		zFactor() const		{ return zistime_ ? 1000 : 1; }
     			//!< Factor between real and displayed unit
-    void		setSurvType( Pol2D typ)	{ survtype_ = typ; }
-    Pol2D		getSurvType() const	{ return survtype_; }
+    void		setSurvDataType( Pol2D typ )	{ survdatatype_ = typ; }
+    Pol2D		getSurvDataType() const	{ return survdatatype_; }
+    bool		has2D() const;
+    bool		has3D() const;
 
     void		snap(BinID&,BinID direction=BinID(0,0)) const;
 			//!< dir = 0 : auto; -1 round downward, 1 round upward
@@ -114,7 +116,7 @@ public:
     static const char*	sKeyZRange;
     static const char*	sKeyWSProjName;
     static const char*	sKeyDpthInFt; //!< 'Depth in feet' Y/N (UI default)
-    static const char*	sKeySurvType;
+    static const char*	sKeySurvDataType;
 
     bool		isValid() const		{ return valid_; }
     const char*		comment() const		{ return comment_; }
@@ -158,7 +160,7 @@ protected:
     BinID		set3binids[3];
     Coord		set3coords[3];
 
-    Pol2D		survtype_;
+    Pol2D		survdatatype_;
 
     static SurveyInfo*	theinst_;
     static bool		dowarnings_;

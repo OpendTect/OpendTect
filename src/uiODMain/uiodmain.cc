@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodmain.cc,v 1.49 2006-12-13 16:33:15 cvsbert Exp $
+ RCS:           $Id: uiodmain.cc,v 1.50 2006-12-14 14:30:52 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,6 +22,7 @@ ________________________________________________________________________
 #include "uidockwin.h"
 #include "uisurvey.h"
 #include "uisurvinfoed.h"
+#include "survinfo.h"
 #include "ui2dsip.h"
 #include "uicursor.h"
 #include "uiioobjsel.h"
@@ -283,7 +284,8 @@ bool uiODMain::updateSession()
 {
     cursession->clear();
     applMgr().visServer()->fillPar( cursession->vispars() );
-    applMgr().attrServer()->fillPar( cursession->attrpars() );
+    applMgr().attrServer()->fillPar( cursession->attrpars(true), true );
+    applMgr().attrServer()->fillPar( cursession->attrpars(false), false );
     sceneMgr().getScenePars( cursession->scenepars() );
     if ( applMgr().nlaServer()
       && !applMgr().nlaServer()->fillPar( cursession->nlapars() ) ) 
@@ -303,7 +305,8 @@ void uiODMain::doRestoreSession()
 
     if ( applMgr().nlaServer() )
 	applMgr().nlaServer()->usePar( cursession->nlapars() );
-    applMgr().attrServer()->usePar( cursession->attrpars() );
+    applMgr().attrServer()->usePar( cursession->attrpars(true), true );
+    applMgr().attrServer()->usePar( cursession->attrpars(false), false );
     applMgr().mpeServer()->usePar( cursession->mpepars() );
     const bool visok = applMgr().visServer()->usePar( cursession->vispars() );
     sessionRestore.trigger();
@@ -366,23 +369,30 @@ bool uiODMain::askStore( bool& askedanything )
 	else if ( res == 2 )
 	    return false;
     }
+    if ( SI().has2D() ) askStoreAttribs( true, askedanything );
+    if ( SI().has3D() ) askStoreAttribs( false, askedanything );
 
-    doask = true;
+    return true;
+}
+
+
+bool uiODMain::askStoreAttribs( bool is2d, bool& askedanything )
+{
+    bool doask = true;
     Settings::common().getYN( "dTect.Ask store attributeset", doask );
-    if ( doask && !applmgr->attrServer()->setSaved() )
+    if ( doask && !applmgr->attrServer()->setSaved( is2d ) )
     {
 	askedanything = true;
 	int res = uiMSG().askGoOnAfter( "Current attribute set has changed.\n"
 					"Store the changes now?" );
 	if ( res == 0 )
-	    applmgr->attrServer()->saveSet();
+	    applmgr->attrServer()->saveSet( is2d );
 	else if ( res == 2 )
 	    return false;
     }
 
     return true;
 }
-
 
 bool uiODMain::closeOK()
 {

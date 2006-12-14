@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrdescseted.h,v 1.5 2006-10-10 17:46:05 cvsbert Exp $
+ RCS:           $Id: uiattrdescseted.h,v 1.6 2006-12-14 14:30:51 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,7 +40,7 @@ class uiAttribDescSetEd : public uiDialog
 {
 public:
 
-			uiAttribDescSetEd(uiParent*,Attrib::DescSetMan* adsm=0);
+			uiAttribDescSetEd(uiParent*,Attrib::DescSetMan* adsm);
 			~uiAttribDescSetEd();
 
     Attrib::DescSet*	getSet()		{ return attrset; }
@@ -53,6 +53,7 @@ public:
     int			curDescNr() const;
     			//!< Use during operation only!
     void		updateCurDescEd();
+    bool		is2D() const;
 
     Notifier<uiAttribDescSetEd>		dirshowcb;
     Notifier<uiAttribDescSetEd>		evalattrcb;

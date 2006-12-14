@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiodapplmgr.h,v 1.43 2006-12-11 19:38:57 cvskris Exp $
+ RCS:           $Id: uiodapplmgr.h,v 1.44 2006-12-14 14:30:51 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -79,8 +79,9 @@ public:
 
     // Processing menu operations
     void		editAttribSet();
-    bool		editNLA();
-    void		createVol();
+    void		editAttribSet(bool);
+    bool		editNLA(bool);
+    void		createVol(bool);
     void		createHorOutput(int);
     void		reStartProc();
 
@@ -119,8 +120,10 @@ public:
     void		modifyColorTable(int visid, int attrib );
     NotifierAccess*	colorTableSeqChange();
     void		manSurvCB(CallBacker*)	{ manageSurvey(); }
-    void		manAttrCB(CallBacker*)	{ editAttribSet(); }
-    void		outVolCB(CallBacker*)	{ createVol(); }
+    void		manAttr2DCB(CallBacker*){ editAttribSet(true); }
+    void		manAttr3DCB(CallBacker*){ editAttribSet(false); }
+    void		outVolCB(CallBacker*)	{ createVol(false); }
+    void		outLinesCB(CallBacker*)	{ createVol(true); }
 
     void		enableMenusAndToolBars(bool);
     void		enableTree(bool);

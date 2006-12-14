@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          November 2001
- RCS:           $Id: attribdescsetman.cc,v 1.2 2005-07-29 13:08:11 cvsnanne Exp $
+ RCS:           $Id: attribdescsetman.cc,v 1.3 2006-12-14 14:30:52 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,11 +18,12 @@ ________________________________________________________________________
 namespace Attrib
 {
 
-DescSetMan::DescSetMan( DescSet* ads, bool destr )
+DescSetMan::DescSetMan( bool is2d, DescSet* ads, bool destr )
     : inpselhist_(*new IOPar( "Input Attribute history" ))
     , steerselhist_(*new IOPar( "Steering selection history" ))
     , unsaved_(false)
     , ads_(ads)
+    , is2d_(is2d)
     , attrsetid_("") 
     , destrondel_(destr)
 {

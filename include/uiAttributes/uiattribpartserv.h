@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiattribpartserv.h,v 1.18 2006-11-21 16:23:26 cvsnanne Exp $
+ RCS:           $Id: uiattribpartserv.h,v 1.19 2006-12-14 14:30:51 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,6 +27,7 @@ namespace Attrib
     class DescSet;
     class DescSetMan;
     class EngineMan;
+    class SelInfo;
     class SelSpec;
 };
 
@@ -71,41 +72,40 @@ public:
     			//!< Display slice
     static const int	evEvalStoreSlices;
     			//!< Store slices
-    static const int	objNLAModel;
-    			//!< Request current NLAModel* via getObject()
+    static const int	objNLAModel2D;
+    			//!< Request current 2D NLAModel* via getObject()
+    static const int	objNLAModel3D;
+    			//!< Request current 3D NLAModel* via getObject()
 
     void		manageAttribSets();
-    const Attrib::DescSet* curDescSet() const;
+    const Attrib::DescSet* curDescSet(bool) const;
     void		getDirectShowAttrSpec(Attrib::SelSpec&) const;
-    bool		setSaved() const;
-    void		saveSet();
-    bool		editSet();
+    bool		setSaved(bool) const;
+    void		saveSet(bool);
+    bool		editSet(bool);
     			//!< returns whether new AttribDescSet has been created
-    bool		attrSetEditorActive() const	{ return attrsetdlg; }
+    bool		attrSetEditorActive() const	{ return attrsetdlg_; }
     void		updateSelSpec(Attrib::SelSpec&) const;
 
-    bool		selectAttrib(Attrib::SelSpec&,const char* depthdomkey);
+    bool		selectAttrib(Attrib::SelSpec&,const char*,bool);
     bool		setPickSetDirs(Pick::Set&,const NLAModel*);
-    void		outputVol(MultiID&);
-    bool		replaceSet(const IOPar&);
-    bool		addToDescSet(const char*);
-    int			getSliceIdx() const		{ return sliceidx; }
-    void		getPossibleOutputs(BufferStringSet&) const;
+    void		outputVol(MultiID&,bool);
+    bool		replaceSet(const IOPar&,bool);
+    bool		addToDescSet(const char*,bool);
+    int			getSliceIdx() const		{ return sliceidx_; }
+    void		getPossibleOutputs(bool,BufferStringSet&) const;
 
     void		setTargetSelSpec(const Attrib::SelSpec&);
     const TypeSet<Attrib::SelSpec>& getTargetSelSpecs() const
-			    { return targetspecs; }
+			    { return targetspecs_; }
 
     const Attrib::DataCubes* createOutput(const CubeSampling&,
 				          const Attrib::DataCubes* prevslcs=0);
     bool		createOutput(ObjectSet<BinIDValueSet>&);
-    bool		createOutput( const BinIDValueSet& bidvalset,
-	    			      SeisTrcBuf&);
-
-    bool		isDataAngles() const;
-    			/*!<\returns true if the target data is an
+    bool		createOutput(const BinIDValueSet&,SeisTrcBuf&);
+    bool		isDataAngles(bool) const;
+			/*!<\returns true if the target data is an
 				     angle, i.e. -PI==PI. */
-
     bool		isDataClassified(const Array3D<float>&) const;
 
     Attrib::DescID	createStored2DAttrib(const MultiID& lineset,
@@ -120,36 +120,42 @@ public:
     bool		createAttributeSet(const BufferStringSet&,
 	    				   Attrib::DescSet*);
 
-    const NLAModel*	getNLAModel() const;
-    void		setNLAName( const char* nm )	{ nlaname = nm; }
+    const NLAModel*	getNLAModel(bool) const;
+    void		setNLAName( const char* nm )	{ nlaname_ = nm; }
 
-    MenuItem*         	storedAttribMenuItem(const Attrib::SelSpec&);
-    MenuItem*         	calcAttribMenuItem(const Attrib::SelSpec&);
-    MenuItem*         	nlaAttribMenuItem(const Attrib::SelSpec&);
+    MenuItem*         	storedAttribMenuItem(const Attrib::SelSpec&,bool);
+    MenuItem*         	calcAttribMenuItem(const Attrib::SelSpec&,bool);
+    MenuItem*         	nlaAttribMenuItem(const Attrib::SelSpec&,bool);
     MenuItem*         	depthdomainAttribMenuItem(const Attrib::SelSpec&,
-	    					  const char* key);
+	    					  const char* key,bool);
 
     bool		handleAttribSubMenu(int mnuid,Attrib::SelSpec&) const;
 
     void		setEvaluateInfo(bool ae,bool as)
-			{ alloweval=ae; allowevalstor=as; }
+			{ alloweval_=ae; allowevalstor_=as; }
 
-    void		fillPar( IOPar& ) const;
-    void		usePar( const IOPar& );
+    void		fillPar(IOPar&,bool) const;
+    void		usePar(const IOPar&,bool);
 
 protected:
 
-    MenuItem            storedmnuitem;
-    MenuItem            calcmnuitem;
-    MenuItem            nlamnuitem;
-    MenuItem            depthdomainmnuitem;
+    MenuItem            stored2dmnuitem_;
+    MenuItem            stored3dmnuitem_;
+    MenuItem            calc2dmnuitem_;
+    MenuItem            calc3dmnuitem_;
+    MenuItem            nla2dmnuitem_;
+    MenuItem            nla3dmnuitem_;
+    MenuItem            depthdomain2dmnuitem_;
+    MenuItem            depthdomain3dmnuitem_;
 
-    Attrib::DescSetMan*	adsman;
-    const Attrib::Desc*	dirshwattrdesc;
-    uiAttribDescSetEd*	attrsetdlg;
-    Timer		attrsetclosetim;
+    Attrib::DescSetMan*	adsman2d_;
+    Attrib::DescSetMan*	adsman3d_;
+    const Attrib::Desc*	dirshwattrdesc_;
+    uiAttribDescSetEd*	attrsetdlg_;
+    Timer		attrsetclosetim_;
 
-    Attrib::EngineMan*	createEngMan(const CubeSampling* cs=0,const char* lk=0);
+    Attrib::EngineMan*	createEngMan(const CubeSampling* cs=0,
+	    			     const char* lk=0);
 
     void		directShowAttr(CallBacker*);
 
@@ -161,14 +167,23 @@ protected:
     void		attrsetDlgClosed(CallBacker*);
     void		attrsetDlgCloseTimTick(CallBacker*);
 
-    static const char*	attridstr;
-    BufferString	nlaname;
+    Attrib::DescSetMan* getAdsMan(bool) const;
+    Attrib::DescSetMan* getAdsMan(bool);
 
-    bool		alloweval;
-    bool		allowevalstor;
-    int			sliceidx;
+    BufferStringSet	get2DStoredItems(const Attrib::SelInfo&) const;
+    void		insert2DStoredItems(const BufferStringSet&,int,int,bool,
+	    				    MenuItem*,const Attrib::SelSpec&);
+    void		insertNumerousItems(const BufferStringSet&,
+	    				    const Attrib::SelSpec&,bool,bool);
+
+    static const char*	attridstr_;
+    BufferString	nlaname_;
+
+    bool		alloweval_;
+    bool		allowevalstor_;
+    int			sliceidx_;
     Attrib::DescSet*	evalset;
-    TypeSet<Attrib::SelSpec> targetspecs;
+    TypeSet<Attrib::SelSpec> targetspecs_;
 };
 
 

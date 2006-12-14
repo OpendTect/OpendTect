@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodattribtreeitem.cc,v 1.6 2006-07-26 15:36:02 cvsnanne Exp $
+ RCS:		$Id: uiodattribtreeitem.cc,v 1.7 2006-12-14 14:30:52 cvshelene Exp $
 ___________________________________________________________________
 
 -*/
@@ -20,6 +20,7 @@ ___________________________________________________________________
 #include "ioobj.h"
 #include "ioman.h"
 #include "keystrs.h"
+#include "survinfo.h"
 
 #include "uiattribpartserv.h"
 #include "uilistview.h"
@@ -58,6 +59,30 @@ bool uiODAttribTreeItem::anyButtonClick( uiListViewItem* item )
 }
 
 
+// TODO: get depthdomain key from scene
+#define mCreateDepthDomMnuItemIfNeeded( is2d ) \
+{\
+    if ( scene && scene->getDataTransform() )\
+    {\
+	subitem = attrserv->depthdomainAttribMenuItem( *as,\
+					    scene->getDepthDomainKey(), is2d );\
+	mAddMenuItem( &mnu, subitem, subitem->nrItems(), subitem->checked );\
+    }\
+}
+
+
+#define mCreateItemsList( is2d ) \
+{ \
+    subitem = attrserv->storedAttribMenuItem( *as, is2d ); \
+    mAddMenuItem( &mnu, subitem, subitem->nrItems(), subitem->checked ); \
+    subitem = attrserv->calcAttribMenuItem( *as, is2d ); \
+    mAddMenuItem( &mnu, subitem, subitem->nrItems(), subitem->checked ); \
+    subitem = attrserv->nlaAttribMenuItem( *as, is2d ); \
+    if ( subitem && subitem->nrItems() ) \
+	mAddMenuItem( &mnu, subitem, true, subitem->checked ); \
+    mCreateDepthDomMnuItemIfNeeded( is2d ); \
+}
+
 void uiODAttribTreeItem::createSelMenu( MenuItem& mnu, int visid, int attrib,
 					int sceneid)
 {
@@ -66,28 +91,19 @@ void uiODAttribTreeItem::createSelMenu( MenuItem& mnu, int visid, int attrib,
     if ( as && visserv->hasAttrib(visid) )
     {
 	uiAttribPartServer* attrserv = ODMainWin()->applMgr().attrServer();
-	MenuItem* subitem = attrserv->storedAttribMenuItem( *as );
-	mAddMenuItem( &mnu, subitem, subitem->nrItems(),
-		       subitem->checked );
-
-	subitem = attrserv->calcAttribMenuItem( *as );
-	mAddMenuItem( &mnu, subitem, subitem->nrItems(),
-			 subitem->checked );
-
-	subitem = attrserv->nlaAttribMenuItem( *as );
-	if ( subitem && subitem->nrItems() )
-	    mAddMenuItem( &mnu, subitem, true, subitem->checked );
-
+	mDynamicCastGet(visSurvey::SurveyObject*,so,visserv->getObject(visid));
+	if ( !so ) return;
+	Pol2D p2d = so->getAllowedDataType();
 	mDynamicCastGet(visSurvey::Scene*,scene,visserv->getObject(sceneid))
-	if ( scene && scene->getDataTransform() )
-	{
-	    // TODO: get depthdomain key from scene
-	    subitem = attrserv->depthdomainAttribMenuItem( *as,
-		    				scene->getDepthDomainKey() );
-	    mAddMenuItem( &mnu, subitem, subitem->nrItems(), subitem->checked );
-	}
+
+	MenuItem* subitem;
+	if ( SI().has2D() && p2d != No2D )
+	    mCreateItemsList( true );
+	if ( SI().has3D() && p2d != Only2D )
+	    mCreateItemsList( false );
     }
 }
+
 
 
 const char* uiODAttribTreeItem::sKeySelAttribMenuTxt()

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.cc,v 1.59 2006-12-01 14:35:23 cvsbert Exp $
+ RCS:           $Id: uiodmenumgr.cc,v 1.60 2006-12-14 14:30:52 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,12 +31,14 @@ ________________________________________________________________________
 #include "pixmap.h"
 #include "timer.h"
 #include "ioman.h"
+#include "survinfo.h"
 
 
 uiODMenuMgr::uiODMenuMgr( uiODMain* a )
 	: appl(*a)
     	, timer(*new Timer("popup timer"))
     	, helpmgr(0)
+    	, dTectTBChanged(this)
 {
     filemnu = new uiPopupMenu( &appl, "&File" );
     procmnu = new uiPopupMenu( &appl, "&Processing" );
@@ -54,7 +56,7 @@ uiODMenuMgr::uiODMenuMgr( uiODMain* a )
 
     appl.applMgr().visServer()->createToolBars();
 //TODO: do not remove!! Helene for 2D/3D  
-//    IOM().surveyChanged.notify( mCB(this,uiODMenuMgr,updateDTectToolBar) );
+    IOM().surveyChanged.notify( mCB(this,uiODMenuMgr,updateDTectToolBar) );
 }
 
 
@@ -239,11 +241,19 @@ void uiODMenuMgr::fillFileMenu()
 
 void uiODMenuMgr::fillProcMenu()
 {
-    mInsertItem( procmnu, "&Attributes ...", mEditAttrMnuItm );
+    if ( SI().getSurvDataType() == Both2DAnd3D )
+    {
+	uiPopupMenu* attribitm = new uiPopupMenu( &appl, "Attributes ...");
+	mInsertItem( attribitm, "&2D Attributes ...", mEdit2DAttrMnuItm );
+	mInsertItem( attribitm, "&3D Attributes ...", mEdit3DAttrMnuItm );
+	procmnu->insertItem( attribitm );
+    }
+    else
+	mInsertItem( procmnu, "&Attributes ...", mEditAttrMnuItm );
+    
     procmnu->insertSeparator();
     mInsertItem( procmnu, "&Create Seismic output ...", mCreateVolMnuItm );
     
-    //mInsertItem( procmnu, "Create &Surface output ...", mCreateSurfMnuItm );
     uiPopupMenu* horitm = 
 		new uiPopupMenu( &appl, "Create output using &Horizon ...");
     mInsertItem( horitm, "&Horizon grid...", mCreateSurfMnuItm );
@@ -348,8 +358,22 @@ void uiODMenuMgr::fillUtilMenu()
 void uiODMenuMgr::fillDtectTB()
 {
     mAddTB(dtecttb,"survey.png","Survey setup",false,manSurvCB);
-    mAddTB(dtecttb,"attributes.png","Edit attributes",false,manAttrCB);
-    mAddTB(dtecttb,"out_vol.png","Create seismic output",false,outVolCB);
+
+    Pol2D survtype = SI().getSurvDataType();
+    if ( survtype == Both2DAnd3D || survtype == Only2D )
+       mAddTB(dtecttb,"attributes_2d.png","Edit 2D attributes",false,
+	      manAttr2DCB);
+    if ( survtype == Both2DAnd3D || survtype == No2D )
+       mAddTB(dtecttb,"attributes_3d.png","Edit 3D attributes",
+	       false,manAttr3DCB);
+    
+    if ( survtype == Both2DAnd3D || survtype == Only2D )
+	mAddTB(dtecttb,"out_2dlines.png","Create 2D seismic output",
+	       false,outLinesCB);
+    if ( survtype == Both2DAnd3D || survtype == No2D )
+	mAddTB(dtecttb,"out_vol.png","Create 3D seismic output",false,outVolCB);
+
+    dTectTBChanged.trigger();
 }
 
 #undef mAddTB
@@ -448,7 +472,9 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mExitMnuItm: 		appl.exit(); break;
 
     case mEditAttrMnuItm: 	applMgr().editAttribSet(); break;
-    case mCreateVolMnuItm: 	applMgr().createVol(); break;
+    case mEdit2DAttrMnuItm: 	applMgr().editAttribSet(true); break;
+    case mEdit3DAttrMnuItm: 	applMgr().editAttribSet(false); break;
+    case mCreateVolMnuItm: 	applMgr().createVol(false); break;
     case mCreateSurfMnuItm: 	applMgr().createHorOutput(0); break;
     case mCompAlongHorMnuItm: 	applMgr().createHorOutput(1); break;
     case mCompBetweenHorMnuItm:	applMgr().createHorOutput(2); break;

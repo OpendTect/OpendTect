@@ -4,7 +4,7 @@
  * DATE     : Oct 2004
 -*/
 
-static const char* rcsID = "$Id: linekey.cc,v 1.6 2006-11-21 14:00:07 cvsbert Exp $";
+static const char* rcsID = "$Id: linekey.cc,v 1.7 2006-12-14 14:30:52 cvshelene Exp $";
 
 #include "linekey.h"
 #include "iopar.h"
@@ -16,10 +16,10 @@ static const char* rcsID = "$Id: linekey.cc,v 1.6 2006-11-21 14:00:07 cvsbert Ex
 const char* LineKey::sKeyDefAttrib = "Seis";
 
 
-LineKey::LineKey( const char* lnm, const char* attrnm )
+LineKey::LineKey( const char* lnm, const char* attrnm, bool showseis )
     	: BufferString(lnm)
 {
-    if ( attrnm && *attrnm && strcmp(attrnm,sKeyDefAttrib) )
+    if ( attrnm && *attrnm && ( strcmp(attrnm,sKeyDefAttrib) || showseis ) )
 	{ *this += "|"; *this += attrnm; }
 }
 

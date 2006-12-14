@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uinlapartserv.h,v 1.17 2006-03-03 17:19:57 cvsbert Exp $
+ RCS:           $Id: uinlapartserv.h,v 1.18 2006-12-14 14:30:51 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -88,6 +88,8 @@ public:
     void		getBinIDValueSets(ObjectSet<BinIDValueSet>&) const;
     const char*		prepareInputData(const ObjectSet<PosVecDataSet>&);
 
+    void		set2DEvent( bool is2d )		{ is2devent = is2d; }
+
 protected:
 
     PosVecDataSet&	trainvds;
@@ -95,6 +97,7 @@ protected:
     PosVecDataSet&	mcvds;
     BufferStringSet	inpnms;
     IOPar&		storepars;
+    bool		is2devent;
 
     void		writeSets(CallBacker*);
 

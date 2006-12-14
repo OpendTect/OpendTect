@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvobj.h,v 1.68 2006-09-05 20:38:23 cvskris Exp $
+ RCS:		$Id: vissurvobj.h,v 1.69 2006-12-14 14:30:52 cvshelene Exp $
 ________________________________________________________________________
 
 
@@ -139,28 +139,29 @@ public:
 				   	This object wants attribdata of a
 					different kind. */
     
-    virtual AttribFormat		getAttributeFormat() const;
-    virtual bool			canHaveMultipleAttribs() const;
-    virtual int				nrAttribs() const;
-    virtual bool			canAddAttrib() const;
-    virtual bool			addAttrib();
-    virtual bool			canRemoveAttrib() const;
-    virtual bool			removeAttrib(int attrib);
-    virtual bool			swapAttribs(int attrib0,int attrib1);
-    virtual void			setAttribTransparency(int,
-	    						      unsigned char);
-    virtual unsigned char		getAttribTransparency(int) const;
-    virtual const Attrib::SelSpec* 	getSelSpec(int attrib) const;
+    virtual AttribFormat	getAttributeFormat() const;
+    virtual bool		canHaveMultipleAttribs() const;
+    virtual int			nrAttribs() const;
+    virtual bool		canAddAttrib() const;
+    virtual bool		addAttrib();
+    virtual bool		canRemoveAttrib() const;
+    virtual bool		removeAttrib(int attrib);
+    virtual bool		swapAttribs(int attrib0,int attrib1);
+    virtual void		setAttribTransparency(int,unsigned char);
+    virtual unsigned char	getAttribTransparency(int) const;
+    virtual int			getColTabID(int attrib) const;
+    virtual bool 		isClassification(int attrib) const;
+    virtual void		setClassification(int attrib,bool yn);
+    virtual bool 		isAngle(int attrib) const;
+    virtual void		setAngleFlag(int attrib,bool yn);
+    virtual void		enableAttrib(int attrib,bool yn);
+    virtual bool		isAttribEnabled(int attrib) const;
+    virtual Pol2D		getAllowedDataType() const	{ return No2D; }
+    
     virtual const TypeSet<float>* 	getHistogram(int attrib) const;
-    virtual int				getColTabID(int attrib) const;
-    virtual bool 			isClassification(int attrib) const;
-    virtual void			setClassification(int attrib,bool yn);
-    virtual bool 			isAngle(int attrib) const;
-    virtual void			setAngleFlag(int attrib,bool yn);
-    virtual void			enableAttrib(int attrib,bool yn);
-    virtual bool			isAttribEnabled(int attrib) const;
-
-    virtual void		setSelSpec(int,const Attrib::SelSpec&)	{}
+    
+    virtual void			setSelSpec(int,const Attrib::SelSpec&){}
+    virtual const Attrib::SelSpec* 	getSelSpec(int attrib) const;
 
     virtual bool		canHaveMultipleTextures() const { return false;}
     virtual int			nrTextures(int attrib) const	{ return 0; }
