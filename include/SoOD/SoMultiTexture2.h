@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		Dec 2005
- RCS:		$Id: SoMultiTexture2.h,v 1.6 2006-10-17 19:24:27 cvskris Exp $
+ RCS:		$Id: SoMultiTexture2.h,v 1.7 2006-12-14 23:07:59 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -20,6 +20,7 @@ ________________________________________________________________________
 #include <Inventor/fields/SoMFEnum.h>
 #include <Inventor/fields/SoMFShort.h>
 #include <Inventor/SbTime.h>
+#include <Inventor/lists/SbList.h>
 
 
 #include "SoMFImage.h"
@@ -98,11 +99,15 @@ public:
     void		setNrThreads( int );
     			/*!<\note Must be called before first GLRender. */
 
+    bool		hasTransparency(int idx) const
+    			{ return hastransparency_[idx]; }
+
 protected:
     void		doAction( SoAction* );
     			~SoMultiTexture2();
     const unsigned char* createImage( SbVec2s&, int & );
     static void		imageChangeCB( void*, SoSensor* );
+    static void		operationChangeCB( void*, SoSensor* );
     static bool		findTransperancy( const unsigned char* colors, int ncol,
 	    				  int nc, const unsigned char* idxs=0,
 					  int nidx=0 );
@@ -121,6 +126,7 @@ protected:
 
     SbMutex*		glimagemutex_;
     bool		glimagevalid_;
+    SbList<bool>	hastransparency_;
     SoGLImage*		glimage_;
     const unsigned char* imagedata_;
     SbVec2s		imagesize_;

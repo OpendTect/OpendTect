@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2005
- RCS:           $Id: SoMultiTexture2.cc,v 1.17 2006-10-17 19:24:27 cvskris Exp $
+ RCS:           $Id: SoMultiTexture2.cc,v 1.18 2006-12-14 23:07:59 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -118,8 +118,6 @@ SoMultiTextureProcessor::~SoMultiTextureProcessor()
 }
 
 
-
-
 void SoMultiTextureProcessor::process( const SoMultiTexture2& mt,
 		  unsigned char* res, int nc, int sz, const unsigned char* ctab,
 		  int ctabnc, int totalnumcols )
@@ -166,39 +164,55 @@ void SoMultiTextureProcessor::process( const SoMultiTexture2& mt,
 	threadrangemutex_.unlock();
     }
 
+    int start;
+    for ( start = texture_->image.getNum()-1; start>0; start-- )
+    {
+	if ( !texture_->hasTransparency(start) )
+	    break;
+    }
+
     for ( int idx=0; idx<texture_->image.getNum(); idx++ )
     {
-	if ( !prepare(idx) )
-	    continue;
-	
-	if ( nrthreads>1 )
+	imagenumcolors_ = idx>=texture_->numcolor.getNum()
+	    ? 0
+	    : texture_->numcolor[idx];
+
+	if ( idx>=start )
 	{
-	    threadmutex_.lock();
-	    for ( int idx=nrthreads-1; idx>=0; idx-- )
-		startthread_[idx]=true;
+	    if ( !prepare(idx) )
+		continue;
 
-	    threadfinishcount_ = nrthreads;
-
-	    threadcondvar_.wakeAll();
-
-	    while ( true )
+	    
+	    if ( nrthreads>1 )
 	    {
-		if ( threadfinishcount_ )
-		    threadcondvar_.wait( threadmutex_ );
-		if ( !threadfinishcount_ )
+		threadmutex_.lock();
+		for ( int idx=nrthreads-1; idx>=0; idx-- )
+		    startthread_[idx]=true;
+
+		threadfinishcount_ = nrthreads;
+
+		threadcondvar_.wakeAll();
+
+		while ( true )
 		{
-		    threadmutex_.unlock();
-		    break;
+		    if ( threadfinishcount_ )
+			threadcondvar_.wait( threadmutex_ );
+		    if ( !threadfinishcount_ )
+		    {
+			threadmutex_.unlock();
+			break;
+		    }
 		}
 	    }
-	}
-	else
-	{
-	    process( 0, sz_-1 );
+	    else
+	    {
+		process( 0, sz_-1 );
+	    }
+
+	    imageisinitialized_ = true;
 	}
 
 	coltabstart_ += imagenumcolors_; 
-	imageisinitialized_ = true;
     }
 }
 
@@ -214,10 +228,6 @@ bool SoMultiTextureProcessor::prepare( int idx )
 
     if ( !opacity_ )
 	return false;
-
-    imagenumcolors_ = idx>=texture_->numcolor.getNum()
-	? 0
-	: texture_->numcolor[idx];
 
     imageoper_ = idx>=texture_->operation.getNum()
 	    ? SoMultiTexture2::BLEND
@@ -667,7 +677,6 @@ const unsigned char* SoMultiTexture2::createImage( SbVec2s& size, int& nc )
     unsigned const char* coltab = colors.getValue( coltabsz, coltabnc );
     const int nrcolors = coltab ? coltabsz[0] * coltabsz[1] : 0;
 
-    bool hastransperancy = false;
     int coltabstart = 0;
     bool nrimagesused = 0;
     for ( int idx=0; idx<numimages; idx++ )
@@ -686,6 +695,7 @@ const unsigned char* SoMultiTexture2::createImage( SbVec2s& size, int& nc )
 	if ( !enabled[idx] || !comp || !opacityval ) //nothing to do
 	{
 	    coltabstart += numcolors;
+	    hastransparency_.append(true);
 	    continue;
 	}
 
@@ -706,22 +716,27 @@ const unsigned char* SoMultiTexture2::createImage( SbVec2s& size, int& nc )
 	if ( !nrimagesused ) size = lsz;
 	else mCondErrRet( size!=lsz, "Images have different size" );
 
-	if ( !hastransperancy && doopacity )
+	if ( !doopacity )
+	    hastransparency_.append(false);
+	else 
 	{
+	    bool localtrans = false;
 	    if ( opacityval!=255 )
-		hastransperancy = true;
+		localtrans = true;
 	    else if ( iscoltab )
 	    {
-		if ( findTransperancy( coltab+coltabstart,
+		if ( findTransperancy( coltab+coltabstart*coltabnc,
 			    	       numcolors, coltabnc,
 				       bytes, lsz[0]*lsz[1]) )
-		    hastransperancy = true;
+		    localtrans = true;
 	    }
 	    else
 	    {
 		if ( findTransperancy( bytes, lsz[0]*lsz[1], lnc, 0, 0 ) )
-		    hastransperancy = true;
+		    localtrans = true;
 	    }
+
+	    hastransparency_.append(localtrans);
 	}
 
 	coltabstart += numcolors;
@@ -731,8 +746,16 @@ const unsigned char* SoMultiTexture2::createImage( SbVec2s& size, int& nc )
     if ( !nrimagesused )
 	return 0;
 
+    nc = 3;
+    for ( int idx=numimages-1; idx>=0; idx-- )
+    {
+	if ( !hastransparency_[idx] )
+	    break;
+
+	nc = 4;
+    }
+
     const int nrpixels = size[0]*size[1];
-    nc = hastransperancy || !nrimagesused ? 4 : 3;
 
     unsigned char* res = new unsigned char[nrpixels*nc];
     static SoMultiTextureProcessor processor( nrthreads_ );
@@ -774,12 +797,15 @@ bool SoMultiTexture2::findTransperancy( const unsigned char* colors, int ncol,
 }
 
 
-
-
-
-
-
 void SoMultiTexture2::imageChangeCB( void* data, SoSensor* )
+{
+    SoMultiTexture2* ptr = (SoMultiTexture2*) data;
+    ptr->glimagevalid_ = false;
+    ptr->hastransparency_.truncate( 0 );
+}
+
+
+void SoMultiTexture2::operationChangeCB( void* data, SoSensor* )
 {
     SoMultiTexture2* ptr = (SoMultiTexture2*) data;
     ptr->glimagevalid_ = false;
