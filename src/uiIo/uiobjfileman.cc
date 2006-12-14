@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiobjfileman.cc,v 1.13 2006-08-30 16:03:27 cvsbert Exp $
+ RCS:           $Id: uiobjfileman.cc,v 1.14 2006-12-14 15:40:57 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -86,9 +86,7 @@ BufferString uiObjFileMan::getFileSizeString( double filesz )
 	szstr += rest < 10 ? ".0" : "."; szstr += rest;
 	szstr += doGb ? " (Gb)" : " (Mb)";
     }
-    else if ( filesz < 0 )
-	szstr = "-";
-    else if ( !filesz )
+    else if ( filesz == 0 )
 	szstr = "< 1 (kB)";
     else
     {
@@ -132,5 +130,7 @@ BufferString uiObjFileMan::getFileInfo()
 
 double uiObjFileMan::getFileSize( const char* filenm )
 {
-    return (double)File_getKbSize( filenm );
+    double ret = (double)File_getKbSize( filenm );
+    if ( ret < 0 ) ret = -ret;
+    return ret;
 }
