@@ -7,14 +7,15 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Oct 2006
- RCS:		$Id: tabledef.h,v 1.9 2006-11-23 17:10:26 cvsbert Exp $
+ RCS:		$Id: tabledef.h,v 1.10 2006-12-14 18:34:37 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "namedobj.h"
 #include "sets.h"
 #include "rowcol.h"
+#include "namedobj.h"
+#include "datainpspec.h"
 #include "bufstringset.h"
 #include <iostream>
 
@@ -23,66 +24,130 @@ namespace Table
 
     enum ReqSpec	{ Optional=0, Required=1 };
 
-/*!\brief Logical piece of information, present in tables.
+/*!\brief Description of a Logical piece of information.
 
  In most simple situations, you need to know the column of some data, or the
  row/col of a header. Then you just describe it as:
- FormatInfo fi( Table::Optional, "Sample rate" );
+ Table::TargetInfo ti( "Sample rate", FloatInpSpec() );
 
- In some cases, data can be present or offered in various ways. For example, a
- position in the survey can be given as inline/crossline or X and Y. This would
- be specified as follows:
+ In more complex situations, data can be present or offered in various ways.
+ For example, an interval can be specified as start/stop or start/width. This
+ would lead to the definition of multiple 'Form's.
+ 
+ */
 
- FormatInfo fi( "Position", Table::Required );
- fi.add( "Inl/Crl", new BufferStringSet( {"Inline","Xline"}, 2 ) );
- fi.add( "X/Y", new BufferStringSet( {"X-coord","Y-coord"}, 2 ) );
-
-*/
-
-class FormatInfo : public NamedObject
+class TargetInfo : public NamedObject
 {
 public:
 
-    			FormatInfo( ReqSpec rs, const char* elemnm )
-			    : NamedObject((const char*)0)
-			    , req_(rs)		{ init(elemnm); }
-    			FormatInfo( const char* nm, ReqSpec rs )
-			    : NamedObject(nm)
-			    , req_(rs)		{ init(0); }
-			~FormatInfo()		{ deepErase( elemdefs_ ); }
+/*!\brief Specific form in which a piece of information can be found.
 
-    void		add( const char* elmnm, BufferStringSet* elmdef=0 )
-    						{ elemnms_.add( elmnm );
-						  elemdefs_ += elmdef; }
+ In simple situations, there is only one form and you don;t need to bother.
+ If not, for example an interval, which can be specified as start/stop or
+ start/width, you'd have to specify:
+
+ TargetInfo::Form* form = new TargetInfo::Form( "Start/Stop", FloatInpSpec() );
+ form->add( FloatInpSpec() );
+ Table::TargetInfo infspec( "Sampling info", form );
+ infspec.add( form->duplicate( "Start/Width" ) );
+
+*/
+
+    struct Form : NamedObject
+    {
+			Form( const char* nm, DataInpSpec* spec=0 )
+					//!< Single item
+			    : NamedObject(nm)
+				{ add( spec ); }
+			Form( const char* nm, const DataInpSpec& spec )
+					//!< Single item
+			    : NamedObject(nm)
+				{ add( spec.clone() ); }
+			Form( const char* nm, ObjectSet<DataInpSpec>& specs )
+					//!< Multi items
+			    : NamedObject(nm)
+				{ specs_.copy(specs); specs.erase(); }
+			~Form()	{ deepErase(specs_); }
+
+	Form&		add( DataInpSpec* spec )
+			{
+			    specs_ += spec ? spec : new StringInpSpec;
+			    return *this;
+			}
+	Form&		add( const DataInpSpec& spec )
+				{ specs_ += spec.clone(); return *this; }
+
+	Form*		duplicate( const char* nm ) const
+	    		{
+			    Form* newform = new Form( nm, specs_[0]->clone() );
+			    for ( int idx=0; idx<specs_.size(); idx++ )
+				newform->add( specs_[idx]->clone() );
+			    return newform;
+			}
+
+	ObjectSet<DataInpSpec>	specs_;
+    };
+
+    			TargetInfo( const char* nm, ReqSpec rs=Optional )
+					//!< Single string
+			    : NamedObject(nm)
+			    , req_(rs)	{ add( nm ); }
+    			TargetInfo( const char* nm, DataInpSpec* spec,
+				  ReqSpec rs=Optional )
+					//!< Single item
+			    : NamedObject(nm)
+			    , req_(rs)	{ add( nm, spec ); }
+    			TargetInfo( const char* nm, const DataInpSpec& spec,
+				  ReqSpec rs=Optional )
+					//!< Single item
+			    : NamedObject(nm)
+			    , req_(rs)	{ add( nm, spec.clone() ); }
+    			TargetInfo( const char* nm,
+				    ObjectSet<DataInpSpec>& specs,
+				    ReqSpec rs=Optional )
+					//!< Multi items, in one form
+			    : NamedObject(nm)
+			    , req_(rs)	{ add( nm, specs ); }
+    			TargetInfo( const char* nm, ObjectSet<Form>& forms,
+				    ReqSpec rs=Optional )
+					//!< Multi items, in multiple form
+			    : NamedObject(nm)
+			    , req_(rs)
+					{ forms_.copy(forms); forms.erase(); }
+
+			~TargetInfo()		{ deepErase( forms_ ); }
+
+    TargetInfo&		add( const char* nm, DataInpSpec* spec=0 )
+			    { forms_ += new Form( nm, spec ); return *this; }
+    TargetInfo&		add( const char* nm, const DataInpSpec& spec )
+			    { forms_ += new Form( nm, spec ); return *this; }
+    TargetInfo&		add( const char* nm, Form* frm )
+			    { forms_ += frm; return *this; }
+    TargetInfo&		add( const char* nm, ObjectSet<DataInpSpec>& specs )
+			    { forms_ += new Form( nm, specs ); return *this; }
 
     bool		isOptional() const	{ return req_ == Optional; }
-    int			nrElements() const	{ return elemnms_.size(); }
-    const char*		elementName( int ielem ) const
-						{ return elemnms_.get(ielem); }
-    const BufferStringSet* elementDef( int ielem ) const
-						{ return elemdefs_[ielem]; }
-				//!< may return null
-    int			nrSubElements( int ielem ) const
-			{ return !elemdefs_[ielem] ? 1
-			    			   : elemdefs_[ielem]->size(); }
-    const char*		subElementName( int ielem, int isub ) const
-			{ return isub < nrSubElements(ielem) && elemdefs_[ielem]
-			       ? elemdefs_[ielem]->get(isub).buf() : ""; }
+    int			nrForms() const		{ return forms_.size(); }
+    Form&		form( int idx )		{ return *forms_[idx]; }
+    const Form&		form( int idx ) const	{ return *forms_[idx]; }
 
-    /*!\brief Selected element/positioning */
+    /*!\brief Selected element/positioning
+      This selects the specific form and where it can be found in the file,
+      or explicit values for the form elements.
+     */
     struct Selection
     {
-			Selection() : elem_(0)	{}
+			Selection() : form_(0)	{}
 
-	int		elem_;
+	int		form_;
 	TypeSet<RowCol>	pos_;
 	BufferStringSet	vals_;	//!< when !havePos(isub)
 
-	bool		havePos( int isub ) const
-	    		{ return isub < pos_.size() && pos_[isub].c() >= 0; }
-	const char*	getVal( int isub ) const
-	    		{ return isub >= vals_.size() ? "" :
-				 vals_.get(isub).buf(); }
+	bool		havePos( int ispec ) const
+	    		{ return ispec < pos_.size() && pos_[ispec].c() >= 0; }
+	const char*	getVal( int ispec ) const
+	    		{ return ispec >= vals_.size() ? 0
+			       : ((const char*)vals_.get(ispec).buf()); }
 
     };
 
@@ -91,20 +156,12 @@ public:
 protected:
 
     ReqSpec		req_;
-    BufferStringSet	elemnms_;
-    ObjectSet<BufferStringSet> elemdefs_;
-
-    void		init( const char* elemnm )
-    			{
-			    elemdefs_.allowNull();
-			    if ( elemnm && *elemnm )
-				add( elemnm, 0 );
-			}
+    ObjectSet<Form>	forms_;
 
 };
 
 
-/*!\brief description of input our output table format */
+/*!\brief description of input our output data content */
 
 class FormatDesc : public NamedObject
 {
@@ -119,8 +176,8 @@ public:
 			    deepErase( bodyinfos_ );
 			}
 
-    ObjectSet<FormatInfo> headerinfos_;
-    ObjectSet<FormatInfo> bodyinfos_;
+    ObjectSet<TargetInfo> headerinfos_;
+    ObjectSet<TargetInfo> bodyinfos_;
 
     int			nrhdrlines_;	//!< if < 0 token will be used
     BufferString	token_;

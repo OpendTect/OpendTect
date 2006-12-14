@@ -4,7 +4,7 @@
  * DATE     : Nov 2006
 -*/
 
-static const char* rcsID = "$Id: tableascio.cc,v 1.5 2006-11-23 17:10:26 cvsbert Exp $";
+static const char* rcsID = "$Id: tableascio.cc,v 1.6 2006-12-14 18:34:37 cvsbert Exp $";
 
 #include "tableascio.h"
 #include "tabledef.h"
@@ -14,14 +14,14 @@ static const char* rcsID = "$Id: tableascio.cc,v 1.5 2006-11-23 17:10:26 cvsbert
 namespace Table
 {
 
-struct SubID
+struct SpecID
 {
-    		SubID( int finr, int snr )
-		    : finr_(finr), subnr_(snr)		{}
-    int		finr_;
-    int		subnr_;
-    bool	operator ==( const SubID& sid ) const
-		{ return finr_==sid.finr_ && subnr_==sid.subnr_; }
+    		SpecID( int formnr, int snr )
+		    : formnr_(formnr), specnr_(snr)		{}
+    int		formnr_;
+    int		specnr_;
+    bool	operator ==( const SpecID& sid ) const
+		{ return formnr_==sid.formnr_ && specnr_==sid.specnr_; }
 };
 
 
@@ -39,40 +39,41 @@ AscIOImp_ExportHandler( const AscIO& aio, bool hdr )
 {
 }
 
-const char* putRow( const BufferStringSet& bs )
+const char* putRow( const BufferStringSet& bss )
 {
-    return hdr_ ? putHdrRow( bs ) : putBodyRow( bs );
+    return hdr_ ? putHdrRow( bss ) : putBodyRow( bss );
 }
 
-const char* putHdrRow( const BufferStringSet& bs )
+const char* putHdrRow( const BufferStringSet& bss )
 {
     if ( aio_.fd_.needToken() )
     {
-	ready_ = bs.size() >= aio_.fd_.tokencol_
-	      && bs.get( aio_.fd_.tokencol_ ) == aio_.fd_.token_;
+	ready_ = bss.size() >= aio_.fd_.tokencol_
+	      && bss.get( aio_.fd_.tokencol_ ) == aio_.fd_.token_;
 	if ( ready_ )
 	    return finishHdr();
     }
 
-    for ( SubID sid(0,0); sid.finr_<aio_.fd_.headerinfos_.size(); sid.finr_++ )
+    for ( int itar=0; itar<aio_.fd_.headerinfos_.size(); itar++ )
     {
-	const Table::FormatInfo& fi = *aio_.fd_.headerinfos_[sid.finr_];
-	const int selelem = fi.selection_.elem_;
-	for ( sid.subnr_=0; sid.subnr_<fi.nrSubElements(selelem); sid.subnr_++ )
+	const Table::TargetInfo& tarinf = *aio_.fd_.headerinfos_[itar];
+	SpecID sid( tarinf.selection_.form_, 0 );
+	const Table::TargetInfo::Form& selform = tarinf.form( sid.formnr_ );
+	for ( ; sid.specnr_<selform.specs_.size(); sid.specnr_++ )
 	{
-	    if ( !fi.selection_.havePos(sid.subnr_) )
+	    if ( !tarinf.selection_.havePos(sid.specnr_) )
 		continue;
 
-	    const RowCol& rc( fi.selection_.pos_[sid.subnr_] );
+	    const RowCol& rc( tarinf.selection_.pos_[sid.specnr_] );
 	    if ( rc.r() == rownr_ )
 	    {
-		if ( rc.c() >= bs.size() )
-		    return mkErrMsg( fi, sid, selelem, rc,
-			    	     "Data not present in header" );
+		if ( rc.c() >= bss.size() )
+		    return mkErrMsg( tarinf, sid, rc,
+				     "Data not present in header" );
 		else
 		{
-		    elemvals_.add( bs.get(rc.c()) );
-		    elemids_ += sid;
+		    formvals_.add( bss.get(rc.c()) );
+		    formids_ += sid;
 		}
 	    }
 	}
@@ -86,27 +87,28 @@ const char* putHdrRow( const BufferStringSet& bs )
 
 const char* finishHdr()
 {
-    for ( SubID sid(0,0); sid.finr_<aio_.fd_.headerinfos_.size(); sid.finr_++ )
+    for ( int itar=0; itar<aio_.fd_.headerinfos_.size(); itar++ )
     {
-	const Table::FormatInfo& fi = *aio_.fd_.headerinfos_[sid.finr_];
-	const int selelem = fi.selection_.elem_;
-	for ( sid.subnr_=0; sid.subnr_<fi.nrSubElements(selelem); sid.subnr_++ )
+	const Table::TargetInfo& tarinf = *aio_.fd_.headerinfos_[itar];
+	SpecID sid( tarinf.selection_.form_, 0 );
+	const Table::TargetInfo::Form& selform = tarinf.form( sid.formnr_ );
+	for ( ; sid.specnr_<selform.specs_.size(); sid.specnr_++ )
 	{
-	    if ( !fi.selection_.havePos(sid.subnr_) )
-		aio_.addVal( fi.selection_.vals_.get(sid.subnr_) );
+	    if ( !tarinf.selection_.havePos(sid.specnr_) )
+		aio_.addVal( tarinf.selection_.getVal(sid.specnr_) );
 	    else
 	    {
 		bool found = false;
-		for ( int idx=0; idx<elemids_.size(); idx++ )
+		for ( int idx=0; idx<formids_.size(); idx++ )
 		{
-		    if ( elemids_[idx] == sid )
+		    if ( formids_[idx] == sid )
 		    {
-			aio_.addVal(elemvals_.get(idx));
+			aio_.addVal( formvals_.get(idx) );
 			found = true; break;
 		    }
 		}
-		if ( !found && !fi.isOptional() )
-		    return mkErrMsg( fi, sid, selelem, RowCol(-1,-1),
+		if ( !found && !tarinf.isOptional() )
+		    return mkErrMsg( tarinf, sid, RowCol(-1,-1),
 			    	     "Required field not found" );
 	    }
 	}
@@ -115,14 +117,15 @@ const char* finishHdr()
 }
 
 
-const char* mkErrMsg( const FormatInfo& fi, SubID sid, int selelem,
+const char* mkErrMsg( const TargetInfo& tarinf, SpecID sid,
 		      const RowCol& rc, const char* msg )
 {
     errmsg_ = msg; errmsg_ += ":\n";
-    errmsg_ += fi.elementName( selelem );
-    const char* senm = fi.subElementName( selelem, sid.subnr_ );
-    if ( senm && *senm )
-	{ errmsg_ += " ("; errmsg_ += senm; errmsg_ += ")"; }
+    errmsg_ += tarinf.name(); errmsg_ += " [";
+    errmsg_ += tarinf.form(sid.formnr_).name();
+    if ( tarinf.nrForms() > 0 )
+	{ errmsg_ += " (field "; sid.specnr_; errmsg_ += ")"; }
+    errmsg_ += "]";
     if ( rc.c() >= 0 )
     {
 	errmsg_ += "\nwas specified at ";
@@ -136,24 +139,25 @@ const char* mkErrMsg( const FormatInfo& fi, SubID sid, int selelem,
 }
 
 
-const char* putBodyRow( const BufferStringSet& bs )
+const char* putBodyRow( const BufferStringSet& bss )
 {
     aio_.vals_.erase();
-    for ( SubID sid(0,0); sid.finr_<aio_.fd_.bodyinfos_.size(); sid.finr_++ )
+    for ( int itar=0; itar<aio_.fd_.bodyinfos_.size(); itar++ )
     {
-	const Table::FormatInfo& fi = *aio_.fd_.bodyinfos_[sid.finr_];
-	const int selelem = fi.selection_.elem_;
-	for ( sid.subnr_=0; sid.subnr_<fi.nrSubElements(selelem); sid.subnr_++ )
+	const Table::TargetInfo& tarinf = *aio_.fd_.bodyinfos_[itar];
+	SpecID sid( tarinf.selection_.form_, 0 );
+	const Table::TargetInfo::Form& selform = tarinf.form( sid.formnr_ );
+	for ( ; sid.specnr_<selform.specs_.size(); sid.specnr_++ )
 	{
-	    if ( !fi.selection_.havePos(sid.subnr_) )
-		aio_.addVal( fi.selection_.vals_.get(sid.subnr_) );
+	    if ( !tarinf.selection_.havePos(sid.specnr_) )
+		aio_.addVal( tarinf.selection_.getVal(sid.specnr_) );
 	    else
 	    {
-		const RowCol& rc( fi.selection_.pos_[sid.subnr_] );
-		if ( rc.c() < bs.size() )
-		    aio_.addVal( bs.get(rc.c()) );
+		const RowCol& rc( tarinf.selection_.pos_[sid.specnr_] );
+		if ( rc.c() < bss.size() )
+		    aio_.addVal( bss.get(rc.c()) );
 		else
-		    return mkErrMsg( fi, sid, selelem, RowCol(rc.c(),-1),
+		    return mkErrMsg( tarinf, sid, RowCol(rc.c(),-1),
 			    	     "Column missing in file" );
 	    }
 	}
@@ -166,8 +170,8 @@ const char* putBodyRow( const BufferStringSet& bs )
     const bool		hdr_;
     bool		ready_;
     int			rownr_;
-    TypeSet<SubID>	elemids_;
-    BufferStringSet	elemvals_;
+    TypeSet<SpecID>	formids_;
+    BufferStringSet	formvals_;
 
 };
 
@@ -188,13 +192,13 @@ bool Table::AscIO::getHdrVals( std::istream& strm ) const
     const int nrhdrlines = fd_.nrHdrLines();
     if ( nrhdrlines < 1 )
     {
-	for ( SubID sid(0,0); sid.finr_<fd_.headerinfos_.size(); sid.finr_++ )
+	for ( int itar=0; itar<fd_.headerinfos_.size(); itar++ )
 	{
-	    const Table::FormatInfo& fi = *fd_.headerinfos_[sid.finr_];
-	    const int selelem = fi.selection_.elem_;
-	    for ( sid.subnr_=0; sid.subnr_<fi.nrSubElements(selelem);
-		  sid.subnr_++ )
-		addVal( fi.selection_.vals_.get(sid.subnr_) );
+	    const Table::TargetInfo& tarinf = *fd_.headerinfos_[itar];
+	    const Table::TargetInfo::Form& selform
+				= tarinf.form( tarinf.selection_.form_ );
+	    for ( int ispec=0; ispec<selform.specs_.size(); ispec++ )
+		addVal( tarinf.selection_.getVal(ispec) );
 	}
     }
     else

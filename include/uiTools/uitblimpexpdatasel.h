@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2006
- RCS:           $Id: uitblimpexpdatasel.h,v 1.1 2006-10-30 17:03:50 cvsbert Exp $
+ RCS:           $Id: uitblimpexpdatasel.h,v 1.2 2006-12-14 18:34:37 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,9 +15,19 @@ ________________________________________________________________________
 #include "uigroup.h"
 class uiGenInput;
 class uiTableImpDataSelElem;
-namespace Table { class FormatInfo; class FormatDesc; }
+namespace Table { class TargetInfo; class FormatDesc; }
 
-/*!\brief Table-based data import selection */
+/*!\brief Table-based data import selection
+
+  This class is meant to accept data structures describing table import/export
+  as defined in General/tabledef.h. Resulting FormatDesc's selections can be
+  used by a descendent of Table::AscIO.
+
+  For example, the Wavelet import dialog creates a Table::FormatDesc object
+  using WaveletAscIO::getDesc(), this class lets the user fill the FormatDesc's
+  selection_, after which WaveletAscIO creates the imported object.
+ 
+ */
 
 class uiTableImpDataSel : public uiGroup
 {
@@ -35,7 +45,7 @@ protected:
     ObjectSet<uiTableImpDataSelElem> bodyelems_;
     const char*			errmsg_;
 
-    uiGroup*			mkElemFlds(ObjectSet<Table::FormatInfo>&,
+    uiGroup*			mkElemFlds(ObjectSet<Table::TargetInfo>&,
 	    				   ObjectSet<uiTableImpDataSelElem>&,
 					   bool);
 

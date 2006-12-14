@@ -5,7 +5,7 @@
  * FUNCTION : Wavelet
 -*/
 
-static const char* rcsID = "$Id: wavelet.cc,v 1.27 2006-11-23 17:10:26 cvsbert Exp $";
+static const char* rcsID = "$Id: wavelet.cc,v 1.28 2006-12-14 18:34:37 cvsbert Exp $";
 
 #include "wavelet.h"
 #include "seisinfo.h"
@@ -243,15 +243,14 @@ bool dgbWaveletTranslator::write( const Wavelet* wv, Conn& conn )
 Table::FormatDesc* WaveletAscIO::getDesc()
 {
     Table::FormatDesc* fd = new Table::FormatDesc( "Wavelet" );
-    fd->headerinfos_ += new Table::FormatInfo( Table::Optional,
-					       "Center sample (empty=mid)" );
+    fd->headerinfos_ += new Table::TargetInfo( "Center sample (empty=mid)",
+						IntInpSpec(), Table::Optional );
     BufferString txt( "Sample interval " ); txt += SI().getZUnit();
-    Table::FormatInfo* fi = new Table::FormatInfo( Table::Required, txt );
-    float dispsi = SI().zStep() * SI().zFactor();
-    fi->selection_.vals_ += new BufferString( dispsi );
-    fd->headerinfos_ += fi;
-    fd->bodyinfos_ += new Table::FormatInfo( Table::Required, "Data samples" );
-
+    float defsi = SI().zStep() * SI().zFactor();
+    fd->headerinfos_ += new Table::TargetInfo( txt, FloatInpSpec(defsi),
+	    				       Table::Required );
+    fd->bodyinfos_ += new Table::TargetInfo( "Data samples", FloatInpSpec(),
+					     Table::Required );
     return fd;
 }
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2006
- RCS:           $Id: uitblimpexpdatasel.cc,v 1.9 2006-11-23 17:10:26 cvsbert Exp $
+ RCS:           $Id: uitblimpexpdatasel.cc,v 1.10 2006-12-14 18:34:37 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,65 +21,56 @@ class uiTableImpDataSelElem : public uiGroup
 {
 public:
 
-uiTableImpDataSelElem( uiParent* p, Table::FormatInfo& fi, bool ishdr )
-    : uiGroup(p,fi.name())
-    , fi_(fi)
-    , elemfld(0)
+uiTableImpDataSelElem( uiParent* p, Table::TargetInfo& tinf, bool ishdr )
+    : uiGroup(p,tinf.name())
+    , tinf_(tinf)
+    , formfld(0)
     , specfld(0)
     , ishdr_(ishdr)
 {
-    if ( fi_.nrElements() < 1 )
+    if ( tinf_.nrForms() < 1 )
 	return;
 
-    uiComboBox* rightmostcb = 0;
+    uiComboBox* leftmostcb = 0;
     const CallBack boxcb( mCB(this,uiTableImpDataSelElem,boxChg) );
-    if ( fi_.nrElements() > 1 )
+    if ( tinf_.nrForms() > 1 )
     {
-	rightmostcb = elemfld = new uiComboBox( this, "Element choice" );
-	elemfld->selectionChanged.notify( boxcb );
+	leftmostcb = formfld = new uiComboBox( this, "Form choice" );
+	formfld->selectionChanged.notify( boxcb );
     }
 
     if ( ishdr_ )
     {
-	rightmostcb = specfld = new uiComboBox( this, "Specify/read" );
+	leftmostcb = specfld = new uiComboBox( this, "Specify/read" );
 	specfld->addItem( "provide" ); specfld->addItem( "read" );
 	specfld->setPrefWidthInChar( 9 );
-	if ( elemfld )
-	    specfld->attach( rightOf, elemfld );
+	if ( formfld )
+	    specfld->attach( rightOf, formfld );
 	specfld->selectionChanged.notify( boxcb );
-	specfld->setCurrentItem( fi_.selection_.havePos(0) ? 1 : 0 );
+	specfld->setCurrentItem( tinf_.selection_.havePos(0) ? 1 : 0 );
     }
 
-    for ( int ielem=0; ielem<fi_.nrElements(); ielem++ )
+    uiLabel* lbl = new uiLabel( this, tinf_.name() );
+    if ( leftmostcb )
     {
-	const char* elemnm = fi_.elementName( ielem );
-	const BufferStringSet* elemdef = fi_.elementDef( ielem );
-	if ( elemfld )
-	    elemfld->addItem( elemnm );
+	lbl->attach( rightOf, leftmostcb );
+	if ( formfld && leftmostcb != formfld )
+	    formfld->attach( rightOf, lbl );
+    }
+    rightmostleftfld_ = formfld ? (uiObject*)formfld : (uiObject*)lbl;
 
-	BufferString lbltxt;
-	if ( !elemdef )
-	    lbltxt = elemnm;
-	else
-	{
-	    for ( int ifld=0; ifld<elemdef->size(); ifld++ )
-	    {
-		if ( ifld ) lbltxt += "/";
-		lbltxt += elemdef->get(ifld);
-	    }
-	}
-	uiLabel* lbl = new uiLabel( this, lbltxt );
-	if ( rightmostcb )
-	    lbl->attach( rightOf, rightmostcb );
-	lbls_ += lbl;
-
-	mkColFlds( ielem );
+    for ( int iform=0; iform<tinf_.nrForms(); iform++ )
+    {
+	const Table::TargetInfo::Form& form = tinf_.form( iform );
+	if ( formfld )
+	    formfld->addItem( form.name() );
+	mkColFlds( iform );
     }
 
     mainObject()->finaliseDone.notify( boxcb );
 }
 
-void mkColFlds( int ielem )
+void mkColFlds( int iform )
 {
     colboxes_ += new ObjectSet<uiSpinBox>;
     if ( ishdr_ )
@@ -88,18 +79,18 @@ void mkColFlds( int ielem )
 	inps_ += new ObjectSet<uiGenInput>;
     }
 
-    const int nrflds = fi_.nrElements();
+    const int nrflds = tinf_.nrForms();
     for ( int ifld=0; ifld<nrflds; ifld++ )
     {
-	addBox( ielem, ifld );
+	addBox( iform, ifld );
 	if ( ishdr_ )
-	    addInp( ielem, ifld );
+	    addInp( iform, ifld );
     }
 }
 
-void addBox( int ielem, int ifld )
+void addBox( int iform, int ifld )
 {
-    ObjectSet<uiSpinBox>& colboxes = *colboxes_[ielem];
+    ObjectSet<uiSpinBox>& colboxes = *colboxes_[iform];
     uiSpinBox* colspinbox = new uiSpinBox( this );
     colspinbox->setInterval( 1, 999, 1 );
     colspinbox->setPrefix( "col:" );
@@ -111,10 +102,10 @@ void addBox( int ielem, int ifld )
 	rowspinbox = new uiSpinBox( this );
 	rowspinbox->setInterval( 1, 999, 1 );
 	rowspinbox->setPrefix( "row:" );
-	*rowboxes_[ielem] += rowspinbox;
+	*rowboxes_[iform] += rowspinbox;
     }
 
-    if ( !fi_.selection_.havePos(ifld) )
+    if ( !tinf_.selection_.havePos(ifld) )
     {
 	colspinbox->setValue( defcol_ );
 	if ( !ishdr_ ) defcol_++;
@@ -123,7 +114,7 @@ void addBox( int ielem, int ifld )
     }
     else
     {
-	const RowCol& rc = fi_.selection_.pos_[ifld];
+	const RowCol& rc = tinf_.selection_.pos_[ifld];
 	if ( rowspinbox )
 	    rowspinbox->setValue( rc.r() + 1 ); // Users tend to start at 1
 	colspinbox->setValue( rc.c() + 1 );
@@ -135,8 +126,8 @@ void addBox( int ielem, int ifld )
 	leftbox->attach( rightOf, colboxes[ifld-1] );
     else
     {
-	leftbox->attach( rightOf, lbls_[ielem] );
-	if ( ielem == 0 )
+	leftbox->attach( rightOf, rightmostleftfld_ );
+	if ( iform == 0 )
 	    setHAlignObj( leftbox );
     }
 
@@ -144,75 +135,75 @@ void addBox( int ielem, int ifld )
 	colspinbox->attach( rightOf, rowspinbox );
 }
 
-void addInp( int ielem, int ifld )
+void addInp( int iform, int ifld )
 {
-    ObjectSet<uiGenInput>& colinps = *inps_[ielem];
-    uiGenInput* inp = new uiGenInput( this, "", fi_.selection_.getVal(ifld) );
+    ObjectSet<uiGenInput>& colinps = *inps_[iform];
+    uiGenInput* inp = new uiGenInput( this, "",
+	    			      *tinf_.form(iform).specs_[ifld] );
     colinps += inp;
 
     if ( ifld )
 	inp->attach( rightOf, colinps[ifld-1] );
     else
-	inp->attach( rightOf, lbls_[ielem] );
+	inp->attach( rightOf, rightmostleftfld_ );
 }
 
 
 void boxChg( CallBacker* )
 {
-    if ( !elemfld && !specfld ) return;
+    if ( !formfld && !specfld ) return;
 
-    const int selelemidx = elemfld ? elemfld->currentItem() : 0;
+    const int selformidx = formfld ? formfld->currentItem() : 0;
     const bool isspec = specfld && specfld->currentItem() == 0;
 
-    for ( int ielem=0; ielem<fi_.nrElements(); ielem++ )
+    for ( int iform=0; iform<tinf_.nrForms(); iform++ )
     {
-	const bool isselelem = ielem == selelemidx;
-	lbls_[ielem]->display( isselelem );
+	const bool isselform = iform == selformidx;
 
-	ObjectSet<uiSpinBox>& colboxes = *colboxes_[ielem];
-	ObjectSet<uiSpinBox>* rowboxes = ielem < rowboxes_.size()
-	    			       ? rowboxes_[ielem] : 0;
+	ObjectSet<uiSpinBox>& colboxes = *colboxes_[iform];
+	ObjectSet<uiSpinBox>* rowboxes = iform < rowboxes_.size()
+	    			       ? rowboxes_[iform] : 0;
 	for ( int ifld=0; ifld<colboxes.size(); ifld++ )
 	{
-	    colboxes[ifld]->display( isselelem && !isspec );
-	    (*rowboxes)[ifld]->display( isselelem && !isspec );
+	    colboxes[ifld]->display( isselform && !isspec );
+	    (*rowboxes)[ifld]->display( isselform && !isspec );
 	}
 	if ( ishdr_ )
 	{
-	    ObjectSet<uiGenInput>& colinps = *inps_[ielem];
+	    ObjectSet<uiGenInput>& colinps = *inps_[iform];
 	    for ( int ifld=0; ifld<colinps.size(); ifld++ )
-		colinps[ifld]->display( isselelem && isspec );
+		colinps[ifld]->display( isselform && isspec );
 	}
     }
 }
 
 bool commit()
 {
-    const int selelem = elemfld ? elemfld->currentItem() : 0;
-    const bool readelem = !specfld || specfld->currentItem() == 1;
-    if ( !readelem && !fi_.isOptional() )
+    const int formnr = formfld ? formfld->currentItem() : 0;
+    const bool doread = !specfld || specfld->currentItem() == 1;
+    if ( !doread && !tinf_.isOptional() )
     {
-	ObjectSet<uiGenInput>& colinps = *inps_[selelem];
+	ObjectSet<uiGenInput>& colinps = *inps_[formnr];
 	for ( int idx=0; idx<colinps.size(); idx++ )
 	{
-	    if ( ! *colinps[idx]->text() )
+	    if ( colinps[idx]->isUndef() )
 	    {
-		errmsg_ = "Please enter a value for ";
-		errmsg_ += fi_.elementName(selelem);
+		errmsg_ = "Value missing for ";
+		errmsg_ += tinf_.form(formnr).name();
 		return false;
 	    }
 	}
     }
 
-    fi_.selection_.elem_ = selelem;
-    fi_.selection_.pos_.erase();
-    fi_.selection_.vals_.erase();
+    tinf_.selection_.form_ = formnr;
+    tinf_.selection_.pos_.erase();
+    tinf_.selection_.vals_.erase();
 
-    if ( readelem )
+    if ( doread )
     {
-	ObjectSet<uiSpinBox>& colboxes = *colboxes_[selelem];
-	ObjectSet<uiSpinBox>* rowboxes = rowboxes_.size() > selelem
-	    			       ? rowboxes_[selelem] : 0;
+	ObjectSet<uiSpinBox>& colboxes = *colboxes_[formnr];
+	ObjectSet<uiSpinBox>* rowboxes = rowboxes_.size() > formnr
+	    			       ? rowboxes_[formnr] : 0;
 	for ( int idx=0; idx<colboxes.size(); idx++ )
 	{
 	    RowCol rc( 0, colboxes[idx]->getValue() );
@@ -220,34 +211,34 @@ bool commit()
 		rc.r() = (*rowboxes)[idx]->getValue();
 	    if ( mIsUdf(rc.r()) || mIsUdf(rc.c()) )
 	    {
-		errmsg_ = "Please enter the psoition in the file for ";
-		errmsg_ += fi_.elementName(selelem);
+		errmsg_ = "Missing position in the file for ";
+		errmsg_ += tinf_.form(formnr).name();
 		return false;
 	    }
 	    rc.r()--; rc.c()--; // Users tend to start at 1
-	    fi_.selection_.pos_ += rc;
+	    tinf_.selection_.pos_ += rc;
 	}
     }
     else
     {
-	ObjectSet<uiGenInput>& colinps = *inps_[selelem];
+	ObjectSet<uiGenInput>& colinps = *inps_[formnr];
 	for ( int idx=0; idx<colinps.size(); idx++ )
-	    fi_.selection_.vals_.add( colinps[idx]->text() );
+	    tinf_.selection_.vals_.add( colinps[idx]->text() );
     }
 
     return true;
 }
 
-    Table::FormatInfo&			fi_;
+    Table::TargetInfo&			tinf_;
     bool				ishdr_;
     BufferString			errmsg_;
 
-    uiComboBox*				elemfld;
+    uiComboBox*				formfld;
     uiComboBox*				specfld;
     ObjectSet< ObjectSet<uiSpinBox> >	colboxes_;
     ObjectSet< ObjectSet<uiSpinBox> >	rowboxes_;
     ObjectSet< ObjectSet<uiGenInput> >	inps_;
-    ObjectSet< uiLabel >		lbls_;
+    uiObject*				rightmostleftfld_;
 
     static int				defrow_;
     static int				defcol_;
@@ -270,10 +261,10 @@ uiTableImpDataSel::uiTableImpDataSel( uiParent* p, Table::FormatDesc& fd )
     int maxhdrline = 0;
     for ( int idx=0; idx<fd_.headerinfos_.size(); idx++ )
     {
-	const Table::FormatInfo& fi = *fd_.headerinfos_[idx];
-	if ( fi.selection_.pos_.size() > idx
-	  && fi.selection_.pos_[idx].r() > maxhdrline )
-	    maxhdrline = fi.selection_.pos_[idx].r();
+	const Table::TargetInfo& tinf = *fd_.headerinfos_[idx];
+	if ( tinf.selection_.pos_.size() > idx
+	  && tinf.selection_.pos_[idx].r() > maxhdrline )
+	    maxhdrline = tinf.selection_.pos_[idx].r();
     }
     if ( fd_.nrhdrlines_ < maxhdrline )
 	fd_.nrhdrlines_ = maxhdrline;
@@ -295,7 +286,7 @@ uiTableImpDataSel::uiTableImpDataSel( uiParent* p, Table::FormatDesc& fd )
 }
 
 
-uiGroup* uiTableImpDataSel::mkElemFlds( ObjectSet<Table::FormatInfo>& infos,
+uiGroup* uiTableImpDataSel::mkElemFlds( ObjectSet<Table::TargetInfo>& infos,
 					ObjectSet<uiTableImpDataSelElem>& elms,
 					bool ishdr )
 {
@@ -306,8 +297,8 @@ uiGroup* uiTableImpDataSel::mkElemFlds( ObjectSet<Table::FormatInfo>& infos,
     uiGroup* grp = new uiGroup( this, ishdr ? "Header fields" : "Body fields" );
     for ( int idx=0; idx<infos.size(); idx++ )
     {
-	Table::FormatInfo& fi = *infos[idx];
-	uiTableImpDataSelElem* elem = new uiTableImpDataSelElem(grp,fi,ishdr);
+	Table::TargetInfo& tinf = *infos[idx];
+	uiTableImpDataSelElem* elem = new uiTableImpDataSelElem(grp,tinf,ishdr);
 	elms += elem;
 	if ( idx )
 	    elem->attach( alignedBelow, elms[idx-1] );
