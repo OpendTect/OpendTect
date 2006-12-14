@@ -5,7 +5,7 @@
  * FUNCTION : file utilities
 -*/
 
-static const char* rcsID = "$Id: filegen.c,v 1.70 2006-08-21 10:28:21 cvsnanne Exp $";
+static const char* rcsID = "$Id: filegen.c,v 1.71 2006-12-14 15:40:20 cvsbert Exp $";
 
 #include "filegen.h"
 #include "string2.h"
@@ -178,6 +178,8 @@ int File_getKbSize( const char* fnm )
     stat((char*)fnm,&statbuf);
 #endif
     res *= statbuf.st_size;
+    if ( res < 0 )
+	res = - res * 2;
     return (int)(res + .5);
 
 #endif
