@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		9-4-1996
- RCS:		$Id: survinfo.h,v 1.56 2006-12-14 14:30:51 cvshelene Exp $
+ RCS:		$Id: survinfo.h,v 1.57 2006-12-15 13:29:24 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -161,6 +161,7 @@ protected:
     Coord		set3coords[3];
 
     Pol2D		survdatatype_;
+    bool		survdatatypeknown_;
 
     static SurveyInfo*	theinst_;
     static bool		dowarnings_;

@@ -4,7 +4,7 @@
  * DATE     : 3-8-1994
 -*/
 
-static const char* rcsID = "$Id: ioman.cc,v 1.72 2006-12-06 12:39:01 cvsnanne Exp $";
+static const char* rcsID = "$Id: ioman.cc,v 1.73 2006-12-15 13:29:24 cvsbert Exp $";
 
 #include "ioman.h"
 #include "iodir.h"
@@ -59,30 +59,62 @@ void IOMan::init()
 
     int nrstddirdds = IOObjContext::totalNrStdDirs();
     const IOObjContext::StdDirData* prevdd = 0;
+    const bool needsurvtype = SI().isValid() && !SI().survdatatypeknown_;
     bool needwrite = false;
     FilePath basicfp = FilePath( GetDataFileName("BasicSurvey") );
     FilePath rootfp = FilePath( rootdir );
     basicfp.add( "X" ); rootfp.add( "X" );
     for ( int idx=0; idx<nrstddirdds; idx++ )
     {
+	IOObjContext::StdSelType stdseltyp = (IOObjContext::StdSelType)idx;
 	const IOObjContext::StdDirData* dd
-		= IOObjContext::getStdDirData( (IOObjContext::StdSelType)idx );
-	if ( (*dirPtr())[MultiID(dd->id)] ) { prevdd = dd; continue; }
+			    = IOObjContext::getStdDirData( stdseltyp );
+	const IOObj* dirioobj = (*dirPtr())[MultiID(dd->id)];
+	if ( dirioobj )
+	{
+	    if ( needsurvtype && stdseltyp == IOObjContext::Seis )
+	    {
+		IODir seisiodir( dirioobj->key() );
+		bool have2d = false, have3d=false;
+		const BufferString seisstr( "Seismic Data" );
+		const BufferString tr2dstr( "2D" );
+		for ( int iobj=0; iobj<seisiodir.size(); iobj++ )
+		{
+		    const IOObj& subioobj = *seisiodir[iobj];
+		    if ( seisstr != subioobj.group() ) continue;
+		    bool is2d = tr2dstr == subioobj.translator();
+		    if ( is2d ) have2d = true;
+		    else	have3d = true;
+		    if ( have2d && have3d ) break;
+		}
+		SurveyInfo& si( const_cast<SurveyInfo&>(SI()) );
+		si.survdatatypeknown_ = true;
+		si.survdatatype_ = !have2d ? No2D // thus also if nothing found
+		    		 : (have3d ? Both2DAnd3D
+					   : Only2D);
+		si.write();
+	    }
 
+	    prevdd = dd; continue;
+	}
+
+	// Oops, a data directory required is missing
+	// We'll try to recover by using the 'BasicSurvey' in the app
 	basicfp.setFileName( dd->dirnm );
 	BufferString basicdirnm = basicfp.fullPath();
 	if ( !File_exists(basicdirnm) )
-	    // Apparently, the application doesn't need such a directory
+	    // Oh? So this is removed from the BasicSurvey
+	    // Let's hope they know what they're doing
 	    { prevdd = dd; continue; }
 
 	rootfp.setFileName( dd->dirnm );
 	BufferString dirnm = rootfp.fullPath();
 	if ( !File_exists(dirnm) )
 	{
-	    // Apparently, this directory should have been in the survey
-	    // It is not. If it is a basic directory, we do not want to
-	    // continue. Otherwise, we want to create the directory.
-	    if ( idx == 0 ) // 0=Seis, if this is missing, why go on?
+	    // This directory should have been in the survey.
+	    // It is not. If it is the seismic directory, we do not want to
+	    // continue. Otherwise, we want to copy the directory.
+	    if ( stdseltyp == IOObjContext::Seis )
 	    {
 		BufferString msg( "Corrupt survey: missing directory: " );
 		msg += dirnm; ErrMsg( msg ); state_ = Bad; return;
@@ -94,6 +126,8 @@ void IOMan::init()
 	    }
 	}
 
+	// So, we have copied the directory.
+	// Now create an entry in the root omf
 	MultiID ky( dd->id );
 	ky += "1";
 	IOObj* iostrm = new IOStream(dd->dirnm,ky);

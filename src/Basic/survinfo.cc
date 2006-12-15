@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          18-4-1996
- RCS:           $Id: survinfo.cc,v 1.82 2006-12-14 14:30:52 cvshelene Exp $
+ RCS:           $Id: survinfo.cc,v 1.83 2006-12-15 13:29:24 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -63,7 +63,8 @@ SurveyInfo::SurveyInfo()
     , zinfeet_(false)
     , pars_(*new IOPar(sKeySurvDefs))
     , workRangeChg(this)
-    , survdatatype_(No2D)
+    , survdatatype_(Both2DAnd3D)
+    , survdatatypeknown_(false)
 {
     rdxtr.b = rdytr.c = 1;
     set3binids[2].crl = 0;
@@ -103,6 +104,7 @@ SurveyInfo& SurveyInfo::operator =( const SurveyInfo& si )
     zinfeet_ = si.zinfeet_;
     b2c_ = si.b2c_;
     survdatatype_ = si.survdatatype_;
+    survdatatypeknown_ = si.survdatatypeknown_;
     for ( int idx=0; idx<3; idx++ )
     {
 	set3binids[idx] = si.set3binids[idx];
@@ -178,7 +180,10 @@ SurveyInfo* SurveyInfo::read( const char* survdir )
 	    }
 	}
 	else if ( keyw == sKeySurvDataType )
+	{
 	    si->setSurvDataType( namesToPol2D(astream.value()) );
+	    si->survdatatypeknown_ = true;
+	}
 	else
 	    si->handleLineRead( keyw, astream.value() );
 
