@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		May 2006
- RCS:		$Id: uiodrandlinetreeitem.h,v 1.1 2006-05-09 11:00:53 cvsbert Exp $
+ RCS:		$Id: uiodrandlinetreeitem.h,v 1.2 2006-12-15 08:08:49 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -48,6 +48,7 @@ protected:
     MenuItem		editnodesmnuitem_;
     MenuItem		insertnodemnuitem_;
     MenuItem		usewellsmnuitem_;
+    MenuItem		savemnuitem_;
 };
 
 
