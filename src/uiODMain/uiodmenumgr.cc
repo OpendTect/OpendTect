@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.cc,v 1.60 2006-12-14 14:30:52 cvshelene Exp $
+ RCS:           $Id: uiodmenumgr.cc,v 1.61 2006-12-15 13:28:14 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -389,6 +389,8 @@ void uiODMenuMgr::fillManTB()
     mAddTB(mantb,"man_flt.png","Manage faults",false,manFlt);
 #endif
     mAddTB(mantb,"man_wll.png","Manage well data",false,manWll);
+    mAddTB(mantb,"man_picks.png","Manage Pick Sets",false,manPick);
+    mAddTB(mantb,"man_wvlt.png","Manage Wavelets",false,manWvlt);
 }
 
 
@@ -550,6 +552,8 @@ mDefManCBFn(Seis)
 mDefManCBFn(Hor)
 mDefManCBFn(Flt)
 mDefManCBFn(Wll)
+mDefManCBFn(Pick)
+mDefManCBFn(Wvlt)
 
 
 void uiODMenuMgr::timerCB( CallBacker* )
