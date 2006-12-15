@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		December 2006
- RCS:		$Id: randomlinegeom.h,v 1.1 2006-12-14 21:44:35 cvsnanne Exp $
+ RCS:		$Id: randomlinegeom.h,v 1.2 2006-12-15 14:35:57 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,7 +33,7 @@ public:
     int				nodeIndex(const BinID&) const;
     int				nrNodes() const;
     const BinID&		nodePosition(int) const;
-    void			getAllNodes(TypeSet<BinID>&) const;
+    void			allNodePositions(TypeSet<BinID>&) const;
 
     void			setZRange( const Interval<float>& zrg )
 				{ zrange_ = zrg; }

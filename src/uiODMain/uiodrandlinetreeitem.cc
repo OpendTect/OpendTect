@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		May 2006
- RCS:		$Id: uiodrandlinetreeitem.cc,v 1.3 2006-12-14 21:44:35 cvsnanne Exp $
+ RCS:		$Id: uiodrandlinetreeitem.cc,v 1.4 2006-12-15 14:35:57 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -63,19 +63,39 @@ bool uiODRandomLineParentTreeItem::showSubMenu()
     if ( mnuid == 0 )
 	addChild( new uiODRandomLineTreeItem(-1), false );
     else if ( mnuid == 1 )
-    {
-    	PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj( RandomLine );
-	ctio->ctxt.forread = true;
-	uiIOObjSelDlg dlg( getUiParent(), *ctio, "Select", false );
-	if ( !dlg.go() )
-	    return false;
-
-	Geometry::RandomLine geom;
-	BufferString errmsg;
-	RandomLineTranslator::retrieve( geom, dlg.ioObj(), errmsg );
-    }
+	load();
 
     handleStandardItems( mnuid );
+    return true;
+}
+
+
+bool uiODRandomLineParentTreeItem::load()
+{
+    PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj( RandomLine );
+    ctio->ctxt.forread = true;
+    uiIOObjSelDlg dlg( getUiParent(), *ctio, "Select", false );
+    if ( !dlg.go() )
+	return false;
+
+    Geometry::RandomLine geom;
+    BufferString errmsg;
+    if ( !RandomLineTranslator::retrieve(geom,dlg.ioObj(),errmsg) )
+	{ uiMSG().error( errmsg ); return false; }
+
+    uiODRandomLineTreeItem* itm = new uiODRandomLineTreeItem(-1);
+    addChild( itm, false );
+    mDynamicCastGet(visSurvey::RandomTrackDisplay*,rtd,
+	ODMainWin()->applMgr().visServer()->getObject(itm->displayID()));
+    if ( !rtd )
+	return false;
+
+    TypeSet<BinID> bids;
+    geom.allNodePositions( bids );
+    rtd->setKnotPositions( bids );
+    rtd->setDepthInterval( geom.zRange() );
+    rtd->setName( dlg.ioObj()->name() );
+    updateColumnText( uiODSceneMgr::cNameColumn() );
     return true;
 }
 
@@ -84,7 +104,7 @@ uiODRandomLineTreeItem::uiODRandomLineTreeItem( int id )
     : editnodesmnuitem_("Edit nodes ...")
     , insertnodemnuitem_("Insert node")
     , usewellsmnuitem_("Create from wells ...")
-    , savemnuitem_("Save ...")
+    , saveasmnuitem_("Save as ...")
 { displayid_ = id; } 
 
 
@@ -143,7 +163,7 @@ void uiODRandomLineTreeItem::createMenuCB( CallBacker* cb )
     }
     mAddMenuItem( menu, &usewellsmnuitem_, !visserv->isLocked(displayid_), 
 	    	  false );
-    mAddMenuItem( menu, &savemnuitem_, true, false );
+    mAddMenuItem( menu, &saveasmnuitem_, true, false );
 }
 
 
@@ -173,10 +193,11 @@ void uiODRandomLineTreeItem::handleMenuCB( CallBacker* cb )
 	menu->setIsHandled(true);
 	applMgr()->wellServer()->selectWellCoordsForRdmLine();
     }
-    else if ( mnuid == savemnuitem_.id )
+    else if ( mnuid == saveasmnuitem_.id )
     {
 	PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj( RandomLine );
 	ctio->ctxt.forread = false;
+	ctio->setName( rtd->name() );
 	uiIOObjSelDlg dlg( getUiParent(), *ctio, "Select", false );
 	if ( !dlg.go() )
 	    return;

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		December 2006
- RCS:		$Id: randomlinetr.cc,v 1.1 2006-12-14 21:44:35 cvsnanne Exp $
+ RCS:		$Id: randomlinetr.cc,v 1.2 2006-12-15 14:35:57 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,9 +15,12 @@ ________________________________________________________________________
 
 #include "ascstream.h"
 #include "bufstringset.h"
-#include "ioobj.h"
 #include "conn.h"
+#include "convert.h"
+#include "ioobj.h"
+#include "keystrs.h"
 #include "ptrman.h"
+#include "separstr.h"
 
 
 mDefSimpleTranslatorSelector(RandomLine,sKeyRandomLineTranslatorGroup)
@@ -76,17 +79,27 @@ const char* dgbRandomLineTranslator::read( Geometry::RandomLine& rdl,
 	return "Cannot read from input file";
     if ( !astrm.isOfFileType(mTranslGroupName(RandomLine)) )
 	return "Input file is not a RandomLine file";
-    if ( atEndOfSection(astrm) ) astrm.next();
+    if ( atEndOfSection(astrm) )
+	astrm.next();
 
     Interval<float> zrg;
-    strm >> zrg.start >> zrg.stop;
-    rdl.setZRange( zrg );
-    astrm.next();
+    if ( astrm.hasKeyword(sKey::ZRange) )
+    {
+	FileMultiString fms = astrm.value();
+	zrg.start = atof( fms[0] );
+	zrg.stop = atof( fms[1] );
+    }
 
+    rdl.setZRange( zrg );
     while ( !atEndOfSection(astrm) )
+	astrm.next();
+
+    while ( strm )
     {
 	BinID bid;
 	strm >> bid.inl >> bid.crl;
+	if ( !strm ) break;
+
 	rdl.addNode( bid );
     }
 
@@ -106,7 +119,11 @@ const char* dgbRandomLineTranslator::write( const Geometry::RandomLine& rdl,
     if ( !strm.good() )
 	return "Cannot write to output RandomLine file";
 
-    strm << rdl.zRange().start << '\t' << rdl.zRange().stop << '\n';
+    FileMultiString fms = Conv::to<const char*>( rdl.zRange().start );
+    fms.add( Conv::to<const char*>(rdl.zRange().stop) );
+    astrm.put( sKey::ZRange, fms );
+    astrm.newParagraph();
+
     for ( int idx=0; idx<rdl.nrNodes(); idx++ )
     {
 	const BinID& bid = rdl.nodePosition( idx );

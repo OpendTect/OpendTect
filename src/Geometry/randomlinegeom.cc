@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		December 2006
- RCS:		$Id: randomlinegeom.cc,v 1.1 2006-12-14 21:44:35 cvsnanne Exp $
+ RCS:		$Id: randomlinegeom.cc,v 1.2 2006-12-15 14:35:57 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,7 +50,7 @@ int RandomLine::nrNodes() const
 const BinID& RandomLine::nodePosition( int idx ) const
 { return nodes_[idx]; }
 
-void RandomLine::getAllNodes( TypeSet<BinID>& bids ) const
+void RandomLine::allNodePositions( TypeSet<BinID>& bids ) const
 { bids = nodes_; }
 
 } // namespace
