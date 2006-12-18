@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:		$Id: uiseismmproc.cc,v 1.108 2006-11-21 14:00:08 cvsbert Exp $
+ RCS:		$Id: uiseismmproc.cc,v 1.109 2006-12-18 17:51:40 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,7 +38,7 @@ ________________________________________________________________________
 #include "uibutton.h"
 #include "uitextedit.h"
 #include "uiseparator.h"
-#include "uifilebrowser.h"
+#include "uitextfile.h"
 #include "uiiosel.h"
 #include "uiexecutor.h"
 #include "uimsg.h"
@@ -584,7 +584,7 @@ void uiSeisMMProc::vwLogPush( CallBacker* )
     logfp.setExtension( ".log", false );
 
     delete logvwer;
-    logvwer = new uiFileBrowser( this, uiFileBrowser::Setup(logfp.fullPath())
+    logvwer = new uiTextFileDlg( this, uiTextFileDlg::Setup(logfp.fullPath())
 					.scroll2bottom(true) );
     logvwer->go();
 }

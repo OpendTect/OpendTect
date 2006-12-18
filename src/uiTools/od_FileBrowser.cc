@@ -4,12 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Jan 2003
- RCS:           $Id: od_FileBrowser.cc,v 1.7 2005-08-26 18:19:28 cvsbert Exp $
+ RCS:           $Id: od_FileBrowser.cc,v 1.8 2006-12-18 17:51:40 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uifilebrowser.h"
+#include "uitextfile.h"
 #include "uimain.h"
 
 #include "prog.h"
@@ -22,27 +22,32 @@ ________________________________________________________________________
 
 int main( int argc, char ** argv )
 {
-    bool inpok = argc > 1;
-
     int argidx = 1;
-    bool editable = false;
-    if ( inpok && !strcmp(argv[argidx],"--edit") )
-    {
-	editable = true;
-	argidx++;
-	inpok = argc > 2;
-    }
+    bool edit = false, table = false, dofork = true;
 
-    if ( !inpok )
+    while ( argc > argidx )
     {
-	std::cerr << "Usage: " << argv[0] << " [--edit] filename\n"
-	     << "Note: filename must be with FULL path." << std::endl;
-	ExitProgram( 1 );
+	if ( !strcmp(argv[argidx],"--edit") )
+	    edit = true;
+	else if ( !strcmp(argv[argidx],"--table") )
+	    table = true;
+	else if ( !strcmp(argv[argidx],"--nofork") )
+	    dofork = false;
+	else if ( !strcmp(argv[argidx],"--help") )
+	{
+	    std::cerr << "Usage: " << argv[0]
+		      << " [--edit|--table] [filename]\n"
+		      << "Note: filename must be with FULL path." << std::endl;
+	    ExitProgram( 0 );
+	}
+	argidx++;
     }
+    argidx--;
 
 #ifndef __win__
 
-    switch ( fork() )
+    int forkres = dofork ? fork() : 0;
+    switch ( forkres )
     {
     case -1:
 	std::cerr << argv[0] << ": cannot fork: " << errno_message()
@@ -54,8 +59,8 @@ int main( int argc, char ** argv )
 
 #endif
 
-    char* fnm = argv[argidx];
-    replaceCharacter( fnm, (char)128, ' ' );
+    BufferString fnm = argidx > 0 ? argv[argidx] : "";
+    replaceCharacter( fnm.buf(), (char)128, ' ' );
 
     uiMain app( argc, argv );
 
@@ -64,9 +69,8 @@ int main( int argc, char ** argv )
 	fnm = const_cast<char*>(File_linkTarget(fnm));
 #endif
 
-    uiFileBrowser* fb = new uiFileBrowser( 0,
-	    		uiFileBrowser::Setup(fnm).readonly(!editable) );
-    app.setTopLevel( fb );
-    fb->show();
+    uiTextFileDlg* dlg = new uiTextFileDlg( 0, !edit, table, fnm );
+    app.setTopLevel( dlg );
+    dlg->show();
     ExitProgram( app.exec() ); return 0;
 }

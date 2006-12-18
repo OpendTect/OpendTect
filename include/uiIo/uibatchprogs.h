@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Apr 2003
- RCS:           $Id: uibatchprogs.h,v 1.6 2006-12-08 13:58:42 cvsbert Exp $
+ RCS:           $Id: uibatchprogs.h,v 1.7 2006-12-18 17:51:40 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,7 +16,7 @@ ________________________________________________________________________
 class uiGenInput;
 class uiTextEdit;
 class uiPushButton;
-class uiFileBrowser;
+class uiTextFileDlg;
 class BatchProgInfoList;
 class uiLabeledComboBox;
 
@@ -33,7 +33,7 @@ protected:
 
     uiLabeledComboBox*	progfld;
     uiTextEdit*		commfld;
-    uiFileBrowser*	browser;
+    uiTextFileDlg*	browser;
     uiPushButton*	exbut;
     ObjectSet< ObjectSet<uiGenInput> > inps;
 

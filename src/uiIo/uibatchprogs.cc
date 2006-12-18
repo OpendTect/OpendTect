@@ -4,14 +4,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:           $Id: uibatchprogs.cc,v 1.26 2006-12-08 13:57:51 cvsbert Exp $
+ RCS:           $Id: uibatchprogs.cc,v 1.27 2006-12-18 17:51:40 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uibatchprogs.h"
-#include "uifilebrowser.h"
 #include "uifileinput.h"
+#include "uitextfile.h"
 #include "uicombobox.h"
 #include "uitextedit.h"
 #include "uibutton.h"
@@ -275,9 +275,9 @@ void uiBatchProgLaunch::exButPush( CallBacker* )
 	browser->setFileName( targetex );
     else
     {
-	browser = new uiFileBrowser( this, uiFileBrowser::Setup(targetex)
-							.readonly(false) );
-	browser->newfilenm.notify( mCB(this,uiBatchProgLaunch,filenmUpd) );
+	browser = new uiTextFileDlg( this, false, false, targetex );
+	browser->editor()->fileNmChg.notify(
+				mCB(this,uiBatchProgLaunch,filenmUpd) );
     }
     browser->show();
 }
@@ -336,8 +336,8 @@ bool uiBatchProgLaunch::acceptOK( CallBacker* )
 
 void uiBatchProgLaunch::filenmUpd( CallBacker* cb )
 {
-    mDynamicCastGet(uiFileBrowser*,fb,cb)
-    if ( !fb ) return;
+    mDynamicCastGet(uiTextFile*,uitf,cb)
+    if ( !uitf ) return;
 
     const int selidx = progfld->box()->currentItem();
 
@@ -348,7 +348,7 @@ void uiBatchProgLaunch::filenmUpd( CallBacker* cb )
 	mDynamicCastGet(uiFileInput*,finp,inp)
 	BufferString val;
 	if ( finp )
-	    finp->setText( fb->name() );
+	    finp->setText( uitf->fileName() );
     }
 }
 

@@ -1,0 +1,381 @@
+/*+
+________________________________________________________________________
+
+ CopyRight:     (C) dGB Beheer B.V.
+ Author:        Bert Bril
+ Date:          April 2002
+ RCS:           $Id: uitextfile.cc,v 1.1 2006-12-18 17:51:40 cvsbert Exp $
+________________________________________________________________________
+
+-*/
+
+#include "uitextfile.h"
+#include "uitextedit.h"
+#include "uitable.h"
+#include "uimenu.h"
+#include "uifiledlg.h"
+#include "uimsg.h"
+#include "strmprov.h"
+#include "filepath.h"
+#include "tableconvimpl.h"
+
+#define mTxtEd() (txted_ ? (uiTextEditBase*)txted_ : (uiTextEditBase*)txtbr_)
+
+
+void uiTextFile::init( uiParent* p )
+{
+    txted_ = 0; txtbr_ = 0; tbl_ = 0;
+    if ( setup_.table_ )
+    {
+	uiTable::Setup tsu;
+	tsu.rowdesc("Row").coldesc("Col").fillrow(false).fillcol(true)
+	    .defcollbl(true).defrowlbl(true);
+	tbl_ = new uiTable( p, tsu, setup_.filename_ );
+	tbl_->setTableReadOnly( setup_.readonly_ );
+	tbl_->setStretch( 2, 2 );
+    }
+    else if ( !setup_.readonly_ )
+	txted_ = new uiTextEdit( p, setup_.filename_ );
+    else
+	txtbr_ = new uiTextBrowser( p, setup_.filename_, setup_.maxlines_,
+				    false );
+
+    BufferString nm( setup_.filename_ );
+    setup_.filename_ = "";
+    open( nm );
+}
+
+
+bool uiTextFile::isModified() const
+{
+    return setup_.readonly_ ? false : (mTxtEd() ? mTxtEd()->isModified()
+					//TODO : tbl_->isModified());
+						: false );
+}
+
+
+class uiTableExpHandler : public Table::ExportHandler
+{
+public:
+
+uiTableExpHandler( uiTable* t, int ml )
+    : Table::ExportHandler(std::cerr)
+    , tbl_(t)
+    , nrlines_(0)
+    , maxlines_(ml)
+{
+}
+
+void finish()
+{
+    tbl_->setCurrentCell( RowCol(0,0) );
+}
+
+bool init()
+{
+    tbl_->clearTable();
+    return true;
+}
+
+const char* putRow( const BufferStringSet& bss )
+{
+    RowCol rc( tbl_->nrRows(), 0 );
+    tbl_->insertRows( rc.r(), 1 );
+    if ( bss.size() >= tbl_->nrCols() )
+	tbl_->insertColumns( tbl_->nrCols(), bss.size() - tbl_->nrCols() );
+
+    for ( ; rc.c()<bss.size(); rc.c()++ )
+	tbl_->setText( rc, bss.get(rc.c()) );
+
+    nrlines_++;
+    if ( nrlines_ >= maxlines_ )
+    {
+	rc.r()++; rc.c() = 0;
+	tbl_->insertRows( rc.r(), 1 );
+	tbl_->setText( rc, "[...]" );
+	return "Stopped at max row limit";
+    }
+    return 0;
+}
+
+    uiTable*	tbl_;
+    int		maxlines_;
+    int		nrlines_;
+
+};
+
+
+bool uiTextFile::open( const char* fnm )
+{
+    uiObj()->setName( fnm );
+    if ( txted_ )
+	txted_->readFromFile( fnm );
+    else if ( txtbr_ )
+	txtbr_->setSource( fnm );
+    else
+    {
+	StreamData sd = StreamProvider(fnm).makeIStream();
+	if ( !sd.usable() )
+	    { sd.close(); return false; }
+
+	Table::WSImportHandler imphndlr( *sd.istrm );
+	uiTableExpHandler exphndlr( tbl_, setup_.maxlines_ );
+	Table::Converter cnvrtr( imphndlr, exphndlr );
+	cnvrtr.execute();
+    }
+
+    if ( setup_.filename_ != fnm )
+    {
+	setup_.filename_ = fnm;
+	fileNmChg.trigger();
+    }
+
+    return true;
+}
+
+
+bool uiTextFile::reLoad()
+{
+    return open( setup_.filename_ );
+}
+
+
+bool uiTextFile::save()
+{
+    return saveAs( setup_.filename_ );
+}
+
+
+bool uiTextFile::saveAs( const char* fnm )
+{
+    if ( mTxtEd() )
+    {
+	if ( !mTxtEd()->saveToFile( fnm ) )
+	    return false;
+    }
+    else
+    {
+	StreamData sd = StreamProvider(fnm).makeOStream();
+	if ( !sd.usable() )
+	    { sd.close(); return false; }
+	*sd.ostrm << text();
+	if ( !sd.ostrm->good() )
+	    { sd.close(); return false; }
+	sd.close();
+	// tbl_->setModified( false );
+    }
+
+    if ( setup_.filename_ != fnm )
+    {
+	setup_.filename_ = fnm;
+	fileNmChg.trigger();
+    }
+    return true;
+}
+
+
+int uiTextFile::nrLines() const
+{
+    if ( txtbr_ )
+	return txtbr_->nrLines();
+    else if ( tbl_ )
+	return tbl_->nrRows();
+    else
+	return 100; // TODO
+}
+
+
+void uiTextFile::toLine( int lnr )
+{
+    const int lastln = nrLines() - 1;
+    if ( lastln < 0 ) return;
+    if ( lnr > lastln ) lnr = lastln;
+
+    if ( mTxtEd() )
+    {
+	//TODO implement correctly
+	if ( txtbr_ && lnr > 1 )
+	    txtbr_->scrollToBottom();
+    }
+    else
+	tbl_->setCurrentCell( RowCol(lnr,0) );
+}
+
+
+const char* uiTextFile::text() const
+{
+    if ( mTxtEd() )
+	return mTxtEd()->text();
+
+    static BufferString ret; ret = "";
+    BufferString linetxt;
+    const int nrrows = tbl_->nrRows(); const int nrcols = tbl_->nrCols();
+    for ( RowCol rc(0,0); rc.r()<nrrows; rc.r()++ )
+    {
+	linetxt = "";
+	for ( rc.c()=0; rc.c()<nrcols; rc.c()++ )
+	{
+	    const char* celltxt = tbl_->text( rc );
+	    if ( !*celltxt ) break;
+	    if ( rc.c() ) linetxt += " ";
+	    linetxt += celltxt;
+	}
+	if ( rc.r() != nrrows-1 ) linetxt += "\n";
+	ret += linetxt;
+    }
+
+    return ret.buf();
+}
+
+
+uiObject* uiTextFile::uiObj()
+{
+    uiObject* ret = mTxtEd();
+    if ( !ret ) ret = tbl_;
+    return ret;
+}
+
+
+uiTextFileDlg::uiTextFileDlg( uiParent* p, bool rdonly, bool tbl,
+			      const char* fnm )
+	: uiDialog(p,Setup(fnm))
+{
+    Setup setup( fnm );
+    setup.allowopen(!rdonly).allowsave(!rdonly);
+    init( setup, uiTextFile::Setup(rdonly,tbl,fnm) );
+}
+
+
+uiTextFileDlg::uiTextFileDlg( uiParent* p, const Setup& setup )
+	: uiDialog(p,setup)
+{
+    init( setup, uiTextFile::Setup(true,false,setup.wintitle_) );
+}
+
+
+void uiTextFileDlg::init( const uiTextFileDlg::Setup& setup,
+			  const uiTextFile::Setup& tsetup )
+{
+    scroll2bottom_ = setup.scroll2bottom_;
+
+    editor_ = new uiTextFile( this, tsetup );
+    editor_->fileNmChg.notify( mCB(this,uiTextFileDlg,fileNmChgd) );
+
+    uiPopupMenu* filemnu = new uiPopupMenu( this, "&File" );
+    if ( setup.allowopen_ )
+	filemnu->insertItem( new uiMenuItem("&Open ...",
+		    	     mCB(this,uiTextFileDlg,open)) );
+    if ( setup.allowsave_ )
+    {
+	filemnu->insertItem( new uiMenuItem("&Save ...",
+		    	     mCB(this,uiTextFileDlg,save)) );
+	filemnu->insertItem( new uiMenuItem("Save &As ...",
+		    	     mCB(this,uiTextFileDlg,saveAs)) );
+    }
+    filemnu->insertItem( new uiMenuItem("&Quit",
+			 mCB(this,uiTextFileDlg,dismiss)) );
+    menuBar()->insertItem( filemnu );
+}
+
+
+void uiTextFileDlg::fileNmChgd( CallBacker* )
+{
+    FilePath fp( editor_->fileName() );
+    setName( fp.fileName() );
+    setCaption( fp.fullPath() );
+    setTitleText( editor_->fileName() );
+}
+
+
+void uiTextFileDlg::open( CallBacker* )
+{
+    uiFileDialog dlg( this, uiFileDialog::ExistingFile,
+		      editor_->fileName(), "", "Select file" );
+    if ( dlg.go() )
+    {
+	editor_->open( dlg.fileName() );
+	if ( scroll2bottom_ )
+	    editor_->toLine( mUdf(int) );
+    }
+}
+
+
+void uiTextFileDlg::save( CallBacker* )
+{
+    editor_->save();
+}
+
+
+void uiTextFileDlg::saveAs( CallBacker* )
+{
+    uiFileDialog dlg( this, uiFileDialog::AnyFile,
+	    	      editor_->fileName(), "", "Select new file name" );
+    if ( dlg.go() )
+	editor_->saveAs( dlg.fileName() );
+}
+
+
+void uiTextFileDlg::dismiss( CallBacker* )
+{
+    accept( this );
+}
+
+
+bool uiTextFileDlg::rejectOK( CallBacker* cb )
+{
+    if ( !cancelpushed_ )
+	return acceptOK( cb );
+
+    if ( !okToExit() )
+	return false;
+
+    if ( !editor_->reLoad() )
+	doMsg( "Cannot re-load file. Possibly the file no longer exists." );
+
+    return false;
+}
+
+
+bool uiTextFileDlg::acceptOK( CallBacker* )
+{
+    return okToExit();
+}
+
+
+int uiTextFileDlg::doMsg( const char* msg, bool iserr )
+{
+    int ret = 0;
+
+    uiMainWin* oldmain = uiMSG().setMainWin( this );
+    if ( iserr )
+	uiMSG().error( msg );
+    else
+	ret = uiMSG().askGoOnAfter( msg );
+    uiMSG().setMainWin( oldmain );
+
+    return ret;
+}
+
+
+bool uiTextFileDlg::okToExit()
+{
+    if ( !editor_->isModified() )
+	return true;
+
+    BufferString msg( "File:\n" );
+    msg += editor_->fileName();
+    msg += "\nwas modified. Save now?";
+    int opt = doMsg( msg, false );
+    if ( opt == 2 )
+	return false;
+    else if ( opt == 0 )
+    {
+	if ( !editor_->save() )
+	{
+	    doMsg( "Could not save file. Please try 'Save As'" );
+	    return false;
+	}
+    }
+
+    return true;
+}

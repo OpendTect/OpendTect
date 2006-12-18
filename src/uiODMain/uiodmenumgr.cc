@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.cc,v 1.61 2006-12-15 13:28:14 cvsbert Exp $
+ RCS:           $Id: uiodmenumgr.cc,v 1.62 2006-12-18 17:51:40 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,7 +12,7 @@ ________________________________________________________________________
 #include "uiodmenumgr.h"
 
 #include "uicrdevenv.h"
-#include "uifilebrowser.h"
+#include "uitextfile.h"
 #include "uimenu.h"
 #include "uimsg.h"
 #include "uiodapplmgr.h"
@@ -564,10 +564,10 @@ void uiODMenuMgr::timerCB( CallBacker* )
 
 void uiODMenuMgr::showLogFile()
 {
-    uiFileBrowser::Setup su( logMsgFileName() );
-    su.scroll2bottom(true); su.modal(true);
-    uiFileBrowser fb( &appl, su );
-    fb.go();
+    uiTextFileDlg::Setup su( logMsgFileName() );
+    su.modal( true );
+    uiTextFileDlg dlg( &appl, su );
+    dlg.go();
 }
 
 

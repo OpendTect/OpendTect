@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:           $Id: uiseismmproc.h,v 1.36 2006-06-01 19:42:55 cvsbert Exp $
+ RCS:           $Id: uiseismmproc.h,v 1.37 2006-12-18 17:51:40 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,7 +25,7 @@ class uiGenInput;
 class uiComboBox;
 class HostDataList;
 class uiProgressBar;
-class uiFileBrowser;
+class uiTextFileDlg;
 class uiIOFileSelect;
 class uiSeisIOObjInfo;
 class SeisJobExecProv;
@@ -62,7 +62,7 @@ protected:
     uiIOFileSelect*	tmpstordirfld;
     uiGenInput*		inlperjobfld;
     uiTextEdit*		progrfld;
-    uiFileBrowser*	logvwer;
+    uiTextFileDlg*	logvwer;
     uiGenInput*		jrpstartfld;
     uiGenInput*		jrpstopfld;
     uiLabel*		jrpworklbl;
