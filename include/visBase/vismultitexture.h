@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		Dec 2005
- RCS:		$Id: vismultitexture.h,v 1.8 2006-09-05 20:54:10 cvskris Exp $
+ RCS:		$Id: vismultitexture.h,v 1.9 2006-12-18 21:36:47 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -41,6 +41,8 @@ public:
 				//!<0 and 1
     virtual float		getTextureRenderQuality() const		= 0;
 
+    virtual int			maxNrTextures() const { return 0; }
+    				/*!<\retval 0	Unlimited. */
     int				nrTextures() const;
     int				addTexture(const char* name);
     void			enableTexture(int texture,bool);
