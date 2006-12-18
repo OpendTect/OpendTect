@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          09/02/2001
- RCS:           $Id: uitextedit.cc,v 1.29 2006-12-05 15:21:09 cvsbert Exp $
+ RCS:           $Id: uitextedit.cc,v 1.30 2006-12-18 17:46:48 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -59,13 +59,15 @@ bool uiTextEditBase::isModified() const
 void uiTextEditBase::readFromFile( const char* src )
 {
     StreamData sd = StreamProvider( src ).makeIStream();
-    if ( !sd.istrm || sd.istrm->fail() )
+    if ( !sd.usable() )
 	{ sd.close(); return; }
 
     BufferString contents;
     BufferString newcontents;
 
-    char buf[mMaxLineLength]; int lines_left = maxLines();
+    char buf[mMaxLineLength];
+    int lines_left = maxLines();
+    if ( lines_left < 0 ) lines_left = mUdf(int);
     int nrnewlines = 0;
     while ( 1 )
     {
@@ -102,17 +104,13 @@ void uiTextEditBase::readFromFile( const char* src )
 bool uiTextEditBase::saveToFile( const char* src )
 {
     StreamData sd = StreamProvider( src ).makeOStream();
-    if ( !sd.ostrm || sd.ostrm->fail() )
+    if ( !sd.usable() )
 	{ sd.close(); return false; }
 
-    BufferString contents = text();
-
-    *sd.ostrm << contents;
-
+    *sd.ostrm << text();
     sd.close();
 
-    setText( contents );
-
+    qte().setModified( false );
     return true;
 }
 
@@ -216,7 +214,8 @@ uiTextBrowserBody::uiTextBrowserBody( uiTextBrowser& handle, uiParent* p,
 
 //-------------------------------------------------------
 
-uiTextBrowser::uiTextBrowser(uiParent* parnt, const char* nm, bool forcePTxt )
+uiTextBrowser::uiTextBrowser( uiParent* parnt, const char* nm, int mxlns,
+			      bool forcePTxt )
     : uiTextEditBase( parnt, nm, mkbody(parnt,nm,forcePTxt) )	
     , goneforwardorback(this)
     , linkhighlighted(this)
@@ -224,7 +223,7 @@ uiTextBrowser::uiTextBrowser(uiParent* parnt, const char* nm, bool forcePTxt )
     , cangoforw_( false )
     , cangobackw_( false )
     , forceplaintxt_( forcePTxt )
-    , maxlines_(50000)
+    , maxlines_(mxlns)
 {
 }
 

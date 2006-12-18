@@ -7,12 +7,13 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          09/02/2001
- RCS:           $Id: uitextedit.h,v 1.14 2006-12-05 15:21:09 cvsbert Exp $
+ RCS:           $Id: uitextedit.h,v 1.15 2006-12-18 17:46:48 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include <uiobj.h>
+#include "uiobj.h"
+#include "undefval.h"
 
 #ifdef USEQT4
 # define mQTextEditClss	Q3TextEdit
@@ -43,7 +44,7 @@ public:
     static int          defaultHeight()		    { return defaultHeight_; }
     static void         setDefaultHeight( int h )   { defaultHeight_ = h; }
 
-    bool		isModified () const;
+    bool		isModified() const;
 
 protected:
 
@@ -58,13 +59,14 @@ protected:
     mutable BufferString result;
 };
 
+
 class uiTextEdit : public uiTextEditBase
 {
 public:
 
                         uiTextEdit( uiParent* parnt, 
-				    const char* nm="uiTextEdit",
-				    bool readonly=false );
+				    const char* nm="Text editor",
+				    bool readonly=false);
 
     void		append( const char* ); 
 
@@ -78,17 +80,19 @@ private:
     uiTextEditBody&	mkbody(uiParent*, const char*, bool);
 };
 
+
 class uiTextBrowser : public uiTextEditBase
 {
 friend class		i_BrowserMessenger;
 public:
 
-                        uiTextBrowser( uiParent* parnt, 
-				       const char* nm="uiBrowser",
-				       bool forcePlainText=true );
+                        uiTextBrowser(uiParent*, 
+				      const char* nm="File browser",
+				      int maxlns=mUdf(int),
+				      bool forceplaintext=true );
 
     const char*		source() const;
-    void		setSource( const char* ); 
+    void		setSource(const char*); 
     void		setMaxLines(int);
 
     void		backward();
