@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:           $Id: uitextfile.cc,v 1.1 2006-12-18 17:51:40 cvsbert Exp $
+ RCS:           $Id: uitextfile.cc,v 1.2 2006-12-18 18:02:27 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,7 +38,7 @@ void uiTextFile::init( uiParent* p )
 	txted_ = new uiTextEdit( p, setup_.filename_ );
     else
 	txtbr_ = new uiTextBrowser( p, setup_.filename_, setup_.maxlines_,
-				    false );
+				    true );
 
     BufferString nm( setup_.filename_ );
     setup_.filename_ = "";
@@ -74,6 +74,8 @@ void finish()
 bool init()
 {
     tbl_->clearTable();
+    tbl_->setNrRows(0);
+    tbl_->setNrCols(0);
     return true;
 }
 
