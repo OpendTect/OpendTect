@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vismultiattribsurvobj.h,v 1.4 2006-12-06 17:35:32 cvskris Exp $
+ RCS:		$Id: vismultiattribsurvobj.h,v 1.5 2006-12-18 22:43:22 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -38,6 +38,7 @@ public:
     int				getResolution() const;
 
     bool			canHaveMultipleAttribs() const;
+    bool			canAddAttrib() const;
     int				nrAttribs() const;
     bool			addAttrib();
     bool			removeAttrib(int attrib);

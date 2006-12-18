@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: vismultiattribsurvobj.cc,v 1.2 2006-12-06 17:32:59 cvskris Exp $";
+static const char* rcsID = "$Id: vismultiattribsurvobj.cc,v 1.3 2006-12-18 22:43:22 cvskris Exp $";
 
 #include "vismultiattribsurvobj.h"
 
@@ -90,6 +90,15 @@ bool MultiTextureSurveyObject::canHaveMultipleAttribs() const
 
 int MultiTextureSurveyObject::nrAttribs() const
 { return as_.size(); }
+
+
+bool MultiTextureSurveyObject::canAddAttrib() const
+{
+    const int maxnr = texture_->maxNrTextures();
+    if ( !maxnr ) return true;
+
+    return nrAttribs()<maxnr;
+}
 
 
 bool MultiTextureSurveyObject::addAttrib()
