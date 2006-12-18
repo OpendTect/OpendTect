@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Jul 2003
- RCS:           $Id: visdepthtabplanedragger.cc,v 1.17 2006-08-16 10:51:20 cvsbert Exp $
+ RCS:           $Id: visdepthtabplanedragger.cc,v 1.18 2006-12-18 17:35:13 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,7 +29,7 @@ const char* DepthTabPlaneDragger::sizestr   = "Size.";
 const char* DepthTabPlaneDragger::centerstr = "Center.";
 
 DepthTabPlaneDragger::DepthTabPlaneDragger()
-    : VisualObjectImpl( true )
+    : VisualObjectImpl( false )
     , ownshape( 0 )
     , dragger( new SoDepthTabPlaneDragger )
     , rotation( 0 )
