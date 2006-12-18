@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/08/2000
- RCS:           $Id: uifileinput.cc,v 1.38 2006-12-05 15:20:29 cvsbert Exp $
+ RCS:           $Id: uifileinput.cc,v 1.39 2006-12-18 17:51:12 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,6 +27,7 @@ uiFileInput::uiFileInput( uiParent* p, const char* txt, const Setup& setup )
     , selmode_(uiFileDialog::AnyFile)
     , examinebut_(0)
     , addallexts_(setup.allowallextensions_)
+    , tablevw_(setup.examinetablestyle_)
 {
     setWithSelect( true );
     if ( setup.withexamine_ )
@@ -148,5 +149,10 @@ void uiFileInput::examineFile( CallBacker* )
     if ( excb_.willCall() )
 	excb_.doCall( this );
     else
-	ExecuteScriptCommand( "FileBrowser", fileName() );
+    {
+	BufferString cmd( "FileBrowser" );
+	if ( tablevw_ )
+	    cmd += " --table";
+	ExecuteScriptCommand( cmd, fileName() );
+    }
 }

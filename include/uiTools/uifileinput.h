@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          21/9/2000
- RCS:           $Id: uifileinput.h,v 1.22 2006-11-10 13:53:15 cvsbert Exp $
+ RCS:           $Id: uifileinput.h,v 1.23 2006-12-18 17:51:11 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "uigeninput.h"
 #include "uifiledlg.h"
 
-class uiFileBrowser;
 class uiPushButton;
 class BufferStringSet;
 
@@ -42,6 +41,7 @@ public:
 			    , filter_("")
 			    , forread_(true)
 			    , withexamine_(false)
+			    , examinetablestyle_(false)
 			    , directories_(false)
 			    , allowallextensions_(true)
 			    {}
@@ -49,6 +49,7 @@ public:
 	mDefSetupMemb(BufferString,filter)
 	mDefSetupMemb(bool,forread)
 	mDefSetupMemb(bool,withexamine)
+	mDefSetupMemb(bool,examinetablestyle)
 	mDefSetupMemb(bool,directories)
 	mDefSetupMemb(bool,allowallextensions)
 	
@@ -91,6 +92,7 @@ protected:
     BufferString	defseldir_;
     BufferString	selfltr_;
     bool		addallexts_;
+    bool		tablevw_;
     CallBack		excb_;
 
     bool		selmodset_;
