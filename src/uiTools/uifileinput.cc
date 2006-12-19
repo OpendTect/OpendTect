@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/08/2000
- RCS:           $Id: uifileinput.cc,v 1.39 2006-12-18 17:51:12 cvsbert Exp $
+ RCS:           $Id: uifileinput.cc,v 1.40 2006-12-19 18:18:31 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -152,7 +152,9 @@ void uiFileInput::examineFile( CallBacker* )
     {
 	BufferString cmd( "FileBrowser" );
 	if ( tablevw_ )
-	    cmd += " --table";
+	    cmd += " --table --maxlines 250";
+	else
+	    cmd += " --maxlines 5000";
 	ExecuteScriptCommand( cmd, fileName() );
     }
 }
