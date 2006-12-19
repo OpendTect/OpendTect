@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Jan 2003
- RCS:           $Id: od_FileBrowser.cc,v 1.8 2006-12-18 17:51:40 cvsbert Exp $
+ RCS:           $Id: od_FileBrowser.cc,v 1.9 2006-12-19 18:17:09 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,6 +24,7 @@ int main( int argc, char ** argv )
 {
     int argidx = 1;
     bool edit = false, table = false, dofork = true;
+    int maxlines = mUdf(int);
 
     while ( argc > argidx )
     {
@@ -31,12 +32,14 @@ int main( int argc, char ** argv )
 	    edit = true;
 	else if ( !strcmp(argv[argidx],"--table") )
 	    table = true;
+	else if ( !strcmp(argv[argidx],"--maxlines") )
+	    { argidx++; maxlines = atoi(argv[argidx]); }
 	else if ( !strcmp(argv[argidx],"--nofork") )
 	    dofork = false;
 	else if ( !strcmp(argv[argidx],"--help") )
 	{
 	    std::cerr << "Usage: " << argv[0]
-		      << " [--edit|--table] [filename]\n"
+		      << " [--edit|--table|--maxlines nrlines] [filename]\n"
 		      << "Note: filename must be with FULL path." << std::endl;
 	    ExitProgram( 0 );
 	}
@@ -69,7 +72,10 @@ int main( int argc, char ** argv )
 	fnm = const_cast<char*>(File_linkTarget(fnm));
 #endif
 
-    uiTextFileDlg* dlg = new uiTextFileDlg( 0, !edit, table, fnm );
+    uiTextFile::Setup tfsetup( !edit, table, fnm );
+    tfsetup.maxlines( maxlines );
+    uiTextFileDlg::Setup fdsetup( fnm );
+    uiTextFileDlg* dlg = new uiTextFileDlg( 0, tfsetup, fdsetup );
     app.setTopLevel( dlg );
     dlg->show();
     ExitProgram( app.exec() ); return 0;
