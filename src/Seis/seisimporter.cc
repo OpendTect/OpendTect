@@ -4,15 +4,21 @@
  * DATE     : Nov 2006
 -*/
 
-static const char* rcsID = "$Id: seisimporter.cc,v 1.7 2006-12-12 17:47:45 cvsbert Exp $";
+static const char* rcsID = "$Id: seisimporter.cc,v 1.8 2006-12-19 13:11:54 cvsbert Exp $";
 
 #include "seisimporter.h"
 #include "seisbuf.h"
 #include "seistrc.h"
+#include "seiscbvs.h"
 #include "seiswrite.h"
+#include "cbvsreadmgr.h"
+#include "iostrm.h"
+#include "conn.h"
 #include "survinfo.h"
 #include "binidsorting.h"
 #include "ptrman.h"
+#include "filegen.h"
+#include "filepath.h"
 #include "errh.h"
 
 
@@ -118,12 +124,8 @@ int SeisImporter::nextStep()
 	    return sortingOk(trc_) ? doWrite(trc_) : Executor::ErrorOccurred;
 
 	postproc_ = mkPostProc();
-	if ( !postproc_ && needInlCrlSwap() )
-	{
-	    errmsg_ = "Your data was loaded with swapped inline/crossline\n"
-		      "Please use the batch program 'cbvs_swap_inlcrl' now\n";
+	if ( !errmsg_.isEmpty() )
 	    return Executor::ErrorOccurred;
-	}
 	return postproc_ ? Executor::MoreToDo : Executor::Finished;
     }
 
@@ -244,12 +246,147 @@ bool SeisImporter::sortingOk( const SeisTrc& trc )
 }
 
 
+class SeisInlCrlSwapper : public Executor
+{
+public:
+
+SeisInlCrlSwapper( const char* inpfnm, IOObj* out, int nrtrcs )
+    : Executor( "Swapping In/X-line" )
+    , tri_(CBVSSeisTrcTranslator::getInstance())
+    , targetfnm_(inpfnm)
+    , wrr_(0)
+    , out_(out)
+    , nrdone_(0)
+    , totnr_(nrtrcs)
+{
+    if ( !tri_->initRead(new StreamConn(inpfnm,Conn::Read)) )
+	{ errmsg_ = tri_->errMsg(); return; }
+    geom_ = &tri_->readMgr()->info().geom;
+    linenr_ = geom_->start.crl;
+    trcnr_ = geom_->start.inl - geom_->step.inl;
+
+    wrr_ = new SeisTrcWriter( out_ );
+    if ( *wrr_->errMsg() )
+	{ errmsg_ = wrr_->errMsg(); return; }
+
+    nrdone_++;
+}
+
+~SeisInlCrlSwapper()
+{
+    delete tri_;
+    delete wrr_;
+    delete out_;
+}
+
+const char* message() const
+{
+    return errmsg_.isEmpty() ? "Re-sorting traces" : ((const char*)errmsg_);
+}
+const char* nrDoneText() const	{ return "Traces handled"; }
+int nrDone() const		{ return nrdone_; }
+int totalNr() const		{ return totnr_; }
+
+int nextStep()
+{
+    if ( !errmsg_.isEmpty() )
+	return Executor::ErrorOccurred;
+
+    trcnr_ += geom_->step.inl;
+    if ( trcnr_ > geom_->stop.inl )
+    {
+	linenr_ += geom_->step.crl;
+	if ( linenr_ > geom_->stop.crl )
+	    return doFinal();
+    }
+
+    if ( tri_->goTo(BinID(trcnr_,linenr_)) )
+    {
+	if ( !tri_->read(trc_) )
+	{
+	    errmsg_ = "Cannot read ";
+	    errmsg_ += linenr_; errmsg_ += "/"; errmsg_ += trcnr_;
+	    errmsg_ += ":\n"; errmsg_ += tri_->errMsg();
+	    return Executor::ErrorOccurred;
+	}
+
+	Swap( trc_.info().binid.inl, trc_.info().binid.crl );
+	trc_.info().coord = SI().transform( trc_.info().binid );
+
+	if ( !wrr_->put(trc_) )
+	{
+	    errmsg_ = "Cannot write ";
+	    errmsg_ += linenr_; errmsg_ += "/"; errmsg_ += trcnr_;
+	    errmsg_ += ":\n"; errmsg_ += wrr_->errMsg();
+	    return Executor::ErrorOccurred;
+	}
+	nrdone_++;
+    }
+    return Executor::MoreToDo;
+}
+
+int doFinal()
+{
+    delete wrr_; wrr_ = 0;
+    const BufferString tmpfnm( out_->fullUserExpr(false) );
+
+    if ( nrdone_ < 1 )
+    {
+	errmsg_ = "No traces written during re-sorting.\n";
+	errmsg_ += "The imported cube remains to have swapped in/crosslines";
+	File_remove( tmpfnm, NO );
+	return Executor::ErrorOccurred;
+    }
+
+    if ( !File_remove(targetfnm_,NO) || !File_rename(tmpfnm,targetfnm_) )
+    {
+	errmsg_ = "Cannot rename the swapped in/crossline cube";
+	errmsg_ += "Please rename (by hand):\n";
+	errmsg_ += tmpfnm; errmsg_ += "\nto:"; errmsg_ += targetfnm_;
+	return Executor::ErrorOccurred;
+    }
+
+    return Executor::Finished;
+}
+
+    BufferString		targetfnm_;
+    CBVSSeisTrcTranslator*	tri_;
+    SeisTrcWriter*		wrr_;
+    const CBVSInfo::SurvGeom*	geom_;
+    IOObj*			out_;
+    SeisTrc			trc_;
+
+    BufferString		errmsg_;
+    int				nrdone_;
+    int				totnr_;
+    int				linenr_;
+    int				trcnr_;
+
+};
+
+
 Executor* SeisImporter::mkPostProc()
 {
+    errmsg_ = "";
     if ( needInlCrlSwap() )
     {
-	pErrMsg( "TODO: inl/crl re-sorting Executor needed" );
-	return 0;
+	const IOObj* targetioobj = wrr_.ioObj();
+	mDynamicCastGet(const IOStream*,targetiostrm,targetioobj)
+	if ( !targetiostrm )
+	{
+	    errmsg_ = "Your data was loaded with swapped inline/crossline\n"
+		      "Please use the batch program 'cbvs_swap_inlcrl' now\n";
+	    return 0;
+	}
+
+	FilePath fp( targetiostrm->getExpandedName(false) );
+	const BufferString targetfnm( fp.fullPath() );
+	FilePath fptemp( FilePath::getTempName("cbvs") );
+	fp.setFileName( fptemp.fileName() );
+	const BufferString tmpfnm( fp.fullPath() );
+	IOStream* tmpiostrm = (IOStream*)targetiostrm->clone();
+	tmpiostrm->setFileName( tmpfnm );
+	return new SeisInlCrlSwapper( targetfnm, tmpiostrm, nrwritten_ );
     }
     return 0;
 }
