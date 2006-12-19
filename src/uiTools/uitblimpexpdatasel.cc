@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2006
- RCS:           $Id: uitblimpexpdatasel.cc,v 1.10 2006-12-14 18:34:37 cvsbert Exp $
+ RCS:           $Id: uitblimpexpdatasel.cc,v 1.11 2006-12-19 18:19:15 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,6 +14,11 @@ ________________________________________________________________________
 #include "uispinbox.h"
 #include "uigeninput.h"
 #include "uilabel.h"
+#include "uibutton.h"
+#include "uiseparator.h"
+#include "uibuttongroup.h"
+#include "uimsg.h"
+#include "pixmap.h"
 #include "tabledef.h"
 
 
@@ -256,7 +261,8 @@ uiTableImpDataSel::uiTableImpDataSel( uiParent* p, Table::FormatDesc& fd )
 	, fd_(fd)
 	, errmsg_(0)
 {
-    uiGroup* hfldsgrp = mkElemFlds( fd_.headerinfos_, hdrelems_, true );
+    uiGroup* leftgrp = new uiGroup( this, "Left group" );
+    uiGroup* hfldsgrp = mkElemFlds( leftgrp, fd_.headerinfos_, hdrelems_, true);
 
     int maxhdrline = 0;
     for ( int idx=0; idx<fd_.headerinfos_.size(); idx++ )
@@ -273,20 +279,36 @@ uiTableImpDataSel::uiTableImpDataSel( uiParent* p, Table::FormatDesc& fd )
     BufferString valstr( fd_.token_ );
     if ( valstr.isEmpty() ) valstr = "0";
     if ( fd_.nrhdrlines_ > 0 ) valstr = fd_.nrhdrlines_;
-    hdrendfld = new uiGenInput( this, "Header stops after (nr lines, or token)",
-				valstr );
+    hdrendfld = new uiGenInput( leftgrp,
+		    "Header stops after (nr lines, or token)", valstr );
     if ( hfldsgrp )
 	hdrendfld->attach( alignedBelow, hfldsgrp );
 
-    uiGroup* bfldsgrp = mkElemFlds( fd_.bodyinfos_, bodyelems_, false );
+    uiGroup* bfldsgrp = mkElemFlds( leftgrp, fd_.bodyinfos_, bodyelems_, false);
     if ( bfldsgrp )
 	bfldsgrp->attach( alignedBelow, hdrendfld );
 
     setHAlignObj( hdrendfld );
+
+    uiSeparator* sep = new uiSeparator( this, "V sep", false );
+    sep->attach( stretchedRightTo, leftgrp );
+
+    uiButtonGroup* bgrp = new uiButtonGroup( this, "Formats" );
+    uiToolButton* button = new uiToolButton( bgrp, "Open button",
+	    			ioPixmap("openset.png"),
+				mCB(this,uiTableImpDataSel,openFmt) );
+    button->setToolTip( "Open existing format" );
+    button = new uiToolButton( bgrp, "Save button",
+	    			ioPixmap("saveset.png"),
+				mCB(this,uiTableImpDataSel,saveFmt) );
+    button->setToolTip( "Save format" );
+    bgrp->attach( rightTo, leftgrp );
+    bgrp->attach( ensureRightOf, sep );
 }
 
 
-uiGroup* uiTableImpDataSel::mkElemFlds( ObjectSet<Table::TargetInfo>& infos,
+uiGroup* uiTableImpDataSel::mkElemFlds( uiGroup* par,
+					ObjectSet<Table::TargetInfo>& infos,
 					ObjectSet<uiTableImpDataSelElem>& elms,
 					bool ishdr )
 {
@@ -294,7 +316,7 @@ uiGroup* uiTableImpDataSel::mkElemFlds( ObjectSet<Table::TargetInfo>& infos,
 	return 0;
 
     uiTableImpDataSelElem::initDefs();
-    uiGroup* grp = new uiGroup( this, ishdr ? "Header fields" : "Body fields" );
+    uiGroup* grp = new uiGroup( par, ishdr ? "Header fields" : "Body fields" );
     for ( int idx=0; idx<infos.size(); idx++ )
     {
 	Table::TargetInfo& tinf = *infos[idx];
@@ -336,4 +358,18 @@ bool uiTableImpDataSel::commit()
     }
 
     return true;
+}
+
+
+void uiTableImpDataSel::openFmt( CallBacker* )
+{
+    uiMSG().error( "The ability to retrieve pre- or user-defined formats\n"
+	           "is under construction" );
+}
+
+
+void uiTableImpDataSel::saveFmt( CallBacker* )
+{
+    uiMSG().error( "The ability to save or user-defined formats\n"
+	           "is under construction" );
 }
