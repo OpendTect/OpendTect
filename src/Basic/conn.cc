@@ -5,7 +5,7 @@
  * FUNCTION : Connections
 -*/
 
-static const char* rcsID = "$Id: conn.cc,v 1.23 2006-09-14 09:57:08 cvsbert Exp $";
+static const char* rcsID = "$Id: conn.cc,v 1.24 2006-12-19 18:17:45 cvsbert Exp $";
 
 #include "errh.h"
 #include "strmprov.h"
@@ -115,8 +115,11 @@ void ErrMsg( const char* msg, bool progr )
     {
 	if ( progr )
 	    std::cerr << "(PE) " << msg << std::endl;
-	else
-	    logMsgStrm() << "Err: " << msg << std::endl;
+	else if ( msg && *msg )
+	{
+	    const char* start = *msg == '[' ? "" : "Err: ";
+	    logMsgStrm() << start << msg << std::endl;
+	}
     }
     else
     {
