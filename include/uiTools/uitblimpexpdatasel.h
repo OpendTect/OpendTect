@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2006
- RCS:           $Id: uitblimpexpdatasel.h,v 1.2 2006-12-14 18:34:37 cvsbert Exp $
+ RCS:           $Id: uitblimpexpdatasel.h,v 1.3 2006-12-19 18:19:35 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,9 +45,12 @@ protected:
     ObjectSet<uiTableImpDataSelElem> bodyelems_;
     const char*			errmsg_;
 
-    uiGroup*			mkElemFlds(ObjectSet<Table::TargetInfo>&,
+    uiGroup*			mkElemFlds(uiGroup*,
+	    				   ObjectSet<Table::TargetInfo>&,
 	    				   ObjectSet<uiTableImpDataSelElem>&,
 					   bool);
+    void			openFmt(CallBacker*);
+    void			saveFmt(CallBacker*);
 
 };
 
