@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl (org) / Bert Bril (rev)
  Date:          10-12-1999 / Sep 2006
- RCS:           $Id: statruncalc.h,v 1.7 2006-11-21 14:00:06 cvsbert Exp $
+ RCS:           $Id: statruncalc.h,v 1.8 2006-12-19 16:58:41 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -183,7 +183,7 @@ public:
 
 #   undef		mDefEqFn
 #   define		mDefEqFn(ret,fn) \
-    inline ret		fn() const	{ return calc_.fn(); }
+    inline ret		fn() const		{ return calc_.fn(); }
     mDefEqFn(double,	mean)
     mDefEqFn(double,	variance)
     mDefEqFn(double,	normvariance)
@@ -193,7 +193,7 @@ public:
     mDefEqFn(double,	rms)
     mDefEqFn(double,	stdDev)
 #   undef		mDefEqFn
-    inline T		median( int* i=0 )	{ return calc_.median(i); }
+    inline T		median( int* i=0 ) const { return calc_.median(i); }
     inline T		min(int* i=0) const;
     inline T		max(int* i=0) const;
 
@@ -362,19 +362,24 @@ template <class T> inline
 RunCalc<T>& RunCalc<T>::replaceValue( T oldval, T newval, T wt )
 {
     remExceptMed( oldval, wt );
-    if ( !addExceptMed( newval, wt ) || !setup_.needmed_ || vals_.isEmpty() )
+    addExceptMed( newval, wt );
+    if ( !setup_.needmed_ || vals_.isEmpty() )
 	return *this;
 
     int iwt = 1;
     if ( setup_.weighted_ )
 	Conv::set( iwt, wt );
 
+    const bool newisudf = mIsUdf(newval);
     for ( int idx=0; idx<iwt; idx++ )
     {
 	if ( !findMedIdx(oldval) )
 	    break;
 
-	vals_[curmedidx_] = newval;
+	if ( newisudf )
+	    vals_.remove( curmedidx_ );
+	else
+	    vals_[curmedidx_] = newval;
 	curmedidx_++;
     }
 
@@ -385,7 +390,8 @@ RunCalc<T>& RunCalc<T>::replaceValue( T oldval, T newval, T wt )
 template <class T> inline
 RunCalc<T>& RunCalc<T>::removeValue( T val, T wt )
 {
-    if ( !remExceptMed(val,wt) || !setup_.needmed_ || vals_.isEmpty() )
+    remExceptMed( val, wt );
+    if ( !setup_.needmed_ || vals_.isEmpty() )
 	return *this;
 
     int iwt = 1;
