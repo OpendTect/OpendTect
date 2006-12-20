@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvinfoed.cc,v 1.80 2006-12-20 11:23:01 cvshelene Exp $
+ RCS:           $Id: uisurvinfoed.cc,v 1.81 2006-12-20 13:40:41 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -682,9 +682,9 @@ bool uiSurveyInfoEditor::setCoords()
 bool uiSurveyInfoEditor::setRelation()
 {
     RCol2Coord::RCTransform xtr, ytr;
-    xtr.a = x0fld->getValue();   ytr.a = y0fld->getValue();
-    xtr.b = xinlfld->getValue(); ytr.b = yinlfld->getValue();
-    xtr.c = xcrlfld->getValue(); ytr.c = ycrlfld->getValue();
+    xtr.a = x0fld->getdValue();   ytr.a = y0fld->getdValue();
+    xtr.b = xinlfld->getdValue(); ytr.b = yinlfld->getdValue();
+    xtr.c = xcrlfld->getdValue(); ytr.c = ycrlfld->getdValue();
     if ( !xtr.valid(ytr) )
     {
         uiMSG().error( "The transformation is not valid." );

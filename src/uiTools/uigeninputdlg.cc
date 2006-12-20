@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2002
- RCS:           $Id: uigeninputdlg.cc,v 1.7 2006-08-03 15:07:36 cvskris Exp $
+ RCS:           $Id: uigeninputdlg.cc,v 1.8 2006-12-20 13:40:41 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -78,8 +78,8 @@ int uiGenInputGrp::getIntValue( int idx )
 { return flds[idx]->getIntValue( 0 ); }
 float uiGenInputGrp::getfValue( int idx )
 { return flds[idx]->getfValue( 0 ); }
-double uiGenInputGrp::getValue( int idx )
-{ return flds[idx]->getValue( 0 ); }
+double uiGenInputGrp::getdValue( int idx )
+{ return flds[idx]->getdValue( 0 ); }
 bool uiGenInputGrp::getBoolValue( int idx )
 { return flds[idx]->getBoolValue( 0 ); }
 
@@ -138,8 +138,8 @@ int uiGenInputDlg::getIntValue( int idx )
 { return group->getIntValue( idx ); }
 float uiGenInputDlg::getfValue( int idx )
 { return group->getfValue( idx ); }
-double uiGenInputDlg::getValue( int idx )
-{ return group->getValue( idx ); }
+double uiGenInputDlg::getdValue( int idx )
+{ return group->getdValue( idx ); }
 bool uiGenInputDlg::getBoolValue( int idx )
 { return group->getBoolValue( idx ); }
 

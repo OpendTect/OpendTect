@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2002
- RCS:           $Id: uigeninputdlg.h,v 1.6 2006-08-03 15:07:35 cvskris Exp $
+ RCS:           $Id: uigeninputdlg.h,v 1.7 2006-12-20 13:40:41 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,7 +50,7 @@ public:
     const char*		text(int i=0);
     int			getIntValue(int i=0);
     float		getfValue(int i=0);
-    double		getValue(int i=0);
+    double		getdValue(int i=0);
     bool		getBoolValue(int i=0);
 
     int			nrFlds() const		{ return flds.size(); }
@@ -92,7 +92,7 @@ public:
     const char*		text(int i=0);
     int			getIntValue(int i=0);
     float		getfValue(int i=0);
-    double		getValue(int i=0);
+    double		getdValue(int i=0);
     bool		getBoolValue(int i=0);
 
     int			nrFlds() const;

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2001
- RCS:           $Id: uislider.cc,v 1.25 2006-11-21 14:00:07 cvsbert Exp $
+ RCS:           $Id: uislider.cc,v 1.26 2006-12-20 13:40:41 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -267,7 +267,7 @@ void uiSliderExtra::sliderMove( CallBacker* )
 void uiSliderExtra::processInput()
 {
     if ( editfld )
-	slider->setValue( editfld->getValue() );
+	slider->setValue( editfld->getfValue() );
 }
 
 

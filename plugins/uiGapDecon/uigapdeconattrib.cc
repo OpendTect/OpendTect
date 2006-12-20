@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          July  2006
- RCS:           $Id: uigapdeconattrib.cc,v 1.20 2006-12-20 11:23:00 cvshelene Exp $
+ RCS:           $Id: uigapdeconattrib.cc,v 1.21 2006-12-20 13:40:41 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -542,7 +542,7 @@ uiGDPositionDlg::~uiGDPositionDlg()
 void uiGDPositionDlg::popUpPosDlg()
 {
     CallBack dummycb;
-    bool isinl = inlcrlfld_->getValue();
+    bool isinl = inlcrlfld_->getBoolValue();
     CubeSampling inputcs = cs_;
     if ( isinl )
     {

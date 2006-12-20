@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uiconvpos.cc,v 1.17 2006-07-11 08:22:41 cvsbert Exp $
+ RCS:           $Id: uiconvpos.cc,v 1.18 2006-12-20 13:40:41 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -62,7 +62,7 @@ void uiConvertPos::getCoord()
 
 void uiConvertPos::getBinID()
 {
-    Coord coord( xfld->getValue(), yfld->getValue() );
+    Coord coord( xfld->getValue(), yfld->getdValue() ); // just to test
     BinID binid( survinfo->transform( coord ) );
     inlfld->setValue( binid.inl );
     crlfld->setValue( binid.crl );

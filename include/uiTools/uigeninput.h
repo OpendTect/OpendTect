@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Oct 2000
- RCS:           $Id: uigeninput.h,v 1.32 2006-03-01 13:45:46 cvsbert Exp $
+ RCS:           $Id: uigeninput.h,v 1.33 2006-12-20 13:40:41 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uigroup.h"
 #include "datainpspec.h"
 #include "position.h"
+#include "errh.h"
 
 class uiLineEdit;
 class uiLabel;
@@ -109,9 +110,13 @@ Returns true, if changes are accepted.
     int			getIntValue( mGetArgs(int) ) const;
     bool		getBoolValue( mGetArgs(bool) ) const;
 
-    double		getValue( mGetArgs(double) ) const;
-    double		getValue( double undefVal ) const
-			    { return getValue(0,undefVal) ; }
+    double		getdValue( mGetArgs(double) ) const;
+    double		getdValue( double undefVal ) const
+			    { return getdValue(0,undefVal) ; }
+
+    double		getValue( mGetArgs(double) ) const
+			{ pErrMsg("will go in 3.0. Use getdValue.");
+			    return getdValue(nr,undefVal); }
 
     float		getfValue( mGetArgs(float) ) const;
     float		getfValue( float undefVal ) const
@@ -128,8 +133,8 @@ Returns true, if changes are accepted.
 			{ return getFInterval(0,undefVal); }
 
     inline Interval<double> getDInterval( mGetArgs(double) ) const
-			{ return Interval<double>( getValue(nr*2,undefVal),
-						   getValue(nr*2+1,undefVal) );}
+			{ return Interval<double>(getdValue(nr*2,undefVal),
+						  getdValue(nr*2+1,undefVal) );}
     inline Interval<double> getDInterval( double undefVal ) const
 			{ return getDInterval(0,undefVal); }
 
@@ -147,16 +152,15 @@ Returns true, if changes are accepted.
 			{ return getFStepInterval(0,undefVal); }
 
     inline StepInterval<double> getDStepInterval( mGetArgs(double) ) const
-			{ return StepInterval<double>(getValue(nr*3,undefVal),
-						      getValue(nr*3+1,undefVal),
-						      getValue(nr*3+2,undefVal)
-						     ); }
+			{ return StepInterval<double>(getdValue(nr*3,undefVal),
+						 getdValue(nr*3+1,undefVal),
+						 getdValue(nr*3+2,undefVal) ); }
     inline StepInterval<double> getDStepInterval( double undefVal ) const
 			{ return getDStepInterval(0,undefVal); }
 
     inline Coord	getCoord( mGetArgs(double) ) const
-			{ return Coord( getValue(nr*2,undefVal),
-					getValue(nr*2+1,undefVal)); }
+			{ return Coord( getdValue(nr*2,undefVal),
+					getdValue(nr*2+1,undefVal)); }
     inline Coord	getCoord( double undefVal ) const
 			{ return getCoord(0,undefVal); }
 

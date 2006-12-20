@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Oct 2004
- RCS:		$Id: ui2dsip.cc,v 1.4 2006-03-12 13:39:11 cvsbert Exp $
+ RCS:		$Id: ui2dsip.cc,v 1.5 2006-12-20 13:40:41 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -56,9 +56,9 @@ bool ui2DSurvInfoProvider::getInfo( uiDialog* din, CubeSampling& cs,
     mDynamicCastGet(ui2DDefSurvInfoDlg*,dlg,din)
     if ( !dlg ) { pErrMsg("Huh?"); return false; }
 
-    double tdist = dlg->trcdistfld->getValue();
-    Coord c0( dlg->xrgfld->getValue(0), dlg->yrgfld->getValue(0) );
-    Coord c1( dlg->xrgfld->getValue(1), dlg->yrgfld->getValue(1) );
+    double tdist = dlg->trcdistfld->getdValue();
+    Coord c0( dlg->xrgfld->getdValue(0), dlg->yrgfld->getdValue(0) );
+    Coord c1( dlg->xrgfld->getdValue(1), dlg->yrgfld->getdValue(1) );
     if ( tdist < 0 ) tdist = -tdist;
     if ( c0.x > c1.x ) Swap( c0.x, c1.x );
     if ( c0.y > c1.y ) Swap( c0.y, c1.y );

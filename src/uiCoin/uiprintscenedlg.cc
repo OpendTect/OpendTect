@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          October 2002
- RCS:           $Id: uiprintscenedlg.cc,v 1.31 2006-11-21 14:00:07 cvsbert Exp $
+ RCS:           $Id: uiprintscenedlg.cc,v 1.32 2006-12-20 13:40:41 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -226,7 +226,7 @@ void uiPrintSceneDlg::sceneSel( CallBacker* )
     const SbVec2s& winsz = vwr->getViewportSizePixels();
     aspectratio_ = (float)winsz[0] / winsz[1];
     sizepix_.setValue( winsz[0], winsz[1] );
-    sPixels2Inch( sizepix_, sizeinch_, dpifld_->getValue() );
+    sPixels2Inch( sizepix_, sizeinch_, dpifld_->getfValue() );
     sInch2Cm( sizeinch_, sizecm_ );
     unitChg(0);
 }
@@ -304,18 +304,18 @@ void uiPrintSceneDlg::updateSizes()
     {
 	sizecm_.setValue( width, height );
 	sCm2Inch( sizecm_, sizeinch_ );
-	sInch2Pixels( sizeinch_, sizepix_, dpifld_->getValue() );
+	sInch2Pixels( sizeinch_, sizepix_, dpifld_->getfValue() );
     }
     else if ( sel == 1 )
     {
 	sizeinch_.setValue( width, height );
 	sInch2Cm( sizeinch_, sizecm_ );
-	sInch2Pixels( sizeinch_, sizepix_, dpifld_->getValue() );
+	sInch2Pixels( sizeinch_, sizepix_, dpifld_->getfValue() );
     }
     else
     {
 	sizepix_.setValue( width, height );
-	sPixels2Inch( sizepix_, sizeinch_, dpifld_->getValue() );
+	sPixels2Inch( sizepix_, sizeinch_, dpifld_->getfValue() );
 	sInch2Cm( sizeinch_, sizecm_ );
     }
 }

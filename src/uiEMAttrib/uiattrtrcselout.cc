@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          September 2005
- RCS:           $Id: uiattrtrcselout.cc,v 1.17 2006-07-27 14:42:57 cvshelene Exp $
+ RCS:           $Id: uiattrtrcselout.cc,v 1.18 2006-12-20 13:40:41 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -408,8 +408,8 @@ bool uiAttrTrcSelOut::fillPar( IOPar& iopar )
 	zinterval = gatefld_->getFInterval();
     else
     {
-	zinterval.start = extraztopfld_->getValue();
-	zinterval.stop = extrazbotfld_->getValue();
+	zinterval.start = extraztopfld_->getfValue();
+	zinterval.stop = extrazbotfld_->getfValue();
     }
     
     BufferString gatestr = zinterval.start; gatestr += "`";

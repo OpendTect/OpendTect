@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/2/2002
- RCS:           $Id: userinputobj.h,v 1.12 2006-08-21 17:14:44 cvsbert Exp $
+ RCS:           $Id: userinputobj.h,v 1.13 2006-12-20 13:40:41 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,7 +30,7 @@ public:
 
     virtual const char* text() const			= 0;
     virtual int         getIntValue()  const		= 0;
-    virtual double      getValue()     const		= 0;
+    virtual double      getdValue()     const		= 0;
     virtual float       getfValue()    const		= 0;
     virtual bool        getBoolValue() const		= 0;
 
@@ -92,7 +92,7 @@ public:
 			{ return Conv::to<const char*>( getvalue_() ); }
     virtual int		getIntValue() const
 			    { return Conv::to<int>( getvalue_() ); }
-    virtual double	getValue() const
+    virtual double	getdValue() const
 			    { return Conv::to<double>( getvalue_() );}
     virtual float	getfValue() const
 			    { return Conv::to<float>( getvalue_() ); }

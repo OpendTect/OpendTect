@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uigeninput.cc,v 1.76 2006-11-21 14:00:08 cvsbert Exp $
+ RCS:           $Id: uigeninput.cc,v 1.77 2006-12-20 13:40:41 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -90,7 +90,7 @@ public:
 			}
     			mImplGetFn(int,getIntValue)
     			mImplGetFn(float,getfValue)
-    			mImplGetFn(double,getValue)
+    			mImplGetFn(double,getdValue)
     			mImplGetFn(bool,getBoolValue)
 
     template <class T>
@@ -941,7 +941,7 @@ bool uiGenInput::isUndef( int nr ) const
 #define gs_type int
 #include "fromlegs.h"
 
-#define g_func	getValue
+#define g_func	getdValue
 #define s_func	setValue
 #define gs_type double
 #include "fromlegs.h"

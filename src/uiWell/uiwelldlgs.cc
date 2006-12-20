@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          October 2003
- RCS:           $Id: uiwelldlgs.cc,v 1.48 2006-11-30 12:39:34 cvsbert Exp $
+ RCS:           $Id: uiwelldlgs.cc,v 1.49 2006-12-20 13:40:41 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -437,7 +437,7 @@ bool uiLoadLogsDlg::acceptOK( CallBacker* )
     Well::AscImporter wdai( wd );
     Well::AscImporter::LasFileInfo lfi;
 
-    lfi.undefval = udffld->getValue();
+    lfi.undefval = udffld->getfValue();
     assign( lfi.zrg, intvfld->getFInterval() );
     const bool zinft = !intvunfld->getBoolValue();
     if ( zinft )

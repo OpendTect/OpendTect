@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/02/2001
- RCS:           $Id: datainpspec.h,v 1.62 2006-04-11 10:16:17 cvshelene Exp $
+ RCS:           $Id: datainpspec.h,v 1.63 2006-12-20 13:40:41 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -103,7 +103,7 @@ public:
     			/*!\Sets the _values_ (with setText()) */
 
     virtual int		getIntValue( int idx=0 ) const;
-    virtual double	getValue( int idx=0 ) const;
+    virtual double	getdValue( int idx=0 ) const;
     virtual float	getfValue( int idx=0 ) const;
     virtual bool	getBoolValue( int idx=0 ) const;
 
@@ -169,7 +169,7 @@ public:
 			    { return getFromString( value_, s ); }
 
     virtual int		getIntValue(int idx=0) const { return (int)value(); }
-    virtual double	getValue(int idx=0) const    { return value(); }
+    virtual double	getdValue(int idx=0) const    { return value(); }
     virtual float	getfValue(int idx=0) const   { return value(); }
 
     virtual int		getDefaultIntValue(int idx=0) const
@@ -334,7 +334,7 @@ public:
 			}
 
     virtual int		getIntValue(int idx=0) const { return (int)value(idx); }
-    virtual double	getValue(int idx=0) const    { return value(idx); }
+    virtual double	getdValue(int idx=0) const    { return value(idx); }
     virtual float	getfValue(int idx=0) const   { return value(idx); }
 
     T			defaultValue( int idx=0 ) const
@@ -591,7 +591,7 @@ public:
     virtual bool	setText( const char* s, int nr );
 
     virtual int		getIntValue( int idx=0 ) const;
-    virtual double	getValue( int idx=0 ) const;
+    virtual double	getdValue( int idx=0 ) const;
     virtual float	getfValue( int idx=0 ) const;
 
     virtual void	setValue( int i, int idx=0 );

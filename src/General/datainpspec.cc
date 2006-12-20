@@ -4,7 +4,7 @@
  * DATE     : 12-1-2004
 -*/
 
-static const char* rcsID = "$Id: datainpspec.cc,v 1.19 2006-11-21 14:00:07 cvsbert Exp $";
+static const char* rcsID = "$Id: datainpspec.cc,v 1.20 2006-12-20 13:40:41 cvsbert Exp $";
 
 #include "datainpspec.h"
 #include "iopar.h"
@@ -83,7 +83,7 @@ int DataInpSpec::getIntValue( int idx ) const
 }
 
 
-double DataInpSpec::getValue( int idx ) const
+double DataInpSpec::getdValue( int idx ) const
 {
     double res;
     const char* valstr = text(idx);
@@ -356,7 +356,7 @@ int StringListInpSpec::getIntValue( int idx ) const
 { return cur_; }
 
 
-double StringListInpSpec::getValue( int idx ) const
+double StringListInpSpec::getdValue( int idx ) const
 { return cur_; }
 
 

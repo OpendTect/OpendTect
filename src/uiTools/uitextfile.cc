@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:           $Id: uitextfile.cc,v 1.3 2006-12-19 18:19:15 cvsbert Exp $
+ RCS:           $Id: uitextfile.cc,v 1.4 2006-12-20 13:40:41 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -95,7 +95,7 @@ const char* putRow( const BufferStringSet& bss )
 	rc.r()++; rc.c() = 0;
 	tbl_->insertRows( rc.r(), 1 );
 	tbl_->setText( rc, "[...]" );
-	return "[info] stopped at maximum row limit";
+	return "";
     }
     return 0;
 }
@@ -103,6 +103,7 @@ const char* putRow( const BufferStringSet& bss )
     uiTable*	tbl_;
     int		maxlines_;
     int		nrlines_;
+    BufferString msg_;
 
 };
 
