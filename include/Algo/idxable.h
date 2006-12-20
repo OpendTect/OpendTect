@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert & Kris
  Date:		Mar 2006
- RCS:		$Id: idxable.h,v 1.6 2006-07-26 07:21:51 cvsbert Exp $
+ RCS:		$Id: idxable.h,v 1.7 2006-12-20 17:40:58 cvskris Exp $
 ________________________________________________________________________
 
 */
@@ -216,17 +216,21 @@ inline float interpolatePositioned( const X& x, const Y& y, int sz, float pos,
 }
 
 
+/*!If pos is large, it will loose it's precision. Therefore the target
+position in the array is pos+offset. */
+
 template <class T>
-inline int getInterpolateIdxs( const T& idxabl, int sz, float pos, bool extrap,
-			       float snapdist, int p[4] )
+inline int getInterpolateIdxsWithOff( const T& idxabl, int64 sz, int64 offset,
+	float pos, bool extrap, float snapdist, int64 p[4] )
 {
     if ( sz < 1
-      || (!extrap && (pos < -snapdist || pos > sz - 1 + snapdist)) )
+      || (!extrap && (pos<-snapdist || (pos+offset)>sz-1+snapdist)) )
 	return -1;
 
-    const int intpos = mNINT( pos );
+    int64 intpos = mNINT( pos );
     const float dist = pos - intpos;
-    if( dist > -snapdist && dist < snapdist && intpos > -1 && intpos < sz ) 
+    intpos += offset;
+    if ( dist>-snapdist && dist<snapdist && intpos>-1 && intpos<sz ) 
 	{ p[0] = intpos; return 0; }
 
     p[1] = dist > 0 ? intpos : intpos - 1;
@@ -239,11 +243,19 @@ inline int getInterpolateIdxs( const T& idxabl, int sz, float pos, bool extrap,
 }
 
 
+template <class T>
+inline int getInterpolateIdxs( const T& idxabl, int sz, float pos, bool extrap,
+			       float snapdist, int64 p[4] )
+{
+    return getInterpolateIdxsWithOff<T>(idxabl,sz,0,pos,extrap,snapdist,p);
+}
+
+
 template <class T,class RT>
 inline bool interpolateReg( const T& idxabl, int sz, float pos, RT& ret,
 			    bool extrapolate=false, float snapdist=mDefEps )
 {
-    int p[4];
+    int64 p[4];
     int res = getInterpolateIdxs( idxabl, sz, pos, extrapolate, snapdist, p );
     if ( res < 0 )
 	{ ret = mUdf(RT); return false; }
@@ -257,12 +269,17 @@ inline bool interpolateReg( const T& idxabl, int sz, float pos, RT& ret,
 }
 
 
+/*!If pos is large, it will loose it's precision. Therefore the target
+position in the array is pos+offset. */
+
 template <class T,class RT>
-inline bool interpolateRegWithUdf( const T& idxabl, int sz, float pos, RT& ret,
-			    bool extrapolate=false, float snapdist=mDefEps )
+inline bool interpolateRegWithUdfWithOff( const T& idxabl, int64 sz,
+	int64 offset, float pos, RT& ret, bool extrapolate=false,
+	float snapdist=mDefEps )
 {
-    int p[4];
-    int res = getInterpolateIdxs( idxabl, sz, pos, extrapolate, snapdist, p );
+    int64 p[4];
+    int res = getInterpolateIdxsWithOff<T>( idxabl, sz, offset, pos,
+	    				    extrapolate, snapdist, p );
     if ( res < 0 )
 	{ ret = mUdf(RT); return false; }
     else if ( res == 0 )
@@ -272,6 +289,15 @@ inline bool interpolateRegWithUdf( const T& idxabl, int sz, float pos, RT& ret,
     ret = Interpolate::polyReg1DWithUdf( idxabl[p[0]], idxabl[p[1]],
 	    				 idxabl[p[2]], idxabl[p[3]], relpos );
     return true;
+}
+
+
+template <class T,class RT>
+inline bool interpolateRegWithUdf( const T& idxabl, int sz, float pos, RT& ret,
+			    bool extrapolate=false, float snapdist=mDefEps )
+{
+    return interpolateRegWithUdfWithOff<T,RT>( idxabl, sz, 0, pos, ret,
+						extrapolate, snapdist );
 }
 
 
