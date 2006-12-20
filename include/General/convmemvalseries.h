@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kris Tingdahl
  Date:          Oct 2006
- RCS:           $Id: convmemvalseries.h,v 1.2 2006-11-14 12:38:21 cvskris Exp $
+ RCS:           $Id: convmemvalseries.h,v 1.3 2006-12-20 17:28:46 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "valseries.h"
 #include "datainterp.h"
 #include "bindatadesc.h"
+#include "undefarray.h"
 
 
 /*!ValueSeries that holds data in memory, but the memory may be of a different
@@ -27,7 +28,8 @@ class ConvMemValueSeries : public ValueSeries<T>
 {
 public:
 
-    inline	    	ConvMemValueSeries(int sz, const BinDataDesc& stortype);
+    inline	    	ConvMemValueSeries(int sz, const BinDataDesc& stortype,
+	    				   bool doundef=true);
 
     inline		~ConvMemValueSeries();
 
@@ -46,6 +48,7 @@ public:
 
 protected:
 
+    UndefArrayHandler*	undefhandler_;
     DataInterpreter<T>	interpreter_;
     BinDataDesc		rettype_;
 
@@ -55,11 +58,16 @@ protected:
 
 
 template <class T> inline
-ConvMemValueSeries<T>::ConvMemValueSeries( int sz, const BinDataDesc& stortype)
+ConvMemValueSeries<T>::ConvMemValueSeries( int sz, const BinDataDesc& stortype, 
+					   bool doundef)
     : ptr_( 0 )
     , size_( sz )
     , interpreter_( DataCharacteristics(stortype) )
+    , undefhandler_( doundef ? new UndefArrayHandler(stortype) : 0 )
 {
+    if ( undefhandler_ && !undefhandler_->isOK() )
+    { delete undefhandler_; undefhandler_ = 0; }
+
     T dummy;
     rettype_ = BinDataDesc( dummy );
     ptr_ = new char[sz*interpreter_.nrBytes()];
@@ -68,12 +76,20 @@ ConvMemValueSeries<T>::ConvMemValueSeries( int sz, const BinDataDesc& stortype)
 
 template <class T> inline
 ConvMemValueSeries<T>::~ConvMemValueSeries()
-{ delete [] ptr_; }
+{
+    delete [] ptr_;
+    delete undefhandler_;
+}
 
 
 template <class T> inline
 T ConvMemValueSeries<T>::value(int idx) const
-{ return interpreter_.get( ptr_, idx ); }
+{
+    if ( undefhandler_ && undefhandler_->isUdf( ptr_,idx ) )
+	return mUdf(T);
+
+    return interpreter_.get( ptr_, idx );
+}
 
 
 template <class T> inline
@@ -88,7 +104,15 @@ int ConvMemValueSeries<T>::size() const
 
 template <class T> inline
 void ConvMemValueSeries<T>::setValue( int idx, T v )
-{ interpreter_.put( ptr_, idx, v ); }
+{
+    if ( undefhandler_ && mIsUdf(v) )
+	undefhandler_->setUdf( ptr_, idx );
+    else
+    {
+	interpreter_.put( ptr_, idx, v );
+	if ( undefhandler_ ) undefhandler_->unSetUdf( ptr_, idx );
+    }
+}
 
 
 template <class T> inline
