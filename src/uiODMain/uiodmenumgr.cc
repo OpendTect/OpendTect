@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.cc,v 1.63 2006-12-20 11:23:01 cvshelene Exp $
+ RCS:           $Id: uiodmenumgr.cc,v 1.64 2006-12-20 17:42:32 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,6 +39,8 @@ uiODMenuMgr::uiODMenuMgr( uiODMain* a )
     	, timer(*new Timer("popup timer"))
     	, helpmgr(0)
     	, dTectTBChanged(this)
+    	, dTectProcMnuChanged(this)
+    	, dTectFileMnuChanged(this)
 {
     filemnu = new uiPopupMenu( &appl, "&File" );
     procmnu = new uiPopupMenu( &appl, "&Processing" );
@@ -55,8 +57,9 @@ uiODMenuMgr::uiODMenuMgr( uiODMain* a )
     mantb->setVerticallyStretchable( true );
 
     appl.applMgr().visServer()->createToolBars();
-//TODO: do not remove!! Helene for 2D/3D  
     IOM().surveyChanged.notify( mCB(this,uiODMenuMgr,updateDTectToolBar) );
+    IOM().surveyChanged.notify( mCB(this,uiODMenuMgr,updateDTectProcMnu) );
+    IOM().surveyChanged.notify( mCB(this,uiODMenuMgr,updateDTectFileMnu) );
 }
 
 
@@ -236,6 +239,7 @@ void uiODMenuMgr::fillFileMenu()
     impmnus += impwell; impmnus+= 0;
     expmnus.allowNull();
     expmnus += expseis; expmnus += exphor; expmnus+=0; expmnus+=0; expmnus+=0;
+    dTectFileMnuChanged.trigger();
 }
 
 
@@ -262,6 +266,7 @@ void uiODMenuMgr::fillProcMenu()
     procmnu->insertItem( horitm );
     
     mInsertItem( procmnu, "&Re-Start ...", mReStartMnuItm );
+    dTectProcMnuChanged.trigger();
 }
 
 
@@ -575,4 +580,18 @@ void uiODMenuMgr::updateDTectToolBar( CallBacker* )
 {
     dtecttb->clear();
     fillDtectTB();
+}
+
+
+void uiODMenuMgr::updateDTectProcMnu( CallBacker* )
+{
+    procmnu->clear();
+    fillProcMenu();
+}
+
+
+void uiODMenuMgr::updateDTectFileMnu( CallBacker* )
+{
+    filemnu->clear();
+    fillFileMenu();
 }
