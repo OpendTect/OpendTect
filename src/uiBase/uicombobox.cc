@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uicombobox.cc,v 1.38 2006-03-10 13:34:02 cvsbert Exp $
+ RCS:           $Id: uicombobox.cc,v 1.39 2006-12-20 17:39:23 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -69,9 +69,22 @@ uiComboBox::uiComboBox(  uiParent* parnt, const char* nm, bool ed )
 						//false: no read/write
     : uiObject( parnt, nm, mkbody(parnt,nm,ed) )
     , selectionChanged( this )
-{ if ( ed ) setStretch( 1, 0 );}
+{
+    if ( ed ) setStretch( 1, 0 );
+}
+
 
 uiComboBox::uiComboBox(  uiParent* parnt, const BufferStringSet& uids,
+			 const char* nm, bool ed )
+    : uiObject( parnt, nm, mkbody(parnt,nm,ed) )
+    , selectionChanged( this )
+{ 
+    if ( ed ) setStretch( 1, 0 );
+    addItems( uids );
+}
+
+
+uiComboBox::uiComboBox(  uiParent* parnt, const char** uids,
 			 const char* nm, bool ed )
     : uiObject( parnt, nm, mkbody(parnt,nm,ed) )
     , selectionChanged( this )
@@ -242,6 +255,16 @@ uiLabeledComboBox::uiLabeledComboBox( uiParent* p, const char* txt,
 
 
 uiLabeledComboBox::uiLabeledComboBox( uiParent* p, const BufferStringSet& s,
+				      const char* nm, bool ed )
+	: uiGroup(p,"Labeled combobox")
+{
+    cb = new uiComboBox( this, s, nm, ed );
+    labl = new uiLabel( this, nm, cb );
+    setHAlignObj( cb );
+}
+
+
+uiLabeledComboBox::uiLabeledComboBox( uiParent* p, const char** s,
 				      const char* nm, bool ed )
 	: uiGroup(p,"Labeled combobox")
 {

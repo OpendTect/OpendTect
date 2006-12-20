@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uicombobox.h,v 1.19 2005-01-12 16:13:43 arend Exp $
+ RCS:           $Id: uicombobox.h,v 1.20 2006-12-20 17:39:23 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,6 +27,9 @@ public:
 			uiComboBox(uiParent*,const char* nm="Combo Box",
 				   bool editable=false);
 			uiComboBox(uiParent*,const BufferStringSet&,
+				   const char* nm="Combo Box",
+				   bool editable=false);
+			uiComboBox(uiParent*,const char**,
 				   const char* nm="Combo Box",
 				   bool editable=false);
     virtual 		~uiComboBox();
@@ -89,11 +92,13 @@ private:
 class uiLabeledComboBox : public uiGroup
 {
 public:
-		uiLabeledComboBox( uiParent*,const char* txt,
-				   const char* nm="Labeled Combobox",
-				   bool editable=false);
-		uiLabeledComboBox( uiParent*,const BufferStringSet&,
-					const char* txt,bool ed=false);
+		uiLabeledComboBox(uiParent*,const char* txt,
+				  const char* nm="Labeled Combobox",
+				  bool editable=false);
+		uiLabeledComboBox(uiParent*,const BufferStringSet&,
+				  const char* txt,bool ed=false);
+		uiLabeledComboBox(uiParent*,const char**,
+				  const char* txt,bool ed=false);
 
     uiComboBox*	box()		{ return cb; }
     uiLabel*	label()		{ return labl; }
