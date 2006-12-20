@@ -4,7 +4,7 @@
  * DATE     : Jul 2006
 -*/
 
-static const char* rcsID = "$Id: tableconv.cc,v 1.10 2006-11-21 14:00:07 cvsbert Exp $";
+static const char* rcsID = "$Id: tableconv.cc,v 1.11 2006-12-20 13:37:50 cvsbert Exp $";
 
 #include "tableconvimpl.h"
 
@@ -67,7 +67,7 @@ int Table::Converter::nextStep()
 
 	Table::ImportHandler::State impstate = imphndlr_.add( c );
 	if ( !handleImpState(impstate) )
-	    return -1;
+	    return msg_.isEmpty() ? 0 : -1;
 	if ( impstate == Table::ImportHandler::EndRow )
 	    return 1;
     }
@@ -113,7 +113,7 @@ bool Table::Converter::handleImpState( Table::ImportHandler::State impstate )
 	if ( accepted )
 	{
 	    const char* msg = exphndlr_.putRow( row_ );
-	    if ( msg && *msg )
+	    if ( msg )
 	    {
 		msg_ = msg;
 		return false;
