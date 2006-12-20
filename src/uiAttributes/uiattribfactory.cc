@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:		$Id: uiattribfactory.cc,v 1.4 2006-11-08 08:39:02 cvshelene Exp $
+ RCS:		$Id: uiattribfactory.cc,v 1.5 2006-12-20 11:23:00 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -53,12 +53,12 @@ int uiAttributeFactory::add( const char* dispnm, const char* attrnm,
 
 
 uiAttrDescEd* uiAttributeFactory::create( uiParent* p, const char* nm,
-					  bool isdisp ) const
+					  bool is2d, bool isdisp ) const
 {
     Entry* entry = getEntry( nm, isdisp );
     if ( !entry ) return 0;
 
-    uiAttrDescEd* ed = entry->crfn_( p );
+    uiAttrDescEd* ed = entry->crfn_( p, is2d );
     if ( ed )
     {
 	ed->setDisplayName( entry->dispnm_ );

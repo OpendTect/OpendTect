@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          December 2004
- RCS:           $Id: uiscalingattrib.cc,v 1.11 2006-10-20 13:26:53 cvshelene Exp $
+ RCS:           $Id: uiscalingattrib.cc,v 1.12 2006-12-20 11:23:00 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,8 +49,8 @@ static const char* scalingtypestr[] =
 mInitAttribUI(uiScalingAttrib,Scaling,"Scaling",sKeyBasicGrp)
 
 
-uiScalingAttrib::uiScalingAttrib( uiParent* p )
-	: uiAttrDescEd(p)
+uiScalingAttrib::uiScalingAttrib( uiParent* p, bool is2d )
+	: uiAttrDescEd(p,is2d)
 {
     inpfld = getInpFld();
 

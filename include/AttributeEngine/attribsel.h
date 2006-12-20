@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Sep 2001
- RCS:           $Id: attribsel.h,v 1.11 2006-12-14 14:30:51 cvshelene Exp $
+ RCS:           $Id: attribsel.h,v 1.12 2006-12-20 11:23:00 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -134,7 +134,7 @@ class SelInfo
 public:
 
 			SelInfo(const DescSet*,const NLAModel* n=0,
-				Pol2D pol=Both2DAnd3D,
+				bool is2d=false,
 				const DescID& ignoreid=DescID::undef());
 			SelInfo(const SelInfo&);
     SelInfo&		operator=(const SelInfo&);
@@ -154,7 +154,7 @@ public:
 
 protected:
 
-    Pol2D		pol2d_;
+    bool		is2d_;
 
 };
 

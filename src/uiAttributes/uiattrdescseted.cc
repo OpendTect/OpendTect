@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrdescseted.cc,v 1.38 2006-12-14 14:30:52 cvshelene Exp $
+ RCS:           $Id: uiattrdescseted.cc,v 1.39 2006-12-20 11:23:00 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -65,7 +65,7 @@ static bool evaldlgpoppedup = false;
 using namespace Attrib;
 
 uiAttribDescSetEd::uiAttribDescSetEd( uiParent* p, DescSetMan* adsm )
-    : uiDialog(p,uiDialog::Setup( adsm->is2D() ? "Attribute Set 2D"
+    : uiDialog(p,uiDialog::Setup( adsm && adsm->is2D() ? "Attribute Set 2D"
 					: "Attribute Set 3D","","101.0.0")
 	.savebutton(true).savetext("Save on OK  ")
 	.menubar(true)
@@ -173,7 +173,8 @@ void uiAttribDescSetEd::createGroups()
 
 	const char* attrnm = uiAF().getDisplayName(idx);
 	attrtypefld->add( uiAF().getGroupName(idx), attrnm );
-	uiAttrDescEd* de = uiAF().create( degrp, attrnm, true );
+	const bool is2d = inoutadsman ? inoutadsman->is2D() : false;
+	uiAttrDescEd* de = uiAF().create( degrp, attrnm, is2d, true );
 	desceds += de;
 	de->attach( alignedBelow, attrtypefld );
     }
@@ -432,7 +433,6 @@ void uiAttribDescSetEd::updateFields( bool set_type )
 	    de->setDescSet( attrset );
 	}
 	const bool dodisp = de == curde;
-	if ( dodisp ) de->set2D( is2d );
 	de->display( dodisp );
     }
     dummydesc->unRef();
@@ -922,7 +922,6 @@ void uiAttribDescSetEd::replaceStoredAttr()
 	Desc* ad = attrset->getDesc( storedid );
 	const bool issteer = ad->dataType() == Seis::Dip;
         uiAttrInpDlg dlg( this, usrrefs, issteer );
-	dlg.set2DPol( !idnr ? Both2DAnd3D : (found2d ? Only2D : No2D) ); 
         if ( dlg.go() )
         {
             ad->changeStoredID( dlg.getKey() );

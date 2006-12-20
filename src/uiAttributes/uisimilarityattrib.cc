@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May  2005
- RCS:           $Id: uisimilarityattrib.cc,v 1.13 2006-11-23 12:55:40 cvsbert Exp $
+ RCS:           $Id: uisimilarityattrib.cc,v 1.14 2006-12-20 11:23:01 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,10 +22,18 @@ ________________________________________________________________________
 
 using namespace Attrib;
 
-static const char* extstrs[] =
+static const char* extstrs3d[] =
 {
 	"None",
 	"Mirror 90 degrees",
+	"Mirror 180 degrees",
+	"Full block",
+	0
+};
+
+static const char* extstrs2d[] =
+{
+	"None",
 	"Mirror 180 degrees",
 	"Full block",
 	0
@@ -52,15 +60,16 @@ static const char* outpstrsext[] =
 mInitAttribUI(uiSimilarityAttrib,Similarity,"Similarity",sKeyBasicGrp)
 
 
-uiSimilarityAttrib::uiSimilarityAttrib( uiParent* p )
-	: uiAttrDescEd(p)
+uiSimilarityAttrib::uiSimilarityAttrib( uiParent* p, bool is2d )
+	: uiAttrDescEd(p,is2d)
 {
     inpfld = getInpFld();
 
     gatefld = new uiGenInput( this, gateLabel(), FloatInpIntervalSpec() );
     gatefld->attach( alignedBelow, inpfld );
 
-    extfld = new uiGenInput( this, "Extension", StringListInpSpec(extstrs) );
+    extfld = new uiGenInput( this, "Extension",
+	    		     StringListInpSpec( is2d_ ? extstrs2d : extstrs3d));
     extfld->valuechanged.notify( mCB(this,uiSimilarityAttrib,extSel) );
     extfld->attach( alignedBelow, gatefld );
     
@@ -85,36 +94,17 @@ uiSimilarityAttrib::uiSimilarityAttrib( uiParent* p )
 }
 
 
-void uiSimilarityAttrib::set2D( bool yn )
-{
-    inpfld->set2D( yn );
-    pos0fld->set2D( yn );
-    pos1fld->set2D( yn );
-    stepoutfld->set2D( yn );
-    steerfld->set2D( yn );
-
-    const BufferString selextstr = extfld->text();
-    BufferStringSet strs;
-    strs.add( extstrs[0] );
-    if ( !yn ) strs.add( extstrs[1] );
-    strs.add( extstrs[2] ); strs.add( extstrs[3] );
-    extfld->newSpec( StringListInpSpec(strs), 0 );
-    extfld->setText( selextstr );
-    extSel(0);
-}
-
-
 void uiSimilarityAttrib::extSel( CallBacker* )
 {
     const char* ext = extfld->text();
     
-    pos0fld->display( strcmp(ext,extstrs[3]) );
-    pos1fld->display( strcmp(ext,extstrs[3]) );
-    stepoutfld->display( !strcmp(ext,extstrs[3]) );
-    outpstatsfld->display( strcmp(ext,extstrs[0]) );
+    pos0fld->display( strcmp(ext,extstrs3d[3]) );
+    pos1fld->display( strcmp(ext,extstrs3d[3]) );
+    stepoutfld->display( !strcmp(ext,extstrs3d[3]) );
+    outpstatsfld->display( strcmp(ext,extstrs3d[0]) );
 
     BufferString cursel = outpstatsfld->text();
-    StringListInpSpec spec( !strcmp(ext,extstrs[3]) ? outpstrsext : outpstrs );
+    StringListInpSpec spec( !strcmp(ext,extstrs3d[3]) ? outpstrsext : outpstrs);
     outpstatsfld->newSpec( spec, 0 );
     outpstatsfld->setText( cursel );
 }
@@ -131,7 +121,9 @@ bool uiSimilarityAttrib::setParameters( const Attrib::Desc& desc )
     mIfGetBinID( Similarity::pos0Str(), pos0, pos0fld->setBinID(pos0) )
     mIfGetBinID( Similarity::pos1Str(), pos1, pos1fld->setBinID(pos1) )
     mIfGetEnum( Similarity::extensionStr(), extension,
-	        const char* str = extstrs[extension]; extfld->setText(str) )
+	        const char* str = is2d_ ? extstrs2d[extension]
+					: extstrs3d[extension]; 
+		extfld->setText(str) )
 
     extSel(0);
     return true;
@@ -150,7 +142,8 @@ bool uiSimilarityAttrib::setOutput( const Attrib::Desc& desc )
 {
     const int selattr = desc.selectedOutput();
     const char* ext = extfld->text();
-    const bool mirrorext = !strcmp(ext,extstrs[1]) || !strcmp(ext,extstrs[2]);
+    const bool mirrorext = !strcmp(ext,extstrs3d[1]) || 
+			   !strcmp(ext,extstrs3d[2]);
     if ( selattr>0 && mirrorext )
 	outpstatsfld->setValue( selattr-2 );
     else
@@ -166,7 +159,7 @@ bool uiSimilarityAttrib::getParameters( Attrib::Desc& desc )
 	return false;
 
     const char* ext = extfld->text();
-    if ( !strcmp(ext,extstrs[3]) )
+    if ( !strcmp(ext,extstrs3d[3]) )
     {	mSetBinID( Similarity::stepoutStr(), stepoutfld->getBinID() ); }
     else
     {
@@ -174,7 +167,7 @@ bool uiSimilarityAttrib::getParameters( Attrib::Desc& desc )
 	mSetBinID( Similarity::pos1Str(), pos1fld->getBinID() );
     }
 
-    BufferStringSet strs( extstrs );
+    BufferStringSet strs( is2d_ ? extstrs2d : extstrs3d );
     mSetEnum( Similarity::extensionStr(), strs.indexOf(ext) );
     mSetFloatInterval( Similarity::gateStr(), gatefld->getFInterval() );
     mSetBool( Similarity::steeringStr(), steerfld->willSteer() );
@@ -196,7 +189,7 @@ bool uiSimilarityAttrib::getOutput( Attrib::Desc& desc )
 {
     int selattr = outpstatsfld->getIntValue();
     const char* ext = extfld->text();
-    if ( selattr && (!strcmp(ext,extstrs[1]) || !strcmp(ext,extstrs[2])) )
+    if ( selattr && (!strcmp(ext,extstrs3d[1]) || !strcmp(ext,extstrs3d[2])) )
 	selattr += 2;
     fillOutput( desc, selattr );
 
@@ -208,7 +201,7 @@ void uiSimilarityAttrib::getEvalParams( TypeSet<EvalParam>& params ) const
 {
     params += EvalParam( timegatestr, Similarity::gateStr() );
 
-    if ( !strcmp(extstrs[3],extfld->text()) )
+    if ( !strcmp(extstrs3d[3],extfld->text()) )
 	params += EvalParam( stepoutstr, Similarity::stepoutStr() );
     else
 	params += EvalParam( "Trace positions", Similarity::pos0Str(),

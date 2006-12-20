@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2001
- RCS:		$Id: uiseissel.cc,v 1.36 2006-12-12 11:16:58 cvsbert Exp $
+ RCS:		$Id: uiseissel.cc,v 1.37 2006-12-20 11:23:01 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,21 +32,16 @@ ________________________________________________________________________
 uiSeisSelDlg::uiSeisSelDlg( uiParent* p, const CtxtIOObj& c,
 			    const SeisSelSetup& setup )
 	: uiIOObjSelDlg(p,getCtio(c,setup),"",false)
-	, p2d(setup.pol2d_)
+	, is2d(setup.is2d_)
 	, attrfld(0)
 {
-    const char* ttxt = p2d == No2D ? "Select Cube" : "Select Line Set";
-    if ( p2d == Both2DAnd3D )
-	ttxt = selgrp->getCtxtIOObj().ctxt.forread
-	    ? "Select Input seismics"
-	    : "Select Output Seismics";
-
+    const char* ttxt = is2d ? "Select Line Set" : "Select Cube";
     setTitleText( ttxt );
 
     uiGroup* topgrp = selgrp->getTopGroup();
     uiLabeledListBox* listfld = selgrp->getListField();
 
-    if ( setup.selattr_ && p2d != No2D )
+    if ( setup.selattr_ && is2d )
     {
 	if ( selgrp->getCtxtIOObj().ctxt.forread )
 	    attrfld = new uiGenInput( selgrp,"Attribute", StringListInpSpec() );
@@ -63,21 +58,21 @@ uiSeisSelDlg::uiSeisSelDlg( uiParent* p, const CtxtIOObj& c,
 }
 
 
-static const char* trglobexprs[] = { "2D", "CBVS`2D", "CBVS" };
+static const char* trglobexprs[] = { "2D", "CBVS" };
 
-const char* uiSeisSelDlg::standardTranslSel( Pol2D pol2d )
+const char* uiSeisSelDlg::standardTranslSel( bool is2d )
 {
-    int nr = pol2d == Only2D ? 0 : (pol2d == No2D ? 2 : 1);
-    return trglobexprs[nr];
+    return trglobexprs[is2d ? 0 : 1];
 }
 
 
-static void adaptCtxt( const IOObjContext& c, Pol2D p2d )
+//TODO check if constraints.clear() still necessary 
+static void adaptCtxt( const IOObjContext& c, bool is2d )
 {
     IOObjContext& ctxt = const_cast<IOObjContext&>( c );
-    ctxt.trglobexpr = uiSeisSelDlg::standardTranslSel( p2d );
-    ctxt.deftransl = p2d == Only2D ? trglobexprs[0] : trglobexprs[2];
-    if ( p2d != No2D )
+    ctxt.trglobexpr = uiSeisSelDlg::standardTranslSel( is2d );
+    ctxt.deftransl = uiSeisSelDlg::standardTranslSel( is2d );
+    if ( is2d )
 	ctxt.parconstraints.clear(); // Selection is done differently
 }
 
@@ -85,7 +80,7 @@ static void adaptCtxt( const IOObjContext& c, Pol2D p2d )
 const CtxtIOObj& uiSeisSelDlg::getCtio( const CtxtIOObj& c,
 					const SeisSelSetup& s )
 {
-    adaptCtxt( c.ctxt, s.pol2d_ );
+    adaptCtxt( c.ctxt, s.is2d_ );
     return c;
 }
 
@@ -135,31 +130,28 @@ void uiSeisSelDlg::usePar( const IOPar& iopar )
 }
 
 
-static const char* gtSelTxt( const char** sts, Pol2D p2d, bool forread )
+static const char* gtSelTxt( const char** sts, bool is2d, bool forread )
 {
     // Support:
     // 1) One single text: { "Text", 0 }
-    // 2) Same for read and write: { "Text3D", Text3D2D", Text2D", 0 }
-    // 3) { "Text3DRead", Text3D2DRead", Text2DRead",
-    //      "Text3DWrite", Text3D2DWrite", Text2DWrite", 0 }
+    // 2) Same for read and write: { "Text3D", Text2D", 0 }
+    // 3) { "Text3DRead", Text2DRead", "Text3DWrite", Text2DWrite", 0 }
 
     static const char* stdseltxts[] = {
-	    "Input Cube", "Input Seismics", "Input Line Set",
-	    "Output Cube", "Output Seismics", "Store in Line Set", 0
-    };
+	"Input Cube", "Input Line Set", "Output Cube", "Store in Line Set", 0 };
 
     if ( !sts ) sts = stdseltxts;
 
     if ( !sts[1] ) return sts[0];
 
-    const int offs = (int)p2d - (int)No2D;
-    return sts[3] ? sts[ 3 * (forread ? 0 : 1) + offs ] : sts[offs];
+    const int offs = is2d ? 1 : 0;
+    return sts[2] ? sts[ 2 * (forread ? 0 : 1) + offs ] : sts[offs];
 }
 
 
 uiSeisSel::uiSeisSel( uiParent* p, CtxtIOObj& c, const SeisSelSetup& s,
 		      bool wclr, const char** sts )
-	: uiIOObjSel(p,c,gtSelTxt(sts,Both2DAnd3D,c.ctxt.forread),wclr)
+	: uiIOObjSel(p,c,gtSelTxt(sts,s.is2d_,c.ctxt.forread),wclr)
 	, setup(*new SeisSelSetup(s))
     	, seltxts(sts)
 	, dlgiopar(*new IOPar)
@@ -168,7 +160,8 @@ uiSeisSel::uiSeisSel( uiParent* p, CtxtIOObj& c, const SeisSelSetup& s,
     if ( !c.ctxt.forread )
 	inp_->label()->setPrefWidthInChar( 15 );
 
-    set2DPol( setup.pol2d_ );
+    adaptCtxt( c.ctxt, setup.is2d_ );
+    setLabelText( gtSelTxt( seltxts, is2D(), ctio.ctxt.forread ) );
 }
 
 
@@ -214,7 +207,7 @@ bool uiSeisSel::existingTyped() const
 
 bool uiSeisSel::is2D() const
 {
-    return ctio.ioobj && SeisTrcTranslator::is2D( *ctio.ioobj );
+    return setup.is2d_;
 }
 
 
@@ -245,28 +238,6 @@ void uiSeisSel::processInput()
     attrnm = LineKey( getInput() ).attrName();
     if ( ctio.ioobj || ctio.ctxt.forread )
 	updateInput();
-}
-
-
-void uiSeisSel::set2DPol( Pol2D pol )
-{
-    setup.pol2d_ = pol;
-    if ( ctio.ioobj )
-    {
-	const bool curis2d = SeisTrcTranslator::is2D( *ctio.ioobj );
-	if ( (curis2d && pol == No2D) || (!curis2d && pol == Only2D) )
-	{
-	    ctio.setObj( 0 );
-	    updateInput();
-	}
-    }
-    BufferString disptxt = labelText();
-    BufferString newdisptxt = gtSelTxt( seltxts, pol, ctio.ctxt.forread );
-    if ( newdisptxt != disptxt )
-	setLabelText( newdisptxt );
-
-    ctio.ctxt.parconstraints = orgparconstraints;
-    adaptCtxt( ctio.ctxt, pol );
 }
 
 

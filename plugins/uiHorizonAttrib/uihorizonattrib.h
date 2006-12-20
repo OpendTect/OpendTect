@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          September 2006
- RCS:           $Id: uihorizonattrib.h,v 1.3 2006-10-11 06:59:24 cvsbert Exp $
+ RCS:           $Id: uihorizonattrib.h,v 1.4 2006-12-20 11:23:00 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,7 +28,7 @@ class uiHorizonAttrib : public uiAttrDescEd
 {
 public:
 
-			uiHorizonAttrib(uiParent*);
+			uiHorizonAttrib(uiParent*,bool);
 			~uiHorizonAttrib();
 
 protected:
@@ -45,7 +45,6 @@ protected:
     virtual bool	getParameters(Attrib::Desc&);
     virtual bool	getInput(Attrib::Desc&);
     virtual bool	getOutput(Attrib::Desc&);
-    virtual void	set2D(bool);
 
     void		horSel(CallBacker*);
 

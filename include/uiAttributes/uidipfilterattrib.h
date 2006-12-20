@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2001
- RCS:           $Id: uidipfilterattrib.h,v 1.8 2006-11-03 16:01:36 cvshelene Exp $
+ RCS:           $Id: uidipfilterattrib.h,v 1.9 2006-12-20 11:23:00 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,7 +24,7 @@ class ui3DFilterAttrib : public uiAttrDescEd
 {
 public:
 
-			ui3DFilterAttrib(uiParent*);
+			ui3DFilterAttrib(uiParent*,bool);
 
     virtual void	getEvalParams(TypeSet<EvalParam>&) const;
 
@@ -43,8 +43,6 @@ protected:
 
     bool		getParameters(Attrib::Desc&);
     bool		getInput(Attrib::Desc&);
-
-    virtual void	set2D(bool);
 
     void		filtSel(CallBacker*);
     void		aziSel(CallBacker*);

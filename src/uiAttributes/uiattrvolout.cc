@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:		$Id: uiattrvolout.cc,v 1.24 2006-12-12 11:16:57 cvsbert Exp $
+ RCS:		$Id: uiattrvolout.cc,v 1.25 2006-12-20 11:23:00 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -68,7 +68,7 @@ uiAttrVolOut::uiAttrVolOut( uiParent* p, const DescSet& ad,
 
     uiAttrSelData attrdata( &ad );
     attrdata.nlamodel = nlamodel;
-    todofld = new uiAttrSel( uppgrp, "Quantity to output", attrdata );
+    todofld = new uiAttrSel( uppgrp, "Quantity to output", attrdata, ad.is2D());
     todofld->selectiondone.notify( mCB(this,uiAttrVolOut,attrSel) );
 
     transffld = new uiSeisTransfer( uppgrp, uiSeisTransfer::Setup()
@@ -123,13 +123,11 @@ void uiAttrVolOut::attrSel( CallBacker* )
     const bool is2d = todofld->is2D();
     if ( todofld->getRanges(cs) )
 	transffld->selfld->setInput( cs );
-    Pol2D p2d = is2d ? Only2D : No2D;
-    objfld->set2DPol( p2d );
     setTypeAttr( ctio, !is2d );
     if ( is2d )
     {
 	MultiID key;
-	const Desc* desc = ads.getFirstStored( p2d );
+	const Desc* desc = ads.getFirstStored();
 	if ( desc && desc->getMultiID(key) )
 	{
 	    PtrMan<IOObj> ioobj = IOM().get( key );
@@ -259,8 +257,8 @@ bool uiAttrVolOut::fillPar( IOPar& iop )
 	if ( nlamodel )
 	    descset.usePar( nlamodel->pars() );
 
-	const Desc* desc = nlamodel ? descset.getFirstStored( Only2D )
-	    			    : clonedset->getFirstStored( Only2D );
+	const Desc* desc = nlamodel ? descset.getFirstStored()
+	    			    : clonedset->getFirstStored();
 	if ( desc && desc->getMultiID(ky) )
 	{
 	    iop.set( "Input Line Set", ky );

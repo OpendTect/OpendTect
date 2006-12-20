@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uisteeringsel.h,v 1.7 2006-06-29 16:34:09 cvsbert Exp $
+ RCS:           $Id: uisteeringsel.h,v 1.8 2006-12-20 11:23:00 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,8 +38,6 @@ public:
     void		setDesc(const Attrib::Desc*);
     void		setDescSet(const Attrib::DescSet*);
 
-    void		updateAttrSet2D(); // If attrset is changed but
-
     void		fillSelSpec(Attrib::SelSpec&,bool inl);
     			/* inl=true: AttribSelSpec for inline component
     			   inl=false: AttribSelSpec for crossline component */
@@ -49,7 +47,6 @@ protected:
     uiAttrSelData	attrdata;
 
     Attrib::DescID	getDipID(int) const;
-    void		update2D();
     CtxtIOObj&		getCtio(CtxtIOObj&);
 
     void		doFinalise(CallBacker*);
@@ -71,7 +68,6 @@ public:
     void			setDesc(const Attrib::Desc*);
     void			setDescSet(const Attrib::DescSet*);
     void			setType(int,bool fixed=false);
-    void			set2D(bool);
 
     static IOPar&		inpselhist;
 

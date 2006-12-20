@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:		$Id: uiattrdesced.cc,v 1.18 2006-11-29 09:30:29 cvshelene Exp $
+ RCS:		$Id: uiattrdesced.cc,v 1.19 2006-12-20 11:23:00 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,9 +50,10 @@ const char* uiAttrDescEd::getInputAttribName( uiAttrSel* inpfld,
 }
 
 
-uiAttrDescEd::uiAttrDescEd( uiParent* p )
+uiAttrDescEd::uiAttrDescEd( uiParent* p, bool is2d )
     : uiGroup(p,"")
     , desc_(0)
+    , is2d_(is2d)
 {
 }
 
@@ -161,27 +162,16 @@ void uiAttrDescEd::fillOutput( Attrib::Desc& desc, int selout )
 
 uiAttrSel* uiAttrDescEd::getInpFld( const char* txt, const uiAttrSelData* asd )
 {
-    uiAttrSel* fld = asd ? new uiAttrSel( this, txt, *asd )
-			 : new uiAttrSel( this, 0, txt );
-    fld->selectiondone.notify( mCB(this,uiAttrDescEd,attrInpSel) );
+    uiAttrSel* fld = asd ? new uiAttrSel( this, txt, *asd, is2d_ )
+			 : new uiAttrSel( this, 0, is2d_, txt );
     return fld;
 }
 
 
 uiImagAttrSel* uiAttrDescEd::getImagInpFld()
 {
-    uiImagAttrSel* fld = new uiImagAttrSel( this, 0, 0 );
-    fld->selectiondone.notify( mCB(this,uiAttrDescEd,attrInpSel) );
+    uiImagAttrSel* fld = new uiImagAttrSel( this, 0, is2d_, 0 );
     return fld;
-}
-
-
-void uiAttrDescEd::attrInpSel( CallBacker* cb )
-{
-    if ( !adsman_ || !adsman_->descSet() ) return;
-    mDynamicCastGet(uiAttrSel*,as,cb)
-    if ( as )
-	set2D( adsman_->descSet()->is2D() );
 }
 
 

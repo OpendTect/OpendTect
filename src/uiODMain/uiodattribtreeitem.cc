@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodattribtreeitem.cc,v 1.7 2006-12-14 14:30:52 cvshelene Exp $
+ RCS:		$Id: uiodattribtreeitem.cc,v 1.8 2006-12-20 11:23:01 cvshelene Exp $
 ___________________________________________________________________
 
 -*/
@@ -93,13 +93,13 @@ void uiODAttribTreeItem::createSelMenu( MenuItem& mnu, int visid, int attrib,
 	uiAttribPartServer* attrserv = ODMainWin()->applMgr().attrServer();
 	mDynamicCastGet(visSurvey::SurveyObject*,so,visserv->getObject(visid));
 	if ( !so ) return;
-	Pol2D p2d = so->getAllowedDataType();
+	Pol2D3D p2d3d = so->getAllowedDataType();
 	mDynamicCastGet(visSurvey::Scene*,scene,visserv->getObject(sceneid))
 
 	MenuItem* subitem;
-	if ( SI().has2D() && p2d != No2D )
+	if ( SI().has2D() && p2d3d != Only3D )
 	    mCreateItemsList( true );
-	if ( SI().has3D() && p2d != Only2D )
+	if ( SI().has3D() && p2d3d != Only2D )
 	    mCreateItemsList( false );
     }
 }

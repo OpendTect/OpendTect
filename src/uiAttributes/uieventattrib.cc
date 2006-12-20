@@ -4,7 +4,7 @@
  CopyRight:	(C) dGB Beheer B.V.
  Author:	H. Payraudeau
  Date:		February 2005
- RCS:		$Id: uieventattrib.cc,v 1.7 2006-10-19 09:52:46 cvshelene Exp $
+ RCS:		$Id: uieventattrib.cc,v 1.8 2006-12-20 11:23:00 cvshelene Exp $
  ________________________________________________________________________
 
 -*/
@@ -45,8 +45,8 @@ static const char* outpstrs[] =
 mInitAttribUI(uiEventAttrib,Event,"Event",sKeyPatternGrp)
 
 
-uiEventAttrib::uiEventAttrib( uiParent* p )
-        : uiAttrDescEd(p)
+uiEventAttrib::uiEventAttrib( uiParent* p, bool is2d )
+        : uiAttrDescEd(p,is2d)
 {
     inpfld = getInpFld();
 

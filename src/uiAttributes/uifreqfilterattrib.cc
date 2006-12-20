@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2001
- RCS:           $Id: uifreqfilterattrib.cc,v 1.11 2006-10-10 17:46:05 cvsbert Exp $
+ RCS:           $Id: uifreqfilterattrib.cc,v 1.12 2006-12-20 11:23:00 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -48,8 +48,8 @@ static const char* typestrs[] =
 mInitAttribUI(uiFreqFilterAttrib,FreqFilter,"Frequency Filter",sKeyFilterGrp)
 
 
-uiFreqFilterAttrib::uiFreqFilterAttrib( uiParent* p )
-	: uiAttrDescEd(p)
+uiFreqFilterAttrib::uiFreqFilterAttrib( uiParent* p, bool is2d )
+	: uiAttrDescEd(p,is2d)
 {
     inpfld = getImagInpFld();
 

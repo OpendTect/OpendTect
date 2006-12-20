@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		9-4-1996
- RCS:		$Id: survinfo.h,v 1.57 2006-12-15 13:29:24 cvsbert Exp $
+ RCS:		$Id: survinfo.h,v 1.58 2006-12-20 11:23:00 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "namedobj.h"
 #include "ranges.h"
 #include "rcol2coord.h"
-//#include "general.h"
+#include "enums.h"
 
 class ascostream;
 class IOPar;
@@ -46,6 +46,9 @@ public:
 			~SurveyInfo();
     			SurveyInfo(const SurveyInfo&);
     SurveyInfo&		operator =(const SurveyInfo&);
+
+    enum Pol2D      	{ No2D=-1, Both2DAnd3D=0, Only2D=1 };
+    			DeclareEnumUtils(Pol2D)
 
     const CubeSampling&	sampling( bool work ) const
     			{ return work ? wcs_ : cs_; }

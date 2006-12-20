@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2001
- RCS:           $Id: uishiftattrib.h,v 1.5 2006-10-10 17:46:05 cvsbert Exp $
+ RCS:           $Id: uishiftattrib.h,v 1.6 2006-12-20 11:23:00 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,7 +27,7 @@ class uiShiftAttrib : public uiAttrDescEd
 {
 public:
 
-			uiShiftAttrib(uiParent*);
+			uiShiftAttrib(uiParent*,bool);
 
     void		getEvalParams(TypeSet<EvalParam>& params) const;
 
@@ -40,8 +40,6 @@ protected:
     uiSteeringSel*	steerfld;
 
     void		shiftSel(CallBacker*);
-    virtual void	set2D(bool);
-
     bool		setParameters(const Attrib::Desc&);
     bool		setInput(const Attrib::Desc&);
 

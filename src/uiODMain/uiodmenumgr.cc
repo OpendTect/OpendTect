@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.cc,v 1.62 2006-12-18 17:51:40 cvsbert Exp $
+ RCS:           $Id: uiodmenumgr.cc,v 1.63 2006-12-20 11:23:01 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -241,7 +241,7 @@ void uiODMenuMgr::fillFileMenu()
 
 void uiODMenuMgr::fillProcMenu()
 {
-    if ( SI().getSurvDataType() == Both2DAnd3D )
+    if ( SI().getSurvDataType() == SurveyInfo::Both2DAnd3D )
     {
 	uiPopupMenu* attribitm = new uiPopupMenu( &appl, "Attributes ...");
 	mInsertItem( attribitm, "&2D Attributes ...", mEdit2DAttrMnuItm );
@@ -359,18 +359,18 @@ void uiODMenuMgr::fillDtectTB()
 {
     mAddTB(dtecttb,"survey.png","Survey setup",false,manSurvCB);
 
-    Pol2D survtype = SI().getSurvDataType();
-    if ( survtype == Both2DAnd3D || survtype == Only2D )
+    SurveyInfo::Pol2D survtype = SI().getSurvDataType();
+    if ( survtype == SurveyInfo::Both2DAnd3D || survtype == SurveyInfo::Only2D )
        mAddTB(dtecttb,"attributes_2d.png","Edit 2D attributes",false,
 	      manAttr2DCB);
-    if ( survtype == Both2DAnd3D || survtype == No2D )
+    if ( survtype == SurveyInfo::Both2DAnd3D || survtype == SurveyInfo::No2D )
        mAddTB(dtecttb,"attributes_3d.png","Edit 3D attributes",
 	       false,manAttr3DCB);
     
-    if ( survtype == Both2DAnd3D || survtype == Only2D )
+    if ( survtype == SurveyInfo::Both2DAnd3D || survtype == SurveyInfo::Only2D )
 	mAddTB(dtecttb,"out_2dlines.png","Create 2D seismic output",
 	       false,outLinesCB);
-    if ( survtype == Both2DAnd3D || survtype == No2D )
+    if ( survtype == SurveyInfo::Both2DAnd3D || survtype == SurveyInfo::No2D )
 	mAddTB(dtecttb,"out_vol.png","Create 3D seismic output",false,outVolCB);
 
     dTectTBChanged.trigger();

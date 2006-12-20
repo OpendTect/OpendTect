@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiattrinpdlg.h,v 1.3 2006-12-01 12:42:54 cvshelene Exp $
+ RCS:           $Id: uiattrinpdlg.h,v 1.4 2006-12-20 11:23:00 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,7 +25,6 @@ public:
 			uiAttrInpDlg(uiParent*,const BufferStringSet&,bool);
 			~uiAttrInpDlg();
 
-    void		set2DPol(Pol2D);
     bool		is2D() const;
 
     const char*		getUserRef() const;

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:		$Id: uienergyattrib.cc,v 1.8 2006-10-10 17:46:05 cvsbert Exp $
+ RCS:		$Id: uienergyattrib.cc,v 1.9 2006-12-20 11:23:00 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,8 +33,8 @@ static const char* outpstrs[] =
 mInitAttribUI(uiEnergyAttrib,Energy,"Energy",sKeyBasicGrp)
 
 
-uiEnergyAttrib::uiEnergyAttrib( uiParent* p )
-	: uiAttrDescEd(p)
+uiEnergyAttrib::uiEnergyAttrib( uiParent* p, bool is2d )
+	: uiAttrDescEd(p,is2d)
 {
     inpfld_ = getInpFld();
 

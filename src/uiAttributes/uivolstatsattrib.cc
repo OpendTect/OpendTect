@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: uivolstatsattrib.cc,v 1.12 2006-11-23 12:55:40 cvsbert Exp $
+ RCS:           $Id: uivolstatsattrib.cc,v 1.13 2006-12-20 11:23:01 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,8 +41,8 @@ mInitAttribUI(uiVolumeStatisticsAttrib,VolStats,"Volume Statistics",
 	      sKeyStatsGrp)
 
 
-uiVolumeStatisticsAttrib::uiVolumeStatisticsAttrib( uiParent* p )
-    : uiAttrDescEd(p)
+uiVolumeStatisticsAttrib::uiVolumeStatisticsAttrib( uiParent* p, bool is2d )
+    : uiAttrDescEd(p,is2d)
 {
     inpfld = getInpFld();
 
@@ -51,6 +51,7 @@ uiVolumeStatisticsAttrib::uiVolumeStatisticsAttrib( uiParent* p )
 
     shapefld = new uiGenInput( this, "Shape", BoolInpSpec("Cylinder","Cube") );
     shapefld->attach( alignedBelow, gatefld );
+    shapefld->display( !is2d_ );
     
     stepoutfld = new uiStepOutSel( this, uiStepOutSel::Setup() );
     stepoutfld->valueChanged.notify(
@@ -69,15 +70,6 @@ uiVolumeStatisticsAttrib::uiVolumeStatisticsAttrib( uiParent* p )
     steerfld->attach( alignedBelow, outpfld );
 
     setHAlignObj( inpfld );
-}
-
-
-void uiVolumeStatisticsAttrib::set2D( bool yn )
-{
-    inpfld->set2D( yn );
-    stepoutfld->set2D( yn );
-    steerfld->set2D( yn );
-    shapefld->display( !yn );
 }
 
 

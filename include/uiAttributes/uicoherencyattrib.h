@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uicoherencyattrib.h,v 1.3 2006-10-10 17:46:05 cvsbert Exp $
+ RCS:           $Id: uicoherencyattrib.h,v 1.4 2006-12-20 11:23:00 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,7 +28,7 @@ class uiCoherencyAttrib : public uiAttrDescEd
 {
 public:
 
-			uiCoherencyAttrib(uiParent*);
+			uiCoherencyAttrib(uiParent*,bool);
 
 protected:
 
@@ -46,7 +46,6 @@ protected:
 
     bool                getParameters(Attrib::Desc&);
     bool                getInput(Attrib::Desc&);
-    virtual void	set2D(bool);
 
 			mDeclReqAttribUIFns
 };

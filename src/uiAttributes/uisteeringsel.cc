@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: uisteeringsel.cc,v 1.20 2006-10-10 17:46:05 cvsbert Exp $
+ RCS:           $Id: uisteeringsel.cc,v 1.21 2006-12-20 11:23:01 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,9 +45,9 @@ uiSteeringSel::uiSteeringSel( uiParent* p, const Attrib::DescSet* ads )
     , inpfld(0)
     , dirfld(0)
     , dipfld(0)
-    , is2d_(false)
     , notypechange_(false)
 {
+    is2d_ = ads ? ads->is2D() : false;
     const char* res = uiAF().attrNameOf( "Curvature" );
     if ( !res )
     {
@@ -252,25 +252,14 @@ void uiSteeringSel::setType( int nr, bool nochg )
 }
 
 
-void uiSteeringSel::set2D( bool yn )
-{
-    if ( !inpfld ) return;
-
-    is2d_ = yn;
-    inpfld->set2DPol( is2d_ ? Only2D : No2D );
-    typeSel(0);
-}
-
-
-
-
 static const char* steer_seltxts[] = { "Steering Data", 0 };
 
 
 uiSteerCubeSel::uiSteerCubeSel( uiParent* p, CtxtIOObj& c,
 				const DescSet* ads, const char* txt )
-	: uiSeisSel(p,getCtio(c),SeisSelSetup().selattr(false),false,
-			steer_seltxts)
+	: uiSeisSel(p,getCtio(c),
+		    SeisSelSetup().is2d(ads? ads->is2D():false).selattr(false),
+		    false,steer_seltxts)
 	, attrdata( ads )
 {
     attachObj()->finaliseStart.notify( mCB(this,uiSteerCubeSel,doFinalise) );
@@ -295,13 +284,6 @@ CtxtIOObj& uiSteerCubeSel::getCtio( CtxtIOObj& c )
     c.ctxt.allowcnstrsabsent = false;
     c.ctxt.forread = true;
     return c;
-}
-
-
-void uiSteerCubeSel::updateAttrSet2D()
-{
-    set2DPol( !attrdata.attrset || !attrdata.attrset->nrDescs() ? Both2DAnd3D
-	    : (attrdata.attrset->is2D() ? Only2D : No2D) );
 }
 
 
@@ -351,7 +333,6 @@ DescID uiSteerCubeSel::getDipID( int dipnr ) const
 void uiSteerCubeSel::setDescSet( const DescSet* ads )
 {
     attrdata.attrset = ads;
-    updateAttrSet2D();
 }
 
 

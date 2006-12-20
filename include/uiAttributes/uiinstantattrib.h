@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2001
- RCS:           $Id: uiinstantattrib.h,v 1.4 2006-10-10 17:46:05 cvsbert Exp $
+ RCS:           $Id: uiinstantattrib.h,v 1.5 2006-12-20 11:23:00 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,7 +25,7 @@ class uiInstantaneousAttrib : public uiAttrDescEd
 {
 public:
 
-			uiInstantaneousAttrib(uiParent*);
+			uiInstantaneousAttrib(uiParent*,bool);
 
 protected:
 

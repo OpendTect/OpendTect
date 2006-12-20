@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: attribsel.cc,v 1.16 2006-06-20 14:47:07 cvsnanne Exp $
+ RCS:           $Id: attribsel.cc,v 1.17 2006-12-20 11:23:00 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -190,9 +190,9 @@ bool SelSpec::usePar( const IOPar& par )
 
 
 SelInfo::SelInfo( const DescSet* attrset, const NLAModel* nlamod, 
-		  Pol2D pol, const DescID& ignoreid )
+		  bool is2d, const DescID& ignoreid )
 {
-    pol2d_ = pol;
+    is2d_ = is2d;
     fillStored();
 
     if ( attrset )
@@ -238,8 +238,8 @@ void SelInfo::fillStored( const char* filter )
 	const IOObj& ioobj = *ioobjs[idx];
 	const bool is2d = !strcmp(ioobj.translator(),"2D");
 	const bool iscbvs = !strcmp(ioobj.translator(),"CBVS");
-	if ( (is2d && pol2d_==No2D) || (iscbvs && pol2d_==Only2D) ||
-	     (!is2d && !iscbvs) ) continue;
+	if ( (is2d && is2d_) || (iscbvs && !is2d_) || (!is2d && !iscbvs) )
+	    continue;
 
 	if ( !strcmp(ioobj.group(),sKey::PSSeis) ) continue;
 	if ( ioobj.pars().find(sKey::DepthDomain) ) continue;
@@ -274,7 +274,7 @@ SelInfo::SelInfo( const SelInfo& asi )
 	, attrnms(asi.attrnms)
 	, attrids(asi.attrids)
 	, nlaoutnms(asi.nlaoutnms)
-	, pol2d_(asi.pol2d_)
+	, is2d_(asi.is2d_)
 {
 }
 
@@ -286,7 +286,7 @@ SelInfo& SelInfo::operator=( const SelInfo& asi )
     attrnms = asi.attrnms;
     attrids = asi.attrids;
     nlaoutnms = asi.nlaoutnms;
-    pol2d_ = asi.pol2d_;
+    is2d_ = asi.is2d_;
     return *this;
 }
 

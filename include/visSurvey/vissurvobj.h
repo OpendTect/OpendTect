@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvobj.h,v 1.69 2006-12-14 14:30:52 cvshelene Exp $
+ RCS:		$Id: vissurvobj.h,v 1.70 2006-12-20 11:23:00 cvshelene Exp $
 ________________________________________________________________________
 
 
@@ -156,7 +156,7 @@ public:
     virtual void		setAngleFlag(int attrib,bool yn);
     virtual void		enableAttrib(int attrib,bool yn);
     virtual bool		isAttribEnabled(int attrib) const;
-    virtual Pol2D		getAllowedDataType() const	{ return No2D; }
+    virtual Pol2D3D		getAllowedDataType() const	{return Only3D;}
     
     virtual const TypeSet<float>* 	getHistogram(int attrib) const;
     

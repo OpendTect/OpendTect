@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiseispartserv.cc,v 1.45 2006-12-12 11:16:58 cvsbert Exp $
+ RCS:           $Id: uiseispartserv.cc,v 1.46 2006-12-20 11:23:01 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -99,7 +99,7 @@ bool uiSeisPartServer::select2DSeis( MultiID& mid, bool with_attr )
 {
     PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(SeisTrc);
     SeisSelSetup setup;
-    setup.pol2d( Only2D ).selattr( with_attr );
+    setup.is2d( true ).selattr( with_attr );
     uiSeisSelDlg dlg( appserv().parent(), *ctio, setup );
     if ( !dlg.go() || !dlg.ioObj() ) return false;
 

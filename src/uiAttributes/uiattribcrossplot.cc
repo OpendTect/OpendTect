@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          March 2003
- RCS:           $Id: uiattribcrossplot.cc,v 1.4 2006-11-21 14:00:07 cvsbert Exp $
+ RCS:           $Id: uiattribcrossplot.cc,v 1.5 2006-12-20 11:23:00 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,7 +37,7 @@ uiAttribCrossPlot::uiAttribCrossPlot( uiParent* p, const DescSet& d )
 	, ads_(d)
 {
     attrsfld = new uiLabeledListBox( this, "Attributes to calculate" );
-    SelInfo attrinf( &ads_, 0, ads_.is2D() ? Only2D : No2D );
+    SelInfo attrinf( &ads_, 0, ads_.is2D() );
     for ( int idx=0; idx<attrinf.attrnms.size(); idx++ )
     {
 	attrsfld->box()->addItem( attrinf.attrnms.get(idx), false );

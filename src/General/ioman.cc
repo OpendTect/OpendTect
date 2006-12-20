@@ -4,7 +4,7 @@
  * DATE     : 3-8-1994
 -*/
 
-static const char* rcsID = "$Id: ioman.cc,v 1.73 2006-12-15 13:29:24 cvsbert Exp $";
+static const char* rcsID = "$Id: ioman.cc,v 1.74 2006-12-20 11:23:00 cvshelene Exp $";
 
 #include "ioman.h"
 #include "iodir.h"
@@ -89,9 +89,10 @@ void IOMan::init()
 		}
 		SurveyInfo& si( const_cast<SurveyInfo&>(SI()) );
 		si.survdatatypeknown_ = true;
-		si.survdatatype_ = !have2d ? No2D // thus also if nothing found
-		    		 : (have3d ? Both2DAnd3D
-					   : Only2D);
+		si.survdatatype_ = !have2d ? SurveyInfo::No2D 
+		    				// thus also if nothing found
+		    		 : (have3d ? SurveyInfo::Both2DAnd3D
+					   : SurveyInfo::Only2D);
 		si.write();
 	    }
 

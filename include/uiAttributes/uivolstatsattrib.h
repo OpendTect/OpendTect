@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uivolstatsattrib.h,v 1.6 2006-10-10 17:46:05 cvsbert Exp $
+ RCS:           $Id: uivolstatsattrib.h,v 1.7 2006-12-20 11:23:00 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,7 +28,7 @@ class uiVolumeStatisticsAttrib : public uiAttrDescEd
 {
 public:
 
-			uiVolumeStatisticsAttrib(uiParent*);
+			uiVolumeStatisticsAttrib(uiParent*,bool);
 
     void		getEvalParams(TypeSet<EvalParam>& params) const;
 
@@ -42,7 +42,6 @@ protected:
     uiLabeledSpinBox*	nrtrcsfld;
     uiGenInput*		outpfld;
 
-    virtual void	set2D(bool);
     void		stepoutChg(CallBacker*);
 
     bool		setParameters(const Attrib::Desc&);

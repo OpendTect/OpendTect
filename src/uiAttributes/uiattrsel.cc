@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: uiattrsel.cc,v 1.18 2006-11-21 14:00:07 cvsbert Exp $
+ RCS:           $Id: uiattrsel.cc,v 1.19 2006-12-20 11:23:00 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,7 +46,7 @@ using namespace Attrib;
 
 uiAttrSelDlg::uiAttrSelDlg( uiParent* p, const char* seltxt,
 			    const uiAttrSelData& atd, 
-			    Pol2D pol2d, DescID ignoreid )
+			    bool is2d, DescID ignoreid )
 	: uiDialog(p,Setup("",0,atd.nlamodel?"":"101.1.1"))
 	, attrdata_(atd)
 	, selgrp_(0)
@@ -59,7 +59,7 @@ uiAttrSelDlg::uiAttrSelDlg( uiParent* p, const char* seltxt,
 	, depthdomoutfld_(0)
 	, in_action_(false)
 {
-    attrinf_ = new SelInfo( atd.attrset, atd.nlamodel, pol2d, ignoreid );
+    attrinf_ = new SelInfo( atd.attrset, atd.nlamodel, is2d, ignoreid );
     if ( attrinf_->ioobjnms.isEmpty() )
     {
 	new uiLabel( this, "No seismic data available.\n"
@@ -376,23 +376,24 @@ bool uiAttrSelDlg::acceptOK( CallBacker* )
 }
 
 
-uiAttrSel::uiAttrSel( uiParent* p, const DescSet* ads,
+uiAttrSel::uiAttrSel( uiParent* p, const DescSet* ads, bool is2d,
 		      const char* txt, DescID curid )
     : uiIOSelect(p,mCB(this,uiAttrSel,doSel),txt?txt:"Input Data")
     , attrdata_(ads)
     , ignoreid(DescID::undef())
-    , is2d_(false)
+    , is2d_(is2d)
 {
     attrdata_.attribid = curid;
     updateInput();
 }
 
 
-uiAttrSel::uiAttrSel( uiParent* p, const char* txt, const uiAttrSelData& ad )
+uiAttrSel::uiAttrSel( uiParent* p, const char* txt, 
+		      const uiAttrSelData& ad, bool is2d )
     : uiIOSelect(p,mCB(this,uiAttrSel,doSel),txt?txt:"Input Data")
     , attrdata_(ad)
     , ignoreid(DescID::undef())
-    , is2d_(false)
+    , is2d_(is2d)
 {
     updateInput();
 }
@@ -401,7 +402,6 @@ uiAttrSel::uiAttrSel( uiParent* p, const char* txt, const uiAttrSelData& ad )
 void uiAttrSel::setDescSet( const DescSet* ads )
 {
     attrdata_.attrset = ads;
-    update2D();
 }
 
 
@@ -422,7 +422,6 @@ void uiAttrSel::setDesc( const Desc* ad )
 
     attrdata_.attribid = !attrdata_.attrset ? DescID::undef() : ad->id();
     updateInput();
-    update2D();
 }
 
 
@@ -498,14 +497,12 @@ void uiAttrSel::doSel( CallBacker* )
 {
     if ( !attrdata_.attrset ) return;
 
-    uiAttrSelDlg dlg( this, inp_->label()->text(), attrdata_, 
-	    	      is2d_ ? Only2D : Both2DAnd3D, ignoreid );
+    uiAttrSelDlg dlg( this, inp_->label()->text(), attrdata_, is2d_, ignoreid );
     if ( dlg.go() )
     {
 	attrdata_.attribid = dlg.attribID();
 	attrdata_.outputnr = dlg.outputNr();
 	updateInput();
-	update2D();
 	selok_ = true;
     }
 }
@@ -618,14 +615,6 @@ bool uiAttrSel::checkOutput( const IOObj& ioobj ) const
 */
 
     return true;
-}
-
-
-void uiAttrSel::update2D()
-{
-    processInput();
-    if ( attrdata_.attrset && attrdata_.attrset->nrDescs() > 0 )
-	is2d_ = attrdata_.attrset->is2D();
 }
 
 

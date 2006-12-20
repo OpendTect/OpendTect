@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2001
- RCS:           $Id: uishiftattrib.cc,v 1.10 2006-11-23 12:55:40 cvsbert Exp $
+ RCS:           $Id: uishiftattrib.cc,v 1.11 2006-12-20 11:23:01 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,8 +25,8 @@ using namespace Attrib;
 
 mInitAttribUI(uiShiftAttrib,Shift,"Reference shift",sKeyPositionGrp)
 
-uiShiftAttrib::uiShiftAttrib( uiParent* p )
-	: uiAttrDescEd(p)
+uiShiftAttrib::uiShiftAttrib( uiParent* p, bool is2d )
+	: uiAttrDescEd(p,is2d)
 {
     inpfld = getInpFld();
 
@@ -47,14 +47,6 @@ uiShiftAttrib::uiShiftAttrib( uiParent* p )
 
     shiftSel(0);
     setHAlignObj( inpfld );
-}
-
-
-void uiShiftAttrib::set2D( bool yn )
-{
-    inpfld->set2D( yn );
-    stepoutfld->set2D( yn );
-    steerfld->set2D( yn );
 }
 
 

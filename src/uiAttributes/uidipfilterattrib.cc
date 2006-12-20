@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2001
- RCS:           $Id: uidipfilterattrib.cc,v 1.13 2006-11-06 14:59:22 cvshelene Exp $
+ RCS:           $Id: uidipfilterattrib.cc,v 1.14 2006-12-20 11:23:00 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,8 +37,8 @@ static const char* fltrstrs[] =
 mInitAttribUI(ui3DFilterAttrib,DipFilter,"Velocity Fan Filter",sKeyFilterGrp)
 
 
-ui3DFilterAttrib::ui3DFilterAttrib( uiParent* p )
-	: uiAttrDescEd(p)
+ui3DFilterAttrib::ui3DFilterAttrib( uiParent* p, bool is2d )
+	: uiAttrDescEd(p,is2d)
 {
     inpfld = getInpFld();
 
@@ -76,12 +76,6 @@ ui3DFilterAttrib::ui3DFilterAttrib( uiParent* p )
     setHAlignObj( inpfld );
     filtSel(0);
     aziSel(0);
-}
-
-
-void ui3DFilterAttrib::set2D( bool yn )
-{
-    inpfld->set2D( yn );
 }
 
 

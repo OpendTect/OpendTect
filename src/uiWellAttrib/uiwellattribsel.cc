@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          February 2004
- RCS:           $Id: uiwellattribsel.cc,v 1.16 2006-11-21 14:00:08 cvsbert Exp $
+ RCS:           $Id: uiwellattribsel.cc,v 1.17 2006-12-20 11:23:01 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,6 +13,7 @@ ________________________________________________________________________
 
 #include "attribengman.h"
 #include "attribprocessor.h"
+#include "attribdescset.h"
 #include "attribsel.h"
 #include "ptrman.h"
 #include "survinfo.h"
@@ -40,7 +41,7 @@ uiWellAttribSel::uiWellAttribSel( uiParent* p, Well::Data& wd,
     , wd_(wd)
     , sellogidx_(-1)
 {
-    attribfld = new uiAttrSel( this, &attrset_ );
+    attribfld = new uiAttrSel( this, &attrset_, attrset_.is2D() );
     attribfld->setNLAModel( nlamodel_ );
     attribfld->selectiondone.notify( mCB(this,uiWellAttribSel,selDone) );
 

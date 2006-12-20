@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: uienergyattrib.h,v 1.5 2006-10-10 17:46:05 cvsbert Exp $
+ RCS:           $Id: uienergyattrib.h,v 1.6 2006-12-20 11:23:00 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,7 +25,7 @@ class uiEnergyAttrib : public uiAttrDescEd
 {
 public:
 
-			uiEnergyAttrib(uiParent*);
+			uiEnergyAttrib(uiParent*,bool);
 
     void		getEvalParams(TypeSet<EvalParam>&) const;
 

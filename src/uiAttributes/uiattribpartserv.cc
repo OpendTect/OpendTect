@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiattribpartserv.cc,v 1.43 2006-12-14 14:30:52 cvshelene Exp $
+ RCS:           $Id: uiattribpartserv.cc,v 1.44 2006-12-20 11:23:00 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -201,7 +201,7 @@ bool uiAttribPartServer::selectAttrib( SelSpec& selspec, const char* depthkey,
     attrdata.outputnr = selspec.isNLA() ? selspec.id().asInt() : -1;
     attrdata.nlamodel = getNLAModel(is2d);
     attrdata.depthdomainkey = depthkey;
-    uiAttrSelDlg dlg( appserv().parent(), "View Data", attrdata, No2D );
+    uiAttrSelDlg dlg( appserv().parent(), "View Data", attrdata, false );
     if ( !dlg.go() )
 	return false;
 
@@ -658,11 +658,11 @@ static int cMaxMenuSize = 150;
 MenuItem* uiAttribPartServer::storedAttribMenuItem( const SelSpec& as, 
 						    bool is2d )
 {
-    SelInfo attrinf( adsman3d_->descSet(), 0, No2D, DescID::undef() );
+    SelInfo attrinf( adsman3d_->descSet(), 0, false, DescID::undef() );
     if ( is2d ) 
     {
 	mCleanMenuItems(stored2d,mnuitem_)
-	attrinf = SelInfo( adsman2d_->descSet(), 0, Only2D, DescID::undef() );
+	attrinf = SelInfo( adsman2d_->descSet(), 0, true, DescID::undef() );
     }
     else
 	mCleanMenuItems(stored3d,mnuitem_);
@@ -713,7 +713,7 @@ void uiAttribPartServer::insertNumerousItems( const BufferStringSet& bfset,
 	    insert2DStoredItems( bfset, start, stop, correcttype, submnu, as );
 	else
 	{
-	    SelInfo attrinf( adsman3d_->descSet(), 0, No2D, DescID::undef() );
+	    SelInfo attrinf( adsman3d_->descSet(), 0, false, DescID::undef() );
 	    mInsertItems(ioobjnms,submnu,correcttype);
 	}
 	
@@ -804,7 +804,7 @@ bool uiAttribPartServer::handleAttribSubMenu( int mnuid, SelSpec& as ) const
     DescSetMan* adsman = getAdsMan( is2d );
     uiAttrSelData attrdata( adsman->descSet() );
     attrdata.nlamodel = getNLAModel(is2d);
-    SelInfo attrinf( attrdata.attrset, attrdata.nlamodel, is2d ? Only2D: No2D );
+    SelInfo attrinf( attrdata.attrset, attrdata.nlamodel, is2d );
     const MenuItem* calcmnuitem = is2d ? &calc2dmnuitem_ : &calc3dmnuitem_;
     const MenuItem* nlamnuitem = is2d ? &nla2dmnuitem_ : &nla3dmnuitem_;
     const MenuItem* depthdomainmnuitem = is2d ? &depthdomain2dmnuitem_ 

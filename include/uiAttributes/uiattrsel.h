@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrsel.h,v 1.6 2006-06-30 07:20:08 cvsnanne Exp $
+ RCS:           $Id: uiattrsel.h,v 1.7 2006-12-20 11:23:00 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -63,8 +63,7 @@ class uiAttrSelDlg : public uiDialog
 public:
 
 			uiAttrSelDlg(uiParent*,const char* seltxt,
-				     const uiAttrSelData&,
-				     Pol2D pol2d=Both2DAnd3D,
+				     const uiAttrSelData&,bool is2d=false,
 				     Attrib::DescID ignoreid=
 				     		Attrib::DescID(-1,true));
 			~uiAttrSelDlg();
@@ -121,17 +120,16 @@ latter case you must provide the attrib desc and the input number.
 class uiAttrSel : public uiIOSelect
 {
 public:
-			uiAttrSel(uiParent*,const Attrib::DescSet*,
+			uiAttrSel(uiParent*,const Attrib::DescSet*,bool,
 				  const char* txt=0,
 				  Attrib::DescID curid=Attrib::DescID::undef());
 			uiAttrSel(uiParent*,const char*,
-				  const uiAttrSelData&);
+				  const uiAttrSelData&,bool);
 			~uiAttrSel()		{}
 
     Attrib::DescID	attribID() const	{ return attrdata_.attribid; }
     int			outputNr() const	{ return attrdata_.outputnr; }
     bool		is2D() const		{ return is2d_; }
-    void		set2D(bool yn)		{ is2d_ = yn; }
 
     void		setDescSet(const Attrib::DescSet*);
 			//!< This function has to be called before getHistory !
@@ -175,10 +173,10 @@ class uiImagAttrSel : public uiAttrSel
 {
 public:
 			uiImagAttrSel(uiParent* p,const Attrib::DescSet* a,
-				      const char* txt=0,
+				      bool is2d, const char* txt=0,
 				      Attrib::DescID curid=
 				      		Attrib::DescID(-1,true))
-			: uiAttrSel(p,a,txt,curid)	{}
+			: uiAttrSel(p,a,is2d,txt,curid)	{}
 
     inline Attrib::DescID realID() const		{ return attribID(); }
     Attrib::DescID	imagID() const;

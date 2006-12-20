@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribdescset.cc,v 1.51 2006-11-21 14:00:06 cvsbert Exp $";
+static const char* rcsID = "$Id: attribdescset.cc,v 1.52 2006-12-20 11:23:00 cvshelene Exp $";
 
 #include "attribdescset.h"
 #include "attribstorprovider.h"
@@ -33,6 +33,8 @@ DescSet* DescSet::clone() const
     }
 
     descset->updateInputs();
+    descset->is2d_ = is2d_;
+    descset->is2dset_ = is2dset_;
     return descset;
 }
 
@@ -317,7 +319,7 @@ void DescSet::handleReferenceInput( Desc* dsc )
 {
     if ( dsc->isSatisfied() == Desc::Error )
     {
-	Desc* inpdesc = getFirstStored( is2D() ? Only2D : No2D, false );
+	Desc* inpdesc = getFirstStored( false );
 	if ( !inpdesc ) return;
 
 	dsc->setInput( 0, inpdesc );
@@ -364,6 +366,7 @@ bool DescSet::setAllInputDescs( int nrdescsnosteer, const IOPar& copypar,
 }
 
 
+//TODO use 2D/3D info
 bool DescSet::usePar( const IOPar& par, BufferStringSet* errmsgs )
 {
     removeAll();
@@ -574,14 +577,15 @@ DescID DescSet::getFreeID() const
 
 bool DescSet::is2D() const
 {
+    if ( is2dset_ ) return is2d_;
+    
     bool is2d = false;
-
     for ( int idx=0; idx<descs.size(); idx++ )
     {
 	const Desc& dsc = *descs[idx];
 	if ( !dsc.isStored() )
 	    continue;
-
+	
 	if ( dsc.is2D() )
 	{
 	    is2d = true;
@@ -742,7 +746,7 @@ int DescSet::removeUnused( bool remstored )
 }
 
 
-Desc* DescSet::getFirstStored( Pol2D p2d, bool usesteering ) const
+Desc* DescSet::getFirstStored( bool usesteering ) const
 {
     for ( int idx=0; idx<nrDescs(); idx++ )
     {
@@ -757,7 +761,7 @@ Desc* DescSet::getFirstStored( Pol2D p2d, bool usesteering ) const
 	const bool issteer = res && *res == 'S';
 	if ( !usesteering && issteer ) continue;
 
-	if ( (dsc.is2D() && p2d != No2D) || (!dsc.is2D() && p2d != Only2D) )
+	if ( (dsc.is2D() == is2D() ) ) //TODO backward compatibility with 2.4
 	    return const_cast<Desc*>( &dsc );
     }
 

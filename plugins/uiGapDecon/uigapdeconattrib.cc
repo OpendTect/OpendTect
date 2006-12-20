@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          July  2006
- RCS:           $Id: uigapdeconattrib.cc,v 1.19 2006-10-23 15:23:26 cvshelene Exp $
+ RCS:           $Id: uigapdeconattrib.cc,v 1.20 2006-12-20 11:23:00 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,8 +49,8 @@ class uiGDPositionDlg: public uiDialog
 };
 
 
-uiGapDeconAttrib::uiGapDeconAttrib( uiParent* p )
-	: uiAttrDescEd ( p )
+uiGapDeconAttrib::uiGapDeconAttrib( uiParent* p, bool is2d )
+	: uiAttrDescEd ( p, is2d )
     	, acorrview_ ( new GapDeconACorrView(0) )
 {
     inpfld_ = getInpFld();
@@ -112,13 +112,6 @@ uiGapDeconAttrib::~uiGapDeconAttrib()
 }
 
     
-void uiGapDeconAttrib::set2D( bool yn )
-{
-    exambut_->display(!yn);
-    qcbut_->display(!yn);
-}
-
-
 void uiGapDeconAttrib::mixSel( CallBacker* )
 {
     stepoutfld_->display( wantmixfld_->getBoolValue() );

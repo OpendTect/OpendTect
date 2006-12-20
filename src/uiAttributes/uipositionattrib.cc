@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          November 2002
- RCS:           $Id: uipositionattrib.cc,v 1.6 2006-11-23 12:55:40 cvsbert Exp $
+ RCS:           $Id: uipositionattrib.cc,v 1.7 2006-12-20 11:23:00 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,8 +33,8 @@ static const char* opstrs[] =
 mInitAttribUI(uiPositionAttrib,Position,"Position",sKeyPositionGrp)
 
 
-uiPositionAttrib::uiPositionAttrib( uiParent* p )
-	: uiAttrDescEd(p)
+uiPositionAttrib::uiPositionAttrib( uiParent* p, bool is2d )
+	: uiAttrDescEd(p,is2d)
 {
     inpfld = getInpFld( "Input attribute" );
 
@@ -54,15 +54,6 @@ uiPositionAttrib::uiPositionAttrib( uiParent* p )
     outfld->attach( alignedBelow, operfld );
 
     setHAlignObj( inpfld );
-}
-
-
-void uiPositionAttrib::set2D( bool yn )
-{
-    inpfld->set2D( yn );
-    outfld->set2D( yn );
-    stepoutfld->set2D( yn );
-    steerfld->set2D( yn );
 }
 
 

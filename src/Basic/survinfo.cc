@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          18-4-1996
- RCS:           $Id: survinfo.cc,v 1.83 2006-12-15 13:29:24 cvsbert Exp $
+ RCS:           $Id: survinfo.cc,v 1.84 2006-12-20 11:23:00 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,6 +38,9 @@ const char* SurveyInfo::sKeySurvDataType = "Survey Data Type";
 
 SurveyInfo* SurveyInfo::theinst_ = 0;
 bool SurveyInfo::dowarnings_ = true;
+
+DefineEnumNames(SurveyInfo,Pol2D ,-1,"Survey Type")
+{ "Only 3D", "Only 2D", "Both 2D and 3D", 0 };
 
 const SurveyInfo& SI()
 {
@@ -181,7 +184,7 @@ SurveyInfo* SurveyInfo::read( const char* survdir )
 	}
 	else if ( keyw == sKeySurvDataType )
 	{
-	    si->setSurvDataType( namesToPol2D(astream.value()) );
+	    si->setSurvDataType( eEnum( Pol2D, astream.value()) );
 	    si->survdatatypeknown_ = true;
 	}
 	else
@@ -607,7 +610,7 @@ bool SurveyInfo::write( const char* basedir ) const
     }
 
     astream.put( sKey::Name, name() );
-    astream.put( sKeySurvDataType, pol2DNames(getSurvDataType()) );
+    astream.put( sKeySurvDataType, eString ( Pol2D, getSurvDataType()) );
     FileMultiString fms;
     fms += cs_.hrg.start.inl; fms += cs_.hrg.stop.inl; fms += cs_.hrg.step.inl;
     astream.put( sKeyInlRange, fms );

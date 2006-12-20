@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          July 2006
- RCS:           $Id: uigapdeconattrib.h,v 1.12 2006-10-10 17:46:05 cvsbert Exp $
+ RCS:           $Id: uigapdeconattrib.h,v 1.13 2006-12-20 11:23:00 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,10 +31,9 @@ class uiGapDeconAttrib : public uiAttrDescEd
 {
 public:
 
-			uiGapDeconAttrib(uiParent*);
+			uiGapDeconAttrib(uiParent*,bool);
 			~uiGapDeconAttrib();
 
-    void                set2D(bool);
     void		getEvalParams(TypeSet<EvalParam>&) const;
 
 protected:

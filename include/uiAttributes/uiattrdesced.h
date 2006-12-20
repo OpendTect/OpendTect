@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: uiattrdesced.h,v 1.19 2006-11-29 09:30:29 cvshelene Exp $
+ RCS:           $Id: uiattrdesced.h,v 1.20 2006-12-20 11:23:00 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -89,8 +89,6 @@ public:
     			//!< If attribdesc is non-zero, that desc will be
     			//!< filled. If not, the internal desc will be filled.
 
-    virtual void	set2D(bool yn)			{}
-
     virtual int		getOutputIdx(float val) const	{ return (int)val; }
     virtual float	getOutputValue(int idx) const	{ return (float)idx; }
     virtual void	setOutputStep(float step)	{}
@@ -114,7 +112,7 @@ public:
 
 protected:
 
-			uiAttrDescEd(uiParent*);
+			uiAttrDescEd(uiParent*,bool);
 
     virtual bool	setParameters(const Desc&)	{ return true; }
     virtual bool	getParameters(Desc&)		{ return true; }
@@ -144,12 +142,12 @@ protected:
     ChangeTracker	chtr_;
     uiAttrSel*		getInpFld(const char* txt=0,const uiAttrSelData* =0);
     uiImagAttrSel*	getImagInpFld();
-    void		attrInpSel(CallBacker*);
 
     BufferString	attrnm_;
     DomainType		domtyp_;
     BufferString	errmsg_;
     DescSet*		ads_;
+    bool		is2d_;
 
     static const char*	sKeyOtherGrp;
     static const char*	sKeyBasicGrp;
@@ -170,7 +168,7 @@ private:
 
 #define mDeclReqAttribUIFns \
 protected: \
-    static uiAttrDescEd* createInstance(uiParent*); \
+    static uiAttrDescEd* createInstance(uiParent*,bool); \
     static int factoryid_; \
 public: \
     static void initClass(); \
@@ -189,9 +187,9 @@ void clss::initClass() \
 		     clss::createInstance, (int)domtyp ); \
 } \
 \
-uiAttrDescEd* clss::createInstance( uiParent* p ) \
+uiAttrDescEd* clss::createInstance( uiParent* p, bool is2d ) \
 { \
-    uiAttrDescEd* de = new clss( p ); \
+    uiAttrDescEd* de = new clss( p, is2d ); \
     de->setDisplayName( displaynm ); \
     de->setDomainType( domtyp ); \
     return de; \

@@ -7,7 +7,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Payraudeau
  Date:          February 2005
- RCS:           $Id: uieventattrib.h,v 1.4 2006-10-10 17:46:05 cvsbert Exp $
+ RCS:           $Id: uieventattrib.h,v 1.5 2006-12-20 11:23:00 cvshelene Exp $
  ________________________________________________________________________
 
 -*/
@@ -25,7 +25,7 @@ class uiEventAttrib : public uiAttrDescEd
 {
 public:
 
-                        uiEventAttrib(uiParent*);
+                        uiEventAttrib(uiParent*,bool);
 
 protected:
 

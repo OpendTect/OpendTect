@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribdescset.h,v 1.23 2006-09-28 11:17:43 cvsnanne Exp $
+ RCS:           $Id: attribdescset.h,v 1.24 2006-12-20 11:23:00 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,7 +26,10 @@ class Desc;
 class DescSet
 {
 public:
-    				~DescSet() { removeAll(); }
+    				DescSet()
+				    : is2d_(false)
+				    , is2dset_(false)	{}
+    				~DescSet() 		{ removeAll(); }
     DescSet*			clone() const;
     DescSet*			optimizeClone(const DescID& targetid) const;
     DescSet*      		optimizeClone(const TypeSet<DescID>&) const;
@@ -53,8 +56,7 @@ public:
     void			getStoredIds(TypeSet<DescID>&) const;
     DescID			getStoredID(const char* lk,int selout=0,
 	    				    bool create=true);
-    Desc* 			getFirstStored(Pol2D p2d,bool usesteering=true)
-					       const;
+    Desc* 			getFirstStored(bool usesteering=true) const;
 
     void			removeDesc(const DescID&);
     void			removeAll();
@@ -96,6 +98,8 @@ protected:
     ObjectSet<Desc>		descs;
     TypeSet<DescID>		ids;
     BufferString		errmsg;
+    bool			is2d_;
+    bool			is2dset_;
 };
 
 } // namespace Attrib

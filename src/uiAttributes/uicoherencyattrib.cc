@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:		$Id: uicoherencyattrib.cc,v 1.8 2006-11-23 12:55:40 cvsbert Exp $
+ RCS:		$Id: uicoherencyattrib.cc,v 1.9 2006-12-20 11:23:00 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,8 +24,8 @@ using namespace Attrib;
 mInitAttribUI(uiCoherencyAttrib,Coherency,"Coherency",sKeyBasicGrp)
 
 
-uiCoherencyAttrib::uiCoherencyAttrib( uiParent* p )
-	: uiAttrDescEd(p)
+uiCoherencyAttrib::uiCoherencyAttrib( uiParent* p, bool is2d )
+	: uiAttrDescEd(p,is2d)
 {
     inpfld = getImagInpFld();
 
@@ -46,13 +46,6 @@ uiCoherencyAttrib::uiCoherencyAttrib( uiParent* p )
     stepoutfld->attach( alignedBelow, deltadipfld );
 
     setHAlignObj( tgfld );
-}
-
-
-void uiCoherencyAttrib::set2D( bool yn )
-{
-    inpfld->set2D( yn );
-    stepoutfld->set2D( yn );
 }
 
 

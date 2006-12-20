@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Huck
  Date:          November 2006
- RCS:           $Id: uiconvolveattrib.cc,v 1.5 2006-11-23 17:22:02 cvsbert Exp $
+ RCS:           $Id: uiconvolveattrib.cc,v 1.6 2006-12-20 11:23:00 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,7 +41,7 @@ static const char* kerstrs[] =
 };
 
 
-static const char* outpstrs[] =
+static const char* outpstrs3d[] =
 {
 	"Average gradient",
         "Inline gradient",
@@ -51,11 +51,19 @@ static const char* outpstrs[] =
 };
 
 
+static const char* outpstrs2d[] =
+{
+	"Line gradient",
+        "Time gradient",
+        0
+};
+
+
 mInitAttribUI(uiConvolveAttrib,Convolve,"Convolve",sKeyFilterGrp)
 
 
-uiConvolveAttrib::uiConvolveAttrib( uiParent* p )
-	: uiAttrDescEd(p)
+uiConvolveAttrib::uiConvolveAttrib( uiParent* p, bool is2d )
+	: uiAttrDescEd(p,is2d)
     	, ctio_(*mMkCtxtIOObj(Wavelet))
 {
     inpfld_ = getInpFld();
@@ -73,7 +81,8 @@ uiConvolveAttrib::uiConvolveAttrib( uiParent* p )
     shapefld_ = new uiGenInput( this, "Shape", BoolInpSpec( "Sphere", "Cube" ));
     shapefld_->attach( alignedBelow, szfld_ );
 
-    outpfld_ = new uiGenInput( this, "Output", StringListInpSpec(outpstrs) );
+    outpfld_ = new uiGenInput( this, "Output",
+		       StringListInpSpec( is2d_ ? outpstrs2d : outpstrs3d) );
     outpfld_->attach( alignedBelow, kernelfld_ );
 
     waveletfld_ = new uiIOObjSel( this, ctio_ );
@@ -89,25 +98,6 @@ uiConvolveAttrib::~uiConvolveAttrib()
 {
     delete ctio_.ioobj;
     delete &ctio_;
-}
-
-
-void uiConvolveAttrib::set2D( bool yn )
-{
-    inpfld_->set2D( yn );
-
-    const int oldval = outpfld_->getIntValue();
-    BufferStringSet strs;
-    if ( yn )
-    {
-	strs.add( "Line gradient" );
-	strs.add( outpstrs[3] );
-    }
-    else
-	strs = outpstrs;
-
-    outpfld_->newSpec( StringListInpSpec(strs), 0 );
-    outpfld_->setValue( oldval );
 }
 
 

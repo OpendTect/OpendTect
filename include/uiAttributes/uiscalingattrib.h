@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          December 2004
- RCS:           $Id: uiscalingattrib.h,v 1.5 2006-10-10 17:46:05 cvsbert Exp $
+ RCS:           $Id: uiscalingattrib.h,v 1.6 2006-12-20 11:23:00 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,7 +26,7 @@ class uiScalingAttrib : public uiAttrDescEd
 {
 public:
 
-			uiScalingAttrib(uiParent*);
+			uiScalingAttrib(uiParent*,bool);
 
 protected:
 

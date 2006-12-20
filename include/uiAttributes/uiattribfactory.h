@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          September 2006
- RCS:           $Id: uiattribfactory.h,v 1.3 2006-10-24 12:37:28 cvshelene Exp $
+ RCS:           $Id: uiattribfactory.h,v 1.4 2006-12-20 11:23:00 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,7 +20,7 @@ class uiParent;
 /*! \brief Factory for attrib editors.  */
 
 
-typedef uiAttrDescEd* (*uiAttrDescEdCreateFunc)(uiParent*);
+typedef uiAttrDescEd* (*uiAttrDescEdCreateFunc)(uiParent*,bool);
 
 class uiAttributeFactory
 {
@@ -28,7 +28,8 @@ public:
 
     int			add(const char* displaynm,const char* attrnm,
 	    		    const char* grpnm,uiAttrDescEdCreateFunc,int);
-    uiAttrDescEd*	create(uiParent*,const char* nm,bool dispnm=true) const;
+    uiAttrDescEd*	create(uiParent*,const char* nm, bool,
+	    		       bool dispnm=true) const;
 
     int			size() const	{ return entries_.size(); }
     const char*		getDisplayName( int idx ) const

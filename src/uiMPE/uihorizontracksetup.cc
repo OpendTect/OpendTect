@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2005
- RCS:           $Id: uihorizontracksetup.cc,v 1.8 2006-12-01 16:38:52 cvsjaap Exp $
+ RCS:           $Id: uihorizontracksetup.cc,v 1.9 2006-12-20 11:23:01 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -82,7 +82,8 @@ uiGroup* uiHorizonSetupGroup::createEventGroup()
 {
     uiGroup* grp = new uiGroup( tabgrp_->tabGroup(), "Event" );
 
-    inpfld = new uiAttrSel( grp, attrset_, "Seismic data" );
+    inpfld = new uiAttrSel( grp, attrset_, attrset_ ? attrset_->is2D() : false,
+	    		    "Seismic data" );
     grp->setHAlignObj( inpfld );
 
     evfld = new uiGenInput( grp, "Event type",
@@ -187,7 +188,6 @@ void uiHorizonSetupGroup::initEventGroup()
 	horadj_->getAttributeSel(0)->id() : Attrib::DescID::undef();
     if ( attrset_->getDesc(curid) )
 	inpfld->setDesc( attrset_->getDesc(curid) );
-    inpfld->set2D( horadj_->is2D() );
 
     VSEvent::Type ev = horadj_->trackEvent();
     const int fldidx = ev == VSEvent::Min ? 0

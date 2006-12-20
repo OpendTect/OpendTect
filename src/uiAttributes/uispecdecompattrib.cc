@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2004
- RCS:           $Id: uispecdecompattrib.cc,v 1.12 2006-10-10 17:46:05 cvsbert Exp $
+ RCS:           $Id: uispecdecompattrib.cc,v 1.13 2006-12-20 11:23:01 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,8 +30,8 @@ static float sDefaultFreqStep = 5;
 mInitAttribUI(uiSpecDecompAttrib,SpecDecomp,"Spectral Decomp",sKeyFreqGrp)
 
 
-uiSpecDecompAttrib::uiSpecDecompAttrib( uiParent* p )
-    : uiAttrDescEd(p)
+uiSpecDecompAttrib::uiSpecDecompAttrib( uiParent* p, bool is2d )
+    : uiAttrDescEd(p,is2d)
     , nyqfreq(0)
     , nrsamples(0)
     , ds(0)

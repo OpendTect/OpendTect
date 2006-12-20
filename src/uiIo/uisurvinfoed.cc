@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvinfoed.cc,v 1.79 2006-12-14 14:30:52 cvshelene Exp $
+ RCS:           $Id: uisurvinfoed.cc,v 1.80 2006-12-20 11:23:01 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -155,14 +155,17 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo& si )
     pathbut->activated.notify( mCB(this,uiSurveyInfoEditor,pathbutPush) );
 #endif
 
-    only2dfld = new uiRadioButton( this, pol2DNames(Only2D) );
+    only2dfld = new uiRadioButton( this,
+			eString(SurveyInfo::Pol2D, SurveyInfo::Only2D) );
     only2dfld->attach( alignedBelow, pathfld );
     only2dfld->activated.notify( mCB(this,uiSurveyInfoEditor,survTypePush) );
-    only3dfld = new uiRadioButton( this, pol2DNames(No2D) );
+    only3dfld = new uiRadioButton( this,
+			eString(SurveyInfo::Pol2D, SurveyInfo::No2D) );
     only3dfld->setChecked( true );
     only3dfld->attach( rightTo, only2dfld );
     only3dfld->activated.notify( mCB(this,uiSurveyInfoEditor,survTypePush) );
-    both2d3dfld = new uiRadioButton( this, pol2DNames(Both2DAnd3D) );
+    both2d3dfld = new uiRadioButton( this, 
+	    		eString(SurveyInfo::Pol2D, SurveyInfo::Both2DAnd3D) );
     both2d3dfld->attach( rightTo,only3dfld );
     both2d3dfld->activated.notify( mCB(this,uiSurveyInfoEditor,survTypePush) );
     uiLabel* survtypelbl = new uiLabel( this, "Survey is" );
@@ -483,10 +486,10 @@ void uiSurveyInfoEditor::doFinalise( CallBacker* )
     pathfld->setReadOnly( true );
     updStatusBar( orgstorepath );
 
-    Pol2D survtyp = si_.getSurvDataType();
-    only2dfld->setChecked( survtyp == Only2D );
-    only3dfld->setChecked( survtyp == No2D );
-    both2d3dfld->setChecked( survtyp == Both2DAnd3D );
+    SurveyInfo::Pol2D survtyp = si_.getSurvDataType();
+    only2dfld->setChecked( survtyp == SurveyInfo::Only2D );
+    only3dfld->setChecked( survtyp == SurveyInfo::No2D );
+    both2d3dfld->setChecked( survtyp == SurveyInfo::Both2DAnd3D );
     
     if ( si_.sampling(false).hrg.totalNr() )
 	setValues();
@@ -523,9 +526,9 @@ bool uiSurveyInfoEditor::acceptOK( CallBacker* )
     dirnamechanged = orgdirname != newdirnm;
     si_.dirname = newdirnm;
     
-    Pol2D typ = No2D;
-    if ( only2dfld->isChecked() ) typ = Only2D;
-    if ( both2d3dfld->isChecked() ) typ = Both2DAnd3D;
+    SurveyInfo::Pol2D typ = SurveyInfo::No2D;
+    if ( only2dfld->isChecked() ) typ = SurveyInfo::Only2D;
+    if ( both2d3dfld->isChecked() ) typ = SurveyInfo::Both2DAnd3D;
     si_.setSurvDataType( typ );
 
     if ( !appButPushed() )

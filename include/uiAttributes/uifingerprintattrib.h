@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Payraudeau
  Date:          February 2006
- RCS:           $Id: uifingerprintattrib.h,v 1.13 2006-11-23 12:55:40 cvsbert Exp $
+ RCS:           $Id: uifingerprintattrib.h,v 1.14 2006-12-20 11:23:00 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,10 +39,8 @@ class uiFingerPrintAttrib : public uiAttrDescEd
 {
 public:
 
-			uiFingerPrintAttrib(uiParent*);
+			uiFingerPrintAttrib(uiParent*,bool);
 			~uiFingerPrintAttrib();
-
-    void		set2D(bool);
 
 protected:
 

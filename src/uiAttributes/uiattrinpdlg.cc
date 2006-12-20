@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiattrinpdlg.cc,v 1.6 2006-12-01 12:42:54 cvshelene Exp $
+ RCS:           $Id: uiattrinpdlg.cc,v 1.7 2006-12-20 11:23:00 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -61,12 +61,6 @@ uiAttrInpDlg::uiAttrInpDlg( uiParent* p, const BufferStringSet& refset,
     inpfld = new uiSeisSel( this, ctio, SeisSelSetup(), false, 
 	    		    issteer ? steerlbl : seislbl );
     inpfld->attach( alignedBelow, txtfld );
-}
-
-
-void uiAttrInpDlg::set2DPol( Pol2D pol )
-{
-    inpfld->set2DPol( pol );
 }
 
 

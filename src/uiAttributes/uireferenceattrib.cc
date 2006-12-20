@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Payraudeau
  Date:          July 2005
- RCS:		$Id: uireferenceattrib.cc,v 1.8 2006-10-10 17:46:05 cvsbert Exp $
+ RCS:		$Id: uireferenceattrib.cc,v 1.9 2006-12-20 11:23:00 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,30 +51,22 @@ static const char* outpstrs2d[] =
 mInitAttribUI(uiReferenceAttrib,Reference,"Reference",sKeyPositionGrp)
 
 
-uiReferenceAttrib::uiReferenceAttrib( uiParent* p )
-    : uiAttrDescEd(p)
-    , is2d_(false)
+uiReferenceAttrib::uiReferenceAttrib( uiParent* p, bool is2d )
+    : uiAttrDescEd(p,is2d)
 {
     inpfld = getInpFld();
     
     outpfld3d = new uiGenInput( this, "Desired Output",
 				   StringListInpSpec(outpstrs3d) );
     outpfld3d->attach( alignedBelow, inpfld );
+    outpfld3d->display( !is2d_ );
 
     outpfld2d = new uiGenInput( this, "Desired Output",
 				   StringListInpSpec(outpstrs2d) );
     outpfld2d->attach( alignedBelow, inpfld );
-    outpfld2d->display(false);
+    outpfld2d->display( is2d_ );
 
     setHAlignObj( outpfld3d );
-}
-
-
-void uiReferenceAttrib::set2D( bool yn )
-{
-    outpfld3d->display( !yn );
-    outpfld2d->display( yn );
-    is2d_ = yn;
 }
 
 

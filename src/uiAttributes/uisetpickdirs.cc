@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Nov 2003
- RCS:           $Id: uisetpickdirs.cc,v 1.6 2006-09-22 12:50:29 cvsbert Exp $
+ RCS:           $Id: uisetpickdirs.cc,v 1.7 2006-12-20 11:23:01 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -76,14 +76,16 @@ uiSetPickDirs::uiSetPickDirs( uiParent* p, Pick::Set& s,
 
     uiAttrSelData ad( ads );
     ad.nlamodel = nlamdl;
-    phifld = new uiAttrSel( this, "Azimuth Angle ~ North (phi=[0-360])", ad );
+    const bool is2d = ads ? ads->is2D() : false;
+    phifld = new uiAttrSel( this, "Azimuth Angle ~ North (phi=[0-360])",
+	    		    ad, is2d );
     if ( dirinpfld )
 	phifld->attach( alignedBelow, dirinpfld );
     thetafld = new uiAttrSel( this, "Dip Angle ~ Horizontal (theta=[-90-90])", 
-	    		      ad );
+	    		      ad, is2d );
     thetafld->attach( alignedBelow, phifld );
 
-    rfld = new uiAttrSel( this, "Vector length (R)", ad );
+    rfld = new uiAttrSel( this, "Vector length (R)", ad, is2d );
     rfld->attach( alignedBelow, thetafld );
 
     finaliseDone.notify( mCB(this,uiSetPickDirs,dirinpSel) );

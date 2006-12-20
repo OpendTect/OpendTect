@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Payraudeau
  Date:          February  2006
- RCS:           $Id: uifingerprintattrib.cc,v 1.26 2006-11-23 12:55:40 cvsbert Exp $
+ RCS:           $Id: uifingerprintattrib.cc,v 1.27 2006-12-20 11:23:00 cvshelene Exp $
 
 ________________________________________________________________________
 
@@ -100,10 +100,9 @@ class uiFPAdvancedDlg: public uiDialog
 };
 
 
-uiFingerPrintAttrib::uiFingerPrintAttrib( uiParent* p )
-	: uiAttrDescEd(p)
+uiFingerPrintAttrib::uiFingerPrintAttrib( uiParent* p, bool is2d )
+	: uiAttrDescEd(p,is2d)
     	, ctio_(*mMkCtxtIOObj(PickSet))
-	, is2d_(false)
 {
     calcobj_ = new calcFingParsObject( this );
 
@@ -119,11 +118,13 @@ uiFingerPrintAttrib::uiFingerPrintAttrib( uiParent* p )
     refposfld_->attach( alignedBelow, refgrp_ );
     refpos2dfld_ = new uiGenInput( this, "Trace number", IntInpSpec() );
     refpos2dfld_->attach( alignedBelow, refgrp_ );
+    refpos2dfld_->display( is2d_ );
     BufferString zlabel = "Z "; zlabel += SI().getZUnit();
     refposzfld_ = new uiGenInput( this, zlabel );
     refposzfld_->setElemSzPol( uiObject::Small );
     refposzfld_->attach( rightTo, refposfld_ );
     refposzfld_->attach( rightTo, refpos2dfld_ );
+    refposfld_->display( !is2d_ );
     
     getposbut_ = new uiToolButton( this, "", ioPixmap("pick.png"),
 	    			   mCB(this,uiFingerPrintAttrib,getPosPush) );
@@ -239,18 +240,6 @@ void uiFingerPrintAttrib::deleteRowCB( CallBacker* cb )
     weights.remove( row2rm );
 
     calcobj_->setWeights( weights );
-}
-
-
-void uiFingerPrintAttrib::set2D( bool yn )
-{
-    is2d_ = yn;
-    refposfld_->display( !is2d_ );
-    refpos2dfld_->display( is2d_ );
-    const bool needposflds = refgrp_->selectedId() == 1;
-    linesetfld_->display( is2d_ && needposflds );
-    linefld_->display( is2d_ && needposflds );
-    sel2dbut_->display( is2d_ && needposflds );
 }
 
 
@@ -559,7 +548,7 @@ void uiFingerPrintAttrib::fillIn2DPos(CallBacker*)
 {
     PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(SeisTrc);
     SeisSelSetup setup;
-    setup.pol2d( Only2D ).selattr( false );
+    setup.is2d( true ).selattr( false );
     uiSeisSelDlg dlg( this, *ctio, setup );
     if ( !dlg.go() || !dlg.ioObj() ) return;
 

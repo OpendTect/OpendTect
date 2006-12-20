@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2001
- RCS:           $Id: uimathattrib.h,v 1.5 2006-10-24 15:21:36 cvshelene Exp $
+ RCS:           $Id: uimathattrib.h,v 1.6 2006-12-20 11:23:00 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,7 +25,7 @@ class uiMathAttrib : public uiAttrDescEd
 {
 public:
 
-			uiMathAttrib(uiParent*);
+			uiMathAttrib(uiParent*,bool);
 
     void                getEvalParams(TypeSet<EvalParam>&) const;
 
