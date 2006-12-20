@@ -5,11 +5,13 @@
 -*/
 
 
-static const char* rcsID = "$Id: attriboutput.cc,v 1.49 2006-12-11 17:13:51 cvskris Exp $";
+static const char* rcsID = "$Id: attriboutput.cc,v 1.50 2006-12-20 17:50:33 cvskris Exp $";
 
 #include "attriboutput.h"
 #include "attribdataholder.h"
 #include "attribdatacubes.h"
+#include "convmemvalseries.h"
+#include "arrayndconvmemstor.h"
 #include "seistrc.h"
 #include "seistrctr.h"
 #include "seistrcsel.h"
@@ -132,33 +134,77 @@ void DataCubesOutput::collectData( const DataHolder& data, float refstep,
 	mGetSz(inl); mGetSz(crl); mGetZSz();
 	datacubes_->setSize( inlsz, crlsz, zsz );
     }
-		
-    const int totalnrcubes = desoutputs_.size();
-    while ( datacubes_->nrCubes() < totalnrcubes )
-	datacubes_->addCube(mUdf(float));
 
     if ( !datacubes_->includes(info.binid) )
 	return;
-    
-    int zsz; 
-    mGetZSz();
-    Interval<int> dataidxrg( data.z0_, data.z0_+data.nrsamples_ - 1 );
+		
+    const int totalnrcubes = desoutputs_.size();
     for ( int desout=0; desout<desoutputs_.size(); desout++ )
     {
-	for ( int idx=0; idx<zsz; idx++)
+	if ( desout<datacubes_->nrCubes() )
+	    continue;
+
+	mDynamicCastGet( ConvMemValueSeries<float>*, cmvs,
+			 data.series(desoutputs_[desout]) );
+
+	if ( cmvs && cmvs->handlesUndef() )
 	{
-	    const int dataidx = datacubes_->z0 + idx;
-	    float val = udfval_;
-	    if (dataidxrg.includes(dataidx) && data.series(desoutputs_[desout]))
-		val = data.series(desoutputs_[desout])->value(dataidx-data.z0_);
+	    const BinDataDesc desc = cmvs->dataDesc();
+	    datacubes_->addCube(mUdf(float), false, &desc );
+	}
+	else
+	    datacubes_->addCube(mUdf(float));
+    }
 
-	    const int inlidx =
-		datacubes_->inlsampling.nearestIndex(info.binid.inl);
-	    const int crlidx =
-		datacubes_->crlsampling.nearestIndex(info.binid.crl);
+    int zsz; 
+    mGetZSz();
 
-	    if ( mIsUdf(val) ) continue;
-	    datacubes_->setValue( desout, inlidx, crlidx, idx, val);
+    const Interval<int> inputrg( data.z0_, data.z0_+data.nrsamples_ - 1 );
+    const Interval<int> outrg( datacubes_->z0, datacubes_->z0+zsz-1 );
+
+    if ( !inputrg.overlaps(outrg,false) )
+	return;
+
+    const Interval<int> transrg( mMAX(inputrg.start, outrg.start),
+	    			 mMIN(inputrg.stop, outrg.stop ) );
+
+    const int inlidx =
+	datacubes_->inlsampling.nearestIndex(info.binid.inl);
+    const int crlidx =
+	datacubes_->crlsampling.nearestIndex(info.binid.crl);
+
+    for ( int desout=0; desout<desoutputs_.size(); desout++ )
+    {
+	if ( !data.series(desoutputs_[desout]) )
+	    continue;
+
+	mDynamicCastGet( ConvMemValueSeries<float>*, cmvs,
+			 data.series(desoutputs_[desout]) );
+
+	if ( !cmvs )
+	{
+	    for ( int idx=transrg.start; idx<=transrg.stop; idx++)
+	    {
+		const float val =
+		    data.series(desoutputs_[desout])->value(idx-data.z0_);
+
+		datacubes_->setValue( desout, inlidx, crlidx,
+				      idx-datacubes_->z0, val);
+	    }
+	}
+	else
+	{
+	    mDynamicCastGet( ArrayNDMemConvStor<float>*, deststor,
+		    	     datacubes_->getCube(desout).getStorage() );
+	    const char elemsz = cmvs->dataDesc().nrBytes();
+
+	    const int64 destoffset = transrg.start-datacubes_->z0 +
+		datacubes_->getCube(desout).info().getMemPos(inlidx,crlidx,0);
+
+	    char* dest = deststor->nativeStorage() + destoffset * elemsz;
+	    char* src = cmvs->storArr() +
+			(transrg.start-data.z0_) * elemsz;
+	    memcpy( dest, src, elemsz*(transrg.width()+1) );
 	}
     }
 }
