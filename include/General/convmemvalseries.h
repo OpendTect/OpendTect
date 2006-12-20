@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kris Tingdahl
  Date:          Oct 2006
- RCS:           $Id: convmemvalseries.h,v 1.3 2006-12-20 17:28:46 cvskris Exp $
+ RCS:           $Id: convmemvalseries.h,v 1.4 2006-12-20 17:47:28 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,6 +33,7 @@ public:
 
     inline		~ConvMemValueSeries();
 
+
     inline int		size() const;
     inline bool		writable() const;
     inline T		value(int idx) const;
@@ -45,6 +46,7 @@ public:
     inline const char*	storArr() const;
 
     inline BinDataDesc	dataDesc() const;
+    bool		handlesUndef() const { return undefhandler_; }
 
 protected:
 
