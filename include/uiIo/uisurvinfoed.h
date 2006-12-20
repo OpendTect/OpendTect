@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvinfoed.h,v 1.23 2006-12-14 14:30:51 cvshelene Exp $
+ RCS:           $Id: uisurvinfoed.h,v 1.24 2006-12-20 17:40:56 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,7 +24,7 @@ class uiComboBox;
 class uiGenInput;
 class uiLabel;
 class uiPushButton;
-class uiRadioButton;
+class uiLabeledComboBox;
 
 
 /*\brief Interface for survey info provider
@@ -84,15 +84,11 @@ protected:
     uiGenInput*		survnmfld;
     uiGenInput*		dirnmfld;
     uiGenInput*		pathfld;
-    uiRadioButton*	only2dfld;
-    uiRadioButton*	only3dfld;
-    uiRadioButton*	both2d3dfld;
     uiGenInput*		inlfld;
     uiGenInput*		crlfld;
     uiGenInput*		zfld;
-    uiRadioButton*	timefld;
-    uiRadioButton*	meterfld;
-    uiRadioButton*	feetfld;
+    uiLabeledComboBox*	zunitfld;
+    uiLabeledComboBox*	pol2dfld;
 
     uiGenInput*		x0fld;
     uiGenInput*		xinlfld;
@@ -127,8 +123,6 @@ protected:
     void		setInl1Fld(CallBacker*);
     void		chgSetMode(CallBacker*);
     void		pathbutPush(CallBacker*);
-    void		unitPush(CallBacker*);
-    void		survTypePush(CallBacker*);
     void		updStatusBar(const char*);
 };
 

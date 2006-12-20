@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		9-4-1996
- RCS:		$Id: survinfo.h,v 1.58 2006-12-20 11:23:00 cvshelene Exp $
+ RCS:		$Id: survinfo.h,v 1.59 2006-12-20 17:40:56 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -47,7 +47,7 @@ public:
     			SurveyInfo(const SurveyInfo&);
     SurveyInfo&		operator =(const SurveyInfo&);
 
-    enum Pol2D      	{ No2D=-1, Both2DAnd3D=0, Only2D=1 };
+    enum Pol2D      	{ No2D=0, Both2DAnd3D=1, Only2D=2 };
     			DeclareEnumUtils(Pol2D)
 
     const CubeSampling&	sampling( bool work ) const

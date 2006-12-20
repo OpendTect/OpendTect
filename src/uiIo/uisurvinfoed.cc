@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvinfoed.cc,v 1.81 2006-12-20 13:40:41 cvsbert Exp $
+ RCS:           $Id: uisurvinfoed.cc,v 1.82 2006-12-20 17:40:56 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -155,24 +155,12 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo& si )
     pathbut->activated.notify( mCB(this,uiSurveyInfoEditor,pathbutPush) );
 #endif
 
-    only2dfld = new uiRadioButton( this,
-			eString(SurveyInfo::Pol2D, SurveyInfo::Only2D) );
-    only2dfld->attach( alignedBelow, pathfld );
-    only2dfld->activated.notify( mCB(this,uiSurveyInfoEditor,survTypePush) );
-    only3dfld = new uiRadioButton( this,
-			eString(SurveyInfo::Pol2D, SurveyInfo::No2D) );
-    only3dfld->setChecked( true );
-    only3dfld->attach( rightTo, only2dfld );
-    only3dfld->activated.notify( mCB(this,uiSurveyInfoEditor,survTypePush) );
-    both2d3dfld = new uiRadioButton( this, 
-	    		eString(SurveyInfo::Pol2D, SurveyInfo::Both2DAnd3D) );
-    both2d3dfld->attach( rightTo,only3dfld );
-    both2d3dfld->activated.notify( mCB(this,uiSurveyInfoEditor,survTypePush) );
-    uiLabel* survtypelbl = new uiLabel( this, "Survey is" );
-    survtypelbl->attach( leftOf, only2dfld );
+    pol2dfld = new uiLabeledComboBox( this, SurveyInfo::Pol2DNames,
+	    			      "Survey type" );
+    pol2dfld->attach( alignedBelow, pathfld );
 
     uiSeparator* horsep1 = new uiSeparator( this );
-    horsep1->attach( stretchedBelow, only2dfld, -2 );
+    horsep1->attach( stretchedBelow, pol2dfld, -2 );
 
     const int nrprovs = survInfoProvs().size();
     uiObject* sipobj = 0;
@@ -244,18 +232,9 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo& si )
     crlfld->attach( alignedBelow, inlfld );
     zfld->attach( alignedBelow, crlfld );
 
-    timefld = new uiRadioButton( rangegrp, "msec" );
-    timefld->setChecked( true );
-    timefld->attach( alignedBelow, zfld );
-    timefld->activated.notify( mCB(this,uiSurveyInfoEditor,unitPush) );
-    meterfld = new uiRadioButton( rangegrp, "meter" );
-    meterfld->attach( rightTo, timefld );
-    meterfld->activated.notify( mCB(this,uiSurveyInfoEditor,unitPush) );
-    feetfld = new uiRadioButton( rangegrp, "feet" );
-    feetfld->attach( rightTo,meterfld );
-    feetfld->activated.notify( mCB(this,uiSurveyInfoEditor,unitPush) );
-    uiLabel* unitlbl = new uiLabel( rangegrp, "Unit" );
-    unitlbl->attach( leftOf, timefld );
+    static const char* zunitstrs[] = { "msec", "meter", "feet", 0 };
+    zunitfld = new uiLabeledComboBox( rangegrp, zunitstrs, "Z Units" );
+    zunitfld->attach( alignedBelow, zfld );
 
     uiSeparator* horsep2 = new uiSeparator( this );
     horsep2->attach( stretchedBelow, rangegrp );
@@ -350,9 +329,8 @@ void uiSurveyInfoEditor::setValues()
     setZValFld( zfld, 1, zrg.stop, zfac );
     setZValFld( zfld, 2, zrg.step, zfac );
 
-    timefld->setChecked( si_.zIsTime() );
-    meterfld->setChecked( si_.zInMeter() );
-    feetfld->setChecked( si_.zInFeet() );
+    zunitfld->box()->setCurrentItem( si_.zIsTime()  ? 0
+	    			  : (si_.zInMeter() ? 1 : 2) );
 
     x0fld->setValue( si_.b2c_.getTransform(true).a );
     xinlfld->setValue( si_.b2c_.getTransform(true).b );
@@ -487,9 +465,7 @@ void uiSurveyInfoEditor::doFinalise( CallBacker* )
     updStatusBar( orgstorepath );
 
     SurveyInfo::Pol2D survtyp = si_.getSurvDataType();
-    only2dfld->setChecked( survtyp == SurveyInfo::Only2D );
-    only3dfld->setChecked( survtyp == SurveyInfo::No2D );
-    both2d3dfld->setChecked( survtyp == SurveyInfo::Both2DAnd3D );
+    pol2dfld->box()->setCurrentItem( (int)survtyp );
     
     if ( si_.sampling(false).hrg.totalNr() )
 	setValues();
@@ -525,11 +501,7 @@ bool uiSurveyInfoEditor::acceptOK( CallBacker* )
 
     dirnamechanged = orgdirname != newdirnm;
     si_.dirname = newdirnm;
-    
-    SurveyInfo::Pol2D typ = SurveyInfo::No2D;
-    if ( only2dfld->isChecked() ) typ = SurveyInfo::Only2D;
-    if ( both2d3dfld->isChecked() ) typ = SurveyInfo::Both2DAnd3D;
-    si_.setSurvDataType( typ );
+    si_.setSurvDataType( (SurveyInfo::Pol2D)pol2dfld->box()->currentItem() );
 
     if ( !appButPushed() )
 	return false;
@@ -642,7 +614,8 @@ bool uiSurveyInfoEditor::setRanges()
     if ( hs.step.inl < 1 ) hs.step.inl = 1;
     if ( hs.step.crl < 1 ) hs.step.crl = 1;
 
-    si_.setZUnit( timefld->isChecked(), meterfld->isChecked() );
+    const int curzunititem = zunitfld->box()->currentItem();
+    si_.setZUnit( curzunititem == 0, curzunititem == 1 );
     cs.zrg = zfld->getFStepInterval();
     if ( mIsUdf(cs.zrg.start) || mIsUdf(cs.zrg.stop) || mIsUdf(cs.zrg.step) )
 	mErrRet("Please enter the Z Range")
@@ -701,7 +674,8 @@ void uiSurveyInfoEditor::sipbutPush( CallBacker* cb )
     const int sipidx = sipfld ? sipfld->currentItem() : sipbuts.indexOf( cb );
     if ( sipidx < 0 ) { pErrMsg("Huh?"); return; }
 
-    si_.setZUnit( timefld->isChecked(), meterfld->isChecked() );
+    const int curzunititem = zunitfld->box()->currentItem();
+    si_.setZUnit( curzunititem == 0, curzunititem == 1 );
 
     uiSurvInfoProvider* sip = survInfoProvs()[sipidx];
     PtrMan<uiDialog> dlg = sip->dialog( this );
@@ -714,7 +688,7 @@ void uiSurveyInfoEditor::sipbutPush( CallBacker* cb )
     if ( sip->tdInfo() != uiSurvInfoProvider::Uknown )
     {
 	const bool isdpth = sip->tdInfo() == uiSurvInfoProvider::Depth;
-	if ( isdpth && feetfld->isChecked() )
+	if ( isdpth && zunitfld->box()->currentItem() == 2 )
 	    si_.setZUnit( false, true );
 	else
 	    si_.setZUnit( !isdpth, false );
@@ -757,44 +731,6 @@ void uiSurveyInfoEditor::updStatusBar( const char* dirnm )
     BufferString msg;
     GetFreeMBOnDiskMsg( File_getFreeMBytes(dirnm), msg );
     toStatusBar( msg );
-}
-
-
-void uiSurveyInfoEditor::unitPush( CallBacker* cb )
-{
-    mDynamicCastGet(uiRadioButton*,but,cb)
-    if ( !but ) return;
-
-    bool doms, domtr, doft;
-    if ( but == timefld )
-    { doms = true; domtr = doft = false; }
-    else if ( but == meterfld )
-    { domtr = true; doms = doft = false; }
-    else if ( but == feetfld )
-    { doft = true; domtr = doms = false; }
-
-    timefld->setChecked( doms );
-    meterfld->setChecked( domtr );
-    feetfld->setChecked( doft );
-}
-
-
-void uiSurveyInfoEditor::survTypePush( CallBacker* cb )
-{
-    mDynamicCastGet(uiRadioButton*,but,cb)
-    if ( !but ) return;
-
-    bool do2d, do3d, doboth;
-    if ( but == only2dfld )
-    { do2d = true; do3d = doboth = false; }
-    else if ( but == only3dfld )
-    { do3d = true; do2d = doboth = false; }
-    else if ( but == both2d3dfld )
-    { doboth = true; do2d = do3d = false; }
-
-    only2dfld->setChecked( do2d );
-    only3dfld->setChecked( do3d );
-    both2d3dfld->setChecked( doboth );
 }
 
 

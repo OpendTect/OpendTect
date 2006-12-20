@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          18-4-1996
- RCS:           $Id: survinfo.cc,v 1.84 2006-12-20 11:23:00 cvshelene Exp $
+ RCS:           $Id: survinfo.cc,v 1.85 2006-12-20 17:40:56 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,8 +39,8 @@ const char* SurveyInfo::sKeySurvDataType = "Survey Data Type";
 SurveyInfo* SurveyInfo::theinst_ = 0;
 bool SurveyInfo::dowarnings_ = true;
 
-DefineEnumNames(SurveyInfo,Pol2D ,-1,"Survey Type")
-{ "Only 3D", "Only 2D", "Both 2D and 3D", 0 };
+DefineEnumNames(SurveyInfo,Pol2D,0,"Survey Type")
+{ "Only 3D", "Both 2D and 3D", "Only 2D", 0 };
 
 const SurveyInfo& SI()
 {
