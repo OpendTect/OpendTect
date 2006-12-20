@@ -5,12 +5,13 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribdatacubes.cc,v 1.17 2006-08-28 09:11:41 cvskris Exp $";
+static const char* rcsID = "$Id: attribdatacubes.cc,v 1.18 2006-12-20 17:42:16 cvskris Exp $";
 
 #include "attribdatacubes.h"
 #include "arrayndimpl.h"
 #include "survinfo.h"
 #include "idxable.h"
+#include "arrayndconvmemstor.h"
 
 namespace Attrib
 {
@@ -30,26 +31,58 @@ DataCubes::~DataCubes()
 { deepErase( cubes_ ); }
 
 
-bool DataCubes::addCube( bool maydofile )
+bool DataCubes::addCube( bool maydofile, const  BinDataDesc* desc )
 {
-    Array3DImpl<float>* arr = new Array3DImpl<float>( inlsz_, crlsz_, zsz_, false);
-    if ( !arr->getData() )
+    float dummy;
+    const BinDataDesc floatdesc( dummy );
+    Array3DImpl<float>* arr = 0;
+    if ( !desc || (*desc)==floatdesc )
     {
-	delete arr;
-	if ( maydofile )
-	    arr = new Array3DImpl<float>( inlsz_, crlsz_, zsz_, true );
-	else
-	    return false;
-    }
+        arr = new Array3DImpl<float>( inlsz_, crlsz_, zsz_, false);
 
+	if ( !arr->getData() )
+	{
+	    if ( maydofile )
+	    {
+		ArrayNDFileStor<float>* stor =
+		    new ArrayNDFileStor<float>( arr->info().getTotalSz() );
+		if ( !stor->isOK() )
+		{
+		    delete arr;
+		    delete stor;
+		    return false;
+		}
+
+		arr->setStorage( stor );
+	    }
+	    else
+	    {
+		delete arr;
+		return false;
+	    }
+	}
+    }
+    else
+    {
+	 arr = new Array3DImpl<float>( 0, 0, 0, false);
+	 ArrayNDMemConvStor<float>* stor= new ArrayNDMemConvStor<float>(0,*desc);
+	 arr->setStorage( stor );
+	 arr->setSize( inlsz_, crlsz_, zsz_ );
+	 if ( !stor->nativeStorage() )
+	 {
+	     delete arr;
+	     return false;
+	 }
+    }
+	
     cubes_ += arr;
     return true;
 }
 
 
-bool DataCubes::addCube( float val, bool maydofile )
+bool DataCubes::addCube( float val, bool maydofile, const BinDataDesc* t )
 {
-    if ( !addCube( maydofile ) )
+    if ( !addCube( maydofile, t ) )
 	return false;
 
     setValue( cubes_.size()-1, val );
@@ -124,20 +157,22 @@ bool DataCubes::getValue( int array, const BinIDValue& bidv, float* res,
     if ( crlidx<0 || crlidx>=crlsz_ ) return false;
 
     if ( cubes_.size() <= array ) return false;
-    const float* data = cubes_[array]->getData();
-    data += cubes_[array]->info().getMemPos( inlidx, crlidx, 0 );
+
+    const ArrayND<float>::LinearStorage* data = cubes_[array]->getStorage();
+    const int64 offset = cubes_[array]->info().getMemPos( inlidx, crlidx, 0 );
 
     const float zpos = bidv.value/zstep-z0;
     if ( !interpolate )
     {
 	const int zidx = mNINT( zpos );
 	if ( zidx < 0 || zidx >= zsz_ ) return false;
-	*res = data[zidx];
+	*res = data->get( offset+zidx );
 	return true;
     }
 
     float interpval;
-    if ( !IdxAble::interpolateRegWithUdf( data, zsz_, zpos, interpval, false ) )
+    if ( !IdxAble::interpolateRegWithUdfWithOff( *data, zsz_, offset, zpos,
+						  interpval, false ) )
 	return false;
 
     *res = interpval;

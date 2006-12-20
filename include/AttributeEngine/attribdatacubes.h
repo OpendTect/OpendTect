@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Apr 2002
- RCS:           $Id: attribdatacubes.h,v 1.12 2006-05-31 18:32:05 cvsnanne Exp $
+ RCS:           $Id: attribdatacubes.h,v 1.13 2006-12-20 17:42:16 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,6 +14,8 @@ ________________________________________________________________________
 #include "cubesampling.h"
 #include "refcount.h"
 #include "samplingdata.h"
+#include "bindatadesc.h"
+
 
 template <class T> class Array3D;
 template <class T> class Array3DImpl;
@@ -31,8 +33,10 @@ public:
     				DataCubes();
 
     int				nrCubes() const { return cubes_.size(); }
-    bool			addCube(bool fileifnomem=false);
-    bool			addCube(float,bool fileifnomem=false);
+    bool			addCube(bool fileifnomem=false,
+					const BinDataDesc* = 0 );
+    bool			addCube(float,bool fileifnomem=false,
+					const BinDataDesc* = 0 );
     				//!<Adds the cube and inits it to the given val.
     void			removeCube(int);
 
