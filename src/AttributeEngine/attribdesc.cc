@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribdesc.cc,v 1.52 2006-11-21 14:00:06 cvsbert Exp $";
+static const char* rcsID = "$Id: attribdesc.cc,v 1.53 2006-12-21 13:48:37 cvshelene Exp $";
 
 #include "attribdesc.h"
 
@@ -279,6 +279,7 @@ Desc* Desc::getInput( int input )
 { return input>=0 && input<inputs_.size() ? inputs_[input] : 0; }
 
 
+//keep it for backward compatibility with 2.4
 bool Desc::is2D() const
 {
     if ( is2dset_ || is2ddetected_ )
