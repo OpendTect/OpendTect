@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrdescseted.cc,v 1.40 2006-12-21 10:48:24 cvshelene Exp $
+ RCS:           $Id: uiattrdescseted.cc,v 1.41 2006-12-21 12:52:54 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -203,7 +203,7 @@ void uiAttribDescSetEd::init()
 {
     delete attrset;
     attrset = inoutadsman->descSet()->clone();
-    adsman = new DescSetMan( attrset );
+    adsman = new DescSetMan( inoutadsman->is2D(), attrset );
     adsman->fillHist();
     adsman->setSaved( inoutadsman->isSaved() );
 

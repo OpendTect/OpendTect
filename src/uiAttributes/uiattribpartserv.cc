@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiattribpartserv.cc,v 1.45 2006-12-21 10:48:24 cvshelene Exp $
+ RCS:           $Id: uiattribpartserv.cc,v 1.46 2006-12-21 12:52:54 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -230,7 +230,7 @@ void uiAttribPartServer::directShowAttr( CallBacker* cb )
     dirshwattrdesc_ = ed->curDesc();
     DescSetMan* kpman = adsman;
     DescSet* edads = const_cast<DescSet*>(dirshwattrdesc_->descSet());
-    DescSetMan tmpadsman( edads, false );
+    DescSetMan tmpadsman( ed->is2D(), edads, false );
     adsman = &tmpadsman;
     sendEvent( evDirectShowAttr );
     adsman = kpman;
