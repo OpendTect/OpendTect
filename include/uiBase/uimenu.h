@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: uimenu.h,v 1.29 2006-12-05 16:32:33 cvsjaap Exp $
+ RCS:           $Id: uimenu.h,v 1.30 2006-12-21 14:56:52 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -97,6 +97,7 @@ public:
 
     int				idAt(int idx) const;
     int				indexOf(int id) const;
+    void			clear();
 
 protected:
 #ifndef USEQT4
