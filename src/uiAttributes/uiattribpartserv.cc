@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiattribpartserv.cc,v 1.46 2006-12-21 12:52:54 cvshelene Exp $
+ RCS:           $Id: uiattribpartserv.cc,v 1.47 2006-12-21 16:41:19 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -482,12 +482,12 @@ bool uiAttribPartServer::isDataClassified( const Array3D<float>& array ) const
 }
 
 
-//TODO: would NLACreationDesc need a is2d field?
 bool uiAttribPartServer::extractData( const NLACreationDesc& desc,
 				      const ObjectSet<BinIDValueSet>& bivsets,
-				      ObjectSet<PosVecDataSet>& outvds )
+				      ObjectSet<PosVecDataSet>& outvds, 
+				      bool is2d )
 {
-    /*
+    DescSetMan* adsman = getAdsMan( is2d );
     if ( !adsman->descSet() ) { pErrMsg("No attr set"); return 0; }
 
     if ( desc.doextraction )
@@ -516,7 +516,6 @@ bool uiAttribPartServer::extractData( const NLACreationDesc& desc,
 		delete vds; return false; }
 	outvds += vds;
     }
-*/
     return true;
 }
 

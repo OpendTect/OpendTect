@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiattribpartserv.h,v 1.19 2006-12-14 14:30:51 cvshelene Exp $
+ RCS:           $Id: uiattribpartserv.h,v 1.20 2006-12-21 16:41:19 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -116,7 +116,7 @@ public:
 
     bool		extractData(const NLACreationDesc&,
 				    const ObjectSet<BinIDValueSet>&,
-				    ObjectSet<PosVecDataSet>&);
+				    ObjectSet<PosVecDataSet>&,bool);
     bool		createAttributeSet(const BufferStringSet&,
 	    				   Attrib::DescSet*);
 

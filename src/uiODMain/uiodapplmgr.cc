@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.165 2006-12-21 10:48:24 cvshelene Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.166 2006-12-21 16:41:19 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -882,7 +882,8 @@ bool uiODApplMgr::handleNLAServEv( int evid )
 	}
 	ObjectSet<PosVecDataSet> vdss;
 	bool extrres = attrserv->extractData( nlaserv->creationDesc(),
-					      bivss, vdss );
+					      bivss, vdss, 
+					      nlaserv->is2DEvent() );
 	deepErase( bivss );
 	if ( extrres )
 	{
