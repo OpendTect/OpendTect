@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: attribsel.cc,v 1.17 2006-12-20 11:23:00 cvshelene Exp $
+ RCS:           $Id: attribsel.cc,v 1.18 2006-12-21 13:46:26 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -238,7 +238,7 @@ void SelInfo::fillStored( const char* filter )
 	const IOObj& ioobj = *ioobjs[idx];
 	const bool is2d = !strcmp(ioobj.translator(),"2D");
 	const bool iscbvs = !strcmp(ioobj.translator(),"CBVS");
-	if ( (is2d && is2d_) || (iscbvs && !is2d_) || (!is2d && !iscbvs) )
+	if ( (is2d && !is2d_) || (iscbvs && is2d_) || (!is2d && !iscbvs) )
 	    continue;
 
 	if ( !strcmp(ioobj.group(),sKey::PSSeis) ) continue;
