@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: uiattrsel.cc,v 1.19 2006-12-20 11:23:00 cvshelene Exp $
+ RCS:           $Id: uiattrsel.cc,v 1.20 2006-12-21 13:47:16 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -288,16 +288,16 @@ void uiAttrSelDlg::cubeSel( CallBacker* c )
     }
 
     int selidx = storoutfld_->currentItem();
-    bool is2d_ = false;
+    bool is2d = false;
     BufferString ioobjkey;
     if ( selidx >= 0 )
     {
 	ioobjkey = attrinf_->ioobjids.get( storoutfld_->currentItem() );
-	is2d_ = SelInfo::is2D( ioobjkey.buf() );
+	is2d = SelInfo::is2D( ioobjkey.buf() );
     }
-    attr2dfld_->display( is2d_ );
-    filtfld_->display( !is2d_ );
-    if ( is2d_ )
+    attr2dfld_->display( is2d );
+    filtfld_->display( !is2d );
+    if ( is2d )
     {
 	BufferStringSet nms;
 	SelInfo::getAttrNames( ioobjkey.buf(), nms );
