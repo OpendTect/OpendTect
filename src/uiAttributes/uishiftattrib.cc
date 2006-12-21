@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2001
- RCS:           $Id: uishiftattrib.cc,v 1.11 2006-12-20 11:23:01 cvshelene Exp $
+ RCS:           $Id: uishiftattrib.cc,v 1.12 2006-12-21 16:06:10 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,7 +30,8 @@ uiShiftAttrib::uiShiftAttrib( uiParent* p, bool is2d )
 {
     inpfld = getInpFld();
 
-    stepoutfld = new uiStepOutSel( this, uiStepOutSel::Setup().seltxt("Shift"));
+    stepoutfld = new uiStepOutSel( this, uiStepOutSel::Setup().seltxt("Shift"),
+	    			   is2d );
     stepoutfld->attach( alignedBelow, inpfld );
 
     const char* zstr = zIsTime() ? "Time" : "Depth";

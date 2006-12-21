@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uistepoutsel.cc,v 1.3 2006-11-24 13:45:18 cvsbert Exp $";
+static const char* rcsID = "$Id: uistepoutsel.cc,v 1.4 2006-12-21 16:06:10 cvshelene Exp $";
 
 #include "uistepoutsel.h"
 #include "uispinbox.h"
@@ -24,17 +24,19 @@ inline static BufferString mkPrefx( const char* lbl )
 }
 
 
-uiStepOutSel::uiStepOutSel( uiParent* p, const uiStepOutSel::Setup& setup )
+uiStepOutSel::uiStepOutSel( uiParent* p, const uiStepOutSel::Setup& setup,
+			    bool is2dsel )
     : uiGroup(p,setup.seltxt_)
     , valueChanged(this)
     , fld2(0)
+    , is2d(is2dsel)
 {
     uiLabel* lbl = new uiLabel( this, setup.seltxt_ );
     fld1 = new uiSpinBox( this, 0, "spinbox 1" );
-    fld1->setPrefix( mkPrefx(setup.lbl1_) );
+    fld1->setPrefix( is2d ? mkPrefx("nr") : mkPrefx(setup.lbl1_) );
     fld1->attach( rightOf, lbl );
     fld1->valueChanged.notify( mCB(this,uiStepOutSel,valChg) );
-    if ( !setup.single_ )
+    if ( !setup.single_ && !is2d )
     {
 	fld2 = new uiSpinBox( this, 0, "spinbox 2" );
 	fld2->setPrefix( mkPrefx(setup.lbl2_) );
@@ -66,40 +68,6 @@ void uiStepOutSel::setVals( int v )
     fld1->setValue( v );
     if ( fld2 )
 	fld2->setValue( v );
-}
-
-
-void uiStepOutSel::set2D( bool yn )
-{
-    if ( yn )
-    {
-	setLabel( true, "nr" );
-	allowInp( false, false );
-    }
-    else
-    {
-	setLabel( true, "inl" );
-	setLabel( false, "crl" );
-	allowInp( false, true );
-    }
-}
-
-
-void uiStepOutSel::setLabel( bool dir1, const char* s )
-{
-    if ( dir1 )
-	fld1->setPrefix( mkPrefx(s) );
-    else if ( fld2 )
-	fld2->setPrefix( mkPrefx(s) );
-}
-
-
-void uiStepOutSel::allowInp( bool dir1, bool yn )
-{
-    if ( dir1 )
-	fld1->setSensitive( yn );
-    else if ( fld2 )
-	fld2->setSensitive( yn );
 }
 
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: uivolstatsattrib.cc,v 1.13 2006-12-20 11:23:01 cvshelene Exp $
+ RCS:           $Id: uivolstatsattrib.cc,v 1.14 2006-12-21 16:06:10 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -53,7 +53,7 @@ uiVolumeStatisticsAttrib::uiVolumeStatisticsAttrib( uiParent* p, bool is2d )
     shapefld->attach( alignedBelow, gatefld );
     shapefld->display( !is2d_ );
     
-    stepoutfld = new uiStepOutSel( this, uiStepOutSel::Setup() );
+    stepoutfld = new uiStepOutSel( this, uiStepOutSel::Setup(), is2d );
     stepoutfld->valueChanged.notify(
 			mCB(this,uiVolumeStatisticsAttrib,stepoutChg) );
     stepoutfld->attach( alignedBelow, shapefld );

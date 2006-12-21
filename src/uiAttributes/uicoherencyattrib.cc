@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:		$Id: uicoherencyattrib.cc,v 1.9 2006-12-20 11:23:00 cvshelene Exp $
+ RCS:		$Id: uicoherencyattrib.cc,v 1.10 2006-12-21 16:06:10 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,7 +42,7 @@ uiCoherencyAttrib::uiCoherencyAttrib( uiParent* p, bool is2d )
     deltadipfld = new uiGenInput( this, "Delta dip", FloatInpSpec() );
     deltadipfld->attach( alignedBelow, maxdipfld );
 
-    stepoutfld = new uiStepOutSel( this, uiStepOutSel::Setup() );
+    stepoutfld = new uiStepOutSel( this, uiStepOutSel::Setup(), is2d );
     stepoutfld->attach( alignedBelow, deltadipfld );
 
     setHAlignObj( tgfld );

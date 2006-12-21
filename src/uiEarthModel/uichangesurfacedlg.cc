@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra / Bert Bril
  Date:		Sep 2005 / Nov 2006
- RCS:		$Id: uichangesurfacedlg.cc,v 1.7 2006-11-24 13:45:52 cvsbert Exp $
+ RCS:		$Id: uichangesurfacedlg.cc,v 1.8 2006-12-21 16:06:10 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -274,7 +274,8 @@ uiFilterHorizonDlg::uiFilterHorizonDlg( uiParent* p, EM::Horizon* hor )
 	    			 BoolInpSpec("Median","Average") );
     uiStepOutSel::Setup setup;
     setup.seltxt( "Filter stepout" ); // Row is always inline in horizons
-    stepoutfld_ = new uiStepOutSel( parsgrp_, setup );
+    stepoutfld_ = new uiStepOutSel( parsgrp_, setup, false );
+    //as for now we only have 3d horizons
     stepoutfld_->setVals( 2 );
     stepoutfld_->attach( alignedBelow, medianfld_ );
 

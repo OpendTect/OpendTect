@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May  2005
- RCS:           $Id: uisimilarityattrib.cc,v 1.14 2006-12-20 11:23:01 cvshelene Exp $
+ RCS:           $Id: uisimilarityattrib.cc,v 1.15 2006-12-21 16:06:10 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -74,11 +74,11 @@ uiSimilarityAttrib::uiSimilarityAttrib( uiParent* p, bool is2d )
     extfld->attach( alignedBelow, gatefld );
     
     pos0fld = new uiStepOutSel( this,
-	    		uiStepOutSel::Setup().seltxt("Trace positions") );
+	    		uiStepOutSel::Setup().seltxt("Trace positions"), is2d );
     pos0fld->attach( alignedBelow, extfld );
-    pos1fld = new uiStepOutSel( this, uiStepOutSel::Setup().seltxt("&") );
+    pos1fld = new uiStepOutSel( this, uiStepOutSel::Setup().seltxt("&"), is2d );
     pos1fld->attach( rightOf, pos0fld );
-    stepoutfld = new uiStepOutSel( this, uiStepOutSel::Setup() );
+    stepoutfld = new uiStepOutSel( this, uiStepOutSel::Setup(), is2d );
     stepoutfld->attach( alignedBelow, extfld );
 
     outpstatsfld = new uiGenInput( this, "Output statistic",

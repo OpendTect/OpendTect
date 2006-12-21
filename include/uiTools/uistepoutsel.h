@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uistepoutsel.h,v 1.3 2006-11-24 13:45:18 cvsbert Exp $
+ RCS:           $Id: uistepoutsel.h,v 1.4 2006-12-21 16:06:10 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,18 +42,15 @@ public:
 	mDefSetupMemb(bool,single)
     };
 
-			uiStepOutSel(uiParent*,const Setup&);
+			uiStepOutSel(uiParent*,const Setup&,bool);
 			~uiStepOutSel()		{}
 
     int			val(bool dir1) const;
     void		setVal(bool dir1,int);
-    void		allowInp(bool dir1,bool yn);
 
     Notifier<uiStepOutSel> valueChanged;
 
     void		setVals(int); //!< similar to 2x setVal
-    void		setLabel(bool dir1,const char*);
-    void		set2D(bool); //!< Assumes inl/crl vs trace nr
     bool		dir2Active() const;
     void		setRowCol( const RowCol& rc )
     			{ setVal(true,rc.r()); setVal(false,rc.c()); }
@@ -68,6 +65,7 @@ protected:
 
     uiSpinBox*		fld1;
     uiSpinBox*		fld2;
+    bool		is2d;
 
     void		valChg(CallBacker*);
 
