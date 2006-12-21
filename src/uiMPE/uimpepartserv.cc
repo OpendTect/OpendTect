@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2004
- RCS:           $Id: uimpepartserv.cc,v 1.54 2006-12-01 16:39:21 cvsjaap Exp $
+ RCS:           $Id: uimpepartserv.cc,v 1.55 2006-12-21 10:48:24 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -517,7 +517,8 @@ bool uiMPEPartServer::readSetup( const MultiID& mid )
     PtrMan<IOPar> attrpar = iopar.subselect( "Attribs" );
     if ( !attrpar ) return true;
 
-    Attrib::DescSet newads;
+    //TODO newads(is2d), as for now only supports 3D -> modify later on 
+    Attrib::DescSet newads(false);
     newads.usePar( *attrpar );
     mergeAttribSets( newads, *tracker ); 
     return true;

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          September 2003
- RCS:           $Id: uiattrsetman.cc,v 1.3 2006-12-01 14:35:23 cvsbert Exp $
+ RCS:           $Id: uiattrsetman.cc,v 1.4 2006-12-21 10:48:24 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -68,7 +68,7 @@ void uiAttrSetMan::mkFileInfo()
     if ( !curioobj_ ) { infofld->setText( "" ); return; }
 
     BufferString txt;
-    Attrib::DescSet attrset;
+    Attrib::DescSet attrset(false,false);
     if ( !AttribDescSetTranslator::retrieve(attrset,curioobj_,txt) )
     {
 	BufferString msg( "Read error: '" ); msg += txt; msg += "'";

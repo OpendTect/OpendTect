@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrdescseted.cc,v 1.39 2006-12-20 11:23:00 cvshelene Exp $
+ RCS:           $Id: uiattrdescseted.cc,v 1.40 2006-12-21 10:48:24 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -787,7 +787,7 @@ void uiAttribDescSetEd::importFile( CallBacker* )
 {
     if ( !offerSetSave() ) return;
 
-    uiGetFileForAttrSet dlg( this, true );
+    uiGetFileForAttrSet dlg( this, true, inoutadsman->is2D() );
     if ( dlg.go() )
 	importFromFile( dlg.fileName() );
 }
@@ -796,7 +796,7 @@ void uiAttribDescSetEd::importFile( CallBacker* )
 void uiAttribDescSetEd::job2Set( CallBacker* )
 {
     if ( !offerSetSave() ) return;
-    uiGetFileForAttrSet dlg( this, false );
+    uiGetFileForAttrSet dlg( this, false, inoutadsman->is2D() );
     if ( dlg.go() )
     {
 	if ( dlg.attrSet().nrDescs(false,false) < 1 )

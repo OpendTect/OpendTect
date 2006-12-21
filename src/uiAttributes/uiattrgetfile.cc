@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrgetfile.cc,v 1.6 2006-11-21 14:00:07 cvsbert Exp $
+ RCS:           $Id: uiattrgetfile.cc,v 1.7 2006-12-21 10:48:24 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,13 +29,13 @@ ________________________________________________________________________
 using namespace Attrib;
 
 
-uiGetFileForAttrSet::uiGetFileForAttrSet( uiParent* p, bool isads )
+uiGetFileForAttrSet::uiGetFileForAttrSet( uiParent* p, bool isads, bool is2d )
     : uiDialog(p,uiDialog::Setup(
 		isads ? "Get Attribute Set" : "Get attributes from job file",
 		isads ? "Select file containing an attribute set"
 		      : "Select job specification file",
 		 "101.1.3"))
-    , attrset_(*new DescSet)
+    , attrset_(*new DescSet(is2d))
     , isattrset_(isads)
 {
     fileinpfld = new uiFileInput( this, "File name" );

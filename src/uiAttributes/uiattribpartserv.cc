@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiattribpartserv.cc,v 1.44 2006-12-20 11:23:00 cvshelene Exp $
+ RCS:           $Id: uiattribpartserv.cc,v 1.45 2006-12-21 10:48:24 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -103,7 +103,7 @@ uiAttribPartServer::~uiAttribPartServer()
 
 bool uiAttribPartServer::replaceSet( const IOPar& iopar, bool is2d )
 {
-    DescSet* ads = new DescSet;
+    DescSet* ads = new DescSet(is2d);
     if ( !ads->usePar(iopar) )
     {
 	delete ads;

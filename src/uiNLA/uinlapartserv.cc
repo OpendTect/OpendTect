@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uinlapartserv.cc,v 1.38 2006-08-16 10:51:20 cvsbert Exp $
+ RCS:           $Id: uinlapartserv.cc,v 1.39 2006-12-21 10:48:24 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,7 +45,6 @@ const int uiNLAPartServer::evGetStoredInput	= 4;
 const int uiNLAPartServer::evGetData		= 5;
 const int uiNLAPartServer::evSaveMisclass	= 6;
 const int uiNLAPartServer::evCreateAttrSet	= 7;
-const int uiNLAPartServer::evIs2D		= 8;
 const char* uiNLAPartServer::sKeyUsrCancel	= "User cancel";
 
 

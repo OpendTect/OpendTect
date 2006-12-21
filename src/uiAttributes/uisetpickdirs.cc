@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Nov 2003
- RCS:           $Id: uisetpickdirs.cc,v 1.7 2006-12-20 11:23:01 cvshelene Exp $
+ RCS:           $Id: uisetpickdirs.cc,v 1.8 2006-12-21 10:48:24 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,7 +45,7 @@ uiSetPickDirs::uiSetPickDirs( uiParent* p, Pick::Set& s,
 				     "Specify directions for picks",
 				     "105.1.1"))
 	, ps(s)
-	, ads(a?a->clone():new DescSet)
+	, ads(a?a->clone():new DescSet(false) )//TODO verify for 2D
 	, nlamdl(n)
 	, dirinpfld(0)
 	, phifld(0)
