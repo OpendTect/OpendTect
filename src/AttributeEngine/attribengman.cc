@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H.Payraudeau
  Date:          04/2005
- RCS:           $Id: attribengman.cc,v 1.62 2006-12-01 16:34:33 cvsjaap Exp $
+ RCS:           $Id: attribengman.cc,v 1.63 2006-12-21 10:48:24 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -367,7 +367,8 @@ DescSet* EngineMan::createNLAADS( DescID& nladescid, BufferString& errmsg,
        				  const DescSet* addtoset )
 {
     if ( attrspecs_.isEmpty() ) return 0;
-    DescSet* descset = addtoset ? addtoset->clone() : new DescSet;
+    DescSet* descset = addtoset ? addtoset->clone() 
+				: new DescSet(attrspecs_[0].is2D());
     if ( !addtoset && !descset->usePar(nlamodel->pars()) )
     {
 	errmsg = descset->errMsg();

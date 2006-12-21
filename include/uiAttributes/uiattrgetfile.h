@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2006
- RCS:           $Id: uiattrgetfile.h,v 1.1 2006-02-28 15:58:52 cvsbert Exp $
+ RCS:           $Id: uiattrgetfile.h,v 1.2 2006-12-21 10:48:24 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,7 +22,7 @@ namespace Attrib { class DescSet; }
 class uiGetFileForAttrSet : public uiDialog
 {
 public:
-			uiGetFileForAttrSet(uiParent*,bool isads);
+			uiGetFileForAttrSet(uiParent*,bool isads,bool is2d);
 			~uiGetFileForAttrSet();
 
     const char*		fileName() const		{ return fname_; }

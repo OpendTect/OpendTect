@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2004
- RCS:           $Id: od_process_attrib_em.cc,v 1.35 2006-07-31 11:18:56 cvshelene Exp $
+ RCS:           $Id: od_process_attrib_em.cc,v 1.36 2006-12-21 10:48:24 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -62,7 +62,7 @@ using namespace EM;
 static bool attribSetQuery( std::ostream& strm, const IOPar& iopar,
 			    bool stepout )
 {
-    DescSet initialset;
+    DescSet initialset( false, false );
     PtrMan<IOPar> attribs = iopar.subselect("Attributes");
     if ( !initialset.usePar( *attribs ) )
 	mErrRet( initialset.errMsg() )
@@ -300,7 +300,7 @@ bool BatchProgram::go( std::ostream& strm )
     }
 
     StorageProvider::initClass();
-    DescSet attribset;
+    DescSet attribset(false,false);
     PtrMan<IOPar> attribs = pars().subselect( "Attributes" );
     if ( !attribset.usePar(*attribs) )
 	mErrRetNoProc( attribset.errMsg() )

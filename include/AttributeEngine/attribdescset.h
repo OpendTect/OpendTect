@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribdescset.h,v 1.24 2006-12-20 11:23:00 cvshelene Exp $
+ RCS:           $Id: attribdescset.h,v 1.25 2006-12-21 10:48:24 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,9 +26,12 @@ class Desc;
 class DescSet
 {
 public:
-    				DescSet()
-				    : is2d_(false)
-				    , is2dset_(false)	{}
+    				DescSet( bool is2d )
+				    : is2d_(is2d)
+			    	    , is2dset_(true)	{}
+    				DescSet( bool is2d, bool is2dset )
+				    : is2d_(is2d)
+			    	    , is2dset_(is2dset)	{}
     				~DescSet() 		{ removeAll(); }
     DescSet*			clone() const;
     DescSet*			optimizeClone(const DescID& targetid) const;

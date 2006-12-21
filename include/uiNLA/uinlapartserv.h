@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uinlapartserv.h,v 1.18 2006-12-14 14:30:51 cvshelene Exp $
+ RCS:           $Id: uinlapartserv.h,v 1.19 2006-12-21 10:48:24 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -70,8 +70,6 @@ public:
     			//!< use misclass analysis VDS; user wants it.
     static const int	evCreateAttrSet;
     			//!< create attributeset from GDI NN
-    static const int	evIs2D;
-    			//!< find out if we are working 2D
     static const char*	sKeyUsrCancel;
     			//!< Returned when operation must stop without error
 
@@ -89,6 +87,7 @@ public:
     const char*		prepareInputData(const ObjectSet<PosVecDataSet>&);
 
     void		set2DEvent( bool is2d )		{ is2devent = is2d; }
+    bool		is2DEvent()			{ return is2devent; }
 
 protected:
 

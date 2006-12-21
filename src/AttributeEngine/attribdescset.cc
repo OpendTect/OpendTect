@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribdescset.cc,v 1.52 2006-12-20 11:23:00 cvshelene Exp $";
+static const char* rcsID = "$Id: attribdescset.cc,v 1.53 2006-12-21 10:48:24 cvshelene Exp $";
 
 #include "attribdescset.h"
 #include "attribstorprovider.h"
@@ -24,7 +24,7 @@ namespace Attrib
 
 DescSet* DescSet::clone() const
 {
-    DescSet* descset = new DescSet();
+    DescSet* descset = new DescSet(is2d_);
     for ( int idx=0; idx<nrDescs(); idx++ )
     {
 	Desc* nd = new Desc( *descs[idx] );
@@ -33,7 +33,6 @@ DescSet* DescSet::clone() const
     }
 
     descset->updateInputs();
-    descset->is2d_ = is2d_;
     descset->is2dset_ = is2dset_;
     return descset;
 }
@@ -639,7 +638,7 @@ DescSet* DescSet::optimizeClone( const DescID& targetnode ) const
 
 DescSet* DescSet::optimizeClone( const TypeSet<DescID>& targets ) const
 {
-    DescSet* res = new DescSet;
+    DescSet* res = new DescSet(is2d_);
     TypeSet<DescID> needednodes = targets;
     while ( needednodes.size() )
     {

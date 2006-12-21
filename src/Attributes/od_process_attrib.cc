@@ -4,7 +4,7 @@
  * DATE     : Mar 2000
 -*/
 
-static const char* rcsID = "$Id: od_process_attrib.cc,v 1.18 2006-09-15 12:42:09 cvshelene Exp $";
+static const char* rcsID = "$Id: od_process_attrib.cc,v 1.19 2006-12-21 10:48:24 cvshelene Exp $";
 
 #include "attribstorprovider.h"
 #include "attribdescset.h"
@@ -135,7 +135,7 @@ bool BatchProgram::go( std::ostream& strm )
     strm.flush();
 
     Attrib::StorageProvider::initClass();
-    Attrib::DescSet attribset;
+    Attrib::DescSet attribset(false,false);
     const char* setid = pars().find("Attribute Set");
     if ( setid && *setid )
     {

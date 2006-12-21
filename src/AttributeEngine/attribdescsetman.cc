@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          November 2001
- RCS:           $Id: attribdescsetman.cc,v 1.3 2006-12-14 14:30:52 cvshelene Exp $
+ RCS:           $Id: attribdescsetman.cc,v 1.4 2006-12-21 10:48:24 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,7 +28,7 @@ DescSetMan::DescSetMan( bool is2d, DescSet* ads, bool destr )
     , destrondel_(destr)
 {
     if ( !ads_ )
-	ads_ = new DescSet();
+	ads_ = new DescSet(is2d_);
     else
 	fillHist();
 }
