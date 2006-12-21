@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2004
- RCS:           $Id: uimpepartserv.cc,v 1.55 2006-12-21 10:48:24 cvshelene Exp $
+ RCS:           $Id: uimpepartserv.cc,v 1.56 2006-12-21 14:53:06 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -472,10 +472,15 @@ bool uiMPEPartServer::saveSetup( const MultiID& mid )
     MPE::engine().getNeededAttribs( usedattribs );
     TypeSet<Attrib::DescID> usedattribids;
     for ( int idx=0; idx<usedattribs.size(); idx++ )
-	usedattribids += usedattribs[idx]->id();
+    {
+	const Attrib::DescID descid = usedattribs[idx]->id();
+	if ( attrset_->getDesc(descid) )
+	    usedattribids += descid;
+    }
     Attrib::DescSet* ads = attrset_->optimizeClone( usedattribids );
     IOPar attrpar;
-    ads->fillPar( attrpar );
+    if ( ads ) 
+	ads->fillPar( attrpar );
     iopar.mergeComp( attrpar, "Attribs" );
 
     BufferString setupfilenm = MPE::engine().setupFileName( mid );
