@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiattribpartserv.cc,v 1.47 2006-12-21 16:41:19 cvshelene Exp $
+ RCS:           $Id: uiattribpartserv.cc,v 1.48 2006-12-21 16:47:27 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -267,7 +267,7 @@ void uiAttribPartServer::getPossibleOutputs( bool is2d,
 					     BufferStringSet& nms ) const
 {
     nms.erase();
-    SelInfo attrinf( curDescSet( is2d ) );
+    SelInfo attrinf( curDescSet( is2d ), 0, is2d );
     for ( int idx=0; idx<attrinf.attrnms.size(); idx++ )
 	nms.add( attrinf.attrnms.get(idx) );
 
