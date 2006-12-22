@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2006
- RCS:           $Id: uitblimpexpdatasel.cc,v 1.14 2006-12-22 12:23:09 cvsbert Exp $
+ RCS:           $Id: uitblimpexpdatasel.cc,v 1.15 2006-12-22 12:33:09 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -391,6 +391,5 @@ uiTableImpDataSelUnits( uiParent* p, Table::FormatDesc& fd )
 void uiTableImpDataSel::handleUnits( CallBacker* )
 {
     uiTableImpDataSelUnits dlg( this, fd_ );
-    uiMSG().error( "Units-of-measure handling\n"
-	           "is under construction" );
+    dlg.go();
 }
