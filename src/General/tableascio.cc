@@ -4,7 +4,7 @@
  * DATE     : Nov 2006
 -*/
 
-static const char* rcsID = "$Id: tableascio.cc,v 1.7 2006-12-22 10:53:26 cvsbert Exp $";
+static const char* rcsID = "$Id: tableascio.cc,v 1.8 2006-12-22 11:58:09 cvsbert Exp $";
 
 #include "tableascio.h"
 #include "tabledef.h"
@@ -18,11 +18,11 @@ namespace Table
 struct SpecID
 {
     		SpecID( int formnr, int snr )
-		    : formnr_(formnr), elemnr_(snr)		{}
+		    : formnr_(formnr), specnr_(snr)		{}
     int		formnr_;
-    int		elemnr_;
+    int		specnr_;
     bool	operator ==( const SpecID& sid ) const
-		{ return formnr_==sid.formnr_ && elemnr_==sid.elemnr_; }
+		{ return formnr_==sid.formnr_ && specnr_==sid.specnr_; }
 };
 
 
@@ -60,12 +60,12 @@ const char* putHdrRow( const BufferStringSet& bss )
 	const Table::TargetInfo& tarinf = *aio_.fd_.headerinfos_[itar];
 	SpecID sid( tarinf.selection_.form_, 0 );
 	const Table::TargetInfo::Form& selform = tarinf.form( sid.formnr_ );
-	for ( ; sid.elemnr_<selform.elems_.size(); sid.elemnr_++ )
+	for ( ; sid.specnr_<selform.specs_.size(); sid.specnr_++ )
 	{
-	    if ( !tarinf.selection_.havePos(sid.elemnr_) )
+	    if ( !tarinf.selection_.havePos(sid.specnr_) )
 		continue;
 
-	    const RowCol& rc( tarinf.selection_.elems_[sid.elemnr_].pos_ );
+	    const RowCol& rc( tarinf.selection_.elems_[sid.specnr_].pos_ );
 	    if ( rc.r() == rownr_ )
 	    {
 		if ( rc.c() >= bss.size() )
@@ -93,11 +93,11 @@ const char* finishHdr()
 	const Table::TargetInfo& tarinf = *aio_.fd_.headerinfos_[itar];
 	SpecID sid( tarinf.selection_.form_, 0 );
 	const Table::TargetInfo::Form& selform = tarinf.form( sid.formnr_ );
-	for ( ; sid.elemnr_<selform.elems_.size(); sid.elemnr_++ )
+	for ( ; sid.specnr_<selform.specs_.size(); sid.specnr_++ )
 	{
-	    if ( !tarinf.selection_.havePos(sid.elemnr_) )
-		aio_.addVal( tarinf.selection_.getVal(sid.elemnr_),
-		             tarinf.selection_.getUnit(sid.elemnr_) );
+	    if ( !tarinf.selection_.havePos(sid.specnr_) )
+		aio_.addVal( tarinf.selection_.getVal(sid.specnr_),
+		             tarinf.selection_.unit_ );
 	    else
 	    {
 		bool found = false;
@@ -106,7 +106,7 @@ const char* finishHdr()
 		    if ( formids_[idx] == sid )
 		    {
 			aio_.addVal( formvals_.get(idx),
-			             tarinf.selection_.getUnit(sid.elemnr_) );
+				     tarinf.selection_.unit_ );
 			found = true; break;
 		    }
 		}
@@ -127,7 +127,7 @@ const char* mkErrMsg( const TargetInfo& tarinf, SpecID sid,
     errmsg_ += tarinf.name(); errmsg_ += " [";
     errmsg_ += tarinf.form(sid.formnr_).name();
     if ( tarinf.nrForms() > 0 )
-	{ errmsg_ += " (field "; sid.elemnr_; errmsg_ += ")"; }
+	{ errmsg_ += " (field "; sid.specnr_; errmsg_ += ")"; }
     errmsg_ += "]";
     if ( rc.c() >= 0 )
     {
@@ -151,17 +151,16 @@ const char* putBodyRow( const BufferStringSet& bss )
 	const Table::TargetInfo& tarinf = *aio_.fd_.bodyinfos_[itar];
 	SpecID sid( tarinf.selection_.form_, 0 );
 	const Table::TargetInfo::Form& selform = tarinf.form( sid.formnr_ );
-	for ( ; sid.elemnr_<selform.elems_.size(); sid.elemnr_++ )
+	for ( ; sid.specnr_<selform.specs_.size(); sid.specnr_++ )
 	{
-	    if ( !tarinf.selection_.havePos(sid.elemnr_) )
-		aio_.addVal( tarinf.selection_.getVal(sid.elemnr_),
-		             tarinf.selection_.getUnit(sid.elemnr_) );
+	    if ( !tarinf.selection_.havePos(sid.specnr_) )
+		aio_.addVal( tarinf.selection_.getVal(sid.specnr_),
+		             tarinf.selection_.unit_ );
 	    else
 	    {
-		const RowCol& rc( tarinf.selection_.elems_[sid.elemnr_].pos_ );
+		const RowCol& rc( tarinf.selection_.elems_[sid.specnr_].pos_ );
 		if ( rc.c() < bss.size() )
-		    aio_.addVal( bss.get(rc.c()),
-			    	 tarinf.selection_.getUnit(sid.elemnr_) );
+		    aio_.addVal( bss.get(rc.c()), tarinf.selection_.unit_ );
 		else
 		    return mkErrMsg( tarinf, sid, RowCol(rc.c(),-1),
 			    	     "Column missing in file" );
@@ -219,9 +218,9 @@ bool Table::AscIO::getHdrVals( std::istream& strm ) const
 	    const Table::TargetInfo& tarinf = *fd_.headerinfos_[itar];
 	    const Table::TargetInfo::Form& selform
 				= tarinf.form( tarinf.selection_.form_ );
-	    for ( int ielem=0; ielem<selform.elems_.size(); ielem++ )
+	    for ( int ielem=0; ielem<selform.specs_.size(); ielem++ )
 		addVal( tarinf.selection_.getVal(ielem),
-		        tarinf.selection_.getUnit(ielem) );
+		        tarinf.selection_.unit_ );
 	}
     }
     else

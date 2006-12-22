@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2006
- RCS:           $Id: uitblimpexpdatasel.cc,v 1.12 2006-12-22 10:53:26 cvsbert Exp $
+ RCS:           $Id: uitblimpexpdatasel.cc,v 1.13 2006-12-22 11:58:09 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "uibutton.h"
 #include "uiseparator.h"
 #include "uibuttongroup.h"
+#include "uidialog.h"
 #include "uimsg.h"
 #include "pixmap.h"
 #include "tabledef.h"
@@ -144,7 +145,7 @@ void addInp( int iform, int ifld )
 {
     ObjectSet<uiGenInput>& colinps = *inps_[iform];
     uiGenInput* inp = new uiGenInput( this, "",
-			  *tinf_.form(iform).elems_[ifld]->inpspec_ );
+			  *tinf_.form(iform).specs_[ifld] );
     colinps += inp;
 
     if ( ifld )
@@ -365,13 +366,30 @@ void uiTableImpDataSel::openFmt( CallBacker* )
 
 void uiTableImpDataSel::saveFmt( CallBacker* )
 {
-    uiMSG().error( "The ability to save or user-defined formats\n"
+    uiMSG().error( "The ability to save user-defined formats\n"
 	           "is under construction" );
 }
 
 
+class uiTableImpDataSelUnits : public uiDialog
+{
+public:
+
+uiTableImpDataSelUnits( uiParent* p, Table::FormatDesc& fd )
+    : uiDialog(p,uiDialog::Setup(fd.name(),""))
+    , fd_(fd)
+{
+    new uiLabel( this, "Units-of-measure handling\nis under construction" );
+}
+
+    Table::FormatDesc&	fd_;
+
+};
+
+
 void uiTableImpDataSel::handleUnits( CallBacker* )
 {
+    uiTableImpDataSelUnits dlg( this, fd_ );
     uiMSG().error( "Units-of-measure handling\n"
 	           "is under construction" );
 }
