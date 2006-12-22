@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2006
- RCS:           $Id: uitblimpexpdatasel.cc,v 1.11 2006-12-19 18:19:15 cvsbert Exp $
+ RCS:           $Id: uitblimpexpdatasel.cc,v 1.12 2006-12-22 10:53:26 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -119,7 +119,7 @@ void addBox( int iform, int ifld )
     }
     else
     {
-	const RowCol& rc = tinf_.selection_.pos_[ifld];
+	const RowCol& rc = tinf_.selection_.elems_[ifld].pos_;
 	if ( rowspinbox )
 	    rowspinbox->setValue( rc.r() + 1 ); // Users tend to start at 1
 	colspinbox->setValue( rc.c() + 1 );
@@ -144,7 +144,7 @@ void addInp( int iform, int ifld )
 {
     ObjectSet<uiGenInput>& colinps = *inps_[iform];
     uiGenInput* inp = new uiGenInput( this, "",
-	    			      *tinf_.form(iform).specs_[ifld] );
+			  *tinf_.form(iform).elems_[ifld]->inpspec_ );
     colinps += inp;
 
     if ( ifld )
@@ -201,8 +201,7 @@ bool commit()
     }
 
     tinf_.selection_.form_ = formnr;
-    tinf_.selection_.pos_.erase();
-    tinf_.selection_.vals_.erase();
+    tinf_.selection_.elems_.erase();
 
     if ( doread )
     {
@@ -221,14 +220,15 @@ bool commit()
 		return false;
 	    }
 	    rc.r()--; rc.c()--; // Users tend to start at 1
-	    tinf_.selection_.pos_ += rc;
+	    tinf_.selection_.elems_ += Table::TargetInfo::Selection::Elem( rc );
 	}
     }
     else
     {
 	ObjectSet<uiGenInput>& colinps = *inps_[formnr];
 	for ( int idx=0; idx<colinps.size(); idx++ )
-	    tinf_.selection_.vals_.add( colinps[idx]->text() );
+	    tinf_.selection_.elems_ +=
+		Table::TargetInfo::Selection::Elem( colinps[idx]->text() );
     }
 
     return true;
@@ -264,17 +264,6 @@ uiTableImpDataSel::uiTableImpDataSel( uiParent* p, Table::FormatDesc& fd )
     uiGroup* leftgrp = new uiGroup( this, "Left group" );
     uiGroup* hfldsgrp = mkElemFlds( leftgrp, fd_.headerinfos_, hdrelems_, true);
 
-    int maxhdrline = 0;
-    for ( int idx=0; idx<fd_.headerinfos_.size(); idx++ )
-    {
-	const Table::TargetInfo& tinf = *fd_.headerinfos_[idx];
-	if ( tinf.selection_.pos_.size() > idx
-	  && tinf.selection_.pos_[idx].r() > maxhdrline )
-	    maxhdrline = tinf.selection_.pos_[idx].r();
-    }
-    if ( fd_.nrhdrlines_ < maxhdrline )
-	fd_.nrhdrlines_ = maxhdrline;
-
     // No support for setting tokencol_ (yet?) ...
     BufferString valstr( fd_.token_ );
     if ( valstr.isEmpty() ) valstr = "0";
@@ -293,17 +282,23 @@ uiTableImpDataSel::uiTableImpDataSel( uiParent* p, Table::FormatDesc& fd )
     uiSeparator* sep = new uiSeparator( this, "V sep", false );
     sep->attach( stretchedRightTo, leftgrp );
 
-    uiButtonGroup* bgrp = new uiButtonGroup( this, "Formats" );
-    uiToolButton* button = new uiToolButton( bgrp, "Open button",
+    uiButtonGroup* fmtiogrp = new uiButtonGroup( this, "" );
+    uiToolButton* button = new uiToolButton( fmtiogrp, "Open button",
 	    			ioPixmap("openset.png"),
 				mCB(this,uiTableImpDataSel,openFmt) );
     button->setToolTip( "Open existing format" );
-    button = new uiToolButton( bgrp, "Save button",
+    button = new uiToolButton( fmtiogrp, "Save button",
 	    			ioPixmap("saveset.png"),
 				mCB(this,uiTableImpDataSel,saveFmt) );
     button->setToolTip( "Save format" );
-    bgrp->attach( rightTo, leftgrp );
-    bgrp->attach( ensureRightOf, sep );
+    fmtiogrp->attach( rightTo, leftgrp );
+    fmtiogrp->attach( ensureRightOf, sep );
+
+    uiButtonGroup* unitsgrp = new uiButtonGroup( this, "Unit conversions" );
+    button = new uiToolButton( unitsgrp, "Units button",
+	    			ioPixmap("unitsofmeasure.png"),
+				mCB(this,uiTableImpDataSel,handleUnits) );
+    unitsgrp->attach( alignedBelow, fmtiogrp );
 }
 
 
@@ -371,5 +366,12 @@ void uiTableImpDataSel::openFmt( CallBacker* )
 void uiTableImpDataSel::saveFmt( CallBacker* )
 {
     uiMSG().error( "The ability to save or user-defined formats\n"
+	           "is under construction" );
+}
+
+
+void uiTableImpDataSel::handleUnits( CallBacker* )
+{
+    uiMSG().error( "Units-of-measure handling\n"
 	           "is under construction" );
 }

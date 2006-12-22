@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2006
- RCS:           $Id: uitblimpexpdatasel.h,v 1.3 2006-12-19 18:19:35 cvsbert Exp $
+ RCS:           $Id: uitblimpexpdatasel.h,v 1.4 2006-12-22 10:53:26 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,6 +51,7 @@ protected:
 					   bool);
     void			openFmt(CallBacker*);
     void			saveFmt(CallBacker*);
+    void			handleUnits(CallBacker*);
 
 };
 

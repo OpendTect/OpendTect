@@ -4,11 +4,12 @@
  * DATE     : Nov 2006
 -*/
 
-static const char* rcsID = "$Id: tableascio.cc,v 1.6 2006-12-14 18:34:37 cvsbert Exp $";
+static const char* rcsID = "$Id: tableascio.cc,v 1.7 2006-12-22 10:53:26 cvsbert Exp $";
 
 #include "tableascio.h"
 #include "tabledef.h"
 #include "tableconvimpl.h"
+#include "unitofmeasure.h"
 #include <iostream>
 
 namespace Table
@@ -17,11 +18,11 @@ namespace Table
 struct SpecID
 {
     		SpecID( int formnr, int snr )
-		    : formnr_(formnr), specnr_(snr)		{}
+		    : formnr_(formnr), elemnr_(snr)		{}
     int		formnr_;
-    int		specnr_;
+    int		elemnr_;
     bool	operator ==( const SpecID& sid ) const
-		{ return formnr_==sid.formnr_ && specnr_==sid.specnr_; }
+		{ return formnr_==sid.formnr_ && elemnr_==sid.elemnr_; }
 };
 
 
@@ -59,12 +60,12 @@ const char* putHdrRow( const BufferStringSet& bss )
 	const Table::TargetInfo& tarinf = *aio_.fd_.headerinfos_[itar];
 	SpecID sid( tarinf.selection_.form_, 0 );
 	const Table::TargetInfo::Form& selform = tarinf.form( sid.formnr_ );
-	for ( ; sid.specnr_<selform.specs_.size(); sid.specnr_++ )
+	for ( ; sid.elemnr_<selform.elems_.size(); sid.elemnr_++ )
 	{
-	    if ( !tarinf.selection_.havePos(sid.specnr_) )
+	    if ( !tarinf.selection_.havePos(sid.elemnr_) )
 		continue;
 
-	    const RowCol& rc( tarinf.selection_.pos_[sid.specnr_] );
+	    const RowCol& rc( tarinf.selection_.elems_[sid.elemnr_].pos_ );
 	    if ( rc.r() == rownr_ )
 	    {
 		if ( rc.c() >= bss.size() )
@@ -92,10 +93,11 @@ const char* finishHdr()
 	const Table::TargetInfo& tarinf = *aio_.fd_.headerinfos_[itar];
 	SpecID sid( tarinf.selection_.form_, 0 );
 	const Table::TargetInfo::Form& selform = tarinf.form( sid.formnr_ );
-	for ( ; sid.specnr_<selform.specs_.size(); sid.specnr_++ )
+	for ( ; sid.elemnr_<selform.elems_.size(); sid.elemnr_++ )
 	{
-	    if ( !tarinf.selection_.havePos(sid.specnr_) )
-		aio_.addVal( tarinf.selection_.getVal(sid.specnr_) );
+	    if ( !tarinf.selection_.havePos(sid.elemnr_) )
+		aio_.addVal( tarinf.selection_.getVal(sid.elemnr_),
+		             tarinf.selection_.getUnit(sid.elemnr_) );
 	    else
 	    {
 		bool found = false;
@@ -103,7 +105,8 @@ const char* finishHdr()
 		{
 		    if ( formids_[idx] == sid )
 		    {
-			aio_.addVal( formvals_.get(idx) );
+			aio_.addVal( formvals_.get(idx),
+			             tarinf.selection_.getUnit(sid.elemnr_) );
 			found = true; break;
 		    }
 		}
@@ -124,7 +127,7 @@ const char* mkErrMsg( const TargetInfo& tarinf, SpecID sid,
     errmsg_ += tarinf.name(); errmsg_ += " [";
     errmsg_ += tarinf.form(sid.formnr_).name();
     if ( tarinf.nrForms() > 0 )
-	{ errmsg_ += " (field "; sid.specnr_; errmsg_ += ")"; }
+	{ errmsg_ += " (field "; sid.elemnr_; errmsg_ += ")"; }
     errmsg_ += "]";
     if ( rc.c() >= 0 )
     {
@@ -141,21 +144,24 @@ const char* mkErrMsg( const TargetInfo& tarinf, SpecID sid,
 
 const char* putBodyRow( const BufferStringSet& bss )
 {
-    aio_.vals_.erase();
+    aio_.emptyVals();
+
     for ( int itar=0; itar<aio_.fd_.bodyinfos_.size(); itar++ )
     {
 	const Table::TargetInfo& tarinf = *aio_.fd_.bodyinfos_[itar];
 	SpecID sid( tarinf.selection_.form_, 0 );
 	const Table::TargetInfo::Form& selform = tarinf.form( sid.formnr_ );
-	for ( ; sid.specnr_<selform.specs_.size(); sid.specnr_++ )
+	for ( ; sid.elemnr_<selform.elems_.size(); sid.elemnr_++ )
 	{
-	    if ( !tarinf.selection_.havePos(sid.specnr_) )
-		aio_.addVal( tarinf.selection_.getVal(sid.specnr_) );
+	    if ( !tarinf.selection_.havePos(sid.elemnr_) )
+		aio_.addVal( tarinf.selection_.getVal(sid.elemnr_),
+		             tarinf.selection_.getUnit(sid.elemnr_) );
 	    else
 	    {
-		const RowCol& rc( tarinf.selection_.pos_[sid.specnr_] );
+		const RowCol& rc( tarinf.selection_.elems_[sid.elemnr_].pos_ );
 		if ( rc.c() < bss.size() )
-		    aio_.addVal( bss.get(rc.c()) );
+		    aio_.addVal( bss.get(rc.c()),
+			    	 tarinf.selection_.getUnit(sid.elemnr_) );
 		else
 		    return mkErrMsg( tarinf, sid, RowCol(rc.c(),-1),
 			    	     "Column missing in file" );
@@ -185,6 +191,22 @@ Table::AscIO::~AscIO()
 }
 
 
+void Table::AscIO::emptyVals() const
+{
+    Table::AscIO& aio = *const_cast<AscIO*>(this);
+    aio.vals_.erase();
+    aio.units_.erase();
+}
+
+
+void Table::AscIO::addVal( const char* s, const UnitOfMeasure* mu ) const
+{
+    Table::AscIO& aio = *const_cast<AscIO*>(this);
+    aio.vals_.add( s );
+    aio.units_ += mu;
+}
+
+
 #define mErrRet(s) { errmsg_ = s; return false; }
 
 bool Table::AscIO::getHdrVals( std::istream& strm ) const
@@ -197,8 +219,9 @@ bool Table::AscIO::getHdrVals( std::istream& strm ) const
 	    const Table::TargetInfo& tarinf = *fd_.headerinfos_[itar];
 	    const Table::TargetInfo::Form& selform
 				= tarinf.form( tarinf.selection_.form_ );
-	    for ( int ispec=0; ispec<selform.specs_.size(); ispec++ )
-		addVal( tarinf.selection_.getVal(ispec) );
+	    for ( int ielem=0; ielem<selform.elems_.size(); ielem++ )
+		addVal( tarinf.selection_.getVal(ielem),
+		        tarinf.selection_.getUnit(ielem) );
 	}
     }
     else
@@ -253,4 +276,47 @@ bool Table::AscIO::putNextBodyVals( std::ostream& strm ) const
 {
     errmsg_ = "TODO: Table::AscIO::putNextBodyVals not implemented";
     return false;
+}
+
+
+const char* Table::AscIO::text( int ifld ) const
+{
+    return ifld >= vals_.size() ? "" : ((const char*)vals_.get(ifld));
+}
+
+
+int Table::AscIO::getIntValue( int ifld ) const
+{
+    if ( ifld >= vals_.size() )
+	return mUdf(int);
+    const char* val = vals_.get( ifld );
+    return *val ? atoi( val ) : mUdf(int);
+}
+
+
+float Table::AscIO::getfValue( int ifld ) const
+{
+    if ( ifld >= vals_.size() )
+	return mUdf(int);
+    const char* sval = vals_.get( ifld );
+    if ( !*sval ) return mUdf(float);
+    float val = atof( sval );
+    if ( mIsUdf(val) ) return val;
+
+    const UnitOfMeasure* unit = units_.size() > ifld ? units_[ifld] : 0;
+    return unit ? unit->internalValue( val ) : val;
+}
+
+
+double Table::AscIO::getdValue( int ifld ) const
+{
+    if ( ifld >= vals_.size() )
+	return mUdf(int);
+    const char* sval = vals_.get( ifld );
+    if ( !*sval ) return mUdf(double);
+    double val = atof( sval );
+    if ( mIsUdf(val) ) return val;
+
+    const UnitOfMeasure* unit = units_.size() > ifld ? units_[ifld] : 0;
+    return unit ? unit->internalValue( val ) : val;
 }

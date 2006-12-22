@@ -5,7 +5,7 @@
  * FUNCTION : Wavelet
 -*/
 
-static const char* rcsID = "$Id: wavelet.cc,v 1.28 2006-12-14 18:34:37 cvsbert Exp $";
+static const char* rcsID = "$Id: wavelet.cc,v 1.29 2006-12-22 10:53:26 cvsbert Exp $";
 
 #include "wavelet.h"
 #include "seisinfo.h"
@@ -245,10 +245,9 @@ Table::FormatDesc* WaveletAscIO::getDesc()
     Table::FormatDesc* fd = new Table::FormatDesc( "Wavelet" );
     fd->headerinfos_ += new Table::TargetInfo( "Center sample (empty=mid)",
 						IntInpSpec(), Table::Optional );
-    BufferString txt( "Sample interval " ); txt += SI().getZUnit();
-    float defsi = SI().zStep() * SI().zFactor();
-    fd->headerinfos_ += new Table::TargetInfo( txt, FloatInpSpec(defsi),
-	    				       Table::Required );
+    fd->headerinfos_ += new Table::TargetInfo( "Sample interval",
+	    		FloatInpSpec(SI().zRange(true).step), Table::Required,
+			PropertyRef::surveyZType() );
     fd->bodyinfos_ += new Table::TargetInfo( "Data samples", FloatInpSpec(),
 					     Table::Required );
     return fd;
@@ -262,19 +261,15 @@ Wavelet* WaveletAscIO::get( std::istream& strm ) const
     if ( !getHdrVals(strm) )
 	return 0;
 
-    int centersmp = mUdf(int);
-    if ( !vals_.get(0).isEmpty() )
-    {
-	centersmp = atoi(vals_.get(0));
-	if ( centersmp > 0 )
-	    centersmp = -centersmp + 1; // Users start at 1
-    }
-    float sr = atof( vals_.get(1) );
+    int centersmp = getIntValue( 0 );
+    if ( !mIsUdf(centersmp) && centersmp > 0 )
+	centersmp = -centersmp + 1; // Users start at 1
+
+    float sr = getfValue( 1 );
     if ( sr == 0 || mIsUdf(sr) )
-	sr = SI().zStep() * SI().zFactor();
+	sr = SI().zStep();
     else if ( sr < 0 )
 	sr = -sr;
-    sr /= SI().zFactor();
 
     TypeSet<float> samps;
     while ( true )
@@ -283,10 +278,10 @@ Wavelet* WaveletAscIO::get( std::istream& strm ) const
 	if ( ret < 0 ) mErrRet(0)
 	if ( ret == 0 ) break;
 
-	const char* vstr = vals_.get( 0 ).buf();
-	if ( isNumberString(vstr,NO) )
-	    samps += atof( vstr );
+	float val = getfValue( 0 );
+	if ( !mIsUdf(val) ) samps += val;
     }
+
     if ( samps.isEmpty() )
 	mErrRet( "No valid data samples found" )
     if ( mIsUdf(centersmp) || centersmp > samps.size() )
