@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		21-6-1996
  Contents:	Positions: Inline/crossline and Coordinate
- RCS:		$Id: position.h,v 1.42 2006-05-05 18:54:15 cvskris Exp $
+ RCS:		$Id: position.h,v 1.43 2006-12-22 10:01:35 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -65,6 +65,8 @@ public:
 
     double	x;
     double	y;
+    
+    static const Coord&		udf();
 };
 
 bool getDirectionStr( const Coord&, BufferString& );

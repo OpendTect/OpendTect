@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          18-4-1996
- RCS:           $Id: rcol2coord.cc,v 1.4 2006-08-02 18:48:51 cvskris Exp $
+ RCS:           $Id: rcol2coord.cc,v 1.5 2006-12-22 10:01:35 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -76,11 +76,11 @@ RowCol RCol2Coord::transformBack( const Coord& coord,
 Coord RCol2Coord::transformBackNoSnap( const Coord& coord ) const
 {
     if ( mIsUdf(coord.x) || mIsUdf(coord.y) )
-	return Coord(mUdf(double),mUdf(double));
+	return Coord::udf();
 
     double det = xtr.det( ytr );
     if ( mIsZero(det,mDefEps) ) 
-	return Coord(mUdf(double),mUdf(double));
+	return Coord::udf();
 
     const double x = coord.x - xtr.a;
     const double y = coord.y - ytr.a;
