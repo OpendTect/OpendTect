@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.73 2006-11-21 14:00:08 cvsbert Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.74 2006-12-22 10:20:26 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -84,6 +84,7 @@ uiODSceneMgr::uiODSceneMgr( uiODMain* a )
 #endif
     tifs_->addFactory( new uiODWellTreeItemFactory, 8000 );
     tifs_->addFactory( new Seis2DTreeItemFactory, 9500 );
+    tifs_->addFactory( new uiODHorizon2DTreeItemFactory, 9600);
 
     wsp_->setPrefWidth( cWSWidth );
     wsp_->setPrefHeight( cWSHeight );
@@ -737,8 +738,12 @@ int uiODSceneMgr::addEMItem( const EM::ObjectID& emid, int sceneid )
 	if ( sceneid >= 0 && sceneid != scene.sovwr_->sceneID() ) continue;
 
 	uiODDisplayTreeItem* itm;
-	if ( !strcmp( type, "Horizon" ) ) itm = new uiODHorizonTreeItem(emid);
-	else if ( !strcmp(type,"Fault" ) ) itm = new uiODFaultTreeItem(emid);
+	if ( !strcmp( type, "Horizon" ) ) 
+	    itm = new uiODHorizonTreeItem(emid);
+	else if ( !strcmp( type, "2D Horizon" ) ) 
+	    itm = new uiODHorizon2DTreeItem(emid);
+	else if ( !strcmp(type,"Fault" ) ) 
+	    itm = new uiODFaultTreeItem(emid);
 
 	scene.itemmanager_->addChild( itm, false );
 	return itm->displayID();

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Jan 2005
- RCS:           $Id: uivisemobj.cc,v 1.50 2006-10-23 09:17:31 cvsjaap Exp $
+ RCS:           $Id: uivisemobj.cc,v 1.51 2006-12-22 10:22:38 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "attribsel.h"
 #include "emhistory.h"
 #include "emhorizon.h"
+#include "emhorizon2d.h"
 #include "emmanager.h"
 #include "emobject.h"
 #include "emsurfaceiodata.h"
@@ -29,6 +30,7 @@ ________________________________________________________________________
 #include "uivispartserv.h"
 #include "visdataman.h"
 #include "vishorizondisplay.h"
+#include "vishorizon2ddisplay.h"
 #include "vismpeeditor.h"
 #include "vissurvobj.h"
 
@@ -150,10 +152,13 @@ uiVisEMObject::uiVisEMObject( uiParent* uip, const EM::ObjectID& emid,
     edgelinemenu.ref();
 
     const EM::EMObject* emobj = EM::EMM().getObject(emid);
-    mDynamicCastGet( const EM::Horizon*, hor, emobj );
     visSurvey::EMObjectDisplay* emod = 0;
+    mDynamicCastGet( const EM::Horizon*, hor, emobj );
     if ( hor )
 	emod = visSurvey::HorizonDisplay::create();
+    mDynamicCastGet( const EM::Horizon2D*, hor2d, emobj );
+    if ( hor2d )
+	emod = visSurvey::Horizon2DDisplay::create();
 
     mDynamicCastGet(visSurvey::Scene*,scene,visBase::DM().getObject(sceneid))
     emod->setDisplayTransformation( scene->getUTM2DisplayTransform() );

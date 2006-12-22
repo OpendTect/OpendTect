@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2002
- RCS:           $Id: horizon3dtracker.cc,v 1.2 2006-02-27 12:15:24 cvsjaap Exp $
+ RCS:           $Id: horizon3dtracker.cc,v 1.3 2006-12-22 10:17:46 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -76,7 +76,7 @@ bool HorizonTracker::trackIntersections( const TrackPlane& plane )
 }
 
 
-EMSeedPicker*  HorizonTracker::getSeedPicker(bool createifnotpresent)
+EMSeedPicker* HorizonTracker::getSeedPicker(bool createifnotpresent)
 {
     if ( seedpicker )
 	return seedpicker;

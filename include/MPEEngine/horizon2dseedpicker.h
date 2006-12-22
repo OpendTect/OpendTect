@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: horizon2dseedpicker.h,v 1.1 2006-05-05 19:07:54 cvskris Exp $
+ RCS:           $Id: horizon2dseedpicker.h,v 1.2 2006-12-22 10:08:25 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,14 +39,18 @@ public:
     bool		canRemoveSeed() const		{ return true; }
     bool		reTrack();
     int			nrSeeds() const;
-    int			isMinimumNrOfSeeds() const;
+    int			minSeedsToLeaveInitStage() const;
 
     bool		stopSeedPick(bool iscancel=false);
 
+    enum SeedModeOrder  { TrackFromSeeds, 
+			  TrackBetweenSeeds, 
+			  DrawBetweenSeeds };
+
     static int		nrSeedConnectModes()		{ return 3; }
-    static int		defaultSeedConMode();
-    static const char*	seedConModeText(int mode, 
-					bool abbrev=false); 
+    static int		defaultSeedConMode()		{return TrackFromSeeds;}
+    static const char*  seedConModeText(int mode,
+				    bool abbrev=false);
 
     int			getSeedConnectMode() const;
     void		setSeedConnectMode(int scm);
@@ -54,6 +58,8 @@ public:
     bool		isSeedPickBlocked() const;
     bool		doesModeUseVolume() const;
     bool		doesModeUseSetup() const;
+    int                 defaultSeedConMode(
+				    bool gotsetup) const;
 
 protected:
 
@@ -63,10 +69,18 @@ protected:
     bool			didchecksupport_;
     int				lineid_;
 
-
     const Attrib::Data2DHolder* data2d_;
     BufferString		linename_;
     MultiID			lineset_;
+
+    int				seedconmode_;
+    bool			blockpicking_;
+
+    Notifier<Horizon2DSeedPicker> 
+				addrmseed_;
+    Notifier<Horizon2DSeedPicker> 
+				surfchange_;
+
 };
 
 

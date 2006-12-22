@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpewizard.cc,v 1.60 2006-12-01 16:40:21 cvsjaap Exp $
+ RCS:           $Id: uimpewizard.cc,v 1.61 2006-12-22 10:18:42 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,6 +21,7 @@ ________________________________________________________________________
 #include "executor.h"
 #include "faultseedpicker.h"
 #include "horizonseedpicker.h"
+#include "horizon2dseedpicker.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "mpeengine.h"
@@ -96,7 +97,7 @@ static const char* sLineManualInfo()
 
 
 Wizard::Wizard( uiParent* p, uiMPEPartServer* mps )
-    : uiWizard( p, uiDialog::Setup( "Tracking Wizard", "", 
+    : uiWizard( p, uiDialog::Setup( "Tracking Wizard",  
 				    "" ).modal(false) )
     , mpeserv(mps)
     , sid(-1)
@@ -146,22 +147,23 @@ uiIOObjSelGrp* Wizard::createNamePage()
     xmodegrp->setRadioButtonExclusive( true ); \
     for ( int idx=0; idx<typ##SeedPicker::nrSeedConnectModes(); idx++ ) \
     { \
-	uiRadioButton* butptr = new uiRadioButton( hmodegrp, \
+	uiRadioButton* butptr = new uiRadioButton( xmodegrp, \
 			    typ##SeedPicker::seedConModeText(idx,false) ); \
 	butptr->activated.notify( mCB(this,Wizard,seedModeChange) ); \
     } \
-    xmodegrp->selectButton( typ##SeedPicker::defaultSeedConMode() );
+    xmodegrp->selectButton( typ##SeedPicker::defaultSeedConMode() ); \
+    xmodegrp->attach( alignedAbove, colorfld );
 
 uiGroup* Wizard::createTrackModePage()
 {
     uiGroup* grp = new uiGroup( this, "Page 2" );
 
-    mDefSeedConModeGrp( hmodegrp, Horizon ); 
-//  mDefSeedConModeGrp( fmodegrp, Fault ); 
-
     colorfld = new uiColorInput( grp, getRandomColor(), "Object color" );
     colorfld->colorchanged.notify( mCB(this,Wizard,colorChangeCB) );
-    colorfld->attach( alignedBelow, hmodegrp );
+
+    mDefSeedConModeGrp( hmodegrp, Horizon ); 
+    mDefSeedConModeGrp( h2dmodegrp, Horizon2D ); 
+//  mDefSeedConModeGrp( fmodegrp, Fault ); 
 
     uiSeparator* sep = new uiSeparator( grp );
     sep->attach( stretchedBelow, colorfld, -2 );
@@ -338,6 +340,7 @@ bool Wizard::prepareTrackModePage()
         sid = emobj->sectionID( emobj->nrSections()-1 );
 
     mSelectSeedConModeGrp( hmodegrp, Horizon );
+    mSelectSeedConModeGrp( h2dmodegrp, Horizon2D );
 //  mSelectSeedConModeGrp( fmodegrp, Fault );
 
     seedModeChange(0);
@@ -664,7 +667,20 @@ void Wizard::setObject( const EM::ObjectID& id, const EM::SectionID& sectionid )
 
 void Wizard::updateDialogTitle()
 {
-    BufferString str( trackertype ); str += " Tracking";
+    // Must reserve text space for longest type while initializing the wizard.
+    // Must pad with double spaces to be safe in case of variable width fonts.
+
+    const BufferString current( trackertype );
+    const BufferString longest( EMHorizon2DTranslatorGroup::keyword );
+    const int spacestoadd = longest.size() - current.size();
+
+    BufferString str;
+    for ( int idx=0; idx<spacestoadd; idx++ )
+	str += " ";
+    str += current; str += " Tracking";
+    for ( int idx=0; idx<spacestoadd; idx++ )
+	str += " ";
+    
     setTitleText( str );
 }
 

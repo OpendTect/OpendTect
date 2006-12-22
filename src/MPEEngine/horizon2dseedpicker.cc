@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizon2dseedpicker.cc,v 1.1 2006-05-05 19:07:54 cvskris Exp $";
+static const char* rcsID = "$Id: horizon2dseedpicker.cc,v 1.2 2006-12-22 10:15:39 cvsjaap Exp $";
 
 #include "horizon2dseedpicker.h"
 
@@ -30,6 +30,10 @@ namespace MPE
 Horizon2DSeedPicker::Horizon2DSeedPicker( MPE::EMTracker& t )
     : tracker_( t )
     , data2d_( 0 )
+    , addrmseed_( this )
+    , surfchange_( this )
+    , seedconmode_( defaultSeedConMode() )
+    , blockpicking_( false )
 { }
 
 
@@ -115,7 +119,7 @@ bool Horizon2DSeedPicker::startSeedPick()
 		}
 	    }
 
-	    if ( !found ) coords += Coord( mUdf(float), mUdf(float) );
+	    if ( !found ) coords += Coord::udf();
 	}
 
 	lineid_ = hor->geometry().addLine( coords, trcrg.start, trcrg.step,
@@ -166,7 +170,7 @@ bool Horizon2DSeedPicker::addSeed(const Coord3& seedcrd )
 
 
 bool Horizon2DSeedPicker::doesModeUseSetup() const
-{ return true; }
+{ return seedconmode_!=DrawBetweenSeeds; }
 
 
 bool Horizon2DSeedPicker::reTrack()
@@ -174,23 +178,30 @@ bool Horizon2DSeedPicker::reTrack()
 
 
 int Horizon2DSeedPicker::getSeedConnectMode() const
-{ return 0; }
+{ return seedconmode_; }
 
 
-void Horizon2DSeedPicker::blockSeedPick(bool)
-{}
+void Horizon2DSeedPicker::blockSeedPick( bool yn )
+{ blockpicking_ = yn; }
 
 
-int Horizon2DSeedPicker::isMinimumNrOfSeeds() const
-{ return 0; }
+int Horizon2DSeedPicker::minSeedsToLeaveInitStage() const
+{
+    if ( seedconmode_==TrackFromSeeds )
+	return 1;
+    else if ( seedconmode_==TrackBetweenSeeds )
+	return 2;
+    else
+	return 0 ;
+}
 
 
-void Horizon2DSeedPicker::setSeedConnectMode(int)
-{}
+void Horizon2DSeedPicker::setSeedConnectMode( int scm )
+{ seedconmode_ = scm; }
 
 
 bool Horizon2DSeedPicker::isSeedPickBlocked() const
-{ return false; }
+{ return blockpicking_; }
 
 
 bool Horizon2DSeedPicker::doesModeUseVolume() const
@@ -198,7 +209,11 @@ bool Horizon2DSeedPicker::doesModeUseVolume() const
 
 
 bool Horizon2DSeedPicker::stopSeedPick(bool)
-{ return true; }
+{
+    mGetHorizon(hor);
+    hor->enableGeometryChecks( didchecksupport_ );
+    return true;
+}
 
 
 bool Horizon2DSeedPicker::removeSeed(EM::PosID const&, bool)
@@ -208,6 +223,24 @@ bool Horizon2DSeedPicker::removeSeed(EM::PosID const&, bool)
 int MPE::Horizon2DSeedPicker::nrSeeds() const
 { return 0; }
 
+
+const char* Horizon2DSeedPicker::seedConModeText( int mode, bool abbrev )
+{
+    if ( mode==TrackFromSeeds && !abbrev )
+	return "Tracking in volume";
+    else if ( mode==TrackFromSeeds && abbrev )
+	return "Volume track";
+    else if ( mode==TrackBetweenSeeds )
+	return "Line tracking";
+    else if ( mode==DrawBetweenSeeds )
+	return "Line manual";
+    else
+	return "Unknown mode";
+}
+
+
+int Horizon2DSeedPicker::defaultSeedConMode( bool gotsetup ) const
+{ return gotsetup ? defaultSeedConMode() : DrawBetweenSeeds; }
 
 
 }; // namespace MPE

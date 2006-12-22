@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: emsurfacetr.cc,v 1.14 2006-08-30 16:03:27 cvsbert Exp $
+ RCS:           $Id: emsurfacetr.cc,v 1.15 2006-12-22 10:14:42 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,7 +46,7 @@ const IOObjContext& EMHorizonTranslatorGroup::ioContext()
 }
 
 
-const char* EMHorizon2DTranslatorGroup::keyword = "Horizon 2D";
+const char* EMHorizon2DTranslatorGroup::keyword = "2D Horizon";
 
 mDefSimpleTranslatorSelector(EMHorizon2D,keyword)
 mDefSimpleTranslatorioContext(EMHorizon2D,Surf)

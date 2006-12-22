@@ -4,7 +4,7 @@
  * DATE     : Dec 2004
 -*/
 
-static const char* rcsID = "$Id: horizon2dline.cc,v 1.1 2006-04-26 21:10:42 cvskris Exp $";
+static const char* rcsID = "$Id: horizon2dline.cc,v 1.2 2006-12-22 10:15:10 cvsjaap Exp $";
 
 #include "horizon2dline.h"
 #include "undefval.h"
@@ -104,7 +104,7 @@ StepInterval<int> Horizon2DLine::colRange( int rowid ) const
 {
     const int rowidx = rowid-firstrow_;
     if ( rowidx<0 )
-	return StepInterval<int>(INT_MAX,INT_MIN, 1 );
+	return StepInterval<int>( INT_MAX, INT_MIN, 1 );
 
     const SamplingData<int>& sd = colsampling_[rowidx];
     return StepInterval<int>( sd.start, sd.atIndex(rows_[rowidx]->size()-1),

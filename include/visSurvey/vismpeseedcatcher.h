@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vismpeseedcatcher.h,v 1.11 2006-12-01 16:33:07 cvsjaap Exp $
+ RCS:		$Id: vismpeseedcatcher.h,v 1.12 2006-12-22 10:12:54 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -35,6 +35,57 @@ namespace visSurvey
 */
 class EMObjectDisplay;
 
+
+class MPEClickInfo
+{
+    friend class MPEClickCatcher;
+public:
+    				MPEClickInfo();
+
+    bool                        isCtrlClicked() const; 
+    bool                        isShiftClicked() const;
+    const EM::PosID&		getNode() const;
+    const Coord3&		getPos() const;
+    int				getObjID() const;
+    const CubeSampling&		getObjCS() const;
+    const Attrib::DataCubes*	getObjData() const;
+    const Attrib::SelSpec*	getObjDataSelSpec() const;
+
+    const MultiID&		getObjLineSet() const;
+    const char*			getObjLineName() const;
+    const Attrib::Data2DHolder*	getObjLineData() const;
+
+protected:
+    void			clear();
+
+    void			setCtrlClicked(bool); 
+    void			setShiftClicked(bool);
+    void			setNode(const EM::PosID&);
+    void			setPos(const Coord3&);
+    void			setObjID(int);
+    void			setObjCS(const CubeSampling&);
+    void			setObjData(const Attrib::DataCubes*);
+    void			setObjDataSelSpec(const Attrib::SelSpec*);
+
+    void			setObjLineSet(const MultiID&);
+    void			setObjLineName(const char*);
+    void			setObjLineData(const Attrib::Data2DHolder*);
+
+    bool				ctrlclicked_;
+    bool				shiftclicked_;
+    EM::PosID				clickednode_;
+    Coord3				clickedpos_;
+    int					clickedobjid_;
+    CubeSampling			clickedcs_;
+    RefMan<const Attrib::DataCubes>	attrdata_;
+    const Attrib::SelSpec*		attrsel_;
+
+    RefMan<const Attrib::Data2DHolder>	linedata_;
+    MultiID				lineset_;
+    BufferString			linename_;
+};
+
+
 class MPEClickCatcher : public visBase::VisualObjectImpl
 {
 public:
@@ -47,54 +98,32 @@ public:
     mVisTrans*			getDisplayTransformation();
 
     Notifier<MPEClickCatcher>	click;
-    EM::PosID			clickedNode() const;
-    bool                        ctrlClicked() const;
-    bool                        shiftClicked() const;
-    const Coord3&		clickedPos() const;
-    int				clickedObjectID() const;
-    const CubeSampling&		clickedObjectCS() const;
-    const Attrib::DataCubes*	clickedObjectData() const;
-    const Attrib::SelSpec*	clickedObjectDataSelSpec() const;
 
-    const MultiID&		clickedObjectLineSet() const;
-    const char*			clickedObjectLineName() const;
-    const Attrib::Data2DHolder*	clickedObjectLineData() const;
+    const MPEClickInfo&		info() const;
+    MPEClickInfo&		info();
 
-    static bool			isClickable(int visid);
+    void			setTrackerType(const char*);
+    static bool			isClickable(const char* trackertype,int visid);
 
 protected:
 				~MPEClickCatcher();
     void			clickCB(CallBacker*);
 
+    void 			sendUnderlying2DSeis(
+					const EMObjectDisplay*,
+					const visBase::EventInfo&);
     void 			sendUnderlyingPlanes(
 					const EMObjectDisplay*,
 					const visBase::EventInfo&);
 
-    void			sendClickEvent( const EM::PosID,
-	    				bool ctrl,bool shift,const Coord3&,
-	    				int objid,const CubeSampling&,
-					const Attrib::DataCubes* =0,
-					const Attrib::SelSpec* =0,
-					const Attrib::Data2DHolder* =0,
-					const char* linename = 0,
-					const MultiID* lineset = 0 );
+    visBase::EventCatcher*	eventcatcher_;
+    visBase::Transformation*	transformation_;
 
-    EM::PosID				clickednode_;
-    bool				ctrlclicked_;
-    bool				shiftclicked_;
-    Coord3				clickedpos_;
-    int					clickedobjid_;
-    CubeSampling			clickedcs_;
-    RefMan<const Attrib::DataCubes>	attrdata_;
-    const Attrib::SelSpec*		as_;
-
-    RefMan<const Attrib::Data2DHolder>	linedata_;
-    MultiID				lineset_;
-    BufferString			linename_;
-
-    visBase::EventCatcher*		eventcatcher_;
-    visBase::Transformation*		transformation_;
+    MPEClickInfo		info_;
+    const char*			trackertype_;
 };
+
+
 
 };
 

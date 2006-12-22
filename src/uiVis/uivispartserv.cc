@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.335 2006-12-01 16:50:24 cvsjaap Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.336 2006-12-22 10:23:07 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -171,14 +171,16 @@ void uiVisPartServer::removeScene( int sceneid )
 }
 
 
-bool uiVisPartServer::clickablesInScene( int sceneid ) const
+bool uiVisPartServer::clickablesInScene( const char* trackertype, 
+					 int sceneid ) const
 {
     TypeSet<int> sceneobjids;
     getChildIds( sceneid, sceneobjids );
     for ( int idx=0; idx<sceneobjids.size(); idx++ )
     {
 	const int objid = sceneobjids[idx];
-	if ( isOn(objid) && visSurvey::MPEClickCatcher::isClickable(objid) )
+	if ( isOn(objid) && 
+	     visSurvey::MPEClickCatcher::isClickable(trackertype,objid) )
 	{
 	    if ( !hasAttrib(objid) )
 		return true;

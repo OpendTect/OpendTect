@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		May 2006
- RCS:		$Id: uiodseis2dtreeitem.cc,v 1.8 2006-12-14 14:30:52 cvshelene Exp $
+ RCS:		$Id: uiodseis2dtreeitem.cc,v 1.9 2006-12-22 10:21:25 cvsjaap Exp $
 ___________________________________________________________________
 
 -*/
@@ -35,7 +35,7 @@ ___________________________________________________________________
 
 
 uiODSeis2DParentTreeItem::uiODSeis2DParentTreeItem()
-    : uiODTreeItem("2D" )
+    : uiODTreeItem("2D Seismics" )
 {
 }
 

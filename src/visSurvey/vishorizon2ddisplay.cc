@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: vishorizon2ddisplay.cc,v 1.1 2006-04-26 21:23:32 cvskris Exp $
+ RCS:           $Id: vishorizon2ddisplay.cc,v 1.2 2006-12-22 10:23:36 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,7 +35,9 @@ Horizon2DDisplay::Horizon2DDisplay()
 
 
 Horizon2DDisplay::~Horizon2DDisplay()
-{}
+{
+    removeEMStuff();
+}
 
 
 void Horizon2DDisplay::setDisplayTransformation( mVisTrans* nt )

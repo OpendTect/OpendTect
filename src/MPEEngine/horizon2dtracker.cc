@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2002
- RCS:           $Id: horizon2dtracker.cc,v 1.1 2006-05-05 19:07:54 cvskris Exp $
+ RCS:           $Id: horizon2dtracker.cc,v 1.2 2006-12-22 10:17:14 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -61,8 +61,6 @@ void Horizon2DTracker::initClass()
 SectionTracker* Horizon2DTracker::createSectionTracker( EM::SectionID sid )
 {
     if ( !getHorizon2D() ) return 0;
-
-    return 0;
 
     return new SectionTracker( *emObject(), sid,
 	    new Horizon2DSelector(*getHorizon2D(),sid),

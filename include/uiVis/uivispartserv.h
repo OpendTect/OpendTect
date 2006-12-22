@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.181 2006-12-01 16:32:35 cvsjaap Exp $
+ RCS:           $Id: uivispartserv.h,v 1.182 2006-12-22 10:12:25 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -81,7 +81,8 @@ public:
 			    Don't use the argument when calling from outside.
 			*/
     void		removeScene(int);
-    bool		clickablesInScene(int) const;
+    bool		clickablesInScene(const char* trackertype, 
+					  int sceneid) const;
 
     void		getChildIds(int id,TypeSet<int>&) const;
 			/*!< Gets a scenes' children or a volumes' parts

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpewizard.h,v 1.22 2006-06-12 14:39:48 cvsjaap Exp $
+ RCS:           $Id: uimpewizard.h,v 1.23 2006-12-22 10:09:46 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -63,6 +63,7 @@ protected:
     uiSetupGroup*	setupgrp;
 
     uiButtonGroup*      hmodegrp;
+    uiButtonGroup*      h2dmodegrp;
     uiButtonGroup*      fmodegrp;
     uiButtonGroup*      modegrp;
     uiTextEdit*		infofld;

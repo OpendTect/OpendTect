@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: emhorizon2d.cc,v 1.6 2006-05-08 15:46:20 cvsnanne Exp $
+ RCS:           $Id: emhorizon2d.cc,v 1.7 2006-12-22 10:13:35 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -79,7 +79,7 @@ int Horizon2Geometry::addLine( const TypeSet<Coord>& path, int start, int step,
     linenames_.add( line );
     linesets_ +=  lineset;
 
-    for ( int idx=sections_.size(); idx>=0; idx-- )
+    for ( int idx=sections_.size()-1; idx>=0; idx-- )
     {
 	Geometry::Horizon2DLine* section =
 	    reinterpret_cast<Geometry::Horizon2DLine*>(sections_[idx]);
@@ -103,7 +103,7 @@ void Horizon2Geometry::removeLine( int lid )
     linenames_.remove( lidx );
     linesets_.remove( lidx );
     lineids_.remove( lidx );
-    for ( int idx=sections_.size(); idx>=0; idx-- )
+    for ( int idx=sections_.size()-1; idx>=0; idx-- )
     {
 	Geometry::Horizon2DLine* section =
 	    reinterpret_cast<Geometry::Horizon2DLine*>(sections_[idx]);
@@ -170,7 +170,7 @@ Geometry::Horizon2DLine* Horizon2Geometry::createSectionGeometry() const
 { return new Geometry::Horizon2DLine; }
 
 
-const char* Horizon2D::typeStr()		{ return "2D Horizon"; }
+const char* Horizon2D::typeStr() { return EMHorizon2DTranslatorGroup::keyword; }
 
 
 EMObject* Horizon2D::create( EMManager& emm )
@@ -188,7 +188,9 @@ void Horizon2D::initClass(EMManager& emm)
 Horizon2D::Horizon2D( EMManager& man )
     : Surface( man )
     , geometry_( *this )
-{ }
+{
+    geometry_.addSection( "", false );
+}
 
 
 const char* Horizon2D::getTypeStr() const
