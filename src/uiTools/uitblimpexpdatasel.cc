@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2006
- RCS:           $Id: uitblimpexpdatasel.cc,v 1.13 2006-12-22 11:58:09 cvsbert Exp $
+ RCS:           $Id: uitblimpexpdatasel.cc,v 1.14 2006-12-22 12:23:09 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -295,10 +295,11 @@ uiTableImpDataSel::uiTableImpDataSel( uiParent* p, Table::FormatDesc& fd )
     fmtiogrp->attach( rightTo, leftgrp );
     fmtiogrp->attach( ensureRightOf, sep );
 
-    uiButtonGroup* unitsgrp = new uiButtonGroup( this, "Unit conversions" );
+    uiButtonGroup* unitsgrp = new uiButtonGroup( this, "" );
     button = new uiToolButton( unitsgrp, "Units button",
 	    			ioPixmap("unitsofmeasure.png"),
 				mCB(this,uiTableImpDataSel,handleUnits) );
+    button->setToolTip( "Specify units of measure" );
     unitsgrp->attach( alignedBelow, fmtiogrp );
 }
 
