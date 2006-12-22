@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: property.h,v 1.7 2006-08-21 17:14:44 cvsbert Exp $
+ RCS:		$Id: property.h,v 1.8 2006-12-22 10:51:41 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -30,6 +30,7 @@ public:
     enum StdType	{ Other, Time, Dist, Den, Vel, Son, AI, Por, Perm,
 			  Sat, GR, ElPot, Res, PR, Comp, Temp, Pres };
 			DeclareEnumUtils(StdType)
+    static StdType	surveyZType();
 
 			PropertyRef( const char* nm=0, StdType t=Other,
 				     bool h=false )

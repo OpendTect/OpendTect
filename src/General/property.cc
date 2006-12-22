@@ -4,10 +4,11 @@
  * DATE     : Dec 2003
 -*/
 
-static const char* rcsID = "$Id: property.cc,v 1.9 2005-05-17 09:29:05 cvskris Exp $";
+static const char* rcsID = "$Id: property.cc,v 1.10 2006-12-22 10:52:45 cvsbert Exp $";
 
 #include "propertyimpl.h"
 #include "mathexpression.h"
+#include "survinfo.h"
 #include "filegen.h"
 #include "filepath.h"
 #include "ascstream.h"
@@ -39,6 +40,11 @@ DefineEnumNames(PropertyRef,StdType,0,"Standard Property")
 	"Pressure",
 	0
 };
+
+PropertyRef::StdType PropertyRef::surveyZType()
+{
+    return SI().zIsTime() ? Time : Dist;
+}
 
 static const char* filenamebase = "Properties";
 
