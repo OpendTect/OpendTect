@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.96 2006-11-21 17:47:25 cvsbert Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.97 2006-12-27 15:06:07 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -313,26 +313,33 @@ int uiEMPartServer::loadAuxData( const EM::ObjectID& id, const char* attrnm )
 }
 
 
-int uiEMPartServer::showLoadAuxDataDlg( const EM::ObjectID& id )
+bool uiEMPartServer::showLoadAuxDataDlg( const EM::ObjectID& id )
 {
     mDynamicCastAll(id);
-    if ( !hor ) return -1;
+    if ( !hor ) return false;
 
     EM::SurfaceIOData sd;
     const MultiID mid = em_.getMultiID( id );
     em_.getSurfaceData( mid, sd );
     uiListBoxDlg dlg( appserv().parent(), sd.valnames, "Surface data" );
-    dlg.box()->setMultiSelect(false);
-    if ( !dlg.go() ) return -1;
+    dlg.setTitleText( "Select one or more attributes to be displayed\n"
+	    	      "on the horizon. After loading, use 'Page Up'\n"
+		      "and 'Page Down' buttons to scroll." );
+    dlg.box()->setMultiSelect( true );
+    if ( !dlg.go() ) return false;
 
     TypeSet<int> selattribs;
     dlg.box()->getSelectedItems( selattribs );
-    if ( selattribs.isEmpty() ) return -1;
+    if ( selattribs.isEmpty() ) return false;
 
     hor->auxdata.removeAll();
-    PtrMan<Executor> exec = hor->auxdata.auxDataLoader( selattribs[0] );
-    uiExecutor exdlg( appserv().parent(), *exec );
-    return exdlg.go() ? 0 : -1;
+    ExecutorGroup exgrp( "Loading surface data" );
+    exgrp.setNrDoneText( "Nr done" );
+    for ( int idx=0; idx<selattribs.size(); idx++ )
+	exgrp.add( hor->auxdata.auxDataLoader(selattribs[idx]) );
+
+    uiExecutor exdlg( appserv().parent(), exgrp );
+    return exdlg.go();
 }
 
 
@@ -456,8 +463,8 @@ bool uiEMPartServer::getAuxData( const EM::ObjectID& oid, int auxdatanr,
 
     for ( int idx=0; idx<hor->nrSections(); idx++ )
     {
-	const EM::SectionID sid = hor->sectionID(idx);
-	if ( !hor->geometry().sectionGeometry( sid ) )
+	const EM::SectionID sid = hor->sectionID( idx );
+	if ( !hor->geometry().sectionGeometry(sid) )
 	{
 	    auxdata += 0;
 	    continue;
@@ -477,6 +484,59 @@ bool uiEMPartServer::getAuxData( const EM::ObjectID& oid, int auxdatanr,
 		break;
 
 	    auxvals[1] = hor->auxdata.getAuxDataVal( auxdatanr, pid );
+	    bid.setSerialized( pid.subID() );
+	    res->add( bid, auxvals );
+	}
+    }
+
+    return true;
+}
+
+
+bool uiEMPartServer::getAllAuxData( const EM::ObjectID& oid,
+				    BufferStringSet& nms,
+				    ObjectSet<BinIDValueSet>& data ) const
+{
+    mDynamicCastAll(oid);
+    if ( !hor ) return false;
+
+    deepErase( data );
+    data.allowNull( true );
+
+    for ( int sidx=0; sidx<hor->nrSections(); sidx++ )
+    {
+	const EM::SectionID sid = hor->sectionID( sidx );
+	if ( !hor->geometry().sectionGeometry(sid) )
+	{
+	    data += 0;
+	    continue;
+	}
+
+	for ( int idx=0; idx<hor->auxdata.nrAuxData(); idx++ )
+	{
+	    if ( hor->auxdata.auxDataName(idx) )
+		nms.add( hor->auxdata.auxDataName(idx) );
+	}
+
+	const int nrauxdata = nms.size()+1;
+	BinIDValueSet* res = new BinIDValueSet( nrauxdata, false );
+	data += res;
+
+	float auxvals[nrauxdata];
+	auxvals[0] = 0;
+	BinID bid;
+	PtrMan<EM::EMObjectIterator> iterator = hor->createIterator( sid );
+	while ( true )
+	{
+	    const EM::PosID pid = iterator->next();
+	    if ( pid.objectID()==-1 )
+		break;
+
+	    for ( int idx=0; idx<nms.size(); idx++ )
+	    {
+		const int auxidx = hor->auxdata.auxDataIndex( nms.get(idx) );
+		auxvals[idx+1] = hor->auxdata.getAuxDataVal( auxidx, pid );
+	    }
 	    bid.setSerialized( pid.subID() );
 	    res->add( bid, auxvals );
 	}

@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodemsurftreeitem.cc,v 1.13 2006-12-14 14:30:52 cvshelene Exp $
+ RCS:		$Id: uiodemsurftreeitem.cc,v 1.14 2006-12-27 15:06:07 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -183,14 +183,15 @@ void uiODEarthModelSurfaceDataTreeItem::handleMenuCB( CallBacker* cb )
     else if ( mnuid==loadsurfacedatamnuitem_.id )
     {
 	menu->setIsHandled( true );
-	const int auxdatanr = applMgr()->EMServer()->showLoadAuxDataDlg(emid);
-	if ( auxdatanr<0 ) return;
+	if ( !applMgr()->EMServer()->showLoadAuxDataDlg(emid) )
+	    return;
 
-	BufferString attrnm;
+	BufferStringSet attrnms;
 	ObjectSet<BinIDValueSet> vals;
-	applMgr()->EMServer()->getAuxData( emid, auxdatanr, attrnm, vals );
-	visserv->setSelSpec( displayID(), attribNr(),
-		Attrib::SelSpec(attrnm,Attrib::SelSpec::cOtherAttrib()) );
+	applMgr()->EMServer()->getAllAuxData( emid, attrnms, vals );
+// TODO: Set selspec for all attribs
+//	visserv->setSelSpec( displayID(), attribNr(),
+//		Attrib::SelSpec(attrnm,Attrib::SelSpec::cOtherAttrib()) );
 	visserv->setRandomPosData( displayID(), attribNr(), &vals );
 	updateColumnText( uiODSceneMgr::cNameColumn() );
     }

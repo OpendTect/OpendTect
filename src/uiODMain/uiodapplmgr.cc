@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.166 2006-12-21 16:41:19 cvshelene Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.167 2006-12-27 15:06:07 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -946,7 +946,8 @@ bool uiODApplMgr::handleAttribServEv( int evid )
 	attrserv->getDirectShowAttrSpec( as );
 	const int visid = visserv->getEventObjId();
 	const int attrib = visserv->getSelAttribNr();
-	if ( attrib<0 ) return false;
+	if ( attrib<0 || attrib>=visserv->getNrAttribs(visid) )
+	    return false;
 	visserv->setSelSpec( visid, attrib, as );
 	getNewData( visid, attrib );
 	sceneMgr().updateTrees();
@@ -975,7 +976,8 @@ bool uiODApplMgr::handleAttribServEv( int evid )
 	const int visid = visserv->getEventObjId();
 	Attrib::SelSpec as( "Evaluation", Attrib::SelSpec::cOtherAttrib() );
 	const int attrib = visserv->getSelAttribNr();
-	if ( attrib<0 ) return false;
+	if ( attrib<0 || attrib>=visserv->getNrAttribs(visid) )
+	    return false;
 	visserv->setSelSpec( visid, attrib, as );
 	if ( !evaluateAttribute(visid,attrib) )
 	    return false;
@@ -1010,7 +1012,7 @@ bool uiODApplMgr::handleAttribServEv( int evid )
 	const int nrvals = data[0]->nrVals()-1;
 	for ( int idx=0; idx<nrvals; idx++ )
 	{
-	    emserv->setAuxData( emid, data, specs[idx].userRef(), idx );
+	    emserv->setAuxData( emid, data, specs[idx].userRef(), idx+1 );
 	    emserv->storeAuxData( emid );
 	}
     }
@@ -1025,6 +1027,9 @@ void uiODApplMgr::pageUpDownPressed( bool up )
 {
     const int visid = visserv->getEventObjId();
     const int attrib = visserv->getSelAttribNr();
+    if ( attrib<0 || attrib>=visserv->getNrAttribs(visid) )
+	return;
+
     int texture = visserv->selectedTexture( visid, attrib );
     if ( texture<visserv->nrTextures(visid,attrib)-1 && up )
 	texture++;
@@ -1039,6 +1044,9 @@ void uiODApplMgr::pageUpDownPressed( bool up )
 
 void uiODApplMgr::modifyColorTable( int visid, int attrib )
 {
+    if ( attrib<0 || attrib>=visserv->getNrAttribs(visid) )
+	return;
+
     appl.colTabEd().setColTab( visserv->getColTabId(visid,attrib) );
     setHistogram( visid, attrib );
 }
