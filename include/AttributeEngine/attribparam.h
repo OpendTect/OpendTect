@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribparam.h,v 1.26 2006-08-15 17:37:46 cvsbert Exp $
+ RCS:           $Id: attribparam.h,v 1.27 2006-12-27 15:02:16 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -318,15 +318,15 @@ public:
 
     void			setLimits(const Interval<T>&);
     virtual bool		getCompositeValue(BufferString& res) const;
-    virtual bool                setCompositeValue(const char*);
+    virtual bool		setCompositeValue(const char*);
 
-    void                        setValue(const Interval<T>&);
+    void			setValue(const Interval<T>&);
     Interval<T>			getValue() const;
     void			setDefaultValue(const Interval<T>&);
     virtual BufferString	getDefaultValue() const;
-    Interval<T>             	getDefaultGateValue() const;
+    Interval<T>			getDefaultGateValue() const;
 
-    void                        toString(BufferString&,
+    void			toString(BufferString&,
 					 const Interval<T>&) const;
 };
 
