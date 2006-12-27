@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.336 2006-12-22 10:23:07 cvsjaap Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.337 2006-12-27 14:13:29 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -544,7 +544,7 @@ CubeSampling uiVisPartServer::getCubeSampling( int id, int attribid ) const
 const Attrib::DataCubes* uiVisPartServer::getCachedData(
 						    int id, int attrib ) const
 {
-    mDynamicCastGet( const visSurvey::SurveyObject*, so, getObject(id) );
+    mDynamicCastGet(const visSurvey::SurveyObject*,so,getObject(id));
     return so ? so->getCacheVolume( attrib ) : 0;
 }
 
@@ -552,7 +552,7 @@ const Attrib::DataCubes* uiVisPartServer::getCachedData(
 bool uiVisPartServer::setCubeData( int id, int attrib, 
 				   const Attrib::DataCubes* attribdata )
 {
-    mDynamicCastGet( visSurvey::SurveyObject*, so, getObject(id) );
+    mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
     if ( !so )
 	return false;
 
@@ -563,7 +563,7 @@ bool uiVisPartServer::setCubeData( int id, int attrib,
 
 bool uiVisPartServer::canHaveMultipleTextures(int id) const
 {
-    mDynamicCastGet( const visSurvey::SurveyObject*, so, getObject(id) );
+    mDynamicCastGet(const visSurvey::SurveyObject*,so,getObject(id));
     if ( so ) return so->canHaveMultipleTextures();
     return false;
 }
@@ -571,7 +571,7 @@ bool uiVisPartServer::canHaveMultipleTextures(int id) const
 
 int uiVisPartServer::nrTextures( int id, int attrib ) const
 {
-    mDynamicCastGet( const visSurvey::SurveyObject*, so, getObject(id) );
+    mDynamicCastGet(const visSurvey::SurveyObject*,so,getObject(id));
     if ( so ) return so->nrTextures( attrib );
     return 0;
 }
@@ -632,7 +632,7 @@ void uiVisPartServer::getDataTraceBids( int id, TypeSet<BinID>& bids ) const
 
 Interval<float> uiVisPartServer::getDataTraceRange( int id ) const
 {
-    mDynamicCastGet( visSurvey::SurveyObject*, so, getObject(id) );
+    mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
     return so ? so->getDataTraceRange() : Interval<float>(0,0);
 }
 
@@ -640,7 +640,7 @@ Interval<float> uiVisPartServer::getDataTraceRange( int id ) const
 void uiVisPartServer::setTraceData( int id, int attrib, SeisTrcBuf& data )
 {
     uiCursorChanger cursorlock( uiCursor::Wait );
-    mDynamicCastGet( visSurvey::SurveyObject*, so, getObject(id) );
+    mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
     if ( so )
 	so->setTraceData( attrib, data );
     else
@@ -693,21 +693,21 @@ int uiVisPartServer::getEventAttrib() const { return eventattrib_; }
 
 const Attrib::SelSpec* uiVisPartServer::getSelSpec( int id, int attrib ) const
 {
-    mDynamicCastGet( visSurvey::SurveyObject*, so, getObject(id) );
+    mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
     return so ? so->getSelSpec( attrib ) : 0;
 }
 
 
 bool uiVisPartServer::isClassification( int id, int attrib ) const
 {
-    mDynamicCastGet( visSurvey::SurveyObject*, so, getObject(id) );
+    mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
     return so ? so->isClassification( attrib ) : false;
 }
 
 
 void uiVisPartServer::setClassification( int id, int attrib, bool yn )
 {
-    mDynamicCastGet( visSurvey::SurveyObject*, so, getObject(id) );
+    mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
     if ( !so ) return;
 
     so->setClassification( attrib, yn );
@@ -716,14 +716,14 @@ void uiVisPartServer::setClassification( int id, int attrib, bool yn )
 
 bool uiVisPartServer::isAngle( int id, int attrib ) const
 {
-    mDynamicCastGet( visSurvey::SurveyObject*, so, getObject(id) );
+    mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
     return so ? so->isAngle( attrib ) : false;
 }
 
 
 void uiVisPartServer::setAngleFlag( int id, int attrib, bool yn )
 {
-    mDynamicCastGet( visSurvey::SurveyObject*, so, getObject(id) );
+    mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
     if ( !so ) return;
 
     so->setAngleFlag( attrib, yn );
@@ -1058,7 +1058,7 @@ bool uiVisPartServer::isPicking() const
     const TypeSet<int>& sel = visBase::DM().selMan().selected();
     if ( sel.size()!=1 ) return false;
 
-    mDynamicCastGet( visSurvey::SurveyObject*, so, getObject(sel[0]) );
+    mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(sel[0]));
     if ( !so ) return false;
 
     return so->isPicking();
@@ -1111,7 +1111,7 @@ void uiVisPartServer::removeObject( int id, int sceneid )
 
 bool uiVisPartServer::hasAttrib( int id ) const
 {
-    mDynamicCastGet( visSurvey::SurveyObject*, so, getObject(id) );
+    mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
     return so && so->getAttributeFormat() != visSurvey::SurveyObject::None;
 }
     
@@ -1168,7 +1168,7 @@ bool uiVisPartServer::calculateAttrib( int id, int attrib, bool newselect )
 
 bool uiVisPartServer::hasMaterial( int id ) const
 {
-    mDynamicCastGet( visSurvey::SurveyObject*, so, getObject(id) );
+    mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
     return so && so->allowMaterialEdit();
 }
 
@@ -1211,7 +1211,7 @@ void uiVisPartServer::makeSectionDisplayRefresh()
 
 bool uiVisPartServer::resetManipulation( int id )
 {
-    mDynamicCastGet( visSurvey::SurveyObject*, so, getObject(id) );
+    mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
     if ( so ) so->resetManipulation();
 
     eventmutex_.lock();
@@ -1224,14 +1224,14 @@ bool uiVisPartServer::resetManipulation( int id )
 
 bool uiVisPartServer::isManipulated( int id ) const
 {
-    mDynamicCastGet( visSurvey::SurveyObject*, so, getObject(id) );
+    mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
     return so && so->isManipulated();
 }
 
 
 void uiVisPartServer::acceptManipulation( int id )
 {
-    mDynamicCastGet( visSurvey::SurveyObject*, so, getObject(id));
+    mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
     if ( so ) so->acceptManipulation();
 }
 
@@ -1435,7 +1435,7 @@ void uiVisPartServer::handleMenuCB(CallBacker* cb)
     mCBCapsuleUnpackWithCaller( int, mnuid, caller, cb );
     if ( mnuid==-1 ) return;
 
-    mDynamicCastGet( uiMenuHandler*, menu, caller );
+    mDynamicCastGet(uiMenuHandler*,menu,caller);
     const int id = menu->menuID();
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id))
     if ( !so ) return;
