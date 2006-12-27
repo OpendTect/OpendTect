@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Feb 2005
- RCS:           $Id: horizonscanner.cc,v 1.16 2006-12-14 18:34:28 cvsbert Exp $
+ RCS:           $Id: horizonscanner.cc,v 1.17 2006-12-27 15:28:46 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -113,8 +113,9 @@ void HorizonScanner::report( IOPar& iopar ) const
     HorSampling hs;
     hs.set( geomdetector.inlrg, geomdetector.crlrg );
     hs.fillPar( iopar );
-    if ( valranges.size() )
+    if ( valranges.size() > 0 )
 	iopar.set( sKey::ZRange, valranges[0].start, valranges[0].stop );
+    iopar.set( "Nr. of  positions", nrPositions() );
     iopar.setYN( "Inline gaps found", gapsFound(true) );
     iopar.setYN( "Crossline gaps found", gapsFound(false) );
 
@@ -318,6 +319,9 @@ int HorizonScanner::nextStep()
     return Executor::Finished;
 }
 
+
+int HorizonScanner::nrPositions() const
+{ return geomdetector.nrpositions; }
 
 StepInterval<int> HorizonScanner::inlRg() const
 { return geomdetector.inlrg; }

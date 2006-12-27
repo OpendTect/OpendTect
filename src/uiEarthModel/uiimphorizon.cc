@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          May 2002
- RCS:           $Id: uiimphorizon.cc,v 1.73 2006-11-21 14:00:07 cvsbert Exp $
+ RCS:           $Id: uiimphorizon.cc,v 1.74 2006-12-27 15:28:46 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -263,8 +263,7 @@ bool uiImportHorizon::doWork()
     if ( !getFileNames(filenames) ) return false;
 
     HorizonScanner scanner( filenames );
-    bool isxy = scanner.posIsXY();
-
+    const bool isxy = scanner.posIsXY();
     const bool doxy = xyfld->getBoolValue();
     if ( doxy != isxy )
     {
@@ -403,6 +402,11 @@ void uiImportHorizon::scanFile( CallBacker* )
     HorizonScanner scanner( filenames );
     scanner.execute();
     scanner.launchBrowser();
+    if ( scanner.nrPositions() == 0 )
+    {
+	uiMSG().error( "No valid positions found in input file." );
+	return;
+    }
 
     xyfld->setValue( scanner.posIsXY() );
     filehs_.set( scanner.inlRg(), scanner.crlRg() );
@@ -411,7 +415,7 @@ void uiImportHorizon::scanFile( CallBacker* )
     uiBinIDSubSel::Data subseldata = subselfld->getInput();
     subseldata.cs_.hrg = filehs_; subselfld->setInput( subseldata );
 
-    filludffld->setValue(scanner.gapsFound(true) || scanner.gapsFound(false));
+    filludffld->setValue( scanner.gapsFound(true) || scanner.gapsFound(false) );
     fillUdfSel(0);
     midgrp->setSensitive( true );
     button( OK )->setSensitive( true );

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		Feb 2004
- RCS:		$Id: horizonscanner.h,v 1.6 2006-08-10 13:51:37 cvsnanne Exp $
+ RCS:		$Id: horizonscanner.h,v 1.7 2006-12-27 15:28:46 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,10 +27,10 @@ public:
 			HorizonScanner(const BufferStringSet& fnms);
 			~HorizonScanner();
 
-    const char*		message() const;
-    int			totalNr() const;
-    int			nrDone() const;
-    const char*		nrDoneText() const;
+    virtual const char*	message() const;
+    virtual int		totalNr() const;
+    virtual int		nrDone() const;
+    virtual const char*	nrDoneText() const;
 
     void		setUndefValue(float udf)	{ udfval = udf; }
     void		setPosIsXY(bool yn)		{ isxy = yn; }
@@ -38,6 +38,7 @@ public:
     bool		needZScaling() const		{ return doscale; }
     bool		analyzeData();
 
+    int			nrPositions() const;
     StepInterval<int>	inlRg() const;
     StepInterval<int>	crlRg() const;
     bool		gapsFound(bool inl) const;
@@ -48,8 +49,7 @@ public:
     void		report(IOPar&) const;
 
 protected:
-
-    int			nextStep();
+    virtual int		nextStep();
 
     void		init();
 
@@ -65,7 +65,6 @@ protected:
     float		udfval;
     int			nrattribvals;
     TypeSet<Interval<float> > valranges;
-
 };
 
 
