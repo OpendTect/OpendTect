@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.cc,v 1.64 2006-12-20 17:42:32 cvshelene Exp $
+ RCS:           $Id: uiodmenumgr.cc,v 1.65 2006-12-27 14:38:42 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -412,9 +412,9 @@ void uiODMenuMgr::fillCoinTB()
     mAddTB(cointb,"view_all.png","View all",false,viewAll);
     cameraid = mAddTB(cointb,"perspective.png","Switch to orthographic camera",
 	       false,switchCameraType);
-    mAddTB(cointb,"cube_inl.png","view Inl",false,viewInl);
-    mAddTB(cointb,"cube_crl.png","view Crl",false,viewCrl);
-    mAddTB(cointb,"cube_z.png","view Z",false,viewZ);
+    mAddTB(cointb,"cube_inl.png","View Inl",false,viewInl);
+    mAddTB(cointb,"cube_crl.png","View Crl",false,viewCrl);
+    mAddTB(cointb,"cube_z.png","View Z",false,viewZ);
     axisid = mAddTB(cointb,"axis.png","Display rotation axis",true,showRotAxis);
     mAddTB(cointb,"snapshot.png","Make snapshot",false,mkSnapshot);
     soloid = mAddTB(cointb,"solo.png","Display current element only",
