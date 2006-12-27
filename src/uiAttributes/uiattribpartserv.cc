@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiattribpartserv.cc,v 1.48 2006-12-21 16:47:27 cvshelene Exp $
+ RCS:           $Id: uiattribpartserv.cc,v 1.49 2006-12-27 15:03:34 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -226,14 +226,14 @@ void uiAttribPartServer::directShowAttr( CallBacker* cb )
 {
     mDynamicCastGet(uiAttribDescSetEd*,ed,cb);
     if ( !ed ) { pErrMsg("cb is not uiAttribDescSetEd*"); return; }
-    DescSetMan* adsman = getAdsMan( ed->is2D() );
+
     dirshwattrdesc_ = ed->curDesc();
-    DescSetMan* kpman = adsman;
+    DescSetMan* kpman = ed->is2D() ? adsman2d_ : adsman3d_;
     DescSet* edads = const_cast<DescSet*>(dirshwattrdesc_->descSet());
-    DescSetMan tmpadsman( ed->is2D(), edads, false );
-    adsman = &tmpadsman;
+    PtrMan<DescSetMan> tmpadsman = new DescSetMan( ed->is2D(), edads, false );
+    ed->is2D() ? adsman2d_ : adsman3d_ = tmpadsman;
     sendEvent( evDirectShowAttr );
-    adsman = kpman;
+    ed->is2D() ? adsman2d_ : adsman3d_ = kpman;
 }
 
 
@@ -590,7 +590,7 @@ bool uiAttribPartServer::setPickSetDirs( Pick::Set& ps, const NLAModel* nlamod )
 {
 //    uiSetPickDirs dlg( appserv().parent(), ps, curDescSet(), nlamod );
 //	return dlg.go();
-    return true;// extra, to make it compile
+    return true;
 }
 
 
@@ -928,20 +928,20 @@ void uiAttribPartServer::evalDlgClosed( CallBacker* cb )
     attrsetdlg_->setSensitive( true );
 }
 
-//TODO : how do I know which adsman to use?
+
 void uiAttribPartServer::calcEvalAttrs( CallBacker* cb )
 {
-    /*
     mDynamicCastGet(uiEvaluateDlg*,evaldlg,cb);
     if ( !evaldlg ) { pErrMsg("cb is not uiEvaluateDlg*"); return; }
 
-    DescSetMan* kpman = adsman;
+    const bool is2d = attrsetdlg_->is2D();
+    DescSetMan* kpman = is2d ? adsman2d_ : adsman3d_;
     DescSet* ads = evaldlg->getEvalSet();
     evaldlg->getEvalSpecs( targetspecs_ );
-    DescSetMan tmpadsman( ads, false );
-    adsman = &tmpadsman;
+    PtrMan<DescSetMan> tmpadsman = new DescSetMan( is2d, ads, false );
+    is2d ? adsman2d_ : adsman3d_ = tmpadsman;
     sendEvent( evEvalCalcAttr );
-    adsman = kpman;*/
+    is2d ? adsman2d_ : adsman3d_ = kpman;
 }
 
 
