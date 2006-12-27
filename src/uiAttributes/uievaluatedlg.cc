@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          March 2003
- RCS:           $Id: uievaluatedlg.cc,v 1.13 2006-12-20 13:40:41 cvsbert Exp $
+ RCS:           $Id: uievaluatedlg.cc,v 1.14 2006-12-27 15:03:02 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -106,7 +106,7 @@ void AttribParamGroup::createInputSpecs( const Attrib::ValParam* param,
 
     if ( gatepar )
     {
-	initspec = new FloatInpIntervalSpec( gatepar->getfValue() );
+	initspec = new FloatInpIntervalSpec( gatepar->getValue() );
 	const float zfac = SI().zIsTime() ? 1000 : 1;
 	const float step = SI().zStep() * zfac;
 	incrspec = new FloatInpIntervalSpec( Interval<float>(-step,step) );
