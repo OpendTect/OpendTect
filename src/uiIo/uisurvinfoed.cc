@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvinfoed.cc,v 1.82 2006-12-20 17:40:56 cvshelene Exp $
+ RCS:           $Id: uisurvinfoed.cc,v 1.83 2006-12-27 15:19:00 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -233,7 +233,7 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo& si )
     zfld->attach( alignedBelow, crlfld );
 
     static const char* zunitstrs[] = { "msec", "meter", "feet", 0 };
-    zunitfld = new uiLabeledComboBox( rangegrp, zunitstrs, "Z Units" );
+    zunitfld = new uiLabeledComboBox( rangegrp, zunitstrs, "Z unit" );
     zunitfld->attach( alignedBelow, zfld );
 
     uiSeparator* horsep2 = new uiSeparator( this );
@@ -251,10 +251,10 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo& si )
     ic0fld = new uiGenInput( crdgrp, "First In-line/Cross-line", 
 			     BinIDInpSpec() ); 
     ic0fld->valuechanging.notify( mCB(this,uiSurveyInfoEditor,setInl1Fld) );
-    ic1fld = new uiGenInput( crdgrp, "Another position on above in-line",
+    ic1fld = new uiGenInput( crdgrp, "Another position on above In-line",
 			     BinIDInpSpec(false)  );
     ic2fld = new uiGenInput( crdgrp,
-		    "Position not on above in-line",
+		    "Position not on above In-line",
 		     BinIDInpSpec(false) );
     xy0fld = new uiGenInput( crdgrp, "= (X,Y)", CoordInpSpec() );
     xy1fld = new uiGenInput( crdgrp, "= (X,Y)", CoordInpSpec() );
