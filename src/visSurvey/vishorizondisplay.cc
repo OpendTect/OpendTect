@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: vishorizondisplay.cc,v 1.21 2006-11-27 13:27:45 cvsnanne Exp $
+ RCS:           $Id: vishorizondisplay.cc,v 1.22 2006-12-27 14:40:08 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -354,6 +354,19 @@ bool HorizonDisplay::getOnlyAtSectionsDisplay() const
 { return displayonlyatsections_; }
 
 
+bool HorizonDisplay::canHaveMultipleAttribs() const
+{ return true; }
+
+
+int HorizonDisplay::nrTextures( int attrib ) const
+{
+    if ( attrib<0 || attrib>=nrAttribs() || sections_.isEmpty() ) return 0;
+
+    mDynamicCastGet(const visBase::ParametricSurface*,psurf,sections_[0]);
+    return psurf ? psurf->nrVersions( attrib ) : 0;
+}
+
+
 void HorizonDisplay::selectTexture( int attrib, int textureidx )
 {
     curtextureidx_ = textureidx;
@@ -377,16 +390,21 @@ void HorizonDisplay::selectTexture( int attrib, int textureidx )
 }
 
 
+int HorizonDisplay::selectedTexture( int attrib ) const
+{
+    if ( attrib<0 || attrib>=nrAttribs() || sections_.isEmpty() ) return 0;
+
+    mDynamicCastGet(const visBase::ParametricSurface*,psurf,sections_[0]);
+    return psurf ? psurf->activeVersion( attrib ) : 0;
+}
+
+
 SurveyObject::AttribFormat HorizonDisplay::getAttributeFormat() const
 {
     if ( sections_.isEmpty() ) return SurveyObject::None;
     mDynamicCastGet(const visBase::ParametricSurface*,ps,sections_[0]);
     return ps ? SurveyObject::RandomPos : SurveyObject::None;
 }
-
-
-bool HorizonDisplay::canHaveMultipleAttribs() const
-{ return true; }
 
 
 int HorizonDisplay::nrAttribs() const

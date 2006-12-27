@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          May 2004
- RCS:           $Id: vishorizondisplay.h,v 1.10 2006-12-20 11:23:00 cvshelene Exp $
+ RCS:           $Id: vishorizondisplay.h,v 1.11 2006-12-27 14:40:08 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -21,7 +21,7 @@ namespace visSurvey
 {
 
 
-class HorizonDisplay :  public EMObjectDisplay
+class HorizonDisplay : public EMObjectDisplay
 {
 public:
     static HorizonDisplay*	create()
@@ -44,13 +44,16 @@ public:
     bool			getOnlyAtSectionsDisplay() const;
 
     void			displaySurfaceData(int attrib,int auxdatanr);
-    void			selectTexture(int,int);
+
+    virtual bool		canHaveMultipleAttribs() const;
+    virtual int			nrTextures(int attrib) const;
+    virtual void		selectTexture(int attrib,int textureidx);
+    virtual int			selectedTexture(int attrib) const;
 
     SurveyObject::AttribFormat	getAttributeFormat() const;
     Pol2D3D                     getAllowedDataType() const      
     				{ return Both2DAnd3D; }
     
-    bool			canHaveMultipleAttribs() const;
     int				nrAttribs() const;
     bool			addAttrib();
     bool			removeAttrib(int attrib);
