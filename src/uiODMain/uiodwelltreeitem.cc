@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		May 2006
- RCS:		$Id: uiodwelltreeitem.cc,v 1.7 2006-12-14 14:30:52 cvshelene Exp $
+ RCS:		$Id: uiodwelltreeitem.cc,v 1.8 2006-12-28 12:15:36 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -71,12 +71,12 @@ bool uiODWellParentTreeItem::showSubMenu()
 	uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
 	visSurvey::WellDisplay* wd = visSurvey::WellDisplay::create();
 	wd->setupPicking(true);
-	BufferString name;
+	BufferString wellname;
 	Color color;
-	if ( !applMgr()->wellServer()->setupNewWell(name,color) )
+	if ( !applMgr()->wellServer()->setupNewWell(wellname,color) )
 	    return false;
 	wd->setLineStyle( LineStyle(LineStyle::Solid,1,color) );
-	wd->setName( name );
+	wd->setName( wellname );
 	visserv->addObject( wd, sceneID(), true );
 	addChild( new uiODWellTreeItem(wd->id()), false );
     }

@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		May 2006
- RCS:		$Id: uiodrandlinetreeitem.cc,v 1.4 2006-12-15 14:35:57 cvsnanne Exp $
+ RCS:		$Id: uiodrandlinetreeitem.cc,v 1.5 2006-12-28 12:15:36 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -235,7 +235,6 @@ void uiODRandomLineTreeItem::editNodes()
 	table->getBinIDs( newbids );
 	rtd->setKnotPositions( newbids );
 
-	Interval<float> zrg;
 	table->getZRange( zrg );
 	zrg.scale( 1/SI().zFactor() );
 	rtd->setDepthInterval( zrg );

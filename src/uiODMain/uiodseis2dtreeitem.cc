@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		May 2006
- RCS:		$Id: uiodseis2dtreeitem.cc,v 1.9 2006-12-22 10:21:25 cvsjaap Exp $
+ RCS:		$Id: uiodseis2dtreeitem.cc,v 1.10 2006-12-28 12:15:36 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -224,8 +224,8 @@ void uiOD2DLineSetTreeItem::handleMenuCB( CallBacker* cb )
     if ( storeditm_.itemIndex(mnuid)!=-1 )
     {
 	menu->setIsHandled( true );
-	const char idx = storeditm_.itemIndex( mnuid );
-	const char* attribnm = storeditm_.getItem(idx)->text;
+	const char itmidx = storeditm_.itemIndex( mnuid );
+	const char* attribnm = storeditm_.getItem(itmidx)->text;
 	for ( int idx=0; idx<children_.size(); idx++ )
 	   ((uiOD2DLineSetSubItem*)children_[idx])->displayStoredData(attribnm);
     }
@@ -569,8 +569,8 @@ void uiOD2DLineSetAttribItem::createMenuCB( CallBacker* cb )
 
     BufferStringSet attribnames;
     seisserv->get2DStoredAttribs( s2d->lineSetID(), objnm, attribnames );
-    const int idx = attribnames.indexOf( "Steering" );
-    if ( idx>=0 ) attribnames.remove( idx );
+    const int steeridx = attribnames.indexOf( "Steering" );
+    if ( steeridx>=0 ) attribnames.remove( steeridx );
 
     const Attrib::DescSet* ads = attrserv->curDescSet(true);
     const Attrib::Desc* desc = ads->getDesc( as.id() );
