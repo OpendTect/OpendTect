@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Payraudeau
  Date:          February 2006
- RCS:           $Id: uigridlinesdlg.h,v 1.2 2006-02-14 13:32:19 cvshelene Exp $
+ RCS:           $Id: uigridlinesdlg.h,v 1.3 2006-12-28 11:46:33 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,8 +14,8 @@ ________________________________________________________________________
 #include "uidialog.h"
 #include "ranges.h"
 
-class uiGenInput;
 class uiCheckBox;
+class uiGenInput;
 class uiSelLineStyle;
 
 namespace visSurvey { class PlaneDataDisplay; }
@@ -23,12 +23,12 @@ namespace visSurvey { class PlaneDataDisplay; }
 class uiGridLinesDlg : public uiDialog
 {
 public:
-			uiGridLinesDlg(uiParent*, visSurvey::PlaneDataDisplay*);
+			uiGridLinesDlg(uiParent*,visSurvey::PlaneDataDisplay*);
 
 protected:
 
     void		setParameters();
-    void 		showLSSel(CallBacker*);
+    void 		showGridLineCB(CallBacker*);
     bool                acceptOK(CallBacker*);
 
     uiCheckBox*		inlfld_;

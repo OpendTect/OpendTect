@@ -4,29 +4,30 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Payraudeau
  Date:          February 2006
- RCS:           $Id: uigridlinesdlg.cc,v 1.4 2006-02-28 09:08:10 cvsnanne Exp $
+ RCS:           $Id: uigridlinesdlg.cc,v 1.5 2006-12-28 11:46:33 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uigridlinesdlg.h"
-#include "visgridlines.h"
-#include "visplanedatadisplay.h"
+
+#include "draw.h"
+#include "survinfo.h"
+#include "uibutton.h"
 #include "uigeninput.h"
 #include "uisellinest.h"
-#include "uibutton.h"
-#include "survinfo.h"
-#include "draw.h"
+#include "visgridlines.h"
+#include "visplanedatadisplay.h"
 
 
 #define mCreateGridFld( name, lbl ) \
-    label = "Show"; label += " "; label += lbl; label += " ";\
-    label += "gridlines";\
-    name##fld_ = new uiCheckBox( this, label );\
-    name##fld_->activated.notify( mCB(this,uiGridLinesDlg,showLSSel) );\
-    name##spacingfld_ = new uiGenInput( this, "Spacing",\
-	    				IntInpIntervalSpec( true ) );\
-    name##spacingfld_->attach( alignedBelow, name##fld_ );
+    label = "Show"; label += " "; label += lbl; label += " "; \
+    label += "grid"; \
+    name##fld_ = new uiCheckBox( this, label ); \
+    name##fld_->activated.notify( mCB(this,uiGridLinesDlg,showGridLineCB) ); \
+    name##spacingfld_ = new uiGenInput( this, "Spacing (Start/Stop)", \
+	    				IntInpIntervalSpec(true) ); \
+    name##spacingfld_->attach( leftAlignedBelow, name##fld_ );
 
     
 uiGridLinesDlg::uiGridLinesDlg( uiParent* p, visSurvey::PlaneDataDisplay* pdd )
@@ -49,15 +50,16 @@ uiGridLinesDlg::uiGridLinesDlg( uiParent* p, visSurvey::PlaneDataDisplay* pdd )
     	{ mCreateGridFld( z, "z" ) }
 
     if ( inlfld_ && crlfld_ )
-	crlfld_->attach( alignedBelow, inlspacingfld_ );
+	crlfld_->attach( leftAlignedBelow, inlspacingfld_ );
 
     LineStyle lst;
-    pdd->gridlines()->getLineStyle(lst);
+    pdd->gridlines()->getLineStyle( lst );
     
-    lsfld_ = new uiSelLineStyle(this, lst, "Line style", true, true);
+    lsfld_ = new uiSelLineStyle( this, lst, "Line style", true, true );
     if ( zfld_ )
     {
-	zfld_->attach( alignedBelow, inlfld_ ? inlspacingfld_ : crlspacingfld_);
+	zfld_->attach( leftAlignedBelow, inlfld_ ? inlspacingfld_ 
+						 : crlspacingfld_ );
 	lsfld_->attach( alignedBelow, zspacingfld_ );
     }
     else
@@ -67,7 +69,7 @@ uiGridLinesDlg::uiGridLinesDlg( uiParent* p, visSurvey::PlaneDataDisplay* pdd )
 }
 
 
-void uiGridLinesDlg::showLSSel( CallBacker* cb )
+void uiGridLinesDlg::showGridLineCB( CallBacker* cb )
 {
     if ( inlspacingfld_ )
 	inlspacingfld_->display( inlfld_->isChecked() );
@@ -79,30 +81,38 @@ void uiGridLinesDlg::showLSSel( CallBacker* cb )
 	zspacingfld_->display( zfld_->isChecked() );
     
     lsfld_->display( (inlfld_ && inlfld_->isChecked()) ||
-	    	    (crlfld_ && crlfld_->isChecked()) ||
-		    (zfld_ && zfld_->isChecked()) );
+	    	     (crlfld_ && crlfld_->isChecked()) ||
+		     (zfld_ && zfld_->isChecked()) );
 }
 
 
-static void setDefaultHorSampling( int& start, int& stop, int& step )
+static float getDefaultStep( float width )
 {
-    const float interval = stop - start;
-    if ( interval/10 < 50 )
-	step = 50;
-    else if ( interval/10 < 100 )
-	step = 100;
-    else
-	step = 200;
+    float reqstep = width / 5;
+    float step = 10000;
+    while ( true )
+    {
+	if ( step <= reqstep )
+	    return step;
+	step /= 10;
+    }
+}
+
+
+static void getDefaultHorSampling( int& start, int& stop, int& step )
+{
+    const float width = stop - start;
+    step = mNINT( getDefaultStep(width) );
 
     start = step * (int)( ceil( (float)start/(float)step ) );
     stop = step * (int)( floor( (float)stop/(float)step ) );
 }
 
 
-static void setDefaultZSampling( StepInterval<float>& zrg )
+static void getDefaultZSampling( StepInterval<float>& zrg )
 {
-    const float interval = ( zrg.stop - zrg.start ) * SI().zFactor();
-    zrg.step = interval<1000 ? 100 : 1000;
+    const float width = (zrg.stop-zrg.start) * SI().zFactor();
+    zrg.step = getDefaultStep( width );
     zrg.start = zrg.step * 
 	ceil( (float)zrg.start * SI().zFactor() / (float)zrg.step );
     zrg.stop = zrg.step * 
@@ -112,47 +122,43 @@ static void setDefaultZSampling( StepInterval<float>& zrg )
 
 void uiGridLinesDlg::setParameters()
 {
-    bool glinited = !pdd_->gridlines()->getGridCubeSampling().isEmpty();
+    const bool hasgl = !pdd_->gridlines()->getGridCubeSampling().isEmpty();
     CubeSampling cs = pdd_->getCubeSampling();
-    if ( glinited )
+    if ( hasgl )
     {
 	cs = pdd_->gridlines()->getGridCubeSampling();
 	cs.zrg.scale( SI().zFactor() );
     }
     else
     {
-	float interval;
-	setDefaultHorSampling( cs.hrg.start.inl, cs.hrg.stop.inl, 
+	getDefaultHorSampling( cs.hrg.start.inl, cs.hrg.stop.inl, 
 			       cs.hrg.step.inl );
-	setDefaultHorSampling( cs.hrg.start.crl, cs.hrg.stop.crl, 
+	getDefaultHorSampling( cs.hrg.start.crl, cs.hrg.stop.crl, 
 			       cs.hrg.step.crl );
-	setDefaultZSampling( cs.zrg );
+	getDefaultZSampling( cs.zrg );
     }
     
     if ( inlfld_ )
     {
-	inlfld_->setChecked( glinited ? pdd_->gridlines()->areInlinesShown() 
-				     : true );
-	const StepInterval<int> inlintv( cs.hrg.start.inl, cs.hrg.stop.inl,
-					 cs.hrg.step.inl );
-	inlspacingfld_->setValue(inlintv);
+	inlfld_->setChecked( pdd_->gridlines()->areInlinesShown() );
+	inlspacingfld_->setValue( cs.hrg.inlRange() );
     }
+
     if ( crlfld_ )
     {
-	crlfld_->setChecked( glinited ? pdd_->gridlines()->areCrosslinesShown() 
-				     : true);
-	const StepInterval<int> crlintv( cs.hrg.start.crl, cs.hrg.stop.crl,
-					 cs.hrg.step.crl );
-	crlspacingfld_->setValue(crlintv);
+	crlfld_->setChecked( pdd_->gridlines()->areCrosslinesShown() );
+	crlspacingfld_->setValue( cs.hrg.crlRange() );
     }
+
     if ( zfld_ )
     {
-	zfld_->setChecked( glinited ? pdd_->gridlines()->areZlinesShown() 
-				    : true);
-	StepInterval<int> zintv( (int)cs.zrg.start, (int)cs.zrg.stop,
-				 (int)cs.zrg.step );
-	zspacingfld_->setValue(zintv);
+	zfld_->setChecked( pdd_->gridlines()->areZlinesShown() );
+	zspacingfld_->setValue(
+		StepInterval<int>(mNINT(cs.zrg.start),mNINT(cs.zrg.stop),
+		   		  mNINT(cs.zrg.step)) );
     }
+
+    showGridLineCB(0);
 }
 
 
