@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.74 2006-12-22 10:20:26 cvsjaap Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.75 2006-12-28 21:04:31 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -66,13 +66,12 @@ static const char* scenestr = "Scene ";
 uiODSceneMgr::uiODSceneMgr( uiODMain* a )
     : appl_(*a)
     , wsp_(new uiWorkSpace(a,"OpendTect work space"))
-    , vwridx(0)
+    , vwridx_(0)
     , lasthrot_(0), lastvrot_(0), lastdval_(0)
     , tifs_(new uiTreeFactorySet)
     , sceneClosed(this)
     , treeToBeAdded(this)
 {
-
     tifs_->addFactory( new uiODInlineTreeItemFactory, 1000 );
     tifs_->addFactory( new uiODCrosslineTreeItemFactory, 2000 );
     tifs_->addFactory( new uiODTimesliceTreeItemFactory, 3000 );
@@ -149,7 +148,7 @@ void uiODSceneMgr::cleanUp( bool startnew )
     	// close() cascades callbacks which remove the scene from set
 
     visServ().deleteAllObjects();
-    vwridx = 0;
+    vwridx_ = 0;
     if ( startnew ) addScene();
 }
 
@@ -159,7 +158,7 @@ uiODSceneMgr::Scene& uiODSceneMgr::mkNewScene()
     uiODSceneMgr::Scene& scn = *new uiODSceneMgr::Scene( wsp_ );
     scn.vwrGroup()->mainObject()->closed.notify( mWSMCB(removeScene) );
     scenes_ += &scn;
-    vwridx++;
+    vwridx_++;
     return scn;
 }
 
@@ -170,7 +169,7 @@ int uiODSceneMgr::addScene()
     const int sceneid = visServ().addScene();
     scn.sovwr_->setSceneID( sceneid );
     BufferString title( scenestr );
-    title += vwridx;
+    title += vwridx_;
     scn.sovwr_->setTitle( title );
     visServ().setObjectName( sceneid, title );
     scn.sovwr_->display();
@@ -181,7 +180,7 @@ int uiODSceneMgr::addScene()
     actMode(0);
     setZoomValue( scn.sovwr_->getCameraZoom() );
     treeToBeAdded.trigger( sceneid );
-    initTree( scn, vwridx );
+    initTree( scn, vwridx_ );
 
     if ( scenes_.size() > 1 && scenes_[0] )
     {
@@ -281,14 +280,14 @@ void uiODSceneMgr::useScenePars( const IOPar& sessionpar )
     
 	int sceneid = scn.sovwr_->sceneID();
 	BufferString title( scenestr );
-	title += vwridx;
+	title += vwridx_;
   	scn.sovwr_->setTitle( title );
 	scn.sovwr_->display();
 	scn.sovwr_->viewmodechanged.notify( mWSMCB(viewModeChg) );
 	scn.sovwr_->pageupdown.notify(mCB(this,uiODSceneMgr,pageUpDownPressed));
 	scn.vwrGroup()->display( true, false );
 	setZoomValue( scn.sovwr_->getCameraZoom() );
-	initTree( scn, vwridx );
+	initTree( scn, vwridx_ );
     }
 
     rebuildTrees();
@@ -619,8 +618,9 @@ void uiODSceneMgr::initTree( Scene& scn, int vwridx )
 	globalhighest = highest;
     }
 
-    scn.itemmanager_->addChild( new uiODSceneTreeItem(scn.sovwr_->getTitle(),
-					     scn.sovwr_->sceneID() ), false );
+    uiODSceneTreeItem* sceneitm =
+	new uiODSceneTreeItem( scn.sovwr_->getTitle(), scn.sovwr_->sceneID() );
+    scn.itemmanager_->addChild( sceneitm, false );
     scn.lv_->display();
     scn.treeWin()->display();
 }
@@ -812,4 +812,3 @@ uiDockWin* uiODSceneMgr::Scene::treeWin()
 {
     return lv_ ? (uiDockWin*)lv_->parent() : 0;
 }
-

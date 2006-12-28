@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.h,v 1.35 2006-06-08 14:11:27 cvsnanne Exp $
+ RCS:           $Id: uiodscenemgr.h,v 1.36 2006-12-28 21:04:31 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,82 +39,82 @@ namespace Pick { class Set; }
 class uiODSceneMgr : public CallBacker
 {
 public:
-
-    void		cleanUp(bool startnew=true);
-    int			addScene();
-    void		removeScene(CallBacker*);
-    void		setSceneName(int sceneid,const char*);
+    void			cleanUp(bool startnew=true);
+    int				addScene();
+    void			removeScene(CallBacker*);
+    void			setSceneName(int sceneid,const char*);
     CNotifier<uiODSceneMgr,int>	sceneClosed;
     CNotifier<uiODSceneMgr,int>	treeToBeAdded;
 
-    void		getScenePars(IOPar&);
-    void		useScenePars(const IOPar&);
-    void		storePositions();
+    void			getScenePars(IOPar&);
+    void			useScenePars(const IOPar&);
+    void			storePositions();
 
-    void		setToViewMode(bool yn=true);
-    void		viewModeChg(CallBacker* cb=0);
-    void		actMode(CallBacker* cb=0);
-    void		viewMode(CallBacker* cb=0);
+    void			setToViewMode(bool yn=true);
+    void			viewModeChg(CallBacker* cb=0);
+    void			actMode(CallBacker* cb=0);
+    void			viewMode(CallBacker* cb=0);
 
-    void		pageUpDownPressed(CallBacker*);
+    void			pageUpDownPressed(CallBacker*);
 
-    void		updateStatusBar();
-    void		setKeyBindings();
-    void		setStereoType(int);
-    int			getStereoType() const;
+    void			updateStatusBar();
+    void			setKeyBindings();
+    void			setStereoType(int);
+    int				getStereoType() const;
 
-    void		tile();
-    void		tileHorizontal();
-    void		tileVertical();
-    void		cascade();
-    void		layoutScenes();
+    void			tile();
+    void			tileHorizontal();
+    void			tileVertical();
+    void			cascade();
+    void			layoutScenes();
 
-    void		toHomePos(CallBacker*);
-    void		saveHomePos(CallBacker*);
-    void		viewAll(CallBacker*);
-    void		align(CallBacker*);
-    void		showRotAxis(CallBacker*);
-    void		viewX(CallBacker*);
-    void		viewY(CallBacker*);
-    void		viewZ(CallBacker*);
-    void		viewInl(CallBacker*);
-    void		viewCrl(CallBacker*);
-    void		switchCameraType(CallBacker*);
-    void		mkSnapshot(CallBacker*);
-    void                soloMode(CallBacker*);
+    void			toHomePos(CallBacker*);
+    void			saveHomePos(CallBacker*);
+    void			viewAll(CallBacker*);
+    void			align(CallBacker*);
+    void			showRotAxis(CallBacker*);
+    void			viewX(CallBacker*);
+    void			viewY(CallBacker*);
+    void			viewZ(CallBacker*);
+    void			viewInl(CallBacker*);
+    void			viewCrl(CallBacker*);
+    void			switchCameraType(CallBacker*);
+    void			mkSnapshot(CallBacker*);
+    void			soloMode(CallBacker*);
 
-    void		setZoomValue(float);
-    void		zoomChanged(CallBacker*);
-    void		anyWheelStart(CallBacker*);
-    void		anyWheelStop(CallBacker*);
-    void		hWheelMoved(CallBacker*);
-    void		vWheelMoved(CallBacker*);
-    void		dWheelMoved(CallBacker*);
+    void			setZoomValue(float);
+    void			zoomChanged(CallBacker*);
+    void			anyWheelStart(CallBacker*);
+    void			anyWheelStop(CallBacker*);
+    void			hWheelMoved(CallBacker*);
+    void			vWheelMoved(CallBacker*);
+    void			dWheelMoved(CallBacker*);
 
-    void		getSoViewers(ObjectSet<uiSoViewer>&);
+    void			getSoViewers(ObjectSet<uiSoViewer>&);
 
-    void		updateTrees();
-    void		rebuildTrees();
-    void		setItemInfo(int);
-    void		updateSelectedTreeItem();
-    int			getIDFromName(const char*) const;
-    void		disabRightClick( bool yn );
-    void		disabTrees( bool yn );
+    void			updateTrees();
+    void			rebuildTrees();
+    void			setItemInfo(int);
+    void			updateSelectedTreeItem();
+    int				getIDFromName(const char*) const;
+    void			disabRightClick( bool yn );
+    void			disabTrees( bool yn );
 
-    int			addEMItem(const EM::ObjectID&,int);
-    void		removeTreeItem(int displayid);
-    uiTreeItem*		findItem(int displayid);
+    int				addEMItem(const EM::ObjectID&,int);
+    void			removeTreeItem(int displayid);
+    uiTreeItem*			findItem(int displayid);
 
-    uiTreeFactorySet*   treeItemFactorySet() 		{ return tifs_; }
+    uiTreeFactorySet*		treeItemFactorySet()	{ return tifs_; }
+    uiDockWin*			viewer2DWin()		{ return 0; }
 
-    static int		cNameColumn() { return 0; }
-    static int		cColorColumn() { return 1; }
+    static int			cNameColumn()		{ return 0; }
+    static int			cColorColumn()		{ return 1; }
 
 protected:
 
-			uiODSceneMgr(uiODMain*);
-			~uiODSceneMgr();
-    void		initMenuMgrDepObjs();
+				uiODSceneMgr(uiODMain*);
+				~uiODSceneMgr();
+    void			initMenuMgrDepObjs();
 
     class Scene
     {
@@ -130,28 +130,36 @@ protected:
 	uiDockWin*	treeWin();
     };
 
-    uiODMain&				appl_;
-    uiWorkSpace*			wsp_;
+    class Viewer2D
+    {
+    public:
+			Viewer2D( uiODMain& app )
+			    : appl_(app)
+			    , viewwin_(0)	{}
+			~Viewer2D()		{}
+
+	uiDockWin*	viewwin_;
+	uiODMain&	appl_;
+    };
+
+    uiODMain&			appl_;
+    uiWorkSpace*		wsp_;
     ObjectSet<uiODSceneMgr::Scene>	scenes_;
-    int					vwridx;
-    float				lasthrot_, lastvrot_, lastdval_;
-    uiTreeFactorySet*			tifs_;
-    uiSliderExtra*			zoomslider_;
+    int				vwridx_;
+    float			lasthrot_, lastvrot_, lastdval_;
+    uiTreeFactorySet*		tifs_;
+    uiSliderExtra*		zoomslider_;
 
+    void			wheelMoved(CallBacker*,int wh,float&);
 
-    void		wheelMoved(CallBacker*,int wh,float&);
+    inline uiODApplMgr&		applMgr()     { return appl_.applMgr(); }
+    inline uiODMenuMgr&		menuMgr()     { return appl_.menuMgr(); }
+    inline uiVisPartServer&	visServ()     { return *applMgr().visServer(); }
 
-    inline uiODApplMgr& applMgr()	{ return appl_.applMgr(); }
-    inline uiODMenuMgr&	menuMgr()	{ return appl_.menuMgr(); }
-    inline uiVisPartServer& visServ()	{ return *applMgr().visServer(); }
+    Scene&			mkNewScene();
+    void			initTree(Scene&,int);
 
-    Scene&		mkNewScene();
-    void		initTree(Scene&,int);
-
-    friend class	uiODMain;
-
+    friend class		uiODMain;
 };
-
-
 
 #endif
