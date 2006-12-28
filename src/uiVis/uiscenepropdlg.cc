@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          February 2006
- RCS:           $Id: uiscenepropdlg.cc,v 1.3 2006-08-16 10:51:20 cvsbert Exp $
+ RCS:           $Id: uiscenepropdlg.cc,v 1.4 2006-12-28 11:45:54 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -67,7 +67,7 @@ uiScenePropertyDlg::uiScenePropertyDlg( uiParent* p,
     bgcolfld_->colorchanged.notify( mCB(this,uiScenePropertyDlg,updateCB) );
 
     markersizefld_ = new uiSliderExtra( this,
-	    				uiSliderExtra::Setup("Marker size"));
+				uiSliderExtra::Setup("Mouse marker size"));
     markersizefld_->sldr()->setMinValue( 1 );
     markersizefld_->sldr()->setMaxValue( 10 );
     markersizefld_->sldr()->setValue( scene->getMarkerSize() );
@@ -75,7 +75,8 @@ uiScenePropertyDlg::uiScenePropertyDlg( uiParent* p,
     markersizefld_->sldr()->valueChanged.notify(
 	    				mCB(this,uiScenePropertyDlg,updateCB) );
 
-    markercolfld_ = new uiColorInput( this, oldmarkercolor_, "Marker color" );
+    markercolfld_ = new uiColorInput( this, oldmarkercolor_,
+	    			      "Mouse marker color" );
     markercolfld_->attach( alignedBelow, markersizefld_ );
     markercolfld_->colorchanged.notify( mCB(this,uiScenePropertyDlg,updateCB) );
 }
