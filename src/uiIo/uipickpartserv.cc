@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uipickpartserv.cc,v 1.40 2006-09-21 12:02:47 cvsbert Exp $
+ RCS:           $Id: uipickpartserv.cc,v 1.41 2006-12-28 21:10:33 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -187,8 +187,8 @@ void uiPickPartServer::setMisclassSet( const BinIDValueSet& bivs )
     while ( bivs.next(pos,false) )
     {
 	bivs.get( pos, biv );
-	Coord pos = SI().transform( biv.binid );
-	*ps += Pick::Location( pos.x, pos.y, biv.value );
+	Coord crd = SI().transform( biv.binid );
+	*ps += Pick::Location( crd.x, crd.y, biv.value );
     }
 
     if ( isnew )

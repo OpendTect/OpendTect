@@ -4,7 +4,7 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID = "$Id: seis2dline.cc,v 1.53 2006-11-21 14:00:07 cvsbert Exp $";
+static const char* rcsID = "$Id: seis2dline.cc,v 1.54 2006-12-28 21:10:33 cvsnanne Exp $";
 
 #include "seis2dline.h"
 #include "seistrctr.h"
@@ -122,15 +122,15 @@ void Seis2DLineSet::init( const char* fnm )
 {
     readonly_ = false;
     fname_ = fnm;
-    BufferString type = "CBVS";
-    readFile( false, &type );
+    BufferString typestr = "CBVS";
+    readFile( false, &typestr );
 
     liop_ = 0;
     const ObjectSet<Seis2DLineIOProvider>& liops = S2DLIOPs();
     for ( int idx=0; idx<liops.size(); idx++ )
     {
 	const Seis2DLineIOProvider* liop = liops[idx];
-	if ( type == liop->type() )
+	if ( typestr == liop->type() )
 	    { liop_ = const_cast<Seis2DLineIOProvider*>(liop); break; }
     }
 }
@@ -168,10 +168,10 @@ int Seis2DLineSet::indexOf( const char* key ) const
 
 static const char* sKeyFileType = "2D Line Group Data";
 
-void Seis2DLineSet::readFile( bool mklock, BufferString* type )
+void Seis2DLineSet::readFile( bool mklock, BufferString* typestr )
 {
     deepErase( pars_ );
-    if ( getPre(type) )
+    if ( getPre(typestr) )
 	return;
 
     SafeFileIO sfio( fname_, true );
@@ -186,12 +186,12 @@ void Seis2DLineSet::readFile( bool mklock, BufferString* type )
 	return;
     }
 
-    getFrom( sfio.istrm(), type );
+    getFrom( sfio.istrm(), typestr );
     sfio.closeSuccess( mklock );
 }
 
 
-bool Seis2DLineSet::getPre( BufferString* type )
+bool Seis2DLineSet::getPre( BufferString* typestr )
 {
     if ( preSetFiles().size() < 1 )
 	return false;
@@ -207,13 +207,13 @@ bool Seis2DLineSet::getPre( BufferString* type )
 
     std::string stdstr( preSetContents().get(psidx).buf() );
     std::istringstream istrstrm( stdstr );
-    getFrom( istrstrm, type );
+    getFrom( istrstrm, typestr );
     readonly_ = true;
     return true;
 }
 
 
-void Seis2DLineSet::getFrom( std::istream& strm, BufferString* type )
+void Seis2DLineSet::getFrom( std::istream& strm, BufferString* typestr )
 {
     ascistream astrm( strm, true );
     if ( !astrm.isOfFileType(sKeyFileType) )
@@ -223,8 +223,8 @@ void Seis2DLineSet::getFrom( std::istream& strm, BufferString* type )
     {
 	if ( astrm.hasKeyword(sKey::Name) )
 	    setName( astrm.value() );
-	if ( astrm.hasKeyword(sKey::Type) && type )
-	    *type = astrm.value();
+	if ( astrm.hasKeyword(sKey::Type) && typestr )
+	    *typestr = astrm.value();
     }
 
     while ( astrm.type() != ascistream::EndOfFile )

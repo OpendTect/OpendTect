@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2003
- RCS:           $Id: uimenuhandler.cc,v 1.4 2006-11-21 14:00:08 cvsbert Exp $
+ RCS:           $Id: uimenuhandler.cc,v 1.5 2006-12-28 21:10:33 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -88,22 +88,22 @@ uiPopupMenu* uiMenuHandler::createMenu( const ObjectSet<MenuItem>& subitms,
 	if ( lowestitem==-1 )
 	    break;
 
-	const MenuItem& item = *subitms[lowestitem];
+	const MenuItem& subitm = *subitms[lowestitem];
 
-	if ( item.nrItems() )
+	if ( subitm.nrItems() )
 	{
-	    uiPopupMenu* submenu = createMenu( item.getItems(), &item );
-	    if ( submenu ) menu->insertItem( submenu, item.id );
+	    uiPopupMenu* submenu = createMenu( subitm.getItems(), &subitm );
+	    if ( submenu ) menu->insertItem( submenu, subitm.id );
 	}
 	else
 	{
-	    uiMenuItem* mnuitem = item.cb.cbObj() && item.cb.cbFn() 
-		? new uiMenuItem(item.text,item.cb)
-		: new uiMenuItem(item.text);
+	    uiMenuItem* mnuitem = subitm.cb.cbObj() && subitm.cb.cbFn() 
+		? new uiMenuItem(subitm.text,subitm.cb)
+		: new uiMenuItem(subitm.text);
 
-	    menu->insertItem( mnuitem, item.id );
-	    mnuitem->setEnabled( item.enabled );
-	    mnuitem->setChecked( item.checked );
+	    menu->insertItem( mnuitem, subitm.id );
+	    mnuitem->setEnabled( subitm.enabled );
+	    mnuitem->setChecked( subitm.checked );
 	}
 
 	handled[lowestitem] = true;

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          February 2003
- RCS:           $Id: freqfilterattrib.cc,v 1.18 2006-08-03 08:04:34 cvshelene Exp $
+ RCS:           $Id: freqfilterattrib.cc,v 1.19 2006-12-28 21:10:33 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -461,7 +461,6 @@ void FreqFilter::fftFilter( const DataHolder& output,
 void FreqFilter::setSz( int sz )
 {
     signal.setInfo( Array1DInfoImpl( sz ) );
-    int fftsz = FFT::_getNearBigFastSz( sz*3 );
     timedomain.setInfo( Array1DInfoImpl( fftsz ) );
     freqdomain.setInfo( Array1DInfoImpl( fftsz ) );
     tmpfreqdomain.setInfo( Array1DInfoImpl( fftsz ) );

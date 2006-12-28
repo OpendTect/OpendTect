@@ -4,7 +4,7 @@
  * DATE     : May 2004
 -*/
 
-static const char* rcsID = "$Id: wellextractdata.cc,v 1.30 2006-11-21 14:00:07 cvsbert Exp $";
+static const char* rcsID = "$Id: wellextractdata.cc,v 1.31 2006-12-28 21:10:33 cvsnanne Exp $";
 
 #include "wellextractdata.h"
 #include "wellreader.h"
@@ -550,14 +550,14 @@ float Well::LogDataExtracter::calcVal( const Well::Log& wl, float dah,
     TypeSet<float> vals;
     for ( int idx=0; idx<wl.size(); idx++ )
     {
-	float dah = wl.dah( idx );
-	if ( rg.includes(dah) )
+	float newdah = wl.dah( idx );
+	if ( rg.includes(newdah) )
 	{
 	    float val = wl.value(idx);
 	    if ( !mIsUdf(val) )
 		vals += wl.value(idx);
 	}
-	else if ( dah > rg.stop )
+	else if ( newdah > rg.stop )
 	    break;
     }
     if ( vals.size() < 1 ) return mUdf(float);

@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: well.cc,v 1.41 2006-11-21 14:00:07 cvsbert Exp $";
+static const char* rcsID = "$Id: well.cc,v 1.42 2006-12-28 21:10:33 cvsnanne Exp $";
 
 #include "welldata.h"
 #include "welltrack.h"
@@ -173,14 +173,14 @@ int Well::LogSet::indexOf( const char* nm ) const
 }
 
 
-Well::Log* Well::LogSet::remove( int idx )
+Well::Log* Well::LogSet::remove( int logidx )
 {
-    Log* l = logs[idx]; logs -= l;
+    Log* log = logs[logidx]; logs -= log;
     ObjectSet<Well::Log> tmp( logs );
     logs.erase(); init();
     for ( int idx=0; idx<tmp.size(); idx++ )
 	add( tmp[idx] );
-    return l;
+    return log;
 }
 
 
@@ -265,16 +265,16 @@ Well::Track& Well::Track::operator =( const Track& t )
 }
 
 
-void Well::Track::addPoint( const Coord& c, float z, float dah )
+void Well::Track::addPoint( const Coord& c, float z, float dahval )
 {
     pos_ += Coord3(c,z);
-    if ( mIsUdf(dah) )
+    if ( mIsUdf(dahval) )
     {
 	const int previdx = dah_.size() - 1;
-	dah = previdx < 0 ? 0
+	dahval = previdx < 0 ? 0
 	    : dah_[previdx] + pos_[previdx].distance( pos_[previdx+1] );
     }
-    dah_ += dah;
+    dah_ += dahval;
 }
 
 

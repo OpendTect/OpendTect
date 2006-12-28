@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          September 2003
- RCS:           $Id: uiwellman.cc,v 1.34 2006-12-01 14:35:23 cvsbert Exp $
+ RCS:           $Id: uiwellman.cc,v 1.35 2006-12-28 21:10:33 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -252,10 +252,10 @@ void uiWellMan::removeLogPush( CallBacker* )
 
     for ( int idx=0; idx<logs2rem.size(); idx++ )
     {
-	BufferString& name = logs2rem.get( idx );
+	BufferString& logname = logs2rem.get( idx );
 	for ( int logidx=0; logidx<welldata->logs().size(); logidx++ )
 	{
-	    if ( name == welldata->logs().getLog(logidx).name() )
+	    if ( logname == welldata->logs().getLog(logidx).name() )
 	    {
 		Well::Log* log = welldata->logs().remove( logidx );
 		delete log;

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: mathattrib.cc,v 1.18 2006-11-21 14:00:06 cvsbert Exp $
+ RCS:           $Id: mathattrib.cc,v 1.19 2006-12-28 21:10:33 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -85,19 +85,19 @@ void Math::updateDesc( Desc& desc )
 }
 
 
-Math::Math( Desc& desc )
-    : Provider( desc )
+Math::Math( Desc& dsc )
+    : Provider( dsc )
 {
     if ( !isOK() ) return;
 
     inputdata_.allowNull(true);
 
-    ValParam* expr = desc.getValParam( expressionStr() );
+    ValParam* expr = dsc.getValParam( expressionStr() );
     if ( !expr ) return;
 
     expression_ = MathExpression::parse( expr->getStringValue() );
 
-    mDescGetParamGroup(FloatParam,cstset,desc,cstStr())
+    mDescGetParamGroup(FloatParam,cstset,dsc,cstStr())
     for ( int idx=0; idx<cstset->size(); idx++ )
     {
 	const ValParam& param = (ValParam&)(*cstset)[idx];

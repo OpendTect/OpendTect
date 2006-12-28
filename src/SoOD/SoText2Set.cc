@@ -171,7 +171,7 @@ static int sotext2set_sortcompare(const void * element1, const void * element2)
 
 class SoText2SetP {
 public:
-  SoText2SetP(SoText2Set * master) : master(master) { }
+  SoText2SetP(SoText2Set * mstr) : master(mstr) { }
 
   SoGlyph *** glyphs;
   SbVec2s ** positions;
@@ -426,9 +426,9 @@ SoText2Set::GLRender(SoGLRenderAction * action)
 
         int ix = thissize[0];
         int iy = thissize[1];
-        SbVec2s position = PRIVATE(this)->positions[index][i2];
-        float fx = (float)position[0];
-        float fy = (float)position[1];
+        SbVec2s pos = PRIVATE(this)->positions[index][i2];
+        float fx = (float)pos[0];
+        float fy = (float)pos[1];
 
 #define RENDER_TEXT(offx, offy) \
         do { \

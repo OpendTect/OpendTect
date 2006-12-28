@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: wellreader.cc,v 1.21 2006-11-21 14:00:07 cvsbert Exp $";
+static const char* rcsID = "$Id: wellreader.cc,v 1.22 2006-12-28 21:10:33 cvsnanne Exp $";
 
 #include "wellreader.h"
 #include "welldata.h"
@@ -193,10 +193,7 @@ bool Well::Reader::getOldTimeWell( std::istream& strm ) const
     D2TModel* d2t = new D2TModel( Well::D2TModel::sKeyTimeWell );
     wd.setD2TModel( d2t );
     for ( int idx=0; idx<wd.track().size(); idx++ )
-    {
-	float dah = wd.track().dah(idx);
 	d2t->add( wd.track().dah(idx), wd.track().pos(idx).z );
-    }
 
     return true;
 }

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2002
- RCS:           $Id: uiexphorizon.cc,v 1.44 2006-11-21 14:00:07 cvsbert Exp $
+ RCS:           $Id: uiexphorizon.cc,v 1.45 2006-12-28 21:10:33 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -175,21 +175,21 @@ bool uiExportHorizon::writeAscii()
     const int nrattribs = hor->auxdata.nrAuxData();
     TypeSet<int>& sections = sels.selsections;
     const bool writemultiple = sections.size() > 1;
-    for ( int idx=0; idx<sections.size(); idx++ )
+    for ( int sidx=0; sidx<sections.size(); sidx++ )
     {
-	const int sectionidx = sections[idx];
+	const int sectionidx = sections[sidx];
 	BufferString fname( basename ); 
 	if ( writemultiple )
 	{
 	    FilePath fp( fname );
 	    BufferString ext( fp.extension() );
 	    if ( ext.isEmpty() )
-		{ fname += "_"; fname += idx; }
+		{ fname += "_"; fname += sidx; }
 	    else
 	    {
 		fp.setExtension( 0 );
 		BufferString fnm = fp.fileName();
-		fnm += "_"; fname += idx;
+		fnm += "_"; fname += sidx;
 		fp.setFileName( fnm );
 		fp.setExtension( ext );
 		fname = fp.fullPath();
@@ -223,7 +223,7 @@ bool uiExportHorizon::writeAscii()
 		const BinID bid = SI().transform( crd );
 		const float auxvalue = nrattribs > 0
 		    ? hor->auxdata.getAuxDataVal(0,posid) : mUdf(float);
-		writeGF( *sdo.ostrm, bid, crd.z, auxvalue, crd, idx );
+		writeGF( *sdo.ostrm, bid, crd.z, auxvalue, crd, sidx );
 		continue;
 	    }
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          September 2005
- RCS:           $Id: uiattrtrcselout.cc,v 1.18 2006-12-20 13:40:41 cvsbert Exp $
+ RCS:           $Id: uiattrtrcselout.cc,v 1.19 2006-12-28 21:10:33 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,10 +40,9 @@ ________________________________________________________________________
 
 using namespace Attrib;
 
-
 uiAttrTrcSelOut::uiAttrTrcSelOut( uiParent* p, const DescSet& ad,
-			      const NLAModel* n, const MultiID& mid, 
-			      bool usesinglehor )
+				  const NLAModel* n, const MultiID& mid, 
+				  bool usesinglehor )
     : uiFullBatchDialog(p,Setup("Create Horizon related cube output")
 	    		  .procprognm("process_attrib_em"))
     , ctio_(*mMkCtxtIOObj(EMHorizon))
@@ -344,21 +343,19 @@ bool uiAttrTrcSelOut::fillPar( IOPar& iopar )
 	if ( !addNLA( nladescid ) )	return false;
     }
 
-    const Attrib::DescID targetid = nladescid < 0 ? attrfld_->attribID()
-						  : nladescid;
-    
-    IOPar attrpar( "Attribute Descriptions" );
-    Attrib::DescSet* clonedset = ads_.optimizeClone( targetid );
+    const DescID targetid = nladescid < 0 ? attrfld_->attribID() : nladescid;
+    DescSet* clonedset = ads_.optimizeClone( targetid );
     if ( !clonedset )
 	return false;
+
+    IOPar attrpar( "Attribute Descriptions" );
     clonedset->fillPar( attrpar );
     
     for ( int idx=0; idx<attrpar.size(); idx++ )
     {
-        const char* nm = attrpar.getKey(idx);
-        BufferString name(SeisTrcStorOutput::attribkey);
-        name += "."; name += nm;
-        iopar.add( name, attrpar.getValue(idx) );
+        const char* nm = attrpar.getKey( idx );
+        iopar.add( IOPar::compKey(SeisTrcStorOutput::attribkey,nm),
+		   attrpar.getValue(idx) );
     }
 
     BufferString key;
@@ -445,7 +442,7 @@ bool uiAttrTrcSelOut::fillPar( IOPar& iopar )
     BufferString zboundsstr = cubezbounds.start; zboundsstr += "`";
     zboundsstr += cubezbounds.stop;
    
-    if ( !mIsUdf( cubezbounds.start ) )
+    if ( !mIsUdf(cubezbounds.start) )
     {
 	key = keybase; key += "Z Boundaries";
 	iopar.set( key, zboundsstr );
@@ -551,7 +548,7 @@ bool uiAttrTrcSelOut::addNLA( DescID& id )
 
     const int outpnr = attrfld_->outputNr();
     BufferString errmsg;
-    Attrib::EngineMan::addNLADesc( defstr, id, ads_, outpnr, nlamodel_, errmsg);
+    EngineMan::addNLADesc( defstr, id, ads_, outpnr, nlamodel_, errmsg);
     if ( errmsg.size() )
 	mErrRet( errmsg );
 

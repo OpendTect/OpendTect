@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2004
- RCS:           $Id: uiattrsurfout.cc,v 1.16 2006-11-21 14:00:07 cvsbert Exp $
+ RCS:           $Id: uiattrsurfout.cc,v 1.17 2006-12-28 21:10:33 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,12 +32,14 @@ ________________________________________________________________________
 #include "keystrs.h"
 
 
-uiAttrSurfaceOut::uiAttrSurfaceOut( uiParent* p, const Attrib::DescSet& ad,
+using namespace Attrib;
+
+uiAttrSurfaceOut::uiAttrSurfaceOut( uiParent* p, const DescSet& ad,
 				    const NLAModel* n, const MultiID& mid )
     : uiFullBatchDialog(p,Setup("Create surface output")
 	    		  .procprognm("process_attrib_em"))
     , ctio(*mMkCtxtIOObj(EMHorizon))
-    , ads(const_cast<Attrib::DescSet&>(ad))
+    , ads(const_cast<DescSet&>(ad))
     , nlamodel(n)
     , nlaid(mid)
 {
@@ -107,7 +109,7 @@ bool uiAttrSurfaceOut::prepareProcessing()
 
 bool uiAttrSurfaceOut::fillPar( IOPar& iopar )
 {
-    Attrib::DescID nladescid( -1, true );
+    DescID nladescid( -1, true );
     if ( nlamodel && attrfld->outputNr() >= 0 )
     {
 	if ( !nlaid || !(*nlaid) )
@@ -118,36 +120,35 @@ bool uiAttrSurfaceOut::fillPar( IOPar& iopar )
 	if ( !addNLA( nladescid ) )	return false;
     }
 
-    const Attrib::DescID targetid = nladescid < 0 ? attrfld->attribID()
-						  : nladescid;
-    IOPar attrpar( "Attribute Descriptions" );
-    Attrib::DescSet* clonedset = ads.optimizeClone( targetid );
+    const DescID targetid = nladescid < 0 ? attrfld->attribID() : nladescid;
+    DescSet* clonedset = ads.optimizeClone( targetid );
     if ( !clonedset )
 	return false;
+
+    IOPar attrpar( "Attribute Descriptions" );
     clonedset->fillPar( attrpar );
 	    
     for ( int idx=0; idx<attrpar.size(); idx++ )
     {
-        const char* nm = attrpar.getKey(idx);
-        BufferString name(Attrib::SeisTrcStorOutput::attribkey);
-        name += "."; name += nm;
-        iopar.add( name, attrpar.getValue(idx) );
+        const char* nm = attrpar.getKey( idx );
+        iopar.add( IOPar::compKey(SeisTrcStorOutput::attribkey,nm),
+		   attrpar.getValue(idx) );
     }
 
     BufferString key;
-    BufferString keybase = Attrib::Output::outputstr; keybase += ".1.";
+    BufferString keybase = Output::outputstr; keybase += ".1.";
     key = keybase; key += sKey::Type;
-    iopar.set( key, Attrib::Output::surfkey );
+    iopar.set( key, Output::surfkey );
 
-    key = keybase; key += Attrib::SeisTrcStorOutput::attribkey;
-    key += "."; key += Attrib::DescSet::highestIDStr();
+    key = keybase; key += SeisTrcStorOutput::attribkey;
+    key += "."; key += DescSet::highestIDStr();
     iopar.set( key, 1 );
 
-    key = keybase; key += Attrib::SeisTrcStorOutput::attribkey; key += ".0";
+    key = keybase; key += SeisTrcStorOutput::attribkey; key += ".0";
     iopar.set( key, nladescid < 0 ? attrfld->attribID().asInt() 
 	    			  : nladescid.asInt() );
 
-    key = keybase; key += Attrib::LocationOutput::surfidkey;
+    key = keybase; key += LocationOutput::surfidkey;
     iopar.set( key, ctio.ioobj->key() );
 
     BufferString attrnm = attrnmfld->text();
@@ -163,14 +164,14 @@ bool uiAttrSurfaceOut::fillPar( IOPar& iopar )
 
 #define mErrRet(str) { uiMSG().message( str ); return false; }
 
-bool uiAttrSurfaceOut::addNLA( Attrib::DescID& id )
+bool uiAttrSurfaceOut::addNLA( DescID& id )
 {
     BufferString defstr("NN specification=");
     defstr += nlaid;
 
     const int outputnr = attrfld->outputNr();
     BufferString errmsg;
-    Attrib::EngineMan::addNLADesc( defstr, id, ads, outputnr, nlamodel, errmsg);
+    EngineMan::addNLADesc( defstr, id, ads, outputnr, nlamodel, errmsg );
     if ( errmsg.size() )
 	mErrRet( errmsg );
 

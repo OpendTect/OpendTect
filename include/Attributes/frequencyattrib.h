@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: frequencyattrib.h,v 1.8 2006-01-17 13:19:00 cvsdgb Exp $
+ RCS:           $Id: frequencyattrib.h,v 1.9 2006-12-28 21:10:33 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -107,7 +107,6 @@ protected:
     Array1DImpl<float_complex>*	signal;
     Array1DImpl<float_complex>*	timedomain;
     Array1DImpl<float_complex>*	freqdomain;
-    float*			freqdomainpower;
 };
 
 }; // namespace Attrib

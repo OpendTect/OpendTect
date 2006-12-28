@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          Jan 2004
- RCS:           $Id: uicrdevenv.cc,v 1.22 2006-11-21 14:00:08 cvsbert Exp $
+ RCS:           $Id: uicrdevenv.cc,v 1.23 2006-12-28 21:10:33 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -100,7 +100,7 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
 
     cygwin = getCygDir();
 
-    if( !cygwin )
+    if ( !cygwin )
     {
 	const char* msg =
 	    "Cygwin installation not found."
@@ -111,7 +111,7 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
 	    "you can safely continue."
 	    "\n\nDo you want to continue anyway?";
 
-	if ( ! uiMSG().askGoOn(msg) )
+	if ( !uiMSG().askGoOn(msg) )
 	{
 	    const char* closemsg = 
 		"Please run the Cygwin (bash) shell "
@@ -123,7 +123,7 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
 		"\n\nIt is required to close OpendTect before installing"
 		"Cygwin.\nDo you want to close OpendTect now?";
 
-	    bool close = uiMSG().askGoOn( closemsg );
+	    const bool close = uiMSG().askGoOn( closemsg );
 
 	    showProgrDoc();
 
@@ -162,9 +162,7 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
     if ( workdirnm.isEmpty() )
     {
 	BufferString worksubdirm = "ODWork";
-
 	BufferString basedirnm = GetPersonalDir();
-
 	if ( cygwin )
 	{
 	    FilePath fp( cygwin ); fp.add( "home" );
@@ -173,7 +171,7 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
 	    else if ( GetEnvVar("USER") )
 		fp.add( GetEnvVar("USER") );
 
-	    BufferString basedirnm( fp.fullPath() );
+	    basedirnm = fp.fullPath();
 	    if ( !File_isDirectory(basedirnm) )
 	    {
 		const char* msg =

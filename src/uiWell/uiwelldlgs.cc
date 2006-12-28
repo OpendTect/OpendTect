@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          October 2003
- RCS:           $Id: uiwelldlgs.cc,v 1.49 2006-12-20 13:40:41 cvsbert Exp $
+ RCS:           $Id: uiwelldlgs.cc,v 1.50 2006-12-28 21:10:33 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -78,8 +78,8 @@ int uiMarkerDlg::getNrRows() const
 {
     for ( int idx=table->nrRows()-1; idx>=0; idx-- )
     {
-	const char* name = table->text( RowCol(idx,0) );
-	if ( name && *name ) return idx+1;
+	const char* txt = table->text( RowCol(idx,0) );
+	if ( txt && *txt ) return idx+1;
     }
     return 0;
 }
@@ -189,10 +189,10 @@ void uiMarkerDlg::getMarkerSet( ObjectSet<Well::Marker>& markers ) const
     const int nrrows = getNrRows();
     for ( int idx=0; idx<nrrows; idx++ )
     {
-	const char* name = table->text( RowCol(idx,0) );
-	if ( !name || !*name ) continue;
+	const char* txt = table->text( RowCol(idx,0) );
+	if ( !txt || !*txt ) continue;
 
-	Well::Marker* marker = new Well::Marker( name );
+	Well::Marker* marker = new Well::Marker( txt );
 	marker->dah = table->getfValue( RowCol(idx,1) ) * zfac;
 	marker->color = table->getColor( RowCol(idx,2) );
 	markers += marker;

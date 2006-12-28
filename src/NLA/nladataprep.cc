@@ -4,7 +4,7 @@
  * DATE     : May 2005
 -*/
  
-static const char* rcsID = "$Id: nladataprep.cc,v 1.5 2006-09-21 12:02:47 cvsbert Exp $";
+static const char* rcsID = "$Id: nladataprep.cc,v 1.6 2006-12-28 21:10:33 cvsnanne Exp $";
 
 #include "nladataprep.h"
 #include "binidvalset.h"
@@ -116,7 +116,7 @@ void NLADataPreparer::addVecs( BinIDValueSet& bvs, int nr, float noiselvl,
     const bool nonoise = noiselvl < 1e-6 || noiselvl > 1 + 1e-6;
     for ( int idx=0; idx<nr; idx++ )
     {
-	int dupidx = Stats::RandGen::getIndex( orgsz );
+	const int dupidx = Stats::RandGen::getIndex( orgsz );
 	BinIDValueSet::Pos pos = bvs.getPos( dupidx );
 	const float* vals = bvs.getVals( pos );
 	bvs.get( pos, bid );
@@ -125,11 +125,12 @@ void NLADataPreparer::addVecs( BinIDValueSet& bvs, int nr, float noiselvl,
 	else
 	{
 	    ArrPtrMan<float> newvals = new float [nrvals];
-	    for ( int idx=0; idx<nrvals; idx++ )
+	    for ( int validx=0; validx<nrvals; validx++ )
 	    {
-		float wdth = rgs[idx].stop - rgs[idx].start;
+		float wdth = rgs[validx].stop - rgs[validx].start;
 		wdth *= noiselvl;
-		newvals[idx] = vals[idx] + ((Stats::RandGen::get()-.5) * wdth);
+		newvals[validx] = vals[validx] +
+		    		  ((Stats::RandGen::get()-.5) * wdth);
 	    }
 	    bvsnew.add( bid, newvals );
 	}

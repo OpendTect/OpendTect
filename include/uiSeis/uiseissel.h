@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2001
- RCS:           $Id: uiseissel.h,v 1.19 2006-12-20 11:23:00 cvshelene Exp $
+ RCS:           $Id: uiseissel.h,v 1.20 2006-12-28 21:10:33 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,9 +31,8 @@ public:
 
 protected:
 
-    uiGenInput*		attrfld;
-    BufferString	orgkeyvals;
-    bool		is2d;
+    uiGenInput*		attrfld_;
+    bool		is2d_;
 
     void		entrySel(CallBacker*);
 

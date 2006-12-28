@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		April 2006
- RCS:		$Id: uihorizonrelations.cc,v 1.3 2006-11-21 14:00:07 cvsbert Exp $
+ RCS:		$Id: uihorizonrelations.cc,v 1.4 2006-12-28 21:10:33 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -254,8 +254,8 @@ void uiHorizonRelationsDlg::checkCrossingsCB( CallBacker* )
 
     HorizonSorter sorter( horids_ );
     sorter.setName( "Check crossings" );
-    uiExecutor dlg( this, sorter );
-    if ( !dlg.go() ) return;
+    uiExecutor exdlg( this, sorter );
+    if ( !exdlg.go() ) return;
     uiCursor::restoreOverride();
 
     int count = 0;

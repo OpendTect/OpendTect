@@ -4,16 +4,16 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: visdata.cc,v 1.23 2006-08-28 09:29:26 cvskris Exp $";
+static const char* rcsID = "$Id: visdata.cc,v 1.24 2006-12-28 21:10:33 cvsnanne Exp $";
 
 #include "visdata.h"
 
 #include "errh.h"
+#include "iopar.h"
 #include "visdataman.h"
 #include "visselman.h"
-#include "iopar.h"
 
-#include "Inventor/nodes/SoNode.h"
+#include <Inventor/nodes/SoNode.h>
 #include <Inventor/actions/SoWriteAction.h>
 #include <Inventor/SoOutput.h>
 
@@ -31,20 +31,18 @@ const SoNode* DataObject::getInventorNode() const
 
 const char* DataObject::name() const
 {
-    if ( !name_ || !(*name_)[0]) return 0;
-    return (const char*)*name_;
+    return !name_ || name_->isEmpty() ? 0 : name_->buf();
 }
 
 
-void DataObject::setName( const char* nn )
+void DataObject::setName( const char* nm )
 {
     SoNode* node = getInventorNode();
     if ( node )
-	node->setName( nn );
+	node->setName( nm );
 
     if ( !name_ ) name_ = new BufferString;
-    
-    (*name_) = nn;
+    (*name_) = nm;
 }
 
 
@@ -62,15 +60,11 @@ DataObject::~DataObject()
 
 
 void DataObject::select() const
-{
-    DM().selMan().select( id() );
-}
+{ DM().selMan().select( id() ); }
 
 
 void DataObject::deSelect() const
-{
-    DM().selMan().deSelect( id() );
-}
+{ DM().selMan().deSelect( id() ); }
 
 
 bool DataObject::isSelected() const
@@ -88,7 +82,6 @@ void DataObject::fillPar( IOPar& par, TypeSet<int>& ) const
     par.set( sKeyType(), getClassName() );
 
     const char* nm = name();
-
     if ( nm )
 	par.set( sKeyName(), nm );
 }
@@ -100,7 +93,9 @@ bool DataObject::dumpOIgraph( const char* filename, bool binary )
     if ( !node ) return false;
 
     SoWriteAction writeaction;
-    if ( !writeaction.getOutput()->openFile(filename) ) return false;
+    if ( !writeaction.getOutput()->openFile(filename) )
+	return false;
+
     writeaction.getOutput()->setBinary(binary);
     writeaction.apply( node );
     writeaction.getOutput()->closeFile();
@@ -111,7 +106,6 @@ bool DataObject::dumpOIgraph( const char* filename, bool binary )
 int DataObject::usePar( const IOPar& par )
 {
     const char* nm = par.find( sKeyName() );
-
     if ( nm )
 	setName( nm );
 
@@ -123,14 +117,13 @@ void DataObject::_init()
 { DM().addObject( this ); }
 
 
-FactoryEntry::FactoryEntry( FactPtr funcptr,
-			    const char* name ) 
-    : name_( name )
-    , funcptr_( funcptr )
-    , factory_( &DM().factory() )
+FactoryEntry::FactoryEntry( FactPtr funcptr, const char* nm ) 
+    : name_(nm)
+    , funcptr_(funcptr)
+    , factory_(&DM().factory())
 {
     factory_->addEntry( this );
-    factory_->closing.notify( mCB(this, FactoryEntry, visIsClosingCB ));
+    factory_->closing.notify( mCB(this,FactoryEntry,visIsClosingCB) );
 }
 
 
@@ -140,7 +133,7 @@ FactoryEntry::~FactoryEntry()
 	return;
 
     factory_->removeEntry(this);
-    factory_->closing.remove( mCB(this, FactoryEntry, visIsClosingCB ));
+    factory_->closing.remove( mCB(this,FactoryEntry,visIsClosingCB) );
 }
 
 
@@ -153,7 +146,7 @@ void FactoryEntry::visIsClosingCB(CallBacker*)
 
 
 Factory::Factory()
-     : closing( this )
+     : closing(this)
 {}
 
 
@@ -175,13 +168,12 @@ FactoryEntry* Factory::getEntry( const char* nm )
 
     for ( int idx=0; idx<entries_.size(); idx++ )
     {
-	if ( !strcmp( nm, entries_[idx]->name() ))
+	if ( !strcmp(nm,entries_[idx]->name()) )
 	    return entries_[idx];
     }
 
     return 0;
 }
-
 
 
 DataObject* Factory::create( const char* nm )

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          December 2003
- RCS:           $Id: visdragger.cc,v 1.15 2006-01-23 14:19:06 cvskris Exp $
+ RCS:           $Id: visdragger.cc,v 1.16 2006-12-28 21:10:33 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -123,22 +123,20 @@ Transformation* Dragger::getDisplayTransformation()
 }
 
 
-void Dragger::setOwnShape(DataObject* newshape, const char* partname )
+void Dragger::setOwnShape( DataObject* newshape, const char* partname )
 {
     if ( newshape && newshape->getInventorNode() )
-    {
-	dragger->setPart(partname,newshape->getInventorNode());
-    }
+	dragger->setPart( partname, newshape->getInventorNode() );
 }
 
 
-SoNode* Dragger::getShape( const char* name )
+SoNode* Dragger::getShape( const char* nm )
 {
-    return dragger->getPart(name,false);
+    return dragger->getPart( nm, false );
 }
 
 
-void Dragger::triggerRightClick(const EventInfo* eventinfo)
+void Dragger::triggerRightClick( const EventInfo* eventinfo )
 {
     rightclickeventinfo = eventinfo;
     rightclicknotifier.trigger();

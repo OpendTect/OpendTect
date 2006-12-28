@@ -178,12 +178,12 @@ UTMCamera::getPrimitiveCount(SoGetPrimitiveCountAction * action)
   FIXME: function is redundant and should be made obsolete.
 */
 void 
-UTMCamera::getPosition(double & easting, double & northing, double & elevation)
+UTMCamera::getPosition( double& east, double& north, double& elev )
 {
   SbVec3d utm = this->utmposition.getValue();
-  easting = utm[0];
-  northing = utm[1];
-  elevation = utm[2];
+  east = utm[0];
+  north = utm[1];
+  elev = utm[2];
 }
 
 /*!

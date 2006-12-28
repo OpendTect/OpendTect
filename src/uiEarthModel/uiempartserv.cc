@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.97 2006-12-27 15:06:07 cvsnanne Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.98 2006-12-28 21:10:33 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -413,17 +413,17 @@ int uiEMPartServer::setAuxData( const EM::ObjectID& id,
     const int nrdatavals = data[0]->nrVals();
     if ( idx>=nrdatavals ) return -1;
 
-    BufferString name;
+    BufferString auxnm;
     if ( attribnm )
-	name = attribnm;
+	auxnm = attribnm;
     else
     {
-	name = "AuxData";
-	name += idx;
+	auxnm = "AuxData";
+	auxnm += idx;
     }
 
     hor->auxdata.removeAll();
-    const int auxdatanr = hor->auxdata.addAuxData( name );
+    const int auxdatanr = hor->auxdata.addAuxData( auxnm );
 
     BinID bid;
     BinIDValueSet::Pos pos;

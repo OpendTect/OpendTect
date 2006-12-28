@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:           $Id: uitextfile.cc,v 1.4 2006-12-20 13:40:41 cvsbert Exp $
+ RCS:           $Id: uitextfile.cc,v 1.5 2006-12-28 21:10:33 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -243,32 +243,32 @@ uiTextFileDlg::uiTextFileDlg( uiParent* p, bool rdonly, bool tbl,
 			      const char* fnm )
 	: uiDialog(p,Setup(fnm))
 {
-    Setup setup( fnm );
-    setup.allowopen(!rdonly).allowsave(!rdonly);
-    init( setup, uiTextFile::Setup(rdonly,tbl,fnm) );
+    Setup dlgsetup( fnm );
+    dlgsetup.allowopen(!rdonly).allowsave(!rdonly);
+    init( dlgsetup, uiTextFile::Setup(rdonly,tbl,fnm) );
 }
 
 
-uiTextFileDlg::uiTextFileDlg( uiParent* p, const Setup& setup )
-	: uiDialog(p,setup)
+uiTextFileDlg::uiTextFileDlg( uiParent* p, const Setup& dlgsetup )
+	: uiDialog(p,dlgsetup)
 {
-    init( setup, uiTextFile::Setup(true,false,setup.wintitle_) );
+    init( dlgsetup, uiTextFile::Setup(true,false,dlgsetup.wintitle_) );
 }
 
 
-void uiTextFileDlg::init( const uiTextFileDlg::Setup& setup,
+void uiTextFileDlg::init( const uiTextFileDlg::Setup& dlgsetup,
 			  const uiTextFile::Setup& tsetup )
 {
-    scroll2bottom_ = setup.scroll2bottom_;
+    scroll2bottom_ = dlgsetup.scroll2bottom_;
 
     editor_ = new uiTextFile( this, tsetup );
     editor_->fileNmChg.notify( mCB(this,uiTextFileDlg,fileNmChgd) );
 
     uiPopupMenu* filemnu = new uiPopupMenu( this, "&File" );
-    if ( setup.allowopen_ )
+    if ( dlgsetup.allowopen_ )
 	filemnu->insertItem( new uiMenuItem("&Open ...",
 		    	     mCB(this,uiTextFileDlg,open)) );
-    if ( setup.allowsave_ )
+    if ( dlgsetup.allowsave_ )
     {
 	filemnu->insertItem( new uiMenuItem("&Save ...",
 		    	     mCB(this,uiTextFileDlg,save)) );

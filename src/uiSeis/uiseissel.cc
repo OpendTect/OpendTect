@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2001
- RCS:		$Id: uiseissel.cc,v 1.37 2006-12-20 11:23:01 cvshelene Exp $
+ RCS:		$Id: uiseissel.cc,v 1.38 2006-12-28 21:10:33 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,27 +30,27 @@ ________________________________________________________________________
 
 
 uiSeisSelDlg::uiSeisSelDlg( uiParent* p, const CtxtIOObj& c,
-			    const SeisSelSetup& setup )
-	: uiIOObjSelDlg(p,getCtio(c,setup),"",false)
-	, is2d(setup.is2d_)
-	, attrfld(0)
+			    const SeisSelSetup& selsetup )
+	: uiIOObjSelDlg(p,getCtio(c,selsetup),"",false)
+	, is2d_(selsetup.is2d_)
+	, attrfld_(0)
 {
-    const char* ttxt = is2d ? "Select Line Set" : "Select Cube";
+    const char* ttxt = is2d_ ? "Select Line Set" : "Select Cube";
     setTitleText( ttxt );
 
     uiGroup* topgrp = selgrp->getTopGroup();
     uiLabeledListBox* listfld = selgrp->getListField();
 
-    if ( setup.selattr_ && is2d )
+    if ( selsetup.selattr_ && is2d_ )
     {
 	if ( selgrp->getCtxtIOObj().ctxt.forread )
-	    attrfld = new uiGenInput( selgrp,"Attribute", StringListInpSpec() );
+	    attrfld_ = new uiGenInput( selgrp,"Attribute",StringListInpSpec() );
 	else
-	    attrfld = new uiGenInput( selgrp, "Attribute (if any)" );
+	    attrfld_ = new uiGenInput( selgrp, "Attribute (if any)" );
 	if ( selgrp->getNameField() )
-	    attrfld->attach( alignedBelow, selgrp->getNameField() );
+	    attrfld_->attach( alignedBelow, selgrp->getNameField() );
 	else
-	    attrfld->attach( ensureBelow, topgrp );
+	    attrfld_->attach( ensureBelow, topgrp );
     }
 
     listfld->box()->selectionChanged.notify( mCB(this,uiSeisSelDlg,entrySel) );
@@ -94,38 +94,35 @@ void uiSeisSelDlg::entrySel( CallBacker* )
 {
     // ioobj should already be filled by base class
     const IOObj* ioobj = ioObj();
-    if ( !ioobj )
+    if ( !ioobj || !attrfld_ )
 	return;
 
-    uiSeisIOObjInfo oinf(*ioobj,false);
-
-    if ( !attrfld ) return;
-
+    uiSeisIOObjInfo oinf( *ioobj, false );
     const bool is2d = oinf.is2D();
-    attrfld->display( is2d );
+    attrfld_->display( is2d );
     if ( !is2d || !selgrp->getCtxtIOObj().ctxt.forread ) return;
 
     BufferStringSet nms;
     oinf.getAttribNames( nms );
-    attrfld->newSpec( StringListInpSpec(nms), 0 );
+    attrfld_->newSpec( StringListInpSpec(nms), 0 );
 }
 
 
 void uiSeisSelDlg::fillPar( IOPar& iopar ) const
 {
     uiIOObjSelDlg::fillPar( iopar );
-    if ( attrfld ) iopar.set( sKey::Attribute, attrfld->text() );
+    if ( attrfld_ ) iopar.set( sKey::Attribute, attrfld_->text() );
 }
 
 
 void uiSeisSelDlg::usePar( const IOPar& iopar )
 {
     uiIOObjSelDlg::usePar( iopar );
-    if ( attrfld )
+    if ( attrfld_ )
     {
 	entrySel(0);
 	const char* selattrnm = iopar.find( sKey::Attribute );
-	if ( selattrnm ) attrfld->setText( selattrnm );
+	if ( selattrnm ) attrfld_->setText( selattrnm );
     }
 }
 

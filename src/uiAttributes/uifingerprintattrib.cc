@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Payraudeau
  Date:          February  2006
- RCS:           $Id: uifingerprintattrib.cc,v 1.27 2006-12-20 11:23:00 cvshelene Exp $
+ RCS:           $Id: uifingerprintattrib.cc,v 1.28 2006-12-28 21:10:33 cvsnanne Exp $
 
 ________________________________________________________________________
 
@@ -524,7 +524,6 @@ BinIDValueSet* uiFingerPrintAttrib::createValuesBinIDSet(
     else if ( refgrp_->selectedId() == 2 )
     {
 	ObjectSet<BinIDValueSet> values;
-	BufferString errmsg;
 	picksetfld_->processInput();
 	const IOObj* ioobj = picksetfld_->ctxtIOObj().ioobj;
 	if ( !ioobj )
@@ -533,6 +532,7 @@ BinIDValueSet* uiFingerPrintAttrib::createValuesBinIDSet(
 	    errmsg += "the values will be extracted";
 	    return 0;
 	}
+
 	BufferStringSet ioobjids;
 	ioobjids.add( ioobj->key() );
 	PickSetTranslator::createBinIDValueSets( ioobjids, values );

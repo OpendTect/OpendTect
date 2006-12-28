@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:		$Id: uiseismmproc.cc,v 1.109 2006-12-18 17:51:40 cvsbert Exp $
+ RCS:		$Id: uiseismmproc.cc,v 1.110 2006-12-28 21:10:33 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -160,8 +160,8 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const IOPar& ip,
 	    const HostData& hd = *hdl[idx];
 	    BufferString nm( hd.name() );
 	    const int nraliases = hd.nrAliases();
-	    for ( int idx=0; idx<nraliases; idx++ )
-		{ nm += " / "; nm += hd.alias(idx); }
+	    for ( int aliasidx=0; aliasidx<nraliases; aliasidx++ )
+		{ nm += " / "; nm += hd.alias(aliasidx); }
 	    avmachfld->box()->addItem( nm );
 	}
 

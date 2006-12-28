@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          October 2005
- RCS:           $Id: uiwellrdmlinedlg.cc,v 1.12 2006-08-30 16:03:27 cvsbert Exp $
+ RCS:           $Id: uiwellrdmlinedlg.cc,v 1.13 2006-12-28 21:10:33 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -134,17 +134,6 @@ void uiWell2RandomLineDlg::attachFields( uiGroup* selbuttons, uiGroup* topgrp,
 }
 
 
-#define mRC(row,col) RowCol(row,col)
-
-#define mInsertRow(rowidx,text,val)\
-	selwellsbox_->insertRows( rowidx, 1 );\
-	selwellsbox_->setText( mRC(rowidx, 0), text );\
-	uiComboBox* box = new uiComboBox(0); \
-	box->addItems( sTypes ); \
-	box->setValue( val ); \
-	selwellsbox_->setCellObject( RowCol(rowidx,1), box );
-
-
 void uiWell2RandomLineDlg::selButPush( CallBacker* cb )
 {
     mDynamicCastGet(uiToolButton*,but,cb)
@@ -161,9 +150,10 @@ void uiWell2RandomLineDlg::selButPush( CallBacker* cb )
 		emptyrow = selwellsbox_->nrRows();
 		selwellsbox_->insertRows( selwellsbox_->nrRows(), 1 );
 	    }
-	    selwellsbox_->setText(mRC(emptyrow, 0), wellsbox_->textOfItem(idx));
+	    selwellsbox_->setText( RowCol(emptyrow,0),
+		    		   wellsbox_->textOfItem(idx));
 	    uiComboBox* box = new uiComboBox(0);
-	    selwellsbox_->setCellObject( mRC(emptyrow,1), box );
+	    selwellsbox_->setCellObject( RowCol(emptyrow,1), box );
 	    box->addItems( sTypes );
 	    box->setValue( 0 );
 	    wellsbox_->removeItem(idx);
@@ -183,8 +173,10 @@ void uiWell2RandomLineDlg::selButPush( CallBacker* cb )
 	for ( int idx=0; idx<selwellsbox_->nrRows(); idx++ )
 	{
 	    if ( !selwellsbox_->isRowSelected(idx) ) continue;
-	    if ( !strcmp( selwellsbox_->text( mRC(idx,0) ), "" ) ) continue;
-	    wellsbox_->addItem( selwellsbox_->text( mRC(idx,0) ) );
+	    if ( !strcmp( selwellsbox_->text( RowCol(idx,0) ), "" ) )
+		continue;
+
+	    wellsbox_->addItem( selwellsbox_->text( RowCol(idx,0) ) );
 	    selwellsbox_->removeRow(idx);
 	    lastusedidx = idx;
 	    wellsbox_->selectAll(false);
@@ -234,13 +226,13 @@ void uiWell2RandomLineDlg::setSelectedWells()
 
     for ( int idx=0; idx<selwellsbox_->nrRows(); idx++ )
     {
-	const char* txt = selwellsbox_->text( mRC(idx,0) );
+	const char* txt = selwellsbox_->text( RowCol(idx,0) );
 	int wellidx = allwellsnames_.indexOf( txt );
 	if ( wellidx<0 ) continue;
 	if ( selwellsids_.addIfNew( allwellsids_[wellidx] ) )
 	{
 	    mDynamicCastGet(uiComboBox*,box,
-			    selwellsbox_->getCellObject(mRC(idx,1)))
+			    selwellsbox_->getCellObject(RowCol(idx,1)))
 	    selwellstypes_ += box->currentItem();
 	}
     }
@@ -263,17 +255,17 @@ void uiWell2RandomLineDlg::getCoordinates( TypeSet<Coord>& coords )
 	{
 	    if ( selwellstypes_[idx] )
 	    {
-		for ( int idx=wd->track().size()-1; idx>=0; idx-- )
+		for ( int posidx=wd->track().size()-1; posidx>=0; posidx-- )
 		{
-		    Coord3 coord3 = wd->track().pos(idx);
+		    Coord3 coord3 = wd->track().pos( posidx );
 		    coords += Coord( coord3.x, coord3.y );
 		}
 	    }
 	    else
 	    {
-		for ( int idx=0; idx<wd->track().size(); idx++ )
+		for ( int posidx=0; posidx<wd->track().size(); posidx++ )
 		{
-		    Coord3 coord3 = wd->track().pos(idx);
+		    Coord3 coord3 = wd->track().pos( posidx );
 		    coords += Coord( coord3.x, coord3.y );
 		}
 	    }
@@ -288,33 +280,41 @@ void uiWell2RandomLineDlg::previewPush( CallBacker* cb )
 }
 
 
+#define mInsertRow(rowidx,text,val)\
+	selwellsbox_->insertRows( rowidx, 1 );\
+	selwellsbox_->setText( RowCol(rowidx,0), text );\
+	uiComboBox* newbox = new uiComboBox(0); \
+	newbox->addItems( sTypes ); \
+	newbox->setValue( val ); \
+	selwellsbox_->setCellObject( RowCol(rowidx,1), newbox );
+
 void uiWell2RandomLineDlg::moveButPush( CallBacker* cb )
 {
     int index = selwellsbox_->currentRow();
     mDynamicCastGet(uiToolButton*,but,cb)
     if ( !selwellsbox_->isRowSelected( index ) ) return;
     
-    if ( !strcmp( selwellsbox_->text( mRC(index,0) ), "" ) ) return;
+    if ( !strcmp( selwellsbox_->text( RowCol(index,0) ), "" ) ) return;
 
     mDynamicCastGet(uiComboBox*,box,
-		    selwellsbox_->getCellObject(mRC(index,1)))
+		    selwellsbox_->getCellObject(RowCol(index,1)))
     const int value = box ? box->getIntValue(): 0;
-    BufferString text = selwellsbox_->text( mRC(index,0) );
+    BufferString text = selwellsbox_->text( RowCol(index,0) );
 
     if ( but == moveupward_ && index>0 )
     {
 	mInsertRow( index-1, text.buf(), value );
 	selwellsbox_->removeRow( index+1 );
 	selwellsbox_->selectRow( index-1 );
-	selwellsbox_->setCurrentCell( mRC(index-1, 0) );
+	selwellsbox_->setCurrentCell( RowCol(index-1,0) );
     }
     else if ( but == movedownward_ && index<selwellsbox_->nrRows() 
-	      && strcmp( selwellsbox_->text( mRC(index+1,0) ), "" ) )
+	      && strcmp( selwellsbox_->text( RowCol(index+1,0) ), "" ) )
     {
 	mInsertRow( index+2, text.buf(), value );
 	selwellsbox_->removeRow( index );
 	selwellsbox_->selectRow( index+1 );
-	selwellsbox_->setCurrentCell( mRC(index+1, 0) );
+	selwellsbox_->setCurrentCell( RowCol(index+1,0) );
     }
 }
 
@@ -323,7 +323,7 @@ int uiWell2RandomLineDlg::getFirstEmptyRow()
 {
     for ( int idx=0; idx<selwellsbox_->nrRows(); idx++ )
     {
-	if ( strcmp( selwellsbox_->text( mRC(idx, 0) ), "" ) ) continue;
+	if ( strcmp( selwellsbox_->text( RowCol(idx,0) ), "" ) ) continue;
 	return idx;
     }
     
@@ -336,7 +336,7 @@ void uiWell2RandomLineDlg::ptsSel( CallBacker* cb )
     for ( int idx=0; idx<selwellsbox_->nrRows(); idx++ )
     {
 	mDynamicCastGet(uiComboBox*,box,
-			selwellsbox_->getCellObject(mRC(idx,1)))
+			selwellsbox_->getCellObject(RowCol(idx,1)))
 	if ( box ) box->setSensitive( !onlytopfld_->getBoolValue() );
     }
 }

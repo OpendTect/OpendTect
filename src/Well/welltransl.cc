@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: welltransl.cc,v 1.10 2006-08-30 16:03:27 cvsbert Exp $";
+static const char* rcsID = "$Id: welltransl.cc,v 1.11 2006-12-28 21:10:33 cvsnanne Exp $";
 
 
 #include "welltransl.h"
@@ -28,9 +28,9 @@ mDefSimpleTranslatorioContext(Well,WllInf)
 \
     BufferString pathnm = iostrm->dirName(); \
     BufferString filenm = iostrm->fileName(); \
-    StreamProvider sp( filenm ); \
-    sp.addPathIfNecessary( pathnm ); \
-    if ( !sp.fn ) return false;
+    StreamProvider prov( filenm ); \
+    prov.addPathIfNecessary( pathnm ); \
+    if ( !prov.fn ) return false;
 
 
 #define mRemove(ext,nr) \

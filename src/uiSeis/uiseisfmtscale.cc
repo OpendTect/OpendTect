@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          May 2002
- RCS:		$Id: uiseisfmtscale.cc,v 1.15 2006-12-12 17:48:55 cvsbert Exp $
+ RCS:		$Id: uiseisfmtscale.cc,v 1.16 2006-12-28 21:10:33 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -92,7 +92,7 @@ void uiSeisFmtScale::updateFrom( const IOObj& ioobj )
     setSteering( res && *res == 'S' );
     if ( imptypefld )
     {
-	const char* res = ioobj.pars().find( "Data storage" );
+	res = ioobj.pars().find( "Data storage" );
 	if ( res )
 	    imptypefld->setValue( (int)*res );
     }

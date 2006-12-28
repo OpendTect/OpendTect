@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uigeninput.cc,v 1.77 2006-12-20 13:40:41 cvsbert Exp $
+ RCS:           $Id: uigeninput.cc,v 1.78 2006-12-28 21:10:33 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -48,8 +48,8 @@ programmer to decide.
 class uiInputFld : public CallBacker
 {
 public:
-                        uiInputFld( uiGenInput* p, const DataInpSpec& spec ) 
-			: spec_( *spec.clone() ), p_( p ) {}
+                        uiInputFld( uiGenInput* p, const DataInpSpec& dis ) 
+			: spec_( *dis.clone() ), p_( p ) {}
 
     virtual		~uiInputFld()			{ delete &spec_; }
 
@@ -129,13 +129,13 @@ public:
     void		clear()
 			{ mDoAllElems(clear()) }
 
-    void		display( bool yn, int idx )
+    void		display( bool yn, int elemidx )
 			{
-			    if ( idx < 0 )
+			    if ( elemidx < 0 )
 				{ mDoAllElemObjs(display(yn)) }
 			    else
 			    {
-				uiObject* obj = elemObj( idx );
+				uiObject* obj = elemObj( elemidx );
 				if ( obj )
 				    obj->display( yn );
 			    }
@@ -153,13 +153,13 @@ public:
 			    if ( obj ) obj->setReadOnly( yn );
 			}
 
-    void		setSensitive(bool yn, int idx=-1)		
+    void		setSensitive(bool yn, int elemidx=-1 )
 			{ 
-			    if ( idx < 0 )
+			    if ( elemidx < 0 )
 				{ mDoAllElemObjs(setSensitive(yn)) }
 			    else
 			    {
-				uiObject* obj = elemObj( idx );
+				uiObject* obj = elemObj( elemidx );
 				if ( obj )
 				    obj->setSensitive( yn );
 			    }
@@ -240,10 +240,10 @@ class uiSimpleInputFld : public uiInputFld
 {
 public:
 			uiSimpleInputFld( uiGenInput* p, 
-					 const DataInpSpec& spec,
+					 const DataInpSpec& dis,
 					 const char* nm="Line Edit Field" ) 
-			    : uiInputFld( p, spec )
-			    , usrinpobj( *new T(p, spec) ) 
+			    : uiInputFld( p, dis )
+			    , usrinpobj( *new T(p, dis) ) 
 			    {
 				init();
 
@@ -276,10 +276,10 @@ class uiFileInputFld : public uiSimpleInputFld<uiLineEdit>
 {
 public:
 			uiFileInputFld( uiGenInput* p, 
-					 const DataInpSpec& spec,
+					 const DataInpSpec& dis,
 					 const char* nm="File Input Field" ) 
-			    : uiSimpleInputFld<uiLineEdit>( p, spec, nm )
-			    { setText( spec.text() ? spec.text() : "", 0 ); }
+			    : uiSimpleInputFld<uiLineEdit>( p, dis, nm )
+			    { setText( dis.text() ? dis.text() : "", 0 ); }
 
     virtual void	setText( const char* s, int idx )
 			    { 
@@ -293,9 +293,9 @@ class uiBoolInpFld : public uiSimpleInputFld<uiBoolInput>
 {
 public:
 			uiBoolInpFld( uiGenInput* p, 
-					 const DataInpSpec& spec,
+					 const DataInpSpec& dis,
 					 const char* nm="Bool Input Field" ) 
-			    : uiSimpleInputFld<uiBoolInput>( p, spec, nm )
+			    : uiSimpleInputFld<uiBoolInput>( p, dis, nm )
 			    {}
 
     virtual uiObject*	mainObj()	{ return usrinpobj.mainObject(); }
@@ -307,7 +307,7 @@ class uiBinIDInpFld : public uiInputFld
 public:
 
 			uiBinIDInpFld( uiGenInput* p, 
-					 const DataInpSpec& spec,
+					 const DataInpSpec& dis,
 					 const char* nm="BinID Input Field" );
 
     virtual uiObject*	mainObj()	{ return binidGrp.mainObject(); }
@@ -337,13 +337,13 @@ protected:
     virtual void        setvalue_( const char* t,int idx)
 			    { if (idx) crl_y.setText(t); else inl_x.setText(t);}
 
-    virtual bool	update_( const DataInpSpec& spec );
+    virtual bool	update_( const DataInpSpec& dis );
 
 };
 
-uiBinIDInpFld::uiBinIDInpFld( uiGenInput* p, const DataInpSpec& spec,
+uiBinIDInpFld::uiBinIDInpFld( uiGenInput* p, const DataInpSpec& dis,
 			      const char* nm ) 
-    : uiInputFld( p, spec )
+    : uiInputFld( p, dis )
     , binidGrp( *new uiGroup(p,nm) )
     , inl_x( *new uiLineEdit(&binidGrp,0,nm) )
     , crl_y( *new uiLineEdit(&binidGrp,0,nm) )
@@ -351,7 +351,7 @@ uiBinIDInpFld::uiBinIDInpFld( uiGenInput* p, const DataInpSpec& spec,
     , b2c(0)
     , valueChanged(this)
 {
-    mDynamicCastGet(const PositionInpSpec*,spc,&spec)
+    mDynamicCastGet(const PositionInpSpec*,spc,&dis)
     if ( !spc ){ pErrMsg("huh"); return; }
 
     binidGrp.setHAlignObj( &inl_x );
@@ -381,13 +381,13 @@ uiBinIDInpFld::uiBinIDInpFld( uiGenInput* p, const DataInpSpec& spec,
 }
 
 
-bool uiBinIDInpFld::update_( const DataInpSpec& spec )
+bool uiBinIDInpFld::update_( const DataInpSpec& dis )
 {
-    mDynamicCastGet(const PositionInpSpec*,spc,&spec)
+    mDynamicCastGet(const PositionInpSpec*,spc,&dis)
     if ( !spc ){ pErrMsg("huh"); return false; }
 
-    inl_x.setText( spec.text(0) );
-    crl_y.setText( spec.text(1) );
+    inl_x.setText( dis.text(0) );
+    crl_y.setText( dis.text(1) );
 
     return true;
 }
@@ -407,7 +407,7 @@ class uiIntervalInpFld : public uiInputFld
 public:
 
 			uiIntervalInpFld( uiGenInput* p, 
-					 const DataInpSpec& spec,
+					 const DataInpSpec& dis,
 					 const char* nm="Interval Input Field");
 
     virtual int		nElems() const		{ return step ? 3 : 2; }
@@ -452,15 +452,15 @@ protected:
 };
 
 template<class T>
-uiIntervalInpFld<T>::uiIntervalInpFld(uiGenInput* p, const DataInpSpec& spec,
+uiIntervalInpFld<T>::uiIntervalInpFld(uiGenInput* p, const DataInpSpec& dis,
 				    const char* nm) 
-    : uiInputFld( p, spec )
+    : uiInputFld( p, dis )
     , intvalGrp( *new uiGroup(p,nm) ) 
     , start( *new uiLineEdit(&intvalGrp,0,nm) )
     , stop( *new uiLineEdit(&intvalGrp,0,nm) )
     , step( 0 )
 {
-    mDynamicCastGet(const NumInpIntervalSpec<T>*,spc,&spec)
+    mDynamicCastGet(const NumInpIntervalSpec<T>*,spc,&dis)
     if (!spc) { pErrMsg("Huh"); return; }
 
     start.notifyValueChanging( mCB(this,uiInputFld,valChangingNotify) );
@@ -496,12 +496,12 @@ uiIntervalInpFld<T>::uiIntervalInpFld(uiGenInput* p, const DataInpSpec& spec,
 }
 
 template<class T>
-bool uiIntervalInpFld<T>::update_( const DataInpSpec& spec )
+bool uiIntervalInpFld<T>::update_( const DataInpSpec& dis )
 {
-    start.setText( spec.text(0) );
-    stop.setText( spec.text(1) );
+    start.setText( dis.text(0) );
+    stop.setText( dis.text(1) );
     if ( step  )
-	step->setText( spec.text(2) );
+	step->setText( dis.text(2) );
 
     return true;
 }
@@ -512,9 +512,9 @@ class uiStrLstInpFld : public uiInputFld
 {
 public:
 			uiStrLstInpFld( uiGenInput* p, 
-					 const DataInpSpec& spec,
+					 const DataInpSpec& dis,
 					 const char* nm="uiStrLstInpFld" ) 
-			    : uiInputFld( p, spec )
+			    : uiInputFld( p, dis )
 			    , cbb( *new uiComboBox(p,nm) ) 
 			{
 			    init();
@@ -919,9 +919,9 @@ bool uiGenInput::isUndef( int nr ) const
     int elemidx=0;
     if ( !finalised ) 
     {
-	DataInpSpec* spec = getInputSpecAndIndex(nr, elemidx);
+	DataInpSpec* dis = getInputSpecAndIndex(nr, elemidx);
 
-	return spec ? spec->isUndef(elemidx) : true;
+	return dis ? dis->isUndef(elemidx) : true;
     }
 
     uiInputFld* fld = getInputFldAndIndex( nr, elemidx );

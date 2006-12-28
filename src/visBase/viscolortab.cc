@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Mar 2002
- RCS:           $Id: viscolortab.cc,v 1.31 2006-09-07 10:47:29 cvsnanne Exp $
+ RCS:           $Id: viscolortab.cc,v 1.32 2006-12-28 21:10:33 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -207,9 +207,9 @@ int VisColorTab::usePar( const IOPar& par )
 
     setColorSeq( cs );
 
-    float cliprate_ = 0.025;
-    par.get( sKeyClipRate(), cliprate_ );
-    setClipRate( cliprate_ );
+    float cliprate = 0.025;
+    par.get( sKeyClipRate(), cliprate );
+    setClipRate( cliprate );
 
     bool autoscale = true;
     par.getYN( sKeyAutoScale(), autoscale );

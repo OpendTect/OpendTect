@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvmap.cc,v 1.6 2006-09-07 15:44:24 cvskris Exp $
+ RCS:           $Id: uisurvmap.cc,v 1.7 2006-12-28 21:10:33 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,10 +36,9 @@ void uiSurveyMap::drawMap( const SurveyInfo* survinfo )
 
     dt.setPenColor( Color::Black );
     dt.setFont( uiFontList::get(FontData::key(FontData::GraphicsLarge)) ); 
-    Alignment al = Alignment(Alignment::Middle,Alignment::Stop);
     const char* txt = survinfo->name();
     int w = dt.getDevWidth(); int h = dt.getDevHeight();
-    dt.drawText( w/2, h/20, txt, al );
+    dt.drawText( w/2, h/20, txt, Alignment(Alignment::Middle,Alignment::Stop) );
 
     const CubeSampling& cs = survinfo->sampling( false );
     Coord mapcnr[4];

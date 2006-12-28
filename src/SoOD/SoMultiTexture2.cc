@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2005
- RCS:           $Id: SoMultiTexture2.cc,v 1.18 2006-12-14 23:07:59 cvskris Exp $
+ RCS:           $Id: SoMultiTexture2.cc,v 1.19 2006-12-28 21:10:33 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -186,8 +186,8 @@ void SoMultiTextureProcessor::process( const SoMultiTexture2& mt,
 	    if ( nrthreads>1 )
 	    {
 		threadmutex_.lock();
-		for ( int idx=nrthreads-1; idx>=0; idx-- )
-		    startthread_[idx]=true;
+		for ( int thridx=nrthreads-1; thridx>=0; thridx-- )
+		    startthread_[thridx]=true;
 
 		threadfinishcount_ = nrthreads;
 

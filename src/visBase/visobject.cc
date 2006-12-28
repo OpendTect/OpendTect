@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visobject.cc,v 1.40 2006-07-28 21:54:34 cvskris Exp $";
+static const char* rcsID = "$Id: visobject.cc,v 1.41 2006-12-28 21:10:33 cvsnanne Exp $";
 
 #include "visobject.h"
 
@@ -26,8 +26,8 @@ const char* VisualObjectImpl::sKeyMaterialID()	{ return "Material ID"; }
 const char* VisualObjectImpl::sKeyIsOn()	{ return "Is on"; }
 
 
-VisualObject::VisualObject( bool selectable )
-    : isselectable(selectable)
+VisualObject::VisualObject( bool issel )
+    : isselectable(issel)
     , deselnotifier(this)
     , selnotifier(this)
     , rightClick(this)
@@ -39,8 +39,8 @@ VisualObject::~VisualObject()
 {}
 
 
-VisualObjectImpl::VisualObjectImpl( bool selectable )
-    : VisualObject(selectable)
+VisualObjectImpl::VisualObjectImpl( bool issel )
+    : VisualObject(issel)
     , root(new SoSeparator)
     , onoff(new SoSwitch)
     , material(0)

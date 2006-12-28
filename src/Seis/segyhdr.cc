@@ -5,7 +5,7 @@
  * FUNCTION : Seg-Y headers
 -*/
 
-static const char* rcsID = "$Id: segyhdr.cc,v 1.40 2006-11-21 14:00:07 cvsbert Exp $";
+static const char* rcsID = "$Id: segyhdr.cc,v 1.41 2006-12-28 21:10:33 cvsnanne Exp $";
 
 
 #include "segyhdr.h"
@@ -104,9 +104,9 @@ void SegyTxtHeader::setEbcdic()
 { if ( txt[0] == 'C' ) Ascii2Ebcdic( txt, SegyTxtHeaderLength ); }
 
 
-void SegyTxtHeader::setUserInfo( const char* txt )
+void SegyTxtHeader::setUserInfo( const char* infotxt )
 {
-    if ( !txt || !*txt ) return;
+    if ( !infotxt || !*infotxt ) return;
 
     FileNameString buf;
     int lnr = 16;
@@ -114,14 +114,14 @@ void SegyTxtHeader::setUserInfo( const char* txt )
     {
 	char* ptr = buf.buf();
 	int idx = 0;
-	while ( *txt && *txt != '\n' && ++idx < 75 )
-	    *ptr++ = *txt++;
+	while ( *infotxt && *infotxt != '\n' && ++idx < 75 )
+	    *ptr++ = *infotxt++;
 	*ptr = '\0';
 	putAt( lnr, 5, 80, buf );
 
-	if ( !*txt ) break;
+	if ( !*infotxt ) break;
 	lnr++;
-	txt++;
+	infotxt++;
     }
 }
 

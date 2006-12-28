@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uiwizard.cc,v 1.10 2005-10-19 16:37:38 cvskris Exp $
+ RCS:           $Id: uiwizard.cc,v 1.11 2006-12-28 21:10:33 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,12 +33,12 @@ void uiWizard::doFinalise( CallBacker* )
 }
 
 
-int uiWizard::addPage( uiGroup* page, bool display )
+int uiWizard::addPage( uiGroup* page, bool disp )
 {
     if ( !page ) return -1;
 
     pages += page;
-    dodisplay += display;
+    dodisplay += disp;
     return pages.size()-1;
 }
 

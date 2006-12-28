@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          November 2006
- RCS:           $Id: uidlggroup.cc,v 1.1 2006-11-21 20:21:47 cvskris Exp $
+ RCS:           $Id: uidlggroup.cc,v 1.2 2006-12-28 21:10:33 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,8 +14,8 @@ ________________________________________________________________________
 #include "uimsg.h"
 #include "uitabstack.h"
 
-uiTabStackDlg::uiTabStackDlg( uiParent* p, const uiDialog::Setup& setup )
-    : uiDialog( p, setup )
+uiTabStackDlg::uiTabStackDlg( uiParent* p, const uiDialog::Setup& dlgsetup )
+    : uiDialog( p, dlgsetup )
     , canrevert_( true )
 {
     tabstack_ = new uiTabStack( this, "TabStack" );
