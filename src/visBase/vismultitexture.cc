@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vismultitexture.cc,v 1.22 2006-12-06 17:31:40 cvskris Exp $";
+static const char* rcsID = "$Id: vismultitexture.cc,v 1.23 2006-12-28 16:41:42 cvskris Exp $";
 
 #include "vismultitexture2.h"
 
@@ -105,6 +105,7 @@ public:
 
     void			setColorTab( VisColorTab& ct);
     VisColorTab&		getColorTab();
+    const VisColorTab&		getColorTab() const;
 
     void			clipData(int version);
     void			createIndexes(int version);
@@ -341,6 +342,10 @@ void TextureInfo::setColorTab( int version, VisColorTab& ct )
 
 VisColorTab& TextureInfo::getColorTab()
 { return *versioncoltab_[currentversion_]; }
+
+
+const VisColorTab& TextureInfo::getColorTab() const
+{ return *versioncoltab_[currentversion_]; } 
 
 
 void TextureInfo::clipData( int version )
@@ -607,6 +612,15 @@ void MultiTexture::setColorTab( int idx, VisColorTab& ct )
 
 
 VisColorTab& MultiTexture::getColorTab( int idx )
+{
+    if ( idx<0 || idx>=textureinfo_.size() )
+	pErrMsg("Index out of bounds");
+
+    return textureinfo_[idx]->getColorTab();
+}
+
+
+const VisColorTab& MultiTexture::getColorTab( int idx ) const
 {
     if ( idx<0 || idx>=textureinfo_.size() )
 	pErrMsg("Index out of bounds");

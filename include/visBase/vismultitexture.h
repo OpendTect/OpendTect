@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		Dec 2005
- RCS:		$Id: vismultitexture.h,v 1.9 2006-12-18 21:36:47 cvskris Exp $
+ RCS:		$Id: vismultitexture.h,v 1.10 2006-12-28 16:41:39 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -64,6 +64,7 @@ public:
     virtual char		getComponents(int texture) const;
     void			setColorTab(int texture,VisColorTab&);
     VisColorTab&		getColorTab(int texture);
+    const VisColorTab&		getColorTab(int texture) const;
 
     int				nrVersions(int texture) const;
     void			setNrVersions(int texture,int nrvers);
