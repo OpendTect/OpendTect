@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.cc,v 1.65 2006-12-27 14:38:42 cvsnanne Exp $
+ RCS:           $Id: uiodmenumgr.cc,v 1.66 2007-01-02 13:06:42 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -186,8 +186,8 @@ void uiODMenuMgr::fillFileMenu()
     mInsertItem( impmnu, "&Wavelets ...", mImpWvltMnuItm );
 
     uiPopupMenu* impseissgy = new uiPopupMenu( &appl, "&SEG-Y" );
-    mInsertItem( impseissgy, "&3-D ...", mImpSeisSEGY3DMnuItm );
-    mInsertItem( impseissgy, "&2-D ...", mImpSeisSEGY2DMnuItm );
+    mInsertItem( impseissgy, "&3D ...", mImpSeisSEGY3DMnuItm );
+    mInsertItem( impseissgy, "&2D ...", mImpSeisSEGY2DMnuItm );
     if ( GetEnvVarYN("OD_SHOW_PRESTACK_SEGY_IMP") )
 	mInsertItem( impseissgy, "&Pre-Stack ...", mImpSeisSEGYPSMnuItm );
     impseis->insertItem( impseissgy );
@@ -207,8 +207,8 @@ void uiODMenuMgr::fillFileMenu()
     expmnu = new uiPopupMenu( &appl, "&Export" );
     uiPopupMenu* expseis = new uiPopupMenu( &appl, "&Seismics" );
     uiPopupMenu* expseissgy = new uiPopupMenu( &appl, "&SEG-Y" );
-    mInsertItem( expseissgy, "&3-D ...", mExpSeisSEGY3DMnuItm );
-    mInsertItem( expseissgy, "&2-D ...", mExpSeisSEGY2DMnuItm );
+    mInsertItem( expseissgy, "&3D ...", mExpSeisSEGY3DMnuItm );
+    mInsertItem( expseissgy, "&2D ...", mExpSeisSEGY2DMnuItm );
     expseis->insertItem( expseissgy );
     uiPopupMenu* exphor = new uiPopupMenu( &appl, "&Horizons" );
     expmnu->insertItem( expseis );
@@ -247,17 +247,23 @@ void uiODMenuMgr::fillProcMenu()
 {
     if ( SI().getSurvDataType() == SurveyInfo::Both2DAnd3D )
     {
-	uiPopupMenu* attribitm = new uiPopupMenu( &appl, "Attributes ...");
-	mInsertItem( attribitm, "&2D Attributes ...", mEdit2DAttrMnuItm );
-	mInsertItem( attribitm, "&3D Attributes ...", mEdit3DAttrMnuItm );
-	procmnu->insertItem( attribitm );
+	uiPopupMenu* aitm = new uiPopupMenu( &appl, "Attributes" );
+	mInsertItem( aitm, "&2D ...", mEdit2DAttrMnuItm );
+	mInsertItem( aitm, "&3D ...", mEdit3DAttrMnuItm );
+	procmnu->insertItem( aitm );
+	procmnu->insertSeparator();
+	uiPopupMenu* sitm = new uiPopupMenu( &appl, "&Create Seismic output" );
+	mInsertItem( sitm, "&2D ...", mSeisOut2DMnuItm );
+	mInsertItem( sitm, "&3D ...", mSeisOut3DMnuItm );
+	procmnu->insertItem( sitm );
     }
     else
+    {
 	mInsertItem( procmnu, "&Attributes ...", mEditAttrMnuItm );
-    
-    procmnu->insertSeparator();
-    mInsertItem( procmnu, "&Create Seismic output ...", mCreateVolMnuItm );
-    
+	procmnu->insertSeparator();
+	mInsertItem( procmnu, "&Create Seismic output ...", mSeisOutMnuItm );
+    }
+
     uiPopupMenu* horitm = 
 		new uiPopupMenu( &appl, "Create output using &Horizon ...");
     mInsertItem( horitm, "&Horizon grid...", mCreateSurfMnuItm );
@@ -365,26 +371,36 @@ void uiODMenuMgr::fillDtectTB()
     mAddTB(dtecttb,"survey.png","Survey setup",false,manSurvCB);
 
     SurveyInfo::Pol2D survtype = SI().getSurvDataType();
-    if ( survtype == SurveyInfo::Both2DAnd3D || survtype == SurveyInfo::Only2D )
-       mAddTB(dtecttb,"attributes_2d.png","Edit 2D attributes",false,
-	      manAttr2DCB);
-    if ( survtype == SurveyInfo::Both2DAnd3D || survtype == SurveyInfo::No2D )
-       mAddTB(dtecttb,"attributes_3d.png","Edit 3D attributes",
-	       false,manAttr3DCB);
-    
-    if ( survtype == SurveyInfo::Both2DAnd3D || survtype == SurveyInfo::Only2D )
-	mAddTB(dtecttb,"out_2dlines.png","Create 2D seismic output",
-	       false,outLinesCB);
-    if ( survtype == SurveyInfo::Both2DAnd3D || survtype == SurveyInfo::No2D )
-	mAddTB(dtecttb,"out_vol.png","Create 3D seismic output",false,outVolCB);
+    if ( survtype == SurveyInfo::Only2D )
+    {
+	mAddTB(dtecttb,"attributes.png","Edit attributes",false,editAttr2DCB);
+	mAddTB(dtecttb,"out_2dlines.png","Create seismic output",
+	       false,seisOut2DCB);
+    }
+    else if ( survtype == SurveyInfo::No2D )
+    {
+	mAddTB(dtecttb,"attributes.png","Edit attributes",false,editAttr3DCB);
+	mAddTB(dtecttb,"out_vol.png","Create seismic output",false,seisOut3DCB);
+    }
+    else
+    {
+	mAddTB(dtecttb,"attributes_2d.png","Edit 2D attributes",false,
+	       editAttr2DCB);
+	mAddTB(dtecttb,"attributes_3d.png","Edit 3D attributes",false,
+	       editAttr3DCB);
+	mAddTB(dtecttb,"out_2dlines.png","Create 2D seismic output",false,
+	       seisOut2DCB);
+	mAddTB(dtecttb,"out_vol.png","Create 3D seismic output",false,
+	       seisOut3DCB);
+    }
 
     dTectTBChanged.trigger();
 }
 
+
 #undef mAddTB
 #define mAddTB(tb,fnm,txt,togg,fn) \
     tb->addButton( fnm , mCB(this,uiODMenuMgr,fn), txt, togg )
-
 
 void uiODMenuMgr::fillManTB()
 {
@@ -481,7 +497,9 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mEditAttrMnuItm: 	applMgr().editAttribSet(); break;
     case mEdit2DAttrMnuItm: 	applMgr().editAttribSet(true); break;
     case mEdit3DAttrMnuItm: 	applMgr().editAttribSet(false); break;
-    case mCreateVolMnuItm: 	applMgr().createVol(false); break;
+    case mSeisOutMnuItm:	applMgr().createVol( SI().has2D() ); break;
+    case mSeisOut2DMnuItm: 	applMgr().createVol(true); break;
+    case mSeisOut3DMnuItm: 	applMgr().createVol(false); break;
     case mCreateSurfMnuItm: 	applMgr().createHorOutput(0); break;
     case mCompAlongHorMnuItm: 	applMgr().createHorOutput(1); break;
     case mCompBetweenHorMnuItm:	applMgr().createHorOutput(2); break;
