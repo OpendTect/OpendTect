@@ -4,7 +4,7 @@
  * DATE     : 3-8-1994
 -*/
 
-static const char* rcsID = "$Id: ioman.cc,v 1.74 2006-12-20 11:23:00 cvshelene Exp $";
+static const char* rcsID = "$Id: ioman.cc,v 1.75 2007-01-02 09:05:14 cvsnanne Exp $";
 
 #include "ioman.h"
 #include "iodir.h"
@@ -75,24 +75,27 @@ void IOMan::init()
 	    if ( needsurvtype && stdseltyp == IOObjContext::Seis )
 	    {
 		IODir seisiodir( dirioobj->key() );
-		bool have2d = false, have3d=false;
+		bool has2d = false, has3d = false;
 		const BufferString seisstr( "Seismic Data" );
 		const BufferString tr2dstr( "2D" );
+		const BufferString trsegystr( "SEG-Y" );
 		for ( int iobj=0; iobj<seisiodir.size(); iobj++ )
 		{
 		    const IOObj& subioobj = *seisiodir[iobj];
-		    if ( seisstr != subioobj.group() ) continue;
-		    bool is2d = tr2dstr == subioobj.translator();
-		    if ( is2d ) have2d = true;
-		    else	have3d = true;
-		    if ( have2d && have3d ) break;
+		    if ( seisstr != subioobj.group() ||
+			 trsegystr == subioobj.translator() ) continue;
+
+		    const bool is2d = tr2dstr == subioobj.translator();
+		    if ( is2d ) has2d = true;
+		    else	has3d = true;
+		    if ( has2d && has3d ) break;
 		}
 		SurveyInfo& si( const_cast<SurveyInfo&>(SI()) );
 		si.survdatatypeknown_ = true;
-		si.survdatatype_ = !have2d ? SurveyInfo::No2D 
+		si.survdatatype_ = !has2d ? SurveyInfo::No2D 
 		    				// thus also if nothing found
-		    		 : (have3d ? SurveyInfo::Both2DAnd3D
-					   : SurveyInfo::Only2D);
+		    		 : (has3d ? SurveyInfo::Both2DAnd3D
+					  : SurveyInfo::Only2D);
 		si.write();
 	    }
 
