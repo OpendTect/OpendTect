@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.196 2006-08-16 10:51:20 cvsbert Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.197 2007-01-02 11:17:28 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -187,14 +187,38 @@ void uiODTreeItem::handleStandardItems( int mnuid )
 }
 
 
-void uiODTreeTop::addFactoryCB(CallBacker* cb)
+void uiODTreeTop::addFactoryCB( CallBacker* cb )
 {
-    mCBCapsuleUnpack(int,idx,cb);
-    addChild( tfs->getFactory(idx)->create(), false );
+    mCBCapsuleUnpack(int,factidx,cb);
+    const int newplaceidx = tfs->getPlacementIdx( factidx );
+    uiTreeItem* itmbefore = 0;
+    int maxidx = -1;
+    for ( int idx=0; idx<tfs->nrFactories(); idx++ )
+    {
+	const int curidx = tfs->getPlacementIdx( idx );
+	if ( curidx>newplaceidx || curidx<maxidx || curidx==newplaceidx )
+	    continue;
+
+	maxidx = curidx;
+    }
+    for ( int idx=0; idx<tfs->nrFactories(); idx++ )
+    {
+	if ( tfs->getPlacementIdx(idx) != maxidx )
+	    continue;
+
+	PtrMan<uiTreeItem> itm = tfs->getFactory(idx)->create();
+	itmbefore = findChild( itm->name() );
+	break;
+    }
+
+    uiTreeItem* newitm = tfs->getFactory(factidx)->create();
+    addChild( newitm, false );
+    if ( itmbefore )
+	newitm->moveItem( itmbefore );
 }
 
 
-void uiODTreeTop::removeFactoryCB(CallBacker* cb)
+void uiODTreeTop::removeFactoryCB( CallBacker* cb )
 {
     mCBCapsuleUnpack(int,idx,cb);
     PtrMan<uiTreeItem> dummy = tfs->getFactory(idx)->create();
