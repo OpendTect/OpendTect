@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.75 2006-12-28 21:04:31 cvsnanne Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.76 2007-01-03 18:29:06 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,6 +43,7 @@ ________________________________________________________________________
 #include "uiodplanedatatreeitem.h"
 #include "uiodemsurftreeitem.h"
 #include "uiodrandlinetreeitem.h"
+#include "uiodvolrentreeitem.h"
 #include "uiodwelltreeitem.h"
 
 #define mPosField	0
@@ -75,6 +76,7 @@ uiODSceneMgr::uiODSceneMgr( uiODMain* a )
     tifs_->addFactory( new uiODInlineTreeItemFactory, 1000 );
     tifs_->addFactory( new uiODCrosslineTreeItemFactory, 2000 );
     tifs_->addFactory( new uiODTimesliceTreeItemFactory, 3000 );
+    tifs_->addFactory( new uiODVolrenTreeItemFactory, 3500 );
     tifs_->addFactory( new uiODRandomLineTreeItemFactory, 4000 );
     tifs_->addFactory( new uiODPickSetTreeItemFactory, 5000 );
     tifs_->addFactory( new uiODHorizonTreeItemFactory, 6000);
