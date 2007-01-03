@@ -7,15 +7,16 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2006
- RCS:           $Id: uitblimpexpdatasel.h,v 1.4 2006-12-22 10:53:26 cvsbert Exp $
+ RCS:           $Id: uitblimpexpdatasel.h,v 1.5 2007-01-03 17:50:54 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uigroup.h"
+#include "multiid.h"
 class uiGenInput;
-class uiTableImpDataSelElem;
-namespace Table { class TargetInfo; class FormatDesc; }
+class uiTableFmtDescFldsParSel;
+namespace Table { class FormatDesc; }
 
 /*!\brief Table-based data import selection
 
@@ -32,26 +33,23 @@ namespace Table { class TargetInfo; class FormatDesc; }
 class uiTableImpDataSel : public uiGroup
 {
 public:
+
     				uiTableImpDataSel(uiParent*,Table::FormatDesc&);
 
+    Table::FormatDesc&		desc()		{ return fd_; }
+    MultiID&			storID()	{ return storid_; }
+
     bool			commit();
-    const char*			errMsg() const		{ return errmsg_; }
 
 protected:
 
     Table::FormatDesc&		fd_;
-    uiGenInput*			hdrendfld;
-    ObjectSet<uiTableImpDataSelElem> hdrelems_;
-    ObjectSet<uiTableImpDataSelElem> bodyelems_;
-    const char*			errmsg_;
+    MultiID			storid_;
 
-    uiGroup*			mkElemFlds(uiGroup*,
-	    				   ObjectSet<Table::TargetInfo>&,
-	    				   ObjectSet<uiTableImpDataSelElem>&,
-					   bool);
-    void			openFmt(CallBacker*);
-    void			saveFmt(CallBacker*);
-    void			handleUnits(CallBacker*);
+    uiGenInput*			hdrtypefld_;
+    uiGenInput*			hdrlinesfld_;
+    uiGenInput*			hdrtokfld_;
+    uiTableFmtDescFldsParSel*	fmtdeffld;
 
 };
 

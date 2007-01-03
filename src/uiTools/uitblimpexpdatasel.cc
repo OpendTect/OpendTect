@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2006
- RCS:           $Id: uitblimpexpdatasel.cc,v 1.15 2006-12-22 12:33:09 cvsbert Exp $
+ RCS:           $Id: uitblimpexpdatasel.cc,v 1.16 2007-01-03 17:50:55 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,62 +18,68 @@ ________________________________________________________________________
 #include "uiseparator.h"
 #include "uibuttongroup.h"
 #include "uidialog.h"
+#include "uicompoundparsel.h"
 #include "uimsg.h"
 #include "pixmap.h"
+#include "ioman.h"
 #include "tabledef.h"
 
+#define mChoiceBoxWidth 10
 
-class uiTableImpDataSelElem : public uiGroup
+
+class uiTableTargetInfoEd : public uiGroup
 {
 public:
 
-uiTableImpDataSelElem( uiParent* p, Table::TargetInfo& tinf, bool ishdr )
+uiTableTargetInfoEd( uiParent* p, Table::TargetInfo& tinf, bool ishdr )
     : uiGroup(p,tinf.name())
     , tinf_(tinf)
-    , formfld(0)
-    , specfld(0)
+    , formfld_(0)
+    , specfld_(0)
     , ishdr_(ishdr)
 {
     if ( tinf_.nrForms() < 1 )
 	return;
 
-    uiComboBox* leftmostcb = 0;
-    const CallBack boxcb( mCB(this,uiTableImpDataSelElem,boxChg) );
+    const CallBack boxcb( mCB(this,uiTableTargetInfoEd,boxChg) );
     if ( tinf_.nrForms() > 1 )
     {
-	leftmostcb = formfld = new uiComboBox( this, "Form choice" );
-	formfld->selectionChanged.notify( boxcb );
+	formfld_ = new uiComboBox( this, "Form choice" );
+	formfld_->selectionChanged.notify( boxcb );
     }
 
     if ( ishdr_ )
     {
-	leftmostcb = specfld = new uiComboBox( this, "Specify/read" );
-	specfld->addItem( "provide" ); specfld->addItem( "read" );
-	specfld->setPrefWidthInChar( 9 );
-	if ( formfld )
-	    specfld->attach( rightOf, formfld );
-	specfld->selectionChanged.notify( boxcb );
-	specfld->setCurrentItem( tinf_.selection_.havePos(0) ? 1 : 0 );
+	specfld_ = new uiComboBox( choicegrp_, "Specify/read" );
+	specfld_->addItem( "provide" ); specfld_->addItem( "read" );
+	specfld_->setPrefWidthInChar( mChoiceBoxWidth );
+	specfld_->selectionChanged.notify( boxcb );
+	specfld_->setCurrentItem( tinf_.selection_.havePos(0) ? 1 : 0 );
     }
 
     uiLabel* lbl = new uiLabel( this, tinf_.name() );
-    if ( leftmostcb )
-    {
-	lbl->attach( rightOf, leftmostcb );
-	if ( formfld && leftmostcb != formfld )
-	    formfld->attach( rightOf, lbl );
-    }
-    rightmostleftfld_ = formfld ? (uiObject*)formfld : (uiObject*)lbl;
+    if ( formfld_ )
+	lbl->attach( rightOf, formfld_ );
+    rightmostleftfld_ = formfld_ ? (uiObject*)formfld_ : (uiObject*)lbl;
 
     for ( int iform=0; iform<tinf_.nrForms(); iform++ )
     {
 	const Table::TargetInfo::Form& form = tinf_.form( iform );
-	if ( formfld )
-	    formfld->addItem( form.name() );
+	if ( formfld_ )
+	    formfld_->addItem( form.name() );
 	mkColFlds( iform );
     }
 
     mainObject()->finaliseDone.notify( boxcb );
+}
+
+void doAttach( uiTableTargetInfoEd* prev )
+{
+    if ( !prev ) return;
+
+    attach( alignedBelow, prev );
+    if ( specfld_ )
+	specfld_->attach( alignedBelow, prev->specfld_ );
 }
 
 void mkColFlds( int iform )
@@ -157,10 +163,10 @@ void addInp( int iform, int ifld )
 
 void boxChg( CallBacker* )
 {
-    if ( !formfld && !specfld ) return;
+    if ( !formfld_ && !specfld_ ) return;
 
-    const int selformidx = formfld ? formfld->currentItem() : 0;
-    const bool isspec = specfld && specfld->currentItem() == 0;
+    const int selformidx = formfld_ ? formfld_->currentItem() : 0;
+    const bool isspec = specfld_ && specfld_->currentItem() == 0;
 
     for ( int iform=0; iform<tinf_.nrForms(); iform++ )
     {
@@ -185,8 +191,8 @@ void boxChg( CallBacker* )
 
 bool commit()
 {
-    const int formnr = formfld ? formfld->currentItem() : 0;
-    const bool doread = !specfld || specfld->currentItem() == 1;
+    const int formnr = formfld_ ? formfld_->currentItem() : 0;
+    const bool doread = !specfld_ || specfld_->currentItem() == 1;
     if ( !doread && !tinf_.isOptional() )
     {
 	ObjectSet<uiGenInput>& colinps = *inps_[formnr];
@@ -239,13 +245,14 @@ bool commit()
     bool				ishdr_;
     BufferString			errmsg_;
 
-    uiComboBox*				formfld;
-    uiComboBox*				specfld;
+    uiComboBox*				formfld_;
+    uiComboBox*				specfld_;
     ObjectSet< ObjectSet<uiSpinBox> >	colboxes_;
     ObjectSet< ObjectSet<uiSpinBox> >	rowboxes_;
     ObjectSet< ObjectSet<uiGenInput> >	inps_;
     uiObject*				rightmostleftfld_;
 
+    static uiGroup*			choicegrp_;
     static int				defrow_;
     static int				defcol_;
     static void				initDefs()
@@ -253,78 +260,109 @@ bool commit()
 
 };
 
-int uiTableImpDataSelElem::defrow_ = 1;
-int uiTableImpDataSelElem::defcol_ = 1;
+int uiTableTargetInfoEd::defrow_ = 1;
+int uiTableTargetInfoEd::defcol_ = 1;
+uiGroup* uiTableTargetInfoEd::choicegrp_ = 0;
 
 
-uiTableImpDataSel::uiTableImpDataSel( uiParent* p, Table::FormatDesc& fd )
-	: uiGroup(p,fd.name())
-	, fd_(fd)
-	, errmsg_(0)
+class uiTableFormatDescFldsEd : public uiDialog
 {
-    uiGroup* leftgrp = new uiGroup( this, "Left group" );
-    uiGroup* hfldsgrp = mkElemFlds( leftgrp, fd_.headerinfos_, hdrelems_, true);
+public:
 
-    // No support for setting tokencol_ (yet?) ...
-    BufferString valstr( fd_.token_ );
-    if ( valstr.isEmpty() ) valstr = "0";
-    if ( fd_.nrhdrlines_ > 0 ) valstr = fd_.nrhdrlines_;
-    hdrendfld = new uiGenInput( leftgrp,
-		    "Header stops after (nr lines, or token)", valstr );
-    if ( hfldsgrp )
-	hdrendfld->attach( alignedBelow, hfldsgrp );
+    				uiTableFormatDescFldsEd(uiTableImpDataSel*);
 
-    uiGroup* bfldsgrp = mkElemFlds( leftgrp, fd_.bodyinfos_, bodyelems_, false);
-    if ( bfldsgrp )
-	bfldsgrp->attach( alignedBelow, hdrendfld );
+    Table::FormatDesc&		desc()		{ return fd_; }
 
-    setHAlignObj( hdrendfld );
+protected:
+
+    uiTableImpDataSel&		ds_;
+    Table::FormatDesc&		fd_;
+
+    uiGroup*			hdrinpgrp_;
+    uiGroup*			bodyinpgrp_;
+    uiGroup*			elemgrp_;
+    ObjectSet<uiTableTargetInfoEd> hdrelems_;
+    ObjectSet<uiTableTargetInfoEd> bodyelems_;
+
+    void			mkElemFlds(bool);
+    void			openFmt(CallBacker*);
+    void			saveFmt(CallBacker*);
+    void			handleUnits(CallBacker*);
+
+    bool			acceptOK(CallBacker*);
+};
+
+
+
+
+uiTableFormatDescFldsEd::uiTableFormatDescFldsEd( uiTableImpDataSel* ds )
+	: uiDialog(ds,uiDialog::Setup("Format definition","Specify format",
+		    		     "0.0.0"))
+	, ds_(*ds)
+	, fd_(ds->desc())
+	, hdrinpgrp_(0)
+	, bodyinpgrp_(0)
+{
+    elemgrp_ = new uiGroup( this, "Elem group" );
+    mkElemFlds( true );
+    mkElemFlds( false );
+    if ( hdrinpgrp_ )
+	bodyinpgrp_->attach( alignedBelow, hdrinpgrp_ );
 
     uiSeparator* sep = new uiSeparator( this, "V sep", false );
-    sep->attach( stretchedRightTo, leftgrp );
+    sep->attach( stretchedRightTo, elemgrp_ );
 
-    uiButtonGroup* fmtiogrp = new uiButtonGroup( this, "" );
+    uiGroup* utilsgrp = new uiGroup( this, "Utils group" );
+    uiButtonGroup* fmtiogrp = new uiButtonGroup( utilsgrp, "" );
     uiToolButton* button = new uiToolButton( fmtiogrp, "Open button",
 	    			ioPixmap("openset.png"),
-				mCB(this,uiTableImpDataSel,openFmt) );
+				mCB(this,uiTableFormatDescFldsEd,openFmt) );
     button->setToolTip( "Open existing format" );
     button = new uiToolButton( fmtiogrp, "Save button",
 	    			ioPixmap("saveset.png"),
-				mCB(this,uiTableImpDataSel,saveFmt) );
+				mCB(this,uiTableFormatDescFldsEd,saveFmt) );
     button->setToolTip( "Save format" );
-    fmtiogrp->attach( rightTo, leftgrp );
-    fmtiogrp->attach( ensureRightOf, sep );
 
-    uiButtonGroup* unitsgrp = new uiButtonGroup( this, "" );
+    uiButtonGroup* unitsgrp = new uiButtonGroup( utilsgrp, "" );
     button = new uiToolButton( unitsgrp, "Units button",
 	    			ioPixmap("unitsofmeasure.png"),
-				mCB(this,uiTableImpDataSel,handleUnits) );
+				mCB(this,uiTableFormatDescFldsEd,handleUnits) );
     button->setToolTip( "Specify units of measure" );
     unitsgrp->attach( alignedBelow, fmtiogrp );
+
+    utilsgrp->attach( ensureRightOf, sep );
 }
 
 
-uiGroup* uiTableImpDataSel::mkElemFlds( uiGroup* par,
-					ObjectSet<Table::TargetInfo>& infos,
-					ObjectSet<uiTableImpDataSelElem>& elms,
-					bool ishdr )
+void uiTableFormatDescFldsEd::mkElemFlds( bool ishdr )
 {
-    if ( infos.size() < 1 )
-	return 0;
+    ObjectSet<Table::TargetInfo>& infos = ishdr ? fd_.headerinfos_
+						: fd_.bodyinfos_;
+    if ( infos.size() < 1 ) return;
+    
+    ObjectSet<uiTableTargetInfoEd>& elms = ishdr ? hdrelems_ : bodyelems_;
 
-    uiTableImpDataSelElem::initDefs();
-    uiGroup* grp = new uiGroup( par, ishdr ? "Header fields" : "Body fields" );
+    uiTableTargetInfoEd::initDefs();
+    uiGroup* grp;
+    if ( !ishdr )
+	grp = bodyinpgrp_ = new uiGroup( elemgrp_, "Body input group" );
+    else
+    {
+	grp = hdrinpgrp_ = new uiGroup( elemgrp_, "Header input group" );
+	uiTableTargetInfoEd::choicegrp_ = new uiGroup( this, "Choice group" );
+	elemgrp_->attach( rightOf, uiTableTargetInfoEd::choicegrp_ );
+    }
+
     for ( int idx=0; idx<infos.size(); idx++ )
     {
-	Table::TargetInfo& tinf = *infos[idx];
-	uiTableImpDataSelElem* elem = new uiTableImpDataSelElem(grp,tinf,ishdr);
+	uiTableTargetInfoEd* elem = new uiTableTargetInfoEd( grp,
+							*infos[idx], ishdr );
 	elms += elem;
 	if ( idx )
-	    elem->attach( alignedBelow, elms[idx-1] );
+	    elem->doAttach( elms[idx-1] );
 	else
 	    grp->setHAlignObj( elem );
     }
-    return grp;
 }
 
 
@@ -333,39 +371,27 @@ uiGroup* uiTableImpDataSel::mkElemFlds( uiGroup* par,
     { \
 	if ( !elms[idx]->commit() ) \
 	{ \
-	    errmsg_ = elms[idx]->errmsg_.buf(); \
+	    uiMSG().error( elms[idx]->errmsg_ ); \
 	    return false; \
 	} \
     }
 
-bool uiTableImpDataSel::commit()
+bool uiTableFormatDescFldsEd::acceptOK( CallBacker* )
 {
     mDoCommit(hdrelems_)
     mDoCommit(bodyelems_)
-
-    BufferString txt = hdrendfld->text();
-    if ( txt.isEmpty() )
-	fd_.nrhdrlines_ = 0;
-    else if ( isNumberString(txt.buf(),YES) )
-	fd_.nrhdrlines_ = atoi( txt.buf() );
-    else
-    {
-	fd_.nrhdrlines_ = -1;
-	fd_.token_ = txt;
-    }
-
     return true;
 }
 
 
-void uiTableImpDataSel::openFmt( CallBacker* )
+void uiTableFormatDescFldsEd::openFmt( CallBacker* )
 {
     uiMSG().error( "The ability to retrieve pre- or user-defined formats\n"
 	           "is under construction" );
 }
 
 
-void uiTableImpDataSel::saveFmt( CallBacker* )
+void uiTableFormatDescFldsEd::saveFmt( CallBacker* )
 {
     uiMSG().error( "The ability to save user-defined formats\n"
 	           "is under construction" );
@@ -388,8 +414,96 @@ uiTableImpDataSelUnits( uiParent* p, Table::FormatDesc& fd )
 };
 
 
-void uiTableImpDataSel::handleUnits( CallBacker* )
+void uiTableFormatDescFldsEd::handleUnits( CallBacker* )
 {
     uiTableImpDataSelUnits dlg( this, fd_ );
     dlg.go();
+}
+
+
+class uiTableFmtDescFldsParSel : public uiCompoundParSel
+{
+public:
+
+uiTableFmtDescFldsParSel( uiTableImpDataSel* p )
+    : uiCompoundParSel( p, "Format definition", "Define" )
+    , impsel_(*p)
+{
+    butPush.notify( mCB(this,uiTableFmtDescFldsParSel,doDlg) );
+}
+
+BufferString getSummary() const
+{
+    BufferString ret;
+    if ( !impsel_.desc().isGood() )
+	ret = "<Not defined>";
+    else if ( !impsel_.storID().isEmpty() )
+	ret = IOM().nameOf( impsel_.storID() );
+    else
+	ret = "<Defined>";
+    return ret;
+}
+
+void doDlg( CallBacker* )
+{
+    uiTableFormatDescFldsEd dlg( &impsel_ );
+    dlg.go();
+}
+
+    uiTableImpDataSel&	impsel_;
+
+};
+
+
+uiTableImpDataSel::uiTableImpDataSel( uiParent* p, Table::FormatDesc& fd )
+	: uiGroup(p,fd.name())
+	, fd_(fd)
+{
+    static const char* hdrtyps[] = { "No header", "Fixed size", "Variable", 0 };
+    hdrtypefld_ = new uiGenInput( this, "File header",
+	    			  StringListInpSpec(hdrtyps) );
+    hdrlinesfld_ = new uiGenInput( this, "Header size (number of lines)",
+	    			   IntInpSpec(fd_.nrHdrLines()) );
+    hdrlinesfld_->attach( alignedBelow, hdrtypefld_ );
+    hdrtokfld_ = new uiGenInput( this, "End-of-header 'word'",
+	    			 StringInpSpec(fd_.token_) );
+    hdrtokfld_->attach( alignedBelow, hdrtypefld_ );
+
+    fmtdeffld = new uiTableFmtDescFldsParSel( this );
+    fmtdeffld->attach( alignedBelow, hdrlinesfld_ );
+    setHAlignObj( hdrtypefld_ );
+}
+
+
+bool uiTableImpDataSel::commit()
+{
+    const int htyp = hdrtypefld_->getIntValue();
+    if ( htyp == 0 )
+	fd_.nrhdrlines_ = 0;
+    else if ( htyp == 1 )
+	fd_.nrhdrlines_ = hdrlinesfld_->getIntValue();
+    else
+    {
+	BufferString tok = hdrtokfld_->text();
+	if ( tok.isEmpty() )
+	{
+	    uiMSG().error( "Please enter the string marking the end-of-header");
+	    return false;
+	}
+	if ( strchr( tok.buf(), ' ' ) )
+	{
+	    uiMSG().error( "The end-of-header 'word' cannot contain spaces");
+	    return false;
+	}
+	fd_.nrhdrlines_ = -1;
+	fd_.token_ = tok;
+    }
+
+    if ( !fd_.isGood() )
+    {
+	uiMSG().error( "The format definition is incomplete");
+	return false;
+    }
+
+    return true;
 }
