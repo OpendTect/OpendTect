@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Payraudeau
  Date:          February  2006
- RCS:           $Id: uifingerprintattrib.cc,v 1.28 2006-12-28 21:10:33 cvsnanne Exp $
+ RCS:           $Id: uifingerprintattrib.cc,v 1.29 2007-01-03 09:32:02 cvshelene Exp $
 
 ________________________________________________________________________
 
@@ -205,7 +205,7 @@ void uiFingerPrintAttrib::initTable( int nrrows )
     attribflds_.erase(); 
     for ( int idx=0; idx<nrrows; idx++ )
     {
-	uiAttrSel* attrbox = new uiAttrSel( 0, 0, "" );
+	uiAttrSel* attrbox = new uiAttrSel( 0, 0, is2d_, "" );
 	attribflds_ += attrbox;
 	table_->setCellObject( RowCol(idx,0), attrbox->attachObj() );
     }
@@ -215,7 +215,7 @@ void uiFingerPrintAttrib::initTable( int nrrows )
 void uiFingerPrintAttrib::insertRowCB( CallBacker* cb )
 {
     const int newrow = table_->newCell().row;
-    uiAttrSel* attrbox = new uiAttrSel( 0, 0, "" );
+    uiAttrSel* attrbox = new uiAttrSel( 0, 0, is2d_, "" );
     attrbox->setDescSet( ads_ );
     attribflds_.insertAt( attrbox, newrow );
     table_->setCellObject( RowCol(newrow,0), attrbox->attachObj() );
@@ -536,8 +536,9 @@ BinIDValueSet* uiFingerPrintAttrib::createValuesBinIDSet(
 	BufferStringSet ioobjids;
 	ioobjids.add( ioobj->key() );
 	PickSetTranslator::createBinIDValueSets( ioobjids, values );
-	return values[0];
+	BinIDValueSet* pickvals = new BinIDValueSet( *(values[0]) );
 	values.erase();
+	return pickvals;
     }
     
     return new BinIDValueSet( 1, false );

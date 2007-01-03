@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Payraudeau
  Date:          June 2006
- RCS:           $Id: uifingerprintcalcobj.cc,v 1.4 2006-09-22 12:50:29 cvsbert Exp $
+ RCS:           $Id: uifingerprintcalcobj.cc,v 1.5 2007-01-03 09:32:02 cvshelene Exp $
 
 ________________________________________________________________________
 
@@ -130,8 +130,9 @@ BinIDValueSet* calcFingParsObject::createRangesBinIDSet() const
 	BufferStringSet ioobjids;
 	ioobjids.add( getRgRefPick() );
 	PickSetTranslator::createBinIDValueSets( ioobjids, values );
-	return values[0];
+	BinIDValueSet* rgset = new BinIDValueSet( *(values[0]) );
 	values.erase();
+	return rgset;
     }
     else if ( rgreftype_ == 2 )
     {
