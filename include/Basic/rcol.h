@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		12-8-1997
- RCS:		$Id: rcol.h,v 1.9 2006-07-25 12:44:50 cvsnanne Exp $
+ RCS:		$Id: rcol.h,v 1.10 2007-01-03 17:48:46 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -83,6 +83,9 @@ public:
 				     be compared with other distances, the
 				     comparison can equally well be done
 				     on squared distances. */
+
+    void		fill(char*) const;
+    bool		use(const char*);
 
     template <class T>
     inline static bool 	makeLine( const RCol& start, const RCol& stop,

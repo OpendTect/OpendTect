@@ -4,7 +4,7 @@
  * DATE     : 21-6-1996
 -*/
 
-static const char* rcsID = "$Id: position.cc,v 1.53 2006-12-22 10:01:35 cvsjaap Exp $";
+static const char* rcsID = "$Id: position.cc,v 1.54 2007-01-03 17:48:46 cvsbert Exp $";
 
 #include "position.h"
 #include "bufstring.h"
@@ -15,11 +15,12 @@ static const char* rcsID = "$Id: position.cc,v 1.53 2006-12-22 10:01:35 cvsjaap 
 #include <ctype.h>
 
 
-float BinIDValue::compareepsilon = 1e-4;
+float BinIDValue::compareepsilon = 1e-5;
 float BinIDValues::udf = mUdf(float);
 
 
-Coord Coord::normalize() const { return *this/abs(); }
+Coord Coord::normalize() const
+{ return *this / abs(); }
 
 
 bool Coord::isDefined() const
@@ -201,28 +202,6 @@ const Coord3& Coord3::udf()
 {
    static Coord3 _udf( mUdf(double), mUdf(double), mUdf(double) );
    return _udf;
-}
-
-
-void BinID::fill( char* str ) const
-{
-    if ( !str ) return;
-    sprintf( str, "%d/%d", inl, crl );
-}
-
-
-bool BinID::use( const char* str )
-{
-    if ( !str || !*str ) return false;
-
-    static char buf[80];
-    strcpy( buf, str );
-    char* ptr = strchr( buf, '/' );
-    if ( !ptr ) return false;
-    *ptr++ = '\0';
-    inl = atoi( buf );
-    crl = atoi( ptr );
-    return true;
 }
 
 

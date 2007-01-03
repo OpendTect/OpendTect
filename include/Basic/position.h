@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		21-6-1996
  Contents:	Positions: Inline/crossline and Coordinate
- RCS:		$Id: position.h,v 1.43 2006-12-22 10:01:35 cvsjaap Exp $
+ RCS:		$Id: position.h,v 1.44 2007-01-03 17:48:46 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -192,9 +192,6 @@ public:
 		/* Implements +, -, * and other operators. See the documentation
 		   for details */
     		mRowColFunctions( BinID, inl, crl );
-
-    void	fill(char*) const;
-    bool	use(const char*);
 
     int		inl;
     int		crl;

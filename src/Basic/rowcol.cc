@@ -4,7 +4,7 @@
  * DATE     : 31/05/04
 -*/
 
-static const char* rcsID = "$Id: rowcol.cc,v 1.12 2006-07-25 06:44:07 cvsnanne Exp $";
+static const char* rcsID = "$Id: rowcol.cc,v 1.13 2007-01-03 17:48:46 cvsbert Exp $";
 
 #include "rowcol.h"
 
@@ -13,6 +13,28 @@ static const char* rcsID = "$Id: rowcol.cc,v 1.12 2006-07-25 06:44:07 cvsnanne E
 #include "sets.h"
 
 #include <math.h>
+
+
+void RCol::fill( char* str ) const
+{
+    if ( !str ) return;
+    sprintf( str, "%d/%d", r(), c() );
+}
+
+
+bool RCol::use( const char* str )
+{
+    if ( !str || !*str ) return false;
+
+    static char buf[80];
+    strcpy( buf, str );
+    char* ptr = strchr( buf, '/' );
+    if ( !ptr ) return false;
+    *ptr++ = '\0';
+    r() = atoi( buf ); c() = atoi( ptr );
+    return true;
+}
+
 
 bool RCol::isNeighborTo( const RCol& rc, const RCol& step,
 			 bool eightconnectivity ) const
