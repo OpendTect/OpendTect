@@ -5,13 +5,14 @@
 -*/
 
 
-static const char* rcsID = "$Id: attriboutput.cc,v 1.51 2007-01-03 21:16:59 cvskris Exp $";
+static const char* rcsID = "$Id: attriboutput.cc,v 1.52 2007-01-03 21:31:31 cvskris Exp $";
 
 #include "attriboutput.h"
+
+#include "arraynd.h"
 #include "attribdataholder.h"
 #include "attribdatacubes.h"
 #include "convmemvalseries.h"
-#include "arrayndconvmemstor.h"
 #include "seistrc.h"
 #include "seistrctr.h"
 #include "seistrcsel.h"
