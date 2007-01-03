@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril & Kris Tingdahl
  Date:          Mar 2005
- RCS:           $Id: valseries.h,v 1.2 2006-11-15 07:43:25 cvsnanne Exp $
+ RCS:           $Id: valseries.h,v 1.3 2007-01-03 21:14:38 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,15 +27,39 @@ public:
 
     virtual		~ValueSeries()		{}
 
-    virtual T		value(int) const		= 0;
+    virtual bool	isOK() const			{ return true; }
+
+    virtual T		value(int64) const		= 0;
     virtual bool	writable() const		{ return false; }
-    virtual void	setValue(int,T)			{}
+    virtual void	setValue(int64,T)		{}
+
+    virtual bool	reSizeable() const		{ return false; }
+    virtual bool	setSize(int64) 			{ return false; }
 
     virtual T*		arr()				{ return 0; }
     virtual const T*	arr() const			{ return 0; }
 
-    inline T		operator[]( int idx ) const	{ return value(idx); }
+    inline T		operator[]( int64 idx ) const	{ return value(idx); }
 
+};
+
+
+template <class T>
+class OffsetValueSeries : public ValueSeries<T>
+{
+public:
+    		OffsetValueSeries( ValueSeries<T>& src, int64 off )
+		    : src_( src ), off_( off ) 	{}
+
+    T		value( int64 idx ) const { return src_.value(idx+off_); }
+    void	setValue( int64 idx, T v ) const { src_.setValue(idx+off_,v); }
+    T*		arr() { T* p = src_.arr(); return p ? p+off_ : 0; }
+    const T*	arr() const { T* p = src_.arr(); return p ? p+off_ : 0; }
+
+
+protected:
+    ValueSeries<T>&	src_;
+    int64		off_;
 };
 
 
@@ -50,9 +74,11 @@ public:
 		    : ptr_(ptr), mine_(memmine)	{}
     		~ArrayValueSeries()		{ if ( mine_ ) delete [] ptr_; }
 
-    T		value( int idx ) const		{ return ptr_[idx]; }
+    bool	isOK()				{ return ptr_; }
+
+    T		value( int64 idx ) const	{ return ptr_[idx]; }
     bool	writable() const		{ return true; }
-    void	setValue( int idx, T v )	{ ptr_[idx] = v; }
+    void	setValue( int64 idx, T v )	{ ptr_[idx] = v; }
 
     const T*	arr() const			{ return ptr_; }
     T*		arr()				{ return ptr_; }
