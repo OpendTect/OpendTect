@@ -8,40 +8,29 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		21-6-1996
  Contents:	Positions: Inline/crossline and Coordinate
- RCS:		$Id: position.h,v 1.44 2007-01-03 17:48:46 cvsbert Exp $
+ RCS:		$Id: position.h,v 1.45 2007-01-03 18:32:48 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "gendefs.h"
 #include "rcol.h"
+#include "geometry.h"
+
 class BufferString;
 
 
 /*!\brief a cartesian coordinate in 2D space. */
 
-class Coord
+class Coord : public Geom::Point2D<double>
 {
 public:
-		Coord() : x(0), y(0)		{}
+		Coord( const Geom::Point2D<double>& p )
+		    :  Geom::Point2D<double>( p )			{}
+		Coord() :  Geom::Point2D<double>( 0, 0 )		{}
 		Coord( double cx, double cy )	
-		: x(cx), y(cy)			{}
+		    :  Geom::Point2D<double>( cx, cy )			{}
 
-    double&	operator[]( int idx )		{ return idx ? y : x; }
-    double	operator[]( int idx ) const	{ return idx ? y : x; }
-    void	operator+=( double dist )	{ x += dist; y += dist; }
-    void	operator+=( const Coord& crd )	{ x += crd.x; y += crd.y; }
-    void	operator-=( const Coord& crd )	{ x -= crd.x; y -= crd.y; }
-    void	operator/=( const double& den )	{ x /= den; y /= den; }
-    void	operator*=( const double& fact ){ x *= fact; y *= fact; }
-    Coord	operator+( const Coord& crd ) const
-    		{ return Coord(x+crd.x,y+crd.y); }
-    Coord	operator-( const Coord& crd ) const
-    		{ return Coord(x-crd.x,y-crd.y); }
-    Coord	operator/( const double& den ) const
-    		{ return Coord(x/den,y/den); }
-    Coord	operator*( const double& fact ) const
-		{ return Coord(x*fact,y*fact); }
     bool	operator==( const Coord& crd ) const
 		{ return mIsEqual(x,crd.x,mDefEps)
 		      && mIsEqual(y,crd.y,mDefEps); }
@@ -57,14 +46,10 @@ public:
     		//!< saves the expensive acos() call
 		//
     Coord	normalize() const;
-    double	abs() const;
     double	dot(const Coord&) const;
 
     void	fill(char*) const;
     bool	use(const char*);
-
-    double	x;
-    double	y;
     
     static const Coord&		udf();
 };
