@@ -4,6 +4,8 @@
  * DATE     : May 2000
 -*/
 
+#include <VolumeViz/nodes/SoVolumeRendering.h>
+
 #include <Inventor/Qt/SoQt.h>
 #include <Inventor/Qt/viewers/SoQtExaminerViewer.h>
 #include <Inventor/SoInput.h>
@@ -24,6 +26,8 @@ int main( int narg, char** argv )
 {
     QWidget* myWindow = SoQt::init(argv[0]);
     SoOD::init();
+    SoVolumeRendering::init();
+
     if ( myWindow==NULL ) return 1;
 
     if ( narg != 2  )
