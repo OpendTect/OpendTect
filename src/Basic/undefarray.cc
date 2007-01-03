@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          13/01/2005
- RCS:           $Id: undefarray.cc,v 1.1 2006-12-20 17:27:33 cvskris Exp $
+ RCS:           $Id: undefarray.cc,v 1.2 2007-01-03 08:31:12 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,7 +13,8 @@ ________________________________________________________________________
 
 #include "bindatadesc.h"
 #include "undefval.h"
-#include "values.h"
+
+#include <limits.h>
 
 
 UndefArrayHandler::UndefArrayHandler( const BinDataDesc& desc )
@@ -125,9 +126,9 @@ mImplFuncs( unsigned char, 255, 254, UChar )
 mImplFuncs( char, 127, 126, Char )
 mImplFuncs( unsigned short, 65535, 65534, UShort )
 mImplFuncs( short, 32767, 32766, Short )
-mImplFuncs( uint32, mUdf(uint32), MAXINT, UInt32 )
-mImplFuncs( int32, mUdf(int32), MAXINT, Int32 )
-mImplFuncs( uint64, mUdf(uint64), MAXINT, UInt64 )
+mImplFuncs( uint32, mUdf(uint32), INT_MAX, UInt32 )
+mImplFuncs( int32, mUdf(int32), INT_MAX, Int32 )
+mImplFuncs( uint64, mUdf(uint64), INT_MAX, UInt64 )
 mImplFuncs( int64, mUdf(int64), mUdf(int64)+1, Int64 )
 mImplFloatFuncs( float, mUdf(float), 1e29, Float )
 mImplFloatFuncs( double, mUdf(double), 1e29, Double )
