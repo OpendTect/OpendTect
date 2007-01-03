@@ -2,7 +2,7 @@
 #
 #	Makefile : 	General utilities
 # 	Mar 2004	Nanne Hemstra
-#	RCS :		$Id: Makefile,v 1.13 2006-12-28 22:17:58 cvskris Exp $
+#	RCS :		$Id: Makefile,v 1.14 2007-01-03 19:35:40 cvskris Exp $
 #_______________________________________________________________________________
 
 
@@ -35,6 +35,14 @@ PROG.cc := oifileviewer.cc
 
 USECOIN := yes
 USEQT   := yes
+
+ifeq ($(HDIR),win)
+    USE_SIM_VOL := Yes
+endif
+
+ifndef USE_SIM_VOL
+    EXTRALIBSFORSHLIB := SimVoleon
+endif
 
 include make.od.Defaults
 

@@ -4,10 +4,12 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: SoOD.cc,v 1.6 2006-12-28 22:38:42 cvskris Exp $";
+static const char* rcsID = "$Id: SoOD.cc,v 1.7 2007-01-03 19:35:40 cvskris Exp $";
 
 
 #include "SoOD.h"
+
+#include <VolumeViz/nodes/SoVolumeRendering.h>
 
 #include "SoArrow.h"
 #include "SoCameraInfo.h"
@@ -34,6 +36,8 @@ static const char* rcsID = "$Id: SoOD.cc,v 1.6 2006-12-28 22:38:42 cvskris Exp $
 
 void SoOD::init()
 {
+    SoVolumeRendering::init();
+
     //Elements first 
     SoCameraInfoElement::initClass();
     UTMElement::initClass();
