@@ -5,13 +5,13 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribdatacubes.cc,v 1.18 2006-12-20 17:42:16 cvskris Exp $";
+static const char* rcsID = "$Id: attribdatacubes.cc,v 1.19 2007-01-03 21:16:59 cvskris Exp $";
 
 #include "attribdatacubes.h"
 #include "arrayndimpl.h"
 #include "survinfo.h"
 #include "idxable.h"
-#include "arrayndconvmemstor.h"
+#include "convmemvalseries.h"
 
 namespace Attrib
 {
@@ -65,10 +65,10 @@ bool DataCubes::addCube( bool maydofile, const  BinDataDesc* desc )
     else
     {
 	 arr = new Array3DImpl<float>( 0, 0, 0, false);
-	 ArrayNDMemConvStor<float>* stor= new ArrayNDMemConvStor<float>(0,*desc);
+	 ConvMemValueSeries<float>* stor= new ConvMemValueSeries<float>(0,*desc);
 	 arr->setStorage( stor );
 	 arr->setSize( inlsz_, crlsz_, zsz_ );
-	 if ( !stor->nativeStorage() )
+	 if ( !stor->storArr() )
 	 {
 	     delete arr;
 	     return false;
@@ -140,10 +140,10 @@ void DataCubes::setValue( int array, float val )
     }
     else
     {
-	ArrayND<float>::LinearStorage* stor = cubes_[array]->getStorage();
+	ValueSeries<float>* stor = cubes_[array]->getStorage();
 	const int nrsamples = cubes_[array]->info().getTotalSz();
 	for ( int idx=0; idx<nrsamples; idx++ )
-	    stor->set( idx, val );
+	    stor->setValue( idx, val );
     }
 }
 
@@ -158,7 +158,7 @@ bool DataCubes::getValue( int array, const BinIDValue& bidv, float* res,
 
     if ( cubes_.size() <= array ) return false;
 
-    const ArrayND<float>::LinearStorage* data = cubes_[array]->getStorage();
+    const ValueSeries<float>* data = cubes_[array]->getStorage();
     const int64 offset = cubes_[array]->info().getMemPos( inlidx, crlidx, 0 );
 
     const float zpos = bidv.value/zstep-z0;
@@ -166,7 +166,7 @@ bool DataCubes::getValue( int array, const BinIDValue& bidv, float* res,
     {
 	const int zidx = mNINT( zpos );
 	if ( zidx < 0 || zidx >= zsz_ ) return false;
-	*res = data->get( offset+zidx );
+	*res = data->value( offset+zidx );
 	return true;
     }
 

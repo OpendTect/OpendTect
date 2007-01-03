@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: arrayndutils.h,v 1.22 2006-03-12 13:39:09 cvsbert Exp $
+ RCS:           $Id: arrayndutils.h,v 1.23 2007-01-03 21:16:59 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -150,15 +150,16 @@ public:
 	}
 	else
 	{
-	    const typename ArrayND<Type>::LinearStorage* instorage
+	    const ValueSeries<Type>* instorage
 			= in->getStorage();
-	    typename ArrayND<Type>::LinearStorage* outstorage
+	    ValueSeries<Type>* outstorage
 			= out->getStorage();
 
 	    if ( instorage && outstorage )
 	    {
 		for ( unsigned long idx = 0; idx < totalSz; idx++ )
-		    outstorage->set(idx, instorage->get(idx) * window[idx] );
+		    outstorage->setValue(idx,
+			    instorage->value(idx) * window[idx] );
 	    }
 	    else
 	    {

@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: arraynd.h,v 1.21 2006-10-24 15:11:33 cvskris Exp $
+ RCS:		$Id: arraynd.h,v 1.22 2007-01-03 21:16:59 cvskris Exp $
 ________________________________________________________________________
 
 An ArrayND is an array with a given number of dimensions and a size. The
@@ -26,7 +26,6 @@ to the constructor.
 #define mPolyArray1DInfoTp mPolyRet(ArrayNDInfo,Array1DInfo)
 #define mPolyArray2DInfoTp mPolyRet(ArrayNDInfo,Array2DInfo)
 #define mPolyArray3DInfoTp mPolyRet(ArrayNDInfo,Array3DInfo)
-#define ArrayNDLinearStorage typename ArrayND<T>::LinearStorage
 
 template <class T>
 class ArrayND 
@@ -35,12 +34,10 @@ public:
 
     virtual				~ArrayND()	{}
 
-    class				LinearStorage;
-
 					// Read specs
     virtual T	                	get( const int* ) const	= 0;
 
-    inline const LinearStorage*		getStorage() const
+    inline const ValueSeries<T>*	getStorage() const
 					{ return getStorage_(); }
 
     inline const T*			getData() const
@@ -54,10 +51,12 @@ public:
     virtual void			set( const int*, T )	= 0;
 
     virtual bool			canSetStorage() const { return false; }
-    virtual void			setStorage(LinearStorage* s){ delete s;}
-    					/*!<becomes mine */
+    virtual bool			setStorage(ValueSeries<T>* s)
+    					{ delete s; return true; }
+    					/*!<becomes mine. The size must be
+					    settable, or I return false. */
 
-    inline LinearStorage*		getStorage();
+    inline ValueSeries<T>*		getStorage();
     inline T*				getData();
     virtual T*				get1D( const int* i );
 
@@ -73,37 +72,14 @@ public:
     virtual bool			setInfo( ArrayNDInfo& )
 					{ return false; }
 
-    class LinearStorage
-    {
-    public:
-		
-	virtual bool		isOK() const			= 0;
-
-	virtual T		operator[](int64 p) const { return get(p); }
-	virtual T		get( int64 ) const		= 0;
-	virtual void		set( int64, T )			= 0;
-
-	virtual const T*	getData() const			= 0;
-	virtual T*		getData()
-				{
-				    return const_cast<T*>
-					(((const LinearStorage*)this)->
-					    getData());
-				};
-
-	virtual int64		size() const			= 0;
-	virtual void		setSize( int64 )		= 0;
-	virtual			~LinearStorage() {}
-    };
-
 protected:
  
-    virtual const LinearStorage* getStorage_() const { return 0; }
+    virtual const ValueSeries<T>* getStorage_() const { return 0; }
 
     const T*			getData_() const
 				{
 				    if ( getStorage_() )
-					return getStorage()->getData();
+					return getStorage()->arr();
 				    return 0;
 				}
 
@@ -122,7 +98,7 @@ public:
     T	                	get(const int* pos) const {return get(pos[0]);}
 
 				// implement ValueSeries interface
-    T				value( int i ) const	{ return get(i); }
+    T				value( int64 i ) const	{ return get(i); }
     bool			writable() const	{ return true; }
     void			setValue( int i, T t )	{ set(i,t); }
 
@@ -190,10 +166,10 @@ T* ArrayND<T>::getData()
 
 
 template <class T> inline
-ArrayNDLinearStorage* ArrayND<T>::getStorage()
+ValueSeries<T>* ArrayND<T>::getStorage()
 {
     return isSettable()
-	? const_cast<ArrayNDLinearStorage*>
+	? const_cast<ValueSeries<T>* >
 		(((const ArrayND*)this)->getStorage_())
 	: 0;
 }

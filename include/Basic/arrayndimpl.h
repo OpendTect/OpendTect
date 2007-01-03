@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: arrayndimpl.h,v 1.44 2006-11-13 18:07:44 cvskris Exp $
+ RCS:		$Id: arrayndimpl.h,v 1.45 2007-01-03 21:16:59 cvskris Exp $
 ________________________________________________________________________
 
 */
@@ -22,18 +22,20 @@ ________________________________________________________________________
 #include <fstream>
 
 template <class T>
-class ArrayNDMemStor : public ArrayND<T>::LinearStorage
+class ArrayNDMemStor : public ValueSeries<T>
 {
 public:
 
     bool	isOK() const			{ return ptr; }
-    T		get(int64 pos) const		{ return ptr[pos]; }
-    void	set(int64 pos, T val )		{ ptr[pos] = val; }
+    T		value(int64 pos) const		{ return ptr[pos]; }
+    void	setValue(int64 pos, T val )	{ ptr[pos] = val; }
 
-    const T*	getData() const			{ return ptr; }
+    const T*	arr() const			{ return ptr; }
+    T*		arr()				{ return ptr; }
 
-    inline void	setSize( int64 nsz )		{ if ( sz == nsz ) return;
-						  sz = nsz; alloc(); }
+    inline bool	setSize( int64 nsz )		{ if ( sz == nsz ) return true;
+						  sz = nsz; alloc();
+    						  return ptr; }
     int64	size() const			{ return sz; }
 
 		ArrayNDMemStor( int64 nsz )
@@ -63,7 +65,7 @@ inline void ArrayNDMemStor<T>::alloc()
 #define mNonConstMem(x) const_cast<ArrayNDFileStor*>(this)->x
 
 template <class T>
-class ArrayNDFileStor : public ArrayND<T>::LinearStorage
+class ArrayNDFileStor : public ValueSeries<T>
 {
 public:
 
@@ -74,7 +76,7 @@ public:
     if ( strm_->fail() ) \
 	{ mNonConstMem(close()); mNonConstMem(streamfail_) = true; return T();}
 
-    T		get( int64 pos ) const
+    T		value( int64 pos ) const
 		{
 		    Threads::MutexLocker mlock( mutex_ );
 		    if ( !strm_ ) const_cast<ArrayNDFileStor*>(this)->open();
@@ -94,7 +96,7 @@ public:
 #define mChckStrm \
     if ( strm_->fail() ) { close(); streamfail_ = true; return; }
 
-    void	set( int64 pos, T val ) 
+    void	setValue( int64 pos, T val ) 
 		{
 		    Threads::MutexLocker mlock( mutex_ );
 		    if ( !strm_ ) open();
@@ -107,15 +109,17 @@ public:
 		    mChckStrm
 		}
 
-    const T*	getData() const { return 0; }
+    const T*	arr() const			{ return 0; }
+    T*		arr()				{ return 0; }
 
-    void	setSize( int64 nsz )
+    bool	setSize( int64 nsz )
 		{
 		    Threads::MutexLocker mlock( mutex_ );
 		    if ( strm_ ) close();
 		    sz_ = nsz;
 		    openfailed_ = streamfail_ = false;
 		    open();
+		    return strm_;
 		}
 
     int64	size() const { return sz_; }
@@ -206,19 +210,26 @@ protected:
     // Don't change the order of these attributes!
 #define mDeclArrayNDProtMemb(inftyp) \
     inftyp			in; \
-    ArrayNDLinearStorage*	stor_; \
+    ValueSeries<T>*		stor_; \
  \
-    const ArrayNDLinearStorage*	getStorage_() const { return stor_; }
+    const ValueSeries<T>*	getStorage_() const { return stor_; }
 
+#define mImplSetStorage( _getsize ) \
+{ \
+    if ( !s->reSizeable() || !s->setSize(_getsize) ) \
+	return false; \
+    delete stor_; stor_=s;  \
+    return true; \
+}
 
 template <class T> class Array1DImpl : public Array1D<T>
 {
 public:
 			Array1DImpl(int nsz, bool file=false)
 			    : in(nsz)
-			    , stor_(file ? (ArrayNDLinearStorage*)
+			    , stor_(file ? (ValueSeries<T>*)
 					 new ArrayNDFileStor<T>(in.getTotalSz())
-				        : (ArrayNDLinearStorage*)
+				        : (ValueSeries<T>*)
 					 new ArrayNDMemStor<T>(in.getTotalSz()))
 			{}
 
@@ -234,11 +245,11 @@ public:
 			~Array1DImpl() { delete stor_; }
 
     bool		canSetStorage() const { return true; }
-    void		setStorage(ArrayNDLinearStorage* s)
-    			{delete stor_;stor_=s;stor_->setSize(in.getTotalSz());}
+    bool		setStorage(ValueSeries<T>* s)
+			    mImplSetStorage( in.getTotalSz() );
 
-    virtual void	set( int pos, T v ) { stor_->set(pos,v); }
-    virtual T		get( int pos ) const {return stor_->get(pos); }
+    virtual void	set( int pos, T v ) { stor_->setValue(pos,v); }
+    virtual T		get( int pos ) const {return stor_->value(pos); }
     void		copyFrom( const Array1D<T>& templ )
 			{
 			    if ( info()!=templ.info() )
@@ -267,8 +278,8 @@ public:
     void		setSize( int s ) { in.setSize(0,s); stor_->setSize(s); }
 
 			// ValueSeries interface
-    T*			arr()			{ return stor_->getData(); }
-    const T*		arr() const		{ return stor_->getData(); }
+    T*			arr()			{ return stor_->arr(); }
+    const T*		arr() const		{ return stor_->arr(); }
 
 protected:
 
@@ -282,16 +293,16 @@ template <class T> class Array2DImpl : public Array2D<T>
 public:
 			Array2DImpl(int sz0, int sz1, bool file=false)
 			    : in(sz0,sz1)
-			    , stor_(file ? (ArrayNDLinearStorage*)
+			    , stor_(file ? (ValueSeries<T>*)
 					 new ArrayNDFileStor<T>(in.getTotalSz())
-				        : (ArrayNDLinearStorage*)
+				        : (ValueSeries<T>*)
 					 new ArrayNDMemStor<T>(in.getTotalSz()))
 			{}
 			Array2DImpl( const Array2DInfo& nsz, bool file=false )
 			    : in( nsz )
-			    , stor_(file ? (ArrayNDLinearStorage*)
+			    , stor_(file ? (ValueSeries<T>*)
 					 new ArrayNDFileStor<T>(in.getTotalSz())
-				        : (ArrayNDLinearStorage*)
+				        : (ValueSeries<T>*)
 					 new ArrayNDMemStor<T>(in.getTotalSz()))
 			{} 
 			Array2DImpl( const Array2D<T>& templ )
@@ -312,13 +323,13 @@ public:
 			~Array2DImpl() { delete stor_; }
 
     bool		canSetStorage() const { return true; }
-    void		setStorage(ArrayNDLinearStorage* s)
-    			{delete stor_;stor_=s;stor_->setSize(in.getTotalSz());}
+    bool		setStorage(ValueSeries<T>* s)
+			    mImplSetStorage( in.getTotalSz() );
 
     virtual void	set( int p0, int p1, T v )
-			{ stor_->set(in.getMemPos(p0,p1), v); }
+			{ stor_->setValue(in.getMemPos(p0,p1), v); }
     virtual T		get( int p0, int p1 ) const
-			{ return stor_->get(in.getMemPos(p0,p1)); }
+			{ return stor_->value(in.getMemPos(p0,p1)); }
     void		copyFrom( const Array2D<T>& templ )
 			{
 			    if ( info()!=templ.info() )
@@ -373,16 +384,16 @@ template <class T> class Array3DImpl : public Array3D<T>
 public:
 			Array3DImpl( int sz0, int sz1, int sz2, bool file=false)
 			    : in(sz0,sz1,sz2)
-			    , stor_(file ? (ArrayNDLinearStorage*)
+			    , stor_(file ? (ValueSeries<T>*)
 					 new ArrayNDFileStor<T>(in.getTotalSz())
-					: (ArrayNDLinearStorage*)
+					: (ValueSeries<T>*)
 					 new ArrayNDMemStor<T>(in.getTotalSz()))
 			{}
 			Array3DImpl( const Array3DInfo& nsz, bool file=false )
 			    : in(nsz)
-			    , stor_(file ? (ArrayNDLinearStorage*)
+			    , stor_(file ? (ValueSeries<T>*)
 					 new ArrayNDFileStor<T>(in.getTotalSz())
-					: (ArrayNDLinearStorage*)
+					: (ValueSeries<T>*)
 					 new ArrayNDMemStor<T>(in.getTotalSz()))
 			{}
 			Array3DImpl( const Array3D<T>& templ )
@@ -398,13 +409,13 @@ public:
 			~Array3DImpl() { delete stor_; }
 
     bool		canSetStorage() const { return true; }
-    void		setStorage(ArrayNDLinearStorage* s)
-    			{delete stor_;stor_=s;stor_->setSize(in.getTotalSz());}
+    bool		setStorage(ValueSeries<T>* s)
+			    mImplSetStorage( in.getTotalSz() );
 
     virtual void	set( int p0, int p1, int p2, T v )
-			{ stor_->set(in.getMemPos(p0,p1,p2), v); }
+			{ stor_->setValue(in.getMemPos(p0,p1,p2), v); }
     virtual T		get( int p0, int p1, int p2 ) const
-			{ return stor_->get(in.getMemPos(p0,p1,p2)); }
+			{ return stor_->value(in.getMemPos(p0,p1,p2)); }
     void		copyFrom( const Array3D<T>& templ )
 			{
 			    if ( info()!=templ.info() )
@@ -466,16 +477,16 @@ static ArrayND<T>*	create(const ArrayNDInfo& nsz,bool file=false);
 
 			ArrayNDImpl(const ArrayNDInfo& nsz,bool file=false)
 			    : in(nsz.clone())
-			    , stor_(file ? (ArrayNDLinearStorage*)
+			    , stor_(file ? (ValueSeries<T>*)
 				     new ArrayNDFileStor<T>(in->getTotalSz())
-				    : (ArrayNDLinearStorage*)
+				    : (ValueSeries<T>*)
 				     new ArrayNDMemStor<T>(in->getTotalSz()))
 			    {}
 			ArrayNDImpl(const ArrayND<T>& templ,bool file=false)
 			    : in(templ.info().clone())
-			    , stor_(file ? (ArrayNDLinearStorage*)
+			    , stor_(file ? (ValueSeries<T>*)
 				     new ArrayNDFileStor<T>(in->getTotalSz())
-				    : (ArrayNDLinearStorage*)
+				    : (ValueSeries<T>*)
 				     new ArrayNDMemStor<T>(in->getTotalSz()))
 			{
 			    if ( templ.getData() )
@@ -497,9 +508,9 @@ static ArrayND<T>*	create(const ArrayNDInfo& nsz,bool file=false);
 			//!Copy contructor
 			ArrayNDImpl(const ArrayNDImpl<T>& templ,bool file=false)
 			    : in(templ.info().clone())
-			    , stor_(file ? (ArrayNDLinearStorage*)
+			    , stor_(file ? (ValueSeries<T>*)
 				     new ArrayNDFileStor<T>(in->getTotalSz())
-				    : (ArrayNDLinearStorage*)
+				    : (ValueSeries<T>*)
 				     new ArrayNDMemStor<T>(in->getTotalSz()))
 			{
 			    if ( templ.getData() )
@@ -523,13 +534,13 @@ static ArrayND<T>*	create(const ArrayNDInfo& nsz,bool file=false);
 			{ delete in; delete stor_; }
 
     bool		canSetStorage() const { return true; }
-    void		setStorage(ArrayNDLinearStorage* s)
-    			{delete stor_;stor_=s;stor_->setSize(in->getTotalSz());}
+    bool		setStorage(ValueSeries<T>* s)
+			    mImplSetStorage( in->getTotalSz() );
 
     virtual void	set( const int* pos, T v )
-			{ stor_->set(in->getMemPos(pos), v); }
+			{ stor_->setValue(in->getMemPos(pos), v); }
     virtual T		get( const int* pos ) const
-			{ return stor_->get(in->getMemPos(pos)); }
+			{ return stor_->value(in->getMemPos(pos)); }
 
 
     const ArrayNDInfo&	info() const { return *in; }

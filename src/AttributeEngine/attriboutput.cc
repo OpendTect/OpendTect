@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attriboutput.cc,v 1.50 2006-12-20 17:50:33 cvskris Exp $";
+static const char* rcsID = "$Id: attriboutput.cc,v 1.51 2007-01-03 21:16:59 cvskris Exp $";
 
 #include "attriboutput.h"
 #include "attribdataholder.h"
@@ -194,14 +194,14 @@ void DataCubesOutput::collectData( const DataHolder& data, float refstep,
 	}
 	else
 	{
-	    mDynamicCastGet( ArrayNDMemConvStor<float>*, deststor,
+	    mDynamicCastGet( ConvMemValueSeries<float>*, deststor,
 		    	     datacubes_->getCube(desout).getStorage() );
 	    const char elemsz = cmvs->dataDesc().nrBytes();
 
 	    const int64 destoffset = transrg.start-datacubes_->z0 +
 		datacubes_->getCube(desout).info().getMemPos(inlidx,crlidx,0);
 
-	    char* dest = deststor->nativeStorage() + destoffset * elemsz;
+	    char* dest = deststor->storArr() + destoffset * elemsz;
 	    char* src = cmvs->storArr() +
 			(transrg.start-data.z0_) * elemsz;
 	    memcpy( dest, src, elemsz*(transrg.width()+1) );
