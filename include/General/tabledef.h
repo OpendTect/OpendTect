@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Oct 2006
- RCS:		$Id: tabledef.h,v 1.12 2006-12-22 11:58:09 cvsbert Exp $
+ RCS:		$Id: tabledef.h,v 1.13 2007-01-03 17:50:04 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -60,7 +60,7 @@ public:
 
     struct Form : NamedObject
     {
-			Form( const char* nm, DataInpSpec* spec=0 )
+			Form( const char* nm, DataInpSpec* spec )
 			    : NamedObject(nm)
 				{ add( spec ); }
 			Form( const char* nm, const DataInpSpec& spec )
@@ -116,6 +116,13 @@ public:
     int			nrForms() const		{ return forms_.size(); }
     Form&		form( int idx )		{ return *forms_[idx]; }
     const Form&		form( int idx ) const	{ return *forms_[idx]; }
+    int			formNr( const char* formnm ) const
+			{
+			    for ( int idx=0; idx<forms_.size(); idx++ )
+				if ( forms_[idx]->name() == formnm )
+				    return idx;
+			    return -1;
+			}
 
     /*!\brief Selected element/positioning
       This selects the specific form and where it can be found in the file,
@@ -158,9 +165,15 @@ public:
 	const char*	getVal( int ielem ) const
 			    { return ielem >= elems_.size() ? 0
 				   : ((const char*)elems_[ielem].val_); }
+
+	bool		isFilled() const
+	    		{ return elems_.size() > 0 && !elems_[0].isEmpty(); }
     };
 
     mutable Selection	selection_;
+
+    void		fillPar(IOPar&) const;
+    void		usePar(const IOPar&);
 
 protected:
 
@@ -198,6 +211,11 @@ public:
     int			nrHdrLines() const
 			{ return needToken() ? mUdf(int)
 			       : nrhdrlines_ > 0 ? nrhdrlines_ : 0; }
+
+    bool		isGood() const;
+
+    void		fillPar(IOPar&) const;
+    void		usePar(const IOPar&);
 };
 
 }; // namespace Table

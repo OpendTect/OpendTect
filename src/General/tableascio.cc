@@ -4,16 +4,144 @@
  * DATE     : Nov 2006
 -*/
 
-static const char* rcsID = "$Id: tableascio.cc,v 1.8 2006-12-22 11:58:09 cvsbert Exp $";
+static const char* rcsID = "$Id: tableascio.cc,v 1.9 2007-01-03 17:50:04 cvsbert Exp $";
 
 #include "tableascio.h"
 #include "tabledef.h"
 #include "tableconvimpl.h"
 #include "unitofmeasure.h"
+#include "separstr.h"
+#include "iopar.h"
 #include <iostream>
 
 namespace Table
 {
+
+static const char* sKeyHdr = "Header";
+static const char* sKeyBody = "Body";
+static const char* sKeyHdrSize = "Header.Size";
+static const char* sKeyHdrToken = "Header.Token";
+
+
+void TargetInfo::fillPar( IOPar& iopar ) const
+{
+    const char* nm = name();
+
+    if ( form(selection_.form_).name() != nm )
+	iopar.set( IOPar::compKey(nm,"Form"), form(selection_.form_).name() );
+
+    if ( selection_.unit_ )
+	iopar.set( IOPar::compKey(nm,"Unit"), selection_.unit_->name() );
+
+    if ( selection_.elems_.size() < 1 || selection_.elems_[0].isEmpty() )
+	return;
+
+    FileMultiString fms( selection_.elems_[0].isInFile() ? "R" : "P" );
+    for ( int idx=0; idx<selection_.elems_.size(); idx++ )
+    {
+	const TargetInfo::Selection::Elem& elem = selection_.elems_[idx];
+	if ( !elem.isInFile() )
+	    fms += elem.val_;
+	else
+	    { char buf[40]; elem.pos_.fill(buf); fms += buf; }
+    }
+    iopar.set( IOPar::compKey(nm,"Selection"), fms );
+}
+
+
+void TargetInfo::usePar( const IOPar& iopar )
+{
+    selection_.elems_.erase();
+    const char* nm = name();
+    if ( forms_.size() > 1 )
+    {
+	const char* res = iopar.find( IOPar::compKey(nm,"Form") );
+	if ( res )
+	    selection_.form_ = formNr( res );
+    }
+    if ( selection_.form_ < 0 ) selection_.form_ = 0;
+
+    selection_.unit_ = UoMR().get( iopar.find(IOPar::compKey(nm,"Unit")) );
+    const char* res = iopar.find( IOPar::compKey(nm,"Selection") );
+    if ( !res || !*res )
+	return;
+
+    FileMultiString fms( res );
+    const bool isinfile = *fms[0] == 'R';
+    const int nrelems = fms.size() - 1;
+
+    for ( int idx=0; idx<nrelems; idx++ )
+    {
+	res = fms[idx+1];
+	TargetInfo::Selection::Elem elem;
+	if ( !isinfile || !elem.pos_.use(res) )
+	    elem.val_ = res;
+	selection_.elems_ += elem;
+    }
+}
+
+
+void FormatDesc::fillPar( IOPar& iopar ) const
+{
+    iopar.set( sKeyHdrSize, nrhdrlines_ );
+    FileMultiString fms( token_ ); fms += tokencol_;
+    iopar.set( sKeyHdrToken, fms );
+    for ( int idx=0; idx<headerinfos_.size(); idx++ )
+    {
+	IOPar subpar; headerinfos_[idx]->fillPar( subpar );
+	iopar.mergeComp( subpar, sKeyHdr );
+    }
+    for ( int idx=0; idx<bodyinfos_.size(); idx++ )
+    {
+	IOPar subpar; bodyinfos_[idx]->fillPar( subpar );
+	iopar.mergeComp( subpar, sKeyBody );
+    }
+}
+
+
+void FormatDesc::usePar( const IOPar& iopar )
+{
+    iopar.get( sKeyHdrSize, nrhdrlines_ );
+    const char* res = iopar.find( sKeyHdrToken );
+    if ( res )
+    {
+	FileMultiString fms( res );
+	token_ = fms[0]; tokencol_ = atoi( fms[1] );
+    }
+
+    IOPar* subpar = iopar.subselect( sKeyHdr );
+    if ( subpar && subpar->size() )
+    {
+	for ( int idx=0; idx<headerinfos_.size(); idx++ )
+	    headerinfos_[idx]->usePar( *subpar );
+    }
+    delete subpar; subpar = iopar.subselect( sKeyBody );
+    if ( subpar && subpar->size() )
+    {
+	for ( int idx=0; idx<bodyinfos_.size(); idx++ )
+	    headerinfos_[idx]->usePar( *subpar );
+    }
+    delete subpar;
+}
+
+
+bool FormatDesc::isGood() const
+{
+    for ( int idx=0; idx<headerinfos_.size(); idx++ )
+    {
+	const TargetInfo& info = *headerinfos_[idx];
+	if ( !info.isOptional() && !info.selection_.isFilled() )
+	    return false;
+    }
+    for ( int idx=0; idx<bodyinfos_.size(); idx++ )
+    {
+	const TargetInfo& info = *bodyinfos_[idx];
+	if ( !info.isOptional() && !info.selection_.isFilled() )
+	    return false;
+    }
+    return true;
+}
+
 
 struct SpecID
 {
