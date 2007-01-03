@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodemsurftreeitem.cc,v 1.14 2006-12-27 15:06:07 cvsnanne Exp $
+ RCS:		$Id: uiodemsurftreeitem.cc,v 1.15 2007-01-03 16:02:31 cvsjaap Exp $
 ___________________________________________________________________
 
 -*/
@@ -225,10 +225,6 @@ void uiODEarthModelSurfaceTreeItem::createMenuCB( CallBacker* cb )
     MenuItem* trackmnu = menu->findItem(uiVisEMObject::trackingmenutxt);
     if ( isChecked() && trackmnu )
     {
-	uiMPEPartServer* mps = applMgr()->mpeServer();
-	//TODO false set to make it compile: change!!!!!!!
-	mps->setCurrentAttribDescSet( applMgr()->attrServer()->curDescSet(false) );
-
 	EM::SectionID section = -1;
 	if ( uivisemobj->nrSections()==1 )
 	    section = uivisemobj->getSectionID(0);
@@ -291,6 +287,10 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB( CallBacker* cb )
 	sectionid = uivisemobj->getSectionID(0);
     else if ( menu->getPath() )
 	sectionid = uivisemobj->getSectionID( menu->getPath() );
+    
+    uiMPEPartServer* mps = applMgr()->mpeServer();
+    mps->setCurrentAttribDescSet( applMgr()->attrServer()->curDescSet(false) );
+    mps->setCurrentAttribDescSet( applMgr()->attrServer()->curDescSet(true) );
 
     if ( mnuid==savemnuitem_.id )
     {
@@ -298,20 +298,20 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB( CallBacker* cb )
 	applMgr()->EMServer()->storeObject( emid, false );
 
 	const MultiID mid = applMgr()->EMServer()->getStorageID(emid);
-	applMgr()->mpeServer()->saveSetup( mid );
+	mps->saveSetup( mid );
     }
     else if ( mnuid==saveasmnuitem_.id )
     {
 	menu->setIsHandled(true);
 	const MultiID oldmid = applMgr()->EMServer()->getStorageID(emid);
-	applMgr()->mpeServer()->prepareSaveSetupAs( oldmid );
+	mps->prepareSaveSetupAs( oldmid );
 
 	applMgr()->EMServer()->storeObject( emid, true );
 	applMgr()->visServer()->setObjectName( displayid_,
 		(const char*) applMgr()->EMServer()->getName(emid) );
 
 	const MultiID newmid = applMgr()->EMServer()->getStorageID(emid);
-	applMgr()->mpeServer()->saveSetupAs( newmid );
+	mps->saveSetupAs( newmid );
 
 	updateColumnText( uiODSceneMgr::cNameColumn() );
     }
@@ -323,7 +323,7 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB( CallBacker* cb )
 	applMgr()->enableMenusAndToolBars( false );
 	applMgr()->enableTree( false );
 
-	if ( applMgr()->mpeServer()->addTracker(emid,menu->getPickedPos())!=-1 )
+	if ( mps->addTracker(emid,menu->getPickedPos())!=-1 )
 	{
 	    uivisemobj->checkTrackingStatus();
 	    applMgr()->visServer()->showMPEToolbar();
@@ -335,7 +335,7 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB( CallBacker* cb )
     else if ( mnuid==changesetupmnuitem_.id )
     {
 	menu->setIsHandled(true);
-	applMgr()->mpeServer()->showSetupDlg( emid, sectionid, true );
+	mps->showSetupDlg( emid, sectionid, true );
 	applMgr()->visServer()->updateMPEToolbar();
     }
     else if ( mnuid==reloadmnuitem_.id )
@@ -359,14 +359,13 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB( CallBacker* cb )
     else if ( mnuid==relationsmnuitem_.id )
     {	
 	menu->setIsHandled(true);
-	applMgr()->mpeServer()->showRelationsDlg( emid, sectionid );
+	mps->showRelationsDlg( emid, sectionid );
     }
     else if ( mnuid==enabletrackingmnuitem_.id )
     {
 	menu->setIsHandled(true);
-	const int trackerid = applMgr()->mpeServer()->getTrackerID(emid);
-	applMgr()->mpeServer()->enableTracking(trackerid,
-		!applMgr()->mpeServer()->isTrackingEnabled(trackerid));
+	const int trackerid = mps->getTrackerID(emid);
+	mps->enableTracking( trackerid, !mps->isTrackingEnabled(trackerid) );
 	applMgr()->visServer()->updateMPEToolbar();
     }
 }

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          December 2004
- RCS:           $Id: uimpepartserv.h,v 1.28 2006-12-01 16:30:46 cvsjaap Exp $
+ RCS:           $Id: uimpepartserv.h,v 1.29 2007-01-03 16:03:52 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,10 +31,10 @@ namespace Attrib { class DescSet; class DataCubes; class Data2DHolder; }
 class uiMPEPartServer : public uiApplPartServer
 {
 public:
-				uiMPEPartServer(uiApplService&,
-						const Attrib::DescSet*);
+				uiMPEPartServer(uiApplService&);
 				~uiMPEPartServer();
     void			setCurrentAttribDescSet(const Attrib::DescSet*);
+    const Attrib::DescSet* 	getCurAttrDescSet(bool is2d) const;
 
     const char*			name() const		{ return "MPE";}
 
@@ -130,7 +130,8 @@ protected:
     void			mergeAttribSets(const Attrib::DescSet& newads,
 						MPE::EMTracker&);
 
-    const Attrib::DescSet*	attrset_;
+    const Attrib::DescSet*	attrset3d_;
+    const Attrib::DescSet*	attrset2d_;
     MPE::Wizard*		wizard_;
     bool			blockdataloading_;
     				/*!<Is checked when cb is issued from the

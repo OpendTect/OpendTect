@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2004
- RCS:           $Id: uimpepartserv.cc,v 1.56 2006-12-21 14:53:06 cvsjaap Exp $
+ RCS:           $Id: uimpepartserv.cc,v 1.57 2007-01-03 16:04:57 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,9 +45,10 @@ const int uiMPEPartServer::evCreate2DSelSpec	= 8;
 const int uiMPEPartServer::evMPEDispIntro	= 9;
 
 
-uiMPEPartServer::uiMPEPartServer( uiApplService& a, const Attrib::DescSet* ads )
+uiMPEPartServer::uiMPEPartServer( uiApplService& a )
     : uiApplPartServer(a)
-    , attrset_( ads )
+    , attrset3d_( 0 )
+    , attrset2d_( 0 )
     , wizard_( 0 )
     , activetrackerid_(-1)
     , eventattrselspec_( 0 )
@@ -80,7 +81,19 @@ uiMPEPartServer::~uiMPEPartServer()
 
 
 void uiMPEPartServer::setCurrentAttribDescSet( const Attrib::DescSet* ads )
-{ attrset_ = ads; }
+{ 
+    if ( ads )
+    {
+	if ( ads->is2D() )
+	    attrset2d_ = ads;
+	else
+	    attrset3d_ = ads;
+    }
+}
+
+
+const Attrib::DescSet* uiMPEPartServer::getCurAttrDescSet( bool is2d ) const
+{ return is2d ? attrset2d_ : attrset3d_; }
 
 
 int uiMPEPartServer::getTrackerID( const EM::ObjectID& emid ) const
@@ -225,8 +238,9 @@ bool uiMPEPartServer::showSetupDlg( const EM::ObjectID& emid,
 
 
     EM::EMObject* emobj = EM::EMM().getObject( emid );
+    // TODO: distinguish between attrset3d_ and attrset2d_
     MPE::uiSetupGroup* grp = 
-	MPE::uiMPE().setupgrpfact.create( &dlg, emobj->getTypeStr(), attrset_ );
+	MPE::uiMPE().setupgrpfact.create(&dlg, emobj->getTypeStr(), attrset3d_);
     grp->setSectionTracker( sectracker );
    
     do
@@ -471,13 +485,14 @@ bool uiMPEPartServer::saveSetup( const MultiID& mid )
     ObjectSet<const Attrib::SelSpec> usedattribs;
     MPE::engine().getNeededAttribs( usedattribs );
     TypeSet<Attrib::DescID> usedattribids;
+    // TODO: distinguish between attrset3d_ and attrset2d_
     for ( int idx=0; idx<usedattribs.size(); idx++ )
     {
 	const Attrib::DescID descid = usedattribs[idx]->id();
-	if ( attrset_->getDesc(descid) )
+	if ( attrset3d_->getDesc(descid) )
 	    usedattribids += descid;
     }
-    Attrib::DescSet* ads = attrset_->optimizeClone( usedattribids );
+    Attrib::DescSet* ads = attrset3d_->optimizeClone( usedattribids );
     IOPar attrpar;
     if ( ads ) 
 	ads->fillPar( attrpar );
@@ -530,6 +545,7 @@ bool uiMPEPartServer::readSetup( const MultiID& mid )
 }
 
 
+// TODO: distinguish between attrset3d_ and attrset2d_
 void uiMPEPartServer::mergeAttribSets( const Attrib::DescSet& newads,
 				       MPE::EMTracker& tracker )
 {
@@ -548,10 +564,10 @@ void uiMPEPartServer::mergeAttribSets( const Attrib::DescSet& newads,
 	    Attrib::DescID newid( -1, true );
 	    const Attrib::Desc* usedad = newads.getDesc( as->id() );
 	    if ( !usedad ) continue;
-	    for ( int ida=0; ida<attrset_->nrDescs(); ida++ )
+	    for ( int ida=0; ida<attrset3d_->nrDescs(); ida++ )
 	    {
-		const Attrib::DescID descid = attrset_->getID( ida );
-		const Attrib::Desc* ad = attrset_->getDesc( descid );
+		const Attrib::DescID descid = attrset3d_->getID( ida );
+		const Attrib::Desc* ad = attrset3d_->getDesc( descid );
 		if ( !ad ) continue;
 
 		if ( usedad->isIdenticalTo( *ad ) )
@@ -564,14 +580,14 @@ void uiMPEPartServer::mergeAttribSets( const Attrib::DescSet& newads,
 	    if ( newid < 0 )
 	    {
 		Attrib::DescSet* set = 
-		    const_cast<Attrib::DescSet*>(attrset_);
+		    const_cast<Attrib::DescSet*>( attrset3d_ );
 		Attrib::Desc* newdesc = new Attrib::Desc( *usedad );
 		newdesc->setDescSet( set );
 		newid = set->addDesc( newdesc );
 	    }
 
 	    Attrib::SelSpec newas( *as );
-	    newas.setIDFromRef( *attrset_ );
+	    newas.setIDFromRef( *attrset3d_ );
 	    st->adjuster()->setAttributeSel( asidx, newas );
 	}
     }

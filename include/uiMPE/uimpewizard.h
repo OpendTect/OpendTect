@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpewizard.h,v 1.23 2006-12-22 10:09:46 cvsjaap Exp $
+ RCS:           $Id: uimpewizard.h,v 1.24 2007-01-03 16:04:27 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -60,6 +60,9 @@ protected:
 
     uiColorInput*	colorfld;
 
+    uiSetupGroup*	hsetupgrp;
+    uiSetupGroup*	h2dsetupgrp;
+    uiSetupGroup*	fsetupgrp;
     uiSetupGroup*	setupgrp;
 
     uiButtonGroup*      hmodegrp;

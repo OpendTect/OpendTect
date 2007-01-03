@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpewizard.cc,v 1.61 2006-12-22 10:18:42 cvsjaap Exp $
+ RCS:           $Id: uimpewizard.cc,v 1.62 2007-01-03 16:06:34 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -130,6 +130,7 @@ Wizard::~Wizard()
 
 uiIOObjSelGrp* Wizard::createNamePage()
 {
+    // TODO: Make nice for Horizon(2D) & Fault (trackertype not yet set here!!)
     const IOObjContext* ctxttemplate = EM::EMM().getContext( trackertype );
     if ( !ctxttemplate )
 	ctxttemplate = EM::EMM().getContext("Fault");
@@ -180,16 +181,23 @@ uiGroup* Wizard::createTrackModePage()
 }
 
 
+#define mDefSetupGrp( xsetupgrp, typ, is2d ) \
+    xsetupgrp = uiMPE().setupgrpfact.create( grp, \
+				     EM##typ##TranslatorGroup::keyword, \
+				     mpeserv->getCurAttrDescSet(is2d) ); \
+    xsetupgrp->attach( centeredAbove, lbl );
+
 uiGroup* Wizard::createSeedSetupPage()
 {
-    // TODO: support both, horizons and faults
     uiGroup* grp = new uiGroup( this, "Page 3" );
-    setupgrp = uiMPE().setupgrpfact.create( grp, EM::Horizon::typeStr(),
-	    				    mpeserv->attrset_ );
-
     uiLabel* lbl = new uiLabel( grp,
-	    		"Evaluate settings by picking one or more seeds" );
-    lbl->attach( centeredBelow, setupgrp );
+			    "Evaluate settings by picking one or more seeds" );
+
+    mDefSetupGrp( hsetupgrp, Horizon, false );
+    // Horizon2D can use a uiHorizonSetupGroup until we need differentiation.
+    mDefSetupGrp( h2dsetupgrp, Horizon, true );
+//  mDefSetupGrp( fsetupgrp, Fault, false );
+
     uiPushButton* applybut = new uiPushButton( grp, "Retrack", true );
     applybut->activated.notify( mCB(this,Wizard,retrackCB) );
     applybut->attach( centeredBelow, lbl );
@@ -246,6 +254,7 @@ bool Wizard::prepareNamePage()
 
     return true;
 }
+
 
 #define mErrRet(msg) { uiMSG().error(msg); return false; }
 
@@ -360,8 +369,18 @@ bool Wizard::leaveTrackModePage( bool process )
 }
 
 
+#define mSelectSetupGrp( xsetupgrp, typ ) \
+    xsetupgrp->display( false, true ); \
+    if ( trackertype == EM##typ##TranslatorGroup::keyword ) \
+	setupgrp = xsetupgrp; \
+    xsetupgrp->display( xsetupgrp==setupgrp, true );
+
 bool Wizard::prepareSeedSetupPage()
 {
+    mSelectSetupGrp( hsetupgrp, Horizon );
+    mSelectSetupGrp( h2dsetupgrp, Horizon2D );
+    //mSelectSetupGrp( fsetupgrp, Fault );
+
     const int trackerid = mpeserv->getTrackerID( currentobject );
     EMTracker* tracker = MPE::engine().getTracker( trackerid );
     SectionTracker* sectiontracker = tracker->getSectionTracker( sid, true );

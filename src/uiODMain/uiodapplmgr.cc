@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.167 2006-12-27 15:06:07 cvsnanne Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.168 2007-01-03 16:01:28 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -79,7 +79,6 @@ public:
 };
 
 
-//TODO : would that mean we need 2 mpeserv?
 uiODApplMgr::uiODApplMgr( uiODMain& a )
 	: appl(a)
 	, applservice(*new uiODApplService(&a,*this))
@@ -96,8 +95,7 @@ uiODApplMgr::uiODApplMgr( uiODMain& a )
     emattrserv = new uiEMAttribPartServer( applservice );
     wellserv = new uiWellPartServer( applservice );
     wellattrserv = new uiWellAttribPartServer( applservice );
-	//TODO false set to make it compile change!!!!!!!
-    mpeserv = new uiMPEPartServer( applservice, attrserv->curDescSet(false) );
+    mpeserv = new uiMPEPartServer( applservice );
 
     IOM().surveyToBeChanged.notify( mCB(this,uiODApplMgr,surveyToBeChanged) );
 }
@@ -123,19 +121,16 @@ uiODApplMgr::~uiODApplMgr()
 }
 
 
-//TODO : would that mean we need 2 mpeserv?
 void uiODApplMgr::resetServers()
 {
     if ( nlaserv ) nlaserv->reset();
     delete attrserv; delete mpeserv;
     attrserv = new uiAttribPartServer( applservice );
-	//TODO false set to make it compile change!!!!!!!
-    mpeserv = new uiMPEPartServer( applservice,  attrserv->curDescSet(false) );
+    mpeserv = new uiMPEPartServer( applservice );
     visserv->deleteAllObjects();
     emserv->removeHistory();
 }
 
-//TODO : would that mean we need 2 mpeserv?
 //TODO verify that the descsets are both saved
 int uiODApplMgr::manageSurvey()
 {
@@ -149,8 +144,7 @@ int uiODApplMgr::manageSurvey()
     {
 	sceneMgr().addScene();
 	attrserv = new uiAttribPartServer( applservice );
-	//TODO false set to make it compile change!!!!!!!
-	mpeserv = new uiMPEPartServer( applservice,  attrserv->curDescSet(false) );
+	mpeserv = new uiMPEPartServer( applservice );
 	MPE::engine().setActiveVolume( MPE::engine().getDefaultActiveVolume() );
 	return 2;
     }
@@ -956,6 +950,7 @@ bool uiODApplMgr::handleAttribServEv( int evid )
     {
 	//TODO false set to make it compile change!!!!!!
 	mpeserv->setCurrentAttribDescSet( attrserv->curDescSet(false) );
+	mpeserv->setCurrentAttribDescSet( attrserv->curDescSet(true) );
     }
     else if ( evid==uiAttribPartServer::evAttrSetDlgClosed )
     {
