@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          13/01/2005
- RCS:           $Id: undefarray.cc,v 1.2 2007-01-03 08:31:12 cvsnanne Exp $
+ RCS:           $Id: undefarray.cc,v 1.3 2007-01-03 16:18:10 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,15 +41,15 @@ bool UndefArrayHandler::set(const BinDataDesc& desc)
     limitrange_ = 0;
 
     mSetFunc( true, true, N1, UChar )
-    else mSetFunc( true, false, N1, Char )
-    else mSetFunc( true, true, N2, UShort )
-    else mSetFunc( true, false, N2, Short )
-    else mSetFunc( true, true, N4, UInt32 )
-    else mSetFunc( true, false, N4, Int32 )
-    else mSetFunc( true, true, N8, UInt64 )
-    else mSetFunc( true, false, N8, Int64 )
-    else mSetFunc( false, false, N4, Float )
-    else mSetFunc( false, false, N8, Double )
+    else mSetFunc( true, true, N1, Char )
+    else mSetFunc( true, false, N2, UShort )
+    else mSetFunc( true, true, N2, Short )
+    else mSetFunc( true, false, N4, UInt32 )
+    else mSetFunc( true, true, N4, Int32 )
+    else mSetFunc( true, false, N8, UInt64 )
+    else mSetFunc( true, true, N8, Int64 )
+    else mSetFunc( false, true, N4, Float )
+    else mSetFunc( false, true, N8, Double )
 
     return isOK();
 }
