@@ -4,12 +4,13 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: dataclipper.cc,v 1.13 2006-09-21 12:02:47 cvsbert Exp $";
+static const char* rcsID = "$Id: dataclipper.cc,v 1.14 2007-01-04 22:36:16 cvskris Exp $";
 
 
 #include "dataclipper.h"
 #include "statrand.h"
 #include "sorting.h"
+#include "valseries.h"
 #include "undefval.h"
 
 
@@ -92,6 +93,52 @@ void DataClipper::putData( const float* vals, int nrvals )
 	for ( int idx=0; idx<nrvals; idx++ )
 	{
 	    float val = vals[idx];
+	    if ( !mIsUdf( val ) ) samples += val;
+	}
+    }
+}
+
+
+void DataClipper::putData( const ValueSeries<float>& vals, int nrvals )
+{
+    if ( vals.arr() )
+    {
+	putData( vals.arr(), nrvals );
+	return;
+    }
+	   
+    if ( subselect )
+    {
+	int nrsamples = approxstatsize-samples.size();
+	if ( nrsamples>nrvals )
+	{
+	    for ( int idx=0; idx<nrvals; idx++ )
+	    {
+		double rand = Stats::RandGen::get();
+		if ( rand > sampleprob )
+		    continue;
+
+		float val =  vals.value(idx);
+		if ( !mIsUdf( val ) ) samples += val;
+	    }
+	}
+	else
+	{
+	    for ( int idx=0; idx<nrsamples; idx++ )
+	    {
+		double rand = Stats::RandGen::get();
+		rand *= (nrvals-1);
+		float val =  vals.value(mNINT(rand));
+		if ( !mIsUdf( val ) )
+		    samples += val;
+	    }
+	}
+    }
+    else
+    {
+	for ( int idx=0; idx<nrvals; idx++ )
+	{
+	    float val = vals.value(idx);
 	    if ( !mIsUdf( val ) ) samples += val;
 	}
     }

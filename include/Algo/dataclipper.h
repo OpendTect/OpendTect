@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		09-02-2002
- RCS:		$Id: dataclipper.h,v 1.7 2006-07-21 21:23:09 cvskris Exp $
+ RCS:		$Id: dataclipper.h,v 1.8 2007-01-04 22:36:16 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -30,6 +30,8 @@ Step 2-4 can be repeted any number of times.
 
 #include "sets.h"
 #include "ranges.h"
+
+template <class T> class ValueSeries;
 
 class DataClipper
 {
@@ -54,7 +56,8 @@ public:
 				     to do the stats on.
 				*/
     void			putData(float);
-    void			putData(const float*, int );
+    void			putData(const float*, int sz );
+    void			putData(const ValueSeries<float>&, int sz );
 
     bool			calculateRange();
     				/*!< Will also reset the stats so the
