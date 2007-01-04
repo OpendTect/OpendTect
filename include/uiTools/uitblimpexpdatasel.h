@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2006
- RCS:           $Id: uitblimpexpdatasel.h,v 1.5 2007-01-03 17:50:54 cvsbert Exp $
+ RCS:           $Id: uitblimpexpdatasel.h,v 1.6 2007-01-04 13:03:42 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,6 +40,7 @@ public:
     MultiID&			storID()	{ return storid_; }
 
     bool			commit();
+    int				nrHdrLines() const; //!< '-1' = variable
 
 protected:
 
@@ -51,6 +52,8 @@ protected:
     uiGenInput*			hdrtokfld_;
     uiTableFmtDescFldsParSel*	fmtdeffld;
 
+    void			typChg(CallBacker*);
+    void			openFmt(CallBacker*);
 };
 
 
