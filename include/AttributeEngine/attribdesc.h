@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribdesc.h,v 1.37 2006-09-22 12:03:58 cvshelene Exp $
+ RCS:           $Id: attribdesc.h,v 1.38 2007-01-04 15:27:50 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -122,6 +122,7 @@ public:
 				/*!< Checks wether all inputs are satisfied. */
 
     const BufferString&		errMsg() const;
+    void			setErrMsg( const char* str )	{ errmsg_=str; }
 
     bool			isIdenticalTo(const Desc&,
 	    				      bool cmpoutput=true) const;
