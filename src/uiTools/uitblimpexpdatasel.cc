@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2006
- RCS:           $Id: uitblimpexpdatasel.cc,v 1.17 2007-01-04 13:03:18 cvsbert Exp $
+ RCS:           $Id: uitblimpexpdatasel.cc,v 1.18 2007-01-04 15:17:35 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -59,7 +59,10 @@ uiTableTargetInfoEd( uiParent* p, Table::TargetInfo& tinf, bool ishdr,
 	specfld_->setCurrentItem( tinf_.selection_.havePos(0) ? 1 : 0 );
     }
 
-    uiLabel* lbl = new uiLabel( this, tinf_.name() );
+    BufferString lbltxt( tinf_.isOptional() ? "[" : "" );
+    lbltxt += tinf_.name();
+    if ( tinf_.isOptional() ) lbltxt += "]";
+    uiLabel* lbl = new uiLabel( this, lbltxt );
     if ( formfld_ )
 	lbl->attach( rightOf, formfld_ );
     rightmostleftfld_ = formfld_ ? (uiObject*)formfld_ : (uiObject*)lbl;
