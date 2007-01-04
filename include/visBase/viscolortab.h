@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viscolortab.h,v 1.13 2006-09-05 20:53:06 cvskris Exp $
+ RCS:		$Id: viscolortab.h,v 1.14 2007-01-04 22:43:13 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "viscolorseq.h"
 
 template <class T> class Interval;
+template <class T> class ValueSeries;
 class LinScaler;
 
 namespace visBase
@@ -38,6 +39,9 @@ public:
     void			setClipRate(float);
     void			scaleTo(const Interval<float>& rg);
     void			scaleTo(const float* values, int nrvalues);
+    				/*!< Does only work if autoscale is true */
+    void			scaleTo(const ValueSeries<float>& values,
+	    				int nrvalues);
     				/*!< Does only work if autoscale is true */
     Interval<float>		getInterval() const;
 

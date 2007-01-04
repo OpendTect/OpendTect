@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Mar 2002
- RCS:           $Id: viscolortab.cc,v 1.32 2006-12-28 21:10:33 cvsnanne Exp $
+ RCS:           $Id: viscolortab.cc,v 1.33 2007-01-04 22:43:13 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -81,6 +81,16 @@ void VisColorTab::setClipRate( float ncr )
 
 
 void VisColorTab::scaleTo( const float* values, int nrvalues )
+{
+    DataClipper clipper( cliprate_ );
+    clipper.setApproxNrValues( nrvalues, 5000 );
+    clipper.putData( values, nrvalues );
+    scaleTo( clipper.calculateRange() ?
+	     clipper.getRange() : Interval<float>( 0, 1 ) );
+}
+
+
+void VisColorTab::scaleTo( const ValueSeries<float>& values, int nrvalues )
 {
     DataClipper clipper( cliprate_ );
     clipper.setApproxNrValues( nrvalues, 5000 );
