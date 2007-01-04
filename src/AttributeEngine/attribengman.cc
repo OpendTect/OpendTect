@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H.Payraudeau
  Date:          04/2005
- RCS:           $Id: attribengman.cc,v 1.63 2006-12-21 10:48:24 cvshelene Exp $
+ RCS:           $Id: attribengman.cc,v 1.64 2007-01-04 15:29:26 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -256,16 +256,16 @@ const char* EngineMan::getCurUserRef() const
 
 const DataCubes* EngineMan::getDataCubesOutput( const Processor& proc )
 {
-    if ( proc.outputs.size()==1 && !cache )
-	return proc.outputs[0]->getDataCubes();
+    if ( proc.outputs_.size()==1 && !cache )
+	return proc.outputs_[0]->getDataCubes();
 
     ObjectSet<const DataCubes> cubeset;
-    for ( int idx=0; idx<proc.outputs.size(); idx++ )
+    for ( int idx=0; idx<proc.outputs_.size(); idx++ )
     {
-	if ( !proc.outputs[idx] || !proc.outputs[idx]->getDataCubes() )
+	if ( !proc.outputs_[idx] || !proc.outputs_[idx]->getDataCubes() )
 	    continue;
 
-	const DataCubes* dc = proc.outputs[idx]->getDataCubes();
+	const DataCubes* dc = proc.outputs_[idx]->getDataCubes();
 	dc->ref();
 	if ( cubeset.size() && cubeset[0]->nrCubes()!=dc->nrCubes() )
 	{
@@ -865,7 +865,7 @@ Processor* EngineMan::createTrcSelOutput( BufferString& errmsg,
 
 int EngineMan::getNrOutputsToBeProcessed( const Processor& proc ) const
 {
-    return proc.outputs.size();
+    return proc.outputs_.size();
 }
 
 } // namespace Attrib

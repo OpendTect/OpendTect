@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribprocessor.cc,v 1.45 2006-11-21 14:00:06 cvsbert Exp $";
+static const char* rcsID = "$Id: attribprocessor.cc,v 1.46 2007-01-04 15:29:26 cvshelene Exp $";
 
 #include "attribprocessor.h"
 
@@ -25,155 +25,193 @@ namespace Attrib
 Processor::Processor( Desc& desc , const char* lk, BufferString& err )
     : Executor("Attribute Processor")
     , desc_(desc)
-    , provider(Provider::create(desc,err))
-    , nriter(0)
-    , nrdone(0)
-    , isinited(false)
+    , provider_(Provider::create(desc,err))
+    , nriter_(0)
+    , nrdone_(0)
+    , isinited_(false)
+    , useshortcuts_(false)
     , moveonly(this)
     , prevbid_(BinID(-1,-1))
     , sd_(0)
 {
-    if ( !provider ) return;
-    provider->ref();
+    if ( !provider_ ) return;
+    provider_->ref();
     desc_.ref();
 
     is2d_ = desc_.descSet()->is2D();
     if ( is2d_ )
     {
-	provider->setCurLineKey( lk );
-	provider->adjust2DLineStoredVolume( true );
+	provider_->setCurLineKey( lk );
+	provider_->adjust2DLineStoredVolume( true );
     }
 }
 
 
 Processor::~Processor()
 {
-    if ( provider )  { provider->unRef(); desc_.unRef(); }
-    deepUnRef( outputs );
+    if ( provider_ )  { provider_->unRef(); desc_.unRef(); }
+    deepUnRef( outputs_ );
 
     if (sd_) delete sd_;
 }
 
 
-bool Processor::isOK() const { return provider; }
+bool Processor::isOK() const { return provider_; }
 
 
 void Processor::addOutput( Output* output )
 {
     if ( !output ) return;
     output->ref();
-    outputs += output;
+    outputs_ += output;
 }
 
 
 int Processor::nextStep()
 {
-    if ( !provider || outputs.isEmpty() ) return ErrorOccurred;
+    if ( !provider_ || outputs_.isEmpty() ) return ErrorOccurred;
 
-    if ( !isinited )
+    if ( !isinited_ )
 	init();
 
-    int res;
-    res = provider->moveToNextTrace();
+    if ( useshortcuts_ ) 
+	provider_->setUseSC();
     
-    if ( res < 0 || !nriter )
+    int res;
+    res = provider_->moveToNextTrace();
+    if ( res < 0 || !nriter_ )
     {
-	errmsg = provider->errMsg().buf();
-	if ( errmsg.size() )
+	errmsg_ = provider_->errMsg().buf();
+	if ( errmsg_.size() )
 	    return ErrorOccurred;
-	else if ( res < 0 )
-	{
-	    BinID firstpos;
+    }
+    useshortcuts_ ? useSCProcess( res ) : useFullProcess( res );
+    if ( errmsg_.size() )
+	return ErrorOccurred;
 
-	    if ( sd_ && sd_->type_ == Seis::Table )
-		firstpos = sd_->table_.firstPos();
-	    else
-	    {
-		const BinID step = provider->getStepoutStep();
-		firstpos.inl = step.inl/abs(step.inl)>0 ? 
-			       provider->getDesiredVolume()->hrg.start.inl : 
-			       provider->getDesiredVolume()->hrg.stop.inl;
-		firstpos.crl = step.crl/abs(step.crl)>0 ?
-			       provider->getDesiredVolume()->hrg.start.crl :
-			       provider->getDesiredVolume()->hrg.stop.crl;
-	    }
-	    provider->resetMoved();
-	    res = provider->moveToNextTrace( firstpos, true );
-	    
-	    if ( res < 0 )
-	    {
-		errmsg = "Error during data read";
-		return ErrorOccurred;
-	    }
+    provider_->resetMoved();
+    provider_->resetZIntervals();
+    nriter_++;
+    return res;
+}
+    
+
+void Processor::useFullProcess( int& res )
+{
+    if ( res < 0 )
+    {
+	BinID firstpos;
+
+	if ( sd_ && sd_->type_ == Seis::Table )
+	    firstpos = sd_->table_.firstPos();
+	else
+	{
+	    const BinID step = provider_->getStepoutStep();
+	    firstpos.inl = step.inl/abs(step.inl)>0 ? 
+			   provider_->getDesiredVolume()->hrg.start.inl : 
+			   provider_->getDesiredVolume()->hrg.stop.inl;
+	    firstpos.crl = step.crl/abs(step.crl)>0 ?
+			   provider_->getDesiredVolume()->hrg.start.crl :
+			   provider_->getDesiredVolume()->hrg.stop.crl;
+	}
+	provider_->resetMoved();
+	res = provider_->moveToNextTrace( firstpos, true );
+	
+	if ( res < 0 )
+	{
+	    errmsg_ = "Error during data read";
+	    return;
 	}
     }
 
-    provider->updateCurrentInfo();
-    const SeisTrcInfo* curtrcinfo = provider->getCurrentTrcInfo();
-    const bool needsinput = !provider->getDesc().isStored() && 
-			    provider->getDesc().nrInputs();
+    provider_->updateCurrentInfo();
+    const SeisTrcInfo* curtrcinfo = provider_->getCurrentTrcInfo();
+    const bool needsinput = !provider_->getDesc().isStored() && 
+			    provider_->getDesc().nrInputs();
     if ( !curtrcinfo && needsinput )
     {
-	errmsg = "No trace info available";
-	return ErrorOccurred;
+	errmsg_ = "No trace info available";
+	return;
     }
 
-    if ( res == 0 && !nrdone )
+    if ( res == 0 && !nrdone_ )
     {
-	errmsg = "No position to process.\n";
-	errmsg += "You may not be in the possible volume,\n";
-	errmsg += "mind the stepout...";
-	return ErrorOccurred;
+	errmsg_ = "No position to process.\n";
+	errmsg_ += "You may not be in the possible volume,\n";
+	errmsg_ += "mind the stepout...";
+	return;
     }
     else if ( res != 0 )
+	fullProcess( curtrcinfo );
+}
+
+
+void Processor::fullProcess( const SeisTrcInfo* curtrcinfo )
+{
+    BinID curbid = provider_->getCurrentPosition();
+    if ( is2d_ && curtrcinfo )
     {
-	BinID curbid = provider->getCurrentPosition();
-	if ( is2d_ && curtrcinfo )
+	mDynamicCastGet( LocationOutput*, locoutp, outputs_[0] );
+	if ( locoutp ) 
+	    curbid = curtrcinfo->binid;
+	else
 	{
-	    mDynamicCastGet( LocationOutput*, locoutp, outputs[0] );
-	    if ( locoutp ) 
-		curbid = curtrcinfo->binid;
-	    else
-	    {
-		curbid.inl = 0;
-		curbid.crl = curtrcinfo->nr;
-	    }
+	    curbid.inl = 0;
+	    curbid.crl = curtrcinfo->nr;
 	}
-
-	SeisTrcInfo mytrcinfo;
-	if ( !curtrcinfo )
-	{
-	    mytrcinfo.binid = curbid;
-	    if ( is2d_ ) mytrcinfo.nr = curbid.crl;
-
-	    curtrcinfo = &mytrcinfo;
-	}
-
-	TypeSet< Interval<int> > localintervals;
-
-	bool isset = setZIntervals( localintervals, curbid );
-
-	for ( int idi=0; idi<localintervals.size(); idi++ )
-	{
-	    const DataHolder* data = isset ? 
-				    provider->getData( BinID(0,0), idi ) : 0;
-	    if ( data )
-	    {
-		for ( int idx=0; idx<outputs.size(); idx++ )
-		    outputs[idx]->collectData( *data, provider->getRefStep(),
-			    		       *curtrcinfo );
-		if ( isset )
-		    nrdone++;
-	    }
-	}
-
-	prevbid_ = curbid;
     }
 
-    provider->resetMoved();
-    provider->resetZIntervals();
-    nriter++;
-    return res;
+    SeisTrcInfo mytrcinfo;
+    if ( !curtrcinfo )
+    {
+	mytrcinfo.binid = curbid;
+	if ( is2d_ ) mytrcinfo.nr = curbid.crl;
+
+	curtrcinfo = &mytrcinfo;
+    }
+
+    TypeSet< Interval<int> > localintervals;
+
+    bool isset = setZIntervals( localintervals, curbid );
+
+    for ( int idi=0; idi<localintervals.size(); idi++ )
+    {
+	const DataHolder* data = isset ? 
+				provider_->getData( BinID(0,0), idi ) : 0;
+	if ( data )
+	{
+	    for ( int idx=0; idx<outputs_.size(); idx++ )
+		outputs_[idx]->collectData( *data, provider_->getRefStep(),
+					    *curtrcinfo );
+	    if ( isset )
+		nrdone_++;
+	}
+    }
+
+    prevbid_ = curbid;
+}
+
+
+void Processor::useSCProcess( int& res )
+{
+    if ( res < 0 )
+    {
+	errmsg_ = "Error during data read";
+	return;
+    }
+    if ( res == 0 && !nrdone_ )
+    {
+	errmsg_ = "This stored cube contains no data in selected area.\n";
+	return;
+    }
+
+    if ( res == 0 ) return;
+
+    for ( int idx=0; idx<outputs_.size(); idx++ )
+	provider_->fillDataCubesWithTrc( 
+			outputs_[idx]->getDataCubes(provider_->getRefStep() ) );
+
+    nrdone_++;
 }
 
 
@@ -181,13 +219,13 @@ void Processor::init()
 {
     TypeSet<int> globaloutputinterest;
     CubeSampling globalcs;
-    for ( int idx=0; idx<outputs.size(); idx++ )
+    for ( int idx=0; idx<outputs_.size(); idx++ )
     {
 	CubeSampling cs;
-	if ( !outputs[idx]->getDesiredVolume(cs) )
+	if ( !outputs_[idx]->getDesiredVolume(cs) )
 	{
-	    outputs[idx]->unRef();
-	    outputs.remove(idx);
+	    outputs_[idx]->unRef();
+	    outputs_.remove(idx);
 	    idx--;
 	    continue;
 	}
@@ -206,58 +244,58 @@ void Processor::init()
 	    if ( globaloutputinterest.indexOf(outpinterest_[idy])==-1 )
 		globaloutputinterest += outpinterest_[idy];
 	}
-	outputs[idx]->setDesiredOutputs( outpinterest_ );
+	outputs_[idx]->setDesiredOutputs( outpinterest_ );
 
-	mDynamicCastGet( SeisTrcStorOutput*, storoutp, outputs[0] );
+	mDynamicCastGet( SeisTrcStorOutput*, storoutp, outputs_[0] );
 	if ( storoutp )
 	{
 	    TypeSet<Seis::DataType> outptypes;
 	    for ( int ido=0; ido<outpinterest_.size(); ido++ )
-		outptypes += provider->getDesc().dataType(outpinterest_[ido]);
+		outptypes += provider_->getDesc().dataType(outpinterest_[ido]);
 
-	    for ( int idoutp=0; idoutp<outputs.size(); idoutp++ )
-		((SeisTrcStorOutput*)outputs[idoutp])->setOutpTypes(outptypes);
+	    for ( int idoutp=0; idoutp<outputs_.size(); idoutp++ )
+		((SeisTrcStorOutput*)outputs_[idoutp])->setOutpTypes(outptypes);
 	}
     }
 
-    if ( outputs.size() && outputs[0]->getSelData().type_==Seis::Table )
+    if ( outputs_.size() && outputs_[0]->getSelData().type_==Seis::Table )
     {
-	for ( int idx=0; idx<outputs.size(); idx++ )
+	for ( int idx=0; idx<outputs_.size(); idx++ )
 	{
-	    if ( !idx ) sd_ = new SeisSelData(outputs[0]->getSelData());
-	    else sd_->include( outputs[idx]->getSelData() );
+	    if ( !idx ) sd_ = new SeisSelData(outputs_[0]->getSelData());
+	    else sd_->include( outputs_[idx]->getSelData() );
 	}
     }
 
     if ( sd_ && sd_->type_ == Seis::Table )
     {
-	provider->setSelData( sd_ );
-	mDynamicCastGet( LocationOutput*, locoutp, outputs[0] );
+	provider_->setSelData( sd_ );
+	mDynamicCastGet( LocationOutput*, locoutp, outputs_[0] );
 	if ( locoutp )
 	{
-	    Interval<float> extraz( -2*provider->getRefStep(), 
-		    		    2*provider->getRefStep() );
-	    provider->setExtraZ( extraz );
-	    provider->setNeedInterpol(true);
+	    Interval<float> extraz( -2*provider_->getRefStep(), 
+		    		    2*provider_->getRefStep() );
+	    provider_->setExtraZ( extraz );
+	    provider_->setNeedInterpol(true);
 	}
     }
 
     for ( int idx=0; idx<globaloutputinterest.size(); idx++ )
-	provider->enableOutput(globaloutputinterest[idx], true );
+	provider_->enableOutput(globaloutputinterest[idx], true );
 
-    if ( provider->getInputs().isEmpty() && !provider->getDesc().isStored() )
+    if ( provider_->getInputs().isEmpty() && !provider_->getDesc().isStored() )
     {
-	provider->setDesiredVolume( globalcs );
-	provider->setPossibleVolume( globalcs );
+	provider_->setDesiredVolume( globalcs );
+	provider_->setPossibleVolume( globalcs );
     }
     else
     {
 	CubeSampling possvol;
 	if ( !possvol.includes(globalcs) )
 	    possvol = globalcs;
-	provider->setDesiredVolume( possvol );
-	provider->getPossibleVolume( -1, possvol );
-	provider->resetDesiredVolume();
+	provider_->setDesiredVolume( possvol );
+	provider_->getPossibleVolume( -1, possvol );
+	provider_->resetDesiredVolume();
 
 #       define mAdjustIf(v1,op,v2) \
 	if ( !mIsUdf(v1) && !mIsUdf(v2) && v1 op v2 ) v1 = v2;
@@ -269,14 +307,20 @@ void Processor::init()
 	mAdjustIf(globalcs.hrg.stop.crl,>,possvol.hrg.stop.crl);
 	mAdjustIf(globalcs.zrg.stop,>,possvol.zrg.stop);
 	
-	provider->setDesiredVolume( globalcs );
+	provider_->setDesiredVolume( globalcs );
     }
 
-    for ( int idx=0; idx<outputs.size(); idx++ )
-	outputs[idx]->adjustInlCrlStep( *provider->getPossibleVolume() );
+    mDynamicCastGet( DataCubesOutput*, dcoutp, outputs_[0] );
+    if ( dcoutp && provider_->getDesc().isStored() )
+    	useshortcuts_ = true;
+    else
+    {
+	for ( int idx=0; idx<outputs_.size(); idx++ )
+	    outputs_[idx]->adjustInlCrlStep( *provider_->getPossibleVolume() );
 
-    provider->prepareForComputeData();
-    isinited = true;
+	provider_->prepareForComputeData();
+    }
+    isinited_ = true;
 }
 
 
@@ -285,26 +329,26 @@ bool Processor::setZIntervals( TypeSet< Interval<int> >& localintervals,
 {
     //TODO: Smarter way if output's intervals don't intersect
     bool isset = false;
-    for ( int idx=0; idx<outputs.size(); idx++ )
+    for ( int idx=0; idx<outputs_.size(); idx++ )
     {
-	if ( !outputs[idx]->wantsOutput(curbid) || curbid == prevbid_ ) 
+	if ( !outputs_[idx]->wantsOutput(curbid) || curbid == prevbid_ ) 
 	    continue;
 
 	if ( isset )
 	{
-	    localintervals.append ( outputs[idx]->
-			    getLocalZRange( curbid, provider->getRefStep() ) );
+	    localintervals.append ( outputs_[idx]->
+			    getLocalZRange( curbid, provider_->getRefStep() ) );
 	}
 	else
 	{
-	    localintervals = outputs[idx]->
-			    getLocalZRange( curbid, provider->getRefStep() );
+	    localintervals = outputs_[idx]->
+			    getLocalZRange( curbid, provider_->getRefStep() );
 	    isset = true;
 	}
     }
 
     if ( isset ) 
-	provider->addLocalCompZIntervals( localintervals );
+	provider_->addLocalCompZIntervals( localintervals );
 
     return isset;
 }
@@ -312,7 +356,7 @@ bool Processor::setZIntervals( TypeSet< Interval<int> >& localintervals,
 
 int Processor::totalNr() const
 {
-    return provider ? provider->getTotalNrPos(is2d_) : 0;
+    return provider_ ? provider_->getTotalNrPos(is2d_) : 0;
 }
 
 

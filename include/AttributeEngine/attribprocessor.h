@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribprocessor.h,v 1.15 2006-02-21 13:09:54 cvshelene Exp $
+ RCS:           $Id: attribprocessor.h,v 1.16 2007-01-04 15:29:26 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ ________________________________________________________________________
 
 class CubeSampling;
 class SeisSelData;
+class SeisTrcInfo;
 template <class T> class Interval;
 
 namespace Attrib
@@ -38,10 +39,10 @@ public:
     int			nextStep();
     void		init();
     int			totalNr() const;
-    int 		nrDone() const 		{ return nrdone; }
+    int 		nrDone() const 		{ return nrdone_; }
     const char*         message() const
-			{ return *(const char*)errmsg ? (const char*)errmsg
-						      : "Processing"; }
+			{ return *(const char*)errmsg_ ? (const char*)errmsg_
+						       : "Processing"; }
 
     void		addOutputInterest(int sel)     { outpinterest_ += sel; }
     bool		setZIntervals(TypeSet< Interval<int> >&, BinID);
@@ -51,22 +52,27 @@ public:
                           no processing, e.g. during initial buffer fills. */
     
     const char*		getAttribName(); 	
-    Provider*		getProvider() 		{ return provider; }
-    ObjectSet<Output>   outputs;
+    Provider*		getProvider() 		{ return provider_; }
+    ObjectSet<Output>   outputs_;
 
 protected:
 
     Desc&		desc_;
-    Provider*		provider;
-    int			nriter;
-    int			nrdone;
+    Provider*		provider_;
+    int			nriter_;
+    int			nrdone_;
     bool 		is2d_;
     TypeSet<int>	outpinterest_;
-    BufferString	errmsg;
-    bool		isinited;
+    BufferString	errmsg_;
+    bool		isinited_;
+    bool		useshortcuts_;
 
     BinID		prevbid_;
     SeisSelData*	sd_;
+
+    void		useFullProcess(int&);
+    void		useSCProcess(int&);
+    void		fullProcess(const SeisTrcInfo*);
 };
 
 

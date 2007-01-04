@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attriboutput.cc,v 1.52 2007-01-03 21:31:31 cvskris Exp $";
+static const char* rcsID = "$Id: attriboutput.cc,v 1.53 2007-01-04 15:29:26 cvshelene Exp $";
 
 #include "attriboutput.h"
 
@@ -120,21 +120,7 @@ void DataCubesOutput::collectData( const DataHolder& data, float refstep,
 				  const SeisTrcInfo& info )
 {
     if ( !datacubes_ )
-    {
-	datacubes_ = new Attrib::DataCubes;
-	datacubes_->ref();
-	datacubes_->inlsampling= StepInterval<int>(desiredvolume_.hrg.start.inl,
-						   desiredvolume_.hrg.stop.inl,
-						   desiredvolume_.hrg.step.inl);
-	datacubes_->crlsampling= StepInterval<int>(desiredvolume_.hrg.start.crl,
-						   desiredvolume_.hrg.stop.crl,
-						   desiredvolume_.hrg.step.crl);
-	datacubes_->z0 = mNINT(desiredvolume_.zrg.start/refstep);
-	datacubes_->zstep = refstep;
-	int inlsz, crlsz, zsz;
-	mGetSz(inl); mGetSz(crl); mGetZSz();
-	datacubes_->setSize( inlsz, crlsz, zsz );
-    }
+	init( refstep );
 
     if ( !datacubes_->includes(info.binid) )
 	return;
@@ -217,10 +203,37 @@ const DataCubes* DataCubesOutput::getDataCubes() const
 }
 
 
+DataCubes* DataCubesOutput::getDataCubes( float refstep )
+{
+    if ( !datacubes_ )
+	init( refstep );
+
+    return datacubes_;
+}
+
+
 void DataCubesOutput::setGeometry( const CubeSampling& cs )
 {
     if ( cs.isEmpty() ) return;
     seldata_.copyFrom(cs);
+}
+
+
+void DataCubesOutput::init( float refstep )
+{
+    datacubes_ = new Attrib::DataCubes;
+    datacubes_->ref();
+    datacubes_->inlsampling= StepInterval<int>(desiredvolume_.hrg.start.inl,
+					       desiredvolume_.hrg.stop.inl,
+					       desiredvolume_.hrg.step.inl);
+    datacubes_->crlsampling= StepInterval<int>(desiredvolume_.hrg.start.crl,
+					       desiredvolume_.hrg.stop.crl,
+					       desiredvolume_.hrg.step.crl);
+    datacubes_->z0 = mNINT(desiredvolume_.zrg.start/refstep);
+    datacubes_->zstep = refstep;
+    int inlsz, crlsz, zsz;
+    mGetSz(inl); mGetSz(crl); mGetZSz();
+    datacubes_->setSize( inlsz, crlsz, zsz );
 }
 
 

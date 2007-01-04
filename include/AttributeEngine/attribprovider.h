@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribprovider.h,v 1.55 2006-12-20 17:44:11 cvskris Exp $
+ RCS:           $Id: attribprovider.h,v 1.56 2007-01-04 15:29:26 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,6 +32,7 @@ namespace Attrib
 {
 
 class DataHolder;
+class DataCubes;
 class DataHolderLineBuffer;
 class Desc;
 class ProviderTask;
@@ -106,6 +107,7 @@ public:
     void               		updateInputReqs(int input=-1);
     virtual void                updateStorageReqs(bool all=false);
     void			setNeedInterpol(bool);
+    void			setUseSC()		{ useshortcuts_ = true;}
     void			setSelData(const SeisSelData*);
     void                        setExtraZ(const Interval<float>&);
     float                       getRefStep() const; 
@@ -125,6 +127,7 @@ public:
     static const char*		prepare(Desc&);
     				//!< Must be called before getting
     				//!< inputs/outputs etc. from a Desc
+    virtual void                fillDataCubesWithTrc(DataCubes*) const	{}
 
 protected:
 
@@ -299,6 +302,7 @@ protected:
     Interval<float>     	extraz_;
     const SeisTrcInfo*		curtrcinfo_;
     BinID                       trcinfobid;
+    bool			useshortcuts_;
 
     float                       refstep;
     bool 			alreadymoved;

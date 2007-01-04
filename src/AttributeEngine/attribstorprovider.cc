@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribstorprovider.cc,v 1.50 2006-11-21 14:00:06 cvsbert Exp $";
+static const char* rcsID = "$Id: attribstorprovider.cc,v 1.51 2007-01-04 15:29:26 cvshelene Exp $";
 
 #include "attribstorprovider.h"
 
@@ -14,6 +14,7 @@ static const char* rcsID = "$Id: attribstorprovider.cc,v 1.50 2006-11-21 14:00:0
 #include "attribparam.h"
 #include "attriblinebuffer.h"
 #include "attribdataholder.h"
+#include "attribdatacubes.h"
 #include "datainpspec.h"
 #include "ioman.h"
 #include "ioobj.h"
@@ -70,12 +71,21 @@ void StorageProvider::updateDesc( Desc& desc )
     
     PtrMan<IOObj> ioobj = IOM().get( key );
     SeisTrcReader rdr( ioobj );
-    if ( !rdr.ioObj() || !rdr.prepareWork(Seis::PreScan)
-      || rdr.psIOProv() ) return;
+    if ( !rdr.ioObj() || !rdr.prepareWork(Seis::PreScan) || rdr.psIOProv() )
+    {
+//	desc.setErrMsg( rdr.errMsg() );
+	return;
+    }
 
     if ( rdr.is2D() )
     {
-	if ( !rdr.lineSet() ) return;
+	if ( !rdr.lineSet() )
+	{
+	    BufferString errmsg = "No line set available for '";
+	    errmsg += ioobj->name(); errmsg += "'";
+//	    desc.setErrMsg( errmsg );
+	    return;
+	}
 	const bool issteering = attrnm == sKey::Steering;
 	if ( !issteering )
 	{
@@ -92,7 +102,13 @@ void StorageProvider::updateDesc( Desc& desc )
     else
     {
 	SeisTrcTranslator* transl = rdr.seisTranslator();
-	if ( !transl ) return;
+	if ( !transl )
+	{
+	    BufferString errmsg = "No data interpreter available for '";
+	    errmsg += ioobj->name(); errmsg += "'";
+//	    desc.setErrMsg ( errmsg );
+	    return;
+	}
 
 	BufferString type;
 	ioobj->pars().get( sKey::Type, type );
@@ -213,16 +229,19 @@ int StorageProvider::moveToNextTrace( BinID startpos, bool firstcheck )
 	status = Ready;
     }
 
-    if ( getDesc().is2D() )
-	prevtrcnr = currentbid.crl;
-
-    bool validstartpos = startpos != BinID(-1,-1);
-    if ( validstartpos && curtrcinfo_ && curtrcinfo_->binid == startpos )
+    if ( !useshortcuts_ )
     {
-	alreadymoved = true;
-	return 1;
-    }
+	if ( getDesc().is2D() )
+	    prevtrcnr = currentbid.crl;
 
+	bool validstartpos = startpos != BinID(-1,-1);
+	if ( validstartpos && curtrcinfo_ && curtrcinfo_->binid == startpos )
+	{
+	    alreadymoved = true;
+	    return 1;
+	}
+    }
+    
     bool cont = true;
     while ( cont )
     {
@@ -246,27 +265,33 @@ int StorageProvider::moveToNextTrace( BinID startpos, bool firstcheck )
 		SeisTrc* trc = rg[currentreq]->get(0,0);
 		if ( trc )
 		{
-		    for ( int idx=0; idx<trc->nrComponents(); idx++ )
-		    {
-			if ( datachar_.size()<=idx )
-			    datachar_ +=
-				trc->data().getInterpreter()->dataChar();
-			else
-			    datachar_[idx] =
-				trc->data().getInterpreter()->dataChar();
-		    }
-
-		    curtrcinfo_ = &trc->info();
-		    currentbid = desc.is2D()? BinID( 0, curtrcinfo_->nr ) 
-					    : curtrcinfo_->binid;
-		    trcinfobid = curtrcinfo_->binid;
-		    if ( !validstartpos || 
-			 ( validstartpos && ( currentbid == startpos || 
-			 ( curtrcinfo_->binid == startpos || firstcheck ) ) ))
-
+		    if ( useshortcuts_ )
 			cont = false;
 		    else
-			curtrcinfo_ = 0;
+		    {
+			for ( int idx=0; idx<trc->nrComponents(); idx++ )
+			{
+			    if ( datachar_.size()<=idx )
+				datachar_ +=
+				    trc->data().getInterpreter()->dataChar();
+			    else
+				datachar_[idx] =
+				    trc->data().getInterpreter()->dataChar();
+			}
+
+			curtrcinfo_ = &trc->info();
+			currentbid = desc.is2D()? BinID( 0, curtrcinfo_->nr ) 
+						: curtrcinfo_->binid;
+			trcinfobid = curtrcinfo_->binid;
+			bool validstartpos = startpos != BinID(-1,-1);
+			if ( !validstartpos || 
+			     ( validstartpos && ( currentbid == startpos || 
+			     ( curtrcinfo_->binid == startpos || firstcheck ))))
+
+			    cont = false;
+			else
+			    curtrcinfo_ = 0;
+		    }
 		}
 
 		continue;
@@ -588,5 +613,36 @@ void StorageProvider::adjust2DLineStoredVolume( bool adjuststep )
     if ( adjuststep )
 	getZStepStoredData(refstep);
 }
+
+
+void StorageProvider::fillDataCubesWithTrc( DataCubes* dc ) const
+{
+    const SeisTrc* trc = rg[currentreq]->get(0,0);
+    if ( !trc ) return;
+
+    const BinID bid = trc->info().binid;
+    if ( dc->includes( bid ) )
+    {
+	const int inlidx = dc->inlsampling.nearestIndex( bid.inl );
+	const int crlidx = dc->crlsampling.nearestIndex( bid.crl );
+	for ( int idz=0; idz<dc->getZSz(); idz++ )
+	{
+	    const float curt = (dc->z0+idz) * dc->zstep;
+	    int cubeidx = -1;
+	    for ( int idx=0; idx<outputinterest.size(); idx++ )
+	    {
+		if ( outputinterest[idx] )
+		{
+		    cubeidx++;
+		    if ( cubeidx >= dc->nrCubes() )
+			dc->addCube(mUdf(float));
+
+		    float val = trc->getValue( curt, idx );
+		    dc->setValue( cubeidx, inlidx, crlidx, idz, val );
+		}
+	    }
+	}
+    }
+} 
 
 }; // namespace Attrib

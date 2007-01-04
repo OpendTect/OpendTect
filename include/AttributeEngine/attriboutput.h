@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attriboutput.h,v 1.27 2006-11-16 15:22:28 cvshelene Exp $
+ RCS:           $Id: attriboutput.h,v 1.28 2007-01-04 15:29:26 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,7 +42,8 @@ public:
     virtual bool		getDesiredVolume(CubeSampling&) const
     				{ return true; }
     virtual bool		wantsOutput(const BinID&) const		 = 0;
-    virtual const DataCubes*	getDataCubes() const { return 0; }
+    virtual const DataCubes*	getDataCubes() const 	{ return 0; }
+    virtual DataCubes*		getDataCubes(float)	{ return 0; }
 
     virtual void		getDesiredOutputs( TypeSet<int>& outputs ) const
 				{ outputs = desoutputs_; }
@@ -76,6 +77,7 @@ public:
 				~DataCubesOutput();
 
     const DataCubes*		getDataCubes() const;
+    virtual DataCubes*		getDataCubes(float);
 
     bool			getDesiredVolume(CubeSampling&) const;
     void			setGeometry(const CubeSampling&);
@@ -92,6 +94,8 @@ protected:
     TypeSet< Interval<int> >	sampleinterval_;
     DataCubes*			datacubes_;
     float			udfval_;
+
+    void			init(float);
 };
 
 
