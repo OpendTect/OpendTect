@@ -8,11 +8,12 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: viscolortabindexer.cc,v 1.1 2007-01-03 18:22:19 cvskris Exp $";
+static const char* rcsID = "$Id: viscolortabindexer.cc,v 1.2 2007-01-04 22:20:07 cvskris Exp $";
 
 #include "viscolortabindexer.h"
 
 #include "thread.h"
+#include "valseries.h"
 #include "viscolortab.h"
 
 
@@ -21,13 +22,14 @@ static const char* rcsID = "$Id: viscolortabindexer.cc,v 1.1 2007-01-03 18:22:19
 namespace visBase
 {
 
-TextureColorTabIndexer::TextureColorTabIndexer( const float* inp,
-					  unsigned char* outp, int nsz,
-					  const VisColorTab* ct )
+ColorTabIndexer::ColorTabIndexer( const ValueSeries<float>& inp,
+				  unsigned char* outp, int nsz,
+				  const VisColorTab* ct )
     : colortab_( ct )
     , indexcache_( outp )
     , sz_( nsz )
-    , datacache_( inp )
+    , datacache_( &inp )
+    , datacacheptr_( inp.arr() )
     , histogrammutex_( *new Threads::Mutex )
     , globalhistogram_( 0 )
     , nrhistogramsteps_( ct->nrSteps() )
@@ -41,36 +43,69 @@ TextureColorTabIndexer::TextureColorTabIndexer( const float* inp,
 }
 
 
-TextureColorTabIndexer::~TextureColorTabIndexer()
+ColorTabIndexer::ColorTabIndexer( const float* inp,
+				  unsigned char* outp, int nsz,
+				  const VisColorTab* ct )
+    : colortab_( ct )
+    , indexcache_( outp )
+    , sz_( nsz )
+    , datacache_( 0 )
+    , datacacheptr_( inp )
+    , histogrammutex_( *new Threads::Mutex )
+    , globalhistogram_( 0 )
+    , nrhistogramsteps_( ct->nrSteps() )
+{
+    histogrammutex_.lock();
+
+    globalhistogram_ = new unsigned int[nrhistogramsteps_];
+
+    memset( globalhistogram_, 0, sizeof(int)*nrhistogramsteps_ );
+    histogrammutex_.unlock();
+}
+
+
+ColorTabIndexer::~ColorTabIndexer()
 {
     delete &histogrammutex_;
     delete [] globalhistogram_;
 }
 
 
-const unsigned int* TextureColorTabIndexer::getHistogram() const
+const unsigned int* ColorTabIndexer::getHistogram() const
 { return globalhistogram_; }
 
 
-int TextureColorTabIndexer::nrHistogramSteps() const
+int ColorTabIndexer::nrHistogramSteps() const
 { return nrhistogramsteps_; }
 
 
-int TextureColorTabIndexer::nrTimes() const
+int ColorTabIndexer::nrTimes() const
 { return sz_; }
 
 
 
-bool TextureColorTabIndexer::doWork( int start, int stop, int threadid )
+bool ColorTabIndexer::doWork( int start, int stop, int threadid )
 {
     unsigned int histogram[nrhistogramsteps_];
     memset( histogram, 0, sizeof(int)*nrhistogramsteps_ );
 
-    for ( int idx=start; idx<=stop; idx++ )
+    if ( datacacheptr_ )
     {
-	const int colorindex = colortab_->colIndex(datacache_[idx]);
-	indexcache_[idx] = colorindex;
-	histogram[colorindex]++;
+	for ( int idx=start; idx<=stop; idx++ )
+	{
+	    const int colorindex = colortab_->colIndex( datacacheptr_[idx] );
+	    indexcache_[idx] = colorindex;
+	    histogram[colorindex]++;
+	}
+    }
+    else
+    {
+	for ( int idx=start; idx<=stop; idx++ )
+	{
+	    const int colorindex = colortab_->colIndex(datacache_->value(idx));
+	    indexcache_[idx] = colorindex;
+	    histogram[colorindex]++;
+	}
     }
 
     histogrammutex_.lock();
@@ -80,7 +115,6 @@ bool TextureColorTabIndexer::doWork( int start, int stop, int threadid )
 
     return true;
 }
-
 
 
 

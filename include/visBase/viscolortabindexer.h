@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		January 2007
- RCS:		$Id: viscolortabindexer.h,v 1.1 2007-01-03 18:22:17 cvskris Exp $
+ RCS:		$Id: viscolortabindexer.h,v 1.2 2007-01-04 22:20:07 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -16,6 +16,8 @@ ________________________________________________________________________
 #include "basictask.h"
 
 namespace Threads { class Mutex; }
+
+template <class T> class ValueSeries;
 
 namespace visBase
 {
@@ -30,24 +32,28 @@ assigned nrStep() as index, and are not present in the histogram.
 */
 
 
-class TextureColorTabIndexer : public ParallelTask
+class ColorTabIndexer : public ParallelTask
 {
 public:
-	    			TextureColorTabIndexer( const float* inp,
+			ColorTabIndexer( const ValueSeries<float>& inp,
+				    unsigned char* outp, int sz,
+				    const VisColorTab* );
+			ColorTabIndexer( const float* inp,
 				    unsigned char* outp, int sz,
 				    const VisColorTab* );
 
-				~TextureColorTabIndexer();
+			~ColorTabIndexer();
 
-    const unsigned int*		getHistogram() const;
-    int				nrHistogramSteps() const;
+    const unsigned int*	getHistogram() const;
+    int			nrHistogramSteps() const;
 
 protected:
     bool			doWork(int start,int stop,int threadid);
     int				nrTimes() const;
 
     unsigned char*		indexcache_;
-    const float*		datacache_;
+    const ValueSeries<float>*	datacache_;
+    const float*		datacacheptr_;
     const visBase::VisColorTab*	colortab_;
     unsigned int*		globalhistogram_;
     int				nrhistogramsteps_;
