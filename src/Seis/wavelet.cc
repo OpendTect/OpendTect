@@ -5,7 +5,7 @@
  * FUNCTION : Wavelet
 -*/
 
-static const char* rcsID = "$Id: wavelet.cc,v 1.29 2006-12-22 10:53:26 cvsbert Exp $";
+static const char* rcsID = "$Id: wavelet.cc,v 1.30 2007-01-04 15:18:13 cvsbert Exp $";
 
 #include "wavelet.h"
 #include "seisinfo.h"
@@ -243,11 +243,11 @@ bool dgbWaveletTranslator::write( const Wavelet* wv, Conn& conn )
 Table::FormatDesc* WaveletAscIO::getDesc()
 {
     Table::FormatDesc* fd = new Table::FormatDesc( "Wavelet" );
-    fd->headerinfos_ += new Table::TargetInfo( "Center sample (empty=mid)",
-						IntInpSpec(), Table::Optional );
     fd->headerinfos_ += new Table::TargetInfo( "Sample interval",
 	    		FloatInpSpec(SI().zRange(true).step), Table::Required,
 			PropertyRef::surveyZType() );
+    fd->headerinfos_ += new Table::TargetInfo( "Center sample",
+						IntInpSpec(), Table::Optional );
     fd->bodyinfos_ += new Table::TargetInfo( "Data samples", FloatInpSpec(),
 					     Table::Required );
     return fd;
@@ -261,15 +261,15 @@ Wavelet* WaveletAscIO::get( std::istream& strm ) const
     if ( !getHdrVals(strm) )
 	return 0;
 
-    int centersmp = getIntValue( 0 );
-    if ( !mIsUdf(centersmp) && centersmp > 0 )
-	centersmp = -centersmp + 1; // Users start at 1
-
-    float sr = getfValue( 1 );
+    float sr = getfValue( 0 );
     if ( sr == 0 || mIsUdf(sr) )
 	sr = SI().zStep();
     else if ( sr < 0 )
 	sr = -sr;
+
+    int centersmp = getIntValue( 1 );
+    if ( !mIsUdf(centersmp) && centersmp > 0 )
+	centersmp = -centersmp + 1; // Users start at 1
 
     TypeSet<float> samps;
     while ( true )
