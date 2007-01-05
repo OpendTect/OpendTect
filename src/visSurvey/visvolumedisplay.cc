@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2002
- RCS:           $Id: visvolumedisplay.cc,v 1.49 2007-01-03 18:29:06 cvskris Exp $
+ RCS:           $Id: visvolumedisplay.cc,v 1.50 2007-01-05 15:38:06 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,9 +14,8 @@ ________________________________________________________________________
 
 #include "visboxdragger.h"
 #include "viscolortab.h"
-//#include "visvolobliqueslice.h"
 #include "visvolorthoslice.h"
-#include "visvoltexture.h"
+#include "visvolrenscalarfield.h"
 #include "visvolren.h"
 #include "vistransform.h"
 
@@ -55,24 +54,25 @@ const char* VolumeDisplay::texturestr = "TextureID";
 
 VolumeDisplay::VolumeDisplay()
     : VisualObjectImpl(true)
-    , boxdragger(visBase::BoxDragger::create())
-    , texture(visBase::VolumeTexture::create())
-    , volren(0)
-    , as(*new Attrib::SelSpec)
-    , cache(0)
+    , boxdragger_(visBase::BoxDragger::create())
+    , scalarfield_(visBase::VolumeRenderScalarField::create())
+    , volren_(0)
+    , as_(*new Attrib::SelSpec)
+    , cache_(0)
     , slicemoving(this)
-    , voltrans( visBase::Transformation::create() )
+    , voltrans_( visBase::Transformation::create() )
 {
-    boxdragger->ref();
-    addChild( boxdragger->getInventorNode() );
-    boxdragger->finished.notify( mCB(this,VolumeDisplay,manipMotionFinishCB) );
+    boxdragger_->ref();
+    addChild( boxdragger_->getInventorNode() );
+    boxdragger_->finished.notify( mCB(this,VolumeDisplay,manipMotionFinishCB) );
     getMaterial()->setColor( Color::White );
     getMaterial()->setAmbience( 0.8 );
     getMaterial()->setDiffIntensity( 0.8 );
-    voltrans->ref();
-    addChild( voltrans->getInventorNode() );
-    texture->ref();
-    addChild( texture->getInventorNode() );
+    voltrans_->ref();
+    addChild( voltrans_->getInventorNode() );
+    voltrans_->setRotation( Coord3( 0, 1, 0 ), M_PI_2 );
+    scalarfield_->ref();
+    addChild( scalarfield_->getInventorNode() );
 
     CubeSampling cs(false); CubeSampling sics = SI().sampling(true);
     cs.hrg.start.inl = (5*sics.hrg.start.inl+3*sics.hrg.stop.inl)/8;
@@ -92,28 +92,28 @@ VolumeDisplay::VolumeDisplay()
 
     setColorTab( getColorTab() );
     showManipulator( true );
-    texture->turnOn( true );
+    scalarfield_->turnOn( true );
 }
 
 
 VolumeDisplay::~VolumeDisplay()
 {
-    delete &as;
-    if ( cache ) cache->unRef();
+    delete &as_;
+    if ( cache_ ) cache_->unRef();
 
-    if ( volren ) volren->unRef();
+    if ( volren_ ) volren_->unRef();
 
     TypeSet<int> children;
     getChildren( children );
     for ( int idx=0; idx<children.size(); idx++ )
 	removeSlice( children[idx] );
 
-    texture->unRef();
+    scalarfield_->unRef();
 
-    boxdragger->finished.remove( mCB(this,VolumeDisplay,manipMotionFinishCB) );
-    boxdragger->unRef();
+    boxdragger_->finished.remove( mCB(this,VolumeDisplay,manipMotionFinishCB) );
+    boxdragger_->unRef();
 
-    voltrans->unRef();
+    voltrans_->unRef();
 }
 
 
@@ -133,18 +133,18 @@ void VolumeDisplay::setUpConnections()
 void VolumeDisplay::getChildren( TypeSet<int>&res ) const
 {
     res.erase();
-    for ( int idx=0; idx<slices.size(); idx++ )
-	res += slices[idx]->id();
-    if ( volren ) res += volren->id();
+    for ( int idx=0; idx<slices_.size(); idx++ )
+	res += slices_[idx]->id();
+    if ( volren_ ) res += volren_->id();
 }
 
 
 void VolumeDisplay::showManipulator( bool yn )
-{ boxdragger->turnOn( yn ); }
+{ boxdragger_->turnOn( yn ); }
 
 
 bool VolumeDisplay::isManipulatorShown() const
-{ return boxdragger->isOn(); }
+{ return boxdragger_->isOn(); }
 
 
 bool VolumeDisplay::isManipulated() const
@@ -159,10 +159,10 @@ bool VolumeDisplay::canResetManipulation() const
 
 void VolumeDisplay::resetManipulation()
 {
-    const Coord3 center = voltrans->getTranslation();
-    const Coord3 width = voltrans->getScale();
-    boxdragger->setCenter( center );
-    boxdragger->setWidth( Coord3(width.x, width.y, width.z) );
+    const Coord3 center = voltrans_->getTranslation();
+    const Coord3 width = voltrans_->getScale();
+    boxdragger_->setCenter( center );
+    boxdragger_->setWidth( Coord3(width.z, width.y, -width.x) );
 }
 
 
@@ -179,17 +179,21 @@ int VolumeDisplay::addSlice( int dim )
     slice->setMaterial(0);
     slice->setDim(dim);
     slice->motion.notify( mCB(this,VolumeDisplay,sliceMoving) );
-    slices += slice;
+    slices_ += slice;
 
-    slice->setName( !dim ? inlinestr : (dim==1 ? crosslinestr : timestr) );
+    slice->setName( !dim ? timestr : (dim==1 ? crosslinestr : inlinestr) );
 
     addChild( slice->getInventorNode() );
     const CubeSampling cs = getCubeSampling( 0 );
     const Interval<float> defintv(-0.5,0.5);
     slice->setSpaceLimits( defintv, defintv, defintv );
-    slice->setVolumeDataSize( texture->getTextureSize(0),
-	    		      texture->getTextureSize(1),
-			      texture->getTextureSize(2) );
+    if ( cache_ )
+    {
+	const Array3D<float>& arr = cache_->getCube(0);
+	slice->setVolumeDataSize( arr.info().getSize(2),
+				    arr.info().getSize(1),
+				    arr.info().getSize(0) );
+    }
 
     return slice->id();
 }
@@ -197,14 +201,14 @@ int VolumeDisplay::addSlice( int dim )
 
 void VolumeDisplay::removeSlice( int displayid )
 {
-    for ( int idx=0; idx<slices.size(); idx++ )
+    for ( int idx=0; idx<slices_.size(); idx++ )
     {
-	if ( slices[idx]->id()==displayid )
+	if ( slices_[idx]->id()==displayid )
 	{
-	    removeChild( slices[idx]->getInventorNode() );
-	    slices[idx]->motion.remove( mCB(this,VolumeDisplay,sliceMoving) );
-	    slices[idx]->unRef();
-	    slices.removeFast(idx);
+	    removeChild( slices_[idx]->getInventorNode() );
+	    slices_[idx]->motion.remove( mCB(this,VolumeDisplay,sliceMoving) );
+	    slices_[idx]->unRef();
+	    slices_.removeFast(idx);
 	    return;
 	}
     }
@@ -213,25 +217,25 @@ void VolumeDisplay::removeSlice( int displayid )
 
 void VolumeDisplay::showVolRen( bool yn )
 {
-    if ( yn && !volren )
+    if ( yn && !volren_ )
     {
-	volren = visBase::VolrenDisplay::create();
-	volren->ref();
-	volren->setMaterial(0);
-	addChild( volren->getInventorNode() );
-	volren->setName( volrenstr );
+	volren_ = visBase::VolrenDisplay::create();
+	volren_->ref();
+	volren_->setMaterial(0);
+	addChild( volren_->getInventorNode() );
+	volren_->setName( volrenstr );
     }
 
-    volren->turnOn( yn );
+    volren_->turnOn( yn );
 }
 
 
 bool VolumeDisplay::isVolRenShown() const
-{ return volren && volren->isOn(); }
+{ return volren_ && volren_->isOn(); }
 
 
 int VolumeDisplay::volRenID() const
-{ return volren ? volren->id() : -1; }
+{ return volren_ ? volren_->id() : -1; }
 
     
 void VolumeDisplay::setCubeSampling( const CubeSampling& cs_ )
@@ -239,19 +243,19 @@ void VolumeDisplay::setCubeSampling( const CubeSampling& cs_ )
     const Interval<float> xintv( cs_.hrg.start.inl, cs_.hrg.stop.inl );
     const Interval<float> yintv( cs_.hrg.start.crl, cs_.hrg.stop.crl );
     const Interval<float> zintv( cs_.zrg.start, cs_.zrg.stop );
-    voltrans->setTranslation( 
+    voltrans_->setTranslation( 
 	    	Coord3(xintv.center(),yintv.center(),zintv.center()) );
-    voltrans->setScale( Coord3(xintv.width(),yintv.width(),zintv.width()) );
-    texture->setVolumeSize( Interval<float>(-0.5,0.5),
+    voltrans_->setScale( Coord3(-zintv.width(),yintv.width(),xintv.width()) );
+    scalarfield_->setVolumeSize( Interval<float>(-0.5,0.5),
 	    		    Interval<float>(-0.5,0.5),
 			    Interval<float>(-0.5,0.5) );
 
-    for ( int idx=0; idx<slices.size(); idx++ )
-	slices[idx]->setSpaceLimits( Interval<float>(-0.5,0.5), 
+    for ( int idx=0; idx<slices_.size(); idx++ )
+	slices_[idx]->setSpaceLimits( Interval<float>(-0.5,0.5), 
 				     Interval<float>(-0.5,0.5),
 				     Interval<float>(-0.5,0.5) );
 
-    texture->turnOn( false );
+    scalarfield_->turnOn( false );
 
     resetManipulation();
 }
@@ -259,10 +263,10 @@ void VolumeDisplay::setCubeSampling( const CubeSampling& cs_ )
 
 float VolumeDisplay::getValue( const Coord3& pos_ ) const
 {
-    if ( !cache ) return mUdf(float);
+    if ( !cache_ ) return mUdf(float);
     const BinIDValue bidv( SI().transform(pos_), pos_.z );
     float val;
-    if ( !cache->getValue(0,bidv,&val,false) )
+    if ( !cache_->getValue(0,bidv,&val,false) )
 	return mUdf(float);
 
     return val;
@@ -303,11 +307,11 @@ void VolumeDisplay::manipMotionFinishCB( CallBacker* )
     const Coord3 newwidth( cs.hrg.stop.inl - cs.hrg.start.inl,
 			   cs.hrg.stop.crl - cs.hrg.start.crl,
 			   cs.zrg.stop - cs.zrg.start );
-    boxdragger->setWidth( newwidth );
+    boxdragger_->setWidth( newwidth );
     const Coord3 newcenter( (cs.hrg.stop.inl + cs.hrg.start.inl) / 2,
 			    (cs.hrg.stop.crl + cs.hrg.start.crl) / 2,
 			    (cs.zrg.stop + cs.zrg.start) / 2 );
-    boxdragger->setCenter( newcenter );
+    boxdragger_->setCenter( newcenter );
 }
 
 
@@ -334,17 +338,24 @@ float VolumeDisplay::slicePosition( visBase::OrthogonalSlice* slice ) const
     if ( !slice ) return 0;
     const int dim = slice->getDim();
     float slicepositionf = slice->getPosition();
-
-    slicepositionf *= voltrans->getScale()[dim];
-    slicepositionf += voltrans->getTranslation()[dim];
+    slicepositionf *= -voltrans_->getScale()[dim];
 
     float pos;    
-    if ( dim == 0 )
+    if ( dim == 2 )
+    {
+	slicepositionf += voltrans_->getTranslation()[0];
 	pos = SI().inlRange(true).snap(slicepositionf);
+    }
     else if ( dim == 1 )
+    {
+	slicepositionf += voltrans_->getTranslation()[1];
 	pos = SI().crlRange(true).snap(slicepositionf);
+    }
     else
+    {
+	slicepositionf += voltrans_->getTranslation()[2];
 	pos = mNINT(slicepositionf*1000);
+    }
 
     return pos;
 }
@@ -352,7 +363,7 @@ float VolumeDisplay::slicePosition( visBase::OrthogonalSlice* slice ) const
 
 void VolumeDisplay::setColorTab( visBase::VisColorTab& ctab )
 {
-    texture->setColorTab( ctab );
+    scalarfield_->setColorTab( ctab );
 }
 
 
@@ -363,15 +374,15 @@ int VolumeDisplay::getColTabID( int attrib ) const
 
 
 const visBase::VisColorTab& VolumeDisplay::getColorTab() const
-{ return texture->getColorTab(); }
+{ return scalarfield_->getColorTab(); }
 
 
 visBase::VisColorTab& VolumeDisplay::getColorTab()
-{ return texture->getColorTab(); }
+{ return scalarfield_->getColorTab(); }
 
 
 const TypeSet<float>* VolumeDisplay::getHistogram( int attrib ) const
-{ return attrib ? 0 : &texture->getHistogram(); }
+{ return attrib ? 0 : &scalarfield_->getHistogram(); }
 
 
 visSurvey::SurveyObject::AttribFormat VolumeDisplay::getAttributeFormat() const
@@ -379,16 +390,16 @@ visSurvey::SurveyObject::AttribFormat VolumeDisplay::getAttributeFormat() const
 
 
 const Attrib::SelSpec* VolumeDisplay::getSelSpec( int attrib ) const
-{ return attrib ? 0 : &as; }
+{ return attrib ? 0 : &as_; }
 
 
-void VolumeDisplay::setSelSpec( int attrib, const Attrib::SelSpec& as_ )
+void VolumeDisplay::setSelSpec( int attrib, const Attrib::SelSpec& as )
 {
-    if ( attrib || as==as_ ) return;
-    as = as_;
-    if ( cache ) cache->unRef();
-    cache = 0;
-    texture->turnOn( false );
+    if ( attrib || as_==as ) return;
+    as_ = as;
+    if ( cache_ ) cache_->unRef();
+    cache_ = 0;
+    scalarfield_->turnOn( false );
 }
 
 
@@ -402,26 +413,27 @@ bool VolumeDisplay::setDataVolume( int attrib,
     if ( attrib || !attribdata )
 	return false;
 
-    texture->setData( &attribdata->getCube(0) );
+    const Array3D<float>& arr = attribdata->getCube(0);
+    scalarfield_->setScalarField( &arr );
 
     setCubeSampling( attribdata->cubeSampling() );
 
-    for ( int idx=0; idx<slices.size(); idx++ )
-	slices[idx]->setVolumeDataSize( texture->getTextureSize(0),
-					texture->getTextureSize(1),
-					texture->getTextureSize(2) );
+    for ( int idx=0; idx<slices_.size(); idx++ )
+	slices_[idx]->setVolumeDataSize( arr.info().getSize(2),
+					arr.info().getSize(1),
+					arr.info().getSize(0) );
 
-    texture->turnOn( true );
+    scalarfield_->turnOn( true );
 
-    if ( cache ) cache->unRef();
-    cache = attribdata;
-    cache->ref();
+    if ( cache_ ) cache_->unRef();
+    cache_ = attribdata;
+    cache_->ref();
     return true;
 }
 
 
 const Attrib::DataCubes* VolumeDisplay::getCacheVolume( int attrib ) const
-{ return attrib ? 0 : cache; }
+{ return attrib ? 0 : cache_; }
 
 
 void VolumeDisplay::getMousePosInfo( const visBase::EventInfo&,
@@ -440,8 +452,8 @@ CubeSampling VolumeDisplay::getCubeSampling( bool manippos, int attrib ) const
     CubeSampling res;
     if ( manippos )
     {
-	Coord3 center_ = boxdragger->center();
-	Coord3 width_ = boxdragger->width();
+	Coord3 center_ = boxdragger_->center();
+	Coord3 width_ = boxdragger_->width();
 
 	res.hrg.start = BinID( mNINT( center_.x - width_.x / 2 ),
 			      mNINT( center_.y - width_.y / 2 ) );
@@ -456,17 +468,18 @@ CubeSampling VolumeDisplay::getCubeSampling( bool manippos, int attrib ) const
     }
     else
     {
-	const Coord3 transl = voltrans->getTranslation();
-	const Coord3 scale = voltrans->getScale();
+	const Coord3 transl = voltrans_->getTranslation();
+	Coord3 scale = voltrans_->getScale();
+	double dummy = scale.x; scale.x=scale.z; scale.z = dummy;
 
-	res.hrg.start = BinID( mNINT(transl.x-scale.x/2),
-			       mNINT(transl.y-scale.y/2) );
-	res.hrg.stop = BinID( mNINT(transl.x+scale.x/2),
+	res.hrg.start = BinID( mNINT(transl.x+scale.x/2),
 			       mNINT(transl.y+scale.y/2) );
+	res.hrg.stop = BinID( mNINT(transl.x-scale.x/2),
+			       mNINT(transl.y-scale.y/2) );
 	res.hrg.step = BinID( SI().inlStep(), SI().crlStep() );
 
-	res.zrg.start = transl.z-scale.z/2;
-	res.zrg.stop = transl.z+scale.z/2;
+	res.zrg.start = transl.z+scale.z/2;
+	res.zrg.stop = transl.z-scale.z/2;
     }
     
 
@@ -492,11 +505,12 @@ visSurvey::SurveyObject* VolumeDisplay::duplicate() const
     for ( int idx=0; idx<children.size(); idx++ )
 	vd->removeSlice( children[idx] );
 
-    for ( int idx=0; idx<slices.size(); idx++ )
+    for ( int idx=0; idx<slices_.size(); idx++ )
     {
-	const int sliceid = vd->addSlice( slices[idx]->getDim() );
-	mDynamicCastGet(visBase::OrthogonalSlice*,slice,visBase::DM().getObject(sliceid))
-	slice->setSliceNr( slices[idx]->getSliceNr() );
+	const int sliceid = vd->addSlice( slices_[idx]->getDim() );
+	mDynamicCastGet(visBase::OrthogonalSlice*,slice,
+			visBase::DM().getObject(sliceid));
+	slice->setSliceNr( slices_[idx]->getSliceNr() );
     }
 
     vd->setCubeSampling( getCubeSampling(false,0) );
@@ -511,28 +525,28 @@ void VolumeDisplay::fillPar( IOPar& par, TypeSet<int>& saveids) const
     const CubeSampling cs = getCubeSampling(false,0);
     cs.fillPar( par );
 
-    if ( volren )
+    if ( volren_ )
     {
-	int volid = volren->id();
+	int volid = volren_->id();
 	par.set( volumestr, volid );
 	if ( saveids.indexOf( volid )==-1 ) saveids += volid;
     }
 
-    const int textureid = texture->id();
+    const int textureid = scalarfield_->id();
     par.set( texturestr, textureid );
     if ( saveids.indexOf(textureid) == -1 ) saveids += textureid;
 
-    const int nrslices = slices.size();
+    const int nrslices = slices_.size();
     par.set( nrslicesstr, nrslices );
     for ( int idx=0; idx<nrslices; idx++ )
     {
 	BufferString str( slicestr ); str += idx;
-	const int sliceid = slices[idx]->id();
+	const int sliceid = slices_[idx]->id();
 	par.set( str, sliceid );
 	if ( saveids.indexOf(sliceid) == -1 ) saveids += sliceid;
     }
 
-    as.fillPar(par);
+    as_.fillPar(par);
 }
 
 
@@ -545,25 +559,25 @@ int VolumeDisplay::usePar( const IOPar& par )
     if ( cs.usePar(par) )
 	setCubeSampling( cs );
 
-    if ( !as.usePar(par) ) return -1;
+    if ( !as_.usePar(par) ) return -1;
 
     int textureid;
     if ( !par.get(texturestr,textureid) ) return false;
 
     visBase::DataObject* dataobj = visBase::DM().getObject( textureid );
     if ( !dataobj ) return 0;
-    mDynamicCastGet(visBase::VolumeTexture*,vt,dataobj)
+    mDynamicCastGet(visBase::VolumeRenderScalarField*,vt,dataobj)
     if ( !vt ) return -1;
-    if ( texture )
+    if ( scalarfield_ )
     {
-	if ( childIndex(texture->getInventorNode()) !=-1 )
-	    removeChild(texture->getInventorNode());
-	texture->unRef();
+	if ( childIndex(scalarfield_->getInventorNode()) !=-1 )
+	    removeChild(scalarfield_->getInventorNode());
+	scalarfield_->unRef();
     }
 
-    texture = vt;
-    texture->ref();
-    insertChild( 0, texture->getInventorNode() );
+    scalarfield_ = vt;
+    scalarfield_->ref();
+    insertChild( 0, scalarfield_->getInventorNode() );
 
     int volid;
     if ( !par.get(volumestr,volid) ) return -1;
@@ -571,18 +585,18 @@ int VolumeDisplay::usePar( const IOPar& par )
     if ( !dataobj ) return 0;
     mDynamicCastGet(visBase::VolrenDisplay*,vr,dataobj)
     if ( !vr ) return -1;
-    if ( volren )
+    if ( volren_ )
     {
-	if ( childIndex(volren->getInventorNode())!=-1 )
-	    removeChild(volren->getInventorNode());
-	volren->unRef();
+	if ( childIndex(volren_->getInventorNode())!=-1 )
+	    removeChild(volren_->getInventorNode());
+	volren_->unRef();
     }
-    volren = vr;
-    volren->ref();
-    addChild( volren->getInventorNode() );
+    volren_ = vr;
+    volren_->ref();
+    addChild( volren_->getInventorNode() );
 
-    while ( slices.size() )
-	removeSlice( slices[0]->id() );
+    while ( slices_.size() )
+	removeSlice( slices_[0]->id() );
 
     int nrslices = 0;
     par.get( nrslicesstr, nrslices );
@@ -597,7 +611,7 @@ int VolumeDisplay::usePar( const IOPar& par )
 	if ( !os ) return -1;
 	os->ref();
 	os->motion.notify( mCB(this,VolumeDisplay,sliceMoving) );
-	slices += os;
+	slices_ += os;
 	addChild( os->getInventorNode() );
     }
 

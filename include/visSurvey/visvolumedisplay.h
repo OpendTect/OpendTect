@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		August 2002
- RCS:		$Id: visvolumedisplay.h,v 1.35 2007-01-03 18:29:06 cvskris Exp $
+ RCS:		$Id: visvolumedisplay.h,v 1.36 2007-01-05 15:38:06 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -28,7 +28,7 @@ namespace visBase
     class VisColorTab;
     class Material;
     class BoxDragger;
-    class VolumeTexture;
+    class VolumeRenderScalarField;
     class VolrenDisplay;
     class OrthogonalSlice;
 };
@@ -105,11 +105,11 @@ protected:
     CubeSampling		getCubeSampling(bool manippos,int attrib) const;
     void			setUpConnections();
 
-    visBase::Transformation*		voltrans;
-    visBase::BoxDragger*		boxdragger;
-    visBase::VolumeTexture*		texture;
-    visBase::VolrenDisplay*		volren;
-    ObjectSet<visBase::OrthogonalSlice>	slices;
+    visBase::Transformation*		voltrans_;
+    visBase::BoxDragger*		boxdragger_;
+    visBase::VolumeRenderScalarField*	scalarfield_;
+    visBase::VolrenDisplay*		volren_;
+    ObjectSet<visBase::OrthogonalSlice>	slices_;
 
     void			manipMotionFinishCB(CallBacker*);
     void			sliceMoving(CallBacker*);
@@ -117,8 +117,8 @@ protected:
 
     int				useOldPar(const IOPar&);
 
-    const Attrib::DataCubes*	cache;
-    Attrib::SelSpec&		as;
+    const Attrib::DataCubes*	cache_;
+    Attrib::SelSpec&		as_;
 
     static visBase::FactoryEntry oldnameentry;
 
