@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          November 2002
- RCS:           $Id: visvolorthoslice.h,v 1.1 2007-01-03 18:20:11 cvskris Exp $
+ RCS:           $Id: visvolorthoslice.h,v 1.2 2007-01-05 17:17:19 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,7 +49,9 @@ public:
     virtual void		fillPar(IOPar&,TypeSet<int>&) const;
     virtual int			usePar(const IOPar&);
 
+    NotifierAccess&		dragStart();
     Notifier<OrthogonalSlice>	motion;
+    NotifierAccess&		dragFinished();
 
 protected:
 					~OrthogonalSlice();

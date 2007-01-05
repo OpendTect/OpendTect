@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: visvolorthoslice.cc,v 1.1 2007-01-03 18:24:26 cvskris Exp $";
+static const char* rcsID = "$Id: visvolorthoslice.cc,v 1.2 2007-01-05 17:17:19 cvskris Exp $";
 
 
 #include "visvolorthoslice.h"
@@ -19,15 +19,17 @@ static const char* rcsID = "$Id: visvolorthoslice.cc,v 1.1 2007-01-03 18:24:26 c
 
 #include "VolumeViz/nodes/SoOrthoSlice.h"
 
-const char* visBase::OrthogonalSlice::dimstr = "Dim";
-const char* visBase::OrthogonalSlice::slicestr = "Slice";
+using namespace visBase;
 
-mCreateFactoryEntry( visBase::OrthogonalSlice );
+const char* OrthogonalSlice::dimstr = "Dim";
+const char* OrthogonalSlice::slicestr = "Slice";
 
-visBase::OrthogonalSlice::OrthogonalSlice()
+mCreateFactoryEntry( OrthogonalSlice );
+
+OrthogonalSlice::OrthogonalSlice()
     : slice(new SoOrthoSlice)
-    , dragger(visBase::DepthTabPlaneDragger::create())
-    , pickstyle(visBase::PickStyle::create())
+    , dragger(DepthTabPlaneDragger::create())
+    , pickstyle(PickStyle::create())
     , motion(this)
     , xdatasz(0), ydatasz(0), zdatasz(0)
 {
@@ -38,7 +40,7 @@ visBase::OrthogonalSlice::OrthogonalSlice()
     addChild( dragger->getInventorNode() );
     
     pickstyle->ref();
-    pickstyle->setStyle( visBase::PickStyle::Unpickable );
+    pickstyle->setStyle( PickStyle::Unpickable );
     addChild( pickstyle->getInventorNode() );
 
     slice->alphaUse = SoOrthoSlice::ALPHA_AS_IS;
@@ -47,7 +49,7 @@ visBase::OrthogonalSlice::OrthogonalSlice()
 }
 
 
-visBase::OrthogonalSlice::~OrthogonalSlice()
+OrthogonalSlice::~OrthogonalSlice()
 {
     dragger->motion.remove( mCB(this, OrthogonalSlice, draggerMovementCB ));
     dragger->unRef();
@@ -56,14 +58,14 @@ visBase::OrthogonalSlice::~OrthogonalSlice()
 }
 
 
-void visBase::OrthogonalSlice::setVolumeDataSize(int xsz, int ysz, int zsz)
+void OrthogonalSlice::setVolumeDataSize(int xsz, int ysz, int zsz)
 {
     xdatasz = xsz; ydatasz = ysz; zdatasz = zsz;
     draggerMovementCB(0);
 }
 
 
-void visBase::OrthogonalSlice::setSpaceLimits( const Interval<float>& x,
+void OrthogonalSlice::setSpaceLimits( const Interval<float>& x,
 						    const Interval<float>& y,
 						    const Interval<float>& z )
 {
@@ -74,13 +76,13 @@ void visBase::OrthogonalSlice::setSpaceLimits( const Interval<float>& x,
 }
 
 
-int visBase::OrthogonalSlice::getDim() const
+int OrthogonalSlice::getDim() const
 {
     return slice->axis.getValue();
 }
 
 
-void visBase::OrthogonalSlice::setDim( int dim )
+void OrthogonalSlice::setDim( int dim )
 {
     if ( !dim )
 	slice->axis = SoOrthoSlice::X;
@@ -94,7 +96,7 @@ void visBase::OrthogonalSlice::setDim( int dim )
 }
 
 
-float visBase::OrthogonalSlice::getPosition() const
+float OrthogonalSlice::getPosition() const
 {
     int nrslices;
     Interval<float> range;
@@ -104,17 +106,17 @@ float visBase::OrthogonalSlice::getPosition() const
 }
 
 
-void visBase::OrthogonalSlice::setSliceNr(int nr) 
+void OrthogonalSlice::setSliceNr(int nr) 
 {
     slice->sliceNumber = nr;
 }
 
 
-int  visBase::OrthogonalSlice::getSliceNr() const
+int  OrthogonalSlice::getSliceNr() const
 { return slice->sliceNumber.getValue(); }
 
 
-void visBase::OrthogonalSlice::fillPar( IOPar& par,
+void OrthogonalSlice::fillPar( IOPar& par,
 					     TypeSet<int>& saveids ) const
 {
     VisualObjectImpl::fillPar( par, saveids );
@@ -124,7 +126,7 @@ void visBase::OrthogonalSlice::fillPar( IOPar& par,
 }
 
 
-int visBase::OrthogonalSlice::usePar( const IOPar& par )
+int OrthogonalSlice::usePar( const IOPar& par )
 {
     int res = VisualObjectImpl::usePar( par );
     if ( res != 1 ) return res;
@@ -141,7 +143,15 @@ int visBase::OrthogonalSlice::usePar( const IOPar& par )
 }
 
 
-void visBase::OrthogonalSlice::draggerMovementCB( CallBacker* cb )
+NotifierAccess& OrthogonalSlice::dragStart()
+{ return dragger->started; }
+
+
+NotifierAccess& OrthogonalSlice::dragFinished()
+{ return dragger->finished; }
+
+
+void OrthogonalSlice::draggerMovementCB( CallBacker* cb )
 {
     const int dim = getDim();
     float draggerpos = dragger->center()[dim];
@@ -161,7 +171,7 @@ void visBase::OrthogonalSlice::draggerMovementCB( CallBacker* cb )
 }
 
 
-void visBase::OrthogonalSlice::getSliceInfo( int& nrslices,
+void OrthogonalSlice::getSliceInfo( int& nrslices,
 						  Interval<float>& range ) const
 {
     Interval<float> xrange, yrange, zrange;
