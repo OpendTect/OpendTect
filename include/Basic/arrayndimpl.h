@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: arrayndimpl.h,v 1.45 2007-01-03 21:16:59 cvskris Exp $
+ RCS:		$Id: arrayndimpl.h,v 1.46 2007-01-05 20:58:29 cvskris Exp $
 ________________________________________________________________________
 
 */
@@ -20,45 +20,6 @@ ________________________________________________________________________
 #include "thread.h"
 
 #include <fstream>
-
-template <class T>
-class ArrayNDMemStor : public ValueSeries<T>
-{
-public:
-
-    bool	isOK() const			{ return ptr; }
-    T		value(int64 pos) const		{ return ptr[pos]; }
-    void	setValue(int64 pos, T val )	{ ptr[pos] = val; }
-
-    const T*	arr() const			{ return ptr; }
-    T*		arr()				{ return ptr; }
-
-    inline bool	setSize( int64 nsz )		{ if ( sz == nsz ) return true;
-						  sz = nsz; alloc();
-    						  return ptr; }
-    int64	size() const			{ return sz; }
-
-		ArrayNDMemStor( int64 nsz )
-		    : ptr (0), sz(nsz)		{ alloc(); }
-    inline	~ArrayNDMemStor()		{ delete [] ptr; ptr = 0; }
-
-protected:
-
-    int64	sz;
-    T*		ptr;
-
-    inline void	alloc(); //!< Does the actual allocation of memory
-
-};
-
-
-template <class T>
-inline void ArrayNDMemStor<T>::alloc()
-{
-    delete [] ptr;
-    mTryAlloc( ptr, T [sz] )
-    if ( !ptr ) sz = 0;
-}
 
 
 #define mChunkSz 1024
@@ -230,17 +191,17 @@ public:
 			    , stor_(file ? (ValueSeries<T>*)
 					 new ArrayNDFileStor<T>(in.getTotalSz())
 				        : (ValueSeries<T>*)
-					 new ArrayNDMemStor<T>(in.getTotalSz()))
+					 new ArrayValueSeries<T>(in.getTotalSz()))
 			{}
 
 			Array1DImpl(const Array1D<T>& templ)
 			    : in(templ.info()) 
-			    , stor_(new ArrayNDMemStor<T>(in.getTotalSz()))
+			    , stor_(new ArrayValueSeries<T>(in.getTotalSz()))
 			{ copyFrom(templ); }
 			//!Copy contructor
 			Array1DImpl(const Array1DImpl<T>& templ)
 			    : in(templ.info()) 
-			    , stor_(new ArrayNDMemStor<T>(in.getTotalSz()))
+			    , stor_(new ArrayValueSeries<T>(in.getTotalSz()))
 			{ copyFrom(templ); }
 			~Array1DImpl() { delete stor_; }
 
@@ -296,18 +257,18 @@ public:
 			    , stor_(file ? (ValueSeries<T>*)
 					 new ArrayNDFileStor<T>(in.getTotalSz())
 				        : (ValueSeries<T>*)
-					 new ArrayNDMemStor<T>(in.getTotalSz()))
+					 new ArrayValueSeries<T>(in.getTotalSz()))
 			{}
 			Array2DImpl( const Array2DInfo& nsz, bool file=false )
 			    : in( nsz )
 			    , stor_(file ? (ValueSeries<T>*)
 					 new ArrayNDFileStor<T>(in.getTotalSz())
 				        : (ValueSeries<T>*)
-					 new ArrayNDMemStor<T>(in.getTotalSz()))
+					 new ArrayValueSeries<T>(in.getTotalSz()))
 			{} 
 			Array2DImpl( const Array2D<T>& templ )
 			    : in( (const Array2DInfo&)templ.info() )
-			    , stor_( new ArrayNDMemStor<T>(in.getTotalSz()))
+			    , stor_( new ArrayValueSeries<T>(in.getTotalSz()))
 			{
 			    copyFrom(templ);
 			}
@@ -315,7 +276,7 @@ public:
 			//!Copy contructor
 			Array2DImpl( const Array2DImpl<T>& templ )
 			    : in( (const Array2DInfo&)templ.info() )
-			    , stor_( new ArrayNDMemStor<T>(in.getTotalSz()))
+			    , stor_( new ArrayValueSeries<T>(in.getTotalSz()))
 			{
 			    copyFrom(templ);
 			}
@@ -387,23 +348,23 @@ public:
 			    , stor_(file ? (ValueSeries<T>*)
 					 new ArrayNDFileStor<T>(in.getTotalSz())
 					: (ValueSeries<T>*)
-					 new ArrayNDMemStor<T>(in.getTotalSz()))
+					 new ArrayValueSeries<T>(in.getTotalSz()))
 			{}
 			Array3DImpl( const Array3DInfo& nsz, bool file=false )
 			    : in(nsz)
 			    , stor_(file ? (ValueSeries<T>*)
 					 new ArrayNDFileStor<T>(in.getTotalSz())
 					: (ValueSeries<T>*)
-					 new ArrayNDMemStor<T>(in.getTotalSz()))
+					 new ArrayValueSeries<T>(in.getTotalSz()))
 			{}
 			Array3DImpl( const Array3D<T>& templ )
 			    : in( templ.info() )
-			    , stor_( new ArrayNDMemStor<T>(in.getTotalSz()))
+			    , stor_( new ArrayValueSeries<T>(in.getTotalSz()))
 			{ copyFrom(templ); }
 			//!Copy contructor
 			Array3DImpl( const Array3DImpl<T>& templ )
 			    : in( templ.info() )
-			    , stor_( new ArrayNDMemStor<T>(in.getTotalSz()))
+			    , stor_( new ArrayValueSeries<T>(in.getTotalSz()))
 			{ copyFrom(templ); }
 
 			~Array3DImpl() { delete stor_; }
@@ -480,14 +441,14 @@ static ArrayND<T>*	create(const ArrayNDInfo& nsz,bool file=false);
 			    , stor_(file ? (ValueSeries<T>*)
 				     new ArrayNDFileStor<T>(in->getTotalSz())
 				    : (ValueSeries<T>*)
-				     new ArrayNDMemStor<T>(in->getTotalSz()))
+				     new ArrayValueSeries<T>(in->getTotalSz()))
 			    {}
 			ArrayNDImpl(const ArrayND<T>& templ,bool file=false)
 			    : in(templ.info().clone())
 			    , stor_(file ? (ValueSeries<T>*)
 				     new ArrayNDFileStor<T>(in->getTotalSz())
 				    : (ValueSeries<T>*)
-				     new ArrayNDMemStor<T>(in->getTotalSz()))
+				     new ArrayValueSeries<T>(in->getTotalSz()))
 			{
 			    if ( templ.getData() )
 			    {
@@ -511,7 +472,7 @@ static ArrayND<T>*	create(const ArrayNDInfo& nsz,bool file=false);
 			    , stor_(file ? (ValueSeries<T>*)
 				     new ArrayNDFileStor<T>(in->getTotalSz())
 				    : (ValueSeries<T>*)
-				     new ArrayNDMemStor<T>(in->getTotalSz()))
+				     new ArrayValueSeries<T>(in->getTotalSz()))
 			{
 			    if ( templ.getData() )
 			    {
