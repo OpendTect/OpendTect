@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril & Kris Tingdahl
  Date:          Mar 2005
- RCS:           $Id: valseries.h,v 1.3 2007-01-03 21:14:38 cvskris Exp $
+ RCS:           $Id: valseries.h,v 1.4 2007-01-05 20:29:57 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -70,8 +70,8 @@ class ArrayValueSeries : public ValueSeries<T>
 {
 public:
 
-    		ArrayValueSeries( T* ptr, bool memmine )
-		    : ptr_(ptr), mine_(memmine)	{}
+    		ArrayValueSeries( T* ptr, bool memmine );
+    		ArrayValueSeries( int64 sz );
     		~ArrayValueSeries()		{ if ( mine_ ) delete [] ptr_; }
 
     bool	isOK()				{ return ptr_; }
@@ -83,12 +83,40 @@ public:
     const T*	arr() const			{ return ptr_; }
     T*		arr()				{ return ptr_; }
 
+    bool	reSizeable() const		{ return mine_; }
+    inline bool	setSize(int64);
+
 protected:
 
     T*		ptr_;
     bool	mine_;
-
+    int64	cursize_;
 };
+
+
+template <class T>
+ArrayValueSeries<T>::ArrayValueSeries( T* ptr, bool memmine )
+    : ptr_(ptr), mine_(memmine), cursize_( -1 )
+{}
+
+
+template <class T>
+ArrayValueSeries<T>::ArrayValueSeries( int64 sz )
+    : ptr_( new T[sz]), mine_(true), cursize_( sz )
+{}
+
+
+template <class T>
+bool ArrayValueSeries<T>::setSize( int64 sz )
+{
+    if ( !mine_ ) return false;
+    if ( cursize_!=-1 && cursize_==sz && ptr_ ) return true;
+
+    delete [] ptr_;
+    ptr_ = new T[sz];
+    cursize_ = sz;
+    return ptr_;
+}
 
 
 #endif
