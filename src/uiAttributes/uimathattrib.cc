@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2001
- RCS:           $Id: uimathattrib.cc,v 1.10 2006-12-20 11:23:00 cvshelene Exp $
+ RCS:           $Id: uimathattrib.cc,v 1.11 2007-01-08 09:47:11 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,7 +43,7 @@ uiMathAttrib::uiMathAttrib( uiParent* p, bool is2d )
     {
         BufferString str( "Selection for x" );
 	str += idx;
-	uiAttrSel* attrbox = new uiAttrSel( this, 0, str );
+	uiAttrSel* attrbox = new uiAttrSel( this, 0, is2d, str );
 	attribflds_ += attrbox;
 	attrbox->display( false );
 	attrbox->attach( alignedBelow, idx ? (uiObject*)attribflds_[idx-1] 
