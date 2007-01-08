@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2004
- RCS:           $Id: uiattrsurfout.cc,v 1.17 2006-12-28 21:10:33 cvsnanne Exp $
+ RCS:           $Id: uiattrsurfout.cc,v 1.18 2007-01-08 08:19:55 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,7 +46,7 @@ uiAttrSurfaceOut::uiAttrSurfaceOut( uiParent* p, const DescSet& ad,
     setHelpID( "104.4.0" );
     setTitleText( "" );
 
-    attrfld = new uiAttrSel( uppgrp, &ads, "Quantity to output" );
+    attrfld = new uiAttrSel( uppgrp, &ads, ads.is2D(), "Quantity to output" );
     attrfld->setNLAModel( nlamodel );
     attrfld->selectiondone.notify( mCB(this,uiAttrSurfaceOut,attribSel) );
 

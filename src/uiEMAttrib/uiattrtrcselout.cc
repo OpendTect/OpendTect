@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          September 2005
- RCS:           $Id: uiattrtrcselout.cc,v 1.19 2006-12-28 21:10:33 cvsnanne Exp $
+ RCS:           $Id: uiattrtrcselout.cc,v 1.20 2007-01-08 08:19:55 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -159,7 +159,7 @@ uiAttrTrcSelOut::~uiAttrTrcSelOut()
 
 void uiAttrTrcSelOut::createAttrFld( uiGroup* grp )
 {
-    attrfld_ = new uiAttrSel( grp, &ads_, "Quantity to output" );
+    attrfld_ = new uiAttrSel( grp, &ads_, ads_.is2D(), "Quantity to output" );
     attrfld_->selectiondone.notify( mCB(this,uiAttrTrcSelOut,attrSel) );
     attrfld_->setNLAModel( nlamodel_ );
 }
