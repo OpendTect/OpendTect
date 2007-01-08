@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2006
- RCS:           $Id: uitblimpexpdatasel.cc,v 1.18 2007-01-04 15:17:35 cvsbert Exp $
+ RCS:           $Id: uitblimpexpdatasel.cc,v 1.19 2007-01-08 17:11:18 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,10 +19,13 @@ ________________________________________________________________________
 #include "uibuttongroup.h"
 #include "uidialog.h"
 #include "uicompoundparsel.h"
+#include "uiselsimple.h"
 #include "uimsg.h"
 #include "pixmap.h"
 #include "ioman.h"
+#include "iopar.h"
 #include "tabledef.h"
+#include "tableascio.h"
 
 #define mChoiceBoxWidth 10
 
@@ -394,8 +397,26 @@ bool uiTableFormatDescFldsEd::acceptOK( CallBacker* )
 
 void uiTableFormatDescFldsEd::saveFmt( CallBacker* )
 {
-    uiMSG().error( "The ability to save user-defined formats\n"
-	           "is under construction" );
+    BufferStringSet nms;
+    Table::FFR().getFormats( fd_.name(), nms );
+
+    ds_.isstored_ = false;
+    uiGetObjectName dlg( this, "Save format as", nms );
+    if ( dlg.go() )
+    {
+	const char* fmtnm = dlg.text();
+	IOPar* newiop = new IOPar;
+	fd_.fillPar( *newiop );
+	//TODO also get selection for Repos::Source
+	Table::FFR().set( fd_.name(), fmtnm, newiop, Repos::Data );
+	if ( !Table::FFR().write(Repos::Data) )
+	    uiMSG().error( "Cannot write format" );
+	else
+	{
+	    ds_.isstored_ = true;
+	    ds_.fmtname_ = fmtnm;
+	}
+    }
 }
 
 
@@ -438,8 +459,8 @@ BufferString getSummary() const
     BufferString ret;
     if ( !impsel_.desc().isGood() )
 	ret = "<Not defined>";
-    else if ( !impsel_.storID().isEmpty() )
-	ret = IOM().nameOf( impsel_.storID() );
+    else if ( impsel_.isstored_ && !impsel_.fmtname_.isEmpty() )
+	ret = impsel_.fmtname_;
     else
 	ret = "<Defined>";
     return ret;
@@ -459,12 +480,21 @@ void doDlg( CallBacker* )
 uiTableImpDataSel::uiTableImpDataSel( uiParent* p, Table::FormatDesc& fd )
 	: uiGroup(p,fd.name())
 	, fd_(fd)
+	, isstored_(true)
 {
     static const char* hdrtyps[] = { "No header", "Fixed size", "Variable", 0 };
     const CallBack typchgcb = mCB(this,uiTableImpDataSel,typChg);
     hdrtypefld_ = new uiGenInput( this, "File header",
 	    			  StringListInpSpec(hdrtyps) );
     hdrtypefld_->valuechanged.notify( typchgcb );
+
+    uiToolButton* button = new uiToolButton( this, "Open button",
+	    			ioPixmap("openfmt.png"),
+				mCB(this,uiTableImpDataSel,openFmt) );
+    button->setToolTip( "Open existing format" );
+    button->setPrefWidthInChar( 6 );
+    button->attach( rightOf, hdrtypefld_ );
+
     int nrlns = fd_.nrHdrLines(); if ( nrlns < 1 ) nrlns = 1;
     hdrlinesfld_ = new uiGenInput( this, "Header size (number of lines)",
 	    			   IntInpSpec(nrlns) );
@@ -473,14 +503,8 @@ uiTableImpDataSel::uiTableImpDataSel( uiParent* p, Table::FormatDesc& fd )
 	    			 StringInpSpec(fd_.token_) );
     hdrtokfld_->attach( alignedBelow, hdrtypefld_ );
 
-    fmtdeffld = new uiTableFmtDescFldsParSel( this );
-    fmtdeffld->attach( alignedBelow, hdrlinesfld_ );
-    uiToolButton* button = new uiToolButton( this, "Open button",
-	    			ioPixmap("openfmt.png"),
-				mCB(this,uiTableImpDataSel,openFmt) );
-    button->setToolTip( "Open existing format" );
-    button->setPrefWidthInChar( 6 );
-    button->attach( rightOf, fmtdeffld );
+    fmtdeffld_ = new uiTableFmtDescFldsParSel( this );
+    fmtdeffld_->attach( alignedBelow, hdrlinesfld_ );
 
     setHAlignObj( hdrtypefld_ );
     mainObject()->finaliseDone.notify( typchgcb );
@@ -497,9 +521,38 @@ void uiTableImpDataSel::typChg( CallBacker* )
 
 void uiTableImpDataSel::openFmt( CallBacker* )
 {
-    //TODO
-    uiMSG().error( "The ability to retrieve pre- or user-defined formats\n"
-	           "is under construction" );
+    BufferStringSet avfmts;
+    Table::FFR().getFormats( fd_.name(), avfmts );
+    if ( avfmts.size() < 1 )
+    {
+	uiMSG().error( "No pre- or user-defined formats available" );
+	return;
+    }
+
+    /*
+    if ( !isstored_
+      && !uiMSG().askGoOn("Current format definition not stored.\nContinue?") )
+	return;
+	*/
+
+    uiSelectFromList dlg( this, avfmts );
+    if ( !dlg.go() || dlg.selection() < 0 )
+	return;
+
+    const BufferString& fmtnm = avfmts.get( dlg.selection() );
+    const IOPar* iop = Table::FFR().get( fd_.name(), fmtnm );
+    if ( !iop ) return; //Huh?
+
+    fd_.usePar( *iop );
+    hdrtokfld_->setText( fd_.token_ );
+    const int nrlns = fd_.nrHdrLines();
+    hdrtypefld_->setValue( nrlns < 0 ? 2 : (nrlns == 0 ? 1 : 0) );
+    hdrlinesfld_->setValue( nrlns < 1 ? 1 : nrlns );
+
+    typChg( 0 );
+    isstored_ = true;
+    fmtname_ = fmtnm;
+    fmtdeffld_->updateSummary();
 }
 
 

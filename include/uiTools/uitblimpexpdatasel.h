@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2006
- RCS:           $Id: uitblimpexpdatasel.h,v 1.6 2007-01-04 13:03:42 cvsbert Exp $
+ RCS:           $Id: uitblimpexpdatasel.h,v 1.7 2007-01-08 17:11:18 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,20 +37,25 @@ public:
     				uiTableImpDataSel(uiParent*,Table::FormatDesc&);
 
     Table::FormatDesc&		desc()		{ return fd_; }
-    MultiID&			storID()	{ return storid_; }
+    const BufferString&		fmtName()	{ return fmtname_; }
+    				//!< May not be correct: it's the last selected
 
     bool			commit();
     int				nrHdrLines() const; //!< '-1' = variable
 
+    				// The following may be incorrect:
+    bool			isstored_;
+    BufferString		fmtname_;
+
 protected:
 
     Table::FormatDesc&		fd_;
-    MultiID			storid_;
 
     uiGenInput*			hdrtypefld_;
     uiGenInput*			hdrlinesfld_;
     uiGenInput*			hdrtokfld_;
-    uiTableFmtDescFldsParSel*	fmtdeffld;
+    uiTableFmtDescFldsParSel*	fmtdeffld_;
+    friend class		uiTableFmtDescFldsParSel;
 
     void			typChg(CallBacker*);
     void			openFmt(CallBacker*);
