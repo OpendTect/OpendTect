@@ -7,13 +7,15 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Nov 2006
- RCS:		$Id: tableascio.h,v 1.4 2006-12-22 10:53:26 cvsbert Exp $
+ RCS:		$Id: tableascio.h,v 1.5 2007-01-08 17:10:48 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "bufstringset.h"
+#include "repos.h"
 #include <iosfwd>
+class IOPar;
 class UnitOfMeasure;
 
 namespace Table
@@ -23,6 +25,10 @@ class FormatDesc;
 class ImportHandler;
 class ExportHandler;
 class Converter;
+class FileFormatRepository;
+
+FileFormatRepository& FFR();
+
 
 /*!\brief Ascii I/O using Format Description.
 
@@ -36,19 +42,19 @@ class AscIO
 {
 public:
 
-				AscIO( const Table::FormatDesc& fd )
+				AscIO( const FormatDesc& fd )
 				    : fd_(fd)
 				    , imphndlr_(0)
 				    , exphndlr_(0)
 				    , cnvrtr_(0) { units_.allowNull(true);}
     virtual			~AscIO();
 
-    const Table::FormatDesc&	desc() const		{ return fd_; }
+    const FormatDesc&		desc() const		{ return fd_; }
     const char*			errMsg() const		{ return errmsg_; }
 
 protected:
 
-    const Table::FormatDesc&	fd_;
+    const FormatDesc&		fd_;
     mutable BufferString	errmsg_;
     BufferStringSet		vals_;
     ObjectSet<const UnitOfMeasure> units_;
@@ -72,6 +78,47 @@ protected:
     float			getfValue(int) const;
     double			getdValue(int) const;
     				// For more, use Conv:: stuff
+
+};
+
+
+/*!\brief Holds system- and user-defined formats for different data types
+  ('groups') */
+
+class FileFormatRepository
+{
+public:
+
+    void		getGroups(BufferStringSet&) const;
+    void		getFormats(const char* grp,BufferStringSet&) const;
+
+    const IOPar*	get(const char* grp,const char* nm) const;
+    void		set(const char* grp,const char* nm,
+	    		    IOPar*,Repos::Source);
+			    //!< IOPar* will become mine; set to null to remove
+
+    bool		write(Repos::Source) const;
+
+protected:
+
+    			FileFormatRepository();
+    void		addFromFile(const char*,Repos::Source);
+    const char*		grpNm(int) const;
+    int			gtIdx(const char*,const char*) const;
+
+    struct Entry
+    {
+			Entry( Repos::Source src, IOPar* iop )
+			    : iopar_(iop), src_(src)	{}
+			~Entry();
+
+	IOPar*		iopar_;
+	Repos::Source	src_;
+    };
+
+    ObjectSet<Entry>	entries_;
+
+    friend FileFormatRepository& FFR();
 
 };
 

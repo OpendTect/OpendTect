@@ -4,7 +4,7 @@
  * DATE     : Nov 2006
 -*/
 
-static const char* rcsID = "$Id: tableascio.cc,v 1.9 2007-01-03 17:50:04 cvsbert Exp $";
+static const char* rcsID = "$Id: tableascio.cc,v 1.10 2007-01-08 17:10:48 cvsbert Exp $";
 
 #include "tableascio.h"
 #include "tabledef.h"
@@ -12,6 +12,10 @@ static const char* rcsID = "$Id: tableascio.cc,v 1.9 2007-01-03 17:50:04 cvsbert
 #include "unitofmeasure.h"
 #include "separstr.h"
 #include "iopar.h"
+#include "strmprov.h"
+#include "ascstream.h"
+#include "keystrs.h"
+#include "filegen.h"
 #include <iostream>
 
 namespace Table
@@ -21,6 +25,146 @@ static const char* sKeyHdr = "Header";
 static const char* sKeyBody = "Body";
 static const char* sKeyHdrSize = "Header.Size";
 static const char* sKeyHdrToken = "Header.Token";
+
+static const char* filenamebase = "FileFormats";
+static const char* sKeyGroup = "Group";
+
+FileFormatRepository& FFR()
+{
+    static FileFormatRepository* ffrepo = 0;
+    if ( !ffrepo )
+	ffrepo = new FileFormatRepository;
+    return *ffrepo;
+}
+
+
+FileFormatRepository::Entry::~Entry()
+{
+    delete iopar_;
+}
+
+
+FileFormatRepository::FileFormatRepository()
+{
+    Repos::FileProvider rfp( filenamebase );
+    addFromFile( rfp.fileName(), rfp.source() );
+    while ( rfp.next() )
+	addFromFile( rfp.fileName(), rfp.source() );
+}
+
+
+void FileFormatRepository::addFromFile( const char* fnm,
+					Repos::Source src )
+{
+    if ( !File_exists(fnm) ) return;
+    StreamData sd = StreamProvider( fnm ).makeIStream();
+    if ( !sd.usable() ) return;
+
+    ascistream stream( *sd.istrm, true );
+    while ( stream.type() != ascistream::EndOfFile )
+    {
+	IOPar* newpar = new IOPar(stream);
+	if ( newpar->name().isEmpty() )
+	    { delete newpar; continue; }
+	entries_ += new Entry( src, newpar );
+    }
+}
+
+
+const char* FileFormatRepository::grpNm( int idx ) const
+{
+    return (*entries_[idx]->iopar_)[sKeyGroup];
+}
+
+
+int FileFormatRepository::gtIdx( const char* grp, const char* nm ) const
+{
+    for ( int idx=0; idx<entries_.size(); idx++ )
+    {
+	if ( entries_[idx]->iopar_->name() != nm )
+	    continue;
+
+	const BufferString grpnm( grpNm(idx) );
+	if ( grpnm == grp )
+	    return idx;
+    }
+
+    return -1;
+}
+
+
+void FileFormatRepository::getGroups( BufferStringSet& bss ) const
+{
+    for ( int idx=0; idx<entries_.size(); idx++ )
+	bss.addIfNew( grpNm(idx) );
+}
+
+
+void FileFormatRepository::getFormats( const char* grp,
+				       BufferStringSet& bss ) const
+{
+    for ( int idx=0; idx<entries_.size(); idx++ )
+    {
+	const BufferString grpnm( grpNm(idx) );
+	if ( grpnm == grp )
+	    bss.addIfNew( entries_[idx]->iopar_->name() );
+    }
+}
+
+
+const IOPar* FileFormatRepository::get( const char* grp, const char* nm ) const
+{
+    const int idx = gtIdx( grp, nm );
+    return idx < 0 ? 0 : entries_[idx]->iopar_;
+}
+
+
+void FileFormatRepository::set( const char* grp, const char* nm,
+				IOPar* iop, Repos::Source src )
+{
+    const int idx = gtIdx( grp, nm );
+    if ( idx >= 0 )
+	{ Entry* entry = entries_[idx]; entries_.remove( idx ); delete entry; }
+    if ( !iop ) return;
+
+    if ( iop->find(sKey::Name) )
+	iop->removeWithKey(sKey::Name);
+    iop->setName( nm );
+    iop->set( sKeyGroup, grp );
+    entries_ += new Entry( src, iop );
+}
+
+
+bool FileFormatRepository::write( Repos::Source src ) const
+{
+    Repos::FileProvider rfp( filenamebase );
+    const BufferString fnm = rfp.fileName( src );
+
+    bool havesrc = false;
+    for ( int idx=0; idx<entries_.size(); idx++ )
+    {
+	if ( entries_[idx]->src_ == src )
+	    { havesrc = true; break; }
+    }
+    if ( !havesrc )
+	return !File_exists(fnm) || File_remove( fnm, NO );
+
+    StreamData sd = StreamProvider( fnm ).makeOStream();
+    if ( !sd.usable() )
+    {
+	BufferString msg( "Cannot write to " ); msg += fnm;
+	ErrMsg( fnm );
+	return false;
+    }
+
+    ascostream strm( *sd.ostrm );
+    strm.putHeader( "File Formats" );
+    for ( int idx=0; idx<entries_.size(); idx++ )
+	entries_[idx]->iopar_->putTo( strm );
+
+    sd.close();
+    return true;
+}
 
 
 void TargetInfo::fillPar( IOPar& iopar ) const
