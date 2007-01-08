@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		3-8-1995
- RCS:		$Id: ioman.h,v 1.31 2006-12-06 12:39:01 cvsnanne Exp $
+ RCS:		$Id: ioman.h,v 1.32 2007-01-08 17:06:18 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,31 +17,23 @@ ________________________________________________________________________
 #include "multiid.h"
 #include "sets.h"
 
-class CtxtIOObj;
 class IODir;
-class IOLink;
-class IOMan;
 class IOObj;
-class IOObjContext;
-class IOPar;
-class IOParList;
+class IOLink;
+class CtxtIOObj;
 class Translator;
+class IOObjContext;
 
-/*!\brief manages the Meta-data store for the IOObj's. This info
+class IOMan;
+inline IOMan& IOM();
+
+/*!\brief manages the 'Meta-'data store for the IOObj's. This info
 is read from the .omf files.
 
-There will be one IOMan available through the gloabal function IOM(). Creating
-more instances is probably not be a good idea, but may work.
-
-A current IODir is maintained. Auxiliary info, not needed for read/write the
-object, but useful info can be stored in .aux files.
-
-Access to the parameter save files (e.g. '.Process_Seismic') is also provided
-through getParList().
+There will be one IOMan available through the global function IOM(). Creating
+more instances is probably not a good idea, but it may work.
 
 */
-
-inline IOMan& IOM();
 
 class IOMan : public NamedObject
 {
@@ -50,11 +42,7 @@ public:
     bool		bad() const		{ return state_ != Good; }
     bool		isReady() const;
 
-    bool		to(const IOLink*);	//!< NULL -> ".."
-    bool		to(const MultiID&);
-    void		back();
-
-    //! The following functions return a cloned IOObj (=mem man by caller)
+			//! Next functions return a new (unmanaged) IOObj
     IOObj*		get(const MultiID&) const;
     IOObj*		getLocal(const char* objname) const;
     IOObj*		getOfGroup(const char* tgname,bool first=true,
@@ -66,13 +54,18 @@ public:
     IOObj*		getFirst(const IOObjContext&,int* nrpresent=0) const;
     			//!< if interested in nrpresent pass valid address
 
-    IODir*		dirPtr() const		{ return (IODir*)dirptr; }
+    IODir*		dirPtr()		{ return dirptr; }
+    const IODir*	dirPtr() const		{ return (IODir*)dirptr; }
     MultiID		key() const;		//!< of current IODir
     const char*		curDir() const;		//!< OS dir name
     int			curLevel() const	{ return curlvl; }
     const char*		rootDir() const		{ return rootdir; }
     int			levelOf(const char* dirnm) const;
     const char*		nameOf(const char* keystr,bool inc_parents=false) const;
+
+    bool		to(const IOLink*);	//!< NULL -> up-dir
+    bool		to(const MultiID&);
+    void		back();
 
     void		getEntry(CtxtIOObj&,MultiID parentid="");
 			//!< will create a new entry if necessary
@@ -86,7 +79,7 @@ public:
 			/*!< if an external source has changed
 				the .od/survey, force re-read it. */
     static void		setSurvey(const char*);
-			/*!< will remove a possible existing IO manager and
+			/*!< will remove existing IO manager and
 			     set the survey to 'name', thus bypassing the
 			     .od/survey file */
 
@@ -188,22 +181,26 @@ inline IOMan& IOM()
        formats. All normal data will be put into and written from in-memory
        objects via subclasses of Translator.
   </ul>
- <li>ArrayND
+ <li>ArrayND utils
   <ul>
-   <li>arraynd.h and arrayndinfo.h : interface for multi-dimensional but
-       flexible arrays of any (simple) type.
-   <li>arrayndimpl.h : implementation with specific classed for 1, 2, and 3D.
-   <li>arrayndslice.h and arrayndutils.h : Slices and other utlities.
+   <li>array2dxxx.h : 2-D arrays have a couple of specific things inmplemented
+   <li>arrayndxxx.h : slices, subselection and other utilities
   </ul>
  <li>CBVS
   <ul>
    <li>cbvsreadmgr.h : reads the 'Common Basic Volume Storage' format
    <li>cbvswritemgr.h : writes CBSV format.
   </ul>
- <li>Transformations
+ <li>Tables
   <ul>
-   <li>transform.h and transfact.h : Interface and factory for transforms
-   <li>costrans.h, fft.h, wavelettrans.h : transforms
+   <li>tabledef.h : Specifying the information content of tabular data
+   <li>tableascio.h : Utiltities to read/write table-formatted data
+   <li>tableconv.h : Utilities for converting table data
+  </ul>
+ <li>Properties and units
+  <ul>
+   <li>property.h : handling properties like Density, Velocity, ...
+   <li>uniofmeasure.h : handling units of measure
   </ul>
 </ul>
 
