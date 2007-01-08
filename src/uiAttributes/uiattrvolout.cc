@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:		$Id: uiattrvolout.cc,v 1.26 2006-12-21 10:48:24 cvshelene Exp $
+ RCS:		$Id: uiattrvolout.cc,v 1.27 2007-01-08 13:02:25 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -64,15 +64,17 @@ uiAttrVolOut::uiAttrVolOut( uiParent* p, const DescSet& ad,
 	, nlaid(id)
 {
     setHelpID( "101.2.0" );
-    setTitleText( "Create seismic output" );
+
+    bool is2d = ad.is2D();
+    setTitleText( is2d ? "Create 2D seismic output":"Create 3D seismic output");
 
     uiAttrSelData attrdata( &ad );
     attrdata.nlamodel = nlamodel;
-    todofld = new uiAttrSel( uppgrp, "Quantity to output", attrdata, ad.is2D());
+    todofld = new uiAttrSel( uppgrp, "Quantity to output", attrdata, is2d);
     todofld->selectiondone.notify( mCB(this,uiAttrVolOut,attrSel) );
 
     transffld = new uiSeisTransfer( uppgrp, uiSeisTransfer::Setup()
-	    	.geom(ad.is2D() ? Seis::Line : Seis::Vol)
+	    	.geom(is2d ? Seis::Line : Seis::Vol)
 	    	.fornewentry(false).withstep(false).multi2dlines(true) );
     transffld->attach( alignedBelow, todofld );
     if ( transffld->selFld2D() )
@@ -83,7 +85,8 @@ uiAttrVolOut::uiAttrVolOut( uiParent* p, const DescSet& ad,
     setTypeAttr( ctio, true );
     ctio.ctxt.includeconstraints = true;
     ctio.ctxt.allowcnstrsabsent = false;
-    objfld = new uiSeisSel( uppgrp, ctio, SeisSelSetup().selattr(false) );
+    objfld = new uiSeisSel( uppgrp, ctio, 
+	    		    SeisSelSetup().selattr(false).is2d(is2d) );
     objfld->attach( alignedBelow, transffld );
 
     uppgrp->setHAlignObj( transffld );
