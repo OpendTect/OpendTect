@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: uimsg.cc,v 1.31 2006-11-21 14:00:07 cvsbert Exp $
+ RCS:           $Id: uimsg.cc,v 1.32 2007-01-08 14:02:27 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -66,11 +66,11 @@ QWidget* uiMsg::popParnt()
 }
 
 
-bool uiMsg::toStatusbar( const char* msg )
+bool uiMsg::toStatusbar( const char* msg, int fldidx, int msec )
 {
     if ( !statusBar() ) return false;
 
-    statusBar()->message( msg );
+    statusBar()->message( msg, fldidx, msec );
     return true;
 }
 

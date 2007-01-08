@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          26/04/2000
- RCS:           $Id: uimsg.h,v 1.17 2006-07-17 15:36:23 cvsbert Exp $
+ RCS:           $Id: uimsg.h,v 1.18 2007-01-08 14:02:20 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,7 +46,8 @@ public:
 
     uiMainWin*	setMainWin(uiMainWin*);	//!< return old
 
-    bool	toStatusbar(const char*); //!< returns false if there is none
+    bool	toStatusbar(const char*,int fld=0,int msec=-1);
+    		//!< returns false if there is none
     uiStatusBar* statusBar();
 
     void 	about(const char*);
