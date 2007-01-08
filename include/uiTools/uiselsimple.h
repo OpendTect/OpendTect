@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2001
- RCS:           $Id: uiselsimple.h,v 1.4 2003-11-07 12:21:54 bert Exp $
+ RCS:           $Id: uiselsimple.h,v 1.5 2007-01-08 17:06:55 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uidialog.h"
 
 class uiListBox;
+class uiGenInput;
 class BufferStringSet;
 
 /*!\brief Select entry from list
@@ -50,6 +51,30 @@ protected:
 private:
 
     void		init(const char**,int,const char*);
+
+};
+
+
+/*!\brief Get a name from user, whilst displaying names that already exist */
+
+class uiGetObjectName : public uiDialog
+{ 	
+public:
+			uiGetObjectName(uiParent*,const char* txt,
+					const BufferStringSet&,
+					const char* deflt=0,
+				    const char* captn="Please provide a name");
+			~uiGetObjectName()	{}
+
+    const char*		text() const;
+
+protected:
+
+    uiGenInput*		inpfld_;
+    uiListBox*		listfld_;
+
+    void		selChg(CallBacker*);
+    bool		acceptOK(CallBacker*);
 
 };
 

@@ -4,14 +4,15 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2001
- RCS:           $Id: uiselsimple.cc,v 1.6 2003-11-07 12:22:02 bert Exp $
+ RCS:           $Id: uiselsimple.cc,v 1.7 2007-01-08 17:07:26 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiselsimple.h"
 #include "uilabel.h"
 #include "uilistbox.h"
-#include "uiselsimple.h"
+#include "uigeninput.h"
 #include "bufstringset.h"
 
 
@@ -65,4 +66,49 @@ bool uiSelectFromList::acceptOK( CallBacker* )
 {
     sel_ = selfld ? selfld->currentItem() : -1;
     return true;
+}
+
+
+uiGetObjectName::uiGetObjectName( uiParent* p, const char* txt,
+				  const BufferStringSet& nms,
+				  const char* cur, const char* captn )
+	: uiDialog(p,Setup(captn))
+	, listfld_(0)
+{
+    if ( nms.size() > 0 )
+    {
+	listfld_ = new uiListBox( this );
+	for ( int idx=0; idx<nms.size(); idx++ )
+	    listfld_->addItem( nms.get(idx) );
+	if ( cur && *cur )
+	    listfld_->setCurrentItem( cur );
+	else
+	    listfld_->setCurrentItem( 0 );
+	listfld_->selectionChanged.notify( mCB(this,uiGetObjectName,selChg) );
+	listfld_->doubleClicked.notify( mCB(this,uiDialog,accept) );
+    }
+
+    inpfld_ = new uiGenInput( this, txt, cur );
+    if ( listfld_ )
+	inpfld_->attach( alignedBelow, listfld_ );
+}
+
+
+void uiGetObjectName::selChg( CallBacker* )
+{
+    if ( listfld_ )
+	inpfld_->setText( listfld_->getText() );
+}
+
+
+const char* uiGetObjectName::text() const
+{
+    return inpfld_->text();
+}
+
+
+bool uiGetObjectName::acceptOK( CallBacker* )
+{
+    const char* txt = text();
+    return *txt ? true : false;
 }
