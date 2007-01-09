@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2001
- RCS:           $Id: uiselsimple.h,v 1.6 2007-01-09 13:21:06 cvsbert Exp $
+ RCS:           $Id: uiselsimple.h,v 1.7 2007-01-09 16:36:11 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,13 +31,11 @@ public:
     class Setup : public uiDialog::Setup
     {
     public:
-			Setup(const char* dlgtitl,const BufferStringSet&);
+			Setup(const char* wintitle, const BufferStringSet& its )
+			: uiDialog::Setup(wintitle)
+			, items_(its)		{}
 
 	mDefSetupMemb(BufferString,current);
-
-	const BufferStringSet& items() const	{ return items_; }
-
-    protected:
 
 	const BufferStringSet&	items_;
 
@@ -69,10 +67,23 @@ private:
 class uiGetObjectName : public uiDialog
 { 	
 public:
-			uiGetObjectName(uiParent*,const char* txt,
-					const BufferStringSet&,
-					const char* deflt=0,
-				    const char* captn="Please provide a name");
+
+    class Setup : public uiDialog::Setup
+    {
+    public:
+			Setup( const char* wintitle,const BufferStringSet& its )
+			: uiDialog::Setup(wintitle)
+			, items_(its)
+			, inptxt_("Name")	{}
+
+	mDefSetupMemb(BufferString,deflt);
+	mDefSetupMemb(BufferString,inptxt);
+
+	const BufferStringSet&	items_;
+
+    };
+
+			uiGetObjectName(uiParent*,const Setup&);
 			~uiGetObjectName()	{}
 
     const char*		text() const;
