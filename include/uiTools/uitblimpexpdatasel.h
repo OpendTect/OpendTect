@@ -7,14 +7,16 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2006
- RCS:           $Id: uitblimpexpdatasel.h,v 1.7 2007-01-08 17:11:18 cvsbert Exp $
+ RCS:           $Id: uitblimpexpdatasel.h,v 1.8 2007-01-09 16:38:12 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uigroup.h"
 #include "multiid.h"
+#include "iopar.h"
 class uiGenInput;
+class uiTableFormatDescFldsEd;
 class uiTableFmtDescFldsParSel;
 namespace Table { class FormatDesc; }
 
@@ -43,20 +45,20 @@ public:
     bool			commit();
     int				nrHdrLines() const; //!< '-1' = variable
 
-    				// The following may be incorrect:
-    bool			isstored_;
-    BufferString		fmtname_;
-
 protected:
 
     Table::FormatDesc&		fd_;
+    IOPar			storediop_;
+    BufferString		fmtname_;
 
     uiGenInput*			hdrtypefld_;
     uiGenInput*			hdrlinesfld_;
     uiGenInput*			hdrtokfld_;
     uiTableFmtDescFldsParSel*	fmtdeffld_;
     friend class		uiTableFmtDescFldsParSel;
+    friend class		uiTableFormatDescFldsEd;
 
+    bool			commitHdr();
     void			typChg(CallBacker*);
     void			openFmt(CallBacker*);
 };

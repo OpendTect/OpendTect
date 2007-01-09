@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2006
- RCS:           $Id: uitblimpexpdatasel.cc,v 1.20 2007-01-09 13:21:06 cvsbert Exp $
+ RCS:           $Id: uitblimpexpdatasel.cc,v 1.21 2007-01-09 16:38:12 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -400,8 +400,11 @@ void uiTableFormatDescFldsEd::saveFmt( CallBacker* )
     BufferStringSet nms;
     Table::FFR().getFormats( fd_.name(), nms );
 
-    ds_.isstored_ = false;
-    uiGetObjectName dlg( this, "Save format as", nms );
+    uiGetObjectName::Setup setup( "Save format", nms );
+    setup.inptxt( "Name for format" )
+	 .deflt( ds_.fmtname_ )
+	 .dlgtitle( "Enter a name for the format" );
+    uiGetObjectName dlg( this, setup );
     static const char* strs[] = { "In survey only",
 				  "In all surveys",
 				  "By me only" };
@@ -419,7 +422,7 @@ void uiTableFormatDescFldsEd::saveFmt( CallBacker* )
 	    uiMSG().error( "Cannot write format" );
 	else
 	{
-	    ds_.isstored_ = true;
+	    ds_.storediop_.clear(); fd_.fillPar( ds_.storediop_ );
 	    ds_.fmtname_ = fmtnm;
 	}
     }
@@ -464,16 +467,30 @@ BufferString getSummary() const
 {
     BufferString ret;
     if ( !impsel_.desc().isGood() )
-	ret = "<Not defined>";
-    else if ( impsel_.isstored_ && !impsel_.fmtname_.isEmpty() )
-	ret = impsel_.fmtname_;
+	ret = "<Incomplete>";
     else
-	ret = "<Defined>";
+    {
+	bool isstor = !impsel_.fmtname_.isEmpty();
+        if ( isstor )
+	{
+	    IOPar curiop; impsel_.desc().fillPar( curiop );
+	    isstor = impsel_.storediop_ == curiop;
+	}
+
+	if ( !isstor )
+	    ret = "<Defined>";
+	else
+	    ret = impsel_.fmtname_;
+    }
+
     return ret;
 }
 
 void doDlg( CallBacker* )
 {
+    if ( !impsel_.commitHdr() )
+	return;
+
     uiTableFormatDescFldsEd dlg( &impsel_ );
     dlg.go();
 }
@@ -486,7 +503,6 @@ void doDlg( CallBacker* )
 uiTableImpDataSel::uiTableImpDataSel( uiParent* p, Table::FormatDesc& fd )
 	: uiGroup(p,fd.name())
 	, fd_(fd)
-	, isstored_(true)
 {
     static const char* hdrtyps[] = { "No header", "Fixed size", "Variable", 0 };
     const CallBack typchgcb = mCB(this,uiTableImpDataSel,typChg);
@@ -535,12 +551,6 @@ void uiTableImpDataSel::openFmt( CallBacker* )
 	return;
     }
 
-    /*
-    if ( !isstored_
-      && !uiMSG().askGoOn("Current format definition not stored.\nContinue?") )
-	return;
-	*/
-
     uiSelectFromList::Setup setup( "Retrieve data format", avfmts );
     setup.dlgtitle( "Select a format to retrieve" );
     uiSelectFromList dlg( this, setup );
@@ -558,7 +568,7 @@ void uiTableImpDataSel::openFmt( CallBacker* )
     hdrlinesfld_->setValue( nrlns < 1 ? 1 : nrlns );
 
     typChg( 0 );
-    isstored_ = true;
+    storediop_.clear(); fd_.fillPar( storediop_ );
     fmtname_ = fmtnm;
     fmtdeffld_->updateSummary();
 }
@@ -571,7 +581,7 @@ int uiTableImpDataSel::nrHdrLines() const
 }
 
 
-bool uiTableImpDataSel::commit()
+bool uiTableImpDataSel::commitHdr()
 {
     const int htyp = hdrtypefld_->getIntValue();
     if ( htyp == 2 )
@@ -591,6 +601,14 @@ bool uiTableImpDataSel::commit()
     }
 
     fd_.nrhdrlines_ = nrHdrLines();
+    return true;
+}
+
+
+bool uiTableImpDataSel::commit()
+{
+    if ( !commitHdr() )
+	return false;
 
     if ( !fd_.isGood() )
     {
