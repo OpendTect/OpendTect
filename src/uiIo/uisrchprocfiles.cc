@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Feb 2006
- RCS:           $Id: uisrchprocfiles.cc,v 1.4 2006-12-08 13:58:42 cvsbert Exp $
+ RCS:           $Id: uisrchprocfiles.cc,v 1.5 2007-01-09 13:21:06 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -94,8 +94,10 @@ void uiSrchProcFiles::srchDir( CallBacker* )
     int sel = 0;
     if ( fnms.size() > 1 )
     {
-	uiSelectFromList dlg( this, fnms, 0, "Select target file" );
-	dlg.setTitleText( "Pick one of the matches" );
+	toStatusBar( "Multiple files found; select one ..." );
+	uiSelectFromList::Setup setup( "Select the apropriate file", fnms );
+	setup.dlgtitle( "Pick one of the matches" );
+	uiSelectFromList dlg( this, setup );
 	if ( !dlg.go() || dlg.selection() < 0 )
 	    mRet(0)
 	sel = dlg.selection();

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2001
- RCS:           $Id: uiselsimple.h,v 1.5 2007-01-08 17:06:55 cvsbert Exp $
+ RCS:           $Id: uiselsimple.h,v 1.6 2007-01-09 13:21:06 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,20 +27,29 @@ Use setTitleText to set a message different from caption.
 class uiSelectFromList : public uiDialog
 { 	
 public:
-			uiSelectFromList(uiParent*,
-					 const BufferStringSet&,
-					 const char* cur=0,
-					 const char* captn="Please select");
-			uiSelectFromList(uiParent*,
-					 const char**,int nritems=-1,
-					 const char* cur=0,
-					 const char* captn="Please select");
+
+    class Setup : public uiDialog::Setup
+    {
+    public:
+			Setup(const char* dlgtitl,const BufferStringSet&);
+
+	mDefSetupMemb(BufferString,current);
+
+	const BufferStringSet& items() const	{ return items_; }
+
+    protected:
+
+	const BufferStringSet&	items_;
+
+    };
+
+			uiSelectFromList(uiParent*,const Setup&);
 			~uiSelectFromList()	{}
 
     int			selection() const	{ return sel_; }
     			//!< -1 = no selection made (cancelled or 0 list items)
 
-    uiListBox*		selfld;
+    uiListBox*		selfld_;
 
 protected:
 
@@ -67,6 +76,9 @@ public:
 			~uiGetObjectName()	{}
 
     const char*		text() const;
+
+    uiGenInput*		inpFld()		{ return inpfld_; }
+    			//!< Is the lowest field
 
 protected:
 

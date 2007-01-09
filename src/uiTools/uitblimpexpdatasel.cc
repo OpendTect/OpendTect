@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2006
- RCS:           $Id: uitblimpexpdatasel.cc,v 1.19 2007-01-08 17:11:18 cvsbert Exp $
+ RCS:           $Id: uitblimpexpdatasel.cc,v 1.20 2007-01-09 13:21:06 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -402,14 +402,20 @@ void uiTableFormatDescFldsEd::saveFmt( CallBacker* )
 
     ds_.isstored_ = false;
     uiGetObjectName dlg( this, "Save format as", nms );
+    static const char* strs[] = { "In survey only",
+				  "In all surveys",
+				  "By me only" };
+    uiGenInput* srcfld = new uiGenInput( &dlg, "Store for use",
+	    				 StringListInpSpec(strs) );
+    srcfld->attach( alignedBelow, dlg.inpFld() );
     if ( dlg.go() )
     {
 	const char* fmtnm = dlg.text();
 	IOPar* newiop = new IOPar;
 	fd_.fillPar( *newiop );
-	//TODO also get selection for Repos::Source
-	Table::FFR().set( fd_.name(), fmtnm, newiop, Repos::Data );
-	if ( !Table::FFR().write(Repos::Data) )
+	Repos::Source src = (Repos::Source)(srcfld->getIntValue()+1);
+	Table::FFR().set( fd_.name(), fmtnm, newiop, src );
+	if ( !Table::FFR().write(src) )
 	    uiMSG().error( "Cannot write format" );
 	else
 	{
@@ -535,7 +541,9 @@ void uiTableImpDataSel::openFmt( CallBacker* )
 	return;
 	*/
 
-    uiSelectFromList dlg( this, avfmts );
+    uiSelectFromList::Setup setup( "Retrieve data format", avfmts );
+    setup.dlgtitle( "Select a format to retrieve" );
+    uiSelectFromList dlg( this, setup );
     if ( !dlg.go() || dlg.selection() < 0 )
 	return;
 

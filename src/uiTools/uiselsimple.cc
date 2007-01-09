@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2001
- RCS:           $Id: uiselsimple.cc,v 1.7 2007-01-08 17:07:26 cvsbert Exp $
+ RCS:           $Id: uiselsimple.cc,v 1.8 2007-01-09 13:21:06 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,56 +15,37 @@ ________________________________________________________________________
 #include "uigeninput.h"
 #include "bufstringset.h"
 
-
-uiSelectFromList::uiSelectFromList( uiParent* p,
-				    const BufferStringSet& strs,
-				    const char* cur, const char* captn )
-	: uiDialog(p,Setup(captn))
-	, selfld(0)
-	, sel_(-1)
+uiSelectFromList::Setup::Setup( const char* titl, const BufferStringSet& bss )
+    : uiDialog::Setup(titl)
+    , current_(0)
+    , items_(bss)
 {
-    const int sz = strs.size();
-    const char** s = new const char* [sz];
-    for ( int idx=0; idx<sz; idx++ )
-	s[idx] = strs.get(idx).buf();
-    init( s, sz, cur );
-    delete [] s;
 }
 
 
-uiSelectFromList::uiSelectFromList( uiParent* p,
-				    const char** strs, int sz,
-				    const char* cur, const char* captn )
-	: uiDialog(p,captn)
-	, selfld(0)
+uiSelectFromList::uiSelectFromList( uiParent* p, const Setup& setup )
+	: uiDialog(p,setup)
+	, selfld_(0)
 	, sel_(-1)
 {
-    init( strs, sz, cur );
-}
-
-
-void uiSelectFromList::init( const char** strs, int nr, const char* cur )
-{
-    if ( nr == 0 || (nr < 0 && (!strs || !strs[0])) )
+    const int sz = setup.items().size();
+    if ( sz < 1 )
 	{ new uiLabel(this,"No items available for selection"); return; }
-    selfld = new uiListBox( this );
-    for ( int idx=0; nr < 0 || idx<nr; idx++ )
-    {
-	if ( strs[idx] )
-	    selfld->addItem(strs[idx]);
-	else if ( nr < 0 )
-	    break;
-    }
-    if ( cur && *cur ) selfld->setCurrentItem( cur );
-    else	       selfld->setCurrentItem( 0 );
 
-    selfld->doubleClicked.notify( mCB(this,uiDialog,accept) );
+    selfld_ = new uiListBox( this );
+    selfld_->addItems( setup.items() );
+    if ( setup.current_.isEmpty() )
+	selfld_->setCurrentItem( 0 );
+    else
+	selfld_->setCurrentItem( setup.current_ );
+
+    selfld_->doubleClicked.notify( mCB(this,uiDialog,accept) );
 }
 
 
 bool uiSelectFromList::acceptOK( CallBacker* )
 {
-    sel_ = selfld ? selfld->currentItem() : -1;
+    sel_ = selfld_ ? selfld_->currentItem() : -1;
     return true;
 }
 
@@ -88,6 +69,8 @@ uiGetObjectName::uiGetObjectName( uiParent* p, const char* txt,
 	listfld_->doubleClicked.notify( mCB(this,uiDialog,accept) );
     }
 
+    if ( !cur && listfld_ )
+	cur = nms.get(0);
     inpfld_ = new uiGenInput( this, txt, cur );
     if ( listfld_ )
 	inpfld_->attach( alignedBelow, listfld_ );
