@@ -4,11 +4,9 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: arrayndutils.cc,v 1.14 2005-04-01 10:10:19 cvsbert Exp $";
+static const char* rcsID = "$Id: arrayndutils.cc,v 1.15 2007-01-09 12:42:13 cvsnanne Exp $";
 
 #include "arrayndutils.h"
-#include "cubedata.h"
-#include "arrayndimpl.h"
 
 
 DefineEnumNames( ArrayNDWindow, WindowType, 0, "Windowing type")
@@ -139,42 +137,4 @@ bool ArrayNDWindow::buildWindow()
 
     delete windowfunc;
     return true;
-}
-
-
-CubeData::CubeData( const CubeSampling& cs, CubeSampling::Dir d )
-    	: dir_(d)
-{
-#define mMkDim(nr) \
-    const CubeSampling::Dir dir##nr = direction( dir_, nr ); \
-    int dim##nr = cs.size( dir##nr ); if ( dim##nr < 1 ) dim##nr = 1
-
-    mMkDim( 0 ); mMkDim( 1 ); mMkDim( 2 );
-    vals_ = new Array3DImpl<float>( dim0, dim1, dim2 );
-}
-
-
-CubeData::CubeData( Array3D<float>* a3d, CubeSampling::Dir d )
-    	: dir_(d)
-    	, vals_(a3d)
-{
-}
-
-
-CubeData::CubeData( const CubeData& cd )
-    	: vals_(0)
-{
-    *this = cd;
-}
-
-
-CubeData& CubeData::operator =( const CubeData& cd )
-{
-    if ( this != &cd )
-    {
-	dir_ = cd.dir_;
-	delete vals_;
-	vals_ = new Array3DImpl<float>( *cd.vals_ );
-    }
-    return *this;
 }
