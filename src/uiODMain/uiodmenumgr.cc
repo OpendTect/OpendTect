@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.cc,v 1.67 2007-01-09 09:45:12 cvsnanne Exp $
+ RCS:           $Id: uiodmenumgr.cc,v 1.68 2007-01-09 19:06:48 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,7 +40,16 @@ uiODMenuMgr::uiODMenuMgr( uiODMain* a )
     	, helpmgr_(0)
     	, dTectTBChanged(this)
     	, dTectProcMnuChanged(this)
-    	, dTectSurveyMnuChanged(this)
+	, dTectSurveyMnuChanged(this)
+	, surveymnu_(0)
+	, procmnu_(0)
+	, winmnu_(0)
+	, viewmnu_(0)
+	, utilmnu_(0)
+	, helpmnu_(0)
+	, dtecttb_(0)
+	, cointb_(0)
+	, mantb_(0)
 {
     surveymnu_ = new uiPopupMenu( &appl_, "&Survey" );
     procmnu_ = new uiPopupMenu( &appl_, "&Processing" );
@@ -72,7 +81,8 @@ uiODMenuMgr::~uiODMenuMgr()
 }
 
 
-void uiODMenuMgr::initSceneMgrDepObjs()
+void uiODMenuMgr::initSceneMgrDepObjs( uiODApplMgr* appman,
+				       uiODSceneMgr* sceneman )
 {
     uiMenuBar* menubar = appl_.menuBar();
     fillSurveyMenu();	menubar->insertItem( surveymnu_ );
@@ -84,8 +94,8 @@ void uiODMenuMgr::initSceneMgrDepObjs()
     helpmgr_ = new uiODHelpMenuMgr( this );
     menubar->insertItem( helpmnu_ );
 
-    fillDtectTB();
-    fillCoinTB();
+    fillDtectTB( appman );
+    fillCoinTB( sceneman );
     fillManTB();
 
     timer_.tick.notify( mCB(this,uiODMenuMgr,timerCB) );
@@ -354,9 +364,9 @@ void uiODMenuMgr::fillUtilMenu()
 
 
 #define mAddTB(tb,fnm,txt,togg,fn) \
-    tb->addButton( fnm, mCB(&applMgr(),uiODApplMgr,fn), txt, togg )
+    tb->addButton( fnm, mCB(appman,uiODApplMgr,fn), txt, togg )
 
-void uiODMenuMgr::fillDtectTB()
+void uiODMenuMgr::fillDtectTB( uiODApplMgr* appman )
 {
     mAddTB(dtecttb_,"survey.png","Survey setup",false,manSurvCB);
 
@@ -407,9 +417,9 @@ void uiODMenuMgr::fillManTB()
 
 #undef mAddTB
 #define mAddTB(tb,fnm,txt,togg,fn) \
-    tb->addButton( fnm, mCB(&sceneMgr(),uiODSceneMgr,fn), txt, togg )
+    tb->addButton( fnm, mCB(scenemgr,uiODSceneMgr,fn), txt, togg )
 
-void uiODMenuMgr::fillCoinTB()
+void uiODMenuMgr::fillCoinTB( uiODSceneMgr* scenemgr )
 {
     viewid_ = mAddTB(cointb_,"view.png","View mode",true,viewMode);
     actid_ = mAddTB(cointb_,"pick.png","Interact mode",true,actMode);
@@ -588,7 +598,7 @@ void uiODMenuMgr::showLogFile()
 void uiODMenuMgr::updateDTectToolBar( CallBacker* )
 {
     dtecttb_->clear();
-    fillDtectTB();
+    fillDtectTB( &applMgr() );
 }
 
 

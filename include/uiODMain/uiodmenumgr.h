@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.h,v 1.22 2007-01-09 09:45:12 cvsnanne Exp $
+ RCS:           $Id: uiodmenumgr.h,v 1.23 2007-01-09 19:06:48 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -78,7 +78,7 @@ protected:
 
 			uiODMenuMgr(uiODMain*);
 			~uiODMenuMgr();
-    void		initSceneMgrDepObjs();
+    void		initSceneMgrDepObjs(uiODApplMgr*,uiODSceneMgr*);
 
     uiODMain&		appl_;
     Timer&		timer_;
@@ -106,8 +106,8 @@ protected:
     void		fillWinMenu();
     void		fillViewMenu();
     void		fillUtilMenu();
-    void		fillDtectTB();
-    void		fillCoinTB();
+    void		fillDtectTB(uiODApplMgr*);
+    void		fillCoinTB(uiODSceneMgr*);
     void		fillManTB();
 
     void		handleClick(CallBacker*);

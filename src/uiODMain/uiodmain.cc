@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodmain.cc,v 1.50 2006-12-14 14:30:52 cvshelene Exp $
+ RCS:           $Id: uiodmain.cc,v 1.51 2007-01-09 19:06:48 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -160,7 +160,7 @@ bool uiODMain::buildUI()
 {
     scenemgr = new uiODSceneMgr( this );
     menumgr = new uiODMenuMgr( this );
-    menumgr->initSceneMgrDepObjs();
+    menumgr->initSceneMgrDepObjs( applmgr, scenemgr );
 
     const char* s = GetEnvVar( "DTECT_CBAR_POS" );
     bool isvert = !s || *s == 'v' || *s == 'V';
