@@ -4,12 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodhelpmenumgr.cc,v 1.6 2006-11-21 14:00:08 cvsbert Exp $
+ RCS:           $Id: uiodhelpmenumgr.cc,v 1.7 2007-01-09 09:45:12 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiodhelpmenumgr.cc,v 1.6 2006-11-21 14:00:08 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodhelpmenumgr.cc,v 1.7 2007-01-09 09:45:12 cvsnanne Exp $";
 
 #include "uiodhelpmenumgr.h"
 #include "uiodmenumgr.h"
@@ -26,7 +26,7 @@ static const char* rcsID = "$Id: uiodhelpmenumgr.cc,v 1.6 2006-11-21 14:00:08 cv
 
 #define mInsertItem(mnu,txt,id) \
     mnu->insertItem( \
-	new uiMenuItem(txt,mCB(mnumgr,uiODMenuMgr,handleClick)), id )
+	new uiMenuItem(txt,mCB(mnumgr_,uiODMenuMgr,handleClick)), id )
 
 class uiODHelpDocInfo
 {
@@ -66,9 +66,9 @@ bool uiODHelpDocInfo::getFrom( std::istream& strm, const char* dirnm )
 
 
 uiODHelpMenuMgr::uiODHelpMenuMgr( uiODMenuMgr* mm )
-    	: havedtectdoc(false)
-	, helpmnu(mm->helpMnu())
-    	, mnumgr(mm)
+    	: havedtectdoc_(false)
+	, helpmnu_(mm->helpMnu())
+    	, mnumgr_(mm)
 {
     const BufferString datadir( GetDataFileName(0) );
     DirList dl( datadir, DirList::DirsOnly, "*Doc" );
@@ -94,36 +94,36 @@ uiODHelpMenuMgr::uiODHelpMenuMgr( uiODMenuMgr* mm )
 	}
 	sd.close();
 
-	di->id = mHelpVarMnuBase + entries.size();
-	entries += di;
+	di->id = mHelpVarMnuBase + entries_.size();
+	entries_ += di;
 	if ( dirnm == "dTectDoc" )
 	{
-	    havedtectdoc = true;
-	    if ( entries.size() > 1 )
-		entries.swap( 0, entries.size()-1 );
+	    havedtectdoc_ = true;
+	    if ( entries_.size() > 1 )
+		entries_.swap( 0, entries_.size()-1 );
 	}
     }
 
     mkVarMenu();
 
-    if ( havedtectdoc )
+    if ( havedtectdoc_ )
     {
-	mInsertItem( helpmnu, "Ad&min ...", mAdminMnuItm );
-	mInsertItem( helpmnu, "&Programmer ...", mProgrammerMnuItm );
+	mInsertItem( helpmnu_, "Ad&min ...", mAdminMnuItm );
+	mInsertItem( helpmnu_, "&Programmer ...", mProgrammerMnuItm );
     }
-    mInsertItem( helpmnu, "&About ...", mAboutMnuItm );
+    mInsertItem( helpmnu_, "&About ...", mAboutMnuItm );
 }
 
 
 uiODHelpMenuMgr::~uiODHelpMenuMgr()
 {
-    deepErase( entries );
+    deepErase( entries_ );
 }
 
 
 void uiODHelpMenuMgr::insertVarItem( uiPopupMenu* mnu, int eidx, bool withicon )
 {
-    uiODHelpDocInfo& di = *entries[eidx];
+    uiODHelpDocInfo& di = *entries_[eidx];
     BufferString txt( di.nm );
     txt += " ...";
     mInsertItem( mnu, txt, di.id );
@@ -132,22 +132,22 @@ void uiODHelpMenuMgr::insertVarItem( uiPopupMenu* mnu, int eidx, bool withicon )
 
 void uiODHelpMenuMgr::mkVarMenu()
 {
-    if ( entries.size() == 0 )
+    if ( entries_.size() == 0 )
 
 	ErrMsg( "No help documentation found" );
 
-    else if ( entries.size() == 1 )
+    else if ( entries_.size() == 1 )
     {
-	if ( havedtectdoc )
-	    entries[0]->nm = "&Index";
-	insertVarItem( helpmnu, 0, false );
+	if ( havedtectdoc_ )
+	    entries_[0]->nm = "&Index";
+	insertVarItem( helpmnu_, 0, false );
     }
     else
     {
-	uiPopupMenu* submnu = new uiPopupMenu( &mnumgr->appl, "&Index" );
-	for ( int idx=0; idx<entries.size(); idx++ )
+	uiPopupMenu* submnu = new uiPopupMenu( &mnumgr_->appl_, "&Index" );
+	for ( int idx=0; idx<entries_.size(); idx++ )
 	    insertVarItem( submnu, idx, true );
-	helpmnu->insertItem( submnu );
+	helpmnu_->insertItem( submnu );
     }
 }
 
@@ -187,10 +187,10 @@ void uiODHelpMenuMgr::handle( int id, const char* itemname )
     default:
     {
 	uiODHelpDocInfo* di = 0;
-	for ( int idx=0; idx<entries.size(); idx++ )
+	for ( int idx=0; idx<entries_.size(); idx++ )
 	{
-	    if ( entries[idx]->id == id )
-		{ di = entries[idx]; break; }
+	    if ( entries_[idx]->id == id )
+		{ di = entries_[idx]; break; }
 	}
 	if ( !di )
 	{

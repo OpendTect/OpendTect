@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.h,v 1.21 2006-12-20 17:42:32 cvshelene Exp $
+ RCS:           $Id: uiodmenumgr.h,v 1.22 2007-01-09 09:45:12 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,22 +39,25 @@ class uiODMenuMgr : public CallBacker
 
 public:
 
-    uiPopupMenu*	fileMnu()		{ return filemnu; }
-    uiPopupMenu*	procMnu()		{ return procmnu; }
-    uiPopupMenu*	winMnu()		{ return winmnu; }
-    uiPopupMenu*	viewMnu()		{ return viewmnu; }
-    uiPopupMenu*	utilMnu()		{ return utilmnu; }
-    uiPopupMenu*	helpMnu()		{ return helpmnu; }
-    uiPopupMenu*	settMnu()		{ return settmnu; }
+    // TODO: fileMnu() only here for backward compatibility
+    // Remove in version 3.2
+    uiPopupMenu*	fileMnu()		{ return surveymnu_; }
+    uiPopupMenu*	surveyMnu()		{ return surveymnu_; }
+    uiPopupMenu*	procMnu()		{ return procmnu_; }
+    uiPopupMenu*	winMnu()		{ return winmnu_; }
+    uiPopupMenu*	viewMnu()		{ return viewmnu_; }
+    uiPopupMenu*	utilMnu()		{ return utilmnu_; }
+    uiPopupMenu*	helpMnu()		{ return helpmnu_; }
+    uiPopupMenu*	settMnu()		{ return settmnu_; }
 
     uiPopupMenu*	getBaseMnu(uiODApplMgr::ActType);
-    			//! < Within File menu
+    			//! < Within Survey menu
     uiPopupMenu*	getMnu(bool imp,uiODApplMgr::ObjType);
-    			//! < Within File - Import or Export
+    			//! < Within Survey - Import or Export
 
-    uiToolBar*		dtectTB()		{ return dtecttb; }
-    uiToolBar*		coinTB()		{ return cointb; }
-    uiToolBar*		manTB()			{ return mantb; }
+    uiToolBar*		dtectTB()		{ return dtecttb_; }
+    uiToolBar*		coinTB()		{ return cointb_; }
+    uiToolBar*		manTB()			{ return mantb_; }
 
 
     			// Probably not needed by plugins
@@ -69,7 +72,7 @@ public:
 
     Notifier<uiODMenuMgr> dTectTBChanged;
     Notifier<uiODMenuMgr> dTectProcMnuChanged;
-    Notifier<uiODMenuMgr> dTectFileMnuChanged;
+    Notifier<uiODMenuMgr> dTectSurveyMnuChanged;
 
 protected:
 
@@ -77,28 +80,28 @@ protected:
 			~uiODMenuMgr();
     void		initSceneMgrDepObjs();
 
-    uiODMain&		appl;
-    Timer&		timer;
-    uiODHelpMenuMgr*	helpmgr;
+    uiODMain&		appl_;
+    Timer&		timer_;
+    uiODHelpMenuMgr*	helpmgr_;
 
-    uiPopupMenu*	filemnu;
-    uiPopupMenu*	procmnu;
-    uiPopupMenu*	winmnu;
-    uiPopupMenu*	viewmnu;
-    uiPopupMenu*	utilmnu;
-    uiPopupMenu*	impmnu;
-    uiPopupMenu*	expmnu;
-    uiPopupMenu*	manmnu;
-    uiPopupMenu*	helpmnu;
-    uiPopupMenu*	settmnu;
-    ObjectSet<uiPopupMenu> impmnus;
-    ObjectSet<uiPopupMenu> expmnus;
+    uiPopupMenu*	surveymnu_;
+    uiPopupMenu*	procmnu_;
+    uiPopupMenu*	winmnu_;
+    uiPopupMenu*	viewmnu_;
+    uiPopupMenu*	utilmnu_;
+    uiPopupMenu*	impmnu_;
+    uiPopupMenu*	expmnu_;
+    uiPopupMenu*	manmnu_;
+    uiPopupMenu*	helpmnu_;
+    uiPopupMenu*	settmnu_;
+    ObjectSet<uiPopupMenu> impmnus_;
+    ObjectSet<uiPopupMenu> expmnus_;
 
-    uiToolBar*		dtecttb;
-    uiToolBar*		cointb;
-    uiToolBar*		mantb;
+    uiToolBar*		dtecttb_;
+    uiToolBar*		cointb_;
+    uiToolBar*		mantb_;
 
-    void		fillFileMenu();
+    void		fillSurveyMenu();
     void		fillProcMenu();
     void		fillWinMenu();
     void		fillViewMenu();
@@ -117,16 +120,16 @@ protected:
     void		manWvlt(CallBacker*);
     void		updateDTectToolBar(CallBacker*);
     void		updateDTectProcMnu(CallBacker*);
-    void		updateDTectFileMnu(CallBacker*);
+    void		updateDTectSurveyMnu(CallBacker*);
 
-    uiMenuItem*		stereooffitm;
-    uiMenuItem*		stereoredcyanitm;
-    uiMenuItem*		stereoquadbufitm;
-    uiMenuItem*		stereooffsetitm;
-    int			axisid, actid, viewid, cameraid, soloid;
+    uiMenuItem*		stereooffitm_;
+    uiMenuItem*		stereoredcyanitm_;
+    uiMenuItem*		stereoquadbufitm_;
+    uiMenuItem*		stereooffsetitm_;
+    int			axisid_, actid_, viewid_, cameraid_, soloid_;
 
-    inline uiODApplMgr&	applMgr()	{ return appl.applMgr(); }
-    inline uiODSceneMgr& sceneMgr()	{ return appl.sceneMgr(); }
+    inline uiODApplMgr&	applMgr()	{ return appl_.applMgr(); }
+    inline uiODSceneMgr& sceneMgr()	{ return appl_.sceneMgr(); }
 
     void		showLogFile();
     void		mkViewIconsMnu();
