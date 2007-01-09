@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodmain.cc,v 1.51 2007-01-09 19:06:48 cvskris Exp $
+ RCS:           $Id: uiodmain.cc,v 1.52 2007-01-09 20:16:32 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -95,6 +95,7 @@ uiODMain::uiODMain( uicMain& a )
     	, cursession(0)
     	, sessionSave(this)
     	, sessionRestore(this)
+        , applicationClosing(this)
 {
     uiMSG().setMainWin( this );
     uiapp.setTopLevel( this );
@@ -396,6 +397,8 @@ bool uiODMain::askStoreAttribs( bool is2d, bool& askedanything )
 
 bool uiODMain::closeOK()
 {
+    applicationClosing.trigger();
+
     if ( failed ) return true;
 
     menumgr->storePositions();

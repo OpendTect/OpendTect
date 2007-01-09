@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmain.h,v 1.12 2006-12-14 14:30:52 cvshelene Exp $
+ RCS:           $Id: uiodmain.h,v 1.13 2007-01-09 20:16:32 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -48,6 +48,7 @@ public:
 
     Notifier<uiODMain>	sessionSave;	//!< When triggered, put data in pars
     Notifier<uiODMain>	sessionRestore;	//!< When triggered, get data from pars
+    Notifier<uiODMain>	applicationClosing;//!< When triggered, prepare for shutdown
     IOPar&		sessionPars();	//!< On session save or restore
     					//!< notification, to get/put data
 
