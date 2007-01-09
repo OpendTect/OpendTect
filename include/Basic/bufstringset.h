@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		Oct 2003
  Contents:	Set of BufferStrings
- RCS:		$Id: bufstringset.h,v 1.7 2006-10-23 14:55:59 cvskris Exp $
+ RCS:		$Id: bufstringset.h,v 1.8 2007-01-09 13:10:38 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,26 +28,23 @@ class IOPar;
 class BufferStringSet : public ObjectSet<BufferString>
 {
 public:
-    			BufferStringSet( bool ownr=true )
-			    : owner_(ownr)	{}
-			BufferStringSet(const char* arr[],int len=0);
+    			BufferStringSet( bool ownr=true ) : owner_(ownr) {}
+			BufferStringSet(const char* arr[],int len=-1);
 			BufferStringSet(const BufferStringSet&);
 	    		~BufferStringSet()	{ if ( owner_ ) deepErase(); }
     void		deepErase()		{ ::deepErase(*this); }
     BufferStringSet&	operator =(const BufferStringSet&);
     bool		operator ==(const BufferStringSet&) const;
 
-    bool		isOwner() const		{ return owner_; }
-    void		setIsOwner( bool yn )	{ owner_ = yn; }
     void		add( const char* s )	{ *this += new BufferString(s);}
     bool		addIfNew(const char*);	//!< returns whether added
     BufferString&	get( int idx )		{ return *((*this)[idx]); }
     const BufferString&	get( int idx ) const	{ return *((*this)[idx]); }
+    int			indexOf(const char*) const; //!< returns -1 if not found
+
+    inline int		maxLength() const;
     void		sort(BufferStringSet* slave=0);
     int*		getSortIndexes() const; //!< returns new int [size()]
-    int			indexOf(const char*) const;
-    						//!< returns -1 if not found
-    inline int		maxLength() const;
 
     virtual void	fillPar(IOPar&) const;
     virtual void	usePar(const IOPar&);
@@ -56,6 +53,9 @@ public:
     virtual void	erase();	// becomes deepErase if owner
     virtual BufferString* remove(int);	// etc.
     virtual void	remove(int,int);
+
+    bool		isOwner() const		{ return owner_; }
+    void		setIsOwner( bool yn )	{ owner_ = yn; }
 
 protected:
 
@@ -67,7 +67,7 @@ protected:
 class NamedBufferStringSet : public BufferStringSet
 {
 public:
-    			NamedBufferStringSet( const char* nm=0,bool ownr=true )
+    			NamedBufferStringSet( const char* nm=0, bool ownr=true )
 			    : BufferStringSet(ownr)
 			    , name_(nm)			{}
 
