@@ -4,7 +4,7 @@
  * DATE     : Nov 2006
 -*/
 
-static const char* rcsID = "$Id: tableascio.cc,v 1.10 2007-01-08 17:10:48 cvsbert Exp $";
+static const char* rcsID = "$Id: tableascio.cc,v 1.11 2007-01-09 16:37:44 cvsbert Exp $";
 
 #include "tableascio.h"
 #include "tabledef.h"
@@ -160,7 +160,8 @@ bool FileFormatRepository::write( Repos::Source src ) const
     ascostream strm( *sd.ostrm );
     strm.putHeader( "File Formats" );
     for ( int idx=0; idx<entries_.size(); idx++ )
-	entries_[idx]->iopar_->putTo( strm );
+	if ( entries_[idx]->src_ == src )
+	    entries_[idx]->iopar_->putTo( strm );
 
     sd.close();
     return true;
@@ -189,7 +190,7 @@ void TargetInfo::fillPar( IOPar& iopar ) const
 	else
 	    { char buf[40]; elem.pos_.fill(buf); fms += buf; }
     }
-    iopar.set( IOPar::compKey(nm,"Selection"), fms );
+    iopar.set( IOPar::compKey("Selection",nm), fms );
 }
 
 
@@ -206,7 +207,7 @@ void TargetInfo::usePar( const IOPar& iopar )
     if ( selection_.form_ < 0 ) selection_.form_ = 0;
 
     selection_.unit_ = UoMR().get( iopar.find(IOPar::compKey(nm,"Unit")) );
-    const char* res = iopar.find( IOPar::compKey(nm,"Selection") );
+    const char* res = iopar.find( IOPar::compKey("Selection",nm) );
     if ( !res || !*res )
 	return;
 
