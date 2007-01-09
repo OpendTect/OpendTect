@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrsel.h,v 1.7 2006-12-20 11:23:00 cvshelene Exp $
+ RCS:           $Id: uiattrsel.h,v 1.8 2007-01-09 08:26:45 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -120,11 +120,11 @@ latter case you must provide the attrib desc and the input number.
 class uiAttrSel : public uiIOSelect
 {
 public:
-			uiAttrSel(uiParent*,const Attrib::DescSet*,bool,
+			uiAttrSel(uiParent*,const Attrib::DescSet*,bool is2d,
 				  const char* txt=0,
 				  Attrib::DescID curid=Attrib::DescID::undef());
 			uiAttrSel(uiParent*,const char*,
-				  const uiAttrSelData&,bool);
+				  const uiAttrSelData&,bool is2d);
 			~uiAttrSel()		{}
 
     Attrib::DescID	attribID() const	{ return attrdata_.attribid; }
