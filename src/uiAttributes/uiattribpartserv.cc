@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiattribpartserv.cc,v 1.49 2006-12-27 15:03:34 cvsnanne Exp $
+ RCS:           $Id: uiattribpartserv.cc,v 1.50 2007-01-10 10:57:53 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -98,6 +98,7 @@ uiAttribPartServer::~uiAttribPartServer()
     delete adsman2d_;
     delete adsman3d_;
     delete attrsetdlg_;
+    deepErase( linesets2dmnuitem_ );
 }
 
 
@@ -598,38 +599,57 @@ bool uiAttribPartServer::setPickSetDirs( Pick::Set& ps, const NLAModel* nlamod )
 void uiAttribPartServer::insert2DStoredItems( const BufferStringSet& bfset, 
 					      int start, int stop, 
 					      bool correcttype, MenuItem* mnu,
-       					      const SelSpec& as	) 
+       					      const SelSpec& as, bool usesubmnu) 
 {
     mnu->enabled = bfset.size();
+    if ( usesubmnu )
+    {
+	while ( linesets2dmnuitem_.size() )
+	{
+	    MenuItem* olditm = linesets2dmnuitem_.remove(0);
+	    delete olditm;
+	}
+    }	    
     for ( int idx=start; idx<stop; idx++ )
     {
-	BufferString lkey = bfset.get(idx);
-	MenuItem* itm = new MenuItem( lkey );
-	const bool docheck =  correcttype && lkey == as.userRef();
+	BufferString key = bfset.get(idx);
+	MenuItem* itm = new MenuItem( key );
+	const bool docheck =  correcttype && key == as.userRef();
 	mAddManagedMenuItem( mnu, itm, true, docheck );
 	if ( docheck ) mnu->checked = true;
+	if ( usesubmnu )
+	{
+	    linesets2dmnuitem_ += itm;
+	    SelInfo attrinf(adsman2d_->descSet(), 0, true, DescID::undef());
+	    const MultiID mid( attrinf.ioobjids.get(idx) );
+	    BufferStringSet nmsset = get2DStoredItems(mid);
+	    insert2DStoredItems( nmsset, 0, nmsset.size(), correcttype,
+				 itm, as, false );
+	}
     }
 }
 
 
-BufferStringSet uiAttribPartServer::get2DStoredItems( const SelInfo& sinf) const
+BufferStringSet uiAttribPartServer::get2DStoredItems( const MultiID& mid) const
 {
-    BufferStringSet lkeyset;
+    BufferStringSet nms;
+    SelInfo::getAttrNames( mid, nms );
+    return nms;
+}
+
+
+BufferStringSet uiAttribPartServer::get2DStoredLSets( const SelInfo& sinf) const
+{
+    BufferStringSet linesets;
     for ( int idlset=0; idlset<sinf.ioobjids.size(); idlset++ )
     {
 	const char* lsetid = sinf.ioobjids.get(idlset);
 	const MultiID mid( lsetid );
 	const BufferString& lsetnm = IOM().get(mid)->name();
-	BufferStringSet nms;
-	SelInfo::getAttrNames( lsetid, nms );
-	for ( int idx=0; idx<nms.size(); idx++ )
-	{
-	    const LineKey lkey( lsetnm.buf(), nms.get(idx), true ); 
-	    lkeyset.add( lkey );
-	}
+	linesets.add( lsetnm );
     }
 
-    return lkeyset;
+    return linesets;
 }
 
 	
@@ -668,14 +688,24 @@ MenuItem* uiAttribPartServer::storedAttribMenuItem( const SelSpec& as,
     
     const bool isnla = as.isNLA();
     const bool hasid = as.id() >= 0;
-    const BufferStringSet bfset = is2d ? get2DStoredItems( attrinf )
+    const BufferStringSet bfset = is2d ? get2DStoredLSets( attrinf )
 				       : attrinf.ioobjnms;
     int nritems = bfset.size();
     if ( nritems <= cMaxMenuSize )
     {
 	if ( is2d )
-	    insert2DStoredItems( bfset, 0, nritems, !isnla&&hasid,
-		    		 &stored2dmnuitem_, as );
+	{
+	    if ( nritems == 1 )
+	    {
+		const MultiID mid( attrinf.ioobjids.get(0) );
+		BufferStringSet nmsset = get2DStoredItems(mid);
+		insert2DStoredItems( nmsset, 0, nmsset.size(),
+				  !isnla&&hasid, &stored2dmnuitem_, as, false );
+	    }
+	    else
+		insert2DStoredItems( bfset, 0, nritems, !isnla&&hasid,
+				     &stored2dmnuitem_, as, true );
+	}
 	else
 	{
 	    const int start = 0; const int stop = nritems;
@@ -709,7 +739,8 @@ void uiAttribPartServer::insertNumerousItems( const BufferStringSet& bfset,
 	str += " - "; strncat(str.buf(),stopnm,3);
 	MenuItem* submnu = new MenuItem( str );
 	if ( is2d )
-	    insert2DStoredItems( bfset, start, stop, correcttype, submnu, as );
+	    insert2DStoredItems( bfset, start, stop, correcttype,
+		    		 submnu, as, true );
 	else
 	{
 	    SelInfo attrinf( adsman3d_->descSet(), 0, false, DescID::undef() );
@@ -821,13 +852,27 @@ bool uiAttribPartServer::handleAttribSubMenu( int mnuid, SelSpec& as ) const
     }
     else if ( stored2dmnuitem_.findItem(mnuid) )
     {
-	const MenuItem* item = stored2dmnuitem_.findItem(mnuid);
-	const BufferStringSet stored2d = get2DStoredItems( attrinf );
-	int idx = stored2d.indexOf(item->text);
-	LineKey nmlkey(stored2d.get(idx));
-	MultiID mid = IOM().getByName(nmlkey.lineName(), "Seismics" )->key();
-	LineKey idlkey(mid, nmlkey.attrName() );
-	attribid = adsman->descSet()->getStoredID( idlkey );
+	if ( linesets2dmnuitem_.isEmpty() )
+	{
+	    const MenuItem* item = stored2dmnuitem_.findItem(mnuid);
+	    const MultiID mid( attrinf.ioobjids.get(0) );
+	    LineKey idlkey( mid, item->text );
+	    attribid = adsman->descSet()->getStoredID( idlkey );
+	}
+	else
+	{
+	    for ( int idx=0; idx<linesets2dmnuitem_.size(); idx++ )
+	    {
+		if ( linesets2dmnuitem_[idx]->findItem(mnuid) )
+		{
+		    const MenuItem* item =
+				    linesets2dmnuitem_[idx]->findItem(mnuid);
+		    const MultiID mid( attrinf.ioobjids.get(idx) );
+		    LineKey idlkey( mid, item->text );
+		    attribid = adsman->descSet()->getStoredID( idlkey );
+		}
+	    }
+	}
     }
     else if ( calcmnuitem->findItem(mnuid) )
     {

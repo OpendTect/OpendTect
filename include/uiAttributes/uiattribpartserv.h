@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiattribpartserv.h,v 1.20 2006-12-21 16:41:19 cvshelene Exp $
+ RCS:           $Id: uiattribpartserv.h,v 1.21 2007-01-10 10:57:53 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -147,6 +147,7 @@ protected:
     MenuItem            nla3dmnuitem_;
     MenuItem            depthdomain2dmnuitem_;
     MenuItem            depthdomain3dmnuitem_;
+    ObjectSet<MenuItem> linesets2dmnuitem_;
 
     Attrib::DescSetMan*	adsman2d_;
     Attrib::DescSetMan*	adsman3d_;
@@ -170,9 +171,11 @@ protected:
     Attrib::DescSetMan* getAdsMan(bool) const;
     Attrib::DescSetMan* getAdsMan(bool);
 
-    BufferStringSet	get2DStoredItems(const Attrib::SelInfo&) const;
-    void		insert2DStoredItems(const BufferStringSet&,int,int,bool,
-	    				    MenuItem*,const Attrib::SelSpec&);
+    BufferStringSet	get2DStoredLSets(const Attrib::SelInfo&) const;
+    BufferStringSet	get2DStoredItems(const MultiID&) const;
+    void		insert2DStoredItems(const BufferStringSet&,int,int,
+	    				    bool,MenuItem*,
+					    const Attrib::SelSpec&,bool);
     void		insertNumerousItems(const BufferStringSet&,
 	    				    const Attrib::SelSpec&,bool,bool);
 
