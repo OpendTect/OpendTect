@@ -4,7 +4,7 @@
  * DATE     : Mar 2004
 -*/
 
-static const char* rcsID = "$Id: stratunitrepos.cc,v 1.8 2005-01-25 17:27:22 bert Exp $";
+static const char* rcsID = "$Id: stratunitrepos.cc,v 1.9 2007-01-10 19:01:58 cvsbert Exp $";
 
 #include "stratunitrepos.h"
 #include "stratlith.h"
@@ -148,7 +148,6 @@ void Strat::UnitRepository::reRead()
     deepErase( liths_ );
 
     Repos::FileProvider rfp( filenamebase );
-    addTreeFromFile( rfp );
     while ( rfp.next() )
 	addTreeFromFile( rfp );
 
