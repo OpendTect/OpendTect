@@ -4,7 +4,7 @@
  * DATE     : Feb 2004
 -*/
 
-static const char* rcsID = "$Id: unitofmeasure.cc,v 1.9 2007-01-08 17:08:50 cvsbert Exp $";
+static const char* rcsID = "$Id: unitofmeasure.cc,v 1.10 2007-01-10 19:00:40 cvsbert Exp $";
 
 #include "unitofmeasure.h"
 #include "ascstream.h"
@@ -60,7 +60,6 @@ const UnitOfMeasure* UnitOfMeasure::getGuessed( const char* nm )
 UnitOfMeasureRepository::UnitOfMeasureRepository()
 {
     Repos::FileProvider rfp( filenamebase );
-    addUnitsFromFile( rfp.fileName(), rfp.source() );
     while ( rfp.next() )
 	addUnitsFromFile( rfp.fileName(), rfp.source() );
 }

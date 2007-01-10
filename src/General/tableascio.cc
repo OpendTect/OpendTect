@@ -4,7 +4,7 @@
  * DATE     : Nov 2006
 -*/
 
-static const char* rcsID = "$Id: tableascio.cc,v 1.11 2007-01-09 16:37:44 cvsbert Exp $";
+static const char* rcsID = "$Id: tableascio.cc,v 1.12 2007-01-10 19:00:40 cvsbert Exp $";
 
 #include "tableascio.h"
 #include "tabledef.h"
@@ -47,7 +47,6 @@ FileFormatRepository::Entry::~Entry()
 FileFormatRepository::FileFormatRepository()
 {
     Repos::FileProvider rfp( filenamebase );
-    addFromFile( rfp.fileName(), rfp.source() );
     while ( rfp.next() )
 	addFromFile( rfp.fileName(), rfp.source() );
 }

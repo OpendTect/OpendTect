@@ -4,7 +4,7 @@
  * DATE     : Dec 2003
 -*/
 
-static const char* rcsID = "$Id: property.cc,v 1.10 2006-12-22 10:52:45 cvsbert Exp $";
+static const char* rcsID = "$Id: property.cc,v 1.11 2007-01-10 19:00:40 cvsbert Exp $";
 
 #include "propertyimpl.h"
 #include "mathexpression.h"
@@ -70,7 +70,6 @@ PropertyRefRepository& PrRR()
 PropertyRefRepository::PropertyRefRepository()
 {
     Repos::FileProvider rfp( filenamebase );
-    addFromFile( rfp );
     while ( rfp.next() )
 	addFromFile( rfp );
 }
