@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		2-5-1995
- RCS:		$Id: ascstream.h,v 1.11 2004-04-27 15:51:14 bert Exp $
+ RCS:		$Id: ascstream.h,v 1.12 2007-01-10 19:02:51 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,10 +26,10 @@ ________________________________________________________________________
 typedef char AscStreamHeader[mMaxFileHeadLength+1];
 
 
-/*!\brief dGB standard ascii format file writing.
+/*!\brief OpendTect standard ascii format file writing.
 
-An ascostream puts data in a dGB standard ascii format file. That means
-it has a dGB standard header and often keyword/value pairs separated by
+An ascostream puts data in an OpendTect standard ascii format file. That means
+it has a OpendTect standard header and often keyword/value pairs separated by
 a colon.
 
 */
@@ -74,11 +74,11 @@ private:
 };
 
 
-/*!\brief reading dGB standard ascii format file.
+/*!\brief reading OpendTect standard ascii format file.
 
-An ascistream gets data from a dGB standard ascii format file. This format
-consists of the dGB header (version, file type, date), and then a number of
-'paragraphs', each separated by a single '!' on a line.
+An ascistream gets data from a OpendTect standard ascii format file. This format
+consists of the OpendTect header (version, file type, date), and then a number
+of 'paragraphs', each separated by a single '!' on a line.
 
 The max size of the value is limited by the line length maximum of
 USHRT_MAX-1, i.e. 65534. If word parsing is used, the limit is 1023 per word.
