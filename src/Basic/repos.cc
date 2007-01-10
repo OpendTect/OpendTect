@@ -4,7 +4,7 @@
  * DATE     : Nov 2004
 -*/
 
-static const char* rcsID = "$Id: repos.cc,v 1.3 2005-08-26 18:19:28 cvsbert Exp $";
+static const char* rcsID = "$Id: repos.cc,v 1.4 2007-01-10 19:01:49 cvsbert Exp $";
 
 #include "repos.h"
 #include "filepath.h"
@@ -15,7 +15,7 @@ static const char* rcsID = "$Id: repos.cc,v 1.3 2005-08-26 18:19:28 cvsbert Exp 
 bool Repos::FileProvider::next( Repos::Source& src )
 {
     int newsrc = (int)src + 1;
-    if ( newsrc > (int)Appl ) return false;
+    if ( newsrc > (int)User ) return false;
     src = (Repos::Source)newsrc;
     return true;
 }
