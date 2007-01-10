@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          10/12/1999
- RCS:           $Id: uimain.cc,v 1.30 2006-12-13 09:05:44 cvsnanne Exp $
+ RCS:           $Id: uimain.cc,v 1.31 2007-01-10 15:58:54 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -131,7 +131,7 @@ void uiMain::init( QApplication* qap, int argc, char **argv )
     qInstallMsgHandler( myMessageOutput );
 
 #ifdef USEQT4
-    QApplication::setStyle( new QCDEStyle );
+    QApplication::setStyle( new QWindowsStyle );
 #else
     app->setStyle( new QCDEStyle() );
 #endif
@@ -171,12 +171,12 @@ void uiMain::setTopLevel( uiMainWin* obj )
     if( !obj ) return;
     if( !app )  { pErrMsg("Huh?") ; return; }
 
-    if( mainobj ) mainobj->setExitAppOnClose( false );
+    if ( mainobj ) mainobj->setExitAppOnClose( false );
     obj->setExitAppOnClose( true );
 
     mainobj = obj;
-    init( obj->body()->qwidget() ); // inits SoQt if uicMain
-    app->setMainWidget( obj->body()->qwidget() );
+    app->setMainWidget( mainobj->body()->qwidget() );
+    init( mainobj->body()->qwidget() ); // inits SoQt if uicMain
 }
 
 

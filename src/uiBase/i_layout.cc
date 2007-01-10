@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          18/08/1999
- RCS:           $Id: i_layout.cc,v 1.72 2006-08-21 17:14:45 cvsbert Exp $
+ RCS:           $Id: i_layout.cc,v 1.73 2007-01-10 15:58:54 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -812,12 +812,13 @@ void i_LayoutMngr::initChildLayout(layoutMode lom)
 }
 
 #ifdef USEQT4
-QLayoutItem* i_LayoutMngr::itemAt ( int idx ) const
+QLayoutItem* i_LayoutMngr::itemAt( int idx ) const
 {
-    if ( idx >= 0 && idx < childrenList.size() && childrenList[idx] )
-	return &childrenList[idx]->qlayoutItm();
+    if ( childrenList.validIdx(idx) && childrenList[idx] )
+	return const_cast<QLayoutItem*>(&childrenList[idx]->qlayoutItm());
     return 0; 
 }
+
 
 QLayoutItem* i_LayoutMngr::takeAt(int idx)
 {

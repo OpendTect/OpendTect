@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          17/01/2002
- RCS:           $Id: uitabbar.cc,v 1.15 2006-08-21 17:14:45 cvsbert Exp $
+ RCS:           $Id: uitabbar.cc,v 1.16 2007-01-10 15:58:54 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -200,7 +200,7 @@ int uiTabBar::idOf( const uiTab* tab ) const
 uiGroup* uiTabBar::page( int id ) const
 {
 #ifdef USEQT4
-    return &tabs_[id]->group();
+    return const_cast<uiGroup*>( &tabs_[id]->group() );
 #else
     for ( int idx=0; idx<tabs_.size(); idx++ )
     {

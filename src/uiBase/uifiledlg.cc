@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/09/2000
- RCS:           $Id: uifiledlg.cc,v 1.28 2006-11-21 14:00:07 cvsbert Exp $
+ RCS:           $Id: uifiledlg.cc,v 1.29 2007-01-10 15:58:54 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,10 +23,6 @@ ________________________________________________________________________
 #undef public
 #include <qpushbutton.h>
 
-#ifdef USEQT4
-# include <private/qfiledialog_p.h>
-#endif
-
 const char* uiFileDialog::filesep = ";";
 
 class dgbQFileDialog : public QFileDialog
@@ -35,18 +31,29 @@ public:
 			    dgbQFileDialog( const QString& dirName,
 				const QString& filter=QString::null,
 				QWidget* parent=0,
-				const char* name=0, bool modal=FALSE )
+				const char* name=0, bool modal=false )
+#ifdef USEQT4
+				: QFileDialog( parent, name, dirName, filter )
+			    { setModal( modal ); }
+#else
 				: QFileDialog( dirName, filter, parent, name,
 				       	       modal )
 			    {}
+#endif
 
 			    dgbQFileDialog( QWidget* parent=0,
-				const char* name=0, bool modal=FALSE )
+					    const char* name=0,
+					    bool modal=false )
+#ifdef USEQT4
+				: QFileDialog( parent, name )
+			    { setModal( modal ); }
+#else
 				: QFileDialog( parent, name, modal )
 			    {}
-
+#endif
 
 };
+
 
 QFileDialog::Mode qmodeForUiMode( uiFileDialog::Mode mode )
 {
@@ -60,6 +67,7 @@ QFileDialog::Mode qmodeForUiMode( uiFileDialog::Mode mode )
     }
     return QFileDialog::AnyFile;
 }
+
 
 uiFileDialog::uiFileDialog( uiParent* parnt, bool forread,
 			    const char* fname, const char* filter,
@@ -132,23 +140,7 @@ int uiFileDialog::go()
     if ( selectedfilter_.size() )
 	fd->mSelectFilter( QString(selectedfilter_) );
     
-#ifdef USEQT4
-    if ( fd->d_ptr )
-    {
-	QFileDialogPrivate* priv;
-       
-	priv = dynamic_cast<QFileDialogPrivate*>(fd->d_ptr);
-
-	if ( priv )
-	{
-	    if ( !oktxt_.isEmpty() && priv->acceptButton )
-		priv->acceptButton->setText( (const char*)oktxt_ );
-
-	    if ( !cnclxt_.isEmpty() && priv->rejectButton )
-		priv->rejectButton->setText( (const char*)cnclxt_ );
-	}
-    }
-#else
+#ifndef USEQT4
     if ( !oktxt_.isEmpty() ) fd->okB->setText( (const char*)oktxt_ );
     if ( !cnclxt_.isEmpty()) fd->cancelB->setText( (const char*)cnclxt_ );
 #endif

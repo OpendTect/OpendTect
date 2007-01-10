@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/01/2002
- RCS:           $Id: uitreeview.cc,v 1.24 2006-11-15 16:37:46 cvsnanne Exp $
+ RCS:           $Id: uitreeview.cc,v 1.25 2007-01-10 15:58:54 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,14 +16,17 @@ ________________________________________________________________________
 #include "pixmap.h"
 #include "uishortcutsmgr.h"
 
-#include <qsize.h>
+#include <qevent.h>
 #include <qpixmap.h>
+#include <qsize.h>
 
 #ifdef USEQT4
+# define mQScrollView		Q3ScrollView
 # define mQListView		Q3ListView
 # define mQCheckListItem        Q3CheckListItem
 #include "i_q4listview.h"
 #else
+# define mQScrollView		QScrollView
 # define mQListView		QListView
 # define mQCheckListItem        QCheckListItem
 #include "i_qlistview.h"
@@ -96,7 +99,7 @@ uiListViewBody::~uiListViewBody()
 #define mTriggRet \
 {\
     lvhandle_.unusedKey.trigger();\
-    QListView::keyPressEvent( event );\
+    mQListView::keyPressEvent( event );\
     return;\
 }
 
@@ -127,16 +130,16 @@ bool uiListViewBody::moveItem( QKeyEvent* event )
     if ( event->state() != Qt::ShiftButton )
 	return false;
 
-    QListViewItem* currentitem = currentItem();
+    mQListViewItem* currentitem = currentItem();
     if ( !currentitem ) return false;
 
-    QListViewItem* parent = currentitem->parent();
+    mQListViewItem* parent = currentitem->parent();
     if ( !parent ) return false;
 
-    QListViewItem* moveafteritem = 0;
+    mQListViewItem* moveafteritem = 0;
     if ( event->key() == Qt::Key_Up )
     {
-	QListViewItem* itmabove = currentitem->itemAbove();
+	mQListViewItem* itmabove = currentitem->itemAbove();
 	moveafteritem = itmabove ? itmabove->itemAbove() : 0;
     }
     else if ( event->key() == Qt::Key_Down )
@@ -195,18 +198,18 @@ uiListViewBody& uiListView::mkbody( uiParent* p, const char* nm, int nl)
 
 void uiListView::setHScrollBarMode( ScrollMode mode )
 {
-    QScrollView::ScrollBarMode qmode;
-    if ( mode==AlwaysOn ) qmode = QScrollView::AlwaysOn;
-    else if ( mode==AlwaysOff ) qmode = QScrollView::AlwaysOff;
+    mQScrollView::ScrollBarMode qmode;
+    if ( mode==AlwaysOn ) qmode = mQScrollView::AlwaysOn;
+    else if ( mode==AlwaysOff ) qmode = mQScrollView::AlwaysOff;
     body_->setHScrollBarMode( qmode );
 }
 
 
 void uiListView::setVScrollBarMode( ScrollMode mode )
 {
-    QScrollView::ScrollBarMode qmode;
-    if ( mode==AlwaysOn ) qmode = QScrollView::AlwaysOn;
-    else if ( mode==AlwaysOff ) qmode = QScrollView::AlwaysOff;
+    mQScrollView::ScrollBarMode qmode;
+    if ( mode==AlwaysOn ) qmode = mQScrollView::AlwaysOn;
+    else if ( mode==AlwaysOff ) qmode = mQScrollView::AlwaysOff;
     body_->setVScrollBarMode( qmode );
 }
 
