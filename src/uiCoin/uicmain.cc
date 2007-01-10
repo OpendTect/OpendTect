@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          06/02/2002
- RCS:           $Id: uicmain.cc,v 1.15 2005-08-29 11:10:09 cvsbert Exp $
+ RCS:           $Id: uicmain.cc,v 1.16 2007-01-10 15:58:20 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,11 +17,12 @@ ________________________________________________________________________
 #include <Inventor/Qt/SoQt.h>
 #include <Inventor/SoDB.h>
 
-uicMain::uicMain(int argc,char** argv)
-: uiMain( argc, argv )
+uicMain::uicMain( int argc, char** argv )
+    : uiMain( argc, argv )
 {}
 
-void uicMain::init( QWidget* mw )
+
+void uicMain::init( QWidget* widget )
 {
     if ( !GetOSEnvVar("SOQT_BRIL_X11_SILENCER_HACK") )
 	SetEnvVar( "SOQT_BRIL_X11_SILENCER_HACK", "1" );
@@ -30,7 +31,7 @@ void uicMain::init( QWidget* mw )
 
 	if ( DBG::isOn(DBG_UI) )
 	    DBG::message( "SoQt::init() ..." );
-    SoQt::init(mw);
+    SoQt::init( widget );
 	if ( DBG::isOn(DBG_UI) )
 	    DBG::message( "done. visBase::initODInventorClasses() ..." );
     visBase::initODInventorClasses();
