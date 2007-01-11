@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrdescseted.cc,v 1.42 2007-01-11 12:37:16 cvsnanne Exp $
+ RCS:           $Id: uiattrdescseted.cc,v 1.43 2007-01-11 21:21:07 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -449,30 +449,18 @@ bool uiAttribDescSetEd::doCommit( bool useprev )
     BufferString oldattr = usedesc->attribName();
     if ( oldattr != newattr )
     {
-	if ( !uiMSG().askGoOn("This action will change the attribute type.\n"
-			      "Do you want to continue?") )
-	    return false;
-	else
-	{
-	    Desc* newdesc = PF().createDescCopy( newattr );
-	    if ( !newdesc ) return false;
-
-	    newdesc->setUserRef( usedesc->userRef() );
-	    attrset->removeDesc(attrset->getID(*usedesc));
-	    attrset->addDesc( newdesc );
-	    updateUserRefs();
-	    curDescEd()->commit( newdesc );
-	    updateCurDescEd();
-	    
-	    newdesc->setDescSet( attrset );
-	    usedesc = newdesc;
-	}
+	uiMSG().error( "Attribute type cannot be changed.\n"
+		       "Please 'Add as new' first." );
+	updateFields();
+	return false;
     }
 
-    if ( !setUserRef(usedesc) ) return false;
+    if ( !setUserRef(usedesc) )
+	return false;
 
     uiAttrDescEd* curdesced = curDescEd();
-    if ( !curdesced ) return false;
+    if ( !curdesced )
+	return false;
 
     const char* res = curdesced->commit( 0 );
     if ( res )
