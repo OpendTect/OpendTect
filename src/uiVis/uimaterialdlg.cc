@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uimaterialdlg.cc,v 1.10 2006-12-13 09:30:45 cvsnanne Exp $
+ RCS:           $Id: uimaterialdlg.cc,v 1.11 2007-01-11 22:07:35 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,10 +19,8 @@ ________________________________________________________________________
 #include "visobject.h"
 #include "vissurvobj.h"
 
-static const StepInterval<float> sSliderInterval( 0, 100, 10 );
-
 uiLineStyleGrp::uiLineStyleGrp( uiParent* p, visSurvey::SurveyObject* so )
-    : uiPropertyGrp(p,"Line style")
+    : uiDlgGroup(p,"Line style")
     , survobj_(so)
     , backup_(*so->lineStyle())
 {
@@ -46,69 +44,28 @@ bool uiLineStyleGrp::rejectOK( CallBacker* )
 
 
 uiPropertiesDlg::uiPropertiesDlg( uiParent* p, visSurvey::SurveyObject* so )
-    : uiDialog(p,"Display properties")
+    : uiTabStackDlg(p,uiDialog::Setup("Display properties") )
     , survobj_(so)
     , visobj_(dynamic_cast<visBase::VisualObject*>(so))
-    , tabstack_(new uiTabStack(this,"TabStack"))
 {
     if ( survobj_->allowMaterialEdit() && visobj_->getMaterial() )
     {
-	uiPropertyGrp* grp = new uiMaterialGrp( tabstack_->tabGroup(),
-				survobj_,
-				true, true, false, false, false, true,
-				survobj_->hasColor() );
-	tabstack_->addTab( grp );
-	tabs_ += grp;
+	addGroup(  new uiMaterialGrp( tabstack_->tabGroup(),
+			survobj_, true, true, false, false, false, true,
+			survobj_->hasColor() )) ;
     }
 
     if ( survobj_->lineStyle() )
-    {
-	uiPropertyGrp* grp =
-	    new uiLineStyleGrp( tabstack_->tabGroup(), survobj_ );
-	tabstack_->addTab( grp );
-	tabs_ += grp;
-    }
+	addGroup( new uiLineStyleGrp( tabstack_->tabGroup(), survobj_ )  );
 
     setCancelText( "" );
-    finaliseStart.notify( mCB(this,uiPropertiesDlg,doFinalise) );
-}
-
-
-void uiPropertiesDlg::doFinalise( CallBacker* cb )
-{
-    for ( int idx=0; idx<tabs_.size(); idx++ )
-	tabs_[idx]->doFinalise( cb );
-}
-
-
-bool uiPropertiesDlg::acceptOK( CallBacker* cb )
-{
-    for ( int idx=0; idx<tabs_.size(); idx++ )
-    {
-	if ( !tabs_[idx]->acceptOK(cb) )
-	    return false;
-    }
-
-    return true;
-}
-
-
-bool uiPropertiesDlg::rejectOK( CallBacker* cb )
-{
-    for ( int idx=0; idx<tabs_.size(); idx++ )
-    {
-	if ( !tabs_[idx]->rejectOK(cb) )
-	    return false;
-    }
-
-    return true;
 }
 
 
 uiMaterialGrp::uiMaterialGrp( uiParent* p, visSurvey::SurveyObject* so,
        bool ambience, bool diffusecolor, bool specularcolor,
        bool emmissivecolor, bool shininess, bool transparency, bool color )
-    : uiPropertyGrp(p,"Material")
+    : uiDlgGroup(p,"Material")
     , material_(dynamic_cast<visBase::VisualObject*>(so)->getMaterial())
     , survobj_(so)
     , ambslider_(0)
@@ -136,6 +93,13 @@ uiMaterialGrp::uiMaterialGrp( uiParent* p, visSurvey::SurveyObject* so,
     createSlider( transparency, transslider_, "Transparency" );
 }
 
+#define mFinalise( sldr, fn ) \
+if ( sldr ) \
+{ \
+    sldr->setInterval( StepInterval<float>( 0, 100, 10 ) ); \
+    sldr->setValue( material_->fn()*100 ); \
+}
+
 
 void uiMaterialGrp::createSlider( bool domk, uiSlider*& slider,
 				  const char* lbltxt )
@@ -147,18 +111,7 @@ void uiMaterialGrp::createSlider( bool domk, uiSlider*& slider,
     slider->valueChanged.notify( mCB(this,uiMaterialGrp,sliderMove) );
     if ( prevobj_ ) se->attach( alignedBelow, prevobj_ );
     prevobj_ = se;
-}
 
-
-#define mFinalise( sldr, fn ) \
-if ( sldr ) \
-{ \
-    sldr->setInterval( sSliderInterval ); \
-    sldr->setValue( material_->fn()*100 ); \
-}
-
-void uiMaterialGrp::doFinalise( CallBacker* )
-{
     mFinalise( ambslider_, getAmbience )
     mFinalise( diffslider_, getDiffIntensity )
     mFinalise( specslider_, getSpecIntensity )
@@ -168,6 +121,7 @@ void uiMaterialGrp::doFinalise( CallBacker* )
 
     if ( colinp_ ) colinp_->setColor( material_->getColor() );
 }
+
 
 
 void uiMaterialGrp::sliderMove( CallBacker* cb )

@@ -6,13 +6,13 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uimaterialdlg.h,v 1.8 2006-12-13 09:30:45 cvsnanne Exp $
+ RCS:           $Id: uimaterialdlg.h,v 1.9 2007-01-11 22:07:35 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uidialog.h"
-#include "uigroup.h"
+#include "uidlggroup.h"
 #include "draw.h"
 
 class uiColorInput;
@@ -24,19 +24,7 @@ namespace visBase { class Material; class VisualObject; };
 namespace visSurvey { class SurveyObject; };
 
 
-class uiPropertyGrp : public uiGroup
-{
-public:
-    			uiPropertyGrp(uiParent* p, const char* nm)
-			    : uiGroup(p,nm) {}
-
-    virtual bool	rejectOK(CallBacker*)		{ return true; }
-    virtual bool	acceptOK(CallBacker*)		{ return true; }
-    virtual void	doFinalise(CallBacker*)		{}
-};
-
-
-class uiMaterialGrp : public uiPropertyGrp
+class uiMaterialGrp : public uiDlgGroup
 {
 public:
 				uiMaterialGrp(uiParent*,
@@ -70,7 +58,7 @@ protected:
 };
 
 
-class uiLineStyleGrp : public uiPropertyGrp
+class uiLineStyleGrp : public uiDlgGroup
 {
 public:
     				uiLineStyleGrp(uiParent*,
@@ -86,21 +74,15 @@ protected:
 };
 
 
-class uiPropertiesDlg : public uiDialog
+class uiPropertiesDlg : public uiTabStackDlg
 {
 public:
 				uiPropertiesDlg(uiParent*,
 						visSurvey::SurveyObject*);
 protected:
-    ObjectSet<uiPropertyGrp>	tabs_;
-    uiTabStack*			tabstack_;
 
     visSurvey::SurveyObject*	survobj_;
     visBase::VisualObject*	visobj_;
-
-    void			doFinalise(CallBacker*);
-    bool			acceptOK(CallBacker*);
-    bool			rejectOK(CallBacker*);
 };
 
 #endif
