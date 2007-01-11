@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Jul 2003
- RCS:           $Id: visdepthtabplanedragger.cc,v 1.18 2006-12-18 17:35:13 cvskris Exp $
+ RCS:           $Id: visdepthtabplanedragger.cc,v 1.19 2007-01-11 19:51:39 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,27 +30,26 @@ const char* DepthTabPlaneDragger::centerstr = "Center.";
 
 DepthTabPlaneDragger::DepthTabPlaneDragger()
     : VisualObjectImpl( false )
-    , ownshape( 0 )
-    , dragger( new SoDepthTabPlaneDragger )
-    , rotation( 0 )
-    , transform( 0 )
-    , dim( 2 )
+    , dragger_( new SoDepthTabPlaneDragger )
+    , rotation_( 0 )
+    , transform_( 0 )
+    , dim_( 2 )
     , started( this )
     , motion( this )
     , changed( this )
     , finished( this )
 {
-    centers += center(); centers += center(); centers += center();
-    sizes += size(); sizes += size(); sizes += size();
+    centers_ += center(); centers_ += center(); centers_ += center();
+    sizes_ += size(); sizes_ += size(); sizes_ += size();
 
-    addChild( dragger );
+    addChild( dragger_ );
 
-    setDim(dim);
+    setDim(dim_);
 
-    dragger->addStartCallback( DepthTabPlaneDragger::startCB, this );
-    dragger->addMotionCallback( DepthTabPlaneDragger::motionCB, this );
-    dragger->addFinishCallback( DepthTabPlaneDragger::finishCB, this );
-    dragger->addValueChangedCallback(
+    dragger_->addStartCallback( DepthTabPlaneDragger::startCB, this );
+    dragger_->addMotionCallback( DepthTabPlaneDragger::motionCB, this );
+    dragger_->addFinishCallback( DepthTabPlaneDragger::finishCB, this );
+    dragger_->addValueChangedCallback(
 	    		DepthTabPlaneDragger::valueChangedCB, this );
 
 }
@@ -58,13 +57,13 @@ DepthTabPlaneDragger::DepthTabPlaneDragger()
 
 DepthTabPlaneDragger::~DepthTabPlaneDragger()
 {
-    if ( rotation ) rotation->unRef();
-    if ( transform ) transform->unRef();
+    if ( rotation_ ) rotation_->unRef();
+    if ( transform_ ) transform_->unRef();
 
-    dragger->removeStartCallback( DepthTabPlaneDragger::startCB, this );
-    dragger->removeMotionCallback( DepthTabPlaneDragger::motionCB, this );
-    dragger->removeFinishCallback( DepthTabPlaneDragger::finishCB, this );
-    dragger->removeValueChangedCallback(
+    dragger_->removeStartCallback( DepthTabPlaneDragger::startCB, this );
+    dragger_->removeMotionCallback( DepthTabPlaneDragger::motionCB, this );
+    dragger_->removeFinishCallback( DepthTabPlaneDragger::finishCB, this );
+    dragger_->removeValueChangedCallback(
 	    		DepthTabPlaneDragger::valueChangedCB, this );
 }
 
@@ -72,20 +71,22 @@ DepthTabPlaneDragger::~DepthTabPlaneDragger()
 void DepthTabPlaneDragger::setCenter( const Coord3& newcenter, bool alldims )
 {
     const Coord3 dcenter = world2Dragger( newcenter, true );
-    dragger->translation.setValue( SbVec3f(dcenter.x,dcenter.y,dcenter.z) );
+    dragger_->translation.setValue( SbVec3f(dcenter.x,dcenter.y,dcenter.z) );
 
-    centers[dim] = newcenter;
+    centers_[dim_] = newcenter;
 
     if ( alldims )
     {
-	centers[0] = newcenter; centers[1] = newcenter; centers[2] = newcenter;
+	centers_[0] = newcenter;
+	centers_[1] = newcenter;
+	centers_[2] = newcenter;
     }
 }
 
 
 Coord3 DepthTabPlaneDragger::center() const
 {
-    const SbVec3f res = dragger->translation.getValue();
+    const SbVec3f res = dragger_->translation.getValue();
     return dragger2World( Coord3(res[0],res[1],res[2]), true );
 }
 
@@ -96,34 +97,34 @@ void DepthTabPlaneDragger::setSize( const Coord3& scale, bool alldims )
     		     scale[1] ? scale[1] : 0.1,
     		     scale[2] ? scale[2] : 0.1 );
     const Coord3 dscale = world2Dragger( newscale, false);
-    dragger->scaleFactor.setValue(SbVec3f( dscale.x/2, dscale.y/2, dscale.z/2));
+    dragger_->scaleFactor.setValue(SbVec3f( dscale.x/2, dscale.y/2,dscale.z/2));
 
-    sizes[dim] = newscale;
+    sizes_[dim_] = newscale;
 
     if ( alldims )
     {
-	sizes[0] = newscale; sizes[1] = newscale; sizes[2] = newscale;
+	sizes_[0] = newscale; sizes_[1] = newscale; sizes_[2] = newscale;
     }
 }
 
 
 void DepthTabPlaneDragger::removeScaleTabs()
 {
-    dragger->setPart("greenTabsSep", 0 );
+    dragger_->setPart("greenTabsSep", 0 );
 }
 
 
 Coord3 DepthTabPlaneDragger::size() const
 {
-    const SbVec3f res = dragger->scaleFactor.getValue();
+    const SbVec3f res = dragger_->scaleFactor.getValue();
     return dragger2World( Coord3(res[0]*2,res[1]*2,res[2]*2), false );
 }
 
 
 void DepthTabPlaneDragger::setDim( int newdim )
 {
-    centers[dim] = center();
-    sizes[dim] = size();
+    centers_[dim_] = center();
+    sizes_[dim_] = size();
 
     Interval<float> xlim, ylim, zlim;
     getSpaceLimits( xlim, ylim, zlim );
@@ -132,57 +133,57 @@ void DepthTabPlaneDragger::setDim( int newdim )
 
     if ( !newdim )
     {
-	if ( !rotation )
+	if ( !rotation_ )
 	{
-	    rotation = Transformation::create();
-	    rotation->ref();
+	    rotation_ = Transformation::create();
+	    rotation_->ref();
 
-	    dragger->ref();
-	    removeChild( dragger );
-	    addChild( rotation->getInventorNode() );
-	    addChild( dragger );
-	    dragger->unref();
+	    dragger_->ref();
+	    removeChild( dragger_ );
+	    addChild( rotation_->getInventorNode() );
+	    addChild( dragger_ );
+	    dragger_->unref();
 	}
 
-	rotation->setRotation( Coord3(0,1,0), -M_PI/2 );
-	rotation->setScale( Coord3( 1, 1, -1 ) );
+	rotation_->setRotation( Coord3(0,1,0), -M_PI/2 );
+	rotation_->setScale( Coord3( 1, 1, -1 ) );
     }
     else if ( newdim==1 )
     {
-	if ( !rotation )
+	if ( !rotation_ )
 	{
-	    rotation = Transformation::create();
-	    rotation->ref();
+	    rotation_ = Transformation::create();
+	    rotation_->ref();
 
-	    dragger->ref();
-	    removeChild( dragger );
-	    addChild( rotation->getInventorNode() );
-	    addChild( dragger );
-	    dragger->unref();
+	    dragger_->ref();
+	    removeChild( dragger_ );
+	    addChild( rotation_->getInventorNode() );
+	    addChild( dragger_ );
+	    dragger_->unref();
 	}
 
-	rotation->setRotation( Coord3(1,0,0), M_PI/2 );
-	rotation->setScale( Coord3( 1, 1, -1 ) );
+	rotation_->setRotation( Coord3(1,0,0), M_PI/2 );
+	rotation_->setScale( Coord3( 1, 1, -1 ) );
     }
     else
     {
-        if ( rotation ) rotation->reset();
+        if ( rotation_ ) rotation_->reset();
     }
 
-    dim = newdim;
+    dim_ = newdim;
 
     setSpaceLimits( xlim, ylim, zlim );
     setWidthLimits( xsizelim, ysizelim, zsizelim );
     NotifyStopper stopper( changed );
-    setSize( sizes[dim], false );
-    setCenter( centers[dim], false );
+    setSize( sizes_[dim_], false );
+    setCenter( centers_[dim_], false );
     stopper.restore();
 }
 
 
 int DepthTabPlaneDragger::getDim() const
 {
-    return dim;
+    return dim_;
 }
 
 
@@ -192,8 +193,8 @@ void DepthTabPlaneDragger::setSpaceLimits( const Interval<float>& x,
 {
     const Coord3 start = world2Dragger( Coord3(x.start,y.start,z.start),true );
     const Coord3 stop = world2Dragger( Coord3(x.stop,y.stop,z.stop),true );
-    dragger->minPos.setValue( start.x, start.y, start.z);
-    dragger->maxPos.setValue( stop.x, stop.y, stop.z);
+    dragger_->minPos.setValue( start.x, start.y, start.z);
+    dragger_->maxPos.setValue( stop.x, stop.y, stop.z);
 }
 
 
@@ -201,8 +202,8 @@ void DepthTabPlaneDragger::getSpaceLimits( Interval<float>& x,
 					   Interval<float>& y,
 					   Interval<float>& z ) const
 {
-    const SbVec3f dstart = dragger->minPos.getValue();
-    const SbVec3f dstop = dragger->maxPos.getValue();
+    const SbVec3f dstart = dragger_->minPos.getValue();
+    const SbVec3f dstop = dragger_->maxPos.getValue();
     const Coord3 start = dragger2World( Coord3(dstart[0],dstart[1],dstart[2]),
 	    				true );
     const Coord3 stop = dragger2World( Coord3(dstop[0],dstop[1],dstop[2]),
@@ -219,8 +220,8 @@ void DepthTabPlaneDragger::setWidthLimits( const Interval<float>& x,
 {
     const Coord3 start = world2Dragger( Coord3(x.start,y.start,z.start),true );
     const Coord3 stop = world2Dragger( Coord3(x.stop,y.stop,z.stop),true );
-    dragger->minSize.setValue( start.x, start.y, start.z);
-    dragger->maxSize.setValue( stop.x, stop.y, stop.z);
+    dragger_->minSize.setValue( start.x, start.y, start.z);
+    dragger_->maxSize.setValue( stop.x, stop.y, stop.z);
 }
 
 
@@ -228,8 +229,8 @@ void DepthTabPlaneDragger::getWidthLimits( Interval<float>& x,
 					   Interval<float>& y,
 					   Interval<float>& z ) const
 {
-    const SbVec3f dstart = dragger->minSize.getValue();
-    const SbVec3f dstop = dragger->maxSize.getValue();
+    const SbVec3f dstart = dragger_->minSize.getValue();
+    const SbVec3f dstop = dragger_->maxSize.getValue();
     const Coord3 start = dragger2World( Coord3(dstart[0],dstart[1],dstart[2]),
 	    				false );
     const Coord3 stop = dragger2World( Coord3(dstop[0],dstop[1],dstop[2]),
@@ -242,7 +243,7 @@ void DepthTabPlaneDragger::getWidthLimits( Interval<float>& x,
 
 void DepthTabPlaneDragger::setDisplayTransformation( Transformation* nt )
 {
-    if ( transform==nt ) return;
+    if ( transform_==nt ) return;
 
     const Coord3 centerpos = center();
     const Coord3 savedsize = size();
@@ -253,18 +254,18 @@ void DepthTabPlaneDragger::setDisplayTransformation( Transformation* nt )
     getWidthLimits( xsizelim, ysizelim, zsizelim );
 
 
-    if ( transform )
+    if ( transform_ )
     {
-	removeChild( transform->getInventorNode() );
-	transform->unRef();
+	removeChild( transform_->getInventorNode() );
+	transform_->unRef();
     }
 
-    transform = nt;
+    transform_ = nt;
 
-    if ( transform )
+    if ( transform_ )
     {
-	insertChild(0, transform->getInventorNode() );
-	transform->ref();
+	insertChild(0, transform_->getInventorNode() );
+	transform_->ref();
     }
 
     setSpaceLimits( xlim, ylim, zlim );
@@ -276,7 +277,7 @@ void DepthTabPlaneDragger::setDisplayTransformation( Transformation* nt )
 
 Transformation* DepthTabPlaneDragger::getDisplayTransformation()
 {
-    return transform;
+    return transform_;
 }
 
 
@@ -289,17 +290,82 @@ void DepthTabPlaneDragger::setOwnShape( SoNode* newnode )
 	newsep->addChild( newnode );
     }
 
-    dragger->setPart("translator", newsep );
+    dragger_->setPart("translator", newsep );
 }
+
+
+void DepthTabPlaneDragger::setDepthDragKeys( bool depth, OD::ButtonState ns )
+{
+    const bool control = ns & OD::ControlButton;
+    const bool shift = ns & OD::ShiftButton;
+    const bool alt = ns & OD::AltButton;
+
+    SoDepthTabPlaneDragger::Key key;
+
+    if ( shift )
+    {
+	if ( control )
+	    key = alt ? SoDepthTabPlaneDragger::SHIFTCONTROLALT
+		    : SoDepthTabPlaneDragger::SHIFTCONTROL;
+	else
+	    key = alt ? SoDepthTabPlaneDragger::SHIFTALT
+		    : SoDepthTabPlaneDragger::SHIFT;
+    }
+    else
+    {
+	if ( control )
+	    key = alt ? SoDepthTabPlaneDragger::CONTROLALT
+		    : SoDepthTabPlaneDragger::CONTROL;
+	else
+	    key = alt ? SoDepthTabPlaneDragger::ALT
+		    : SoDepthTabPlaneDragger::NONE;
+    }
+
+    if ( depth ) dragger_->depthKey.setValue( key );
+    else dragger_->translateKey.setValue( key );
+}
+
+
+OD::ButtonState DepthTabPlaneDragger::getDepthDragKeys(bool depth) const
+{
+    SoDepthTabPlaneDragger::Key key = depth
+	? (SoDepthTabPlaneDragger::Key) dragger_->depthKey.getValue()
+	: (SoDepthTabPlaneDragger::Key) dragger_->translateKey.getValue();
+
+    int state = 0;
+
+    if ( key==SoDepthTabPlaneDragger::SHIFTCONTROLALT ||
+	key==SoDepthTabPlaneDragger::SHIFTCONTROL ||
+	key==SoDepthTabPlaneDragger::SHIFTALT ||
+	key==SoDepthTabPlaneDragger::SHIFT )
+	    state |= OD::ShiftButton;
+
+    if ( key==SoDepthTabPlaneDragger::SHIFTCONTROLALT ||
+	key==SoDepthTabPlaneDragger::SHIFTCONTROL ||
+	key==SoDepthTabPlaneDragger::CONTROLALT ||
+	key==SoDepthTabPlaneDragger::CONTROL )
+	    state |= OD::ControlButton;
+
+    if ( key==SoDepthTabPlaneDragger::SHIFTCONTROLALT ||
+	key==SoDepthTabPlaneDragger::SHIFTALT ||
+	key==SoDepthTabPlaneDragger::CONTROLALT ||
+	key==SoDepthTabPlaneDragger::ALT )
+	    state |= OD::AltButton;
+
+    return (OD::ButtonState) state;
+}
+
 
 
 Coord3 DepthTabPlaneDragger::world2Dragger( const Coord3& world,
 					    bool ispos ) const
 {
-    const Coord3 tpos = transform&&ispos ? transform->transform(world) : world;
-    if ( !dim )
+    const Coord3 tpos = transform_ && ispos
+	? transform_->transform(world) : world;
+
+    if ( !dim_ )
 	return Coord3( tpos.z, tpos.y, tpos.x );
-    if ( dim==1 )
+    if ( dim_==1 )
 	return Coord3( tpos.x, tpos.z, tpos.y );
 
     return tpos;
@@ -309,10 +375,11 @@ Coord3 DepthTabPlaneDragger::world2Dragger( const Coord3& world,
 Coord3 DepthTabPlaneDragger::dragger2World( const Coord3& drag,
 					    bool ispos ) const
 {
-    const Coord3 tpos = transform&&ispos ? transform->transformBack(drag) :drag;
-    if ( !dim )
+    const Coord3 tpos = transform_ && ispos
+	? transform_->transformBack(drag) : drag;
+    if ( !dim_ )
 	return Coord3( tpos.z, tpos.y, tpos.x );
-    if ( dim==1 )
+    if ( dim_==1 )
 	return Coord3( tpos.x, tpos.z, tpos.y );
 
     return tpos;
@@ -349,16 +416,16 @@ void DepthTabPlaneDragger::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 
     par.set( dimstr, getDim() );
 
-    const_cast<Coord3&>(centers[dim]) = center();
+    const_cast<Coord3&>(centers_[dim_]) = center();
     for ( int idx=0; idx<3; idx++ )
     {
 	BufferString str( centerstr );
 	str += idx;
-	par.set( str, centers[idx] );
+	par.set( str, centers_[idx] );
 
 	str = sizestr;
 	str += idx;
-	par.set( str, sizes[idx] );
+	par.set( str, sizes_[idx] );
     }
 }
 
@@ -372,19 +439,19 @@ int DepthTabPlaneDragger::usePar( const IOPar& par )
     {
 	BufferString str( centerstr );
 	str += idx;
-	par.get( str, centers[idx] );
+	par.get( str, centers_[idx] );
 
 	str = sizestr;
 	str += idx;
-	par.get( str, sizes[idx] );
+	par.get( str, sizes_[idx] );
     }
 
-    setSize( sizes[dim], false );
-    setCenter( centers[dim], false );
+    setSize( sizes_[dim_], false );
+    setCenter( centers_[dim_], false );
 
-    int dim_ = 0;
-    par.get( dimstr, dim_ );
-    setDim( dim_ );
+    int dim = 0;
+    par.get( dimstr, dim );
+    setDim( dim );
 
     return 1;
 }

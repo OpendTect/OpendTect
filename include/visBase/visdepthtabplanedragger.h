@@ -7,13 +7,15 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visdepthtabplanedragger.h,v 1.7 2005-02-04 14:31:34 kristofer Exp $
+ RCS:		$Id: visdepthtabplanedragger.h,v 1.8 2007-01-11 19:51:39 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
 #include "visobject.h"
+#include "keyenum.h"
+
 
 template <class T> class Interval;
 
@@ -79,6 +81,11 @@ public:
 
     void			setOwnShape( SoNode* );
 
+
+    void			setDepthDragKeys(bool depth,OD::ButtonState);
+    				/*!<\note only shift/ctrl/alt are used. */
+    OD::ButtonState		getDepthDragKeys(bool depth) const;
+
     void			fillPar(IOPar&,TypeSet<int>&) const;
     int				usePar(const IOPar&);
 
@@ -93,15 +100,14 @@ protected:
     Coord3			world2Dragger( const Coord3&, bool pos) const;
     Coord3			dragger2World( const Coord3&, bool pos) const;
 
-    SoDepthTabPlaneDragger*	dragger;
-    SoSeparator*		ownshape;
+    SoDepthTabPlaneDragger*	dragger_;
 
-    int				dim;
-    Transformation*	rotation;
-    TypeSet<Coord3>		centers;
-    TypeSet<Coord3>		sizes;
+    int				dim_;
+    Transformation*		rotation_;
+    TypeSet<Coord3>		centers_;
+    TypeSet<Coord3>		sizes_;
 
-    Transformation*	transform;
+    Transformation*		transform_;
 
 private:
     static void			startCB( void*, SoDragger* );
