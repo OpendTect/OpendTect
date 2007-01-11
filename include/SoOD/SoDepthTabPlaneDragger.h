@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoDepthTabPlaneDragger.h,v 1.4 2006-05-31 08:05:11 cvskris Exp $
+ RCS:		$Id: SoDepthTabPlaneDragger.h,v 1.5 2007-01-11 18:09:19 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -55,6 +55,12 @@ public:
     SoSFVec3f		minPos;
     SoSFVec3f		maxPos;
 
+    enum Key		{ DISABLE, NONE, ANY, SHIFT, CONTROL, ALT, SHIFTCONTROL,
+			  SHIFTALT, CONTROLALT, SHIFTCONTROLALT };
+
+    SoSFEnum		depthKey;
+    SoSFEnum		translateKey;
+
 protected:
     			~SoDepthTabPlaneDragger();
     virtual void	GLRender(SoGLRenderAction*);
@@ -68,6 +74,8 @@ protected:
     void		dragStart(void);
     void		drag(void);
     void		dragFinish(void);
+
+    bool		shouldDrag( const SoEvent* event, Key key ) const;
 
 private:
 
@@ -83,6 +91,7 @@ private:
     SoFieldSensor*	scaleFieldSensor_;
     SoFieldSensor*	translFieldSensor_;
     SbLineProjector*	lineProj_;
+    SbPlaneProjector*	planeProj_;
     int			whatkind_;
     int			constraintState_;
     float		prevsizex_;

@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoDepthTabPlaneDragger.cc,v 1.12 2006-08-04 21:13:13 cvskris Exp $";
+static const char* rcsID = "$Id: SoDepthTabPlaneDragger.cc,v 1.13 2007-01-11 18:09:19 cvskris Exp $";
 
 
 #include "SoDepthTabPlaneDragger.h"
@@ -43,7 +43,8 @@ static const char* rcsID = "$Id: SoDepthTabPlaneDragger.cc,v 1.12 2006-08-04 21:
 
 #define WHATKIND_NONE      0
 #define WHATKIND_SCALE     1
-#define WHATKIND_TRANSLATE 2
+#define WHATKIND_LINETRANSLATE 2
+#define WHATKIND_PLANETRANSLATE 3
 
 #define CONSTRAINT_OFF  0
 #define CONSTRAINT_WAIT 1
@@ -83,6 +84,8 @@ void SoDepthTabPlaneDragger::initClass()
 
 
 SoDepthTabPlaneDragger::SoDepthTabPlaneDragger()
+    : lineProj_( 0 )
+    , planeProj_( 0 )
 {
     SO_KIT_CONSTRUCTOR( SoDepthTabPlaneDragger );
 
@@ -125,6 +128,22 @@ SoDepthTabPlaneDragger::SoDepthTabPlaneDragger()
     SO_KIT_ADD_FIELD( minPos, (-1e30, -1e30, -1e30) );
     SO_KIT_ADD_FIELD( maxPos, (1e30, 1e30, 1e30));
 
+    SO_NODE_ADD_FIELD( depthKey, (SoDepthTabPlaneDragger::NONE) );
+    SO_NODE_ADD_FIELD( translateKey, (SoDepthTabPlaneDragger::DISABLE) );
+
+    SO_NODE_SET_SF_ENUM_TYPE( depthKey, Key );
+    SO_NODE_SET_SF_ENUM_TYPE( translateKey, Key );
+    SO_NODE_DEFINE_ENUM_VALUE( Key, SoDepthTabPlaneDragger::DISABLE );
+    SO_NODE_DEFINE_ENUM_VALUE( Key, SoDepthTabPlaneDragger::NONE );
+    SO_NODE_DEFINE_ENUM_VALUE( Key, SoDepthTabPlaneDragger::ANY );
+    SO_NODE_DEFINE_ENUM_VALUE( Key, SoDepthTabPlaneDragger::SHIFT );
+    SO_NODE_DEFINE_ENUM_VALUE( Key, SoDepthTabPlaneDragger::CONTROL );
+    SO_NODE_DEFINE_ENUM_VALUE( Key, SoDepthTabPlaneDragger::ALT );
+    SO_NODE_DEFINE_ENUM_VALUE( Key, SoDepthTabPlaneDragger::SHIFTCONTROL );
+    SO_NODE_DEFINE_ENUM_VALUE( Key, SoDepthTabPlaneDragger::SHIFTALT );
+    SO_NODE_DEFINE_ENUM_VALUE( Key, SoDepthTabPlaneDragger::CONTROLALT );
+    SO_NODE_DEFINE_ENUM_VALUE( Key, SoDepthTabPlaneDragger::SHIFTCONTROLALT );
+
     SO_KIT_INIT_INSTANCE();
 
     setPartAsDefault("translator", "tabPlaneTranslator");
@@ -145,7 +164,6 @@ SoDepthTabPlaneDragger::SoDepthTabPlaneDragger()
     addFinishCallback(SoDepthTabPlaneDragger::finishCB);
     addValueChangedCallback(SoDepthTabPlaneDragger::valueChangedCB);
 
-    lineProj_ = new SbLineProjector;
 
     translFieldSensor_ =
 		new SoFieldSensor(SoDepthTabPlaneDragger::fieldSensorCB, this);
@@ -163,6 +181,7 @@ SoDepthTabPlaneDragger::~SoDepthTabPlaneDragger()
     delete translFieldSensor_;
     delete scaleFieldSensor_;
     delete lineProj_;
+    delete planeProj_;
 }
 
 
@@ -350,6 +369,7 @@ void SoDepthTabPlaneDragger::dragStart(void)
     SoNode* greentabs = getAnyPart(SbName("greenTabsSep"), false );
     if ( greentabs )
     {
+	if ( !lineProj_ ) lineProj_ = new SbLineProjector;
 	constraintState_ = CONSTRAINT_OFF;
 	char xside = -2;
 	const float absx = fabs(startpt[0]);
@@ -378,11 +398,56 @@ void SoDepthTabPlaneDragger::dragStart(void)
 	}
     }
 
-    if ( !scale )
+    if ( !scale  )
     {
-	whatkind_ = WHATKIND_TRANSLATE;
-	lineProj_->setLine(SbLine(startpt, startpt + SbVec3f(0, 0, 1)));
+	const Key depthkey = (Key) depthKey.getValue();
+	if ( shouldDrag( event, (Key) depthKey.getValue() ) )
+	{
+	    whatkind_ = WHATKIND_LINETRANSLATE;
+	    if ( !lineProj_ ) lineProj_ = new SbLineProjector;
+	    lineProj_->setLine(SbLine(startpt, startpt + SbVec3f(0, 0, 1)));
+	}
+	else if ( shouldDrag( event, (Key) translateKey.getValue() ) )
+	{
+	    whatkind_ = WHATKIND_PLANETRANSLATE;
+	    if ( !planeProj_ ) planeProj_ = new SbPlaneProjector;
+	    planeProj_->setPlane(SbPlane(SbVec3f(0, 0, 1), startpt));
+	}
     }
+}
+
+
+bool SoDepthTabPlaneDragger::shouldDrag( const SoEvent* event,
+	SoDepthTabPlaneDragger::Key key ) const
+{
+    if ( key==DISABLE )
+	return false;
+
+    if ( key==ANY )
+	return true;
+
+    const bool shift = event->wasShiftDown();
+    const bool alt = event->wasAltDown();
+    const bool control = event->wasCtrlDown();
+
+    if ( key==NONE && !shift && !alt && !control )
+	return true;
+    if ( key==SHIFT && shift && !alt && !control )
+	return true;
+    if ( key==ALT && !shift && alt && !control )
+	return true;
+    if ( key==CONTROL && !shift && !alt && control )
+	return true;
+    if ( key==SHIFTCONTROL && shift && !alt && control )
+	return true;
+    if ( key==SHIFTALT && shift && alt && !control )
+	return true;
+    if ( key==CONTROLALT && !shift && alt && control )
+	return true;
+    if ( key==SHIFTCONTROLALT && shift && alt && control )
+	return true;
+
+    return false;
 }
 
 
@@ -443,7 +508,7 @@ void SoDepthTabPlaneDragger::drag(void)
 	    setMotionMatrix(motmat);
 	}
     }
-    else
+    else if ( whatkind_==WHATKIND_LINETRANSLATE )
     { // translate
 	const SbVec3f startpt = getLocalStartingPoint();
 
@@ -451,6 +516,30 @@ void SoDepthTabPlaneDragger::drag(void)
 	lineProj_->setWorkingSpace(getLocalToWorldMatrix());
 	const SbVec3f newhitpt =
 	    		lineProj_->project(getNormalizedLocaterPosition());
+
+	SbVec3f motion = newhitpt-startpt;
+	SbMatrix motmat = appendTranslation(getStartMotionMatrix(), motion);
+
+	SbVec3f trans, scale;
+	SbRotation rot, scaleorient;
+	motmat.getTransform(trans, rot, scale, scaleorient );
+
+	SbVec3f mov = trans.getValue();
+	const SbVec3f minpos = minPos.getValue();
+	const SbVec3f maxpos = maxPos.getValue();
+	if ( mov[2]<=maxpos[2] && mov[2]>=minpos[2] )
+	{
+	    setMotionMatrix(motmat);
+	}
+    }
+    else if ( whatkind_==WHATKIND_PLANETRANSLATE )
+    { // translate plane
+	const SbVec3f startpt = getLocalStartingPoint();
+
+	planeProj_->setViewVolume(getViewVolume());
+	planeProj_->setWorkingSpace(getLocalToWorldMatrix());
+	const SbVec3f newhitpt =
+	    		planeProj_->project(getNormalizedLocaterPosition());
 
 	SbVec3f motion = newhitpt-startpt;
 	SbMatrix motmat = appendTranslation(getStartMotionMatrix(), motion);
