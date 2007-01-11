@@ -7,14 +7,13 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visdepthtabplanedragger.h,v 1.8 2007-01-11 19:51:39 cvskris Exp $
+ RCS:		$Id: visdepthtabplanedragger.h,v 1.9 2007-01-11 20:20:37 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
 #include "visobject.h"
-#include "keyenum.h"
 
 
 template <class T> class Interval;
@@ -82,9 +81,17 @@ public:
     void			setOwnShape( SoNode* );
 
 
-    void			setDepthDragKeys(bool depth,OD::ButtonState);
-    				/*!<\note only shift/ctrl/alt are used. */
-    OD::ButtonState		getDepthDragKeys(bool depth) const;
+    void			setTransDragKeys(bool depth,int keys);
+    				/*!<\param depth specifies wheter the depth or
+				    		 the plane setting should be
+						 changed.
+				   \param keys	 combination of OD::ButtonState
+				   \note only shift/ctrl/alt are used. */
+    int				getTransDragKeys(bool depth) const;
+    				/*!<\param depth specifies wheter the depth or
+				    		the plane setting should be
+						returned.
+				    \returns	combination of OD::ButtonState*/
 
     void			fillPar(IOPar&,TypeSet<int>&) const;
     int				usePar(const IOPar&);

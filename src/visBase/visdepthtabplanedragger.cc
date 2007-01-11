@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Jul 2003
- RCS:           $Id: visdepthtabplanedragger.cc,v 1.19 2007-01-11 19:51:39 cvskris Exp $
+ RCS:           $Id: visdepthtabplanedragger.cc,v 1.20 2007-01-11 20:20:37 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "position.h"
 #include "ranges.h"
 #include "iopar.h"
+#include "keyenum.h"
 
 #include <Inventor/nodes/SoSeparator.h>
 
@@ -294,7 +295,7 @@ void DepthTabPlaneDragger::setOwnShape( SoNode* newnode )
 }
 
 
-void DepthTabPlaneDragger::setDepthDragKeys( bool depth, OD::ButtonState ns )
+void DepthTabPlaneDragger::setTransDragKeys( bool depth, int ns )
 {
     const bool control = ns & OD::ControlButton;
     const bool shift = ns & OD::ShiftButton;
@@ -326,7 +327,7 @@ void DepthTabPlaneDragger::setDepthDragKeys( bool depth, OD::ButtonState ns )
 }
 
 
-OD::ButtonState DepthTabPlaneDragger::getDepthDragKeys(bool depth) const
+int DepthTabPlaneDragger::getTransDragKeys(bool depth) const
 {
     SoDepthTabPlaneDragger::Key key = depth
 	? (SoDepthTabPlaneDragger::Key) dragger_->depthKey.getValue()
