@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.150 2006-09-21 12:02:47 cvsbert Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.151 2007-01-11 20:21:07 cvskris Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -14,10 +14,11 @@ static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.150 2006-09-21 12:02
 #include "arrayndslice.h"
 #include "binidvalset.h"
 #include "genericnumer.h"
-#include "vistexturerect.h"
+#include "keyenum.h"
 #include "survinfo.h"
 #include "samplfunc.h"
 #include "scaler.h"
+#include "vistexturerect.h"
 #include "visdataman.h"
 #include "visrectangle.h"
 #include "vismaterial.h"
@@ -128,6 +129,9 @@ PlaneDataDisplay::PlaneDataDisplay()
     as_ += new Attrib::SelSpec;
     volumecache_ += 0;
     rposcache_ += 0;
+
+    setTranslationDragKeys( true, OD::NoButton );
+    setTranslationDragKeys( false, OD::ShiftButton );
 }
 
 
@@ -326,6 +330,14 @@ bool PlaneDataDisplay::setDataTransform( ZAxisTransform* zat )
 
 const ZAxisTransform* PlaneDataDisplay::getDataTransform() const
 { return datatransform_; }
+
+
+void PlaneDataDisplay::setTranslationDragKeys( bool depth, int ns )
+{ dragger_->setTransDragKeys( depth, ns ); }
+
+
+int PlaneDataDisplay::getTranslationDragKeys(bool depth) const
+{ return dragger_->getTransDragKeys( depth ); }
 
 
 void PlaneDataDisplay::dataTransformCB( CallBacker* )
@@ -1165,6 +1177,9 @@ void PlaneDataDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
     }
 
     par.set( sKeyNrAttribs(), as_.size() );
+
+    par.set( sKeyDepthKey(), (int) dragger_->getTransDragKeys(true) );
+    par.set( sKeyPlaneKey(), (int) dragger_->getTransDragKeys(false) );
 }
 
 
@@ -1228,6 +1243,12 @@ int PlaneDataDisplay::usePar( const IOPar& par )
 	    attribpar->getYN( visBase::VisualObjectImpl::sKeyIsOn(), ison );
 	    texture_->enableTexture( attribnr, ison );
 	}
+
+	int buttonkey;
+	if ( par.get( sKeyDepthKey(), buttonkey ) )
+	    dragger_->setTransDragKeys(true, buttonkey );
+	if ( par.get( sKeyPlaneKey(), buttonkey ) )
+	    dragger_->setTransDragKeys(true, buttonkey );
     }
     else
     {

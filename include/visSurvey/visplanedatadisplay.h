@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visplanedatadisplay.h,v 1.88 2006-08-24 16:09:49 cvskris Exp $
+ RCS:		$Id: visplanedatadisplay.h,v 1.89 2007-01-11 20:21:07 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -136,6 +136,20 @@ public:
     bool			setDataTransform(ZAxisTransform*);
     const ZAxisTransform*	getDataTransform() const;
 
+    void			setTranslationDragKeys(bool depth, int );
+    				/*!<\param depth specifies wheter the depth or
+						 the plane setting should be
+						 changed.
+				    \param keys   combination of OD::ButtonState
+				    \note only shift/ctrl/alt are used. */
+
+    int				getTranslationDragKeys(bool depth) const;
+    				/*!<\param depth specifies wheter the depth or
+						 the plane setting should be
+						 returned.
+				    \returns	combination of OD::ButtonState*/
+
+
 protected:
 				~PlaneDataDisplay();
     void			updateMainSwitch();
@@ -182,10 +196,11 @@ protected:
     Notifier<PlaneDataDisplay>	movefinished_;
     bool			onoffstatus_;
 
-
     static const char*		sKeyOrientation() { return "Orientation"; }
     static const char*		sKeyTextureRect() { return "Texture rectangle";}
     static const char*		sKeyResolution()  { return "Resolution";}
+    static const char*		sKeyDepthKey() { return "DepthKey"; }
+    static const char*		sKeyPlaneKey() { return "PlaneKey"; }
 };
 
 };
