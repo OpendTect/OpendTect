@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.cc,v 1.68 2007-01-09 19:06:48 cvskris Exp $
+ RCS:           $Id: uiodmenumgr.cc,v 1.69 2007-01-11 15:48:45 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,8 +39,7 @@ uiODMenuMgr::uiODMenuMgr( uiODMain* a )
     	, timer_(*new Timer("popup timer"))
     	, helpmgr_(0)
     	, dTectTBChanged(this)
-    	, dTectProcMnuChanged(this)
-	, dTectSurveyMnuChanged(this)
+    	, dTectMnuChanged(this)
 	, surveymnu_(0)
 	, procmnu_(0)
 	, winmnu_(0)
@@ -67,8 +66,7 @@ uiODMenuMgr::uiODMenuMgr( uiODMain* a )
 
     appl_.applMgr().visServer()->createToolBars();
     IOM().surveyChanged.notify( mCB(this,uiODMenuMgr,updateDTectToolBar) );
-    IOM().surveyChanged.notify( mCB(this,uiODMenuMgr,updateDTectProcMnu) );
-    IOM().surveyChanged.notify( mCB(this,uiODMenuMgr,updateDTectSurveyMnu) );
+    IOM().surveyChanged.notify( mCB(this,uiODMenuMgr,updateDTectMnus) );
 }
 
 
@@ -239,7 +237,6 @@ void uiODMenuMgr::fillSurveyMenu()
     expmnus_.allowNull();
     expmnus_ += expseis; expmnus_ += exphor;
     expmnus_+= 0; expmnus_+=0; expmnus_+= 0;
-    dTectSurveyMnuChanged.trigger();
 }
 
 
@@ -272,7 +269,6 @@ void uiODMenuMgr::fillProcMenu()
     procmnu_->insertItem( horitm );
     
     mInsertItem( procmnu_, "&Re-Start ...", mReStartMnuItm );
-    dTectProcMnuChanged.trigger();
 }
 
 
@@ -602,15 +598,13 @@ void uiODMenuMgr::updateDTectToolBar( CallBacker* )
 }
 
 
-void uiODMenuMgr::updateDTectProcMnu( CallBacker* )
-{
-    procmnu_->clear();
-    fillProcMenu();
-}
-
-
-void uiODMenuMgr::updateDTectSurveyMnu( CallBacker* )
+void uiODMenuMgr::updateDTectMnus( CallBacker* )
 {
     surveymnu_->clear();
+    procmnu_->clear();
     fillSurveyMenu();
+    fillProcMenu();
+    dTectMnuChanged.trigger();
 }
+
+

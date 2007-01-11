@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.h,v 1.23 2007-01-09 19:06:48 cvskris Exp $
+ RCS:           $Id: uiodmenumgr.h,v 1.24 2007-01-11 15:48:45 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -71,8 +71,7 @@ public:
     void		setCameraPixmap(bool isperspective);
 
     Notifier<uiODMenuMgr> dTectTBChanged;
-    Notifier<uiODMenuMgr> dTectProcMnuChanged;
-    Notifier<uiODMenuMgr> dTectSurveyMnuChanged;
+    Notifier<uiODMenuMgr> dTectMnuChanged;
 
 protected:
 
@@ -119,8 +118,7 @@ protected:
     void		manPick(CallBacker*);
     void		manWvlt(CallBacker*);
     void		updateDTectToolBar(CallBacker*);
-    void		updateDTectProcMnu(CallBacker*);
-    void		updateDTectSurveyMnu(CallBacker*);
+    void		updateDTectMnus(CallBacker*);
 
     uiMenuItem*		stereooffitm_;
     uiMenuItem*		stereoredcyanitm_;
