@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2001
- RCS:           $Id: uiselsimple.cc,v 1.9 2007-01-09 16:36:11 cvsbert Exp $
+ RCS:           $Id: uiselsimple.cc,v 1.10 2007-01-11 12:37:49 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,21 +16,21 @@ ________________________________________________________________________
 #include "bufstringset.h"
 
 
-uiSelectFromList::uiSelectFromList( uiParent* p, const Setup& setup )
-	: uiDialog(p,setup)
+uiSelectFromList::uiSelectFromList( uiParent* p, const Setup& mysetup )
+	: uiDialog(p,mysetup)
 	, selfld_(0)
 	, sel_(-1)
 {
-    const int sz = setup.items_.size();
+    const int sz = mysetup.items_.size();
     if ( sz < 1 )
 	{ new uiLabel(this,"No items available for selection"); return; }
 
     selfld_ = new uiListBox( this );
-    selfld_->addItems( setup.items_ );
-    if ( setup.current_.isEmpty() )
+    selfld_->addItems( mysetup.items_ );
+    if ( mysetup.current_.isEmpty() )
 	selfld_->setCurrentItem( 0 );
     else
-	selfld_->setCurrentItem( setup.current_ );
+	selfld_->setCurrentItem( mysetup.current_ );
 
     selfld_->doubleClicked.notify( mCB(this,uiDialog,accept) );
 }
@@ -43,27 +43,27 @@ bool uiSelectFromList::acceptOK( CallBacker* )
 }
 
 
-uiGetObjectName::uiGetObjectName( uiParent* p, const Setup& setup )
-	: uiDialog(p,setup)
+uiGetObjectName::uiGetObjectName( uiParent* p, const Setup& mysetup )
+	: uiDialog(p,mysetup)
 	, listfld_(0)
 {
-    if ( setup.items_.size() > 0 )
+    if ( mysetup.items_.size() > 0 )
     {
 	listfld_ = new uiListBox( this );
-	for ( int idx=0; idx<setup.items_.size(); idx++ )
-	    listfld_->addItem( setup.items_.get(idx) );
-	if ( !setup.deflt_.isEmpty() )
-	    listfld_->setCurrentItem( setup.deflt_ );
+	for ( int idx=0; idx<mysetup.items_.size(); idx++ )
+	    listfld_->addItem( mysetup.items_.get(idx) );
+	if ( !mysetup.deflt_.isEmpty() )
+	    listfld_->setCurrentItem( mysetup.deflt_ );
 	else
 	    listfld_->setCurrentItem( 0 );
 	listfld_->selectionChanged.notify( mCB(this,uiGetObjectName,selChg) );
 	listfld_->doubleClicked.notify( mCB(this,uiDialog,accept) );
     }
 
-    BufferString defnm( setup.deflt_ );
+    BufferString defnm( mysetup.deflt_ );
     if ( defnm.isEmpty() && listfld_ )
-	defnm = setup.items_.get(0);
-    inpfld_ = new uiGenInput( this, setup.inptxt_, defnm );
+	defnm = mysetup.items_.get(0);
+    inpfld_ = new uiGenInput( this, mysetup.inptxt_, defnm );
     if ( listfld_ )
 	inpfld_->attach( alignedBelow, listfld_ );
 }

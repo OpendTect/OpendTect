@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2006
- RCS:           $Id: uitblimpexpdatasel.cc,v 1.21 2007-01-09 16:38:12 cvsbert Exp $
+ RCS:           $Id: uitblimpexpdatasel.cc,v 1.22 2007-01-11 12:37:49 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -327,15 +327,15 @@ uiTableFormatDescFldsEd::uiTableFormatDescFldsEd( uiTableImpDataSel* ds )
     sep->attach( stretchedRightTo, elemgrp_ );
 
     uiButtonGroup* utilsgrp = new uiButtonGroup( this, "" );
-    uiToolButton* button = new uiToolButton( utilsgrp, "Save button",
+    uiToolButton* toolbutton = new uiToolButton( utilsgrp, "Save button",
 	    			ioPixmap("savefmt.png"),
 				mCB(this,uiTableFormatDescFldsEd,saveFmt) );
-    button->setToolTip( "Save format" );
+    toolbutton->setToolTip( "Save format" );
 
-    button = new uiToolButton( utilsgrp, "Units button",
+    toolbutton = new uiToolButton( utilsgrp, "Units button",
 	    			ioPixmap("unitsofmeasure.png"),
 				mCB(this,uiTableFormatDescFldsEd,handleUnits) );
-    button->setToolTip( "Specify units of measure" );
+    toolbutton->setToolTip( "Specify units of measure" );
 
     utilsgrp->attach( ensureRightOf, sep );
 }
@@ -400,11 +400,11 @@ void uiTableFormatDescFldsEd::saveFmt( CallBacker* )
     BufferStringSet nms;
     Table::FFR().getFormats( fd_.name(), nms );
 
-    uiGetObjectName::Setup setup( "Save format", nms );
-    setup.inptxt( "Name for format" )
-	 .deflt( ds_.fmtname_ )
-	 .dlgtitle( "Enter a name for the format" );
-    uiGetObjectName dlg( this, setup );
+    uiGetObjectName::Setup listsetup( "Save format", nms );
+    listsetup.inptxt( "Name for format" )
+	     .deflt( ds_.fmtname_ )
+	     .dlgtitle( "Enter a name for the format" );
+    uiGetObjectName dlg( this, listsetup );
     static const char* strs[] = { "In survey only",
 				  "In all surveys",
 				  "By me only" };
@@ -551,9 +551,9 @@ void uiTableImpDataSel::openFmt( CallBacker* )
 	return;
     }
 
-    uiSelectFromList::Setup setup( "Retrieve data format", avfmts );
-    setup.dlgtitle( "Select a format to retrieve" );
-    uiSelectFromList dlg( this, setup );
+    uiSelectFromList::Setup listsetup( "Retrieve data format", avfmts );
+    listsetup.dlgtitle( "Select a format to retrieve" );
+    uiSelectFromList dlg( this, listsetup );
     if ( !dlg.go() || dlg.selection() < 0 )
 	return;
 

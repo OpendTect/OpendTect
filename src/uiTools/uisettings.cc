@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          November 2001
- RCS:           $Id: uisettings.cc,v 1.20 2007-01-09 13:21:06 cvsbert Exp $
+ RCS:           $Id: uisettings.cc,v 1.21 2007-01-11 12:37:49 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,9 +46,9 @@ void uiSettings::selPush( CallBacker* )
     for ( int idx=0; idx<dtectsetts->size(); idx++ )
 	keys.add( dtectsetts->getKey(idx) );
     keys.sort();
-    uiSelectFromList::Setup setup( "Setting selection", keys );
-    setup.dlgtitle( keyfld->text() );
-    uiSelectFromList dlg( this, setup );
+    uiSelectFromList::Setup listsetup( "Setting selection", keys );
+    listsetup.dlgtitle( keyfld->text() );
+    uiSelectFromList dlg( this, listsetup );
     if ( !dlg.go() ) return;
     const int selidx = dlg.selection();
     if ( selidx < 0 ) return;
