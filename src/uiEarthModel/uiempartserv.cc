@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.98 2006-12-28 21:10:33 cvsnanne Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.99 2007-01-11 12:37:16 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,19 +30,20 @@ ________________________________________________________________________
 #include "surfaceinfo.h"
 #include "survinfo.h"
 
+#include "uichangesurfacedlg.h"
 #include "uiexecutor.h"
 #include "uiexphorizon.h"
 #include "uigeninputdlg.h"
 #include "uiimpfault.h"
 #include "uiimphorattrib.h"
 #include "uiimphorizon.h"
-#include "uichangesurfacedlg.h"
 #include "uiioobjsel.h"
 #include "uiiosurfacedlg.h"
-#include "uilistboxdlg.h"
+#include "uilistbox.h"
 #include "uimenu.h"
 #include "uimsg.h"
 #include "uimultisurfaceread.h"
+#include "uiselsimple.h"
 #include "uisurfaceman.h"
 
 #include <math.h>
@@ -321,15 +322,16 @@ bool uiEMPartServer::showLoadAuxDataDlg( const EM::ObjectID& id )
     EM::SurfaceIOData sd;
     const MultiID mid = em_.getMultiID( id );
     em_.getSurfaceData( mid, sd );
-    uiListBoxDlg dlg( appserv().parent(), sd.valnames, "Surface data" );
-    dlg.setTitleText( "Select one or more attributes to be displayed\n"
-	    	      "on the horizon. After loading, use 'Page Up'\n"
-		      "and 'Page Down' buttons to scroll." );
-    dlg.box()->setMultiSelect( true );
+    uiSelectFromList::Setup setup( "Surface data", sd.valnames );
+    setup.dlgtitle( "Select one or more attributes to be displayed\n"
+	    	    "on the horizon. After loading, use 'Page Up'\n"
+		    "and 'Page Down' buttons to scroll." );
+    uiSelectFromList dlg( appserv().parent(), setup );
+    dlg.selfld_->setMultiSelect( true );
     if ( !dlg.go() ) return false;
 
     TypeSet<int> selattribs;
-    dlg.box()->getSelectedItems( selattribs );
+    dlg.selfld_->getSelectedItems( selattribs );
     if ( selattribs.isEmpty() ) return false;
 
     hor->auxdata.removeAll();

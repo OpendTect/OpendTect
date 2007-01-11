@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiseispartserv.cc,v 1.46 2006-12-20 11:23:01 cvshelene Exp $
+ RCS:           $Id: uiseispartserv.cc,v 1.47 2007-01-11 12:37:16 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,7 +28,7 @@ ________________________________________________________________________
 
 #include "uiexecutor.h"
 #include "uiflatvertview.h"
-#include "uilistboxdlg.h"
+#include "uilistbox.h"
 #include "uimenu.h"
 #include "uimergeseis.h"
 #include "uimsg.h"
@@ -40,6 +40,7 @@ ________________________________________________________________________
 #include "uiseissel.h"
 #include "uiseiswvltimp.h"
 #include "uiseiswvltman.h"
+#include "uiselsimple.h"
 
 
 uiSeisPartServer::uiSeisPartServer( uiApplService& a )
@@ -129,11 +130,14 @@ bool uiSeisPartServer::select2DLines( const MultiID& mid, BufferStringSet& res )
     uiSeisIOObjInfo objinfo( mid );
     objinfo.getLineNames( linenames );
 
-    uiListBoxDlg dlg( appserv().parent(), linenames, "Lines" );
-    dlg.box()->setMultiSelect();
-    dlg.box()->selectAll( true );
-    if ( !dlg.go() ) return false;
-    dlg.box()->getSelectedItems( res );
+    uiSelectFromList::Setup setup( "Lines", linenames );
+    uiSelectFromList dlg( appserv().parent(), setup );
+    dlg.selfld_->setMultiSelect();
+    dlg.selfld_->selectAll( true );
+    if ( !dlg.go() )
+	return false;
+
+    dlg.selfld_->getSelectedItems( res );
     return res.size();
 }
 

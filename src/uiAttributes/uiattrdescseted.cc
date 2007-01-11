@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrdescseted.cc,v 1.41 2006-12-21 12:52:54 cvshelene Exp $
+ RCS:           $Id: uiattrdescseted.cc,v 1.42 2007-01-11 12:37:16 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,9 +45,9 @@ ________________________________________________________________________
 #include "uilabel.h"
 #include "uilistbox.h"
 #include "uilineedit.h"
-#include "uilistboxdlg.h"
 #include "uimenu.h"
 #include "uimsg.h"
+#include "uiselsimple.h"
 #include "uiseparator.h"
 #include "uitextedit.h"
 #include "uitoolbar.h"
@@ -710,11 +710,12 @@ void uiAttribDescSetEd::defaultSet( CallBacker* )
 	}
     }
 
-    uiListBoxDlg dlg( this, attribnames, "Default Attribute Sets" );
-    dlg.setTitleText( "Select attribute set" );
+    uiSelectFromList::Setup setup( "Default Attribute Sets", attribnames );
+    setup.dlgtitle( "Select attribute set" );
+    uiSelectFromList dlg( this, setup );
     if ( !dlg.go() ) return;
 
-    const int selitm = dlg.box()->currentItem();
+    const int selitm = dlg.selfld_->currentItem();
     const char* filenm = attribfiles[selitm]->buf();
 
     importFromFile( filenm );
@@ -753,11 +754,12 @@ void uiAttribDescSetEd::importSet( CallBacker* )
     PtrMan<DirList> dirlist = new DirList( ptr, DirList::DirsOnly );
     dirlist->sort();
 
-    uiListBoxDlg dlg( this, *dirlist, "Survey" );
-    dlg.setTitleText( "Select survey" );
+    uiSelectFromList::Setup setup( "Survey", *dirlist );
+    setup.dlgtitle( "Select survey" );
+    uiSelectFromList dlg( this, setup );
     if ( dlg.go() )
     {
-	FilePath fp( ptr ); fp.add( dlg.box()->getText() );
+	FilePath fp( ptr ); fp.add( dlg.selfld_->getText() );
 	IOM().setRootDir( fp.fullPath() );
 	setctio.ctxt.forread = true;
         uiIOObjSelDlg objdlg( this, setctio );

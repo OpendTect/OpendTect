@@ -4,36 +4,39 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvinfoed.cc,v 1.83 2006-12-27 15:19:00 cvsnanne Exp $
+ RCS:           $Id: uisurvinfoed.cc,v 1.84 2007-01-11 12:37:16 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uisurvinfoed.h"
+
+#include "bufstringset.h"
+#include "cubesampling.h"
 #include "errh.h"
+#include "filegen.h"
+#include "filepath.h"
+#include "ioobj.h" // for GetFreeMBOnDiskMsg
+#include "oddirs.h"
+#include "ptrman.h"
 #include "survinfo.h"
+
 #include "uibutton.h"
 #include "uicombobox.h"
+#include "uicursor.h"
+#include "uifiledlg.h"
 #include "uigeninput.h"
 #include "uigroup.h"
 #include "uilabel.h"
+#include "uilistbox.h"
+#include "uimain.h"
+#include "uimsg.h"
+#include "uiselsimple.h"
 #include "uiseparator.h"
 #include "uisurvey.h"
-#include "uimsg.h"
-#include "uicursor.h"
-#include "uimain.h"
-#include "uifiledlg.h"
-#include "ioobj.h" // for GetFreeMBOnDiskMsg
-#include "oddirs.h"
-#include "filegen.h"
-#include "filepath.h"
-#include "cubesampling.h"
-#include "ptrman.h"
-#include "uilistboxdlg.h"
-#include "bufstringset.h"
+
 
 extern "C" const char* GetBaseDataDir();
-
 
 
 static ObjectSet<uiSurvInfoProvider>& survInfoProvs()
@@ -56,19 +59,20 @@ uiDialog* dialog( uiParent* p )
 {
     BufferStringSet survlist;
     uiSurvey::getSurveyList( survlist );
-    uiListBoxDlg* dlg = new uiListBoxDlg( p, survlist, "Surveys" );
-    dlg->setTitleText( "Select survey" );
+    uiSelectFromList::Setup setup( "Surveys", survlist );
+    setup.dlgtitle( "Select survey" );
+    uiSelectFromList* dlg = new uiSelectFromList( p, setup );
     return dlg;
 }
 
 
 bool getInfo( uiDialog* dlg, CubeSampling& cs, Coord crd[3] )
 {
-    mDynamicCastGet(uiListBoxDlg*,lbdlg,dlg)
-    if ( !lbdlg ) return false;
+    mDynamicCastGet(uiSelectFromList*,seldlg,dlg)
+    if ( !seldlg ) return false;
 
     BufferString fname = FilePath( GetBaseDataDir() )
-			 .add( lbdlg->box()->getText() ).fullPath();
+			 .add( seldlg->selfld_->getText() ).fullPath();
     PtrMan<SurveyInfo> survinfo = SurveyInfo::read( fname );
     if ( !survinfo ) return false;
 
