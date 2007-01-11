@@ -4,7 +4,7 @@
  * DATE     : Feb 2004
 -*/
 
-static const char* rcsID = "$Id: seisscanner.cc,v 1.30 2006-09-21 12:02:47 cvsbert Exp $";
+static const char* rcsID = "$Id: seisscanner.cc,v 1.31 2007-01-11 16:35:05 cvsbert Exp $";
 
 #include "seisscanner.h"
 #include "seisinfo.h"
@@ -120,8 +120,12 @@ bool SeisScanner::getSurvInfo( CubeSampling& cs, Coord crd[3] ) const
 
 void SeisScanner::report( IOPar& iopar ) const
 {
-    iopar.clear();
-    if ( !reader.ioObj() ) { iopar.setName( "No scan executed" ); return; }
+    if ( !reader.ioObj() )
+    {
+	iopar.clear();
+	iopar.setName( "No scan executed" );
+	return;
+    }
 
     BufferString str = "Report for "; str += reader.ioObj()->translator();
     str += is3d ? " cube '" : " line set '";
@@ -208,12 +212,12 @@ const char* SeisScanner::defaultUserInfoFile( const char* trnm )
 }
 
 
-void SeisScanner::launchBrowser( const char* fnm ) const
+void SeisScanner::launchBrowser( const IOPar& startpar, const char* fnm ) const
 {
     if ( !fnm || !*fnm )
 	fnm = defaultUserInfoFile( reader.ioObj()
 				 ? reader.ioObj()->translator() : "" );
-    IOPar iopar; report( iopar );
+    IOPar iopar( startpar ); report( iopar );
     iopar.write( fnm, "_pretty" );
 
     ExecuteScriptCommand( "FileBrowser", fnm );

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Feb 2004
- RCS:		$Id: uisegysip.cc,v 1.8 2006-12-12 11:16:57 cvsbert Exp $
+ RCS:		$Id: uisegysip.cc,v 1.9 2007-01-11 16:35:05 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,7 +51,8 @@ bool uiSEGYSurvInfoProvider::getInfo( uiDialog* d, CubeSampling& cs,
     if ( !ex.go() )
 	return false;
 
-    scanner.launchBrowser( scanFile() );
+    IOPar rep; dlg->getEntryReport( rep );
+    scanner.launchBrowser( rep, scanFile() );
 
     if ( !scanner.getSurvInfo(cs,crd) )
     {
