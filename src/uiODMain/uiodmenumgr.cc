@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.cc,v 1.69 2007-01-11 15:48:45 cvshelene Exp $
+ RCS:           $Id: uiodmenumgr.cc,v 1.70 2007-01-11 16:08:23 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -157,8 +157,19 @@ void uiODMenuMgr::enableActButton( bool yn )
     menu->insertItem( \
 	new uiMenuItem(txt,mCB(this,uiODMenuMgr,handleClick)), id )
 
+#define mCleanUpImpExpSets(set) \
+{ \
+    while ( !set.isEmpty() ) \
+    { \
+	uiPopupMenu* pmnu = set.remove(0); \
+	if ( pmnu ) delete pmnu; \
+    } \
+}
+
 void uiODMenuMgr::fillSurveyMenu()
 {
+    mCleanUpImpExpSets(impmnus_)
+    mCleanUpImpExpSets(expmnus_)
     mInsertItem( surveymnu_, "&Edit/New ...", mManSurveyMnuItm );
 
     uiPopupMenu* sessionitm = new uiPopupMenu( &appl_, "S&ession");
