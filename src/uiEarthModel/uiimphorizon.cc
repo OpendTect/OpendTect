@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          May 2002
- RCS:           $Id: uiimphorizon.cc,v 1.74 2006-12-27 15:28:46 cvsnanne Exp $
+ RCS:           $Id: uiimphorizon.cc,v 1.75 2007-01-12 12:52:14 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -476,7 +476,9 @@ BinIDValueSet* uiImportHorizon::getBidValSet( const char* fnm, bool doscale,
 	if ( set->nrVals() != values.size() )
 	    set->setNrVals( values.size() );
 
-	if ( mIsEqual(values[0],udfval,mDefEps) )
+	const bool validz = SI().zRange(false).includes(
+				doscale ? values[0]*factor : values[0] );
+	if ( mIsEqual(values[0],udfval,mDefEps) || !validz )
 	    mSetUdf(values[0]);
 
 	if ( doscale && !mIsUdf(values[0]) )
