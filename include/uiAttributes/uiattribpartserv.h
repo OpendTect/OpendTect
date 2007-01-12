@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiattribpartserv.h,v 1.21 2007-01-10 10:57:53 cvshelene Exp $
+ RCS:           $Id: uiattribpartserv.h,v 1.22 2007-01-12 11:37:06 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -123,6 +123,7 @@ public:
     const NLAModel*	getNLAModel(bool) const;
     void		setNLAName( const char* nm )	{ nlaname_ = nm; }
 
+    void		resetMenuItems();
     MenuItem*         	storedAttribMenuItem(const Attrib::SelSpec&,bool);
     MenuItem*         	calcAttribMenuItem(const Attrib::SelSpec&,bool);
     MenuItem*         	nlaAttribMenuItem(const Attrib::SelSpec&,bool);

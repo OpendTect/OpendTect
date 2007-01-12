@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodattribtreeitem.cc,v 1.8 2006-12-20 11:23:01 cvshelene Exp $
+ RCS:		$Id: uiodattribtreeitem.cc,v 1.9 2007-01-12 11:37:06 cvshelene Exp $
 ___________________________________________________________________
 
 -*/
@@ -97,6 +97,7 @@ void uiODAttribTreeItem::createSelMenu( MenuItem& mnu, int visid, int attrib,
 	mDynamicCastGet(visSurvey::Scene*,scene,visserv->getObject(sceneid))
 
 	MenuItem* subitem;
+	attrserv->resetMenuItems();
 	if ( SI().has2D() && p2d3d != Only3D )
 	    mCreateItemsList( true );
 	if ( SI().has3D() && p2d3d != Only2D )

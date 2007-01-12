@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		May 2006
- RCS:		$Id: uiodseis2dtreeitem.cc,v 1.10 2006-12-28 12:15:36 cvsnanne Exp $
+ RCS:		$Id: uiodseis2dtreeitem.cc,v 1.11 2007-01-12 11:37:06 cvshelene Exp $
 ___________________________________________________________________
 
 -*/
@@ -160,6 +160,7 @@ void uiOD2DLineSetTreeItem::createMenuCB( CallBacker* cb )
     if ( children_.size() )
     {
 	Attrib::SelSpec as;
+	applMgr()->attrServer()->resetMenuItems();
 	MenuItem* dummy = applMgr()->attrServer()->
 					    storedAttribMenuItem( as, true );
 	dummy->removeItems();

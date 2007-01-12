@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiattribpartserv.cc,v 1.50 2007-01-10 10:57:53 cvshelene Exp $
+ RCS:           $Id: uiattribpartserv.cc,v 1.51 2007-01-12 11:37:06 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -665,13 +665,6 @@ for ( int idx=start; idx<stop; idx++ ) \
 }
 
 
-#define mCleanMenuItems(startstr,mnuitem_)\
-{\
-    startstr##mnuitem_.removeItems();\
-    startstr##mnuitem_.checked = false;\
-}
-
-    
 static int cMaxMenuSize = 150;
 
 MenuItem* uiAttribPartServer::storedAttribMenuItem( const SelSpec& as, 
@@ -679,12 +672,7 @@ MenuItem* uiAttribPartServer::storedAttribMenuItem( const SelSpec& as,
 {
     SelInfo attrinf( adsman3d_->descSet(), 0, false, DescID::undef() );
     if ( is2d ) 
-    {
-	mCleanMenuItems(stored2d,mnuitem_)
 	attrinf = SelInfo( adsman2d_->descSet(), 0, true, DescID::undef() );
-    }
-    else
-	mCleanMenuItems(stored3d,mnuitem_);
     
     const bool isnla = as.isNLA();
     const bool hasid = as.id() >= 0;
@@ -755,10 +743,6 @@ void uiAttribPartServer::insertNumerousItems( const BufferStringSet& bfset,
 
 MenuItem* uiAttribPartServer::calcAttribMenuItem( const SelSpec& as, bool is2d )
 {
-    if ( is2d ) 
-	mCleanMenuItems(calc2d,mnuitem_)
-    else
-	mCleanMenuItems(calc3d,mnuitem_);
     SelInfo attrinf( is2d ? adsman2d_->descSet() : adsman3d_->descSet() );
     const bool isattrib = attrinf.attrids.indexOf( as.id() ) >= 0; 
 
@@ -771,13 +755,8 @@ MenuItem* uiAttribPartServer::calcAttribMenuItem( const SelSpec& as, bool is2d )
 }
 
 
-//TODO 2/3D list
 MenuItem* uiAttribPartServer::nlaAttribMenuItem( const SelSpec& as, bool is2d )
 {
-    if ( is2d )
-	mCleanMenuItems(nla2d,mnuitem_)
-    else
-	mCleanMenuItems(nla3d,mnuitem_);
     const NLAModel* nlamodel = getNLAModel(is2d);
     MenuItem* nlamnuitem = is2d ? &nla2dmnuitem_ : &nla3dmnuitem_;
     if ( nlamodel )
@@ -1009,4 +988,21 @@ DescSetMan* uiAttribPartServer::getAdsMan( bool is2d )
 DescSetMan* uiAttribPartServer::getAdsMan( bool is2d ) const 
 {
     return is2d ? adsman2d_ : adsman3d_;
+}
+
+
+#define mCleanMenuItems(startstr,mnuitem_)\
+{\
+    startstr##mnuitem_.removeItems();\
+    startstr##mnuitem_.checked = false;\
+}
+
+void uiAttribPartServer::resetMenuItems()
+{
+    mCleanMenuItems(stored2d,mnuitem_)
+    mCleanMenuItems(calc2d,mnuitem_)
+    mCleanMenuItems(nla2d,mnuitem_)
+    mCleanMenuItems(stored3d,mnuitem_);
+    mCleanMenuItems(calc3d,mnuitem_);
+    mCleanMenuItems(nla3d,mnuitem_);
 }
