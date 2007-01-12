@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.151 2007-01-11 20:21:07 cvskris Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.152 2007-01-12 20:01:25 cvskris Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -97,7 +97,14 @@ PlaneDataDisplay::PlaneDataDisplay()
     draggerrect_->insertNode( draggerdrawstyle_->getInventorNode() );
 
     dragger_->setOwnShape( draggerrect_->getInventorNode() );
-    dragger_->setDim( (int) orientation_ );
+    dragger_->setDim( (int) 0 );
+    dragger_->setWidthLimits(
+	    Interval<float>( 4*SI().inlRange(true).step, mUdf(float) ),
+	    Interval<float>( 4*SI().crlRange(true).step, mUdf(float) ),
+	    Interval<float>( 4*SI().zRange(true).step, mUdf(float) ) );
+	
+    if ( (int) orientation_ )
+	dragger_->setDim( (int) orientation_ );
 
     rectanglepickstyle_->ref();
     addChild( rectanglepickstyle_->getInventorNode() );
