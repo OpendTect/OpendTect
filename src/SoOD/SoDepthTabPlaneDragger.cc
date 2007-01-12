@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoDepthTabPlaneDragger.cc,v 1.13 2007-01-11 18:09:19 cvskris Exp $";
+static const char* rcsID = "$Id: SoDepthTabPlaneDragger.cc,v 1.14 2007-01-12 19:07:29 cvskris Exp $";
 
 
 #include "SoDepthTabPlaneDragger.h"
@@ -385,7 +385,7 @@ void SoDepthTabPlaneDragger::dragStart(void)
 	else if ( absy<prevsizey_ )
 	    yside = 0;
 
-	if ( xside!=-2 && yside!=-2 )
+	if ( xside!=-2 && yside!=-2 && (xside || yside) )
 	{
 	    if ( !xside )
 		constraintState_ = CONSTRAINT_Y;
@@ -414,6 +414,138 @@ void SoDepthTabPlaneDragger::dragStart(void)
 	    planeProj_->setPlane(SbPlane(SbVec3f(0, 0, 1), startpt));
 	}
     }
+}
+
+
+void SoDepthTabPlaneDragger::drag(void)
+{
+    SbMatrix motmat;
+    if ( whatkind_==WHATKIND_NONE )
+	return;
+
+    if ( whatkind_==WHATKIND_SCALE )
+    {
+	SbVec3f startpt = getLocalStartingPoint();
+	lineProj_->setViewVolume(getViewVolume());
+	lineProj_->setWorkingSpace(getLocalToWorldMatrix());
+	SbVec3f projpt = lineProj_->project(getNormalizedLocaterPosition());
+
+	float orglen = (startpt-scaleCenter_).length();
+	float currlen = (projpt-scaleCenter_).length();
+	float scale = 0.0f;
+
+	if ( orglen>0.0f )
+	    scale = currlen / orglen;
+
+	if ( scale>0.0f &&
+		(startpt-scaleCenter_).dot(projpt-scaleCenter_)<=0.0f)
+	    scale = 0.0f;
+
+	SbVec3f scalevec(scale, scale, 1.0f);
+	if ( constraintState_==CONSTRAINT_X )
+	    scalevec[1] = 1.0f;
+	else if ( constraintState_==CONSTRAINT_Y )
+	    scalevec[0] = 1.0f;
+
+	motmat = appendScale(getStartMotionMatrix(), scalevec, scaleCenter_);
+    }
+
+    else if ( whatkind_==WHATKIND_LINETRANSLATE )
+    { // translate
+	const SbVec3f startpt = getLocalStartingPoint();
+
+	lineProj_->setViewVolume(getViewVolume());
+	lineProj_->setWorkingSpace(getLocalToWorldMatrix());
+	const SbVec3f newhitpt =
+	    		lineProj_->project(getNormalizedLocaterPosition());
+
+	SbVec3f motion = newhitpt-startpt;
+	motmat = appendTranslation(getStartMotionMatrix(), motion);
+    }
+    else if ( whatkind_==WHATKIND_PLANETRANSLATE )
+    { // translate plane
+	const SbVec3f startpt = getLocalStartingPoint();
+
+	planeProj_->setViewVolume(getViewVolume());
+	planeProj_->setWorkingSpace(getLocalToWorldMatrix());
+	const SbVec3f newhitpt =
+	    		planeProj_->project(getNormalizedLocaterPosition());
+
+	SbVec3f motion = newhitpt-startpt;
+	motmat = appendTranslation(getStartMotionMatrix(), motion);
+    }
+
+    setMotionMatrix(motmat);
+}
+
+
+void SoDepthTabPlaneDragger::dragFinish(void)
+{
+    if ( whatkind_==WHATKIND_NONE )
+	return;
+
+    SbVec3f trans, scale;
+    SbRotation rot, scaleorient;
+    getMotionMatrix().getTransform(trans, rot, scale, scaleorient );
+
+    const SbVec3f minpos = minPos.getValue();
+    const SbVec3f maxpos = maxPos.getValue();
+    const SbVec3f minsize = minSize.getValue();
+    const SbVec3f maxsize = maxSize.getValue();
+
+    bool change = false;
+    for ( int dim=0; dim<3; dim++ )
+    {
+	if ( dim!=2 )
+	{
+	    if ( scale[dim]<minsize[dim] )
+	    { change = true; scale[dim] = minsize[dim]; }
+	    else if ( scale[dim]>maxsize[dim] )
+	    { change = true; scale[dim] = maxsize[dim]; }
+	}
+
+	float startpos = trans[dim]-(dim!=2 ? scale[dim] : 0);
+	float stoppos = trans[dim]+(dim!=2 ? scale[dim] : 0);
+
+	if ( startpos<minpos[dim] )
+	{
+	    change = true;
+	    startpos=minpos[dim];
+	    if ( stoppos<minpos[dim] )
+		stoppos = startpos+2*scale[dim];
+	    else if ( stoppos-startpos<minsize[dim] )
+		stoppos = startpos+minsize[dim];
+	}
+
+	if ( stoppos>maxpos[dim] )
+	{
+	    change = true;
+	    stoppos=maxpos[dim];
+	    if ( startpos>maxpos[dim] )
+		startpos=stoppos-2*scale[dim];
+	    else if ( stoppos-startpos<minsize[dim] )
+		startpos = stoppos-minsize[dim];
+	}
+
+	if ( dim!=2 )
+	{
+	    scale[dim] = (stoppos-startpos)/2;
+	    trans[dim] = (stoppos+startpos)/2;
+	}
+	else
+	{
+	    trans[dim] = startpos;
+	}
+    }
+
+    if ( change )
+    {
+	SbMatrix motmat;
+	motmat.setTransform( trans, rot, scale, scaleorient );
+	setMotionMatrix(motmat);
+    }
+
+    whatkind_ = WHATKIND_NONE;
 }
 
 
@@ -449,118 +581,6 @@ bool SoDepthTabPlaneDragger::shouldDrag( const SoEvent* event,
 
     return false;
 }
-
-
-void SoDepthTabPlaneDragger::drag(void)
-{
-    if ( whatkind_==WHATKIND_SCALE )
-    {
-	SbVec3f startpt = getLocalStartingPoint();
-	lineProj_->setViewVolume(getViewVolume());
-	lineProj_->setWorkingSpace(getLocalToWorldMatrix());
-	SbVec3f projpt = lineProj_->project(getNormalizedLocaterPosition());
-
-	float orglen = (startpt-scaleCenter_).length();
-	float currlen = (projpt-scaleCenter_).length();
-	float scale = 0.0f;
-
-	if ( orglen>0.0f )
-	    scale = currlen / orglen;
-
-	if ( scale>0.0f &&
-		(startpt-scaleCenter_).dot(projpt-scaleCenter_)<=0.0f)
-	    scale = 0.0f;
-
-	SbVec3f scalevec(scale, scale, 1.0f);
-	if ( constraintState_==CONSTRAINT_X )
-	    scalevec[1] = 1.0f;
-	else if ( constraintState_==CONSTRAINT_Y )
-	    scalevec[0] = 1.0f;
-
-	SbMatrix motmat =
-	    appendScale(getStartMotionMatrix(), scalevec, scaleCenter_);
-
-	SbVec3f trans, scalechange;
-	SbRotation rot, scaleorient;
-	motmat.getTransform(trans, rot, scalechange, scaleorient );
-
-	const SbVec3f newscale = scalechange.getValue();
-	const SbVec3f newstart = trans-newscale;
-	const SbVec3f newstop = trans+newscale;
-	const SbVec3f minsize = minSize.getValue();
-	const SbVec3f maxsize = maxSize.getValue();
-	const SbVec3f minpos = minPos.getValue();
-	const SbVec3f maxpos = maxPos.getValue();
-
-	if (    newscale[0]>=minsize[0]*0.999 &&
-		newscale[0]<=maxsize[0]*1.001 &&
-		newscale[1]>=minsize[1]*0.999 &&
-		newscale[1]<=maxsize[1]*1.001 &&
-		newstart[0]>=minpos[0]*0.999 &&
-		newstart[0]<=maxpos[0]*1.001 &&
-		newstart[1]>=minpos[1]*0.999 &&
-		newstart[1]<=maxpos[1]*1.001 &&
-		newstop[0]>=minpos[0]*0.999 &&
-		newstop[0]<=maxpos[0]*1.001 &&
-		newstop[1]>=minpos[1]*0.999 &&
-		newstop[1]<=maxpos[1]*1.001 )
-	{
-	    setMotionMatrix(motmat);
-	}
-    }
-    else if ( whatkind_==WHATKIND_LINETRANSLATE )
-    { // translate
-	const SbVec3f startpt = getLocalStartingPoint();
-
-	lineProj_->setViewVolume(getViewVolume());
-	lineProj_->setWorkingSpace(getLocalToWorldMatrix());
-	const SbVec3f newhitpt =
-	    		lineProj_->project(getNormalizedLocaterPosition());
-
-	SbVec3f motion = newhitpt-startpt;
-	SbMatrix motmat = appendTranslation(getStartMotionMatrix(), motion);
-
-	SbVec3f trans, scale;
-	SbRotation rot, scaleorient;
-	motmat.getTransform(trans, rot, scale, scaleorient );
-
-	SbVec3f mov = trans.getValue();
-	const SbVec3f minpos = minPos.getValue();
-	const SbVec3f maxpos = maxPos.getValue();
-	if ( mov[2]<=maxpos[2] && mov[2]>=minpos[2] )
-	{
-	    setMotionMatrix(motmat);
-	}
-    }
-    else if ( whatkind_==WHATKIND_PLANETRANSLATE )
-    { // translate plane
-	const SbVec3f startpt = getLocalStartingPoint();
-
-	planeProj_->setViewVolume(getViewVolume());
-	planeProj_->setWorkingSpace(getLocalToWorldMatrix());
-	const SbVec3f newhitpt =
-	    		planeProj_->project(getNormalizedLocaterPosition());
-
-	SbVec3f motion = newhitpt-startpt;
-	SbMatrix motmat = appendTranslation(getStartMotionMatrix(), motion);
-
-	SbVec3f trans, scale;
-	SbRotation rot, scaleorient;
-	motmat.getTransform(trans, rot, scale, scaleorient );
-
-	SbVec3f mov = trans.getValue();
-	const SbVec3f minpos = minPos.getValue();
-	const SbVec3f maxpos = maxPos.getValue();
-	if ( mov[2]<=maxpos[2] && mov[2]>=minpos[2] )
-	{
-	    setMotionMatrix(motmat);
-	}
-    }
-}
-
-
-void SoDepthTabPlaneDragger::dragFinish(void)
-{ whatkind_ = WHATKIND_NONE; }
 
 
 void SoDepthTabPlaneDragger::startCB(void* , SoDragger* d)
