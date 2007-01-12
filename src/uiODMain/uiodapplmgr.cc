@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.170 2007-01-12 09:59:51 cvshelene Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.171 2007-01-12 13:59:40 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -131,7 +131,7 @@ void uiODApplMgr::resetServers()
     emserv_->removeHistory();
 }
 
-//TODO verify that the descsets are both saved
+
 int uiODApplMgr::manageSurvey()
 {
     BufferString prevnm = GetDataDir();
@@ -353,8 +353,7 @@ bool uiODApplMgr::selectAttrib( int id, int attrib )
 
     const char* key = visserv_->getDepthDomainKey( visserv_->getSceneID(id) );
     Attrib::SelSpec myas( *as );
-	//TODO false set to make it compile change!!!!!!!
-    const bool selok = attrserv_->selectAttrib( myas, key, false );
+    const bool selok = attrserv_->selectAttrib( myas, key, myas.is2D() );
     if ( selok )
 	visserv_->setSelSpec( id, attrib, myas );
 
@@ -519,7 +518,7 @@ bool uiODApplMgr::evaluateAttribute( int visid, int attrib )
 {
     /* Perhaps better to merge this with uiODApplMgr::getNewData(), 
        for now it works */
-    uiVisPartServer::AttribFormat format = visserv_->getAttributeFormat( visid );
+    uiVisPartServer::AttribFormat format = visserv_->getAttributeFormat( visid);
     if ( format == uiVisPartServer::Cube )
     {
 	const CubeSampling cs = visserv_->getCubeSampling( visid );
@@ -946,11 +945,8 @@ bool uiODApplMgr::handleAttribServEv( int evid )
 	sceneMgr().updateTrees();
     }
     else if ( evid==uiAttribPartServer::evNewAttrSet )
-    {
-	//TODO false set to make it compile change!!!!!!
-	mpeserv_->setCurrentAttribDescSet( attrserv_->curDescSet(false) );
-	mpeserv_->setCurrentAttribDescSet( attrserv_->curDescSet(true) );
-    }
+	mpeserv_->setCurrentAttribDescSet(
+				attrserv_->curDescSet(attrserv_->is2DEvent()) );
     else if ( evid==uiAttribPartServer::evAttrSetDlgClosed )
     {
 	enableMenusAndToolBars( true );

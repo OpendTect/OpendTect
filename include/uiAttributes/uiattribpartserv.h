@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiattribpartserv.h,v 1.22 2007-01-12 11:37:06 cvshelene Exp $
+ RCS:           $Id: uiattribpartserv.h,v 1.23 2007-01-12 13:59:40 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -138,6 +138,9 @@ public:
     void		fillPar(IOPar&,bool) const;
     void		usePar(const IOPar&,bool);
 
+    void                set2DEvent( bool is2d )		{ is2devsent_ = is2d; }
+    bool                is2DEvent()                     { return is2devsent_; }
+
 protected:
 
     MenuItem            stored2dmnuitem_;
@@ -155,6 +158,7 @@ protected:
     const Attrib::Desc*	dirshwattrdesc_;
     uiAttribDescSetEd*	attrsetdlg_;
     Timer		attrsetclosetim_;
+    bool                is2devsent_;
 
     Attrib::EngineMan*	createEngMan(const CubeSampling* cs=0,
 	    			     const char* lk=0);

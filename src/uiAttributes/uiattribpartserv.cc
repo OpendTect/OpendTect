@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiattribpartserv.cc,v 1.51 2007-01-12 11:37:06 cvshelene Exp $
+ RCS:           $Id: uiattribpartserv.cc,v 1.52 2007-01-12 13:59:40 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -115,6 +115,7 @@ bool uiAttribPartServer::replaceSet( const IOPar& iopar, bool is2d )
     delete adsman;
     adsman = new DescSetMan( is2d, ads, true );
     adsman->attrsetid_ = "";
+    set2DEvent( is2d );
     sendEvent( evNewAttrSet );
     return true;
 }
@@ -175,9 +176,11 @@ void uiAttribPartServer::attrsetDlgCloseTimTick( CallBacker* )
 {
     if ( attrsetdlg_->uiResult() )
     {
-	DescSetMan* adsman = getAdsMan( attrsetdlg_->getSet()->is2D() );
+	bool is2d = attrsetdlg_->getSet()->is2D();
+	DescSetMan* adsman = getAdsMan( is2d );
 	adsman->setDescSet( attrsetdlg_->getSet()->clone() );
 	adsman->attrsetid_ = attrsetdlg_->curSetID();
+	set2DEvent( is2d );
 	sendEvent( evNewAttrSet );
     }
 
@@ -550,6 +553,7 @@ void uiAttribPartServer::usePar( const IOPar& iopar, bool is2d )
 	if ( !errmsg.isEmpty() )
 	    uiMSG().error( errmsg );
 
+	set2DEvent( is2d );
 	sendEvent( evNewAttrSet );
     }
 }
@@ -964,6 +968,7 @@ void uiAttribPartServer::calcEvalAttrs( CallBacker* cb )
     evaldlg->getEvalSpecs( targetspecs_ );
     PtrMan<DescSetMan> tmpadsman = new DescSetMan( is2d, ads, false );
     is2d ? adsman2d_ : adsman3d_ = tmpadsman;
+    set2DEvent( is2d );
     sendEvent( evEvalCalcAttr );
     is2d ? adsman2d_ : adsman3d_ = kpman;
 }
@@ -1006,3 +1011,4 @@ void uiAttribPartServer::resetMenuItems()
     mCleanMenuItems(calc3d,mnuitem_);
     mCleanMenuItems(nla3d,mnuitem_);
 }
+
