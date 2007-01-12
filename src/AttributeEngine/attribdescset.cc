@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribdescset.cc,v 1.53 2006-12-21 10:48:24 cvshelene Exp $";
+static const char* rcsID = "$Id: attribdescset.cc,v 1.54 2007-01-12 16:11:36 cvshelene Exp $";
 
 #include "attribdescset.h"
 #include "attribstorprovider.h"
@@ -24,7 +24,7 @@ namespace Attrib
 
 DescSet* DescSet::clone() const
 {
-    DescSet* descset = new DescSet(is2d_);
+    DescSet* descset = new DescSet(is2d_,is2dset_);
     for ( int idx=0; idx<nrDescs(); idx++ )
     {
 	Desc* nd = new Desc( *descs[idx] );
@@ -33,7 +33,6 @@ DescSet* DescSet::clone() const
     }
 
     descset->updateInputs();
-    descset->is2dset_ = is2dset_;
     return descset;
 }
 
@@ -578,7 +577,6 @@ bool DescSet::is2D() const
 {
     if ( is2dset_ ) return is2d_;
     
-    bool is2d = false;
     for ( int idx=0; idx<descs.size(); idx++ )
     {
 	const Desc& dsc = *descs[idx];
@@ -587,12 +585,13 @@ bool DescSet::is2D() const
 	
 	if ( dsc.is2D() )
 	{
-	    is2d = true;
+	    const_cast<DescSet*>(this)->is2d_ = true;
+	    const_cast<DescSet*>(this)->is2dset_ = true;
 	    break;
 	}
     }
 
-    return is2d;
+    return is2dset_ ? is2d_ : false;
 }
 
 
@@ -638,7 +637,7 @@ DescSet* DescSet::optimizeClone( const DescID& targetnode ) const
 
 DescSet* DescSet::optimizeClone( const TypeSet<DescID>& targets ) const
 {
-    DescSet* res = new DescSet(is2d_);
+    DescSet* res = new DescSet(is2d_,is2dset_);
     TypeSet<DescID> needednodes = targets;
     while ( needednodes.size() )
     {
