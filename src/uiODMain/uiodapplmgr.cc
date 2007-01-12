@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.169 2007-01-09 09:45:12 cvsnanne Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.170 2007-01-12 09:59:51 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -286,11 +286,9 @@ void uiODApplMgr::editAttribSet( bool is2d )
 }
 
 
-//TODO give both?
-void uiODApplMgr::createHorOutput( int tp )
+void uiODApplMgr::createHorOutput( int tp, bool is2d )
 {
-	//TODO false set to make it compile change!!!!!!!
-    emattrserv_->setDescSet( attrserv_->curDescSet(false) );
+    emattrserv_->setDescSet( attrserv_->curDescSet(is2d) );
     uiEMAttribPartServer::HorOutType type =
 	  tp==0 ? uiEMAttribPartServer::OnHor :
 	( tp==1 ? uiEMAttribPartServer::AroundHor : 

@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiodapplmgr.h,v 1.46 2007-01-09 09:45:12 cvsnanne Exp $
+ RCS:           $Id: uiodapplmgr.h,v 1.47 2007-01-12 09:59:51 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -82,7 +82,7 @@ public:
     void			editAttribSet(bool);
     bool			editNLA(bool);
     void			createVol(bool);
-    void			createHorOutput(int);
+    void			createHorOutput(int,bool);
     void			reStartProc();
 
     // View menu operations
