@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Mar 2000
- RCS:           $Id: mathexpression.cc,v 1.35 2005-08-05 21:09:43 cvskris Exp $
+ RCS:           $Id: mathexpression.cc,v 1.36 2007-01-15 14:20:13 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -439,6 +439,24 @@ MathExpression* MathExpression::parse( const char* input )
 	} \
     }
 
+    // negative variables
+    if ( str[0]== '-' )
+    {
+	MathExpression* inp0 = new MathExpressionConstant( -1 );
+	if ( !inp0 ) return 0;
+
+	ArrPtrMan<char> arg1 = new char[len+1];
+	strcpy( arg1, str+1 );
+	MathExpression* inp1 = parse( arg1 );
+	if ( !inp1 ) return 0;
+
+	MathExpression* res = new MathExpressionMultiply;
+	res->setInput( 0, inp0 );
+	res->setInput( 1, inp1 );
+
+	return res;
+    }
+
     mParseOperator( '*', Multiply );
     mParseOperator( '/', Divide );
     mParseOperator( '^', Power );
@@ -558,24 +576,6 @@ MathExpression* MathExpression::parse( const char* input )
 	return res;
     }
 	
-    // negative variables
-    if ( str[0]== '-' )
-    {
-	MathExpression* inp0 = parse( "-1" );
-	if ( !inp0 ) return 0;
-
-	ArrPtrMan<char> arg1 = new char[len+1];
-	strcpy( arg1, str+1 );
-	MathExpression* inp1 = parse( arg1 );
-	if ( !inp1 ) return 0;
-
-	MathExpression* res = new MathExpressionMultiply;
-	res->setInput( 0, inp0 );
-	res->setInput( 1, inp1 );
-
-	return res;
-    }
-
 
     if ( !strcasecmp( input, "pi" ) )
 	return new MathExpressionConstant( M_PI );
