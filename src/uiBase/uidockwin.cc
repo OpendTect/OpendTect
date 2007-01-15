@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          13/02/2002
- RCS:           $Id: uidockwin.cc,v 1.19 2006-02-17 14:02:14 cvsnanne Exp $
+ RCS:           $Id: uidockwin.cc,v 1.20 2007-01-15 15:20:56 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -168,37 +168,28 @@ uiObject* uiDockWin::mainobject()
 }
 
 void uiDockWin::setHorStretchable( bool yn )
-{
-    body_->setHorizontallyStretchable( yn );
-}
+{ body_->setHorizontallyStretchable( yn ); }
 
 bool uiDockWin::isHorStretchable() const
-{
-    return body_->isHorizontallyStretchable();
-}
-
+{ return body_->isHorizontallyStretchable(); }
 
 void uiDockWin::setVerStretchable( bool yn )
-{
-    body_->setVerticallyStretchable( yn );
-}
-
+{ body_->setVerticallyStretchable( yn ); }
 
 bool uiDockWin::isVerStretchable() const
-{
-    return body_->isVerticallyStretchable();
-}
-
+{ return body_->isVerticallyStretchable(); }
 
 void uiDockWin::setResizeEnabled( bool yn )
-{
-    body_->setResizeEnabled( yn );
-}
+{ body_->setResizeEnabled( yn ); }
 
 bool uiDockWin::isResizeEnabled() const
-{
-    return body_->isResizeEnabled();
-}
+{ return body_->isResizeEnabled(); }
+
+void uiDockWin::setCloseMode( int mode )
+{ body_->setCloseMode( mode ); }
+
+int uiDockWin::closeMode() const
+{ return body_->closeMode(); }
 
 mQDockWindow* uiDockWin::qwidget()
-    { return body_; }
+{ return body_; }
