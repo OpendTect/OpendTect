@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvinfoed.cc,v 1.84 2007-01-11 12:37:16 cvsnanne Exp $
+ RCS:           $Id: uisurvinfoed.cc,v 1.85 2007-01-15 10:58:33 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -72,7 +72,7 @@ bool getInfo( uiDialog* dlg, CubeSampling& cs, Coord crd[3] )
     if ( !seldlg ) return false;
 
     BufferString fname = FilePath( GetBaseDataDir() )
-			 .add( seldlg->selfld_->getText() ).fullPath();
+			 .add( seldlg->selFld()->getText() ).fullPath();
     PtrMan<SurveyInfo> survinfo = SurveyInfo::read( fname );
     if ( !survinfo ) return false;
 

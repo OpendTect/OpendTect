@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrdescseted.cc,v 1.43 2007-01-11 21:21:07 cvsnanne Exp $
+ RCS:           $Id: uiattrdescseted.cc,v 1.44 2007-01-15 10:58:33 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -703,7 +703,8 @@ void uiAttribDescSetEd::defaultSet( CallBacker* )
     uiSelectFromList dlg( this, setup );
     if ( !dlg.go() ) return;
 
-    const int selitm = dlg.selfld_->currentItem();
+    const int selitm = dlg.selection();
+    if ( selitm < 0 ) return;
     const char* filenm = attribfiles[selitm]->buf();
 
     importFromFile( filenm );
@@ -747,7 +748,7 @@ void uiAttribDescSetEd::importSet( CallBacker* )
     uiSelectFromList dlg( this, setup );
     if ( dlg.go() )
     {
-	FilePath fp( ptr ); fp.add( dlg.selfld_->getText() );
+	FilePath fp( ptr ); fp.add( dlg.selFld()->getText() );
 	IOM().setRootDir( fp.fullPath() );
 	setctio.ctxt.forread = true;
         uiIOObjSelDlg objdlg( this, setctio );

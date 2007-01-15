@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2001
- RCS:           $Id: uiselsimple.h,v 1.8 2007-01-11 12:37:49 cvsnanne Exp $
+ RCS:           $Id: uiselsimple.h,v 1.9 2007-01-15 10:58:32 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,11 +18,7 @@ class uiListBox;
 class uiGenInput;
 class BufferStringSet;
 
-/*!\brief Select entry from list
-
-Use setTitleText to set a message different from caption.
-
-*/
+/*!\brief Select entry from list */
 
 class uiSelectFromList : public uiDialog
 { 	
@@ -33,9 +29,10 @@ public:
     public:
 			Setup( const char* wintitl, const BufferStringSet& its )
 			: uiDialog::Setup(wintitl)
-			, items_(its)		{}
+			, items_(its)
+			, current_(0)		{}
 
-	mDefSetupMemb(BufferString,current);
+	mDefSetupMemb(int,current);
 
 	const BufferStringSet&	items_;
 
@@ -47,11 +44,12 @@ public:
     int			selection() const	{ return sel_; }
     			//!< -1 = no selection made (cancelled or 0 list items)
 
-    uiListBox*		selfld_;
+    uiListBox*		selFld()		{ return selfld_; }
 
 protected:
 
     int			sel_;
+    uiListBox*		selfld_;
 
     bool		acceptOK(CallBacker*);
 
@@ -90,6 +88,7 @@ public:
 
     uiGenInput*		inpFld()		{ return inpfld_; }
     			//!< Is the lowest field
+    uiListBox*		selFld()		{ return listfld_; }
 
 protected:
 
