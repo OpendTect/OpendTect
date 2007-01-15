@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribprovider.cc,v 1.82 2007-01-04 15:29:26 cvshelene Exp $";
+static const char* rcsID = "$Id: attribprovider.cc,v 1.83 2007-01-15 11:13:56 cvshelene Exp $";
 
 #include "attribprovider.h"
 #include "attribstorprovider.h"
@@ -522,6 +522,7 @@ int Provider::moveToNextTrace( BinID startpos, bool firstcheck )
 	    currentbid = BinID(-1,-1);
 
 	setCurrentPosition(currentbid);
+	alreadymoved = true;
 	return 1;
     }
 
