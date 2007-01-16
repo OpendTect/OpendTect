@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: genericnumer.h,v 1.19 2006-08-18 15:35:08 cvshelene Exp $
+ RCS:           $Id: genericnumer.h,v 1.20 2007-01-16 15:41:48 cvshelene Exp $
 ________________________________________________________________________
 
 
@@ -100,6 +100,9 @@ inline float similarity( const A& a, const B& b, int sz, bool normalize=false,
     {
 	val1 = normalize ? (a[curposa]-meana)/stddeva : a[curposa];
 	val2 = normalize ? (b[curposb]-meanb)/stddevb : b[curposb];
+	if ( mIsUdf(val1) || mIsUdf(val2) )
+	    return mUdf(float);
+
 	sq1 += val1 * val1;
 	sq2 += val2 * val2;
 	sqdist += (val1-val2) * (val1-val2);
@@ -108,8 +111,10 @@ inline float similarity( const A& a, const B& b, int sz, bool normalize=false,
 	curposb ++;
     }
 
-    if ( sq1 + sq2 < 1e-10 ) return 0;
-    float rt = sqrt(sqdist) / (sqrt(sq1) + sqrt(sq2));
+    if ( mIsZero(sq1,mDefEps) || mIsZero(sq1,mDefEps) )
+	return 0;
+
+    const float rt = sqrt(sqdist) / (sqrt(sq1) + sqrt(sq2));
     return 1 - rt;
 }
 
