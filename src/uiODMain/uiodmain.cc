@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodmain.cc,v 1.52 2007-01-09 20:16:32 cvskris Exp $
+ RCS:           $Id: uiodmain.cc,v 1.53 2007-01-16 08:47:03 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -187,15 +187,8 @@ bool uiODMain::buildUI()
     }
 
     ctabwin = new uiDockWin( this, "Color Table" );
-    if ( isvert )
-    {
-	ctabwin->setResizeEnabled( true );
-    }
-    else
-    {
-	ctabwin->setVerStretchable( false );
-	ctabwin->setHorStretchable( true );
-    }
+    ctabwin->setCloseMode( 2 );
+    ctabwin->setResizeEnabled( true );
 
     ctabed = new uiVisColTabEd( ctabwin, isvert );
     ctabed->coltabChange.notify( mCB(applmgr,uiODApplMgr,coltabChg) );
