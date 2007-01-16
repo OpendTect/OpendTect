@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: SoTranslateRectangleDragger.cc,v 1.4 2004-08-06 07:56:58 kristofer Exp $";
+static const char* rcsID = "$Id: SoTranslateRectangleDragger.cc,v 1.5 2007-01-16 09:02:22 cvsnanne Exp $";
 
 
 
@@ -136,13 +136,13 @@ void SoTranslateRectangleDragger::drag()
     if ( mov[0] > max.getValue() )
     {
 	mov[0] = max.getValue();
-	trans.setValue( mov );
+	trans = mov;
 	motmat.setTransform(trans, rot, scale, scaleorient );
     }
     else if ( mov[0] < min.getValue() )
     {
 	mov[0] = min.getValue();
-	trans.setValue( mov );
+	trans = mov;
 	motmat.setTransform(trans, rot, scale, scaleorient );
     }
 

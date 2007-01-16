@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          July 2002
- RCS:           $Id: vismarker.cc,v 1.23 2006-08-17 14:03:31 cvsjaap Exp $
+ RCS:           $Id: vismarker.cc,v 1.24 2007-01-16 09:02:09 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -86,7 +86,7 @@ void Marker::setCenterPos( const Coord3& pos_ )
 Coord3 Marker::centerPos(bool displayspace) const
 {
     Coord3 res;
-    SbVec3d pos = translation->translation.getValue();
+    SbVec3f pos = translation->translation.getValue();
 
 
     if ( xytranslation )
