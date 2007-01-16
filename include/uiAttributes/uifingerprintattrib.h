@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Payraudeau
  Date:          February 2006
- RCS:           $Id: uifingerprintattrib.h,v 1.14 2006-12-20 11:23:00 cvshelene Exp $
+ RCS:           $Id: uifingerprintattrib.h,v 1.15 2007-01-16 09:06:26 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -62,7 +62,6 @@ protected:
     CtxtIOObj&		ctio_;
     MultiID		lsid_;
     ObjectSet<uiAttrSel> attribflds_;
-    bool		is2d_;
 
     uiFPAdvancedDlg*	advanceddlg_;
     calcFingParsObject*	calcobj_;
