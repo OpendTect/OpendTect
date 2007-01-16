@@ -4,7 +4,7 @@
  * DATE     : Nov 2006
 -*/
 
-static const char* rcsID = "$Id: tableascio.cc,v 1.12 2007-01-10 19:00:40 cvsbert Exp $";
+static const char* rcsID = "$Id: tableascio.cc,v 1.13 2007-01-16 08:26:58 cvsbert Exp $";
 
 #include "tableascio.h"
 #include "tabledef.h"
@@ -228,7 +228,7 @@ void TargetInfo::usePar( const IOPar& iopar )
 void FormatDesc::fillPar( IOPar& iopar ) const
 {
     iopar.set( sKeyHdrSize, nrhdrlines_ );
-    FileMultiString fms( token_ ); fms += tokencol_;
+    FileMultiString fms; fms += tokencol_; fms += token_;
     iopar.set( sKeyHdrToken, fms );
     for ( int idx=0; idx<headerinfos_.size(); idx++ )
     {
@@ -250,7 +250,7 @@ void FormatDesc::usePar( const IOPar& iopar )
     if ( res )
     {
 	FileMultiString fms( res );
-	token_ = fms[0]; tokencol_ = atoi( fms[1] );
+	tokencol_ = atoi( fms[0] ); token_ = fms[1];
     }
 
     IOPar* subpar = iopar.subselect( sKeyHdr );
@@ -263,7 +263,7 @@ void FormatDesc::usePar( const IOPar& iopar )
     if ( subpar && subpar->size() )
     {
 	for ( int idx=0; idx<bodyinfos_.size(); idx++ )
-	    headerinfos_[idx]->usePar( *subpar );
+	    bodyinfos_[idx]->usePar( *subpar );
     }
     delete subpar;
 }
