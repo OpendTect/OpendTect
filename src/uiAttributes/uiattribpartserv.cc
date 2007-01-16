@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiattribpartserv.cc,v 1.52 2007-01-12 13:59:40 cvshelene Exp $
+ RCS:           $Id: uiattribpartserv.cc,v 1.53 2007-01-16 10:12:11 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -111,9 +111,18 @@ bool uiAttribPartServer::replaceSet( const IOPar& iopar, bool is2d )
 	return false;
     }
 
+    if ( is2d )
+    {
+	delete adsman2d_;
+	adsman2d_ = new DescSetMan( is2d, ads, true );
+    }
+    else
+    {
+	delete adsman3d_;
+	adsman3d_ = new DescSetMan( is2d, ads, true );
+    }
+
     DescSetMan* adsman = getAdsMan( is2d );
-    delete adsman;
-    adsman = new DescSetMan( is2d, ads, true );
     adsman->attrsetid_ = "";
     set2DEvent( is2d );
     sendEvent( evNewAttrSet );
