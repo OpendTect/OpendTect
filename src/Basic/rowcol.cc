@@ -4,9 +4,10 @@
  * DATE     : 31/05/04
 -*/
 
-static const char* rcsID = "$Id: rowcol.cc,v 1.13 2007-01-03 17:48:46 cvsbert Exp $";
+static const char* rcsID = "$Id: rowcol.cc,v 1.14 2007-01-16 08:26:25 cvsbert Exp $";
 
 #include "rowcol.h"
+#include "bufstring.h"
 
 #include "errh.h"
 #include "ptrman.h"
@@ -26,12 +27,11 @@ bool RCol::use( const char* str )
 {
     if ( !str || !*str ) return false;
 
-    static char buf[80];
-    strcpy( buf, str );
-    char* ptr = strchr( buf, '/' );
+    static BufferString buf; buf = str;
+    char* ptr = strchr( buf.buf(), '/' );
     if ( !ptr ) return false;
     *ptr++ = '\0';
-    r() = atoi( buf ); c() = atoi( ptr );
+    r() = atoi( buf.buf() ); c() = atoi( ptr );
     return true;
 }
 
