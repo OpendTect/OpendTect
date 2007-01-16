@@ -4,7 +4,7 @@
  * DATE     : Dec 2004
 -*/
 
-static const char* rcsID = "$Id: horizon2dline.cc,v 1.2 2006-12-22 10:15:10 cvsjaap Exp $";
+static const char* rcsID = "$Id: horizon2dline.cc,v 1.3 2007-01-16 14:29:57 cvsjaap Exp $";
 
 #include "horizon2dline.h"
 #include "undefval.h"
@@ -127,7 +127,7 @@ bool Horizon2DLine::setKnot( const RCol& rc, const Coord3& c )
 
     if ( colidx<0 ) return false;
 
-    (*rows_[rowidx])[colidx] = c;
+    (*rows_[rowidx])[colidx].z = c.z;
 
     return true;
 }

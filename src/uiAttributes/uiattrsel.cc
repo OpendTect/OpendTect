@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: uiattrsel.cc,v 1.20 2006-12-21 13:47:16 cvshelene Exp $
+ RCS:           $Id: uiattrsel.cc,v 1.21 2007-01-16 14:32:38 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -556,6 +556,12 @@ void uiAttrSel::fillSelSpec( SelSpec& as ) const
 	as.setRefFromID( *attrdata_.nlamodel );
     else
 	as.setRefFromID( *attrdata_.attrset );
+
+    if ( is2D() )
+    {
+	as.setRef( getAttrName() );
+	as.set2DFlag();
+    }
 }
 
 

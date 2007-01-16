@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.337 2006-12-27 14:13:29 cvsnanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.338 2007-01-16 14:34:00 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -1199,13 +1199,6 @@ bool uiVisPartServer::dumpOI( int id ) const
     }
 
     return false;
-}
-
-
-void uiVisPartServer::makeSectionDisplayRefresh()
-{
-    for ( int idx=0; idx<scenes_.size(); idx++ )
-	scenes_[idx]->objectMoved(0);
 }
 
 

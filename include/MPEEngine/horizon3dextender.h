@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: horizon3dextender.h,v 1.3 2006-11-06 10:39:17 cvsjaap Exp $
+ RCS:           $Id: horizon3dextender.h,v 1.4 2007-01-16 14:26:56 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,6 +34,8 @@ public:
 
     int				maxNrPosInExtArea() const;
     void			preallocExtArea();
+
+    const CubeSampling&		getExtBoundary() const;
 
 protected:
     BinIDValue			direction;

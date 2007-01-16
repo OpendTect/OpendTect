@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emobject.h,v 1.62 2006-11-06 10:33:16 cvsjaap Exp $
+ RCS:		$Id: emobject.h,v 1.63 2007-01-16 14:25:28 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -44,7 +44,7 @@ public:
 		{}
 
     enum Event { Undef, PositionChange, PosIDChange, PrefColorChange, Removal,
-   		 AttribChange, SectionChange }	event;
+   		 AttribChange, SectionChange, BurstAlert } event;
 
     EM::PosID	pid0;
     EM::PosID	pid1;	//Only used in PosIDChange
@@ -115,6 +115,7 @@ public:
 
     const Color&		preferredColor() const;
     void			setPreferredColor(const Color&);
+    void			setBurstAlert(bool yn);
 
     virtual Coord3		getPos(const EM::PosID&) const;
     virtual Coord3		getPos(const EM::SectionID&,
@@ -222,6 +223,7 @@ protected:
     bool			changed;
     bool			fullyloaded;
     bool			locked;
+    int				burstalertcount;
 
     static const char*		prefcolorstr;
     static const char*		nrposattrstr;

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          May 2004
- RCS:           $Id: vishorizon2ddisplay.h,v 1.1 2006-04-26 21:23:38 cvskris Exp $
+ RCS:           $Id: vishorizon2ddisplay.h,v 1.2 2007-01-16 14:28:21 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -40,6 +40,7 @@ protected:
     bool			addSection(const EM::SectionID&);
 
     void			updateSection(int);
+    void			emChangeCB(CallBacker*);
 
     void			fillPar(IOPar&,TypeSet<int>&) const;
     int				usePar(const IOPar&);
@@ -47,6 +48,9 @@ protected:
     ObjectSet<visBase::IndexedPolyLine>	lines_;
     ObjectSet<visBase::PointSet>	points_;
     TypeSet<EM::SectionID>		sids_;
+
+    bool			burstalertison_;
+    int				postponedcallbacks_;
 };
 
 

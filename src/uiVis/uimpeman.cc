@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.cc,v 1.107 2006-12-22 10:22:10 cvsjaap Exp $
+ RCS:           $Id: uimpeman.cc,v 1.108 2007-01-16 14:33:36 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -211,7 +211,7 @@ void uiMPEMan::seedClick( CallBacker* )
     if ( !tracker ) 
 	return;
 
-    const EM::EMObject* emobj = EM::EMM().getObject( tracker->objectID() );
+    EM::EMObject* emobj = EM::EMM().getObject( tracker->objectID() );
     if ( !emobj ) 
 	return;
 
@@ -324,6 +324,7 @@ void uiMPEMan::seedClick( CallBacker* )
 
     const int currentevent = EM::EMM().history().currentEventNr();
     uiCursor::setOverride( uiCursor::Wait );
+    emobj->setBurstAlert( true );
     
     if ( pid.objectID()!=-1 )
     {
@@ -337,12 +338,12 @@ void uiMPEMan::seedClick( CallBacker* )
     else
 	seedpicker->addSeed( seedpos );
     
+    emobj->setBurstAlert( false );
     uiCursor::restoreOverride();
     setHistoryLevel(currentevent);
     
     if ( !isPickingInWizard() )
 	restoreActiveVol();
-    visserv->makeSectionDisplayRefresh();
 }
 
 
@@ -703,22 +704,34 @@ void uiMPEMan::introduceMPEDisplay()
 }
 
 
+#define mBurstAlertToAllEMObjects( yn ) \
+{ \
+    for ( int idx=EM::EMM().nrLoadedObjects()-1; idx>=0; idx-- ) \
+    { \
+	const EM::ObjectID oid = EM::EMM().objectID( idx ); \
+	EM::EMObject* emobj = EM::EMM().getObject( oid ); \
+	emobj->setBurstAlert( yn ); \
+    } \
+}
+
 void uiMPEMan::undoPush( CallBacker* )
 {
+    mBurstAlertToAllEMObjects(true);
     if ( !EM::EMM().history().unDo( 1, mEMHistoryUserInteractionLevel ) )
 	uiMSG().error("Could not undo everything.");
+    mBurstAlertToAllEMObjects(false);
 
-    visserv->makeSectionDisplayRefresh();
     updateButtonSensitivity(0);
 }
 
 
 void uiMPEMan::redoPush( CallBacker* )
 {
+    mBurstAlertToAllEMObjects(true);
     if ( !EM::EMM().history().reDo( 1, mEMHistoryUserInteractionLevel) )
 	uiMSG().error("Could not redo everything.");
+    mBurstAlertToAllEMObjects(false);
 
-    visserv->makeSectionDisplayRefresh();
     updateButtonSensitivity(0);
 }
 

@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizon2dextender.cc,v 1.1 2006-05-01 17:26:17 cvskris Exp $";
+static const char* rcsID = "$Id: horizon2dextender.cc,v 1.2 2007-01-16 14:30:25 cvsjaap Exp $";
 
 #include "horizon2dextender.h"
 
@@ -47,35 +47,45 @@ void Horizon2DExtender::setDirection( const BinIDValue& dir )
 
 int Horizon2DExtender::nextStep()
 {
-    const bool alldirs = direction_.binid.inl==0 && direction_.binid.crl==0;
-
     for ( int idx=0; idx<startpos_.size(); idx++ )
     {
-	const RowCol rc( startpos_[idx] );
-	const StepInterval<int> colrange =
-	    surface_.geometry().colRange( sid_, rc.row );
-	const Coord3 startpos = surface_.getPos( sid_, startpos_[idx] );
-
-	if ( rc.col!=colrange.start )
-	    addPos( false, rc, startpos, colrange.step );
-	if ( rc.col!=colrange.stop )
-	    addPos( true, rc, startpos, colrange.step );
+	addNeighbor( false, startpos_[idx] );
+	addNeighbor( true, startpos_[idx] );
     }
 
     return 0;
 }
 
 
-void Horizon2DExtender::addPos( bool next, const RowCol& rc,
-				const Coord& startpos, int step )
+void Horizon2DExtender::addNeighbor( bool upwards, const RowCol& sourcerc )
 {
-    const EM::SubID neighborsubid =
-	RowCol(rc.row,next ? rc.col+step : rc.col-step).getSerialized();
+    const StepInterval<int> colrange =
+			    surface_.geometry().colRange( sid_, sourcerc.row );
+    EM::SubID neighborsubid;
+    Coord3 neighborpos;
+    RowCol neighborrc = sourcerc;
+    const CubeSampling& boundary = getExtBoundary();
+
+    do 
+    {
+	neighborrc += RowCol( 0, upwards ? colrange.step : -colrange.step );
+	if ( !colrange.includes(neighborrc.col) )
+	    return;
+	if ( !boundary.isEmpty() && !boundary.hrg.includes(BinID(neighborrc)) )
+	    return;
+	neighborsubid = neighborrc.getSerialized();
+	neighborpos = surface_.getPos( sid_, neighborsubid );
+    }
+    while ( !Coord(neighborpos).isDefined() );
+
+    if ( neighborpos.isDefined() )
+	return;
+
+    const Coord3 sourcepos = surface_.getPos( sid_,sourcerc.getSerialized() );
 
     if ( !alldirs_ )
     {
-	const Coord neighborpos = surface_.getPos( sid_, neighborsubid );
-	const Coord dir = neighborpos - startpos;
+	const Coord dir = neighborpos - sourcepos;
 	const double dirabs = dir.abs();
 	if ( !mIsZero(dirabs,1e-3) )
 	{
@@ -86,7 +96,9 @@ void Horizon2DExtender::addPos( bool next, const RowCol& rc,
 	}
     }
 
-    addTarget( neighborsubid, rc.getSerialized() );
+    surface_.setPos( sid_, neighborsubid, Coord3(0,0,sourcepos.z), true );
+
+    addTarget( neighborsubid, sourcerc.getSerialized() );
 }
 
 

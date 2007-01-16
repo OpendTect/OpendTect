@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: sectionextender.h,v 1.14 2006-11-06 10:40:35 cvsjaap Exp $
+ RCS:           $Id: sectionextender.h,v 1.15 2007-01-16 14:27:25 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -52,7 +52,7 @@ public:
     const TypeSet<EM::SubID>&	getAddedPositions() const;
     const TypeSet<EM::SubID>&	getAddedPositionsSource() const;
 
-    const CubeSampling&		getExtBoundary() const;
+    virtual const CubeSampling& getExtBoundary() const;
     void			setExtBoundary(const CubeSampling&);
     void			unsetExtBoundary();
 

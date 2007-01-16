@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emobject.cc,v 1.70 2006-11-06 10:42:26 cvsjaap Exp $";
+static const char* rcsID = "$Id: emobject.cc,v 1.71 2007-01-16 14:29:29 cvsjaap Exp $";
 
 #include "emobject.h"
 
@@ -91,6 +91,7 @@ EMObject::EMObject( EMManager& emm )
     , storageid( -1 )
     , fullyloaded( false )
     , locked( false )
+    , burstalertcount( 0 )
 {
     id_ = manager.addObject( this );
     notifier.notify( mCB(this,EMObject,posIDChangeCB) );
@@ -247,6 +248,19 @@ void EMObject::setPreferredColor( const Color& col )
     EMObjectCallbackData cbdata;
     cbdata.event = EMObjectCallbackData::PrefColorChange;
     notifier.trigger( cbdata );
+}
+
+
+void EMObject::setBurstAlert( bool yn )
+{
+    if ( !yn ) burstalertcount--;
+    if ( !burstalertcount )
+    {
+	EMObjectCallbackData cbdata;
+	cbdata.event = EMObjectCallbackData::BurstAlert;
+	notifier.trigger( cbdata );
+    }
+    if ( yn ) burstalertcount++;
 }
 
 

@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: sectionextender.cc,v 1.9 2006-10-23 09:15:46 cvsjaap Exp $";
+static const char* rcsID = "$Id: sectionextender.cc,v 1.10 2007-01-16 14:32:05 cvsjaap Exp $";
 
 #include "sectionextender.h"
 #include "mpeengine.h"
@@ -94,7 +94,7 @@ const TypeSet<EM::SubID>& SectionExtender::getAddedPositionsSource() const
 
 
 const CubeSampling& SectionExtender::getExtBoundary() const
-{ return extboundary_.isEmpty() ? engine().activeVolume() : extboundary_; }
+{ return extboundary_; }
 
 
 void SectionExtender::setExtBoundary( const CubeSampling& cs )

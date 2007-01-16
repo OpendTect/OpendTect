@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: vishorizondisplay.cc,v 1.22 2006-12-27 14:40:08 cvsnanne Exp $
+ RCS:           $Id: vishorizondisplay.cc,v 1.23 2007-01-16 14:34:44 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -63,15 +63,15 @@ const char* HorizonDisplay::sKeyColRange = "Col range";
 HorizonDisplay::HorizonDisplay()
     : parrowrg_( -1, -1, -1 )
     , parcolrg_( -1, -1, -1 )
-    , curtextureidx_(0)
-    , usestexture_(true)
-    , useswireframe_(false)
-    , translation_(0)
+    , curtextureidx_( 0 )
+    , usestexture_( true )
+    , useswireframe_( false )
+    , translation_( 0 )
     , edgelineradius_( 3.5 )
     , validtexture_( false )
-    , isdisplayingonlyatsect_( false )
-    , updatepostponed_( false )
-    , resolution_(0)
+    , burstalertison_( false )
+    , postponedupdates_( 0 )
+    , resolution_( 0 )
 {
     as_ += new Attrib::SelSpec;
     coltabs_ += visBase::VisColorTab::create();
@@ -779,6 +779,14 @@ void HorizonDisplay::emChangeCB( CallBacker* cb )
 	    if ( ps ) ps->inValidateCache(-1);
 	}
     }
+    else if ( cbdata.event==EM::EMObjectCallbackData::BurstAlert)
+    {
+	burstalertison_ = !burstalertison_;
+	if ( postponedupdates_ )
+	    hasmoved.trigger();
+	postponedupdates_ = 0;
+    }
+
     else if ( cbdata.event==EM::EMObjectCallbackData::PrefColorChange )
     {
 	nontexturecol_ = emobject_->preferredColor();
@@ -1238,20 +1246,14 @@ void HorizonDisplay::updateSectionSeeds(
 void HorizonDisplay::otherObjectsMoved(
 	    const ObjectSet<const SurveyObject>& objs, int whichobj )
 { 
-    if ( whichobj==id() && displayonlyatsections_==isdisplayingonlyatsect_ )
+    if ( burstalertison_ && whichobj==id() )
     {
-	updatepostponed_ = true;
-	return;
+	postponedupdates_++;
+	return; 
     }
-    else if ( updatepostponed_ )
-    {
-	updateIntersectionLines( objs, id() ); 
-	updateSectionSeeds( objs, id() );
-	updatepostponed_ = false;
-    }
+    
     updateIntersectionLines( objs, whichobj ); 
     updateSectionSeeds( objs, whichobj );
-    isdisplayingonlyatsect_=displayonlyatsections_;
 }
 
 

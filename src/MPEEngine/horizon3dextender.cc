@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizon3dextender.cc,v 1.8 2006-11-06 10:49:04 cvsjaap Exp $";
+static const char* rcsID = "$Id: horizon3dextender.cc,v 1.9 2007-01-16 14:31:41 cvsjaap Exp $";
 
 #include "horizonextender.h"
 
@@ -149,6 +149,11 @@ int HorizonExtender::nextStep()
 
     return 0;
 }
+
+
+const CubeSampling& HorizonExtender::getExtBoundary() const
+{ return extboundary_.isEmpty() ? engine().activeVolume() : extboundary_; }
+
 
 
 };  // namespace MPE

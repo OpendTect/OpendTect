@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpewizard.cc,v 1.62 2007-01-03 16:06:34 cvsjaap Exp $
+ RCS:           $Id: uimpewizard.cc,v 1.63 2007-01-16 14:33:10 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -53,8 +53,11 @@ const int Wizard::sSeedSetupPage	= 2;
 const int Wizard::sFinalizePage		= 3;
 
 
-static const char* sTrackInVolInfo()
+static const char* sTrackInVolInfo( const BufferString& trackertype )
 {
+    if ( trackertype == EMHorizon2DTranslatorGroup::keyword )
+	return "TODO: Agree on mode name, mode description and workflow info.";
+   
     return
 	"The horizon is (auto-) tracked inside a small track-volume.\n\n"
 	"Workflow:\n"
@@ -67,8 +70,11 @@ static const char* sTrackInVolInfo()
 }
 
 
-static const char* sLineTrackInfo()
+static const char* sLineTrackInfo( const BufferString& trackertype )
 {
+    if ( trackertype == EMHorizon2DTranslatorGroup::keyword )
+	return "TODO: Agree on mode name, mode description and workflow info.";
+
     return
 	"The horizon is auto-tracked in the line direction only.\n\n"
 	"Workflow:\n"
@@ -81,8 +87,11 @@ static const char* sLineTrackInfo()
 }
 
 
-static const char* sLineManualInfo()
+static const char* sLineManualInfo( const BufferString& trackertype )
 {
+    if ( trackertype == EMHorizon2DTranslatorGroup::keyword )
+	return "TODO: Agree on mode name, mode description and workflow info.";
+
     return
 	"The horizon is painted (linear interpolation) between picked seeds\n"
         "in the line direction only.\n\n"
@@ -471,7 +480,7 @@ bool Wizard::finalizeCycle()
     if ( objectcreated )
     {
 	adjustSeedBox();
-	if ( !seedbox.isEmpty() )
+	if ( !seedbox.isEmpty() && trackertype!="2D Horizon" )
 	{
 	    EM::EMObject* emobj = EM::EMM().getObject( currentobject );
 	    PtrMan<Executor> saver = emobj->saver();
@@ -493,9 +502,14 @@ void Wizard::restoreObject()
 {
     if ( !mIsUdf(initialhistorynr) )
     {
+	EM::EMObject* emobj = EM::EMM().getObject( currentobject );
+	emobj->setBurstAlert( true );
+	
 	EM::EMM().history().unDo(
 	                EM::EMM().history().currentEventNr()-initialhistorynr);
 	EM::EMM().history().setCurrentEventAsLast();
+
+	emobj->setBurstAlert( false );
     }
 
     if ( ioparentrycreated )
@@ -558,7 +572,7 @@ bool Wizard::isClosing( bool iscancel )
 	mpeserv->blockDataLoading( false );
 	mpeserv->postponeLoadingCurVol();
 	mpeserv->sendEvent( uiMPEPartServer::evShowToolbar );
-	if ( seedpicker->doesModeUseSetup() )
+	if ( seedpicker->doesModeUseSetup() && trackertype!="2D Horizon" )
 	    mpeserv->saveSetup( EM::EMM().getMultiID(currentobject) );
     }
     mpeserv->sendEvent( ::uiMPEPartServer::evWizardClosed );
@@ -759,11 +773,11 @@ void Wizard::seedModeChange( CallBacker* )
 {
     const int newmode = modegrp ? modegrp->selectedId() : -1;
     if ( newmode == 0 )
-	infofld->setText( sTrackInVolInfo() );
+	infofld->setText( sTrackInVolInfo(trackertype) );
     else if ( newmode == 1 )
-	infofld->setText( sLineTrackInfo() );
+	infofld->setText( sLineTrackInfo(trackertype) );
     else
-	infofld->setText( sLineManualInfo() );
+	infofld->setText( sLineManualInfo(trackertype) );
 
     mGetSeedPicker();
     seedpicker->setSeedConnectMode( newmode );
@@ -792,12 +806,15 @@ void Wizard::setupChange( CallBacker* )
     mGetSeedPicker();
     seedpicker->blockSeedPick( !setupgrp->commitToTracker() );
 
-   if ( !seedpicker->isSeedPickBlocked() && actvolisplanar )
+    if ( !seedpicker->isSeedPickBlocked() && actvolisplanar )
 	mpeserv->loadAttribData();
     
+    EM::EMObject* emobj = EM::EMM().getObject( currentobject );
+    emobj->setBurstAlert( true );
     uiCursor::setOverride( uiCursor::Wait );
     seedpicker->reTrack();
     uiCursor::restoreOverride();
+    emobj->setBurstAlert( false );
 }
 
 

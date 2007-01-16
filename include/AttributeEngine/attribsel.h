@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Sep 2001
- RCS:           $Id: attribsel.h,v 1.12 2006-12-20 11:23:00 cvshelene Exp $
+ RCS:           $Id: attribsel.h,v 1.13 2007-01-16 14:25:01 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -59,6 +59,8 @@ public:
 
     void		set(const Desc&);
     void		set(const NLAModel&,int);
+    void		setRef( const char* ref )
+			    { ref_ = ref; }
     void		setObjectRef( const char* objr )
 			    { objref_ = objr; }
     void		setDefString( const char* def )

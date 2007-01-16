@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: vishorizon2ddisplay.cc,v 1.2 2006-12-22 10:23:36 cvsjaap Exp $
+ RCS:           $Id: vishorizon2ddisplay.cc,v 1.3 2007-01-16 14:34:23 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "keystrs.h"
 #include "rowcolsurface.h"
 #include "visdrawstyle.h"
+#include "vismaterial.h"
 #include "vispolyline.h"
 #include "vispointset.h"
 #include "viscoord.h"
@@ -29,6 +30,8 @@ namespace visSurvey
 {
 
 Horizon2DDisplay::Horizon2DDisplay()
+    : burstalertison_(false)
+    , postponedcallbacks_(0)
 {
     points_.allowNull(true);
 }
@@ -127,6 +130,11 @@ void Horizon2DDisplay::updateSection( int idx )
 	for ( rc.col=colrg.start; rc.col<=colrg.stop; rc.col+=colrg.step )
 	{
 	    const Coord3 pos = emobject_->getPos( sid, rc.getSerialized() );
+
+	    // Skip if survey coordinates not available
+	    if ( !Coord(pos).isDefined() )
+		continue;
+
 	    if ( !pos.isDefined() )
 	    {
 		if ( indexinline==1 )
@@ -141,7 +149,7 @@ void Horizon2DDisplay::updateSection( int idx )
 		    ps->getCoordinates()->setPos( pcidx++, prevpos );
 		    indexinline = 0;
 		}
-		else if ( ciidx && pl->getTextureCoordIndex(ciidx-1)!=-1 )
+		else if ( ciidx && pl->getCoordIndex(ciidx-1)!=-1 )
 		{
 		    pl->setCoordIndex( ciidx++, -1 );
 		    indexinline = 0;
@@ -169,12 +177,44 @@ void Horizon2DDisplay::updateSection( int idx )
 	    }
 	}
 
-	if ( indexinline && pl->getTextureCoordIndex(ciidx-1)!=-1 )
+	if ( indexinline && pl->getCoordIndex(ciidx-1)!=-1 )
 	    pl->setCoordIndex( ciidx++, -1 );
     }
 
     pl->removeCoordIndexAfter( ciidx-1 );
     pl->getCoordinates()->removeAfter( lcidx-1 );
+}
+
+
+void Horizon2DDisplay::emChangeCB( CallBacker* cb )
+{
+    EMObjectDisplay::emChangeCB( cb );
+    mCBCapsuleUnpack(const EM::EMObjectCallbackData&,cbdata,cb);
+    if ( cbdata.event==EM::EMObjectCallbackData::PositionChange )
+    {
+	if ( burstalertison_ )
+	    postponedcallbacks_++;
+	else
+	{
+	    for ( int idx=0; idx<sids_.size(); idx++ )
+		updateSection( idx );
+	}
+    }
+    else if ( cbdata.event==EM::EMObjectCallbackData::BurstAlert )
+    {
+	burstalertison_ = !burstalertison_;
+	if ( postponedcallbacks_ )
+	{
+	    for ( int idx=0; idx<sids_.size(); idx++ )
+		updateSection( idx );
+	}
+	postponedcallbacks_ = 0;
+    }
+    else if ( cbdata.event==EM::EMObjectCallbackData::PrefColorChange )
+    {
+	getMaterial()->setColor( emobject_->preferredColor() );
+    }
+
 }
 
 

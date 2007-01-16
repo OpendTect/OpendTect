@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizonadjuster.cc,v 1.35 2007-01-04 16:20:10 cvsjaap Exp $";
+static const char* rcsID = "$Id: horizonadjuster.cc,v 1.36 2007-01-16 14:31:15 cvsjaap Exp $";
 
 #include "horizonadjuster.h"
 
@@ -272,7 +272,9 @@ bool HorizonAdjuster::snap( const BinID& bid,
     if ( !zrg.includes(targetz) )
 	return false;
 
-    const int inlidx = attrdata_->inlsampling.nearestIndex( bid.inl );
+    const int inlidx = is2D() && attrdata_->getInlSz()==1 ? 0 :
+		       attrdata_->inlsampling.nearestIndex( bid.inl );
+
     if ( inlidx<0 || inlidx>=attrdata_->getInlSz() )
 	return false;
 
@@ -444,6 +446,7 @@ bool HorizonAdjuster::trackByAmplitude( const BinID& refbid,
 		horizon_.getPos( sectionid_, refbid.getSerialized() ).z;
 
     float threshold;
+    
     if ( !attrdata_->getValue(0, BinIDValue(refbid,refdepth), &threshold,true) )
 	return false;
 

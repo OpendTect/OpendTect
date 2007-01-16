@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2006
- RCS:           $Id: horizon2dextender.h,v 1.2 2006-05-04 21:05:12 cvskris Exp $
+ RCS:           $Id: horizon2dextender.h,v 1.3 2007-01-16 14:26:03 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,7 +35,7 @@ public:
     int			nextStep();
 
 protected:
-    void		addPos(bool,const RowCol&,const Coord&,int);
+    void		addNeighbor(bool upwards, const RowCol& sourcerc );
 
     float		anglethreshold_;
     bool		alldirs_;

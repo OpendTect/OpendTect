@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: horizon2dseedpicker.h,v 1.2 2006-12-22 10:08:25 cvsjaap Exp $
+ RCS:           $Id: horizon2dseedpicker.h,v 1.3 2007-01-16 14:26:33 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,8 +40,10 @@ public:
     bool		reTrack();
     int			nrSeeds() const;
     int			minSeedsToLeaveInitStage() const;
-
     bool		stopSeedPick(bool iscancel=false);
+
+    NotifierAccess*     aboutToAddRmSeedNotifier()      { return &addrmseed_; }
+    NotifierAccess*     madeSurfChangeNotifier()        { return &surfchange_; }
 
     enum SeedModeOrder  { TrackFromSeeds, 
 			  TrackBetweenSeeds, 
@@ -63,6 +65,21 @@ public:
 
 protected:
 
+    bool 			retrackOnActiveLine(int startcol,
+						    bool startwasdefined,
+						    bool eraseonly=false);
+
+    void 			extendSeedListEraseInBetween(
+				    bool wholeline, int startcol,
+				    bool startwasdefined, int step,
+				    TypeSet<EM::PosID>& candidatejunctionpairs);
+
+    bool			retrackFromSeedList();
+    bool			interpolateSeeds();
+    CubeSampling		getTrackBox() const;
+
+    TypeSet<EM::PosID>		seedlist_;
+    TypeSet<EM::PosID>		trackbounds_;
     MPE::EMTracker&		tracker_;
 
     EM::SectionID		sectionid_;
