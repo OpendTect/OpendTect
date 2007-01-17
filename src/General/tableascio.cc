@@ -4,7 +4,7 @@
  * DATE     : Nov 2006
 -*/
 
-static const char* rcsID = "$Id: tableascio.cc,v 1.13 2007-01-16 08:26:58 cvsbert Exp $";
+static const char* rcsID = "$Id: tableascio.cc,v 1.14 2007-01-17 17:31:44 cvsbert Exp $";
 
 #include "tableascio.h"
 #include "tabledef.h"
@@ -365,6 +365,7 @@ const char* finishHdr()
 	const Table::TargetInfo& tarinf = *aio_.fd_.headerinfos_[itar];
 	SpecID sid( tarinf.selection_.form_, 0 );
 	const Table::TargetInfo::Form& selform = tarinf.form( sid.formnr_ );
+	bool found = false;
 	for ( ; sid.specnr_<selform.specs_.size(); sid.specnr_++ )
 	{
 	    if ( !tarinf.selection_.havePos(sid.specnr_) )
@@ -372,21 +373,16 @@ const char* finishHdr()
 		             tarinf.selection_.unit_ );
 	    else
 	    {
-		bool found = false;
-		for ( int idx=0; idx<formids_.size(); idx++ )
+		if ( formids_[itar] == sid )
 		{
-		    if ( formids_[idx] == sid )
-		    {
-			aio_.addVal( formvals_.get(idx),
-				     tarinf.selection_.unit_ );
-			found = true; break;
-		    }
+		    aio_.addVal( formvals_.get(itar), tarinf.selection_.unit_ );
+		    found = true; break;
 		}
-		if ( !found && !tarinf.isOptional() )
-		    return mkErrMsg( tarinf, sid, RowCol(-1,-1),
-			    	     "Required field not found" );
 	    }
 	}
+	if ( !found && !tarinf.isOptional() )
+	    return mkErrMsg( tarinf, sid, RowCol(-1,-1),
+			     "Required field not found" );
     }
     return 0;
 }
@@ -565,29 +561,19 @@ int Table::AscIO::getIntValue( int ifld ) const
 }
 
 
-float Table::AscIO::getfValue( int ifld ) const
-{
-    if ( ifld >= vals_.size() )
-	return mUdf(int);
-    const char* sval = vals_.get( ifld );
-    if ( !*sval ) return mUdf(float);
-    float val = atof( sval );
-    if ( mIsUdf(val) ) return val;
-
-    const UnitOfMeasure* unit = units_.size() > ifld ? units_[ifld] : 0;
-    return unit ? unit->internalValue( val ) : val;
+#define mDefFltGetVal(typ,fn) \
+typ Table::AscIO::fn( int ifld ) const \
+{ \
+    if ( ifld >= vals_.size() ) \
+	return mUdf(typ); \
+    const char* sval = vals_.get( ifld ); \
+    if ( !*sval || !isNumberString(sval,NO) ) return mUdf(typ); \
+    typ val = atof( sval ); \
+    if ( mIsUdf(val) ) return val; \
+ \
+    const UnitOfMeasure* unit = units_.size() > ifld ? units_[ifld] : 0; \
+    return unit ? unit->internalValue( val ) : val; \
 }
 
-
-double Table::AscIO::getdValue( int ifld ) const
-{
-    if ( ifld >= vals_.size() )
-	return mUdf(int);
-    const char* sval = vals_.get( ifld );
-    if ( !*sval ) return mUdf(double);
-    double val = atof( sval );
-    if ( mIsUdf(val) ) return val;
-
-    const UnitOfMeasure* unit = units_.size() > ifld ? units_[ifld] : 0;
-    return unit ? unit->internalValue( val ) : val;
-}
+mDefFltGetVal(float,getfValue)
+mDefFltGetVal(double,getdValue)
