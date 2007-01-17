@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.152 2007-01-12 20:01:25 cvskris Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.153 2007-01-17 10:33:06 cvshelene Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -1320,5 +1320,15 @@ int PlaneDataDisplay::usePar( const IOPar& par )
     return 1;
 }
 
+
+bool PlaneDataDisplay::canBDispOn2DViewer() const
+{
+    //Rem : allow timeslices with horizontal viewer as soon as it is ready.
+    //now : only vertical 2D Viewer
+    if ( orientation_ == PlaneDataDisplay::Timeslice )
+	return false;
+    else
+	return true;
+}
 
 }; // namespace visSurvey

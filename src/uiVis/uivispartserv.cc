@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.338 2007-01-16 14:34:00 cvsjaap Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.339 2007-01-17 10:33:06 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -1503,6 +1503,13 @@ void uiVisPartServer::initMPEStuff()
     }
     
     mpetools_->initFromDisplay();
+}
+
+
+bool uiVisPartServer::canBDispOn2DViewer( int id ) const
+{
+    mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
+    return so ? so->canBDispOn2DViewer() : false;
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvobj.h,v 1.70 2006-12-20 11:23:00 cvshelene Exp $
+ RCS:		$Id: vissurvobj.h,v 1.71 2007-01-17 10:33:06 cvshelene Exp $
 ________________________________________________________________________
 
 
@@ -208,6 +208,10 @@ public:
     virtual bool		isLocked() const	{ return locked_; }
     virtual NotifierAccess*	getLockNotification()	{ return 0; }
 
+    //Rem : as for now: vertical viewer is the only one available,
+    //later on: allow timeslices and horizons with horizontal viewer
+    virtual bool		canBDispOn2DViewer() const	{ return false;}
+    
     static float		sDefMaxDist;
 
     static const char*		sKeyColTabID()	{ return "Colortable ID"; }

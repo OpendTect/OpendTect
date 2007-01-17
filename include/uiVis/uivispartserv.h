@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.183 2007-01-16 14:27:53 cvsjaap Exp $
+ RCS:           $Id: uivispartserv.h,v 1.184 2007-01-17 10:33:06 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -281,6 +281,8 @@ public:
     bool			usePar(const IOPar&);
     void			fillPar(IOPar&) const;
 
+    bool			canBDispOn2DViewer(int id) const;
+    
 protected:
 
     void			createMenuCB(CallBacker*);

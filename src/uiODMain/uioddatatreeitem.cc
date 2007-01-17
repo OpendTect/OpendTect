@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uioddatatreeitem.cc,v 1.7 2006-09-07 08:50:44 cvsnanne Exp $
+ RCS:		$Id: uioddatatreeitem.cc,v 1.8 2007-01-17 10:33:06 cvshelene Exp $
 ___________________________________________________________________
 
 -*/
@@ -40,6 +40,7 @@ uiODDataTreeItem::uiODDataTreeItem( const char* parenttype )
     , movedownmnuitem_( "down" )
     , removemnuitem_("Remove" )
     , changetransparencyitem_( "Change transparency ..." )
+    , addto2dvieweritem_( "Display on a 2D Viewer" )
 {}
 
 
@@ -205,6 +206,11 @@ void uiODDataTreeItem::createMenuCB( CallBacker* cb )
 	mAddMenuItem( menu, &changetransparencyitem_, true, false )
     else
 	mResetMenuItem( &changetransparencyitem_ );
+
+    if ( visserv->canBDispOn2DViewer(displayID()) )
+	mAddMenuItem( menu, &addto2dvieweritem_, true, false )
+    else
+	mResetMenuItem( &addto2dvieweritem_ );
 }
 
 
@@ -275,6 +281,7 @@ void uiODDataTreeItem::handleMenuCB( CallBacker* cb )
 	menu->setIsHandled( true );
 	visserv->showAttribTransparencyDlg( displayID(), attribNr() );
     }
+    //TODO handle addto2dvieweritem_
     else if ( mnuid==removemnuitem_.id )
     {
 	const int attribnr = attribNr();

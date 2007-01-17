@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		January 2003
- RCS:		$Id: visrandomtrackdisplay.h,v 1.48 2006-08-24 16:09:49 cvskris Exp $
+ RCS:		$Id: visrandomtrackdisplay.h,v 1.49 2007-01-17 10:33:06 cvshelene Exp $
 ________________________________________________________________________
 
 
@@ -132,6 +132,8 @@ public:
     virtual void		fillPar(IOPar&,TypeSet<int>&) const;
     virtual int			usePar(const IOPar&);
 
+    bool			canBDispOn2DViewer() const	{ return true; }
+    
 protected:
 				~RandomTrackDisplay();
 

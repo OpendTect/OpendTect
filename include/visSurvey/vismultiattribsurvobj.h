@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vismultiattribsurvobj.h,v 1.5 2006-12-18 22:43:22 cvskris Exp $
+ RCS:		$Id: vismultiattribsurvobj.h,v 1.6 2007-01-17 10:33:06 cvshelene Exp $
 ________________________________________________________________________
 
 
@@ -66,7 +66,8 @@ public:
 
     void			fillPar(IOPar&, TypeSet<int>&) const;
     int				usePar(const IOPar&);
-
+    virtual bool                canBDispOn2DViewer() const	{ return true; }
+    
 protected:
     				MultiTextureSurveyObject();
 				~MultiTextureSurveyObject();

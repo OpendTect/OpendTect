@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visplanedatadisplay.h,v 1.89 2007-01-11 20:21:07 cvskris Exp $
+ RCS:		$Id: visplanedatadisplay.h,v 1.90 2007-01-17 10:33:06 cvshelene Exp $
 ________________________________________________________________________
 
 
@@ -148,6 +148,7 @@ public:
 						 the plane setting should be
 						 returned.
 				    \returns	combination of OD::ButtonState*/
+    bool                	canBDispOn2DViewer() const;
 
 
 protected:
