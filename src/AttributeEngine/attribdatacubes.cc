@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribdatacubes.cc,v 1.19 2007-01-03 21:16:59 cvskris Exp $";
+static const char* rcsID = "$Id: attribdatacubes.cc,v 1.20 2007-01-17 09:22:41 cvskris Exp $";
 
 #include "attribdatacubes.h"
 #include "arrayndimpl.h"
@@ -158,21 +158,23 @@ bool DataCubes::getValue( int array, const BinIDValue& bidv, float* res,
 
     if ( cubes_.size() <= array ) return false;
 
-    const ValueSeries<float>* data = cubes_[array]->getStorage();
-    const int64 offset = cubes_[array]->info().getMemPos( inlidx, crlidx, 0 );
+    const OffsetValueSeries<float> data(
+	    *const_cast<ValueSeries<float>* >(cubes_[array]->getStorage()),
+		     cubes_[array]->info().getMemPos( inlidx, crlidx, 0 ) );
 
     const float zpos = bidv.value/zstep-z0;
+
     if ( !interpolate )
     {
 	const int zidx = mNINT( zpos );
 	if ( zidx < 0 || zidx >= zsz_ ) return false;
-	*res = data->value( offset+zidx );
+	*res = data.value( zidx );
 	return true;
     }
 
     float interpval;
-    if ( !IdxAble::interpolateRegWithUdfWithOff( *data, zsz_, offset, zpos,
-						  interpval, false ) )
+    if ( !IdxAble::interpolateRegWithUdfWithOff( data, zsz_, 0, zpos,
+						 interpval, false ) )
 	return false;
 
     *res = interpval;
