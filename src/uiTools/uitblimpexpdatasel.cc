@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2006
- RCS:           $Id: uitblimpexpdatasel.cc,v 1.22 2007-01-11 12:37:49 cvsnanne Exp $
+ RCS:           $Id: uitblimpexpdatasel.cc,v 1.23 2007-01-17 17:30:04 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uigeninput.h"
 #include "uilabel.h"
 #include "uibutton.h"
+#include "uicombobox.h"
 #include "uiseparator.h"
 #include "uibuttongroup.h"
 #include "uidialog.h"
@@ -26,6 +27,7 @@ ________________________________________________________________________
 #include "iopar.h"
 #include "tabledef.h"
 #include "tableascio.h"
+#include "unitofmeasure.h"
 
 #define mChoiceBoxWidth 10
 
@@ -299,6 +301,7 @@ protected:
     void			saveFmt(CallBacker*);
     void			handleUnits(CallBacker*);
 
+    bool			commit();
     bool			acceptOK(CallBacker*);
 };
 
@@ -387,16 +390,24 @@ void uiTableFormatDescFldsEd::mkElemFlds( bool ishdr )
 	} \
     }
 
-bool uiTableFormatDescFldsEd::acceptOK( CallBacker* )
+bool uiTableFormatDescFldsEd::commit()
 {
     mDoCommit(hdrelems_)
     mDoCommit(bodyelems_)
     return true;
 }
 
+bool uiTableFormatDescFldsEd::acceptOK( CallBacker* )
+{
+    return commit();
+}
+
 
 void uiTableFormatDescFldsEd::saveFmt( CallBacker* )
 {
+    if ( !commit() )
+	return;
+
     BufferStringSet nms;
     Table::FFR().getFormats( fd_.name(), nms );
 
@@ -416,7 +427,7 @@ void uiTableFormatDescFldsEd::saveFmt( CallBacker* )
 	const char* fmtnm = dlg.text();
 	IOPar* newiop = new IOPar;
 	fd_.fillPar( *newiop );
-	Repos::Source src = (Repos::Source)(srcfld->getIntValue()+1);
+	Repos::Source src = (Repos::Source)(srcfld->getIntValue()+2);
 	Table::FFR().set( fd_.name(), fmtnm, newiop, src );
 	if ( !Table::FFR().write(src) )
 	    uiMSG().error( "Cannot write format" );
@@ -433,14 +444,62 @@ class uiTableImpDataSelUnits : public uiDialog
 {
 public:
 
+struct Entry
+{
+    Entry( Table::TargetInfo* ti, ObjectSet<const UnitOfMeasure> uns )
+	: ti_(ti), uns_(uns)		{}
+    Table::TargetInfo*			ti_;
+    ObjectSet<const UnitOfMeasure>	uns_;
+};
+
 uiTableImpDataSelUnits( uiParent* p, Table::FormatDesc& fd )
-    : uiDialog(p,uiDialog::Setup(fd.name(),""))
+    : uiDialog(p,uiDialog::Setup(fd.name(),"Specify units of measure"))
     , fd_(fd)
 {
-    new uiLabel( this, "Units-of-measure handling\nis under construction" );
+    for ( int idx=0; idx<fd_.headerinfos_.size(); idx++ )
+	addEntry( fd_.headerinfos_[idx] );
+    for ( int idx=0; idx<fd_.bodyinfos_.size(); idx++ )
+	addEntry( fd_.bodyinfos_[idx] );
+
+    if ( entries_.size() < 1 )
+    {
+	new uiLabel( this, "No units-of-measure available, or unnecessary" );
+	return;
+    }
 }
 
-    Table::FormatDesc&	fd_;
+void addEntry( Table::TargetInfo* tinf )
+{
+    ObjectSet<const UnitOfMeasure> uns;
+    UoMR().getRelevant( tinf->propertyType(), uns );
+    if ( uns.size() < 2 ) return;
+
+    entries_ += new Entry( tinf, uns );
+    uiLabeledComboBox* lcb = new uiLabeledComboBox( this, tinf->name() );
+    for ( int idx=0; idx<uns.size(); idx++ )
+	lcb->box()->addItem( uns[idx]->name() );
+    if ( boxes_.size() > 0 )
+	lcb->attach( alignedBelow, boxes_[ boxes_.size()-1 ] );
+    boxes_ += lcb;
+}
+
+
+bool acceptOK( CallBacker* )
+{
+    for ( int idx=0; idx<boxes_.size(); idx++ )
+    {
+	uiComboBox* cb = boxes_[idx]->box();
+	int isel = cb->currentItem();
+	if ( isel < 0 ) continue;
+	Entry* entry = entries_[idx];
+	entry->ti_->selection_.unit_ = entry->uns_[isel];
+    }
+    return true;
+}
+
+    Table::FormatDesc&			fd_;
+    ObjectSet<Entry>			entries_;
+    ObjectSet<uiLabeledComboBox>	boxes_;
 
 };
 
@@ -564,7 +623,7 @@ void uiTableImpDataSel::openFmt( CallBacker* )
     fd_.usePar( *iop );
     hdrtokfld_->setText( fd_.token_ );
     const int nrlns = fd_.nrHdrLines();
-    hdrtypefld_->setValue( nrlns < 0 ? 2 : (nrlns == 0 ? 1 : 0) );
+    hdrtypefld_->setValue( nrlns < 0 ? 2 : (nrlns == 0 ? 0 : 1) );
     hdrlinesfld_->setValue( nrlns < 1 ? 1 : nrlns );
 
     typChg( 0 );
