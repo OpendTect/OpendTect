@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril & Kris Tingdahl
  Date:          Mar 2005
- RCS:           $Id: valseries.h,v 1.4 2007-01-05 20:29:57 cvskris Exp $
+ RCS:           $Id: valseries.h,v 1.5 2007-01-17 09:07:26 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -48,14 +48,15 @@ template <class T>
 class OffsetValueSeries : public ValueSeries<T>
 {
 public:
-    		OffsetValueSeries( ValueSeries<T>& src, int64 off )
-		    : src_( src ), off_( off ) 	{}
+    inline		OffsetValueSeries( ValueSeries<T>& src, int64 off );
 
-    T		value( int64 idx ) const { return src_.value(idx+off_); }
-    void	setValue( int64 idx, T v ) const { src_.setValue(idx+off_,v); }
-    T*		arr() { T* p = src_.arr(); return p ? p+off_ : 0; }
-    const T*	arr() const { T* p = src_.arr(); return p ? p+off_ : 0; }
+    inline T		value( int64 idx ) const;
+    inline void		setValue( int64 idx, T v ) const;
+    inline T*		arr();
+    inline const T*	arr() const;
 
+    inline int64	getOffset() const;
+    inline void		setOffset(int64 no);
 
 protected:
     ValueSeries<T>&	src_;
@@ -92,6 +93,41 @@ protected:
     bool	mine_;
     int64	cursize_;
 };
+
+
+
+template <class T> inline
+OffsetValueSeries<T>::OffsetValueSeries( ValueSeries<T>& src, int64 off )
+    : src_( src ), off_( off )
+{}
+
+
+template <class T> inline
+T OffsetValueSeries<T>::value( int64 idx ) const
+{ return src_.value(idx+off_); }
+
+template <class T> inline
+void OffsetValueSeries<T>::setValue( int64 idx, T v ) const
+{ src_.setValue(idx+off_,v); }
+
+template <class T> inline
+T* OffsetValueSeries<T>::arr()
+{ T* p = src_.arr(); return p ? p+off_ : 0; }
+
+
+template <class T> inline
+const T* OffsetValueSeries<T>::arr() const
+{ T* p = src_.arr(); return p ? p+off_ : 0; }
+
+
+template <class T> inline
+int64 OffsetValueSeries<T>::getOffset() const
+{ return off_; }
+
+
+template <class T> inline
+void OffsetValueSeries<T>::setOffset(int64 no)
+{ off_ = no; }
 
 
 template <class T>
