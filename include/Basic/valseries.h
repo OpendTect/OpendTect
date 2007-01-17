@@ -7,12 +7,13 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril & Kris Tingdahl
  Date:          Mar 2005
- RCS:           $Id: valseries.h,v 1.5 2007-01-17 09:07:26 cvskris Exp $
+ RCS:           $Id: valseries.h,v 1.6 2007-01-17 09:30:41 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "gendefs.h"
+#include "errh.h"
 
 /*\brief Interface to a series of values
 
@@ -49,11 +50,13 @@ class OffsetValueSeries : public ValueSeries<T>
 {
 public:
     inline		OffsetValueSeries( ValueSeries<T>& src, int64 off );
+    inline		OffsetValueSeries( const ValueSeries<T>& src,int64 off);
 
     inline T		value( int64 idx ) const;
     inline void		setValue( int64 idx, T v ) const;
     inline T*		arr();
     inline const T*	arr() const;
+    inline bool		writable() const;
 
     inline int64	getOffset() const;
     inline void		setOffset(int64 no);
@@ -61,6 +64,7 @@ public:
 protected:
     ValueSeries<T>&	src_;
     int64		off_;
+    bool		writable_;
 };
 
 
@@ -98,7 +102,13 @@ protected:
 
 template <class T> inline
 OffsetValueSeries<T>::OffsetValueSeries( ValueSeries<T>& src, int64 off )
-    : src_( src ), off_( off )
+    : src_( src ), off_( off ), writable_(true) 
+{}
+
+
+template <class T> inline
+OffsetValueSeries<T>::OffsetValueSeries( const ValueSeries<T>& src, int64 off )
+    : src_( const_cast<ValueSeries<T>& >(src) ), off_( off ), writable_(false) 
 {}
 
 
@@ -108,7 +118,13 @@ T OffsetValueSeries<T>::value( int64 idx ) const
 
 template <class T> inline
 void OffsetValueSeries<T>::setValue( int64 idx, T v ) const
-{ src_.setValue(idx+off_,v); }
+{
+    if ( writable_ )
+	src_.setValue(idx+off_,v);
+    else
+	pErrMsg("Attempting to write to write-protected array");
+}
+
 
 template <class T> inline
 T* OffsetValueSeries<T>::arr()
@@ -128,6 +144,11 @@ int64 OffsetValueSeries<T>::getOffset() const
 template <class T> inline
 void OffsetValueSeries<T>::setOffset(int64 no)
 { off_ = no; }
+
+
+template <class T> inline
+bool OffsetValueSeries<T>::writable() const
+{ return writable_; }
 
 
 template <class T>
