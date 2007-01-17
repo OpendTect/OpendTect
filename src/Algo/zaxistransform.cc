@@ -4,7 +4,7 @@
  * DATE     : Oct 2005
 -*/
 
-static const char* rcsID = "$Id: zaxistransform.cc,v 1.8 2006-08-28 09:28:33 cvskris Exp $";
+static const char* rcsID = "$Id: zaxistransform.cc,v 1.9 2007-01-17 16:51:51 cvskris Exp $";
 
 #include "zaxistransform.h"
 
@@ -22,10 +22,12 @@ ZAxisTransform::~ZAxisTransform()
 { }
 
 
-int ZAxisTransform::addVolumeOfInterest( const CubeSampling&, bool ) { return -1; }
+int ZAxisTransform::addVolumeOfInterest( const CubeSampling&, bool )
+{ return -1; }
 
 
-void ZAxisTransform::setVolumeOfInterest( int, const CubeSampling&, bool ) {}
+void ZAxisTransform::setVolumeOfInterest( int, const CubeSampling&, bool )
+{}
 
 
 void ZAxisTransform::removeVolumeOfInterest( int ) {}
