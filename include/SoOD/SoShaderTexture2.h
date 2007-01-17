@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          Dec 2006
- RCS:           $Id: SoShaderTexture2.h,v 1.1 2006-12-28 22:18:37 cvskris Exp $
+ RCS:           $Id: SoShaderTexture2.h,v 1.2 2007-01-17 07:39:05 cvsdgb Exp $
 ________________________________________________________________________
 
 
@@ -22,31 +22,6 @@ class SbVec2s;
 class SoGLDisplayList;
 class SoFieldSensor;
 class SoSensor;
-
-
-/*!Extension of SoGLImage. Major difference is that it returns a custom
-   display image that binds our texture and sets the appropriate wrapping. */
-
-
-class SoGLShaderImage : public SoGLImage
-{
-public:
-			SoGLShaderImage();
-			~SoGLShaderImage();
-
-    bool		setTexture(const unsigned char* bytes,
-	    			const SbVec2s& size,
-	    			int numcomponents,Wrap wrapS, Wrap wrapT, int unit );
-
-    SoGLDisplayList*	getGLDisplayList(SoState * state);
-
-private:
-    SoGLDisplayList*	list_;
-    unsigned int	texname_;
-    SbVec2s		size_;
-    int			nc_;
-};
-
 
 
 class SoShaderTexture2: public SoNode
