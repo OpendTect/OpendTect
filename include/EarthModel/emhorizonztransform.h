@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		April 2006
- RCS:		$Id: emhorizonztransform.h,v 1.1 2007-01-15 14:45:21 cvskris Exp $
+ RCS:		$Id: emhorizonztransform.h,v 1.2 2007-01-18 16:52:47 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -30,7 +30,7 @@ public:
     			HorizonZTransform(const Horizon&);
     void		setHorizon(const Horizon&);
     ZType		getFromZType() const;
-    ZType		getToZType() const { return ZAxisTransform::Other; }
+    ZType		getToZType() const;
     void		transform(const BinID&,const SamplingData<float>&,
 				  int sz,float* res) const;
     void		transformBack(const BinID&,const SamplingData<float>&,

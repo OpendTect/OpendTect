@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: emhorizonztransform.cc,v 1.1 2007-01-15 14:45:21 cvskris Exp $
+ RCS:           $Id: emhorizonztransform.cc,v 1.2 2007-01-18 16:52:47 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,6 +50,12 @@ void HorizonZTransform::setHorizon( const Horizon& hor )
 
 
 ZAxisTransform::ZType HorizonZTransform::getFromZType() const
+{
+    return SI().zIsTime() ? ZAxisTransform::Time : ZAxisTransform::Depth;
+}
+
+
+ZAxisTransform::ZType HorizonZTransform::getToZType() const
 {
     return SI().zIsTime() ? ZAxisTransform::Time : ZAxisTransform::Depth;
 }
