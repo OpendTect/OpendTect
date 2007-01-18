@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uistepoutsel.h,v 1.4 2006-12-21 16:06:10 cvshelene Exp $
+ RCS:           $Id: uistepoutsel.h,v 1.5 2007-01-18 08:52:58 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -60,6 +60,7 @@ public:
     RowCol		getRowCol() const
 			{ return RowCol( val(true), val(false) ); }
     BinID		getBinID() const; //!< Similar remark as setBinID()
+    void		setMinValue(int);
 
 protected:
 

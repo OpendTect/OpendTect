@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uistepoutsel.cc,v 1.4 2006-12-21 16:06:10 cvshelene Exp $";
+static const char* rcsID = "$Id: uistepoutsel.cc,v 1.5 2007-01-18 08:52:58 cvshelene Exp $";
 
 #include "uistepoutsel.h"
 #include "uispinbox.h"
@@ -96,4 +96,12 @@ BinID uiStepOutSel::getBinID() const
 void uiStepOutSel::valChg( CallBacker* cb )
 {
     valueChanged.trigger( cb );
+}
+
+
+void uiStepOutSel::setMinValue( int minval )
+{
+    fld1->setMinValue( minval );
+    if ( dir2Active() )
+	fld2->setMinValue( minval );
 }
