@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2001
- RCS:           $Id: uishiftattrib.cc,v 1.12 2006-12-21 16:06:10 cvshelene Exp $
+ RCS:           $Id: uishiftattrib.cc,v 1.13 2007-01-18 08:54:04 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,34 +28,33 @@ mInitAttribUI(uiShiftAttrib,Shift,"Reference shift",sKeyPositionGrp)
 uiShiftAttrib::uiShiftAttrib( uiParent* p, bool is2d )
 	: uiAttrDescEd(p,is2d)
 {
-    inpfld = getInpFld();
+    inpfld_ = getInpFld();
 
-    stepoutfld = new uiStepOutSel( this, uiStepOutSel::Setup().seltxt("Shift"),
+    stepoutfld_ = new uiStepOutSel( this, uiStepOutSel::Setup().seltxt("Shift"),
 	    			   is2d );
-    stepoutfld->attach( alignedBelow, inpfld );
+    stepoutfld_->setMinValue(-100);
+    stepoutfld_->attach( alignedBelow, inpfld_ );
 
-    const char* zstr = zIsTime() ? "Time" : "Depth";
-    typefld = new uiGenInput( this, "Use", BoolInpSpec(zstr,"Steering") );
-    typefld->attach( alignedBelow, stepoutfld );
-    typefld->valuechanged.notify( mCB(this,uiShiftAttrib,shiftSel) );
-    typefld->setElemSzPol( uiObject::SmallVar );
+    timefld_ = new uiGenInput( this, zDepLabel(0,0), FloatInpSpec() );
+    timefld_->setElemSzPol(uiObject::Small);
+    timefld_->attach( rightTo, stepoutfld_ );
 
-    timefld = new uiGenInput( this, shiftLabel(), FloatInpSpec() );
-    timefld->attach( alignedBelow, typefld );
+    dosteerfld_ = new uiGenInput( this, "Use steering", BoolInpSpec() );
+    dosteerfld_->attach( alignedBelow, stepoutfld_ );
+    dosteerfld_->valuechanged.notify( mCB(this,uiShiftAttrib,steerSel) );
+    dosteerfld_->setElemSzPol( uiObject::SmallVar );
 
-    steerfld = new uiSteeringSel( this, 0 );
-    steerfld->attach( alignedBelow, typefld );
+    steerfld_ = new uiSteeringSel( this, 0 );
+    steerfld_->attach( alignedBelow, dosteerfld_ );
 
-    shiftSel(0);
-    setHAlignObj( inpfld );
+    steerSel(0);
+    setHAlignObj( inpfld_ );
 }
 
 
-void uiShiftAttrib::shiftSel( CallBacker* )
+void uiShiftAttrib::steerSel( CallBacker* )
 {
-    const bool dosteer = !typefld->getBoolValue();
-    timefld->display( !dosteer );
-    steerfld->display( dosteer );
+    steerfld_->display( dosteerfld_->getBoolValue() );
 }
 
 
@@ -64,19 +63,19 @@ bool uiShiftAttrib::setParameters( const Desc& desc )
     if ( strcmp(desc.attribName(),Shift::attribName()) )
 	return false;
 
-    mIfGetBinID( Shift::posStr(), pos, stepoutfld->setBinID(pos) );
-    mIfGetFloat( Shift::timeStr(), time, timefld->setValue(time) );
-    mIfGetBool( Shift::steeringStr(), steering, typefld->setValue(!steering) );
+    mIfGetBinID( Shift::posStr(), pos, stepoutfld_->setBinID(pos) );
+    mIfGetFloat( Shift::timeStr(), time, timefld_->setValue(time) );
+    mIfGetBool( Shift::steeringStr(), dosteer,	dosteerfld_->setValue(dosteer));
 
-    shiftSel(0);
+    steerSel(0);
     return true;
 }
 
 
 bool uiShiftAttrib::setInput( const Desc& desc )
 {
-    putInp( inpfld, desc, 0 );
-    putInp( steerfld, desc, 1 );
+    putInp( inpfld_, desc, 0 );
+    putInp( steerfld_, desc, 1 );
     return true;
 }
 
@@ -86,10 +85,10 @@ bool uiShiftAttrib::getParameters( Desc& desc )
     if ( strcmp(desc.attribName(),Shift::attribName()) )
 	return false;
 
-    const bool dotime = typefld->getBoolValue();
-    mSetFloat( Shift::timeStr(), dotime ? timefld->getfValue() : 0 );
-    mSetBool( Shift::steeringStr(), dotime ? false : steerfld->willSteer() );
-    mSetBinID( Shift::posStr(), stepoutfld->getBinID() );
+    const bool dosteering = dosteerfld_->getBoolValue();
+    mSetFloat( Shift::timeStr(), timefld_->getfValue() );
+    mSetBool( Shift::steeringStr(), dosteering ? steerfld_->willSteer() :false);
+    mSetBinID( Shift::posStr(), stepoutfld_->getBinID() );
 
     return true;
 }
@@ -97,8 +96,8 @@ bool uiShiftAttrib::getParameters( Desc& desc )
 
 bool uiShiftAttrib::getInput( Desc& desc )
 {
-    fillInp( inpfld, desc, 0 );
-    fillInp( steerfld, desc, 1 );
+    fillInp( inpfld_, desc, 0 );
+    fillInp( steerfld_, desc, 1 );
     return true;
 }
 
@@ -106,7 +105,6 @@ bool uiShiftAttrib::getInput( Desc& desc )
 void uiShiftAttrib::getEvalParams( TypeSet<EvalParam>& params ) const
 {
     BufferString str = zIsTime() ? "Time" : "Depth"; str += " shift";
-    if ( typefld->getBoolValue() )
-	params += EvalParam( str, Shift::timeStr() );
+    params += EvalParam( str, Shift::timeStr() );
     params += EvalParam( stepoutstr, Shift::posStr() );
 }

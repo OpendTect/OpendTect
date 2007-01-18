@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: shiftattrib.cc,v 1.21 2006-08-24 14:57:29 cvshelene Exp $";
+static const char* rcsID = "$Id: shiftattrib.cc,v 1.22 2007-01-18 08:54:04 cvshelene Exp $";
 
 #include "shiftattrib.h"
 #include "attribdataholder.h"
@@ -62,19 +62,16 @@ Shift::Shift( Desc& desc_ )
 
     stepout_ = BinID( abs(pos_.inl), abs(pos_.crl) );
 
+    interval_.start = time_<0 ? time_/zFactor() : 0;
+    interval_.stop = time_>0 ? time_/zFactor() : 0;
+
     if ( dosteer_ )
     {
 	float maxso = mMAX(stepout_.inl*inldist(),stepout_.crl*crldist());
-	interval_ = Interval<float>( -maxso*mMAXDIP, maxso*mMAXDIP );
+	interval_ = interval_ + Interval<float>(-maxso*mMAXDIP, maxso*mMAXDIP);
 	desinterval_ = Interval<float>( -maxso*mMAXDIPSECURE, 
 					maxso*mMAXDIPSECURE );
-	time_ = maxso * mMAXDIP * zFactor();
 	steeridx_ = getSteeringIndex( pos_ );
-    }
-    else
-    {
-	interval_.start = time_<0 ? time_/zFactor() : 0;
-	interval_.stop = time_>0 ? time_/zFactor() : 0;
     }
 }
 
@@ -130,16 +127,17 @@ bool Shift::computeData( const DataHolder& output, const BinID& relpos,
 
     for ( int idx=0; idx<nrsamples; idx++ )
     {
+	float tmpsampshift = sampleshift;
 	if ( dosteer_ && steeringdata_->series(steeridx_) )
 	{
 	    const int validx = idx + z0 - steeringdata_->z0_;
-	    sampleshift = steeringdata_->series(steeridx_)->value( validx );
+	    tmpsampshift += steeringdata_->series(steeridx_)->value( validx );
 	}
 
 	const ValueSeries<float>* curdata = inputdata_->series( dataidx_ );
 	const int cursample = z0 - inputdata_->z0_ + idx;
 	const float val = dointerpolate 
-			    ? interp.value( *curdata, cursample+sampleshift ) 
+			    ? interp.value( *curdata, cursample+tmpsampshift ) 
 			    : curdata->value( cursample+sampleidx );
 
 	output.series(0)->setValue( z0-output.z0_+idx, val );

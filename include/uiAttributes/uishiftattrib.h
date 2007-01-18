@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2001
- RCS:           $Id: uishiftattrib.h,v 1.6 2006-12-20 11:23:00 cvshelene Exp $
+ RCS:           $Id: uishiftattrib.h,v 1.7 2007-01-18 08:54:04 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,13 +33,13 @@ public:
 
 protected:
 
-    uiAttrSel*          inpfld;
-    uiStepOutSel*	stepoutfld;
-    uiGenInput*		typefld;
-    uiGenInput*		timefld;
-    uiSteeringSel*	steerfld;
+    uiAttrSel*          inpfld_;
+    uiStepOutSel*	stepoutfld_;
+    uiGenInput*		timefld_;
+    uiGenInput*		dosteerfld_;
+    uiSteeringSel*	steerfld_;
 
-    void		shiftSel(CallBacker*);
+    void		steerSel(CallBacker*);
     bool		setParameters(const Attrib::Desc&);
     bool		setInput(const Attrib::Desc&);
 
