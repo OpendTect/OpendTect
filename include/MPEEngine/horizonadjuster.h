@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          January 2005
- RCS:           $Id: horizonadjuster.h,v 1.19 2006-12-01 16:25:35 cvsjaap Exp $
+ RCS:           $Id: horizonadjuster.h,v 1.20 2007-01-18 09:02:26 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -87,6 +87,8 @@ protected:
 
 private:
 
+    const BinID		attrDataBinId( const BinID& bid ) const;
+
     bool		trackByAmplitude( const BinID& refbid,
 					  const BinID& targetbid,
 					  float& targetz ) const;
@@ -95,8 +97,8 @@ private:
 					  const BinID& targetbid,
 					  float& targetz ) const;
 
-    bool		findMaxSimilarity( const float* fixedarr,
-					   const float* slidingarr,
+    bool		findMaxSimilarity( const ValueSeries<float>& fixedarr,
+					   const ValueSeries<float>& slidingarr,
 					   int nrsamples, int nrtests,
 					   int step, int nrgracesamples,
 					   float& res, float& maxsim,

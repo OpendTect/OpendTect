@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizonadjuster.cc,v 1.36 2007-01-16 14:31:15 cvsjaap Exp $";
+static const char* rcsID = "$Id: horizonadjuster.cc,v 1.37 2007-01-18 09:02:26 cvsjaap Exp $";
 
 #include "horizonadjuster.h"
 
@@ -173,8 +173,8 @@ int HorizonAdjuster::nextStep()
 }
 
 
-bool HorizonAdjuster::findMaxSimilarity( const float* fixedarr,
-					 const float* slidingarr,
+bool HorizonAdjuster::findMaxSimilarity( const ValueSeries<float>& fixedarr,
+					 const ValueSeries<float>& slidearr,
 					 int nrsamples, int nrtests, int step,
 					 int nrgracetests,
        					 float& res, float& maxsim,
@@ -186,8 +186,12 @@ bool HorizonAdjuster::findMaxSimilarity( const float* fixedarr,
     int gracecount = 0;
     int nreqsamples = 0;
 
-    for ( int idx=0; idx<nrtests; idx++, slidingarr += step )
+    for ( int idx=0; idx<nrtests; idx++ ) //, slidingarr += step )
     {
+
+	const OffsetValueSeries<float> 
+	      slidingarr( const_cast<ValueSeries<float>&>(slidearr), idx*step );
+
 	const float sim = similarity( fixedarr, slidingarr, nrsamples, false,
 				      0, 0 );
 
@@ -261,6 +265,13 @@ bool HorizonAdjuster::is2D() const
 }
 
 
+const BinID HorizonAdjuster::attrDataBinId( const BinID& bid ) const 
+{
+    return is2D() && attrdata_->getInlSz()==1 ? 
+	   BinID( attrdata_->inlsampling.start, bid.crl ) : bid;
+}
+
+
 bool HorizonAdjuster::snap( const BinID& bid,
 			    float threshold,
 			    float& targetz ) const
@@ -272,13 +283,13 @@ bool HorizonAdjuster::snap( const BinID& bid,
     if ( !zrg.includes(targetz) )
 	return false;
 
-    const int inlidx = is2D() && attrdata_->getInlSz()==1 ? 0 :
-		       attrdata_->inlsampling.nearestIndex( bid.inl );
-
+    const int inlidx = 
+		attrdata_->inlsampling.nearestIndex( attrDataBinId(bid).inl );
     if ( inlidx<0 || inlidx>=attrdata_->getInlSz() )
 	return false;
 
-    const int crlidx = attrdata_->crlsampling.nearestIndex( bid.crl );
+    const int crlidx = 
+		attrdata_->crlsampling.nearestIndex( attrDataBinId(bid).crl );
     if ( crlidx<0 || crlidx>=attrdata_->getCrlSz() )
 	return false;
 
@@ -444,10 +455,10 @@ bool HorizonAdjuster::trackByAmplitude( const BinID& refbid,
 
     const float refdepth =
 		horizon_.getPos( sectionid_, refbid.getSerialized() ).z;
+    const BinIDValue refbidval( attrDataBinId(refbid), refdepth );
 
     float threshold;
-    
-    if ( !attrdata_->getValue(0, BinIDValue(refbid,refdepth), &threshold,true) )
+    if ( !attrdata_->getValue(0, refbidval, &threshold,true) )
 	return false;
 
     threshold *= (1-allowedvar_);
@@ -475,8 +486,9 @@ bool HorizonAdjuster::trackByAmplitude( const BinID& refbid,
     if ( prefix##rg.start<0 || prefix##rg.stop>=attrdata_->getZSz()-1 ) \
 	return false; \
  \
-    const float* prefix##arr = cube.getData() + \
-       cube.info().getMemPos(prefix##inlidx,prefix##crlidx,prefix##rg.start )
+    OffsetValueSeries<float> prefix##arr( \
+	const_cast<ValueSeries<float>&>( *cube.getStorage() ), \
+	cube.info().getMemPos(prefix##inlidx,prefix##crlidx,prefix##rg.start ))
 
 bool HorizonAdjuster::trackBySimilarity( const BinID& trefbid,
 					 const BinID& targetbid,
@@ -499,15 +511,17 @@ bool HorizonAdjuster::trackBySimilarity( const BinID& trefbid,
 	    			   mNINT(permzrange_.stop/zstep) );
 
     mGetArray( target, similarityrg+testrange );
+    //targetarr.setOffset( targetarr.getOffset()-testrange.start );
+    OffsetValueSeries<float> slidearr( targetarr, -testrange.start );
 
     float upsample, upsim; bool upflatstart;
-    const bool findup = findMaxSimilarity( refarr, targetarr-testrange.start,
-	    				   simlength, -testrange.start+1,
-					   -1, 1, upsample, upsim, upflatstart);
+    const bool findup = findMaxSimilarity( refarr, slidearr, simlength, 
+	    				   -testrange.start+1, -1, 1, 
+					   upsample, upsim, upflatstart);
     float dnsample, dnsim; bool dnflatstart;
-    const bool finddn = findMaxSimilarity( refarr, targetarr-testrange.start,
-	    				   simlength, testrange.stop+1,
-					   1, 1, dnsample, dnsim, dnflatstart);
+    const bool finddn = findMaxSimilarity( refarr, slidearr, simlength, 
+					   testrange.stop+1, 1, 1, 
+					   dnsample, dnsim, dnflatstart);
 
     float bestmatch;
     if ( findup && finddn )
