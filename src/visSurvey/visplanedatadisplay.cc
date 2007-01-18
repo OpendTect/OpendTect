@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.153 2007-01-17 10:33:06 cvshelene Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.154 2007-01-18 17:09:14 cvskris Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -1090,7 +1090,8 @@ void PlaneDataDisplay::getMousePosInfo( const visBase::EventInfo&,
     val = "undef";
     BufferString valname;
 
-    const BinIDValue bidv( SI().transform(pos), pos.z );
+    BinIDValue bidv( SI().transform(pos), pos.z );
+    if ( datatransform_ ) bidv.value = datatransform_->transformBack( bidv );
     for ( int idx=as_.size()-1; idx>=0; idx-- )
     {
 	if ( !isAttribEnabled(idx) ||
