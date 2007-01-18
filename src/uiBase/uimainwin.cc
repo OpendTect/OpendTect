@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.109 2006-11-21 14:00:07 cvsbert Exp $
+ RCS:           $Id: uimainwin.cc,v 1.110 2007-01-18 11:49:03 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -462,11 +462,11 @@ uiMainWin::uiMainWin( const char* nm )
 uiMainWin::~uiMainWin()
 { delete body_; }
 
+QWidget* uiMainWin::qWidget() const
+{ return body_; }
 
 void uiMainWin::provideHelp( const char* winid )
-{
-    HelpViewer::use( HelpViewer::getURLForWinID(winid) );
-}
+{ HelpViewer::use( HelpViewer::getURLForWinID(winid) ); }
 
 uiStatusBar* uiMainWin::statusBar()		{ return body_->uistatusbar(); }
 uiMenuBar* uiMainWin::menuBar()			{ return body_->uimenubar(); }
@@ -490,6 +490,8 @@ void uiMainWin::removeDockWindow( uiParent* parnt )
     body_->removeDockWindow( (mQDockWindow*)parnt->pbody()->managewidg() );
 }
 
+void uiMainWin::addDockWindow( uiDockWin& dwin, Dock d )
+{ body_->addDockWindow( dwin.qwidget(), body_->qdock(d) ); }
 
 uiGroup* uiMainWin::topGroup()	    	   { return body_->uiCentralWidg(); }
 

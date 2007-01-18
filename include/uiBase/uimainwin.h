@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.h,v 1.41 2005-11-16 12:46:55 cvsarend Exp $
+ RCS:           $Id: uimainwin.h,v 1.42 2007-01-18 11:48:35 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -83,8 +83,9 @@ public:
 			//! automatically set by uiMain::setTopLevel
     void		setExitAppOnClose( bool yn );
 
-    void		moveDockWindow( uiDockWin&, Dock d=Top, int index=-1);
+    void		moveDockWindow(uiDockWin&,Dock d=Top,int index=-1);
     void		removeDockWindow(uiParent*);
+    void		addDockWindow(uiDockWin&,Dock);
     uiPopupMenu&	createDockWindowMenu();
 
     Notifier<uiMainWin>	finaliseStart;
@@ -104,6 +105,7 @@ public:
     bool		touch(); //!< resets pop-up timer if !poppedUp yet
     bool		finalised() const;
     virtual uiMainWin*	mainwin()				{ return this; }
+    QWidget*		qWidget() const;
 
     			//Toolbar functions
     void		useBigPixmaps(bool);
