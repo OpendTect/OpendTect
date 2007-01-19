@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2006
- RCS:           $Id: uitblimpexpdatasel.cc,v 1.23 2007-01-17 17:30:04 cvsbert Exp $
+ RCS:           $Id: uitblimpexpdatasel.cc,v 1.24 2007-01-19 16:06:05 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -416,8 +416,8 @@ void uiTableFormatDescFldsEd::saveFmt( CallBacker* )
 	     .deflt( ds_.fmtname_ )
 	     .dlgtitle( "Enter a name for the format" );
     uiGetObjectName dlg( this, listsetup );
-    static const char* strs[] = { "In survey only",
-				  "In all surveys",
+    static const char* strs[] = { "In all surveys",
+				  "In survey only",
 				  "By me only" };
     uiGenInput* srcfld = new uiGenInput( &dlg, "Store for use",
 	    				 StringListInpSpec(strs) );
