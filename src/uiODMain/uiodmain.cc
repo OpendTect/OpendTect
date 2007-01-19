@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodmain.cc,v 1.53 2007-01-16 08:47:03 cvsnanne Exp $
+ RCS:           $Id: uiodmain.cc,v 1.54 2007-01-19 16:16:51 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -187,7 +187,7 @@ bool uiODMain::buildUI()
     }
 
     ctabwin = new uiDockWin( this, "Color Table" );
-    ctabwin->setCloseMode( 2 );
+    ctabwin->setCloseMode( uiDockWin::Undocked );
     ctabwin->setResizeEnabled( true );
 
     ctabed = new uiVisColTabEd( ctabwin, isvert );
