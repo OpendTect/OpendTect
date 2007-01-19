@@ -7,15 +7,17 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          May 2004
- RCS:           $Id: vishorizondisplay.h,v 1.12 2007-01-16 14:28:53 cvsjaap Exp $
+ RCS:           $Id: vishorizondisplay.h,v 1.13 2007-01-19 08:31:07 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
-
 #include "visemobjdisplay.h"
+
 class Executor;
+
+namespace visBase { class ParametricSurface; }
 
 namespace visSurvey
 {
@@ -28,6 +30,9 @@ public:
 				mCreateDataObj( HorizonDisplay );
     void			setDisplayTransformation(mVisTrans*);
     void			setSceneEventCatcher(visBase::EventCatcher*);
+
+    bool			setDataTransform(ZAxisTransform*);
+    const ZAxisTransform*	getDataTransform() const;
 
 
     bool			setEMObject(const EM::ObjectID&);
@@ -136,11 +141,14 @@ protected:
 
     ObjectSet<EdgeLineSetDisplay>	edgelinedisplays_;
 
-    ObjectSet<visBase::VisualObject>	sections_;
+    ObjectSet<visBase::ParametricSurface> sections_;
     TypeSet<EM::SectionID>		sids_;
 
     ObjectSet<visBase::IndexedPolyLine>	intersectionlines_;
     TypeSet<int>			intersectionlineids_;
+    TypeSet<int>			intersectionlinevoi_;
+
+    ZAxisTransform*			zaxistransform_;
 
     StepInterval<int>			parrowrg_;
     StepInterval<int>			parcolrg_;

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: vishorizondisplay.cc,v 1.23 2007-01-16 14:34:44 cvsjaap Exp $
+ RCS:           $Id: vishorizondisplay.cc,v 1.24 2007-01-19 08:31:07 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,6 +32,7 @@ ________________________________________________________________________
 #include "iopar.h"
 #include "emsurfaceauxdata.h"
 #include "emsurfaceedgeline.h"
+#include "zaxistransform.h"
 
 #include <math.h>
 
@@ -72,6 +73,7 @@ HorizonDisplay::HorizonDisplay()
     , burstalertison_( false )
     , postponedupdates_( 0 )
     , resolution_( 0 )
+    , zaxistransform_( 0 )
 {
     as_ += new Attrib::SelSpec;
     coltabs_ += visBase::VisColorTab::create();
@@ -94,6 +96,13 @@ HorizonDisplay::~HorizonDisplay()
     }
 
     removeEMStuff();
+    if ( zaxistransform_ )
+    {
+	for ( int idx=0; idx<intersectionlinevoi_.size(); idx++ )
+	    zaxistransform_->removeVolumeOfInterest(intersectionlinevoi_[idx]);
+
+	zaxistransform_->unRef();
+    }
 }
 
 
@@ -110,6 +119,25 @@ void HorizonDisplay::setDisplayTransformation( mVisTrans* nt )
     for ( int idx=0; idx<intersectionlines_.size(); idx++ )
 	intersectionlines_[idx]->setDisplayTransformation(transformation_);
 }
+
+
+bool HorizonDisplay::setDataTransform( ZAxisTransform* nz )
+{
+    if ( zaxistransform_ ) zaxistransform_->unRef();
+    zaxistransform_ = nz;
+    if ( zaxistransform_ ) zaxistransform_->ref();
+
+    for ( int idx=0; idx<sections_.size(); idx++ )
+    {
+	sections_[idx]->setZAxisTransform( nz );
+    }
+
+    return true;
+}
+
+
+const ZAxisTransform* HorizonDisplay::getDataTransform() const
+{ return zaxistransform_; }
 
 
 void HorizonDisplay::setSceneEventCatcher(visBase::EventCatcher* ec)
@@ -189,6 +217,10 @@ void HorizonDisplay::removeEMStuff()
 	intersectionlines_[0]->unRef();
 	intersectionlines_.remove(0);
 	intersectionlineids_.remove(0);
+	if ( zaxistransform_ )
+	    zaxistransform_->removeVolumeOfInterest( intersectionlinevoi_[0] );
+	intersectionlinevoi_.remove(0);
+
     }
 
     mDynamicCastGet( EM::Horizon*, emhorizon, emobject_ );
@@ -1045,12 +1077,15 @@ void HorizonDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
  \
 	BinID prevbid( bid ); prevbid[slowdim] = prev##linetype; \
 	BinID nextbid( bid ); nextbid[slowdim] = next##linetype; \
-	const Coord3 prevpos(horizon->getPos(sid,prevbid.getSerialized())); \
+	Coord3 prevpos(horizon->getPos(sid,prevbid.getSerialized())); \
+	if ( zaxistransform_ ) prevpos.z =zaxistransform_->transform(prevpos); \
 	Coord3 pos = prevpos; \
 	if ( nextbid!=prevbid && prevpos.isDefined() ) \
 	{ \
-	    const Coord3 nextpos = \
+	    Coord3 nextpos = \
 		horizon->getPos(sid,nextbid.getSerialized()); \
+	    if ( zaxistransform_ ) nextpos.z = \
+	    	zaxistransform_->transform(nextpos); \
 	    if ( nextpos.isDefined() ) \
 	    { \
 		pos += nextpos; \
@@ -1129,6 +1164,13 @@ void HorizonDisplay::updateIntersectionLines(
 	    lineshouldexist.remove(idx);
 	    intersectionlines_.remove(idx);
 	    intersectionlineids_.remove(idx);
+	    if ( zaxistransform_ )
+	    {
+		zaxistransform_->removeVolumeOfInterest(
+			intersectionlinevoi_[idx] );
+	    }
+
+	    intersectionlinevoi_.remove(idx);
 	    idx--;
 	}
     }
@@ -1152,6 +1194,7 @@ void HorizonDisplay::updateIntersectionLines(
 	{
 	    lineidx = intersectionlineids_.size();
 	    intersectionlineids_ += linestoupdate[idx];
+	    intersectionlinevoi_ += -2;
 	    visBase::IndexedPolyLine* newline =
 		visBase::IndexedPolyLine::create();
 	    newline->ref();
@@ -1159,6 +1202,30 @@ void HorizonDisplay::updateIntersectionLines(
 	    intersectionlines_ += newline;
 	    addChild( newline->getInventorNode() );
 	}
+
+	if ( zaxistransform_ )
+	{
+	    if ( intersectionlinevoi_[lineidx]==-2 )
+	    {
+		intersectionlinevoi_[lineidx] =
+		    zaxistransform_->addVolumeOfInterest(cs,true);
+	    }
+	    else
+	    {
+		zaxistransform_->setVolumeOfInterest(
+			intersectionlinevoi_[lineidx],cs,true);
+	    }
+
+	    if ( intersectionlinevoi_[lineidx]>=0 )
+	    {
+		zaxistransform_->loadDataIfMissing(
+			intersectionlinevoi_[lineidx] );
+	    }
+	}
+	    
+
+	
+
 
 	visBase::IndexedPolyLine* line = intersectionlines_[lineidx];
 	line->getCoordinates()->removeAfter(-1);
@@ -1248,7 +1315,7 @@ void HorizonDisplay::otherObjectsMoved(
 { 
     if ( burstalertison_ && whichobj==id() )
     {
-	postponedupdates_++;
+	postponedupdates_++;-2;
 	return; 
     }
     
