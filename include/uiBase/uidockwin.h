@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          13/02/2002
- RCS:           $Id: uidockwin.h,v 1.11 2007-01-15 15:20:56 cvsnanne Exp $
+ RCS:           $Id: uidockwin.h,v 1.12 2007-01-19 16:16:05 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -48,9 +48,11 @@ public:
     void		setResizeEnabled(bool);
     bool		isResizeEnabled() const;
 
-    void		setCloseMode(int);
-			/*!< 0: Never; 1: Docked; 2: Undocked; 3: Always */
-    int			closeMode() const;
+    enum CloseMode	{ Never, Docked, Undocked, Always };
+    void		setCloseMode(CloseMode);
+    CloseMode		closeMode() const;
+    void		dock();
+    void		undock();
 
     mQDockWindow*	qwidget();
 

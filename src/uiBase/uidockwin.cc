@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          13/02/2002
- RCS:           $Id: uidockwin.cc,v 1.20 2007-01-15 15:20:56 cvsnanne Exp $
+ RCS:           $Id: uidockwin.cc,v 1.21 2007-01-19 16:16:05 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -185,11 +185,14 @@ void uiDockWin::setResizeEnabled( bool yn )
 bool uiDockWin::isResizeEnabled() const
 { return body_->isResizeEnabled(); }
 
-void uiDockWin::setCloseMode( int mode )
-{ body_->setCloseMode( mode ); }
+void uiDockWin::setCloseMode( CloseMode mode )
+{ body_->setCloseMode( (int)mode ); }
 
-int uiDockWin::closeMode() const
-{ return body_->closeMode(); }
+uiDockWin::CloseMode uiDockWin::closeMode() const
+{ return (uiDockWin::CloseMode)body_->closeMode(); }
+
+void uiDockWin::dock()		{ body_->dock(); }
+void uiDockWin::undock()	{ body_->undock(); }
 
 mQDockWindow* uiDockWin::qwidget()
 { return body_; }
