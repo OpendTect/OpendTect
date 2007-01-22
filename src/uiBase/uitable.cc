@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.cc,v 1.49 2006-10-05 15:38:56 cvsbert Exp $
+ RCS:           $Id: uitable.cc,v 1.50 2007-01-22 12:14:41 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -103,10 +103,6 @@ public:
 				const int prefh = rowh * (prefNrLines-1) + 30;
 				setPrefHeight( mMIN(prefh,200) );
 			    }
-
-			    int hs = stretch(true);
-			    if ( stretch(false) != 1 )
-				setStretch( hs, ( nrTxtLines()== 1) ? 0 : 2 );
 			}
 
     virtual int 	nrTxtLines() const
