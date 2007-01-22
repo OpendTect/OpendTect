@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2006
- RCS:           $Id: uitblimpexpdatasel.cc,v 1.24 2007-01-19 16:06:05 cvsnanne Exp $
+ RCS:           $Id: uitblimpexpdatasel.cc,v 1.25 2007-01-22 16:39:19 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -410,16 +410,17 @@ void uiTableFormatDescFldsEd::saveFmt( CallBacker* )
 
     BufferStringSet nms;
     Table::FFR().getFormats( fd_.name(), nms );
+    nms.sort();
 
     uiGetObjectName::Setup listsetup( "Save format", nms );
     listsetup.inptxt( "Name for format" )
 	     .deflt( ds_.fmtname_ )
 	     .dlgtitle( "Enter a name for the format" );
     uiGetObjectName dlg( this, listsetup );
-    static const char* strs[] = { "In all surveys",
-				  "In survey only",
-				  "By me only" };
-    uiGenInput* srcfld = new uiGenInput( &dlg, "Store for use",
+    static const char* strs[] = { "All surveys",
+				  "This survey only",
+				  "My user ID only" };
+    uiGenInput* srcfld = new uiGenInput( &dlg, "Store for",
 	    				 StringListInpSpec(strs) );
     srcfld->attach( alignedBelow, dlg.inpFld() );
     if ( dlg.go() )
@@ -481,6 +482,8 @@ void addEntry( Table::TargetInfo* tinf )
     if ( boxes_.size() > 0 )
 	lcb->attach( alignedBelow, boxes_[ boxes_.size()-1 ] );
     boxes_ += lcb;
+    if ( tinf->selection_.unit_ )
+	lcb->box()->setCurrentItem( tinf->selection_.unit_->name() );
 }
 
 
@@ -609,6 +612,7 @@ void uiTableImpDataSel::openFmt( CallBacker* )
 	uiMSG().error( "No pre- or user-defined formats available" );
 	return;
     }
+    avfmts.sort();
 
     uiSelectFromList::Setup listsetup( "Retrieve data format", avfmts );
     listsetup.dlgtitle( "Select a format to retrieve" );
@@ -623,8 +627,8 @@ void uiTableImpDataSel::openFmt( CallBacker* )
     fd_.usePar( *iop );
     hdrtokfld_->setText( fd_.token_ );
     const int nrlns = fd_.nrHdrLines();
-    hdrtypefld_->setValue( nrlns < 0 ? 2 : (nrlns == 0 ? 0 : 1) );
-    hdrlinesfld_->setValue( nrlns < 1 ? 1 : nrlns );
+    hdrtypefld_->setValue( fd_.needToken() ? 2 : (nrlns == 0 ? 0 : 1) );
+    hdrlinesfld_->setValue( mIsUdf(nrlns) || nrlns < 1 ? 1 : nrlns );
 
     typChg( 0 );
     storediop_.clear(); fd_.fillPar( storediop_ );
