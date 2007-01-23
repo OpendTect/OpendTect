@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvinfoed.cc,v 1.85 2007-01-15 10:58:33 cvsbert Exp $
+ RCS:           $Id: uisurvinfoed.cc,v 1.86 2007-01-23 09:29:20 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,6 +20,7 @@ ________________________________________________________________________
 #include "oddirs.h"
 #include "ptrman.h"
 #include "survinfo.h"
+#include "statrand.h"
 
 #include "uibutton.h"
 #include "uicombobox.h"
@@ -375,7 +376,11 @@ const char* uiSurveyInfoEditor::newSurvTempDirName()
     static BufferString nm;
     nm = "_New_Survey_";
     const char* usr = GetSoftwareUser();
-    if ( usr ) nm += usr;
+    if ( usr )
+	{ nm += usr; nm += "_"; }
+    nm += GetPID();
+    Stats::RandGen::init();
+    nm += Stats::RandGen::getIndex(1000000);
     return nm.buf();
 }
 
