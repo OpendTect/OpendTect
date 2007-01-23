@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra and Helene Huck
  Date:		January 2007
- RCS:		$Id: attribdatapack.h,v 1.2 2007-01-23 15:25:53 cvshelene Exp $
+ RCS:		$Id: attribdatapack.h,v 1.3 2007-01-23 15:30:31 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,8 +37,8 @@ public:
     const Array2D<float>&	data() const;
     void			positioning(FlatDisp::PosData&);
 
-    float			nrKBytes() const;
-    void			dumpInfo(IOPar&) const;
+//    float			nrKBytes() const;
+//    void			dumpInfo(IOPar&) const;
 
 protected:
 
