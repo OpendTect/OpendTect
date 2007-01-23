@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.cc,v 1.71 2007-01-12 09:59:51 cvshelene Exp $
+ RCS:           $Id: uiodmenumgr.cc,v 1.72 2007-01-23 15:34:14 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -175,6 +175,7 @@ void uiODMenuMgr::fillSurveyMenu()
     uiPopupMenu* sessionitm = new uiPopupMenu( &appl_, "S&ession");
     mInsertItem( sessionitm, "&Save ...", mSessSaveMnuItm );
     mInsertItem( sessionitm, "&Restore ...", mSessRestMnuItm );
+    mInsertItem( sessionitm, "&Auto ...", mSessAutoMnuItm );
     surveymnu_->insertItem( sessionitm );
     surveymnu_->insertSeparator();
 
@@ -487,6 +488,7 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mSessSaveMnuItm: 	appl_.saveSession(); break;
     case mSessRestMnuItm: 	{ appl_.restoreSession(); 
 				  timer_.start(200,true);  break; }
+    case mSessAutoMnuItm: 	appl_.autoSession(); break;
     case mImpSeisSEGY3DMnuItm:	mDoOp(Imp,Seis,0); break;
     case mImpSeisSEGY2DMnuItm:	mDoOp(Imp,Seis,1); break;
     case mImpSeisSEGYPSMnuItm:	mDoOp(Imp,Seis,2); break;

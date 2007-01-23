@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: odsession.h,v 1.5 2006-12-14 14:30:51 cvshelene Exp $
+ RCS:		$Id: odsession.h,v 1.6 2007-01-23 15:34:14 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -39,6 +39,9 @@ public:
     bool		usePar(const IOPar&);
     void		fillPar(IOPar& par) const;
 
+    static void		getStartupData(bool& douse,MultiID&);
+    static void		setStartupData(bool,const MultiID&);
+
 protected:
 
     IOPar		vispars_;
@@ -58,6 +61,9 @@ protected:
     static const char*	nlaprefix;
     static const char*	trackprefix;
     static const char*	pluginprefix;
+
+    static const char*	sKeyUseStartup;
+    static const char*	sKeyStartupID;
 };
 
 

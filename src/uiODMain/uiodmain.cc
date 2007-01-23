@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodmain.cc,v 1.54 2007-01-19 16:16:51 cvsnanne Exp $
+ RCS:           $Id: uiodmain.cc,v 1.55 2007-01-23 15:34:14 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,6 +26,8 @@ ________________________________________________________________________
 #include "ui2dsip.h"
 #include "uicursor.h"
 #include "uiioobjsel.h"
+#include "uigeninput.h"
+#include "uilabel.h"
 #include "uisetdatadir.h"
 #include "uipluginsel.h"
 #include "uimsg.h"
@@ -38,6 +40,7 @@ ________________________________________________________________________
 #include "plugins.h"
 #include "envvars.h"
 #include "odsessionfact.h"
+#include "timer.h"
 
 static const int cCTHeight = 200;
 
@@ -109,6 +112,8 @@ uiODMain::uiODMain( uicMain& a )
 
     if ( buildUI() )
 	failed = false;
+
+    IOM().afterSurveyChange.notify( mCB(this,uiODMain,handleStartupSession) );
 }
 
 
@@ -262,15 +267,97 @@ void uiODMain::restoreSession()
 {
     CtxtIOObj* ctio = getUserSessionIOData( true );
     if ( !ctio ) { delete ctio; return; }
+    restoreSession(ctio->ioobj);
+    mDelCtioRet()
+}
+
+
+class uiODMainAutoSessionDlg : public uiDialog
+{
+public:
+
+uiODMainAutoSessionDlg( uiODMain* p )
+    : uiDialog(p,uiDialog::Setup("Auto-load session","Set auto-load session"))
+    , ctio_(*mMkCtxtIOObj(ODSession))
+{
+    bool douse = false; MultiID id;
+    ODSession::getStartupData( douse, id );
+
+    usefld_ = new uiGenInput( this, "Enable auto-load sessions", BoolInpSpec());
+    usefld_->setValue( douse );
+    usefld_->valuechanged.notify( mCB(this,uiODMainAutoSessionDlg,useChg) );
+
+    ctio_.setObj( id ); ctio_.ctxt.forread = true;
+    selgrp_ = new uiIOObjSelGrp( this, ctio_ );
+    selgrp_->attach( alignedBelow, usefld_ );
+    uiLabel* lbl = new uiLabel( this, "Session to use" );
+    lbl->attach( centeredLeftOf, selgrp_ );
+
+    loadnowfld_ = new uiGenInput( this, "Load selected session now",
+	    			  BoolInpSpec());
+    loadnowfld_->attach( alignedBelow, selgrp_ );
+
+    finaliseDone.notify( mCB(this,uiODMainAutoSessionDlg,useChg) );
+}
+
+~uiODMainAutoSessionDlg()
+{
+    delete ctio_.ioobj; delete &ctio_;
+}
+
+void useChg( CallBacker* )
+{
+    const bool douse = usefld_->getBoolValue();
+    selgrp_->display( douse );
+    loadnowfld_->display( douse );
+}
+
+
+bool acceptOK( CallBacker* )
+{
+    const bool douse = usefld_->getBoolValue();
+    selgrp_->processInput();
+    if ( douse && selgrp_->nrSel() < 1 )
+	{ uiMSG().error("Please select a session"); return false; }
+    if ( selgrp_->nrSel() > 0 )
+	ctio_.setObj( selgrp_->selected(0) );
+
+    const MultiID id( ctio_.ioobj ? ctio_.ioobj->key() : MultiID("") );
+    ODSession::setStartupData( douse, id );
+
+    return true;
+}
+
+    CtxtIOObj&		ctio_;
+
+    uiGenInput*		usefld_;
+    uiGenInput*		loadnowfld_;
+    uiIOObjSelGrp*	selgrp_;
+
+};
+
+
+void uiODMain::autoSession()
+{
+    uiODMainAutoSessionDlg dlg( this );
+    if ( dlg.go() )
+    {
+	if ( dlg.loadnowfld_->getBoolValue() && dlg.ctio_.ioobj )
+	    handleStartupSession(0);
+    }
+}
+
+
+void uiODMain::restoreSession( const IOObj* ioobj )
+{
     ODSession sess; BufferString bs;
-    if ( !ODSessionTranslator::retrieve(sess,ctio->ioobj,bs) )
-	{ uiMSG().error( bs ); mDelCtioRet(); }
+    if ( !ODSessionTranslator::retrieve(sess,ioobj,bs) )
+	{ uiMSG().error( bs ); return; }
 
     cursession = &sess;
     doRestoreSession();
     cursession = &lastsession; lastsession.clear();
     ctabed->updateColTabList();
-    mDelCtioRet()
 }
 
 
@@ -323,12 +410,30 @@ void uiODMain::doRestoreSession()
 }
 
 
+void uiODMain::handleStartupSession( CallBacker* )
+{
+    bool douse = false; MultiID id;
+    ODSession::getStartupData( douse, id );
+    if ( !douse || id == "" )
+	return;
+
+    PtrMan<IOObj> ioobj = IOM().get( id );
+    if ( !ioobj ) return;
+
+    restoreSession( ioobj );
+    sceneMgr().layoutScenes();
+}
+
+
 bool uiODMain::go()
 {
     if ( failed ) return false;
 
     show();
     uiSurvey::updateViewsGlobal();
+    Timer tm( "Auto session restore timer" );
+    tm.tick.notify( mCB(this,uiODMain,handleStartupSession) );
+    tm.start( 200, true );
     int rv = uiapp.exec();
     delete applmgr; applmgr = 0;
     return rv ? false : true;

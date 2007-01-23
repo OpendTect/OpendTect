@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmain.h,v 1.13 2007-01-09 20:16:32 cvskris Exp $
+ RCS:           $Id: uiodmain.h,v 1.14 2007-01-23 15:34:14 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "uimainwin.h"
 
 class IOPar;
+class IOObj;
 class uicMain;
 class uiODMain;
 class ODSession;
@@ -62,6 +63,7 @@ public:
     						  last saved. */
     void		saveSession();	//!< pops up the save session dialog
     void		restoreSession(); //!< pops up the restore session dlg
+    void		autoSession(); //!< pops up the auto session dlg
 
 protected:
 
@@ -77,6 +79,8 @@ protected:
     bool		failed;
 
     virtual bool	closeOK();
+    void		handleStartupSession(CallBacker*);
+    void		restoreSession(const IOObj*);
 
 private:
 

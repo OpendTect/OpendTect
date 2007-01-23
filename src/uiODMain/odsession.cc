@@ -4,13 +4,15 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: odsession.cc,v 1.14 2006-12-15 14:35:22 cvsnanne Exp $";
+static const char* rcsID = "$Id: odsession.cc,v 1.15 2007-01-23 15:34:14 cvsbert Exp $";
 
 #include "odsession.h"
 #include "ptrman.h"
 #include "ioobj.h"
 #include "iopar.h"
 #include "ascstream.h"
+#include "settings.h"
+#include "survinfo.h"
 
 
 const char* ODSession::visprefix = "Vis";
@@ -21,6 +23,8 @@ const char* ODSession::attr3dprefix = "3D.Attribs";
 const char* ODSession::nlaprefix = "NLA";
 const char* ODSession::trackprefix = "Tracking";
 const char* ODSession::pluginprefix = "Plugins";
+const char* ODSession::sKeyUseStartup = "dTect.Use startup session";
+const char* ODSession::sKeyStartupID = "Session.Auto ID";
 
 
 void ODSession::clear()
@@ -124,6 +128,33 @@ IOPar& ODSession::attrpars( bool is2d )
 	return attrpars2d_;
     else
 	return attrpars3d_;
+}
+
+
+void ODSession::getStartupData( bool& douse, MultiID& id )
+{
+    Settings::common().getYN( sKeyUseStartup, douse );
+    id = SI().pars().find( sKeyStartupID );
+}
+
+
+void ODSession::setStartupData( bool douse, const MultiID& id )
+{
+    bool curuse = false;
+    Settings::common().getYN( sKeyUseStartup, curuse );
+    if ( curuse != douse )
+    {
+	Settings::common().setYN( sKeyUseStartup, curuse );
+	Settings::common().write();
+    }
+
+    IOPar& sipars = SI().pars();
+    MultiID cursess( sipars.find( sKeyStartupID ) );
+    if ( cursess != id )
+    {
+	sipars.set( sKeyStartupID, (const char*)id );
+	SI().savePars();
+    }
 }
 
 
