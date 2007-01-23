@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		3-8-1995
- RCS:		$Id: ioman.h,v 1.32 2007-01-08 17:06:18 cvsbert Exp $
+ RCS:		$Id: ioman.h,v 1.33 2007-01-23 15:30:33 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -114,9 +114,10 @@ public:
     MultiID		newKey() const;
 
     Notifier<IOMan>	newIODir;
-    Notifier<IOMan>	entryRemoved; // CallBacker will be CBCapsule<MultiID>
-    Notifier<IOMan>	surveyToBeChanged;
-    Notifier<IOMan>	surveyChanged;
+    Notifier<IOMan>	entryRemoved;	   // CallBacker: CBCapsule<MultiID>
+    Notifier<IOMan>	surveyToBeChanged; // Before the change
+    Notifier<IOMan>	surveyChanged;     // These restore OD to normal state
+    Notifier<IOMan>	afterSurveyChange; // These operate in normal state
 
 private:
 

@@ -4,7 +4,7 @@
  * DATE     : 3-8-1994
 -*/
 
-static const char* rcsID = "$Id: ioman.cc,v 1.75 2007-01-02 09:05:14 cvsnanne Exp $";
+static const char* rcsID = "$Id: ioman.cc,v 1.76 2007-01-23 15:30:33 cvsbert Exp $";
 
 #include "ioman.h"
 #include "iodir.h"
@@ -40,6 +40,7 @@ IOMan::IOMan( const char* rd )
     	, entryRemoved(this)
     	, surveyToBeChanged(this)
     	, surveyChanged(this)
+    	, afterSurveyChange(this)
 {
     rootdir = rd && *rd ? rd : GetDataDir();
     if ( !File_isDirectory(rootdir) )
@@ -174,6 +175,7 @@ bool IOMan::isReady() const
 	IOM().surveyToBeChanged.trigger(); \
     CallBackSet s2bccbs = IOM().surveyToBeChanged.cbs; \
     CallBackSet sccbs = IOM().surveyChanged.cbs; \
+    CallBackSet asccbs = IOM().afterSurveyChange.cbs; \
     CallBackSet rmcbs = IOM().entryRemoved.cbs; \
     CallBackSet dccbs = IOM().newIODir.cbs; \
     delete IOMan::theinst_; \
@@ -183,12 +185,14 @@ bool IOMan::isReady() const
 #define mFinishNewInst(dotrigger) \
     IOM().surveyToBeChanged.cbs = s2bccbs; \
     IOM().surveyChanged.cbs = sccbs; \
+    IOM().afterSurveyChange.cbs = asccbs; \
     IOM().entryRemoved.cbs = rmcbs; \
     IOM().newIODir.cbs = dccbs; \
     if ( dotrigger ) \
     { \
 	setupCustomDataDirs(-1); \
 	IOM().surveyChanged.trigger(); \
+	IOM().afterSurveyChange.trigger(); \
     }
 
 
