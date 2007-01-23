@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra and Helene Huck
  Date:		January 2007
- RCS:		$Id: attribdatapack.h,v 1.1 2007-01-19 14:50:44 cvshelene Exp $
+ RCS:		$Id: attribdatapack.h,v 1.2 2007-01-23 15:25:53 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,7 +16,8 @@ ________________________________________________________________________
 #include "cubesampling.h"
 
 template <class T> class Array2D;
-namespace Attrib { class DataCube; }
+template <class T> class Array2DSlice;
+namespace Attrib { class DataCubes; }
 namespace FlatDisp { class PosData; }
 
 
@@ -25,15 +26,12 @@ namespace FlatDisp { class PosData; }
 class CubeDataPack : public FlatDispDataPack
 {
 public:
-    				CubeDataPack( Attrib::DataCube* dc,
-					      const CubeSampling& cs )
-				    : cube_(dc), cs_(cs){}
-				~CubeDataPack()		{ delete cube_; }
+    				CubeDataPack(Attrib::DataCubes*);
+    				~CubeDataPack();
 
-    const CubeSampling&		sampling() const	{ return cs_; }
-    CubeSampling&		sampling()		{ return cs_; }
-    const Attrib::DataCube&	cube() const		{ return *cube_; }
-    Attrib::DataCube&		cube()			{ return *cube_; }
+    const CubeSampling		sampling() const;
+    const Attrib::DataCubes&	cube() const		{ return *cube_; }
+    Attrib::DataCubes&		cube()			{ return *cube_; }
 
     Array2D<float>&		data();
     const Array2D<float>&	data() const;
@@ -44,8 +42,8 @@ public:
 
 protected:
 
-    CubeSampling		cs_;
-    Attrib::DataCube*		cube_;
+    Attrib::DataCubes*		cube_;
+    Array2DSlice<float>*	arr2dsl_;
 };
 
 
