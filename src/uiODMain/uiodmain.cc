@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodmain.cc,v 1.55 2007-01-23 15:34:14 cvsbert Exp $
+ RCS:           $Id: uiodmain.cc,v 1.56 2007-01-23 16:28:13 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -290,8 +290,8 @@ uiODMainAutoSessionDlg( uiODMain* p )
     ctio_.setObj( id ); ctio_.ctxt.forread = true;
     selgrp_ = new uiIOObjSelGrp( this, ctio_ );
     selgrp_->attach( alignedBelow, usefld_ );
-    uiLabel* lbl = new uiLabel( this, "Session to use" );
-    lbl->attach( centeredLeftOf, selgrp_ );
+    lbl_ = new uiLabel( this, "Session to use" );
+    lbl_->attach( centeredLeftOf, selgrp_ );
 
     loadnowfld_ = new uiGenInput( this, "Load selected session now",
 	    			  BoolInpSpec());
@@ -310,6 +310,7 @@ void useChg( CallBacker* )
     const bool douse = usefld_->getBoolValue();
     selgrp_->display( douse );
     loadnowfld_->display( douse );
+    lbl_->display( douse );
 }
 
 
@@ -333,6 +334,7 @@ bool acceptOK( CallBacker* )
     uiGenInput*		usefld_;
     uiGenInput*		loadnowfld_;
     uiIOObjSelGrp*	selgrp_;
+    uiLabel*		lbl_;
 
 };
 
