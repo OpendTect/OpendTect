@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.171 2007-01-12 13:59:40 cvshelene Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.172 2007-01-23 16:24:31 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -98,6 +98,7 @@ uiODApplMgr::uiODApplMgr( uiODMain& a )
     mpeserv_ = new uiMPEPartServer( applservice_ );
 
     IOM().surveyToBeChanged.notify( mCB(this,uiODApplMgr,surveyToBeChanged) );
+    IOM().surveyChanged.notify( mCB(this,uiODApplMgr,surveyChanged) );
 }
 
 
@@ -141,17 +142,11 @@ int uiODApplMgr::manageSurvey()
     else if ( prevnm == GetDataDir() )
 	return 1;
     else
-    {
-	sceneMgr().addScene();
-	attrserv_ = new uiAttribPartServer( applservice_ );
-	mpeserv_ = new uiMPEPartServer( applservice_ );
-	MPE::engine().setActiveVolume( MPE::engine().getDefaultActiveVolume() );
 	return 2;
-    }
 }
 
 
-void uiODApplMgr::surveyToBeChanged( CallBacker* cb )
+void uiODApplMgr::surveyToBeChanged( CallBacker* )
 {
     bool anythingasked = false;
     appl_.askStore( anythingasked );
@@ -161,6 +156,15 @@ void uiODApplMgr::surveyToBeChanged( CallBacker* cb )
     delete mpeserv_; mpeserv_ = 0;
     if ( appl_.sceneMgrAvailable() )
 	sceneMgr().cleanUp( false );
+}
+
+
+void uiODApplMgr::surveyChanged( CallBacker* )
+{
+    sceneMgr().addScene();
+    attrserv_ = new uiAttribPartServer( applservice_ );
+    mpeserv_ = new uiMPEPartServer( applservice_ );
+    MPE::engine().setActiveVolume( MPE::engine().getDefaultActiveVolume() );
 }
 
 
