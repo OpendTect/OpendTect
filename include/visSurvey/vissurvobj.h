@@ -7,13 +7,14 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvobj.h,v 1.71 2007-01-17 10:33:06 cvshelene Exp $
+ RCS:		$Id: vissurvobj.h,v 1.72 2007-01-24 16:47:49 cvsnanne Exp $
 ________________________________________________________________________
 
 
 -*/
 
 #include "callback.h"
+#include "datapack.h"
 #include "gendefs.h"
 #include "multiid.h"
 #include "position.h"
@@ -181,6 +182,9 @@ public:
     virtual bool		setDataVolume(int attrib,
 	    				      const Attrib::DataCubes* slc);
     virtual const Attrib::DataCubes* getCacheVolume(int attrib) const;
+    virtual bool		setDataVolume(int attrib,DataPack::ID)
+    				{ return true; }
+    virtual DataPack::ID	getCacheID(int attrib) const	{ return -1; }
 
     				//Trace-data
     virtual void		getDataTraceBids(TypeSet<BinID>&) const	{}

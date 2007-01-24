@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visplanedatadisplay.h,v 1.90 2007-01-17 10:33:06 cvshelene Exp $
+ RCS:		$Id: visplanedatadisplay.h,v 1.91 2007-01-24 16:47:49 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -110,6 +110,9 @@ public:
     void			setRandomPosData( int attrib,
 					    const ObjectSet<BinIDValueSet>*);
     void			setCubeSampling(CubeSampling);
+
+    bool			setDataVolume(int attrib,DataPack::ID);
+    DataPack::ID		getCacheID(int attrib) const;
     bool			setDataVolume(int attrib,
 	    				      const Attrib::DataCubes*);
     const Attrib::DataCubes*	getCacheVolume(int attrib) const;
@@ -182,7 +185,7 @@ protected:
     visBase::FaceSet*			draggerrect_;
     visBase::DrawStyle*			draggerdrawstyle_;
 
-
+    TypeSet<DataPack::ID>		datapackids_;
     ObjectSet<Attrib::SelSpec>		as_;
     BoolTypeSet				isclassification_;
     ObjectSet<const Attrib::DataCubes>	volumecache_;

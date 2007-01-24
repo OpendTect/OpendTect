@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.154 2007-01-18 17:09:14 cvskris Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.155 2007-01-24 16:47:49 cvsnanne Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -13,6 +13,7 @@ static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.154 2007-01-18 17:09
 #include "attribdatacubes.h"
 #include "arrayndslice.h"
 #include "binidvalset.h"
+#include "datapackimpl.h"
 #include "genericnumer.h"
 #include "keyenum.h"
 #include "survinfo.h"
@@ -136,9 +137,10 @@ PlaneDataDisplay::PlaneDataDisplay()
     as_ += new Attrib::SelSpec;
     volumecache_ += 0;
     rposcache_ += 0;
+    datapackids_ += -1;
 
-    setTranslationDragKeys( true, OD::NoButton );
-    setTranslationDragKeys( false, OD::ShiftButton );
+    setTranslationDragKeys( true, OD::ControlButton );
+    setTranslationDragKeys( false, OD::NoButton );
 }
 
 
@@ -568,6 +570,7 @@ bool PlaneDataDisplay::addAttrib()
     as_ += new Attrib::SelSpec;
     volumecache_ += 0;
     rposcache_ += 0;
+    datapackids_ += -1;
 
     texture_->addTexture("");
     texture_->setOperation( as_.size()-1, visBase::MultiTexture::BLEND );
@@ -579,7 +582,7 @@ bool PlaneDataDisplay::addAttrib()
 
 bool PlaneDataDisplay::removeAttrib( int attrib )
 {
-    if ( as_.size()<2 || attrib<0 || attrib>=as_.size() )
+    if ( as_.size()<2 || !as_.validIdx(attrib) )
 	return false;
 
     delete as_[attrib];
@@ -598,7 +601,7 @@ bool PlaneDataDisplay::removeAttrib( int attrib )
 
 bool PlaneDataDisplay::swapAttribs( int a0, int a1 )
 {
-    if ( a0<0 || a1<0 || a0>=as_.size() || a1>=as_.size() )
+    if ( !as_.validIdx(a0) || !as_.validIdx(a1) )
 	return false;
 
     texture_->swapTextures( a0, a1 );
@@ -655,7 +658,7 @@ bool PlaneDataDisplay::isClassification( int attrib ) const
 
 void PlaneDataDisplay::setClassification( int attrib, bool yn )
 {
-    if ( attrib<0 || attrib>=as_.size() )
+    if ( !as_.validIdx(attrib) )
 	return;
 
     if ( yn )
@@ -735,7 +738,7 @@ void PlaneDataDisplay::getRandomPos( ObjectSet<BinIDValueSet>& pos ) const
 void PlaneDataDisplay::setRandomPosData( int attrib,
 					 const ObjectSet<BinIDValueSet>* data )
 {
-    if ( attrib<0 || attrib>=nrAttribs() )
+    if ( !as_.validIdx(attrib) )
 	return;
 
     setData( attrib, data );
@@ -835,10 +838,28 @@ CubeSampling PlaneDataDisplay::getCubeSampling( bool manippos,
 }
 
 
+bool PlaneDataDisplay::setDataVolume( int attrib, DataPack::ID dpid )
+{
+    if ( !as_.validIdx(attrib) ) return false;
+
+    datapackids_[attrib] = dpid;
+    DataPackMgr& dpman = DPM( 0 );
+    const DataPack* datapack = dpman.obtain( dpid );
+    mDynamicCastGet(const CubeDataPack*,cdp,datapack);
+    return setDataVolume( attrib, cdp ? &cdp->cube() : 0 );
+}
+
+
+DataPack::ID PlaneDataDisplay::getCacheID( int attrib ) const
+{
+    return datapackids_.validIdx(attrib) ? datapackids_[attrib] : -1;
+}
+
+
 bool PlaneDataDisplay::setDataVolume( int attrib,
 				      const Attrib::DataCubes* datacubes )
 {
-    if ( attrib<0 || attrib>=nrAttribs() )
+    if ( !as_.validIdx(attrib) )
 	return false;
 
     setData( attrib, datacubes );
@@ -1053,7 +1074,7 @@ inline int getPow2Sz( int actsz, bool above=true, int minsz=1,
 
 const Attrib::DataCubes* PlaneDataDisplay::getCacheVolume( int attrib ) const
 {
-    return attrib>=0 && attrib<nrAttribs() ? volumecache_[attrib] : 0;
+    return as_.validIdx(attrib) ? volumecache_[attrib] : 0;
 }
 
 
@@ -1065,18 +1086,16 @@ int PlaneDataDisplay::nrTextures( int attrib ) const
 
 void PlaneDataDisplay::selectTexture( int attrib, int idx )
 {
-    if ( attrib<0 || attrib>=nrAttribs() ||
-	 idx<0 || idx>=texture_->nrVersions(attrib) ) return;
+    if ( !as_.validIdx(attrib) || idx<0 || idx>=texture_->nrVersions(attrib) )
+	return;
 
     texture_->setCurrentVersion( attrib, idx );
 }
 
 
 int PlaneDataDisplay::selectedTexture( int attrib ) const
-{ 
-    if ( attrib<0 || attrib>=nrAttribs() ) return 0;
-
-    return texture_->currentVersion( attrib );
+{
+    return as_.validIdx(attrib) ? texture_->currentVersion(attrib) : 0;
 }
 
 #define mIsValid(idx,sz) ( idx>=0 && idx<sz )

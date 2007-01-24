@@ -7,12 +7,13 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.184 2007-01-17 10:33:06 cvshelene Exp $
+ RCS:           $Id: uivispartserv.h,v 1.185 2007-01-24 16:48:23 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "cubesampling.h"
+#include "datapack.h"
 #include "menuhandler.h"
 #include "ranges.h"
 #include "sets.h"
@@ -22,25 +23,25 @@ ________________________________________________________________________
 
 class BinIDValueSet;
 class BufferStringSet;
+class Color;
 class ColorTable;
 class MultiID;
 class PickSet;
 class SeisTrcBuf;
 class SurfaceInfo;
+class uiMenuHandler;
 class uiMPEMan;
 class uiPopupMenu;
 class uiSlicePos;
 class uiToolBar;
-class uiMenuHandler;
-class uiVisPickRetriever;
 class uiVisModeMgr;
-class Color;
+class uiVisPickRetriever;
 
 namespace Attrib    { class SelSpec; class DataCubes; }
-namespace visBase   { class DataObject; };
-namespace visSurvey { class Scene; };
 namespace Threads   { class Mutex; };
 namespace Tracking  { class TrackManager; };
+namespace visBase   { class DataObject; };
+namespace visSurvey { class Scene; };
 
 
 
@@ -135,6 +136,8 @@ public:
     const Attrib::DataCubes* getCachedData(int id,int attrib) const;
     bool		setCubeData(int id,int attrib,const Attrib::DataCubes*);
     			/*!< data becomes mine */
+    DataPack::ID	getCacheID(int id,int attrib) const;
+    bool		setCubeData(int id,int attrib,DataPack::ID);
 
     			//Trace data
     void		getDataTraceBids(int id,TypeSet<BinID>&) const;
