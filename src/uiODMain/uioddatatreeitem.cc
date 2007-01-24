@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uioddatatreeitem.cc,v 1.8 2007-01-17 10:33:06 cvshelene Exp $
+ RCS:		$Id: uioddatatreeitem.cc,v 1.9 2007-01-24 16:54:15 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -278,13 +278,16 @@ void uiODDataTreeItem::handleMenuCB( CallBacker* cb )
     }
     else if ( mnuid==changetransparencyitem_.id )
     {
-	menu->setIsHandled( true );
 	visserv->showAttribTransparencyDlg( displayID(), attribNr() );
+	menu->setIsHandled( true );
     }
-    //TODO handle addto2dvieweritem_
+    else if ( mnuid==addto2dvieweritem_.id )
+    {
+	ODMainWin()->sceneMgr().addViewer2D( displayID(), attribNr() );
+	menu->setIsHandled( true );
+    }
     else if ( mnuid==removemnuitem_.id )
     {
-	const int attribnr = attribNr();
 	visserv->removeAttrib( displayID(), attribNr() );
 
 	prepareForShutdown();

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.173 2007-01-24 15:55:18 cvsjaap Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.174 2007-01-24 16:54:15 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -432,8 +432,12 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
 		break;
 	    }
 
+	    const DataPack::ID cacheid = visserv_->getCacheID( visid, attrib );
 	    attrserv_->setTargetSelSpec( myas );
-	    RefMan<const Attrib::DataCubes> newdata =
+	    const DataPack::ID newid = attrserv_->createOutput( cs, cacheid );
+	    visserv_->setCubeData( visid, attrib, newid );
+
+/*	    RefMan<const Attrib::DataCubes> newdata =
 				attrserv_->createOutput( cs, cache );
 
 	    if ( !newdata )
@@ -448,6 +452,7 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
 		visserv_->setClipRate( visid, attrib, 0 );
 	    visserv_->setClassification( visid, attrib, isclass );
 	    visserv_->setCubeData( visid, attrib, newdata );
+*/
 	    res = true;
 	    break;
 	}

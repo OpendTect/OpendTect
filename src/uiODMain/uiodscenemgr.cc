@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.76 2007-01-03 18:29:06 cvskris Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.77 2007-01-24 16:54:15 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "uivispartserv.h"
 #include "uiattribpartserv.h"
 
+#include "uiflatviewgen.h"
 #include "uilabel.h"
 #include "uislider.h"
 #include "uidockwin.h"
@@ -176,6 +177,7 @@ int uiODSceneMgr::addScene()
     visServ().setObjectName( sceneid, title );
     scn.sovwr_->display();
     scn.sovwr_->viewAll();
+    scn.sovwr_->setHomePos();
     scn.sovwr_->viewmodechanged.notify( mWSMCB(viewModeChg) );
     scn.sovwr_->pageupdown.notify( mCB(this,uiODSceneMgr,pageUpDownPressed) );
     scn.vwrGroup()->display( true, false, true );
@@ -779,6 +781,16 @@ uiTreeItem* uiODSceneMgr::findItem( int displayid )
 }
 
 
+void uiODSceneMgr::addViewer2D( int visid, int attribid )
+{
+    // TODO: make mgrid static somewhere
+    // Check that there's just one viewer per visid
+    Viewer2D* vwr = new Viewer2D( appl_, visid );
+    vwr->setData( 0, visServ().getCacheID(visid,attribid), true );
+    viewers2d_ += vwr;
+}
+
+
 uiODSceneMgr::Scene::Scene( uiWorkSpace* wsp )
         : lv_(0)
         , sovwr_(0)
@@ -813,4 +825,29 @@ uiGroup* uiODSceneMgr::Scene::vwrGroup()
 uiDockWin* uiODSceneMgr::Scene::treeWin()
 {
     return lv_ ? (uiDockWin*)lv_->parent() : 0;
+}
+
+
+
+uiODSceneMgr::Viewer2D::Viewer2D( uiODMain& appl, int visid )
+    : appl_(appl)
+    , visid_(visid)
+    , viewwin_(0)
+    , flatviewgen_(0)
+{
+}
+
+
+void uiODSceneMgr::Viewer2D::setData( int datamgrid, int datapackid, bool wva )
+{
+    if ( !viewwin_ )
+    {
+	viewwin_ = new uiDockWin( 0, "Viewer 2D" );
+	viewwin_->setResizeEnabled( true );
+	viewwin_->setCloseMode( uiDockWin::Undocked );
+	flatviewgen_ = new FlatDisp::uiFlatViewGen( viewwin_, datamgrid,
+						    datapackid, true, false );
+	appl_.addDockWindow( *viewwin_, uiMainWin::Left );
+	viewwin_->undock();
+    }
 }
