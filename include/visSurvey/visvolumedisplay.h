@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		August 2002
- RCS:		$Id: visvolumedisplay.h,v 1.36 2007-01-05 15:38:06 cvskris Exp $
+ RCS:		$Id: visvolumedisplay.h,v 1.37 2007-01-24 14:34:43 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -20,11 +20,13 @@ ________________________________________________________________________
 
 class ColorAttribSel;
 class CubeSampling;
+class IsoSurface;
 
 namespace Attrib { class SelSpec; class DataCubes; }
 
 namespace visBase
 {
+    class IsoSurface;
     class VisColorTab;
     class Material;
     class BoxDragger;
@@ -48,10 +50,14 @@ public:
     bool			isInlCrl() const { return true; }
 
     int				addSlice(int dim);
-    void			removeSlice(int displayid);
+    				/*!\note return with removeChild(displayid). */
     void			showVolRen(bool yn);
     bool			isVolRenShown() const;
     int				volRenID() const;
+
+    int				addIsoSurface();
+    				/*!\note return with removeChild(displayid). */
+    void			removeChild(int displayid);
 
     void			showManipulator(bool yn);
     bool			isManipulatorShown() const;
@@ -110,6 +116,7 @@ protected:
     visBase::VolumeRenderScalarField*	scalarfield_;
     visBase::VolrenDisplay*		volren_;
     ObjectSet<visBase::OrthogonalSlice>	slices_;
+    ObjectSet<visBase::IsoSurface>	isosurfaces_;
 
     void			manipMotionFinishCB(CallBacker*);
     void			sliceMoving(CallBacker*);

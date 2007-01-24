@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2002
- RCS:           $Id: visvolumedisplay.cc,v 1.50 2007-01-05 15:38:06 cvskris Exp $
+ RCS:           $Id: visvolumedisplay.cc,v 1.51 2007-01-24 14:34:43 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,8 +12,10 @@ ________________________________________________________________________
 
 #include "visvolumedisplay.h"
 
+#include "isosurface.h"
 #include "visboxdragger.h"
 #include "viscolortab.h"
+#include "visisosurface.h"
 #include "visvolorthoslice.h"
 #include "visvolrenscalarfield.h"
 #include "visvolren.h"
@@ -101,12 +103,10 @@ VolumeDisplay::~VolumeDisplay()
     delete &as_;
     if ( cache_ ) cache_->unRef();
 
-    if ( volren_ ) volren_->unRef();
-
     TypeSet<int> children;
     getChildren( children );
     for ( int idx=0; idx<children.size(); idx++ )
-	removeSlice( children[idx] );
+	removeChild( children[idx] );
 
     scalarfield_->unRef();
 
@@ -135,6 +135,8 @@ void VolumeDisplay::getChildren( TypeSet<int>&res ) const
     res.erase();
     for ( int idx=0; idx<slices_.size(); idx++ )
 	res += slices_[idx]->id();
+    for ( int idx=0; idx<isosurfaces_.size(); idx++ )
+	res += isosurfaces_[idx]->id();
     if ( volren_ ) res += volren_->id();
 }
 
@@ -199,16 +201,35 @@ int VolumeDisplay::addSlice( int dim )
 }
 
 
-void VolumeDisplay::removeSlice( int displayid )
+void VolumeDisplay::removeChild( int displayid )
 {
+    if ( volren_ && displayid==volren_->id() )
+    {
+	VisualObjectImpl::removeChild( volren_->getInventorNode() );
+	volren_->unRef();
+	volren_ = 0;
+	return;
+    }
+
     for ( int idx=0; idx<slices_.size(); idx++ )
     {
 	if ( slices_[idx]->id()==displayid )
 	{
-	    removeChild( slices_[idx]->getInventorNode() );
+	    VisualObjectImpl::removeChild( slices_[idx]->getInventorNode() );
 	    slices_[idx]->motion.remove( mCB(this,VolumeDisplay,sliceMoving) );
 	    slices_[idx]->unRef();
 	    slices_.removeFast(idx);
+	    return;
+	}
+    }
+
+    for ( int idx=0; idx<isosurfaces_.size(); idx++ )
+    {
+	if ( isosurfaces_[idx]->id()==displayid )
+	{
+	    VisualObjectImpl::removeChild(isosurfaces_[idx]->getInventorNode());
+	    isosurfaces_[idx]->unRef();
+	    isosurfaces_.removeFast(idx);
 	    return;
 	}
     }
@@ -226,7 +247,7 @@ void VolumeDisplay::showVolRen( bool yn )
 	volren_->setName( volrenstr );
     }
 
-    volren_->turnOn( yn );
+    if ( volren_ ) volren_->turnOn( yn );
 }
 
 
@@ -234,15 +255,37 @@ bool VolumeDisplay::isVolRenShown() const
 { return volren_ && volren_->isOn(); }
 
 
+int VolumeDisplay::addIsoSurface()
+{
+    visBase::IsoSurface* isosurface = visBase::IsoSurface::create();
+    isosurface->ref();
+    RefMan<IsoSurface> surface = new IsoSurface();
+    isosurface->setSurface( *surface );
+    if ( cache_ )
+    {
+	surface->setAxisScales( cache_->inlsampling, cache_->crlsampling,
+				SamplingData<float>( cache_->z0*cache_->zstep,
+				    		     cache_->zstep ) );
+	surface->setVolumeData( &cache_->getCube(0),
+		scalarfield_->getColorTab().getInterval().center() );
+	isosurface->touch();
+    }
+
+    insertChild( 0, isosurface->getInventorNode() );
+    isosurfaces_ += isosurface;
+    return isosurface->id();
+}
+
+
 int VolumeDisplay::volRenID() const
 { return volren_ ? volren_->id() : -1; }
 
     
-void VolumeDisplay::setCubeSampling( const CubeSampling& cs_ )
+void VolumeDisplay::setCubeSampling( const CubeSampling& cs )
 {
-    const Interval<float> xintv( cs_.hrg.start.inl, cs_.hrg.stop.inl );
-    const Interval<float> yintv( cs_.hrg.start.crl, cs_.hrg.stop.crl );
-    const Interval<float> zintv( cs_.zrg.start, cs_.zrg.stop );
+    const Interval<float> xintv( cs.hrg.start.inl, cs.hrg.stop.inl );
+    const Interval<float> yintv( cs.hrg.start.crl, cs.hrg.stop.crl );
+    const Interval<float> zintv( cs.zrg.start, cs.zrg.stop );
     voltrans_->setTranslation( 
 	    	Coord3(xintv.center(),yintv.center(),zintv.center()) );
     voltrans_->setScale( Coord3(-zintv.width(),yintv.width(),xintv.width()) );
@@ -254,6 +297,12 @@ void VolumeDisplay::setCubeSampling( const CubeSampling& cs_ )
 	slices_[idx]->setSpaceLimits( Interval<float>(-0.5,0.5), 
 				     Interval<float>(-0.5,0.5),
 				     Interval<float>(-0.5,0.5) );
+
+    for ( int idx=0; idx<isosurfaces_.size(); idx++ )
+    {
+	isosurfaces_[idx]->getSurface()->setVolumeData( 0 );
+	isosurfaces_[idx]->touch();
+    }
 
     scalarfield_->turnOn( false );
 
@@ -400,6 +449,12 @@ void VolumeDisplay::setSelSpec( int attrib, const Attrib::SelSpec& as )
     if ( cache_ ) cache_->unRef();
     cache_ = 0;
     scalarfield_->turnOn( false );
+
+    for ( int idx=0; idx<isosurfaces_.size(); idx++ )
+    {
+	isosurfaces_[idx]->getSurface()->setVolumeData( 0 );
+	isosurfaces_[idx]->touch();
+    }
 }
 
 
@@ -428,6 +483,16 @@ bool VolumeDisplay::setDataVolume( int attrib,
     if ( cache_ ) cache_->unRef();
     cache_ = attribdata;
     cache_->ref();
+
+    for ( int idx=0; idx<isosurfaces_.size(); idx++ )
+    {
+	isosurfaces_[idx]->getSurface()->setAxisScales(
+		cache_->inlsampling, cache_->crlsampling,
+		SamplingData<float>( cache_->z0*cache_->zstep, cache_->zstep ));
+	isosurfaces_[idx]->getSurface()->setVolumeData( &cache_->getCube(0) );
+	isosurfaces_[idx]->touch();
+    }
+
     return true;
 }
 
@@ -503,7 +568,7 @@ visSurvey::SurveyObject* VolumeDisplay::duplicate() const
     TypeSet<int> children;
     vd->getChildren( children );
     for ( int idx=0; idx<children.size(); idx++ )
-	vd->removeSlice( children[idx] );
+	vd->removeChild( children[idx] );
 
     for ( int idx=0; idx<slices_.size(); idx++ )
     {
@@ -571,7 +636,7 @@ int VolumeDisplay::usePar( const IOPar& par )
     if ( scalarfield_ )
     {
 	if ( childIndex(scalarfield_->getInventorNode()) !=-1 )
-	    removeChild(scalarfield_->getInventorNode());
+	    VisualObjectImpl::removeChild(scalarfield_->getInventorNode());
 	scalarfield_->unRef();
     }
 
@@ -588,7 +653,7 @@ int VolumeDisplay::usePar( const IOPar& par )
     if ( volren_ )
     {
 	if ( childIndex(volren_->getInventorNode())!=-1 )
-	    removeChild(volren_->getInventorNode());
+	    VisualObjectImpl::removeChild(volren_->getInventorNode());
 	volren_->unRef();
     }
     volren_ = vr;
@@ -596,7 +661,7 @@ int VolumeDisplay::usePar( const IOPar& par )
     addChild( volren_->getInventorNode() );
 
     while ( slices_.size() )
-	removeSlice( slices_[0]->id() );
+	removeChild( slices_[0]->id() );
 
     int nrslices = 0;
     par.get( nrslicesstr, nrslices );
