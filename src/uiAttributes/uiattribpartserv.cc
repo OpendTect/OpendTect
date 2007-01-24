@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiattribpartserv.cc,v 1.53 2007-01-16 10:12:11 cvshelene Exp $
+ RCS:           $Id: uiattribpartserv.cc,v 1.54 2007-01-24 16:45:54 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,6 +32,7 @@ ________________________________________________________________________
 #include "binidvalset.h"
 #include "ctxtioobj.h"
 #include "cubesampling.h"
+#include "datapackimpl.h"
 #include "executor.h"
 #include "iodir.h"
 #include "iopar.h"
@@ -362,6 +363,19 @@ EngineMan* uiAttribPartServer::createEngMan( const CubeSampling* cs,
 	aem->setLineKey( linekey );
 
     return aem;
+}
+
+
+DataPack::ID uiAttribPartServer::createOutput( const CubeSampling& cs,
+					       DataPack::ID cacheid )
+{
+    DataPackMgr& dpman = DPM( 0 );
+    const DataPack* datapack = dpman.obtain( cacheid );
+    mDynamicCastGet(const CubeDataPack*,cdp,datapack);
+    const DataCubes* output = createOutput( cs, cdp ? &cdp->cube() : 0);
+    CubeDataPack* newpack = new CubeDataPack( const_cast<DataCubes*>(output) );
+    dpman.add( newpack );
+    return newpack->id();
 }
 
 

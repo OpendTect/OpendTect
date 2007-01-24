@@ -7,13 +7,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiattribpartserv.h,v 1.23 2007-01-12 13:59:40 cvshelene Exp $
+ RCS:           $Id: uiattribpartserv.h,v 1.24 2007-01-24 16:45:54 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiapplserv.h"
 #include "attribdescid.h"
+#include "datapack.h"
 #include "position.h"
 #include "multiid.h"
 #include "menuhandler.h"
@@ -99,6 +100,7 @@ public:
     const TypeSet<Attrib::SelSpec>& getTargetSelSpecs() const
 			    { return targetspecs_; }
 
+    DataPack::ID	createOutput(const CubeSampling&,DataPack::ID);
     const Attrib::DataCubes* createOutput(const CubeSampling&,
 				          const Attrib::DataCubes* prevslcs=0);
     bool		createOutput(ObjectSet<BinIDValueSet>&);
