@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          4-11-2002
- RCS:           $Id: uiodvolrentreeitem.h,v 1.1 2007-01-03 18:29:06 cvskris Exp $
+ RCS:           $Id: uiodvolrentreeitem.h,v 1.2 2007-01-24 14:38:19 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -66,7 +66,8 @@ protected:
     MenuItem		addlinlslicemnuid_;
     MenuItem		addlcrlslicemnuid_;
     MenuItem		addltimeslicemnuid_;
-    MenuItem		addlvolumemnuid_;
+    MenuItem		addvolumemnuid_;
+    MenuItem		addisosurfacemnuid_;
 };
 
 
@@ -76,13 +77,20 @@ public:
     			uiODVolrenSubTreeItem(int displayid);
 
     bool		isVolume() const;
+    bool		isIsoSurface() const;
     void		updateColumnText(int col);
 
 protected:
 			~uiODVolrenSubTreeItem();
+
+    void		createMenuCB(CallBacker*);
+    void		handleMenuCB(CallBacker*);
+
     bool		anyButtonClick( uiListViewItem* item );
     bool		init();
     const char*		parentType() const;
+
+    MenuItem		setisovaluemnuid_;
 };
 
 #endif
