@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.100 2007-01-15 10:58:33 cvsbert Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.101 2007-01-24 15:42:44 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,10 +19,12 @@ ________________________________________________________________________
 #include "emfault.h"
 #include "emhistory.h"
 #include "emhorizon.h"
+#include "emhorizon2d.h"
 #include "emmanager.h"
 #include "emposid.h"
 #include "emsurfaceauxdata.h"
 #include "emsurfaceiodata.h"
+#include "emsurfacetr.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "parametricsurface.h"
@@ -31,6 +33,7 @@ ________________________________________________________________________
 #include "survinfo.h"
 
 #include "uichangesurfacedlg.h"
+#include "uihor3dfrom2ddlg.h"
 #include "uiexecutor.h"
 #include "uiexphorizon.h"
 #include "uigeninputdlg.h"
@@ -86,9 +89,9 @@ EM::ObjectID uiEMPartServer::getObjectID( const MultiID& mid ) const
 }
 
 
-void uiEMPartServer::manageSurfaces( bool hor )
+void uiEMPartServer::manageSurfaces( const BufferString& typ )
 {
-    uiSurfaceMan dlg( appserv().parent(), hor );
+    uiSurfaceMan dlg( appserv().parent(), typ );
     dlg.go();
 }
 
@@ -148,6 +151,13 @@ bool uiEMPartServer::isChanged( const EM::ObjectID& emid ) const
 }
 
 
+bool uiEMPartServer::isEmpty( const EM::ObjectID& emid ) const
+{
+    EM::EMObject* emobj = em_.getObject(emid);
+    return emobj && emobj->isEmpty();
+}
+
+
 bool uiEMPartServer::isFullResolution( const EM::ObjectID& emid ) const
 {
     mDynamicCastGet(const EM::Surface*,emsurf,em_.getObject(emid));
@@ -174,6 +184,14 @@ void uiEMPartServer::filterSurface( const EM::ObjectID& emid )
 {
     mDynamicCastGet(EM::Horizon*,hor,em_.getObject(emid))
     uiFilterHorizonDlg dlg( appserv().parent(), hor );
+    dlg.go();
+}
+
+
+void uiEMPartServer::deriveHor3DFrom2D( const EM::ObjectID& emid )
+{
+    mDynamicCastGet(EM::Horizon2D*,h2d,em_.getObject(emid))
+    uiHor3DFrom2DDlg dlg( appserv().parent(), *h2d );
     dlg.go();
 }
 
@@ -217,18 +235,23 @@ void uiEMPartServer::askUserToSave( const EM::ObjectID& emid ) const
 
 
 void uiEMPartServer::selectHorizons( TypeSet<EM::ObjectID>& ids )
-{ selectSurfaces( ids, true ); }
+{ selectSurfaces( ids, EMHorizonTranslatorGroup::keyword ); }
+
+
+void uiEMPartServer::select2DHorizons( TypeSet<EM::ObjectID>& ids )
+{ selectSurfaces( ids, EMHorizon2DTranslatorGroup::keyword ); }
 
 
 void uiEMPartServer::selectFaults( TypeSet<EM::ObjectID>& ids )
-{ selectSurfaces( ids, false ); }
+{ selectSurfaces( ids, EMFaultTranslatorGroup::keyword ); }
 
 
-void uiEMPartServer::selectSurfaces( TypeSet<EM::ObjectID>& objids, bool ishor )
+void uiEMPartServer::selectSurfaces( TypeSet<EM::ObjectID>& objids,
+				     const BufferString& typ )
 {
-    BufferString lbl( ishor ? "Horizon" : "Fault" ); lbl += " selection";
+    BufferString lbl( typ ); lbl += " selection";
     uiDialog dlg( appserv().parent(), uiDialog::Setup(lbl) );
-    uiMultiSurfaceRead* uiobj = new uiMultiSurfaceRead( &dlg, ishor );
+    uiMultiSurfaceRead* uiobj = new uiMultiSurfaceRead( &dlg, typ );
     uiobj->singleSurfaceSelected.notify( mCB(&dlg,uiDialog,accept) );
     if ( !dlg.go() ) return;
 
