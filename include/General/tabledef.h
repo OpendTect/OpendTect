@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Oct 2006
- RCS:		$Id: tabledef.h,v 1.13 2007-01-03 17:50:04 cvsbert Exp $
+ RCS:		$Id: tabledef.h,v 1.14 2007-01-24 10:18:57 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -125,8 +125,9 @@ public:
 			}
 
     /*!\brief Selected element/positioning
-      This selects the specific form and where it can be found in the file,
+      This selects the specific form and where/how it can be found in the file,
       or explicit values for the form elements.
+
      */
     struct Selection
     {
@@ -134,21 +135,26 @@ public:
 	struct Elem
 	{
 	    			Elem()
-				    : pos_(0,-1)	{}
-	    			Elem( const RowCol& rc )
-				    : pos_(rc)		{}
+				    : pos_(0,-1)		{}
+	    			Elem( const RowCol& rc, const char* kw=0 )
+				    : pos_(rc), keyword_(kw)	{}
 	    			Elem( const char* s )
-				    : pos_(0,-1), val_(s) {}
+				    : pos_(0,-1), val_(s) 	{}
+
 	    bool		isInFile() const
 				    { return pos_.c() >= 0; }
+	    bool		isKeyworded() const
+				    { return isInFile() && !keyword_.isEmpty();}
 	    bool		isSpecified() const
 				    { return !val_.isEmpty(); }
 	    bool		isEmpty() const
 				    { return !isInFile() && !isSpecified();}
 	    bool		operator ==( const Elem& v ) const
-				    { return pos_ == v.pos_ && val_ == v.val_; }
+				    { return pos_ == v.pos_ && val_ == v.val_
+					  && keyword_ == v.keyword_; }
 
 	    RowCol		pos_;
+	    BufferString	keyword_;
 	    BufferString	val_;
 	};
 
@@ -160,6 +166,12 @@ public:
 			    	: form_(0), unit_(0)	{}
 
 	bool		havePos( int ielem ) const
+			    { return ielem < elems_.size()
+				  && elems_[ielem].isInFile(); }
+	bool		isKeyworded( int ielem ) const
+			    { return ielem < elems_.size()
+				  && elems_[ielem].isKeyworded(); }
+	bool		isInFile( int ielem ) const
 			    { return ielem < elems_.size()
 				  && elems_[ielem].isInFile(); }
 	const char*	getVal( int ielem ) const

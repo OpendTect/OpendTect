@@ -4,7 +4,7 @@
  * DATE     : Nov 2006
 -*/
 
-static const char* rcsID = "$Id: tableascio.cc,v 1.15 2007-01-22 16:39:19 cvsbert Exp $";
+static const char* rcsID = "$Id: tableascio.cc,v 1.16 2007-01-24 10:18:57 cvsbert Exp $";
 
 #include "tableascio.h"
 #include "tabledef.h"
@@ -180,14 +180,24 @@ void TargetInfo::fillPar( IOPar& iopar ) const
     if ( selection_.elems_.size() < 1 || selection_.elems_[0].isEmpty() )
 	return;
 
-    FileMultiString fms( selection_.elems_[0].isInFile() ? "R" : "P" );
+    FileMultiString fms;
     for ( int idx=0; idx<selection_.elems_.size(); idx++ )
     {
 	const TargetInfo::Selection::Elem& elem = selection_.elems_[idx];
-	if ( !elem.isInFile() )
-	    fms += elem.val_;
+	const int typ = !elem.isInFile() ? 0 : (elem.isKeyworded() ? 1 : 2);
+	const char* typstr = typ == 2 ? "P" : (typ == 1 ? "K" : "R");
+
+	if ( idx == 0 )
+	    fms = typstr;
 	else
+	    fms += typstr;
+
+	if ( typ == 0 )
+	    fms += elem.val_;
+	else if ( typ == 2 )
 	    { char buf[40]; elem.pos_.fill(buf); fms += buf; }
+	else
+	    { fms += elem.keyword_; fms += elem.pos_.c(); }
     }
     iopar.set( IOPar::compKey("Selection",nm), fms );
 }
@@ -211,16 +221,28 @@ void TargetInfo::usePar( const IOPar& iopar )
 	return;
 
     FileMultiString fms( res );
-    const bool isinfile = *fms[0] == 'R';
+    int curfmsidx = 0;
     const int nrelems = fms.size() - 1;
 
     for ( int idx=0; idx<nrelems; idx++ )
     {
-	res = fms[idx+1];
+	const char typc = *fms[curfmsidx];
+	const int typ = typc == 'P' ? 2 : (typc == 'K' ? 1 : 0);
+	curfmsidx++; res = fms[curfmsidx];
 	TargetInfo::Selection::Elem elem;
-	if ( !isinfile || !elem.pos_.use(res) )
+	if ( typ == 2 )
 	    elem.val_ = res;
+	else if ( typ == 0 )
+	    elem.pos_.use( res );
+	else
+	{
+	    curfmsidx++;
+	    elem.keyword_ = res;
+	    elem.pos_.c() = atoi( fms[curfmsidx] );
+	}
+
 	selection_.elems_ += elem;
+	curfmsidx++;
     }
 }
 
@@ -294,7 +316,7 @@ public:
 
 struct BodyInfo
 {
-    		BodyInfo( const Table::TargetInfo& ti, int specnr )
+    		BodyInfo( const TargetInfo& ti, int specnr )
 		    : tarinf_(ti)
 		    , sel_(ti.selection_)
 		    , form_(ti.form(ti.selection_.form_))
@@ -310,31 +332,39 @@ struct BodyInfo
 
     int		col_;
     int		specnr_;
-    const Table::TargetInfo& tarinf_;
-    const Table::TargetInfo::Selection& sel_;	// convenience
-    const Table::TargetInfo::Form& form_;	// convenience
+    const TargetInfo& tarinf_;
+    const TargetInfo::Selection& sel_;	// convenience
+    const TargetInfo::Form& form_;	// convenience
 
 };
 
 struct HdrInfo : public BodyInfo
 {
-    		HdrInfo( const Table::TargetInfo& ti, int specnr )
+    		HdrInfo( const TargetInfo& ti, int specnr )
 		    : BodyInfo(ti,specnr)
 		    , found_(false)
 		    , row_(-1)
 		{
+		    const TargetInfo::Selection::Elem& elem
+						= sel_.elems_[specnr_];
 		    if ( sel_.havePos(specnr_) )
-			row_ = sel_.elems_[specnr_].pos_.r();
+		    {
+			if ( elem.isKeyworded() )
+			    keyw_ = elem.keyword_;
+			else
+			    row_ = elem.pos_.r();
+		    }
 		    else
 		    {
 			found_ = true;
-			val_ = sel_.elems_[specnr_].val_;
+			val_ = elem.val_;
 		    }
 		}
     bool	operator ==( const HdrInfo& hi )
 		{ return row_ == hi.row_ && col_ == hi.col_; }
 
     int		row_;
+    BufferString keyw_;
     bool	found_;
     BufferString val_;
 
@@ -351,8 +381,8 @@ AscIOImp_ExportHandler( const AscIO& aio, bool hdr )
     for ( int itar=0; itar<aio_.fd_.headerinfos_.size(); itar++ )
     {
 	{
-	    const Table::TargetInfo& tarinf = *aio_.fd_.headerinfos_[itar];
-	    Table::TargetInfo::Selection& sel = tarinf.selection_;
+	    const TargetInfo& tarinf = *aio_.fd_.headerinfos_[itar];
+	    TargetInfo::Selection& sel = tarinf.selection_;
 	    const int nrspecs = tarinf.form( sel.form_ ).specs_.size();
 	    for ( int ispec=0; ispec<nrspecs; ispec++ )
 		hdrinfos_ += new HdrInfo( tarinf, ispec );
@@ -362,8 +392,8 @@ AscIOImp_ExportHandler( const AscIO& aio, bool hdr )
     {
 	for ( int itar=0; itar<aio_.fd_.bodyinfos_.size(); itar++ )
 	{
-	    const Table::TargetInfo& tarinf = *aio_.fd_.bodyinfos_[itar];
-	    Table::TargetInfo::Selection& sel = tarinf.selection_;
+	    const TargetInfo& tarinf = *aio_.fd_.bodyinfos_[itar];
+	    TargetInfo::Selection& sel = tarinf.selection_;
 	    const int nrspecs = tarinf.form( sel.form_ ).specs_.size();
 	    for ( int ispec=0; ispec<nrspecs; ispec++ )
 		bodyinfos_ += new BodyInfo( tarinf, ispec );
@@ -395,19 +425,27 @@ const char* putHdrRow( const BufferStringSet& bss )
 	    return finishHdr();
     }
 
+    if ( bss.size() > 0 )
+    {
     for ( int ihdr=0; ihdr<hdrinfos_.size(); ihdr++ )
     {
 	HdrInfo& hdrinf = *hdrinfos_[ihdr];
-	if ( hdrinf.row_ != rownr_ || hdrinf.found_ )
+	if ( hdrinf.found_ )
 	    continue;
 
-	if ( hdrinf.col_ >= bss.size() )
-	    return mkErrMsg( hdrinf, "Data not present in header" );
-	else
+	const bool hasrow = hdrinf.row_ >= 0;
+	if ( hasrow && hdrinf.row_ != rownr_ )
+	    continue;
+
+	if ( hasrow || hdrinf.keyw_ == bss.get(0) )
 	{
+	    if ( hdrinf.col_ >= bss.size() )
+		return mkErrMsg( hdrinf, "Data not present in header" );
+
 	    hdrinf.found_ = true;
 	    hdrinf.val_ = bss.get( hdrinf.col_ );
 	}
+    }
     }
 
     rownr_++;
@@ -434,19 +472,31 @@ const char* finishHdr()
 const char* mkErrMsg( const HdrInfo& hdrinf, const char* msg )
 {
     errmsg_ = msg; errmsg_ += ":\n";
-    errmsg_ += hdrinf.tarinf_.name(); errmsg_ += " [";
-    errmsg_ += hdrinf.form_.name();
+    errmsg_ += hdrinf.tarinf_.name();
+
+    const bool diffnms = hdrinf.tarinf_.name() != hdrinf.form_.name();
+    if ( diffnms )
+    {
+	errmsg_ += " [";
+	errmsg_ += hdrinf.form_.name();
+    }
     if ( hdrinf.form_.specs_.size() > 1 )
 	{ errmsg_ += " (field "; hdrinf.specnr_; errmsg_ += ")"; }
-    errmsg_ += "]";
+    if ( diffnms )
+	errmsg_ += "]";
+
     if ( hdrinf.col_ >= 0 )
     {
-	errmsg_ += "\nwas specified at ";
-	if ( hdrinf.row_ < 0 )
-	    errmsg_ += "column ";
-	else
+	errmsg_ += "\n\nIt was specified at ";
+	if ( hdrinf.row_ >= 0 )
 	    { errmsg_ += "row/col "; errmsg_ += hdrinf.row_+1; errmsg_ += "/"; }
+	errmsg_ += "column ";
 	errmsg_ += hdrinf.col_+1;
+	if ( !hdrinf.keyw_.isEmpty() )
+	{
+	    errmsg_ += "; keyword '";
+	    errmsg_ += hdrinf.keyw_; errmsg_ += "'";
+	}
     }
     return errmsg_;
 }

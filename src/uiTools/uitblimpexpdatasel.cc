@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2006
- RCS:           $Id: uitblimpexpdatasel.cc,v 1.25 2007-01-22 16:39:19 cvsbert Exp $
+ RCS:           $Id: uitblimpexpdatasel.cc,v 1.26 2007-01-24 10:18:57 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "uicombobox.h"
 #include "uispinbox.h"
 #include "uigeninput.h"
+#include "uilineedit.h"
 #include "uilabel.h"
 #include "uibutton.h"
 #include "uicombobox.h"
@@ -57,11 +58,16 @@ uiTableTargetInfoEd( uiParent* p, Table::TargetInfo& tinf, bool ishdr,
 
     if ( ishdr_ && choicegrp_ )
     {
-	specfld_ = new uiComboBox( choicegrp_, "Specify/read" );
-	specfld_->addItem( "provide" ); specfld_->addItem( "read" );
+	specfld_ = new uiComboBox( choicegrp_, "provide/read" );
+	specfld_->addItem( "provide" );
+	specfld_->addItem( "keyword" );
+	specfld_->addItem( "fixed" );
 	specfld_->setPrefWidthInChar( mChoiceBoxWidth );
 	specfld_->selectionChanged.notify( boxcb );
-	specfld_->setCurrentItem( tinf_.selection_.havePos(0) ? 1 : 0 );
+	const Table::TargetInfo::Selection::Elem& elem
+	    			= tinf_.selection_.elems_[0];
+	specfld_->setCurrentItem( elem.isKeyworded() ? 1
+				: (elem.isInFile() ? 2 : 0) );
     }
 
     BufferString lbltxt( tinf_.isOptional() ? "[" : "" );
@@ -71,6 +77,7 @@ uiTableTargetInfoEd( uiParent* p, Table::TargetInfo& tinf, bool ishdr,
     if ( formfld_ )
 	lbl->attach( rightOf, formfld_ );
     rightmostleftfld_ = formfld_ ? (uiObject*)formfld_ : (uiObject*)lbl;
+    rightmostfld_ = rightmostleftfld_;
 
     for ( int iform=0; iform<tinf_.nrForms(); iform++ )
     {
@@ -98,63 +105,80 @@ void mkColFlds( int iform )
     if ( ishdr_ )
     {
 	rowboxes_ += new ObjectSet<uiSpinBox>;
+	kwinps_ += new ObjectSet<uiLineEdit>;
 	inps_ += new ObjectSet<uiGenInput>;
     }
 
     const int nrflds = tinf_.nrForms();
     for ( int ifld=0; ifld<nrflds; ifld++ )
     {
-	addBox( iform, ifld );
+	addBoxes( iform, ifld );
 	if ( ishdr_ )
 	    addInp( iform, ifld );
     }
 }
 
-void addBox( int iform, int ifld )
+void addBoxes( int iform, int ifld )
 {
-    ObjectSet<uiSpinBox>& colboxes = *colboxes_[iform];
-    uiSpinBox* colspinbox = new uiSpinBox( this );
-    colspinbox->setInterval( 1, 999, 1 );
-    colspinbox->setPrefix( "col:" );
-    colboxes += colspinbox;
-
     uiSpinBox* rowspinbox = 0;
+    uiLineEdit* kwinp = 0;
+    uiObject* prevrightmostfld = rightmostfld_;
+
     if ( ishdr_ )
     {
 	rowspinbox = new uiSpinBox( this );
 	rowspinbox->setInterval( 1, nrhdrlns_ > 0 ? nrhdrlns_ : 999, 1 );
 	rowspinbox->setPrefix( "row:" );
 	*rowboxes_[iform] += rowspinbox;
+	ObjectSet<uiLineEdit>& kwinps = *kwinps_[iform];
+	kwinp = new uiLineEdit( this );
+	*kwinps_[iform] += kwinp;
+	kwinp->setHSzPol( uiObject::Small );
     }
 
-    if ( !tinf_.selection_.havePos(ifld) )
+    ObjectSet<uiSpinBox>& colboxes = *colboxes_[iform];
+    uiSpinBox* colspinbox = new uiSpinBox( this );
+    colspinbox->setInterval( 1, 999, 1 );
+    colspinbox->setPrefix( "col:" );
+    colboxes += colspinbox;
+
+    if ( !rowspinbox )
+	colspinbox->attach( rightOf, rightmostfld_ );
+    else
+    {
+	rowspinbox->attach( rightOf, rightmostfld_ );
+	kwinp->attach( rightOf, rightmostfld_ );
+	colspinbox->attach( rightOf, rowspinbox );
+	colspinbox->attach( ensureRightOf, kwinp );
+    }
+    rightmostfld_ = colspinbox;
+
+    if ( ifld == 0 && iform == 0 )
+	setHAlignObj( rowspinbox ? rowspinbox : colspinbox );
+
+    const bool iskw = tinf_.selection_.isKeyworded(ifld);
+    const bool isrc = tinf_.selection_.isInFile(ifld) && !iskw;
+
+    if ( !isrc && rowspinbox )
+	{ rowspinbox->setValue( defrow_ ); defrow_++; }
+
+    if ( !iskw && !isrc )
     {
 	colspinbox->setValue( defcol_ );
 	if ( !ishdr_ ) defcol_++;
-	else if ( rowspinbox )
-	    { rowspinbox->setValue( defrow_ ); defrow_++; }
     }
     else
     {
 	const RowCol& rc = tinf_.selection_.elems_[ifld].pos_;
 	if ( rowspinbox )
-	    rowspinbox->setValue( rc.r() + 1 ); // Users tend to start at 1
+	{
+	    if ( isrc )
+		rowspinbox->setValue( rc.r() + 1 ); // Users tend to start at 1
+	    else
+		kwinp->setText( tinf_.selection_.elems_[ifld].keyword_ );
+	}
 	colspinbox->setValue( rc.c() + 1 );
     }
-
-    uiSpinBox* leftbox = rowspinbox ? rowspinbox : colspinbox;
-
-    if ( ifld != 0 )
-	leftbox->attach( rightOf, colboxes[ifld-1] );
-    else
-    {
-	leftbox->attach( rightOf, rightmostleftfld_ );
-	if ( iform == 0 )
-	    setHAlignObj( leftbox );
-    }
-
-    if ( rowspinbox )
-	colspinbox->attach( rightOf, rowspinbox );
 }
 
 void addInp( int iform, int ifld )
@@ -177,6 +201,7 @@ void boxChg( CallBacker* )
 
     const int selformidx = formfld_ ? formfld_->currentItem() : 0;
     const bool isspec = !specfld_ || specfld_->currentItem() == 0;
+    const bool iskw = specfld_ && specfld_->currentItem() == 1;
 
     for ( int iform=0; iform<tinf_.nrForms(); iform++ )
     {
@@ -185,10 +210,15 @@ void boxChg( CallBacker* )
 	ObjectSet<uiSpinBox>& colboxes = *colboxes_[iform];
 	ObjectSet<uiSpinBox>* rowboxes = iform < rowboxes_.size()
 	    			       ? rowboxes_[iform] : 0;
+	ObjectSet<uiLineEdit>* kwinps = iform < kwinps_.size()
+	    			       ? kwinps_[iform] : 0;
 	for ( int ifld=0; ifld<colboxes.size(); ifld++ )
 	{
 	    colboxes[ifld]->display( isselform && !isspec );
-	    (*rowboxes)[ifld]->display( isselform && !isspec );
+	    if ( rowboxes )
+		(*rowboxes)[ifld]->display( isselform && !iskw && !isspec );
+	    if ( kwinps )
+		(*kwinps)[ifld]->display( isselform && iskw );
 	}
 	if ( ishdr_ )
 	{
@@ -202,17 +232,35 @@ void boxChg( CallBacker* )
 bool commit()
 {
     const int formnr = formfld_ ? formfld_->currentItem() : 0;
-    const bool doread = !ishdr_ || (specfld_ && specfld_->currentItem() == 1);
-    if ( !doread && !tinf_.isOptional() )
+    const bool doread = !ishdr_ || (specfld_ && specfld_->currentItem() > 0);
+    const bool iskw = specfld_ && specfld_->currentItem() == 1;
+
+    if ( !tinf_.isOptional() )
     {
-	ObjectSet<uiGenInput>& colinps = *inps_[formnr];
-	for ( int idx=0; idx<colinps.size(); idx++ )
+	if ( iskw )
 	{
-	    if ( colinps[idx]->isUndef() )
+	    ObjectSet<uiLineEdit>& kwinps = *kwinps_[formnr];
+	    for ( int idx=0; idx<kwinps.size(); idx++ )
 	    {
-		errmsg_ = "Value missing for ";
-		errmsg_ += tinf_.form(formnr).name();
-		return false;
+		if ( !*kwinps[idx]->text() )
+		{
+		    errmsg_ = "Missing keyword for ";
+		    errmsg_ += tinf_.form(formnr).name();
+		    return false;
+		}
+	    }
+	}
+	else if ( !doread )
+	{
+	    ObjectSet<uiGenInput>& colinps = *inps_[formnr];
+	    for ( int idx=0; idx<colinps.size(); idx++ )
+	    {
+		if ( colinps[idx]->isUndef() )
+		{
+		    errmsg_ = "Value missing for ";
+		    errmsg_ += tinf_.form(formnr).name();
+		    return false;
+		}
 	    }
 	}
     }
@@ -220,32 +268,45 @@ bool commit()
     tinf_.selection_.form_ = formnr;
     tinf_.selection_.elems_.erase();
 
-    if ( doread )
-    {
-	ObjectSet<uiSpinBox>& colboxes = *colboxes_[formnr];
-	ObjectSet<uiSpinBox>* rowboxes = rowboxes_.size() > formnr
-	    			       ? rowboxes_[formnr] : 0;
-	for ( int idx=0; idx<colboxes.size(); idx++ )
-	{
-	    RowCol rc( 0, colboxes[idx]->getValue() );
-	    if ( rowboxes )
-		rc.r() = (*rowboxes)[idx]->getValue();
-	    if ( mIsUdf(rc.r()) || mIsUdf(rc.c()) )
-	    {
-		errmsg_ = "Missing position in the file for ";
-		errmsg_ += tinf_.form(formnr).name();
-		return false;
-	    }
-	    rc.r()--; rc.c()--; // Users tend to start at 1
-	    tinf_.selection_.elems_ += Table::TargetInfo::Selection::Elem( rc );
-	}
-    }
-    else
+    if ( !doread )
     {
 	ObjectSet<uiGenInput>& colinps = *inps_[formnr];
 	for ( int idx=0; idx<colinps.size(); idx++ )
 	    tinf_.selection_.elems_ +=
 		Table::TargetInfo::Selection::Elem( colinps[idx]->text() );
+    }
+    else
+    {
+	ObjectSet<uiSpinBox>& colboxes = *colboxes_[formnr];
+	ObjectSet<uiSpinBox>* rowboxes = rowboxes_.size() > formnr
+	    			       ? rowboxes_[formnr] : 0;
+	ObjectSet<uiLineEdit>* kwinps = kwinps_.size() > formnr
+	    			       ? kwinps_[formnr] : 0;
+	for ( int idx=0; idx<colboxes.size(); idx++ )
+	{
+	    RowCol rc( 0, colboxes[idx]->getValue() );
+	    BufferString kw;
+
+	    if ( !iskw && rowboxes )
+		rc.r() = (*rowboxes)[idx]->getValue();
+	    if ( iskw && kwinps )
+		kw = (*kwinps)[idx]->text();
+	    if ( mIsUdf(rc.r()) || (!iskw && mIsUdf(rc.c())) )
+	    {
+		errmsg_ = "Missing position in the file for ";
+		errmsg_ += tinf_.form(formnr).name();
+		return false;
+	    }
+	    else if ( iskw && kw.isEmpty() )
+	    {
+		errmsg_ = "Missing header keyword for ";
+		errmsg_ += tinf_.form(formnr).name();
+		return false;
+	    }
+	    rc.r()--; rc.c()--; // Users tend to start at 1
+	    tinf_.selection_.elems_ +=
+				    Table::TargetInfo::Selection::Elem(rc,kw);
+	}
     }
 
     return true;
@@ -261,6 +322,8 @@ bool commit()
     ObjectSet< ObjectSet<uiSpinBox> >	colboxes_;
     ObjectSet< ObjectSet<uiSpinBox> >	rowboxes_;
     ObjectSet< ObjectSet<uiGenInput> >	inps_;
+    ObjectSet< ObjectSet<uiLineEdit> >	kwinps_;
+    uiObject*				rightmostfld_;
     uiObject*				rightmostleftfld_;
 
     static uiGroup*			choicegrp_;
