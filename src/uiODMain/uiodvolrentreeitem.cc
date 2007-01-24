@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: uiodvolrentreeitem.cc,v 1.2 2007-01-24 14:38:19 cvskris Exp $";
+static const char* rcsID = "$Id: uiodvolrentreeitem.cc,v 1.3 2007-01-24 16:01:40 cvskris Exp $";
 
 
 #include "uiodvolrentreeitem.h"
@@ -176,7 +176,7 @@ void uiODVolrenTreeItem::createMenuCB( CallBacker* cb )
 #ifdef __DEBUG__
     mAddMenuItem( &addmnuid_, &addisosurfacemnuid_, true, false );
 #else
-    mResetMenuItem( &&addisosurfacemnuid_ );
+    mResetMenuItem( &addisosurfacemnuid_ );
 #endif
 }
 
