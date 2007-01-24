@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2002
- RCS:           $Id: uiexphorizon.cc,v 1.45 2006-12-28 21:10:33 cvsnanne Exp $
+ RCS:           $Id: uiexphorizon.cc,v 1.46 2007-01-24 15:45:40 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "emmanager.h"
 #include "emsurfaceauxdata.h"
 #include "emsurfaceiodata.h"
+#include "emsurfacetr.h"
 #include "executor.h"
 #include "filegen.h"
 #include "filepath.h"
@@ -41,7 +42,7 @@ uiExportHorizon::uiExportHorizon( uiParent* p )
 	: uiDialog(p,uiDialog::Setup("Export Horizon",
 				     "Specify output format","104.0.1"))
 {
-    infld = new uiSurfaceRead( this, true );
+    infld = new uiSurfaceRead( this, EMHorizonTranslatorGroup::keyword );
     infld->attrSelChange.notify( mCB(this,uiExportHorizon,attrSel) );
 
     typfld = new uiGenInput( this, "Output type", StringListInpSpec(exptyps) );

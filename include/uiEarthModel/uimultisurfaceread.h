@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uimultisurfaceread.h,v 1.3 2006-10-19 11:53:45 cvsbert Exp $
+ RCS:           $Id: uimultisurfaceread.h,v 1.4 2007-01-24 15:45:09 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,7 +22,7 @@ class uiLabeledListBox;
 class uiMultiSurfaceRead : public uiIOSurface
 {
 public:
-			uiMultiSurfaceRead(uiParent*,bool ishor);
+			uiMultiSurfaceRead(uiParent*,const BufferString& typ);
 			~uiMultiSurfaceRead();
 
     void		getSurfaceIds(TypeSet<MultiID>&) const;

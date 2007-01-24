@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurfacedlg.cc,v 1.19 2006-08-22 12:56:48 cvsjaap Exp $
+ RCS:           $Id: uiiosurfacedlg.cc,v 1.20 2007-01-24 15:45:40 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,7 +33,7 @@ uiWriteSurfaceDlg::uiWriteSurfaceDlg( uiParent* p, const EM::Surface& surf )
     , surface_(surf)
 {
     mDynamicCastGet(const EM::Horizon*,hor,&surface_)
-    iogrp_ = new uiSurfaceWrite( this, surface_, (bool)hor );
+    iogrp_ = new uiSurfaceWrite( this, surface_, surface_.getTypeStr() );
 }
 
 
@@ -56,10 +56,10 @@ IOObj* uiWriteSurfaceDlg::ioObj() const
 }
 
 
-uiReadSurfaceDlg::uiReadSurfaceDlg( uiParent* p, bool ishor )
+uiReadSurfaceDlg::uiReadSurfaceDlg( uiParent* p, const BufferString& typ )
     : uiDialog(p,uiDialog::Setup("Input selection","","104.3.0"))
 {
-    iogrp_ = new uiSurfaceRead( this, ishor, false );
+    iogrp_ = new uiSurfaceRead( this, typ , false );
 }
 
 
@@ -138,8 +138,7 @@ uiCopySurface::uiCopySurface( uiParent* p, const IOObj& ioobj )
     : uiDialog(p,Setup("Copy surface","","104.0.0"))
     , ctio_(mkCtxtIOObj(ioobj))
 {
-    const bool ishor = !strcmp(ioobj.group(),EM::Horizon::typeStr());
-    inpfld = new uiSurfaceRead( this, ishor, false );
+    inpfld = new uiSurfaceRead( this, ioobj.group(), false );
     inpfld->setIOObj( ioobj.key() );
 
     ctio_.ctxt.forread = false;

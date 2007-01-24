@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2003
- RCS:           $Id: uisurfaceman.cc,v 1.34 2006-11-21 14:00:07 cvsbert Exp $
+ RCS:           $Id: uisurfaceman.cc,v 1.35 2007-01-24 15:45:40 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,18 +36,36 @@ ________________________________________________________________________
 #include "uitextedit.h"
 
 
-uiSurfaceMan::uiSurfaceMan( uiParent* p, bool hor )
+#define mGetIoContext(typ) \
+    typ==EMHorizon2DTranslatorGroup::keyword ? \
+	EMHorizon2DTranslatorGroup::ioContext() :  \
+    typ==EMHorizonTranslatorGroup::keyword ?  \
+	EMHorizonTranslatorGroup::ioContext() : \
+    EMFaultTranslatorGroup::ioContext()
+
+#define mGetManageStr(typ) \
+    typ==EMHorizon2DTranslatorGroup::keyword ? \
+	"Manage 2D horizons" : \
+    typ==EMHorizonTranslatorGroup::keyword ?  \
+    	"Manage horizons" : "Manage faults" 
+    
+#define mGetCopyStr(typ) \
+    typ==EMHorizon2DTranslatorGroup::keyword ? \
+	"Copy 2D horizon" : \
+    typ==EMHorizonTranslatorGroup::keyword ?  \
+    	"Copy horizon" : "Copy fault" 
+
+uiSurfaceMan::uiSurfaceMan( uiParent* p, const BufferString& typ )
     : uiObjFileMan(p,uiDialog::Setup("Surface file management",
-                                     hor ? "Manage horizons": "Manage faults",
+                                     mGetManageStr(typ),
                                      "104.2.0").nrstatusflds(1),
-	    	   hor ? EMHorizonTranslatorGroup::ioContext()
-		       : EMFaultTranslatorGroup::ioContext() )
+		   mGetIoContext(typ) )
 {
     createDefaultUI();
     uiIOObjManipGroup* manipgrp = selgrp->getManipGroup();
 
     manipgrp->addButton( ioPixmap("copyobj.png"), mCB(this,uiSurfaceMan,copyCB),
-			 hor ? "Copy horizon" : "Copy fault" );
+			 mGetCopyStr(typ) );
 
     attribfld = new uiListBox( this, "Calculated attributes", true );
     attribfld->attach( rightOf, selgrp );

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurface.h,v 1.18 2006-03-23 14:54:25 cvsnanne Exp $
+ RCS:           $Id: uiiosurface.h,v 1.19 2007-01-24 15:45:09 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,7 +45,8 @@ public:
     bool		haveAttrSel() const;
 
 protected:
-			uiIOSurface(uiParent*,bool forread,bool ishor);
+			uiIOSurface(uiParent*,bool forread,
+				    const BufferString& typ);
 
     void		fillFields(const MultiID&);
     void		fillSectionFld(const BufferStringSet&);
@@ -73,7 +74,8 @@ protected:
 class uiSurfaceWrite : public uiIOSurface
 {
 public:
-			uiSurfaceWrite(uiParent*,const EM::Surface&,bool);
+			uiSurfaceWrite(uiParent*,const EM::Surface&,
+				       const BufferString& typ);
 
     virtual bool	processInput();
 
@@ -84,7 +86,8 @@ protected:
 class uiSurfaceRead : public uiIOSurface
 {
 public:
-    			uiSurfaceRead(uiParent*,bool,bool showattribfld=true);
+    			uiSurfaceRead(uiParent*,const BufferString& typ,
+				      bool showattribfld=true);
 
     virtual bool	processInput();
     void		setIOObj(const MultiID&);

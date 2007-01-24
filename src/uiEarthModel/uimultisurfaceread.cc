@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uimultisurfaceread.cc,v 1.4 2006-10-19 11:53:45 cvsbert Exp $
+ RCS:           $Id: uimultisurfaceread.cc,v 1.5 2007-01-24 15:45:40 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,14 +23,14 @@ ________________________________________________________________________
 #include "uimsg.h"
 
 
-uiMultiSurfaceRead::uiMultiSurfaceRead( uiParent* p, bool ishor )
-    : uiIOSurface(p,true,ishor)
+uiMultiSurfaceRead::uiMultiSurfaceRead( uiParent* p, const BufferString& typ )
+    : uiIOSurface(p,true,typ)
     , singleSurfaceSelected(this)
 {
     IOM().to( ctio.ctxt.getSelKey() );
     entrylist_ = new IODirEntryList( IOM().dirPtr(), ctio.ctxt );
 
-    BufferString lbl( "Select " ); lbl += ishor ? "Horizon(s)" : "Fault(s)";
+    BufferString lbl( "Select " ); lbl += typ; lbl += "(s)";
     surfacefld_ = new uiLabeledListBox( this, lbl, true,
 				       uiLabeledListBox::AboveMid );
     for ( int idx=0; idx<entrylist_->size(); idx++ )

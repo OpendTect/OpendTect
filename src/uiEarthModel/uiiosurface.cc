@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurface.cc,v 1.39 2006-10-30 20:44:53 cvskris Exp $
+ RCS:           $Id: uiiosurface.cc,v 1.40 2007-01-24 15:45:40 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,10 +30,14 @@ ________________________________________________________________________
 
 const int cListHeight = 5;
 
+#define mMakeCtxtIOObj(typ) \
+    typ==EMHorizon2DTranslatorGroup::keyword ? *mMkCtxtIOObj(EMHorizon2D) : \
+    typ==EMHorizonTranslatorGroup::keyword ? *mMkCtxtIOObj(EMHorizon) : \
+    *mMkCtxtIOObj(EMFault)  
 
-uiIOSurface::uiIOSurface( uiParent* p, bool forread_, bool ishor )
+uiIOSurface::uiIOSurface( uiParent* p, bool forread_, const BufferString& typ )
     : uiGroup(p,"Surface selection")
-    , ctio( ishor ? *mMkCtxtIOObj(EMHorizon) : *mMkCtxtIOObj(EMFault) )
+    , ctio( mMakeCtxtIOObj(typ) )
     , sectionfld(0)
     , attribfld(0)
     , rgfld(0)
@@ -208,8 +212,8 @@ void uiIOSurface::attrSel( CallBacker* )
 
 
 uiSurfaceWrite::uiSurfaceWrite( uiParent* p, const EM::Surface& surf_, 
-				bool ishor )
-    : uiIOSurface(p,false,ishor)
+				const BufferString& typ )
+    : uiIOSurface(p,false,typ)
 {
     if ( surf_.nrSections() > 1 )
 	mkSectionFld( false );
@@ -245,8 +249,9 @@ bool uiSurfaceWrite::processInput()
 
 
 
-uiSurfaceRead::uiSurfaceRead( uiParent* p, bool ishor, bool showattribfld )
-    : uiIOSurface(p,true,ishor)
+uiSurfaceRead::uiSurfaceRead( uiParent* p, const BufferString& typ, 
+			      bool showattribfld )
+    : uiIOSurface(p,true,typ)
 {
     mkObjFld( "Input Surface" );
 
