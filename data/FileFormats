@@ -1,0 +1,13 @@
+dTect V3.0
+File Formats
+Wed Jan 24 11:16:50 2007
+!
+Strata
+Header.Size: -1
+Header.Token: -1`~PR
+Header.Sample interval.Unit: Milliseconds
+Header.Selection.Sample interval: K`~SR`1
+Header.Selection.Center sample: K`~TZ`1
+Body.Selection.Data samples: P`-1/0
+Group: Wavelet
+!
