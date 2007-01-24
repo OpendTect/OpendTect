@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Huck
  Date:          January 2007
- RCS:           $Id: attribdatapack.cc,v 1.2 2007-01-23 15:25:53 cvshelene Exp $
+ RCS:           $Id: attribdatapack.cc,v 1.3 2007-01-24 16:50:15 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,32 +19,44 @@ ________________________________________________________________________
 CubeDataPack::CubeDataPack( Attrib::DataCubes* dc )
     : cube_(dc)
 {
-    arr2dsl_ = new Array2DSlice<float>( cube_->getCube(0) ); 
+    cube_->ref();
+    int unuseddim, dim0, dim1;
+    if ( cube_->getInlSz() < 2 )
+    {
+	unuseddim = Attrib::DataCubes::cInlDim();
+	dim0 = Attrib::DataCubes::cCrlDim();
+	dim1 = Attrib::DataCubes::cZDim();
+    }
+    else if ( cube_->getCrlSz() < 2 )
+    {
+	unuseddim = Attrib::DataCubes::cCrlDim();
+	dim0 = Attrib::DataCubes::cInlDim();
+	dim1 = Attrib::DataCubes::cZDim();
+    }
+    else
+    {
+	unuseddim = Attrib::DataCubes::cZDim();
+	dim0 = Attrib::DataCubes::cInlDim();
+	dim1 = Attrib::DataCubes::cCrlDim();
+    }
+
+    arr2dsl_ = new Array2DSlice<float>( cube_->getCube(0) );
+    arr2dsl_->setPos( unuseddim, 0 );
+    arr2dsl_->setDimMap( 0, dim0 );
+    arr2dsl_->setDimMap( 1, dim1 );
+    arr2dsl_->init();
 }
 					
 
 CubeDataPack::~CubeDataPack()
 {
     delete arr2dsl_;
+    cube_->unRef();
 }
 
 
 Array2D<float>& CubeDataPack::data()
 {
-    int inlsz = cube_->getInlSz();
-    int crlsz = cube_->getInlSz();
-    int zsz = cube_->getInlSz();
-    int unuseddim = inlsz<2 ? Attrib::DataCubes::cInlDim() 
-			    : crlsz<2 ? Attrib::DataCubes::cCrlDim()
-			    	      : Attrib::DataCubes::cZDim();
-    int dim0 = unuseddim == Attrib::DataCubes::cInlDim() ?
-		Attrib::DataCubes::cCrlDim() : Attrib::DataCubes::cInlDim();
-    int dim1 = unuseddim == Attrib::DataCubes::cZDim() ?
-		Attrib::DataCubes::cCrlDim() : Attrib::DataCubes::cZDim();
-    arr2dsl_->setPos( unuseddim, 0 );
-    arr2dsl_->setDimMap( 0, dim0 );
-    arr2dsl_->setDimMap( 1, dim1 );
-    arr2dsl_->init();
     return *arr2dsl_;
 }
 
@@ -74,4 +86,12 @@ void CubeDataPack::positioning( FlatDisp::PosData& posdata )
 const CubeSampling CubeDataPack::sampling() const
 {
     return cube_->cubeSampling();
+}
+
+
+
+VertPolyLineDataPack::~VertPolyLineDataPack()
+{
+    delete arr_;
+    delete pos_;
 }

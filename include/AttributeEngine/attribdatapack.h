@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra and Helene Huck
  Date:		January 2007
- RCS:		$Id: attribdatapack.h,v 1.3 2007-01-23 15:30:31 cvshelene Exp $
+ RCS:		$Id: attribdatapack.h,v 1.4 2007-01-24 16:50:15 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,6 +19,8 @@ template <class T> class Array2D;
 template <class T> class Array2DSlice;
 namespace Attrib { class DataCubes; }
 namespace FlatDisp { class PosData; }
+class Coord3;
+class IOPar;
 
 
 /*!\brief A cube data packet: contains sampled data + positioning */ 
@@ -37,8 +39,8 @@ public:
     const Array2D<float>&	data() const;
     void			positioning(FlatDisp::PosData&);
 
-//    float			nrKBytes() const;
-//    void			dumpInfo(IOPar&) const;
+    float			nrKBytes() const	{ return 0; }
+    void			dumpInfo(IOPar&) const	{}
 
 protected:
 
@@ -49,32 +51,31 @@ protected:
 
 /*!\brief A line data packet: contains sampled data + positioning */
 
-/*
 class VertPolyLineDataPack : public DataPack
 {
 public:
 
-    			VertPolyLineDataPack( Array2D<float>* arr,
-					      ObjectSet<Coord3D>* pos )
-			    : arr_(arr)
-			    , pos_(pos)		{}
-			~VertPolyLineDataPack()	{ delete arr_; delete pos_; }
+				VertPolyLineDataPack( Array2D<float>* arr,
+						      ObjectSet<Coord3>* pos )
+				    : arr_(arr)
+				    , pos_(pos)		{}
+				~VertPolyLineDataPack();
 
-    const ObjectSet<Coord3D>& positions() const	{ return *pos_; }
-    ObjectSet<Coord3D>& positions()		{ return *pos_; }
-    const Array2D<float>& cube() const		{ return *arr_; }
-    Array2D<float>&	cube()			{ return *arr_; }
+    const ObjectSet<Coord3>&	positions() const	{ return *pos_; }
+    ObjectSet<Coord3>&		positions()		{ return *pos_; }
+    const Array2D<float>&	cube() const		{ return *arr_; }
+    Array2D<float>&		cube()			{ return *arr_; }
 
-    float		nrKBytes() const;
-    void		dumpInfo(IOPar&) const;
+    float			nrKBytes() const	{ return 0; }	
+    void			dumpInfo(IOPar&) const	{}
 
-    virtual bool	getInfoAtPos(int,IOPar&) const	{ return false; }
+    virtual bool		getInfoAtPos(int,IOPar&) const
+				    { return false; }
 
 protected:
 
-    CubeSampling	cs_;
-    Attrib::DataCube*		cube_;
+    ObjectSet<Coord3>*	pos_;
+    Array2D<float>*	arr_;
 };
-*/
 
 #endif
