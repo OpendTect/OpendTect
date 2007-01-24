@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uimaterialdlg.cc,v 1.11 2007-01-11 22:07:35 cvskris Exp $
+ RCS:           $Id: uimaterialdlg.cc,v 1.12 2007-01-24 16:33:21 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -62,6 +62,13 @@ uiPropertiesDlg::uiPropertiesDlg( uiParent* p, visSurvey::SurveyObject* so )
 }
 
 
+#define mFinalise( sldr, fn ) \
+if ( sldr ) \
+{ \
+    sldr->setInterval( StepInterval<float>( 0, 100, 10 ) ); \
+    sldr->setValue( material_->fn()*100 ); \
+}
+
 uiMaterialGrp::uiMaterialGrp( uiParent* p, visSurvey::SurveyObject* so,
        bool ambience, bool diffusecolor, bool specularcolor,
        bool emmissivecolor, bool shininess, bool transparency, bool color )
@@ -91,13 +98,13 @@ uiMaterialGrp::uiMaterialGrp( uiParent* p, visSurvey::SurveyObject* so,
     createSlider( emmissivecolor, emisslider_, "Emissive intensity" );
     createSlider( shininess, shineslider_, "Shininess" );
     createSlider( transparency, transslider_, "Transparency" );
-}
 
-#define mFinalise( sldr, fn ) \
-if ( sldr ) \
-{ \
-    sldr->setInterval( StepInterval<float>( 0, 100, 10 ) ); \
-    sldr->setValue( material_->fn()*100 ); \
+    mFinalise( ambslider_, getAmbience );
+    mFinalise( diffslider_, getDiffIntensity );
+    mFinalise( specslider_, getSpecIntensity );
+    mFinalise( emisslider_, getEmmIntensity );
+    mFinalise( shineslider_, getShininess );
+    mFinalise( transslider_, getTransparency );
 }
 
 
@@ -111,13 +118,6 @@ void uiMaterialGrp::createSlider( bool domk, uiSlider*& slider,
     slider->valueChanged.notify( mCB(this,uiMaterialGrp,sliderMove) );
     if ( prevobj_ ) se->attach( alignedBelow, prevobj_ );
     prevobj_ = se;
-
-    mFinalise( ambslider_, getAmbience )
-    mFinalise( diffslider_, getDiffIntensity )
-    mFinalise( specslider_, getSpecIntensity )
-    mFinalise( emisslider_, getEmmIntensity )
-    mFinalise( shineslider_, getShininess )
-    mFinalise( transslider_, getTransparency )
 
     if ( colinp_ ) colinp_->setColor( material_->getColor() );
 }

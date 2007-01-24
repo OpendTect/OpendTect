@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uimaterialdlg.h,v 1.9 2007-01-11 22:07:35 cvskris Exp $
+ RCS:           $Id: uimaterialdlg.h,v 1.10 2007-01-24 16:33:21 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -52,7 +52,6 @@ protected:
     uiSlider*			transslider_;
     uiGroup*			prevobj_;
 
-    void			doFinalise(CallBacker*);
     void			sliderMove(CallBacker*);
     void			colorChangeCB(CallBacker*);
 };
