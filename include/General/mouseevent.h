@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          September 2005
- RCS:           $Id: mouseevent.h,v 1.3 2006-09-21 14:35:35 cvskris Exp $
+ RCS:           $Id: mouseevent.h,v 1.4 2007-01-24 14:27:11 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,6 +45,38 @@ protected:
     Geom::Point2D<int>		pos_;
 };
 
+/*!
+Handles mouse events. An instance of the MouseEventHandler is provided by
+the object that detects the mouse-click, e.g. a gui or visualization object.
+
+Once the event callback is recieved, it MUST check if someone else have
+handled the event and taken necessary actions. If it is not already handled,
+and your class handles it, it should set the isHandled flag to prevent
+other objects in the callback chain to handle the event. It is often a good
+idea to be very specific what events your function should handle to avoid
+interference with other objects that are in the callback chain. As an example,
+see the code below: The if-statement will only let right-clicks when no other
+mouse or keyboard button are pressed through.
+
+\code
+
+void MyClass::handleMouseClick( CallBacker* cb )
+{
+    if ( eventhandler_->isHandled() )
+    	return;
+
+    const MouseEvent& event = eventhandler_->event();
+    if ( event.rightButton() && !event.leftButton() && !event.middleButton() &&
+    	 !event.ctrlStatus() && !event.altStatus() && !event.shiftStatus() )
+    {
+        eventhandler_->setHandled( true );
+    	//show and handle menu
+    }
+}
+
+/endcode
+
+*/
 
 class MouseEventHandler : public CallBacker
 {
