@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribstorprovider.cc,v 1.51 2007-01-04 15:29:26 cvshelene Exp $";
+static const char* rcsID = "$Id: attribstorprovider.cc,v 1.52 2007-01-24 17:31:58 cvskris Exp $";
 
 #include "attribstorprovider.h"
 
@@ -552,6 +552,7 @@ bool StorageProvider::fillDataHolderWithTrc( const SeisTrc* trc,
 	offset = mNINT( z0 - exacttime/refstep );
     }
     
+    const Interval<float> trcrange = trc->info().sampling.interval( trc->size() );
     for ( int idx=0; idx<data.nrsamples_; idx++ )
     {
 	const float curt = needinterp ? exacttime + (offset+idx)*refstep 
@@ -562,7 +563,10 @@ bool StorageProvider::fillDataHolderWithTrc( const SeisTrc* trc,
 	    if ( outputinterest[idy] )
 	    {
 		compidx++;
-		float val = trc->getValue( curt, compidx );
+		const float val = trcrange.includes(curt) 
+		    ? trc->getValue( curt, compidx )
+		    : mUdf(float);
+
 		const_cast<DataHolder&>(data).series(idy)->setValue(idx,val);
 	    }
 	}
@@ -620,6 +624,7 @@ void StorageProvider::fillDataCubesWithTrc( DataCubes* dc ) const
     const SeisTrc* trc = rg[currentreq]->get(0,0);
     if ( !trc ) return;
 
+    const Interval<float> trcrange = trc->info().sampling.interval( trc->size() );
     const BinID bid = trc->info().binid;
     if ( dc->includes( bid ) )
     {
@@ -636,6 +641,9 @@ void StorageProvider::fillDataCubesWithTrc( DataCubes* dc ) const
 		    cubeidx++;
 		    if ( cubeidx >= dc->nrCubes() )
 			dc->addCube(mUdf(float));
+
+		    if ( !trcrange.includes(curt) )
+			continue;
 
 		    float val = trc->getValue( curt, idx );
 		    dc->setValue( cubeidx, inlidx, crlidx, idz, val );
