@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodmain.cc,v 1.56 2007-01-23 16:28:13 cvsbert Exp $
+ RCS:           $Id: uiodmain.cc,v 1.57 2007-01-24 16:55:44 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -236,8 +236,29 @@ CtxtIOObj* uiODMain::getUserSessionIOData( bool restore )
 }
 
 
+static bool hasSceneItems( uiVisPartServer* visserv )
+{
+    TypeSet<int> sceneids;
+    visserv->getChildIds( -1, sceneids );
+    if ( sceneids.isEmpty() ) return false;
+
+    int nrchildren = 0;
+    TypeSet<int> visids;
+    for ( int idx=0; idx<sceneids.size(); idx++ )
+    {
+	visserv->getChildIds( sceneids[0], visids );
+	nrchildren += visids.size();
+    }
+
+    return nrchildren>sceneids.size()*3;
+}
+
+
 bool uiODMain::hasSessionChanged()
 {
+    if ( !hasSceneItems(applMgr().visServer()) )
+	return false;
+
     ODSession sess;
     cursession = &sess;
     updateSession();
