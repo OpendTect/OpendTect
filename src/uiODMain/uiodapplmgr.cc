@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.172 2007-01-23 16:24:31 cvsnanne Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.173 2007-01-24 15:55:18 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,6 +28,7 @@ ________________________________________________________________________
 #include "visrandomtrackdisplay.h"
 
 #include "emseedpicker.h"
+#include "emsurfacetr.h"
 #include "emtracker.h"
 #include "mpeengine.h"
 #include "externalattrib.h"
@@ -200,14 +201,16 @@ void uiODApplMgr::doOperation( ObjType ot, ActType at, int opt )
 	    else if ( opt == 1 )
 		emserv_->importHorizonAttribute();
 	    break;
-	case Exp:	emserv_->exportHorizon();	break;
-	case Man:	emserv_->manageSurfaces(true);	break;
+	case Exp:	emserv_->exportHorizon();			break;
+	case Man:	emserv_->manageSurfaces(
+				 EMHorizonTranslatorGroup::keyword );	break;
 	}
     break;
     case Flt:
         switch( at )
 	{
-	case Man:	emserv_->manageSurfaces(false);	break;
+	case Man:	emserv_->manageSurfaces(
+				 EMFaultTranslatorGroup::keyword );	break;
 	}
     break;
     case Wll:
