@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Sep 2002
- RCS:           $Id: uiempartserv.h,v 1.45 2006-12-27 15:06:07 cvsnanne Exp $
+ RCS:           $Id: uiempartserv.h,v 1.46 2007-01-24 15:32:56 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,15 +51,18 @@ public:
     const char*		getType(const EM::ObjectID&) const;
 
     bool		isChanged(const EM::ObjectID&) const;
+    bool		isEmpty(const EM::ObjectID&) const;
     bool		isFullResolution(const EM::ObjectID&) const;
     bool		isFullyLoaded(const EM::ObjectID&) const;
     void		fillHoles(const EM::ObjectID&);
     void		filterSurface(const EM::ObjectID&);
+    void		deriveHor3DFrom2D(const EM::ObjectID&);
     void		askUserToSave(const EM::ObjectID&) const;
     			/*!< If object has changed, user is asked whether
 			    to save it or not, and if so, the object is saved */
 
     void		selectHorizons(TypeSet<EM::ObjectID>&);
+    void		select2DHorizons(TypeSet<EM::ObjectID>&);
     void		selectFaults(TypeSet<EM::ObjectID>&);
     bool		showLoadAuxDataDlg(const EM::ObjectID&);
     int			loadAuxData(const EM::ObjectID&,const char*);
@@ -68,7 +71,7 @@ public:
 
     bool		importLMKFault();
 
-    void		manageSurfaces(bool hor=true);
+    void		manageSurfaces(const BufferString& typ);
     bool		loadSurface(const MultiID&,
 	    			    const EM::SurfaceIODataSelection* s=0);
     void		getSurfaceInfo(ObjectSet<SurfaceInfo>&);
@@ -97,7 +100,8 @@ public:
     const EM::ObjectID&	selEMID() const			{ return selemid_; }
 
 protected:
-    void		selectSurfaces(TypeSet<EM::ObjectID>&,bool);
+    void		selectSurfaces(TypeSet<EM::ObjectID>&,
+				       const BufferString& typ);
     bool		loadAuxData(const EM::ObjectID&, const TypeSet<int>& );
 
     EM::ObjectID	selemid_;
