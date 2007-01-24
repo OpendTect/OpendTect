@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          13/8/2000
- RCS:           $Id: uidlggroup.h,v 1.1 2006-11-21 20:21:47 cvskris Exp $
+ RCS:           $Id: uidlggroup.h,v 1.2 2007-01-24 17:33:51 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -70,6 +70,8 @@ public:
 
     uiParent*	tabParent();
     void	addGroup( uiDlgGroup* grp );
+    
+    uiDlgGroup*	getGroup( int idx )		{ return groups_[idx]; }
 
 protected:
     bool			acceptOK(CallBacker*);
