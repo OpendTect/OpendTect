@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.158 2007-01-25 12:51:30 cvsnanne Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.159 2007-01-25 23:09:49 cvskris Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -1141,7 +1141,6 @@ void PlaneDataDisplay::getMousePosInfo( const visBase::EventInfo&,
 	    fval = set.getVals(setpos)[version+1];
 	}
 
-
 	bool islowest = true;
 	for ( int idy=idx-1; idy>=0; idy-- )
 	{
@@ -1162,19 +1161,17 @@ void PlaneDataDisplay::getMousePosInfo( const visBase::EventInfo&,
 	}
 
 	if ( !mIsUdf(fval) )
-	{
 	    val = fval;
-	    if ( volumecache_.size()>1 )
-	    {
-		BufferString attribstr = "(";
-		attribstr += as_[idx]->userRef();
-		attribstr += ")";
-		val.insertAt( cValNameOffset(), (const char*)attribstr);
-	    }
 
-	    return;
+	if ( volumecache_.size()>1 )
+	{
+	    BufferString attribstr = "(";
+	    attribstr += as_[idx]->userRef();
+	    attribstr += ")";
+	    val.insertAt( cValNameOffset(), (const char*)attribstr);
 	}
 
+	return;
     }
 
     return;
