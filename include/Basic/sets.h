@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		April 1995
  Contents:	Sets of simple objects
- RCS:		$Id: sets.h,v 1.41 2006-11-20 14:14:11 cvsnanne Exp $
+ RCS:		$Id: sets.h,v 1.42 2007-01-25 12:49:40 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -54,6 +54,16 @@ public:
     			{
 			    for ( int idx=size()-1; idx>=0; idx-- )
 				tvec[idx] = val;
+			}
+
+    void		swap( int idx0, int idx1 )
+			{
+			    if ( !validIdx(idx0) || !validIdx(idx1) )
+				return;
+
+			    T tmp = tvec[idx0];
+			    tvec[idx0] = tvec[idx1];
+			    tvec[idx1] = tmp;
 			}
 
     virtual bool	isEmpty() const
