@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          March 2005
- RCS:           $Id: uiemhorizoneditor.cc,v 1.16 2006-04-27 15:54:53 cvskris Exp $
+ RCS:           $Id: uiemhorizoneditor.cc,v 1.17 2007-01-25 10:09:47 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -102,7 +102,7 @@ uiEMEditor* uiEMHorizonEditor::create( uiParent* p, MPE::ObjectEditor* e )
 
 uiEMHorizonEditor::uiEMHorizonEditor( uiParent* p, MPE::HorizonEditor* he )
     : uiEMObjectEditor( p, he )
-    , editsettingsmnuitem( "Editor settings" )
+    , editsettingsmnuitem( "Editor settings ..." )
     , splitsectionmnuitem( "Split" )
     , makestoplinemnuitem( "Disable Tracking" )
     , removenodesmnuitem( "Remove nodes inside" )
