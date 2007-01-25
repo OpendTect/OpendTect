@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribprovider.cc,v 1.83 2007-01-15 11:13:56 cvshelene Exp $";
+static const char* rcsID = "$Id: attribprovider.cc,v 1.84 2007-01-25 12:48:54 cvsnanne Exp $";
 
 #include "attribprovider.h"
 #include "attribstorprovider.h"
@@ -157,9 +157,18 @@ Provider* Provider::internalCreate( Desc& desc, ObjectSet<Provider>& existing,
     {
 	existing.remove( existing.indexOf(res), existing.size()-1 );
 	res->unRef();
-	errstr = "Attribute \""; errstr += res->desc.userRef(); 
-	errstr += "\" of type \"";errstr += res->desc.attribName(); 
-	errstr += "\" cannot be initialized";
+	BufferString attribnm = res->desc.attribName();
+	if ( attribnm == StorageProvider::attribName() )
+	{
+	    errstr = "Cannot load Stored Cube '";
+	    errstr += res->desc.userRef(); errstr += "'";
+	}
+	else
+	{
+	    errstr = "Attribute \""; errstr += res->desc.userRef(); 
+	    errstr += "\" of type \""; errstr += attribnm;
+	    errstr += "\" cannot be initialized";
+	}
 	return 0;
     }
 
