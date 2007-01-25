@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Huck
  Date:          January 2007
- RCS:           $Id: attribdatapack.cc,v 1.5 2007-01-25 09:29:40 cvsnanne Exp $
+ RCS:           $Id: attribdatapack.cc,v 1.6 2007-01-25 21:50:45 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,18 +16,18 @@ ________________________________________________________________________
 #include "arrayndslice.h"
 
 
-CubeDataPack::CubeDataPack( Attrib::DataCubes* dc )
+CubeDataPack::CubeDataPack( Attrib::DataCubes& dc )
     : cube_(dc)
 {
-    cube_->ref();
+    cube_.ref();
     int unuseddim, dim0, dim1;
-    if ( cube_->getInlSz() < 2 )
+    if ( cube_.getInlSz() < 2 )
     {
 	unuseddim = Attrib::DataCubes::cInlDim();
 	dim0 = Attrib::DataCubes::cCrlDim();
 	dim1 = Attrib::DataCubes::cZDim();
     }
-    else if ( cube_->getCrlSz() < 2 )
+    else if ( cube_.getCrlSz() < 2 )
     {
 	unuseddim = Attrib::DataCubes::cCrlDim();
 	dim0 = Attrib::DataCubes::cInlDim();
@@ -40,7 +40,7 @@ CubeDataPack::CubeDataPack( Attrib::DataCubes* dc )
 	dim1 = Attrib::DataCubes::cCrlDim();
     }
 
-    arr2dsl_ = new Array2DSlice<float>( cube_->getCube(0) );
+    arr2dsl_ = new Array2DSlice<float>( cube_.getCube(0) );
     arr2dsl_->setPos( unuseddim, 0 );
     arr2dsl_->setDimMap( 0, dim0 );
     arr2dsl_->setDimMap( 1, dim1 );
@@ -51,7 +51,7 @@ CubeDataPack::CubeDataPack( Attrib::DataCubes* dc )
 CubeDataPack::~CubeDataPack()
 {
     delete arr2dsl_;
-    cube_->unRef();
+    cube_.unRef();
 }
 
 
@@ -85,7 +85,7 @@ void CubeDataPack::positioning( FlatDisp::PosData& posdata )
 
 const CubeSampling CubeDataPack::sampling() const
 {
-    return cube_->cubeSampling();
+    return cube_.cubeSampling();
 }
 
 
