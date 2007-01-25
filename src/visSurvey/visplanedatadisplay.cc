@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.156 2007-01-25 09:29:40 cvsnanne Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.157 2007-01-25 10:56:51 cvsnanne Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -139,8 +139,8 @@ PlaneDataDisplay::PlaneDataDisplay()
     rposcache_ += 0;
     datapackids_ += -1;
 
-    setTranslationDragKeys( true, OD::ControlButton );
-    setTranslationDragKeys( false, OD::NoButton );
+    setTranslationDragKeys( true, OD::NoButton );
+    setTranslationDragKeys( false, OD::ShiftButton );
 }
 
 
