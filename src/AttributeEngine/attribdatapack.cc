@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Huck
  Date:          January 2007
- RCS:           $Id: attribdatapack.cc,v 1.3 2007-01-24 16:50:15 cvsnanne Exp $
+ RCS:           $Id: attribdatapack.cc,v 1.4 2007-01-25 08:52:36 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -78,8 +78,8 @@ void CubeDataPack::positioning( FlatDisp::PosData& posdata )
     int nrzsamp = cs.nrZ();
     posdata.x1rg_ = nrinl<2 ? mBuildInterval( cs.hrg.crlRange() )
 			    : mBuildInterval( cs.hrg.inlRange() );
-    posdata.x2rg_ = nrinl>2 ? mBuildInterval( cs.hrg.crlRange() )
-			    : mBuildInterval( cs.zrg );
+    posdata.x2rg_ = nrinl>2 && nrcrl>2 ? mBuildInterval( cs.hrg.crlRange() )
+				       : mBuildInterval( cs.zrg );
 }
 
 
