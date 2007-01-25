@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.157 2007-01-25 10:56:51 cvsnanne Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.158 2007-01-25 12:51:30 cvsnanne Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -591,6 +591,7 @@ bool PlaneDataDisplay::removeAttrib( int attrib )
     volumecache_.remove( attrib );
     if ( rposcache_[attrib] ) delete rposcache_[attrib];
     rposcache_.remove( attrib );
+    datapackids_.remove( attrib );
 
     texture_->removeTexture( attrib );
 
@@ -608,6 +609,7 @@ bool PlaneDataDisplay::swapAttribs( int a0, int a1 )
     as_.swap( a0, a1 );
     volumecache_.swap( a0, a1 );
     rposcache_.swap( a0, a1 );
+    datapackids_.swap( a0, a1 );
 
     return true;
 }
@@ -642,6 +644,7 @@ void PlaneDataDisplay::setSelSpec( int attrib, const Attrib::SelSpec& as )
     volumecache_.replace( attrib, 0 );
     if ( rposcache_[attrib] ) delete rposcache_[attrib];
     rposcache_.replace( attrib, 0 );
+    datapackids_[attrib] = -1;
 
     const char* usrref = as.userRef();
     if ( !usrref || !*usrref )
