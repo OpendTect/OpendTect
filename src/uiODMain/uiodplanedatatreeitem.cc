@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodplanedatatreeitem.cc,v 1.10 2006-08-15 11:33:31 cvsnanne Exp $
+ RCS:		$Id: uiodplanedatatreeitem.cc,v 1.11 2007-01-25 23:07:39 cvskris Exp $
 ___________________________________________________________________
 
 -*/
@@ -172,10 +172,10 @@ void uiODPlaneDataTreeItem::createMenuCB( CallBacker* cb )
 	          false );
     mAddMenuItem( menu, &gridlinesmnuitem_, true, false );
 
-    uiSeisPartServer* seisserv = applMgr()->seisServer();
     int type = menu->getMenuType();
     if ( type==uiMenuHandler::fromScene )
     {
+	uiSeisPartServer* seisserv = applMgr()->seisServer();
 	MenuItem* displaygathermnu = seisserv->storedGathersSubMenu( true );
 	if ( displaygathermnu )
 	{
