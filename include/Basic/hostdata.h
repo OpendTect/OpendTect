@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Apr 2002
- RCS:           $Id: hostdata.h,v 1.22 2006-11-21 14:00:06 cvsbert Exp $
+ RCS:           $Id: hostdata.h,v 1.23 2007-01-25 16:19:53 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -175,6 +175,11 @@ protected:
     void		handleLocal();
     bool		readHostFile(const char*);
     HostData*		findHost(const char*) const;
+
+public:
+
+    void		dump(std::ostream&) const;
+
 };
 
 #undef mRetNoneIfEmpty

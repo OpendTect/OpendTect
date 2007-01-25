@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Apr 2002
- RCS:           $Id: hostdata.cc,v 1.33 2006-11-21 14:00:06 cvsbert Exp $
+ RCS:           $Id: hostdata.cc,v 1.34 2007-01-25 16:19:53 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,6 +22,7 @@ ________________________________________________________________________
 #include "filepath.h"
 #include "debugmasks.h"
 #include <iostream>
+#include <sstream>
 #ifdef __win__
 # include <windows.h>
 #else
@@ -232,33 +233,38 @@ bool HostDataList::readHostFile( const char* fname )
 	{
 	    SeparString val( astrm.value(), ':' );
 
-	    if ( val[0] && *val[0] )
-		newhd->aliases_ += new BufferString( val[0] );
+	    const char* vstr = val[0];
+	    if ( vstr && *vstr )
+		newhd->aliases_ += new BufferString( vstr );
 
-	    if ( val[1] && *val[1] )
+	    vstr = val[1];
+	    if ( vstr && *vstr )
 	    {
-		char* ptr = const_cast<char*>(val[1]);
+		BufferString valstr( vstr );
+		char* ptr = valstr.buf();
 		skipLeadingBlanks( ptr ); removeTrailingBlanks( ptr );
 		newhd->iswin_ = !strcmp( ptr, "win" );
 	    }
 
-	    if ( val[2] && *val[2] )
-		newhd->data_pr_ = (char*)val[2];
+	    vstr = val[2];
+	    if ( vstr && *vstr )
+		newhd->data_pr_ = vstr;
 	    else 
 		newhd->data_pr_ = newhd->iswin_ ? win_data_pr_ : unx_data_pr_;
 
-	    if ( val[3] && *val[3] )
-		newhd->appl_pr_ = (char*)val[3];
+	    vstr = val[3];
+	    if ( vstr && *vstr )
+		newhd->appl_pr_ = vstr;
 	    else 
 		newhd->appl_pr_ = newhd->iswin_ ? win_appl_pr_ : unx_appl_pr_;
 
-	    if ( val[4] && *val[4] )
-		newhd->pass_ = (char*)val[4];
+	    vstr = val[4];
+	    if ( vstr && *vstr )
+		newhd->pass_ = vstr;
 	    else if ( newhd->iswin_ )
 		newhd->pass_ = sharedata_.pass_;
 
 	    newhd->setShareData( &sharedata_ ); 
-
 	}
 	*this += newhd;
     }
@@ -285,7 +291,64 @@ bool HostDataList::readHostFile( const char* fname )
     }
 
     sd.close();
+    if ( mDebugOn )
+    {
+	std::ostringstream strstrm;
+	dump( strstrm );
+	DBG::message( strstrm.str().c_str() );
+    }
     return true;
+}
+
+
+#define mPrMemb(obj,x) { strm << "-- " << #x << "='" << obj->x << "'\n"; }
+
+void HostDataList::dump( std::ostream& strm ) const
+{
+    strm << "\n\n-- Host data list:\n--\n";
+    mPrMemb(this,rshcomm_)
+    mPrMemb(this,defnicelvl_)
+    mPrMemb(this,portnr_)
+    mPrMemb(this,win_appl_pr_.fullPath())
+    mPrMemb(this,unx_appl_pr_.fullPath())
+    mPrMemb(this,win_data_pr_.fullPath())
+    mPrMemb(this,unx_data_pr_.fullPath())
+    const ShareData* sd = &sharedata_;
+    strm << "-- -- Global share data:\n";
+    mPrMemb(sd,drive_)
+    mPrMemb(sd,share_)
+    mPrMemb(sd,pass_)
+    if ( sd->host_ )
+	mPrMemb(sd,host_->name())
+    else
+	strm << "-- No sharedata_->host_\n";
+    strm << "--\n-- -- Host data:\n--\n";
+    for ( int idx=0; idx<size(); idx++ )
+    {
+	const HostData* hd = (*this)[idx];
+	mPrMemb(hd,name_)
+	mPrMemb(hd,iswin_)
+	mPrMemb(hd,appl_pr_.fullPath())
+	mPrMemb(hd,data_pr_.fullPath())
+	mPrMemb(hd,pass_)
+	if ( hd->localhd_ )
+	    mPrMemb(hd,localhd_->name())
+	else
+	    strm << "-- No localhd_\n";
+	sd = hd->sharedata_;
+	if ( sd )
+	{
+	    strm << "-- -- -- Share data:\n";
+	    mPrMemb(sd,drive_)
+	    mPrMemb(sd,share_)
+	    mPrMemb(sd,pass_)
+	    if ( sd->host_ )
+		mPrMemb(sd,host_->name())
+	    else
+		strm << "-- No sharedata_->host_\n";
+	}
+	strm << "--" << std::endl;
+    }
 }
 
 
