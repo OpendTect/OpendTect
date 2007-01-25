@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          25/05/2000
- RCS:           $Id: uiioobjmanip.cc,v 1.27 2006-11-21 14:00:08 cvsbert Exp $
+ RCS:           $Id: uiioobjmanip.cc,v 1.28 2007-01-25 12:40:59 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -252,7 +252,13 @@ bool uiIOObjManipGroup::renameEntry( IOObj* ioobj, Translator* tr )
 	    FilePath fp( iostrm->fileName() );
 	    if ( tr )
 		chiostrm.setExt( tr->defExtension() );
+
+	    BufferString cleannm( chiostrm.name() );
+	    cleanupString( cleannm.buf(), YES, NO, YES );
+	    chiostrm.setName( cleannm );
 	    chiostrm.genDefaultImpl();
+	    chiostrm.setName( newnm );
+
 	    FilePath deffp( chiostrm.fileName() );
 	    fp.setFileName( deffp.fileName() );
 	    chiostrm.setFileName( fp.fullPath() );
