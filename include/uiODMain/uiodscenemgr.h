@@ -6,13 +6,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.h,v 1.37 2007-01-24 16:54:15 cvsnanne Exp $
+ RCS:           $Id: uiodscenemgr.h,v 1.38 2007-01-25 21:51:42 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiodapplmgr.h"
 
+#include "datapack.h"
 #include "emposid.h"
 
 
@@ -93,7 +94,8 @@ public:
 
     void			getSoViewers(ObjectSet<uiSoViewer>&);
 
-    void			addViewer2D(int visid,int attribid);
+    void			displayIn2DViewer(int visid,int attribid,
+	    					  bool wva);
 
     void			updateTrees();
     void			rebuildTrees();
@@ -139,21 +141,22 @@ protected:
 			Viewer2D(uiODMain&,int visid);
 			~Viewer2D()		{}
 
-	void		setData(int datamgrid,int datapackid,bool wva);
+	void		setData(DataPackMgr::ID,DataPack::ID,bool wva);
 
 	uiDockWin*	viewwin_;
 	FlatDisp::uiFlatViewGen* flatviewgen_;
 	uiODMain&	appl_;
 
 	int		visid_;
-	int		datamgrid_;
-	int		datapackid_;
+	DataPackMgr::ID	datamgrid_;
+	DataPack::ID	datapackid_;
     };
 
     uiODMain&			appl_;
     uiWorkSpace*		wsp_;
     ObjectSet<uiODSceneMgr::Scene>	scenes_;
     ObjectSet<uiODSceneMgr::Viewer2D>	viewers2d_;
+    Viewer2D&			addViewer2D(int visid);
 
     int				vwridx_;
     float			lasthrot_, lastvrot_, lastdval_;

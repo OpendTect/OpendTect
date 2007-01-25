@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.77 2007-01-24 16:54:15 cvsnanne Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.78 2007-01-25 21:51:42 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -781,13 +781,30 @@ uiTreeItem* uiODSceneMgr::findItem( int displayid )
 }
 
 
-void uiODSceneMgr::addViewer2D( int visid, int attribid )
+void uiODSceneMgr::displayIn2DViewer( int visid, int attribid, bool dowva )
 {
+    Viewer2D* curvwr = 0;
+    for ( int idx=0; idx<viewers2d_.size(); idx++ )
+    {
+	if ( viewers2d_[idx]->visid_ != visid )
+	    continue;
+	curvwr = viewers2d_[idx];
+	break;
+    }
+
+    if ( !curvwr )
+	curvwr = &addViewer2D( visid );
+
     // TODO: make mgrid static somewhere
-    // Check that there's just one viewer per visid
+    curvwr->setData( 0, visServ().getCacheID(visid,attribid), dowva );
+}
+
+
+uiODSceneMgr::Viewer2D& uiODSceneMgr::addViewer2D( int visid )
+{
     Viewer2D* vwr = new Viewer2D( appl_, visid );
-    vwr->setData( 0, visServ().getCacheID(visid,attribid), true );
     viewers2d_ += vwr;
+    return *vwr;
 }
 
 
@@ -838,16 +855,20 @@ uiODSceneMgr::Viewer2D::Viewer2D( uiODMain& appl, int visid )
 }
 
 
-void uiODSceneMgr::Viewer2D::setData( int datamgrid, int datapackid, bool wva )
+void uiODSceneMgr::Viewer2D::setData( DataPackMgr::ID mgrid,
+				      DataPack::ID packid, bool wva )
 {
     if ( !viewwin_ )
     {
 	viewwin_ = new uiDockWin( 0, "Viewer 2D" );
 	viewwin_->setResizeEnabled( true );
 	viewwin_->setCloseMode( uiDockWin::Undocked );
-	flatviewgen_ = new FlatDisp::uiFlatViewGen( viewwin_, datamgrid,
-						    datapackid, true, false );
+	flatviewgen_ = new FlatDisp::uiFlatViewGen( viewwin_, mgrid,
+						    packid, true, false );
 	appl_.addDockWindow( *viewwin_, uiMainWin::Left );
 	viewwin_->undock();
     }
+    
+    flatviewgen_->setData( mgrid, packid, wva );
+    viewwin_->display( true );
 }

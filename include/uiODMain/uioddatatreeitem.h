@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		May 2006
- RCS:		$Id: uioddatatreeitem.h,v 1.4 2007-01-17 10:33:06 cvshelene Exp $
+ RCS:		$Id: uioddatatreeitem.h,v 1.5 2007-01-25 21:51:42 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -80,6 +80,8 @@ protected:
     MenuItem		removemnuitem_;
     MenuItem		changetransparencyitem_;
     MenuItem		addto2dvieweritem_;
+    MenuItem		view2dwvaitem_;
+    MenuItem		view2dvditem_;
     const char*		parenttype_;
 
     static TypeSet<Creator>	creators_;

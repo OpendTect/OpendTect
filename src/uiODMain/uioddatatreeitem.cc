@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uioddatatreeitem.cc,v 1.9 2007-01-24 16:54:15 cvsnanne Exp $
+ RCS:		$Id: uioddatatreeitem.cc,v 1.10 2007-01-25 21:51:42 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -33,14 +33,16 @@ uiODDataTreeItem::uiODDataTreeItem( const char* parenttype )
     : uiTreeItem( "" )
     , parenttype_( parenttype )
     , menu_( 0 )
-    , movemnuitem_( "Move ..." )
+    , movemnuitem_( "Move" )
     , movetotopmnuitem_( "to top" )
     , movetobottommnuitem_( "to bottom" )
     , moveupmnuitem_( "up" )
     , movedownmnuitem_( "down" )
     , removemnuitem_("Remove" )
     , changetransparencyitem_( "Change transparency ..." )
-    , addto2dvieweritem_( "Display on a 2D Viewer" )
+    , addto2dvieweritem_( "Display in a 2D Viewer as" )
+    , view2dwvaitem_("Wiggle")
+    , view2dvditem_("VD")
 {}
 
 
@@ -208,9 +210,17 @@ void uiODDataTreeItem::createMenuCB( CallBacker* cb )
 	mResetMenuItem( &changetransparencyitem_ );
 
     if ( visserv->canBDispOn2DViewer(displayID()) )
+    {
+	mAddMenuItem( &addto2dvieweritem_, &view2dwvaitem_, true, false )
+	mAddMenuItem( &addto2dvieweritem_, &view2dvditem_, true, false )
 	mAddMenuItem( menu, &addto2dvieweritem_, true, false )
+    }
     else
+    {
 	mResetMenuItem( &addto2dvieweritem_ );
+	mResetMenuItem( &view2dwvaitem_ );
+	mResetMenuItem( &view2dvditem_ );
+    }
 }
 
 
@@ -281,9 +291,10 @@ void uiODDataTreeItem::handleMenuCB( CallBacker* cb )
 	visserv->showAttribTransparencyDlg( displayID(), attribNr() );
 	menu->setIsHandled( true );
     }
-    else if ( mnuid==addto2dvieweritem_.id )
+    else if ( mnuid==view2dwvaitem_.id || mnuid==view2dvditem_.id )
     {
-	ODMainWin()->sceneMgr().addViewer2D( displayID(), attribNr() );
+	ODMainWin()->sceneMgr().displayIn2DViewer( displayID(), attribNr(),
+						   mnuid==view2dwvaitem_.id );
 	menu->setIsHandled( true );
     }
     else if ( mnuid==removemnuitem_.id )
