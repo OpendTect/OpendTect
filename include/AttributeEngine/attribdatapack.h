@@ -1,5 +1,5 @@
-#ifndef datapackimpl_h
-#define datapackimpl_h
+#ifndef attribdatapack_h
+#define attribdatapack_h
 
 /*+
 ________________________________________________________________________
@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra and Helene Huck
  Date:		January 2007
- RCS:		$Id: attribdatapack.h,v 1.4 2007-01-24 16:50:15 cvsnanne Exp $
+ RCS:		$Id: attribdatapack.h,v 1.5 2007-01-25 09:29:40 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/

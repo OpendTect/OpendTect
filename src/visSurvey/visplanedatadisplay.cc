@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.155 2007-01-24 16:47:49 cvsnanne Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.156 2007-01-25 09:29:40 cvsnanne Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -13,7 +13,7 @@ static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.155 2007-01-24 16:47
 #include "attribdatacubes.h"
 #include "arrayndslice.h"
 #include "binidvalset.h"
-#include "datapackimpl.h"
+#include "attribdatapack.h"
 #include "genericnumer.h"
 #include "keyenum.h"
 #include "survinfo.h"

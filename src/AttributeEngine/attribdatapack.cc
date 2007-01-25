@@ -4,12 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Huck
  Date:          January 2007
- RCS:           $Id: attribdatapack.cc,v 1.4 2007-01-25 08:52:36 cvshelene Exp $
+ RCS:           $Id: attribdatapack.cc,v 1.5 2007-01-25 09:29:40 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "datapackimpl.h"
+#include "attribdatapack.h"
 #include "attribdatacubes.h"
 #include "flatdisp.h"
 #include "arraynd.h"
