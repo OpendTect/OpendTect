@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodmain.cc,v 1.57 2007-01-24 16:55:44 cvsnanne Exp $
+ RCS:           $Id: uiodmain.cc,v 1.58 2007-01-25 23:06:23 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -119,6 +119,9 @@ uiODMain::uiODMain( uicMain& a )
 
 uiODMain::~uiODMain()
 {
+    if ( ODMainWin()==this )
+	manODMainWin( 0 );
+
     delete ctabed;
     delete ctabwin;
     delete &lastsession;
