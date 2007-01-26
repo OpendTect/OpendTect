@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vismultitexture2.cc,v 1.19 2007-01-26 17:57:14 cvskris Exp $";
+static const char* rcsID = "$Id: vismultitexture2.cc,v 1.20 2007-01-26 19:53:12 cvskris Exp $";
 
 
 #include "vismultitexture2.h"
@@ -224,7 +224,7 @@ void MultiTexture2::setOperation( int texturenr, MultiTexture::Operation op )
 
     while ( texture_->operation.getNum()<texturenr )
 	texture_->operation.set1Value( texture_->operation.getNum(),
-				       SoMultiTexture2::BLEND  );
+				       SoColTabMultiTexture2::BLEND  );
 
     texture_->operation.set1Value( texturenr, nop );
 }
