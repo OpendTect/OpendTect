@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2001
- RCS:           $Id: uishiftattrib.cc,v 1.13 2007-01-18 08:54:04 cvshelene Exp $
+ RCS:           $Id: uishiftattrib.cc,v 1.14 2007-01-26 12:00:29 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,9 +30,9 @@ uiShiftAttrib::uiShiftAttrib( uiParent* p, bool is2d )
 {
     inpfld_ = getInpFld();
 
-    stepoutfld_ = new uiStepOutSel( this, uiStepOutSel::Setup().seltxt("Shift"),
-	    			   is2d );
-    stepoutfld_->setMinValue(-100);
+    uiStepOutSel::Setup setup( is2d );
+    setup.seltxt( "Shift" ).allowneg( true );
+    stepoutfld_ = new uiStepOutSel( this, setup );
     stepoutfld_->attach( alignedBelow, inpfld_ );
 
     timefld_ = new uiGenInput( this, zDepLabel(0,0), FloatInpSpec() );

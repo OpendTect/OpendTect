@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uistepoutsel.h,v 1.5 2007-01-18 08:52:58 cvshelene Exp $
+ RCS:           $Id: uistepoutsel.h,v 1.6 2007-01-26 12:00:29 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,19 +30,23 @@ public:
 
     struct Setup
     {
-			Setup()
+			Setup( bool singl=false )
 			    : seltxt_("Stepout")
-			    , lbl1_("inl")
+			    , lbl1_(singl?"nr":"inl")
 			    , lbl2_("crl")
-			    , single_(false)		{}
+			    , single_(singl)
+			    , allowneg_(false)	{}
 
 	mDefSetupMemb(BufferString,seltxt)
 	mDefSetupMemb(BufferString,lbl1)
 	mDefSetupMemb(BufferString,lbl2)
-	mDefSetupMemb(bool,single)
+	mDefSetupMemb(bool,single)	//!< Typically used for 2D
+	mDefSetupMemb(bool,allowneg)
     };
 
-			uiStepOutSel(uiParent*,const Setup&,bool);
+			uiStepOutSel(uiParent*,const Setup&);
+			uiStepOutSel(uiParent*,bool single=false,
+					       const char* seltxt="Stepout");
 			~uiStepOutSel()		{}
 
     int			val(bool dir1) const;
@@ -60,7 +64,6 @@ public:
     RowCol		getRowCol() const
 			{ return RowCol( val(true), val(false) ); }
     BinID		getBinID() const; //!< Similar remark as setBinID()
-    void		setMinValue(int);
 
 protected:
 
@@ -69,6 +72,10 @@ protected:
     bool		is2d;
 
     void		valChg(CallBacker*);
+
+private:
+
+    void		init(const Setup&);
 
 };
 

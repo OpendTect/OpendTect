@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uistepoutsel.cc,v 1.5 2007-01-18 08:52:58 cvshelene Exp $";
+static const char* rcsID = "$Id: uistepoutsel.cc,v 1.6 2007-01-26 12:00:29 cvsbert Exp $";
 
 #include "uistepoutsel.h"
 #include "uispinbox.h"
@@ -24,23 +24,44 @@ inline static BufferString mkPrefx( const char* lbl )
 }
 
 
-uiStepOutSel::uiStepOutSel( uiParent* p, const uiStepOutSel::Setup& setup,
-			    bool is2dsel )
+uiStepOutSel::uiStepOutSel( uiParent* p, const uiStepOutSel::Setup& setup )
     : uiGroup(p,setup.seltxt_)
     , valueChanged(this)
     , fld2(0)
-    , is2d(is2dsel)
 {
+    init( setup );
+}
+
+
+uiStepOutSel::uiStepOutSel( uiParent* p, bool single, const char* seltxt )
+    : uiGroup(p,seltxt)
+    , valueChanged(this)
+    , fld2(0)
+{
+    uiStepOutSel::Setup setup( single );
+    setup.seltxt( seltxt );
+    init( setup );
+}
+
+
+void uiStepOutSel::init( const uiStepOutSel::Setup& setup )
+{
+    const StepInterval<int> intv( setup.allowneg_ ? -999 : 0, 999, 1 );
+
     uiLabel* lbl = new uiLabel( this, setup.seltxt_ );
+
     fld1 = new uiSpinBox( this, 0, "spinbox 1" );
-    fld1->setPrefix( is2d ? mkPrefx("nr") : mkPrefx(setup.lbl1_) );
+    fld1->setPrefix( mkPrefx(setup.lbl1_) );
     fld1->attach( rightOf, lbl );
+    fld1->setInterval( intv );
     fld1->valueChanged.notify( mCB(this,uiStepOutSel,valChg) );
-    if ( !setup.single_ && !is2d )
+
+    if ( !setup.single_ )
     {
 	fld2 = new uiSpinBox( this, 0, "spinbox 2" );
 	fld2->setPrefix( mkPrefx(setup.lbl2_) );
 	fld2->attach( rightOf, fld1 );
+	fld2->setInterval( intv );
 	fld2->valueChanged.notify( mCB(this,uiStepOutSel,valChg) );
     }
 
@@ -96,12 +117,4 @@ BinID uiStepOutSel::getBinID() const
 void uiStepOutSel::valChg( CallBacker* cb )
 {
     valueChanged.trigger( cb );
-}
-
-
-void uiStepOutSel::setMinValue( int minval )
-{
-    fld1->setMinValue( minval );
-    if ( dir2Active() )
-	fld2->setMinValue( minval );
 }

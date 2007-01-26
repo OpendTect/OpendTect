@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          November 2002
- RCS:           $Id: uipositionattrib.cc,v 1.8 2006-12-21 16:06:10 cvshelene Exp $
+ RCS:           $Id: uipositionattrib.cc,v 1.9 2007-01-26 12:00:29 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,7 +38,7 @@ uiPositionAttrib::uiPositionAttrib( uiParent* p, bool is2d )
 {
     inpfld = getInpFld( "Input attribute" );
 
-    stepoutfld = new uiStepOutSel( this, uiStepOutSel::Setup(), is2d );
+    stepoutfld = new uiStepOutSel( this, is2d );
     stepoutfld->attach( alignedBelow, inpfld );
 
     gatefld = new uiGenInput( this, gateLabel(), FloatInpIntervalSpec() );

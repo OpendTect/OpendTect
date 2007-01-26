@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May  2005
- RCS:           $Id: uisimilarityattrib.cc,v 1.16 2007-01-18 08:50:42 cvshelene Exp $
+ RCS:           $Id: uisimilarityattrib.cc,v 1.17 2007-01-26 12:00:29 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -73,14 +73,14 @@ uiSimilarityAttrib::uiSimilarityAttrib( uiParent* p, bool is2d )
     extfld->valuechanged.notify( mCB(this,uiSimilarityAttrib,extSel) );
     extfld->attach( alignedBelow, gatefld );
     
-    pos0fld = new uiStepOutSel( this,
-	    		uiStepOutSel::Setup().seltxt("Trace positions"), is2d );
-    pos0fld->setMinValue(-100);
+    uiStepOutSel::Setup setup( is2d );
+    setup.seltxt( "Trace positions" ).allowneg( true );
+    pos0fld = new uiStepOutSel( this, setup );
     pos0fld->attach( alignedBelow, extfld );
-    pos1fld = new uiStepOutSel( this, uiStepOutSel::Setup().seltxt("&"), is2d );
-    pos1fld->setMinValue(-100);
+    setup.seltxt( "&" );
+    pos1fld = new uiStepOutSel( this, setup );
     pos1fld->attach( rightOf, pos0fld );
-    stepoutfld = new uiStepOutSel( this, uiStepOutSel::Setup(), is2d );
+    stepoutfld = new uiStepOutSel( this, is2d );
     stepoutfld->attach( alignedBelow, extfld );
 
     outpstatsfld = new uiGenInput( this, "Output statistic",
