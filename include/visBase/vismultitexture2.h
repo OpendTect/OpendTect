@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		Dec 2005
- RCS:		$Id: vismultitexture2.h,v 1.6 2006-04-18 14:35:38 cvskris Exp $
+ RCS:		$Id: vismultitexture2.h,v 1.7 2007-01-26 17:57:14 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -17,8 +17,15 @@ ________________________________________________________________________
 #include "rowcol.h"
 
 class SoSwitch;
-class SoMultiTexture2;
+class SoGroup;
+class SoColTabMultiTexture2;
 class SoComplexity;
+class SoShaderTexture2;
+class SoShaderProgram;
+class SoFragmentShader;
+class SoShaderParameter1i;
+class SoShaderParameter2i;
+class SoShaderParameterArray1f;
 
 namespace visBase
 {
@@ -29,6 +36,8 @@ public:
     static MultiTexture2*	create()
     				mCreateDataObj(MultiTexture2);
 
+    int				maxNrTextures() const;
+
     bool			turnOn(bool yn);
     bool			isOn() const;
     void			clearAll();
@@ -36,6 +45,9 @@ public:
 				    the texture to become white. After clearAll
 				    is called, data of any size will be
 				    accepted.*/
+
+    bool			usesShading() const { return useshading_; }
+    bool			useShading(bool yn);
 
     void			setTextureTransparency(int, unsigned char);
     unsigned char		getTextureTransparency(int) const;
@@ -79,11 +91,33 @@ protected:
     void		removeTextureInternal(int texture);
 
     void		updateColorTables();
+    void		updateShadingVars();
+    void		createShadingVars();
+    void		createShadingProgram(int nrlayers,BufferString&) const;
 
-    SoSwitch*		onoff_;
-    SoMultiTexture2*	texture_;
-    SoComplexity*	complexity_;
-    RowCol		size_;
+    SoSwitch*			switch_; // off/noshading/shading 
+    RowCol			size_;
+    bool			useshading_;
+
+    //Non-shading
+    SoGroup*			nonshadinggroup_;
+    SoColTabMultiTexture2*	texture_;
+    SoComplexity*		complexity_;
+
+    //Shading
+    SoGroup*			shadinggroup_;
+    SoShaderTexture2*		ctabtexture_;
+    SoGroup*			datatexturegrp_;
+    SoShaderProgram*		shaderprogram_;
+    SoFragmentShader*		fragmentshader_;
+    SoShaderParameter1i*	numlayers_;
+    SoShaderParameter1i*	startlayer_;
+    SoShaderParameterArray1f*	layeropacity_;
+    SoShaderParameter1i*	layersize0_;
+    SoShaderParameter1i*	layersize1_;
+    SoShaderParameter1i*	ctabunit_;
+    SoShaderParameter1i*	dataunit0_;
+    TypeSet<float>		opacity_;
 };
 
 }; // Namespace
