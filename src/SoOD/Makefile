@@ -2,7 +2,7 @@
 #
 #	Makefile : 	General utilities
 # 	Mar 2004	Nanne Hemstra
-#	RCS :		$Id: Makefile,v 1.14 2007-01-03 19:35:40 cvskris Exp $
+#	RCS :		$Id: Makefile,v 1.15 2007-01-26 17:50:54 cvskris Exp $
 #_______________________________________________________________________________
 
 
@@ -14,7 +14,7 @@ SRC.cc	:=	SoCameraInfo.cc \
 		SoLODMeshSurface.cc \
 		SoManLevelOfDetail.cc \
 		SoMFImage.cc \
-		SoMultiTexture2.cc \
+		SoColTabMultiTexture2.cc \
 		SoPerspectiveSel.cc \
 		SoPlaneWellLog.cc \
 		SoShapeScale.cc \
@@ -35,6 +35,13 @@ PROG.cc := oifileviewer.cc
 
 USECOIN := yes
 USEQT   := yes
+ifeq ($(HDIR),win)
+    USE_SIM_VOL := Yes
+endif
+
+ifndef USE_SIM_VOL
+    EXTRALIBSFORSHLIB := SimVoleon
+endif
 
 ifeq ($(HDIR),win)
     USE_SIM_VOL := Yes
