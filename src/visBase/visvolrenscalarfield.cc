@@ -4,7 +4,7 @@
  * DATE     : April 2004
 -*/
 
-static const char* rcsID = "$Id: visvolrenscalarfield.cc,v 1.1 2007-01-05 15:31:51 cvskris Exp $";
+static const char* rcsID = "$Id: visvolrenscalarfield.cc,v 1.2 2007-01-26 19:33:54 cvskris Exp $";
 
 #include "visvolrenscalarfield.h"
 
@@ -41,6 +41,7 @@ VolumeRenderScalarField::VolumeRenderScalarField()
     , sz1_( 1 )
     , sz2_( 1 )
     , ctab_( 0 )
+    , blendcolor_( Color::White )
 {
     root_->ref();
     root_->addChild( voldata_ );
@@ -119,8 +120,24 @@ void VolumeRenderScalarField::setScalarField( const Array3D<float>* sc )
     datacache_ = sc->getStorage();
     if ( !datacache_ )
     {
-	ownsdatacache_ = true;
-	//TODO make new valseries;
+	ValueSeries<float>* myvalser = new ArrayValueSeries<float>( totalsz );
+	if ( !myvalser || !myvalser->isOK() )
+	{
+	    delete myvalser;
+	}
+	else
+	{
+	    ArrayNDIter iter( sc->info() );
+	    int64 idx = 0;
+
+	    do
+	    {
+		myvalser->setValue( idx++, sc->get( iter.getPos() ) );
+	    } while ( iter.next() );
+
+	    datacache_ = myvalser;
+	    ownsdatacache_ = true;
+	}
     }
 
     //TODO: if 8-bit data & some flags, use data itself
@@ -172,6 +189,17 @@ VisColorTab& VolumeRenderScalarField::getColorTab()
 { return *ctab_; }
 
 
+void VolumeRenderScalarField::setBlendColor( const Color& col )
+{
+    blendcolor_ = col;
+    makeColorTables();
+}
+
+
+const Color& VolumeRenderScalarField::getBlendColor() const
+{ return blendcolor_; }
+
+
 const TypeSet<float>& VolumeRenderScalarField::getHistogram() const
 { return histogram_; }
 
@@ -217,15 +245,20 @@ void VolumeRenderScalarField::autoscaleChCB(CallBacker*)
 
 void VolumeRenderScalarField::makeColorTables()
 {
+    const float redfactor = (float) blendcolor_.r()/(255*255);
+    const float greenfactor = (float) blendcolor_.g()/(255*255);
+    const float bluefactor = (float) blendcolor_.b()/(255*255);
+    const float transfactor = (float) blendcolor_.t()/(255*255);
+
     const bool didnotify = transferfunc_->colorMap.enableNotify( false );
     int cti = 0;
     for ( int idx=0; idx<NRCOLORS; idx++ )
     {
 	const ::Color col = ctab_->tableColor( idx );
-	transferfunc_->colorMap.set1Value( cti++, (float)col.r()/255 );
-	transferfunc_->colorMap.set1Value( cti++, (float)col.g()/255 );
-	transferfunc_->colorMap.set1Value( cti++, (float)col.b()/255 );
-	transferfunc_->colorMap.set1Value( cti++, 1.-(float)col.t()/255 );
+	transferfunc_->colorMap.set1Value( cti++, col.r()*redfactor );
+	transferfunc_->colorMap.set1Value( cti++, col.g()*greenfactor );
+	transferfunc_->colorMap.set1Value( cti++, col.b()*bluefactor );
+	transferfunc_->colorMap.set1Value( cti++, 1.0-col.t()*transfactor );
     }
 
     transferfunc_->predefColorMap = SoTransferFunction::NONE;

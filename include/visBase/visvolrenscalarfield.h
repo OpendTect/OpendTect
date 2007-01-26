@@ -7,11 +7,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          January 2007
- RCS:           $Id: visvolrenscalarfield.h,v 1.1 2007-01-05 15:31:51 cvskris Exp $
+ RCS:           $Id: visvolrenscalarfield.h,v 1.2 2007-01-26 19:33:54 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "color.h"
 #include "ranges.h"
 #include "visdata.h"
 
@@ -39,6 +40,9 @@ public:
 
     void			setColorTab(VisColorTab&);
     VisColorTab&		getColorTab();
+    void			setBlendColor(const Color&);
+    const Color&		getBlendColor() const;
+
     const TypeSet<float>&	getHistogram() const;
 
     void			setVolumeSize(	const Interval<float>& x,
@@ -71,6 +75,7 @@ protected:
     const ValueSeries<float>*	datacache_;
     bool			ownsdatacache_;
     TypeSet<float>		histogram_;
+    Color			blendcolor_;
 };
 
 };
