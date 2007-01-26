@@ -8,15 +8,17 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vismultitexture.cc,v 1.24 2006-12-28 21:10:33 cvsnanne Exp $";
+static const char* rcsID = "$Id: vismultitexture.cc,v 1.25 2007-01-26 17:54:58 cvskris Exp $";
 
 #include "vismultitexture2.h"
+
 
 #include "basictask.h"
 #include "errh.h"
 #include "ranges.h"
 #include "thread.h"
 #include "viscolortab.h"
+#include "viscolortabindexer.h"
 #include "colortab.h"
 
 
@@ -25,65 +27,6 @@ static const char* rcsID = "$Id: vismultitexture.cc,v 1.24 2006-12-28 21:10:33 c
 
 namespace visBase
 {
-
-
-
-class TextureColorIndexer : public ParallelTask
-{
-public:
-    				TextureColorIndexer( const float* inp,
-	    					     unsigned char* outp,
-						     int sz,
-						     const VisColorTab* );
-
-    const unsigned int*		getHistogram() const { return globalhistogram_;}
-
-protected:
-    bool			doWork(int start,int stop,int threadid);
-    int				nrTimes() const { return sz_; }
-
-    unsigned char*		indexcache_;
-    const float*		datacache_;
-    const visBase::VisColorTab*	colortab_;
-    unsigned int		globalhistogram_[mNrColors];
-    Threads::Mutex		histogrammutex_;
-    const int			sz_;
-};
-
-
-TextureColorIndexer::TextureColorIndexer( const float* inp,
-					  unsigned char* outp, int nsz,
-					  const VisColorTab* ct )
-    : colortab_( ct )
-    , indexcache_( outp )
-    , sz_( nsz )
-    , datacache_( inp )
-{
-    histogrammutex_.lock();
-    memset( globalhistogram_, 0, sizeof(int)*mNrColors );
-    histogrammutex_.unlock();
-}
-
-
-bool TextureColorIndexer::doWork( int start, int stop, int threadid )
-{
-    unsigned int histogram[mNrColors];
-    memset( histogram, 0, sizeof(int)*mNrColors );
-
-    for ( int idx=start; idx<=stop; idx++ )
-    {
-	const int colorindex = colortab_->colIndex(datacache_[idx]);
-	indexcache_[idx] = colorindex;
-	histogram[colorindex]++;
-    }
-
-    histogrammutex_.lock();
-    for ( int idx=mNrColors-1; idx>=0; idx-- )
-	globalhistogram_[idx] += histogram[idx];
-    histogrammutex_.unlock();
-
-    return true;
-}
 
 
 class TextureInfo : public CallBacker
@@ -114,12 +57,14 @@ public:
     const unsigned char*	getCurrentData() const;
 
     const TypeSet<float>*	getHistogram(int version) const;
+    bool			hasTransparency(int version) const;
 
     char			components_;
 
 protected:
     void			setColorTab(int,VisColorTab& ct);
     void			rangeChangeCB(CallBacker*);
+    void			updateTransparency(int version);
     void			sequenceChangeCB(CallBacker*);
     void			autoscaleChangeCB(CallBacker*);
 
@@ -127,6 +72,7 @@ protected:
     BoolTypeSet			ownsindexdata_;
     ObjectSet<const float>	versionfloatdata_;
     BoolTypeSet			ownsfloatdata_;
+    TypeSet<char>		hastrans_;
     ObjectSet<VisColorTab>	versioncoltab_;
     ObjectSet<TypeSet<float> >	versionhistogram_;
     int				currentversion_;
@@ -135,7 +81,6 @@ protected:
     MultiTexture*		texture_;
     bool			isangle_;
     bool			enabled_;
-
 };
 
 
@@ -213,6 +158,7 @@ void TextureInfo::setNrVersions( int nsz )
 	versionindexdata_.remove(nsz);
 	versionfloatdata_.remove(nsz);
 	ownsfloatdata_.remove(nsz);
+	hastrans_.remove(nsz);
 	ownsindexdata_.remove(nsz);
 	versionhistogram_.remove(nsz);
 	versioncoltab_.remove(nsz);
@@ -223,6 +169,7 @@ void TextureInfo::setNrVersions( int nsz )
 	versionindexdata_ += 0;
 	versionfloatdata_ += 0;
 	ownsfloatdata_ += false;
+	hastrans_ += 0;
 	ownsindexdata_ += false;
 	versionhistogram_ += 0;
 	versioncoltab_ += 0;
@@ -273,6 +220,7 @@ bool TextureInfo::setTextureData( int version, const float* data, int newsz,
     else
 	texture_->textureChange( this );
 
+
     return true;
 }
 
@@ -313,6 +261,31 @@ void TextureInfo::setColorTab( VisColorTab& ct )
 	if ( !idx ) continue;
 	versioncoltab_[idx]->setColorSeq( &seq );
     }
+}
+
+
+void TextureInfo::updateTransparency( int version )
+{
+    const VisColorTab* ctab = versioncoltab_[version];
+    if ( !ctab )
+    { hastrans_[version] = -1; return; }
+
+    if ( !versioncoltab_[version]->colorSeq().colors().hasTransparency() )
+    { hastrans_[version] = -1; return; }
+
+    const unsigned char* ptr = versionindexdata_[version];
+    if ( !ptr ) { hastrans_[version] = -1; return; }
+
+    const unsigned char* stopptr = ptr + sz_;
+
+    while ( ptr!=stopptr )
+    {
+	if ( ctab->tableColor( *ptr++ ).t() )
+	{ hastrans_[version] = 1; return; }
+    }
+
+    hastrans_[version] = -1;
+    return;
 }
 
 
@@ -368,9 +341,9 @@ void TextureInfo::createIndexes( int version )
 
     versioncoltab_[version]->setNrSteps(mNrColors);
 
-    TextureColorIndexer indexer( versionfloatdata_[version],
-	    			 (unsigned char*) versionindexdata_[version],
-				 sz_, versioncoltab_[version] );
+    ColorTabIndexer indexer( versionfloatdata_[version],
+			     (unsigned char*) versionindexdata_[version],
+			     sz_, versioncoltab_[version] );
     if ( !indexer.execute() )
     {
 	delete [] versionindexdata_[version];
@@ -395,6 +368,7 @@ void TextureInfo::createIndexes( int version )
 	    (*versionhistogram_[version])[idx] = (float) histogram[idx]/max;
     }
 
+    updateTransparency( version );
     texture_->textureChange( this );
 }
 
@@ -429,6 +403,15 @@ const TypeSet<float>* TextureInfo::getHistogram( int version ) const
 }
 
 
+bool TextureInfo::hasTransparency( int version ) const 
+{
+    if ( version<0 || version>=nrVersions() )
+	return false;
+
+    return hastrans_[version]==1;
+}
+
+
 void TextureInfo::rangeChangeCB( CallBacker* cb )
 {
     const int version = versioncoltab_.indexOf( (visBase::VisColorTab*)cb );
@@ -436,8 +419,10 @@ void TextureInfo::rangeChangeCB( CallBacker* cb )
 }
 
 
-void TextureInfo::sequenceChangeCB( CallBacker* )
+void TextureInfo::sequenceChangeCB( CallBacker* cb )
 {
+    const int version = versioncoltab_.indexOf( (visBase::VisColorTab*)cb );
+    updateTransparency( version );
     texture_->updateColorTables();
 }
 
@@ -551,6 +536,13 @@ void MultiTexture::swapTextures( int t0, int t1 )
 
     updateSoTextureInternal( t0 );
     updateSoTextureInternal( t1 );
+}
+
+
+bool MultiTexture::hasTransparency( int idx ) const
+{
+    return getTextureTransparency( idx ) ||
+	   textureinfo_[idx]->hasTransparency(currentVersion(idx));
 }
     
 
