@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodmain.cc,v 1.58 2007-01-25 23:06:23 cvskris Exp $
+ RCS:           $Id: uiodmain.cc,v 1.59 2007-01-29 16:16:36 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -412,8 +412,10 @@ void uiODMain::doRestoreSession()
 
     if ( applMgr().nlaServer() )
 	applMgr().nlaServer()->usePar( cursession->nlapars() );
-    applMgr().attrServer()->usePar( cursession->attrpars(true), true );
-    applMgr().attrServer()->usePar( cursession->attrpars(false), false );
+    if ( SI().has2D() )
+	applMgr().attrServer()->usePar( cursession->attrpars(true), true );
+    if ( SI().has3D() )
+	applMgr().attrServer()->usePar( cursession->attrpars(false), false );
     applMgr().mpeServer()->usePar( cursession->mpepars() );
     const bool visok = applMgr().visServer()->usePar( cursession->vispars() );
     sessionRestore.trigger();
