@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emsurfaceedgelineimpl.cc,v 1.24 2006-11-21 14:00:07 cvsbert Exp $";
+static const char* rcsID = "$Id: emsurfaceedgelineimpl.cc,v 1.25 2007-01-29 20:49:47 cvskris Exp $";
 
 
 
@@ -108,7 +108,7 @@ float SurfaceCutLine::getMeshDist()
 {
     const SurveyInfo& survinfo( SI() );
     const BinID step( survinfo.inlStep(), survinfo.crlStep() );
-    return survinfo.transform(BinID(0,0)).distance(survinfo.transform(step));
+    return survinfo.transform(BinID(0,0)).distTo(survinfo.transform(step));
 }
 
 
