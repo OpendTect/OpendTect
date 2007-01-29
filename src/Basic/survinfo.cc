@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          18-4-1996
- RCS:           $Id: survinfo.cc,v 1.85 2006-12-20 17:40:56 cvshelene Exp $
+ RCS:           $Id: survinfo.cc,v 1.86 2007-01-29 19:36:30 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -273,6 +273,24 @@ int SurveyInfo::maxNrTraces( bool work ) const
 
 int SurveyInfo::inlStep() const { return cs_.hrg.step.inl; }
 int SurveyInfo::crlStep() const { return cs_.hrg.step.crl; }
+
+
+float SurveyInfo::inlDistance() const
+{
+    const Coord c00 = transform( BinID(0,0) );
+    const Coord c10 = transform( BinID(1,0) );
+    return c00.distTo(c10);
+}
+
+
+float SurveyInfo::crlDistance() const
+{
+    const Coord c00 = transform( BinID(0,0) );
+    const Coord c01 = transform( BinID(0,1) );
+    return c00.distTo(c01);
+}
+
+
 float SurveyInfo::zStep() const { return cs_.zrg.step; }
 
 

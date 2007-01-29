@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		9-4-1996
- RCS:		$Id: survinfo.h,v 1.59 2006-12-20 17:40:56 cvshelene Exp $
+ RCS:		$Id: survinfo.h,v 1.60 2007-01-29 19:36:30 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -57,6 +57,12 @@ public:
     const StepInterval<float>& zRange( bool work ) const;
     int			inlStep() const;
     int			crlStep() const;
+    float		inlDistance() const;
+    			/*!<\returns the distance for one increment in
+			    inline. */
+    float		crlDistance() const;
+    			/*!<\returns the distance for one increment in
+			    crossline. */
     float		zStep() const;
     int			maxNrTraces(bool work) const;
 
