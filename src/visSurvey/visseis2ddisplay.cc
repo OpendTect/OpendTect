@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2004
- RCS:           $Id: visseis2ddisplay.cc,v 1.10 2006-12-11 19:40:50 cvskris Exp $
+ RCS:           $Id: visseis2ddisplay.cc,v 1.11 2007-01-29 20:34:39 cvskris Exp $
  ________________________________________________________________________
 
 -*/
@@ -278,7 +278,7 @@ void Seis2DDisplay::updateVizPath()
 	int currentstart = 0;
 	for ( int idx=1; idx<coords.size(); idx++ )
 	{
-	    if ( coords[currentstart].sqDistance(coords[idx])>1e10 )
+	    if ( coords[currentstart].sqDistTo(coords[idx])>1e10 )
 	    {
 		stripinterval += Interval<int>(currentstart,idx);
 		currentstart = idx;
@@ -583,7 +583,7 @@ bool Seis2DDisplay::getNearestTrace( const Coord3& pos,
     {
 	if ( !trcnrrg_.includes( geometry_.posns[idx].nr ) ) continue;
 
-	const float dist = pos.Coord::sqDistance( geometry_.posns[idx].coord );
+	const float dist = pos.Coord::sqDistTo( geometry_.posns[idx].coord );
 	if ( dist<mindist )
 	{
 	    mindist = dist;
