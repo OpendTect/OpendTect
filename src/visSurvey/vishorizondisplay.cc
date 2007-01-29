@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: vishorizondisplay.cc,v 1.24 2007-01-19 08:31:07 cvskris Exp $
+ RCS:           $Id: vishorizondisplay.cc,v 1.25 2007-01-29 20:41:28 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -185,7 +185,7 @@ EM::PosID HorizonDisplay::findClosestNode( const Coord3& pickedpos ) const
 	const Coord3 displaypos = ztrans->transform(
 		transformation_ ? transformation_->transform(coord) : coord );
 
-	const float dist = displaypos.distance( pickedpos );
+	const float dist = displaypos.distTo( pickedpos );
 	if ( !idx || dist<mindist )
 	{
 	    closestnode = closestnodes[idx];
