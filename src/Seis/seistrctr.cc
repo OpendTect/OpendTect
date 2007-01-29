@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: seistrctr.cc,v 1.72 2006-12-11 14:53:40 cvsbert Exp $";
+static const char* rcsID = "$Id: seistrctr.cc,v 1.73 2007-01-29 19:28:51 cvskris Exp $";
 
 #include "seistrctr.h"
 #include "seisfact.h"
@@ -242,7 +242,7 @@ void SeisTrcTranslator::fillOffsAzim( SeisTrcInfo& ti, const Coord& gp,
 				      const Coord& sp )
 {
     static bool warnfail = GetEnvVarYN( "DTECT_WARN_BINID_SRCOORDS" );
-    ti.offset = gp.distance( sp );
+    ti.offset = gp.distTo( sp );
     ti.azimuth = atan2( gp.y - sp.y, gp.x - sp.x );
     if ( warnfail )
     {
