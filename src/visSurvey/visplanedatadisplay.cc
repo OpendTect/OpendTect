@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.159 2007-01-25 23:09:49 cvskris Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.160 2007-01-29 20:40:54 cvskris Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -289,10 +289,8 @@ float PlaneDataDisplay::calcDist( const Coord3& pos ) const
 	: mMIN(xytpos.z-cs.zrg.start,xytpos.z-cs.zrg.stop) *
 	  SI().zFactor() * scene_->getZScale();
 
-    const float inldist =
-	SI().transform( BinID(0,0)).distance( SI().transform(BinID(1,0)));
-    const float crldist =
-	SI().transform( BinID(0,0)).distance( SI().transform(BinID(0,1)));
+    const float inldist = SI().inlDistance();
+    const float crldist = SI().crlDistance();
     float inldiff = inlcrldist.inl * inldist;
     float crldiff = inlcrldist.crl * crldist;
 

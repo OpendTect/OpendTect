@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vismpe.cc,v 1.49 2006-10-05 08:52:24 cvsjaap Exp $";
+static const char* rcsID = "$Id: vismpe.cc,v 1.50 2007-01-29 20:40:54 cvskris Exp $";
 
 #include "vismpe.h"
 
@@ -756,10 +756,8 @@ float MPEDisplay::calcDist( const Coord3& pos ) const
 	     : mMIN(xytpos.z-cs.zrg.start,xytpos.z-cs.zrg.stop) *
 	       SI().zFactor() * scene_->getZScale();
 
-    const float inldist =
-	SI().transform( BinID(0,0)).distance( SI().transform(BinID(1,0)));
-    const float crldist =
-	SI().transform( BinID(0,0)).distance( SI().transform(BinID(0,1)));
+    const float inldist = SI().inlDistance();
+    const float crldist = SI().crlDistance();
     float inldiff = inlcrldist.inl * inldist;
     float crldiff = inlcrldist.crl * crldist;
 
