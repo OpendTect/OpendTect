@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra / Bert Bril
  Date:		Sep 2005 / Nov 2006
- RCS:		$Id: uichangesurfacedlg.cc,v 1.10 2007-01-26 12:00:29 cvsbert Exp $
+ RCS:		$Id: uichangesurfacedlg.cc,v 1.11 2007-01-29 20:01:27 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,6 +30,7 @@ ________________________________________________________________________
 #include "ioobj.h"
 #include "ptrman.h"
 #include "errh.h"
+#include "survinfo.h"
 
 
 uiChangeSurfaceDlg::uiChangeSurfaceDlg( uiParent* p, EM::Horizon* hor,
@@ -238,7 +239,8 @@ Executor* uiInterpolHorizonDlg::getWorker( Array2D<float>& a2d,
 {
     Array2DInterpolator<float>* ret = new Array2DInterpolator<float>( a2d );
     ret->pars() = a2dInterp()->getInput();
-    ret->setStepRatio( rowrg.step, colrg.step );
+    ret->setColDistRatio( SI().crlDistance()*colrg.step/
+	    (SI().inlDistance()*rowrg.step) );
     return ret;
 }
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: emhorizon3d.cc,v 1.84 2006-11-27 14:57:39 cvsnanne Exp $
+ RCS:           $Id: emhorizon3d.cc,v 1.85 2007-01-29 20:01:27 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -329,7 +329,8 @@ void Horizon::interpolateHoles( int aperture, bool extrapolate )
 	Array2DInterpolator<float> interpolator( *arr );
 	interpolator.pars().maxholesize_ = aperture;
 	interpolator.pars().extrapolate_ = extrapolate;
-	interpolator.setStepRatio( rowrg.step, colrg.step );
+	interpolator.setColDistRatio(
+		SI().crlDistance()*colrg.step/ (SI().inlDistance()*rowrg.step));
 	if ( !interpolator.execute() )
 	{
 	    delete arr;
