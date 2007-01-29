@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvey.cc,v 1.74 2006-12-08 13:38:19 cvsnanne Exp $
+ RCS:           $Id: uisurvey.cc,v 1.75 2007-01-29 19:45:56 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -553,10 +553,8 @@ void uiSurvey::mkInfo()
 	crlinfo += " - "; crlinfo += si.sampling(false).hrg.stop.crl;
 	crlinfo += "  step: "; crlinfo += si.crlStep();
 
-	float inldist = si.transform( BinID(0,0) ).distance(
-		si.transform( BinID(1,0) ) );
-	float crldist = si.transform( BinID(0,0) ).distance(
-		si.transform( BinID(0,1) ) );
+	float inldist = si.inlDistance();
+	float crldist = si.crlDistance();
 
 #define mkString(dist) \
 nr = (int)(dist*100+.5); bininfo += nr/100; \
