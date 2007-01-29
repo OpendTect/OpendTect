@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		21-6-1996
  Contents:	Positions: Inline/crossline and Coordinate
- RCS:		$Id: position.h,v 1.45 2007-01-03 18:32:48 cvskris Exp $
+ RCS:		$Id: position.h,v 1.46 2007-01-29 20:43:32 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,10 +37,6 @@ public:
     bool	operator!=( const Coord& crd ) const
 		{ return ! (crd == *this); }
 
-    virtual bool isDefined() const;
-
-    double	distance(const Coord&) const;
-    double	sqDistance(const Coord&) const;
     double	angle(const Coord& from,const Coord& to) const;
     double	cosAngle(const Coord& from,const Coord& to) const;
     		//!< saves the expensive acos() call
@@ -97,8 +93,8 @@ public:
     inline bool		operator==(const Coord3&) const;
     inline bool		operator!=(const Coord3&) const;
     inline bool		isDefined() const;
-    double		distance( const Coord3& b ) const;
-    double		sqDistance( const Coord3& b ) const;
+    double		distTo( const Coord3& b ) const;
+    double		sqDistTo( const Coord3& b ) const;
 
     inline double	dot( const Coord3& b ) const;
     inline Coord3	cross( const Coord3& ) const;
@@ -267,7 +263,7 @@ inline bool Coord3::operator!=( const Coord3& b ) const
 
 inline bool Coord3::isDefined() const
 {
-    return !Values::isUdf(z) && Coord::isDefined();
+    return !Values::isUdf(z) && Geom::Point2D<double>::isDefined();
 }
 
 

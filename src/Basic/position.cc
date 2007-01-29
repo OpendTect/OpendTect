@@ -4,7 +4,7 @@
  * DATE     : 21-6-1996
 -*/
 
-static const char* rcsID = "$Id: position.cc,v 1.55 2007-01-03 18:32:48 cvskris Exp $";
+static const char* rcsID = "$Id: position.cc,v 1.56 2007-01-29 20:43:32 cvskris Exp $";
 
 #include "position.h"
 #include "bufstring.h"
@@ -23,10 +23,6 @@ Coord Coord::normalize() const
 { return *this / abs(); }
 
 
-bool Coord::isDefined() const
-{ return !Values::isUdf(x) && !Values::isUdf(y); }
-
-
 double Coord::dot( const Coord& b ) const
 { return x*b.x + y*b.y; }
 
@@ -38,27 +34,13 @@ const Coord& Coord::udf()
 }
 
 
-double Coord::distance( const Coord& coord ) const
-{
-    return sqrt( sqDistance(coord) );
-}
-
-
-double Coord::sqDistance( const Coord& coord ) const
-{
-    const double diffx = coord.x - x;
-    const double diffy = coord.y - y;
-    return diffx*diffx + diffy*diffy;
-}
-
-
 double Coord::cosAngle( const Coord& from, const Coord& to ) const
 {
-    double rsq = sqDistance( from );
-    double lsq = sqDistance( to );
+    double rsq = sqDistTo( from );
+    double lsq = sqDistTo( to );
     if ( !rsq || !lsq ) return 1;
 
-    double osq = from.sqDistance( to );
+    double osq = from.sqDistTo( to );
     return (rsq +  lsq - osq) / (2 * sqrt(rsq) * sqrt(lsq));
 }
 
@@ -181,13 +163,13 @@ bool Coord3::use(const char* str)
 }
 
 
-double Coord3::distance( const Coord3& b ) const
+double Coord3::distTo( const Coord3& b ) const
 {
-    return sqrt( Coord3::sqDistance( b ) );
+    return sqrt( Coord3::sqDistTo( b ) );
 }
 
 
-double Coord3::sqDistance( const Coord3& b ) const
+double Coord3::sqDistTo( const Coord3& b ) const
 {
     const double dx = x-b.x, dy = y-b.y, dz = z-b.z;
     return dx*dx + dy*dy + dz*dz;
