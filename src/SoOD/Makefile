@@ -2,12 +2,13 @@
 #
 #	Makefile : 	General utilities
 # 	Mar 2004	Nanne Hemstra
-#	RCS :		$Id: Makefile,v 1.15 2007-01-26 17:50:54 cvskris Exp $
+#	RCS :		$Id: Makefile,v 1.16 2007-01-29 13:42:57 cvskris Exp $
 #_______________________________________________________________________________
 
 
 SRC.cc	:=	SoCameraInfo.cc \
 		SoCameraInfoElement.cc \
+		SoCameraFacingZAxisRotation.cc \
 		SoDepthTabPlaneDragger.cc \
 		SoForegroundTranslation.cc \
 		SoIndexedTriangleFanSet.cc \
