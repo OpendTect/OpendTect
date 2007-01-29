@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribprovider.cc,v 1.84 2007-01-25 12:48:54 cvsnanne Exp $";
+static const char* rcsID = "$Id: attribprovider.cc,v 1.85 2007-01-29 20:37:53 cvskris Exp $";
 
 #include "attribprovider.h"
 #include "attribstorprovider.h"
@@ -1300,13 +1300,13 @@ bool Provider::zIsTime() const
 
 float Provider::inldist() const
 {
-    return SI().transform( BinID(0,0) ).distance( SI().transform(BinID(1,0)) );
+    return SI().inlDistance();
 }
 
 
 float Provider::crldist() const
 {
-    return SI().transform( BinID(0,0) ).distance( SI().transform(BinID(0,1)) );
+    return SI().crlDistance();
 }
 
 
