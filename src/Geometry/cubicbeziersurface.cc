@@ -4,7 +4,7 @@
  * DATE     : Nov 2004
 -*/
 
-static const char* rcsID = "$Id: cubicbeziersurface.cc,v 1.21 2006-04-26 21:09:54 cvskris Exp $";
+static const char* rcsID = "$Id: cubicbeziersurface.cc,v 1.22 2007-01-29 20:36:34 cvskris Exp $";
 
 #include "cubicbeziersurface.h"
 
@@ -939,7 +939,7 @@ IntervalND<float> CubicBezierSurface::boundingBox( const RCol& rc,
  \
     const Coord3 prevcoord = ptr[previndex]; \
     const Coord3 nextcoord = ptr[nextindex]; \
-    if ( prevcoord.sqDistance(nextcoord)<mEPS ) \
+    if ( prevcoord.sqDistTo(nextcoord)<mEPS ) \
 	return Coord3::udf(); \
  \
     return (nextcoord-prevcoord)*step_._rowcol_/diff*directioninfluence;

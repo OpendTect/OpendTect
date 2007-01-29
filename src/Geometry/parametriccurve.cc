@@ -4,7 +4,7 @@
  * DATE     : Dec 2004
 -*/
 
-static const char* rcsID = "$Id: parametriccurve.cc,v 1.8 2006-04-26 21:09:54 cvskris Exp $";
+static const char* rcsID = "$Id: parametriccurve.cc,v 1.9 2007-01-29 20:36:34 cvskris Exp $";
 
 #include "parametriccurve.h"
 
@@ -28,7 +28,7 @@ public:
 		       {}
 
     float		getValue( float p ) const
-			{ return curve.computePosition(p).sqDistance(pos); }
+			{ return curve.computePosition(p).sqDistTo(pos); }
 
 protected:
     const ParametricCurve&	curve;
@@ -48,7 +48,7 @@ bool ParametricCurve::findClosestPosition( float& p, const Coord3& pos,
 	float closestsqdist = mUdf(float);
 	for ( int idx=prange.start; idx<=prange.stop; idx+=prange.step )
 	{
-	    const float sqdist = getPosition(idx).sqDistance(pos);
+	    const float sqdist = getPosition(idx).sqDistTo(pos);
 	    if ( sqdist<closestsqdist )
 	    {
 		closestsqdist = sqdist;
