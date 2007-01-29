@@ -7,12 +7,13 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2000
- RCS:           $Id: geometry.h,v 1.25 2006-09-19 18:43:01 cvskris Exp $
+ RCS:           $Id: geometry.h,v 1.26 2007-01-29 19:18:46 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 #include <gendefs.h>
+#include <math.h>
 
 namespace Geom
 {
@@ -47,11 +48,11 @@ public:
     inline Point2D<T>		operator *( const T factor ) const;
     inline Point2D<T>		operator /( const T den ) const;
 
-    inline bool			isDefined() const;
-    inline double		abs() const;
-    inline T			sqAbs() const;
-    inline double		distTo(const Point2D<T>&) const;
-    inline T			sqDistTo(const Point2D<T>&) const;
+    virtual inline bool		isDefined() const;
+    virtual inline double	abs() const;
+    virtual inline T		sqAbs() const;
+    virtual inline double	distTo(const Point2D<T>&) const;
+    virtual inline T		sqDistTo(const Point2D<T>&) const;
 
     static Point2D<T>		udf() { return Point2D<T>( mUdf(T), mUdf(T) ); }
     
