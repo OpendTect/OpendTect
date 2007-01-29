@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizon2dseedpicker.cc,v 1.3 2007-01-16 14:30:50 cvsjaap Exp $";
+static const char* rcsID = "$Id: horizon2dseedpicker.cc,v 1.4 2007-01-29 21:02:50 cvskris Exp $";
 
 #include "horizon2dseedpicker.h"
 
@@ -161,7 +161,7 @@ bool Horizon2DSeedPicker::addSeed(const Coord3& seedcrd )
 	if ( !coord.isDefined() )
 	    continue;
 
-	double sqdist = coord.sqDistance( seedcrd );
+	double sqdist = coord.sqDistTo( seedcrd );
 	if ( sqdist<maxdist )
 	{
 	    closestcol = rc.col;
@@ -491,7 +491,7 @@ bool Horizon2DSeedPicker::interpolateSeeds()
 	    const Coord curpos = hor->getPos( sectionid_, rc.getSerialized() );
 	    if ( !curpos.isDefined() ) 
 		continue;
-	    totarclen += prevpos.distance( curpos );
+	    totarclen += prevpos.distTo( curpos );
 	    prevpos = curpos;
 	}
 
@@ -503,7 +503,7 @@ bool Horizon2DSeedPicker::interpolateSeeds()
 	    const Coord curpos = hor->getPos( sectionid_, rc.getSerialized() );
 	    if ( !curpos.isDefined() ) 
 		continue;
-	    arclen += prevpos.distance( curpos );
+	    arclen += prevpos.distTo( curpos );
 	    prevpos = curpos;
 	    
 	    const double frac = arclen / totarclen;

@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: faultseedpicker.cc,v 1.2 2006-04-27 15:53:13 cvskris Exp $";
+static const char* rcsID = "$Id: faultseedpicker.cc,v 1.3 2007-01-29 21:02:50 cvskris Exp $";
 
 #include "faultseedpicker.h"
 
@@ -221,7 +221,7 @@ RowCol FaultSeedPicker::getNewSeedRc( const Coord3& pos ) const
     {
 	const RowCol rc = stickstart+stickstep*idx;
 	const Coord seedpos = fault->getPos( sectionid, rc.getSerialized() );
-	const float sqdist = seedpos.sqDistance( pos );
+	const float sqdist = seedpos.sqDistTo( pos );
 
 	if ( !idx || sqdist<minsqdist )
 	{
@@ -239,8 +239,8 @@ RowCol FaultSeedPicker::getNewSeedRc( const Coord3& pos ) const
 
     if ( prevknotpos.isDefined() && nextknotpos.isDefined() )
     {
-       const float prevdist = pos.distance(prevknotpos);
-       const float nextdist = pos.distance(nextknotpos);
+       const float prevdist = pos.distTo(prevknotpos);
+       const float nextdist = pos.distTo(nextknotpos);
        return prevdist<nextdist ? closestrc : nextrc;
     }
     else if ( prevknotpos.isDefined() )
