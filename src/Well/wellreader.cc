@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: wellreader.cc,v 1.22 2006-12-28 21:10:33 cvsnanne Exp $";
+static const char* rcsID = "$Id: wellreader.cc,v 1.23 2007-01-29 20:35:43 cvskris Exp $";
 
 #include "wellreader.h"
 #include "welldata.h"
@@ -176,10 +176,10 @@ bool Well::Reader::getOldTimeWell( std::istream& strm ) const
     while ( strm )
     {
 	strm >> c3.x >> c3.y >> c3.z;
-	if ( !strm || c3.distance(c0) < 1 ) break;
+	if ( !strm || c3.distTo(c0) < 1 ) break;
 
 	if ( !wd.track().isEmpty() )
-	    dah += c3.distance( prevc );
+	    dah += c3.distTo( prevc );
 	wd.track().addPoint( c3, c3.z, dah );
 	prevc = c3;
     }
@@ -205,7 +205,7 @@ bool Well::Reader::getTrack( std::istream& strm ) const
     while ( strm )
     {
 	strm >> c.x >> c.y >> c.z >> dah;
-	if ( !strm || c.distance(c0) < 1 ) break;
+	if ( !strm || c.distTo(c0) < 1 ) break;
 	wd.track().addPoint( c, c.z, dah );
     }
     return wd.track().size();

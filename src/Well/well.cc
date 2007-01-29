@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: well.cc,v 1.42 2006-12-28 21:10:33 cvsnanne Exp $";
+static const char* rcsID = "$Id: well.cc,v 1.43 2007-01-29 20:35:43 cvskris Exp $";
 
 #include "welldata.h"
 #include "welltrack.h"
@@ -272,7 +272,7 @@ void Well::Track::addPoint( const Coord& c, float z, float dahval )
     {
 	const int previdx = dah_.size() - 1;
 	dahval = previdx < 0 ? 0
-	    : dah_[previdx] + pos_[previdx].distance( pos_[previdx+1] );
+	    : dah_[previdx] + pos_[previdx].distTo( pos_[previdx+1] );
     }
     dah_ += dahval;
 }
@@ -286,13 +286,13 @@ void Well::Track::insertAfterIdx( int aftidx, const Coord3& c )
 
     float extradah, owndah = 0;
     if ( aftidx == -1 )
-	extradah = c.distance( pos_[0] );
+	extradah = c.distTo( pos_[0] );
     else
     {
-	float dist0 = c.distance( pos_[aftidx] );
-	float dist1 = c.distance( pos_[aftidx+1] );
+	float dist0 = c.distTo( pos_[aftidx] );
+	float dist1 = c.distTo( pos_[aftidx+1] );
 	owndah = dah_[aftidx] + dist0;
-	extradah = dist0 + dist1 - pos_[aftidx].distance( pos_[aftidx+1] );
+	extradah = dist0 + dist1 - pos_[aftidx].distTo( pos_[aftidx+1] );
     }
 
     pos_.insert( aftidx+1, c );
@@ -321,7 +321,7 @@ int Well::Track::insertPoint( const Coord& c, float z )
 	    pos_.erase(); dah_.erase();
 	    pos_ += cnew; pos_ += oth;
 	    dah_ += 0;
-	    dah_ += oth.distance( cnew );
+	    dah_ += oth.distTo( cnew );
 	    return 0;
 	}
     }
@@ -331,14 +331,14 @@ int Well::Track::insertPoint( const Coord& c, float z )
     // This boils down to min(sum of sq distances / product of distances)
 
     float minval = 1e30; int minidx = -1;
-    float mindist = pos_[0].distance(cnew); int mindistidx = 0;
+    float mindist = pos_[0].distTo(cnew); int mindistidx = 0;
     for ( int idx=1; idx<oldsz; idx++ )
     {
 	const Coord3& c0 = pos_[idx-1];
 	const Coord3& c1 = pos_[idx];
-	const float d = c0.distance( c1 );
-	const float d0 = c0.distance( cnew );
-	const float d1 = c1.distance( cnew );
+	const float d = c0.distTo( c1 );
+	const float d0 = c0.distTo( cnew );
+	const float d1 = c1.distTo( cnew );
 	if ( mIsZero(d0,1e-4) || mIsZero(d1,1e-4) )
 	    return -1; // point already present
 	float val = ( d0 * d0 + d1 * d1 - ( d * d ) ) / (2 * d0 * d1);
@@ -355,8 +355,8 @@ int Well::Track::insertPoint( const Coord& c, float z )
 	    }
 	    else
 	    {
-		float prevdist = pos_[mindistidx-1].distance(cnew);
-		float nextdist = pos_[mindistidx+1].distance(cnew);
+		float prevdist = pos_[mindistidx-1].distTo(cnew);
+		float nextdist = pos_[mindistidx+1].distTo(cnew);
 		minidx = prevdist > nextdist ? mindistidx : mindistidx -1;
 	    }
 	}
@@ -367,9 +367,9 @@ int Well::Track::insertPoint( const Coord& c, float z )
 	// The point may be before the first
 	const Coord3& c0 = pos_[0];
 	const Coord3& c1 = pos_[1];
-	const float d01sq = c0.sqDistance( c1 );
-	const float d0nsq = c0.sqDistance( cnew );
-	const float d1nsq = c1.sqDistance( cnew );
+	const float d01sq = c0.sqDistTo( c1 );
+	const float d0nsq = c0.sqDistTo( cnew );
+	const float d1nsq = c1.sqDistTo( cnew );
 	if ( d01sq + d0nsq < d1nsq )
 	    minidx = -1;
     }
@@ -378,9 +378,9 @@ int Well::Track::insertPoint( const Coord& c, float z )
 	// Hmmm. The point may be beyond the last
 	const Coord3& c0 = pos_[oldsz-2];
 	const Coord3& c1 = pos_[oldsz-1];
-	const float d01sq = c0.sqDistance( c1 );
-	const float d0nsq = c0.sqDistance( cnew );
-	const float d1nsq = c1.sqDistance( cnew );
+	const float d01sq = c0.sqDistTo( c1 );
+	const float d0nsq = c0.sqDistTo( cnew );
+	const float d1nsq = c1.sqDistTo( cnew );
 	if ( d01sq + d1nsq < d0nsq )
 	    minidx = oldsz-1;
     }
@@ -397,13 +397,13 @@ void Well::Track::setPoint( int idx, const Coord& c, float z )
 
     Coord3 oldpt( pos_[idx] );
     Coord3 newpt( c.x, c.y, z );
-    float olddist0 = idx > 0 ? oldpt.distance(pos_[idx-1]) : 0;
-    float newdist0 = idx > 0 ? newpt.distance(pos_[idx-1]) : 0;
+    float olddist0 = idx > 0 ? oldpt.distTo(pos_[idx-1]) : 0;
+    float newdist0 = idx > 0 ? newpt.distTo(pos_[idx-1]) : 0;
     float olddist1 = 0, newdist1 = 0;
     if ( idx < nrpts-1 )
     {
-	olddist1 = oldpt.distance(pos_[idx+1]);
-	newdist1 = newpt.distance(pos_[idx+1]);
+	olddist1 = oldpt.distTo(pos_[idx+1]);
+	newdist1 = newpt.distTo(pos_[idx+1]);
     }
 
     pos_[idx] = newpt;
@@ -415,7 +415,7 @@ void Well::Track::setPoint( int idx, const Coord& c, float z )
 void Well::Track::removePoint( int idx )
 {
     float olddist = dah_[idx+1] - dah_[idx-1];
-    float newdist = pos_[idx+1].distance( pos_[idx-1] );
+    float newdist = pos_[idx+1].distTo( pos_[idx-1] );
     float extradah = olddist - newdist;
     removeFromDahFrom( idx+1, extradah );
     remove( idx );

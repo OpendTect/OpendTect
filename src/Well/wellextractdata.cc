@@ -4,7 +4,7 @@
  * DATE     : May 2004
 -*/
 
-static const char* rcsID = "$Id: wellextractdata.cc,v 1.31 2006-12-28 21:10:33 cvsnanne Exp $";
+static const char* rcsID = "$Id: wellextractdata.cc,v 1.32 2007-01-29 20:35:43 cvskris Exp $";
 
 #include "wellextractdata.h"
 #include "wellreader.h"
@@ -255,13 +255,13 @@ void Well::TrackSampler::addBivs( BinIDValueSet& bivset, const BinIDValue& biv,
 	BinID stp( SI().inlStep(), SI().crlStep() );
 	BinID bid( biv.binid.inl+stp.inl, biv.binid.crl+stp.crl );
 	Coord crd = SI().transform( bid );
-	double dist = crd.distance( precisepos );
+	double dist = crd.distTo( precisepos );
 	BinID nearest = bid; double lodist = dist;
 
 #define mTestNext(op1,op2) \
 	bid = BinID( biv.binid.inl op1 stp.inl, biv.binid.crl op2 stp.crl ); \
 	crd = SI().transform( bid ); \
-	dist = crd.distance( precisepos ); \
+	dist = crd.distTo( precisepos ); \
 	if ( dist < lodist ) \
 	    { lodist = dist; nearest = bid; }
 
@@ -473,7 +473,7 @@ void Well::LogDataExtracter::getGenTrackData( const BinIDValueSet& bivs,
 	{ res.erase(); return; }
 
     BinID b( biv.binid.inl+SI().inlStep(),  biv.binid.crl+SI().crlStep() );
-    const float dtol = SI().transform(biv.binid).distance( SI().transform(b) );
+    const float dtol = SI().transform(biv.binid).distTo( SI().transform(b) );
     const float ztol = SI().zStep() * 5;
     const float startdah = track.dah(0);
     const float dahstep = wl.dahStep(true);
@@ -491,7 +491,7 @@ void Well::LogDataExtracter::getGenTrackData( const BinIDValueSet& bivs,
 	{
 	    Coord3 pos = track.getPos( dah );
 	    Coord coord = SI().transform( biv.binid );
-	    if ( coord.distance(pos) > dtol || fabs(pos.z-biv.value) > ztol )
+	    if ( coord.distTo(pos) > dtol || fabs(pos.z-biv.value) > ztol )
 		res += mUdf(float);
 	    else
 	    {
@@ -517,12 +517,12 @@ float Well::LogDataExtracter::findNearest( const Well::Track& track,
     Coord3 tpos = track.getPos(dah); tpos.z *= zfac;
     Coord coord = SI().transform( biv.binid );
     Coord3 bivpos( coord.x, coord.y, biv.value * zfac );
-    float mindist = tpos.distance( bivpos );
+    float mindist = tpos.distTo( bivpos );
     float mindah = dah;
     for ( dah = dah + dahstep; dah <= lastdah; dah += dahstep )
     {
 	tpos = track.getPos(dah); tpos.z *= zfac;
-	float dist = tpos.distance( bivpos );
+	float dist = tpos.distTo( bivpos );
 	if ( dist < mindist )
 	{
 	    mindist = dist;
