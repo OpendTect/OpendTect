@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          Sep 2006
- RCS:           $Id: uigdexamacorr.cc,v 1.10 2006-10-26 11:54:29 cvshelene Exp $
+ RCS:           $Id: uigdexamacorr.cc,v 1.11 2007-01-30 11:40:08 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,20 +21,22 @@ ________________________________________________________________________
 #include "attribprocessor.h"
 #include "attribfactory.h"
 #include "attribdatacubes.h"
+#include "attribdatapack.h"
 #include "uiexecutor.h"
 #include "arrayndimpl.h"
 #include "uimsg.h"
 #include "ptrman.h"
-#include "uiflatvertview.h"
+#include "uiflatviewgen.h"
 #include "colortab.h"
 
 using namespace Attrib;
 
 GapDeconACorrView::GapDeconACorrView( uiParent* p )
     : attribid_( DescID::undef() )
-    , autocorr2darr_( 0 )
-    , examviewer2d_( 0 )
-    , qcviewer2d_( 0 )
+    , datapackexam_( 0 )
+    , datapackqc_( 0 )
+    , examviewergen_( 0 )
+    , qcviewergen_( 0 )
     , dset_( 0 )
 {
     examwin_ = new uiMainWin( p, "Auto-correlation viewer (examine)", 0,
@@ -46,16 +48,23 @@ GapDeconACorrView::GapDeconACorrView( uiParent* p )
 
 GapDeconACorrView::~GapDeconACorrView()
 {
-    if ( autocorr2darr_ ) delete autocorr2darr_;
-    if ( examviewer2d_ ) delete examviewer2d_;
-    if ( qcviewer2d_ ) delete qcviewer2d_;
+    if ( datapackexam_ ) delete datapackexam_;
+    if ( datapackqc_ ) delete datapackqc_;
+    if ( examviewergen_ ) delete examviewergen_;
+    if ( qcviewergen_ ) delete qcviewergen_;
     if ( dset_ ) delete dset_;
     if ( examwin_ ) delete examwin_;
     if ( qcwin_ ) delete qcwin_;
 }
 
 
-bool GapDeconACorrView::computeAutocorr()
+#define mCreateDataPack( datapack ) \
+{ \
+    if ( datapack ) delete datapack; \
+    datapack = new CubeDataPack( *output ); \
+}\
+
+bool GapDeconACorrView::computeAutocorr( bool isqc )
 {
     BufferString errmsg;
     PtrMan<EngineMan> aem = createEngineMan();
@@ -76,7 +85,10 @@ bool GapDeconACorrView::computeAutocorr()
 	return false;
     
     output->ref();
-    extractAndSaveVals( output );
+    if ( isqc )
+    	mCreateDataPack(datapackqc_)
+    else
+	mCreateDataPack(datapackexam_)
     output->unRef();
     return true;
 }
@@ -92,28 +104,9 @@ EngineMan* GapDeconACorrView::createEngineMan()
 
     aem->setAttribSet( dset_ );
     aem->setAttribSpecs( attribspecs );
-//    CubeSampling cs = cs_;
-//    cs.hrg.step.inl = cs.hrg.step.inl*5;
     aem->setCubeSampling( cs_ );
 
     return aem;
-}
-
-
-void GapDeconACorrView::extractAndSaveVals( const DataCubes* dtcube )
-{
-    const Array3D<float>& data3darr = dtcube->getCube( 0 );
-    int firstdimsz = cs_.nrInl()==1 ? cs_.nrCrl() : cs_.nrInl();
-    autocorr2darr_ = new Array2DImpl<float>( firstdimsz, cs_.nrZ() );
-    for ( int idfdim=0; idfdim<firstdimsz; idfdim++ )
-    {
-	for ( int idz=0; idz<cs_.nrZ(); idz++ )
-	{
-	    float val = cs_.nrInl()==1 ? data3darr.get( 0, idfdim, idz )
-				       : data3darr.get( idfdim, 0, idz );
-	    autocorr2darr_->set( idfdim, idz, val );
-	}
-    }
 }
 
 
@@ -122,48 +115,24 @@ void GapDeconACorrView::createAndDisplay2DViewer( bool isqc )
     if ( isqc )
     {
 	qcwin_->close();
-	if ( qcviewer2d_ ) delete qcviewer2d_;
-	qcviewer2d_ = new uiFlatDisp::VertViewer(qcwin_);
+	if ( qcviewergen_ ) delete qcviewergen_;
+	qcviewergen_ = new FlatDisp::uiFlatViewGen( qcwin_, true, true );
     }
     else
     {
 	examwin_->close();
-	if ( examviewer2d_ ) delete examviewer2d_;
-	examviewer2d_ = new uiFlatDisp::VertViewer(examwin_);
+	if ( examviewergen_ ) delete examviewergen_;
+	examviewergen_ = new FlatDisp::uiFlatViewGen( examwin_, true, true );
     }
 
-    displayWiggles( false, isqc );
-
-    uiFlatDisp::VertViewer* viewer2d = isqc ? qcviewer2d_ : examviewer2d_;
-    
-    FlatDisp::Context ctxt;
-    ctxt.darkbg_ = true;
-    ColorTable defctab( 0 );
-    ctxt.ddpars_.vd_.ctab_ = defctab.name();
+    FlatDisp::uiFlatViewGen* viewergen = isqc ? qcviewergen_ : examviewergen_;
+    viewergen->setData( isqc ? datapackqc_ : datapackexam_, false );
+    FlatDisp::Context& ctxt = viewergen->getContext();
     ctxt.ddpars_.vd_.rg_ = Interval<float>( -0.2, 0.2 );
-    ctxt.ddpars_.wva_.overlap_ = 0.8;
-    ctxt.ddpars_.wva_.left_= Color(255,0,0);
-    ctxt.ddpars_.wva_.right_= Color(0,0,255);
-    ctxt.ddpars_.wva_.wigg_= Color(255,255,255);
-    ctxt.ddpars_.wva_.rg_ = Interval<float>( -0.2, 0.2 );
-    StepInterval<int> x1rg = cs_.nrInl()==1 ? cs_.hrg.crlRange() 
-					    : cs_.hrg.inlRange();
-    ctxt.posdata_.x1rg_ = StepInterval<double>(x1rg.start,x1rg.stop,x1rg.step);
-    ctxt.posdata_.x2rg_ = 
-		StepInterval<double>(0,cs_.zrg.stop-cs_.zrg.start, 
-				     cs_.zrg.step);
-    viewer2d->setContext( ctxt );
-    viewer2d->setData( false, autocorr2darr_, "Seismic data");
-    isqc ? qcwin_->show() : examwin_->show();
-}
-
-
-void GapDeconACorrView::displayWiggles( bool yn, bool isqc )
-{
-    uiFlatDisp::VertViewer* viewer2d = isqc ? qcviewer2d_ : examviewer2d_;
+    ctxt.posdata_.x2rg_ = StepInterval<double>(0,cs_.zrg.stop-cs_.zrg.start,
+			                       cs_.zrg.step);
     
-    viewer2d->context().ddpars_.dispvd_ = !yn;
-    viewer2d->context().ddpars_.dispwva_ = yn;
+    isqc ? qcwin_->show() : examwin_->show();
 }
 
 
