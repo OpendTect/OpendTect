@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          December 2006
- RCS:           $Id: SoShaderTexture2.cc,v 1.2 2007-01-17 07:39:05 cvsdgb Exp $
+ RCS:           $Id: SoShaderTexture2.cc,v 1.3 2007-01-30 10:38:37 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -55,7 +55,7 @@ SoShaderTexture2::SoShaderTexture2()
 
 SoShaderTexture2::~SoShaderTexture2()
 {
-    glimage_->unref();
+    if ( glimage_ ) glimage_->unref();
     delete imagesensor_;
 }
 
