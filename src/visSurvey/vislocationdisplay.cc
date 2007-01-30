@@ -4,7 +4,7 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vislocationdisplay.cc,v 1.16 2006-11-24 16:27:28 cvsnanne Exp $";
+static const char* rcsID = "$Id: vislocationdisplay.cc,v 1.17 2007-01-30 14:35:42 cvskris Exp $";
 
 #include "vislocationdisplay.h"
 
@@ -223,12 +223,14 @@ void LocationDisplay::pickCB( CallBacker* cb )
 	{
 	    setUnpickable( true );
 	    waitsforpositionid_ = selfpickidx;
+	    eventcatcher_->eventIsHandled();
 	}
 	const int selfdirpickidx = isDirMarkerClick( eventinfo.pickedobjids );
 	if ( selfdirpickidx!=-1 )
 	{
 	    setUnpickable( true );
 	    waitsfordirectionid_ = selfpickidx;
+	    eventcatcher_->eventIsHandled();
 	}
     }
     else 
@@ -260,13 +262,13 @@ void LocationDisplay::pickCB( CallBacker* cb )
 			    setUnpickable( true );
 			    waitsfordirectionid_ = set_->size()-1;
 			}
+
+			eventcatcher_->eventIsHandled();
 		    }
 		}
 	    }
 	}
     }
-
-    eventcatcher_->eventIsHandled();
 }
 
 
