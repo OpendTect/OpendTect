@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2005
- RCS:           $Id: treeitem.h,v 1.2 2006-07-28 21:58:28 cvskris Exp $
+ RCS:           $Id: treeitem.h,v 1.3 2007-01-30 21:46:51 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -68,8 +68,6 @@ protected:
    void			setRemovedCB(CallBacker*);
 
    BufferString		typestr_;
-   static int		defcolnr;
-
 };
 
 
@@ -130,17 +128,18 @@ protected:
 			~TextSubItem()			{}
     virtual const char*	parentType() const;
     virtual void	pickAddedCB(CallBacker*);
-    virtual void	rightclickCB(CallBacker*);
     const char*		managerName() const	{ return sKeyManager(); }
 
-//  virtual void	createMenuCB(CallBacker*)	{}
-//  virtual void	handleMenuCB(CallBacker*)	{}
+    void		createMenuCB(CallBacker*);
+    void		handleMenuCB(CallBacker*);
 
     bool		editText(BufferString&);
     BufferString	prevtxt_;
 
     bool		hasScale() const		{ return true; }
     void		setScale(float);
+    
+    MenuItem		changetextmnuitem_;
 };
 
 

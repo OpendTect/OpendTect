@@ -4,26 +4,23 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2005
- RCS:           $Id: treeitem.cc,v 1.4 2006-09-01 07:50:32 cvskris Exp $
+ RCS:           $Id: treeitem.cc,v 1.5 2007-01-30 21:46:51 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "treeitem.h"
+#include "randcolor.h"
 
 #include "uiarrowdlg.h"
-//#include "uifiledlg.h"
 #include "uilistview.h"
 #include "uislider.h"
 #include "uimenu.h"
+#include "uimenuhandler.h"
 #include "uiodapplmgr.h"
 #include "uivispartserv.h"
 #include "uigeninput.h"
 #include "uigeninputdlg.h"
-//#include "uitextedit.h"
-//#include "visannotdisplay.h"
-//#include "vistransform.h"
-//#include "vistransmgr.h"
 #include "vissurvscene.h"
 
 #include "visarrow.h"
@@ -45,8 +42,6 @@ ________________________________________________________________________
 
 namespace Annotations
 {
-
-int AnnotTreeItem::defcolnr = 0;
 
 
 ParentTreeItem::ParentTreeItem()
@@ -210,7 +205,7 @@ bool AnnotTreeItem::showSubMenu()
 		return false;
 
 	    Pick::Set* set = new Pick::Set(txt);
-	    set->disp_.color_ = Color::drawDef(defcolnr++);
+	    set->disp_.color_ = getRandomColor();
 	    Pick::SetMgr& mgr = Pick::SetMgr::getMgr( managerName() );
 	    mgr.set( mid, set );
 	    break;
@@ -333,16 +328,16 @@ void SubItem::createMenuCB( CallBacker* cb )
 
 void SubItem::handleMenuCB( CallBacker* cb )
 {
+    uiODDisplayTreeItem::handleMenuCB(cb);
     mCBCapsuleUnpackWithCaller(int,mnuid,caller,cb);
     mDynamicCastGet(MenuHandler*,menu,caller);
-    if ( menu->menuID() != displayID() )
+    if ( menu->menuID()!=displayID() || menu->isHandled() )
 	return;
 
     mDynamicCastGet( visSurvey::LocationDisplay*,ld,
 	    	     visserv->getObject(displayid_));
     if ( !ld ) return;
 
-    uiODDisplayTreeItem::handleMenuCB(cb);
     if ( mnuid==scalemnuitem_.id )
     {
 	menu->setIsHandled(true);
@@ -512,6 +507,7 @@ void SubItem::scaleChg( CallBacker* cb )
 
 TextSubItem::TextSubItem( Pick::Set& pck, int displayid )
     : SubItem(pck,displayid)
+    , changetextmnuitem_("Change text ...")
 {
     defscale_ = 10;
     Pick::SetMgr& mgr = Pick::SetMgr::getMgr( managerName() );
@@ -532,9 +528,62 @@ bool TextSubItem::init()
 
     mDynamicCastGet(CalloutDisplay*,cd, visserv->getObject(displayid_))
     if ( !cd ) return false;
-    cd->rightClicked()->notify( mCB(this,TextSubItem,rightclickCB) );
 
     return SubItem::init();
+}
+
+
+void TextSubItem::createMenuCB( CallBacker* cb )
+{
+    SubItem::createMenuCB( cb );
+    mDynamicCastGet(uiMenuHandler*,menu,cb);
+    if ( menu->menuID() != displayID() )
+	return;
+
+    mAddMenuItem(menu,&changetextmnuitem_,menu->getPath(),false );
+}
+
+
+void TextSubItem::handleMenuCB( CallBacker* cb )
+{
+    SubItem::handleMenuCB( cb );
+    mCBCapsuleUnpackWithCaller(int,mnuid,caller,cb);
+    mDynamicCastGet(uiMenuHandler*,menu,caller);
+    if ( menu->menuID()!=displayID() || menu->isHandled() )
+	return;
+
+    if ( mnuid==changetextmnuitem_.id )
+    {
+	menu->setIsHandled(true);
+	const TypeSet<int>* path = menu->getPath();
+
+	if ( !path ) return;
+	mDynamicCastGet( visSurvey::LocationDisplay*,ld,
+			 visserv->getObject(displayid_) );
+
+	int pickidx = -1;
+	for ( int idx=path->size()-1; idx>=0; idx-- )
+	{
+	    pickidx = ld->getPickIdx( visserv->getObject((*path)[idx]) );
+	    if ( pickidx!=-1 )
+		break;
+	}
+
+	if ( pickidx==-1 )
+	    return;
+
+	BufferString text = *(*set_)[pickidx].text;
+	if ( editText(text) )
+	{
+	    *(*set_)[pickidx].text = text;
+
+	    Pick::SetMgr::ChangeData cd( Pick::SetMgr::ChangeData::Changed,
+					 set_, pickidx );
+
+	    Pick::SetMgr& mgr = Pick::SetMgr::getMgr( managerName() );
+	    mgr.reportChange( this, cd );
+	}
+    }
 }
 
 
@@ -550,43 +599,6 @@ void TextSubItem::pickAddedCB( CallBacker* cb )
 	if ( !loc.text ) loc.text = new BufferString( prevtxt_ );
 	else (*loc.text) = prevtxt_;
 	//Trigger CB?
-    }
-}
-
-
-void TextSubItem::rightclickCB( CallBacker* cb )
-{
-    mDynamicCastGet( visBase::DataObject*, dataobj, cb );
-    const TypeSet<int>* path = dataobj->rightClickedPath();
-
-    if ( !path ) return;
-    mDynamicCastGet( visSurvey::LocationDisplay*,ld,
-		     visserv->getObject(displayid_) );
-
-    int pickidx = -1;
-    for ( int idx=path->size()-1; idx>=0; idx-- )
-    {
-	pickidx = ld->getPickIdx( visserv->getObject((*path)[idx]) );
-	if ( pickidx!=-1 )
-	    break;
-    }
-
-    uiPopupMenu mnu( getUiParent(), "Action" );
-    mnu.insertItem( new uiMenuItem("Change text ..."), 0 );
-    const int mnusel = mnu.exec();
-    if ( mnusel == 0 )
-    {
-	BufferString text = *(*set_)[pickidx].text;
-	if ( editText(text) )
-	{
-	    *(*set_)[pickidx].text = text;
-
-	    Pick::SetMgr::ChangeData cd( Pick::SetMgr::ChangeData::Changed,
-		    		      set_, pickidx );
-
-	    Pick::SetMgr& mgr = Pick::SetMgr::getMgr( managerName() );
-	    mgr.reportChange( this, cd );
-	}
     }
 }
 
@@ -749,23 +761,23 @@ void SymbolSubItem::mouseMoveCB( CallBacker* )
 
 void SymbolSubItem::createMenuCB( CallBacker* cb )
 {
+    SubItem::createMenuCB( cb );
     mDynamicCastGet(MenuHandler*,menu,cb);
     if ( menu->menuID() != displayID() )
 	return;
 
-    SubItem::createMenuCB( cb );
     mAddMenuItem(menu,&propmnuitem_,true,false );
 }
 
 
 void SymbolSubItem::handleMenuCB( CallBacker* cb )
 {
+    SubItem::handleMenuCB( cb );
     mCBCapsuleUnpackWithCaller(int,mnuid,caller,cb);
     mDynamicCastGet(MenuHandler*,menu,caller);
-    if ( menu->menuID() != displayID() )
+    if ( menu->menuID()!=displayID() || menu->isHandled() )
 	return;
 
-    SubItem::handleMenuCB( cb );
     if ( mnuid==propmnuitem_.id )
     {
 	menu->setIsHandled(true);
