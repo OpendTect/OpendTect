@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Jan 2005
- RCS:           $Id: viscallout.cc,v 1.5 2006-09-01 07:50:32 cvskris Exp $
+ RCS:           $Id: viscallout.cc,v 1.6 2007-01-30 21:45:43 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -175,10 +175,8 @@ Callout::Callout()
 
     textoffset_->ref();
     textoffset_->setStyle( visBase::PolygonOffset::Filled );
-    //textoffset_->setFactor( -10 );
     textoffset_->setUnits( -2 );
 
-    //addChild( textoffset_->getInventorNode() );
     mAddChild( fronttext_, true );
 
     backtextrotation_->ref();
@@ -223,6 +221,7 @@ Sphere Callout::getDirection() const
     phi *= rot2;
     Coord3 axis;
     phi.getRotation( axis, res.phi );
+    if ( axis.dot(Coord3(0,0,1))<0 ) res.phi = -res.phi;
     return res;
 }
 
@@ -476,8 +475,8 @@ void Callout::updateArrow()
 		const Coord3 nextpos =
 		    faceset_->getCoordinates()->getPos( nextidx );
 
-		const float sqdist = pickpos.sqDistance(pos) +
-		    		     pickpos.sqDistance(nextpos);
+		const float sqdist = pickpos.sqDistTo(pos) +
+		    		     pickpos.sqDistTo(nextpos);
 
 		if ( !idx || sqdist<minsqdist )
 		{
@@ -711,7 +710,7 @@ visBase::VisualObject* CalloutDisplay::createLocation() const
     res->setMarkerMaterial( markermaterial_ );
     res->setBoxMaterial( boxmaterial_ );
     res->setTextMaterial( textmaterial_ );
-    res->setSelectable( true );
+    res->setSelectable( false );
     res->setTextSize( scale_ );
     res->moved.notify( mCB( const_cast<CalloutDisplay*>(this), CalloutDisplay,
 			directionChangeCB ) );
