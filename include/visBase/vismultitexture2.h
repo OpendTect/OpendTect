@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		Dec 2005
- RCS:		$Id: vismultitexture2.h,v 1.7 2007-01-26 17:57:14 cvskris Exp $
+ RCS:		$Id: vismultitexture2.h,v 1.8 2007-01-30 21:54:40 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -37,7 +37,6 @@ public:
     				mCreateDataObj(MultiTexture2);
 
     int				maxNrTextures() const;
-
     bool			turnOn(bool yn);
     bool			isOn() const;
     void			clearAll();
@@ -116,7 +115,6 @@ protected:
     SoShaderParameter1i*	layersize0_;
     SoShaderParameter1i*	layersize1_;
     SoShaderParameter1i*	ctabunit_;
-    SoShaderParameter1i*	dataunit0_;
     TypeSet<float>		opacity_;
 };
 
