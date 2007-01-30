@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          June 2002
- RCS:           $Id: uisetdatadir.cc,v 1.18 2006-11-21 14:00:08 cvsbert Exp $
+ RCS:           $Id: uisetdatadir.cc,v 1.19 2007-01-30 11:41:25 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -249,6 +249,5 @@ bool uiSetDataDir::setRootDataDir( const char* inpdatadir )
 			 "Preferences cannot be stored!" );
     }
 
-    IOMan::newSurvey();
     return true;
 }
