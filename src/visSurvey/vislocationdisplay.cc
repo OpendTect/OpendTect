@@ -4,7 +4,7 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vislocationdisplay.cc,v 1.17 2007-01-30 14:35:42 cvskris Exp $";
+static const char* rcsID = "$Id: vislocationdisplay.cc,v 1.18 2007-01-30 20:07:06 cvskris Exp $";
 
 #include "vislocationdisplay.h"
 
@@ -217,20 +217,22 @@ void LocationDisplay::pickCB( CallBacker* cb )
     else if ( eventinfo.pressed )
     {
 	mousepressid_ = eventid;
-
-	const int selfpickidx = isMarkerClick( eventinfo.pickedobjids );
-	if ( selfpickidx!=-1 )
+	if ( !eventinfo.ctrl && !eventinfo.alt && !eventinfo.shift )
 	{
-	    setUnpickable( true );
-	    waitsforpositionid_ = selfpickidx;
-	    eventcatcher_->eventIsHandled();
-	}
-	const int selfdirpickidx = isDirMarkerClick( eventinfo.pickedobjids );
-	if ( selfdirpickidx!=-1 )
-	{
-	    setUnpickable( true );
-	    waitsfordirectionid_ = selfpickidx;
-	    eventcatcher_->eventIsHandled();
+	    const int selfpickidx = isMarkerClick( eventinfo.pickedobjids );
+	    if ( selfpickidx!=-1 )
+	    {
+		setUnpickable( true );
+		waitsforpositionid_ = selfpickidx;
+		eventcatcher_->eventIsHandled();
+	    }
+	    const int selfdirpickidx = isDirMarkerClick(eventinfo.pickedobjids);
+	    if ( selfdirpickidx!=-1 )
+	    {
+		setUnpickable( true );
+		waitsfordirectionid_ = selfpickidx;
+		eventcatcher_->eventIsHandled();
+	    }
 	}
     }
     else 
