@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.160 2007-01-29 20:40:54 cvskris Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.161 2007-01-30 20:03:53 cvskris Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -18,13 +18,8 @@ static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.160 2007-01-29 20:40
 #include "keyenum.h"
 #include "survinfo.h"
 #include "samplfunc.h"
-#include "scaler.h"
-#include "vistexturerect.h"
-#include "visdataman.h"
-#include "visrectangle.h"
 #include "vismaterial.h"
 #include "vistexturecoords.h"
-#include "viscolortab.h"
 #include "viscoord.h"
 #include "visdepthtabplanedragger.h"
 #include "visdrawstyle.h"
@@ -48,9 +43,7 @@ DefineEnumNames(PlaneDataDisplay,Orientation,1,"Orientation")
 
 
 PlaneDataDisplay::PlaneDataDisplay()
-    : VisualObjectImpl(true)
-    , texture_( visBase::MultiTexture2::create() )
-    , rectangle_( visBase::FaceSet::create() )
+    : rectangle_( visBase::FaceSet::create() )
     , rectanglepickstyle_( visBase::PickStyle::create() )
     , dragger_( visBase::DepthTabPlaneDragger::create() )
     , gridlines_( visBase::GridLines::create() )
@@ -60,14 +53,13 @@ PlaneDataDisplay::PlaneDataDisplay()
     , datatransformvoihandle_( -1 )
     , moving_(this)
     , movefinished_(this)
-    , resolution_( 0 )
     , orientation_( Inline )
-    , onoffstatus_( true )
 {
     volumecache_.allowNull( true );
     rposcache_.allowNull( true );
     dragger_->ref();
-    addChild( dragger_->getInventorNode() );
+    insertChild( childIndex(texture_->getInventorNode()),
+		 dragger_->getInventorNode() );
     dragger_->motion.notify( mCB(this,PlaneDataDisplay,draggerMotion) );
     dragger_->finished.notify( mCB(this,PlaneDataDisplay,draggerFinish) );
     dragger_->rightClicked()->notify(
@@ -110,10 +102,6 @@ PlaneDataDisplay::PlaneDataDisplay()
     rectanglepickstyle_->ref();
     addChild( rectanglepickstyle_->getInventorNode() );
 
-    texture_->ref();
-    addChild( texture_->getInventorNode() );
-    texture_->setTextureRenderQuality(1);
-
     rectangle_->ref();
     addChild( rectangle_->getInventorNode() );
     rectangle_->setCoordIndex( 0, 0 );
@@ -134,7 +122,6 @@ PlaneDataDisplay::PlaneDataDisplay()
 
     updateRanges( true, true );
 
-    as_ += new Attrib::SelSpec;
     volumecache_ += 0;
     rposcache_ += 0;
     datapackids_ += -1;
@@ -151,13 +138,11 @@ PlaneDataDisplay::~PlaneDataDisplay()
     dragger_->rightClicked()->remove(
 	    		mCB(this,PlaneDataDisplay,draggerRightClick) );
 
-    deepErase( as_ );
     deepUnRef( volumecache_ );
     deepErase( rposcache_ );
 
     setDataTransform( 0 );
 
-    texture_->unRef();
     rectangle_->unRef();
     dragger_->unRef();
     rectanglepickstyle_->unRef();
@@ -166,34 +151,6 @@ PlaneDataDisplay::~PlaneDataDisplay()
     draggerdrawstyle_->unRef();
     draggermaterial_->unRef();
 }
-
-
-void PlaneDataDisplay::turnOn( bool yn )
-{
-    onoffstatus_ = yn;
-    updateMainSwitch();
-}
-
-
-void PlaneDataDisplay::updateMainSwitch()
-{
-    bool newstatus = onoffstatus_;
-    if ( newstatus )
-    {
-	newstatus = false;
-	for ( int idx=nrAttribs()-1; idx>=0; idx-- )
-	{
-	    if ( isAttribEnabled(idx) )
-	    {
-		newstatus = true;
-		break;
-	    }
-	}
-    }
-
-    VisualObjectImpl::turnOn( newstatus );
-}
-
 
 
 void PlaneDataDisplay::setOrientation( Orientation nt )
@@ -518,15 +475,16 @@ NotifierAccess* PlaneDataDisplay::getManipulationNotifier()
 
 
 int PlaneDataDisplay::nrResolutions() const
-{ return 3; }
-
-
-int PlaneDataDisplay::getResolution() const
-{ return resolution_; }
+{
+    return texture_->usesShading() ? 1 : 3;
+}
 
 
 void PlaneDataDisplay::setResolution( int res )
 {
+    if ( texture_->usesShading() )
+	return;
+
     if ( res==resolution_ )
 	return;
 
@@ -555,155 +513,45 @@ SurveyObject::AttribFormat PlaneDataDisplay::getAttributeFormat() const
 }
 
 
-bool PlaneDataDisplay::canHaveMultipleAttribs() const
-{ return true; }
-
-
-int PlaneDataDisplay::nrAttribs() const
-{ return as_.size(); }
-
-
-bool PlaneDataDisplay::addAttrib()
+void PlaneDataDisplay::addCache()
 {
-    as_ += new Attrib::SelSpec;
     volumecache_ += 0;
     rposcache_ += 0;
     datapackids_ += -1;
-
-    texture_->addTexture("");
-    texture_->setOperation( as_.size()-1, visBase::MultiTexture::BLEND );
-
-    updateMainSwitch();
-    return true;
 }
 
 
-bool PlaneDataDisplay::removeAttrib( int attrib )
+void PlaneDataDisplay::removeCache( int attrib )
 {
-    if ( as_.size()<2 || !as_.validIdx(attrib) )
-	return false;
-
-    delete as_[attrib];
-    as_.remove( attrib );
     if ( volumecache_[attrib] ) volumecache_[attrib]->unRef();
     volumecache_.remove( attrib );
     if ( rposcache_[attrib] ) delete rposcache_[attrib];
     rposcache_.remove( attrib );
     datapackids_.remove( attrib );
-
-    texture_->removeTexture( attrib );
-
-    updateMainSwitch();
-    return true;
 }
 
 
-bool PlaneDataDisplay::swapAttribs( int a0, int a1 )
+void PlaneDataDisplay::swapCache( int a0, int a1 )
 {
-    if ( !as_.validIdx(a0) || !as_.validIdx(a1) )
-	return false;
-
-    texture_->swapTextures( a0, a1 );
-    as_.swap( a0, a1 );
     volumecache_.swap( a0, a1 );
     rposcache_.swap( a0, a1 );
     datapackids_.swap( a0, a1 );
-
-    return true;
 }
 
 
-void PlaneDataDisplay::setAttribTransparency( int attrib, unsigned char nt )
+void PlaneDataDisplay::emptyCache( int attrib )
 {
-    texture_->setTextureTransparency( attrib, nt );
-}
-
-
-unsigned char PlaneDataDisplay::getAttribTransparency( int attrib ) const
-{
-    return texture_->getTextureTransparency( attrib );
-}
-
-
-const Attrib::SelSpec* PlaneDataDisplay::getSelSpec( int attrib ) const
-{
-    return attrib>=0 && attrib<as_.size() ? as_[attrib] : 0;
-}
-
-
-void PlaneDataDisplay::setSelSpec( int attrib, const Attrib::SelSpec& as )
-{
-    if ( attrib>=0 && attrib<as_.size() )
-    {
-	*as_[attrib] = as;
-    }
-
     if ( volumecache_[attrib] ) volumecache_[attrib]->unRef();
     volumecache_.replace( attrib, 0 );
     if ( rposcache_[attrib] ) delete rposcache_[attrib];
     rposcache_.replace( attrib, 0 );
     datapackids_[attrib] = -1;
-
-    const char* usrref = as.userRef();
-    if ( !usrref || !*usrref )
-	texture_->turnOn( false );
 }
 
 
-bool PlaneDataDisplay::isClassification( int attrib ) const
+bool PlaneDataDisplay::hasCache( int attrib ) const
 {
-    return attrib>=0 && attrib<isclassification_.size()
-	? isclassification_[attrib] : false;
-}
-
-
-void PlaneDataDisplay::setClassification( int attrib, bool yn )
-{
-    if ( !as_.validIdx(attrib) )
-	return;
-
-    if ( yn )
-    {
-	while ( attrib>=isclassification_.size() )
-	    isclassification_ += false;
-    }
-    else if ( attrib>=isclassification_.size() )
-	return;
-
-    isclassification_[attrib] = yn;
-}
-
-
-bool PlaneDataDisplay::isAngle( int attrib ) const
-{ return texture_->isAngle( attrib ); }
-
-
-void PlaneDataDisplay::setAngleFlag( int attrib, bool yn )
-{ texture_->setAngleFlag( attrib, yn ); }
-
-
-bool PlaneDataDisplay::isAttribEnabled( int attrib ) const 
-{
-    return texture_->isTextureEnabled( attrib );
-}
-
-
-void PlaneDataDisplay::enableAttrib( int attrib, bool yn )
-{
-    texture_->enableTexture( attrib, yn );
-    updateMainSwitch();
-}
-
-
-const TypeSet<float>* PlaneDataDisplay::getHistogram( int attrib ) const
-{
-    return texture_->getHistogram( attrib, texture_->currentVersion( attrib ) );
-}
-
-
-int PlaneDataDisplay::getColTabID( int attrib ) const
-{
-    return texture_->getColorTab( attrib ).id();
+    return volumecache_[attrib] || rposcache_[attrib];
 }
 
 
@@ -739,7 +587,7 @@ void PlaneDataDisplay::getRandomPos( ObjectSet<BinIDValueSet>& pos ) const
 void PlaneDataDisplay::setRandomPosData( int attrib,
 					 const ObjectSet<BinIDValueSet>* data )
 {
-    if ( !as_.validIdx(attrib) )
+    if ( attrib>=nrAttribs() )
 	return;
 
     setData( attrib, data );
@@ -824,8 +672,8 @@ CubeSampling PlaneDataDisplay::getCubeSampling( bool manippos,
 	res.hrg.step = BinID( SI().inlStep(), SI().crlStep() );
 	res.zrg.step = SI().zRange(true).step;
 
-	const char* depthdomain = attrib>=0 && attrib<as_.size() 
-	    				? as_[attrib]->depthDomainKey() : 0;
+	const char* depthdomain = attrib>=0 && attrib<nrAttribs() 
+				    ? getSelSpec(attrib)->depthDomainKey() : 0;
 	const bool alreadytransformed = depthdomain && *depthdomain;
 	if ( alreadytransformed ) return res;
 
@@ -841,7 +689,8 @@ CubeSampling PlaneDataDisplay::getCubeSampling( bool manippos,
 
 bool PlaneDataDisplay::setDataVolume( int attrib, DataPack::ID dpid )
 {
-    if ( !as_.validIdx(attrib) ) return false;
+    if ( attrib>=nrAttribs() )
+	return false;
 
     datapackids_[attrib] = dpid;
     DataPackMgr& dpman = DPM( 0 );
@@ -860,7 +709,7 @@ DataPack::ID PlaneDataDisplay::getCacheID( int attrib ) const
 bool PlaneDataDisplay::setDataVolume( int attrib,
 				      const Attrib::DataCubes* datacubes )
 {
-    if ( !as_.validIdx(attrib) )
+    if ( attrib>=nrAttribs() )
 	return false;
 
     setData( attrib, datacubes );
@@ -903,7 +752,7 @@ void PlaneDataDisplay::setData( int attrib, const Attrib::DataCubes* datacubes )
 	dim1 = Attrib::DataCubes::cInlDim();
     }
 
-    const char* depthdomain = as_[attrib]->depthDomainKey();
+    const char* depthdomain = getSelSpec(attrib)->depthDomainKey();
     const bool alreadytransformed = depthdomain && *depthdomain;
 
     const int nrcubes = datacubes->nrCubes();
@@ -963,7 +812,7 @@ void PlaneDataDisplay::setData( int attrib, const Attrib::DataCubes* datacubes )
 
 	if ( slice.init() )
 	{
-	    if ( resolution_ )
+	    if ( !texture_->usesShading() && resolution_ )
 		texture_->setDataOversample( attrib, idx, resolution_, 
 					     !isClassification( attrib ),
 		       			     &slice, true );
@@ -1019,7 +868,7 @@ void PlaneDataDisplay::setData( int attrib,
 	}
 
 	texture_->setData( attrib, idx-1, &texturedata, true );
-	if ( resolution_ )
+	if ( !texture_->usesShading() && resolution_ )
 	    texture_->setDataOversample( attrib, idx-1, resolution_, 
 					 !isClassification( attrib ),
 					 &texturedata, true );
@@ -1042,10 +891,10 @@ void PlaneDataDisplay::setTextureCoords( int sz0, int sz1 )
 	rectangle_->setTextureCoords( tcoords );
     }
 
-    const LinScaler dim0scale( -0.5, 0, sz0-0.5, 1);
-    const LinScaler dim1scale( -0.5, 0, sz1-0.5, 1);
-    const Interval<float> dim0rg( dim0scale.scale(0), dim0scale.scale(sz0-1) );
-    const Interval<float> dim1rg( dim1scale.scale(0), dim1scale.scale(sz1-1) );
+    const SamplingData<float> dim0scale( -0.5, 0, sz0-0.5, 1);
+    const SamplingData<float> dim1scale( -0.5, 0, sz1-0.5, 1);
+    const Interval<float> dim0rg( dim0scale.interval(sz0) );
+    const Interval<float> dim1rg( dim1scale.interval(sz1) );
 
     tcoords->setCoord( 0, Coord3( dim1rg.start, dim0rg.start, 0 ) );
     tcoords->setCoord( 1, Coord3( dim1rg.start, dim0rg.stop, 0 ) );
@@ -1075,29 +924,9 @@ inline int getPow2Sz( int actsz, bool above=true, int minsz=1,
 
 const Attrib::DataCubes* PlaneDataDisplay::getCacheVolume( int attrib ) const
 {
-    return as_.validIdx(attrib) ? volumecache_[attrib] : 0;
+    return attrib<volumecache_.size() ? volumecache_[attrib] : 0;
 }
 
-
-int PlaneDataDisplay::nrTextures( int attrib ) const
-{
-    return getCacheVolume( attrib ) ? getCacheVolume( attrib )->nrCubes() : 0;
-}
-
-
-void PlaneDataDisplay::selectTexture( int attrib, int idx )
-{
-    if ( !as_.validIdx(attrib) || idx<0 || idx>=texture_->nrVersions(attrib) )
-	return;
-
-    texture_->setCurrentVersion( attrib, idx );
-}
-
-
-int PlaneDataDisplay::selectedTexture( int attrib ) const
-{
-    return as_.validIdx(attrib) ? texture_->currentVersion(attrib) : 0;
-}
 
 #define mIsValid(idx,sz) ( idx>=0 && idx<sz )
 
@@ -1107,6 +936,8 @@ void PlaneDataDisplay::getMousePosInfo( const visBase::EventInfo&,
 					BufferString& info ) const
 {
     info = getManipulationString();
+    getValueString( pos, val );
+    /*
     val = "undef";
     BufferString valname;
 
@@ -1171,37 +1002,45 @@ void PlaneDataDisplay::getMousePosInfo( const visBase::EventInfo&,
 
 	return;
     }
+    */
+}
 
-    return;
+
+bool PlaneDataDisplay::getCacheValue( int attrib, int version,
+				      const Coord3& pos, float& res ) const
+{
+    if ( attrib>=volumecache_.size() ||
+	 (!volumecache_[attrib] && !rposcache_[attrib]) )
+	return false;
+
+    const BinIDValue bidv( SI().transform(pos), pos.z );
+    if ( attrib<volumecache_.size() && volumecache_[attrib] )
+    {
+	const int ver = texture_->currentVersion(attrib);
+	const Attrib::DataCubes* vc = volumecache_[attrib];
+	return vc->getValue( ver, bidv, &res, false );
+    }
+    else if ( attrib<rposcache_.size() && rposcache_[attrib] )
+    {
+	const BinIDValueSet& set = *rposcache_[attrib];
+	const BinIDValueSet::Pos setpos = set.findFirst( bidv.binid );
+	if ( setpos.i==-1 || setpos.j==-1 )
+	    return false;
+
+	res = set.getVals(setpos)[version+1];
+	return true;
+    }
+
+    return false;
 }
 
 
 void PlaneDataDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 {
-    visBase::VisualObject::fillPar( par, saveids );
+    MultiTextureSurveyObject::fillPar( par, saveids );
 
-    par.setYN( visBase::VisualObjectImpl::sKeyIsOn(), isOn() );
     par.set( sKeyOrientation(), eString(Orientation,orientation_) );
-    par.set( sKeyResolution(), resolution_ );
     getCubeSampling( false, true ).fillPar( par );
-
-    for ( int attrib=as_.size()-1; attrib>=0; attrib-- )
-    {
-	IOPar attribpar;
-	as_[attrib]->fillPar( attribpar );
-	const int coltabid = getColTabID(attrib);
-	attribpar.set( sKeyColTabID(), coltabid );
-	if ( saveids.indexOf( coltabid )==-1 ) saveids += coltabid;
-
-	attribpar.setYN( visBase::VisualObjectImpl::sKeyIsOn(),
-			 texture_->isTextureEnabled(attrib) );
-
-	BufferString key = sKeyAttribs();
-	key += attrib;
-	par.mergeComp( attribpar, key );
-    }
-
-    par.set( sKeyNrAttribs(), as_.size() );
 
     par.set( sKeyDepthKey(), (int) dragger_->getTransDragKeys(true) );
     par.set( sKeyPlaneKey(), (int) dragger_->getTransDragKeys(false) );
@@ -1210,130 +1049,22 @@ void PlaneDataDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 
 int PlaneDataDisplay::usePar( const IOPar& par )
 {
-    const int res =  visBase::VisualObject::usePar( par );
+    const int res =  MultiTextureSurveyObject::usePar( par );
     if ( res!=1 ) return res;
 
-    int nrattribs;
-    if ( par.get(sKeyNrAttribs(),nrattribs) ) //current format
-    {
-	const char* orires = par.find( sKeyOrientation() );
-	if ( orires && *orires )
-	    setOrientation( eEnum(Orientation,orires) );
+    const char* orires = par.find( sKeyOrientation() );
+    if ( orires && *orires )
+	setOrientation( eEnum(Orientation,orires) );
 
-	par.get( sKeyResolution(), resolution_ );
+    CubeSampling cs;
+    if ( cs.usePar( par ) )
+	setCubeSampling( cs );
 
-	bool ison = true;
-	par.getYN( visBase::VisualObjectImpl::sKeyIsOn(), ison );
-	turnOn( ison );
-
-	CubeSampling cs;
-	if ( cs.usePar( par ) )
-	    setCubeSampling( cs );
-
-	bool firstattrib = true;
-	for ( int attrib=0; attrib<nrattribs; attrib++ )
-	{
-	    BufferString key = sKeyAttribs();
-	    key += attrib;
-	    PtrMan<const IOPar> attribpar = par.subselect( key );
-	    if ( !attribpar )
-		continue;
-
-	    int coltabid = -1;
-	    if ( attribpar->get(sKeyColTabID(),coltabid) )
-	    {
-		visBase::DataObject* dataobj= visBase::DM().getObject(coltabid);
-		if ( !dataobj ) return 0;
-
-		mDynamicCastGet(const visBase::VisColorTab*,coltab,dataobj);
-		if ( !coltab ) coltabid=-1;
-	    }
-
-	    if ( !firstattrib )
-		addAttrib();
-	    else
-		firstattrib = false;
-
-	    const int attribnr = as_.size()-1;
-
-	    as_[attribnr]->usePar( *attribpar );
-	    if ( coltabid!=-1 )
-	    {
-		mDynamicCastGet( visBase::VisColorTab*, coltab, 
-		       		 visBase::DM().getObject(coltabid) );
-		texture_->setColorTab( attribnr, *coltab );
-	    }
-
-	    ison = true;
-	    attribpar->getYN( visBase::VisualObjectImpl::sKeyIsOn(), ison );
-	    texture_->enableTexture( attribnr, ison );
-	}
-
-	int buttonkey;
-	if ( par.get( sKeyDepthKey(), buttonkey ) )
-	    dragger_->setTransDragKeys(true, buttonkey );
-	if ( par.get( sKeyPlaneKey(), buttonkey ) )
-	    dragger_->setTransDragKeys(true, buttonkey );
-    }
-    else
-    {
-	int trectid;
-
-	if ( !par.get( sKeyTextureRect(), trectid ))
-	    return -1;
-
-	visBase::DataObject* dataobj = visBase::DM().getObject( trectid );
-	if ( !dataobj ) return 0;
-
-	mDynamicCastGet(visBase::TextureRect*,tr,dataobj)
-	if ( !tr ) return -1;
-
-	tr->ref();
-
-
-	visBase::Rectangle& rect = tr->getRectangle();
-	CubeSampling cubesampl;
-	Orientation ori;
-	cubesampl.hrg.start =
-	    BinID( mNINT( rect.origo().x), mNINT( rect.origo().y) );
-	cubesampl.hrg.stop = cubesampl.hrg.start;
-	cubesampl.hrg.step = curicstep_;
-
-	const float zrg0 = rect.origo().z;
-	cubesampl.zrg.start = (float)(int)(1000*zrg0+.5) / 1000;
-	cubesampl.zrg.stop = cubesampl.zrg.start;
-	cubesampl.zrg.step = curzstep_;
-
-	if ( rect.orientation()==visBase::Rectangle::XY )
-	{
-	    cubesampl.hrg.stop.inl += mNINT(rect.width(0,false));
-	    cubesampl.hrg.stop.crl += mNINT(rect.width(1,false));
-	    ori = Timeslice;
-	}
-	else if ( rect.orientation()==visBase::Rectangle::XZ )
-	{
-	    cubesampl.hrg.stop.inl += mNINT(rect.width(0,false));
-	    cubesampl.zrg.stop += rect.width(1,false);
-	    ori = Crossline;
-	}
-	else
-	{
-	    ori = Inline;
-	    cubesampl.hrg.stop.crl += mNINT(rect.width(1,false));
-	    cubesampl.zrg.stop += rect.width(0,false);
-	}
-
-	setOrientation( ori );
-	setCubeSampling( cubesampl );
-	resolution_ = tr->getResolution();
-
-	if ( resolution_>=2 ) resolution_ = 2;
-	else if ( resolution_<0 ) resolution_ = 0;
-	
-	tr->unRef();
-
-	as_[0]->usePar( par );
-    }
+    int buttonkey;
+    if ( par.get( sKeyDepthKey(), buttonkey ) )
+	dragger_->setTransDragKeys(true, buttonkey );
+    if ( par.get( sKeyPlaneKey(), buttonkey ) )
+	dragger_->setTransDragKeys(true, buttonkey );
 
     return 1;
 }

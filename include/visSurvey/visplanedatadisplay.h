@@ -7,15 +7,14 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visplanedatadisplay.h,v 1.91 2007-01-24 16:47:49 cvsnanne Exp $
+ RCS:		$Id: visplanedatadisplay.h,v 1.92 2007-01-30 20:03:53 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
 
-#include "visobject.h"
-#include "vissurvobj.h"
+#include "vismultiattribsurvobj.h"
 #include "ranges.h"
 
 template <class T> class Array2D;
@@ -27,12 +26,11 @@ namespace visBase
     class DrawStyle;
     class FaceSet;
     class GridLines;
-    class MultiTexture2; 
     class PickStyle;
 };
 
 
-namespace Attrib { class SelSpec; class DataCubes; }
+namespace Attrib { class DataCubes; }
 
 namespace visSurvey
 {
@@ -46,14 +44,11 @@ class Scene;
     setting the requested orientation of the slice.
 */
 
-class PlaneDataDisplay :  public visBase::VisualObjectImpl,
-			  public visSurvey::SurveyObject
+class PlaneDataDisplay :  public visSurvey::MultiTextureSurveyObject
 {
 public:
 
     bool			isInlCrl() const	{ return true; }
-    bool			isOn() const	 	{ return onoffstatus_; }
-    void			turnOn(bool);
 
     enum Orientation		{ Inline=0, Crossline=1, Timeslice=2 };
     				DeclareEnumUtils(Orientation);
@@ -78,29 +73,9 @@ public:
     bool			allowMaterialEdit() const	{ return true; }
 
     int				nrResolutions() const;
-    int				getResolution() const;
     void			setResolution(int);
 
     SurveyObject::AttribFormat	getAttributeFormat() const;
-    bool			canHaveMultipleAttribs() const;
-    int				nrAttribs() const;
-    bool			addAttrib();
-    bool			removeAttrib(int attrib);
-    bool			swapAttribs(int attrib0,int attrib1);
-    void			setAttribTransparency(int,unsigned char);
-    unsigned char		getAttribTransparency(int) const;
-
-    bool			hasColorAttribute() const	{ return false;}
-    const Attrib::SelSpec*	getSelSpec(int) const;
-    void			setSelSpec(int,const Attrib::SelSpec&);
-    bool 			isClassification(int attrib) const;
-    void			setClassification(int attrib,bool yn);
-    bool 			isAngle(int attrib) const;
-    void			setAngleFlag(int attrib,bool yn);
-    void			enableAttrib(int attrib,bool yn);
-    bool			isAttribEnabled(int attrib) const;
-    const TypeSet<float>*	getHistogram(int) const;
-    int				getColTabID(int) const;
 
     CubeSampling		getCubeSampling(int attrib=-1) const;
     CubeSampling		getCubeSampling(bool manippos,
@@ -117,11 +92,6 @@ public:
 	    				      const Attrib::DataCubes*);
     const Attrib::DataCubes*	getCacheVolume(int attrib) const;
    
-    bool			canHaveMultipleTextures() const { return true; }
-    int				nrTextures(int attrib) const;
-    void			selectTexture(int attrib, int texture );
-    int				selectedTexture(int attrib) const;
-
     visBase::GridLines*		gridlines()		{ return gridlines_; }
 
     void			getMousePosInfo(const visBase::EventInfo&,
@@ -153,7 +123,6 @@ public:
 				    \returns	combination of OD::ButtonState*/
     bool                	canBDispOn2DViewer() const;
 
-
 protected:
 				~PlaneDataDisplay();
     void			updateMainSwitch();
@@ -172,13 +141,20 @@ protected:
     void			setDraggerPos(const CubeSampling&);
     void			dataTransformCB(CallBacker*);
     void			setTextureCoords(int sz0,int sz1);
+    
+    bool			getCacheValue(int attrib,int version,
+					      const Coord3&,float&) const;
+    void			addCache();
+    void			removeCache(int);
+    void			swapCache(int,int);
+    void			emptyCache(int);
+    bool			hasCache(int) const;
 
     CubeSampling		snapPosition(const CubeSampling&) const;
 
     visBase::DepthTabPlaneDragger*	dragger_;
     visBase::Material*			draggermaterial_;
     visBase::PickStyle*			rectanglepickstyle_;
-    visBase::MultiTexture2*		texture_;
     visBase::FaceSet*			rectangle_;
     visBase::GridLines*			gridlines_;
     Orientation				orientation_;
@@ -186,19 +162,15 @@ protected:
     visBase::DrawStyle*			draggerdrawstyle_;
 
     TypeSet<DataPack::ID>		datapackids_;
-    ObjectSet<Attrib::SelSpec>		as_;
-    BoolTypeSet				isclassification_;
     ObjectSet<const Attrib::DataCubes>	volumecache_;
     ObjectSet<BinIDValueSet>		rposcache_;
 
-    int				resolution_;
-    BinID			curicstep_;
-    float			curzstep_;
-    ZAxisTransform*		datatransform_;
-    int				datatransformvoihandle_;
-    Notifier<PlaneDataDisplay>	moving_;
-    Notifier<PlaneDataDisplay>	movefinished_;
-    bool			onoffstatus_;
+    BinID				curicstep_;
+    float				curzstep_;
+    ZAxisTransform*			datatransform_;
+    int					datatransformvoihandle_;
+    Notifier<PlaneDataDisplay>		moving_;
+    Notifier<PlaneDataDisplay>		movefinished_;
 
     static const char*		sKeyOrientation() { return "Orientation"; }
     static const char*		sKeyTextureRect() { return "Texture rectangle";}
