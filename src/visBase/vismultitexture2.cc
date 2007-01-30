@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vismultitexture2.cc,v 1.20 2007-01-26 19:53:12 cvskris Exp $";
+static const char* rcsID = "$Id: vismultitexture2.cc,v 1.21 2007-01-30 15:37:36 cvskris Exp $";
 
 
 #include "vismultitexture2.h"
@@ -716,6 +716,12 @@ void MultiTexture2::createShadingVars()
 
 	shaderprogram_->shaderObject.addNode( fragmentshader_ );
 	shadinggroup_->addChild( shaderprogram_ );
+
+	//Reset the texture unit so the shape's
+	//tcoords come in the right unit.
+	SoTextureUnit* unit = new SoTextureUnit;
+	unit->unit = 0;
+	shadinggroup_->addChild( unit );
     }
 
     const int nrunits = nrTextures()/mLayersPerUnit+1;
@@ -765,7 +771,7 @@ uniform int             texturesize1;\n";
     const char* mainprogstart =
 "void main()								\n \
 {									\n \
-    vec2 tcoord = gl_TexCoord[1].st;					\n \
+    vec2 tcoord = gl_TexCoord[0].st;					\n \
     tcoord.s *= texturesize0;						\n \
     tcoord.t *= texturesize1;\n";
 
