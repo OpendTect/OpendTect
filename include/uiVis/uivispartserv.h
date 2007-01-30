@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.185 2007-01-24 16:48:23 cvsnanne Exp $
+ RCS:           $Id: uivispartserv.h,v 1.186 2007-01-30 16:14:26 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -109,6 +109,7 @@ public:
 
     AttribFormat	getAttributeFormat(int id) const;
     bool		canHaveMultipleAttribs(int id) const;
+    bool		canAddAttrib(int id) const;
     int			addAttrib(int id);
     void		removeAttrib(int id,int attrib);
     int			getNrAttribs(int id) const;
