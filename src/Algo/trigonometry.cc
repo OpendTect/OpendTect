@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: trigonometry.cc,v 1.29 2006-08-03 21:16:58 cvskris Exp $";
+static const char* rcsID = "$Id: trigonometry.cc,v 1.30 2007-01-30 14:02:35 cvskris Exp $";
 
 #include "trigonometry.h"
 
@@ -147,7 +147,7 @@ void Quaternion::getRotation( Vector3& axis, float& angle ) const
 
     //This should really be axis=vec_/sin(angle/2)
     //but can be simplified to this.
-    axis = (angle>M_PI) ? -vec_ : vec_;
+    axis = vec_;
 }
 
 
