@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vismultitexture2.cc,v 1.21 2007-01-30 15:37:36 cvskris Exp $";
+static const char* rcsID = "$Id: vismultitexture2.cc,v 1.22 2007-01-30 21:56:07 cvskris Exp $";
 
 
 #include "vismultitexture2.h"
@@ -90,7 +90,6 @@ MultiTexture2::MultiTexture2()
     , layersize0_( 0 )
     , layersize1_( 0 )
     , ctabunit_( 0 )
-    , dataunit0_( 0 )
 {
     switch_->ref();
     switch_->addChild( nonshadinggroup_ );
@@ -709,10 +708,17 @@ void MultiTexture2::createShadingVars()
 	layersize1_->value.setValue(size_.row);
 	fragmentshader_->parameter.addNode( layersize1_ );
 
-	dataunit0_ = new SoShaderParameter1i;
-	dataunit0_->name.setValue("dataunit0");
-	dataunit0_->value.setValue( 1 );
-	fragmentshader_->parameter.addNode( dataunit0_ );
+	const int maxnrunits = (MultiTexture2::maxNrTextures()-1)/
+	    			mLayersPerUnit+1;
+	for ( int idx=0; idx<maxnrunits; idx++ )
+	{
+	    SoShaderParameter1i* dataunit = new SoShaderParameter1i;
+	    BufferString nm = "dataunit";
+	    nm += idx;
+	    dataunit->name.setValue( nm.buf() );
+	    dataunit->value.setValue( idx+1 );
+	    fragmentshader_->parameter.addNode( dataunit );
+	}
 
 	shaderprogram_->shaderObject.addNode( fragmentshader_ );
 	shadinggroup_->addChild( shaderprogram_ );
@@ -724,7 +730,7 @@ void MultiTexture2::createShadingVars()
 	shadinggroup_->addChild( unit );
     }
 
-    const int nrunits = nrTextures()/mLayersPerUnit+1;
+    const int nrunits = (nrTextures()-1)/mLayersPerUnit+1;
     for ( int idx=datatexturegrp_->getNumChildren()/2; idx<nrunits; idx++ )
     {
 	SoTextureUnit* u1 = new SoTextureUnit;
