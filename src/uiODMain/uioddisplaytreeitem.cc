@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uioddisplaytreeitem.cc,v 1.6 2006-07-11 08:22:41 cvsbert Exp $
+ RCS:		$Id: uioddisplaytreeitem.cc,v 1.7 2007-01-30 18:47:37 cvskris Exp $
 ___________________________________________________________________
 
 -*/
@@ -207,7 +207,8 @@ void uiODDisplayTreeItem::createMenuCB( CallBacker* cb )
 	 visserv->canHaveMultipleAttribs(displayid_) )
     {
 	mAddMenuItem( menu, &addattribmnuitem_,
-		      !visserv->isLocked(displayid_), false );
+		      !visserv->isLocked(displayid_) &&
+		      visserv->canAddAttrib(displayid_), false );
     }
     else
 	mResetMenuItem( &addattribmnuitem_ );
