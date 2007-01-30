@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		23-10-1996
- RCS:		$Id: samplingdata.h,v 1.9 2007-01-24 14:22:37 cvskris Exp $
+ RCS:		$Id: samplingdata.h,v 1.10 2007-01-30 18:36:18 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,6 +22,7 @@ class SamplingData
 {
 public:
     inline				SamplingData(T sa=0,T se=1);
+    inline				SamplingData( T x0, T y0, T x1, T y1 );
     template <class FT>	inline		SamplingData(const SamplingData<FT>&);
     template <class FT>	inline		SamplingData(const StepInterval<FT>&);
 
@@ -43,6 +44,14 @@ template <class T> inline
 SamplingData<T>::SamplingData( T sa, T se )
     : start(sa), step(se)
 {}
+
+
+template <class T> inline
+SamplingData<T>::SamplingData( T x0, T y0, T x1, T y1 )
+{
+    step = (y1-y0)/(x1-x0);
+    start = y0-step*x0;
+}
 
 
 template <class T> 
