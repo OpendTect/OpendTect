@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Jan 2007
- RCS:           $Id: emhor2dto3d.cc,v 1.1 2007-01-29 18:42:12 cvsbert Exp $
+ RCS:           $Id: emhor2dto3d.cc,v 1.2 2007-01-30 09:06:37 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -203,6 +203,14 @@ int Hor2DTo3D::nextStep()
 	return ret;
 
     //TODO:  transfer data to 3D horizon
+    const Hor2DTo3DSectionData& sd = *sd_[cursectnr_];
+    /*
+    hor3d_.addSection( );
+Array2DImpl<float>	arr_;
+HorSampling		hs_;
+int			inlsz_;
+int			crlsz_;
+*/
 
     cursectnr_++;
     if ( cursectnr_ >= sd_.size() )

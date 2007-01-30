@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          January 2007
- RCS:           $Id: uihor3dfrom2ddlg.cc,v 1.3 2007-01-29 18:42:12 cvsbert Exp $
+ RCS:           $Id: uihor3dfrom2ddlg.cc,v 1.4 2007-01-30 09:06:37 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,10 +49,9 @@ uiHor3DFrom2DDlg::~uiHor3DFrom2DDlg()
 }
 
 
-#define mErrRet(s) { uiMSG().error(s); return false; }
-
 bool uiHor3DFrom2DDlg::acceptOK( CallBacker* )
 {
+#define mErrRet(s) { uiMSG().error(s); return false; }
     if ( !uiMSG().askGoOn( "Lots of TODOs ... are you sure?") )
 	return false;
 
@@ -67,17 +66,18 @@ bool uiHor3DFrom2DDlg::acceptOK( CallBacker* )
 	mErrRet( "Cannot create 3D horizon" );
     hor3d->setPreferredColor( hor2d_.preferredColor() );
 
-    //TODO
     Executor* exec = new EM::Hor2DTo3D( hor2d_, SI().sampling(true).hrg,
 	    			        nriterfld_->getIntValue(), *hor3d );
     uiExecutor* interpdlg = new uiExecutor( this, *exec );
     bool rv = interpdlg->go();
-    delete exec; delete interpdlg;
-    if ( !rv ) return false;
+    delete exec; exec = 0;
+    delete interpdlg;
+#undef mErrRet
+#define mErrRet() { hor3d->unRef(); delete exec; return false; }
+    if ( !rv ) mErrRet()
 
     exec = hor3d->saver();
-    if ( !exec )
-	{ delete exec; hor3d->unRef(); return false; }
+    if ( !exec ) mErrRet()
 
     uiExecutor dlg( this, *exec );
     rv = dlg.execute();
