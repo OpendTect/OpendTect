@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          December 2006
- RCS:           $Id: SoShaderTexture2.cc,v 1.3 2007-01-30 10:38:37 cvsnanne Exp $
+ RCS:           $Id: SoShaderTexture2.cc,v 1.4 2007-01-30 19:21:44 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -72,15 +72,18 @@ void SoShaderTexture2::GLRender( SoGLRenderAction* action )
 
     if ( !glimage_ || !glimagevalid_ )
     {
+	int nc;
+	SbVec2s size;
+	const unsigned char* bytes = image.getValue( size, nc );
+	if ( !bytes )
+	    return;
+
+	const float quality = SoTextureQualityElement::get(state);
+
 	if ( !glimage_ )
 	{
 	    glimage_ = new SoGLImage;
 	}
-
-	int nc;
-	SbVec2s size;
-	const unsigned char* bytes = image.getValue( size, nc );
-	const float quality = SoTextureQualityElement::get(state);
 
 	glimage_->setData(bytes,size,nc,SoGLImage::CLAMP,SoGLImage::CLAMP, quality );
 	glimage_->setFlags( SoGLImage::RECTANGLE | SoGLImage::NO_MIPMAP |
