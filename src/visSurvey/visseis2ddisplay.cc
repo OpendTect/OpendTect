@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2004
- RCS:           $Id: visseis2ddisplay.cc,v 1.11 2007-01-29 20:34:39 cvskris Exp $
+ RCS:           $Id: visseis2ddisplay.cc,v 1.12 2007-01-30 18:45:05 cvskris Exp $
  ________________________________________________________________________
 
 -*/
@@ -527,18 +527,18 @@ void Seis2DDisplay::getMousePosInfo( const visBase::EventInfo&,
 }
 
 
-float Seis2DDisplay::getCacheValue( int attrib, int version,
-				    const Coord3& pos ) const
+bool Seis2DDisplay::getCacheValue( int attrib, int version,
+				    const Coord3& pos, float& res ) const
 {
     if ( attrib>=cache_.size() || !cache_[attrib] )
-	return mUdf(float);
+	return false;
 
     int dataidx = -1;
     float mindist;
     if ( !getNearestTrace( pos, dataidx, mindist ) || 
 	 dataidx>=cache_[attrib]->dataset_.size() ||
 	 !cache_[attrib]->dataset_[dataidx] )
-	return mUdf(float);
+	return false;
 
     const DataHolder* dh = cache_[attrib]->dataset_[dataidx];
     const int trcnr = cache_[attrib]->trcinfoset_[dataidx]->nr;
@@ -546,9 +546,12 @@ float Seis2DDisplay::getCacheValue( int attrib, int version,
        mNINT(pos.z/cache_[attrib]->trcinfoset_[dataidx]->sampling.step)-dh->z0_;
 
     if ( sampidx >= 0 && sampidx < dh->nrsamples_ )
-	return dh->series(dh->validSeriesIdx()[version])->value(sampidx);
+    {
+	res = dh->series(dh->validSeriesIdx()[version])->value(sampidx);
+	return true;
+    }
 
-    return mUdf(float);
+    return false;
 }
 
 

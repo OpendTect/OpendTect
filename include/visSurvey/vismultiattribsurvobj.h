@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vismultiattribsurvobj.h,v 1.6 2007-01-17 10:33:06 cvshelene Exp $
+ RCS:		$Id: vismultiattribsurvobj.h,v 1.7 2007-01-30 18:45:05 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -74,8 +74,8 @@ protected:
     void			getValueString(const Coord3&,
 	    				       BufferString&) const;
 
-    virtual float		getCacheValue(int attrib,int version,
-					      const Coord3&) const	= 0;
+    virtual bool		getCacheValue(int attrib,int version,
+					      const Coord3&,float&) const = 0;
 
     void			updateMainSwitch();
     virtual void		addCache()				= 0;

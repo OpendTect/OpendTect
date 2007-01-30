@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: vismultiattribsurvobj.cc,v 1.3 2006-12-18 22:43:22 cvskris Exp $";
+static const char* rcsID = "$Id: vismultiattribsurvobj.cc,v 1.4 2007-01-30 18:45:05 cvskris Exp $";
 
 #include "vismultiattribsurvobj.h"
 
@@ -374,7 +374,9 @@ void MultiTextureSurveyObject::getValueString( const Coord3& pos,
 	    continue;
 
 	const int version = texture_->currentVersion(idx);
-	const float fval = getCacheValue( idx, version, pos );
+	float fval;
+	if ( !getCacheValue(idx, version, pos, fval ) )
+	    continue;
 
 	bool islowest = true;
 	for ( int idy=idx-1; idy>=0; idy-- )
@@ -396,21 +398,18 @@ void MultiTextureSurveyObject::getValueString( const Coord3& pos,
 	}
 
 	if ( !mIsUdf(fval) )
-	{
 	    val = fval;
-	    if ( nrAttribs()>1 )
-	    {
-		BufferString attribstr = "(";
-		attribstr += as_[idx]->userRef();
-		attribstr += ")";
-		val.insertAt( cValNameOffset(), (const char*)attribstr);
-	    }
 
-	    return;
+	if ( nrAttribs()>1 )
+	{
+	    BufferString attribstr = "(";
+	    attribstr += as_[idx]->userRef();
+	    attribstr += ")";
+	    val.insertAt( cValNameOffset(), (const char*)attribstr);
 	}
-    }
 
-    return;
+	return;
+    }
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		January 2003
- RCS:		$Id: visseis2ddisplay.h,v 1.7 2006-12-11 19:40:50 cvskris Exp $
+ RCS:		$Id: visseis2ddisplay.h,v 1.8 2007-01-30 18:45:05 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -113,8 +113,8 @@ protected:
     void			swapCache(int,int);
     void			emptyCache(int);
     bool			hasCache(int) const;
-    float			getCacheValue(int attrib,int version,
-					      const Coord3&) const;
+    bool			getCacheValue(int attrib,int version,
+					      const Coord3&,float&) const;
 
     void			updateVizPath();
     				/*!<Sets the coordinates to the path in
