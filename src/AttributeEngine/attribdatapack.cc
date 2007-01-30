@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Huck
  Date:          January 2007
- RCS:           $Id: attribdatapack.cc,v 1.6 2007-01-25 21:50:45 cvsnanne Exp $
+ RCS:           $Id: attribdatapack.cc,v 1.7 2007-01-30 11:38:46 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "arrayndslice.h"
 
 
-CubeDataPack::CubeDataPack( Attrib::DataCubes& dc )
+CubeDataPack::CubeDataPack( const Attrib::DataCubes& dc )
     : cube_(dc)
 {
     cube_.ref();
