@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emhorizon2d.h,v 1.4 2006-05-05 19:03:11 cvskris Exp $
+ RCS:		$Id: emhorizon2d.h,v 1.5 2007-01-31 11:39:37 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -54,9 +54,16 @@ public:
 protected:
     Geometry::Horizon2DLine*	createSectionGeometry() const;
 
+    void			fillPar(IOPar&) const;
+    bool			usePar(const IOPar&);
+    
     BufferStringSet		linenames_;
     TypeSet<MultiID>		linesets_;
     TypeSet<int>		lineids_;
+
+    static const char*		lineidsstr_;
+    static const char*		linenamesstr_;
+    static const char*		linesetprefixstr_;
 };
 
 /*!
@@ -72,6 +79,10 @@ public:
     static void		initClass(EMManager&);
 
     const char*		getTypeStr() const;
+
+    bool		unSetPos(const EM::PosID&,bool addtohistory);
+    bool		unSetPos(const EM::SectionID&,const EM::SubID&,
+	    			 bool addtohistory);
 
     Horizon2Geometry&		geometry();
     const Horizon2Geometry&	geometry() const;

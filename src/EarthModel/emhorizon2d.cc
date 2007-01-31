@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: emhorizon2d.cc,v 1.7 2006-12-22 10:13:35 cvsjaap Exp $
+ RCS:           $Id: emhorizon2d.cc,v 1.8 2007-01-31 11:41:48 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,6 +21,11 @@ ________________________________________________________________________
 namespace EM
 {
 
+const char* Horizon2Geometry::lineidsstr_	= "Line IDs";
+const char* Horizon2Geometry::linenamesstr_	= "Line names";
+const char* Horizon2Geometry::linesetprefixstr_	= "Set ID of line ";
+
+    
 Horizon2Geometry::Horizon2Geometry( Surface& hor2 )
     : RowColSurfaceGeometry( hor2 )
 {}
@@ -170,6 +175,40 @@ Geometry::Horizon2DLine* Horizon2Geometry::createSectionGeometry() const
 { return new Geometry::Horizon2DLine; }
 
 
+void Horizon2Geometry::fillPar( IOPar& par ) const
+{
+    par.set( lineidsstr_, lineids_ );
+    par.set( linenamesstr_, linenames_ );
+
+    for ( int idx=0; idx<linesets_.size(); idx++ )
+    {
+	BufferString linesetkey = linesetprefixstr_;
+	linesetkey += idx;
+	par.set( linesetkey, linesets_[idx] );
+    }
+}
+
+
+bool Horizon2Geometry::usePar( const IOPar& par )
+{
+    if ( !par.get(lineidsstr_,lineids_) )
+	return false;
+    if ( !par.get(linenamesstr_,linenames_)  )
+     	return false;	
+
+    for ( int idx=0; idx<lineids_.size(); idx++ )
+    {
+	BufferString linesetkey = linesetprefixstr_;
+	linesetkey += idx;
+
+	MultiID mid;
+	linesets_ += par.get(linesetkey,mid) ? mid : MultiID(-1);
+    }
+
+    return true;
+}
+
+
 const char* Horizon2D::typeStr() { return EMHorizon2DTranslatorGroup::keyword; }
 
 
@@ -195,6 +234,23 @@ Horizon2D::Horizon2D( EMManager& man )
 
 const char* Horizon2D::getTypeStr() const
 { return typeStr(); }
+
+
+bool Horizon2D::unSetPos(const PosID& pid, bool addtohistory )
+{
+    Coord3 pos = getPos( pid );
+    pos.z = mUdf(float);
+    return setPos( pid, pos, addtohistory );
+}
+
+
+bool Horizon2D::unSetPos( const EM::SectionID& sid, const EM::SubID& subid,
+			 bool addtohistory )
+{
+    Coord3 pos = getPos( sid, subid );
+    pos.z = mUdf(float);
+    return setPos( sid, subid, pos, addtohistory );
+}
 
 
 Horizon2Geometry& Horizon2D::geometry()

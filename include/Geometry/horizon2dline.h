@@ -6,7 +6,7 @@ ________________________________________________________________________
 CopyRight:     (C) dGB Beheer B.V.
 Author:        K. Tingdahl
 Date:          March 2006
-RCS:           $Id: horizon2dline.h,v 1.1 2006-04-26 21:10:52 cvskris Exp $
+RCS:           $Id: horizon2dline.h,v 1.2 2007-01-31 11:41:00 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,6 +35,8 @@ public:
 
     int			addRow(const TypeSet<Coord>&,int start,int step);
     			/*!<\returns id of new path. */
+    int			addUdfRow(int start,int stop,int step);
+    			/*!<\returns id of new path. */
     void		removeRow(int);
     void		setRow(int,const TypeSet<Coord>&,int start,int step);
 
@@ -43,7 +45,6 @@ public:
 
     Coord3		getKnot(const RCol&) const;
     bool		setKnot(const RCol&,const Coord3&);
-    			/*!<\note the x and y coord will be ignored. */
     bool		isKnotDefined(const RCol&) const;
 
 protected:
