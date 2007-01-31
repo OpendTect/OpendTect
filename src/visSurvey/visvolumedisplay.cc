@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2002
- RCS:           $Id: visvolumedisplay.cc,v 1.52 2007-01-31 17:14:50 cvskris Exp $
+ RCS:           $Id: visvolumedisplay.cc,v 1.53 2007-01-31 19:34:28 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -274,6 +274,8 @@ int VolumeDisplay::addIsoSurface()
 		scalarfield_->getColorTab().getInterval().center() );
 	isosurface->touch();
     }
+
+    isosurface->setName( "Iso surface" );
 
     insertChild( 0, isosurface->getInventorNode() );
     isosurfaces_ += isosurface;
