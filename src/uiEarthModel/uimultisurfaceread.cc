@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uimultisurfaceread.cc,v 1.5 2007-01-24 15:45:40 cvsjaap Exp $
+ RCS:           $Id: uimultisurfaceread.cc,v 1.6 2007-01-31 12:00:16 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,6 +20,7 @@ ________________________________________________________________________
 #include "iodirentry.h"
 #include "emmanager.h"
 #include "emsurfaceiodata.h"
+#include "emsurfacetr.h"
 #include "uimsg.h"
 
 
@@ -40,6 +41,9 @@ uiMultiSurfaceRead::uiMultiSurfaceRead( uiParent* p, const BufferString& typ )
 	    				mCB(this,uiMultiSurfaceRead,selCB) );
     surfacefld_->box()->doubleClicked.notify(
 	    				mCB(this,uiMultiSurfaceRead,dClck) );
+
+    if ( typ == EMHorizon2DTranslatorGroup::keyword )
+	return;
 
     mkSectionFld( true );
     sectionfld->attach( rightTo, surfacefld_ );

@@ -8,12 +8,11 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizon2dseedpicker.cc,v 1.4 2007-01-29 21:02:50 cvskris Exp $";
+static const char* rcsID = "$Id: horizon2dseedpicker.cc,v 1.5 2007-01-31 11:58:38 cvsjaap Exp $";
 
 #include "horizon2dseedpicker.h"
 
 #include "attribdataholder.h"
-//#include "autotracker.h"
 #include "emhorizon2d.h"
 #include "emmanager.h"
 #include "seisinfo.h"
@@ -175,7 +174,9 @@ bool Horizon2DSeedPicker::addSeed(const Coord3& seedcrd )
 
     const bool startwasdefined = hor->isDefined( pid );
 
-    hor->setPos( pid, seedcrd, true );
+    Coord3 newpos = hor->getPos( pid );
+    newpos.z = seedcrd.z;
+    hor->setPos( pid, newpos, true );
     if ( !hor->isPosAttrib( pid, EM::EMObject::sSeedNode ) )
 	hor->setPosAttrib( pid, EM::EMObject::sSeedNode, true );
 

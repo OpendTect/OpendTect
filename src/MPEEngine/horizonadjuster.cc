@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizonadjuster.cc,v 1.37 2007-01-18 09:02:26 cvsjaap Exp $";
+static const char* rcsID = "$Id: horizonadjuster.cc,v 1.38 2007-01-31 11:59:09 cvsjaap Exp $";
 
 #include "horizonadjuster.h"
 
@@ -554,7 +554,9 @@ bool HorizonAdjuster::trackBySimilarity( const BinID& trefbid,
 
 void HorizonAdjuster::setHorizonPick(const BinID&  bid, float val )
 {
-    horizon_.setPos( sectionid_, bid.getSerialized(), Coord3(0,0,val), true );
+    Coord3 pos = horizon_.getPos( sectionid_, bid.getSerialized() );
+    pos.z = val;
+    horizon_.setPos( sectionid_, bid.getSerialized(), pos, true );
 }
 
 

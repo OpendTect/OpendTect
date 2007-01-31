@@ -4,7 +4,7 @@
  * DATE     : Dec 2004
 -*/
 
-static const char* rcsID = "$Id: horizon2dline.cc,v 1.3 2007-01-16 14:29:57 cvsjaap Exp $";
+static const char* rcsID = "$Id: horizon2dline.cc,v 1.4 2007-01-31 11:54:28 cvsjaap Exp $";
 
 #include "horizon2dline.h"
 #include "undefval.h"
@@ -49,6 +49,16 @@ int Horizon2DLine::addRow(const TypeSet<Coord>& coords, int start, int step )
     colsampling_ += SamplingData<int>( start, step );
     setRow( res, coords, start, step );
     return res;
+}
+
+
+int Horizon2DLine::addUdfRow( int start, int stop, int step )
+{
+    TypeSet<Coord> coords;
+    for ( int idx=start; idx<=stop; idx+=step )
+	coords += Coord::udf();
+
+    return addRow( coords, start, step );
 }
 
 
@@ -120,14 +130,14 @@ Coord3 Horizon2DLine::getKnot( const RCol& rc ) const
 }
 
 
-bool Horizon2DLine::setKnot( const RCol& rc, const Coord3& c )
+bool Horizon2DLine::setKnot( const RCol& rc, const Coord3& pos )
 {
     const int rowidx = rc.r()-firstrow_;
     const int colidx = colIndex( rowidx, rc.c() );
 
     if ( colidx<0 ) return false;
 
-    (*rows_[rowidx])[colidx].z = c.z;
+    (*rows_[rowidx])[colidx] = pos;
 
     return true;
 }
@@ -143,6 +153,8 @@ bool Horizon2DLine::isKnotDefined( const RCol& rc ) const
 
 int Horizon2DLine::colIndex( int rowidx, int colid ) const
 {
+    if ( rowidx >= colsampling_.size() )
+	return -1;
     const SamplingData<int>& sd = colsampling_[rowidx];
     int idx = colid-sd.start;
     if ( idx<0 || idx%sd.step )

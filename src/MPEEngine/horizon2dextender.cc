@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizon2dextender.cc,v 1.2 2007-01-16 14:30:25 cvsjaap Exp $";
+static const char* rcsID = "$Id: horizon2dextender.cc,v 1.3 2007-01-31 11:56:10 cvsjaap Exp $";
 
 #include "horizon2dextender.h"
 
@@ -96,7 +96,9 @@ void Horizon2DExtender::addNeighbor( bool upwards, const RowCol& sourcerc )
 	}
     }
 
-    surface_.setPos( sid_, neighborsubid, Coord3(0,0,sourcepos.z), true );
+    Coord3 refpos = surface_.getPos( sid_, neighborsubid );
+    refpos.z = sourcepos.z;
+    surface_.setPos( sid_, neighborsubid, refpos, true );
 
     addTarget( neighborsubid, sourcerc.getSerialized() );
 }

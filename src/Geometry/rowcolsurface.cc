@@ -4,7 +4,7 @@
  * DATE     : Nov 2004
 -*/
 
-static const char* rcsID = "$Id: rowcolsurface.cc,v 1.1 2006-04-18 18:04:34 cvskris Exp $";
+static const char* rcsID = "$Id: rowcolsurface.cc,v 1.2 2007-01-31 11:55:09 cvsjaap Exp $";
 
 #include "rowcolsurface.h"
 
@@ -61,8 +61,8 @@ StepInterval<int> RowColSurface::colRange() const
 	if ( colrg.start>colrg.stop )
 	    continue;
 
-	res.include( colrg.start );
-	res.include( colrg.stop );
+	res.include( colrg.start, false );
+	res.include( colrg.stop, false );
 	res.step = colrg.step;
     }
 

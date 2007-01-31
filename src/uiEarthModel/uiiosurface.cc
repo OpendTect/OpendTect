@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurface.cc,v 1.40 2007-01-24 15:45:40 cvsjaap Exp $
+ RCS:           $Id: uiiosurface.cc,v 1.41 2007-01-31 11:59:44 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -215,18 +215,24 @@ uiSurfaceWrite::uiSurfaceWrite( uiParent* p, const EM::Surface& surf_,
 				const BufferString& typ )
     : uiIOSurface(p,false,typ)
 {
-    if ( surf_.nrSections() > 1 )
-	mkSectionFld( false );
+    if ( typ != EMHorizon2DTranslatorGroup::keyword )
+    {
+	if ( surf_.nrSections() > 1 )
+	    mkSectionFld( false );
 
-    mkRangeFld();
-    if ( sectionfld )
-	rgfld->attach( alignedBelow, sectionfld );
-
+	mkRangeFld();
+	if ( sectionfld )
+	    rgfld->attach( alignedBelow, sectionfld );
+    }
+    
     mkObjFld( "Output Surface" );
-    objfld->attach( alignedBelow, rgfld );
+    if ( rgfld )
+    {
+	objfld->attach( alignedBelow, rgfld );
+	setHAlignObj( rgfld );
+    }
 
     fillFields( surf_.multiID() );
-    setHAlignObj( rgfld );
 }
 
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpewizard.cc,v 1.63 2007-01-16 14:33:10 cvsjaap Exp $
+ RCS:           $Id: uimpewizard.cc,v 1.64 2007-01-31 12:00:56 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -480,7 +480,7 @@ bool Wizard::finalizeCycle()
     if ( objectcreated )
     {
 	adjustSeedBox();
-	if ( !seedbox.isEmpty() && trackertype!="2D Horizon" )
+	if ( !seedbox.isEmpty() )
 	{
 	    EM::EMObject* emobj = EM::EMM().getObject( currentobject );
 	    PtrMan<Executor> saver = emobj->saver();
