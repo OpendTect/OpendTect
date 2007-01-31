@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          June 2003
- RCS:           $Id: emsurfaceio.cc,v 1.83 2006-11-21 14:00:07 cvsbert Exp $
+ RCS:           $Id: emsurfaceio.cc,v 1.84 2007-01-31 11:53:36 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "datachar.h"
 #include "datainterp.h"
 #include "emhorizon.h"
+#include "emhorizon2d.h"
 #include "emsurfacegeometry.h"
 #include "emsurfaceauxdata.h"
 #include "emsurfaceedgeline.h"
@@ -825,8 +826,11 @@ bool dgbSurfaceReader::readVersion3Row( std::istream& strm,
 				       int firstcol, int nrcols )
 {
     SamplingData<float> zsd;
-    zsd.start = readFloat( strm );
-    zsd.step = readFloat( strm );
+    if ( readonlyz_ )
+    {
+	zsd.start = readFloat( strm );
+	zsd.step = readFloat( strm );
+    }
 
     int colindex = 0;
 
@@ -860,6 +864,14 @@ bool dgbSurfaceReader::readVersion3Row( std::istream& strm,
     bool didread = false;
     const SectionID sectionid = sectionids_[sectionindex_];
     const int cubezidx = sectionsel_.indexOf( sectionid );
+
+    mDynamicCastGet( Horizon2D*, hor2d, surface_ );
+    if ( hor2d )
+    {
+	hor2d->geometry().sectionGeometry( sectionid )->
+	    		addUdfRow(firstcol, firstcol+nrcols, colrange_.step );
+    }
+
     for ( ; colindex<nrcols; colindex++ )
     {
 	rc.col = firstcol+colindex*colrange_.step;
@@ -868,9 +880,13 @@ bool dgbSurfaceReader::readVersion3Row( std::istream& strm,
 	{
 	    pos.x = readFloat( strm );
 	    pos.y = readFloat( strm );
+	    pos.z = readFloat( strm );
 	}
-
-	const int zidx = readInt16( strm );
+	else
+	{
+	    const int zidx = readInt16( strm );
+	    pos.z = (zidx==65535) ? mUdf(float) : zsd.atIndex( zidx );
+	}
 
 	if ( readcolrange_ )
 	{
@@ -889,12 +905,6 @@ bool dgbSurfaceReader::readVersion3Row( std::istream& strm,
 	    msg_ = sMsgReadError();
 	    return false;
 	}
-
-	if ( zidx==65535 )
-	    pos.z = mUdf(float);
-	else
-	    pos.z = zsd.atIndex( zidx );
-
 
 	if ( surface_ )
 	{
@@ -1509,6 +1519,8 @@ bool dgbSurfaceWriter::writeRow( std::ostream& strm )
     const int nrcols =
 	(writecolrange_?writecolrange_->nrSteps():colrange_.nrSteps())+1;
 
+    mDynamicCastGet( const Horizon2D*, hor2d, &surface_ );
+    
     for ( int colindex=0; colindex<nrcols; colindex++ )
     {
 	const int col = writecolrange_ ? writecolrange_->atIndex(colindex) :
@@ -1518,7 +1530,7 @@ bool dgbSurfaceWriter::writeRow( std::ostream& strm )
 				RowCol(row,col).getSerialized() );
 	const Coord3 pos = surface_.getPos(posid);
 
-	if ( colcoords.isEmpty() && !pos.isDefined() )
+	if ( !hor2d && colcoords.isEmpty() && !pos.isDefined() )
 	    continue;
 
 	if ( colcoords.isEmpty() )
@@ -1529,7 +1541,7 @@ bool dgbSurfaceWriter::writeRow( std::ostream& strm )
 
     for ( int idx=colcoords.size()-1; idx>=0; idx-- )
     {
-	if ( colcoords[idx].isDefined() )
+	if ( hor2d || colcoords[idx].isDefined() )
 	    break;
 
 	colcoords.remove(idx);
