@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoDepthTabPlaneDragger.cc,v 1.14 2007-01-12 19:07:29 cvskris Exp $";
+static const char* rcsID = "$Id: SoDepthTabPlaneDragger.cc,v 1.15 2007-01-31 17:34:33 cvskris Exp $";
 
 
 #include "SoDepthTabPlaneDragger.h"
@@ -504,14 +504,20 @@ void SoDepthTabPlaneDragger::dragFinish(void)
 	    { change = true; scale[dim] = maxsize[dim]; }
 	}
 
-	float startpos = trans[dim]-(dim!=2 ? scale[dim] : 0);
-	float stoppos = trans[dim]+(dim!=2 ? scale[dim] : 0);
+	float startpos = trans[dim];
+	float stoppos = trans[dim];
+	if ( dim!=2 )
+	{
+	    startpos -=scale[dim];
+	    stoppos +=scale[dim];
+	}
 
 	if ( startpos<minpos[dim] )
 	{
 	    change = true;
 	    startpos=minpos[dim];
-	    if ( stoppos<minpos[dim] )
+	    if ( dim==2 ) stoppos = startpos;
+	    else if ( stoppos<minpos[dim] )
 		stoppos = startpos+2*scale[dim];
 	    else if ( stoppos-startpos<minsize[dim] )
 		stoppos = startpos+minsize[dim];
@@ -521,7 +527,8 @@ void SoDepthTabPlaneDragger::dragFinish(void)
 	{
 	    change = true;
 	    stoppos=maxpos[dim];
-	    if ( startpos>maxpos[dim] )
+	    if ( dim==2 ) startpos = stoppos;
+	    else if ( startpos>maxpos[dim] )
 		startpos=stoppos-2*scale[dim];
 	    else if ( stoppos-startpos<minsize[dim] )
 		startpos = stoppos-minsize[dim];
