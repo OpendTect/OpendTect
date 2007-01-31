@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          13/8/2000
- RCS:           $Id: uidlggroup.h,v 1.2 2007-01-24 17:33:51 cvshelene Exp $
+ RCS:           $Id: uidlggroup.h,v 1.3 2007-01-31 08:55:05 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,9 +49,9 @@ public:
 class uiSingleGroupDlg : public uiDialog
 {
 public:
-		uiSingleGroupDlg(uiParent* p,const uiDialog::Setup& st)
-		    : uiDialog( p, st )
-		    , grp_( 0 )			{}
+		uiSingleGroupDlg( uiParent* p,const uiDialog::Setup& st )
+		    : uiDialog(p,st)
+		    , grp_(0)			{}
     void	setGroup( uiDlgGroup* grp )	{ grp_ = grp; }
 
 protected:
@@ -66,12 +66,13 @@ protected:
 class uiTabStackDlg : public uiDialog
 {
 public:
-		uiTabStackDlg(uiParent* p,const uiDialog::Setup& setup);
+			uiTabStackDlg(uiParent*,const uiDialog::Setup&);
 
-    uiParent*	tabParent();
-    void	addGroup( uiDlgGroup* grp );
-    
-    uiDlgGroup*	getGroup( int idx )		{ return groups_[idx]; }
+    uiParent*		tabParent();
+    uiObject*		tabObject()		{ return (uiObject*)tabstack_; }
+    void		addGroup(uiDlgGroup*);
+
+    uiDlgGroup*		getGroup( int idx )	{ return groups_[idx]; }
 
 protected:
     bool			acceptOK(CallBacker*);
