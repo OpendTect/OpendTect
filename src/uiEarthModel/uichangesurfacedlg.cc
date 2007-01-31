@@ -4,14 +4,14 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra / Bert Bril
  Date:		Sep 2005 / Nov 2006
- RCS:		$Id: uichangesurfacedlg.cc,v 1.11 2007-01-29 20:01:27 cvskris Exp $
+ RCS:		$Id: uichangesurfacedlg.cc,v 1.12 2007-01-31 11:48:48 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uichangesurfacedlg.h"
 
-#include "uiarray2dinterpol.h"
+#include "uiarray2dchg.h"
 #include "uicursor.h"
 #include "uiexecutor.h"
 #include "uigeninput.h"
@@ -240,7 +240,7 @@ Executor* uiInterpolHorizonDlg::getWorker( Array2D<float>& a2d,
     Array2DInterpolator<float>* ret = new Array2DInterpolator<float>( a2d );
     ret->pars() = a2dInterp()->getInput();
     ret->setColDistRatio( SI().crlDistance()*colrg.step/
-	    (SI().inlDistance()*rowrg.step) );
+			 (SI().inlDistance()*rowrg.step) );
     return ret;
 }
 
@@ -271,17 +271,7 @@ const char* uiInterpolHorizonDlg::infoMsg( const Executor* ex ) const
 uiFilterHorizonDlg::uiFilterHorizonDlg( uiParent* p, EM::Horizon* hor )
     : uiChangeSurfaceDlg(p,hor,"Horizon filtering")
 {
-    parsgrp_ = new uiGroup( this, "Hor filter pars group" );
-
-    medianfld_ = new uiGenInput( parsgrp_, "Filter type",
-	    			 BoolInpSpec("Median","Average") );
-
-    // Row is always inline in horizons, so we can simply use inl/crl
-    stepoutfld_ = new uiStepOutSel( parsgrp_, false, "Filter stepout" );
-    stepoutfld_->setVals( 2 );
-    stepoutfld_->attach( alignedBelow, medianfld_ );
-
-    parsgrp_->setHAlignObj( medianfld_ );
+    parsgrp_ = new uiArr2DFilterPars( this );
     attachPars();
 }
 
@@ -290,8 +280,6 @@ Executor* uiFilterHorizonDlg::getWorker( Array2D<float>& a2d,
 					   const StepInterval<int>& rowrg,
 					   const StepInterval<int>& colrg )
 {
-    Array2DFilterPars pars( medianfld_->getBoolValue()
-	    		  ? Stats::Median : Stats::Average );
-    pars.stepout_ = RowCol( stepoutfld_->val(true), stepoutfld_->val(false) );
+    Array2DFilterPars pars = ((uiArr2DFilterPars*)parsgrp_)->getInput();
     return new Array2DFilterer<float>( a2d, pars );
 }

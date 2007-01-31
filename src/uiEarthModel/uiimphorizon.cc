@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          May 2002
- RCS:           $Id: uiimphorizon.cc,v 1.76 2007-01-29 20:01:27 cvskris Exp $
+ RCS:           $Id: uiimphorizon.cc,v 1.77 2007-01-31 11:48:48 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "emmanager.h"
 #include "emhorizon.h"
 
-#include "array2dinterpol.h"
 #include "arrayndimpl.h"
 #include "binidselimpl.h"
 #include "binidvalset.h"
@@ -32,7 +31,7 @@ ________________________________________________________________________
 #include "survinfo.h"
 #include "keystrs.h"
 
-#include "uiarray2dinterpol.h"
+#include "uiarray2dchg.h"
 #include "uicombobox.h"
 #include "uiexecutor.h"
 #include "uifileinput.h"
