@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: visvolorthoslice.cc,v 1.3 2007-01-31 17:47:32 cvskris Exp $";
+static const char* rcsID = "$Id: visvolorthoslice.cc,v 1.4 2007-01-31 18:29:35 cvskris Exp $";
 
 
 #include "visvolorthoslice.h"
@@ -102,6 +102,7 @@ float OrthogonalSlice::getPosition() const
     Interval<float> range;
     getSliceInfo( nrslices, range );
 
+    if ( !nrslices ) return range.center();
     return (float)getSliceNr()/nrslices*range.width()+range.start;
 }
 
