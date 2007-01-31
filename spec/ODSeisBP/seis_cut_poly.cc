@@ -4,7 +4,7 @@
  * DATE     : 2-12-2005
 -*/
 
-static const char* rcsID = "$Id: seis_cut_poly.cc,v 1.4 2006-10-30 17:03:13 cvsbert Exp $";
+static const char* rcsID = "$Id: seis_cut_poly.cc,v 1.5 2007-01-31 13:31:12 cvsjaap Exp $";
 
 #include "prog.h"
 #include "batchprog.h"
@@ -39,7 +39,7 @@ static void addCoord( const char* str, TypeSet<Coord>& coords )
 static bool doCoincide( const Coord& point1, const Coord& point2,
 			double eps = mDefEps )
 {
-    return point1.sqDistance( point2 ) <= eps * eps;
+    return point1.sqDistTo( point2 ) <= eps * eps;
 }
 
 
@@ -48,7 +48,7 @@ static double sgnDistToLine( const Coord& point,
 {
     const double nolinedist = 0;
 
-    const double dirveclen = dirvec.distance( Coord( 0, 0 ) );
+    const double dirveclen = dirvec.distTo( Coord(0,0) );
     if ( mIsZero( dirveclen, mDefEps ) )
 	return nolinedist;
     const double substpointinlineeqn =   dirvec.y * ( point.x - posvec.x )
