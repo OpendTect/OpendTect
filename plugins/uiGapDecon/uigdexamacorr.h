@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          Sep 2006
- RCS:           $Id: uigdexamacorr.h,v 1.7 2007-01-30 11:40:08 cvshelene Exp $
+ RCS:           $Id: uigdexamacorr.h,v 1.8 2007-01-31 12:01:42 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,10 +17,9 @@ ________________________________________________________________________
 #include "attribdescid.h"
 #include "uimainwin.h"
 
-class DataPack;
 template <class T> class Array2D;
 namespace Attrib { class EngineMan; class DescSet; class DataCubes; }
-namespace FlatDisp { class uiFlatViewGen; }
+namespace FlatDisp { class uiViewFDDataPack; class DataPack; }
 
 /*! \brief GapDecon Attribute autocorrelation preview in a 2d viewer */
 
@@ -40,15 +39,15 @@ protected:
     Attrib::EngineMan*	createEngineMan();
     void		displayWiggles(bool,bool);
 
-    uiMainWin*		examwin_;
-    uiMainWin*		qcwin_;
-    CubeSampling	cs_;
-    Attrib::DescID	attribid_;
-    Attrib::DescSet*    dset_;
-    DataPack*		datapackexam_;
-    DataPack*		datapackqc_;
-    FlatDisp::uiFlatViewGen*	examviewergen_;
-    FlatDisp::uiFlatViewGen*	qcviewergen_;
+    uiMainWin*			examwin_;
+    uiMainWin*			qcwin_;
+    CubeSampling		cs_;
+    Attrib::DescID		attribid_;
+    Attrib::DescSet*    	dset_;
+    FlatDisp::DataPack*		fddatapackexam_;
+    FlatDisp::DataPack*		fddatapackqc_;
+    FlatDisp::uiViewFDDataPack*	examdpview_;
+    FlatDisp::uiViewFDDataPack*	qcdpview_;
 };
 
 

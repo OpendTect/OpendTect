@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          Sep 2006
- RCS:           $Id: uigdexamacorr.cc,v 1.11 2007-01-30 11:40:08 cvshelene Exp $
+ RCS:           $Id: uigdexamacorr.cc,v 1.12 2007-01-31 12:01:42 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,17 +26,17 @@ ________________________________________________________________________
 #include "arrayndimpl.h"
 #include "uimsg.h"
 #include "ptrman.h"
-#include "uiflatviewgen.h"
+#include "uiviewfddatapack.h"
 #include "colortab.h"
 
 using namespace Attrib;
 
 GapDeconACorrView::GapDeconACorrView( uiParent* p )
     : attribid_( DescID::undef() )
-    , datapackexam_( 0 )
-    , datapackqc_( 0 )
-    , examviewergen_( 0 )
-    , qcviewergen_( 0 )
+    , fddatapackexam_( 0 )
+    , fddatapackqc_( 0 )
+    , examdpview_( 0 )
+    , qcdpviewe_( 0 )
     , dset_( 0 )
 {
     examwin_ = new uiMainWin( p, "Auto-correlation viewer (examine)", 0,
@@ -48,20 +48,20 @@ GapDeconACorrView::GapDeconACorrView( uiParent* p )
 
 GapDeconACorrView::~GapDeconACorrView()
 {
-    if ( datapackexam_ ) delete datapackexam_;
-    if ( datapackqc_ ) delete datapackqc_;
-    if ( examviewergen_ ) delete examviewergen_;
-    if ( qcviewergen_ ) delete qcviewergen_;
+    if ( fddatapackexam_ ) delete fddatapackexam_;
+    if ( fddatapackqc_ ) delete fddatapackqc_;
+    if ( examdpview_ ) delete examdpview_;
+    if ( qcdpview_ ) delete qcdpview_;
     if ( dset_ ) delete dset_;
     if ( examwin_ ) delete examwin_;
     if ( qcwin_ ) delete qcwin_;
 }
 
 
-#define mCreateDataPack( datapack ) \
+#define mCreateFDDataPack( fddatapack ) \
 { \
-    if ( datapack ) delete datapack; \
-    datapack = new CubeDataPack( *output ); \
+    if ( fddatapack ) delete fddatapack; \
+    fddatapack = new CubeDataPack( *output ); \
 }\
 
 bool GapDeconACorrView::computeAutocorr( bool isqc )
@@ -86,9 +86,9 @@ bool GapDeconACorrView::computeAutocorr( bool isqc )
     
     output->ref();
     if ( isqc )
-    	mCreateDataPack(datapackqc_)
+    	mCreateFDDataPack(fddatapackqc_)
     else
-	mCreateDataPack(datapackexam_)
+	mCreateFDDataPack(fddatapackexam_)
     output->unRef();
     return true;
 }
@@ -115,19 +115,19 @@ void GapDeconACorrView::createAndDisplay2DViewer( bool isqc )
     if ( isqc )
     {
 	qcwin_->close();
-	if ( qcviewergen_ ) delete qcviewergen_;
-	qcviewergen_ = new FlatDisp::uiFlatViewGen( qcwin_, true, true );
+	if ( qcdpview_ ) delete qcdpview_;
+	qcdpview_ = new FlatDisp::uiViewFDDataPack( qcwin_, true, true );
     }
     else
     {
 	examwin_->close();
-	if ( examviewergen_ ) delete examviewergen_;
-	examviewergen_ = new FlatDisp::uiFlatViewGen( examwin_, true, true );
+	if ( examdpview_ ) delete examdpview_;
+	examdpview_ = new FlatDisp::uiViewFDDataPack( examwin_, true, true );
     }
 
-    FlatDisp::uiFlatViewGen* viewergen = isqc ? qcviewergen_ : examviewergen_;
-    viewergen->setData( isqc ? datapackqc_ : datapackexam_, false );
-    FlatDisp::Context& ctxt = viewergen->getContext();
+    FlatDisp::uiViewFDDataPack* fddpview = isqc ? qcdpview_ : examdpview_;
+    fddpview->setData( isqc ? fddatapackqc_ : fddatapackexam_, false );
+    FlatDisp::Context& ctxt = fddpview->getContext();
     ctxt.ddpars_.vd_.rg_ = Interval<float>( -0.2, 0.2 );
     ctxt.posdata_.x2rg_ = StepInterval<double>(0,cs_.zrg.stop-cs_.zrg.start,
 			                       cs_.zrg.step);

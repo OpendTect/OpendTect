@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiseispartserv.cc,v 1.48 2007-01-15 10:58:33 cvsbert Exp $
+ RCS:           $Id: uiseispartserv.cc,v 1.49 2007-01-31 12:01:42 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -278,7 +278,7 @@ bool uiSeisPartServer::handleGatherSubMenu( int mnuid, const BinID& bid )
     uiDialog psdlg( appserv().parent(),
 	    	    uiDialog::Setup("PS Display",title,"") );
     psdlg.setCtrlStyle( uiDialog::LeaveOnly );
-    uiFlatDisp::VertViewer* vwr = new uiFlatDisp::VertViewer( &psdlg );
+    FlatDisp::VertViewer* vwr = new FlatDisp::VertViewer( &psdlg );
     vwr->setContext( fdctxt );
     vwr->setData( true, a2d, "" );
     psdlg.go();

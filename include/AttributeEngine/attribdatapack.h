@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra and Helene Huck
  Date:		January 2007
- RCS:		$Id: attribdatapack.h,v 1.7 2007-01-30 11:38:46 cvshelene Exp $
+ RCS:		$Id: attribdatapack.h,v 1.8 2007-01-31 12:01:42 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,7 +25,7 @@ class IOPar;
 
 /*!\brief A cube data packet: contains sampled data + positioning */ 
 
-class CubeDataPack : public FlatDispDataPack
+class CubeDataPack : public DataPack
 {
 public:
     				CubeDataPack(const Attrib::DataCubes&);
@@ -36,7 +36,6 @@ public:
 
     Array2D<float>&		data();
     const Array2D<float>&	data() const;
-    void			positioning(FlatDisp::PosData&);
 
     float			nrKBytes() const	{ return 0; }
     void			dumpInfo(IOPar&) const	{}
@@ -45,6 +44,16 @@ protected:
 
     const Attrib::DataCubes&	cube_;
     Array2DSlice<float>*	arr2dsl_;
+};
+
+
+class FDCubeDataPack : public FlatDisp::DataPack
+		     , public CubeDataPack
+{
+    public:
+    				FDCubeDataPack( const Attrib::DataCubes& dc )
+				    : CubeDataPack( dc)		{}
+    void			positioning(FlatDisp::PosData&);
 };
 
 

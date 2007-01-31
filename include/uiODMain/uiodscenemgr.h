@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.h,v 1.38 2007-01-25 21:51:42 cvsnanne Exp $
+ RCS:           $Id: uiodscenemgr.h,v 1.39 2007-01-31 12:01:42 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,7 +28,7 @@ class uiTreeFactorySet;
 class uiTreeItem;
 class uiVisPartServer;
 class uiWorkSpace;
-namespace FlatDisp { class uiFlatViewGen; }
+namespace FlatDisp { class uiViewFDDataPack; }
 namespace Pick { class Set; }
 
 
@@ -144,7 +144,7 @@ protected:
 	void		setData(DataPackMgr::ID,DataPack::ID,bool wva);
 
 	uiDockWin*	viewwin_;
-	FlatDisp::uiFlatViewGen* flatviewgen_;
+	FlatDisp::uiViewFDDataPack* viewfddatapack_;
 	uiODMain&	appl_;
 
 	int		visid_;
