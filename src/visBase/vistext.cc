@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Apr 2002
- RCS:           $Id: vistext.cc,v 1.13 2006-07-03 19:03:38 cvskris Exp $
+ RCS:           $Id: vistext.cc,v 1.14 2007-01-31 20:53:18 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "iopar.h"
 #include "vistransform.h"
 #include "vismaterial.h"
+#include "separstr.h"
 
 #include <Inventor/nodes/SoFont.h>
 #include <Inventor/nodes/SoText2.h>
@@ -192,7 +193,10 @@ TextBox::TextBox()
 
 void TextBox::setText( const char* newtext )
 {
-    text_->string.setValue( newtext );
+    SeparString sepstr( newtext, '\n' );
+    text_->string.deleteValues( sepstr.size() );
+    for ( int idx=0; idx<sepstr.size(); idx++ )
+	text_->string.set1Value( idx, sepstr[idx] );
 }
 
 
