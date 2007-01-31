@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodemsurftreeitem.cc,v 1.15 2007-01-03 16:02:31 cvsjaap Exp $
+ RCS:		$Id: uiodemsurftreeitem.cc,v 1.16 2007-01-31 15:04:52 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -189,9 +189,9 @@ void uiODEarthModelSurfaceDataTreeItem::handleMenuCB( CallBacker* cb )
 	BufferStringSet attrnms;
 	ObjectSet<BinIDValueSet> vals;
 	applMgr()->EMServer()->getAllAuxData( emid, attrnms, vals );
-// TODO: Set selspec for all attribs
-//	visserv->setSelSpec( displayID(), attribNr(),
-//		Attrib::SelSpec(attrnm,Attrib::SelSpec::cOtherAttrib()) );
+	BufferString attrnm = attrnms.size() ? attrnms.get(0) : "";
+	visserv->setSelSpec( displayID(), attribNr(),
+		Attrib::SelSpec(attrnm,Attrib::SelSpec::cOtherAttrib()) );
 	visserv->setRandomPosData( displayID(), attribNr(), &vals );
 	updateColumnText( uiODSceneMgr::cNameColumn() );
     }
