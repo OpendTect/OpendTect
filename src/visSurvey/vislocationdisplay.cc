@@ -4,7 +4,7 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vislocationdisplay.cc,v 1.18 2007-01-30 20:07:06 cvskris Exp $";
+static const char* rcsID = "$Id: vislocationdisplay.cc,v 1.19 2007-01-31 22:20:24 cvskris Exp $";
 
 #include "vislocationdisplay.h"
 
@@ -153,7 +153,14 @@ void LocationDisplay::showAll( bool yn )
 
 void LocationDisplay::pickCB( CallBacker* cb )
 {
-    if ( !isOn() || !isSelected() || isLocked() ) return;
+    if ( !isSelected() )
+    {
+	waitsfordirectionid_ == -1;
+	waitsforpositionid_ =-1;
+	return;
+    }
+
+    if ( !isOn() || isLocked() ) return;
 
     mCBCapsuleUnpack(const visBase::EventInfo&,eventinfo,cb);
 
@@ -174,6 +181,8 @@ void LocationDisplay::pickCB( CallBacker* cb )
 		picksetmgr_->reportChange( 0, cd );
 	    }
 	}
+
+	eventcatcher_->eventIsHandled();
     }
     else if ( waitsforpositionid_!=-1 )
     {
@@ -186,6 +195,8 @@ void LocationDisplay::pickCB( CallBacker* cb )
 		    set_, waitsforpositionid_ );
 	    picksetmgr_->reportChange( 0, cd );
 	}
+
+	eventcatcher_->eventIsHandled();
     }
 
     if ( eventinfo.type != visBase::MouseClick ||
