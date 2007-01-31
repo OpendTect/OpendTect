@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: vishorizondisplay.cc,v 1.25 2007-01-29 20:41:28 cvskris Exp $
+ RCS:           $Id: vishorizondisplay.cc,v 1.26 2007-01-31 10:27:54 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -1315,7 +1315,7 @@ void HorizonDisplay::otherObjectsMoved(
 { 
     if ( burstalertison_ && whichobj==id() )
     {
-	postponedupdates_++;-2;
+	postponedupdates_++;
 	return; 
     }
     
