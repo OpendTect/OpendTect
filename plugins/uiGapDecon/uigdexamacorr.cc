@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          Sep 2006
- RCS:           $Id: uigdexamacorr.cc,v 1.12 2007-01-31 12:01:42 cvshelene Exp $
+ RCS:           $Id: uigdexamacorr.cc,v 1.13 2007-01-31 15:53:52 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,7 +36,7 @@ GapDeconACorrView::GapDeconACorrView( uiParent* p )
     , fddatapackexam_( 0 )
     , fddatapackqc_( 0 )
     , examdpview_( 0 )
-    , qcdpviewe_( 0 )
+    , qcdpview_( 0 )
     , dset_( 0 )
 {
     examwin_ = new uiMainWin( p, "Auto-correlation viewer (examine)", 0,
@@ -116,13 +116,15 @@ void GapDeconACorrView::createAndDisplay2DViewer( bool isqc )
     {
 	qcwin_->close();
 	if ( qcdpview_ ) delete qcdpview_;
-	qcdpview_ = new FlatDisp::uiViewFDDataPack( qcwin_, true, true );
+	qcdpview_ = new FlatDisp::uiViewFDDataPack( qcwin_, true,
+					FlatDisp::uiViewFDDataPack::Setup() );
     }
     else
     {
 	examwin_->close();
 	if ( examdpview_ ) delete examdpview_;
-	examdpview_ = new FlatDisp::uiViewFDDataPack( examwin_, true, true );
+	examdpview_ = new FlatDisp::uiViewFDDataPack( examwin_, true,
+					FlatDisp::uiViewFDDataPack::Setup() );
     }
 
     FlatDisp::uiViewFDDataPack* fddpview = isqc ? qcdpview_ : examdpview_;
