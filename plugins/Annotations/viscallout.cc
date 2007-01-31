@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Jan 2005
- RCS:           $Id: viscallout.cc,v 1.7 2007-01-31 19:54:34 cvskris Exp $
+ RCS:           $Id: viscallout.cc,v 1.8 2007-01-31 21:23:03 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -127,6 +127,7 @@ Callout::Callout()
 {
     mAddChild( marker_, false );
     marker_->setType( MarkerStyle3D::Sphere );
+    setMaterial( 0 );
 
     object2display_->ref();
     addChild( object2display_->getInventorNode() );
@@ -707,7 +708,7 @@ float CalloutDisplay::getScale() const
 visBase::VisualObject* CalloutDisplay::createLocation() const
 {
     Callout* res = Callout::create();
-    res->setMarkerMaterial( markermaterial_ );
+    res->setMarkerMaterial( 0 );
     res->setBoxMaterial( boxmaterial_ );
     res->setTextMaterial( textmaterial_ );
     res->setSelectable( false );
