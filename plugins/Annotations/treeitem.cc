@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2005
- RCS:           $Id: treeitem.cc,v 1.5 2007-01-30 21:46:51 cvskris Exp $
+ RCS:           $Id: treeitem.cc,v 1.6 2007-01-31 21:23:29 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,11 +13,14 @@ ________________________________________________________________________
 #include "randcolor.h"
 
 #include "uiarrowdlg.h"
+#include "uibutton.h"
+#include "uifiledlg.h"
 #include "uilistview.h"
 #include "uislider.h"
 #include "uimenu.h"
 #include "uimenuhandler.h"
 #include "uiodapplmgr.h"
+#include "uitextedit.h"
 #include "uivispartserv.h"
 #include "uigeninput.h"
 #include "uigeninputdlg.h"
@@ -573,7 +576,9 @@ void TextSubItem::handleMenuCB( CallBacker* cb )
 	    return;
 
 	BufferString text = *(*set_)[pickidx].text;
-	if ( editText(text) )
+	BufferString url;
+	bool enab;
+	if ( editText(text, url, enab ) )
 	{
 	    *(*set_)[pickidx].text = text;
 
@@ -594,7 +599,9 @@ void TextSubItem::pickAddedCB( CallBacker* cb )
 	 cd->ev_!=Pick::SetMgr::ChangeData::Added ) return;
 
     Pick::Location& loc = (*set_)[cd->loc_];
-    if ( editText(prevtxt_) )
+    BufferString url;
+    bool enab;
+    if ( editText(prevtxt_, url, enab ) )
     {
 	if ( !loc.text ) loc.text = new BufferString( prevtxt_ );
 	else (*loc.text) = prevtxt_;
@@ -607,12 +614,80 @@ const char* TextSubItem::parentType() const
 { return typeid(TextParentItem).name(); }
 
 
-bool TextSubItem::editText( BufferString& str )
+class AnchorGroup : public uiGroup
 {
-    uiGenInputDlg dlg( getUiParent(), "Text", "Text",
-		       new StringInpSpec( (const char*) str ) );
+public:
+AnchorGroup( uiParent* p, const char* url, bool urlenabled )
+    : uiGroup(p,"Anchor Group")
+{
+    linkfld = new uiGenInput( this, "Link to", StringInpSpec(url) );
+    linkfld->setWithCheck( true );
+    linkfld->setChecked( urlenabled );
+
+    uiPushButton* but = new uiPushButton( this, "Select file", false );
+    but->activated.notify( mCB(this,AnchorGroup,butPush) );
+    but->attach( rightTo, linkfld );
+    setHAlignObj( linkfld );
+}
+
+
+void butPush( CallBacker* )
+{
+    uiFileDialog dlg( this, true, linkfld->text() );
+    if ( !dlg.go() ) return;
+
+    linkfld->setText( dlg.fileName() );
+}
+
+    uiGenInput* linkfld;
+
+};
+
+
+
+class uiTextDialog : public uiDialog
+{
+public:
+uiTextDialog( uiParent* p, const char* str, const char* url, bool urlenabled )
+    : uiDialog(p,uiDialog::Setup("Text","Text",0))
+{
+    textedit = new uiTextEdit( this );
+    textedit->setPrefWidthInChar( 20 );
+    textedit->setPrefHeightInChar( 5 );
+    textedit->setText( str );
+
+    anchorgrp = new AnchorGroup( this, url, urlenabled );
+    anchorgrp->attach( leftAlignedBelow, textedit );
+    textedit->setFocus();
+}
+
+
+const char* text() const
+{ return textedit->text(); }
+
+const char* getUrl() const
+{ return anchorgrp->linkfld->text(); }
+
+bool isUrlEnabled() const
+{
+    const char* url = getUrl();
+    return url && *url && anchorgrp->linkfld->isChecked();
+}
+
+    uiTextEdit*         textedit;
+    AnchorGroup*        anchorgrp;
+
+};
+
+
+bool TextSubItem::editText( BufferString& str, BufferString& url, bool& enab )
+{
+    uiTextDialog dlg( getUiParent(), str, url, enab );
     if ( !dlg.go() ) return false;
+
     str = dlg.text();
+    url = dlg.getUrl();
+    enab = dlg.isUrlEnabled();
     return true;
 }
 

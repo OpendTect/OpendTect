@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2005
- RCS:           $Id: treeitem.h,v 1.3 2007-01-30 21:46:51 cvskris Exp $
+ RCS:           $Id: treeitem.h,v 1.4 2007-01-31 21:23:29 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -133,7 +133,8 @@ protected:
     void		createMenuCB(CallBacker*);
     void		handleMenuCB(CallBacker*);
 
-    bool		editText(BufferString&);
+    bool		editText(BufferString& str, BufferString& url,
+	    			 bool& enab);
     BufferString	prevtxt_;
 
     bool		hasScale() const		{ return true; }
