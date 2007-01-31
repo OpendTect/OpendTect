@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: emhorizon3d.cc,v 1.85 2007-01-29 20:01:27 cvskris Exp $
+ RCS:           $Id: emhorizon3d.cc,v 1.86 2007-01-31 11:47:13 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -314,32 +314,6 @@ bool Horizon::setArray2D( const Array2D<float>& arr, SectionID sid,
     geometry().sectionGeometry( sid )->blockCallBacks( false, true );
     geometry().enableChecks( didcheck );
     return true;
-}
-
-
-void Horizon::interpolateHoles( int aperture, bool extrapolate )
-{
-    for ( int idx=0; idx<geometry_.nrSections(); idx++ )
-    {
-	SectionID sid = geometry_.sectionID( idx );
-	const StepInterval<int> rowrg = geometry_.rowRange( sid );
-	const StepInterval<int> colrg = geometry_.colRange( sid );
-
-	Array2D<float>* arr = createArray2D( sid );
-	Array2DInterpolator<float> interpolator( *arr );
-	interpolator.pars().maxholesize_ = aperture;
-	interpolator.pars().extrapolate_ = extrapolate;
-	interpolator.setColDistRatio(
-		SI().crlDistance()*colrg.step/ (SI().inlDistance()*rowrg.step));
-	if ( !interpolator.execute() )
-	{
-	    delete arr;
-	    return;
-	}
-
-	setArray2D( *arr, sid, true );
-	delete arr;
-    }
 }
 
 

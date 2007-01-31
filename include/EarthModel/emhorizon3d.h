@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emhorizon3d.h,v 1.49 2006-11-06 10:32:37 cvsjaap Exp $
+ RCS:		$Id: emhorizon3d.h,v 1.50 2007-01-31 11:47:13 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -92,7 +92,6 @@ public:
     bool			setArray2D(const Array2D<float>&,SectionID,
 	    				   bool onlyfillundefs);
     				//!< Returns true on succes
-    void			interpolateHoles(int aperture,bool extrapolate);
 
     const char*			getTypeStr() const { return typeStr(); }
     Executor*			importer(const ObjectSet<BinIDValueSet>&,
