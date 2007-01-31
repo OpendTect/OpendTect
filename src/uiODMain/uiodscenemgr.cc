@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.79 2007-01-26 14:40:30 cvshelene Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.80 2007-01-31 08:02:58 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,7 +17,7 @@ ________________________________________________________________________
 #include "uivispartserv.h"
 #include "uiattribpartserv.h"
 
-#include "uiflatviewgen.h"
+#include "uiviewfddatapack.h"
 #include "uilabel.h"
 #include "uislider.h"
 #include "uidockwin.h"
