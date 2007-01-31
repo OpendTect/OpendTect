@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.81 2007-01-31 12:01:42 cvshelene Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.82 2007-01-31 15:01:10 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -797,6 +797,21 @@ void uiODSceneMgr::displayIn2DViewer( int visid, int attribid, bool dowva )
 
     // TODO: make mgrid static somewhere
     curvwr->setData( 0, visServ().getCacheID(visid,attribid), dowva );
+//    const Attrib::SelSpec* as = visServ().getSelSpec( visid, attribid );
+//    curvwr->setAttribText( as ? as->userRef() : "", dowva );
+}
+
+
+void uiODSceneMgr::remove2DViewer( int visid )
+{
+    for ( int idx=0; idx<viewers2d_.size(); idx++ )
+    {
+	if ( viewers2d_[idx]->visid_ != visid )
+	    continue;
+
+	delete viewers2d_.remove( idx );
+	return;
+    }
 }
 
 
@@ -852,6 +867,18 @@ uiODSceneMgr::Viewer2D::Viewer2D( uiODMain& appl, int visid )
     , viewwin_(0)
     , viewfddatapack_(0)
 {
+    basetxt_ = "2D Viewer - ";
+    BufferString info;
+    appl.applMgr().visServer()->getObjectInfo( visid, info );
+    basetxt_ += info;
+}
+
+
+uiODSceneMgr::Viewer2D::~Viewer2D()
+{
+    delete viewfddatapack_;
+    appl_.removeDockWindow( viewwin_ );
+    delete viewwin_;
 }
 
 
@@ -860,15 +887,21 @@ void uiODSceneMgr::Viewer2D::setData( DataPackMgr::ID mgrid,
 {
     if ( !viewwin_ )
     {
-	viewwin_ = new uiDockWin( 0, "Viewer 2D" );
+	viewwin_ = new uiDockWin( 0, basetxt_ );
 	viewwin_->setResizeEnabled( true );
 	viewwin_->setCloseMode( uiDockWin::Undocked );
 	viewfddatapack_ = new FlatDisp::uiViewFDDataPack( viewwin_,true,false );
-	viewfddatapack_->setData( mgrid, packid, wva );
+	viewfddatapack_->setDPMgrID( mgrid );
 	appl_.addDockWindow( *viewwin_, uiMainWin::Left );
 	viewwin_->undock();
     }
     
-    viewfddatapack_->setData( mgrid, packid, wva );
+    viewfddatapack_->setDataPackID( packid, wva );
     viewwin_->display( true );
+}
+
+
+void uiODSceneMgr::Viewer2D::setAttribText( const char* txt, bool wva )
+{
+// TODO: Add text to dockwin title or display otherwise
 }

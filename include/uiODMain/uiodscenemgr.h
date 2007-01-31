@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.h,v 1.39 2007-01-31 12:01:42 cvshelene Exp $
+ RCS:           $Id: uiodscenemgr.h,v 1.40 2007-01-31 15:01:10 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -96,6 +96,7 @@ public:
 
     void			displayIn2DViewer(int visid,int attribid,
 	    					  bool wva);
+    void			remove2DViewer(int visid);
 
     void			updateTrees();
     void			rebuildTrees();
@@ -139,17 +140,18 @@ protected:
     {
     public:
 			Viewer2D(uiODMain&,int visid);
-			~Viewer2D()		{}
+			~Viewer2D();
 
 	void		setData(DataPackMgr::ID,DataPack::ID,bool wva);
+	void		setBaseText(const char*);
+	void		setAttribText(const char*,bool wva);
 
 	uiDockWin*	viewwin_;
 	FlatDisp::uiViewFDDataPack* viewfddatapack_;
 	uiODMain&	appl_;
 
 	int		visid_;
-	DataPackMgr::ID	datamgrid_;
-	DataPack::ID	datapackid_;
+	BufferString	basetxt_;
     };
 
     uiODMain&			appl_;

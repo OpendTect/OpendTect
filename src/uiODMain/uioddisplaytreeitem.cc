@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uioddisplaytreeitem.cc,v 1.7 2007-01-30 18:47:37 cvskris Exp $
+ RCS:		$Id: uioddisplaytreeitem.cc,v 1.8 2007-01-31 15:01:10 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -261,6 +261,7 @@ void uiODDisplayTreeItem::handleMenuCB( CallBacker* cb )
 	{
 	    prepareForShutdown();
 	    visserv->removeObject( displayid_, sceneID() );
+	    ODMainWin()->sceneMgr().remove2DViewer( displayid_ );
 	    parent_->removeChild( this );
 	}
     }
