@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribstorprovider.cc,v 1.52 2007-01-24 17:31:58 cvskris Exp $";
+static const char* rcsID = "$Id: attribstorprovider.cc,v 1.53 2007-01-31 13:27:24 cvshelene Exp $";
 
 #include "attribstorprovider.h"
 
@@ -426,6 +426,7 @@ bool StorageProvider::setSeisRequesterSelection( int req )
 				zrg.stop : desiredvolume->zrg.stop;
 		    seldata->inlrg_.stop = seldata->inlrg_.start = 0;
 		}
+		rg[req]->setExtendable( false );
 		reader->setSelData( seldata );
 	    }
 
@@ -465,6 +466,7 @@ bool StorageProvider::setSeisRequesterSelection( int req )
 	seldata->zrg_.start = cs.zrg.start;
 	seldata->zrg_.stop = cs.zrg.stop;
 
+	rg[req]->setExtendable( false );
 	reader->setSelData( seldata );
 
 	SeisTrcTranslator* transl = reader->seisTranslator();
