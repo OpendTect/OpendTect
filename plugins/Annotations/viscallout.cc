@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Jan 2005
- RCS:           $Id: viscallout.cc,v 1.6 2007-01-30 21:45:43 cvskris Exp $
+ RCS:           $Id: viscallout.cc,v 1.7 2007-01-31 19:54:34 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -126,6 +126,7 @@ Callout::Callout()
     , rotfeedbackradius_( 1 )
 {
     mAddChild( marker_, false );
+    marker_->setType( MarkerStyle3D::Sphere );
 
     object2display_->ref();
     addChild( object2display_->getInventorNode() );
@@ -260,10 +261,10 @@ void Callout::setTextSize( float ns )
     backtext_->setSize(ns);
     updateCoords();
 
-    rotfeedbackradius_ = ns/3;
+    rotfeedbackradius_ = ns/1.5;
     setupRotFeedback();
 
-    const Coord3 feedbacksz( ns/6, ns/6, ns/6 );
+    const Coord3 feedbacksz( ns/3, ns/3, ns/3 );
     translationdragger_->setSize( feedbacksz );
 }
 
@@ -412,9 +413,9 @@ void Callout::updateCoords()
 
 	rotfeedbackpos_ =  Coord3( dragcorner.x, dragcorner.z, dragcorner.y );
 	if ( dragcorner11 ) 
-	    rotfeedbackradius_ = fronttext_->size()/3;
+	    rotfeedbackradius_ = fronttext_->size()/1.5;
 	else
-	    rotfeedbackradius_ = -fronttext_->size()/3;
+	    rotfeedbackradius_ = -fronttext_->size()/1.5;
 
 	setupRotFeedback();
 	if ( !isdragging_ )
@@ -440,7 +441,6 @@ void Callout::updateCoords()
 
 void Callout::updateArrow()
 {
-
     Interval<float> xrange, yrange;
     for ( int idx=0; idx<12 && idx<faceset_->getCoordinates()->size(true);
 	    idx+=3 )
