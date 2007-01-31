@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2004
- RCS:           $Id: add_hor_z.cc,v 1.4 2006-05-09 15:22:18 cvsnanne Exp $
+ RCS:           $Id: add_hor_z.cc,v 1.5 2007-01-31 16:52:08 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -59,7 +59,7 @@ static int doWork( int argc, char** argv )
     {
 	Coord c;
 	*sd.istrm >> c.x >> c.y;
-	double sqdist = c.sqDistance(c0);
+	double sqdist = c.sqDistTo( c0 );
 	if ( mIsZero(sqdist,1e-4) )
 	    break;
 	coords += c;
