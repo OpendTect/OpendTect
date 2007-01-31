@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vismultitexture2.cc,v 1.22 2007-01-30 21:56:07 cvskris Exp $";
+static const char* rcsID = "$Id: vismultitexture2.cc,v 1.23 2007-01-31 16:28:16 cvskris Exp $";
 
 
 #include "vismultitexture2.h"
@@ -172,10 +172,14 @@ void MultiTexture2::setTextureTransparency( int texturenr, unsigned char trans )
 	createShadingVars();
 
 	while ( layeropacity_->value.getNum()<texturenr )
-	    layeropacity_->value.set1Value( texture_->opacity.getNum(), 1 );
+	    layeropacity_->value.set1Value( layeropacity_->value.getNum(),
+		isTextureEnabled(layeropacity_->value.getNum()) &&
+		getCurrentTextureIndexData(layeropacity_->value.getNum()) ? 1 : 0 );
 
 	const float opacity = 1.0 - (float) trans/255;
-	layeropacity_->value.set1Value( texturenr, opacity );
+	layeropacity_->value.set1Value( texturenr,
+		isTextureEnabled( texturenr ) &&
+		getCurrentTextureIndexData( texturenr ) ? opacity : 0 );
 	opacity_.setSize( nrTextures(), 1 );
 	opacity_[texturenr] = opacity;
 	updateShadingVars();
@@ -416,11 +420,8 @@ void MultiTexture2::updateSoTextureInternal( int texturenr )
     const unsigned char* texture = getCurrentTextureIndexData(texturenr);
     if ( size_.row<0 || size_.col<0 || !texture )
     {
-	if ( useshading_ )
-	{
-	    pErrMsg("Not implemented");
-	//TODO: shader variant
-	}
+	if ( useshading_ && layeropacity_ )
+	    layeropacity_->value.set1Value( texturenr, 0 );
 	else 
 	    texture_->enabled.set1Value( texturenr, false );
 
@@ -609,7 +610,7 @@ void MultiTexture2::updateShadingVars()
     if ( layeropacity_->value.getNum()>nrtextures )
 	layeropacity_->value.deleteValues( nrtextures, -1 );
 
-    int firstlayer = 0;
+    int firstlayer = -1;
 
     numlayers_->value.setValue( nrtextures );
 
@@ -623,11 +624,14 @@ void MultiTexture2::updateShadingVars()
 	}
     }
 
-    for ( int idx=0; idx<nrtextures; idx++ )
+    if ( firstlayer>=0 )
     {
-	layeropacity_->value.set1Value( idx,
-		isTextureEnabled(idx) && getCurrentTextureIndexData(idx)
-		? opacity_[idx] : 0 );
+	for ( int idx=0; idx<nrtextures; idx++ )
+	{
+	    layeropacity_->value.set1Value( idx,
+		    isTextureEnabled(idx) && getCurrentTextureIndexData(idx)
+		    ? opacity_[idx] : 0 );
+	}
     }
 
     startlayer_->value.setValue( firstlayer );
@@ -745,41 +749,45 @@ void  MultiTexture2::createShadingProgram( int nrlayers,
 					   BufferString& res ) const
 {
     const char* variables = 
-"#extension GL_ARB_texture_rectangle : enable				\n \
-uniform sampler2DRect   ctabunit;					\n \
-uniform int             startlayer;					\n \
-uniform int             numlayers;					\n \
-uniform int             texturesize0;					\n \
+"#extension GL_ARB_texture_rectangle : enable				\n\
+uniform sampler2DRect   ctabunit;					\n\
+uniform int             startlayer;					\n\
+uniform int             numlayers;					\n\
+uniform int             texturesize0;					\n\
 uniform int             texturesize1;\n";
 
     const char* functions = 
 
-"void processLayer( in float val, in float layeropacity, in int layer )	\n \
-{									\n \
-    if ( layer==startlayer )						\n \
-    {									\n \
-	gl_FragColor = texture2DRect( ctabunit,				\n \
-				  vec2(val*255.0, float(layer)+0.5) );	\n \
-	gl_FragColor.a *= layeropacity;					\n \
-    }									\n \
-    else if ( layeropacity>0.0 )					\n \
-    {									\n \
-	vec4 col = texture2DRect( ctabunit, 				\n \
-				   vec2(val*255.0, float(layer)+0.5) );	\n \
-	layeropacity *= col.a;						\n \
-	gl_FragColor.rgb = mix(gl_FragColor.rgb,col.rgb,layeropacity);	\n \
-	if ( layeropacity>gl_FragColor.a )				\n \
-	    gl_FragColor.a = layeropacity;				\n \
-    }									\n \
+"void processLayer( in float val, in float layeropacity, in int layer )	\n\
+{									\n\
+    if ( layer==startlayer )						\n\
+    {									\n\
+	gl_FragColor = texture2DRect( ctabunit,				\n\
+				  vec2(val*255.0, float(layer)+0.5) );	\n\
+	gl_FragColor.a *= layeropacity;					\n\
+    }									\n\
+    else if ( layeropacity>0.0 )					\n\
+    {									\n\
+	vec4 col = texture2DRect( ctabunit, 				\n\
+				   vec2(val*255.0, float(layer)+0.5) );	\n\
+	layeropacity *= col.a;						\n\
+	gl_FragColor.rgb = mix(gl_FragColor.rgb,col.rgb,layeropacity);	\n\
+	if ( layeropacity>gl_FragColor.a )				\n\
+	    gl_FragColor.a = layeropacity;				\n\
+    }									\n\
 }\n\n";
 
 
     const char* mainprogstart =
-"void main()								\n \
-{									\n \
-    vec2 tcoord = gl_TexCoord[0].st;					\n \
-    tcoord.s *= texturesize0;						\n \
-    tcoord.t *= texturesize1;\n";
+"void main()								\n\
+{									\n\
+    if ( startlayer<0 )							\n\
+	gl_FragColor = vec4(1,1,1,1);					\n\
+    else								\n\
+    {									\n\
+	vec2 tcoord = gl_TexCoord[0].st;				\n\
+	tcoord.s *= texturesize0;					\n\
+	tcoord.t *= texturesize1;\n";
 
     res = variables;
     res += "uniform float           trans["; res += nrlayers; res += "];\n";
@@ -798,28 +806,30 @@ uniform int             texturesize1;\n";
     for ( int unit=0; unit<nrunits; unit++ )
     {
 	if ( !unit )
-	    res += "    if ( startlayer<4 )\n    {\n";
+	    res += "\tif ( startlayer<4 )\n\t{\n";
 	else
 	{
-	    res += "    if ( startlayer<"; res += (unit+1)*4;
-	    res += " && numlayers>"; res += unit*4; res += ")\n    {\n";
+	    res += "\tif ( startlayer<"; res += (unit+1)*4;
+	    res += " && numlayers>"; res += unit*4; res += ")\n\t{\n";
 	}
 
-	res += "        const vec4 data = texture2DRect( dataunit";
+	res += "\t    const vec4 data = texture2DRect( dataunit";
 	res += unit;
 	res += ", tcoord );\n";
 
 	for ( int idx=0; idx<mLayersPerUnit && layer<nrlayers; idx++,layer++ )
 	{
-	    res += "        if ( startlayer<="; res += layer; res += ")\n";
-	    res += "            processLayer( data["; res +=
+	    res += "\t    if ( startlayer<="; res += layer; res += ")\n";
+	    res += "\t\tprocessLayer( data["; res +=
 	    idx; res += "], trans[";
 	    res += layer; res += "], "; res += layer; res += ");\n";
 	}
 
-	res += "    }\n";
+	res += "\t}\n";
     }
 
+    res += "    }\n";
+    //TODO lightning?
     res += "}";
 }
 
