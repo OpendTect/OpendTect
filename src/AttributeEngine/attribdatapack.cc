@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Huck
  Date:          January 2007
- RCS:           $Id: attribdatapack.cc,v 1.8 2007-01-31 12:01:42 cvshelene Exp $
+ RCS:           $Id: attribdatapack.cc,v 1.9 2007-01-31 12:57:55 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -73,11 +73,10 @@ const CubeSampling CubeDataPack::sampling() const
 }
 
 
-
 #define mBuildInterval( rg ) \
     StepInterval<double>( (double)rg.start, (double)rg.stop, (double)rg.step )
 
-void FDCubeDataPack::positioning( FlatDisp::PosData& posdata )
+void CubeDataPack::positioning( FlatDisp::PosData& posdata )
 {
     const CubeSampling cs = sampling();
     int nrinl = cs.nrInl();
