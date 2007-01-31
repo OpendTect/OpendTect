@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		January 2005
- RCS:		$Id: visarrow.h,v 1.1 2006-07-03 20:02:06 cvskris Exp $
+ RCS:		$Id: visarrow.h,v 1.2 2007-01-31 22:19:21 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -17,18 +17,18 @@ ________________________________________________________________________
 
 namespace visBase { class IndexedPolyLine; class DrawStyle; };
 
-namespace visSurvey
+namespace Annotations
 {
 
 /*!\brief
   Arrow
 */
 
-class ArrowAnnotationDisplay : public LocationDisplay
+class ArrowDisplay : public visSurvey::LocationDisplay
 {
 public:
-    static ArrowAnnotationDisplay*	create()
-    					mCreateDataObj(ArrowAnnotationDisplay);
+    static ArrowDisplay*	create()
+				mCreateDataObj(ArrowDisplay);
 
     void			setScene( visSurvey::Scene* );
 
@@ -40,7 +40,7 @@ public:
     int				getLineWidth() const;
 
 protected:
-    				~ArrowAnnotationDisplay();
+    				~ArrowDisplay();
     void			zScaleCB(CallBacker*);
     void			dispChg(CallBacker*);
     visBase::VisualObject*	createLocation() const;

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2005
- RCS:           $Id: treeitem.cc,v 1.6 2007-01-31 21:23:29 cvskris Exp $
+ RCS:           $Id: treeitem.cc,v 1.7 2007-01-31 22:19:21 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -773,8 +773,8 @@ bool SymbolSubItem::init()
 {
     if (  displayid_==-1 )
     {
-	visSurvey::ArrowAnnotationDisplay* ad =
-	    visSurvey::ArrowAnnotationDisplay::create();
+	ArrowDisplay* ad =
+	    ArrowDisplay::create();
 	//ad->clicked.notify( mCB(this,SubItem,clickCB) );
 	//ad->mousemoved.notify( mCB(this,SubItem,mouseMoveCB) );
 	//ad->rightclicked.notify( mCB(this,SubItem,rightclickCB) );
@@ -783,7 +783,7 @@ bool SymbolSubItem::init()
 	ad->setName( name_ );
     }
 
-    mDynamicCastGet(visSurvey::ArrowAnnotationDisplay*,ad,
+    mDynamicCastGet(ArrowDisplay*,ad,
 	    visserv->getObject(displayid_))
     if ( !ad ) return false;
 
@@ -794,7 +794,7 @@ bool SymbolSubItem::init()
 void SymbolSubItem::clickCB( CallBacker* )
 {
     /*
-    mDynamicCastGet(visSurvey::ArrowAnnotationDisplay*,ad,
+    mDynamicCastGet(ArrowDisplay*,ad,
 	    	    visserv->getObject(displayid_))
     if ( !ad ) return;
 
@@ -820,7 +820,7 @@ void SymbolSubItem::clickCB( CallBacker* )
 void SymbolSubItem::mouseMoveCB( CallBacker* )
 {
     /*
-    mDynamicCastGet(visSurvey::AnnotDisplay*,ad,visserv->getObject(displayid_))
+    mDynamicCastGet(AnnotDisplay*,ad,visserv->getObject(displayid_))
     if ( !ad ) return;
 
     const Coord3 mousepos = ad->getPickedWorldPos();
@@ -860,8 +860,7 @@ void SymbolSubItem::handleMenuCB( CallBacker* cb )
 	uiArrowDialog dlg( getUiParent() );
 	dlg.setColor( set_->disp_.color_ );
 	dlg.setArrowType( arrowtype_ );
-	mDynamicCastGet(visSurvey::ArrowAnnotationDisplay*,ad,
-			visserv->getObject(displayid_));
+	mDynamicCastGet(ArrowDisplay*,ad, visserv->getObject(displayid_));
 	dlg.setLineWidth( ad->getLineWidth() );
 	dlg.propertyChange.notify( mCB(this,SymbolSubItem,propertyChange) );
 	dlg.go();
@@ -887,10 +886,10 @@ void SymbolSubItem::propertyChange( CallBacker* cb )
     setScale( defscale_*dlg->getScale() );
     setColor( dlg->getColor() );
 
-    mDynamicCastGet(visSurvey::ArrowAnnotationDisplay*,ad,
+    mDynamicCastGet(ArrowDisplay*,ad,
 	    	    visserv->getObject(displayid_));
 
-    ad->setType( (visSurvey::ArrowAnnotationDisplay::Type) arrowtype );
+    ad->setType( (ArrowDisplay::Type) arrowtype );
     ad->setLineWidth( dlg->getLineWidth() );
 }
 
@@ -904,7 +903,7 @@ const char* ImageSubItem::parentType() const
 
 void ImageSubItem::clickCB( CallBacker* cb )
 {
-    mDynamicCastGet(visSurvey::AnnotDisplay*,ad,visserv->getObject(displayid_))
+    mDynamicCastGet(AnnotDisplay*,ad,visserv->getObject(displayid_))
     if ( !ad ) return;
 
     if ( imgfilenm_=="" && !selectFileName(imgfilenm_) )
@@ -922,7 +921,7 @@ void ImageSubItem::clickCB( CallBacker* cb )
 
 void ImageSubItem::setScale( float newscale )
 {
-    mDynamicCastGet(visSurvey::AnnotDisplay*,ad,visserv->getObject(displayid_))
+    mDynamicCastGet(AnnotDisplay*,ad,visserv->getObject(displayid_))
     if ( !ad ) return;
 
     const float zscale = visSurvey::STM().currentScene()->getZScale();
@@ -957,7 +956,7 @@ void ImageSubItem::handleMenuCB( CallBacker* cb )
     if ( mnuid==filemnuitem_.id )
     {
 	menu->setIsHandled(true);
-	mDynamicCastGet(visSurvey::AnnotDisplay*,ad,
+	mDynamicCastGet(AnnotDisplay*,ad,
 			visserv->getObject(displayid_))
 	if ( !ad ) return;
 
@@ -987,7 +986,7 @@ bool ImageSubItem::selectFileName( BufferString& fnm )
 void ImageSubItem::getPickLocations( Pick::Set& ps, BufferString& type )
 {
     type = "Image";
-    mDynamicCastGet(visSurvey::AnnotDisplay*,ad,visserv->getObject(displayid_))
+    mDynamicCastGet(AnnotDisplay*,ad,visserv->getObject(displayid_))
     if ( !ad ) return;
 
     ps.setName( ad->name() );
@@ -1010,7 +1009,7 @@ void ImageSubItem::setPickLocations( const Pick::Set& ps )
     const int nrpicks = ps.size();
     if ( nrpicks == 0 ) return;
 
-    mDynamicCastGet(visSurvey::AnnotDisplay*,ad,visserv->getObject(displayid_))
+    mDynamicCastGet(AnnotDisplay*,ad,visserv->getObject(displayid_))
     if ( !ad ) return;
 
     defscale_ = ps.disp_.pixsize_;

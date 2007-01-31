@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Jan 2005
- RCS:           $Id: visarrow.cc,v 1.4 2006-08-04 21:46:17 cvskris Exp $
+ RCS:           $Id: visarrow.cc,v 1.5 2007-01-31 22:19:21 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,13 +15,14 @@ ________________________________________________________________________
 #include "vispolyline.h"
 #include "visdrawstyle.h"
 #include "pickset.h"
+#include "survinfo.h"
 #include "viscoord.h"
 
-mCreateFactoryEntry( visSurvey::ArrowAnnotationDisplay );
+mCreateFactoryEntry( Annotations::ArrowDisplay );
 
-namespace visSurvey
+namespace Annotations
 {
-ArrowAnnotationDisplay::ArrowAnnotationDisplay()
+ArrowDisplay::ArrowDisplay()
     : arrowtype_( Double )
     , linestyle_( visBase::DrawStyle::create() )
 {
@@ -30,16 +31,16 @@ ArrowAnnotationDisplay::ArrowAnnotationDisplay()
 }
 
 
-ArrowAnnotationDisplay::~ArrowAnnotationDisplay()
+ArrowDisplay::~ArrowDisplay()
 {
     linestyle_->unRef();
 
     if ( scene_ )
-	scene_->zscalechange.notify(mCB(this,ArrowAnnotationDisplay,zScaleCB));
+	scene_->zscalechange.notify(mCB(this,ArrowDisplay,zScaleCB));
 }
 
 
-void ArrowAnnotationDisplay::setType( Type typ )
+void ArrowDisplay::setType( Type typ )
 {
     arrowtype_ = typ;
 
@@ -52,48 +53,49 @@ void ArrowAnnotationDisplay::setType( Type typ )
 }
 
 
-void ArrowAnnotationDisplay::setScene( visSurvey::Scene* ns )
+void ArrowDisplay::setScene( visSurvey::Scene* ns )
 {
     if ( scene_ )
-	scene_->zscalechange.remove(mCB(this,ArrowAnnotationDisplay,zScaleCB));
+	scene_->zscalechange.remove(mCB(this,ArrowDisplay,zScaleCB));
     visSurvey::SurveyObject::setScene( ns );
 
     if ( scene_ )
-	scene_->zscalechange.notify(mCB(this,ArrowAnnotationDisplay,zScaleCB));
+	scene_->zscalechange.notify(mCB(this,ArrowDisplay,zScaleCB));
 }
 
 
-ArrowAnnotationDisplay::Type ArrowAnnotationDisplay::getType() const
+ArrowDisplay::Type ArrowDisplay::getType() const
 { return arrowtype_; }
 
 
-void ArrowAnnotationDisplay::setLineWidth( int nw )
+void ArrowDisplay::setLineWidth( int nw )
 {
     linestyle_->setLineStyle( LineStyle( LineStyle::Solid, nw ) );
 }
 
-int ArrowAnnotationDisplay::getLineWidth() const
+int ArrowDisplay::getLineWidth() const
 {
     return linestyle_->lineStyle().width;
 }
 
 
-void ArrowAnnotationDisplay::zScaleCB(CallBacker*)
+void ArrowDisplay::zScaleCB(CallBacker*)
 {
     fullRedraw();
 }
 
 
-void ArrowAnnotationDisplay::dispChg( CallBacker* cb )
+void ArrowDisplay::dispChg( CallBacker* cb )
 {
     fullRedraw();
     LocationDisplay::dispChg( cb );
 }
 
 
-visBase::VisualObject* ArrowAnnotationDisplay::createLocation() const
+visBase::VisualObject* ArrowDisplay::createLocation() const
 {
     visBase::IndexedPolyLine* pl = visBase::IndexedPolyLine::create();
+    pl->setMaterial( 0 );
     pl->ref();
     pl->setSelectable( true );
     updateLineShape( pl );
@@ -102,8 +104,7 @@ visBase::VisualObject* ArrowAnnotationDisplay::createLocation() const
 }
 	
 
-void visSurvey::ArrowAnnotationDisplay::setPosition( int idx,
-	const Pick::Location& loc )
+void ArrowDisplay::setPosition( int idx, const Pick::Location& loc )
 {
     mDynamicCastGet( visBase::IndexedPolyLine*, line, group_->getObject(idx) );
     line->getCoordinates()->setPos( 0, loc.pos );
@@ -111,8 +112,10 @@ void visSurvey::ArrowAnnotationDisplay::setPosition( int idx,
 	return;
 
     const Coord3 d0 = world2Display( loc.pos );
-    const Coord3 vector = spherical2Cartesian( loc.dir, true );
-    Coord3 c1 = loc.pos+vector;
+    Coord3 vector = spherical2Cartesian( loc.dir, true );
+
+    vector.z /= -SI().zFactor();
+    const Coord3 c1 = loc.pos+vector;
     Coord3 d1 = world2Display( c1 );
     Coord3 displayvector = d1-d0;
     const float len = displayvector.abs();
@@ -126,16 +129,16 @@ void visSurvey::ArrowAnnotationDisplay::setPosition( int idx,
 
     const Coord3 planenormal( sin(loc.dir.phi), cos(loc.dir.phi), 0 );
     const Quaternion plus30rot(planenormal, M_PI_2/6);
-    const Quaternion minus30rot(planenormal, M_PI_2/6 );
+    const Quaternion minus30rot(planenormal, -M_PI_2/6 );
     Coord3 arrowheadvec = minus30rot.rotate( displayvector*.3 );
-    line->getCoordinates()->setPos( 2, display2World(arrowheadvec+d1) );
+    line->getCoordinates()->setPos( 2, display2World(d1-arrowheadvec) );
     
     arrowheadvec = plus30rot.rotate( displayvector*.3 );
-    line->getCoordinates()->setPos( 3, display2World(arrowheadvec+d1) );
+    line->getCoordinates()->setPos( 3, display2World(d1-arrowheadvec) );
 }
 
 
-void ArrowAnnotationDisplay::updateLineShape(visBase::IndexedPolyLine* pl) const
+void ArrowDisplay::updateLineShape(visBase::IndexedPolyLine* pl) const
 {
     pl->ref();
     int idx = 0;
