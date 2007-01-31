@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Duntao Wei
  Date:          Jan 2005
- RCS:           $Id: uihistogramdisplay.h,v 1.1 2007-01-24 14:30:35 cvskris Exp $
+ RCS:           $Id: uihistogramdisplay.h,v 1.2 2007-01-31 14:34:40 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,6 +36,7 @@ public:
 			    in mem for the lifetime of this object or until
 			    next setHistogram call. */
     void		touch();
+    			/*!<Should be called if data has changed. */
 
     void		setTransform(const uiWorld2Ui& w2u);
     const uiWorld2Ui&	getTransform() const;
@@ -43,8 +44,10 @@ public:
     void		setColor(const Color&);
     const Color&	getColor() const;
 
+    bool		ignoresExtremes() const;
+    void		setIgnoresExtremes(bool yn);
+
     void		reDraw(CallBacker* = 0);
-    			/*!<Should be called if data has changed. */
 
 protected:
 
@@ -59,6 +62,7 @@ protected:
 
     uiWorld2Ui			transform_;
     Color			color_;
+    bool			ignoreextremes_;
 };
 
 #endif

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Duntao Wei
  Date:          Mid 2005
- RCS:           $Id: uihistogramdisplay.cc,v 1.1 2007-01-24 14:30:35 cvskris Exp $
+ RCS:           $Id: uihistogramdisplay.cc,v 1.2 2007-01-31 14:34:40 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
 
 uiHistogramDisplay::uiHistogramDisplay( ioDrawArea* da )
     : drawarea_( da )
+    , ignoreextremes_( true )
 {
     histogram_ = &ownhistogram_;
     scale_ = &ownscale_;
@@ -73,22 +74,41 @@ void uiHistogramDisplay::setColor( const Color& nc )
 { color_ = nc; }
 
 
+bool uiHistogramDisplay::ignoresExtremes() const
+{ return ignoreextremes_; }
+
+
+void uiHistogramDisplay::setIgnoresExtremes(bool yn)
+{
+    if ( yn==ignoreextremes_ ) return;
+
+    ignoreextremes_ = yn;
+    pointlist_.erase();
+}
+
+
 void uiHistogramDisplay::reDraw( CallBacker* )
 {
     const int histogramsize = histogram_->size();
     if ( !pointlist_.size() && histogramsize )
     {
 	float maxval = 0;
-	//TODO should go from 1 to size-1
 	for ( int idx=0; idx<histogramsize; idx++ )
-	    if ( (*histogram_)[idx] > maxval ) maxval = (*histogram_)[idx];
-
-	uiPoint prevpt(0,0);
-	pointlist_ += prevpt; //add start point
-
-	for ( int idx=0; idx<histogram_->size(); idx++ )
 	{
-	    //TODO normalize to worldbox
+	    if ( ignoreextremes_ && ( !idx || idx==histogramsize-1 ) )
+		continue;
+
+	    if ( (*histogram_)[idx] > maxval ) maxval = (*histogram_)[idx];
+	}
+
+	uiPoint prevpt(0,transform_.world2UiData().sz.height());
+	bool prevcommitted = false;
+
+	for ( int idx=0; idx<histogramsize; idx++ )
+	{
+	    if ( ignoreextremes_ && ( !idx || idx==histogramsize-1 ) )
+		continue;
+
 	    const float newx = (float)idx / (histogramsize-1);
 	    const float newy = (*histogram_)[idx] *
 		transform_.world2UiData().wr.top() / maxval;
@@ -96,18 +116,24 @@ void uiHistogramDisplay::reDraw( CallBacker* )
 	    const uiPoint newpt( transform_.transform(uiWorldPoint(newx,newy)));
 	    if ( newpt.y!=prevpt.y )
 	    {
-		pointlist_ += prevpt;
+		if ( !prevcommitted )
+		    pointlist_ += prevpt;
 		pointlist_ += newpt;
+		prevcommitted = true;
 		prevpt = newpt;
 	    }
 	    else if ( idx==histogramsize-1 )
 		pointlist_ += newpt;
 	    else
+	    {
+		prevcommitted = false;
 		prevpt = newpt;
+	    }
 	}
 
 	//Add closing pos	
-	pointlist_ += uiPoint( pointlist_[pointlist_.size()-1].x+1,0 );
+	pointlist_ += uiPoint( pointlist_[pointlist_.size()-1].x+1,
+			       transform_.world2UiData().sz.height() );
     }
 
     ioDrawTool* drawtool = drawarea_->drawTool();
