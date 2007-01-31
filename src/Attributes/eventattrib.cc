@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Helene Payraudeau
  Date:		February 2005
- RCS:		$Id: eventattrib.cc,v 1.21 2006-12-08 15:43:10 cvshelene Exp $
+ RCS:		$Id: eventattrib.cc,v 1.22 2007-01-31 17:33:14 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -279,12 +279,44 @@ void Event::multipleEvents( TypeSet<float>& output,
     if ( nrsamples == 1 )
     {
 	sg.start = z0;
-	sg.stop = tonext ? sg.start + SGWIDTH : sg.start - SGWIDTH;
-	ValueSeriesEvent<float,float> ev = vsevfinder.find( eventtype, sg, 1 );
-	if ( mIsUdf(ev.pos) )
-	    output[0] = ev.pos;
+	sg.stop = sg.start + SGWIDTH;
+	ValueSeriesEvent<float,float> nextev = 
+	    				vsevfinder.find( eventtype, sg, 1 );
+	sg.stop = sg.start - SGWIDTH;
+	ValueSeriesEvent<float,float> prevev = 
+	    				vsevfinder.find( eventtype, sg, 1 );
+	bool prevudf = mIsUdf(prevev.pos);
+	bool nextudf = mIsUdf(nextev.pos);
+	if ( prevudf && nextudf)
+	    output[0] = nextev.pos;
+	else if ( prevudf || nextudf )
+	    output[0] = fabs( z0 - prevudf ? nextev.pos : prevev.pos ) *refstep;
 	else
-	    output[0] = fabs( z0 - ev.pos ) * refstep;
+	{
+	    if ( (nextev.pos - prevev.pos) < 1 )
+	    {
+		if ( tonext )
+		{
+		    sg.start -= 1;
+		    sg.stop = sg.start - SGWIDTH;
+		}
+		else
+		{
+		    sg.start += 1;
+		    sg.stop = sg.start + SGWIDTH;
+		}
+		ValueSeriesEvent<float,float> secondchance =
+					vsevfinder.find( eventtype, sg, 1 );
+		if ( mIsUdf( secondchance.pos ) )
+		    output[0] = ( nextev.pos - prevev.pos ) * refstep;
+		else if ( tonext )
+		    output[0] = ( nextev.pos - secondchance.pos ) * refstep;
+		else
+		    output[0] = ( secondchance.pos - prevev.pos ) * refstep;
+	    }
+	    else
+		output[0] = ( nextev.pos - prevev.pos ) * refstep;
+	}
     }
     else
     {
