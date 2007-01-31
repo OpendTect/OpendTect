@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.341 2007-01-30 16:14:26 cvskris Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.342 2007-01-31 07:18:42 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -1235,6 +1235,7 @@ bool uiVisPartServer::resetManipulation( int id )
     eventmutex_.lock();
     eventobjid_ = id;
     sendEvent( evInteraction );
+    sendEvent( evUpdateTree );
 
     return so;
 }
