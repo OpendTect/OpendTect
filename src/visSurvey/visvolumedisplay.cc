@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2002
- RCS:           $Id: visvolumedisplay.cc,v 1.51 2007-01-24 14:34:43 cvskris Exp $
+ RCS:           $Id: visvolumedisplay.cc,v 1.52 2007-01-31 17:14:50 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,6 +12,7 @@ ________________________________________________________________________
 
 #include "visvolumedisplay.h"
 
+#include "attribdatapack.h"
 #include "isosurface.h"
 #include "visboxdragger.h"
 #include "viscolortab.h"
@@ -61,6 +62,7 @@ VolumeDisplay::VolumeDisplay()
     , volren_(0)
     , as_(*new Attrib::SelSpec)
     , cache_(0)
+    , cacheid_(-1)
     , slicemoving(this)
     , voltrans_( visBase::Transformation::create() )
 {
@@ -101,6 +103,8 @@ VolumeDisplay::VolumeDisplay()
 VolumeDisplay::~VolumeDisplay()
 {
     delete &as_;
+    DPM( 0 ).release( cacheid_ );
+
     if ( cache_ ) cache_->unRef();
 
     TypeSet<int> children;
@@ -462,6 +466,25 @@ CubeSampling VolumeDisplay::getCubeSampling( int attrib ) const
 { return getCubeSampling(true,attrib); }
 
 
+bool VolumeDisplay::setDataVolume( int attrib, DataPack::ID dpid )
+{
+    if ( attrib ) return false;
+
+    DataPackMgr& dpman = DPM( 0 );
+    const DataPack* datapack = dpman.obtain( dpid );
+    mDynamicCastGet(const CubeDataPack*,cdp,datapack);
+    const bool res = setDataVolume( attrib, cdp ? &cdp->cube() : 0 );
+    if ( !res )
+	return false;
+
+    const DataPack::ID oldid = cacheid_;
+    cacheid_ = dpid;
+
+    dpman.release( oldid );
+    return true;
+}
+
+
 bool VolumeDisplay::setDataVolume( int attrib,
 				   const Attrib::DataCubes* attribdata )
 {
@@ -499,6 +522,10 @@ bool VolumeDisplay::setDataVolume( int attrib,
 
 const Attrib::DataCubes* VolumeDisplay::getCacheVolume( int attrib ) const
 { return attrib ? 0 : cache_; }
+
+
+DataPack::ID VolumeDisplay::getCacheID( int attrib ) const
+{ return attrib ? -1 : cacheid_; }
 
 
 void VolumeDisplay::getMousePosInfo( const visBase::EventInfo&,
