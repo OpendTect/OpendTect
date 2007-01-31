@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		January 2003
- RCS:		$Id: visseis2ddisplay.h,v 1.8 2007-01-30 18:45:05 cvskris Exp $
+ RCS:		$Id: visseis2ddisplay.h,v 1.9 2007-01-31 15:02:33 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -95,6 +95,7 @@ public:
     void			getMousePosInfo(const visBase::EventInfo&,
 	    					const Coord3&,BufferString&,
 	    					BufferString&) const;
+    void			getObjectInfo(BufferString&) const;
     void			snapToTracePos(Coord3&);
 
     void			setLineSetID(const MultiID& mid);

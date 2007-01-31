@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visplanedatadisplay.h,v 1.92 2007-01-30 20:03:53 cvskris Exp $
+ RCS:		$Id: visplanedatadisplay.h,v 1.93 2007-01-31 15:02:33 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -98,6 +98,7 @@ public:
 	    					const Coord3&,
 	    					BufferString& val,
 	    					BufferString& info) const;
+    void			getObjectInfo(BufferString&) const;
 
     virtual void		fillPar(IOPar&, TypeSet<int>&) const;
     virtual int			usePar(const IOPar&);

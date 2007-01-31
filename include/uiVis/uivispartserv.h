@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.186 2007-01-30 16:14:26 cvskris Exp $
+ RCS:           $Id: uivispartserv.h,v 1.187 2007-01-31 15:03:01 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -204,12 +204,12 @@ public:
     			/*!< Get selSpec with getSelSpec */
 
     void		calculateAllAttribs();
-    bool		calculateAttrib( int id, int attrib, bool newsel);
+    bool		calculateAttrib(int id,int attrib,bool newsel);
 
     bool		canHaveMultipleTextures(int) const;
-    int			nrTextures( int id, int attrib ) const;
-    void		selectTexture(int id, int attrib, int texture);
-    int			selectedTexture( int id, int attrib ) const;
+    int			nrTextures(int id,int attrib) const;
+    void		selectTexture(int id,int attrib,int texture);
+    int			selectedTexture(int id,int attrib) const;
 
     static const int	evMouseMove;
     Coord3		getMousePos(bool xyt) const;
@@ -217,6 +217,7 @@ public:
     float		zFactor() const			{ return zfactor_; }
     BufferString	getMousePosVal() const;
     BufferString	getMousePosString() const	{ return mouseposstr_; }
+    void		getObjectInfo(int id,BufferString&) const;
 
 
     static const int	evSelectAttrib;

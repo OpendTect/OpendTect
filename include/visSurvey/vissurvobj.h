@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvobj.h,v 1.72 2007-01-24 16:47:49 cvsnanne Exp $
+ RCS:		$Id: vissurvobj.h,v 1.73 2007-01-31 15:02:33 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -173,6 +173,7 @@ public:
 					    BufferString& val,
 					    BufferString& info) const
 				{ val = mUdf(float); info = ""; }
+    virtual void		getObjectInfo(BufferString&) const	{}
    
    				//Volume data 
     virtual CubeSampling	getCubeSampling( int attrib ) const

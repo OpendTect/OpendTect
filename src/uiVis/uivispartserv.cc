@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.342 2007-01-31 07:18:42 cvsnanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.343 2007-01-31 15:03:01 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -685,6 +685,13 @@ BufferString uiVisPartServer::getInteractionMsg( int id ) const
 {
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id))
     return so ? so->getManipulationString() : BufferString("");
+}
+
+
+void uiVisPartServer::getObjectInfo( int id, BufferString& info ) const
+{
+    mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id))
+    if ( so ) so->getObjectInfo( info );
 }
 
 

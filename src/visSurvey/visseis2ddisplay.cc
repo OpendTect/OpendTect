@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2004
- RCS:           $Id: visseis2ddisplay.cc,v 1.12 2007-01-30 18:45:05 cvskris Exp $
+ RCS:           $Id: visseis2ddisplay.cc,v 1.13 2007-01-31 15:02:33 cvsnanne Exp $
  ________________________________________________________________________
 
 -*/
@@ -514,7 +514,7 @@ void Seis2DDisplay::getMousePosInfo( const visBase::EventInfo&,
 				     const Coord3& pos, BufferString& val,
 				     BufferString& info ) const
 {
-    info = "Line: "; info += name();
+    getObjectInfo( info );
     getValueString( pos, val );
 
     int dataidx = -1;
@@ -524,6 +524,12 @@ void Seis2DDisplay::getMousePosInfo( const visBase::EventInfo&,
 	info += "   Tracenr: ";
 	info += geometry_.posns[dataidx].nr;
     }
+}
+
+
+void Seis2DDisplay::getObjectInfo( BufferString& info ) const
+{
+    info = "Line: "; info += name();
 }
 
 

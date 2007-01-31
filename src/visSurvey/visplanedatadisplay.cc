@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.161 2007-01-30 20:03:53 cvskris Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.162 2007-01-31 15:02:33 cvsnanne Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -140,6 +140,10 @@ PlaneDataDisplay::~PlaneDataDisplay()
 
     deepUnRef( volumecache_ );
     deepErase( rposcache_ );
+
+    DataPackMgr& dpman = DPM( 0 );
+    for ( int idx=0; idx<datapackids_.size(); idx++ )
+	dpman.release( datapackids_[idx] );
 
     setDataTransform( 0 );
 
@@ -449,23 +453,7 @@ void PlaneDataDisplay::acceptManipulation()
 BufferString PlaneDataDisplay::getManipulationString() const
 {
     BufferString res;
-    if ( orientation_==Inline )
-    {
-	res = "Inline: ";
-	res += getCubeSampling(true,true).hrg.start.inl;
-    }
-    else if ( orientation_==Crossline )
-    {
-	res = "Crossline: ";
-	res += getCubeSampling(true,true).hrg.start.crl;
-    }
-    else
-    {
-	res = SI().zIsTime() ? "Time: " : "Depth: ";
-	float val = getCubeSampling(true,true).zrg.start;
-	res += SI().zIsTime() ? mNINT(val * 1000) : val;
-    }
-
+    getObjectInfo( res );
     return res;
 }
 
@@ -527,6 +515,7 @@ void PlaneDataDisplay::removeCache( int attrib )
     volumecache_.remove( attrib );
     if ( rposcache_[attrib] ) delete rposcache_[attrib];
     rposcache_.remove( attrib );
+    DPM( 0 ).release( datapackids_[attrib] );
     datapackids_.remove( attrib );
 }
 
@@ -692,11 +681,17 @@ bool PlaneDataDisplay::setDataVolume( int attrib, DataPack::ID dpid )
     if ( attrib>=nrAttribs() )
 	return false;
 
+    DataPack::ID oldid = datapackids_[attrib];
     datapackids_[attrib] = dpid;
     DataPackMgr& dpman = DPM( 0 );
     const DataPack* datapack = dpman.obtain( dpid );
     mDynamicCastGet(const CubeDataPack*,cdp,datapack);
-    return setDataVolume( attrib, cdp ? &cdp->cube() : 0 );
+    const bool res = setDataVolume( attrib, cdp ? &cdp->cube() : 0 );
+    if ( !res )
+	return false;
+
+    dpman.release( oldid );
+    return true;
 }
 
 
@@ -1006,6 +1001,27 @@ void PlaneDataDisplay::getMousePosInfo( const visBase::EventInfo&,
 }
 
 
+void PlaneDataDisplay::getObjectInfo( BufferString& info ) const
+{
+    if ( orientation_==Inline )
+    {
+	info = "Inline: ";
+	info += getCubeSampling(true,true).hrg.start.inl;
+    }
+    else if ( orientation_==Crossline )
+    {
+	info = "Crossline: ";
+	info += getCubeSampling(true,true).hrg.start.crl;
+    }
+    else
+    {
+	info = SI().zIsTime() ? "Time: " : "Depth: ";
+	float val = getCubeSampling(true,true).zrg.start;
+	info += SI().zIsTime() ? mNINT(val * 1000) : val;
+    }
+}
+
+
 bool PlaneDataDisplay::getCacheValue( int attrib, int version,
 				      const Coord3& pos, float& res ) const
 {
@@ -1074,10 +1090,7 @@ bool PlaneDataDisplay::canBDispOn2DViewer() const
 {
     //Rem : allow timeslices with horizontal viewer as soon as it is ready.
     //now : only vertical 2D Viewer
-    if ( orientation_ == PlaneDataDisplay::Timeslice )
-	return false;
-    else
-	return true;
+    return orientation_ != PlaneDataDisplay::Timeslice;
 }
 
-}; // namespace visSurvey
+} // namespace visSurvey
