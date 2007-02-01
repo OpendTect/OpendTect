@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribstorprovider.cc,v 1.54 2007-02-01 13:41:41 cvshelene Exp $";
+static const char* rcsID = "$Id: attribstorprovider.cc,v 1.55 2007-02-01 15:34:14 cvshelene Exp $";
 
 #include "attribstorprovider.h"
 
@@ -335,20 +335,38 @@ SeisRequester* StorageProvider::getSeisRequester() const
 
 bool StorageProvider::initSeisRequester( int req )
 {
-    rg[req]->setStepout( bufferstepout.inl, bufferstepout.crl );
+    rg[req]->setStepout( desbufferstepout.inl, desbufferstepout.crl, false );
+    rg[req]->setStepout( reqbufferstepout.inl, reqbufferstepout.crl, true );
     return rg[req]->prepareWork();
 }
 
 
-void StorageProvider::setBufferStepout( const BinID& ns )
+#define setBufStepout( prefix ) \
+{ \
+    if ( ns.inl <= prefix##bufferstepout.inl \
+	    && ns.crl <= prefix##bufferstepout.crl ) \
+	return; \
+\
+    if ( ns.inl > prefix##bufferstepout.inl ) \
+	prefix##bufferstepout.inl = ns.inl; \
+    if ( ns.crl > prefix##bufferstepout.crl ) \
+	prefix##bufferstepout.crl = ns.crl;\
+}
+
+
+void StorageProvider::setReqBufStepout( const BinID& ns, bool wait )
 {
-    if ( ns.inl <= bufferstepout.inl && ns.crl <= bufferstepout.crl )
-	return;
+    setBufStepout(req);
+    if ( !wait )
+	updateStorageReqs();
+}
 
-    if ( ns.inl > bufferstepout.inl ) bufferstepout.inl = ns.inl;
-    if ( ns.crl > bufferstepout.crl ) bufferstepout.crl = ns.crl;
 
-    updateStorageReqs();
+void StorageProvider::setDesBufStepout( const BinID& ns, bool wait )
+{
+    setBufStepout(des);
+    if ( !wait )
+	updateStorageReqs();
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribprovider.h,v 1.56 2007-01-04 15:29:26 cvshelene Exp $
+ RCS:           $Id: attribprovider.h,v 1.57 2007-02-01 15:34:14 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -63,8 +63,12 @@ public:
     void			enableOutput(int output,bool yn=true);
     bool			isOutputEnabled(int output) const;
 
-    virtual void		setBufferStepout(const BinID&);
-    const BinID&		getBufferStepout() const;
+    virtual void		setReqBufStepout(const BinID&,bool wait=false);
+    virtual void		setDesBufStepout(const BinID&,bool wait=false);
+    const BinID&		getReqBufStepout() const
+    				{ return reqbufferstepout; }
+    const BinID&		getDesBufStepout() const
+    				{ return desbufferstepout; }
     void			setDesiredVolume(const CubeSampling&);
     				/*!< The desired volume is the ideal volume
 				  required by the user*/
@@ -287,7 +291,8 @@ protected:
     ObjectSet<Provider>		parents;
     Desc&			desc;
     TypeSet<int>		outputinterest;
-    BinID			bufferstepout;
+    BinID			desbufferstepout;
+    BinID			reqbufferstepout;
     CubeSampling*		desiredvolume;
     CubeSampling*               possiblevolume;
     TypeSet< Interval<int> >	localcomputezintervals;

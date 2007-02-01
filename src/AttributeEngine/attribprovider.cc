@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribprovider.cc,v 1.85 2007-01-29 20:37:53 cvskris Exp $";
+static const char* rcsID = "$Id: attribprovider.cc,v 1.86 2007-02-01 15:34:14 cvshelene Exp $";
 
 #include "attribprovider.h"
 #include "attribstorprovider.h"
@@ -182,7 +182,8 @@ Provider::Provider( Desc& nd )
     , desiredvolume( 0 )
     , possiblevolume( 0 ) 
     , outputinterest( nd.nrOutputs(), 0 )
-    , bufferstepout( 0, 0 )
+    , reqbufferstepout( 0, 0 )
+    , desbufferstepout( 0, 0 )
     , providertask_( 0 )
     , currentbid( -1, -1 )
     , curlinekey_( 0, 0 )
@@ -269,21 +270,34 @@ bool Provider::isOutputEnabled( int out ) const
 }
 
 
-void Provider::setBufferStepout( const BinID& ns )
-{
-    if ( ns.inl <= bufferstepout.inl && ns.crl <= bufferstepout.crl )
-	return;
-
-    if ( ns.inl > bufferstepout.inl ) bufferstepout.inl = ns.inl;
-    if ( ns.crl > bufferstepout.crl ) bufferstepout.crl = ns.crl;
-
-    updateInputReqs(-1);
+#define setBufStepout( prefix ) \
+{ \
+    if ( ns.inl <= prefix##bufferstepout.inl \
+	    && ns.crl <= prefix##bufferstepout.crl ) \
+	return; \
+\
+    if ( ns.inl > prefix##bufferstepout.inl ) \
+    	prefix##bufferstepout.inl = ns.inl; \
+    if ( ns.crl > prefix##bufferstepout.crl ) \
+    	prefix##bufferstepout.crl = ns.crl;\
 }
 
 
-const BinID& Provider::getBufferStepout() const
+void Provider::setDesBufStepout( const BinID& ns, bool wait )
 {
-    return bufferstepout;
+    setBufStepout(des);
+
+    if ( !wait )
+	updateInputReqs(-1);
+}
+
+
+void Provider::setReqBufStepout( const BinID& ns, bool wait )
+{
+    setBufStepout(req);
+
+    if ( !wait )
+	updateInputReqs(-1);
 }
 
 
@@ -720,7 +734,7 @@ bool Provider::setCurrentPosition( const BinID& bid )
 	const BinID step = getStepoutStep();
 	BinID dir = BinID(1,1);
 	dir.inl *= step.inl/abs(step.inl); dir.crl *= step.crl/abs(step.crl);
-	const BinID lastbid = currentbid - bufferstepout*step;
+	const BinID lastbid = currentbid - desbufferstepout*step;
 	linebuffer->removeBefore(lastbid, dir);
     // in every direction...
     }
@@ -1076,6 +1090,7 @@ void Provider::updateStorageReqs( bool all )
 bool Provider::computeDesInputCube( int inp, int out, CubeSampling& res, 
 					bool usestepout ) const
 {
+    //Be careful if usestepout=true with des and req stepouts
     if ( seldata_ && seldata_->type_ == Seis::Table )
     {
 	Interval<float> zrg(0,0);
@@ -1162,7 +1177,11 @@ void Provider::updateInputReqs( int inp )
 	}
 
 	if ( inputs[inp] )
-	    inputs[inp]->setBufferStepout( stepout+bufferstepout );
+	{
+	    inputs[inp]->setReqBufStepout( req ? *req : BinID(0,0) + 
+		    			   reqbufferstepout, true );
+	    inputs[inp]->setDesBufStepout( stepout+desbufferstepout );
+	}
     }
 }
 
