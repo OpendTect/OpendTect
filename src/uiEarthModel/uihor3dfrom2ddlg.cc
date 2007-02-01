@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          January 2007
- RCS:           $Id: uihor3dfrom2ddlg.cc,v 1.4 2007-01-30 09:06:37 cvsbert Exp $
+ RCS:           $Id: uihor3dfrom2ddlg.cc,v 1.5 2007-02-01 16:49:12 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -52,8 +52,6 @@ uiHor3DFrom2DDlg::~uiHor3DFrom2DDlg()
 bool uiHor3DFrom2DDlg::acceptOK( CallBacker* )
 {
 #define mErrRet(s) { uiMSG().error(s); return false; }
-    if ( !uiMSG().askGoOn( "Lots of TODOs ... are you sure?") )
-	return false;
 
     if ( !outfld_->commitInput( true ) )
 	mErrRet( "Please enter a name for the output horizon" )
@@ -64,6 +62,7 @@ bool uiHor3DFrom2DDlg::acceptOK( CallBacker* )
     mDynamicCastGet(EM::Horizon*,hor3d,em.getObject(emobjid));
     if ( !hor3d )
 	mErrRet( "Cannot create 3D horizon" );
+    hor3d->ref();
     hor3d->setPreferredColor( hor2d_.preferredColor() );
 
     Executor* exec = new EM::Hor2DTo3D( hor2d_, SI().sampling(true).hrg,
@@ -87,6 +86,8 @@ bool uiHor3DFrom2DDlg::acceptOK( CallBacker* )
 	hor3d->unRef();
     else
 	hor3d->unRefNoDelete();
+
+    // TODO: Insert (or refresh) 3d horizon in the tree 
 
     return rv;
 }
