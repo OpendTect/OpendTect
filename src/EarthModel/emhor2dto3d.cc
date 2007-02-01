@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Jan 2007
- RCS:           $Id: emhor2dto3d.cc,v 1.2 2007-01-30 09:06:37 cvsbert Exp $
+ RCS:           $Id: emhor2dto3d.cc,v 1.3 2007-02-01 16:50:15 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -115,6 +115,8 @@ Hor2DTo3D::Hor2DTo3D( const EM::Horizon2D& h2d, const HorSampling& hs,
 	curinterp_->pars().maxnrsteps_ = nrsteps;
 	msg_ = curinterp_->message();
     }
+
+    hor3d_.removeAll();
 }
 
 
@@ -202,16 +204,30 @@ int Hor2DTo3D::nextStep()
     if ( ret != Executor::Finished )
 	return ret;
 
-    //TODO:  transfer data to 3D horizon
     const Hor2DTo3DSectionData& sd = *sd_[cursectnr_];
-    /*
-    hor3d_.addSection( );
-Array2DImpl<float>	arr_;
-HorSampling		hs_;
-int			inlsz_;
-int			crlsz_;
-*/
 
+    const bool geowaschecked = hor3d_.enableGeometryChecks( false );
+
+    SectionID sid = hor3d_.geometry().addSection( "", false );
+    hor3d_.geometry().sectionGeometry(sid)->
+				expandWithUdf( sd.hs_.start, sd.hs_.stop ); 
+
+    for ( int inlidx=0; inlidx<sd.inlsz_; inlidx++ )
+    {
+	for ( int crlidx=0; crlidx<sd.crlsz_; crlidx++ )
+	{
+	    const BinID bid( sd.hs_.inlRange().atIndex(inlidx), 
+			     sd.hs_.crlRange().atIndex(crlidx) );
+	    const Coord3 pos( SI().transform(bid), sd.arr_.get(inlidx,crlidx) );
+
+	    if ( pos.isDefined() ) 
+		hor3d_.setPos( sid, bid.getSerialized(), pos, false );
+	}
+    }
+
+    hor3d_.geometry().sectionGeometry(sid)->trimUndefParts(); 
+    hor3d_.enableGeometryChecks( geowaschecked );
+    
     cursectnr_++;
     if ( cursectnr_ >= sd_.size() )
 	return Executor::Finished;
