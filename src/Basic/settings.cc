@@ -5,7 +5,7 @@
  * FUNCTION : Default user settings
 -*/
  
-static const char* rcsID = "$Id: settings.cc,v 1.31 2006-07-17 15:33:31 cvsbert Exp $";
+static const char* rcsID = "$Id: settings.cc,v 1.32 2007-02-01 11:23:26 cvshelene Exp $";
 
 #include "settings.h"
 #include "filegen.h"
@@ -30,6 +30,20 @@ static ObjectSet<Settings>& getSetts()
 }
 
 
+static BufferString getFileName( const char* key, const char* dtectusr,
+				 const char* dirnm )
+{
+    FilePath fp( dirnm ? dirnm : GetSettingsDir() );
+    fp.add( "settings" );
+    BufferString fname = fp.fullPath();
+    if ( !mIsCommon(key) )
+	{ fname += "_"; fname += key; }
+    if ( dtectusr && *dtectusr )
+	{ fname += "."; fname += dtectusr; }
+    return fname;
+}
+
+
 Settings& Settings::fetch( const char* key )
 {
     const char* settkey = mGetKey( key );
@@ -48,6 +62,7 @@ Settings& Settings::fetch( const char* key )
     }
 
     newsett->setName( settkey );
+    newsett->fname = getFileName( key, GetSoftwareUser(), GetSettingsDir() );
     settlist += newsett;
     return *newsett;
 }
@@ -63,13 +78,7 @@ Settings* Settings::fetchExternal( const char* key, const char* dtectusr,
 Settings* Settings::doFetch( const char* key, const char* dtectusr,
 			     const char* dirnm, bool ext )
 {
-    FilePath fp( dirnm ? dirnm : GetSettingsDir() );
-    fp.add( "settings" );
-    BufferString fname = fp.fullPath();
-    if ( !mIsCommon(key) )
-	{ fname += "_"; fname += key; }
-    if ( dtectusr && *dtectusr )
-	{ fname += "."; fname += dtectusr; }
+    BufferString fname( getFileName(key,dtectusr,dirnm) );
 
     Settings* ret = new Settings( fname );
     ret->setName( mGetKey(key) );
