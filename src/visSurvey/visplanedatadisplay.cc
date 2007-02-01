@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.162 2007-01-31 15:02:33 cvsnanne Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.163 2007-02-01 22:56:32 cvskris Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -1080,7 +1080,7 @@ int PlaneDataDisplay::usePar( const IOPar& par )
     if ( par.get( sKeyDepthKey(), buttonkey ) )
 	dragger_->setTransDragKeys(true, buttonkey );
     if ( par.get( sKeyPlaneKey(), buttonkey ) )
-	dragger_->setTransDragKeys(true, buttonkey );
+	dragger_->setTransDragKeys(false, buttonkey );
 
     return 1;
 }
