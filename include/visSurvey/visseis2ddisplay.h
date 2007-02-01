@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		January 2003
- RCS:		$Id: visseis2ddisplay.h,v 1.9 2007-01-31 15:02:33 cvsnanne Exp $
+ RCS:		$Id: visseis2ddisplay.h,v 1.10 2007-02-01 16:17:15 cvshelene Exp $
 ________________________________________________________________________
 
 
@@ -91,6 +91,7 @@ public:
     int				getResolution() const;
     void			setResolution(int);
 
+    Pol2D3D                     getAllowedDataType() const	{return Only2D;}
     SurveyObject::AttribFormat 	getAttributeFormat() const;
     void			getMousePosInfo(const visBase::EventInfo&,
 	    					const Coord3&,BufferString&,
