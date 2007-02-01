@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uimaterialdlg.cc,v 1.12 2007-01-24 16:33:21 cvskris Exp $
+ RCS:           $Id: uimaterialdlg.cc,v 1.13 2007-02-01 23:03:50 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,9 +15,11 @@ ________________________________________________________________________
 #include "uisellinest.h"
 #include "uislider.h"
 #include "uitabstack.h"
+#include "uivisplanedatadisplaydragprop.h"
 #include "vismaterial.h"
 #include "visobject.h"
 #include "vissurvobj.h"
+#include "visplanedatadisplay.h"
 
 uiLineStyleGrp::uiLineStyleGrp( uiParent* p, visSurvey::SurveyObject* so )
     : uiDlgGroup(p,"Line style")
@@ -57,6 +59,10 @@ uiPropertiesDlg::uiPropertiesDlg( uiParent* p, visSurvey::SurveyObject* so )
 
     if ( survobj_->lineStyle() )
 	addGroup( new uiLineStyleGrp( tabstack_->tabGroup(), survobj_ )  );
+
+    mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,so);
+    if ( pdd )
+	addGroup( new uiVisPlaneDataDisplayDragProp(tabstack_->tabGroup(),pdd));
 
     setCancelText( "" );
 }
