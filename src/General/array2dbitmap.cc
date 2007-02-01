@@ -4,7 +4,7 @@
  * DATE     : Sep 2006
 -*/
 
-static const char* rcsID = "$Id: array2dbitmap.cc,v 1.14 2006-11-30 17:56:07 cvsbert Exp $";
+static const char* rcsID = "$Id: array2dbitmap.cc,v 1.15 2007-02-01 12:55:13 cvsbert Exp $";
 
 #include "array2dbitmapimpl.h"
 #include "arraynd.h"
@@ -157,9 +157,9 @@ void A2DBitmapPosSetup::setBitmapSizes( int n0, int n1 ) const
 }
 
 
-int A2DBitmapPosSetup::getPix( int dim, float pos ) const
+int A2DBitmapPosSetup::getPix( int dim, float pos, bool rev ) const
 {
-    const float fpix = getPixOffs( dim, pos );
+    const float fpix = getPixOffs( dim, pos, rev );
 
     int pix = mNINT(fpix);
     if ( pix < 0 )
@@ -173,7 +173,7 @@ int A2DBitmapPosSetup::getPix( int dim, float pos ) const
 
 bool A2DBitmapPosSetup::isInside( int dim, float pos ) const
 {
-    const float fpix = getPixOffs( dim, pos );
+    const float fpix = getPixOffs( dim, pos, false );
 
     return fpix + 1e-6 > 0 && fpix - 1e-6 < (dim?nrypix_:nrxpix_) - 1;
 }
@@ -305,7 +305,8 @@ void WVAA2DBitmapGenerator::drawTrace( int idim0 )
 
     for ( int iy=0; iy<setup_.nrYPix(); iy++ )
     {
-	const float dim1pos = dim1rg_.start + iy * dim1perpix_;
+	const float dim1pos = pars_.fliptb_ ? dim1rg_.stop - iy * dim1perpix_
+					    : dim1rg_.start + iy * dim1perpix_;
 	if ( !setup_.isInside(1,dim1pos) )
 	    continue;
 
@@ -352,8 +353,8 @@ void WVAA2DBitmapGenerator::drawVal( int idim0, int iy, float val,
     const float valdim0pos = centerdim0pos + (valratio-0.5) * stripwidth_;
 
     const bool isleft = val < midval;
-    const int midpix = setup_.getPix( 0, middim0pos );
-    const int valpix = setup_.getPix( 0, valdim0pos );
+    const int midpix = setup_.getPix( 0, middim0pos, pars_.fliplr_ );
+    const int valpix = setup_.getPix( 0, valdim0pos, pars_.fliplr_ );
 
     if ( isleft && wvapars().fillleft_ )
     {
@@ -377,7 +378,7 @@ void WVAA2DBitmapGenerator::drawVal( int idim0, int iy, float val,
 	const float prevvalratio = (prevval - scalerg_.start) / scalewidth_;
 	const float prevvaldim0pos = centerdim0pos
 	    			   + (prevvalratio-0.5) * stripwidth_;
-	const int prevvalpix = setup_.getPix( 0, prevvaldim0pos );
+	const int prevvalpix = setup_.getPix( 0, prevvaldim0pos, pars_.fliplr_);
 
 	int from, to;
 	if ( prevvalpix < valpix )
@@ -469,38 +470,37 @@ void VDA2DBitmapGenerator::doFill()
 void VDA2DBitmapGenerator::drawStrip( int idim0 )
 {
     const float curpos = dim0pos_[idim0];
-    float stripmidpix = setup_.getPixOffs( 0, curpos );
+    float stripmidpix = setup_.getPixOffs( 0, curpos, pars_.fliplr_ );
     float halfstrippixs = strippixs_ / 2;
     Interval<int> pixs2do( (int)floor(stripmidpix-halfstrippixs+1e-6),
 	    		   (int)ceil( stripmidpix+halfstrippixs-1e-6) );
     if ( pixs2do.start < 0 ) pixs2do.start = 0;
     if ( pixs2do.stop >= setup_.nrXPix() ) pixs2do.stop = setup_.nrXPix() - 1;
 
-    // Check whether left neighbour has already done some pixels
+    // The problem is: some of the 'to do' pixels may in fact be nearer a
+    // neighbouring position. That doesn't only cost performance, it
+    // will also introduce a directional overprinting.
+    // Therefore, the pixs2do we have now are the maximum pixs2do
+
     if ( idim0 > 0 )
     {
 	const float prevpos = dim0pos_[idim0-1];
-	while ( true )
-	{
-	    float startpixpos = dim0rg_.start + dim0perpix_ * pixs2do.start;
-	    if ( startpixpos - prevpos < curpos - startpixpos )
-		pixs2do.start++;
-	    else
-		break;
-	}
+	float prevstripmidpix = setup_.getPixOffs( 0, prevpos, pars_.fliplr_ );
+	float halfwaypix = (prevstripmidpix + stripmidpix) * .5;
+	if ( !pars_.fliplr_ && halfwaypix > pixs2do.start )
+	    pixs2do.start = (int)ceil(halfwaypix-1e-6);
+	if ( pars_.fliplr_ && halfwaypix < pixs2do.stop )
+	    pixs2do.stop = (int)floor(halfwaypix+1e-6);
     }
-    // Check whether right neighbour should do some pixels
     if ( idim0 < szdim0_-1 )
     {
 	const float nextpos = dim0pos_[idim0+1];
-	while ( true )
-	{
-	    float stoppixpos = dim0rg_.start + dim0perpix_ * pixs2do.stop;
-	    if ( stoppixpos - curpos > nextpos - stoppixpos )
-		pixs2do.stop--;
-	    else
-		break;
-	}
+	float nextstripmidpix = setup_.getPixOffs( 0, nextpos, pars_.fliplr_ );
+	float halfwaypix = (nextstripmidpix + stripmidpix) * .5;
+	if ( !pars_.fliplr_ && halfwaypix < pixs2do.stop )
+	    pixs2do.stop = (int)floor(halfwaypix-1e-6);
+	if ( pars_.fliplr_ && halfwaypix > pixs2do.start )
+	    pixs2do.start = (int)ceil(halfwaypix+1e-6);
     }
 
     drawPixLines( idim0, pixs2do );
@@ -538,7 +538,8 @@ void VDA2DBitmapGenerator::drawPixLines( int stripdim0,
 
     for ( int ix=xpixs2do.start; ix<=xpixs2do.stop; ix++ )
     {
-	const float dim0pos = dim0rg_.start + ix * dim0perpix_;
+	const float dim0pos = pars_.fliplr_ ? dim0rg_.stop - ix * dim0perpix_
+					    : dim0rg_.start + ix * dim0perpix_;
 	int idim0 = stripdim0;
 	if ( dim0pos_[stripdim0] > dim0pos && stripdim0 > 0 )
 	    idim0--;
@@ -548,7 +549,8 @@ void VDA2DBitmapGenerator::drawPixLines( int stripdim0,
 
 	for ( int iy=0; iy<setup_.nrYPix(); iy++ )
 	{
-	    const float dim1pos = dim1rg_.start + iy * dim1perpix_;
+	    const float dim1pos = pars_.fliptb_ ? dim1rg_.stop - iy*dim1perpix_
+					: dim1rg_.start + iy*dim1perpix_;
 	    if ( !setup_.isInside(1,dim1pos) )
 		continue;
 

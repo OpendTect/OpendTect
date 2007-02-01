@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Sep 2006
- RCS:           $Id: array2dbitmap.h,v 1.9 2006-10-18 10:52:53 cvsbert Exp $
+ RCS:           $Id: array2dbitmap.h,v 1.10 2007-02-01 12:55:13 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,11 +27,15 @@ struct A2DBitmapGenPars
 		A2DBitmapGenPars()
 		  : nointerpol_(false)
 		  , autoscale_(true)
+		  , fliplr_(false)
+		  , fliptb_(false)
 		  , clipratio_(0.025)
 		  , scale_(0,1)			{}
 
     bool	nointerpol_;	//!< Do not interpolate between actual samples
     bool	autoscale_;	//!< If not, use the scale_
+    bool	fliplr_;	//!< Flip left/right
+    bool	fliptb_;	//!< Flip top/bottom
     float	clipratio_;	//!< ratio of numbers to be clipped before
     				//!< determining min/max, only when autoscale_
     Interval<float> scale_;	//!< Used when autoscale_ is false
@@ -133,11 +137,14 @@ public:
 
     inline float	getPixPerDim( int dim ) const
 			{ return dim ? pixperdim1_ : pixperdim0_; }
-    inline float	getPixOffs( int dim, float pos ) const
-			{ return  (pos - (dim ? dim1rg_ : dim0rg_).start)
-				* getPixPerDim( dim ); }
+    inline float	getPixOffs( int dim, float pos, bool rev ) const
+			{ return rev ?
+			        ((dim ? dim1rg_ : dim0rg_).stop - pos)
+				 * getPixPerDim( dim )
+			       : (pos - (dim ? dim1rg_ : dim0rg_).start)
+				 * getPixPerDim( dim ); }
 
-    int			getPix(int dim,float) const;
+    int			getPix(int dim,float,bool rev) const;
     			// Nr of pixels from (0,0), always inside bitmap
     bool		isInside(int dim,float) const;
     			// Is position in dim inside bitmap?
