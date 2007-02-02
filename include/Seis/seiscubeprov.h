@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Jan 2007
- RCS:		$Id: seiscubeprov.h,v 1.1 2007-02-01 18:12:51 cvsbert Exp $
+ RCS:		$Id: seiscubeprov.h,v 1.2 2007-02-02 10:25:58 cvsbert Exp $
 ________________________________________________________________________
 
 */
@@ -114,6 +114,8 @@ protected:
     int			selRv(const SeisSelData*,bool) const;
 
     bool		startWork();
+    bool		isSingleTrc() const
+			{ return desstepout_.r() == 0 && desstepout_.c() == 0; }
 };
 
 

@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Sep 2006
- RCS:           $Id: array2dbitmapimpl.h,v 1.5 2006-11-29 18:09:04 cvsbert Exp $
+ RCS:           $Id: array2dbitmapimpl.h,v 1.6 2007-02-02 10:25:58 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,6 +24,7 @@ struct WVAA2DBitmapGenPars : public A2DBitmapGenPars
 		  , fillleft_(false)
 		  , fillright_(true)
 		  , midvalue_(0)
+		  , minpixperdim0_(2)
 		  , overlap_(0.5)	{}
 
     bool	drawwiggles_;	//!< Draw the wiggles themselves
@@ -35,6 +36,7 @@ struct WVAA2DBitmapGenPars : public A2DBitmapGenPars
     				//!< both neighbours' display strip
     				//!< If < 0, uses less than entire strip
     float	midvalue_;	//!< if mUdf(float), use the median data value
+    int		minpixperdim0_;	//!< Set to 0 or neg for dump everything
 
     static const char	cZeroLineFill;		// => -126
     static const char	cWiggFill;		// => -125
@@ -55,6 +57,8 @@ public:
 
     WVAA2DBitmapGenPars&	wvapars()		{ return gtPars(); }
     const WVAA2DBitmapGenPars&	wvapars() const		{ return gtPars(); }
+
+    int				dim0SubSampling() const;
 
 protected:
 

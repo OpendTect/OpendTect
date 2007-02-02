@@ -4,7 +4,7 @@
  * DATE     : Sep 2006
 -*/
 
-static const char* rcsID = "$Id: array2dbitmap.cc,v 1.16 2007-02-01 18:27:40 cvsbert Exp $";
+static const char* rcsID = "$Id: array2dbitmap.cc,v 1.17 2007-02-02 10:25:58 cvsbert Exp $";
 
 #include "array2dbitmapimpl.h"
 #include "arraynd.h"
@@ -278,11 +278,20 @@ WVAA2DBitmapGenerator::WVAA2DBitmapGenerator( const A2DBitMapInpData& d,
 }
 
 
+int WVAA2DBitmapGenerator::dim0SubSampling() const
+{
+    float fret = gtPars().minpixperdim0_ / setup_.getPixPerDim(0);
+    int ret = mNINT( fret );
+    return ret < 2 ? 1 : ret;
+}
+
+
 void WVAA2DBitmapGenerator::doFill()
 {
-    stripwidth_ = 2 * (0.5 + wvapars().overlap_) * setup_.avgDist(0);
+    const int dispeach = dim0SubSampling();
+    stripwidth_ = 2 * (0.5 + wvapars().overlap_) * dispeach * setup_.avgDist(0);
 
-    for ( int idim0=0; idim0<szdim0_; idim0++ )
+    for ( int idim0=0; idim0<szdim0_; idim0+=dispeach )
     {
 	if ( setup_.isInside(0,dim0pos_[idim0]) )
 	    drawTrace( idim0 );
