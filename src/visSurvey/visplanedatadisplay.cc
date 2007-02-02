@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.163 2007-02-01 22:56:32 cvskris Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.164 2007-02-02 15:27:15 cvskris Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -118,7 +118,8 @@ PlaneDataDisplay::PlaneDataDisplay()
     material->setDiffIntensity( 0.8 );
 
     gridlines_->ref();
-    addChild( gridlines_->getInventorNode() );
+    insertChild( childIndex(texture_->getInventorNode()),
+		 gridlines_->getInventorNode() );
 
     updateRanges( true, true );
 
