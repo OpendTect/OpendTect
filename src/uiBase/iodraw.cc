@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/12/1999
- RCS:           $Id: iodraw.cc,v 1.16 2006-09-07 15:44:24 cvskris Exp $
+ RCS:           $Id: iodraw.cc,v 1.17 2007-02-02 13:39:17 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -307,6 +307,7 @@ void ioDrawTool::drawMarker( uiPoint pt, const MarkerStyle2D& mstyle,
 			    const char* txt, bool below )
 {
     setPenColor( mstyle.color );
+    setFillColor( mstyle.color );
     switch ( mstyle.type )
     {
     case MarkerStyle2D::Square:
