@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vismultitexture2.cc,v 1.23 2007-01-31 16:28:16 cvskris Exp $";
+static const char* rcsID = "$Id: vismultitexture2.cc,v 1.24 2007-02-02 23:12:17 cvskris Exp $";
 
 
 #include "vismultitexture2.h"
@@ -616,11 +616,11 @@ void MultiTexture2::updateShadingVars()
 
     for ( int idx=nrtextures-1; idx>=0; idx-- )
     {
-	if ( isTextureEnabled(idx) && getCurrentTextureIndexData(idx) &&
-	     !hasTransparency(idx) )
+	if ( isTextureEnabled(idx) && getCurrentTextureIndexData(idx) )
 	{
 	    firstlayer = idx;
-	    break;
+	    if ( !hasTransparency(idx) )
+		break;
 	}
     }
 
@@ -781,6 +781,8 @@ uniform int             texturesize1;\n";
     const char* mainprogstart =
 "void main()								\n\
 {									\n\
+    if ( gl_FrontMaterial.diffuse.a<=0.0 )				\n\
+	discard;							\n\
     if ( startlayer<0 )							\n\
 	gl_FragColor = vec4(1,1,1,1);					\n\
     else								\n\
@@ -819,7 +821,8 @@ uniform int             texturesize1;\n";
 
 	for ( int idx=0; idx<mLayersPerUnit && layer<nrlayers; idx++,layer++ )
 	{
-	    res += "\t    if ( startlayer<="; res += layer; res += ")\n";
+	    res += "\t    if ( startlayer<="; res += layer; 
+	    res += " && numlayers>"; res += layer; res += " )\n";
 	    res += "\t\tprocessLayer( data["; res +=
 	    idx; res += "], trans[";
 	    res += layer; res += "], "; res += layer; res += ");\n";
@@ -829,6 +832,7 @@ uniform int             texturesize1;\n";
     }
 
     res += "    }\n";
+    res += "    gl_FragColor.a *= gl_FrontMaterial.diffuse.a;";
     //TODO lightning?
     res += "}";
 }
