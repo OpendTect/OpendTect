@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra and Helene Huck
  Date:		January 2007
- RCS:		$Id: attribdatapack.h,v 1.9 2007-01-31 12:57:55 cvshelene Exp $
+ RCS:		$Id: attribdatapack.h,v 1.10 2007-02-02 13:40:04 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,6 +40,7 @@ public:
     float			nrKBytes() const	{ return 0; }
     void			dumpInfo(IOPar&) const	{}
     void			positioning(FlatDisp::PosData&);
+    void			getXYZPosition(PosInfo::Line2DData&) const;
 
 protected:
 

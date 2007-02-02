@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Huck
  Date:          January 2007
- RCS:           $Id: attribdatapack.cc,v 1.9 2007-01-31 12:57:55 cvshelene Exp $
+ RCS:           $Id: attribdatapack.cc,v 1.10 2007-02-02 13:40:04 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,6 +14,8 @@ ________________________________________________________________________
 #include "flatdisp.h"
 #include "arraynd.h"
 #include "arrayndslice.h"
+#include "segposinfo.h"
+#include "survinfo.h"
 
 
 CubeDataPack::CubeDataPack( const Attrib::DataCubes& dc )
@@ -86,6 +88,18 @@ void CubeDataPack::positioning( FlatDisp::PosData& posdata )
 			    : mBuildInterval( cs.hrg.inlRange() );
     posdata.x2rg_ = nrinl>2 && nrcrl>2 ? mBuildInterval( cs.hrg.crlRange() )
 				       : mBuildInterval( cs.zrg );
+}
+
+
+void CubeDataPack::getXYZPosition( PosInfo::Line2DData& ld ) const
+{
+    const CubeSampling cs = sampling();
+    ld.zrg = cs.zrg;
+    PosInfo::Line2DPos startpos, stoppos;
+    startpos.coord = SI().transform( BinID(cs.hrg.start.inl, cs.hrg.start.crl));
+    ld.posns += startpos;
+    stoppos.coord = SI().transform( BinID(cs.hrg.stop.inl, cs.hrg.stop.crl) );
+    ld.posns += stoppos;
 }
 
 
