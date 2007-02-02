@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.83 2007-01-31 15:53:52 cvshelene Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.84 2007-02-02 15:44:43 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -795,8 +795,8 @@ void uiODSceneMgr::displayIn2DViewer( int visid, int attribid, bool dowva )
     if ( !curvwr )
 	curvwr = &addViewer2D( visid );
 
-    // TODO: make mgrid static somewhere
-    curvwr->setData( 0, visServ().getCacheID(visid,attribid), dowva );
+    curvwr->setData( visServ().getDataPackMgrID(visid),
+		     visServ().getDataPackID(visid,attribid), dowva );
 //    const Attrib::SelSpec* as = visServ().getSelSpec( visid, attribid );
 //    curvwr->setAttribText( as ? as->userRef() : "", dowva );
 }

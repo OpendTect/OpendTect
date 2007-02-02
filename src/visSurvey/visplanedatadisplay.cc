@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.164 2007-02-02 15:27:15 cvskris Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.165 2007-02-02 15:44:43 cvsnanne Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -677,7 +677,7 @@ CubeSampling PlaneDataDisplay::getCubeSampling( bool manippos,
 }
 
 
-bool PlaneDataDisplay::setDataVolume( int attrib, DataPack::ID dpid )
+bool PlaneDataDisplay::setDataPackID( int attrib, DataPack::ID dpid )
 {
     if ( attrib>=nrAttribs() )
 	return false;
@@ -696,7 +696,7 @@ bool PlaneDataDisplay::setDataVolume( int attrib, DataPack::ID dpid )
 }
 
 
-DataPack::ID PlaneDataDisplay::getCacheID( int attrib ) const
+DataPack::ID PlaneDataDisplay::getDataPackID( int attrib ) const
 {
     return datapackids_.validIdx(attrib) ? datapackids_[attrib] : -1;
 }

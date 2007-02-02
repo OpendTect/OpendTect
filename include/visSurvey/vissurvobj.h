@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvobj.h,v 1.73 2007-01-31 15:02:33 cvsnanne Exp $
+ RCS:		$Id: vissurvobj.h,v 1.74 2007-02-02 15:44:43 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -174,6 +174,12 @@ public:
 					    BufferString& info) const
 				{ val = mUdf(float); info = ""; }
     virtual void		getObjectInfo(BufferString&) const	{}
+
+    				// Data via DataPacks
+    virtual bool		setDataPackID(int attrib,DataPack::ID)
+    				{ return false; }
+    virtual DataPack::ID	getDataPackID(int attrib) const { return -1; }
+    virtual DataPackMgr::ID	getDataPackMgrID() const	{ return -1; }
    
    				//Volume data 
     virtual CubeSampling	getCubeSampling( int attrib ) const
@@ -183,9 +189,6 @@ public:
     virtual bool		setDataVolume(int attrib,
 	    				      const Attrib::DataCubes* slc);
     virtual const Attrib::DataCubes* getCacheVolume(int attrib) const;
-    virtual bool		setDataVolume(int attrib,DataPack::ID)
-    				{ return true; }
-    virtual DataPack::ID	getCacheID(int attrib) const	{ return -1; }
 
     				//Trace-data
     virtual void		getDataTraceBids(TypeSet<BinID>&) const	{}

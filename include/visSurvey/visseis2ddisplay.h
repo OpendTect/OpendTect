@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		January 2003
- RCS:		$Id: visseis2ddisplay.h,v 1.10 2007-02-01 16:17:15 cvshelene Exp $
+ RCS:		$Id: visseis2ddisplay.h,v 1.11 2007-02-02 15:44:43 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -66,6 +66,10 @@ public:
     				/*!<\returns wether a cache update is enough.*/
     const Interval<int>&	getTraceNrRange() const;
     const Interval<int>&	getMaxTraceNrRange() const;
+
+    bool			setDataPackID(int attrib,DataPack::ID);
+    DataPack::ID		getDataPackID(int attrib) const;
+    virtual DataPackMgr::ID	getDataPackMgrID() const	{ return 1; }
 
     void			setTraceData(int attrib,
 	    				     const Attrib::Data2DHolder&);
@@ -133,6 +137,7 @@ protected:
 						float& sqdist) const;
 
     ObjectSet<const Attrib::Data2DHolder>	cache_;
+    TypeSet<DataPack::ID>			datapackids_;
     MultiID					linesetid_;
 
     PosInfo::Line2DData&			geometry_;

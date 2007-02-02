@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2002
- RCS:           $Id: visvolumedisplay.cc,v 1.53 2007-01-31 19:34:28 cvskris Exp $
+ RCS:           $Id: visvolumedisplay.cc,v 1.54 2007-02-02 15:44:43 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -468,16 +468,19 @@ CubeSampling VolumeDisplay::getCubeSampling( int attrib ) const
 { return getCubeSampling(true,attrib); }
 
 
-bool VolumeDisplay::setDataVolume( int attrib, DataPack::ID dpid )
+bool VolumeDisplay::setDataPackID( int attrib, DataPack::ID dpid )
 {
-    if ( attrib ) return false;
+    if ( attrib>0 ) return false;
 
     DataPackMgr& dpman = DPM( 0 );
     const DataPack* datapack = dpman.obtain( dpid );
     mDynamicCastGet(const CubeDataPack*,cdp,datapack);
     const bool res = setDataVolume( attrib, cdp ? &cdp->cube() : 0 );
     if ( !res )
+    {
+	dpman.release( dpid );
 	return false;
+    }
 
     const DataPack::ID oldid = cacheid_;
     cacheid_ = dpid;
@@ -526,7 +529,7 @@ const Attrib::DataCubes* VolumeDisplay::getCacheVolume( int attrib ) const
 { return attrib ? 0 : cache_; }
 
 
-DataPack::ID VolumeDisplay::getCacheID( int attrib ) const
+DataPack::ID VolumeDisplay::getDataPackID( int attrib ) const
 { return attrib ? -1 : cacheid_; }
 
 

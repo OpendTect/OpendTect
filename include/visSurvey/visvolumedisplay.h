@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		August 2002
- RCS:		$Id: visvolumedisplay.h,v 1.38 2007-01-31 17:14:50 cvskris Exp $
+ RCS:		$Id: visvolumedisplay.h,v 1.39 2007-02-02 15:44:43 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -80,12 +80,11 @@ public:
 
     CubeSampling		getCubeSampling(int attrib) const;
     void			setCubeSampling(const CubeSampling&);
-    bool			setDataVolume( int attrib, DataPack::ID );
-    bool			setDataVolume( int attrib,
-	    				       const Attrib::DataCubes* );
-				/*!<\note slc becomes mine */
-    DataPack::ID		getCacheID(int attrib) const;
+    bool			setDataVolume(int attrib,
+	    				      const Attrib::DataCubes*);
     const Attrib::DataCubes*	getCacheVolume(int attrib) const;
+    bool			setDataPackID(int attrib,DataPack::ID);
+    DataPack::ID		getDataPackID(int attrib) const;
     void			getMousePosInfo(const visBase::EventInfo&,
 	    			     		const Coord3&,BufferString& val,
 	    					BufferString& info) const;

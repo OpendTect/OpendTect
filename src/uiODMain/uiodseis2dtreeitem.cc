@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		May 2006
- RCS:		$Id: uiodseis2dtreeitem.cc,v 1.11 2007-01-12 11:37:06 cvshelene Exp $
+ RCS:		$Id: uiodseis2dtreeitem.cc,v 1.12 2007-02-02 15:44:43 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -161,8 +161,8 @@ void uiOD2DLineSetTreeItem::createMenuCB( CallBacker* cb )
     {
 	Attrib::SelSpec as;
 	applMgr()->attrServer()->resetMenuItems();
-	MenuItem* dummy = applMgr()->attrServer()->
-					    storedAttribMenuItem( as, true );
+	MenuItem* dummy =
+	    applMgr()->attrServer()->storedAttribMenuItem( as, true );
 	dummy->removeItems();
 
 	BufferStringSet allstored;
@@ -500,17 +500,16 @@ void uiOD2DLineSetSubItem::getNewData( CallBacker* cb )
     cs.zrg.start = s2d->getMaxZRange().atIndex(s2d->getZRange().start);
     cs.zrg.stop = s2d->getMaxZRange().atIndex(s2d->getZRange().stop);
 
-    const char* objnm = s2d->name();
-
     const Attrib::SelSpec& as = *s2d->getSelSpec( attrib );
     applMgr()->attrServer()->setTargetSelSpec( as );
-    RefMan<Attrib::Data2DHolder> dataset = new Attrib::Data2DHolder;
 
-    if ( !applMgr()->attrServer()->create2DOutput( cs, objnm, *dataset) )
+    LineKey lk( s2d->name() );
+    const DataPack::ID dpid =
+	applMgr()->attrServer()->create2DOutput( cs, lk );
+    if ( dpid < 0 )
 	return;
 
-    if ( dataset->size() )
-	s2d->setTraceData( attrib, *dataset );
+    s2d->setDataPackID( attrib, dpid );
 }
 
 
@@ -645,8 +644,8 @@ bool uiOD2DLineSetAttribItem::displayStoredData( const char* attribnm )
     if ( !s2d ) return false;
 
     uiAttribPartServer* attrserv = applMgr()->attrServer();
-    const Attrib::DescID attribid =
-		attrserv->createStored2DAttrib( s2d->lineSetID(), attribnm );
+    LineKey lk( s2d->lineSetID(), attribnm );
+    const Attrib::DescID attribid = attrserv->getStoredID( lk, true );
     if ( attribid < 0 ) return false;
 
     const Attrib::SelSpec* as = visserv->getSelSpec(  displayID(),0 );
@@ -655,7 +654,6 @@ bool uiOD2DLineSetAttribItem::displayStoredData( const char* attribnm )
     myas.set( attribnm, attribid, false, 0 );
     myas.set2DFlag();
     attrserv->setTargetSelSpec( myas );
-    RefMan<Attrib::Data2DHolder> dataset = new Attrib::Data2DHolder;
 
     CubeSampling cs;
     cs.hrg.start.crl = s2d->getTraceNrRange().start;
@@ -663,15 +661,15 @@ bool uiOD2DLineSetAttribItem::displayStoredData( const char* attribnm )
     cs.zrg.start = s2d->getMaxZRange().atIndex(s2d->getZRange().start);
     cs.zrg.stop = s2d->getMaxZRange().atIndex(s2d->getZRange().stop);
 
-    if ( !applMgr()->attrServer()->create2DOutput( cs, linekey, *dataset) )
+    const DataPack::ID dpid =
+	applMgr()->attrServer()->create2DOutput( cs, linekey );
+    if ( dpid < 0 )
 	return false;
 
-    if ( dataset->size() )
-    {
-	uiCursorChanger cursorchgr( uiCursor::Wait );
-	s2d->setSelSpec( attribNr(), myas );
-	s2d->setTraceData( attribNr(), *dataset );
-    }
+    uiCursorChanger cursorchgr( uiCursor::Wait );
+    s2d->setSelSpec( attribNr(), myas );
+    s2d->setDataPackID( attribNr(), dpid );
+
     updateColumnText(0);
     setChecked( s2d->isOn() );
 
@@ -691,19 +689,16 @@ void uiOD2DLineSetAttribItem::setAttrib( const Attrib::SelSpec& myas )
     cs.zrg.start = s2d->getMaxZRange().atIndex(s2d->getZRange().start);
     cs.zrg.stop = s2d->getMaxZRange().atIndex(s2d->getZRange().stop);
 
-    BufferString linekey = s2d->name();
+    LineKey lk( s2d->name() );
     applMgr()->attrServer()->setTargetSelSpec( myas );
-    RefMan<Attrib::Data2DHolder> dataset = new Attrib::Data2DHolder;
 
-    if ( !applMgr()->attrServer()->
-	    create2DOutput( cs, linekey, *dataset ) )
+    const DataPack::ID dpid =
+	applMgr()->attrServer()->create2DOutput( cs, lk );
+    if ( dpid < 0 )
 	return;
 
-    if ( dataset->size() )
-    {
-	s2d->setSelSpec( attribNr(), myas );
-	s2d->setTraceData( attribNr(), *dataset );
-    }
+    s2d->setSelSpec( attribNr(), myas );
+    s2d->setDataPackID( attribNr(), dpid );
 
     updateColumnText(0);
     setChecked( s2d->isOn() );

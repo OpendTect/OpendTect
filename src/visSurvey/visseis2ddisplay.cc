@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2004
- RCS:           $Id: visseis2ddisplay.cc,v 1.13 2007-01-31 15:02:33 cvsnanne Exp $
+ RCS:           $Id: visseis2ddisplay.cc,v 1.14 2007-02-02 15:44:43 cvsnanne Exp $
  ________________________________________________________________________
 
 -*/
@@ -25,6 +25,7 @@
 
 #include "arrayndimpl.h"
 #include "attribdataholder.h"
+#include "attribdatapack.h"
 //#include "colortab.h"
 #include "idxable.h"
 #include "iopar.h"
@@ -79,6 +80,10 @@ Seis2DDisplay::~Seis2DDisplay()
 
     if ( transformation_ ) transformation_->unRef();
     deepUnRef( cache_ );
+
+    DataPackMgr& dpman = DPM( 1 );
+    for ( int idx=0; idx<datapackids_.size(); idx++ )
+	dpman.release( datapackids_[idx] );
 }
 
 
@@ -173,6 +178,31 @@ const Interval<int>& Seis2DDisplay::getTraceNrRange() const
 
 const Interval<int>& Seis2DDisplay::getMaxTraceNrRange() const
 { return maxtrcnrrg_; }
+
+bool Seis2DDisplay::setDataPackID( int attrib, DataPack::ID dpid )
+{
+    DataPackMgr& dpman = DPM( 1 );
+    const DataPack* datapack = dpman.obtain( dpid );
+    mDynamicCastGet(const DataPack2D*,dp2d,datapack);
+    if ( !dp2d )
+    {
+	dpman.release( dpid );
+	return false;
+    }
+
+    setTraceData( attrib, dp2d->dataholder() );
+
+    DataPack::ID oldid = datapackids_[attrib];
+    datapackids_[attrib] = dpid;
+    dpman.release( oldid );
+    return true;
+}
+
+
+DataPack::ID Seis2DDisplay::getDataPackID( int attrib ) const
+{
+    return datapackids_[attrib];
+}
 
 
 void Seis2DDisplay::setTraceData( int attrib,
@@ -476,18 +506,27 @@ SurveyObject::AttribFormat Seis2DDisplay::getAttributeFormat() const
 
 
 void Seis2DDisplay::addCache()
-{ cache_ += 0; }
+{
+    cache_ += 0;
+    datapackids_ += -1;
+}
 
 
 void Seis2DDisplay::removeCache( int attrib )
 {
     if ( cache_[attrib] ) cache_[attrib]->unRef();
     cache_.remove( attrib );
+
+    DPM( 1 ).release( datapackids_[attrib] );
+    datapackids_.remove( attrib );
 }
 
 
 void Seis2DDisplay::swapCache( int a0, int a1 )
-{ cache_.swap( a0, a1 ); }
+{
+    cache_.swap( a0, a1 );
+    datapackids_.swap( a0, a1 );
+}
 
 
 void Seis2DDisplay::emptyCache( int attrib )
@@ -496,6 +535,7 @@ void Seis2DDisplay::emptyCache( int attrib )
 	cache_[attrib]->unRef();
 
     cache_.replace( attrib, 0 );
+    datapackids_[attrib] = -1;
 }
 
 

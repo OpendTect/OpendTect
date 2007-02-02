@@ -4,13 +4,15 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Huck
  Date:          January 2007
- RCS:           $Id: attribdatapack.cc,v 1.10 2007-02-02 13:40:04 cvshelene Exp $
+ RCS:           $Id: attribdatapack.cc,v 1.11 2007-02-02 15:44:43 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "attribdatapack.h"
 #include "attribdatacubes.h"
+#include "attribdataholder.h"
+#include "attribdataholderarray.h"
 #include "flatdisp.h"
 #include "arraynd.h"
 #include "arrayndslice.h"
@@ -103,8 +105,41 @@ void CubeDataPack::getXYZPosition( PosInfo::Line2DData& ld ) const
 }
 
 
-VertPolyLineDataPack::~VertPolyLineDataPack()
+
+DataPack2D::DataPack2D( const Attrib::Data2DHolder& dh )
+    : dh_(dh)
 {
-    delete arr_;
-    delete pos_;
+    dh_.ref();
+
+    array3d_ = new Attrib::Data2DHolderArray(
+				const_cast<Attrib::Data2DHolder&>(dh_) );
+    
+    arr2dsl_ = new Array2DSlice<float>( *array3d_ );
+    arr2dsl_->setPos( 0, 0 );
+    arr2dsl_->setDimMap( 0, 1 );
+    arr2dsl_->setDimMap( 1, 2 );
+    arr2dsl_->init();
+}
+
+
+DataPack2D::~DataPack2D()
+{
+    delete arr2dsl_;
+    delete array3d_;
+    dh_.unRef();
+}
+
+
+Array2D<float>& DataPack2D::data()
+{ return *arr2dsl_; }
+
+const Array2D<float>& DataPack2D::data() const
+{ return *arr2dsl_; }
+
+
+void DataPack2D::positioning( FlatDisp::PosData& posdata )
+{
+    const CubeSampling cs = dh_.getCubeSampling();
+    posdata.x1rg_ = mBuildInterval( cs.hrg.crlRange() );
+    posdata.x2rg_ = mBuildInterval( cs.zrg );
 }

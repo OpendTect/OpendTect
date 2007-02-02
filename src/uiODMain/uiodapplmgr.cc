@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.175 2007-01-25 12:48:25 cvsnanne Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.176 2007-02-02 15:44:43 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,6 +43,7 @@ ________________________________________________________________________
 #include "iopar.h"
 #include "ioman.h"
 #include "ioobj.h"
+#include "linekey.h"
 #include "oddirs.h"
 #include "helpview.h"
 #include "filegen.h"
@@ -432,7 +433,8 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
 		break;
 	    }
 
-	    const DataPack::ID cacheid = visserv_->getCacheID( visid, attrib );
+	    const DataPack::ID cacheid =
+				visserv_->getDataPackID( visid, attrib );
 	    attrserv_->setTargetSelSpec( myas );
 	    const DataPack::ID newid = attrserv_->createOutput( cs, cacheid );
 	    if ( newid == -1 )
@@ -441,7 +443,7 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
 		return false;
 	    }
 
-	    visserv_->setCubeData( visid, attrib, newid );
+	    visserv_->setDataPackID( visid, attrib, newid );
 
 /*	    RefMan<const Attrib::DataCubes> newdata =
 				attrserv_->createOutput( cs, cache );
@@ -671,9 +673,8 @@ bool uiODApplMgr::handleMPEServEv( int evid )
     }
     else if ( evid==uiMPEPartServer::evCreate2DSelSpec )
     {
-	const Attrib::DescID attribid = attrServer()->createStored2DAttrib(
-		mpeserv_->get2DLineSet(), mpeserv_->get2DAttribName() );
-
+	LineKey lk( mpeserv_->get2DLineSet(), mpeserv_->get2DAttribName() );
+	const Attrib::DescID attribid = attrServer()->getStoredID( lk, true );
 	if ( attribid<0 ) return false;
 
 	const Attrib::SelSpec as( mpeserv_->get2DAttribName(), attribid );

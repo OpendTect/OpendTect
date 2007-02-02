@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiattribpartserv.h,v 1.24 2007-01-24 16:45:54 cvsnanne Exp $
+ RCS:           $Id: uiattribpartserv.h,v 1.25 2007-02-02 15:44:42 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,6 +38,7 @@ class BufferStringSet;
 class CubeSampling;
 class Executor;
 class IOPar;
+class LineKey;
 class NLACreationDesc;
 class NLAModel;
 class PosVecDataSet;
@@ -105,16 +106,14 @@ public:
 				          const Attrib::DataCubes* prevslcs=0);
     bool		createOutput(ObjectSet<BinIDValueSet>&);
     bool		createOutput(const BinIDValueSet&,SeisTrcBuf&);
+    DataPack::ID	create2DOutput(const CubeSampling&,const LineKey&);
+
     bool		isDataAngles(bool) const;
 			/*!<\returns true if the target data is an
 				     angle, i.e. -PI==PI. */
     bool		isDataClassified(const Array3D<float>&) const;
 
-    Attrib::DescID	createStored2DAttrib(const MultiID& lineset,
-	    				     const char* attribname);
-    
-    bool		create2DOutput(const CubeSampling&, const char* linekey,
-	    			       Attrib::Data2DHolder& );
+    Attrib::DescID	getStoredID(const LineKey&,bool is2d);
 
     bool		extractData(const NLACreationDesc&,
 				    const ObjectSet<BinIDValueSet>&,

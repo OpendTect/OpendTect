@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra and Helene Huck
  Date:		January 2007
- RCS:		$Id: attribdatapack.h,v 1.10 2007-02-02 13:40:04 cvshelene Exp $
+ RCS:		$Id: attribdatapack.h,v 1.11 2007-02-02 15:44:42 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,10 +17,16 @@ ________________________________________________________________________
 
 template <class T> class Array2D;
 template <class T> class Array2DSlice;
-namespace Attrib { class DataCubes; }
-namespace FlatDisp { class PosData; }
 class Coord3;
 class IOPar;
+
+namespace FlatDisp { class PosData; }
+namespace Attrib
+{
+    class DataCubes;
+    class Data2DHolder;
+    class Data2DHolderArray;
+}
 
 
 /*!\brief A cube data packet: contains sampled data + positioning */ 
@@ -36,10 +42,10 @@ public:
 
     Array2D<float>&		data();
     const Array2D<float>&	data() const;
+    void			positioning(FlatDisp::PosData&);
 
     float			nrKBytes() const	{ return 0; }
     void			dumpInfo(IOPar&) const	{}
-    void			positioning(FlatDisp::PosData&);
     void			getXYZPosition(PosInfo::Line2DData&) const;
 
 protected:
@@ -49,33 +55,29 @@ protected:
 };
 
 
-/*!\brief A line data packet: contains sampled data + positioning */
+/*!\brief A 2D data packet: contains sampled data + positioning */
 
-class VertPolyLineDataPack : public DataPack
+class DataPack2D : public FlatDisp::DataPack
 {
 public:
+    				DataPack2D(const Attrib::Data2DHolder&);
+				~DataPack2D();
 
-				VertPolyLineDataPack( Array2D<float>* arr,
-						      ObjectSet<Coord3>* pos )
-				    : arr_(arr)
-				    , pos_(pos)		{}
-				~VertPolyLineDataPack();
+    const Attrib::Data2DHolder&	dataholder() const		{ return dh_; }
 
-    const ObjectSet<Coord3>&	positions() const	{ return *pos_; }
-    ObjectSet<Coord3>&		positions()		{ return *pos_; }
-    const Array2D<float>&	cube() const		{ return *arr_; }
-    Array2D<float>&		cube()			{ return *arr_; }
+    Array2D<float>&		data();
+    const Array2D<float>&	data() const;
+    void			positioning(FlatDisp::PosData&);
 
-    float			nrKBytes() const	{ return 0; }	
+    float			nrKBytes() const	{ return 0; }
     void			dumpInfo(IOPar&) const	{}
-
     virtual bool		getInfoAtPos(int,IOPar&) const
 				    { return false; }
 
 protected:
-
-    ObjectSet<Coord3>*	pos_;
-    Array2D<float>*	arr_;
+    const Attrib::Data2DHolder& dh_;
+    Attrib::Data2DHolderArray*	array3d_;
+    Array2DSlice<float>*	arr2dsl_;
 };
 
 #endif

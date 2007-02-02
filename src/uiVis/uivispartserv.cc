@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.343 2007-01-31 15:03:01 cvsnanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.344 2007-02-02 15:44:43 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -548,21 +548,28 @@ CubeSampling uiVisPartServer::getCubeSampling( int id, int attribid ) const
 }
 
 
-DataPack::ID uiVisPartServer::getCacheID( int id, int attrib ) const
+DataPack::ID uiVisPartServer::getDataPackID( int id, int attrib ) const
 {
     mDynamicCastGet(const visSurvey::SurveyObject*,so,getObject(id));
-    return so ? so->getCacheID( attrib ) : -1;
+    return so ? so->getDataPackID( attrib ) : -1;
 }
 
 
-bool uiVisPartServer::setCubeData( int id, int attrib, DataPack::ID dpid )
+DataPackMgr::ID	uiVisPartServer::getDataPackMgrID( int id ) const
+{
+    mDynamicCastGet(const visSurvey::SurveyObject*,so,getObject(id));
+    return so ? so->getDataPackMgrID() : -1;
+}
+
+
+bool uiVisPartServer::setDataPackID( int id, int attrib, DataPack::ID dpid )
 {
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
     if ( !so )
 	return false;
 
     uiCursorChanger cursorlock( uiCursor::Wait );
-    return so->setDataVolume( attrib, dpid );
+    return so->setDataPackID( attrib, dpid );
 }
 
 

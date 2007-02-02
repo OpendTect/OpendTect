@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.187 2007-01-31 15:03:01 cvsnanne Exp $
+ RCS:           $Id: uivispartserv.h,v 1.188 2007-02-02 15:44:43 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -137,8 +137,9 @@ public:
     const Attrib::DataCubes* getCachedData(int id,int attrib) const;
     bool		setCubeData(int id,int attrib,const Attrib::DataCubes*);
     			/*!< data becomes mine */
-    DataPack::ID	getCacheID(int id,int attrib) const;
-    bool		setCubeData(int id,int attrib,DataPack::ID);
+    bool		setDataPackID(int id,int attrib,DataPack::ID);
+    DataPack::ID	getDataPackID(int id,int attrib) const;
+    DataPackMgr::ID	getDataPackMgrID(int id) const;
 
     			//Trace data
     void		getDataTraceBids(int id,TypeSet<BinID>&) const;

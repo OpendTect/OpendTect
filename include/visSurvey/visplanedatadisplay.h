@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visplanedatadisplay.h,v 1.93 2007-01-31 15:02:33 cvsnanne Exp $
+ RCS:		$Id: visplanedatadisplay.h,v 1.94 2007-02-02 15:44:43 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -86,8 +86,9 @@ public:
 					    const ObjectSet<BinIDValueSet>*);
     void			setCubeSampling(CubeSampling);
 
-    bool			setDataVolume(int attrib,DataPack::ID);
-    DataPack::ID		getCacheID(int attrib) const;
+    bool			setDataPackID(int attrib,DataPack::ID);
+    DataPack::ID		getDataPackID(int attrib) const;
+    virtual DataPackMgr::ID	getDataPackMgrID() const	{ return 0; }
     bool			setDataVolume(int attrib,
 	    				      const Attrib::DataCubes*);
     const Attrib::DataCubes*	getCacheVolume(int attrib) const;

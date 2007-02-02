@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiattribpartserv.cc,v 1.57 2007-01-25 21:50:45 cvsnanne Exp $
+ RCS:           $Id: uiattribpartserv.cc,v 1.58 2007-02-02 15:44:43 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,6 +13,7 @@ ________________________________________________________________________
 
 #include "attribdatacubes.h"
 #include "attribdataholder.h"
+#include "attribdatapack.h"
 #include "attribdesc.h"
 #include "attribdescset.h"
 #include "attribdescsetman.h"
@@ -32,7 +33,6 @@ ________________________________________________________________________
 #include "binidvalset.h"
 #include "ctxtioobj.h"
 #include "cubesampling.h"
-#include "attribdatapack.h"
 #include "executor.h"
 #include "iodir.h"
 #include "iopar.h"
@@ -408,7 +408,7 @@ const Attrib::DataCubes* uiAttribPartServer::createOutput(
 	success = dlg.go();
     }
 
-    const Attrib::DataCubes* output = aem->getDataCubesOutput( *process );
+    const DataCubes* output = aem->getDataCubesOutput( *process );
     if ( !output )
     {
 	delete process;
@@ -467,6 +467,29 @@ bool uiAttribPartServer::createOutput( const BinIDValueSet& bidvalset,
     if ( !dlg.go() ) return false;
 
     return true;
+}
+
+
+DataPack::ID uiAttribPartServer::create2DOutput( const CubeSampling& cs,
+						 const LineKey& linekey )
+{
+    PtrMan<EngineMan> aem = createEngMan( &cs, linekey );
+    if ( !aem ) return -1;
+
+    BufferString errmsg;
+    Data2DHolder* data2d = new Data2DHolder;
+    PtrMan<Processor> process = aem->createScreenOutput2D( errmsg, *data2d );
+    if ( !process )
+	{ uiMSG().error(errmsg); return false; }
+
+    uiExecutor dlg( appserv().parent(), *process );
+    if ( !dlg.go() )
+	return -1;
+
+    DataPackMgr& dpman = DPM( 1 );
+    DataPack2D* newpack = new DataPack2D( *data2d );
+    dpman.add( newpack );
+    return newpack->id();
 }
 
 
@@ -549,63 +572,12 @@ bool uiAttribPartServer::extractData( const NLACreationDesc& desc,
 }
 
 
-void uiAttribPartServer::fillPar( IOPar& iopar, bool is2d ) const
+Attrib::DescID uiAttribPartServer::getStoredID( const LineKey& lkey, bool is2d )
 {
-    DescSetMan* adsman = getAdsMan( is2d );
-    if ( adsman->descSet() && adsman->descSet()->nrDescs() )
-	adsman->descSet()->fillPar( iopar );
+    DescSet* ds = is2d ? adsman2d_->descSet() : adsman3d_->descSet();
+    return ds ? ds->getStoredID( lkey ) : DescID::undef();
 }
 
-
-void uiAttribPartServer::usePar( const IOPar& iopar, bool is2d )
-{
-    DescSetMan* adsman = getAdsMan( is2d );
-    if ( adsman->descSet() )
-    {
-	BufferStringSet errmsgs;
-	adsman->descSet()->usePar( iopar, &errmsgs );
-	BufferString errmsg;
-	for ( int idx=0; idx<errmsgs.size(); idx++ )
-	{
-	    if ( !idx )
-	    {
-		errmsg = "Error during restore of ";
-		errmsg += is2d ? "2D " : "3D "; errmsg += "Attribute Set:";
-	    }
-	    errmsg += "\n";
-	    errmsg += errmsgs.get( idx );
-	}
-	if ( !errmsg.isEmpty() )
-	    uiMSG().error( errmsg );
-
-	set2DEvent( is2d );
-	sendEvent( evNewAttrSet );
-    }
-}
-
-
-Attrib::DescID uiAttribPartServer::createStored2DAttrib(const MultiID& lineset,
-							const char* attribname)
-{
-    return adsman2d_->descSet()->getStoredID( LineKey(lineset,attribname) );
-}
-
-
-bool uiAttribPartServer::create2DOutput( const CubeSampling& cs,
-					 const char* linekey,
-					 Attrib::Data2DHolder& dataset )
-{
-    PtrMan<EngineMan> aem = createEngMan( &cs, linekey );
-    if ( !aem ) return false;
-
-    BufferString errmsg;
-    PtrMan<Processor> process = aem->createScreenOutput2D( errmsg, dataset);
-    if ( !process )
-	{ uiMSG().error(errmsg); return false; }
-
-    uiExecutor dlg( appserv().parent(), *process );
-    return dlg.go();
-}
 
 bool uiAttribPartServer::createAttributeSet( const BufferStringSet& inps,
 					     DescSet* attrset )
@@ -1037,3 +1009,37 @@ void uiAttribPartServer::resetMenuItems()
     mCleanMenuItems(nla3d,mnuitem_);
 }
 
+
+void uiAttribPartServer::fillPar( IOPar& iopar, bool is2d ) const
+{
+    DescSetMan* adsman = getAdsMan( is2d );
+    if ( adsman->descSet() && adsman->descSet()->nrDescs() )
+	adsman->descSet()->fillPar( iopar );
+}
+
+
+void uiAttribPartServer::usePar( const IOPar& iopar, bool is2d )
+{
+    DescSetMan* adsman = getAdsMan( is2d );
+    if ( adsman->descSet() )
+    {
+	BufferStringSet errmsgs;
+	adsman->descSet()->usePar( iopar, &errmsgs );
+	BufferString errmsg;
+	for ( int idx=0; idx<errmsgs.size(); idx++ )
+	{
+	    if ( !idx )
+	    {
+		errmsg = "Error during restore of ";
+		errmsg += is2d ? "2D " : "3D "; errmsg += "Attribute Set:";
+	    }
+	    errmsg += "\n";
+	    errmsg += errmsgs.get( idx );
+	}
+	if ( !errmsg.isEmpty() )
+	    uiMSG().error( errmsg );
+
+	set2DEvent( is2d );
+	sendEvent( evNewAttrSet );
+    }
+}

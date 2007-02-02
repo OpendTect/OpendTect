@@ -4,30 +4,28 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uioddatatreeitem.cc,v 1.10 2007-01-25 21:51:42 cvsnanne Exp $
+ RCS:		$Id: uioddatatreeitem.cc,v 1.11 2007-02-02 15:44:43 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
 
 #include "uioddatatreeitem.h"
-#include "uioddisplaytreeitem.h"
 
-#include "uimenu.h"
 #include "uilistview.h"
+#include "uimenu.h"
+#include "uimenuhandler.h"
 #include "uiodapplmgr.h"
+#include "uioddisplaytreeitem.h"
+#include "uiodscenemgr.h"
 #include "uivispartserv.h"
 
-#include "uimenuhandler.h"
-#include "uiodscenemgr.h"
-
-#include "viscolortab.h"
+#include "attribsel.h"
 #include "colortab.h"
 #include "pixmap.h"
-
+#include "viscolortab.h"
 
 
 TypeSet<uiODDataTreeItem::Creator> uiODDataTreeItem::creators_;
-
 
 uiODDataTreeItem::uiODDataTreeItem( const char* parenttype )
     : uiTreeItem( "" )
@@ -211,9 +209,12 @@ void uiODDataTreeItem::createMenuCB( CallBacker* cb )
 
     if ( visserv->canBDispOn2DViewer(displayID()) )
     {
-	mAddMenuItem( &addto2dvieweritem_, &view2dwvaitem_, true, false )
-	mAddMenuItem( &addto2dvieweritem_, &view2dvditem_, true, false )
-	mAddMenuItem( menu, &addto2dvieweritem_, true, false )
+	const Attrib::SelSpec* as =
+	    visserv->getSelSpec( displayID(), attribNr() );
+	const bool hasattrib = as && as->id()!=Attrib::SelSpec::cAttribNotSel();
+	mAddMenuItem( &addto2dvieweritem_, &view2dwvaitem_, hasattrib, false )
+	mAddMenuItem( &addto2dvieweritem_, &view2dvditem_, hasattrib, false )
+	mAddMenuItem( menu, &addto2dvieweritem_, hasattrib, false )
     }
     else
     {

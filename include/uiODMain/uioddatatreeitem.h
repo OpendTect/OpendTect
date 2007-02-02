@@ -7,30 +7,30 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		May 2006
- RCS:		$Id: uioddatatreeitem.h,v 1.5 2007-01-25 21:51:42 cvsnanne Exp $
+ RCS:		$Id: uioddatatreeitem.h,v 1.6 2007-02-02 15:44:43 cvsnanne Exp $
 ________________________________________________________________________
 
 
 -*/
 
 #include "uiodtreeitem.h"
+
 class uiMenuHandler;
 namespace Attrib { class SelSpec; };
 
 
 /*!Base class for a data treeitem. */
 
-
 class uiODDataTreeItem : public uiTreeItem
 {
 public:
-    			uiODDataTreeItem(const char* parenttype);
-			~uiODDataTreeItem();
+				uiODDataTreeItem(const char* parenttype);
+				~uiODDataTreeItem();
 
-    bool		select();
+    bool			select();
 
-    static const int	cPixmapWidth() { return 16; }
-    static const int	cPixmapHeight() { return 10; }
+    static const int		cPixmapWidth()		{ return 16; }
+    static const int		cPixmapHeight()		{ return 10; }
 
     static uiODDataTreeItem*	create(const Attrib::SelSpec&,
 	    			       const char* parenttype);
@@ -45,47 +45,46 @@ public:
 
 protected:
 
-    int			uiListViewItemType() const;
-    bool		init();
+    int				uiListViewItemType() const;
+    bool			init();
 
-    virtual void	checkCB(CallBacker*);
-    bool		shouldSelect(int) const;
+    virtual void		checkCB(CallBacker*);
+    bool			shouldSelect(int) const;
 
-    virtual bool	hasTransparencyMenu() const { return true; }
+    virtual bool		hasTransparencyMenu() const { return true; }
 
-    uiODApplMgr*	applMgr() const;
-    uiSoViewer*		viewer() const;
-    int			sceneID() const;
-    bool		isSelectable() const { return true; }
-    bool		isExpandable() const { return false; }
-    const char*		parentType() const { return parenttype_; }
-    int			displayID() const;
-    int			attribNr() const;
-    bool		showSubMenu();
+    uiODApplMgr*		applMgr() const;
+    uiSoViewer*			viewer() const;
+    int				sceneID() const;
+    bool			isSelectable() const	{ return true; }
+    bool			isExpandable() const	{ return false; }
+    const char*			parentType() const	{ return parenttype_; }
+    int				displayID() const;
+    int				attribNr() const;
+    bool			showSubMenu();
 
-    virtual void	createMenuCB(CallBacker*);
-    virtual void	handleMenuCB(CallBacker*);
-    void		updateColumnText(int col);
-    virtual BufferString createDisplayName() const			= 0;
+    virtual void		createMenuCB(CallBacker*);
+    virtual void		handleMenuCB(CallBacker*);
+    void			updateColumnText(int col);
+    virtual BufferString	createDisplayName() const		= 0;
 
-    void		displayMiniCtab( int ctabid );
+    void			displayMiniCtab( int ctabid );
 
-    uiMenuHandler*	menu_;
-    MenuItem		movemnuitem_;
-    MenuItem		movetotopmnuitem_;
-    MenuItem		movetobottommnuitem_;
-    MenuItem		moveupmnuitem_;
-    MenuItem		movedownmnuitem_;
+    uiMenuHandler*		menu_;
+    MenuItem			movemnuitem_;
+    MenuItem			movetotopmnuitem_;
+    MenuItem			movetobottommnuitem_;
+    MenuItem			moveupmnuitem_;
+    MenuItem			movedownmnuitem_;
 
-    MenuItem		removemnuitem_;
-    MenuItem		changetransparencyitem_;
-    MenuItem		addto2dvieweritem_;
-    MenuItem		view2dwvaitem_;
-    MenuItem		view2dvditem_;
-    const char*		parenttype_;
+    MenuItem			removemnuitem_;
+    MenuItem			changetransparencyitem_;
+    MenuItem			addto2dvieweritem_;
+    MenuItem			view2dwvaitem_;
+    MenuItem			view2dvditem_;
+    const char*			parenttype_;
 
     static TypeSet<Creator>	creators_;
 };
-
 
 #endif
