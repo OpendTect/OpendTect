@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          Dec 2006
- RCS:           $Id: SoShaderTexture2.h,v 1.2 2007-01-17 07:39:05 cvsdgb Exp $
+ RCS:           $Id: SoShaderTexture2.h,v 1.3 2007-02-02 23:10:35 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -31,6 +31,10 @@ public:
 			SoShaderTexture2();
 
     SoSFImage		image;
+
+    static int		getMaxSize();
+    			/*!<\returns the largest side size that the
+			     hardware can handle. */
 
 protected:
     void		GLRender(SoGLRenderAction *action);

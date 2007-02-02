@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          December 2006
- RCS:           $Id: SoShaderTexture2.cc,v 1.4 2007-01-30 19:21:44 cvskris Exp $
+ RCS:           $Id: SoShaderTexture2.cc,v 1.5 2007-02-02 23:10:35 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -57,6 +57,14 @@ SoShaderTexture2::~SoShaderTexture2()
 {
     if ( glimage_ ) glimage_->unref();
     delete imagesensor_;
+}
+
+
+int SoShaderTexture2::getMaxSize()
+{
+    GLint maxr;
+    glGetIntegerv(GL_MAX_RECTANGLE_TEXTURE_SIZE_EXT, &maxr);
+    return maxr;
 }
 
 
