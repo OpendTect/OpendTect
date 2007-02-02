@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          December 2005
- RCS:           $Id: visgridlines.cc,v 1.6 2006-03-01 12:39:52 cvsnanne Exp $
+ RCS:           $Id: visgridlines.cc,v 1.7 2007-02-02 15:38:48 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,6 +35,7 @@ GridLines::GridLines()
     inlines_ = crosslines_ = zlines_ = trcnrlines_ = 0;
 
     addChild( drawstyle_->getInventorNode() );
+    setMaterial( 0 );
 }
 
 
