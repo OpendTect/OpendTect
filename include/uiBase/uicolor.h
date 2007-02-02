@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          22/05/2000
- RCS:           $Id: uicolor.h,v 1.12 2005-09-06 08:41:44 cvsnanne Exp $
+ RCS:           $Id: uicolor.h,v 1.13 2007-02-02 12:38:47 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ ________________________________________________________________________
 
 class uiLabel;
 class uiPushButton;
+class uiCheckBox;
 
 
 /*! \brief pops a selector box to select a new color 
@@ -39,26 +40,31 @@ public:
 
 				uiColorInput(uiParent*,const Color&,
 					     const char* lbltxt=0,
+					     bool withdodrawbox=false,
 					     const char* dlgtxt="Select color");
-				//!< dlgtxt is the window caption for the
-				//!< Qt color selection dialog.
 
     const Color&		color() const	{ return color_; }
     void			setColor(const Color&);
+    bool			doDraw() const;
+    void			setDoDraw(bool);
 
     void			enableAlphaSetting( bool yn )
 				{ withalpha_ = yn; }
 
     Notifier<uiColorInput> 	colorchanged;
+    Notifier<uiColorInput> 	dodrawchanged;
 
 protected:
 
     uiPushButton*		colbut_;
+    uiCheckBox*			dodrawbox_;
+
     Color			color_;
     BufferString		dlgtxt_;
     bool			withalpha_;
 
     void			selCol(CallBacker*);
+    void			dodrawSel(CallBacker*);
 };
 
 #endif

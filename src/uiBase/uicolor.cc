@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink / Bril
  Date:          22/05/2000
- RCS:           $Id: uicolor.cc,v 1.16 2006-03-01 13:45:46 cvsbert Exp $
+ RCS:           $Id: uicolor.cc,v 1.17 2007-02-02 12:38:47 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -81,27 +81,65 @@ bool selectColor( Color& col, uiParent* parnt, const char* nm, bool withtransp )
 	rgb = newcol.rgb(); 
     }
 
-    if ( ok ) col.setRgb( rgb );
+    if ( ok )
+    {
+	col.setRgb( rgb );
+	if ( !withtransp )
+	    col.setTransparency( 0 );
+    }
 
     return ok;
 }
 
 
 uiColorInput::uiColorInput( uiParent* p, const Color& col,
-			    const char* lbltxt, const char* dlgtxt )
+			    const char* lbltxt, bool wyn, const char* dlgtxt )
 	: uiGroup(p,"Color input")
 	, dlgtxt_(dlgtxt)
-	, colorchanged(this)
+	, dodrawbox_(0)
 	, withalpha_(false)
+	, colorchanged(this)
+	, dodrawchanged(this)
 {
+    if ( wyn )
+    {
+	dodrawbox_ = new uiCheckBox( this, lbltxt );
+	dodrawbox_->setChecked( true );
+	dodrawbox_->activated.notify( mCB(this,uiColorInput,dodrawSel) );
+    }
     colbut_ = new uiPushButton( this, "", false );
     colbut_->activated.notify( mCB(this,uiColorInput,selCol) );
+    if ( dodrawbox_ )
+	colbut_->attach( rightOf, dodrawbox_ );
     
-    if ( lbltxt && *lbltxt )
+    if ( !dodrawbox_ && lbltxt && *lbltxt )
 	new uiLabel( this, lbltxt, colbut_ );
 
     setColor( col ); 
     setHAlignObj( colbut_ );
+}
+
+
+bool uiColorInput::doDraw() const
+{
+    return dodrawbox_ ? dodrawbox_->isChecked() : true;
+}
+
+
+void uiColorInput::setDoDraw( bool yn )
+{
+    if ( dodrawbox_ )
+    {
+	dodrawbox_->setChecked( yn );
+	colbut_->setSensitive( yn );
+    }
+}
+
+
+void uiColorInput::dodrawSel( CallBacker* )
+{
+    colbut_->setSensitive( dodrawbox_->isChecked() );
+    dodrawchanged.trigger();
 }
 
 
