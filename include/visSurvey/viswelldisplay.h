@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viswelldisplay.h,v 1.36 2006-06-01 07:30:15 cvskris Exp $
+ RCS:		$Id: viswelldisplay.h,v 1.37 2007-02-04 19:57:32 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -83,13 +83,12 @@ public:
     bool			logsShown() const;
     void			showLogName(bool);
     bool			logNameShown() const;
+    const char*			logName(bool left) const
+				{ return left ? log1nm_ : log2nm_; }
 
     void			getMousePosInfo(const visBase::EventInfo& pos,
 	    					const Coord3&,BufferString& val,
 						BufferString& info) const;
-
-    virtual void                fillPar(IOPar&,TypeSet<int>&) const;
-    virtual int                 usePar(const IOPar&);
 
     void			setDisplayTransformation(mVisTrans*);
     mVisTrans*			getDisplayTransformation();
@@ -104,6 +103,9 @@ public:
     bool			hasChanged() const 	{ return needsave_; }
     TypeSet<Coord3>             getWellCoords()	const;
     				//only used for user-made wells
+
+    virtual void                fillPar(IOPar&,TypeSet<int>&) const;
+    virtual int                 usePar(const IOPar&);
 
 protected:
 
