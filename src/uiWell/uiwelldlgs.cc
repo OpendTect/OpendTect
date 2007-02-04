@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          October 2003
- RCS:           $Id: uiwelldlgs.cc,v 1.50 2006-12-28 21:10:33 cvsnanne Exp $
+ RCS:           $Id: uiwelldlgs.cc,v 1.51 2007-02-04 20:11:19 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -496,8 +496,24 @@ uiLogSelDlg::uiLogSelDlg( uiParent* p, const Well::LogSet& logs )
 
     dispfld = new uiGenInput( this, "Display", BoolInpSpec("Left","Right") );
     dispfld->attach( alignedBelow, rangefld );
+    dispfld->valuechanged.notify( mCB(this,uiLogSelDlg,leftRightSel) );
 
     logsfld->box()->setCurrentItem(0);
+}
+
+
+void uiLogSelDlg::setLogNames( const char* left, const char* right )
+{
+    leftlogstr = left;
+    rightlogstr = right;
+    leftRightSel( 0 );
+}
+
+
+void uiLogSelDlg::leftRightSel( CallBacker* )
+{
+    const bool isleft = dispfld->getBoolValue();
+    logsfld->box()->setCurrentItem( isleft ? leftlogstr : rightlogstr );
 }
 
 
