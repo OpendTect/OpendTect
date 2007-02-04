@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2003
- RCS:           $Id: viswell.cc,v 1.26 2006-03-12 13:39:11 cvsbert Exp $
+ RCS:           $Id: viswell.cc,v 1.27 2007-02-04 20:08:40 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -48,22 +48,21 @@ const char* Well::logwidthstr 	= "Screen width";
 
 
 Well::Well()
-    : track( PolyLine::create() )
-    , drawstyle( DrawStyle::create() )
-    , welltxt( Text2::create() )
-    , markernmsw( new SoSwitch )
-    , showmarkers(true)
+    : showmarkers(true)
     , markersize(sDefaultMarkerSize)
-    , log( new SoPlaneWellLog )
     , transformation(0)
 {
     SoSeparator* sep = new SoSeparator;
     addChild( sep );
+    drawstyle = DrawStyle::create();
     drawstyle->ref();
     sep->addChild( drawstyle->getInventorNode() );
+
+    track = PolyLine::create();
     track->ref();
     track->setMaterial( Material::create() );
     sep->addChild( track->getInventorNode() );
+    welltxt = Text2::create();
     welltxt->ref();
     welltxt->setMaterial( track->getMaterial() );
     sep->addChild( welltxt->getInventorNode() );
@@ -71,13 +70,23 @@ Well::Well()
     markergroup = DataObjectGroup::create();
     markergroup->ref();
     addChild( markergroup->getInventorNode() );
-    addChild( markernmsw );
-    markernames = DataObjectGroup::create();
-    markernames->setSeparate(false);
-    markernames->ref();
-    markernmsw->addChild( markernames->getInventorNode() );
-    markernmsw->whichChild = 0;
 
+    markernmswitch = new SoSwitch;
+    addChild( markernmswitch );
+    markernames = DataObjectGroup::create();
+    markernames->setSeparate( false );
+    markernames->ref();
+    markernmswitch->addChild( markernames->getInventorNode() );
+    markernmswitch->whichChild = 0;
+
+    lognmswitch = new SoSwitch;
+    lognmleft = Text2::create();
+    lognmswitch->addChild( lognmleft->getInventorNode() );
+    lognmright = Text2::create();
+    lognmswitch->addChild( lognmright->getInventorNode() );
+    lognmswitch->whichChild = 0;
+
+    log = new SoPlaneWellLog;
     addChild( log );
 }
 
@@ -244,18 +253,17 @@ bool Well::markersShown() const
 
 
 void Well::showMarkerName( bool yn )
-{ markernmsw->whichChild = yn ? 0 : SO_SWITCH_NONE; }
+{ markernmswitch->whichChild = yn ? 0 : SO_SWITCH_NONE; }
 
 
 bool Well::markerNameShown() const
-{ return markernmsw->whichChild.getValue()==0; }
+{ return markernmswitch->whichChild.getValue()==0; }
 
 
 void Well::setLogData( const TypeSet<Coord3Value>& crdvals, const char* lognm,
 		       const Interval<float>& range, bool sclog, int lognr )
 {
     int nrsamp = crdvals.size();
-
     float step = 1;
     if ( nrsamp > sMaxNrLogSamples )
     {

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2003
- RCS:           $Id: viswell.h,v 1.14 2005-11-15 16:16:56 cvshelene Exp $
+ RCS:           $Id: viswell.h,v 1.15 2007-02-04 20:08:27 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -64,8 +64,9 @@ public:
     bool			markerNameShown() const;
 
     void			setLogData(const TypeSet<Coord3Value>&,
-	    			           const char*,const Interval<float>&,
-					   bool,int);
+	    			           const char* lognm,
+					   const Interval<float>& rg,
+					   bool scale,int nr);
     void			setLogColor(const Color&,int);
     const Color&		logColor(int) const;
     void			setLogLineWidth(float,int);
@@ -76,7 +77,6 @@ public:
     bool			logsShown() const;
     void			showLogName(bool);
     bool			logNameShown() const;
-
 
     void			setDisplayTransformation(Transformation*);
     Transformation*		getDisplayTransformation();
@@ -100,8 +100,11 @@ protected:
     DrawStyle*			drawstyle;
     Text2*			welltxt;
     DataObjectGroup*		markergroup;
-    SoSwitch*			markernmsw;
+    SoSwitch*			markernmswitch;
     DataObjectGroup*		markernames;
+    SoSwitch*			lognmswitch;
+    Text2*			lognmleft;
+    Text2*			lognmright;
     SoPlaneWellLog*		log;
     Transformation*		transformation;
 
