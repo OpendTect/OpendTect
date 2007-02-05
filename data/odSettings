@@ -2,9 +2,22 @@ dTect V2.4
 Default settings
 Wed Jun 28 15:42:01 2006
 !
+Ui.ToolTips.enable:		Yes
+dTect.Dump OI Menu:		No
+dTect.Color table.Name:		Red-White-Black
+dTect.Disp.Default clip perc:	2.5
+dTect.MouseControls.Default:	Default
+dTect.Surface.Binary format:	No
+dTect.Select Plugins:		Yes
+dTect.Enable VRML:		No
+dTect.Ask close:		No
+dTect.Ask store session:	No
+dTect.Ask store picks:		Yes
+dTect.Ask store attributeset:	Yes
+dTect.Zoom factor:		1
 Printer:			lpr
 Seg-Y headers:			/tmp/sgy_dump.txt
-Company:	
+Company:			
 In-line byte:			5
 Cross-line byte:		21
 X-coord byte:			73
@@ -15,16 +28,4 @@ Font.def.Large control: 	Helvetica`10`Normal`No
 Font.def.Graphics small:	Helvetica`6`Normal`No
 Font.def.Graphics medium:	Helvetica`8`Normal`No
 Font.def.Graphics large:	Helvetica`10`Bold`No
-Ui.ToolTips.enable:		Yes
-dTect.Dump OI Menu:		No
-dTect.Color table.Name:		Red-White-Black
-dTect.MouseControls.Default:	Default
-dTect.Surface.Binary format:	No
-dTect.Select Plugins:		Yes
-dTect.Enable VRML:		No
-dTect.Ask close:		No
-dTect.Ask store session:	No
-dTect.Ask store picks:		Yes
-dTect.Ask store attributeset:	Yes
-dTect.Zoom factor:		1
 !
