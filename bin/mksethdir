@@ -2,13 +2,21 @@
 #_______________________________________________________________________________
 #
 # (C) dGB Beheer B.V.
-# $Id: mksethdir,v 1.14 2006-10-25 17:05:48 cvsbert Exp $
+# $Id: mksethdir,v 1.15 2007-02-05 13:41:54 cvsbert Exp $
 #
 # HDIR variable setup
 # usage from a csh-script:
 #    eval `/__path__/mksethdir <root binary dir>`
 #    if no root binary dir given, $DTECT_APPL is used
 #_______________________________________________________________________________
+
+set bashmode=0
+if ( $#argv > 0 ) then
+	if ( $1 == --bash ) then
+		set bashmode=1
+		shift
+	endif
+endif
 
 set sethdirstr=""
 if ( ! $?HDIR ) then
@@ -26,7 +34,11 @@ if ( ! $?HDIR ) then
 	setenv HDIR win
     endif
 
-    set sethdirstr="setenv HDIR $HDIR; "
+    if ( $bashmode == 1 ) then
+	set sethdirstr="export HDIR=$HDIR; "
+    else
+	set sethdirstr="setenv HDIR $HDIR; "
+    endif
 endif
 
 set ROOT_DIR="$1"
@@ -69,4 +81,8 @@ if ( ! -d "$ROOT_DIR/bin/$binsubdir" ) then
     set binsubdir=$HDIR
 endif
 
-echo "$sethdirstr setenv binsubdir $binsubdir"
+if ( $bashmode == 1 ) then
+    echo "$sethdirstr export binsubdir=$binsubdir"
+else
+    echo "$sethdirstr setenv binsubdir $binsubdir"
+endif
