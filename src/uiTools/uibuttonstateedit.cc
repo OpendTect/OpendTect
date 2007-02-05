@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		Feb 2007
- RCS:		$Id: uibuttonstateedit.cc,v 1.1 2007-02-01 22:57:45 cvskris Exp $
+ RCS:		$Id: uibuttonstateedit.cc,v 1.2 2007-02-05 19:09:54 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,6 +33,7 @@ uiButtonStateEdit::uiButtonStateEdit( uiParent* parent, const char* label,
 
     combobox_ = new uiGenInput( this, label, StringListInpSpec( set ) );
     combobox_->setText( createName(initialstate).buf() );
+    setHAlignObj( combobox_ );
 }
 
 
