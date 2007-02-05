@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2003
- RCS:           $Id: uiwellimpasc.cc,v 1.33 2006-12-20 13:40:41 cvsbert Exp $
+ RCS:           $Id: uiwellimpasc.cc,v 1.34 2007-02-05 14:32:25 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -57,7 +57,7 @@ uiWellImportAsc::uiWellImportAsc( uiParent* p )
     elevfld = new uiGenInput( this, "Elevation above surface", FloatInpSpec() );
     elevfld->attach( alignedBelow, coordfld );
 
-    BoolInpSpec mft( "Meter", "Feet", !SI().depthsInFeetByDefault() );
+    BoolInpSpec mft( !SI().depthsInFeetByDefault(), "Meter", "Feet" );
     unitfld = new uiGenInput( this, "Depth unit", mft );
     unitfld->attach( alignedBelow, elevfld );
 

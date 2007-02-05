@@ -4,7 +4,7 @@
  CopyRight:	(C) dGB Beheer B.V.
  Author:	H. Payraudeau
  Date:		February 2005
- RCS:		$Id: uieventattrib.cc,v 1.8 2006-12-20 11:23:00 cvshelene Exp $
+ RCS:		$Id: uieventattrib.cc,v 1.9 2007-02-05 14:32:25 cvsnanne Exp $
  ________________________________________________________________________
 
 -*/
@@ -50,19 +50,19 @@ uiEventAttrib::uiEventAttrib( uiParent* p, bool is2d )
 {
     inpfld = getInpFld();
 
-    issinglefld = new uiGenInput( this, "calculating attribute involving", 
-				BoolInpSpec("single event","multiple events") );
+    issinglefld = new uiGenInput( this, "Use",
+			BoolInpSpec(true,"Single event","Multiple events") );
     issinglefld->attach( alignedBelow, inpfld );
     issinglefld->valuechanged.notify( mCB(this,uiEventAttrib,isSingleSel) );
 
-    evtypefld = new uiGenInput( this, "choose event type", 
+    evtypefld = new uiGenInput( this, "Event type",
 				StringListInpSpec(evtypestrs) );
     evtypefld->attach( alignedBelow, issinglefld );
     evtypefld->valuechanged.notify( mCB(this,uiEventAttrib,isGateSel) );
     evtypefld->display(false);
     
-    tonextfld = new uiGenInput( this, "computes distance to",
-	                BoolInpSpec("next event","previous event") );
+    tonextfld = new uiGenInput( this, "Compute distance to",
+	                BoolInpSpec(true,"Next event","Previous event") );
     tonextfld->attach( alignedBelow, evtypefld );
     tonextfld->display(false);
     

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		April 2006
- RCS:		$Id: uihorizonrelations.cc,v 1.4 2006-12-28 21:10:33 cvsnanne Exp $
+ RCS:		$Id: uihorizonrelations.cc,v 1.5 2007-02-05 14:32:25 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -159,11 +159,11 @@ HorizonModifyDlg( uiParent* p, const MultiID& mid1, const MultiID& mid2,
     horizonfld_->attach( leftAlignedBelow, lbl );
 
     modefld_ = new uiGenInput( this, "Modify action",
-	    		       BoolInpSpec("Shift","Remove") );
+	    		       BoolInpSpec(true,"Shift","Remove") );
     modefld_->attach( alignedBelow, horizonfld_ );
 
     savefld_ = new uiGenInput( this, "Save modified horizon",
-			       BoolInpSpec("As new","Overwrite") );
+			       BoolInpSpec(true,"As new","Overwrite") );
     savefld_->valuechanged.notify( mCB(this,HorizonModifyDlg,saveCB) );
     savefld_->attach( alignedBelow, modefld_ );
 

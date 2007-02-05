@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2002
- RCS:           $Id: uiimppickset.cc,v 1.21 2006-11-21 14:00:08 cvsbert Exp $
+ RCS:           $Id: uiimppickset.cc,v 1.22 2007-02-05 14:32:25 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,7 +50,7 @@ uiImpExpPickSet::uiImpExpPickSet( uiParent* p, bool imp )
     if ( import )
     {
 	xyfld = new uiGenInput( this, "Positions in:",
-				BoolInpSpec("X/Y","Inl/Crl") );
+				BoolInpSpec(true,"X/Y","Inl/Crl") );
 	xyfld->attach( alignedBelow, filefld );
 	objfld->attach( alignedBelow, xyfld );
     }

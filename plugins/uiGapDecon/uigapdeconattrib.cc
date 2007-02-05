@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          July  2006
- RCS:           $Id: uigapdeconattrib.cc,v 1.22 2007-01-30 11:40:08 cvshelene Exp $
+ RCS:           $Id: uigapdeconattrib.cc,v 1.23 2007-02-05 14:32:25 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -79,7 +79,8 @@ uiGapDeconAttrib::uiGapDeconAttrib( uiParent* p, bool is2d )
     uiLabel* percentlbl = new uiLabel( this, "%" );
     percentlbl->attach( rightOf, noiselvlfld_ );
 
-    wantmixfld_ = new uiGenInput( this, "Use trace averaging", BoolInpSpec() );
+    wantmixfld_ = new uiGenInput( this, "Use trace averaging",
+	    			  BoolInpSpec(true) );
     wantmixfld_->valuechanged.notify( mCB(this,uiGapDeconAttrib,mixSel) );
     wantmixfld_->attach( alignedBelow, noiselvlfld_ );
 //    uiLabel* stepoutlbl = new uiLabel( this, "( Smoothing parameter )" );
@@ -89,13 +90,12 @@ uiGapDeconAttrib::uiGapDeconAttrib( uiParent* p, bool is2d )
     stepoutfld_->box()->setMinValue( 1 );
     stepoutfld_->box()->setStep( 1, true );
     stepoutfld_->attach( rightOf, wantmixfld_ );
-    
-    isinpzerophasefld_ = new uiGenInput( this, "Input is", 
-				 BoolInpSpec("Zero phase", "Minimum phase") );
+
+    BoolInpSpec bis( true, "Zero phase", "Minimum phase" );
+    isinpzerophasefld_ = new uiGenInput( this, "Input is", bis );
     isinpzerophasefld_->attach( alignedBelow, wantmixfld_ );
     
-    isoutzerophasefld_ = new uiGenInput( this, "Output is", 
-				 BoolInpSpec("Zero phase", "Minimum phase") );
+    isoutzerophasefld_ = new uiGenInput( this, "Output is", bis );
     isoutzerophasefld_->attach( alignedBelow, isinpzerophasefld_ );
 
     CallBack cbqc = mCB(this,uiGapDeconAttrib,qCPush);
@@ -528,7 +528,7 @@ uiGDPositionDlg::uiGDPositionDlg( uiParent* p, const CubeSampling& cs )
     , cs_( cs )
 {
     inlcrlfld_ = new uiGenInput( this, "Compute autocorrelation on:",
-	    			 BoolInpSpec("Inline","Crossline") );
+	    			 BoolInpSpec(true,"Inline","Crossline") );
     setOkText("Next >>" );
 }
 

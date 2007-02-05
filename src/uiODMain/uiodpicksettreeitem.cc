@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodpicksettreeitem.cc,v 1.18 2006-12-08 15:55:16 cvsnanne Exp $
+ RCS:		$Id: uiodpicksettreeitem.cc,v 1.19 2007-02-05 14:32:25 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -62,9 +62,9 @@ void uiODPickSetParentTreeItem::removeChild( uiTreeItem* child )
     mDynamicCastGet(uiODPickSetTreeItem*,itm,child)
     const int setidx = Pick::Mgr().indexOf( itm->getSet() );
     uiTreeItem::removeChild( child );
-    if ( setidx < 0 ) return;
+//    if ( setidx < 0 ) return;
 
-    Pick::Mgr().set( Pick::Mgr().id(setidx), 0 );
+//    Pick::Mgr().set( Pick::Mgr().id(setidx), 0 );
 }
 
 
@@ -182,6 +182,10 @@ uiODPickSetTreeItem::uiODPickSetTreeItem( int did, Pick::Set& ps )
 
 uiODPickSetTreeItem::~uiODPickSetTreeItem()
 {
+    const int setidx = Pick::Mgr().indexOf( set_ );
+    if ( setidx>= 0 )
+	Pick::Mgr().set( Pick::Mgr().id(setidx), 0 );
+
     Pick::Mgr().removeCBs( this );
 }
 

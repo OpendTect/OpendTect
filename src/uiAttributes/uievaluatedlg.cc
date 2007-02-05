@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          March 2003
- RCS:           $Id: uievaluatedlg.cc,v 1.14 2006-12-27 15:03:02 cvsnanne Exp $
+ RCS:           $Id: uievaluatedlg.cc,v 1.15 2007-02-05 14:32:25 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -119,12 +119,14 @@ void AttribParamGroup::createInputSpecs( const Attrib::ValParam* param,
     else if ( fpar )
     {
 	initspec = new FloatInpSpec( fpar->getfValue() );
-	incrspec = new FloatInpSpec( 1 );
+	const float step = fpar->limits() ? fpar->limits()->step : 1;
+	incrspec = new FloatInpSpec( step );
     }
     else if ( ipar )
     {
 	initspec = new IntInpSpec( ipar->getIntValue() );
-	incrspec = new IntInpSpec( 1 );
+	const int step = ipar->limits() ? ipar->limits()->step : 1;
+	incrspec = new IntInpSpec( step );
     }
 }
 

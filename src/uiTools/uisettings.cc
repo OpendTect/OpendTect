@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          November 2001
- RCS:           $Id: uisettings.cc,v 1.21 2007-01-11 12:37:49 cvsnanne Exp $
+ RCS:           $Id: uisettings.cc,v 1.22 2007-02-05 14:32:25 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -117,11 +117,11 @@ uiLooknFeelSettings::uiLooknFeelSettings( uiParent* p, const char* nm )
    
     iconszfld = new uiGenInput( this, "Icon Size", IntInpSpec(lfsetts.iconsz) );
     colbarhvfld = new uiGenInput( this, "Color bar orientation",
-			  BoolInpSpec("Vertical","Horizontal",lfsetts.isvert) );
+			  BoolInpSpec(lfsetts.isvert,"Vertical","Horizontal") );
     colbarhvfld->attach( alignedBelow, iconszfld );
 
     colbarontopfld = new uiGenInput( this, "Color bar starts on top",
-			      BoolInpSpec(0, 0, lfsetts.isontop) );
+			      BoolInpSpec(lfsetts.isontop) );
     colbarontopfld->attach( alignedBelow, colbarhvfld );
 }
 

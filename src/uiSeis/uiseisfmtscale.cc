@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          May 2002
- RCS:		$Id: uiseisfmtscale.cc,v 1.16 2006-12-28 21:10:33 cvsnanne Exp $
+ RCS:		$Id: uiseisfmtscale.cc,v 1.17 2007-02-05 14:32:25 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,7 +38,7 @@ uiSeisFmtScale::uiSeisFmtScale( uiParent* p, Seis::GeomType gt, bool forexp )
     if ( imptypefld && !Seis::isPS(geom_) )
     {
 	optimfld = new uiGenInput( this, "Optimize horizontal slice access",
-				   BoolInpSpec() );
+				   BoolInpSpec(true) );
 	optimfld->setValue( false );
 	optimfld->attach( alignedBelow, scalefld );
     }

@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: uihellopi.cc,v 1.8 2004-07-16 20:33:42 bert Exp $";
+static const char* rcsID = "$Id: uihellopi.cc,v 1.9 2007-02-05 14:32:25 cvsnanne Exp $";
 
 #include "uimsg.h"
 
@@ -79,7 +79,7 @@ uiHelloMsgBringer( uiParent* p )
     txtfld = new uiGenInput( this, "Hello message",
 	    			StringInpSpec("Hello world") );
     typfld = new uiGenInput( this, "Message type",
-	    			BoolInpSpec("Info","Warning") );
+	    			BoolInpSpec(true,"Info","Warning") );
     typfld->attach( alignedBelow, txtfld );
 }
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Jun 2002
- RCS:		$Id: uiseiscbvsimp.cc,v 1.38 2006-12-20 11:23:01 cvshelene Exp $
+ RCS:		$Id: uiseiscbvsimp.cc,v 1.39 2007-02-05 14:32:25 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -92,7 +92,7 @@ void uiSeisImpCBVS::init( bool fromioobj )
 	typefld->valuechanged.notify( mCB(this,uiSeisImpCBVS,typeChg) );
 
 	modefld = new uiGenInput( this, "Import mode",
-			  BoolInpSpec("Copy the data","Use in-place",false) );
+			  BoolInpSpec(false,"Copy the data","Use in-place") );
 	modefld->attach( alignedBelow, typefld );
 	modefld->valuechanged.notify( mCB(this,uiSeisImpCBVS,modeSel) );
     }

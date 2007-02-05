@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2002
- RCS:           $Id: uiscaler.cc,v 1.15 2006-12-20 13:40:41 cvsbert Exp $
+ RCS:           $Id: uiscaler.cc,v 1.16 2007-02-05 14:32:25 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,7 +46,7 @@ uiScaler::uiScaler( uiParent* p, const char* lbl, bool linonly )
     {
 	ynfld->attach( leftOf, typefld );
 	linearfld->attach( alignedBelow, typefld );
-	basefld = new uiGenInput( this, "Base", BoolInpSpec("10","e") );
+	basefld = new uiGenInput( this, "Base", BoolInpSpec(true,"10","e") );
 	basefld->attach( alignedBelow, typefld );
     }
 

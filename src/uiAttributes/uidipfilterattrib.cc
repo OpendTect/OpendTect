@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2001
- RCS:           $Id: uidipfilterattrib.cc,v 1.14 2006-12-20 11:23:00 cvshelene Exp $
+ RCS:           $Id: uidipfilterattrib.cc,v 1.15 2007-02-05 14:32:25 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -61,7 +61,7 @@ ui3DFilterAttrib::ui3DFilterAttrib( uiParent* p, bool is2d )
     velfld->setElemSzPol( uiObject::Small );
     velfld->attach( alignedBelow, fltrtpfld );
 
-    azifld = new uiGenInput( this, "Azimuth filter", BoolInpSpec() );
+    azifld = new uiGenInput( this, "Azimuth filter", BoolInpSpec(true) );
     azifld->setValue( false );
     azifld->attach( alignedBelow, velfld );
     azifld->valuechanged.notify( mCB(this,ui3DFilterAttrib,aziSel) );

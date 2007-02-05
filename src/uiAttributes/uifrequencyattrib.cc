@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2001
- RCS:           $Id: uifrequencyattrib.cc,v 1.10 2006-12-20 11:23:00 cvshelene Exp $
+ RCS:           $Id: uifrequencyattrib.cc,v 1.11 2007-02-05 14:32:25 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -58,7 +58,7 @@ uiFrequencyAttrib::uiFrequencyAttrib( uiParent* p, bool is2d )
     gatefld = new uiGenInput( this, gateLabel(), FloatInpIntervalSpec() );
     gatefld->attach( alignedBelow, inpfld );
 
-    normfld = new uiGenInput( this, "Normalize", BoolInpSpec("Yes","No",false));
+    normfld = new uiGenInput( this, "Normalize", BoolInpSpec(false) );
     normfld->attach( alignedBelow, gatefld );
 
     winfld = new uiGenInput( this, "Window/Taper", StringListInpSpec(winstrs) );

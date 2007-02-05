@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: uivolstatsattrib.cc,v 1.15 2007-01-26 12:00:29 cvsbert Exp $
+ RCS:           $Id: uivolstatsattrib.cc,v 1.16 2007-02-05 14:32:25 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,7 +49,8 @@ uiVolumeStatisticsAttrib::uiVolumeStatisticsAttrib( uiParent* p, bool is2d )
     gatefld = new uiGenInput( this, gateLabel(), FloatInpIntervalSpec() );
     gatefld->attach( alignedBelow, inpfld );
 
-    shapefld = new uiGenInput( this, "Shape", BoolInpSpec("Cylinder","Cube") );
+    shapefld = new uiGenInput( this, "Shape",
+	    		       BoolInpSpec(true,"Cylinder","Cube") );
     shapefld->attach( alignedBelow, gatefld );
     shapefld->display( !is2d_ );
     

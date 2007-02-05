@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Huck
  Date:          November 2006
- RCS:           $Id: uiconvolveattrib.cc,v 1.6 2006-12-20 11:23:00 cvshelene Exp $
+ RCS:           $Id: uiconvolveattrib.cc,v 1.7 2007-02-05 14:32:25 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -78,7 +78,8 @@ uiConvolveAttrib::uiConvolveAttrib( uiParent* p, bool is2d )
     szfld_->box()->setStep( cStepVal, true );
     szfld_->attach( alignedBelow, kernelfld_ );
 
-    shapefld_ = new uiGenInput( this, "Shape", BoolInpSpec( "Sphere", "Cube" ));
+    shapefld_ = new uiGenInput( this, "Shape",
+	    			BoolInpSpec(true,"Sphere","Cube") );
     shapefld_->attach( alignedBelow, szfld_ );
 
     outpfld_ = new uiGenInput( this, "Output",

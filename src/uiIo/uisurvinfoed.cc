@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvinfoed.cc,v 1.86 2007-01-23 09:29:20 cvsbert Exp $
+ RCS:           $Id: uisurvinfoed.cc,v 1.87 2007-02-05 14:32:25 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -247,7 +247,7 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo& si )
     uiLabel* crdlbl = new uiLabel( this, "Coordinate settings:" );
     crdlbl->attach( leftBorder );
     crdlbl->attach( ensureBelow, horsep2 );
-    coordset = new uiGenInput( this, "", BoolInpSpec( "Easy", "Advanced" ));
+    coordset = new uiGenInput( this, "", BoolInpSpec(true,"Easy","Advanced") );
     coordset->attach( alignedBelow, rangegrp );
     coordset->attach( rightTo, crdlbl );
     coordset->valuechanged.notify( mCB(this,uiSurveyInfoEditor,chgSetMode));

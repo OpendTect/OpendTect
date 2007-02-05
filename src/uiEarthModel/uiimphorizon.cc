@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          May 2002
- RCS:           $Id: uiimphorizon.cc,v 1.77 2007-01-31 11:48:48 cvsbert Exp $
+ RCS:           $Id: uiimphorizon.cc,v 1.78 2007-02-05 14:32:25 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -121,7 +121,7 @@ uiImportHorizon::uiImportHorizon( uiParent* p )
     midgrp->attach( ensureBelow, sep );
 
     xyfld = new uiGenInput( midgrp, "Positions in:",
-                            BoolInpSpec("X/Y","Inl/Crl") );
+                            BoolInpSpec(true,"X/Y","Inl/Crl") );
     midgrp->setHAlignObj( xyfld );
 
     subselfld = new uiBinIDSubSel( midgrp, uiBinIDSubSel::Setup()
@@ -137,7 +137,8 @@ uiImportHorizon::uiImportHorizon( uiParent* p )
 	    		     StringInpSpec(sKey::FloatUdf) );
     udfvalfld->attach( alignedBelow, scalefld );
 
-    filludffld = new uiGenInput( midgrp, "Fill undefined parts", BoolInpSpec());
+    filludffld = new uiGenInput( midgrp, "Fill undefined parts",
+	    			 BoolInpSpec(true) );
     filludffld->valuechanged.notify( mCB(this,uiImportHorizon,fillUdfSel) );
     filludffld->setValue(false);
     filludffld->attach( alignedBelow, udfvalfld );

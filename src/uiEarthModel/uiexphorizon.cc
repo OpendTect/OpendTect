@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2002
- RCS:           $Id: uiexphorizon.cc,v 1.46 2007-01-24 15:45:40 cvsjaap Exp $
+ RCS:           $Id: uiexphorizon.cc,v 1.47 2007-02-05 14:32:25 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,7 +51,7 @@ uiExportHorizon::uiExportHorizon( uiParent* p )
 
     BufferString lbltxt( "Include Z (" );
     lbltxt += SI().zIsTime() ? "Time)" : "Depth)";
-    zfld = new uiGenInput( this, lbltxt, BoolInpSpec() );
+    zfld = new uiGenInput( this, lbltxt, BoolInpSpec(true) );
     zfld->setValue( false );
     zfld->attach( alignedBelow, typfld );
 
@@ -64,7 +64,7 @@ uiExportHorizon::uiExportHorizon( uiParent* p )
     gfcommfld = new uiGenInput( gfgrp, "Comment" );
     gfcommfld->attach( alignedBelow, gfnmfld );
     gfunfld = new uiGenInput( gfgrp, "Coordinates are in",
-	    			BoolInpSpec("m","ft") );
+	    			BoolInpSpec(true,"m","ft") );
     gfunfld->attach( alignedBelow, gfcommfld );
     gfgrp->setHAlignObj( gfnmfld );
     gfgrp->attach( alignedBelow, typfld );

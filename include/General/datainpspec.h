@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/02/2001
- RCS:           $Id: datainpspec.h,v 1.63 2006-12-20 13:40:41 cvsbert Exp $
+ RCS:           $Id: datainpspec.h,v 1.64 2007-02-05 14:29:43 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -147,16 +147,15 @@ class NumInpSpec : public DataInpSpec
 {
 public:
 			NumInpSpec() 
-			    : DataInpSpec( DataTypeImpl<T>() ) , limits_(0)
+			    : DataInpSpec( DataTypeImpl<T>() )
+			    , limits_(0)
 			    { mSetUdf( value_ ); mSetUdf( defaultvalue_ ); }
 			NumInpSpec( T val ) 
-			    : DataInpSpec( DataTypeImpl<T>() ) , limits_(0)
-			    , value_( val ) { mSetUdf( defaultvalue_ ); }
-			NumInpSpec( const NumInpSpec<T>& o )
-			    : DataInpSpec( o ) 
-			    , limits_( o.limits_?new Interval<T>(*o.limits_):0 )
-			    , value_( o.value_ )
-			    , defaultvalue_( o.defaultvalue_ ) {}
+			    : DataInpSpec( DataTypeImpl<T>() )
+			    , limits_(0)
+			    , value_( val )
+			    { mSetUdf( defaultvalue_ ); }
+			NumInpSpec(const NumInpSpec<T>&);
 			~NumInpSpec()			{ delete limits_; }
 
     virtual NumInpSpec<T>* clone() const
@@ -212,11 +211,14 @@ public:
 			    return limits_->includes( value() );
 			}
 
-    const Interval<T>*	limits() const			{ return limits_; }
-    NumInpSpec<T>&	setLimits( const Interval<T>& r )
+    const StepInterval<T>* limits() const		{ return limits_; }
+    NumInpSpec<T>&	setLimits( const Interval<T>& intv )
+			{ return setLimits(
+				StepInterval<T>(intv.start,intv.stop,1) ); }
+    NumInpSpec<T>&	setLimits( const StepInterval<T>& r )
 			{
 			    delete limits_;
-			    limits_ = new Interval<T>( r );
+			    limits_ = new StepInterval<T>( r );
 			    return *this;
 			}
 
@@ -225,8 +227,17 @@ protected:
     T			value_;
     T			defaultvalue_;
 
-    Interval<T>*	limits_;
+    StepInterval<T>*	limits_;
 }; 
+
+
+template <class T>
+NumInpSpec<T>::NumInpSpec( const NumInpSpec<T>& nis )
+    : DataInpSpec( nis ) 
+    , limits_( nis.limits_ ? new StepInterval<T>(*nis.limits_) : 0 )
+    , value_( nis.value_ )
+    , defaultvalue_( nis.defaultvalue_ )
+{}
 
 
 typedef NumInpSpec<int>		IntInpSpec;
@@ -529,11 +540,12 @@ It does not change the underlying true/false texts.
 
 */
 
+
 class BoolInpSpec : public DataInpSpec
 {
 public:
-			BoolInpSpec(const char* truetxt=0,
-				    const char* falsetxt=0,bool yesno=true,
+			BoolInpSpec(bool yesno,const char* truetxt=0,
+				    const char* falsetxt=0,
 				    bool isset=true);
 			BoolInpSpec(const BoolInpSpec&);
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Nov 2003
- RCS:           $Id: uisetpickdirs.cc,v 1.8 2006-12-21 10:48:24 cvshelene Exp $
+ RCS:           $Id: uisetpickdirs.cc,v 1.9 2007-02-05 14:32:25 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -66,7 +66,7 @@ uiSetPickDirs::uiSetPickDirs( uiParent* p, Pick::Set& s,
     if ( havesteer )
     {
 	dirinpfld = new uiGenInput( this, "Direction from", 
-				   BoolInpSpec("Steering cube","Attributes") );
+			BoolInpSpec(true,"Steering cube","Attributes") );
 	dirinpfld->valuechanged.notify( mCB(this,uiSetPickDirs,dirinpSel) );
     	steerctio = mMkCtxtIOObj( SeisTrc );
 	steerctio->ctxt.forread = true;

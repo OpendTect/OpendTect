@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          October 2003
- RCS:           $Id: uiwelldlgs.cc,v 1.51 2007-02-04 20:11:19 cvsnanne Exp $
+ RCS:           $Id: uiwelldlgs.cc,v 1.52 2007-02-05 14:32:25 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -64,7 +64,7 @@ uiMarkerDlg::uiMarkerDlg( uiParent* p, const Well::Track& t )
     table->setNrRows( nremptyrows );
     table->leftClicked.notify( mCB(this,uiMarkerDlg,mouseClick) );
 
-    BoolInpSpec mft( "Meter", "Feet", !SI().depthsInFeetByDefault() );
+    BoolInpSpec mft( !SI().depthsInFeetByDefault(), "Meter", "Feet" );
     unitfld = new uiGenInput( this, "Depth unit", mft );
     unitfld->attach( leftAlignedBelow, table );
 
@@ -140,9 +140,10 @@ uiReadMarkerFile( uiParent* p )
     fnmfld->setDefaultSelectionDir(
 	    IOObjContext::getDataDirName(IOObjContext::WllInf) );
     istvdfld = new uiGenInput( this, "Depth (col 1) is",
-	    			BoolInpSpec("TVDSS","MD") );
+	    			BoolInpSpec(true,"TVDSS","MD") );
     istvdfld->attach( alignedBelow, fnmfld );
-    replfld = new uiGenInput( this, "Replace current markers", BoolInpSpec() );
+    replfld = new uiGenInput( this, "Replace current markers",
+	    		      BoolInpSpec(true) );
     replfld->attach( alignedBelow, istvdfld );
 }
 
@@ -236,7 +237,7 @@ uiD2TModelDlg::uiD2TModelDlg( uiParent* p, Well::Data& d )
     readbut->attach( rightOf, updnowbut );
     actbutgrp->attach( centeredBelow, table );
 
-    BoolInpSpec mft( "Meter", "Feet", !SI().depthsInFeetByDefault() );
+    BoolInpSpec mft( !SI().depthsInFeetByDefault(), "Meter", "Feet" );
     unitfld = new uiGenInput( this, "Depth unit", mft );
     unitfld->attach( leftAlignedBelow, table );
     unitfld->attach( ensureBelow, actbutgrp );
@@ -380,7 +381,7 @@ uiLoadLogsDlg::uiLoadLogsDlg( uiParent* p, Well::Data& wd_ )
     intvfld = new uiGenInput( this, "Depth interval to load (empty=all)",
 			      FloatInpIntervalSpec(false) );
     intvfld->attach( alignedBelow, lasfld );
-    BoolInpSpec mft( "Meter", "Feet", !SI().depthsInFeetByDefault() );
+    BoolInpSpec mft( !SI().depthsInFeetByDefault(), "Meter", "Feet" );
     intvunfld = new uiGenInput( this, "", mft );
     intvunfld->attach( rightOf, intvfld );
 
@@ -389,7 +390,7 @@ uiLoadLogsDlg::uiLoadLogsDlg( uiParent* p, Well::Data& wd_ )
     unitlbl->display( false );
 
     istvdfld = new uiGenInput( this, "Depth values are",
-	    			BoolInpSpec("TVDSS","MD",false) );
+	    			BoolInpSpec(false,"TVDSS","MD") );
     istvdfld->attach( alignedBelow, intvfld );
 
     udffld = new uiGenInput( this, "Undefined value in logs",
@@ -494,7 +495,8 @@ uiLogSelDlg::uiLogSelDlg( uiParent* p, const Well::LogSet& logs )
 	    				mCB(this,uiLogSelDlg,resetPush), true );
     resetbut->attach( rightOf, logscfld );
 
-    dispfld = new uiGenInput( this, "Display", BoolInpSpec("Left","Right") );
+    dispfld = new uiGenInput( this, "Display",
+	    		      BoolInpSpec(true,"Left","Right") );
     dispfld->attach( alignedBelow, rangefld );
     dispfld->valuechanged.notify( mCB(this,uiLogSelDlg,leftRightSel) );
 
@@ -776,7 +778,7 @@ uiStoreWellDlg::uiStoreWellDlg( uiParent* p, const BufferString& wellname )
     {
 	topgrp = new uiGroup( this, "time survey group" );
 	usemodelfld = new uiGenInput( topgrp, "Provide depth to time model", 
-				      BoolInpSpec() );
+				      BoolInpSpec(true) );
 	usemodelfld->valuechanged.notify( mCB(this,uiStoreWellDlg,modelSel) );
 
 	d2tgrp = new uiD2TModelGroup( topgrp, true );

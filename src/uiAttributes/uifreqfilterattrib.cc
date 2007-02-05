@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2001
- RCS:           $Id: uifreqfilterattrib.cc,v 1.12 2006-12-20 11:23:00 cvshelene Exp $
+ RCS:           $Id: uifreqfilterattrib.cc,v 1.13 2007-02-05 14:32:25 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -54,7 +54,7 @@ uiFreqFilterAttrib::uiFreqFilterAttrib( uiParent* p, bool is2d )
     inpfld = getImagInpFld();
 
     isfftfld = new uiGenInput( this, "Filtering method", 
-			       BoolInpSpec("FFT","ButterWorth") );
+			       BoolInpSpec(true,"FFT","ButterWorth") );
     isfftfld->attach( alignedBelow, inpfld );
     isfftfld->valuechanged.notify( mCB(this,uiFreqFilterAttrib,isfftSel) );
 		    

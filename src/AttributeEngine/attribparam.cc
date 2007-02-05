@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribparam.cc,v 1.26 2006-05-19 14:33:11 cvshelene Exp $";
+static const char* rcsID = "$Id: attribparam.cc,v 1.27 2007-02-05 14:32:25 cvsnanne Exp $";
 
 #include "attribparam.h"
 #include "attribparamgroup.h"
@@ -260,7 +260,7 @@ BufferString BinIDParam::getDefaultValue() const
 
 
 BoolParam::BoolParam( const char* nm )
-    : ValParam(nm,new BoolInpSpec("yes","no",0,0))
+    : ValParam(nm,new BoolInpSpec(true,"yes","no",false))
 {}
 
 mParamClone( BoolParam );

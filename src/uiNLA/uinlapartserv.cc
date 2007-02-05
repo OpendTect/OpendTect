@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uinlapartserv.cc,v 1.39 2006-12-21 10:48:24 cvshelene Exp $
+ RCS:           $Id: uinlapartserv.cc,v 1.40 2007-02-05 14:32:25 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -119,7 +119,7 @@ uiPrepNLAData( uiParent* p, ObjectSet<PosVecDataSet>& vdss )
     plotfld->setAnnotatedNrClasses( bsetup.nrptsperclss );
 
     uiGroup* datagrp = new uiGroup( this, "Data group" );
-    dobalfld = new uiGenInput( datagrp, "Balance data", BoolInpSpec() );
+    dobalfld = new uiGenInput( datagrp, "Balance data", BoolInpSpec(true) );
     dobalfld->valuechanged.notify( mCB(this,uiPrepNLAData,doBalChg) );
 
     nrptspclssfld = new uiGenInput( datagrp, "Data points per class",

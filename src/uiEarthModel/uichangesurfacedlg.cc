@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra / Bert Bril
  Date:		Sep 2005 / Nov 2006
- RCS:		$Id: uichangesurfacedlg.cc,v 1.12 2007-01-31 11:48:48 cvsbert Exp $
+ RCS:		$Id: uichangesurfacedlg.cc,v 1.13 2007-02-05 14:32:25 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -54,7 +54,7 @@ uiChangeSurfaceDlg::uiChangeSurfaceDlg( uiParent* p, EM::Horizon* hor,
     if ( !horizon_ )
     {
 	savefld_ = new uiGenInput( this, "Save interpolated horizon",
-				   BoolInpSpec("As new","Overwrite",false) );
+				   BoolInpSpec(false,"As new","Overwrite") );
 	savefld_->valuechanged.notify( mCB(this,uiChangeSurfaceDlg,saveCB) );
 
 	ctioout_ = mMkCtxtIOObj( EMHorizon );

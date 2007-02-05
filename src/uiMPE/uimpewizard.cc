@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpewizard.cc,v 1.64 2007-01-31 12:00:56 cvsjaap Exp $
+ RCS:           $Id: uimpewizard.cc,v 1.65 2007-02-05 14:32:25 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -226,7 +226,7 @@ uiGroup* Wizard::createFinalizePage()
     str += "?";
     uiLabel* lbl = new uiLabel( grp, str );
 
-    anotherfld = new uiGenInput( grp, "", BoolInpSpec() );
+    anotherfld = new uiGenInput( grp, "", BoolInpSpec(true) );
     anotherfld->attach( alignedBelow, lbl );
     anotherfld->valuechanged.notify( mCB(this,Wizard,anotherSel) );
 

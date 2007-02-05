@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiseiswvltman.cc,v 1.11 2006-12-05 15:53:56 cvsbert Exp $
+ RCS:           $Id: uiseiswvltman.cc,v 1.12 2007-02-05 14:32:25 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -98,7 +98,7 @@ uiSeisWvltManCrWvlt( uiParent* p )
     , ctio_(*mMkCtxtIOObj(Wavelet))
 {
     isrickfld = new uiGenInput( this, "Wavelet type",
-				BoolInpSpec("Ricker","Sinc") );
+				BoolInpSpec(true,"Ricker","Sinc") );
 
     const float sisr = SI().zStep();
     float deffrq = 0.1 / sisr; int ideffr = mNINT(deffrq);

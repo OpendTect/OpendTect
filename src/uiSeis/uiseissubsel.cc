@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          June 2004
- RCS:           $Id: uiseissubsel.cc,v 1.41 2006-12-12 11:16:58 cvsbert Exp $
+ RCS:           $Id: uiseissubsel.cc,v 1.42 2007-02-05 14:32:25 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -403,7 +403,7 @@ uiSeis2DSubSelDlg::uiSeis2DSubSelDlg( uiParent* p )
     : uiDialog( p, uiDialog::Setup("Data subselection","Select traces/samples",
 				   "0.0.0") )
 {
-    selfld = new uiGenInput( this, "Select", BoolInpSpec("All","Part",true) );
+    selfld = new uiGenInput( this, "Select", BoolInpSpec(true,"All","Part") );
     selfld->valuechanged.notify( mCB(this,uiSeis2DSubSelDlg,selChg) );
 
     trcrgfld = new uiGenInput( this, "Trace number range",

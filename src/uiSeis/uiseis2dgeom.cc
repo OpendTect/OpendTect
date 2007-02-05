@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:		$Id: uiseis2dgeom.cc,v 1.9 2006-12-20 11:23:01 cvshelene Exp $
+ RCS:		$Id: uiseis2dgeom.cc,v 1.10 2007-02-05 14:32:25 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,7 +49,8 @@ uiSeisDump2DGeom::uiSeisDump2DGeom( uiParent* p, const IOObj* ioobj )
     lnmsfld->setWithCheck( true );
     lnmsfld->attach( alignedBelow, seisfld );
 
-    incnrfld = new uiGenInput( this, "Start with trace number", BoolInpSpec() );
+    incnrfld = new uiGenInput( this, "Start with trace number",
+	    		       BoolInpSpec(true) );
     incnrfld->attach( alignedBelow, lnmsfld );
 
     BufferString txt( "Add Z value" ); txt += SI().getZUnit(true);

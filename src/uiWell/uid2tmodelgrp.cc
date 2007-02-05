@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		August 2006
- RCS:		$Id: uid2tmodelgrp.cc,v 1.1 2006-08-24 19:10:46 cvsnanne Exp $
+ RCS:		$Id: uid2tmodelgrp.cc,v 1.2 2007-02-05 14:32:25 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,19 +28,19 @@ uiD2TModelGroup::uiD2TModelGroup( uiParent* p, bool withunit, const char* lbl )
 			IOObjContext::getDataDirName(IOObjContext::WllInf) );
 
     tvdfld_ = new uiGenInput( this, "Depth is",
-			     BoolInpSpec("TVDSS","MD") );
+			      BoolInpSpec(true,"TVDSS","MD") );
     tvdfld_->setValue( false );
     tvdfld_->attach( alignedBelow, filefld_ );
 
     if ( withunit )
     {
 	unitfld_ = new uiGenInput( this, "in",
-		BoolInpSpec("Meter","Feet",!SI().depthsInFeetByDefault()) );
+		BoolInpSpec(!SI().depthsInFeetByDefault(),"Meter","Feet") );
 	unitfld_->attach( rightTo, tvdfld_ );
     }
 
     twtfld_ = new uiGenInput( this, "Time is",
-			     BoolInpSpec("One-way","Two-way traveltime") );
+		BoolInpSpec(true,"One-way","Two-way traveltime") );
     twtfld_->setValue( false );
     twtfld_->attach( alignedBelow, tvdfld_ );
 

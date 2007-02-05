@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          October 2002
- RCS:           $Id: uiprintscenedlg.cc,v 1.32 2006-12-20 13:40:41 cvsbert Exp $
+ RCS:           $Id: uiprintscenedlg.cc,v 1.33 2007-02-05 14:32:25 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -122,10 +122,9 @@ uiPrintSceneDlg::uiPrintSceneDlg( uiParent* p,
     if ( showvrml && nrfiletypes )
     {
 	dovrmlfld_ = new uiGenInput( this, "Type of snapshot",
-	    			 BoolInpSpec("Scene","Image", true, false ) );
+				     BoolInpSpec(true,"Scene","Image") );
 	dovrmlfld_->valuechanged.notify( mCB(this,uiPrintSceneDlg,typeSel) );
 	dovrmlfld_->setValue( false );
-
 	mAttachToAbove( dovrmlfld_ );
     }
 

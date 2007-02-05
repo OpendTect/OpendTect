@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          September 2006
- RCS:           $Id: uiseiseventsnapper.cc,v 1.5 2006-11-01 14:31:17 cvsnanne Exp $
+ RCS:           $Id: uiseiseventsnapper.cc,v 1.6 2007-02-05 14:32:25 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -57,7 +57,7 @@ uiSeisEventSnapper::uiSeisEventSnapper( uiParent* p, const IOObj* inp )
     gatefld_->attach( alignedBelow, eventfld_ );
 
     savefld_ = new uiGenInput( this, "Save snapped horizon",
-			       BoolInpSpec("As new","Overwrite",false) );
+			       BoolInpSpec(false,"As new","Overwrite") );
     savefld_->valuechanged.notify( mCB(this,uiSeisEventSnapper,saveSel) );
     savefld_->attach( alignedBelow, gatefld_ );
 

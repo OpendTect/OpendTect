@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          September 2005
- RCS:           $Id: uiattrtrcselout.cc,v 1.20 2007-01-08 08:19:55 cvshelene Exp $
+ RCS:           $Id: uiattrtrcselout.cc,v 1.21 2007-02-05 14:32:25 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -219,10 +219,10 @@ void uiAttrTrcSelOut::createOutsideValFld( uiGroup* grp )
 
 void uiAttrTrcSelOut::createInterpFld( uiGroup* grp )
 {
-    const char* interplabel = "Interpolate surfaces";
+    const char* interplbl = "Interpolate surfaces";
     const char* flbl = "Full interpolation";
     const char* plbl = "Partial interpolation";
-    interpfld_ = new uiGenInput( grp, interplabel, BoolInpSpec(flbl, plbl) );
+    interpfld_ = new uiGenInput( grp, interplbl, BoolInpSpec(true,flbl,plbl) );
     interpfld_->setValue( true );
     interpfld_->setWithCheck( true );
     interpfld_->setChecked( true );
@@ -245,7 +245,7 @@ void uiAttrTrcSelOut::createNrSampFld( uiGroup* grp )
 void uiAttrTrcSelOut::createAddWidthFld( uiGroup* grp )
 {
     BufferString zlabel = createAddWidthLabel();
-    addwidthfld_ = new uiGenInput( grp, zlabel, BoolInpSpec() );
+    addwidthfld_ = new uiGenInput( grp, zlabel, BoolInpSpec(true) );
     addwidthfld_->setValue( false );
     addwidthfld_->attach( alignedBelow, nrsampfld_ );
     addwidthfld_->valuechanged.notify( mCB(this,uiAttrTrcSelOut,
@@ -266,7 +266,7 @@ void uiAttrTrcSelOut::createMainHorFld( uiGroup* grp )
 {
     const char* mainhorlabel = "Main surface";
     mainhorfld_ = new uiGenInput( grp, mainhorlabel, 
-	    			 BoolInpSpec( "Top", "Bottom" ) );
+	    			 BoolInpSpec(true,"Top","Bottom") );
     mainhorfld_->attach( alignedBelow, widthfld_ );
     mainhorfld_->display( false );
 }
@@ -275,7 +275,7 @@ void uiAttrTrcSelOut::createMainHorFld( uiGroup* grp )
 void uiAttrTrcSelOut::createCubeBoundsFlds( uiGroup* grp )
 {
     const char* choicelbl = "Define Z limits for the output cube";
-    setcubeboundsfld_ = new uiGenInput ( grp, choicelbl, BoolInpSpec() );
+    setcubeboundsfld_ = new uiGenInput ( grp, choicelbl, BoolInpSpec(true) );
     setcubeboundsfld_->attach( alignedBelow, mainhorfld_ ? mainhorfld_ 
 	    						: nrsampfld_ );
     setcubeboundsfld_->setValue( false );

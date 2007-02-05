@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          October 2005
- RCS:           $Id: uiwellrdmlinedlg.cc,v 1.13 2006-12-28 21:10:33 cvsnanne Exp $
+ RCS:           $Id: uiwellrdmlinedlg.cc,v 1.14 2007-02-05 14:32:25 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -78,8 +78,8 @@ void uiWell2RandomLineDlg::createFields( uiGroup* topgrp )
     selwellsbox_->setColumnWidth(1,90);
     selwellsbox_->setTableReadOnly(true);
     
-    onlytopfld_ = new uiGenInput( this, "use only wells' top position", 
-				  BoolInpSpec("Yes","No") );
+    onlytopfld_ = new uiGenInput( this, "Use only wells' top position", 
+				  BoolInpSpec(true) );
     onlytopfld_->valuechanged.notify( mCB(this,uiWell2RandomLineDlg,ptsSel) );
     onlytopfld_->setValue(false);
 

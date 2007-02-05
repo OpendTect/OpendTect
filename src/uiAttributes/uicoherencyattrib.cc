@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:		$Id: uicoherencyattrib.cc,v 1.11 2007-01-26 12:00:29 cvsbert Exp $
+ RCS:		$Id: uicoherencyattrib.cc,v 1.12 2007-02-05 14:32:25 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,7 +29,7 @@ uiCoherencyAttrib::uiCoherencyAttrib( uiParent* p, bool is2d )
 {
     inpfld = getImagInpFld();
 
-    is1fld = new uiGenInput( this, "Type", BoolInpSpec("1","2") );
+    is1fld = new uiGenInput( this, "Type", BoolInpSpec(true,"1","2") );
     is1fld->attach( alignedBelow, inpfld );
     is1fld->valuechanged.notify( mCB(this,uiCoherencyAttrib,is1Sel) );
 

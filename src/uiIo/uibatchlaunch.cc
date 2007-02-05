@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:           $Id: uibatchlaunch.cc,v 1.55 2006-11-21 14:00:08 cvsbert Exp $
+ RCS:           $Id: uibatchlaunch.cc,v 1.56 2007-02-05 14:32:25 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -73,7 +73,7 @@ uiBatchLaunch::uiBatchLaunch( uiParent* p, const IOPar& ip,
     BufferString dispstr( "Remote (using " );
     dispstr += rshcomm; dispstr += ")";
     remfld = new uiGenInput( this, "Execute",
-			     BoolInpSpec( "Local", dispstr ) );
+			     BoolInpSpec(true,"Local",dispstr) );
     remfld->valuechanged.notify( mCB(this,uiBatchLaunch,remSel) );
 
     opts.add( "Output window" );
@@ -258,7 +258,7 @@ void uiFullBatchDialog::addStdFields()
     }
 
     singmachfld = new uiGenInput( dogrp, "Submit to",
-	    		BoolInpSpec("Single machine","Multiple machines") );
+		BoolInpSpec(true,"Single machine","Multiple machines") );
     singmachfld->valuechanged.notify( mCB(this,uiFullBatchDialog,singTogg) );
     const char* txt = redo_ ? "Processing specification file"
 			    : "Store processing specification as";

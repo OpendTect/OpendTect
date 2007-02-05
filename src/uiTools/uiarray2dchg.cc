@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Jul 2006
- RCS:		$Id: uiarray2dchg.cc,v 1.1 2007-01-31 11:48:48 cvsbert Exp $
+ RCS:		$Id: uiarray2dchg.cc,v 1.2 2007-02-05 14:32:25 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,7 +21,7 @@ uiArr2DInterpolPars::uiArr2DInterpolPars( uiParent* p,
     Array2DInterpolatorPars pars; if ( prs ) pars = *prs;
 
     extrapolatefld_ = new uiGenInput( this, "Extrapolate outward",
-	    			      BoolInpSpec() );
+	    			      BoolInpSpec(true) );
     extrapolatefld_->setValue( pars.extrapolate_ );
 
     bool isdef = pars.maxholesize_ > 0;
@@ -72,7 +72,7 @@ uiArr2DFilterPars::uiArr2DFilterPars( uiParent* p,
     Array2DFilterPars pars; if ( prs ) pars = *prs;
 
     medianfld_ = new uiGenInput( this, "Filter type",
-				 BoolInpSpec("Median","Average") );
+				 BoolInpSpec(true,"Median","Average") );
     medianfld_->setValue( pars.type_ == Stats::Median );
 
     stepoutfld_ = new uiStepOutSel( this, false, "Filter stepout" );

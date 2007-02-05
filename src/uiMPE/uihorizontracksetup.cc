@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2005
- RCS:           $Id: uihorizontracksetup.cc,v 1.9 2006-12-20 11:23:01 cvshelene Exp $
+ RCS:           $Id: uihorizontracksetup.cc,v 1.10 2007-02-05 14:32:25 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -97,7 +97,7 @@ uiGroup* uiHorizonSetupGroup::createEventGroup()
     srchgatefld->attach( alignedBelow, evfld );
 
     thresholdtypefld = new uiGenInput( grp, "Threshold type",
-		BoolInpSpec("Cut-off amplitude","Relative difference") );
+		BoolInpSpec(true,"Cut-off amplitude","Relative difference") );
     thresholdtypefld->valuechanged.notify(
 			mCB(this,uiHorizonSetupGroup,selAmpThresholdType) );
     thresholdtypefld->attach( alignedBelow, srchgatefld );
@@ -107,7 +107,7 @@ uiGroup* uiHorizonSetupGroup::createEventGroup()
     ampthresholdfld->attach( alignedBelow, thresholdtypefld );
 
     extriffailfld = new uiGenInput( grp, "If tracking fails",
-				    BoolInpSpec("Extrapolate","Stop") );
+				    BoolInpSpec(true,"Extrapolate","Stop") );
     extriffailfld->attach( alignedBelow, ampthresholdfld );
 
     return grp;
@@ -118,7 +118,7 @@ uiGroup* uiHorizonSetupGroup::createSimiGroup()
 {
     uiGroup* grp = new uiGroup( tabgrp_->tabGroup(), "Similarity" );
 
-    usesimifld = new uiGenInput( grp, "Use similarity", BoolInpSpec() );
+    usesimifld = new uiGenInput( grp, "Use similarity", BoolInpSpec(true) );
     usesimifld->valuechanged.notify(
 	    mCB(this,uiHorizonSetupGroup,selUseSimilarity) );
 

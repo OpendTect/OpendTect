@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2004
- RCS:           $Id: uispecdecompattrib.cc,v 1.13 2006-12-20 11:23:01 cvshelene Exp $
+ RCS:           $Id: uispecdecompattrib.cc,v 1.14 2007-02-05 14:32:25 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,7 +39,8 @@ uiSpecDecompAttrib::uiSpecDecompAttrib( uiParent* p, bool is2d )
     inpfld = getImagInpFld();
     inpfld->selectiondone.notify( mCB(this,uiSpecDecompAttrib,inputSel) );
 
-    typefld = new uiGenInput( this, "Transform type", BoolInpSpec("FFT","CWT"));
+    typefld = new uiGenInput( this, "Transform type",
+	    		      BoolInpSpec(true,"FFT","CWT") );
     typefld->attach( alignedBelow, inpfld );
     typefld->valuechanged.notify( mCB(this,uiSpecDecompAttrib,typeSel) );
 

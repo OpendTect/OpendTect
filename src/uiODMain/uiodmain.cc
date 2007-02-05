@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodmain.cc,v 1.59 2007-01-29 16:16:36 cvshelene Exp $
+ RCS:           $Id: uiodmain.cc,v 1.60 2007-02-05 14:32:25 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -307,7 +307,8 @@ uiODMainAutoSessionDlg( uiODMain* p )
     bool douse = false; MultiID id;
     ODSession::getStartupData( douse, id );
 
-    usefld_ = new uiGenInput( this, "Enable auto-load sessions", BoolInpSpec());
+    usefld_ = new uiGenInput( this, "Enable auto-load sessions",
+	    		      BoolInpSpec(true) );
     usefld_->setValue( douse );
     usefld_->valuechanged.notify( mCB(this,uiODMainAutoSessionDlg,useChg) );
 
@@ -318,7 +319,7 @@ uiODMainAutoSessionDlg( uiODMain* p )
     lbl_->attach( centeredLeftOf, selgrp_ );
 
     loadnowfld_ = new uiGenInput( this, "Load selected session now",
-	    			  BoolInpSpec());
+	    			  BoolInpSpec(true) );
     loadnowfld_->attach( alignedBelow, selgrp_ );
 
     finaliseDone.notify( mCB(this,uiODMainAutoSessionDlg,useChg) );
