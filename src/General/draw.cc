@@ -4,7 +4,7 @@
  * DATE     : 18-4-1996
 -*/
 
-static const char* rcsID = "$Id: draw.cc,v 1.61 2006-12-13 08:57:01 cvsnanne Exp $";
+static const char* rcsID = "$Id: draw.cc,v 1.62 2007-02-05 18:15:27 cvsbert Exp $";
 
 /*! \brief Several implementations for UI-related things.
 
@@ -82,6 +82,7 @@ const char* ColorTable::sKeyMarkColor = "Marker color";
 const char* ColorTable::sKeyUdfColor = "Undef color";
 const char* ColorTable::sKeyTransparency = "Transparency";
 const char* ColorTable::sKeyCtbl = "Color table";
+float ColorTable::defpercclip_ = mUdf(float);
 
 static ObjectSet<IOPar>& stdTabPars()
 {
@@ -136,6 +137,25 @@ bool ColorTable::putStdTabPars( const ObjectSet<IOPar>& parset )
     astrm.putHeader( "Color table definitions" );
     iop.putTo( astrm );
     return true;
+}
+
+
+float ColorTable::defPercClip()
+{
+    if ( mIsUdf(defpercclip_) )
+    {
+	defpercclip_ = 2.5;
+	Settings::common().get( "dTect.Disp.Default clip perc", defpercclip_ );
+    }
+    return defpercclip_;
+}
+
+
+void ColorTable::setDefPercClip( float pc )
+{
+    defpercclip_ = pc;
+    Settings::common().set( "dTect.Disp.Default clip perc", defpercclip_ );
+    Settings::common().write();
 }
 
 
