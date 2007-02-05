@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2006
- RCS:           $Id: uitblimpexpdatasel.h,v 1.8 2007-01-09 16:38:12 cvsbert Exp $
+ RCS:           $Id: uitblimpexpdatasel.h,v 1.9 2007-02-05 18:19:47 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,7 +36,8 @@ class uiTableImpDataSel : public uiGroup
 {
 public:
 
-    				uiTableImpDataSel(uiParent*,Table::FormatDesc&);
+    				uiTableImpDataSel(uiParent*,Table::FormatDesc&,
+						  const char* help_id);
 
     Table::FormatDesc&		desc()		{ return fd_; }
     const BufferString&		fmtName()	{ return fmtname_; }

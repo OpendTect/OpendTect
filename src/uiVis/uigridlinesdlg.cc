@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Payraudeau
  Date:          February 2006
- RCS:           $Id: uigridlinesdlg.cc,v 1.5 2006-12-28 11:46:33 cvsnanne Exp $
+ RCS:           $Id: uigridlinesdlg.cc,v 1.6 2007-02-05 18:19:48 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,7 +31,7 @@ ________________________________________________________________________
 
     
 uiGridLinesDlg::uiGridLinesDlg( uiParent* p, visSurvey::PlaneDataDisplay* pdd )
-    : uiDialog(p, uiDialog::Setup("GridLines","Set gridlines options") )
+    : uiDialog(p,uiDialog::Setup("GridLines","Set gridlines options","50.0.3"))
     , pdd_( pdd )
     , inlfld_( 0 )
     , crlfld_( 0 )

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          October 2003
- RCS:           $Id: uiwelldlgs.cc,v 1.52 2007-02-05 14:32:25 cvsnanne Exp $
+ RCS:           $Id: uiwelldlgs.cc,v 1.53 2007-02-05 18:19:48 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -913,7 +913,7 @@ bool uiStoreWellDlg::setWellTrack( Well::Data* well )
 //============================================================================
 
 uiNewWellDlg::uiNewWellDlg( uiParent* p )
-        : uiDialog(p,uiDialog::Setup("New Well Dialog","") )
+        : uiDialog(p,uiDialog::Setup("New Well","",0) )
 {
     nmfld = new uiGenInput( this, "Name for new Well" );
     colsel = new uiColorInput( this, getRandomColor(), "Color" );

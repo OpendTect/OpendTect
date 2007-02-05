@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          March 2006
- RCS:           $Id: uiattribtransdlg.cc,v 1.1 2006-03-09 17:07:43 cvskris Exp $
+ RCS:           $Id: uiattribtransdlg.cc,v 1.2 2007-02-05 18:19:48 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,7 +16,7 @@ ________________________________________________________________________
 
 uiAttribTransDlg::uiAttribTransDlg( uiParent* p, visSurvey::SurveyObject& so,
 				    int attrib )
-    : uiDialog( p, uiDialog::Setup( "Attribute transperancy" ) )
+    : uiDialog( p, uiDialog::Setup("Attribute transperancy",0,0) )
     , so_( so )
     , attrib_( attrib )
     , initaltrans_( so.getAttribTransparency(attrib) )

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          February 2006
- RCS:           $Id: uiscenepropdlg.cc,v 1.4 2006-12-28 11:45:54 cvsnanne Exp $
+ RCS:           $Id: uiscenepropdlg.cc,v 1.5 2007-02-05 18:19:48 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,7 +26,7 @@ uiScenePropertyDlg::uiScenePropertyDlg( uiParent* p,
 					uiSoViewer* viewer,
 					const ObjectSet<uiSoViewer>& viewers,
 					uiVisPartServer* visserv )
-    : uiDialog(p, uiDialog::Setup("Scene","Set scene options") )
+    : uiDialog(p, uiDialog::Setup("Scene","Set scene options","50.0.5") )
     , scene_( scene )
     , hadsurveybox_( scene->isAnnotShown() )
     , hadannot_( scene->isAnnotTextShown() )

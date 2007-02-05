@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          January 2007
- RCS:           $Id: uihor3dfrom2ddlg.cc,v 1.5 2007-02-01 16:49:12 cvsjaap Exp $
+ RCS:           $Id: uihor3dfrom2ddlg.cc,v 1.6 2007-02-05 18:19:47 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,7 +28,7 @@ ________________________________________________________________________
 static int nrsteps = 10;
 
 uiHor3DFrom2DDlg::uiHor3DFrom2DDlg( uiParent* p, const EM::Horizon2D& h2d )
-    : uiDialog( p, Setup("Create 3D Horizon","Specify parameters","0.0.0") )
+    : uiDialog( p, Setup("Create 3D Horizon","Specify parameters","104.0.5") )
     , hor2d_( h2d )
     , ctio_(*mMkCtxtIOObj(EMHorizon))
 {

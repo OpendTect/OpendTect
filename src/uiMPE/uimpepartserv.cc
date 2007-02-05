@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2004
- RCS:           $Id: uimpepartserv.cc,v 1.57 2007-01-03 16:04:57 cvsjaap Exp $
+ RCS:           $Id: uimpepartserv.cc,v 1.58 2007-02-05 18:19:47 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -231,10 +231,10 @@ bool uiMPEPartServer::showSetupDlg( const EM::ObjectID& emid,
     MPE::SectionTracker* sectracker = tracker->getSectionTracker( sid, true );
     if ( !sectracker ) return false;
 
-    uiDialog dlg( appserv().parent(), uiDialog::Setup("Tracking Setup") );
+    uiDialog dlg( appserv().parent(),
+	          uiDialog::Setup("Tracking Setup",0,"108.0.1") );
     if ( !showcancelbutton ) 
 	dlg.setCtrlStyle( uiDialog::LeaveOnly );
-    dlg.setHelpID( "108.0.1" );
 
 
     EM::EMObject* emobj = EM::EMM().getObject( emid );

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Payraudeau
  Date:          February  2006
- RCS:           $Id: uifingerprintattrib.cc,v 1.30 2007-01-03 12:33:08 cvshelene Exp $
+ RCS:           $Id: uifingerprintattrib.cc,v 1.31 2007-02-05 18:19:47 cvsbert Exp $
 
 ________________________________________________________________________
 
@@ -637,7 +637,8 @@ bool uiFingerPrintAttrib::areUIParsOK()
 
 uiFPAdvancedDlg::uiFPAdvancedDlg( uiParent* p, calcFingParsObject* calcobj,
        				  const BufferStringSet& attrrefset )
-    : uiDialog( p, uiDialog::Setup("FingerPrint advanced options dialog","") )
+    : uiDialog( p, uiDialog::Setup("FingerPrint attribute advanced options",
+				   "Specify advanced options", "101.3.2") )
     , ctio_(*mMkCtxtIOObj(PickSet))
     , calcobj_(*calcobj)
 {

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uimaterialdlg.cc,v 1.13 2007-02-01 23:03:50 cvskris Exp $
+ RCS:           $Id: uimaterialdlg.cc,v 1.14 2007-02-05 18:19:48 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,7 +46,7 @@ bool uiLineStyleGrp::rejectOK( CallBacker* )
 
 
 uiPropertiesDlg::uiPropertiesDlg( uiParent* p, visSurvey::SurveyObject* so )
-    : uiTabStackDlg(p,uiDialog::Setup("Display properties") )
+    : uiTabStackDlg(p,uiDialog::Setup("Display properties",0,"50.0.4") )
     , survobj_(so)
     , visobj_(dynamic_cast<visBase::VisualObject*>(so))
 {

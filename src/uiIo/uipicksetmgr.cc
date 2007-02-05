@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uipicksetmgr.cc,v 1.1 2006-06-30 10:15:49 cvsbert Exp $
+ RCS:           $Id: uipicksetmgr.cc,v 1.2 2007-02-05 18:19:47 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -135,7 +135,8 @@ class uiMergePickSets : public uiDialog
 public:
 
 uiMergePickSets( uiParent* p )
-    : uiDialog(p,uiDialog::Setup("Merge Pick Sets","Specify sets to merge"))
+    : uiDialog(p,uiDialog::Setup("Merge Pick Sets","Specify sets to merge",
+				 "105.0.4"))
     , ctioin( PickSetTranslatorGroup::ioContext() )
     , ctioout( PickSetTranslatorGroup::ioContext() )
 {

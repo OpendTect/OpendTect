@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/08/2000
- RCS:           $Id: uidialog.h,v 1.42 2006-05-04 20:43:32 cvsnanne Exp $
+ RCS:           $Id: uidialog.h,v 1.43 2007-02-05 18:19:47 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,7 +22,11 @@ class uiButton;
 /*!\brief Stand-alone dialog window with optional 'Ok', 'Cancel' and
 'Save defaults' button.
 
-It is meant to be the base class for 'normal' dialog windows.
+It is meant to be the base class for 'normal' dialog windows. The Setup class
+allows specification of several properties, like window title and the title
+text on the dialog itself. The help ID is linked to a WindowLinkTable.txt.
+If you don't want to use the help system, simply pass null ('0').
+
 
 */
 
@@ -44,8 +48,8 @@ public:
     public:
 
 			Setup( const char* window_title,
-			       const char* dialog_title =0,
-			       const char* help_id =0 )
+			       const char* dialog_title,
+			       const char* help_id )
 			: wintitle_(window_title)
 			, dlgtitle_(dialog_title ? dialog_title : window_title)
 			, helpid_(help_id), savetext_("Save defaults")

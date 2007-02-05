@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.101 2007-01-24 15:42:44 cvsjaap Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.102 2007-02-05 18:19:47 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -250,7 +250,7 @@ void uiEMPartServer::selectSurfaces( TypeSet<EM::ObjectID>& objids,
 				     const BufferString& typ )
 {
     BufferString lbl( typ ); lbl += " selection";
-    uiDialog dlg( appserv().parent(), uiDialog::Setup(lbl) );
+    uiDialog dlg( appserv().parent(), uiDialog::Setup(lbl,0,"104.3.1") );
     uiMultiSurfaceRead* uiobj = new uiMultiSurfaceRead( &dlg, typ );
     uiobj->singleSurfaceSelected.notify( mCB(&dlg,uiDialog,accept) );
     if ( !dlg.go() ) return;

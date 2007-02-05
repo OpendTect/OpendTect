@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Jul 2006
- RCS:		$Id: uiarray2dchg.cc,v 1.2 2007-02-05 14:32:25 cvsnanne Exp $
+ RCS:		$Id: uiarray2dchg.cc,v 1.3 2007-02-05 18:19:48 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -59,7 +59,7 @@ Array2DInterpolatorPars uiArr2DInterpolPars::getInput() const
 uiArr2DInterpolParsDlg::uiArr2DInterpolParsDlg( uiParent* p,
 				const Array2DInterpolatorPars* prs )
     : uiDialog(p,uiDialog::Setup("Interpolation parameters",
-				 "Specify parameters for fill","0.0.0"))
+				 "Specify parameters for fill","104.0.6"))
 {
     fld = new uiArr2DInterpolPars( this, prs );
 }
@@ -96,7 +96,7 @@ Array2DFilterPars uiArr2DFilterPars::getInput() const
 uiArr2DFilterParsDlg::uiArr2DFilterParsDlg( uiParent* p,
 					    const Array2DFilterPars* prs )
     : uiDialog(p,uiDialog::Setup("Filter parameters",
-				 "Specify parameters for fill","0.0.0"))
+				 "Specify parameters for fill","104.0.7"))
 {
     fld = new uiArr2DFilterPars( this, prs );
 }

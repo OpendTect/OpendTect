@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2006
- RCS:           $Id: uitblimpexpdatasel.cc,v 1.26 2007-01-24 10:18:57 cvsbert Exp $
+ RCS:           $Id: uitblimpexpdatasel.cc,v 1.27 2007-02-05 18:19:48 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -343,7 +343,8 @@ class uiTableFormatDescFldsEd : public uiDialog
 {
 public:
 
-    				uiTableFormatDescFldsEd(uiTableImpDataSel*);
+    				uiTableFormatDescFldsEd(uiTableImpDataSel*,
+							const char*);
 
     Table::FormatDesc&		desc()		{ return fd_; }
 
@@ -371,10 +372,10 @@ protected:
 
 
 
-uiTableFormatDescFldsEd::uiTableFormatDescFldsEd( uiTableImpDataSel* ds )
+uiTableFormatDescFldsEd::uiTableFormatDescFldsEd( uiTableImpDataSel* ds,
+						  const char* hid )
 	: uiDialog(ds,uiDialog::Setup(	"Information definition",
-					"Specify necessary information",
-					"0.0.0"))
+					"Specify necessary information",hid))
 	, ds_(*ds)
 	, fd_(ds->desc())
 	, hdrinpgrp_(0)
@@ -517,7 +518,7 @@ struct Entry
 };
 
 uiTableImpDataSelUnits( uiParent* p, Table::FormatDesc& fd )
-    : uiDialog(p,uiDialog::Setup(fd.name(),"Specify units of measure"))
+    : uiDialog(p,uiDialog::Setup(fd.name(),"Specify units of measure","0.4.5"))
     , fd_(fd)
 {
     for ( int idx=0; idx<fd_.headerinfos_.size(); idx++ )
@@ -581,9 +582,10 @@ class uiTableFmtDescFldsParSel : public uiCompoundParSel
 {
 public:
 
-uiTableFmtDescFldsParSel( uiTableImpDataSel* p )
+uiTableFmtDescFldsParSel( uiTableImpDataSel* p, const char* hid )
     : uiCompoundParSel( p, "Information content", "Define" )
     , impsel_(*p)
+    , helpid_(hid)
 {
     butPush.notify( mCB(this,uiTableFmtDescFldsParSel,doDlg) );
 }
@@ -616,16 +618,18 @@ void doDlg( CallBacker* )
     if ( !impsel_.commitHdr() )
 	return;
 
-    uiTableFormatDescFldsEd dlg( &impsel_ );
+    uiTableFormatDescFldsEd dlg( &impsel_, helpid_ );
     dlg.go();
 }
 
     uiTableImpDataSel&	impsel_;
+    const char*		helpid_;
 
 };
 
 
-uiTableImpDataSel::uiTableImpDataSel( uiParent* p, Table::FormatDesc& fd )
+uiTableImpDataSel::uiTableImpDataSel( uiParent* p, Table::FormatDesc& fd,
+				      const char* hid )
 	: uiGroup(p,fd.name())
 	, fd_(fd)
 {
@@ -650,7 +654,7 @@ uiTableImpDataSel::uiTableImpDataSel( uiParent* p, Table::FormatDesc& fd )
 	    			 StringInpSpec(fd_.token_) );
     hdrtokfld_->attach( alignedBelow, hdrtypefld_ );
 
-    fmtdeffld_ = new uiTableFmtDescFldsParSel( this );
+    fmtdeffld_ = new uiTableFmtDescFldsParSel( this, hid );
     fmtdeffld_->attach( alignedBelow, hdrlinesfld_ );
 
     setHAlignObj( hdrtypefld_ );

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpewizard.cc,v 1.65 2007-02-05 14:32:25 cvsnanne Exp $
+ RCS:           $Id: uimpewizard.cc,v 1.66 2007-02-05 18:19:47 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -106,8 +106,7 @@ static const char* sLineManualInfo( const BufferString& trackertype )
 
 
 Wizard::Wizard( uiParent* p, uiMPEPartServer* mps )
-    : uiWizard( p, uiDialog::Setup( "Tracking Wizard",  
-				    "" ).modal(false) )
+    : uiWizard( p, uiDialog::Setup("Tracking Wizard",0,"108.0.0").modal(false) )
     , mpeserv(mps)
     , sid(-1)
     , currentobject(-1)
@@ -128,7 +127,6 @@ Wizard::Wizard( uiParent* p, uiMPEPartServer* mps )
     setRotateMode( false );
 
     seedbox.setEmpty();
-    setHelpID( "108.0.0" );
 }
 
 

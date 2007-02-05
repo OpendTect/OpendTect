@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: uiattrdesced.h,v 1.20 2006-12-20 11:23:00 cvshelene Exp $
+ RCS:           $Id: uiattrdesced.h,v 1.21 2007-02-05 18:19:47 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -112,7 +112,7 @@ public:
 
 protected:
 
-			uiAttrDescEd(uiParent*,bool);
+			uiAttrDescEd(uiParent*,bool is2d);
 
     virtual bool	setParameters(const Desc&)	{ return true; }
     virtual bool	getParameters(Desc&)		{ return true; }

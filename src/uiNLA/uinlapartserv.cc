@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uinlapartserv.cc,v 1.40 2007-02-05 14:32:25 cvsnanne Exp $
+ RCS:           $Id: uinlapartserv.cc,v 1.41 2007-02-05 18:19:47 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -280,7 +280,8 @@ public:
 uiLithCodeMan( uiParent* p, const TypeSet<int>& codes, BufferStringSet& usels,
        		const char* lognm )
     	: uiDialog(p,uiDialog::Setup("Manage codes",
-		    			"Specify how to handle codes"))
+				     "Specify how to handle codes",
+				     "0.4.6"))
 	, usrsels(usels)
 {
     BufferStringSet opts;

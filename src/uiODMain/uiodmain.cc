@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodmain.cc,v 1.60 2007-02-05 14:32:25 cvsnanne Exp $
+ RCS:           $Id: uiodmain.cc,v 1.61 2007-02-05 18:19:47 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -301,7 +301,8 @@ class uiODMainAutoSessionDlg : public uiDialog
 public:
 
 uiODMainAutoSessionDlg( uiODMain* p )
-    : uiDialog(p,uiDialog::Setup("Auto-load session","Set auto-load session"))
+    : uiDialog(p,uiDialog::Setup("Auto-load session"
+				,"Set auto-load session","50.3.1"))
     , ctio_(*mMkCtxtIOObj(ODSession))
 {
     bool douse = false; MultiID id;

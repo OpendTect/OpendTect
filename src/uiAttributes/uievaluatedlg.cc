@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          March 2003
- RCS:           $Id: uievaluatedlg.cc,v 1.15 2007-02-05 14:32:25 cvsnanne Exp $
+ RCS:           $Id: uievaluatedlg.cc,v 1.16 2007-02-05 18:19:47 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -217,7 +217,8 @@ void AttribParamGroup::updateDesc( Attrib::Desc& desc, int idx )
 static const StepInterval<int> cSliceIntv(2,30,1);
 
 uiEvaluateDlg::uiEvaluateDlg( uiParent* p, uiAttrDescEd& ade, bool store )
-    : uiDialog(p,uiDialog::Setup("Evaluate attribute","Set parameters")
+    : uiDialog(p,uiDialog::Setup("Evaluate attribute","Set parameters"
+				,"101.3.1")
 	    	.modal(false)
 	        .oktext("Accept")
 	        .canceltext(""))

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          July  2006
- RCS:           $Id: uigapdeconattrib.cc,v 1.23 2007-02-05 14:32:25 cvsnanne Exp $
+ RCS:           $Id: uigapdeconattrib.cc,v 1.24 2007-02-05 18:19:47 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -524,7 +524,7 @@ void uiGapDeconAttrib::prepareInputDescs( DescID& inp0id, DescID& inp1id,
 //-----------------------------------------------------------------------------
 
 uiGDPositionDlg::uiGDPositionDlg( uiParent* p, const CubeSampling& cs )
-    : uiDialog( p, uiDialog::Setup("Gap Decon viewer position dialog","") )
+    : uiDialog( p, uiDialog::Setup("Gap Decon viewer position",0,0) )
     , cs_( cs )
 {
     inlcrlfld_ = new uiGenInput( this, "Compute autocorrelation on:",

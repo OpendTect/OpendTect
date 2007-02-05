@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          March 2005
- RCS:           $Id: uiemhorizoneditor.cc,v 1.18 2007-02-05 14:32:25 cvsnanne Exp $
+ RCS:           $Id: uiemhorizoneditor.cc,v 1.19 2007-02-05 18:19:47 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,7 +43,7 @@ protected:
 
 uiEMHorizonEditorSetting::uiEMHorizonEditorSetting( uiParent* p,
 						    HorizonEditor* he )
-    : uiDialog( p, uiDialog::Setup("Horizon Editor","Settings") )
+    : uiDialog( p, uiDialog::Setup("Horizon Editor","Settings","104.0.4") )
     , editor( he )
 {
     horshapefld = new uiGenInput( this, "Horizontal shape",
