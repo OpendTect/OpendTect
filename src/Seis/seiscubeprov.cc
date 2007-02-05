@@ -4,7 +4,7 @@
  * DATE     : Jan 2007
 -*/
 
-static const char* rcsID = "$Id: seiscubeprov.cc,v 1.1 2007-02-01 18:13:01 cvsbert Exp $";
+static const char* rcsID = "$Id: seiscubeprov.cc,v 1.2 2007-02-05 18:13:16 cvsbert Exp $";
 
 #include "seismscprov.h"
 #include "seistrc.h"
@@ -45,7 +45,7 @@ void SeisMSCProvider::init()
 {
     state_ = DataIncomplete;
     stepoutstep_.inl = SI().inlStep(); stepoutstep_.crl = SI().crlStep();
-    curpos_.c() = 0; curpos_.r() = -1;
+    curpos_.r() = curpos_.c() = 0;
     seldata_ = 0;
     intofloats_ = workstarted_ = false;
     errmsg_ = 0;
@@ -82,9 +82,9 @@ bool SeisMSCProvider::is2D() const
 void SeisMSCProvider::setStepout( int i, int c, bool req )
 {
     if ( req )
-	reqstepout_.c() = i; reqstepout_.r() = c;
+	reqstepout_.r() = i; reqstepout_.c() = c;
     else
-	desstepout_.c() = i; desstepout_.r() = c;
+	desstepout_.r() = i; desstepout_.c() = c;
 }
 
 
@@ -234,7 +234,7 @@ SeisMSCProvider::State SeisMSCProvider::addTrc( SeisTrc* trc )
     else
 	curbuf->add( trc );
 
-    return handleFreshTrace();
+    return isSingleTrc() ? DataOK : handleFreshTrace( trc );
 }
 
 
@@ -254,7 +254,7 @@ SeisTrcBuf* SeisMSCProvider::newBuf( SeisTrc* trc )
 	return newbuf;
 
     const int lowestinl = trc->info().binid.inl
-			- (2 * desstepout_.c() * stepoutstep_.inl);
+			- (2 * desstepout_.r() * stepoutstep_.inl);
     while ( tbufs_[0].get(0)->info().binid.inl < lowestinl )
     {
 	SeisTrcBuf* oldbuf = new SeisTrcBuf;
@@ -264,9 +264,26 @@ SeisTrcBuf* SeisMSCProvider::newBuf( SeisTrc* trc )
     }
 }
 
-SeisMSCProvider::State SeisMSCProvider::handleFreshTrace()
+SeisMSCProvider::State SeisMSCProvider::handleFreshTrace( SeisTrc* lastread )
 {
-    const int startrowoffs = reqstepout_.crl;
+    if ( is2D() )
+    {
+	const int reqhwdth = reqstepout_.c() * stepoutstep_.crl;
+	const int deshwdth = desstepout_.c() * stepoutstep_.crl;
+	const int centernr = lastread->info().nr - reqhwdth;
+	const int lonr = lastread->info().nr - 2 * reqhwdth;
+	const int deslonr = lastread->info().nr - 2 * deshwdth;
+    }
+    const BinID& hihibid( lastread->info().binid );
+    const BinID hilobid( hhbid.inl - reqstepout_.r(),
+	    		   hhbid.crl - reqstepout_.c() );
+    const BinID centrebid( hhbid.inl - reqstepout_.r(),
+	    		   hhbid.crl - reqstepout_.c() );
+    for ( int ibuf=tbufs_.size()-1; ibuf>=0; ibuf++ )
+    {
+    }
+
+    SeisTrcBuf* curbuf = tbufs_[ tbufs_.size()-1 ];
     curpos_.r() = curbuf->size() - reqstepout_.r() - 1;
     if ( curpos_.r() < 0 )
 	return DataIncomplete;

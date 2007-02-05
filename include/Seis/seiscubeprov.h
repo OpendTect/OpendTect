@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Jan 2007
- RCS:		$Id: seiscubeprov.h,v 1.2 2007-02-02 10:25:58 cvsbert Exp $
+ RCS:		$Id: seiscubeprov.h,v 1.3 2007-02-05 18:13:01 cvsbert Exp $
 ________________________________________________________________________
 
 */
@@ -106,6 +106,10 @@ protected:
     RowCol		curpos_;
     BufferString	errmsg_;
     mutable int		estnrtrcs_;
+    int			reqmininl_;
+    int			reqmaxinl_;
+    int			reqmincrl_;
+    int			reqmaxcrl_;
 
     void		init();
     void		doUsePar(const IOPar&);
