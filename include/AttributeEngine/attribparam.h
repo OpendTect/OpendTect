@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribparam.h,v 1.27 2006-12-27 15:02:16 cvsnanne Exp $
+ RCS:           $Id: attribparam.h,v 1.28 2007-02-05 14:27:15 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -136,29 +136,6 @@ protected:
 };
 
 
-/*
-#define mLargestZGate 10000
-class ZGateParam : public ValParam
-{
-public:
-    				ZGateParam(const char*);
-    virtual ZGateParam*		clone() const;
-    void			setLimits(const Interval<float>&);
-
-    virtual bool		setCompositeValue(const char*);
-    virtual bool		getCompositeValue(BufferString&) const;
-
-    void			setDefaultValue(const Interval<float>&);
-    Interval<float>		getDefaultZGateValue() const;
-    virtual BufferString	getDefaultValue() const; 
-    void 			setValue(const Interval<float>& gate);
-    Interval<float>		getValue() const;
-
-    void			toString(BufferString&,
-	    				 const Interval<float>&) const;
-};
-*/
-
 class BinIDParam : public ValParam
 {
 public:
@@ -234,6 +211,8 @@ public:
 				{ return new NumParam<T>(*this); }
 
     void			setLimits(const Interval<T>&);
+    void			setLimits(const StepInterval<T>&);
+    const StepInterval<T>*	limits() const;
     virtual bool		getCompositeValue(BufferString& res) const;
     virtual bool                setCompositeValue(const char*);
 
@@ -287,7 +266,15 @@ bool NumParam<T>::setCompositeValue( const char* nv )
 
 template <class T>
 void NumParam<T>::setLimits( const Interval<T>& limit )
+{ setLimits( StepInterval<T>(limit.start,limit.stop,(T)1) ); }
+
+template <class T>
+void NumParam<T>::setLimits( const StepInterval<T>& limit )
 { reinterpret_cast<NumInpSpec<T>*>(spec_)->setLimits( limit ); }
+
+template <class T>
+const StepInterval<T>* NumParam<T>::limits() const
+{ return reinterpret_cast<NumInpSpec<T>*>(spec_)->limits(); }
 
 
 template <class T>
