@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: dipfilterattrib.cc,v 1.18 2006-12-08 15:43:10 cvshelene Exp $";
+static const char* rcsID = "$Id: dipfilterattrib.cc,v 1.19 2007-02-05 14:32:07 cvsnanne Exp $";
 
 
 #include "dipfilterattrib.h"
@@ -30,7 +30,7 @@ void DipFilter::initClass()
     mAttrStartInitClassWithUpdate
 
     IntParam* size = new IntParam( sizeStr() );
-    size->setLimits( Interval<int>(3,49) );
+    size->setLimits( StepInterval<int>(3,49,2) );
     size->setDefaultValue( 3 );
     desc->addParam( size );
 
