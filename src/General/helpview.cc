@@ -5,7 +5,7 @@
  * FUNCTION : Help viewing
 -*/
  
-static const char* rcsID = "$Id: helpview.cc,v 1.28 2006-11-21 14:00:07 cvsbert Exp $";
+static const char* rcsID = "$Id: helpview.cc,v 1.29 2007-02-05 18:14:36 cvsbert Exp $";
 
 #include "helpview.h"
 #include "ascstream.h"
@@ -366,7 +366,9 @@ BufferString HelpViewer::getURLForLinkName( const char* lnm, const char* scope )
     if ( linknm.isEmpty() )
 	linknm = sMainIndex;
     BufferString htmlfnm;
-    if ( linknm != sMainIndex )
+    const bool ismainidx = linknm == sMainIndex;
+    const bool istodo = linknm == "TODO";
+    if ( !ismainidx && !istodo )
     {
 	StreamData sd = openHFile( "LinkFileTable.txt", scope );
 	if ( sd.usable() )
@@ -389,18 +391,22 @@ BufferString HelpViewer::getURLForLinkName( const char* lnm, const char* scope )
 
     FilePath fp( GetSoftwareDir() );
     fp.add( "data" ).add( subdirNm(scope) );
-    if ( htmlfnm.isEmpty() )
+    if ( istodo )
+	htmlfnm = "todo.html";
+    else if ( htmlfnm.isEmpty() )
 	htmlfnm = "index.html";
+
     fp.add( htmlfnm );
     BufferString url = fp.fullPath();
-    if ( !File_exists(url) )
+    if ( ismainidx && !File_exists(url) )
     {
 	fp.setFileName( htmlfnm == "index.html" ? "book1.htm" : "index.html" );
 	url = fp.fullPath();
     }
+
     if ( !File_exists(url) )
-	url = GetDataFileName( "notfound.html" );
-    else if ( linknm != sMainIndex )
+	url = GetDataFileName( istodo ? "todo.html" : "notfound.html" );
+    else if ( linknm != sMainIndex && !istodo )
 	{ url += "#"; url += linknm; }
 
     return url;
