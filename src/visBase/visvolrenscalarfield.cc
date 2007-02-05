@@ -4,7 +4,7 @@
  * DATE     : April 2004
 -*/
 
-static const char* rcsID = "$Id: visvolrenscalarfield.cc,v 1.2 2007-01-26 19:33:54 cvskris Exp $";
+static const char* rcsID = "$Id: visvolrenscalarfield.cc,v 1.3 2007-02-05 21:58:20 cvskris Exp $";
 
 #include "visvolrenscalarfield.h"
 
@@ -32,7 +32,7 @@ VolumeRenderScalarField::VolumeRenderScalarField()
     : transferfunc_( new SoTransferFunction )
     , voldata_( new SoVolumeData )
     , root_( new SoGroup )
-    , dummytexture_( 0 )
+    , dummytexture_( 255 )
     , indexcache_( 0 )
     , ownsindexcache_( true )
     , datacache_( 0 )
