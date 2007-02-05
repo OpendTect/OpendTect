@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vismultitexture2.cc,v 1.24 2007-02-02 23:12:17 cvskris Exp $";
+static const char* rcsID = "$Id: vismultitexture2.cc,v 1.25 2007-02-05 20:10:15 cvskris Exp $";
 
 
 #include "vismultitexture2.h"
@@ -18,6 +18,7 @@ static const char* rcsID = "$Id: vismultitexture2.cc,v 1.24 2007-02-02 23:12:17 
 #include "interpol2d.h"
 #include "errh.h"
 #include "simpnumer.h"
+#include "settings.h"
 #include "thread.h"
 #include "viscolortab.h"
 
@@ -91,6 +92,12 @@ MultiTexture2::MultiTexture2()
     , layersize1_( 0 )
     , ctabunit_( 0 )
 {
+    if ( !GetEnvVarYNWithDefault("DTECT_MULTITEXTURE_USE_SHADING", 1 ) )
+	useshading_ = false;
+
+    if ( useshading_ )
+	Settings::common().getYN( "dTect.Use shading", useshading_ );
+
     switch_->ref();
     switch_->addChild( nonshadinggroup_ );
     switch_->addChild( shadinggroup_ );
