@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          September 2006
- RCS:           $Id: uiworld2ui.cc,v 1.1 2006-09-08 17:04:47 cvskris Exp $
+ RCS:           $Id: uiworld2ui.cc,v 1.2 2007-02-06 17:15:13 cvskris Exp $
  ________________________________________________________________________
 
 -*/
@@ -149,6 +149,16 @@ void uiWorld2Ui::resetWorldRect( const uiWorldRect& wr )
 
 void uiWorld2Ui::resetWorldRectRemap( const uiWorldRect& wr )
 { setRemap( uisize_, wr ); }
+
+
+uiWorld2Ui uiWorld2Ui::getMirrowed( bool lr, bool tb ) const
+{
+    World2UiData newdata = w2ud;
+    if ( lr ) newdata.wr.swapHor();
+    if ( tb ) newdata.wr.swapVer();
+
+    return uiWorld2Ui( newdata );
+}
 
 
 const World2UiData& uiWorld2Ui::world2UiData() const

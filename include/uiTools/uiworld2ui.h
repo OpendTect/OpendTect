@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          13/8/2000
- RCS:           $Id: uiworld2ui.h,v 1.10 2006-09-08 17:04:47 cvskris Exp $
+ RCS:           $Id: uiworld2ui.h,v 1.11 2007-02-06 17:15:11 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -75,6 +75,10 @@ public:
     void		resetWorldRect( const uiWorldRect& wr );
     void		resetWorldRectRemap( const uiWorldRect& wr );
 
+    uiWorld2Ui		getMirrowed(bool lr,bool tb) const;
+    			/*!\param lr	mirror left-right
+			   \param tb	mirror top-bottom
+			   \returns 	mirrowed version of this transform.*/
     const World2UiData&	world2UiData() const;
 
 
