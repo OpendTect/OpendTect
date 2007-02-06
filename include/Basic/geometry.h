@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2000
- RCS:           $Id: geometry.h,v 1.26 2007-01-29 19:18:46 cvskris Exp $
+ RCS:           $Id: geometry.h,v 1.27 2007-02-06 17:06:55 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -144,10 +144,11 @@ public:
     inline Rectangle<T>&	operator +=( const Point2D<T>& p );
     inline Rectangle<T>&	operator -=( const Point2D<T>& p );
 
-protected:
-
     inline void		swapHor();
     inline void		swapVer();
+
+protected:
+
     inline bool		revX() const;
     inline bool		revY() const;
 
