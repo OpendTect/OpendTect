@@ -1,5 +1,5 @@
-#ifndef uiCanvas_H
-#define uiCanvas_H
+#ifndef uicanvas_h
+#define uicanvas_h
 
 /*+
 ________________________________________________________________________
@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uicanvas.h,v 1.12 2006-09-19 19:00:46 cvskris Exp $
+ RCS:           $Id: uicanvas.h,v 1.13 2007-02-07 14:10:15 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,6 +43,8 @@ public:
 				uiCanvas(uiParent*,const char *nm="uiCanvas");
     virtual			~uiCanvas()			{}
 
+    void			update();
+
 private:
 
     uiCanvasBody*		body_;
@@ -59,6 +61,8 @@ public:
 					      const char *nm = "uiScrollView" );
 
     virtual			~uiScrollView()			{}
+
+    void			update();
 
     enum ScrollBarMode		{ Auto, AlwaysOff, AlwaysOn };
     void			setScrollBarMode(ScrollBarMode,bool hor);
