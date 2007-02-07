@@ -4,7 +4,7 @@
  * DATE     : Nov 2004
 -*/
 
-static const char* rcsID = "$Id: binidsurface.cc,v 1.15 2007-02-01 14:30:27 cvsjaap Exp $";
+static const char* rcsID = "$Id: binidsurface.cc,v 1.16 2007-02-07 09:06:59 cvsnanne Exp $";
 
 #include "binidsurface.h"
 
@@ -292,8 +292,8 @@ bool BinIDSurface::expandWithUdf( const RCol& start, const RCol& stop )
 
 Coord3 BinIDSurface::getKnot( const RCol& rc, bool interpolifudf ) const
 {
-    const int index = getKnotIndex(rc);
-    if ( index==-1 ) return Coord3::udf();
+    const int index = getKnotIndex( rc );
+    if ( index<0 ) return Coord3::udf();
 
     return Coord3(SI().transform(BinID(rc)), depths_->getData()[index]);
 }
