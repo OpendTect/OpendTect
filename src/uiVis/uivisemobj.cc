@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Jan 2005
- RCS:           $Id: uivisemobj.cc,v 1.51 2006-12-22 10:22:38 cvsjaap Exp $
+ RCS:           $Id: uivisemobj.cc,v 1.52 2007-02-07 11:06:20 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -512,6 +512,19 @@ void uiVisEMObject::setOnlyAtSectionsDisplay( bool yn )
 
     emod->setOnlyAtSectionsDisplay( yn );
 }
+
+
+int uiVisEMObject::nrSurfaceData() const
+{
+    const visSurvey::EMObjectDisplay* emod = getDisplay();
+    if ( !emod ) return 0;
+
+    EM::SurfaceIOData sd;
+    const char* err = EM::EMM().getSurfaceData( emod->getMultiID(), sd );
+    return err && *err ? 0 : sd.valnames.size();
+}
+
+
 
 #define mMakePerm	0
 #define mRemoveCtrl	1
