@@ -24,7 +24,11 @@ oifileviewer <filename>
 
 int main( int narg, char** argv )
 {
-    QWidget* myWindow = SoQt::init(argv[0]);
+#ifdef USEQT4
+    QWidget* myWindow = SoQt::init( narg, argv, argv[0] );
+#else
+    QWidget* myWindow = SoQt::init( argv[0] );
+#endif
     SoOD::init();
     SoVolumeRendering::init();
 
