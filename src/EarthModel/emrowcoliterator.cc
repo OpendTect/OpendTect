@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: emrowcoliterator.cc,v 1.4 2006-12-22 10:14:15 cvsjaap Exp $
+ RCS:           $Id: emrowcoliterator.cc,v 1.5 2007-02-07 10:28:37 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -145,7 +145,7 @@ bool RowColIterator::initSection()
     if ( rowrg_.stop < rowrg_.start ) 
 	return false;
     colrg_ = rcs->colRange( rowrg_.start );
-    if ( colrg_.stop < rowrg_.start ) 
+    if ( colrg_.stop < colrg_.start ) 
 	return false;
 
     if ( rowcolbounded_ )
