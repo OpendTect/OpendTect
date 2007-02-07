@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodemsurftreeitem.cc,v 1.16 2007-01-31 15:04:52 cvsnanne Exp $
+ RCS:		$Id: uiodemsurftreeitem.cc,v 1.17 2007-02-07 11:06:59 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -144,8 +144,12 @@ void uiODEarthModelSurfaceDataTreeItem::createMenuCB( CallBacker* cb )
 	    					     attribNr() );
 
     const bool islocked = visserv->isLocked( displayID() );
+    const int nrsurfdata = uivisemobj->nrSurfaceData();
+    BufferString itmtxt = "Surface data ("; itmtxt += nrsurfdata;
+    itmtxt += ") ...";
+    loadsurfacedatamnuitem_.text = itmtxt;
     mAddMenuItem( &selattrmnuitem_, &loadsurfacedatamnuitem_,
-		  !islocked, false );
+		  !islocked && nrsurfdata>0, false );
     mAddMenuItem( &selattrmnuitem_, &depthattribmnuitem_, !islocked,
 		  as->id()==Attrib::SelSpec::cNoAttrib() );
 
