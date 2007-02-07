@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uimultisurfaceread.cc,v 1.6 2007-01-31 12:00:16 cvsjaap Exp $
+ RCS:           $Id: uimultisurfaceread.cc,v 1.7 2007-02-07 08:55:27 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,7 +36,7 @@ uiMultiSurfaceRead::uiMultiSurfaceRead( uiParent* p, const BufferString& typ )
 				       uiLabeledListBox::AboveMid );
     for ( int idx=0; idx<entrylist_->size(); idx++ )
 	surfacefld_->box()->addItem( (*entrylist_)[idx]->name() );
-    surfacefld_->box()->setCurrentItem( 0 );
+    surfacefld_->box()->setSelected( 0 );
     surfacefld_->box()->selectionChanged.notify(
 	    				mCB(this,uiMultiSurfaceRead,selCB) );
     surfacefld_->box()->doubleClicked.notify(
