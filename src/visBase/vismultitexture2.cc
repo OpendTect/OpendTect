@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vismultitexture2.cc,v 1.26 2007-02-07 14:27:03 cvskris Exp $";
+static const char* rcsID = "$Id: vismultitexture2.cc,v 1.27 2007-02-07 22:40:20 cvskris Exp $";
 
 
 #include "vismultitexture2.h"
@@ -796,7 +796,8 @@ uniform int             texturesize1;\n";
     {									\n\
 	vec2 tcoord = gl_TexCoord[0].st;				\n\
 	tcoord.s *= texturesize0;					\n\
-	tcoord.t *= texturesize1;\n";
+	tcoord.t *= texturesize1;					\n\
+	vec4 data;\n";
 
     res = variables;
     res += "uniform float           trans["; res += nrlayers; res += "];\n";
@@ -822,7 +823,7 @@ uniform int             texturesize1;\n";
 	    res += " && numlayers>"; res += unit*4; res += ")\n\t{\n";
 	}
 
-	res += "\t    const vec4 data = texture2DRect( dataunit";
+	res += "\t    data = texture2DRect( dataunit";
 	res += unit;
 	res += ", tcoord );\n";
 
