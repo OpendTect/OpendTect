@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.84 2007-02-02 15:44:43 cvsnanne Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.85 2007-02-07 16:46:47 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -579,9 +579,7 @@ void uiODSceneMgr::getSoViewers( ObjectSet<uiSoViewer>& vwrs )
 void uiODSceneMgr::initTree( Scene& scn, int vwridx )
 {
     BufferString capt( "Tree scene " ); capt += vwridx;
-    uiDockWin* dw = new uiDockWin( &appl_, capt );
-    appl_.moveDockWindow( *dw, uiMainWin::Left );
-    dw->setResizeEnabled( true );
+    uiDockWin* dw = new uiDockWin( 0, capt );
 
     scn.lv_ = new uiListView( dw, "d-Tect Tree" );
     scn.lv_->addColumn( "Elements" );
@@ -626,7 +624,9 @@ void uiODSceneMgr::initTree( Scene& scn, int vwridx )
 	new uiODSceneTreeItem( scn.sovwr_->getTitle(), scn.sovwr_->sceneID() );
     scn.itemmanager_->addChild( sceneitm, false );
     scn.lv_->display();
-    scn.treeWin()->display();
+    appl_.addDockWindow( *dw, uiMainWin::Left );
+    dw->setResizeEnabled( true );
+//    scn.treeWin()->display();
 }
 
 
@@ -830,13 +830,14 @@ uiODSceneMgr::Scene::Scene( uiWorkSpace* wsp )
 {
     if ( !wsp ) return;
 
-    uiGroup* grp = new uiGroup( wsp );
-    grp->setPrefWidth( 200 );
-    grp->setPrefHeight( 200 );
+    uiGroup* grp = new uiGroup( 0 );
+    grp->setPrefWidth( 400 );
+    grp->setPrefHeight( 400 );
     sovwr_ = new uiSoViewer( grp );
     sovwr_->setPrefWidth( 200 );
     sovwr_->setPrefHeight( 200 );
     sovwr_->setIcon( scene_xpm_data );
+    wsp->addGroup( grp );
 }
 
 
@@ -889,11 +890,11 @@ void uiODSceneMgr::Viewer2D::setData( DataPackMgr::ID mgrid,
     {
 	viewwin_ = new uiDockWin( 0, basetxt_ );
 	viewwin_->setResizeEnabled( true );
-	viewwin_->setCloseMode( uiDockWin::Undocked );
 	viewfddatapack_ = new FlatDisp::uiViewFDDataPack( viewwin_,true,
 					FlatDisp::uiViewFDDataPack::Setup() );
 	viewfddatapack_->setDPMgrID( mgrid );
 	appl_.addDockWindow( *viewwin_, uiMainWin::Left );
+	viewwin_->setCloseMode( uiDockWin::Always );
 	viewwin_->undock();
     }
     

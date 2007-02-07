@@ -1,5 +1,5 @@
-#ifndef  I_UIDRAWBODY_H
-#define  I_UIDRAWBODY_H
+#ifndef  i_uidrwbody_h
+#define  i_uidrwbody_h
 
 /*+
 ________________________________________________________________________
@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          03/07/2001
- RCS:           $Id: i_uidrwbody.h,v 1.8 2005-11-18 15:10:07 cvsarend Exp $
+ RCS:           $Id: i_uidrwbody.h,v 1.9 2007-02-07 16:46:22 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,12 +43,26 @@ public:
 
     virtual             ~uiDrawableObjBody()			{}
 
+    virtual QPaintDevice* 	mQPaintDevice()		{ return this; }
+    virtual const QPaintDevice*	mQPaintDevice() const	{ return this; }
+
+protected:
+#ifdef USEQT4
+    virtual void	drawContents( QPainter* ptr )
+			{
+			    const QRect qr = T::contentsRect();
+			    uiRect rect( qr.left(), qr.top(),
+				         qr.right(), qr.bottom() );
+			    handlePaintEvent( rect );
+			}
+#endif
+
     //! Relays paint events to it's ui handle (handle_)
     virtual void	paintEvent( QPaintEvent *QPEv )
 			    {
-				const QRect& r = QPEv->rect();
-				uiRect rect ( r.left() , r.top(), 
-					      r.right(), r.bottom() );
+				const QRect& qr = QPEv->rect();
+				uiRect rect ( qr.left() , qr.top(), 
+					      qr.right(), qr.bottom() );
 				handlePaintEvent( rect, QPEv );
 			    }
 
@@ -56,7 +70,7 @@ public:
     void		handlePaintEvent( uiRect r, QPaintEvent* QPEv=0 )
 			    {
 				handle_.preDraw.trigger( handle_ );
-				if( QPEv ) T::paintEvent( QPEv );
+				if ( QPEv ) T::paintEvent( QPEv );
 
 				handle_.reDrawHandler( r );
 
@@ -75,6 +89,7 @@ public:
 
 				handleResizeEvent( QREv,  oldSize, nwSize );
 			    }
+
     //! Relays resize events to it's ui handle (handle_)
     void		handleResizeEvent( QResizeEvent* QREv,
 					   uiSize old, uiSize nw )
@@ -82,10 +97,6 @@ public:
 				T::resizeEvent( QREv );
 				handle_.reSized.trigger( handle_ );
 			    }
-
-    virtual QPaintDevice* 	mQPaintDevice()		{ return this; }
-    virtual const QPaintDevice*	mQPaintDevice() const	{ return this; }
-
 };
 
 

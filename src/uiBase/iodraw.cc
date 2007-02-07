@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/12/1999
- RCS:           $Id: iodraw.cc,v 1.17 2007-02-02 13:39:17 cvshelene Exp $
+ RCS:           $Id: iodraw.cc,v 1.18 2007-02-07 16:46:29 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,6 +25,16 @@ ________________________________________________________________________
 #else
 # include <qpaintdevicemetrics.h>
 # include <qpointarray.h>
+#endif
+
+#ifdef USEQT4
+//#include <Q3Painter>
+//#define mQPainter Q3Painter
+#include <QPainter>
+#define mQPainter QPainter
+#else
+#include <qpainter.h>
+#define mQPainter QPainter
 #endif
 
 
@@ -392,7 +402,7 @@ bool ioDrawTool::beginDraw()
 
     if ( !qpainter ) 
     {
-	qpainter = new QPainter;
+	qpainter = new mQPainter;
 	freeqpainter = true;
     }
 
@@ -437,7 +447,7 @@ bool ioDrawTool::endDraw()
 }
 
 
-bool ioDrawTool::setActivePainter( QPainter* p )
+bool ioDrawTool::setActivePainter( mQPainter* p )
 {
     if ( qpainter ) return false;
     if ( active_ ) return false;
@@ -454,7 +464,7 @@ void ioDrawTool::setRasterXor()
 {
     if ( !active() ) return;
 #ifdef USEQT4
-    qpainter->setCompositionMode( QPainter::CompositionMode_Xor );
+    qpainter->setCompositionMode( mQPainter::CompositionMode_Xor );
 #else 
     qpainter->setRasterOp(Qt::XorROP);
 #endif
@@ -465,7 +475,7 @@ void ioDrawTool::setRasterNorm()
     if ( !active() ) return;
 #ifdef USEQT4
     qpainter->setCompositionMode(
-			    QPainter::QPainter::CompositionMode_SourceOver );
+			    mQPainter::CompositionMode_SourceOver );
 #else
     qpainter->setRasterOp(Qt::CopyROP);
 #endif

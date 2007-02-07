@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          10/12/1999
- RCS:           $Id: uimain.cc,v 1.31 2007-01-10 15:58:54 cvsnanne Exp $
+ RCS:           $Id: uimain.cc,v 1.32 2007-02-07 16:46:29 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,8 +26,16 @@ ________________________________________________________________________
 
 #ifdef USEQT4
 # include <QDesktopWidget>
+# include <QPlastiqueStyle>
 # include <QWindowsStyle>
+#include <QCleanlooksStyle>
+
+#ifdef __win__
+# include <QWindowsXPStyle>
 #endif
+
+#endif
+
 
 #ifdef __mac__
 # define __machack__
@@ -131,7 +139,13 @@ void uiMain::init( QApplication* qap, int argc, char **argv )
     qInstallMsgHandler( myMessageOutput );
 
 #ifdef USEQT4
-    QApplication::setStyle( new QWindowsStyle );
+
+#ifdef __win__
+    QApplication::setStyle( new QWindowsXPStyle );
+#else
+    QApplication::setStyle( new QCleanlooksStyle );
+#endif
+
 #else
     app->setStyle( new QCDEStyle() );
 #endif

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uibutton.cc,v 1.29 2006-03-10 13:34:02 cvsbert Exp $
+ RCS:           $Id: uibutton.cc,v 1.30 2007-02-07 16:46:29 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -142,7 +142,7 @@ public:
 protected:
 
     virtual void        notifyHandler( notifyTp tp ) 
-			{ if ( tp == uiButtonBody::stateChanged ) Notifier(); }
+			{ if ( tp == uiButtonBody::toggled ) Notifier(); }
 };
 
 

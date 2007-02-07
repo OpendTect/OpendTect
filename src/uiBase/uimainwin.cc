@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.110 2007-01-18 11:49:03 cvsnanne Exp $
+ RCS:           $Id: uimainwin.cc,v 1.111 2007-02-07 16:46:29 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -210,7 +210,7 @@ mFlagType uiMainWinBody::getFlags( bool hasparent, bool modal ) const
 {
 #ifdef USEQT4
     return  Qt::WFlags( hasparent && modal ? 
-			( Qt::Window | Qt::WA_ShowModal |  Qt::WA_GroupLeader )
+			( Qt::Window | Qt::WindowModal |  Qt::WA_GroupLeader )
 		      : Qt::Window );
 #else
     return hasparent && modal ? WType_TopLevel | WShowModal| WGroupLeader
@@ -484,14 +484,20 @@ bool uiMainWin::isHidden() const		{ return body_->isHidden(); }
 void uiMainWin::moveDockWindow( uiDockWin& dwin, Dock d, int index )
     { body_->uimoveDockWindow(dwin,d,index); }
 
-void uiMainWin::removeDockWindow( uiParent* parnt )
+
+void uiMainWin::removeDockWindow( uiDockWin* dwin )
 {
-    if ( !parnt || !parnt->pbody() ) return;
-    body_->removeDockWindow( (mQDockWindow*)parnt->pbody()->managewidg() );
+    if ( !dwin ) return;
+
+    body_->removeDockWindow( dwin->qwidget() );
 }
 
+
 void uiMainWin::addDockWindow( uiDockWin& dwin, Dock d )
-{ body_->addDockWindow( dwin.qwidget(), body_->qdock(d) ); }
+{
+    body_->addDockWindow( dwin.qwidget(), body_->qdock(d) );
+    dwin.qwidget()->show();
+}
 
 uiGroup* uiMainWin::topGroup()	    	   { return body_->uiCentralWidg(); }
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: uimenu.cc,v 1.34 2007-01-10 15:58:54 cvsnanne Exp $
+ RCS:           $Id: uimenu.cc,v 1.35 2007-02-07 16:46:30 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -125,7 +125,8 @@ const ObjectSet<uiMenuItem>& items() const		{ return itms; }
 
 			    it->setId( newid );
 			    it->setMenu( this );
-			    mQThing->setItemChecked( newid, it->isChecked() );
+			    if ( it->isChecked() )
+				mQThing->setItemChecked( newid, it->isChecked() );
 			    mQThing->setItemEnabled( newid, it->isEnabled() );
 			    itms += it;
 
@@ -143,7 +144,8 @@ const ObjectSet<uiMenuItem>& items() const		{ return itms; }
 
 			    it->setId( newid );
 			    it->setMenu( this );
-			    mQThing->setItemChecked( newid, it->isChecked() );
+			    if ( it->isChecked() )
+				mQThing->setItemChecked( newid, it->isChecked() );
 			    mQThing->setItemEnabled( newid, it->isEnabled() );
 			    itms += it;
 
@@ -158,7 +160,8 @@ const ObjectSet<uiMenuItem>& items() const		{ return itms; }
 			    int newid = insertItem( it, id, idx );
 			    it->setId( newid );
 			    it->setMenu( this );
-			    mQThing->setItemChecked( newid, it->isChecked() );
+			    if ( it->isChecked() )
+				mQThing->setItemChecked( newid, it->isChecked() );
 			    mQThing->setItemEnabled( newid, it->isEnabled() );
 			    itms += it;
 
@@ -167,8 +170,18 @@ const ObjectSet<uiMenuItem>& items() const		{ return itms; }
     void		clear()				{ mQThing->clear(); }
 #ifdef USEQT4
 
-    QMenuBar*		bar() { return reinterpret_cast<QMenuBar*>(qmenu_); }
-    mQPopupMenu*	popup(){ return reinterpret_cast<mQPopupMenu*>(qmenu_);}
+    QMenuBar*		bar()
+    			{
+			    mDynamicCastGet(QMenuBar*,qbar,qmenu_)
+			    return qbar;
+			}
+
+    mQPopupMenu*	popup()
+    			{
+			    mDynamicCastGet(mQPopupMenu*,qpopup,qmenu_)
+			    return qpopup;
+			}
+
     virtual const QWidget* managewidg_() const 	{ return qmenu_; }
 
 private:
@@ -176,9 +189,6 @@ private:
     T*				qmenu_;
 
 #else
-
-    bool			isCheckable();
-    void			setCheckable( bool yn );
 
     QMenuBar*			bar()			{ return bar_; }
     QPopupMenu*			popup()			{ return popup_; }
@@ -217,6 +227,7 @@ uiMenuItem::uiMenuItem( const char* nm )
     , menu_(0)
     , enabled_(true)
     , checked_(false)
+    , checkable_(false)
 {}
 
 
@@ -228,6 +239,7 @@ uiMenuItem::uiMenuItem( const char* nm, const CallBack& cb )
     , menu_(0)
     , enabled_(true)
     , checked_(false)
+    , checkable_(false)
 { 
     activated.notify( cb ); 
 }
@@ -259,8 +271,8 @@ void uiMenuItem::setEnabled ( bool yn )
 
 #ifdef USEQT4
     if ( !menu_ ) return;
-    if ( menu_->bar() )		menu_->bar()->setEnabled( yn );
-    else if ( menu_->popup() )	menu_->popup()->setEnabled( yn );
+    if ( menu_->bar() )		menu_->bar()->setItemEnabled( id_, yn );
+    else if ( menu_->popup() )	menu_->popup()->setItemEnabled( id_, yn );
 #else
     if ( menu_ && menu_->qthing() )
 	menu_->qthing()->setItemEnabled( id_, yn ); 
@@ -270,6 +282,8 @@ void uiMenuItem::setEnabled ( bool yn )
 
 bool uiMenuItem::isChecked () const
 {
+    if ( !checkable_ ) return false;
+
 #ifdef USEQT4
     if ( !menu_ )		return checked_;
     if ( menu_->bar() )		return menu_->bar()->isItemChecked( id_ );
@@ -285,6 +299,8 @@ bool uiMenuItem::isChecked () const
 
 void uiMenuItem::setChecked( bool yn )
 {
+    if ( !checkable_ ) return;
+
     checked_ = yn;
 
 #ifdef USEQT4

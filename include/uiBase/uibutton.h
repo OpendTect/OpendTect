@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uibutton.h,v 1.17 2006-03-01 13:45:46 cvsbert Exp $
+ RCS:           $Id: uibutton.h,v 1.18 2007-02-07 16:46:22 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -152,7 +152,7 @@ public:
     virtual		~uiButtonBody()				{}
 
     //! Button signals emitted by Qt.
-    enum notifyTp       { clicked, pressed, released, toggled, stateChanged };
+    enum notifyTp       { clicked, pressed, released, toggled };
 
 protected:
     //! Handler called from Qt.

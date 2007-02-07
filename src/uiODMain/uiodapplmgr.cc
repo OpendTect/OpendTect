@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.176 2007-02-02 15:44:43 cvsnanne Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.177 2007-02-07 16:46:47 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -112,8 +112,6 @@ uiODApplMgr::~uiODApplMgr()
     delete nlaserv_;
     delete attrserv_;
     delete seisserv_;
-
-    appl_.removeDockWindow( visserv_->getTrackTB() );
     delete visserv_;
 
     delete emserv_;

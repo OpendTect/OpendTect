@@ -9,20 +9,29 @@ ________________________________________________________________________
 -*/
 
 
-#include <uiseparator.h>
-#include <qframe.h> 
-#include <uiobjbody.h> 
+#include "uiseparator.h"
+#include "uiobjbody.h"
 
-class uiSeparatorBody : public uiObjBodyImpl<uiSeparator,QFrame>
+#ifdef USEQT4
+#define mQFrame Q3Frame
+#include <Q3Frame>
+#else
+#define mQFrame QFrame
+#include <qframe.h>
+#endif
+
+
+class uiSeparatorBody : public uiObjBodyImpl<uiSeparator,mQFrame>
 {
 public:
                         uiSeparatorBody(uiSeparator& handle, uiParent* p,
 					const char* nm, bool hor, bool raised)
-			    : uiObjBodyImpl<uiSeparator,QFrame>(handle,p,nm)
+			    : uiObjBodyImpl<uiSeparator,mQFrame>(handle,p,nm)
 			    {
-				int style = hor ? QFrame::HLine : QFrame::VLine;
-				style    |= raised ? QFrame::Raised 
-						   : QFrame::Sunken;
+				int style = hor ? mQFrame::HLine 
+				    		: mQFrame::VLine;
+				style    |= raised ? mQFrame::Raised 
+						   : mQFrame::Sunken;
 
 				setFrameStyle( style );
 			    }
@@ -43,6 +52,6 @@ uiSeparatorBody& uiSeparator::mkbody( uiParent* p, const char* txt,
 
 void uiSeparator::setRaised( bool yn)
 { 
-    body_->setFrameShadow( yn ? QFrame::Raised : QFrame::Sunken );
+    body_->setFrameShadow( yn ? mQFrame::Raised : mQFrame::Sunken );
 } 
 

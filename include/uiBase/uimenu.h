@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: uimenu.h,v 1.30 2006-12-21 14:56:52 cvshelene Exp $
+ RCS:           $Id: uimenu.h,v 1.31 2007-02-07 16:46:22 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,13 +50,13 @@ class uiMenuItemContainer : public uiObjHandle
 #ifdef USEQT4
 template<class> friend class	uiMenuItemContainerBodyImpl;
 protected:
-				uiMenuItemContainer( const char*, uiBody*,
+				uiMenuItemContainer(const char*,uiBody*,
 					    uiMenuItemContainerBody*);
 #else
 friend class			uiMenuItemContainerBody;
 protected:
-				uiMenuItemContainer( const char* nm,
-					    uiMenuItemContainerBody* b );
+				uiMenuItemContainer(const char* nm,
+					    uiMenuItemContainerBody*);
 #endif
 
 public:
@@ -101,7 +101,7 @@ public:
 
 protected:
 #ifndef USEQT4
-    void			setMenuBody(uiMenuItemContainerBody* b);
+    void			setMenuBody(uiMenuItemContainerBody*);
 #endif
     uiMenuItemContainerBody*	body_;
 
@@ -122,8 +122,8 @@ friend class			uiMenuItemContainerBody;
 #endif
 
 public:
-				uiMenuItem( const char* nm );
-				uiMenuItem( const char* nm, const CallBack& cb);
+				uiMenuItem(const char* nm);
+				uiMenuItem(const char* nm,const CallBack& cb);
 				~uiMenuItem();
 
 				//! sets a new text 2b displayed
@@ -134,24 +134,29 @@ public:
     				/*!<\note Should be set after object is given
 				          to it's parent, since parent will
 					  overwrite this setting. */
+
+    virtual bool		isCheckable() const	{ return checkable_; }
+    virtual void		setCheckable( bool yn ) { checkable_ = yn; }
+
     bool			isChecked() const;
     void 			setChecked(bool);
     				/*!<\note Should be set after object is given
 				          to it's parent, since parent will
 					  overwrite this setting. */
     
-    bool			handleEvent( const QEvent* ev );
+    bool			handleEvent(const QEvent*);
 
     void			activate();
     Notifier<uiMenuItem>	activated;
 
-    int				id() const			{ return id_; }
+    int				id() const		{ return id_; }
     int				index() const;
 
 protected:
 
-    void 			setId(int i)			{ id_ = i; }
-    void			setMenu(uiMenuItemContainerBody* m){ menu_ = m;}
+    void 			setId( int newid )	{ id_ = newid; }
+    void			setMenu( uiMenuItemContainerBody* mb )
+				{ menu_ = mb; }
 
     i_MenuMessenger*		messenger()		{ return &messenger_; }
     uiMenuItemContainerBody*	menu_;
@@ -161,6 +166,7 @@ private:
     i_MenuMessenger&            messenger_;
 
     int                         id_;
+    bool			checkable_;
     bool			checked_;
     bool			enabled_;
 
@@ -171,11 +177,11 @@ class uiPopupItem : public uiMenuItem
 {
 friend class uiPopupMenu;
 protected:
-                                uiPopupItem( uiPopupMenu& , const char* nm);
+                                uiPopupItem(uiPopupMenu&,const char* nm);
 public:
 
-    bool                        isCheckable() const;
-    void                        setCheckable(bool);
+    virtual bool		isCheckable() const;
+    virtual void		setCheckable(bool);
 
     uiPopupMenu&		menu()		{ return *popmenu_; }
     const uiPopupMenu&		menu() const	{ return *popmenu_; }
@@ -202,13 +208,13 @@ public:
     				/*!< Works on complete menubar */
 
 protected:
-				uiMenuBar( uiParent* parnt, const char* nm );
-				uiMenuBar( uiParent* parnt, const char* nm, 
-					   QMenuBar& );
+				uiMenuBar(uiParent*,const char* nm);
+				uiMenuBar(uiParent*,const char* nm,QMenuBar&);
 
     void 			reDraw(bool deep=true);
 
 };
+
 
 class uiPopupMenu : public uiMenuItemContainer
 {

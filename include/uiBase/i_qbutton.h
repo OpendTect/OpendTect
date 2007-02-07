@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: i_qbutton.h,v 1.10 2006-04-28 15:23:20 cvsnanne Exp $
+ RCS:           $Id: i_qbutton.h,v 1.11 2007-02-07 16:46:22 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,7 +17,7 @@ ________________________________________________________________________
 
 #ifdef USEQT4
 # define mButton QAbstractButton
-# include <qabstractbutton.h>
+# include <QAbstractButton>
 #else
 # define mButton QButton
 # include <qbutton.h>
@@ -45,8 +45,6 @@ public:
 					     this,   SLOT( released() ) );
 				    connect( _sender, SIGNAL(toggled(bool)), 
 					     this,   SLOT(toggled(bool)) );
-				    connect( _sender,SIGNAL(stateChanged(int)), 
-					     this,   SLOT(stateChanged(int)) );
 				}
 
 private:
@@ -58,15 +56,12 @@ public slots:
 
     void toggled( bool ) 	
 		{ _receiver->notifyHandler( uiButtonBody::toggled ); }
-    void stateChanged( int ) 	
-		{ _receiver->notifyHandler( uiButtonBody::stateChanged ); }
     void clicked() 		
 		{ _receiver->notifyHandler( uiButtonBody::clicked ); }
     void pressed() 		
 		{ _receiver->notifyHandler( uiButtonBody::pressed ); }
     void released()		
 		{ _receiver->notifyHandler( uiButtonBody::released); }
-
 };
 
 #endif

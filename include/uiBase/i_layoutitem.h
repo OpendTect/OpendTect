@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          29/06/2001
- RCS:           $Id: i_layoutitem.h,v 1.28 2006-08-21 17:14:45 cvsbert Exp $
+ RCS:           $Id: i_layoutitem.h,v 1.29 2007-02-07 16:46:22 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -63,8 +63,12 @@ public:
 					    const_cast<i_LayoutItem*>(this);
 					self->prefSzDone = true;
 					QSize ps( qlayoutItm().sizeHint() );
+					int width = ps.width();
+					if ( width==0 ) width = 1;
+					int height = ps.height();
+					if ( height==0 ) height = 1;
 					self->prefSz = 
-					    uiSize(ps.width(),ps.height(),true);
+					    uiSize(width,height,true);
 				    }
 
 				    return prefSz;

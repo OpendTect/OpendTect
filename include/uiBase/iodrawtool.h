@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          04/07/2001
- RCS:           $Id: iodrawtool.h,v 1.13 2006-09-07 15:44:24 cvskris Exp $
+ RCS:           $Id: iodrawtool.h,v 1.14 2007-02-07 16:46:22 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,8 +17,7 @@ ________________________________________________________________________
 #include "sets.h"
 #include "color.h"
 
-class QPaintDevice; 
-class QPainter;
+class QPaintDevice;
 class QPen;
 
 class ioPixmap;
@@ -28,8 +27,11 @@ class Alignment;
 class LineStyle;
 class MarkerStyle2D;
 
-#ifndef USEQT4
+#ifdef USEQT4
+class QPainter;
+#else
 class QPaintDeviceMetrics; 
+class QPainter;
 #endif
 
 
@@ -41,7 +43,7 @@ class ioDrawTool
     friend class	uiScrollViewBody;
 
 mProtected:
-			ioDrawTool( QPaintDevice* handle, int x_0=0, int y_0=0);
+			ioDrawTool(QPaintDevice*,int x_0=0,int y_0=0);
 public:
 
     virtual		~ioDrawTool(); 
@@ -121,10 +123,15 @@ public:
 
 protected:
 
-    bool		setActivePainter( QPainter* );
+#ifdef USEQT4
+    bool		setActivePainter(QPainter*);
+    QPainter*		qpainter;
+#else
+    bool		setActivePainter(QPainter*);
+    QPainter*		qpainter;
+#endif
 
 private:
-    QPainter*		qpainter;
     QPen&		qpen;
     bool		freeqpainter;
     QPaintDevice*	qpaintdev;

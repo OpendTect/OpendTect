@@ -4,42 +4,47 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodmain.cc,v 1.61 2007-02-05 18:19:47 cvsbert Exp $
+ RCS:           $Id: uiodmain.cc,v 1.62 2007-02-07 16:46:47 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiodmain.h"
+
+#include "uiattribpartserv.h"
 #include "uicmain.h"
+#include "uicursor.h"
+#include "uidockwin.h"
+#include "uigeninput.h"
+#include "uiioobjsel.h"
+#include "uilabel.h"
+#include "uimsg.h"
+#include "uinlapartserv.h"
 #include "uiodapplmgr.h"
-#include "uiodscenemgr.h"
 #include "uiodmenumgr.h"
+#include "uiodscenemgr.h"
+#include "uipluginsel.h"
 #include "uiviscoltabed.h"
 #include "uivispartserv.h"
-#include "uinlapartserv.h"
-#include "uiattribpartserv.h"
 #include "uimpepartserv.h"
-#include "uidockwin.h"
+#include "uipluginsel.h"
+#include "uisetdatadir.h"
+#include "uisplashscreen.h"
 #include "uisurvey.h"
 #include "uisurvinfoed.h"
-#include "survinfo.h"
 #include "ui2dsip.h"
-#include "uicursor.h"
-#include "uiioobjsel.h"
-#include "uigeninput.h"
-#include "uilabel.h"
-#include "uisetdatadir.h"
-#include "uipluginsel.h"
-#include "uimsg.h"
+
+#include "ctxtioobj.h"
+#include "envvars.h"
+#include "filegen.h"
 #include "ioman.h"
 #include "ioobj.h"
-#include "ptrman.h"
-#include "ctxtioobj.h"
-#include "filegen.h"
-#include "settings.h"
-#include "plugins.h"
-#include "envvars.h"
 #include "odsessionfact.h"
+#include "pixmap.h"
+#include "plugins.h"
+#include "ptrman.h"
+#include "settings.h"
+#include "survinfo.h"
 #include "timer.h"
 
 static const int cCTHeight = 200;
@@ -64,6 +69,12 @@ int ODMain( int argc, char** argv )
     PIM().setArgs( argc, argv );
     PIM().loadAuto( false );
     uiODMain* odmain = new uiODMain( *new uicMain(argc,argv) );
+
+    ioPixmap pm( "/tmp/od.png" );
+    uiSplashScreen splash( pm );
+    splash.show();
+    splash.showMessage( "Loading plugins ..." );
+
     manODMainWin( odmain );
     bool dodlg = true;
     Settings::common().getYN( uiPluginSel::sKeyDoAtStartup, dodlg );
@@ -78,7 +89,9 @@ int ODMain( int argc, char** argv )
     if ( !odmain->ensureGoodSurveySetup() )
 	return 1;
 
+    splash.showMessage( "Initializing Scene ..." );
     odmain->initScene();
+    splash.finish( odmain );
     odmain->go();
     delete odmain;
     return 0;
@@ -194,9 +207,7 @@ bool uiODMain::buildUI()
 	}
     }
 
-    ctabwin = new uiDockWin( this, "Color Table" );
-    ctabwin->setCloseMode( uiDockWin::Undocked );
-    ctabwin->setResizeEnabled( true );
+    ctabwin = new uiDockWin( 0, "Color Table" );
 
     ctabed = new uiVisColTabEd( ctabwin, isvert );
     ctabed->coltabChange.notify( mCB(applmgr,uiODApplMgr,coltabChg) );
@@ -206,8 +217,10 @@ bool uiODMain::buildUI()
 	ctabed->attach( hCentered );
     }
 
-    moveDockWindow( *ctabwin, isontop ? uiMainWin::TornOff
-		    	    : (isvert ? uiMainWin::Left : uiMainWin::Top), 0);
+    addDockWindow( *ctabwin, isontop ? uiMainWin::TornOff
+		    	    : (isvert ? uiMainWin::Left : uiMainWin::Top) );
+    ctabwin->setCloseMode( uiDockWin::Always );
+    ctabwin->setResizeEnabled( true );
 
     return true;
 }
