@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uicanvas.cc,v 1.28 2006-09-27 20:15:49 cvskris Exp $
+ RCS:           $Id: uicanvas.cc,v 1.29 2007-02-07 14:09:58 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,16 +18,17 @@ ________________________________________________________________________
 #include "mouseevent.h"
 
 #ifdef USEQT4
-# include <q3scrollview.h>
+# include <QPainter>
+# include <Q3ScrollView>
 # include <QRubberBand>
 # define mQScrollView	Q3ScrollView
 # define mRubberBanding	qrubber
 #else
 # include <qscrollview.h>
+# include <qpainter.h>
 # define mQScrollView	QScrollView
 # define mRubberBanding	rbnding
 #endif
-#include <qpainter.h>
 
 
 #define mButState( e ) ( e->state() | e->button() )
@@ -124,6 +125,14 @@ public:
     virtual void	reDraw( bool deep )		{ updateContents(); }
 protected:
 
+#ifdef USEQT4
+    virtual void	drawContents( QPainter* ptr )
+			{
+			    const QRect qr = contentsRect();
+			    drawContents( ptr, qr.left(), qr.top(),
+				          qr.right(), qr.bottom() );
+			}
+#endif
     virtual void	drawContents ( QPainter * p, int clipx,
 			    int clipy, int clipw, int cliph );
     virtual void	resizeEvent( QResizeEvent * );
@@ -346,11 +355,16 @@ void uiScrollViewBody::contentsMouseDoubleClickEvent ( QMouseEvent * e )
 uiCanvas::uiCanvas( uiParent* p, const char *nm )
     : uiDrawableObj( p,nm, mkbody(p,nm) ) {}
 
+
 uiCanvasBody& uiCanvas::mkbody( uiParent* p,const char* nm)
 {
     body_ = new uiCanvasBody( *this,p,nm );
     return *body_;
 }
+
+
+void uiCanvas::update()
+{ body_->update(); }
 
 
 
@@ -359,11 +373,15 @@ uiScrollView::uiScrollView( uiParent* p, const char *nm )
 {}
 
 
-uiScrollViewBody& uiScrollView::mkbody( uiParent* p,const char* nm)
+uiScrollViewBody& uiScrollView::mkbody( uiParent* p, const char* nm )
 {
-    body_ = new uiScrollViewBody( *this,p,nm );
+    body_ = new uiScrollViewBody( *this, p, nm );
     return *body_;
 }
+
+
+void uiScrollView::update()
+{ body_->update(); }
 
 
 void uiScrollView::setScrollBarMode( ScrollBarMode mode, bool hor )
