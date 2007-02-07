@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vismultitexture2.cc,v 1.25 2007-02-05 20:10:15 cvskris Exp $";
+static const char* rcsID = "$Id: vismultitexture2.cc,v 1.26 2007-02-07 14:27:03 cvskris Exp $";
 
 
 #include "vismultitexture2.h"
@@ -92,7 +92,7 @@ MultiTexture2::MultiTexture2()
     , layersize1_( 0 )
     , ctabunit_( 0 )
 {
-    if ( !GetEnvVarYNWithDefault("DTECT_MULTITEXTURE_USE_SHADING", 1 ) )
+    if ( GetEnvVarYN("DTECT_MULTITEXTURE_NO_SHADING" ) )
 	useshading_ = false;
 
     if ( useshading_ )
