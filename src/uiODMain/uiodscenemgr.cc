@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.85 2007-02-07 16:46:47 cvsnanne Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.86 2007-02-07 17:01:10 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -797,8 +797,6 @@ void uiODSceneMgr::displayIn2DViewer( int visid, int attribid, bool dowva )
 
     curvwr->setData( visServ().getDataPackMgrID(visid),
 		     visServ().getDataPackID(visid,attribid), dowva );
-//    const Attrib::SelSpec* as = visServ().getSelSpec( visid, attribid );
-//    curvwr->setAttribText( as ? as->userRef() : "", dowva );
 }
 
 
@@ -830,14 +828,20 @@ uiODSceneMgr::Scene::Scene( uiWorkSpace* wsp )
 {
     if ( !wsp ) return;
 
+#ifdef USEQT4
     uiGroup* grp = new uiGroup( 0 );
+#else
+    uiGroup* grp = new uiGroup( wsp );
+#endif
     grp->setPrefWidth( 400 );
     grp->setPrefHeight( 400 );
     sovwr_ = new uiSoViewer( grp );
     sovwr_->setPrefWidth( 200 );
     sovwr_->setPrefHeight( 200 );
     sovwr_->setIcon( scene_xpm_data );
+#ifdef USEQT4
     wsp->addGroup( grp );
+#endif
 }
 
 
@@ -900,10 +904,4 @@ void uiODSceneMgr::Viewer2D::setData( DataPackMgr::ID mgrid,
     
     viewfddatapack_->setDataPackID( packid, wva );
     viewwin_->display( true );
-}
-
-
-void uiODSceneMgr::Viewer2D::setAttribText( const char* txt, bool wva )
-{
-// TODO: Add text to dockwin title or display otherwise
 }

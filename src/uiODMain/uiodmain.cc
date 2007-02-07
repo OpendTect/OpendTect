@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodmain.cc,v 1.62 2007-02-07 16:46:47 cvsnanne Exp $
+ RCS:           $Id: uiodmain.cc,v 1.63 2007-02-07 17:01:10 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,7 +29,6 @@ ________________________________________________________________________
 #include "uimpepartserv.h"
 #include "uipluginsel.h"
 #include "uisetdatadir.h"
-#include "uisplashscreen.h"
 #include "uisurvey.h"
 #include "uisurvinfoed.h"
 #include "ui2dsip.h"
@@ -46,6 +45,10 @@ ________________________________________________________________________
 #include "settings.h"
 #include "survinfo.h"
 #include "timer.h"
+
+#ifdef USEQT4
+# include "uisplashscreen.h"
+#endif
 
 static const int cCTHeight = 200;
 
@@ -70,10 +73,12 @@ int ODMain( int argc, char** argv )
     PIM().loadAuto( false );
     uiODMain* odmain = new uiODMain( *new uicMain(argc,argv) );
 
+#ifdef USEQT4
     ioPixmap pm( "/tmp/od.png" );
     uiSplashScreen splash( pm );
     splash.show();
     splash.showMessage( "Loading plugins ..." );
+#endif
 
     manODMainWin( odmain );
     bool dodlg = true;
@@ -89,9 +94,13 @@ int ODMain( int argc, char** argv )
     if ( !odmain->ensureGoodSurveySetup() )
 	return 1;
 
+#ifdef USEQT4
     splash.showMessage( "Initializing Scene ..." );
     odmain->initScene();
     splash.finish( odmain );
+#else
+    odmain->initScene();
+#endif
     odmain->go();
     delete odmain;
     return 0;

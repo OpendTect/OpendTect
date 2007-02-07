@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.h,v 1.40 2007-01-31 15:01:10 cvsnanne Exp $
+ RCS:           $Id: uiodscenemgr.h,v 1.41 2007-02-07 17:01:10 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -143,8 +143,6 @@ protected:
 			~Viewer2D();
 
 	void		setData(DataPackMgr::ID,DataPack::ID,bool wva);
-	void		setBaseText(const char*);
-	void		setAttribText(const char*,bool wva);
 
 	uiDockWin*	viewwin_;
 	FlatDisp::uiViewFDDataPack* viewfddatapack_;
