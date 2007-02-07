@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          June 2003
- RCS:           $Id: emsurfaceio.cc,v 1.84 2007-01-31 11:53:36 cvsjaap Exp $
+ RCS:           $Id: emsurfaceio.cc,v 1.85 2007-02-07 11:04:11 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -941,8 +941,9 @@ void dgbSurfaceReader::createSection( const SectionID& sectionid )
     if ( !bidsurf )
 	return;
 
-    const StepInterval<int> inlrg = readrowrange_ ? *readrowrange_ : rowrange_;
-    const StepInterval<int> crlrg = readcolrange_ ? *readcolrange_ : colrange_;
+    StepInterval<int> inlrg = readrowrange_ ? *readrowrange_ : rowrange_;
+    StepInterval<int> crlrg = readcolrange_ ? *readcolrange_ : colrange_;
+    inlrg.sort(); crlrg.sort();
 
     Array2D<float>* arr = new Array2DImpl<float>( inlrg.nrSteps()+1,
 	    					  crlrg.nrSteps()+1 );
