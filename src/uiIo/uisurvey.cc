@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvey.cc,v 1.75 2007-01-29 19:45:56 cvskris Exp $
+ RCS:           $Id: uisurvey.cc,v 1.76 2007-02-07 14:10:54 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -600,7 +600,7 @@ void uiSurvey::updateInfo( CallBacker* cb )
 	getSurvInfo();
 
     mkInfo();
-    if ( survmap ) survmap->drawMap( survinfo );
+    mapcanvas->update();
 }
 
 
@@ -618,7 +618,7 @@ void uiSurvey::writeComments()
 void uiSurvey::doCanvas( CallBacker* c )
 {
     if ( !mapcanvas ) return;
-    survmap = new uiSurveyMap( mapcanvas );
+    if ( !survmap ) survmap = new uiSurveyMap( mapcanvas );
     survmap->drawMap( survinfo );
 }
 
