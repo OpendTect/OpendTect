@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.102 2007-02-05 18:19:47 cvsbert Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.103 2007-02-07 08:56:40 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -350,8 +350,9 @@ bool uiEMPartServer::showLoadAuxDataDlg( const EM::ObjectID& id )
 	    	    "on the horizon. After loading, use 'Page Up'\n"
 		    "and 'Page Down' buttons to scroll." );
     uiSelectFromList dlg( appserv().parent(), setup );
-    dlg.selFld()->setMultiSelect( true );
-    if ( !dlg.go() ) return false;
+    if ( dlg.selFld() )
+	dlg.selFld()->setMultiSelect( true );
+    if ( !dlg.go() || !dlg.selFld() ) return false;
 
     TypeSet<int> selattribs;
     dlg.selFld()->getSelectedItems( selattribs );
