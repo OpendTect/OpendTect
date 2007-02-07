@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: convolveattrib.cc,v 1.17 2007-02-05 14:32:07 cvsnanne Exp $";
+static const char* rcsID = "$Id: convolveattrib.cc,v 1.18 2007-02-07 11:07:57 cvsnanne Exp $";
 
 #include "convolveattrib.h"
 #include "attribdataholder.h"
@@ -268,6 +268,8 @@ Convolve::Convolve( Desc& ds )
     {
 	mGetEnum( shape_, shapeStr() );
 	mGetInt( size_, sizeStr() );
+	if ( size_%2 == 0 )
+	    size_++;
     }
     else if ( kerneltype_ == mKernelFunctionWavelet )
     {

@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: dipfilterattrib.cc,v 1.19 2007-02-05 14:32:07 cvsnanne Exp $";
+static const char* rcsID = "$Id: dipfilterattrib.cc,v 1.20 2007-02-07 11:07:57 cvsnanne Exp $";
 
 
 #include "dipfilterattrib.h"
@@ -121,8 +121,10 @@ DipFilter::DipFilter( Desc& ds )
 
     inputdata.allowNull(true);
     
-    mGetInt( size, sizeStr() );
     mGetEnum( type, typeStr() );
+    mGetInt( size, sizeStr() );
+    if ( size%2 == 0 )
+	size++;
 
     if ( type == mFilterTypeLowPass || type == mFilterTypeBandPass )
 	mGetFloat( maxvel, maxvelStr() );
