@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Feb 2007
- RCS:           $Id: visimage.cc,v 1.1 2007-02-07 14:38:29 cvskris Exp $
+ RCS:           $Id: visimage.cc,v 1.2 2007-02-07 16:30:26 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -66,5 +66,9 @@ void Image::setFileName( const char* fn )
 {
     texture_->filename.setValue( fn );
 }
+
+
+SoNode* Image::getInventorNode()
+{ return texture_; }
 
 }; // namespace visBase
