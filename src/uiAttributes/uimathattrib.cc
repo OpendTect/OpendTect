@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2001
- RCS:           $Id: uimathattrib.cc,v 1.11 2007-01-08 09:47:11 cvshelene Exp $
+ RCS:           $Id: uimathattrib.cc,v 1.12 2007-02-07 14:04:45 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -65,16 +65,17 @@ uiMathAttrib::uiMathAttrib( uiParent* p, bool is2d )
 }
 
 
+#define mErrRet(msg,retval) \
+{ uiMSG().error( "Could not parse this equation" ); return retval; }
+
+
 void uiMathAttrib::parsePush( CallBacker* )
 {
     MathExpression* expr = MathExpression::parse( inpfld_->text() );
-    nrvariables_ = expr ? expr->getNrVariables() : 0;
     if ( !expr && strcmp( inpfld_->text(), "" ) )
-    {
-	uiMSG().error( "Could not parse this equation" );
-	return;
-    }
+	mErrRet( "Could not parse this equation", )
 
+    nrvariables_ = expr ? expr->getNrVariables() : 0;
     if ( nrvariables_ > cNrVars )
     {
 	uiMSG().error( "Max. nr of variables you can use is 6" );
@@ -168,6 +169,9 @@ bool uiMathAttrib::getParameters( Desc& desc )
     mSetString( Math::expressionStr(), inpfld_->text() );
     
     MathExpression* expr = MathExpression::parse( inpfld_->text() );
+    if ( !expr )
+	mErrRet( "Could not parse this equation", false )
+
     TypeSet<int> inptable;
     Math::getInputTable( expr, inptable, true );
     int nrcsts = inptable.size();
