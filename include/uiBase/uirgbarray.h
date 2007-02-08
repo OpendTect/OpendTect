@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        B. Bril & H. Huck
  Date:          08/09/06
- RCS:           $Id: uirgbarray.h,v 1.3 2006-09-28 09:48:09 cvshelene Exp $
+ RCS:           $Id: uirgbarray.h,v 1.4 2007-02-08 16:53:34 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,12 +25,13 @@ public:
     virtual		~uiRGBArray();
 
     void                setSize(int,int);
-    int			getSize(bool);
+    int			getSize(bool xdir) const;
     Color		get(int,int) const;
     void		set(int,int,const Color&);
+    void		clear(const Color&);
 
-    const QImage&	Image() const		{ return *qimg_; } ;
-    QImage&		Image()			{ return *qimg_; } ;
+    const QImage&	qImage() const		{ return *qimg_; } ;
+    QImage&		qImage()		{ return *qimg_; } ;
 
 protected:
 
