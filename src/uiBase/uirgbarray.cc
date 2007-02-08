@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril & H. Huck
  Date:          08/09/2006
- RCS:           $Id: uirgbarray.cc,v 1.4 2006-09-28 09:47:13 cvshelene Exp $
+ RCS:           $Id: uirgbarray.cc,v 1.5 2007-02-08 16:52:28 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,7 +26,7 @@ uiRGBArray::uiRGBArray()
 
 uiRGBArray::uiRGBArray( const uiRGBArray& rgbarr )
 {
-    qimg_ = new QImage( rgbarr.Image() );
+    qimg_ = new QImage( rgbarr.qImage() );
     qimg_->detach();
 }
 
@@ -65,7 +65,14 @@ void uiRGBArray::set( int i0, int i1, const Color& c )
 }
 
 
-int uiRGBArray::getSize( bool isx )
+void uiRGBArray::clear( const Color& c )
+{
+    QColor col( (QRgb)c.rgb() );
+    qimg_->fill( col.pixel() );
+}
+
+
+int uiRGBArray::getSize( bool isx ) const
 {
     return isx ? qimg_->width() : qimg_->height();
 }

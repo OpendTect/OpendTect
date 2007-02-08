@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/12/1999
- RCS:           $Id: pixmap.cc,v 1.18 2006-09-08 13:25:28 cvshelene Exp $
+ RCS:           $Id: pixmap.cc,v 1.19 2007-02-08 16:52:28 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -137,9 +137,9 @@ void ioPixmap::convertFromArrayRGB( const ArrayRGB& theImage )
 
     if( !qpixmap_ ) qpixmap_ = new QPixmap;
 #ifdef USEQT4
-    *qpixmap_ = QPixmap::fromImage( theImage.Image(), Qt::OrderedAlphaDither);
+    *qpixmap_ = QPixmap::fromImage( theImage.qImage(), Qt::OrderedAlphaDither);
 #else
-    qpixmap_->convertFromImage( theImage.Image(), Qt::OrderedAlphaDither);
+    qpixmap_->convertFromImage( theImage.qImage(), Qt::OrderedAlphaDither);
 #endif
 }    
 
@@ -150,9 +150,9 @@ void ioPixmap::convertFromRGBArray( const uiRGBArray& theImage )
 
     if( !qpixmap_ ) qpixmap_ = new QPixmap;
 #ifdef USEQT4
-    *qpixmap_ = QPixmap::fromImage( theImage.Image(), Qt::OrderedAlphaDither);
+    *qpixmap_ = QPixmap::fromImage( theImage.qImage(), Qt::OrderedAlphaDither);
 #else
-    qpixmap_->convertFromImage( theImage.Image(), Qt::OrderedAlphaDither);
+    qpixmap_->convertFromImage( theImage.qImage(), Qt::OrderedAlphaDither);
 #endif
 }    
 
