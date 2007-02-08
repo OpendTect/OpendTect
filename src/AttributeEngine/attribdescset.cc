@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribdescset.cc,v 1.55 2007-01-29 16:17:48 cvshelene Exp $";
+static const char* rcsID = "$Id: attribdescset.cc,v 1.56 2007-02-08 21:28:17 cvsnanne Exp $";
 
 #include "attribdescset.h"
 #include "attribstorprovider.h"
@@ -151,6 +151,7 @@ void DescSet::removeDesc( const DescID& id )
     const int idx = ids.indexOf(id);
     if ( idx==-1 ) return;
 
+    descToBeRemoved.trigger( id );
     if ( descs[idx]->descSet()==this )
 	descs[idx]->setDescSet(0);
 

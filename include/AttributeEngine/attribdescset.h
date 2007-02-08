@@ -7,11 +7,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribdescset.h,v 1.25 2006-12-21 10:48:24 cvshelene Exp $
+ RCS:           $Id: attribdescset.h,v 1.26 2007-02-08 21:28:17 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "callback.h"
 #include "sets.h"
 #include "multiid.h"
 #include "attribdescid.h"
@@ -23,16 +24,19 @@ namespace Attrib
 {
 class Desc;
 
-class DescSet
+class DescSet : public CallBacker
 {
 public:
     				DescSet( bool is2d )
 				    : is2d_(is2d)
-			    	    , is2dset_(true)	{}
+			    	    , is2dset_(true)
+			    	    , descToBeRemoved(this)	    {}
     				DescSet( bool is2d, bool is2dset )
 				    : is2d_(is2d)
-			    	    , is2dset_(is2dset)	{}
+			    	    , is2dset_(is2dset)
+			    	    , descToBeRemoved(this)	    {}
     				~DescSet() 		{ removeAll(); }
+
     DescSet*			clone() const;
     DescSet*			optimizeClone(const DescID& targetid) const;
     DescSet*      		optimizeClone(const TypeSet<DescID>&) const;
@@ -93,6 +97,8 @@ public:
     static const char*		userRefStr()		{ return "UserRef"; }
     static const char*		inputPrefixStr()	{ return "Input"; }
     static const char*		hiddenStr()		{ return "Hidden"; }
+
+    CNotifier<DescSet,DescID>	descToBeRemoved;
 
 protected:
 
