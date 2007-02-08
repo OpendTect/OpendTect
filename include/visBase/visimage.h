@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		Feb 2007
- RCS:		$Id: visimage.h,v 1.1 2007-02-07 14:38:18 cvskris Exp $
+ RCS:		$Id: visimage.h,v 1.2 2007-02-08 22:45:14 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -31,8 +31,12 @@ public:
     static Image*	create()
 			mCreateDataObj( Image );
 
+    bool		replacesMaterial() const;
+    void		replaceMaterial(bool yn);
+
     void		setData(const Array2D<Color>&,bool trans);
     void		setFileName(const char*);
+    const char*		getFileName() const;
     SoNode*		getInventorNode();
 
 protected:

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Feb 2007
- RCS:           $Id: visimage.cc,v 1.2 2007-02-07 16:30:26 cvskris Exp $
+ RCS:           $Id: visimage.cc,v 1.3 2007-02-08 22:45:14 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,6 +38,18 @@ Image::~Image()
 }
 
 
+bool Image::replacesMaterial() const
+{
+    return texture_->model.getValue() == SoTexture2::REPLACE;
+}
+
+
+void Image::replaceMaterial( bool yn )
+{
+    texture_->model = yn ? SoTexture2::REPLACE : SoTexture2::MODULATE;
+}
+
+
 void Image::setData( const Array2D<Color>& arr, bool usetrans )
 { 
     texture_->image.setValue( SbVec2s(arr.info().getSize(0),
@@ -66,6 +78,10 @@ void Image::setFileName( const char* fn )
 {
     texture_->filename.setValue( fn );
 }
+
+
+const char* Image::getFileName() const
+{ return texture_->filename.getValue().getString(); }
 
 
 SoNode* Image::getInventorNode()
