@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2005
- RCS:           $Id: treeitem.h,v 1.4 2007-01-31 21:23:29 cvskris Exp $
+ RCS:           $Id: treeitem.h,v 1.5 2007-02-09 14:10:43 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -144,21 +144,19 @@ protected:
 };
 
 
-class SymbolSubItem : public SubItem
+class ArrowSubItem : public SubItem
 {
 public:
 
-    			SymbolSubItem(Pick::Set& pck,int displayid=-1);
+    			ArrowSubItem(Pick::Set& pck,int displayid=-1);
     bool		init();
 
     static const char*	sKeyManager() 	{ return "ArrowAnnotations"; }
 
 protected:
-			~SymbolSubItem()		{}
+			~ArrowSubItem()		{}
     virtual const char*	parentType() const;
 
-    virtual void	clickCB(CallBacker*);
-    virtual void	mouseMoveCB(CallBacker*);
     virtual void	createMenuCB(CallBacker*);
     virtual void	handleMenuCB(CallBacker*);
     void		propertyChange(CallBacker*);
@@ -171,33 +169,28 @@ protected:
 
 };
 
-/*
 class ImageSubItem : public SubItem
 {
 public:
-    			ImageSubItem(const char* nm,int displayid=-1)
-			    : SubItem(nm,displayid)
-			    , filemnuitem_("Select image ...")
-			    { defscale_ = 100; }
+    			ImageSubItem(Pick::Set&,int displayid=-1);
+    bool		init();
+    static const char*	sKeyManager() 	{ return "ImageAnnotations"; }
 
 protected:
 			~ImageSubItem()			{}
     virtual const char*	parentType() const;
 
-    virtual void	clickCB(CallBacker*);
     virtual void	createMenuCB(CallBacker*);
     virtual void	handleMenuCB(CallBacker*);
 
     bool		hasScale() const		{ return true; }
-    void		setScale(float);
+    const char*		managerName() const		{ return sKeyManager();}
 
-    bool		selectFileName(BufferString&);
+    bool		selectFileName(BufferString&) const;
 
     MenuItem		filemnuitem_;
-    BufferString	imgfilenm_;
 };
 
-*/
 
 
 #define mDefineParentItem(type,typestr) \
@@ -213,8 +206,8 @@ protected: \
 };
 
 mDefineParentItem(Text,"Text")
-mDefineParentItem(Symbol,"Arrows")
-// mDefineParentItem(Image,"Image")
+mDefineParentItem(Arrow,"Arrows")
+mDefineParentItem(Image,"Image")
 
 
 }; // namespace Annotations
