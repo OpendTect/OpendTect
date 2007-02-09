@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		June 2006
- RCS:		$Id: vislocationdisplay.h,v 1.9 2006-08-23 07:33:52 cvsnanne Exp $
+ RCS:		$Id: vislocationdisplay.h,v 1.10 2007-02-09 20:56:22 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -84,6 +84,7 @@ protected:
     virtual bool			hasText() const { return false; }
     virtual int			isMarkerClick(const TypeSet<int>&) const;
     virtual int			isDirMarkerClick(const TypeSet<int>&) const;
+    void			triggerDeSel();
 
     virtual			~LocationDisplay();
 

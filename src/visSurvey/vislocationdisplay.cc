@@ -4,7 +4,7 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vislocationdisplay.cc,v 1.19 2007-01-31 22:20:24 cvskris Exp $";
+static const char* rcsID = "$Id: vislocationdisplay.cc,v 1.20 2007-02-09 20:56:22 cvskris Exp $";
 
 #include "vislocationdisplay.h"
 
@@ -153,14 +153,7 @@ void LocationDisplay::showAll( bool yn )
 
 void LocationDisplay::pickCB( CallBacker* cb )
 {
-    if ( !isSelected() )
-    {
-	waitsfordirectionid_ == -1;
-	waitsforpositionid_ =-1;
-	return;
-    }
-
-    if ( !isOn() || isLocked() ) return;
+    if ( !isSelected() || !isOn() || isLocked() ) return;
 
     mCBCapsuleUnpack(const visBase::EventInfo&,eventinfo,cb);
 
@@ -253,9 +246,8 @@ void LocationDisplay::pickCB( CallBacker* cb )
 	    if ( eventinfo.pickedobjids.size() &&
 		 eventid==mousepressid_ )
 	    {
-		int removeidx = group_->getFirstIdx(mousepressid_);
-		if ( removeidx!=-1 )
-		    removePick( removeidx );
+		const int removeidx = isMarkerClick( eventinfo.pickedobjids );
+		if ( removeidx!=-1 ) removePick( removeidx );
 	    }
 
 	    eventcatcher_->eventIsHandled();
@@ -716,5 +708,14 @@ int LocationDisplay::isMarkerClick(const TypeSet<int>&) const
 
 int LocationDisplay::isDirMarkerClick(const TypeSet<int>&) const
 { return -1; }
+
+
+void LocationDisplay::triggerDeSel()
+{
+    setUnpickable( false );
+    waitsfordirectionid_ = -1;
+    waitsforpositionid_ = -1;
+    VisualObject::triggerDeSel();
+}
 
 }; // namespace visSurvey
