@@ -5,12 +5,13 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: pickset.cc,v 1.38 2006-08-21 17:14:45 cvsbert Exp $";
+static const char* rcsID = "$Id: pickset.cc,v 1.39 2007-02-09 20:58:27 cvskris Exp $";
 
 #include "pickset.h"
 #include "survinfo.h"
 #include "multiid.h"
 #include "ioman.h"
+#include "separstr.h"
 #include <ctype.h>
 
 
@@ -37,7 +38,28 @@ void Pick::Location::operator=( const Pick::Location& pl )
 void Pick::Location::setText( const char* key, const char* txt )
 {
     if ( !text ) text = new BufferString;
-    *text += key; *text += "'"; *text += txt; *text += "'";
+    SeparString sepstr( *text, '\'' );
+    for ( int idx=0; idx<sepstr.size(); idx+=2 )
+    {
+	if ( strcmp(key,sepstr[idx]) )
+	    continue;
+	BufferString copy;
+	SeparString sepcopy( copy, '\'' );
+	for ( int idy=0; idy<sepstr.size(); idy++ )
+	{
+	    if ( idy==idx || idy==idx+1 )
+		continue;
+
+	    sepcopy.add( sepstr[idy] );
+	}
+
+	(*text) = copy;
+
+	idx-=2;
+    }
+
+    sepstr.add( key );
+    sepstr.add( txt );
 }
 
 
@@ -138,21 +160,25 @@ void Pick::Location::toString( char* str ) const
 }
 
 
-void Pick::Location::getKey( const char* idkey, BufferString& val ) const
+bool Pick::Location::getText( const char* idkey, BufferString& val ) const
 {
     if ( !text )
     {
 	val = "";
-	return;
+	return false;
+    }
+    
+    SeparString sepstr( *text, '\'' );
+    for ( int idx=0; idx<sepstr.size()-1; idx+=2 )
+    {
+	if ( strcmp(idkey,sepstr[idx]) )
+	    continue;
+
+	val = sepstr[idx+1];
+	return true;
     }
 
-    BufferString res = text->buf();
-    char* start = strchr( res.buf(), idkey[0] );
-    start++; start++;
- 
-    char* stop = strchr( start, '\'' );
-    *stop = '\0';
-    val = start;
+    return false;
 }
 
 
