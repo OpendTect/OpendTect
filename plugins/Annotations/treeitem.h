@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2005
- RCS:           $Id: treeitem.h,v 1.5 2007-02-09 14:10:43 cvskris Exp $
+ RCS:           $Id: treeitem.h,v 1.6 2007-02-09 20:55:44 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -75,7 +75,7 @@ protected:
 class SubItem : public uiODDisplayTreeItem
 {
 public:
-    static bool		doesNameExist(const char*,const char* mannm);
+    static bool		doesNameExist(const char*);
     static char		createIOEntry(const char* nm,bool overwrite,
 	    			    MultiID&,const char* mannm);
     			/*!<\retval -1 error
@@ -90,9 +90,10 @@ protected:
     void		prepareForShutdown();
     bool		init();
     virtual const char*	parentType() const		=0;
+    virtual void	fillStoragePar(IOPar&) const;
 
     virtual void	clickCB(CallBacker*)		{}
-    virtual void	mouseMoveCB(CallBacker*)		{}
+    virtual void	mouseMoveCB(CallBacker*)	{}
     virtual void	rightclickCB(CallBacker*)	{}
 
     virtual void	createMenuCB(CallBacker*);
@@ -178,10 +179,13 @@ public:
 
 protected:
 			~ImageSubItem()			{}
-    virtual const char*	parentType() const;
+    const char*		parentType() const;
+    void		fillStoragePar(IOPar&) const;
 
-    virtual void	createMenuCB(CallBacker*);
-    virtual void	handleMenuCB(CallBacker*);
+    void		createMenuCB(CallBacker*);
+    void		handleMenuCB(CallBacker*);
+
+    void		updateColumnText(int col);
 
     bool		hasScale() const		{ return true; }
     const char*		managerName() const		{ return sKeyManager();}
@@ -203,11 +207,11 @@ protected: \
     uiTreeItem*	createSubItem(int di,Pick::Set& pck) \
     		{ return new type##SubItem(pck,di); } \
     const char*	managerName() const { return type##SubItem::sKeyManager(); } \
-};
+}
 
-mDefineParentItem(Text,"Text")
-mDefineParentItem(Arrow,"Arrows")
-mDefineParentItem(Image,"Image")
+mDefineParentItem(Text,"Text");
+mDefineParentItem(Arrow,"Arrows");
+mDefineParentItem(Image,"Image");
 
 
 }; // namespace Annotations

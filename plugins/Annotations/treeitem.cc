@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2005
- RCS:           $Id: treeitem.cc,v 1.8 2007-02-09 14:10:43 cvskris Exp $
+ RCS:           $Id: treeitem.cc,v 1.9 2007-02-09 20:55:44 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -198,7 +198,7 @@ bool AnnotTreeItem::showSubMenu()
 	    const char* txt = dlg.text();
 	    if ( !txt || !*txt ) continue;
 
-	    if ( SubItem::doesNameExist( txt, managerName() ) &&
+	    if ( SubItem::doesNameExist( txt ) &&
 	         !uiMSG().askGoOn("An object with that name does allready"
 			" exists.\nDo you wish to overwrite it?" ) )
 		continue;
@@ -229,18 +229,20 @@ bool AnnotTreeItem::readPicks( Pick::Set& ps )
 {
     CtxtIOObj* ctio = mMkCtxtIOObj(PickSet);
     ctio->ctxt.forread = true;
-    ctio->ctxt.parconstraints.set( sKey::Type, typestr_ );
+    ctio->ctxt.parconstraints.set( sKey::Type, managerName() );
     ctio->ctxt.includeconstraints = true;
     uiIOObjSelDlg dlg( getUiParent(), *ctio );
     if ( !dlg.go() || !dlg.ioObj() )
-	mDelCtioRet
+	mDelCtioRet;
 
     BufferString bs;
     if ( !PickSetTranslator::retrieve(ps,dlg.ioObj(),bs) )
-    { uiMSG().error( bs ); mDelCtioRet }
+    { uiMSG().error( bs ); mDelCtioRet; }
 
     Pick::SetMgr& mgr = Pick::SetMgr::getMgr( managerName() );
     mgr.set( dlg.ioObj()->key(), &ps );
+    const int setidx = mgr.indexOf( ps );
+    mgr.setUnChanged( setidx );
 
     return true;
 }
@@ -264,6 +266,12 @@ SubItem::SubItem( Pick::Set& set, int displayid )
 
 SubItem::~SubItem()
 {}
+
+
+void SubItem::fillStoragePar( IOPar& par ) const
+{
+    par.set( sKey::Type, managerName() );
+}
 
 
 void SubItem::prepareForShutdown()
@@ -347,6 +355,7 @@ void SubItem::handleMenuCB( CallBacker* cb )
     {
 	menu->setIsHandled(true);
 	storeAs();
+	updateColumnText( 0 );
     }
 }
 
@@ -363,6 +372,10 @@ void SubItem::store() const
 	return;
     }
 
+    fillStoragePar( ioobj->pars() );
+
+    IOM().commitChanges( *ioobj );
+
     BufferString bs;
     if ( !PickSetTranslator::store( *set_, ioobj, bs ) )
 	uiMSG().error(bs);
@@ -371,25 +384,18 @@ void SubItem::store() const
 }
 
 
-bool SubItem::doesNameExist( const char* nm, const char* mannm )
+bool SubItem::doesNameExist( const char* nm )
 {
     IOM().to( PickSetTranslatorGroup::ioContext().getSelKey() );
     PtrMan<IOObj> local = IOM().getLocal( nm );
-    if ( !local )
-	return false;
-    
-    const char* type = local->pars()[sKey::Type];
-    if ( type && !strcmp( type, mannm ))
-	return true;
-
-    return false;
+    return local;
 }
 
 
 char SubItem::createIOEntry( const char* nm, bool overwrite, MultiID& mid,
 			     const char* mannm )
 {
-    if ( !overwrite && doesNameExist(nm,mannm) )
+    if ( !overwrite && doesNameExist(nm) )
 	return 0;
 
     CtxtIOObj ctio( PickSetTranslatorGroup::ioContext() );
@@ -442,7 +448,7 @@ void SubItem::storeAs( bool trywitoutdlg ) const
 	    return;
 	}
 
-	mid = ctio.ioobj->key();
+	mid = dlg.selected( 0 );
     }
 
     mgr.setID( setidx, mid );
@@ -699,7 +705,6 @@ ArrowSubItem::ArrowSubItem( Pick::Set& pck, int displayid )
 }
 
 
-
 bool ArrowSubItem::init()
 {
     if (  displayid_==-1 )
@@ -805,6 +810,23 @@ bool ImageSubItem::init()
     mDynamicCastGet(ImageDisplay*,id, visserv->getObject(displayid_))
     if ( !id ) return false;
 
+    Pick::SetMgr& mgr = Pick::SetMgr::getMgr( managerName() );
+
+    const int setidx = mgr.indexOf( *set_ );
+    PtrMan<IOObj> ioobj = IOM().get( mgr.id(setidx) );
+    if ( ioobj )
+    {
+	BufferString filename;
+	if ( !ioobj->pars().get(sKey::FileName, filename) )
+	{
+	    //Old format
+	    if ( set_->size() ) (*set_)[0].getText("T",filename);
+	}
+
+	if ( !filename.isEmpty() )
+	    id->setFileName( filename.buf() );
+    }
+
     return SubItem::init();
 }
 
@@ -812,6 +834,14 @@ bool ImageSubItem::init()
 
 const char* ImageSubItem::parentType() const
 { return typeid(ImageParentItem).name(); }
+
+
+void ImageSubItem::fillStoragePar( IOPar& par ) const
+{
+    SubItem::fillStoragePar( par );
+    mDynamicCastGet(ImageDisplay*,id, visserv->getObject(displayid_))
+    par.set( sKey::FileName, id->getFileName() );
+}
 
 
 void ImageSubItem::createMenuCB( CallBacker* cb )
@@ -844,7 +874,17 @@ void ImageSubItem::handleMenuCB( CallBacker* cb )
 	if ( !selectFileName(filename) ) return;
 
 	id->setFileName(filename);
+	Pick::SetMgr& mgr = Pick::SetMgr::getMgr( managerName() );
+	const int setidx = mgr.indexOf( *set_ );
+	mgr.setUnChanged( setidx, false );
     }
+}
+
+
+void ImageSubItem::updateColumnText(int col)
+{
+    if ( col!=1 )
+	uiODDisplayTreeItem::updateColumnText(col);
 }
 
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Jan 2005
- RCS:           $Id: visarrow.cc,v 1.5 2007-01-31 22:19:21 cvskris Exp $
+ RCS:           $Id: visarrow.cc,v 1.6 2007-02-09 20:55:44 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -161,6 +161,19 @@ void ArrowDisplay::updateLineShape(visBase::IndexedPolyLine* pl) const
     pl->removeCoordIndexAfter( idx );
 
     pl->unRef();
+}
+
+
+int ArrowDisplay::isMarkerClick(const TypeSet<int>& path) const
+{
+    for ( int idx=group_->size()-1; idx>=0; idx-- )
+    {
+	if ( path.indexOf(group_->getObject(idx)->id())!=-1 )
+	    return idx;
+    }
+
+    return -1;
+
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		January 2005
- RCS:		$Id: visannotimage.h,v 1.1 2007-02-09 14:10:43 cvskris Exp $
+ RCS:		$Id: visannotimage.h,v 1.2 2007-02-09 20:55:44 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -47,7 +47,6 @@ protected:
     int				isMarkerClick(const TypeSet<int>& path) const;
 
     visBase::FaceSet*		shape_;
-    visBase::PolygonOffset*	offset_;
     visBase::Image*		image_;
 };
 

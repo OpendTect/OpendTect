@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Jan 2005
- RCS:           $Id: visannotimage.cc,v 1.1 2007-02-09 14:10:43 cvskris Exp $
+ RCS:           $Id: visannotimage.cc,v 1.2 2007-02-09 20:55:44 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,8 +15,8 @@ ________________________________________________________________________
 #include "viscoord.h"
 #include "vistexturecoords.h"
 #include "visfaceset.h"
+#include "visforegroundlifter.h"
 #include "visimage.h"
-#include "vispolygonoffset.h"
 #include "vistransform.h"
 
 namespace Annotations
@@ -35,8 +35,10 @@ public:
 protected:
     				~Image();
 
-    visBase::Transformation*	position_;
     visBase::Transformation*	transform_;
+
+    visBase::Transformation*	position_;
+    visBase::ForegroundLifter*	lifter_;
     visBase::FaceSet*		shape_;
 };
 
@@ -45,14 +47,19 @@ mCreateFactoryEntry( ImageDisplay );
 mCreateFactoryEntry( Image );
 
 Image::Image()
-    : visBase::VisualObjectImpl( false )
+    : visBase::VisualObjectImpl( true )
     , position_( visBase::Transformation::create() )
     , transform_( 0 )
     , shape_( 0 )
+    , lifter_( visBase::ForegroundLifter::create() )
 {
     setMaterial( 0 );
     position_->ref();
     addChild( position_->getInventorNode() );
+
+    lifter_->ref();
+    lifter_->setLift(0.8);
+    addChild( lifter_->getInventorNode() );
 }
 
 
@@ -60,6 +67,7 @@ Image::~Image()
 {
     shape_->unRef();
     position_->unRef();
+    lifter_->unRef();
     if ( transform_ ) transform_->unRef();
 }
 
@@ -101,13 +109,8 @@ void Image::setPick( const Pick::Location& loc )
 
 ImageDisplay::ImageDisplay()
     : shape_( visBase::FaceSet::create() )
-    , offset_( visBase::PolygonOffset::create() )
     , image_( visBase::Image::create() )
 {
-    offset_->ref();
-    insertChild(childIndex( group_->getInventorNode() ),
-			offset_->getInventorNode());
-
     image_->ref();
     image_->replaceMaterial(true);
     insertChild( childIndex( group_->getInventorNode() ),
@@ -116,6 +119,7 @@ ImageDisplay::ImageDisplay()
     shape_->ref();
     shape_->setVertexOrdering(
 		visBase::VertexShape::cCounterClockWiseVertexOrdering() );
+    shape_->setSelectable( false );
 
     visBase::Coordinates* facecoords = shape_->getCoordinates();
     facecoords->setPos( 0, Coord3(-1,-1,0) );
@@ -146,7 +150,6 @@ ImageDisplay::ImageDisplay()
 ImageDisplay::~ImageDisplay()
 {
     shape_->unRef();
-    offset_->unRef();
     image_->unRef();
 }
 
@@ -182,7 +185,6 @@ visBase::VisualObject* ImageDisplay::createLocation() const
 {
     Image* res = Image::create();
     res->setShape( shape_ );
-    res->setSelectable( false );
 
     return res;
 }
@@ -203,7 +205,7 @@ int ImageDisplay::isMarkerClick(const TypeSet<int>& path) const
 	if ( !image )
 	    continue;
 	
-	if ( path.indexOf(image->id())!=-1 )
+	if ( path.indexOf(group_->getObject(idx)->id())!=-1 )
 	    return idx;
     }
 
