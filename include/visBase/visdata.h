@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visdata.h,v 1.42 2006-10-17 13:00:42 cvskris Exp $
+ RCS:		$Id: visdata.h,v 1.43 2007-02-09 20:19:47 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -109,7 +109,9 @@ protected:
     friend class		SelectionManager;
     friend class		Scene;
     virtual void		triggerSel()				{}
+    				/*!<Is called everytime object is selected.*/
     virtual void		triggerDeSel()				{}
+    				/*!<Is called everytime object is deselected.*/
     virtual void		triggerRightClick(const EventInfo* =0)	{}
     
 				DataObject();
