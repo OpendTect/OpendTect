@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          10/12/1999
- RCS:           $Id: uimain.cc,v 1.32 2007-02-07 16:46:29 cvsnanne Exp $
+ RCS:           $Id: uimain.cc,v 1.33 2007-02-12 13:10:38 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -68,12 +68,12 @@ extern OSErr    NativePathNameToFSSpec(char *, FSSpec *, unsigned long);
 void myMessageOutput( QtMsgType type, const char *msg );
 
 
-const uiFont* 	uiMain::font_   = 0;
-QApplication* 	uiMain::app     = 0;
-uiMain* 	uiMain::themain = 0;
+const uiFont* uiMain::font_ = 0;
+QApplication* uiMain::app_ = 0;
+uiMain*	uiMain::themain_ = 0;
 
 uiMain::uiMain( int argc, char **argv )
-    : mainobj( 0 )
+    : mainobj_( 0 )
 {
 #ifdef __machack__
 
@@ -98,45 +98,40 @@ uiMain::uiMain( int argc, char **argv )
 
 
 uiMain::uiMain( QApplication* qapp )
-    : mainobj( 0 )
+    : mainobj_( 0 )
 { 
 
     QApplication::setColorSpec( QApplication::ManyColor );
     QApplication::setLibraryPaths( QStringList("/dev") );
 
-    app = qapp;
+    app_ = qapp;
 }
 
 
 void uiMain::init( QApplication* qap, int argc, char **argv )
 {
-    if ( app ) 
+    if ( app_ ) 
     {
 	pErrMsg("You already have a uiMain object!");
 	return;
     }
     else
-	themain = this;
-
-    int iconsz = 24;
-    Settings::common().get( "dTect.Icons.size", iconsz );
-    setIconSize( iconsz );
-
-    QApplication::setColorSpec( QApplication::ManyColor );
-    QApplication::setDesktopSettingsAware( FALSE );
+	themain_ = this;
 
     if ( DBG::isOn(DBG_UI) && !qap )
 	DBG::message( "Constructing QApplication ..." );
 
+    QApplication::setColorSpec( QApplication::ManyColor );
     if( qap ) 
-	app = qap;
+	app_ = qap;
     else
-	app = new QApplication( argc, argv );
+	app_ = new QApplication( argc, argv );
 
     if ( DBG::isOn(DBG_UI) && !qap )
 	DBG::message( "... done." );
 
     qInstallMsgHandler( myMessageOutput );
+
 
 #ifdef USEQT4
 
@@ -147,8 +142,9 @@ void uiMain::init( QApplication* qap, int argc, char **argv )
 #endif
 
 #else
-    app->setStyle( new QCDEStyle() );
+    app_->setStyle( new QCDEStyle() );
 #endif
+
 
     font_ = 0;
     setFont( *font() , true );
@@ -164,48 +160,55 @@ void uiMain::init( QApplication* qap, int argc, char **argv )
     if ( !enab )
 	uiObject::enableToolTips( false );
 #endif
+
+//    int iconsz = 24;
+//    Settings::common().get( "dTect.Icons.size", iconsz );
+//    setIconSize( iconsz );
+
+    QApplication::setDesktopSettingsAware( FALSE );
 }
+
 
 uiMain::~uiMain()
 {
-    delete app;
+    delete app_;
     delete font_;
 }
 
 
 int uiMain::exec()          			
 {
-    if( !app )  { pErrMsg("Huh?") ; return -1; }
-    return app->exec();
+    if( !app_ )  { pErrMsg("Huh?") ; return -1; }
+    return app_->exec();
 }
 
 
 void uiMain::setTopLevel( uiMainWin* obj )
 {
     if( !obj ) return;
-    if( !app )  { pErrMsg("Huh?") ; return; }
+    if( !app_ )  { pErrMsg("Huh?") ; return; }
 
-    if ( mainobj ) mainobj->setExitAppOnClose( false );
+    if ( mainobj_ ) mainobj_->setExitAppOnClose( false );
     obj->setExitAppOnClose( true );
 
-    mainobj = obj;
-    app->setMainWidget( mainobj->body()->qwidget() );
-    init( mainobj->body()->qwidget() ); // inits SoQt if uicMain
+    mainobj_ = obj;
+    app_->setMainWidget( mainobj_->body()->qwidget() );
+    init( mainobj_->body()->qwidget() ); // inits SoQt if uicMain
 }
 
 
 void uiMain::setFont( const uiFont& font, bool PassToChildren )
 {   
     font_ = &font;
-    if( !app )  { pErrMsg("Huh?") ; return; }
-    app->setFont( font_->qFont(), PassToChildren );
+    if( !app_ )  { pErrMsg("Huh?") ; return; }
+    app_->setFont( font_->qFont(), PassToChildren );
 }
 
 
 void uiMain::exit ( int retcode ) 
 { 
-    if( !app )  { pErrMsg("Huh?") ; return; }
-    app->exit( retcode );
+    if( !app_ )  { pErrMsg("Huh?") ; return; }
+    app_->exit( retcode );
 }
 /*!<
     \brief Tells the application to exit with a return code. 
@@ -233,22 +236,22 @@ const uiFont* uiMain::font()
 
 uiMain& uiMain::theMain()
 { 
-    if( themain ) return *themain;
+    if( themain_ ) return *themain_;
     if ( !qApp ) 
     { 
 	pFreeFnErrMsg("FATAL: no uiMain and no qApp.","uiMain::theMain()");
 	QApplication::exit( -1 );
     }
 
-    themain = new uiMain( qApp );
-    return *themain;
+    themain_ = new uiMain( qApp );
+    return *themain_;
 }
 
 
 void uiMain::flushX()        
 { 
-    if( !app )	return;
-    app->flushX();
+    if( !app_ )	return;
+    app_->flushX();
 }
 
 void uiMain::setTopLevelCaption( const char* txt )
@@ -263,46 +266,11 @@ void uiMain::setTopLevelCaption( const char* txt )
 //! waits [msec] milliseconds for new events to occur and processes them.
 void uiMain::processEvents( int msec )
 { 
-    if( !app )	return;
+    if( !app_ )	return;
 #ifdef USEQT4
-    app->processEvents( QEventLoop::AllEvents, msec );
+    app_->processEvents( QEventLoop::AllEvents, msec );
 #else
-    app->processEvents( msec );
-#endif
-}
-
-
-uiSize uiMain::desktopSize()
-{
-#ifdef USEQT4
-    QDesktopWidget* d = QApplication::desktop();
-#else
-    QWidget *d = QApplication::desktop();
-#endif
-    return uiSize ( d->width(), d->height(), true );
-}
-
-
-int uiMain::getIconSize()
-{
-#ifndef USEQT4
-    return QIconSet::iconSize( QIconSet::Small ).width();
-#else
-    //FIXME: implement for QT4
-    return 24;
-#endif
-}
-
-
-void uiMain::setIconSize( int iconsz )
-{
-    //FIXME: implement for QT4
-#ifndef USEQT4
-    QIconSet::setIconSize( QIconSet::Small, QSize(iconsz,iconsz) );
-    QIconSet::setIconSize( QIconSet::Automatic, QSize(iconsz,iconsz) );
-    QIconSet::setIconSize( QIconSet::Large, QSize(iconsz,iconsz) );
-#else
-    //FIXME: implement for QT4
+    app_->processEvents( msec );
 #endif
 }
 

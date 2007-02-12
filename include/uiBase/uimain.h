@@ -1,5 +1,5 @@
-#ifndef uimain_H
-#define uimain_H
+#ifndef uimain_h
+#define uimain_h
 
 /*+
 ________________________________________________________________________
@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          03/12/1999
- RCS:           $Id: uimain.h,v 1.10 2006-01-24 20:22:57 cvskris Exp $
+ RCS:           $Id: uimain.h,v 1.11 2007-02-12 13:10:38 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,8 +25,7 @@ public:
 			uiMain(int argc,char** argv);
 private:
 			uiMain(QApplication*);
-
-    void 		init(QApplication*, int argc, char **argv);
+    void 		init(QApplication*,int argc,char **argv);
 
 public:
 
@@ -36,13 +35,13 @@ public:
     void 		exit(int retcode=0);
 
     void		setTopLevel(uiMainWin*);
-    uiMainWin*		topLevel()			{ return mainobj; }
-    void		setFont(const uiFont& font,bool passtochildren);    
+    uiMainWin*		topLevel()			{ return mainobj_; }
+    void		setFont(const uiFont&,bool passtochildren);    
 
     const uiFont*	font(); 
 
     static uiMain&	theMain();
-    static void		setTopLevelCaption( const char* );
+    static void		setTopLevelCaption(const char*);
 
     static void		flushX();
 
@@ -52,17 +51,12 @@ public:
      */
     static void		processEvents(int msec=3000);
 
-    static uiSize	desktopSize();
-
-    static void		setIconSize(int);
-    static int		getIconSize();
-
 protected:
 
-    static uiMain*	themain;
-    uiMainWin*		mainobj;
+    static uiMain*	themain_;
+    uiMainWin*		mainobj_;
 
-    static QApplication*  app;
+    static QApplication*  app_;
     static const uiFont*  font_;
 
 			//! necessary for uicMain coin inialisation
