@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uicanvas.cc,v 1.29 2007-02-07 14:09:58 cvsnanne Exp $
+ RCS:           $Id: uicanvas.cc,v 1.30 2007-02-12 13:53:02 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,8 +35,8 @@ ________________________________________________________________________
 
 class uiScrollViewBody;
 
-int uiCanvasDefaults::defaultWidth  = 600;
-int uiCanvasDefaults::defaultHeight = 400;
+static const int sDefaultWidth  = 600;
+static const int sDefaultHeight = 400;
 
 
 class uiCanvasBody : public uiDrawableObjBody<uiCanvas,QWidget>
@@ -49,8 +49,8 @@ public:
 				( handle, p, nm ) 
 			    {
 				setStretch( 2, 2 );
-				setPrefWidth( uiCanvasDefaults::defaultWidth );
-				setPrefHeight( uiCanvasDefaults::defaultHeight);
+				setPrefWidth( sDefaultWidth );
+				setPrefHeight( sDefaultHeight );
 			    }
 
     virtual             ~uiCanvasBody() {};
@@ -80,10 +80,8 @@ public:
 			    , aspectrat( 0.0 ), rbidx( 0 ) 
 			    {
 				setStretch( 2, 2 );
-				setPrefContentsWidth(
-					    uiCanvasDefaults::defaultWidth );
-				setPrefContentsHeight( 
-					    uiCanvasDefaults::defaultHeight);
+				setPrefContentsWidth( sDefaultWidth );
+				setPrefContentsHeight( sDefaultHeight );
 			    }
 
     OD::ButtonState 	rubberstate;
@@ -142,10 +140,10 @@ protected:
     virtual void	paintEvent( QPaintEvent* ev )
 			{ mQScrollView::paintEvent(ev); }
 
-    virtual void	contentsMousePressEvent( QMouseEvent * e );
-    virtual void	contentsMouseMoveEvent ( QMouseEvent * e );
-    virtual void	contentsMouseReleaseEvent ( QMouseEvent * e );
-    virtual void	contentsMouseDoubleClickEvent ( QMouseEvent * e );
+    virtual void	contentsMousePressEvent(QMouseEvent*);
+    virtual void	contentsMouseMoveEvent(QMouseEvent*);
+    virtual void	contentsMouseReleaseEvent(QMouseEvent*);
+    virtual void	contentsMouseDoubleClickEvent(QMouseEvent*);
 
     uiRect		rubber;
     int			rbidx;

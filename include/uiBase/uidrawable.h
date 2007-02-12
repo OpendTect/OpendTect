@@ -1,5 +1,5 @@
-#ifndef uidrawable_H
-#define uidrawable_H
+#ifndef uidrawable_h
+#define uidrawable_h
 
 /*+
 ________________________________________________________________________
@@ -7,25 +7,29 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2000
- RCS:           $Id: uidrawable.h,v 1.7 2003-11-07 12:21:54 bert Exp $
+ RCS:           $Id: uidrawable.h,v 1.8 2007-02-12 13:53:02 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
-#include <uiobj.h>
-#include <iodraw.h>
-
+#include "uiobj.h"
+#include "iodraw.h"
+#include "mouseevent.h"
 
 class uiDrawableObj : public uiObject, public ioDrawArea
 {
-
     mTTFriend(C,T,uiDrawableObjBody);
 public:
-			uiDrawableObj( uiParent* parnt, const char* nm, 
-				       uiObjectBody& );
-
+			uiDrawableObj(uiParent* parnt,const char* nm, 
+				      uiObjectBody&);
     virtual		~uiDrawableObj()	{}
 
+    void		setRubberBandingOn( bool yn )	{ rubberbandon_ = yn; }
+    bool		isRubberBandingOn() const	{ return rubberbandon_;}
+    void		setRubberBandButton( OD::ButtonState bs )
+			{ rubberbandbutton_ = bs; }
+    OD::ButtonState	rubberBandButton()
+    			{ return rubberbandbutton_; }
 
     Notifier<uiDrawableObj> preDraw;
     Notifier<uiDrawableObj> postDraw;
@@ -55,6 +59,8 @@ Subclasses can override this method to do some additional drawing.
 
     virtual ioDrawTool* drawTool_( int x0, int y0 );
 
+    OD::ButtonState	rubberbandbutton_;
+    bool		rubberbandon_;
 };
 
 

@@ -7,11 +7,12 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		November 2006
- RCS:		$Id: uirubberband.h,v 1.1 2007-02-08 21:26:42 cvsnanne Exp $
+ RCS:		$Id: uirubberband.h,v 1.2 2007-02-12 13:53:02 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uigeom.h"
 
 class QMouseEvent;
 class QRubberBand;
@@ -26,13 +27,19 @@ public:
 			~uiRubberBand();
 
     void		start(QMouseEvent*);
-    void		move(QMouseEvent*);
+    void		extend(QMouseEvent*);
     void		stop(QMouseEvent*);
+
+    uiPoint		origin() const		{ return origin_; }
+    uiRect		area() const		{ return area_; }
 
 protected:
 
     QRubberBand*	qrubberband_;
     QWidget*		parent_;
+
+    uiPoint		origin_;
+    uiRect		area_;
 };
 
 #endif
