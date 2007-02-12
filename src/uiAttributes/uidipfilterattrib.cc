@@ -4,12 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2001
- RCS:           $Id: uidipfilterattrib.cc,v 1.15 2007-02-05 14:32:25 cvsnanne Exp $
+ RCS:           $Id: uidipfilterattrib.cc,v 1.16 2007-02-12 09:53:53 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "ui3dfilterattrib.h"
+#include "uidipfilterattrib.h"
 #include "dipfilterattrib.h"
 
 #include "attribdesc.h"
@@ -34,10 +34,10 @@ static const char* fltrstrs[] =
 	0
 };
 
-mInitAttribUI(ui3DFilterAttrib,DipFilter,"Velocity Fan Filter",sKeyFilterGrp)
+mInitAttribUI(uiDipFilterAttrib,DipFilter,"Velocity Fan Filter",sKeyFilterGrp)
 
 
-ui3DFilterAttrib::ui3DFilterAttrib( uiParent* p, bool is2d )
+uiDipFilterAttrib::uiDipFilterAttrib( uiParent* p, bool is2d )
 	: uiAttrDescEd(p,is2d)
 {
     inpfld = getInpFld();
@@ -51,7 +51,7 @@ ui3DFilterAttrib::ui3DFilterAttrib( uiParent* p, bool is2d )
     fltrlbl = zIsTime() ? "Velocity " : "Dip ";
     fltrlbl += "to pass";
     fltrtpfld = new uiGenInput( this, fltrlbl, StringListInpSpec(fltrstrs) );
-    fltrtpfld->valuechanged.notify( mCB(this,ui3DFilterAttrib,filtSel) );
+    fltrtpfld->valuechanged.notify( mCB(this,uiDipFilterAttrib,filtSel) );
     fltrtpfld->attach( alignedBelow, szfld );
 
     FloatInpSpec fis;
@@ -64,7 +64,7 @@ ui3DFilterAttrib::ui3DFilterAttrib( uiParent* p, bool is2d )
     azifld = new uiGenInput( this, "Azimuth filter", BoolInpSpec(true) );
     azifld->setValue( false );
     azifld->attach( alignedBelow, velfld );
-    azifld->valuechanged.notify( mCB(this,ui3DFilterAttrib,aziSel) );
+    azifld->valuechanged.notify( mCB(this,uiDipFilterAttrib,aziSel) );
 
     aziintfld = new uiGenInput( this, "Azimuth to pass (min/max)",
 				FloatInpIntervalSpec());
@@ -79,7 +79,7 @@ ui3DFilterAttrib::ui3DFilterAttrib( uiParent* p, bool is2d )
 }
 
 
-void ui3DFilterAttrib::filtSel( CallBacker* )
+void uiDipFilterAttrib::filtSel( CallBacker* )
 {
     int val = fltrtpfld->getIntValue();
     bool mode0 = ( val==1 || val==2 );
@@ -89,13 +89,13 @@ void ui3DFilterAttrib::filtSel( CallBacker* )
 }
 
 
-void ui3DFilterAttrib::aziSel( CallBacker* )
+void uiDipFilterAttrib::aziSel( CallBacker* )
 {
     aziintfld->display( azifld->getBoolValue() );
 }
 
 
-bool ui3DFilterAttrib::setParameters( const Desc& desc )
+bool uiDipFilterAttrib::setParameters( const Desc& desc )
 {
     if ( strcmp(desc.attribName(),DipFilter::attribName()) )
 	return false;
@@ -120,14 +120,14 @@ bool ui3DFilterAttrib::setParameters( const Desc& desc )
 }
 
 
-bool ui3DFilterAttrib::setInput( const Desc& desc )
+bool uiDipFilterAttrib::setInput( const Desc& desc )
 {
     putInp( inpfld, desc, 0 );
     return true;
 }
 
 
-bool ui3DFilterAttrib::getParameters( Desc& desc )
+bool uiDipFilterAttrib::getParameters( Desc& desc )
 {
     if ( strcmp(desc.attribName(),DipFilter::attribName()) )
 	return false;
@@ -145,14 +145,14 @@ bool ui3DFilterAttrib::getParameters( Desc& desc )
 }
 
 
-bool ui3DFilterAttrib::getInput( Desc& desc )
+bool uiDipFilterAttrib::getInput( Desc& desc )
 {
     fillInp( inpfld, desc, 0 );
     return true;
 }
 
 
-void ui3DFilterAttrib::getEvalParams( TypeSet<EvalParam>& params ) const
+void uiDipFilterAttrib::getEvalParams( TypeSet<EvalParam>& params ) const
 {
     params += EvalParam( filterszstr, DipFilter::sizeStr() );
 }

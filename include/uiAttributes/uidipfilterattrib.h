@@ -1,5 +1,5 @@
-#ifndef ui3dfilterattrib_h
-#define ui3dfilterattrib_h
+#ifndef uidipfilterattrib_h
+#define uidipfilterattrib_h
 
 /*+
 ________________________________________________________________________
@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2001
- RCS:           $Id: uidipfilterattrib.h,v 1.9 2006-12-20 11:23:00 cvshelene Exp $
+ RCS:           $Id: uidipfilterattrib.h,v 1.10 2007-02-12 09:53:53 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,11 +20,11 @@ class uiLabeledSpinBox;
 
 /*! \brief DipFilter Attribute description editor */
 
-class ui3DFilterAttrib : public uiAttrDescEd
+class uiDipFilterAttrib : public uiAttrDescEd
 {
 public:
 
-			ui3DFilterAttrib(uiParent*,bool);
+			uiDipFilterAttrib(uiParent*,bool);
 
     virtual void	getEvalParams(TypeSet<EvalParam>&) const;
 

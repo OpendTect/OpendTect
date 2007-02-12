@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:		$Id: uiattribfactory.cc,v 1.6 2007-02-07 11:10:00 cvsnanne Exp $
+ RCS:		$Id: uiattribfactory.cc,v 1.7 2007-02-12 09:53:53 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -95,9 +95,9 @@ const char* uiAttributeFactory::attrNameOf( const char* attrnm ) const
     return entry ? ((const char*)entry->attrnm_) : 0;
 }
 
-#include "ui3dfilterattrib.h"
 #include "uicoherencyattrib.h"
 #include "uiconvolveattrib.h"
+#include "uidipfilterattrib.h"
 #include "uienergyattrib.h"
 #include "uieventattrib.h"
 #include "uifingerprintattrib.h"
@@ -116,9 +116,9 @@ const char* uiAttributeFactory::attrNameOf( const char* attrnm ) const
 
 void uiAttributeFactory::fillStd()
 {
-    ui3DFilterAttrib::initClass();
     uiCoherencyAttrib::initClass();
     uiConvolveAttrib::initClass();
+    uiDipFilterAttrib::initClass();
     uiEnergyAttrib::initClass();
     uiEventAttrib::initClass();
     uiFingerPrintAttrib::initClass();
