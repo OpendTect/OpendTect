@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          03/07/2001
- RCS:           $Id: i_uidrwbody.h,v 1.10 2007-02-12 13:53:02 cvsnanne Exp $
+ RCS:           $Id: i_uidrwbody.h,v 1.11 2007-02-12 16:49:28 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -69,7 +69,6 @@ protected:
     virtual void	mousePressEvent(QMouseEvent*);
     virtual void	mouseMoveEvent(QMouseEvent*);
     virtual void	mouseReleaseEvent(QMouseEvent*);
-    virtual void	resizeEvent(QResizeEvent*);
 
     uiRubberBand*	rubberband_;
 #endif
@@ -157,12 +156,6 @@ void uiDrawableObjBody<C,T>::mouseReleaseEvent( QMouseEvent* ev )
 {
     if ( handle_.isRubberBandingOn() )
 	rubberband_->stop( ev );
-}
-
-
-template <class C,class T>
-void uiDrawableObjBody<C,T>::resizeEvent( QResizeEvent* ev )
-{
 }
 #endif
 
