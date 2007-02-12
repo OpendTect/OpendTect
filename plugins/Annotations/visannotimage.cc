@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Jan 2005
- RCS:           $Id: visannotimage.cc,v 1.2 2007-02-09 20:55:44 cvskris Exp $
+ RCS:           $Id: visannotimage.cc,v 1.3 2007-02-12 16:25:43 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -92,9 +92,20 @@ void Image::setShape( visBase::FaceSet* fs )
 
 void Image::setDisplayTransformation( mVisTrans* trans )
 {
-    if ( transform_ ) transform_->unRef();
+    Coord3 pos = position_->getTranslation();
+    if ( transform_ )
+    {
+	pos = transform_->transformBack(pos);
+	transform_->unRef();
+    }
     transform_ = trans;
-    if ( transform_ ) transform_->ref();
+    if ( transform_ )
+    {
+	transform_->ref();
+	pos = transform_->transform( pos );
+    }
+
+    position_->setTranslation( pos );
 }
 
 
@@ -117,6 +128,7 @@ ImageDisplay::ImageDisplay()
 	    	image_->getInventorNode());
 
     shape_->ref();
+    shape_->removeSwitch();
     shape_->setVertexOrdering(
 		visBase::VertexShape::cCounterClockWiseVertexOrdering() );
     shape_->setSelectable( false );
