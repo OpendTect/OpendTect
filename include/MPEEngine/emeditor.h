@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: emeditor.h,v 1.15 2006-05-29 08:02:32 cvsbert Exp $
+ RCS:           $Id: emeditor.h,v 1.16 2007-02-12 07:39:47 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "callback.h"
 #include "emposid.h"
 #include "position.h"
+#include "refcount.h"
 
 class BufferStringSet;
 template <class T> class TypeSet;
@@ -42,10 +43,9 @@ namespace MPE
 */
 
 class ObjectEditor : public CallBacker
-{
+{ mRefCountImpl( ObjectEditor );
 public:
     			ObjectEditor( EM::EMObject& );
-    virtual		~ObjectEditor();
 
     const EM::EMObject&	emObject() const	{ return emobject; }
 
