@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoDepthTabPlaneDragger.cc,v 1.15 2007-01-31 17:34:33 cvskris Exp $";
+static const char* rcsID = "$Id: SoDepthTabPlaneDragger.cc,v 1.16 2007-02-12 14:59:40 cvskris Exp $";
 
 
 #include "SoDepthTabPlaneDragger.h"
@@ -128,21 +128,21 @@ SoDepthTabPlaneDragger::SoDepthTabPlaneDragger()
     SO_KIT_ADD_FIELD( minPos, (-1e30, -1e30, -1e30) );
     SO_KIT_ADD_FIELD( maxPos, (1e30, 1e30, 1e30));
 
-    SO_NODE_ADD_FIELD( depthKey, (SoDepthTabPlaneDragger::NONE) );
-    SO_NODE_ADD_FIELD( translateKey, (SoDepthTabPlaneDragger::DISABLE) );
+    SO_KIT_ADD_FIELD( depthKey, (SoDepthTabPlaneDragger::NONE) );
+    SO_KIT_ADD_FIELD( translateKey, (SoDepthTabPlaneDragger::DISABLE) );
 
-    SO_NODE_SET_SF_ENUM_TYPE( depthKey, Key );
-    SO_NODE_SET_SF_ENUM_TYPE( translateKey, Key );
-    SO_NODE_DEFINE_ENUM_VALUE( Key, SoDepthTabPlaneDragger::DISABLE );
-    SO_NODE_DEFINE_ENUM_VALUE( Key, SoDepthTabPlaneDragger::NONE );
-    SO_NODE_DEFINE_ENUM_VALUE( Key, SoDepthTabPlaneDragger::ANY );
-    SO_NODE_DEFINE_ENUM_VALUE( Key, SoDepthTabPlaneDragger::SHIFT );
-    SO_NODE_DEFINE_ENUM_VALUE( Key, SoDepthTabPlaneDragger::CONTROL );
-    SO_NODE_DEFINE_ENUM_VALUE( Key, SoDepthTabPlaneDragger::ALT );
-    SO_NODE_DEFINE_ENUM_VALUE( Key, SoDepthTabPlaneDragger::SHIFTCONTROL );
-    SO_NODE_DEFINE_ENUM_VALUE( Key, SoDepthTabPlaneDragger::SHIFTALT );
-    SO_NODE_DEFINE_ENUM_VALUE( Key, SoDepthTabPlaneDragger::CONTROLALT );
-    SO_NODE_DEFINE_ENUM_VALUE( Key, SoDepthTabPlaneDragger::SHIFTCONTROLALT );
+    SO_KIT_SET_SF_ENUM_TYPE( depthKey, Key );
+    SO_KIT_SET_SF_ENUM_TYPE( translateKey, Key );
+    SO_KIT_DEFINE_ENUM_VALUE( Key, SoDepthTabPlaneDragger::DISABLE );
+    SO_KIT_DEFINE_ENUM_VALUE( Key, SoDepthTabPlaneDragger::NONE );
+    SO_KIT_DEFINE_ENUM_VALUE( Key, SoDepthTabPlaneDragger::ANY );
+    SO_KIT_DEFINE_ENUM_VALUE( Key, SoDepthTabPlaneDragger::SHIFT );
+    SO_KIT_DEFINE_ENUM_VALUE( Key, SoDepthTabPlaneDragger::CONTROL );
+    SO_KIT_DEFINE_ENUM_VALUE( Key, SoDepthTabPlaneDragger::ALT );
+    SO_KIT_DEFINE_ENUM_VALUE( Key, SoDepthTabPlaneDragger::SHIFTCONTROL );
+    SO_KIT_DEFINE_ENUM_VALUE( Key, SoDepthTabPlaneDragger::SHIFTALT );
+    SO_KIT_DEFINE_ENUM_VALUE( Key, SoDepthTabPlaneDragger::CONTROLALT );
+    SO_KIT_DEFINE_ENUM_VALUE( Key, SoDepthTabPlaneDragger::SHIFTCONTROLALT );
 
     SO_KIT_INIT_INSTANCE();
 
