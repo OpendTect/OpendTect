@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: mpeengine.cc,v 1.73 2006-12-22 10:18:10 cvsjaap Exp $";
+static const char* rcsID = "$Id: mpeengine.cc,v 1.74 2007-02-12 07:40:09 cvsnanne Exp $";
 
 #include "mpeengine.h"
 
@@ -61,7 +61,7 @@ Engine::Engine()
 Engine::~Engine()
 {
     deepErase( trackers_ );
-    deepErase( editors_ );
+    deepUnRef( editors_ );
     deepUnRef( attribcache_ );
     deepErase( attribcachespecs_ );
     deepUnRef( attribbackupcache_ );
@@ -392,7 +392,10 @@ ObjectEditor* Engine::getEditor( const EM::ObjectID& id, bool create )
     for ( int idx=0; idx<editors_.size(); idx++ )
     {
 	if ( editors_[idx]->emObject().id()==id )
+	{
+	    editors_[idx]->ref();
 	    return editors_[idx];
+	}
     }
 
     if ( !create ) return 0;
@@ -407,6 +410,7 @@ ObjectEditor* Engine::getEditor( const EM::ObjectID& id, bool create )
 
 	ObjectEditor* editor = editorfactories_[idx]->create(*emobj);
 	editors_ += editor;
+	editor->ref();
 	return editor;
     }
 
@@ -420,7 +424,7 @@ void Engine::removeEditor( const EM::ObjectID& objid )
     if ( editor )
     {
 	editors_ -= editor;
-	delete editor;
+	editor->unRef();
     }
 }
 
@@ -603,7 +607,7 @@ bool Engine::usePar( const IOPar& iopar )
 void Engine::init()
 {
     deepErase( trackers_ );
-    deepErase( editors_ );
+    deepUnRef( editors_ );
     deepUnRef( attribcache_ );
     deepErase( attribcachespecs_ );
     deepUnRef( attribbackupcache_ );
