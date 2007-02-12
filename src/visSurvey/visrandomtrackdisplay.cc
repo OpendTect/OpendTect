@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          January 2003
- RCS:           $Id: visrandomtrackdisplay.cc,v 1.81 2006-11-27 13:27:45 cvsnanne Exp $
+ RCS:           $Id: visrandomtrackdisplay.cc,v 1.82 2007-02-12 22:10:42 cvskris Exp $
  ________________________________________________________________________
 
 -*/
@@ -799,6 +799,29 @@ bool RandomTrackDisplay::isAngle( int attrib ) const
 
 void RandomTrackDisplay::setAngleFlag( int attrib, bool yn )
 { texture_->setAngleFlag( attrib, yn ); }
+
+
+Coord3 RandomTrackDisplay::getNormal( const Coord3& pos ) const
+{
+    const mVisTrans* utm2display = scene_->getUTM2DisplayTransform();
+    Coord3 xytpos = utm2display->transformBack( pos );
+    BinID binid = SI().transform( Coord(xytpos.x,xytpos.y) );
+
+    TypeSet<BinID> bids;
+    getDataTraceBids( bids );
+    const int idx = bids.indexOf(binid);
+    if ( idx==-1 ) return Coord3::udf();
+
+    const Coord pos0 = SI().transform(bids[idx ? idx-1 : idx]);
+    const Coord pos1 = SI().transform(bids[idx<bids.size()-1 ? idx+1 : idx]);
+
+    const Coord dir = pos1-pos0;
+    const float dist = dir.abs();
+    if ( dist<=mMIN(SI().inlDistance(),SI().crlDistance()) )
+	return Coord3::udf();
+
+    return Coord3( dir.y, dir.x, 0 );
+}
 
 
 float RandomTrackDisplay::calcDist( const Coord3& pos ) const

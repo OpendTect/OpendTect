@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visplanedatadisplay.h,v 1.94 2007-02-02 15:44:43 cvsnanne Exp $
+ RCS:		$Id: visplanedatadisplay.h,v 1.95 2007-02-12 22:10:42 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -106,6 +106,7 @@ public:
 
     virtual float		calcDist(const Coord3&) const;
     virtual float		maxDist() const;
+    virtual Coord3		getNormal(const Coord3&) const;
     virtual bool		allowPicks() const		{ return true; }
 
     bool			setDataTransform(ZAxisTransform*);

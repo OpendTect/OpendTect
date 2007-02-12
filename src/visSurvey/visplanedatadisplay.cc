@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.165 2007-02-02 15:44:43 cvsnanne Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.166 2007-02-12 22:10:42 cvskris Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -222,6 +222,18 @@ CubeSampling PlaneDataDisplay::snapPosition( const CubeSampling& cs ) const
 	res.zrg.start = res.zrg.stop = SI().zRange(true).snap(zrg.center());
 
     return res;
+}
+
+
+Coord3 PlaneDataDisplay::getNormal( const Coord3& pos ) const
+{
+    if ( orientation_==Timeslice )
+	return Coord3(0,0,1);
+
+    const Coord c00 = SI().transform(BinID(0,0));
+    const Coord rel = SI().transform(
+	    orientation_==Inline ? BinID(0,1) : BinID(1,0) );
+    return Coord3(rel-c00, 0 );
 }
 
 

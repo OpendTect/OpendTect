@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvobj.h,v 1.74 2007-02-02 15:44:43 cvsnanne Exp $
+ RCS:		$Id: vissurvobj.h,v 1.75 2007-02-12 22:10:42 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -41,6 +41,9 @@ namespace visSurvey
 class SurveyObject
 {
 public:
+    virtual Coord3		getNormal(const Coord3& pos) const;
+    				/*!<Position and Normal are both in
+				    displayspace. */
     virtual float		calcDist(const Coord3& pos) const
 				{ return mUdf(float); }
     				/*<\Calculates distance between pick and 

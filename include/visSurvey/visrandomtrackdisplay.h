@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		January 2003
- RCS:		$Id: visrandomtrackdisplay.h,v 1.49 2007-01-17 10:33:06 cvshelene Exp $
+ RCS:		$Id: visrandomtrackdisplay.h,v 1.50 2007-02-12 22:10:42 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -126,6 +126,7 @@ public:
     virtual NotifierAccess*	getMovementNotification() { return &moving_; }
     NotifierAccess*		getManipulationNotifier() {return &knotmoving_;}
 
+    Coord3			getNormal(const Coord3&) const;
     virtual float               calcDist(const Coord3&) const;
     virtual bool		allowPicks() const		{ return true; }
 
