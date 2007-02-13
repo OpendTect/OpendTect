@@ -4,7 +4,7 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vislocationdisplay.cc,v 1.20 2007-02-09 20:56:22 cvskris Exp $";
+static const char* rcsID = "$Id: vislocationdisplay.cc,v 1.21 2007-02-13 20:10:45 cvskris Exp $";
 
 #include "vislocationdisplay.h"
 
@@ -24,6 +24,7 @@ static const char* rcsID = "$Id: vislocationdisplay.cc,v 1.20 2007-02-09 20:56:2
 namespace visSurvey {
 
 const char* LocationDisplay::sKeyID()		{ return "Location.ID"; }
+const char* LocationDisplay::sKeyMgrName()	{ return "Location.Manager"; }
 const char* LocationDisplay::sKeyShowAll()	{ return "Show all"; }
 const char* LocationDisplay::sKeyMarkerType()	{ return "Shape"; }
 const char* LocationDisplay::sKeyMarkerSize()	{ return "Size"; }
@@ -73,7 +74,13 @@ LocationDisplay::~LocationDisplay()
 
 void LocationDisplay::setSet( Pick::Set* s )
 {
-    if ( set_ ) { pErrMsg("Cannot set set_ twice"); return; }
+    if ( set_ )
+    {
+	if ( set_!=s )
+	    pErrMsg("Cannot set set_ twice");
+	return;
+    }
+
     set_ = s;
     setName( set_->name() );
     fullRedraw();
@@ -159,8 +166,8 @@ void LocationDisplay::pickCB( CallBacker* cb )
 
     if ( waitsfordirectionid_!=-1 )
     {
-	Coord3 newpos;
-	if ( getPickSurface( eventinfo, newpos ) )
+	Coord3 newpos, normal;
+	if ( getPickSurface( eventinfo, newpos, normal ) )
 	{
 	    Coord3 dir = newpos - (*set_)[waitsfordirectionid_].pos;
 	    dir.z *= -SI().zFactor(); //convert to right dir-domain
@@ -179,8 +186,8 @@ void LocationDisplay::pickCB( CallBacker* cb )
     }
     else if ( waitsforpositionid_!=-1 )
     {
-	Coord3 newpos;
-	if ( getPickSurface( eventinfo, newpos ) )
+	Coord3 newpos, normal;
+	if ( getPickSurface( eventinfo, newpos, normal ) )
 	{
 	    (*set_)[waitsforpositionid_].pos = newpos;
 	    Pick::SetMgr::ChangeData cd(
@@ -257,10 +264,15 @@ void LocationDisplay::pickCB( CallBacker* cb )
 	    if ( eventinfo.pickedobjids.size() &&
 		 eventid==mousepressid_ )
 	    {
-		Coord3 newpos;
-		if ( getPickSurface( eventinfo, newpos ) )
+		Coord3 newpos, normal;
+		if ( getPickSurface( eventinfo, newpos, normal ) )
 		{
-		    if ( addPick( newpos, Sphere(1,0,0), true ) )
+		    const Sphere dir = normal.isDefined()
+			? cartesian2Spherical(
+				Coord3(normal.y,-normal.x,normal.z), true)
+			: Sphere( 1, 0, 0 );
+
+		    if ( addPick( newpos, dir, true ) )
 		    {
 			if ( hasDirection() )
 			{
@@ -278,7 +290,7 @@ void LocationDisplay::pickCB( CallBacker* cb )
 
 
 bool LocationDisplay::getPickSurface( const visBase::EventInfo& evi,
-				      Coord3& newpos ) const
+				      Coord3& newpos, Coord3& normal ) const
 {
     const int sz = evi.pickedobjids.size();
     bool validpicksurface = false;
@@ -300,6 +312,7 @@ bool LocationDisplay::getPickSurface( const visBase::EventInfo& evi,
 	if ( so && so->allowPicks() )
 	{
 	    validpicksurface = true;
+	    normal = so->getNormal( evi.pickedpos );
 	    if ( eventid!=-1 )
 		break;
 	}
@@ -618,6 +631,7 @@ void LocationDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
     visBase::VisualObjectImpl::fillPar( par, saveids );
 
     par.set( sKeyID(), picksetmgr_->get(*set_) );
+    par.set( sKeyMgrName(), picksetmgr_->name() );
     par.setYN( sKeyShowAll(), showall_ );
     par.set( sKeyMarkerType(), set_->disp_.markertype_ );
     par.set( sKeyMarkerSize(), set_->disp_.pixsize_ );
@@ -638,22 +652,38 @@ int LocationDisplay::usePar( const IOPar& par )
     par.getYN( sKeyShowAll(), shwallpicks );
     showAll( shwallpicks );
 
+    BufferString setmgr;
+    if ( par.get(sKeyMgrName(),setmgr) )
+    {
+	setSetMgr( &Pick::SetMgr::getMgr(setmgr.buf()) );
+    }
+
     if ( !par.get(sKeyID(),storedmid_) )
 	return -1;
 
-    PtrMan<IOObj> ioobj = IOM().get( storedmid_ );
-    if ( !ioobj ) return 1;
-
-    Pick::Set* newps = new Pick::Set;
-    BufferString bs;
-    if ( PickSetTranslator::retrieve(*newps,ioobj,bs) )
+    const int setidx = picksetmgr_ ? picksetmgr_->indexOf( storedmid_ ) : -1;
+    if ( setidx==-1 )
     {
-	newps->disp_.markertype_ = markertype;
-	newps->disp_.pixsize_ = pixsize;
-	setSet( newps );
+	PtrMan<IOObj> ioobj = IOM().get( storedmid_ );
+	if ( !ioobj ) return 1;
+
+	Pick::Set* newps = new Pick::Set;
+	BufferString bs;
+	if ( PickSetTranslator::retrieve(*newps,ioobj,bs) )
+	{
+	    newps->disp_.markertype_ = markertype;
+	    newps->disp_.pixsize_ = pixsize;
+	    if ( picksetmgr_ ) picksetmgr_->set( storedmid_, newps );
+	    setSet( newps );
+	}
+	else
+	{
+	    delete newps;
+	    return -1;
+	}
     }
     else
-	return -1;
+	setSet( &picksetmgr_->get( storedmid_ ) );
 
     return 1;
 }

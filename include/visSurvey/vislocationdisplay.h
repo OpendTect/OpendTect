@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		June 2006
- RCS:		$Id: vislocationdisplay.h,v 1.10 2007-02-09 20:56:22 cvskris Exp $
+ RCS:		$Id: vislocationdisplay.h,v 1.11 2007-02-13 20:10:45 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -48,7 +48,7 @@ public:
     				/*!<Only used for notifications. */
     Pick::Set*			getSet()		{ return set_; }
 
-    const MultiID&		getStoredID() const 	{ return storedmid_; }
+    MultiID			getMultiID() const 	{ return storedmid_; }
 
     void			fullRedraw(CallBacker* =0);
     void			showAll(bool yn);
@@ -93,7 +93,7 @@ protected:
     void			addDisplayPick(const Pick::Location&);
 
     bool			getPickSurface(const visBase::EventInfo&,
-	    				       Coord3&) const;
+					   Coord3& pos, Coord3& normal) const;
     Coord3			display2World(const Coord3&) const;
     Coord3			world2Display(const Coord3&) const;
     bool			transformPos(Pick::Location&) const;
@@ -124,6 +124,7 @@ protected:
     MultiID			storedmid_;
 
     static const char*		sKeyID();
+    static const char*		sKeyMgrName();
     static const char*		sKeyShowAll();
     static const char*		sKeyMarkerType();
     static const char*		sKeyMarkerSize();
