@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: uiattrsel.cc,v 1.21 2007-01-16 14:32:38 cvsjaap Exp $
+ RCS:           $Id: uiattrsel.cc,v 1.22 2007-02-13 13:23:05 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -402,6 +402,8 @@ uiAttrSel::uiAttrSel( uiParent* p, const char* txt,
 void uiAttrSel::setDescSet( const DescSet* ads )
 {
     attrdata_.attrset = ads;
+    if ( ads)
+	is2d_ = ads->is2D();
 }
 
 
@@ -558,10 +560,7 @@ void uiAttrSel::fillSelSpec( SelSpec& as ) const
 	as.setRefFromID( *attrdata_.attrset );
 
     if ( is2D() )
-    {
-	as.setRef( getAttrName() );
 	as.set2DFlag();
-    }
 }
 
 

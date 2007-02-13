@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: mpeengine.cc,v 1.74 2007-02-12 07:40:09 cvsnanne Exp $";
+static const char* rcsID = "$Id: mpeengine.cc,v 1.75 2007-02-13 13:22:37 cvsjaap Exp $";
 
 #include "mpeengine.h"
 
@@ -28,6 +28,7 @@ static const char* rcsID = "$Id: mpeengine.cc,v 1.74 2007-02-12 07:40:09 cvsnann
 #include "ioman.h"
 #include "ioobject.h"
 #include "iopar.h"
+#include "linekey.h"
 #include "sectiontracker.h"
 #include "survinfo.h"
 
@@ -315,9 +316,13 @@ CubeSampling Engine::getAttribCube( const Attrib::SelSpec& as ) const
 
 const Attrib::DataCubes* Engine::getAttribCache(const Attrib::SelSpec& as) const
 {
+    Attrib::SelSpec attrselspec(as);
+    if ( as.is2D() )
+	attrselspec.setUserRef( LineKey(as.userRef()).attrName() );   
+
     for ( int idx=0; idx<attribcachespecs_.size(); idx++ )
     {
-	if ( *attribcachespecs_[idx]==as )
+	if ( *attribcachespecs_[idx]==attrselspec )
 	    return idx<attribcache_.size() ? attribcache_[idx] : 0;
     }
 
