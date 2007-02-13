@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2004
- RCS:           $Id: uimpepartserv.cc,v 1.58 2007-02-05 18:19:47 cvsbert Exp $
+ RCS:           $Id: uimpepartserv.cc,v 1.59 2007-02-13 13:39:07 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -238,11 +238,11 @@ bool uiMPEPartServer::showSetupDlg( const EM::ObjectID& emid,
 
 
     EM::EMObject* emobj = EM::EMM().getObject( emid );
-    // TODO: distinguish between attrset3d_ and attrset2d_
+    const Attrib::DescSet* attrset = getCurAttrDescSet( tracker->is2D() );
     MPE::uiSetupGroup* grp = 
-	MPE::uiMPE().setupgrpfact.create(&dlg, emobj->getTypeStr(), attrset3d_);
+	MPE::uiMPE().setupgrpfact.create(&dlg, emobj->getTypeStr(), attrset );
+
     grp->setSectionTracker( sectracker );
-   
     do
     {
 	if ( !dlg.go() && showcancelbutton )
@@ -350,7 +350,7 @@ void uiMPEPartServer::activeVolumeChange(CallBacker*)
 
 void uiMPEPartServer::loadAttribData()
 {
-    if ( blockdataloading_ || postponedcs_ == MPE::engine().activeVolume() )
+    if ( blockdataloading_ || postponedcs_==MPE::engine().activeVolume() )
 	return;
 
     uiCursorChanger changer( uiCursor::Wait );
@@ -479,20 +479,21 @@ bool uiMPEPartServer::saveSetup( const MultiID& mid )
     const int trackerid = getTrackerID( emid );
     if ( trackerid<0 ) return false;
     MPE::EMTracker* tracker = MPE::engine().getTracker( trackerid );
+    const Attrib::DescSet* attrset = getCurAttrDescSet( tracker->is2D() );
 
     IOPar iopar;
     tracker->fillPar( iopar );
     ObjectSet<const Attrib::SelSpec> usedattribs;
     MPE::engine().getNeededAttribs( usedattribs );
     TypeSet<Attrib::DescID> usedattribids;
-    // TODO: distinguish between attrset3d_ and attrset2d_
+
     for ( int idx=0; idx<usedattribs.size(); idx++ )
     {
 	const Attrib::DescID descid = usedattribs[idx]->id();
-	if ( attrset3d_->getDesc(descid) )
+	if ( attrset->getDesc(descid) )
 	    usedattribids += descid;
     }
-    Attrib::DescSet* ads = attrset3d_->optimizeClone( usedattribids );
+    Attrib::DescSet* ads = attrset->optimizeClone( usedattribids );
     IOPar attrpar;
     if ( ads ) 
 	ads->fillPar( attrpar );
@@ -537,18 +538,17 @@ bool uiMPEPartServer::readSetup( const MultiID& mid )
     PtrMan<IOPar> attrpar = iopar.subselect( "Attribs" );
     if ( !attrpar ) return true;
 
-    //TODO newads(is2d), as for now only supports 3D -> modify later on 
-    Attrib::DescSet newads(false);
+    Attrib::DescSet newads( tracker->is2D() );
     newads.usePar( *attrpar );
     mergeAttribSets( newads, *tracker ); 
     return true;
 }
 
 
-// TODO: distinguish between attrset3d_ and attrset2d_
 void uiMPEPartServer::mergeAttribSets( const Attrib::DescSet& newads,
 				       MPE::EMTracker& tracker )
 {
+    const Attrib::DescSet* attrset = getCurAttrDescSet( tracker.is2D() );
     const EM::EMObject* emobj = EM::EMM().getObject( tracker.objectID() );
     for ( int sidx=0; sidx<emobj->nrSections(); sidx++ )
     {
@@ -564,10 +564,10 @@ void uiMPEPartServer::mergeAttribSets( const Attrib::DescSet& newads,
 	    Attrib::DescID newid( -1, true );
 	    const Attrib::Desc* usedad = newads.getDesc( as->id() );
 	    if ( !usedad ) continue;
-	    for ( int ida=0; ida<attrset3d_->nrDescs(); ida++ )
+	    for ( int ida=0; ida<attrset->nrDescs(); ida++ )
 	    {
-		const Attrib::DescID descid = attrset3d_->getID( ida );
-		const Attrib::Desc* ad = attrset3d_->getDesc( descid );
+		const Attrib::DescID descid = attrset->getID( ida );
+		const Attrib::Desc* ad = attrset->getDesc( descid );
 		if ( !ad ) continue;
 
 		if ( usedad->isIdenticalTo( *ad ) )
@@ -580,14 +580,14 @@ void uiMPEPartServer::mergeAttribSets( const Attrib::DescSet& newads,
 	    if ( newid < 0 )
 	    {
 		Attrib::DescSet* set = 
-		    const_cast<Attrib::DescSet*>( attrset3d_ );
+		    const_cast<Attrib::DescSet*>( attrset );
 		Attrib::Desc* newdesc = new Attrib::Desc( *usedad );
 		newdesc->setDescSet( set );
 		newid = set->addDesc( newdesc );
 	    }
 
 	    Attrib::SelSpec newas( *as );
-	    newas.setIDFromRef( *attrset3d_ );
+	    newas.setIDFromRef( *attrset );
 	    st->adjuster()->setAttributeSel( asidx, newas );
 	}
     }
