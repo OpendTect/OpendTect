@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2005
- RCS:           $Id: treeitem.cc,v 1.9 2007-02-09 20:55:44 cvskris Exp $
+ RCS:           $Id: treeitem.cc,v 1.10 2007-02-13 21:59:50 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -86,6 +86,38 @@ const char* ParentTreeItem::parentType() const
 
 uiTreeItem* TreeItemFactory::create( int visid, uiTreeItem* treeitem ) const
 {
+    visBase::DataObject* dataobj =
+	ODMainWin()->applMgr().visServer()->getObject(visid);
+    if ( !dataobj ) return 0;
+
+    mDynamicCastGet(visSurvey::LocationDisplay*,ld, dataobj );
+    if ( !ld ) return 0;
+
+    if ( treeitem->findChild( visid ) )
+	return 0;
+
+    const MultiID mid = ld->getMultiID();
+    const char* factoryname = 0;
+
+    mDynamicCastGet(ImageDisplay*,id,dataobj);
+    if ( id ) factoryname = ImageSubItem::sKeyManager();
+
+    Pick::SetMgr& mgr = Pick::SetMgr::getMgr( factoryname );
+    int setidx = mgr.indexOf(mid);
+    if ( setidx==-1 )
+    {
+	PtrMan<IOObj> ioobj = IOM().get( mid );
+	Pick::Set* ps = new Pick::Set;
+	BufferString bs;
+	PickSetTranslator::retrieve(*ps,ioobj,bs);
+	mgr.set( mid, ps );
+
+	setidx = mgr.indexOf(mid);
+
+    }
+
+    if ( id ) return new ImageSubItem( mgr.get(setidx), visid );
+
     return 0;
 }
 
@@ -111,9 +143,14 @@ bool AnnotTreeItem::init()
     Pick::SetMgr& mgr = Pick::SetMgr::getMgr( managerName() );
     mgr.setAdded.notify( mCB(this,AnnotTreeItem,setAddedCB));
     mgr.setToBeRemoved.notify( mCB(this,AnnotTreeItem,setRemovedCB));
+    uiVisPartServer* visserv = applMgr()->visServer();
     for ( int idx=0; idx<mgr.size(); idx++ )
     {
-	uiTreeItem* item = createSubItem( -1,  mgr.get(idx) );
+	const MultiID mid = mgr.id(idx);
+	TypeSet<int> dispids;
+	visserv->findObject( mid, dispids );
+	uiTreeItem* item = createSubItem( dispids.size() ? dispids[0] : -1,
+					  mgr.get(idx) );
 	addChild( item, true );
 	item->setChecked( false );
     }

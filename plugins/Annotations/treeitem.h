@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2005
- RCS:           $Id: treeitem.h,v 1.6 2007-02-09 20:55:44 cvskris Exp $
+ RCS:           $Id: treeitem.h,v 1.7 2007-02-13 21:59:50 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -52,7 +52,9 @@ public:
     			AnnotTreeItem(const char*);
     			~AnnotTreeItem();
 
+
 protected:
+    bool		readPicks(Pick::Set&);
     virtual const char*	parentType() const;
     virtual bool	init();
     void		prepareForShutdown();
@@ -62,7 +64,6 @@ protected:
     virtual const char*	managerName() const		= 0;
 
 
-    bool		readPicks(Pick::Set&);
 
    void			setAddedCB(CallBacker*);
    void			setRemovedCB(CallBacker*);
