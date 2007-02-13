@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uibutton.cc,v 1.30 2007-02-07 16:46:29 cvsnanne Exp $
+ RCS:           $Id: uibutton.cc,v 1.31 2007-02-13 09:36:29 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -226,7 +226,7 @@ uiPushButtonBody& uiPushButton::mkbody( uiParent* parnt, const ioPixmap* pm,
 					const char* txt, bool immact )
 {
     BufferString buttxt( txt );
-    if ( !immact )
+    if ( !immact && txt && *txt )
 	buttxt += " ...";
     if ( pm )	body_ = new uiPushButtonBody(*this,*pm,parnt,buttxt.buf()); 
     else	body_ = new uiPushButtonBody(*this,parnt,buttxt.buf()); 
