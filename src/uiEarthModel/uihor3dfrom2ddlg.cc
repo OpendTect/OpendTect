@@ -4,12 +4,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          January 2007
- RCS:           $Id: uihor3dfrom2ddlg.cc,v 1.6 2007-02-05 18:19:47 cvsbert Exp $
+ RCS:           $Id: uihor3dfrom2ddlg.cc,v 1.7 2007-02-13 13:32:05 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uihor3dfrom2ddlg.h"
+
+#include "uiempartserv.h"
 #include "uigeninput.h"
 #include "uiioobjsel.h"
 #include "uibutton.h"
@@ -23,14 +25,18 @@ ________________________________________________________________________
 #include "emhor2dto3d.h"
 #include "array2dinterpol.h"
 #include "ctxtioobj.h"
+#include "ioman.h"
 #include "survinfo.h"
 
 static int nrsteps = 10;
 
-uiHor3DFrom2DDlg::uiHor3DFrom2DDlg( uiParent* p, const EM::Horizon2D& h2d )
+uiHor3DFrom2DDlg::uiHor3DFrom2DDlg( uiParent* p, const EM::Horizon2D& h2d,
+				    uiEMPartServer* ems )
     : uiDialog( p, Setup("Create 3D Horizon","Specify parameters","104.0.5") )
     , hor2d_( h2d )
+    , emserv_( ems )
     , ctio_(*mMkCtxtIOObj(EMHorizon))
+    , selid_( -1 )
 {
     ctio_.ctxt.forread = false;
 
@@ -49,19 +55,42 @@ uiHor3DFrom2DDlg::~uiHor3DFrom2DDlg()
 }
 
 
+MultiID uiHor3DFrom2DDlg::getSelID() const
+{ return selid_; }
+
+
+bool uiHor3DFrom2DDlg::doDisplay() const
+{ return displayfld_->isChecked(); } 
+
+
+#define mAskGoOnStr(nameandtypeexist) \
+    ( nameandtypeexist ? \
+	"An object with this name exists. Overwrite?" : \
+	"An object of different type owns this name. Make it unique?" )
+
 bool uiHor3DFrom2DDlg::acceptOK( CallBacker* )
 {
 #define mErrRet(s) { uiMSG().error(s); return false; }
 
-    if ( !outfld_->commitInput( true ) )
-	mErrRet( "Please enter a name for the output horizon" )
-
+    outfld_->processInput();
     const char* nm = outfld_->getInput();
+    const BufferString typ = EM::Horizon::typeStr();
+
+    PtrMan<IOObj> ioobj = IOM().getLocal( nm );
+    const bool nameandtypeexist = ioobj && typ==ioobj->group();
+    if ( ioobj && !uiMSG().askGoOn(mAskGoOnStr(nameandtypeexist),true) )
+	return false;
+    
     EM::EMManager& em = EM::EMM();
-    EM::ObjectID emobjid = em.createObject( EM::Horizon::typeStr(), nm );
+    const MultiID mid = em.findObject( typ, nm );
+	
+    emserv_->removeTreeObject( em.getObjectID(mid) );
+    
+    const EM::ObjectID emobjid = em.createObject( typ, nm );
     mDynamicCastGet(EM::Horizon*,hor3d,em.getObject(emobjid));
     if ( !hor3d )
 	mErrRet( "Cannot create 3D horizon" );
+
     hor3d->ref();
     hor3d->setPreferredColor( hor2d_.preferredColor() );
 
@@ -82,12 +111,13 @@ bool uiHor3DFrom2DDlg::acceptOK( CallBacker* )
     rv = dlg.execute();
     delete exec;
 
-    if ( !rv || !displayfld_->isChecked() )
+    if ( !rv || !doDisplay() )
 	hor3d->unRef();
     else
+    {
+	selid_ = hor3d->multiID();
 	hor3d->unRefNoDelete();
-
-    // TODO: Insert (or refresh) 3d horizon in the tree 
+    }
 
     return rv;
 }
