@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: visemobjdisplay.cc,v 1.94 2006-11-21 14:00:08 cvsbert Exp $
+ RCS:           $Id: visemobjdisplay.cc,v 1.95 2007-02-13 13:44:59 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -209,7 +209,6 @@ EM::PosID EMObjectDisplay::findClosestNode(const Coord3&) const
 
 bool EMObjectDisplay::setEMObject( const EM::ObjectID& newid )
 {
-    
     EM::EMObject* emobject = em_.getObject( newid );
     if ( !emobject ) return false;
 
@@ -445,7 +444,7 @@ void EMObjectDisplay::emChangeCB( CallBacker* cb )
     if ( cbdata.event==EM::EMObjectCallbackData::SectionChange )
     {
 	const EM::SectionID sectionid = cbdata.pid0.sectionID();
-	if ( emobject_->sectionIndex(sectionid)>0 )
+	if ( emobject_->sectionIndex(sectionid)>=0 )
 	    addSection( sectionid );
 	else
 	{
