@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Jan 2007
- RCS:		$Id: emhor2dto3d.h,v 1.1 2007-01-29 18:42:12 cvsbert Exp $
+ RCS:		$Id: emhor2dto3d.h,v 1.2 2007-02-13 13:14:36 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -33,7 +33,8 @@ public:
 				Hor2DTo3D(const EM::Horizon2D&,
 					  const HorSampling&,
 					  int nrsteps, // < 1 is unlimited
-					  EM::Horizon&);
+					  EM::Horizon&);  
+					  // current 3d-hor content is removed
 				~Hor2DTo3D();
 
     int				nextStep();
