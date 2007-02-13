@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.103 2007-02-07 08:56:40 cvsnanne Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.104 2007-02-13 14:00:13 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,7 +51,8 @@ ________________________________________________________________________
 
 #include <math.h>
 
-const int uiEMPartServer::evDisplayHorizon = 0;
+const int uiEMPartServer::evDisplayHorizon	= 0;
+const int uiEMPartServer::evRemoveTreeObject	= 1;
 
 #define mErrRet(s) { BufferString msg( "Cannot load '" ); msg += s; msg += "'";\
     			uiMSG().error( msg ); return false; }
@@ -188,11 +189,24 @@ void uiEMPartServer::filterSurface( const EM::ObjectID& emid )
 }
 
 
+void uiEMPartServer::removeTreeObject( const EM::ObjectID& emid )
+{
+    selemid_ = emid;
+    sendEvent( evRemoveTreeObject );
+}
+
+
 void uiEMPartServer::deriveHor3DFrom2D( const EM::ObjectID& emid )
 {
     mDynamicCastGet(EM::Horizon2D*,h2d,em_.getObject(emid))
-    uiHor3DFrom2DDlg dlg( appserv().parent(), *h2d );
-    dlg.go();
+    uiHor3DFrom2DDlg dlg( appserv().parent(), *h2d, this );
+
+    if ( dlg.go() && dlg.doDisplay() )
+    {
+	const MultiID mid = dlg.getSelID();
+	selemid_ = em_.getObjectID(mid);
+	sendEvent( evDisplayHorizon );
+    }
 }
 
 
