@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Sep 2002
- RCS:           $Id: uiempartserv.h,v 1.46 2007-01-24 15:32:56 cvsjaap Exp $
+ RCS:           $Id: uiempartserv.h,v 1.47 2007-02-13 13:15:10 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -95,9 +95,12 @@ public:
     void		removeHistory();
 
     static const int	evDisplayHorizon;
+    static const int	evRemoveTreeObject;
 
 			// Interaction stuff
     const EM::ObjectID&	selEMID() const			{ return selemid_; }
+
+    void		removeTreeObject(const EM::ObjectID&);  
 
 protected:
     void		selectSurfaces(TypeSet<EM::ObjectID>&,

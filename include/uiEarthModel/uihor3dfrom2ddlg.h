@@ -7,11 +7,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          January 2007
- RCS:           $Id: uihor3dfrom2ddlg.h,v 1.3 2007-01-29 18:42:12 cvsbert Exp $
+ RCS:           $Id: uihor3dfrom2ddlg.h,v 1.4 2007-02-13 13:15:46 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "multiid.h"
 
 #include "uidialog.h"
 
@@ -19,6 +20,7 @@ class uiGenInput;
 class uiIOObjSel;
 class uiCheckBox;
 class CtxtIOObj;
+class uiEMPartServer;
 namespace EM { class Horizon2D; };
 
 
@@ -28,8 +30,12 @@ class uiHor3DFrom2DDlg : public uiDialog
 {
 public:    
 				uiHor3DFrom2DDlg(uiParent*,
-						 const EM::Horizon2D&);
+						 const EM::Horizon2D&,
+						 uiEMPartServer*);
 				~uiHor3DFrom2DDlg();
+
+     bool			doDisplay() const;
+     MultiID			getSelID() const;
 
 protected:
 
@@ -37,10 +43,13 @@ protected:
 
     CtxtIOObj&			ctio_;
     const EM::Horizon2D& 	hor2d_;
+    uiEMPartServer*		emserv_;
 
     uiGenInput*			nriterfld_;
     uiIOObjSel*			outfld_;
     uiCheckBox*			displayfld_;
+
+    MultiID			selid_;
 
 };
 
