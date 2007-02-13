@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: vishorizon2ddisplay.cc,v 1.3 2007-01-16 14:34:23 cvsjaap Exp $
+ RCS:           $Id: vishorizon2ddisplay.cc,v 1.4 2007-02-13 13:45:31 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,6 +39,9 @@ Horizon2DDisplay::Horizon2DDisplay()
 
 Horizon2DDisplay::~Horizon2DDisplay()
 {
+    for ( int idx=0; idx<sids_.size(); idx++ )
+    	removeSectionDisplay( sids_[idx] );
+
     removeEMStuff();
 }
 
