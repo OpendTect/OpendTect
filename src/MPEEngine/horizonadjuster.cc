@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizonadjuster.cc,v 1.38 2007-01-31 11:59:09 cvsjaap Exp $";
+static const char* rcsID = "$Id: horizonadjuster.cc,v 1.39 2007-02-13 13:20:26 cvsjaap Exp $";
 
 #include "horizonadjuster.h"
 
@@ -186,7 +186,7 @@ bool HorizonAdjuster::findMaxSimilarity( const ValueSeries<float>& fixedarr,
     int gracecount = 0;
     int nreqsamples = 0;
 
-    for ( int idx=0; idx<nrtests; idx++ ) //, slidingarr += step )
+    for ( int idx=0; idx<nrtests; idx++ )
     {
 
 	const OffsetValueSeries<float> 
@@ -511,7 +511,6 @@ bool HorizonAdjuster::trackBySimilarity( const BinID& trefbid,
 	    			   mNINT(permzrange_.stop/zstep) );
 
     mGetArray( target, similarityrg+testrange );
-    //targetarr.setOffset( targetarr.getOffset()-testrange.start );
     OffsetValueSeries<float> slidearr( targetarr, -testrange.start );
 
     float upsample, upsim; bool upflatstart;
