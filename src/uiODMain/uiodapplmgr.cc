@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.177 2007-02-07 16:46:47 cvsnanne Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.178 2007-02-13 13:41:22 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -746,7 +746,28 @@ bool uiODApplMgr::handleEMServEv( int evid )
 	sceneMgr().updateTrees();
 	return true;
     }
+    else if ( evid == uiEMPartServer::evRemoveTreeObject )
+    {
+	const EM::ObjectID emid = emserv_->selEMID();
+	const MultiID mid = emserv_->getStorageID(emid);
 
+	TypeSet<int> sceneids;
+	visserv_->getChildIds( -1, sceneids );
+
+	TypeSet<int> ids;
+	visserv_->findObject( mid, ids );
+
+	for ( int idx=0; idx<ids.size(); idx++ )
+	{
+	    for ( int idy=0; idy<sceneids.size(); idy++ )
+		visserv_->removeObject( ids[idx], sceneids[idy] );
+	    sceneMgr().removeTreeItem(ids[idx] );
+	}
+
+
+	sceneMgr().updateTrees();
+	return true;
+    }
     else
 	pErrMsg("Unknown event from emserv");
 
