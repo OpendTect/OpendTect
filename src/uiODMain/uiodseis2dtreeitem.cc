@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		May 2006
- RCS:		$Id: uiodseis2dtreeitem.cc,v 1.12 2007-02-02 15:44:43 cvsnanne Exp $
+ RCS:		$Id: uiodseis2dtreeitem.cc,v 1.13 2007-02-13 13:44:17 cvsjaap Exp $
 ___________________________________________________________________
 
 -*/
@@ -607,10 +607,13 @@ void uiOD2DLineSetAttribItem::handleMenuCB( CallBacker* cb )
     uiODAttribTreeItem::handleMenuCB(cb);
     mCBCapsuleUnpackWithCaller(int,mnuid,caller,cb);
     mDynamicCastGet(uiMenuHandler*,menu,caller);
+    if ( !menu || mnuid==-1 || menu->isHandled() )
+	return;
+
     const uiVisPartServer* visserv = applMgr()->visServer();
     mDynamicCastGet(visSurvey::Seis2DDisplay*,s2d,
-    visserv->getObject( displayID() ));
-    if ( !menu || !s2d || mnuid==-1 || menu->isHandled() )
+		    visserv->getObject( displayID() ));
+    if ( !s2d )
 	return;
 
     Attrib::SelSpec myas;
