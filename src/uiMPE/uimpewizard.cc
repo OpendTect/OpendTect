@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpewizard.cc,v 1.66 2007-02-05 18:19:47 cvsbert Exp $
+ RCS:           $Id: uimpewizard.cc,v 1.67 2007-02-13 13:40:24 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -188,10 +188,9 @@ uiGroup* Wizard::createTrackModePage()
 }
 
 
-#define mDefSetupGrp( xsetupgrp, typ, is2d ) \
-    xsetupgrp = uiMPE().setupgrpfact.create( grp, \
-				     EM##typ##TranslatorGroup::keyword, \
-				     mpeserv->getCurAttrDescSet(is2d) ); \
+#define mDefSetupGrp( xsetupgrp, typ ) \
+    xsetupgrp = uiMPE().setupgrpfact.create( \
+	    			grp, EM##typ##TranslatorGroup::keyword, 0 ); \
     xsetupgrp->attach( centeredAbove, lbl );
 
 uiGroup* Wizard::createSeedSetupPage()
@@ -200,10 +199,9 @@ uiGroup* Wizard::createSeedSetupPage()
     uiLabel* lbl = new uiLabel( grp,
 			    "Evaluate settings by picking one or more seeds" );
 
-    mDefSetupGrp( hsetupgrp, Horizon, false );
-    // Horizon2D can use a uiHorizonSetupGroup until we need differentiation.
-    mDefSetupGrp( h2dsetupgrp, Horizon, true );
-//  mDefSetupGrp( fsetupgrp, Fault, false );
+    mDefSetupGrp( hsetupgrp, Horizon );
+    mDefSetupGrp( h2dsetupgrp, Horizon2D );
+//  mDefSetupGrp( fsetupgrp, Fault );
 
     uiPushButton* applybut = new uiPushButton( grp, "Retrack", true );
     applybut->activated.notify( mCB(this,Wizard,retrackCB) );
@@ -265,17 +263,25 @@ bool Wizard::prepareNamePage()
 
 #define mErrRet(msg) { uiMSG().error(msg); return false; }
 
+#define mAskGoOnStr(nameandtypeexist) \
+    ( nameandtypeexist ? \
+	"An object with this name exists. Overwrite?" : \
+	"An object of different type owns this name. Make it unique?" )
+
 bool Wizard::leaveNamePage( bool process )
 {
     if ( !process ) return true;
 
-    bool didexist = true;
+    bool nameandtypeexist = true;
     const char* newobjnm = objselgrp->getNameField()->text(); 
+    
     if ( *newobjnm )
     {
 	PtrMan<IOObj> ioobj = IOM().getLocal( newobjnm );
-	if ( !ioobj ) didexist = false;
-	
+	nameandtypeexist = ioobj && trackertype == ioobj->group();
+
+	if ( ioobj && !uiMSG().askGoOn(mAskGoOnStr(nameandtypeexist),true) )
+	    return false;
     }
 
     if ( !objselgrp->processInput() )
@@ -284,7 +290,7 @@ bool Wizard::leaveNamePage( bool process )
 	return false;
     }
 
-    ioparentrycreated = !didexist;
+    ioparentrycreated = !nameandtypeexist;
 
     const int nrsel = objselgrp->nrSel();
     PtrMan<IOObj> ioobj = nrsel > 0 ? IOM().get(objselgrp->selected(0)) : 0;
@@ -312,12 +318,6 @@ bool Wizard::leaveNamePage( bool process )
 	uiMSG().error("This object is marked as read-only. Please select\n"
 		      "another object or make it writable." );
 	return false;
-    }
-    else if ( didexist )
-    {
-	if ( !uiMSG().askGoOn("An object with that name does already exist."
-			      " Overwrite?",true) )
-	    return false;
     }
     else
 	currentobject = -1;
@@ -393,6 +393,7 @@ bool Wizard::prepareSeedSetupPage()
     SectionTracker* sectiontracker = tracker->getSectionTracker( sid, true );
     if ( !sectiontracker ) return false;
     setupgrp->setSectionTracker( sectiontracker );
+    setupgrp->setAttribSet( mpeserv->getCurAttrDescSet(tracker->is2D()) ); 
 
     mpeserv->sendEvent( uiMPEPartServer::evStartSeedPick );
     EMSeedPicker* seedpicker = tracker->getSeedPicker( true );
@@ -570,7 +571,7 @@ bool Wizard::isClosing( bool iscancel )
 	mpeserv->blockDataLoading( false );
 	mpeserv->postponeLoadingCurVol();
 	mpeserv->sendEvent( uiMPEPartServer::evShowToolbar );
-	if ( seedpicker->doesModeUseSetup() && trackertype!="2D Horizon" )
+	if ( seedpicker->doesModeUseSetup() )
 	    mpeserv->saveSetup( EM::EMM().getMultiID(currentobject) );
     }
     mpeserv->sendEvent( ::uiMPEPartServer::evWizardClosed );
