@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2005
- RCS:           $Id: uihorizontracksetup.cc,v 1.10 2007-02-05 14:32:25 cvsnanne Exp $
+ RCS:           $Id: uihorizontracksetup.cc,v 1.11 2007-02-13 13:34:07 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "attribdescset.h"
 #include "attribsel.h"
 #include "emhorizon.h"
+#include "emhorizon2d.h"
 #include "horizonadjuster.h"
 #include "sectiontracker.h"
 #include "survinfo.h"
@@ -39,7 +40,8 @@ void uiHorizonSetupGroup::initClass()
 uiSetupGroup* uiHorizonSetupGroup::create( uiParent* p, const char* typestr,
 					   const Attrib::DescSet* ads )
 {
-    if ( strcmp(typestr,EM::Horizon::typeStr()) )
+    if ( strcmp(typestr,EM::Horizon::typeStr()) && 
+	 strcmp(typestr,EM::Horizon2D::typeStr()) )
 	return 0;
 
     return new uiHorizonSetupGroup( p, ads );
@@ -182,11 +184,19 @@ void uiHorizonSetupGroup::setSectionTracker( SectionTracker* st )
 }
 
 
+void uiHorizonSetupGroup::setAttribSet( const Attrib::DescSet* ads )
+{ 
+    attrset_ = ads; 
+    if ( inpfld )
+	inpfld->setDescSet( ads );
+}
+
+
 void uiHorizonSetupGroup::initEventGroup()
 {
     Attrib::DescID curid = horadj_->getAttributeSel(0) ?
 	horadj_->getAttributeSel(0)->id() : Attrib::DescID::undef();
-    if ( attrset_->getDesc(curid) )
+    if ( attrset_ && attrset_->getDesc(curid) )
 	inpfld->setDesc( attrset_->getDesc(curid) );
 
     VSEvent::Type ev = horadj_->trackEvent();
