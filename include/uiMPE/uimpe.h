@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		July 2005
- RCS:		$Id: uimpe.h,v 1.7 2006-05-29 08:02:32 cvsbert Exp $
+ RCS:		$Id: uimpe.h,v 1.8 2007-02-13 13:17:52 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -99,6 +99,7 @@ class uiSetupGroup : public uiGroup
 public:
 				uiSetupGroup(uiParent*,const char* helpref);
     virtual void		setSectionTracker(SectionTracker*)	{}
+    virtual void		setAttribSet(const Attrib::DescSet*)	{}
     virtual bool		commitToTracker() const { return true; }
 
     BufferString		helpref_;

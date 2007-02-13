@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          December 2005
- RCS:           $Id: uihorizontracksetup.h,v 1.5 2006-12-01 16:27:25 cvsjaap Exp $
+ RCS:           $Id: uihorizontracksetup.h,v 1.6 2007-02-13 13:16:31 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,6 +40,7 @@ public:
 				~uiHorizonSetupGroup();
 
     void			setSectionTracker(SectionTracker*);
+    void			setAttribSet(const Attrib::DescSet*);
     bool			commitToTracker() const;
 
 protected:
