@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          January 2003
- RCS:           $Id: visrandomtrackdisplay.cc,v 1.82 2007-02-12 22:10:42 cvskris Exp $
+ RCS:           $Id: visrandomtrackdisplay.cc,v 1.83 2007-02-13 20:08:15 cvskris Exp $
  ________________________________________________________________________
 
 -*/
@@ -321,6 +321,10 @@ void RandomTrackDisplay::removeKnot( int knotidx )
 }
 
 
+void RandomTrackDisplay::getDataTraceBids( TypeSet<BinID>& bids ) const
+{ getDataTraceBids( bids, 0 ); }
+
+
 #define mGetBinIDs( x, y ) \
     bool reverse = stop.x - start.x < 0; \
     int step = inlwise ? SI().inlStep() : SI().crlStep(); \
@@ -336,10 +340,12 @@ void RandomTrackDisplay::removeKnot( int knotidx )
 	BinID nextbid = inlwise ? BinID(bidx,bidy) : BinID(bidy,bidx); \
 	SI().snap( nextbid ); \
 	bids += nextbid ; \
+	if ( segments ) (*segments) += (idx-1);\
     }
 
 
-void RandomTrackDisplay::getDataTraceBids( TypeSet<BinID>& bids ) const
+void RandomTrackDisplay::getDataTraceBids( TypeSet<BinID>& bids,
+       					   TypeSet<int>* segments ) const
 {
     TypeSet<BinID> knots;
     getAllKnotPos( knots );
@@ -537,6 +543,8 @@ void RandomTrackDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
 	}
     }
 }
+
+#undef mFindTrc
 
 
 bool RandomTrackDisplay::canAddKnot( int knotnr ) const
@@ -801,6 +809,13 @@ void RandomTrackDisplay::setAngleFlag( int attrib, bool yn )
 { texture_->setAngleFlag( attrib, yn ); }
 
 
+#define mFindTrc(inladd,crladd) \
+    if ( idx<0 ) \
+    { \
+	BinID bid( binid.inl + step.inl * (inladd),\
+		   binid.crl + step.crl * (crladd) );\
+	idx = bids.indexOf( bid ); \
+    }
 Coord3 RandomTrackDisplay::getNormal( const Coord3& pos ) const
 {
     const mVisTrans* utm2display = scene_->getUTM2DisplayTransform();
@@ -808,20 +823,38 @@ Coord3 RandomTrackDisplay::getNormal( const Coord3& pos ) const
     BinID binid = SI().transform( Coord(xytpos.x,xytpos.y) );
 
     TypeSet<BinID> bids;
-    getDataTraceBids( bids );
-    const int idx = bids.indexOf(binid);
-    if ( idx==-1 ) return Coord3::udf();
+    TypeSet<int> segments;
+    getDataTraceBids( bids, &segments );
+    int idx = bids.indexOf(binid);
+    if ( idx==-1 )
+    {
+	const BinID step( SI().inlStep(), SI().crlStep() );
+	mFindTrc(1,0) mFindTrc(-1,0) mFindTrc(0,1) mFindTrc(0,-1)
+	if ( idx==-1 )
+	{
+	    mFindTrc(1,1) mFindTrc(-1,1) mFindTrc(1,-1) mFindTrc(-1,-1)
+	}
 
-    const Coord pos0 = SI().transform(bids[idx ? idx-1 : idx]);
-    const Coord pos1 = SI().transform(bids[idx<bids.size()-1 ? idx+1 : idx]);
+	if ( idx<0 )
+	    return Coord3::udf();
+    }
 
-    const Coord dir = pos1-pos0;
+    const visBase::Coordinates* coords = triangles_->getCoordinates();
+    const Coord pos0 = coords->getPos( segments[idx]*2 );
+    const Coord pos1 = coords->getPos( segments[idx]*2+2 );
+    const BinID bid0( mNINT(pos0.x), mNINT(pos0.y));
+    const BinID bid1( mNINT(pos1.x), mNINT(pos1.y));
+
+    const Coord dir = SI().transform(bid0)-SI().transform(bid1);
     const float dist = dir.abs();
+
     if ( dist<=mMIN(SI().inlDistance(),SI().crlDistance()) )
 	return Coord3::udf();
 
-    return Coord3( dir.y, dir.x, 0 );
+    return Coord3( dir.y, -dir.x, 0 );
 }
+
+#undef mFindTrc
 
 
 float RandomTrackDisplay::calcDist( const Coord3& pos ) const

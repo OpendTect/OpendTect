@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		January 2003
- RCS:		$Id: visrandomtrackdisplay.h,v 1.50 2007-02-12 22:10:42 cvskris Exp $
+ RCS:		$Id: visrandomtrackdisplay.h,v 1.51 2007-02-13 20:08:15 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -138,6 +138,8 @@ public:
 protected:
 				~RandomTrackDisplay();
 
+    void			getDataTraceBids(TypeSet<BinID>&,
+	    					 TypeSet<int>* segments) const;
     BinID			proposeNewPos(int knot) const;
     void			setData( int attrib, const SeisTrcBuf& );
 
