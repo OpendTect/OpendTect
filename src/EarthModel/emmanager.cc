@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emmanager.cc,v 1.52 2007-01-24 15:52:46 cvsjaap Exp $";
+static const char* rcsID = "$Id: emmanager.cc,v 1.53 2007-02-13 13:19:03 cvsjaap Exp $";
 
 #include "emmanager.h"
 
@@ -137,7 +137,8 @@ MultiID EMManager::findObject( const char* type, const char* name ) const
     {
 	PtrMan<IOObj> ioobj = IOM().getLocal( name );
 	IOM().back();
-	if ( ioobj ) return ioobj->key();
+	if ( ioobj && !strcmp(ioobj->group(),type) )
+	    return ioobj->key();
     }
 
     return -1;
