@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uicanvas.cc,v 1.31 2007-02-14 10:13:34 cvsbert Exp $
+ RCS:           $Id: uicanvas.cc,v 1.32 2007-02-14 11:30:16 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,8 +35,8 @@ ________________________________________________________________________
 
 class uiScrollViewBody;
 
-static const int sDefaultWidth  = 600;
-static const int sDefaultHeight = 400;
+static const int sDefaultWidth  = 1;
+static const int sDefaultHeight = 1;
 
 
 class uiCanvasBody : public uiDrawableObjBody<uiCanvas,QWidget>
