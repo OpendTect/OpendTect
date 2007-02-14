@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		9-4-1996
  Contents:	RowCol <-> Coord transform
- RCS:		$Id: rcol2coord.h,v 1.4 2006-08-02 18:48:51 cvskris Exp $
+ RCS:		$Id: rcol2coord.h,v 1.5 2007-02-14 17:31:19 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,6 +28,8 @@ public:
 			RCol2Coord()		{}
 
     bool		isValid() const		{ return xtr.valid(ytr); }
+    Coord		rowDir() const		{ return Coord(xtr.b,ytr.b); }
+    Coord		colDir() const		{ return Coord(xtr.c,ytr.c); }
     Coord		transform(const RCol&) const;
     Coord		transform(const Coord& rc) const;
     			/*!< transforms a rowcol stored in a coord.  The 
