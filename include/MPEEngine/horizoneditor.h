@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          March 2005
- RCS:           $Id: horizoneditor.h,v 1.1 2005-12-12 17:52:19 cvskris Exp $
+ RCS:           $Id: horizoneditor.h,v 1.2 2007-02-14 12:35:21 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,7 +25,6 @@ class HorizonEditor : public ObjectEditor
 {
 public:
     				HorizonEditor(EM::Horizon&);
-    				~HorizonEditor();
     static ObjectEditor*	create(EM::EMObject&);
     static void			initClass();
 
@@ -45,7 +44,7 @@ public:
     void			setAlongMovingStyle( int nv ) { vertstyle=nv; }
 
 protected:
-
+    virtual			~HorizonEditor();
     void			getAlongMovingNodes( const EM::PosID&,
 	    					     TypeSet<EM::PosID>&,
 	                                             TypeSet<float>*) const;
