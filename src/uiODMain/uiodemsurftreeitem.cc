@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodemsurftreeitem.cc,v 1.17 2007-02-07 11:06:59 cvsnanne Exp $
+ RCS:		$Id: uiodemsurftreeitem.cc,v 1.18 2007-02-14 09:03:56 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -267,7 +267,8 @@ void uiODEarthModelSurfaceTreeItem::createMenuCB( CallBacker* cb )
 
     mAddMenuItem( menu, &savemnuitem_,
 		  applMgr()->EMServer()->isChanged(emid) && 
-		  applMgr()->EMServer()->isFullyLoaded(emid), false );
+		  applMgr()->EMServer()->isFullyLoaded(emid) &&
+		  !applMgr()->EMServer()->isShifted(emid), false );
 
     mAddMenuItem( menu, &saveasmnuitem_, true, false );
 #ifdef __debug__
