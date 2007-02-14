@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          September 2006
- RCS:           $Id: uiworld2ui.cc,v 1.3 2007-02-06 18:01:48 cvsbert Exp $
+ RCS:           $Id: uiworld2ui.cc,v 1.4 2007-02-14 10:52:28 cvsbert Exp $
  ________________________________________________________________________
 
 -*/
@@ -89,7 +89,7 @@ void uiWorld2Ui::set( uiSize sz, const uiWorldRect& wr )
 
 void uiWorld2Ui::set( const uiRect& rc, const uiWorldRect& wr )
 {
-    uiSize sz( rc.hNrPics(), rc.vNrPics(), true );
+    uiSize sz( rc.hNrPics(), rc.vNrPics() );
     set( sz, wr );
     uiorigin = rc.topLeft();
 }
@@ -113,7 +113,7 @@ void uiWorld2Ui::setRemap( const uiSize& sz, const uiWorldRect& wrdrc )
 
 void uiWorld2Ui::setRemap( const uiRect& rc, const uiWorldRect& wrdrc )
 {
-    uiSize sz( rc.hNrPics(), rc.vNrPics(), true );
+    uiSize sz( rc.hNrPics(), rc.vNrPics() );
     setRemap( sz, wrdrc );
     uiorigin = rc.topLeft();
 }
