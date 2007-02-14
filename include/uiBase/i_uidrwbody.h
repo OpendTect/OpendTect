@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          03/07/2001
- RCS:           $Id: i_uidrwbody.h,v 1.11 2007-02-12 16:49:28 cvsnanne Exp $
+ RCS:           $Id: i_uidrwbody.h,v 1.12 2007-02-14 10:13:13 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -113,10 +113,10 @@ template <class C,class T>
 void uiDrawableObjBody<C,T>::resizeEvent( QResizeEvent* ev )
 {
     const QSize& os = ev->oldSize();
-    uiSize oldsize( os.width(), os.height(), true );
+    uiSize oldsize( os.width(), os.height() );
 
     const QSize& ns = ev->size();
-    uiSize nwsize( ns.width(), ns.height(), true );
+    uiSize nwsize( ns.width(), ns.height() );
 
     handleResizeEvent( ev, oldsize, nwsize );
 }

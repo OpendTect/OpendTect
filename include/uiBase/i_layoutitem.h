@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          29/06/2001
- RCS:           $Id: i_layoutitem.h,v 1.29 2007-02-07 16:46:22 cvsnanne Exp $
+ RCS:           $Id: i_layoutitem.h,v 1.30 2007-02-14 10:13:13 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,7 +50,7 @@ public:
 					QSize s =  qwidget()->minimumSize();
 
 					return
-					    uiSize( s.width(), s.height(),true);
+					    uiSize( s.width(), s.height());
 				    }
 
     uiSize			prefSize() const
@@ -68,7 +68,7 @@ public:
 					int height = ps.height();
 					if ( height==0 ) height = 1;
 					self->prefSz = 
-					    uiSize(width,height,true);
+					    uiSize(width,height);
 				    }
 
 				    return prefSz;
@@ -78,7 +78,8 @@ public:
     virtual void       		updatedAlignment(layoutMode)	{}
     virtual void       		initChildLayout(layoutMode)	{}
 
-    uiSize			actualsize( bool include_border = true) const;
+    uiSize			actualsize(bool include_border = true) const;
+    				//!< live objs: use uiObject::width() etc
 
     inline const i_LayoutMngr& 	mngr() const 		{ return mngr_; } 
 
@@ -178,7 +179,7 @@ public:
 
     virtual uiSize 	minimumsize() const
 			    { 
-				uiSize s =  uiObjBody_.minimumsize();
+				uiSize s = uiObjBody_.minimumsize();
 				if( !mIsUdf(s.hNrPics()) )  
 				    return s;
 

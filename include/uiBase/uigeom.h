@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2000
- RCS:           $Id: uigeom.h,v 1.14 2006-09-20 14:34:30 cvskris Exp $
+ RCS:           $Id: uigeom.h,v 1.15 2007-02-14 10:13:13 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,16 +18,11 @@ typedef Geom::Point2D<int> uiPoint;
 typedef Geom::Point2D<double> uiWorldPoint;
 typedef Geom::PosRectangle<double> uiWorldRect;
 
-/*!\note that it stores everything in pixels. */
-
 class uiSize : public Geom::Size2D<int>
 {
 public:
-			uiSize() : Geom::Size2D<int>( 0, 0 )	{}
-			//! inpixels=true : w and h are in pixels
-			uiSize( int wdt , int hgt, bool inpixels )
-			    : Geom::Size2D<int>( wdt, hgt )
-			    { if ( !inpixels ) { width_++; height_++; } }
+    			uiSize( int wdt=0 , int hgt=0 )
+			    : Geom::Size2D<int>(wdt,hgt)		{}
 
     inline int          hNrPics() const		{ return width_; }
     inline int          vNrPics() const		{ return height_; }
@@ -73,7 +68,7 @@ inline uiRect::uiRect( const uiPoint& tl, const uiPoint& br )
 
 
 uiSize	uiRect::getPixelSize() const
-{ return uiSize( hNrPics(),vNrPics(), true ); }
+{ return uiSize( hNrPics(),vNrPics() ); }
 
 
 inline uiRect uiRect::selectArea( const uiRect& other ) const

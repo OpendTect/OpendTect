@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uirgbarraycanvas.cc,v 1.1 2007-02-09 13:41:35 cvsbert Exp $
+ RCS:           $Id: uirgbarraycanvas.cc,v 1.2 2007-02-14 10:14:25 cvsbert Exp $
  ________________________________________________________________________
 
 -*/
@@ -78,11 +78,11 @@ void uiRGBArrayCanvas::setupChg()
 
 void uiRGBArrayCanvas::beforeDraw( CallBacker* )
 {
-    const uiSize totalsize = actualsize();
+    const uiSize totsz( width(), height() );
     arrarea_.setLeft( border_.left() );
     arrarea_.setTop( border_.top() );
-    arrarea_.setRight( totalsize.width() - border_.right() - 1 );
-    arrarea_.setBottom( totalsize.height() - border_.bottom() - 1 );
+    arrarea_.setRight( totsz.width() - border_.right() - 1 );
+    arrarea_.setBottom( totsz.height() - border_.bottom() - 1 );
 
     const int xsz = arrarea_.width() + 1;
     const int ysz = arrarea_.height() + 1;
@@ -127,6 +127,7 @@ void uiRGBArrayCanvas::reDrawHandler( uiRect updarea )
     if ( updpart.top() < 0 ) updpart.setTop( 0 );
 
     drawTool()->drawPixmap( arrarea_.topLeft(), pixmap_, updpart );
+    drawTool()->setBackgroundColor( bgcolor_ );
 }
 
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvmap.cc,v 1.7 2006-12-28 21:10:33 cvsnanne Exp $
+ RCS:           $Id: uisurvmap.cc,v 1.8 2007-02-14 10:17:52 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -67,7 +67,7 @@ void uiSurveyMap::drawMap( const SurveyInfo* survinfo )
     maxcoord = center + hipart;
 
     uiWorldRect wr( mincoord.x, maxcoord.y, maxcoord.x, mincoord.y );
-    uiSize sz( w, h, true );
+    uiSize sz( w, h );
     uiWorld2Ui w2ui( wr, sz );
     uiPoint cpt[4];
     for ( int idx=0; idx<4; idx++ )

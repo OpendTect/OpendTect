@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/06/2001
- RCS:           $Id: uiobjbody.h,v 1.39 2006-08-21 17:14:45 cvsbert Exp $
+ RCS:           $Id: uiobjbody.h,v 1.40 2007-02-14 10:13:13 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -86,9 +86,11 @@ public:
     const uiFont*	uifont() const;
 
     virtual uiSize	actualsize(bool include_border=true) const;
+    			//!< Beware! this is during layout only
+    			//!< use uiObject::width() and height() for 'live' objs
 
     virtual uiSize	minimumsize() const
-			{ return uiSize(mUdf(int),mUdf(int),true); }
+			{ return uiSize(mUdf(int),mUdf(int)); }
 
     void		uisetCaption(const char*);
 

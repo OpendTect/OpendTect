@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          25/08/1999
- RCS:           $Id: uiobj.h,v 1.40 2006-03-10 13:39:51 cvsbert Exp $
+ RCS:           $Id: uiobj.h,v 1.41 2007-02-14 10:13:13 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,6 +28,7 @@ class uiButtonGroup;
 class i_LayoutItem;
 class ioPixmap;
 class Color;
+class QWidget;
 
 
 /*!\ The base class for most UI elements. */
@@ -59,6 +60,9 @@ public:
     void		setHSzPol(SzPolicy);
     void		setVSzPol(SzPolicy);
     SzPolicy		szPol( bool hor=true) const;
+
+    int			width() const;	//!< Actual size in pixels
+    int			height() const;	//!< Actual size in pixels
 
     void		setToolTip(const char*);
 #ifndef USEQT4
@@ -147,6 +151,11 @@ protected:
 
 			//! setGeometry should be triggered by this's layoutItem
     void 		triggerSetGeometry(const i_LayoutItem*, uiRect&);
+
+    QWidget*		qwidget();
+    const QWidget*	qwidget() const
+			{ return const_cast<uiObject*>(this)->qwidget(); }
+
 
 private:
 
