@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          June 2003
- RCS:           $Id: emsurfaceio.cc,v 1.85 2007-02-07 11:04:11 cvsnanne Exp $
+ RCS:           $Id: emsurfaceio.cc,v 1.86 2007-02-14 09:01:55 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -431,7 +431,7 @@ void dgbSurfaceReader::setGeometry()
 	    readcolrange_->step *= -1;
     }
 
-    mDynamicCastGet( Horizon*, hor, surface_ );
+    mDynamicCastGet(Horizon*,hor,surface_);
     if ( hor )
     {
 	const RowCol filestep = getFileStep();
@@ -865,7 +865,7 @@ bool dgbSurfaceReader::readVersion3Row( std::istream& strm,
     const SectionID sectionid = sectionids_[sectionindex_];
     const int cubezidx = sectionsel_.indexOf( sectionid );
 
-    mDynamicCastGet( Horizon2D*, hor2d, surface_ );
+    mDynamicCastGet(Horizon2D*,hor2d,surface_);
     if ( hor2d )
     {
 	hor2d->geometry().sectionGeometry( sectionid )->
@@ -1187,14 +1187,14 @@ void dgbSurfaceWriter::selSections(const TypeSet<SectionID>& sel, bool keep )
 
 int dgbSurfaceWriter::nrAuxVals() const
 {
-    mDynamicCastGet( const Horizon*, hor, &surface_ );
+    mDynamicCastGet(const Horizon*,hor,&surface_);
     return hor ? hor->auxdata.nrAuxData() : 0;
 }
 
 
 const char* dgbSurfaceWriter::auxDataName( int idx ) const
 {
-    mDynamicCastGet( const Horizon*, hor, &surface_ );
+    mDynamicCastGet(const Horizon*,hor,&surface_);
     return hor ? hor->auxdata.auxDataName(idx) : 0;
 }
 
@@ -1308,7 +1308,7 @@ int dgbSurfaceWriter::nextStep()
 	nrsectionsoffsetoffset_ = strm.tellp();
 	writeInt64( strm, 0, sEOL() );
 
-	mDynamicCastGet( const Horizon*, hor, &surface_ );
+	mDynamicCastGet(const Horizon*,hor,&surface_);
 	for ( int idx=0; idx<auxdatasel_.size(); idx++ )
 	{
 	    if ( auxdatasel_[idx]>=hor->auxdata.nrAuxData() )
@@ -1520,8 +1520,8 @@ bool dgbSurfaceWriter::writeRow( std::ostream& strm )
     const int nrcols =
 	(writecolrange_?writecolrange_->nrSteps():colrange_.nrSteps())+1;
 
-    mDynamicCastGet( const Horizon2D*, hor2d, &surface_ );
-    
+    mDynamicCastGet(const Horizon2D*,hor2d,&surface_)
+    mDynamicCastGet(const Horizon*,hor3d,&surface_)
     for ( int colindex=0; colindex<nrcols; colindex++ )
     {
 	const int col = writecolrange_ ? writecolrange_->atIndex(colindex) :
@@ -1529,7 +1529,9 @@ bool dgbSurfaceWriter::writeRow( std::ostream& strm )
 
 	const PosID posid(  surface_.id(), sectionid,
 				RowCol(row,col).getSerialized() );
-	const Coord3 pos = surface_.getPos(posid);
+	Coord3 pos = surface_.getPos( posid );
+	if ( hor3d && pos.isDefined() )
+	    pos.z += hor3d->geometry().getShift() / SI().zFactor();
 
 	if ( !hor2d && colcoords.isEmpty() && !pos.isDefined() )
 	    continue;
