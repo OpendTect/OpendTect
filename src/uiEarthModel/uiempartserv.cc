@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.104 2007-02-13 14:00:13 cvsjaap Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.105 2007-02-14 09:01:00 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -170,6 +170,17 @@ bool uiEMPartServer::isFullyLoaded( const EM::ObjectID& emid ) const
 {
     const EM::EMObject* emobj = em_.getObject(emid);
     return emobj && emobj->isFullyLoaded();
+}
+
+
+bool uiEMPartServer::isShifted( const EM::ObjectID& emid ) const
+{
+    const EM::EMObject* emobj = em_.getObject( emid );
+    mDynamicCastGet(const EM::Horizon*,hor,emobj)
+    if ( !hor ) return false;
+
+    const float shift = hor->geometry().getShift();
+    return !mIsZero(shift,mDefEps);
 }
 
 

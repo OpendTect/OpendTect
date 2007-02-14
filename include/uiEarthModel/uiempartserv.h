@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Sep 2002
- RCS:           $Id: uiempartserv.h,v 1.47 2007-02-13 13:15:10 cvsjaap Exp $
+ RCS:           $Id: uiempartserv.h,v 1.48 2007-02-14 09:01:00 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -54,6 +54,8 @@ public:
     bool		isEmpty(const EM::ObjectID&) const;
     bool		isFullResolution(const EM::ObjectID&) const;
     bool		isFullyLoaded(const EM::ObjectID&) const;
+    bool		isShifted(const EM::ObjectID&) const;
+
     void		fillHoles(const EM::ObjectID&);
     void		filterSurface(const EM::ObjectID&);
     void		deriveHor3DFrom2D(const EM::ObjectID&);
