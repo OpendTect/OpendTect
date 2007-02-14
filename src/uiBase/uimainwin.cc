@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.111 2007-02-07 16:46:29 cvsnanne Exp $
+ RCS:           $Id: uimainwin.cc,v 1.112 2007-02-14 12:38:00 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,18 +34,7 @@ ________________________________________________________________________
 
 #include <iostream>
 
-#ifdef USEQT4
-# define mQMainWindow	Q3MainWindow
-# define mQDockWindow	Q3DockWindow
-# define mQDockArea	Q3DockArea
-# define mQPopupMenu	Q3PopupMenu
-# define mFlagType	Qt::WFlags
-# define mDockType	Qt::ToolBarDock
-# include <q3mainwindow.h>
-# include <q3dockwindow.h>
-# include <QTextStream>
-# include <QCloseEvent>
-#else
+#ifdef USEQT3
 # define mQMainWindow	QMainWindow
 # define mQDockArea	QDockArea
 # define mQDockWindow	QDockWindow
@@ -54,7 +43,19 @@ ________________________________________________________________________
 # define mDockType	Qt::Dock
 # include <qmainwindow.h>
 # include <qdockwindow.h>
+#else
+# define mQMainWindow	Q3MainWindow
+# define mQDockWindow	Q3DockWindow
+# define mQDockArea	Q3DockArea
+# define mQPopupMenu	Q3PopupMenu
+# define mFlagType	Qt::WFlags
+# define mDockType	Qt::ToolBarDock
+# include <Q3MainWindow>
+# include <Q3DockWindow>
+# include <QTextStream>
+# include <QCloseEvent>
 #endif
+
 #include <qwidget.h>
 #include <qstatusbar.h>
 #include <qapplication.h>
@@ -63,10 +64,10 @@ ________________________________________________________________________
 
 #ifdef SUPPORT_PERSISTENCE
 // for positions of dock area's
-# ifdef USEQT4
-#  include <q3dockarea.h>
+#ifdef USEQT3
+# include <qdockarea.h>
 # else
-#  include <qdockarea.h>
+#  include <Q3DockArea.h>
 # endif
 #include <qfile.h>
 #endif
@@ -208,13 +209,13 @@ uiMainWinBody::uiMainWinBody( uiMainWin& handle__, uiParent* p,
 
 mFlagType uiMainWinBody::getFlags( bool hasparent, bool modal ) const
 {
-#ifdef USEQT4
+#ifdef USEQT3
+    return hasparent && modal ? WType_TopLevel | WShowModal| WGroupLeader
+				  : WType_TopLevel;
+#else
     return  Qt::WFlags( hasparent && modal ? 
 			( Qt::Window | Qt::WindowModal |  Qt::WA_GroupLeader )
 		      : Qt::Window );
-#else
-    return hasparent && modal ? WType_TopLevel | WShowModal| WGroupLeader
-				  : WType_TopLevel;
 #endif
 }
 
@@ -358,19 +359,19 @@ void uiMainWinBody::storePositions()
 {
 #ifdef USE_FILE
     QFile outfil( "/tmp/qpositions.txt");
-# ifdef USEQT4
-    outfil.open( QIODevice::WriteOnly );
-# else
+# ifdef USEQT3
     outfil.open( IO_WriteOnly );
+# else
+    outfil.open( QIODevice::WriteOnly );
 # endif
     QTextStream ts( &outfil );
 #else
     static QString str;
     str="";
-# ifdef USEQT4
-    QTextStream ts( &str, QIODevice::WriteOnly  );
-# else
+# ifdef USEQT3
     QTextStream ts( &str, IO_WriteOnly  );
+# else
+    QTextStream ts( &str, QIODevice::WriteOnly  );
 # endif
 #endif
 
@@ -536,10 +537,10 @@ uiMainWin* uiMainWin::activeWindow()
 
 void uiMainWin::setSensitive( bool yn )
 {
-#ifdef USEQT4
-    QList<mQDockWindow*> dws = body_->dockWindows();
-#else
+#ifdef USEQT3
     QPtrList<QDockWindow> dws = body_->dockWindows();
+#else
+    QList<mQDockWindow*> dws = body_->dockWindows();
 #endif
     for ( int idx=0; idx<dws.count(); idx++ )
     {

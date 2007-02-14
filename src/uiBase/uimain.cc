@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          10/12/1999
- RCS:           $Id: uimain.cc,v 1.33 2007-02-12 13:10:38 cvsnanne Exp $
+ RCS:           $Id: uimain.cc,v 1.34 2007-02-14 12:38:00 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,7 +24,7 @@ ________________________________________________________________________
 
 #include "qiconset.h"
 
-#ifdef USEQT4
+#ifndef USEQT3
 # include <QDesktopWidget>
 # include <QPlastiqueStyle>
 # include <QWindowsStyle>
@@ -133,7 +133,7 @@ void uiMain::init( QApplication* qap, int argc, char **argv )
     qInstallMsgHandler( myMessageOutput );
 
 
-#ifdef USEQT4
+#ifndef USEQT3
 
 #ifdef __win__
     QApplication::setStyle( new QWindowsXPStyle );
@@ -149,7 +149,7 @@ void uiMain::init( QApplication* qap, int argc, char **argv )
     font_ = 0;
     setFont( *font() , true );
 
-#ifndef USEQT4
+#ifdef USEQT3
     bool enab = true;
     if ( !Settings::common().getYN("Ui.ToolTips.enable",enab) )
     {
@@ -267,10 +267,10 @@ void uiMain::setTopLevelCaption( const char* txt )
 void uiMain::processEvents( int msec )
 { 
     if( !app_ )	return;
-#ifdef USEQT4
-    app_->processEvents( QEventLoop::AllEvents, msec );
-#else
+#ifdef USEQT3
     app_->processEvents( msec );
+#else
+    app_->processEvents( QEventLoop::AllEvents, msec );
 #endif
 }
 

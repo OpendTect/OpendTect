@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/02/2003
- RCS:           $Id: i_layoutitem.cc,v 1.8 2006-09-20 14:34:30 cvskris Exp $
+ RCS:           $Id: i_layoutitem.cc,v 1.9 2007-02-14 12:38:00 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,7 +31,7 @@ i_LayoutItem::i_LayoutItem( i_LayoutMngr& m, QLayoutItem& itm )
     , preferred_pos_inited( false ), minimum_pos_inited( false )
     , prefSzDone( false ), hsameas( false ), vsameas( false )
 {
-#ifndef USEQT4
+#ifdef USEQT3
      constrList.setAutoDelete(true); 
 #endif
 }
@@ -270,14 +270,14 @@ bool i_LayoutItem::layout( layoutMode lom, const int iternr, bool finalLoop )
     bool updated = false;
     uiRect& mPos = curpos(lom);
 
-#ifdef USEQT4
-    for ( int idx=0; idx < constrList.size(); idx++ )
-#else
+#ifdef USEQT3
     for ( constraintIterator it(constrList);
 				uiConstraint* constr = it.current(); ++it )
+#else
+    for ( int idx=0; idx < constrList.size(); idx++ )
 #endif
     {
-#ifdef USEQT4
+#ifndef USEQT3
 	uiConstraint* constr = &constrList[idx];
 #endif
 	const uiRect& otherPos 
@@ -654,10 +654,10 @@ bool i_LayoutItem::layout( layoutMode lom, const int iternr, bool finalLoop )
     return updated;
 }
 
-#ifdef USEQT4
-# define mAdd(constr) += constr
-#else
+#ifdef USEQT3
 # define mAdd(constr) .append(new constr)
+#else
+# define mAdd(constr) += constr
 #endif
 
 void i_LayoutItem::attach ( constraintType type, i_LayoutItem *other, 
@@ -788,17 +788,17 @@ void i_LayoutItem::attach ( constraintType type, i_LayoutItem *other,
 #ifdef __debug__
 bool i_LayoutItem::isAligned() const
 {
-#ifdef USEQT4
-    for ( int idx=0; idx < constrList.size(); idx++ )
-#else
+#ifdef USEQT3
     for ( constraintIterator it(constrList); 
 				uiConstraint* constr = it.current(); ++it )
+#else
+    for ( int idx=0; idx < constrList.size(); idx++ )
 #endif
     { 
-#ifdef USEQT4
-	constraintType tp = constrList[idx].type;
-#else
+#ifdef USEQT3
 	constraintType tp = constr->type;
+#else
+	constraintType tp = constrList[idx].type;
 #endif
 	if ( tp >= alignedWith && tp <= centeredAbove )
 	    return true; 

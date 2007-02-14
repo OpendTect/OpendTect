@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          13/02/2002
- RCS:           $Id: uidockwin.cc,v 1.21 2007-01-19 16:16:05 cvsnanne Exp $
+ RCS:           $Id: uidockwin.cc,v 1.22 2007-02-14 12:38:00 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,12 +13,12 @@ ________________________________________________________________________
 #include "uigroup.h"
 #include "uiparentbody.h"
 
-#ifdef USEQT4
-# include <q3dockwindow.h>
-# define mQDockWindow Q3DockWindow
-#else
+#ifdef USEQT3
 # include <qdockwindow.h>
 # define mQDockWindow QDockWindow
+#else
+# include <Q3DockWindow>
+# define mQDockWindow Q3DockWindow
 #endif
 
 #if defined( __mac__ ) || defined( __win__ )

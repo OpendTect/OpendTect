@@ -7,18 +7,18 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          13/02/2002
- RCS:           $Id: uidockwin.h,v 1.12 2007-01-19 16:16:05 cvsnanne Exp $
+ RCS:           $Id: uidockwin.h,v 1.13 2007-02-14 12:38:00 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
-#include <uiparent.h>
-#include <uihandle.h>
+#include "uiparent.h"
+#include "uihandle.h"
 
-#ifdef USEQT4
-# define mQDockWindow Q3DockWindow
-#else
+#ifdef USEQT3
 # define mQDockWindow QDockWindow
+#else
+# define mQDockWindow Q3DockWindow
 #endif
 
 class uiDockWinBody;

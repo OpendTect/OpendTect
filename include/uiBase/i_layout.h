@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          18/08/1999
- RCS:           $Id: i_layout.h,v 1.38 2006-08-21 17:14:45 cvsbert Exp $
+ RCS:           $Id: i_layout.h,v 1.39 2007-02-14 12:38:00 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,10 +19,10 @@ ________________________________________________________________________
 #include <qlayout.h>
 #include <qrect.h>
 
-#ifdef USEQT4
-# include "sets.h"
-#else
+#ifdef USEQT3
 # include <qptrlist.h>
+#else
+# include "sets.h"
 #endif
 
 class resizeItem;
@@ -47,7 +47,7 @@ public:
 			    )
 				{ pErrMsg("No attachment defined!!"); }
 			}
-#ifdef USEQT4
+#ifndef USEQT3
     inline bool		operator ==( const uiConstraint& oth ) const
 			{ return type == oth.type
 				&& other == oth.other
@@ -68,11 +68,11 @@ protected:
     bool		enabled_;
 };
 
-#ifdef USEQT4
-typedef TypeSet<uiConstraint> constraintList;
-#else
+#ifdef USEQT3
 mTemplTypeDef(QPtrList,uiConstraint,constraintList)
 mTemplTypeDef(QPtrListIterator,uiConstraint,constraintIterator)
+#else
+typedef TypeSet<uiConstraint> constraintList;
 #endif
 
 class i_LayoutItem;
@@ -131,13 +131,13 @@ public:
     virtual QSize 	sizeHint() const;
     virtual QSize 	minimumSize() const;
 
-#ifdef USEQT4
+#ifdef USEQT3
+    virtual QLayoutIterator iterator();
+    virtual QSizePolicy::ExpandData expanding() const;
+#else
     virtual QLayoutItem* itemAt( int idx ) const;
     virtual QLayoutItem* takeAt(int idx);
     virtual int		 count() const;
-#else
-    virtual QLayoutIterator iterator();
-    virtual QSizePolicy::ExpandData expanding() const;
 #endif
 
     virtual void       	invalidate();
@@ -187,10 +187,10 @@ private:
 
     uiRect 		childrenRect( layoutMode m );
 
-#ifdef USEQT4
-    ObjectSet<i_LayoutItem> childrenList;
-#else
+#ifdef USEQT3
     QPtrList<i_LayoutItem> childrenList;
+#else
+    ObjectSet<i_LayoutItem> childrenList;
 #endif
 
     uiRect		layoutpos[ nLayoutMode ];

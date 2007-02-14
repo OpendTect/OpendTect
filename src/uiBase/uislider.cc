@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2001
- RCS:           $Id: uislider.cc,v 1.26 2006-12-20 13:40:41 cvsbert Exp $
+ RCS:           $Id: uislider.cc,v 1.27 2007-02-14 12:38:00 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,14 +43,14 @@ private:
 
 };
 
-#ifdef USEQT4
-# define mFocus		Qt
-# define mOrientation	Qt
-# define mTickPosition	TickPosition
-#else
+#ifdef USEQT3
 # define mFocus		QWidget
 # define mOrientation	QSlider
 # define mTickPosition	TickSetting
+#else
+# define mFocus		Qt
+# define mOrientation	Qt
+# define mTickPosition	TickPosition
 #endif
 
 uiSliderBody::uiSliderBody( uiSlider& handle, uiParent* p, const char* nm )

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodmain.cc,v 1.63 2007-02-07 17:01:10 cvsnanne Exp $
+ RCS:           $Id: uiodmain.cc,v 1.64 2007-02-14 12:38:00 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,7 +46,7 @@ ________________________________________________________________________
 #include "survinfo.h"
 #include "timer.h"
 
-#ifdef USEQT4
+#ifndef USEQT3
 # include "uisplashscreen.h"
 #endif
 
@@ -73,8 +73,8 @@ int ODMain( int argc, char** argv )
     PIM().loadAuto( false );
     uiODMain* odmain = new uiODMain( *new uicMain(argc,argv) );
 
-#ifdef USEQT4
-    ioPixmap pm( "/tmp/od.png" );
+#ifndef USEQT3
+    ioPixmap pm( "od.jpg" );
     uiSplashScreen splash( pm );
     splash.show();
     splash.showMessage( "Loading plugins ..." );
@@ -94,12 +94,12 @@ int ODMain( int argc, char** argv )
     if ( !odmain->ensureGoodSurveySetup() )
 	return 1;
 
-#ifdef USEQT4
+#ifdef USEQT3
+    odmain->initScene();
+#else
     splash.showMessage( "Initializing Scene ..." );
     odmain->initScene();
     splash.finish( odmain );
-#else
-    odmain->initScene();
 #endif
     odmain->go();
     delete odmain;
@@ -228,8 +228,9 @@ bool uiODMain::buildUI()
 
     addDockWindow( *ctabwin, isontop ? uiMainWin::TornOff
 		    	    : (isvert ? uiMainWin::Left : uiMainWin::Top) );
-    ctabwin->setCloseMode( uiDockWin::Always );
-    ctabwin->setResizeEnabled( true );
+    ctabwin->setCloseMode( uiDockWin::Never );
+    if ( isvert )
+	ctabwin->setResizeEnabled( true );
 
     return true;
 }

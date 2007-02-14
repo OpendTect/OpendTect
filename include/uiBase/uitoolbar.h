@@ -7,17 +7,17 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          30/05/2001
- RCS:           $Id: uitoolbar.h,v 1.23 2006-11-03 16:02:59 cvshelene Exp $
+ RCS:           $Id: uitoolbar.h,v 1.24 2007-02-14 12:38:01 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiparent.h"
 
-#ifdef USEQT4
-# define mQToolBarClss Q3ToolBar
-#else
+#ifdef USEQT3
 # define mQToolBarClss QToolBar
+#else
+# define mQToolBarClss Q3ToolBar
 #endif
 
 class ioPixmap;

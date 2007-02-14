@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.cc,v 1.50 2007-01-22 12:14:41 cvsnanne Exp $
+ RCS:           $Id: uitable.cc,v 1.51 2007-02-14 12:38:00 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,14 +22,14 @@ ________________________________________________________________________
 #include "bufstringset.h"
 #include "i_layoutitem.h"
 
-#ifdef USEQT4
-# define mQTable Q3Table
-# define mQHeader Q3Header
-# define mQMemArray Q3MemArray
-#else
+#ifdef USEQT3
 # define mQTable QTable
 # define mQHeader QHeader
 # define mQMemArray QMemArray
+#else
+# define mQTable Q3Table
+# define mQHeader Q3Header
+# define mQMemArray Q3MemArray
 #endif
 
 // leftMargin() / topMargin() are protected. 

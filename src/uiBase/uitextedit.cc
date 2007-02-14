@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          09/02/2001
- RCS:           $Id: uitextedit.cc,v 1.30 2006-12-18 17:46:48 cvsbert Exp $
+ RCS:           $Id: uitextedit.cc,v 1.31 2007-02-14 12:38:00 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,10 +19,10 @@ ________________________________________________________________________
 #include "ascstream.h"
 #include <iostream>
 
-#ifdef USEQT4
-# include <q3textedit.h> 
-#else
+#ifdef USEQT3
 # include <qtextedit.h> 
+#else
+# include <Q3TextEdit> 
 #endif
 
 

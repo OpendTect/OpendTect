@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: i_qbutton.h,v 1.11 2007-02-07 16:46:22 cvsnanne Exp $
+ RCS:           $Id: i_qbutton.h,v 1.12 2007-02-14 12:38:00 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,12 +15,12 @@ ________________________________________________________________________
 #include <qobject.h>
 #include <uibutton.h>
 
-#ifdef USEQT4
-# define mButton QAbstractButton
-# include <QAbstractButton>
-#else
+#ifdef USEQT3
 # define mButton QButton
 # include <qbutton.h>
+#else
+# define mButton QAbstractButton
+# include <QAbstractButton>
 #endif
 
 //! Help class, because templates can not use signals/slots

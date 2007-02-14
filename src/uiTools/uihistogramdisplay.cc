@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Duntao Wei
  Date:          Mid 2005
- RCS:           $Id: uihistogramdisplay.cc,v 1.2 2007-01-31 14:34:40 cvskris Exp $
+ RCS:           $Id: uihistogramdisplay.cc,v 1.3 2007-02-14 12:38:00 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -138,9 +138,7 @@ void uiHistogramDisplay::reDraw( CallBacker* )
 
     ioDrawTool* drawtool = drawarea_->drawTool();
 
-    drawtool->beginDraw();
     drawtool->setPenColor( color_ );
     drawtool->setFillColor( color_ );
     drawtool->drawPolygon( pointlist_ );
-    drawtool->endDraw();
 }

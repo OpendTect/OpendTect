@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          03/07/2001
- RCS:           $Id: i_uidrwbody.h,v 1.12 2007-02-14 10:13:13 cvsbert Exp $
+ RCS:           $Id: i_uidrwbody.h,v 1.13 2007-02-14 12:38:00 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "iodrawimpl.h"
 #include <qwidget.h>
 
-#ifdef USEQT4
+#ifndef USEQT3
 # include <QPaintEvent>
 # include "uirubberband.h"
 #endif
@@ -38,7 +38,7 @@ public:
 			    , T( parent && parent->pbody()? 
 				    parent->pbody()->managewidg() : 0 , nm )
                             , handle_(handle)
-#ifdef USEQT4
+#ifndef USEQT3
 			    , rubberband_(0)
 #endif
                             {}
@@ -47,7 +47,7 @@ public:
 
     virtual             ~uiDrawableObjBody()
     			{
-#ifdef USEQT4
+#ifndef USEQT3
 			    delete rubberband_;
 #endif
 			}
@@ -56,7 +56,7 @@ public:
     virtual const QPaintDevice*	mQPaintDevice() const	{ return this; }
 
 protected:
-#ifdef USEQT4
+#ifndef USEQT3
     virtual void	drawContents(QPainter*);
 #endif
 
@@ -65,7 +65,7 @@ protected:
     virtual void	resizeEvent(QResizeEvent*);
     void		handleResizeEvent(QResizeEvent*,uiSize old,uiSize nw);
 
-#ifdef USEQT4
+#ifndef USEQT3
     virtual void	mousePressEvent(QMouseEvent*);
     virtual void	mouseMoveEvent(QMouseEvent*);
     virtual void	mouseReleaseEvent(QMouseEvent*);
@@ -75,7 +75,7 @@ protected:
 };
 
 
-#ifdef USEQT4
+#ifndef USEQT3
 template <class C,class T>
 void uiDrawableObjBody<C,T>::drawContents( QPainter* ptr )
 {
@@ -131,7 +131,7 @@ void uiDrawableObjBody<C,T>::handleResizeEvent( QResizeEvent* ev,
 }
 
 
-#ifdef USEQT4
+#ifndef USEQT3
 template <class C,class T>
 void uiDrawableObjBody<C,T>::mousePressEvent( QMouseEvent* ev )
 {

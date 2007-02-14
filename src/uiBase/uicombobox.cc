@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uicombobox.cc,v 1.39 2006-12-20 17:39:23 cvshelene Exp $
+ RCS:           $Id: uicombobox.cc,v 1.40 2007-02-14 12:38:00 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,10 +23,10 @@ ________________________________________________________________________
 #include "qlabel.h"
 #endif
 
-#ifdef USEQT4
-# define mQIcon QIcon
-#else
+#ifdef USEQT3
 # define mQIcon QIconSet
+#else
+# define mQIcon QIcon
 #endif
 
 

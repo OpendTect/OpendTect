@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          18/08/2001
- RCS:           $Id: uibuttongroup.cc,v 1.11 2005-11-18 16:21:30 cvsarend Exp $
+ RCS:           $Id: uibuttongroup.cc,v 1.12 2007-02-14 12:38:00 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,20 +12,20 @@ ________________________________________________________________________
 #include "uibuttongroup.h"
 #include "uiobjbody.h"
 
-#ifdef USEQT4
-# define mQButtonGroup	Q3ButtonGroup
-# define mButton	QAbstractButton
-# define mHorizontal	Qt::Horizontal
-# define mVertical	Qt::Vertical
-# include <q3buttongroup.h>
-# include <qabstractbutton.h>
-#else
+#ifdef USEQT3
 # define mQButtonGroup	QButtonGroup
 # define mButton	QButton
 # define mHorizontal	Horizontal
 # define mVertical	Vertical
 # include <qbuttongroup.h>
 # include <qbutton.h>
+#else
+# define mQButtonGroup	Q3ButtonGroup
+# define mButton	QAbstractButton
+# define mHorizontal	Qt::Horizontal
+# define mVertical	Qt::Vertical
+# include <Q3ButtonGroup>
+# include <QAbstractButton>
 #endif
 
 #include "errh.h"

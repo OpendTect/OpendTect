@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          17/01/2002
- RCS:           $Id: uitabbar.cc,v 1.16 2007-01-10 15:58:54 cvsnanne Exp $
+ RCS:           $Id: uitabbar.cc,v 1.17 2007-02-14 12:38:00 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,8 +16,8 @@ ________________________________________________________________________
 #include "i_qtabbar.h"
 #include "qiconset.h"
 
-#ifdef USEQT4
-# include "qicon.h"
+#ifndef USEQT3
+# include <QIcon>
 # define muiObjBodyImpl    uiObjBodyImplNoQtNm
 #else
 # define muiObjBodyImpl    uiObjBodyImpl
@@ -36,13 +36,13 @@ protected:
 
 uiTab::uiTab( uiGroup& grp )
     : NamedObject( grp.name() )
-#ifndef USEQT4
+#ifdef USEQT3
     , body_( *new uiTabBody(*this,grp.name()) )
 #endif
     , grp_( grp )
 {}
 
-#ifndef USEQT4
+#ifdef USEQT3
 int uiTab::id() const
     { return body_.identifier(); }
 
@@ -93,15 +93,15 @@ int uiTabBar::addTab( uiTab* tab )
 {
     if ( !tab ) return -1;
     tabs_ += tab;
-    tab->group().display( true );
-#ifdef USEQT4
-    return body_->insertTab( tabs_.size(), QString(tab->name()) ); 
-#else
+    tab->group().display( tabs_.size()==1 );
+#ifdef USEQT3
     return body_->insertTab( &tab->body_ ); 
+#else
+    return body_->insertTab( tabs_.size(), QString(tab->name()) ); 
 #endif
 }
 
-#ifndef USEQT4
+#ifdef USEQT3
 int uiTabBar::insertTab( uiTab* tab, int index )
 {
     if ( !tab ) return -1;
@@ -113,21 +113,21 @@ int uiTabBar::insertTab( uiTab* tab, int index )
 
 void uiTabBar::removeTab( mRemoveTabArg )
 {
-#ifdef USEQT4
-    int id = idOf(tab);
-    if ( id < 0 ) return;
-#else
+#ifdef USEQT3
     uiTab* tab = tabs_[index];
     if ( !tab ) return;
+#else
+    int id = idOf(tab);
+    if ( id < 0 ) return;
 #endif
 
     tab->group().display( false );
     tabs_ -= tab;
 
-#ifdef USEQT4
-    body_->removeTab( id );
-#else
+#ifdef USEQT3
     body_->removeTab( &tab->body_ );
+#else
+    body_->removeTab( id );
 #endif
     delete tab;
 }
@@ -138,10 +138,10 @@ void uiTabBar::removeTab( uiGroup* grp )
     {
 	if ( &tabs_[idx]->group() == grp )
 	{
-#ifdef USEQT4
-	    removeTab( tabs_[idx] );
-#else
+#ifdef USEQT3
 	    removeTab( idx );
+#else
+	    removeTab( tabs_[idx] );
 #endif
 	    return;
 	}
@@ -159,10 +159,10 @@ void uiTabBar::setCurrentTab(int id)
     { body_->setCurrentTab( id ); }
 
 int uiTabBar::currentTabId() const
-#ifdef USEQT4
-    { return body_->currentIndex(); }
-#else
+#ifdef USEQT3
     { return body_->currentTab(); }
+#else
+    { return body_->currentIndex(); }
 #endif
 
 int uiTabBar::size() const
@@ -174,17 +174,17 @@ int uiTabBar::idOf( const uiGroup* grp ) const
     for ( int idx=0; idx<tabs_.size(); idx++ )
     {
 	if ( &tabs_[idx]->group() == grp )
-#ifdef USEQT4
-	return idx;
-#else
+#ifdef USEQT3
 	return tabs_[idx]->id();
+#else
+	return idx;
 #endif
     }
 
     return -1;
 }
 
-#ifdef USEQT4
+#ifndef USEQT3
 int uiTabBar::idOf( const uiTab* tab ) const
 {
     for ( int idx=0; idx<tabs_.size(); idx++ )
@@ -199,9 +199,7 @@ int uiTabBar::idOf( const uiTab* tab ) const
 
 uiGroup* uiTabBar::page( int id ) const
 {
-#ifdef USEQT4
-    return const_cast<uiGroup*>( &tabs_[id]->group() );
-#else
+#ifdef USEQT3
     for ( int idx=0; idx<tabs_.size(); idx++ )
     {
 	if ( tabs_[idx]->id() == id )
@@ -209,5 +207,7 @@ uiGroup* uiTabBar::page( int id ) const
     }
 
     return 0;
+#else
+    return const_cast<uiGroup*>( &tabs_[id]->group() );
 #endif
 }

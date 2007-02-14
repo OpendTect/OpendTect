@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uibutton.cc,v 1.31 2007-02-13 09:36:29 cvsnanne Exp $
+ RCS:           $Id: uibutton.cc,v 1.32 2007-02-14 12:38:00 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,12 +20,12 @@ ________________________________________________________________________
 #include <qcheckbox.h>
 #include <qtoolbutton.h>
 
-#ifdef USEQT4
-# define mTxt 
-# define mQIcon QIcon
-#else
+#ifdef USEQT3
 # define mTxt  ,txt
 # define mQIcon QIconSet
+#else
+# define mTxt 
+# define mQIcon QIcon
 #endif 
 
 //! Wrapper around QButtons. 
@@ -182,10 +182,10 @@ void uiButton::setText( const char* txt )
 
 
 const char* uiButton::text()
-#ifdef USEQT4
-    { return mqbut()->text().toAscii().constData(); }
-#else
+#ifdef USEQT3
     { return mqbut()->text(); }
+#else
+    { return mqbut()->text().toAscii().constData(); }
 #endif
 
 
@@ -335,16 +335,16 @@ uiToolButtonBody& uiToolButton::mkbody( uiParent* parnt, const ioPixmap* pm,
     return *body_;
 }
 
-#ifdef USEQT4
-# define mIsOn			isChecked
-# define mSetOn			setChecked
-# define mIsToggleButton	isCheckable
-# define mSetToggleButton	setChecked
-#else
+#ifdef USEQT3
 # define mIsOn			isOn
 # define mSetOn			setOn
 # define mIsToggleButton	isToggleButton
 # define mSetToggleButton	setToggleButton
+#else
+# define mIsOn			isChecked
+# define mSetOn			setChecked
+# define mIsToggleButton	isCheckable
+# define mSetToggleButton	setChecked
 #endif
 
 
@@ -357,9 +357,9 @@ void uiToolButton::setToggleButton( bool yn) { body_->mSetToggleButton(yn); }
 
 void uiToolButton::setPixmap( const ioPixmap& pm )
 {
-#ifdef USEQT4
-    body_->setIcon( QIcon(*pm.Pixmap()) );
-#else
+#ifdef USEQT3
     body_->setIconSet( QIconSet(*pm.Pixmap()) );
+#else
+    body_->setIcon( QIcon(*pm.Pixmap()) );
 #endif
 }

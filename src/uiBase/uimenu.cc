@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: uimenu.cc,v 1.35 2007-02-07 16:46:30 cvsnanne Exp $
+ RCS:           $Id: uimenu.cc,v 1.36 2007-02-14 12:38:00 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,17 +20,16 @@ ________________________________________________________________________
 #include <qmenudata.h>
 #include <qmenubar.h>
 #include <qcursor.h>
-#ifdef USEQT4
-# include <qmenu.h>
-# include <q3popupmenu.h>
-# define mQThing	qmenu_
-#else
+#ifdef USEQT3
 # include <qpopupmenu.h>
 # define mQThing	qthing()
+#else
+# include <QMenu>
+# include <Q3PopupMenu>
+# define mQThing	qmenu_
 #endif
 
-#ifdef USEQT4
-
+#ifndef USEQT3
 
 class uiMenuItemContainerBody
 {
@@ -168,27 +167,8 @@ const ObjectSet<uiMenuItem>& items() const		{ return itms; }
 			    return newid;
 			} 
     void		clear()				{ mQThing->clear(); }
-#ifdef USEQT4
 
-    QMenuBar*		bar()
-    			{
-			    mDynamicCastGet(QMenuBar*,qbar,qmenu_)
-			    return qbar;
-			}
-
-    mQPopupMenu*	popup()
-    			{
-			    mDynamicCastGet(mQPopupMenu*,qpopup,qmenu_)
-			    return qpopup;
-			}
-
-    virtual const QWidget* managewidg_() const 	{ return qmenu_; }
-
-private:
-
-    T*				qmenu_;
-
-#else
+#ifdef USEQT3
 
     QMenuBar*			bar()			{ return bar_; }
     QPopupMenu*			popup()			{ return popup_; }
@@ -212,6 +192,26 @@ private:
 
     QMenuBar*			bar_;
     QPopupMenu*			popup_;
+
+#else
+
+    QMenuBar*		bar()
+    			{
+			    mDynamicCastGet(QMenuBar*,qbar,qmenu_)
+			    return qbar;
+			}
+
+    mQPopupMenu*	popup()
+    			{
+			    mDynamicCastGet(mQPopupMenu*,qpopup,qmenu_)
+			    return qpopup;
+			}
+
+    virtual const QWidget* managewidg_() const 	{ return qmenu_; }
+
+private:
+
+    T*				qmenu_;
 
 #endif
 };
@@ -253,15 +253,15 @@ uiMenuItem::~uiMenuItem()
 
 bool uiMenuItem::isEnabled () const
 {
-#ifdef USEQT4
+#ifdef USEQT3
+    return menu_ && menu_->qthing() ? menu_->qthing()->isItemEnabled( id_ )
+				    : enabled_;
+#else
     if ( !menu_ )		return enabled_;
     if ( menu_->bar() )		return menu_->bar()->isItemEnabled( id_ );
     if ( menu_->popup() )	return menu_->popup()->isItemEnabled( id_ );
 
     return enabled_;
-#else
-    return menu_ && menu_->qthing() ? menu_->qthing()->isItemEnabled( id_ )
-				    : enabled_;
 #endif
 }
 
@@ -269,13 +269,13 @@ void uiMenuItem::setEnabled ( bool yn )
 {
     enabled_ = yn;
 
-#ifdef USEQT4
+#ifdef USEQT3
+    if ( menu_ && menu_->qthing() )
+	menu_->qthing()->setItemEnabled( id_, yn ); 
+#else
     if ( !menu_ ) return;
     if ( menu_->bar() )		menu_->bar()->setItemEnabled( id_, yn );
     else if ( menu_->popup() )	menu_->popup()->setItemEnabled( id_, yn );
-#else
-    if ( menu_ && menu_->qthing() )
-	menu_->qthing()->setItemEnabled( id_, yn ); 
 #endif
 }
 
@@ -284,15 +284,15 @@ bool uiMenuItem::isChecked () const
 {
     if ( !checkable_ ) return false;
 
-#ifdef USEQT4
+#ifdef USEQT3
+    return menu_ && menu_->qthing() ? menu_->qthing()->isItemChecked( id_ )
+				    : checked_; 
+#else
     if ( !menu_ )		return checked_;
     if ( menu_->bar() )		return menu_->bar()->isItemChecked( id_ );
     if ( menu_->popup() )	return menu_->popup()->isItemChecked( id_ );
 
     return checked_;
-#else
-    return menu_ && menu_->qthing() ? menu_->qthing()->isItemChecked( id_ )
-				    : checked_; 
 #endif
 }
 
@@ -303,40 +303,40 @@ void uiMenuItem::setChecked( bool yn )
 
     checked_ = yn;
 
-#ifdef USEQT4
+#ifdef USEQT3
+    if ( menu_ && menu_->qthing() )
+	menu_->qthing()->setItemChecked( id_, yn ); 
+#else
     if ( !menu_ ) return;
     if ( menu_->bar() )		menu_->bar()->setItemChecked( id_, yn );
     else if ( menu_->popup() )	menu_->popup()->setItemChecked( id_, yn );
-#else
-    if ( menu_ && menu_->qthing() )
-	menu_->qthing()->setItemChecked( id_, yn ); 
 #endif
 }
 
 
 void uiMenuItem::setText( const char* txt )
 {
-#ifdef USEQT4
+#ifdef USEQT3
+    if ( menu_ && menu_->qthing() )
+	menu_->qthing()->changeItem ( id_, QString(txt) ); 
+#else
     if ( !menu_ ) return;
     if ( menu_->bar() )		menu_->bar()->changeItem( id_, QString(txt) );
     else if ( menu_->popup() )	menu_->popup()->changeItem( id_, QString(txt) );
-#else
-    if ( menu_ && menu_->qthing() )
-	menu_->qthing()->changeItem ( id_, QString(txt) ); 
 #endif
 }
 
 
 int uiMenuItem::index() const
 {
-#ifdef USEQT4
+#ifdef USEQT3
+    return menu_ && menu_->qthing() ? menu_->qthing()->indexOf( id_ ) : -1;
+#else
     if ( !menu_ )		return -1;
     if ( menu_->bar() )		return menu_->bar()->indexOf( id_ );
     if ( menu_->popup() )	return menu_->popup()->indexOf( id_ );
 
     return -1;
-#else
-    return menu_ && menu_->qthing() ? menu_->qthing()->indexOf( id_ ) : -1;
 #endif
 }
 
@@ -365,16 +365,16 @@ void uiMenuItem::activate()
 //-----------------------------------------------------------------------
 
 
-#ifdef USEQT4
-uiMenuItemContainer::uiMenuItemContainer( const char* nm, uiBody* b,
-					  uiMenuItemContainerBody* db )
-    : uiObjHandle( nm, b )
-    , body_( db )				{}
-#else
+#ifdef USEQT3
 uiMenuItemContainer::uiMenuItemContainer( const char* nm,
 					  uiMenuItemContainerBody* b )
     : uiObjHandle( nm, b )
     , body_( b )				{}
+#else
+uiMenuItemContainer::uiMenuItemContainer( const char* nm, uiBody* b,
+					  uiMenuItemContainerBody* db )
+    : uiObjHandle( nm, b )
+    , body_( db )				{}
 #endif
 
 
@@ -442,15 +442,17 @@ int uiMenuItemContainer::insertItem( uiPopupMenu* it, int id, int idx )
 
 void uiMenuItemContainer::insertSeparator( int idx ) 
 {
-#ifdef USEQT4
-    if ( body_->bar() ) body_->bar()->insertSeparator( idx );
-    else if ( body_->popup() ) body_->popup()->insertSeparator( idx );
-#else
+#ifdef USEQT3
     body_->qthing()->insertSeparator( idx ); 
+#else
+    if ( body_->bar() )
+	body_->bar()->insertSeparator( idx );
+    else if ( body_->popup() )
+	body_->popup()->insertSeparator( idx );
 #endif
 }
 
-#ifndef USEQT4
+#ifdef USEQT3
 void uiMenuItemContainer::setMenuBody(uiMenuItemContainerBody* b)  
 { 
     body_=b;
@@ -461,57 +463,57 @@ void uiMenuItemContainer::setMenuBody(uiMenuItemContainerBody* b)
 
 int uiMenuItemContainer::idAt( int idx ) const
 {
-#ifdef USEQT4
+#ifdef USEQT3
+    return body_->qthing()->idAt(idx);
+#else
     if ( body_->bar() )		return body_->bar()->idAt(idx);
     if ( body_->popup() )	return body_->popup()->idAt(idx);
     return -1;
-#else
-    return body_->qthing()->idAt(idx);
 #endif
 }
 
 int uiMenuItemContainer::indexOf( int id ) const
 {
-#ifdef USEQT4
+#ifdef USEQT3
+    return body_->qthing()->indexOf(id);
+#else
     if ( body_->bar() )		return body_->bar()->indexOf(id);
     if ( body_->popup() )	return body_->popup()->indexOf(id);
     return -1;
-#else
-    return body_->qthing()->indexOf(id);
 #endif
 }
 
 
 void uiMenuItemContainer::clear()
 {
-#ifdef USEQT4
+#ifdef USEQT3
+    body_->clear();
+#else
     if ( body_->bar() )		body_->bar()->clear();
     if ( body_->popup() )	body_->popup()->clear();
-#else
-    body_->clear();
 #endif
 }
 
 // ------------------------------------------------------------------------
 
-#ifdef USEQT4
-# define mContArgs	nm, 0, 0
-#else
+#ifdef USEQT3
 # define mContArgs	nm, 0
+#else
+# define mContArgs	nm, 0, 0
 #endif
 
 uiMenuBar::uiMenuBar( uiParent* parnt, const char* nm )
     : uiMenuItemContainer( mContArgs )
 { 
-#ifdef USEQT4
+#ifdef USEQT3
+    setMenuBody( new uiMenuItemContainerBody( *this, parnt,
+			    *new QMenuBar(parnt->body()->qwidget(),nm ) ));
+#else
     uiMenuItemContainerBodyImpl<QMenuBar>* bd =
 		    new uiMenuItemContainerBodyImpl<QMenuBar>( *this, parnt,
 				*new QMenuBar(parnt->body()->qwidget(),nm ) );
     body_ = bd;
     setBody( bd );
-#else
-    setMenuBody( new uiMenuItemContainerBody( *this, parnt,
-			    *new QMenuBar(parnt->body()->qwidget(),nm ) ));
 #endif
 }
 
@@ -519,13 +521,13 @@ uiMenuBar::uiMenuBar( uiParent* parnt, const char* nm )
 uiMenuBar::uiMenuBar( uiParent* parnt, const char* nm, QMenuBar& qThing )
     : uiMenuItemContainer( mContArgs )
 { 
-#ifdef USEQT4
+#ifdef USEQT3
+    setMenuBody( new uiMenuItemContainerBody( *this, parnt, qThing ) ); 
+#else
     uiMenuItemContainerBodyImpl<QMenuBar>* bd =
 	    new uiMenuItemContainerBodyImpl<QMenuBar>( *this, parnt, qThing );
     body_ = bd;
     setBody( bd );
-#else
-    setMenuBody( new uiMenuItemContainerBody( *this, parnt, qThing ) ); 
 #endif
 }
 
@@ -577,15 +579,15 @@ uiPopupMenu::uiPopupMenu( uiParent* parnt, const char* nm )
     : uiMenuItemContainer( mContArgs )
     , item_( *new uiPopupItem( *this, nm ) )
 {
-#ifdef USEQT4
+#ifdef USEQT3
+    setMenuBody ( new uiMenuItemContainerBody( *this, parnt, 
+			      *new QPopupMenu(parnt->body()->qwidget(),nm ) ));
+#else
     uiMenuItemContainerBodyImpl<mQPopupMenu>* bd =
 		    new uiMenuItemContainerBodyImpl<mQPopupMenu>( *this, parnt, 
 			  *new mQPopupMenu(parnt->body()->qwidget(),nm ) );
     body_ = bd;
     setBody( bd );
-#else
-    setMenuBody ( new uiMenuItemContainerBody( *this, parnt, 
-			      *new QPopupMenu(parnt->body()->qwidget(),nm ) ));
 #endif
 
     item_.setMenu( body_ );
@@ -596,14 +598,14 @@ uiPopupMenu::uiPopupMenu( uiParent* parnt, mQPopupMenu* qmnu, const char* nm )
     : uiMenuItemContainer( mContArgs )
     , item_(*new uiPopupItem(*this,nm))
 {
-#ifdef USEQT4
+#ifdef USEQT3
+    setMenuBody( new uiMenuItemContainerBody(*this,parnt,*qmnu) );
+#else
     uiMenuItemContainerBodyImpl<mQPopupMenu>* bd =
 	    new uiMenuItemContainerBodyImpl<mQPopupMenu>(*this,parnt,*qmnu);
 
     body_ = bd;
     setBody( bd );
-#else
-    setMenuBody( new uiMenuItemContainerBody(*this,parnt,*qmnu) );
 #endif
     item_.setMenu( body_ );
 }

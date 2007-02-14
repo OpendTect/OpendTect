@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: uilistbox.cc,v 1.66 2007-02-14 10:13:34 cvsbert Exp $
+ RCS:           $Id: uilistbox.cc,v 1.67 2007-02-14 12:38:00 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,12 +18,12 @@ ________________________________________________________________________
 #include "pixmap.h"
 
 
-#ifdef USEQT4
-# include "i_q4listbox.h"
-# define mQListBox	Q3ListBox
-#else
+#ifdef USEQT3
 # include "i_qlistbox.h"
 # define mQListBox	QListBox
+#else
+# include "i_q4listbox.h"
+# define mQListBox	Q3ListBox
 #endif
 
 
@@ -284,10 +284,10 @@ bool uiListBox::isPresent( const char* txt ) const
     const int sz = size();
     for ( int idx=0; idx<sz; idx++ )
     {
-#ifdef USEQT4
-	BufferString itmtxt( body_->text(idx).toAscii().constData() );
-#else
+#ifdef USEQT3
 	BufferString itmtxt( body_->text(idx) );
+#else
+	BufferString itmtxt( body_->text(idx).toAscii().constData() );
 #endif
 	char* ptr = itmtxt.buf();
 	skipLeadingBlanks( ptr );

@@ -7,12 +7,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          14/02/2003
- RCS:           $Id: i_qtabbar.h,v 1.6 2005-11-21 08:51:58 cvsarend Exp $
+ RCS:           $Id: i_qtabbar.h,v 1.7 2007-02-14 12:38:00 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
-#include <uitabbar.h>
+#include "uitabbar.h"
 
 #include <qobject.h>
 #include <qtabbar.h>
@@ -33,11 +33,11 @@ protected:
 			: _sender( sender )
 			, _receiver( receiver )
 			{ 
-#ifdef USEQT4
-			    connect( sender, SIGNAL( currentChanged(int) ),
+#ifdef USEQT3
+			    connect( sender, SIGNAL( selected(int) ),
 				     this,   SLOT( selected(int)) );
 #else
-			    connect( sender, SIGNAL( selected(int) ),
+			    connect( sender, SIGNAL( currentChanged(int) ),
 				     this,   SLOT( selected(int)) );
 #endif
 			}

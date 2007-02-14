@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/01/2002
- RCS:           $Id: uitreeview.cc,v 1.25 2007-01-10 15:58:54 cvsnanne Exp $
+ RCS:           $Id: uitreeview.cc,v 1.26 2007-02-14 12:38:00 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,16 +20,16 @@ ________________________________________________________________________
 #include <qpixmap.h>
 #include <qsize.h>
 
-#ifdef USEQT4
-# define mQScrollView		Q3ScrollView
-# define mQListView		Q3ListView
-# define mQCheckListItem        Q3CheckListItem
-#include "i_q4listview.h"
-#else
+#ifdef USEQT3
 # define mQScrollView		QScrollView
 # define mQListView		QListView
 # define mQCheckListItem        QCheckListItem
 #include "i_qlistview.h"
+#else
+# define mQScrollView		Q3ScrollView
+# define mQListView		Q3ListView
+# define mQCheckListItem        Q3CheckListItem
+#include "i_q4listview.h"
 #endif
 
 

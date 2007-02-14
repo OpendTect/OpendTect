@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          09/02/2001
- RCS:           $Id: uitextedit.h,v 1.15 2006-12-18 17:46:48 cvsbert Exp $
+ RCS:           $Id: uitextedit.h,v 1.16 2007-02-14 12:38:01 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,10 +15,10 @@ ________________________________________________________________________
 #include "uiobj.h"
 #include "undefval.h"
 
-#ifdef USEQT4
-# define mQTextEditClss	Q3TextEdit
-#else
+#ifdef USEQT3
 # define mQTextEditClss	QTextEdit
+#else
+# define mQTextEditClss	Q3TextEdit
 #endif
 
 

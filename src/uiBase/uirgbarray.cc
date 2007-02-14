@@ -4,19 +4,20 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril & H. Huck
  Date:          08/09/2006
- RCS:           $Id: uirgbarray.cc,v 1.5 2007-02-08 16:52:28 cvsbert Exp $
+ RCS:           $Id: uirgbarray.cc,v 1.6 2007-02-14 12:38:00 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uirgbarray.h"
 #include <qimage.h>
+#include <qcolor.h>
 
 
-#ifdef USEQT4
-# define mImgFmt QImage::Format_RGB32
-#else
+#ifdef USEQT3
 # define mImgFmt 32
+#else
+# define mImgFmt QImage::Format_RGB32
 #endif
 
 uiRGBArray::uiRGBArray()

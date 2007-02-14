@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/09/2000
- RCS:           $Id: uifiledlg.cc,v 1.29 2007-01-10 15:58:54 cvsnanne Exp $
+ RCS:           $Id: uifiledlg.cc,v 1.30 2007-02-14 12:38:00 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,7 +32,7 @@ public:
 				const QString& filter=QString::null,
 				QWidget* parent=0,
 				const char* name=0, bool modal=false )
-#ifdef USEQT4
+#ifndef USEQT3
 				: QFileDialog( parent, name, dirName, filter )
 			    { setModal( modal ); }
 #else
@@ -44,7 +44,7 @@ public:
 			    dgbQFileDialog( QWidget* parent=0,
 					    const char* name=0,
 					    bool modal=false )
-#ifdef USEQT4
+#ifndef USEQT3
 				: QFileDialog( parent, name )
 			    { setModal( modal ); }
 #else
@@ -97,12 +97,12 @@ uiFileDialog::uiFileDialog( uiParent* parnt, Mode mode,
     	, addallexts_( false )
 {}
 
-#ifdef USEQT4
-# define mSetFilter	setFilter
-# define mSelectFilter	selectFilter
-#else
+#ifdef USEQT3
 # define mSetFilter	setFilters
 # define mSelectFilter	setSelectedFilter
+#else
+# define mSetFilter	setFilter
+# define mSelectFilter	selectFilter
 #endif
 
 
@@ -140,7 +140,7 @@ int uiFileDialog::go()
     if ( selectedfilter_.size() )
 	fd->mSelectFilter( QString(selectedfilter_) );
     
-#ifndef USEQT4
+#ifdef USEQT3
     if ( !oktxt_.isEmpty() ) fd->okB->setText( (const char*)oktxt_ );
     if ( !cnclxt_.isEmpty()) fd->cancelB->setText( (const char*)cnclxt_ );
 #endif
@@ -151,7 +151,7 @@ int uiFileDialog::go()
 
 
     QStringList list = fd->selectedFiles();
-#ifdef USEQT4
+#ifndef USEQT3
     if (  list.size() )
 	fn = list[0].toAscii().constData();
     else 
@@ -169,10 +169,10 @@ int uiFileDialog::go()
 
     for ( int idx=0; idx<list.size(); idx++ )
     {
-#ifdef USEQT4
-	BufferString* bs = new BufferString( list[idx].toAscii().constData() );
-#else
+#ifdef USEQT3
 	BufferString* bs = new BufferString( list[idx] );
+#else
+	BufferString* bs = new BufferString( list[idx].toAscii().constData() );
 #endif
 
 #ifdef __win__
@@ -198,10 +198,10 @@ void uiFileDialog::list2String( const BufferStringSet& list,
     for ( int idx=0; idx<list.size(); idx++ )
 	qlist.append( (QString)list[idx]->buf() );
 
-#ifdef USEQT4
-    string = qlist.join( (QString)filesep ).toAscii().constData();
-#else
+#ifdef USEQT3
     string = qlist.join( (QString)filesep );
+#else
+    string = qlist.join( (QString)filesep ).toAscii().constData();
 #endif
 }
 
@@ -211,9 +211,9 @@ void uiFileDialog::string2List( const BufferString& string,
 {
     QStringList qlist = QStringList::split( (QString)filesep, (QString)string );
     for ( int idx=0; idx<qlist.size(); idx++ )
-#ifdef USEQT4
-	list += new BufferString( qlist[idx].toAscii().constData() );
-#else
+#ifdef USEQT3
 	list += new BufferString( qlist[idx] );
+#else
+	list += new BufferString( qlist[idx].toAscii().constData() );
 #endif
 }

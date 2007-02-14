@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          25/08/1999
- RCS:           $Id: uiobj.h,v 1.41 2007-02-14 10:13:13 cvsbert Exp $
+ RCS:           $Id: uiobj.h,v 1.42 2007-02-14 12:38:00 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -65,7 +65,7 @@ public:
     int			height() const;	//!< Actual size in pixels
 
     void		setToolTip(const char*);
-#ifndef USEQT4
+#ifdef USEQT3
     static void		enableToolTips(bool yn=true);
     static bool		toolTipsEnabled();
 #endif

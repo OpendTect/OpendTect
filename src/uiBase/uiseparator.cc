@@ -4,6 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          17/1/2001
+ RCS:		$Id: uiseparator.cc,v 1.5 2007-02-14 12:38:00 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,12 +13,12 @@ ________________________________________________________________________
 #include "uiseparator.h"
 #include "uiobjbody.h"
 
-#ifdef USEQT4
-#define mQFrame Q3Frame
-#include <Q3Frame>
+#ifdef USEQT3
+# define mQFrame QFrame
+# include <qframe.h>
 #else
-#define mQFrame QFrame
-#include <qframe.h>
+# define mQFrame Q3Frame
+# include <Q3Frame>
 #endif
 
 

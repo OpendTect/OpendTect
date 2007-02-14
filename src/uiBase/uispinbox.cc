@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2001
- RCS:           $Id: uispinbox.cc,v 1.22 2006-11-10 13:54:41 cvsbert Exp $
+ RCS:           $Id: uispinbox.cc,v 1.23 2007-02-14 12:38:00 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,12 +18,12 @@ ________________________________________________________________________
 #include <qvalidator.h>
 #include <math.h>
 
-#ifdef USEQT4
-# define mGetStep	singleStep
-# define mSetStep	setSingleStep
-#else
+#ifdef USEQT3
 # define mGetStep	lineStep
 # define mSetStep	setLineStep
+#else
+# define mGetStep	singleStep
+# define mSetStep	setSingleStep
 #endif
 
 class uiSpinBoxBody : public uiObjBodyImpl<uiSpinBox,QSpinBox>
@@ -37,7 +37,7 @@ public:
     virtual int 	nrTxtLines() const	{ return 1; }
     void		setNrDecimals(int);
 
-#ifdef USEQT4
+#ifndef USEQT3
     QValidator::State	validate ( QString & input, int & pos ) const  
 			{ return dval ? dval->validate( input, pos )
 				      : QSpinBox::validate( input, pos ); }
@@ -63,7 +63,7 @@ uiSpinBoxBody::uiSpinBoxBody( uiSpinBox& handle, uiParent* p, const char* nm )
     , dval(new QDoubleValidator(this,"Validator"))
 {
     setHSzPol( uiObject::Small );
-#ifndef USEQT4
+#ifdef USEQT3
     setValidator( dval );
 #endif
 }

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          14/02/2003
- RCS:           $Id: uitabbar.h,v 1.12 2006-08-21 17:14:45 cvsbert Exp $
+ RCS:           $Id: uitabbar.h,v 1.13 2007-02-14 12:38:01 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,10 +20,10 @@ class uiGroup;
 class uiTabBody;
 class uiTab;
 
-#ifdef USEQT4
-# define mRemoveTabArg uiTab* tab
-#else
+#ifdef USEQT3
 # define mRemoveTabArg int index
+#else
+# define mRemoveTabArg uiTab* tab
 #endif
 
 
@@ -37,7 +37,7 @@ public:
 				 const CallBack* cb=0);
 
     int			addTab(uiTab*);
-#ifndef USEQT4
+#ifdef USEQT3
     int			insertTab(uiTab*,int index=-1);
 #endif
     void		removeTab(mRemoveTabArg);
@@ -53,9 +53,9 @@ public:
 
     Notifier<uiTabBar>  selected;
 
-    int			idOf(const uiGroup* grp) const;
-#ifdef USEQT4
-    int			idOf(const uiTab* tab) const;
+    int			idOf(const uiGroup*) const;
+#ifndef USEQT3
+    int			idOf(const uiTab*) const;
 #endif
     uiGroup*		page(int id) const;
 
@@ -73,7 +73,7 @@ class uiTab : public NamedObject
 friend class		uiTabBar;
 public:
 			uiTab(uiGroup&);
-#ifndef USEQT4
+#ifdef USEQT3
     int			id() const;
     void		setName(const char*);
 #endif
@@ -83,7 +83,7 @@ public:
 
 protected:
 
-#ifndef USEQT4
+#ifdef USEQT3
     uiTabBody&		body_;
 #endif
     uiGroup&		grp_;

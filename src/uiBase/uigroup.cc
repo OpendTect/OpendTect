@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uigroup.cc,v 1.53 2007-02-07 16:46:29 cvsnanne Exp $
+ RCS:           $Id: uigroup.cc,v 1.54 2007-02-14 12:38:00 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,12 +18,12 @@ ________________________________________________________________________
 #include <qwidget.h>
 #include <iostream>
 
-#ifdef USEQT4
-#define mQFrame Q3Frame
-#include <Q3Frame>
+#ifdef USEQT3
+# define mQFrame QFrame
+# include <qframe.h>
 #else
-#define mQFrame QFrame
-#include <qframe.h>
+# define mQFrame Q3Frame
+# include <Q3Frame>
 #endif
 
 

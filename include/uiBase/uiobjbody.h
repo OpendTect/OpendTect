@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/06/2001
- RCS:           $Id: uiobjbody.h,v 1.40 2007-02-14 10:13:13 cvsbert Exp $
+ RCS:           $Id: uiobjbody.h,v 1.41 2007-02-14 12:38:01 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,7 +42,7 @@ public:
     virtual		~uiObjectBody();
 
     void		setToolTip(const char*);
-#ifndef USEQT4
+#ifdef USEQT3
     static void		enableToolTips(bool yn=true);
     static bool		toolTipsEnabled();
 #endif

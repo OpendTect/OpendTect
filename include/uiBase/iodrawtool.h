@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          04/07/2001
- RCS:           $Id: iodrawtool.h,v 1.14 2007-02-07 16:46:22 cvsnanne Exp $
+ RCS:           $Id: iodrawtool.h,v 1.15 2007-02-14 12:38:00 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "color.h"
 
 class QPaintDevice;
+class QPainter;
 class QPen;
 
 class ioPixmap;
@@ -27,11 +28,8 @@ class Alignment;
 class LineStyle;
 class MarkerStyle2D;
 
-#ifdef USEQT4
-class QPainter;
-#else
+#ifdef USEQT3
 class QPaintDeviceMetrics; 
-class QPainter;
 #endif
 
 
@@ -123,19 +121,14 @@ public:
 
 protected:
 
-#ifdef USEQT4
     bool		setActivePainter(QPainter*);
     QPainter*		qpainter;
-#else
-    bool		setActivePainter(QPainter*);
-    QPainter*		qpainter;
-#endif
 
 private:
     QPen&		qpen;
     bool		freeqpainter;
     QPaintDevice*	qpaintdev;
-#ifndef USEQT4
+#ifdef USEQT3
     QPaintDeviceMetrics* qpaintdevmetr;
 #endif
     bool		active_;

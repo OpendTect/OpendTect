@@ -12,12 +12,12 @@ ________________________________________________________________________
 #include <uiprogressbar.h>
 #include <uiobjbody.h> 
 
-#ifdef USEQT4
-# include	<q3progressbar.h> 
-# define	mQProgressBar	Q3ProgressBar
-#else
+#ifdef USEQT3
 # include	<qprogressbar.h> 
 # define	mQProgressBar	QProgressBar
+#else
+# include	<Q3ProgressBar> 
+# define	mQProgressBar	Q3ProgressBar
 #endif
 
 
@@ -35,9 +35,9 @@ public:
 				setCenterIndicator( true );
 			    }
 
-    virtual int 	nrTxtLines() const				{ return 1; }
-
+    virtual int 	nrTxtLines() const			{ return 1; }
 };
+
 
 uiProgressBar::uiProgressBar( uiParent* p, const char* txt, 
 			      int totalSteps, int progress )

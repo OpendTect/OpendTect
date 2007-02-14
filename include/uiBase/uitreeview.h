@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          29/01/2002
- RCS:           $Id: uitreeview.h,v 1.19 2006-11-15 16:37:46 cvsnanne Exp $
+ RCS:           $Id: uitreeview.h,v 1.20 2007-02-14 12:38:00 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,14 +15,14 @@ ________________________________________________________________________
 #include "uiobj.h"
 #include "bufstringset.h"
 
-#ifdef USEQT4
-  class Q3ListViewItem;
-# define mQListViewItem Q3ListViewItem
-# define mQListView	Q3ListView
-#else
+#ifdef USEQT3
   class QListViewItem;
 # define mQListViewItem QListViewItem
 # define mQListView	QListView
+#else
+  class Q3ListViewItem;
+# define mQListViewItem Q3ListViewItem
+# define mQListView	Q3ListView
 #endif
 
 class uiListViewBody;

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2000
- RCS:           $Id: uidrawable.h,v 1.8 2007-02-12 13:53:02 cvsnanne Exp $
+ RCS:           $Id: uidrawable.h,v 1.9 2007-02-14 12:38:00 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,6 +30,8 @@ public:
 			{ rubberbandbutton_ = bs; }
     OD::ButtonState	rubberBandButton()
     			{ return rubberbandbutton_; }
+
+    MouseEventHandler&	getMouseEventHandler();
 
     Notifier<uiDrawableObj> preDraw;
     Notifier<uiDrawableObj> postDraw;
@@ -61,6 +63,9 @@ Subclasses can override this method to do some additional drawing.
 
     OD::ButtonState	rubberbandbutton_;
     bool		rubberbandon_;
+
+private:
+    MouseEventHandler	mousehandler_;
 };
 
 

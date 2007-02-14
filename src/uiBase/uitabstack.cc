@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          17/01/2002
- RCS:           $Id: uitabstack.cc,v 1.14 2007-02-07 16:46:30 cvsnanne Exp $
+ RCS:           $Id: uitabstack.cc,v 1.15 2007-02-14 12:38:00 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,12 +15,12 @@ ________________________________________________________________________
 #include "uiobjbody.h"
 #include "sets.h"
 
-#ifdef USEQT4
-#define mQFrame Q3Frame
-#include <Q3Frame>
+#ifdef USEQT3
+# define mQFrame QFrame
+# include <qframe.h>
 #else
-#define mQFrame QFrame
-#include <qframe.h>
+# define mQFrame Q3Frame
+# include <Q3Frame>
 #endif
 
 
@@ -35,11 +35,11 @@ uiTabStack::uiTabStack( uiParent* parnt, const char* nm, bool mnge )
 
     tabgrp_->setFrameStyle( mQFrame::TabWidgetPanel | mQFrame::Raised );
     tabgrp_->setBorder(10);
-
     tabgrp_->attach( stretchedBelow, tabbar_, 0 );
 
-    tabbar_->selected.notify( mCB( this, uiTabStack, tabSel ) );
+    tabbar_->selected.notify( mCB(this,uiTabStack,tabSel) );
 }
+
 
 void uiTabStack::tabSel( CallBacker* cb )
 {
@@ -49,10 +49,10 @@ void uiTabStack::tabSel( CallBacker* cb )
 
     for ( int idx=0; idx<tabs.size(); idx++ )
     {
-#ifdef USEQT4
-	bool disp = tabs[idx]->group() == selgrp;
+#ifdef USEQT3
+	const bool disp = tabs[idx]->id() == id;
 #else
-	bool disp = tabs[idx]->id() == id;
+	const bool disp = tabs[idx]->group() == selgrp;
 #endif
 	tabs[idx]->group().display( disp );
     }
@@ -72,12 +72,7 @@ void uiTabStack::addTab( uiGroup* grp, const char* txt )
 	setHAlignObj( grp );
 }
 
-#ifdef USEQT4
-void uiTabStack::removeTab( uiGroup* grp )
-{
-    tabbar_->removeTab( grp );
-}
-#else
+#ifdef USEQT3
 void uiTabStack::insertTab( uiGroup* grp, const char* txt, int index )
 {
     if ( !grp ) return;
@@ -94,7 +89,15 @@ void uiTabStack::removeTab( int index )
 {
     tabbar_->removeTab( index );
 }
+
+#else
+
+void uiTabStack::removeTab( uiGroup* grp )
+{
+    tabbar_->removeTab( grp );
+}
 #endif
+
 
 void uiTabStack::setTabEnabled( uiGroup* grp, bool yn )
 {

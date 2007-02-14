@@ -7,22 +7,22 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          13/03/2002
- RCS:           $Id: i_qtxtbrowser.h,v 1.3 2005-10-31 16:31:02 cvsarend Exp $
+ RCS:           $Id: i_qtxtbrowser.h,v 1.4 2007-02-14 12:38:00 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
-#include <uitextedit.h>
+#include "uitextedit.h"
 
 #include <qobject.h>
 #include <qwidget.h>
 
-#ifdef USEQT4
-# include <q3textbrowser.h> 
-# define mQTextBrowserClss Q3TextBrowser
-#else
+#ifdef USEQT3
 # include <qtextbrowser.h> 
 # define mQTextBrowserClss QTextBrowser
+#else
+# include <Q3TextBrowser> 
+# define mQTextBrowserClss Q3TextBrowser
 #endif
 
 

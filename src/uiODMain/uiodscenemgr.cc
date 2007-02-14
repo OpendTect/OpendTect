@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.86 2007-02-07 17:01:10 cvsnanne Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.87 2007-02-14 12:38:00 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -828,10 +828,10 @@ uiODSceneMgr::Scene::Scene( uiWorkSpace* wsp )
 {
     if ( !wsp ) return;
 
-#ifdef USEQT4
-    uiGroup* grp = new uiGroup( 0 );
-#else
+#ifdef USEQT3
     uiGroup* grp = new uiGroup( wsp );
+#else
+    uiGroup* grp = new uiGroup( 0 );
 #endif
     grp->setPrefWidth( 400 );
     grp->setPrefHeight( 400 );
@@ -839,7 +839,7 @@ uiODSceneMgr::Scene::Scene( uiWorkSpace* wsp )
     sovwr_->setPrefWidth( 200 );
     sovwr_->setPrefHeight( 200 );
     sovwr_->setIcon( scene_xpm_data );
-#ifdef USEQT4
+#ifndef USEQT3
     wsp->addGroup( grp );
 #endif
 }

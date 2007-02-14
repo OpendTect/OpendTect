@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uicanvas.h,v 1.14 2007-02-12 13:53:02 cvsnanne Exp $
+ RCS:           $Id: uicanvas.h,v 1.15 2007-02-14 12:38:00 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -73,11 +73,7 @@ public:
     				// revieve mouse events w/o pressing button
     void			setMouseTracking(bool yn=true);
 
-    MouseEventHandler&		getMouseEventHandler(); 
-
 private:
-    MouseEventHandler		mousehandler_;
-
     uiScrollViewBody*		body_;
     uiScrollViewBody&		mkbody(uiParent*,const char*);
 };

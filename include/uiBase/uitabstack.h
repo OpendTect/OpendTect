@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          17/01/2002
- RCS:           $Id: uitabstack.h,v 1.6 2006-02-02 09:52:59 cvsnanne Exp $
+ RCS:           $Id: uitabstack.h,v 1.7 2007-02-14 12:38:01 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,11 +40,11 @@ public:
 
     void		addTab(uiGroup*,const char* txt=0);
 
-#ifdef USEQT4
-    void		removeTab(uiGroup*);
-#else
+#ifdef USEQT3
     void		insertTab(uiGroup*,const char*,int index=-1);
     void		removeTab(int id);
+#else
+    void		removeTab(uiGroup*);
 #endif
 
     void		setTabEnabled(uiGroup*,bool);

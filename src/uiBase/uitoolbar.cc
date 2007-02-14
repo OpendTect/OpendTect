@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          30/05/2001
- RCS:           $Id: uitoolbar.cc,v 1.29 2006-11-03 16:02:59 cvshelene Exp $
+ RCS:           $Id: uitoolbar.cc,v 1.30 2007-02-14 12:38:00 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,17 +23,17 @@ ________________________________________________________________________
 #include <qtoolbutton.h>
 #include <qapplication.h>
 
-#ifdef USEQT4
-# include <q3toolbar.h>
-# include <q3mainwindow.h>
-# include <q3dockarea.h>
-# define mQMainWinClss	Q3MainWindow
-# define mDockNmSpc	Qt
-#else
+#ifdef USEQT3
 # include <qtoolbar.h>
 # include <qmainwindow.h>
 # define mQMainWinClss	QMainWindow
 # define mDockNmSpc	QMainWindow
+#else
+# include <Q3ToolBar>
+# include <Q3MainWindow>
+# include <Q3DockArea>
+# define mQMainWinClss	Q3MainWindow
+# define mDockNmSpc	Qt
 #endif
 
 #include "qobject.h"
@@ -69,8 +69,6 @@ public:
 			//!< you must call this after all buttons are added
 
     void		reLoadPixMaps();
-    void		clear();
-
 
     static mDockNmSpc::ToolBarDock
 			qdock(uiToolBar::ToolBarDock);
@@ -192,12 +190,6 @@ bool uiToolBarBody::isSensitive() const
 }
 
 
-void uiToolBarBody::clear()
-{
-    qbar->clear();
-}
-
-
 mDockNmSpc::ToolBarDock uiToolBarBody::qdock( uiToolBar::ToolBarDock d )
 {
     switch( d )
@@ -272,35 +264,23 @@ void uiToolBar::setLabel( const char* lbl )
 void uiToolBar::turnOn( int idx, bool yn )
 { body_->turnOn( idx, yn ); }
 
-
 bool uiToolBar::isOn( int idx ) const
 { return body_->isOn( idx ); }
-
 
 void uiToolBar::setSensitive( int idx, bool yn )
 { body_->setSensitive( idx, yn ); }
 
-
 void uiToolBar::setSensitive( bool yn )
 { body_->setSensitive( yn ); }
 
-
 void uiToolBar::setToolTip( int idx, const char* tip )
-{
-    body_->setToolTip( idx, tip );
-}
-
+{ body_->setToolTip( idx, tip ); }
 
 void uiToolBar::setPixmap( int idx, const char* fnm )
-{
-    body_->setPixmap( idx, fnm );
-}
-
+{ body_->setPixmap( idx, fnm ); }
 
 void uiToolBar::setPixmap( int idx, const ioPixmap& pm )
-{
-    body_->setPixmap( idx, pm );
-}
+{ body_->setPixmap( idx, pm ); }
 
 
 void uiToolBar::display( bool yn, bool, bool )
@@ -330,13 +310,11 @@ void uiToolBar::setStretchableWidget( uiObject* obj )
 
 
 void uiToolBar::reLoadPixMaps()
-{
-    body_->reLoadPixMaps();
-}
+{ body_->reLoadPixMaps(); }
 
 
 void uiToolBar::clear()
-{ body_->clear(); }
+{ qtoolbar->clear(); }
 
 
 #define mSetFunc(func,var) \
