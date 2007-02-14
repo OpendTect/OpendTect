@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: vishorizondisplay.cc,v 1.26 2007-01-31 10:27:54 cvsjaap Exp $
+ RCS:           $Id: vishorizondisplay.cc,v 1.27 2007-02-14 12:37:27 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -704,7 +704,7 @@ void HorizonDisplay::setTranslation( const Coord3& nt )
     translation_->setTranslation( shift );
 
     mDynamicCastGet(EM::Horizon*,horizon,emobject_);
-    if ( horizon ) horizon->geometry().setShift( shift.z );
+    if ( horizon ) horizon->geometry().setShift( -shift.z );
 
     for ( int idx=0; idx<sections_.size(); idx++ )
     {
