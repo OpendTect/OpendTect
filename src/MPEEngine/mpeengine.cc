@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: mpeengine.cc,v 1.75 2007-02-13 13:22:37 cvsjaap Exp $";
+static const char* rcsID = "$Id: mpeengine.cc,v 1.76 2007-02-14 09:03:16 cvsnanne Exp $";
 
 #include "mpeengine.h"
 
@@ -397,10 +397,7 @@ ObjectEditor* Engine::getEditor( const EM::ObjectID& id, bool create )
     for ( int idx=0; idx<editors_.size(); idx++ )
     {
 	if ( editors_[idx]->emObject().id()==id )
-	{
-	    editors_[idx]->ref();
 	    return editors_[idx];
-	}
     }
 
     if ( !create ) return 0;
