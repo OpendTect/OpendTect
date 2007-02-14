@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.166 2007-02-12 22:10:42 cvskris Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.167 2007-02-14 17:50:13 cvskris Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -229,11 +229,9 @@ Coord3 PlaneDataDisplay::getNormal( const Coord3& pos ) const
 {
     if ( orientation_==Timeslice )
 	return Coord3(0,0,1);
-
-    const Coord c00 = SI().transform(BinID(0,0));
-    const Coord rel = SI().transform(
-	    orientation_==Inline ? BinID(0,1) : BinID(1,0) );
-    return Coord3(rel-c00, 0 );
+    
+    return Coord3( orientation_==Inline ? SI().binID2Coord().rowDir() :
+	    SI().binID2Coord().colDir(), 0 );
 }
 
 
