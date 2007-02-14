@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: uilistbox.cc,v 1.65 2006-11-09 23:00:18 cvskris Exp $
+ RCS:           $Id: uilistbox.cc,v 1.66 2007-02-14 10:13:34 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -400,7 +400,7 @@ uiSize uiListBoxBody::minimumsize() const
     int totHeight = fontHgt() * prefnrlines;
     int totWidth  = fontWdt( true ) * fieldWdt;
 
-    return uiSize ( totWidth , totHeight, true );
+    return uiSize ( totWidth , totHeight );
 }
 
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uicanvas.cc,v 1.30 2007-02-12 13:53:02 cvsnanne Exp $
+ RCS:           $Id: uicanvas.cc,v 1.31 2007-02-14 10:13:34 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -110,7 +110,7 @@ public:
 			    if ( w<1 ) w=1;
 			    int h = sz.vNrPics()-2*fw;
 			    if ( h<1 ) h=1;
-			    return uiSize( w, h, true );
+			    return uiSize( w, h );
 			}
 
 
@@ -186,11 +186,11 @@ void uiScrollViewBody::drawContents ( QPainter * p, int clipx,
 void uiScrollViewBody::resizeEvent( QResizeEvent *QREv )
 {
     const QSize& os = QREv->oldSize();
-    uiSize oldSize( os.width(), os.height(), true );
+    uiSize oldSize( os.width(), os.height() );
 
     const QSize& ns = QREv->size();
     uiSize nwSize( ns.width()  - 2 * frameWidth(), 
-                   ns.height() - 2 * frameWidth(), true );
+                   ns.height() - 2 * frameWidth() );
 
     handleResizeEvent( QREv, oldSize, nwSize );
 

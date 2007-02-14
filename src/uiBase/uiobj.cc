@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          25/08/1999
- RCS:           $Id: uiobj.cc,v 1.60 2006-07-11 08:22:41 cvsbert Exp $
+ RCS:           $Id: uiobj.cc,v 1.61 2007-02-14 10:13:35 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -361,10 +361,26 @@ uiMainWin* uiObject::mainwin()
 }
 
 
+QWidget* uiObject::qwidget()
+{ return body() ? body()->qwidget() : 0 ; }
+
+
 void uiObject::close()
 {
     if ( body() && body()->qwidget() )
 	body()->qwidget()->close();
+}
+
+
+int uiObject::width() const
+{
+    return qwidget() ? qwidget()->width() : 1;
+}
+
+
+int uiObject::height() const
+{
+    return qwidget() ? qwidget()->height() : 1;
 }
 
 
