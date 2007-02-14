@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          03/12/1999
- RCS:           $Id: uimain.h,v 1.11 2007-02-12 13:10:38 cvsnanne Exp $
+ RCS:           $Id: uimain.h,v 1.12 2007-02-14 16:37:50 cvsdgb Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,10 +22,10 @@ class QWidget;
 class uiMain
 {
 public:
-			uiMain(int argc,char** argv);
+			uiMain(int& argc,char** argv);
 private:
 			uiMain(QApplication*);
-    void 		init(QApplication*,int argc,char **argv);
+    void 		init(QApplication*,int& argc,char **argv);
 
 public:
 

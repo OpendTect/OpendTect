@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          10/12/1999
- RCS:           $Id: uimain.cc,v 1.34 2007-02-14 12:38:00 cvsnanne Exp $
+ RCS:           $Id: uimain.cc,v 1.35 2007-02-14 16:37:50 cvsdgb Exp $
 ________________________________________________________________________
 
 -*/
@@ -72,7 +72,7 @@ const uiFont* uiMain::font_ = 0;
 QApplication* uiMain::app_ = 0;
 uiMain*	uiMain::themain_ = 0;
 
-uiMain::uiMain( int argc, char **argv )
+uiMain::uiMain( int& argc, char **argv )
     : mainobj_( 0 )
 {
 #ifdef __machack__
@@ -108,7 +108,7 @@ uiMain::uiMain( QApplication* qapp )
 }
 
 
-void uiMain::init( QApplication* qap, int argc, char **argv )
+void uiMain::init( QApplication* qap, int& argc, char **argv )
 {
     if ( app_ ) 
     {

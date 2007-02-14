@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          06/02/2002
- RCS:           $Id: uicmain.h,v 1.4 2004-02-19 12:42:07 nanne Exp $
+ RCS:           $Id: uicmain.h,v 1.5 2007-02-14 16:37:50 cvsdgb Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,13 +20,13 @@ ________________________________________________________________________
 class uicMain : public uiMain
 {
 public:
-			uicMain(int argc,char** argv);
+			uicMain(int& argc,char** argv);
 
     virtual int		exec();	
 
 protected:
 
-    virtual void	init( QWidget* );
+    virtual void	init(QWidget*);
 
 };
 

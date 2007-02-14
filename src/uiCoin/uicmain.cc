@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          06/02/2002
- RCS:           $Id: uicmain.cc,v 1.16 2007-01-10 15:58:20 cvsnanne Exp $
+ RCS:           $Id: uicmain.cc,v 1.17 2007-02-14 16:37:50 cvsdgb Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,7 +17,7 @@ ________________________________________________________________________
 #include <Inventor/Qt/SoQt.h>
 #include <Inventor/SoDB.h>
 
-uicMain::uicMain( int argc, char** argv )
+uicMain::uicMain( int& argc, char** argv )
     : uiMain( argc, argv )
 {}
 
