@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodpicksettreeitem.cc,v 1.20 2007-02-14 12:04:56 cvsnanne Exp $
+ RCS:		$Id: uiodpicksettreeitem.cc,v 1.21 2007-02-15 20:40:19 cvskris Exp $
 ___________________________________________________________________
 
 -*/
@@ -216,7 +216,7 @@ bool uiODPickSetTreeItem::init()
 	mDynamicCastGet(visSurvey::PickSetDisplay*,psd,
 			visserv->getObject(displayid_));
 	if ( !psd ) return false;
-	const MultiID& setid = psd->getMultiID();
+	const MultiID setid = psd->getMultiID();
 	NotifyStopper ntfstop( Pick::Mgr().setAdded );
 	Pick::Mgr().set( setid, psd->getSet() );
     }
