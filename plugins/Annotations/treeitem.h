@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2005
- RCS:           $Id: treeitem.h,v 1.7 2007-02-13 21:59:50 cvskris Exp $
+ RCS:           $Id: treeitem.h,v 1.8 2007-02-15 20:35:13 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -49,19 +49,20 @@ public:
 class AnnotTreeItem : public uiODTreeItem
 {
 public:
-    			AnnotTreeItem(const char*);
-    			~AnnotTreeItem();
+    				AnnotTreeItem(const char*);
+    				~AnnotTreeItem();
 
 
 protected:
-    bool		readPicks(Pick::Set&);
-    virtual const char*	parentType() const;
-    virtual bool	init();
-    void		prepareForShutdown();
-    virtual bool	showSubMenu();
+    bool			readPicks(Pick::Set&);
+    virtual const char*		parentType() const;
+    virtual bool		init();
+    void			prepareForShutdown();
+    virtual bool		showSubMenu();
 
-    virtual uiTreeItem*	createSubItem(int,Pick::Set&)	= 0;
-    virtual const char*	managerName() const		= 0;
+    virtual uiTreeItem*		createSubItem(int,Pick::Set&)	= 0;
+    virtual const char*		managerName() const		= 0;
+    virtual const char*		oldSelKey() const		= 0;
 
 
 
@@ -208,6 +209,7 @@ protected: \
     uiTreeItem*	createSubItem(int di,Pick::Set& pck) \
     		{ return new type##SubItem(pck,di); } \
     const char*	managerName() const { return type##SubItem::sKeyManager(); } \
+    const char*	oldSelKey() const { return typestr; } \
 }
 
 mDefineParentItem(Text,"Text");

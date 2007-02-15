@@ -4,13 +4,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2005
- RCS:           $Id: treeitem.cc,v 1.10 2007-02-13 21:59:50 cvskris Exp $
+ RCS:           $Id: treeitem.cc,v 1.11 2007-02-15 20:35:13 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "treeitem.h"
 #include "randcolor.h"
+#include "survinfo.h"
 
 #include "uiarrowdlg.h"
 #include "uibutton.h"
@@ -266,7 +267,7 @@ bool AnnotTreeItem::readPicks( Pick::Set& ps )
 {
     CtxtIOObj* ctio = mMkCtxtIOObj(PickSet);
     ctio->ctxt.forread = true;
-    ctio->ctxt.parconstraints.set( sKey::Type, managerName() );
+    ctio->ctxt.parconstraints.set( sKey::Type, managerName(), oldSelKey() );
     ctio->ctxt.includeconstraints = true;
     uiIOObjSelDlg dlg( getUiParent(), *ctio );
     if ( !dlg.go() || !dlg.ioObj() )
@@ -559,6 +560,25 @@ bool TextSubItem::init()
     mDynamicCastGet(CalloutDisplay*,cd, visserv->getObject(displayid_))
     if ( !cd ) return false;
 
+    //Read Old format orientation
+    const Coord3 inldirvec( SI().binID2Coord().colDir(), 0 );
+    const Coord3 crldirvec( SI().binID2Coord().rowDir(), 0 );
+    const Sphere inldir = cartesian2Spherical( inldirvec, true );
+    const Sphere crldir = cartesian2Spherical( crldirvec, true );
+    for ( int idx=set_->size()-1; idx>=0; idx-- )
+    {
+	BufferString orientation;
+	if ( (*set_)[idx].getText("O", orientation ) )
+	{
+	    if ( orientation[0] == '1' )
+		(*set_)[idx].dir = crldir;
+	    else 
+		(*set_)[idx].dir = inldir;
+	}
+
+	(*set_)[idx].unSetText("O");
+    }
+
     return SubItem::init();
 }
 
@@ -602,12 +622,16 @@ void TextSubItem::handleMenuCB( CallBacker* cb )
 	if ( pickidx==-1 )
 	    return;
 
-	BufferString text = *(*set_)[pickidx].text;
+	BufferString text;
 	BufferString url;
+	(*set_)[pickidx].getText( CalloutDisplay::sKeyText(), text );
+	(*set_)[pickidx].getText( CalloutDisplay::sKeyURL(), url );
 	bool enab;
 	if ( editText(text, url, enab ) )
 	{
-	    *(*set_)[pickidx].text = text;
+	    (*set_)[pickidx].setText( CalloutDisplay::sKeyText(), text.buf() );
+	    if ( !enab ) (*set_)[pickidx].unSetText(CalloutDisplay::sKeyURL() );
+	    else (*set_)[pickidx].setText( CalloutDisplay::sKeyURL(),url.buf());
 
 	    Pick::SetMgr::ChangeData cd( Pick::SetMgr::ChangeData::Changed,
 					 set_, pickidx );
@@ -757,6 +781,28 @@ bool ArrowSubItem::init()
 	    visserv->getObject(displayid_))
     if ( !ad ) return false;
 
+    //Read Old format orientation
+    for ( int idx=set_->size()-1; idx>=0; idx-- )
+    {
+	BufferString orientation;
+	if ( (*set_)[idx].getText("O", orientation ) )
+	{
+	    if ( orientation[0] == '2' )
+	    {
+		(*set_)[idx].dir.phi = -M_PI_2-(*set_)[idx].dir.phi;
+		(*set_)[idx].dir.theta = M_PI_2;
+	    }
+	    else
+	    {
+		(*set_)[idx].dir.phi = M_PI_2-(*set_)[idx].dir.phi;
+		(*set_)[idx].dir.theta -= M_PI_2;
+	    }
+	}
+
+	delete (*set_)[idx].text;
+	(*set_)[idx].text = 0;
+    }
+
     return SubItem::init();
 }
 
@@ -857,7 +903,27 @@ bool ImageSubItem::init()
 	if ( !ioobj->pars().get(sKey::FileName, filename) )
 	{
 	    //Old format
-	    if ( set_->size() ) (*set_)[0].getText("T",filename);
+	    if ( set_->size() && (*set_)[0].getText("T",filename) )
+	    {
+		const Coord3 inldirvec( SI().binID2Coord().colDir(), 0 );
+		const Coord3 crldirvec( SI().binID2Coord().rowDir(), 0 );
+		const Sphere inldir = cartesian2Spherical( inldirvec, true );
+		const Sphere crldir = cartesian2Spherical( crldirvec, true );
+		for ( int idx=set_->size()-1; idx>=0; idx-- )
+		{
+		    BufferString orientation;
+		    if ( (*set_)[idx].getText("O", orientation ) )
+		    {
+			if ( orientation[0] == '1' )
+			    (*set_)[idx].dir = crldir;
+			else 
+			    (*set_)[idx].dir = inldir;
+		    }
+
+		    delete (*set_)[idx].text;
+		    (*set_)[idx].text = 0;
+		}
+	    }
 	}
 
 	if ( !filename.isEmpty() )
