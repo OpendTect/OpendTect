@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		May 2001
  Contents:	PickSet base classes
- RCS:		$Id: pickset.h,v 1.26 2007-02-09 20:58:27 cvskris Exp $
+ RCS:		$Id: pickset.h,v 1.27 2007-02-15 20:37:24 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -67,6 +67,7 @@ public:
     BufferString*	text; //!<Optional text at location
 
     void		setText(const char* key,const char* txt);
+    void		unSetText(const char* key);
     bool		getText(const char* key,BufferString&) const;
 
     inline bool		hasDir() const

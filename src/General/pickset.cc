@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: pickset.cc,v 1.39 2007-02-09 20:58:27 cvskris Exp $";
+static const char* rcsID = "$Id: pickset.cc,v 1.40 2007-02-15 20:37:24 cvskris Exp $";
 
 #include "pickset.h"
 #include "survinfo.h"
@@ -37,29 +37,38 @@ void Pick::Location::operator=( const Pick::Location& pl )
 
 void Pick::Location::setText( const char* key, const char* txt )
 {
+    unSetText( key );
     if ( !text ) text = new BufferString;
+    SeparString sepstr( *text, '\'' );
+
+    sepstr.add( key );
+    sepstr.add( txt );
+}
+
+
+void Pick::Location::unSetText( const char* key )
+{
+    if ( !text ) return;
     SeparString sepstr( *text, '\'' );
     for ( int idx=0; idx<sepstr.size(); idx+=2 )
     {
 	if ( strcmp(key,sepstr[idx]) )
 	    continue;
-	BufferString copy;
-	SeparString sepcopy( copy, '\'' );
+
+	SeparString copy( 0, '\'' );
 	for ( int idy=0; idy<sepstr.size(); idy++ )
 	{
 	    if ( idy==idx || idy==idx+1 )
 		continue;
 
-	    sepcopy.add( sepstr[idy] );
+	    copy.add( sepstr[idy] );
 	}
 
-	(*text) = copy;
-
+	sepstr = copy;
 	idx-=2;
     }
 
-    sepstr.add( key );
-    sepstr.add( txt );
+    (*text) = sepstr;
 }
 
 
