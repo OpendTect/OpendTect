@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Sep 2006
- RCS:           $Id: array2dbitmapimpl.h,v 1.6 2007-02-02 10:25:58 cvsbert Exp $
+ RCS:           $Id: array2dbitmapimpl.h,v 1.7 2007-02-15 13:24:36 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,11 +14,11 @@ ________________________________________________________________________
 #include "array2dbitmap.h"
 
 
-/*! \brief Common pars for A2DBitmapGenerators */
+/*! \brief Common pars for A2DBitMapGenerators */
 
-struct WVAA2DBitmapGenPars : public A2DBitmapGenPars
+struct WVAA2DBitMapGenPars : public A2DBitMapGenPars
 {
-		WVAA2DBitmapGenPars()
+		WVAA2DBitMapGenPars()
 		  : drawwiggles_(true)
 		  , drawmid_(false)
 		  , fillleft_(false)
@@ -46,29 +46,29 @@ struct WVAA2DBitmapGenPars : public A2DBitmapGenPars
 };
 
 
-/*! \brief Wiggles/Variable Area Drawing on A2DBitmap's. */
+/*! \brief Wiggles/Variable Area Drawing on A2DBitMap's. */
 
-class WVAA2DBitmapGenerator : public A2DBitmapGenerator
+class WVAA2DBitMapGenerator : public A2DBitMapGenerator
 {
 public:
 
-			WVAA2DBitmapGenerator(const A2DBitMapInpData&,
-					      const A2DBitmapPosSetup&);
+			WVAA2DBitMapGenerator(const A2DBitMapInpData&,
+					      const A2DBitMapPosSetup&);
 
-    WVAA2DBitmapGenPars&	wvapars()		{ return gtPars(); }
-    const WVAA2DBitmapGenPars&	wvapars() const		{ return gtPars(); }
+    WVAA2DBitMapGenPars&	wvapars()		{ return gtPars(); }
+    const WVAA2DBitMapGenPars&	wvapars() const		{ return gtPars(); }
 
     int				dim0SubSampling() const;
 
 protected:
 
-    inline WVAA2DBitmapGenPars& gtPars() const
-				{ return (WVAA2DBitmapGenPars&)pars_; }
+    inline WVAA2DBitMapGenPars& gtPars() const
+				{ return (WVAA2DBitMapGenPars&)pars_; }
 
     float			stripwidth_;
 
-				WVAA2DBitmapGenerator(
-					const WVAA2DBitmapGenerator&);
+				WVAA2DBitMapGenerator(
+					const WVAA2DBitMapGenerator&);
 				//!< Not implemented to prevent usage
 				//!< Copy the pars instead
     void			doFill();
@@ -83,9 +83,9 @@ protected:
 namespace Interpolate { template <class T> class Applier2D; }
 
 
-struct VDA2DBitmapGenPars : public A2DBitmapGenPars
+struct VDA2DBitMapGenPars : public A2DBitMapGenPars
 {
-			VDA2DBitmapGenPars()
+			VDA2DBitMapGenPars()
 			: lininterp_(false)	{}
 
     bool		lininterp_;	//!< Use bi-linear interpol, not poly
@@ -98,27 +98,27 @@ struct VDA2DBitmapGenPars : public A2DBitmapGenPars
 };
 
 
-/*! \brief Wiggles/Variable Area Drawing on A2DBitmap's. */
+/*! \brief Wiggles/Variable Area Drawing on A2DBitMap's. */
 
-class VDA2DBitmapGenerator : public A2DBitmapGenerator
+class VDA2DBitMapGenerator : public A2DBitMapGenerator
 {
 public:
 
-			VDA2DBitmapGenerator(const A2DBitMapInpData&,
-					     const A2DBitmapPosSetup&);
+			VDA2DBitMapGenerator(const A2DBitMapInpData&,
+					     const A2DBitMapPosSetup&);
 
-    VDA2DBitmapGenPars&		vdpars()	{ return gtPars(); }
-    const VDA2DBitmapGenPars&	vdpars() const	{ return gtPars(); }
+    VDA2DBitMapGenPars&		vdpars()	{ return gtPars(); }
+    const VDA2DBitMapGenPars&	vdpars() const	{ return gtPars(); }
 
 protected:
 
-    inline VDA2DBitmapGenPars& gtPars() const
-				{ return (VDA2DBitmapGenPars&)pars_; }
+    inline VDA2DBitMapGenPars& gtPars() const
+				{ return (VDA2DBitMapGenPars&)pars_; }
 
     float			strippixs_;
 
-				VDA2DBitmapGenerator(
-					const VDA2DBitmapGenerator&);
+				VDA2DBitMapGenerator(
+					const VDA2DBitMapGenerator&);
 				    //!< Not implemented to prevent usage
 				    //!< Copy the pars instead
 

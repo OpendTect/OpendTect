@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Sep 2006
- RCS:           $Id: array2dbitmap.h,v 1.10 2007-02-01 12:55:13 cvsbert Exp $
+ RCS:           $Id: array2dbitmap.h,v 1.11 2007-02-15 13:24:36 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,9 +22,9 @@ typedef Array2D<char>	A2DBitMap;
 
 /*! \brief Array2D Bitmap generation parameters */
 
-struct A2DBitmapGenPars
+struct A2DBitMapGenPars
 {
-		A2DBitmapGenPars()
+		A2DBitMapGenPars()
 		  : nointerpol_(false)
 		  , autoscale_(true)
 		  , fliplr_(false)
@@ -107,13 +107,13 @@ need a (usually linear) transformation in both directions for display.
 */
 
 
-class A2DBitmapPosSetup
+class A2DBitMapPosSetup
 {
 public:
 
-			A2DBitmapPosSetup(const Array2DInfo&,float* dim0pos=0);
+			A2DBitMapPosSetup(const Array2DInfo&,float* dim0pos=0);
 				// If passed, dim0pos becomes mine
-    virtual		~A2DBitmapPosSetup();
+    virtual		~A2DBitMapPosSetup();
 
     void		setPositions(float* dim0positions);
 				//!< dim0posistions will become mine
@@ -131,7 +131,7 @@ public:
     inline float	dimEps( int dim ) const
 			{ return 1e-6 * avgDist(dim); }
 
-    void		setBitmapSizes(int,int) const;
+    void		setBitMapSizes(int,int) const;
     inline int		nrXPix() const		{ return nrxpix_; }
     inline int		nrYPix() const		{ return nrypix_; }
 
@@ -172,40 +172,40 @@ protected:
 
 /*!\brief Generates Array2D bitmap from Array2D<float> */
 
-class A2DBitmapGenerator
+class A2DBitMapGenerator
 {
 public:
 
-    virtual		~A2DBitmapGenerator()	{ delete &pars_; }
+    virtual		~A2DBitMapGenerator()	{ delete &pars_; }
 
-    void		setBitmap(A2DBitMap&);
+    void		setBitMap(A2DBitMap&);
     A2DBitMap&		bitmap()		{ return *bitmap_; }
     const A2DBitMap&	bitmap() const		{ return *bitmap_; }
     int			bitmapSize(int dim) const;
 
-    static void		initBitmap(A2DBitMap&);	//!< with cNoFill
-    void		initBitmap()
-    			{ if ( bitmap_ ) initBitmap( *bitmap_ ); }
+    static void		initBitMap(A2DBitMap&);	//!< with cNoFill
+    void		initBitMap()
+    			{ if ( bitmap_ ) initBitMap( *bitmap_ ); }
 
     void		fill();
     bool		dump(std::ostream&) const;
 
-    A2DBitmapGenPars&		pars()		{ return pars_; }
-    const A2DBitmapGenPars&	pars() const	{ return pars_; }
+    A2DBitMapGenPars&		pars()		{ return pars_; }
+    const A2DBitMapGenPars&	pars() const	{ return pars_; }
     const A2DBitMapInpData&	data() const	{ return data_; }
-    const A2DBitmapPosSetup&	setup() const	{ return setup_; }
+    const A2DBitMapPosSetup&	setup() const	{ return setup_; }
 
 protected:
 
-				A2DBitmapGenerator(const A2DBitMapInpData&,
-						   const A2DBitmapPosSetup&,
-						   A2DBitmapGenPars&);
+				A2DBitMapGenerator(const A2DBitMapInpData&,
+						   const A2DBitMapPosSetup&,
+						   A2DBitMapGenPars&);
 				   //!< pass a new instance of (subclass of)
-				   //!< A2DBitmapGenPars
+				   //!< A2DBitMapGenPars
 
     const A2DBitMapInpData&	data_;
-    const A2DBitmapPosSetup&	setup_;
-    A2DBitmapGenPars&		pars_;
+    const A2DBitMapPosSetup&	setup_;
+    A2DBitMapGenPars&		pars_;
     A2DBitMap*			bitmap_;
 
 				// handy, duplicated from respective objects
