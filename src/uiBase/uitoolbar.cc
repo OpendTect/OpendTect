@@ -4,21 +4,23 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          30/05/2001
- RCS:           $Id: uitoolbar.cc,v 1.30 2007-02-14 12:38:00 cvsnanne Exp $
+ RCS:           $Id: uitoolbar.cc,v 1.31 2007-02-15 21:51:26 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uitoolbar.h"
-#include "uimain.h"
+
 #include "uibody.h"
-#include "uiobj.h"
 #include "uimainwin.h"
+#include "uiobj.h"
 #include "uiparentbody.h"
+
+#include "bufstringset.h"
+#include "filegen.h"
 #include "pixmap.h"
 #include "separstr.h"
-#include "filegen.h"
-#include "bufstringset.h"
+#include "settings.h"
 
 #include <qtoolbutton.h>
 #include <qapplication.h>
@@ -44,11 +46,7 @@ class uiToolBarBody : public uiParentBody
 {
 public:
 
-			uiToolBarBody( uiToolBar& handle, mQToolBarClss& bar )
-			    : uiParentBody("ToolBar")
-			    , qbar(&bar)
-			    , tbar(handle)
-			    {}
+			uiToolBarBody(uiToolBar&,mQToolBarClss&);
 
 			~uiToolBarBody()	{ deepErase(receivers); }
 
@@ -77,8 +75,10 @@ protected:
 
     virtual const QWidget*      managewidg_() const	{ return qbar; }
     virtual const QWidget*	qwidget_() const	{ return qbar; }
-    mQToolBarClss*	qbar;
+    mQToolBarClss*		qbar;
     uiToolBar&			tbar;
+    int				iconsz_;
+
     virtual void        attachChild ( constraintType tp,
                                       uiObject* child,
                                       uiObject* other, int margin,
@@ -98,6 +98,18 @@ private:
 };
 
 
+uiToolBarBody::uiToolBarBody( uiToolBar& handle, mQToolBarClss& bar )
+    : uiParentBody("ToolBar")
+    , qbar(&bar)
+    , tbar(handle)
+{
+#ifndef USEQT3
+    iconsz_ = 24;
+    Settings::common().get( "dTect.Icons.size", iconsz_ );
+#endif
+}
+
+
 int uiToolBarBody::addButton( const char* fnm, const CallBack& cb,
 			      const char* nm, bool toggle )
 {
@@ -111,6 +123,10 @@ int uiToolBarBody::addButton( const ioPixmap& pm, const CallBack& cb,
     i_QToolButReceiver* br= new i_QToolButReceiver;
     QToolButton* but= new QToolButton( *pm.Pixmap(), QString(nm), QString::null,
                            br,  SLOT(buttonPressed()),qbar, nm );
+
+#ifndef USEQT3
+    but->setIconSize( QSize(iconsz_,iconsz_) );
+#endif
 
     if ( toggle ) but->setToggleButton( true );
 
