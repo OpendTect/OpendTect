@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2005
- RCS:           $Id: treeitem.cc,v 1.11 2007-02-15 20:35:13 cvskris Exp $
+ RCS:           $Id: treeitem.cc,v 1.12 2007-02-15 23:45:44 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -654,9 +654,9 @@ void TextSubItem::pickAddedCB( CallBacker* cb )
     bool enab;
     if ( editText(prevtxt_, url, enab ) )
     {
-	if ( !loc.text ) loc.text = new BufferString( prevtxt_ );
-	else (*loc.text) = prevtxt_;
-	//Trigger CB?
+	loc.setText( CalloutDisplay::sKeyText(), prevtxt_.buf() );
+	if ( !enab ) loc.unSetText(CalloutDisplay::sKeyURL() );
+	else loc.setText( CalloutDisplay::sKeyURL(),url.buf());
     }
 }
 

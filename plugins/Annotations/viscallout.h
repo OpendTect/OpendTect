@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		January 2005
- RCS:		$Id: viscallout.h,v 1.5 2007-02-15 20:34:12 cvskris Exp $
+ RCS:		$Id: viscallout.h,v 1.6 2007-02-15 23:45:44 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -49,6 +49,7 @@ protected:
     void			setScene(visSurvey::Scene*);
     void			zScaleChangeCB(CallBacker*);
     void			directionChangeCB(CallBacker*);
+    void			urlClickCB(CallBacker*);
     void			setScaleTransform(visBase::DataObject*) const;
 
     visBase::Material*		markermaterial_;

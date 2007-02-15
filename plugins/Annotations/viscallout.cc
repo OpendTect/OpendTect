@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Jan 2005
- RCS:           $Id: viscallout.cc,v 1.9 2007-02-15 20:34:12 cvskris Exp $
+ RCS:           $Id: viscallout.cc,v 1.10 2007-02-15 23:45:44 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,7 +12,9 @@ ________________________________________________________________________
 #include "viscallout.h"
 
 #include "pickset.h"
+#include "strmprov.h"
 #include "viscoord.h"
+#include "visanchor.h"
 #include "vistristripset.h"
 #include "vismarker.h"
 #include "visfaceset.h"
@@ -35,6 +37,8 @@ public:
 
     Sphere			getDirection() const;
     Notifier<Callout>		moved;
+    NotifierAccess&		urlClick() { return anchor_->click; }
+    const CallBacker*		getAnchor() const { return anchor_; }
 
     void			setPick(const Pick::Location&);
     void			setTextSize(float ns);
@@ -70,6 +74,7 @@ protected:
     visBase::Transformation*	scale_;	 
 
     visBase::PolygonOffset*	textoffset_;	//In object space
+    visBase::Anchor*		anchor_;
     visBase::TextBox*		fronttext_;
     visBase::FaceSet*		faceset_;	
     visBase::Dragger*		translationdragger_;	
@@ -110,6 +115,7 @@ Callout::Callout()
     , backtext_( visBase::TextBox::create() )
     , backtextrotation_( visBase::Rotation::create() )
     , textoffset_( visBase::PolygonOffset::create() )
+    , anchor_( visBase::Anchor::create() )
     , faceset_( visBase::FaceSet::create() )
     , marker_( visBase::Marker::create() )
     , object2display_( visBase::Transformation::create() )
@@ -162,7 +168,12 @@ Callout::Callout()
     rotation_->ref();
     addChild( rotation_->getInventorNode() );
 
-    mAddChild( faceset_, true );
+    anchor_->ref();
+    addChild ( anchor_->getInventorNode() );
+
+    faceset_->removeSwitch();
+    anchor_->addObject( faceset_ );
+    
     faceset_->getCoordinates()->setPos( mPickPosIdx, Coord3(0,0,0) );
     faceset_->setVertexOrdering( 0 );
     faceset_->setShapeType( visBase::VertexShape::cUnknownShapeType() );
@@ -175,26 +186,24 @@ Callout::Callout()
     translationdragger_->finished.notify( mCB( this, Callout, dragStop ));
     addChild( translationdragger_->getInventorNode() );
 
-    textoffset_->ref();
     textoffset_->setStyle( visBase::PolygonOffset::Filled );
-    textoffset_->setUnits( -2 );
+    textoffset_->setUnits( 8 );
+    anchor_->addObject( textoffset_ );
 
-    mAddChild( fronttext_, true );
+    fronttext_->removeSwitch();
+    anchor_->addObject( fronttext_ );
 
-    backtextrotation_->ref();
     backtextrotation_->set( Coord3( 0, 1, 0 ), M_PI );
-    addChild( backtextrotation_->getInventorNode() );
-    mAddChild( backtext_, true );
+    anchor_->addObject( backtextrotation_ );
+
+    backtext_->removeSwitch();
+    anchor_->addObject( backtext_ );
 }
 
 
 Callout::~Callout()
 {
-    fronttext_->unRef();
-    backtext_->unRef();
-    backtextrotation_->unRef();
-    textoffset_->unRef();
-    faceset_->unRef();
+    anchor_->unRef();
     marker_->unRef();
     object2display_->unRef();
     rotation_->unRef();
@@ -252,9 +261,11 @@ void Callout::setPick( const Pick::Location& loc )
     rotdragger_->set( rot1 );
 
     BufferString text;
-    if ( loc.text && loc.getText( CalloutDisplay::sKeyText(), text ) &&
+    if ( loc.getText( CalloutDisplay::sKeyText(), text ) &&
 	 strcmp( text.buf(), fronttext_->getText() ) )
 	setText( text.buf() );
+
+    anchor_->enable( loc.getText( CalloutDisplay::sKeyURL(), text ) );
 }
 
 
@@ -693,6 +704,56 @@ void CalloutDisplay::directionChangeCB( CallBacker* cb )
 }
 
 
+static bool openDocument( const char* appl, const char* docstr )
+{
+    BufferString cmd( appl ); cmd += " "; cmd += docstr;
+    StreamProvider sp( cmd );
+    return sp.executeCommand( true );
+}
+
+
+
+void CalloutDisplay::urlClickCB( CallBacker* cb )
+{
+    int child = -1;
+    for ( int idx=0; idx<group_->size(); idx++ )
+    {
+	mDynamicCastGet( Callout*, call, group_->getObject(idx) );
+	if ( call->getAnchor()==cb )
+	{ child = idx; break; }
+    }
+	    
+    if ( child<0 )
+	return;
+
+    BufferString url;
+    if ( (*set_)[child].text &&
+	    (*set_)[child].getText( CalloutDisplay::sKeyURL(), url ) )
+    {
+#ifdef __mac__
+	if ( openDocument("open",url) )
+	    return;
+	std::cerr << "Cannot open " << url << std::endl;
+	return;
+#endif
+#ifdef __win__
+	if ( openDocument("ShellExecute",url) )
+	    return;
+	std::cerr << "Cannot open " << url << std::endl;
+	return;
+#endif
+
+	// TODO: Check for DesktopManager
+	if ( openDocument("xdg-open",url) )
+	   return;
+	if ( openDocument("gnome-open",url) )
+	    return;
+	if ( openDocument("kfmclient exec",url) )
+	    return;
+    }
+}
+
+
 void CalloutDisplay::setScaleTransform( visBase::DataObject* dobj ) const
 {
     mDynamicCastGet( Callout*, call, dobj );
@@ -717,6 +778,9 @@ visBase::VisualObject* CalloutDisplay::createLocation() const
     res->setTextSize( scale_ );
     res->moved.notify( mCB( const_cast<CalloutDisplay*>(this), CalloutDisplay,
 			directionChangeCB ) );
+    res->urlClick().notify(
+	    mCB(const_cast<CalloutDisplay*>(this), CalloutDisplay,urlClickCB ));
+
 
     if ( group_->size() )
     {
