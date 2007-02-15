@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvmap.cc,v 1.8 2007-02-14 10:17:52 cvsbert Exp $
+ RCS:           $Id: uisurvmap.cc,v 1.9 2007-02-15 21:50:22 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,6 +30,7 @@ void uiSurveyMap::drawMap( const SurveyInfo* survinfo )
 {
     ioDrawTool& dt = *mapcanvas->drawTool();
     dt.beginDraw();
+    dt.setBackgroundColor( Color::White );
     dt.clear();
     if ( survinfo->sampling(false).hrg.totalNr() < 2 )
     	{ dt.endDraw(); return; }
