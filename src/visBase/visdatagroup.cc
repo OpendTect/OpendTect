@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Jan 2002
- RCS:           $Id: visdatagroup.cc,v 1.5 2005-02-07 12:45:40 nanne Exp $
+ RCS:           $Id: visdatagroup.cc,v 1.6 2007-02-15 23:38:28 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,13 +24,9 @@ const char* DataObjectGroup::nokidsstr = "Number of Children";
 const char* DataObjectGroup::kidprefix = "Child ";
 
 DataObjectGroup::DataObjectGroup()
-    : group ( new SoGroup )
-    , separator( new SoSeparator )
-    , separate( true )
-{
-    separator->ref();
-    separator->addChild( group );
-}
+    : group_ ( 0 )
+    , separate_( true )
+{ }
 
 
 DataObjectGroup::~DataObjectGroup()
@@ -38,21 +34,36 @@ DataObjectGroup::~DataObjectGroup()
     const int sz = size();
 
     for ( int idx=0; idx<sz; idx++ )
-	objects[idx]->unRef();
+	objects_[idx]->unRef();
 
-    separator->unref();
+    group_->unref();
+}
+
+
+void DataObjectGroup::ensureGroup()
+{
+    if ( group_ ) return;
+    group_ = createGroup();
+    group_->ref();
+}
+
+
+SoGroup* DataObjectGroup::createGroup()
+{
+    return separate_ ? new SoSeparator : new SoGroup;
 }
 
 
 int DataObjectGroup::size() const
-{ return objects.size(); }
+{ return objects_.size(); }
 
 
 void DataObjectGroup::addObject( DataObject* no )
 {
-    objects += no;
-    group->addChild( no->getInventorNode() );
-    nodes += no->getInventorNode();
+    ensureGroup();
+    objects_ += no;
+    group_->addChild( no->getInventorNode() );
+    nodes_ += no->getInventorNode();
 
     no->ref();
 }
@@ -60,16 +71,16 @@ void DataObjectGroup::addObject( DataObject* no )
 
 void DataObjectGroup::setDisplayTransformation( Transformation* nt )
 {
-    for ( int idx=0; idx<objects.size(); idx++ )
-	objects[idx]->setDisplayTransformation(nt);
+    for ( int idx=0; idx<objects_.size(); idx++ )
+	objects_[idx]->setDisplayTransformation(nt);
 }
 
 
 Transformation* DataObjectGroup::getDisplayTransformation()
 {
-    for ( int idx=0; idx<objects.size(); idx++ )
-	if ( objects[idx]->getDisplayTransformation() )
-	    return objects[idx]->getDisplayTransformation();
+    for ( int idx=0; idx<objects_.size(); idx++ )
+	if ( objects_[idx]->getDisplayTransformation() )
+	    return objects_[idx]->getDisplayTransformation();
 
     return 0;
 }
@@ -89,9 +100,10 @@ void DataObjectGroup::insertObject( int insertpos, DataObject* no )
 {
     if ( insertpos>=size() ) return addObject( no );
 
-    objects.insertAt( no, insertpos );
-    nodes.insertAt(no->getInventorNode(), insertpos );
-    group->insertChild( no->getInventorNode(), insertpos );
+    objects_.insertAt( no, insertpos );
+    nodes_.insertAt(no->getInventorNode(), insertpos );
+    ensureGroup();
+    group_->insertChild( no->getInventorNode(), insertpos );
     no->ref();
 }
 
@@ -103,22 +115,22 @@ int DataObjectGroup::getFirstIdx( int nid ) const
 
     if ( !sceneobj ) return -1;
 
-    return objects.indexOf(sceneobj);
+    return objects_.indexOf(sceneobj);
 }
 
 
 int DataObjectGroup::getFirstIdx( const DataObject* sceneobj ) const
-{ return objects.indexOf(sceneobj); }
+{ return objects_.indexOf(sceneobj); }
 
 
 void DataObjectGroup::removeObject( int idx )
 {
-    DataObject* sceneobject = objects[idx];
-    SoNode* node = nodes[idx];
-    group->removeChild( node );
+    DataObject* sceneobject = objects_[idx];
+    SoNode* node = nodes_[idx];
+    group_->removeChild( node );
 
-    nodes.remove( idx );
-    objects.remove( idx );
+    nodes_.remove( idx );
+    objects_.remove( idx );
 
     sceneobject->unRef();
 }
@@ -131,22 +143,25 @@ void DataObjectGroup::removeAll()
 
 
 SoNode*  DataObjectGroup::getInventorNode()
-{ return separate ? (SoNode*) separator : (SoNode*) group; }
+{
+    ensureGroup();
+    return group_;
+}
 
 
 void DataObjectGroup::fillPar( IOPar& par, TypeSet<int>& saveids)const
 {
     DataObject::fillPar( par, saveids );
     
-    par.set( nokidsstr, objects.size() );
+    par.set( nokidsstr, objects_.size() );
     
     BufferString key;
-    for ( int idx=0; idx<objects.size(); idx++ )
+    for ( int idx=0; idx<objects_.size(); idx++ )
     {
 	key = kidprefix;
 	key += idx;
 
-	int saveid = objects[idx]->id();
+	int saveid = objects_[idx]->id();
 	if ( saveids.indexOf( saveid )==-1 ) saveids += saveid;
 
 	par.set( key, saveid );

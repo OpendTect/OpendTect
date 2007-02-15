@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visdatagroup.h,v 1.3 2006-08-28 08:57:42 cvskris Exp $
+ RCS:		$Id: visdatagroup.h,v 1.4 2007-02-15 23:38:28 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,7 +28,7 @@ public:
     static DataObjectGroup*	create()
 				mCreateDataObj(DataObjectGroup);
 
-    void			setSeparate( bool yn=true ) { separate=yn; }
+    void			setSeparate( bool yn=true ) { separate_=yn; }
     				/*! Set directly after creation, othersize
 				    it won't have effect */
 
@@ -54,9 +54,9 @@ public:
 
     virtual void		removeAll();
     virtual DataObject*		getObject( int idx )
-    				{return objects.size()>idx ? objects[idx] : 0;}
+    				{return objects_.size()>idx ? objects_[idx] :0;}
     virtual const DataObject*	getObject( int idx ) const
-				{return objects.size()>idx ? objects[idx] : 0;}
+				{return objects_.size()>idx ? objects_[idx] :0;}
 
     virtual SoNode*		getInventorNode();
 
@@ -74,14 +74,15 @@ protected:
 
     static const char*		nokidsstr;
     static const char*		kidprefix;
+    virtual SoGroup*		createGroup();
+    void			ensureGroup();
+    SoGroup*			group_;
 
 private:
-    ObjectSet<DataObject>	objects;
-    ObjectSet<SoNode>		nodes;
+    ObjectSet<DataObject>	objects_;
+    ObjectSet<SoNode>		nodes_;
 
-    SoGroup*			group;
-    SoSeparator*		separator;
-    bool			separate;
+    bool			separate_;
 };
 }; //namespace
 
