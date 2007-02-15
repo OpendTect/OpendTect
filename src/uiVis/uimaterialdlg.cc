@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uimaterialdlg.cc,v 1.14 2007-02-05 18:19:48 cvsbert Exp $
+ RCS:           $Id: uimaterialdlg.cc,v 1.15 2007-02-15 20:39:41 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -141,7 +141,7 @@ void uiMaterialGrp::sliderMove( CallBacker* cb )
 	material_->setDiffIntensity( diffslider_->getValue()/100 );
     else if ( sldr == specslider_ )
 	material_->setSpecIntensity( specslider_->getValue()/100 );
-    else if ( sldr == specslider_ )
+    else if ( sldr == emisslider_ )
 	material_->setEmmIntensity( emisslider_->getValue()/100 );
     else if ( sldr == shineslider_ )
 	material_->setShininess( shineslider_->getValue()/100 );
