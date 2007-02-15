@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          25/05/2000
- RCS:           $Id: uiioobjmanip.cc,v 1.28 2007-01-25 12:40:59 cvsbert Exp $
+ RCS:           $Id: uiioobjmanip.cc,v 1.29 2007-02-15 18:49:34 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -301,13 +301,14 @@ bool uiIOObjManipGroup::relocEntry( IOObj* ioobj, Translator* tr )
     BufferString caption( "New file location for '" );
     caption += ioobj->name(); caption += "'";
     BufferString oldfnm( iostrm->getExpandedName(true) );
-    BufferString filefilt( "*" );
+    BufferString filefilt;
     BufferString defext( subj_.defExt() );
     if ( !defext.isEmpty() )
     {
-	filefilt += "."; filefilt += defext;
-	filefilt += ";;*";
+	filefilt += "OpendTect Files (*."; filefilt += defext;
+	filefilt += ");;";
     }
+    filefilt += "All Files(*)";
 
     uiFileDialog dlg( this, uiFileDialog::Directory, oldfnm, filefilt, caption);
     if ( !dlg.go() ) return false;
