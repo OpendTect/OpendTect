@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/09/2000
- RCS:           $Id: uifiledlg.h,v 1.15 2006-03-30 20:49:46 cvsnanne Exp $
+ RCS:           $Id: uifiledlg.h,v 1.16 2007-02-15 18:50:23 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -81,6 +81,7 @@ protected:
     BufferStringSet	filenames;
     BufferString	selectedfilter_;
     bool		addallexts_;
+    bool		forread_;
 };
 
 #endif

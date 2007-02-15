@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/09/2000
- RCS:           $Id: uifiledlg.cc,v 1.30 2007-02-14 12:38:00 cvsnanne Exp $
+ RCS:           $Id: uifiledlg.cc,v 1.31 2007-02-15 18:50:22 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -73,6 +73,7 @@ uiFileDialog::uiFileDialog( uiParent* parnt, bool forread,
 			    const char* fname, const char* filter,
 			    const char* caption )
 	: mode_( forread ? ExistingFile : AnyFile )
+        , forread_( forread )
 	, fname_( fname )
 	, filter_( filter )
 	, caption_( caption )
@@ -89,6 +90,7 @@ uiFileDialog::uiFileDialog( uiParent* parnt, Mode mode,
 			    const char* fname, const char* filter,
 			    const char* caption )
 	: mode_( mode )
+        , forread_(true)
 	, fname_( fname )
 	, filter_( filter )
 	, caption_( caption )
@@ -98,10 +100,8 @@ uiFileDialog::uiFileDialog( uiParent* parnt, Mode mode,
 {}
 
 #ifdef USEQT3
-# define mSetFilter	setFilters
 # define mSelectFilter	setSelectedFilter
 #else
-# define mSetFilter	setFilter
 # define mSelectFilter	selectFilter
 #endif
 
@@ -119,12 +119,9 @@ int uiFileDialog::go()
     if ( parnt_ )
 	{ qp = parnt_->pbody() ? parnt_->pbody()->managewidg() : 0; }
 
-    dgbQFileDialog* fd = new dgbQFileDialog( qp, "File dialog", TRUE );
-
-    fd->setMode( qmodeForUiMode(mode_) );
+    BufferString flt( filter_ );
     if ( filter_.size() )
     {
-	BufferString flt( filter_ );
 	if ( addallexts_ )
 	{
 	    flt += ";;All files (*";
@@ -133,8 +130,14 @@ int uiFileDialog::go()
 #endif
 	    flt += ")";
 	}
-	fd->mSetFilter( QString(flt) );
     }
+
+    dgbQFileDialog* fd = new dgbQFileDialog( QString(fname_), QString(flt),
+	    				     qp, "File dialog", TRUE );
+
+    fd->setAcceptMode( forread_ ? QFileDialog::AcceptOpen
+	    			: QFileDialog::AcceptSave );
+    fd->setMode( qmodeForUiMode(mode_) );
     fd->setCaption( QString(caption_) );
     fd->setDir( QString(fname_) );
     if ( selectedfilter_.size() )
