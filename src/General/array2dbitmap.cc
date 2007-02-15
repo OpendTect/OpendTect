@@ -4,7 +4,7 @@
  * DATE     : Sep 2006
 -*/
 
-static const char* rcsID = "$Id: array2dbitmap.cc,v 1.17 2007-02-02 10:25:58 cvsbert Exp $";
+static const char* rcsID = "$Id: array2dbitmap.cc,v 1.18 2007-02-15 10:17:01 cvsbert Exp $";
 
 #include "array2dbitmapimpl.h"
 #include "arraynd.h"
@@ -14,13 +14,13 @@ static const char* rcsID = "$Id: array2dbitmap.cc,v 1.17 2007-02-02 10:25:58 cvs
 #include "envvars.h"
 #include <math.h>
 
-const char A2DBitmapGenPars::cNoFill		= -127;
-const char WVAA2DBitmapGenPars::cZeroLineFill	= -126;
-const char WVAA2DBitmapGenPars::cWiggFill	= -125;
-const char WVAA2DBitmapGenPars::cLeftFill	= -124;
-const char WVAA2DBitmapGenPars::cRightFill	= -123;
-const char VDA2DBitmapGenPars::cMinFill		= -120;
-const char VDA2DBitmapGenPars::cMaxFill		= 120;
+const char A2DBitMapGenPars::cNoFill		= -127;
+const char WVAA2DBitMapGenPars::cZeroLineFill	= -126;
+const char WVAA2DBitMapGenPars::cWiggFill	= -125;
+const char WVAA2DBitMapGenPars::cLeftFill	= -124;
+const char WVAA2DBitMapGenPars::cRightFill	= -123;
+const char VDA2DBitMapGenPars::cMinFill		= -120;
+const char VDA2DBitMapGenPars::cMaxFill		= 120;
 
 #define cNrFillSteps 241
 #define mMaxNrStatPts 2000
@@ -95,7 +95,7 @@ void A2DBitMapInpData::selectData()
 }
 
 
-A2DBitmapPosSetup::A2DBitmapPosSetup( const Array2DInfo& i, float* p )
+A2DBitMapPosSetup::A2DBitMapPosSetup( const Array2DInfo& i, float* p )
     	: szdim0_(i.getSize(0))
     	, szdim1_(i.getSize(1))
 	, nrxpix_(0)
@@ -107,37 +107,33 @@ A2DBitmapPosSetup::A2DBitmapPosSetup( const Array2DInfo& i, float* p )
 }
 
 
-A2DBitmapPosSetup::~A2DBitmapPosSetup()
+A2DBitMapPosSetup::~A2DBitMapPosSetup()
 {
     delete [] dim0pos_;
 }
 
 
-void A2DBitmapPosSetup::setPositions( float* p )
+void A2DBitMapPosSetup::setPositions( float* p )
 {
     if ( szdim0_ < 1 ) return;
 
     delete [] dim0pos_; dim0pos_ = p;
 
-    Interval<float> posbounds;
-    dim0avgdist_ = 1;
-    if ( !dim0pos_ || mIsEqual( dim0pos_[0], dim0pos_[szdim0_-1], 1e-8 ) )
+    if ( !dim0pos_ )
     {
 	dim0pos_ = new float [szdim0_];
 	for ( int idx=0; idx<szdim0_; idx++ )
 	    dim0pos_[idx] = idx;
-	posbounds.start = 0; posbounds.stop = szdim0_-1;
     }
-    else
+
+    Interval<float> posbounds( dim0pos_[0], dim0pos_[szdim0_-1] );
+    dim0avgdist_ = 1;
+    if ( dim0pos_[0] != dim0pos_[szdim0_-1] )
     {
-	posbounds.start = dim0pos_[0]; posbounds.stop = dim0pos_[szdim0_-1];
-	if ( szdim0_ > 1 )
-	{
-	    float totdist = 0;
-	    for ( int idx=1; idx<szdim0_; idx++ )
-		totdist += fabs(dim0pos_[idx] - dim0pos_[idx-1]);
-	    dim0avgdist_ = totdist / (szdim0_ - 1);
-	}
+	float totdist = 0;
+	for ( int idx=1; idx<szdim0_; idx++ )
+	    totdist += fabs(dim0pos_[idx] - dim0pos_[idx-1]);
+	dim0avgdist_ = totdist / (szdim0_ - 1);
     }
 
     posbounds.sort();
@@ -146,9 +142,9 @@ void A2DBitmapPosSetup::setPositions( float* p )
 }
 
 
-void A2DBitmapPosSetup::setBitmapSizes( int n0, int n1 ) const
+void A2DBitMapPosSetup::setBitMapSizes( int n0, int n1 ) const
 {
-    A2DBitmapPosSetup& self = *(const_cast<A2DBitmapPosSetup*>(this));
+    A2DBitMapPosSetup& self = *(const_cast<A2DBitMapPosSetup*>(this));
     // Don't like to declare all mutable as they shld be const everyhwere else
     self.nrxpix_ = n0; self.nrypix_ = n1;
     self.dim0rg_.sort(); self.dim1rg_.sort();
@@ -157,7 +153,7 @@ void A2DBitmapPosSetup::setBitmapSizes( int n0, int n1 ) const
 }
 
 
-int A2DBitmapPosSetup::getPix( int dim, float pos, bool rev ) const
+int A2DBitMapPosSetup::getPix( int dim, float pos, bool rev ) const
 {
     const float fpix = getPixOffs( dim, pos, rev );
 
@@ -171,7 +167,7 @@ int A2DBitmapPosSetup::getPix( int dim, float pos, bool rev ) const
 }
 
 
-bool A2DBitmapPosSetup::isInside( int dim, float pos ) const
+bool A2DBitMapPosSetup::isInside( int dim, float pos ) const
 {
     const float fpix = getPixOffs( dim, pos, false );
 
@@ -179,9 +175,9 @@ bool A2DBitmapPosSetup::isInside( int dim, float pos ) const
 }
 
 
-A2DBitmapGenerator::A2DBitmapGenerator( const A2DBitMapInpData& dat,
-					const A2DBitmapPosSetup& setp,
-					A2DBitmapGenPars& gp )
+A2DBitMapGenerator::A2DBitMapGenerator( const A2DBitMapInpData& dat,
+					const A2DBitMapPosSetup& setp,
+					A2DBitMapGenPars& gp )
 	: data_(dat)
     	, setup_(setp)
     	, pars_(gp)
@@ -190,31 +186,31 @@ A2DBitmapGenerator::A2DBitmapGenerator( const A2DBitMapInpData& dat,
 }
 
 
-void A2DBitmapGenerator::initBitmap( A2DBitMap& bm )
+void A2DBitMapGenerator::initBitMap( A2DBitMap& bm )
 {
     const uint64 totsz = bm.info().getTotalSz();
     if ( totsz > 0 )
-	memset( bm.getData(), A2DBitmapGenPars::cNoFill, totsz*sizeof(char) );
+	memset( bm.getData(), A2DBitMapGenPars::cNoFill, totsz*sizeof(char) );
 }
 
 
-int A2DBitmapGenerator::bitmapSize( int dim ) const
+int A2DBitMapGenerator::bitmapSize( int dim ) const
 {
     return bitmap_ ? bitmap_->info().getSize( dim ? 1 : 0 ) : 0;
 }
 
 
-void A2DBitmapGenerator::setBitmap( A2DBitMap& bm )
+void A2DBitMapGenerator::setBitMap( A2DBitMap& bm )
 {
     bitmap_ = &bm;
-    setup_.setBitmapSizes( bitmapSize(0), bitmapSize(1) );
+    setup_.setBitMapSizes( bitmapSize(0), bitmapSize(1) );
 }
 
 
-void A2DBitmapGenerator::fill()
+void A2DBitMapGenerator::fill()
 {
     if ( !bitmap_ ) return;
-    setBitmap( *bitmap_ );
+    setBitMap( *bitmap_ );
     if ( !setup_.nrXPix() || !setup_.nrYPix() )
 	return;
 
@@ -243,13 +239,13 @@ void A2DBitmapGenerator::fill()
 static inline int gtPrettyBMVal( char c )
 {
     static const float rgmax = 1000;
-    float v = (c - VDA2DBitmapGenPars::cMinFill) * (rgmax + 1)
-	    / (VDA2DBitmapGenPars::cMaxFill-VDA2DBitmapGenPars::cMinFill) - .5;
+    float v = (c - VDA2DBitMapGenPars::cMinFill) * (rgmax + 1)
+	    / (VDA2DBitMapGenPars::cMaxFill-VDA2DBitMapGenPars::cMinFill) - .5;
     int ret = mNINT(v);
     return ret < 0 ? 0 : (ret > rgmax+.5 ? (int)rgmax : ret);
 }
 
-bool A2DBitmapGenerator::dump( std::ostream& strm ) const
+bool A2DBitMapGenerator::dump( std::ostream& strm ) const
 {
     const int nrxpix = setup_.nrXPix(); const int nrypix = setup_.nrYPix();
     if ( !bitmap_ || nrxpix == 0 || nrypix == 0 )
@@ -271,14 +267,14 @@ bool A2DBitmapGenerator::dump( std::ostream& strm ) const
 //---
 
 
-WVAA2DBitmapGenerator::WVAA2DBitmapGenerator( const A2DBitMapInpData& d,
-					      const A2DBitmapPosSetup& su )
-    	: A2DBitmapGenerator(d,su,*new WVAA2DBitmapGenPars)
+WVAA2DBitMapGenerator::WVAA2DBitMapGenerator( const A2DBitMapInpData& d,
+					      const A2DBitMapPosSetup& su )
+    	: A2DBitMapGenerator(d,su,*new WVAA2DBitMapGenPars)
 {
 }
 
 
-int WVAA2DBitmapGenerator::dim0SubSampling() const
+int WVAA2DBitMapGenerator::dim0SubSampling() const
 {
     float fret = gtPars().minpixperdim0_ / setup_.getPixPerDim(0);
     int ret = mNINT( fret );
@@ -286,7 +282,7 @@ int WVAA2DBitmapGenerator::dim0SubSampling() const
 }
 
 
-void WVAA2DBitmapGenerator::doFill()
+void WVAA2DBitMapGenerator::doFill()
 {
     const int dispeach = dim0SubSampling();
     stripwidth_ = 2 * (0.5 + wvapars().overlap_) * dispeach * setup_.avgDist(0);
@@ -299,9 +295,8 @@ void WVAA2DBitmapGenerator::doFill()
 }
 
 
-void WVAA2DBitmapGenerator::drawTrace( int idim0 )
+void WVAA2DBitMapGenerator::drawTrace( int idim0 )
 {
-    const float dim1eps = setup_.dimEps( 1 );
     int previdim1 = mUdf(int);
     float prevval = mUdf(float);
     Interpolate::PolyReg1DWithUdf<float> pr1d;
@@ -310,7 +305,8 @@ void WVAA2DBitmapGenerator::drawTrace( int idim0 )
     float midval = wvapars().midvalue_;
     if ( mIsUdf(midval) ) midval = data_.midVal();
     const float midratio = (midval - scalerg_.start) / scalewidth_;
-    float middim0pos = dim0pos_[idim0] + (midratio-0.5) * stripwidth_;
+    const float middim0pos = dim0pos_[idim0] + (midratio-0.5) * stripwidth_;
+    const float dim1fac = (szdim1_ - 1) / dim1rg_.width();
 
     for ( int iy=0; iy<setup_.nrYPix(); iy++ )
     {
@@ -319,8 +315,9 @@ void WVAA2DBitmapGenerator::drawTrace( int idim0 )
 	if ( !setup_.isInside(1,dim1pos) )
 	    continue;
 
-	const int idim1 = (int)floor( dim1pos + dim1eps );
-	const float dim1offs = dim1pos - idim1;
+	const float fdim1 = (dim1pos - dim1rg_.start) * dim1fac;
+	const int idim1 = (int)floor( fdim1 + 1e-6 );
+	const float dim1offs = fdim1 - idim1;
 
 	const float v0 = inpdata.get( idim0, idim1 );
 	const float v1 = idim1 < szdim1_-1
@@ -351,7 +348,7 @@ void WVAA2DBitmapGenerator::drawTrace( int idim0 )
     mApplyValClipping(val)
 
 
-void WVAA2DBitmapGenerator::drawVal( int idim0, int iy, float val,
+void WVAA2DBitMapGenerator::drawVal( int idim0, int iy, float val,
 				     float prevval,
 				     float midval, float middim0pos )
 {
@@ -370,17 +367,17 @@ void WVAA2DBitmapGenerator::drawVal( int idim0, int iy, float val,
     if ( isleft && wvapars().fillleft_ )
     {
 	for ( int ix=valpix; ix<=midpix; ix++ )
-	    bitmap_->set( ix, iy, WVAA2DBitmapGenPars::cLeftFill );
+	    bitmap_->set( ix, iy, WVAA2DBitMapGenPars::cLeftFill );
     }
 
     if ( !isleft && wvapars().fillright_ )
     {
 	for ( int ix=midpix; ix<=valpix; ix++ )
-	    bitmap_->set( ix, iy, WVAA2DBitmapGenPars::cRightFill );
+	    bitmap_->set( ix, iy, WVAA2DBitMapGenPars::cRightFill );
     }
 
     if ( wvapars().drawmid_ && midpix >= 0 && midpix < setup_.nrXPix() )
-	bitmap_->set( midpix, iy, WVAA2DBitmapGenPars::cZeroLineFill );
+	bitmap_->set( midpix, iy, WVAA2DBitMapGenPars::cZeroLineFill );
 
     if ( wvapars().drawwiggles_ && setup_.isInside(0,valdim0pos) )
     {
@@ -406,12 +403,12 @@ void WVAA2DBitmapGenerator::drawVal( int idim0, int iy, float val,
 	}
 
 	for ( int ix=from; ix<=to; ix++ )
-	    bitmap_->set( ix, iy, WVAA2DBitmapGenPars::cWiggFill );
+	    bitmap_->set( ix, iy, WVAA2DBitMapGenPars::cWiggFill );
     }
 }
 
 
-bool WVAA2DBitmapGenerator::dumpXPM( std::ostream& strm ) const
+bool WVAA2DBitMapGenerator::dumpXPM( std::ostream& strm ) const
 {
     const int nrxpix = setup_.nrXPix(); const int nrypix = setup_.nrYPix();
 
@@ -432,10 +429,10 @@ bool WVAA2DBitmapGenerator::dumpXPM( std::ostream& strm ) const
 	    char c = bitmap_->get( ix, iy );
 	    switch ( c )
 	    {
-	    case WVAA2DBitmapGenPars::cWiggFill:	strm << 'w';	break;
-	    case WVAA2DBitmapGenPars::cZeroLineFill:	strm << '0';	break;
-	    case WVAA2DBitmapGenPars::cLeftFill:	strm << 'l';	break;
-	    case WVAA2DBitmapGenPars::cRightFill:	strm << 'r';	break;
+	    case WVAA2DBitMapGenPars::cWiggFill:	strm << 'w';	break;
+	    case WVAA2DBitMapGenPars::cZeroLineFill:	strm << '0';	break;
+	    case WVAA2DBitMapGenPars::cLeftFill:	strm << 'l';	break;
+	    case WVAA2DBitMapGenPars::cRightFill:	strm << 'r';	break;
 	    default:					strm << 'e';	break;
 	    }
 	}
@@ -450,20 +447,20 @@ bool WVAA2DBitmapGenerator::dumpXPM( std::ostream& strm ) const
 
 
 
-float VDA2DBitmapGenPars::offset( char c )
+float VDA2DBitMapGenPars::offset( char c )
 {
     return (c - cMinFill) / ((float)(cNrFillSteps - 1));
 }
 
 
-VDA2DBitmapGenerator::VDA2DBitmapGenerator( const A2DBitMapInpData& d,
-					    const A2DBitmapPosSetup& su )
-    	: A2DBitmapGenerator(d,su,*new VDA2DBitmapGenPars)
+VDA2DBitMapGenerator::VDA2DBitMapGenerator( const A2DBitMapInpData& d,
+					    const A2DBitMapPosSetup& su )
+    	: A2DBitMapGenerator(d,su,*new VDA2DBitMapGenPars)
 {
 }
 
 
-void VDA2DBitmapGenerator::doFill()
+void VDA2DBitMapGenerator::doFill()
 {
     const float avgdim0dist = setup_.avgDist( 0 );
     strippixs_ = avgdim0dist * setup_.getPixPerDim(0);
@@ -480,7 +477,7 @@ void VDA2DBitmapGenerator::doFill()
 }
 
 
-void VDA2DBitmapGenerator::drawStrip( int idim0 )
+void VDA2DBitMapGenerator::drawStrip( int idim0 )
 {
     const float curpos = dim0pos_[idim0];
     float stripmidpix = setup_.getPixOffs( 0, curpos, pars_.fliplr_ );
@@ -530,13 +527,9 @@ void VDA2DBitmapGenerator::drawStrip( int idim0 )
     idim0 < szdim0_-1 ? (idim1 < szdim1_-1 \
 		      ? inpdata.get( idim0+1, idim1+1 ) : v[2]) : v[1]
 
-void VDA2DBitmapGenerator::drawPixLines( int stripdim0,
+void VDA2DBitMapGenerator::drawPixLines( int stripdim0,
 					 const Interval<int>& xpixs2do )
 {
-    const float dim0eps = setup_.dimEps( 0 );
-    const float dim1eps = setup_.dimEps( 1 );
-    int previdim1 = mUdf(int);
-
     PtrMan< Interpolate::Applier2D<float> > interp = 0;
     if ( vdpars().lininterp_ )
 	interp = new Interpolate::LinearReg2DWithUdf<float>;
@@ -547,7 +540,10 @@ void VDA2DBitmapGenerator::drawPixLines( int stripdim0,
 	const float xstretch = pixperval0 / pixperval1;
 	interp = new Interpolate::PolyReg2DWithUdf<float>( xstretch );
     }
+
     const Array2D<float>& inpdata = data_.data();
+    const float dim1fac = (szdim1_ - 1) / dim1rg_.width();
+    int previdim1 = mUdf(int);
 
     for ( int ix=xpixs2do.start; ix<=xpixs2do.stop; ix++ )
     {
@@ -567,8 +563,9 @@ void VDA2DBitmapGenerator::drawPixLines( int stripdim0,
 	    if ( !setup_.isInside(1,dim1pos) )
 		continue;
 
-	    const int idim1 = (int)floor( dim1pos + dim1eps );
-	    const float dim1offs = dim1pos - idim1;
+	    const float fdim1 = (dim1pos - dim1rg_.start) * dim1fac;
+	    const int idim1 = (int)floor( fdim1 + 1e-6 );
+	    const float dim1offs = fdim1 - idim1;
 
 	    if ( !pars_.nointerpol_ && idim1 != previdim1 )
 		fillInterpPars( *interp, idim0, idim1 );
@@ -596,7 +593,7 @@ void VDA2DBitmapGenerator::drawPixLines( int stripdim0,
 }
 
 
-void VDA2DBitmapGenerator::fillInterpPars(
+void VDA2DBitMapGenerator::fillInterpPars(
 	Interpolate::Applier2D<float>& interp, int idim0, int idim1 )
 {
     float v[12];
@@ -631,12 +628,12 @@ void VDA2DBitmapGenerator::fillInterpPars(
 }
 
 
-void VDA2DBitmapGenerator::drawVal( int ix, int iy, float val )
+void VDA2DBitMapGenerator::drawVal( int ix, int iy, float val )
 {
     mPrepVal();
 
     const float valratio = (val - scalerg_.start) / scalewidth_;
-    const char bmval = (char)(VDA2DBitmapGenPars::cMinFill
+    const char bmval = (char)(VDA2DBitMapGenPars::cMinFill
 	    		      + valratio * cNrFillSteps - .5);
     bitmap_->set( ix, iy, bmval );
 }
@@ -651,7 +648,7 @@ static void getColValHex( int idx, char* ptr )
 }
 
 
-bool VDA2DBitmapGenerator::dumpXPM( std::ostream& strm ) const
+bool VDA2DBitMapGenerator::dumpXPM( std::ostream& strm ) const
 {
     const int nrxpix = setup_.nrXPix(); const int nrypix = setup_.nrYPix();
     const float fac = ((float)51) / (cNrFillSteps - 1);
@@ -691,7 +688,7 @@ bool VDA2DBitmapGenerator::dumpXPM( std::ostream& strm ) const
 	strm << mXPMStartLn;
 	for ( int ix=0; ix<nrxpix; ix++ )
 	{
-	    int c = ((int)bitmap_->get(ix,iy)) - VDA2DBitmapGenPars::cMinFill;
+	    int c = ((int)bitmap_->get(ix,iy)) - VDA2DBitMapGenPars::cMinFill;
 	    if ( c < 0 || c >= cNrFillSteps )
 		strm << '.';
 	    else
