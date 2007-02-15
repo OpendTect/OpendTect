@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Jan 2005
- RCS:           $Id: visarrow.cc,v 1.6 2007-02-09 20:55:44 cvskris Exp $
+ RCS:           $Id: visarrow.cc,v 1.7 2007-02-15 20:34:50 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -124,17 +124,18 @@ void ArrowDisplay::setPosition( int idx, const Pick::Location& loc )
 
     displayvector /= len;
     displayvector *= set_->disp_.pixsize_;
+    //Note: pos.vec points in the direction of the tail, not the arrow.
     d1 = d0+displayvector;
     line->getCoordinates()->setPos( 1, display2World( d1 ) );
 
-    const Coord3 planenormal( sin(loc.dir.phi), cos(loc.dir.phi), 0 );
-    const Quaternion plus30rot(planenormal, M_PI_2/6);
-    const Quaternion minus30rot(planenormal, -M_PI_2/6 );
-    Coord3 arrowheadvec = minus30rot.rotate( displayvector*.3 );
-    line->getCoordinates()->setPos( 2, display2World(d1-arrowheadvec) );
+    const Coord3 planenormal( sin(loc.dir.phi), -cos(loc.dir.phi), 0 );
+    const Quaternion plus45rot(planenormal, M_PI/4);
+    const Quaternion minus45rot(planenormal, -M_PI/4 );
+    Coord3 arrowheadvec = minus45rot.rotate( displayvector*.3 );
+    line->getCoordinates()->setPos( 2, display2World(d0+arrowheadvec) );
     
-    arrowheadvec = plus30rot.rotate( displayvector*.3 );
-    line->getCoordinates()->setPos( 3, display2World(d1-arrowheadvec) );
+    arrowheadvec = plus45rot.rotate( displayvector*.3 );
+    line->getCoordinates()->setPos( 3, display2World(d0+arrowheadvec) );
 }
 
 
@@ -142,8 +143,8 @@ void ArrowDisplay::updateLineShape(visBase::IndexedPolyLine* pl) const
 {
     pl->ref();
     int idx = 0;
-    pl->setCoordIndex( idx++, 0 );
     pl->setCoordIndex( idx++, 1 );
+    pl->setCoordIndex( idx++, 0 );
 
     if ( arrowtype_==Top || arrowtype_==Double )
 	pl->setCoordIndex( idx++, 2 );
@@ -153,7 +154,7 @@ void ArrowDisplay::updateLineShape(visBase::IndexedPolyLine* pl) const
     if ( arrowtype_==Double )
     {
 	pl->setCoordIndex( idx++, -1 );
-	pl->setCoordIndex( idx++, 1 );
+	pl->setCoordIndex( idx++, 0 );
 	pl->setCoordIndex( idx++, 3 );
     }
 
