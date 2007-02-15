@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          10/12/1999
- RCS:           $Id: uimain.cc,v 1.35 2007-02-14 16:37:50 cvsdgb Exp $
+ RCS:           $Id: uimain.cc,v 1.36 2007-02-15 21:12:26 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -118,10 +118,12 @@ void uiMain::init( QApplication* qap, int& argc, char **argv )
     else
 	themain_ = this;
 
+    QApplication::setColorSpec( QApplication::ManyColor );
+    QApplication::setDesktopSettingsAware( FALSE );
+
     if ( DBG::isOn(DBG_UI) && !qap )
 	DBG::message( "Constructing QApplication ..." );
 
-    QApplication::setColorSpec( QApplication::ManyColor );
     if( qap ) 
 	app_ = qap;
     else
@@ -159,13 +161,14 @@ void uiMain::init( QApplication* qap, int& argc, char **argv )
     }
     if ( !enab )
 	uiObject::enableToolTips( false );
+
+    int iconsz = 24;
+    Settings::common().get( "dTect.Icons.size", iconsz );
+    QIconSet::setIconSize( QIconSet::Small, QSize(iconsz,iconsz) );
+    QIconSet::setIconSize( QIconSet::Automatic, QSize(iconsz,iconsz) );
+    QIconSet::setIconSize( QIconSet::Large, QSize(iconsz,iconsz) );
 #endif
 
-//    int iconsz = 24;
-//    Settings::common().get( "dTect.Icons.size", iconsz );
-//    setIconSize( iconsz );
-
-    QApplication::setDesktopSettingsAware( FALSE );
 }
 
 
@@ -192,8 +195,8 @@ void uiMain::setTopLevel( uiMainWin* obj )
     obj->setExitAppOnClose( true );
 
     mainobj_ = obj;
-    app_->setMainWidget( mainobj_->body()->qwidget() );
     init( mainobj_->body()->qwidget() ); // inits SoQt if uicMain
+    app_->setMainWidget( mainobj_->body()->qwidget() );
 }
 
 
