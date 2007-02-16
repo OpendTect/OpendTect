@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: arrayndimpl.h,v 1.46 2007-01-05 20:58:29 cvskris Exp $
+ RCS:		$Id: arrayndimpl.h,v 1.47 2007-02-16 16:36:30 cvskris Exp $
 ________________________________________________________________________
 
 */
@@ -288,9 +288,9 @@ public:
 			    mImplSetStorage( in.getTotalSz() );
 
     virtual void	set( int p0, int p1, T v )
-			{ stor_->setValue(in.getMemPos(p0,p1), v); }
+			{ stor_->setValue(in.getOffset(p0,p1), v); }
     virtual T		get( int p0, int p1 ) const
-			{ return stor_->value(in.getMemPos(p0,p1)); }
+			{ return stor_->value(in.getOffset(p0,p1)); }
     void		copyFrom( const Array2D<T>& templ )
 			{
 			    if ( info()!=templ.info() )
@@ -374,9 +374,9 @@ public:
 			    mImplSetStorage( in.getTotalSz() );
 
     virtual void	set( int p0, int p1, int p2, T v )
-			{ stor_->setValue(in.getMemPos(p0,p1,p2), v); }
+			{ stor_->setValue(in.getOffset(p0,p1,p2), v); }
     virtual T		get( int p0, int p1, int p2 ) const
-			{ return stor_->value(in.getMemPos(p0,p1,p2)); }
+			{ return stor_->value(in.getOffset(p0,p1,p2)); }
     void		copyFrom( const Array3D<T>& templ )
 			{
 			    if ( info()!=templ.info() )
@@ -499,9 +499,9 @@ static ArrayND<T>*	create(const ArrayNDInfo& nsz,bool file=false);
 			    mImplSetStorage( in->getTotalSz() );
 
     virtual void	set( const int* pos, T v )
-			{ stor_->setValue(in->getMemPos(pos), v); }
+			{ stor_->setValue(in->getOffset(pos), v); }
     virtual T		get( const int* pos ) const
-			{ return stor_->value(in->getMemPos(pos)); }
+			{ return stor_->value(in->getOffset(pos)); }
 
 
     const ArrayNDInfo&	info() const { return *in; }

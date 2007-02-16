@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribdataholder.cc,v 1.6 2006-11-21 14:00:06 cvsbert Exp $";
+static const char* rcsID = "$Id: attribdataholder.cc,v 1.7 2007-02-16 16:36:30 cvskris Exp $";
 
 #include "attribdataholder.h"
 
@@ -167,7 +167,7 @@ bool Data2DHolder::fillDataCube( DataCubes& res ) const
     {
 	for ( int idx=0; idx<trcinfoset_.size(); idx++ )
 	{
-	    const int offset = array.info().getMemPos( 0,
+	    const int offset = array.info().getOffset( 0,
 		    trcrange.nearestIndex( trcinfoset_[idx]->nr),
 		    dataset_[idx]->z0_-mNINT(cs.zrg.start/cs.zrg.step) );
 

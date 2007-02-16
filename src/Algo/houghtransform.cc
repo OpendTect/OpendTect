@@ -9,7 +9,7 @@
 -----------------------------------------------------------------------------
 */
 
-static const char* rcsID = "$Id: houghtransform.cc,v 1.7 2006-03-12 13:39:10 cvsbert Exp $";
+static const char* rcsID = "$Id: houghtransform.cc,v 1.8 2007-02-16 16:36:30 cvskris Exp $";
 
 
 #include "houghtransform.h"
@@ -214,7 +214,7 @@ void PlaneFrom3DSpaceHoughTransform::incParamPos( int normalidx, double dist)
 {
     const int distid = mNINT( dist/deltadist );
     unsigned int memoffset = reinterpret_cast<const Array2DInfo&>
-			    (paramspace->info()).getMemPos(normalidx,distid);
+			    (paramspace->info()).getOffset(normalidx,distid);
     unsigned int* dataptr = paramspace->getData();
 
     paramspacemutex.lock();

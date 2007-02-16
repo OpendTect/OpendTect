@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.167 2007-02-14 17:50:13 cvskris Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.168 2007-02-16 16:36:30 cvskris Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -794,9 +794,9 @@ void PlaneDataDisplay::setData( int attrib, const Attrib::DataCubes* datacubes )
 		    outpsampler.computeCache( Interval<int>(0,zsz-1) );
 
 		    const float* inputptr = srcarray.getData() +
-					    info.getMemPos(inlidx,crlidx,0);
+					    info.getOffset(inlidx,crlidx,0);
 		    float* outputptr = tmparray->getData() +
-				    tmparray->info().getMemPos(inlidx,crlidx,0);
+				    tmparray->info().getOffset(inlidx,crlidx,0);
 
 		    SampledFunctionImpl<float,const float*>
 			inputfunc( inputptr,

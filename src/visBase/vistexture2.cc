@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Jan 2003
- RCS:           $Id: vistexture2.cc,v 1.36 2006-08-16 10:51:20 cvsbert Exp $
+ RCS:           $Id: vistexture2.cc,v 1.37 2007-02-16 16:36:30 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -196,7 +196,7 @@ void Texture2::polyInterp( const Array2DInfoImpl& newsize,
 	    const float v21 = x0p2udf || x1p1udf ? udf
 		: newdata->get( x0idx+2, x1idx+1 );
 
-	    res[newsize.getMemPos(x0,x1)] = Interpolate::polyReg2DWithUdf(
+	    res[newsize.getOffset(x0,x1)] = Interpolate::polyReg2DWithUdf(
 		    vm10,vm11,v0m1,v00,v01,v02,v1m1,v10,v11,v12,v20,v21,
 		    x0relpos, x1relpos );
 	}
@@ -226,7 +226,7 @@ void Texture2::nearestValInterp( const Array2DInfoImpl& newsize,
 
 	    const int x0nearest = mNINT(x0relpos);
 	    const int x1nearest = mNINT(x1relpos);
-	    res[newsize.getMemPos(x0,x1)] = 
+	    res[newsize.getOffset(x0,x1)] = 
 			    newdata->get( x0idx+x0nearest, x1idx+x1nearest );
 	}
     }

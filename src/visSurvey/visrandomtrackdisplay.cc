@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          January 2003
- RCS:           $Id: visrandomtrackdisplay.cc,v 1.83 2007-02-13 20:08:15 cvskris Exp $
+ RCS:           $Id: visrandomtrackdisplay.cc,v 1.84 2007-02-16 16:36:30 cvskris Exp $
  ________________________________________________________________________
 
 -*/
@@ -414,7 +414,7 @@ void RandomTrackDisplay::setData( int attrib, const SeisTrcBuf& trcbuf )
 	if ( !trc )
 	    continue;
 
-	float* arrptr = dataptr + array.info().getMemPos( posidx, 0 );
+	float* arrptr = dataptr + array.info().getOffset( posidx, 0 );
 
 	if ( !datatransform_ )
 	{
