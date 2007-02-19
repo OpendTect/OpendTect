@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.cc,v 1.108 2007-01-16 14:33:36 cvsjaap Exp $
+ RCS:           $Id: uimpeman.cc,v 1.109 2007-02-19 08:14:11 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -249,21 +249,31 @@ void uiMPEMan::seedClick( CallBacker* )
 
     if ( tracker->is2D() )
     {
+	const MultiID& lset = clickcatcher->info().getObjLineSet();
+	const BufferString& lname = clickcatcher->info().getObjLineName();
+
+	const bool lineswitch = lset!=engine.active2DLineSetID() ||
+			        lname!=engine.active2DLineName(); 
+
+	// Not allowed to pick on more than one line in wizard stage
+	if ( lineswitch && isPickingInWizard() && seedpicker->nrSeeds() )
+	    return;
+
+	engine.setActive2DLine( lset, lname );
+
 	RefMan<const Attrib::DataCubes> cached =
 	    				clickcatcher->info().getObjData();
-
 	if ( cached )
 	{
 	    engine.setAttribData( *clickcatcher->info().getObjDataSelSpec(),
 				  cached );
-	    mDynamicCastGet( MPE::Horizon2DSeedPicker*, h2dsp, seedpicker );
-	    h2dsp->setLine( clickcatcher->info().getObjLineSet(),
-			    clickcatcher->info().getObjLineName(),
-			    clickcatcher->info().getObjLineData() );
-
-	    if ( !h2dsp->startSeedPick() )
-		return;
 	}
+
+	mDynamicCastGet( MPE::Horizon2DSeedPicker*, h2dsp, seedpicker );
+	h2dsp->setLine( lset, lname, clickcatcher->info().getObjLineData() );
+
+	if ( !h2dsp->startSeedPick() )
+	    return;
     }
     else
     {
@@ -514,6 +524,7 @@ void uiMPEMan::turnSeedPickingOn( bool yn )
 
 	restoreActiveVol();
     }
+    //visserv->sendPickingStatusChangeEvent();
 }
 
 

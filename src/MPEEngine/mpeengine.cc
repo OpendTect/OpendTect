@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: mpeengine.cc,v 1.76 2007-02-14 09:03:16 cvsnanne Exp $";
+static const char* rcsID = "$Id: mpeengine.cc,v 1.77 2007-02-19 08:12:02 cvsjaap Exp $";
 
 #include "mpeengine.h"
 
@@ -104,6 +104,21 @@ void Engine::setActiveVolume( const CubeSampling& nav )
     setTrackPlane( ntp, false );
     activevolumechange.trigger();
 }
+
+
+void Engine::setActive2DLine( const MultiID& linesetid, const char* linename )
+{
+    active2dlinesetid_ = linesetid;
+    active2dlinename_ = linename;
+}
+
+
+const MultiID& Engine::active2DLineSetID() const
+{ return active2dlinesetid_; }
+
+
+const BufferString& Engine::active2DLineName() const
+{ return active2dlinename_; }
 
 
 const TrackPlane& Engine::trackPlane() const
@@ -312,52 +327,62 @@ CubeSampling Engine::getAttribCube( const Attrib::SelSpec& as ) const
 
     return res;
 }
-    
+
+
+int Engine::getCacheIndexOf( const Attrib::SelSpec& as ) const
+{
+    for ( int idx=0; idx<attribcachespecs_.size(); idx++ )
+    {
+	if ( attribcachespecs_[idx]->attrsel_.is2D()  != as.is2D()  ||
+	     attribcachespecs_[idx]->attrsel_.isNLA() != as.isNLA() ||
+	     attribcachespecs_[idx]->attrsel_.id()    != as.id()     )
+	    continue;
+
+	if ( !as.is2D() )
+	    return idx;
+	
+	if ( attribcachespecs_[idx]->linesetid_ != active2DLineSetID() ||
+	     attribcachespecs_[idx]->linename_  != active2DLineName()   )
+	    continue;
+
+	return idx;
+    }
+
+    return -1;
+}
+
 
 const Attrib::DataCubes* Engine::getAttribCache(const Attrib::SelSpec& as) const
 {
-    Attrib::SelSpec attrselspec(as);
-    if ( as.is2D() )
-	attrselspec.setUserRef( LineKey(as.userRef()).attrName() );   
-
-    for ( int idx=0; idx<attribcachespecs_.size(); idx++ )
-    {
-	if ( *attribcachespecs_[idx]==attrselspec )
-	    return idx<attribcache_.size() ? attribcache_[idx] : 0;
-    }
-
-    return 0;
+    const int idx = getCacheIndexOf(as);
+    return idx>=0 && idx<attribcache_.size() ? attribcache_[idx] : 0;
 }
 
 
 bool Engine::setAttribData( const Attrib::SelSpec& as, 
 			    const Attrib::DataCubes* newdata )
 {
-    bool found = false;
-    for ( int idx=0; idx<attribcachespecs_.size(); idx++ )
+    const int idx = getCacheIndexOf(as);
+    if ( idx>=0 && idx<attribcache_.size() )
     {
-	if ( *attribcachespecs_[idx]==as )
+	attribcache_[idx]->unRef();
+	if ( !newdata )
 	{
-	    attribcache_[idx]->unRef();
-	    if ( !newdata )
-	    {
-		attribcache_.remove(idx);
-		attribcachespecs_.remove(idx);
-	    }
-	    else
-	    {
-		attribcache_.replace(idx, newdata);
-		newdata->ref();
-	    }
-
-	    found = true;
-	    break;
+	    attribcache_.remove( idx );
+	    attribcachespecs_.remove( idx );
+	}
+	else
+	{
+	    attribcache_.replace( idx, newdata );
+	    newdata->ref();
 	}
     }
-
-    if ( newdata && !found )
+    else if (newdata)
     {
-	attribcachespecs_ += new Attrib::SelSpec(as);
+	attribcachespecs_ += as.is2D() ? 
+	    new CacheSpecs( as, active2DLineSetID(), active2DLineName() ) :
+	    new CacheSpecs( as ) ;
+
 	attribcache_ += newdata;
 	newdata->ref();
     }
@@ -384,7 +409,7 @@ bool Engine::cacheIncludes( const Attrib::SelSpec& as,
 void Engine::swapCacheAndItsBackup()
 {
     const ObjectSet<const Attrib::DataCubes> tempcache = attribcache_;
-    const ObjectSet<Attrib::SelSpec> tempcachespecs = attribcachespecs_;
+    const ObjectSet<CacheSpecs> tempcachespecs = attribcachespecs_;
     attribcache_ = attribbackupcache_;
     attribcachespecs_ = attribbackupcachespecs_;
     attribbackupcache_ = tempcache;

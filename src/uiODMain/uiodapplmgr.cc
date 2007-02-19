@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.178 2007-02-13 13:41:22 cvsjaap Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.179 2007-02-19 08:10:24 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -164,7 +164,7 @@ void uiODApplMgr::surveyChanged( CallBacker* )
     sceneMgr().addScene();
     attrserv_ = new uiAttribPartServer( applservice_ );
     mpeserv_ = new uiMPEPartServer( applservice_ );
-    MPE::engine().setActiveVolume( MPE::engine().getDefaultActiveVolume() );
+    MPE::engine().init();
 }
 
 

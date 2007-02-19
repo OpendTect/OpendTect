@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          23-10-1996
- RCS:           $Id: mpeengine.h,v 1.34 2006-12-01 16:26:38 cvsjaap Exp $
+ RCS:           $Id: mpeengine.h,v 1.35 2007-02-19 08:11:41 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,6 +19,7 @@ a static inistanciation of that can be retrieved by MPE::engine().
 
 */
 
+#include "attribsel.h"
 #include "bufstring.h"
 #include "callback.h"
 #include "color.h"
@@ -52,11 +53,18 @@ public:
     				Engine();
     virtual			~Engine();
 
+    void			init();
+
     const CubeSampling&		activeVolume() const;
     void			setActiveVolume(const CubeSampling&);
     static CubeSampling		getDefaultActiveVolume();
     Notifier<Engine>		activevolumechange;
 
+    void			setActive2DLine(const MultiID& linesetid,
+	    					const char* linename);
+    const MultiID&		active2DLineSetID() const;
+    const BufferString&		active2DLineName() const;
+    
     const TrackPlane&		trackPlane() const;
     bool			setTrackPlane(const TrackPlane&,bool track);
     void			setTrackMode(TrackPlane::TrackMode);
@@ -89,6 +97,7 @@ public:
     				/*!< Returns the cube that is needed for
 				     this attrib, given that the activearea
 				     should be tracked. */
+    int				getCacheIndexOf(const Attrib::SelSpec&) const;
     const Attrib::DataCubes*	getAttribCache(const Attrib::SelSpec&) const;
     bool			setAttribData( const Attrib::SelSpec&,
 					       const Attrib::DataCubes*);
@@ -112,20 +121,35 @@ public:
     bool			usePar(const IOPar&);
 
 protected:
-    void			init();
     int				getFreeID();
 
     BufferString		errmsg_;
     CubeSampling		activevolume_;
     TrackPlane			trackplane_;
 
+    MultiID			active2dlinesetid_;
+    BufferString		active2dlinename_;
+
     ObjectSet<EMTracker>	trackers_;
     ObjectSet<ObjectEditor>	editors_;
 
+    struct CacheSpecs
+    {
+				CacheSpecs(const Attrib::SelSpec& as,
+					   const MultiID& id=MultiID(-1),
+					   const char* nm=0)
+				    : attrsel_(as),linesetid_(id),linename_(nm)
+				{}
+				
+	Attrib::SelSpec		attrsel_;
+	MultiID			linesetid_;
+	BufferString		linename_;
+    };
+	
     ObjectSet<const Attrib::DataCubes>	attribcache_;
-    ObjectSet<Attrib::SelSpec>		attribcachespecs_;
+    ObjectSet<CacheSpecs>		attribcachespecs_;
     ObjectSet<const Attrib::DataCubes>	attribbackupcache_;
-    ObjectSet<Attrib::SelSpec>		attribbackupcachespecs_;
+    ObjectSet<CacheSpecs>		attribbackupcachespecs_;
 
     ObjectSet<TrackerFactory>	trackerfactories_;
     ObjectSet<EditorFactory>	editorfactories_;
