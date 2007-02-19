@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: seistrc.h,v 1.26 2007-01-03 21:14:38 cvskris Exp $
+ RCS:		$Id: seistrc.h,v 1.27 2007-02-19 16:41:45 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -56,6 +56,8 @@ public:
     inline int		size() const
 			{ return data_.size(0); }
     float		getValue(float,int icomp) const;
+    inline double	getValue( SeisTrcInfo::Fld fld ) const
+			{ return info_.getValue( fld ); }
 
     bool		isNull(int icomp=-1) const;
     inline void		zero( int icomp=-1 )
@@ -70,9 +72,9 @@ public:
     //! If !err, errors are handled trough the socket.
     bool		getFrom(Socket&, BufferString* err=0);
 
-    static const float	snapdist;
-    			//!< The relative distance from a sample below
-    			//!< which no interpolation is done.
+    static const float	snapdist; //!< Default 1e-4
+    			//!< relative distance from a sample below which no
+    			//!< interpolation is done. 99.9% chance default is OK.
 
     const ValueSeriesInterpolator<float>& interpolator() const;
     void		setInterpolator(ValueSeriesInterpolator<float>*);

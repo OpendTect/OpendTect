@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2004
- RCS:           $Id: visseis2ddisplay.cc,v 1.14 2007-02-02 15:44:43 cvsnanne Exp $
+ RCS:           $Id: visseis2ddisplay.cc,v 1.15 2007-02-19 16:41:46 cvsbert Exp $
  ________________________________________________________________________
 
 -*/
@@ -81,7 +81,7 @@ Seis2DDisplay::~Seis2DDisplay()
     if ( transformation_ ) transformation_->unRef();
     deepUnRef( cache_ );
 
-    DataPackMgr& dpman = DPM( 1 );
+    DataPackMgr& dpman = DPM( DataPackMgr::FlatID );
     for ( int idx=0; idx<datapackids_.size(); idx++ )
 	dpman.release( datapackids_[idx] );
 }
@@ -181,9 +181,9 @@ const Interval<int>& Seis2DDisplay::getMaxTraceNrRange() const
 
 bool Seis2DDisplay::setDataPackID( int attrib, DataPack::ID dpid )
 {
-    DataPackMgr& dpman = DPM( 1 );
+    DataPackMgr& dpman = DPM( DataPackMgr::FlatID );
     const DataPack* datapack = dpman.obtain( dpid );
-    mDynamicCastGet(const DataPack2D*,dp2d,datapack);
+    mDynamicCastGet(const Flat2DDataPack*,dp2d,datapack);
     if ( !dp2d )
     {
 	dpman.release( dpid );
@@ -517,7 +517,7 @@ void Seis2DDisplay::removeCache( int attrib )
     if ( cache_[attrib] ) cache_[attrib]->unRef();
     cache_.remove( attrib );
 
-    DPM( 1 ).release( datapackids_[attrib] );
+    DPM( DataPackMgr::FlatID ).release( datapackids_[attrib] );
     datapackids_.remove( attrib );
 }
 

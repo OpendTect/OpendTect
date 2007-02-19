@@ -4,12 +4,11 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID = "$Id: seisbuf.cc,v 1.28 2006-11-10 13:51:48 cvsbert Exp $";
+static const char* rcsID = "$Id: seisbuf.cc,v 1.29 2007-02-19 16:41:46 cvsbert Exp $";
 
 #include "seisbuf.h"
 #include "seisinfo.h"
 #include "seistrcsel.h"
-#include "seiswrite.h"
 #include "ptrman.h"
 #include "sorting.h"
 
@@ -82,15 +81,15 @@ void SeisTrcBuf::stealTracesFrom( SeisTrcBuf& tb )
 }
 
 
-bool SeisTrcBuf::isSorted( bool ascending, int seisinf_attrnr ) const
+bool SeisTrcBuf::isSorted( bool ascending, SeisTrcInfo::Fld fld ) const
 {
     const int sz = size();
     if ( sz < 2 ) return true;
 
-    float prevval = get(0)->info().getAttrValue(seisinf_attrnr);
+    float prevval = get(0)->getValue(fld);
     for ( int idx=1; idx<sz; idx++ )
     {
-	float val = get(idx)->info().getAttrValue(seisinf_attrnr);
+	float val = get(idx)->getValue(fld);
 	float diff = val - prevval;
 	if ( !mIsZero(diff,mDefEps) )
 	{
@@ -104,18 +103,19 @@ bool SeisTrcBuf::isSorted( bool ascending, int seisinf_attrnr ) const
 }
 
 
-void SeisTrcBuf::sort( bool ascending, int seisinf_attrnr )
+void SeisTrcBuf::sort( bool ascending, SeisTrcInfo::Fld fld )
 {
     const int sz = size();
-    if ( sz < 2 || isSorted(ascending,seisinf_attrnr) )
+    if ( sz < 2 || isSorted(ascending,fld) )
 	return;
 
     ArrPtrMan<int> idxs = new int [sz];
     ArrPtrMan<float> vals = new float [sz];
+    const double offs = get(0)->getValue( fld );
     for ( int idx=0; idx<sz; idx++ )
     {
 	idxs[idx] = idx;
-	vals[idx] = get(idx)->info().getAttrValue(seisinf_attrnr);
+	vals[idx] = (float)(get(idx)->getValue( fld ) - offs);
     }
     sort_coupled( (float*)vals, (int*)idxs, sz );
     ObjectSet<SeisTrc> tmp;
@@ -128,17 +128,17 @@ void SeisTrcBuf::sort( bool ascending, int seisinf_attrnr )
 }
 
 
-void SeisTrcBuf::enforceNrTrcs( int nrrequired, int seisinf_attrnr )
+void SeisTrcBuf::enforceNrTrcs( int nrrequired, SeisTrcInfo::Fld fld )
 {
     SeisTrc* prevtrc = get(0);
     if ( !prevtrc ) return;
 
-    float prevval = prevtrc->info().getAttrValue(seisinf_attrnr);
+    float prevval = prevtrc->getValue( fld );
     int nrwithprevval = 1;
     for ( int idx=1; idx<=size(); idx++ )
     {
 	SeisTrc* trc = idx==size() ? 0 : get(idx);
-	float val = trc ? trc->info().getAttrValue(seisinf_attrnr) : 0;
+	float val = trc ? trc->getValue( fld ) : 0;
 
 	if ( trc && mIsEqual(prevval,val,mDefEps) )
 	{
@@ -163,6 +163,20 @@ void SeisTrcBuf::enforceNrTrcs( int nrrequired, int seisinf_attrnr )
 
 	prevval = val;
     }
+}
+
+
+float* SeisTrcBuf::getHdrVals( SeisTrcInfo::Fld fld, double& offs )
+{
+    const int sz = size();
+    if ( sz < 1 ) return 0;
+
+    float* ret = new float [sz];
+    offs = get(0)->getValue( fld );
+    for ( int idx=0; idx<sz; idx++ )
+	ret[idx] = (float)(get(idx)->getValue( fld ) - offs);
+
+    return ret;
 }
 
 
@@ -242,44 +256,92 @@ int SeisTrcBuf::probableIdx( const BinID& bid, bool is2d ) const
 }
 
 
-SeisTrcBufWriter::SeisTrcBufWriter( const SeisTrcBuf& b, SeisTrcWriter& w )
-	: Executor("Trace storage")
-	, trcbuf(b)
-	, writer(w)
-	, nrdone(0)
+struct SeisTrcBufArray2DInfo : public Array2DInfo
 {
-    if ( trcbuf.size() )
-	writer.prepareWork( *trcbuf.get(0) );
+SeisTrcBufArray2DInfo( const SeisTrcBuf& tb )
+    : buf_(tb)
+{
+}
+
+SeisTrcBufArray2DInfo( const SeisTrcBufArray2DInfo& ai )
+    : buf_(ai.buf_)
+{
+}
+
+ArrayNDInfo* clone() const
+{
+    return new SeisTrcBufArray2DInfo(buf_);
+}
+
+int getSize( int dim ) const
+{
+    if ( dim == 0 )
+	return buf_.size();
+
+    const SeisTrc* trc = buf_.get( 0 );
+    return trc ? trc->size() : 0;
+}
+
+// Mandatory functions ... why?
+bool setSize( int, int ) { return false; }
+// Are these really necessary?
+uint64 getMemPos( const int* ) const { return 0; }
+bool validPos( const int* ) const { return false; }
+uint64 getMemPos( int ) const { return 0; }
+bool validPos( int ) const { return false; }
+uint64 getMemPos( int, int ) const { return 0; }
+bool validPos( int, int ) const { return false; }
+
+    const SeisTrcBuf&	buf_;
+
+};
+
+
+SeisTrcBufArray2D::SeisTrcBufArray2D( SeisTrcBuf& tbuf, bool mine, int icomp )
+    : buf_(tbuf)
+    , info_(*new SeisTrcBufArray2DInfo(tbuf))
+    , comp_(icomp)
+    , bufmine_(mine)
+{
 }
 
 
-const char* SeisTrcBufWriter::message() const
+SeisTrcBufArray2D::SeisTrcBufArray2D( const SeisTrcBuf& tbuf, int icomp )
+    : buf_(const_cast<SeisTrcBuf&>(tbuf))
+    , info_(*new SeisTrcBufArray2DInfo(tbuf))
+    , comp_(icomp)
+    , bufmine_(false)
 {
-    return "Writing traces";
-}
-const char* SeisTrcBufWriter::nrDoneText() const
-{
-    return "Traces written";
-}
-int SeisTrcBufWriter::totalNr() const
-{
-    return trcbuf.size();
-}
-int SeisTrcBufWriter::nrDone() const
-{
-    return nrdone;
 }
 
 
-int SeisTrcBufWriter::nextStep()
+SeisTrcBufArray2D::~SeisTrcBufArray2D()
 {
-    Interval<int> nrs( nrdone, nrdone+9 );
-    if ( nrs.start >= trcbuf.size() ) return 0;
-    if ( nrs.stop >= trcbuf.size() ) nrs.stop = trcbuf.size() - 1;
-    nrdone = nrs.stop + 1;
-    
-    for ( int idx=nrs.start; idx<=nrs.stop; idx++ )
-	writer.put( *trcbuf.get(idx) );
+    if ( bufmine_ )
+	delete &buf_;
+    delete &info_;
+}
 
-    return nrdone >= trcbuf.size() ? 0 : 1;
+
+float SeisTrcBufArray2D::get( int itrc, int isamp ) const
+{
+    const SeisTrc* trc = buf_.get( itrc );
+    return trc && trc->size() > isamp ? trc->get(isamp,comp_) : mUdf(float);
+}
+
+
+void SeisTrcBufArray2D::set( int itrc, int isamp, float val )
+{
+    SeisTrc* trc = buf_.get( itrc );
+    if ( trc && trc->size() > isamp )
+	trc->set( isamp, val, comp_ );
+}
+
+
+void SeisTrcBufArray2D::getAuxInfo( Seis::GeomType gt, int itrc,
+				    IOPar& iop ) const
+{
+    SeisTrc* trc = buf_.get( itrc );
+    if ( trc )
+	trc->info().getInterestingFlds( gt, iop );
 }

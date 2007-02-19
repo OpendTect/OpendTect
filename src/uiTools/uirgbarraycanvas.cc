@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uirgbarraycanvas.cc,v 1.2 2007-02-14 10:14:25 cvsbert Exp $
+ RCS:           $Id: uirgbarraycanvas.cc,v 1.3 2007-02-19 16:41:46 cvsbert Exp $
  ________________________________________________________________________
 
 -*/
@@ -34,7 +34,7 @@ void uiRGBArrayCanvas::setBorders( const uiSize& tl, const uiSize& br )
     newborder.setLeft( tl.width() );
     newborder.setTop( tl.height() );
     newborder.setRight( br.width() );
-    newborder.setLeft( br.height() );
+    newborder.setBottom( br.height() );
     if ( border_ != newborder )
     {
 	border_ = newborder;
@@ -67,6 +67,7 @@ void uiRGBArrayCanvas::setDrawArr( bool yn )
 void uiRGBArrayCanvas::forceNewFill()
 {
     delete pixmap_; pixmap_ = 0;
+    update(); // Force redraw
 }
 
 
@@ -78,11 +79,16 @@ void uiRGBArrayCanvas::setupChg()
 
 void uiRGBArrayCanvas::beforeDraw( CallBacker* )
 {
+    drawTool()->beginDraw();
+    drawTool()->setBackgroundColor( bgcolor_ );
+    drawTool()->clear();
+
     const uiSize totsz( width(), height() );
-    arrarea_.setLeft( border_.left() );
-    arrarea_.setTop( border_.top() );
-    arrarea_.setRight( totsz.width() - border_.right() - 1 );
-    arrarea_.setBottom( totsz.height() - border_.bottom() - 1 );
+    const int unusedpix = 1; // There seems to be an undrawable border
+    arrarea_.setLeft( border_.left() + unusedpix );
+    arrarea_.setTop( border_.top() + unusedpix );
+    arrarea_.setRight( totsz.width() - border_.right() - 2 * unusedpix );
+    arrarea_.setBottom( totsz.height() - border_.bottom() - 2 * unusedpix );
 
     const int xsz = arrarea_.width() + 1;
     const int ysz = arrarea_.height() + 1;
@@ -96,13 +102,14 @@ void uiRGBArrayCanvas::beforeDraw( CallBacker* )
     if ( rgbarr_.getSize(true) != xsz || rgbarr_.getSize(false) != ysz )
     {
 	rgbarr_.setSize( xsz, ysz );
-	forceNewFill();
+	delete pixmap_; pixmap_ = 0;
     }
 }
 
 
 void uiRGBArrayCanvas::reDrawHandler( uiRect updarea )
 {
+    updarea_ = updarea;
     if ( !dodraw_ )
 	return;
 
@@ -115,19 +122,11 @@ void uiRGBArrayCanvas::reDrawHandler( uiRect updarea )
 	    return;
     }
 
-    if ( pixmap_->width() < 2 && pixmap_->height() < 2 )
+    const uiRect pixrect( 0, 0, pixmap_->width()-1, pixmap_->height()-1 );
+    if ( pixrect.right() < 1 && pixrect.bottom() < 1 )
 	return;
 
-    updarea_ = updarea;
-    uiRect updpart( updarea_ );
-    updpart -= border_.topLeft();
-    if ( updpart.bottom() < 0 || updpart.right() < 0 )
-	return;
-    if ( updpart.left() < 0 ) updpart.setLeft( 0 );
-    if ( updpart.top() < 0 ) updpart.setTop( 0 );
-
-    drawTool()->drawPixmap( arrarea_.topLeft(), pixmap_, updpart );
-    drawTool()->setBackgroundColor( bgcolor_ );
+    drawTool()->drawPixmap( arrarea_.topLeft(), pixmap_, pixrect );
 }
 
 

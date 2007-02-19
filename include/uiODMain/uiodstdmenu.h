@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: uiodstdmenu.h,v 1.24 2007-01-23 15:34:14 cvsbert Exp $
+ RCS:		$Id: uiodstdmenu.h,v 1.25 2007-02-19 16:41:45 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -118,6 +118,7 @@ ________________________________________________________________________
 #define mPluginsMnuItm		(mUtilMnu + 20)
 #define mCrDevEnvMnuItm		(mUtilMnu + 30)
 #define mShwLogFileMnuItm	(mUtilMnu + 40)
+#define mDumpDataPacksMnuItm	(mUtilMnu + 99)
 #define mSettFontsMnuItm	(mUtilSettingMnu + 10)
 #define mSettMouseMnuItm	(mUtilSettingMnu + 20)
 #define mSettLkNFlMnuItm	(mUtilSettingMnu + 30)

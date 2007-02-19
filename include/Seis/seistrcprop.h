@@ -7,14 +7,13 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: seistrcprop.h,v 1.7 2006-11-10 13:51:37 cvsbert Exp $
+ RCS:		$Id: seistrcprop.h,v 1.8 2007-02-19 16:41:45 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "seistype.h"
 #include "valseriesevent.h"
-class SUsegy;
 class SeisTrc;
 #define mFlValSerEv ValueSeriesEvent<float,float>
 
@@ -30,7 +29,6 @@ public:
 
     ValueSeriesEvent<float,float>
 		find(VSEvent::Type,Interval<float>,int occ=1) const;
-    void	gettr(SUsegy&) const;
     double	corr(const SeisTrc&,const SampleGate&,bool alpick=NO) const;
     double	dist(const SeisTrc&,const SampleGate&,bool alpick=NO) const;
     float	getFreq(int isamp) const;
@@ -55,7 +53,6 @@ public:
 		SeisTrcPropChg( SeisTrc& t, int ic=-1 )
 		: SeisTrcPropCalc(t,ic)		{}
 
-    void	puttr(const SUsegy&);
     void	stack(const SeisTrc&,bool alongref=false,float wght=1);
     void	scale(float fac,float shft=0);
     void	normalize(bool aroundzero);

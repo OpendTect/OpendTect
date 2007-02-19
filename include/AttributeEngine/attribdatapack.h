@@ -7,12 +7,12 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra and Helene Huck
  Date:		January 2007
- RCS:		$Id: attribdatapack.h,v 1.11 2007-02-02 15:44:42 cvsnanne Exp $
+ RCS:		$Id: attribdatapack.h,v 1.12 2007-02-19 16:41:45 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "flatdispdatapack.h"
+#include "datapackbase.h"
 #include "cubesampling.h"
 
 template <class T> class Array2D;
@@ -20,64 +20,82 @@ template <class T> class Array2DSlice;
 class Coord3;
 class IOPar;
 
-namespace FlatDisp { class PosData; }
 namespace Attrib
 {
     class DataCubes;
     class Data2DHolder;
-    class Data2DHolderArray;
-}
+    class DataHolderArray;
 
 
-/*!\brief A cube data packet: contains sampled data + positioning */ 
+/*!\brief Data Pack from 2D attribute data. */
 
-class CubeDataPack : public FlatDisp::DataPack
+class Flat2DDataPack : public ::FlatDataPack
 {
 public:
-    				CubeDataPack(const Attrib::DataCubes&);
-    				~CubeDataPack();
+    				Flat2DDataPack(const Attrib::Data2DHolder&);
+				~Flat2DDataPack();
 
-    const CubeSampling		sampling() const;
-    const Attrib::DataCubes&	cube() const		{ return cube_; }
-
+    const Attrib::Data2DHolder&	dataholder() const	{ return dh_; }
     Array2D<float>&		data();
-    const Array2D<float>&	data() const;
-    void			positioning(FlatDisp::PosData&);
 
-    float			nrKBytes() const	{ return 0; }
-    void			dumpInfo(IOPar&) const	{}
-    void			getXYZPosition(PosInfo::Line2DData&) const;
+    void			getAuxInfo(int,int,IOPar&) const;
+    Coord3			getCoord(int,int) const;
+
+protected:
+
+    const Attrib::Data2DHolder& dh_;
+    Attrib::DataHolderArray*	array3d_;
+    Array2DSlice<float>*	arr2dsl_;
+
+    void			setPosData();
+};
+
+
+/*!\brief Flat data pack from 3D attribute extraction */ 
+
+class Flat3DDataPack : public ::FlatDataPack
+{
+public:
+    				Flat3DDataPack(const Attrib::DataCubes&,
+					       int cubeidx);
+    virtual			~Flat3DDataPack();
+
+    const Attrib::DataCubes&	cube() const		{ return cube_; }
+    Array2D<float>&		data();
+
+    void			getAuxInfo(int,int,IOPar&) const;
+    Coord3			getCoord(int,int) const;
 
 protected:
 
     const Attrib::DataCubes&	cube_;
     Array2DSlice<float>*	arr2dsl_;
+
+    void			setPosData();
 };
 
 
-/*!\brief A 2D data packet: contains sampled data + positioning */
+/*!\brief Volume data pack */ 
 
-class DataPack2D : public FlatDisp::DataPack
+class CubeDataPack : public ::CubeDataPack
 {
 public:
-    				DataPack2D(const Attrib::Data2DHolder&);
-				~DataPack2D();
+    				CubeDataPack(const Attrib::DataCubes&,
+					     int cubeidx);
 
-    const Attrib::Data2DHolder&	dataholder() const		{ return dh_; }
+    const Attrib::DataCubes&	cube() const		{ return cube_; }
+    Array3D<float>&		data();
 
-    Array2D<float>&		data();
-    const Array2D<float>&	data() const;
-    void			positioning(FlatDisp::PosData&);
-
-    float			nrKBytes() const	{ return 0; }
-    void			dumpInfo(IOPar&) const	{}
-    virtual bool		getInfoAtPos(int,IOPar&) const
-				    { return false; }
+    void			getAuxInfo(int,int,int,IOPar&) const;
 
 protected:
-    const Attrib::Data2DHolder& dh_;
-    Attrib::Data2DHolderArray*	array3d_;
-    Array2DSlice<float>*	arr2dsl_;
+
+    const Attrib::DataCubes&	cube_;
+    int				cubeidx_;
+
 };
+
+
+} // namespace Attrib
 
 #endif

@@ -4,7 +4,7 @@
  * DATE     : Sep 2006
 -*/
 
-static const char* rcsID = "$Id: array2dbitmap.cc,v 1.18 2007-02-15 10:17:01 cvsbert Exp $";
+static const char* rcsID = "$Id: array2dbitmap.cc,v 1.19 2007-02-19 16:41:46 cvsbert Exp $";
 
 #include "array2dbitmapimpl.h"
 #include "arraynd.h"
@@ -276,7 +276,8 @@ WVAA2DBitMapGenerator::WVAA2DBitMapGenerator( const A2DBitMapInpData& d,
 
 int WVAA2DBitMapGenerator::dim0SubSampling() const
 {
-    float fret = gtPars().minpixperdim0_ / setup_.getPixPerDim(0);
+    const float nrpixperdim0 = setup_.nrXPix() / ((float)szdim0_);
+    float fret = gtPars().minpixperdim0_ / nrpixperdim0;
     int ret = mNINT( fret );
     return ret < 2 ? 1 : ret;
 }

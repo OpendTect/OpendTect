@@ -5,7 +5,7 @@
  * FUNCTION : Seismic trace informtaion
 -*/
 
-static const char* rcsID = "$Id: seisinfo.cc,v 1.34 2006-11-10 13:51:48 cvsbert Exp $";
+static const char* rcsID = "$Id: seisinfo.cc,v 1.35 2007-02-19 16:41:46 cvsbert Exp $";
 
 #include "seisinfo.h"
 #include "seistrc.h"
@@ -108,16 +108,16 @@ const char** Seis::waveTypeNames()
 { return SeisEnum::WaveTypeNames; }
  
 
-const char* SeisTrcInfo::attrnames[] = {
+DefineEnumNames(SeisTrcInfo,Fld,1,"Header field") {
 	"Trace number",
-	"Pick position",
-	"Reference position",
-	"X-coordinate",
-	"Y-coordinate",
 	"In-line",
 	"Cross-line",
+	"X-coordinate",
+	"Y-coordinate",
 	"Offset",
 	"Azimuth",
+	"Pick position",
+	"Reference position",
 	0
 };
 
@@ -144,74 +144,132 @@ float SeisTrcInfo::defaultSampleInterval( bool forcetime )
 }
 
 
-int SeisTrcInfo::attrNr( const char* nm )
+double SeisTrcInfo::getValue( SeisTrcInfo::Fld fld ) const
 {
-    return getEnum( nm, attrnames, 0, 1 );
-}
-
-
-double SeisTrcInfo::getAttrValue( int attrnr ) const
-{
-    switch ( attrnr )
+    switch ( fld )
     {
-    case 1:	return pick;
-    case 2:	return refpos;
-    case 3:	return coord.x;
-    case 4:	return coord.y;
-    case 5:	return binid.inl;
-    case 6:	return binid.crl;
-    case 7:	return offset;
-    case 8:	return azimuth;
-    default:	return nr;
+    case Pick:		return pick;
+    case RefPos:	return refpos;
+    case CoordX:	return coord.x;
+    case CoordY:	return coord.y;
+    case BinIDInl:	return binid.inl;
+    case BinIDCrl:	return binid.crl;
+    case Offset:	return offset;
+    case Azimuth:	return azimuth;
+    default:		return nr;
     }
 }
 
 
-int SeisTrcInfo::defDispAttr( const SeisTrcInfo& ti ) const
+void SeisTrcInfo::getAxisCandidates( Seis::GeomType gt,
+				     TypeSet<SeisTrcInfo::Fld>& flds )
 {
-    if ( !mIsZero(ti.offset-offset,1e-4) )	return 7; // PS gather
-    else if ( ti.nr != nr )			return 0; // 2D
-    else if ( ti.binid.crl != binid.crl )	return 6; // 3D inline
-    else if ( ti.binid.inl != binid.inl )	return 5; // 3D crossline
-    else if ( !mIsZero(ti.coord.x-coord.x,.1) ) return 3; // Non-NS line
-    else					return 4; // The rest
+    flds.erase();
+    const bool is2d = Seis::is2D( gt );
+    const bool isps = Seis::isPS( gt );
+
+    if ( isps )
+	{ flds += Offset; flds += Azimuth; }
+    if ( is2d )
+	flds += TrcNr;
+    if ( !is2d )
+	{ flds += BinIDInl; flds += BinIDCrl; }
+
+    // Coordinates are always an option
+    flds += CoordX; flds += CoordY;
 }
 
 
-bool SeisTrcInfo::dataPresent( float t, int trcsz ) const
+int SeisTrcInfo::getDefaultAxisFld( Seis::GeomType gt,
+				    const SeisTrcInfo* ti ) const
 {
-    return t > sampling.start-1e-6 && t < samplePos(trcsz-1) + 1e-6;
+    const bool is2d = Seis::is2D( gt );
+    const bool isps = Seis::isPS( gt );
+    if ( !ti )
+	return isps ? Offset : (is2d ? TrcNr : BinIDCrl);
+
+    if ( isps && !mIsZero(ti->offset-offset,1e-4) )
+	return Offset;
+    if ( is2d && ti->nr != nr )
+	return TrcNr;
+    if ( !is2d && ti->binid.crl != binid.crl )
+	return BinIDCrl;
+    if ( !is2d && ti->binid.inl != binid.inl )
+	return BinIDInl;
+
+    // 'normal' doesn't apply, try coordinates
+    return mIsZero(ti->coord.x-coord.x,.1) ? CoordY : CoordX;
+}
+
+
+#define mIOIOPar(fn,fld,memb) iopar.fn( FldNames[(int)fld], memb )
+
+void SeisTrcInfo::getInterestingFlds( Seis::GeomType gt, IOPar& iopar ) const
+{
+    const bool is2d = Seis::is2D( gt );
+    const bool isps = Seis::isPS( gt );
+
+    if ( isps )
+    {
+	mIOIOPar( set, Offset, offset );
+	mIOIOPar( set, Azimuth, azimuth );
+    }
+    if ( is2d )
+	mIOIOPar( set, TrcNr, nr );
+
+    if ( !is2d )
+    {
+	mIOIOPar( set, BinIDInl, binid.inl );
+	mIOIOPar( set, BinIDCrl, binid.crl );
+    }
+
+    mIOIOPar( set, CoordX, coord.x );
+    mIOIOPar( set, CoordY, coord.y );
+
+    if ( !mIsUdf(pick) )
+    {
+	if ( !mIsUdf(pick) )
+	    mIOIOPar( set, Pick, pick );
+	if ( !mIsUdf(refpos) )
+	    mIOIOPar( set, RefPos, refpos );
+    }
 }
 
 
 void SeisTrcInfo::usePar( const IOPar& iopar )
 {
-    iopar.get( attrnames[0], nr );
-    iopar.get( attrnames[1], pick );
-    iopar.get( attrnames[2], refpos );
-    iopar.get( attrnames[3], coord.x );
-    iopar.get( attrnames[4], coord.y );
-    iopar.get( attrnames[5], binid.inl );
-    iopar.get( attrnames[6], binid.crl );
-    iopar.get( attrnames[7], offset );
-    iopar.get( attrnames[8], azimuth );
+    mIOIOPar( get, TrcNr,	nr );
+    mIOIOPar( get, BinIDInl,	binid.inl );
+    mIOIOPar( get, BinIDCrl,	binid.crl );
+    mIOIOPar( get, CoordX,	coord.x );
+    mIOIOPar( get, CoordY,	coord.y );
+    mIOIOPar( get, Offset,	offset );
+    mIOIOPar( get, Azimuth,	azimuth );
+    mIOIOPar( get, Pick,	pick );
+    mIOIOPar( get, RefPos,	refpos );
 
     iopar.get( sSamplingInfo, sampling.start, sampling.step );
 }
 
 void SeisTrcInfo::fillPar( IOPar& iopar ) const
 {
-    iopar.set( attrnames[0], nr );
-    iopar.set( attrnames[1], pick );
-    iopar.set( attrnames[2], refpos );
-    iopar.set( attrnames[3], coord.x );
-    iopar.set( attrnames[4], coord.y );
-    iopar.set( attrnames[5], binid.inl );
-    iopar.set( attrnames[6], binid.crl );
-    iopar.set( attrnames[7], offset );
-    iopar.set( attrnames[8], azimuth );
+    mIOIOPar( set, TrcNr,	nr );
+    mIOIOPar( set, BinIDInl,	binid.inl );
+    mIOIOPar( set, BinIDCrl,	binid.crl );
+    mIOIOPar( set, CoordX,	coord.x );
+    mIOIOPar( set, CoordY,	coord.y );
+    mIOIOPar( set, Offset,	offset );
+    mIOIOPar( set, Azimuth,	azimuth );
+    mIOIOPar( set, Pick,	pick );
+    mIOIOPar( set, RefPos,	refpos );
 
     iopar.set( sSamplingInfo, sampling.start, sampling.step );
+}
+
+
+bool SeisTrcInfo::dataPresent( float t, int trcsz ) const
+{
+    return t > sampling.start-1e-6 && t < samplePos(trcsz-1) + 1e-6;
 }
 
 
@@ -249,48 +307,6 @@ SampleGate SeisTrcInfo::sampleGate( const Interval<float>& tg ) const
     if ( sg.stop < 0 ) sg.stop = 0;
 
     return sg;
-}
-
-
-
-void SeisTrcInfo::gettr( SUsegy& trc ) const
-{
-    trc.tracl = trc.fldr = trc.tracf = nr;
-    trc.trid = 1;
-    const float zfac = SI().zFactor();
-    trc.dt = (int)(sampling.step * 1e3 * zfac + .5);
-    trc.delrt = (short)mNINT(sampling.start * zfac);
-
-    SULikeHeader* head = (SULikeHeader*)(&trc);
-    head->indic = 123456;
-    head->inl = binid.inl;
-    head->crl = binid.crl;
-    head->pick = pick;
-    head->refpos = refpos;
-    head->startpos = sampling.start;
-    head->offset = offset;
-    head->azimuth = azimuth;
-}
-
-
-void SeisTrcInfo::puttr( const SUsegy& trc )
-{
-    nr = trc.tracl;
-    const float zfac = 1. / SI().zFactor();
-    sampling.step = trc.dt * 0.001 * zfac;
-    sampling.start = trc.delrt * zfac;
-    SULikeHeader* head = (SULikeHeader*)(&trc);
-    if ( head->indic == 123456 )
-    {
-	binid.inl = head->inl;
-	binid.crl = head->crl;
-	pick = head->pick;
-	offset = head->offset;
-	azimuth = head->azimuth;
-	refpos = head->refpos;
-	if ( !mIsZero(head->startpos,mDefEps) )
-	    sampling.start = head->startpos;
-    }
 }
 
 

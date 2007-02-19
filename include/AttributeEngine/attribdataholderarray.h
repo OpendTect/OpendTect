@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		January 2007
- RCS:		$Id: attribdataholderarray.h,v 1.1 2007-02-02 15:42:56 cvsnanne Exp $
+ RCS:		$Id: attribdataholderarray.h,v 1.2 2007-02-19 16:41:45 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,24 +19,12 @@ namespace Attrib
 {
 
 class DataHolder;
-class Data2DHolder;
 
-// TODO: Finish
 class DataHolderArray : public Array3D<float>
 {
 public:
-    			DataHolderArray(const ObjectSet<DataHolder>&)	{}
-			~DataHolderArray()				{}
-protected:
-
-};
-
-
-class Data2DHolderArray : public Array3D<float>
-{
-public:
-			Data2DHolderArray(Data2DHolder&);
-			~Data2DHolderArray();
+			DataHolderArray(const ObjectSet<DataHolder>&);
+			~DataHolderArray();
 
     void		set(int,int,int,float);
     float		get(int,int,int) const;
@@ -45,8 +33,7 @@ public:
 protected:
 
     Array3DInfoImpl	info_;
-    Data2DHolder&	dh_;
-    TypeSet<int>	trcidxs_;
+    ObjectSet<DataHolder> dh_;
 };
 
 }

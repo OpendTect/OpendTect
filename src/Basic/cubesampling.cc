@@ -4,7 +4,7 @@
  * DATE     : somewhere around 1999
 -*/
  
-static const char* rcsID = "$Id: cubesampling.cc,v 1.25 2006-12-01 16:35:08 cvsjaap Exp $";
+static const char* rcsID = "$Id: cubesampling.cc,v 1.26 2007-02-19 16:41:45 cvsbert Exp $";
 
 #include "cubesampling.h"
 #include "survinfo.h"
@@ -310,6 +310,14 @@ bool CubeSampling::getIntersection( const CubeSampling& cs,
     return intersectF( zrg1.start, zrg1.stop, zrg1.step,
 		       zrg2.start, zrg2.stop, zrg2.step,
 		       out.zrg.start, out.zrg.stop, out.zrg.step );
+}
+
+
+bool CubeSampling::isFlat() const
+{
+    if ( hrg.start.inl != hrg.stop.inl && hrg.start.crl != hrg.stop.crl )
+	return false;
+    return fabs( zrg.stop-zrg.start ) < fabs( zrg.step * 0.5 );
 }
 
 

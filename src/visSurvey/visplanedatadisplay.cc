@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.168 2007-02-16 16:36:30 cvskris Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.169 2007-02-19 16:41:46 cvsbert Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -142,7 +142,7 @@ PlaneDataDisplay::~PlaneDataDisplay()
     deepUnRef( volumecache_ );
     deepErase( rposcache_ );
 
-    DataPackMgr& dpman = DPM( 0 );
+    DataPackMgr& dpman = DPM( DataPackMgr::FlatID );
     for ( int idx=0; idx<datapackids_.size(); idx++ )
 	dpman.release( datapackids_[idx] );
 
@@ -526,7 +526,7 @@ void PlaneDataDisplay::removeCache( int attrib )
     volumecache_.remove( attrib );
     if ( rposcache_[attrib] ) delete rposcache_[attrib];
     rposcache_.remove( attrib );
-    DPM( 0 ).release( datapackids_[attrib] );
+    DPM( DataPackMgr::FlatID ).release( datapackids_[attrib] );
     datapackids_.remove( attrib );
 }
 
@@ -694,10 +694,10 @@ bool PlaneDataDisplay::setDataPackID( int attrib, DataPack::ID dpid )
 
     DataPack::ID oldid = datapackids_[attrib];
     datapackids_[attrib] = dpid;
-    DataPackMgr& dpman = DPM( 0 );
+    DataPackMgr& dpman = DPM( DataPackMgr::FlatID );
     const DataPack* datapack = dpman.obtain( dpid );
-    mDynamicCastGet(const CubeDataPack*,cdp,datapack);
-    const bool res = setDataVolume( attrib, cdp ? &cdp->cube() : 0 );
+    mDynamicCastGet(const Attrib::Flat3DDataPack*,fdp,datapack);
+    const bool res = setDataVolume( attrib, fdp ? &fdp->cube() : 0 );
     if ( !res )
 	return false;
 

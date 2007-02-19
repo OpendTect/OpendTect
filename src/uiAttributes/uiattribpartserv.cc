@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiattribpartserv.cc,v 1.59 2007-02-12 07:45:25 cvsnanne Exp $
+ RCS:           $Id: uiattribpartserv.cc,v 1.60 2007-02-19 16:41:46 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -369,13 +369,19 @@ EngineMan* uiAttribPartServer::createEngMan( const CubeSampling* cs,
 DataPack::ID uiAttribPartServer::createOutput( const CubeSampling& cs,
 					       DataPack::ID cacheid )
 {
-    DataPackMgr& dpman = DPM( 0 );
+    const bool isflat = cs.isFlat();
+    DataPackMgr& dpman = DPM( isflat ? DataPackMgr::FlatID
+	    			     : DataPackMgr::CubeID );
     const DataPack* datapack = dpman.obtain( cacheid );
-    mDynamicCastGet(const CubeDataPack*,cdp,datapack);
-    const DataCubes* output = createOutput( cs, cdp ? &cdp->cube() : 0);
+    mDynamicCastGet(const Attrib::CubeDataPack*,cdp,datapack);
+    const DataCubes* output = createOutput( cs, cdp ? &cdp->cube() : 0 );
     if ( !output ) return -1;
 
-    CubeDataPack* newpack = new CubeDataPack( const_cast<DataCubes&>(*output) );
+    DataPack* newpack;
+    if ( isflat )
+	newpack = new Attrib::Flat3DDataPack( *output, 0 );
+    else
+	newpack = new Attrib::CubeDataPack( *output, 0 );
     newpack->setName( targetspecs_[0].userRef() );
     dpman.add( newpack );
     return newpack->id();
@@ -487,8 +493,8 @@ DataPack::ID uiAttribPartServer::create2DOutput( const CubeSampling& cs,
     if ( !dlg.go() )
 	return -1;
 
-    DataPackMgr& dpman = DPM( 1 );
-    DataPack2D* newpack = new DataPack2D( *data2d );
+    DataPackMgr& dpman = DPM( DataPackMgr::FlatID );
+    Flat2DDataPack* newpack = new Attrib::Flat2DDataPack( *data2d );
     dpman.add( newpack );
     return newpack->id();
 }

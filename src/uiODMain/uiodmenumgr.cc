@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.cc,v 1.72 2007-01-23 15:34:14 cvsbert Exp $
+ RCS:           $Id: uiodmenumgr.cc,v 1.73 2007-02-19 16:41:46 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,6 +23,7 @@ ________________________________________________________________________
 #include "uisoviewer.h"
 #include "uitoolbar.h"
 #include "uivispartserv.h"
+#include "uifiledlg.h"
 
 #include "dirlist.h"
 #include "envvars.h"
@@ -31,6 +32,7 @@ ________________________________________________________________________
 #include "pixmap.h"
 #include "timer.h"
 #include "ioman.h"
+#include "strmprov.h"
 #include "survinfo.h"
 
 
@@ -170,7 +172,7 @@ void uiODMenuMgr::fillSurveyMenu()
 {
     mCleanUpImpExpSets(impmnus_)
     mCleanUpImpExpSets(expmnus_)
-    mInsertItem( surveymnu_, "&Edit/New ...", mManSurveyMnuItm );
+    mInsertItem( surveymnu_, "&Setup ...", mManSurveyMnuItm );
 
     uiPopupMenu* sessionitm = new uiPopupMenu( &appl_, "S&ession");
     mInsertItem( sessionitm, "&Save ...", mSessSaveMnuItm );
@@ -383,6 +385,13 @@ void uiODMenuMgr::fillUtilMenu()
     const char* lmfnm = logMsgFileName();
     if ( lmfnm && *lmfnm )
 	mInsertItem( utilmnu_, "Show &log file ...", mShwLogFileMnuItm );
+#ifdef __debug__
+    const bool enabdpdump = true;
+#else
+    const bool enabdpdump = GetEnvVarYN( "OD_ENABLE_DATAPACK_DUMP" );
+#endif
+    if ( enabdpdump )
+	mInsertItem( utilmnu_, "Data pack dump ...", mDumpDataPacksMnuItm );
 }
 
 
@@ -552,6 +561,16 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
 		    	    "time OpendTect is started.");
     } break;
 
+    case mDumpDataPacksMnuItm: {
+	uiFileDialog dlg( &appl_, uiFileDialog::AnyFile,
+			  GetProcFileName("dpacks.txt"), 0, "Data pack dump" );
+	if ( dlg.go() )
+	{
+	    StreamData sd( StreamProvider(dlg.fileName()).makeOStream() );
+	    if ( sd.usable() ) dumpDPMs( *sd.ostrm );
+	}
+    } break;
+
     case mSettGeneral: {
 	uiSettings dlg( &appl_, "Set a specific User Setting" );
 	dlg.go();
@@ -635,5 +654,3 @@ void uiODMenuMgr::updateDTectMnus( CallBacker* )
     fillProcMenu();
     dTectMnuChanged.trigger();
 }
-
-

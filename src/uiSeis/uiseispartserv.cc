@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiseispartserv.cc,v 1.49 2007-01-31 12:01:42 cvshelene Exp $
+ RCS:           $Id: uiseispartserv.cc,v 1.50 2007-02-19 16:41:46 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,9 +25,11 @@ ________________________________________________________________________
 #include "seispsread.h"
 #include "seis2dline.h"
 #include "segposinfo.h"
+#include "survinfo.h"
 
 #include "uiexecutor.h"
-#include "uiflatvertview.h"
+#include "uiflatviewer.h"
+#include "uiflatviewcontrol.h"
 #include "uilistbox.h"
 #include "uimenu.h"
 #include "uimergeseis.h"
@@ -231,57 +233,43 @@ bool uiSeisPartServer::handleGatherSubMenu( int mnuid, const BinID& bid )
 
     PtrMan<IOObj> ioobj =
 	IOM().getLocal( storedgathermenuitem.getItem(mnuindex)->text );
-
     if ( !ioobj )
 	mErrRet( "No valid gather selected" )
-
     SeisPSReader* rdr = SPSIOPF().getReader( *ioobj, bid.inl );
     if ( !rdr )
-	mErrRet( "This Pre-Stack data store cannot be handeled" )
-
-    SeisTrcBuf tbuf;
-    if ( !rdr->getGather(bid,tbuf) )
+	mErrRet( "This Pre-Stack data store cannot be handled" )
+    SeisTrcBuf* tbuf = new SeisTrcBuf;
+    if ( !rdr->getGather(bid,*tbuf) )
 	mErrRet( rdr->errMsg() )
-
-    if ( tbuf.size() == 0 )
+    const int tbufsz = tbuf->size();
+    if ( tbufsz == 0 )
 	mErrRet( "Gather is empty" )
 
-    const int nrsamples = tbuf.get(0)->size();
-    PtrMan< Array2DImpl<float> > a2d =
-		new Array2DImpl<float>( tbuf.size(), nrsamples );
-    for ( int trcidx=0; trcidx<tbuf.size(); trcidx++ )
-    {
-	const SeisTrc& trc = *tbuf.get( trcidx );
-	for ( int sidx=0; sidx<nrsamples; sidx++ )
-	    a2d->set( trcidx, sidx, trc.get(sidx,0) );
-    }
-
-    FlatDisp::Context fdctxt;
-    fdctxt.annot_.x1name_ = "";
-    fdctxt.annot_.x2name_ = "";
-    fdctxt.ddpars_.dispvd_ = false;
-    fdctxt.ddpars_.dispwva_ = true;
-    fdctxt.ddpars_.wva_.overlap_ = 1;
-    fdctxt.ddpars_.wva_.clipperc_ = 1;
-    const SeisTrc& firsttrc = *tbuf.get(0);
-    const SeisTrc& lasttrc = *tbuf.get(tbuf.size()-1);
-    fdctxt.posdata_.x1rg_.start = firsttrc.info().nr;
-    fdctxt.posdata_.x1rg_.stop = lasttrc.info().nr;
-    fdctxt.posdata_.x1rg_.step = 1;
-    fdctxt.posdata_.x2rg_.start = firsttrc.info().sampling.start;
-    fdctxt.posdata_.x2rg_.stop = firsttrc.info().sampling.start +
-				firsttrc.size()*firsttrc.info().sampling.step;
-    fdctxt.posdata_.x2rg_.step = firsttrc.info().sampling.step;
-
+    PtrMan<SeisTrcBufArray2D> a2d = new SeisTrcBufArray2D( *tbuf, true, 0 );
     BufferString title( "Gather from [" ); title += ioobj->name();
     title += "] at "; title += bid.inl; title += "/"; title += bid.crl;
     uiDialog psdlg( appserv().parent(),
-	    	    uiDialog::Setup("PS Display",title,"") );
+	    	    uiDialog::Setup("Gather display","","") );
     psdlg.setCtrlStyle( uiDialog::LeaveOnly );
-    FlatDisp::VertViewer* vwr = new FlatDisp::VertViewer( &psdlg );
-    vwr->setContext( fdctxt );
-    vwr->setData( true, a2d, "" );
-    psdlg.go();
+    uiFlatViewer* vwr = new uiFlatViewer( &psdlg );
+    vwr->data().set( true, a2d, ioobj->name() );
 
+    FlatDisp::Context& ctxt = vwr->context();
+    ctxt.annot_.x1name_ = "Offset"; ctxt.annot_.x2name_ = "Z";
+    ctxt.ddpars_.dispvd_ = false; ctxt.ddpars_.dispwva_ = true;
+    ctxt.ddpars_.wva_.overlap_ = 1; ctxt.ddpars_.wva_.clipperc_ = 1;
+    double ofv; float* hdrvals = tbuf->getHdrVals( SeisTrcInfo::Offset, ofv );
+    ctxt.wvaposdata_.setX1Pos( hdrvals, tbufsz, ofv );
+    SeisPacketInfo pinf; tbuf->fill( pinf );
+    StepInterval<double> zrg; assign( zrg, pinf.zrg );
+    zrg.scale( SI().zFactor() ); //TODO: gather may be in time or depth ...
+    ctxt.wvaposdata_.setRange( false, zrg );
+    int pw = 200 + 10 * tbufsz;
+    if ( pw < 400 ) pw = 400; if ( pw > 800 ) pw = 800;
+    vwr->setPrefWidth( pw );
+    vwr->initView();
+    new uiFlatViewControl( *vwr, uiFlatViewControl::Setup()
+	    			 .withstates(false) );
+    psdlg.go();
     return true;
 }

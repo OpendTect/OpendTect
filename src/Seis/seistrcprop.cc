@@ -5,11 +5,10 @@
  * FUNCTION : Seismic trace functions
 -*/
 
-static const char* rcsID = "$Id: seistrcprop.cc,v 1.15 2006-11-10 13:51:48 cvsbert Exp $";
+static const char* rcsID = "$Id: seistrcprop.cc,v 1.16 2007-02-19 16:41:46 cvsbert Exp $";
 
 #include "seistrcprop.h"
 #include "seistrc.h"
-#include "susegy.h"
 #include "simpnumer.h"
 #include "timeser.h"
 #include "ptrman.h"
@@ -75,40 +74,6 @@ void SeisTrcPropChg::removeDC()
     for ( int idx=0; idx<sz; idx++ )
 	mtrc().set( idx, trc.get(idx,icomp) - avg, icomp );
     mEndCompLoop
-}
-
-
-void SeisTrcPropCalc::gettr( SUsegy& sutrc ) const
-{
-    trc.info().gettr( sutrc );
-    sutrc.ns = trc.size();
-
-    if ( trc.data().getInterpreter(curcomp)->isSUCompat() )
-	memcpy( sutrc.data, trc.data().getComponent(curcomp)->data(),
-		sutrc.ns*sizeof(float) );
-    else
-    {
-	for ( int idx=0; idx<sutrc.ns; idx++ )
-	    sutrc.data[idx] = trc.get( idx, curcomp );
-    }
-}
-
-
-void SeisTrcPropChg::puttr( const SUsegy& sutrc )
-{
-    const int icomp = curcomp < 0 ? 0 : curcomp;
-
-    mtrc().info().puttr( sutrc );
-    mtrc().reSize( sutrc.ns, false );
-
-    if ( trc.data().getInterpreter(icomp)->isSUCompat() )
-	memcpy( mtrc().data().getComponent(icomp)->data(), sutrc.data,
-		sutrc.ns*sizeof(float) );
-    else
-    {
-	for ( int idx=0; idx<sutrc.ns; idx++ )
-	    mtrc().set( idx, sutrc.data[idx], icomp );
-    }
 }
 
 

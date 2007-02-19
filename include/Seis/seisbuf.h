@@ -7,18 +7,20 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		29-1-98
- RCS:		$Id: seisbuf.h,v 1.14 2006-11-21 14:00:06 cvsbert Exp $
+ RCS:		$Id: seisbuf.h,v 1.15 2007-02-19 16:41:45 cvsbert Exp $
 ________________________________________________________________________
 
 */
 
 
 #include "seistrc.h"
+#include "seistype.h"
 #include "ranges.h"
-#include "executor.h"
+#include "arraynd.h"
 class SeisTrc;
 class BinID;
 class SeisTrcWriter;
+class IOPar;
 
 
 /*!\brief set of seismic traces.
@@ -64,16 +66,16 @@ public:
     SeisTrc*		remove( int idx )
 			{ SeisTrc* t = trcs[idx]; if ( t ) trcs -= t; return t;}
 
+    void		revert();
     void		fill(SeisPacketInfo&) const;
 
-    void		revert();
-    bool		isSorted(bool ascend=true,int siattrnr=6) const;
-    			//!< See sort() for parameters.
-    void		sort(bool ascending=true,int seisinfo_attrnr=6);
-    			//!< See also seisinfo.h ,
-    			//!< Default will sort on xline. Inline is 5.
-    void		enforceNrTrcs(int nrrequired,int seisinfo_attrnr=6);
+    bool		isSorted(bool ascending,SeisTrcInfo::Fld) const;
+    void		sort(bool ascending,SeisTrcInfo::Fld);
+    void		enforceNrTrcs(int nrrequired,SeisTrcInfo::Fld);
     			//!< Makes sure nrtrcs per position is constant
+    float*		getHdrVals(SeisTrcInfo::Fld,double& offs);
+    			//!< The 'offs' ensures the values fit in floats
+    			//!< returned new float [] becomes yours
 
 protected:
 
@@ -85,27 +87,28 @@ protected:
 };
 
 
-/*!\brief Executor writing the traces in a SeisTrcBuf. */
-
-class SeisTrcBufWriter : public Executor
+class SeisTrcBufArray2D : public Array2D<float>
 {
 public:
 
-			SeisTrcBufWriter(const SeisTrcBuf&,SeisTrcWriter&);
+    			SeisTrcBufArray2D(const SeisTrcBuf&,int compnr=0);
+    			SeisTrcBufArray2D(SeisTrcBuf&,bool mine,int compnr=0);
+			~SeisTrcBufArray2D();
 
-    const char*		message() const;
-    int			nextStep();
-    int			totalNr() const;
-    int			nrDone() const;
-    const char*		nrDoneText() const;
+    const mPolyArray2DInfoTp&	info() const	{ return info_; }
+    float*		getData() const		{ return 0; }
+    void		set(int,int,float);
+    float		get(int,int) const;
+
+    void		getAuxInfo(Seis::GeomType,int,IOPar&) const;
 
 protected:
 
-    const SeisTrcBuf&	trcbuf;
-    SeisTrcWriter&	writer;
-    int			nrdone;
+    SeisTrcBuf&		buf_;
+    mPolyArray2DInfoTp&	info_;
+    bool		bufmine_;
+    int			comp_;
 
 };
-
 
 #endif

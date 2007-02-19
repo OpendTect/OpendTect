@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiseiswvltman.cc,v 1.13 2007-02-14 12:34:26 cvsnanne Exp $
+ RCS:           $Id: uiseiswvltman.cc,v 1.14 2007-02-19 16:41:46 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,7 +25,7 @@ ________________________________________________________________________
 #include "uibutton.h"
 #include "uiioobjsel.h"
 #include "uitextedit.h"
-#include "uisectiondisp.h"
+#include "uiflatviewer.h"
 #include "uigeninput.h"
 #include "uimsg.h"
 
@@ -35,9 +35,7 @@ uiSeisWvltMan::uiSeisWvltMan( uiParent* p )
                                      "Manage wavelets",
                                      "103.3.0").nrstatusflds(1),
 	    	   WaveletTranslatorGroup::ioContext() )
-    , fdctxt_(*new FlatDisp::Context(false))
     , fda2d_(0)
-    , fddata_(new FlatDisp::Data)
 {
     createDefaultUI();
 
@@ -51,17 +49,19 @@ uiSeisWvltMan::uiSeisWvltMan( uiParent* p )
     crbut->setPrefWidthInChar( 15 );
     butgrp->attach( centeredBelow, selgrp );
 
-    fdctxt_.annot_.x1name_ = "Amplitude";
-    fdctxt_.annot_.x2name_ = SI().zIsTime() ? "Time" : "Depth";
-    fdctxt_.ddpars_.dispvd_ = false;
-    fdctxt_.ddpars_.dispwva_ = true;
-    fdctxt_.ddpars_.wva_.mid_= Color( 150, 150, 100 );
-    fdctxt_.ddpars_.wva_.overlap_ = -0.01;
-    fdctxt_.ddpars_.wva_.clipperc_ = 0;
-    wvltfld = new uiSectionDisp( this, fdctxt_, uiSize(50,mUdf(int)) );
+    wvltfld = new uiFlatViewer( this );
+    FlatDisp::Context& ctxt = wvltfld->context();
+    ctxt.annot_.x1name_ = "Amplitude";
+    ctxt.annot_.x2name_ = SI().zIsTime() ? "Time" : "Depth";
+    ctxt.ddpars_.dispvd_ = false;
+    ctxt.ddpars_.dispwva_ = true;
+    ctxt.ddpars_.wva_.mid_= Color( 150, 150, 100 );
+    ctxt.ddpars_.wva_.overlap_ = -0.01;
+    ctxt.ddpars_.wva_.clipperc_ = 0;
+    ctxt.wvaposdata_.setRange( true, StepInterval<double>(0,0,1) );
+    wvltfld->setPrefWidth( 60 );
     wvltfld->attach( ensureRightOf, selgrp );
-    wvltfld->setStretch( 1, 1 );
-    wvltfld->setData( fddata_ );
+    wvltfld->setStretch( 1, 2 );
 
     infofld->attach( ensureBelow, butgrp );
     infofld->attach( ensureBelow, wvltfld );
@@ -74,8 +74,6 @@ uiSeisWvltMan::uiSeisWvltMan( uiParent* p )
 uiSeisWvltMan::~uiSeisWvltMan()
 {
     delete fda2d_;
-    delete fddata_;
-    delete &fdctxt_;
 }
 
 
@@ -180,16 +178,22 @@ void uiSeisWvltMan::mkFileInfo()
     BufferString txt;
     Wavelet* wvlt = Wavelet::get( curioobj_ );
 
+    FlatDisp::Data& fddata = wvltfld->data();
     if ( !wvlt )
-	fddata_->set( true, 0, "" );
+	fddata.set( true, 0, "" );
     else
     {
 	const int wvltsz = wvlt->size();
-	assign( fdctxt_.posdata_.x2rg_, wvlt->samplePositions() );
+	const float zfac = SI().zFactor();
+
 	delete fda2d_;
 	fda2d_ = new Array2DImpl<float>( 1, wvltsz );
 	memcpy( fda2d_->getData(), wvlt->samples(), wvltsz * sizeof(float) );
-	fddata_->set( true, fda2d_, wvlt->name() );
+	fddata.set( true, fda2d_, wvlt->name() );
+	StepInterval<double> posns; assign( posns, wvlt->samplePositions() );
+	if ( SI().zIsTime() ) posns.scale( zfac );
+	wvltfld->context().wvaposdata_.setRange( false, posns );
+	wvltfld->initView();
 
 	Stats::RunCalc<float> rc( Stats::RunCalcSetup().require(Stats::Max) );
 	rc.addValues( wvltsz, wvlt->samples() );
@@ -197,7 +201,7 @@ void uiSeisWvltMan::mkFileInfo()
 	BufferString tmp;
 	tmp += "Number of samples: "; tmp += wvlt->size(); tmp += "\n";
 	tmp += "Sample interval "; tmp += SI().getZUnit(true); tmp += ": ";
-	tmp += wvlt->sampleRate() * SI().zFactor(); tmp += "\n";
+	tmp += wvlt->sampleRate() * zfac; tmp += "\n";
 	tmp += "Min/Max amplitude: ";
 	tmp += rc.min(); tmp += "/"; tmp += rc.max(); tmp += "\n";
 	txt += tmp;
@@ -205,8 +209,7 @@ void uiSeisWvltMan::mkFileInfo()
 	delete wvlt;
     }
 
-    wvltfld->setData( fddata_ );
-    wvltfld->forceReDraw();
+    wvltfld->handleChange( FlatDisp::Viewer::All );
 
     txt += getFileInfo();
     infofld->setText( txt );

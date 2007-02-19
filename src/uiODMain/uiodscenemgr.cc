@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.87 2007-02-14 12:38:00 cvsnanne Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.88 2007-02-19 16:41:46 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,7 +17,6 @@ ________________________________________________________________________
 #include "uivispartserv.h"
 #include "uiattribpartserv.h"
 
-#include "uiviewfddatapack.h"
 #include "uilabel.h"
 #include "uislider.h"
 #include "uidockwin.h"
@@ -795,8 +794,7 @@ void uiODSceneMgr::displayIn2DViewer( int visid, int attribid, bool dowva )
     if ( !curvwr )
 	curvwr = &addViewer2D( visid );
 
-    curvwr->setData( visServ().getDataPackMgrID(visid),
-		     visServ().getDataPackID(visid,attribid), dowva );
+    curvwr->setData( visServ().getDataPackID(visid,attribid), dowva );
 }
 
 
@@ -881,15 +879,17 @@ uiODSceneMgr::Viewer2D::Viewer2D( uiODMain& appl, int visid )
 
 uiODSceneMgr::Viewer2D::~Viewer2D()
 {
+    /*TODO FV
     delete viewfddatapack_;
     appl_.removeDockWindow( viewwin_ );
     delete viewwin_;
+    */
 }
 
 
-void uiODSceneMgr::Viewer2D::setData( DataPackMgr::ID mgrid,
-				      DataPack::ID packid, bool wva )
+void uiODSceneMgr::Viewer2D::setData( DataPack::ID packid, bool wva )
 {
+    /*TODO FV
     if ( !viewwin_ )
     {
 	viewwin_ = new uiDockWin( 0, basetxt_ );
@@ -904,4 +904,5 @@ void uiODSceneMgr::Viewer2D::setData( DataPackMgr::ID mgrid,
     
     viewfddatapack_->setDataPackID( packid, wva );
     viewwin_->display( true );
+    */
 }

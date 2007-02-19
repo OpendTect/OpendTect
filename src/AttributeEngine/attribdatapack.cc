@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Huck
  Date:          January 2007
- RCS:           $Id: attribdatapack.cc,v 1.11 2007-02-02 15:44:43 cvsnanne Exp $
+ RCS:           $Id: attribdatapack.cc,v 1.12 2007-02-19 16:41:45 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,133 +13,174 @@ ________________________________________________________________________
 #include "attribdatacubes.h"
 #include "attribdataholder.h"
 #include "attribdataholderarray.h"
-#include "flatdisp.h"
+#include "flatposdata.h"
 #include "arraynd.h"
 #include "arrayndslice.h"
-#include "segposinfo.h"
+#include "seisinfo.h"
 #include "survinfo.h"
+#include "keystrs.h"
 
+#define mStepIntvD( rg ) \
+    StepInterval<double>( rg.start, rg.stop, rg.step )
 
-CubeDataPack::CubeDataPack( const Attrib::DataCubes& dc )
-    : cube_(dc)
+namespace Attrib
+{
+
+Flat3DDataPack::Flat3DDataPack( const DataCubes& dc, int cubeidx )
+    : FlatDataPack(sKey::Attribute)
+    , cube_(dc)
+    , arr2dsl_(0)
 {
     cube_.ref();
     int unuseddim, dim0, dim1;
     if ( cube_.getInlSz() < 2 )
     {
-	unuseddim = Attrib::DataCubes::cInlDim();
-	dim0 = Attrib::DataCubes::cCrlDim();
-	dim1 = Attrib::DataCubes::cZDim();
+	unuseddim = DataCubes::cInlDim();
+	dim0 = DataCubes::cCrlDim();
+	dim1 = DataCubes::cZDim();
     }
     else if ( cube_.getCrlSz() < 2 )
     {
-	unuseddim = Attrib::DataCubes::cCrlDim();
-	dim0 = Attrib::DataCubes::cInlDim();
-	dim1 = Attrib::DataCubes::cZDim();
+	unuseddim = DataCubes::cCrlDim();
+	dim0 = DataCubes::cInlDim();
+	dim1 = DataCubes::cZDim();
     }
     else
     {
-	unuseddim = Attrib::DataCubes::cZDim();
-	dim0 = Attrib::DataCubes::cInlDim();
-	dim1 = Attrib::DataCubes::cCrlDim();
+	unuseddim = DataCubes::cZDim();
+	dim0 = DataCubes::cInlDim();
+	dim1 = DataCubes::cCrlDim();
     }
 
-    arr2dsl_ = new Array2DSlice<float>( cube_.getCube(0) );
+    arr2dsl_ = new Array2DSlice<float>( cube_.getCube(cubeidx) );
     arr2dsl_->setPos( unuseddim, 0 );
     arr2dsl_->setDimMap( 0, dim0 );
     arr2dsl_->setDimMap( 1, dim1 );
     arr2dsl_->init();
+
+    setPosData();
 }
 					
 
-CubeDataPack::~CubeDataPack()
+Flat3DDataPack::~Flat3DDataPack()
 {
     delete arr2dsl_;
     cube_.unRef();
 }
 
 
-Array2D<float>& CubeDataPack::data()
+Array2D<float>& Flat3DDataPack::data()
 {
     return *arr2dsl_;
 }
 
 
-const Array2D<float>& CubeDataPack::data() const
+void Flat3DDataPack::setPosData()
 {
-    return const_cast<CubeDataPack*>(this)->data();
+    const CubeSampling cs = cube_.cubeSampling();
+    CubeSampling::Dir dir = cs.defaultDir();
+    posdata_.setRange( true, dir==CubeSampling::Inl
+	    ? mStepIntvD(cs.hrg.crlRange()) : mStepIntvD(cs.hrg.inlRange()) );
+    posdata_.setRange( false, mStepIntvD(cs.zrg) );
 }
 
 
-const CubeSampling CubeDataPack::sampling() const
+void Flat3DDataPack::getAuxInfo( int i0, int i1, IOPar& par ) const
 {
-    return cube_.cubeSampling();
+    //TODO implement from trace headers
 }
 
 
-#define mBuildInterval( rg ) \
-    StepInterval<double>( (double)rg.start, (double)rg.stop, (double)rg.step )
-
-void CubeDataPack::positioning( FlatDisp::PosData& posdata )
+Coord3 Flat3DDataPack::getCoord( int i0, int i1 ) const
 {
-    const CubeSampling cs = sampling();
-    int nrinl = cs.nrInl();
-    int nrcrl = cs.nrCrl();
-    int nrzsamp = cs.nrZ();
-    posdata.x1rg_ = nrinl<2 ? mBuildInterval( cs.hrg.crlRange() )
-			    : mBuildInterval( cs.hrg.inlRange() );
-    posdata.x2rg_ = nrinl>2 && nrcrl>2 ? mBuildInterval( cs.hrg.crlRange() )
-				       : mBuildInterval( cs.zrg );
-}
-
-
-void CubeDataPack::getXYZPosition( PosInfo::Line2DData& ld ) const
-{
-    const CubeSampling cs = sampling();
-    ld.zrg = cs.zrg;
-    PosInfo::Line2DPos startpos, stoppos;
-    startpos.coord = SI().transform( BinID(cs.hrg.start.inl, cs.hrg.start.crl));
-    ld.posns += startpos;
-    stoppos.coord = SI().transform( BinID(cs.hrg.stop.inl, cs.hrg.stop.crl) );
-    ld.posns += stoppos;
+//TODO implementation needs change for horizontal slices
+    const CubeSampling& cs = cube_.cubeSampling();
+    Coord c = SI().transform( cs.hrg.atIndex(i0,i1) );
+    return Coord3(c.x,c.y,0);
 }
 
 
 
-DataPack2D::DataPack2D( const Attrib::Data2DHolder& dh )
-    : dh_(dh)
+Flat2DDataPack::Flat2DDataPack( const Data2DHolder& dh )
+    : FlatDataPack(sKey::Attribute)
+    , dh_(dh)
 {
     dh_.ref();
 
-    array3d_ = new Attrib::Data2DHolderArray(
-				const_cast<Attrib::Data2DHolder&>(dh_) );
-    
+    array3d_ = new DataHolderArray( dh_.dataset_ );
     arr2dsl_ = new Array2DSlice<float>( *array3d_ );
     arr2dsl_->setPos( 0, 0 );
     arr2dsl_->setDimMap( 0, 1 );
     arr2dsl_->setDimMap( 1, 2 );
     arr2dsl_->init();
+
+    setPosData();
 }
 
 
-DataPack2D::~DataPack2D()
+Flat2DDataPack::~Flat2DDataPack()
 {
     delete arr2dsl_;
     delete array3d_;
     dh_.unRef();
 }
 
-
-Array2D<float>& DataPack2D::data()
-{ return *arr2dsl_; }
-
-const Array2D<float>& DataPack2D::data() const
-{ return *arr2dsl_; }
-
-
-void DataPack2D::positioning( FlatDisp::PosData& posdata )
+Array2D<float>& Flat2DDataPack::data()
 {
-    const CubeSampling cs = dh_.getCubeSampling();
-    posdata.x1rg_ = mBuildInterval( cs.hrg.crlRange() );
-    posdata.x2rg_ = mBuildInterval( cs.zrg );
+    return *arr2dsl_;
 }
+
+
+void Flat2DDataPack::setPosData()
+{
+    const int nrpos = dh_.trcinfoset_.size();
+    float pos[nrpos]; pos[0] = 0;
+    Coord prevcrd = dh_.trcinfoset_[0]->coord;
+    for ( int idx=1; idx<nrpos; idx++ )
+    {
+	Coord crd = dh_.trcinfoset_[idx]->coord;
+	pos[idx] = dh_.trcinfoset_[idx-1]->coord.distTo( crd );
+	prevcrd = crd;
+    }
+
+    const CubeSampling cs = dh_.getCubeSampling();
+    posdata_.setX1Pos( pos, nrpos, 0 );
+    posdata_.setRange( false, mStepIntvD(cs.zrg) );
+}
+
+
+void Flat2DDataPack::getAuxInfo( int i0, int i1, IOPar& par ) const
+{
+    //TODO implement from trace headers
+}
+
+
+Coord3 Flat2DDataPack::getCoord( int i0, int i1 ) const
+{
+    return Coord3( dh_.trcinfoset_[i0]->coord, 0 );
+}
+
+
+CubeDataPack::CubeDataPack( const Attrib::DataCubes& dc, int ci )
+    : ::CubeDataPack(sKey::Attribute)
+    , cube_(dc)
+    , cubeidx_(ci)
+{
+    cube_.ref();
+    cs_ = cube_.cubeSampling();
+}
+
+
+Array3D<float>& CubeDataPack::data()
+{
+    return const_cast<Attrib::DataCubes&>(cube_).getCube( cubeidx_ );
+}
+
+
+void CubeDataPack::getAuxInfo( int, int, int, IOPar& ) const
+{
+    //TODO implement from trace headers
+}
+
+
+} // namespace Attrib

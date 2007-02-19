@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		25-10-1996
- RCS:		$Id: seisinfo.h,v 1.20 2006-11-10 13:51:37 cvsbert Exp $
+ RCS:		$Id: seisinfo.h,v 1.21 2007-02-19 16:41:45 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,10 +17,11 @@ ________________________________________________________________________
 #include "position.h"
 #include "datachar.h"
 #include "samplingdata.h"
-class SUsegy;
+#include "seistype.h"
 class SeisTrc;
 class PosAuxInfo;
 class IOPar;
+template <class T> class TypeSet;
 
 /*!\brief Information for a packet of seismics, AKA tape header info */
 
@@ -62,36 +63,30 @@ public:
 			, offset(0), azimuth(0), new_packet(false)
 			{}
 
-					// Attr number (see below)
     SamplingData<float>	sampling;
-    int			nr;		// 0
-    float		pick;		// 1
-    float		refpos;		// 2
-    Coord		coord;		// 3 4
-    BinID		binid;		// 5 6
-    float		offset;		// 7
-    float		azimuth;	// 8
-    bool		new_packet;	// not stored
-
-    void		fillPar(IOPar&) const;
-    void		usePar(const IOPar&);
+    int			nr;
+    BinID		binid;
+    Coord		coord;
+    float		offset;
+    float		azimuth;
+    float		pick;
+    float		refpos;
 
     int			nearestSample(float pos) const;
     float		samplePos( int idx ) const
 			{ return sampling.atIndex( idx ); }
     SampleGate		sampleGate(const Interval<float>&) const;
     bool		dataPresent(float pos,int trcsize) const;
-    void		gettr(SUsegy&) const;
-    void		puttr(const SUsegy&);
 
-    // Attrs are invented so you can get a header value without knowing
-    // what it is. Useful e.g to let user decide what to display
-    static int		nrAttrs()		{ return 9; }
-    static const char*	attrName( int idx )	{ return attrnames[idx]; }
-    static const char**	attrNames()		{ return attrnames; }
-    static int		attrNr(const char*);
-    double		getAttrValue(int) const;
-    int			defDispAttr(const SeisTrcInfo& next) const;
+    enum Fld		{ TrcNr=0, Pick, RefPos,
+			  CoordX, CoordY, BinIDInl, BinIDCrl,
+			  Offset, Azimuth };
+    			DeclareEnumUtils(Fld)
+    double		getValue(Fld) const;
+    static void		getAxisCandidates(Seis::GeomType,TypeSet<Fld>&);
+    int			getDefaultAxisFld(Seis::GeomType,
+					  const SeisTrcInfo* next) const;
+    void		getInterestingFlds(Seis::GeomType,IOPar&) const;
 
     static const char*	sSamplingInfo;
     static const char*	sNrSamples;
@@ -99,11 +94,10 @@ public:
 
     void		putTo(PosAuxInfo&) const;
     void		getFrom(const PosAuxInfo&);
+    void		fillPar(IOPar&) const;
+    void		usePar(const IOPar&);
 
-private:
-
-    static const char*	attrnames[];
-
+    bool		new_packet;	// not stored
 };
 
 

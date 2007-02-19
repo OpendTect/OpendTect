@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Feb 2002
- RCS:           $Id: cubesampling.h,v 1.27 2006-07-10 15:19:43 cvskris Exp $
+ RCS:           $Id: cubesampling.h,v 1.28 2007-02-19 16:41:45 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,6 +51,9 @@ struct HorSampling
 			{ return (inl - start.inl) / step.inl; }
     inline int		crlIdx( int crl ) const
 			{ return (crl - start.crl) / step.crl; }
+    BinID		atIndex( int i0, int i1 ) const
+			{ return BinID( start.inl + i0*step.inl,
+					start.crl + i0*step.crl ); }
     int			nrInl() const;
     int			nrCrl() const;
     inline int		totalNr() const	{ return nrInl() * nrCrl(); }
@@ -126,6 +129,7 @@ public:
     Dir			defaultDir() const;
     			//!< 'flattest' direction, i.e. direction with
     			//!< smallest size. If equal, prefer Inl then Crl then Z
+    bool		isFlat() const; //!< is one of directions size 1?
 
     void		init(bool settoSI=true);
     			//!< Sets hrg.init and zrg to survey values or zeros
@@ -148,6 +152,8 @@ public:
     inline int		size( Dir d ) const	{ return d == Inl ? nrInl()
     						      : (d == Crl ? nrCrl()
 							          : nrZ()); }
+    inline float	zAtIndex( int idx ) const
+						{ return zrg.atIndex(idx); }
     inline bool		isEmpty() const		{ return hrg.isEmpty(); }
     bool		includes( const CubeSampling& ) const;
     bool		getIntersection(const CubeSampling&,
