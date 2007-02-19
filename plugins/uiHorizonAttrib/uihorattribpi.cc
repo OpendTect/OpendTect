@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		September 2006
- RCS:		$Id: uihorattribpi.cc,v 1.2 2006-10-11 06:59:24 cvsbert Exp $
+ RCS:		$Id: uihorattribpi.cc,v 1.3 2007-02-19 10:42:29 cvsdgb Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,10 +21,12 @@ extern "C" int GetuiHorizonAttribPluginType()
 extern "C" PluginInfo* GetuiHorizonAttribPluginInfo()
 {
     static PluginInfo retpi = {
-	"Coherency User Interface",
+	"'Horizon' attribute",
 	"dGB - Nanne Hemstra",
 	"=od",
-	"User interface for Coherency plugin." };
+	"The 'Horizon' Attribute allows getting values from horizons.\n"
+    	"Not to be confused with calculating attributes on horizons."
+        "You can even use the 'Horizon' attribute for horizons." };
     return &retpi;
 }
 

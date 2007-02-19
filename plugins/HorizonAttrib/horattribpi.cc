@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		September 2006
- RCS:		$Id: horattribpi.cc,v 1.1 2006-09-22 09:21:29 cvsnanne Exp $
+ RCS:		$Id: horattribpi.cc,v 1.2 2007-02-19 10:42:29 cvsdgb Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,10 +23,10 @@ extern "C" int GetHorizonAttribPluginType()
 extern "C" PluginInfo* GetHorizonAttribPluginInfo()
 {
     static PluginInfo retpii = {
-	"HorizonAttribute",
+	"The 'Horizon' Attribute - calculation part",
 	"dGB - Nanne Hemstra",
 	"=od",
-	"Horizon attribute plugin." };
+	"Enables calculation of the 'Horizon' attribute." };
     return &retpii;
 }
 
