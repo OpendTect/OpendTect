@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          Sep 2006
- RCS:           $Id: uiflatviewer.cc,v 1.1 2007-02-19 16:41:46 cvsbert Exp $
+ RCS:           $Id: uiflatviewer.cc,v 1.2 2007-02-19 21:33:27 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -152,10 +152,6 @@ void uiFlatViewer::drawBitMaps()
     bmp2rgb_->draw( wvabmpmgr_->bitMap(), vdbmpmgr_->bitMap() );
 }
 
-
-#define mDefW2U \
-    mDefuiSize; \
-    uiWorld2Ui w2u( wr_, uisz )
 
 void uiFlatViewer::drawAnnot()
 {
