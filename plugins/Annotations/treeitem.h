@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2005
- RCS:           $Id: treeitem.h,v 1.8 2007-02-15 20:35:13 cvskris Exp $
+ RCS:           $Id: treeitem.h,v 1.9 2007-02-19 20:45:56 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -59,6 +59,7 @@ protected:
     virtual bool		init();
     void			prepareForShutdown();
     virtual bool		showSubMenu();
+    virtual int			defScale() const 		{ return -1; }
 
     virtual uiTreeItem*		createSubItem(int,Pick::Set&)	= 0;
     virtual const char*		managerName() const		= 0;
@@ -160,8 +161,9 @@ protected:
 			~ArrowSubItem()		{}
     virtual const char*	parentType() const;
 
-    virtual void	createMenuCB(CallBacker*);
-    virtual void	handleMenuCB(CallBacker*);
+    void		fillStoragePar(IOPar&) const;
+    void		createMenuCB(CallBacker*);
+    void		handleMenuCB(CallBacker*);
     void		propertyChange(CallBacker*);
 
     MenuItem		propmnuitem_;
@@ -169,6 +171,9 @@ protected:
 
     bool		hasScale() const	{ return false; }
     const char*		managerName() const	{ return sKeyManager(); }
+
+    static const char*		sKeyArrowType()	{ return "Arrow Type"; }
+    static const char*		sKeyLineWidth()	{ return "Line width"; }
 
 };
 
@@ -199,7 +204,7 @@ protected:
 
 
 
-#define mDefineParentItem(type,typestr) \
+#define mDefineParentItem(type,typestr,defsz) \
 class type##ParentItem : public AnnotTreeItem \
 { \
 public: \
@@ -210,11 +215,12 @@ protected: \
     		{ return new type##SubItem(pck,di); } \
     const char*	managerName() const { return type##SubItem::sKeyManager(); } \
     const char*	oldSelKey() const { return typestr; } \
+    int		defScale() const 	{ return defsz; } \
 }
 
-mDefineParentItem(Text,"Text");
-mDefineParentItem(Arrow,"Arrows");
-mDefineParentItem(Image,"Image");
+mDefineParentItem(Text,"Text",-1);
+mDefineParentItem(Arrow,"Arrows",100);
+mDefineParentItem(Image,"Image",100);
 
 
 }; // namespace Annotations

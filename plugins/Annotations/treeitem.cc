@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2005
- RCS:           $Id: treeitem.cc,v 1.12 2007-02-15 23:45:44 cvskris Exp $
+ RCS:           $Id: treeitem.cc,v 1.13 2007-02-19 20:45:56 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -272,6 +272,9 @@ bool AnnotTreeItem::readPicks( Pick::Set& ps )
     uiIOObjSelDlg dlg( getUiParent(), *ctio );
     if ( !dlg.go() || !dlg.ioObj() )
 	mDelCtioRet;
+
+    if ( defScale()!=-1 )
+	ps.disp_.pixsize_= defScale();
 
     BufferString bs;
     if ( !PickSetTranslator::retrieve(ps,dlg.ioObj(),bs) )
@@ -760,7 +763,7 @@ ArrowSubItem::ArrowSubItem( Pick::Set& pck, int displayid )
     , propmnuitem_( "Properties ..." )
     , arrowtype_( 2 )
 {
-    defscale_ = set_->disp_.pixsize_ = 100;
+    defscale_ = set_->disp_.pixsize_;
     Pick::SetMgr& mgr = Pick::SetMgr::getMgr( managerName() );
     mgr.reportDispChange( this, *set_ );
 }
@@ -780,6 +783,17 @@ bool ArrowSubItem::init()
     mDynamicCastGet(ArrowDisplay*,ad,
 	    visserv->getObject(displayid_))
     if ( !ad ) return false;
+
+    Pick::SetMgr& mgr = Pick::SetMgr::getMgr( managerName() );
+    const int setidx = mgr.indexOf( *set_ );
+    PtrMan<IOObj> ioobj = IOM().get( mgr.id(setidx) );
+    int arrowtype;
+    if ( ioobj->pars().get(sKeyArrowType(), arrowtype) )
+	ad->setType( (ArrowDisplay::Type) arrowtype );
+
+    int linewidth;
+    if ( ioobj->pars().get(sKeyLineWidth(), linewidth) )
+	ad->setLineWidth( linewidth );
 
     //Read Old format orientation
     for ( int idx=set_->size()-1; idx>=0; idx-- )
@@ -804,6 +818,15 @@ bool ArrowSubItem::init()
     }
 
     return SubItem::init();
+}
+
+
+void ArrowSubItem::fillStoragePar( IOPar& par ) const
+{
+    SubItem::fillStoragePar( par );
+    mDynamicCastGet(ArrowDisplay*,ad, visserv->getObject(displayid_))
+    par.set( sKeyArrowType(), (int) ad->getType() );
+    par.set( sKeyLineWidth(), ad->getLineWidth() );
 }
 
 
@@ -864,6 +887,10 @@ void ArrowSubItem::propertyChange( CallBacker* cb )
 
     ad->setType( (ArrowDisplay::Type) arrowtype );
     ad->setLineWidth( dlg->getLineWidth() );
+
+    Pick::SetMgr& mgr = Pick::SetMgr::getMgr( managerName() );
+    const int setidx = mgr.indexOf( *set_ );
+    mgr.setUnChanged( setidx, false );
 }
 
 
@@ -873,7 +900,7 @@ ImageSubItem::ImageSubItem( Pick::Set& pck, int displayid )
     : SubItem( pck, displayid )
     , filemnuitem_( "Select image ..." )
 {
-    defscale_ = set_->disp_.pixsize_ = 100;
+    defscale_ = set_->disp_.pixsize_;
     Pick::SetMgr& mgr = Pick::SetMgr::getMgr( managerName() );
     mgr.reportDispChange( this, *set_ );
 }
