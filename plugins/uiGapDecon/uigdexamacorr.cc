@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          Sep 2006
- RCS:           $Id: uigdexamacorr.cc,v 1.13 2007-01-31 15:53:52 cvshelene Exp $
+ RCS:           $Id: uigdexamacorr.cc,v 1.14 2007-02-20 12:15:42 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,17 +26,13 @@ ________________________________________________________________________
 #include "arrayndimpl.h"
 #include "uimsg.h"
 #include "ptrman.h"
-#include "uiviewfddatapack.h"
 #include "colortab.h"
+#include "uiflatviewer.h"
 
 using namespace Attrib;
 
 GapDeconACorrView::GapDeconACorrView( uiParent* p )
     : attribid_( DescID::undef() )
-    , fddatapackexam_( 0 )
-    , fddatapackqc_( 0 )
-    , examdpview_( 0 )
-    , qcdpview_( 0 )
     , dset_( 0 )
 {
     examwin_ = new uiMainWin( p, "Auto-correlation viewer (examine)", 0,
@@ -48,21 +44,11 @@ GapDeconACorrView::GapDeconACorrView( uiParent* p )
 
 GapDeconACorrView::~GapDeconACorrView()
 {
-    if ( fddatapackexam_ ) delete fddatapackexam_;
-    if ( fddatapackqc_ ) delete fddatapackqc_;
-    if ( examdpview_ ) delete examdpview_;
-    if ( qcdpview_ ) delete qcdpview_;
     if ( dset_ ) delete dset_;
     if ( examwin_ ) delete examwin_;
     if ( qcwin_ ) delete qcwin_;
 }
 
-
-#define mCreateFDDataPack( fddatapack ) \
-{ \
-    if ( fddatapack ) delete fddatapack; \
-    fddatapack = new CubeDataPack( *output ); \
-}\
 
 bool GapDeconACorrView::computeAutocorr( bool isqc )
 {
@@ -85,10 +71,12 @@ bool GapDeconACorrView::computeAutocorr( bool isqc )
 	return false;
     
     output->ref();
+    /*
     if ( isqc )
     	mCreateFDDataPack(fddatapackqc_)
     else
 	mCreateFDDataPack(fddatapackexam_)
+	*/
     output->unRef();
     return true;
 }
@@ -112,6 +100,7 @@ EngineMan* GapDeconACorrView::createEngineMan()
 
 void GapDeconACorrView::createAndDisplay2DViewer( bool isqc )
 {
+    /*
     if ( isqc )
     {
 	qcwin_->close();
@@ -135,6 +124,7 @@ void GapDeconACorrView::createAndDisplay2DViewer( bool isqc )
 			                       cs_.zrg.step);
     
     isqc ? qcwin_->show() : examwin_->show();
+    */
 }
 
 

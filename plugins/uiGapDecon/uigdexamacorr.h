@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          Sep 2006
- RCS:           $Id: uigdexamacorr.h,v 1.8 2007-01-31 12:01:42 cvshelene Exp $
+ RCS:           $Id: uigdexamacorr.h,v 1.9 2007-02-20 12:15:42 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,6 +36,7 @@ public:
     			//<! descset becomes mine!
 
 protected:
+
     Attrib::EngineMan*	createEngineMan();
     void		displayWiggles(bool,bool);
 
@@ -44,10 +45,7 @@ protected:
     CubeSampling		cs_;
     Attrib::DescID		attribid_;
     Attrib::DescSet*    	dset_;
-    FlatDisp::DataPack*		fddatapackexam_;
-    FlatDisp::DataPack*		fddatapackqc_;
-    FlatDisp::uiViewFDDataPack*	examdpview_;
-    FlatDisp::uiViewFDDataPack*	qcdpview_;
+
 };
 
 
