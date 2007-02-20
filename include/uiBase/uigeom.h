@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2000
- RCS:           $Id: uigeom.h,v 1.15 2007-02-14 10:13:13 cvsbert Exp $
+ RCS:           $Id: uigeom.h,v 1.16 2007-02-20 14:54:14 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,6 +21,8 @@ typedef Geom::PosRectangle<double> uiWorldRect;
 class uiSize : public Geom::Size2D<int>
 {
 public:
+    			uiSize( const Geom::Size2D<int>& a )
+			    :  Geom::Size2D<int>( a ) 			{}
     			uiSize( int wdt=0 , int hgt=0 )
 			    : Geom::Size2D<int>(wdt,hgt)		{}
 
