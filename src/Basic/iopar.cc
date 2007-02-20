@@ -4,7 +4,7 @@
  * DATE     : 21-12-1995
 -*/
 
-static const char* rcsID = "$Id: iopar.cc,v 1.58 2006-11-21 14:00:06 cvsbert Exp $";
+static const char* rcsID = "$Id: iopar.cc,v 1.59 2007-02-20 12:02:56 cvsbert Exp $";
 
 #include "iopar.h"
 #include "multiid.h"
@@ -801,8 +801,7 @@ void IOPar::setYN( const char* keyw, bool i )
 
 void IOPar::setYN( const char* keyw, bool i1, bool i2 )
 {
-    FileMultiString fms;
-    fms.add( getYesNoString(i1) );
+    FileMultiString fms( getYesNoString(i1) );
     fms.add( getYesNoString(i2) );
     set( keyw, fms );
 }
