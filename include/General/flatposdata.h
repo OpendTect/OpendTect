@@ -6,17 +6,22 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2007
- RCS:           $Id: flatposdata.h,v 1.1 2007-02-19 16:43:07 cvsbert Exp $
+ RCS:           $Id: flatposdata.h,v 1.2 2007-02-20 18:15:23 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "sets.h"
 #include "ranges.h"
 #include "indexinfo.h"
 
 /*!\brief Positioning of flat 'bulk' data.
-  	  Only the 'x1' axis can be irregular. */
+  	  Only the 'x1' axis can be irregular.
+
+    Even if the X1 range is irergular, the x1rg_ is kept in sync with the
+    start, stop and average step. Uncomplicated programmers may get away
+    with using nothing else but the range().
+ 
+ */
 
 class FlatPosData
 {
@@ -26,29 +31,43 @@ public:
 				    , x2rg_(0,0,1)
 				    , x1pos_(0)
     				    , x1offs_(0)	{}
-				~FlatPosData()		{ delete x1pos_; }
+				FlatPosData( const FlatPosData& fpd )
+				    : x1pos_(0)		{ *this = fpd; }
+				~FlatPosData()		{ delete [] x1pos_; }
+    FlatPosData&		operator =(const FlatPosData&);
 
     void			setRange(bool forx1,
 	    				 const StepInterval<double>&);
-    StepInterval<double>	range( bool forx1 ) const
+    inline const StepInterval<double>& range( bool forx1 ) const
 				{ return forx1 ? x1rg_ : x2rg_; }
-    void			setX1Pos(const float*,int sz,double offs);
+    void			setX1Pos(float*,int sz,double offs);
     				//!< offs is added to each elem before display
     				//!< This makes sure float* can be used
+    				//!< float* (alloc with new []) becomes mine
+    double			offset() const		{ return x1offs_; }
+
+    inline int			nrPts( bool forx1 ) const
+				{ return range(forx1).nrSteps() + 1; }
+    float			width( bool forx1 ) const
+				{ return range(forx1).width(); }
+    IndexInfo			indexInfo(bool forx1,double pos) const;
+
+    double			position(bool forx1,int) const;
+    				//!< With offset applied
     float*			getPositions(bool forx1) const;
     				//!< Returns a new float [], size=nrPts()
-
-    int				nrPts(bool forx1) const;
-    float			width(bool forx1) const;
-    IndexInfo			indexInfo(bool forx1,double) const;
+    				//!< offset not applied (it's a float*)
 
 protected:
 
     StepInterval<double>	x1rg_;
     StepInterval<double>	x2rg_;
 
-    TypeSet<float>*		x1pos_; //!< used only if !null and size() > 0
+    float*			x1pos_;
     double			x1offs_;
+
+    inline StepInterval<double>& rg( bool forx1 )
+				{ return forx1 ? x1rg_ : x2rg_; }
 };
 
 

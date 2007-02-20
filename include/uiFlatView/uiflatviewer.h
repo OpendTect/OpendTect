@@ -6,19 +6,19 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewer.h,v 1.2 2007-02-20 12:04:33 cvsbert Exp $
+ RCS:           $Id: uiflatviewer.h,v 1.3 2007-02-20 18:15:23 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uigroup.h"
+#include "uimainwin.h"
 #include "flatdisp.h"
 #include "uigeom.h"
 namespace FlatDisp {
 class BitMapMgr;
 class BitMap2RGB;
 }
-class MouseEvent;
 class uiRGBArray;
 class uiRGBArrayCanvas;
 class uiWorld2Ui;
@@ -32,10 +32,8 @@ class uiFlatViewer : public uiGroup
 public:
     			uiFlatViewer(uiParent*);
 			~uiFlatViewer();
-    void		initView(); //!< After you set the right PosData
 
     void		setExtraBorders(const uiSize& lt,const uiSize& rb);
-    void		handleChange(DataChangeType);
 
     uiRGBArray&		rgbArray();
     uiRGBArrayCanvas&	rgbCanvas()			{ return canvas_; }
@@ -47,6 +45,8 @@ public:
     void		setDim0ExtFac( float f )	{ dim0extfac_ = f; }
     			//!< when reporting boundingBox(), extends this
     			//!< amount of positions outward. Default 0.5.
+
+    void		handleChange(DataChangeType);
 
     Notifier<uiFlatViewer> viewChanged; //!< i.e. zoom/pan, or setView
 
@@ -74,6 +74,7 @@ protected:
     void		drawAnnot();
     void		drawGridAnnot(bool);
     void		drawAux(const FlatDisp::Annotation::AuxData&);
+    void		initView();
 };
 
 #endif

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiseispartserv.cc,v 1.51 2007-02-20 12:04:33 cvsbert Exp $
+ RCS:           $Id: uiseispartserv.cc,v 1.52 2007-02-20 18:15:23 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,6 +30,7 @@ ________________________________________________________________________
 #include "uiexecutor.h"
 #include "uiflatviewer.h"
 #include "uiflatviewcontrol.h"
+#include "uiflatviewwin.h"
 #include "uilistbox.h"
 #include "uimenu.h"
 #include "uimergeseis.h"
@@ -48,6 +49,7 @@ ________________________________________________________________________
 uiSeisPartServer::uiSeisPartServer( uiApplService& a )
     	: uiApplPartServer(a)
     	, storedgathermenuitem("Display Gather")
+	, viewwin_(0)
 {
     uiSEGYSurvInfoProvider* sip = new uiSEGYSurvInfoProvider( segyid );
     uiSurveyInfoEditor::addInfoProvider( sip );
@@ -245,21 +247,33 @@ bool uiSeisPartServer::handleGatherSubMenu( int mnuid, const BinID& bid )
     if ( tbufsz == 0 )
 	mErrRet( "Gather is empty" )
 
-    PtrMan<SeisTrcBufArray2D> a2d = new SeisTrcBufArray2D( *tbuf, true, 0 );
+    //TODO make DataPack-based
+    SeisTrcBufArray2D* a2d = new SeisTrcBufArray2D( *tbuf, true, 0 );
     BufferString title( "Gather from [" ); title += ioobj->name();
     title += "] at "; title += bid.inl; title += "/"; title += bid.crl;
-    uiDialog psdlg( appserv().parent(),
-	    	    uiDialog::Setup("Gather display","","") );
-    psdlg.setCtrlStyle( uiDialog::LeaveOnly );
-    uiFlatViewer* vwr = new uiFlatViewer( &psdlg );
-    vwr->data().set( true, a2d, ioobj->name() );
+    bool isnew = !viewwin_;
+    if ( !isnew )
+    {
+	const Array2D<float>* olddata = viewwin_->viewer().data().wvaarr();
+	delete const_cast<Array2D<float>*>( olddata );
+	viewwin_->setCaption( title );
+    }
+    else
+    {
+	viewwin_ = new uiFlatViewWin( appserv().parent(),
+				      uiFlatViewWin::Setup(title) );
+	viewwin_->addNullOnClose( &viewwin_ );
+	//TODO is potential memory leak until DataPack-based
+    }
+    uiFlatViewer& vwr = viewwin_->viewer();
+    vwr.data().set( true, a2d, ioobj->name() );
 
-    FlatDisp::Context& ctxt = vwr->context();
+    FlatDisp::Context& ctxt = vwr.context();
     ctxt.annot_.x1_.name_ = "Offset"; ctxt.annot_.x2_.name_ = "Z";
     ctxt.annot_.x1_.showAll(); ctxt.annot_.x2_.showAll();
     ctxt.ddpars_.dispvd_ = false; ctxt.ddpars_.dispwva_ = true;
     ctxt.ddpars_.wva_.overlap_ = 1; ctxt.ddpars_.wva_.clipperc_ = 1;
-    vwr->useStoredDefaults( "Pre-Stack Gather" );
+    vwr.useStoredDefaults( "Pre-Stack Gather" );
 
     double ofv; float* hdrvals = tbuf->getHdrVals( SeisTrcInfo::Offset, ofv );
     ctxt.wvaposdata_.setX1Pos( hdrvals, tbufsz, ofv );
@@ -268,10 +282,17 @@ bool uiSeisPartServer::handleGatherSubMenu( int mnuid, const BinID& bid )
     zrg.scale( SI().zFactor() ); //TODO: gather may be in time or depth ...
     ctxt.wvaposdata_.setRange( false, zrg );
 
-    int pw = 200 + 10 * tbufsz;
-    if ( pw < 400 ) pw = 400; if ( pw > 800 ) pw = 800;
-    vwr->setPrefWidth( pw );
-    new uiFlatViewControl( *vwr, uiFlatViewControl::Setup().withstates(false) );
-    psdlg.go();
+    if ( !isnew )
+	vwr.handleChange( FlatDisp::Viewer::All );
+    else
+    {
+	int pw = 200 + 10 * tbufsz;
+	if ( pw < 400 ) pw = 400; if ( pw > 800 ) pw = 800;
+	vwr.setPrefWidth( pw );
+	new uiFlatViewControl( vwr,
+			       uiFlatViewControl::Setup().withstates(false) );
+    }
+
+    viewwin_->show();
     return true;
 }

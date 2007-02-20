@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          Sep 2006
- RCS:           $Id: uiflatviewer.cc,v 1.3 2007-02-20 12:04:33 cvsbert Exp $
+ RCS:           $Id: uiflatviewer.cc,v 1.4 2007-02-20 18:15:23 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,7 +29,7 @@ uiFlatViewer::uiFlatViewer( uiParent* p )
     , vdbmpmgr_(0)
     , anysetviewdone_(false)
     , extraborders_(0,0,0,0)
-    , annotsz_(100,15) //TODO: should be dep on font size
+    , annotsz_(50,20) //TODO: should be dep on font size
     , viewChanged(this)
 {
     bmp2rgb_ = new FlatDisp::BitMap2RGB( context(), canvas_.rgbArray() );
@@ -56,7 +56,7 @@ uiRGBArray& uiFlatViewer::rgbArray()
 
 Color uiFlatViewer::color( bool foreground ) const
 {
-    return context().darkbg_ != foreground ? Color::White : Color::Black;
+    return context().darkBG() != foreground ? Color::White : Color::Black;
 }
 
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Huck
  Date:          January 2007
- RCS:           $Id: attribdatapack.cc,v 1.12 2007-02-19 16:41:45 cvsbert Exp $
+ RCS:           $Id: attribdatapack.cc,v 1.13 2007-02-20 18:15:23 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -134,7 +134,9 @@ Array2D<float>& Flat2DDataPack::data()
 void Flat2DDataPack::setPosData()
 {
     const int nrpos = dh_.trcinfoset_.size();
-    float pos[nrpos]; pos[0] = 0;
+    if ( nrpos < 1 ) return;
+
+    float* pos = new float[nrpos]; pos[0] = 0;
     Coord prevcrd = dh_.trcinfoset_[0]->coord;
     for ( int idx=1; idx<nrpos; idx++ )
     {
@@ -143,9 +145,9 @@ void Flat2DDataPack::setPosData()
 	prevcrd = crd;
     }
 
-    const CubeSampling cs = dh_.getCubeSampling();
+    const StepInterval<float> zrg = dh_.getCubeSampling().zrg;
     posdata_.setX1Pos( pos, nrpos, 0 );
-    posdata_.setRange( false, mStepIntvD(cs.zrg) );
+    posdata_.setRange( false, mStepIntvD(zrg) );
 }
 
 

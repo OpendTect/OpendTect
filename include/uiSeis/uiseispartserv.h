@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiseispartserv.h,v 1.20 2006-10-20 12:06:29 cvsbert Exp $
+ RCS:           $Id: uiseispartserv.h,v 1.21 2007-02-20 18:15:23 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,6 +22,7 @@ class CubeSampling;
 class MultiID;
 class SeisTrcBuf;
 class uiPopupMenu;
+class uiFlatViewWin;
 
 namespace PosInfo { class Line2DData; }
 
@@ -62,6 +63,8 @@ protected:
     MenuItem		storedgathermenuitem;
 
     bool		ioSeis(int,bool);
+
+    uiFlatViewWin*	viewwin_;
 
 };
 
