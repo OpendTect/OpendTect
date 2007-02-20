@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiseiswvltman.cc,v 1.14 2007-02-19 16:41:46 cvsbert Exp $
+ RCS:           $Id: uiseiswvltman.cc,v 1.15 2007-02-20 12:04:33 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,13 +51,13 @@ uiSeisWvltMan::uiSeisWvltMan( uiParent* p )
 
     wvltfld = new uiFlatViewer( this );
     FlatDisp::Context& ctxt = wvltfld->context();
-    ctxt.annot_.x1name_ = "Amplitude";
-    ctxt.annot_.x2name_ = SI().zIsTime() ? "Time" : "Depth";
-    ctxt.ddpars_.dispvd_ = false;
-    ctxt.ddpars_.dispwva_ = true;
+    ctxt.annot_.x1_.name_ = "Amplitude";
+    ctxt.annot_.x2_.name_ = SI().zIsTime() ? "Time" : "Depth";
+    ctxt.ddpars_.dispvd_ = false; ctxt.ddpars_.dispwva_ = true;
     ctxt.ddpars_.wva_.mid_= Color( 150, 150, 100 );
-    ctxt.ddpars_.wva_.overlap_ = -0.01;
-    ctxt.ddpars_.wva_.clipperc_ = 0;
+    ctxt.ddpars_.wva_.overlap_ = -0.01; ctxt.ddpars_.wva_.clipperc_ = 0;
+    wvltfld->useStoredDefaults( "Wavelet" );
+
     ctxt.wvaposdata_.setRange( true, StepInterval<double>(0,0,1) );
     wvltfld->setPrefWidth( 60 );
     wvltfld->attach( ensureRightOf, selgrp );
@@ -193,7 +193,6 @@ void uiSeisWvltMan::mkFileInfo()
 	StepInterval<double> posns; assign( posns, wvlt->samplePositions() );
 	if ( SI().zIsTime() ) posns.scale( zfac );
 	wvltfld->context().wvaposdata_.setRange( false, posns );
-	wvltfld->initView();
 
 	Stats::RunCalc<float> rc( Stats::RunCalcSetup().require(Stats::Max) );
 	rc.addValues( wvltsz, wvlt->samples() );

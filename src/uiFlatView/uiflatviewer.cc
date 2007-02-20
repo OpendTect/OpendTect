@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          Sep 2006
- RCS:           $Id: uiflatviewer.cc,v 1.2 2007-02-19 21:33:27 cvskris Exp $
+ RCS:           $Id: uiflatviewer.cc,v 1.3 2007-02-20 12:04:33 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,21 +14,23 @@ ________________________________________________________________________
 #include "uirgbarray.h"
 #include "flatdispbitmapmgr.h"
 #include "flatdispbmp2rgb.h"
-#include "iodrawtool.h"
 #include "array2dbitmapimpl.h"
+#include "iodrawtool.h"
+#include "uiworld2ui.h"
 #include "uimsg.h"
+
 
 uiFlatViewer::uiFlatViewer( uiParent* p )
     : uiGroup(p,"Flat viewer")
     , canvas_(*new uiRGBArrayCanvas(this,*new uiRGBArray))
     , reportedchange_(All)
-    , userSelection(this)
-    , userselaux_(*new MouseEvent)
     , dim0extfac_(0.5)
     , wvabmpmgr_(0)
     , vdbmpmgr_(0)
+    , anysetviewdone_(false)
     , extraborders_(0,0,0,0)
     , annotsz_(100,15) //TODO: should be dep on font size
+    , viewChanged(this)
 {
     bmp2rgb_ = new FlatDisp::BitMap2RGB( context(), canvas_.rgbArray() );
     canvas_.newFillNeeded.notify( mCB(this,uiFlatViewer,canvasNewFill) );
@@ -107,8 +109,10 @@ uiWorldRect uiFlatViewer::boundingBox() const
 
 void uiFlatViewer::setView( uiWorldRect wr )
 {
+    anysetviewdone_ = true;
     wr_ = wr;
     handleChange( All );
+    viewChanged.trigger();
 }
 
 
@@ -136,6 +140,8 @@ void uiFlatViewer::handleChange( DataChangeType dct )
 
 void uiFlatViewer::drawBitMaps()
 {
+    if ( !anysetviewdone_ ) initView();
+
     canvas_.setBGColor( color(false) );
     //TODO: use prev bmp data and changetype to optimise
     delete wvabmpmgr_; wvabmpmgr_ = new FlatDisp::BitMapMgr(*this,true);
@@ -166,9 +172,9 @@ void uiFlatViewer::drawAnnot()
     if ( annot.color_ != Color::NoColor )
     {
 	dt.setPenColor( annot.color_ );
-	if ( annot.showx1gridlines_ )
+	if ( annot.x1_.showgridlines_ )
 	    drawGridAnnot( true );
-	if ( annot.showx2gridlines_ )
+	if ( annot.x1_.showgridlines_ )
 	    drawGridAnnot( false );
     }
 
@@ -185,6 +191,16 @@ void uiFlatViewer::drawAnnot()
     dt.endDraw();
     reportedchange_ = None;
 }
+
+
+void uiFlatViewer::getWorld2Ui( uiWorld2Ui& w2u ) const
+{
+    mDefuiSize;
+    w2u.set( uisz, wr_ );
+}
+
+
+#define mDefuiW2Ui mDefuiSize; uiWorld2Ui w2u( uisz, wr_ )
 
 
 void uiFlatViewer::drawGridAnnot( bool dir1 )

@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewer.h,v 1.1 2007-02-19 16:41:45 cvsbert Exp $
+ RCS:           $Id: uiflatviewer.h,v 1.2 2007-02-20 12:04:33 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,6 +21,7 @@ class BitMap2RGB;
 class MouseEvent;
 class uiRGBArray;
 class uiRGBArrayCanvas;
+class uiWorld2Ui;
 
 
 /*!\brief Fulfills the FlatDisp::Viewer specifications using 'ui' classes. */
@@ -42,22 +43,23 @@ public:
     void		setView(uiWorldRect);
     const uiWorldRect&	curView() const			{ return wr_; }
     uiWorldRect		boundingBox() const;
+    void		getWorld2Ui(uiWorld2Ui&) const;
     void		setDim0ExtFac( float f )	{ dim0extfac_ = f; }
     			//!< when reporting boundingBox(), extends this
     			//!< amount of positions outward. Default 0.5.
 
-    Notifier<uiFlatViewer>	userSelection; //!< i.e. no mouse-over
-    FlatDisp::Point		userselpoint_;
-    MouseEvent&			userselaux_;
+    Notifier<uiFlatViewer> viewChanged; //!< i.e. zoom/pan, or setView
 
 protected:
 
     uiRGBArrayCanvas&	canvas_;
     uiWorldRect		wr_;
+
     DataChangeType	reportedchange_;
     float		dim0extfac_;
     uiRect		extraborders_;
     uiSize		annotsz_;
+    bool		anysetviewdone_;
 
     FlatDisp::BitMapMgr* wvabmpmgr_;
     FlatDisp::BitMapMgr* vdbmpmgr_;

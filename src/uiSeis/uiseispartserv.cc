@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiseispartserv.cc,v 1.50 2007-02-19 16:41:46 cvsbert Exp $
+ RCS:           $Id: uiseispartserv.cc,v 1.51 2007-02-20 12:04:33 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -255,21 +255,23 @@ bool uiSeisPartServer::handleGatherSubMenu( int mnuid, const BinID& bid )
     vwr->data().set( true, a2d, ioobj->name() );
 
     FlatDisp::Context& ctxt = vwr->context();
-    ctxt.annot_.x1name_ = "Offset"; ctxt.annot_.x2name_ = "Z";
+    ctxt.annot_.x1_.name_ = "Offset"; ctxt.annot_.x2_.name_ = "Z";
+    ctxt.annot_.x1_.showAll(); ctxt.annot_.x2_.showAll();
     ctxt.ddpars_.dispvd_ = false; ctxt.ddpars_.dispwva_ = true;
     ctxt.ddpars_.wva_.overlap_ = 1; ctxt.ddpars_.wva_.clipperc_ = 1;
+    vwr->useStoredDefaults( "Pre-Stack Gather" );
+
     double ofv; float* hdrvals = tbuf->getHdrVals( SeisTrcInfo::Offset, ofv );
     ctxt.wvaposdata_.setX1Pos( hdrvals, tbufsz, ofv );
     SeisPacketInfo pinf; tbuf->fill( pinf );
     StepInterval<double> zrg; assign( zrg, pinf.zrg );
     zrg.scale( SI().zFactor() ); //TODO: gather may be in time or depth ...
     ctxt.wvaposdata_.setRange( false, zrg );
+
     int pw = 200 + 10 * tbufsz;
     if ( pw < 400 ) pw = 400; if ( pw > 800 ) pw = 800;
     vwr->setPrefWidth( pw );
-    vwr->initView();
-    new uiFlatViewControl( *vwr, uiFlatViewControl::Setup()
-	    			 .withstates(false) );
+    new uiFlatViewControl( *vwr, uiFlatViewControl::Setup().withstates(false) );
     psdlg.go();
     return true;
 }
