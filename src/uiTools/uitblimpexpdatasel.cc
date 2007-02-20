@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2006
- RCS:           $Id: uitblimpexpdatasel.cc,v 1.27 2007-02-05 18:19:48 cvsbert Exp $
+ RCS:           $Id: uitblimpexpdatasel.cc,v 1.28 2007-02-20 09:47:01 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -64,10 +64,8 @@ uiTableTargetInfoEd( uiParent* p, Table::TargetInfo& tinf, bool ishdr,
 	specfld_->addItem( "fixed" );
 	specfld_->setPrefWidthInChar( mChoiceBoxWidth );
 	specfld_->selectionChanged.notify( boxcb );
-	const Table::TargetInfo::Selection::Elem& elem
-	    			= tinf_.selection_.elems_[0];
-	specfld_->setCurrentItem( elem.isKeyworded() ? 1
-				: (elem.isInFile() ? 2 : 0) );
+	specfld_->setCurrentItem( tinf_.selection_.isKeyworded(0) ? 1
+				: (tinf_.selection_.isInFile(0) ? 2 : 0) );
     }
 
     BufferString lbltxt( tinf_.isOptional() ? "[" : "" );
