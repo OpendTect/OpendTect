@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra and Helene Huck
  Date:		January 2007
- RCS:		$Id: attribdatapack.h,v 1.13 2007-02-21 14:51:00 cvsbert Exp $
+ RCS:		$Id: attribdatapack.h,v 1.14 2007-02-21 15:53:33 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,10 +34,15 @@ class DataPackCommon
 public:
     			DataPackCommon( DescID id )
 			    : descid_(id)	{}
+
     virtual const char*	sourceType() const	= 0;
+    virtual bool	isVertical() const	{ return false; }
 
     DescID		descID() const		{ return descid_; }
+
     void		dumpInfo(IOPar&) const;
+
+    static const char*	categoryStr(bool vertical);
 
 protected:
 
@@ -54,6 +59,7 @@ public:
     			Flat2DDataPack(DescID,const Data2DHolder&);
 			~Flat2DDataPack();
     virtual const char*	sourceType() const	{ return srctyp_; }
+    virtual bool	isVertical() const	{ return true; }
 
     const Data2DHolder&	dataholder() const	{ return dh_; }
     Array2D<float>&	data();
@@ -86,9 +92,12 @@ public:
     			Flat3DDataPack(DescID,const DataCubes&,int cubeidx);
     virtual		~Flat3DDataPack();
     virtual const char*	sourceType() const	{ return "3D"; }
+    virtual bool	isVertical() const
+    			{ return dir_ != CubeSampling::Z; }
 
     const DataCubes&	cube() const		{ return cube_; }
     Array2D<float>&	data();
+    CubeSampling::Dir	dataDir() const		{ return dir_; }
 
     void		getAuxInfo(int,int,IOPar&) const;
     Coord3		getCoord(int,int) const;
@@ -98,6 +107,7 @@ protected:
 
     const DataCubes&	cube_;
     Array2DSlice<float>* arr2dsl_;
+    CubeSampling::Dir	dir_;
 
     void		setPosData();
 };

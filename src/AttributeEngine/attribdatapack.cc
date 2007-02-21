@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Huck
  Date:          January 2007
- RCS:           $Id: attribdatapack.cc,v 1.14 2007-02-21 14:51:00 cvsbert Exp $
+ RCS:           $Id: attribdatapack.cc,v 1.15 2007-02-21 15:53:33 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,15 +27,23 @@ ________________________________________________________________________
 namespace Attrib
 {
 
+const char* DataPackCommon::categoryStr( bool vertical )
+{
+    static BufferString vret( IOPar::compKey(sKey::Attribute,"V") );
+    return vertical ? vret.buf() : sKey::Attribute;
+}
+
+
 void DataPackCommon::dumpInfo( IOPar& iop ) const
 {
     iop.set( "Source type", sourceType() );
-    iop.set( "Attrib ID", descID().asInt() );
+    iop.set( "Attribute.ID", descID().asInt() );
+    iop.set( "Vertical", isVertical() );
 }
 
 
 Flat3DDataPack::Flat3DDataPack( DescID did, const DataCubes& dc, int cubeidx )
-    : ::FlatDataPack(sKey::Attribute)
+    : ::FlatDataPack(categoryStr(true))
     , DataPackCommon(did)
     , cube_(dc)
     , arr2dsl_(0)
@@ -44,21 +52,25 @@ Flat3DDataPack::Flat3DDataPack( DescID did, const DataCubes& dc, int cubeidx )
     int unuseddim, dim0, dim1;
     if ( cube_.getInlSz() < 2 )
     {
+	dir_ = CubeSampling::Inl;
 	unuseddim = DataCubes::cInlDim();
 	dim0 = DataCubes::cCrlDim();
 	dim1 = DataCubes::cZDim();
     }
     else if ( cube_.getCrlSz() < 2 )
     {
+	dir_ = CubeSampling::Crl;
 	unuseddim = DataCubes::cCrlDim();
 	dim0 = DataCubes::cInlDim();
 	dim1 = DataCubes::cZDim();
     }
     else
     {
+	dir_ = CubeSampling::Z;
 	unuseddim = DataCubes::cZDim();
 	dim0 = DataCubes::cInlDim();
 	dim1 = DataCubes::cCrlDim();
+	setCategory( categoryStr(false) );
     }
 
     arr2dsl_ = new Array2DSlice<float>( cube_.getCube(cubeidx) );
@@ -87,10 +99,9 @@ Array2D<float>& Flat3DDataPack::data()
 void Flat3DDataPack::setPosData()
 {
     const CubeSampling cs = cube_.cubeSampling();
-    const CubeSampling::Dir dir = cs.defaultDir();
-    posdata_.setRange( true, dir==CubeSampling::Inl
+    posdata_.setRange( true, dir_==CubeSampling::Inl
 	    ? mStepIntvD(cs.hrg.crlRange()) : mStepIntvD(cs.hrg.inlRange()) );
-    posdata_.setRange( false, dir==CubeSampling::Z
+    posdata_.setRange( false, dir_==CubeSampling::Z
 	    ? mStepIntvD(cs.hrg.crlRange()) : mStepIntvD(cs.zrg) );
 }
 
@@ -114,15 +125,13 @@ void Flat3DDataPack::getAuxInfo( int i0, int i1, IOPar& iop ) const
 
 Coord3 Flat3DDataPack::getCoord( int i0, int i1 ) const
 {
-    const CubeSampling& cs = cube_.cubeSampling();
-    const CubeSampling::Dir dir = cs.defaultDir();
-
     int inlidx = i0; int crlidx = 0; int zidx = i1;
-    if ( dir == CubeSampling::Inl )
+    if ( dir_ == CubeSampling::Inl )
 	{ inlidx = 0; crlidx = i0; }
-    else if ( dir == CubeSampling::Z )
+    else if ( dir_ == CubeSampling::Z )
 	{ crlidx = i1; zidx = 0; }
 
+    const CubeSampling& cs = cube_.cubeSampling();
     Coord c = SI().transform( cs.hrg.atIndex(inlidx,crlidx) );
     return Coord3(c.x,c.y,cs.zrg.atIndex(zidx));
 }
@@ -130,7 +139,7 @@ Coord3 Flat3DDataPack::getCoord( int i0, int i1 ) const
 
 
 Flat2DDataPack::Flat2DDataPack( DescID did, const Data2DHolder& dh )
-    : ::FlatDataPack(sKey::Attribute)
+    : ::FlatDataPack(categoryStr(true))
     , DataPackCommon(did)
     , dh_(dh)
 {
@@ -209,7 +218,7 @@ Coord3 Flat2DDataPack::getCoord( int i0, int i1 ) const
 
 
 CubeDataPack::CubeDataPack( DescID did, const DataCubes& dc, int ci )
-    : ::CubeDataPack(sKey::Attribute)
+    : ::CubeDataPack(categoryStr(false))
     , DataPackCommon(did)
     , cube_(dc)
     , cubeidx_(ci)
