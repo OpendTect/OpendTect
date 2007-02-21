@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Huck
  Date:          January 2007
- RCS:           $Id: attribdatapack.cc,v 1.13 2007-02-20 18:15:23 cvsbert Exp $
+ RCS:           $Id: attribdatapack.cc,v 1.14 2007-02-21 14:51:00 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "seisinfo.h"
 #include "survinfo.h"
 #include "keystrs.h"
+#include "iopar.h"
 
 #define mStepIntvD( rg ) \
     StepInterval<double>( rg.start, rg.stop, rg.step )
@@ -26,8 +27,16 @@ ________________________________________________________________________
 namespace Attrib
 {
 
-Flat3DDataPack::Flat3DDataPack( const DataCubes& dc, int cubeidx )
-    : FlatDataPack(sKey::Attribute)
+void DataPackCommon::dumpInfo( IOPar& iop ) const
+{
+    iop.set( "Source type", sourceType() );
+    iop.set( "Attrib ID", descID().asInt() );
+}
+
+
+Flat3DDataPack::Flat3DDataPack( DescID did, const DataCubes& dc, int cubeidx )
+    : ::FlatDataPack(sKey::Attribute)
+    , DataPackCommon(did)
     , cube_(dc)
     , arr2dsl_(0)
 {
@@ -78,31 +87,51 @@ Array2D<float>& Flat3DDataPack::data()
 void Flat3DDataPack::setPosData()
 {
     const CubeSampling cs = cube_.cubeSampling();
-    CubeSampling::Dir dir = cs.defaultDir();
+    const CubeSampling::Dir dir = cs.defaultDir();
     posdata_.setRange( true, dir==CubeSampling::Inl
 	    ? mStepIntvD(cs.hrg.crlRange()) : mStepIntvD(cs.hrg.inlRange()) );
-    posdata_.setRange( false, mStepIntvD(cs.zrg) );
+    posdata_.setRange( false, dir==CubeSampling::Z
+	    ? mStepIntvD(cs.hrg.crlRange()) : mStepIntvD(cs.zrg) );
 }
 
 
-void Flat3DDataPack::getAuxInfo( int i0, int i1, IOPar& par ) const
+void Flat3DDataPack::dumpInfo( IOPar& iop ) const
 {
-    //TODO implement from trace headers
+    ::FlatDataPack::dumpInfo( iop );
+    DataPackCommon::dumpInfo( iop );
+}
+
+
+void Flat3DDataPack::getAuxInfo( int i0, int i1, IOPar& iop ) const
+{
+    Coord3 c( getCoord(i0,i1) );
+    BinID bid = SI().transform( c );
+    iop.set( eString(SeisTrcInfo::Fld,SeisTrcInfo::CoordX), c.x );
+    iop.set( eString(SeisTrcInfo::Fld,SeisTrcInfo::CoordY), c.y );
+    iop.set( "Z", c.z );
 }
 
 
 Coord3 Flat3DDataPack::getCoord( int i0, int i1 ) const
 {
-//TODO implementation needs change for horizontal slices
     const CubeSampling& cs = cube_.cubeSampling();
-    Coord c = SI().transform( cs.hrg.atIndex(i0,i1) );
-    return Coord3(c.x,c.y,0);
+    const CubeSampling::Dir dir = cs.defaultDir();
+
+    int inlidx = i0; int crlidx = 0; int zidx = i1;
+    if ( dir == CubeSampling::Inl )
+	{ inlidx = 0; crlidx = i0; }
+    else if ( dir == CubeSampling::Z )
+	{ crlidx = i1; zidx = 0; }
+
+    Coord c = SI().transform( cs.hrg.atIndex(inlidx,crlidx) );
+    return Coord3(c.x,c.y,cs.zrg.atIndex(zidx));
 }
 
 
 
-Flat2DDataPack::Flat2DDataPack( const Data2DHolder& dh )
-    : FlatDataPack(sKey::Attribute)
+Flat2DDataPack::Flat2DDataPack( DescID did, const Data2DHolder& dh )
+    : ::FlatDataPack(sKey::Attribute)
+    , DataPackCommon(did)
     , dh_(dh)
 {
     dh_.ref();
@@ -151,20 +180,37 @@ void Flat2DDataPack::setPosData()
 }
 
 
-void Flat2DDataPack::getAuxInfo( int i0, int i1, IOPar& par ) const
+void Flat2DDataPack::dumpInfo( IOPar& iop ) const
 {
-    //TODO implement from trace headers
+    ::FlatDataPack::dumpInfo( iop );
+    DataPackCommon::dumpInfo( iop );
+}
+
+
+void Flat2DDataPack::getAuxInfo( int i0, int i1, IOPar& iop ) const
+{
+    if ( dh_.trcinfoset_.isEmpty() || i0 < 0 || i0 >= dh_.trcinfoset_.size() )
+	return;
+    const SeisTrcInfo& ti = *dh_.trcinfoset_[i0];
+    ti.getInterestingFlds( Seis::Line, iop );
+    iop.set( "Z-Coord", ti.samplePos(i1) );
 }
 
 
 Coord3 Flat2DDataPack::getCoord( int i0, int i1 ) const
 {
-    return Coord3( dh_.trcinfoset_[i0]->coord, 0 );
+    if ( dh_.trcinfoset_.isEmpty() ) return Coord3();
+
+    if ( i0 < 0 ) i0 = 0;
+    if ( i0 >= dh_.trcinfoset_.size() ) i0 = dh_.trcinfoset_.size() - 1;
+    const SeisTrcInfo& ti = *dh_.trcinfoset_[i0];
+    return Coord3( ti.coord, ti.sampling.atIndex(i1) );
 }
 
 
-CubeDataPack::CubeDataPack( const Attrib::DataCubes& dc, int ci )
+CubeDataPack::CubeDataPack( DescID did, const DataCubes& dc, int ci )
     : ::CubeDataPack(sKey::Attribute)
+    , DataPackCommon(did)
     , cube_(dc)
     , cubeidx_(ci)
 {
@@ -175,7 +221,14 @@ CubeDataPack::CubeDataPack( const Attrib::DataCubes& dc, int ci )
 
 Array3D<float>& CubeDataPack::data()
 {
-    return const_cast<Attrib::DataCubes&>(cube_).getCube( cubeidx_ );
+    return const_cast<DataCubes&>(cube_).getCube( cubeidx_ );
+}
+
+
+void CubeDataPack::dumpInfo( IOPar& iop ) const
+{
+    ::CubeDataPack::dumpInfo( iop );
+    DataPackCommon::dumpInfo( iop );
 }
 
 

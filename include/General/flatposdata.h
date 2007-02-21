@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2007
- RCS:           $Id: flatposdata.h,v 1.2 2007-02-20 18:15:23 cvsbert Exp $
+ RCS:           $Id: flatposdata.h,v 1.3 2007-02-21 14:51:00 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,7 +44,6 @@ public:
     				//!< offs is added to each elem before display
     				//!< This makes sure float* can be used
     				//!< float* (alloc with new []) becomes mine
-    double			offset() const		{ return x1offs_; }
 
     inline int			nrPts( bool forx1 ) const
 				{ return range(forx1).nrSteps() + 1; }
@@ -57,6 +56,12 @@ public:
     float*			getPositions(bool forx1) const;
     				//!< Returns a new float [], size=nrPts()
     				//!< offset not applied (it's a float*)
+    inline double		offset( bool forx1 ) const
+    				{ return x1offs_ ? x1offs_ : 0; }
+    				//!< For use with getPositions
+
+    bool			isIrregular() const
+				{ return x1pos_ && nrPts(true) > 2; }
 
 protected:
 

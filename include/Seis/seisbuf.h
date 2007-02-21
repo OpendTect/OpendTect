@@ -7,20 +7,13 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		29-1-98
- RCS:		$Id: seisbuf.h,v 1.15 2007-02-19 16:41:45 cvsbert Exp $
+ RCS:		$Id: seisbuf.h,v 1.16 2007-02-21 14:51:00 cvsbert Exp $
 ________________________________________________________________________
 
 */
 
 
-#include "seistrc.h"
-#include "seistype.h"
-#include "ranges.h"
-#include "arraynd.h"
-class SeisTrc;
-class BinID;
-class SeisTrcWriter;
-class IOPar;
+#include "seisinfo.h"
 
 
 /*!\brief set of seismic traces.
@@ -45,7 +38,7 @@ public:
     void		stealTracesFrom(SeisTrcBuf&);
     virtual SeisTrcBuf*	clone() const		{ return new SeisTrcBuf(*this);}
 
-    void		deepErase()		{ ::deepErase(trcs); }
+    void		deepErase();
     void		erase()
     			{
 			    if ( owner_ ) deepErase();
@@ -86,29 +79,5 @@ protected:
 
 };
 
-
-class SeisTrcBufArray2D : public Array2D<float>
-{
-public:
-
-    			SeisTrcBufArray2D(const SeisTrcBuf&,int compnr=0);
-    			SeisTrcBufArray2D(SeisTrcBuf&,bool mine,int compnr=0);
-			~SeisTrcBufArray2D();
-
-    const mPolyArray2DInfoTp&	info() const	{ return info_; }
-    float*		getData() const		{ return 0; }
-    void		set(int,int,float);
-    float		get(int,int) const;
-
-    void		getAuxInfo(Seis::GeomType,int,IOPar&) const;
-
-protected:
-
-    SeisTrcBuf&		buf_;
-    mPolyArray2DInfoTp&	info_;
-    bool		bufmine_;
-    int			comp_;
-
-};
 
 #endif

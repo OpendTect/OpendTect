@@ -7,13 +7,14 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra and Helene Huck
  Date:		January 2007
- RCS:		$Id: attribdatapack.h,v 1.12 2007-02-19 16:41:45 cvsbert Exp $
+ RCS:		$Id: attribdatapack.h,v 1.13 2007-02-21 14:51:00 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "datapackbase.h"
 #include "cubesampling.h"
+#include "attribdescid.h"
 
 template <class T> class Array2D;
 template <class T> class Array2DSlice;
@@ -22,76 +23,106 @@ class IOPar;
 
 namespace Attrib
 {
-    class DataCubes;
-    class Data2DHolder;
-    class DataHolderArray;
+class DataCubes;
+class Data2DHolder;
+class DataHolderArray;
 
+/*!\brief Mixin to provide general services to Attrib data packs */
+
+class DataPackCommon
+{
+public:
+    			DataPackCommon( DescID id )
+			    : descid_(id)	{}
+    virtual const char*	sourceType() const	= 0;
+
+    DescID		descID() const		{ return descid_; }
+    void		dumpInfo(IOPar&) const;
+
+protected:
+
+    DescID		descid_;
+
+};
 
 /*!\brief Data Pack from 2D attribute data. */
 
 class Flat2DDataPack : public ::FlatDataPack
+		     , public DataPackCommon
 {
 public:
-    				Flat2DDataPack(const Attrib::Data2DHolder&);
-				~Flat2DDataPack();
+    			Flat2DDataPack(DescID,const Data2DHolder&);
+			~Flat2DDataPack();
+    virtual const char*	sourceType() const	{ return srctyp_; }
 
-    const Attrib::Data2DHolder&	dataholder() const	{ return dh_; }
-    Array2D<float>&		data();
+    const Data2DHolder&	dataholder() const	{ return dh_; }
+    Array2D<float>&	data();
 
-    void			getAuxInfo(int,int,IOPar&) const;
-    Coord3			getCoord(int,int) const;
+    void		getAuxInfo(int,int,IOPar&) const;
+    Coord3		getCoord(int,int) const;
+    void		dumpInfo(IOPar&) const;
+
+    void		setSourceType( const char* st ) { srctyp_ = st; }
+    			//!< Default is "2D", could be set to "Random line"
 
 protected:
 
-    const Attrib::Data2DHolder& dh_;
-    Attrib::DataHolderArray*	array3d_;
-    Array2DSlice<float>*	arr2dsl_;
+    const Data2DHolder& dh_;
+    DataHolderArray*	array3d_;
+    Array2DSlice<float>* arr2dsl_;
+    BufferString	srctyp_;
 
-    void			setPosData();
+    void		setPosData();
 };
 
 
 /*!\brief Flat data pack from 3D attribute extraction */ 
 
 class Flat3DDataPack : public ::FlatDataPack
+		     , public DataPackCommon
 {
 public:
-    				Flat3DDataPack(const Attrib::DataCubes&,
-					       int cubeidx);
-    virtual			~Flat3DDataPack();
 
-    const Attrib::DataCubes&	cube() const		{ return cube_; }
-    Array2D<float>&		data();
+    			Flat3DDataPack(DescID,const DataCubes&,int cubeidx);
+    virtual		~Flat3DDataPack();
+    virtual const char*	sourceType() const	{ return "3D"; }
 
-    void			getAuxInfo(int,int,IOPar&) const;
-    Coord3			getCoord(int,int) const;
+    const DataCubes&	cube() const		{ return cube_; }
+    Array2D<float>&	data();
+
+    void		getAuxInfo(int,int,IOPar&) const;
+    Coord3		getCoord(int,int) const;
+    void		dumpInfo(IOPar&) const;
 
 protected:
 
-    const Attrib::DataCubes&	cube_;
-    Array2DSlice<float>*	arr2dsl_;
+    const DataCubes&	cube_;
+    Array2DSlice<float>* arr2dsl_;
 
-    void			setPosData();
+    void		setPosData();
 };
 
 
 /*!\brief Volume data pack */ 
 
 class CubeDataPack : public ::CubeDataPack
+		   , public DataPackCommon
 {
 public:
-    				CubeDataPack(const Attrib::DataCubes&,
-					     int cubeidx);
 
-    const Attrib::DataCubes&	cube() const		{ return cube_; }
-    Array3D<float>&		data();
+    			CubeDataPack(DescID,const DataCubes&,int cubeidx);
+    virtual const char*	sourceType() const	{ return "3D"; }
 
-    void			getAuxInfo(int,int,int,IOPar&) const;
+    const DataCubes&	cube() const		{ return cube_; }
+    Array3D<float>&	data();
+
+    void		getAuxInfo(int,int,int,IOPar&) const;
+    void		dumpInfo(IOPar&) const;
 
 protected:
 
-    const Attrib::DataCubes&	cube_;
-    int				cubeidx_;
+    const DataCubes&	cube_;
+    int			cubeidx_;
 
 };
 

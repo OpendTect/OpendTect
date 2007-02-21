@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiattribpartserv.cc,v 1.60 2007-02-19 16:41:46 cvsbert Exp $
+ RCS:           $Id: uiattribpartserv.cc,v 1.61 2007-02-21 14:51:00 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -342,6 +342,13 @@ void uiAttribPartServer::setTargetSelSpec( const SelSpec& selspec )
 }
 
 
+Attrib::DescID uiAttribPartServer::targetID( bool for2d, int nr ) const
+{
+    return targetspecs_.size() <= nr ? Attrib::DescID::undef()
+				     : targetspecs_[nr].id();
+}
+
+
 EngineMan* uiAttribPartServer::createEngMan( const CubeSampling* cs, 
 					     const char* linekey )
 {
@@ -379,9 +386,9 @@ DataPack::ID uiAttribPartServer::createOutput( const CubeSampling& cs,
 
     DataPack* newpack;
     if ( isflat )
-	newpack = new Attrib::Flat3DDataPack( *output, 0 );
+	newpack = new Attrib::Flat3DDataPack( targetID(false), *output, 0 );
     else
-	newpack = new Attrib::CubeDataPack( *output, 0 );
+	newpack = new Attrib::CubeDataPack( targetID(false), *output, 0 );
     newpack->setName( targetspecs_[0].userRef() );
     dpman.add( newpack );
     return newpack->id();
@@ -494,7 +501,8 @@ DataPack::ID uiAttribPartServer::create2DOutput( const CubeSampling& cs,
 	return -1;
 
     DataPackMgr& dpman = DPM( DataPackMgr::FlatID );
-    Flat2DDataPack* newpack = new Attrib::Flat2DDataPack( *data2d );
+    Flat2DDataPack* newpack = new Attrib::Flat2DDataPack( targetID(true),
+	    						  *data2d);
     dpman.add( newpack );
     return newpack->id();
 }

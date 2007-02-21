@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiseispartserv.cc,v 1.52 2007-02-20 18:15:23 cvsbert Exp $
+ RCS:           $Id: uiseispartserv.cc,v 1.53 2007-02-21 14:51:00 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,12 +18,13 @@ ________________________________________________________________________
 #include "ioman.h"
 #include "keystrs.h"
 #include "ptrman.h"
-#include "seisbuf.h"
 #include "seistrcsel.h"
 #include "seistrctr.h"
 #include "seispsioprov.h"
 #include "seispsread.h"
 #include "seis2dline.h"
+#include "seisbuf.h"
+#include "seisbufadapters.h"
 #include "segposinfo.h"
 #include "survinfo.h"
 
@@ -247,40 +248,31 @@ bool uiSeisPartServer::handleGatherSubMenu( int mnuid, const BinID& bid )
     if ( tbufsz == 0 )
 	mErrRet( "Gather is empty" )
 
-    //TODO make DataPack-based
-    SeisTrcBufArray2D* a2d = new SeisTrcBufArray2D( *tbuf, true, 0 );
     BufferString title( "Gather from [" ); title += ioobj->name();
     title += "] at "; title += bid.inl; title += "/"; title += bid.crl;
     bool isnew = !viewwin_;
     if ( !isnew )
-    {
-	const Array2D<float>* olddata = viewwin_->viewer().data().wvaarr();
-	delete const_cast<Array2D<float>*>( olddata );
 	viewwin_->setCaption( title );
-    }
     else
     {
 	viewwin_ = new uiFlatViewWin( appserv().parent(),
 				      uiFlatViewWin::Setup(title) );
 	viewwin_->addNullOnClose( &viewwin_ );
-	//TODO is potential memory leak until DataPack-based
     }
     uiFlatViewer& vwr = viewwin_->viewer();
-    vwr.data().set( true, a2d, ioobj->name() );
 
     FlatDisp::Context& ctxt = vwr.context();
     ctxt.annot_.x1_.name_ = "Offset"; ctxt.annot_.x2_.name_ = "Z";
     ctxt.annot_.x1_.showAll(); ctxt.annot_.x2_.showAll();
     ctxt.ddpars_.dispvd_ = false; ctxt.ddpars_.dispwva_ = true;
     ctxt.ddpars_.wva_.overlap_ = 1; ctxt.ddpars_.wva_.clipperc_ = 1;
-    vwr.useStoredDefaults( "Pre-Stack Gather" );
 
-    double ofv; float* hdrvals = tbuf->getHdrVals( SeisTrcInfo::Offset, ofv );
-    ctxt.wvaposdata_.setX1Pos( hdrvals, tbufsz, ofv );
-    SeisPacketInfo pinf; tbuf->fill( pinf );
-    StepInterval<double> zrg; assign( zrg, pinf.zrg );
-    zrg.scale( SI().zFactor() ); //TODO: gather may be in time or depth ...
-    ctxt.wvaposdata_.setRange( false, zrg );
+    SeisTrcBufDataPack* dp = new SeisTrcBufDataPack( *tbuf,
+				 Seis::VolPS, SeisTrcInfo::Offset,
+				 "Pre-Stack Gather" );
+    dp->setName( title );
+    DPM( DataPackMgr::FlatID ).add( dp );
+    vwr.setPack( true, dp );
 
     if ( !isnew )
 	vwr.handleChange( FlatDisp::Viewer::All );

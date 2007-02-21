@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiattribpartserv.h,v 1.25 2007-02-02 15:44:42 cvsnanne Exp $
+ RCS:           $Id: uiattribpartserv.h,v 1.26 2007-02-21 14:51:00 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -184,6 +184,7 @@ protected:
 					    const Attrib::SelSpec&,bool);
     void		insertNumerousItems(const BufferStringSet&,
 	    				    const Attrib::SelSpec&,bool,bool);
+    Attrib::DescID	targetID(bool is2d,int nr=0) const;
 
     static const char*	attridstr_;
     BufferString	nlaname_;

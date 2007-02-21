@@ -4,13 +4,23 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID = "$Id: seisbuf.cc,v 1.29 2007-02-19 16:41:46 cvsbert Exp $";
+static const char* rcsID = "$Id: seisbuf.cc,v 1.30 2007-02-21 14:51:00 cvsbert Exp $";
 
 #include "seisbuf.h"
-#include "seisinfo.h"
+#include "seisbufadapters.h"
 #include "seistrcsel.h"
+#include "seistrc.h"
 #include "ptrman.h"
 #include "sorting.h"
+#include "flatposdata.h"
+#include "survinfo.h"
+#include "iopar.h"
+
+
+void SeisTrcBuf::deepErase()
+{
+    ::deepErase(trcs);
+}
 
 
 void SeisTrcBuf::insert( SeisTrc* t, int insidx )
@@ -344,4 +354,47 @@ void SeisTrcBufArray2D::getAuxInfo( Seis::GeomType gt, int itrc,
     SeisTrc* trc = buf_.get( itrc );
     if ( trc )
 	trc->info().getInterestingFlds( gt, iop );
+}
+
+
+SeisTrcBufDataPack::SeisTrcBufDataPack( SeisTrcBuf& tbuf,
+					Seis::GeomType gt,
+					SeisTrcInfo::Fld fld,
+					const char* cat, int icomp )
+    : FlatDataPack(cat,new SeisTrcBufArray2D(tbuf,true,icomp))
+    , gt_(gt)
+{
+    const int tbufsz = tbuf.size();
+    if ( tbufsz < 1 ) return;
+
+    FlatPosData& pd = posData();
+    double ofv; float* hdrvals = tbuf.getHdrVals( SeisTrcInfo::Offset, ofv );
+    pd.setX1Pos( hdrvals, tbufsz, ofv );
+    SeisPacketInfo pinf; tbuf.fill( pinf );
+    StepInterval<double> zrg; assign( zrg, pinf.zrg );
+    zrg.scale( SI().zFactor() );
+    pd.setRange( false, zrg );
+}
+
+
+void SeisTrcBufDataPack::getAuxInfo( int itrc, int isamp, IOPar& iop ) const
+{
+    const SeisTrcBuf& buf = trcBuf();
+    const int bufsz = buf.size();
+    if ( itrc >= bufsz || itrc < 0 ) return;
+
+    const SeisTrc* trc = buf.get( itrc );
+    trc->info().getInterestingFlds( gt_, iop );
+    iop.set( "Z-Coord", trc->info().samplePos(isamp) );
+}
+
+
+Coord3 SeisTrcBufDataPack::getCoord( int itrc, int isamp ) const
+{
+    const SeisTrcBuf& buf = trcBuf();
+    if ( buf.isEmpty() ) return Coord3();
+    if ( itrc >= buf.size() ) itrc = buf.size() - 1;
+    if ( itrc < 0 ) itrc = 0;
+    const SeisTrc* trc = buf.get( itrc );
+    return Coord3( trc->info().coord, trc->info().samplePos(isamp) );
 }

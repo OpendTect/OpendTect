@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra and Helene Huck
  Date:		January 2007
- RCS:		$Id: datapackbase.h,v 1.1 2007-02-19 16:41:45 cvsbert Exp $
+ RCS:		$Id: datapackbase.h,v 1.2 2007-02-21 14:51:00 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -62,7 +62,6 @@ protected:
 
     Array2D<float>*		arr2d_;
     FlatPosData&		posdata_;
-    const BufferString		category_;
 
 private:
 
@@ -106,7 +105,6 @@ protected:
 
     Array3D<float>*		arr3d_;
     CubeSampling&		cs_;
-    const BufferString		category_;
 
 private:
 
