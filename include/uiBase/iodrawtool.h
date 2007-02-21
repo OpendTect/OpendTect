@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          04/07/2001
- RCS:           $Id: iodrawtool.h,v 1.15 2007-02-14 12:38:00 cvsnanne Exp $
+ RCS:           $Id: iodrawtool.h,v 1.16 2007-02-21 17:14:38 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -98,6 +98,7 @@ public:
     void		drawMarker(uiPoint,const MarkerStyle2D&,
 	    			   const char* txt=0,bool below=true);
 
+    uiSize		getDevSize() const;
     int 		getDevHeight() const;
     int 		getDevWidth() const;
 

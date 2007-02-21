@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/12/1999
- RCS:           $Id: iodraw.cc,v 1.19 2007-02-14 12:38:00 cvsnanne Exp $
+ RCS:           $Id: iodraw.cc,v 1.20 2007-02-21 17:14:38 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -316,6 +316,10 @@ int ioDrawTool::getDevWidth() const
     return qpaintdev->width(); 
 #endif
 }
+
+
+uiSize ioDrawTool::getDevSize() const
+{ return uiSize( getDevWidth(), getDevHeight() ); }
 
 
 void ioDrawTool::drawMarker( uiPoint pt, const MarkerStyle2D& mstyle,
