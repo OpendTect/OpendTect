@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		23-10-1996
  Contents:	Ranges
- RCS:		$Id: ranges.h,v 1.44 2006-10-30 20:16:47 cvskris Exp $
+ RCS:		$Id: ranges.h,v 1.45 2007-02-21 18:43:36 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,6 +37,8 @@ public:
     inline bool		operator==( const Interval<T>& i ) const;
     inline bool		operator!=( const Interval<T>& i ) const;
     inline Interval<T>	operator+( const Interval<T>& i ) const;
+    template <class X>
+    const Interval<T>&	setFrom( const Interval<X>& );
 
     inline T		width( bool allowrev=true ) const;
     inline T		center() const;
@@ -93,6 +95,9 @@ public:
 	    			      const T& step );
     inline
     virtual cloneTp*	clone() const;
+
+    template <class X>
+    const StepInterval<T>& setFrom( const StepInterval<X>& );
 
     inline bool		isEqual(const StepInterval<T>& i,const T& eps) const;
     inline T		atIndex(int) const;
@@ -387,6 +392,16 @@ Interval<T> Interval<T>::operator+( const Interval<T>& i ) const
 { return Interval<T>(start+i.start, stop+i.stop); }
 
 
+template <class T> template <class X> inline
+const Interval<T>& Interval<T>::setFrom( const Interval<X>& i )
+{
+    start = (T) i.start;
+    stop = (T) i.stop;
+    return *this;
+}
+		
+
+
 template <class T> inline
 T Interval<T>::width( bool allowrev ) const
 { return allowrev && isRev() ? start - stop : stop - start; }
@@ -501,6 +516,16 @@ cloneTp* StepInterval<T>::clone() const
 template <class T> inline
 bool StepInterval<T>::isEqual( const StepInterval<T>& i, const T& eps ) const
 { return Interval<T>::isEqual(i,eps) && mIsEqual(step,i.step,eps); }
+
+
+template <class T> template <class X> inline
+const StepInterval<T>& StepInterval<T>::setFrom( const StepInterval<X>& i )
+{
+    this->start = (T) i.start;
+    this->stop = (T) i.stop;
+    this->step = (T) i.step;
+    return *this;
+}
 
 
 template <class T> inline
