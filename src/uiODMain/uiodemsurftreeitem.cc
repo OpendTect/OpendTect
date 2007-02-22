@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodemsurftreeitem.cc,v 1.18 2007-02-14 09:03:56 cvsnanne Exp $
+ RCS:		$Id: uiodemsurftreeitem.cc,v 1.19 2007-02-22 12:45:37 cvsjaap Exp $
 ___________________________________________________________________
 
 -*/
@@ -330,8 +330,10 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB( CallBacker* cb )
 
 	if ( mps->addTracker(emid,menu->getPickedPos())!=-1 )
 	{
+	    mps->useSavedSetupDlg( emid, sectionid );
 	    uivisemobj->checkTrackingStatus();
 	    applMgr()->visServer()->showMPEToolbar();
+	    applMgr()->visServer()->triggerTreeUpdate();
 	}
 
 	applMgr()->enableMenusAndToolBars( true );
