@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          Sep 2006
- RCS:           $Id: uiflatviewer.cc,v 1.4 2007-02-20 18:15:23 cvsbert Exp $
+ RCS:           $Id: uiflatviewer.cc,v 1.5 2007-02-22 15:55:23 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "flatdispbmp2rgb.h"
 #include "array2dbitmapimpl.h"
 #include "iodrawtool.h"
+#include "drawaxis2d.h"
 #include "uiworld2ui.h"
 #include "uimsg.h"
 
@@ -82,7 +83,7 @@ uiWorldRect uiFlatViewer::getBoundingBox( bool wva ) const
     StepInterval<double> rg0( pd.range(true) ); rg0.sort( true );
     StepInterval<double> rg1( pd.range(false) ); rg1.sort( true );
     rg0.start -= dim0extfac_ * rg0.step; rg0.stop += dim0extfac_ * rg0.step;
-    return uiWorldRect( rg0.start, rg1.start, rg0.stop, rg1.stop );
+    return uiWorldRect( rg0.start, rg1.stop, rg0.stop, rg1.start );
 }
 
 
@@ -97,9 +98,9 @@ uiWorldRect uiFlatViewer::boundingBox() const
 	    wr1.setLeft( wr2.left() );
 	if ( wr1.right() < wr2.right() )
 	    wr1.setRight( wr2.right() );
-	if ( wr1.top() > wr2.top() )
+	if ( wr1.top() < wr2.top() )
 	    wr1.setTop( wr2.top() );
-	if ( wr1.bottom() < wr2.bottom() )
+	if ( wr1.bottom() > wr2.bottom() )
 	    wr1.setBottom( wr2.bottom() );
     }
 
@@ -111,6 +112,10 @@ void uiFlatViewer::setView( uiWorldRect wr )
 {
     anysetviewdone_ = true;
     wr_ = wr;
+    if ( wr_.left() > wr.right() != context().annot_.x1_.reversed_ )
+	wr_.swapHor();
+    if ( wr_.bottom() > wr.top() != context().annot_.x2_.reversed_ )
+	wr_.swapVer();
     handleChange( All );
     viewChanged.trigger();
 }
@@ -172,10 +177,7 @@ void uiFlatViewer::drawAnnot()
     if ( annot.color_ != Color::NoColor )
     {
 	dt.setPenColor( annot.color_ );
-	if ( annot.x1_.showgridlines_ )
-	    drawGridAnnot( true );
-	if ( annot.x1_.showgridlines_ )
-	    drawGridAnnot( false );
+	drawGridAnnot();
     }
 
     for ( int idx=0; idx<annot.auxdata_.size(); idx++ )
@@ -203,10 +205,26 @@ void uiFlatViewer::getWorld2Ui( uiWorld2Ui& w2u ) const
 #define mDefuiW2Ui mDefuiSize; uiWorld2Ui w2u( uisz, wr_ )
 
 
-void uiFlatViewer::drawGridAnnot( bool dir1 )
+void uiFlatViewer::drawGridAnnot()
 {
     const FlatDisp::Annotation& annot = context().annot_;
-    pErrMsg( "TODO: implement Grid annotation" );
+    const FlatDisp::Annotation::AxisData& ad1 = annot.x1_;
+    const FlatDisp::Annotation::AxisData& ad2 = annot.x2_;
+    mDefuiW2Ui;
+    const uiRect datarect( canvas_.arrArea() );
+    ioDrawTool& dt = *canvas_.drawTool();
+
+    if ( !ad1.name_.isEmpty() )
+	dt.drawText( uiPoint(datarect.left()+2,2), annot.x2_.name_,
+		     Alignment(Alignment::Start,Alignment::Start) );
+    if ( !ad2.name_.isEmpty() )
+	dt.drawText( uiPoint(datarect.right()-2,datarect.bottom()-2),
+		     annot.x1_.name_,
+		     Alignment(Alignment::Stop,Alignment::Stop));
+
+    DrawAxis2D axisdrawer( &w2u, &datarect );
+    axisdrawer.drawAxes( dt, ad1.showannot_, ad2.showannot_, true, true );
+    axisdrawer.drawGridLines( dt, ad1.showgridlines_, ad2.showgridlines_ );
 }
 
 

@@ -6,18 +6,19 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewcontrol.h,v 1.1 2007-02-19 16:41:45 cvsbert Exp $
+ RCS:           $Id: uiflatviewcontrol.h,v 1.2 2007-02-22 15:55:22 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uigroup.h"
-class uiButton;
+class uiToolButton;
 class uiButtonGroup;
 class uiFlatViewer;
+namespace FlatDisp { class ZoomMgr; }
 
 
-/*!\brief Fulfills the FlatDisp::Viewer specifications for vertical data. */
+/*!\brief Tools to control uiFlatViewer(s). */
 
 class uiFlatViewControl : public uiGroup
 {
@@ -36,27 +37,36 @@ public:
     			uiFlatViewControl(uiFlatViewer&,const Setup&);
 			~uiFlatViewControl();
 
-    Notifier<uiFlatViewControl>	posChange;
+    void		addViewer(uiFlatViewer&);
+    			//!< No attaching done. Viewer may be in other window.
+
+    void		setNewView(Geom::Point2D<double> centre,
+	    			   Geom::Size2D<double> radius);
+    			//!< retains uiWorldRect's LR/TB swapping
 
 protected:
 
-    uiFlatViewer&	vwr_;
+    ObjectSet<uiFlatViewer> vwrs_;
     const Setup&	setup_;
+    FlatDisp::ZoomMgr&	zoommgr_;
 
     uiButtonGroup*	posgrp_;
     uiButtonGroup*	stategrp_;
     uiButtonGroup*	parsgrp_;
 
-    uiButton*		zoominbut_;
-    uiButton*		zoomoutbut_;
-    uiButton*		panupbut_;
-    uiButton*		panleftbut_;
-    uiButton*		panrightbut_;
-    uiButton*		pandownbut_;
-    uiButton*		manipbut_;
-    uiButton*		drawbut_;
-    uiButton*		parsbut_;
+    uiToolButton*	zoominbut_;
+    uiToolButton*	zoomoutbut_;
+    uiToolButton*	panupbut_;
+    uiToolButton*	panleftbut_;
+    uiToolButton*	panrightbut_;
+    uiToolButton*	pandownbut_;
+    uiToolButton*	manipbut_;
+    uiToolButton*	drawbut_;
+    uiToolButton*	parsbut_;
 
+    void		updatePosButtonStates();
+
+    void		initStates(CallBacker*);
     void		zoomCB(CallBacker*);
     void		panCB(CallBacker*);
     void		stateCB(CallBacker*);

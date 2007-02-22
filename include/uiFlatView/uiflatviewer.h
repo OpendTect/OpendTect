@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewer.h,v 1.3 2007-02-20 18:15:23 cvsbert Exp $
+ RCS:           $Id: uiflatviewer.h,v 1.4 2007-02-22 15:55:22 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -60,6 +60,8 @@ protected:
     uiRect		extraborders_;
     uiSize		annotsz_;
     bool		anysetviewdone_;
+    bool		x0rev_;
+    bool		x1rev_;
 
     FlatDisp::BitMapMgr* wvabmpmgr_;
     FlatDisp::BitMapMgr* vdbmpmgr_;
@@ -72,7 +74,7 @@ protected:
 
     void		drawBitMaps();
     void		drawAnnot();
-    void		drawGridAnnot(bool);
+    void		drawGridAnnot();
     void		drawAux(const FlatDisp::Annotation::AuxData&);
     void		initView();
 };
