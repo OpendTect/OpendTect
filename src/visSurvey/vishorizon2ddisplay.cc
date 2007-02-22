@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: vishorizon2ddisplay.cc,v 1.4 2007-02-13 13:45:31 cvsjaap Exp $
+ RCS:           $Id: vishorizon2ddisplay.cc,v 1.5 2007-02-22 12:51:58 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -218,6 +218,16 @@ void Horizon2DDisplay::emChangeCB( CallBacker* cb )
 	getMaterial()->setColor( emobject_->preferredColor() );
     }
 
+}
+
+
+bool Horizon2DDisplay::setEMObject( const EM::ObjectID& newid )
+{
+    if ( !EMObjectDisplay::setEMObject( newid ) )
+	return false;
+
+    getMaterial()->setColor( emobject_->preferredColor() );
+    return true;
 }
 
 
