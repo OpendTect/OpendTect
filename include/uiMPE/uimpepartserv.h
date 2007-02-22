@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          December 2004
- RCS:           $Id: uimpepartserv.h,v 1.29 2007-01-03 16:03:52 cvsjaap Exp $
+ RCS:           $Id: uimpepartserv.h,v 1.30 2007-02-22 12:33:37 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -63,8 +63,10 @@ public:
 
     bool			showSetupDlg( const EM::ObjectID&,
 	    				      const EM::SectionID&,
-					      bool showcancelbutton=false );
+					      bool showcancelbutton=false);
     				/*!<\returns false if cancel was pressed. */
+    void			useSavedSetupDlg(const EM::ObjectID&,
+	    					 const EM::SectionID&);
 
     void			showRelationsDlg(const EM::ObjectID&,
 	    					 EM::SectionID);
@@ -102,6 +104,7 @@ public:
     				/*!<Get trackerid via activeTrackerID */
     static const int		evRemoveTreeObject;
     				/*!<Get trackerid via activeTrackerID */
+    static const int		evUpdateTrees;
     static const int		evShowToolbar;
     static const int		evMPEDispIntro;
     static const int		evWizardClosed;
