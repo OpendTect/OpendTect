@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		23-10-1996
  Contents:	Ranges
- RCS:		$Id: ranges.h,v 1.45 2007-02-21 18:43:36 cvskris Exp $
+ RCS:		$Id: ranges.h,v 1.46 2007-02-22 20:01:00 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -98,6 +98,8 @@ public:
 
     template <class X>
     const StepInterval<T>& setFrom( const StepInterval<X>& );
+    template <class X>
+    const StepInterval<T>& setFrom( const Interval<X>& );
 
     inline bool		isEqual(const StepInterval<T>& i,const T& eps) const;
     inline T		atIndex(int) const;
@@ -521,11 +523,20 @@ bool StepInterval<T>::isEqual( const StepInterval<T>& i, const T& eps ) const
 template <class T> template <class X> inline
 const StepInterval<T>& StepInterval<T>::setFrom( const StepInterval<X>& i )
 {
-    this->start = (T) i.start;
-    this->stop = (T) i.stop;
-    this->step = (T) i.step;
+    Interval<T>::setFrom( i );
+    step = (T) i.step;
     return *this;
 }
+
+
+template <class T> template <class X> inline
+const StepInterval<T>& StepInterval<T>::setFrom( const Interval<X>& i )
+{
+    Interval<T>::setFrom( i );
+    return *this;
+}
+		
+
 
 
 template <class T> inline
