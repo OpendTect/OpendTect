@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpewizard.cc,v 1.67 2007-02-13 13:40:24 cvsjaap Exp $
+ RCS:           $Id: uimpewizard.cc,v 1.68 2007-02-22 12:43:43 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -55,8 +55,14 @@ const int Wizard::sFinalizePage		= 3;
 
 static const char* sTrackInVolInfo( const BufferString& trackertype )
 {
-    if ( trackertype == EMHorizon2DTranslatorGroup::keyword )
-	return "TODO: Agree on mode name, mode description and workflow info.";
+    if ( trackertype == EMHorizon2DTranslatorGroup::keyword ) return 
+	"The 2D horizon is auto-tracked from seeds picked on 2D lines.\n\n"
+	"Workflow:\n"
+	"1) Define settings.\n"
+	"2) Pick seeds on a 2D line (remove ctrl-pick, erase shift-pick).\n"
+	"3) Finish wizard.\n"
+	"4) Pick seeds on other 2D lines in your lineset.\n"
+	"5) Use 'Derive 3D Horizon' to create a continuous horizon.\n";
    
     return
 	"The horizon is (auto-) tracked inside a small track-volume.\n\n"
@@ -72,8 +78,14 @@ static const char* sTrackInVolInfo( const BufferString& trackertype )
 
 static const char* sLineTrackInfo( const BufferString& trackertype )
 {
-    if ( trackertype == EMHorizon2DTranslatorGroup::keyword )
-	return "TODO: Agree on mode name, mode description and workflow info.";
+    if ( trackertype == EMHorizon2DTranslatorGroup::keyword ) return 
+	"The 2D horizon is auto-tracked between seeds picked on 2D lines.\n\n"
+	"Workflow:\n"
+	"1) Define settings.\n"
+	"2) Pick seeds on a 2D line (remove ctrl-pick, erase shift-pick).\n"
+	"3) Finish wizard.\n"
+	"4) Pick seeds on other 2D lines in your lineset.\n"
+	"5) Use 'Derive 3D Horizon' to create a continuous horizon.\n";
 
     return
 	"The horizon is auto-tracked in the line direction only.\n\n"
@@ -90,7 +102,15 @@ static const char* sLineTrackInfo( const BufferString& trackertype )
 static const char* sLineManualInfo( const BufferString& trackertype )
 {
     if ( trackertype == EMHorizon2DTranslatorGroup::keyword )
-	return "TODO: Agree on mode name, mode description and workflow info.";
+	return 
+	"The 2D horizon is painted (linear interpolation) between seeds\n"
+	"picked on 2D lines.\n\n"
+	"Workflow:\n"
+	"1) Finish wizard.\n"
+	"2) Pick seeds on a 2D line (remove ctrl-pick, erase shift-pick)\n"
+	"3) Pick seeds on other 2D lines in your lineset.\n"
+	"4) Use 'Derive 3D Horizon' to create a continuous horizon.\n";
+
 
     return
 	"The horizon is painted (linear interpolation) between picked seeds\n"
@@ -593,6 +613,7 @@ void Wizard::colorChangeCB( CallBacker* )
     {
 	EM::EMObject* emobj = EM::EMM().getObject( currentobject );
 	emobj->setPreferredColor( colorfld->color() );
+	mpeserv->sendEvent( uiMPEPartServer::evUpdateTrees );
     }
 }
 
