@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.cc,v 1.110 2007-02-22 12:49:02 cvsjaap Exp $
+ RCS:           $Id: uimpeman.cc,v 1.111 2007-02-22 16:40:06 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -771,33 +771,33 @@ void uiMPEMan::updateButtonSensitivity( CallBacker* )
     updateSeedPickState();
 
     MPE::EMTracker* tracker = getSelectedTracker();
-    const bool is3d = tracker && !tracker->is2D();
+    const bool is2d = tracker && tracker->is2D();
 
     const bool isseedpicking = toolbar->isOn(seedidx);
     
-    toolbar->setSensitive( extendidx, is3d );
-    toolbar->setSensitive( retrackidx, is3d );
-    toolbar->setSensitive( eraseidx, is3d );
-    toolbar->setSensitive( moveplaneidx, is3d );
-    toolbar->setSensitive( showcubeidx, is3d && !isseedpicking );
+    toolbar->setSensitive( extendidx, !is2d );
+    toolbar->setSensitive( retrackidx, !is2d );
+    toolbar->setSensitive( eraseidx, !is2d );
+    toolbar->setSensitive( moveplaneidx, !is2d );
+    toolbar->setSensitive( showcubeidx, !is2d && !isseedpicking );
 
     MPE::EMSeedPicker* seedpicker = tracker ? tracker->getSeedPicker(true) : 0;
-    const bool isinvolumemode = seedpicker && seedpicker->doesModeUseVolume();
-    toolbar->setSensitive( trackinvolidx, is3d && isinvolumemode );
+    const bool isinvolumemode = !seedpicker || seedpicker->doesModeUseVolume();
+    toolbar->setSensitive( trackinvolidx, !is2d && isinvolumemode );
     
     //Track forward, backward, attrib, trans, nrstep
     mGetDisplays(false);
     const bool trackerisshown = displays.size() &&
 				displays[0]->isDraggerShown();
 
-    toolbar->setSensitive( trackforwardidx, trackerisshown );
-    toolbar->setSensitive( trackbackwardidx, trackerisshown );
-    attribfld->setSensitive( trackerisshown );
-    transfld->setSensitive( trackerisshown );
-    nrstepsbox->setSensitive( trackerisshown );
+    toolbar->setSensitive( trackforwardidx, !is2d && trackerisshown );
+    toolbar->setSensitive( trackbackwardidx, !is2d && trackerisshown );
+    attribfld->setSensitive( !is2d && trackerisshown );
+    transfld->setSensitive( !is2d && trackerisshown );
+    nrstepsbox->setSensitive( !is2d && trackerisshown );
 
     //coltab
-    toolbar->setSensitive( clrtabidx, trackerisshown && !colbardlg &&
+    toolbar->setSensitive( clrtabidx, !is2d && trackerisshown && !colbardlg &&
 			   attribfld->currentItem()>0 );
 
 
