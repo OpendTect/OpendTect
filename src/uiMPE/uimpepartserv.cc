@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2004
- RCS:           $Id: uimpepartserv.cc,v 1.59 2007-02-13 13:39:07 cvsjaap Exp $
+ RCS:           $Id: uimpepartserv.cc,v 1.60 2007-02-22 12:43:15 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,6 +43,7 @@ const int uiMPEPartServer::evRemoveTreeObject	= 6;
 const int uiMPEPartServer::evWizardClosed	= 7;
 const int uiMPEPartServer::evCreate2DSelSpec	= 8;
 const int uiMPEPartServer::evMPEDispIntro	= 9;
+const int uiMPEPartServer::evUpdateTrees	= 10;
 
 
 uiMPEPartServer::uiMPEPartServer( uiApplService& a )
@@ -253,6 +254,28 @@ bool uiMPEPartServer::showSetupDlg( const EM::ObjectID& emid,
     tracker->applySetupAsDefault( sid );
     loadAttribData();
     return true;
+}
+
+
+#define mAskGoOnStr(setupavailable) \
+    ( setupavailable ? \
+	"This object has saved tracker settings.\n" \
+	"Do you want to verify / change them?" : \
+	"No tracker settings were saved for this object.\n" \
+	"Do you want to specify them right now?" )
+
+void uiMPEPartServer::useSavedSetupDlg( const EM::ObjectID& emid,
+					const EM::SectionID& sid )
+{
+    const int trackerid = getTrackerID( emid );
+    MPE::EMTracker* tracker = MPE::engine().getTracker( trackerid );
+    MPE::SectionTracker* sectiontracker = 
+			 tracker ? tracker->getSectionTracker( sid, true ) : 0;
+    const bool setupavailable = sectiontracker &&
+				sectiontracker->hasInitializedSetup();
+
+    if ( uiMSG().askGoOn(mAskGoOnStr(setupavailable)) )
+	    showSetupDlg( emid, sid, true );
 }
 
 
