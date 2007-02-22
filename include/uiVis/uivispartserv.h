@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.188 2007-02-02 15:44:43 cvsnanne Exp $
+ RCS:           $Id: uivispartserv.h,v 1.189 2007-02-22 12:34:06 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -241,7 +241,8 @@ public:
     bool			deleteAllObjects();
     void			setZScale();
     bool			setWorkingArea();
-    void			setViewMode(bool yn);
+    static const int		evViewModeChange;
+    void			setViewMode(bool yn,bool notify=true);
     void			setSoloMode(bool, TypeSet< TypeSet<int> >, int);
     bool                        isSoloMode() const;
     bool			isViewMode() const;
@@ -258,6 +259,8 @@ public:
     				// Tracking stuff
     void			turnSeedPickingOn(bool yn);
     static const int		evPickingStatusChange;
+    bool			sendPickingStatusChangeEvent(); 
+
     bool			isPicking() const;
     				/*!<\returns true if the selected object
 				     is handling left-mouse picks on other
