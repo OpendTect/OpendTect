@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.179 2007-02-19 08:10:24 cvsjaap Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.180 2007-02-22 12:44:29 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -684,6 +684,8 @@ bool uiODApplMgr::handleMPEServEv( int evid )
 	visserv_->introduceMPEDisplay();
     else if ( evid==uiMPEPartServer::evInitFromSession )
 	visserv_->initMPEStuff();
+    else if ( evid==uiMPEPartServer::evUpdateTrees )
+	sceneMgr().updateTrees();
     else
 	pErrMsg("Unknown event from mpeserv");
 
@@ -816,6 +818,8 @@ bool uiODApplMgr::handleVisServEv( int evid )
     else if ( evid == uiVisPartServer::evMouseMove ||
 	      evid==uiVisPartServer::evPickingStatusChange )
 	sceneMgr().updateStatusBar();
+    else if ( evid == uiVisPartServer::evViewModeChange )
+	sceneMgr().setToViewMode( visserv_->isViewMode() );
     else if ( evid == uiVisPartServer::evSelectAttrib )
 	return selectAttrib( visid, visserv_->getEventAttrib() );
     else if ( evid == uiVisPartServer::evViewAll )
@@ -1086,6 +1090,7 @@ void uiODApplMgr::coltabChg( CallBacker* )
     int attrib = visserv_->getSelAttribNr();
     if ( attrib == -1 ) attrib = 0;
     setHistogram( visid, attrib );
+    sceneMgr().updateSelectedTreeItem();
 }
 
 
