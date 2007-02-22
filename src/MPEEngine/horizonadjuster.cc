@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizonadjuster.cc,v 1.40 2007-02-16 16:36:30 cvskris Exp $";
+static const char* rcsID = "$Id: horizonadjuster.cc,v 1.41 2007-02-22 12:42:42 cvsjaap Exp $";
 
 #include "horizonadjuster.h"
 
@@ -228,6 +228,9 @@ bool HorizonAdjuster::findMaxSimilarity( const ValueSeries<float>& fixedarr,
 void HorizonAdjuster::getNeededAttribs(
 	ObjectSet<const Attrib::SelSpec>& specs ) const
 {
+    if ( !attribsel_ || attribsel_->id()<0 )
+	return;
+
     for ( int idx=specs.size()-1; idx>=0; idx-- )
     {
 	if ( *specs[idx] == *attribsel_ )
@@ -458,7 +461,7 @@ bool HorizonAdjuster::trackByAmplitude( const BinID& refbid,
     const BinIDValue refbidval( attrDataBinId(refbid), refdepth );
 
     float threshold;
-    if ( !attrdata_->getValue(0, refbidval, &threshold,true) )
+    if ( !attrdata_->getValue(0, refbidval, &threshold, true) )
 	return false;
 
     threshold *= (1-allowedvar_);
@@ -468,12 +471,12 @@ bool HorizonAdjuster::trackByAmplitude( const BinID& refbid,
 
 #define mGetArray( prefix, extrarg ) \
     const int prefix##inlidx = \
-		attrdata_->inlsampling.nearestIndex( prefix##bid.inl ); \
+	attrdata_->inlsampling.nearestIndex( attrDataBinId(prefix##bid).inl ); \
     if ( prefix##inlidx<0 || prefix##inlidx>=attrdata_->getInlSz() ) \
 	return false; \
  \
     const int prefix##crlidx = \
-	attrdata_->crlsampling.nearestIndex( prefix##bid.crl ); \
+	attrdata_->crlsampling.nearestIndex( attrDataBinId(prefix##bid).crl ); \
     if ( prefix##crlidx<0 || prefix##crlidx>=attrdata_->getCrlSz() ) \
 	return false; \
  \
