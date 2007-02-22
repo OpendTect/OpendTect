@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.344 2007-02-02 15:44:43 cvsnanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.345 2007-02-22 12:51:26 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -57,9 +57,10 @@ const int uiVisPartServer::evSelectAttrib		= 6;
 const int uiVisPartServer::evViewAll			= 9;
 const int uiVisPartServer::evToHomePos			= 10;
 const int uiVisPartServer::evPickingStatusChange	= 11;
-const int uiVisPartServer::evShowSetupDlg		= 12;
-const int uiVisPartServer::evLoadPostponedData		= 13;
-const int uiVisPartServer::evToggleBlockDataLoad	= 14;
+const int uiVisPartServer::evViewModeChange		= 12;
+const int uiVisPartServer::evShowSetupDlg		= 13;
+const int uiVisPartServer::evLoadPostponedData		= 14;
+const int uiVisPartServer::evToggleBlockDataLoad	= 15;
 
 
 const char* uiVisPartServer::sKeyAppVel()		{ return "AppVel"; }
@@ -193,7 +194,8 @@ bool uiVisPartServer::clickablesInScene( const char* trackertype,
 	}
     }
     
-    uiMSG().warning("Please display a clickable object in your scene first.");
+    uiMSG().warning( "The scene yet contains no object on which seeds\n"
+		     "for a '", trackertype, "' can be picked." );
     return false;
 }
 
@@ -388,6 +390,7 @@ void uiVisPartServer::setSelObjectId( int id, int attrib )
     eventmutex_.lock();
     eventobjid_ = id;
     sendEvent( evSelection );
+    sendEvent( evPickingStatusChange );
 }
 
 
@@ -795,11 +798,13 @@ bool uiVisPartServer::deleteAllObjects()
 }
 
 
-void uiVisPartServer::setViewMode(bool yn)
+void uiVisPartServer::setViewMode( bool yn, bool notify)
 {
     if ( yn==viewmode_ ) return;
     viewmode_ = yn;
     toggleDraggers();
+    if ( notify )
+	sendEvent(evViewModeChange);
 }
 
 
@@ -1083,6 +1088,12 @@ bool uiVisPartServer::sendShowSetupDlgEvent()
 }
 
 
+bool uiVisPartServer::sendPickingStatusChangeEvent()
+{
+   return sendEvent( evPickingStatusChange );
+}
+
+
 void uiVisPartServer::turnSeedPickingOn( bool yn )
 {
     mpetools_->turnSeedPickingOn( yn );
@@ -1091,6 +1102,9 @@ void uiVisPartServer::turnSeedPickingOn( bool yn )
 
 bool uiVisPartServer::isPicking() const
 {
+    if ( isViewMode() )
+	return false;
+
     if ( mpetools_ && mpetools_->isSeedPickingOn() ) 
 	return true;
 
