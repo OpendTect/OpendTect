@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          February 2004
- RCS:           $Id: uiwellattribsel.cc,v 1.17 2006-12-20 11:23:01 cvshelene Exp $
+ RCS:           $Id: uiwellattribsel.cc,v 1.18 2007-02-22 14:22:59 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -72,7 +72,7 @@ void uiWellAttribSel::setDefaultRange()
 	const int logsz = log.size();
 	if ( !logsz ) continue;
 
-	assign( dahintv, wd_.logs().dahInterval() );
+	dahintv.setFrom( wd_.logs().dahInterval() );
 	const float width = log.dah(logsz-1) - log.dah(0);
 	dahintv.step = width / (logsz-1);
 	break;
