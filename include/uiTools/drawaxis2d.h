@@ -1,6 +1,7 @@
 #ifndef drawaxis2d_h
 #define drawaxis2d_h
 
+#include "geometry.h"
 class ioDrawTool;
 class uiWorld2Ui;
 
@@ -10,7 +11,7 @@ class uiWorld2Ui;
    CopyRight:     (C) dGB Beheer B.V.
    Author:        Duntao Wei
    Date:          Jan 2005
-   RCS:           $Id: drawaxis2d.h,v 1.1 2005-03-22 08:21:01 cvsduntao Exp $
+   RCS:           $Id: drawaxis2d.h,v 1.2 2007-02-22 15:54:47 cvsbert Exp $
    ________________________________________________________________________
 
 -*/
@@ -34,7 +35,7 @@ class uiWorld2Ui;
        uiWorld2Ui.
     2) If the default range and step are not to be used for axis annotation,
        call setFixedDataRangeandStep() to override after calling setupAxis().
-    3) Call drawXAxis(), drawYAxis(), drawGridLine() for simple axis drawing.
+    3) Call the actual draw functions
 
  */
 
@@ -42,7 +43,7 @@ class DrawAxis2D
 {
 public:
 			DrawAxis2D();
-			DrawAxis2D( const uiWorld2Ui*,  const uiRect* rc=0 );
+			DrawAxis2D(const uiWorld2Ui*,const uiRect* rc=0);
 
 			//! If the axis is drawn right at the position where
 			//! X=Xmin/Xmax for Y axis and Y = Ymin/Ymax for X
@@ -51,15 +52,18 @@ public:
 			//! set left/right member for left/right Y axis position
 			//! and set top/bottom member for the top/bottom x axis
 			//! position.
-    void		setupAxis( const uiWorld2Ui*, const uiRect* rc=0 );
 
-    void		setFixedDataRangeAndStep( float minx, float maxx,
-					   	  float miny, float maxy,
-						  float xstep, float ystep );
+    void		setupAxis(const uiWorld2Ui*,const uiRect* rc=0);
+    void		setFixedDataRangeAndStep(float minx,float maxx,
+					   	 float miny,float maxy,
+						 float xstep,float ystep);
 
-    void		drawYAxis( bool leftside,ioDrawTool* );
-    void		drawXAxis( bool topside,ioDrawTool* );
-    void		drawGridLine( ioDrawTool* );
+    void		drawAxes(ioDrawTool&,bool xdir,bool ydir,
+	    				     bool topside,bool leftside) const;
+    void		drawXAxis(ioDrawTool&,bool topside) const;
+    void		drawYAxis(ioDrawTool&,bool leftside) const;
+    void		drawGridLines(ioDrawTool&,bool xdir,bool ydir) const;
+
 private:
 
     float		minx_;
@@ -68,15 +72,12 @@ private:
     float		maxy_;
     float		stepx_;
     float		stepy_;
-    const uiWorld2Ui*	wrd2uicnv;
+    const uiWorld2Ui*	w2u_;
 
-    uiRect		axisrect;
+    Geom::Rectangle<int> axisrect_;
     bool		axislineposset_;
-    const int		ticlen;
+    const int		ticlen_;
 
-    void		getAppopriateRangeStep( float min, float max,
-					        float& start, float& step,
-					        float& end );
 };
 
 
