@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiseiswvltman.cc,v 1.16 2007-02-22 18:14:40 cvskris Exp $
+ RCS:           $Id: uiseiswvltman.cc,v 1.17 2007-02-22 20:07:03 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -191,7 +191,7 @@ void uiSeisWvltMan::mkFileInfo()
 	memcpy( fda2d_->getData(), wvlt->samples(), wvltsz * sizeof(float) );
 	fddata.set( true, fda2d_, wvlt->name() );
 	StepInterval<double> posns(
-		StepInterval<double>.setFrom(wvlt->samplePositions()));
+		StepInterval<double>().setFrom(wvlt->samplePositions()));
 	if ( SI().zIsTime() ) posns.scale( zfac );
 	wvltfld->context().wvaposdata_.setRange( false, posns );
 
