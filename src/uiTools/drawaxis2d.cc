@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     ( C ) dGB Beheer B.V.
  Author:        Duntao Wei
  Date:          Mar. 2005
- RCS:           $Id: drawaxis2d.cc,v 1.1 2005-03-22 08:17:39 cvsduntao Exp $
+ RCS:           $Id: drawaxis2d.cc,v 1.2 2007-02-22 15:54:35 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,8 +18,8 @@ ________________________________________________________________________
 
 
 DrawAxis2D::DrawAxis2D()
-	: wrd2uicnv( 0 )
-	, ticlen(5)
+	: w2u_( 0 )
+	, ticlen_(5)
 {
     minx_ = miny_ = 0;
     maxx_ = maxy_ = 1;
@@ -27,27 +27,27 @@ DrawAxis2D::DrawAxis2D()
 }
 
 
-DrawAxis2D::DrawAxis2D( const uiWorld2Ui* wrd2ui,  const uiRect* rc )
-	: wrd2uicnv( 0 )
-	, ticlen(5)
+DrawAxis2D::DrawAxis2D( const uiWorld2Ui* wrd2ui, const uiRect* rc )
+	: w2u_( 0 )
+	, ticlen_(5)
 {
     setupAxis( wrd2ui, rc );
 }
 
 
-void DrawAxis2D::setupAxis( const uiWorld2Ui* wrd2ui,  const uiRect* rc)
+void DrawAxis2D::setupAxis( const uiWorld2Ui* wrd2ui, const uiRect* rc )
 {
-    wrd2uicnv = wrd2ui;
+    w2u_ = wrd2ui;
     axislineposset_ = false;
     if ( rc )
     {
-	axisrect = *rc;
+	axisrect_ = *rc;
 	axislineposset_ = true;
     }
     
-    wrd2uicnv->getWorldXRange( minx_, maxx_ );
-    wrd2uicnv->getWorldYRange( miny_, maxy_ );
-    wrd2uicnv->getRecmMarkStep( stepx_, stepy_ );
+    w2u_->getWorldXRange( minx_, maxx_ );
+    w2u_->getWorldYRange( miny_, maxy_ );
+    w2u_->getRecmMarkStep( stepx_, stepy_ );
 }
 
 
@@ -62,86 +62,97 @@ void DrawAxis2D::setFixedDataRangeAndStep( float minx, float maxx,
 }
 
 
-void DrawAxis2D::drawXAxis( bool topside, ioDrawTool* drawtool )
+void DrawAxis2D::drawAxes( ioDrawTool& dt,
+			   bool xdir, bool ydir,
+			   bool topside, bool leftside ) const
 {
-    if ( !drawtool ) return;
+    if ( xdir )
+	drawXAxis( dt, topside );
+    if ( ydir )
+	drawYAxis( dt, leftside );
+}
 
+
+void DrawAxis2D::drawXAxis( ioDrawTool& dt, bool topside ) const
+{
     int baseline, bias;
     if ( topside )
     {
-	baseline = axislineposset_ ? axisrect.top() : wrd2uicnv->toUiY(maxy_);
-	bias = -ticlen;
+	baseline = axislineposset_ ? axisrect_.top() : w2u_->toUiY(maxy_);
+	bias = -ticlen_;
     }
     else {
-	baseline = axislineposset_ ? axisrect.bottom() : wrd2uicnv->toUiY(miny_);
-	bias = ticlen;
+	baseline = axislineposset_ ? axisrect_.bottom() : w2u_->toUiY(miny_);
+	bias = ticlen_;
     }
 
-    int left = wrd2uicnv->toUiX( minx_ );
-    int right = wrd2uicnv->toUiX( maxx_ );
-    drawtool->drawLine( left, baseline, right, baseline );
+    const int left = w2u_->toUiX( minx_ );
+    const int right = w2u_->toUiX( maxx_ );
+    dt.drawLine( left, baseline, right, baseline );
     
     for ( float x = minx_; x <= maxx_; x += stepx_)
     {
-	int wx = wrd2uicnv->toUiX( x );
-	drawtool->drawLine( wx, baseline, wx, baseline+bias );
+	const int wx = w2u_->toUiX( x );
+	dt.drawLine( wx, baseline, wx, baseline+bias );
 	BufferString txt = x;
 	Alignment al = bias < 0 ? Alignment( Alignment::Middle,Alignment::Stop )
 	    : Alignment( Alignment::Middle,Alignment::Start );
-	drawtool->drawText( wx, baseline+bias, txt, al, true );
+	dt.drawText( wx, baseline+bias, txt, al, true );
     }
 }
 
 
-void DrawAxis2D::drawYAxis( bool leftside, ioDrawTool* drawtool )
+void DrawAxis2D::drawYAxis( ioDrawTool& dt, bool leftside ) const
 {
-    if ( !drawtool ) return;
-
     int baseline, bias;
     if ( leftside )
     {
-	baseline = axislineposset_ ? axisrect.left() : wrd2uicnv->toUiX(minx_);
-	bias = -ticlen;
+	baseline = axislineposset_ ? axisrect_.left() : w2u_->toUiX(minx_);
+	bias = -ticlen_;
     }
     else
     {
-	baseline = axislineposset_ ? axisrect.right() : wrd2uicnv->toUiX(maxx_);
-	bias = ticlen;
+	baseline = axislineposset_ ? axisrect_.right() : w2u_->toUiX(maxx_);
+	bias = ticlen_;
     }
 
-    int top = wrd2uicnv->toUiY( maxy_ );
-    int bot = wrd2uicnv->toUiY( miny_ );
-    drawtool->drawLine( baseline, top, baseline, bot );
+    const int top = w2u_->toUiY( maxy_ );
+    const int bot = w2u_->toUiY( miny_ );
+    dt.drawLine( baseline, top, baseline, bot );
     
     for ( float y = miny_; y <= maxy_; y += stepy_ )
     {
-	int wy = wrd2uicnv->toUiY( y );
-	drawtool->drawLine( baseline, wy, baseline+bias, wy );
-	BufferString txt = y;
+	const int wy = w2u_->toUiY( y );
+	dt.drawLine( baseline, wy, baseline+bias, wy );
+	BufferString txt; txt = y;
 	Alignment al = bias < 0 ? Alignment( Alignment::Stop,Alignment::Middle )
 	    : Alignment( Alignment::Start,Alignment::Middle );
-	drawtool->drawText( baseline+bias, wy , txt, al, true );
+	dt.drawText( baseline+bias, wy , txt, al, true );
     }
 }
 
 
-void DrawAxis2D::drawGridLine( ioDrawTool* drawtool )
+void DrawAxis2D::drawGridLines( ioDrawTool& dt, bool xdir, bool ydir ) const
 {
-    if ( !drawtool ) return;
-
-    int top = wrd2uicnv->toUiY( maxy_ );
-    int bot = wrd2uicnv->toUiY( miny_ );
-    for ( float x = minx_; x <= maxx_; x += stepx_ )
+    if ( xdir )
     {
-	int wx = wrd2uicnv->toUiX( x );
-	drawtool->drawLine( wx, top, wx, bot );
+	const int top = w2u_->toUiY( maxy_ );
+	const int bot = w2u_->toUiY( miny_ );
+	for ( float x = minx_; x <= maxx_; x += stepx_ )
+	{
+	    const int wx = w2u_->toUiX( x );
+	    dt.drawLine( wx, top, wx, bot );
+	}
     }
 
-    int left = wrd2uicnv->toUiX( minx_ );
-    int right = wrd2uicnv->toUiX( maxx_ );
-    for ( float y = miny_; y <= maxy_; y += stepy_ )
+    if ( ydir )
     {
-	int wy = wrd2uicnv->toUiY( y );
-	drawtool->drawLine( left, wy, right, wy );
+	const int left = w2u_->toUiX( minx_ );
+	const int right = w2u_->toUiX( maxx_ );
+	for ( float y = miny_; y <= maxy_; y += stepy_ )
+	{
+	    const int wy = w2u_->toUiY( y );
+	    dt.drawLine( left, wy, right, wy );
+	}
     }
 }
