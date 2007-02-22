@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          March 2005
- RCS:           $Id: surfacecutter.cc,v 1.9 2006-04-27 15:54:53 cvskris Exp $
+ RCS:           $Id: surfacecutter.cc,v 1.10 2007-02-22 18:14:40 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -285,7 +285,7 @@ void SurfaceCutter::getBoundingBox( CubeSampling& cs )
     cs.hrg.include( SI().transform(Coord(xrange.start,yrange.stop)) );
     cs.hrg.include( SI().transform(Coord(xrange.stop,yrange.start)) );
     cs.hrg.include( SI().transform(Coord(xrange.stop,yrange.stop)) );
-    assign( cs.zrg, bb.getRange(2) );
+    cs.zrg.setFrom( bb.getRange(2) );
 }
 
 

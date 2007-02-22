@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          February 2003
- RCS:           $Id: uibinidtable.cc,v 1.10 2006-01-31 09:07:04 cvsnanne Exp $
+ RCS:           $Id: uibinidtable.cc,v 1.11 2007-02-22 18:14:40 cvskris Exp $
  ________________________________________________________________________
 
 -*/
@@ -102,6 +102,6 @@ void uiBinIDTable::setZRange( const Interval<float>& zrg )
 
 void uiBinIDTable::getZRange( Interval<float>& zrg ) const
 {
-    assign( zrg, withz_ ? zfld_->getFInterval() 
+    zrg.setFrom( withz_ ? zfld_->getFInterval() 
 	    		: (Interval<float>)SI().zRange(false) );
 }

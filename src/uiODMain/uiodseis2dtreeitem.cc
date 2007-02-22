@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		May 2006
- RCS:		$Id: uiodseis2dtreeitem.cc,v 1.13 2007-02-13 13:44:17 cvsjaap Exp $
+ RCS:		$Id: uiodseis2dtreeitem.cc,v 1.14 2007-02-22 18:14:40 cvskris Exp $
 ___________________________________________________________________
 
 -*/
@@ -106,9 +106,8 @@ uiOD2DLineSetTreeItem::uiOD2DLineSetTreeItem( const MultiID& mid )
     , storeditm_("Stored 2D data")
     , selattritm_("Select Attribute")
     , zrgitm_("Set Z-Range ...")
-{
-    assign(curzrg_,SI().zRange(true));
-}
+    , curzrg_( Interval<float>().setFrom(SI().zRange(true)) )
+{ }
 
 
 uiOD2DLineSetTreeItem::~uiOD2DLineSetTreeItem()

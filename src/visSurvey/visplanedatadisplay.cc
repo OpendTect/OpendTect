@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.169 2007-02-19 16:41:46 cvsbert Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.170 2007-02-22 18:14:40 cvskris Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -174,7 +174,7 @@ void PlaneDataDisplay::updateRanges( bool resetic, bool resetz )
 {
     CubeSampling survey( SI().sampling(true) );
     if ( datatransform_ )
-	assign( survey.zrg, datatransform_->getZInterval(false) );
+	survey.zrg.setFrom( datatransform_->getZInterval(false) );
 	
     const Interval<float> inlrg( survey.hrg.start.inl, survey.hrg.stop.inl );
     const Interval<float> crlrg( survey.hrg.start.crl, survey.hrg.stop.crl );
@@ -679,7 +679,7 @@ CubeSampling PlaneDataDisplay::getCubeSampling( bool manippos,
 
 	if ( datatransform_ && !displayspace )
 	{
-	    assign( res.zrg, datatransform_->getZInterval(true) );
+	    res.zrg.setFrom( datatransform_->getZInterval(true) );
 	    res.zrg.step = SI().zRange( true ).step;
 	}
     }

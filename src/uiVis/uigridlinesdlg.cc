@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Payraudeau
  Date:          February 2006
- RCS:           $Id: uigridlinesdlg.cc,v 1.6 2007-02-05 18:19:48 cvsbert Exp $
+ RCS:           $Id: uigridlinesdlg.cc,v 1.7 2007-02-22 18:14:40 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -177,7 +177,7 @@ bool uiGridLinesDlg::acceptOK( CallBacker* )
     if ( crlfld_ ) { mGetHrgSampling(crl) };
     if ( zfld_ )
     {
-	assign( cs.zrg, zspacingfld_->getFStepInterval() );
+	cs.zrg.setFrom( zspacingfld_->getFStepInterval() );
 	cs.zrg.scale( 1/SI().zFactor() );
     }
 

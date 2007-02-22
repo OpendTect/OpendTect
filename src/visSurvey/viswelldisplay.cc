@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: viswelldisplay.cc,v 1.63 2006-11-21 14:00:08 cvsbert Exp $";
+static const char* rcsID = "$Id: viswelldisplay.cc,v 1.64 2007-02-22 18:14:40 cvskris Exp $";
 
 #include "viswelldisplay.h"
 
@@ -265,16 +265,16 @@ void WellDisplay::displayLog( int logidx, int lognr, bool logrthm,
 	crdvals += cv;
     }
 
-    Interval<float> selrange;
-    assign( selrange, range ? *range : log.selValueRange() );
+    const Interval<float> selrange( Interval<float>().setFrom(
+		range ? *range : log.selValueRange() ) );
     if ( !range )
 	logrthm = log.dispLogarithmic();
     well_->setLogData( crdvals, log.name(), selrange, logrthm, lognr );
 
     if ( lognr == 1 )
-	{log1nm_ = log.name(); assign(log1rg_,selrange); log1logsc_ = logrthm;}
+	{log1nm_ = log.name(); log1rg_.setFrom(selrange); log1logsc_ = logrthm;}
     else
-	{log2nm_ = log.name(); assign(log2rg_,selrange); log2logsc_ = logrthm;}
+	{log2nm_ = log.name(); log2rg_.setFrom(selrange); log2logsc_ = logrthm;}
 }
 
 

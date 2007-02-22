@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attriboutput.cc,v 1.54 2007-02-16 16:36:30 cvskris Exp $";
+static const char* rcsID = "$Id: attriboutput.cc,v 1.55 2007-02-22 18:14:40 cvskris Exp $";
 
 #include "attriboutput.h"
 
@@ -525,7 +525,7 @@ void TwoDOutput::setGeometry( const Interval<int>& trg,
 			      const Interval<float>& zrg )
 {
     seldata_.zrg_ = zrg;
-    assign( seldata_.crlrg_, trg );
+    seldata_.crlrg_.setFrom(trg);
     seldata_.type_ = Seis::Range;
 }
 

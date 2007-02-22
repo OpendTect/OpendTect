@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uislicesel.cc,v 1.41 2006-09-21 15:17:45 cvshelene Exp $
+ RCS:           $Id: uislicesel.cc,v 1.42 2007-02-22 18:14:40 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -392,7 +392,7 @@ void uiSliceSel::readInput()
     }
 
     cs_.hrg.set( inlrg, crlrg );
-    assign( cs_.zrg, zrg );
+    cs_.zrg.setFrom( zrg );
 
     SI().snap( cs_.hrg.start, BinID(0,0) );
     SI().snap( cs_.hrg.stop, BinID(0,0) );

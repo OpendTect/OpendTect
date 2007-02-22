@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Apr 2002
- RCS:           $Id: jobdescprov.cc,v 1.8 2006-08-09 10:35:33 cvsbert Exp $
+ RCS:           $Id: jobdescprov.cc,v 1.9 2007-02-22 18:14:40 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -117,7 +117,7 @@ void InlineSplitJobDescProv::getRange( StepInterval<int>& rg ) const
     if ( !rg.step ) rg.step = SI().inlStep();
     rg.sort();
 
-    Interval<int> maxrg; assign( maxrg, rg );
+    Interval<int> maxrg( Interval<int>().setFrom(rg) );
     inpiopar_.get( sKeyMaxInlRg, maxrg.start, maxrg.stop );
     if ( !mIsUdf(maxrg.start) && rg.start < maxrg.start )
 	rg.start = maxrg.start;
