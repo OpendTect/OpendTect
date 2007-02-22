@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Jan 2005
- RCS:           $Id: uivisemobj.cc,v 1.52 2007-02-07 11:06:20 cvsnanne Exp $
+ RCS:           $Id: uivisemobj.cc,v 1.53 2007-02-22 12:49:56 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -394,6 +394,7 @@ void uiVisEMObject::handleMenuCB( CallBacker* cb )
     if ( mnuid==singlecolmnuitem.id )
     {
 	if ( hordisp ) hordisp->useTexture( !hordisp->usesTexture(), true );
+	visserv->triggerTreeUpdate();
 	menu->setIsHandled(true);
     }
     else if ( mnuid==showonlyatsectionsmnuitem.id )
