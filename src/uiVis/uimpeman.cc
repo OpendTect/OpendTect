@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.cc,v 1.111 2007-02-22 16:40:06 cvsjaap Exp $
+ RCS:           $Id: uimpeman.cc,v 1.112 2007-02-23 08:15:15 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -770,9 +770,7 @@ void uiMPEMan::updateButtonSensitivity( CallBacker* )
     //Seed button
     updateSeedPickState();
 
-    MPE::EMTracker* tracker = getSelectedTracker();
-    const bool is2d = tracker && tracker->is2D();
-
+    const bool is2d = !SI().has3D();
     const bool isseedpicking = toolbar->isOn(seedidx);
     
     toolbar->setSensitive( extendidx, !is2d );
@@ -781,6 +779,7 @@ void uiMPEMan::updateButtonSensitivity( CallBacker* )
     toolbar->setSensitive( moveplaneidx, !is2d );
     toolbar->setSensitive( showcubeidx, !is2d && !isseedpicking );
 
+    MPE::EMTracker* tracker = getSelectedTracker();
     MPE::EMSeedPicker* seedpicker = tracker ? tracker->getSeedPicker(true) : 0;
     const bool isinvolumemode = !seedpicker || seedpicker->doesModeUseVolume();
     toolbar->setSensitive( trackinvolidx, !is2d && isinvolumemode );
