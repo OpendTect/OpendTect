@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiseiswvltman.cc,v 1.18 2007-02-23 09:35:33 cvsbert Exp $
+ RCS:           $Id: uiseiswvltman.cc,v 1.19 2007-02-23 14:26:15 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -53,6 +53,8 @@ uiSeisWvltMan::uiSeisWvltMan( uiParent* p )
     FlatView::Context& ctxt = wvltfld->context();
     ctxt.annot_.x1_.name_ = "Amplitude";
     ctxt.annot_.x2_.name_ = SI().zIsTime() ? "Time" : "Depth";
+    ctxt.annot_.x1_.showNothing(); ctxt.annot_.x2_.showNothing();
+    ctxt.annot_.x2_.reversed_ = true;
     ctxt.ddpars_.dispvd_ = false; ctxt.ddpars_.dispwva_ = true;
     ctxt.ddpars_.wva_.mid_= Color( 150, 150, 100 );
     ctxt.ddpars_.wva_.overlap_ = -0.01; ctxt.ddpars_.wva_.clipperc_ = 0;

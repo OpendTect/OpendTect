@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.89 2007-02-23 09:35:33 cvsbert Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.90 2007-02-23 14:26:15 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,8 +25,11 @@ ________________________________________________________________________
 #include "uiworkspace.h"
 #include "uistatusbar.h"
 #include "uithumbwheel.h"
+#include "uiflatviewer.h"
 #include "uigeninputdlg.h"
 #include "uiprintscenedlg.h"
+#include "uiflatviewcontrol.h"
+#include "uiflatviewdockwin.h"
 #include "uitreeitemmanager.h"
 #include "uimsg.h"
 
@@ -868,7 +871,6 @@ uiODSceneMgr::Viewer2D::Viewer2D( uiODMain& appl, int visid )
     : appl_(appl)
     , visid_(visid)
     , viewwin_(0)
-    , viewfddatapack_(0)
 {
     basetxt_ = "2D Viewer - ";
     BufferString info;
@@ -879,30 +881,29 @@ uiODSceneMgr::Viewer2D::Viewer2D( uiODMain& appl, int visid )
 
 uiODSceneMgr::Viewer2D::~Viewer2D()
 {
-    /*TODO FV
-    delete viewfddatapack_;
-    appl_.removeDockWindow( viewwin_ );
+    mDynamicCastGet(uiFlatViewDockWin*,fvdw,viewwin_)
+    if ( fvdw )
+	appl_.removeDockWindow( fvdw );
+
     delete viewwin_;
-    */
 }
 
 
 void uiODSceneMgr::Viewer2D::setData( DataPack::ID packid, bool wva )
 {
-    /*TODO FV
     if ( !viewwin_ )
     {
-	viewwin_ = new uiDockWin( 0, basetxt_ );
-	viewwin_->setResizeEnabled( true );
-	viewfddatapack_ = new FlatView::uiViewFDDataPack( viewwin_,true,
-					FlatView::uiViewFDDataPack::Setup() );
-	viewfddatapack_->setDPMgrID( mgrid );
-	appl_.addDockWindow( *viewwin_, uiMainWin::Left );
-	viewwin_->setCloseMode( uiDockWin::Always );
-	viewwin_->undock();
+	uiFlatViewDockWin* vwwin = new uiFlatViewDockWin( &appl_,
+					uiFlatViewDockWin::Setup(basetxt_) );
+	appl_.addDockWindow( *vwwin, uiMainWin::Left );
+
+	viewwin_ = vwwin;
+	viewwin_->viewer().context().annot_.x2_.reversed_ = true;
+	new uiFlatViewControl( viewwin_->viewer(), uiFlatViewControl::Setup() );
+
+	vwwin->undock();
     }
-    
-    viewfddatapack_->setDataPackID( packid, wva );
-    viewwin_->display( true );
-    */
+
+    viewwin_->viewer().setPack( wva, packid );
+    viewwin_->start();
 }

@@ -6,56 +6,50 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewwin.h,v 1.1 2007-02-20 18:15:23 cvsbert Exp $
+ RCS:           $Id: uiflatviewwin.h,v 1.2 2007-02-23 14:26:14 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uimainwin.h"
+#include "sets.h"
 class uiFlatViewer;
-class uiFlatViewerControl;
+class uiParent;
 
 
-/*!\brief (Non-modal) window containing one or more uiFlatViewer(s).
+/*!\brief Base class for windows containing one or more uiFlatViewer(s).
 
   will clean up the mess when it's destroyed, in particular release all
   datapacks attached to the viewers.
 
 */
 
-class uiFlatViewWin : public uiMainWin
+class uiFlatViewWin
 {
 public:
 
-    struct Setup
-    {
-			Setup( const char* wintitl )
-			    : wintitle_(wintitl)
-			    , nrstatusfields_(0)
-			    , nrviewers_(1)
-			    , menubar_(false)		{}
-	mDefSetupMemb(BufferString,wintitle)
-	mDefSetupMemb(int,nrstatusfields)
-	mDefSetupMemb(int,nrviewers)
-	mDefSetupMemb(bool,menubar)
-    };
-
-    			uiFlatViewWin(uiParent*,const Setup&);
+    virtual		~uiFlatViewWin()	{}
 
     uiFlatViewer&	viewer( int idx=0 )	{ return *vwrs_[idx]; }
     int			nrViewers() const	{ return vwrs_.size(); }
 
+    void		setDarkBG(bool);
     void		addNullOnClose( uiFlatViewWin** p )
 						{ tonull_ += p; }
     			//!< On close: *p = 0;
+
+    virtual void	setWinTitle(const char*)	= 0;
+    virtual void	start()				= 0;
 
 protected:
 
     ObjectSet<uiFlatViewer>	vwrs_;
     ObjectSet<uiFlatViewWin*>	tonull_;
 
-    void			addViewer();
-    virtual bool		closeOK();
+    void			createViewers(int);
+    void			cleanUp();
+
+    virtual uiParent*		uiparent()			= 0;
+    virtual void		handleNewViewer(uiFlatViewer*)	= 0;
 };
 
 

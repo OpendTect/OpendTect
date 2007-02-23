@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2005
- RCS:           $Id: flatview.h,v 1.1 2007-02-23 09:34:47 cvsbert Exp $
+ RCS:           $Id: flatview.h,v 1.2 2007-02-23 14:26:14 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -222,6 +222,7 @@ public:
     Annotation		annot_;
     DataDispPars	ddpars_;
 
+    void		setDarkBG(bool yn);
     bool		darkBG() const		{ return darkbg_; }
 
 protected:

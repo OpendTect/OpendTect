@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2000
- RCS:           $Id: flatview.cc,v 1.1 2007-02-23 09:35:33 cvsbert Exp $
+ RCS:           $Id: flatview.cc,v 1.2 2007-02-23 14:26:15 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -244,6 +244,14 @@ void FlatView::Context::usePar( const IOPar& iop )
 {
     annot_.usePar( iop );
     ddpars_.usePar( iop );
+}
+
+
+void FlatView::Context::setDarkBG( bool yn )
+{
+    darkbg_ = yn;
+    annot_.color_ = yn ? Color::White : Color::Black;
+    ddpars_.wva_.wigg_ = annot_.color_;
 }
 
 

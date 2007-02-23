@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewer.h,v 1.5 2007-02-23 09:35:33 cvsbert Exp $
+ RCS:           $Id: uiflatviewer.h,v 1.6 2007-02-23 14:26:14 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,6 +33,7 @@ public:
     			uiFlatViewer(uiParent*);
 			~uiFlatViewer();
 
+    void		setDarkBG(bool);
     void		setExtraBorders(const uiSize& lt,const uiSize& rb);
 
     uiRGBArray&		rgbArray();

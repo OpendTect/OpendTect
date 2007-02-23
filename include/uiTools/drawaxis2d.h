@@ -11,7 +11,7 @@ class uiWorld2Ui;
    CopyRight:     (C) dGB Beheer B.V.
    Author:        Duntao Wei
    Date:          Jan 2005
-   RCS:           $Id: drawaxis2d.h,v 1.2 2007-02-22 15:54:47 cvsbert Exp $
+   RCS:           $Id: drawaxis2d.h,v 1.3 2007-02-23 14:26:14 cvsbert Exp $
    ________________________________________________________________________
 
 -*/
@@ -57,6 +57,8 @@ public:
     void		setFixedDataRangeAndStep(float minx,float maxx,
 					   	 float miny,float maxy,
 						 float xstep,float ystep);
+    void		annotInside( bool yn )	{ inside_ = yn; }
+    void		drawAxisLine( bool yn )	{ drawaxisline_ = yn; }
 
     void		drawAxes(ioDrawTool&,bool xdir,bool ydir,
 	    				     bool topside,bool leftside) const;
@@ -73,6 +75,8 @@ private:
     float		stepx_;
     float		stepy_;
     const uiWorld2Ui*	w2u_;
+    bool		inside_;
+    bool		drawaxisline_;
 
     Geom::Rectangle<int> axisrect_;
     bool		axislineposset_;

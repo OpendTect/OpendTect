@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          Sep 2006
- RCS:           $Id: uiflatviewer.cc,v 1.6 2007-02-23 09:35:33 cvsbert Exp $
+ RCS:           $Id: uiflatviewer.cc,v 1.7 2007-02-23 14:26:15 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -57,13 +57,20 @@ uiRGBArray& uiFlatViewer::rgbArray()
 
 Color uiFlatViewer::color( bool foreground ) const
 {
-    return context().darkBG() != foreground ? Color::White : Color::Black;
+    return context().darkBG() == foreground ? Color::White : Color::Black;
 }
 
 
 void uiFlatViewer::initView()
 {
     setView( boundingBox() );
+}
+
+
+void uiFlatViewer::setDarkBG( bool yn )
+{
+    context().setDarkBG( yn );
+    canvas_.setBGColor( color(false) );
 }
 
 
@@ -147,7 +154,6 @@ void uiFlatViewer::drawBitMaps()
 {
     if ( !anysetviewdone_ ) initView();
 
-    canvas_.setBGColor( color(false) );
     //TODO: use prev bmp data and changetype to optimise
     delete wvabmpmgr_; wvabmpmgr_ = new FlatView::BitMapMgr(*this,true);
     delete vdbmpmgr_; vdbmpmgr_ = new FlatView::BitMapMgr(*this,false);
@@ -213,12 +219,13 @@ void uiFlatViewer::drawGridAnnot()
     mDefuiW2Ui;
     const uiRect datarect( canvas_.arrArea() );
     ioDrawTool& dt = *canvas_.drawTool();
+    const uiSize totsz( canvas_.width(), canvas_.height() );
 
     if ( !ad1.name_.isEmpty() )
-	dt.drawText( uiPoint(datarect.left()+2,2), annot.x2_.name_,
+	dt.drawText( uiPoint(2,2), annot.x2_.name_,
 		     Alignment(Alignment::Start,Alignment::Start) );
     if ( !ad2.name_.isEmpty() )
-	dt.drawText( uiPoint(datarect.right()-2,datarect.bottom()-2),
+	dt.drawText( uiPoint(totsz.width()-2,totsz.height()-2),
 		     annot.x1_.name_,
 		     Alignment(Alignment::Stop,Alignment::Stop));
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:		Feb 2007
- RCS:           $Id: flatviewbitmap.cc,v 1.1 2007-02-23 09:35:33 cvsbert Exp $
+ RCS:           $Id: flatviewbitmap.cc,v 1.2 2007-02-23 14:26:15 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -74,7 +74,8 @@ void FlatView::BitMapMgr::setupChg()
     gen_->pars().clipratio_ = pars->clipperc_ * 0.01;
     gen_->pars().nointerpol_ = pars->blocky_;
     gen_->pars().fliplr_ = ctxt.annot_.x1_.reversed_;
-    gen_->pars().fliptb_ = ctxt.annot_.x2_.reversed_;
+    gen_->pars().fliptb_ = !ctxt.annot_.x2_.reversed_;
+    		// in UI pixels, Y is reversed
     gen_->pars().autoscale_ = mIsUdf(pars->rg_.start) ||mIsUdf(pars->rg_.stop);
     if ( !gen_->pars().autoscale_ )
 	gen_->pars().scale_ = pars->rg_;

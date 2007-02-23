@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          Sep 2006
- RCS:           $Id: uiflatviewcontrol.cc,v 1.3 2007-02-23 09:35:33 cvsbert Exp $
+ RCS:           $Id: uiflatviewcontrol.cc,v 1.4 2007-02-23 14:26:15 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -59,7 +59,8 @@ uiFlatViewControl::uiFlatViewControl( uiFlatViewer& vwr, const Setup& s )
 	attach( alignedBelow, &vwr );
 
     addViewer( vwr );
-    mainwin()->finaliseDone.notify( mCB(this,uiFlatViewControl,initStates) );
+    if ( mainwin() ) //TODO: I need a finalise callback
+	mainwin()->finaliseDone.notify( mCB(this,uiFlatViewControl,initStates));
 }
 
 
@@ -81,13 +82,32 @@ void uiFlatViewControl::updatePosButtonStates()
 
     const uiWorldRect bb( vwrs_[0]->boundingBox() );
     const uiWorldRect cv( vwrs_[0]->curView() );
+    const bool isrevx = cv.left() > cv.right();
+    const bool isrevy = cv.bottom() > cv.top();
     const Geom::Size2D<double> bbsz( bb.size() );
-    const Geom::Size2D<double> bbszeps( bb.width() * 1e-6, bb.height() * 1e-6 );
 
-    panleftbut_->setSensitive( cv.left() > bb.left() + bbszeps.width() );
-    panrightbut_->setSensitive( cv.right() < bb.right() - bbszeps.width() );
-    pandownbut_->setSensitive( cv.top() < bb.top() - bbszeps.height() );
-    panupbut_->setSensitive( cv.bottom() > bb.bottom() + bbszeps.height() );
+    double bbeps = bb.width() * 1e-5;
+    if ( cv.left() > cv.right() )
+    {
+	panleftbut_->setSensitive( cv.left() < bb.right() - bbeps );
+	panrightbut_->setSensitive( cv.right() > bb.left() + bbeps );
+    }
+    else
+    {
+	panleftbut_->setSensitive( cv.left() > bb.left() + bbeps );
+	panrightbut_->setSensitive( cv.right() < bb.right() - bbeps );
+    }
+    bbeps = bb.height() * 1e-5;
+    if ( cv.bottom() > cv.top() )
+    {
+	pandownbut_->setSensitive( cv.bottom() < bb.top() - bbeps );
+	panupbut_->setSensitive( cv.top() > bb.bottom() + bbeps );
+    }
+    else
+    {
+	pandownbut_->setSensitive( cv.bottom() > bb.bottom() + bbeps );
+	panupbut_->setSensitive( cv.top() < bb.top() - bbeps );
+    }
 }
 
 
@@ -115,8 +135,7 @@ void uiFlatViewControl::zoomCB( CallBacker* but )
     if ( zoommgr_.atStart() )
 	centre = zoommgr_.initialCenter();
 
-    setNewView( vwrs_[0]->curView().centre(),
-	        Geom::Size2D<double>(newsz.width()*.5,newsz.height()*.5) );
+    setNewView( vwrs_[0]->curView().centre(), newsz );
 }
 
 
@@ -128,7 +147,7 @@ void uiFlatViewControl::panCB( CallBacker* but )
     const bool isdown = but == pandownbut_;
     const bool ishor = isleft || isright;
 
-    uiWorldRect cv( vwrs_[0]->curView() );
+    const uiWorldRect cv( vwrs_[0]->curView() );
     const bool isrev = ishor ? cv.left() > cv.right() : cv.bottom() > cv.top();
 
     const bool isxdown = (!isrev && isleft) || (isrev && isright);
@@ -179,14 +198,14 @@ void uiFlatViewControl::panCB( CallBacker* but )
 
 
 void uiFlatViewControl::setNewView( Geom::Point2D<double> centre,
-				    Geom::Size2D<double> radius )
+				    Geom::Size2D<double> sz )
 {
     const uiWorldRect cv( vwrs_[0]->curView() );
-    if ( cv.left() > cv.right() ) radius.setWidth( -radius.width() );
-    if ( cv.bottom() > cv.top() ) radius.setHeight( -radius.height() );
+    if ( cv.left() > cv.right() ) sz.setWidth( -sz.width() );
+    if ( cv.bottom() > cv.top() ) sz.setHeight( -sz.height() );
 
-    uiWorldRect wr( centre.x - radius.width(), centre.y - radius.height(),
-		    centre.x + radius.width(), centre.y + radius.height() );
+    uiWorldRect wr( centre.x - sz.width()*.5, centre.y - sz.height()*.5,
+		    centre.x + sz.width()*.5, centre.y + sz.height()*.5 );
     for ( int idx=0; idx<vwrs_.size(); idx++ )
 	vwrs_[idx]->setView( wr );
 

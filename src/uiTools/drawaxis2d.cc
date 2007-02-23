@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     ( C ) dGB Beheer B.V.
  Author:        Duntao Wei
  Date:          Mar. 2005
- RCS:           $Id: drawaxis2d.cc,v 1.2 2007-02-22 15:54:35 cvsbert Exp $
+ RCS:           $Id: drawaxis2d.cc,v 1.3 2007-02-23 14:26:15 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,6 +20,8 @@ ________________________________________________________________________
 DrawAxis2D::DrawAxis2D()
 	: w2u_( 0 )
 	, ticlen_(5)
+	, inside_(false)
+	, drawaxisline_(true)
 {
     minx_ = miny_ = 0;
     maxx_ = maxy_ = 1;
@@ -30,6 +32,8 @@ DrawAxis2D::DrawAxis2D()
 DrawAxis2D::DrawAxis2D( const uiWorld2Ui* wrd2ui, const uiRect* rc )
 	: w2u_( 0 )
 	, ticlen_(5)
+	, inside_(false)
+	, drawaxisline_(true)
 {
     setupAxis( wrd2ui, rc );
 }
@@ -79,24 +83,27 @@ void DrawAxis2D::drawXAxis( ioDrawTool& dt, bool topside ) const
     if ( topside )
     {
 	baseline = axislineposset_ ? axisrect_.top() : w2u_->toUiY(maxy_);
-	bias = -ticlen_;
+	bias = inside_ ? ticlen_ : -ticlen_;
     }
     else {
 	baseline = axislineposset_ ? axisrect_.bottom() : w2u_->toUiY(miny_);
-	bias = ticlen_;
+	bias = inside_ ? -ticlen_ : ticlen_;
     }
 
-    const int left = w2u_->toUiX( minx_ );
-    const int right = w2u_->toUiX( maxx_ );
-    dt.drawLine( left, baseline, right, baseline );
+    if ( drawaxisline_ )
+    {
+	const int left = w2u_->toUiX( minx_ );
+	const int right = w2u_->toUiX( maxx_ );
+	dt.drawLine( left, baseline, right, baseline );
+    }
     
-    for ( float x = minx_; x <= maxx_; x += stepx_)
+    for ( float x = minx_; x <= maxx_; x += stepx_ )
     {
 	const int wx = w2u_->toUiX( x );
 	dt.drawLine( wx, baseline, wx, baseline+bias );
 	BufferString txt = x;
-	Alignment al = bias < 0 ? Alignment( Alignment::Middle,Alignment::Stop )
-	    : Alignment( Alignment::Middle,Alignment::Start );
+	Alignment al( Alignment::Middle, Alignment::Start );
+	if ( bias < 0 ) al.ver = Alignment::Stop;
 	dt.drawText( wx, baseline+bias, txt, al, true );
     }
 }
@@ -108,25 +115,28 @@ void DrawAxis2D::drawYAxis( ioDrawTool& dt, bool leftside ) const
     if ( leftside )
     {
 	baseline = axislineposset_ ? axisrect_.left() : w2u_->toUiX(minx_);
-	bias = -ticlen_;
+	bias = inside_ ? ticlen_ : -ticlen_;
     }
     else
     {
 	baseline = axislineposset_ ? axisrect_.right() : w2u_->toUiX(maxx_);
-	bias = ticlen_;
+	bias = inside_ ? -ticlen_ : ticlen_;
     }
 
-    const int top = w2u_->toUiY( maxy_ );
-    const int bot = w2u_->toUiY( miny_ );
-    dt.drawLine( baseline, top, baseline, bot );
+    if ( drawaxisline_ )
+    {
+	const int top = w2u_->toUiY( maxy_ );
+	const int bot = w2u_->toUiY( miny_ );
+	dt.drawLine( baseline, top, baseline, bot );
+    }
     
     for ( float y = miny_; y <= maxy_; y += stepy_ )
     {
 	const int wy = w2u_->toUiY( y );
 	dt.drawLine( baseline, wy, baseline+bias, wy );
 	BufferString txt; txt = y;
-	Alignment al = bias < 0 ? Alignment( Alignment::Stop,Alignment::Middle )
-	    : Alignment( Alignment::Start,Alignment::Middle );
+	Alignment al( Alignment::Start, Alignment::Middle );
+	if ( bias < 0 ) al.hor = Alignment::Stop;
 	dt.drawText( baseline+bias, wy , txt, al, true );
     }
 }

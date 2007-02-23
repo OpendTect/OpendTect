@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiseispartserv.cc,v 1.55 2007-02-23 09:35:33 cvsbert Exp $
+ RCS:           $Id: uiseispartserv.cc,v 1.56 2007-02-23 14:26:15 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,7 +31,7 @@ ________________________________________________________________________
 #include "uiexecutor.h"
 #include "uiflatviewer.h"
 #include "uiflatviewcontrol.h"
-#include "uiflatviewwin.h"
+#include "uiflatviewmainwin.h"
 #include "uilistbox.h"
 #include "uimenu.h"
 #include "uimergeseis.h"
@@ -252,12 +252,13 @@ bool uiSeisPartServer::handleGatherSubMenu( int mnuid, const BinID& bid )
     title += "] at "; title += bid.inl; title += "/"; title += bid.crl;
     bool isnew = !viewwin_;
     if ( !isnew )
-	viewwin_->setCaption( title );
+	viewwin_->setWinTitle( title );
     else
     {
-	viewwin_ = new uiFlatViewWin( appserv().parent(),
-				      uiFlatViewWin::Setup(title) );
+	viewwin_ = new uiFlatViewMainWin( appserv().parent(),
+				          uiFlatViewMainWin::Setup(title) );
 	viewwin_->addNullOnClose( &viewwin_ );
+	viewwin_->setDarkBG( false );
     }
     uiFlatViewer& vwr = viewwin_->viewer();
 
@@ -286,6 +287,6 @@ bool uiSeisPartServer::handleGatherSubMenu( int mnuid, const BinID& bid )
 			       uiFlatViewControl::Setup().withstates(false) );
     }
 
-    viewwin_->show();
+    viewwin_->start();
     return true;
 }
