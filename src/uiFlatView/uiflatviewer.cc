@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          Sep 2006
- RCS:           $Id: uiflatviewer.cc,v 1.5 2007-02-22 15:55:23 cvsbert Exp $
+ RCS:           $Id: uiflatviewer.cc,v 1.6 2007-02-23 09:35:33 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,8 +12,8 @@ ________________________________________________________________________
 #include "uiflatviewer.h"
 #include "uirgbarraycanvas.h"
 #include "uirgbarray.h"
-#include "flatdispbitmapmgr.h"
-#include "flatdispbmp2rgb.h"
+#include "flatviewbitmapmgr.h"
+#include "flatviewbmp2rgb.h"
 #include "array2dbitmapimpl.h"
 #include "iodrawtool.h"
 #include "drawaxis2d.h"
@@ -33,7 +33,7 @@ uiFlatViewer::uiFlatViewer( uiParent* p )
     , annotsz_(50,20) //TODO: should be dep on font size
     , viewChanged(this)
 {
-    bmp2rgb_ = new FlatDisp::BitMap2RGB( context(), canvas_.rgbArray() );
+    bmp2rgb_ = new FlatView::BitMap2RGB( context(), canvas_.rgbArray() );
     canvas_.newFillNeeded.notify( mCB(this,uiFlatViewer,canvasNewFill) );
     canvas_.postDraw.notify( mCB(this,uiFlatViewer,canvasPostDraw) );
 }
@@ -89,7 +89,7 @@ uiWorldRect uiFlatViewer::getBoundingBox( bool wva ) const
 
 uiWorldRect uiFlatViewer::boundingBox() const
 {
-    const FlatDisp::Context& ctxt = context();
+    const FlatView::Context& ctxt = context();
     uiWorldRect wr1 = getBoundingBox( ctxt.ddpars_.dispwva_ );
     if ( ctxt.ddpars_.dispwva_ && ctxt.ddpars_.dispvd_ )
     {
@@ -124,7 +124,7 @@ void uiFlatViewer::setView( uiWorldRect wr )
 void uiFlatViewer::handleChange( DataChangeType dct )
 {
     reportedchange_ = dct;
-    const FlatDisp::Annotation& annot = context().annot_;
+    const FlatView::Annotation& annot = context().annot_;
     int l = extraborders_.left(); int r = extraborders_.right();
     int t = extraborders_.top(); int b = extraborders_.bottom();
     if ( annot.haveTitle() )
@@ -149,8 +149,8 @@ void uiFlatViewer::drawBitMaps()
 
     canvas_.setBGColor( color(false) );
     //TODO: use prev bmp data and changetype to optimise
-    delete wvabmpmgr_; wvabmpmgr_ = new FlatDisp::BitMapMgr(*this,true);
-    delete vdbmpmgr_; vdbmpmgr_ = new FlatDisp::BitMapMgr(*this,false);
+    delete wvabmpmgr_; wvabmpmgr_ = new FlatView::BitMapMgr(*this,true);
+    delete vdbmpmgr_; vdbmpmgr_ = new FlatView::BitMapMgr(*this,false);
 
     mDefuiSize;
     if ( !wvabmpmgr_->generate(wr_,uisz) || !vdbmpmgr_->generate(wr_,uisz) )
@@ -166,7 +166,7 @@ void uiFlatViewer::drawBitMaps()
 
 void uiFlatViewer::drawAnnot()
 {
-    const FlatDisp::Annotation& annot = context().annot_;
+    const FlatView::Annotation& annot = context().annot_;
     ioDrawTool& dt = *canvas_.drawTool();
     const uiRect datarect( canvas_.arrArea() );
     dt.beginDraw();
@@ -207,9 +207,9 @@ void uiFlatViewer::getWorld2Ui( uiWorld2Ui& w2u ) const
 
 void uiFlatViewer::drawGridAnnot()
 {
-    const FlatDisp::Annotation& annot = context().annot_;
-    const FlatDisp::Annotation::AxisData& ad1 = annot.x1_;
-    const FlatDisp::Annotation::AxisData& ad2 = annot.x2_;
+    const FlatView::Annotation& annot = context().annot_;
+    const FlatView::Annotation::AxisData& ad1 = annot.x1_;
+    const FlatView::Annotation::AxisData& ad2 = annot.x2_;
     mDefuiW2Ui;
     const uiRect datarect( canvas_.arrArea() );
     ioDrawTool& dt = *canvas_.drawTool();
@@ -228,7 +228,7 @@ void uiFlatViewer::drawGridAnnot()
 }
 
 
-void uiFlatViewer::drawAux( const FlatDisp::Annotation::AuxData& ad )
+void uiFlatViewer::drawAux( const FlatView::Annotation::AuxData& ad )
 {
     pErrMsg( "TODO: implement Aux data draw" );
 }

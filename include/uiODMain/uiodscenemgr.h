@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.h,v 1.42 2007-02-19 16:41:45 cvsbert Exp $
+ RCS:           $Id: uiodscenemgr.h,v 1.43 2007-02-23 09:35:33 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,7 +28,7 @@ class uiTreeFactorySet;
 class uiTreeItem;
 class uiVisPartServer;
 class uiWorkSpace;
-namespace FlatDisp { class uiViewFDDataPack; }
+class uiFlatViewer;
 namespace Pick { class Set; }
 
 
@@ -145,18 +145,18 @@ protected:
 	void		setData(DataPack::ID,bool wva);
 
 	uiDockWin*	viewwin_;
-	FlatDisp::uiViewFDDataPack* viewfddatapack_;
+	uiFlatViewer*	viewer_;
 	uiODMain&	appl_;
 
 	int		visid_;
 	BufferString	basetxt_;
     };
 
-    uiODMain&			appl_;
-    uiWorkSpace*		wsp_;
-    ObjectSet<uiODSceneMgr::Scene>	scenes_;
-    ObjectSet<uiODSceneMgr::Viewer2D>	viewers2d_;
-    Viewer2D&			addViewer2D(int visid);
+    uiODMain&		appl_;
+    uiWorkSpace*	wsp_;
+    ObjectSet<Scene>	scenes_;
+    ObjectSet<Viewer2D>	viewers2d_;
+    Viewer2D&		addViewer2D(int visid);
 
     int				vwridx_;
     float			lasthrot_, lastvrot_, lastdval_;

@@ -6,16 +6,16 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewer.h,v 1.4 2007-02-22 15:55:22 cvsbert Exp $
+ RCS:           $Id: uiflatviewer.h,v 1.5 2007-02-23 09:35:33 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uigroup.h"
 #include "uimainwin.h"
-#include "flatdisp.h"
+#include "flatview.h"
 #include "uigeom.h"
-namespace FlatDisp {
+namespace FlatView {
 class BitMapMgr;
 class BitMap2RGB;
 }
@@ -24,10 +24,10 @@ class uiRGBArrayCanvas;
 class uiWorld2Ui;
 
 
-/*!\brief Fulfills the FlatDisp::Viewer specifications using 'ui' classes. */
+/*!\brief Fulfills the FlatView::Viewer specifications using 'ui' classes. */
 
 class uiFlatViewer : public uiGroup
-		   , public FlatDisp::Viewer
+		   , public FlatView::Viewer
 {
 public:
     			uiFlatViewer(uiParent*);
@@ -63,9 +63,9 @@ protected:
     bool		x0rev_;
     bool		x1rev_;
 
-    FlatDisp::BitMapMgr* wvabmpmgr_;
-    FlatDisp::BitMapMgr* vdbmpmgr_;
-    FlatDisp::BitMap2RGB* bmp2rgb_;
+    FlatView::BitMapMgr* wvabmpmgr_;
+    FlatView::BitMapMgr* vdbmpmgr_;
+    FlatView::BitMap2RGB* bmp2rgb_;
 
     void		canvasNewFill( CallBacker* )	{ drawBitMaps(); }
     void		canvasPostDraw(CallBacker*)	{ drawAnnot(); }
@@ -75,7 +75,7 @@ protected:
     void		drawBitMaps();
     void		drawAnnot();
     void		drawGridAnnot();
-    void		drawAux(const FlatDisp::Annotation::AuxData&);
+    void		drawAux(const FlatView::Annotation::AuxData&);
     void		initView();
 };
 

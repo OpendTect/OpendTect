@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewcontrol.h,v 1.2 2007-02-22 15:55:22 cvsbert Exp $
+ RCS:           $Id: uiflatviewcontrol.h,v 1.3 2007-02-23 09:35:33 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,7 +15,7 @@ ________________________________________________________________________
 class uiToolButton;
 class uiButtonGroup;
 class uiFlatViewer;
-namespace FlatDisp { class ZoomMgr; }
+namespace FlatView { class ZoomMgr; }
 
 
 /*!\brief Tools to control uiFlatViewer(s). */
@@ -48,7 +48,7 @@ protected:
 
     ObjectSet<uiFlatViewer> vwrs_;
     const Setup&	setup_;
-    FlatDisp::ZoomMgr&	zoommgr_;
+    FlatView::ZoomMgr&	zoommgr_;
 
     uiButtonGroup*	posgrp_;
     uiButtonGroup*	stategrp_;

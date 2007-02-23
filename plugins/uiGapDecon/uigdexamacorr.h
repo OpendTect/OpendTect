@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          Sep 2006
- RCS:           $Id: uigdexamacorr.h,v 1.9 2007-02-20 12:15:42 cvsbert Exp $
+ RCS:           $Id: uigdexamacorr.h,v 1.10 2007-02-23 09:35:33 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,7 +19,7 @@ ________________________________________________________________________
 
 template <class T> class Array2D;
 namespace Attrib { class EngineMan; class DescSet; class DataCubes; }
-namespace FlatDisp { class uiViewFDDataPack; class DataPack; }
+namespace FlatView { class uiViewFDDataPack; class DataPack; }
 
 /*! \brief GapDecon Attribute autocorrelation preview in a 2d viewer */
 

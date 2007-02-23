@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.88 2007-02-19 16:41:46 cvsbert Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.89 2007-02-23 09:35:33 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -894,8 +894,8 @@ void uiODSceneMgr::Viewer2D::setData( DataPack::ID packid, bool wva )
     {
 	viewwin_ = new uiDockWin( 0, basetxt_ );
 	viewwin_->setResizeEnabled( true );
-	viewfddatapack_ = new FlatDisp::uiViewFDDataPack( viewwin_,true,
-					FlatDisp::uiViewFDDataPack::Setup() );
+	viewfddatapack_ = new FlatView::uiViewFDDataPack( viewwin_,true,
+					FlatView::uiViewFDDataPack::Setup() );
 	viewfddatapack_->setDPMgrID( mgrid );
 	appl_.addDockWindow( *viewwin_, uiMainWin::Left );
 	viewwin_->setCloseMode( uiDockWin::Always );

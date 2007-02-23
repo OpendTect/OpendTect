@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiseiswvltman.cc,v 1.17 2007-02-22 20:07:03 cvskris Exp $
+ RCS:           $Id: uiseiswvltman.cc,v 1.18 2007-02-23 09:35:33 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,7 +50,7 @@ uiSeisWvltMan::uiSeisWvltMan( uiParent* p )
     butgrp->attach( centeredBelow, selgrp );
 
     wvltfld = new uiFlatViewer( this );
-    FlatDisp::Context& ctxt = wvltfld->context();
+    FlatView::Context& ctxt = wvltfld->context();
     ctxt.annot_.x1_.name_ = "Amplitude";
     ctxt.annot_.x2_.name_ = SI().zIsTime() ? "Time" : "Depth";
     ctxt.ddpars_.dispvd_ = false; ctxt.ddpars_.dispwva_ = true;
@@ -178,7 +178,7 @@ void uiSeisWvltMan::mkFileInfo()
     BufferString txt;
     Wavelet* wvlt = Wavelet::get( curioobj_ );
 
-    FlatDisp::Data& fddata = wvltfld->data();
+    FlatView::Data& fddata = wvltfld->data();
     if ( !wvlt )
 	fddata.set( true, 0, "" );
     else
@@ -209,7 +209,7 @@ void uiSeisWvltMan::mkFileInfo()
 	delete wvlt;
     }
 
-    wvltfld->handleChange( FlatDisp::Viewer::All );
+    wvltfld->handleChange( FlatView::Viewer::All );
 
     txt += getFileInfo();
     infofld->setText( txt );

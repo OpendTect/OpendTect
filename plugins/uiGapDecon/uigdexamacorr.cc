@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          Sep 2006
- RCS:           $Id: uigdexamacorr.cc,v 1.14 2007-02-20 12:15:42 cvsbert Exp $
+ RCS:           $Id: uigdexamacorr.cc,v 1.15 2007-02-23 09:35:33 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -105,20 +105,20 @@ void GapDeconACorrView::createAndDisplay2DViewer( bool isqc )
     {
 	qcwin_->close();
 	if ( qcdpview_ ) delete qcdpview_;
-	qcdpview_ = new FlatDisp::uiViewFDDataPack( qcwin_, true,
-					FlatDisp::uiViewFDDataPack::Setup() );
+	qcdpview_ = new FlatView::uiViewFDDataPack( qcwin_, true,
+					FlatView::uiViewFDDataPack::Setup() );
     }
     else
     {
 	examwin_->close();
 	if ( examdpview_ ) delete examdpview_;
-	examdpview_ = new FlatDisp::uiViewFDDataPack( examwin_, true,
-					FlatDisp::uiViewFDDataPack::Setup() );
+	examdpview_ = new FlatView::uiViewFDDataPack( examwin_, true,
+					FlatView::uiViewFDDataPack::Setup() );
     }
 
-    FlatDisp::uiViewFDDataPack* fddpview = isqc ? qcdpview_ : examdpview_;
+    FlatView::uiViewFDDataPack* fddpview = isqc ? qcdpview_ : examdpview_;
     fddpview->setData( isqc ? fddatapackqc_ : fddatapackexam_, false );
-    FlatDisp::Context& ctxt = fddpview->getContext();
+    FlatView::Context& ctxt = fddpview->getContext();
     ctxt.ddpars_.vd_.rg_ = Interval<float>( -0.2, 0.2 );
     ctxt.posdata_.x2rg_ = StepInterval<double>(0,cs_.zrg.stop-cs_.zrg.start,
 			                       cs_.zrg.step);

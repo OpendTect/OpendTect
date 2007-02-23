@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiseispartserv.cc,v 1.54 2007-02-22 15:55:23 cvsbert Exp $
+ RCS:           $Id: uiseispartserv.cc,v 1.55 2007-02-23 09:35:33 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -261,7 +261,7 @@ bool uiSeisPartServer::handleGatherSubMenu( int mnuid, const BinID& bid )
     }
     uiFlatViewer& vwr = viewwin_->viewer();
 
-    FlatDisp::Context& ctxt = vwr.context();
+    FlatView::Context& ctxt = vwr.context();
     ctxt.annot_.x1_.name_ = "Offset"; ctxt.annot_.x2_.name_ = "Z";
     ctxt.annot_.x1_.showAll(); ctxt.annot_.x2_.showAll();
     ctxt.annot_.x2_.reversed_ = true;
@@ -276,7 +276,7 @@ bool uiSeisPartServer::handleGatherSubMenu( int mnuid, const BinID& bid )
     vwr.setPack( true, dp );
 
     if ( !isnew )
-	vwr.handleChange( FlatDisp::Viewer::All );
+	vwr.handleChange( FlatView::Viewer::All );
     else
     {
 	int pw = 200 + 10 * tbufsz;

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          Sep 2006
- RCS:           $Id: uiflatviewcontrol.cc,v 1.2 2007-02-22 15:55:23 cvsbert Exp $
+ RCS:           $Id: uiflatviewcontrol.cc,v 1.3 2007-02-23 09:35:33 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,7 +13,7 @@ ________________________________________________________________________
 #include "uiflatviewer.h"
 #include "uibutton.h"
 #include "uibuttongroup.h"
-#include "flatdispzoommgr.h"
+#include "flatviewzoommgr.h"
 #include "pixmap.h"
 
 #define mDefBut(butnm,grp,fnm,cbnm,tt) \
@@ -25,7 +25,7 @@ uiFlatViewControl::uiFlatViewControl( uiFlatViewer& vwr, const Setup& s )
     : uiGroup(vwr.attachObj()->parent(),"Flat viewer control")
     , setup_(s)
     , stategrp_(0)
-    , zoommgr_(*new FlatDisp::ZoomMgr)
+    , zoommgr_(*new FlatView::ZoomMgr)
 {
     setBorder( 0 );
 
