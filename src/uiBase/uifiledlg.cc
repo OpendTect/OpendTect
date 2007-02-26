@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/09/2000
- RCS:           $Id: uifiledlg.cc,v 1.32 2007-02-26 14:28:38 cvsbert Exp $
+ RCS:           $Id: uifiledlg.cc,v 1.33 2007-02-26 16:43:31 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -101,8 +101,10 @@ uiFileDialog::uiFileDialog( uiParent* parnt, Mode mode,
 
 #ifdef USEQT3
 # define mSelectFilter	setSelectedFilter
+# define mSetDir	setDir
 #else
 # define mSelectFilter	selectFilter
+# define mSetDir	setDirectory
 #endif
 
 
@@ -144,7 +146,8 @@ int uiFileDialog::go()
 	    			: QFileDialog::AcceptSave );
     fd->setMode( qmodeForUiMode(mode_) );
     fd->setCaption( QString(caption_) );
-    fd->setDir( QString(fname_) );
+    if ( !currentdir_.isEmpty() )
+	fd->mSetDir( QString(currentdir_.buf()) );
     if ( selectedfilter_.size() )
 	fd->mSelectFilter( QString(selectedfilter_) );
     

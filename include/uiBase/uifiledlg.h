@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/09/2000
- RCS:           $Id: uifiledlg.h,v 1.16 2007-02-15 18:50:23 cvsnanne Exp $
+ RCS:           $Id: uifiledlg.h,v 1.17 2007-02-26 16:41:22 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -54,6 +54,9 @@ public:
     			{ selectedfilter_ = fltr; }
     const char*		selectedFilter() const	{ return selectedfilter_; }
 
+    void		setDirectory( const char* dir )
+			{ currentdir_ = dir; }
+
     void		setOkText( const char* txt )	{ oktxt_ = txt; }
     void		setCancelText( const char* txt ){ cnclxt_ = txt; }
 
@@ -80,6 +83,7 @@ protected:
     uiParent*		parnt_;
     BufferStringSet	filenames;
     BufferString	selectedfilter_;
+    BufferString	currentdir_;
     bool		addallexts_;
     bool		forread_;
 };
