@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Sep 2006
- RCS:           $Id: array2dbitmap.h,v 1.11 2007-02-15 13:24:36 cvsbert Exp $
+ RCS:           $Id: array2dbitmap.h,v 1.12 2007-02-26 17:54:11 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -87,7 +87,7 @@ Thus, the first dimension may be irregularly sampled. For the first dimension,
 you can set up the axis by providing the positions in a float array. If you
 don't provide that array, one will be generated, the postions are assumed to
 be: 0 1 2 ..., which is the same as for the second dimension (which can never
-be irregular).
+be irregular, but it can be different from 0 - N-1).
 
 Then, you can zoom in by setting the different ranges. The default ranges will
 be -0.5 to N-0.5, i.e. half a distance between the cols/rows is added on all
@@ -115,10 +115,14 @@ public:
 				// If passed, dim0pos becomes mine
     virtual		~A2DBitMapPosSetup();
 
-    void		setPositions(float* dim0positions);
+    void		setDim0Positions(float* dim0positions);
 				//!< dim0posistions will become mine
+    void		setDim1Positions(float,float);
+				//!< For dim1
     inline const float*	dim0Positions() const
     			{ return dim0pos_; }
+    inline const Interval<float>& dim1Positions() const
+    			{ return dim1pos_; }
     int			dimSize( int dim ) const
     			{ return dim ? szdim1_ : szdim0_; }
 
@@ -127,7 +131,7 @@ public:
     inline const Interval<float>& dimRange( int dim ) const
     			{ return dim ? dim1rg_ : dim0rg_; }
     inline float	avgDist( int dim ) const
-    			{ return dim ? 1 : dim0avgdist_; }
+    			{ return dim ? dim1avgdist_ : dim0avgdist_; }
     inline float	dimEps( int dim ) const
 			{ return 1e-6 * avgDist(dim); }
 
@@ -153,13 +157,14 @@ protected:
 
 
     float*		dim0pos_;
+    Interval<float>	dim1pos_;
     int			szdim0_;
     int			szdim1_;
 
     Interval<float>	dim0rg_;
     Interval<float>	dim1rg_;
-
     float		dim0avgdist_;
+    float		dim1avgdist_;
 
     // Vars for current bitmap
     int			nrxpix_;
@@ -212,6 +217,7 @@ protected:
     int				szdim0_;
     int				szdim1_;
     const float*		dim0pos_;
+    Interval<float>		dim1pos_;
     Interval<float>		dim0rg_;
     Interval<float>		dim1rg_;
     float			dim0perpix_;

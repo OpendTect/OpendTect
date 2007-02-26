@@ -4,7 +4,7 @@
  * DATE     : Sep 2006
 -*/
 
-static const char* rcsID = "$Id: array2dbitmap.cc,v 1.19 2007-02-19 16:41:46 cvsbert Exp $";
+static const char* rcsID = "$Id: array2dbitmap.cc,v 1.20 2007-02-26 17:54:11 cvsbert Exp $";
 
 #include "array2dbitmapimpl.h"
 #include "arraynd.h"
@@ -102,8 +102,8 @@ A2DBitMapPosSetup::A2DBitMapPosSetup( const Array2DInfo& i, float* p )
 	, nrypix_(0)
 	, dim0pos_(0)
 {
-    dim1rg_.start = -0.5; dim1rg_.stop = szdim1_-0.5;
-    setPositions( p );
+    setDim0Positions( p );
+    setDim1Positions( 0, szdim1_-1 );
 }
 
 
@@ -113,7 +113,7 @@ A2DBitMapPosSetup::~A2DBitMapPosSetup()
 }
 
 
-void A2DBitMapPosSetup::setPositions( float* p )
+void A2DBitMapPosSetup::setDim0Positions( float* p )
 {
     if ( szdim0_ < 1 ) return;
 
@@ -139,6 +139,16 @@ void A2DBitMapPosSetup::setPositions( float* p )
     posbounds.sort();
     dim0rg_.start = posbounds.start - dim0avgdist_ * 0.5;
     dim0rg_.stop = posbounds.stop + dim0avgdist_ * 0.5;
+}
+
+
+void A2DBitMapPosSetup::setDim1Positions( float start, float stop )
+{
+    dim1pos_.start = start; dim1pos_.stop = stop;
+    dim1pos_.sort();
+    dim1avgdist_ = szdim1_ > 1 ? dim1pos_.width() / (szdim1_ - 1) : 1;
+    dim1rg_.start = dim1pos_.start - dim1avgdist_ * 0.5;
+    dim1rg_.stop = dim1pos_.stop + dim1avgdist_ * 0.5;
 }
 
 
@@ -217,6 +227,7 @@ void A2DBitMapGenerator::fill()
     szdim0_ = setup_.dimSize( 0 );
     szdim1_ = setup_.dimSize( 1 );
     dim0pos_ = setup_.dim0Positions();
+    dim1pos_ = setup_.dim1Positions();
     dim0rg_ = setup_.dimRange( 0 );
     dim1rg_ = setup_.dimRange( 1 );
     dim0perpix_ = 1. / setup_.getPixPerDim(0);
@@ -307,7 +318,7 @@ void WVAA2DBitMapGenerator::drawTrace( int idim0 )
     if ( mIsUdf(midval) ) midval = data_.midVal();
     const float midratio = (midval - scalerg_.start) / scalewidth_;
     const float middim0pos = dim0pos_[idim0] + (midratio-0.5) * stripwidth_;
-    const float dim1fac = (szdim1_ - 1) / dim1rg_.width();
+    const float dim1fac = (szdim1_ - 1) / dim1pos_.width();
 
     for ( int iy=0; iy<setup_.nrYPix(); iy++ )
     {
@@ -316,7 +327,7 @@ void WVAA2DBitMapGenerator::drawTrace( int idim0 )
 	if ( !setup_.isInside(1,dim1pos) )
 	    continue;
 
-	const float fdim1 = (dim1pos - dim1rg_.start) * dim1fac;
+	const float fdim1 = (dim1pos - dim1pos_.start) * dim1fac;
 	const int idim1 = (int)floor( fdim1 + 1e-6 );
 	const float dim1offs = fdim1 - idim1;
 
@@ -543,7 +554,7 @@ void VDA2DBitMapGenerator::drawPixLines( int stripdim0,
     }
 
     const Array2D<float>& inpdata = data_.data();
-    const float dim1fac = (szdim1_ - 1) / dim1rg_.width();
+    const float dim1fac = (szdim1_ - 1) / dim1pos_.width();
     int previdim1 = mUdf(int);
 
     for ( int ix=xpixs2do.start; ix<=xpixs2do.stop; ix++ )
@@ -564,7 +575,7 @@ void VDA2DBitMapGenerator::drawPixLines( int stripdim0,
 	    if ( !setup_.isInside(1,dim1pos) )
 		continue;
 
-	    const float fdim1 = (dim1pos - dim1rg_.start) * dim1fac;
+	    const float fdim1 = (dim1pos - dim1pos_.start) * dim1fac;
 	    const int idim1 = (int)floor( fdim1 + 1e-6 );
 	    const float dim1offs = fdim1 - idim1;
 

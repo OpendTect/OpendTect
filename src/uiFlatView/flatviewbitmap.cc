@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:		Feb 2007
- RCS:           $Id: flatviewbitmap.cc,v 1.2 2007-02-23 14:26:15 cvsbert Exp $
+ RCS:           $Id: flatviewbitmap.cc,v 1.3 2007-02-26 17:54:11 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -52,6 +52,7 @@ void FlatView::BitMapMgr::setupChg()
 
     const FlatPosData& pd = wva_ ? ctxt.wvaposdata_ : ctxt.vdposdata_;
     pos_ = new A2DBitMapPosSetup( arr->info(), pd.getPositions(true) );
+    pos_->setDim1Positions( pd.range(false).start, pd.range(false).stop );
     data_ = new A2DBitMapInpData( *arr );
 
     if ( !wva_ )
