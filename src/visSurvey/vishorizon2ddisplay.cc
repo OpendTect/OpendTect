@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: vishorizon2ddisplay.cc,v 1.5 2007-02-22 12:51:58 cvsjaap Exp $
+ RCS:           $Id: vishorizon2ddisplay.cc,v 1.6 2007-02-26 13:45:14 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -79,6 +79,7 @@ bool Horizon2DDisplay::addSection( const EM::SectionID& sid )
     visBase::IndexedPolyLine* pl = visBase::IndexedPolyLine::create();
     pl->ref();
     pl->setDisplayTransformation( transformation_ );
+    pl->setMaterial( 0 );
     addChild( pl->getInventorNode() );
     lines_ += pl;
     points_ += 0;
