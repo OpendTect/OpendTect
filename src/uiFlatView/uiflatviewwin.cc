@@ -4,13 +4,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          Sep 2006
- RCS:           $Id: uiflatviewwin.cc,v 1.2 2007-02-23 14:26:15 cvsbert Exp $
+ RCS:           $Id: uiflatviewwin.cc,v 1.3 2007-02-26 14:28:38 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiflatviewmainwin.h"
 #include "uiflatviewdockwin.h"
+#include "uiflatviewcontrol.h"
 #include "uiflatviewer.h"
 
 
@@ -53,9 +54,10 @@ uiFlatViewMainWin::uiFlatViewMainWin( uiParent* p,
 }
 
 
-void uiFlatViewMainWin::handleNewViewer( uiFlatViewer* vwr )
+void uiFlatViewMainWin::addControl( uiFlatViewControl* fvc )
 {
-    //TODO connect each viewer's mouseover to status bar
+    if ( !fvc ) return;
+    // TODO connect mouse handling of control to my status bar
 }
 
 
@@ -70,6 +72,7 @@ uiFlatViewDockWin::uiFlatViewDockWin( uiParent* p,
 }
 
 
-void uiFlatViewDockWin::handleNewViewer( uiFlatViewer* vwr )
+uiFlatViewDockWin::~uiFlatViewDockWin()
 {
+    cleanUp();
 }

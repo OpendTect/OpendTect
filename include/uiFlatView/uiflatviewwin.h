@@ -6,14 +6,15 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewwin.h,v 1.2 2007-02-23 14:26:14 cvsbert Exp $
+ RCS:           $Id: uiflatviewwin.h,v 1.3 2007-02-26 14:28:38 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "sets.h"
-class uiFlatViewer;
 class uiParent;
+class uiFlatViewer;
+class uiFlatViewControl;
 
 
 /*!\brief Base class for windows containing one or more uiFlatViewer(s).
@@ -39,6 +40,7 @@ public:
 
     virtual void	setWinTitle(const char*)	= 0;
     virtual void	start()				= 0;
+    virtual void	addControl(uiFlatViewControl*)	{}
 
 protected:
 
@@ -49,7 +51,7 @@ protected:
     void			cleanUp();
 
     virtual uiParent*		uiparent()			= 0;
-    virtual void		handleNewViewer(uiFlatViewer*)	= 0;
+    virtual void		handleNewViewer(uiFlatViewer*)	{}
 };
 
 

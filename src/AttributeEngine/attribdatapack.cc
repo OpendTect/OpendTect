@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Huck
  Date:          January 2007
- RCS:           $Id: attribdatapack.cc,v 1.15 2007-02-21 15:53:33 cvsbert Exp $
+ RCS:           $Id: attribdatapack.cc,v 1.16 2007-02-26 14:28:38 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -137,6 +137,13 @@ Coord3 Flat3DDataPack::getCoord( int i0, int i1 ) const
 }
 
 
+const char* Flat3DDataPack::dimName( bool dim0 ) const
+{
+    return dim0 ? (dir_==CubeSampling::Inl ? "Crl" : "Inl")
+		: (dir_==CubeSampling::Z ? "Crl" : "Z");
+}
+
+
 
 Flat2DDataPack::Flat2DDataPack( DescID did, const Data2DHolder& dh )
     : ::FlatDataPack(categoryStr(true))
@@ -214,6 +221,12 @@ Coord3 Flat2DDataPack::getCoord( int i0, int i1 ) const
     if ( i0 >= dh_.trcinfoset_.size() ) i0 = dh_.trcinfoset_.size() - 1;
     const SeisTrcInfo& ti = *dh_.trcinfoset_[i0];
     return Coord3( ti.coord, ti.sampling.atIndex(i1) );
+}
+
+
+const char* Flat2DDataPack::dimName( bool dim0 ) const
+{
+    return dim0 ? "Distance" : "Z";
 }
 
 

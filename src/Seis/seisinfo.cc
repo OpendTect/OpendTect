@@ -5,7 +5,7 @@
  * FUNCTION : Seismic trace informtaion
 -*/
 
-static const char* rcsID = "$Id: seisinfo.cc,v 1.35 2007-02-19 16:41:46 cvsbert Exp $";
+static const char* rcsID = "$Id: seisinfo.cc,v 1.36 2007-02-26 14:28:38 cvsbert Exp $";
 
 #include "seisinfo.h"
 #include "seistrc.h"
@@ -110,14 +110,14 @@ const char** Seis::waveTypeNames()
 
 DefineEnumNames(SeisTrcInfo,Fld,1,"Header field") {
 	"Trace number",
-	"In-line",
-	"Cross-line",
-	"X-coordinate",
-	"Y-coordinate",
-	"Offset",
-	"Azimuth",
 	"Pick position",
 	"Reference position",
+	"X-coordinate",
+	"Y-coordinate",
+	"In-line",
+	"Cross-line",
+	"Offset",
+	"Azimuth",
 	0
 };
 

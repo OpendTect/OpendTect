@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.90 2007-02-23 14:26:15 cvsbert Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.91 2007-02-26 14:28:38 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -899,7 +899,8 @@ void uiODSceneMgr::Viewer2D::setData( DataPack::ID packid, bool wva )
 
 	viewwin_ = vwwin;
 	viewwin_->viewer().context().annot_.x2_.reversed_ = true;
-	new uiFlatViewControl( viewwin_->viewer(), uiFlatViewControl::Setup() );
+	viewwin_->addControl( new uiFlatViewControl( viewwin_->viewer(),
+		    	      uiFlatViewControl::Setup() ) );
 
 	vwwin->undock();
     }

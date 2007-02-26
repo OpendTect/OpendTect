@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Feb 2007
- RCS:		$Id: seisbufadapters.h,v 1.1 2007-02-21 14:51:00 cvsbert Exp $
+ RCS:		$Id: seisbufadapters.h,v 1.2 2007-02-26 14:28:38 cvsbert Exp $
 ________________________________________________________________________
 
 */
@@ -61,6 +61,7 @@ public:
     void		getAuxInfo(int,int,IOPar&) const;
     Coord3		getCoord(int,int) const;
     bool		posDataIsCoord() const		{ return false; }
+    const char*		dimName(bool) const;
 
     SeisTrcBufArray2D&	trcBufArr2D()
     			{ return *((SeisTrcBufArray2D*)arr2d_); }
@@ -74,6 +75,7 @@ public:
 protected:
 
     Seis::GeomType	gt_;
+    SeisTrcInfo::Fld	fld_;
 
 };
 

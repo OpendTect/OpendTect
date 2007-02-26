@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/09/2000
- RCS:           $Id: uifiledlg.cc,v 1.31 2007-02-15 18:50:22 cvsnanne Exp $
+ RCS:           $Id: uifiledlg.cc,v 1.32 2007-02-26 14:28:38 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -108,10 +108,15 @@ uiFileDialog::uiFileDialog( uiParent* parnt, Mode mode,
 
 int uiFileDialog::go()
 {
-    if ( !File_exists(fname_) && !File_isDirectory(fname_) )
+    FilePath fp( fname_ );
+    fname_ = fp.fullPath();
+    if ( !File_isDirectory(fname_) )
     {
-	if ( !File_isDirectory( FilePath(fname_).pathOnly() ) )
+	if ( !File_isDirectory(fp.pathOnly()) )
 	    fname_ = GetPersonalDir();
+	else if ( !File_exists(fname_)
+	       && (mode_ == ExistingFile || mode_ == ExistingFiles) )
+	    fname_ = fp.pathOnly();
     }
 
     QWidget* qp =0;

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          Sep 2006
- RCS:           $Id: uiflatviewer.cc,v 1.7 2007-02-23 14:26:15 cvsbert Exp $
+ RCS:           $Id: uiflatviewer.cc,v 1.8 2007-02-26 14:28:38 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -216,18 +216,23 @@ void uiFlatViewer::drawGridAnnot()
     const FlatView::Annotation& annot = context().annot_;
     const FlatView::Annotation::AxisData& ad1 = annot.x1_;
     const FlatView::Annotation::AxisData& ad2 = annot.x2_;
+    const bool showanyx1annot = ad1.showannot_ || ad1.showgridlines_;
+    const bool showanyx2annot = ad2.showannot_ || ad2.showgridlines_;
+    if ( !showanyx1annot && !showanyx2annot )
+	return;
+
     mDefuiW2Ui;
     const uiRect datarect( canvas_.arrArea() );
     ioDrawTool& dt = *canvas_.drawTool();
     const uiSize totsz( canvas_.width(), canvas_.height() );
 
-    if ( !ad1.name_.isEmpty() )
+    if ( showanyx1annot && !ad1.name_.isEmpty() )
 	dt.drawText( uiPoint(2,2), annot.x2_.name_,
 		     Alignment(Alignment::Start,Alignment::Start) );
-    if ( !ad2.name_.isEmpty() )
+    if ( showanyx2annot && !ad2.name_.isEmpty() )
 	dt.drawText( uiPoint(totsz.width()-2,totsz.height()-2),
 		     annot.x1_.name_,
-		     Alignment(Alignment::Stop,Alignment::Stop));
+		     Alignment(Alignment::Stop,Alignment::Start));
 
     DrawAxis2D axisdrawer( &w2u, &datarect );
     axisdrawer.drawAxes( dt, ad1.showannot_, ad2.showannot_, true, true );

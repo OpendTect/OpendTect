@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra and Helene Huck
  Date:		January 2007
- RCS:		$Id: attribdatapack.h,v 1.14 2007-02-21 15:53:33 cvsbert Exp $
+ RCS:		$Id: attribdatapack.h,v 1.15 2007-02-26 14:28:38 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -67,6 +67,7 @@ public:
     void		getAuxInfo(int,int,IOPar&) const;
     Coord3		getCoord(int,int) const;
     void		dumpInfo(IOPar&) const;
+    const char*		dimName(bool) const;
 
     void		setSourceType( const char* st ) { srctyp_ = st; }
     			//!< Default is "2D", could be set to "Random line"
@@ -98,6 +99,7 @@ public:
     const DataCubes&	cube() const		{ return cube_; }
     Array2D<float>&	data();
     CubeSampling::Dir	dataDir() const		{ return dir_; }
+    const char*		dimName(bool) const;
 
     void		getAuxInfo(int,int,IOPar&) const;
     Coord3		getCoord(int,int) const;

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra and Helene Huck
  Date:		January 2007
- RCS:		$Id: datapackbase.h,v 1.2 2007-02-21 14:51:00 cvsbert Exp $
+ RCS:		$Id: datapackbase.h,v 1.3 2007-02-26 14:28:38 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -47,6 +47,8 @@ public:
     virtual Coord3		getCoord(int,int) const;
     				//!< int,int = Array2D position
     				//!< if not overloaded, returns (posData(),0).
+    virtual const char*		dimName( bool dir1 ) const
+				{ return dir1 ? "X1" : "X2"; }
     virtual bool		posDataIsCoord() const	{ return true; }
 
     virtual float		nrKBytes() const;

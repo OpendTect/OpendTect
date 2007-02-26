@@ -4,7 +4,7 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID = "$Id: seisbuf.cc,v 1.30 2007-02-21 14:51:00 cvsbert Exp $";
+static const char* rcsID = "$Id: seisbuf.cc,v 1.31 2007-02-26 14:28:38 cvsbert Exp $";
 
 #include "seisbuf.h"
 #include "seisbufadapters.h"
@@ -363,12 +363,13 @@ SeisTrcBufDataPack::SeisTrcBufDataPack( SeisTrcBuf& tbuf,
 					const char* cat, int icomp )
     : FlatDataPack(cat,new SeisTrcBufArray2D(tbuf,true,icomp))
     , gt_(gt)
+    , fld_(fld)
 {
     const int tbufsz = tbuf.size();
     if ( tbufsz < 1 ) return;
 
     FlatPosData& pd = posData();
-    double ofv; float* hdrvals = tbuf.getHdrVals( SeisTrcInfo::Offset, ofv );
+    double ofv; float* hdrvals = tbuf.getHdrVals( fld_, ofv );
     pd.setX1Pos( hdrvals, tbufsz, ofv );
     SeisPacketInfo pinf; tbuf.fill( pinf );
     StepInterval<double> zrg; assign( zrg, pinf.zrg );
@@ -397,4 +398,10 @@ Coord3 SeisTrcBufDataPack::getCoord( int itrc, int isamp ) const
     if ( itrc < 0 ) itrc = 0;
     const SeisTrc* trc = buf.get( itrc );
     return Coord3( trc->info().coord, trc->info().samplePos(isamp) );
+}
+
+
+const char* SeisTrcBufDataPack::dimName( bool dim0 ) const
+{
+    return dim0 ? eString(SeisTrcInfo::Fld,fld_) : "Z";
 }
