@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoDepthTabPlaneDragger.cc,v 1.16 2007-02-12 14:59:40 cvskris Exp $";
+static const char* rcsID = "$Id: SoDepthTabPlaneDragger.cc,v 1.17 2007-02-27 21:30:22 cvskris Exp $";
 
 
 #include "SoDepthTabPlaneDragger.h"
@@ -461,6 +461,7 @@ void SoDepthTabPlaneDragger::drag(void)
 
 	SbVec3f motion = newhitpt-startpt;
 	motmat = appendTranslation(getStartMotionMatrix(), motion);
+	checkLimits( motmat );
     }
     else if ( whatkind_==WHATKIND_PLANETRANSLATE )
     { // translate plane
@@ -484,9 +485,19 @@ void SoDepthTabPlaneDragger::dragFinish(void)
     if ( whatkind_==WHATKIND_NONE )
 	return;
 
+    SbMatrix motmat = getMotionMatrix();
+    if ( checkLimits(motmat) )
+	setMotionMatrix(motmat);
+
+    whatkind_ = WHATKIND_NONE;
+}
+
+
+bool SoDepthTabPlaneDragger::checkLimits( SbMatrix& motmat ) const
+{
     SbVec3f trans, scale;
     SbRotation rot, scaleorient;
-    getMotionMatrix().getTransform(trans, rot, scale, scaleorient );
+    motmat.getTransform(trans, rot, scale, scaleorient );
 
     const SbVec3f minpos = minPos.getValue();
     const SbVec3f maxpos = maxPos.getValue();
@@ -545,14 +556,11 @@ void SoDepthTabPlaneDragger::dragFinish(void)
 	}
     }
 
-    if ( change )
-    {
-	SbMatrix motmat;
-	motmat.setTransform( trans, rot, scale, scaleorient );
-	setMotionMatrix(motmat);
-    }
+    if ( !change )
+	return false;
 
-    whatkind_ = WHATKIND_NONE;
+    motmat.setTransform( trans, rot, scale, scaleorient );
+    return true;
 }
 
 

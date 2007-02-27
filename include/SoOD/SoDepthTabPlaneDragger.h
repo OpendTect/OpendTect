@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoDepthTabPlaneDragger.h,v 1.5 2007-01-11 18:09:19 cvskris Exp $
+ RCS:		$Id: SoDepthTabPlaneDragger.h,v 1.6 2007-02-27 21:30:22 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -74,6 +74,8 @@ protected:
     void		dragStart(void);
     void		drag(void);
     void		dragFinish(void);
+    bool		checkLimits(SbMatrix&) const;
+    			/*!<\returns true if changed matrix. */
 
     bool		shouldDrag( const SoEvent* event, Key key ) const;
 
