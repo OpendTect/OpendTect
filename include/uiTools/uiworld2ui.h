@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          13/8/2000
- RCS:           $Id: uiworld2ui.h,v 1.12 2007-02-06 18:01:48 cvsbert Exp $
+ RCS:           $Id: uiworld2ui.h,v 1.13 2007-02-27 22:33:35 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -70,15 +70,8 @@ public:
 			
 			//! The following reset...() functions must be called
 			//! ONLY AFTER a call to set...() is made.
-    void		resetUiSize( const uiSize& sz );
     void		resetUiRect( const uiRect& rc );
-    void		resetWorldRect( const uiWorldRect& wr );
-    void		resetWorldRectRemap( const uiWorldRect& wr );
 
-    uiWorld2Ui		getMirrored(bool lr,bool tb) const;
-    			/*!\param lr	mirror left-right
-			   \param tb	mirror top-bottom
-			   \returns 	mirrored version of this transform.*/
     const World2UiData&	world2UiData() const;
 
 
@@ -99,9 +92,6 @@ public:
     float		toWorldX( int uix ) const;
     float		toWorldY( int uiy ) const;
 
-    uiWorldRect		xyRng2WrdRect( float minx, float maxx,
-    				       float miny, float maxy );
-
     uiWorldPoint	origin() const;
     uiWorldPoint	worldPerPixel() const;
 			//!< numbers may be negative
@@ -111,10 +101,6 @@ public:
 			//! these two functions to get the new value
     void		getWorldXRange( float& xmin, float& xmax ) const;
     void		getWorldYRange( float& ymin, float& ymax ) const;
-			//! Get a recommended step value for annotating X/Y axis
-			//! The step value will always be positive which means
-			//! stepping from min. to max. value
-    void		getRecmMarkStep( float& xstep, float& ystep ) const;
 
 protected:
 
@@ -130,9 +116,6 @@ protected:
 private:
 			void getAppopriateRange( float min, float max,
 						 float& newmin, float& newmax );
-			void getRecmMarkStep( float min, float max,
-					      float& step ) const;
-
 };
 
 

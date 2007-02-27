@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          September 2006
- RCS:           $Id: uiworld2ui.cc,v 1.4 2007-02-14 10:52:28 cvsbert Exp $
+ RCS:           $Id: uiworld2ui.cc,v 1.5 2007-02-27 22:33:35 cvskris Exp $
  ________________________________________________________________________
 
 -*/
@@ -122,7 +122,7 @@ void uiWorld2Ui::setRemap( const uiRect& rc, const uiWorldRect& wrdrc )
 void uiWorld2Ui::setCartesianRemap( const uiSize& sz,
 float minx, float maxx, float miny, float maxy )
 {
-    uiWorldRect wr = xyRng2WrdRect(minx,maxx,miny,maxy);
+    const uiWorldRect wr( minx, maxy, maxx, miny );
     setRemap( sz, wr );
 }
 
@@ -130,35 +130,13 @@ float minx, float maxx, float miny, float maxy )
 void uiWorld2Ui::setCartesianRemap( const uiRect& rc,
 float minx, float maxx, float miny, float maxy )
 {
-    uiWorldRect wr = xyRng2WrdRect(minx,maxx,miny,maxy);
+    const uiWorldRect wr( minx, maxy, maxx, miny );
     setRemap( rc, wr );
 }
 
 
-void uiWorld2Ui::resetUiSize( const uiSize& sz )
-{ set( sz, wrdrect_ ); }
-
-
 void uiWorld2Ui::resetUiRect( const uiRect& rc )
 { set( rc, wrdrect_ ); }
-
-
-void uiWorld2Ui::resetWorldRect( const uiWorldRect& wr )
-{ set( uisize_, wr ); }
-
-
-void uiWorld2Ui::resetWorldRectRemap( const uiWorldRect& wr )
-{ setRemap( uisize_, wr ); }
-
-
-uiWorld2Ui uiWorld2Ui::getMirrored( bool lr, bool tb ) const
-{
-    World2UiData newdata = w2ud;
-    if ( lr ) newdata.wr.swapHor();
-    if ( tb ) newdata.wr.swapVer();
-
-    return uiWorld2Ui( newdata );
-}
 
 
 const World2UiData& uiWorld2Ui::world2UiData() const
@@ -220,11 +198,6 @@ float uiWorld2Ui::toWorldY ( int uiy ) const
 { return p0.y + (uiy-uiorigin.y)*fac.y; }
 
 
-uiWorldRect uiWorld2Ui::xyRng2WrdRect( float minx, float maxx,
-				       float miny, float maxy )
-{ return uiWorldRect( minx, maxy, maxx, miny ); }
-
-
 uiWorldPoint uiWorld2Ui::origin() const
 { return p0; }
 
@@ -247,16 +220,6 @@ void uiWorld2Ui::getWorldYRange( float& ymin, float& ymax ) const
 }
 
 
-void uiWorld2Ui::getRecmMarkStep( float& xstep, float& ystep ) const
-{
-    float min, max;
-    getWorldXRange( min, max );
-    getRecmMarkStep( min, max, xstep );
-    getWorldYRange( min, max );
-    getRecmMarkStep( min, max, ystep );
-}
-
-
 void uiWorld2Ui::getAppopriateRange( float min, float max,
 				     float& newmin, float& newmax )
 {
@@ -267,14 +230,4 @@ void uiWorld2Ui::getAppopriateRange( float min, float max,
     newmin = al.sd.start;
     newmax = al.findEnd( max );
     if ( rev )	Swap( newmin, newmax );
-}
-
-
-void uiWorld2Ui::getRecmMarkStep( float min, float max,
-				  float& step ) const
-{
-    if ( min > max ) Swap( min, max );
-    Interval<float> intv( min, max );
-    AxisLayout al( intv );
-    step = al.sd.step;
 }
