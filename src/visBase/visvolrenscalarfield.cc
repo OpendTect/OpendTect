@@ -4,7 +4,7 @@
  * DATE     : April 2004
 -*/
 
-static const char* rcsID = "$Id: visvolrenscalarfield.cc,v 1.3 2007-02-05 21:58:20 cvskris Exp $";
+static const char* rcsID = "$Id: visvolrenscalarfield.cc,v 1.4 2007-02-27 19:54:08 cvskris Exp $";
 
 #include "visvolrenscalarfield.h"
 
@@ -248,7 +248,7 @@ void VolumeRenderScalarField::makeColorTables()
     const float redfactor = (float) blendcolor_.r()/(255*255);
     const float greenfactor = (float) blendcolor_.g()/(255*255);
     const float bluefactor = (float) blendcolor_.b()/(255*255);
-    const float transfactor = (float) blendcolor_.t()/(255*255);
+    const float opacityfactor = (float) (255-blendcolor_.t())/(255*255);
 
     const bool didnotify = transferfunc_->colorMap.enableNotify( false );
     int cti = 0;
@@ -258,7 +258,7 @@ void VolumeRenderScalarField::makeColorTables()
 	transferfunc_->colorMap.set1Value( cti++, col.r()*redfactor );
 	transferfunc_->colorMap.set1Value( cti++, col.g()*greenfactor );
 	transferfunc_->colorMap.set1Value( cti++, col.b()*bluefactor );
-	transferfunc_->colorMap.set1Value( cti++, 1.0-col.t()*transfactor );
+	transferfunc_->colorMap.set1Value( cti++, 1.0-col.t()*opacityfactor );
     }
 
     transferfunc_->predefColorMap = SoTransferFunction::NONE;
