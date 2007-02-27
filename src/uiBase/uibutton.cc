@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uibutton.cc,v 1.32 2007-02-14 12:38:00 cvsnanne Exp $
+ RCS:           $Id: uibutton.cc,v 1.33 2007-02-27 08:42:49 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -344,7 +344,7 @@ uiToolButtonBody& uiToolButton::mkbody( uiParent* parnt, const ioPixmap* pm,
 # define mIsOn			isChecked
 # define mSetOn			setChecked
 # define mIsToggleButton	isCheckable
-# define mSetToggleButton	setChecked
+# define mSetToggleButton	setCheckable
 #endif
 
 
