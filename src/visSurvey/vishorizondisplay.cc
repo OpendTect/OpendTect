@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: vishorizondisplay.cc,v 1.27 2007-02-14 12:37:27 cvsnanne Exp $
+ RCS:           $Id: vishorizondisplay.cc,v 1.28 2007-02-27 14:11:37 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -70,8 +70,6 @@ HorizonDisplay::HorizonDisplay()
     , translation_( 0 )
     , edgelineradius_( 3.5 )
     , validtexture_( false )
-    , burstalertison_( false )
-    , postponedupdates_( 0 )
     , resolution_( 0 )
     , zaxistransform_( 0 )
 {
@@ -811,14 +809,6 @@ void HorizonDisplay::emChangeCB( CallBacker* cb )
 	    if ( ps ) ps->inValidateCache(-1);
 	}
     }
-    else if ( cbdata.event==EM::EMObjectCallbackData::BurstAlert)
-    {
-	burstalertison_ = !burstalertison_;
-	if ( postponedupdates_ )
-	    hasmoved.trigger();
-	postponedupdates_ = 0;
-    }
-
     else if ( cbdata.event==EM::EMObjectCallbackData::PrefColorChange )
     {
 	nontexturecol_ = emobject_->preferredColor();
@@ -1313,12 +1303,6 @@ void HorizonDisplay::updateSectionSeeds(
 void HorizonDisplay::otherObjectsMoved(
 	    const ObjectSet<const SurveyObject>& objs, int whichobj )
 { 
-    if ( burstalertison_ && whichobj==id() )
-    {
-	postponedupdates_++;
-	return; 
-    }
-    
     updateIntersectionLines( objs, whichobj ); 
     updateSectionSeeds( objs, whichobj );
 }

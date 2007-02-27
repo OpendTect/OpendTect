@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: visemobjdisplay.cc,v 1.95 2007-02-13 13:44:59 cvsjaap Exp $
+ RCS:           $Id: visemobjdisplay.cc,v 1.96 2007-02-27 14:11:37 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -53,6 +53,8 @@ EMObjectDisplay::EMObjectDisplay()
     , nontexturecolisset_( false )
     , enableedit_( true )
     , restoresessupdate_( false )
+    , burstalertison_( false )
+    , postponedposchanges_( 0 )
 {
     parposattrshown_.erase();
 
@@ -454,20 +456,38 @@ void EMObjectDisplay::emChangeCB( CallBacker* cb )
 
 	triggermovement = true;
     }
+    else if ( cbdata.event==EM::EMObjectCallbackData::BurstAlert)
+    {
+	burstalertison_ = !burstalertison_;
+	if ( burstalertison_ )
+	    postponedposchanges_ = 0;
+	
+	if ( postponedposchanges_ )
+	{
+	    for ( int idx=0; idx<posattribs_.size(); idx++ ) 
+		updatePosAttrib(posattribs_[idx]); 
+
+	    triggermovement = true;
+	}
+
+    }
     else if ( cbdata.event==EM::EMObjectCallbackData::PositionChange )
     {
-	for ( int idx=0; idx<posattribs_.size(); idx++ )
+	if ( burstalertison_ )
+	    postponedposchanges_++;
+	else
 	{
-	    const TypeSet<EM::PosID>* pids =
-		emobject_->getPosAttribList(posattribs_[idx]);
+	    for ( int idx=0; idx<posattribs_.size(); idx++ ) 
+	    {
+		const TypeSet<EM::PosID>* pids = 
+			emobject_->getPosAttribList(posattribs_[idx]); 
+		if ( !pids || pids->indexOf(cbdata.pid0)==-1 ) 
+		    continue; 
 
-	    if ( !pids || pids->indexOf(cbdata.pid0)==-1 )
-		continue;
-
-	    updatePosAttrib(posattribs_[idx]);
+		updatePosAttrib(posattribs_[idx]); 
+	    }
+	    triggermovement = true;
 	}
-	
-	triggermovement = true;
     }
     else if ( cbdata.event==EM::EMObjectCallbackData::AttribChange )
     {

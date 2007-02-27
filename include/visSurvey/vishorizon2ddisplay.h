@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          May 2004
- RCS:           $Id: vishorizon2ddisplay.h,v 1.3 2007-02-22 12:34:59 cvsjaap Exp $
+ RCS:           $Id: vishorizon2ddisplay.h,v 1.4 2007-02-27 14:11:37 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -49,9 +49,6 @@ protected:
     ObjectSet<visBase::IndexedPolyLine>	lines_;
     ObjectSet<visBase::PointSet>	points_;
     TypeSet<EM::SectionID>		sids_;
-
-    bool			burstalertison_;
-    int				postponedcallbacks_;
 };
 
 

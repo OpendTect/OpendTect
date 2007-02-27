@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          May 2004
- RCS:           $Id: visemobjdisplay.h,v 1.45 2006-10-20 08:49:05 cvsjaap Exp $
+ RCS:           $Id: visemobjdisplay.h,v 1.46 2007-02-27 14:11:37 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -134,6 +134,9 @@ protected:
     bool				displayonlyatsections_;
     bool				enableedit_;
     bool				restoresessupdate_;
+
+    bool				burstalertison_;
+    int 				postponedposchanges_;
 
     static const char*			sKeyEarthModelID;
     static const char*			sKeyResolution;
