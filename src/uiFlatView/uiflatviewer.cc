@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          Sep 2006
- RCS:           $Id: uiflatviewer.cc,v 1.8 2007-02-26 14:28:38 cvsbert Exp $
+ RCS:           $Id: uiflatviewer.cc,v 1.9 2007-02-27 14:47:47 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -234,9 +234,11 @@ void uiFlatViewer::drawGridAnnot()
 		     annot.x1_.name_,
 		     Alignment(Alignment::Stop,Alignment::Start));
 
-    DrawAxis2D axisdrawer( &w2u, &datarect );
-    axisdrawer.drawAxes( dt, ad1.showannot_, ad2.showannot_, true, true );
-    axisdrawer.drawGridLines( dt, ad1.showgridlines_, ad2.showgridlines_ );
+    DrawAxis2D axisdrawer( &canvas_ );
+    axisdrawer.setDrawRectangle( &datarect );
+    axisdrawer.setup( wr_ );
+    axisdrawer.drawAxes( ad1.showannot_, ad2.showannot_, true, true );
+    axisdrawer.drawGridLines( ad1.showgridlines_, ad2.showgridlines_ );
 }
 
 

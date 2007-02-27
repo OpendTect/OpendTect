@@ -1,20 +1,22 @@
 #ifndef drawaxis2d_h
 #define drawaxis2d_h
 
-#include "geometry.h"
-class ioDrawTool;
-class uiWorld2Ui;
-
 /*+
-  ________________________________________________________________________
+________________________________________________________________________
 
-   CopyRight:     (C) dGB Beheer B.V.
-   Author:        Duntao Wei
-   Date:          Jan 2005
-   RCS:           $Id: drawaxis2d.h,v 1.3 2007-02-23 14:26:14 cvsbert Exp $
-   ________________________________________________________________________
+ CopyRight:     (C) dGB Beheer B.V.
+ Author:        Duntao Wei
+ Date:          Jan 2005
+ RCS:           $Id: drawaxis2d.h,v 1.4 2007-02-27 14:47:47 cvskris Exp $
+________________________________________________________________________
 
 -*/
+
+#include "linear.h"
+#include "uigeom.h"
+
+class ioDrawArea;
+template <class T> class StepInterval;
 
 /*\!Draw simple axis for 2D axis.
 
@@ -42,46 +44,38 @@ class uiWorld2Ui;
 class DrawAxis2D
 {
 public:
-			DrawAxis2D();
-			DrawAxis2D(const uiWorld2Ui*,const uiRect* rc=0);
+			DrawAxis2D(ioDrawArea* = 0);
+    void		setDrawArea(ioDrawArea*);
+    void		setDrawRectangle(const uiRect*);
+    			/*!<Specifies a rectangle on the canvas where the
+			    axis should be drawn. If set to zero, drawer will
+			    draw in the full draw area. */
+    void		setup(const uiWorldRect&);
+    void		setup(const StepInterval<float>& xrg,
+	    		      const StepInterval<float>& yrg);
 
-			//! If the axis is drawn right at the position where
-			//! X=Xmin/Xmax for Y axis and Y = Ymin/Ymax for X
-			//! axis, just pass a NULL uiRect pointer to setup.
-			//! Otherwise set uiRect for the axis drawing position.
-			//! set left/right member for left/right Y axis position
-			//! and set top/bottom member for the top/bottom x axis
-			//! position.
-
-    void		setupAxis(const uiWorld2Ui*,const uiRect* rc=0);
-    void		setFixedDataRangeAndStep(float minx,float maxx,
-					   	 float miny,float maxy,
-						 float xstep,float ystep);
     void		annotInside( bool yn )	{ inside_ = yn; }
     void		drawAxisLine( bool yn )	{ drawaxisline_ = yn; }
 
-    void		drawAxes(ioDrawTool&,bool xdir,bool ydir,
-	    				     bool topside,bool leftside) const;
-    void		drawXAxis(ioDrawTool&,bool topside) const;
-    void		drawYAxis(ioDrawTool&,bool leftside) const;
-    void		drawGridLines(ioDrawTool&,bool xdir,bool ydir) const;
+    void		drawAxes(bool xdir,bool ydir,
+	    			 bool topside,bool leftside) const;
+    void		drawXAxis(bool topside) const;
+    void		drawYAxis(bool leftside) const;
+    void		drawGridLines(bool xdir,bool ydir) const;
 
 private:
+    uiRect		getDrawArea() const;
 
-    float		minx_;
-    float		maxx_;
-    float		miny_;
-    float		maxy_;
-    float		stepx_;
-    float		stepy_;
-    const uiWorld2Ui*	w2u_;
+    ioDrawArea*		drawarea_;
+
+    AxisLayout		xaxis_;
+    AxisLayout		yaxis_;
+
+    uiRect		uirect_;
+    bool		useuirect_;
+
     bool		inside_;
     bool		drawaxisline_;
-
-    Geom::Rectangle<int> axisrect_;
-    bool		axislineposset_;
-    const int		ticlen_;
-
 };
 
 
