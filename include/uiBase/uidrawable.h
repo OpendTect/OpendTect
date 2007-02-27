@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2000
- RCS:           $Id: uidrawable.h,v 1.9 2007-02-14 12:38:00 cvsnanne Exp $
+ RCS:           $Id: uidrawable.h,v 1.10 2007-02-27 13:35:01 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -56,10 +56,11 @@ Subclasses can override this method to do some additional drawing.
 \sa uiDrawableObjBody::handlePaintEvent( uiRect r, QPaintEvent* QPEv=0 )
 
 */
-    virtual void        reDrawHandler( uiRect updateArea )      {}
-    virtual void        reSizeHandler( uiSize, uiSize )         {}
+    virtual void        reDrawHandler(uiRect updateArea)	{}
+    virtual void        reSizeHandler(uiSize,uiSize)		{}
+    virtual void	rubberBandHandler(uiRect)		{}
 
-    virtual ioDrawTool* drawTool_( int x0, int y0 );
+    virtual ioDrawTool* drawTool_(int x0,int y0);
 
     OD::ButtonState	rubberbandbutton_;
     bool		rubberbandon_;

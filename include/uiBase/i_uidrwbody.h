@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          03/07/2001
- RCS:           $Id: i_uidrwbody.h,v 1.13 2007-02-14 12:38:00 cvsnanne Exp $
+ RCS:           $Id: i_uidrwbody.h,v 1.14 2007-02-27 13:35:01 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -155,7 +155,10 @@ template <class C,class T>
 void uiDrawableObjBody<C,T>::mouseReleaseEvent( QMouseEvent* ev )
 {
     if ( handle_.isRubberBandingOn() )
+    {
 	rubberband_->stop( ev );
+	handle_.rubberBandHandler( rubberband_->area() );
+    }
 }
 #endif
 
