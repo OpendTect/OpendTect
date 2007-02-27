@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: vishorizon2ddisplay.cc,v 1.6 2007-02-26 13:45:14 cvsnanne Exp $
+ RCS:           $Id: vishorizon2ddisplay.cc,v 1.7 2007-02-27 11:33:45 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,8 +30,6 @@ namespace visSurvey
 {
 
 Horizon2DDisplay::Horizon2DDisplay()
-    : burstalertison_(false)
-    , postponedcallbacks_(0)
 {
     points_.allowNull(true);
 }
@@ -196,9 +194,7 @@ void Horizon2DDisplay::emChangeCB( CallBacker* cb )
     mCBCapsuleUnpack(const EM::EMObjectCallbackData&,cbdata,cb);
     if ( cbdata.event==EM::EMObjectCallbackData::PositionChange )
     {
-	if ( burstalertison_ )
-	    postponedcallbacks_++;
-	else
+	if ( !burstalertison_ )
 	{
 	    for ( int idx=0; idx<sids_.size(); idx++ )
 		updateSection( idx );
@@ -206,13 +202,11 @@ void Horizon2DDisplay::emChangeCB( CallBacker* cb )
     }
     else if ( cbdata.event==EM::EMObjectCallbackData::BurstAlert )
     {
-	burstalertison_ = !burstalertison_;
-	if ( postponedcallbacks_ )
+	if ( postponedposchanges_ )
 	{
 	    for ( int idx=0; idx<sids_.size(); idx++ )
 		updateSection( idx );
 	}
-	postponedcallbacks_ = 0;
     }
     else if ( cbdata.event==EM::EMObjectCallbackData::PrefColorChange )
     {
