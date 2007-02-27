@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: emhorizon3d.cc,v 1.87 2007-02-07 11:04:11 cvsnanne Exp $
+ RCS:           $Id: emhorizon3d.cc,v 1.88 2007-02-27 16:17:40 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -295,8 +295,15 @@ bool Horizon::setArray2D( const Array2D<float>& arr, SectionID sid,
     if ( rowrg.width(false)<1 || colrg.width(false)<1 )
 	return false;
 
+    const RowCol startrc( rowrg.start, colrg.start );
+    const RowCol stoprc( rowrg.stop, colrg.stop );
+    geometry().sectionGeometry( sid )->expandWithUdf( startrc, stoprc );
+    
+    int poscount = 0;
     geometry().sectionGeometry( sid )->blockCallBacks( true, false );
     const bool didcheck = geometry().enableChecks( false );
+    setBurstAlert( true );
+
     for ( int row=rowrg.start; row<=rowrg.stop; row+=rowrg.step )
     {
 	for ( int col=colrg.start; col<=colrg.stop; col+=colrg.step )
@@ -306,13 +313,25 @@ bool Horizon::setArray2D( const Array2D<float>& arr, SectionID sid,
 	    if ( pos.isDefined() && onlyfillundefs )
 		continue;
 
-	    pos.z = arr.get( rowrg.getIndex(row), colrg.getIndex(col));
+	    const double val = arr.get(rowrg.getIndex(row),colrg.getIndex(col));
+	    if ( pos.z == val )
+		continue;
+
+	    pos.z = val;
 	    setPos( sid, rc.getSerialized(), pos, false );
+
+	    if ( ++poscount >= 10000 ) 
+	    {
+		geometry().sectionGeometry( sid )->blockCallBacks( true, true );
+		poscount = 0;
+	    }
 	}
     }
 
+    setBurstAlert(false);
     geometry().sectionGeometry( sid )->blockCallBacks( false, true );
     geometry().enableChecks( didcheck );
+    geometry().sectionGeometry( sid )->trimUndefParts();
     return true;
 }
 

@@ -4,7 +4,7 @@
  * DATE     : Nov 2004
 -*/
 
-static const char* rcsID = "$Id: binidsurface.cc,v 1.16 2007-02-07 09:06:59 cvsnanne Exp $";
+static const char* rcsID = "$Id: binidsurface.cc,v 1.17 2007-02-27 16:17:41 cvsjaap Exp $";
 
 #include "binidsurface.h"
 
@@ -259,6 +259,9 @@ bool BinIDSurface::expandWithUdf( const RCol& start, const RCol& stop )
     
     const int newnrrows = stoprowidx-startrowidx+1;
     const int newnrcols = stopcolidx-startcolidx+1;
+
+    if ( oldnrrows==newnrrows && oldnrcols==newnrcols )
+	return true;
     
     Array2D<float>* newdepths = new Array2DImpl<float>( newnrrows, newnrcols );
 
