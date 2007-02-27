@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2003
- RCS:           $Id: menuhandler.h,v 1.5 2006-05-29 08:02:32 cvsbert Exp $
+ RCS:           $Id: menuhandler.h,v 1.6 2007-02-27 12:35:01 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,7 +28,7 @@ public:
     Notifier<MenuItemHolder>	removal;
     				/*!< triggers when class is deleted */
 
-    virtual void		addItem( MenuItem*, bool manage=false );
+    virtual void		addItem(MenuItem*,bool manage=false);
     				/*!<\param manage specified wether the class
 				  will delete the item when it's not
 				  needed any longer. Mostly used
@@ -42,12 +42,12 @@ public:
     void			removeItems();
     int				nrItems() const;
 
-    const MenuItem*		getItem( int idx ) const;
-    MenuItem*			getItem( int idx );
-    int				itemIndex( const MenuItem* ) const;
-    int				itemIndex( int id ) const;
-    MenuItem*			findItem( int id );
-    const MenuItem*		findItem( int id ) const;
+    const MenuItem*		getItem(int idx) const;
+    MenuItem*			getItem(int idx);
+    int				itemIndex(const MenuItem*) const;
+    int				itemIndex(int id) const;
+    MenuItem*			findItem(int id);
+    const MenuItem*		findItem(int id) const;
     MenuItem*			findItem(const char*);
     const MenuItem*		findItem(const char*) const;
 
@@ -71,10 +71,10 @@ private:
 class MenuItem : public MenuItemHolder
 {
 public:
-    				MenuItem( const char* text=0, int placement=-1,
-					  const CallBack& cb=CallBack(0,0) );
+    				MenuItem(const char* text=0,int placement=-1,
+					 const CallBack& cb=CallBack(0,0));
 
-    void			createItems( const BufferStringSet& );
+    void			createItems(const BufferStringSet&);
 
     BufferString		text;
     				/*< The text that should be on the item. */
@@ -87,6 +87,8 @@ public:
 
     int				id;
     				/*!< This item's unique id. */
+    bool			checkable;
+    				/*!< If true, a check-mark can be placed */
     bool			checked;
     				/*!< If true, a check-mark will be put infront
 				    of the items text */
@@ -106,8 +108,8 @@ public:
 Usage:
 
     \code
-    menu->createnotifier.notify( mCB( this, myclass, createMenuCB ));
-    menu->handlenotifier.notify( mCB( this, myclass, handleMenuCB ));
+    menu->createnotifier.notify( mCB(this,myclass,createMenuCB) );
+    menu->handlenotifier.notify( mCB(this,myclass,handleMenuCB) );
     \endcode
 
     Upon a create notification, your class might do something like this:

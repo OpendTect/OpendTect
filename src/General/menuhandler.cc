@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2003
- RCS:           $Id: menuhandler.cc,v 1.3 2006-08-28 09:28:32 cvskris Exp $
+ RCS:           $Id: menuhandler.cc,v 1.4 2007-02-27 12:35:01 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -152,12 +152,13 @@ void MenuItemHolder::assignItemID(MenuItem& item)
 
 
 MenuItem::MenuItem( const char* txt, int pl, const CallBack& ncb )
-    : text( txt )
-    , placement( pl )
-    , cb( ncb )
-    , checked( false )
-    , enabled( true )
-    , id( -1 )
+    : text(txt)
+    , placement(pl)
+    , cb(ncb)
+    , checkable(false)
+    , checked(false)
+    , enabled(true)
+    , id(-1)
 {}
 
 
