@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Huck
  Date:          January 2007
- RCS:           $Id: attribdatapack.cc,v 1.16 2007-02-26 14:28:38 cvsbert Exp $
+ RCS:           $Id: attribdatapack.cc,v 1.17 2007-02-27 15:32:16 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -152,7 +152,7 @@ Flat2DDataPack::Flat2DDataPack( DescID did, const Data2DHolder& dh )
 {
     dh_.ref();
 
-    array3d_ = new DataHolderArray( dh_.dataset_ );
+    array3d_ = new DataHolderArray( dh_.dataset_, false );
     arr2dsl_ = new Array2DSlice<float>( *array3d_ );
     arr2dsl_->setPos( 0, 0 );
     arr2dsl_->setDimMap( 0, 1 );

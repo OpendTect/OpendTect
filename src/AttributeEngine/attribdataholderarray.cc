@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		January 2007
- RCS:		$Id: attribdataholderarray.cc,v 1.2 2007-02-19 16:41:45 cvsbert Exp $
+ RCS:		$Id: attribdataholderarray.cc,v 1.3 2007-02-27 15:32:16 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,8 +16,10 @@ ________________________________________________________________________
 namespace Attrib
 {
 
-DataHolderArray::DataHolderArray( const ObjectSet<DataHolder>& dh )
+DataHolderArray::DataHolderArray( const ObjectSet<DataHolder>& dh,
+				  bool manageset )
     : dh_(dh)
+    , manageset_(manageset)
 {
     const int nrdh = dh.size();
     info_.setSize( 0, dh_[0]->nrSeries() );
@@ -28,7 +30,8 @@ DataHolderArray::DataHolderArray( const ObjectSet<DataHolder>& dh )
 
 DataHolderArray::~DataHolderArray()
 {
-    deepErase( dh_ );
+    if ( manageset_ )
+	deepErase( dh_ );
 }
 
 
