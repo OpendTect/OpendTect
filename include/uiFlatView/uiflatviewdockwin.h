@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewdockwin.h,v 1.2 2007-02-26 14:28:38 cvsbert Exp $
+ RCS:           $Id: uiflatviewdockwin.h,v 1.3 2007-02-28 08:03:14 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,11 +26,9 @@ public:
     {
 					Setup( const char* nm )
 					    : name_(nm)
-					    , nrviewers_(1)
-					    , closemode_(Always)	{}
+					    , nrviewers_(1)		{}
 	mDefSetupMemb(BufferString,	name)
 	mDefSetupMemb(int,		nrviewers)
-	mDefSetupMemb(CloseMode,	closemode)
     };
 
 

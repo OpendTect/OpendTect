@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          Sep 2006
- RCS:           $Id: uiflatviewwin.cc,v 1.3 2007-02-26 14:28:38 cvsbert Exp $
+ RCS:           $Id: uiflatviewwin.cc,v 1.4 2007-02-28 08:03:13 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -65,7 +65,6 @@ uiFlatViewDockWin::uiFlatViewDockWin( uiParent* p,
 				      const uiFlatViewDockWin::Setup& setup )
     : uiDockWin(p,setup.name_)
 {
-    setCloseMode( setup.closemode_ );
     setDockName( setup.name_ );
     setResizeEnabled( true );
     createViewers( setup.nrviewers_ );
