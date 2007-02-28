@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          Sep 2006
- RCS:           $Id: uiflatviewcontrol.cc,v 1.6 2007-02-28 15:58:44 cvshelene Exp $
+ RCS:           $Id: uiflatviewcontrol.cc,v 1.7 2007-02-28 19:05:41 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -52,6 +52,8 @@ uiFlatViewControl::uiFlatViewControl( uiFlatViewer& vwr, const Setup& s )
     mDefBut(panleftbut_,posgrp_,"leftarrow.png",panCB,"Pan left");
     mDefBut(panrightbut_,posgrp_,"rightarrow.png",panCB,"Pan right");
     mDefBut(pandownbut_,posgrp_,"downarrow.png",panCB,"Pan down");
+    uiToolButton* 
+    mDefBut(fliplrbut,posgrp_,"flip_lr.png",flipCB,"Flip left/right");
 
     parsgrp_ = new uiButtonGroup( this, "", setup_.vertical_ );
     mDefBut(parsbut_,parsgrp_,"2ddisppars.png",parsCB,"Set display parameters");
@@ -91,7 +93,7 @@ void uiFlatViewControl::updatePosButtonStates()
 {
     zoomoutbut_->setSensitive( !zoommgr_.atStart() );
 
-    const uiWorldRect bb( vwrs_[0]->boundingBox() );
+    const uiWorldRect bb( getBoundingBox() );
     const uiWorldRect cv( vwrs_[0]->curView() );
     const bool isrevx = cv.left() > cv.right();
     const bool isrevy = cv.bottom() > cv.top();
@@ -122,9 +124,26 @@ void uiFlatViewControl::updatePosButtonStates()
 }
 
 
+uiWorldRect uiFlatViewControl::getBoundingBox() const
+{
+    uiWorldRect bb( vwrs_[0]->boundingBox() );
+
+    for ( int idx=1; idx<vwrs_.size(); idx++ )
+    {
+	const uiWorldRect bb2( vwrs_[idx]->boundingBox() );
+	if ( bb2.left() < bb.left() ) bb.setLeft( bb2.left() );
+	if ( bb2.right() > bb.right() ) bb.setRight( bb2.right() );
+	if ( bb2.bottom() < bb.bottom() ) bb.setBottom( bb2.bottom() );
+	if ( bb2.top() > bb.top() ) bb.setTop( bb2.top() );
+    }
+
+    return bb;
+}
+
+
 void uiFlatViewControl::initStates( CallBacker* but )
 {
-    const uiWorldRect bb( vwrs_[0]->boundingBox() );
+    const uiWorldRect bb( getBoundingBox() );
     zoommgr_.init( bb );
     for ( int idx=0; idx<vwrs_.size(); idx++ )
 	vwrs_[idx]->setView( bb );
@@ -141,12 +160,12 @@ void uiFlatViewControl::zoomCB( CallBacker* but )
     else
 	zoommgr_.back();
 
-    const Geom::Size2D<double> newsz = zoommgr_.current();
+    Geom::Size2D<double> newsz = zoommgr_.current();
     Geom::Point2D<double> centre( vwrs_[0]->curView().centre() );
     if ( zoommgr_.atStart() )
 	centre = zoommgr_.initialCenter();
 
-    setNewView( vwrs_[0]->curView().centre(), newsz );
+    setNewView( centre, newsz );
 }
 
 
@@ -160,65 +179,79 @@ void uiFlatViewControl::panCB( CallBacker* but )
 
     const uiWorldRect cv( vwrs_[0]->curView() );
     const bool isrev = ishor ? cv.left() > cv.right() : cv.bottom() > cv.top();
-
-    const bool isxdown = (!isrev && isleft) || (isrev && isright);
-    const bool isxup = (isrev && isleft) || (!isrev && isright);
-    const bool isydown = (isrev && isup) || (!isrev && isdown);
-    const bool isyup = (!isrev && isup) || (isrev && isdown);
-
     const double fac = 1 - zoommgr_.fwdFac();
     const double pandist = fac * (ishor ? cv.width() : cv.height());
 
-    const uiWorldRect bb( vwrs_[0]->boundingBox() );
-    const double bbsz = ishor ? bb.width() : bb.height();
-    const double bbszeps = bbsz * 1e-5;
-    const double halfcvsz = 0.5 * (ishor ? cv.width() : cv.height());
     Geom::Point2D<double> centre = cv.centre();
+    Geom::Size2D<double> sz = cv.size();
+    if ( (!isrev && isleft) || (isrev && isright) )
+	centre.x -= pandist;
+    else if ( (isrev && isleft) || (!isrev && isright) )
+	centre.x += pandist;
+    else if ( (isrev && isup) || (!isrev && isdown) )
+	centre.y -= pandist;
+    else if ( (!isrev && isup) || (isrev && isdown) )
+	centre.y += pandist;
 
-    if ( isxdown )
-    {
-	if ( centre.x - pandist - halfcvsz < bb.left() + bbszeps )
-	    centre.x = bb.left() + halfcvsz;
-	else
-	    centre.x -= pandist;
-    }
-    if ( isxup )
-    {
-	if ( centre.x + pandist + halfcvsz > bb.right() - bbszeps )
-	    centre.x = bb.right() - halfcvsz;
-	else
-	    centre.x += pandist;
-    }
-    if ( isydown )
-    {
-	if ( centre.y - pandist - halfcvsz < bb.bottom()+ bbszeps )
-	    centre.y = bb.bottom() + halfcvsz;
-	else
-	    centre.y -= pandist;
-    }
-    if ( isyup )
-    {
-	if ( centre.y + pandist + halfcvsz > bb.top() - bbszeps )
-	    centre.y = bb.top() - halfcvsz;
-	else
-	    centre.y += pandist;
-    }
-
-    setNewView( centre, cv.size() );
+    setNewView( centre, sz );
 }
 
 
-void uiFlatViewControl::setNewView( Geom::Point2D<double> centre,
-				    Geom::Size2D<double> sz )
+void uiFlatViewControl::setNewView( Geom::Point2D<double>& centre,
+				    Geom::Size2D<double>& sz )
 {
-    const uiWorldRect cv( vwrs_[0]->curView() );
-    if ( cv.left() > cv.right() ) sz.setWidth( -sz.width() );
-    if ( cv.bottom() > cv.top() ) sz.setHeight( -sz.height() );
+    const uiWorldRect bb( getBoundingBox() );
+    if ( sz.width() > bb.width() )
+	sz.setWidth( bb.width() );
+    if ( sz.height() > bb.height() )
+	sz.setHeight( bb.height() );
+    const double hwdth = sz.width() * .5;
+    const double hhght = sz.height() * .5;
 
-    uiWorldRect wr( centre.x - sz.width()*.5, centre.y - sz.height()*.5,
-		    centre.x + sz.width()*.5, centre.y + sz.height()*.5 );
+    if ( centre.x - hwdth < bb.left() )
+	centre.x = bb.left() + hwdth;
+    if ( centre.y - hhght < bb.bottom() )
+	centre.y = bb.bottom() + hhght;
+    if ( centre.x + hwdth > bb.right() )
+	centre.x = bb.right() - hwdth;
+    if ( centre.y + hhght > bb.top() )
+	centre.y = bb.top() - hhght;
+
+    uiWorldRect wr( centre.x - hwdth, centre.y + hhght,
+		    centre.x + hwdth, centre.y - hhght );
+    const uiWorldRect cv( vwrs_[0]->curView() );
+    if ( cv.left() > cv.right() ) wr.swapHor();
+    if ( cv.bottom() > cv.top() ) wr.swapVer();
     for ( int idx=0; idx<vwrs_.size(); idx++ )
 	vwrs_[idx]->setView( wr );
+
+    //TODO if wr == cv set Zoommgr to start zoom
+    updatePosButtonStates();
+}
+
+
+void uiFlatViewControl::flipCB( CallBacker* but )
+{
+    flip( true );
+}
+
+
+void uiFlatViewControl::flip( bool hor )
+{
+    const uiWorldRect cv( vwrs_[0]->curView() );
+    const uiWorldRect newview(	hor ? cv.right()  : cv.left(),
+				hor ? cv.top()    : cv.bottom(),
+				hor ? cv.left()   : cv.right(),
+				hor ? cv.bottom() : cv.top() );
+
+    for ( int idx=0; idx<vwrs_.size(); idx++ )
+    {
+	FlatView::Annotation::AxisData& ad = hor
+					   ? vwrs_[idx]->context().annot_.x1_
+					   : vwrs_[idx]->context().annot_.x2_;
+	ad.reversed_ = !ad.reversed_;
+	vwrs_[idx]->setView( newview );
+    }
 
     updatePosButtonStates();
 }
@@ -246,17 +279,19 @@ void uiFlatViewControl::rubBandCB( CallBacker* cb )
     if ( sz.hNrPics() == 0 && sz.vNrPics() == 0 )
 	return;
 
-    //TODO checks for rubberband used outside pixmap area
     uiWorld2Ui w2u;
     vwrs_[0]->getWorld2Ui(w2u);
     uiWorldRect wr = w2u.transform(r);
-    const Geom::Size2D<double> newsz = wr.size();
     Geom::Point2D<double> centre = wr.centre();
-    //TODO think of: centre changes; zooming backward may seem strange to 
-    //the user...
-    zoommgr_.add(newsz);
+    Geom::Size2D<double> newsz = wr.size();
 
+    const uiWorldRect oldview( vwrs_[0]->curView() );
     setNewView( centre, newsz );
+
+    //TODO use appropriate epsilons
+    //TODO sometimes we need to replace a zoom rather than add
+    if ( newsz.width() < oldview.width() || newsz.height() < oldview.height() )
+	zoommgr_.add( newsz );
 }
 
 

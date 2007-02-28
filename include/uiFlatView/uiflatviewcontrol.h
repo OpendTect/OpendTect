@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewcontrol.h,v 1.5 2007-02-28 15:58:44 cvshelene Exp $
+ RCS:           $Id: uiflatviewcontrol.h,v 1.6 2007-02-28 19:05:41 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,9 +41,12 @@ public:
     void		addViewer(uiFlatViewer&);
     			//!< No attaching done. Viewer may be in other window.
 
-    void		setNewView(Geom::Point2D<double> centre,
-	    			   Geom::Size2D<double> radius);
+    void		setNewView(Geom::Point2D<double>& centre,
+	    			   Geom::Size2D<double>& sizes);
     			//!< retains uiWorldRect's LR/TB swapping
+    			//!< Changes the input to the actual new values
+    void		flip(bool hor);
+    			//!< reverses uiWorldRect's LR or TB swapping
 
 protected:
 
@@ -67,11 +70,13 @@ protected:
     uiToolButton*	drawbut_;
     uiToolButton*	parsbut_;
 
+    uiWorldRect		getBoundingBox() const;
     void		updatePosButtonStates();
 
     void		initStates(CallBacker*);
     void		zoomCB(CallBacker*);
     void		panCB(CallBacker*);
+    void		flipCB(CallBacker*);
     void		stateCB(CallBacker*);
     void		parsCB(CallBacker*);
     void		rubBandCB(CallBacker*);
