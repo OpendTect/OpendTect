@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2000
- RCS:           $Id: geometry.h,v 1.27 2007-02-06 17:06:55 cvskris Exp $
+ RCS:           $Id: geometry.h,v 1.28 2007-02-28 20:48:15 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -138,7 +138,6 @@ public:
 
     void		checkCorners( bool leftislow=true, bool topislow=true );
     inline Size2D<T>	size() const;
-    inline		operator Size2D<T>() const;
     inline void 	zero();
 
     inline Rectangle<T>&	operator +=( const Point2D<T>& p );
@@ -171,30 +170,15 @@ template <class T>
 class PixRectangle : public Rectangle<T>
 {
 public:
-			PixRectangle( T l = 0 , T t = 0, T r = 0 , T b = 0 ) 
-			: Rectangle<T>(l,t,r,b)		{}
-			PixRectangle( Point2D<T> tl, Point2D<T> br ) 
-			: Rectangle<T>(tl,br)		{}
+			PixRectangle( T l = 0 , T t = 0, T r = 0 , T b = 0 ) ;
+			PixRectangle( Point2D<T> tl, Point2D<T> br ) ;
 
-    inline bool		isInside( const Point2D<T>& p ) const
-			{ return !xOutside( p.x ) && !yOutside( p.y )
-			      && !isOnSide( p ); }
-    inline bool		isOutside( const Point2D<T>& p ) const
-			{ return xOutside(p.x) || yOutside(p.y); }
+    inline bool		isInside( const Point2D<T>& p ) const;
+    inline bool		isOutside( const Point2D<T>& p ) const;
     inline bool		isOnSide(const Point2D<T>&) const;
-    inline bool		contains( const Point2D<T>& p ) const
-			{ return !isOutside(p); }
-
-    inline bool		contains( const PixRectangle<T>& other ) const
-			{
-			    return contains(other.topLeft_)
-				&& contains(other.bottomRight_);
-			}
-    inline bool		isInside( const PixRectangle<T>& other ) const
-			{
-			    return other.isInside(this->topLeft_)
-				&& other.isInside(this->bottomRight_);
-			}
+    inline bool		contains( const Point2D<T>& p ) const;
+    inline bool		contains( const PixRectangle<T>& other ) const;
+    inline bool		isInside( const PixRectangle<T>& other ) const;
 
     inline PixRectangle<T> grownBy(double sidesincreasebyfactor=1) const;
 
@@ -567,11 +551,6 @@ Size2D<T> Rectangle<T>::size() const
 
 
 template <class T> inline
-Rectangle<T>::operator Size2D<T>() const
-{ return size(); }
-
-
-template <class T> inline
 void Rectangle<T>::zero()
 { topLeft_.zero(); bottomRight_.zero(); }
 
@@ -677,13 +656,54 @@ template <class T>
 inline T iwiderPos( int x1, int x2, double f )
 { return (T)mNINT(x1 + f * (x1 - x2)); }
 
+
 template <class T>
 inline T fwiderPos( T x1, T x2, T f )
 { return x1 + f * (x1 - x2); }
 
 
 template <class T>
-inline PixRectangle<T> PixRectangle<T>::grownBy( double f ) const
+PixRectangle<T>::PixRectangle( T l , T t, T r, T b ) 
+    : Rectangle<T>(l,t,r,b)		
+{}
+
+
+template <class T>
+PixRectangle<T>::PixRectangle( Point2D<T> tl, Point2D<T> br ) 
+    : Rectangle<T>(tl,br)
+{}
+
+template <class T> inline
+bool PixRectangle<T>::isInside( const Point2D<T>& p ) const
+{ return !xOutside( p.x ) && !yOutside( p.y ) && !isOnSide( p ); }
+
+
+template <class T> inline
+bool PixRectangle<T>::isOutside( const Point2D<T>& p ) const
+{ return xOutside(p.x) || yOutside(p.y); }
+
+
+template <class T> inline
+bool PixRectangle<T>::contains( const Point2D<T>& p ) const
+{ return !isOutside(p); }
+
+
+template <class T> inline
+bool PixRectangle<T>::contains( const PixRectangle<T>& other ) const
+{
+    return contains(other.topLeft_) && contains(other.bottomRight_);
+}
+
+
+template <class T> inline
+bool PixRectangle<T>::isInside( const PixRectangle<T>& other ) const
+{
+    return other.isInside(this->topLeft_) && other.isInside(this->bottomRight_);
+}
+
+
+template <class T> inline
+PixRectangle<T> PixRectangle<T>::grownBy( double f ) const
 {
     f *= .5;
     return PixRectangle<T>( iwiderPos(this->left(),this->right(),f),
