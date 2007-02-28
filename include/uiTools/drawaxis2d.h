@@ -7,12 +7,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Duntao Wei
  Date:          Jan 2005
- RCS:           $Id: drawaxis2d.h,v 1.4 2007-02-27 14:47:47 cvskris Exp $
+ RCS:           $Id: drawaxis2d.h,v 1.5 2007-02-28 22:30:36 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "linear.h"
+#include "ranges.h"
 #include "uigeom.h"
 
 class ioDrawArea;
@@ -68,8 +68,8 @@ private:
 
     ioDrawArea*		drawarea_;
 
-    AxisLayout		xaxis_;
-    AxisLayout		yaxis_;
+    StepInterval<float>	xaxis_;
+    StepInterval<float>	yaxis_;
 
     uiRect		uirect_;
     bool		useuirect_;
