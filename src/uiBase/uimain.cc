@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          10/12/1999
- RCS:           $Id: uimain.cc,v 1.36 2007-02-15 21:12:26 cvsnanne Exp $
+ RCS:           $Id: uimain.cc,v 1.37 2007-02-28 07:32:12 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,10 +25,8 @@ ________________________________________________________________________
 #include "qiconset.h"
 
 #ifndef USEQT3
-# include <QDesktopWidget>
-# include <QPlastiqueStyle>
+# include <QCleanlooksStyle>
 # include <QWindowsStyle>
-#include <QCleanlooksStyle>
 
 #ifdef __win__
 # include <QWindowsXPStyle>
@@ -100,7 +98,7 @@ uiMain::uiMain( int& argc, char **argv )
 uiMain::uiMain( QApplication* qapp )
     : mainobj_( 0 )
 { 
-
+    QApplication::setDesktopSettingsAware( false );
     QApplication::setColorSpec( QApplication::ManyColor );
     QApplication::setLibraryPaths( QStringList("/dev") );
 
@@ -118,9 +116,6 @@ void uiMain::init( QApplication* qap, int& argc, char **argv )
     else
 	themain_ = this;
 
-    QApplication::setColorSpec( QApplication::ManyColor );
-    QApplication::setDesktopSettingsAware( FALSE );
-
     if ( DBG::isOn(DBG_UI) && !qap )
 	DBG::message( "Constructing QApplication ..." );
 
@@ -134,14 +129,12 @@ void uiMain::init( QApplication* qap, int& argc, char **argv )
 
     qInstallMsgHandler( myMessageOutput );
 
-
 #ifndef USEQT3
-
-#ifdef __win__
+# ifdef __win__
     QApplication::setStyle( new QWindowsXPStyle );
-#else
+# else
     QApplication::setStyle( new QCleanlooksStyle );
-#endif
+# endif
 
 #else
     app_->setStyle( new QCDEStyle() );

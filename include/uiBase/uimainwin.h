@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.h,v 1.43 2007-02-07 16:46:22 cvsnanne Exp $
+ RCS:           $Id: uimainwin.h,v 1.44 2007-02-28 07:29:55 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,14 +15,15 @@ ________________________________________________________________________
 #include "uiparent.h"
 #include "uihandle.h"
 
+class uiDockWin;
+class uiGroup;
 class uiMainWinBody;
-class uiPopupMenu;
-class uiStatusBar;
 class uiMenuBar;
 class uiObject;
-class uiGroup;
+class uiPopupMenu;
+class uiStatusBar;
+class uiToolBar;
 class QWidget;
-class uiDockWin;
 
 class uiMainWin : public uiParent
 {
@@ -86,6 +87,9 @@ public:
     void		moveDockWindow(uiDockWin&,Dock d=Top,int index=-1);
     void		removeDockWindow(uiDockWin*);
     void		addDockWindow(uiDockWin&,Dock);
+    void		addToolBar(uiToolBar*);
+    void		removeToolBar(uiToolBar*);
+
     uiPopupMenu&	createDockWindowMenu();
 
     Notifier<uiMainWin>	finaliseStart;
@@ -106,12 +110,6 @@ public:
     bool		finalised() const;
     virtual uiMainWin*	mainwin()				{ return this; }
     QWidget*		qWidget() const;
-
-    			//Toolbar functions
-    void		useBigPixmaps(bool);
-    bool		usesBigPixmaps() const;
-    void		useTextLabel(bool);
-    bool		usesTextLabel() const;
 
 protected:
 

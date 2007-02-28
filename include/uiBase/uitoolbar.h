@@ -7,23 +7,17 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          30/05/2001
- RCS:           $Id: uitoolbar.h,v 1.24 2007-02-14 12:38:01 cvsnanne Exp $
+ RCS:           $Id: uitoolbar.h,v 1.25 2007-02-28 07:29:55 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiparent.h"
 
-#ifdef USEQT3
-# define mQToolBarClss QToolBar
-#else
-# define mQToolBarClss Q3ToolBar
-#endif
-
 class ioPixmap;
+class uiObject;
 class uiToolBarBody;
-class QMainWindow;
-class mQToolBarClss;
+class QToolBar;
 
 class uiToolBar : public uiParent
 {
@@ -47,34 +41,35 @@ public:
 				  ToolBarDock d=Top,bool newline=false);
 			~uiToolBar();
 
-    int 		addButton( const char*, const CallBack&,
-				   const char* tooltip,bool toggle=false);
-    int 		addButton( const ioPixmap&,const CallBack&,
-				   const char* tooltip,bool toggle=false);
+    int 		addButton(const char*,const CallBack&,
+				  const char* tooltip,bool toggle=false);
+    int 		addButton(const ioPixmap&,const CallBack&,
+				  const char* tooltip,bool toggle=false);
+    void		addObject(uiObject*);
 
     void		setLabel(const char*);
 
     void		setPixmap(int,const char*);
     void		setPixmap(int,const ioPixmap&);
     void		setToolTip(int,const char*);
-    void		turnOn( int idx, bool yn );
+    void		turnOn(int idx,bool yn);
     			/*!< Does only work on toggle-buttons */
-    bool		isOn( int idx ) const;
+    bool		isOn(int idx) const;
     			/*!< Does only work on toggle-buttons */
-    void		setSensitive( int idx, bool yn );
-    			/*!< Does only work on toggle-buttons */
-    void		setSensitive( bool yn );
+    void		setSensitive(int idx,bool yn);
+    			/*!< Does only work on buttons */
+    void		setSensitive(bool yn);
     			/*!< Works on complete toolbar */
 
-    virtual void	display(bool yn=true, bool s=false,bool m=false);
+    virtual void	display(bool yn=true,bool s=false,bool m=false);
 			/*!< you must call this after all buttons are added
 			     s and m are not used.
 			*/
 
     void		addSeparator();
+
     void		setStretchableWidget(uiObject*);
-
-
+#ifdef USEQT3
     void		setMovingEnabled(bool);
     bool		isMovingEnabled() const;
 
@@ -90,18 +85,21 @@ public:
 
     void		dock();
     void		undock();
-    bool		isShown() const;
     void		setNewLine(bool yn=true);
+#endif
+    bool		isShown() const;
+
     void		reLoadPixMaps();
     void		clear();
 
     static ObjectSet<uiToolBar>&	toolBars();
+    QToolBar*		qwidget()	{ return qtoolbar; }
 
 protected:
 
-    mQToolBarClss*	qtoolbar;
+    QToolBar*		qtoolbar;
     uiToolBarBody*	body_;
-    uiToolBarBody&	mkbody(const char*,mQToolBarClss&);
+    uiToolBarBody&	mkbody(const char*,QToolBar&);
 
 };
 

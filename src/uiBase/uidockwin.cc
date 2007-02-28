@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          13/02/2002
- RCS:           $Id: uidockwin.cc,v 1.22 2007-02-14 12:38:00 cvsnanne Exp $
+ RCS:           $Id: uidockwin.cc,v 1.23 2007-02-28 07:32:12 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,10 +15,8 @@ ________________________________________________________________________
 
 #ifdef USEQT3
 # include <qdockwindow.h>
-# define mQDockWindow QDockWindow
 #else
-# include <Q3DockWindow>
-# define mQDockWindow Q3DockWindow
+# include <QDockWidget>
 #endif
 
 #if defined( __mac__ ) || defined( __win__ )
@@ -92,8 +90,12 @@ Timer uiDockWinBody::redrtimer;
 uiDockWinBody::uiDockWinBody( uiDockWin& handle__, uiParent* parnt, 
 			      const char* nm )
 	: uiParentBody( nm )
-	, mQDockWindow( InDock, parnt && parnt->pbody() ?  
+#ifdef USEQT3
+	, QDockWindow( InDock, parnt && parnt->pbody() ?  
 					parnt->pbody()->qwidget() : 0, nm ) 
+#else
+        , QDockWidget( nm )
+#endif
 	, handle_( handle__ )
 	, initing( true )
 	, centralWidget_( 0 )
@@ -101,12 +103,16 @@ uiDockWinBody::uiDockWinBody( uiDockWin& handle__, uiParent* parnt,
 	, mycallback_( mCB(this, uiDockWinBody, redrTimTick) )
 #endif
 {
-    if ( *nm ) setCaption( nm );
 #ifdef _redraw_hack_
     redrtimer.tick.notify( mycallback_ );
     redrtimer.start( 500, true );
 #endif
+
+#ifndef USEQT3
+    QDockWidget::setFeatures( QDockWidget::AllDockWidgetFeatures );
+#endif
 }
+
 
 void uiDockWinBody::construct()
 {
@@ -167,32 +173,41 @@ uiObject* uiDockWin::mainobject()
     return body_->uiCentralWidg()->mainObject(); 
 }
 
-void uiDockWin::setHorStretchable( bool yn )
-{ body_->setHorizontallyStretchable( yn ); }
-
-bool uiDockWin::isHorStretchable() const
-{ return body_->isHorizontallyStretchable(); }
-
-void uiDockWin::setVerStretchable( bool yn )
-{ body_->setVerticallyStretchable( yn ); }
-
-bool uiDockWin::isVerStretchable() const
-{ return body_->isVerticallyStretchable(); }
 
 void uiDockWin::setResizeEnabled( bool yn )
-{ body_->setResizeEnabled( yn ); }
+{
+#ifdef USEQT3
+    body_->setResizeEnabled( yn );
+#endif
+}
 
 bool uiDockWin::isResizeEnabled() const
-{ return body_->isResizeEnabled(); }
+{
+#ifdef USEQT3
+    return body_->isResizeEnabled();
+#else
+    return true;
+#endif
+}
 
-void uiDockWin::setCloseMode( CloseMode mode )
-{ body_->setCloseMode( (int)mode ); }
 
-uiDockWin::CloseMode uiDockWin::closeMode() const
-{ return (uiDockWin::CloseMode)body_->closeMode(); }
+void uiDockWin::setFloating( bool yn )
+{
+#ifndef USEQT3
+    body_->setFloating( yn );
+#endif
+}
 
-void uiDockWin::dock()		{ body_->dock(); }
-void uiDockWin::undock()	{ body_->undock(); }
+
+bool uiDockWin::isFloating() const
+{
+#ifdef USEQT3
+    return false;
+#else
+    return body_->isFloating();
+#endif
+}
+
 
 mQDockWindow* uiDockWin::qwidget()
 { return body_; }

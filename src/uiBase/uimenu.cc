@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: uimenu.cc,v 1.36 2007-02-14 12:38:00 cvsnanne Exp $
+ RCS:           $Id: uimenu.cc,v 1.37 2007-02-28 07:32:12 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -643,4 +643,3 @@ int uiPopupMenu::exec()
 
     return body_->popup()->exec(QCursor::pos());
 }
-

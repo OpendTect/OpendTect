@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          18/08/1999
- RCS:           $Id: i_layout.cc,v 1.74 2007-02-14 12:38:00 cvsnanne Exp $
+ RCS:           $Id: i_layout.cc,v 1.75 2007-02-28 07:32:12 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -52,7 +52,7 @@ i_LayoutMngr::i_LayoutMngr( QWidget* parnt,
     , managedBody(mngbdy), hspacing(-1), vspacing(8), borderspc(0)
     , poptimer( *new Timer ), popped_up( false ) , timer_running( false )
 {
-    poptimer.tick.notify(mCB(this,i_LayoutMngr,popTimTick));
+    poptimer.tick.notify( mCB(this,i_LayoutMngr,popTimTick) );
 }
 
 

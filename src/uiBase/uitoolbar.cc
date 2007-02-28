@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          30/05/2001
- RCS:           $Id: uitoolbar.cc,v 1.31 2007-02-15 21:51:26 cvsnanne Exp $
+ RCS:           $Id: uitoolbar.cc,v 1.32 2007-02-28 07:32:12 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,7 +20,6 @@ ________________________________________________________________________
 #include "filegen.h"
 #include "pixmap.h"
 #include "separstr.h"
-#include "settings.h"
 
 #include <qtoolbutton.h>
 #include <qapplication.h>
@@ -31,10 +30,10 @@ ________________________________________________________________________
 # define mQMainWinClss	QMainWindow
 # define mDockNmSpc	QMainWindow
 #else
-# include <Q3ToolBar>
-# include <Q3MainWindow>
-# include <Q3DockArea>
-# define mQMainWinClss	Q3MainWindow
+# include <QAction>
+# include <QMainWindow>
+# include <QToolBar>
+# define mQMainWinClss	QMainWindow
 # define mDockNmSpc	Qt
 #endif
 
@@ -46,7 +45,7 @@ class uiToolBarBody : public uiParentBody
 {
 public:
 
-			uiToolBarBody(uiToolBar&,mQToolBarClss&);
+			uiToolBarBody(uiToolBar&,QToolBar&);
 
 			~uiToolBarBody()	{ deepErase(receivers); }
 
@@ -54,6 +53,7 @@ public:
     int 		addButton(const ioPixmap&,const CallBack&, 
 				  const char*,bool);
     int 		addButton(const char*,const CallBack&,const char*,bool);
+    void		addObject(uiObject*);
     void		turnOn(int idx, bool yn );
     bool		isOn(int idx ) const;
     void		setSensitive(int idx, bool yn );
@@ -75,7 +75,7 @@ protected:
 
     virtual const QWidget*      managewidg_() const	{ return qbar; }
     virtual const QWidget*	qwidget_() const	{ return qbar; }
-    mQToolBarClss*		qbar;
+    QToolBar*			qbar;
     uiToolBar&			tbar;
     int				iconsz_;
 
@@ -92,42 +92,36 @@ protected:
 private:
 
     ObjectSet<i_QToolButReceiver> receivers; // for deleting
+#ifdef USEQT3
     ObjectSet<QToolButton>	buttons;
+#else
+    ObjectSet<QAction>		actions;
+#endif
     BufferStringSet		pmsrcs;
 
 };
 
 
-uiToolBarBody::uiToolBarBody( uiToolBar& handle, mQToolBarClss& bar )
+uiToolBarBody::uiToolBarBody( uiToolBar& handle, QToolBar& bar )
     : uiParentBody("ToolBar")
     , qbar(&bar)
     , tbar(handle)
 {
-#ifndef USEQT3
-    iconsz_ = 24;
-    Settings::common().get( "dTect.Icons.size", iconsz_ );
-#endif
 }
 
 
 int uiToolBarBody::addButton( const char* fnm, const CallBack& cb,
 			      const char* nm, bool toggle )
-{
-    return addButton( ioPixmap( fnm ), cb, nm, toggle );
-}
+{ return addButton( ioPixmap(fnm), cb, nm, toggle ); }
 
 
+#ifdef USEQT3
 int uiToolBarBody::addButton( const ioPixmap& pm, const CallBack& cb,
 			      const char* nm, bool toggle )
 {
     i_QToolButReceiver* br= new i_QToolButReceiver;
     QToolButton* but= new QToolButton( *pm.Pixmap(), QString(nm), QString::null,
                            br,  SLOT(buttonPressed()),qbar, nm );
-
-#ifndef USEQT3
-    but->setIconSize( QSize(iconsz_,iconsz_) );
-#endif
-
     if ( toggle ) but->setToggleButton( true );
 
     receivers += br;
@@ -137,11 +131,41 @@ int uiToolBarBody::addButton( const ioPixmap& pm, const CallBack& cb,
     br->pressed.notify( cb );
     return buttons.size()-1;
 }
+#else
+int uiToolBarBody::addButton( const ioPixmap& pm, const CallBack& cb,
+			      const char* nm, bool toggle )
+{
+    i_QToolButReceiver* br= new i_QToolButReceiver;
+    QAction* qaction = qbar->addAction( *pm.Pixmap(), nm, br,
+					SLOT(buttonPressed()) );
+    if ( toggle ) qaction->setCheckable( true );
+
+    receivers += br;
+    actions += qaction;
+    pmsrcs.add( pm.source() );
+
+    br->pressed.notify( cb );
+    return actions.size()-1;
+}
+#endif
+
+
+void uiToolBarBody::addObject( uiObject* obj )
+{
+#ifndef USEQT3
+    if ( obj && obj->body() )
+	qbar->addWidget( obj->body()->qwidget() );
+#endif
+}
 
 
 void uiToolBarBody::turnOn( int idx, bool yn )
 {
+#ifdef USEQT3
     buttons[idx]->setOn( yn );
+#else
+    actions[idx]->setChecked( yn );
+#endif
 }
 
 
@@ -159,20 +183,33 @@ void uiToolBarBody::reLoadPixMaps()
 	if ( !File_exists(fnm) )
 	    continue;
 
-	buttons[idx]->setPixmap( QPixmap(fnm.buf(), len > 1 ? fms[1] : 0) );
+	QPixmap qpix( fnm.buf(), len > 1 ? fms[1] : 0 );
+#ifdef USEQT3
+	buttons[idx]->setPixmap( qpix );
+#else
+	actions[idx]->setIcon( qpix );
+#endif
     }
 }
 
 
 bool uiToolBarBody::isOn( int idx ) const
 {
+#ifdef USEQT3
     return buttons[idx]->isOn();
+#else
+    return actions[idx]->isChecked();
+#endif
 }
 
 
 void uiToolBarBody::setSensitive( int idx, bool yn )
 {
+#ifdef USEQT3
     buttons[idx]->setEnabled( yn );
+#else
+    actions[idx]->setEnabled( yn );
+#endif
 }
 
 
@@ -184,13 +221,21 @@ void uiToolBarBody::setPixmap( int idx, const char* fnm )
 
 void uiToolBarBody::setPixmap( int idx, const ioPixmap& pm )
 {
+#ifdef USEQT3
     buttons[idx]->setPixmap( *pm.Pixmap() );
+#else
+    actions[idx]->setIcon( *pm.Pixmap() );
+#endif
 }
 
 
 void uiToolBarBody::setToolTip( int idx, const char* tip )
 {
+#ifdef USEQT3
     buttons[idx]->setTextLabel( QString(tip) );
+#else
+    actions[idx]->setToolTip( QString(tip) );
+#endif
 }
 
 
@@ -235,8 +280,7 @@ uiToolBar::uiToolBar( uiParent* parnt, const char* nm, ToolBarDock d,
 {
     Qt::ToolBarDock tbdock = uiToolBarBody::qdock(d);
     QWidget* qwidget = parnt && parnt->pbody() ? parnt->pbody()->qwidget() : 0;
-    qtoolbar = new mQToolBarClss( QString(nm), (mQMainWinClss*)qwidget, 
-	    		     tbdock, newline );
+    qtoolbar = new QToolBar( QString(nm), (mQMainWinClss*)qwidget );
     setBody( &mkbody(nm,*qtoolbar) );
     toolBars() += this;
 }
@@ -249,7 +293,7 @@ uiToolBar::~uiToolBar()
 }
 
 
-uiToolBarBody& uiToolBar::mkbody( const char* nm, mQToolBarClss& qtb )
+uiToolBarBody& uiToolBar::mkbody( const char* nm, QToolBar& qtb )
 { 
     body_ = new uiToolBarBody( *this, qtb );
     return *body_; 
@@ -258,16 +302,16 @@ uiToolBarBody& uiToolBar::mkbody( const char* nm, mQToolBarClss& qtb )
 
 int uiToolBar::addButton( const char* fnm, const CallBack& cb,
 			  const char* nm, bool toggle )
-{
-    return body_->addButton( fnm, cb, nm, toggle );
-}
+{ return body_->addButton( fnm, cb, nm, toggle ); }
 
 
 int uiToolBar::addButton( const ioPixmap& pm, const CallBack& cb,
 			  const char* nm, bool toggle )
-{
-    return body_->addButton( pm, cb, nm, toggle );
-}
+{ return body_->addButton( pm, cb, nm, toggle ); }
+
+
+void uiToolBar::addObject( uiObject* obj )
+{ body_->addObject( obj ); };
 
 
 void uiToolBar::setLabel( const char* lbl )
@@ -311,17 +355,22 @@ void uiToolBar::display( bool yn, bool, bool )
 void uiToolBar::addSeparator()
 { qtoolbar->addSeparator(); }
 
+#ifdef USEQT3
 void uiToolBar::dock()
 { qtoolbar->dock(); }
 
+
 void uiToolBar::undock()
 { qtoolbar->undock(); }
+#endif
 
 
 void uiToolBar::setStretchableWidget( uiObject* obj )
 {
     if ( !obj ) return;
+#ifdef USEQT3
     qtoolbar->setStretchableWidget( obj->body()->qwidget() );
+#endif
 }
 
 
@@ -345,7 +394,7 @@ var uiToolBar::func() const \
     return qtoolbar->func(); \
 }
 
-
+#ifdef USEQT3
 mSetFunc(setMovingEnabled,bool)
 mGetFunc(isMovingEnabled,bool)
 
@@ -362,5 +411,6 @@ mGetFunc(isVerticallyStretchable,bool)
 
 mSetFunc(setResizeEnabled,bool)
 mGetFunc(isResizeEnabled,bool)
+#endif
 
 mGetFunc(isShown,bool)

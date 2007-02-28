@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          13/02/2002
- RCS:           $Id: uidockwin.h,v 1.13 2007-02-14 12:38:00 cvsnanne Exp $
+ RCS:           $Id: uidockwin.h,v 1.14 2007-02-28 07:29:55 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,7 +18,7 @@ ________________________________________________________________________
 #ifdef USEQT3
 # define mQDockWindow QDockWindow
 #else
-# define mQDockWindow Q3DockWindow
+# define mQDockWindow QDockWidget
 #endif
 
 class uiDockWinBody;
@@ -28,31 +28,21 @@ class mQDockWindow;
 
 class uiDockWin : public uiParent
 {
-
 public:
-			uiDockWin( uiParent* parnt=0, 
-				   const char* nm="uiDockWin" );
-
+			uiDockWin(uiParent* parnt=0, 
+				  const char* nm="uiDockWin");
     virtual		~uiDockWin();
+
     void		setDockName(const char*);
     const char*		getDockName() const;
 
     uiGroup* 		topGroup();
 
-    void		setHorStretchable(bool);
-    bool		isHorStretchable() const;
-
-    void		setVerStretchable(bool);
-    bool		isVerStretchable() const;
-
     void		setResizeEnabled(bool);
     bool		isResizeEnabled() const;
 
-    enum CloseMode	{ Never, Docked, Undocked, Always };
-    void		setCloseMode(CloseMode);
-    CloseMode		closeMode() const;
-    void		dock();
-    void		undock();
+    void		setFloating(bool);
+    bool		isFloating() const;
 
     mQDockWindow*	qwidget();
 

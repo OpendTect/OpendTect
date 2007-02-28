@@ -4,54 +4,51 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.112 2007-02-14 12:38:00 cvsnanne Exp $
+ RCS:           $Id: uimainwin.cc,v 1.113 2007-02-28 07:32:12 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uimainwin.h"
 #include "uidialog.h"
-
-#include "msgh.h"
-#include "errh.h"
-#include "helpview.h"
-#include "envvars.h"
-
-#include "pixmap.h"
 #include "uibody.h"
 #include "uiobjbody.h"
-#include "uiparentbody.h"
 
-#include "uigroup.h"
 #include "uibutton.h"
+#include "uidockwin.h"
+#include "uigroup.h"
+#include "uilabel.h"
+#include "uimenu.h"
+#include "uiparentbody.h"
 #include "uistatusbar.h"
 #include "uiseparator.h"
-#include "uimenu.h"
-#include "uilabel.h"
-#include "uidockwin.h"
+#include "uitoolbar.h"
 
+#include "envvars.h"
+#include "errh.h"
+#include "helpview.h"
+#include "msgh.h"
+#include "pixmap.h"
+#include "settings.h"
 #include "timer.h"
 
 #include <iostream>
 
 #ifdef USEQT3
-# define mQMainWindow	QMainWindow
 # define mQDockArea	QDockArea
 # define mQDockWindow	QDockWindow
-# define mQPopupMenu	QPopupMenu
 # define mFlagType	int
 # define mDockType	Qt::Dock
 # include <qmainwindow.h>
 # include <qdockwindow.h>
 #else
-# define mQMainWindow	Q3MainWindow
-# define mQDockWindow	Q3DockWindow
-# define mQDockArea	Q3DockArea
-# define mQPopupMenu	Q3PopupMenu
+# define mQDockWindow	QDockWidget
+# define mQDockArea	QDockArea
 # define mFlagType	Qt::WFlags
 # define mDockType	Qt::ToolBarDock
-# include <Q3MainWindow>
-# include <Q3DockWindow>
+# include <QMainWindow>
+# include <Q3PopupMenu>
+# include <QDockWidget>
 # include <QTextStream>
 # include <QCloseEvent>
 #endif
@@ -67,7 +64,7 @@ ________________________________________________________________________
 #ifdef USEQT3
 # include <qdockarea.h>
 # else
-#  include <Q3DockArea.h>
+#  include <Q3DockArea>
 # endif
 #include <qfile.h>
 #endif
@@ -75,7 +72,7 @@ ________________________________________________________________________
 #include "dtect.xpm"
 
 class uiMainWinBody : public uiParentBody
-		    , public mQMainWindow
+		    , public QMainWindow
 {
 friend class		uiMainWin;
 public:
@@ -87,8 +84,8 @@ public:
     virtual		~uiMainWinBody();
 
 #define mHANDLE_OBJ     uiMainWin
-#define mQWIDGET_BASE   mQMainWindow
-#define mQWIDGET_BODY   mQMainWindow
+#define mQWIDGET_BASE   QMainWindow
+#define mQWIDGET_BODY   QMainWindow
 #define UIBASEBODY_ONLY
 #define UIPARENT_BODY_CENTR_WIDGET
 #include                "i_uiobjqtbody.h"
@@ -99,7 +96,7 @@ public:
     uiStatusBar* 	uistatusbar();
     uiMenuBar* 		uimenubar();
 
-    virtual void        polish() { mQMainWindow::polish(); }
+    virtual void        polish() { QMainWindow::polish(); }
 
     void		reDraw( bool deep )
 			{
@@ -115,7 +112,7 @@ public:
 
     virtual void	show() 
 			{
-			    mQMainWindow::show();
+			    QMainWindow::show();
 
 			    if( poptimer.isActive() )
 				poptimer.stop();
@@ -169,6 +166,7 @@ protected:
 
 private:
 
+    int			iconsz_;
     bool		modal_;
     int			looplevel__;
     mFlagType		getFlags(bool hasparent,bool modal) const;
@@ -188,7 +186,7 @@ private:
 uiMainWinBody::uiMainWinBody( uiMainWin& handle__, uiParent* p, 
 			      const char* nm, bool modal )
 	: uiParentBody(nm)
-	, mQMainWindow(p && p->pbody() ? p->pbody()->qwidget() : 0,
+	, QMainWindow(p && p->pbody() ? p->pbody()->qwidget() : 0,
 		      nm,getFlags(p,modal) )
 	, handle_(handle__)
 	, initing( true )
@@ -203,7 +201,15 @@ uiMainWinBody::uiMainWinBody( uiMainWin& handle__, uiParent* p,
     if ( nm && *nm ) setCaption( nm );
     poptimer.tick.notify( mCB(this,uiMainWinBody,popTimTick) );
 
+#ifdef USEQT3
     setDockMenuEnabled( false );
+#else
+    iconsz_ = 24;
+    Settings::common().get( "dTect.Icons.size", iconsz_ );
+    setIconSize( QSize(iconsz_,iconsz_) );
+
+    setWindowModality( modal ? Qt::WindowModal : Qt::NonModal );
+#endif
 }
 
 
@@ -213,9 +219,7 @@ mFlagType uiMainWinBody::getFlags( bool hasparent, bool modal ) const
     return hasparent && modal ? WType_TopLevel | WShowModal| WGroupLeader
 				  : WType_TopLevel;
 #else
-    return  Qt::WFlags( hasparent && modal ? 
-			( Qt::Window | Qt::WindowModal |  Qt::WA_GroupLeader )
-		      : Qt::Window );
+    return  Qt::WindowFlags( hasparent ? Qt::Dialog : Qt::Window );
 #endif
 }
 
@@ -262,12 +266,14 @@ void uiMainWinBody::construct( int nrstatusflds, bool wantmenubar )
 uiMainWinBody::~uiMainWinBody( )
 {}
 
-void uiMainWinBody::popTimTick(CallBacker*)
+
+void uiMainWinBody::popTimTick( CallBacker* )
 {
     if ( popped_up ) { pErrMsg( "huh?" ); }
 	popped_up = true;
     moveDockWindows();
 }
+
 
 #define mMwHandle static_cast<uiMainWin&>(handle_)
 
@@ -296,8 +302,6 @@ void uiMainWinBody::closeEvent( QCloseEvent* ce )
 }
 
 
-
-
 void uiMainWinBody::close()
 {
     if ( !mMwHandle.closeOK() ) return; 
@@ -307,7 +311,7 @@ void uiMainWinBody::close()
     if ( modal_ )
 	qApp->exit_loop();
 
-    mQMainWindow::hide();
+    QMainWindow::hide();
 
     if ( exitapponclose_ )
 	qApp->quit();
@@ -347,8 +351,8 @@ void uiMainWinBody::moveDockWindows()
 {
     if ( !poppedUp() ) return;
 
-    for( int idx=0; idx<wins2move.size(); idx++ )
-	moveDockWindow( wins2move[idx]->qwidget(), qdock(docks4wins[idx]) );
+//    for( int idx=0; idx<wins2move.size(); idx++ )
+//	moveDockWindow( wins2move[idx]->qwidget(), qdock(docks4wins[idx]) );
 
     wins2move.erase();
     docks4wins.erase();
@@ -490,14 +494,38 @@ void uiMainWin::removeDockWindow( uiDockWin* dwin )
 {
     if ( !dwin ) return;
 
+#ifdef USEQT3
     body_->removeDockWindow( dwin->qwidget() );
+#else
+    body_->removeDockWidget( dwin->qwidget() );
+#endif
 }
 
 
 void uiMainWin::addDockWindow( uiDockWin& dwin, Dock d )
 {
+#ifdef USEQT3
     body_->addDockWindow( dwin.qwidget(), body_->qdock(d) );
+#else
+    body_->addDockWidget( Qt::LeftDockWidgetArea, dwin.qwidget() );
+#endif
     dwin.qwidget()->show();
+}
+
+
+void uiMainWin::addToolBar( uiToolBar* tb )
+{
+#ifndef USEQT3
+    body_->addToolBar( tb->qwidget() );
+#endif
+}
+
+
+void uiMainWin::removeToolBar( uiToolBar* tb )
+{
+#ifndef USEQT3
+    body_->removeToolBar( tb->qwidget() );
+#endif
 }
 
 uiGroup* uiMainWin::topGroup()	    	   { return body_->uiCentralWidg(); }
@@ -537,6 +565,7 @@ uiMainWin* uiMainWin::activeWindow()
 
 void uiMainWin::setSensitive( bool yn )
 {
+/*
 #ifdef USEQT3
     QPtrList<QDockWindow> dws = body_->dockWindows();
 #else
@@ -547,6 +576,7 @@ void uiMainWin::setSensitive( bool yn )
 	mQDockWindow* qdwin = dws.at( idx );
 	if ( qdwin ) qdwin->setEnabled( yn );
     }
+*/
     if ( menuBar() ) menuBar()->setSensitive( yn );
     body_->setEnabled( yn );
 }
@@ -578,23 +608,16 @@ void uiMainWin::setIcon( const char* img[], const char* icntxt )
 
 uiPopupMenu& uiMainWin::createDockWindowMenu()
 {
-    mQPopupMenu* qmnu = body_->createDockWindowMenu();
+#ifdef USEQT3
+    QPopupMenu* qmnu = body_->createDockWindowMenu();
     return *new uiPopupMenu(this,qmnu,"Toolbars");
+#else
+    QMenu* qmnu = body_->createPopupMenu();
+    Q3PopupMenu* q3mnu = new Q3PopupMenu();
+    q3mnu->addMenu( qmnu );
+    return *new uiPopupMenu(this,q3mnu,"Toolbars");
+#endif
 }
-
-
-void uiMainWin::useBigPixmaps( bool yn )
-{ body_->setUsesBigPixmaps( yn ); }
-
-bool uiMainWin::usesBigPixmaps() const
-{ return body_->usesBigPixmaps(); }
-
-void uiMainWin::useTextLabel( bool yn )
-{ body_->setUsesTextLabel( yn ); }
-
-bool uiMainWin::usesTextLabel() const
-{ return body_->usesTextLabel(); }
-
 
 
 

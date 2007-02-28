@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          17/01/2002
- RCS:           $Id: uitabstack.cc,v 1.15 2007-02-14 12:38:00 cvsnanne Exp $
+ RCS:           $Id: uitabstack.cc,v 1.16 2007-02-28 07:32:12 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,11 +16,9 @@ ________________________________________________________________________
 #include "sets.h"
 
 #ifdef USEQT3
-# define mQFrame QFrame
 # include <qframe.h>
 #else
-# define mQFrame Q3Frame
-# include <Q3Frame>
+# include <QFrame>
 #endif
 
 
@@ -33,7 +31,7 @@ uiTabStack::uiTabStack( uiParent* parnt, const char* nm, bool mnge )
     tabgrp_ = new uiGroup( this, nm );
     tabbar_ = new uiTabBar( this, nm );
 
-    tabgrp_->setFrameStyle( mQFrame::TabWidgetPanel | mQFrame::Raised );
+    tabgrp_->setFrameStyle( QFrame::TabWidgetPanel | QFrame::Raised );
     tabgrp_->setBorder(10);
     tabgrp_->attach( stretchedBelow, tabbar_, 0 );
 

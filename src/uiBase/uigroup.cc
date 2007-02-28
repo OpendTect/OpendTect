@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uigroup.cc,v 1.54 2007-02-14 12:38:00 cvsnanne Exp $
+ RCS:           $Id: uigroup.cc,v 1.55 2007-02-28 07:32:12 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,11 +19,9 @@ ________________________________________________________________________
 #include <iostream>
 
 #ifdef USEQT3
-# define mQFrame QFrame
 # include <qframe.h>
 #else
-# define mQFrame Q3Frame
-# include <Q3Frame>
+# include <QFrame>
 #endif
 
 
@@ -57,7 +55,7 @@ protected:
 };
 
 
-class uiGroupObjBody  : public uiObjectBody, public mQFrame
+class uiGroupObjBody  : public uiObjectBody, public QFrame
 { 	
     friend class 		uiMainWin;
     friend class 		uiDialog;
@@ -70,15 +68,20 @@ public:
 						uiParent* parnt,
 						const char* nm )
 				    : uiObjectBody( parnt, nm )
-				    , mQFrame( parnt && parnt->pbody() ?  
+#ifdef USEQT3
+				    , QFrame( parnt && parnt->pbody() ?  
 					parnt->pbody()->managewidg() : 0, nm )
+#else
+				    , QFrame( parnt && parnt->pbody() ?
+					parnt->pbody()->managewidg() : 0 )
+#endif
 				    , handle_( handle )
 				    , prntbody_( 0 )			
 				{}
 
 #define mHANDLE_OBJ     	uiGroupObj
-#define mQWIDGET_BASE		mQFrame
-#define mQWIDGET_BODY   	mQFrame
+#define mQWIDGET_BASE		QFrame
+#define mQWIDGET_BODY   	QFrame
 #include               		"i_uiobjqtbody.h"
 
 public:
@@ -417,7 +420,7 @@ uiGroup::uiGroup( uiParent* p, const char* nm, bool manage )
     grpobj_ =  new uiGroupObj( this,p,nm,manage );
     uiGroupObjBody* grpbdy = dynamic_cast<uiGroupObjBody*>( grpobj_->body() );
 
-    if( showgrps__ ) grpbdy->setFrameStyle( mQFrame::Box | mQFrame::Plain );
+    if( showgrps__ ) grpbdy->setFrameStyle( QFrame::Box | QFrame::Plain );
 
 #ifdef __debug__
     if( !grpbdy ) { pErrMsg("Huh") ; return; }
@@ -504,9 +507,9 @@ uiObject* uiGroup::hAlignObj()
 void uiGroup::setFrame( bool yn )
 {
     if( yn )
-	setFrameStyle( mQFrame::Panel | mQFrame::Sunken ); 
+	setFrameStyle( QFrame::Panel | QFrame::Sunken ); 
     else
-	setFrameStyle( mQFrame::NoFrame );
+	setFrameStyle( QFrame::NoFrame );
 }
 
 void uiGroup::setFrameStyle( int fs )

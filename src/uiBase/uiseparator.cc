@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          17/1/2001
- RCS:		$Id: uiseparator.cc,v 1.5 2007-02-14 12:38:00 cvsnanne Exp $
+ RCS:		$Id: uiseparator.cc,v 1.6 2007-02-28 07:32:12 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,25 +14,23 @@ ________________________________________________________________________
 #include "uiobjbody.h"
 
 #ifdef USEQT3
-# define mQFrame QFrame
 # include <qframe.h>
 #else
-# define mQFrame Q3Frame
-# include <Q3Frame>
+# include <QFrame>
 #endif
 
 
-class uiSeparatorBody : public uiObjBodyImpl<uiSeparator,mQFrame>
+class uiSeparatorBody : public uiObjBodyImpl<uiSeparator,QFrame>
 {
 public:
                         uiSeparatorBody(uiSeparator& handle, uiParent* p,
 					const char* nm, bool hor, bool raised)
-			    : uiObjBodyImpl<uiSeparator,mQFrame>(handle,p,nm)
+			    : uiObjBodyImpl<uiSeparator,QFrame>(handle,p,nm)
 			    {
-				int style = hor ? mQFrame::HLine 
-				    		: mQFrame::VLine;
-				style    |= raised ? mQFrame::Raised 
-						   : mQFrame::Sunken;
+				int style = hor ? QFrame::HLine 
+				    		: QFrame::VLine;
+				style    |= raised ? QFrame::Raised 
+						   : QFrame::Sunken;
 
 				setFrameStyle( style );
 			    }
@@ -53,6 +51,6 @@ uiSeparatorBody& uiSeparator::mkbody( uiParent* p, const char* txt,
 
 void uiSeparator::setRaised( bool yn)
 { 
-    body_->setFrameShadow( yn ? mQFrame::Raised : mQFrame::Sunken );
+    body_->setFrameShadow( yn ? QFrame::Raised : QFrame::Sunken );
 } 
 
