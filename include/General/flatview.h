@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2005
- RCS:           $Id: flatview.h,v 1.2 2007-02-23 14:26:14 cvsbert Exp $
+ RCS:           $Id: flatview.h,v 1.3 2007-02-28 08:10:39 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -179,7 +179,7 @@ public:
 
     			DataDispPars()
 			    : dispvd_(true)
-			    , dispwva_(false)	{}
+			    , dispwva_(true)	{}
 
     bool		dispvd_;
     bool		dispwva_;
