@@ -4,16 +4,21 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          Sep 2006
- RCS:           $Id: uiflatviewcontrol.cc,v 1.4 2007-02-23 14:26:15 cvsbert Exp $
+ RCS:           $Id: uiflatviewcontrol.cc,v 1.5 2007-02-28 13:37:04 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiflatviewcontrol.h"
+
+#include "flatviewzoommgr.h"
 #include "uiflatviewer.h"
+#include "uirgbarraycanvas.h"
+
 #include "uibutton.h"
 #include "uibuttongroup.h"
-#include "flatviewzoommgr.h"
+#include "uiworld2ui.h"
+
 #include "pixmap.h"
 
 #define mDefBut(butnm,grp,fnm,cbnm,tt) \
@@ -61,6 +66,10 @@ uiFlatViewControl::uiFlatViewControl( uiFlatViewer& vwr, const Setup& s )
     addViewer( vwr );
     if ( mainwin() ) //TODO: I need a finalise callback
 	mainwin()->finaliseDone.notify( mCB(this,uiFlatViewControl,initStates));
+
+    vwr.rgbCanvas().setRubberBandingOn( OD::LeftButton );
+    vwr.rgbCanvas().rubberBandUsed.notify( mCB(this,uiFlatViewControl,
+					       rubBandCB));
 }
 
 
@@ -229,4 +238,26 @@ void uiFlatViewControl::stateCB( CallBacker* but )
 
 void uiFlatViewControl::parsCB( CallBacker* )
 {
+}
+
+
+void uiFlatViewControl::rubBandCB( CallBacker* cb )
+{
+    //TODO add new possibilities : rb can be used to draw..., disable zoom...
+    mCBCapsuleUnpack(uiRect,r,cb);
+    uiSize sz = r.getPixelSize();
+    if ( sz.hNrPics() == 0 && sz.vNrPics() == 0 )
+	return;
+
+    //TODO checks for rubberband used outside pixmap area
+    uiWorld2Ui w2u;
+    vwrs_[0]->getWorld2Ui(w2u);
+    uiWorldRect wr = w2u.transform(r);
+    const Geom::Size2D<double> newsz = wr.size();
+    Geom::Point2D<double> centre = wr.centre();
+    //TODO think of: centre changes; zooming backward may seem strange to 
+    //the user...
+    zoommgr_.add(newsz);
+
+    setNewView( centre, newsz );
 }

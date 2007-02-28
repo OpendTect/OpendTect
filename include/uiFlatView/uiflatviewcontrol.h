@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewcontrol.h,v 1.3 2007-02-23 09:35:33 cvsbert Exp $
+ RCS:           $Id: uiflatviewcontrol.h,v 1.4 2007-02-28 13:37:04 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -71,6 +71,7 @@ protected:
     void		panCB(CallBacker*);
     void		stateCB(CallBacker*);
     void		parsCB(CallBacker*);
+    void		rubBandCB(CallBacker*);
 
 };
 

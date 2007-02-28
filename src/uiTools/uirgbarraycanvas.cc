@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uirgbarraycanvas.cc,v 1.3 2007-02-19 16:41:46 cvsbert Exp $
+ RCS:           $Id: uirgbarraycanvas.cc,v 1.4 2007-02-28 13:37:04 cvshelene Exp $
  ________________________________________________________________________
 
 -*/
@@ -18,6 +18,7 @@ uiRGBArrayCanvas::uiRGBArrayCanvas( uiParent* p, uiRGBArray& a )
     	: uiCanvas(p)
 	, rgbarr_(a)
 	, newFillNeeded(this)
+	, rubberBandUsed(this)
 	, border_(0,0,0,0)
 	, bgcolor_(Color::NoColor)
 	, dodraw_(true)
@@ -127,6 +128,13 @@ void uiRGBArrayCanvas::reDrawHandler( uiRect updarea )
 	return;
 
     drawTool()->drawPixmap( arrarea_.topLeft(), pixmap_, pixrect );
+}
+
+
+void uiRGBArrayCanvas::rubberBandHandler( uiRect r )
+{
+    CBCapsule<uiRect> caps( r, this );
+    rubberBandUsed.trigger( &caps );
 }
 
 

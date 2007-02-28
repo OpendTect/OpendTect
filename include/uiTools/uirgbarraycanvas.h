@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uirgbarraycanvas.h,v 1.1 2007-02-09 13:41:05 cvsbert Exp $
+ RCS:           $Id: uirgbarraycanvas.h,v 1.2 2007-02-28 13:37:04 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,8 +44,6 @@ public:
 
     void		forceNewFill();
 
-    Notifier<uiRGBArrayCanvas>	newFillNeeded;
-
     const uiRect&	updateArea()		{ return updarea_; }
     			//!< In this area the 'rest' needs to be drawn
     			//!< in your own reDrawHandler or at postDraw
@@ -57,6 +55,10 @@ public:
     inline const Color&	bgColor() const		{ return bgcolor_; }
     inline bool		arrDrawn() const	{ return dodraw_; }
 
+
+    Notifier<uiRGBArrayCanvas>	newFillNeeded;
+    Notifier<uiRGBArrayCanvas>	rubberBandUsed;	// CallBacker: CBCapsule<uiRect>
+        
 protected:
 
     uiRGBArray&		rgbarr_;
@@ -72,6 +74,7 @@ protected:
     void		setupChg();
     void		beforeDraw(CallBacker*);
     void		reDrawHandler(uiRect);
+    void		rubberBandHandler(uiRect);
     bool		createPixmap();
 
 };
