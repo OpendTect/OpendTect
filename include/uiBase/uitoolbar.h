@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          30/05/2001
- RCS:           $Id: uitoolbar.h,v 1.25 2007-02-28 07:29:55 cvsnanne Exp $
+ RCS:           $Id: uitoolbar.h,v 1.26 2007-02-28 16:50:54 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -52,6 +52,7 @@ public:
     void		setPixmap(int,const char*);
     void		setPixmap(int,const ioPixmap&);
     void		setToolTip(int,const char*);
+    void		setShortcut(int,const char*);
     void		turnOn(int idx,bool yn);
     			/*!< Does only work on toggle-buttons */
     bool		isOn(int idx) const;
