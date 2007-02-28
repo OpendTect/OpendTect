@@ -16,13 +16,8 @@ dTect.Ask store session:	No
 dTect.Ask store picks:		Yes
 dTect.Ask store attributeset:	Yes
 dTect.Zoom factor:		1
-Printer:			lpr
 Seg-Y headers:			/tmp/sgy_dump.txt
 Company:			
-In-line byte:			5
-Cross-line byte:		21
-X-coord byte:			73
-Y-coord byte:			77
 Font.def.Control:		Helvetica`8`Normal`No
 Font.def.Small control: 	Helvetica`6`Normal`No
 Font.def.Large control: 	Helvetica`10`Normal`No

@@ -4,7 +4,7 @@
  * DATE     : 18-4-1996
 -*/
 
-static const char* rcsID = "$Id: draw.cc,v 1.62 2007-02-05 18:15:27 cvsbert Exp $";
+static const char* rcsID = "$Id: draw.cc,v 1.63 2007-02-28 16:34:38 cvsbert Exp $";
 
 /*! \brief Several implementations for UI-related things.
 
@@ -82,6 +82,7 @@ const char* ColorTable::sKeyMarkColor = "Marker color";
 const char* ColorTable::sKeyUdfColor = "Undef color";
 const char* ColorTable::sKeyTransparency = "Transparency";
 const char* ColorTable::sKeyCtbl = "Color table";
+static const char* sKeyCtabSettsKey = "coltabs";
 float ColorTable::defpercclip_ = mUdf(float);
 
 static ObjectSet<IOPar>& stdTabPars()
@@ -574,9 +575,9 @@ void ColorTable::getNames( NamedBufferStringSet& names, ColorTable::Src opt )
 
     if ( opt != ColorTable::Sys )
     {
-	PtrMan<IOPar> iopar = Settings::common().subselect( names.name() );
-	if ( iopar && iopar->size() )
-	    add( *iopar, &names, 0 );
+	Settings& setts( Settings::fetch(sKeyCtabSettsKey) );
+	if ( setts.size() )
+	    add( setts, &names, 0 );
 	if ( opt == ColorTable::UsrDef ) return;
     }
 
@@ -603,12 +604,12 @@ bool ColorTable::get( const char* nm, ColorTable& ct, ColorTable::Src opt )
 
     if ( opt != ColorTable::Sys )
     {
-	PtrMan<IOPar> iopar = Settings::common().subselect( sKeyCtbl );
-	if ( iopar && iopar->size() )
+	Settings& setts( Settings::fetch(sKeyCtabSettsKey) );
+	if ( setts.size() )
 	{
 	    for ( int idx=0; ; idx++ )
 	    {
-		PtrMan<IOPar> ctiopar = iopar->subselect( idx );
+		PtrMan<IOPar> ctiopar = setts.subselect( idx );
 		if ( !ctiopar || !ctiopar->size() )
 		{
 		    if ( !idx ) continue;
@@ -648,8 +649,9 @@ void ColorTable::add( const ColorTable& ctab )
     getNames( names, UsrDef );
     const int newidx = names.size();
     IOPar par; ctab.fillPar( par );
-    Settings::common().mergeComp( par, IOPar::compKey(sKeyCtbl,newidx) );
-    Settings::common().write();
+    Settings& setts( Settings::fetch(sKeyCtabSettsKey) );
+    setts.mergeComp( par, getStringFromInt("%d",newidx) );
+    setts.write();
 }
 
 

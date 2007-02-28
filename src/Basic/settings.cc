@@ -5,7 +5,7 @@
  * FUNCTION : Default user settings
 -*/
  
-static const char* rcsID = "$Id: settings.cc,v 1.32 2007-02-01 11:23:26 cvshelene Exp $";
+static const char* rcsID = "$Id: settings.cc,v 1.33 2007-02-28 16:34:38 cvsbert Exp $";
 
 #include "settings.h"
 #include "filegen.h"
@@ -128,16 +128,24 @@ bool Settings::doRead( bool ext )
     }
 
     clear();
-    while ( !atEndOfSection( stream.next() ) )
-    {
-	const char* ptr = stream.keyWord();
-	if ( *ptr == '*' ) ptr++;
-	set( ptr, stream.value() );
-    }
+    getFrom( stream );
     sfio.closeSuccess();
 
     if ( empty_initially )
 	write( false );
+    else if ( iscommon && stream.majorVersion() < 3 )
+    {
+	IOPar* coltabpar = subselect( "Color table" );
+	bool havewrittencoltabs = false;
+	if ( coltabpar && coltabpar->size() )
+	{
+	    Settings& coltabsetts( fetch("coltabs") );
+	    coltabsetts.merge( *coltabpar );
+	    if ( coltabsetts.write(false) )
+		{ removeWithKey( "Color table.*" ); write( false ); }
+	}
+	delete coltabpar;
+    }
     return true;
 }
 
