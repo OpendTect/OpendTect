@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiattribpartserv.cc,v 1.61 2007-02-21 14:51:00 cvsbert Exp $
+ RCS:           $Id: uiattribpartserv.cc,v 1.62 2007-02-28 07:41:42 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -91,6 +91,11 @@ uiAttribPartServer::uiAttribPartServer( uiApplService& a )
     StorageProvider::initClass();
     attrsetclosetim_.tick.notify( 
 			mCB(this,uiAttribPartServer,attrsetDlgCloseTimTick) );
+
+    stored2dmnuitem_.checkable = true;
+    stored3dmnuitem_.checkable = true;
+    calc2dmnuitem_.checkable = true;
+    calc3dmnuitem_.checkable = true;
 }
 
 
@@ -617,6 +622,7 @@ void uiAttribPartServer::insert2DStoredItems( const BufferStringSet& bfset,
 					      bool correcttype, MenuItem* mnu,
        					      const SelSpec& as, bool usesubmnu) 
 {
+    mnu->checkable = true;
     mnu->enabled = bfset.size();
     if ( usesubmnu )
     {
@@ -630,6 +636,7 @@ void uiAttribPartServer::insert2DStoredItems( const BufferStringSet& bfset,
     {
 	BufferString key = bfset.get(idx);
 	MenuItem* itm = new MenuItem( key );
+	itm->checkable = true;
 	const bool docheck =  correcttype && key == as.userRef();
 	mAddManagedMenuItem( mnu, itm, true, docheck );
 	if ( docheck ) mnu->checked = true;
@@ -675,6 +682,7 @@ for ( int idx=start; idx<stop; idx++ ) \
 { \
     const BufferString& nm = attrinf.list.get(idx); \
     MenuItem* itm = new MenuItem( nm ); \
+    itm->checkable = true; \
     const bool docheck = correcttype && nm == as.userRef(); \
     mAddManagedMenuItem( mnu, itm, true, docheck );\
     if ( docheck ) (mnu)->checked = true; \
@@ -801,6 +809,7 @@ MenuItem* uiAttribPartServer::depthdomainAttribMenuItem( const SelSpec& as,
     BufferString itmtxt = key; itmtxt += " Cubes";
     depthdomainmnuitem->text = itmtxt;
     depthdomainmnuitem->removeItems();
+    depthdomainmnuitem->checkable = true;
     depthdomainmnuitem->checked = false;
 
     BufferStringSet ioobjnms;

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrdescseted.cc,v 1.44 2007-01-15 10:58:33 cvsbert Exp $
+ RCS:           $Id: uiattrdescseted.cc,v 1.45 2007-02-28 07:41:42 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -116,6 +116,7 @@ void uiAttribDescSetEd::createMenuBar()
 void uiAttribDescSetEd::createToolBar()
 {
     toolbar = new uiToolBar( this, "AttributeSet tools" );
+    addToolBar( toolbar );
     mAddButton( "newset.png", newSet, "New attribute set" );
     mAddButton( "openset.png", openSet, "Open attribute set" );
     mAddButton( "defset.png", defaultSet, "Open default attribute set" );

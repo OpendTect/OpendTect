@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		July 2006
- RCS:		$Id: uivisslicepos3d.cc,v 1.4 2006-07-25 11:02:52 cvsnanne Exp $
+ RCS:		$Id: uivisslicepos3d.cc,v 1.5 2007-02-28 07:40:04 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "uislicepos.h"
 
 #include "uilabel.h"
+#include "uimainwin.h"
 #include "uispinbox.h"
 #include "uitoolbar.h"
 #include "uivispartserv.h"
@@ -29,18 +30,21 @@ uiSlicePos::uiSlicePos( uiParent* p )
     , curpdd_(0)
     , positionChg(this)
 {
-    toolbar_->setCloseMode( 2 );
+    mDynamicCastGet(uiMainWin*,mw,p)
+    mw->addToolBar( toolbar_ );
 
     sliceposbox_ = new uiLabeledSpinBox( toolbar_, "Crossline", 0,
 	    				 "Slice position" );
     sliceposbox_->setSensitive( curpdd_ );
     sliceposbox_->box()->valueChanged.notify(
 	    			mCB(this,uiSlicePos,slicePosChg) );
+    toolbar_->addObject( sliceposbox_->attachObj() );
 
     slicestepbox_ = new uiLabeledSpinBox( toolbar_, "Step", 0, "Slice step" );
     slicestepbox_->setSensitive( curpdd_ );
     slicestepbox_->box()->valueChanged.notify(
 	    			mCB(this,uiSlicePos,sliceStepChg) );
+    toolbar_->addObject( slicestepbox_->attachObj() );
 
     IOM().surveyChanged.notify( mCB(this,uiSlicePos,initSteps) );
     initSteps();

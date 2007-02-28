@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Jan 2005
- RCS:           $Id: uivisemobj.cc,v 1.53 2007-02-22 12:49:56 cvsjaap Exp $
+ RCS:           $Id: uivisemobj.cc,v 1.54 2007-02-28 07:40:04 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -219,19 +219,24 @@ bool uiVisEMObject::isOK() const
 void uiVisEMObject::setUpConnections()
 {
     singlecolmnuitem.text = "Use single color";
+    singlecolmnuitem.checkable = true;
     trackmenuitem.text = uiVisEMObject::trackingmenutxt;
     seedsmenuitem.text = "Seeds";
+    seedsmenuitem.checkable = true;
     showseedsmnuitem.text = "Show";
     seedpropmnuitem.text = "Properties ...";
     lockseedsmnuitem.text = "Lock";
     wireframemnuitem.text = "Wireframe";
+    wireframemnuitem.checkable = true;
     editmnuitem.text = "Edit";
+    editmnuitem.checkable = true;
     shiftmnuitem.text = "Shift ...";
     removesectionmnuitem.text ="Remove section";
     makepermnodemnuitem.text = "Make control permanent";
     removecontrolnodemnuitem.text = "Remove control";
-    showonlyatsectionsmnuitem.text = "Display only at sections";
     changesectionnamemnuitem.text = "Change section's name";
+    showonlyatsectionsmnuitem.text = "Display only at sections";
+    showonlyatsectionsmnuitem.checkable = true;
 
     MenuHandler* menu = visserv->getMenuHandler();
     menu->createnotifier.notify( mCB(this,uiVisEMObject,createMenuCB) );

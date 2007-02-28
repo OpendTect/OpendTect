@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.cc,v 1.112 2007-02-23 08:15:15 cvsjaap Exp $
+ RCS:           $Id: uimpeman.cc,v 1.113 2007-02-28 07:40:04 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,6 +29,7 @@ ________________________________________________________________________
 #include "uicombobox.h"
 #include "uicursor.h"
 #include "uiexecutor.h"
+#include "uimainwin.h"
 #include "uimsg.h"
 #include "uislider.h"
 #include "uispinbox.h"
@@ -69,13 +70,17 @@ uiMPEMan::uiMPEMan( uiParent* p, uiVisPartServer* ps )
     , seedpickwason(false)
     , oldactivevol(false)
 {
-    toolbar = new uiToolBar(p,"Tracking controls");
+    toolbar = new uiToolBar( p, "Tracking controls" );
+    mDynamicCastGet(uiMainWin*,mw,p)
+    mw->addToolBar( toolbar );
 
     addButtons();
 
+#ifdef USEQT3
     toolbar->setCloseMode( 2 );
     toolbar->setResizeEnabled();
     toolbar->setVerticallyStretchable(false);
+#endif
     updateAttribNames();
 
     EM::EMM().history().changenotifier.notify(
@@ -132,6 +137,7 @@ void uiMPEMan::addButtons()
     attribfld = new uiComboBox( toolbar, "Attribute" );
     attribfld->setToolTip( "QC Attribute" );
     attribfld->selectionChanged.notify( mCB(this,uiMPEMan,attribSel) );
+    toolbar->addObject( attribfld );
     toolbar->setStretchableWidget( attribfld );
 
     clrtabidx = mAddButton( "colorbar.png", setColorbarCB,

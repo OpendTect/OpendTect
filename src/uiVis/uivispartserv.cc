@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.345 2007-02-22 12:51:26 cvsjaap Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.346 2007-02-28 07:40:04 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -1469,6 +1469,8 @@ void uiVisPartServer::createMenuCB(CallBacker* cb)
 	    resolutions.add( so->getResolutionName(idx) );
 
 	resmnuitem_.createItems( resolutions );
+	for ( int idx=0; idx<resmnuitem_.nrItems(); idx++ )
+	    resmnuitem_.getItem(idx)->checkable = true;
 	resmnuitem_.getItem(so->getResolution())->checked = true;
 	mAddMenuItem(menu, &resmnuitem_, true, false );
     }
@@ -1523,10 +1525,7 @@ void uiVisPartServer::showMPEToolbar()
 {
     updateMPEToolbar();
     if ( !mpetools_->getToolBar()->isShown() )
-    {
 	mpetools_->getToolBar()->display();
-	mpetools_->getToolBar()->undock();
-    }
 }
 
 
