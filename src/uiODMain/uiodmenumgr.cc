@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.cc,v 1.75 2007-02-28 08:05:08 cvsnanne Exp $
+ RCS:           $Id: uiodmenumgr.cc,v 1.76 2007-02-28 16:54:41 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -60,11 +60,8 @@ uiODMenuMgr::uiODMenuMgr( uiODMain* a )
     helpmnu_ = new uiPopupMenu( &appl_, "&Help" );
 
     dtecttb_ = new uiToolBar( &appl_, "OpendTect tools" );
-    appl_.addToolBar( dtecttb_ );
     cointb_ = new uiToolBar( &appl_, "Graphical tools" );
-    appl_.addToolBar( cointb_ );
     mantb_ = new uiToolBar( &appl_, "Manage data" );
-    appl_.addToolBar( mantb_ );
 
     appl_.applMgr().visServer()->createToolBars();
     IOM().surveyChanged.notify( mCB(this,uiODMenuMgr,updateDTectToolBar) );
