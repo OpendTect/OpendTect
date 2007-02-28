@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          30/05/2001
- RCS:           $Id: uitoolbar.cc,v 1.32 2007-02-28 07:32:12 cvsnanne Exp $
+ RCS:           $Id: uitoolbar.cc,v 1.33 2007-02-28 16:51:46 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,13 +27,11 @@ ________________________________________________________________________
 #ifdef USEQT3
 # include <qtoolbar.h>
 # include <qmainwindow.h>
-# define mQMainWinClss	QMainWindow
 # define mDockNmSpc	QMainWindow
 #else
 # include <QAction>
 # include <QMainWindow>
 # include <QToolBar>
-# define mQMainWinClss	QMainWindow
 # define mDockNmSpc	Qt
 #endif
 
@@ -60,6 +58,7 @@ public:
     void		setSensitive(bool yn);
     bool		isSensitive() const;
     void		setToolTip(int,const char*);
+    void		setShortcut(int,const char*);
     void		setPixmap(int,const char*);
     void		setPixmap(int,const ioPixmap&);
 
@@ -239,6 +238,14 @@ void uiToolBarBody::setToolTip( int idx, const char* tip )
 }
 
 
+void uiToolBarBody::setShortcut( int idx, const char* sc )
+{
+#ifndef USEQT3
+    actions[idx]->setShortcut( QString(sc) );
+#endif
+}
+
+
 void uiToolBarBody::setSensitive( bool yn )
 {
     if ( qwidget() ) qwidget()->setEnabled( yn );
@@ -280,9 +287,15 @@ uiToolBar::uiToolBar( uiParent* parnt, const char* nm, ToolBarDock d,
 {
     Qt::ToolBarDock tbdock = uiToolBarBody::qdock(d);
     QWidget* qwidget = parnt && parnt->pbody() ? parnt->pbody()->qwidget() : 0;
-    qtoolbar = new QToolBar( QString(nm), (mQMainWinClss*)qwidget );
+    qtoolbar = new QToolBar( QString(nm), (QMainWindow*)qwidget );
     setBody( &mkbody(nm,*qtoolbar) );
     toolBars() += this;
+
+#ifndef USEQT3
+    qtoolbar->setAllowedAreas( Qt::TopToolBarArea | Qt::BottomToolBarArea );
+    mDynamicCastGet(QMainWindow*,qmw,qwidget)
+    if ( qmw ) qmw->addToolBar( qtoolbar );
+#endif
 }
 
 
@@ -335,6 +348,9 @@ void uiToolBar::setSensitive( bool yn )
 
 void uiToolBar::setToolTip( int idx, const char* tip )
 { body_->setToolTip( idx, tip ); }
+
+void uiToolBar::setShortcut( int idx, const char* sc )
+{ body_->setShortcut( idx, sc ); }
 
 void uiToolBar::setPixmap( int idx, const char* fnm )
 { body_->setPixmap( idx, fnm ); }
