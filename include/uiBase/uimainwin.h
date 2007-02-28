@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.h,v 1.44 2007-02-28 07:29:55 cvsnanne Exp $
+ RCS:           $Id: uimainwin.h,v 1.45 2007-02-28 16:50:41 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -89,6 +89,7 @@ public:
     void		addDockWindow(uiDockWin&,Dock);
     void		addToolBar(uiToolBar*);
     void		removeToolBar(uiToolBar*);
+    void		addToolBarBreak();
 
     uiPopupMenu&	createDockWindowMenu();
 

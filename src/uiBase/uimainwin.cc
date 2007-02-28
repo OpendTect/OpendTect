@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.113 2007-02-28 07:32:12 cvsnanne Exp $
+ RCS:           $Id: uimainwin.cc,v 1.114 2007-02-28 16:51:13 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -527,6 +527,15 @@ void uiMainWin::removeToolBar( uiToolBar* tb )
     body_->removeToolBar( tb->qwidget() );
 #endif
 }
+
+
+void uiMainWin::addToolBarBreak()
+{
+#ifndef USEQT3
+    body_->addToolBarBreak();
+#endif 
+}
+
 
 uiGroup* uiMainWin::topGroup()	    	   { return body_->uiCentralWidg(); }
 
