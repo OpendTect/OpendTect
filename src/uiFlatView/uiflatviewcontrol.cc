@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          Sep 2006
- RCS:           $Id: uiflatviewcontrol.cc,v 1.5 2007-02-28 13:37:04 cvshelene Exp $
+ RCS:           $Id: uiflatviewcontrol.cc,v 1.6 2007-02-28 15:58:44 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,6 +13,7 @@ ________________________________________________________________________
 
 #include "flatviewzoommgr.h"
 #include "uiflatviewer.h"
+#include "uiflatviewpropdlg.h"
 #include "uirgbarraycanvas.h"
 
 #include "uibutton.h"
@@ -30,6 +31,7 @@ uiFlatViewControl::uiFlatViewControl( uiFlatViewer& vwr, const Setup& s )
     : uiGroup(vwr.attachObj()->parent(),"Flat viewer control")
     , setup_(s)
     , stategrp_(0)
+    , propdlg_(0)
     , zoommgr_(*new FlatView::ZoomMgr)
 {
     setBorder( 0 );
@@ -236,11 +238,6 @@ void uiFlatViewControl::stateCB( CallBacker* but )
 }
 
 
-void uiFlatViewControl::parsCB( CallBacker* )
-{
-}
-
-
 void uiFlatViewControl::rubBandCB( CallBacker* cb )
 {
     //TODO add new possibilities : rb can be used to draw..., disable zoom...
@@ -260,4 +257,69 @@ void uiFlatViewControl::rubBandCB( CallBacker* cb )
     zoommgr_.add(newsz);
 
     setNewView( centre, newsz );
+}
+
+
+void uiFlatViewControl::parsCB( CallBacker* )
+{
+    if ( propdlg_ ) delete propdlg_;
+    propdlg_ = new uiFlatViewPropDlg( vwrs_[0]->attachObj()->parent(),
+	    			vwrs_[0]->context().ddpars_,
+			    	mCB(this,uiFlatViewControl,applyProperties) );
+    propdlg_->windowClosed.notify(mCB(this,uiFlatViewControl,propDlgClosed));
+    propdlg_->go();
+}
+
+
+void uiFlatViewControl::propDlgClosed( CallBacker* )
+{
+    if ( propdlg_->uiResult() == 1 )
+    {
+	applyProperties(0);
+	if ( propdlg_->saveButtonChecked() )
+	    saveProperties();
+    }
+}
+
+
+void uiFlatViewControl::applyProperties( CallBacker* cb )
+{
+    if ( !propdlg_ ) return;
+
+    uiWVAFVPropTab* wvatab = propdlg_->wvaproptab_;
+    uiVDFVPropTab* vdtab = propdlg_->vdproptab_;
+    if ( vdtab )
+    {
+	if ( cb )
+	    vdtab->fillDispPars();
+
+	for ( int idx=0; idx<vwrs_.size(); idx++ )
+	{
+	    vwrs_[idx]->context().ddpars_.vd_ = vdtab->vdpars_;
+	    vwrs_[idx]->context().ddpars_.dispvd_ = vdtab->dispvd_;
+	    vwrs_[idx]->handleChange(FlatView::Viewer::VDPars);
+	}
+    }
+    if ( wvatab )
+    {
+	if ( cb )
+	    wvatab->fillDispPars();
+
+	for ( int idx=0; idx<vwrs_.size(); idx++ )
+	{
+	    vwrs_[idx]->context().ddpars_.wva_ = wvatab->wvapars_;
+	    vwrs_[idx]->context().ddpars_.dispwva_ = wvatab->dispwva_;
+	    vwrs_[idx]->handleChange(FlatView::Viewer::WVAPars);
+	}
+    }
+}
+
+
+void uiFlatViewControl::saveProperties()
+{
+    /*
+    Settings& setts = Settings::fetch( "flatdisp" );
+    context().fillPar( setts );
+    setts.write();
+    */
 }
