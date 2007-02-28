@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/12/1999
- RCS:           $Id: iodraw.cc,v 1.20 2007-02-21 17:14:38 cvskris Exp $
+ RCS:           $Id: iodraw.cc,v 1.21 2007-02-28 21:15:44 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,39 +37,43 @@ ________________________________________________________________________
 
 
 ioDrawTool::ioDrawTool( QPaintDevice* handle, int x_0, int y_0 )
-    : qpainter( 0 )
-    , qpen( *new QPen() )
-    , freeqpainter ( false )
-    , qpaintdev( handle )
+    : qpainter_( 0 )
+    , qpen_( *new QPen() )
+    , freeqpainter_ ( false )
+    , qpaintdev_( handle )
 #ifdef USEQT3
-    , qpaintdevmetr( 0 )
+    , qpaintdevmetr_( 0 )
 #endif
     , active_( false ) 
-    , x0( x_0 )
-    , y0( y_0 )
+    , x0_( x_0 )
+    , y0_( y_0 )
     , font_( &uiFontList::get() )
 {}
 
 
 ioDrawTool::~ioDrawTool() 
 { 
-    if ( qpainter )
-       delete qpainter;
+    if ( qpainter_ )
+       delete qpainter_;
 
 #ifdef USEQT3
-    if ( qpaintdevmetr )
-	delete qpaintdevmetr;
+    if ( qpaintdevmetr_ )
+	delete qpaintdevmetr_;
 #endif
     
-    delete &qpen;
+    delete &qpen_;
 }
 
 
 void ioDrawTool::drawLine( int x1, int y1, int x2, int y2 )
 {
     if ( !active() && !beginDraw() ) return;
-    qpainter->drawLine( x1-x0, y1-y0, x2-x0, y2-y0 );
+    qpainter_->drawLine( x1-x0_, y1-y0_, x2-x0_, y2-y0_ );
 }
+
+
+void ioDrawTool::drawLine( const uiPoint& p1, const uiPoint& p2 )
+{ drawLine ( p1.x, p1.y, p2.x, p2.y ); }
 
 
 void ioDrawTool::drawLine( const TypeSet<uiPoint>& pts, int pt0, int nr )
@@ -86,7 +90,7 @@ void ioDrawTool::drawLine( const TypeSet<uiPoint>& pts, int pt0, int nr )
     for ( int idx=0; idx<nrpoints; idx++ )
 	qarray.setPoint( (unsigned int)idx, pts[idx+pt0].x, pts[idx+pt0].y);
 
-    qpainter->drawPolyline( qarray );
+    qpainter_->drawPolyline( qarray );
 }
 
 
@@ -104,7 +108,7 @@ void ioDrawTool::drawPolygon( const TypeSet<uiPoint>& pts, int pt0, int nr )
     for ( int idx=0; idx<nrpoints; idx++ )
 	qarray.setPoint( (unsigned int)idx, pts[idx+pt0].x, pts[idx+pt0].y);
 
-    qpainter->drawPolygon( qarray );
+    qpainter_->drawPolygon( qarray );
 }
 
 
@@ -116,7 +120,7 @@ void ioDrawTool::drawText( int x, int y, const char* txt, const Alignment& al,
     int hgt = font_->height();
     int wdt = font_->width( txt );
 
-    int xx = x - x0;
+    int xx = x - x0_;
     switch( al.hor )
     {
 	case Alignment::Middle:
@@ -127,7 +131,7 @@ void ioDrawTool::drawText( int x, int y, const char* txt, const Alignment& al,
 	    break;
     }
   
-    int yy = y + font_->ascent() - y0;
+    int yy = y + font_->ascent() - y0_;
     switch( al.ver )
     {
 	case Alignment::Middle:
@@ -166,36 +170,58 @@ void ioDrawTool::drawText( int x, int y, const char* txt, const Alignment& al,
 
     if ( erase )
 #ifdef USEQT3
-	qpainter->fillRect( xx, yy-hgt, wdt, hgt, qpainter->backgroundColor() );
+	qpainter_->fillRect( xx, yy-hgt, wdt, hgt, qpainter_->backgroundColor() );
 #else
-	qpainter->eraseRect( xx, yy-hgt, wdt, hgt );
+	qpainter_->eraseRect( xx, yy-hgt, wdt, hgt );
 #endif
 
-    qpainter->drawText( xx, yy, QString(txt) );
+    qpainter_->drawText( xx, yy, QString(txt) );
 }
+
+
+void ioDrawTool::drawText( const uiPoint& p, const char* txt,
+			   const Alignment& al, bool over, bool erase )
+{ drawText( p.x, p.y, txt, al, over, erase ); }
 
 
 void ioDrawTool::drawEllipse ( int x, int y, int w, int h )
 {
     if ( !active() && !beginDraw() ) return;
-    qpainter->drawEllipse ( x-x0, y-y0, w, h );
+    qpainter_->drawEllipse ( x-x0_, y-y0_, w, h );
 }
+
+
+void ioDrawTool::drawEllipse( const uiPoint& topLeft, const uiSize& sz )
+{ drawEllipse( topLeft.x, topLeft.y, sz.hNrPics(), sz.vNrPics()); }
+
+
+void ioDrawTool::drawEllipse( const uiRect& r )
+{ drawEllipse( r.left(), r.top(), r.hNrPics(), r.vNrPics()); }
 
 
 void ioDrawTool::drawRect ( int x, int y, int w, int h )
 {
     if ( !active() && !beginDraw() ) return;
-    qpainter->drawRect ( x-x0, y-y0, w, h );
+    const int pensize = mMAX(1,qpainter_->pen().width() );
+    qpainter_->drawRect ( x-x0_, y-y0_, w-pensize, h-pensize );
 }
+
+
+void ioDrawTool::drawRect( const uiPoint& topLeft, const uiSize& sz )
+{ drawRect( topLeft.x, topLeft.y, sz.hNrPics(), sz.vNrPics()); }
+
+
+void ioDrawTool::drawRect( const uiRect& r )
+{ drawRect( r.left(), r.top(), r.hNrPics(), r.vNrPics()); }
 
 
 Color ioDrawTool::backgroundColor() const
 {
     if ( !active() ) return Color::Black;
 #ifdef USEQT3
-    return Color( qpainter->backgroundColor().rgb() );
+    return Color( qpainter_->backgroundColor().rgb() );
 #else
-    return Color( qpainter->background().color().rgb() );
+    return Color( qpainter_->background().color().rgb() );
 #endif
 }
 
@@ -204,11 +230,11 @@ void ioDrawTool::setBackgroundColor( const Color& c )
 {
     if ( !active() && !beginDraw() ) return;
 #ifdef USEQT3
-    qpainter->setBackgroundColor( QColor( QRgb(c.rgb()) ) );
+    qpainter_->setBackgroundColor( QColor( QRgb(c.rgb()) ) );
 #else
-    QBrush br( qpainter->background() );
+    QBrush br( qpainter_->background() );
     br.setColor( QColor( QRgb(c.rgb()) ) );
-    qpainter->setBackground( br );
+    qpainter_->setBackground( br );
 #endif
 }
 
@@ -221,17 +247,17 @@ void ioDrawTool::clear( const uiRect* rect, const Color* col )
     if ( rect ) 
     {
 	r = *rect;
-	if ( x0 || y0 )
+	if ( x0_ || y0_ )
 	{
-	    r.setLeft( r.left() - x0 );
-	    r.setRight( r.right()  - x0 );
-	    r.setTop( r.top()  - y0 );
-	    r.setBottom( r.bottom()- y0 );
+	    r.setLeft( r.left() - x0_ );
+	    r.setRight( r.right()  - x0_ );
+	    r.setTop( r.top()  - y0_ );
+	    r.setBottom( r.bottom()- y0_ );
 	}
     }
 
 #ifndef USEQT3
-    qpainter->eraseRect( 0, 0, getDevWidth(), getDevHeight() );
+    qpainter_->eraseRect( 0, 0, getDevWidth(), getDevHeight() );
     return;
 #endif
     Color c( backgroundColor() );
@@ -245,14 +271,14 @@ void ioDrawTool::drawBackgroundPixmap( const Color* col )
 {
     if ( !active() && !beginDraw() ) return;
     setBackgroundColor( *col );
-    qpainter->setBackgroundMode( Qt::OpaqueMode );
-    qpainter->setBrush( Qt::DiagCrossPattern );
+    qpainter_->setBackgroundMode( Qt::OpaqueMode );
+    qpainter_->setBrush( Qt::DiagCrossPattern );
     drawRect( uiRect( 0, 0, getDevWidth(), getDevHeight() ) );
 }
 
 
-void ioDrawTool::drawPixmap (const uiPoint destTopLeft, ioPixmap* pm,
-						 const uiRect srcAreaInPixmap )
+void ioDrawTool::drawPixmap (const uiPoint& destTopLeft, const ioPixmap* pm,
+			     const uiRect& srcAreaInPixmap )
 {
     if ( !pm || !pm->Pixmap() ) 
     { 
@@ -265,32 +291,37 @@ void ioDrawTool::drawPixmap (const uiPoint destTopLeft, ioPixmap* pm,
     QRect src( QPoint(srcAreaInPixmap.left(),srcAreaInPixmap.top()),
 	       QPoint(srcAreaInPixmap.right(),srcAreaInPixmap.bottom()) );
     
-    QPoint dest( destTopLeft.x-x0, destTopLeft.y-y0 );
+    QPoint dest( destTopLeft.x-x0_, destTopLeft.y-y0_ );
 
-    qpainter->drawPixmap( dest, *pm->Pixmap(), src );
+    qpainter_->drawPixmap( dest, *pm->Pixmap(), src );
 
 }
+
+
+void ioDrawTool::drawPixmap( int left, int top, ioPixmap* pm,
+			     int sLeft, int sTop, int sRight, int sBottom )
+{ drawPixmap( uiPoint( left, top ), pm, uiRect( sLeft, sTop, sRight, sBottom )); }
 
 
 int ioDrawTool::getDevHeight() const
 //! \return height in pixels of the device we're drawing on
 {
 #ifdef USEQT3
-    if ( !qpaintdevmetr )
+    if ( !qpaintdevmetr_ )
     { 
-	if ( !qpaintdev )  
+	if ( !qpaintdev_ )  
 	{
 	    pErrMsg("No paint device! Can not construct QPaintDevMetrics");
 	    return 0;
 	}
 
-	const_cast<ioDrawTool*>(this)->qpaintdevmetr
-					= new QPaintDeviceMetrics( qpaintdev );
+	const_cast<ioDrawTool*>(this)->qpaintdevmetr_
+					= new QPaintDeviceMetrics( qpaintdev_ );
     }
 
-    return qpaintdevmetr->height();
+    return qpaintdevmetr_->height();
 #else
-    return qpaintdev->height();
+    return qpaintdev_->height();
 #endif
 }
 
@@ -299,21 +330,21 @@ int ioDrawTool::getDevWidth() const
 //! \return width in pixels of the device we're drawing on
 {
 #ifdef USEQT3
-    if ( !qpaintdevmetr )
+    if ( !qpaintdevmetr_ )
     { 
-	if ( !qpaintdev )  
+	if ( !qpaintdev_ )  
 	{
 	    pErrMsg("No paint device! Can not construct QPaintDevMetrics");
 	    return 0;
 	}
 
-	const_cast<ioDrawTool*>(this)->qpaintdevmetr
-					= new QPaintDeviceMetrics( qpaintdev );
+	const_cast<ioDrawTool*>(this)->qpaintdevmetr_
+					= new QPaintDeviceMetrics( qpaintdev_ );
     }
 
-    return qpaintdevmetr->width();
+    return qpaintdevmetr_->width();
 #else
-    return qpaintdev->width(); 
+    return qpaintdev_->width(); 
 #endif
 }
 
@@ -322,7 +353,7 @@ uiSize ioDrawTool::getDevSize() const
 { return uiSize( getDevWidth(), getDevHeight() ); }
 
 
-void ioDrawTool::drawMarker( uiPoint pt, const MarkerStyle2D& mstyle,
+void ioDrawTool::drawMarker( const uiPoint& pt, const MarkerStyle2D& mstyle,
 			    const char* txt, bool below )
 {
     setPenColor( mstyle.color );
@@ -362,19 +393,19 @@ void ioDrawTool::drawMarker( uiPoint pt, const MarkerStyle2D& mstyle,
 
 void ioDrawTool::setLineStyle( const LineStyle& ls )
 {
-    qpen.setStyle( (Qt::PenStyle) ls.type);
-    qpen.setColor( QColor( QRgb( ls.color.rgb() )));
-    qpen.setWidth( ls.width );
+    qpen_.setStyle( (Qt::PenStyle) ls.type);
+    qpen_.setColor( QColor( QRgb( ls.color.rgb() )));
+    qpen_.setWidth( ls.width );
 
     if ( !active() ) return;
-    qpainter->setPen( qpen ); 
+    qpainter_->setPen( qpen_ ); 
 }
 
 
 void ioDrawTool::setPenColor( const Color& colr )
 {
-    qpen.setColor( QColor( QRgb(colr.rgb()) ) );
-    if ( qpainter ) qpainter->setPen( qpen ); 
+    qpen_.setColor( QColor( QRgb(colr.rgb()) ) );
+    if ( qpainter_ ) qpainter_->setPen( qpen_ ); 
 }
 
 
@@ -382,15 +413,15 @@ void ioDrawTool::setFillColor( const Color& colr )
 { 
     if ( !active() && !beginDraw() ) return;
 
-    qpainter->setBrush( QColor( QRgb(colr.rgb()) ) );
+    qpainter_->setBrush( QColor( QRgb(colr.rgb()) ) );
 }
 
 
 void ioDrawTool::setPenWidth( unsigned int w )
 {
-    qpen.setWidth( w );
+    qpen_.setWidth( w );
     if ( !active() ) return;
-    qpainter->setPen( qpen ); 
+    qpainter_->setPen( qpen_ ); 
 }
 
 
@@ -398,7 +429,7 @@ void ioDrawTool::setFont( const uiFont& f )
 {
     font_ = &f;
     if ( !active() ) return;
-    qpainter->setFont( font_->qFont() );
+    qpainter_->setFont( font_->qFont() );
 }
 
 /*! start drawing
@@ -407,19 +438,19 @@ void ioDrawTool::setFont( const uiFont& f )
 */
 bool ioDrawTool::beginDraw()
 {
-    if ( !qpaintdev && !qpainter ) return false;
+    if ( !qpaintdev_ && !qpainter_ ) return false;
 
-    if ( !qpainter ) 
+    if ( !qpainter_ ) 
     {
-	qpainter = new mQPainter;
-	freeqpainter = true;
+	qpainter_ = new mQPainter;
+	freeqpainter_ = true;
     }
 
     if ( !active_ ) 
     {
-        if ( !qpainter->isActive() )
+        if ( !qpainter_->isActive() )
 	{
-	    if ( !qpaintdev || !qpainter->begin( qpaintdev ) )
+	    if ( !qpaintdev_ || !qpainter_->begin( qpaintdev_ ) )
             {
 		pErrMsg("Unable to make painter active!");
 		return false;
@@ -429,8 +460,8 @@ bool ioDrawTool::beginDraw()
 	active_ = true;
     }
 
-    qpainter->setPen( qpen ); 
-    qpainter->setFont( font_->qFont() ); 
+    qpainter_->setPen( qpen_ ); 
+    qpainter_->setFont( font_->qFont() ); 
 
     return true;
 }
@@ -438,19 +469,19 @@ bool ioDrawTool::beginDraw()
 
 bool ioDrawTool::endDraw()
 {
-    if ( !qpainter ) return false;
+    if ( !qpainter_ ) return false;
     
     if ( active_ )
     {   
 #ifdef USEQT3
-	qpainter->flush();
+	qpainter_->flush();
 #endif
-	qpainter->end();
+	qpainter_->end();
         active_ = false;
     }
 
-    if ( freeqpainter ) delete qpainter;
-    qpainter = 0;
+    if ( freeqpainter_ ) delete qpainter_;
+    qpainter_ = 0;
 
     return true;
 }
@@ -458,11 +489,11 @@ bool ioDrawTool::endDraw()
 
 bool ioDrawTool::setActivePainter( mQPainter* p )
 {
-    if ( qpainter ) return false;
+    if ( qpainter_ ) return false;
     if ( active_ ) return false;
 
-    qpainter = p;
-    freeqpainter = false;
+    qpainter_ = p;
+    freeqpainter_ = false;
     active_ = true;
 
     return true;
@@ -473,9 +504,9 @@ void ioDrawTool::setRasterXor()
 {
     if ( !active() ) return;
 #ifdef USEQT3
-    qpainter->setRasterOp( Qt::XorROP );
+    qpainter_->setRasterOp( Qt::XorROP );
 #else 
-    qpainter->setCompositionMode( mQPainter::CompositionMode_Xor );
+    qpainter_->setCompositionMode( mQPainter::CompositionMode_Xor );
 #endif
 }
 
@@ -484,9 +515,9 @@ void ioDrawTool::setRasterNorm()
 {
     if ( !active() ) return;
 #ifdef USEQT3
-    qpainter->setRasterOp( Qt::CopyROP );
+    qpainter_->setRasterOp( Qt::CopyROP );
 #else
-    qpainter->setCompositionMode(
+    qpainter_->setCompositionMode(
 			    mQPainter::CompositionMode_SourceOver );
 #endif
 }
