@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.92 2007-02-28 08:05:08 cvsnanne Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.93 2007-02-28 10:59:43 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,7 +29,8 @@ ________________________________________________________________________
 #include "uigeninputdlg.h"
 #include "uiprintscenedlg.h"
 #include "uiflatviewcontrol.h"
-#include "uiflatviewdockwin.h"
+//#include "uiflatviewdockwin.h"	//TODO re-activate dock windows later on
+#include "uiflatviewmainwin.h"
 #include "uitreeitemmanager.h"
 #include "uimsg.h"
 
@@ -881,9 +882,10 @@ uiODSceneMgr::Viewer2D::Viewer2D( uiODMain& appl, int visid )
 
 uiODSceneMgr::Viewer2D::~Viewer2D()
 {
-    mDynamicCastGet(uiFlatViewDockWin*,fvdw,viewwin_)
-    if ( fvdw )
-	appl_.removeDockWindow( fvdw );
+//    mDynamicCastGet(uiFlatViewDockWin*,fvdw,viewwin_)
+//    if ( fvdw )
+//	appl_.removeDockWindow( fvdw );
+//	TODO : re-activate dock window later on
 
     delete viewwin_;
 }
@@ -893,15 +895,16 @@ void uiODSceneMgr::Viewer2D::setData( DataPack::ID packid, bool wva )
 {
     if ( !viewwin_ )
     {
-	uiFlatViewDockWin* vwwin = new uiFlatViewDockWin( &appl_,
-					uiFlatViewDockWin::Setup(basetxt_) );
-	appl_.addDockWindow( *vwwin, uiMainWin::Left );
+	uiFlatViewMainWin* vwwin = new uiFlatViewMainWin( &appl_,
+					uiFlatViewMainWin::Setup(basetxt_) );
+//	TODO do not remove commented parts : re-activate dock windows later on
+//	appl_.addDockWindow( *vwwin, uiMainWin::Left );
 
 	viewwin_ = vwwin;
 	viewwin_->viewer().context().annot_.x2_.reversed_ = true;
 	viewwin_->addControl( new uiFlatViewControl( viewwin_->viewer(),
 		    	      uiFlatViewControl::Setup() ) );
-	vwwin->setFloating( true );
+//	vwwin->setFloating( true );
     }
 
     viewwin_->viewer().setPack( wva, packid );
