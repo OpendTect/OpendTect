@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.cc,v 1.74 2007-02-21 14:51:00 cvsbert Exp $
+ RCS:           $Id: uiodmenumgr.cc,v 1.75 2007-02-28 08:05:08 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -60,11 +60,11 @@ uiODMenuMgr::uiODMenuMgr( uiODMain* a )
     helpmnu_ = new uiPopupMenu( &appl_, "&Help" );
 
     dtecttb_ = new uiToolBar( &appl_, "OpendTect tools" );
-    dtecttb_->setVerticallyStretchable( true );
+    appl_.addToolBar( dtecttb_ );
     cointb_ = new uiToolBar( &appl_, "Graphical tools" );
-    cointb_->setVerticallyStretchable( true );
+    appl_.addToolBar( cointb_ );
     mantb_ = new uiToolBar( &appl_, "Manage data" );
-    mantb_->setVerticallyStretchable( true );
+    appl_.addToolBar( mantb_ );
 
     appl_.applMgr().visServer()->createToolBars();
     IOM().surveyChanged.notify( mCB(this,uiODMenuMgr,updateDTectToolBar) );
@@ -324,6 +324,7 @@ void uiODMenuMgr::fillViewMenu()
 #define mInsertStereoItem(itm,txt,docheck,id,idx) \
     itm = new uiMenuItem( txt, mCB(this,uiODMenuMgr,handleClick) ); \
     stereoitm->insertItem( itm, id, idx ); \
+    itm->setCheckable( true ); \
     itm->setChecked( docheck );
 
     mInsertStereoItem( stereooffitm_, "&Off", true, mStereoOffMnuItm, 0 )

@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		May 2006
- RCS:		$Id: uiodwelltreeitem.cc,v 1.8 2006-12-28 12:15:36 cvsnanne Exp $
+ RCS:		$Id: uiodwelltreeitem.cc,v 1.9 2007-02-28 08:05:08 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -157,6 +157,11 @@ void uiODWellTreeItem::initMenuItems()
     showmnuitem_.text = "Show" ;
     editmnuitem_.text = "Edit Welltrack" ;
     storemnuitem_.text = "Store ...";
+
+    namemnuitem_.checkable = true;
+    markermnuitem_.checkable = true;
+    markernamemnuitem_.checkable = true;
+    showlogmnuitem_.checkable = true;
 }
 
 

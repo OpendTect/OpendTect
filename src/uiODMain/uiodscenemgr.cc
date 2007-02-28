@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.91 2007-02-26 14:28:38 cvsbert Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.92 2007-02-28 08:05:08 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -628,7 +628,7 @@ void uiODSceneMgr::initTree( Scene& scn, int vwridx )
     scn.lv_->display();
     appl_.addDockWindow( *dw, uiMainWin::Left );
     dw->setResizeEnabled( true );
-//    scn.treeWin()->display();
+    scn.treeWin()->display();
 }
 
 
@@ -901,8 +901,7 @@ void uiODSceneMgr::Viewer2D::setData( DataPack::ID packid, bool wva )
 	viewwin_->viewer().context().annot_.x2_.reversed_ = true;
 	viewwin_->addControl( new uiFlatViewControl( viewwin_->viewer(),
 		    	      uiFlatViewControl::Setup() ) );
-
-	vwwin->undock();
+	vwwin->setFloating( true );
     }
 
     viewwin_->viewer().setPack( wva, packid );
