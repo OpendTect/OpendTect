@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodpicksettreeitem.cc,v 1.21 2007-02-15 20:40:19 cvskris Exp $
+ RCS:		$Id: uiodpicksettreeitem.cc,v 1.22 2007-02-28 07:34:36 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -172,11 +172,13 @@ uiODPickSetTreeItem::uiODPickSetTreeItem( int did, Pick::Set& ps )
     , storemnuitem_("Store")
     , storeasmnuitem_("Store As ...")
     , dirmnuitem_("Set directions ...")
-    , showallmnuitem_("Show all")
+    , onlyatsectmnuitem_("Display only at sections")
     , propertymnuitem_("Properties ...")
 {
     displayid_ = did;
     Pick::Mgr().setChanged.notify( mCB(this,uiODPickSetTreeItem,setChg) );
+
+    onlyatsectmnuitem_.checkable = true;
 }
 
 
@@ -244,7 +246,7 @@ void uiODPickSetTreeItem::createMenuCB( CallBacker* cb )
 	    	    applMgr()->visServer()->getObject(sceneID()));
     const bool hastransform = scene && scene->getDataTransform();
 
-    mAddMenuItem( menu, &showallmnuitem_, true, psd->allShown() );
+    mAddMenuItem( menu, &onlyatsectmnuitem_, true, !psd->allShown() );
     mAddMenuItem( menu, &propertymnuitem_, true, false );
 }
 
@@ -272,7 +274,7 @@ void uiODPickSetTreeItem::handleMenuCB( CallBacker* cb )
 	menu->setIsHandled( true );
 	applMgr()->setPickSetDirs( set_ );
     }
-    else if ( mnuid==showallmnuitem_.id )
+    else if ( mnuid==onlyatsectmnuitem_.id )
     {
 	mDynamicCastGet(visSurvey::PickSetDisplay*,psd,
 			visserv->getObject(displayid_));
