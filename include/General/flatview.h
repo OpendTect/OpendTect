@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2005
- RCS:           $Id: flatview.h,v 1.4 2007-02-28 12:49:20 cvsbert Exp $
+ RCS:           $Id: flatview.h,v 1.5 2007-02-28 20:21:45 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -316,7 +316,7 @@ public:
     void		storeDefaults(const char* key) const;
     void		useStoredDefaults(const char* key);
 
-    virtual void	setPack(bool,DataPack::ID);
+    virtual void	setPack(bool,::DataPack::ID);
     			//!< Optional. No data needs to be in a Pack
     			//!< The pack will be obtained non-observing.
     virtual void	setPack(bool,const FlatDataPack*);
