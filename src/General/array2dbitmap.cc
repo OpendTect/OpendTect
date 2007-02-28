@@ -4,7 +4,7 @@
  * DATE     : Sep 2006
 -*/
 
-static const char* rcsID = "$Id: array2dbitmap.cc,v 1.20 2007-02-26 17:54:11 cvsbert Exp $";
+static const char* rcsID = "$Id: array2dbitmap.cc,v 1.21 2007-02-28 18:06:53 cvsbert Exp $";
 
 #include "array2dbitmapimpl.h"
 #include "arraynd.h"
@@ -317,7 +317,8 @@ void WVAA2DBitMapGenerator::drawTrace( int idim0 )
     float midval = wvapars().midvalue_;
     if ( mIsUdf(midval) ) midval = data_.midVal();
     const float midratio = (midval - scalerg_.start) / scalewidth_;
-    const float middim0pos = dim0pos_[idim0] + (midratio-0.5) * stripwidth_;
+    const float offs = (midratio-0.5) * stripwidth_;
+    const float middim0pos = dim0pos_[idim0] + (pars_.fliplr_ ? -offs : offs);
     const float dim1fac = (szdim1_ - 1) / dim1pos_.width();
 
     for ( int iy=0; iy<setup_.nrYPix(); iy++ )
