@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribdataholder.cc,v 1.7 2007-02-16 16:36:30 cvskris Exp $";
+static const char* rcsID = "$Id: attribdataholder.cc,v 1.8 2007-02-28 16:50:21 cvsnanne Exp $";
 
 #include "attribdataholder.h"
 
@@ -35,12 +35,19 @@ DataHolder* DataHolder::clone() const
 
     for ( int idx=0; idx<nrSeries(); idx++ )
     {
-	if ( !data_[idx] ) dh->add( true );
+	if ( !data_[idx] )
+	    dh->add( true );
+	else if ( !data_[idx]->arr() )
+	{
+	    dh->add();
+	    for ( int validx=0; validx<nrsamples_; validx++ )
+		dh->data_[idx]->setValue( validx, data_[idx]->value(validx) );
+	}
 	else
 	{
 	    dh->add();
 	    memcpy( dh->data_[idx]->arr(), data_[idx]->arr(),
-	    nrsamples_*sizeof(float) );
+		    nrsamples_*sizeof(float) );
 	}
     }
 
