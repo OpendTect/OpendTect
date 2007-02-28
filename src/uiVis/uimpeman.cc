@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.cc,v 1.113 2007-02-28 07:40:04 cvsnanne Exp $
+ RCS:           $Id: uimpeman.cc,v 1.114 2007-02-28 16:54:12 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -70,9 +70,9 @@ uiMPEMan::uiMPEMan( uiParent* p, uiVisPartServer* ps )
     , seedpickwason(false)
     , oldactivevol(false)
 {
-    toolbar = new uiToolBar( p, "Tracking controls" );
     mDynamicCastGet(uiMainWin*,mw,p)
-    mw->addToolBar( toolbar );
+    mw->addToolBarBreak();
+    toolbar = new uiToolBar( p, "Tracking controls" );
 
     addButtons();
 
@@ -106,6 +106,7 @@ void uiMPEMan::addButtons()
     seedconmodefld->setToolTip( "Select seed connect mode" );
     seedconmodefld->selectionChanged.notify(
 				mCB(this,uiMPEMan,seedConnectModeSel) );
+    toolbar->addObject( seedconmodefld );
     toolbar->addSeparator();
 
     seedidx = mAddButton( "seedpickmode.png", addSeedCB, "Create seed", true );
@@ -147,7 +148,9 @@ void uiMPEMan::addButtons()
     transfld->setOrientation( uiSlider::Horizontal );
     transfld->setMaxValue( 1 );
     transfld->setToolTip( "Transparency" );
+    transfld->setStretch( 0, 0 );
     transfld->valueChanged.notify( mCB(this,uiMPEMan,transpChg) );
+    toolbar->addObject( transfld );
     toolbar->addSeparator();
 
     trackforwardidx = mAddButton( "leftarrow.png", trackBackward,
@@ -158,6 +161,7 @@ void uiMPEMan::addButtons()
     nrstepsbox = new uiSpinBox( toolbar );
     nrstepsbox->setToolTip( "Nr of track steps" );
     nrstepsbox->setMinValue( 1 );
+    toolbar->addObject( nrstepsbox );
     toolbar->addSeparator();
 
     undoidx = mAddButton( "undo.png", undoPush, "Undo", false );
