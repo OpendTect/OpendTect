@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2005
- RCS:           $Id: flatview.h,v 1.3 2007-02-28 08:10:39 cvshelene Exp $
+ RCS:           $Id: flatview.h,v 1.4 2007-02-28 12:49:20 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -111,11 +111,11 @@ public:
     void		fillPar(IOPar&) const;
     void		usePar(const IOPar&);
 
-    static const char*	sKeyAxisName;
-    static const char*	sKeyShwAxisAnnot;
+    static const char*	sKeyAxes;
+    static const char*	sKeyShwAnnot;
     static const char*	sKeyShwGridLines;
-    static const char*	sKeyShwAux;
     static const char*	sKeyIsRev;
+    static const char*	sKeyShwAux;
 
 };
 
@@ -172,8 +172,8 @@ public:
 	Color		mid_;
 	Color		left_;
 	Color		right_;
-	float		midvalue_; //!< undef => auto data mid
 	float		overlap_;
+	float		midvalue_; //!< undef => auto data mid
 
     };
 
@@ -189,15 +189,17 @@ public:
     void		fillPar(IOPar&) const;
     void		usePar(const IOPar&);
 
+    static const char*	sKeyVD;
+    static const char*	sKeyWVA;
+    static const char*	sKeyShow;
     static const char*	sKeyDispRg;
-    static const char*	sKeyDispVDWVA;
-    static const char*	sKeyBlocky;
     static const char*	sKeyColTab;
+    static const char*	sKeyBlocky;
+    static const char*	sKeyClipPerc;
     static const char*	sKeyWiggCol;
     static const char*	sKeyMidCol;
     static const char*	sKeyLeftCol;
     static const char*	sKeyRightCol;
-    static const char*	sKeyClipPerc;
     static const char*	sKeyOverlap;
     static const char*	sKeyMidValue;
 };

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2000
- RCS:           $Id: flatview.cc,v 1.3 2007-02-26 14:28:38 cvsbert Exp $
+ RCS:           $Id: flatview.cc,v 1.4 2007-02-28 12:49:20 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,27 +17,26 @@ ________________________________________________________________________
 #include "colortab.h"
 #include "datapackbase.h"
 
-static const char* sKeyWVA = "WVA";
-static const char* sKeyVD = "VD";
-
 
 namespace FlatView
 {
 
-const char* Annotation::sKeyAxisName = "Axis name";
-const char* Annotation::sKeyShwAxisAnnot = "Show Axis annotation";
-const char* Annotation::sKeyShwGridLines = "Show Grid Lines";
-const char* Annotation::sKeyShwAux = "Show Aux Data";
+const char* Annotation::sKeyAxes = "Axes";
+const char* Annotation::sKeyShwAnnot = "Show annotation";
+const char* Annotation::sKeyShwGridLines = "Show grid lines";
 const char* Annotation::sKeyIsRev = "Reversed";
-const char* DataDispPars::sKeyDispVDWVA = "VD/WVA";
+const char* Annotation::sKeyShwAux = "Show aux data";
+const char* DataDispPars::sKeyVD = "VD";
+const char* DataDispPars::sKeyWVA = "WVA";
+const char* DataDispPars::sKeyShow = "Show";
 const char* DataDispPars::sKeyDispRg = "Range";
-const char* DataDispPars::sKeyBlocky = "Blocky";
 const char* DataDispPars::sKeyColTab = "Color Table";
-const char* DataDispPars::sKeyLeftCol = "Left color";
+const char* DataDispPars::sKeyBlocky = "Blocky";
+const char* DataDispPars::sKeyClipPerc = "Percentage Clip";
 const char* DataDispPars::sKeyWiggCol = "Wiggle color";
 const char* DataDispPars::sKeyMidCol = "Mid color";
+const char* DataDispPars::sKeyLeftCol = "Left color";
 const char* DataDispPars::sKeyRightCol = "Right color";
-const char* DataDispPars::sKeyClipPerc = "Percentage Clip";
 const char* DataDispPars::sKeyOverlap = "Overlap";
 const char* DataDispPars::sKeyMidValue = "Mid value";
 
@@ -169,67 +168,82 @@ FlatView::Annotation::Annotation( bool drkbg )
     x2_.name_ = "X2";
 }
 
+#define mIOPDoAxes(fn,keynm,memb) \
+    iop.fn( IOPar::compKey(sKeyAxes,keynm), memb )
+#define mIOPDoAxes2(fn,keynm,memb1,memb2) \
+    iop.fn( IOPar::compKey(sKeyAxes,keynm), memb1, memb2 )
+
 
 void FlatView::Annotation::fillPar( IOPar& iop ) const
 {
-    iop.set( sKey::Color, color_ );
-    iop.set( IOPar::compKey(sKeyAxisName,"1"), x1_.name_ );
-    iop.set( IOPar::compKey(sKeyAxisName,"2"), x2_.name_ );
-    iop.setYN( sKeyShwAxisAnnot, x1_.showannot_, x2_.showannot_ );
-    iop.setYN( sKeyShwGridLines, x1_.showgridlines_, x2_.showgridlines_ );
-    iop.setYN( sKeyIsRev, x1_.reversed_, x2_.reversed_ );
+    mIOPDoAxes( set, sKey::Color, color_ );
+    mIOPDoAxes2( set, sKey::Name, x1_.name_, x2_.name_ );
+    mIOPDoAxes2( setYN, sKeyShwAnnot, x1_.showannot_, x2_.showannot_ );
+    mIOPDoAxes2( setYN, sKeyShwGridLines,x1_.showgridlines_,x2_.showgridlines_);
+    mIOPDoAxes2( setYN, sKeyIsRev, x1_.reversed_, x2_.reversed_ );
     iop.setYN( sKeyShwAux, showaux_ );
 }
 
 
 void FlatView::Annotation::usePar( const IOPar& iop )
 {
-    iop.get( sKey::Color, color_ );
-    iop.get( IOPar::compKey(sKeyAxisName,"1"), x1_.name_ );
-    iop.get( IOPar::compKey(sKeyAxisName,"2"), x2_.name_ );
-    iop.getYN( sKeyShwAxisAnnot, x1_.showannot_, x2_.showannot_ );
-    iop.getYN( sKeyIsRev, x1_.reversed_, x2_.reversed_ );
+    mIOPDoAxes( get, sKey::Color, color_ );
+    mIOPDoAxes2( get, sKey::Name, x1_.name_, x2_.name_ );
+    mIOPDoAxes2( getYN, sKeyShwAnnot, x1_.showannot_, x2_.showannot_ );
+    mIOPDoAxes2( getYN, sKeyShwGridLines,x1_.showgridlines_,x2_.showgridlines_);
+    mIOPDoAxes2( getYN, sKeyIsRev, x1_.reversed_, x2_.reversed_ );
     iop.getYN( sKeyShwAux, showaux_ );
 }
 
 
+#define mIOPDoWVA(fn,keynm,memb) \
+    iop.fn( IOPar::compKey(sKeyWVA,keynm), memb )
+#define mIOPDoWVA2(fn,keynm,memb1,memb2) \
+    iop.fn( IOPar::compKey(sKeyWVA,keynm), memb1, memb2 )
+#define mIOPDoVD(fn,keynm,memb) \
+    iop.fn( IOPar::compKey(sKeyVD,keynm), memb )
+#define mIOPDoVD2(fn,keynm,memb1,memb2) \
+    iop.fn( IOPar::compKey(sKeyVD,keynm), memb1, memb2 )
+
 void FlatView::DataDispPars::fillPar( IOPar& iop ) const
 {
-    iop.setYN( sKeyDispVDWVA, dispvd_, dispwva_ );
-    iop.set( sKeyColTab, vd_.ctab_ );
-    iop.set( sKeyWiggCol, wva_.wigg_ );
-    iop.set( sKeyMidCol, wva_.mid_ );
-    iop.set( sKeyLeftCol, wva_.left_ );
-    iop.set( sKeyRightCol, wva_.right_ );
-    iop.set( sKeyOverlap, wva_.overlap_ );
-    iop.set( sKeyMidValue, wva_.midvalue_ );
+    mIOPDoVD( setYN, sKeyShow, dispvd_ );
+    mIOPDoVD2( set, sKeyDispRg, vd_.rg_.start, vd_.rg_.stop );
+    mIOPDoVD( set, sKeyColTab, vd_.ctab_ );
+    mIOPDoVD( setYN, sKeyBlocky, vd_.blocky_ );
+    mIOPDoVD( set, sKeyClipPerc, vd_.clipperc_ );
 
-    iop.set( IOPar::compKey(sKeyVD,sKeyDispRg), vd_.rg_.start, vd_.rg_.stop );
-    iop.set( IOPar::compKey(sKeyVD,sKeyClipPerc), vd_.clipperc_ );
-    iop.setYN( IOPar::compKey(sKeyVD,sKeyBlocky), vd_.blocky_ );
-    iop.set( IOPar::compKey(sKeyWVA,sKeyDispRg), wva_.rg_.start, wva_.rg_.stop);
-    iop.set( IOPar::compKey(sKeyWVA,sKeyClipPerc), wva_.clipperc_ );
-    iop.setYN( IOPar::compKey(sKeyWVA,sKeyBlocky), wva_.blocky_ );
+    mIOPDoWVA( setYN, sKeyShow, dispwva_ );
+    mIOPDoWVA2( set, sKeyDispRg, wva_.rg_.start, wva_.rg_.stop );
+    mIOPDoWVA( setYN, sKeyBlocky, wva_.blocky_ );
+    mIOPDoWVA( set, sKeyClipPerc, wva_.clipperc_ );
+    mIOPDoWVA( set, sKeyWiggCol, wva_.wigg_ );
+    mIOPDoWVA( set, sKeyMidCol, wva_.mid_ );
+    mIOPDoWVA( set, sKeyLeftCol, wva_.left_ );
+    mIOPDoWVA( set, sKeyRightCol, wva_.right_ );
+    mIOPDoWVA( set, sKeyOverlap, wva_.overlap_ );
+    mIOPDoWVA( set, sKeyMidValue, wva_.midvalue_ );
 }
 
 
 void FlatView::DataDispPars::usePar( const IOPar& iop )
 {
-    iop.getYN( sKeyDispVDWVA, dispvd_, dispwva_ );
-    iop.get( sKeyColTab, vd_.ctab_ );
-    iop.get( sKeyWiggCol, wva_.wigg_ );
-    iop.get( sKeyMidCol, wva_.mid_ );
-    iop.get( sKeyLeftCol, wva_.left_ );
-    iop.get( sKeyRightCol, wva_.right_ );
-    iop.get( sKeyOverlap, wva_.overlap_ );
-    iop.get( sKeyMidValue, wva_.midvalue_ );
+    mIOPDoVD( getYN, sKeyShow, dispvd_ );
+    mIOPDoVD2( get, sKeyDispRg, vd_.rg_.start, vd_.rg_.stop );
+    mIOPDoVD( get, sKeyColTab, vd_.ctab_ );
+    mIOPDoVD( getYN, sKeyBlocky, vd_.blocky_ );
+    mIOPDoVD( get, sKeyClipPerc, vd_.clipperc_ );
 
-    iop.get( IOPar::compKey(sKeyVD,sKeyDispRg), vd_.rg_.start, vd_.rg_.stop );
-    iop.get( IOPar::compKey(sKeyVD,sKeyClipPerc), vd_.clipperc_ );
-    iop.getYN( IOPar::compKey(sKeyVD,sKeyBlocky), vd_.blocky_ );
-    iop.get( IOPar::compKey(sKeyWVA,sKeyDispRg), wva_.rg_.start, wva_.rg_.stop);
-    iop.get( IOPar::compKey(sKeyWVA,sKeyClipPerc), wva_.clipperc_ );
-    iop.getYN( IOPar::compKey(sKeyWVA,sKeyBlocky), wva_.blocky_ );
+    mIOPDoWVA( getYN, sKeyShow, dispwva_ );
+    mIOPDoWVA2( get, sKeyDispRg, wva_.rg_.start, wva_.rg_.stop );
+    mIOPDoWVA( getYN, sKeyBlocky, wva_.blocky_ );
+    mIOPDoWVA( get, sKeyClipPerc, wva_.clipperc_ );
+    mIOPDoWVA( get, sKeyWiggCol, wva_.wigg_ );
+    mIOPDoWVA( get, sKeyMidCol, wva_.mid_ );
+    mIOPDoWVA( get, sKeyLeftCol, wva_.left_ );
+    mIOPDoWVA( get, sKeyRightCol, wva_.right_ );
+    mIOPDoWVA( get, sKeyOverlap, wva_.overlap_ );
+    mIOPDoWVA( get, sKeyMidValue, wva_.midvalue_ );
 }
 
 
