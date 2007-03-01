@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          13/8/2000
- RCS:           $Id: uidlggroup.h,v 1.3 2007-01-31 08:55:05 cvsnanne Exp $
+ RCS:           $Id: uidlggroup.h,v 1.4 2007-03-01 19:34:37 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -72,7 +72,9 @@ public:
     uiObject*		tabObject()		{ return (uiObject*)tabstack_; }
     void		addGroup(uiDlgGroup*);
 
-    uiDlgGroup*		getGroup( int idx )	{ return groups_[idx]; }
+    int			nrGroups() const	{ return groups_.size(); }
+    uiDlgGroup&		getGroup( int idx )	{ return *groups_[idx]; }
+    const uiDlgGroup&	getGroup( int idx ) const { return *groups_[idx]; }
 
 protected:
     bool			acceptOK(CallBacker*);
