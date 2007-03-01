@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          January 2003
- RCS:           $Id: visrandomtrackdisplay.cc,v 1.84 2007-02-16 16:36:30 cvskris Exp $
+ RCS:           $Id: visrandomtrackdisplay.cc,v 1.85 2007-03-01 09:27:24 cvsnanne Exp $
  ________________________________________________________________________
 
 -*/
@@ -734,7 +734,7 @@ bool RandomTrackDisplay::canHaveMultipleAttribs() const
 { return true; }
 
 
-bool RandomTrackDisplay::swapAttrib( int a0, int a1 )
+bool RandomTrackDisplay::swapAttribs( int a0, int a1 )
 {
     if ( a0<0 || a1<0 || a0>=as_.size() || a1>=as_.size() )
 	return false;
