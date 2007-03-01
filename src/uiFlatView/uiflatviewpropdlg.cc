@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          Dec 2006
- RCS:           $Id: uiflatviewpropdlg.cc,v 1.1 2007-02-28 15:58:44 cvshelene Exp $
+ RCS:           $Id: uiflatviewpropdlg.cc,v 1.2 2007-03-01 15:07:15 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -243,9 +243,62 @@ void uiVDFVPropTab::fillDispPars()
 }
 
 
+#define mCreateGLFields( d ) \
+    BufferString bs##d = "Display "; \
+    bs##d += strcmp( axdata##d##_.name_,"" ) ? (const char*)axdata##d##_.name_ \
+					 : (d==0 ? "horizontal" : "vertical" );\
+    BufferString bs##d##gl = bs##d; bs##d##gl += " GridLines"; \
+    BufferString bs##d##annot = bs##d; bs##d##annot += " Annotations"; \
+    dim##d##fld_ = new uiCheckBox( this, bs##d##gl ); \
+    dim##d##fld_->activated.notify( mCB(this,uiGridLinesPropTab, \
+					  showGridLinesSel) ); \
+    dim##d##fld_->setChecked( axdata##d##_.showgridlines_ ); \
+\
+    dim##d##annotfld_ = new uiGenInput( this, bs##d##annot, \
+	    				BoolInpSpec(axdata##d##_.showannot_) );\
+    dim##d##annotfld_->attach( alignedBelow, dim##d##fld_ ); \
+
+
+
+
+uiGridLinesPropTab::uiGridLinesPropTab( uiParent* p,
+				    const FlatView::Annotation::AxisData& ad0,
+				    const FlatView::Annotation::AxisData& ad1)
+    : uiDlgGroup( p, "Gridlines" )
+    , axdata0_( ad0 )
+    , axdata1_( ad1 )
+{
+    mCreateGLFields( 0 );
+    mCreateGLFields( 1 );
+    dim1fld_->attach( alignedBelow, dim0annotfld_ );
+    setHAlignObj( dim0fld_ );
+    showGridLinesSel(0);
+}
+
+
+void uiGridLinesPropTab::showGridLinesSel( CallBacker* )
+{
+    bool disp0 = dim0fld_->isChecked();
+    dim0annotfld_->display( disp0 );
+    bool disp1 = dim1fld_->isChecked();
+    dim1annotfld_->display( disp1 );
+}
+
+
+void uiGridLinesPropTab::fillGLPars()
+{
+    axdata0_.showgridlines_ = dim0fld_->isChecked();
+    axdata0_.showannot_ = dim0annotfld_->getBoolValue();
+    axdata1_.showgridlines_ = dim1fld_->isChecked();
+    axdata1_.showannot_ = dim1annotfld_->getBoolValue();
+}
+
+		    
 uiFlatViewPropDlg::uiFlatViewPropDlg( uiParent* p,
-					const FlatView::DataDispPars& ddp,
-					const CallBack& applcb )
+				    const FlatView::DataDispPars& ddp,
+				    const FlatView::Annotation::AxisData& ad1,
+				    const FlatView::Annotation::AxisData& ad2,
+				    const CallBack& applcb )
     : uiTabStackDlg(p,uiDialog::Setup("Display properties",
 				      "Specify display properties",
 				      "51.0.0"))
@@ -254,6 +307,8 @@ uiFlatViewPropDlg::uiFlatViewPropDlg( uiParent* p,
     addGroup( wvaproptab_ );
     vdproptab_ = new uiVDFVPropTab( tabParent(), ddp.vd_, ddp.dispvd_ );
     addGroup( vdproptab_ );
+    glproptab_ = new uiGridLinesPropTab( tabParent(), ad1, ad2 );
+    addGroup( glproptab_ );
 
     uiPushButton* applybut = new uiPushButton( this, "&Apply", applcb, true );
     applybut->attach( centeredBelow, tabObject() );

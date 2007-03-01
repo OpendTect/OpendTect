@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          Sep 2006
- RCS:           $Id: uiflatviewcontrol.cc,v 1.8 2007-03-01 12:03:53 cvsbert Exp $
+ RCS:           $Id: uiflatviewcontrol.cc,v 1.9 2007-03-01 15:07:15 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -332,6 +332,8 @@ void uiFlatViewControl::parsCB( CallBacker* )
     if ( propdlg_ ) delete propdlg_;
     propdlg_ = new uiFlatViewPropDlg( vwrs_[0]->attachObj()->parent(),
 	    			vwrs_[0]->context().ddpars_,
+				vwrs_[0]->context().annot_.x1_,
+				vwrs_[0]->context().annot_.x2_,
 			    	mCB(this,uiFlatViewControl,applyProperties) );
     propdlg_->windowClosed.notify(mCB(this,uiFlatViewControl,propDlgClosed));
     propdlg_->go();

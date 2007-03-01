@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          Dec 2006
- RCS:           $Id: uiflatviewpropdlg.h,v 1.1 2007-02-28 15:58:44 cvshelene Exp $
+ RCS:           $Id: uiflatviewpropdlg.h,v 1.2 2007-03-01 15:07:15 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "flatview.h"
 #include "uidlggroup.h"
 
+class uiCheckBox;
 class uiLabel;
 class uiGenInput;
 class uiColorInput;
@@ -94,14 +95,43 @@ protected:
 };
 
 
+class uiGridLinesPropTab : public uiDlgGroup
+{
+public:
+    			uiGridLinesPropTab(uiParent*,
+					const FlatView::Annotation::AxisData&,
+					const FlatView::Annotation::AxisData&);
+
+    void		fillGLPars();
+    
+    FlatView::Annotation::AxisData axdata0_;
+    FlatView::Annotation::AxisData axdata1_;
+
+
+protected:
+
+    uiCheckBox*         dim0fld_;
+    uiCheckBox*         dim1fld_;
+    uiGenInput*		dim0annotfld_;
+    uiGenInput*		dim1annotfld_;
+    uiGenInput*		dim0rgfld_;
+    uiGenInput*		dim1rgfld_;
+
+    void		showGridLinesSel(CallBacker*);
+};
+
+		     
 class uiFlatViewPropDlg : public uiTabStackDlg
 {
 public:
 			uiFlatViewPropDlg(uiParent*,
 					const FlatView::DataDispPars&,
+					const FlatView::Annotation::AxisData&,
+					const FlatView::Annotation::AxisData&,
 					const CallBack& applcb);
     uiWVAFVPropTab*	wvaproptab_;
     uiVDFVPropTab*	vdproptab_;
+    uiGridLinesPropTab*	glproptab_;
 
 };
 
