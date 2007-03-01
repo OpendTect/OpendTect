@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uicanvas.cc,v 1.33 2007-02-14 12:38:00 cvsnanne Exp $
+ RCS:           $Id: uicanvas.cc,v 1.34 2007-03-01 11:30:35 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -54,6 +54,8 @@ public:
 			    }
 
     virtual             ~uiCanvasBody() {};
+
+    void		updateCanvas()			{ QWidget::update(); }
 };
 
 
@@ -121,6 +123,7 @@ public:
     float		aspectRatio()			{ return aspectrat; }
 
     virtual void	reDraw( bool deep )		{ updateContents(); }
+    void		updateCanvas()		{ mQScrollView::update(); }
 protected:
 
 #ifndef USEQT3
@@ -362,7 +365,7 @@ uiCanvasBody& uiCanvas::mkbody( uiParent* p,const char* nm)
 
 
 void uiCanvas::update()
-{ body_->update(); }
+{ body_->updateCanvas(); }
 
 
 
@@ -379,7 +382,7 @@ uiScrollViewBody& uiScrollView::mkbody( uiParent* p, const char* nm )
 
 
 void uiScrollView::update()
-{ body_->update(); }
+{ body_->updateCanvas(); }
 
 
 void uiScrollView::setScrollBarMode( ScrollBarMode mode, bool hor )
