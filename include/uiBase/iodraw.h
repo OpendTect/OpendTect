@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/12/1999
- RCS:           $Id: iodraw.h,v 1.8 2006-09-07 15:44:24 cvskris Exp $
+ RCS:           $Id: iodraw.h,v 1.9 2007-03-01 11:29:56 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,6 +26,8 @@ class ioDrawArea
 public:
 			ioDrawArea()			{}
     virtual		~ioDrawArea()			{}
+
+    virtual void	update()			{}
 
     inline ioDrawTool*	drawTool( uiPoint origin ) 
 			    { return drawTool_( origin.x, origin.y ); }
