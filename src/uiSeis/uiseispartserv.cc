@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiseispartserv.cc,v 1.57 2007-02-26 14:28:38 cvsbert Exp $
+ RCS:           $Id: uiseispartserv.cc,v 1.58 2007-03-01 12:03:53 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -257,23 +257,21 @@ bool uiSeisPartServer::handleGatherSubMenu( int mnuid, const BinID& bid )
     {
 	viewwin_ = new uiFlatViewMainWin( appserv().parent(),
 				          uiFlatViewMainWin::Setup(title) );
-	viewwin_->addNullOnClose( &viewwin_ );
 	viewwin_->setDarkBG( false );
+	FlatView::Context& ctxt = viewwin_->viewer().context();
+	ctxt.annot_.x1_.showAll(); ctxt.annot_.x2_.showAll();
+	ctxt.annot_.x2_.reversed_ = true;
+	ctxt.ddpars_.dispvd_ = false; ctxt.ddpars_.dispwva_ = true;
+	ctxt.ddpars_.wva_.overlap_ = 1; ctxt.ddpars_.wva_.clipperc_ = 1;
     }
-    uiFlatViewer& vwr = viewwin_->viewer();
-
-    FlatView::Context& ctxt = vwr.context();
-    ctxt.annot_.x1_.showAll(); ctxt.annot_.x2_.showAll();
-    ctxt.annot_.x2_.reversed_ = true;
-    ctxt.ddpars_.dispvd_ = false; ctxt.ddpars_.dispwva_ = true;
-    ctxt.ddpars_.wva_.overlap_ = 1; ctxt.ddpars_.wva_.clipperc_ = 1;
 
     SeisTrcBufDataPack* dp = new SeisTrcBufDataPack( *tbuf,
 				 Seis::VolPS, SeisTrcInfo::Offset,
 				 "Pre-Stack Gather" );
     dp->setName( title );
     DPM( DataPackMgr::FlatID ).add( dp );
-    vwr.setPack( true, dp );
+    uiFlatViewer& vwr = viewwin_->viewer();
+    vwr.setPack( true, dp ); vwr.setPack( false, dp );
 
     if ( !isnew )
 	vwr.handleChange( FlatView::Viewer::All );

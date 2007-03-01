@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:		Feb 2007
- RCS:           $Id: flatviewzoommgr.cc,v 1.1 2007-02-23 09:35:33 cvsbert Exp $
+ RCS:           $Id: flatviewzoommgr.cc,v 1.2 2007-03-01 12:03:53 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,23 +21,32 @@ void FlatView::ZoomMgr::init( const Geom::Rectangle<double>& wr )
 }
 
 
-void FlatView::ZoomMgr::add( FlatView::ZoomMgr::Size zoom )
+void FlatView::ZoomMgr::add( FlatView::ZoomMgr::Size newzoom )
 {
     if ( cur_ < 0 )
     {
-	init( Geom::Rectangle<double>(	-zoom.width()/2,zoom.height()/2,
-					zoom.width()/2,-zoom.height()/2 ) );
+	init( Geom::Rectangle<double>( -newzoom.width()/2,newzoom.height()/2,
+				       newzoom.width()/2,-newzoom.height()/2 ));
 	return;
     }
 
-    const int oldsz = zooms_.size();
-    if ( oldsz > 1 && cur_ != oldsz-1 )
+    const Size eps( newzoom.width() * 1e-6, newzoom.height() * 1e-6 );
+    for ( int idx=0; idx<zooms_.size(); idx++ )
     {
-	while ( zooms_.size() >= cur_ )
-	    zooms_.remove( zooms_.size()-1 );
+	const Size zoom = zooms_[idx];
+	if ( newzoom.width() > zoom.width() - eps.width()
+	  && newzoom.width() < zoom.width() + eps.width() )
+	    { cur_ = idx; return; }
     }
 
-    zooms_ += zoom;
+    for ( int idx=zooms_.size()-1; idx>-1; idx-- )
+    {
+	const Size zoom = zooms_[idx];
+	if ( newzoom.width() > zoom.width() + eps.width() )
+	    zooms_.remove( idx );
+    }
+
+    zooms_ += newzoom;
     cur_ = zooms_.size() - 1;
 }
 

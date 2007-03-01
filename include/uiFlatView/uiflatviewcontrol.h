@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewcontrol.h,v 1.6 2007-02-28 19:05:41 cvsbert Exp $
+ RCS:           $Id: uiflatviewcontrol.h,v 1.7 2007-03-01 12:03:53 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -48,6 +48,12 @@ public:
     void		flip(bool hor);
     			//!< reverses uiWorldRect's LR or TB swapping
 
+    static bool		havePan(Geom::Point2D<double> oldcentre,
+	    			Geom::Point2D<double> newcentre,
+				Geom::Size2D<double> sz);
+    static bool		haveZoom(Geom::Size2D<double> oldsz,
+				 Geom::Size2D<double> newsz);
+
 protected:
 
     ObjectSet<uiFlatViewer> vwrs_;
@@ -70,8 +76,12 @@ protected:
     uiToolButton*	drawbut_;
     uiToolButton*	parsbut_;
 
-    uiWorldRect		getBoundingBox() const;
     void		updatePosButtonStates();
+    uiWorldRect		getBoundingBox() const;
+    uiWorldRect		getZoomAndPanRect(Geom::Point2D<double>,
+	    				  Geom::Size2D<double>) const;
+    uiWorldRect		getZoomOrPanRect(Geom::Point2D<double>,
+	    				 Geom::Size2D<double>) const;
 
     void		initStates(CallBacker*);
     void		zoomCB(CallBacker*);

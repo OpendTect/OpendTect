@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewwin.h,v 1.3 2007-02-26 14:28:38 cvsbert Exp $
+ RCS:           $Id: uiflatviewwin.h,v 1.4 2007-03-01 12:03:53 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,9 +34,6 @@ public:
     int			nrViewers() const	{ return vwrs_.size(); }
 
     void		setDarkBG(bool);
-    void		addNullOnClose( uiFlatViewWin** p )
-						{ tonull_ += p; }
-    			//!< On close: *p = 0;
 
     virtual void	setWinTitle(const char*)	= 0;
     virtual void	start()				= 0;
@@ -45,7 +42,6 @@ public:
 protected:
 
     ObjectSet<uiFlatViewer>	vwrs_;
-    ObjectSet<uiFlatViewWin*>	tonull_;
 
     void			createViewers(int);
     void			cleanUp();

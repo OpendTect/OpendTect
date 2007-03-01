@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: flatviewzoommgr.h,v 1.1 2007-02-23 09:35:33 cvsbert Exp $
+ RCS:           $Id: flatviewzoommgr.h,v 1.2 2007-03-01 12:03:53 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,17 +35,20 @@ public:
 
     void		init(const Geom::Rectangle<double>&);
     void		add(Size);
-    				//!< removes zooms 'above' current
+    				//!< Will put this Size at the right place
+    				//!< and make it current
+    				//!< will remove zooms larger than this one
 
     Size		current() const;
     Size		back() const;		//!< never past initial zoom
     Size		forward() const;	//!< goes on and on
     bool		atStart() const		{ return cur_ < 1; }
     Size		toStart() const;
-    Point		initialCenter() const	{ return center_; }
 
     double		fwdFac() const		{ return fwdfac_; }
     void		setFwdFac( double fac )	{ fwdfac_ = fac; }
+
+    Point		initialCenter() const	{ return center_; }
 
 protected:
 

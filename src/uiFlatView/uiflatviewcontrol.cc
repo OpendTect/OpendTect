@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          Sep 2006
- RCS:           $Id: uiflatviewcontrol.cc,v 1.7 2007-02-28 19:05:41 cvsbert Exp $
+ RCS:           $Id: uiflatviewcontrol.cc,v 1.8 2007-03-01 12:03:53 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -197,8 +197,57 @@ void uiFlatViewControl::panCB( CallBacker* but )
 }
 
 
+bool uiFlatViewControl::havePan(
+	Geom::Point2D<double> oldcentre, Geom::Point2D<double> newcentre,
+	Geom::Size2D<double> sz )
+{
+    const Geom::Point2D<double> eps( sz.width()*1e-6, sz.height()*1e-6 );
+    return !mIsZero(oldcentre.x-newcentre.x,eps.x)
+	|| !mIsZero(oldcentre.y-newcentre.y,eps.y);
+}
+
+
+bool uiFlatViewControl::haveZoom( Geom::Size2D<double> oldsz,
+				  Geom::Size2D<double> newsz )
+{
+    const Geom::Point2D<double> eps( oldsz.width()*1e-6, oldsz.height()*1e-6 );
+    return !mIsZero(oldsz.width()-newsz.width(),eps.x)
+	|| !mIsZero(oldsz.height()-newsz.height(),eps.y);
+}
+
+
 void uiFlatViewControl::setNewView( Geom::Point2D<double>& centre,
 				    Geom::Size2D<double>& sz )
+{
+    const uiWorldRect cv( vwrs_[0]->curView() );
+    const bool havepan = havePan( cv.centre(), centre, cv.size() );
+    const bool havezoom = haveZoom( cv.size(), sz );
+    if ( !havepan && !havezoom ) return;
+
+    uiWorldRect wr( havepan && havezoom ? getZoomAndPanRect(centre,sz)
+	    				: getZoomOrPanRect(centre,sz) );
+    if ( cv.left() > cv.right() ) wr.swapHor();
+    if ( cv.bottom() > cv.top() ) wr.swapVer();
+    for ( int idx=0; idx<vwrs_.size(); idx++ )
+	vwrs_[idx]->setView( wr );
+
+    centre = wr.centre(); sz = wr.size();
+    if ( havezoom )
+	zoommgr_.add( sz );
+    updatePosButtonStates();
+}
+
+
+uiWorldRect uiFlatViewControl::getZoomAndPanRect( Geom::Point2D<double> centre,
+					      Geom::Size2D<double> sz ) const
+{
+    //TODO have different policy
+    return getZoomOrPanRect( centre, sz );
+}
+
+
+uiWorldRect uiFlatViewControl::getZoomOrPanRect( Geom::Point2D<double> centre,
+						 Geom::Size2D<double> sz ) const
 {
     const uiWorldRect bb( getBoundingBox() );
     if ( sz.width() > bb.width() )
@@ -208,25 +257,13 @@ void uiFlatViewControl::setNewView( Geom::Point2D<double>& centre,
     const double hwdth = sz.width() * .5;
     const double hhght = sz.height() * .5;
 
-    if ( centre.x - hwdth < bb.left() )
-	centre.x = bb.left() + hwdth;
-    if ( centre.y - hhght < bb.bottom() )
-	centre.y = bb.bottom() + hhght;
-    if ( centre.x + hwdth > bb.right() )
-	centre.x = bb.right() - hwdth;
-    if ( centre.y + hhght > bb.top() )
-	centre.y = bb.top() - hhght;
+    if ( centre.x - hwdth < bb.left() )		centre.x = bb.left() + hwdth;
+    if ( centre.y - hhght < bb.bottom() )	centre.y = bb.bottom() + hhght;
+    if ( centre.x + hwdth > bb.right() )	centre.x = bb.right() - hwdth;
+    if ( centre.y + hhght > bb.top() )		centre.y = bb.top() - hhght;
 
-    uiWorldRect wr( centre.x - hwdth, centre.y + hhght,
-		    centre.x + hwdth, centre.y - hhght );
-    const uiWorldRect cv( vwrs_[0]->curView() );
-    if ( cv.left() > cv.right() ) wr.swapHor();
-    if ( cv.bottom() > cv.top() ) wr.swapVer();
-    for ( int idx=0; idx<vwrs_.size(); idx++ )
-	vwrs_[idx]->setView( wr );
-
-    //TODO if wr == cv set Zoommgr to start zoom
-    updatePosButtonStates();
+    return uiWorldRect( centre.x - hwdth, centre.y + hhght,
+			centre.x + hwdth, centre.y - hhght );
 }
 
 
@@ -273,7 +310,7 @@ void uiFlatViewControl::stateCB( CallBacker* but )
 
 void uiFlatViewControl::rubBandCB( CallBacker* cb )
 {
-    //TODO add new possibilities : rb can be used to draw..., disable zoom...
+    //TODO handle when zoom is disabled
     mCBCapsuleUnpack(uiRect,r,cb);
     uiSize sz = r.getPixelSize();
     if ( sz.hNrPics() == 0 && sz.vNrPics() == 0 )
@@ -287,11 +324,6 @@ void uiFlatViewControl::rubBandCB( CallBacker* cb )
 
     const uiWorldRect oldview( vwrs_[0]->curView() );
     setNewView( centre, newsz );
-
-    //TODO use appropriate epsilons
-    //TODO sometimes we need to replace a zoom rather than add
-    if ( newsz.width() < oldview.width() || newsz.height() < oldview.height() )
-	zoommgr_.add( newsz );
 }
 
 
