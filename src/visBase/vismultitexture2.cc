@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vismultitexture2.cc,v 1.27 2007-02-07 22:40:20 cvskris Exp $";
+static const char* rcsID = "$Id: vismultitexture2.cc,v 1.28 2007-03-01 17:01:20 cvskris Exp $";
 
 
 #include "vismultitexture2.h"
@@ -36,6 +36,7 @@ static const char* rcsID = "$Id: vismultitexture2.cc,v 1.27 2007-02-07 22:40:20 
 mCreateFactoryEntry( visBase::MultiTexture2 );
 
 #define mLayersPerUnit		4
+#define mMaxNrUnits		3 //Coresponds to 8 layers
 
 
 namespace visBase
@@ -118,7 +119,10 @@ MultiTexture2::~MultiTexture2()
 
 
 int MultiTexture2::maxNrTextures() const
-{ return (SoTextureUnit::getMaxTextureUnit()-1)*mLayersPerUnit; }
+{
+    const int nrunits = mMIN(SoTextureUnit::getMaxTextureUnit(),mMaxNrUnits);
+    return (nrunits-1) * mLayersPerUnit;
+}
 
 
 SoNode* MultiTexture2::getInventorNode()
