@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          Dec 2006
- RCS:           $Id: uiflatviewpropdlg.h,v 1.2 2007-03-01 15:07:15 cvshelene Exp $
+ RCS:           $Id: uiflatviewpropdlg.h,v 1.3 2007-03-01 19:35:42 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,12 +28,33 @@ class uiFlatViewPropTab : public uiDlgGroup
 {
 public:
 
-    void		fillDispPars(FlatView::DataDispPars::Common&) const;
+    virtual void	putToScreen()		= 0;
+    virtual void	getFromScreen()		= 0;
+
+    bool		acceptOK()		{ getFromScreen(); return true;}
 
 protected:
-    			uiFlatViewPropTab(uiParent*,
-					const FlatView::DataDispPars::Common&,
-					const char*);
+    			uiFlatViewPropTab(uiParent*,FlatView::Viewer&,
+					  const char*);
+
+    FlatView::Viewer&	vwr_;
+    FlatView::Context&	ctxt_;
+
+};
+    
+/*!\brief flat viewer properties tabs */
+
+class uiFlatViewDataDispPropTab : public uiFlatViewPropTab
+{
+public:
+
+    virtual FlatView::DataDispPars::Common& commonDDPars()	= 0;
+
+protected:
+    			uiFlatViewDataDispPropTab(uiParent*,
+					  FlatView::Viewer&,
+					  const char*);
+    FlatView::DataDispPars& ddpars_;
 
     uiGenInput*		useclipfld_;
     uiGenInput*		clipratiofld_;
@@ -41,22 +62,28 @@ protected:
     uiGenInput*		blockyfld_;
 
     void		clipSel(CallBacker*);
+    virtual void	afterClipSelection()		{}
+    void		setDoDisplay(bool);
+    bool		dodisplay_;
+
+    void		putCommonToScreen();
+    void		getCommonFromScreen();
 };
 
 		     
-class uiWVAFVPropTab : public uiFlatViewPropTab
+class uiFVWVAPropTab : public uiFlatViewDataDispPropTab
 {
 public:
-    			uiWVAFVPropTab(uiParent*,
-				    const FlatView::DataDispPars::WVA&,bool);
+    			uiFVWVAPropTab(uiParent*,FlatView::Viewer&);
 
-    bool                acceptOK();
-    void		fillDispPars();
-    bool		dispwva_;
-    
-    FlatView::DataDispPars::WVA		wvapars_;
+    FlatView::DataDispPars::Common& commonDDPars()	{ return pars_; }
+
+    virtual void	putToScreen();
+    virtual void	getFromScreen();
 
 protected:
+
+    FlatView::DataDispPars::WVA& pars_;
 
     uiGenInput*		dispfld_;
     uiGenInput*		overlapfld_;
@@ -71,67 +98,86 @@ protected:
     void		midlineSel(CallBacker*);
 };
 
-class uiVDFVPropTab : public uiFlatViewPropTab
+
+class uiFVVDPropTab : public uiFlatViewDataDispPropTab
 {
 public:
-    			uiVDFVPropTab(uiParent*,
-				    const FlatView::DataDispPars::VD&,bool);
+    			uiFVVDPropTab(uiParent*,FlatView::Viewer&);
 
-    bool                acceptOK();
-    void		fillDispPars();
-    bool		dispvd_;
-    
-    FlatView::DataDispPars::VD		vdpars_;
+    FlatView::DataDispPars::Common& commonDDPars()	{ return pars_; }
+
+    virtual void	putToScreen();
+    virtual void	getFromScreen();
 
 protected:
+
+    FlatView::DataDispPars::VD&		pars_;
+    ColorTable		ctab_;
 
     uiGenInput*		dispfld_;
     ColorTableEditor*	coltabfld_;
     uiLabel*		coltablbl_;
-    ColorTable		ctab_;
 
-    void		clipSel(CallBacker*);
+    virtual void	afterClipSelection();
     void		dispSel(CallBacker*);
 };
 
 
-class uiGridLinesPropTab : public uiDlgGroup
+class uiFVAnnotPropTab : public uiFlatViewPropTab
 {
 public:
-    			uiGridLinesPropTab(uiParent*,
-					const FlatView::Annotation::AxisData&,
-					const FlatView::Annotation::AxisData&);
 
-    void		fillGLPars();
-    
-    FlatView::Annotation::AxisData axdata0_;
-    FlatView::Annotation::AxisData axdata1_;
+    			uiFVAnnotPropTab(uiParent*,FlatView::Viewer&);
 
+    virtual void	putToScreen();
+    virtual void	getFromScreen();
 
 protected:
+    
+    FlatView::Annotation& annot_;
 
-    uiCheckBox*         dim0fld_;
-    uiCheckBox*         dim1fld_;
-    uiGenInput*		dim0annotfld_;
-    uiGenInput*		dim1annotfld_;
-    uiGenInput*		dim0rgfld_;
-    uiGenInput*		dim1rgfld_;
+    class AxesGroup : public uiGroup
+    {
+    public:
+			AxesGroup(uiParent*,FlatView::Annotation::AxisData&);
 
-    void		showGridLinesSel(CallBacker*);
+	void		putToScreen();
+	void		getFromScreen();
+
+    protected:
+
+	FlatView::Annotation::AxisData&	ad_;
+
+	uiGenInput*	namefld_;
+	uiCheckBox*	showannotfld_;
+	uiCheckBox*	showgridlinesfld_;
+	uiCheckBox*	reversedfld_;
+
+    };
+
+    AxesGroup*		x1_;
+    AxesGroup*		x2_;
+
 };
 
 		     
 class uiFlatViewPropDlg : public uiTabStackDlg
 {
 public:
-			uiFlatViewPropDlg(uiParent*,
-					const FlatView::DataDispPars&,
-					const FlatView::Annotation::AxisData&,
-					const FlatView::Annotation::AxisData&,
-					const CallBack& applcb);
-    uiWVAFVPropTab*	wvaproptab_;
-    uiVDFVPropTab*	vdproptab_;
-    uiGridLinesPropTab*	glproptab_;
+			uiFlatViewPropDlg(uiParent*,FlatView::Viewer&,
+					  const CallBack& applcb);
+
+    void		putAllToScreen();
+    void		getAllFromScreen();
+
+protected:
+
+    uiFVWVAPropTab*	wvatab_;
+    uiFVVDPropTab*	vdtab_;
+    uiFVAnnotPropTab*	annottab_;
+
+    CallBack		applycb_;
+    void		doApply(CallBacker*);
 
 };
 

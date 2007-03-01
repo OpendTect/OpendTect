@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewwin.h,v 1.4 2007-03-01 12:03:53 cvsbert Exp $
+ RCS:           $Id: uiflatviewwin.h,v 1.5 2007-03-01 19:35:42 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,6 +38,7 @@ public:
     virtual void	setWinTitle(const char*)	= 0;
     virtual void	start()				= 0;
     virtual void	addControl(uiFlatViewControl*)	{}
+    virtual uiParent*	uiparent()			= 0;
 
 protected:
 
@@ -46,7 +47,6 @@ protected:
     void			createViewers(int);
     void			cleanUp();
 
-    virtual uiParent*		uiparent()			= 0;
     virtual void		handleNewViewer(uiFlatViewer*)	{}
 };
 

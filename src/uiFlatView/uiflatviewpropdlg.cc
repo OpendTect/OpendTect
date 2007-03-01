@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          Dec 2006
- RCS:           $Id: uiflatviewpropdlg.cc,v 1.2 2007-03-01 15:07:15 cvshelene Exp $
+ RCS:           $Id: uiflatviewpropdlg.cc,v 1.3 2007-03-01 19:35:42 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,104 +19,159 @@ ________________________________________________________________________
 
 using namespace FlatView;
 
-uiFlatViewPropTab::uiFlatViewPropTab( 	uiParent* p,
-					const DataDispPars::Common& pars,
-					const char* tablbl )
-    : uiDlgGroup(p,tablbl)
+
+uiFlatViewPropTab::uiFlatViewPropTab( uiParent* p, FlatView::Viewer& vwr,
+				      const char* lbl )
+    : uiDlgGroup(p,lbl)
+    , vwr_(vwr)
+    , ctxt_(vwr.context())
+{
+}
+
+
+uiFlatViewDataDispPropTab::uiFlatViewDataDispPropTab(
+	    uiParent* p, FlatView::Viewer& vwr, const char* tablbl )
+    : uiFlatViewPropTab(p,vwr,tablbl)
+    , ddpars_(ctxt_.ddpars_)
+    , dodisplay_(true)
 {
     useclipfld_ = new uiGenInput( this, "Use clipping", BoolInpSpec(true) );
-    useclipfld_->setValue( mIsUdf( pars.rg_.start ) );
-    useclipfld_->valuechanged.notify( mCB(this,uiFlatViewPropTab,clipSel) );
+    useclipfld_->valuechanged.notify(
+	    		mCB(this,uiFlatViewDataDispPropTab,clipSel) );
 
     clipratiofld_ = new uiGenInput( this, "Percentage clip", FloatInpSpec() );
-    clipratiofld_->setValue( pars.clipperc_ );
     clipratiofld_->setElemSzPol(uiObject::Small);
     clipratiofld_->attach( alignedBelow, useclipfld_ );
     clipratiofld_->display( useclipfld_->getBoolValue() );
 
     rgfld_ = new uiGenInput( this, "Range", FloatInpIntervalSpec() );
-    rgfld_->setValue( pars.rg_ );
     rgfld_->attach( alignedBelow, useclipfld_ );
     rgfld_->display( !useclipfld_->getBoolValue() );
     
     blockyfld_ = new uiGenInput( this,
 	    	 "Display blocky (no interpolation)", BoolInpSpec(true) );
-    blockyfld_->setValue( pars.blocky_ );
     blockyfld_->attach( alignedBelow, rgfld_ );
-    clipSel(0);
 }
 
 
-void uiFlatViewPropTab::clipSel(CallBacker*)
+void uiFlatViewDataDispPropTab::clipSel(CallBacker*)
 {
     bool yn = useclipfld_->getBoolValue();
-    clipratiofld_->display( yn );
-    rgfld_->display( !yn );
+    clipratiofld_->display( dodisplay_ && yn );
+    rgfld_->display( dodisplay_ && !yn );
+
+    afterClipSelection();
 }
 
 
-void uiFlatViewPropTab::fillDispPars( DataDispPars::Common& compars ) const
+void uiFlatViewDataDispPropTab::setDoDisplay( bool yn )
 {
-    compars.clipperc_ = useclipfld_->getBoolValue()
+    dodisplay_ = yn;
+    const bool useclip = useclipfld_->getBoolValue();
+    useclipfld_->display( yn );
+    blockyfld_->display( yn );
+    clipSel( 0 );
+}
+
+
+void uiFlatViewDataDispPropTab::putCommonToScreen()
+{
+    const DataDispPars::Common& pars = commonDDPars();
+
+    useclipfld_->setValue( mIsUdf( pars.rg_.start ) );
+    clipratiofld_->setValue( pars.clipperc_ );
+    rgfld_->setValue( pars.rg_ );
+    blockyfld_->setValue( pars.blocky_ );
+
+    clipSel( 0 );
+}
+
+
+void uiFlatViewDataDispPropTab::getCommonFromScreen()
+{
+    DataDispPars::Common& pars = commonDDPars();
+
+    pars.clipperc_ = useclipfld_->getBoolValue()
 				? clipratiofld_->getfValue() : 0;
-    compars.rg_ = useclipfld_->getBoolValue()
+    pars.rg_ = useclipfld_->getBoolValue()
 			    ? Interval<float>(mUdf(float),mUdf(float))
 			    : rgfld_->getFInterval();
-    compars.blocky_ = blockyfld_->getBoolValue();
+    pars.blocky_ = blockyfld_->getBoolValue();
 }
 
 
-uiWVAFVPropTab::uiWVAFVPropTab( uiParent* p, const DataDispPars::WVA& wvapars,
-       			    bool dispwva )
-    : uiFlatViewPropTab(p,wvapars,"Wiggle Variable Area")
-    , wvapars_( wvapars )
-    , dispwva_( dispwva )
+uiFVWVAPropTab::uiFVWVAPropTab( uiParent* p, FlatView::Viewer& vwr )
+    : uiFlatViewDataDispPropTab(p,vwr,"Wiggle Variable Area")
+    , pars_(ddpars_.wva_)
 {
     dispfld_ = new uiGenInput( this, "Display", BoolInpSpec(true) );
-    dispfld_->valuechanged.notify( mCB(this,uiWVAFVPropTab,dispSel) );
-    dispfld_->setValue( dispwva_ );
+    dispfld_->valuechanged.notify( mCB(this,uiFVWVAPropTab,dispSel) );
     
     useclipfld_->attach( alignedBelow, dispfld_ );
 
     overlapfld_ = new uiGenInput( this, "Overlap ratio", FloatInpSpec() );
-    overlapfld_->setValue( wvapars_.overlap_ );
     overlapfld_->setElemSzPol(uiObject::Small);
     overlapfld_->attach( alignedBelow, blockyfld_ );
 
-    leftcolsel_ = new uiColorInput( this, wvapars_.left_, "Left fill", true );
+    leftcolsel_ = new uiColorInput( this, pars_.left_, "Left fill", true );
     leftcolsel_->attach( alignedBelow, overlapfld_ );
     
-    rightcolsel_ = new uiColorInput( this, wvapars_.right_, "Right fill", true);
+    rightcolsel_ = new uiColorInput( this, pars_.right_, "Right fill", true);
     rightcolsel_->attach( rightTo, leftcolsel_ );
 
-    wigcolsel_ = new uiColorInput( this, wvapars_.wigg_, "Draw wiggles", true );
+    wigcolsel_ = new uiColorInput( this, pars_.wigg_, "Draw wiggles", true );
     wigcolsel_->attach( alignedBelow, leftcolsel_ );
     
-    midlcolsel_ = new uiColorInput( this, wvapars_.mid_, "Middle line", true );
+    midlcolsel_ = new uiColorInput( this, pars_.mid_, "Middle line", true );
     midlcolsel_->attach( rightOf, wigcolsel_ );
     rightcolsel_->attach( alignedWith, midlcolsel_ );
-    midlcolsel_->dodrawchanged.notify( mCB(this,uiWVAFVPropTab,midlineSel) );
+    midlcolsel_->dodrawchanged.notify( mCB(this,uiFVWVAPropTab,midlineSel) );
 
     midlinefld_ = new uiGenInput( this, "Display middle line at",
 			BoolInpSpec(true,"Specified value","Median value"));
-    midlinefld_->valuechanged.notify( mCB(this,uiWVAFVPropTab,midlineSel) );
-    midlinefld_->setValue( !mIsUdf(wvapars_.midvalue_) );
+    midlinefld_->valuechanged.notify( mCB(this,uiFVWVAPropTab,midlineSel) );
     midlinefld_->attach( alignedBelow, wigcolsel_ );
 
     midvalfld_ = new uiGenInput( this, "Middle line value", FloatInpSpec() );
-    midvalfld_->setValue( wvapars_.midvalue_ );
     midvalfld_->setElemSzPol(uiObject::Small);
     midvalfld_->attach( alignedBelow, midlinefld_ );
+}
 
-    clipSel(0);
-    dispSel(0);
 
-    // Define this here because setting checkboxes will emit callbacks
-    // Therefore, we must make sure all fields are created
-    // TODO : make sure checkboxes do NOT emit callbacks when set from code
+void uiFVWVAPropTab::dispSel(CallBacker*)
+{
+    setDoDisplay( dispfld_->getBoolValue() );
+
+    wigcolsel_->display( dodisplay_ );
+    midlcolsel_->display( dodisplay_ );
+    leftcolsel_->display( dodisplay_ );
+    rightcolsel_->display( dodisplay_ );
+    overlapfld_->display( dodisplay_ );
+
+    midlineSel( 0 );
+}
+
+
+void uiFVWVAPropTab::midlineSel(CallBacker*)
+{
+    const bool havecol = dispfld_->getBoolValue() && midlcolsel_->doDraw();
+    midvalfld_->display( dodisplay_ && havecol && midlinefld_->getBoolValue() );
+    midlinefld_->display( dodisplay_ && havecol );
+}
+
+
+void uiFVWVAPropTab::putToScreen()
+{
+    putCommonToScreen();
+
+    dispfld_->setValue( ddpars_.dispwva_ );
+    overlapfld_->setValue( pars_.overlap_ );
+    midlinefld_->setValue( !mIsUdf(pars_.midvalue_) );
+    midvalfld_->setValue( pars_.midvalue_ );
+
 #define mSetCol(fld,memb) \
-    havecol = !(wvapars_.memb == Color::NoColor); \
-    fld->setColor( havecol ? wvapars_.memb : Color::Black ); \
+    havecol = !(pars_.memb == Color::NoColor); \
+    fld->setColor( havecol ? pars_.memb : Color::Black ); \
     fld->setDoDraw( havecol )
 
     bool mSetCol(leftcolsel_,left_);
@@ -125,54 +180,23 @@ uiWVAFVPropTab::uiWVAFVPropTab( uiParent* p, const DataDispPars::WVA& wvapars,
     mSetCol(midlcolsel_,mid_);
 
 #undef mSetCol
+
+    dispSel( 0 );
 }
 
 
-void uiWVAFVPropTab::dispSel(CallBacker*)
+void uiFVWVAPropTab::getFromScreen()
 {
-    const bool yn = dispfld_->getBoolValue();
-    const bool useclip = useclipfld_->getBoolValue();
-    useclipfld_->display(yn);
-    clipratiofld_->display( yn && useclip );
-    rgfld_->display( yn && !useclip );
-    blockyfld_->display(yn);
-    wigcolsel_->display(yn);
-    midlcolsel_->display(yn);
-    leftcolsel_->display(yn);
-    rightcolsel_->display(yn);
-    overlapfld_->display(yn);
+    ddpars_.dispwva_ = dispfld_->getBoolValue();
+    if ( !ddpars_.dispwva_ ) return;
 
-    midlineSel( 0 );
-}
+    getCommonFromScreen();
 
-
-void uiWVAFVPropTab::midlineSel(CallBacker*)
-{
-    const bool havecol = dispfld_->getBoolValue() && midlcolsel_->doDraw();
-    midvalfld_->display( havecol && midlinefld_->getBoolValue() );
-    midlinefld_->display( havecol );
-}
-
-
-bool uiWVAFVPropTab::acceptOK()
-{
-    fillDispPars();
-    return true;
-}
-
-
-void uiWVAFVPropTab::fillDispPars()
-{
-    dispwva_ = dispfld_->getBoolValue();
-    if ( !dispwva_ )
-	return;
-    
-    uiFlatViewPropTab::fillDispPars( wvapars_ );
-    wvapars_.overlap_ = overlapfld_->getfValue();
-    wvapars_.midvalue_ = midlinefld_->getBoolValue() ? midvalfld_->getfValue() 
+    pars_.overlap_ = overlapfld_->getfValue();
+    pars_.midvalue_ = midlinefld_->getBoolValue() ? midvalfld_->getfValue() 
 						     : mUdf(float);
 #define mSetCol(fld,memb) \
-    wvapars_.memb = fld->doDraw() ? fld->color(): Color::NoColor
+    pars_.memb = fld->doDraw() ? fld->color(): Color::NoColor
     mSetCol(leftcolsel_,left_);
     mSetCol(rightcolsel_,right_);
     mSetCol(wigcolsel_,wigg_);
@@ -181,16 +205,13 @@ void uiWVAFVPropTab::fillDispPars()
 }
 
 
-uiVDFVPropTab::uiVDFVPropTab( uiParent* p, const DataDispPars::VD& vdpars,
-			  bool dispvd )
-    : uiFlatViewPropTab(p,vdpars,"Variable Density")
-    , vdpars_( vdpars )
-    , ctab_( vdpars_.ctab_.buf() )
-    , dispvd_( dispvd )
+uiFVVDPropTab::uiFVVDPropTab( uiParent* p, FlatView::Viewer& vwr )
+    : uiFlatViewDataDispPropTab(p,vwr,"Variable Density")
+    , pars_(ddpars_.vd_)
+    , ctab_( ddpars_.vd_.ctab_.buf() )
 {
     dispfld_ = new uiGenInput( this, "Display", BoolInpSpec(true) );
-    dispfld_->valuechanged.notify( mCB(this,uiVDFVPropTab,dispSel) );
-    dispfld_->setValue( dispvd_ );
+    dispfld_->valuechanged.notify( mCB(this,uiFVVDPropTab,dispSel) );
     
     useclipfld_->attach( alignedBelow, dispfld_ );
 
@@ -199,118 +220,150 @@ uiVDFVPropTab::uiVDFVPropTab( uiParent* p, const DataDispPars::VD& vdpars,
 					     .withclip(false), &ctab_ );
     coltabfld_->attach( alignedBelow, blockyfld_ );
     coltablbl_ = new uiLabel( this, "Color table", coltabfld_ );
-    clipSel(0);
-    dispSel(0);
 }
 
 
-void uiVDFVPropTab::clipSel(CallBacker*)
+void uiFVVDPropTab::afterClipSelection()
 {
-    uiFlatViewPropTab::clipSel(0);
     coltabfld_->tableChanged();
 }
 
 
-void uiVDFVPropTab::dispSel(CallBacker*)
+void uiFVVDPropTab::dispSel(CallBacker*)
 {
-    bool yn = dispfld_->getBoolValue();
-    bool useclip = useclipfld_->getBoolValue();
-    useclipfld_->display(yn);
-    clipratiofld_->display( yn && useclip );
-    rgfld_->display( yn && !useclip );
-    blockyfld_->display(yn);
-    coltabfld_->display(yn);
-    coltablbl_->display(yn);
+    setDoDisplay( dispfld_->getBoolValue() );
+    coltabfld_->display( dodisplay_ );
+    coltablbl_->display( dodisplay_ );
 }
 
 
-bool uiVDFVPropTab::acceptOK()
+void uiFVVDPropTab::putToScreen()
 {
-    fillDispPars();
-    return true;
+    ColorTable::get( pars_.ctab_, ctab_ );
+    coltabfld_->tableChanged( 0 );
+
+    dispfld_->setValue( ddpars_.dispvd_ );
+    setDoDisplay( ddpars_.dispvd_ );
 }
 
 
-void uiVDFVPropTab::fillDispPars()
+void uiFVVDPropTab::getFromScreen()
 {
-    dispvd_ = dispfld_->getBoolValue();
-    if ( !dispvd_ )
-	return;
+    ddpars_.dispvd_ = dispfld_->getBoolValue();
+    if ( !ddpars_.dispvd_ ) return;
 
-    uiFlatViewPropTab::fillDispPars( vdpars_ );
-    ctab_ = *coltabfld_->getColorTable();
-    vdpars_.ctab_ = ctab_.name();
+    getCommonFromScreen();
+
+    pars_.ctab_ = coltabfld_->getColorTable()->name();
 }
 
 
-#define mCreateGLFields( d ) \
-    BufferString bs##d = "Display "; \
-    bs##d += strcmp( axdata##d##_.name_,"" ) ? (const char*)axdata##d##_.name_ \
-					 : (d==0 ? "horizontal" : "vertical" );\
-    BufferString bs##d##gl = bs##d; bs##d##gl += " GridLines"; \
-    BufferString bs##d##annot = bs##d; bs##d##annot += " Annotations"; \
-    dim##d##fld_ = new uiCheckBox( this, bs##d##gl ); \
-    dim##d##fld_->activated.notify( mCB(this,uiGridLinesPropTab, \
-					  showGridLinesSel) ); \
-    dim##d##fld_->setChecked( axdata##d##_.showgridlines_ ); \
-\
-    dim##d##annotfld_ = new uiGenInput( this, bs##d##annot, \
-	    				BoolInpSpec(axdata##d##_.showannot_) );\
-    dim##d##annotfld_->attach( alignedBelow, dim##d##fld_ ); \
-
-
-
-
-uiGridLinesPropTab::uiGridLinesPropTab( uiParent* p,
-				    const FlatView::Annotation::AxisData& ad0,
-				    const FlatView::Annotation::AxisData& ad1)
-    : uiDlgGroup( p, "Gridlines" )
-    , axdata0_( ad0 )
-    , axdata1_( ad1 )
+uiFVAnnotPropTab::AxesGroup::AxesGroup( uiParent* p,
+					FlatView::Annotation::AxisData& ad )
+    : uiGroup(p,"Axis Data")
+    , ad_(ad)
 {
-    mCreateGLFields( 0 );
-    mCreateGLFields( 1 );
-    dim1fld_->attach( alignedBelow, dim0annotfld_ );
-    setHAlignObj( dim0fld_ );
-    showGridLinesSel(0);
+    namefld_ = new uiGenInput( this, "Axis name", ad_.name_ );
+    reversedfld_ = new uiCheckBox( this, "Reversed" );
+    reversedfld_->attach( rightOf, namefld_ );
+    showannotfld_ = new uiCheckBox( this, "Annotation" );
+    showannotfld_->attach( alignedBelow, namefld_ );
+    uiLabel* lbl = new uiLabel( this, "Show" );
+    lbl->attach( leftOf, showannotfld_ );
+    showgridlinesfld_ = new uiCheckBox( this, "Grid lines" );
+    showgridlinesfld_->attach( rightOf, showannotfld_ );
+
+    setHAlignObj( namefld_ );
 }
 
 
-void uiGridLinesPropTab::showGridLinesSel( CallBacker* )
+void uiFVAnnotPropTab::AxesGroup::putToScreen()
 {
-    bool disp0 = dim0fld_->isChecked();
-    dim0annotfld_->display( disp0 );
-    bool disp1 = dim1fld_->isChecked();
-    dim1annotfld_->display( disp1 );
+    namefld_->setText( ad_.name_ );
+    reversedfld_->setChecked( ad_.reversed_ );
+    showannotfld_->setChecked( ad_.showannot_ );
+    showgridlinesfld_->setChecked( ad_.showgridlines_ );
 }
 
 
-void uiGridLinesPropTab::fillGLPars()
+void uiFVAnnotPropTab::AxesGroup::getFromScreen()
 {
-    axdata0_.showgridlines_ = dim0fld_->isChecked();
-    axdata0_.showannot_ = dim0annotfld_->getBoolValue();
-    axdata1_.showgridlines_ = dim1fld_->isChecked();
-    axdata1_.showannot_ = dim1annotfld_->getBoolValue();
+    ad_.name_ = namefld_->text();
+    ad_.reversed_ = reversedfld_->isChecked();
+    ad_.showannot_ = showannotfld_->isChecked();
+    ad_.showgridlines_ = showgridlinesfld_->isChecked();
+}
+
+
+uiFVAnnotPropTab::uiFVAnnotPropTab( uiParent* p, FlatView::Viewer& vwr )
+    : uiFlatViewPropTab(p,vwr,"Annotation")
+    , annot_(ctxt_.annot_)
+{
+    x1_ = new AxesGroup( this, annot_.x1_ );
+    x2_ = new AxesGroup( this, annot_.x2_ );
+    x2_->attach( alignedBelow, x1_ );
+}
+
+
+void uiFVAnnotPropTab::putToScreen()
+{
+    x1_->putToScreen();
+    x2_->putToScreen();
+}
+
+
+void uiFVAnnotPropTab::getFromScreen()
+{
+    x1_->getFromScreen();
+    x2_->getFromScreen();
 }
 
 		    
-uiFlatViewPropDlg::uiFlatViewPropDlg( uiParent* p,
-				    const FlatView::DataDispPars& ddp,
-				    const FlatView::Annotation::AxisData& ad1,
-				    const FlatView::Annotation::AxisData& ad2,
-				    const CallBack& applcb )
+uiFlatViewPropDlg::uiFlatViewPropDlg( uiParent* p, FlatView::Viewer& vwr,
+				      const CallBack& applcb )
     : uiTabStackDlg(p,uiDialog::Setup("Display properties",
 				      "Specify display properties",
 				      "51.0.0"))
+    , applycb_(applcb)
 {
-    wvaproptab_ = new uiWVAFVPropTab( tabParent(), ddp.wva_, ddp.dispwva_ );
-    addGroup( wvaproptab_ );
-    vdproptab_ = new uiVDFVPropTab( tabParent(), ddp.vd_, ddp.dispvd_ );
-    addGroup( vdproptab_ );
-    glproptab_ = new uiGridLinesPropTab( tabParent(), ad1, ad2 );
-    addGroup( glproptab_ );
+    wvatab_ = new uiFVWVAPropTab( tabParent(), vwr );
+    addGroup( wvatab_ );
+    vdtab_ = new uiFVVDPropTab( tabParent(), vwr );
+    addGroup( vdtab_ );
+    annottab_ = new uiFVAnnotPropTab( tabParent(), vwr );
+    addGroup( annottab_ );
 
-    uiPushButton* applybut = new uiPushButton( this, "&Apply", applcb, true );
+    putAllToScreen();
+
+    uiPushButton* applybut = new uiPushButton( this, "&Apply",
+			     mCB(this,uiFlatViewPropDlg,doApply), true );
     applybut->attach( centeredBelow, tabObject() );
     enableSaveButton( "Save as Default" );
+}
+
+
+void uiFlatViewPropDlg::getAllFromScreen()
+{
+    for ( int idx=0; idx<nrGroups(); idx++ )
+    {
+	mDynamicCastGet(uiFlatViewPropTab&,ptab,getGroup(idx))
+	ptab.getFromScreen();
+    }
+}
+
+
+void uiFlatViewPropDlg::putAllToScreen()
+{
+    for ( int idx=0; idx<nrGroups(); idx++ )
+    {
+	mDynamicCastGet(uiFlatViewPropTab&,ptab,getGroup(idx))
+	ptab.putToScreen();
+    }
+}
+
+
+void uiFlatViewPropDlg::doApply( CallBacker* )
+{
+    getAllFromScreen();
+    applycb_.doCall( this );
 }
