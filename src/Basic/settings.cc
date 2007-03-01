@@ -5,7 +5,7 @@
  * FUNCTION : Default user settings
 -*/
  
-static const char* rcsID = "$Id: settings.cc,v 1.33 2007-02-28 16:34:38 cvsbert Exp $";
+static const char* rcsID = "$Id: settings.cc,v 1.34 2007-03-01 10:49:47 cvsbert Exp $";
 
 #include "settings.h"
 #include "filegen.h"
@@ -141,8 +141,11 @@ bool Settings::doRead( bool ext )
 	{
 	    Settings& coltabsetts( fetch("coltabs") );
 	    coltabsetts.merge( *coltabpar );
+	    coltabsetts.write( false );
+	    /* For 3.2 or later:
 	    if ( coltabsetts.write(false) )
 		{ removeWithKey( "Color table.*" ); write( false ); }
+		*/
 	}
 	delete coltabpar;
     }
