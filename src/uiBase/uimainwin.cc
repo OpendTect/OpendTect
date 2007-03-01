@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.114 2007-02-28 16:51:13 cvsnanne Exp $
+ RCS:           $Id: uimainwin.cc,v 1.115 2007-03-01 21:32:26 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -621,9 +621,8 @@ uiPopupMenu& uiMainWin::createDockWindowMenu()
     QPopupMenu* qmnu = body_->createDockWindowMenu();
     return *new uiPopupMenu(this,qmnu,"Toolbars");
 #else
-    QMenu* qmnu = body_->createPopupMenu();
     Q3PopupMenu* q3mnu = new Q3PopupMenu();
-    q3mnu->addMenu( qmnu );
+    q3mnu->addActions( body_->createPopupMenu()->actions() );
     return *new uiPopupMenu(this,q3mnu,"Toolbars");
 #endif
 }
