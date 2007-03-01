@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.93 2007-02-28 10:59:43 cvshelene Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.94 2007-03-01 19:34:04 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,7 +28,7 @@ ________________________________________________________________________
 #include "uiflatviewer.h"
 #include "uigeninputdlg.h"
 #include "uiprintscenedlg.h"
-#include "uiflatviewcontrol.h"
+#include "uiflatviewstdcontrol.h"
 //#include "uiflatviewdockwin.h"	//TODO re-activate dock windows later on
 #include "uiflatviewmainwin.h"
 #include "uitreeitemmanager.h"
@@ -902,8 +902,8 @@ void uiODSceneMgr::Viewer2D::setData( DataPack::ID packid, bool wva )
 
 	viewwin_ = vwwin;
 	viewwin_->viewer().context().annot_.x2_.reversed_ = true;
-	viewwin_->addControl( new uiFlatViewControl( viewwin_->viewer(),
-		    	      uiFlatViewControl::Setup() ) );
+	viewwin_->addControl( new uiFlatViewStdControl( viewwin_->viewer(),
+		    	      uiFlatViewStdControl::Setup() ) );
 //	vwwin->setFloating( true );
     }
 

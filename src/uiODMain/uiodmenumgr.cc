@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.cc,v 1.76 2007-02-28 16:54:41 cvsnanne Exp $
+ RCS:           $Id: uiodmenumgr.cc,v 1.77 2007-03-01 19:34:04 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -355,7 +355,7 @@ void uiODMenuMgr::mkViewIconsMnu()
     for ( int idx=0; idx<dl.size(); idx++ )
     {
 	const BufferString nm( dl.get( idx ).buf() + 6 );
-	if ( nm.isEmpty() || nm == "Default" )
+	if ( nm.isEmpty() || nm == "Default" || nm == "cur" )
 	    continue;
 
 	nradded++;
