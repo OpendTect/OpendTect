@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          03/07/2001
- RCS:           $Id: i_uidrwbody.h,v 1.14 2007-02-27 13:35:01 cvsnanne Exp $
+ RCS:           $Id: i_uidrwbody.h,v 1.15 2007-03-01 21:16:23 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,6 +19,7 @@ ________________________________________________________________________
 #ifndef USEQT3
 # include <QPaintEvent>
 # include "uirubberband.h"
+# include "mouseevent.h"
 #endif
 
 
@@ -69,6 +70,7 @@ protected:
     virtual void	mousePressEvent(QMouseEvent*);
     virtual void	mouseMoveEvent(QMouseEvent*);
     virtual void	mouseReleaseEvent(QMouseEvent*);
+    virtual void	mouseDoubleClickEvent(QMouseEvent*);
 
     uiRubberBand*	rubberband_;
 #endif
@@ -132,33 +134,61 @@ void uiDrawableObjBody<C,T>::handleResizeEvent( QResizeEvent* ev,
 
 
 #ifndef USEQT3
+
 template <class C,class T>
-void uiDrawableObjBody<C,T>::mousePressEvent( QMouseEvent* ev )
+void uiDrawableObjBody<C,T>::mousePressEvent( QMouseEvent* qev )
 {
     if ( handle_.isRubberBandingOn() )
     {
 	if ( !rubberband_ ) rubberband_ = new uiRubberBand( this );
-	rubberband_->start( ev );
+	rubberband_->start( qev );
+    }
+    else
+    {
+	OD::ButtonState bs = OD::ButtonState( qev->state() | qev->button() );
+	MouseEvent mev( bs, qev->x(), qev->y() );
+	handle_.getMouseEventHandler().triggerButtonPressed( mev );
     }
 }
 
 
 template <class C,class T>
-void uiDrawableObjBody<C,T>::mouseMoveEvent( QMouseEvent* ev )
+void uiDrawableObjBody<C,T>::mouseMoveEvent( QMouseEvent* qev )
 {
     if ( handle_.isRubberBandingOn() )
-	rubberband_->extend( ev );
+	rubberband_->extend( qev );
+    else
+    {
+	OD::ButtonState bs = OD::ButtonState( qev->state() | qev->button() );
+	MouseEvent mev( bs, qev->x(), qev->y() );
+	handle_.getMouseEventHandler().triggerMovement( mev );
+    }
 }
 
 
 template <class C,class T>
-void uiDrawableObjBody<C,T>::mouseReleaseEvent( QMouseEvent* ev )
+void uiDrawableObjBody<C,T>::mouseReleaseEvent( QMouseEvent* qev )
 {
     if ( handle_.isRubberBandingOn() )
     {
-	rubberband_->stop( ev );
+	rubberband_->stop( qev );
 	handle_.rubberBandHandler( rubberband_->area() );
     }
+    else
+    {
+	OD::ButtonState bs = OD::ButtonState( qev->state() | qev->button() );
+	MouseEvent mev( bs, qev->x(), qev->y() );
+	handle_.getMouseEventHandler().triggerButtonReleased( mev );
+    }
+}
+
+
+template <class C,class T>
+void uiDrawableObjBody<C,T>::mouseDoubleClickEvent( QMouseEvent* qev )
+{
+    OD::ButtonState bs = OD::ButtonState( qev->state() | qev->button() );
+    MouseEvent mev( bs, qev->x(), qev->y() );
+    handle_.getMouseEventHandler().triggerDoubleClick( mev );
 }
 #endif
 
