@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiseispartserv.cc,v 1.58 2007-03-01 12:03:53 cvsbert Exp $
+ RCS:           $Id: uiseispartserv.cc,v 1.59 2007-03-01 19:33:42 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,7 +30,7 @@ ________________________________________________________________________
 
 #include "uiexecutor.h"
 #include "uiflatviewer.h"
-#include "uiflatviewcontrol.h"
+#include "uiflatviewstdcontrol.h"
 #include "uiflatviewmainwin.h"
 #include "uilistbox.h"
 #include "uimenu.h"
@@ -280,8 +280,9 @@ bool uiSeisPartServer::handleGatherSubMenu( int mnuid, const BinID& bid )
 	int pw = 200 + 10 * tbufsz;
 	if ( pw < 400 ) pw = 400; if ( pw > 800 ) pw = 800;
 	vwr.setPrefWidth( pw );
-	viewwin_->addControl( new uiFlatViewControl( vwr,
-			      uiFlatViewControl::Setup().withstates(false) ) );
+	viewwin_->addControl( new uiFlatViewStdControl( vwr,
+			      uiFlatViewStdControl::Setup()
+			      .withstates(false) ) );
     }
 
     viewwin_->start();
