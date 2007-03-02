@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          09/02/2001
- RCS:           $Id: uitextedit.cc,v 1.31 2007-02-14 12:38:00 cvsnanne Exp $
+ RCS:           $Id: uitextedit.cc,v 1.32 2007-03-02 10:57:05 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,7 +22,7 @@ ________________________________________________________________________
 #ifdef USEQT3
 # include <qtextedit.h> 
 #else
-# include <Q3TextEdit> 
+# include <QTextEdit> 
 #endif
 
 
@@ -119,7 +119,7 @@ bool uiTextEditBase::saveToFile( const char* src )
 
 
 
-class uiTextEditBody : public uiObjBodyImpl<uiTextEdit,mQTextEditClss>
+class uiTextEditBody : public uiObjBodyImpl<uiTextEdit,QTextEdit>
 {
 public:
 
@@ -133,7 +133,7 @@ public:
 
 uiTextEditBody::uiTextEditBody( uiTextEdit& handle, uiParent* p, 
 				const char* nm, bool ro )
-    : uiObjBodyImpl<uiTextEdit,mQTextEditClss>( handle, p, nm )
+    : uiObjBodyImpl<uiTextEdit,QTextEdit>( handle, p, nm )
 {
     setTextFormat(Qt::PlainText); 
     setReadOnly( ro );
@@ -146,9 +146,11 @@ uiTextEditBody::uiTextEditBody( uiTextEdit& handle, uiParent* p,
 
 void uiTextEditBody::append( const char* txt)
 { 
-    mQTextEditClss::append( txt );
+    QTextEdit::append( txt );
     repaint();
+#ifdef USEQT3
     setCursorPosition( lines(), 0 );
+#endif
 } 
 
 //-------------------------------------------------------
@@ -167,14 +169,14 @@ uiTextEditBody& uiTextEdit::mkbody(uiParent* parnt, const char* nm, bool ro)
 
 void uiTextEdit::append( const char* txt)	{ body_->append(txt); }
 
-mQTextEditClss& uiTextEdit::qte()			{ return *body_; }
+QTextEdit& uiTextEdit::qte()			{ return *body_; }
 
 
 
 //-------------------------------------------------------
 
 
-class uiTextBrowserBody : public uiObjBodyImpl<uiTextBrowser,mQTextBrowserClss>
+class uiTextBrowserBody : public uiObjBodyImpl<uiTextBrowser,QTextBrowser>
 {
 public:
 
@@ -190,11 +192,12 @@ protected:
 
 uiTextBrowserBody::uiTextBrowserBody( uiTextBrowser& handle, uiParent* p, 
 				const char* nm, bool plaintxt )
-    : uiObjBodyImpl<uiTextBrowser,mQTextBrowserClss>( handle, p, nm )
+    : uiObjBodyImpl<uiTextBrowser,QTextBrowser>( handle, p, nm )
     , messenger_( *new i_BrowserMessenger(this, &handle))
 {
     if( plaintxt ) setTextFormat(Qt::PlainText); 
 
+#ifdef USEQT3
     mimeSourceFactory()->setExtensionType( "par", "text/plain" );
     mimeSourceFactory()->setExtensionType( "log", "text/plain" );
     mimeSourceFactory()->setExtensionType( "sim", "text/plain" );
@@ -203,6 +206,7 @@ uiTextBrowserBody::uiTextBrowserBody( uiTextBrowser& handle, uiParent* p,
     mimeSourceFactory()->setExtensionType( "dict", "text/plain" );
 
     mimeSourceFactory()->addFilePath ( "." );
+#endif
 
     setStretch( 2, 2 );
     setPrefWidth( handle.defaultWidth() );
@@ -235,7 +239,7 @@ uiTextBrowserBody& uiTextBrowser::mkbody( uiParent* parnt, const char* nm,
     return *body_; 
 }
 
-mQTextEditClss& uiTextBrowser::qte()	{ return *body_; }
+QTextEdit& uiTextBrowser::qte()	{ return *body_; }
 
 
 const char* uiTextBrowser::source() const
@@ -243,7 +247,11 @@ const char* uiTextBrowser::source() const
     if ( forceplaintxt_ )
 	return textsrc;
 
+#ifdef USEQT3
     result = (const char*)body_->source();
+#else
+    result = body_->source().path().toAscii().data();
+#endif
     return (const char*)result;
 }
 
@@ -256,7 +264,11 @@ void uiTextBrowser::setSource( const char* src )
 	readFromFile( src );
     }
     else
+#ifdef USEQT3
 	body_->setSource(src);
+#else
+        body_->setSource( QUrl(src) );
+#endif
 }
 
 
@@ -288,8 +300,20 @@ void uiTextBrowser::reload()
 
 
 int uiTextBrowser::nrLines()
-{ return body_->lines(); }
+{
+#ifdef USEQT3
+    return body_->lines();
+#else
+    return 0;
+#endif
+}
 
 
 void uiTextBrowser::scrollToBottom()
-{ body_->scrollToBottom(); }
+{
+#ifdef USEQT3
+    body_->scrollToBottom();
+#else
+    body_->moveCursor( QTextCursor::EndOfBlock );
+#endif
+}

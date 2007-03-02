@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          09/02/2001
- RCS:           $Id: uitextedit.h,v 1.16 2007-02-14 12:38:01 cvsnanne Exp $
+ RCS:           $Id: uitextedit.h,v 1.17 2007-03-02 10:56:52 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,16 +15,9 @@ ________________________________________________________________________
 #include "uiobj.h"
 #include "undefval.h"
 
-#ifdef USEQT3
-# define mQTextEditClss	QTextEdit
-#else
-# define mQTextEditClss	Q3TextEdit
-#endif
-
-
 class uiTextEditBody;
 class uiTextBrowserBody;
-class mQTextEditClss;
+class QTextEdit;
 
 class uiTextEditBase : public uiObject
 {
@@ -48,8 +41,8 @@ public:
 
 protected:
 
-    virtual mQTextEditClss&	qte()			    = 0;
-    const mQTextEditClss&	qte() const 
+    virtual QTextEdit&	qte()			    = 0;
+    const QTextEdit&	qte() const 
 			{ return const_cast<uiTextEditBase*>(this)->qte(); }
 
     static int          defaultWidth_;
@@ -72,7 +65,7 @@ public:
 
 protected:
 
-    virtual mQTextEditClss& qte();
+    virtual QTextEdit& qte();
 
 private:
 
@@ -122,7 +115,7 @@ protected:
 
     virtual int		maxLines() const		{ return maxlines_; }
 
-    virtual mQTextEditClss& qte();
+    virtual QTextEdit& qte();
 
 private:
 

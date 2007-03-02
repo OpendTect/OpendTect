@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          13/03/2002
- RCS:           $Id: i_qtxtbrowser.h,v 1.4 2007-02-14 12:38:00 cvsnanne Exp $
+ RCS:           $Id: i_qtxtbrowser.h,v 1.5 2007-03-02 10:56:52 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,10 +19,8 @@ ________________________________________________________________________
 
 #ifdef USEQT3
 # include <qtextbrowser.h> 
-# define mQTextBrowserClss QTextBrowser
 #else
-# include <Q3TextBrowser> 
-# define mQTextBrowserClss Q3TextBrowser
+# include <QTextBrowser> 
 #endif
 
 
@@ -38,7 +36,7 @@ class i_BrowserMessenger : public QObject
     friend class	uiTextBrowserBody;
 
 protected:
-			i_BrowserMessenger( mQTextBrowserClss*  sender,
+			i_BrowserMessenger( QTextBrowser*  sender,
 					    uiTextBrowser* receiver )
 			: _sender( sender )
 			, _receiver( receiver )
@@ -49,8 +47,13 @@ protected:
 				     this, SLOT(forwardAvailable(bool)));
 			    connect(sender,SIGNAL(highlighted(const QString&)),
 				     this, SLOT(highlighted(const QString&)));
+#ifdef USEQT3
 			    connect(sender,SIGNAL(linkClicked(const QString&)),
 				     this, SLOT(linkClicked(const QString&)));
+#else
+			    connect(sender,SIGNAL(anchorClicked(const QUrl&)),
+				    this,SLOT(anchorClicked(const QUrl&)));
+#endif
 			}
 
     virtual		~i_BrowserMessenger() {}
@@ -58,7 +61,7 @@ protected:
 private:
 
     uiTextBrowser* 	_receiver;
-    mQTextBrowserClss* 	_sender;
+    QTextBrowser* 	_sender;
 
 private slots:
 
@@ -80,11 +83,19 @@ private slots:
 			    _receiver->linkhighlighted.trigger(*_receiver); 
 			}
 
+#ifdef USEQT3
     void 		linkClicked(const QString& lnk)
 			{ 
 			    _receiver->lastlink_ = (const char*)lnk;
 			    _receiver->linkclicked.trigger(*_receiver); 
 			}
+#else
+    void		anchorClicked( const QUrl& lnk )
+			{
+			    _receiver->lastlink_ = lnk.path().toAscii().data();
+			    _receiver->linkclicked.trigger(*_receiver);
+			}
+#endif
 
 };
 
