@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2001
- RCS:           $Id: i_qspinbox.h,v 1.4 2004-02-25 14:51:07 nanne Exp $
+ RCS:           $Id: i_qspinbox.h,v 1.5 2007-03-02 16:25:31 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,19 +25,31 @@ class QString;
     Internal object, to hide Qt's signal/slot mechanism.
 */
 
+
+#ifdef USEQT3
+# define mQSpinBox      QSpinBox
+#else
+# define mQSpinBox      QDoubleSpinBox
+#endif
+
 class i_SpinBoxMessenger : public QObject 
 {
     Q_OBJECT
     friend class uiSpinBoxBody;
 
 protected:
-			i_SpinBoxMessenger(QSpinBox*  sender,
+			i_SpinBoxMessenger(mQSpinBox*  sender,
 					   uiSpinBox* receiver)
 			: _sender(sender)
 			, _receiver(receiver)
 			{ 
+#ifdef USEQT3
 			    connect(sender,SIGNAL(valueChanged(int)),
 				    this, SLOT(valueChanged(int)));
+#else
+			    connect(sender,SIGNAL(editingFinished()),
+				    this, SLOT(editingFinished()));
+#endif
 			}
 
     virtual		~i_SpinBoxMessenger() {}
@@ -45,13 +57,17 @@ protected:
 private:
 
     uiSpinBox*		_receiver;
-    QSpinBox*  		_sender;
+    mQSpinBox*  	_sender;
 
 private slots:
 
+#ifdef USEQT3
     void 		valueChanged(int)
 			{ _receiver->valueChanged.trigger(*_receiver); }
-
+#else
+    void		editingFinished()
+			{ _receiver->valueChanged.trigger(*_receiver); }
+#endif
 };
 
 #endif
