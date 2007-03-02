@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          Sep 2006
- RCS:           $Id: uiflatviewer.cc,v 1.10 2007-03-02 10:55:17 cvshelene Exp $
+ RCS:           $Id: uiflatviewer.cc,v 1.11 2007-03-02 15:36:06 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -80,6 +80,13 @@ void uiFlatViewer::setExtraBorders( const uiSize& lfttp, const uiSize& rghtbt )
     extraborders_.setRight( rghtbt.width() );
     extraborders_.setTop( lfttp.height() );
     extraborders_.setBottom( rghtbt.height() );
+}
+
+
+void uiFlatViewer::setInitialSize( uiSize sz )
+{
+    canvas_.setPrefWidth( sz.width() );
+    canvas_.setPrefHeight( sz.height() );
 }
 
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiseispartserv.cc,v 1.60 2007-03-02 10:55:17 cvshelene Exp $
+ RCS:           $Id: uiseispartserv.cc,v 1.61 2007-03-02 15:36:06 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -279,7 +279,7 @@ bool uiSeisPartServer::handleGatherSubMenu( int mnuid, const BinID& bid )
     {
 	int pw = 200 + 10 * tbufsz;
 	if ( pw < 400 ) pw = 400; if ( pw > 800 ) pw = 800;
-	vwr.setPrefWidth( pw );
+	vwr.setInitialSize( uiSize(pw,500) );
 	viewwin_->addControl( new uiFlatViewStdControl( vwr,
 			      uiFlatViewStdControl::Setup()
 			      .withstates(false) ) );
