@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2000
- RCS:           $Id: flatview.cc,v 1.4 2007-02-28 12:49:20 cvsbert Exp $
+ RCS:           $Id: flatview.cc,v 1.5 2007-03-02 10:56:30 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -118,7 +118,8 @@ float* FlatPosData::getPositions( bool isx1 ) const
 
 
 FlatView::DataDispPars::Common::Common()
-    : rg_(mUdf(float),mUdf(float))
+    : show_(true)
+    , rg_(mUdf(float),mUdf(float))
     , clipperc_(ColorTable::defPercClip())
     , blocky_(false)
 {
@@ -207,13 +208,13 @@ void FlatView::Annotation::usePar( const IOPar& iop )
 
 void FlatView::DataDispPars::fillPar( IOPar& iop ) const
 {
-    mIOPDoVD( setYN, sKeyShow, dispvd_ );
+    mIOPDoVD( setYN, sKeyShow, vd_.show_ );
     mIOPDoVD2( set, sKeyDispRg, vd_.rg_.start, vd_.rg_.stop );
     mIOPDoVD( set, sKeyColTab, vd_.ctab_ );
     mIOPDoVD( setYN, sKeyBlocky, vd_.blocky_ );
     mIOPDoVD( set, sKeyClipPerc, vd_.clipperc_ );
 
-    mIOPDoWVA( setYN, sKeyShow, dispwva_ );
+    mIOPDoWVA( setYN, sKeyShow, wva_.show_ );
     mIOPDoWVA2( set, sKeyDispRg, wva_.rg_.start, wva_.rg_.stop );
     mIOPDoWVA( setYN, sKeyBlocky, wva_.blocky_ );
     mIOPDoWVA( set, sKeyClipPerc, wva_.clipperc_ );
@@ -228,13 +229,13 @@ void FlatView::DataDispPars::fillPar( IOPar& iop ) const
 
 void FlatView::DataDispPars::usePar( const IOPar& iop )
 {
-    mIOPDoVD( getYN, sKeyShow, dispvd_ );
+    mIOPDoVD( getYN, sKeyShow, vd_.show_ );
     mIOPDoVD2( get, sKeyDispRg, vd_.rg_.start, vd_.rg_.stop );
     mIOPDoVD( get, sKeyColTab, vd_.ctab_ );
     mIOPDoVD( getYN, sKeyBlocky, vd_.blocky_ );
     mIOPDoVD( get, sKeyClipPerc, vd_.clipperc_ );
 
-    mIOPDoWVA( getYN, sKeyShow, dispwva_ );
+    mIOPDoWVA( getYN, sKeyShow, wva_.show_ );
     mIOPDoWVA2( get, sKeyDispRg, wva_.rg_.start, wva_.rg_.stop );
     mIOPDoWVA( getYN, sKeyBlocky, wva_.blocky_ );
     mIOPDoWVA( get, sKeyClipPerc, wva_.clipperc_ );

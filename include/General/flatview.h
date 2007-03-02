@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2005
- RCS:           $Id: flatview.h,v 1.5 2007-02-28 20:21:45 cvsnanne Exp $
+ RCS:           $Id: flatview.h,v 1.6 2007-03-02 10:56:30 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -73,15 +73,14 @@ public:
 
     struct AxisData
     {
-			AxisData() : reversed_(false)	{ showNothing(); }
+			AxisData() : reversed_(false)	{ showAll(false); }
 
 	BufferString	name_;
 	bool		showannot_;
 	bool		showgridlines_;
 	bool		reversed_;
 
-	void		showAll()	{ showannot_ = showgridlines_ = true; }
-	void		showNothing()	{ showannot_ = showgridlines_ = false; }
+	inline void	showAll( bool yn ) { showannot_ = showgridlines_ = yn; }
     };
 
 
@@ -95,6 +94,8 @@ public:
     ObjectSet<AuxData>	auxdata_;
     bool		showaux_;
 
+    inline void		setAxesAnnot( bool yn ) //!< Convenience all or nothing
+			{ x1_.showAll(yn); x2_.showAll(yn); }
     inline bool		haveTitle() const
     			{ return !title_.isEmpty(); }
     inline bool		haveAxisAnnot( bool x1dir ) const
@@ -139,6 +140,7 @@ public:
     public:
 			Common();
 
+	bool		show_;	   // default=true
 	Interval<float>	rg_;	   // default=mUdf(float)
 	float		clipperc_; // default from ColorTable
 	bool		blocky_;   // default=false
@@ -177,14 +179,12 @@ public:
 
     };
 
-    			DataDispPars()
-			    : dispvd_(true)
-			    , dispwva_(true)	{}
+    			DataDispPars()		{}
 
-    bool		dispvd_;
-    bool		dispwva_;
     VD			vd_;
     WVA			wva_;
+    void		show( bool wva, bool vd )
+    			{ wva_.show_ = wva; vd_.show_ = vd; }
 
     void		fillPar(IOPar&) const;
     void		usePar(const IOPar&);
@@ -226,6 +226,9 @@ public:
 
     void		setDarkBG(bool yn);
     bool		darkBG() const		{ return darkbg_; }
+
+    void		setGeoDefaults( bool vert )
+			{ if ( vert ) annot_.x2_.reversed_ = true; }
 
 protected:
 
