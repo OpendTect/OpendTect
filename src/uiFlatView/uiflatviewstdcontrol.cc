@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2007
- RCS:           $Id: uiflatviewstdcontrol.cc,v 1.1 2007-03-01 19:35:42 cvsbert Exp $
+ RCS:           $Id: uiflatviewstdcontrol.cc,v 1.2 2007-03-02 14:28:03 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,49 +13,41 @@ ________________________________________________________________________
 #include "flatviewzoommgr.h"
 #include "uiflatviewer.h"
 #include "uibutton.h"
-#include "uibuttongroup.h"
+#include "uitoolbar.h"
 #include "pixmap.h"
 
-#define mDefBut(butnm,grp,fnm,cbnm,tt) \
-    butnm = new uiToolButton( grp, 0, ioPixmap(fnm), \
-			      mCB(this,uiFlatViewStdControl,cbnm) ); \
-    butnm->setToolTip( tt )
+#define mDefBut(but,fnm,cbnm,tt) \
+    but = new uiToolButton( tb_, 0, ioPixmap(fnm), \
+			    mCB(this,uiFlatViewStdControl,cbnm) ); \
+    but->setToolTip( tt ); \
+    tb_->addObject( but );
 
 uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
 					    const Setup& setup )
     : uiFlatViewControl(vwr,setup.parent_,true)
-    , stategrp_(0)
+    , manipbut_(0)
 {
+    tb_ = new uiToolBar( mainwin(), "Flat Viewer Tools" );
     if ( setup.withstates_ )
     {
-	stategrp_ = new uiButtonGroup( this, "", setup.vertical_ );
-	mDefBut(manipbut_,stategrp_,"view.png",stateCB,"View mode (zoom)");
+	mDefBut(manipbut_,"view.png",stateCB,"View mode (zoom)");
 	manipbut_->setToggleButton( true ); manipbut_->setOn( true );
-	mDefBut(drawbut_,stategrp_,"pick.png",stateCB,"Interact mode");
+	mDefBut(drawbut_,"pick.png",stateCB,"Interact mode");
 	drawbut_->setToggleButton( true ); drawbut_->setOn( true );
+	tb_->addSeparator();
     }
 
-    posgrp_ = new uiButtonGroup( this, "", setup.vertical_ );
-    mDefBut(zoominbut_,posgrp_,"zoomforward.png",zoomCB,"Zoom in");
-    mDefBut(zoomoutbut_,posgrp_,"zoombackward.png",zoomCB,"Zoom out");
-    mDefBut(panupbut_,posgrp_,"uparrow.png",panCB,"Pan up");
-    mDefBut(panleftbut_,posgrp_,"leftarrow.png",panCB,"Pan left");
-    mDefBut(panrightbut_,posgrp_,"rightarrow.png",panCB,"Pan right");
-    mDefBut(pandownbut_,posgrp_,"downarrow.png",panCB,"Pan down");
+    mDefBut(zoominbut_,"zoomforward.png",zoomCB,"Zoom in");
+    mDefBut(zoomoutbut_,"zoombackward.png",zoomCB,"Zoom out");
+    mDefBut(panupbut_,"uparrow.png",panCB,"Pan up");
+    mDefBut(panleftbut_,"leftarrow.png",panCB,"Pan left");
+    mDefBut(panrightbut_,"rightarrow.png",panCB,"Pan right");
+    mDefBut(pandownbut_,"downarrow.png",panCB,"Pan down");
     uiToolButton* 
-    mDefBut(fliplrbut,posgrp_,"flip_lr.png",flipCB,"Flip left/right");
+    mDefBut(fliplrbut,"flip_lr.png",flipCB,"Flip left/right");
 
-    parsgrp_ = new uiButtonGroup( this, "", setup.vertical_ );
-    mDefBut(parsbut_,parsgrp_,"2ddisppars.png",parsCB,"Set display parameters");
-
-    if ( stategrp_ )
-	posgrp_->attach( setup.vertical_?ensureBelow:ensureRightOf, stategrp_);
-    parsgrp_->attach( setup.vertical_ ? ensureBelow : ensureRightOf, posgrp_ );
-
-    if ( setup.vertical_ )
-	vwr.attach( rightOf, this );
-    else
-	attach( alignedBelow, &vwr );
+    tb_->addSeparator();
+    mDefBut(parsbut_,"2ddisppars.png",parsCB,"Set display parameters");
 
     vwr.viewChanged.notify( mCB(this,uiFlatViewStdControl,vwChgCB) );
 }
@@ -167,7 +159,7 @@ void uiFlatViewStdControl::parsCB( CallBacker* but )
 
 void uiFlatViewStdControl::stateCB( CallBacker* but )
 {
-    if ( !stategrp_ ) return;
+    if ( !manipbut_ ) return;
 
     const bool ismanip = (but == manipbut_ && manipbut_->isOn())
 		      || (but == drawbut_ && !drawbut_->isOn());

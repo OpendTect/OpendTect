@@ -6,13 +6,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewwin.h,v 1.5 2007-03-01 19:35:42 cvsbert Exp $
+ RCS:           $Id: uiflatviewwin.h,v 1.6 2007-03-02 14:28:02 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "sets.h"
 class uiParent;
+class uiMainWin;
 class uiFlatViewer;
 class uiFlatViewControl;
 
@@ -38,7 +39,8 @@ public:
     virtual void	setWinTitle(const char*)	= 0;
     virtual void	start()				= 0;
     virtual void	addControl(uiFlatViewControl*)	{}
-    virtual uiParent*	uiparent()			= 0;
+    virtual uiMainWin*	dockParent()			= 0;
+    virtual uiParent*	viewerParent()			= 0;
 
 protected:
 

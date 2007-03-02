@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewdockwin.h,v 1.3 2007-02-28 08:03:14 cvsnanne Exp $
+ RCS:           $Id: uiflatviewdockwin.h,v 1.4 2007-03-02 14:28:02 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,10 +37,8 @@ public:
 
     virtual void	start()				{ display(true); }
     virtual void	setWinTitle( const char* t )	{ setDockName(t); }
-
-protected:
-
-    virtual uiParent*	uiparent()			{ return this; }
+    virtual uiMainWin*	dockParent()			{ return mainwin(); }
+    virtual uiParent*	viewerParent()			{ return this; }
 
 };
 

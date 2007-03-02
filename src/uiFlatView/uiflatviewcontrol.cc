@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:		Feb 2007
- RCS:           $Id: uiflatviewcontrol.cc,v 1.10 2007-03-01 19:35:42 cvsbert Exp $
+ RCS:           $Id: uiflatviewcontrol.cc,v 1.11 2007-03-02 14:28:02 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,8 +30,7 @@ uiFlatViewControl::uiFlatViewControl( uiFlatViewer& vwr, uiParent* p,
 {
     setBorder( 0 );
     addViewer( vwr );
-    if ( mainwin() ) //TODO: I need a finalise callback
-	mainwin()->finaliseDone.notify( mCB(this,uiFlatViewControl,onFinalise));
+    attachObj()->finaliseDone.notify( mCB(this,uiFlatViewControl,onFinalise) );
 }
 
 

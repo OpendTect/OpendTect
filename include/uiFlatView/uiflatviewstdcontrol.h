@@ -6,14 +6,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2007
- RCS:           $Id: uiflatviewstdcontrol.h,v 1.1 2007-03-01 19:35:42 cvsbert Exp $
+ RCS:           $Id: uiflatviewstdcontrol.h,v 1.2 2007-03-02 14:28:02 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiflatviewcontrol.h"
 class uiToolButton;
-class uiButtonGroup;
+class uiToolBar;
 
 
 /*!\brief The standard tools to control uiFlatViewer(s). */
@@ -26,11 +26,9 @@ public:
     {
 			Setup( uiParent* p=0 )
 			    : parent_(p)
-			    , vertical_(true)
 			    , withstates_(true)		{}
 
 	mDefSetupMemb(uiParent*,parent) //!< null => viewer's parent
-	mDefSetupMemb(bool,	vertical)
 	mDefSetupMemb(bool,	withstates)
     };
 
@@ -38,10 +36,7 @@ public:
 
 protected:
 
-    uiButtonGroup*	posgrp_;
-    uiButtonGroup*	stategrp_;
-    uiButtonGroup*	parsgrp_;
-
+    uiToolBar*		tb_;
     uiToolButton*	zoominbut_;
     uiToolButton*	zoomoutbut_;
     uiToolButton*	panupbut_;

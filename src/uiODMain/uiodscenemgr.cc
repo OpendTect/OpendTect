@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.94 2007-03-01 19:34:04 cvsbert Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.95 2007-03-02 14:28:03 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,8 +29,7 @@ ________________________________________________________________________
 #include "uigeninputdlg.h"
 #include "uiprintscenedlg.h"
 #include "uiflatviewstdcontrol.h"
-//#include "uiflatviewdockwin.h"	//TODO re-activate dock windows later on
-#include "uiflatviewmainwin.h"
+#include "uiflatviewdockwin.h"
 #include "uitreeitemmanager.h"
 #include "uimsg.h"
 
@@ -882,10 +881,9 @@ uiODSceneMgr::Viewer2D::Viewer2D( uiODMain& appl, int visid )
 
 uiODSceneMgr::Viewer2D::~Viewer2D()
 {
-//    mDynamicCastGet(uiFlatViewDockWin*,fvdw,viewwin_)
-//    if ( fvdw )
-//	appl_.removeDockWindow( fvdw );
-//	TODO : re-activate dock window later on
+    mDynamicCastGet(uiFlatViewDockWin*,fvdw,viewwin_)
+    if ( fvdw )
+	appl_.removeDockWindow( fvdw );
 
     delete viewwin_;
 }
@@ -895,16 +893,17 @@ void uiODSceneMgr::Viewer2D::setData( DataPack::ID packid, bool wva )
 {
     if ( !viewwin_ )
     {
-	uiFlatViewMainWin* vwwin = new uiFlatViewMainWin( &appl_,
-					uiFlatViewMainWin::Setup(basetxt_) );
-//	TODO do not remove commented parts : re-activate dock windows later on
-//	appl_.addDockWindow( *vwwin, uiMainWin::Left );
+	uiFlatViewDockWin* vwwin = new uiFlatViewDockWin( &appl_,
+				   uiFlatViewDockWin::Setup(basetxt_) );
+	appl_.addDockWindow( *vwwin, uiMainWin::Top );
 
 	viewwin_ = vwwin;
-	viewwin_->viewer().context().annot_.x2_.reversed_ = true;
+	viewwin_->viewer().setDarkBG( true );
+	viewwin_->viewer().context().setGeoDefaults(true); //TODO horizontal
+	viewwin_->viewer().context().annot_.setAxesAnnot(true);
 	viewwin_->addControl( new uiFlatViewStdControl( viewwin_->viewer(),
-		    	      uiFlatViewStdControl::Setup() ) );
-//	vwwin->setFloating( true );
+		    	      uiFlatViewStdControl::Setup(&appl_) ) );
+	vwwin->setFloating( true );
     }
 
     viewwin_->viewer().setPack( wva, packid );

@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewmainwin.h,v 1.2 2007-02-26 14:28:38 cvsbert Exp $
+ RCS:           $Id: uiflatviewmainwin.h,v 1.3 2007-03-02 14:28:02 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,12 +43,13 @@ public:
 
     void		addControl(uiFlatViewControl*);
 
+    virtual uiMainWin*	dockParent()			{ return this; }
+    virtual uiParent*	viewerParent()			{ return this; }
+
 protected:
 
     virtual bool	closeOK()
     			{ cleanUp(); return true; }
-
-    virtual uiParent*	uiparent()			{ return this; }
 
 };
 

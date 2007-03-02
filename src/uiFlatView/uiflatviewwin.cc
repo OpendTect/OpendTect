@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          Sep 2006
- RCS:           $Id: uiflatviewwin.cc,v 1.5 2007-03-01 12:03:53 cvsbert Exp $
+ RCS:           $Id: uiflatviewwin.cc,v 1.6 2007-03-02 14:28:03 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,7 +19,7 @@ void uiFlatViewWin::createViewers( int nr )
 {
     for ( int idx=0; idx<nr; idx++ )
     {
-	uiFlatViewer* vwr = new uiFlatViewer( uiparent() );
+	uiFlatViewer* vwr = new uiFlatViewer( viewerParent() );
 	vwrs_ += vwr;
 	handleNewViewer( vwr );
     }
@@ -40,7 +40,7 @@ void uiFlatViewWin::setDarkBG( bool yn )
 {
     for ( int idx=0; idx<vwrs_.size(); idx++ )
 	vwrs_[idx]->setDarkBG( yn );
-    uiparent()->setBackgroundColor( yn ? Color::Black : Color::White );
+    viewerParent()->setBackgroundColor( yn ? Color::Black : Color::White );
 }
 
 
