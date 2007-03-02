@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiseispartserv.cc,v 1.59 2007-03-01 19:33:42 cvsbert Exp $
+ RCS:           $Id: uiseispartserv.cc,v 1.60 2007-03-02 10:55:17 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -259,10 +259,10 @@ bool uiSeisPartServer::handleGatherSubMenu( int mnuid, const BinID& bid )
 				          uiFlatViewMainWin::Setup(title) );
 	viewwin_->setDarkBG( false );
 	FlatView::Context& ctxt = viewwin_->viewer().context();
-	ctxt.annot_.x1_.showAll(); ctxt.annot_.x2_.showAll();
-	ctxt.annot_.x2_.reversed_ = true;
-	ctxt.ddpars_.dispvd_ = false; ctxt.ddpars_.dispwva_ = true;
-	ctxt.ddpars_.wva_.overlap_ = 1; ctxt.ddpars_.wva_.clipperc_ = 1;
+	ctxt.annot_.setAxesAnnot( true );
+	ctxt.setGeoDefaults( true );
+	ctxt.ddpars_.show( true, false );
+	ctxt.ddpars_.wva_.overlap_ = 1;
     }
 
     SeisTrcBufDataPack* dp = new SeisTrcBufDataPack( *tbuf,

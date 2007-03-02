@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          Dec 2006
- RCS:           $Id: uiflatviewpropdlg.h,v 1.3 2007-03-01 19:35:42 cvsbert Exp $
+ RCS:           $Id: uiflatviewpropdlg.h,v 1.4 2007-03-02 10:55:17 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,28 +46,29 @@ protected:
 
 class uiFlatViewDataDispPropTab : public uiFlatViewPropTab
 {
-public:
-
-    virtual FlatView::DataDispPars::Common& commonDDPars()	= 0;
-
 protected:
     			uiFlatViewDataDispPropTab(uiParent*,
-					  FlatView::Viewer&,
-					  const char*);
-    FlatView::DataDispPars& ddpars_;
+					  FlatView::Viewer&,const char*);
 
+    FlatView::DataDispPars& ddpars_;
+    virtual FlatView::DataDispPars::Common& commonPars() = 0;
+    bool		doDisp() const;
+
+    uiGenInput*		dispfld_;
     uiGenInput*		useclipfld_;
     uiGenInput*		clipratiofld_;
     uiGenInput*		rgfld_;
     uiGenInput*		blockyfld_;
 
+    uiObject*		lastcommonfld_;
+
+    void		dispSel(CallBacker*);
     void		clipSel(CallBacker*);
-    virtual void	afterClipSelection()		{}
-    void		setDoDisplay(bool);
-    bool		dodisplay_;
+    virtual void	handleFieldDisplay(bool)	= 0;
 
     void		putCommonToScreen();
     void		getCommonFromScreen();
+
 };
 
 		     
@@ -76,16 +77,14 @@ class uiFVWVAPropTab : public uiFlatViewDataDispPropTab
 public:
     			uiFVWVAPropTab(uiParent*,FlatView::Viewer&);
 
-    FlatView::DataDispPars::Common& commonDDPars()	{ return pars_; }
-
     virtual void	putToScreen();
     virtual void	getFromScreen();
 
 protected:
 
     FlatView::DataDispPars::WVA& pars_;
+    virtual FlatView::DataDispPars::Common& commonPars() { return pars_; }
 
-    uiGenInput*		dispfld_;
     uiGenInput*		overlapfld_;
     uiGenInput*		midlinefld_;
     uiGenInput*		midvalfld_;
@@ -94,6 +93,7 @@ protected:
     uiColorInput*       leftcolsel_;
     uiColorInput*       rightcolsel_;
 
+    virtual void	handleFieldDisplay(bool);
     void		dispSel(CallBacker*);
     void		midlineSel(CallBacker*);
 };
@@ -104,8 +104,6 @@ class uiFVVDPropTab : public uiFlatViewDataDispPropTab
 public:
     			uiFVVDPropTab(uiParent*,FlatView::Viewer&);
 
-    FlatView::DataDispPars::Common& commonDDPars()	{ return pars_; }
-
     virtual void	putToScreen();
     virtual void	getFromScreen();
 
@@ -113,12 +111,12 @@ protected:
 
     FlatView::DataDispPars::VD&		pars_;
     ColorTable		ctab_;
+    virtual FlatView::DataDispPars::Common& commonPars() { return pars_; }
 
-    uiGenInput*		dispfld_;
     ColorTableEditor*	coltabfld_;
     uiLabel*		coltablbl_;
 
-    virtual void	afterClipSelection();
+    virtual void	handleFieldDisplay(bool);
     void		dispSel(CallBacker*);
 };
 

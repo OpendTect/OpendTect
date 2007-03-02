@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          Sep 2006
- RCS:           $Id: uiflatviewer.cc,v 1.9 2007-02-27 14:47:47 cvskris Exp $
+ RCS:           $Id: uiflatviewer.cc,v 1.10 2007-03-02 10:55:17 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -85,8 +85,7 @@ void uiFlatViewer::setExtraBorders( const uiSize& lfttp, const uiSize& rghtbt )
 
 uiWorldRect uiFlatViewer::getBoundingBox( bool wva ) const
 {
-    const FlatPosData& pd = wva	? context().wvaposdata_
-					: context().vdposdata_;
+    const FlatPosData& pd = wva	? context().wvaposdata_ : context().vdposdata_;
     StepInterval<double> rg0( pd.range(true) ); rg0.sort( true );
     StepInterval<double> rg1( pd.range(false) ); rg1.sort( true );
     rg0.start -= dim0extfac_ * rg0.step; rg0.stop += dim0extfac_ * rg0.step;
@@ -97,8 +96,8 @@ uiWorldRect uiFlatViewer::getBoundingBox( bool wva ) const
 uiWorldRect uiFlatViewer::boundingBox() const
 {
     const FlatView::Context& ctxt = context();
-    uiWorldRect wr1 = getBoundingBox( ctxt.ddpars_.dispwva_ );
-    if ( ctxt.ddpars_.dispwva_ && ctxt.ddpars_.dispvd_ )
+    uiWorldRect wr1 = getBoundingBox( ctxt.ddpars_.wva_.show_ );
+    if ( ctxt.ddpars_.wva_.show_ && ctxt.ddpars_.vd_.show_ )
     {
 	uiWorldRect wr2 = getBoundingBox( false );
 	if ( wr1.left() > wr2.left() )

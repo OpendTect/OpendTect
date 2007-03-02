@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          Dec 2006
- RCS:           $Id: uiflatviewpropdlg.cc,v 1.3 2007-03-01 19:35:42 cvsbert Exp $
+ RCS:           $Id: uiflatviewpropdlg.cc,v 1.4 2007-03-02 10:55:17 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,15 +29,19 @@ uiFlatViewPropTab::uiFlatViewPropTab( uiParent* p, FlatView::Viewer& vwr,
 }
 
 
-uiFlatViewDataDispPropTab::uiFlatViewDataDispPropTab(
-	    uiParent* p, FlatView::Viewer& vwr, const char* tablbl )
+uiFlatViewDataDispPropTab::uiFlatViewDataDispPropTab( uiParent* p,
+		FlatView::Viewer& vwr, const char* tablbl )
     : uiFlatViewPropTab(p,vwr,tablbl)
     , ddpars_(ctxt_.ddpars_)
-    , dodisplay_(true)
 {
+    dispfld_ = new uiGenInput( this, "Display", BoolInpSpec(true) );
+    dispfld_->valuechanged.notify(
+	    		mCB(this,uiFlatViewDataDispPropTab,dispSel) );
+
     useclipfld_ = new uiGenInput( this, "Use clipping", BoolInpSpec(true) );
     useclipfld_->valuechanged.notify(
 	    		mCB(this,uiFlatViewDataDispPropTab,clipSel) );
+    useclipfld_->attach( alignedBelow, dispfld_ );
 
     clipratiofld_ = new uiGenInput( this, "Percentage clip", FloatInpSpec() );
     clipratiofld_->setElemSzPol(uiObject::Small);
@@ -51,46 +55,53 @@ uiFlatViewDataDispPropTab::uiFlatViewDataDispPropTab(
     blockyfld_ = new uiGenInput( this,
 	    	 "Display blocky (no interpolation)", BoolInpSpec(true) );
     blockyfld_->attach( alignedBelow, rgfld_ );
+
+    lastcommonfld_ = blockyfld_->attachObj();
+}
+
+
+bool uiFlatViewDataDispPropTab::doDisp() const
+{
+    return dispfld_->getBoolValue();
 }
 
 
 void uiFlatViewDataDispPropTab::clipSel(CallBacker*)
 {
-    bool yn = useclipfld_->getBoolValue();
-    clipratiofld_->display( dodisplay_ && yn );
-    rgfld_->display( dodisplay_ && !yn );
-
-    afterClipSelection();
+    const bool dodisp = doDisp();
+    const bool useclip = useclipfld_->getBoolValue();
+    clipratiofld_->display( dodisp && useclip );
+    rgfld_->display( dodisp && !useclip );
 }
 
 
-void uiFlatViewDataDispPropTab::setDoDisplay( bool yn )
+void uiFlatViewDataDispPropTab::dispSel( CallBacker* )
 {
-    dodisplay_ = yn;
-    const bool useclip = useclipfld_->getBoolValue();
-    useclipfld_->display( yn );
-    blockyfld_->display( yn );
+    const bool dodisp = doDisp();
+    useclipfld_->display( dodisp );
+    blockyfld_->display( dodisp );
     clipSel( 0 );
+    handleFieldDisplay( dodisp );
 }
 
 
 void uiFlatViewDataDispPropTab::putCommonToScreen()
 {
-    const DataDispPars::Common& pars = commonDDPars();
-
+    const DataDispPars::Common& pars = commonPars();
+    dispfld_->setValue( pars.show_ );
     useclipfld_->setValue( mIsUdf( pars.rg_.start ) );
     clipratiofld_->setValue( pars.clipperc_ );
     rgfld_->setValue( pars.rg_ );
     blockyfld_->setValue( pars.blocky_ );
-
-    clipSel( 0 );
+    dispSel( 0 );
 }
 
 
 void uiFlatViewDataDispPropTab::getCommonFromScreen()
 {
-    DataDispPars::Common& pars = commonDDPars();
+    DataDispPars::Common& pars = commonPars();
 
+    pars.show_ = doDisp();
     pars.clipperc_ = useclipfld_->getBoolValue()
 				? clipratiofld_->getfValue() : 0;
     pars.rg_ = useclipfld_->getBoolValue()
@@ -104,14 +115,9 @@ uiFVWVAPropTab::uiFVWVAPropTab( uiParent* p, FlatView::Viewer& vwr )
     : uiFlatViewDataDispPropTab(p,vwr,"Wiggle Variable Area")
     , pars_(ddpars_.wva_)
 {
-    dispfld_ = new uiGenInput( this, "Display", BoolInpSpec(true) );
-    dispfld_->valuechanged.notify( mCB(this,uiFVWVAPropTab,dispSel) );
-    
-    useclipfld_->attach( alignedBelow, dispfld_ );
-
     overlapfld_ = new uiGenInput( this, "Overlap ratio", FloatInpSpec() );
     overlapfld_->setElemSzPol(uiObject::Small);
-    overlapfld_->attach( alignedBelow, blockyfld_ );
+    overlapfld_->attach( alignedBelow, lastcommonfld_ );
 
     leftcolsel_ = new uiColorInput( this, pars_.left_, "Left fill", true );
     leftcolsel_->attach( alignedBelow, overlapfld_ );
@@ -138,15 +144,13 @@ uiFVWVAPropTab::uiFVWVAPropTab( uiParent* p, FlatView::Viewer& vwr )
 }
 
 
-void uiFVWVAPropTab::dispSel(CallBacker*)
+void uiFVWVAPropTab::handleFieldDisplay( bool dodisp )
 {
-    setDoDisplay( dispfld_->getBoolValue() );
-
-    wigcolsel_->display( dodisplay_ );
-    midlcolsel_->display( dodisplay_ );
-    leftcolsel_->display( dodisplay_ );
-    rightcolsel_->display( dodisplay_ );
-    overlapfld_->display( dodisplay_ );
+    wigcolsel_->display( dodisp );
+    midlcolsel_->display( dodisp );
+    leftcolsel_->display( dodisp );
+    rightcolsel_->display( dodisp );
+    overlapfld_->display( dodisp );
 
     midlineSel( 0 );
 }
@@ -154,17 +158,15 @@ void uiFVWVAPropTab::dispSel(CallBacker*)
 
 void uiFVWVAPropTab::midlineSel(CallBacker*)
 {
-    const bool havecol = dispfld_->getBoolValue() && midlcolsel_->doDraw();
-    midvalfld_->display( dodisplay_ && havecol && midlinefld_->getBoolValue() );
-    midlinefld_->display( dodisplay_ && havecol );
+    const bool dodisp = doDisp();
+    const bool havecol = midlcolsel_->doDraw();
+    midvalfld_->display( dodisp && havecol && midlinefld_->getBoolValue() );
+    midlinefld_->display( dodisp && havecol );
 }
 
 
 void uiFVWVAPropTab::putToScreen()
 {
-    putCommonToScreen();
-
-    dispfld_->setValue( ddpars_.dispwva_ );
     overlapfld_->setValue( pars_.overlap_ );
     midlinefld_->setValue( !mIsUdf(pars_.midvalue_) );
     midvalfld_->setValue( pars_.midvalue_ );
@@ -181,20 +183,18 @@ void uiFVWVAPropTab::putToScreen()
 
 #undef mSetCol
 
-    dispSel( 0 );
+    putCommonToScreen();
 }
 
 
 void uiFVWVAPropTab::getFromScreen()
 {
-    ddpars_.dispwva_ = dispfld_->getBoolValue();
-    if ( !ddpars_.dispwva_ ) return;
-
     getCommonFromScreen();
+    if ( !pars_.show_ ) return;
 
     pars_.overlap_ = overlapfld_->getfValue();
     pars_.midvalue_ = midlinefld_->getBoolValue() ? midvalfld_->getfValue() 
-						     : mUdf(float);
+						  : mUdf(float);
 #define mSetCol(fld,memb) \
     pars_.memb = fld->doDraw() ? fld->color(): Color::NoColor
     mSetCol(leftcolsel_,left_);
@@ -210,30 +210,18 @@ uiFVVDPropTab::uiFVVDPropTab( uiParent* p, FlatView::Viewer& vwr )
     , pars_(ddpars_.vd_)
     , ctab_( ddpars_.vd_.ctab_.buf() )
 {
-    dispfld_ = new uiGenInput( this, "Display", BoolInpSpec(true) );
-    dispfld_->valuechanged.notify( mCB(this,uiFVVDPropTab,dispSel) );
-    
-    useclipfld_->attach( alignedBelow, dispfld_ );
-
     coltabfld_ =  new ColorTableEditor( this,
 		    ColorTableEditor::Setup().vertical(false).editable(false)
 					     .withclip(false), &ctab_ );
-    coltabfld_->attach( alignedBelow, blockyfld_ );
     coltablbl_ = new uiLabel( this, "Color table", coltabfld_ );
+    coltabfld_->attach( alignedBelow, lastcommonfld_ );
 }
 
 
-void uiFVVDPropTab::afterClipSelection()
+void uiFVVDPropTab::handleFieldDisplay( bool dodisp )
 {
-    coltabfld_->tableChanged();
-}
-
-
-void uiFVVDPropTab::dispSel(CallBacker*)
-{
-    setDoDisplay( dispfld_->getBoolValue() );
-    coltabfld_->display( dodisplay_ );
-    coltablbl_->display( dodisplay_ );
+    coltabfld_->display( dodisp );
+    coltablbl_->display( dodisp );
 }
 
 
@@ -241,18 +229,14 @@ void uiFVVDPropTab::putToScreen()
 {
     ColorTable::get( pars_.ctab_, ctab_ );
     coltabfld_->tableChanged( 0 );
-
-    dispfld_->setValue( ddpars_.dispvd_ );
-    setDoDisplay( ddpars_.dispvd_ );
+    putCommonToScreen();
 }
 
 
 void uiFVVDPropTab::getFromScreen()
 {
-    ddpars_.dispvd_ = dispfld_->getBoolValue();
-    if ( !ddpars_.dispvd_ ) return;
-
     getCommonFromScreen();
+    if ( !pars_.show_ ) return;
 
     pars_.ctab_ = coltabfld_->getColorTable()->name();
 }

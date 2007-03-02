@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiseiswvltman.cc,v 1.19 2007-02-23 14:26:15 cvsbert Exp $
+ RCS:           $Id: uiseiswvltman.cc,v 1.20 2007-03-02 10:55:17 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -53,14 +53,13 @@ uiSeisWvltMan::uiSeisWvltMan( uiParent* p )
     FlatView::Context& ctxt = wvltfld->context();
     ctxt.annot_.x1_.name_ = "Amplitude";
     ctxt.annot_.x2_.name_ = SI().zIsTime() ? "Time" : "Depth";
-    ctxt.annot_.x1_.showNothing(); ctxt.annot_.x2_.showNothing();
-    ctxt.annot_.x2_.reversed_ = true;
-    ctxt.ddpars_.dispvd_ = false; ctxt.ddpars_.dispwva_ = true;
+    ctxt.annot_.setAxesAnnot( false );
+    ctxt.setGeoDefaults( true );
+    ctxt.ddpars_.show( true, false );
     ctxt.ddpars_.wva_.mid_= Color( 150, 150, 100 );
     ctxt.ddpars_.wva_.overlap_ = -0.01; ctxt.ddpars_.wva_.clipperc_ = 0;
     wvltfld->useStoredDefaults( "Wavelet" );
 
-    ctxt.wvaposdata_.setRange( true, StepInterval<double>(0,0,1) );
     wvltfld->setPrefWidth( 60 );
     wvltfld->attach( ensureRightOf, selgrp );
     wvltfld->setStretch( 1, 2 );
@@ -192,8 +191,7 @@ void uiSeisWvltMan::mkFileInfo()
 	fda2d_ = new Array2DImpl<float>( 1, wvltsz );
 	memcpy( fda2d_->getData(), wvlt->samples(), wvltsz * sizeof(float) );
 	fddata.set( true, fda2d_, wvlt->name() );
-	StepInterval<double> posns(
-		StepInterval<double>().setFrom(wvlt->samplePositions()));
+	StepInterval<double> posns; posns.setFrom( wvlt->samplePositions() );
 	if ( SI().zIsTime() ) posns.scale( zfac );
 	wvltfld->context().wvaposdata_.setRange( false, posns );
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:		Feb 2007
- RCS:           $Id: flatviewbitmap.cc,v 1.3 2007-02-26 17:54:11 cvsbert Exp $
+ RCS:           $Id: flatviewbitmap.cc,v 1.4 2007-03-02 10:55:17 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -47,7 +47,8 @@ void FlatView::BitMapMgr::setupChg()
     if ( !arr ) return;
 
     const FlatView::Context& ctxt = vwr_.context();
-    if ( (wva_ && !ctxt.ddpars_.dispwva_) || (!wva_ && !ctxt.ddpars_.dispvd_) )
+    if ( (wva_ && !ctxt.ddpars_.wva_.show_)
+      || (!wva_ && !ctxt.ddpars_.vd_.show_) )
 	return;
 
     const FlatPosData& pd = wva_ ? ctxt.wvaposdata_ : ctxt.vdposdata_;
