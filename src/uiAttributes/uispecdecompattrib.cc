@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2004
- RCS:           $Id: uispecdecompattrib.cc,v 1.14 2007-02-05 14:32:25 cvsnanne Exp $
+ RCS:           $Id: uispecdecompattrib.cc,v 1.15 2007-03-02 16:24:45 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -100,7 +100,13 @@ void uiSpecDecompAttrib::typeSel( CallBacker* )
 
 void uiSpecDecompAttrib::stepChg( CallBacker* )
 {
-    outpfld->box()->setStep( stepfld->box()->getFValue(), true );
+    if ( mIsZero(stepfld->box()->getFValue(),mDefEps) )
+    {
+	stepfld->box()->setValue( 1 );
+	outpfld->box()->setStep( 1, true );
+    }
+    else
+	outpfld->box()->setStep( stepfld->box()->getFValue(), true );
 }
 
 
