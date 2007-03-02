@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.95 2007-03-02 14:28:03 cvshelene Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.96 2007-03-02 15:00:21 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,11 +30,13 @@ ________________________________________________________________________
 #include "uiprintscenedlg.h"
 #include "uiflatviewstdcontrol.h"
 #include "uiflatviewdockwin.h"
+#include "uiflatviewmainwin.h"
 #include "uitreeitemmanager.h"
 #include "uimsg.h"
 
 #include "ptrman.h"
 #include "survinfo.h"
+#include "settings.h"
 #include "scene.xpm"
 
 // For factories
@@ -893,17 +895,24 @@ void uiODSceneMgr::Viewer2D::setData( DataPack::ID packid, bool wva )
 {
     if ( !viewwin_ )
     {
-	uiFlatViewDockWin* vwwin = new uiFlatViewDockWin( &appl_,
-				   uiFlatViewDockWin::Setup(basetxt_) );
-	appl_.addDockWindow( *vwwin, uiMainWin::Top );
-
-	viewwin_ = vwwin;
-	viewwin_->viewer().setDarkBG( true );
-	viewwin_->viewer().context().setGeoDefaults(true); //TODO horizontal
+	bool wantdock = false;
+	Settings::common().getYN( "FlatView.Use Dockwin", wantdock );
+	if ( !wantdock )
+	    viewwin_ = new uiFlatViewMainWin( &appl_,
+				       uiFlatViewMainWin::Setup(basetxt_) );
+	else
+	{
+	    uiFlatViewDockWin* dwin = new uiFlatViewDockWin( &appl_,
+				       uiFlatViewDockWin::Setup(basetxt_) );
+	    appl_.addDockWindow( *dwin, uiMainWin::Top );
+	    dwin->setFloating( true );
+	    viewwin_ = dwin;
+	}
+	viewwin_->viewer().setDarkBG( wantdock );
+	viewwin_->viewer().context().setGeoDefaults(true); //TODO horizontal?
 	viewwin_->viewer().context().annot_.setAxesAnnot(true);
 	viewwin_->addControl( new uiFlatViewStdControl( viewwin_->viewer(),
 		    	      uiFlatViewStdControl::Setup(&appl_) ) );
-	vwwin->setFloating( true );
     }
 
     viewwin_->viewer().setPack( wva, packid );
