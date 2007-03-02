@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodmain.cc,v 1.65 2007-02-28 08:05:08 cvsnanne Exp $
+ RCS:           $Id: uiodmain.cc,v 1.66 2007-03-02 15:49:07 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,6 +30,7 @@ ________________________________________________________________________
 #include "uipluginsel.h"
 #include "uisetdatadir.h"
 #include "uisurvey.h"
+#include "uitoolbar.h"
 #include "uisurvinfoed.h"
 #include "ui2dsip.h"
 
@@ -216,20 +217,25 @@ bool uiODMain::buildUI()
 	}
     }
 
-    ctabwin = new uiDockWin( this, "Color Table" );
-
-    ctabed = new uiVisColTabEd( ctabwin, isvert );
-    ctabed->coltabChange.notify( mCB(applmgr,uiODApplMgr,coltabChg) );
     if ( isvert )
     {
+	ctabwin = new uiDockWin( this, "Color Table" );
+	ctabed = new uiVisColTabEd( ctabwin, true );
+	ctabed->coltabChange.notify( mCB(applmgr,uiODApplMgr,coltabChg) );
 	ctabed->setPrefHeight( cCTHeight );
-	ctabed->attach( hCentered );
-    }
+	ctabed->colTabGrp()->attach( hCentered );
 
-    addDockWindow( *ctabwin, isontop ? uiMainWin::TornOff
-		    	    : (isvert ? uiMainWin::Left : uiMainWin::Top) );
-    if ( isvert )
+	addDockWindow( *ctabwin, isontop ? uiMainWin::TornOff
+					 : uiMainWin::Left );
 	ctabwin->setResizeEnabled( true );
+    }
+    else
+    {
+	uiToolBar* tb = new uiToolBar( this, "Color Table" );
+	ctabed = new uiVisColTabEd( ctabwin, false );
+	ctabed->coltabChange.notify( mCB(applmgr,uiODApplMgr,coltabChg) );
+	tb->addObject( ctabed->colTabGrp()->attachObj() );
+    }
 
     return true;
 }
