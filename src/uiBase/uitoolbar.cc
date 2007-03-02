@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          30/05/2001
- RCS:           $Id: uitoolbar.cc,v 1.33 2007-02-28 16:51:46 cvsnanne Exp $
+ RCS:           $Id: uitoolbar.cc,v 1.34 2007-03-02 13:10:54 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -285,6 +285,7 @@ uiToolBar::uiToolBar( uiParent* parnt, const char* nm, ToolBarDock d,
 		      bool newline )
     : uiParent(nm,0)
 {
+    //TODO: impl preferred dock and newline
     Qt::ToolBarDock tbdock = uiToolBarBody::qdock(d);
     QWidget* qwidget = parnt && parnt->pbody() ? parnt->pbody()->qwidget() : 0;
     qtoolbar = new QToolBar( QString(nm), (QMainWindow*)qwidget );
@@ -292,7 +293,6 @@ uiToolBar::uiToolBar( uiParent* parnt, const char* nm, ToolBarDock d,
     toolBars() += this;
 
 #ifndef USEQT3
-    qtoolbar->setAllowedAreas( Qt::TopToolBarArea | Qt::BottomToolBarArea );
     mDynamicCastGet(QMainWindow*,qmw,qwidget)
     if ( qmw ) qmw->addToolBar( qtoolbar );
 #endif
