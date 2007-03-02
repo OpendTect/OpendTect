@@ -7,24 +7,24 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		24-01-2003
- RCS:		$Id: uiviscoltabed.h,v 1.10 2006-12-13 08:57:01 cvsnanne Exp $
+ RCS:		$Id: uiviscoltabed.h,v 1.11 2007-03-02 15:47:46 cvsnanne Exp $
 ________________________________________________________________________
 
 
 -*/
 
 #include "colortab.h"
-#include "uigroup.h"
 #include "uidialog.h"
 
 namespace visBase { class VisColorTab; }
 class ColorTableEditor;
+class uiGroup;
 
 /*!\brief
 
 */
 
-class uiVisColTabEd : public uiGroup
+class uiVisColTabEd : public CallBacker
 {
 public:
     				uiVisColTabEd(uiParent*,bool vert=true);
@@ -35,6 +35,7 @@ public:
     void			setHistogram(const TypeSet<float>*);
     void			setPrefHeight(int);
     void			updateColTabList();
+    uiGroup*			colTabGrp()	{ return (uiGroup*)coltabed_; }
 
     Notifier<uiVisColTabEd>	sequenceChange;
     Notifier<uiVisColTabEd>	coltabChange;
