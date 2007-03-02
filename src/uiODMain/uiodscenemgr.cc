@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.96 2007-03-02 15:00:21 cvsbert Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.97 2007-03-02 15:35:47 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -897,6 +897,7 @@ void uiODSceneMgr::Viewer2D::setData( DataPack::ID packid, bool wva )
     {
 	bool wantdock = false;
 	Settings::common().getYN( "FlatView.Use Dockwin", wantdock );
+	uiParent* controlparent = 0;
 	if ( !wantdock )
 	    viewwin_ = new uiFlatViewMainWin( &appl_,
 				       uiFlatViewMainWin::Setup(basetxt_) );
@@ -907,12 +908,15 @@ void uiODSceneMgr::Viewer2D::setData( DataPack::ID packid, bool wva )
 	    appl_.addDockWindow( *dwin, uiMainWin::Top );
 	    dwin->setFloating( true );
 	    viewwin_ = dwin;
+	    controlparent = &appl_;
 	}
-	viewwin_->viewer().setDarkBG( wantdock );
-	viewwin_->viewer().context().setGeoDefaults(true); //TODO horizontal?
-	viewwin_->viewer().context().annot_.setAxesAnnot(true);
-	viewwin_->addControl( new uiFlatViewStdControl( viewwin_->viewer(),
-		    	      uiFlatViewStdControl::Setup(&appl_) ) );
+	uiFlatViewer& vwr = viewwin_->viewer();
+	vwr.setInitialSize( uiSize(800,600) );
+	vwr.setDarkBG( wantdock );
+	vwr.context().setGeoDefaults(true); //TODO horizontal?
+	vwr.context().annot_.setAxesAnnot(true);
+	viewwin_->addControl( new uiFlatViewStdControl( vwr,
+		    	      uiFlatViewStdControl::Setup(controlparent) ) );
     }
 
     viewwin_->viewer().setPack( wva, packid );
