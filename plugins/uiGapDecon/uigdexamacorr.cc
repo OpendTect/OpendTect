@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          Sep 2006
- RCS:           $Id: uigdexamacorr.cc,v 1.15 2007-02-23 09:35:33 cvsbert Exp $
+ RCS:           $Id: uigdexamacorr.cc,v 1.16 2007-03-05 08:34:35 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,17 +28,31 @@ ________________________________________________________________________
 #include "ptrman.h"
 #include "colortab.h"
 #include "uiflatviewer.h"
+#include "uiflatviewmainwin.h"
+#include "uiflatviewstdcontrol.h"
 
 using namespace Attrib;
+
+#define mCreateFViewWin(nm) \
+    nm##win_ = new uiFlatViewMainWin( p, uiFlatViewMainWin::Setup(nm##str)); \
+    FlatView::Context& ctxt##nm = nm##win_->viewer().context(); \
+    ctxt##nm.annot_.setAxesAnnot(true); \
+    ctxt##nm.setGeoDefaults(true); \
+    ctxt##nm.ddpars_.show(false,true); \
+    nm##win_->viewer().setDarkBG( true ); \
+    nm##win_->addControl( new uiFlatViewStdControl( nm##win_->viewer(), \
+			  uiFlatViewStdControl::Setup(p) ) );
 
 GapDeconACorrView::GapDeconACorrView( uiParent* p )
     : attribid_( DescID::undef() )
     , dset_( 0 )
 {
-    examwin_ = new uiMainWin( p, "Auto-correlation viewer (examine)", 0,
-	    		      false, true );
-    qcwin_ = new uiMainWin( p, "Auto-correlation viewer (check parameters)", 0,
-	    		    false, true );
+    BufferString basestr = " Auto-correlation viewer ";
+    BufferString examstr = basestr; examstr +="(examine)";
+    BufferString qcstr = basestr; qcstr +="(check parameters)";
+
+    mCreateFViewWin(exam)
+    mCreateFViewWin(qc)
 }
 
 
@@ -50,8 +64,14 @@ GapDeconACorrView::~GapDeconACorrView()
 }
 
 
+#define mCreateFDDataPack(fddatapack) \
+{ \
+    fddatapack = new Attrib::Flat3DDataPack( attribid_, *output, 0 ); \
+}
+
 bool GapDeconACorrView::computeAutocorr( bool isqc )
 {
+    //TODO : allow 2D!
     BufferString errmsg;
     PtrMan<EngineMan> aem = createEngineMan();
     PtrMan<Processor> proc = aem->createDataCubesOutput( errmsg, 0  );
@@ -71,12 +91,12 @@ bool GapDeconACorrView::computeAutocorr( bool isqc )
 	return false;
     
     output->ref();
-    /*
+    
     if ( isqc )
     	mCreateFDDataPack(fddatapackqc_)
     else
 	mCreateFDDataPack(fddatapackexam_)
-	*/
+	    
     output->unRef();
     return true;
 }
@@ -100,31 +120,19 @@ EngineMan* GapDeconACorrView::createEngineMan()
 
 void GapDeconACorrView::createAndDisplay2DViewer( bool isqc )
 {
-    /*
     if ( isqc )
-    {
 	qcwin_->close();
-	if ( qcdpview_ ) delete qcdpview_;
-	qcdpview_ = new FlatView::uiViewFDDataPack( qcwin_, true,
-					FlatView::uiViewFDDataPack::Setup() );
-    }
     else
-    {
 	examwin_->close();
-	if ( examdpview_ ) delete examdpview_;
-	examdpview_ = new FlatView::uiViewFDDataPack( examwin_, true,
-					FlatView::uiViewFDDataPack::Setup() );
-    }
 
-    FlatView::uiViewFDDataPack* fddpview = isqc ? qcdpview_ : examdpview_;
-    fddpview->setData( isqc ? fddatapackqc_ : fddatapackexam_, false );
-    FlatView::Context& ctxt = fddpview->getContext();
+    uiFlatViewer* fview = isqc ? &qcwin_->viewer() : &examwin_->viewer();
+    fview->setPack( false, isqc ? fddatapackqc_ : fddatapackexam_ );
+    FlatView::Context& ctxt = fview->context();
     ctxt.ddpars_.vd_.rg_ = Interval<float>( -0.2, 0.2 );
-    ctxt.posdata_.x2rg_ = StepInterval<double>(0,cs_.zrg.stop-cs_.zrg.start,
-			                       cs_.zrg.step);
+    StepInterval<double> newrg( 0, cs_.zrg.stop-cs_.zrg.start, cs_.zrg.step );
+    ctxt.vdposdata_.setRange( false, newrg );
     
     isqc ? qcwin_->show() : examwin_->show();
-    */
 }
 
 
