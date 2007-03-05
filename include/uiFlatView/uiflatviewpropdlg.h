@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          Dec 2006
- RCS:           $Id: uiflatviewpropdlg.h,v 1.4 2007-03-02 10:55:17 cvshelene Exp $
+ RCS:           $Id: uiflatviewpropdlg.h,v 1.5 2007-03-05 17:47:27 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -153,6 +153,7 @@ protected:
 
     };
 
+    uiColorInput*       colfld_;
     AxesGroup*		x1_;
     AxesGroup*		x2_;
 

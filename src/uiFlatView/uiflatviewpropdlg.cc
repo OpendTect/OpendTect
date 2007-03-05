@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          Dec 2006
- RCS:           $Id: uiflatviewpropdlg.cc,v 1.4 2007-03-02 10:55:17 cvshelene Exp $
+ RCS:           $Id: uiflatviewpropdlg.cc,v 1.5 2007-03-05 17:47:27 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -283,7 +283,9 @@ uiFVAnnotPropTab::uiFVAnnotPropTab( uiParent* p, FlatView::Viewer& vwr )
     : uiFlatViewPropTab(p,vwr,"Annotation")
     , annot_(ctxt_.annot_)
 {
+    colfld_ = new uiColorInput( this, annot_.color_, "Color" );
     x1_ = new AxesGroup( this, annot_.x1_ );
+    x1_->attach( alignedBelow, colfld_ );
     x2_ = new AxesGroup( this, annot_.x2_ );
     x2_->attach( alignedBelow, x1_ );
 }
@@ -291,6 +293,7 @@ uiFVAnnotPropTab::uiFVAnnotPropTab( uiParent* p, FlatView::Viewer& vwr )
 
 void uiFVAnnotPropTab::putToScreen()
 {
+    colfld_->setColor( annot_.color_ );
     x1_->putToScreen();
     x2_->putToScreen();
 }
@@ -298,6 +301,7 @@ void uiFVAnnotPropTab::putToScreen()
 
 void uiFVAnnotPropTab::getFromScreen()
 {
+    annot_.color_ = colfld_->color();
     x1_->getFromScreen();
     x2_->getFromScreen();
 }
