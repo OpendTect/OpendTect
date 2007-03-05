@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:		Feb 2007
- RCS:           $Id: uiflatviewcontrol.cc,v 1.11 2007-03-02 14:28:02 cvshelene Exp $
+ RCS:           $Id: uiflatviewcontrol.cc,v 1.12 2007-03-05 17:37:58 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uiflatviewpropdlg.h"
 #include "uirgbarraycanvas.h"
 #include "uiworld2ui.h"
+#include "datapackbase.h"
 
 #define mDefBut(butnm,grp,fnm,cbnm,tt) \
     butnm = new uiToolButton( grp, 0, ioPixmap(fnm), \
@@ -216,10 +217,32 @@ void uiFlatViewControl::applyProperties( CallBacker* cb )
     if ( !propdlg_ ) return;
 
     uiFlatViewer& vwr = *vwrs_[0];
-    vwr.handleChange( FlatView::Viewer::All );
+    const uiWorldRect cv( vwr.curView() );
+    FlatView::Annotation& annot = vwr.context().annot_;
+    if ( cv.right() > cv.left() == annot.x1_.reversed_ )
+	{ annot.x1_.reversed_ = !annot.x1_.reversed_; flip( true ); }
+    if ( cv.top() > cv.bottom() == annot.x2_.reversed_ )
+	{ annot.x2_.reversed_ = !annot.x2_.reversed_; flip( false ); }
+
+    for ( int idx=0; idx<vwrs_.size(); idx++ )
+	vwrs_[idx]->handleChange( FlatView::Viewer::All );
 }
 
 
 void uiFlatViewControl::saveProperties()
 {
+    uiFlatViewer& vwr = *vwrs_[0];
+
+    BufferString cat( category_ );
+    if ( category_.isEmpty() )
+    {
+	const FlatDataPack* fdp = vwr.getPack( true );
+	if ( !fdp ) fdp = vwr.getPack( false );
+	if ( fdp )
+	    cat = fdp->category();
+	else
+	    { pErrMsg("No category to save defaults"); return; }
+    }
+
+    vwr.storeDefaults( cat );
 }

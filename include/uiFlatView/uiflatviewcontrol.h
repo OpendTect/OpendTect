@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewcontrol.h,v 1.8 2007-03-01 19:35:42 cvsbert Exp $
+ RCS:           $Id: uiflatviewcontrol.h,v 1.9 2007-03-05 17:37:58 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,6 +42,12 @@ public:
     static bool		haveZoom(Geom::Size2D<double> oldsz,
 				 Geom::Size2D<double> newsz);
 
+    void		setCategory( const char* cat )	{ category_ = cat; }
+    			//!< Set the display pars defaults' `category`
+   			//!< Needed if the main viewer uses no data pack
+    const char*		category() const;
+    			//!< If not set, returns data pack's category()
+
 protected:
 
     			uiFlatViewControl(uiFlatViewer&,uiParent*,bool);
@@ -49,6 +55,7 @@ protected:
     ObjectSet<uiFlatViewer> vwrs_;
     FlatView::ZoomMgr&	zoommgr_;
     bool		haverubber_;
+    BufferString	category_;
 
     uiFlatViewPropDlg*  propdlg_;
 
