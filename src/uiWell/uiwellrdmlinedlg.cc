@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          October 2005
- RCS:           $Id: uiwellrdmlinedlg.cc,v 1.14 2007-02-05 14:32:25 cvsnanne Exp $
+ RCS:           $Id: uiwellrdmlinedlg.cc,v 1.15 2007-03-05 15:12:44 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -246,6 +246,7 @@ void uiWell2RandomLineDlg::getCoordinates( TypeSet<Coord>& coords )
     {
 	Well::Data* wd;
 	wd = Well::MGR().get( selwellsids_[idx] );
+	if ( !wd ) return;
 	if ( onlytopfld_->getBoolValue() )
 	{
 	    Coord3 coord3 = wd->track().pos(0);
