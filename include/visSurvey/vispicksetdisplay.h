@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vispicksetdisplay.h,v 1.56 2006-08-23 07:33:52 cvsnanne Exp $
+ RCS:		$Id: vispicksetdisplay.h,v 1.57 2007-03-06 07:46:20 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -38,13 +38,14 @@ protected:
     void			setPosition(int loc,const Pick::Location&);
     Coord3			getPosition(int loc) const;
     ::Sphere			getDirection(int loc) const;
+    int				isMarkerClick(const TypeSet<int>&) const;
+
     void			dispChg(CallBacker*);
 
     static const char*		sKeyNrPicks();
     static const char*		sKeyPickPrefix();
 };
 
-};
-
+} // namespace visSurvey
 
 #endif

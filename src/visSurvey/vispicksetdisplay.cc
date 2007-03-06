@@ -4,7 +4,7 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.90 2006-08-30 16:03:27 cvsbert Exp $";
+static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.91 2007-03-06 07:46:20 cvsnanne Exp $";
 
 #include "vispicksetdisplay.h"
 
@@ -73,7 +73,8 @@ void PickSetDisplay::dispChg( CallBacker* cb )
 	{
 	    for ( int idx=0; idx<group_->size(); idx++ )
 	    {
-		mDynamicCastGet(visBase::Marker*,marker,group_->getObject(idx));
+		mDynamicCastGet(visBase::Marker*,marker,
+				group_->getObject(idx));
 		if ( marker )
 		    marker->setScreenSize( set_->disp_.pixsize_ );
 	    }
@@ -83,7 +84,8 @@ void PickSetDisplay::dispChg( CallBacker* cb )
 	{
 	    for ( int idx=0; idx<group_->size(); idx++ )
 	    {
-		mDynamicCastGet(visBase::Marker*,marker,group_->getObject(idx))
+		mDynamicCastGet(visBase::Marker*,marker,
+				group_->getObject(idx))
 		if ( marker )
 		{
 		    marker->setType(
@@ -94,6 +96,22 @@ void PickSetDisplay::dispChg( CallBacker* cb )
     }
 
     LocationDisplay::dispChg( cb );
+}
+
+
+int PickSetDisplay::isMarkerClick( const TypeSet<int>& path ) const
+{
+    for ( int idx=group_->size()-1; idx>=0; idx-- )
+    {
+	mDynamicCastGet(visBase::Marker*,marker,group_->getObject(idx));
+	if ( !marker )
+	    continue;
+
+	if ( path.indexOf(marker->id())!=-1 )
+	    return idx;
+    }
+
+    return -1;
 }
 
 
