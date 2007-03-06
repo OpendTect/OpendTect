@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribprovider.cc,v 1.86 2007-02-01 15:34:14 cvshelene Exp $";
+static const char* rcsID = "$Id: attribprovider.cc,v 1.87 2007-03-06 14:35:43 cvshelene Exp $";
 
 #include "attribprovider.h"
 #include "attribstorprovider.h"
@@ -34,7 +34,7 @@ class ProviderTask : public ParallelTask
 {
 public:
 
-ProviderTask( const Provider& p )
+ProviderTask( Provider& p )
     : provider_( p )
 {}
 
@@ -58,13 +58,17 @@ int nrTimes() const { return nrsamples_; }
 bool doWork( int start, int stop, int threadid )
 {
     if ( !res_ ) return true;
-    return provider_.computeData( *res_, relpos_, start+z0_, stop-start+1);
+    return provider_.computeData( *res_, relpos_, start+z0_, stop-start+1,
+	    			  threadid );
 }
 
 
+bool doPrepare( int nrthreads )
+{ return provider_.setNrThreads( nrthreads ); }
+
 protected:
 
-    const Provider&		provider_;
+    Provider&			provider_;
     const DataHolder*		res_;
     BinID			relpos_;
     int				z0_;
@@ -1002,6 +1006,13 @@ const char* Provider::prepare( Desc& desc )
 void Provider::setOutputInterestSize()
 {
     outputinterest = TypeSet<int>(desc.nrOutputs(),0);
+}
+
+
+bool Provider::computeData( const DataHolder& output, const BinID& relpos,
+			    int t0,int nrsamples, int threadid ) const
+{
+    return computeData( output, relpos, t0, nrsamples );
 }
 
 

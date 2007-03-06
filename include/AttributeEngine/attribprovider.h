@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribprovider.h,v 1.57 2007-02-01 15:34:14 cvshelene Exp $
+ RCS:           $Id: attribprovider.h,v 1.58 2007-03-06 14:35:43 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -156,10 +156,21 @@ protected:
 					    const BinID& relpos,
 					    int t0,int nrsamples) const
 				{ return false; }
+    				/*!<\note Same function as below, but lacks the
+				    threadid variable. Implement the
+				    latter one for all new classes. This
+				    function may be removed in coming
+				    releases. */
+    virtual bool		computeData(const DataHolder& output,
+					    const BinID& relpos,
+					    int t0,int nrsamples,
+					    int threadid) const;
     				/*!<The system will use the algorithm specified
 				in this function to compute the attribute's 
 				outputs. The results will be stored as 
-				different series in the DataHolder output. */
+				different series in the DataHolder output.
+				 \param threadid thread identifier that may
+				  be handy when using multiple threads. */
     int				getDataIndex(int input) const;
     				/*!<Gets the index of the serie needed in the 
 				input DataHolder*/
@@ -170,6 +181,7 @@ protected:
     				// MultiThreading stuff
     virtual bool		allowParallelComputation() const
     				{ return false; }
+    virtual bool		setNrThreads( int idx ) 	{ return true; }
     virtual int			minTaskSize() const		{ return 25; }
 
     				// DataHolder stuff
