@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vismultiattribsurvobj.h,v 1.7 2007-01-30 18:45:05 cvskris Exp $
+ RCS:		$Id: vismultiattribsurvobj.h,v 1.8 2007-03-06 20:37:34 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -87,7 +87,6 @@ protected:
 
     visBase::MultiTexture2*	texture_;
     int				resolution_;
-    visBase::Material*		material_;
 
 private:
     ObjectSet<Attrib::SelSpec>	as_;
