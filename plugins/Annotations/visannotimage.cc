@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Jan 2005
- RCS:           $Id: visannotimage.cc,v 1.3 2007-02-12 16:25:43 cvskris Exp $
+ RCS:           $Id: visannotimage.cc,v 1.4 2007-03-06 07:56:00 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -121,6 +121,7 @@ void Image::setPick( const Pick::Location& loc )
 ImageDisplay::ImageDisplay()
     : shape_( visBase::FaceSet::create() )
     , image_( visBase::Image::create() )
+    , needFileName( this )
 {
     image_->ref();
     image_->replaceMaterial(true);
@@ -195,6 +196,9 @@ void ImageDisplay::setScene( visSurvey::Scene* scene )
 
 visBase::VisualObject* ImageDisplay::createLocation() const
 {
+    if ( !getFileName() )
+	const_cast<ImageDisplay*>(this)->needFileName.trigger();
+
     Image* res = Image::create();
     res->setShape( shape_ );
 
