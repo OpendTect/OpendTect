@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          09/02/2001
- RCS:           $Id: uitextedit.cc,v 1.32 2007-03-02 10:57:05 cvsnanne Exp $
+ RCS:           $Id: uitextedit.cc,v 1.33 2007-03-06 07:38:33 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -115,19 +115,30 @@ bool uiTextEditBase::saveToFile( const char* src )
 }
 
 
+int uiTextEditBase::nrLines() const
+{
+#ifdef USEQT3
+    return qte().lines();
+#else
+    QTextBlock block;
+    int nrlines = 0;
+    for ( QTextBlock block=qte().document()->begin();
+				block.isValid(); block=block.next() )
+	nrlines++;
 
-
+    return nrlines;
+#endif
+}
 
 
 class uiTextEditBody : public uiObjBodyImpl<uiTextEdit,QTextEdit>
 {
 public:
 
-                        uiTextEditBody( uiTextEdit& handle, uiParent* parnt, 
-					const char* nm, bool ro );
+                        uiTextEditBody(uiTextEdit&,uiParent*,
+				       const char* nm,bool ro);
 
-    void		append( const char* ); 
-
+    void		append(const char*);
 };
 
 
@@ -135,13 +146,12 @@ uiTextEditBody::uiTextEditBody( uiTextEdit& handle, uiParent* p,
 				const char* nm, bool ro )
     : uiObjBodyImpl<uiTextEdit,QTextEdit>( handle, p, nm )
 {
-    setTextFormat(Qt::PlainText); 
+    setTextFormat( Qt::PlainText ); 
     setReadOnly( ro );
     setStretch( 2, 2 );
     setPrefWidth( handle.defaultWidth() );
     setPrefHeight( handle.defaultHeight() );
 }
-
 
 
 void uiTextEditBody::append( const char* txt)
@@ -150,8 +160,10 @@ void uiTextEditBody::append( const char* txt)
     repaint();
 #ifdef USEQT3
     setCursorPosition( lines(), 0 );
+#else
+    moveCursor( QTextCursor::End );
 #endif
-} 
+}
 
 //-------------------------------------------------------
 
@@ -168,7 +180,6 @@ uiTextEditBody& uiTextEdit::mkbody(uiParent* parnt, const char* nm, bool ro)
 
 
 void uiTextEdit::append( const char* txt)	{ body_->append(txt); }
-
 QTextEdit& uiTextEdit::qte()			{ return *body_; }
 
 
@@ -299,21 +310,11 @@ void uiTextBrowser::reload()
 }
 
 
-int uiTextBrowser::nrLines()
-{
-#ifdef USEQT3
-    return body_->lines();
-#else
-    return 0;
-#endif
-}
-
-
 void uiTextBrowser::scrollToBottom()
 {
 #ifdef USEQT3
     body_->scrollToBottom();
 #else
-    body_->moveCursor( QTextCursor::EndOfBlock );
+    body_->moveCursor( QTextCursor::End );
 #endif
 }
