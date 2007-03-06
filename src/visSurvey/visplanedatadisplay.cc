@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.171 2007-02-27 11:27:26 cvsnanne Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.172 2007-03-06 20:31:54 cvskris Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -113,9 +113,9 @@ PlaneDataDisplay::PlaneDataDisplay()
 	    visBase::VertexShape::cClockWiseVertexOrdering() );
     rectangle_->setShapeType( visBase::VertexShape::cUnknownShapeType() );
 
-    material->setColor( Color::White );
-    material->setAmbience( 0.8 );
-    material->setDiffIntensity( 0.8 );
+    material_->setColor( Color::White );
+    material_->setAmbience( 0.8 );
+    material_->setDiffIntensity( 0.8 );
 
     gridlines_->ref();
     insertChild( childIndex(texture_->getInventorNode()),

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visobject.h,v 1.40 2006-07-28 21:54:33 cvskris Exp $
+ RCS:		$Id: visobject.h,v 1.41 2007-03-06 20:31:54 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -83,8 +83,8 @@ public:
 			   getInventorNode() to take effect */
 
     void		setMaterial(Material*);
-    const Material*	getMaterial() const { return material; }
-    Material*		getMaterial() { return material; }
+    const Material*	getMaterial() const { return material_; }
+    Material*		getMaterial() { return material_; }
 
     SoNode*		getInventorNode();
 
@@ -105,11 +105,11 @@ protected:
 			VisualObjectImpl(bool selectable=false);
     virtual		~VisualObjectImpl();
 
-    SoSwitch*		onoff;
-    Material*		material;
+    SoSwitch*		onoff_;
+    Material*		material_;
 
 private:
-    SoSeparator*	root;
+    SoSeparator*	root_;
 
 };
 

@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visobject.cc,v 1.41 2006-12-28 21:10:33 cvsnanne Exp $";
+static const char* rcsID = "$Id: visobject.cc,v 1.42 2007-03-06 20:31:54 cvskris Exp $";
 
 #include "visobject.h"
 
@@ -40,28 +40,28 @@ VisualObject::~VisualObject()
 
 
 VisualObjectImpl::VisualObjectImpl( bool issel )
-    : VisualObject(issel)
-    , root(new SoSeparator)
-    , onoff(new SoSwitch)
-    , material(0)
+    : VisualObject( issel )
+    , root_( new SoSeparator )
+    , onoff_( new SoSwitch )
+    , material_( 0 )
 {
     setMaterial( Material::create() );
-    onoff->ref();
-    onoff->addChild( root );
-    onoff->whichChild = SO_SWITCH_ALL;
+    onoff_->ref();
+    onoff_->addChild( root_ );
+    onoff_->whichChild = SO_SWITCH_ALL;
 }
 
 
 VisualObjectImpl::~VisualObjectImpl()
 {
     getInventorNode()->unref();
-    if ( material ) material->unRef();
+    if ( material_ ) material_->unRef();
 }
 
 
 void VisualObjectImpl::turnOn( bool yn )
 {
-    if ( onoff ) onoff->whichChild = yn ? SO_SWITCH_ALL : SO_SWITCH_NONE;
+    if ( onoff_ ) onoff_->whichChild = yn ? SO_SWITCH_ALL : SO_SWITCH_NONE;
     else if ( !yn )
     {
 	pErrMsg( "Turning off object without switch");
@@ -72,58 +72,58 @@ void VisualObjectImpl::turnOn( bool yn )
 
 bool VisualObjectImpl::isOn() const
 {
-    return !onoff || onoff->whichChild.getValue()==SO_SWITCH_ALL;
+    return !onoff_ || onoff_->whichChild.getValue()==SO_SWITCH_ALL;
 }
 
 
 void VisualObjectImpl::setMaterial( Material* nm )
 {
-    if ( material )
+    if ( material_ )
     {
-	root->removeChild( material->getInventorNode() );
-	material->unRef();
+	root_->removeChild( material_->getInventorNode() );
+	material_->unRef();
     }
 
-    material = nm;
+    material_ = nm;
 
-    if ( material )
+    if ( material_ )
     {
-	material->ref();
-	root->insertChild( material->getInventorNode(), 0 );
+	material_->ref();
+	root_->insertChild( material_->getInventorNode(), 0 );
     }
 }
 
 
 void VisualObjectImpl::removeSwitch()
 {
-    root->ref();
-    onoff->unref();
-    onoff = 0;
+    root_->ref();
+    onoff_->unref();
+    onoff_ = 0;
 }
 
 
 SoNode* VisualObjectImpl::getInventorNode() 
-{ return onoff ? (SoNode*) onoff : (SoNode*) root; }
+{ return onoff_ ? (SoNode*) onoff_ : (SoNode*) root_; }
 
 
 void VisualObjectImpl::addChild( SoNode* nn )
-{ root->addChild( nn ); }
+{ root_->addChild( nn ); }
 
 
 void VisualObjectImpl::insertChild( int pos, SoNode* nn )
-{ root->insertChild( nn, pos ); }
+{ root_->insertChild( nn, pos ); }
 
 
 void VisualObjectImpl::removeChild( SoNode* nn )
-{ root->removeChild( nn ); }
+{ root_->removeChild( nn ); }
 
 
 int VisualObjectImpl::childIndex( const SoNode* nn ) const
-{ return root->findChild(nn); }
+{ return root_->findChild(nn); }
 
 
 SoNode* VisualObjectImpl::getChild(int idx)
-{ return root->getChild(idx); }
+{ return root_->getChild(idx); }
 
 
 int VisualObjectImpl::usePar( const IOPar& iopar )
@@ -159,10 +159,10 @@ void VisualObjectImpl::fillPar( IOPar& iopar,
 					 TypeSet<int>& saveids ) const
 {
     VisualObject::fillPar( iopar, saveids );
-    iopar.set( sKeyMaterialID(), material ? material->id() : -1 );
+    iopar.set( sKeyMaterialID(), material_ ? material_->id() : -1 );
 
-    if ( material && saveids.indexOf(material->id()) == -1 )
-	saveids += material->id();
+    if ( material_ && saveids.indexOf(material_->id()) == -1 )
+	saveids += material_->id();
 
     iopar.setYN( sKeyIsOn(), isOn() );
 }
