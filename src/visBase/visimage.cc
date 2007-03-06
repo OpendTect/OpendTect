@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Feb 2007
- RCS:           $Id: visimage.cc,v 1.3 2007-02-08 22:45:14 cvskris Exp $
+ RCS:           $Id: visimage.cc,v 1.4 2007-03-06 07:50:57 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -81,7 +81,13 @@ void Image::setFileName( const char* fn )
 
 
 const char* Image::getFileName() const
-{ return texture_->filename.getValue().getString(); }
+{
+    const char* fn = texture_->filename.getValue().getString();
+    if ( !fn || !*fn )
+	return 0;
+
+    return fn;
+}
 
 
 SoNode* Image::getInventorNode()
