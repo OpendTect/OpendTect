@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: mpeengine.cc,v 1.77 2007-02-19 08:12:02 cvsjaap Exp $";
+static const char* rcsID = "$Id: mpeengine.cc,v 1.78 2007-03-06 11:46:51 cvsjaap Exp $";
 
 #include "mpeengine.h"
 
@@ -50,9 +50,11 @@ namespace MPE
 
 Engine::Engine()
     : trackplanechange( this )
+    , trackplanetrack( this )
     , activevolumechange( this )
     , trackeraddremove( this )
     , loadEMObject( this )
+    , oneactivetracker_( 0 )
 {
     trackers_.allowNull(true);
     init();
@@ -157,6 +159,7 @@ bool Engine::setTrackPlane( const TrackPlane& ntp, bool dotrack )
 
 bool Engine::trackAtCurrentPlane()
 {
+    trackplanetrack.trigger();
     mTrackAtCurrentPlane(trackSections);
     mTrackAtCurrentPlane(trackIntersections);
     return true;
@@ -296,12 +299,23 @@ int Engine::getTrackerByObject( const char* objname ) const
 }
 
 
+void Engine::setOneActiveTracker( const EMTracker* tracker )
+{ oneactivetracker_ = tracker; }
+
+
+void Engine::unsetOneActiveTracker()
+{ oneactivetracker_ = 0; }
+
+
 void Engine::getNeededAttribs( ObjectSet<const Attrib::SelSpec>& res ) const
 {
     for ( int trackeridx=0; trackeridx<trackers_.size(); trackeridx++ )
     {
 	const EMTracker* tracker = trackers_[trackeridx];
 	if ( !tracker ) continue;
+
+	if ( oneactivetracker_ && oneactivetracker_!=tracker )
+	    continue;
 
 	ObjectSet<const Attrib::SelSpec> specs;
 	tracker->getNeededAttribs(specs);
