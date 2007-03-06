@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.97 2007-03-02 15:35:47 cvsbert Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.98 2007-03-06 11:49:51 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -314,7 +314,7 @@ void uiODSceneMgr::viewModeChg( CallBacker* cb )
 void uiODSceneMgr::setToViewMode( bool yn )
 {
     mDoAllScenes(sovwr_,setViewing,yn);
-    visServ().setViewMode( yn );
+    visServ().setViewMode( yn , false );
     menuMgr().updateViewMode( yn );
     updateStatusBar();
 }
