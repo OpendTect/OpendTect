@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          13/02/2002
- RCS:           $Id: uidockwin.cc,v 1.23 2007-02-28 07:32:12 cvsnanne Exp $
+ RCS:           $Id: uidockwin.cc,v 1.24 2007-03-06 07:40:55 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -109,7 +109,8 @@ uiDockWinBody::uiDockWinBody( uiDockWin& handle__, uiParent* parnt,
 #endif
 
 #ifndef USEQT3
-    QDockWidget::setFeatures( QDockWidget::AllDockWidgetFeatures );
+    QDockWidget::setFeatures( QDockWidget::DockWidgetMovable | 
+	    		      QDockWidget::DockWidgetFloatable );
 #endif
 }
 
@@ -135,8 +136,14 @@ uiDockWinBody::~uiDockWinBody( )
     delete centralWidget_; centralWidget_ = 0;
 }
 
+
 void uiDockWinBody::finalise()
-    { centralWidget_->finalise();  finaliseChildren(); }
+{
+    handle_.finaliseStart.trigger( handle_ );
+    centralWidget_->finalise();
+    finaliseChildren();
+    handle_.finaliseDone.trigger( handle_ );
+}
 
 
 uiDockWin::uiDockWin( uiParent* parnt, const char* nm )

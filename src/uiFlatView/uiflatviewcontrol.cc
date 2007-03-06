@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:		Feb 2007
- RCS:           $Id: uiflatviewcontrol.cc,v 1.12 2007-03-05 17:37:58 cvsbert Exp $
+ RCS:           $Id: uiflatviewcontrol.cc,v 1.13 2007-03-06 07:42:30 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,7 +31,8 @@ uiFlatViewControl::uiFlatViewControl( uiFlatViewer& vwr, uiParent* p,
 {
     setBorder( 0 );
     addViewer( vwr );
-    attachObj()->finaliseDone.notify( mCB(this,uiFlatViewControl,onFinalise) );
+    vwr.attachObj()->parent()->finaliseDone.notify(
+				    mCB(this,uiFlatViewControl,onFinalise) );
 }
 
 

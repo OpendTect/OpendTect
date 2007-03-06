@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          25/08/1999
- RCS:           $Id: uiobj.cc,v 1.62 2007-02-14 12:38:00 cvsnanne Exp $
+ RCS:           $Id: uiobj.cc,v 1.63 2007-03-06 07:40:55 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -173,8 +173,6 @@ void uiParentBody::clearChildren()
 
 uiObject::uiObject( uiParent* p, const char* nm )
     : uiObjHandle( nm, 0 )
-    , finaliseStart(this)
-    , finaliseDone(this)
     , setGeometry(this)
     , closed(this)
     , parent_( p )				
@@ -184,8 +182,6 @@ uiObject::uiObject( uiParent* p, const char* nm )
 
 uiObject::uiObject( uiParent* p, const char* nm, uiObjectBody& b )
     : uiObjHandle( nm, &b )
-    , finaliseStart(this)
-    , finaliseDone(this)
     , setGeometry(this)
     , closed(this)
     , parent_( p )				

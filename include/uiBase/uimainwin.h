@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.h,v 1.45 2007-02-28 16:50:41 cvsnanne Exp $
+ RCS:           $Id: uimainwin.h,v 1.46 2007-03-06 07:40:53 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -93,10 +93,6 @@ public:
 
     uiPopupMenu&	createDockWindowMenu();
 
-    Notifier<uiMainWin>	finaliseStart;
-    			//!< triggered when about to start finalising
-    Notifier<uiMainWin>	finaliseDone;
-    			//!< triggered when finalising finished
     Notifier<uiMainWin>	windowClosed;
     			//!< triggered when window exits
 

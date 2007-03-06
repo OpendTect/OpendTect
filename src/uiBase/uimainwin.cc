@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.115 2007-03-01 21:32:26 cvsnanne Exp $
+ RCS:           $Id: uimainwin.cc,v 1.116 2007-03-06 07:40:55 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -275,26 +275,24 @@ void uiMainWinBody::popTimTick( CallBacker* )
 }
 
 
-#define mMwHandle static_cast<uiMainWin&>(handle_)
-
 void uiMainWinBody::finalise( bool trigger_finalise_start_stop )
 {
     if ( trigger_finalise_start_stop )
-	mMwHandle.finaliseStart.trigger(mMwHandle);
+	handle_.finaliseStart.trigger( handle_ );
 
     centralWidget_->finalise();
     finaliseChildren();
 
     if ( trigger_finalise_start_stop )
-	mMwHandle.finaliseDone.trigger(mMwHandle);
+	handle_.finaliseDone.trigger( handle_ );
 }
 
 
 void uiMainWinBody::closeEvent( QCloseEvent* ce )
 {
-    if (  mMwHandle.closeOK() )
+    if ( handle_.closeOK() )
     {
-	mMwHandle.windowClosed.trigger(mMwHandle);
+	handle_.windowClosed.trigger( handle_ );
 	ce->accept();
     }
     else
@@ -304,9 +302,9 @@ void uiMainWinBody::closeEvent( QCloseEvent* ce )
 
 void uiMainWinBody::close()
 {
-    if ( !mMwHandle.closeOK() ) return; 
+    if ( !handle_.closeOK() ) return; 
 
-    mMwHandle.windowClosed.trigger(mMwHandle);
+    handle_.windowClosed.trigger( handle_ );
 
     if ( modal_ )
 	qApp->exit_loop();
@@ -443,8 +441,6 @@ uiMainWin::uiMainWin( uiParent* parnt, const char* nm,
 		      int nrstatusflds, bool wantMBar, bool modal )
     : uiParent( nm, 0 )
     , body_( 0 )
-    , finaliseStart(this)
-    , finaliseDone(this)
     , windowClosed(this)
 { 
     body_= new uiMainWinBody( *this, parnt, nm, modal ); 
@@ -458,8 +454,6 @@ uiMainWin::uiMainWin( uiParent* parnt, const char* nm,
 uiMainWin::uiMainWin( const char* nm )
     : uiParent( nm, 0 )
     , body_( 0 )			
-    , finaliseStart(this)
-    , finaliseDone(this)
     , windowClosed(this)
 {}
 
@@ -874,11 +868,11 @@ void uiDialogBody::closeEvent( QCloseEvent* ce )
     This gives chance not to construct them in case OKtext and CancelText have
     been set to ""
 */
-void uiDialogBody::finalise(bool) 
+void uiDialogBody::finalise( bool ) 
 {
-    uiMainWinBody::finalise(false); 
+    uiMainWinBody::finalise( false ); 
 
-    mMwHandle.finaliseStart.trigger(mMwHandle);
+    handle_.finaliseStart.trigger( handle_ );
 
     dlgGroup->finalise();
 
@@ -887,7 +881,7 @@ void uiDialogBody::finalise(bool)
 
     finaliseChildren();
 
-    mMwHandle.finaliseDone.trigger(mMwHandle);
+    handle_.finaliseDone.trigger( handle_ );
 }
 
 

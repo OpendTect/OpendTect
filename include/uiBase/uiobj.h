@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          25/08/1999
- RCS:           $Id: uiobj.h,v 1.42 2007-02-14 12:38:00 cvsnanne Exp $
+ RCS:           $Id: uiobj.h,v 1.43 2007-03-06 07:40:53 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -123,15 +123,8 @@ public:
     uiParent*		parent()			{ return parent_; }
     uiMainWin*		mainwin();
 
-			/*! \brief 'post' constructor.
-			    Will be triggered before an object or its
-			    children is/are shown by calling Qt's show().
-			*/
-    Notifier<uiObject>	finaliseStart;
-    Notifier<uiObject>	finaliseDone;
-
-			/*! \brief triggered when object closes.  */
     Notifier<uiObject>	closed;
+			//!< Triggered when object closes.
     void		close();
 
 
