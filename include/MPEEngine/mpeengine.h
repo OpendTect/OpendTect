@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          23-10-1996
- RCS:           $Id: mpeengine.h,v 1.35 2007-02-19 08:11:41 cvsjaap Exp $
+ RCS:           $Id: mpeengine.h,v 1.36 2007-03-06 11:45:30 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -71,6 +71,7 @@ public:
     TrackPlane::TrackMode	getTrackMode()
     				{ return trackplane_.getTrackMode(); }
     Notifier<Engine>		trackplanechange;
+    Notifier<Engine>		trackplanetrack;
 
     Notifier<Engine>		loadEMObject;
     MultiID			midtoload;
@@ -90,7 +91,10 @@ public:
     void			removeTracker(int idx);
     Notifier<Engine>		trackeraddremove;
 
+
     				/*Attribute stuff */
+    void 			setOneActiveTracker(const EMTracker*);
+    void 			unsetOneActiveTracker();
     void			getNeededAttribs(
 				    ObjectSet<const Attrib::SelSpec>&) const;
     CubeSampling		getAttribCube(const Attrib::SelSpec&) const;
@@ -132,6 +136,8 @@ protected:
 
     ObjectSet<EMTracker>	trackers_;
     ObjectSet<ObjectEditor>	editors_;
+
+    const EMTracker*		oneactivetracker_;
 
     struct CacheSpecs
     {
