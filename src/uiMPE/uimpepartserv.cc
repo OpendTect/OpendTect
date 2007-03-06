@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2004
- RCS:           $Id: uimpepartserv.cc,v 1.60 2007-02-22 12:43:15 cvsjaap Exp $
+ RCS:           $Id: uimpepartserv.cc,v 1.61 2007-03-06 11:47:28 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -391,8 +391,16 @@ void uiMPEPartServer::loadAttribData()
 	if ( !desiredcs.getIntersection(SI().sampling(false),possiblecs) )
 	    continue; 
 
-	if ( !MPE::engine().cacheIncludes(*eventattrselspec_,possiblecs) )
-	    sendEvent( evGetAttribData );
+	if ( MPE::engine().cacheIncludes(*eventattrselspec_,possiblecs) )
+	    continue;
+
+	const float marginfraction = 0.9;
+	const CubeSampling mincs = MPE::engine().activeVolume();
+	if ( MPE::engine().cacheIncludes(*eventattrselspec_,mincs) &&
+	     marginfraction*desiredcs.nrZ() < mincs.nrZ() )
+	    continue;
+	    
+	sendEvent( evGetAttribData );
     }
 }
 
