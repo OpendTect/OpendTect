@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Jan 2005
- RCS:           $Id: viscallout.cc,v 1.10 2007-02-15 23:45:44 cvskris Exp $
+ RCS:           $Id: viscallout.cc,v 1.11 2007-03-06 07:51:50 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,6 +25,11 @@ ________________________________________________________________________
 #include "vispolygonoffset.h"
 #include "vistext.h"
 #include "vistransform.h"
+
+#ifndef USEQT3
+# include "uidesktopservices.h"
+#endif
+
 
 namespace Annotations
 {
@@ -730,26 +735,12 @@ void CalloutDisplay::urlClickCB( CallBacker* cb )
     if ( (*set_)[child].text &&
 	    (*set_)[child].getText( CalloutDisplay::sKeyURL(), url ) )
     {
-#ifdef __mac__
-	if ( openDocument("open",url) )
-	    return;
-	std::cerr << "Cannot open " << url << std::endl;
-	return;
+#ifdef USEQT3
+	uiMSG().error( "Cannot open file or url with Qt3" );
+#else
+	uiDesktopServices uds;
+	uds.openUrl( url );
 #endif
-#ifdef __win__
-	if ( openDocument("ShellExecute",url) )
-	    return;
-	std::cerr << "Cannot open " << url << std::endl;
-	return;
-#endif
-
-	// TODO: Check for DesktopManager
-	if ( openDocument("xdg-open",url) )
-	   return;
-	if ( openDocument("gnome-open",url) )
-	    return;
-	if ( openDocument("kfmclient exec",url) )
-	    return;
     }
 }
 
