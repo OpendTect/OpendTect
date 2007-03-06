@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2001
- RCS:           $Id: uimathattrib.h,v 1.6 2006-12-20 11:23:00 cvshelene Exp $
+ RCS:           $Id: uimathattrib.h,v 1.7 2007-03-06 15:31:56 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,6 +18,7 @@ namespace Attrib { class Desc; };
 class uiAttrSel;
 class uiGenInput;
 class uiPushButton;
+class uiTable;
 
 /*! \brief Math Attribute description editor */
 
@@ -37,6 +38,8 @@ protected:
     ObjectSet<uiGenInput> cstsflds_;
 
     int			nrvariables_;
+    int			nrxvars_;
+    int			nrcstvars_;
     void 		parsePush(CallBacker*);
 
     bool		setParameters(const Attrib::Desc&);

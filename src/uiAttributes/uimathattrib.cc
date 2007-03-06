@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2001
- RCS:           $Id: uimathattrib.cc,v 1.12 2007-02-07 14:04:45 cvsnanne Exp $
+ RCS:           $Id: uimathattrib.cc,v 1.13 2007-03-06 15:31:57 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,6 +31,8 @@ mInitAttribUI(uiMathAttrib,Math,"Mathematics",sKeyBasicGrp)
 uiMathAttrib::uiMathAttrib( uiParent* p, bool is2d )
 	: uiAttrDescEd(p,is2d)
 	, nrvariables_(0)
+	, nrxvars_(0)
+	, nrcstvars_(0)
 {
     inpfld_ = new uiGenInput( this, "Formula (e.g. x0 + c0 * x1)",
 	    		     StringInpSpec() );
@@ -52,13 +54,12 @@ uiMathAttrib::uiMathAttrib( uiParent* p, bool is2d )
 
     for ( int idx=0; idx<cNrConstVars; idx++ )
     {
-	BufferString str( "Selection for c" );
-	str += idx;
-	uiGenInput* constbox = new uiGenInput( this, str, FloatInpSpec() );
+	uiGenInput* constbox = new uiGenInput( this, "Selection for c0",
+					       FloatInpSpec() );
 	cstsflds_ += constbox;
 	constbox->display( false );
-	if ( idx )
-	    constbox->attach( alignedBelow, (uiObject*)cstsflds_[idx-1] );
+	constbox->attach( alignedBelow, idx ? (uiObject*)cstsflds_[idx-1] 
+					    : (uiObject*)inpfld_ );
     }
 
     setHAlignObj( inpfld_ );
@@ -84,8 +85,7 @@ void uiMathAttrib::parsePush( CallBacker* )
     }
 
     bool found = false;
-    int nrxvars = 0;
-    int nrcstvars = 0;
+    nrxvars_= nrcstvars_ = 0;
     for ( int idx=0; idx<nrvariables_; idx++ )
     {
 	BufferString xstr = "x"; xstr += idx;
@@ -93,19 +93,19 @@ void uiMathAttrib::parsePush( CallBacker* )
 	{
 	    if ( !strcmp( expr->getVariableStr(idy), xstr.buf() ) )
 	    {
-		nrxvars++;
+		nrxvars_++;
 		found = true;
 	    }
 	} 
     }
-    for ( int idx=0; idx<nrvariables_-nrxvars; idx++ )
+    for ( int idx=0; idx<nrvariables_-nrxvars_; idx++ )
     {
 	BufferString varstr = "c"; varstr += idx;
 	for ( int idy=0; idy<nrvariables_; idy++ )
 	{
 	    if ( !strcmp( expr->getVariableStr(idy), varstr.buf() ) )
 	    {
-		nrcstvars++;
+		nrcstvars_++;
 		found = true;
 	    }
 	}
@@ -119,13 +119,20 @@ void uiMathAttrib::parsePush( CallBacker* )
     }
 
     for ( int idx=0; idx<cNrXVars; idx++ )
-	attribflds_[idx]->display( idx<nrxvars );
+	attribflds_[idx]->display( idx<nrxvars_ );
     
-    cstsflds_[0]->attach( alignedBelow, 
-	    nrxvars ? (uiObject*)attribflds_[nrxvars-1] : (uiObject*)inpfld_ );
-
     for ( int idx=0; idx<cNrConstVars; idx++ )
-	cstsflds_[idx]->display( idx<nrcstvars );
+    {
+	bool dodisplay = idx>nrxvars_-1 && idx<nrvariables_;
+	if ( dodisplay )
+	{
+	    BufferString str( "Selection for c" );
+	    str += idx-nrxvars_;
+	    cstsflds_[idx]->setTitleText(str);
+	}
+	
+	cstsflds_[idx]->display( dodisplay );
+    }
 }
 
 
@@ -143,8 +150,10 @@ bool uiMathAttrib::setParameters( const Desc& desc )
 	mDescGetConstParamGroup(FloatParam,cstset,desc,Math::cstStr());
 	for ( int idx=0; idx<cstset->size(); idx++ )
 	{
+	    if ( cstsflds_.size() <= idx+nrxvars_ ) return false;
+	    
 	    const ValParam& param = (ValParam&)(*cstset)[idx];
-	    cstsflds_[idx]->setValue(param.getfValue(0));
+	    cstsflds_[idx+nrxvars_]->setValue(param.getfValue(0));
 	}
     }
     
@@ -172,15 +181,19 @@ bool uiMathAttrib::getParameters( Desc& desc )
     if ( !expr )
 	mErrRet( "Could not parse this equation", false )
 
-    TypeSet<int> inptable;
-    Math::getInputTable( expr, inptable, true );
-    int nrcsts = inptable.size();
+    TypeSet<int> cstinptable, xinptable;
+    Math::getInputTable( expr, cstinptable, true );
+    Math::getInputTable( expr, xinptable, false );
+    int nrcsts = cstinptable.size();
+    int nrxvars = xinptable.size();
     mDescGetParamGroup(FloatParam,cstset,desc,Math::cstStr())
     cstset->setSize( nrcsts );
+    if ( cstsflds_.size() < nrxvars+nrcsts ) return false;
+    
     for ( int idx=0; idx<nrcsts; idx++ )
     {
 	FloatParam& fparam = (FloatParam&)(*cstset)[idx];
-	fparam.setValue( cstsflds_[idx]->getfValue(0) );
+	fparam.setValue( cstsflds_[idx+nrxvars]->getfValue(0) );
     }
     
     return true;
