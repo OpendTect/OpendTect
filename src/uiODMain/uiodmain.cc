@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodmain.cc,v 1.67 2007-03-06 07:06:26 cvsnanne Exp $
+ RCS:           $Id: uiodmain.cc,v 1.68 2007-03-06 07:27:04 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -195,7 +195,7 @@ bool uiODMain::buildUI()
     menumgr->initSceneMgrDepObjs( applmgr, scenemgr );
 
     const char* s = GetEnvVar( "DTECT_CBAR_POS" );
-    bool isvert = *s && (*s == 'v' || *s == 'V');
+    bool isvert = s && (*s == 'v' || *s == 'V');
     bool isontop = s && *s
 		&& (*s == 't' || *s == 'T' || *(s+1) == 't' || *(s+1) == 'T');
     if ( !s )
