@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.h,v 1.42 2006-12-05 15:08:36 cvsjaap Exp $
+ RCS:           $Id: uimpeman.h,v 1.43 2007-03-06 11:46:26 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -83,6 +83,7 @@ protected:
     void			workAreaChgCB(CallBacker*);
 
     void			updateSeedPickState();
+    void			trackPlaneTrackCB(CallBacker*);
     void			trackerAddedRemovedCB(CallBacker*);
     void			addSeedCB(CallBacker*);
     void			seedConnectModeSel(CallBacker*);
@@ -100,6 +101,9 @@ protected:
     
     MPE::EMTracker*		getSelectedTracker(); 
 
+    void 			finishMPEDispIntro(CallBacker*);
+    void			loadPostponedData();
+
     void			setHistoryLevel(int);
 
     void			seedClick(CallBacker*);
@@ -116,6 +120,7 @@ protected:
     bool			trackerwasonbeforemouseerase;
 
     bool			seedpickwason;
+    bool			mpeintropending;
 
     MPE::TrackPlane		oldtrackplane;
     CubeSampling		oldactivevol;
