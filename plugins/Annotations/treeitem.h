@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2005
- RCS:           $Id: treeitem.h,v 1.9 2007-02-19 20:45:56 cvskris Exp $
+ RCS:           $Id: treeitem.h,v 1.10 2007-03-06 10:16:42 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -192,12 +192,14 @@ protected:
     void		createMenuCB(CallBacker*);
     void		handleMenuCB(CallBacker*);
 
+    void		retrieveFileName(CallBacker*);
+
     void		updateColumnText(int col);
 
     bool		hasScale() const		{ return true; }
     const char*		managerName() const		{ return sKeyManager();}
 
-    bool		selectFileName(BufferString&) const;
+    void		selectFileName() const;
 
     MenuItem		filemnuitem_;
 };

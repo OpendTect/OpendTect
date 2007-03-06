@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2005
- RCS:           $Id: treeitem.cc,v 1.13 2007-02-19 20:45:56 cvskris Exp $
+ RCS:           $Id: treeitem.cc,v 1.14 2007-03-06 10:16:42 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -920,6 +920,9 @@ bool ImageSubItem::init()
     mDynamicCastGet(ImageDisplay*,id, visserv->getObject(displayid_))
     if ( !id ) return false;
 
+    id->needFileName.notifyIfNotNotified(
+			mCB(this,ImageSubItem,retrieveFileName) );
+
     Pick::SetMgr& mgr = Pick::SetMgr::getMgr( managerName() );
 
     const int setidx = mgr.indexOf( *set_ );
@@ -996,18 +999,14 @@ void ImageSubItem::handleMenuCB( CallBacker* cb )
     if ( mnuid==filemnuitem_.id )
     {
 	menu->setIsHandled(true);
-	mDynamicCastGet(Annotations::ImageDisplay*,id,
-			visserv->getObject(displayid_))
-	if ( !id ) return;
-
-	BufferString filename = id->getFileName();
-	if ( !selectFileName(filename) ) return;
-
-	id->setFileName(filename);
-	Pick::SetMgr& mgr = Pick::SetMgr::getMgr( managerName() );
-	const int setidx = mgr.indexOf( *set_ );
-	mgr.setUnChanged( setidx, false );
+	selectFileName();
     }
+}
+
+
+void ImageSubItem::retrieveFileName( CallBacker* cb )
+{
+    selectFileName();
 }
 
 
@@ -1018,14 +1017,23 @@ void ImageSubItem::updateColumnText(int col)
 }
 
 
-bool ImageSubItem::selectFileName( BufferString& fnm ) const
+void ImageSubItem::selectFileName() const
 {
-    BufferString filter = "JPEG (*.jpg *.jpeg);;PNG (*.png)";
-    uiFileDialog dlg( getUiParent(), true, fnm, filter );
-    if ( !dlg.go() ) return false;
+    mDynamicCastGet(Annotations::ImageDisplay*,id,
+		    visserv->getObject(displayid_))
+    if ( !id ) return;
 
-    fnm = dlg.fileName();
-    return true;
+    BufferString filename = id->getFileName();
+    BufferString filter = "JPEG (*.jpg *.jpeg);;PNG (*.png)";
+    uiFileDialog dlg( getUiParent(), true, filename, filter );
+    if ( !dlg.go() ) return;
+
+    filename = dlg.fileName();
+
+    id->setFileName(filename);
+    Pick::SetMgr& mgr = Pick::SetMgr::getMgr( managerName() );
+    const int setidx = mgr.indexOf( *set_ );
+    mgr.setUnChanged( setidx, false );
 }
 
 
