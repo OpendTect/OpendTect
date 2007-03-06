@@ -4,12 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          June 2000
- RCS:           $Id: sighndl.cc,v 1.28 2006-09-11 09:19:00 cvsbert Exp $
+ RCS:           $Id: sighndl.cc,v 1.29 2007-03-06 11:42:39 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: sighndl.cc,v 1.28 2006-09-11 09:19:00 cvsbert Exp $";
+static const char* rcsID = "$Id: sighndl.cc,v 1.29 2007-03-06 11:42:39 cvsbert Exp $";
 
 #include "sighndl.h"
 #include "strmdata.h"
@@ -242,10 +242,13 @@ void SignalHandling::doKill( int signalnr )
 }
 
 
-void SignalHandling::doStop( int signalnr )
+void SignalHandling::doStop( int signalnr, bool withcbs )
 {
     mReleaseSignal( signalnr );
-    stopcbs.doCall( this, 0 );
+
+    if ( withcbs )
+	stopcbs.doCall( this, 0 );
+
 #ifdef __win__
     raise( signalnr );
 #else

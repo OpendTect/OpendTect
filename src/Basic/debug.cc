@@ -4,12 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          June 2003
- RCS:           $Id: debug.cc,v 1.22 2006-09-11 09:19:00 cvsbert Exp $
+ RCS:           $Id: debug.cc,v 1.23 2007-03-06 11:42:39 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: debug.cc,v 1.22 2006-09-11 09:19:00 cvsbert Exp $";
+static const char* rcsID = "$Id: debug.cc,v 1.23 2007-03-06 11:42:39 cvsbert Exp $";
 
 #include "debug.h"
 #include "debugmasks.h"
@@ -18,6 +18,7 @@ static const char* rcsID = "$Id: debug.cc,v 1.22 2006-09-11 09:19:00 cvsbert Exp
 #include "timefun.h"
 #include "filepath.h"
 #include "envvars.h"
+#include "sighndl.h"
 
 #include <iostream>
 #include <fstream>
@@ -60,6 +61,10 @@ static int getMask()
 	}
     }
 
+    const char* crashspec = GetEnvVar( "DTECT_FORCE_IMMEDIATE_CRASH" );
+    if ( crashspec && *crashspec )
+	forceCrash( *crashspec == 'd' || *crashspec == 'D' );
+
     return themask;
 }
 
@@ -68,6 +73,15 @@ bool isOn( int flag )
 {
     const int mask = getMask();
     return flag & mask;
+}
+
+
+void forceCrash( bool withdump )
+{
+    if ( withdump )
+	SignalHandling::theinst_.doStop( 6, false ); // 6 = SIGABRT
+    else
+	{ char* ptr = 0; *ptr = 0; }
 }
 
 

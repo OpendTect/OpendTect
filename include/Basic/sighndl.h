@@ -7,12 +7,13 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: sighndl.h,v 1.7 2006-05-29 08:02:32 cvsbert Exp $
+ RCS:           $Id: sighndl.h,v 1.8 2007-03-06 11:42:39 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include <callback.h>
+namespace DBG { void forceCrash(bool); }
 
 /*!\brief asynchronous event handling and notification. */
 
@@ -57,13 +58,15 @@ protected:
     static void			handle(int);
 
     void			doKill(int);
-    void			doStop(int);
+    void			doStop(int,bool withcbs=true);
     void			doCont();
     void			handleConn();
     void			handleChld();
     void			handleAlarm();
     void			handleReInit();
 #endif
+
+    friend void			DBG::forceCrash(bool);
 
 };
 
