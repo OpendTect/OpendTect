@@ -201,7 +201,7 @@ Standard color tables
 17.Value-Color.0: 0`170`0`0`255
 17.Value-Color.1: 0.070352`255`28`0`0
 17.Value-Color.2: 0.25`255`200`0`0
-17.Value-Color.3: 0.5`255`255`255`0
+17.Value-Color.3: 0.5`243`243`243`0
 17.Value-Color.4: 0.883249`56`70`127`255
 17.Value-Color.5: 1`0`0`0`0
 17.Transparency.0: 0`0
@@ -211,14 +211,14 @@ Standard color tables
 
 18.Name: Sky
 18.Marker color: 0`240`0
-18.Undef color: 200`200`200`255
-18.Value-Color.0: 0`255`255`255`255
-18.Value-Color.1: 0.121827`85`170`255`255
-18.Value-Color.2: 0.248731`85`170`255`255
+18.Undef color: 200`200`200`0
+18.Value-Color.0: 0`255`255`255`0
+18.Value-Color.1: 0.121827`85`170`255`0
+18.Value-Color.2: 0.248731`85`170`255`0
 18.Value-Color.3: 0.411168`71`71`233`0
-18.Value-Color.4: 0.532995`0`0`127`255
-18.Value-Color.5: 0.918782`255`255`0`255
-18.Value-Color.6: 1`255`255`0`255
+18.Value-Color.4: 0.532995`0`0`127`0
+18.Value-Color.5: 0.918782`255`255`0`0
+18.Value-Color.6: 1`255`255`0`0
 18.Transparency.0: 0`0
 18.Transparency.1: 1`0
 
@@ -232,17 +232,41 @@ Standard color tables
 19.Marker color: 0`240`0
 
 20.Name		: Experimental
-20.Value-Color.0: 0`85`170`255`255
-20.Value-Color.1: 0.040201`39`117`59`255
-20.Value-Color.2: 0.221106`85`255`127`255
-20.Value-Color.3: 0.467337`171`171`171`255
-20.Value-Color.4: 0.502513`0`0`0`255
-20.Value-Color.5: 0.527638`171`171`171`255
-20.Value-Color.6: 0.964824`252`142`24`255
-20.Value-Color.7: 1`255`0`0`255
+20.Value-Color.0: 0`85`170`255`0
+20.Value-Color.1: 0.040201`39`117`59`0
+20.Value-Color.2: 0.221106`85`255`127`0
+20.Value-Color.3: 0.467337`171`171`171`0
+20.Value-Color.4: 0.502513`0`0`0`0
+20.Value-Color.5: 0.527638`171`171`171`0
+20.Value-Color.6: 0.964824`252`142`24`0
+20.Value-Color.7: 1`255`0`0`0
 20.Transparency.0: 0`0
 20.Transparency.1: 1`0
 20.Undef color: 150`200`150`0
 20.Marker color: 0`0`0
+
+21.Name: Magic
+21.Marker color: 0`240`0
+21.Undef color: 150`200`150`0
+21.Value-Color.0: 0`255`255`0`0
+21.Value-Color.1: 0.025253`255`0`0`0
+21.Value-Color.2: 0.192893`170`85`0`0
+21.Value-Color.3: 0.493827`229`229`229`0
+21.Value-Color.4: 0.802469`0`85`127`0
+21.Value-Color.5: 0.969697`0`0`255`0
+21.Value-Color.6: 1`0`255`255`0
+21.Transparency.0: 0`0
+21.Transparency.1: 1`0
+
+22.Name: Brown 4grades
+22.Marker color: 0`240`0
+22.Undef color: 150`200`150`0
+22.Value-Color.0: 0`255`255`0`0
+22.Value-Color.1: 0.015152`170`0`0`0
+22.Value-Color.2: 0.493827`229`229`229`0
+22.Value-Color.3: 0.979798`0`0`0`0
+22.Value-Color.4: 1`0`255`255`0
+22.Transparency.0: 0`0
+22.Transparency.1: 1`0
 
 !
