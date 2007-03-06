@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Jan 2005
- RCS:           $Id: viscallout.cc,v 1.11 2007-03-06 07:51:50 cvsnanne Exp $
+ RCS:           $Id: viscallout.cc,v 1.12 2007-03-06 16:38:00 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,6 +29,8 @@ ________________________________________________________________________
 #ifndef USEQT3
 # include "uidesktopservices.h"
 #endif
+
+#define mTextLift 1
 
 
 namespace Annotations
@@ -78,7 +80,7 @@ protected:
     visBase::Rotation*		rotation_; 
     visBase::Transformation*	scale_;	 
 
-    visBase::PolygonOffset*	textoffset_;	//In object space
+    visBase::PolygonOffset*	calloutoffset_;	//In object space
     visBase::Anchor*		anchor_;
     visBase::TextBox*		fronttext_;
     visBase::FaceSet*		faceset_;	
@@ -119,7 +121,7 @@ Callout::Callout()
     , fronttext_( visBase::TextBox::create() )
     , backtext_( visBase::TextBox::create() )
     , backtextrotation_( visBase::Rotation::create() )
-    , textoffset_( visBase::PolygonOffset::create() )
+    , calloutoffset_( visBase::PolygonOffset::create() )
     , anchor_( visBase::Anchor::create() )
     , faceset_( visBase::FaceSet::create() )
     , marker_( visBase::Marker::create() )
@@ -176,6 +178,11 @@ Callout::Callout()
     anchor_->ref();
     addChild ( anchor_->getInventorNode() );
 
+    calloutoffset_->setStyle( visBase::PolygonOffset::Filled );
+    calloutoffset_->setFactor( -2 );
+    calloutoffset_->setUnits( -2 );
+    anchor_->addObject( calloutoffset_ );
+
     faceset_->removeSwitch();
     anchor_->addObject( faceset_ );
     
@@ -190,10 +197,6 @@ Callout::Callout()
     translationdragger_->motion.notify( mCB( this, Callout, dragChanged ));
     translationdragger_->finished.notify( mCB( this, Callout, dragStop ));
     addChild( translationdragger_->getInventorNode() );
-
-    textoffset_->setStyle( visBase::PolygonOffset::Filled );
-    textoffset_->setUnits( 8 );
-    anchor_->addObject( textoffset_ );
 
     fronttext_->removeSwitch();
     anchor_->addObject( fronttext_ );
@@ -224,7 +227,7 @@ Callout::~Callout()
 Sphere Callout::getDirection() const
 {
     Coord3 textpos = fronttext_->position();
-    textpos = Coord3( textpos.x, textpos.z, textpos.y );
+    textpos = Coord3( textpos.x, 0, textpos.y );
     if ( scale_ ) textpos = scale_->transform( textpos );
 
     Sphere res;
@@ -257,7 +260,7 @@ void Callout::setPick( const Pick::Location& loc )
 	            cos(loc.dir.theta)*loc.dir.radius );
     if ( scale_ ) textpos = scale_->transformBack( textpos );
 
-    fronttext_->setPosition( Coord3(textpos.x,textpos.z, 0.1));
+    fronttext_->setPosition( Coord3(textpos.x,textpos.z, mTextLift ));
 
     const Quaternion rot1( Coord3( 0,0,1 ), loc.dir.phi );
     static const Quaternion rot2( Coord3( 1, 0, 0 ), M_PI_2 );
@@ -313,7 +316,7 @@ void Callout::dragChanged( CallBacker* cb )
 	Coord3 dragpos = translationdragger_->getPos();
 	dragpos.z = 0;
 	Coord3 newpos = dragstarttextpos_+ dragpos -dragstartdraggerpos_;
-	newpos.z = 0.1;
+	newpos.z = mTextLift;
 	fronttext_->setPosition( newpos );
 	updateCoords();
     }
@@ -452,7 +455,7 @@ void Callout::updateCoords()
     Coord3 backtextpos = fronttext_->position() +
 			 Coord3( maxpos.x-minpos.x-backtext_->size()/10, 0, 0 );
     backtextpos = backtextrotation_->transform( backtextpos );
-    backtext_->setPosition( Coord3(backtextpos.x, backtextpos.y, 0.1) );
+    backtext_->setPosition( Coord3(backtextpos.x, backtextpos.y, mTextLift ) );
 
     updateArrow();
 }
