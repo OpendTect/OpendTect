@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Apr 2002
- RCS:           $Id: hostdata.cc,v 1.34 2007-01-25 16:19:53 cvsbert Exp $
+ RCS:           $Id: hostdata.cc,v 1.35 2007-03-07 10:39:51 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -232,35 +232,43 @@ bool HostDataList::readHostFile( const char* fname )
 	if ( *astrm.value() )
 	{
 	    SeparString val( astrm.value(), ':' );
+	    BufferString vstr; char* bufptr;
 
-	    const char* vstr = val[0];
-	    if ( vstr && *vstr )
-		newhd->aliases_ += new BufferString( vstr );
+#define mGetVStr(valnr) \
+	    vstr = val[valnr]; bufptr = vstr.buf(); \
+	    skipLeadingBlanks(bufptr); removeTrailingBlanks(bufptr)
 
-	    vstr = val[1];
-	    if ( vstr && *vstr )
+	    mGetVStr(0);
+	    if ( *bufptr )
+		newhd->aliases_.add( bufptr );
+
+	    mGetVStr(1);
+	    newhd->iswin_ = !strcmp( bufptr, "win" );
+
+	    mGetVStr(2);
+	    if ( *bufptr )
 	    {
-		BufferString valstr( vstr );
-		char* ptr = valstr.buf();
-		skipLeadingBlanks( ptr ); removeTrailingBlanks( ptr );
-		newhd->iswin_ = !strcmp( ptr, "win" );
+		if ( newhd->iswin_ ) replaceCharacter( bufptr, ';', ':' );
+		newhd->data_pr_ = bufptr;
 	    }
-
-	    vstr = val[2];
-	    if ( vstr && *vstr )
-		newhd->data_pr_ = vstr;
 	    else 
 		newhd->data_pr_ = newhd->iswin_ ? win_data_pr_ : unx_data_pr_;
 
-	    vstr = val[3];
-	    if ( vstr && *vstr )
-		newhd->appl_pr_ = vstr;
+	    mGetVStr(3);
+	    if ( *bufptr )
+	    {
+		if ( newhd->iswin_ ) replaceCharacter( bufptr, ';', ':' );
+		newhd->appl_pr_ = bufptr;
+	    }
 	    else 
 		newhd->appl_pr_ = newhd->iswin_ ? win_appl_pr_ : unx_appl_pr_;
 
-	    vstr = val[4];
-	    if ( vstr && *vstr )
-		newhd->pass_ = vstr;
+	    mGetVStr(4);
+	    if ( *bufptr )
+	    {
+		if ( newhd->iswin_ ) replaceCharacter( bufptr, ';', ':' );
+		newhd->pass_ = bufptr;
+	    }
 	    else if ( newhd->iswin_ )
 		newhd->pass_ = sharedata_.pass_;
 
@@ -269,7 +277,7 @@ bool HostDataList::readHostFile( const char* fname )
 	*this += newhd;
     }
 
-    int sz = size(); 
+    const int sz = size(); 
     for ( int idx=0; idx<sz; idx++ )
     {
 	HostData* hd = (*this)[idx];
@@ -354,10 +362,8 @@ void HostDataList::dump( std::ostream& strm ) const
 
 void HostDataList::handleLocal()
 {
-    int sz = size();
-
+    const int sz = size();
     const char* localhoststd = "localhost";
-
     HostData* localhd = 0;
     for ( int idx=0; idx<sz; idx++ )
     {
@@ -416,8 +422,8 @@ void HostDataList::handleLocal()
 	}
     }
 
-    sz = size();
-    for ( int idx=1; idx<sz; idx++ )
+    const int newsz = size();
+    for ( int idx=1; idx<newsz; idx++ )
     {
 	HostData* hd = (*this)[idx];
 	hd->setLocalHost( *localhd );
