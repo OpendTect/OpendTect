@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/12/1999
- RCS:           $Id: pixmap.h,v 1.15 2006-09-08 13:25:28 cvshelene Exp $
+ RCS:           $Id: pixmap.h,v 1.16 2007-03-07 17:51:41 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -55,13 +55,14 @@ public:
     void		convertFromArrayRGB(const ArrayRGB&);
     void		convertFromRGBArray(const uiRGBArray&);
 
-    QPixmap* 		Pixmap()		{ return qpixmap_; }
-    const QPixmap*  	Pixmap() const		{ return qpixmap_; }
+    QPixmap* 		qpixmap()		{ return qpixmap_; }
+    const QPixmap*  	qpixmap() const		{ return qpixmap_; }
 
     void		fill(const Color&);
 
-    int			width();
-    int         	height();
+    int			width() const;
+    int         	height() const;
+    bool		isEmpty() const;
 
     const char*		source() const		{ return srcname_.buf(); }
 
