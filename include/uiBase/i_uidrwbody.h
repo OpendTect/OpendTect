@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          03/07/2001
- RCS:           $Id: i_uidrwbody.h,v 1.15 2007-03-01 21:16:23 cvsnanne Exp $
+ RCS:           $Id: i_uidrwbody.h,v 1.16 2007-03-07 10:20:27 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,6 +21,8 @@ ________________________________________________________________________
 # include "uirubberband.h"
 # include "mouseevent.h"
 #endif
+
+static const int c_minnrpix = 10;
 
 
 /*! \brief template implementation for drawable objects
@@ -169,12 +171,21 @@ void uiDrawableObjBody<C,T>::mouseMoveEvent( QMouseEvent* qev )
 template <class C,class T>
 void uiDrawableObjBody<C,T>::mouseReleaseEvent( QMouseEvent* qev )
 {
+    bool ishandled = false;
     if ( handle_.isRubberBandingOn() )
     {
 	rubberband_->stop( qev );
-	handle_.rubberBandHandler( rubberband_->area() );
+	uiRect newarea = rubberband_->area();
+	bool sizeok = newarea.hNrPics() > c_minnrpix 
+	    	      && newarea.vNrPics() > c_minnrpix;
+	if ( sizeok )
+	{
+	    ishandled = true;
+	    handle_.rubberBandHandler( newarea );
+	}
     }
-    else
+    
+    if ( !ishandled )
     {
 	OD::ButtonState bs = OD::ButtonState( qev->state() | qev->button() );
 	MouseEvent mev( bs, qev->x(), qev->y() );
