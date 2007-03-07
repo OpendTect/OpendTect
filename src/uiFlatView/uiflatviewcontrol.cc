@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:		Feb 2007
- RCS:           $Id: uiflatviewcontrol.cc,v 1.13 2007-03-06 07:42:30 cvsnanne Exp $
+ RCS:           $Id: uiflatviewcontrol.cc,v 1.14 2007-03-07 13:59:12 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -175,7 +175,7 @@ void uiFlatViewControl::rubBandCB( CallBacker* cb )
     //TODO handle when zoom is disabled
     mCBCapsuleUnpack(uiRect,r,cb);
     uiSize sz = r.getPixelSize();
-    if ( sz.hNrPics() == 0 && sz.vNrPics() == 0 )
+    if ( sz.hNrPics() < 5 || sz.vNrPics() < 5 )
 	return;
 
     uiWorld2Ui w2u;
