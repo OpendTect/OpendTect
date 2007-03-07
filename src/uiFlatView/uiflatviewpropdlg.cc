@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          Dec 2006
- RCS:           $Id: uiflatviewpropdlg.cc,v 1.6 2007-03-07 10:42:52 cvsbert Exp $
+ RCS:           $Id: uiflatviewpropdlg.cc,v 1.7 2007-03-07 13:52:35 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -383,12 +383,15 @@ uiFlatViewPropDlg::uiFlatViewPropDlg( uiParent* p, FlatView::Viewer& vwr,
     annottab_ = new uiFVAnnotPropTab( tabParent(), vwr_ );
     addGroup( annottab_ );
 
-    putAllToScreen();
+    titlefld_ = new uiGenInput( this, "Title" );
+    titlefld_->attach( centeredAbove, tabObject() );
 
     uiPushButton* applybut = new uiPushButton( this, "&Apply",
 			     mCB(this,uiFlatViewPropDlg,doApply), true );
     applybut->attach( centeredBelow, tabObject() );
     enableSaveButton( "Save as Default" );
+
+    putAllToScreen();
 }
 
 
@@ -400,6 +403,7 @@ void uiFlatViewPropDlg::getAllFromScreen()
 	mDynamicCastGet(uiFlatViewPropTab&,ptab,getGroup(idx))
 	ptab.getFromScreen();
     }
+    vwr_.context().annot_.title_ = titlefld_->text();
 }
 
 
@@ -411,6 +415,7 @@ void uiFlatViewPropDlg::putAllToScreen()
 	mDynamicCastGet(uiFlatViewPropTab&,ptab,getGroup(idx))
 	ptab.putToScreen();
     }
+    titlefld_->setText( vwr_.context().annot_.title_ );
 }
 
 
