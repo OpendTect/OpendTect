@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Jan 2005
- RCS:           $Id: viscallout.cc,v 1.12 2007-03-06 16:38:00 cvskris Exp $
+ RCS:           $Id: viscallout.cc,v 1.13 2007-03-07 09:19:29 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,6 +25,9 @@ ________________________________________________________________________
 #include "vispolygonoffset.h"
 #include "vistext.h"
 #include "vistransform.h"
+
+#include "Inventor/nodes/SoMaterial.h"
+#include "Inventor/nodes/SoSeparator.h"
 
 #ifndef USEQT3
 # include "uidesktopservices.h"
@@ -49,6 +52,8 @@ public:
 
     void			setPick(const Pick::Location&);
     void			setTextSize(float ns);
+    void			setFeedbackMaterial(visBase::Material*);
+    void			setActiveFeedbackMaterial(visBase::Material*);
     void			setMarkerMaterial(visBase::Material*);
     void			setBoxMaterial(visBase::Material*);
     void			setTextMaterial(visBase::Material*);
@@ -149,8 +154,6 @@ Callout::Callout()
     rotdragger_->turnOn(true); //To create switch internally
     rotdragger_->doAxisRotate();
     addChild( rotdragger_->getInventorNode() );
-    rotfeedback_->setMaterial( visBase::Material::create() );
-    rotfeedback_->getMaterial()->setColor( Color(255,255,255) );
     rotfeedback_->setVertexOrdering( 
 	   visBase::VertexShape::cClockWiseVertexOrdering() );
     rotfeedback_->setShapeType( visBase::VertexShape::cSolidShapeType() );
@@ -166,8 +169,6 @@ Callout::Callout()
     rotfeedbackactive_->removeSwitch();
     rotfeedbackactive_->replaceShape( rotfeedback_->getShape() );
     
-    rotfeedbackactive_->setMaterial( visBase::Material::create() );
-    rotfeedbackactive_->getMaterial()->setColor( Color(255,255,0) );
     rotfeedback_->setVertexOrdering( 0 );
     rotfeedback_->setShapeType( visBase::VertexShape::cSolidShapeType() );
     rotfeedbackactive_->setCoordinates( rotfeedback_->getCoordinates() );
@@ -335,6 +336,44 @@ void Callout::dragStop( CallBacker* cb )
 
 void Callout::setMarkerMaterial( visBase::Material* mat )
 { marker_->setMaterial( mat ); }
+
+
+void Callout::setActiveFeedbackMaterial( visBase::Material* mat )
+{
+    rotfeedbackactive_->setMaterial( mat );
+    mDynamicCastGet( SoSeparator*, sep,
+	   	     translationdragger_->getShape("translatorActive") );
+    if ( !sep )
+	return;
+
+    for ( int idx=0; idx<sep->getNumChildren(); idx++ )
+    {
+	mDynamicCastGet( SoMaterial*, omat, sep->getChild( idx ) );
+	if ( !omat ) continue;
+
+	sep->insertChild( mat->getInventorNode(), idx );
+	sep->removeChild( omat );
+    }
+}
+
+
+void Callout::setFeedbackMaterial( visBase::Material* mat )
+{
+    rotfeedback_->setMaterial( mat );
+    mDynamicCastGet( SoSeparator*, sep,
+	    	     translationdragger_->getShape("translator") );
+    if ( !sep )
+	return;
+
+    for ( int idx=0; idx<sep->getNumChildren(); idx++ )
+    {
+	mDynamicCastGet( SoMaterial*, omat, sep->getChild( idx ) );
+	if ( !omat ) continue;
+
+	sep->insertChild( mat->getInventorNode(), idx );
+	sep->removeChild( omat );
+    }
+}
 
 
 void Callout::setBoxMaterial( visBase::Material* mat )
@@ -536,8 +575,8 @@ void Callout::setupRotFeedback()
     for ( int idx=0; idx<coneres; idx++ )
     {
 	const float angle = (M_PI*2)/coneres*idx;
-	const float sina = sin( angle ) * width * 3;
-	const float cosa = cos( angle ) * width * 3;
+	const float sina = sin( angle ) * width * 5;
+	const float cosa = cos( angle ) * width * 5;
 
 	conebase += Coord3( rotfeedbackradius_+cosa, 0, sina );
     }
@@ -646,13 +685,14 @@ void Callout::setupRotFeedback()
 
 
 CalloutDisplay::CalloutDisplay()
-    : markermaterial_( visBase::Material::create() )
-    , boxmaterial_( visBase::Material::create() )
+    : boxmaterial_( visBase::Material::create() )
     , textmaterial_( visBase::Material::create() )
+    , activedraggermaterial_( visBase::Material::create() )
     , scale_( 1 )
 {
-    markermaterial_->ref();
     boxmaterial_->ref();
+    activedraggermaterial_->ref();
+    activedraggermaterial_->setColor(Color(255,255,0));
     boxmaterial_->setColor( Color(255, 255, 255) );
     textmaterial_->ref();
     textmaterial_->setColor( Color(0, 0, 0) );
@@ -662,9 +702,9 @@ CalloutDisplay::CalloutDisplay()
 CalloutDisplay::~CalloutDisplay()
 {
     setSceneEventCatcher(0);
-    markermaterial_->unRef();
     boxmaterial_->unRef();
     textmaterial_->unRef();
+    activedraggermaterial_->unRef();
 }
 
 
@@ -768,6 +808,8 @@ visBase::VisualObject* CalloutDisplay::createLocation() const
     res->setMarkerMaterial( 0 );
     res->setBoxMaterial( boxmaterial_ );
     res->setTextMaterial( textmaterial_ );
+    res->setFeedbackMaterial( material_ );
+    res->setActiveFeedbackMaterial( activedraggermaterial_ );
     res->setSelectable( false );
     res->setTextSize( scale_ );
     res->moved.notify( mCB( const_cast<CalloutDisplay*>(this), CalloutDisplay,

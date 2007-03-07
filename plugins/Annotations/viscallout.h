@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		January 2005
- RCS:		$Id: viscallout.h,v 1.6 2007-02-15 23:45:44 cvskris Exp $
+ RCS:		$Id: viscallout.h,v 1.7 2007-03-07 09:19:29 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -52,9 +52,9 @@ protected:
     void			urlClickCB(CallBacker*);
     void			setScaleTransform(visBase::DataObject*) const;
 
-    visBase::Material*		markermaterial_;
     visBase::Material*		boxmaterial_;
     visBase::Material*		textmaterial_;
+    visBase::Material*		activedraggermaterial_;
 };
 
 } // namespace
