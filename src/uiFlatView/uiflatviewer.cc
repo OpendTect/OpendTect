@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          Sep 2006
- RCS:           $Id: uiflatviewer.cc,v 1.11 2007-03-02 15:36:06 cvsbert Exp $
+ RCS:           $Id: uiflatviewer.cc,v 1.12 2007-03-07 10:42:43 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -142,9 +142,9 @@ void uiFlatViewer::handleChange( DataChangeType dct )
     int t = extraborders_.top(); int b = extraborders_.bottom();
     if ( annot.haveTitle() )
 	t += annotsz_.height();
-    if ( annot.haveGridLines(true) )
-	{ l += annotsz_.width(); r += annotsz_.width(); }
-    if ( annot.haveGridLines(false) )
+    if ( annot.haveAxisAnnot(true) )
+	l += annotsz_.width();
+    if ( annot.haveAxisAnnot(false) )
 	{ b += annotsz_.height(); t += annotsz_.height(); }
     canvas_.setBorders( uiSize(l,t), uiSize(r,b) );
     canvas_.forceNewFill();
@@ -238,7 +238,7 @@ void uiFlatViewer::drawGridAnnot()
     if ( showanyx2annot && !ad2.name_.isEmpty() )
 	dt.drawText( uiPoint(totsz.width()-2,totsz.height()-2),
 		     annot.x1_.name_,
-		     Alignment(Alignment::Stop,Alignment::Start));
+		     Alignment(Alignment::Stop,Alignment::Stop));
 
     DrawAxis2D axisdrawer( &canvas_ );
     axisdrawer.setDrawRectangle( &datarect );
