@@ -4,20 +4,22 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          Dec 2006
- RCS:           $Id: uiflatviewpropdlg.cc,v 1.5 2007-03-05 17:47:27 cvsbert Exp $
+ RCS:           $Id: uiflatviewpropdlg.cc,v 1.6 2007-03-07 10:42:52 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiflatviewpropdlg.h"
+#include "uiflatviewproptabs.h"
 
 #include "coltabedit.h"
 #include "uicolor.h"
 #include "uigeninput.h"
+#include "uicombobox.h"
 #include "uilabel.h"
 #include "uibutton.h"
 
-using namespace FlatView;
+#include "datapackbase.h"
 
 
 uiFlatViewPropTab::uiFlatViewPropTab( uiParent* p, FlatView::Viewer& vwr,
@@ -34,8 +36,8 @@ uiFlatViewDataDispPropTab::uiFlatViewDataDispPropTab( uiParent* p,
     : uiFlatViewPropTab(p,vwr,tablbl)
     , ddpars_(ctxt_.ddpars_)
 {
-    dispfld_ = new uiGenInput( this, "Display", BoolInpSpec(true) );
-    dispfld_->valuechanged.notify(
+    dispfld_ = new uiLabeledComboBox( this, "Display" );
+    dispfld_->box()->selectionChanged.notify(
 	    		mCB(this,uiFlatViewDataDispPropTab,dispSel) );
 
     useclipfld_ = new uiGenInput( this, "Use clipping", BoolInpSpec(true) );
@@ -62,7 +64,7 @@ uiFlatViewDataDispPropTab::uiFlatViewDataDispPropTab( uiParent* p,
 
 bool uiFlatViewDataDispPropTab::doDisp() const
 {
-    return dispfld_->getBoolValue();
+    return dispfld_->box()->currentItem() != 0;
 }
 
 
@@ -85,10 +87,40 @@ void uiFlatViewDataDispPropTab::dispSel( CallBacker* )
 }
 
 
+void uiFlatViewDataDispPropTab::setDataNames( const FlatView::Data& fvd )
+{
+    dispfld_->box()->empty();
+    dispfld_->box()->addItem( "No" );
+    if ( fvd.arr(true) )
+    {
+	const char* wvanm = fvd.name( true );
+	if ( !wvanm || !*wvanm ) wvanm = "Original WVA data";
+	dispfld_->box()->addItem( wvanm );
+    }
+    if ( fvd.arr(false) )
+    {
+	const char* vdnm = fvd.name( false );
+	if ( !vdnm || !*vdnm ) vdnm = "Original VD data";
+	dispfld_->box()->addItem( vdnm );
+    }
+}
+
+
 void uiFlatViewDataDispPropTab::putCommonToScreen()
 {
-    const DataDispPars::Common& pars = commonPars();
-    dispfld_->setValue( pars.show_ );
+    const FlatView::DataDispPars::Common& pars = commonPars();
+    bool havedata = pars.show_;
+    if ( havedata )
+    {
+	const char* nm = dataName();
+	if ( dispfld_->box()->isPresent( nm ) )
+	    dispfld_->box()->setText( dataName() );
+	else
+	    havedata = false;
+    }
+    if ( !havedata )
+	dispfld_->box()->setCurrentItem( 0 );
+
     useclipfld_->setValue( mIsUdf( pars.rg_.start ) );
     clipratiofld_->setValue( pars.clipperc_ );
     rgfld_->setValue( pars.rg_ );
@@ -97,9 +129,25 @@ void uiFlatViewDataDispPropTab::putCommonToScreen()
 }
 
 
+void uiFlatViewDataDispPropTab::doSetData( const FlatView::Data& fvd,
+					   bool wva )
+{
+    if ( dispfld_->box()->currentItem() == 0 )
+    {
+	vwr_.data().set( wva, 0, fvd.name(wva) );
+	return;
+    }
+    const BufferString datanm( dispfld_->box()->text() );
+    if ( datanm == fvd.name(true) )
+	vwr_.data().set( wva, fvd.arr(true), datanm );
+    else if ( datanm == fvd.name(false) )
+	vwr_.data().set( wva, fvd.arr(false), datanm );
+}
+
+
 void uiFlatViewDataDispPropTab::getCommonFromScreen()
 {
-    DataDispPars::Common& pars = commonPars();
+    FlatView::DataDispPars::Common& pars = commonPars();
 
     pars.show_ = doDisp();
     pars.clipperc_ = useclipfld_->getBoolValue()
@@ -141,6 +189,12 @@ uiFVWVAPropTab::uiFVWVAPropTab( uiParent* p, FlatView::Viewer& vwr )
     midvalfld_ = new uiGenInput( this, "Middle line value", FloatInpSpec() );
     midvalfld_->setElemSzPol(uiObject::Small);
     midvalfld_->attach( alignedBelow, midlinefld_ );
+}
+
+
+const char* uiFVWVAPropTab::dataName() const
+{
+    return vwr_.data().name( true );
 }
 
 
@@ -215,6 +269,12 @@ uiFVVDPropTab::uiFVVDPropTab( uiParent* p, FlatView::Viewer& vwr )
 					     .withclip(false), &ctab_ );
     coltablbl_ = new uiLabel( this, "Color table", coltabfld_ );
     coltabfld_->attach( alignedBelow, lastcommonfld_ );
+}
+
+
+const char* uiFVVDPropTab::dataName() const
+{
+    return vwr_.data().name( false );
 }
 
 
@@ -312,13 +372,15 @@ uiFlatViewPropDlg::uiFlatViewPropDlg( uiParent* p, FlatView::Viewer& vwr,
     : uiTabStackDlg(p,uiDialog::Setup("Display properties",
 				      "Specify display properties",
 				      "51.0.0"))
+    , vwr_(vwr)
     , applycb_(applcb)
+    , initialdata_(vwr.data())
 {
-    wvatab_ = new uiFVWVAPropTab( tabParent(), vwr );
+    wvatab_ = new uiFVWVAPropTab( tabParent(), vwr_ );
     addGroup( wvatab_ );
-    vdtab_ = new uiFVVDPropTab( tabParent(), vwr );
+    vdtab_ = new uiFVVDPropTab( tabParent(), vwr_ );
     addGroup( vdtab_ );
-    annottab_ = new uiFVAnnotPropTab( tabParent(), vwr );
+    annottab_ = new uiFVAnnotPropTab( tabParent(), vwr_ );
     addGroup( annottab_ );
 
     putAllToScreen();
@@ -332,6 +394,7 @@ uiFlatViewPropDlg::uiFlatViewPropDlg( uiParent* p, FlatView::Viewer& vwr,
 
 void uiFlatViewPropDlg::getAllFromScreen()
 {
+    wvatab_->setData( initialdata_ ); vdtab_->setData( initialdata_ );
     for ( int idx=0; idx<nrGroups(); idx++ )
     {
 	mDynamicCastGet(uiFlatViewPropTab&,ptab,getGroup(idx))
@@ -342,6 +405,7 @@ void uiFlatViewPropDlg::getAllFromScreen()
 
 void uiFlatViewPropDlg::putAllToScreen()
 {
+    wvatab_->setDataNames( initialdata_ ); vdtab_->setDataNames( initialdata_ );
     for ( int idx=0; idx<nrGroups(); idx++ )
     {
 	mDynamicCastGet(uiFlatViewPropTab&,ptab,getGroup(idx))
@@ -354,4 +418,27 @@ void uiFlatViewPropDlg::doApply( CallBacker* )
 {
     getAllFromScreen();
     applycb_.doCall( this );
+}
+
+
+bool uiFlatViewPropDlg::rejectOK( CallBacker* cb )
+{
+    const FlatDataPack* wvapack = vwr_.getPack( true );
+    const FlatDataPack* vdpack = vwr_.getPack( false );
+    if ( wvapack )
+	vwr_.data().set( true, &wvapack->data(), wvapack->name() );
+    if ( vdpack )
+	vwr_.data().set( true, &vdpack->data(), vdpack->name() );
+    return true;
+}
+
+
+bool uiFlatViewPropDlg::acceptOK( CallBacker* cb )
+{
+    if ( !uiTabStackDlg::acceptOK(cb) )
+	return false;
+
+    getAllFromScreen();
+    vwr_.syncDataPacks();
+    return true;
 }
