@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          13/8/2000
- RCS:           $Id: uidlggroup.h,v 1.4 2007-03-01 19:34:37 cvsbert Exp $
+ RCS:           $Id: uidlggroup.h,v 1.5 2007-03-07 10:37:00 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -77,8 +77,9 @@ public:
     const uiDlgGroup&	getGroup( int idx ) const { return *groups_[idx]; }
 
 protected:
-    bool			acceptOK(CallBacker*);
-    bool			rejectOK(CallBacker*);
+
+    virtual bool		acceptOK(CallBacker*);
+    virtual bool		rejectOK(CallBacker*);
 
     bool 			canrevert_;
     ObjectSet<uiDlgGroup>	groups_;
