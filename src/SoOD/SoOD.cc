@@ -4,12 +4,16 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: SoOD.cc,v 1.9 2007-01-29 13:42:57 cvskris Exp $";
+static const char* rcsID = "$Id: SoOD.cc,v 1.10 2007-03-07 16:08:48 cvskris Exp $";
 
 
 #include "SoOD.h"
 
 #include <VolumeViz/nodes/SoVolumeRendering.h>
+#include "Inventor/nodes/SoShaderProgram.h"
+#include "Inventor/nodes/SoFragmentShader.h"
+#include "GL/glx.h"
+
 
 #include "SoArrow.h"
 #include "SoCameraInfo.h"
@@ -67,4 +71,19 @@ void SoOD::init()
     SoGridSurfaceDragger::initClass();
     UTMCamera::initClass();
     UTMPosition::initClass();
+}
+
+
+int SoOD::supportsFragShading()
+{
+    static int answer = 0;
+    if ( !answer )
+    {
+	void * ptr = glXGetCurrentContext();
+	if ( ptr )
+	    answer = SoFragmentShader::
+		isSupported(SoShaderObject::GLSL_PROGRAM) ? 1 : -1;
+    }
+
+    return answer;
 }
