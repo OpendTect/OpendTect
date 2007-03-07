@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiattribpartserv.cc,v 1.62 2007-02-28 07:41:42 cvsnanne Exp $
+ RCS:           $Id: uiattribpartserv.cc,v 1.63 2007-03-07 14:33:25 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -508,6 +508,7 @@ DataPack::ID uiAttribPartServer::create2DOutput( const CubeSampling& cs,
     DataPackMgr& dpman = DPM( DataPackMgr::FlatID );
     Flat2DDataPack* newpack = new Attrib::Flat2DDataPack( targetID(true),
 	    						  *data2d);
+    newpack->setName( linekey.attrName() );
     dpman.add( newpack );
     return newpack->id();
 }
