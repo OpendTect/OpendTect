@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.cc,v 1.77 2007-03-01 19:34:04 cvsbert Exp $
+ RCS:           $Id: uiodmenumgr.cc,v 1.78 2007-03-07 14:13:55 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -169,7 +169,7 @@ void uiODMenuMgr::fillSurveyMenu()
 {
     mCleanUpImpExpSets(impmnus_)
     mCleanUpImpExpSets(expmnus_)
-    mInsertItem( surveymnu_, "&Setup ...", mManSurveyMnuItm );
+    mInsertItem( surveymnu_, "&Select/Setup ...", mManSurveyMnuItm );
 
     uiPopupMenu* sessionitm = new uiPopupMenu( &appl_, "S&ession");
     mInsertItem( sessionitm, "&Save ...", mSessSaveMnuItm );
