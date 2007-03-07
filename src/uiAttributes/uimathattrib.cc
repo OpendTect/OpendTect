@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2001
- RCS:           $Id: uimathattrib.cc,v 1.13 2007-03-06 15:31:57 cvshelene Exp $
+ RCS:           $Id: uimathattrib.cc,v 1.14 2007-03-07 10:13:20 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,9 +22,9 @@ ________________________________________________________________________
 
 using namespace Attrib;
 
-const int cNrVars = 6;
-const int cNrXVars = 6;
-const int cNrConstVars = 6;
+static const int cNrVars = 6;
+static const int cNrXVars = 6;
+static const int cNrConstVars = 6;
 
 mInitAttribUI(uiMathAttrib,Math,"Mathematics",sKeyBasicGrp)
 
