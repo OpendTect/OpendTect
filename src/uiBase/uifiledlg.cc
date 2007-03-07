@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/09/2000
- RCS:           $Id: uifiledlg.cc,v 1.33 2007-02-26 16:43:31 cvsnanne Exp $
+ RCS:           $Id: uifiledlg.cc,v 1.34 2007-03-07 09:59:52 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,30 +25,30 @@ ________________________________________________________________________
 
 const char* uiFileDialog::filesep = ";";
 
-class dgbQFileDialog : public QFileDialog
+class ODFileDialog : public QFileDialog
 {
 public:
-			    dgbQFileDialog( const QString& dirName,
+			    ODFileDialog( const QString& dirname,
 				const QString& filter=QString::null,
 				QWidget* parent=0,
-				const char* name=0, bool modal=false )
+				const char* caption=0, bool modal=false )
 #ifndef USEQT3
-				: QFileDialog( parent, name, dirName, filter )
+				: QFileDialog(parent,caption,dirname,filter)
 			    { setModal( modal ); }
 #else
-				: QFileDialog( dirName, filter, parent, name,
+				: QFileDialog( dirname, filter, parent, caption,
 				       	       modal )
 			    {}
 #endif
 
-			    dgbQFileDialog( QWidget* parent=0,
-					    const char* name=0,
+			    ODFileDialog( QWidget* parent=0,
+					    const char* caption=0,
 					    bool modal=false )
 #ifndef USEQT3
-				: QFileDialog( parent, name )
+				: QFileDialog( parent, caption )
 			    { setModal( modal ); }
 #else
-				: QFileDialog( parent, name, modal )
+				: QFileDialog( parent, caption, modal )
 			    {}
 #endif
 
@@ -112,19 +112,35 @@ int uiFileDialog::go()
 {
     FilePath fp( fname_ );
     fname_ = fp.fullPath();
+    BufferString dirname;
     if ( !File_isDirectory(fname_) )
     {
 	if ( !File_isDirectory(fp.pathOnly()) )
-	    fname_ = GetPersonalDir();
-	else if ( !File_exists(fname_)
-	       && (mode_ == ExistingFile || mode_ == ExistingFiles) )
-	    fname_ = fp.pathOnly();
+	{
+	    dirname = GetPersonalDir();
+	    fname_ = "";
+	}
+	else if ( !File_exists(fname_) &&
+		  (mode_ == ExistingFile || mode_ == ExistingFiles) )
+	{
+	    dirname = fp.pathOnly();
+	    fname_ = "";
+	}
+	else
+	{
+	    dirname = fp.pathOnly();
+	    fname_ = fp.fileName();
+	}
+    }
+    else
+    {
+	dirname = fname_;
+	fname_ = "";
     }
 
-    QWidget* qp =0;
-
-    if ( parnt_ )
-	{ qp = parnt_->pbody() ? parnt_->pbody()->managewidg() : 0; }
+    QWidget* qparent = 0;
+    if ( parnt_ && parnt_->pbody() )
+	qparent = parnt_->pbody()->managewidg();
 
     BufferString flt( filter_ );
     if ( filter_.size() )
@@ -139,9 +155,9 @@ int uiFileDialog::go()
 	}
     }
 
-    dgbQFileDialog* fd = new dgbQFileDialog( QString(fname_), QString(flt),
-	    				     qp, "File dialog", TRUE );
-
+    ODFileDialog* fd = new ODFileDialog( QString(dirname), QString(flt),
+					 qparent, "File dialog", true );
+    fd->selectFile( QString(fname_) );
     fd->setAcceptMode( forread_ ? QFileDialog::AcceptOpen
 	    			: QFileDialog::AcceptSave );
     fd->setMode( qmodeForUiMode(mode_) );
@@ -156,10 +172,8 @@ int uiFileDialog::go()
     if ( !cnclxt_.isEmpty()) fd->cancelB->setText( (const char*)cnclxt_ );
 #endif
 
-
     if ( fd->exec() != QDialog::Accepted )
 	return 0;
-
 
     QStringList list = fd->selectedFiles();
 #ifndef USEQT3
