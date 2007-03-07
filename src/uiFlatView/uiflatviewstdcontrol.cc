@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2007
- RCS:           $Id: uiflatviewstdcontrol.cc,v 1.2 2007-03-02 14:28:03 cvshelene Exp $
+ RCS:           $Id: uiflatviewstdcontrol.cc,v 1.3 2007-03-07 14:04:14 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,7 +33,7 @@ uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
 	mDefBut(manipbut_,"view.png",stateCB,"View mode (zoom)");
 	manipbut_->setToggleButton( true ); manipbut_->setOn( true );
 	mDefBut(drawbut_,"pick.png",stateCB,"Interact mode");
-	drawbut_->setToggleButton( true ); drawbut_->setOn( true );
+	drawbut_->setToggleButton( true ); drawbut_->setOn( false );
 	tb_->addSeparator();
     }
 
