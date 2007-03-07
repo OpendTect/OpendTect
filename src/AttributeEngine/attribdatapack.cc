@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Huck
  Date:          January 2007
- RCS:           $Id: attribdatapack.cc,v 1.17 2007-02-27 15:32:16 cvsnanne Exp $
+ RCS:           $Id: attribdatapack.cc,v 1.18 2007-03-07 08:59:04 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -186,7 +186,7 @@ void Flat2DDataPack::setPosData()
     for ( int idx=1; idx<nrpos; idx++ )
     {
 	Coord crd = dh_.trcinfoset_[idx]->coord;
-	pos[idx] = dh_.trcinfoset_[idx-1]->coord.distTo( crd );
+	pos[idx] = pos[idx-1] + dh_.trcinfoset_[idx-1]->coord.distTo( crd );
 	prevcrd = crd;
     }
 
