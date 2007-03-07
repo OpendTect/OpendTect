@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/12/1999
- RCS:           $Id: iodraw.cc,v 1.21 2007-02-28 21:15:44 cvskris Exp $
+ RCS:           $Id: iodraw.cc,v 1.22 2007-03-07 10:34:38 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -112,76 +112,27 @@ void ioDrawTool::drawPolygon( const TypeSet<uiPoint>& pts, int pt0, int nr )
 }
 
 
-void ioDrawTool::drawText( int x, int y, const char* txt, const Alignment& al, 
-			   bool doovershoot, bool erase )
+void ioDrawTool::drawText( int x, int y, const char* txt, const Alignment& al )
 {
     if ( !active() && !beginDraw() ) return;
 
-    int hgt = font_->height();
-    int wdt = font_->width( txt );
+    uiPoint bl( x, y );
+    const uiSize sz( font_->width(txt), font_->ascent() );
+    if ( al.hor == Alignment::Middle )
+	bl.x -= sz.width() / 2;
+    else if ( al.hor == Alignment::Stop )
+	bl.x -= sz.width();
+    if ( al.ver == Alignment::Middle )
+	bl.y += sz.height() / 2;
+    else if ( al.ver == Alignment::Start )
+	bl.y += sz.height();
 
-    int xx = x - x0_;
-    switch( al.hor )
-    {
-	case Alignment::Middle:
-	    xx -= wdt/2;
-	    break;
-	case Alignment::Stop:
-	    xx -= wdt;
-	    break;
-    }
-  
-    int yy = y + font_->ascent() - y0_;
-    switch( al.ver )
-    {
-	case Alignment::Middle:
-	    yy -= hgt/2;
-	    break;
-	case Alignment::Stop:
-	    yy -= hgt;
-	    break;
-    }
-
-    int overshoot = doovershoot ? (xx+wdt) - getDevWidth() : 0;
-    if ( overshoot > 0 )
-    {
-	if ( 4*( wdt - overshoot ) >=  wdt )
-	    xx -= overshoot;
-    }
-    if ( xx < 0 )
-    {
-	if ( 4*(wdt+xx) >= wdt )
-	    xx=0;
-	else return;
-    }
-
-    overshoot = doovershoot ? yy - getDevHeight() : 0;
-    if ( overshoot > 0 )
-    {
-	if ( (hgt - overshoot)*4 >= hgt )
-	    yy -= overshoot;
-    }
-    if ( yy < hgt )
-    {
-	if ( yy*4 >= hgt )
-	    yy = hgt;
-	else return;
-    }
-
-    if ( erase )
-#ifdef USEQT3
-	qpainter_->fillRect( xx, yy-hgt, wdt, hgt, qpainter_->backgroundColor() );
-#else
-	qpainter_->eraseRect( xx, yy-hgt, wdt, hgt );
-#endif
-
-    qpainter_->drawText( xx, yy, QString(txt) );
+    qpainter_->drawText( bl.x, bl.y, QString(txt) );
 }
 
 
-void ioDrawTool::drawText( const uiPoint& p, const char* txt,
-			   const Alignment& al, bool over, bool erase )
-{ drawText( p.x, p.y, txt, al, over, erase ); }
+void ioDrawTool::drawText( const uiPoint& p, const char* t, const Alignment& a )
+{ drawText( p.x, p.y, t, a ); }
 
 
 void ioDrawTool::drawEllipse ( int x, int y, int w, int h )
@@ -386,7 +337,7 @@ void ioDrawTool::drawMarker( const uiPoint& pt, const MarkerStyle2D& mstyle,
 	    yoffs = below ? mstyle.size+1 : -mstyle.size-1;
 	}
 
-	drawText( uiPoint(pt.x,pt.y+yoffs), txt, al, false );
+	drawText( uiPoint(pt.x,pt.y+yoffs), txt, al );
     }
 }
 
