@@ -7,12 +7,13 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Duntao Wei
  Date:          Jan 2005
- RCS:           $Id: drawaxis2d.h,v 1.5 2007-02-28 22:30:36 cvskris Exp $
+ RCS:           $Id: drawaxis2d.h,v 1.6 2007-03-07 11:41:23 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "ranges.h"
+#include "samplingdata.h"
 #include "uigeom.h"
 
 class ioDrawArea;
@@ -65,11 +66,27 @@ public:
 
 private:
     uiRect		getDrawArea() const;
+    virtual double	getAnnotTextAndPos( bool isx, double proposedpos,
+					    BufferString* text = 0) const;
+    			/*!<When drawing the axis, the object proposes
+			    an annotation at proposedpos. proposedpos may
+			    however not be a good location (e.g. it may not
+			    be on an even sample). Default is to display
+			    at the proposedpos, with the proposedpos as the
+			    text, but inheriting classes may customize this.
+			    \param isx		true if x-axis, false if y-axis.
+			    \param proposedpos	ideal place of annotation
+			    \param text	where	the text to display
+			    \returns 		the actual display pos is
+			 */
 
     ioDrawArea*		drawarea_;
 
-    StepInterval<float>	xaxis_;
-    StepInterval<float>	yaxis_;
+    Interval<double>	xrg_;
+    Interval<double>	yrg_;
+
+    SamplingData<double>xaxis_;
+    SamplingData<double>yaxis_;
 
     uiRect		uirect_;
     bool		useuirect_;

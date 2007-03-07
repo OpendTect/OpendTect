@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     ( C ) dGB Beheer B.V.
  Author:        Duntao Wei
  Date:          Mar. 2005
- RCS:           $Id: drawaxis2d.cc,v 1.6 2007-03-07 10:40:38 cvsbert Exp $
+ RCS:           $Id: drawaxis2d.cc,v 1.7 2007-03-07 11:41:23 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,8 +23,10 @@ DrawAxis2D::DrawAxis2D(ioDrawArea* da )
     : drawarea_( da )
     , inside_(false)
     , drawaxisline_(true)
-    , xaxis_( 0, 1, 1 )
-    , yaxis_( 0, 1, 1 )
+    , xaxis_( 0, 1 )
+    , yaxis_( 0, 1 )
+    , xrg_( 0, 1 )
+    , yrg_( 0, 1 )
     , useuirect_( false )
 { }
 
@@ -47,21 +49,23 @@ void DrawAxis2D::setDrawRectangle( const uiRect* ur )
 
 void DrawAxis2D::setup( const uiWorldRect& wr )
 {
-    xaxis_.start = wr.left();
-    xaxis_.stop = wr.right();
-    xaxis_.step = AxisLayout(Interval<float>( wr.left(), wr.right())).sd.step;
+    xrg_.start = wr.left();
+    xrg_.stop = wr.right();
+    xaxis_ = AxisLayout(Interval<float>( wr.left(), wr.right())).sd;
 
-    yaxis_.start = wr.top();
-    yaxis_.stop = wr.bottom();
-    yaxis_.step = AxisLayout(Interval<float>( wr.top(), wr.bottom())).sd.step;
+    yrg_.start = wr.top();
+    yrg_.stop = wr.bottom();
+    yaxis_ = AxisLayout(Interval<float>( wr.top(), wr.bottom())).sd;
 }
 
 
 void DrawAxis2D::setup( const StepInterval<float>& xrg,
 			const StepInterval<float>& yrg )
 {
-    xaxis_ = xrg;
-    yaxis_ = yrg;
+    xrg_.setFrom( xrg );
+    yrg_.setFrom( yrg );
+    xaxis_ = SamplingData<double>( xrg.start, xrg.step );
+    yaxis_ = SamplingData<double>( yrg.start, yrg.step );
 }
 
 
@@ -76,8 +80,8 @@ void DrawAxis2D::drawAxes( bool xdir, bool ydir,
 void DrawAxis2D::drawXAxis( bool topside ) const
 {
     const uiRect drawarea = getDrawArea();
-    const uiWorld2Ui transform( uiWorldRect( xaxis_.start, yaxis_.start,
-					     xaxis_.stop, yaxis_.stop ),
+    const uiWorld2Ui transform( uiWorldRect( xrg_.start, yrg_.start,
+					     xrg_.stop, yrg_.stop ),
 				drawarea.getPixelSize() );
 
     int baseline, bias;
@@ -95,18 +99,19 @@ void DrawAxis2D::drawXAxis( bool topside ) const
     if ( drawaxisline_ )
 	drawarea_->drawTool()->drawLine( drawarea.left(), baseline,
 				       drawarea.right(), baseline );
-   
-    float x = xaxis_.start; 
-    while ( x<=xaxis_.stop )
+  
+    const double width = xrg_.stop - xaxis_.start;
+    double x = 0;
+    while ( x<=width )
     {
-	const int wx = transform.toUiX( x ) + drawarea.left();
+	BufferString text;
+	const double displaypos = getAnnotTextAndPos(true,xaxis_.start+x,&text);
+	const int wx = transform.toUiX( displaypos ) + drawarea.left();
 	drawarea_->drawTool()->drawLine( wx, baseline, wx, baseline+bias );
 
-	BufferString txt = x;
 	Alignment al( Alignment::Middle, Alignment::Start );
-	float textbias = bias;
 	if ( bias<0 ) al.ver = Alignment::Stop;
-	drawarea_->drawTool()->drawText( wx, baseline+bias, txt, al );
+	drawarea_->drawTool()->drawText( wx, baseline+bias, text.buf(), al );
 
 	x += xaxis_.step;
     }
@@ -117,8 +122,8 @@ void DrawAxis2D::drawYAxis( bool leftside ) const
 {
     const uiRect drawarea = getDrawArea();
     const uiWorld2Ui transform(
-	    uiWorldRect( xaxis_.start, yaxis_.start,
-			 xaxis_.stop, yaxis_.stop ),
+	    uiWorldRect( xrg_.start, yrg_.start,
+			 xrg_.stop, yrg_.stop ),
 	    drawarea.getPixelSize() );
 
     int baseline, bias;
@@ -137,16 +142,19 @@ void DrawAxis2D::drawYAxis( bool leftside ) const
 	drawarea_->drawTool()->drawLine( baseline, drawarea.top(),
 				       baseline, drawarea.bottom() );
     
-    float y = yaxis_.start; 
-    while ( y<=yaxis_.stop )
+    const double width = yrg_.stop - yaxis_.start;
+    double y = 0;
+    while ( y<=width )
     {
-	const int wy = transform.toUiY( y ) + drawarea.top();
+	BufferString text;
+	const double displaypos =
+	    getAnnotTextAndPos( false, y+yaxis_.start, &text );
+	const int wy = transform.toUiY( displaypos ) + drawarea.top();
 	drawarea_->drawTool()->drawLine( baseline, wy, baseline+bias, wy );
 
-	const BufferString txt = y;
 	Alignment al( Alignment::Start, Alignment::Middle );
 	if ( bias < 0 ) al.hor = Alignment::Stop;
-	drawarea_->drawTool()->drawText( baseline+bias, wy , txt, al );
+	drawarea_->drawTool()->drawText( baseline+bias, wy , text.buf(), al );
 
 	y += yaxis_.step;
     }
@@ -156,17 +164,19 @@ void DrawAxis2D::drawYAxis( bool leftside ) const
 void DrawAxis2D::drawGridLines( bool xdir, bool ydir ) const
 {
     const uiRect drawarea = getDrawArea();
-    const uiWorld2Ui transform( uiWorldRect( xaxis_.start, yaxis_.start,
-					     xaxis_.stop, yaxis_.stop ),
+    const uiWorld2Ui transform( uiWorldRect( xrg_.start, yrg_.start,
+					     xrg_.stop, yrg_.stop ),
 				drawarea.getPixelSize() );
     if ( xdir )
     {
 	const int top = drawarea.top();
 	const int bot = drawarea.bottom();
-	float x = xaxis_.start; 
-	while ( x<=xaxis_.stop )
+	const double width = xrg_.stop - xaxis_.start;
+	double x = 0;
+	while ( x<=width )
 	{
-	    const int wx = transform.toUiX( x ) + drawarea.left();
+	    const double displaypos = getAnnotTextAndPos( true, x+xaxis_.start);
+	    const int wx = transform.toUiX( displaypos ) + drawarea.left();
 	    drawarea_->drawTool()->drawLine( wx, top, wx, bot );
 	    x += xaxis_.step;
 	}
@@ -176,10 +186,12 @@ void DrawAxis2D::drawGridLines( bool xdir, bool ydir ) const
     {
 	const int left = drawarea.left();
 	const int right = drawarea.right();
-	float y = yaxis_.start; 
-	while ( y<=yaxis_.stop )
+	const double width = yrg_.stop - yaxis_.start;
+	double y = 0;
+	while ( y<=width )
 	{
-	    const int wy = transform.toUiY( y ) + drawarea.top();
+	    const double displaypos = getAnnotTextAndPos(false, y+yaxis_.start);
+	    const int wy = transform.toUiY( displaypos ) + drawarea.top();
 	    drawarea_->drawTool()->drawLine( left, wy, right, wy );
 	    y += yaxis_.step;
 	}
@@ -194,4 +206,12 @@ uiRect DrawAxis2D::getDrawArea() const
 
     return uiRect( 0, 0, drawarea_->drawTool()->getDevWidth(),
 	    	   drawarea_->drawTool()->getDevHeight() );
+}
+
+
+double DrawAxis2D::getAnnotTextAndPos( bool isx, double proposedpos,
+				     BufferString* text ) const
+{
+    if ( text ) (*text) = proposedpos;
+    return proposedpos;
 }
