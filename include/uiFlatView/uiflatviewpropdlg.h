@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          Dec 2006
- RCS:           $Id: uiflatviewpropdlg.h,v 1.6 2007-03-07 10:42:52 cvsbert Exp $
+ RCS:           $Id: uiflatviewpropdlg.h,v 1.7 2007-03-07 13:52:46 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 class uiFVWVAPropTab;
 class uiFVVDPropTab;
 class uiFVAnnotPropTab;
+class uiGenInput;
 
 		     
 class uiFlatViewPropDlg : public uiTabStackDlg
@@ -29,6 +30,7 @@ public:
 
 protected:
 
+    uiGenInput*		titlefld_;
     uiFVWVAPropTab*	wvatab_;
     uiFVVDPropTab*	vdtab_;
     uiFVAnnotPropTab*	annottab_;
