@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2000
- RCS:           $Id: flatview.cc,v 1.6 2007-03-07 10:36:07 cvsbert Exp $
+ RCS:           $Id: flatview.cc,v 1.7 2007-03-07 13:53:04 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -392,25 +392,32 @@ void FlatView::Viewer::syncDataPacks()
     const Array2D<float>* curvdarr = data().arr(false);
     const Array2D<float>* packwvaarr = wvapack ? &wvapack->data() : 0;
     const Array2D<float>* packvdarr = vdpack ? &vdpack->data() : 0;
-
-    if ( !curwvaarr && !curvdarr )
+    if ( (curwvaarr == packwvaarr && curvdarr == packvdarr)
+      || (!packwvaarr && !packvdarr) )
+	return;
+    else if ( !curwvaarr && !curvdarr )
     {
+	// No packs used
 	dpm.release(fddpdata->wvapack_); dpm.release(fddpdata->vdpack_);
 	fddpdata->wvapack_ = fddpdata->vdpack_ = 0;
+	return;
     }
     else if ( curwvaarr == packvdarr && curvdarr == packwvaarr )
     {
+	// Packs have switched
 	Swap( fddpdata->wvapack_, fddpdata->vdpack_ );
+	return;
     }
-    else if ( curwvaarr == packvdarr )
+
+    if ( curwvaarr != packwvaarr && curvdarr != packwvaarr )
     {
-	dpm.release(fddpdata->wvapack_);
-	fddpdata->wvapack_ = fddpdata->vdpack_;
+	dpm.release( fddpdata->wvapack_ );
+	fddpdata->wvapack_ = curwvaarr == packvdarr ? fddpdata->vdpack_ : 0;
     }
-    else if ( curvdarr == packwvaarr )
+    if ( curwvaarr != packvdarr && curvdarr != packvdarr )
     {
-	dpm.release(fddpdata->vdpack_);
-	fddpdata->vdpack_ = fddpdata->wvapack_;
+	dpm.release( fddpdata->vdpack_ );
+	fddpdata->vdpack_ = curvdarr == packwvaarr ? fddpdata->wvapack_ : 0;
     }
 }
 
