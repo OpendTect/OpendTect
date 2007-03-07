@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/01/2002
- RCS:           $Id: uitreeview.cc,v 1.26 2007-02-14 12:38:00 cvsnanne Exp $
+ RCS:           $Id: uitreeview.cc,v 1.27 2007-03-07 17:53:24 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -764,7 +764,7 @@ const char* uiListViewItem::text( int column ) const
 
 void uiListViewItem::setPixmap( int column, const ioPixmap& pm )
 {
-    mQthing().setPixmap( column, pm.Pixmap() ? *pm.Pixmap() : QPixmap() );
+    mQthing().setPixmap( column, pm.qpixmap() ? *pm.qpixmap() : QPixmap() );
 }
 
 /*!

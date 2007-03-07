@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		December 2006
- RCS:		$Id: uisplashscreen.cc,v 1.1 2007-02-06 21:26:50 cvsnanne Exp $
+ RCS:		$Id: uisplashscreen.cc,v 1.2 2007-03-07 17:53:24 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,7 +19,7 @@ ________________________________________________________________________
 
 uiSplashScreen::uiSplashScreen( const ioPixmap& pm )
 {
-    qsplashscreen_ = new QSplashScreen( *pm.Pixmap() );
+    qsplashscreen_ = new QSplashScreen( *pm.qpixmap() );
 }
 
 

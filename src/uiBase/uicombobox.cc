@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uicombobox.cc,v 1.40 2007-02-14 12:38:00 cvsnanne Exp $
+ RCS:           $Id: uicombobox.cc,v 1.41 2007-03-07 17:53:24 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -114,7 +114,7 @@ void uiComboBox::setPixmap( const ioPixmap& pixmap, int index )
 {
     const char* txt = textOfItem( index );
     if ( index >= 0 && index < body_->count() )
-	body_->changeItem( *pixmap.Pixmap(), QString(txt), index );
+	body_->changeItem( *pixmap.qpixmap(), QString(txt), index );
 }
 
 
@@ -240,7 +240,7 @@ void uiComboBox::insertItem( const char* text, int index )
 
 void uiComboBox::insertItem( const ioPixmap& pm, const char* text , int index )
 {
-    body_->insertItem( *pm.Pixmap(), QString(text), index );
+    body_->insertItem( *pm.qpixmap(), QString(text), index );
 }
 
 

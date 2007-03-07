@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/06/2001
- RCS:           $Id: uiobjbody.cc,v 1.10 2007-02-14 12:38:00 cvsnanne Exp $
+ RCS:           $Id: uiobjbody.cc,v 1.11 2007-03-07 17:53:46 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -237,7 +237,7 @@ void uiObjectBody::uisetBackgroundPixmap( const char* img[] )
 
 void uiObjectBody::uisetBackgroundPixmap( const ioPixmap& pm )
 {
-    qwidget()->setPaletteBackgroundPixmap( *pm.Pixmap() );
+    qwidget()->setPaletteBackgroundPixmap( *pm.qpixmap() );
 }
 
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/12/1999
- RCS:           $Id: iodraw.cc,v 1.22 2007-03-07 10:34:38 cvsbert Exp $
+ RCS:           $Id: iodraw.cc,v 1.23 2007-03-07 17:53:24 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -231,7 +231,7 @@ void ioDrawTool::drawBackgroundPixmap( const Color* col )
 void ioDrawTool::drawPixmap (const uiPoint& destTopLeft, const ioPixmap* pm,
 			     const uiRect& srcAreaInPixmap )
 {
-    if ( !pm || !pm->Pixmap() ) 
+    if ( !pm || !pm->qpixmap() ) 
     { 
 	pErrMsg( "ioDrawTool::drawPixmap : No pixmap" ); 
 	return; 
@@ -244,7 +244,7 @@ void ioDrawTool::drawPixmap (const uiPoint& destTopLeft, const ioPixmap* pm,
     
     QPoint dest( destTopLeft.x-x0_, destTopLeft.y-y0_ );
 
-    qpainter_->drawPixmap( dest, *pm->Pixmap(), src );
+    qpainter_->drawPixmap( dest, *pm->qpixmap(), src );
 
 }
 

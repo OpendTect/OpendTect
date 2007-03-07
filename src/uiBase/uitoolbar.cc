@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          30/05/2001
- RCS:           $Id: uitoolbar.cc,v 1.34 2007-03-02 13:10:54 cvshelene Exp $
+ RCS:           $Id: uitoolbar.cc,v 1.35 2007-03-07 17:53:24 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -119,8 +119,9 @@ int uiToolBarBody::addButton( const ioPixmap& pm, const CallBack& cb,
 			      const char* nm, bool toggle )
 {
     i_QToolButReceiver* br= new i_QToolButReceiver;
-    QToolButton* but= new QToolButton( *pm.Pixmap(), QString(nm), QString::null,
-                           br,  SLOT(buttonPressed()),qbar, nm );
+    QToolButton* but= new QToolButton( *pm.qpixmap(), QString(nm),
+	    			       QString::null, br,
+				       SLOT(buttonPressed()),qbar, nm );
     if ( toggle ) but->setToggleButton( true );
 
     receivers += br;
@@ -135,7 +136,7 @@ int uiToolBarBody::addButton( const ioPixmap& pm, const CallBack& cb,
 			      const char* nm, bool toggle )
 {
     i_QToolButReceiver* br= new i_QToolButReceiver;
-    QAction* qaction = qbar->addAction( *pm.Pixmap(), nm, br,
+    QAction* qaction = qbar->addAction( *pm.qpixmap(), nm, br,
 					SLOT(buttonPressed()) );
     if ( toggle ) qaction->setCheckable( true );
 
@@ -179,14 +180,13 @@ void uiToolBarBody::reLoadPixMaps()
 	FileMultiString fms( pmsrc );
 	const int len = fms.size();
 	const BufferString fnm( fms[0] );
-	if ( !File_exists(fnm) )
+	const ioPixmap pm( fnm.buf(), len > 1 ? fms[1] : 0 );
+	if ( pm.isEmpty() )
 	    continue;
-
-	QPixmap qpix( fnm.buf(), len > 1 ? fms[1] : 0 );
 #ifdef USEQT3
-	buttons[idx]->setPixmap( qpix );
+	buttons[idx]->setPixmap( *pm.qpixmap() );
 #else
-	actions[idx]->setIcon( qpix );
+	actions[idx]->setIcon( *pm.qpixmap() );
 #endif
     }
 }
@@ -221,9 +221,9 @@ void uiToolBarBody::setPixmap( int idx, const char* fnm )
 void uiToolBarBody::setPixmap( int idx, const ioPixmap& pm )
 {
 #ifdef USEQT3
-    buttons[idx]->setPixmap( *pm.Pixmap() );
+    buttons[idx]->setPixmap( *pm.qpixmap() );
 #else
-    actions[idx]->setIcon( *pm.Pixmap() );
+    actions[idx]->setIcon( *pm.qpixmap() );
 #endif
 }
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.cc,v 1.51 2007-02-14 12:38:00 cvsnanne Exp $
+ RCS:           $Id: uitable.cc,v 1.52 2007-03-07 17:53:24 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -496,7 +496,7 @@ mIsFunc( isRowStretchable )
 
 
 void uiTable::setPixmap( const RowCol& rc, const ioPixmap& pm )
-{ body_->setPixmap( rc.row, rc.col, *pm.Pixmap() ); }
+{ body_->setPixmap( rc.row, rc.col, *pm.qpixmap() ); }
 
 
 void uiTable::setColor( const RowCol& rc, const Color& col )

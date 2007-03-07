@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uibutton.cc,v 1.33 2007-02-27 08:42:49 cvsnanne Exp $
+ RCS:           $Id: uibutton.cc,v 1.34 2007-03-07 17:53:24 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -54,7 +54,7 @@ template< class T > class uiButtonTemplBody : public uiButtonBody,
 				     const ioPixmap& pm,
 				     uiParent* parnt, const char* txt)
 			    : uiObjectBody( parnt, txt )
-			    , T( mQIcon(*pm.Pixmap()),txt, 
+			    , T( mQIcon(*pm.qpixmap()),txt, 
 					parnt && parnt->pbody() ?
 					parnt->pbody()->managewidg() : 0 mTxt )
                             , handle_( handle )
@@ -246,7 +246,7 @@ void uiPushButton::setPixmap( const ioPixmap& pm )
 {
     delete pixmap_;
     pixmap_ = new ioPixmap( pm );
-    body_->setPixmap( *pm.Pixmap() );
+    body_->setPixmap( *pm.qpixmap() );
 }
 
 
@@ -330,7 +330,7 @@ uiToolButtonBody& uiToolButton::mkbody( uiParent* parnt, const ioPixmap* pm,
 {
     body_ = new uiToolButtonBody(*this,parnt,txt); 
     if ( pm )
-        body_->setIconSet( QIconSet(*pm->Pixmap()) );
+        body_->setIconSet( QIconSet(*pm->qpixmap()) );
 
     return *body_;
 }
@@ -358,8 +358,8 @@ void uiToolButton::setToggleButton( bool yn) { body_->mSetToggleButton(yn); }
 void uiToolButton::setPixmap( const ioPixmap& pm )
 {
 #ifdef USEQT3
-    body_->setIconSet( QIconSet(*pm.Pixmap()) );
+    body_->setIconSet( QIconSet(*pm.qpixmap()) );
 #else
-    body_->setIcon( QIcon(*pm.Pixmap()) );
+    body_->setIcon( QIcon(*pm.qpixmap()) );
 #endif
 }
