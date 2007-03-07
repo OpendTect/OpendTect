@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2005
- RCS:           $Id: flatview.h,v 1.6 2007-03-02 10:56:30 cvshelene Exp $
+ RCS:           $Id: flatview.h,v 1.7 2007-03-07 10:36:07 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -270,7 +270,7 @@ public:
     virtual const char*	wvaname() const		{ return name(true); }
     virtual const char*	vdname() const		{ return name(false); }
 				
-    virtual void	addAuxInfo(bool wva,int,int,IOPar&) const	= 0;
+    virtual void	addAuxInfo(bool wva,int,int,IOPar&) const	{}
     			//!< Give extra info like stuff from trace headers
     			//!< should be 'printable'
 
@@ -327,6 +327,7 @@ public:
     			//!< The pack must have been obtained non-observing.
     virtual const FlatDataPack*	getPack(bool wva) const;
     			//!< May return null
+    void		syncDataPacks(); //!< after mix/null of data().arr's
     void		getAuxInfo(const Point&,IOPar&) const;
 
 protected:
