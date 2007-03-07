@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiseispartserv.cc,v 1.61 2007-03-02 15:36:06 cvsbert Exp $
+ RCS:           $Id: uiseispartserv.cc,v 1.62 2007-03-07 10:38:09 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,6 +27,8 @@ ________________________________________________________________________
 #include "seisbufadapters.h"
 #include "segposinfo.h"
 #include "survinfo.h"
+#include "seistrc.h"
+#include "seistrcprop.h"
 
 #include "uiexecutor.h"
 #include "uiflatviewer.h"
@@ -248,6 +250,17 @@ bool uiSeisPartServer::handleGatherSubMenu( int mnuid, const BinID& bid )
     if ( tbufsz == 0 )
 	mErrRet( "Gather is empty" )
 
+    SeisTrcBuf* tbuffreq = new SeisTrcBuf;
+    for ( int idx=0; idx<tbufsz; idx++ )
+    {
+	const SeisTrc& inptrc = *tbuf->get(idx);
+	SeisTrc* trc = new SeisTrc( inptrc );
+	SeisTrcPropCalc pc( inptrc, 0 );
+	for ( int isamp=0; isamp<trc->size(); isamp++ )
+	    trc->set( isamp, pc.getFreq(isamp), 0 );
+	tbuffreq->add( trc );
+    }
+
     BufferString title( "Gather from [" ); title += ioobj->name();
     title += "] at "; title += bid.inl; title += "/"; title += bid.crl;
     bool isnew = !viewwin_;
@@ -265,13 +278,19 @@ bool uiSeisPartServer::handleGatherSubMenu( int mnuid, const BinID& bid )
 	ctxt.ddpars_.wva_.overlap_ = 1;
     }
 
+    uiFlatViewer& vwr = viewwin_->viewer();
     SeisTrcBufDataPack* dp = new SeisTrcBufDataPack( *tbuf,
 				 Seis::VolPS, SeisTrcInfo::Offset,
 				 "Pre-Stack Gather" );
-    dp->setName( title );
+    dp->setName( "Seismics" );
     DPM( DataPackMgr::FlatID ).add( dp );
-    uiFlatViewer& vwr = viewwin_->viewer();
-    vwr.setPack( true, dp ); vwr.setPack( false, dp );
+    vwr.setPack( true, dp );
+    dp = new SeisTrcBufDataPack( *tbuffreq, Seis::VolPS, SeisTrcInfo::Offset,
+				 "Pre-Stack Gather.Freq" );
+    dp->setName( "Local frequency" );
+    DPM( DataPackMgr::FlatID ).add( dp );
+    vwr.setPack( false, dp );
+    vwr.context().ddpars_.show( true, false );
 
     if ( !isnew )
 	vwr.handleChange( FlatView::Viewer::All );
