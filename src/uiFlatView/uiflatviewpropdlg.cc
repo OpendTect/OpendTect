@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          Dec 2006
- RCS:           $Id: uiflatviewpropdlg.cc,v 1.7 2007-03-07 13:52:35 cvsbert Exp $
+ RCS:           $Id: uiflatviewpropdlg.cc,v 1.8 2007-03-07 14:13:34 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -101,7 +101,8 @@ void uiFlatViewDataDispPropTab::setDataNames( const FlatView::Data& fvd )
     {
 	const char* vdnm = fvd.name( false );
 	if ( !vdnm || !*vdnm ) vdnm = "Original VD data";
-	dispfld_->box()->addItem( vdnm );
+	if ( !dispfld_->box()->isPresent(vdnm) )
+	    dispfld_->box()->addItem( vdnm );
     }
 }
 
