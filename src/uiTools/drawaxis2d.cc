@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     ( C ) dGB Beheer B.V.
  Author:        Duntao Wei
  Date:          Mar. 2005
- RCS:           $Id: drawaxis2d.cc,v 1.5 2007-02-28 22:30:36 cvskris Exp $
+ RCS:           $Id: drawaxis2d.cc,v 1.6 2007-03-07 10:40:38 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -106,7 +106,7 @@ void DrawAxis2D::drawXAxis( bool topside ) const
 	Alignment al( Alignment::Middle, Alignment::Start );
 	float textbias = bias;
 	if ( bias<0 ) al.ver = Alignment::Stop;
-	drawarea_->drawTool()->drawText( wx, baseline+bias, txt, al, false );
+	drawarea_->drawTool()->drawText( wx, baseline+bias, txt, al );
 
 	x += xaxis_.step;
     }
@@ -146,7 +146,7 @@ void DrawAxis2D::drawYAxis( bool leftside ) const
 	const BufferString txt = y;
 	Alignment al( Alignment::Start, Alignment::Middle );
 	if ( bias < 0 ) al.hor = Alignment::Stop;
-	drawarea_->drawTool()->drawText( baseline+bias, wy , txt, al, false );
+	drawarea_->drawTool()->drawText( baseline+bias, wy , txt, al );
 
 	y += yaxis_.step;
     }
