@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          03/07/2001
- RCS:           $Id: i_uidrwbody.h,v 1.17 2007-03-08 09:51:31 cvsnanne Exp $
+ RCS:           $Id: i_uidrwbody.h,v 1.18 2007-03-08 10:29:49 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -58,6 +58,14 @@ public:
     virtual QPaintDevice* 	mQPaintDevice()		{ return this; }
     virtual const QPaintDevice*	mQPaintDevice() const	{ return this; }
 
+#ifndef USEQT3
+public:
+    void		setMouseTracking( bool yn )
+			{ T::setMouseTracking( yn ); }
+    bool		hasMouseTracking() const
+			{ return T::hasMouseTracking(); }
+#endif
+
 protected:
 #ifndef USEQT3
     virtual void	drawContents(QPainter*);
@@ -73,9 +81,6 @@ protected:
     virtual void	mouseMoveEvent(QMouseEvent*);
     virtual void	mouseReleaseEvent(QMouseEvent*);
     virtual void	mouseDoubleClickEvent(QMouseEvent*);
-
-    void		setMouseTracking(bool);
-    bool		hasMouseTracking() const;
 
     uiRubberBand*	rubberband_;
 #endif
@@ -204,15 +209,6 @@ void uiDrawableObjBody<C,T>::mouseDoubleClickEvent( QMouseEvent* qev )
     MouseEvent mev( bs, qev->x(), qev->y() );
     handle_.getMouseEventHandler().triggerDoubleClick( mev );
 }
-
-template <class C,class T>
-void uiDrawableObjBody<C,T>::setMouseTracking( bool yn )
-{ T::setMouseTracking( yn ); }
-
-
-template <class C,class T>
-bool uiDrawableObjBody<C,T>::hasMouseTracking() const
-{ return T::hasMouseTracking(); }
 #endif
 
 #endif

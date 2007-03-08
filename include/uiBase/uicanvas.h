@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uicanvas.h,v 1.15 2007-02-14 12:38:00 cvsnanne Exp $
+ RCS:           $Id: uicanvas.h,v 1.16 2007-03-08 10:29:49 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,6 +25,8 @@ public:
     virtual			~uiCanvas()			{}
 
     void			update();
+    void			setMouseTracking(bool);
+    bool			hasMouseTracking() const;
 
 private:
 
