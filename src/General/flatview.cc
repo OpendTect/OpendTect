@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2000
- RCS:           $Id: flatview.cc,v 1.7 2007-03-07 13:53:04 cvsbert Exp $
+ RCS:           $Id: flatview.cc,v 1.8 2007-03-08 17:03:52 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -374,6 +374,15 @@ void FlatView::Viewer::setPack( bool wva, const FlatDataPack* newpack )
     }
 
     handleChange( wva ? WVAData : VDData );
+}
+
+
+bool FlatView::Viewer::isVisible( bool wva ) const
+{
+    if ( wva )
+	return context().ddpars_.wva_.show_ && data().wvaarr();
+    else
+        return context().ddpars_.vd_.show_ && data().vdarr();
 }
 
 

@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2005
- RCS:           $Id: flatview.h,v 1.7 2007-03-07 10:36:07 cvsbert Exp $
+ RCS:           $Id: flatview.h,v 1.8 2007-03-08 17:03:52 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -307,6 +307,8 @@ public:
     			{ return const_cast<Viewer*>(this)->data(); }
 
     virtual bool	isVertical() const		{ return true; }
+    bool		isVisible(bool wva) const;
+    			//!< Depends on pars and availability of data
 
     enum DataChangeType	{ None, All, Annot, WVAData, VDData, WVAPars, VDPars };
     virtual void	handleChange(DataChangeType)	= 0;

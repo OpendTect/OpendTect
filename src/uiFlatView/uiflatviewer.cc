@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          Sep 2006
- RCS:           $Id: uiflatviewer.cc,v 1.12 2007-03-07 10:42:43 cvsbert Exp $
+ RCS:           $Id: uiflatviewer.cc,v 1.13 2007-03-08 17:03:52 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -103,8 +103,9 @@ uiWorldRect uiFlatViewer::getBoundingBox( bool wva ) const
 uiWorldRect uiFlatViewer::boundingBox() const
 {
     const FlatView::Context& ctxt = context();
-    uiWorldRect wr1 = getBoundingBox( ctxt.ddpars_.wva_.show_ );
-    if ( ctxt.ddpars_.wva_.show_ && ctxt.ddpars_.vd_.show_ )
+    const bool wvavisible = isVisible( true );
+    uiWorldRect wr1 = getBoundingBox( wvavisible );
+    if ( wvavisible && isVisible(false) )
     {
 	uiWorldRect wr2 = getBoundingBox( false );
 	if ( wr1.left() > wr2.left() )
