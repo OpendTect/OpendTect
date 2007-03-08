@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          03/07/2001
- RCS:           $Id: i_uidrwbody.h,v 1.16 2007-03-07 10:20:27 cvshelene Exp $
+ RCS:           $Id: i_uidrwbody.h,v 1.17 2007-03-08 09:51:31 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -73,6 +73,9 @@ protected:
     virtual void	mouseMoveEvent(QMouseEvent*);
     virtual void	mouseReleaseEvent(QMouseEvent*);
     virtual void	mouseDoubleClickEvent(QMouseEvent*);
+
+    void		setMouseTracking(bool);
+    bool		hasMouseTracking() const;
 
     uiRubberBand*	rubberband_;
 #endif
@@ -201,6 +204,15 @@ void uiDrawableObjBody<C,T>::mouseDoubleClickEvent( QMouseEvent* qev )
     MouseEvent mev( bs, qev->x(), qev->y() );
     handle_.getMouseEventHandler().triggerDoubleClick( mev );
 }
+
+template <class C,class T>
+void uiDrawableObjBody<C,T>::setMouseTracking( bool yn )
+{ T::setMouseTracking( yn ); }
+
+
+template <class C,class T>
+bool uiDrawableObjBody<C,T>::hasMouseTracking() const
+{ return T::hasMouseTracking(); }
 #endif
 
 #endif
