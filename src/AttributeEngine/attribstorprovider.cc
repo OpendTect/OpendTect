@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribstorprovider.cc,v 1.56 2007-03-08 12:40:08 cvshelene Exp $";
+static const char* rcsID = "$Id: attribstorprovider.cc,v 1.57 2007-03-08 15:13:33 cvshelene Exp $";
 
 #include "attribstorprovider.h"
 
@@ -574,7 +574,8 @@ bool StorageProvider::fillDataHolderWithTrc( const SeisTrc* trc,
 	offset = mNINT( z0 - exacttime/refstep );
     }
     
-    const Interval<float> trcrange = trc->info().sampling.interval( trc->size() );
+    Interval<float> trcrange = trc->info().sampling.interval(trc->size());
+    trcrange.widen( 0.001 * trc->info().sampling.step );
     for ( int idx=0; idx<data.nrsamples_; idx++ )
     {
 	const float curt = needinterp ? exacttime + (offset+idx)*refstep 
@@ -646,7 +647,8 @@ void StorageProvider::fillDataCubesWithTrc( DataCubes* dc ) const
     const SeisTrc* trc = rg[currentreq]->get(0,0);
     if ( !trc ) return;
 
-    const Interval<float> trcrange = trc->info().sampling.interval( trc->size() );
+    Interval<float> trcrange = trc->info().sampling.interval(trc->size());
+    trcrange.widen( 0.001 * trc->info().sampling.step );
     const BinID bid = trc->info().binid;
     if ( dc->includes( bid ) )
     {
