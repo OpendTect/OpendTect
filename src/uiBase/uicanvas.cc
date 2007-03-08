@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uicanvas.cc,v 1.34 2007-03-01 11:30:35 cvsnanne Exp $
+ RCS:           $Id: uicanvas.cc,v 1.35 2007-03-08 10:28:53 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -366,6 +366,14 @@ uiCanvasBody& uiCanvas::mkbody( uiParent* p,const char* nm)
 
 void uiCanvas::update()
 { body_->updateCanvas(); }
+
+
+void uiCanvas::setMouseTracking( bool yn )
+{ body_->setMouseTracking( yn ); }
+
+
+bool uiCanvas::hasMouseTracking() const
+{ return body_->hasMouseTracking(); }
 
 
 
