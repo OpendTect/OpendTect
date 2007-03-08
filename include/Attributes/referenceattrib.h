@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene PAYRAUDEAU
  Date:          July 2005
- RCS:           $Id: referenceattrib.h,v 1.8 2006-10-20 19:43:15 cvskris Exp $
+ RCS:           $Id: referenceattrib.h,v 1.9 2007-03-08 12:40:08 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -63,7 +63,7 @@ protected:
     bool                getInputOutput(int input,TypeSet<int>& res) const;
     bool                getInputData(const BinID&,int zintv);
     bool		computeData(const DataHolder&,const BinID& relpos,
-				    int t0,int nrsamples) const;
+				    int t0,int nrsamples,int threadid) const;
 
     bool		is2d_;
     

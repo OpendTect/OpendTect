@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          November 2002
- RCS:           $Id: positionattrib.cc,v 1.22 2006-11-21 14:00:06 cvsbert Exp $
+ RCS:           $Id: positionattrib.cc,v 1.23 2007-03-08 12:40:08 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -178,7 +178,7 @@ bool Position::getInputData( const BinID& relpos, int zintv )
 
 
 bool Position::computeData( const DataHolder& output, const BinID& relpos,
-			    int z0, int nrsamples ) const
+			    int z0, int nrsamples, int threadid ) const
 {
     if ( inputdata_.isEmpty() || !outdata_ ) return false;
     

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          February 2003
- RCS:           $Id: freqfilterattrib.h,v 1.8 2006-04-12 07:30:28 cvshelene Exp $
+ RCS:           $Id: freqfilterattrib.h,v 1.9 2007-03-08 12:40:08 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -60,7 +60,7 @@ protected:
     bool		getInputOutput(int input,TypeSet<int>& res) const;
     bool		getInputData(const BinID&, int idx);
     bool		computeData(const DataHolder&,const BinID& relpos,
-				    int t0,int nrsamples) const;
+				    int t0,int nrsamples,int threadid) const;
     void		butterWorthFilter(const DataHolder&, int, int);
     void		fftFilter(const DataHolder&, int, int);
 

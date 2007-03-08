@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          January 2004
- RCS:           $Id: specdecompattrib.cc,v 1.17 2006-08-03 08:04:34 cvshelene Exp $
+ RCS:           $Id: specdecompattrib.cc,v 1.18 2007-03-08 12:40:08 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -178,7 +178,7 @@ bool SpecDecomp::getInputData( const BinID& relpos, int idx )
 
 
 bool SpecDecomp::computeData( const DataHolder& output, const BinID& relpos,
-	                          int z0, int nrsamples ) const
+			      int z0, int nrsamples, int threadid ) const
 {
     if ( !fftisinit_ )
     {

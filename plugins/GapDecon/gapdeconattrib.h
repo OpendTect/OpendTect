@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Huck
  Date:          14-07-2006
- RCS:           $Id: gapdeconattrib.h,v 1.12 2006-10-06 08:49:28 cvshelene Exp $
+ RCS:           $Id: gapdeconattrib.h,v 1.13 2007-03-08 12:40:08 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,7 +50,8 @@ protected:
     bool			getInputData(const BinID&,int zintv);
     bool			computeData(const DataHolder&,
 	    				    const BinID& relpos,
-					    int z0,int nrsamples) const;
+					    int z0,int nrsamples,
+					    int threadid) const;
 
     Interval<float>		gate_;
     int				lagsize_;

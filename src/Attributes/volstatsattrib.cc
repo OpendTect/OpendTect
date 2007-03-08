@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: volstatsattrib.cc,v 1.33 2006-09-29 14:55:35 cvshelene Exp $";
+static const char* rcsID = "$Id: volstatsattrib.cc,v 1.34 2007-03-08 12:40:08 cvshelene Exp $";
 
 #include "volstatsattrib.h"
 
@@ -272,7 +272,7 @@ const Interval<float>* VolStats::desZMargin( int inp, int ) const
 
 
 bool VolStats::computeData( const DataHolder& output, const BinID& relpos,
-			    int z0, int nrsamples ) const
+			    int z0, int nrsamples, int threadid ) const
 {
     const int nrpos = positions_.size();
     const Interval<int> samplegate( mNINT(gate_.start/refstep), 

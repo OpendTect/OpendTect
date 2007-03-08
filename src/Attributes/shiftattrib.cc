@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: shiftattrib.cc,v 1.22 2007-01-18 08:54:04 cvshelene Exp $";
+static const char* rcsID = "$Id: shiftattrib.cc,v 1.23 2007-03-08 12:40:08 cvshelene Exp $";
 
 #include "shiftattrib.h"
 #include "attribdataholder.h"
@@ -115,7 +115,7 @@ bool Shift::getInputData( const BinID& relpos, int zintv )
 
 
 bool Shift::computeData( const DataHolder& output, const BinID& relpos,
-			 int z0, int nrsamples ) const
+			 int z0, int nrsamples, int threadid ) const
 {
     if ( !outputinterest[0] ) return false;
 

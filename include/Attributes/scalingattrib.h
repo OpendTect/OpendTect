@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          December 2004
- RCS:           $Id: scalingattrib.h,v 1.12 2006-10-20 19:43:15 cvskris Exp $
+ RCS:           $Id: scalingattrib.h,v 1.13 2007-03-08 12:40:08 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -57,7 +57,7 @@ protected:
     bool		getInputOutput(int input,TypeSet<int>& res) const;
     bool		getInputData(const BinID&,int zintv);
     bool		computeData(const DataHolder&,const BinID& relpos,
-				    int z0,int nrsamples) const;
+				    int z0,int nrsamples,int threadid) const;
 
     void		getSampleGates(const TypeSet<Interval<float> >& oldtgs,
 				       TypeSet< Interval<int> >& newsampgates,

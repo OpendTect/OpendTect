@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          September 2006
- RCS:           $Id: horizonattrib.h,v 1.2 2006-09-22 15:12:44 cvsnanne Exp $
+ RCS:           $Id: horizonattrib.h,v 1.3 2007-03-08 12:40:08 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,7 +42,7 @@ protected:
 
     virtual bool	getInputData(const BinID&,int intv);
     virtual bool	computeData(const DataHolder&,const BinID& relpos,
-	    			    int z0,int nrsamples) const;
+	    			    int z0,int nrsamples,int threadid) const;
 
     virtual bool	allowParallelComputation() const { return true; }
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribstorprovider.h,v 1.20 2007-02-01 15:34:14 cvshelene Exp $
+ RCS:           $Id: attribstorprovider.h,v 1.21 2007-03-08 12:40:08 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -55,7 +55,7 @@ protected:
     void		setDesBufStepout(const BinID&,bool wait=false);
     bool        	computeData(const DataHolder& output,
 				    const BinID& relpos,
-				    int t0,int nrsamples) const;
+				    int t0,int nrsamples,int threadid) const;
 
     bool		fillDataHolderWithTrc(const SeisTrc*,
 					      const DataHolder&) const;

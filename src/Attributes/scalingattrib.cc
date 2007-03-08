@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          December 2004
- RCS:           $Id: scalingattrib.cc,v 1.20 2006-09-21 12:02:47 cvsbert Exp $
+ RCS:           $Id: scalingattrib.cc,v 1.21 2007-03-08 12:40:08 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -191,7 +191,7 @@ void Scaling::getScaleFactorsFromStats( const TypeSet<Interval<int> >& sgates,
     
 
 bool Scaling::computeData( const DataHolder& output, const BinID& relpos,
-			   int z0, int nrsamples ) const
+			   int z0, int nrsamples, int threadid ) const
 {
     if ( scalingtype_ == mScalingTypeTPower )
     {

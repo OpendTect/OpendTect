@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Helene Payraudeau
  Date:		February 2005
- RCS:		$Id: eventattrib.h,v 1.14 2006-10-20 19:43:15 cvskris Exp $
+ RCS:		$Id: eventattrib.h,v 1.15 2007-03-08 12:40:08 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -55,7 +55,8 @@ protected:
     bool			getInputData(const BinID&,int zintv);
     bool			computeData(const DataHolder&,
 	    				    const BinID& relpos,
-					    int z0,int nrsamples) const;
+					    int z0,int nrsamples,
+					    int threadid) const;
 
     bool			allowParallelComputation() const
     				{ return true; }

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: mathattrib.cc,v 1.19 2006-12-28 21:10:33 cvsnanne Exp $
+ RCS:           $Id: mathattrib.cc,v 1.20 2007-03-08 12:40:08 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -139,7 +139,7 @@ bool Math::getInputData( const BinID& relpos, int zintv )
 
 
 bool Math::computeData( const DataHolder& output, const BinID& relpos, 
-			int z0, int nrsamples ) const
+			int z0, int nrsamples, int threadid ) const
 {
     PtrMan<MathExpression> mathobj = expression_ ? expression_->clone() : 0;
     if ( !mathobj ) return false;

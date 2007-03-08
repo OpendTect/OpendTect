@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          23-02-2006
- RCS:           $Id: fingerprintattrib.h,v 1.6 2006-10-20 19:43:15 cvskris Exp $
+ RCS:           $Id: fingerprintattrib.h,v 1.7 2007-03-08 12:40:08 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -67,7 +67,8 @@ protected:
     bool			getInputData(const BinID&,int zintv);
     bool			computeData(const DataHolder&,
 	    				    const BinID& relpos,
-					    int z0,int nrsamples) const;
+					    int z0,int nrsamples,
+					    int threadid) const;
 
     TypeSet<float>		refvector_;
     TypeSet< Interval<float> >	ranges_;

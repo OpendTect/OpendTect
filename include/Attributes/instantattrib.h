@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          May 2005
- RCS:           $Id: instantattrib.h,v 1.7 2006-10-20 19:43:15 cvskris Exp $
+ RCS:           $Id: instantattrib.h,v 1.8 2007-03-08 12:40:08 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,7 +40,8 @@ protected:
     bool			getInputOutput(int in,TypeSet<int>& res) const;
     bool			getInputData(const BinID&, int);
     bool			computeData(const DataHolder&,const BinID& pos,
-	    				    int t0,int nrsamples) const;
+	    				    int t0,int nrsamples,
+					    int threadid) const;
 
     const Interval<int>*	reqZSampMargin(int,int) const;
 

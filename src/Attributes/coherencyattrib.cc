@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: coherencyattrib.cc,v 1.16 2006-10-18 12:19:58 cvshelene Exp $";
+static const char* rcsID = "$Id: coherencyattrib.cc,v 1.17 2007-03-08 12:40:08 cvshelene Exp $";
 
 
 #include "coherencyattrib.h"
@@ -173,7 +173,7 @@ float Coherency::calc2( float s, const Interval<int>& rsg,
 
 
 bool Coherency::computeData( const DataHolder& output, const BinID& relpos,
-			     int z0, int nrsamples ) const
+			     int z0, int nrsamples, int threadid ) const
 {
     BinID step = inputs[0]->getStepoutStep();
 	

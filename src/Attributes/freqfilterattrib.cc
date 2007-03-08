@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          February 2003
- RCS:           $Id: freqfilterattrib.cc,v 1.19 2006-12-28 21:10:33 cvsnanne Exp $
+ RCS:           $Id: freqfilterattrib.cc,v 1.20 2007-03-08 12:40:08 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -337,7 +337,7 @@ bool FreqFilter::getInputData( const BinID& relpos, int idx )
 
 
 bool FreqFilter::computeData( const DataHolder& output, const BinID& relpos,
-				int z0, int nrsamples ) const
+				int z0, int nrsamples, int threadid ) const
 {
     if ( isfftfilter )
 	const_cast<FreqFilter*>(this)->fftFilter( output, z0, nrsamples );

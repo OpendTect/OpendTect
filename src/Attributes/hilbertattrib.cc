@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: hilbertattrib.cc,v 1.17 2006-12-06 11:45:17 cvshelene Exp $
+ RCS:           $Id: hilbertattrib.cc,v 1.18 2007-03-08 12:40:08 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -107,7 +107,7 @@ float operator[]( int idx ) const
 
 
 bool Hilbert::computeData( const DataHolder& output, const BinID& relpos, 
-			   int z0, int nrsamples ) const
+			   int z0, int nrsamples, int threadid ) const
 {
     if ( !inputdata_ ) return false;
 

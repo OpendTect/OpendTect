@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: energyattrib.h,v 1.9 2006-10-20 19:43:15 cvskris Exp $
+ RCS:           $Id: energyattrib.h,v 1.10 2007-03-08 12:40:08 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -53,7 +53,7 @@ protected:
     bool		getInputOutput(int input,TypeSet<int>& res) const;
     bool		getInputData(const BinID&, int idx);
     bool		computeData(const DataHolder&,const BinID& relpos,
-				    int t0,int nrsamples) const;
+				    int t0,int nrsamples,int threadid) const;
 
     const Interval<float>* reqZMargin(int input,int output) const
     			   { return &gate_; }

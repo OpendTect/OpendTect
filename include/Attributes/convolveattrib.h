@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: convolveattrib.h,v 1.11 2006-12-08 15:43:10 cvshelene Exp $
+ RCS:           $Id: convolveattrib.h,v 1.12 2007-03-08 12:40:08 cvshelene Exp $
 ________________________________________________________________________
 
     
@@ -81,7 +81,8 @@ protected:
     bool			computeDataWavelet(const DataHolder&,
 					    	  int t0, int nrsamples ) const;
     bool			computeData(const DataHolder&,const BinID& rel,
-					    int t0, int nrsamples ) const;
+					    int t0,int nrsamples,
+					    int threadid) const;
 
     const BinID*		reqStepout(int input,int output) const;
     const Interval<float>*	reqZMargin(int input,int output) const;

@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribprovider.cc,v 1.87 2007-03-06 14:35:43 cvshelene Exp $";
+static const char* rcsID = "$Id: attribprovider.cc,v 1.88 2007-03-08 12:40:08 cvshelene Exp $";
 
 #include "attribprovider.h"
 #include "attribstorprovider.h"
@@ -933,7 +933,7 @@ const DataHolder* Provider::getData( const BinID& relpos, int idi )
 
     bool success = false;
     if ( !allowParallelComputation() )
-	success = computeData( *outdata, relpos, z0, nrsamples );
+	success = computeData( *outdata, relpos, z0, nrsamples, 0 );
     else
     {
 	if ( !providertask_ )

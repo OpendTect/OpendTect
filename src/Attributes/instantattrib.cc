@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: instantattrib.cc,v 1.10 2006-08-03 08:04:34 cvshelene Exp $
+ RCS:           $Id: instantattrib.cc,v 1.11 2007-03-08 12:40:08 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -67,7 +67,7 @@ bool Instantaneous::getInputData( const BinID& relpos, int zintv )
 
 
 bool Instantaneous::computeData( const DataHolder& output, const BinID& relpos, 
-				 int z0, int nrsamples ) const
+				 int z0, int nrsamples, int threadid ) const
 {
     if ( !realdata_ || !imagdata_ ) return false;
 

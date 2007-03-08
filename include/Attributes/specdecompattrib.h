@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          Jan 2004
- RCS:           $Id: specdecompattrib.h,v 1.10 2006-04-11 15:17:58 cvshelene Exp $
+ RCS:           $Id: specdecompattrib.h,v 1.11 2007-03-08 12:40:08 cvshelene Exp $
 ________________________________________________________________________
 -*/
 
@@ -67,7 +67,7 @@ protected:
     bool		getInputOutput(int input,TypeSet<int>& res) const;
     bool		getInputData(const BinID&,int idx);
     bool		computeData(const DataHolder&,const BinID& relpos,
-	    			    int t0,int nrsamples) const;
+	    			    int t0,int nrsamples,int threadid) const;
     bool		calcDFT(const DataHolder&,int t0,int nrsamples) const;
     bool		calcDWT(const DataHolder&,int t0,int nrsamples) const;
     bool		calcCWT(const DataHolder&,int t0,int nrsamples) const;

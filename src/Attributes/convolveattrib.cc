@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: convolveattrib.cc,v 1.18 2007-02-07 11:07:57 cvsnanne Exp $";
+static const char* rcsID = "$Id: convolveattrib.cc,v 1.19 2007-03-08 12:40:08 cvshelene Exp $";
 
 #include "convolveattrib.h"
 #include "attribdataholder.h"
@@ -424,7 +424,7 @@ bool Convolve::computeDataWavelet( const DataHolder& output, int z0,
 
 
 bool Convolve::computeData( const DataHolder& output, const BinID& relpos,
-	                    int z0, int nrsamples ) const
+	                    int z0, int nrsamples, int threadid ) const
 {
     return kerneltype_==mKernelFunctionWavelet
 		? computeDataWavelet( output, z0, nrsamples )

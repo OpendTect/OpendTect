@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          November 2002
- RCS:           $Id: positionattrib.h,v 1.11 2006-08-24 14:57:29 cvshelene Exp $
+ RCS:           $Id: positionattrib.h,v 1.12 2007-03-08 12:40:08 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -63,7 +63,8 @@ protected:
     bool			getInputData(const BinID&,int zintv);
     bool			computeData(const DataHolder&,
 	    				    const BinID& relpos,
-					    int z0,int nrsamples) const;
+					    int z0,int nrsamples,
+					    int threadid) const;
 
     const BinID*		reqStepout(int input,int output) const
     				{ return &stepout_; }

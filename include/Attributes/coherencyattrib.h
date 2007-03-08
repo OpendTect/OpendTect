@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: coherencyattrib.h,v 1.10 2006-10-20 19:43:44 cvskris Exp $
+ RCS:           $Id: coherencyattrib.h,v 1.11 2007-03-08 12:40:08 cvshelene Exp $
 ________________________________________________________________________
 
 Coherency type= gate= [maxdip=250] [ddip=10]
@@ -48,29 +48,29 @@ public:
 
 protected:
 			~Coherency();
-    static Provider*	createInstance( Desc& );
-    static void		updateDesc( Desc& );
+    static Provider*	createInstance(Desc&);
+    static void		updateDesc(Desc&);
 
-    bool		getInputOutput( int input, TypeSet<int>& res ) const;
-    bool		getInputData( const BinID&, int idx );
-    bool		computeData( const DataHolder&, const BinID& relpos,
-	    			     int t0, int nrsamples ) const;
-    bool		computeData1( const DataHolder&, 
-	    			     int t0, int nrsamples ) const;
-    bool		computeData2( const DataHolder&, 
-	    			     int t0, int nrsamples ) const;
+    bool		getInputOutput(int input,TypeSet<int>& res) const;
+    bool		getInputData(const BinID&,int idx);
+    bool		computeData(const DataHolder&,const BinID& relpos,
+	    			    int t0,int nrsamples,int threadid) const;
+    bool		computeData1(const DataHolder&, 
+	    			     int t0,int nrsamples) const;
+    bool		computeData2(const DataHolder&, 
+	    			     int t0,int nrsamples) const;
 
-    float 		calc1( float s1, float s2, const Interval<int>& sg,
-	                       const DataHolder&, const DataHolder&) const;
-    float 		calc2( float t, const Interval<int>& rsg,
-	                       float, float, const Array2DImpl<DataHolder*>& re,
-			       const Array2DImpl<DataHolder*>& im ) const;
+    float 		calc1(float s1,float s2,const Interval<int>& sg,
+	                       const DataHolder&,const DataHolder&) const;
+    float 		calc2(float t,const Interval<int>& rsg,
+	                      float,float,const Array2DImpl<DataHolder*>& re,
+			      const Array2DImpl<DataHolder*>& im) const;
 
     bool		allowParallelComputation() const { return true; }
 	
 
-    const BinID*		reqStepout( int input, int output ) const;
-    const Interval<float>*	reqZMargin(int input, int output) const;
+    const BinID*		reqStepout(int input,int output) const;
+    const Interval<float>*	reqZMargin(int input,int output) const;
 
     int			type_;
     float		maxdip_;

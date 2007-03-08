@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Helene Payraudeau
  Date:		February 2005
- RCS:		$Id: eventattrib.cc,v 1.22 2007-01-31 17:33:14 cvshelene Exp $
+ RCS:		$Id: eventattrib.cc,v 1.23 2007-03-08 12:40:08 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -382,7 +382,7 @@ void Event::multipleEvents( TypeSet<float>& output,
 
     
 bool Event::computeData( const DataHolder& output, const BinID& relpos,
-			 int z0, int nrsamples ) const
+			 int z0, int nrsamples, int threadid ) const
 {
     if ( !inputdata ) return false;
 

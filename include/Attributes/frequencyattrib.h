@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: frequencyattrib.h,v 1.9 2006-12-28 21:10:33 cvsnanne Exp $
+ RCS:           $Id: frequencyattrib.h,v 1.10 2007-03-08 12:40:08 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -81,7 +81,8 @@ protected:
 	    				       TypeSet<int>& res) const;
     bool			getInputData(const BinID&,int idx);
     bool			computeData(const DataHolder&,const BinID& rel,
-					    int z0,int nrsamples) const;
+					    int z0,int nrsamples,
+					    int threadid) const;
 
     const Interval<float>*	reqZMargin(int input,int output) const;
 

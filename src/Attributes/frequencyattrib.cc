@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: frequencyattrib.cc,v 1.12 2006-09-21 12:02:46 cvsbert Exp $";
+static const char* rcsID = "$Id: frequencyattrib.cc,v 1.13 2007-03-08 12:40:08 cvshelene Exp $";
 
 #include "frequencyattrib.h"
 #include "arrayndimpl.h"
@@ -145,7 +145,7 @@ bool Frequency::getInputData( const BinID& relpos, int zintv )
 
 
 bool Frequency::computeData( const DataHolder& output, const BinID& relpos,
-			     int z0, int nrsamples ) const
+			     int z0, int nrsamples, int threadid ) const
 {
     Frequency* myself = const_cast<Frequency*>(this);
     if ( !fftisinit )

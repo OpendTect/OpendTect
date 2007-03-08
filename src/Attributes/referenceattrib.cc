@@ -4,7 +4,7 @@
  * DATE     : July 2005
 -*/
 
-static const char* rcsID = "$Id: referenceattrib.cc,v 1.16 2006-08-03 08:04:34 cvshelene Exp $";
+static const char* rcsID = "$Id: referenceattrib.cc,v 1.17 2007-03-08 12:40:08 cvshelene Exp $";
 
 
 #include "referenceattrib.h"
@@ -64,7 +64,7 @@ bool Reference::getInputData( const BinID& relpos, int zintv )
 
 
 bool Reference::computeData( const DataHolder& output, const BinID& relpos,
-			     int z0, int nrsamples ) const
+			     int z0, int nrsamples, int threadid ) const
 {
     const float step = refstep ? refstep : SI().zStep();
     Coord coord;

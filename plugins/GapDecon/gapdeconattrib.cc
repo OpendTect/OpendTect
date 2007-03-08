@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Huck
  Date:          July 2006
- RCS:           $Id: gapdeconattrib.cc,v 1.14 2006-10-06 07:21:48 cvshelene Exp $
+ RCS:           $Id: gapdeconattrib.cc,v 1.15 2007-03-08 12:40:08 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -236,7 +236,7 @@ float operator[]( int idx ) const
 
 
 bool GapDecon::computeData( const DataHolder& output, const BinID& relpos, 
-			    int z0, int nrsamples ) const
+			    int z0, int nrsamples, int threadid ) const
 {
     if ( !inputdata_ ) return false;
 

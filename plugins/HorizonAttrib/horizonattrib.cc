@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		September 2006
- RCS:		$Id: horizonattrib.cc,v 1.3 2006-09-25 13:42:21 cvsnanne Exp $
+ RCS:		$Id: horizonattrib.cc,v 1.4 2007-03-08 12:40:08 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -122,7 +122,7 @@ void Horizon::prepareForComputeData()
 
 
 bool Horizon::computeData( const DataHolder& output, const BinID& relpos,
-			   int z0, int nrsamples ) const
+			   int z0, int nrsamples, int threadid ) const
 {
     if ( !horizon_ ) return false;
 
