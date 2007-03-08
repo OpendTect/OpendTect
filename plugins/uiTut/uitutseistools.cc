@@ -4,7 +4,7 @@
  * DATE     : Mar 2007
 -*/
 
-static const char* rcsID = "$Id: uitutseistools.cc,v 1.1 2007-03-08 15:33:09 cvsraman Exp $";
+static const char* rcsID = "$Id: uitutseistools.cc,v 1.2 2007-03-08 15:52:25 cvsraman Exp $";
 
 #include "uitutseistools.h"
 #include "tutseistools.h"
@@ -34,6 +34,7 @@ uiTutSeisTools::uiTutSeisTools( uiParent* p )
 			       FloatInpSpec(Tut::SeisTools::defaultstrength_) );
     strengthfld_->attach( alignedBelow, inpfld_ );
 
+    outctio_.ctxt.forread = false;
     outfld_ = new uiSeisSel( this, outctio_, SeisSelSetup() );
     outfld_->attach( alignedBelow, strengthfld_ );
 }
