@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodmain.cc,v 1.68 2007-03-06 07:27:04 cvsnanne Exp $
+ RCS:           $Id: uiodmain.cc,v 1.69 2007-03-08 15:22:15 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -125,11 +125,11 @@ uiODMain::uiODMain( uicMain& a )
 {
     uiMSG().setMainWin( this );
     uiapp.setTopLevel( this );
-
-    if ( !ensureGoodDataDir() )
-	::exit( 0 );
-
     uiSurveyInfoEditor::addInfoProvider( new ui2DSurvInfoProvider );
+
+    if ( !ensureGoodDataDir()
+      || (IOM().bad() && !ensureGoodSurveySetup()) )
+	::exit( 0 );
 
     applmgr = new uiODApplMgr( *this );
 
