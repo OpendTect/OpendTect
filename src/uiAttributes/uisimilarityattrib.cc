@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May  2005
- RCS:           $Id: uisimilarityattrib.cc,v 1.17 2007-01-26 12:00:29 cvsbert Exp $
+ RCS:           $Id: uisimilarityattrib.cc,v 1.18 2007-03-08 12:45:19 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -87,7 +87,7 @@ uiSimilarityAttrib::uiSimilarityAttrib( uiParent* p, bool is2d )
 				   StringListInpSpec(outpstrs) );
     outpstatsfld->attach( alignedBelow, stepoutfld );
 
-    steerfld = new uiSteeringSel( this, 0 );
+    steerfld = new uiSteeringSel( this, 0, is2d );
     steerfld->attach( alignedBelow, outpstatsfld );
 
     setHAlignObj( pos0fld );

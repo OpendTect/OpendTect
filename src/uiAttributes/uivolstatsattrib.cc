@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: uivolstatsattrib.cc,v 1.16 2007-02-05 14:32:25 cvsnanne Exp $
+ RCS:           $Id: uivolstatsattrib.cc,v 1.17 2007-03-08 12:45:19 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -67,7 +67,7 @@ uiVolumeStatisticsAttrib::uiVolumeStatisticsAttrib( uiParent* p, bool is2d )
 			      StringListInpSpec(outpstrs) );
     outpfld->attach( alignedBelow, nrtrcsfld );
 
-    steerfld = new uiSteeringSel( this, 0 );
+    steerfld = new uiSteeringSel( this, 0, is2d );
     steerfld->attach( alignedBelow, outpfld );
 
     setHAlignObj( inpfld );

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: uisteeringsel.cc,v 1.21 2006-12-20 11:23:01 cvshelene Exp $
+ RCS:           $Id: uisteeringsel.cc,v 1.22 2007-03-08 12:45:19 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,7 +37,8 @@ using namespace Attrib;
 
 IOPar& uiSteeringSel::inpselhist = *new IOPar( "Steering selection history" );
 
-uiSteeringSel::uiSteeringSel( uiParent* p, const Attrib::DescSet* ads )
+uiSteeringSel::uiSteeringSel( uiParent* p, const Attrib::DescSet* ads, 
+			      bool is2d )
     : uiGroup(p,"Steering selection")
     , ctio_(*mMkCtxtIOObj(SeisTrc))
     , descset_(ads)
@@ -46,8 +47,8 @@ uiSteeringSel::uiSteeringSel( uiParent* p, const Attrib::DescSet* ads )
     , dirfld(0)
     , dipfld(0)
     , notypechange_(false)
+    , is2d_(is2d)
 {
-    is2d_ = ads ? ads->is2D() : false;
     const char* res = uiAF().attrNameOf( "Curvature" );
     if ( !res )
     {
@@ -62,7 +63,7 @@ uiSteeringSel::uiSteeringSel( uiParent* p, const Attrib::DescSet* ads )
     typfld->valuechanged.notify( mCB(this,uiSteeringSel,typeSel));
 
     ctio_.ctxt.forread = true;
-    inpfld = new uiSteerCubeSel( this, ctio_, ads );
+    inpfld = new uiSteerCubeSel( this, ctio_, ads, is2d_ );
     inpfld->getHistory( inpselhist );
     inpfld->attach( alignedBelow, typfld );
 
@@ -256,9 +257,9 @@ static const char* steer_seltxts[] = { "Steering Data", 0 };
 
 
 uiSteerCubeSel::uiSteerCubeSel( uiParent* p, CtxtIOObj& c,
-				const DescSet* ads, const char* txt )
+				const DescSet* ads, bool is2d, const char* txt )
 	: uiSeisSel(p,getCtio(c),
-		    SeisSelSetup().is2d(ads? ads->is2D():false).selattr(false),
+		    SeisSelSetup().is2d(is2d).selattr(false),
 		    false,steer_seltxts)
 	, attrdata( ads )
 {

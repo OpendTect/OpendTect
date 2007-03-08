@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2001
- RCS:           $Id: uishiftattrib.cc,v 1.15 2007-02-05 14:32:25 cvsnanne Exp $
+ RCS:           $Id: uishiftattrib.cc,v 1.16 2007-03-08 12:45:19 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,7 +44,7 @@ uiShiftAttrib::uiShiftAttrib( uiParent* p, bool is2d )
     dosteerfld_->valuechanged.notify( mCB(this,uiShiftAttrib,steerSel) );
     dosteerfld_->setElemSzPol( uiObject::SmallVar );
 
-    steerfld_ = new uiSteeringSel( this, 0 );
+    steerfld_ = new uiSteeringSel( this, 0, is2d );
     steerfld_->attach( alignedBelow, dosteerfld_ );
 
     steerSel(0);

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uisteeringsel.h,v 1.8 2006-12-20 11:23:00 cvshelene Exp $
+ RCS:           $Id: uisteeringsel.h,v 1.9 2007-03-08 12:45:19 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,7 +27,7 @@ class uiSteerCubeSel : public uiSeisSel
 public:
 
 			uiSteerCubeSel(uiParent*,CtxtIOObj&,
-				       const Attrib::DescSet*,
+				       const Attrib::DescSet*,bool,
 				       const char* txt="Steering Data" );
 
     inline Attrib::DescID inlDipID() const	{ return getDipID(0); }
@@ -59,7 +59,8 @@ protected:
 class uiSteeringSel : public uiGroup
 {
 public:
-				uiSteeringSel(uiParent*,const Attrib::DescSet*);
+				uiSteeringSel(uiParent*,
+					      const Attrib::DescSet*,bool);
 				~uiSteeringSel();
 
     Attrib::DescID		descID();

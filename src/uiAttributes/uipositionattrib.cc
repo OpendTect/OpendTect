@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          November 2002
- RCS:           $Id: uipositionattrib.cc,v 1.9 2007-01-26 12:00:29 cvsbert Exp $
+ RCS:           $Id: uipositionattrib.cc,v 1.10 2007-03-08 12:45:19 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,7 +44,7 @@ uiPositionAttrib::uiPositionAttrib( uiParent* p, bool is2d )
     gatefld = new uiGenInput( this, gateLabel(), FloatInpIntervalSpec() );
     gatefld->attach( alignedBelow, stepoutfld );
 
-    steerfld = new uiSteeringSel( this, 0 );
+    steerfld = new uiSteeringSel( this, 0, is2d );
     steerfld->attach( alignedBelow, gatefld );
 
     operfld = new uiGenInput( this, "Operator", StringListInpSpec(opstrs) );
