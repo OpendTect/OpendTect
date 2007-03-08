@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril & Kris Tingdahl
  Date:          Mar 2005
- RCS:           $Id: valseriesinterpol.h,v 1.4 2006-09-12 14:05:45 cvsbert Exp $
+ RCS:           $Id: valseriesinterpol.h,v 1.5 2007-03-08 12:50:42 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,6 +32,7 @@ public:
 			, extrapol_(false)
 			, udfval_(mUdf(T))
 			, isperiodic_(false)
+			, hasudfs_(true)
 			, period_(1)		{}
 
     inline T		value(const ValueSeries<T>&,T pos) const;
@@ -42,6 +43,7 @@ public:
     bool		smooth_;
     bool		extrapol_;
     bool		isperiodic_;
+    bool		hasudfs_;
     T			period_;
 
 };
@@ -74,9 +76,18 @@ inline T ValueSeriesInterpolator<T>::value( const ValueSeries<T>& vda,
     pos -= lopos; // now 0 < pos < 1
     T rv;
     if ( !isperiodic_ )
-	rv = Interpolate::polyReg1D( v[0], v[1], v[2], v[3], pos );
+	rv = hasudfs_
+	   ? Interpolate::polyReg1DWithUdf( v[0], v[1], v[2], v[3], pos )
+	   : Interpolate::polyReg1D( v[0], v[1], v[2], v[3], pos );
     else
     {
+	if ( hasudfs_ )
+	{
+	    if ( mIsUdf(v[0]) ) v[0] = v[1];
+	    if ( mIsUdf(v[3]) ) v[3] = v[2];
+	    if ( mIsUdf(v[1]) || mIsUdf(v[2]) )
+		return udfval_;
+	}
 	pos += 1; // now 1 < pos < 2
 	rv = IdxAble::interpolateYPeriodicReg( v, 4, pos, period_, false  );
     }
