@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewer.h,v 1.7 2007-03-02 15:36:06 cvsbert Exp $
+ RCS:           $Id: uiflatviewer.h,v 1.8 2007-03-09 12:28:33 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,6 +18,7 @@ ________________________________________________________________________
 namespace FlatView {
 class BitMapMgr;
 class BitMap2RGB;
+class AxesDrawer;
 }
 class uiRGBArray;
 class uiRGBArrayCanvas;
@@ -55,6 +56,7 @@ public:
 protected:
 
     uiRGBArrayCanvas&	canvas_;
+    FlatView::AxesDrawer& axesdrawer_; //!< Needs to be declared *after* canvas_
     uiWorldRect		wr_;
 
     DataChangeType	reportedchange_;
