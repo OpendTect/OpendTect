@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.cc,v 1.115 2007-03-06 11:51:48 cvsjaap Exp $
+ RCS:           $Id: uimpeman.cc,v 1.116 2007-03-09 09:17:48 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -108,13 +108,15 @@ uiMPEMan::uiMPEMan( uiParent* p, uiVisPartServer* ps )
 void uiMPEMan::addButtons()
 {
     seedconmodefld = new uiComboBox( toolbar, "Seed connect mode" );
-    seedconmodefld->setToolTip( "Select seed connect mode" );
+    seedconmodefld->setToolTip( "Seed connect mode" );
     seedconmodefld->selectionChanged.notify(
 				mCB(this,uiMPEMan,seedConnectModeSel) );
     toolbar->addObject( seedconmodefld );
     toolbar->addSeparator();
 
-    seedidx = mAddButton( "seedpickmode.png", addSeedCB, "Create seed", true );
+    seedidx = mAddButton( "seedpickmode.png", addSeedCB, 
+	    		  "Create seed ( key: 'Tab' )", true );
+    toolbar->setShortcut(seedidx,"Tab");
     toolbar->addSeparator();
 
     trackinvolidx = mAddButton( "track_seed.png", trackInVolume,
@@ -130,7 +132,7 @@ void uiMPEMan::addButtons()
     extendidx = mAddButton( "trackplane.png", extendModeCB,
 	    		    "Extend mode", true );
     retrackidx = mAddButton( "retrackplane.png", retrackModeCB, 
-	    		     "ReTrack mode", true );
+	    		     "Retrack mode", true );
     eraseidx = mAddButton( "erasingplane.png", eraseModeCB, 
 	    		   "Erase mode", true );
     toolbar->addSeparator();
@@ -159,9 +161,11 @@ void uiMPEMan::addButtons()
     toolbar->addSeparator();
 
     trackforwardidx = mAddButton( "leftarrow.png", trackBackward,
-	    			  "Track backward", false );
+	    			  "Track backward ( key: '[' )", false );
+    toolbar->setShortcut(trackforwardidx,"[");
     trackbackwardidx = mAddButton( "rightarrow.png", trackForward,
-	    			   "Track forward", false );
+	    			   "Track forward ( key: ']' )", false );
+    toolbar->setShortcut(trackbackwardidx,"]");
 
     nrstepsbox = new uiSpinBox( toolbar );
     nrstepsbox->setToolTip( "Nr of track steps" );
@@ -234,6 +238,18 @@ void uiMPEMan::seedClick( CallBacker* )
     if ( !emobj ) 
 	return;
 
+    if ( !clickcatcher->info().isLegalClick() )
+    {
+	if ( tracker->is2D() && !clickcatcher->info().getObjLineName() )
+	    uiMSG().error( "2D tracking cannot handle picks on 3D lines.");
+	else if ( !tracker->is2D() && clickcatcher->info().getObjLineName() )
+	    uiMSG().error( "3D tracking cannot handle picks on 2D lines.");
+	else if ( clickcatcher->info().getObjCS().nrZ()==1 )
+	    uiMSG().error( emobj->getTypeStr(), 
+			   " tracking cannot handle picks on timeslices." );
+	return;
+    }
+	
     const EM::PosID pid = clickcatcher->info().getNode();
     if ( pid.objectID()!=emobj->id() && pid.objectID()!=-1 )
 	return;
@@ -319,10 +335,13 @@ void uiMPEMan::seedClick( CallBacker* )
 
 	    if ( oldactivevol.isEmpty() )
 	    {
+		if ( newvolume == engine.trackPlane().boundingBox() )
+		    loadPostponedData();
+		else
+		    engine.swapCacheAndItsBackup();
+
 		oldactivevol = engine.activeVolume();
 		oldtrackplane = engine.trackPlane();
-		if ( oldtrackplane.boundingBox() != newvolume )
-		    engine.swapCacheAndItsBackup();
 	    }
 
 	    NotifyStopper notifystopper( engine.activevolumechange );
@@ -591,6 +610,8 @@ void uiMPEMan::boxDraggerStatusChangeCB( CallBacker* cb )
 void uiMPEMan::showCubeCB( CallBacker* )
 {
     const bool isshown = toolbar->isOn( showcubeidx );
+    if ( isshown)
+	turnSeedPickingOn( false );
     mGetDisplays(isshown)
     for ( int idx=0; idx<displays.size(); idx++ )
 	displays[idx]->showBoxDragger( isshown );
@@ -738,6 +759,10 @@ void uiMPEMan::introduceMPEDisplay()
 {
     EMTracker* tracker = getSelectedTracker();
     const EMSeedPicker* seedpicker = tracker ? tracker->getSeedPicker(true) : 0;
+    validateSeedConMode();
+
+    if ( !SI().has3D() )
+	return;
     if ( !seedpicker || !seedpicker->doesModeUseVolume() )
 	return;
 
@@ -854,7 +879,7 @@ void uiMPEMan::updateButtonSensitivity( CallBacker* )
     toolbar->setSensitive( retrackidx, !is2d );
     toolbar->setSensitive( eraseidx, !is2d );
     toolbar->setSensitive( moveplaneidx, !is2d );
-    toolbar->setSensitive( showcubeidx, !is2d && !isseedpicking );
+    toolbar->setSensitive( showcubeidx, !is2d); 
 
     MPE::EMTracker* tracker = getSelectedTracker();
     MPE::EMSeedPicker* seedpicker = tracker ? tracker->getSeedPicker(true) : 0;
