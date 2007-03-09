@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: SoOD.cc,v 1.10 2007-03-07 16:08:48 cvskris Exp $";
+static const char* rcsID = "$Id: SoOD.cc,v 1.11 2007-03-09 10:11:59 cvskris Exp $";
 
 
 #include "SoOD.h"
@@ -12,8 +12,6 @@ static const char* rcsID = "$Id: SoOD.cc,v 1.10 2007-03-07 16:08:48 cvskris Exp 
 #include <VolumeViz/nodes/SoVolumeRendering.h>
 #include "Inventor/nodes/SoShaderProgram.h"
 #include "Inventor/nodes/SoFragmentShader.h"
-#include "GL/glx.h"
-
 
 #include "SoArrow.h"
 #include "SoCameraInfo.h"
@@ -38,6 +36,13 @@ static const char* rcsID = "$Id: SoOD.cc,v 1.10 2007-03-07 16:08:48 cvskris Exp 
 #include "UTMCamera.h"
 #include "UTMElement.h"
 #include "UTMPosition.h"
+
+extern "C" {
+
+typedef struct __GLXcontextRec *GLXContext;
+extern GLXContext glXGetCurrentContext(void);
+
+}
 
 void SoOD::init()
 {
@@ -79,7 +84,7 @@ int SoOD::supportsFragShading()
     static int answer = 0;
     if ( !answer )
     {
-	void * ptr = glXGetCurrentContext();
+	GLXContext ptr = glXGetCurrentContext();
 	if ( ptr )
 	    answer = SoFragmentShader::
 		isSupported(SoShaderObject::GLSL_PROGRAM) ? 1 : -1;
