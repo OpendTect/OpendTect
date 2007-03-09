@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vismultitexture2.cc,v 1.29 2007-03-07 16:10:13 cvskris Exp $";
+static const char* rcsID = "$Id: vismultitexture2.cc,v 1.30 2007-03-09 12:33:23 cvskris Exp $";
 
 
 #include "vismultitexture2.h"
@@ -143,7 +143,7 @@ bool MultiTexture2::turnOn( bool yn )
     else
     {
 	if ( !useshading_ ) useshading_ = SoOD::supportsFragShading();
-	switch_->whichChild = useshading_ ? 1 : 0;
+	switch_->whichChild = useshading_==1 ? 1 : 0;
     }
 
     return res;
@@ -188,7 +188,12 @@ bool MultiTexture2::useShading( bool yn )
 
 void MultiTexture2::setTextureTransparency( int texturenr, unsigned char trans )
 {
-    if ( !useshading_ ) useshading_ = SoOD::supportsFragShading();
+    if ( !useshading_ )
+    {
+	useshading_ = SoOD::supportsFragShading();
+	if ( useshading_ ) createShadingVars();
+	turnOn( isOn() );
+    }
 
     if ( useshading_==1 )
     {
@@ -218,7 +223,6 @@ void MultiTexture2::setTextureTransparency( int texturenr, unsigned char trans )
 
 unsigned char MultiTexture2::getTextureTransparency( int texturenr ) const
 {
-    if ( !useshading_ ) useshading_ = SoOD::supportsFragShading();
     if ( useshading_==1 )
     {
 	return texturenr<opacity_.size()
@@ -236,7 +240,13 @@ unsigned char MultiTexture2::getTextureTransparency( int texturenr ) const
 
 void MultiTexture2::setOperation( int texturenr, MultiTexture::Operation op )
 {
-    if ( !useshading_ ) useshading_ = SoOD::supportsFragShading();
+    if ( !useshading_ )
+    {
+	useshading_ = SoOD::supportsFragShading();
+	if ( useshading_ ) createShadingVars();
+	turnOn( isOn() );
+    }
+
     if ( useshading_==1 )
     {
 	if ( op!=MultiTexture::BLEND )
@@ -260,7 +270,6 @@ void MultiTexture2::setOperation( int texturenr, MultiTexture::Operation op )
 
 MultiTexture::Operation MultiTexture2::getOperation( int texturenr ) const
 {
-    if ( !useshading_ ) useshading_ = SoOD::supportsFragShading();
     if ( useshading_==1 )
 	return MultiTexture::BLEND;
 
@@ -276,7 +285,13 @@ MultiTexture::Operation MultiTexture2::getOperation( int texturenr ) const
 
 void MultiTexture2::setTextureRenderQuality( float val )
 {
-    if ( !useshading_ ) useshading_ = SoOD::supportsFragShading();
+    if ( !useshading_ )
+    {
+	useshading_ = SoOD::supportsFragShading();
+	if ( useshading_ ) createShadingVars();
+	turnOn( isOn() );
+    }
+
     if ( useshading_==1 )
 	return;
 
@@ -286,7 +301,6 @@ void MultiTexture2::setTextureRenderQuality( float val )
 
 float MultiTexture2::getTextureRenderQuality() const
 {
-    if ( !useshading_ ) useshading_ = SoOD::supportsFragShading();
     if ( useshading_==1 )
 	return 1;
 
@@ -445,7 +459,13 @@ bool MultiTexture2::setIndexData( int texture, int version,
 
 void MultiTexture2::updateSoTextureInternal( int texturenr )
 {
-    if ( !useshading_ ) useshading_ = SoOD::supportsFragShading();
+    if ( !useshading_ )
+    {
+	useshading_ = SoOD::supportsFragShading();
+	if ( useshading_ ) createShadingVars();
+	turnOn( isOn() );
+    }
+
     const unsigned char* texture = getCurrentTextureIndexData(texturenr);
     if ( size_.row<0 || size_.col<0 || !texture )
     {
@@ -511,7 +531,13 @@ void MultiTexture2::updateSoTextureInternal( int texturenr )
 
 void MultiTexture2::updateColorTables()
 {
-    if ( !useshading_ ) useshading_ = SoOD::supportsFragShading();
+    if ( !useshading_ )
+    {
+	useshading_ = SoOD::supportsFragShading();
+	if ( useshading_ ) createShadingVars();
+	turnOn( isOn() );
+    }
+
     if ( useshading_==1 )
     {
 	if ( !ctabtexture_ ) return;
@@ -678,7 +704,13 @@ void MultiTexture2::insertTextureInternal( int texturenr )
 
 void MultiTexture2::removeTextureInternal( int texturenr )
 {
-    if ( !useshading_ ) useshading_ = SoOD::supportsFragShading();
+    if ( !useshading_ )
+    {
+	useshading_ = SoOD::supportsFragShading();
+	if ( useshading_ ) createShadingVars();
+	turnOn( isOn() );
+    }
+
     if ( useshading_==1 )
     {
 	updateSoTextureInternal( texturenr );
