@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     ( C ) dGB Beheer B.V.
  Author:        Duntao Wei
  Date:          Mar. 2005
- RCS:           $Id: drawaxis2d.cc,v 1.7 2007-03-07 11:41:23 cvskris Exp $
+ RCS:           $Id: drawaxis2d.cc,v 1.8 2007-03-09 12:32:47 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -101,19 +101,20 @@ void DrawAxis2D::drawXAxis( bool topside ) const
 				       drawarea.right(), baseline );
   
     const double width = xrg_.stop - xaxis_.start;
-    double x = 0;
-    while ( x<=width )
+    for ( double x=0; x<=width; x+=xaxis_.step )
     {
+	const double xpos = x+xaxis_.start;
+	if ( xpos<xrg_.start )
+	    continue;
+	    
 	BufferString text;
-	const double displaypos = getAnnotTextAndPos(true,xaxis_.start+x,&text);
+	const double displaypos = getAnnotTextAndPos(true,xpos,&text);
 	const int wx = transform.toUiX( displaypos ) + drawarea.left();
 	drawarea_->drawTool()->drawLine( wx, baseline, wx, baseline+bias );
 
 	Alignment al( Alignment::Middle, Alignment::Start );
 	if ( bias<0 ) al.ver = Alignment::Stop;
 	drawarea_->drawTool()->drawText( wx, baseline+bias, text.buf(), al );
-
-	x += xaxis_.step;
     }
 }
 
@@ -143,20 +144,21 @@ void DrawAxis2D::drawYAxis( bool leftside ) const
 				       baseline, drawarea.bottom() );
     
     const double width = yrg_.stop - yaxis_.start;
-    double y = 0;
-    while ( y<=width )
+    for ( double y=0; y<=width; y+=yaxis_.step )
     {
+	const double ypos = y+yaxis_.start;
+	if ( ypos<yrg_.start )
+	    continue;
+
 	BufferString text;
 	const double displaypos =
-	    getAnnotTextAndPos( false, y+yaxis_.start, &text );
+	    getAnnotTextAndPos( false, ypos, &text );
 	const int wy = transform.toUiY( displaypos ) + drawarea.top();
 	drawarea_->drawTool()->drawLine( baseline, wy, baseline+bias, wy );
 
 	Alignment al( Alignment::Start, Alignment::Middle );
 	if ( bias < 0 ) al.hor = Alignment::Stop;
 	drawarea_->drawTool()->drawText( baseline+bias, wy , text.buf(), al );
-
-	y += yaxis_.step;
     }
 }
 
@@ -172,13 +174,15 @@ void DrawAxis2D::drawGridLines( bool xdir, bool ydir ) const
 	const int top = drawarea.top();
 	const int bot = drawarea.bottom();
 	const double width = xrg_.stop - xaxis_.start;
-	double x = 0;
-	while ( x<=width )
+	for ( double x=0; x<=width; x+=xaxis_.step )
 	{
-	    const double displaypos = getAnnotTextAndPos( true, x+xaxis_.start);
+	    const double xpos = x+xaxis_.start;
+	    if ( xpos<xrg_.start )
+		continue;
+		
+	    const double displaypos = getAnnotTextAndPos( true, xpos );
 	    const int wx = transform.toUiX( displaypos ) + drawarea.left();
 	    drawarea_->drawTool()->drawLine( wx, top, wx, bot );
-	    x += xaxis_.step;
 	}
     }
 
@@ -187,13 +191,15 @@ void DrawAxis2D::drawGridLines( bool xdir, bool ydir ) const
 	const int left = drawarea.left();
 	const int right = drawarea.right();
 	const double width = yrg_.stop - yaxis_.start;
-	double y = 0;
-	while ( y<=width )
+	for ( double y=0; y<=width; y+=yaxis_.step )
 	{
-	    const double displaypos = getAnnotTextAndPos(false, y+yaxis_.start);
+	    const double ypos = y+yaxis_.start;
+	    if ( ypos<yrg_.start )
+		continue;
+
+	    const double displaypos = getAnnotTextAndPos(false, ypos);
 	    const int wy = transform.toUiY( displaypos ) + drawarea.top();
 	    drawarea_->drawTool()->drawLine( left, wy, right, wy );
-	    y += yaxis_.step;
 	}
     }
 }
