@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Duntao Wei
  Date:          Jan 2005
- RCS:           $Id: drawaxis2d.h,v 1.6 2007-03-07 11:41:23 cvskris Exp $
+ RCS:           $Id: drawaxis2d.h,v 1.7 2007-03-09 12:28:11 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -64,7 +64,8 @@ public:
     void		drawYAxis(bool leftside) const;
     void		drawGridLines(bool xdir,bool ydir) const;
 
-private:
+protected:
+
     uiRect		getDrawArea() const;
     virtual double	getAnnotTextAndPos( bool isx, double proposedpos,
 					    BufferString* text = 0) const;
@@ -85,8 +86,8 @@ private:
     Interval<double>	xrg_;
     Interval<double>	yrg_;
 
-    SamplingData<double>xaxis_;
-    SamplingData<double>yaxis_;
+    SamplingData<double> xaxis_;
+    SamplingData<double> yaxis_;
 
     uiRect		uirect_;
     bool		useuirect_;
