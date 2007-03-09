@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vismpeseedcatcher.h,v 1.12 2006-12-22 10:12:54 cvsjaap Exp $
+ RCS:		$Id: vismpeseedcatcher.h,v 1.13 2007-03-09 09:16:59 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -42,6 +42,8 @@ class MPEClickInfo
 public:
     				MPEClickInfo();
 
+    bool			isLegalClick() const;
+
     bool                        isCtrlClicked() const; 
     bool                        isShiftClicked() const;
     const EM::PosID&		getNode() const;
@@ -58,6 +60,8 @@ public:
 protected:
     void			clear();
 
+    void			setLegalClick(bool);
+
     void			setCtrlClicked(bool); 
     void			setShiftClicked(bool);
     void			setNode(const EM::PosID&);
@@ -71,6 +75,7 @@ protected:
     void			setObjLineName(const char*);
     void			setObjLineData(const Attrib::Data2DHolder*);
 
+    bool				legalclick_;
     bool				ctrlclicked_;
     bool				shiftclicked_;
     EM::PosID				clickednode_;

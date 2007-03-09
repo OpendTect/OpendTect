@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vismpeseedcatcher.cc,v 1.16 2006-12-22 10:45:07 cvsjaap Exp $";
+static const char* rcsID = "$Id: vismpeseedcatcher.cc,v 1.17 2007-03-09 09:19:14 cvsjaap Exp $";
 
 #include "vismpeseedcatcher.h"
 
@@ -79,27 +79,28 @@ visBase::Transformation* MPEClickCatcher::getDisplayTransformation()
 { return transformation_; }
 
 
-#define mTrackerEquals( typestr, typekey) \
-    ( typestr && !strcmp(typestr,EM##typekey##TranslatorGroup::keyword) )
+#define mCheckTracker( typestr, typekey, legalclick, condition ) \
+    if ( typestr && !strcmp(typestr,EM##typekey##TranslatorGroup::keyword) ) \
+	legalclick = legalclick || (condition); 
 
-
-#define mCheckPlaneDataDisplay( typ, dataobj, plane, yn ) \
+#define mCheckPlaneDataDisplay( typ, dataobj, plane, legalclick ) \
     mDynamicCastGet( PlaneDataDisplay*, plane, dataobj ); \
-    const bool yn = mTrackerEquals(typ,Horizon) && plane && \
-		    plane->getOrientation()!=PlaneDataDisplay::Timeslice; 
+    bool legalclick = !plane; \
+    mCheckTracker( typ, Horizon, legalclick, \
+		   plane->getOrientation()!=PlaneDataDisplay::Timeslice ); 
 
-
-#define mCheckMPEDisplay( typ, dataobj, mpedisplay, cs, yn ) \
-    mDynamicCastGet( MPEDisplay*, mpedisplay, dataobj ); \
+#define mCheckMPEDisplay( typ, dataobj, mped, cs, legalclick ) \
+    mDynamicCastGet( MPEDisplay*, mped, dataobj ); \
     CubeSampling cs; \
-    const bool yn = mTrackerEquals(typ,Horizon) && \
-		    mpedisplay && mpedisplay->isDraggerShown() && \
-		    mpedisplay->getPlanePosition(cs) && cs.nrZ()!=1; 
+    if ( !mped || !mped->isDraggerShown() || !mped->getPlanePosition(cs) ) \
+	mped = 0; \
+    bool legalclick = !mped; \
+    mCheckTracker( typ, Horizon, legalclick, cs.nrZ()!=1 ); 
 
-
-#define mCheckSeis2DDisplay( typ, dataobj, seis2ddisplay, yn ) \
-    mDynamicCastGet( Seis2DDisplay*, seis2ddisplay, dataobj ); \
-    const bool yn = mTrackerEquals(typ,Horizon2D) && seis2ddisplay; 
+#define mCheckSeis2DDisplay( typ, dataobj, seis2ddisp, legalclick ) \
+    mDynamicCastGet( Seis2DDisplay*, seis2ddisp, dataobj ); \
+    bool legalclick = !seis2ddisp; \
+    mCheckTracker( typ, Horizon2D, legalclick, true ); 
 
 
 bool MPEClickCatcher::isClickable( const char* trackertype, int visid )
@@ -107,17 +108,19 @@ bool MPEClickCatcher::isClickable( const char* trackertype, int visid )
     visBase::DataObject* dataobj = visBase::DM().getObject( visid );
     if ( !dataobj )
 	return false;
+
+    bool legalclick;
     
-    mCheckPlaneDataDisplay( trackertype, dataobj, plane, planeisclickable );
-    if ( planeisclickable )
+    mCheckPlaneDataDisplay( trackertype, dataobj, plane, legalclick1 );
+    if ( plane && legalclick1 )
 	return true;
     
-    mCheckMPEDisplay( trackertype, dataobj, mpedisplay, cs, mpeisclickable );
-    if ( mpeisclickable )
+    mCheckMPEDisplay( trackertype, dataobj, mpedisplay, cs, legalclick2 );
+    if ( mpedisplay && legalclick2 )
 	return true;
 
-    mCheckSeis2DDisplay( trackertype, dataobj, seis2ddisp, seis2disclickable );
-    if ( seis2disclickable )
+    mCheckSeis2DDisplay( trackertype, dataobj, seis2ddisp, legalclick3 );
+    if ( seis2ddisp && legalclick3 )
 	return true;
 
     return false;
@@ -183,9 +186,10 @@ void MPEClickCatcher::clickCB( CallBacker* cb )
 	if ( eventinfo.ctrl || eventinfo.shift )
 	    continue;
 	    
-	mCheckPlaneDataDisplay( trackertype_, dataobj, plane, validplaneclick );
-	if ( validplaneclick )
+	mCheckPlaneDataDisplay( trackertype_, dataobj, plane, legalclick1 );
+	if ( plane )
 	{
+	    info().setLegalClick( legalclick1 );
 	    info().setObjCS( plane->getCubeSampling() );
 	    info().setObjData( plane->getCacheVolume(false) );
 	    info().setObjDataSelSpec( plane->getSelSpec(0) );
@@ -194,21 +198,20 @@ void MPEClickCatcher::clickCB( CallBacker* cb )
 	    break;
 	}
 
-	mCheckMPEDisplay( trackertype_, dataobj, mpedisplay, cs, validmpeclick);
-	if ( validmpeclick )
+	mCheckMPEDisplay( trackertype_, dataobj, mpedisplay, cs, legalclick2 );
+	if ( mpedisplay )
 	{
+	    info().setLegalClick( legalclick2 );
 	    info().setObjCS( cs );
 	    click.trigger();
 	    eventcatcher_->eventIsHandled();
 	    break;
 	}
 
-	mCheckSeis2DDisplay( trackertype_, dataobj, seis2ddisplay, 
-			     validseis2dclick );
-	if ( validseis2dclick )
+	mCheckSeis2DDisplay( trackertype_, dataobj, seis2ddisp, legalclick3 );
+	if ( seis2ddisp )
 	{
-	    RefMan<const Attrib::Data2DHolder> cache =
-					    seis2ddisplay->getCache(0);
+	    RefMan<const Attrib::Data2DHolder> cache = seis2ddisp->getCache(0);
 	    RefMan<Attrib::DataCubes> cube = 0;
 
 	    if ( cache )
@@ -218,10 +221,11 @@ void MPEClickCatcher::clickCB( CallBacker* cb )
 		    cube = 0;
 	    }
 
+	    info().setLegalClick( legalclick3 );
 	    info().setObjData( cube );
-	    info().setObjDataSelSpec( seis2ddisplay->getSelSpec(0) );
-	    info().setObjLineSet( seis2ddisplay->lineSetID() );
-	    info().setObjLineName( seis2ddisplay->name() );
+	    info().setObjDataSelSpec( seis2ddisp->getSelSpec(0) );
+	    info().setObjLineSet( seis2ddisp->lineSetID() );
+	    info().setObjLineName( seis2ddisp->name() );
 	    info().setObjLineData( cache );
 	    click.trigger();
 	    eventcatcher_->eventIsHandled();
@@ -260,9 +264,8 @@ void MPEClickCatcher::sendUnderlying2DSeis(
 	if ( !dataobj )
 	    continue;
 
-	mCheckSeis2DDisplay( trackertype_, dataobj, seis2ddisp, 
-			     validseis2dclick );
-	if ( !validseis2dclick )
+	mCheckSeis2DDisplay( trackertype_, dataobj, seis2ddisp, legalclick );
+	if ( !seis2ddisp )
 	    continue;
 
 	if ( lineset==seis2ddisp->lineSetID() && linenm==seis2ddisp->name() )	
@@ -277,6 +280,7 @@ void MPEClickCatcher::sendUnderlying2DSeis(
 		    cube = 0;
 	    }
 
+	    info().setLegalClick( legalclick );
 	    info().setObjData( cube );
 	    info().setObjDataSelSpec( seis2ddisp->getSelSpec(0) );
 	    info().setObjLineSet( seis2ddisp->lineSetID() );
@@ -323,10 +327,11 @@ void MPEClickCatcher::sendUnderlyingPlanes(
 	if ( !dataobj )
 	    continue;
 
-	mCheckMPEDisplay( trackertype_, dataobj, mpedisplay, cs, validmpeclick);
-	if ( validmpeclick && cs.hrg.includes(nodebid) && 
+	mCheckMPEDisplay( trackertype_, dataobj, mpedisplay, cs, legalclick );
+	if ( mpedisplay && cs.hrg.includes(nodebid) && 
 	     cs.zrg.includes(nodepos.z) )
 	{
+	    info().setLegalClick( legalclick );
 	    info().setObjID( mpedisplay->id() );
 	    info().setObjCS( cs );
 	    click.trigger();
@@ -344,13 +349,14 @@ void MPEClickCatcher::sendUnderlyingPlanes(
 	if ( !dataobj )
 	    continue;
 
-	mCheckPlaneDataDisplay( trackertype_, dataobj, plane, validplaneclick );
-	if ( !validplaneclick )
+	mCheckPlaneDataDisplay( trackertype_, dataobj, plane, legalclick );
+	if ( !plane )
 	    continue;
 
 	const CubeSampling cs = plane->getCubeSampling();
 	if ( cs.hrg.includes(nodebid) && cs.zrg.includes(nodepos.z) )
 	{
+	    info().setLegalClick( legalclick );
 	    info().setObjID( plane->id() );
 	    info().setObjCS( cs );
 	    info().setObjData( plane->getCacheVolume(false) );
@@ -363,6 +369,10 @@ void MPEClickCatcher::sendUnderlyingPlanes(
 
 MPEClickInfo::MPEClickInfo()
 { clear(); }
+
+
+bool MPEClickInfo::isLegalClick() const
+{ return legalclick_; }
 
 
 bool MPEClickInfo::isCtrlClicked() const
@@ -411,6 +421,7 @@ const Attrib::Data2DHolder* MPEClickInfo::getObjLineData() const
 
 void MPEClickInfo::clear()
 {
+    legalclick_ = false; 
     ctrlclicked_ = false;
     shiftclicked_ = false;
     clickednode_ = EM::PosID( -1, -1, -1 );
@@ -423,6 +434,10 @@ void MPEClickInfo::clear()
     lineset_ = MultiID( -1 );
     linename_ = "";
 }
+
+
+void MPEClickInfo::setLegalClick( bool yn )
+{ legalclick_ = yn; }
 
 
 void MPEClickInfo::setCtrlClicked( bool yn )
