@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:		Feb 2007
- RCS:           $Id: uiflatviewcontrol.cc,v 1.14 2007-03-07 13:59:12 cvsbert Exp $
+ RCS:           $Id: uiflatviewcontrol.cc,v 1.15 2007-03-09 10:31:51 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,6 +28,7 @@ uiFlatViewControl::uiFlatViewControl( uiFlatViewer& vwr, uiParent* p,
     , zoommgr_(*new FlatView::ZoomMgr)
     , haverubber_(wrubb)
     , propdlg_(0)
+    , infoChanged(this)
 {
     setBorder( 0 );
     addViewer( vwr );
@@ -51,6 +52,10 @@ void uiFlatViewControl::addViewer( uiFlatViewer& vwr )
 	vwr.rgbCanvas().rubberBandUsed.notify(
 		    mCB(this,uiFlatViewControl,rubBandCB));
     }
+    int vieweridx = vwrs_.size()-1;
+    vwr.rgbCanvas().setMouseTracking(true);
+    mouseEventHandler(vieweridx).movement.notify(
+	    			mCB( this, uiFlatViewControl, mouseMoveCB ) );
 }
 
 
@@ -246,4 +251,23 @@ void uiFlatViewControl::saveProperties()
     }
 
     vwr.storeDefaults( cat );
+}
+
+
+MouseEventHandler& uiFlatViewControl::mouseEventHandler( int vieweridx )
+{
+    return vwrs_[vieweridx]->rgbCanvas().getMouseEventHandler();
+}
+
+
+void uiFlatViewControl::mouseMoveCB( CallBacker* cb )
+{
+    //TODO and what about multiple viewers?
+    const MouseEvent& ev = mouseEventHandler(0).event();
+    uiWorld2Ui w2u;
+    vwrs_[0]->getWorld2Ui(w2u);
+    const uiWorldPoint wp = w2u.transform( ev.pos() );
+    vwrs_[0]->getAuxInfo( wp, infopars_ );
+    CBCapsule<IOPar> caps( infopars_, this );
+    infoChanged.trigger( &caps );
 }

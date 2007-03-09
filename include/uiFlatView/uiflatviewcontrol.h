@@ -6,14 +6,16 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewcontrol.h,v 1.9 2007-03-05 17:37:58 cvsbert Exp $
+ RCS:           $Id: uiflatviewcontrol.h,v 1.10 2007-03-09 10:31:51 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uigroup.h"
+#include "iopar.h"
 class uiFlatViewer;
 class uiFlatViewPropDlg;
+class MouseEventHandler;
 namespace FlatView { class ZoomMgr; }
 
 
@@ -48,6 +50,8 @@ public:
     const char*		category() const;
     			//!< If not set, returns data pack's category()
 
+    Notifier<uiFlatViewControl>  infoChanged;	// CallBacker: CBCapsule<IOPar>
+
 protected:
 
     			uiFlatViewControl(uiFlatViewer&,uiParent*,bool);
@@ -56,6 +60,7 @@ protected:
     FlatView::ZoomMgr&	zoommgr_;
     bool		haverubber_;
     BufferString	category_;
+    IOPar		infopars_;
 
     uiFlatViewPropDlg*  propdlg_;
 
@@ -67,6 +72,8 @@ protected:
     virtual void	finalPrepare()			{}
     void		onFinalise(CallBacker*);
     void		rubBandCB(CallBacker*);
+    void		mouseMoveCB(CallBacker*);
+    MouseEventHandler&	mouseEventHandler(int);
 
     void		doPropertiesDialog();
     void		propDlgClosed(CallBacker*);
