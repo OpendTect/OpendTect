@@ -2,9 +2,9 @@
 ________________________________________________________________________
 
  CopyRight:     (C) dGB Beheer B.V.
- Author:        H. Huck
- Date:          Sep 2006
- RCS:           $Id: uiflatviewer.cc,v 1.13 2007-03-08 17:03:52 cvsbert Exp $
+ Author:        Bert
+ Date:          Feb 2007
+ RCS:           $Id: uiflatviewer.cc,v 1.14 2007-03-09 12:27:32 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "uirgbarray.h"
 #include "flatviewbitmapmgr.h"
 #include "flatviewbmp2rgb.h"
+#include "flatviewaxesdrawer.h"
 #include "array2dbitmapimpl.h"
 #include "iodrawtool.h"
 #include "drawaxis2d.h"
@@ -24,6 +25,7 @@ ________________________________________________________________________
 uiFlatViewer::uiFlatViewer( uiParent* p )
     : uiGroup(p,"Flat viewer")
     , canvas_(*new uiRGBArrayCanvas(this,*new uiRGBArray))
+    , axesdrawer_(*new FlatView::AxesDrawer(*this,canvas_))
     , reportedchange_(All)
     , dim0extfac_(0.5)
     , wvabmpmgr_(0)
@@ -43,6 +45,7 @@ uiFlatViewer::~uiFlatViewer()
 {
     delete &canvas_.rgbArray();
     delete &canvas_;
+    delete &axesdrawer_;
     delete wvabmpmgr_;
     delete vdbmpmgr_;
     delete bmp2rgb_;
@@ -210,8 +213,7 @@ void uiFlatViewer::drawAnnot()
 
 void uiFlatViewer::getWorld2Ui( uiWorld2Ui& w2u ) const
 {
-    mDefuiSize;
-    w2u.set( uisz, wr_ );
+    w2u.set( canvas_.arrArea(), wr_ );
 }
 
 
@@ -230,9 +232,10 @@ void uiFlatViewer::drawGridAnnot()
 
     mDefuiW2Ui;
     const uiRect datarect( canvas_.arrArea() );
+    axesdrawer_.draw( datarect, wr_ );
+
     ioDrawTool& dt = *canvas_.drawTool();
     const uiSize totsz( canvas_.width(), canvas_.height() );
-
     if ( showanyx1annot && !ad1.name_.isEmpty() )
 	dt.drawText( uiPoint(2,2), annot.x2_.name_,
 		     Alignment(Alignment::Start,Alignment::Start) );
@@ -240,12 +243,6 @@ void uiFlatViewer::drawGridAnnot()
 	dt.drawText( uiPoint(totsz.width()-2,totsz.height()-2),
 		     annot.x1_.name_,
 		     Alignment(Alignment::Stop,Alignment::Stop));
-
-    DrawAxis2D axisdrawer( &canvas_ );
-    axisdrawer.setDrawRectangle( &datarect );
-    axisdrawer.setup( wr_ );
-    axisdrawer.drawAxes( ad1.showannot_, ad2.showannot_, true, true );
-    axisdrawer.drawGridLines( ad1.showgridlines_, ad2.showgridlines_ );
 }
 
 
