@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Jan 2006
- RCS:		$Id: indexinfo.h,v 1.2 2007-02-19 16:41:45 cvsbert Exp $
+ RCS:		$Id: indexinfo.h,v 1.3 2007-03-09 10:30:18 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,7 +51,7 @@ IndexInfo::IndexInfo( const T* arr, int sz, T val )
     , roundedtolow_(true)
     , inundef_(true)
 {
-    if ( sz < 1 )
+    if ( sz < 1 || !arr )
 	return;
     if ( sz == 1 )
 	{ inundef_ = val != arr[0]; return; }
