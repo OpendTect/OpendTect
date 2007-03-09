@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Huck
  Date:          January 2007
- RCS:           $Id: attribdatapack.cc,v 1.18 2007-03-07 08:59:04 cvshelene Exp $
+ RCS:           $Id: attribdatapack.cc,v 1.19 2007-03-09 14:20:25 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -149,6 +149,7 @@ Flat2DDataPack::Flat2DDataPack( DescID did, const Data2DHolder& dh )
     : ::FlatDataPack(categoryStr(true))
     , DataPackCommon(did)
     , dh_(dh)
+    , srctyp_("2D")
 {
     dh_.ref();
 
