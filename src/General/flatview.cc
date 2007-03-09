@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2000
- RCS:           $Id: flatview.cc,v 1.8 2007-03-08 17:03:52 cvsbert Exp $
+ RCS:           $Id: flatview.cc,v 1.9 2007-03-09 10:30:57 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -85,7 +85,7 @@ IndexInfo FlatPosData::indexInfo( bool isx1, double x ) const
     if ( !isx1 )
 	return IndexInfo( x2rg_, x );
     const int x1sz = nrPts(true);
-    if ( x1sz < 1 )
+    if ( x1sz < 1 || !x1pos_ )
 	return IndexInfo( x1rg_, x );
 
     return IndexInfo( x1pos_, x1sz, (float)(x-x1offs_) );
@@ -157,6 +157,8 @@ void FlatView::Viewer::addAuxInfo( bool iswva, const Point& pt,
 	if ( arr )
 	    iop.set( nm, arr->get( ix.nearest_, iy.nearest_ ) );
 	data().addAuxInfo( iswva, ix.nearest_, iy.nearest_, iop );
+	if ( getPack(iswva) )
+	    getPack(iswva)->getAuxInfo( ix.nearest_, iy.nearest_, iop );
     }
 }
 
