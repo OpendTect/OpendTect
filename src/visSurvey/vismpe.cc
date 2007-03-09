@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vismpe.cc,v 1.50 2007-01-29 20:40:54 cvskris Exp $";
+static const char* rcsID = "$Id: vismpe.cc,v 1.51 2007-03-09 09:18:28 cvsjaap Exp $";
 
 #include "vismpe.h"
 
@@ -564,7 +564,25 @@ void MPEDisplay::mouseClickCB( CallBacker* cb )
 	    updateTextureCoords();
 	    movement.trigger();
 	}
-
+	sceneeventcatcher_->eventIsHandled();
+    }
+    else if ( eventinfo.mousebutton==visBase::EventInfo::rightMouseButton() && 
+	      eventinfo.shift && !eventinfo.ctrl && !eventinfo.alt &&
+	      eventinfo.pickedobjids.indexOf(id())!=-1 && isDraggerShown() )
+    {
+	if ( eventinfo.pressed )
+	{
+	    const MPE::TrackPlane::TrackMode tm = 
+					engine_.trackPlane().getTrackMode();
+	    if ( tm==MPE::TrackPlane::Move )
+		engine_.setTrackMode( MPE::TrackPlane::Extend );
+	    else if ( tm==MPE::TrackPlane::Extend )
+		engine_.setTrackMode( MPE::TrackPlane::ReTrack );
+	    else if ( tm==MPE::TrackPlane::ReTrack )
+		engine_.setTrackMode( MPE::TrackPlane::Erase );
+	    else 
+		engine_.setTrackMode( MPE::TrackPlane::Move );
+	}
 	sceneeventcatcher_->eventIsHandled();
     }
     else if ( eventinfo.mousebutton==visBase::EventInfo::leftMouseButton() &&
