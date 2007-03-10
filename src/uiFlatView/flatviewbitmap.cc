@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:		Feb 2007
- RCS:           $Id: flatviewbitmap.cc,v 1.4 2007-03-02 10:55:17 cvshelene Exp $
+ RCS:           $Id: flatviewbitmap.cc,v 1.5 2007-03-10 12:13:47 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,16 +42,15 @@ void FlatView::BitMapMgr::setupChg()
 {
     clearAll();
 
-    const Array2D<float>* arr = wva_ ? vwr_.data().wvaarr()
-				     : vwr_.data().vdarr();
+    const Array2D<float>* arr = vwr_.data().arr( wva_ );
     if ( !arr ) return;
 
-    const FlatView::Context& ctxt = vwr_.context();
-    if ( (wva_ && !ctxt.ddpars_.wva_.show_)
-      || (!wva_ && !ctxt.ddpars_.vd_.show_) )
+    const FlatView::Appearance& app = vwr_.appearance();
+    if ( (wva_ && !app.ddpars_.wva_.show_)
+      || (!wva_ && !app.ddpars_.vd_.show_) )
 	return;
 
-    const FlatPosData& pd = wva_ ? ctxt.wvaposdata_ : ctxt.vdposdata_;
+    const FlatPosData& pd = vwr_.data().pos( wva_ );
     pos_ = new A2DBitMapPosSetup( arr->info(), pd.getPositions(true) );
     pos_->setDim1Positions( pd.range(false).start, pd.range(false).stop );
     data_ = new A2DBitMapInpData( *arr );
@@ -60,7 +59,7 @@ void FlatView::BitMapMgr::setupChg()
 	gen_ = new VDA2DBitMapGenerator( *data_, *pos_ );
     else
     {
-	const DataDispPars::WVA& wvapars = ctxt.ddpars_.wva_;
+	const DataDispPars::WVA& wvapars = app.ddpars_.wva_;
 	WVAA2DBitMapGenerator* wvagen
 	    		= new WVAA2DBitMapGenerator( *data_, *pos_ );
 	wvagen->wvapars().drawwiggles_ = wvapars.wigg_ != Color::NoColor;
@@ -71,12 +70,12 @@ void FlatView::BitMapMgr::setupChg()
 	wvagen->wvapars().midvalue_ = wvapars.midvalue_;
 	gen_ = wvagen;
     }
-    const DataDispPars::Common* pars = &ctxt.ddpars_.wva_;
-    if ( !wva_ ) pars = &ctxt.ddpars_.vd_;
+    const DataDispPars::Common* pars = &app.ddpars_.wva_;
+    if ( !wva_ ) pars = &app.ddpars_.vd_;
     gen_->pars().clipratio_ = pars->clipperc_ * 0.01;
     gen_->pars().nointerpol_ = pars->blocky_;
-    gen_->pars().fliplr_ = ctxt.annot_.x1_.reversed_;
-    gen_->pars().fliptb_ = !ctxt.annot_.x2_.reversed_;
+    gen_->pars().fliplr_ = app.annot_.x1_.reversed_;
+    gen_->pars().fliptb_ = !app.annot_.x2_.reversed_;
     		// in UI pixels, Y is reversed
     gen_->pars().autoscale_ = mIsUdf(pars->rg_.start) ||mIsUdf(pars->rg_.stop);
     if ( !gen_->pars().autoscale_ )
@@ -103,8 +102,9 @@ bool FlatView::BitMapMgr::generate( const Geom::PosRectangle<double>& wr,
 }
 
 
-FlatView::BitMap2RGB::BitMap2RGB( const FlatView::Context& c, uiRGBArray& arr )
-    : ctxt_(c)
+FlatView::BitMap2RGB::BitMap2RGB( const FlatView::Appearance& a,
+				  uiRGBArray& arr )
+    : app_(a)
     , arr_(arr)
 {
 }
@@ -123,7 +123,7 @@ void FlatView::BitMap2RGB::drawVD( const A2DBitMap& bmp )
 {
     const Geom::Size2D<int> bmpsz(bmp.info().getSize(0),bmp.info().getSize(1));
     const Geom::Size2D<int> arrsz(arr_.getSize(true),arr_.getSize(false));
-    const FlatView::DataDispPars::VD& pars = ctxt_.ddpars_.vd_;
+    const FlatView::DataDispPars::VD& pars = app_.ddpars_.vd_;
     ColorTable ctab( pars.ctab_ );
     const int minfill = (int)VDA2DBitMapGenPars::cMinFill;
     const int maxfill = (int)VDA2DBitMapGenPars::cMaxFill;
@@ -151,7 +151,7 @@ void FlatView::BitMap2RGB::drawWVA( const A2DBitMap& bmp )
 {
     const Geom::Size2D<int> bmpsz(bmp.info().getSize(0),bmp.info().getSize(1));
     const Geom::Size2D<int> arrsz(arr_.getSize(true),arr_.getSize(false));
-    const FlatView::DataDispPars::WVA& pars = ctxt_.ddpars_.wva_;
+    const FlatView::DataDispPars::WVA& pars = app_.ddpars_.wva_;
 
     for ( int ix=0; ix<arrsz.width(); ix++ )
     {

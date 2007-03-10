@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2007
- RCS:           $Id: uiflatviewproptabs.h,v 1.1 2007-03-07 10:42:52 cvsbert Exp $
+ RCS:           $Id: uiflatviewproptabs.h,v 1.2 2007-03-10 12:13:46 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,7 +39,7 @@ protected:
 					  const char*);
 
     FlatView::Viewer&	vwr_;
-    FlatView::Context&	ctxt_;
+    FlatView::Appearance& app_;
 
 };
     

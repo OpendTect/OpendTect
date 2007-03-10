@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: flatviewbmp2rgb.h,v 1.1 2007-02-23 09:35:33 cvsbert Exp $
+ RCS:           $Id: flatviewbmp2rgb.h,v 1.2 2007-03-10 12:13:46 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,7 +26,7 @@ class BitMap2RGB
 {
 public:
 
-			BitMap2RGB(const Context&,uiRGBArray&);
+			BitMap2RGB(const Appearance&,uiRGBArray&);
 
     void		draw(const A2DBitMap* wva,const A2DBitMap* vd);
 
@@ -34,7 +34,7 @@ public:
 
 protected:
 
-    const Context&	ctxt_;
+    const Appearance&	app_;
     uiRGBArray&		arr_;
 
     void		drawVD(const A2DBitMap&);

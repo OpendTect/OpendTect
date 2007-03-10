@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2005
- RCS:           $Id: flatview.h,v 1.9 2007-03-09 14:31:26 cvsbert Exp $
+ RCS:           $Id: flatview.h,v 1.10 2007-03-10 12:13:46 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -205,22 +205,18 @@ public:
 };
 
 
-/*!\brief Flat views: Context - holds all but the data itself.
-  Subclassing can be necessary to provide info on the data via the getAuxInfo.
- */
+/*!\brief Flat views: Appearance  */
 
-class Context
+class Appearance
 {
 public:
-    			Context( bool drkbg=true )
+    			Appearance( bool drkbg=true )
 			    : darkbg_(drkbg)
 			    , annot_(drkbg)	{}
 
     virtual void	fillPar(IOPar&) const;
     virtual void	usePar(const IOPar&);
 
-    FlatPosData		wvaposdata_;
-    FlatPosData		vdposdata_;
     Annotation		annot_;
     DataDispPars	ddpars_;
 
@@ -239,53 +235,68 @@ protected:
 };
 
 
-/*!\brief Data used + a name for each. The Array2D's are not managed. */
+/*!\brief Data for a display: positions, arrays and name. */
+
+class PackData
+{
+public:
+    				PackData( const Array2D<float>* a=0,
+					  const char* nm=0 )
+				    : arr_(a), name_(nm)	{}
+
+    FlatPosData			pos_;
+    const Array2D<float>*	arr_;
+    BufferString		name_;
+
+    inline bool			isEmpty() const
+				{ return !arr_; }
+    inline void			setEmpty()
+				{ arr_ = 0; }
+    inline void			clear()
+				{ arr_ = 0; name_ = ""; pos_.setRegular(); }
+};
+
+
+/*!\brief PackData for both WVA and VD. */
 
 class Data
 {
 public:
-			Data()
-			    : vdarr_(0)
-			    , wvaarr_(0)		{}
 
-    virtual const Array2D<float>* arr( bool wva ) const
-			{ return wva ? wvaarr_ : vdarr_; }
-    virtual const char*	name( bool wva ) const
-			{ return wva ? wvaname_.buf() : vdname_.buf(); }
-    virtual bool	set(bool iswva,const Array2D<float>*,const char*);
-    			//!< returns whether anything changed
+    PackData		wva_;
+    PackData		vd_;
 
-    // convenience
-    inline bool		isEmpty() const
-			{ return !wvaarr() && !vdarr(); }
-    inline bool		isDouble() const
-			{ return wvaarr() && vdarr(); }
-    inline bool		equal() const
-			{ return wvaarr() == vdarr(); }
-    inline int		nrArrs() const
-			{ return wvaarr() ? (vdarr()?2:1) : (vdarr()?1:0); }
-
-    inline const Array2D<float>* wvaarr() const { return arr(true); }
-    inline const Array2D<float>* vdarr() const	{ return arr(false); }
-    virtual const char*	wvaname() const		{ return name(true); }
-    virtual const char*	vdname() const		{ return name(false); }
-				
     virtual void	addAuxInfo(bool wva,int,int,IOPar&) const	{}
     			//!< Give extra info like stuff from trace headers
     			//!< should be 'printable'
 
-protected:
+    // convenience
+    inline bool		isEmpty() const
+			{ return !wvaArr() && !vdArr(); }
+    inline int		nrArrs() const
+			{ return wvaArr() ? (vdArr()?2:1) : (vdArr()?1:0); }
+    inline void		setEmpty( bool wva )
+			{ wva ? wva_.setEmpty() : vd_.setEmpty(); }
 
-    BufferString		vdname_;
-    BufferString		wvaname_;
-    const Array2D<float>*	vdarr_;
-    const Array2D<float>*	wvaarr_;
+    inline const FlatPosData&	pos( bool wva ) const
+    			{ return wva ? wva_.pos_ : vd_.pos_; }
+    inline const Array2D<float>* arr( bool wva ) const
+    			{ return wva ? wva_.arr_ : vd_.arr_; }
+    inline const BufferString&	name( bool wva ) const
+    			{ return wva ? wva_.name_ : vd_.name_; }
+
+    inline const FlatPosData&	wvaPos() const		{ return pos(true); }
+    inline const FlatPosData&	vdPos() const		{ return pos(false); }
+    inline const Array2D<float>* wvaArr() const		{ return arr(true); }
+    inline const Array2D<float>* vdArr() const		{ return arr(false); }
+    inline const BufferString&	wvaName() const		{ return name(true); }
+    inline const BufferString&	vdName() const		{ return name(false); }
 
 };
 
 
 
-/*!\brief Flat Viewer of 2-D 'arrays' of data and/or context
+/*!\brief Flat Viewer using FlatView::Data and FlatView::Appearance
 
   Interface for displaying data and related annotations where at least one of
   the directions is sampled regularly.
@@ -296,27 +307,27 @@ class Viewer
 {
 public:
 
-    			Viewer() : defdata_(0), defctxt_(0)	{}
+    			Viewer() : defdata_(0), defapp_(0)	{}
     virtual		~Viewer()				{}
 
-    virtual Context&	context();
-    const Context&	context() const
-    			{ return const_cast<Viewer*>(this)->context(); }
+    virtual Appearance&	appearance();
+    const Appearance&	appearance() const
+    			{ return const_cast<Viewer*>(this)->appearance(); }
     virtual Data&	data();
     const Data&		data() const
     			{ return const_cast<Viewer*>(this)->data(); }
 
     virtual bool	isVertical() const		{ return true; }
     bool		isVisible(bool wva) const;
-    			//!< Depends on pars and availability of data
+    			//!< Depends on show_ and availability of data
 
     enum DataChangeType	{ None, All, Annot, WVAData, VDData, WVAPars, VDPars };
     virtual void	handleChange(DataChangeType)	= 0;
 
     virtual void	fillPar( IOPar& iop ) const
-			{ context().fillPar( iop ); }
+			{ appearance().fillPar( iop ); }
     virtual void	usePar( const IOPar& iop )
-			{ context().usePar( iop ); }
+			{ appearance().usePar( iop ); }
 
     void		storeDefaults(const char* key) const;
     void		useStoredDefaults(const char* key);
@@ -330,15 +341,16 @@ public:
     virtual const FlatDataPack*	getPack(bool wva) const;
     			//!< May return null
 
-    void		syncDataPacks(); //!< after mix/null of data().arr's
+    void		syncDataPacks(); //!< after mix/null of data()
     void		getAuxInfo(const Point&,IOPar&) const;
 
 protected:
 
     Data*		defdata_;
-    Context*		defctxt_;
+    Appearance*		defapp_;
 
     void		addAuxInfo(bool,const Point&,IOPar&) const;
+    void		chgPack(bool,const FlatDataPack*);
     virtual void	doSetPack(bool,const FlatDataPack*,bool);
 
 };

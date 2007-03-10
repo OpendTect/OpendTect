@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2007
- RCS:           $Id: flatviewaxesdrawer.h,v 1.1 2007-03-09 12:28:44 cvsbert Exp $
+ RCS:           $Id: flatviewaxesdrawer.h,v 1.2 2007-03-10 12:13:46 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,15 +25,14 @@ class AxesDrawer : public ::DrawAxis2D
 public:
     			AxesDrawer(Viewer&,ioDrawArea&);
 
-    void		setAuxNr( int nr )	{ auxnr_ = nr; }
-    int			auxNr() const		{ return auxnr_; }
-
     void		draw(uiRect,uiWorldRect);
+
+    BufferString	xioparkey_; //!< default empty => use positioning
+    BufferString	yioparkey_; //!< default empty => use positioning
 
 protected:
 
     Viewer&		vwr_;
-    int			auxnr_;
 
     virtual double      getAnnotTextAndPos(bool,double,BufferString*) const;
 

@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2007
- RCS:           $Id: flatposdata.h,v 1.3 2007-02-21 14:51:00 cvsbert Exp $
+ RCS:           $Id: flatposdata.h,v 1.4 2007-03-10 12:13:46 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -60,8 +60,10 @@ public:
     				{ return x1offs_ ? x1offs_ : 0; }
     				//!< For use with getPositions
 
-    bool			isIrregular() const
+    inline bool			isIrregular() const
 				{ return x1pos_ && nrPts(true) > 2; }
+    inline void			setRegular()
+				{ setRange( true, range(true) ); }
 
 protected:
 

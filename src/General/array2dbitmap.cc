@@ -4,7 +4,7 @@
  * DATE     : Sep 2006
 -*/
 
-static const char* rcsID = "$Id: array2dbitmap.cc,v 1.21 2007-02-28 18:06:53 cvsbert Exp $";
+static const char* rcsID = "$Id: array2dbitmap.cc,v 1.22 2007-03-10 12:13:46 cvsbert Exp $";
 
 #include "array2dbitmapimpl.h"
 #include "arraynd.h"
@@ -297,7 +297,7 @@ int WVAA2DBitMapGenerator::dim0SubSampling() const
 void WVAA2DBitMapGenerator::doFill()
 {
     const int dispeach = dim0SubSampling();
-    stripwidth_ = 2 * (0.5 + wvapars().overlap_) * dispeach * setup_.avgDist(0);
+    stripwidth_ = (1 + wvapars().overlap_) * dispeach * setup_.avgDist(0);
 
     for ( int idim0=0; idim0<szdim0_; idim0+=dispeach )
     {

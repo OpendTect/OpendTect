@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2000
- RCS:           $Id: flatview.cc,v 1.9 2007-03-09 10:30:57 cvshelene Exp $
+ RCS:           $Id: flatview.cc,v 1.10 2007-03-10 12:13:47 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -128,8 +128,8 @@ FlatView::DataDispPars::Common::Common()
 
 void FlatView::Viewer::getAuxInfo( const Point& pt, IOPar& iop ) const
 {
-    BufferString txt( context().annot_.x1_.name_ );
-    txt += " vs "; txt += context().annot_.x2_.name_;
+    BufferString txt( appearance().annot_.x1_.name_ );
+    txt += " vs "; txt += appearance().annot_.x2_.name_;
     iop.set( "Positioning", txt );
     if ( data().isEmpty() )
 	return;
@@ -142,14 +142,14 @@ void FlatView::Viewer::getAuxInfo( const Point& pt, IOPar& iop ) const
 void FlatView::Viewer::addAuxInfo( bool iswva, const Point& pt,
 				   IOPar& iop ) const
 {
-    const Array2D<float>* arr = iswva ? data().wvaarr() : data().vdarr();
-    const char* nm = iswva ? data().wvaname() : data().vdname();
+    const Array2D<float>* arr = iswva ? data().wvaArr() : data().vdArr();
     if ( !arr ) return;
 
+    const char* nm = iswva ? data().wvaName() : data().vdName();
     iop.set( iswva ? "Wiggle/VA data" : "Variable density data", nm );
 
     const Array2DInfoImpl& info = arr->info();
-    const FlatPosData& pd = iswva ? context().wvaposdata_ :context().vdposdata_;
+    const FlatPosData& pd = data().pos( iswva );
     const IndexInfo ix = pd.indexInfo( true, pt.x );
     const IndexInfo iy = pd.indexInfo( false, pt.y );
     if ( !ix.inundef_ && !iy.inundef_ )
@@ -250,21 +250,21 @@ void FlatView::DataDispPars::usePar( const IOPar& iop )
 }
 
 
-void FlatView::Context::fillPar( IOPar& iop ) const
+void FlatView::Appearance::fillPar( IOPar& iop ) const
 {
     annot_.fillPar( iop );
     ddpars_.fillPar( iop );
 }
 
 
-void FlatView::Context::usePar( const IOPar& iop )
+void FlatView::Appearance::usePar( const IOPar& iop )
 {
     annot_.usePar( iop );
     ddpars_.usePar( iop );
 }
 
 
-void FlatView::Context::setDarkBG( bool yn )
+void FlatView::Appearance::setDarkBG( bool yn )
 {
     darkbg_ = yn;
     annot_.color_ = yn ? Color::White : Color::Black;
@@ -272,32 +272,11 @@ void FlatView::Context::setDarkBG( bool yn )
 }
 
 
-bool FlatView::Data::set( bool wva, const Array2D<float>* a, const char* nm )
+FlatView::Appearance& FlatView::Viewer::appearance()
 {
-    bool chgd = false;
-
-    if ( wva )
-    {
-	chgd = a != wvaarr_;
-	wvaarr_ = a;
-	wvaname_ = nm;
-    }
-    else
-    {
-	chgd = a != vdarr_;
-	vdarr_ = a;
-	vdname_ = nm;
-    }
-
-    return chgd;
-}
-
-
-FlatView::Context& FlatView::Viewer::context()
-{
-    if ( !defctxt_ )
-	defctxt_ = new FlatView::Context;
-    return *defctxt_;
+    if ( !defapp_ )
+	defapp_ = new FlatView::Appearance;
+    return *defapp_;
 }
 
 
@@ -336,14 +315,27 @@ void FlatView::Viewer::setPack( bool wva, DataPack::ID id )
 {
     const DataPack* pack = DPM(DataPackMgr::FlatID).obtain(id);
     mDynamicCastGet(const FlatDataPack*,fdp,pack)
-    setPack( wva, fdp );
+    doSetPack( wva, fdp, true );
 }
 
 
 void FlatView::Viewer::setPack( bool wva, const FlatDataPack* newpack )
 {
-    FlatView::Data& dd = data();
-    mDynamicCastGet(FlatView::FlDPackData*,fddpdata,&dd)
+    doSetPack( wva, newpack, true );
+}
+
+
+void FlatView::Viewer::chgPack( bool wva, const FlatDataPack* newpack )
+{
+    doSetPack( wva, newpack, false );
+}
+
+
+void FlatView::Viewer::doSetPack( bool wva, const FlatDataPack* newpack,
+				  bool usedefs )
+{
+    FlatView::Data& dta = data();
+    mDynamicCastGet(FlatView::FlDPackData*,fddpdata,&dta)
     bool issame = !newpack && !fddpdata;
     if ( fddpdata )
     {
@@ -354,25 +346,26 @@ void FlatView::Viewer::setPack( bool wva, const FlatDataPack* newpack )
 	pack = newpack;
     }
 
-    if ( !issame )
+    if ( issame ) return;
+
+    if ( !newpack )
+	dta.setEmpty( wva );
+    else
     {
-	if ( !newpack )
-	    dd.set( wva, 0, "" );
-	else
+	FlatView::PackData& pd = wva ? dta.wva_ : dta.vd_;
+	pd.pos_ = newpack->posData();
+	pd.arr_ = &newpack->data();
+	pd.name_ = newpack->name();
+	if ( fddpdata )
 	{
-	    dd.set( wva, &newpack->data(), newpack->name().buf() );
-	    FlatView::Context& ctxt = context();
-	    (wva ? ctxt.wvaposdata_ : ctxt.vdposdata_) = newpack->posData();
-	    if ( fddpdata )
-	    {
-		const FlatDataPack& fdp = wva	? *fddpdata->wvapack_
-		    				: *fddpdata->vdpack_;
-		FlatView::Annotation& annot = ctxt.annot_;
-		annot.x1_.name_ = fdp.dimName( true );
-		annot.x2_.name_ = fdp.dimName( false );
-	    }
-	    useStoredDefaults( newpack->category() );
+	    const FlatDataPack& fdp = wva ? *fddpdata->wvapack_
+					  : *fddpdata->vdpack_;
+	    FlatView::Annotation& annot = appearance().annot_;
+	    annot.x1_.name_ = fdp.dimName( true );
+	    annot.x2_.name_ = fdp.dimName( false );
 	}
+	if ( usedefs )
+	    useStoredDefaults( newpack->category() );
     }
 
     handleChange( wva ? WVAData : VDData );
@@ -382,9 +375,9 @@ void FlatView::Viewer::setPack( bool wva, const FlatDataPack* newpack )
 bool FlatView::Viewer::isVisible( bool wva ) const
 {
     if ( wva )
-	return context().ddpars_.wva_.show_ && data().wvaarr();
+	return appearance().ddpars_.wva_.show_ && data().wvaArr();
     else
-        return context().ddpars_.vd_.show_ && data().vdarr();
+        return appearance().ddpars_.vd_.show_ && data().vdArr();
 }
 
 
@@ -393,8 +386,8 @@ void FlatView::Viewer::syncDataPacks()
     const FlatDataPack* wvapack = getPack( true );
     const FlatDataPack* vdpack = getPack( false );
     if ( !wvapack && !vdpack ) return;
-    FlatView::Data& dd = data();
-    mDynamicCastGet(FlatView::FlDPackData*,fddpdata,&dd)
+    FlatView::Data& dta = data();
+    mDynamicCastGet(FlatView::FlDPackData*,fddpdata,&dta)
     if ( !fddpdata )
 	return;
 
@@ -410,33 +403,35 @@ void FlatView::Viewer::syncDataPacks()
     {
 	// No packs used
 	dpm.release(fddpdata->wvapack_); dpm.release(fddpdata->vdpack_);
-	fddpdata->wvapack_ = fddpdata->vdpack_ = 0;
+	chgPack( true, 0 ); chgPack( false, 0 );
 	return;
     }
     else if ( curwvaarr == packvdarr && curvdarr == packwvaarr )
     {
 	// Packs have switched
-	Swap( fddpdata->wvapack_, fddpdata->vdpack_ );
+	const FlatDataPack* newwvapack = fddpdata->vdpack_;
+	const FlatDataPack* newvdpack = fddpdata->wvapack_;
+	chgPack( true, newwvapack ); chgPack( false, newvdpack );
 	return;
     }
 
     if ( curwvaarr != packwvaarr && curvdarr != packwvaarr )
     {
 	dpm.release( fddpdata->wvapack_ );
-	fddpdata->wvapack_ = curwvaarr == packvdarr ? fddpdata->vdpack_ : 0;
+	chgPack( true, curwvaarr == packvdarr ? fddpdata->vdpack_ : 0 );
     }
     if ( curwvaarr != packvdarr && curvdarr != packvdarr )
     {
 	dpm.release( fddpdata->vdpack_ );
-	fddpdata->vdpack_ = curvdarr == packwvaarr ? fddpdata->wvapack_ : 0;
+	chgPack( false, curvdarr == packwvaarr ? fddpdata->wvapack_ :0 );
     }
 }
 
 
 const FlatDataPack* FlatView::Viewer::getPack( bool wva ) const
 {
-    const FlatView::Data& dd = data();
-    mDynamicCastGet(const FlatView::FlDPackData*,fddpdata,&dd)
+    const FlatView::Data& dta = data();
+    mDynamicCastGet(const FlatView::FlDPackData*,fddpdata,&dta)
     return fddpdata ? (wva ? fddpdata->wvapack_ : fddpdata->vdpack_) : 0;
 }
 

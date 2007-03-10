@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiseiswvltman.cc,v 1.20 2007-03-02 10:55:17 cvshelene Exp $
+ RCS:           $Id: uiseiswvltman.cc,v 1.21 2007-03-10 12:13:47 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,7 +35,7 @@ uiSeisWvltMan::uiSeisWvltMan( uiParent* p )
                                      "Manage wavelets",
                                      "103.3.0").nrstatusflds(1),
 	    	   WaveletTranslatorGroup::ioContext() )
-    , fda2d_(0)
+    , fva2d_(0)
 {
     createDefaultUI();
 
@@ -50,14 +50,14 @@ uiSeisWvltMan::uiSeisWvltMan( uiParent* p )
     butgrp->attach( centeredBelow, selgrp );
 
     wvltfld = new uiFlatViewer( this );
-    FlatView::Context& ctxt = wvltfld->context();
-    ctxt.annot_.x1_.name_ = "Amplitude";
-    ctxt.annot_.x2_.name_ = SI().zIsTime() ? "Time" : "Depth";
-    ctxt.annot_.setAxesAnnot( false );
-    ctxt.setGeoDefaults( true );
-    ctxt.ddpars_.show( true, false );
-    ctxt.ddpars_.wva_.mid_= Color( 150, 150, 100 );
-    ctxt.ddpars_.wva_.overlap_ = -0.01; ctxt.ddpars_.wva_.clipperc_ = 0;
+    FlatView::Appearance& app = wvltfld->appearance();
+    app.annot_.x1_.name_ = "Amplitude";
+    app.annot_.x2_.name_ = SI().zIsTime() ? "Time" : "Depth";
+    app.annot_.setAxesAnnot( false );
+    app.setGeoDefaults( true );
+    app.ddpars_.show( true, false );
+    app.ddpars_.wva_.mid_= Color( 150, 150, 100 );
+    app.ddpars_.wva_.overlap_ = -0.01; app.ddpars_.wva_.clipperc_ = 0;
     wvltfld->useStoredDefaults( "Wavelet" );
 
     wvltfld->setPrefWidth( 60 );
@@ -74,7 +74,7 @@ uiSeisWvltMan::uiSeisWvltMan( uiParent* p )
 
 uiSeisWvltMan::~uiSeisWvltMan()
 {
-    delete fda2d_;
+    delete fva2d_;
 }
 
 
@@ -179,21 +179,22 @@ void uiSeisWvltMan::mkFileInfo()
     BufferString txt;
     Wavelet* wvlt = Wavelet::get( curioobj_ );
 
-    FlatView::Data& fddata = wvltfld->data();
+    FlatView::Data& fvdata = wvltfld->data();
     if ( !wvlt )
-	fddata.set( true, 0, "" );
+	fvdata.setEmpty( true );
     else
     {
 	const int wvltsz = wvlt->size();
 	const float zfac = SI().zFactor();
 
-	delete fda2d_;
-	fda2d_ = new Array2DImpl<float>( 1, wvltsz );
-	memcpy( fda2d_->getData(), wvlt->samples(), wvltsz * sizeof(float) );
-	fddata.set( true, fda2d_, wvlt->name() );
+	delete fva2d_;
+	fvdata.wva_.name_ = wvlt->name();
+	fva2d_ = new Array2DImpl<float>( 1, wvltsz );
+	memcpy( fva2d_->getData(), wvlt->samples(), wvltsz * sizeof(float) );
+	fvdata.wva_.arr_ = fva2d_;
 	StepInterval<double> posns; posns.setFrom( wvlt->samplePositions() );
 	if ( SI().zIsTime() ) posns.scale( zfac );
-	wvltfld->context().wvaposdata_.setRange( false, posns );
+	fvdata.wva_.pos_.setRange( false, posns );
 
 	Stats::RunCalc<float> rc( Stats::RunCalcSetup().require(Stats::Max) );
 	rc.addValues( wvltsz, wvlt->samples() );

@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Oct 2006
- RCS:           $Id: uiseiswvltman.h,v 1.5 2007-02-19 16:41:45 cvsbert Exp $
+ RCS:           $Id: uiseiswvltman.h,v 1.6 2007-03-10 12:13:46 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,7 +26,7 @@ public:
 protected:
 
     uiFlatViewer*	wvltfld;
-    Array2D<float>*	fda2d_;
+    Array2D<float>*	fva2d_;
 
     void		mkFileInfo();
 

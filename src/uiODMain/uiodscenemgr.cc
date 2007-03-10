@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.99 2007-03-07 10:37:41 cvsbert Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.100 2007-03-10 12:13:47 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -911,15 +911,15 @@ void uiODSceneMgr::Viewer2D::setData( DataPack::ID packid, bool wva )
 	    controlparent = &appl_;
 	}
 	uiFlatViewer& vwr = viewwin_->viewer();
-	vwr.setInitialSize( uiSize(800,600) );
+	vwr.setInitialSize( uiSize(600,400) );
 	vwr.setDarkBG( wantdock );
-	vwr.context().setGeoDefaults(true); //TODO horizontal?
-	vwr.context().annot_.setAxesAnnot(true);
+	vwr.appearance().setGeoDefaults(true); //TODO when horizontal slices
+	vwr.appearance().annot_.setAxesAnnot(true);
 	viewwin_->addControl( new uiFlatViewStdControl( vwr,
 		    	      uiFlatViewStdControl::Setup(controlparent) ) );
     }
 
     viewwin_->viewer().setPack( wva, packid );
-    viewwin_->viewer().context().ddpars_.show( true, true );
+    viewwin_->viewer().appearance().ddpars_.show( true, true );
     viewwin_->start();
 }

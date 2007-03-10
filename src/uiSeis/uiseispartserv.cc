@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiseispartserv.cc,v 1.62 2007-03-07 10:38:09 cvsbert Exp $
+ RCS:           $Id: uiseispartserv.cc,v 1.63 2007-03-10 12:13:47 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -271,11 +271,11 @@ bool uiSeisPartServer::handleGatherSubMenu( int mnuid, const BinID& bid )
 	viewwin_ = new uiFlatViewMainWin( appserv().parent(),
 				          uiFlatViewMainWin::Setup(title) );
 	viewwin_->setDarkBG( false );
-	FlatView::Context& ctxt = viewwin_->viewer().context();
-	ctxt.annot_.setAxesAnnot( true );
-	ctxt.setGeoDefaults( true );
-	ctxt.ddpars_.show( true, false );
-	ctxt.ddpars_.wva_.overlap_ = 1;
+	FlatView::Appearance& app = viewwin_->viewer().appearance();
+	app.annot_.setAxesAnnot( true );
+	app.setGeoDefaults( true );
+	app.ddpars_.show( true, false );
+	app.ddpars_.wva_.overlap_ = 1;
     }
 
     uiFlatViewer& vwr = viewwin_->viewer();
@@ -290,12 +290,12 @@ bool uiSeisPartServer::handleGatherSubMenu( int mnuid, const BinID& bid )
     dp->setName( "Local frequency" );
     DPM( DataPackMgr::FlatID ).add( dp );
     vwr.setPack( false, dp );
-    vwr.context().ddpars_.show( true, false );
 
     if ( !isnew )
 	vwr.handleChange( FlatView::Viewer::All );
     else
     {
+	vwr.appearance().ddpars_.show( true, false );
 	int pw = 200 + 10 * tbufsz;
 	if ( pw < 400 ) pw = 400; if ( pw > 800 ) pw = 800;
 	vwr.setInitialSize( uiSize(pw,500) );

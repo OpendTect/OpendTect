@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          Dec 2006
- RCS:           $Id: uiflatviewpropdlg.cc,v 1.8 2007-03-07 14:13:34 cvsbert Exp $
+ RCS:           $Id: uiflatviewpropdlg.cc,v 1.9 2007-03-10 12:13:47 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,7 +26,7 @@ uiFlatViewPropTab::uiFlatViewPropTab( uiParent* p, FlatView::Viewer& vwr,
 				      const char* lbl )
     : uiDlgGroup(p,lbl)
     , vwr_(vwr)
-    , ctxt_(vwr.context())
+    , app_(vwr.appearance())
 {
 }
 
@@ -34,7 +34,7 @@ uiFlatViewPropTab::uiFlatViewPropTab( uiParent* p, FlatView::Viewer& vwr,
 uiFlatViewDataDispPropTab::uiFlatViewDataDispPropTab( uiParent* p,
 		FlatView::Viewer& vwr, const char* tablbl )
     : uiFlatViewPropTab(p,vwr,tablbl)
-    , ddpars_(ctxt_.ddpars_)
+    , ddpars_(app_.ddpars_)
 {
     dispfld_ = new uiLabeledComboBox( this, "Display" );
     dispfld_->box()->selectionChanged.notify(
@@ -130,19 +130,17 @@ void uiFlatViewDataDispPropTab::putCommonToScreen()
 }
 
 
-void uiFlatViewDataDispPropTab::doSetData( const FlatView::Data& fvd,
-					   bool wva )
+void uiFlatViewDataDispPropTab::doSetData( const FlatView::Data& fvd, bool wva )
 {
     if ( dispfld_->box()->currentItem() == 0 )
-    {
-	vwr_.data().set( wva, 0, fvd.name(wva) );
-	return;
-    }
+	{ vwr_.data().setEmpty( wva ); return; }
+
     const BufferString datanm( dispfld_->box()->text() );
+    FlatView::PackData& pdta = wva ? vwr_.data().wva_ : vwr_.data().vd_;
     if ( datanm == fvd.name(true) )
-	vwr_.data().set( wva, fvd.arr(true), datanm );
+	pdta = fvd.wva_;
     else if ( datanm == fvd.name(false) )
-	vwr_.data().set( wva, fvd.arr(false), datanm );
+	pdta = fvd.vd_;
 }
 
 
@@ -342,7 +340,7 @@ void uiFVAnnotPropTab::AxesGroup::getFromScreen()
 
 uiFVAnnotPropTab::uiFVAnnotPropTab( uiParent* p, FlatView::Viewer& vwr )
     : uiFlatViewPropTab(p,vwr,"Annotation")
-    , annot_(ctxt_.annot_)
+    , annot_(app_.annot_)
 {
     colfld_ = new uiColorInput( this, annot_.color_, "Color" );
     x1_ = new AxesGroup( this, annot_.x1_ );
@@ -404,7 +402,7 @@ void uiFlatViewPropDlg::getAllFromScreen()
 	mDynamicCastGet(uiFlatViewPropTab&,ptab,getGroup(idx))
 	ptab.getFromScreen();
     }
-    vwr_.context().annot_.title_ = titlefld_->text();
+    vwr_.appearance().annot_.title_ = titlefld_->text();
 }
 
 
@@ -416,7 +414,7 @@ void uiFlatViewPropDlg::putAllToScreen()
 	mDynamicCastGet(uiFlatViewPropTab&,ptab,getGroup(idx))
 	ptab.putToScreen();
     }
-    titlefld_->setText( vwr_.context().annot_.title_ );
+    titlefld_->setText( vwr_.appearance().annot_.title_ );
 }
 
 
@@ -429,12 +427,8 @@ void uiFlatViewPropDlg::doApply( CallBacker* )
 
 bool uiFlatViewPropDlg::rejectOK( CallBacker* cb )
 {
-    const FlatDataPack* wvapack = vwr_.getPack( true );
-    const FlatDataPack* vdpack = vwr_.getPack( false );
-    if ( wvapack )
-	vwr_.data().set( true, &wvapack->data(), wvapack->name() );
-    if ( vdpack )
-	vwr_.data().set( true, &vdpack->data(), vdpack->name() );
+    vwr_.data() = initialdata_;
+    vwr_.syncDataPacks(); // Just to be sure
     return true;
 }
 

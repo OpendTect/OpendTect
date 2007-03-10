@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:		Feb 2007
- RCS:           $Id: uiflatviewcontrol.cc,v 1.15 2007-03-09 10:31:51 cvshelene Exp $
+ RCS:           $Id: uiflatviewcontrol.cc,v 1.16 2007-03-10 12:13:47 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -130,7 +130,7 @@ void uiFlatViewControl::setNewView( Geom::Point2D<double>& centre,
 uiWorldRect uiFlatViewControl::getZoomAndPanRect( Geom::Point2D<double> centre,
 					      Geom::Size2D<double> sz ) const
 {
-    //TODO have different policy
+    //TODO we should have a different policy for requests outside
     return getZoomOrPanRect( centre, sz );
 }
 
@@ -166,9 +166,9 @@ void uiFlatViewControl::flip( bool hor )
 
     for ( int idx=0; idx<vwrs_.size(); idx++ )
     {
-	FlatView::Annotation::AxisData& ad = hor
-					   ? vwrs_[idx]->context().annot_.x1_
-					   : vwrs_[idx]->context().annot_.x2_;
+	FlatView::Annotation::AxisData& ad
+			    = hor ? vwrs_[idx]->appearance().annot_.x1_
+				  : vwrs_[idx]->appearance().annot_.x2_;
 	ad.reversed_ = !ad.reversed_;
 	vwrs_[idx]->setView( newview );
     }
@@ -224,7 +224,7 @@ void uiFlatViewControl::applyProperties( CallBacker* cb )
 
     uiFlatViewer& vwr = *vwrs_[0];
     const uiWorldRect cv( vwr.curView() );
-    FlatView::Annotation& annot = vwr.context().annot_;
+    FlatView::Annotation& annot = vwr.appearance().annot_;
     if ( cv.right() > cv.left() == annot.x1_.reversed_ )
 	{ annot.x1_.reversed_ = !annot.x1_.reversed_; flip( true ); }
     if ( cv.top() > cv.bottom() == annot.x2_.reversed_ )

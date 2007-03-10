@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewer.cc,v 1.14 2007-03-09 12:27:32 cvsbert Exp $
+ RCS:           $Id: uiflatviewer.cc,v 1.15 2007-03-10 12:13:47 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "flatviewbitmapmgr.h"
 #include "flatviewbmp2rgb.h"
 #include "flatviewaxesdrawer.h"
-#include "array2dbitmapimpl.h"
+#include "datapackbase.h"
 #include "iodrawtool.h"
 #include "drawaxis2d.h"
 #include "uiworld2ui.h"
@@ -35,7 +35,7 @@ uiFlatViewer::uiFlatViewer( uiParent* p )
     , annotsz_(50,20) //TODO: should be dep on font size
     , viewChanged(this)
 {
-    bmp2rgb_ = new FlatView::BitMap2RGB( context(), canvas_.rgbArray() );
+    bmp2rgb_ = new FlatView::BitMap2RGB( appearance(), canvas_.rgbArray() );
     canvas_.newFillNeeded.notify( mCB(this,uiFlatViewer,canvasNewFill) );
     canvas_.postDraw.notify( mCB(this,uiFlatViewer,canvasPostDraw) );
 }
@@ -60,7 +60,7 @@ uiRGBArray& uiFlatViewer::rgbArray()
 
 Color uiFlatViewer::color( bool foreground ) const
 {
-    return context().darkBG() == foreground ? Color::White : Color::Black;
+    return appearance().darkBG() == foreground ? Color::White : Color::Black;
 }
 
 
@@ -72,7 +72,7 @@ void uiFlatViewer::initView()
 
 void uiFlatViewer::setDarkBG( bool yn )
 {
-    context().setDarkBG( yn );
+    appearance().setDarkBG( yn );
     canvas_.setBGColor( color(false) );
 }
 
@@ -95,7 +95,7 @@ void uiFlatViewer::setInitialSize( uiSize sz )
 
 uiWorldRect uiFlatViewer::getBoundingBox( bool wva ) const
 {
-    const FlatPosData& pd = wva	? context().wvaposdata_ : context().vdposdata_;
+    const FlatPosData& pd = data().pos( wva );
     StepInterval<double> rg0( pd.range(true) ); rg0.sort( true );
     StepInterval<double> rg1( pd.range(false) ); rg1.sort( true );
     rg0.start -= dim0extfac_ * rg0.step; rg0.stop += dim0extfac_ * rg0.step;
@@ -105,7 +105,6 @@ uiWorldRect uiFlatViewer::getBoundingBox( bool wva ) const
 
 uiWorldRect uiFlatViewer::boundingBox() const
 {
-    const FlatView::Context& ctxt = context();
     const bool wvavisible = isVisible( true );
     uiWorldRect wr1 = getBoundingBox( wvavisible );
     if ( wvavisible && isVisible(false) )
@@ -129,9 +128,9 @@ void uiFlatViewer::setView( uiWorldRect wr )
 {
     anysetviewdone_ = true;
     wr_ = wr;
-    if ( wr_.left() > wr.right() != context().annot_.x1_.reversed_ )
+    if ( wr_.left() > wr.right() != appearance().annot_.x1_.reversed_ )
 	wr_.swapHor();
-    if ( wr_.bottom() > wr.top() != context().annot_.x2_.reversed_ )
+    if ( wr_.bottom() > wr.top() != appearance().annot_.x2_.reversed_ )
 	wr_.swapVer();
     handleChange( All );
     viewChanged.trigger();
@@ -141,7 +140,7 @@ void uiFlatViewer::setView( uiWorldRect wr )
 void uiFlatViewer::handleChange( DataChangeType dct )
 {
     reportedchange_ = dct;
-    const FlatView::Annotation& annot = context().annot_;
+    const FlatView::Annotation& annot = appearance().annot_;
     int l = extraborders_.left(); int r = extraborders_.right();
     int t = extraborders_.top(); int b = extraborders_.bottom();
     if ( annot.haveTitle() )
@@ -182,7 +181,7 @@ void uiFlatViewer::drawBitMaps()
 
 void uiFlatViewer::drawAnnot()
 {
-    const FlatView::Annotation& annot = context().annot_;
+    const FlatView::Annotation& annot = appearance().annot_;
     ioDrawTool& dt = *canvas_.drawTool();
     const uiRect datarect( canvas_.arrArea() );
     dt.beginDraw();
@@ -222,7 +221,7 @@ void uiFlatViewer::getWorld2Ui( uiWorld2Ui& w2u ) const
 
 void uiFlatViewer::drawGridAnnot()
 {
-    const FlatView::Annotation& annot = context().annot_;
+    const FlatView::Annotation& annot = appearance().annot_;
     const FlatView::Annotation::AxisData& ad1 = annot.x1_;
     const FlatView::Annotation::AxisData& ad2 = annot.x2_;
     const bool showanyx1annot = ad1.showannot_ || ad1.showgridlines_;
@@ -232,6 +231,13 @@ void uiFlatViewer::drawGridAnnot()
 
     mDefuiW2Ui;
     const uiRect datarect( canvas_.arrArea() );
+    const bool usewvapos = !isVisible( false );
+    const FlatDataPack* fdp = getPack( usewvapos );
+    //TODO make general purpose and remove this hack for 2D
+    if ( !fdp || strcmp(fdp->dimName(true),"Distance") )
+	axesdrawer_.xioparkey_ = "";
+    else
+	axesdrawer_.xioparkey_ = "Trace number";
     axesdrawer_.draw( datarect, wr_ );
 
     ioDrawTool& dt = *canvas_.drawTool();

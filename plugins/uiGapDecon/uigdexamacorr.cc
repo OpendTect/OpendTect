@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          Sep 2006
- RCS:           $Id: uigdexamacorr.cc,v 1.16 2007-03-05 08:34:35 cvshelene Exp $
+ RCS:           $Id: uigdexamacorr.cc,v 1.17 2007-03-10 12:13:46 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,10 +35,10 @@ using namespace Attrib;
 
 #define mCreateFViewWin(nm) \
     nm##win_ = new uiFlatViewMainWin( p, uiFlatViewMainWin::Setup(nm##str)); \
-    FlatView::Context& ctxt##nm = nm##win_->viewer().context(); \
-    ctxt##nm.annot_.setAxesAnnot(true); \
-    ctxt##nm.setGeoDefaults(true); \
-    ctxt##nm.ddpars_.show(false,true); \
+    FlatView::Appearance& app##nm = nm##win_->viewer().appearance(); \
+    app##nm.annot_.setAxesAnnot(true); \
+    app##nm.setGeoDefaults(true); \
+    app##nm.ddpars_.show(false,true); \
     nm##win_->viewer().setDarkBG( true ); \
     nm##win_->addControl( new uiFlatViewStdControl( nm##win_->viewer(), \
 			  uiFlatViewStdControl::Setup(p) ) );
@@ -125,12 +125,12 @@ void GapDeconACorrView::createAndDisplay2DViewer( bool isqc )
     else
 	examwin_->close();
 
-    uiFlatViewer* fview = isqc ? &qcwin_->viewer() : &examwin_->viewer();
-    fview->setPack( false, isqc ? fddatapackqc_ : fddatapackexam_ );
-    FlatView::Context& ctxt = fview->context();
-    ctxt.ddpars_.vd_.rg_ = Interval<float>( -0.2, 0.2 );
+    uiFlatViewer& vwr = isqc ? qcwin_->viewer() : examwin_->viewer();
+    vwr.setPack( false, isqc ? fddatapackqc_ : fddatapackexam_ );
+    FlatView::Appearance& app = vwr.appearance();
+    app.ddpars_.vd_.rg_ = Interval<float>( -0.2, 0.2 );
     StepInterval<double> newrg( 0, cs_.zrg.stop-cs_.zrg.start, cs_.zrg.step );
-    ctxt.vdposdata_.setRange( false, newrg );
+    vwr.data().vd_.pos_.setRange( false, newrg );
     
     isqc ? qcwin_->show() : examwin_->show();
 }
