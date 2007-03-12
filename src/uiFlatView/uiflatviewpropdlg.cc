@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          Dec 2006
- RCS:           $Id: uiflatviewpropdlg.cc,v 1.9 2007-03-10 12:13:47 cvsbert Exp $
+ RCS:           $Id: uiflatviewpropdlg.cc,v 1.10 2007-03-12 18:44:10 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -302,27 +302,42 @@ void uiFVVDPropTab::getFromScreen()
 
 
 uiFVAnnotPropTab::AxesGroup::AxesGroup( uiParent* p,
-					FlatView::Annotation::AxisData& ad )
+					FlatView::Annotation::AxisData& ad,
+       					const BufferStringSet* annotnms )
     : uiGroup(p,"Axis Data")
     , ad_(ad)
+    , annotselfld_(0)
 {
-    namefld_ = new uiGenInput( this, "Axis name", ad_.name_ );
-    reversedfld_ = new uiCheckBox( this, "Reversed" );
-    reversedfld_->attach( rightOf, namefld_ );
+    BufferString lbltxt( "Axis '" ); lbltxt += ad_.name_; lbltxt += "'";
+    uiLabel* lbl;
+    if ( !annotnms )
+	lbl = new uiLabel( this, lbltxt );
+    else
+    {
+	annotselfld_ = new uiGenInput( this, lbltxt,
+				       StringListInpSpec(*annotnms) );
+	lbl = new uiLabel( this, "Show" );
+    }
     showannotfld_ = new uiCheckBox( this, "Annotation" );
-    showannotfld_->attach( alignedBelow, namefld_ );
-    uiLabel* lbl = new uiLabel( this, "Show" );
-    lbl->attach( leftOf, showannotfld_ );
+    if ( !annotnms )
+	showannotfld_->attach( rightOf, lbl );
+    else
+    {
+	showannotfld_->attach( alignedBelow, annotselfld_ );
+	lbl->attach( leftOf, showannotfld_ );
+    }
+
     showgridlinesfld_ = new uiCheckBox( this, "Grid lines" );
     showgridlinesfld_->attach( rightOf, showannotfld_ );
+    reversedfld_ = new uiCheckBox( this, "Reversed" );
+    reversedfld_->attach( rightOf, showgridlinesfld_ );
 
-    setHAlignObj( namefld_ );
+    setHAlignObj( showannotfld_ );
 }
 
 
 void uiFVAnnotPropTab::AxesGroup::putToScreen()
 {
-    namefld_->setText( ad_.name_ );
     reversedfld_->setChecked( ad_.reversed_ );
     showannotfld_->setChecked( ad_.showannot_ );
     showgridlinesfld_->setChecked( ad_.showgridlines_ );
@@ -331,19 +346,32 @@ void uiFVAnnotPropTab::AxesGroup::putToScreen()
 
 void uiFVAnnotPropTab::AxesGroup::getFromScreen()
 {
-    ad_.name_ = namefld_->text();
     ad_.reversed_ = reversedfld_->isChecked();
     ad_.showannot_ = showannotfld_->isChecked();
     ad_.showgridlines_ = showgridlinesfld_->isChecked();
 }
 
 
-uiFVAnnotPropTab::uiFVAnnotPropTab( uiParent* p, FlatView::Viewer& vwr )
+int uiFVAnnotPropTab::AxesGroup::getSelAnnot() const
+{
+    return annotselfld_ ? annotselfld_->getIntValue() : -1;
+}
+
+
+void uiFVAnnotPropTab::AxesGroup::setSelAnnot( int selannot )
+{
+    if ( annotselfld_ )
+	annotselfld_->setValue( selannot );
+}
+
+
+uiFVAnnotPropTab::uiFVAnnotPropTab( uiParent* p, FlatView::Viewer& vwr,
+       				    const BufferStringSet* annots )
     : uiFlatViewPropTab(p,vwr,"Annotation")
     , annot_(app_.annot_)
 {
-    colfld_ = new uiColorInput( this, annot_.color_, "Color" );
-    x1_ = new AxesGroup( this, annot_.x1_ );
+    colfld_ = new uiColorInput( this, annot_.color_, "Annotation color" );
+    x1_ = new AxesGroup( this, annot_.x1_, annots );
     x1_->attach( alignedBelow, colfld_ );
     x2_ = new AxesGroup( this, annot_.x2_ );
     x2_->attach( alignedBelow, x1_ );
@@ -367,19 +395,22 @@ void uiFVAnnotPropTab::getFromScreen()
 
 		    
 uiFlatViewPropDlg::uiFlatViewPropDlg( uiParent* p, FlatView::Viewer& vwr,
-				      const CallBack& applcb )
+				      const CallBack& applcb,
+				      const BufferStringSet* annots,
+       				      int selannot )
     : uiTabStackDlg(p,uiDialog::Setup("Display properties",
 				      "Specify display properties",
 				      "51.0.0"))
     , vwr_(vwr)
     , applycb_(applcb)
     , initialdata_(vwr.data())
+    , selannot_(selannot)
 {
     wvatab_ = new uiFVWVAPropTab( tabParent(), vwr_ );
     addGroup( wvatab_ );
     vdtab_ = new uiFVVDPropTab( tabParent(), vwr_ );
     addGroup( vdtab_ );
-    annottab_ = new uiFVAnnotPropTab( tabParent(), vwr_ );
+    annottab_ = new uiFVAnnotPropTab( tabParent(), vwr_, annots );
     addGroup( annottab_ );
 
     titlefld_ = new uiGenInput( this, "Title" );
@@ -403,6 +434,7 @@ void uiFlatViewPropDlg::getAllFromScreen()
 	ptab.getFromScreen();
     }
     vwr_.appearance().annot_.title_ = titlefld_->text();
+    selannot_ = annottab_->getSelAnnot();
 }
 
 
@@ -415,6 +447,7 @@ void uiFlatViewPropDlg::putAllToScreen()
 	ptab.putToScreen();
     }
     titlefld_->setText( vwr_.appearance().annot_.title_ );
+    annottab_->setSelAnnot( selannot_ );
 }
 
 

@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewer.h,v 1.8 2007-03-09 12:28:33 cvsbert Exp $
+ RCS:           $Id: uiflatviewer.h,v 1.9 2007-03-12 18:44:10 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,8 +20,9 @@ class BitMapMgr;
 class BitMap2RGB;
 class AxesDrawer;
 }
-class uiRGBArray;
+class BufferStringSet;
 class uiRGBArrayCanvas;
+class uiRGBArray;
 class uiWorld2Ui;
 
 
@@ -37,6 +38,9 @@ public:
     void		setDarkBG(bool);
     void		setExtraBorders(const uiSize& lt,const uiSize& rb);
     void		setInitialSize(uiSize);
+
+    int			getAnnotChoices(BufferStringSet&) const;
+    void		setAnnotChoice(int);
 
     uiRGBArray&		rgbArray();
     uiRGBArrayCanvas&	rgbCanvas()			{ return canvas_; }

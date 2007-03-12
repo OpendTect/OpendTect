@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2007
- RCS:           $Id: uiflatviewproptabs.h,v 1.2 2007-03-10 12:13:46 cvsbert Exp $
+ RCS:           $Id: uiflatviewproptabs.h,v 1.3 2007-03-12 18:44:10 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -139,10 +139,15 @@ class uiFVAnnotPropTab : public uiFlatViewPropTab
 {
 public:
 
-    			uiFVAnnotPropTab(uiParent*,FlatView::Viewer&);
+    			uiFVAnnotPropTab(uiParent*,FlatView::Viewer&,
+					 const BufferStringSet* annots);
 
     virtual void	putToScreen();
     virtual void	getFromScreen();
+
+    int			getSelAnnot() const	{ return x1_->getSelAnnot(); }
+    void		setSelAnnot( int i )	{ x1_->setSelAnnot( i ); }
+
 
 protected:
     
@@ -151,19 +156,23 @@ protected:
     class AxesGroup : public uiGroup
     {
     public:
-			AxesGroup(uiParent*,FlatView::Annotation::AxisData&);
+			AxesGroup(uiParent*,FlatView::Annotation::AxisData&,
+				  const BufferStringSet* annots=0);
 
 	void		putToScreen();
 	void		getFromScreen();
+
+	int		getSelAnnot() const;
+	void		setSelAnnot(int);
 
     protected:
 
 	FlatView::Annotation::AxisData&	ad_;
 
-	uiGenInput*	namefld_;
 	uiCheckBox*	showannotfld_;
 	uiCheckBox*	showgridlinesfld_;
 	uiCheckBox*	reversedfld_;
+	uiGenInput*	annotselfld_;
 
     };
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2000
- RCS:           $Id: flatview.cc,v 1.10 2007-03-10 12:13:47 cvsbert Exp $
+ RCS:           $Id: flatview.cc,v 1.11 2007-03-12 18:44:10 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -352,6 +352,9 @@ void FlatView::Viewer::doSetPack( bool wva, const FlatDataPack* newpack,
 	dta.setEmpty( wva );
     else
     {
+	if ( usedefs )
+	    useStoredDefaults( newpack->category() );
+
 	FlatView::PackData& pd = wva ? dta.wva_ : dta.vd_;
 	pd.pos_ = newpack->posData();
 	pd.arr_ = &newpack->data();
@@ -364,8 +367,6 @@ void FlatView::Viewer::doSetPack( bool wva, const FlatDataPack* newpack,
 	    annot.x1_.name_ = fdp.dimName( true );
 	    annot.x2_.name_ = fdp.dimName( false );
 	}
-	if ( usedefs )
-	    useStoredDefaults( newpack->category() );
     }
 
     handleChange( wva ? WVAData : VDData );

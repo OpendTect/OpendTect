@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Huck
  Date:          January 2007
- RCS:           $Id: attribdatapack.cc,v 1.20 2007-03-12 10:59:35 cvsbert Exp $
+ RCS:           $Id: attribdatapack.cc,v 1.21 2007-03-12 18:44:10 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -123,27 +123,51 @@ Coord3 Flat3DDataPack::getCoord( int i0, int i1 ) const
 	{ crlidx = i1; zidx = 0; }
 
     const CubeSampling& cs = cube_.cubeSampling();
-    Coord c = SI().transform( cs.hrg.atIndex(inlidx,crlidx) );
+    const Coord c = SI().transform( cs.hrg.atIndex(inlidx,crlidx) );
     return Coord3(c.x,c.y,cs.zrg.atIndex(zidx));
 }
 
 
+#define mKeyInl eString(SeisTrcInfo::Fld,SeisTrcInfo::BinIDInl)
+#define mKeyCrl eString(SeisTrcInfo::Fld,SeisTrcInfo::BinIDCrl)
+#define mKeyX eString(SeisTrcInfo::Fld,SeisTrcInfo::CoordX)
+#define mKeyY eString(SeisTrcInfo::Fld,SeisTrcInfo::CoordY)
+
 const char* Flat3DDataPack::dimName( bool dim0 ) const
 {
-    return dim0 ? (dir_==CubeSampling::Inl ? "Crl" : "Inl")
-		: (dir_==CubeSampling::Z ? "Crl" : "Z");
+    return dim0 ? (dir_==CubeSampling::Inl ? mKeyCrl : mKeyInl)
+		: (dir_==CubeSampling::Z ? mKeyCrl : "Z");
+}
+
+
+void Flat3DDataPack::getAltDim0Keys( BufferStringSet& bss ) const
+{
+    if ( dir_== CubeSampling::Crl )
+	bss.add( mKeyInl );
+    else
+	bss.add( mKeyCrl );
+    bss.add( mKeyX );
+    bss.add( mKeyY );
+}
+
+
+double Flat3DDataPack::getAltDim0Value( int ikey, int i0 ) const
+{
+    if ( ikey < 1 || ikey > 3 )
+	 return FlatDataPack::getAltDim0Value( ikey, i0 );
+
+    const Coord3 c( getCoord(i0,0) );
+    return ikey == 1 ? c.x : c.y;
 }
 
 
 void Flat3DDataPack::getAuxInfo( int i0, int i1, IOPar& iop ) const
 {
-    Coord3 c( getCoord(i0,i1) );
-    BinID bid = SI().transform( c );
-    iop.set( eString(SeisTrcInfo::Fld,SeisTrcInfo::CoordX), c.x );
-    iop.set( eString(SeisTrcInfo::Fld,SeisTrcInfo::CoordY), c.y );
+    const Coord3 c( getCoord(i0,i1) );
+    iop.set( mKeyX, c.x );
+    iop.set( mKeyY, c.y );
     iop.set( "Z", c.z );
 }
-
 
 
 
@@ -217,7 +241,7 @@ void Flat2DDataPack::getAltDim0Keys( BufferStringSet& bss ) const
 double Flat2DDataPack::getAltDim0Value( int ikey, int i0 ) const
 {
     return i0 < 0 || i0 >= dh_.trcinfoset_.size()
-	|| ikey >= tiflds_.size()
+	|| ikey < 0 || ikey >= tiflds_.size()
 	 ? FlatDataPack::getAltDim0Value( ikey, i0 )
 	 : dh_.trcinfoset_[i0]->getValue( tiflds_[ikey] );
 }

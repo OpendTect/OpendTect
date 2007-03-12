@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2007
- RCS:           $Id: flatviewaxesdrawer.cc,v 1.3 2007-03-12 10:59:35 cvsbert Exp $
+ RCS:           $Id: flatviewaxesdrawer.cc,v 1.4 2007-03-12 18:44:10 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,7 +38,7 @@ void FlatView::AxesDrawer::draw( uiRect uir, uiWorldRect wr )
 double FlatView::AxesDrawer::getAnnotTextAndPos( bool isx, double pos,
 						 BufferString* txt ) const
 {
-    if ( !isx || altdim0_ < 0 )
+    if ( !isx || mIsUdf(altdim0_) )
 	return ::DrawAxis2D::getAnnotTextAndPos( isx, pos, txt );
 
     const bool usewva = !vwr_.isVisible( false );

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:		Feb 2007
- RCS:           $Id: uiflatviewcontrol.cc,v 1.16 2007-03-10 12:13:47 cvsbert Exp $
+ RCS:           $Id: uiflatviewcontrol.cc,v 1.17 2007-03-12 18:44:10 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "uirgbarraycanvas.h"
 #include "uiworld2ui.h"
 #include "datapackbase.h"
+#include "bufstringset.h"
 
 #define mDefBut(butnm,grp,fnm,cbnm,tt) \
     butnm = new uiToolButton( grp, 0, ioPixmap(fnm), \
@@ -198,10 +199,13 @@ void uiFlatViewControl::doPropertiesDialog()
 {
     //TODO what if more than one viewer? Also functions below
     uiFlatViewer& vwr = *vwrs_[0];
+    BufferStringSet annots;
+    const int selannot = vwr.getAnnotChoices( annots ); 
 
     if ( propdlg_ ) delete propdlg_;
     propdlg_ = new uiFlatViewPropDlg( vwr.attachObj()->parent(), vwr,
-				  mCB(this,uiFlatViewControl,applyProperties) );
+				  mCB(this,uiFlatViewControl,applyProperties),
+	   			  annots.size() ? &annots : 0, selannot );
     propdlg_->windowClosed.notify(mCB(this,uiFlatViewControl,propDlgClosed));
     propdlg_->go();
 }
@@ -230,8 +234,13 @@ void uiFlatViewControl::applyProperties( CallBacker* cb )
     if ( cv.top() > cv.bottom() == annot.x2_.reversed_ )
 	{ annot.x2_.reversed_ = !annot.x2_.reversed_; flip( false ); }
 
+    const int selannot = propdlg_->selectedAnnot();
+
     for ( int idx=0; idx<vwrs_.size(); idx++ )
+    {
+	vwrs_[idx]->setAnnotChoice( selannot );
 	vwrs_[idx]->handleChange( FlatView::Viewer::All );
+    }
 }
 
 

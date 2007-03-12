@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewer.cc,v 1.16 2007-03-12 10:59:35 cvsbert Exp $
+ RCS:           $Id: uiflatviewer.cc,v 1.17 2007-03-12 18:44:10 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "flatviewbmp2rgb.h"
 #include "flatviewaxesdrawer.h"
 #include "datapackbase.h"
+#include "bufstringset.h"
 #include "iodrawtool.h"
 #include "drawaxis2d.h"
 #include "uiworld2ui.h"
@@ -180,11 +181,7 @@ void uiFlatViewer::drawAnnot()
 {
     const FlatView::Annotation& annot = appearance().annot_;
     ioDrawTool& dt = *canvas_.drawTool();
-    const uiRect datarect( canvas_.arrArea() );
     dt.beginDraw();
-
-    dt.setPenColor( color(true) );
-    dt.drawRect( datarect );
 
     if ( annot.color_ != Color::NoColor )
     {
@@ -198,12 +195,33 @@ void uiFlatViewer::drawAnnot()
     if ( !annot.title_.isEmpty() )
     {
 	dt.setPenColor( color(true) );
-	dt.drawText( uiPoint(datarect.centre().x,2), annot.title_,
+	dt.drawText( uiPoint(canvas_.arrArea().centre().x,2), annot.title_,
 		     Alignment(Alignment::Middle,Alignment::Start) );
     }
 
     dt.endDraw();
     reportedchange_ = None;
+}
+
+
+int uiFlatViewer::getAnnotChoices( BufferStringSet& bss ) const
+{
+    const FlatDataPack* fdp = getPack( false );
+    if ( !fdp ) fdp = getPack( true );
+    if ( fdp )
+	fdp->getAltDim0Keys( bss );
+    if ( !bss.isEmpty() )
+	bss.addIfNew( appearance().annot_.x1_.name_ );
+    return axesdrawer_.altdim0_;
+}
+
+
+void uiFlatViewer::setAnnotChoice( int sel )
+{
+    BufferStringSet bss; getAnnotChoices( bss );
+    if ( bss.get(sel) == appearance().annot_.x1_.name_ )
+	mSetUdf(sel);
+    axesdrawer_.altdim0_ = sel;
 }
 
 
@@ -223,9 +241,11 @@ void uiFlatViewer::drawGridAnnot()
     if ( !showanyx1annot && !showanyx2annot )
 	return;
 
-    axesdrawer_.draw( canvas_.arrArea(), wr_ );
-
     ioDrawTool& dt = *canvas_.drawTool();
+    const uiRect datarect( canvas_.arrArea() );
+    dt.drawRect( datarect );
+    axesdrawer_.draw( datarect, wr_ );
+
     const uiSize totsz( canvas_.width(), canvas_.height() );
     if ( showanyx1annot && !ad1.name_.isEmpty() )
 	dt.drawText( uiPoint(totsz.width()-2,totsz.height()-2), ad1.name_,

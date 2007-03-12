@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra and Helene Huck
  Date:		January 2007
- RCS:		$Id: attribdatapack.h,v 1.16 2007-03-12 10:59:35 cvsbert Exp $
+ RCS:		$Id: attribdatapack.h,v 1.17 2007-03-12 18:44:10 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -107,6 +107,8 @@ public:
     const char*		dimName(bool) const;
 
     Coord3		getCoord(int,int) const;
+    void		getAltDim0Keys(BufferStringSet&) const;
+    double		getAltDim0Value(int,int) const;
     void		getAuxInfo(int,int,IOPar&) const;
     void		dumpInfo(IOPar&) const;
 

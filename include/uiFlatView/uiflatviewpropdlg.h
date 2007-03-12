@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          Dec 2006
- RCS:           $Id: uiflatviewpropdlg.h,v 1.7 2007-03-07 13:52:46 cvsbert Exp $
+ RCS:           $Id: uiflatviewpropdlg.h,v 1.8 2007-03-12 18:44:10 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 class uiFVWVAPropTab;
 class uiFVVDPropTab;
 class uiFVAnnotPropTab;
+class BufferStringSet;
 class uiGenInput;
 
 		     
@@ -23,10 +24,14 @@ class uiFlatViewPropDlg : public uiTabStackDlg
 {
 public:
 			uiFlatViewPropDlg(uiParent*,FlatView::Viewer&,
-					  const CallBack& applcb);
+					  const CallBack& applcb,
+					  const BufferStringSet* anns=0,
+					  int selann=0);
 
     void		putAllToScreen();
     void		getAllFromScreen();
+
+    int			selectedAnnot() const	{ return selannot_; }
 
 protected:
 
@@ -37,6 +42,7 @@ protected:
 
     FlatView::Viewer&	vwr_;
     FlatView::Data	initialdata_;
+    int			selannot_;
 
     bool		rejectOK(CallBacker*);
     bool		acceptOK(CallBacker*);
