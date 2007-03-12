@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra and Helene Huck
  Date:		January 2007
- RCS:		$Id: attribdatapack.h,v 1.15 2007-02-26 14:28:38 cvsbert Exp $
+ RCS:		$Id: attribdatapack.h,v 1.16 2007-03-12 10:59:35 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "datapackbase.h"
 #include "cubesampling.h"
 #include "attribdescid.h"
+#include "seisinfo.h"
 
 template <class T> class Array2D;
 template <class T> class Array2DSlice;
@@ -64,8 +65,11 @@ public:
     const Data2DHolder&	dataholder() const	{ return dh_; }
     Array2D<float>&	data();
 
-    void		getAuxInfo(int,int,IOPar&) const;
     Coord3		getCoord(int,int) const;
+    void		getAltDim0Keys(BufferStringSet&) const;
+    double		getAltDim0Value(int,int) const;
+    void		getAuxInfo(int,int,IOPar&) const;
+
     void		dumpInfo(IOPar&) const;
     const char*		dimName(bool) const;
 
@@ -78,6 +82,7 @@ protected:
     DataHolderArray*	array3d_;
     Array2DSlice<float>* arr2dsl_;
     BufferString	srctyp_;
+    TypeSet<SeisTrcInfo::Fld> tiflds_;
 
     void		setPosData();
 };
@@ -101,8 +106,8 @@ public:
     CubeSampling::Dir	dataDir() const		{ return dir_; }
     const char*		dimName(bool) const;
 
-    void		getAuxInfo(int,int,IOPar&) const;
     Coord3		getCoord(int,int) const;
+    void		getAuxInfo(int,int,IOPar&) const;
     void		dumpInfo(IOPar&) const;
 
 protected:

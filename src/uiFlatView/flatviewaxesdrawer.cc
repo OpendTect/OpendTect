@@ -4,19 +4,20 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2007
- RCS:           $Id: flatviewaxesdrawer.cc,v 1.2 2007-03-10 12:13:47 cvsbert Exp $
+ RCS:           $Id: flatviewaxesdrawer.cc,v 1.3 2007-03-12 10:59:35 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "flatviewaxesdrawer.h"
 #include "flatview.h"
-#include "iopar.h"
+#include "datapackbase.h"
 
 
 FlatView::AxesDrawer::AxesDrawer( FlatView::Viewer& vwr, ioDrawArea& da )
     : DrawAxis2D(&da)
     , vwr_(vwr)
+    , altdim0_(0)
 {
 }
 
@@ -37,8 +38,7 @@ void FlatView::AxesDrawer::draw( uiRect uir, uiWorldRect wr )
 double FlatView::AxesDrawer::getAnnotTextAndPos( bool isx, double pos,
 						 BufferString* txt ) const
 {
-    const BufferString& iopkey = isx ? xioparkey_ : yioparkey_;
-    if ( iopkey.isEmpty() )
+    if ( !isx || altdim0_ < 0 )
 	return ::DrawAxis2D::getAnnotTextAndPos( isx, pos, txt );
 
     const bool usewva = !vwr_.isVisible( false );
@@ -46,21 +46,16 @@ double FlatView::AxesDrawer::getAnnotTextAndPos( bool isx, double pos,
 	    			  : vwr_.data().pos(false) );
     IndexInfo idxinfo( pd.indexInfo( true, pos ) );
     pos = pd.position( true, idxinfo.nearest_ );
-    if ( !txt )
-	return pos;
 
-    FlatView::Point pt( pos, pos );
-    if ( isx )
-	pt.y = yrg_.center();
-    else
-	pt.x = xrg_.center();
-
-    IOPar iop; vwr_.getAuxInfo( pt, iop );
-    const char* vstr = iop.find( iopkey );
-    if ( vstr && *vstr )
-	*txt = vstr;
-    else
-	*txt = pos;
+    if ( txt )
+    {
+	const FlatDataPack* fdp = vwr_.getPack( usewva );
+	if ( !fdp ) fdp = vwr_.getPack( !usewva );
+	if ( fdp )
+	    *txt = fdp->getAltDim0Value( altdim0_, idxinfo.nearest_ );
+	else
+	    *txt = pos;
+    }
 
     return pos;
 }

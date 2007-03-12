@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Huck
  Date:          January 2007
- RCS:           $Id: attribdatapack.cc,v 1.19 2007-03-09 14:20:25 cvshelene Exp $
+ RCS:           $Id: attribdatapack.cc,v 1.20 2007-03-12 10:59:35 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "seisinfo.h"
 #include "survinfo.h"
 #include "keystrs.h"
+#include "bufstringset.h"
 #include "iopar.h"
 
 #define mStepIntvD( rg ) \
@@ -113,16 +114,6 @@ void Flat3DDataPack::dumpInfo( IOPar& iop ) const
 }
 
 
-void Flat3DDataPack::getAuxInfo( int i0, int i1, IOPar& iop ) const
-{
-    Coord3 c( getCoord(i0,i1) );
-    BinID bid = SI().transform( c );
-    iop.set( eString(SeisTrcInfo::Fld,SeisTrcInfo::CoordX), c.x );
-    iop.set( eString(SeisTrcInfo::Fld,SeisTrcInfo::CoordY), c.y );
-    iop.set( "Z", c.z );
-}
-
-
 Coord3 Flat3DDataPack::getCoord( int i0, int i1 ) const
 {
     int inlidx = i0; int crlidx = 0; int zidx = i1;
@@ -144,6 +135,17 @@ const char* Flat3DDataPack::dimName( bool dim0 ) const
 }
 
 
+void Flat3DDataPack::getAuxInfo( int i0, int i1, IOPar& iop ) const
+{
+    Coord3 c( getCoord(i0,i1) );
+    BinID bid = SI().transform( c );
+    iop.set( eString(SeisTrcInfo::Fld,SeisTrcInfo::CoordX), c.x );
+    iop.set( eString(SeisTrcInfo::Fld,SeisTrcInfo::CoordY), c.y );
+    iop.set( "Z", c.z );
+}
+
+
+
 
 Flat2DDataPack::Flat2DDataPack( DescID did, const Data2DHolder& dh )
     : ::FlatDataPack(categoryStr(true))
@@ -152,6 +154,7 @@ Flat2DDataPack::Flat2DDataPack( DescID did, const Data2DHolder& dh )
     , srctyp_("2D")
 {
     dh_.ref();
+    SeisTrcInfo::getAxisCandidates( Seis::Line, tiflds_ );
 
     array3d_ = new DataHolderArray( dh_.dataset_, false );
     arr2dsl_ = new Array2DSlice<float>( *array3d_ );
@@ -204,9 +207,25 @@ void Flat2DDataPack::dumpInfo( IOPar& iop ) const
 }
 
 
+void Flat2DDataPack::getAltDim0Keys( BufferStringSet& bss ) const
+{
+    for ( int idx=0; idx<tiflds_.size(); idx++ )
+	bss.add( eString(SeisTrcInfo::Fld,tiflds_[idx]) );
+}
+
+
+double Flat2DDataPack::getAltDim0Value( int ikey, int i0 ) const
+{
+    return i0 < 0 || i0 >= dh_.trcinfoset_.size()
+	|| ikey >= tiflds_.size()
+	 ? FlatDataPack::getAltDim0Value( ikey, i0 )
+	 : dh_.trcinfoset_[i0]->getValue( tiflds_[ikey] );
+}
+
+
 void Flat2DDataPack::getAuxInfo( int i0, int i1, IOPar& iop ) const
 {
-    if ( dh_.trcinfoset_.isEmpty() || i0 < 0 || i0 >= dh_.trcinfoset_.size() )
+    if ( i0 < 0 || i0 >= dh_.trcinfoset_.size() )
 	return;
     const SeisTrcInfo& ti = *dh_.trcinfoset_[i0];
     ti.getInterestingFlds( Seis::Line, iop );

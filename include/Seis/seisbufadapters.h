@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Feb 2007
- RCS:		$Id: seisbufadapters.h,v 1.2 2007-02-26 14:28:38 cvsbert Exp $
+ RCS:		$Id: seisbufadapters.h,v 1.3 2007-03-12 10:59:35 cvsbert Exp $
 ________________________________________________________________________
 
 */
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "seisbuf.h"
 #include "arraynd.h"
 #include "datapackbase.h"
+#include "seisinfo.h"
 
 
 /*!\brief Array2D based on SeisTrcBuf. */
@@ -58,10 +59,12 @@ public:
 					   SeisTrcInfo::Fld,const char* categry,
 					   int compnr=0);
 
-    void		getAuxInfo(int,int,IOPar&) const;
-    Coord3		getCoord(int,int) const;
-    bool		posDataIsCoord() const		{ return false; }
     const char*		dimName(bool) const;
+    Coord3		getCoord(int,int) const;
+    void		getAltDim0Keys(BufferStringSet&) const;
+    double		getAltDim0Value(int,int) const;
+    void		getAuxInfo(int,int,IOPar&) const;
+    bool		posDataIsCoord() const		{ return false; }
 
     SeisTrcBufArray2D&	trcBufArr2D()
     			{ return *((SeisTrcBufArray2D*)arr2d_); }
@@ -74,8 +77,9 @@ public:
 
 protected:
 
-    Seis::GeomType	gt_;
-    SeisTrcInfo::Fld	fld_;
+    Seis::GeomType		gt_;
+    SeisTrcInfo::Fld		posfld_;
+    TypeSet<SeisTrcInfo::Fld>	flds_;
 
 };
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewer.cc,v 1.15 2007-03-10 12:13:47 cvsbert Exp $
+ RCS:           $Id: uiflatviewer.cc,v 1.16 2007-03-12 10:59:35 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -154,20 +154,17 @@ void uiFlatViewer::handleChange( DataChangeType dct )
 }
 
 
-#define mDefuiSize \
-    uiRGBArray& rgbarr = canvas_.rgbArray(); \
-    uiSize uisz( rgbarr.getSize(true), rgbarr.getSize(false) )
-
-
 void uiFlatViewer::drawBitMaps()
 {
     if ( !anysetviewdone_ ) initView();
+
+    uiRGBArray& rgbarr = canvas_.rgbArray();
+    uiSize uisz( rgbarr.getSize(true), rgbarr.getSize(false) );
 
     //TODO: use prev bmp data and changetype to optimise
     delete wvabmpmgr_; wvabmpmgr_ = new FlatView::BitMapMgr(*this,true);
     delete vdbmpmgr_; vdbmpmgr_ = new FlatView::BitMapMgr(*this,false);
 
-    mDefuiSize;
     if ( !wvabmpmgr_->generate(wr_,uisz) || !vdbmpmgr_->generate(wr_,uisz) )
     {
 	uiMSG().error( "No memory for bitmaps" );
@@ -216,9 +213,6 @@ void uiFlatViewer::getWorld2Ui( uiWorld2Ui& w2u ) const
 }
 
 
-#define mDefuiW2Ui mDefuiSize; uiWorld2Ui w2u( uisz, wr_ )
-
-
 void uiFlatViewer::drawGridAnnot()
 {
     const FlatView::Annotation& annot = appearance().annot_;
@@ -229,26 +223,16 @@ void uiFlatViewer::drawGridAnnot()
     if ( !showanyx1annot && !showanyx2annot )
 	return;
 
-    mDefuiW2Ui;
-    const uiRect datarect( canvas_.arrArea() );
-    const bool usewvapos = !isVisible( false );
-    const FlatDataPack* fdp = getPack( usewvapos );
-    //TODO make general purpose and remove this hack for 2D
-    if ( !fdp || strcmp(fdp->dimName(true),"Distance") )
-	axesdrawer_.xioparkey_ = "";
-    else
-	axesdrawer_.xioparkey_ = "Trace number";
-    axesdrawer_.draw( datarect, wr_ );
+    axesdrawer_.draw( canvas_.arrArea(), wr_ );
 
     ioDrawTool& dt = *canvas_.drawTool();
     const uiSize totsz( canvas_.width(), canvas_.height() );
     if ( showanyx1annot && !ad1.name_.isEmpty() )
-	dt.drawText( uiPoint(2,2), annot.x2_.name_,
-		     Alignment(Alignment::Start,Alignment::Start) );
-    if ( showanyx2annot && !ad2.name_.isEmpty() )
-	dt.drawText( uiPoint(totsz.width()-2,totsz.height()-2),
-		     annot.x1_.name_,
+	dt.drawText( uiPoint(totsz.width()-2,totsz.height()-2), ad1.name_,
 		     Alignment(Alignment::Stop,Alignment::Stop));
+    if ( showanyx2annot && !ad2.name_.isEmpty() )
+	dt.drawText( uiPoint(2,2), ad2.name_,
+		     Alignment(Alignment::Start,Alignment::Start) );
 }
 
 

@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2007
- RCS:           $Id: flatviewaxesdrawer.h,v 1.2 2007-03-10 12:13:46 cvsbert Exp $
+ RCS:           $Id: flatviewaxesdrawer.h,v 1.3 2007-03-12 10:59:35 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,8 +27,7 @@ public:
 
     void		draw(uiRect,uiWorldRect);
 
-    BufferString	xioparkey_; //!< default empty => use positioning
-    BufferString	yioparkey_; //!< default empty => use positioning
+    int			altdim0_;
 
 protected:
 

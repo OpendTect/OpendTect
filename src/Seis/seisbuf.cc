@@ -4,7 +4,7 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID = "$Id: seisbuf.cc,v 1.31 2007-02-26 14:28:38 cvsbert Exp $";
+static const char* rcsID = "$Id: seisbuf.cc,v 1.32 2007-03-12 10:59:35 cvsbert Exp $";
 
 #include "seisbuf.h"
 #include "seisbufadapters.h"
@@ -363,18 +363,36 @@ SeisTrcBufDataPack::SeisTrcBufDataPack( SeisTrcBuf& tbuf,
 					const char* cat, int icomp )
     : FlatDataPack(cat,new SeisTrcBufArray2D(tbuf,true,icomp))
     , gt_(gt)
-    , fld_(fld)
+    , posfld_(fld)
 {
     const int tbufsz = tbuf.size();
     if ( tbufsz < 1 ) return;
+    SeisTrcInfo::getAxisCandidates( gt, flds_ );
 
     FlatPosData& pd = posData();
-    double ofv; float* hdrvals = tbuf.getHdrVals( fld_, ofv );
+    double ofv; float* hdrvals = tbuf.getHdrVals( posfld_, ofv );
     pd.setX1Pos( hdrvals, tbufsz, ofv );
     SeisPacketInfo pinf; tbuf.fill( pinf );
     StepInterval<double> zrg; assign( zrg, pinf.zrg );
     zrg.scale( SI().zFactor() );
     pd.setRange( false, zrg );
+}
+
+
+void SeisTrcBufDataPack::getAltDim0Keys( BufferStringSet& bss ) const
+{
+    for ( int idx=0; idx<flds_.size(); idx++ )
+	bss.add( eString(SeisTrcInfo::Fld,flds_[idx]) );
+}
+
+
+
+double SeisTrcBufDataPack::getAltDim0Value( int ikey, int i0 ) const
+{
+    const SeisTrcBuf& buf = trcBuf();
+    return i0 < 0 || i0 >= buf.size() || ikey >= flds_.size()
+	 ? FlatDataPack::getAltDim0Value( ikey, i0 )
+	 : buf.get(i0)->getValue( flds_[ikey] );
 }
 
 
@@ -403,5 +421,5 @@ Coord3 SeisTrcBufDataPack::getCoord( int itrc, int isamp ) const
 
 const char* SeisTrcBufDataPack::dimName( bool dim0 ) const
 {
-    return dim0 ? eString(SeisTrcInfo::Fld,fld_) : "Z";
+    return dim0 ? eString(SeisTrcInfo::Fld,posfld_) : "Z";
 }
