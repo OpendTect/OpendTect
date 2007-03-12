@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiattribpartserv.cc,v 1.63 2007-03-07 14:33:25 cvshelene Exp $
+ RCS:           $Id: uiattribpartserv.cc,v 1.64 2007-03-12 14:50:49 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -678,6 +678,7 @@ BufferStringSet uiAttribPartServer::get2DStoredLSets( const SelInfo& sinf) const
 
 	
 #define mInsertItems(list,mnu,correcttype) \
+(mnu)->removeItems(); \
 (mnu)->enabled = attrinf.list.size(); \
 for ( int idx=start; idx<stop; idx++ ) \
 { \
