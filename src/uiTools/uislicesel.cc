@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uislicesel.cc,v 1.42 2007-02-22 18:14:40 cvskris Exp $
+ RCS:           $Id: uislicesel.cc,v 1.43 2007-03-12 09:49:25 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,6 +36,8 @@ uiSliceSel::uiSliceSel( uiParent* p, const CubeSampling& curcs,
     , updatemutex_(*new Threads::Mutex)
     , applycb_(*new CallBack(acb))
     , scrolldlg_(0)
+    , scrollbut_(0)
+    , applybut_(0)
 {
     isinl_ = type == Inl;
     iscrl_ = type == Crl;
@@ -439,12 +441,16 @@ bool uiSliceSel::acceptOK( CallBacker* )
 
 void uiSliceSel::disableApplyButton()
 {
+    if ( !applybut_ ) return;
+
     applybut_->display( false );
 }
 
 
 void uiSliceSel::disableScrollButton()
 {
+    if ( !scrollbut_ ) return;
+    
     scrollbut_->display( false );
 }
 
