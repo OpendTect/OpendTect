@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          Sep 2006
- RCS:           $Id: uigdexamacorr.cc,v 1.17 2007-03-10 12:13:46 cvsbert Exp $
+ RCS:           $Id: uigdexamacorr.cc,v 1.18 2007-03-12 10:18:41 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,6 +21,7 @@ ________________________________________________________________________
 #include "attribprocessor.h"
 #include "attribfactory.h"
 #include "attribdatacubes.h"
+#include "attribdataholder.h"
 #include "attribdatapack.h"
 #include "uiexecutor.h"
 #include "arrayndimpl.h"
@@ -64,17 +65,15 @@ GapDeconACorrView::~GapDeconACorrView()
 }
 
 
-#define mCreateFDDataPack(fddatapack) \
-{ \
-    fddatapack = new Attrib::Flat3DDataPack( attribid_, *output, 0 ); \
-}
-
 bool GapDeconACorrView::computeAutocorr( bool isqc )
 {
-    //TODO : allow 2D!
     BufferString errmsg;
+    RefMan<Attrib::Data2DHolder> d2dh = new Attrib::Data2DHolder();
     PtrMan<EngineMan> aem = createEngineMan();
-    PtrMan<Processor> proc = aem->createDataCubesOutput( errmsg, 0  );
+	
+    PtrMan<Processor> proc = dset_->is2D() ? 
+			    aem->createScreenOutput2D( errmsg, *d2dh ) 
+			    : aem->createDataCubesOutput( errmsg, 0  );
     if ( !proc )
     {
 	uiMSG().error( errmsg );
@@ -86,18 +85,8 @@ bool GapDeconACorrView::computeAutocorr( bool isqc )
     if ( !dlg.go() )
 	return false;
 
-    const Attrib::DataCubes* output = aem->getDataCubesOutput( *proc );
-    if ( !output )
-	return false;
-    
-    output->ref();
-    
-    if ( isqc )
-    	mCreateFDDataPack(fddatapackqc_)
-    else
-	mCreateFDDataPack(fddatapackexam_)
-	    
-    output->unRef();
+    dset_->is2D() ? createFD2DDataPack( isqc, *d2dh )
+		  : createFD3DDataPack( isqc, aem, proc );
     return true;
 }
 
@@ -113,11 +102,50 @@ EngineMan* GapDeconACorrView::createEngineMan()
     aem->setAttribSet( dset_ );
     aem->setAttribSpecs( attribspecs );
     aem->setCubeSampling( cs_ );
+    aem->setLineKey( lk_ );
 
     return aem;
 }
 
 
+#define mCreateFD2DDataPack(fddatapack) \
+{ \
+    fddatapack = new Attrib::Flat2DDataPack( attribid_, d2dh ); \
+}
+
+
+void GapDeconACorrView::createFD2DDataPack( bool isqc, const Data2DHolder& d2dh)
+{
+    if ( isqc )
+    	mCreateFD2DDataPack(fddatapackqc_)
+    else
+	mCreateFD2DDataPack(fddatapackexam_)
+}
+
+
+#define mCreateFD3DDataPack(fddatapack) \
+{ \
+    fddatapack = new Attrib::Flat3DDataPack( attribid_, *output, 0 ); \
+}
+
+void GapDeconACorrView::createFD3DDataPack( bool isqc, EngineMan* aem,
+					    Processor* proc )
+{
+    const Attrib::DataCubes* output = aem->getDataCubesOutput( *proc );
+    if ( !output )
+	return;
+    
+    output->ref();
+    
+    if ( isqc )
+    	mCreateFD3DDataPack(fddatapackqc_)
+    else
+	mCreateFD3DDataPack(fddatapackexam_)
+	    
+    output->unRef();
+}
+
+    
 void GapDeconACorrView::createAndDisplay2DViewer( bool isqc )
 {
     if ( isqc )

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          July 2006
- RCS:           $Id: uigapdeconattrib.h,v 1.13 2006-12-20 11:23:00 cvshelene Exp $
+ RCS:           $Id: uigapdeconattrib.h,v 1.14 2007-03-12 10:18:41 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "position.h"
 #include "ranges.h"
 
+class MultiID;
 class uiAttrSel;
 class uiGenInput;
 class uiLabeledSpinBox;
@@ -74,6 +75,7 @@ protected:
     void		prepareInputDescs(Attrib::DescID&,Attrib::DescID&,
 	    				  Attrib::DescSet*);
     void		fillInGDDescParams(Attrib::Desc*);
+    void		getInputMID(MultiID&) const;
 
     			mDeclReqAttribUIFns
 };

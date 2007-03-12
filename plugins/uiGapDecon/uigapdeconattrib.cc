@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          July  2006
- RCS:           $Id: uigapdeconattrib.cc,v 1.24 2007-02-05 18:19:47 cvsbert Exp $
+ RCS:           $Id: uigapdeconattrib.cc,v 1.25 2007-03-12 10:18:41 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,10 +17,13 @@ ________________________________________________________________________
 #include "attribdescset.h"
 #include "attribfactory.h"
 #include "attribparam.h"
+#include "seistrctr.h"
 #include "survinfo.h"
 #include "uiattrsel.h"
+#include "uiseisioobjinfo.h"
 #include "uislicesel.h"
 #include "uibutton.h"
+#include "uicombobox.h"
 #include "uigeninput.h"
 #include "uilabel.h"
 #include "uispinbox.h"
@@ -37,15 +40,20 @@ mInitAttribUI(uiGapDeconAttrib,GapDecon,"GapDecon",sKeyFilterGrp)
 class uiGDPositionDlg: public uiDialog
 {
     public:
-			uiGDPositionDlg(uiParent*,const CubeSampling&);
+			uiGDPositionDlg(uiParent*,const CubeSampling&,bool,
+					const MultiID&);
 			~uiGDPositionDlg();
 
     void                popUpPosDlg();
     const CubeSampling&	getCubeSampling();
+    LineKey		getLineKey() const;
 
     uiGenInput*		inlcrlfld_;
+    uiLabeledComboBox*	linesfld_;
     CubeSampling	cs_;
-    uiSliceSel*		posdlg_; 
+    uiSliceSel*		posdlg_;
+    bool 		is2d_; 
+    MultiID 		mid_; 
 };
 
 
@@ -246,7 +254,9 @@ void uiGapDeconAttrib::examPush( CallBacker* cb )
     if ( cs.zrg.stop > gate.stop )
 	cs.zrg.stop = gate.stop;
 
-    positiondlg_ = new uiGDPositionDlg( this, cs );
+    MultiID mid;
+    getInputMID( mid );
+    positiondlg_ = new uiGDPositionDlg( this, cs, ads_->is2D(), mid );
     positiondlg_->go();
     if ( positiondlg_->uiResult() == 1 ) 
 	positiondlg_->popUpPosDlg();
@@ -258,6 +268,8 @@ void uiGapDeconAttrib::examPush( CallBacker* cb )
 	DescID gapdecid = createGapDeconDesc( inpid, inpid, dset, true );
 	acorrview_->setAttribID( gapdecid );
 	acorrview_->setCubeSampling( positiondlg_->getCubeSampling() );
+	if ( dset->is2D() )
+	    acorrview_->setLineKey( positiondlg_->getLineKey() );
 	acorrview_->setDescSet( dset );
 	if ( acorrview_->computeAutocorr(false) )
 	    acorrview_->createAndDisplay2DViewer(false);
@@ -480,8 +492,10 @@ void uiGapDeconAttrib::qCPush( CallBacker* cb )
 	cs.zrg.start = gate.start;
     if ( cs.zrg.stop > gate.stop )
 	cs.zrg.stop = gate.stop;
-	    
-    positiondlg_ = new uiGDPositionDlg( this, cs );
+
+    MultiID mid;
+    getInputMID(mid);
+    positiondlg_ = new uiGDPositionDlg( this, cs, ads_->is2D(), mid );
     positiondlg_->go();
     if ( positiondlg_->uiResult() == 1 ) 
 	positiondlg_->popUpPosDlg();
@@ -496,6 +510,8 @@ void uiGapDeconAttrib::qCPush( CallBacker* cb )
 	DescID autocorrid = createGapDeconDesc( gapdecid, inp1id, dset, true );
 	acorrview_->setAttribID( autocorrid );
 	acorrview_->setCubeSampling( positiondlg_->getCubeSampling() );
+	if ( dset->is2D() )
+	    acorrview_->setLineKey( positiondlg_->getLineKey() );
 	acorrview_->setDescSet( dset );
 	if ( acorrview_->computeAutocorr(true) )
 	    acorrview_->createAndDisplay2DViewer(true);
@@ -521,14 +537,38 @@ void uiGapDeconAttrib::prepareInputDescs( DescID& inp0id, DescID& inp1id,
 }
 
 
+void uiGapDeconAttrib::getInputMID( MultiID& mid ) const
+{
+    if ( !ads_->is2D() ) return;
+    
+    Desc* tmpdesc = ads_->getFirstStored( false );
+    tmpdesc->getMultiID( mid );
+}
+
 //-----------------------------------------------------------------------------
 
-uiGDPositionDlg::uiGDPositionDlg( uiParent* p, const CubeSampling& cs )
+uiGDPositionDlg::uiGDPositionDlg( uiParent* p, const CubeSampling& cs,
+				  bool is2d, const MultiID& mid )
     : uiDialog( p, uiDialog::Setup("Gap Decon viewer position",0,0) )
     , cs_( cs )
+    , is2d_( is2d )
+    , mid_( mid )
+    , linesfld_(0)
+    , inlcrlfld_(0)
 {
-    inlcrlfld_ = new uiGenInput( this, "Compute autocorrelation on:",
-	    			 BoolInpSpec(true,"Inline","Crossline") );
+    if ( is2d )
+    {
+	BufferStringSet linenames;
+	uiSeisIOObjInfo objinfo( mid_ );
+	objinfo.getLineNames( linenames );
+	linesfld_ = new uiLabeledComboBox( this, 
+					   "Compute autocorrelation on line:" );
+	for ( int idx=0; idx<linenames.size(); idx++ )
+	    linesfld_->box()->addItem( linenames.get(idx) );
+    }
+    else
+	inlcrlfld_ = new uiGenInput( this, "Compute autocorrelation on:",
+				    BoolInpSpec(true,"Inline","Crossline") );
     setOkText("Next >>" );
 }
 
@@ -542,36 +582,54 @@ uiGDPositionDlg::~uiGDPositionDlg()
 void uiGDPositionDlg::popUpPosDlg()
 {
     CallBack dummycb;
-    bool isinl = inlcrlfld_->getBoolValue();
+    bool isinl;
+    bool is2d = inlcrlfld_ == 0;
     CubeSampling inputcs = cs_;
-    if ( isinl )
+    if ( is2d )
     {
+	SeisTrcTranslator::getRanges( mid_, inputcs, getLineKey() );
+	cs_.hrg.set ( inputcs.hrg.inlRange(), inputcs.hrg.crlRange() );
 	float crlwidth = inputcs.hrg.crlRange().width();
-	inputcs.hrg.stop.inl = inputcs.hrg.start.inl;
-	inputcs.hrg.stop.crl = 
-	    mMIN( mNINT(inputcs.hrg.start.crl + crlwidth/2 + 100),
-		  inputcs.hrg.stop.crl );
-	inputcs.hrg.start.crl = 
-	    mMAX( mNINT(inputcs.hrg.start.crl + crlwidth/2 - 100),
-		  inputcs.hrg.start.crl );
+	inputcs.hrg.stop.crl =
+		mMIN( mNINT(inputcs.hrg.start.crl + crlwidth/2 + 100),
+			    inputcs.hrg.stop.crl );
+	inputcs.hrg.start.crl =
+		mMAX( mNINT(inputcs.hrg.start.crl + crlwidth/2 - 100),
+			    inputcs.hrg.start.crl );
     }
     else
     {
-	float inlwidth = inputcs.hrg.inlRange().width();
-	inputcs.hrg.stop.crl = inputcs.hrg.start.crl;
-	inputcs.hrg.stop.inl = 
-	    mMIN( mNINT(inputcs.hrg.start.inl + inlwidth/2 + 100),
-		  inputcs.hrg.stop.inl );
-	inputcs.hrg.start.inl = 
-	    mMAX( mNINT(inputcs.hrg.start.inl + inlwidth/2 - 100),
-		  inputcs.hrg.start.inl );
+	isinl = inlcrlfld_->getBoolValue();
+	if ( isinl )
+	{
+	    float crlwidth = inputcs.hrg.crlRange().width();
+	    inputcs.hrg.stop.inl = inputcs.hrg.start.inl;
+	    inputcs.hrg.stop.crl = 
+		mMIN( mNINT(inputcs.hrg.start.crl + crlwidth/2 + 100),
+		      inputcs.hrg.stop.crl );
+	    inputcs.hrg.start.crl = 
+		mMAX( mNINT(inputcs.hrg.start.crl + crlwidth/2 - 100),
+		      inputcs.hrg.start.crl );
+	}
+	else
+	{
+	    float inlwidth = inputcs.hrg.inlRange().width();
+	    inputcs.hrg.stop.crl = inputcs.hrg.start.crl;
+	    inputcs.hrg.stop.inl = 
+		mMIN( mNINT(inputcs.hrg.start.inl + inlwidth/2 + 100),
+		      inputcs.hrg.stop.inl );
+	    inputcs.hrg.start.inl = 
+		mMAX( mNINT(inputcs.hrg.start.inl + inlwidth/2 - 100),
+		      inputcs.hrg.start.inl );
+	}
     }
 
     if ( inputcs.zrg.nrSteps() > 200 )
 	inputcs.zrg.stop = inputcs.zrg.start + inputcs.zrg.width()/4;
     
     posdlg_ = new uiSliceSel( this, inputcs, cs_, dummycb, 
-			      isinl ? uiSliceSel::Inl : uiSliceSel::Crl );
+			      is2d ? uiSliceSel::TwoD 
+			        : (isinl ? uiSliceSel::Inl : uiSliceSel::Crl) );
     posdlg_->disableApplyButton();
     posdlg_->disableScrollButton();
     posdlg_->setModal( true );
@@ -582,4 +640,14 @@ void uiGDPositionDlg::popUpPosDlg()
 const CubeSampling& uiGDPositionDlg::getCubeSampling()
 {
     return posdlg_->getCubeSampling();
+}
+
+
+LineKey uiGDPositionDlg::getLineKey() const
+{
+    LineKey lk;
+    if ( !linesfld_ ) return lk;
+    
+    lk.setLineName( linesfld_->box()->text() );
+    return lk;
 }
