@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visshape.h,v 1.19 2006-08-23 19:02:20 cvskris Exp $
+ RCS:		$Id: visshape.h,v 1.20 2007-03-12 11:57:13 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -160,33 +160,43 @@ private:
 class IndexedShape : public VertexShape
 {
 public:
-    int			nrCoordIndex() const;
-    void		setCoordIndex(int pos, int idx );
-    void		removeCoordIndexAfter(int);
-    int			getCoordIndex(int) const;
+    int		nrCoordIndex() const;
+    void	setCoordIndex(int pos,int idx);
+    void	setCoordIndices(int* idxs, int sz);
+    		/*!<\note idxs are not copied, and caller must ensure
+			  they remain in memory. */
+    void	removeCoordIndexAfter(int);
+    int		getCoordIndex(int) const;
 
-    int			nrTextureCoordIndex() const;
-    void		setTextureCoordIndex(int pos, int idx );
-    void		removeTextureCoordIndexAfter(int);
-    int			getTextureCoordIndex(int) const;
+    int		nrTextureCoordIndex() const;
+    void	setTextureCoordIndex(int pos,int idx);
+    void	setTextureCoordIndices(int* idxs,int sz);
+    		/*!<\note idxs are not copied, and caller must ensure
+			  they remain in memory. */
+    void	removeTextureCoordIndexAfter(int);
+    int		getTextureCoordIndex(int) const;
 
-    int			nrNormalIndex() const;
-    void		setNormalIndex( int pos, int idx );
-    void		removeNormalIndexAfter(int);
-    int			getNormalIndex(int) const;
+    int		nrNormalIndex() const;
+    void	setNormalIndex(int pos,int idx);
+    void	setNormalIndices(int* idxs,int sz);
+    		/*!<\note idxs are not copied, and caller must ensure
+			  they remain in memory. */
+    void	removeNormalIndexAfter(int);
+    int		getNormalIndex(int) const;
 
-    int			nrMaterialIndex() const;
-    void		setMaterialIndex( int pos, int idx );
-    void		removeMaterialIndexAfter(int);
-    int			getMaterialIndex(int) const;
+    int		nrMaterialIndex() const;
+    void	setMaterialIndex(int pos,int idx);
+    void	setMaterialIndices(int* idxs,int sz);
+    		/*!<\note idxs are not copied, and caller must ensure
+			  they remain in memory. */
+    void	removeMaterialIndexAfter(int);
+    int		getMaterialIndex(int) const;
 
-
-    int			getClosestCoordIndex(const EventInfo&) const;
-    void		replaceShape(SoNode*);
+    int		getClosestCoordIndex(const EventInfo&) const;
+    void	replaceShape(SoNode*);
 
 protected:
-    			IndexedShape( SoIndexedShape* );
-
+    		IndexedShape( SoIndexedShape* );
 
 private:
 

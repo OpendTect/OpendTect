@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: visshape.cc,v 1.23 2006-08-23 19:02:20 cvskris Exp $";
+static const char* rcsID = "$Id: visshape.cc,v 1.24 2007-03-12 11:57:13 cvskris Exp $";
 
 #include "visshape.h"
 
@@ -420,29 +420,33 @@ void IndexedShape::replaceShape( SoNode* node )
 
 
 #define setGetIndex( resourcename, fieldname )  \
-int IndexedShape::nr##resourcename() const \
+int IndexedShape::nr##resourcename##Index() const \
 { return indexedshape_->fieldname.getNum(); } \
  \
  \
-void IndexedShape::set##resourcename( int pos, int idx ) \
+void IndexedShape::set##resourcename##Index( int pos, int idx ) \
 { indexedshape_->fieldname.set1Value( pos, idx ); } \
  \
  \
-void IndexedShape::remove##resourcename##After(int pos) \
+void IndexedShape::remove##resourcename##IndexAfter(int pos) \
 {  \
     if ( indexedshape_->fieldname.getNum()>pos+1 ) \
 	indexedshape_->fieldname.deleteValues(pos+1); \
 } \
  \
  \
-int IndexedShape::get##resourcename( int pos ) const \
+int IndexedShape::get##resourcename##Index( int pos ) const \
 { return indexedshape_->fieldname[pos]; } \
+ \
+ \
+void IndexedShape::set##resourcename##Indices( int* ptr, int sz ) \
+{ return indexedshape_->fieldname.setValuesPointer( sz, ptr ); } \
 
 
-setGetIndex( CoordIndex, coordIndex );
-setGetIndex( TextureCoordIndex, textureCoordIndex );
-setGetIndex( NormalIndex, normalIndex );
-setGetIndex( MaterialIndex, materialIndex );
+setGetIndex( Coord, coordIndex );
+setGetIndex( TextureCoord, textureCoordIndex );
+setGetIndex( Normal, normalIndex );
+setGetIndex( Material, materialIndex );
 
 
 int IndexedShape::getClosestCoordIndex(const EventInfo& ei) const
