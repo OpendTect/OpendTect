@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvey.cc,v 1.76 2007-02-07 14:10:54 cvsnanne Exp $
+ RCS:           $Id: uisurvey.cc,v 1.77 2007-03-13 13:05:35 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,6 +38,7 @@ ________________________________________________________________________
 #include "strmprov.h"
 #include "envvars.h"
 #include "cubesampling.h"
+#include "odver.h"
 #include <iostream>
 #include <math.h>
 
@@ -656,36 +657,8 @@ bool uiSurvey::acceptOK( CallBacker* )
 
 void uiSurvey::updateViewsGlobal()
 {
-    BufferString capt( "Open" );
-    capt += GetProjectVersionName();
-
-    const char* swdir = GetSoftwareDir();
-    BufferString fnm = FilePath( swdir ).add( ".rel.od" ).fullPath();
-    fnm += "."; fnm += GetPlfSubDir();
-    if ( !File_exists(fnm) )
-	fnm = FilePath( swdir ).add( ".rel.od" ).fullPath();
-    if ( !File_exists(fnm) )
-	fnm = FilePath( swdir ).add( ".rel" ).fullPath();
-
-    if ( File_exists(fnm) )
-    {
-	char* ptr = strrchr( capt.buf(), 'V' );
-	if ( ptr )
-	{
-	    char vstr[80];
-	    StreamData sd = StreamProvider( fnm ).makeIStream();
-	    if ( sd.usable() )
-	    {
-		sd.istrm->getline( vstr, 80 );
-		if ( vstr[0] )
-		{
-		    *ptr++ = '\0';
-		    capt += vstr;
-		}
-	    }
-	    sd.close();
-	}
-    }
+    BufferString capt( "OpendTect V" );
+    capt += GetFullODVersion();
 
     const char* usr = GetSoftwareUser();
     if ( usr && *usr )
