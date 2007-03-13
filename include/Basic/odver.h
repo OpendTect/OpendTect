@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Mar 2006
- RCS:		$Id: odver.h,v 1.3 2007-02-04 21:05:05 cvsnanne Exp $
+ RCS:		$Id: odver.h,v 1.4 2007-03-13 11:39:18 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,23 @@ ________________________________________________________________________
 
 #define mODMajorVersion		3
 #define mODMinorVersion		1
+
+#include "gendefs.h"
+
+#ifdef __cpp__
+extern "C" {
+#endif
+
+    const char* GetFullODVersion();
+
+#ifdef __cpp__
+}
+
+class BufferString;
+void GetSpecificODVersion(const char* typ,BufferString&);
+/*!< 'typ' can be "doc" or other like vendor name. */
+
+#endif
 
 
 /*!\mainpage Basic utilities
