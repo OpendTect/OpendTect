@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Feb 2002
- RCS:           $Id: cubesampling.h,v 1.28 2007-02-19 16:41:45 cvsbert Exp $
+ RCS:           $Id: cubesampling.h,v 1.29 2007-03-13 15:23:57 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -53,7 +53,7 @@ struct HorSampling
 			{ return (crl - start.crl) / step.crl; }
     BinID		atIndex( int i0, int i1 ) const
 			{ return BinID( start.inl + i0*step.inl,
-					start.crl + i0*step.crl ); }
+					start.crl + i1*step.crl ); }
     int			nrInl() const;
     int			nrCrl() const;
     inline int		totalNr() const	{ return nrInl() * nrCrl(); }
