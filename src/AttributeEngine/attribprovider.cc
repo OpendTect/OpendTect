@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribprovider.cc,v 1.88 2007-03-08 12:40:08 cvshelene Exp $";
+static const char* rcsID = "$Id: attribprovider.cc,v 1.89 2007-03-13 14:01:07 cvshelene Exp $";
 
 #include "attribprovider.h"
 #include "attribstorprovider.h"
@@ -1189,7 +1189,7 @@ void Provider::updateInputReqs( int inp )
 
 	if ( inputs[inp] )
 	{
-	    inputs[inp]->setReqBufStepout( req ? *req : BinID(0,0) + 
+	    inputs[inp]->setReqBufStepout( ( req ? *req : BinID(0,0) ) + 
 		    			   reqbufferstepout, true );
 	    inputs[inp]->setDesBufStepout( stepout+desbufferstepout );
 	}
