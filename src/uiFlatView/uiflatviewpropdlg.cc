@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          Dec 2006
- RCS:           $Id: uiflatviewpropdlg.cc,v 1.10 2007-03-12 18:44:10 cvsbert Exp $
+ RCS:           $Id: uiflatviewpropdlg.cc,v 1.11 2007-03-13 13:04:45 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -310,7 +310,8 @@ uiFVAnnotPropTab::AxesGroup::AxesGroup( uiParent* p,
 {
     BufferString lbltxt( "Axis '" ); lbltxt += ad_.name_; lbltxt += "'";
     uiLabel* lbl;
-    if ( !annotnms )
+    const bool haveannotchoices = annotnms && annotnms->size() > 1;
+    if ( !haveannotchoices )
 	lbl = new uiLabel( this, lbltxt );
     else
     {
@@ -319,7 +320,7 @@ uiFVAnnotPropTab::AxesGroup::AxesGroup( uiParent* p,
 	lbl = new uiLabel( this, "Show" );
     }
     showannotfld_ = new uiCheckBox( this, "Annotation" );
-    if ( !annotnms )
+    if ( !haveannotchoices )
 	showannotfld_->attach( rightOf, lbl );
     else
     {
