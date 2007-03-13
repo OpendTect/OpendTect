@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          June 2003
- RCS:           $Id: emsurfaceio.cc,v 1.86 2007-02-14 09:01:55 cvsnanne Exp $
+ RCS:           $Id: emsurfaceio.cc,v 1.87 2007-03-13 08:29:09 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -1417,8 +1417,8 @@ bool dgbSurfaceWriter::writeInt64( std::ostream& strm, int64 val,
     else
     {
 	BufferString str;
-	sprintf( str.buf(), "%020lld%s", val, post );
-	strm << str.buf();
+	sprintf( str.buf(), "%020lld", val );
+	strm << str.buf() << post;
     }
 
     return strm;
