@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H.Bril
  Date:          Mar 2002
- RCS:           $Id: od_main.cc,v 1.17 2006-09-14 10:10:46 cvsdgb Exp $
+ RCS:           $Id: od_main.cc,v 1.18 2007-03-13 13:05:50 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "genc.h"
 #include "envvars.h"
 #include "errh.h"
+#include "odver.h"
 #include <iostream>
 
 // TODO : Is there a better way to force linking with attribute factory?
@@ -33,6 +34,9 @@ inline static bool isPromised( const char* claim )
 
 int main( int argc, char** argv )
 {
+    const bool showversiononly = argv[1]
+	    && (!strcmp(argv[1],"-v") || !strcmp(argv[1],"--version"));
+
 #ifndef __win__
     gLogFilesRedirectCode = 1;
 	// Only odmain should make log files, not process_attrib and so forth
@@ -40,22 +44,28 @@ int main( int argc, char** argv )
 	// Hence the global 'hidden' variable
 #endif
 
-    if ( !isPromised("OD_I_AM_JUST_EVALUATING")		 // Hmmm.
-      && !isPromised("OD_I_AM_NOT_A_COMMERCIAL_USER")	 // Good.
-      && !isPromised("OD_I_PAID_MAINT_SUPP_FEE")	 // Better.
-      && !isPromised("OD_I_AM_AN_OPENDTECT_DEVELOPER") ) // Yo.
+    int ret = 0;
+    if ( showversiononly )
+	std::cerr << GetFullODVersion() << std::endl;
+    else
     {
-	static const char* msg =
-	    "OpendTect is free for R&D, education or evaluation only.\n"
-	    "In doubt, consult http://opendtect.org/rel/LICENSE.txt.";
+	if ( !isPromised("OD_I_AM_JUST_EVALUATING")		// Hmmm.
+	  && !isPromised("OD_I_AM_NOT_A_COMMERCIAL_USER")	// Good.
+	  && !isPromised("OD_I_PAID_MAINT_SUPP_FEE")		// Better.
+	  && !isPromised("OD_I_AM_AN_OPENDTECT_DEVELOPER") )	// Yo.
+	{
+	    static const char* msg =
+		"OpendTect is free for R&D, education or evaluation only.\n"
+		"In doubt, consult http://opendtect.org/rel/LICENSE.txt.";
 
-	std::cerr << msg << std::endl;
-	if ( gLogFilesRedirectCode == 1 )
-	    UsrMsg( msg );
+	    std::cerr << msg << std::endl;
+	    if ( gLogFilesRedirectCode == 1 )
+		UsrMsg( msg );
+	}
+
+	od_putProgInfo( argc, argv );
+	ret = ODMain( argc, argv );
     }
 
-    od_putProgInfo( argc, argv );
-
-    int ret = ODMain( argc, argv );
     ExitProgram( ret );
 }
