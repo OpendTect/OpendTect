@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     ( C ) dGB Beheer B.V.
  Author:        Duntao Wei
  Date:          Mar. 2005
- RCS:           $Id: drawaxis2d.cc,v 1.8 2007-03-09 12:32:47 cvskris Exp $
+ RCS:           $Id: drawaxis2d.cc,v 1.9 2007-03-13 20:07:35 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -76,6 +76,14 @@ void DrawAxis2D::drawAxes( bool xdir, bool ydir,
     if ( ydir ) drawYAxis( leftside );
 }
 
+#define mLoopStart( dim ) \
+    const int nrsteps = mNINT(dim##rg_.width(false)/dim##axis_.step)+1; \
+    for ( int idx=0; idx<nrsteps; idx++ ) \
+    { \
+	const double dim##pos = dim##axis_.atIndex(idx); \
+	if ( !dim##rg_.includes(dim##pos,true) ) \
+	    continue 
+
 
 void DrawAxis2D::drawXAxis( bool topside ) const
 {
@@ -99,14 +107,8 @@ void DrawAxis2D::drawXAxis( bool topside ) const
     if ( drawaxisline_ )
 	drawarea_->drawTool()->drawLine( drawarea.left(), baseline,
 				       drawarea.right(), baseline );
-  
-    const double width = xrg_.stop - xaxis_.start;
-    for ( double x=0; x<=width; x+=xaxis_.step )
-    {
-	const double xpos = x+xaxis_.start;
-	if ( xpos<xrg_.start )
-	    continue;
-	    
+
+    mLoopStart( x );
 	BufferString text;
 	const double displaypos = getAnnotTextAndPos(true,xpos,&text);
 	const int wx = transform.toUiX( displaypos ) + drawarea.left();
@@ -143,13 +145,7 @@ void DrawAxis2D::drawYAxis( bool leftside ) const
 	drawarea_->drawTool()->drawLine( baseline, drawarea.top(),
 				       baseline, drawarea.bottom() );
     
-    const double width = yrg_.stop - yaxis_.start;
-    for ( double y=0; y<=width; y+=yaxis_.step )
-    {
-	const double ypos = y+yaxis_.start;
-	if ( ypos<yrg_.start )
-	    continue;
-
+    mLoopStart( y );
 	BufferString text;
 	const double displaypos =
 	    getAnnotTextAndPos( false, ypos, &text );
@@ -173,13 +169,7 @@ void DrawAxis2D::drawGridLines( bool xdir, bool ydir ) const
     {
 	const int top = drawarea.top();
 	const int bot = drawarea.bottom();
-	const double width = xrg_.stop - xaxis_.start;
-	for ( double x=0; x<=width; x+=xaxis_.step )
-	{
-	    const double xpos = x+xaxis_.start;
-	    if ( xpos<xrg_.start )
-		continue;
-		
+	mLoopStart( x );
 	    const double displaypos = getAnnotTextAndPos( true, xpos );
 	    const int wx = transform.toUiX( displaypos ) + drawarea.left();
 	    drawarea_->drawTool()->drawLine( wx, top, wx, bot );
@@ -190,13 +180,7 @@ void DrawAxis2D::drawGridLines( bool xdir, bool ydir ) const
     {
 	const int left = drawarea.left();
 	const int right = drawarea.right();
-	const double width = yrg_.stop - yaxis_.start;
-	for ( double y=0; y<=width; y+=yaxis_.step )
-	{
-	    const double ypos = y+yaxis_.start;
-	    if ( ypos<yrg_.start )
-		continue;
-
+	mLoopStart( y );
 	    const double displaypos = getAnnotTextAndPos(false, ypos);
 	    const int wy = transform.toUiY( displaypos ) + drawarea.top();
 	    drawarea_->drawTool()->drawLine( left, wy, right, wy );
