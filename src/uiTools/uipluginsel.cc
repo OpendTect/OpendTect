@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2006
- RCS:           $Id: uipluginsel.cc,v 1.6 2006-07-03 16:41:40 cvsbert Exp $
+ RCS:           $Id: uipluginsel.cc,v 1.7 2007-03-13 13:03:07 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,17 +13,21 @@ ________________________________________________________________________
 #include "uibutton.h"
 #include "plugins.h"
 #include "settings.h"
+#include "odver.h"
 #include <math.h>
 
 const char* uiPluginSel::sKeyDoAtStartup = "dTect.Select Plugins";
 
 
 uiPluginSel::uiPluginSel( uiParent* p )
-	: uiDialog(p,Setup("OpendTect: Candidate auto-loaded plugins",
-		    	   "Select OpendTect plugins to load","0.2.6")
+	: uiDialog(p,Setup("","Select OpendTect plugins to load","0.2.6")
 			.savebutton(true)
 			.savetext("Show this dialog at startup"))
 {
+    BufferString titl( "OpendTect V" );
+    titl += GetFullODVersion(); titl += ": Candidate auto-loaded plugins";
+    setCaption( titl );
+
     setCtrlStyle( uiDialog::LeaveOnly );
     setCancelText( "&Ok" );
     setSaveButtonChecked( true );
