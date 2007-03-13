@@ -4,12 +4,13 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Oct 2003
- RCS:           $Id: uipluginman.cc,v 1.18 2006-11-21 14:00:08 cvsbert Exp $
+ RCS:           $Id: uipluginman.cc,v 1.19 2007-03-13 13:02:31 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uipluginman.h"
+#include "uipluginsel.h"
 #include "uilistbox.h"
 #include "uitextedit.h"
 #include "uibutton.h"
@@ -21,6 +22,7 @@ ________________________________________________________________________
 #include "filegen.h"
 #include "filepath.h"
 #include "strmprov.h"
+#include "settings.h"
 #include <iostream>
 
 
@@ -37,11 +39,15 @@ uiPluginMan::uiPluginMan( uiParent* p )
     uiPushButton* loadbut = new uiPushButton( leftgrp, " &Load a plugin ",
 	    			mCB(this,uiPluginMan,loadPush), false );
     loadbut->attach( alignedBelow, listfld );
+    selatstartfld = new uiCheckBox( leftgrp, "Select auto-loaded at startup" ); 
+    selatstartfld->attach( alignedBelow, loadbut );
+    selatstartfld->setChecked(
+	    Settings::common().isTrue(uiPluginSel::sKeyDoAtStartup) );
 
     infofld = new uiTextEdit( this, "Info" );
     infofld->attach( rightOf, leftgrp );
     infofld->setPrefWidthInChar( 70 );
-    infofld->setPrefHeightInChar( 15 );
+    infofld->setPrefHeightInChar( 20 );
 
     finaliseDone.notify( mCB(this,uiPluginMan,selChg) );
 }
@@ -155,4 +161,17 @@ void uiPluginMan::loadPush( CallBacker* )
 	uiMSG().error( "Couldn't load plugin" );
     else
 	{ loaddir = FilePath(fnm).pathOnly(); fillList(); selChg(0); }
+}
+
+
+bool uiPluginMan::rejectOK( CallBacker* )
+{
+    const bool oldyn = Settings::common().isTrue(uiPluginSel::sKeyDoAtStartup);
+    const bool newyn = selatstartfld->isChecked();
+    if ( oldyn != newyn )
+    {
+	Settings::common().setYN( uiPluginSel::sKeyDoAtStartup, newyn );
+	Settings::common().write();
+    }
+    return true;
 }
