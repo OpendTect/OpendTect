@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewer.cc,v 1.17 2007-03-12 18:44:10 cvsbert Exp $
+ RCS:           $Id: uiflatviewer.cc,v 1.18 2007-03-13 18:31:38 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,6 +35,7 @@ uiFlatViewer::uiFlatViewer( uiParent* p )
     , extraborders_(0,0,0,0)
     , annotsz_(50,20) //TODO: should be dep on font size
     , viewChanged(this)
+    , dataChanged(this)
 {
     bmp2rgb_ = new FlatView::BitMap2RGB( appearance(), canvas_.rgbArray() );
     canvas_.newFillNeeded.notify( mCB(this,uiFlatViewer,canvasNewFill) );
@@ -152,6 +153,8 @@ void uiFlatViewer::handleChange( DataChangeType dct )
 	{ b += annotsz_.height(); t += annotsz_.height(); }
     canvas_.setBorders( uiSize(l,t), uiSize(r,b) );
     canvas_.forceNewFill();
+    if ( dct == WVAData || dct == VDData )
+	dataChanged.trigger();
 }
 
 
@@ -219,7 +222,8 @@ int uiFlatViewer::getAnnotChoices( BufferStringSet& bss ) const
 void uiFlatViewer::setAnnotChoice( int sel )
 {
     BufferStringSet bss; getAnnotChoices( bss );
-    if ( bss.get(sel) == appearance().annot_.x1_.name_ )
+    if ( sel >= 0 && sel < bss.size()
+      && bss.get(sel) == appearance().annot_.x1_.name_ )
 	mSetUdf(sel);
     axesdrawer_.altdim0_ = sel;
 }

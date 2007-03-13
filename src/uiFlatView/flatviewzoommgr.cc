@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:		Feb 2007
- RCS:           $Id: flatviewzoommgr.cc,v 1.2 2007-03-01 12:03:53 cvsbert Exp $
+ RCS:           $Id: flatviewzoommgr.cc,v 1.3 2007-03-13 18:31:38 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,6 +18,26 @@ void FlatView::ZoomMgr::init( const Geom::Rectangle<double>& wr )
     zooms_ += wr.size();
     center_ = wr.centre();
     cur_ = 0;
+}
+
+
+void FlatView::ZoomMgr::reInit( const Geom::Rectangle<double>& wr )
+{
+    const TypeSet<Size> oldzooms_ = zooms_;
+    const int oldcur = cur_;
+    init( wr );
+
+    const Size zoom0 = zooms_[0];
+    for ( int idx=1; idx<oldzooms_.size(); idx++ )
+    {
+	const Size zoom = oldzooms_[idx];
+	if ( zoom.width() < zoom0.width() && zoom.height() < zoom0.height() )
+	{
+	    zooms_ += zoom;
+	    if ( idx == oldcur )
+		cur_ = zooms_.size() - 1;
+	}
+    }
 }
 
 
@@ -39,10 +59,11 @@ void FlatView::ZoomMgr::add( FlatView::ZoomMgr::Size newzoom )
 	    { cur_ = idx; return; }
     }
 
-    for ( int idx=zooms_.size()-1; idx>-1; idx-- )
+    for ( int idx=zooms_.size()-1; idx>0; idx-- )
     {
 	const Size zoom = zooms_[idx];
-	if ( newzoom.width() > zoom.width() + eps.width() )
+	if ( newzoom.width() > zoom.width() + eps.width()
+	  || newzoom.height() > zoom.height() + eps.height() )
 	    zooms_.remove( idx );
     }
 

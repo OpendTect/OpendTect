@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewer.h,v 1.9 2007-03-12 18:44:10 cvsbert Exp $
+ RCS:           $Id: uiflatviewer.h,v 1.10 2007-03-13 18:31:38 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -55,7 +55,8 @@ public:
 
     void		handleChange(DataChangeType);
 
-    Notifier<uiFlatViewer> viewChanged; //!< i.e. zoom/pan, or setView
+    Notifier<uiFlatViewer> viewChanged; //!< setView
+    Notifier<uiFlatViewer> dataChanged; //!< WVA or VD data changed
 
 protected:
 

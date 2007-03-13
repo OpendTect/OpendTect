@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:		Feb 2007
- RCS:           $Id: uiflatviewcontrol.cc,v 1.18 2007-03-13 10:37:48 cvshelene Exp $
+ RCS:           $Id: uiflatviewcontrol.cc,v 1.19 2007-03-13 18:31:38 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -47,18 +47,19 @@ uiFlatViewControl::~uiFlatViewControl()
 void uiFlatViewControl::addViewer( uiFlatViewer& vwr )
 {
     vwrs_ += &vwr;
+    vwr.dataChanged.notify( mCB(this,uiFlatViewControl,dataChangeCB) );
+
+    uiRGBArrayCanvas& cnvs = vwr.rgbCanvas();
     if ( haverubber_ )
     {
-	vwr.rgbCanvas().setRubberBandingOn( OD::LeftButton );
-	vwr.rgbCanvas().rubberBandUsed.notify(
-		    mCB(this,uiFlatViewControl,rubBandCB));
+	cnvs.setRubberBandingOn( OD::LeftButton );
+	cnvs.rubberBandUsed.notify( mCB(this,uiFlatViewControl,rubBandCB));
     }
-    int vieweridx = vwrs_.size()-1;
-    vwr.rgbCanvas().setMouseTracking(true);
-    mouseEventHandler(vieweridx).movement.notify(
-	    			mCB( this, uiFlatViewControl, mouseMoveCB ) );
-    mouseEventHandler(vieweridx).buttonReleased.notify(
-	    			mCB(this,uiFlatViewControl,usrClickCB) );
+
+    cnvs.setMouseTracking( true );
+    MouseEventHandler& mevh = mouseEventHandler( vwrs_.size()-1 );
+    mevh.movement.notify( mCB( this, uiFlatViewControl, mouseMoveCB ) );
+    mevh.buttonReleased.notify( mCB(this,uiFlatViewControl,usrClickCB) );
 }
 
 
@@ -87,6 +88,12 @@ void uiFlatViewControl::onFinalise( CallBacker* )
 	vwrs_[idx]->setView( bb );
 
     finalPrepare();
+}
+
+
+void uiFlatViewControl::dataChangeCB( CallBacker* cb )
+{
+    zoommgr_.reInit( getBoundingBox() );
 }
 
 

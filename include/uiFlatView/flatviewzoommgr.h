@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: flatviewzoommgr.h,v 1.2 2007-03-01 12:03:53 cvsbert Exp $
+ RCS:           $Id: flatviewzoommgr.h,v 1.3 2007-03-13 18:31:38 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,6 +34,8 @@ public:
 			    , fwdfac_(0.8)	{}
 
     void		init(const Geom::Rectangle<double>&);
+    void		reInit(const Geom::Rectangle<double>&);
+    				//!< Will try to keep as many zooms as possible
     void		add(Size);
     				//!< Will put this Size at the right place
     				//!< and make it current
