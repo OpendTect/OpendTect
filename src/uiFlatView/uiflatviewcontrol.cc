@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:		Feb 2007
- RCS:           $Id: uiflatviewcontrol.cc,v 1.17 2007-03-12 18:44:10 cvsbert Exp $
+ RCS:           $Id: uiflatviewcontrol.cc,v 1.18 2007-03-13 10:37:48 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -57,6 +57,8 @@ void uiFlatViewControl::addViewer( uiFlatViewer& vwr )
     vwr.rgbCanvas().setMouseTracking(true);
     mouseEventHandler(vieweridx).movement.notify(
 	    			mCB( this, uiFlatViewControl, mouseMoveCB ) );
+    mouseEventHandler(vieweridx).buttonReleased.notify(
+	    			mCB(this,uiFlatViewControl,usrClickCB) );
 }
 
 
@@ -180,9 +182,6 @@ void uiFlatViewControl::rubBandCB( CallBacker* cb )
 {
     //TODO handle when zoom is disabled
     mCBCapsuleUnpack(uiRect,r,cb);
-    uiSize sz = r.getPixelSize();
-    if ( sz.hNrPics() < 5 || sz.vNrPics() < 5 )
-	return;
 
     uiWorld2Ui w2u;
     vwrs_[0]->getWorld2Ui(w2u);
@@ -279,4 +278,14 @@ void uiFlatViewControl::mouseMoveCB( CallBacker* cb )
     vwrs_[0]->getAuxInfo( wp, infopars_ );
     CBCapsule<IOPar> caps( infopars_, this );
     infoChanged.trigger( &caps );
+}
+
+
+void uiFlatViewControl::usrClickCB( CallBacker* cb )
+{
+    //TODO and what about multiple viewers?
+    if ( mouseEventHandler(0).isHandled() )
+	return;
+
+    mouseEventHandler(0).setHandled( handleUserClick() );
 }

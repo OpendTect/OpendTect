@@ -6,12 +6,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2007
- RCS:           $Id: uiflatviewstdcontrol.h,v 1.2 2007-03-02 14:28:02 cvshelene Exp $
+ RCS:           $Id: uiflatviewstdcontrol.h,v 1.3 2007-03-13 10:37:48 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiflatviewcontrol.h"
+#include "menuhandler.h"
+class uiMenuHandler;
 class uiToolButton;
 class uiToolBar;
 
@@ -33,6 +35,7 @@ public:
     };
 
     			uiFlatViewStdControl(uiFlatViewer&,const Setup&);
+    			~uiFlatViewStdControl();
 
 protected:
 
@@ -56,6 +59,13 @@ protected:
     void		flipCB(CallBacker*);
     void		parsCB(CallBacker*);
     void		stateCB(CallBacker*);
+
+    bool		handleUserClick();
+
+    uiMenuHandler&      menu_;
+    MenuItem           	propertiesmnuitem_;
+    void                createMenuCB(CallBacker*);
+    void                handleMenuCB(CallBacker*);
 
 };
 

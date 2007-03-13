@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2007
- RCS:           $Id: uiflatviewstdcontrol.cc,v 1.3 2007-03-07 14:04:14 cvshelene Exp $
+ RCS:           $Id: uiflatviewstdcontrol.cc,v 1.4 2007-03-13 10:37:48 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,7 +13,9 @@ ________________________________________________________________________
 #include "flatviewzoommgr.h"
 #include "uiflatviewer.h"
 #include "uibutton.h"
+#include "uimenuhandler.h"
 #include "uitoolbar.h"
+#include "mouseevent.h"
 #include "pixmap.h"
 
 #define mDefBut(but,fnm,cbnm,tt) \
@@ -26,6 +28,8 @@ uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
 					    const Setup& setup )
     : uiFlatViewControl(vwr,setup.parent_,true)
     , manipbut_(0)
+    , menu_(*new uiMenuHandler(&vwr,-1))	//TODO multiple menus ?
+    , propertiesmnuitem_("Properties...",100)
 {
     tb_ = new uiToolBar( mainwin(), "Flat Viewer Tools" );
     if ( setup.withstates_ )
@@ -50,6 +54,16 @@ uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
     mDefBut(parsbut_,"2ddisppars.png",parsCB,"Set display parameters");
 
     vwr.viewChanged.notify( mCB(this,uiFlatViewStdControl,vwChgCB) );
+
+    menu_.ref();
+    menu_.createnotifier.notify(mCB(this,uiFlatViewStdControl,createMenuCB));
+    menu_.handlenotifier.notify(mCB(this,uiFlatViewStdControl,handleMenuCB));
+}
+
+
+uiFlatViewStdControl::~uiFlatViewStdControl()
+{
+    menu_.unRef();
 }
 
 
@@ -168,4 +182,44 @@ void uiFlatViewStdControl::stateCB( CallBacker* but )
 	drawbut_->setOn( !ismanip );
     else
 	manipbut_->setOn( ismanip );
+}
+
+
+bool uiFlatViewStdControl::handleUserClick()
+{
+    //TODO and what about multiple viewers?
+    const MouseEvent& ev = mouseEventHandler(0).event();
+    if ( ev.rightButton() && !ev.ctrlStatus() && !ev.shiftStatus() &&
+	  !ev.altStatus() )
+    {
+	menu_.executeMenu(0);
+	return true;
+    }
+    return false;
+}
+
+
+void uiFlatViewStdControl::createMenuCB( CallBacker* cb )
+{
+    mDynamicCastGet(uiMenuHandler*,menu,cb);
+    if ( !menu ) return;
+
+    mAddMenuItem( menu, &propertiesmnuitem_, true, false );
+}
+
+
+void uiFlatViewStdControl::handleMenuCB( CallBacker* cb )
+{
+    mCBCapsuleUnpackWithCaller( int, mnuid, caller, cb );
+    mDynamicCastGet( MenuHandler*, menu, caller );
+    if ( mnuid==-1 || menu->isHandled() )
+	return;
+
+    bool ishandled = true;
+    if ( mnuid==propertiesmnuitem_.id )
+	doPropertiesDialog();
+    else
+	ishandled = false;
+
+    menu->setIsHandled( ishandled );
 }
