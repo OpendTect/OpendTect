@@ -4,13 +4,15 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2006
- RCS:           $Id: uipluginsel.cc,v 1.7 2007-03-13 13:03:07 cvsbert Exp $
+ RCS:           $Id: uipluginsel.cc,v 1.8 2007-03-14 12:01:15 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uipluginsel.h"
 #include "uibutton.h"
+#include "uigroup.h"
+#include "uilabel.h"
 #include "plugins.h"
 #include "settings.h"
 #include "odver.h"
@@ -20,7 +22,7 @@ const char* uiPluginSel::sKeyDoAtStartup = "dTect.Select Plugins";
 
 
 uiPluginSel::uiPluginSel( uiParent* p )
-	: uiDialog(p,Setup("","Select OpendTect plugins to load","0.2.6")
+	: uiDialog(p,Setup("","","0.2.6")
 			.savebutton(true)
 			.savetext("Show this dialog at startup"))
 {
@@ -48,29 +50,36 @@ uiPluginSel::uiPluginSel( uiParent* p )
 
     const int maxlen = piusrnms.maxLength();
     const float rowspercol = maxlen / 10.;
-    int nrcols = (int)(sqrt( rowspercol * pluginnms_.size() ) + .5);
+    const int nrplugins = pluginnms_.size();
+    int nrcols = (int)(sqrt( rowspercol * nrplugins ) + .5);
     if ( nrcols < 1 ) nrcols = 1;
     if ( nrcols > 3 ) nrcols = 3;
-    int nrows = pluginnms_.size() / nrcols;
-    if ( pluginnms_.size() % nrcols )
+    int nrows = nrplugins / nrcols;
+    if ( nrplugins % nrcols )
 	nrows++;
 
-    for ( int idx=0; idx<pluginnms_.size(); idx++ )
-    {
-	BufferString dispnm = piusrnms.get( idx );
-	uiCheckBox* cb = new uiCheckBox( this, dispnm );
-	cb->setChecked( true );
-	cb->setPrefWidthInChar( maxlen+5 );
-	cbs_ += cb;
-	if ( !idx ) continue;
+    uiLabel* lbl = new uiLabel( this, "Please select the plugins to auto-load");
+    uiGroup* grp = new uiGroup( this, "OpendTect plugins to load" );
+    grp->setFrame( true );
+    grp->attach( centeredBelow, lbl );
 
-	if ( idx % nrows )
-	    cb->attach( alignedBelow, cbs_[idx-1] );
+    for ( int idx=0; idx<nrplugins; idx++ )
+    {
+	const int colnr = idx / nrows;
+	const int rownr = idx - colnr * nrows;
+
+	BufferString dispnm = piusrnms.get( idx );
+	uiCheckBox* cb = new uiCheckBox( grp, dispnm );
+	cb->setChecked( true );
+	cbs_ += cb;
+	if ( colnr != nrcols - 1 )
+	    cb->setPrefWidthInChar( maxlen+5 );
+	if ( idx == 0 ) continue;
+
+	if ( rownr == 0 )
+	    cb->attach( rightOf, cbs_[(colnr-1)*nrows] );
 	else
-	{
-	    int colnr = idx / nrows - 1;
-	    cb->attach( rightOf, cbs_[colnr*nrows] );
-	}
+	    cb->attach( alignedBelow, cbs_[idx-1] );
     }
 }
 
