@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uitreeitemmanager.cc,v 1.30 2006-06-22 21:44:58 cvskris Exp $";
+static const char* rcsID = "$Id: uitreeitemmanager.cc,v 1.31 2007-03-14 12:03:00 cvsnanne Exp $";
 
 
 #include "uitreeitemmanager.h"
@@ -429,11 +429,13 @@ uiTreeFactorySet::~uiTreeFactorySet()
 }
 
 
-void uiTreeFactorySet::addFactory(uiTreeItemFactory* ptr, int placement)
+void uiTreeFactorySet::addFactory( uiTreeItemFactory* ptr, int placement,
+       				   int pol2d )
 {
     factories_ += ptr;
     placementidxs_ += placement;
-    addnotifier.trigger(factories_.size()-1);
+    pol2ds_ += pol2d;
+    addnotifier.trigger( factories_.size()-1 );
 }
 
 
@@ -452,24 +454,22 @@ void uiTreeFactorySet::remove( const char* nm )
     if ( index<0 )
 	return;
 
-    removenotifier.trigger(index);
+    removenotifier.trigger( index );
     delete factories_[index];
-    factories_.remove(index);
-    placementidxs_.remove(index);
+    factories_.remove( index );
+    placementidxs_.remove( index );
+    pol2ds_.remove( index );
 }
 
 
 int uiTreeFactorySet::nrFactories() const
-{
-    return factories_.size();
-}
+{ return factories_.size(); }
 
+const uiTreeItemFactory* uiTreeFactorySet::getFactory( int idx ) const
+{ return idx<nrFactories() ? factories_[idx] : 0; }
 
-const uiTreeItemFactory* uiTreeFactorySet::getFactory(int idx) const
-{
-    return idx<nrFactories() ? factories_[idx] : 0;
-}
-
-
-int uiTreeFactorySet::getPlacementIdx(int idx) const
+int uiTreeFactorySet::getPlacementIdx( int idx ) const
 { return placementidxs_[idx]; }
+
+int uiTreeFactorySet::getPol2D( int idx ) const
+{ return pol2ds_[idx]; }

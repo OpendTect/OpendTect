@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: uitreeitemmanager.h,v 1.27 2006-06-22 21:44:58 cvskris Exp $
+ RCS:		$Id: uitreeitemmanager.h,v 1.28 2007-03-14 12:02:52 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -223,7 +223,8 @@ public:
 					uiTreeFactorySet();
 					~uiTreeFactorySet();
     void				addFactory(uiTreeItemFactory* ptr,
-	    					   int placementindex=-1 );
+	    					   int placementindex=-1,
+						   int pol2d=1);
 					/*!<\param ptr	pointer to new factory.
 							Object is managed by me.
 					    \param placementindex
@@ -235,8 +236,9 @@ public:
     void				remove( const char* );
 
     int					nrFactories() const;
-    const uiTreeItemFactory*		getFactory( int idx ) const;
-    int					getPlacementIdx(int idx) const;
+    const uiTreeItemFactory*		getFactory(int) const;
+    int					getPlacementIdx(int) const;
+    int					getPol2D(int) const;
 
     CNotifier<uiTreeFactorySet,int>	addnotifier;
     CNotifier<uiTreeFactorySet,int>	removenotifier;
@@ -245,6 +247,7 @@ protected:
 
     ObjectSet<uiTreeItemFactory>	factories_;
     TypeSet<int>			placementidxs_;
+    TypeSet<int>			pol2ds_;
 
 };
 
