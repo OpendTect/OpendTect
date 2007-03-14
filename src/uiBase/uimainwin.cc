@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.116 2007-03-06 07:40:55 cvsnanne Exp $
+ RCS:           $Id: uimainwin.cc,v 1.117 2007-03-14 12:01:37 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "uidialog.h"
 #include "uibody.h"
 #include "uiobjbody.h"
+#include "uifont.h"
 
 #include "uibutton.h"
 #include "uidockwin.h"
@@ -796,6 +797,7 @@ uiDialogBody::uiDialogBody( uiDialog& handle, uiParent* parnt,
     , helpBut( 0 ), title( 0 ) , reslt( 0 )
     , childrenInited(false)
 {
+    setContentsMargins( 10, 2, 10, 2 );
 }
 
 
@@ -995,6 +997,7 @@ void uiDialogBody::layoutChildren( uiObject* lowestobj )
 	extrabut = 0;
     }
 
+    const int borderdist = QFontMetrics(font()).width( QChar(' ') );
 
 #define mCommonLayout(but) \
     but->attach( ensureBelow, lowestobj ); \
@@ -1003,13 +1006,13 @@ void uiDialogBody::layoutChildren( uiObject* lowestobj )
     if ( leftbut )
     {
 	mCommonLayout(leftbut);
-	leftbut->attach( leftBorder );
+	leftbut->attach( leftBorder, borderdist );
     }
 
     if ( rightbut )
     {
 	mCommonLayout(rightbut);
-	rightbut->attach( rightBorder );
+	rightbut->attach( rightBorder, borderdist );
 	if ( leftbut )
 	    rightbut->attach( ensureRightOf, leftbut );
     }
