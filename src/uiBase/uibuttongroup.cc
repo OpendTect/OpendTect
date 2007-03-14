@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          18/08/2001
- RCS:           $Id: uibuttongroup.cc,v 1.12 2007-02-14 12:38:00 cvsnanne Exp $
+ RCS:           $Id: uibuttongroup.cc,v 1.13 2007-03-14 12:02:12 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -134,6 +134,7 @@ uiButtonGroup::uiButtonGroup( uiParent* p, const char* nm,
     grpobj_->body_->setPrntBody( body_ );
 
     p->manageChld( *grpobj_, *grpobj_->body_ );
+    displayFrame( false );
 }
 
 
