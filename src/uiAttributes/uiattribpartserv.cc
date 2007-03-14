@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiattribpartserv.cc,v 1.65 2007-03-13 18:31:17 cvsbert Exp $
+ RCS:           $Id: uiattribpartserv.cc,v 1.66 2007-03-14 14:49:56 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -240,6 +240,11 @@ bool uiAttribPartServer::selectAttrib( SelSpec& selspec, const char* depthkey,
     return true;
 }
 
+#define mAssignAdsMan( cond2d, newman ) \
+    if ( cond2d ) \
+	adsman2d_ = newman; \
+    else \
+	adsman3d_ = newman;
 
 void uiAttribPartServer::directShowAttr( CallBacker* cb )
 {
@@ -250,9 +255,9 @@ void uiAttribPartServer::directShowAttr( CallBacker* cb )
     DescSetMan* kpman = ed->is2D() ? adsman2d_ : adsman3d_;
     DescSet* edads = const_cast<DescSet*>(dirshwattrdesc_->descSet());
     PtrMan<DescSetMan> tmpadsman = new DescSetMan( ed->is2D(), edads, false );
-    ed->is2D() ? adsman2d_ : adsman3d_ = tmpadsman;
+    mAssignAdsMan(ed->is2D(),tmpadsman);
     sendEvent( evDirectShowAttr );
-    ed->is2D() ? adsman2d_ : adsman3d_ = kpman;
+    mAssignAdsMan(ed->is2D(),kpman);
 }
 
 
@@ -990,10 +995,10 @@ void uiAttribPartServer::calcEvalAttrs( CallBacker* cb )
     DescSet* ads = evaldlg->getEvalSet();
     evaldlg->getEvalSpecs( targetspecs_ );
     PtrMan<DescSetMan> tmpadsman = new DescSetMan( is2d, ads, false );
-    is2d ? adsman2d_ : adsman3d_ = tmpadsman;
+    mAssignAdsMan(is2d,tmpadsman);
     set2DEvent( is2d );
     sendEvent( evEvalCalcAttr );
-    is2d ? adsman2d_ : adsman3d_ = kpman;
+    mAssignAdsMan(is2d,kpman);
 }
 
 
