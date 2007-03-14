@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpewizard.cc,v 1.69 2007-03-06 11:48:04 cvsjaap Exp $
+ RCS:           $Id: uimpewizard.cc,v 1.70 2007-03-14 12:03:00 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -272,8 +272,8 @@ bool Wizard::prepareNamePage()
 
     objselgrp->setContext( *ctxt );
 
-    if ( objselgrp->getListField()->box()->size() )
-	objselgrp->getListField()->box()->selectAll(false);
+    if ( objselgrp->getListField()->size() )
+	objselgrp->getListField()->selectAll(false);
 
     objselgrp->getNameField()->setFocus();
 

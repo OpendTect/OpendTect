@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2001
- RCS:		$Id: uiseissel.cc,v 1.38 2006-12-28 21:10:33 cvsnanne Exp $
+ RCS:		$Id: uiseissel.cc,v 1.39 2007-03-14 12:03:00 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,7 +39,6 @@ uiSeisSelDlg::uiSeisSelDlg( uiParent* p, const CtxtIOObj& c,
     setTitleText( ttxt );
 
     uiGroup* topgrp = selgrp->getTopGroup();
-    uiLabeledListBox* listfld = selgrp->getListField();
 
     if ( selsetup.selattr_ && is2d_ )
     {
@@ -53,7 +52,8 @@ uiSeisSelDlg::uiSeisSelDlg( uiParent* p, const CtxtIOObj& c,
 	    attrfld_->attach( ensureBelow, topgrp );
     }
 
-    listfld->box()->selectionChanged.notify( mCB(this,uiSeisSelDlg,entrySel) );
+    selgrp->getListField()->selectionChanged.notify(
+	    			mCB(this,uiSeisSelDlg,entrySel) );
     entrySel(0);
 }
 
