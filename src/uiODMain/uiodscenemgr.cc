@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.100 2007-03-10 12:13:47 cvsbert Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.101 2007-03-14 12:08:45 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,8 +35,9 @@ ________________________________________________________________________
 #include "uimsg.h"
 
 #include "ptrman.h"
-#include "survinfo.h"
 #include "settings.h"
+#include "sorting.h"
+#include "survinfo.h"
 #include "scene.xpm"
 
 // For factories
@@ -57,7 +58,7 @@ ________________________________________________________________________
 #define mStatusField	3
 
 static const int cWSWidth = 600;
-static const int cWSHeight = 300;
+static const int cWSHeight = 500;
 static const int cMinZoom = 1;
 static const int cMaxZoom = 150;
 static const char* scenestr = "Scene ";
@@ -78,19 +79,27 @@ uiODSceneMgr::uiODSceneMgr( uiODMain* a )
     , sceneClosed(this)
     , treeToBeAdded(this)
 {
-    tifs_->addFactory( new uiODInlineTreeItemFactory, 1000 );
-    tifs_->addFactory( new uiODCrosslineTreeItemFactory, 2000 );
-    tifs_->addFactory( new uiODTimesliceTreeItemFactory, 3000 );
-    tifs_->addFactory( new uiODVolrenTreeItemFactory, 3500 );
-    tifs_->addFactory( new uiODRandomLineTreeItemFactory, 4000 );
-    tifs_->addFactory( new uiODPickSetTreeItemFactory, 5000 );
-    tifs_->addFactory( new uiODHorizonTreeItemFactory, 6000);
+    tifs_->addFactory( new uiODInlineTreeItemFactory, 1000,
+	    	       SurveyInfo::No2D );
+    tifs_->addFactory( new uiODCrosslineTreeItemFactory, 2000,
+	    	       SurveyInfo::No2D );
+    tifs_->addFactory( new uiODTimesliceTreeItemFactory, 3000,
+	    	       SurveyInfo::No2D );
+    tifs_->addFactory( new uiODVolrenTreeItemFactory, 3500, SurveyInfo::No2D );
+    tifs_->addFactory( new uiODRandomLineTreeItemFactory, 4000,
+	    	       SurveyInfo::No2D );
+    tifs_->addFactory( new uiODPickSetTreeItemFactory, 5000,
+	    	       SurveyInfo::Both2DAnd3D );
+    tifs_->addFactory( new uiODHorizonTreeItemFactory, 6000,
+	    	       SurveyInfo::Both2DAnd3D );
 #ifdef __debug__
-    tifs_->addFactory( new uiODFaultTreeItemFactory, 7000 );
+    tifs_->addFactory( new uiODFaultTreeItemFactory, 7000, SurveyInfo::No2D );
 #endif
-    tifs_->addFactory( new uiODWellTreeItemFactory, 8000 );
-    tifs_->addFactory( new Seis2DTreeItemFactory, 9500 );
-    tifs_->addFactory( new uiODHorizon2DTreeItemFactory, 9600);
+    tifs_->addFactory( new uiODWellTreeItemFactory, 8000,
+	    	       SurveyInfo::Both2DAnd3D );
+    tifs_->addFactory( new Seis2DTreeItemFactory, 9500, SurveyInfo::Only2D );
+    tifs_->addFactory( new uiODHorizon2DTreeItemFactory, 9600,
+		       SurveyInfo::Only2D );
 
     wsp_->setPrefWidth( cWSWidth );
     wsp_->setPrefHeight( cWSHeight );
@@ -150,9 +159,8 @@ void uiODSceneMgr::initMenuMgrDepObjs()
 
 void uiODSceneMgr::cleanUp( bool startnew )
 {
-    while ( scenes_.size() )
-	scenes_[0]->vwrGroup()->mainObject()->close();
-    	// close() cascades callbacks which remove the scene from set
+    wsp_->closeAll();
+    // closeAll() cascades callbacks which remove the scene from set
 
     visServ().deleteAllObjects();
     vwridx_ = 0;
@@ -599,29 +607,26 @@ void uiODSceneMgr::initTree( Scene& scn, int vwridx )
 
     scn.itemmanager_ = new uiODTreeTop( scn.sovwr_, scn.lv_, &applMgr(), tifs_);
 
-    int nradded = 0;
-    int globalhighest = INT_MAX;
-    while ( nradded<tifs_->nrFactories() )
+    TypeSet<int> idxs;
+    TypeSet<int> placeidxs;
+    for ( int idx=0; idx<tifs_->nrFactories(); idx++ )
     {
-	int highest = INT_MIN;
-	for ( int idx=0; idx<tifs_->nrFactories(); idx++ )
+	SurveyInfo::Pol2D pol2d = (SurveyInfo::Pol2D)tifs_->getPol2D( idx );
+	if ( SI().getSurvDataType() == SurveyInfo::Both2DAnd3D ||
+	     pol2d == SurveyInfo::Both2DAnd3D ||
+	     pol2d == SI().getSurvDataType() )
 	{
-	    const int placementidx = tifs_->getPlacementIdx(idx);
-	    if ( placementidx>highest && placementidx<globalhighest )
-		highest = placementidx;
+	    idxs += idx;
+	    placeidxs += tifs_->getPlacementIdx( idx );
 	}
+    }
 
-	for ( int idx=0; idx<tifs_->nrFactories(); idx++ )
-	{
-	    if ( tifs_->getPlacementIdx(idx)==highest )
-	    {
-		scn.itemmanager_->addChild( tifs_->getFactory(idx)->create(),
-					    false );
-		nradded++;
-	    }
-	}
+    sort_coupled( placeidxs.arr(), idxs.arr(), idxs.size() );
 
-	globalhighest = highest;
+    for ( int idx=0; idx<idxs.size(); idx++ )
+    {
+	const int fidx = idxs[idx];
+	scn.itemmanager_->addChild( tifs_->getFactory(fidx)->create(), true );
     }
 
     uiODSceneTreeItem* sceneitm =
