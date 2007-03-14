@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiioobjsel.h,v 1.47 2006-06-01 12:36:00 cvskris Exp $
+ RCS:           $Id: uiioobjsel.h,v 1.48 2007-03-14 12:00:55 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,7 +21,7 @@ class IOStream;
 class uiGenInput;
 class uiIOObjSelGrp;
 class IODirEntryList;
-class uiLabeledListBox;
+class uiListBox;
 class uiIOObjManipGroup;
 class uiIOObjSelGrpManipSubj;
 
@@ -74,7 +74,7 @@ public:
     const CtxtIOObj&		getCtxtIOObj() const	{ return ctio_; }
     uiGroup*			getTopGroup()		{ return topgrp; }
     uiGenInput*			getNameField()		{ return nmfld; }
-    uiLabeledListBox*		getListField()		{ return listfld; }
+    uiListBox*			getListField()		{ return listfld; }
     uiIOObjManipGroup*		getManipGroup();
 
     virtual bool		fillPar(IOPar&) const;
@@ -91,7 +91,7 @@ protected:
     friend class	uiIOObjSelDlg;
     friend class	uiIOObjSelGrpManipSubj;
     uiIOObjSelGrpManipSubj* manipgrpsubj;
-    uiLabeledListBox*	listfld;
+    uiListBox*		listfld;
     uiGenInput*		nmfld;
     uiGenInput*		filtfld;
     uiGroup*		topgrp;

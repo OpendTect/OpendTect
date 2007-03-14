@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          25/05/2000
- RCS:           $Id: uiioobjsel.cc,v 1.98 2006-12-01 16:42:22 cvsnanne Exp $
+ RCS:           $Id: uiioobjsel.cc,v 1.99 2007-03-14 12:00:55 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,7 +42,7 @@ class uiIOObjSelGrpManipSubj : public uiIOObjManipGroupSubj
 public:
 
 uiIOObjSelGrpManipSubj( uiIOObjSelGrp* sg )
-    : uiIOObjManipGroupSubj(sg->listfld->box())
+    : uiIOObjManipGroupSubj(sg->listfld)
     , selgrp_(sg)
     , manipgrp_(0)
 {
@@ -51,7 +51,7 @@ uiIOObjSelGrpManipSubj( uiIOObjSelGrp* sg )
 
 const MultiID* curID() const
 {
-    const int selidx = selgrp_->listfld->box()->currentItem();
+    const int selidx = selgrp_->listfld->currentItem();
     return selidx < 0 ? 0 : selgrp_->ioobjids_[selidx];
 }
 
@@ -67,7 +67,7 @@ const BufferStringSet& names() const
 
 void chgsOccurred()
 {
-    selgrp_->fullUpdate( selgrp_->listfld->box()->currentItem() );
+    selgrp_->fullUpdate( selgrp_->listfld->currentItem() );
 }
 
 void selChg( CallBacker* )
@@ -101,18 +101,29 @@ uiIOObjSelGrp::uiIOObjSelGrp( uiParent* p, const CtxtIOObj& c,
     topgrp = new uiGroup( this, "Top group" );
     filtfld = new uiGenInput( topgrp, "Filter", "*" );
     filtfld->valuechanged.notify( mCB(this,uiIOObjSelGrp,filtChg) );
-    listfld = new uiLabeledListBox( topgrp, seltxt );
+    if ( !seltxt || !*seltxt )
+    {
+	listfld = new uiListBox( topgrp, "IOObj sel LB" );
+	filtfld->attach( centeredAbove, listfld );
+	topgrp->setHAlignObj( listfld );
+    }
+    else
+    {
+	uiLabeledListBox* llb = new uiLabeledListBox( topgrp, seltxt );
+	llb->attach( alignedBelow, filtfld );
+	topgrp->setHAlignObj( llb );
+	listfld = llb->box();
+    }
+
     if ( ismultisel_ )
-	listfld->box()->setMultiSelect( true );
-    listfld->box()->setPrefWidthInChar( 
-		listfld->box()->optimumFieldWidth(25,60) );
-    listfld->box()->setPrefHeightInChar( 8 );
+	listfld->setMultiSelect( true );
+    listfld->setPrefWidthInChar( 
+		listfld->optimumFieldWidth(25,60) );
+    listfld->setPrefHeightInChar( 8 );
     fullUpdate( 0 );
-    filtfld->attach( leftAlignedAbove, listfld );
-    topgrp->setHAlignObj( listfld->box() );
 
     if ( ctio_.ioobj )
-        listfld->box()->setCurrentItem( ctio_.ioobj->name() );
+        listfld->setCurrentItem( ctio_.ioobj->name() );
 
     if ( !ctio_.ctxt.forread )
     {
@@ -125,10 +136,10 @@ uiIOObjSelGrp::uiIOObjSelGrp( uiParent* p, const CtxtIOObj& c,
 	if ( nm && *nm )
 	{
 	    nmfld->setText( nm );
-	    if ( listfld->box()->isPresent( nm ) )
-		listfld->box()->setCurrentItem( nm );
+	    if ( listfld->isPresent( nm ) )
+		listfld->setCurrentItem( nm );
 	    else
-		listfld->box()->clear();
+		listfld->clear();
 	}
     }
 
@@ -138,7 +149,7 @@ uiIOObjSelGrp::uiIOObjSelGrp( uiParent* p, const CtxtIOObj& c,
 	manipgrpsubj->manipgrp_ = new uiIOObjManipGroup( *manipgrpsubj );
     }
 
-    listfld->box()->selectionChanged.notify( mCB(this,uiIOObjSelGrp,selChg) );
+    listfld->selectionChanged.notify( mCB(this,uiIOObjSelGrp,selChg) );
     if ( nmfld && !*nmfld->text() )
 	selChg( this );
     setHAlignObj( topgrp );
@@ -157,8 +168,8 @@ uiIOObjSelGrp::~uiIOObjSelGrp()
 int uiIOObjSelGrp::nrSel() const
 {
     int nr = 0;
-    for ( int idx=0; idx<listfld->box()->size(); idx++ )
-	if ( listfld->box()->isSelected(idx) ) nr++;
+    for ( int idx=0; idx<listfld->size(); idx++ )
+	if ( listfld->isSelected(idx) ) nr++;
 
     return nr;
 }
@@ -172,9 +183,9 @@ uiIOObjManipGroup* uiIOObjSelGrp::getManipGroup()
 
 const MultiID& uiIOObjSelGrp::selected( int objnr ) const
 {
-    for ( int idx=0; idx<listfld->box()->size(); idx++ )
+    for ( int idx=0; idx<listfld->size(); idx++ )
     {
-	if ( listfld->box()->isSelected(idx) )
+	if ( listfld->isSelected(idx) )
 	    objnr--;
 	if ( objnr < 0 )
 	    return *ioobjids_[idx];
@@ -231,15 +242,15 @@ void uiIOObjSelGrp::setCur( int curidx )
     else if ( curidx < 0 )
 	curidx = 0;
     if ( ioobjnms_.size() )
-	listfld->box()->setCurrentItem( curidx );
+	listfld->setCurrentItem( curidx );
     selectionChg.trigger();
 }
 
 
 void uiIOObjSelGrp::fillListBox()
 {
-    listfld->box()->empty();
-    listfld->box()->addItems( ioobjnms_ );
+    listfld->empty();
+    listfld->addItems( ioobjnms_ );
 }
 
 
@@ -252,7 +263,7 @@ void uiIOObjSelGrp::toStatusBar( const char* txt )
 
 IOObj* uiIOObjSelGrp::getIOObj( int idx )
 {
-    bool issel = listfld->box()->isSelected( idx );
+    bool issel = listfld->isSelected( idx );
     if ( idx < 0 || !issel ) return 0;
 
     const MultiID& ky = *ioobjids_[idx];
@@ -264,7 +275,7 @@ void uiIOObjSelGrp::selChg( CallBacker* cb )
 {
     if ( ismultisel_ ) return;
 
-    PtrMan<IOObj> ioobj = getIOObj( listfld->box()->currentItem() );
+    PtrMan<IOObj> ioobj = getIOObj( listfld->currentItem() );
     ctio_.setObj( ioobj ? ioobj->clone() : 0 );
     if ( cb && nmfld )
 	nmfld->setText( ioobj ? ioobj->name() : "" );
@@ -290,7 +301,7 @@ void uiIOObjSelGrp::setContext( const IOObjContext& c )
 
 bool uiIOObjSelGrp::processInput()
 {
-    int curitm = listfld->box()->currentItem();
+    int curitm = listfld->currentItem();
     if ( !nmfld )
     {
 	if ( ismultisel_ )
@@ -302,7 +313,7 @@ bool uiIOObjSelGrp::processInput()
 	    return false;
 	}
 
-	PtrMan<IOObj> ioobj = getIOObj( listfld->box()->currentItem() );
+	PtrMan<IOObj> ioobj = getIOObj( listfld->currentItem() );
 	mDynamicCastGet(IOLink*,iol,ioobj.ptr())
 	if ( !ioobj || (iol && ctio_.ctxt.maychdir) )
 	{
@@ -338,7 +349,7 @@ bool uiIOObjSelGrp::createEntry( const char* seltxt )
     ioobjnms_.add( ioobj->name() );
     ioobjids_ += new MultiID( ioobj->key() );
     fillListBox();
-    listfld->box()->setCurrentItem( ioobj->name() );
+    listfld->setCurrentItem( ioobj->name() );
     if ( nmfld && ioobj->name() != seltxt )
 	nmfld->setText( ioobj->name() );
 
@@ -391,7 +402,7 @@ uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const CtxtIOObj& c,
     setTitleText( nm );
     setOkText( "&Ok (Select)" );
     finaliseDone.notify( mCB(this,uiIOObjSelDlg,setInitial) );
-    selgrp->getListField()->box()->doubleClicked.notify(
+    selgrp->getListField()->doubleClicked.notify(
 	    mCB(this,uiDialog,accept) );
 }
 
@@ -402,10 +413,10 @@ void uiIOObjSelDlg::setInitial( CallBacker* )
 			 ? selgrp->getNameField()->text() : "";
     if ( *presetnm )
     {
-	if ( !selgrp->getListField()->box()->isPresent( presetnm ) )
+	if ( !selgrp->getListField()->isPresent( presetnm ) )
 	    return;
 	else
-	    selgrp->getListField()->box()->setCurrentItem( presetnm );
+	    selgrp->getListField()->setCurrentItem( presetnm );
     }
     selgrp->selChg( 0 );
 }
