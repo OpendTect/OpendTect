@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		May 2006
- RCS:		$Id: uiodseis2dtreeitem.cc,v 1.15 2007-02-28 08:05:08 cvsnanne Exp $
+ RCS:		$Id: uiodseis2dtreeitem.cc,v 1.16 2007-03-14 12:26:03 cvshelene Exp $
 ___________________________________________________________________
 
 -*/
@@ -502,7 +502,8 @@ void uiOD2DLineSetSubItem::getNewData( CallBacker* cb )
     cs.zrg.start = s2d->getMaxZRange().atIndex(s2d->getZRange().start);
     cs.zrg.stop = s2d->getMaxZRange().atIndex(s2d->getZRange().stop);
 
-    const Attrib::SelSpec& as = *s2d->getSelSpec( attrib );
+    Attrib::SelSpec as = *s2d->getSelSpec( attrib );
+    as.set2DFlag();
     applMgr()->attrServer()->setTargetSelSpec( as );
 
     LineKey lk( s2d->name() );
@@ -565,8 +566,8 @@ void uiOD2DLineSetAttribItem::createMenuCB( CallBacker* cb )
 
     uiSeisPartServer* seisserv = applMgr()->seisServer();
     uiAttribPartServer* attrserv = applMgr()->attrServer();
-    const Attrib::SelSpec& as = *visserv->getSelSpec( displayID(),
-	    					      attribNr() );
+    Attrib::SelSpec as = *visserv->getSelSpec( displayID(), attribNr() );
+    as.set2DFlag();
     const char* objnm = visserv->getObjectName( displayID() );
 
     BufferStringSet attribnames;
