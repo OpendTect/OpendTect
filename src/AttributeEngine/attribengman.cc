@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H.Payraudeau
  Date:          04/2005
- RCS:           $Id: attribengman.cc,v 1.64 2007-01-04 15:29:26 cvshelene Exp $
+ RCS:           $Id: attribengman.cc,v 1.65 2007-03-14 12:23:48 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -810,7 +810,7 @@ Processor* EngineMan::getProcessor( BufferString& errmsg )
     if ( !attrspecs_[0].isNLA() )
     {
 	procattrset = inpattrset->optimizeClone( outattribs );
-	if ( !procattrset ) return false;
+	if ( !procattrset ) mErrRet("Attribute set not valid");
 
 	if ( outattribs.size() > 1 )
 	{
