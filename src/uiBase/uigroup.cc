@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uigroup.cc,v 1.55 2007-02-28 07:32:12 cvsnanne Exp $
+ RCS:           $Id: uigroup.cc,v 1.56 2007-03-14 15:22:47 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -93,6 +93,9 @@ public:
     virtual int			stretch( bool hor, bool ) const;
 
     uiGroupParentBody*		prntbody_;
+
+    // Hack: Prevents scenewindow movements while trying to rotate
+    virtual void		mouseMoveEvent(QMouseEvent*)	{}
 
 protected:
 
