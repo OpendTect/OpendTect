@@ -1,10 +1,11 @@
+
 /*+
  * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : A.H. Bril
  * DATE     : NOv 2003
 -*/
 
-static const char* rcsID = "$Id: uitutpi.cc,v 1.1 2007-03-08 15:33:09 cvsraman Exp $";
+static const char* rcsID = "$Id: uitutpi.cc,v 1.2 2007-03-14 09:00:47 cvsraman Exp $";
 
 #include "uitutseistools.h"
 #include "uiodmenumgr.h"

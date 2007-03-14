@@ -1,10 +1,11 @@
+
 /*+
  * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : R.K. Singh
  * DATE     : Mar 2007
 -*/
 
-static const char* rcsID = "$Id: uitutseistools.cc,v 1.3 2007-03-14 08:11:26 cvsraman Exp $";
+static const char* rcsID = "$Id: uitutseistools.cc,v 1.4 2007-03-14 09:00:47 cvsraman Exp $";
 
 #include "uitutseistools.h"
 #include "tutseistools.h"
@@ -31,16 +32,16 @@ uiTutSeisTools::uiTutSeisTools( uiParent* p )
 {
     inpfld_ = new uiSeisSel( this, inctio_, SeisSelSetup() );
 
-    strengthfld_ = new uiGenInput( this, "Filter strength",
+    strengthfld_ = new uiGenInput( this, "Scaling Factor",
 			       FloatInpSpec(Tut::SeisTools::defaultstrength_) );
-    incrementfld_ = new uiGenInput( this, "Filter Increment (Optional)",
+    incrementfld_ = new uiGenInput( this, "Shift",
 			       FloatInpSpec(Tut::SeisTools::defaultincrement_) );
     strengthfld_->attach( alignedBelow, inpfld_ );
     incrementfld_->attach( rightTo, strengthfld_ );
 
     outctio_.ctxt.forread = false;
     outfld_ = new uiSeisSel( this, outctio_, SeisSelSetup() );
-    outfld_->attach( leftAlignedBelow, incrementfld_ );
+    outfld_->attach( leftAlignedBelow, strengthfld_ );
 }
 
 

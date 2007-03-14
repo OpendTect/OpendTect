@@ -1,10 +1,11 @@
+
 #ifndef uitutseistools_h
 #define uitutseistools_h
 /*+
  * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : R.K. Singh
  * DATE     : Mar 2007
- * ID       : $Id: uitutseistools.h,v 1.2 2007-03-14 08:11:26 cvsraman Exp $
+ * ID       : $Id: uitutseistools.h,v 1.3 2007-03-14 09:00:47 cvsraman Exp $
 -*/
 
 #include "uidialog.h"
