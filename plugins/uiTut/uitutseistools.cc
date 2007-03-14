@@ -4,7 +4,7 @@
  * DATE     : Mar 2007
 -*/
 
-static const char* rcsID = "$Id: uitutseistools.cc,v 1.2 2007-03-08 15:52:25 cvsraman Exp $";
+static const char* rcsID = "$Id: uitutseistools.cc,v 1.3 2007-03-14 08:11:26 cvsraman Exp $";
 
 #include "uitutseistools.h"
 #include "tutseistools.h"
@@ -20,9 +20,10 @@ static const char* rcsID = "$Id: uitutseistools.cc,v 1.2 2007-03-08 15:52:25 cvs
 
 
 uiTutSeisTools::uiTutSeisTools( uiParent* p )
-	: uiDialog( p, Setup( "Filter seismics Ramna-style",
+	: uiDialog( p, Setup( "Filter seismics Raman-style",
 			      "Specify process parameters",
-			      "0.0.0") )
+			      "0.0.0")
+			      .oktext("Jolly &Good").canceltext("&No way") )
     	, inctio_(*mMkCtxtIOObj(SeisTrc))
     	, outctio_(*mMkCtxtIOObj(SeisTrc))
     	, tst_(*new Tut::SeisTools)
@@ -32,11 +33,14 @@ uiTutSeisTools::uiTutSeisTools( uiParent* p )
 
     strengthfld_ = new uiGenInput( this, "Filter strength",
 			       FloatInpSpec(Tut::SeisTools::defaultstrength_) );
+    incrementfld_ = new uiGenInput( this, "Filter Increment (Optional)",
+			       FloatInpSpec(Tut::SeisTools::defaultincrement_) );
     strengthfld_->attach( alignedBelow, inpfld_ );
+    incrementfld_->attach( rightTo, strengthfld_ );
 
     outctio_.ctxt.forread = false;
     outfld_ = new uiSeisSel( this, outctio_, SeisSelSetup() );
-    outfld_->attach( alignedBelow, strengthfld_ );
+    outfld_->attach( leftAlignedBelow, incrementfld_ );
 }
 
 
@@ -54,15 +58,22 @@ uiTutSeisTools::~uiTutSeisTools()
 bool uiTutSeisTools::acceptOK( CallBacker* )
 {
     if ( !inpfld_->commitInput(false) )
-	mErrRet("Please select the input seismics")
+	mErrRet("Missing Input\nPlease select the input seismics")
     if ( !outfld_->commitInput(true) )
-	mErrRet("Please enter a name for the ouptut seismics")
+	mErrRet("Missing Output\nPlease enter a name for the ouptut seismics")
 
     const float usrstrength = strengthfld_->getfValue();
     if ( !mIsUdf(usrstrength) && usrstrength > 0 )
     {
 	tst_.setStrength( usrstrength );
 	Tut::SeisTools::defaultstrength_ = usrstrength;
+    }
+
+    const float usrincrement = incrementfld_->getfValue();
+    if ( !mIsUdf(usrincrement) )
+    {
+	tst_.setIncrement( usrincrement );
+	Tut::SeisTools::defaultincrement_ = usrincrement;
     }
 
     stp_ = new SeisSingleTraceProc( inctio_.ioobj, outctio_.ioobj );

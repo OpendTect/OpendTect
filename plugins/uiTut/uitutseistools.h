@@ -4,7 +4,7 @@
  * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : R.K. Singh
  * DATE     : Mar 2007
- * ID       : $Id: uitutseistools.h,v 1.1 2007-03-08 15:33:09 cvsraman Exp $
+ * ID       : $Id: uitutseistools.h,v 1.2 2007-03-14 08:11:26 cvsraman Exp $
 -*/
 
 #include "uidialog.h"
@@ -32,6 +32,7 @@ protected:
     uiSeisSel*		inpfld_;
     uiSeisSel*		outfld_;
     uiGenInput*		strengthfld_;
+    uiGenInput*		incrementfld_;
 
     bool		acceptOK(CallBacker*);
     void		doProc(CallBacker*);
