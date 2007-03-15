@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.cc,v 1.78 2007-03-07 14:13:55 cvsbert Exp $
+ RCS:           $Id: uiodmenumgr.cc,v 1.79 2007-03-15 16:21:21 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -372,9 +372,9 @@ void uiODMenuMgr::fillUtilMenu()
     settmnu_ = new uiPopupMenu( &appl_, "&Settings" );
     utilmnu_->insertItem( settmnu_ );
     mInsertItem( settmnu_, "&Fonts ...", mSettFontsMnuItm );
-    mInsertItem( settmnu_, "&Mouse controls ...", mSettMouseMnuItm );
     mInsertItem( settmnu_, "&Look and feel ...", mSettLkNFlMnuItm );
-    mInsertItem( settmnu_, "&Shortcuts ...", mSettShortcutsMnuItm );
+    mInsertItem( settmnu_, "&Mouse controls ...", mSettMouseMnuItm );
+    mInsertItem( settmnu_, "&Keyboard shortcuts ...", mSettShortcutsMnuItm );
     mInsertItem( settmnu_, "&General ...", mSettGeneral );
 
     mInsertItem( utilmnu_, "&Batch programs ...", mBatchProgMnuItm );
