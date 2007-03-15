@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vismultitexture2.cc,v 1.32 2007-03-15 19:42:49 cvskris Exp $";
+static const char* rcsID = "$Id: vismultitexture2.cc,v 1.33 2007-03-15 21:44:32 cvsdgb Exp $";
 
 
 #include "vismultitexture2.h"
@@ -253,6 +253,14 @@ MultiTexture::Operation MultiTexture2::getOperation( int texturenr ) const
 
     return MultiTexture::ADD;
 }
+
+
+void MultiTexture2::setTextureRenderQuality( float quality )
+{}
+
+
+float MultiTexture2::getTextureRenderQuality() const
+{ return 1; }
 
 
 void MultiTexture2::setInterpolation( bool yn )
