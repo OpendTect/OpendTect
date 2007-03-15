@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vismultitexture2.cc,v 1.31 2007-03-12 12:04:04 cvskris Exp $";
+static const char* rcsID = "$Id: vismultitexture2.cc,v 1.32 2007-03-15 19:42:49 cvskris Exp $";
 
 
 #include "vismultitexture2.h"
@@ -81,6 +81,7 @@ MultiTexture2::MultiTexture2()
     , texture_( new SoColTabMultiTexture2 )
     , complexity_( new SoComplexity )
     , nonshadinggroup_( new SoGroup )
+    , shadingcomplexity_( 0 )
     , shadinggroup_( new SoGroup )
     , size_( -1, -1 )
     , useshading_( false )
@@ -108,6 +109,7 @@ MultiTexture2::MultiTexture2()
     nonshadinggroup_->addChild( complexity_ );
     complexity_->type.setIgnored( true );
     complexity_->value.setIgnored( true );
+    complexity_->textureQuality.setValue( 1 );
 
     texture_->setNrThreads( Threads::getNrProcessors() );
     nonshadinggroup_->addChild( texture_ );
@@ -253,23 +255,21 @@ MultiTexture::Operation MultiTexture2::getOperation( int texturenr ) const
 }
 
 
-void MultiTexture2::setTextureRenderQuality( float val )
+void MultiTexture2::setInterpolation( bool yn )
 {
     reviewShading();
+
     if ( useshading_ )
 	return;
 
-    complexity_->textureQuality.setValue( val );
+    complexity_->textureQuality.setValue( yn ? 1 : 0.1 );
+    if ( shadingcomplexity_ )
+	shadingcomplexity_->textureQuality.setValue( yn ? 1 : 0.1 );
 }
 
 
-float MultiTexture2::getTextureRenderQuality() const
-{
-    if ( useshading_ )
-	return 1;
-
-    return complexity_->textureQuality.getValue();
-}
+bool MultiTexture2::getInterpolation() const
+{ return complexity_->textureQuality.getValue() > 0.2; }
 
 
 bool MultiTexture2::setDataOversample( int texture, int version,
@@ -682,9 +682,11 @@ void MultiTexture2::createShadingVars()
 	ctabtexture_ = new SoShaderTexture2;
 	shadinggroup_->addChild( ctabtexture_ );
 
-	complexity = new SoComplexity;
-	complexity->textureQuality.setValue( 0.3 );
-	shadinggroup_->addChild( complexity );
+	if ( !shadingcomplexity_ )
+	    shadingcomplexity_ = new SoComplexity;
+
+	shadingcomplexity_->textureQuality.setValue( 0.3 );
+	shadinggroup_->addChild( shadingcomplexity_ );
 
 	datatexturegrp_ = new SoGroup;
 	shadinggroup_->addChild( datatexturegrp_ );
@@ -763,7 +765,8 @@ void MultiTexture2::reviewShading()
     if ( !dontshadesetting_ && SoOD::supportsFragShading()==1 )
     {
 	const int maxshadingsize = SoShaderTexture2::getMaxSize();
-	if ( size_.row<=maxshadingsize && size_.col<=maxshadingsize )
+	if ( size_.row>0 && size_.col>0 &&
+	     size_.row<=maxshadingsize && size_.col<=maxshadingsize )
 	    res = true;
     }
 
