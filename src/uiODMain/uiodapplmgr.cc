@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.181 2007-03-15 09:06:10 cvsnanne Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.182 2007-03-15 16:25:20 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -324,7 +324,8 @@ void uiODApplMgr::reStartProc()
 { uiRestartBatchDialog dlg( &appl_ ); dlg.go(); }
 void uiODApplMgr::batchProgs() { uiBatchProgLaunch dlg( &appl_ ); dlg.go(); }
 void uiODApplMgr::pluginMan() { uiPluginMan dlg( &appl_ ); dlg.go(); }
-void uiODApplMgr::manageShortcuts() { uiShortcutsDlg dlg( &appl_ ); dlg.go(); }
+void uiODApplMgr::manageShortcuts()
+{ uiShortcutsDlg dlg(&appl_,"ODScene"); dlg.go(); }
 
 
 void uiODApplMgr::setFonts()
