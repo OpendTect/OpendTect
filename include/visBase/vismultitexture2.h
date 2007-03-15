@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		Dec 2005
- RCS:		$Id: vismultitexture2.h,v 1.11 2007-03-15 20:06:38 cvskris Exp $
+ RCS:		$Id: vismultitexture2.h,v 1.12 2007-03-15 21:38:08 cvsdgb Exp $
 ________________________________________________________________________
 
 
@@ -53,6 +53,8 @@ public:
     Operation			getOperation(int texture) const;
     void			setTextureRenderQuality(float);
     float			getTextureRenderQuality() const;
+    void			setInterpolation(bool);
+    bool			getInterpolation() const;
     bool			setData(int texture,int version,
 	    				const Array2D<float>*, bool copy=false);
     				/*!<\param copy Specifies whether the data
