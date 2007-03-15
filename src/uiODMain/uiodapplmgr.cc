@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.180 2007-02-22 12:44:29 cvsjaap Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.181 2007-03-15 09:06:10 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,6 +45,7 @@ ________________________________________________________________________
 #include "ioobj.h"
 #include "linekey.h"
 #include "oddirs.h"
+#include "odsession.h"
 #include "helpview.h"
 #include "filegen.h"
 #include "ptrman.h"
@@ -161,7 +162,11 @@ void uiODApplMgr::surveyToBeChanged( CallBacker* )
 
 void uiODApplMgr::surveyChanged( CallBacker* )
 {
-    sceneMgr().addScene();
+    bool douse = false; MultiID id;
+    ODSession::getStartupData( douse, id );
+    if ( !douse || id == "" )
+	sceneMgr().addScene();
+
     attrserv_ = new uiAttribPartServer( applservice_ );
     mpeserv_ = new uiMPEPartServer( applservice_ );
     MPE::engine().init();
