@@ -4,9 +4,9 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: prestackprocessor.cc,v 1.1 2007-03-15 17:28:52 cvskris Exp $";
+static const char* rcsID = "$Id: prestackprocessor.cc,v 1.2 2007-03-15 20:05:34 cvskris Exp $";
 
-#include "prestackgatherprocessor.h"
+#include "prestackprocessor.h"
 
 #include "prestackgather.h"
 

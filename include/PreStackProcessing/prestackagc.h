@@ -7,14 +7,14 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: prestackagc.h,v 1.1 2007-03-15 17:28:52 cvskris Exp $
+ RCS:		$Id: prestackagc.h,v 1.2 2007-03-15 20:05:34 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
 #include "ranges.h"
-#include "prestackgatherprocessor.h"
+#include "prestackprocessor.h"
 
 namespace PreStack
 {

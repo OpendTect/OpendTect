@@ -7,13 +7,13 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Nov 2006
- RCS:		$Id: prestackmute.h,v 1.1 2007-03-15 17:28:52 cvskris Exp $
+ RCS:		$Id: prestackmute.h,v 1.2 2007-03-15 20:05:34 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "prestackgatherprocessor.h"
+#include "prestackprocessor.h"
 #include "multiid.h"
 
 class Muter;
