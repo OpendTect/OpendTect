@@ -10,6 +10,8 @@ static const char* rcsID = "$Id";
 #include "statrand.h"
 #include "errh.h"
 #include "timefun.h"
+#include "envvars.h"
+#include "settings.h"
 
 DefineNameSpaceEnumNames(Stats,Type,0,"Statistics types")
 { "Average", "Median", "StdDev", "Variance", "Min", "Max", "MostFrequent",
@@ -32,6 +34,25 @@ Stats::RunCalcSetup& Stats::RunCalcSetup::require( Stats::Type t )
 
     needsums_ = true;
     return *this;
+}
+
+
+bool Stats::RunCalcSetup::medianEvenAverage()
+{
+    static int ret = -1;
+
+    if ( ret < 0 )
+    {
+	ret = GetEnvVarYN( "OD_EVEN_MEDIAN_AVERAGE" ) ? 1 : 0;
+	if ( ret == 0 )
+	{
+	    bool yn = false;
+	    Settings::common().getYN( "dTect.Average even median", yn );
+	    ret = yn ? 1 : 0;
+	}
+    }
+
+    return (bool)ret;
 }
 
 

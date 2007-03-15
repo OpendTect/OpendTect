@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl (org) / Bert Bril (rev)
  Date:          10-12-1999 / Sep 2006
- RCS:           $Id: statruncalc.h,v 1.8 2006-12-19 16:58:41 cvsbert Exp $
+ RCS:           $Id: statruncalc.h,v 1.9 2007-03-15 17:53:51 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,6 +37,11 @@ public:
 			    , needmostfreq_(false)	{}
 
     RunCalcSetup&	require(Type);
+
+    static bool		medianEvenAverage(); //!< Tied to OD_EVEN_MEDIAN_AVERAGE
+    			//!< If medianing over an even number of points,
+    			//!< either take the high mid, or avg the two middles
+    			//!< default is false: no averaging
 
 protected:
 
@@ -508,6 +513,10 @@ inline T RunCalc<T>::median( int* idx_of_med ) const
 	*idx_of_med = idxs[ mididx ];
 	delete [] idxs;
     }
+
+    if ( !(sz%2) && setup_.medianEvenAverage() )
+	return (vals_[mididx] + vals_[mididx-1]) / 2;
+
     return vals_[ mididx ];
 }
 
