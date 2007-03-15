@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodplanedatatreeitem.cc,v 1.11 2007-01-25 23:07:39 cvskris Exp $
+ RCS:		$Id: uiodplanedatatreeitem.cc,v 1.12 2007-03-15 16:20:25 cvsbert Exp $
 ___________________________________________________________________
 
 -*/
@@ -21,6 +21,7 @@ ___________________________________________________________________
 #include "uislicesel.h"
 #include "uislicepos.h"
 #include "uivispartserv.h"
+#include "uishortcutsmgr.h"
 #include "visplanedatadisplay.h"
 #include "vissurvscene.h"
 
@@ -64,10 +65,7 @@ uiODPlaneDataTreeItem::~uiODPlaneDataTreeItem()
 	pdd->unRef();
     }
 
-    getItem()->moveForwdReq.remove(
-			mCB(this,uiODPlaneDataTreeItem,moveForwdCB) );
-    getItem()->moveBackwdReq.remove(
-			mCB(this,uiODPlaneDataTreeItem,moveBackwdCB) );
+    getItem()->keyPressed.remove( mCB(this,uiODPlaneDataTreeItem,keyPressCB) );
     visserv->getUiSlicePos()->positionChg.remove(
 	    		mCB(this,uiODPlaneDataTreeItem,posChange) );
 
@@ -103,10 +101,7 @@ bool uiODPlaneDataTreeItem::init()
     pdd->selection()->notify( mCB(this,uiODPlaneDataTreeItem,selChg) );
     pdd->deSelection()->notify( mCB(this,uiODPlaneDataTreeItem,selChg) );
 
-    getItem()->moveForwdReq.notify(
-			mCB(this,uiODPlaneDataTreeItem,moveForwdCB) );
-    getItem()->moveBackwdReq.notify(
-			mCB(this,uiODPlaneDataTreeItem,moveBackwdCB) );
+    getItem()->keyPressed.notify( mCB(this,uiODPlaneDataTreeItem,keyPressCB) );
     visserv->getUiSlicePos()->positionChg.notify(
 	    		mCB(this,uiODPlaneDataTreeItem,posChange) );
 
@@ -294,15 +289,18 @@ void uiODPlaneDataTreeItem::movePlaneAndCalcAttribs( const CubeSampling& cs )
 }
 
 
-void uiODPlaneDataTreeItem::moveForwdCB( CallBacker* cb )
+void uiODPlaneDataTreeItem::keyPressCB( CallBacker* cb )
 {
-    movePlane( true );
-}
+    mCBCapsuleGet(uiKeyDesc,caps,cb)
+    if ( !caps ) return;
+    const uiShortcutsList& scl = SCMgr().getList( "ODScene" );
+    BufferString act( scl.nameOf(caps->data) );
+    const bool fwd = act == "Move slice forward";
+    const bool bwd = fwd ? false : act == "Move slice backward";
+    if ( !fwd && !bwd ) return;
 
-
-void uiODPlaneDataTreeItem::moveBackwdCB( CallBacker* cb )
-{
-    movePlane( false );
+    caps->data.setKey( 0 );
+    movePlane( fwd );
 }
 
 
