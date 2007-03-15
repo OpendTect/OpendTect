@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/01/2002
- RCS:           $Id: uitreeview.cc,v 1.27 2007-03-07 17:53:24 cvsnanne Exp $
+ RCS:           $Id: uitreeview.cc,v 1.28 2007-03-15 16:16:30 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -64,7 +64,6 @@ protected:
 
     void		keyPressEvent(QKeyEvent*);
     bool		moveItem(QKeyEvent*);
-    uiShortcutsList*     scl_;
 
 private:
 
@@ -88,7 +87,6 @@ uiListViewBody::uiListViewBody( uiListView& handle, uiParent* parnt,
     setAcceptDrops( TRUE );
     viewport()->setAcceptDrops( TRUE );
 
-    scl_ = SCMgr().getList( uiShortcutsList::ODSceneStr() );
 }
 
 uiListViewBody::~uiListViewBody()
@@ -96,31 +94,19 @@ uiListViewBody::~uiListViewBody()
     delete &messenger_;
 }
 
-#define mTriggRet \
-{\
-    lvhandle_.unusedKey.trigger();\
-    mQListView::keyPressEvent( event );\
-    return;\
-}
 
 void uiListViewBody::keyPressEvent( QKeyEvent* event )
 {
-    if ( moveItem( event ) ) return;
+    if ( moveItem(event) ) return;
     
-    if ( !scl_ ) mTriggRet
-    
-    const char* act = scl_->getAct( event );
-    if ( !act || !*act ) mTriggRet
-
     uiListViewItem* currentitem = lvhandle_.currentItem();
-    if ( matchStringCI("Move slice f",act) )
-	currentitem->moveForwdReq.trigger(currentitem);
-    else if ( matchStringCI("Move slice b",act) )
-	currentitem->moveBackwdReq.trigger(currentitem);
-    else
+    uiKeyDesc kd( event );
+    CBCapsule<uiKeyDesc> cbc( kd, this );
+    currentitem->keyPressed.trigger( &cbc );
+    if ( cbc.data.key() != 0 )
     {
-	UsrMsg("Specified action not recognised");
-	mTriggRet;
+	lvhandle_.unusedKey.trigger();
+	mQListView::keyPressEvent( event );
     }
 }
 
@@ -651,8 +637,7 @@ mQListViewItem& uiListViewItemBody::mkitem( uiListViewItem& handle,
 uiListViewItem::uiListViewItem( uiListView*  parent, const char* txt )
 : uiHandle<uiListViewItemBody>( txt, &mkbody( parent, 0, Setup(txt) ) )
 , stateChanged( this )
-, moveForwdReq( this )
-, moveBackwdReq( this )
+, keyPressed( this )
 { 
     init(Setup(txt)); 
 }
@@ -661,8 +646,7 @@ uiListViewItem::uiListViewItem( uiListView*  parent, const char* txt )
 uiListViewItem::uiListViewItem( uiListViewItem*  parent, const char* txt )
 : uiHandle<uiListViewItemBody>( txt, &mkbody( 0, parent, Setup(txt) ) )
 , stateChanged( this )
-, moveForwdReq( this )
-, moveBackwdReq( this )
+, keyPressed( this )
 { 
     init(Setup(txt)); 
 }
@@ -671,8 +655,7 @@ uiListViewItem::uiListViewItem( uiListViewItem*  parent, const char* txt )
 uiListViewItem::uiListViewItem( uiListView*  parent, const Setup& setup )
 : uiHandle<uiListViewItemBody>( *setup.labels_[0], &mkbody( parent, 0, setup ) )
 , stateChanged( this )
-, moveForwdReq( this )
-, moveBackwdReq( this )
+, keyPressed( this )
 { 
     init(setup); 
 }
@@ -681,8 +664,7 @@ uiListViewItem::uiListViewItem( uiListView*  parent, const Setup& setup )
 uiListViewItem::uiListViewItem( uiListViewItem*  parent, const Setup& setup )
 : uiHandle<uiListViewItemBody>( *setup.labels_[0], &mkbody( 0, parent, setup ) )
 , stateChanged( this )
-, moveForwdReq( this )
-, moveBackwdReq( this )
+, keyPressed( this )
 { 
     init(setup); 
 }
