@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvey.h,v 1.21 2006-12-06 12:39:26 cvsnanne Exp $
+ RCS:           $Id: uisurvey.h,v 1.22 2007-03-15 16:13:24 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,6 +36,10 @@ public:
     static void		updateViewsGlobal();
     			//!< updates caption on main window
     static void		getSurveyList(BufferStringSet&);
+
+    static bool		survTypeOKForUser(bool is2d);
+    			//!< checks whether given type has support
+    			//!< returns whether user wants to continue
 
 protected:
 

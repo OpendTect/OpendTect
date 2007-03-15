@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvey.cc,v 1.77 2007-03-13 13:05:35 cvsbert Exp $
+ RCS:           $Id: uisurvey.cc,v 1.78 2007-03-15 16:13:14 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -708,4 +708,19 @@ void uiSurvey::getSurveyList( BufferStringSet& list )
     }
 
     list.sort();
+}
+
+
+bool uiSurvey::survTypeOKForUser( bool is2d )
+{
+    const bool dowarn = (is2d && !SI().has2D()) || (!is2d && !SI().has3D());
+    if ( !dowarn ) return true;
+
+    BufferString warnmsg( "Your survey is set up as '" );
+    warnmsg += is2d ? "3-D only'.\nTo be able to actually use 2-D"
+		    : "2-D only'.\nTo be able to actually use 3-D";
+    warnmsg += " data\nyou will have to change the survey setup.";
+    warnmsg += "\n\nDo you wish to continue?";
+
+    return uiMSG().askGoOn( warnmsg );
 }
