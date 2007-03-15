@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.101 2007-03-14 12:08:45 cvsnanne Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.102 2007-03-15 16:16:42 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -904,7 +904,7 @@ void uiODSceneMgr::Viewer2D::setData( DataPack::ID packid, bool wva )
 	Settings::common().getYN( "FlatView.Use Dockwin", wantdock );
 	uiParent* controlparent = 0;
 	if ( !wantdock )
-	    viewwin_ = new uiFlatViewMainWin( &appl_,
+	    viewwin_ = new uiFlatViewMainWin( 0,
 				       uiFlatViewMainWin::Setup(basetxt_) );
 	else
 	{
