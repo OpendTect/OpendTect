@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          January 2003
- RCS:           $Id: visrandomtrackdisplay.cc,v 1.86 2007-03-06 20:31:54 cvskris Exp $
+ RCS:           $Id: visrandomtrackdisplay.cc,v 1.87 2007-03-15 20:09:17 cvskris Exp $
  ________________________________________________________________________
 
 -*/
@@ -85,7 +85,6 @@ RandomTrackDisplay::RandomTrackDisplay()
 
     texture_->ref();
     addChild( texture_->getInventorNode() );
-    texture_->setTextureRenderQuality(1);
 
     triangles_->ref();
     addChild( triangles_->getInventorNode() );
