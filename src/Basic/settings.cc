@@ -5,7 +5,7 @@
  * FUNCTION : Default user settings
 -*/
  
-static const char* rcsID = "$Id: settings.cc,v 1.34 2007-03-01 10:49:47 cvsbert Exp $";
+static const char* rcsID = "$Id: settings.cc,v 1.35 2007-03-15 16:14:28 cvsbert Exp $";
 
 #include "settings.h"
 #include "filegen.h"
@@ -89,6 +89,23 @@ Settings* Settings::doFetch( const char* key, const char* dtectusr,
 }
 
 
+static void handleLegacyPar( Settings& setts, const char* key,
+			     const char* settfnm )
+{
+    IOPar* legacypar = setts.subselect( key );
+    if ( legacypar && legacypar->size() )
+    {
+	Settings& modernsetts( Settings::fetch(settfnm) );
+	modernsetts.merge( *legacypar );
+	modernsetts.write( false );
+	BufferString rmkey( key ); rmkey += ".*";
+	setts.removeWithKey( rmkey );
+	setts.write( false );
+    }
+    delete legacypar;
+}
+
+
 bool Settings::doRead( bool ext )
 {
     const bool empty_initially = File_isEmpty(fname);
@@ -135,19 +152,8 @@ bool Settings::doRead( bool ext )
 	write( false );
     else if ( iscommon && stream.majorVersion() < 3 )
     {
-	IOPar* coltabpar = subselect( "Color table" );
-	bool havewrittencoltabs = false;
-	if ( coltabpar && coltabpar->size() )
-	{
-	    Settings& coltabsetts( fetch("coltabs") );
-	    coltabsetts.merge( *coltabpar );
-	    coltabsetts.write( false );
-	    /* For 3.2 or later:
-	    if ( coltabsetts.write(false) )
-		{ removeWithKey( "Color table.*" ); write( false ); }
-		*/
-	}
-	delete coltabpar;
+	handleLegacyPar( *this, "Color table", "coltabs" );
+	handleLegacyPar( *this, "Shortcuts", "shortcuts" );
     }
     return true;
 }
