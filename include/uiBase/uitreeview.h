@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          29/01/2002
- RCS:           $Id: uitreeview.h,v 1.20 2007-02-14 12:38:00 cvsnanne Exp $
+ RCS:           $Id: uitreeview.h,v 1.21 2007-03-15 16:16:05 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,7 +27,6 @@ ________________________________________________________________________
 
 class uiListViewBody;
 class uiListViewItem;
-class uiShortcutsList;
 class ioPixmap;
 
 class uiListView : public uiObject
@@ -286,8 +285,9 @@ public:
     bool		multiLinesEnabled() const;
 
     Notifier<uiListViewItem> stateChanged; //!< only works for CheckBox type
-    Notifier<uiListViewItem> moveForwdReq; 
-    Notifier<uiListViewItem> moveBackwdReq; 
+    Notifier<uiListViewItem> keyPressed;
+    			//!< passes CBCapsule<const char*>* cb
+    			//!< If you handle it, set cb->data = 0;
 
     static mQListViewItem*	 qitemFor( uiListViewItem* );
     static const mQListViewItem*  qitemFor( const uiListViewItem* );
