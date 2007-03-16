@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: genericnumer.h,v 1.20 2007-01-16 15:41:48 cvshelene Exp $
+ RCS:           $Id: genericnumer.h,v 1.21 2007-03-16 18:20:59 cvshelene Exp $
 ________________________________________________________________________
 
 
@@ -188,17 +188,15 @@ method used:
 */
 
 template <class A, class B, class C>
-inline void genericCrossCorrelation( int lx, int ifx, const A* x, 
-			     	     int ly, int ify, const B* y,
+inline void genericCrossCorrelation( int lx, int ifx, const A& x, 
+			     	     int ly, int ify, const B& y,
 			     	     int lz, int ifz, C& z)
 {
-    A* xreversed = new A [lx];
+    ArrPtrMan<float> xreversed = new float[lx];
 
     for ( int i=0,j=lx-1; i<lx; ++i,--j)
 	xreversed[i] = x[j];
     GenericConvolve( lx, 1-ifx-lx, xreversed, ly, ify, y, lz, ifz, z );
-    
-    delete [] xreversed;
 }
 
 

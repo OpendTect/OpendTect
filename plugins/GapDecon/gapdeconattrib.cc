@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Huck
  Date:          July 2006
- RCS:           $Id: gapdeconattrib.cc,v 1.15 2007-03-08 12:40:08 cvshelene Exp $
+ RCS:           $Id: gapdeconattrib.cc,v 1.16 2007-03-16 18:20:59 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "attribparam.h"
 #include "survinfo.h"
 #include "genericnumer.h"
+#include "convmemvalseries.h"
 
 #define	HALFLENGTH	30
 
@@ -254,15 +255,17 @@ bool GapDecon::computeData( const DataHolder& output, const BinID& relpos,
 					//maxlag_+1 = nlag_ because minlag = 0
 
     int startcorr = mNINT( gate_.start / refstep );
-    float* inputarr = inputdatamixed_ && inputdatamixed_->series(dataidxmixed_)
-       		      ? inputdatamixed_->series(dataidxmixed_)->arr()
-		      : inputdata_->series(dataidx_)->arr();
+    ValueSeries<float>* valseries =
+	inputdatamixed_ && inputdatamixed_->series(dataidxmixed_) ?
+	inputdatamixed_->series(dataidxmixed_) : inputdata_->series(dataidx_);
+
+    if ( !valseries ) return false;
 
     float* autocorrptr = autocorr;
-    genericCrossCorrelation<float,float,float*>( safencorr, startcorr, inputarr,
-			     safencorr, startcorr, inputarr,
-			     safelcorr, 0, autocorrptr );
-
+    genericCrossCorrelation<ValueSeries<float>,ValueSeries<float>,float*>(
+			    safencorr, startcorr, *valseries,
+			    safencorr, startcorr, *valseries,
+			    safelcorr, 0, autocorrptr );
     if ( mIsZero( autocorr[0], 0.001 ) )
 	return false;
 
