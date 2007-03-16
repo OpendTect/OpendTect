@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          November 2002
- RCS:           $Id: visvolorthoslice.h,v 1.2 2007-01-05 17:17:19 cvskris Exp $
+ RCS:           $Id: visvolorthoslice.h,v 1.3 2007-03-16 11:30:51 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -66,6 +66,8 @@ protected:
 
     static const char*		dimstr;
     static const char*		slicestr;
+
+    static visBase::FactoryEntry oldnameentry;
 };
 
 

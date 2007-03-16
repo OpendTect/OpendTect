@@ -4,11 +4,11 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          April 2004
- RCS:           $Id: visvolren.cc,v 1.1 2007-01-03 18:24:26 cvskris Exp $
+ RCS:           $Id: visvolren.cc,v 1.2 2007-03-16 11:30:51 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visvolren.cc,v 1.1 2007-01-03 18:24:26 cvskris Exp $";
+static const char* rcsID = "$Id: visvolren.cc,v 1.2 2007-03-16 11:30:51 cvsnanne Exp $";
 
 #include "visvolren.h"
 
@@ -21,6 +21,10 @@ static const char* rcsID = "$Id: visvolren.cc,v 1.1 2007-01-03 18:24:26 cvskris 
 #endif
 
 #include <VolumeViz/nodes/SoVolumeRender.h>
+
+visBase::FactoryEntry visBase::VolrenDisplay::oldnameentry(
+			(visBase::FactPtr) visBase::VolrenDisplay::create,
+			"VolumeRender::VolrenDisplay");
 
 mCreateFactoryEntry( visBase::VolrenDisplay );
 
