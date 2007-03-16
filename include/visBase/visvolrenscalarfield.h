@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          January 2007
- RCS:           $Id: visvolrenscalarfield.h,v 1.2 2007-01-26 19:33:54 cvskris Exp $
+ RCS:           $Id: visvolrenscalarfield.h,v 1.3 2007-03-16 11:24:01 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -76,6 +76,8 @@ protected:
     bool			ownsdatacache_;
     TypeSet<float>		histogram_;
     Color			blendcolor_;
+
+    static visBase::FactoryEntry oldnameentry;
 };
 
 };
