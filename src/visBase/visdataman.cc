@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: visdataman.cc,v 1.35 2006-12-08 12:36:47 cvsnanne Exp $";
+static const char* rcsID = "$Id: visdataman.cc,v 1.36 2007-03-19 21:59:22 cvskris Exp $";
 
 #include "visdataman.h"
 #include "visdata.h"
@@ -120,17 +120,23 @@ bool DataManager::usePar( const IOPar& par )
 		std::cerr << str << " " << type << '\t' 
 		    	  << "Status: " << res << std::endl;
 	    }
+
 	    if ( res==-1 )
+	    {
+		//Will not retry
+		deepUnRef( createdobj );
 		return false;
-	    if ( res==0 )
-		continue;
+	    }
 
-	    createdobj += obj;
-	    obj->ref();
+	    if ( res==1 )
+	    {
+		createdobj += obj;
+		obj->ref();
 
-	    lefttodo.remove( idx );
-	    idx--;
-	    change = true;
+		lefttodo.remove( idx );
+		idx--;
+		change = true;
+	    }
 	}
     }
 
