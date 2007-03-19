@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          November 2001
- RCS:           $Id: uisettings.cc,v 1.22 2007-02-05 14:32:25 cvsnanne Exp $
+ RCS:           $Id: uisettings.cc,v 1.23 2007-03-19 17:41:50 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -102,6 +102,7 @@ uiLooknFeelSettings::uiLooknFeelSettings( uiParent* p, const char* nm )
 	: uiDialog(p,uiDialog::Setup(nm,"Look and Feel Settings","0.2.3"))
 	, setts(Settings::common())
     	, lfsetts(*new LooknFeelSettings)
+	, oldnoshading(false)
 	, changed(false)
 {
     IOPar* iopar = setts.subselect( mIconsKey );
@@ -123,6 +124,11 @@ uiLooknFeelSettings::uiLooknFeelSettings( uiParent* p, const char* nm )
     colbarontopfld = new uiGenInput( this, "Color bar starts on top",
 			      BoolInpSpec(lfsetts.isontop) );
     colbarontopfld->attach( alignedBelow, colbarhvfld );
+
+    setts.getYN( "dTect.No shading", oldnoshading );
+    useshadingfld = new uiGenInput( this, "Use OpenGL shading when available",
+	    				BoolInpSpec(!oldnoshading) );
+    useshadingfld->attach( alignedBelow, colbarontopfld );
 }
 
 uiLooknFeelSettings::~uiLooknFeelSettings()
@@ -155,7 +161,6 @@ bool uiLooknFeelSettings::acceptOK( CallBacker* )
 	delete iopar;
     }
 
-
     if ( newsetts.isvert != lfsetts.isvert
       || newsetts.isontop != lfsetts.isontop )
     {
@@ -168,6 +173,13 @@ bool uiLooknFeelSettings::acceptOK( CallBacker* )
 	setts.mergeComp( *iopar, mCBarKey );
 	changed = true;
 	delete iopar;
+    }
+
+    bool newnoshading = !useshadingfld->getBoolValue();
+    if ( oldnoshading != newnoshading )
+    {
+	changed = true;
+	setts.setYN( "dTect.No shading", newnoshading );
     }
 
     if ( changed && !setts.write() )
