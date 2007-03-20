@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: emhorizonztransform.cc,v 1.2 2007-01-18 16:52:47 cvskris Exp $
+ RCS:           $Id: emhorizonztransform.cc,v 1.3 2007-03-20 16:00:34 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -126,6 +126,14 @@ Interval<float> HorizonZTransform::getZInterval( bool from ) const
 	    		    SI().zRange(true).stop-depthrange_.start );
 }
 
+
+float HorizonZTransform::getZIntervalCenter( bool from ) const
+{
+    if ( from )
+	return ZAxisTransform::getZIntervalCenter( from );
+
+    return 0;
+}
 
 
 void HorizonZTransform::horChangeCB(CallBacker*)

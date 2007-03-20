@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		April 2006
- RCS:		$Id: emhorizonztransform.h,v 1.2 2007-01-18 16:52:47 cvskris Exp $
+ RCS:		$Id: emhorizonztransform.h,v 1.3 2007-03-20 16:00:34 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -37,6 +37,7 @@ public:
 				  int sz,float* res) const;
 
     Interval<float>	getZInterval(bool from) const;
+    float		getZIntervalCenter(bool from) const;
 
 protected:
     			~HorizonZTransform();
