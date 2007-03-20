@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vismultitexture2.cc,v 1.33 2007-03-15 21:44:32 cvsdgb Exp $";
+static const char* rcsID = "$Id: vismultitexture2.cc,v 1.34 2007-03-20 19:34:56 cvskris Exp $";
 
 
 #include "vismultitexture2.h"
@@ -124,7 +124,7 @@ MultiTexture2::~MultiTexture2()
 
 int MultiTexture2::maxNrTextures() const
 {
-    const int nrunits = mMIN(SoTextureUnit::getMaxTextureUnit(),mMaxNrUnits);
+    static const int nrunits = mMIN(SoTextureUnit::getMaxTextureUnit(),mMaxNrUnits);
     return (nrunits-1) * mLayersPerUnit;
 }
 
