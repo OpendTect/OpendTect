@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.172 2007-03-06 20:31:54 cvskris Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.173 2007-03-20 19:31:31 cvskris Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -192,8 +192,18 @@ void PlaneDataDisplay::updateRanges( bool resetic, bool resetz )
     if ( !newpos.hrg.isEmpty() && !resetic && resetz )
 	survey.hrg = newpos.hrg;
 
-    newpos = snapPosition( resetic || resetz || newpos.isEmpty() 
-	    						? survey : newpos );
+    if ( resetic || resetz || newpos.isEmpty() )
+    {
+	newpos = survey;
+	if ( orientation_==Timeslice && datatransform_ && resetz )
+	{
+	    const float center = datatransform_->getZIntervalCenter(false);
+	    if ( !mIsUdf(center) )
+		newpos.zrg.start = newpos.zrg.stop = center;
+	}
+    }
+
+    newpos = snapPosition( newpos );
 
     if ( newpos!=getCubeSampling(false,true) )
 	setCubeSampling( newpos );
