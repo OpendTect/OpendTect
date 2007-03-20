@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visdata.h,v 1.43 2007-02-09 20:19:47 cvskris Exp $
+ RCS:		$Id: visdata.h,v 1.44 2007-03-20 20:22:14 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -96,6 +96,13 @@ public:
 				     If it returns 0 it is missing something.
 				     Parse everything else and retry later.
 				*/
+
+    virtual bool		acceptsIncompletePar() const    {return false;}
+				/*!<Returns true if it can cope with non-
+				    complete session-restores. If it returns
+				    false, DataManager::usePar() will
+				    fail if usePar of this function returns
+				    0, and it doesn't help to retry.  */
 
     virtual void		fillPar(IOPar&, TypeSet<int>&) const;
 			
