@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvscene.h,v 1.42 2006-06-22 09:54:37 cvsnanne Exp $
+ RCS:		$Id: vissurvscene.h,v 1.43 2007-03-20 20:53:52 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -121,6 +121,7 @@ public:
 
     virtual void		fillPar(IOPar&,TypeSet<int>&) const;
     virtual int			usePar(const IOPar&);
+    bool			acceptsIncompletePar() const { return true; }
 
 protected:
     				~Scene();
