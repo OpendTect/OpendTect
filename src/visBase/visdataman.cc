@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: visdataman.cc,v 1.36 2007-03-19 21:59:22 cvskris Exp $";
+static const char* rcsID = "$Id: visdataman.cc,v 1.37 2007-03-20 20:55:52 cvskris Exp $";
 
 #include "visdataman.h"
 #include "visdata.h"
@@ -94,50 +94,64 @@ bool DataManager::usePar( const IOPar& par )
     ObjectSet<DataObject> createdobj;
 
     bool change = true;
-    while ( lefttodo.size() && change )
+    bool acceptsincomplete = false;
+    while ( true )
     {
-	change = false;
-	for ( int idx=0; idx<lefttodo.size(); idx++ )
+	while ( lefttodo.size() && change )
 	{
-	    PtrMan<IOPar> iopar = par.subselect( lefttodo[idx] );
-	    if ( !iopar )
+	    change = false;
+	    for ( int idx=0; idx<lefttodo.size(); idx++ )
 	    {
-		lefttodo.remove( idx );
-		idx--;
-		change = true;
-		continue;
-	    }
+		PtrMan<IOPar> iopar = par.subselect( lefttodo[idx] );
+		if ( !iopar )
+		{
+		    lefttodo.remove( idx );
+		    idx--;
+		    change = true;
+		    continue;
+		}
 
-	    const char* type = iopar->find( DataObject::sKeyType() );
-	    RefMan<DataObject> obj = factory().create( type );
-	    if ( !obj ) { lefttodo.remove(idx); idx--; continue; }
+		const char* type = iopar->find( DataObject::sKeyType() );
+		RefMan<DataObject> obj = factory().create( type );
+		if ( !obj ) { lefttodo.remove(idx); idx--; continue; }
 
-	    obj->setID( lefttodo[idx] );
-	    const int res = obj->usePar( *iopar );
-	    if ( GetEnvVarYN("OD_DEBUG_RESTORE_SESSION") )
-	    {
-		BufferString str( "[" ); str += lefttodo[idx]; str += "]";
-		std::cerr << str << " " << type << '\t' 
-		    	  << "Status: " << res << std::endl;
-	    }
+		obj->setID( lefttodo[idx] );
+		const int res = obj->usePar( *iopar );
+		if ( GetEnvVarYN("OD_DEBUG_RESTORE_SESSION") )
+		{
+		    BufferString str( "[" ); str += lefttodo[idx]; str += "]";
+		    std::cerr << str << " " << type << '\t' 
+			      << "Status: " << res << std::endl;
+		}
 
-	    if ( res==-1 )
-	    {
-		//Will not retry
-		deepUnRef( createdobj );
-		return false;
-	    }
+		if ( res==-1 )
+		{
+		    //Will not retry
+		    deepUnRef( createdobj );
+		    return false;
+		}
 
-	    if ( res==1 )
-	    {
-		createdobj += obj;
-		obj->ref();
+		if ( res==1 || (acceptsincomplete && obj->acceptsIncompletePar() ) )
+		{
+		    createdobj += obj;
+		    obj->ref();
 
-		lefttodo.remove( idx );
-		idx--;
-		change = true;
+		    lefttodo.remove( idx );
+		    idx--;
+		    change = true;
+		}
+
 	    }
 	}
+
+	if ( !change && !acceptsincomplete )
+	{
+	    change = true;
+	    acceptsincomplete = true; 
+	    continue;
+	}
+
+	break;
     }
 
     int maxid = -1;
