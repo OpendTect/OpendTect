@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Feb 2002
- RCS:           $Id: cubesampling.h,v 1.29 2007-03-13 15:23:57 cvshelene Exp $
+ RCS:           $Id: cubesampling.h,v 1.30 2007-03-20 14:57:48 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,6 +45,7 @@ struct HorSampling
 			{ includeInl(bid.inl); includeCrl(bid.crl); }
     void		includeInl( int inl );
     void		includeCrl( int crl );
+    bool		isDefined() const;
     void		limitTo(const HorSampling&);
 
     inline int		inlIdx( int inl ) const
@@ -155,6 +156,7 @@ public:
     inline float	zAtIndex( int idx ) const
 						{ return zrg.atIndex(idx); }
     inline bool		isEmpty() const		{ return hrg.isEmpty(); }
+    bool		isDefined() const;
     bool		includes( const CubeSampling& ) const;
     bool		getIntersection(const CubeSampling&,
 	    				CubeSampling&) const;

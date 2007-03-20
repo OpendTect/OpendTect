@@ -4,7 +4,7 @@
  * DATE     : somewhere around 1999
 -*/
  
-static const char* rcsID = "$Id: cubesampling.cc,v 1.27 2007-02-19 19:47:09 cvskris Exp $";
+static const char* rcsID = "$Id: cubesampling.cc,v 1.28 2007-03-20 14:57:48 cvskris Exp $";
 
 #include "cubesampling.h"
 #include "survinfo.h"
@@ -112,6 +112,14 @@ void HorSampling::get( Interval<int>& inlrg, Interval<int>& crlrg ) const
     mDynamicCastGet(StepInterval<int>*,crlsrg,&crlrg)
     if ( crlsrg )
 	crlsrg->step = step.crl;
+}
+
+
+bool HorSampling::isDefined() const
+{
+    return !mIsUdf(start.inl) && !mIsUdf(start.crl) &&
+	   !mIsUdf(stop.inl) && !mIsUdf(stop.crl) &&
+	   !mIsUdf(step.inl) && !mIsUdf(step.crl);
 }
 
 
@@ -358,6 +366,14 @@ void CubeSampling::include( const CubeSampling& c )
     if ( cs.zrg.stop > zrg.stop ) zrg.stop = cs.zrg.stop;
     if ( cs.zrg.step < zrg.step ) zrg.step = cs.zrg.step;
 }
+
+
+bool CubeSampling::isDefined() const
+{
+    return hrg.isDefined() &&
+	!mIsUdf(zrg.start) && !mIsUdf(zrg.stop) && !mIsUdf(zrg.step);
+}
+
 
 
 void CubeSampling::limitTo( const CubeSampling& c )
