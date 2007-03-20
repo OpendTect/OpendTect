@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Jan 2002
- RCS:           $Id: visdatagroup.cc,v 1.6 2007-02-15 23:38:28 cvskris Exp $
+ RCS:           $Id: visdatagroup.cc,v 1.7 2007-03-20 20:52:52 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -190,15 +190,18 @@ int DataObjectGroup::usePar( const IOPar& par )
 	    return -1;
 
 	if ( !DM().getObject( newid ) )
-	    return 0;
+	{
+	    res = 0;
+	    continue;
+	}
 
 	ids += newid;
     }
 
-    for ( int idx=0; idx<nrkids; idx++ )
+    for ( int idx=0; idx<ids.size(); idx++ )
 	addObject( ids[idx] );
 
-    return 1;
+    return res;
 }
 
 }; // namespace visBase
