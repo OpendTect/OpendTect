@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		January 2007
- RCS:		$Id: attribdataholderarray.cc,v 1.3 2007-02-27 15:32:16 cvsnanne Exp $
+ RCS:		$Id: attribdataholderarray.cc,v 1.4 2007-03-20 14:27:55 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,6 +45,8 @@ void DataHolderArray::set( int i0, int i1, int i2, float val )
 
 float DataHolderArray::get( int i0, int i1, int i2 ) const
 {
+    if ( i0<0 || i1<0 || i2<0 ) return mUdf(float);
+    
     const ValueSeries<float>* valseries = dh_[i1]->series( i0 );
     return valseries ? valseries->value( i2 ) : mUdf(float);
 }
