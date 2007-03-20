@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: pickset.cc,v 1.41 2007-02-15 22:27:28 cvskris Exp $";
+static const char* rcsID = "$Id: pickset.cc,v 1.42 2007-03-20 20:19:35 cvskris Exp $";
 
 #include "pickset.h"
 #include "survinfo.h"
@@ -251,8 +251,11 @@ void Pick::SetMgr::set( const MultiID& ky, Set* newset )
     else if ( newset != oldset )
     {
 	const int idx = pss_.indexOf( oldset );
+	//Must be removed from list before trigger, otherwise
+	//other users may remove it in calls invoded by the cb.
+	pss_.remove( idx ); 
 	setToBeRemoved.trigger( oldset );
-	delete oldset; pss_.remove( idx );
+	delete oldset; 
 	ids_.remove( idx );
 	changed_.remove( idx );
 	if ( newset )
