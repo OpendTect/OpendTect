@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		May 2006
- RCS:		$Id: uiodseis2dtreeitem.cc,v 1.16 2007-03-14 12:26:03 cvshelene Exp $
+ RCS:		$Id: uiodseis2dtreeitem.cc,v 1.17 2007-03-20 14:28:41 cvshelene Exp $
 ___________________________________________________________________
 
 -*/
@@ -507,6 +507,9 @@ void uiOD2DLineSetSubItem::getNewData( CallBacker* cb )
     applMgr()->attrServer()->setTargetSelSpec( as );
 
     LineKey lk( s2d->name() );
+    if ( !strcmp( lk.attrName(), "Seis" ) && strcmp( as.userRef(), "" ) )
+	lk.setAttrName( as.userRef() );
+
     const DataPack::ID dpid =
 	applMgr()->attrServer()->create2DOutput( cs, lk );
     if ( dpid < 0 )
