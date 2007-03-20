@@ -45,6 +45,8 @@ set hostnm=`hostname`
 if ( $hostnm == dgb3 ) then
     cdw
     cd ..
+    set oddir=$WORK:t
+    set dgbdir=`echo $oddir | sed 's/od/dgb/'`
     echo "dvs update $oddir $dgbdir"
     dvs update $oddir $dgbdir
     cdw
