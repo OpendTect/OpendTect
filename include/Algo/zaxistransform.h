@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          October 2006
- RCS:           $Id: zaxistransform.h,v 1.11 2006-05-08 20:41:49 cvskris Exp $
+ RCS:           $Id: zaxistransform.h,v 1.12 2007-03-20 15:17:04 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -57,6 +57,9 @@ public:
     virtual Interval<float>	getZInterval(bool from) const		= 0;
     				/*!<\returns the z interval in either to
 				     or from domain. */
+    virtual float		getZIntervalCenter(bool from) const;
+    				/*!\returns a position within the
+				    z-range that is a logical 'center' */
 
     virtual NotifierAccess*	changeNotifier() { return 0; }
 };

@@ -4,7 +4,7 @@
  * DATE     : Oct 2005
 -*/
 
-static const char* rcsID = "$Id: zaxistransform.cc,v 1.9 2007-01-17 16:51:51 cvskris Exp $";
+static const char* rcsID = "$Id: zaxistransform.cc,v 1.10 2007-03-20 15:17:04 cvskris Exp $";
 
 #include "zaxistransform.h"
 
@@ -54,6 +54,16 @@ float ZAxisTransform::transformBack( const BinIDValue& pos ) const
     float res = mUdf(float);
     transformBack( pos.binid, SamplingData<float>(pos.value,1), 1, &res );
     return res;
+}
+
+
+float ZAxisTransform::getZIntervalCenter( bool from ) const
+{
+    const Interval<float> rg = getZInterval( from );
+    if ( mIsUdf(rg.start) || mIsUdf(rg.stop) )
+	return mUdf(float);
+
+    return rg.center();
 }
 
 
