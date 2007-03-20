@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          July  2006
- RCS:           $Id: uigapdeconattrib.cc,v 1.25 2007-03-12 10:18:41 cvshelene Exp $
+ RCS:           $Id: uigapdeconattrib.cc,v 1.26 2007-03-20 15:57:21 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -589,39 +589,14 @@ void uiGDPositionDlg::popUpPosDlg()
     {
 	SeisTrcTranslator::getRanges( mid_, inputcs, getLineKey() );
 	cs_.hrg.set ( inputcs.hrg.inlRange(), inputcs.hrg.crlRange() );
-	float crlwidth = inputcs.hrg.crlRange().width();
-	inputcs.hrg.stop.crl =
-		mMIN( mNINT(inputcs.hrg.start.crl + crlwidth/2 + 100),
-			    inputcs.hrg.stop.crl );
-	inputcs.hrg.start.crl =
-		mMAX( mNINT(inputcs.hrg.start.crl + crlwidth/2 - 100),
-			    inputcs.hrg.start.crl );
     }
     else
     {
 	isinl = inlcrlfld_->getBoolValue();
 	if ( isinl )
-	{
-	    float crlwidth = inputcs.hrg.crlRange().width();
 	    inputcs.hrg.stop.inl = inputcs.hrg.start.inl;
-	    inputcs.hrg.stop.crl = 
-		mMIN( mNINT(inputcs.hrg.start.crl + crlwidth/2 + 100),
-		      inputcs.hrg.stop.crl );
-	    inputcs.hrg.start.crl = 
-		mMAX( mNINT(inputcs.hrg.start.crl + crlwidth/2 - 100),
-		      inputcs.hrg.start.crl );
-	}
 	else
-	{
-	    float inlwidth = inputcs.hrg.inlRange().width();
 	    inputcs.hrg.stop.crl = inputcs.hrg.start.crl;
-	    inputcs.hrg.stop.inl = 
-		mMIN( mNINT(inputcs.hrg.start.inl + inlwidth/2 + 100),
-		      inputcs.hrg.stop.inl );
-	    inputcs.hrg.start.inl = 
-		mMAX( mNINT(inputcs.hrg.start.inl + inlwidth/2 - 100),
-		      inputcs.hrg.start.inl );
-	}
     }
 
     if ( inputcs.zrg.nrSteps() > 200 )
