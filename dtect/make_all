@@ -4,8 +4,8 @@ set mods=.mods
 set shallow=no
 set dodeps=yes
 set docpdeps=yes
-set dodoc=no
 set doupd=yes
+set dodoc=no
 
 source $WORK/Pmake/base/PMinit.csh
 
@@ -40,6 +40,17 @@ shift
 goto parse_args
 
 do_it:
+
+set hostnm=`hostname`
+if ( $hostnm == dgb3 ) then
+    cdw
+    cd ..
+    echo "dvs update $oddir $dgbdir"
+    dvs update $oddir $dgbdir
+    cdw
+    /users/dgb/bin/publish_all
+    goto programmer_doc
+endif
 
 if ( ! -d $WORK/dtect/build ) then
     mkdir $WORK/dtect/build
@@ -102,6 +113,8 @@ make
 cd ../spec
 make
 
+programmer_doc:
+
 if ( $dodoc == yes ) then
     cdw
     make doc MODS=.mods.od
@@ -110,4 +123,5 @@ if ( $dodoc == yes ) then
     GenModDeps --html $WORK/Pmake/ModDeps.od index.html
 endif
 
+if ( $hostnm == dgb3 ) exit 0
 touch $makedonefile
