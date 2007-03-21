@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          Sep 2006
- RCS:           $Id: uigdexamacorr.cc,v 1.18 2007-03-12 10:18:41 cvshelene Exp $
+ RCS:           $Id: uigdexamacorr.cc,v 1.19 2007-03-21 08:56:03 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -111,6 +111,7 @@ EngineMan* GapDeconACorrView::createEngineMan()
 #define mCreateFD2DDataPack(fddatapack) \
 { \
     fddatapack = new Attrib::Flat2DDataPack( attribid_, d2dh ); \
+    fddatapack->setName( "autocorrelation" ); \
 }
 
 
@@ -126,6 +127,7 @@ void GapDeconACorrView::createFD2DDataPack( bool isqc, const Data2DHolder& d2dh)
 #define mCreateFD3DDataPack(fddatapack) \
 { \
     fddatapack = new Attrib::Flat3DDataPack( attribid_, *output, 0 ); \
+    fddatapack->setName( "autocorrelation" ); \
 }
 
 void GapDeconACorrView::createFD3DDataPack( bool isqc, EngineMan* aem,
@@ -154,6 +156,7 @@ void GapDeconACorrView::createAndDisplay2DViewer( bool isqc )
 	examwin_->close();
 
     uiFlatViewer& vwr = isqc ? qcwin_->viewer() : examwin_->viewer();
+    vwr.setDarkBG( false );
     vwr.setPack( false, isqc ? fddatapackqc_ : fddatapackexam_ );
     FlatView::Appearance& app = vwr.appearance();
     app.ddpars_.vd_.rg_ = Interval<float>( -0.2, 0.2 );
