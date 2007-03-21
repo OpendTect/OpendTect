@@ -4,7 +4,7 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vislocationdisplay.cc,v 1.21 2007-02-13 20:10:45 cvskris Exp $";
+static const char* rcsID = "$Id: vislocationdisplay.cc,v 1.22 2007-03-21 13:59:08 cvskris Exp $";
 
 #include "vislocationdisplay.h"
 
@@ -84,6 +84,9 @@ void LocationDisplay::setSet( Pick::Set* s )
     set_ = s;
     setName( set_->name() );
     fullRedraw();
+
+    if ( !showall_ && scene_ )
+	scene_->objectMoved( 0 );
 }
 
 
@@ -146,7 +149,11 @@ void LocationDisplay::fullRedraw( CallBacker* )
 void LocationDisplay::showAll( bool yn )
 {
     showall_ = yn;
-    if ( !showall_ ) return;
+    if ( !showall_ && scene_ )
+    {
+	scene_->objectMoved(0);
+	return;
+    }
 
     for ( int idx=0; idx<group_->size(); idx++ )
     {
@@ -664,23 +671,20 @@ int LocationDisplay::usePar( const IOPar& par )
     const int setidx = picksetmgr_ ? picksetmgr_->indexOf( storedmid_ ) : -1;
     if ( setidx==-1 )
     {
-	PtrMan<IOObj> ioobj = IOM().get( storedmid_ );
-	if ( !ioobj ) return 1;
-
 	Pick::Set* newps = new Pick::Set;
+
 	BufferString bs;
-	if ( PickSetTranslator::retrieve(*newps,ioobj,bs) )
-	{
-	    newps->disp_.markertype_ = markertype;
-	    newps->disp_.pixsize_ = pixsize;
-	    if ( picksetmgr_ ) picksetmgr_->set( storedmid_, newps );
-	    setSet( newps );
-	}
-	else
+	PtrMan<IOObj> ioobj = IOM().get( storedmid_ );
+	if ( !ioobj || !PickSetTranslator::retrieve(*newps,ioobj,bs) )
 	{
 	    delete newps;
 	    return -1;
 	}
+	newps->disp_.markertype_ = markertype;
+	newps->disp_.pixsize_ = pixsize;
+
+	if ( picksetmgr_ ) picksetmgr_->set( storedmid_, newps );
+	setSet( newps );
     }
     else
 	setSet( &picksetmgr_->get( storedmid_ ) );
@@ -719,9 +723,8 @@ bool LocationDisplay::setDataTransform( ZAxisTransform* zat )
 	datatransform_->ref();
     }
 
-
     fullRedraw();
-    showAll( !datatransform_ ); 
+    showAll( !datatransform_ || !datatransform_->needsVolumeOfInterest() ); 
     return true;
 }
 
