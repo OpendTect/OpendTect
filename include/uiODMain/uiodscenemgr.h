@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.h,v 1.44 2007-02-23 14:26:14 cvsbert Exp $
+ RCS:           $Id: uiodscenemgr.h,v 1.45 2007-03-21 15:44:23 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,7 +42,7 @@ class uiODSceneMgr : public CallBacker
 {
 public:
     void			cleanUp(bool startnew=true);
-    int				addScene();
+    int				addScene(bool maximized);
     void			removeScene(CallBacker*);
     void			setSceneName(int sceneid,const char*);
     CNotifier<uiODSceneMgr,int>	sceneClosed;

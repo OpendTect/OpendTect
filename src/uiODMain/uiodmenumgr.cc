@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.cc,v 1.79 2007-03-15 16:21:21 cvsbert Exp $
+ RCS:           $Id: uiodmenumgr.cc,v 1.80 2007-03-21 15:44:23 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -538,7 +538,7 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mCompBetweenHor3DMnuItm: applMgr().createHorOutput(2,false); break;
     case mReStartMnuItm: 	applMgr().reStartProc(); break;
     case mAddSceneMnuItm:	sceneMgr().tile(); // leave this, or --> crash!
-				sceneMgr().addScene(); break;
+				sceneMgr().addScene(true); break;
     case mCascadeMnuItm: 	sceneMgr().cascade(); break;
     case mTileAutoMnuItm: 	sceneMgr().tile(); break;
     case mTileHorMnuItm: 	sceneMgr().tileHorizontal(); break;

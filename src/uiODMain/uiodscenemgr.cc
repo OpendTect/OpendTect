@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.102 2007-03-15 16:16:42 cvsnanne Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.103 2007-03-21 15:44:23 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -153,7 +153,7 @@ uiODSceneMgr::~uiODSceneMgr()
 void uiODSceneMgr::initMenuMgrDepObjs()
 {
     if ( scenes_.isEmpty() )
-	addScene();
+	addScene(true);
 }
 
 
@@ -164,7 +164,7 @@ void uiODSceneMgr::cleanUp( bool startnew )
 
     visServ().deleteAllObjects();
     vwridx_ = 0;
-    if ( startnew ) addScene();
+    if ( startnew ) addScene(true);
 }
 
 
@@ -178,7 +178,7 @@ uiODSceneMgr::Scene& uiODSceneMgr::mkNewScene()
 }
 
 
-int uiODSceneMgr::addScene()
+int uiODSceneMgr::addScene( bool maximized )
 {
     Scene& scn = mkNewScene();
     const int sceneid = visServ().addScene();
@@ -192,7 +192,7 @@ int uiODSceneMgr::addScene()
     scn.sovwr_->setHomePos();
     scn.sovwr_->viewmodechanged.notify( mWSMCB(viewModeChg) );
     scn.sovwr_->pageupdown.notify( mCB(this,uiODSceneMgr,pageUpDownPressed) );
-    scn.vwrGroup()->display( true, false, true );
+    scn.vwrGroup()->display( true, false, maximized );
     actMode(0);
     setZoomValue( scn.sovwr_->getCameraZoom() );
     treeToBeAdded.trigger( sceneid );

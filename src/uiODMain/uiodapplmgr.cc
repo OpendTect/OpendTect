@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.184 2007-03-20 20:54:52 cvskris Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.185 2007-03-21 15:44:23 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -165,7 +165,7 @@ void uiODApplMgr::surveyChanged( CallBacker* )
     bool douse = false; MultiID id;
     ODSession::getStartupData( douse, id );
     if ( !douse || id == "" )
-	sceneMgr().addScene();
+	sceneMgr().addScene( true );
 
     attrserv_ = new uiAttribPartServer( applservice_ );
     mpeserv_ = new uiMPEPartServer( applservice_ );
