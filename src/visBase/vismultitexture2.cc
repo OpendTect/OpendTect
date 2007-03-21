@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vismultitexture2.cc,v 1.34 2007-03-20 19:34:56 cvskris Exp $";
+static const char* rcsID = "$Id: vismultitexture2.cc,v 1.35 2007-03-21 16:43:48 cvskris Exp $";
 
 
 #include "vismultitexture2.h"
@@ -165,6 +165,12 @@ void MultiTexture2::clearAll()
 	    setData( idx, idy, 0 );
 	}
     }
+}
+
+
+bool MultiTexture2::canUseShading() const
+{
+    return !dontshadesetting_ && SoOD::supportsFragShading()==1;
 }
 
 
@@ -770,7 +776,7 @@ void MultiTexture2::createShadingVars()
 void MultiTexture2::reviewShading()
 {
     bool res = false;
-    if ( !dontshadesetting_ && SoOD::supportsFragShading()==1 )
+    if ( canUseShading() )
     {
 	const int maxshadingsize = SoShaderTexture2::getMaxSize();
 	if ( size_.row>0 && size_.col>0 &&

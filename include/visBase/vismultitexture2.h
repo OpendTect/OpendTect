@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		Dec 2005
- RCS:		$Id: vismultitexture2.h,v 1.12 2007-03-15 21:38:08 cvsdgb Exp $
+ RCS:		$Id: vismultitexture2.h,v 1.13 2007-03-21 16:43:48 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -45,6 +45,7 @@ public:
 				    is called, data of any size will be
 				    accepted.*/
 
+    bool			canUseShading() const;
     bool			usesShading() const { return useshading_; }
 
     void			setTextureTransparency(int, unsigned char);
