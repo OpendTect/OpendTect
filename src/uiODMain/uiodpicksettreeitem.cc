@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodpicksettreeitem.cc,v 1.22 2007-02-28 07:34:36 cvsnanne Exp $
+ RCS:		$Id: uiodpicksettreeitem.cc,v 1.23 2007-03-21 14:02:05 cvskris Exp $
 ___________________________________________________________________
 
 -*/
@@ -43,6 +43,7 @@ uiODPickSetParentTreeItem::~uiODPickSetParentTreeItem()
 
 bool uiODPickSetParentTreeItem::init()
 {
+    /*
     for ( int idx=0; idx<Pick::Mgr().size(); idx++ )
     {
 	uiODDisplayTreeItem* item =
@@ -50,6 +51,7 @@ bool uiODPickSetParentTreeItem::init()
 	addChild( item, true );
 	item->setChecked( false );
     }
+    */
     return true;
 }
 
@@ -297,8 +299,6 @@ void uiODPickSetTreeItem::showAllPicks( bool yn )
     mDynamicCastGet(visSurvey::PickSetDisplay*,psd,
 		    visserv->getObject(displayid_));
     psd->showAll( yn );
-    mDynamicCastGet(visSurvey::Scene*,scene,visserv->getObject(sceneID()));
-    scene->objectMoved(0);
 }
 
 
