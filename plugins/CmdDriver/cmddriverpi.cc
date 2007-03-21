@@ -27,8 +27,8 @@ extern "C" int GetCmdDriverPluginType()
 extern "C" PluginInfo* GetCmdDriverPluginInfo()
 {
     static PluginInfo retpii = {
-	"OpendTect command driver",
-	"dGB (Bert)"
+	"Command driver",
+	"dGB (Bert/Jaap)",
 	"=od",
 	"Used for testing and general 'scripting'." };
     return &retpii;
@@ -63,7 +63,7 @@ public:
 
 uiCmdDriverInps( uiParent* p, CmdDriver& d )
         : uiDialog(p,Setup("Command execution","Specify the file with commands"
-			    " to execute"))
+			    " to execute","0.0.0"))
 	, drv_(d)
 {
     fnmfld = new uiFileInput( this, "Command file", uiFileInput::Setup()
