@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vismultitexture2.cc,v 1.35 2007-03-21 16:43:48 cvskris Exp $";
+static const char* rcsID = "$Id: vismultitexture2.cc,v 1.36 2007-03-21 17:24:21 cvskris Exp $";
 
 
 #include "vismultitexture2.h"
@@ -298,7 +298,7 @@ bool MultiTexture2::setDataOversample( int texture, int version,
 	return setData( texture, version, data, copy );
 
     const static int minpix2d = 128;
-    const static int maxpix2d = 1024;
+    const int maxpix2d = SoShaderTexture2::getMaxSize();
 
     int newx0 = getPow2Sz( datax0size, true, minpix2d, maxpix2d );
     int newx1 = getPow2Sz( datax1size, true, minpix2d, maxpix2d );
