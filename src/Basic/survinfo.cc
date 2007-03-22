@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          18-4-1996
- RCS:           $Id: survinfo.cc,v 1.86 2007-01-29 19:36:30 cvskris Exp $
+ RCS:           $Id: survinfo.cc,v 1.87 2007-03-22 16:14:15 cvsdgb Exp $
 ________________________________________________________________________
 
 -*/
@@ -131,7 +131,12 @@ SurveyInfo* SurveyInfo::read( const char* survdir )
     static bool errmsgdone = false;
     if ( !astream.isOfFileType(sKeySI) )
     {
-	ErrMsg( "Survey definition file is corrupt!" );
+	BufferString errmsg( "Survey definition file cannot be read.\n"
+			     "Survey file '" );
+	errmsg += fp.fullPath(); errmsg += "' has file type '";
+	errmsg += astream.fileType();
+	errmsg += "'.\nThe file may be corrupt or not accessible.";
+	ErrMsg( errmsg );
 	errmsgdone = true;
 	sfio.closeFail();
 	return new SurveyInfo;
