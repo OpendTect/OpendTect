@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: emhorizonztransform.cc,v 1.3 2007-03-20 16:00:34 cvskris Exp $
+ RCS:           $Id: emhorizonztransform.cc,v 1.4 2007-03-22 20:52:16 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -64,6 +64,14 @@ ZAxisTransform::ZType HorizonZTransform::getToZType() const
 void HorizonZTransform::transform( const BinID& bid,
 	const SamplingData<float>& sd, int sz,float* res ) const
 {
+    if ( mIsUdf(sd.start) || mIsUdf(sd.step) )
+    {
+	for ( int idx=sz-1; idx>=0; idx-- )
+	    res[idx] = mUdf(float);
+
+	return;
+    }
+
     if ( !horizon_ )
     {
 	for ( int idx=sz-1; idx>=0; idx-- )
@@ -97,7 +105,7 @@ void HorizonZTransform::transformBack( const BinID& bid,
     for ( int idx=sz-1; idx>=0; idx-- )
 	res[idx] = mUdf(float);
 
-    if ( !horizon_ )
+    if ( !horizon_ || mIsUdf(sd.start) || mIsUdf(sd.step) )
 	return;
 
     float top, bottom;
