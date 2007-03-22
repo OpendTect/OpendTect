@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.cc,v 1.52 2007-03-07 17:53:24 cvsnanne Exp $
+ RCS:           $Id: uitable.cc,v 1.53 2007-03-22 13:19:47 cvsdgb Exp $
 ________________________________________________________________________
 
 -*/
@@ -798,8 +798,9 @@ void uiTable::updateCellSizes( const uiSize* size )
 
 	int colwdt = availwdt / nc;
 
-	const int minwdt = (int)(setup_.mincolwdt_ * (float)font()->avgWidth());
-	const int maxwdt = (int)(setup_.maxcolwdt_ * (float)font()->avgWidth());
+	const float avgwdth = __iswin__ ? 12 : font()->avgWidth();
+	const int minwdt = (int)(setup_.mincolwdt_ * avgwdth);
+	const int maxwdt = (int)(setup_.maxcolwdt_ * avgwdth);
 
 	if ( colwdt < minwdt ) colwdt = minwdt;
 	if ( colwdt > maxwdt ) colwdt = maxwdt;
@@ -828,7 +829,7 @@ void uiTable::updateCellSizes( const uiSize* size )
 			 - 2*body_->frameWidth();
 
 	int rowhgt =  availhgt / nr;
-	const float fonthgt = (float)font()->height();
+	const float fonthgt = __iswin__ ? 15 : (float)font()->height();
 
 	const int minhgt = (int)(setup_.minrowhgt_ * fonthgt);
 	const int maxhgt = (int)(setup_.maxrowhgt_ * fonthgt);
