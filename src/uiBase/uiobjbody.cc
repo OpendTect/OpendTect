@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/06/2001
- RCS:           $Id: uiobjbody.cc,v 1.12 2007-03-22 12:47:42 cvsdgb Exp $
+ RCS:           $Id: uiobjbody.cc,v 1.13 2007-03-22 13:23:07 cvsdgb Exp $
 ________________________________________________________________________
 
 -*/
@@ -562,8 +562,6 @@ void uiObjectBody::gtFntWdtHgt() const
 	return;
     }
 
-    std::cout << "FM for " << qw->metaObject()->className() << ": "
-	      << (const char*)qw->objectName() << std::endl;
     QFontMetrics fm( qw->fontMetrics() );
 
     self.fnt_hgt = fm.lineSpacing() + 2;
