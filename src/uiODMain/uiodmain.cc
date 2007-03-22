@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodmain.cc,v 1.69 2007-03-08 15:22:15 cvsbert Exp $
+ RCS:           $Id: uiodmain.cc,v 1.70 2007-03-22 17:38:11 cvsdgb Exp $
 ________________________________________________________________________
 
 -*/
@@ -244,6 +244,7 @@ bool uiODMain::buildUI()
 void uiODMain::initScene()
 {
     scenemgr->initMenuMgrDepObjs();
+    applMgr().visServer()->showMPEToolbar( false );
 }
 
 

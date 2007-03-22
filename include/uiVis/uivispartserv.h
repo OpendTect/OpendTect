@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.189 2007-02-22 12:34:06 cvsjaap Exp $
+ RCS:           $Id: uivispartserv.h,v 1.190 2007-03-22 17:38:11 cvsdgb Exp $
 ________________________________________________________________________
 
 -*/
@@ -276,7 +276,7 @@ public:
     static const int		evShowSetupDlg;
     bool			sendShowSetupDlgEvent();
     
-    void			showMPEToolbar();
+    void			showMPEToolbar(bool yn=true);
     void			updateMPEToolbar();
     void			introduceMPEDisplay();
     uiToolBar*			getTrackTB() const;

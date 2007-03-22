@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.346 2007-02-28 07:40:04 cvsnanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.347 2007-03-22 17:38:11 cvsdgb Exp $
 ________________________________________________________________________
 
 -*/
@@ -211,10 +211,7 @@ bool uiVisPartServer::disabMenus( bool yn )
 void uiVisPartServer::createToolBars()
 {
     mpetools_ = new uiMPEMan( appserv().parent(), this );
-    mpetools_->getToolBar()->display( false );
-
     slicepostools_ = new uiSlicePos( appserv().parent() );
-    slicepostools_->getToolBar()->display( true );
 }
 
 
@@ -1521,11 +1518,16 @@ void uiVisPartServer::colTabChangeCB( CallBacker* )
 }
 
 
-void uiVisPartServer::showMPEToolbar()
+void uiVisPartServer::showMPEToolbar( bool yn )
 {
-    updateMPEToolbar();
-    if ( !mpetools_->getToolBar()->isShown() )
-	mpetools_->getToolBar()->display();
+    if ( yn )
+    {
+	updateMPEToolbar();
+	if ( !mpetools_->getToolBar()->isShown() )
+	    mpetools_->getToolBar()->display( true );
+    }
+    else if ( mpetools_->getToolBar()->isShown() )
+	mpetools_->getToolBar()->display( false );
 }
 
 
