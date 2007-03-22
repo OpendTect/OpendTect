@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Huck
  Date:          14-07-2006
- RCS:           $Id: gapdeconattrib.h,v 1.13 2007-03-08 12:40:08 cvshelene Exp $
+ RCS:           $Id: gapdeconattrib.h,v 1.14 2007-03-22 09:55:45 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -52,6 +52,8 @@ protected:
 	    				    const BinID& relpos,
 					    int z0,int nrsamples,
 					    int threadid) const;
+    const Interval<int>*	desZSampMargin(int,int) const
+    				{ return &dessampgate_; }
 
     Interval<float>		gate_;
     int				lagsize_;
@@ -74,6 +76,7 @@ protected:
     int				dataidxmixed_;
 
     const float*		hilbfilter_;
+    Interval<int>		dessampgate_;
 };
 
 } // namespace Attrib

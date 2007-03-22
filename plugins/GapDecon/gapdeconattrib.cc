@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Huck
  Date:          July 2006
- RCS:           $Id: gapdeconattrib.cc,v 1.16 2007-03-16 18:20:59 cvshelene Exp $
+ RCS:           $Id: gapdeconattrib.cc,v 1.17 2007-03-22 09:55:45 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -180,6 +180,8 @@ GapDecon::GapDecon( Desc& desc_ )
 	if ( isoutzerophase_ )
 	    hilbfilter_ = makeHilbFilt(HALFLENGTH);
     }
+
+    dessampgate_ = Interval<int>( -(1024-1), 1024-1 );
 }
 
 
@@ -254,17 +256,20 @@ bool GapDecon::computeData( const DataHolder& output, const BinID& relpos,
     float* crosscorr = autocorr + nlag_;//first sample of gap is at 
 					//maxlag_+1 = nlag_ because minlag = 0
 
-    int startcorr = mNINT( gate_.start / refstep );
-    ValueSeries<float>* valseries =
-	inputdatamixed_ && inputdatamixed_->series(dataidxmixed_) ?
+    int absstartsampidx = mNINT( gate_.start / refstep );
+    int startcorr = absstartsampidx - inputdata_->z0_;
+    bool usedmixed = inputdatamixed_ && inputdatamixed_->series(dataidxmixed_);
+    int safestartcorr = usedmixed ? absstartsampidx-inputdatamixed_->z0_
+				  : startcorr;
+    ValueSeries<float>* valseries = usedmixed ?
 	inputdatamixed_->series(dataidxmixed_) : inputdata_->series(dataidx_);
 
     if ( !valseries ) return false;
 
     float* autocorrptr = autocorr;
     genericCrossCorrelation<ValueSeries<float>,ValueSeries<float>,float*>(
-			    safencorr, startcorr, *valseries,
-			    safencorr, startcorr, *valseries,
+			    safencorr, safestartcorr, *valseries,
+			    safencorr, safestartcorr, *valseries,
 			    safelcorr, 0, autocorrptr );
     if ( mIsZero( autocorr[0], 0.001 ) )
 	return false;
@@ -273,23 +278,23 @@ bool GapDecon::computeData( const DataHolder& output, const BinID& relpos,
     for ( int idx=0; idx<safelcorr; idx++)  
 	autocorr[idx] *= scale;
 
-    if ( !useonlyacorr_ )
+    if ( useonlyacorr_ )
+    {
+	int maxoutidx = safelcorr < nrsamples ? safelcorr : nrsamples;
+	for ( int idx = 0; idx < maxoutidx; ++idx )
+	    setOutputValue( output, 0, idx, z0, autocorr[idx] );
+	return true;
+    }
+    else
     {
 	autocorr[0] *= 1 + (float)noiselevel_/100;
 	solveSymToeplitzsystem( ngap_, autocorr, crosscorr, wiener, spiker );
     }
 
-    int stopgapidx = startcorr + nlag_+ ngap_;
-    int startgapidx = startcorr + nlag_;
+    int startgapidx = nlag_;
+    int stopgapidx =  startgapidx + ngap_;
     int inoffs = z0 - inputdata_->z0_;
 
-    if ( useonlyacorr_ )
-    {
-	for ( int idx = 0; idx < safelcorr; ++idx )
-	    setOutputValue( output, 0, idx, z0, autocorr[idx] );
-	return true;
-    }
-    
     ValueSeries<float>* inparr = inputdata_->series(dataidx_);
     for ( int idx = 0; idx < nrsamples; ++idx )
     {

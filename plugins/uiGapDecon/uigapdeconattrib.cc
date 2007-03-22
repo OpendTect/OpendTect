@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          July  2006
- RCS:           $Id: uigapdeconattrib.cc,v 1.26 2007-03-20 15:57:21 cvshelene Exp $
+ RCS:           $Id: uigapdeconattrib.cc,v 1.27 2007-03-22 09:55:45 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -248,11 +248,6 @@ void uiGapDeconAttrib::examPush( CallBacker* cb )
     CubeSampling cs;
     inpfld_->getRanges(cs);
     Interval<float> gate = gatefld_->getFInterval();
-    gate.scale(1/SI().zFactor());
-    if ( cs.zrg.start < gate.start )
-	cs.zrg.start = gate.start;
-    if ( cs.zrg.stop > gate.stop )
-	cs.zrg.stop = gate.stop;
 
     MultiID mid;
     getInputMID( mid );
@@ -599,8 +594,11 @@ void uiGDPositionDlg::popUpPosDlg()
 	    inputcs.hrg.stop.crl = inputcs.hrg.start.crl;
     }
 
-    if ( inputcs.zrg.nrSteps() > 200 )
-	inputcs.zrg.stop = inputcs.zrg.start + inputcs.zrg.width()/4;
+    cs_.zrg.stop = cs_.zrg.width();
+    cs_.zrg.start = 0;
+    float zstop = 500/SI().zFactor();
+    inputcs.zrg.stop = cs_.zrg.width()<zstop ? cs_.zrg.width() : zstop;
+    inputcs.zrg.start = 0;
     
     posdlg_ = new uiSliceSel( this, inputcs, cs_, dummycb, 
 			      is2d ? uiSliceSel::TwoD 
