@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: vishorizondisplay.cc,v 1.28 2007-02-27 14:11:37 cvsjaap Exp $
+ RCS:           $Id: vishorizondisplay.cc,v 1.29 2007-03-22 20:34:26 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -769,6 +769,7 @@ bool HorizonDisplay::addSection( const EM::SectionID& sid )
     surf->ref();
     surf->setMaterial( 0 );
     surf->setDisplayTransformation( transformation_ );
+    surf->setZAxisTransform( zaxistransform_ );
     const int index = childIndex(drawstyle_->getInventorNode());
     insertChild( index, surf->getInventorNode() );
     surf->turnOn( !displayonlyatsections_ );
@@ -1171,7 +1172,7 @@ void HorizonDisplay::updateIntersectionLines(
 	mDynamicCastGet( PlaneDataDisplay*, plane,
 			 visBase::DM().getObject(linestoupdate[idx]) );
 	if ( plane )
-	    cs = plane->getCubeSampling();
+	    cs = plane->getCubeSampling(true,true,-1);
 	else
 	{
 	    mDynamicCastGet( const MPEDisplay*, mped,
