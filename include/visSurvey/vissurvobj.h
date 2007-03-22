@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvobj.h,v 1.75 2007-02-12 22:10:42 cvskris Exp $
+ RCS:		$Id: vissurvobj.h,v 1.76 2007-03-22 20:33:07 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -211,6 +211,8 @@ public:
     virtual void		readAuxData()	{}
 
     virtual void		setScene(Scene*);
+    virtual const Scene*	getScene() const	{ return scene_; }
+    virtual Scene*		getScene()		{ return scene_; }
 
     virtual bool		setDataTransform( ZAxisTransform* );
     virtual const ZAxisTransform* getDataTransform() const;
