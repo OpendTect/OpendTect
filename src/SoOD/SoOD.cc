@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: SoOD.cc,v 1.11 2007-03-09 10:11:59 cvskris Exp $";
+static const char* rcsID = "$Id: SoOD.cc,v 1.12 2007-03-22 17:15:25 cvsdgb Exp $";
 
 
 #include "SoOD.h"
@@ -37,12 +37,9 @@ static const char* rcsID = "$Id: SoOD.cc,v 1.11 2007-03-09 10:11:59 cvskris Exp 
 #include "UTMElement.h"
 #include "UTMPosition.h"
 
-extern "C" {
-
-typedef struct __GLXcontextRec *GLXContext;
-extern GLXContext glXGetCurrentContext(void);
-
-}
+#ifndef win
+extern "C" { extern void* glXGetCurrentContext(); }
+#endif
 
 void SoOD::init()
 {
@@ -84,10 +81,13 @@ int SoOD::supportsFragShading()
     static int answer = 0;
     if ( !answer )
     {
-	GLXContext ptr = glXGetCurrentContext();
-	if ( ptr )
-	    answer = SoFragmentShader::
-		isSupported(SoShaderObject::GLSL_PROGRAM) ? 1 : -1;
+#ifdef win
+	if ( wglGetCurrentContext() )
+#else
+	if ( glXGetCurrentContext() )
+#endif
+	    answer = SoFragmentShader::isSupported(
+		    		SoShaderObject::GLSL_PROGRAM) ? 1 : -1;
     }
 
     return answer;
