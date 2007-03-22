@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Jan 2005
- RCS:           $Id: uivisemobj.cc,v 1.54 2007-02-28 07:40:04 cvsnanne Exp $
+ RCS:           $Id: uivisemobj.cc,v 1.55 2007-03-22 20:48:39 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -162,6 +162,7 @@ uiVisEMObject::uiVisEMObject( uiParent* uip, const EM::ObjectID& emid,
 
     mDynamicCastGet(visSurvey::Scene*,scene,visBase::DM().getObject(sceneid))
     emod->setDisplayTransformation( scene->getUTM2DisplayTransform() );
+    emod->setDataTransform( scene->getDataTransform() );
 
     uiCursorChanger cursorchanger(uiCursor::Wait);
     if ( !emod->setEMObject(emid) ) mRefUnrefRet
@@ -344,7 +345,7 @@ void uiVisEMObject::createMenuCB( CallBacker* cb )
     const EM::EMObject* emobj = EM::EMM().getObject(emid);
     const EM::SectionID sid = emod->getSectionID(menu->getPath());
 
-    mDynamicCastGet( const visSurvey::HorizonDisplay*, hordisp, getDisplay() );
+    mDynamicCastGet( visSurvey::HorizonDisplay*, hordisp, getDisplay() );
 
     mAddMenuItem( menu, &singlecolmnuitem, !emod->getOnlyAtSectionsDisplay(),
 	  	  !hordisp || (hordisp&&!hordisp->usesTexture()) );
@@ -352,9 +353,14 @@ void uiVisEMObject::createMenuCB( CallBacker* cb )
 	          emod->getOnlyAtSectionsDisplay() );
     mAddMenuItem( menu, &changesectionnamemnuitem, 
 	          emobj->canSetSectionName() && sid!=-1, false );
+
+    visSurvey::Scene* scene = hordisp->getScene();
+
+    const bool hastransform = scene && scene->getDataTransform();
     const bool enabmenu =
 	!strcmp(getObjectType(displayid),EM::Horizon::typeStr())
-	&& !visserv->isLocked(displayid);
+	&& !visserv->isLocked(displayid) && !hastransform;
+
     mAddMenuItem( menu, &shiftmnuitem, enabmenu, false );
 
     mAddMenuItem( &trackmenuitem, &editmnuitem, enabmenu,
