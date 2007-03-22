@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribprocessor.cc,v 1.46 2007-01-04 15:29:26 cvshelene Exp $";
+static const char* rcsID = "$Id: attribprocessor.cc,v 1.47 2007-03-22 16:05:54 cvshelene Exp $";
 
 #include "attribprocessor.h"
 
@@ -40,10 +40,7 @@ Processor::Processor( Desc& desc , const char* lk, BufferString& err )
 
     is2d_ = desc_.descSet()->is2D();
     if ( is2d_ )
-    {
 	provider_->setCurLineKey( lk );
-	provider_->adjust2DLineStoredVolume( true );
-    }
 }
 
 
@@ -219,6 +216,33 @@ void Processor::init()
 {
     TypeSet<int> globaloutputinterest;
     CubeSampling globalcs;
+    defineGlobalOutputSpecs( globaloutputinterest, globalcs );
+    if ( is2d_ ) provider_->adjust2DLineStoredVolume();
+    computeAndSetRefZStep();
+
+    prepareForTableOutput();
+
+    for ( int idx=0; idx<globaloutputinterest.size(); idx++ )
+	provider_->enableOutput(globaloutputinterest[idx], true );
+
+    computeAndSetPosAndDesVol( globalcs );
+    mDynamicCastGet( DataCubesOutput*, dcoutp, outputs_[0] );
+    if ( dcoutp && provider_->getDesc().isStored() )
+    	useshortcuts_ = true;
+    else
+    {
+	for ( int idx=0; idx<outputs_.size(); idx++ )
+	    outputs_[idx]->adjustInlCrlStep( *provider_->getPossibleVolume() );
+
+	provider_->prepareForComputeData();
+    }
+    isinited_ = true;
+}
+
+
+void Processor::defineGlobalOutputSpecs( TypeSet<int>& globaloutputinterest,
+				      	 CubeSampling& globalcs )
+{
     for ( int idx=0; idx<outputs_.size(); idx++ )
     {
 	CubeSampling cs;
@@ -257,7 +281,19 @@ void Processor::init()
 		((SeisTrcStorOutput*)outputs_[idoutp])->setOutpTypes(outptypes);
 	}
     }
+}
 
+
+void Processor::computeAndSetRefZStep()
+{
+    provider_->computeRefStep();
+    const float zstep = provider_->getRefStep();
+    provider_->setRefStep( zstep );
+}
+
+
+void Processor::prepareForTableOutput()
+{
     if ( outputs_.size() && outputs_[0]->getSelData().type_==Seis::Table )
     {
 	for ( int idx=0; idx<outputs_.size(); idx++ )
@@ -276,13 +312,13 @@ void Processor::init()
 	    Interval<float> extraz( -2*provider_->getRefStep(), 
 		    		    2*provider_->getRefStep() );
 	    provider_->setExtraZ( extraz );
-	    provider_->setNeedInterpol(true);
 	}
     }
+}
 
-    for ( int idx=0; idx<globaloutputinterest.size(); idx++ )
-	provider_->enableOutput(globaloutputinterest[idx], true );
 
+void Processor::computeAndSetPosAndDesVol( CubeSampling& globalcs )
+{
     if ( provider_->getInputs().isEmpty() && !provider_->getDesc().isStored() )
     {
 	provider_->setDesiredVolume( globalcs );
@@ -309,18 +345,6 @@ void Processor::init()
 	
 	provider_->setDesiredVolume( globalcs );
     }
-
-    mDynamicCastGet( DataCubesOutput*, dcoutp, outputs_[0] );
-    if ( dcoutp && provider_->getDesc().isStored() )
-    	useshortcuts_ = true;
-    else
-    {
-	for ( int idx=0; idx<outputs_.size(); idx++ )
-	    outputs_[idx]->adjustInlCrlStep( *provider_->getPossibleVolume() );
-
-	provider_->prepareForComputeData();
-    }
-    isinited_ = true;
 }
 
 

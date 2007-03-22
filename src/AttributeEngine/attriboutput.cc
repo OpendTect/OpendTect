@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attriboutput.cc,v 1.55 2007-02-22 18:14:40 cvskris Exp $";
+static const char* rcsID = "$Id: attriboutput.cc,v 1.56 2007-03-22 16:05:54 cvshelene Exp $";
 
 #include "attriboutput.h"
 
@@ -26,6 +26,7 @@ static const char* rcsID = "$Id: attriboutput.cc,v 1.55 2007-02-22 18:14:40 cvsk
 #include "linekey.h"
 #include "scaler.h"
 #include "keystrs.h"
+#include "interpol1d.h"
 
 
 namespace Attrib
@@ -610,14 +611,31 @@ void LocationOutput::collectData( const DataHolder& data, float refstep,
     if ( bidvalset_.nrVals() < desnrvals )
 	bidvalset_.setNrVals( desnrvals );
 
+    const Interval<int> datarg( data.z0_, data.z0_+data.nrsamples_-1 );
     while ( true )
     {
 	float* vals = bidvalset_.getVals( pos );
-	const int zidx = mNINT(vals[0]/refstep);
-	if ( data.z0_ == zidx )
+	const int lowz = mNINT( (vals[0]/refstep)-0.5 );
+	const int highz = mNINT( (vals[0]/refstep)+0.5 );
+	bool isfulldataok = datarg.includes(lowz-1) && datarg.includes(highz+1);
+	bool canusepartdata = data.nrsamples_<4 && datarg.includes(lowz) 
+			      && datarg.includes(highz);
+	if ( isfulldataok || canusepartdata )
 	{
 	    for ( int comp=0; comp<desoutputs_.size(); comp++ )
-		vals[comp+1] = data.series(desoutputs_[comp])->value(0);
+	    {
+		int serieidx = desoutputs_[comp];
+		float p0 = lowz-1 < data.z0_ ? mUdf(float)
+			      : data.series(serieidx)->value(lowz-1-data.z0_);
+	        float p1 = data.series(serieidx)->value(lowz-data.z0_);
+	        float p2 = data.series(serieidx)->value(highz-data.z0_);
+		float p3 = !datarg.includes(highz) ? mUdf(float)
+			      : data.series(serieidx)->value(highz+1-data.z0_);
+		float disttop1 = vals[0]/refstep - lowz;
+		float val = Interpolate::polyReg1DWithUdf( p0, p1, p2,
+							   p3, disttop1 );
+		vals[comp+1] = val;
+	    }
 	}
 
 	bidvalset_.next( pos );
@@ -643,8 +661,9 @@ TypeSet< Interval<int> > LocationOutput::getLocalZRange( const BinID& bid,
     while ( pos.valid() )
     {
 	const float* vals = bidvalset_.getVals( pos );
-	Interval<int> interval( mNINT(vals[0]/zstep), mNINT(vals[0]/zstep) );
-	sampleinterval += interval;
+	Interval<int> interval( mNINT( (vals[0]/zstep) -0.5 )-1, 
+				mNINT( (vals[0]/zstep) +0.5 )+1 );
+	sampleinterval.addIfNew( interval );
 	bidvalset_.next( pos );
 	if ( bid != bidvalset_.getBinID(pos) )
 	    break;

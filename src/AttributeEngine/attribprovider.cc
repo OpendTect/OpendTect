@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribprovider.cc,v 1.90 2007-03-20 14:27:55 cvshelene Exp $";
+static const char* rcsID = "$Id: attribprovider.cc,v 1.91 2007-03-22 16:05:54 cvshelene Exp $";
 
 #include "attribprovider.h"
 #include "attribstorprovider.h"
@@ -84,9 +84,6 @@ Provider* Provider::create( Desc& desc, BufferString& errstr )
     if ( !prov ) return 0;
 
     prov->allexistingprov = existing;
-    prov->computeRefStep( existing );
-    prov->propagateRefStep( existing );
-
     return prov;
 }
 
@@ -200,7 +197,6 @@ Provider::Provider( Desc& nd )
     , extraz_(0,0)
     , trcinfobid( -1, -1 )
     , prevtrcnr( 0 )
-    , needinterp( 0 )
     , useshortcuts_( 0 )
 {
     desc.ref();
@@ -1234,12 +1230,12 @@ int Provider::getTotalNrPos( bool is2d )
 }
 
 
-void Provider::computeRefStep( const ObjectSet<Provider>& existing )
+void Provider::computeRefStep()
 {
-    for( int idx=0; idx<existing.size(); idx++ )
+    for( int idx=0; idx<allexistingprov.size(); idx++ )
     {
 	float step = 0;
-	bool isstored = existing[idx]->getZStepStoredData(step);
+	bool isstored = allexistingprov[idx]->getZStepStoredData(step);
 	if ( isstored )
 	    refstep = ( refstep != 0 && refstep < step )? refstep : step;
 	    
@@ -1247,10 +1243,11 @@ void Provider::computeRefStep( const ObjectSet<Provider>& existing )
 }
 
 
-void Provider::propagateRefStep( const ObjectSet<Provider>& existing )
+void Provider::setRefStep( float step )
 {
-    for ( int idx=0; idx<existing.size(); idx++ )
-	const_cast<Provider*>(existing[idx])->refstep = refstep;
+    refstep = step;
+    for ( int idx=0; idx<allexistingprov.size(); idx++ )
+	const_cast<Provider*>(allexistingprov[idx])->refstep = refstep;
 }
 
 
@@ -1276,17 +1273,11 @@ void Provider::setCurLineKey( const char* linename )
 }
 
 
-void Provider::adjust2DLineStoredVolume( bool adjuststep )
+void Provider::adjust2DLineStoredVolume()
 {
     for ( int idx=0; idx<inputs.size(); idx++ )
 	if ( inputs[idx] )
 	    inputs[idx]->adjust2DLineStoredVolume();
-
-    if ( adjuststep )
-    {
-	computeRefStep( allexistingprov );
-	propagateRefStep( allexistingprov );
-    }
 }
 
 
@@ -1359,17 +1350,6 @@ void Provider::setUsedMultTimes()
     {
 	if ( inputs[idx] )
 	    inputs[idx]->setUsedMultTimes();
-    }
-}
-
-
-void Provider::setNeedInterpol( bool yn )
-{
-    needinterp = yn;
-    for ( int idx=0; idx<inputs.size(); idx++ )
-    {
-	if ( inputs[idx] )
-	    inputs[idx]->setNeedInterpol( yn );
     }
 }
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribprovider.h,v 1.58 2007-03-06 14:35:43 cvshelene Exp $
+ RCS:           $Id: attribprovider.h,v 1.59 2007-03-22 16:05:54 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -84,7 +84,7 @@ public:
     				{ return possiblevolume; }
     int				getTotalNrPos(bool);
     void			setCurLineKey( const char* linename ); 
-    virtual void		adjust2DLineStoredVolume(bool adjuststep=false);
+    virtual void		adjust2DLineStoredVolume();
     
     virtual int			moveToNextTrace(BinID startpos = BinID(-1,-1),
 	    					bool firstcheck = false);
@@ -110,21 +110,25 @@ public:
 
     void               		updateInputReqs(int input=-1);
     virtual void                updateStorageReqs(bool all=false);
-    void			setNeedInterpol(bool);
     void			setUseSC()		{ useshortcuts_ = true;}
     void			setSelData(const SeisSelData*);
     void                        setExtraZ(const Interval<float>&);
+    void			setOutputInterestSize();
+    
+    void			computeRefStep();
+    				/*!<If an attribute uses as inputs stored cubes
+				with a different z step the smallest one will 
+				be taken as reference step*/
+    void			setRefStep(float step);
     float                       getRefStep() const; 
+    
     virtual BinID		getStepoutStep() const;
-    BufferString         	errMsg() const;
-
     ObjectSet<Provider>&	getInputs() 		{ return inputs; }
+    BinID			getTrcInfoBid() const	{ return trcinfobid; }
+    BufferString         	errMsg() const;
 
     virtual void		initSteering()			{}
     virtual void		initSteering(const BinID&)	{}
-    void			setOutputInterestSize();
-    
-    BinID			getTrcInfoBid() const	{ return trcinfobid; }
 
     virtual void		prepareForComputeData();
     				/*!< Everything is known now. */
@@ -206,12 +210,6 @@ protected:
     bool			isUsedMultTimes()  { return isusedmulttimes; }
     bool			isNew2DLine() const
     				{ return prevtrcnr > currentbid.crl; }
-
-    void			computeRefStep(const ObjectSet<Provider>&);
-    				/*!<If an attribute uses as inputs stored cubes
-				with a different z step the smallest one will 
-				be taken as reference step*/
-    void			propagateRefStep(const ObjectSet<Provider>&);
 
     virtual const BinID*	desStepout(int input,int output) const;
 				/*!<The system will
@@ -325,7 +323,6 @@ protected:
     bool 			alreadymoved;
 
     bool			isusedmulttimes;
-    bool			needinterp;
     BufferString 		errmsg;
 };
 

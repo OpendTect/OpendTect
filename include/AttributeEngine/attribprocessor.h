@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribprocessor.h,v 1.16 2007-01-04 15:29:26 cvshelene Exp $
+ RCS:           $Id: attribprocessor.h,v 1.17 2007-03-22 16:05:54 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -73,6 +73,11 @@ protected:
     void		useFullProcess(int&);
     void		useSCProcess(int&);
     void		fullProcess(const SeisTrcInfo*);
+
+    void		defineGlobalOutputSpecs(TypeSet<int>&,CubeSampling&);
+    void		prepareForTableOutput();
+    void		computeAndSetPosAndDesVol(CubeSampling&);
+    void		computeAndSetRefZStep();
 };
 
 
