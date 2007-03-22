@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uitreeitemmanager.cc,v 1.31 2007-03-14 12:03:00 cvsnanne Exp $";
+static const char* rcsID = "$Id: uitreeitemmanager.cc,v 1.32 2007-03-22 11:33:27 cvsjaap Exp $";
 
 
 #include "uitreeitemmanager.h"
@@ -340,6 +340,7 @@ uiTreeTopItem::uiTreeTopItem( uiListView* listview)
     , listview_( listview )
     , disabrightclick_(false)
     , disabanyclick_(false)
+    , nonsensiselkey_(-1)
 {
     listview_->rightButtonClicked.notify(
 	    		mCB(this,uiTreeTopItem,rightClickCB) );
@@ -347,7 +348,6 @@ uiTreeTopItem::uiTreeTopItem( uiListView* listview)
 	    		mCB(this,uiTreeTopItem,anyButtonClickCB) );
     listview_->selectionChanged.notify(
 	    		mCB(this,uiTreeTopItem,selectionChanged) );
-	
 }
 
 
@@ -377,20 +377,27 @@ bool uiTreeTopItem::addChild( uiTreeItem* newitem, bool below, bool downwards )
 
 void uiTreeTopItem::selectionChanged( CallBacker* )
 {
-    if ( disabanyclick_ ) return;
+    if ( !listview_->sensitive() || disabanyclick_ ) return;
     anyButtonClick( listview_->itemNotified() );
 }
 
 
 void uiTreeTopItem::rightClickCB( CallBacker* )
 {
-    if ( disabanyclick_ || disabrightclick_ ) return;
+    if ( !listview_->sensitive() || disabanyclick_ || disabrightclick_ ) return;
     rightClick( listview_->itemNotified() );
 }
 
 
 void uiTreeTopItem::anyButtonClickCB( CallBacker* )
 {
+    if ( !listview_->sensitive() )
+    {
+	updateSelection( nonsensiselkey_,true);
+	return;
+    }
+    nonsensiselkey_ = -1;
+    
     if ( disabanyclick_ ) return;
     anyButtonClick( listview_->itemNotified() );
 }
@@ -400,6 +407,9 @@ void uiTreeTopItem::updateSelection( int selectionkey, bool dw )
 {
     uiTreeItem::updateSelection( selectionkey, true );
     listview_->triggerUpdate();
+
+    if ( !listview_->sensitive() && selectionkey!=-1 )
+	nonsensiselkey_ = selectionkey;
 }
 
 

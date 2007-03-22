@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: uitreeitemmanager.h,v 1.28 2007-03-14 12:02:52 cvsnanne Exp $
+ RCS:		$Id: uitreeitemmanager.h,v 1.29 2007-03-22 11:33:27 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -125,6 +125,7 @@ public:
 				*/
 
     virtual void		updateColumnText(int col);
+
 protected:
     virtual int			uiListViewItemType() const;
     				/*!<\returns the uiListViewItem::Type that
@@ -205,6 +206,8 @@ protected:
     uiListView*		listview_;
     bool		disabrightclick_;
     bool		disabanyclick_;
+
+    int			nonsensiselkey_; // to cover Q3ListView sensitivity bug
 };
 
 
