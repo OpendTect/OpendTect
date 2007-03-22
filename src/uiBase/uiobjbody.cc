@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/06/2001
- RCS:           $Id: uiobjbody.cc,v 1.11 2007-03-07 17:53:46 cvsnanne Exp $
+ RCS:           $Id: uiobjbody.cc,v 1.12 2007-03-22 12:47:42 cvsdgb Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,7 +49,6 @@ uiObjectBody::uiObjectBody( uiParent* parnt, const char* nm )
     , fnt_hgt( 0 )
     , fnt_wdt( 0 )
     , fnt_maxwdt( 0 )
-    , fm( 0 )
     , hszpol( uiObject::Undef )
     , vszpol( uiObject::Undef )
 #ifdef USE_DISPLAY_TIMER
@@ -67,7 +66,6 @@ uiObjectBody::~uiObjectBody()
 #ifdef USE_DISPLAY_TIMER
     delete &displTim;
 #endif
-    delete fm;
     delete layoutItem_;
 }
 
@@ -172,10 +170,7 @@ void uiObjectBody::finalise()
 
 void uiObjectBody::fontchanged()
 {
-    fnt_hgt=0;  fnt_wdt=0; fnt_maxwdt=0;
-    delete fm;
-    fm=0;
-
+    fnt_hgt = 0; fnt_wdt = 0; fnt_maxwdt = 0;
     pref_width_hint=0;
     pref_height_hint=0;
 }
@@ -536,11 +531,14 @@ void uiObjectBody::uisetFont( const uiFont& f )
     qwidget()->setFont( font_->qFont() );
 }
 
-int uiObjectBody::fontWdtFor( const char* str) const
+int uiObjectBody::fontWdtFor( const char* str ) const
 {
     gtFntWdtHgt();
-    if ( !fm ) return 0;
-    return fm->width( QString( str ) );
+    const QWidget* qw = qwidget();
+    if ( !qw || __iswin__ )
+	{ gtFntWdtHgt(); return strlen(str) * fnt_wdt; }
+
+    return qw->fontMetrics().width( QString( str ) );
 }
 
 bool uiObjectBody::itemInited() const
@@ -551,44 +549,40 @@ bool uiObjectBody::itemInited() const
 
 void uiObjectBody::gtFntWdtHgt() const
 {
-    if ( !fnt_hgt || !fnt_wdt || !fnt_maxwdt || !fm )
+    if ( fnt_hgt && fnt_wdt && fnt_maxwdt )
+	return;
+
+    uiObjectBody& self = *const_cast<uiObjectBody*>(this);
+    const QWidget* qw = qwidget();
+
+//TODO: QFontMetrics simply crashes on windows
+    if ( !qw || __iswin__ )
     {
-	if ( fm )
-	{
-	    pErrMsg("Already have a fontmetrics. Deleting..."); 
-	    delete fm;
-	}
-	const_cast<uiObjectBody*>(this)->fm =
-
-
-// TODO: implement new font handling. uiParent should have a get/set font 
-//       and all children should use this font.
-#if 0
-			     new QFontMetrics( uifont()->qFont() );
-#else
-			     new QFontMetrics( qwidget()->font() );
-#endif
-
-
-
-	const_cast<uiObjectBody*>(this)->fnt_hgt = fm->lineSpacing() + 2;
-	const_cast<uiObjectBody*>(this)->fnt_wdt = fm->width(QChar('x'));
-	const_cast<uiObjectBody*>(this)->fnt_maxwdt = fm->maxWidth();
+	self.fnt_hgt = 14; self.fnt_wdt = 10; self.fnt_maxwdt = 15;
+	return;
     }
 
-    if ( fnt_hgt<0 || fnt_hgt>100 )
+    std::cout << "FM for " << qw->metaObject()->className() << ": "
+	      << (const char*)qw->objectName() << std::endl;
+    QFontMetrics fm( qw->fontMetrics() );
+
+    self.fnt_hgt = fm.lineSpacing() + 2;
+    self.fnt_wdt = fm.width( QChar('x') );
+    self.fnt_maxwdt = fm.maxWidth();
+
+    if ( fnt_hgt <= 0 || fnt_hgt > 100 )
     { 
-	pErrMsg("Font heigt no good. Taking 25."); 
-	const_cast<uiObjectBody*>(this)->fnt_hgt = 25;
+	pErrMsg( "Font heigt no good. Taking 15." ); 
+	self.fnt_hgt = 15;
     }
-    if ( fnt_wdt<0 || fnt_wdt>100 )
+    if ( fnt_wdt <= 0 || fnt_wdt > 100 )
     { 
-	pErrMsg("Font width no good. Taking 10."); 
-	const_cast<uiObjectBody*>(this)->fnt_wdt = 10;
+	pErrMsg( "Font width no good. Taking 10." ); 
+	self.fnt_wdt = 10;
     }
-    if ( fnt_maxwdt<0 || fnt_maxwdt>100 )
+    if ( fnt_maxwdt <= 0 || fnt_maxwdt > 100 )
     { 
-	pErrMsg("Font maxwidth no good. Taking 15."); 
-	const_cast<uiObjectBody*>(this)->fnt_maxwdt = 15;
+	pErrMsg( "Font maxwidth no good. Taking 15." ); 
+	self.fnt_maxwdt = 15;
     }
 }

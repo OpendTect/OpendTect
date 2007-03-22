@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.117 2007-03-14 12:01:37 cvsbert Exp $
+ RCS:           $Id: uimainwin.cc,v 1.118 2007-03-22 12:47:42 cvsdgb Exp $
 ________________________________________________________________________
 
 -*/
@@ -504,7 +504,7 @@ void uiMainWin::addDockWindow( uiDockWin& dwin, Dock d )
 #else
     body_->addDockWidget( Qt::LeftDockWidgetArea, dwin.qwidget() );
 #endif
-    dwin.qwidget()->show();
+//    dwin.qwidget()->show();
 }
 
 
@@ -972,6 +972,8 @@ uiObject* uiDialogBody::createChildren()
 }
 
 
+#define mPr(i) { std::cout << i << std::endl;
+
 void uiDialogBody::layoutChildren( uiObject* lowestobj )
 {
     uiObject* leftbut = okBut;
@@ -997,7 +999,7 @@ void uiDialogBody::layoutChildren( uiObject* lowestobj )
 	extrabut = 0;
     }
 
-    const int borderdist = QFontMetrics(font()).width( QChar(' ') );
+    const int borderdist = 5;
 
 #define mCommonLayout(but) \
     but->attach( ensureBelow, lowestobj ); \
