@@ -5,7 +5,7 @@
  * FUNCTION : Help viewing
 -*/
  
-static const char* rcsID = "$Id: helpview.cc,v 1.29 2007-02-05 18:14:36 cvsbert Exp $";
+static const char* rcsID = "$Id: helpview.cc,v 1.30 2007-03-22 16:15:05 cvsdgb Exp $";
 
 #include "helpview.h"
 #include "ascstream.h"
@@ -44,14 +44,14 @@ static bool GetBrowser( BufferString& defaultBrowser, BufferString& browserArgs)
     DWORD  keyType;
 
 
-    ret = RegOpenKeyEx( HKEY_CLASSES_ROOT, keyName, NULL,
+    ret = RegOpenKeyEx( HKEY_CLASSES_ROOT, keyName, 0,
 			KEY_ALL_ACCESS, &mykey);
 
     if (ret != ERROR_SUCCESS)
     {
-	char  *keyName = "http\\shell\\open\\command";
+	char* keynm = "http\\shell\\open\\command";
 
-	ret = RegOpenKeyEx( HKEY_CLASSES_ROOT, keyName, NULL,
+	ret = RegOpenKeyEx( HKEY_CLASSES_ROOT, keynm, 0,
 			    KEY_ALL_ACCESS, &mykey);
 
 	if (ret != ERROR_SUCCESS)
