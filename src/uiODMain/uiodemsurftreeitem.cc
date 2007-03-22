@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodemsurftreeitem.cc,v 1.20 2007-03-06 11:48:32 cvsjaap Exp $
+ RCS:		$Id: uiodemsurftreeitem.cc,v 1.21 2007-03-22 20:51:04 cvskris Exp $
 ___________________________________________________________________
 
 -*/
@@ -226,7 +226,11 @@ void uiODEarthModelSurfaceTreeItem::createMenuCB( CallBacker* cb )
     if ( menu->menuID()!=displayID() )
 	return;
 
+    mDynamicCastGet(visSurvey::Scene*,scene,
+	    	    ODMainWin()->applMgr().visServer()->getObject(sceneID()));
+    const bool hastransform = scene && scene->getDataTransform();
     MenuItem* trackmnu = menu->findItem(uiVisEMObject::trackingmenutxt);
+
     if ( isChecked() && trackmnu )
     {
 	EM::SectionID section = -1;
@@ -236,14 +240,15 @@ void uiODEarthModelSurfaceTreeItem::createMenuCB( CallBacker* cb )
 	    section = uivisemobj->getSectionID( menu->getPath() );
 
 	const bool hastracker = applMgr()->mpeServer()->getTrackerID(emid)>=0;
-	if ( !hastracker && !visserv->isLocked(displayid_) )
+	if ( !hastracker && !visserv->isLocked(displayid_) && !hastransform )
 	{
 	    mAddMenuItem( trackmnu, &starttrackmnuitem_, true, false );
 	    mResetMenuItem( &changesetupmnuitem_ );
 	    mResetMenuItem( &enabletrackingmnuitem_ );
 	    mResetMenuItem( &relationsmnuitem_ );
 	}
-	else if ( hastracker && section!=-1 && !visserv->isLocked(displayid_) )
+	else if ( hastracker && section!=-1 && !visserv->isLocked(displayid_) &&
+		  !hastransform )
 	{
 	    mAddMenuItem( trackmnu, &starttrackmnuitem_, false, false );
 	    mAddMenuItem( trackmnu, &changesetupmnuitem_, true, false );
