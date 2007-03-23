@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vismpeseedcatcher.cc,v 1.17 2007-03-09 09:19:14 cvsjaap Exp $";
+static const char* rcsID = "$Id: vismpeseedcatcher.cc,v 1.18 2007-03-23 11:34:53 cvsjaap Exp $";
 
 #include "vismpeseedcatcher.h"
 
@@ -152,11 +152,12 @@ void MPEClickCatcher::clickCB( CallBacker* cb )
     if ( eventinfo.mousebutton!=visBase::EventInfo::leftMouseButton() )
 	return;
 
-    if ( eventinfo.alt || eventinfo.ctrl && eventinfo.shift )
+    if ( eventinfo.alt )
 	return;
     
     info().setCtrlClicked( eventinfo.ctrl );
     info().setShiftClicked( eventinfo.shift );
+    info().setAltClicked( eventinfo.alt );
     info().setPos( eventinfo.pickedpos );
 
     for ( int idx=0; idx<eventinfo.pickedobjids.size(); idx++ )
@@ -183,7 +184,7 @@ void MPEClickCatcher::clickCB( CallBacker* cb )
 	    break;
 	}
 
-	if ( eventinfo.ctrl || eventinfo.shift )
+	if ( eventinfo.ctrl != eventinfo.shift )
 	    continue;
 	    
 	mCheckPlaneDataDisplay( trackertype_, dataobj, plane, legalclick1 );
@@ -254,6 +255,10 @@ void MPEClickCatcher::sendUnderlying2DSeis(
     const BufferString linenm = hor2d->geometry().lineName( lineid );
     const MultiID& lineset = hor2d->geometry().lineSet( lineid );
 
+    Seis2DDisplay* seis2dclosest = 0;
+    bool legalclickclosest;
+    float mindisttoseis2d;
+
     TypeSet<int> seis2dinscene;
     visBase::DM().getIds( typeid(visSurvey::Seis2DDisplay), seis2dinscene ); 
 
@@ -267,28 +272,48 @@ void MPEClickCatcher::sendUnderlying2DSeis(
 	mCheckSeis2DDisplay( trackertype_, dataobj, seis2ddisp, legalclick );
 	if ( !seis2ddisp )
 	    continue;
-
-	if ( lineset==seis2ddisp->lineSetID() && linenm==seis2ddisp->name() )	
+	
+	if ( lineid < 0 )
 	{
-	    RefMan<const Attrib::Data2DHolder> cache = seis2ddisp->getCache(0);
-	    RefMan<Attrib::DataCubes> cube = 0;
-
-	    if ( cache )
+	    float disttoseis2d = seis2ddisp->calcDist( eventinfo.pickedpos );
+	    
+	    if ( !seis2dclosest || disttoseis2d<mindisttoseis2d )
 	    {
-		cube = new Attrib::DataCubes;
-		if ( !cache->fillDataCube(*cube) )
-		    cube = 0;
+		mindisttoseis2d = disttoseis2d;
+		seis2dclosest = seis2ddisp;
+		legalclickclosest = legalclick;
 	    }
 
-	    info().setLegalClick( legalclick );
-	    info().setObjData( cube );
-	    info().setObjDataSelSpec( seis2ddisp->getSelSpec(0) );
-	    info().setObjLineSet( seis2ddisp->lineSetID() );
-	    info().setObjLineName( seis2ddisp->name() );
-	    info().setObjLineData( cache );
-	    click.trigger();
-	    return;
-    	}
+	    continue;
+	}
+
+	if ( lineset==seis2ddisp->lineSetID() && linenm==seis2ddisp->name() )
+	{
+	    seis2dclosest = seis2ddisp;
+	    legalclickclosest = legalclick;
+	    break;
+	}
+    }
+
+    if ( seis2dclosest )
+    {
+	RefMan<const Attrib::Data2DHolder> cache = seis2dclosest->getCache(0);
+	RefMan<Attrib::DataCubes> cube = 0;
+
+	if ( cache )
+	{
+	    cube = new Attrib::DataCubes;
+	    if ( !cache->fillDataCube(*cube) )
+		cube = 0;
+	}
+
+	info().setLegalClick( legalclickclosest );
+	info().setObjData( cube );
+	info().setObjDataSelSpec( seis2dclosest->getSelSpec(0) );
+	info().setObjLineSet( seis2dclosest->lineSetID() );
+	info().setObjLineName( seis2dclosest->name() );
+	info().setObjLineData( cache );
+	click.trigger();
     }
 }
 
@@ -308,7 +333,7 @@ void MPEClickCatcher::sendUnderlyingPlanes(
     
     if ( !nodepos.isDefined() )
     {
-	 if ( eventinfo.ctrl || eventinfo.shift ) return;
+	 if ( eventinfo.ctrl != eventinfo.shift ) return;
 
 	 Scene* scene = STM().currentScene();
 	 const Coord3 disppos = scene->getZScaleTransform()->
@@ -383,6 +408,10 @@ bool MPEClickInfo::isShiftClicked() const
 { return shiftclicked_; }
 
 
+bool MPEClickInfo::isAltClicked() const
+{ return altclicked_; }
+
+
 const EM::PosID& MPEClickInfo::getNode() const
 { return clickednode_; }
 
@@ -424,6 +453,7 @@ void MPEClickInfo::clear()
     legalclick_ = false; 
     ctrlclicked_ = false;
     shiftclicked_ = false;
+    altclicked_ = false;
     clickednode_ = EM::PosID( -1, -1, -1 );
     clickedpos_ = Coord3::udf();
     clickedobjid_ = -1;
@@ -446,6 +476,10 @@ void MPEClickInfo::setCtrlClicked( bool yn )
 
 void MPEClickInfo::setShiftClicked( bool yn )
 { shiftclicked_ = yn; }
+
+
+void MPEClickInfo::setAltClicked( bool yn )
+{ altclicked_ = yn; }
 
 
 void MPEClickInfo::setNode( const EM::PosID& pid )

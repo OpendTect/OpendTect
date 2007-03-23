@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vismpeseedcatcher.h,v 1.13 2007-03-09 09:16:59 cvsjaap Exp $
+ RCS:		$Id: vismpeseedcatcher.h,v 1.14 2007-03-23 11:34:53 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -46,6 +46,7 @@ public:
 
     bool                        isCtrlClicked() const; 
     bool                        isShiftClicked() const;
+    bool                        isAltClicked() const;
     const EM::PosID&		getNode() const;
     const Coord3&		getPos() const;
     int				getObjID() const;
@@ -64,6 +65,7 @@ protected:
 
     void			setCtrlClicked(bool); 
     void			setShiftClicked(bool);
+    void			setAltClicked(bool);
     void			setNode(const EM::PosID&);
     void			setPos(const Coord3&);
     void			setObjID(int);
@@ -78,6 +80,7 @@ protected:
     bool				legalclick_;
     bool				ctrlclicked_;
     bool				shiftclicked_;
+    bool				altclicked_;
     EM::PosID				clickednode_;
     Coord3				clickedpos_;
     int					clickedobjid_;
