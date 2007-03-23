@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: convolveattrib.h,v 1.12 2007-03-08 12:40:08 cvshelene Exp $
+ RCS:           $Id: convolveattrib.h,v 1.13 2007-03-23 11:35:08 cvshelene Exp $
 ________________________________________________________________________
 
     
@@ -64,8 +64,6 @@ public:
 
     static const float  	prewitt[];
 
-    void                        prepareForComputeData();
-
 protected:
     				~Convolve();
 
@@ -85,13 +83,12 @@ protected:
 					    int threadid) const;
 
     const BinID*		reqStepout(int input,int output) const;
-    const Interval<float>*	reqZMargin(int input,int output) const;
+    const Interval<int>*	reqZSampMargin(int input,int output) const;
 
     int				kerneltype_;
     int				shape_;
     int				size_;
     BinID			stepout_;
-    Interval<float>		interval_;
     Wavelet*			wavelet_;
 
     int				dataidx_;

@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: convolveattrib.cc,v 1.19 2007-03-08 12:40:08 cvshelene Exp $";
+static const char* rcsID = "$Id: convolveattrib.cc,v 1.20 2007-03-23 11:35:08 cvshelene Exp $";
 
 #include "convolveattrib.h"
 #include "attribdataholder.h"
@@ -330,10 +330,10 @@ const BinID* Convolve::reqStepout( int inp, int out ) const
 { return &stepout_; }
 
 
-const Interval<float>* Convolve::reqZMargin( int inp, int ) const
+const Interval<int>* Convolve::reqZSampMargin( int inp, int ) const
 {
     if ( !kernel_ ) return 0;
-    return &interval_;
+    return &kernel_->getSG();
 }
 
 
@@ -436,14 +436,5 @@ bool Convolve::allowParallelComputation() const
 {
     return kerneltype_==mKernelFunctionWavelet ? false : true;
 }
-
-
-void Convolve::prepareForComputeData()
-{
-    if ( !kernel_ ) return;
-    interval_ = Interval<float>( kernel_->getSG().start *refstep,
-				 kernel_->getSG().stop * refstep );
-}
-
 
 } // namespace Attrib
