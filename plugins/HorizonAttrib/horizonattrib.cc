@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		September 2006
- RCS:		$Id: horizonattrib.cc,v 1.4 2007-03-08 12:40:08 cvshelene Exp $
+ RCS:		$Id: horizonattrib.cc,v 1.5 2007-03-23 13:51:52 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -131,7 +131,6 @@ bool Horizon::computeData( const DataHolder& output, const BinID& relpos,
 	    		   bid.getSerialized() );
     const float zval = horizon_->getPos( posid ).z;
 
-    int attribidx = 0;
     TypeSet<float> outputvalues( nrOutputs(), mUdf(float) );
     for ( int idx=0; idx<nrOutputs(); idx++ )
     {
@@ -140,12 +139,8 @@ bool Horizon::computeData( const DataHolder& output, const BinID& relpos,
 	else if ( idx==1 && isOutputEnabled(1) )
 	    outputvalues[1] =
 	    		getInterpolInputValue( *inputdata_, dataidx_, zval );
-	else if ( isOutputEnabled(idx) )
-	{
-	    outputvalues[idx] = horizon_->auxdata.getAuxDataVal( attribidx,
-		    						 posid );
-	    attribidx++;
-	}
+	else if ( isOutputEnabled(idx) ) // surface data start at idx=2
+	    outputvalues[idx] = horizon_->auxdata.getAuxDataVal( idx-2, posid );
     }
 
     for ( int idx=0; idx<nrsamples; idx++ )
