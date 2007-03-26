@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		March 2007
- RCS:		$Id: offsetazimuth.h,v 1.1 2007-03-05 13:01:35 cvskris Exp $
+ RCS:		$Id: offsetazimuth.h,v 1.2 2007-03-26 18:21:19 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,6 +25,7 @@ circle).
 class OffsetAzimuth
 {
 public:
+			OffsetAzimuth() : offsetazi_( 0 ) 		{}
 			OffsetAzimuth(float off,float azi);
     bool		operator==(const OffsetAzimuth&) const;
     bool		operator!=(const OffsetAzimuth&) const;
