@@ -4,16 +4,17 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uibutton.cc,v 1.34 2007-03-07 17:53:24 cvsnanne Exp $
+ RCS:           $Id: uibutton.cc,v 1.35 2007-03-26 13:46:39 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include <uibutton.h>
-#include <i_qbutton.h>
-#include <pixmap.h>
+#include "uibutton.h"
+#include "i_qbutton.h"
+#include "uiobjbody.h"
+#include "pixmap.h"
+#include "settings.h"
 
-#include <uiobjbody.h>
 
 #include <qpushbutton.h>
 #include <qradiobutton.h>
@@ -302,27 +303,44 @@ bool uiCheckBox::isChecked () const		{ return body_->isChecked(); }
 void uiCheckBox::setChecked ( bool check )	{ body_->setChecked( check ); }
 
 
+static int preftbsz = -1;
+#define mSetDefPrefSzs() \
+    if ( preftbsz < 0 ) \
+    { \
+	Settings::common().get( "dTect.Icons.size", preftbsz ); \
+	if ( preftbsz < 10 || preftbsz > 64 ) \
+	    preftbsz = 28; \
+    } \
+    setPrefWidth( preftbsz ); setPrefHeight( preftbsz )
 
 uiToolButton::uiToolButton( uiParent* parnt, const char* nm )
     : uiButton( parnt, nm, 0, mkbody(parnt,0,nm) )
-{}
+{
+    mSetDefPrefSzs();
+}
 
 
 uiToolButton::uiToolButton( uiParent* parnt, const char* nm, const CallBack& cb)
     : uiButton( parnt, nm, &cb, mkbody(parnt,0,nm) )
-{}
+{
+    mSetDefPrefSzs();
+}
 
 
 uiToolButton::uiToolButton( uiParent* parnt, const char* nm,
 			    const ioPixmap& pm )
     : uiButton( parnt, nm, 0, mkbody(parnt,&pm,nm) )
-{}
+{
+    mSetDefPrefSzs();
+}
 
 
 uiToolButton::uiToolButton( uiParent* parnt, const char* nm,
 			    const ioPixmap& pm, const CallBack& cb )
     : uiButton( parnt, nm, &cb, mkbody(parnt,&pm,nm) )
-{}
+{
+    mSetDefPrefSzs();
+}
 
 
 uiToolButtonBody& uiToolButton::mkbody( uiParent* parnt, const ioPixmap* pm,
