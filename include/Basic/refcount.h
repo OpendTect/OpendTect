@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	K. Tingdahl
  Date:		13-11-2003
  Contents:	Basic functionality for reference counting
- RCS:		$Id: refcount.h,v 1.11 2006-11-15 19:53:50 cvskris Exp $
+ RCS:		$Id: refcount.h,v 1.12 2007-03-26 22:40:57 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -72,7 +72,7 @@ PtrMan.
 
 */
 
-#define mRefCountImplWithDestructor(ClassName, DestructorImpl ) \
+#define mRefCountImplWithDestructor(ClassName, DestructorImpl, delfunc ) \
 public: \
     void	ref() const \
 		{ \
@@ -85,7 +85,7 @@ public: \
 		    if ( !this ) \
 			return; \
 		    if ( !--__refcount.refcount_ ) \
-			delete this; \
+			delfunc \
 		} \
  \
     void	unRefNoDelete() const \
@@ -117,10 +117,10 @@ template <class T> inline void deep##funcname( ObjectSet<T>& set )\
 
 
 #define mRefCountImpl(ClassName) \
-mRefCountImplWithDestructor(ClassName, virtual ~ClassName() );
+mRefCountImplWithDestructor(ClassName, virtual ~ClassName(), delete this; );
 
 #define mRefCountImplNoDestructor(ClassName) \
-mRefCountImplWithDestructor(ClassName, virtual ~ClassName() {} );
+mRefCountImplWithDestructor(ClassName, virtual ~ClassName() {}, delete this; );
 
 
 mDeepRef(UnRef,unRef, set.erase() );
