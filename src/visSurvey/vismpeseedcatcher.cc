@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vismpeseedcatcher.cc,v 1.18 2007-03-23 11:34:53 cvsjaap Exp $";
+static const char* rcsID = "$Id: vismpeseedcatcher.cc,v 1.19 2007-03-26 10:06:10 cvsjaap Exp $";
 
 #include "vismpeseedcatcher.h"
 
@@ -85,6 +85,8 @@ visBase::Transformation* MPEClickCatcher::getDisplayTransformation()
 
 #define mCheckPlaneDataDisplay( typ, dataobj, plane, legalclick ) \
     mDynamicCastGet( PlaneDataDisplay*, plane, dataobj ); \
+    if ( !plane || !plane->isOn() ) \
+	plane = 0; \
     bool legalclick = !plane; \
     mCheckTracker( typ, Horizon, legalclick, \
 		   plane->getOrientation()!=PlaneDataDisplay::Timeslice ); 
@@ -99,6 +101,8 @@ visBase::Transformation* MPEClickCatcher::getDisplayTransformation()
 
 #define mCheckSeis2DDisplay( typ, dataobj, seis2ddisp, legalclick ) \
     mDynamicCastGet( Seis2DDisplay*, seis2ddisp, dataobj ); \
+    if ( !seis2ddisp || !seis2ddisp->isOn() ) \
+	seis2ddisp =  0; \
     bool legalclick = !seis2ddisp; \
     mCheckTracker( typ, Horizon2D, legalclick, true ); 
 
@@ -295,7 +299,7 @@ void MPEClickCatcher::sendUnderlying2DSeis(
 	}
     }
 
-    if ( seis2dclosest )
+    if ( seis2dclosest && mindisttoseis2d<=seis2dclosest->maxDist() )
     {
 	RefMan<const Attrib::Data2DHolder> cache = seis2dclosest->getCache(0);
 	RefMan<Attrib::DataCubes> cube = 0;
