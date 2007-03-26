@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          25/08/1999
- RCS:           $Id: uiobj.h,v 1.44 2007-03-07 17:43:06 cvsnanne Exp $
+ RCS:           $Id: uiobj.h,v 1.45 2007-03-26 16:56:22 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -61,8 +61,8 @@ public:
     void		setVSzPol(SzPolicy);
     SzPolicy		szPol( bool hor=true) const;
 
-    int			width() const;	//!< Actual size in pixels
-    int			height() const;	//!< Actual size in pixels
+    virtual int		width() const;	//!< Actual size in pixels
+    virtual int		height() const;	//!< Actual size in pixels
 
     void		setToolTip(const char*);
 #ifdef USEQT3

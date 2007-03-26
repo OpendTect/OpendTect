@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2000
- RCS:           $Id: uidrawable.h,v 1.10 2007-02-27 13:35:01 cvsnanne Exp $
+ RCS:           $Id: uidrawable.h,v 1.11 2007-03-26 16:56:22 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,6 +23,9 @@ public:
 			uiDrawableObj(uiParent* parnt,const char* nm, 
 				      uiObjectBody&);
     virtual		~uiDrawableObj()	{}
+
+    int			width() const;
+    int			height() const;
 
     void		setRubberBandingOn( bool yn )	{ rubberbandon_ = yn; }
     bool		isRubberBandingOn() const	{ return rubberbandon_;}
