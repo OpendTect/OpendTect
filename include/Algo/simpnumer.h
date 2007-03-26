@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	Bert BRil & Kris Tingdahl
  Date:		12-4-1999
  Contents:	'Simple' numerical functions
- RCS:		$Id: simpnumer.h,v 1.20 2007-03-26 09:53:51 cvsbert Exp $
+ RCS:		$Id: simpnumer.h,v 1.21 2007-03-26 16:55:32 cvsbert Exp $
 ________________________________________________________________________
 
 */
@@ -311,7 +311,7 @@ inline long double rad2deg( long double rad )
 
 
 template <class T>
-inline bool holdsClassValue( const T val, const int maxclss=50 )
+inline bool holdsClassValue( const T val, const unsigned int maxclss=50 )
 {
     if ( val < -mDefEps ) return false;
     if ( mIsUdf(val) ) return true;
@@ -321,8 +321,9 @@ inline bool holdsClassValue( const T val, const int maxclss=50 )
 
 
 template <class T>
-inline bool holdsClassValues( const T* vals, int sz,
-				const int maxclss=50, const int samplesz=100 )
+inline bool holdsClassValues( const T* vals, int64 sz,
+			      const unsigned int maxclss=50,
+			      const unsigned int samplesz=100 )
 {
     if ( sz < 1 ) return true;
     if ( sz <= samplesz )
@@ -335,12 +336,12 @@ inline bool holdsClassValues( const T* vals, int sz,
 	return true;
     }
 
-    static unsigned int seed = mUdf(int);
+    static int64 seed = mUdf(int64);
     seed *= seed + 1; // Clumsy but cheap sort-of random generation
 
     for ( int idx=0; idx<samplesz; idx++ )
     {
-	const int arridx = ((1+idx) * seed) % samplesz;
+	const int64 arridx = ((1+idx) * seed) % samplesz;
 	if ( !holdsClassValue(vals[arridx],maxclss) )
 	    return false;
     }
