@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		September 2006
- RCS:		$Id: uihorattribpi.cc,v 1.3 2007-02-19 10:42:29 cvsdgb Exp $
+ RCS:		$Id: uihorattribpi.cc,v 1.4 2007-03-26 13:45:53 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,12 +21,12 @@ extern "C" int GetuiHorizonAttribPluginType()
 extern "C" PluginInfo* GetuiHorizonAttribPluginInfo()
 {
     static PluginInfo retpi = {
-	"'Horizon' attribute",
+	"Horizon-Attribute",
 	"dGB - Nanne Hemstra",
 	"=od",
 	"The 'Horizon' Attribute allows getting values from horizons.\n"
-    	"Not to be confused with calculating attributes on horizons."
-        "You can even use the 'Horizon' attribute for horizons." };
+    	"Not to be confused with calculating attributes on horizons.\n"
+        "It can even be useful to apply the 'Horizon' attribute on horizons." };
     return &retpi;
 }
 
