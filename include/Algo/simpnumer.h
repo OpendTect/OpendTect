@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	Bert BRil & Kris Tingdahl
  Date:		12-4-1999
  Contents:	'Simple' numerical functions
- RCS:		$Id: simpnumer.h,v 1.19 2006-09-27 12:18:26 cvskris Exp $
+ RCS:		$Id: simpnumer.h,v 1.20 2007-03-26 09:53:51 cvsbert Exp $
 ________________________________________________________________________
 
 */
@@ -307,6 +307,44 @@ inline long double rad2deg( long double rad )
 {
     static long double rad2degconst = 180/M_PIl;
     return rad * rad2degconst;
+}
+
+
+template <class T>
+inline bool holdsClassValue( const T val, const int maxclss=50 )
+{
+    if ( val < -mDefEps ) return false;
+    if ( mIsUdf(val) ) return true;
+    const int ival = (int)(val + .5);
+    return ival <= maxclss && mIsEqual(val,ival,mDefEps);
+}
+
+
+template <class T>
+inline bool holdsClassValues( const T* vals, int sz,
+				const int maxclss=50, const int samplesz=100 )
+{
+    if ( sz < 1 ) return true;
+    if ( sz <= samplesz )
+    {
+	for ( int idx=0; idx<sz; idx++ )
+	{
+	    if ( !holdsClassValue(vals[idx],maxclss) )
+		return false;
+	}
+	return true;
+    }
+
+    static unsigned int seed = mUdf(int);
+    seed *= seed + 1; // Clumsy but cheap sort-of random generation
+
+    for ( int idx=0; idx<samplesz; idx++ )
+    {
+	const int arridx = ((1+idx) * seed) % samplesz;
+	if ( !holdsClassValue(vals[arridx],maxclss) )
+	    return false;
+    }
+    return true;
 }
 
 
