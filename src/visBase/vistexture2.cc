@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Jan 2003
- RCS:           $Id: vistexture2.cc,v 1.37 2007-02-16 16:36:30 cvskris Exp $
+ RCS:           $Id: vistexture2.cc,v 1.38 2007-03-26 16:55:46 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -119,28 +119,13 @@ void Texture2::setData( const Array2D<float>* newdata, DataType sel )
 }
 
 
-static const int sMaxNrClasses = 100;
-
 bool Texture2::isDataClassified( const Array2D<float>* newdata ) const
 {
-    const int datax0size = newdata->info().getSize(0);
-    const int datax1size = newdata->info().getSize(1);
-    for ( int x0=0; x0<datax0size; x0++ )
-    {
-	int nrint = 0;
-	for ( int x1=0; x1<datax1size; x1++ )
-	{
-	    const float val = newdata->get( x0, x1 );
-	    if ( mIsUdf(val) ) continue;
-	    const int ival = mNINT(val);
-	    if ( !mIsEqual(val,ival,mDefEps)
-	      || ival > sMaxNrClasses ) return false;
-	    nrint++;
-	    if ( nrint > 100 ) break;
-	}
-    }
+    if ( !newdata ) return false;
 
-    return true;
+    const int64 datax0size = newdata->info().getSize(0);
+    const int64 datax1size = newdata->info().getSize(1);
+    return holdsClassValues( newdata->getData(), datax0size * datax1size );
 }
 
 
