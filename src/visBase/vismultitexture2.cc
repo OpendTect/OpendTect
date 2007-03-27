@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vismultitexture2.cc,v 1.36 2007-03-21 17:24:21 cvskris Exp $";
+static const char* rcsID = "$Id: vismultitexture2.cc,v 1.37 2007-03-27 17:23:40 cvskris Exp $";
 
 
 #include "vismultitexture2.h"
@@ -292,6 +292,8 @@ bool MultiTexture2::setDataOversample( int texture, int version,
 {
     if ( !data ) return setData( texture, version, data );
 
+    dontshadesetting_ = true;	//If user has oversampling, we cannot easily
+    				//go back to non-oversamples
     const int datax0size = data->info().getSize(0);
     const int datax1size = data->info().getSize(1);
     if ( datax0size<2 || datax1size<2  )
