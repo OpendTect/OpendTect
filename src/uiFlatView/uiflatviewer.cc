@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewer.cc,v 1.19 2007-03-27 11:52:54 cvsbert Exp $
+ RCS:           $Id: uiflatviewer.cc,v 1.20 2007-03-27 18:54:53 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,6 +35,7 @@ uiFlatViewer::uiFlatViewer( uiParent* p )
     , extraborders_(0,0,0,0)
     , annotsz_(50,20) //TODO: should be dep on font size
     , viewChanged(this)
+    , prevfeedbackdata_( 0 )
     , dataChanged(this)
 {
     bmp2rgb_ = new FlatView::BitMap2RGB( appearance(), canvas_.rgbArray() );
@@ -95,6 +96,17 @@ void uiFlatViewer::setInitialSize( uiSize sz )
 }
 
 
+void uiFlatViewer::canvasNewFill( CallBacker* )
+{ drawBitMaps(); }
+
+
+void uiFlatViewer::canvasPostDraw( CallBacker* )
+{
+    drawAnnot();
+    drawFeedbackAnnot();
+}
+
+
 uiWorldRect uiFlatViewer::getBoundingBox( bool wva ) const
 {
     const FlatPosData& pd = data().pos( wva );
@@ -141,6 +153,12 @@ void uiFlatViewer::setView( uiWorldRect wr )
 
 void uiFlatViewer::handleChange( DataChangeType dct )
 {
+    if ( dct==FeedbackAnnot )
+    {
+	drawFeedbackAnnot();
+	return;
+    }
+
     reportedchange_ = dct;
     const FlatView::Annotation& annot = appearance().annot_;
     int l = extraborders_.left(); int r = extraborders_.right();
@@ -177,6 +195,7 @@ void uiFlatViewer::drawBitMaps()
     }
 
     bmp2rgb_->draw( wvabmpmgr_->bitMap(), vdbmpmgr_->bitMap() );
+    prevfeedbackdata_.empty();
 }
 
 
@@ -204,6 +223,30 @@ void uiFlatViewer::drawAnnot()
 
     dt.endDraw();
     reportedchange_ = None;
+}
+
+
+void uiFlatViewer::drawFeedbackAnnot()
+{
+    ioDrawTool& dt = *canvas_.drawTool();
+    dt.setRasterXor();
+    drawAux( prevfeedbackdata_ );	//Removes old
+
+    const FlatView::Annotation::AuxData* auxdata =
+					appearance().annot_.feedbackauxdata_;
+
+    if ( !auxdata )
+    {
+	prevfeedbackdata_.empty();
+    	return;
+    }
+    else
+    {
+	prevfeedbackdata_ = *auxdata;
+	drawAux( prevfeedbackdata_ );	//Draw new
+    }
+
+    dt.setRasterNorm();
 }
 
 
@@ -262,5 +305,59 @@ void uiFlatViewer::drawGridAnnot()
 
 void uiFlatViewer::drawAux( const FlatView::Annotation::AuxData& ad )
 {
-    pErrMsg( "TODO: implement Aux data draw" );
+    if ( ad.isEmpty() ) return;
+
+    const FlatView::Annotation& annot = appearance().annot_;
+    const uiRect datarect( canvas_.arrArea() );
+    uiWorldRect auxwr( wr_ );
+    if ( ad.x0rg_>=0 && ad.x0rg_<annot.auxranges_.size() )
+    {
+	auxwr.setLeft( annot.auxranges_[ad.x0rg_].start );
+	auxwr.setRight( annot.auxranges_[ad.x0rg_].stop );
+    }
+
+    if ( ad.x1rg_>=0 && ad.x1rg_<annot.auxranges_.size() )
+    {
+	auxwr.setTop( annot.auxranges_[ad.x1rg_].start );
+	auxwr.setBottom( annot.auxranges_[ad.x1rg_].stop );
+    }
+
+    const uiWorld2Ui w2u( auxwr, canvas_.arrArea().size() );
+
+    ioDrawTool& dt = *canvas_.drawTool();
+    TypeSet<uiPoint> ptlist;
+    for ( int idx=ad.poly_.size()-1; idx>=0; idx-- )
+	ptlist += w2u.transform( ad.poly_[idx] ) + datarect.topLeft();
+
+    if ( ad.fillcolor_!=Color::NoColor )
+    {
+	dt.setFillColor( ad.fillcolor_ );
+	dt.drawPolygon( ptlist );
+    }
+       
+    if ( ad.linestyle_.color!=Color::NoColor && ad.linestyle_.width>0 &&
+	 ad.linestyle_.type!=LineStyle::None )
+    {
+	dt.setLineStyle( ad.linestyle_ );
+	dt.drawLine( ptlist );
+    }
+
+    if ( ad.markerstyle_.type!=MarkerStyle2D::None &&
+	 ad.markerstyle_.size>0 && ad.markerstyle_.color!=Color::NoColor )
+    {
+	for ( int idx=ptlist.size()-1; idx>=0; idx-- )
+	    dt.drawMarker( ptlist[idx], ad.markerstyle_ );
+    }
+
+    if ( !ad.name_.isEmpty() && !mIsUdf(ad.namepos_) )
+    {
+	int listpos = ad.namepos_;
+	if ( listpos<0 ) listpos=0;
+	if ( listpos>ptlist.size() ) listpos=ptlist.size()-1;
+
+	dt.drawText( ptlist[listpos], ad.name_.buf(),
+		     Alignment( Alignment::Middle, Alignment::Middle ) );
+
+    }
 }
+

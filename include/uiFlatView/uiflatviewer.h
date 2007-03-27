@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewer.h,v 1.10 2007-03-13 18:31:38 cvsbert Exp $
+ RCS:           $Id: uiflatviewer.h,v 1.11 2007-03-27 18:54:53 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -60,29 +60,32 @@ public:
 
 protected:
 
-    uiRGBArrayCanvas&	canvas_;
-    FlatView::AxesDrawer& axesdrawer_; //!< Needs to be declared *after* canvas_
-    uiWorldRect		wr_;
+    uiRGBArrayCanvas&			canvas_;
+    FlatView::AxesDrawer& 		axesdrawer_;
+    					//!<Needs to be declared *after* canvas_
+    uiWorldRect				wr_;
+    FlatView::Annotation::AuxData	prevfeedbackdata_;
 
-    DataChangeType	reportedchange_;
-    float		dim0extfac_;
-    uiRect		extraborders_;
-    uiSize		annotsz_;
-    bool		anysetviewdone_;
-    bool		x0rev_;
-    bool		x1rev_;
+    DataChangeType		reportedchange_;
+    float			dim0extfac_;
+    uiRect			extraborders_;
+    uiSize			annotsz_;
+    bool			anysetviewdone_;
+    bool			x0rev_;
+    bool			x1rev_;
 
-    FlatView::BitMapMgr* wvabmpmgr_;
-    FlatView::BitMapMgr* vdbmpmgr_;
-    FlatView::BitMap2RGB* bmp2rgb_;
+    FlatView::BitMapMgr*	wvabmpmgr_;
+    FlatView::BitMapMgr*	vdbmpmgr_;
+    FlatView::BitMap2RGB*	bmp2rgb_;
 
-    void		canvasNewFill( CallBacker* )	{ drawBitMaps(); }
-    void		canvasPostDraw(CallBacker*)	{ drawAnnot(); }
+    void		canvasNewFill(CallBacker*);
+    void		canvasPostDraw(CallBacker*);
     uiWorldRect		getBoundingBox(bool) const;
     Color		color(bool foreground) const;
 
     void		drawBitMaps();
     void		drawAnnot();
+    void		drawFeedbackAnnot();
     void		drawGridAnnot();
     void		drawAux(const FlatView::Annotation::AuxData&);
     void		initView();
