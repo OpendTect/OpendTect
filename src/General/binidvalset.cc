@@ -4,7 +4,7 @@
  * DATE     : 21-6-1996
 -*/
 
-static const char* rcsID = "$Id: binidvalset.cc,v 1.19 2006-11-21 14:00:07 cvsbert Exp $";
+static const char* rcsID = "$Id: binidvalset.cc,v 1.20 2007-03-27 08:04:16 cvsbert Exp $";
 
 #include "binidvalset.h"
 #include "iopar.h"
@@ -573,18 +573,21 @@ void BinIDValueSet::remove( const TypeSet<BinIDValueSet::Pos>& poss )
 
 void BinIDValueSet::removeDuplicateBids()
 {
+    if ( isEmpty() ) return;
+
     Pos pos; next(pos,false);
     BinID prevbid; get( pos, prevbid );
-    bool donext = true;
+    TypeSet<BinIDValueSet::Pos> poss;
     BinID cur;
-    while ( !donext || next(pos,false) )
+    while ( next(pos,false) )
     {
 	get( pos, cur );
 	if ( prevbid == cur )
-	    { remove(pos); donext = false; }
+	    poss += pos;
 	else
 	    prevbid = cur;
     }
+    remove( poss );
 }
 
 
