@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2005
- RCS:           $Id: flatview.h,v 1.12 2007-03-27 18:52:13 cvskris Exp $
+ RCS:           $Id: flatview.h,v 1.13 2007-03-27 20:53:37 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,25 +40,24 @@ public:
     class AuxData
     {
     public:
-			AuxData( const char* nm );
-			~AuxData();
+				AuxData( const char* nm );
+				~AuxData();
 
-	BufferString	name_;
-	int		namepos_;	//!< nodraw=udf, before first=-1,
-					//!< center=0, after last=1
-	LineStyle	linestyle_;
-	Color		fillcolor_;
-	MarkerStyle2D	markerstyle_;
+	BufferString		name_;
+	int			namepos_;	//!<nodraw=udf, before first=-1,
+						//!< center=0, after last=1
+	LineStyle		linestyle_;
+	Color			fillcolor_;
+	MarkerStyle2D		markerstyle_;
 
-	char	x0rg_;	//!<refers to auxranges_
-			//!<-1 - use viewers range & zoom
-	char	x1rg_;	//!<refers to auxranges_
-			//!<-1 - use viewers range & zoom
-	TypeSet<Point>	poly_;
-	bool		close_;
+	Interval<double>*	x0rg_;		//!<if 0, use viewer's rg & zoom
+	Interval<double>*	x1rg_;		//!<if 0, use viewer's rg & zoom
 
-	bool		isEmpty() const;
-	void		empty();
+	TypeSet<Point>		poly_;
+	bool			close_;
+
+	bool			isEmpty() const;
+	void			empty();
     };
 
     struct AxisData
@@ -82,12 +81,10 @@ public:
     AxisData			x1_;
     AxisData			x2_;
     ObjectSet<AuxData>		auxdata_;
-    TypeSet<Interval<double> >	auxranges_;
     const AuxData*		feedbackauxdata_; 
     				/*!<Should be painted without full
 				   redraw for quick feedback.
 				   Data is managed from outside. */
-
     bool			showaux_;
 
     inline void		setAxesAnnot( bool yn ) //!< Convenience all or nothing
