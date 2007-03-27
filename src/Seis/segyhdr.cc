@@ -5,7 +5,7 @@
  * FUNCTION : Seg-Y headers
 -*/
 
-static const char* rcsID = "$Id: segyhdr.cc,v 1.41 2006-12-28 21:10:33 cvsnanne Exp $";
+static const char* rcsID = "$Id: segyhdr.cc,v 1.42 2007-03-27 12:01:08 cvsbert Exp $";
 
 
 #include "segyhdr.h"
@@ -446,13 +446,14 @@ void SegyBinHeader::print( std::ostream& strm ) const
     mPrHead( polyt, 56, "impulse signal polarity code" )
     mPrHead( vpol, 58, "vibratory polarity code" )
 
-    mPrHead( isrev1, 300, "[R1 only] SEG-Y revision code" )
-    mPrHead( fixdsz, 302, "[R1 only] Fixed trace size?" )
-    mPrHead( nrstzs, 304, "[R1 only] Number of extra headers" );
+    mPrHead( isrev1, 300, "[REV1 only] SEG-Y revision code" )
+    mPrHead( fixdsz, 302, "[REV1 only] Fixed trace size?" )
+    mPrHead( nrstzs, 304, "[REV1 only] Number of extra headers" );
 
     for ( int i=0; i<SegyBinHeaderUnassShorts; i++ )
 	if ( hunass[i] != 0 && (i < 21 || i > 23) )
-	    strm << "\tExtra\t" << 60 + 2*i << '\t' << hunass[i] << "(Non-standard - unassigned)\n";
+	    strm << "\tExtra\t" << 60 + 2*i << '\t' << hunass[i]
+		 << "\t(Non-standard - unassigned)\n";
     strm << std::endl;
 }
 
