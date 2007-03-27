@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribstorprovider.h,v 1.22 2007-03-22 16:05:54 cvshelene Exp $
+ RCS:           $Id: attribstorprovider.h,v 1.23 2007-03-27 16:30:40 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,6 +36,7 @@ public:
     void		updateStorageReqs(bool all=true);
     void		adjust2DLineStoredVolume();
     void		fillDataCubesWithTrc(DataCubes*) const;
+    void                setExactZ( TypeSet<float> exactz ) { exactz_ = exactz; }
 
 protected:
     			StorageProvider(Desc&);
@@ -73,6 +74,9 @@ protected:
     int			currentreq;
 
     CubeSampling	storedvolume;
+    TypeSet<float>	exactz_;	//only used for outputs which require
+    					//data at exact z values not placed 
+    					//at sample locations 
 
     enum Status        { Nada, StorageOpened, Ready } status;
 };

@@ -5,28 +5,29 @@
 -*/
 
 
-static const char* rcsID = "$Id: attriboutput.cc,v 1.56 2007-03-22 16:05:54 cvshelene Exp $";
+static const char* rcsID = "$Id: attriboutput.cc,v 1.57 2007-03-27 16:30:40 cvshelene Exp $";
 
 #include "attriboutput.h"
 
 #include "arraynd.h"
-#include "attribdataholder.h"
 #include "attribdatacubes.h"
+#include "attribdataholder.h"
 #include "convmemvalseries.h"
-#include "seistrc.h"
-#include "seistrctr.h"
-#include "seistrcsel.h"
-#include "seisbuf.h"
-#include "seiswrite.h"
-#include "survinfo.h"
+#include "interpol1d.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "iopar.h"
-#include "ptrman.h"
-#include "linekey.h"
-#include "scaler.h"
 #include "keystrs.h"
-#include "interpol1d.h"
+#include "linekey.h"
+#include "ptrman.h"
+#include "scaler.h"
+#include "seisbuf.h"
+#include "seistrc.h"
+#include "seistrcsel.h"
+#include "seistrctr.h"
+#include "seiswrite.h"
+#include "simpnumer.h"
+#include "survinfo.h"
 
 
 namespace Attrib
@@ -87,8 +88,9 @@ bool DataCubesOutput::wantsOutput( const BinID& bid ) const
 { return desiredvolume_.hrg.includes(bid); }
 
 
-TypeSet< Interval<int> > DataCubesOutput::getLocalZRange( const BinID&,
-							  float zstep ) const
+TypeSet< Interval<int> > DataCubesOutput::getLocalZRanges( const BinID&,
+							   float zstep,
+       							   TypeSet<float>&)const
 {
     if ( sampleinterval_.size() ==0 )
     {
@@ -487,8 +489,10 @@ void SeisTrcStorOutput::writeTrc()
 }
 
 
-TypeSet< Interval<int> > SeisTrcStorOutput::getLocalZRange( const BinID& bid,
-							    float zstep ) const
+TypeSet< Interval<int> > SeisTrcStorOutput::getLocalZRanges( 
+						    const BinID& bid,
+						    float zstep,
+						    TypeSet<float>& ) const
 {
     if ( sampleinterval_.size() == 0 )
     {
@@ -578,8 +582,9 @@ void TwoDOutput::setOutput( Data2DHolder& no )
 }
 
 
-TypeSet< Interval<int> > TwoDOutput::getLocalZRange( const BinID& bid,
-						     float zstep ) const
+TypeSet< Interval<int> > TwoDOutput::getLocalZRanges( const BinID& bid,
+						      float zstep,
+       						      TypeSet<float>& ) const
 {
     if ( sampleinterval_.size() == 0 )
     {
@@ -593,11 +598,14 @@ TypeSet< Interval<int> > TwoDOutput::getLocalZRange( const BinID& bid,
 
 LocationOutput::LocationOutput( BinIDValueSet& bidvalset )
     : bidvalset_(bidvalset)
+    , classstatus_(-1)
 {
     seldata_.all_ = false;
     seldata_.type_ = Seis::Table;
     seldata_.table_.allowDuplicateBids( true );
     seldata_.table_ = bidvalset;
+
+    arebiddupl_ = areBIDDuplicated();
 }
 
 
@@ -611,7 +619,17 @@ void LocationOutput::collectData( const DataHolder& data, float refstep,
     if ( bidvalset_.nrVals() < desnrvals )
 	bidvalset_.setNrVals( desnrvals );
 
+    if ( !arebiddupl_ )
+    {
+	float* vals = bidvalset_.getVals( pos );
+	for ( int comp=0; comp<desoutputs_.size(); comp++ )
+	    vals[comp+1] = data.series(desoutputs_[comp])->value(0);
+	return;
+    }
+
     const Interval<int> datarg( data.z0_, data.z0_+data.nrsamples_-1 );
+    bool isfirstz = true;
+    float firstz;
     while ( true )
     {
 	float* vals = bidvalset_.getVals( pos );
@@ -621,26 +639,50 @@ void LocationOutput::collectData( const DataHolder& data, float refstep,
 	bool canusepartdata = data.nrsamples_<4 && datarg.includes(lowz) 
 			      && datarg.includes(highz);
 	if ( isfulldataok || canusepartdata )
-	{
-	    for ( int comp=0; comp<desoutputs_.size(); comp++ )
-	    {
-		int serieidx = desoutputs_[comp];
-		float p0 = lowz-1 < data.z0_ ? mUdf(float)
-			      : data.series(serieidx)->value(lowz-1-data.z0_);
-	        float p1 = data.series(serieidx)->value(lowz-data.z0_);
-	        float p2 = data.series(serieidx)->value(highz-data.z0_);
-		float p3 = !datarg.includes(highz) ? mUdf(float)
-			      : data.series(serieidx)->value(highz+1-data.z0_);
-		float disttop1 = vals[0]/refstep - lowz;
-		float val = Interpolate::polyReg1DWithUdf( p0, p1, p2,
-							   p3, disttop1 );
-		vals[comp+1] = val;
-	    }
-	}
+	    computeAndSetVals( data, refstep, vals, firstz, isfirstz );
 
 	bidvalset_.next( pos );
 	if ( info.binid != bidvalset_.getBinID(pos) )
 	    break;
+    }
+}
+
+
+void LocationOutput::computeAndSetVals( const DataHolder& data, float refstep,
+					float* vals, float& firstz,
+					bool& isfirstz )
+{
+    const Interval<int> datarg( data.z0_, data.z0_+data.nrsamples_-1 );
+    const int lowz = mNINT( (vals[0]/refstep)-0.5 );
+    const int highz = mNINT( (vals[0]/refstep)+0.5 );
+    if ( isfirstz )
+	firstz = vals[0];
+    for ( int comp=0; comp<desoutputs_.size(); comp++ )
+    {
+	int serieidx = desoutputs_[comp];
+	float p0 = lowz-1 < data.z0_ ? mUdf(float)
+		      : data.series(serieidx)->value(lowz-1-data.z0_);
+	float p1 = data.series(serieidx)->value(lowz-data.z0_);
+	float p2 = data.series(serieidx)->value(highz-data.z0_);
+	float p3 = !datarg.includes(highz) ? mUdf(float)
+		      : data.series(serieidx)->value(highz+1-data.z0_);
+	if ( classstatus_ ==-1 || classstatus_ == 1 )
+	{
+	    TypeSet<float> tset;
+	    tset += p0; tset += p1; tset += p2; tset += p3;
+	    classstatus_ = holdsClassValues( tset.arr(), 4 ) ? 1 : 0;
+	}
+
+	float val;
+	if ( classstatus_ == 0 )
+	{
+	    float disttop1 = isfirstz ? 0 : firstz/refstep - vals[0]/refstep;
+	    val = Interpolate::polyReg1DWithUdf( p0, p1, p2, p3, disttop1 );
+	}
+	else 
+	    val = mNINT( (vals[0]/refstep) )==lowz ? p1 : p2;
+	vals[comp+1] = val;
+	if ( isfirstz ) isfirstz = false;
     }
 }
 
@@ -652,18 +694,28 @@ bool LocationOutput::wantsOutput( const BinID& bid ) const
 }
 
 
-TypeSet< Interval<int> > LocationOutput::getLocalZRange( const BinID& bid,
-							 float zstep ) const
+TypeSet< Interval<int> > LocationOutput::getLocalZRanges(
+						const BinID& bid, float zstep,
+						TypeSet<float>& exactz) const
 {
+    //TODO not 100% optimized, case of picksets for instance->find better algo
     TypeSet< Interval<int> > sampleinterval;
-
+    
     BinIDValueSet::Pos pos = bidvalset_.findFirst( bid );
     while ( pos.valid() )
     {
 	const float* vals = bidvalset_.getVals( pos );
-	Interval<int> interval( mNINT( (vals[0]/zstep) -0.5 )-1, 
-				mNINT( (vals[0]/zstep) +0.5 )+1 );
-	sampleinterval.addIfNew( interval );
+	int zidx = mNINT( (vals[0]/zstep) -0.5 ); 
+	Interval<int> interval( zidx, zidx );
+	if ( arebiddupl_ )
+	{
+	    interval.start = mNINT( (vals[0]/zstep) -0.5 )-1;
+	    interval.stop =  mNINT( (vals[0]/zstep) +0.5 )+1;
+	}
+	bool intvadded = sampleinterval.addIfNew( interval );
+	if ( intvadded )
+	    exactz += vals[0];
+	
 	bidvalset_.next( pos );
 	if ( bid != bidvalset_.getBinID(pos) )
 	    break;
@@ -672,6 +724,14 @@ TypeSet< Interval<int> > LocationOutput::getLocalZRange( const BinID& bid,
     return sampleinterval;
 }
 
+
+bool LocationOutput::areBIDDuplicated() const
+{
+    BinIDValueSet tmpset(bidvalset_);
+    tmpset.allowDuplicateBids(false);
+    
+    return tmpset.totalSize()<bidvalset_.totalSize();
+}
 
 TrcSelectionOutput::TrcSelectionOutput( const BinIDValueSet& bidvalset,
 					float outval )
@@ -780,8 +840,9 @@ void TrcSelectionOutput::setTrcsBounds( Interval<float> intv )
 }
 
 
-TypeSet< Interval<int> > TrcSelectionOutput::getLocalZRange( const BinID& bid,
-							     float zstep ) const
+TypeSet< Interval<int> > TrcSelectionOutput::getLocalZRanges(
+						const BinID& bid, float zstep,
+       						TypeSet<float>&	) const
 {
     BinIDValueSet::Pos pos = bidvalset_.findFirst( bid );
     BinID binid;

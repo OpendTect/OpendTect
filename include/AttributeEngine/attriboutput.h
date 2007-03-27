@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attriboutput.h,v 1.28 2007-01-04 15:29:26 cvshelene Exp $
+ RCS:           $Id: attriboutput.h,v 1.29 2007-03-27 16:30:40 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,7 +50,8 @@ public:
     void			setDesiredOutputs( const TypeSet<int>& outputs )
     				{ desoutputs_ = outputs; }
 
-    virtual TypeSet<Interval<int> > getLocalZRange(const BinID&,float) const =0;
+    virtual TypeSet<Interval<int> > getLocalZRanges(const BinID&,float,
+	    					    TypeSet<float>&) const =0;
     virtual void		collectData(const DataHolder&,float step,
 	    				    const SeisTrcInfo&)		 = 0;
     virtual void		writeTrc()		{};
@@ -86,7 +87,8 @@ public:
     bool			wantsOutput(const BinID&) const;
     virtual void		collectData(const DataHolder&,float step,
 	    				    const SeisTrcInfo&);
-    TypeSet< Interval<int> >	getLocalZRange(const BinID&,float) const;
+    TypeSet< Interval<int> >	getLocalZRanges(const BinID&,float,
+	    					TypeSet<float>&) const;
     virtual void		adjustInlCrlStep(const CubeSampling&);
     
 protected:
@@ -117,7 +119,8 @@ public:
     virtual void		collectData(const DataHolder&,float step,
 	    				    const SeisTrcInfo&);
     void			writeTrc();
-    TypeSet< Interval<int> >	getLocalZRange(const BinID&,float) const;
+    TypeSet< Interval<int> >	getLocalZRanges(const BinID&,float,
+	    					TypeSet<float>&) const;
     void			setOutpTypes(const TypeSet<Seis::DataType>& typ)
 				{ outptypes_ = typ; }
 
@@ -163,7 +166,8 @@ public:
 
     void			collectData(const DataHolder&,float step,
 	    				    const SeisTrcInfo&);
-    TypeSet< Interval<int> >	getLocalZRange(const BinID&,float) const;
+    TypeSet< Interval<int> >	getLocalZRanges(const BinID&,float,
+	    					TypeSet<float>&) const;
 
 protected:
 
@@ -185,7 +189,8 @@ public:
     bool			wantsOutput(const BinID&) const;
     virtual void		collectData(const DataHolder&,float step,
 	    				    const SeisTrcInfo&);
-    TypeSet< Interval<int> >	getLocalZRange(const BinID&,float) const;
+    TypeSet< Interval<int> >	getLocalZRanges(const BinID&,float,
+	    					TypeSet<float>&) const;
     
     static const char*		filenamekey;
     static const char*		locationkey;
@@ -194,6 +199,15 @@ public:
 
 protected:
     BinIDValueSet&		bidvalset_;
+    int				classstatus_; 	// -1 Unknow 
+    					      	//  0 Interpolate
+    					      	//  1 Classification
+
+    bool			arebiddupl_;	
+
+    void			computeAndSetVals(const DataHolder&,
+	    					  float,float*,float&,bool&);
+    bool			areBIDDuplicated() const;
 };
 
 
@@ -211,7 +225,8 @@ public:
     void			setTrcsBounds(Interval<float>);
     virtual void		collectData(const DataHolder&,float,
 	    				    const SeisTrcInfo&);
-    TypeSet< Interval<int> >	getLocalZRange(const BinID&,float) const;
+    TypeSet< Interval<int> >	getLocalZRanges(const BinID&,float,
+	    					TypeSet<float>&) const;
     
 protected:
     const BinIDValueSet&	bidvalset_;

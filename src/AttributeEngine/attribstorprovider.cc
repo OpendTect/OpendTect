@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribstorprovider.cc,v 1.58 2007-03-22 16:05:54 cvshelene Exp $";
+static const char* rcsID = "$Id: attribstorprovider.cc,v 1.59 2007-03-27 16:30:40 cvshelene Exp $";
 
 #include "attribstorprovider.h"
 
@@ -561,12 +561,22 @@ bool StorageProvider::fillDataHolderWithTrc( const SeisTrc* trc,
 					     const DataHolder& data ) const
 {
     const int z0 = data.z0_;
+    int offset = 0;
+    float exacttime = 0;
+    if ( needinterp )
+    {
+	int intvidx = localcomputezintervals.indexOf( 
+				    Interval<int>( z0, z0+data.nrsamples_-1) );
+	exacttime = exactz_[intvidx];
+	offset = mNINT( z0 - exacttime/refstep + 0.5 );
+    }
     
     Interval<float> trcrange = trc->info().sampling.interval(trc->size());
     trcrange.widen( 0.001 * trc->info().sampling.step );
     for ( int idx=0; idx<data.nrsamples_; idx++ )
     {
-	const float curt = (z0+idx)*refstep;
+	const float curt = needinterp ? exacttime + (offset+idx)*refstep 
+				      : (z0+idx)*refstep;
 	int compidx = -1;
 	for ( int idy=0; idy<outputinterest.size(); idy++ )
 	{

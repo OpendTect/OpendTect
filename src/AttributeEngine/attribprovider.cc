@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribprovider.cc,v 1.91 2007-03-22 16:05:54 cvshelene Exp $";
+static const char* rcsID = "$Id: attribprovider.cc,v 1.92 2007-03-27 16:30:40 cvshelene Exp $";
 
 #include "attribprovider.h"
 #include "attribstorprovider.h"
@@ -197,6 +197,7 @@ Provider::Provider( Desc& nd )
     , extraz_(0,0)
     , trcinfobid( -1, -1 )
     , prevtrcnr( 0 )
+    , needinterp( 0 )
     , useshortcuts_( 0 )
 {
     desc.ref();
@@ -1354,6 +1355,17 @@ void Provider::setUsedMultTimes()
 }
 
 
+void Provider::setNeedInterpol( bool yn )
+{
+    needinterp = yn;
+    for ( int idx=0; idx<inputs.size(); idx++ )
+    {
+	if ( inputs[idx] )
+	    inputs[idx]->setNeedInterpol( yn );
+    }
+}
+
+
 void Provider::resetDesiredVolume()
 {
     if ( desiredvolume )
@@ -1417,5 +1429,12 @@ void Provider::prepareForComputeData()
 	
 }
 
+
+void Provider::setExactZ( TypeSet<float> exactz )
+{
+    for ( int idx=0; idx<inputs.size(); idx++ )
+	if ( inputs[idx] )
+	    inputs[idx]->setExactZ( exactz );
+}
 
 }; // namespace Attrib

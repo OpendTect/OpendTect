@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribprocessor.cc,v 1.47 2007-03-22 16:05:54 cvshelene Exp $";
+static const char* rcsID = "$Id: attribprocessor.cc,v 1.48 2007-03-27 16:30:40 cvshelene Exp $";
 
 #include "attribprocessor.h"
 
@@ -168,7 +168,6 @@ void Processor::fullProcess( const SeisTrcInfo* curtrcinfo )
     }
 
     TypeSet< Interval<int> > localintervals;
-
     bool isset = setZIntervals( localintervals, curbid );
 
     for ( int idi=0; idi<localintervals.size(); idi++ )
@@ -312,6 +311,7 @@ void Processor::prepareForTableOutput()
 	    Interval<float> extraz( -2*provider_->getRefStep(), 
 		    		    2*provider_->getRefStep() );
 	    provider_->setExtraZ( extraz );
+	    provider_->setNeedInterpol(true);
 	}
     }
 }
@@ -353,26 +353,29 @@ bool Processor::setZIntervals( TypeSet< Interval<int> >& localintervals,
 {
     //TODO: Smarter way if output's intervals don't intersect
     bool isset = false;
+    TypeSet<float> exactz;
     for ( int idx=0; idx<outputs_.size(); idx++ )
     {
 	if ( !outputs_[idx]->wantsOutput(curbid) || curbid == prevbid_ ) 
 	    continue;
 
 	if ( isset )
-	{
 	    localintervals.append ( outputs_[idx]->
-			    getLocalZRange( curbid, provider_->getRefStep() ) );
-	}
+		getLocalZRanges( curbid, provider_->getRefStep(), exactz ) );
 	else
 	{
 	    localintervals = outputs_[idx]->
-			    getLocalZRange( curbid, provider_->getRefStep() );
+		getLocalZRanges( curbid, provider_->getRefStep(), exactz );
 	    isset = true;
 	}
     }
 
     if ( isset ) 
+    {
 	provider_->addLocalCompZIntervals( localintervals );
+	if ( !exactz.isEmpty() )
+	    provider_->setExactZ( exactz );
+    }
 
     return isset;
 }
