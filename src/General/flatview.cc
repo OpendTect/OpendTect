@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2000
- RCS:           $Id: flatview.cc,v 1.12 2007-03-27 18:34:28 cvskris Exp $
+ RCS:           $Id: flatview.cc,v 1.13 2007-03-27 18:52:13 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -214,8 +214,8 @@ FlatView::Annotation::AuxData::AuxData( const char* nm )
     , fillcolor_( Color::NoColor )
     , markerstyle_( MarkerStyle2D::None )
     , close_( false )
-    , x0rg_( mUdf(unsigned char) )
-    , x1rg_( mUdf(unsigned char) )
+    , x0rg_( -1 )
+    , x1rg_( -1 )
 {}
 
 

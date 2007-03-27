@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2005
- RCS:           $Id: flatview.h,v 1.11 2007-03-27 18:34:28 cvskris Exp $
+ RCS:           $Id: flatview.h,v 1.12 2007-03-27 18:52:13 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,10 +50,10 @@ public:
 	Color		fillcolor_;
 	MarkerStyle2D	markerstyle_;
 
-	unsigned char	x0rg_;	//!<refers to auxranges_
-				//!<-1 - use viewers range & zoom
-	unsigned char	x1rg_;	//!<refers to auxranges_
-				//!<-1 - use viewers range & zoom
+	char	x0rg_;	//!<refers to auxranges_
+			//!<-1 - use viewers range & zoom
+	char	x1rg_;	//!<refers to auxranges_
+			//!<-1 - use viewers range & zoom
 	TypeSet<Point>	poly_;
 	bool		close_;
 
