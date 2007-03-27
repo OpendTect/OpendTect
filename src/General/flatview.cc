@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2000
- RCS:           $Id: flatview.cc,v 1.11 2007-03-12 18:44:10 cvsbert Exp $
+ RCS:           $Id: flatview.cc,v 1.12 2007-03-27 18:34:28 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -166,9 +166,17 @@ void FlatView::Viewer::addAuxInfo( bool iswva, const Point& pt,
 FlatView::Annotation::Annotation( bool drkbg )
     : color_(drkbg ? Color::White : Color::Black)
     , showaux_(true)
+    , feedbackauxdata_( 0 )
 {
     x1_.name_ = "X1";
     x2_.name_ = "X2";
+}
+
+
+FlatView::Annotation::~Annotation()
+{
+    delete feedbackauxdata_;
+    deepErase( auxdata_ );
 }
 
 #define mIOPDoAxes(fn,keynm,memb) \
@@ -197,6 +205,30 @@ void FlatView::Annotation::usePar( const IOPar& iop )
     mIOPDoAxes2( getYN, sKeyIsRev, x1_.reversed_, x2_.reversed_ );
     iop.getYN( sKeyShwAux, showaux_ );
 }
+
+
+FlatView::Annotation::AuxData::AuxData( const char* nm )
+    : name_( nm )
+    , namepos_( mUdf(int) )
+    , linestyle_( LineStyle::None, 1, Color::NoColor )
+    , fillcolor_( Color::NoColor )
+    , markerstyle_( MarkerStyle2D::None )
+    , close_( false )
+    , x0rg_( mUdf(unsigned char) )
+    , x1rg_( mUdf(unsigned char) )
+{}
+
+
+FlatView::Annotation::AuxData::~AuxData()
+{}
+
+
+bool FlatView::Annotation::AuxData::isEmpty() const
+{ return poly_.isEmpty(); }
+
+
+void FlatView::Annotation::AuxData::empty()
+{ poly_.erase(); }
 
 
 #define mIOPDoWVA(fn,keynm,memb) \

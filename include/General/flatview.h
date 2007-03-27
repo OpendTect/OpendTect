@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2005
- RCS:           $Id: flatview.h,v 1.10 2007-03-10 12:13:46 cvsbert Exp $
+ RCS:           $Id: flatview.h,v 1.11 2007-03-27 18:34:28 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,35 +40,25 @@ public:
     class AuxData
     {
     public:
-	struct PolyPt
-	{
-	    		PolyPt( const Point& p, int nr=mUdf(int) )
-			    : p_(p), nr_(nr)		{}
-	    inline bool	operator ==( const PolyPt& pt ) const
-			{ return p_ == pt.p_; }
-	    Point	p_;
-	    int		nr_;
-	};
-
-			AuxData( const char* nm )
-			    : name_(nm)
-			    , namepos_(mUdf(int))
-			    , linecolor_(Color::NoColor)
-			    , fillcolor_(Color::NoColor)
-			    , markerstyle_(MarkerStyle2D::None)
-			    , close_(false)		{}
+			AuxData( const char* nm );
+			~AuxData();
 
 	BufferString	name_;
 	int		namepos_;	//!< nodraw=udf, before first=-1,
 					//!< center=0, after last=1
-	Color		linecolor_;
+	LineStyle	linestyle_;
 	Color		fillcolor_;
 	MarkerStyle2D	markerstyle_;
 
-	TypeSet<PolyPt>	poly_;
+	unsigned char	x0rg_;	//!<refers to auxranges_
+				//!<-1 - use viewers range & zoom
+	unsigned char	x1rg_;	//!<refers to auxranges_
+				//!<-1 - use viewers range & zoom
+	TypeSet<Point>	poly_;
 	bool		close_;
 
-	inline bool	isEmpty() const		{ return poly_.isEmpty(); }
+	bool		isEmpty() const;
+	void		empty();
     };
 
     struct AxisData
@@ -84,15 +74,21 @@ public:
     };
 
 
-			Annotation(bool darkbg);
-			~Annotation()		{ deepErase(auxdata_); }
+				Annotation(bool darkbg);
+				~Annotation();
 
-    BufferString	title_; //!< color not settable
-    Color		color_; //!< For axes
-    AxisData		x1_;
-    AxisData		x2_;
-    ObjectSet<AuxData>	auxdata_;
-    bool		showaux_;
+    BufferString		title_; //!< color not settable
+    Color			color_; //!< For axes
+    AxisData			x1_;
+    AxisData			x2_;
+    ObjectSet<AuxData>		auxdata_;
+    TypeSet<Interval<double> >	auxranges_;
+    const AuxData*		feedbackauxdata_; 
+    				/*!<Should be painted without full
+				   redraw for quick feedback.
+				   Data is managed from outside. */
+
+    bool			showaux_;
 
     inline void		setAxesAnnot( bool yn ) //!< Convenience all or nothing
 			{ x1_.showAll(yn); x2_.showAll(yn); }
@@ -321,7 +317,8 @@ public:
     bool		isVisible(bool wva) const;
     			//!< Depends on show_ and availability of data
 
-    enum DataChangeType	{ None, All, Annot, WVAData, VDData, WVAPars, VDPars };
+    enum DataChangeType	{ None, All, Annot, FeedbackAnnot, WVAData, VDData,
+			  WVAPars, VDPars };
     virtual void	handleChange(DataChangeType)	= 0;
 
     virtual void	fillPar( IOPar& iop ) const
