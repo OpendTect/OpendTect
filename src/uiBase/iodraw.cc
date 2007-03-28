@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/12/1999
- RCS:           $Id: iodraw.cc,v 1.23 2007-03-07 17:53:24 cvsnanne Exp $
+ RCS:           $Id: iodraw.cc,v 1.24 2007-03-28 12:20:46 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,38 +17,35 @@ ________________________________________________________________________
 #include "uifont.h"
 #include "draw.h"
 
-#include <qpainter.h>
-#include <qpen.h>
-#include <qbrush.h>
 #ifdef USEQT3
+# include <qpen.h>
+# include <qbrush.h>
 # include <qpaintdevicemetrics.h>
 # include <qpointarray.h>
+# include <qpainter.h>
 #else
 # include <QPolygon>
-#endif
-
-#ifdef USEQT3
-# include <qpainter.h>
-# define mQPainter QPainter
-#else
 # include <QPainter>
-# define mQPainter QPainter
+# include <QPen>
+# include <QBrush>
 #endif
 
 
-ioDrawTool::ioDrawTool( QPaintDevice* handle, int x_0, int y_0 )
-    : qpainter_( 0 )
-    , qpen_( *new QPen() )
-    , freeqpainter_ ( false )
-    , qpaintdev_( handle )
+ioDrawTool::ioDrawTool( QPaintDevice* handle )
+    : qpainter_(0)
+    , qpaintermine_(false)
+    , qpen_(*new QPen())
+    , qpaintdev_(handle)
+    , font_(&uiFontList::get())
 #ifdef USEQT3
     , qpaintdevmetr_( 0 )
 #endif
-    , active_( false ) 
-    , x0_( x_0 )
-    , y0_( y_0 )
-    , font_( &uiFontList::get() )
-{}
+{
+    if ( !qpaintdev_ )
+	pErrMsg("Null paint device passed. Crash will follow");
+
+    setLineStyle( LineStyle() );
+}
 
 
 ioDrawTool::~ioDrawTool() 
@@ -65,56 +62,13 @@ ioDrawTool::~ioDrawTool()
 }
 
 
-void ioDrawTool::drawLine( int x1, int y1, int x2, int y2 )
-{
-    if ( !active() && !beginDraw() ) return;
-    qpainter_->drawLine( x1-x0_, y1-y0_, x2-x0_, y2-y0_ );
-}
-
-
-void ioDrawTool::drawLine( const uiPoint& p1, const uiPoint& p2 )
-{ drawLine ( p1.x, p1.y, p2.x, p2.y ); }
-
-
-void ioDrawTool::drawLine( const TypeSet<uiPoint>& pts, int pt0, int nr )
-{
-    if ( !active() && !beginDraw() ) return;
-
-    int nrpoints = nr > 0 ? nr : pts.size();
-#ifdef USEQT3
-    QPointArray qarray( nrpoints );
-#else
-    QPolygon qarray( nrpoints );
-#endif
-
-    for ( int idx=0; idx<nrpoints; idx++ )
-	qarray.setPoint( (unsigned int)idx, pts[idx+pt0].x, pts[idx+pt0].y);
-
-    qpainter_->drawPolyline( qarray );
-}
-
-
-void ioDrawTool::drawPolygon( const TypeSet<uiPoint>& pts, int pt0, int nr )
-{
-    if ( !active() && !beginDraw() ) return;
-
-    int nrpoints = nr > 0 ? nr : pts.size();
-#ifdef USEQT3
-    QPointArray qarray( nrpoints );
-#else
-    QPolygon qarray( nrpoints );
-#endif
-
-    for ( int idx=0; idx<nrpoints; idx++ )
-	qarray.setPoint( (unsigned int)idx, pts[idx+pt0].x, pts[idx+pt0].y);
-
-    qpainter_->drawPolygon( qarray );
-}
+#define mIsActive() (qpainter_ && qpainter_->isActive())
+#define mEnsureActive() if ( !ensureActive() ) return
 
 
 void ioDrawTool::drawText( int x, int y, const char* txt, const Alignment& al )
 {
-    if ( !active() && !beginDraw() ) return;
+    mEnsureActive();
 
     uiPoint bl( x, y );
     const uiSize sz( font_->width(txt), font_->ascent() );
@@ -132,43 +86,91 @@ void ioDrawTool::drawText( int x, int y, const char* txt, const Alignment& al )
 
 
 void ioDrawTool::drawText( const uiPoint& p, const char* t, const Alignment& a )
-{ drawText( p.x, p.y, t, a ); }
-
-
-void ioDrawTool::drawEllipse ( int x, int y, int w, int h )
 {
-    if ( !active() && !beginDraw() ) return;
-    qpainter_->drawEllipse ( x-x0_, y-y0_, w, h );
+    drawText( p.x, p.y, t, a );
 }
 
 
-void ioDrawTool::drawEllipse( const uiPoint& topLeft, const uiSize& sz )
-{ drawEllipse( topLeft.x, topLeft.y, sz.hNrPics(), sz.vNrPics()); }
+void ioDrawTool::drawLine( int x1, int y1, int x2, int y2 )
+{
+    mEnsureActive();
+    qpainter_->drawLine( x1, y1, x2, y2 );
+}
 
 
-void ioDrawTool::drawEllipse( const uiRect& r )
-{ drawEllipse( r.left(), r.top(), r.hNrPics(), r.vNrPics()); }
+void ioDrawTool::drawLine( const uiPoint& p1, const uiPoint& p2 )
+{
+    drawLine( p1.x, p1.y, p2.x, p2.y );
+}
+
+
+void ioDrawTool::drawLine( const TypeSet<uiPoint>& pts, bool close )
+{
+    const int nrpoints = pts.size();
+    if ( nrpoints < 2 ) return;
+
+#ifdef USEQT3
+    QPointArray qarray( nrpoints );
+#else
+    QPolygon qarray( nrpoints );
+#endif
+
+    for ( int idx=0; idx<nrpoints; idx++ )
+	qarray.setPoint( (unsigned int)idx, pts[idx].x, pts[idx].y );
+
+    if ( close )
+	qpainter_->drawPolygon( qarray );
+    else
+	qpainter_->drawPolyline( qarray );
+}
 
 
 void ioDrawTool::drawRect ( int x, int y, int w, int h )
 {
-    if ( !active() && !beginDraw() ) return;
-    const int pensize = mMAX(1,qpainter_->pen().width() );
-    qpainter_->drawRect ( x-x0_, y-y0_, w-pensize, h-pensize );
+    mEnsureActive();
+    int pensize = qpainter_->pen().width();
+    if ( pensize < 1 )
+	{ pErrMsg("Pen size < 1"); pensize = 1; }
+    qpainter_->drawRect ( x, y, w - pensize, h - pensize );
 }
 
 
 void ioDrawTool::drawRect( const uiPoint& topLeft, const uiSize& sz )
-{ drawRect( topLeft.x, topLeft.y, sz.hNrPics(), sz.vNrPics()); }
+{
+    drawRect( topLeft.x, topLeft.y, sz.hNrPics(), sz.vNrPics() );
+}
 
 
 void ioDrawTool::drawRect( const uiRect& r )
-{ drawRect( r.left(), r.top(), r.hNrPics(), r.vNrPics()); }
+{
+    drawRect( r.left(), r.top(), r.hNrPics(), r.vNrPics() );
+}
+
+
+void ioDrawTool::drawEllipse ( int x, int y, int w, int h )
+{
+    mEnsureActive();
+    qpainter_->drawEllipse ( x, y, w, h );
+}
+
+
+void ioDrawTool::drawEllipse( const uiPoint& topLeft, const uiSize& sz )
+{
+    drawEllipse( topLeft.x, topLeft.y, sz.hNrPics(), sz.vNrPics());
+}
+
+
+void ioDrawTool::drawEllipse( const uiRect& r )
+{
+    drawEllipse( r.left(), r.top(), r.hNrPics(), r.vNrPics() );
+}
+
 
 
 Color ioDrawTool::backgroundColor() const
 {
-    if ( !active() ) return Color::Black;
+    ensureActive();
+    if ( !mIsActive() ) return Color::Black;
 #ifdef USEQT3
     return Color( qpainter_->backgroundColor().rgb() );
 #else
@@ -179,7 +181,7 @@ Color ioDrawTool::backgroundColor() const
 
 void ioDrawTool::setBackgroundColor( const Color& c )
 {
-    if ( !active() && !beginDraw() ) return;
+    mEnsureActive();
 #ifdef USEQT3
     qpainter_->setBackgroundColor( QColor( QRgb(c.rgb()) ) );
 #else
@@ -192,84 +194,58 @@ void ioDrawTool::setBackgroundColor( const Color& c )
 
 void ioDrawTool::clear( const uiRect* rect, const Color* col )
 {
-    if ( !active() && !beginDraw() ) return;
-
-    uiRect r( 0, 0, getDevWidth(), getDevHeight() );
-    if ( rect ) 
-    {
-	r = *rect;
-	if ( x0_ || y0_ )
-	{
-	    r.setLeft( r.left() - x0_ );
-	    r.setRight( r.right()  - x0_ );
-	    r.setTop( r.top()  - y0_ );
-	    r.setBottom( r.bottom()- y0_ );
-	}
-    }
-
+    mEnsureActive();
 #ifndef USEQT3
     qpainter_->eraseRect( 0, 0, getDevWidth(), getDevHeight() );
     return;
 #endif
-    Color c( backgroundColor() );
-    if ( !col ) col = &c;
-    setPenColor( *col ); setFillColor( *col );
+
+    uiRect r( 0, 0, getDevWidth(), getDevHeight() );
+    if ( rect ) r = *rect;
+    Color c( col ? *col : backgroundColor() );
+    setPenColor( c ); setFillColor( c );
     drawRect( r );
 }
 
 
 void ioDrawTool::drawBackgroundPixmap( const Color* col )
 {
-    if ( !active() && !beginDraw() ) return;
-    setBackgroundColor( *col );
+    mEnsureActive();
+    if ( col ) setBackgroundColor( *col );
     qpainter_->setBackgroundMode( Qt::OpaqueMode );
     qpainter_->setBrush( Qt::DiagCrossPattern );
     drawRect( uiRect( 0, 0, getDevWidth(), getDevHeight() ) );
 }
 
 
-void ioDrawTool::drawPixmap (const uiPoint& destTopLeft, const ioPixmap* pm,
-			     const uiRect& srcAreaInPixmap )
+void ioDrawTool::drawPixmap (const uiPoint& desttl, const ioPixmap* pm,
+			     const uiRect& pmsrcarea )
 {
     if ( !pm || !pm->qpixmap() ) 
-    { 
-	pErrMsg( "ioDrawTool::drawPixmap : No pixmap" ); 
-	return; 
-    }
+	{ pErrMsg( "No pixmap" ); return; }
 
-    if ( !active() && !beginDraw() ) return;
+    mEnsureActive();
 
-    QRect src( QPoint(srcAreaInPixmap.left(),srcAreaInPixmap.top()),
-	       QPoint(srcAreaInPixmap.right(),srcAreaInPixmap.bottom()) );
-    
-    QPoint dest( destTopLeft.x-x0_, destTopLeft.y-y0_ );
-
+    QRect src( QPoint(pmsrcarea.left(),pmsrcarea.top()),
+	       QPoint(pmsrcarea.right(),pmsrcarea.bottom()) );
+    QPoint dest( desttl.x, desttl.y );
     qpainter_->drawPixmap( dest, *pm->qpixmap(), src );
-
 }
 
 
 void ioDrawTool::drawPixmap( int left, int top, ioPixmap* pm,
-			     int sLeft, int sTop, int sRight, int sBottom )
-{ drawPixmap( uiPoint( left, top ), pm, uiRect( sLeft, sTop, sRight, sBottom )); }
+			     int sleft, int stop, int sright, int sbottom )
+{
+    drawPixmap( uiPoint(left,top), pm, uiRect(sleft,stop,sright,sbottom));
+}
 
 
 int ioDrawTool::getDevHeight() const
-//! \return height in pixels of the device we're drawing on
 {
 #ifdef USEQT3
     if ( !qpaintdevmetr_ )
-    { 
-	if ( !qpaintdev_ )  
-	{
-	    pErrMsg("No paint device! Can not construct QPaintDevMetrics");
-	    return 0;
-	}
-
 	const_cast<ioDrawTool*>(this)->qpaintdevmetr_
-					= new QPaintDeviceMetrics( qpaintdev_ );
-    }
-
+			    = new QPaintDeviceMetrics( qpaintdev_ );
     return qpaintdevmetr_->height();
 #else
     return qpaintdev_->height();
@@ -278,30 +254,16 @@ int ioDrawTool::getDevHeight() const
 
 
 int ioDrawTool::getDevWidth() const
-//! \return width in pixels of the device we're drawing on
 {
 #ifdef USEQT3
     if ( !qpaintdevmetr_ )
-    { 
-	if ( !qpaintdev_ )  
-	{
-	    pErrMsg("No paint device! Can not construct QPaintDevMetrics");
-	    return 0;
-	}
-
 	const_cast<ioDrawTool*>(this)->qpaintdevmetr_
-					= new QPaintDeviceMetrics( qpaintdev_ );
-    }
-
+			    = new QPaintDeviceMetrics( qpaintdev_ );
     return qpaintdevmetr_->width();
 #else
     return qpaintdev_->width(); 
 #endif
 }
-
-
-uiSize ioDrawTool::getDevSize() const
-{ return uiSize( getDevWidth(), getDevHeight() ); }
 
 
 void ioDrawTool::drawMarker( const uiPoint& pt, const MarkerStyle2D& mstyle,
@@ -314,17 +276,16 @@ void ioDrawTool::drawMarker( const uiPoint& pt, const MarkerStyle2D& mstyle,
     case MarkerStyle2D::Square:
 	drawRect( pt.x-mstyle.size, pt.y-mstyle.size,
 		  2 * mstyle.size, 2 * mstyle.size );
-        break;
+    break;
     case MarkerStyle2D::Circle:
-	drawEllipse( pt.x - mstyle.size, pt.y - mstyle.size,
-		     2*mstyle.size, 2*mstyle.size );
-        break;
+	drawCircle( pt.x - mstyle.size, pt.y - mstyle.size, mstyle.size );
+    break;
     case MarkerStyle2D::Cross:
 	drawLine( pt.x-mstyle.size, pt.y-mstyle.size,
 		  pt.x+mstyle.size, pt.y+mstyle.size );
 	drawLine( pt.x-mstyle.size, pt.y+mstyle.size,
 		  pt.x+mstyle.size, pt.y-mstyle.size );
-        break;
+    break;
     }
 
     if ( txt && *txt )
@@ -336,7 +297,6 @@ void ioDrawTool::drawMarker( const uiPoint& pt, const MarkerStyle2D& mstyle,
 	    al.ver = below ? Alignment::Start : Alignment::Stop;
 	    yoffs = below ? mstyle.size+1 : -mstyle.size-1;
 	}
-
 	drawText( uiPoint(pt.x,pt.y+yoffs), txt, al );
     }
 }
@@ -348,22 +308,22 @@ void ioDrawTool::setLineStyle( const LineStyle& ls )
     qpen_.setColor( QColor( QRgb( ls.color.rgb() )));
     qpen_.setWidth( ls.width );
 
-    if ( !active() ) return;
-    qpainter_->setPen( qpen_ ); 
+    if ( mIsActive() )
+	qpainter_->setPen( qpen_ ); 
 }
 
 
 void ioDrawTool::setPenColor( const Color& colr )
 {
     qpen_.setColor( QColor( QRgb(colr.rgb()) ) );
-    if ( qpainter_ ) qpainter_->setPen( qpen_ ); 
+    if ( mIsActive() )
+	qpainter_->setPen( qpen_ ); 
 }
 
 
 void ioDrawTool::setFillColor( const Color& colr )
 { 
-    if ( !active() && !beginDraw() ) return;
-
+    mEnsureActive();
     qpainter_->setBrush( QColor( QRgb(colr.rgb()) ) );
 }
 
@@ -371,7 +331,7 @@ void ioDrawTool::setFillColor( const Color& colr )
 void ioDrawTool::setPenWidth( unsigned int w )
 {
     qpen_.setWidth( w );
-    if ( !active() ) return;
+    if ( !mIsActive() ) return;
     qpainter_->setPen( qpen_ ); 
 }
 
@@ -379,122 +339,97 @@ void ioDrawTool::setPenWidth( unsigned int w )
 void ioDrawTool::setFont( const uiFont& f )
 {
     font_ = &f;
-    if ( !active() ) return;
+    if ( !mIsActive() ) return;
     qpainter_->setFont( font_->qFont() );
 }
 
-/*! start drawing
-\return true if active
 
-*/
-bool ioDrawTool::beginDraw()
+bool ioDrawTool::ensureActive() const
 {
-    if ( !qpaintdev_ && !qpainter_ ) return false;
-
+    ioDrawTool& self = *const_cast<ioDrawTool*>( this );
     if ( !qpainter_ ) 
     {
-	qpainter_ = new mQPainter;
-	freeqpainter_ = true;
+	self.qpainter_ = new QPainter;
+	self.qpaintermine_ = true;
     }
 
-    if ( !active_ ) 
+    if ( !qpainter_->isActive() )
     {
-        if ( !qpainter_->isActive() )
+	if ( !self.qpainter_->begin( qpaintdev_ ) )
 	{
-	    if ( !qpaintdev_ || !qpainter_->begin( qpaintdev_ ) )
-            {
-		pErrMsg("Unable to make painter active!");
-		return false;
-            }
-	}  
-
-	active_ = true;
-    }
-
-    qpainter_->setPen( qpen_ ); 
-    qpainter_->setFont( font_->qFont() ); 
+	    pErrMsg( "Cannot make qpainter active" );
+	    return false;
+	}
+	self.qpainter_->setPen( qpen_ ); 
+	self.qpainter_->setFont( font_->qFont() ); 
+    }  
 
     return true;
 }
 
 
-bool ioDrawTool::endDraw()
+bool ioDrawTool::deActivate()
 {
-    if ( !qpainter_ ) return false;
-    
-    if ( active_ )
+    if ( mIsActive() )
     {   
 #ifdef USEQT3
 	qpainter_->flush();
 #endif
 	qpainter_->end();
-        active_ = false;
     }
 
-    if ( freeqpainter_ ) delete qpainter_;
+    if ( qpaintermine_ ) delete qpainter_;
     qpainter_ = 0;
-
     return true;
 }
 
 
-bool ioDrawTool::setActivePainter( mQPainter* p )
+bool ioDrawTool::setActivePainter( QPainter* p )
 {
-    if ( qpainter_ ) return false;
-    if ( active_ ) return false;
+    deActivate();
 
-    qpainter_ = p;
-    freeqpainter_ = false;
-    active_ = true;
-
-    return true;
+    qpainter_ = p; qpaintermine_ = false;
+    if ( qpainter_ )
+    {
+	qpainter_->setPen( qpen_ ); 
+	qpainter_->setFont( font_->qFont() ); 
+    }
+    return ensureActive();
 }
 
 
 void ioDrawTool::setRasterXor()
 {
-    if ( !active() ) return;
+    mEnsureActive();
 #ifdef USEQT3
     qpainter_->setRasterOp( Qt::XorROP );
 #else 
-    qpainter_->setCompositionMode( mQPainter::CompositionMode_Xor );
+    qpainter_->setCompositionMode( QPainter::CompositionMode_Xor );
 #endif
 }
 
 
 void ioDrawTool::setRasterNorm()
 {
-    if ( !active() ) return;
+    mEnsureActive();
 #ifdef USEQT3
     qpainter_->setRasterOp( Qt::CopyROP );
 #else
     qpainter_->setCompositionMode(
-			    mQPainter::CompositionMode_SourceOver );
+			    QPainter::CompositionMode_SourceOver );
 #endif
 }
 
 
-ioDrawAreaImpl::~ioDrawAreaImpl()
-{ 
-    delete drawtool;
-}
-
-
-ioDrawTool* ioDrawAreaImpl::drawTool_( int x0, int y0 )
-{
-    if ( drawtool )
-	drawtool->setOrigin( x0, y0 );
-    else
-	drawtool = new ioDrawTool(mQPaintDevice(),x0,y0);
-
-    return drawtool;
-};
-
-
 void ioDrawAreaImpl::releaseDrawTool()
 {
-    if ( !drawtool ) return;
-
-    delete drawtool;
-    drawtool=0;
+    delete dt_; dt_ = 0;
 }
+
+
+ioDrawTool& ioDrawAreaImpl::drawTool()
+{
+    if ( !dt_ )
+	dt_ = new ioDrawTool( qPaintDevice() );
+    return *dt_;
+};

@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uirgbarraycanvas.cc,v 1.4 2007-02-28 13:37:04 cvshelene Exp $
+ RCS:           $Id: uirgbarraycanvas.cc,v 1.5 2007-03-28 12:20:46 cvsbert Exp $
  ________________________________________________________________________
 
 -*/
@@ -80,9 +80,8 @@ void uiRGBArrayCanvas::setupChg()
 
 void uiRGBArrayCanvas::beforeDraw( CallBacker* )
 {
-    drawTool()->beginDraw();
-    drawTool()->setBackgroundColor( bgcolor_ );
-    drawTool()->clear();
+    drawTool().setBackgroundColor( bgcolor_ );
+    drawTool().clear();
 
     const uiSize totsz( width(), height() );
     const int unusedpix = 1; // There seems to be an undrawable border
@@ -127,7 +126,7 @@ void uiRGBArrayCanvas::reDrawHandler( uiRect updarea )
     if ( pixrect.right() < 1 && pixrect.bottom() < 1 )
 	return;
 
-    drawTool()->drawPixmap( arrarea_.topLeft(), pixmap_, pixrect );
+    drawTool().drawPixmap( arrarea_.topLeft(), pixmap_, pixrect );
 }
 
 

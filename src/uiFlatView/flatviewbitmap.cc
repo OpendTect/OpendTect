@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:		Feb 2007
- RCS:           $Id: flatviewbitmap.cc,v 1.6 2007-03-21 08:36:05 cvsbert Exp $
+ RCS:           $Id: flatviewbitmap.cc,v 1.7 2007-03-28 12:20:46 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -62,10 +62,10 @@ void FlatView::BitMapMgr::setupChg()
 	const DataDispPars::WVA& wvapars = app.ddpars_.wva_;
 	WVAA2DBitMapGenerator* wvagen
 	    		= new WVAA2DBitMapGenerator( *data_, *pos_ );
-	wvagen->wvapars().drawwiggles_ = wvapars.wigg_ != Color::NoColor;
-	wvagen->wvapars().drawmid_ = wvapars.mid_ != Color::NoColor;
-	wvagen->wvapars().fillleft_ = wvapars.left_ != Color::NoColor;
-	wvagen->wvapars().fillright_ = wvapars.right_ != Color::NoColor;
+	wvagen->wvapars().drawwiggles_ = wvapars.wigg_.isVisible();
+	wvagen->wvapars().drawmid_ = wvapars.mid_.isVisible();
+	wvagen->wvapars().fillleft_ = wvapars.left_.isVisible();
+	wvagen->wvapars().fillright_ = wvapars.right_.isVisible();
 	wvagen->wvapars().overlap_ = wvapars.overlap_;
 	wvagen->wvapars().midvalue_ = wvapars.midvalue_;
 	gen_ = wvagen;
@@ -140,7 +140,7 @@ void FlatView::BitMap2RGB::drawVD( const A2DBitMap& bmp )
 		continue;
 
 	    Color col = ctab.tableColor( (int)bmpval - minfill );
-	    if ( col != Color::NoColor )
+	    if ( col.isVisible() )
 		arr_.set( ix, iy, col );
 	}
     }
@@ -171,7 +171,7 @@ void FlatView::BitMap2RGB::drawWVA( const A2DBitMap& bmp )
 	    else if ( bmpval == WVAA2DBitMapGenPars::cZeroLineFill )
 		col = pars.mid_;
 
-	    if ( col != Color::NoColor )
+	    if ( col.isVisible() )
 		arr_.set( ix, iy, col );
 	}
     }

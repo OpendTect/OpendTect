@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		July 2006
- RCS:		$Id: uivisisosurface.cc,v 1.1 2007-01-24 14:32:39 cvskris Exp $
+ RCS:		$Id: uivisisosurface.cc,v 1.2 2007-03-28 12:20:46 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,9 +27,7 @@ uiVisIsoSurfaceThresholdDlg::uiVisIsoSurfaceThresholdDlg( uiParent* p,
     , isosurfacedisplay_( isosurface )
     , initialvalue_( isosurface.getSurface()->getThreshold() )
 {
-    histogramdisplay_ = new uiScrollView( this );
-    histogramdisplay_->setScrollBarMode( uiScrollView::AlwaysOff, true );
-    histogramdisplay_->setScrollBarMode( uiScrollView::AlwaysOff, false );
+    histogramdisplay_ = new uiCanvas( this );
     histogramdisplay_->setPrefWidth( 200 );
     histogramdisplay_->setPrefHeight( 100 );
     histogramdisplay_->getMouseEventHandler().buttonPressed.notify(
@@ -139,19 +137,15 @@ void uiVisIsoSurfaceThresholdDlg::updateIsoDisplay( float nv )
 
 void uiVisIsoSurfaceThresholdDlg::updateHistogramDisplay( CallBacker* )
 {
-    ioDrawTool* drawtool = histogramdisplay_->drawTool();
+    ioDrawTool& dt = histogramdisplay_->drawTool();
 
-    drawtool->beginDraw();
-
-    drawtool->setPenColor( Color::Black );
+    dt.setPenColor( Color::Black );
     uiWorldPoint wpt( initialvalue_, 0 );
     uiPoint pt =  histogrampainter_->getTransform().transform( wpt );
-    drawtool->drawLine( pt.x, 0, pt.x, drawtool->getDevHeight() );
+    dt.drawLine( pt.x, 0, pt.x, dt.getDevHeight() );
 
-    drawtool->setPenColor( Color(255,0,0,0) );
+    dt.setPenColor( Color(255,0,0,0) );
     wpt.x = isosurfacedisplay_.getSurface()->getThreshold();
     pt =  histogrampainter_->getTransform().transform( wpt );
-    drawtool->drawLine( pt.x, 0, pt.x, drawtool->getDevHeight() );
-
-    drawtool->endDraw();
+    dt.drawLine( pt.x, 0, pt.x, dt.getDevHeight() );
 }

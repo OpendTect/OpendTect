@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     ( C ) dGB Beheer B.V.
  Author:        Duntao Wei
  Date:          Mar. 2005
- RCS:           $Id: drawaxis2d.cc,v 1.9 2007-03-13 20:07:35 cvskris Exp $
+ RCS:           $Id: drawaxis2d.cc,v 1.10 2007-03-28 12:20:46 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -104,19 +104,20 @@ void DrawAxis2D::drawXAxis( bool topside ) const
 	bias = inside_ ? -mTickLen : mTickLen;
     }
 
+    ioDrawTool& dt = drawarea_->drawTool();
     if ( drawaxisline_ )
-	drawarea_->drawTool()->drawLine( drawarea.left(), baseline,
+	dt.drawLine( drawarea.left(), baseline,
 				       drawarea.right(), baseline );
 
     mLoopStart( x );
 	BufferString text;
 	const double displaypos = getAnnotTextAndPos(true,xpos,&text);
 	const int wx = transform.toUiX( displaypos ) + drawarea.left();
-	drawarea_->drawTool()->drawLine( wx, baseline, wx, baseline+bias );
+	dt.drawLine( wx, baseline, wx, baseline+bias );
 
 	Alignment al( Alignment::Middle, Alignment::Start );
 	if ( bias<0 ) al.ver = Alignment::Stop;
-	drawarea_->drawTool()->drawText( wx, baseline+bias, text.buf(), al );
+	dt.drawText( wx, baseline+bias, text.buf(), al );
     }
 }
 
@@ -141,8 +142,9 @@ void DrawAxis2D::drawYAxis( bool leftside ) const
 	bias = inside_ ? -mTickLen : mTickLen;
     }
 
+    ioDrawTool& dt = drawarea_->drawTool();
     if ( drawaxisline_ )
-	drawarea_->drawTool()->drawLine( baseline, drawarea.top(),
+	dt.drawLine( baseline, drawarea.top(),
 				       baseline, drawarea.bottom() );
     
     mLoopStart( y );
@@ -150,11 +152,11 @@ void DrawAxis2D::drawYAxis( bool leftside ) const
 	const double displaypos =
 	    getAnnotTextAndPos( false, ypos, &text );
 	const int wy = transform.toUiY( displaypos ) + drawarea.top();
-	drawarea_->drawTool()->drawLine( baseline, wy, baseline+bias, wy );
+	dt.drawLine( baseline, wy, baseline+bias, wy );
 
 	Alignment al( Alignment::Start, Alignment::Middle );
 	if ( bias < 0 ) al.hor = Alignment::Stop;
-	drawarea_->drawTool()->drawText( baseline+bias, wy , text.buf(), al );
+	dt.drawText( baseline+bias, wy , text.buf(), al );
     }
 }
 
@@ -165,6 +167,7 @@ void DrawAxis2D::drawGridLines( bool xdir, bool ydir ) const
     const uiWorld2Ui transform( uiWorldRect( xrg_.start, yrg_.start,
 					     xrg_.stop, yrg_.stop ),
 				drawarea.getPixelSize() );
+    ioDrawTool& dt = drawarea_->drawTool();
     if ( xdir )
     {
 	const int top = drawarea.top();
@@ -172,7 +175,7 @@ void DrawAxis2D::drawGridLines( bool xdir, bool ydir ) const
 	mLoopStart( x );
 	    const double displaypos = getAnnotTextAndPos( true, xpos );
 	    const int wx = transform.toUiX( displaypos ) + drawarea.left();
-	    drawarea_->drawTool()->drawLine( wx, top, wx, bot );
+	    dt.drawLine( wx, top, wx, bot );
 	}
     }
 
@@ -183,7 +186,7 @@ void DrawAxis2D::drawGridLines( bool xdir, bool ydir ) const
 	mLoopStart( y );
 	    const double displaypos = getAnnotTextAndPos(false, ypos);
 	    const int wy = transform.toUiY( displaypos ) + drawarea.top();
-	    drawarea_->drawTool()->drawLine( left, wy, right, wy );
+	    dt.drawLine( left, wy, right, wy );
 	}
     }
 }
@@ -194,8 +197,8 @@ uiRect DrawAxis2D::getDrawArea() const
     if ( useuirect_ )
 	return uirect_;
 
-    return uiRect( 0, 0, drawarea_->drawTool()->getDevWidth(),
-	    	   drawarea_->drawTool()->getDevHeight() );
+    return uiRect( 0, 0, drawarea_->drawTool().getDevWidth(),
+	    	   drawarea_->drawTool().getDevHeight() );
 }
 
 

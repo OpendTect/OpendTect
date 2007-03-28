@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewer.cc,v 1.21 2007-03-27 20:53:37 cvskris Exp $
+ RCS:           $Id: uiflatviewer.cc,v 1.22 2007-03-28 12:20:46 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -202,10 +202,9 @@ void uiFlatViewer::drawBitMaps()
 void uiFlatViewer::drawAnnot()
 {
     const FlatView::Annotation& annot = appearance().annot_;
-    ioDrawTool& dt = *canvas_.drawTool();
-    dt.beginDraw();
+    ioDrawTool& dt = canvas_.drawTool();
 
-    if ( annot.color_ != Color::NoColor )
+    if ( annot.color_.isVisible() )
     {
 	dt.setPenColor( annot.color_ );
 	drawGridAnnot();
@@ -218,17 +217,16 @@ void uiFlatViewer::drawAnnot()
     {
 	dt.setPenColor( color(true) );
 	dt.drawText( uiPoint(canvas_.arrArea().centre().x,2), annot.title_,
-		     Alignment(Alignment::Middle,Alignment::Start) );
+		     mAlign(Middle,Start) );
     }
 
-    dt.endDraw();
     reportedchange_ = None;
 }
 
 
 void uiFlatViewer::drawFeedbackAnnot()
 {
-    ioDrawTool& dt = *canvas_.drawTool();
+    ioDrawTool& dt = canvas_.drawTool();
     dt.setRasterXor();
     drawAux( prevfeedbackdata_ );	//Removes old
 
@@ -288,7 +286,7 @@ void uiFlatViewer::drawGridAnnot()
     if ( !showanyx1annot && !showanyx2annot )
 	return;
 
-    ioDrawTool& dt = *canvas_.drawTool();
+    ioDrawTool& dt = canvas_.drawTool();
     const uiRect datarect( canvas_.arrArea() );
     dt.drawRect( datarect );
     axesdrawer_.draw( datarect, wr_ );
@@ -296,10 +294,9 @@ void uiFlatViewer::drawGridAnnot()
     const uiSize totsz( canvas_.width(), canvas_.height() );
     if ( showanyx1annot && !ad1.name_.isEmpty() )
 	dt.drawText( uiPoint(totsz.width()-2,totsz.height()-2), ad1.name_,
-		     Alignment(Alignment::Stop,Alignment::Stop));
+		     mAlign(Stop,Stop) );
     if ( showanyx2annot && !ad2.name_.isEmpty() )
-	dt.drawText( uiPoint(2,2), ad2.name_,
-		     Alignment(Alignment::Start,Alignment::Start) );
+	dt.drawText( uiPoint(2,2), ad2.name_, mAlign(Start,Start) );
 }
 
 
@@ -324,26 +321,19 @@ void uiFlatViewer::drawAux( const FlatView::Annotation::AuxData& ad )
 
     const uiWorld2Ui w2u( auxwr, canvas_.arrArea().size() );
 
-    ioDrawTool& dt = *canvas_.drawTool();
+    ioDrawTool& dt = canvas_.drawTool();
     TypeSet<uiPoint> ptlist;
     for ( int idx=ad.poly_.size()-1; idx>=0; idx-- )
 	ptlist += w2u.transform( ad.poly_[idx] ) + datarect.topLeft();
 
-    if ( ad.fillcolor_!=Color::NoColor )
+    const bool drawfill = ad.close_ && ad.fillcolor_.isVisible();
+    if ( ad.linestyle_.isVisible() || drawfill )
     {
 	dt.setFillColor( ad.fillcolor_ );
-	dt.drawPolygon( ptlist );
-    }
-       
-    if ( ad.linestyle_.color!=Color::NoColor && ad.linestyle_.width>0 &&
-	 ad.linestyle_.type!=LineStyle::None )
-    {
 	dt.setLineStyle( ad.linestyle_ );
-	dt.drawLine( ptlist );
+	dt.drawLine( ptlist, ad.close_ );
     }
-
-    if ( ad.markerstyle_.type!=MarkerStyle2D::None &&
-	 ad.markerstyle_.size>0 && ad.markerstyle_.color!=Color::NoColor )
+    if ( ad.markerstyle_.isVisible() )
     {
 	for ( int idx=ptlist.size()-1; idx>=0; idx-- )
 	    dt.drawMarker( ptlist[idx], ad.markerstyle_ );
@@ -352,12 +342,10 @@ void uiFlatViewer::drawAux( const FlatView::Annotation::AuxData& ad )
     if ( !ad.name_.isEmpty() && !mIsUdf(ad.namepos_) )
     {
 	int listpos = ad.namepos_;
-	if ( listpos<0 ) listpos=0;
-	if ( listpos>ptlist.size() ) listpos=ptlist.size()-1;
+	if ( listpos < 0 ) listpos=0;
+	if ( listpos > ptlist.size() ) listpos = ptlist.size()-1;
 
-	dt.drawText( ptlist[listpos], ad.name_.buf(),
-		     Alignment( Alignment::Middle, Alignment::Middle ) );
-
+	dt.drawText( ptlist[listpos], ad.name_.buf(), mAlign(Middle,Middle) );
     }
 }
 

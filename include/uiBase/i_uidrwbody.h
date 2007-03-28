@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          03/07/2001
- RCS:           $Id: i_uidrwbody.h,v 1.19 2007-03-08 13:32:01 cvshelene Exp $
+ RCS:           $Id: i_uidrwbody.h,v 1.20 2007-03-28 12:20:46 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -55,8 +55,7 @@ public:
 #endif
 			}
 
-    virtual QPaintDevice* 	mQPaintDevice()		{ return this; }
-    virtual const QPaintDevice*	mQPaintDevice() const	{ return this; }
+    virtual QPaintDevice* qPaintDevice()		{ return this; }
 
 #ifndef USEQT3
 public:
@@ -112,12 +111,9 @@ void uiDrawableObjBody<C,T>::handlePaintEvent( uiRect r, QPaintEvent* ev )
 {
     handle_.preDraw.trigger( handle_ );
     if ( ev ) T::paintEvent( ev );
-
     handle_.reDrawHandler( r );
-
     handle_.postDraw.trigger( handle_ );
-    if ( handle_.drawTool()->active() )
-	handle_.drawTool()->endDraw();
+    handle_.drawTool().deActivate();
 }
 
 

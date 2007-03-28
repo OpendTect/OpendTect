@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          Dec 2006
- RCS:           $Id: uiflatviewpropdlg.cc,v 1.11 2007-03-13 13:04:45 cvsbert Exp $
+ RCS:           $Id: uiflatviewpropdlg.cc,v 1.12 2007-03-28 12:20:46 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -225,7 +225,7 @@ void uiFVWVAPropTab::putToScreen()
     midvalfld_->setValue( pars_.midvalue_ );
 
 #define mSetCol(fld,memb) \
-    havecol = !(pars_.memb == Color::NoColor); \
+    havecol = pars_.memb.isVisible(); \
     fld->setColor( havecol ? pars_.memb : Color::Black ); \
     fld->setDoDraw( havecol )
 

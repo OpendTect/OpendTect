@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvmap.cc,v 1.9 2007-02-15 21:50:22 cvsnanne Exp $
+ RCS:           $Id: uisurvmap.cc,v 1.10 2007-03-28 12:20:46 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,18 +28,17 @@ uiSurveyMap::uiSurveyMap( uiCanvas* cv )
 
 void uiSurveyMap::drawMap( const SurveyInfo* survinfo )
 {
-    ioDrawTool& dt = *mapcanvas->drawTool();
-    dt.beginDraw();
+    ioDrawTool& dt = mapcanvas->drawTool();
     dt.setBackgroundColor( Color::White );
     dt.clear();
     if ( survinfo->sampling(false).hrg.totalNr() < 2 )
-    	{ dt.endDraw(); return; }
+    	return;
 
     dt.setPenColor( Color::Black );
     dt.setFont( uiFontList::get(FontData::key(FontData::GraphicsLarge)) ); 
     const char* txt = survinfo->name();
     int w = dt.getDevWidth(); int h = dt.getDevHeight();
-    dt.drawText( w/2, h/20, txt, Alignment(Alignment::Middle,Alignment::Stop) );
+    dt.drawText( w/2, h/20, txt, mAlign(Middle,Stop) );
 
     const CubeSampling& cs = survinfo->sampling( false );
     Coord mapcnr[4];
@@ -88,8 +87,8 @@ void uiSurveyMap::drawMap( const SurveyInfo* survinfo )
     for ( int idx=0; idx<4; idx++ )
     {
 	bool bot = cpt[idx].y > h/2;
-	Alignment al( Alignment::Middle, bot ? Alignment::Middle
-	       				     : Alignment::Start);
+	const Alignment al( Alignment::Middle,
+			    bot ? Alignment::Middle : Alignment::Start );
         BinID bid = survinfo->transform( mapcnr[idx] );
         int spacing =  bot ? 20 : -20;
 	BufferString annot;
@@ -102,8 +101,6 @@ void uiSurveyMap::drawMap( const SurveyInfo* survinfo )
         annot += ycoord; annot += ")";
         dt.drawText( cpt[idx].x, mNINT(cpt[idx].y+1.5*spacing), annot, al );
     }
-
-    dt.endDraw();
 }
 
 

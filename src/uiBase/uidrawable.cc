@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          03/03/2000
- RCS:           $Id: uidrawable.cc,v 1.6 2007-03-26 16:56:22 cvsbert Exp $
+ RCS:           $Id: uidrawable.cc,v 1.7 2007-03-28 12:20:46 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,28 +27,9 @@ uiDrawableObj::uiDrawableObj( uiParent* p, const char* nm, uiObjectBody& b )
 {}
 
 
-ioDrawTool* uiDrawableObj::drawTool_( int x0, int y0 )
+ioDrawTool& uiDrawableObj::drawTool()
 {
-    mDynamicCastGet( ioDrawArea*, drwbl, body() );
-    return drwbl ? drwbl->drawTool( x0, y0 ) : 0;
-}
-
-
-int uiDrawableObj::width() const
-{
-    const ioDrawTool* dt = const_cast<uiDrawableObj*>(this)->drawTool_( 0, 0 );
-    return dt ? dt->getDevWidth() : uiObject::width();
-}
-
-
-int uiDrawableObj::height() const
-{
-    const ioDrawTool* dt = const_cast<uiDrawableObj*>(this)->drawTool_( 0, 0 );
-    return dt ? dt->getDevHeight() : uiObject::height();
-}
-
-
-MouseEventHandler& uiDrawableObj::getMouseEventHandler()
-{
-    return mousehandler_;
+    mDynamicCastGet(ioDrawArea*,drwbl,body());
+    if ( !drwbl ) pErrMsg("body() is not ioDrawArea. Crash follows");
+    return drwbl->drawTool();
 }

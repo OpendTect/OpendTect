@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/12/1999
- RCS:           $Id: pixmap.h,v 1.16 2007-03-07 17:51:41 cvsnanne Exp $
+ RCS:           $Id: pixmap.h,v 1.17 2007-03-28 12:20:46 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -68,9 +68,10 @@ public:
 
 protected:
     
-    virtual QPaintDevice* mQPaintDevice();         
     QPixmap*		qpixmap_; 
     BufferString	srcname_;
+
+    virtual QPaintDevice* qPaintDevice();         
 
 };
 
@@ -91,9 +92,9 @@ public:
 			to guess the file format. 
 
 			*/
-			ioBitmap( const char* fileName, const char * format=0 ); 
-    QBitmap* 		Bitmap()		{ return (QBitmap*)qpixmap_; }
-    const QBitmap*  	Bitmap() const		{ return (QBitmap*)qpixmap_; }
+			ioBitmap(const char* filename,const char* fmt=0); 
+    QBitmap* 		Bitmap();
+    const QBitmap*  	Bitmap() const;
 };
 
 

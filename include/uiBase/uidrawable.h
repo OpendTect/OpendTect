@@ -7,25 +7,28 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2000
- RCS:           $Id: uidrawable.h,v 1.11 2007-03-26 16:56:22 cvsbert Exp $
+ RCS:           $Id: uidrawable.h,v 1.12 2007-03-28 12:20:46 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiobj.h"
-#include "iodraw.h"
+#include "iodrawtool.h"
 #include "mouseevent.h"
 
 class uiDrawableObj : public uiObject, public ioDrawArea
 {
     mTTFriend(C,T,uiDrawableObjBody);
+
 public:
 			uiDrawableObj(uiParent* parnt,const char* nm, 
 				      uiObjectBody&);
     virtual		~uiDrawableObj()	{}
 
-    int			width() const;
-    int			height() const;
+    virtual ioDrawTool& drawTool();
+
+    int			width() const	{ return cDT().getDevWidth(); }
+    int			height() const	{ return cDT().getDevHeight(); }
 
     void		setRubberBandingOn( bool yn )	{ rubberbandon_ = yn; }
     bool		isRubberBandingOn() const	{ return rubberbandon_;}
@@ -34,7 +37,8 @@ public:
     OD::ButtonState	rubberBandButton()
     			{ return rubberbandbutton_; }
 
-    MouseEventHandler&	getMouseEventHandler();
+    MouseEventHandler&	getMouseEventHandler()
+			{ return mousehandler_; }
 
     Notifier<uiDrawableObj> preDraw;
     Notifier<uiDrawableObj> postDraw;
@@ -63,13 +67,16 @@ Subclasses can override this method to do some additional drawing.
     virtual void        reSizeHandler(uiSize,uiSize)		{}
     virtual void	rubberBandHandler(uiRect)		{}
 
-    virtual ioDrawTool* drawTool_(int x0,int y0);
+    inline const ioDrawTool& cDT() const
+    			{ return const_cast<uiDrawableObj*>(this)->drawTool(); }
 
     OD::ButtonState	rubberbandbutton_;
     bool		rubberbandon_;
 
 private:
+
     MouseEventHandler	mousehandler_;
+
 };
 
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/12/1999
- RCS:           $Id: pixmap.cc,v 1.21 2007-03-07 17:52:03 cvsnanne Exp $
+ RCS:           $Id: pixmap.cc,v 1.22 2007-03-28 12:20:46 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -157,7 +157,7 @@ void ioPixmap::convertFromRGBArray( const uiRGBArray& theImage )
 }    
 
 
-QPaintDevice* ioPixmap::mQPaintDevice()
+QPaintDevice* ioPixmap::qPaintDevice()
 { return qpixmap_; }
 
 int ioPixmap::width() const
@@ -178,3 +178,7 @@ ioBitmap::ioBitmap( const char* filenm, const char * format )
     qpixmap_ = new QBitmap( filenm, format );
     srcname_ = filenm;
 }
+
+
+QBitmap* ioBitmap::Bitmap() { return (QBitmap*)qpixmap_; }
+const QBitmap* ioBitmap::Bitmap() const { return (const QBitmap*)qpixmap_; }

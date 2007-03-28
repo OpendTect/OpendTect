@@ -7,12 +7,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/12/1999
- RCS:           $Id: iodraw.h,v 1.9 2007-03-01 11:29:56 cvsnanne Exp $
+ RCS:           $Id: iodraw.h,v 1.10 2007-03-28 12:20:46 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include <uigeom.h>
+#include "uigeom.h"
 
 class ioDrawTool;
 
@@ -28,16 +28,10 @@ public:
     virtual		~ioDrawArea()			{}
 
     virtual void	update()			{}
+    virtual ioDrawTool&	drawTool()			= 0;
 
-    inline ioDrawTool*	drawTool( uiPoint origin ) 
-			    { return drawTool_( origin.x, origin.y ); }
-
-    inline ioDrawTool*	drawTool( int x0=0, int y0=0 )	
-			    { return drawTool_( x0, y0 ); }
-
-protected:
-
-    virtual ioDrawTool*	drawTool_( int x0, int y0 )		=0;
+    inline const ioDrawTool& drawTool() const
+			{ return const_cast<ioDrawArea*>(this)->drawTool(); }
 
 };
 
