@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Feb 2007
- RCS:           $Id: uivisplanedatadisplaydragprop.cc,v 1.1 2007-02-01 22:59:16 cvskris Exp $
+ RCS:           $Id: uivisplanedatadisplaydragprop.cc,v 1.2 2007-03-28 14:24:51 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,7 +35,7 @@ bool uiVisPlaneDataDisplayDragProp::acceptOK()
 {
     if ( scrollstate_->getState()==panstate_->getState() )
     {
-	uiMSG().error( "Scroll and Pan movement cannot be the same!" );
+	uiMSG().error( "Scroll and Pan movement cannot be the same" );
 	return false;
     }
 
