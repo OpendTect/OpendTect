@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          26/07/2000
- RCS:           $Id: draw.h,v 1.11 2006-09-14 22:19:31 cvskris Exp $
+ RCS:           $Id: draw.h,v 1.12 2007-03-28 12:18:57 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,6 +18,7 @@ ________________________________________________________________________
 class Alignment
 {
 public:
+
     enum Pos		{ Start, Middle, Stop };
 			DeclareEnumUtils(Pos)
 
@@ -28,6 +29,8 @@ public:
     Pos			ver;
 
 };
+
+#define mAlign(h,v) Alignment(Alignment::h,Alignment::v)
 
 
 class MarkerStyle2D
@@ -51,6 +54,9 @@ public:
     Color		color;
     BufferString	fontkey;
 
+    inline bool		isVisible() const
+			{ return type!=None && size>0 && color.isVisible(); }
+
     void		toString(BufferString&) const;
     void		fromString(const char*);
 
@@ -71,6 +77,9 @@ public:
     Type		type;
     int			size;
     Color		color;
+
+    inline bool		isVisible() const
+			{ return size>0 && color.isVisible(); }
 
     void		toString(BufferString&) const;
     void		fromString(const char*);
@@ -93,6 +102,9 @@ public:
     Type		type;
     int			width;
     Color		color;
+
+    inline bool		isVisible() const
+			{ return type!=None && width>0 && color.isVisible(); }
 
     void		toString(BufferString&) const;
     void		fromString(const char*);
