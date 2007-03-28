@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2005
- RCS:           $Id: flatview.h,v 1.13 2007-03-27 20:53:37 cvskris Exp $
+ RCS:           $Id: flatview.h,v 1.14 2007-03-28 12:19:38 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -92,11 +92,11 @@ public:
     inline bool		haveTitle() const
     			{ return !title_.isEmpty(); }
     inline bool		haveAxisAnnot( bool x1dir ) const
-			{ return color_ != Color::NoColor
+			{ return color_.isVisible()
 			      && ( ( x1dir && x1_.showannot_)
 				|| (!x1dir && x2_.showannot_)); }
     inline bool		haveGridLines( bool x1dir ) const
-			{ return color_ != Color::NoColor
+			{ return color_.isVisible()
 			      && ( ( x1dir && x1_.showgridlines_)
 				|| (!x1dir && x2_.showgridlines_)); }
     inline bool		haveAux() const
