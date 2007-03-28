@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Jan 2005
- RCS:           $Id: viscallout.cc,v 1.13 2007-03-07 09:19:29 cvskris Exp $
+ RCS:           $Id: viscallout.cc,v 1.14 2007-03-28 19:21:34 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -693,7 +693,7 @@ CalloutDisplay::CalloutDisplay()
     boxmaterial_->ref();
     activedraggermaterial_->ref();
     activedraggermaterial_->setColor(Color(255,255,0));
-    boxmaterial_->setColor( Color(255, 255, 255) );
+    boxmaterial_->setColor( Color(178, 178, 178) );
     textmaterial_->ref();
     textmaterial_->setColor( Color(0, 0, 0) );
 }
