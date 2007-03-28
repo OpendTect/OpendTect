@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		22-3-2000
- RCS:		$Id: color.h,v 1.10 2006-12-04 08:01:57 cvshelene Exp $
+ RCS:		$Id: color.h,v 1.11 2007-03-28 12:17:26 cvsbert Exp $
 ________________________________________________________________________
 
 Color is an RGB color object, with a transparancy. The storage is in a 4-byte
@@ -34,13 +34,6 @@ public:
     inline bool		operator !=( const Color& c ) const
 			{ return col_ != c.col_; }
 
-    inline void		lighter( float f=1.1 )
-			{
-			    if ( f < 0 ) f = -f;
-			    set( getUChar(r()*f), getUChar(g()*f),
-				 getUChar(b()*f) );
-			}
-
     inline unsigned char r() const
 			{ return (unsigned char)((col_ >> 16) & 0xff); }
     inline unsigned char g() const
@@ -49,6 +42,8 @@ public:
 			{ return (unsigned char)(col_ & 0xff); }
     inline unsigned char t() const
 			{ return (unsigned char)((col_ >> 24) & 0xff); }
+
+    inline bool		isVisible() const	{ return t() < 255; }
 
     inline unsigned int rgb() const
 			{ return col_; }
@@ -66,6 +61,12 @@ public:
 
     inline Color	complementaryColor() const
 			{ return Color(255-r(), 255-g(), 255-b(), t() ); }
+    inline void		lighter( float f=1.1 )
+			{
+			    if ( f < 0 ) f = -f;
+			    set( getUChar(r()*f), getUChar(g()*f),
+				 getUChar(b()*f) );
+			}
 
     inline void         setRgb( unsigned int rgb_  )
                         { col_ = rgb_; }
