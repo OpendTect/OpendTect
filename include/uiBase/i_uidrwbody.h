@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          03/07/2001
- RCS:           $Id: i_uidrwbody.h,v 1.20 2007-03-28 12:20:46 cvsbert Exp $
+ RCS:           $Id: i_uidrwbody.h,v 1.21 2007-03-28 15:16:41 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -113,7 +113,7 @@ void uiDrawableObjBody<C,T>::handlePaintEvent( uiRect r, QPaintEvent* ev )
     if ( ev ) T::paintEvent( ev );
     handle_.reDrawHandler( r );
     handle_.postDraw.trigger( handle_ );
-    handle_.drawTool().deActivate();
+    handle_.drawTool().dismissPainter();
 }
 
 

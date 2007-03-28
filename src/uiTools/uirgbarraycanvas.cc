@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uirgbarraycanvas.cc,v 1.5 2007-03-28 12:20:46 cvsbert Exp $
+ RCS:           $Id: uirgbarraycanvas.cc,v 1.6 2007-03-28 15:16:41 cvsbert Exp $
  ________________________________________________________________________
 
 -*/
@@ -80,11 +80,8 @@ void uiRGBArrayCanvas::setupChg()
 
 void uiRGBArrayCanvas::beforeDraw( CallBacker* )
 {
-    drawTool().setBackgroundColor( bgcolor_ );
-    drawTool().clear();
-
     const uiSize totsz( width(), height() );
-    const int unusedpix = 1; // There seems to be an undrawable border
+    const int unusedpix = 1;
     arrarea_.setLeft( border_.left() + unusedpix );
     arrarea_.setTop( border_.top() + unusedpix );
     arrarea_.setRight( totsz.width() - border_.right() - 2 * unusedpix );
@@ -109,6 +106,9 @@ void uiRGBArrayCanvas::beforeDraw( CallBacker* )
 
 void uiRGBArrayCanvas::reDrawHandler( uiRect updarea )
 {
+    ioDrawTool& dt = drawTool();
+    dt.setBackgroundColor( bgcolor_ );
+    dt.clear();
     updarea_ = updarea;
     if ( !dodraw_ )
 	return;
@@ -126,7 +126,7 @@ void uiRGBArrayCanvas::reDrawHandler( uiRect updarea )
     if ( pixrect.right() < 1 && pixrect.bottom() < 1 )
 	return;
 
-    drawTool().drawPixmap( arrarea_.topLeft(), pixmap_, pixrect );
+    dt.drawPixmap( arrarea_.topLeft(), pixmap_, pixrect );
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          04/07/2001
- RCS:           $Id: iodrawtool.h,v 1.19 2007-03-28 12:20:46 cvsbert Exp $
+ RCS:           $Id: iodrawtool.h,v 1.20 2007-03-28 15:16:41 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,7 +31,11 @@ class QPaintDeviceMetrics;
 #endif
 
 
-/*!\brief Tool to draw on ioDrawAreas. */
+/*!\brief Tool to draw on ioDrawAreas.
+
+  You should not try to construct one yourself; rather, get one from an
+  ioDrawArea.
+ */
 
 class ioDrawTool
 {   
@@ -91,24 +95,28 @@ public:
 
 protected:
 
+    friend class ioDrawAreaImpl;
 		ioDrawTool(QPaintDevice*);
-    bool	setActivePainter(QPainter*);
+
     QPainter*	qpainter_;
     bool	qpaintermine_;
+    bool	qpainterprepared_;
 
-    bool	ensureActive() const;
-public: // to avoid weird template-firend decls
-    bool	deActivate();
+    void	preparePainter() const;
+
+public:
+
+    void	setActivePainter(QPainter*);
+    void	dismissPainter();
+    QPainter*	qPainter()	{ return qpainter_; }
+    QPen&	qPen()		{ return qpen_; }
+    QPaintDevice& qPaintDevice() { return qpaintdev_; }
 
 private:
 
-    friend class	ioDrawAreaImpl;
-    friend class	uiScrollViewBody;
-
     QPen&		qpen_;
-    QPaintDevice*	qpaintdev_;
+    QPaintDevice&	qpaintdev_;
 
-    bool		active_;
     const uiFont*	font_;
 
 #ifdef USEQT3

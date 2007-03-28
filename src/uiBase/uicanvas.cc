@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uicanvas.cc,v 1.36 2007-03-28 12:20:46 cvsbert Exp $
+ RCS:           $Id: uicanvas.cc,v 1.37 2007-03-28 15:16:41 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -175,14 +175,8 @@ uiRect uiScrollViewBody::visibleArea() const
 void uiScrollViewBody::drawContents( QPainter * p, int clipx,
 				     int clipy, int clipw, int cliph )
 {
-
-    if ( !drawTool().setActivePainter( p ))
-    {
-        pErrMsg( "Could not make Qpainter active." );
-        return;
-    }
-
-    handlePaintEvent( uiRect( clipx,clipy, clipw-1, cliph-1) );
+    drawTool().setActivePainter( p );
+    handlePaintEvent( uiRect(clipx,clipy,clipw-1,cliph-1) );
 }
 
 
