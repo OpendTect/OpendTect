@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          03/07/2001
- RCS:           $Id: i_uidrwbody.h,v 1.21 2007-03-28 15:16:41 cvsbert Exp $
+ RCS:           $Id: i_uidrwbody.h,v 1.22 2007-03-29 15:29:34 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,6 +43,7 @@ public:
                             , handle_(handle)
 #ifndef USEQT3
 			    , rubberband_(0)
+			    , havemousetracking_(false)
 #endif
                             {}
 
@@ -60,9 +61,9 @@ public:
 #ifndef USEQT3
 public:
     void		setMouseTracking( bool yn )
-			{ T::setMouseTracking( yn ); }
+			{ havemousetracking_ = yn; T::setMouseTracking( yn ); }
     bool		hasMouseTracking() const
-			{ return T::hasMouseTracking(); }
+			{ return havemousetracking_; }
 #endif
 
 protected:
@@ -82,6 +83,10 @@ protected:
     virtual void	mouseDoubleClickEvent(QMouseEvent*);
 
     uiRubberBand*	rubberband_;
+    bool		havemousetracking_;
+
+    void		reSetMouseTracking()
+			{ T::setMouseTracking( havemousetracking_ ); }
 #endif
 };
 
@@ -161,7 +166,7 @@ void uiDrawableObjBody<C,T>::mousePressEvent( QMouseEvent* qev )
 template <class C,class T>
 void uiDrawableObjBody<C,T>::mouseMoveEvent( QMouseEvent* qev )
 {
-    if ( handle_.isRubberBandingOn() && rubberband_ )
+    if ( rubberband_ && handle_.isRubberBandingOn() )
 	rubberband_->extend( qev );
     else
     {
@@ -176,17 +181,19 @@ template <class C,class T>
 void uiDrawableObjBody<C,T>::mouseReleaseEvent( QMouseEvent* qev )
 {
     bool ishandled = false;
-    if ( handle_.isRubberBandingOn() )
+    if ( rubberband_ && handle_.isRubberBandingOn() )
     {
 	rubberband_->stop( qev );
 	uiRect newarea = rubberband_->area();
 	bool sizeok = newarea.hNrPics() > c_minnrpix 
-	    	      && newarea.vNrPics() > c_minnrpix;
+		      && newarea.vNrPics() > c_minnrpix;
 	if ( sizeok )
 	{
 	    ishandled = true;
 	    handle_.rubberBandHandler( newarea );
 	}
+	delete rubberband_; rubberband_ = 0;
+	reSetMouseTracking();
     }
     
     if ( !ishandled )
