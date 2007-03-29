@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          July  2006
- RCS:           $Id: uigapdeconattrib.cc,v 1.27 2007-03-22 09:55:45 cvshelene Exp $
+ RCS:           $Id: uigapdeconattrib.cc,v 1.28 2007-03-29 12:38:44 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -47,10 +47,12 @@ class uiGDPositionDlg: public uiDialog
     void                popUpPosDlg();
     const CubeSampling&	getCubeSampling();
     LineKey		getLineKey() const;
+    void		setPrefCS(CubeSampling* prefcs)	{ prefcs_ = prefcs; }
 
     uiGenInput*		inlcrlfld_;
     uiLabeledComboBox*	linesfld_;
     CubeSampling	cs_;
+    CubeSampling*	prefcs_;
     uiSliceSel*		posdlg_;
     bool 		is2d_; 
     MultiID 		mid_; 
@@ -251,6 +253,7 @@ void uiGapDeconAttrib::examPush( CallBacker* cb )
 
     MultiID mid;
     getInputMID( mid );
+    if ( positiondlg_ ) delete positiondlg_;
     positiondlg_ = new uiGDPositionDlg( this, cs, ads_->is2D(), mid );
     positiondlg_->go();
     if ( positiondlg_->uiResult() == 1 ) 
@@ -490,7 +493,16 @@ void uiGapDeconAttrib::qCPush( CallBacker* cb )
 
     MultiID mid;
     getInputMID(mid);
+    CubeSampling prefcs;
+    bool validprefcs = false;
+    if ( positiondlg_ )
+    {
+	prefcs = positiondlg_->getCubeSampling();
+	validprefcs = true;
+	delete positiondlg_;
+    }
     positiondlg_ = new uiGDPositionDlg( this, cs, ads_->is2D(), mid );
+    if ( validprefcs ) positiondlg_->setPrefCS(&prefcs);
     positiondlg_->go();
     if ( positiondlg_->uiResult() == 1 ) 
 	positiondlg_->popUpPosDlg();
@@ -546,10 +558,12 @@ uiGDPositionDlg::uiGDPositionDlg( uiParent* p, const CubeSampling& cs,
 				  bool is2d, const MultiID& mid )
     : uiDialog( p, uiDialog::Setup("Gap Decon viewer position",0,0) )
     , cs_( cs )
+    , prefcs_(0)
     , is2d_( is2d )
     , mid_( mid )
     , linesfld_(0)
     , inlcrlfld_(0)
+    , posdlg_(0)
 {
     if ( is2d )
     {
@@ -583,22 +597,27 @@ void uiGDPositionDlg::popUpPosDlg()
     if ( is2d )
     {
 	SeisTrcTranslator::getRanges( mid_, inputcs, getLineKey() );
-	cs_.hrg.set ( inputcs.hrg.inlRange(), inputcs.hrg.crlRange() );
-    }
-    else
-    {
-	isinl = inlcrlfld_->getBoolValue();
-	if ( isinl )
-	    inputcs.hrg.stop.inl = inputcs.hrg.start.inl;
-	else
-	    inputcs.hrg.stop.crl = inputcs.hrg.start.crl;
+	cs_.hrg.set( inputcs.hrg.inlRange(), inputcs.hrg.crlRange() );
     }
 
     cs_.zrg.stop = cs_.zrg.width();
     cs_.zrg.start = 0;
-    float zstop = 500/SI().zFactor();
-    inputcs.zrg.stop = cs_.zrg.width()<zstop ? cs_.zrg.width() : zstop;
-    inputcs.zrg.start = 0;
+    if ( prefcs_ )
+	inputcs = *prefcs_;
+    else
+    {
+	if ( !is2d )
+	{
+	    isinl = inlcrlfld_->getBoolValue();
+	    if ( isinl )
+		inputcs.hrg.stop.inl = inputcs.hrg.start.inl;
+	    else
+		inputcs.hrg.stop.crl = inputcs.hrg.start.crl;
+	}
+	float zstop = 500/SI().zFactor();
+	inputcs.zrg.stop = cs_.zrg.width()<zstop ? cs_.zrg.width() : zstop;
+	inputcs.zrg.start = 0;
+    }
     
     posdlg_ = new uiSliceSel( this, inputcs, cs_, dummycb, 
 			      is2d ? uiSliceSel::TwoD 
