@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpewizard.cc,v 1.70 2007-03-14 12:03:00 cvsbert Exp $
+ RCS:           $Id: uimpewizard.cc,v 1.71 2007-03-29 11:40:34 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -52,6 +52,17 @@ const int Wizard::sTrackModePage	= 1;
 const int Wizard::sSeedSetupPage	= 2;
 const int Wizard::sFinalizePage		= 3;
 
+static const char* sSeedPickOptionsInfo()
+{
+    return
+	"\n\nSeed Pick Options:\n"
+	"*   left mouse-click on plane  =  pick seed & local track\n"
+	"       + Ctrl-Shift  =  drop seed\n"
+	"*   left mouse-click on seed  =  local retrack\n"
+	"       + Ctrl  =  remove seed & local retrack\n"
+	"       + Shift  =  remove seed & local erase\n"
+	"       + Ctrl-Shift  =  undrop seed";
+}
 
 static const char* sTrackInVolInfo( const BufferString& trackertype )
 {
@@ -59,7 +70,7 @@ static const char* sTrackInVolInfo( const BufferString& trackertype )
 	"The 2D horizon is auto-tracked from seeds picked on 2D lines.\n\n"
 	"Workflow:\n"
 	"1) Define settings.\n"
-	"2) Pick seeds on a 2D line (remove ctrl-pick, erase shift-pick).\n"
+	"2) Pick seeds on a 2D line (options see below).\n"
 	"3) Finish wizard.\n"
 	"4) Pick seeds on other 2D lines in your lineset.\n"
 	"5) Use 'Derive 3D Horizon' to create a continuous horizon.\n";
@@ -68,8 +79,7 @@ static const char* sTrackInVolInfo( const BufferString& trackertype )
 	"The horizon is (auto-) tracked inside a small track-volume.\n\n"
 	"Workflow:\n"
 	"1) Define settings\n"
-	"2) Pick seed(s) on inline/crossline"
-	  " (remove ctrl-pick, erase shift-pick)\n"
+	"2) Pick seed(s) on inline/crossline/trackplane (options see below)\n"
 	"3) Finish wizard and position/resize track-volume\n"
 	"4) Use toolbar to auto-track, plane-by-plane track, and edit\n"
 	"5) Reposition track-volume and repeat step 4\n";
@@ -82,7 +92,7 @@ static const char* sLineTrackInfo( const BufferString& trackertype )
 	"The 2D horizon is auto-tracked between seeds picked on 2D lines.\n\n"
 	"Workflow:\n"
 	"1) Define settings.\n"
-	"2) Pick seeds on a 2D line (remove ctrl-pick, erase shift-pick).\n"
+	"2) Pick seeds on a 2D line (options see below).\n"
 	"3) Finish wizard.\n"
 	"4) Pick seeds on other 2D lines in your lineset.\n"
 	"5) Use 'Derive 3D Horizon' to create a continuous horizon.\n";
@@ -91,8 +101,7 @@ static const char* sLineTrackInfo( const BufferString& trackertype )
 	"The horizon is auto-tracked in the line direction only.\n\n"
 	"Workflow:\n"
 	"1) Define settings\n"
-	"2) Pick seeds on inline/crossline"
-	  " (remove ctrl-pick, erase shift-pick)\n"
+	"2) Pick seeds on inline/crossline/trackplane (options see below)\n"
 	"3) Finish wizard\n"
 	"4) Scroll line to new position or open new line, and pick new seeds\n"
 	"5) Use 'Fill holes' to create continuous horizon\n";
@@ -107,7 +116,7 @@ static const char* sLineManualInfo( const BufferString& trackertype )
 	"picked on 2D lines.\n\n"
 	"Workflow:\n"
 	"1) Finish wizard.\n"
-	"2) Pick seeds on a 2D line (remove ctrl-pick, erase shift-pick)\n"
+	"2) Pick seeds on a 2D line (options see below)\n"
 	"3) Pick seeds on other 2D lines in your lineset.\n"
 	"4) Use 'Derive 3D Horizon' to create a continuous horizon.\n";
 
@@ -117,12 +126,10 @@ static const char* sLineManualInfo( const BufferString& trackertype )
         "in the line direction only.\n\n"
 	"Workflow:\n"
 	"1) Finish wizard\n"
-	"2) Pick seeds on inline/crossline"
-          " (remove ctrl-pick, erase shift-pick)\n"
+	"2) Pick seeds on inline/crossline/trackplane (options see below)\n"
 	"3) Scroll line to new position or open new line, and pick new seeds\n"
 	"4) Use 'Fill holes' to create continuous horizon\n";
 }
-
 
 
 Wizard::Wizard( uiParent* p, uiMPEPartServer* mps )
@@ -136,6 +143,7 @@ Wizard::Wizard( uiParent* p, uiMPEPartServer* mps )
     , typefld(0)
     , anotherfld(0)
     , initialhistorynr(mUdf(int))
+    , oldsettingsseeds(0)
 {
     objselgrp = createNamePage();
     addPage( objselgrp );
@@ -223,7 +231,7 @@ uiGroup* Wizard::createSeedSetupPage()
     mDefSetupGrp( h2dsetupgrp, Horizon2D );
 //  mDefSetupGrp( fsetupgrp, Fault );
 
-    uiPushButton* applybut = new uiPushButton( grp, "Retrack", true );
+    uiPushButton* applybut = new uiPushButton( grp, "Retrack all", true );
     applybut->activated.notify( mCB(this,Wizard,retrackCB) );
     applybut->attach( centeredBelow, lbl );
 
@@ -360,10 +368,6 @@ bool Wizard::prepareTrackModePage()
 	EM::EMObject* emobj = EM::EMM().getObject( currentobject );
 	colorfld->setColor( emobj->preferredColor() );
     }
-    else
-    {
-	colorfld->setColor( getRandomColor() );
-    }
 
     if ( !createTracker() )
 	return false;
@@ -423,7 +427,7 @@ bool Wizard::prepareSeedSetupPage()
 
     NotifierAccess* addrmseednotifier = seedpicker->aboutToAddRmSeedNotifier();
     if ( addrmseednotifier ) 
-	addrmseednotifier->notify( mCB(this,Wizard,setupChange) );
+	addrmseednotifier->notify( mCB(this,Wizard,aboutToAddRemoveSeed) );
     NotifierAccess* surfchangenotifier = seedpicker->madeSurfChangeNotifier();
     if ( surfchangenotifier ) 
 	surfchangenotifier->notify( mCB(this,Wizard,updateFinishButton) );
@@ -432,6 +436,7 @@ bool Wizard::prepareSeedSetupPage()
 
     return true;
 }
+
 
 #define mGetSeedPicker( retfld ) \
     const int trackerid = mpeserv->getTrackerID( currentobject ); \
@@ -456,7 +461,7 @@ bool Wizard::leaveSeedSetupPage( bool process )
 
     NotifierAccess* addrmseednotifier = seedpicker->aboutToAddRmSeedNotifier();
     if ( addrmseednotifier ) 
-	addrmseednotifier->remove( mCB(this,Wizard,setupChange) );
+	addrmseednotifier->remove( mCB(this,Wizard,aboutToAddRemoveSeed) );
     NotifierAccess* surfchangenotifier = seedpicker->madeSurfChangeNotifier();
     if ( surfchangenotifier ) 
 	surfchangenotifier->remove( mCB(this,Wizard,updateFinishButton) );
@@ -514,6 +519,7 @@ bool Wizard::finalizeCycle()
 void Wizard::isStarting()
 {
     seedbox.setEmpty();
+    colorfld->setColor( getRandomColor() );
 }
 
 
@@ -792,13 +798,17 @@ bool Wizard::createTracker()
 void Wizard::seedModeChange( CallBacker* )
 {
     const int newmode = modegrp ? modegrp->selectedId() : -1;
-    if ( newmode == 0 )
-	infofld->setText( sTrackInVolInfo(trackertype) );
-    else if ( newmode == 1 )
-	infofld->setText( sLineTrackInfo(trackertype) );
-    else
-	infofld->setText( sLineManualInfo(trackertype) );
+    BufferString infotext;
 
+    if ( newmode == 0 )
+	infotext += sTrackInVolInfo(trackertype);
+    else if ( newmode == 1 )
+	infotext += sLineTrackInfo(trackertype);
+    else
+	 infotext += sLineManualInfo(trackertype);
+
+    infotext += sSeedPickOptionsInfo();
+    infofld->setText( infotext );
     mGetSeedPicker();
     seedpicker->setSeedConnectMode( newmode );
 
@@ -808,43 +818,58 @@ void Wizard::seedModeChange( CallBacker* )
 
 void Wizard::retrackCB( CallBacker* )
 {
+    bool fieldchange;
+    if ( !setupgrp->commitToTracker(fieldchange) )
+	return;
+
+    mGetSeedPicker();
+    mpeserv->loadAttribData();
+
     EM::History& history = EM::EMM().history();
     int cureventnr = history.currentEventNr();
     if ( history.getLevel(cureventnr) == EM::History::cUserInteraction )
 	history.setLevel( cureventnr, 0 );
 
-    setupChange(0);
-
-    history.setCurEventAsUserInteraction();
-}
-
-
-void Wizard::setupChange( CallBacker* )
-{
-    const bool actvolisplanar = MPE::engine().activeVolume().nrInl()==1 ||
-	                        MPE::engine().activeVolume().nrCrl()==1 ;
-    mGetSeedPicker();
-    seedpicker->blockSeedPick( !setupgrp->commitToTracker() );
-
-    if ( !seedpicker->isSeedPickBlocked() && actvolisplanar )
-	mpeserv->loadAttribData();
-    
     EM::EMObject* emobj = EM::EMM().getObject( currentobject );
     emobj->setBurstAlert( true );
     uiCursor::setOverride( uiCursor::Wait );
     seedpicker->reTrack();
     uiCursor::restoreOverride();
     emobj->setBurstAlert( false );
+
+    history.setCurEventAsUserInteraction();
+}
+
+
+void Wizard::aboutToAddRemoveSeed( CallBacker* )
+{
+    mGetSeedPicker();
+    bool fieldchange;
+    const bool isvalidsetup = setupgrp->commitToTracker(fieldchange);
+    seedpicker->blockSeedPick( !isvalidsetup );
+	
+    if ( isvalidsetup && fieldchange )
+    {
+	mpeserv->loadAttribData();
+	oldsettingsseeds = seedpicker->nrSeeds();
+    }
 }
 
 
 void Wizard::updateFinishButton( CallBacker* )
 {
     mGetSeedPicker();
+    const int nrseeds = seedpicker->nrSeeds();
 
-    const bool finishenabled = seedpicker->nrSeeds() >= 
-					seedpicker->minSeedsToLeaveInitStage();
+    const bool finishenabled = nrseeds >= seedpicker->minSeedsToLeaveInitStage();
     setButtonSensitive( uiDialog::CANCEL, finishenabled );
+
+    if ( oldsettingsseeds && oldsettingsseeds+nrseeds>2 )
+    {
+	uiMSG().message( "Click 'Retrack all' to view the effect of your\n"
+			 "new settings around the other seeds as well." );
+    }
+    oldsettingsseeds = 0;
 }
 
 
