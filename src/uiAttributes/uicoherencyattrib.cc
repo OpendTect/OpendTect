@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:		$Id: uicoherencyattrib.cc,v 1.12 2007-02-05 14:32:25 cvsnanne Exp $
+ RCS:		$Id: uicoherencyattrib.cc,v 1.13 2007-03-29 17:20:10 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "uigeninput.h"
 #include "uisteeringsel.h"
 #include "uistepoutsel.h"
+#include "settings.h"
 
 using namespace Attrib;
 
@@ -26,15 +27,23 @@ mInitAttribUI(uiCoherencyAttrib,Coherency,"Coherency",sKeyBasicGrp)
 
 uiCoherencyAttrib::uiCoherencyAttrib( uiParent* p, bool is2d )
 	: uiAttrDescEd(p,is2d)
+    	, is1fld(0)
+    	, stepoutfld(0)
 {
     inpfld = getImagInpFld();
 
-    is1fld = new uiGenInput( this, "Type", BoolInpSpec(true,"1","2") );
-    is1fld->attach( alignedBelow, inpfld );
-    is1fld->valuechanged.notify( mCB(this,uiCoherencyAttrib,is1Sel) );
+    if ( Settings::common().isTrue("Attribs.Enable Coh type 2") )
+    {
+	is1fld = new uiGenInput( this, "Type", BoolInpSpec(true,"1","2") );
+	is1fld->attach( alignedBelow, inpfld );
+	is1fld->valuechanged.notify( mCB(this,uiCoherencyAttrib,is1Sel) );
+    }
 
     tgfld = new uiGenInput( this, gateLabel(), FloatInpIntervalSpec() );
-    tgfld->attach( alignedBelow, is1fld );
+    if ( is1fld )
+	tgfld->attach( alignedBelow, is1fld );
+    else
+	tgfld->attach( alignedBelow, inpfld );
 
     maxdipfld = new uiGenInput( this, "Maximum dip", FloatInpSpec() );
     maxdipfld->attach( alignedBelow, tgfld );
@@ -42,8 +51,11 @@ uiCoherencyAttrib::uiCoherencyAttrib( uiParent* p, bool is2d )
     deltadipfld = new uiGenInput( this, "Delta dip", FloatInpSpec() );
     deltadipfld->attach( alignedBelow, maxdipfld );
 
-    stepoutfld = new uiStepOutSel( this, is2d );
-    stepoutfld->attach( alignedBelow, deltadipfld );
+    if ( is1fld )
+    {
+	stepoutfld = new uiStepOutSel( this, is2d );
+	stepoutfld->attach( alignedBelow, deltadipfld );
+    }
 
     setHAlignObj( tgfld );
 }
@@ -51,6 +63,7 @@ uiCoherencyAttrib::uiCoherencyAttrib( uiParent* p, bool is2d )
 
 void uiCoherencyAttrib::is1Sel( CallBacker* )
 {
+    if ( !is1fld || !stepoutfld ) return;
     stepoutfld->display( !is1fld->getBoolValue() );
 }
 
@@ -60,11 +73,17 @@ bool uiCoherencyAttrib::setParameters( const Attrib::Desc& desc )
     if ( strcmp(desc.attribName(),Coherency::attribName()) )
 	return false;
 
-    mIfGetInt(Coherency::sKeyType(),type,is1fld->setValue(type==1? true:false));
     mIfGetFloatInterval( Coherency::sKeyGate(), gate, tgfld->setValue(gate) );
     mIfGetFloat( Coherency::sKeyMaxDip(),maxdip,maxdipfld->setValue(maxdip) );
     mIfGetFloat( Coherency::sKeyDDip(),ddip,deltadipfld->setValue(ddip) );
-    mIfGetBinID(Coherency::sKeyStepout(),stepout, stepoutfld->setBinID(stepout))
+
+    if ( is1fld )
+    {
+	mIfGetInt( Coherency::sKeyType(), type,
+		   is1fld->setValue(type==1? true:false));
+	mIfGetBinID( Coherency::sKeyStepout(), stepout,
+		     stepoutfld->setBinID(stepout) );
+    }
 
     is1Sel(0);
     return true;
@@ -83,11 +102,18 @@ bool uiCoherencyAttrib::getParameters( Attrib::Desc& desc )
     if ( strcmp(desc.attribName(),Coherency::attribName()) )
 	return false;
     
-    mSetInt( Coherency::sKeyType(), is1fld->getBoolValue() ? 1 : 2 );
     mSetFloatInterval( Coherency::sKeyGate(), tgfld->getFInterval() );
     mSetFloat( Coherency::sKeyMaxDip(), maxdipfld->getfValue() );
     mSetFloat( Coherency::sKeyDDip(), deltadipfld->getfValue() );
-    mSetBinID( Coherency::sKeyStepout(), stepoutfld->getBinID() );
+    if ( !is1fld )
+    {
+	mSetInt( Coherency::sKeyType(), 1 );
+    }
+    else
+    {
+	mSetInt( Coherency::sKeyType(), is1fld->getBoolValue() ? 1 : 2 );
+	mSetBinID( Coherency::sKeyStepout(), stepoutfld->getBinID() );
+    }
     return true;
 }
 
