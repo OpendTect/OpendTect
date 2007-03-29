@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2005
- RCS:           $Id: treeitem.cc,v 1.16 2007-03-28 19:22:45 cvskris Exp $
+ RCS:           $Id: treeitem.cc,v 1.17 2007-03-29 09:18:14 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -237,7 +237,7 @@ bool AnnotTreeItem::showSubMenu()
 	    if ( !txt || !*txt ) continue;
 
 	    if ( SubItem::doesNameExist( txt ) &&
-	         !uiMSG().askGoOn("An object with that name does allready"
+	         !uiMSG().askGoOn("An object with that name already"
 			" exists.\nDo you wish to overwrite it?" ) )
 		continue;
 
