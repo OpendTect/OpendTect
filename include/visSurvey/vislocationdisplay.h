@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		June 2006
- RCS:		$Id: vislocationdisplay.h,v 1.11 2007-02-13 20:10:45 cvskris Exp $
+ RCS:		$Id: vislocationdisplay.h,v 1.12 2007-03-29 22:19:40 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -43,7 +43,7 @@ class LocationDisplay :	public visBase::VisualObjectImpl,
 			public visSurvey::SurveyObject
 {
 public:
-    void			setSet(Pick::Set*); // once!
+    virtual void		setSet(Pick::Set*); // once!
     void			setSetMgr(Pick::SetMgr*);
     				/*!<Only used for notifications. */
     Pick::Set*			getSet()		{ return set_; }
