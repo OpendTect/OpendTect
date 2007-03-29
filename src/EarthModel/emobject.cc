@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emobject.cc,v 1.71 2007-01-16 14:29:29 cvsjaap Exp $";
+static const char* rcsID = "$Id: emobject.cc,v 1.72 2007-03-29 11:37:13 cvsjaap Exp $";
 
 #include "emobject.h"
 
@@ -244,6 +244,7 @@ void EMObject::setPreferredColor( const Color& col )
     if ( col==preferredcolor )
 	return;
 
+    changed = true;
     preferredcolor = col;
     EMObjectCallbackData cbdata;
     cbdata.event = EMObjectCallbackData::PrefColorChange;
@@ -376,26 +377,24 @@ void EMObject::setPosAttrib( const PosID& pid, int attr, bool yn,
 	addPosAttrib( attr );
 
     const int idx = attribs.indexOf(attr);
+    if ( idx == -1 )
+	return;
     
-    if ( idx != -1 )
-    {
-	TypeSet<PosID>& posids = posattribs[idx]->posids_;
-	const int idy=posids.indexOf( pid );
+    TypeSet<PosID>& posids = posattribs[idx]->posids_;
+    const int idy=posids.indexOf( pid );
 
-	if ( idy==-1 )
-	{
-	    if ( yn ) posids += pid;
-	}
-	else if ( !yn )
-	    posids.removeFast( idy );
-    }
+    if ( idy==-1 && yn )
+	posids += pid;
+    else if ( idy!=-1 && !yn )
+	posids.removeFast( idy );
+    else 
+	return;
 
     if ( addtohistory )
     {
 	HistoryEvent* event = new SetPosAttribHistoryEvent( pid, attr, yn );
 	EMM().history().addEvent( event, 0, 0 );
     }
-
 
     notifier.trigger( cbdata );
     changed = true;
