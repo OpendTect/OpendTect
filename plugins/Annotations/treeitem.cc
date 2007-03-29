@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2005
- RCS:           $Id: treeitem.cc,v 1.17 2007-03-29 09:18:14 cvsbert Exp $
+ RCS:           $Id: treeitem.cc,v 1.18 2007-03-29 15:22:22 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -675,26 +675,35 @@ public:
 AnchorGroup( uiParent* p, const char* url, bool urlenabled )
     : uiGroup(p,"Anchor Group")
 {
-    linkfld = new uiGenInput( this, "Link to", StringInpSpec(url) );
-    linkfld->setWithCheck( true );
-    linkfld->setChecked( urlenabled );
+    linkfld_ = new uiGenInput( this, "Link to", StringInpSpec(url) );
+    linkfld_->setWithCheck( true );
+    linkfld_->setChecked( urlenabled );
+    linkfld_->checked.notify( mCB(this,AnchorGroup,urlCheckCB) );
 
-    uiPushButton* but = new uiPushButton( this, "Select file", false );
-    but->activated.notify( mCB(this,AnchorGroup,butPush) );
-    but->attach( rightTo, linkfld );
-    setHAlignObj( linkfld );
+    but_ = new uiPushButton( this, "Select file", false );
+    but_->activated.notify( mCB(this,AnchorGroup,butPush) );
+    but_->attach( rightTo, linkfld_ );
+    but_->setSensitive( urlenabled );
+    setHAlignObj( linkfld_ );
 }
 
 
 void butPush( CallBacker* )
 {
-    uiFileDialog dlg( this, true, linkfld->text() );
+    uiFileDialog dlg( this, true, linkfld_->text() );
     if ( !dlg.go() ) return;
 
-    linkfld->setText( dlg.fileName() );
+    linkfld_->setText( dlg.fileName() );
 }
 
-    uiGenInput* linkfld;
+
+void urlCheckCB( CallBacker* )
+{
+    but_->setSensitive( linkfld_->isChecked() );
+}
+
+    uiGenInput*		linkfld_;
+    uiPushButton*	but_;
 
 };
 
@@ -721,12 +730,12 @@ const char* text() const
 { return textedit->text(); }
 
 const char* getUrl() const
-{ return anchorgrp->linkfld->text(); }
+{ return anchorgrp->linkfld_->text(); }
 
 bool isUrlEnabled() const
 {
     const char* url = getUrl();
-    return url && *url && anchorgrp->linkfld->isChecked();
+    return url && *url && anchorgrp->linkfld_->isChecked();
 }
 
     uiTextEdit*         textedit;
