@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Jan 2005
- RCS:           $Id: visarrow.cc,v 1.7 2007-02-15 20:34:50 cvskris Exp $
+ RCS:           $Id: visarrow.cc,v 1.8 2007-03-29 22:16:30 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,6 +28,7 @@ ArrowDisplay::ArrowDisplay()
 {
     linestyle_->ref();
     insertChild( 0, linestyle_->getInventorNode() );
+    setLineWidth( 2 );
 }
 
 
