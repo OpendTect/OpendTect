@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vismpeseedcatcher.cc,v 1.19 2007-03-26 10:06:10 cvsjaap Exp $";
+static const char* rcsID = "$Id: vismpeseedcatcher.cc,v 1.20 2007-03-29 11:42:59 cvsjaap Exp $";
 
 #include "vismpeseedcatcher.h"
 
@@ -349,6 +349,7 @@ void MPEClickCatcher::sendUnderlyingPlanes(
     TypeSet<int> mpedisplays;
     visBase::DM().getIds( typeid(visSurvey::MPEDisplay), mpedisplays ); 
     
+    CubeSampling trkplanecs(false);
     for ( int idx=0; idx<mpedisplays.size(); idx++ )
     {
 	visBase::DataObject* dataobj = 
@@ -364,7 +365,8 @@ void MPEClickCatcher::sendUnderlyingPlanes(
 	    info().setObjID( mpedisplay->id() );
 	    info().setObjCS( cs );
 	    click.trigger();
-	    return;
+	    trkplanecs = cs;
+	    break;
 	}
     }
 
@@ -383,6 +385,9 @@ void MPEClickCatcher::sendUnderlyingPlanes(
 	    continue;
 
 	const CubeSampling cs = plane->getCubeSampling();
+	if ( !trkplanecs.isEmpty() && trkplanecs.defaultDir()==cs.defaultDir() )
+	    continue;
+
 	if ( cs.hrg.includes(nodebid) && cs.zrg.includes(nodepos.z) )
 	{
 	    info().setLegalClick( legalclick );
