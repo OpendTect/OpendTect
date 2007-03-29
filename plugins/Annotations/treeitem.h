@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2005
- RCS:           $Id: treeitem.h,v 1.10 2007-03-06 10:16:42 cvskris Exp $
+ RCS:           $Id: treeitem.h,v 1.11 2007-03-29 22:23:39 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -221,8 +221,8 @@ protected: \
 }
 
 mDefineParentItem(Text,"Text",-1);
-mDefineParentItem(Arrow,"Arrows",100);
-mDefineParentItem(Image,"Image",100);
+mDefineParentItem(Arrow,"Arrows",1000);
+mDefineParentItem(Image,"Image",1000);
 
 
 }; // namespace Annotations
