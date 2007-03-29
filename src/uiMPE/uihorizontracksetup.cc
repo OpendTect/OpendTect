@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2005
- RCS:           $Id: uihorizontracksetup.cc,v 1.11 2007-02-13 13:34:07 cvsjaap Exp $
+ RCS:           $Id: uihorizontracksetup.cc,v 1.12 2007-03-29 11:38:57 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -228,65 +228,111 @@ void uiHorizonSetupGroup::initSimiGroup()
 }
 
 
-bool uiHorizonSetupGroup::commitToTracker() const
+bool uiHorizonSetupGroup::commitToTracker( bool& fieldchange ) const
 {
+    fieldchange = false;
+
     if ( !horadj_ || horadj_->getNrAttributes()<1 )
     {   uiMSG().warning( "Unable to apply tracking setup" ); 
 	return true;
     }
-	
     if ( !inpfld ) return true;
 
-    const bool usesimi = usesimifld->getBoolValue();
     
     inpfld->processInput();
     Attrib::SelSpec as;
     inpfld->fillSelSpec( as );
     if ( as.id() < 0 )
 	mErrRet( "Please select the seismic data to track on" );
+    if ( !horadj_->getAttributeSel(0) || *horadj_->getAttributeSel(0)!=as )
+    {
+	fieldchange = true;
+	horadj_->setAttributeSel( 0, as );
+    }
 
-    horadj_->setAttributeSel( 0, as );
+    VSEvent::Type evtyp = cEventTypes()[ evfld->getIntValue() ];
+    if ( horadj_->trackEvent() != evtyp )
+    {
+	fieldchange = true;
+	horadj_->setTrackEvent( evtyp );
+    }
 
-    horadj_->setTrackEvent( cEventTypes()[evfld->getIntValue()] );
     Interval<int> intv = srchgatefld->getIInterval();
-    horadj_->setPermittedZRange(
-		Interval<float>( (float)intv.start/SI().zFactor(),
-				 (float)intv.stop/SI().zFactor()));
+    Interval<float> relintv( (float)intv.start/SI().zFactor(),
+			     (float)intv.stop/SI().zFactor() );
+    if ( horadj_->permittedZRange() != relintv )
+    {
+	fieldchange = true;
+	horadj_->setPermittedZRange( relintv );
+    }
 
-    horadj_->setTrackByValue( !usesimi );
+    const bool usesimi = usesimifld->getBoolValue();
+    if ( horadj_->trackByValue() == usesimi )
+    {
+	fieldchange = true;
+	horadj_->setTrackByValue( !usesimi );
+    }
+
     if ( usesimi )
     {
 	Interval<float> intval = compwinfld->getFInterval();
 	if ( intval.start > 0 || intval.stop < 0 || intv.start == intv.stop )
 	    mErrRet( "Compare window should be minus to positive, ex. -20, 20");
-	horadj_->setSimilarityWindow(
-		Interval<float>((float)intval.start/SI().zFactor(),
-				(float)intval.stop/SI().zFactor()) );
+	Interval<float> relintval( (float)intval.start/SI().zFactor(),
+				   (float)intval.stop/SI().zFactor() );
+	if ( horadj_->similarityWindow() != relintval )
+	{
+	    fieldchange = true;
+	    horadj_->setSimilarityWindow( relintval );
+	}
 	    
 	float mgate = simithresholdfld->getfValue();
 	if ( mgate > 1 || mgate <= 0)
 	    mErrRet( "Similarity threshold must be within 0 to 1" );
-	horadj_->setSimilarityThreshold(mgate);
+	if ( horadj_->similarityThreshold() != mgate )
+	{
+	    fieldchange = true;
+	    horadj_->setSimilarityThreshold( mgate );
+	}
     }
 	    
-    bool useabs = thresholdtypefld->getBoolValue();
-    horadj_->setUseAbsThreshold(useabs);
+    const bool useabs = thresholdtypefld->getBoolValue();
+    if ( horadj_->useAbsThreshold() != useabs )
+    {
+	fieldchange = true;
+	horadj_->setUseAbsThreshold( useabs );
+    }
+
     if ( useabs )
     {
 	float vgate = ampthresholdfld->getfValue();
 	if ( Values::isUdf(vgate) )
 	    mErrRet( "Value threshold not set" );
-	horadj_->setAmplitudeThreshold(vgate);
+	if ( horadj_->amplitudeThreshold() != vgate )
+	{
+	    fieldchange = true;
+	    horadj_->setAmplitudeThreshold( vgate );
+	}
     }
     else
     {
-	float var = ampthresholdfld->getfValue();
-	if ( var <= 0 || var >= 100 )
+	float var = ampthresholdfld->getfValue() / 100;
+	if ( var<=0.0 || var>=1.0 )
 	    mErrRet( "Allowed variance must be between 0-100" );
-	horadj_->setAllowedVariance(var/100);
+	if ( horadj_->allowedVariance() != var )
+	{
+	    fieldchange = true;
+	    horadj_->setAllowedVariance( var );
+	}
     }
-	
-    horadj_->removeOnFailure( !extriffailfld->getBoolValue() );
+
+    const bool rmonfail = !extriffailfld->getBoolValue();
+    if ( horadj_->removesOnFailure() != rmonfail )    
+    {
+	fieldchange = true;
+	horadj_->removeOnFailure( rmonfail );
+    }
+
     return true;
 }
 

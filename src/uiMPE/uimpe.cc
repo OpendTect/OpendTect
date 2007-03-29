@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          March 2005
- RCS:           $Id: uimpe.cc,v 1.3 2006-05-12 09:51:14 cvsnanne Exp $
+ RCS:           $Id: uimpe.cc,v 1.4 2007-03-29 11:39:23 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,6 +49,13 @@ uiSetupGroup::uiSetupGroup( uiParent* p, const char* ref )
     : uiGroup( p, "Tracking Setup" )
     , helpref_(ref)
 {}
+
+
+bool uiSetupGroup::commitToTracker() const
+{
+    bool dummybool;
+    return commitToTracker( dummybool );
+}
 
 
 void uiSetupGroupFactory::addFactory( uiSetupGrpCreationFunc f )
