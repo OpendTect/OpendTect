@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Jan 2005
- RCS:           $Id: visannotimage.cc,v 1.4 2007-03-06 07:56:00 cvskris Exp $
+ RCS:           $Id: visannotimage.cc,v 1.5 2007-03-29 22:16:12 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -177,6 +177,13 @@ bool ImageDisplay::setFileName( const char* nm )
 const char* ImageDisplay::getFileName() const
 {
     return image_->getFileName();
+}
+
+
+void ImageDisplay::setSet( Pick::Set* set )
+{
+    LocationDisplay::setSet( set );
+    updateCoords();
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		January 2005
- RCS:		$Id: visannotimage.h,v 1.3 2007-03-06 07:56:00 cvskris Exp $
+ RCS:		$Id: visannotimage.h,v 1.4 2007-03-29 22:16:12 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -35,6 +35,7 @@ public:
     const char*			getFileName() const;
     Notifier<ImageDisplay>	needFileName;
 
+    void			setSet(Pick::Set*);
 protected:
      visBase::VisualObject*	createLocation() const;
      void			setPosition(int, const Pick::Location&);
