@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.cc,v 1.116 2007-03-09 09:17:48 cvsjaap Exp $
+ RCS:           $Id: uimpeman.cc,v 1.117 2007-03-29 11:41:02 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -315,13 +315,14 @@ void uiMPEMan::seedClick( CallBacker* )
 	if ( !seedpicker->startSeedPick() )
 	    return;
 	
-	CubeSampling newvolume = engine.trackPlane().boundingBox();
+	CubeSampling newvolume = clickcatcher->info().getObjCS();
+	const CubeSampling trkplanecs = engine.trackPlane().boundingBox();
 
-	BinID seedbid = SI().transform( seedpos );
-	if ( !trackerisshown || !newvolume.zrg.includes(seedpos.z) ||
-	     !newvolume.hrg.includes(seedbid) )
+	if ( trackerisshown && trkplanecs.zrg.includes(seedpos.z) && 
+	     trkplanecs.hrg.includes( SI().transform(seedpos) ) &&
+	     trkplanecs.defaultDir()==newvolume.defaultDir() )
 	{
-	    newvolume = clickcatcher->info().getObjCS();
+	    newvolume = trkplanecs;
 	}
 	
 	if ( newvolume.isEmpty() )
@@ -335,7 +336,7 @@ void uiMPEMan::seedClick( CallBacker* )
 
 	    if ( oldactivevol.isEmpty() )
 	    {
-		if ( newvolume == engine.trackPlane().boundingBox() )
+		if ( newvolume == trkplanecs )
 		    loadPostponedData();
 		else
 		    engine.swapCacheAndItsBackup();
@@ -376,17 +377,21 @@ void uiMPEMan::seedClick( CallBacker* )
     uiCursor::setOverride( uiCursor::Wait );
     emobj->setBurstAlert( true );
     
+    const bool ctrlshiftclicked = clickcatcher->info().isCtrlClicked() &&
+				  clickcatcher->info().isShiftClicked();
     if ( pid.objectID()!=-1 )
     {
-	if ( clickcatcher->info().isCtrlClicked() )
-	    seedpicker->removeSeed( pid, true );
+	if ( ctrlshiftclicked )
+	    seedpicker->removeSeed( pid, false, false );
+	else if ( clickcatcher->info().isCtrlClicked() )
+	    seedpicker->removeSeed( pid, true, true );
 	else if ( clickcatcher->info().isShiftClicked() )
-	    seedpicker->removeSeed( pid, false );
+	    seedpicker->removeSeed( pid, true, false );
 	else
-	    seedpicker->addSeed( seedpos );
+	    seedpicker->addSeed( seedpos, false );
     }
     else
-	seedpicker->addSeed( seedpos );
+	seedpicker->addSeed( seedpos, ctrlshiftclicked );
     
     emobj->setBurstAlert( false );
     uiCursor::restoreOverride();
