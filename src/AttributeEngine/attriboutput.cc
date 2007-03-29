@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attriboutput.cc,v 1.57 2007-03-27 16:30:40 cvshelene Exp $";
+static const char* rcsID = "$Id: attriboutput.cc,v 1.58 2007-03-29 08:59:31 cvshelene Exp $";
 
 #include "attriboutput.h"
 
@@ -676,14 +676,14 @@ void LocationOutput::computeAndSetVals( const DataHolder& data, float refstep,
 	float val;
 	if ( classstatus_ == 0 )
 	{
-	    float disttop1 = isfirstz ? 0 : firstz/refstep - vals[0]/refstep;
+	    float disttop1 = isfirstz ? 0 : vals[0]/refstep - firstz/refstep;
 	    val = Interpolate::polyReg1DWithUdf( p0, p1, p2, p3, disttop1 );
 	}
 	else 
 	    val = mNINT( (vals[0]/refstep) )==lowz ? p1 : p2;
 	vals[comp+1] = val;
-	if ( isfirstz ) isfirstz = false;
     }
+    if ( isfirstz ) isfirstz = false;
 }
 
 
