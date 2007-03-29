@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.118 2007-03-22 12:47:42 cvsdgb Exp $
+ RCS:           $Id: uimainwin.cc,v 1.119 2007-03-29 12:54:29 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -1003,7 +1003,7 @@ void uiDialogBody::layoutChildren( uiObject* lowestobj )
 
 #define mCommonLayout(but) \
     but->attach( ensureBelow, lowestobj ); \
-    but->attach( bottomBorder, 0 )
+    but->attach( bottomBorder, borderdist )
 
     if ( leftbut )
     {
