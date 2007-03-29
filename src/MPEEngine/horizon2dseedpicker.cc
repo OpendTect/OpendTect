@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizon2dseedpicker.cc,v 1.5 2007-01-31 11:58:38 cvsjaap Exp $";
+static const char* rcsID = "$Id: horizon2dseedpicker.cc,v 1.6 2007-03-29 11:37:47 cvsjaap Exp $";
 
 #include "horizon2dseedpicker.h"
 
@@ -139,7 +139,7 @@ bool Horizon2DSeedPicker::startSeedPick()
     const StepInterval<int> colrg = \
     	hor->geometry().colRange( sectionid_, lineid_ ); 
 	
-bool Horizon2DSeedPicker::addSeed(const Coord3& seedcrd )
+bool Horizon2DSeedPicker::addSeed(const Coord3& seedcrd, bool drop )
 {
     addrmseed_.trigger();
 
@@ -171,42 +171,77 @@ bool Horizon2DSeedPicker::addSeed(const Coord3& seedcrd )
     rc.col = closestcol;
 	
     const EM::PosID pid( hor->id(), sectionid_, rc.getSerialized() );
-
-    const bool startwasdefined = hor->isDefined( pid );
-
     Coord3 newpos = hor->getPos( pid );
     newpos.z = seedcrd.z;
-    hor->setPos( pid, newpos, true );
-    if ( !hor->isPosAttrib( pid, EM::EMObject::sSeedNode ) )
-	hor->setPosAttrib( pid, EM::EMObject::sSeedNode, true );
-
     seedlist_.erase();
     seedlist_ += pid;
 
-    if ( seedconmode_ != DrawBetweenSeeds )
-	tracker_.snapPositions( seedlist_ );
+    const bool pickedposwasdef = hor->isDefined( pid );
+    if ( !drop || !pickedposwasdef )
+    {
+	hor->setPos( pid, newpos, true );
+	if ( seedconmode_ != DrawBetweenSeeds )
+	    tracker_.snapPositions( seedlist_ );
+    }
 
-    return retrackOnActiveLine( rc.col, startwasdefined );
+    hor->setPosAttrib( pid, EM::EMObject::sSeedNode, true );
+
+    const bool res = drop ? true : retrackOnActiveLine(rc.col,pickedposwasdef);
+
+    surfchange_.trigger();
+    return res;
 }
 
 
-bool Horizon2DSeedPicker::removeSeed( const EM::PosID& pid, bool retrack )
+int Horizon2DSeedPicker::nrLineNeighbors( int colnr ) const
+{
+    mGetHorAndColrg(hor,colrg,-1);
+    RowCol rc( lineid_, 0 ); 
+    int nrneighbors = 0;
+
+    for ( int idx=-1; idx<=1; idx+=2 )
+    {
+	rc.col = colnr;
+	while ( rc.col>colrg.start && rc.col<colrg.stop )
+	{
+	    rc.col += idx*colrg.step;
+	    const Coord3 pos = hor->getPos( sectionid_, rc.getSerialized() );
+	    if ( Coord(pos).isDefined() )
+	    {	
+		if ( pos.isDefined() )
+		    nrneighbors++;
+		break;
+	    }
+	}
+    }
+    return nrneighbors;
+}
+
+
+bool Horizon2DSeedPicker::removeSeed( const EM::PosID& pid, bool environment,
+				      bool retrack )
 { 
     addrmseed_.trigger();
 
     if ( blockpicking_ )
 	return true;
 
-    mGetHorizon(hor,false);
-    hor->unSetPos( pid, true );
-    seedlist_.erase();
-
     RowCol rc;
     rc.setSerialized( pid.subID() );
     if ( rc.row != lineid_ )
 	return false;
 
-    return retrackOnActiveLine( rc.col, true, !retrack );
+    mGetHorizon(hor,false);
+    hor->setPosAttrib( pid, EM::EMObject::sSeedNode, false );
+    if ( environment || !nrLineNeighbors(rc.col) )
+	hor->unSetPos( pid, true );
+
+    seedlist_.erase();
+    const bool res = environment ? 
+		     retrackOnActiveLine(rc.col,true,!retrack) : true;
+
+    surfchange_.trigger();
+    return res;
 }
 
 
@@ -217,22 +252,21 @@ bool Horizon2DSeedPicker::retrackOnActiveLine( int startcol,
     mGetHorAndColrg(hor,colrg,false);
     
     trackbounds_.erase();   
-    TypeSet<EM::PosID> candidatejunctionpairs;
+    junctions_.erase();
 
     if ( colrg.includes(startcol) )
     {
 	extendSeedListEraseInBetween( false, startcol, startwasdefined,
-				      -colrg.step, candidatejunctionpairs );
+				      -colrg.step );
 	extendSeedListEraseInBetween( false, startcol, startwasdefined,
-				      colrg.step, candidatejunctionpairs );
+				      colrg.step );
     }
     else
     {
 	// traverse whole active line
-	extendSeedListEraseInBetween( true, colrg.start, false,
-				      -colrg.step, candidatejunctionpairs );
+	extendSeedListEraseInBetween( true, colrg.start, false, -colrg.step );
 	extendSeedListEraseInBetween( true, colrg.start-colrg.step, false,
-				      colrg.step, candidatejunctionpairs );
+				      colrg.step );
 
 	if ( seedconmode_ != DrawBetweenSeeds )
 	    tracker_.snapPositions( seedlist_ );
@@ -240,35 +274,34 @@ bool Horizon2DSeedPicker::retrackOnActiveLine( int startcol,
 
     bool res = true;
 
-    if ( !eraseonly )
-    {
-	res = retrackFromSeedList();
+    if ( eraseonly )
+	return true;
 
-	for ( int idx=0; idx<candidatejunctionpairs.size(); idx+=2 )
-	{
-	    if ( hor->isDefined(candidatejunctionpairs[idx]) )
-	    {
-		hor->setPosAttrib( candidatejunctionpairs[idx+1],
-				   EM::EMObject::sSeedNode, true );
-	    }
-	}
+    res = retrackFromSeedList();
+
+    for ( int idx=0; idx<junctions_.size(); idx+=2 )
+    {
+	if ( hor->isDefined(junctions_[idx]) )
+	    hor->setPosAttrib(junctions_[idx+1], EM::EMObject::sSeedNode, true);
     }
 
-    surfchange_.trigger();
     return res;
 }
 
 
 void Horizon2DSeedPicker::extendSeedListEraseInBetween(
-			bool wholeline, int startcol, bool startwasdefined,
-			int step, TypeSet<EM::PosID>& candidatejunctionpairs )
+					    bool wholeline, int startcol, 
+					    bool startwasdefined, int step )
 {
     mGetHorAndColrg(hor,colrg, );
+    eraselist_.erase();
 
     RowCol currc( lineid_, startcol );
     EM::PosID curpid = EM::PosID( hor->id(), sectionid_, currc.getSerialized());
+
+    bool seedwasadded = hor->isDefined( curpid ) && !wholeline;
     bool curdefined = startwasdefined;
-    
+
     while ( true )
     {
 	const EM::PosID prevpid = curpid;
@@ -281,7 +314,11 @@ void Horizon2DSeedPicker::extendSeedListEraseInBetween(
 	{
 	    if  ( seedconmode_ == TrackFromSeeds )
 		trackbounds_ += prevpid;
-	    return;
+
+	    if ( seedwasadded && seedconmode_!=TrackFromSeeds )
+		return;
+
+	    break;
 	}
 	
 	const EM::PosID pid( hor->id(), sectionid_, currc.getSerialized() );
@@ -296,31 +333,39 @@ void Horizon2DSeedPicker::extendSeedListEraseInBetween(
 	// running into a seed point
 	if ( hor->isPosAttrib( curpid, EM::EMObject::sSeedNode ) )
 	{
-	    seedlist_ += curpid;
-	    if ( !wholeline )
-		return;
+	    const bool onewaytracking = seedwasadded && !prevdefined &&
+					seedconmode_==TrackFromSeeds;
+	    if ( onewaytracking )
+		trackbounds_ += curpid;
+	    else
+		seedlist_ += curpid;
+	    
+	    if ( wholeline )
+		continue;
 
-	    continue;
+	    break;
 	}
 
 	// running into a loose end
 	if ( !wholeline && !prevdefined && curdefined )
 	{
-	    if  ( seedconmode_==DrawBetweenSeeds )
-		seedlist_ += curpid;
-	    else
+	    if  ( seedconmode_==TrackFromSeeds )
 		trackbounds_ += curpid;
+	    else
+		seedlist_ += curpid;
 
-	    candidatejunctionpairs += prevpid;
-	    candidatejunctionpairs += curpid;
-	    return;
+	    junctions_ += prevpid;
+	    junctions_ += curpid;
+	    break;
 	}
 
-	// erasing points attached to start
+	// to erase points attached to start
 	if ( curdefined )
-	    hor->unSetPos( curpid, true );
+	    eraselist_ += curpid;
     }
-    return;
+
+    for ( int idx=0; idx<eraselist_.size(); idx++ )
+	hor->unSetPos( eraselist_[idx], true );
 }
 
 
@@ -381,7 +426,9 @@ bool Horizon2DSeedPicker::doesModeUseSetup() const
 bool Horizon2DSeedPicker::reTrack()
 { 
     seedlist_.erase();
-    return retrackOnActiveLine( Values::Undef<int>::val() , false );
+    const bool res = retrackOnActiveLine( Values::Undef<int>::val() , false );
+    surfchange_.trigger();
+    return res;
 }
 
 
