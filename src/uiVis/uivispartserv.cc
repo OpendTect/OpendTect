@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.347 2007-03-22 17:38:11 cvsdgb Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.348 2007-03-29 11:42:10 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -180,8 +180,7 @@ bool uiVisPartServer::clickablesInScene( const char* trackertype,
     for ( int idx=0; idx<sceneobjids.size(); idx++ )
     {
 	const int objid = sceneobjids[idx];
-	if ( isOn(objid) && 
-	     visSurvey::MPEClickCatcher::isClickable(trackertype,objid) )
+	if ( visSurvey::MPEClickCatcher::isClickable(trackertype,objid) )
 	{
 	    if ( !hasAttrib(objid) )
 		return true;
