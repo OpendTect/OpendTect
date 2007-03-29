@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpewizard.h,v 1.24 2007-01-03 16:04:27 cvsjaap Exp $
+ RCS:           $Id: uimpewizard.h,v 1.25 2007-03-29 11:36:46 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -105,7 +105,7 @@ protected:
     void		anotherSel(CallBacker*);
     void		seedModeChange(CallBacker*);
     void		retrackCB(CallBacker*);
-    void		setupChange(CallBacker*);
+    void		aboutToAddRemoveSeed(CallBacker*);
     void		updateFinishButton(CallBacker*);
 
     CubeSampling	seedbox;
@@ -116,6 +116,7 @@ protected:
     bool		objectcreated;
     bool		trackercreated;
     int			initialhistorynr;
+    int			oldsettingsseeds;
     
     uiMPEPartServer*	mpeserv;
     static int		defcolnr;
