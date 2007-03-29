@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2005
- RCS:           $Id: treeitem.cc,v 1.19 2007-03-29 20:54:26 cvskris Exp $
+ RCS:           $Id: treeitem.cc,v 1.20 2007-03-29 22:27:20 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -74,7 +74,7 @@ bool ParentTreeItem::init()
     addChild( new ArrowParentItem(), true );
     addChild( new ImageParentItem(), true );
     addChild( new TextParentItem(), true );
-    getItem()->setOpen( false );
+    getItem()->setOpen( true );
     return true;
 }
 
