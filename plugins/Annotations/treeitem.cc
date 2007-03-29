@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2005
- RCS:           $Id: treeitem.cc,v 1.18 2007-03-29 15:22:22 cvskris Exp $
+ RCS:           $Id: treeitem.cc,v 1.19 2007-03-29 20:54:26 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -544,7 +544,7 @@ TextSubItem::TextSubItem( Pick::Set& pck, int displayid )
     : SubItem(pck,displayid)
     , changetextmnuitem_("Change text ...")
 {
-    defscale_ = 10;
+    defscale_ = 100;
     Pick::SetMgr& mgr = Pick::SetMgr::getMgr( managerName() );
     mgr.locationChanged.notify( mCB(this, TextSubItem, pickAddedCB ) );
 }
