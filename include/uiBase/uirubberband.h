@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		November 2006
- RCS:		$Id: uirubberband.h,v 1.2 2007-02-12 13:53:02 cvsnanne Exp $
+ RCS:		$Id: uirubberband.h,v 1.3 2007-03-29 16:13:36 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,6 +40,8 @@ protected:
 
     uiPoint		origin_;
     uiRect		area_;
+
+    void		handleEv(QMouseEvent*,bool);
 };
 
 #endif

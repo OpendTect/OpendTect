@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		February 2007
- RCS:		$Id: uirubberband.cc,v 1.2 2007-02-12 13:53:02 cvsnanne Exp $
+ RCS:		$Id: uirubberband.cc,v 1.3 2007-03-29 16:13:36 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,18 +33,24 @@ void uiRubberBand::start( QMouseEvent* event )
 }
 
 
-void uiRubberBand::extend( QMouseEvent* event )
+void uiRubberBand::handleEv( QMouseEvent* event, bool setgeom )
 {
     const QPoint qorigin( origin_.x, origin_.y );
     const QRect geom = QRect( qorigin, event->pos() ).normalized();
     area_ = uiRect( geom.left(), geom.top(), geom.right(), geom.bottom() );
-    qrubberband_->setGeometry( geom );
+    if ( setgeom )
+	qrubberband_->setGeometry( geom );
+}
+
+
+void uiRubberBand::extend( QMouseEvent* event )
+{
+    handleEv( event, true );
 }
 
 
 void uiRubberBand::stop( QMouseEvent* event )
 {
-    const QRect geom = qrubberband_->geometry();
-    area_ = uiRect( geom.left(), geom.top(), geom.right(), geom.bottom() );
+    handleEv( event, false );
     qrubberband_->hide();
 }
