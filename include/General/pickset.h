@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		May 2001
  Contents:	PickSet base classes
- RCS:		$Id: pickset.h,v 1.27 2007-02-15 20:37:24 cvskris Exp $
+ RCS:		$Id: pickset.h,v 1.28 2007-03-29 15:08:14 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,7 +50,7 @@ public:
     void		operator =(const Location&);
 
     bool		fromString(const char*,bool doxy=true);
-    void		toString(char*) const;
+    void		toString(BufferString&) const;
 
     Coord3		pos;
     Sphere		dir; /*!< Optional direction at location.

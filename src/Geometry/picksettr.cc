@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Jul 2005
- RCS:		$Id: picksettr.cc,v 1.10 2006-11-21 14:00:07 cvsbert Exp $
+ RCS:		$Id: picksettr.cc,v 1.11 2007-03-29 15:08:14 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -149,12 +149,13 @@ const char* dgbPickSetTranslator::write( const Pick::Set& ps, Conn& conn )
 	return "Cannot write to output Pick Set file";
 
     astrm.put( "Ref", ps.name() );
-    char buf[80];
+    BufferString buf;
     if ( ps.disp_.color_ != Color::NoColor )
     {
-	ps.disp_.color_.fill( buf );
-	astrm.put( sKey::Color, buf );
+	ps.disp_.color_.fill( buf.buf() );
+	astrm.put( sKey::Color, buf.buf() );
     }
+
     if ( ps.disp_.pixsize_ != 0 )
 	astrm.put( sKey::Size, ps.disp_.pixsize_ );
     astrm.put( sKeyMarkerType, ps.disp_.markertype_ );
@@ -162,7 +163,7 @@ const char* dgbPickSetTranslator::write( const Pick::Set& ps, Conn& conn )
     for ( int iloc=0; iloc<ps.size(); iloc++ )
     {
 	ps[iloc].toString( buf );
-	strm << buf << '\n';
+	strm << buf.buf() << '\n';
     }
 
     astrm.newParagraph();

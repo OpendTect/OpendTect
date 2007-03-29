@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2002
- RCS:           $Id: uiimppickset.cc,v 1.22 2007-02-05 14:32:25 cvsnanne Exp $
+ RCS:           $Id: uiimppickset.cc,v 1.23 2007-03-29 15:08:14 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -136,11 +136,11 @@ bool uiImpExpPickSet::doExport()
 	mErrRet( "Could not open output file" )
     }
 
-    char buf[80];
+    BufferString buf;
     for ( int locidx=0; locidx<ps.size(); locidx++ )
     {
 	ps[locidx].toString( buf );
-	*sdo.ostrm << buf << '\n';
+	*sdo.ostrm << buf.buf() << '\n';
     }
 
     *sdo.ostrm << '\n';

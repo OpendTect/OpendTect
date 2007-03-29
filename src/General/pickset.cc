@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: pickset.cc,v 1.42 2007-03-20 20:19:35 cvskris Exp $";
+static const char* rcsID = "$Id: pickset.cc,v 1.43 2007-03-29 15:08:14 cvskris Exp $";
 
 #include "pickset.h"
 #include "survinfo.h"
@@ -145,27 +145,27 @@ bool Pick::Location::fromString( const char* s, bool doxy )
 }
 
 
-void Pick::Location::toString( char* str ) const
+void Pick::Location::toString(BufferString& str) const
 {
     if ( text )
     {
-	strcpy( str, "\"" );
-	strcat( str, text->buf() );
-	strcat( str, "\"" );
-	strcat( str, "\t" );
-	strcat( str, getStringFromDouble(0,pos.x) );
+	str = "\"";
+	str += text->buf();
+	str += "\"";
+	str += "\t";
+	str += getStringFromDouble(0,pos.x);
     }
     else
-	strcpy( str, getStringFromDouble(0,pos.x) );
+	str = getStringFromDouble(0,pos.x);
 
-    strcat( str, "\t" ); strcat( str, getStringFromDouble(0,pos.y) );
-    strcat( str, "\t" ); strcat( str, getStringFromDouble(0,pos.z) );
+    str += getStringFromDouble(0,pos.y);
+    str += getStringFromDouble(0,pos.z);
 
     if ( hasDir() )
     {
-	strcat( str, "\t" ); strcat( str, getStringFromDouble(0,dir.radius) );
-	strcat( str, "\t" ); strcat( str, getStringFromDouble(0,dir.theta) );
-	strcat( str, "\t" ); strcat( str, getStringFromDouble(0,dir.phi) );
+	str += "\t"; str += getStringFromDouble(0,dir.radius);
+	str += "\t"; str += getStringFromDouble(0,dir.theta);
+	str += "\t"; str += getStringFromDouble(0,dir.phi);
     }
 }
 
