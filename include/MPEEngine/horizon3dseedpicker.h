@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: horizon3dseedpicker.h,v 1.16 2006-07-24 11:42:06 cvsjaap Exp $
+ RCS:           $Id: horizon3dseedpicker.h,v 1.17 2007-03-29 11:35:12 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,10 +30,11 @@ public:
     bool		startSeedPick();
     bool		stopSeedPick(bool iscancel=false);
 
-    bool		addSeed(const Coord3&);
-    bool		canAddSeed() const		{ return true; }
+    bool		addSeed(const Coord3&,bool drop);
     bool		removeSeed(const EM::PosID&,
+	    			   bool environment,
 	    			   bool retrack);
+    bool		canAddSeed() const		{ return true; }
     bool		canRemoveSeed() const		{ return true; }
     bool		reTrack();
     int			nrSeeds() const;
@@ -65,6 +66,7 @@ protected:
 					     bool startwasdefined,
 					     bool eraseonly=false);
     bool		retrackFromSeedList();
+    void		processJunctions();
     bool		lineTrackDirection(BinID& dir,
 					   bool perptotrackdir=false) const;
     int 		nrLateralNeighbors(const EM::PosID& pid) const;
@@ -74,9 +76,13 @@ protected:
     bool		interpolateSeeds();
     CubeSampling	getTrackBox() const;
 
+    TypeSet<EM::PosID>	propagatelist_;
     TypeSet<EM::PosID>	seedlist_;
     TypeSet<Coord3>	seedpos_;
     TypeSet<BinID>	trackbounds_;
+    TypeSet<EM::PosID>	junctions_;
+    TypeSet<EM::PosID>	eraselist_;
+
     bool		didchecksupport_;
     EM::SectionID	sectionid_;
     MPE::EMTracker&	tracker_;
@@ -91,8 +97,7 @@ protected:
 private: 
     void		extendSeedListEraseInBetween( 
 			    bool wholeline,const BinID& startbid,
-			    bool startwasdefined,const BinID& dir,
-			    TypeSet<EM::PosID>& candidatejunctionpairs);
+			    bool startwasdefined,const BinID& dir );
 };
 
 

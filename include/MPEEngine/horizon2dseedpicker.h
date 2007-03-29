@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: horizon2dseedpicker.h,v 1.3 2007-01-16 14:26:33 cvsjaap Exp $
+ RCS:           $Id: horizon2dseedpicker.h,v 1.4 2007-03-29 11:34:37 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,9 +33,11 @@ public:
     EM::SectionID	getSectionID() const;
 
     bool		startSeedPick();
-    bool		addSeed(const Coord3&);
+    bool		addSeed(const Coord3&,bool drop);
     bool		canAddSeed() const		{ return true; }
-    bool		removeSeed(const EM::PosID&, bool retrack);
+    bool		removeSeed(const EM::PosID&, 
+	    			   bool environment,
+	    			   bool retrack);
     bool		canRemoveSeed() const		{ return true; }
     bool		reTrack();
     int			nrSeeds() const;
@@ -71,15 +73,17 @@ protected:
 
     void 			extendSeedListEraseInBetween(
 				    bool wholeline, int startcol,
-				    bool startwasdefined, int step,
-				    TypeSet<EM::PosID>& candidatejunctionpairs);
+				    bool startwasdefined, int step);
 
     bool			retrackFromSeedList();
+    int				nrLineNeighbors(int colnr) const;
     bool			interpolateSeeds();
     CubeSampling		getTrackBox() const;
 
     TypeSet<EM::PosID>		seedlist_;
     TypeSet<EM::PosID>		trackbounds_;
+    TypeSet<EM::PosID>  	junctions_;
+    TypeSet<EM::PosID>  	eraselist_;
     MPE::EMTracker&		tracker_;
 
     EM::SectionID		sectionid_;
