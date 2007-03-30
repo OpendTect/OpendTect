@@ -5,7 +5,7 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID = "$Id: genc.c,v 1.82 2006-09-27 10:53:11 cvsdgb Exp $";
+static const char* rcsID = "$Id: genc.c,v 1.83 2007-03-30 15:16:09 cvskris Exp $";
 
 #include "oddirs.h"
 #include "genc.h"
@@ -847,4 +847,20 @@ double PowerOf( double x, double y )
  
     ret = exp( y * log(x) );
     return isneg ? -ret : ret;
+}
+
+
+double ACos( double c )
+{
+    if ( c>=1 ) return 0;
+    if ( c<=-1 ) return M_PI;
+    return acos( c );
+}
+
+
+double ASin( double s )
+{
+    if ( s>=1 ) return M_PI_2;
+    if ( s<=-1 ) return -M_PI_2;
+    return asin( s );
 }

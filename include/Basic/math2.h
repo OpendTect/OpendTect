@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Aug 2005
- RCS:		$Id: math2.h,v 1.2 2005-08-26 18:25:07 cvsbert Exp $
+ RCS:		$Id: math2.h,v 1.3 2007-03-30 15:16:09 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,6 +27,13 @@ double		IntPowerOf(double,int);
 double		PowerOf(double,double);
 		/*!< PowerOf(-2,2) returns -4. This may be mathematically
 		  incorrect, it delivers continuity with negative numbers */
+
+double		ASin(double);
+		/*!<Checks the input range before calling asin, and does thus
+		    avoid nan's due to roundoff errors. */
+double		ACos(double);
+		/*!<Checks the input range before calling acos, and does thus
+		    avoid nan's due to roundoff errors. */
 
 #ifdef __cpp__
 }
