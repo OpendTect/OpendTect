@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.119 2007-03-29 12:54:29 cvsbert Exp $
+ RCS:           $Id: uimainwin.cc,v 1.120 2007-03-30 10:38:28 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -999,22 +999,23 @@ void uiDialogBody::layoutChildren( uiObject* lowestobj )
 	extrabut = 0;
     }
 
-    const int borderdist = 5;
+    const int hborderdist = 1;
+    const int vborderdist = 5;
 
 #define mCommonLayout(but) \
     but->attach( ensureBelow, lowestobj ); \
-    but->attach( bottomBorder, borderdist )
+    but->attach( bottomBorder, vborderdist )
 
     if ( leftbut )
     {
 	mCommonLayout(leftbut);
-	leftbut->attach( leftBorder, borderdist );
+	leftbut->attach( leftBorder, hborderdist );
     }
 
     if ( rightbut )
     {
 	mCommonLayout(rightbut);
-	rightbut->attach( rightBorder, borderdist );
+	rightbut->attach( rightBorder, hborderdist );
 	if ( leftbut )
 	    rightbut->attach( ensureRightOf, leftbut );
     }
@@ -1022,9 +1023,7 @@ void uiDialogBody::layoutChildren( uiObject* lowestobj )
     if ( centerbut )
     {
 	mCommonLayout(centerbut);
-	centerbut->attach( centeredBelow, horSepar
-			? (uiObject*)horSepar
-			: (uiObject*)centralWidget_->mainObject() );
+	centerbut->attach( hCentered );
 	if ( leftbut )
 	    centerbut->attach( ensureRightOf, leftbut );
 	if ( rightbut )
@@ -1033,7 +1032,6 @@ void uiDialogBody::layoutChildren( uiObject* lowestobj )
 
     if ( saveBut_cb )
     {
-	mCommonLayout(saveBut_cb);
 	saveBut_cb->attach( extrabut ? leftOf : rightOf, exitbut );
 	if ( centerbut && centerbut != exitbut )
 	    centerbut->attach( ensureRightOf, saveBut_cb );
@@ -1043,7 +1041,6 @@ void uiDialogBody::layoutChildren( uiObject* lowestobj )
 
     if ( extrabut )
     {
-	mCommonLayout(extrabut);
 	extrabut->attach( rightOf, centerbut );
 	if ( rightbut )
 	    extrabut->attach( ensureLeftOf, rightbut );
