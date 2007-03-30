@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vismpeeditor.cc,v 1.20 2006-01-18 20:05:58 cvsjaap Exp $";
+static const char* rcsID = "$Id: vismpeeditor.cc,v 1.21 2007-03-30 15:23:55 cvskris Exp $";
 
 #include "vismpeeditor.h"
 
@@ -14,6 +14,7 @@ static const char* rcsID = "$Id: vismpeeditor.cc,v 1.20 2006-01-18 20:05:58 cvsj
 #include "emsurface.h"
 #include "emsurfaceedgeline.h"
 #include "emsurfacegeometry.h"
+#include "math2.h"
 #include "vismarker.h"
 #include "visdatagroup.h"
 #include "visdragger.h"
@@ -275,7 +276,7 @@ void MPEEditor::addDragger( const EM::PosID& pid )
 	    ? emeditor->translation2DNormal( pid ).normalize()
 	    : geeditor->translation2DNormal( pid.subID() )
 							    .normalize();
-	const float angle = acos( defnormal.dot(desnormal) );
+	const float angle = ACos( defnormal.dot(desnormal) );
 	const Coord3 axis = defnormal.cross(desnormal);
 	dragger->setRotation( axis, angle );
     }
@@ -287,7 +288,7 @@ void MPEEditor::addDragger( const EM::PosID& pid )
 	    ? emeditor->translation1DDirection( pid ).normalize()
 	    : geeditor->translation1DDirection( pid.subID() )
 								.normalize();
-	const float angle = acos( defori.dot(desori) );
+	const float angle = ACos( defori.dot(desori) );
 	const Coord3 axis = defori.cross(desori);
 	dragger->setRotation( axis, angle );
     }

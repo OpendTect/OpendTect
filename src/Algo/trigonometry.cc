@@ -4,11 +4,12 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: trigonometry.cc,v 1.31 2007-01-30 14:23:38 cvskris Exp $";
+static const char* rcsID = "$Id: trigonometry.cc,v 1.32 2007-03-30 15:23:55 cvskris Exp $";
 
 #include "trigonometry.h"
 
 #include "errh.h"
+#include "math2.h"
 #include "pca.h"
 #include "position.h"
 #include "sets.h"
@@ -141,7 +142,7 @@ void Quaternion::setRotation( const Vector3& axis, float angle )
 void Quaternion::getRotation( Vector3& axis, float& angle ) const
 {
     if ( s_>=1 || s_<=-1 ) angle = 0;
-    else angle = acos( s_ ) * 2;
+    else angle = ACos( s_ ) * 2;
 
     //This should really be axis=vec_/sin(angle/2)
     //but can be simplified to this since length of axis is irrelevant
@@ -470,15 +471,15 @@ bool Plane3::intersectWith( const Plane3& b, Line3& res ) const
 Sphere cartesian2Spherical( const Coord3& crd, bool math )
 {
     float theta, phi;
-    float rad = sqrt( crd.x*crd.x + crd.y*crd.y + crd.z*crd.z );
+    float rad = crd.abs();
     if ( math )
     {
-	theta = rad ? acos( crd.z / rad ) : 0;
+	theta = rad ? ACos( crd.z / rad ) : 0;
 	phi = atan2( crd.y, crd.x );
     }
     else
     {
-	theta = rad ? asin( crd.z / rad ) : 0;
+	theta = rad ? ASin( crd.z / rad ) : 0;
 	phi = atan2( crd.x, crd.y );
     }
 

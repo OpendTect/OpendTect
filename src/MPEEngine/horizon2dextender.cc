@@ -8,11 +8,12 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizon2dextender.cc,v 1.3 2007-01-31 11:56:10 cvsjaap Exp $";
+static const char* rcsID = "$Id: horizon2dextender.cc,v 1.4 2007-03-30 15:23:55 cvskris Exp $";
 
 #include "horizon2dextender.h"
 
 #include "emhorizon2d.h"
+#include "math2.h"
 #include "survinfo.h"
 
 namespace MPE 
@@ -31,7 +32,7 @@ void Horizon2DExtender::setAngleThreshold( float rad )
 
 
 float Horizon2DExtender::getAngleThreshold() const
-{ return acos(anglethreshold_); }
+{ return ACos(anglethreshold_); }
 
 
 void Horizon2DExtender::setDirection( const BinIDValue& dir )

@@ -8,12 +8,13 @@ ________________________________________________________________________
  Author:	Bert BRil & Kris Tingdahl
  Date:		12-4-1999
  Contents:	'Simple' numerical functions
- RCS:		$Id: simpnumer.h,v 1.21 2007-03-26 16:55:32 cvsbert Exp $
+ RCS:		$Id: simpnumer.h,v 1.22 2007-03-30 15:23:54 cvskris Exp $
 ________________________________________________________________________
 
 */
 
 #include "undefval.h"
+#include "math2.h"
 #include <math.h>
 
 #ifndef M_PI
@@ -230,7 +231,7 @@ inline int solve3DPoly( double a, double b, double c,
     if ( r2<q3 )
     {
 	const double minus_twosqrt_q = -2*sqrt(q);
-	const double theta = acos(r/sqrt(q3));
+	const double theta = ACos(r/sqrt(q3));
 	static const double twopi = 2*M_PI;
 
 

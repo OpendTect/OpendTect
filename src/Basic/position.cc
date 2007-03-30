@@ -4,12 +4,13 @@
  * DATE     : 21-6-1996
 -*/
 
-static const char* rcsID = "$Id: position.cc,v 1.56 2007-01-29 20:43:32 cvskris Exp $";
+static const char* rcsID = "$Id: position.cc,v 1.57 2007-03-30 15:23:55 cvskris Exp $";
 
 #include "position.h"
 #include "bufstring.h"
 #include "undefval.h"
 #include "string2.h"
+#include "math2.h"
 #include <math.h>
 #include <string.h>
 #include <ctype.h>
@@ -58,7 +59,7 @@ double Coord::angle( const Coord& from, const Coord& to ) const
     const Coord vec2 =  to  - *this;
     const double det = vec1.x * vec2.y - vec1.y * vec2.x;
 
-    const double ang = acos( cosang );
+    const double ang = ACos( cosang );
     return det<0 ? 2*M_PI - ang : ang;
 } 
 
