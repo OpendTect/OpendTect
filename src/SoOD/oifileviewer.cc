@@ -9,6 +9,7 @@
 #include <Inventor/Qt/SoQt.h>
 #include <Inventor/Qt/viewers/SoQtExaminerViewer.h>
 #include <Inventor/SoInput.h>
+#include <Inventor/lists/SbStringList.h>
 #include <Inventor/nodes/SoSeparator.h>
 #include "SoOD.h"
 
@@ -40,7 +41,15 @@ int main( int narg, char** argv )
 	return 1;
     }
 
+
     SoInput mySceneInput;
+
+    //SoInput::addDirectoryFirst( "." ); // Add additional directories.
+    SbStringList dirlist = SoInput::getDirectories();
+    for ( int idx=0; idx<dirlist.getLength(); idx++ )
+	printf( "Looking for \"%s\" in %s\n", argv[1],
+		dirlist[idx]->getString() );
+
     if ( !mySceneInput.openFile( argv[1] ))
 	return 1;
 
