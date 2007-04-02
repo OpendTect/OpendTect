@@ -4,7 +4,7 @@
  * DATE     : May 2004
 -*/
 
-static const char* rcsID = "$Id: wellextractdata.cc,v 1.32 2007-01-29 20:35:43 cvskris Exp $";
+static const char* rcsID = "$Id: wellextractdata.cc,v 1.33 2007-04-02 16:36:53 cvsbert Exp $";
 
 #include "wellextractdata.h"
 #include "wellreader.h"
@@ -395,7 +395,7 @@ void Well::LogDataExtracter::getData( const BinIDValueSet& bivs,
     // Should be OK for all wells without horizontal sections
 
     int trackidx = 0;
-    const float tol = 0.001;
+    const float tol = 0.00001;
     float z1 = track.pos(trackidx).z;
     BinIDValueSet::Pos bvpos;
     BinIDValue biv;
@@ -410,7 +410,7 @@ void Well::LogDataExtracter::getData( const BinIDValueSet& bivs,
     if ( !bvpos.valid() ) // Duh. All data below track.
 	{ res.erase(); return; }
 
-    for ( trackidx=1; trackidx<track.size(); trackidx++ )
+    for ( trackidx=0; trackidx<track.size(); trackidx++ )
     {
 	if ( track.pos(trackidx).z > biv.value - tol )
 	    break;
@@ -432,11 +432,14 @@ void Well::LogDataExtracter::getData( const BinIDValueSet& bivs,
 		return;
 	    z2 = track.pos( trackidx ).z;
 	}
+	if ( trackidx == 0 )
+	    continue;
+
 	z1 = track.pos( trackidx - 1 ).z;
 	if ( z1 > biv.value )
 	{
 	    // This is not uncommon. A new binid with higher posns.
-	    trackidx = 1;
+	    trackidx = 0;
 	    bivs.prev( bvpos );
 	    mSetUdf(prevdah);
 	    continue;
