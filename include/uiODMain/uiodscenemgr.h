@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.h,v 1.45 2007-03-21 15:44:23 cvskris Exp $
+ RCS:           $Id: uiodscenemgr.h,v 1.46 2007-04-02 16:36:15 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,6 +30,7 @@ class uiVisPartServer;
 class uiWorkSpace;
 class uiFlatViewWin;
 namespace Pick { class Set; }
+class uiThumbWheel;
 
 
 /*!\brief Manages the scenes and the corresponding trees.
@@ -41,6 +42,7 @@ namespace Pick { class Set; }
 class uiODSceneMgr : public CallBacker
 {
 public:
+
     void			cleanUp(bool startnew=true);
     int				addScene(bool maximized);
     void			removeScene(CallBacker*);
@@ -121,6 +123,11 @@ protected:
 				uiODSceneMgr(uiODMain*);
 				~uiODSceneMgr();
     void			initMenuMgrDepObjs();
+
+    void			afterFinalise(CallBacker*);
+    uiThumbWheel*		dollywheel;
+    uiThumbWheel*		hwheel;
+    uiThumbWheel*		vwheel;
 
     class Scene
     {
