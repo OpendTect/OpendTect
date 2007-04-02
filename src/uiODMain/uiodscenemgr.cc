@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.103 2007-03-21 15:44:23 cvskris Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.104 2007-04-02 16:36:03 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -106,7 +106,7 @@ uiODSceneMgr::uiODSceneMgr( uiODMain* a )
 
     uiGroup* leftgrp = new uiGroup( &appl_, "Left group" );
 
-    uiThumbWheel* dollywheel = new uiThumbWheel( leftgrp, "Dolly", false );
+    dollywheel = new uiThumbWheel( leftgrp, "Dolly", false );
     dollywheel->wheelMoved.notify( mWSMCB(dWheelMoved) );
     dollywheel->wheelPressed.notify( mWSMCB(anyWheelStart) );
     dollywheel->wheelReleased.notify( mWSMCB(anyWheelStop) );
@@ -116,7 +116,7 @@ uiODSceneMgr::uiODSceneMgr( uiODMain* a )
     uiLabel* dummylbl = new uiLabel( leftgrp, "" );
     dummylbl->attach( centeredBelow, dollylbl );
     dummylbl->setStretch( 0, 2 );
-    uiThumbWheel* vwheel = new uiThumbWheel( leftgrp, "vRotate", false );
+    vwheel = new uiThumbWheel( leftgrp, "vRotate", false );
     vwheel->wheelMoved.notify( mWSMCB(vWheelMoved) );
     vwheel->wheelPressed.notify( mWSMCB(anyWheelStart) );
     vwheel->wheelReleased.notify( mWSMCB(anyWheelStop) );
@@ -125,7 +125,7 @@ uiODSceneMgr::uiODSceneMgr( uiODMain* a )
     uiLabel* rotlbl = new uiLabel( &appl_, "Rot" );
     rotlbl->attach( centeredBelow, leftgrp );
 
-    uiThumbWheel* hwheel = new uiThumbWheel( &appl_, "hRotate", true );
+    hwheel = new uiThumbWheel( &appl_, "hRotate", true );
     hwheel->wheelMoved.notify( mWSMCB(hWheelMoved) );
     hwheel->wheelPressed.notify( mWSMCB(anyWheelStart) );
     hwheel->wheelReleased.notify( mWSMCB(anyWheelStop) );
@@ -139,6 +139,7 @@ uiODSceneMgr::uiODSceneMgr( uiODMain* a )
     zoomslider_->attach( rightAlignedBelow, wsp_ );
 
     leftgrp->attach( leftOf, wsp_ );
+    appl_.finaliseDone.notify( mCB(this,uiODSceneMgr,afterFinalise) );
 }
 
 
@@ -206,6 +207,14 @@ int uiODSceneMgr::addScene( bool maximized )
     }
 
     return sceneid;
+}
+
+
+void uiODSceneMgr::afterFinalise( CallBacker* cb )
+{
+    dollywheel->display( true );
+    hwheel->display( true );
+    vwheel->display( true );
 }
 
 
