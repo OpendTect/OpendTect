@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          Sep 2006
- RCS:           $Id: uigdexamacorr.cc,v 1.19 2007-03-21 08:56:03 cvshelene Exp $
+ RCS:           $Id: uigdexamacorr.cc,v 1.20 2007-04-02 14:10:21 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,14 +23,15 @@ ________________________________________________________________________
 #include "attribdatacubes.h"
 #include "attribdataholder.h"
 #include "attribdatapack.h"
-#include "uiexecutor.h"
 #include "arrayndimpl.h"
-#include "uimsg.h"
-#include "ptrman.h"
 #include "colortab.h"
+#include "ptrman.h"
+#include "survinfo.h"
+#include "uiexecutor.h"
 #include "uiflatviewer.h"
 #include "uiflatviewmainwin.h"
 #include "uiflatviewstdcontrol.h"
+#include "uimsg.h"
 
 using namespace Attrib;
 
@@ -101,8 +102,17 @@ EngineMan* GapDeconACorrView::createEngineMan()
 
     aem->setAttribSet( dset_ );
     aem->setAttribSpecs( attribspecs );
-    aem->setCubeSampling( cs_ );
     aem->setLineKey( lk_ );
+
+    CubeSampling cs = cs_;
+    if ( !SI().zRange(0).includes( cs_.zrg.start) ||
+	 !SI().zRange(0).includes( cs_.zrg.stop) )
+    {
+	//'fake' a 'normal' cubesampling for the attribute engine
+	cs.zrg.start = SI().sampling(0).zrg.start;	
+	cs.zrg.stop = cs.zrg.start + cs_.zrg.width();	
+    }
+    aem->setCubeSampling( cs );
 
     return aem;
 }
@@ -110,13 +120,33 @@ EngineMan* GapDeconACorrView::createEngineMan()
 
 #define mCreateFD2DDataPack(fddatapack) \
 { \
-    fddatapack = new Attrib::Flat2DDataPack( attribid_, d2dh ); \
+    fddatapack = new Attrib::Flat2DDataPack( attribid_, *correctd2dh ); \
     fddatapack->setName( "autocorrelation" ); \
 }
 
 
 void GapDeconACorrView::createFD2DDataPack( bool isqc, const Data2DHolder& d2dh)
 {
+    RefMan<Attrib::Data2DHolder> correctd2dh = new Attrib::Data2DHolder();
+    for ( int idx=0; idx<d2dh.dataset_.size(); idx++ )
+	correctd2dh->dataset_ += d2dh.dataset_[idx]->clone();
+    for ( int idx=0; idx<d2dh.trcinfoset_.size(); idx++ )
+    {
+	SeisTrcInfo* info = new SeisTrcInfo(*d2dh.trcinfoset_[idx]);
+	correctd2dh->trcinfoset_ += info;
+    }
+    
+    if ( ( !SI().zRange(0).includes(cs_.zrg.start)
+	|| !SI().zRange(0).includes(cs_.zrg.stop) )
+	 && correctd2dh.ptr()->trcinfoset_.size() )
+    {
+	//we previously 'faked' a 'normal' cubesampling for the attribute engine
+	//now we have to go back to the user specified sampling
+	float zstep = correctd2dh.ptr()->trcinfoset_[0]->sampling.step;
+	for ( int idx=0; idx<correctd2dh.ptr()->dataset_.size(); idx++ )
+	    correctd2dh.ptr()->dataset_[idx]->z0_ = mNINT(cs_.zrg.start/zstep);
+    }
+
     if ( isqc )
     	mCreateFD2DDataPack(fddatapackqc_)
     else
@@ -126,7 +156,7 @@ void GapDeconACorrView::createFD2DDataPack( bool isqc, const Data2DHolder& d2dh)
 
 #define mCreateFD3DDataPack(fddatapack) \
 { \
-    fddatapack = new Attrib::Flat3DDataPack( attribid_, *output, 0 ); \
+    fddatapack = new Attrib::Flat3DDataPack( attribid_, *correctoutput, 0 ); \
     fddatapack->setName( "autocorrelation" ); \
 }
 
@@ -138,6 +168,19 @@ void GapDeconACorrView::createFD3DDataPack( bool isqc, EngineMan* aem,
 	return;
     
     output->ref();
+    bool csmatchessurv = SI().zRange(0).includes(cs_.zrg.start)
+			&& SI().zRange(0).includes(cs_.zrg.stop);
+    //if we previously 'faked' a 'normal' cubesampling for the attribute engine
+    //we now have to go back to the user specified sampling
+    CubeSampling cs = csmatchessurv ? output->cubeSampling() : cs_;
+    Attrib::DataCubes* correctoutput = new Attrib::DataCubes();
+    correctoutput->ref();
+    correctoutput->setSizeAndPos( cs );
+    while ( correctoutput->nrCubes() < output->nrCubes() )
+	correctoutput->addCube();
+
+    for ( int idx=0; idx<output->nrCubes(); idx++ )
+	correctoutput->setCube(idx, output->getCube(idx) );
     
     if ( isqc )
     	mCreateFD3DDataPack(fddatapackqc_)
@@ -145,6 +188,7 @@ void GapDeconACorrView::createFD3DDataPack( bool isqc, EngineMan* aem,
 	mCreateFD3DDataPack(fddatapackexam_)
 	    
     output->unRef();
+    correctoutput->unRef();
 }
 
     
