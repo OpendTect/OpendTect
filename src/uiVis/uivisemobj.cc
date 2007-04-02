@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Jan 2005
- RCS:           $Id: uivisemobj.cc,v 1.55 2007-03-22 20:48:39 cvskris Exp $
+ RCS:           $Id: uivisemobj.cc,v 1.56 2007-04-02 11:38:50 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -511,7 +511,7 @@ void uiVisEMObject::setOnlyAtSectionsDisplay( bool yn )
 {
     visSurvey::EMObjectDisplay* emod = getDisplay();
     mDynamicCastGet( visSurvey::HorizonDisplay*, hordisp, emod );
-    if ( hordisp )
+    if ( hordisp && hordisp->getOnlyAtSectionsDisplay()!=yn )
     {
 	bool usetexture = false;
 	if ( yn )
