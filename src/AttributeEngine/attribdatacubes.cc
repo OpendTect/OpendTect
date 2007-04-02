@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribdatacubes.cc,v 1.22 2007-02-16 16:36:30 cvskris Exp $";
+static const char* rcsID = "$Id: attribdatacubes.cc,v 1.23 2007-04-02 14:10:39 cvshelene Exp $";
 
 #include "attribdatacubes.h"
 #include "arrayndimpl.h"
@@ -215,6 +215,10 @@ const Array3D<float>& DataCubes::getCube( int idx ) const
 
 Array3D<float>& DataCubes::getCube( int idx )
 { return *cubes_[idx]; }
+
+
+void DataCubes::setCube( int idx, const Array3D<float>& cube )
+{ cubes_[idx]->copyFrom( cube ); }
 
 
 CubeSampling DataCubes::cubeSampling() const
