@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          July  2006
- RCS:           $Id: uigapdeconattrib.cc,v 1.28 2007-03-29 12:38:44 cvshelene Exp $
+ RCS:           $Id: uigapdeconattrib.cc,v 1.29 2007-04-02 14:09:04 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -62,6 +62,7 @@ class uiGDPositionDlg: public uiDialog
 uiGapDeconAttrib::uiGapDeconAttrib( uiParent* p, bool is2d )
 	: uiAttrDescEd ( p, is2d )
     	, acorrview_ ( new GapDeconACorrView(0) )
+    	, positiondlg_(0)
 {
     inpfld_ = getInpFld();
 
@@ -591,8 +592,8 @@ uiGDPositionDlg::~uiGDPositionDlg()
 void uiGDPositionDlg::popUpPosDlg()
 {
     CallBack dummycb;
-    bool isinl;
     bool is2d = inlcrlfld_ == 0;
+    bool isinl = is2d ? false : inlcrlfld_->getBoolValue();
     CubeSampling inputcs = cs_;
     if ( is2d )
     {
@@ -608,7 +609,6 @@ void uiGDPositionDlg::popUpPosDlg()
     {
 	if ( !is2d )
 	{
-	    isinl = inlcrlfld_->getBoolValue();
 	    if ( isinl )
 		inputcs.hrg.stop.inl = inputcs.hrg.start.inl;
 	    else
