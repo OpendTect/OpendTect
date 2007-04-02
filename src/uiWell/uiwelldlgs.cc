@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          October 2003
- RCS:           $Id: uiwelldlgs.cc,v 1.54 2007-02-22 14:22:59 cvskris Exp $
+ RCS:           $Id: uiwelldlgs.cc,v 1.55 2007-04-02 16:37:44 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -362,9 +362,9 @@ bool uiD2TModelDlg::acceptOK( CallBacker* )
 static const float defundefval = -999.25;
 static const float feetfac = 0.3048;
 #ifdef __win__
-    static const char* lasfileflt = "Las files (*.las;*.dat)";
+    static const char* lasfileflt = "Las files (*.las *.dat)";
 #else
-    static const char* lasfileflt = "Las files (*.las;*.dat;*.LAS;*.DAT)";
+    static const char* lasfileflt = "Las files (*.las *.LAS *.dat *.DAT)";
 #endif
 
 
