@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribprocessor.h,v 1.17 2007-03-22 16:05:54 cvshelene Exp $
+ RCS:           $Id: attribprocessor.h,v 1.18 2007-04-02 09:49:41 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,6 +46,7 @@ public:
 
     void		addOutputInterest(int sel)     { outpinterest_ += sel; }
     bool		setZIntervals(TypeSet< Interval<int> >&, BinID);
+    void		computeAndSetRefZStep();
     
     Notifier<Attrib::Processor>      moveonly;
                      /*!< triggered after a position is reached that requires
@@ -77,7 +78,6 @@ protected:
     void		defineGlobalOutputSpecs(TypeSet<int>&,CubeSampling&);
     void		prepareForTableOutput();
     void		computeAndSetPosAndDesVol(CubeSampling&);
-    void		computeAndSetRefZStep();
 };
 
 

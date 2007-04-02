@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H.Payraudeau
  Date:          04/2005
- RCS:           $Id: attribengman.cc,v 1.65 2007-03-14 12:23:48 cvshelene Exp $
+ RCS:           $Id: attribengman.cc,v 1.66 2007-04-02 09:49:41 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -74,6 +74,7 @@ void EngineMan::getPossibleVolume( DescSet& attribset, CubeSampling& cs,
 			createProcessor( attribset, linename, evalid, errmsg );
     if ( !proc ) return;
 
+    proc->computeAndSetRefZStep();
     proc->getProvider()->setDesiredVolume( cs );
     proc->getProvider()->getPossibleVolume( -1, cs );
 }
