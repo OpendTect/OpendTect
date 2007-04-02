@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpewizard.cc,v 1.71 2007-03-29 11:40:34 cvsjaap Exp $
+ RCS:           $Id: uimpewizard.cc,v 1.72 2007-04-02 15:46:04 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -452,12 +452,9 @@ bool Wizard::prepareSeedSetupPage()
 bool Wizard::leaveSeedSetupPage( bool process )
 {
     mGetSeedPicker(false);
-    if ( process )
-    {
-	retrackCB(0);
-        if ( seedpicker->isSeedPickBlocked() )
-	    return false;
-    }
+
+    if ( process && !setupgrp->commitToTracker() )
+	return false;
 
     NotifierAccess* addrmseednotifier = seedpicker->aboutToAddRmSeedNotifier();
     if ( addrmseednotifier ) 
@@ -823,7 +820,10 @@ void Wizard::retrackCB( CallBacker* )
 	return;
 
     mGetSeedPicker();
-    mpeserv->loadAttribData();
+
+    const CubeSampling curvol = engine().activeVolume();
+    if ( curvol.nrInl()==1 || curvol.nrCrl()==1 )
+	mpeserv->loadAttribData();
 
     EM::History& history = EM::EMM().history();
     int cureventnr = history.currentEventNr();
