@@ -4,7 +4,7 @@
  * DATE     : Jan 2007
 -*/
 
-static const char* rcsID = "$Id: seiscubeprov.cc,v 1.2 2007-02-05 18:13:16 cvsbert Exp $";
+static const char* rcsID = "$Id: seiscubeprov.cc,v 1.3 2007-04-04 15:53:57 cvsbert Exp $";
 
 #include "seismscprov.h"
 #include "seistrc.h"
@@ -43,14 +43,13 @@ SeisMSCProvider::SeisMSCProvider( const char* fnm )
 
 void SeisMSCProvider::init()
 {
-    state_ = DataIncomplete;
+    readstate_ = NeedStart;
     stepoutstep_.inl = SI().inlStep(); stepoutstep_.crl = SI().crlStep();
-    curpos_.r() = curpos_.c() = 0;
     seldata_ = 0;
     intofloats_ = workstarted_ = false;
     errmsg_ = 0;
     estnrtrcs_ = -2;
-    tbufs_ += new SeisTrcBuf;
+    curbuf_ = 0;
 }
 
 
@@ -117,6 +116,19 @@ bool SeisMSCProvider::startWork()
 	newseldata->extend( so, &stepoutstep_ );
 
     rdr_.setSelData( newseldata );
+    SeisTrc* trc = new SeisTrc;
+    int rv = readTrace( *trc );
+    while ( rv > 1 )
+	rv = readTrace( *trc );
+
+    if ( rv < 0 )
+	{ errmsg_ = rdr_.errMsg(); return false; }
+    else if ( rv == 0 )
+	{ errmsg_ = "No valid/selected trace found"; return false; }
+
+    SeisTrcBuf* newbuf = new SeisTrcBuf;
+    tbufs_ += newbuf;
+    newbuf->add( trc );
     return true;
 }
 
@@ -142,25 +154,16 @@ int SeisMSCProvider::comparePos( const SeisMSCProvider& req ) const
     {
 	if ( curnr_ == req.curnr_ )
 	    return 0;
-	int res = curnr_ > req.curnr_ ? 1 : -1;
-	if ( crlrev_ ) res = -res;
-	return res;
+	return curnr_ > req.curnr_ ? 1 : -1;
     }
 
     if ( curbid_ == req.curbid_ )
 	return 0;
 
     if ( curbid_.inl != req.curbid_.inl )
-    {
-	int res = curbid_.inl > req.curbid_.inl ? 1 : -1;
-	if ( inlrev_ ) res = -res;
-	return res;
-    }
+	return curbid_.inl > req.curbid_.inl ? 1 : -1;
 
-    int res = curbid_.crl > req.curbid_.crl ? 1 : -1;
-    if ( crlrev_ ) res = -res;
-
-    return res;
+    return curbid_.crl > req.curbid_.crl ? 1 : -1;
 }
 
 
@@ -195,99 +198,70 @@ int SeisMSCProvider::readTrace( SeisTrc& trc )
 }
 
 
-#define mRet(st,act) { atc; state_ = st; return state_; }
+#define mRet(act,rv) { act; return rv; }
 
-SeisMSCProvider::State SeisMSCProvider::advance()
+/* Strategy:
+   1) try going to next in already buffered traces: doAdvance()
+   2) if not possible, read new trace.
+   3) if !doAdvance() now, we're buffering
+   */
+
+SeisMSCProvider::AdvanceState SeisMSCProvider::advance()
 {
-    if ( state_ == NoMoreData || state_ == Error )
-	return state_;
-    else if ( !workstarted_ && !startWork() )
-	mRet(Error,errmsg_ = rdr_.errMsg())
+    if ( !workstarted_ && !startWork() )
+	{ errmsg_ = rdr_.errMsg(); return AdvErr; }
 
-    if ( atend_ )
-	return advanceAtEnd();
+    if ( doAdvance() )
+	return NewPosition;
+    else if ( readstate_ == ReadErr )
+	return AdvErr;
+    else if ( readstate_ == AtEnd )
+	return EndReached;
 
-    SeisTrc* newtrc = new SeisTrc;
-    int res = readTrace( *newtrc );
+    SeisTrc* trc = new SeisTrc;
+    int res = readTrace( *trc );
     if ( res < 1 )
-	delete newtrc;
+	delete trc;
     if ( res < 0 )
-	mRet(Error,)
-    else if ( res == 0 )
-	{ state_ = AtEnd; return advanceAtEnd(); }
+    {
+	readstate_ = res == 0 ? AtEnd : ReadErr;
+	return advance();
+    }
 
-    return addTrc( newtrc );
-}
-
-
-SeisMSCProvider::State SeisMSCProvider::addTrc( SeisTrc* trc )
-{
     trc->data().handleDataSwapping();
 
-    SeisTrcBuf* curbuf = tbufs_[ tbufs_.size()-1 ];
+    SeisTrcBuf* addbuf = tbufs_[ tbufs_.size()-1 ];
     bool neednewbuf = is2D() && trc->info().new_packet;
     if ( !is2D() )
-	neednewbuf = curbuf->size() > 0
-	          && curbuf->get(0)->info().binid.inl != trc->info().binid.inl;
+	neednewbuf = addbuf->size() > 0
+	          && addbuf->get(0)->info().binid.inl != trc->info().binid.inl;
     if ( neednewbuf )
-	curbuf = newBuf( trc );
-    else
-	curbuf->add( trc );
+    {
+	if ( is2D() )
+	{
+	    tbufs_[0]->deepErase();
+	    deepErase( tbufs_ );
+	}
+	addbuf = new SeisTrcBuf;
+	tbufs_ += addbuf;
+    }
 
-    return isSingleTrc() ? DataOK : handleFreshTrace( trc );
+    addbuf->add( trc );
+    return doAdvance() ? NewPosition : Buffering;
 }
 
 
-SeisTrcBuf* SeisMSCProvider::newBuf( SeisTrc* trc )
+bool SeisMSCProvider::doAdvance()
 {
-    if ( is2D() )
+    int curidxinbuf = idxinbuf_ + 1;
+    int curbufnr = bufnr_;
+    SeisTrcBuf* curbuf = tbufs_[curbufnr];
+
+    if ( curidxinbuf >= curbuf->size() )
     {
-	tbufs_[0]->deepErase();
-	deepErase( tbufs_ );
+	curbufnr++;
+	if ( curbufnr >= tbufs_.size() )
+	    return false;
+	curbuf = tbufs_[curbufnr];
     }
-
-    SeisTrcBuf* newbuf = new SeisTrcBuf;
-    tbufs_ += newbuf;
-    newbuf->add( trc );
-
-    if ( is2D() )
-	return newbuf;
-
-    const int lowestinl = trc->info().binid.inl
-			- (2 * desstepout_.r() * stepoutstep_.inl);
-    while ( tbufs_[0].get(0)->info().binid.inl < lowestinl )
-    {
-	SeisTrcBuf* oldbuf = new SeisTrcBuf;
-	oldbuf->deepErase();
-	tbufs_ -= oldbuf;
-	delete oldbuf;
-    }
-}
-
-SeisMSCProvider::State SeisMSCProvider::handleFreshTrace( SeisTrc* lastread )
-{
-    if ( is2D() )
-    {
-	const int reqhwdth = reqstepout_.c() * stepoutstep_.crl;
-	const int deshwdth = desstepout_.c() * stepoutstep_.crl;
-	const int centernr = lastread->info().nr - reqhwdth;
-	const int lonr = lastread->info().nr - 2 * reqhwdth;
-	const int deslonr = lastread->info().nr - 2 * deshwdth;
-    }
-    const BinID& hihibid( lastread->info().binid );
-    const BinID hilobid( hhbid.inl - reqstepout_.r(),
-	    		   hhbid.crl - reqstepout_.c() );
-    const BinID centrebid( hhbid.inl - reqstepout_.r(),
-	    		   hhbid.crl - reqstepout_.c() );
-    for ( int ibuf=tbufs_.size()-1; ibuf>=0; ibuf++ )
-    {
-    }
-
-    SeisTrcBuf* curbuf = tbufs_[ tbufs_.size()-1 ];
-    curpos_.r() = curbuf->size() - reqstepout_.r() - 1;
-    if ( curpos_.r() < 0 )
-	return DataIncomplete;
-
-    // Check whether all required traces present
-    for ( int irow=
 }
