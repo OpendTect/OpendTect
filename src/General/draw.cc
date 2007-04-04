@@ -4,7 +4,7 @@
  * DATE     : 18-4-1996
 -*/
 
-static const char* rcsID = "$Id: draw.cc,v 1.63 2007-02-28 16:34:38 cvsbert Exp $";
+static const char* rcsID = "$Id: draw.cc,v 1.64 2007-04-04 16:51:41 cvsbert Exp $";
 
 /*! \brief Several implementations for UI-related things.
 
@@ -650,7 +650,7 @@ void ColorTable::add( const ColorTable& ctab )
     const int newidx = names.size();
     IOPar par; ctab.fillPar( par );
     Settings& setts( Settings::fetch(sKeyCtabSettsKey) );
-    setts.mergeComp( par, getStringFromInt("%d",newidx) );
+    setts.mergeComp( par, getStringFromInt(newidx) );
     setts.write();
 }
 

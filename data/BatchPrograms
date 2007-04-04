@@ -49,13 +49,6 @@ rect_seis
 	Comment: Unlike OpendTect, some ancient packages require fully filled cubes.
 	ExampleInput: rect_seis_example.par
 !
-oifileviewer
-	Arg: M`FileRead`COIN .iv file
-	Comment: Shows a '.iv' file in a simple COIN viewer
-	Comment: Can help diagnose OpenGL problems
-	Comment: To enable dump of .iv files, in the General settings,
-	Comment: set 'dTect.Dump OI Menu' to 'Yes'
-!
 lmhostid
 	Comment: Display the FlexLM hostid of this machine
 	Comment: May be required for commercial plugins.

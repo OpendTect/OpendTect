@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: bufstring.cc,v 1.3 2006-11-20 16:12:03 cvsnanne Exp $";
+static const char* rcsID = "$Id: bufstring.cc,v 1.4 2007-04-04 16:51:41 cvsbert Exp $";
 
 #include "bufstring.h"
 
@@ -61,15 +61,15 @@ BufferString& BufferString::operator=( float f )
 
 
 BufferString& BufferString::operator+=( int i )
-{ *this += getStringFromInt("%d",i); return *this; }
+{ *this += getStringFromInt(i); return *this; }
 
 
 BufferString& BufferString::operator+=( double d )
-{ *this += getStringFromDouble("%lg",d); return *this; }
+{ *this += getStringFromDouble(0,d); return *this; }
 
 
 BufferString& BufferString::operator+=( float f )
-{ *this += getStringFromFloat("%g",f); return *this; }
+{ *this += getStringFromFloat(0,f); return *this; }
 
 
 void BufferString::insertAt( int idx, const char* str )

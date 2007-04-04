@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		15-1-2000
- RCS:		$Id: multiid.h,v 1.3 2003-11-07 12:21:50 bert Exp $
+ RCS:		$Id: multiid.h,v 1.4 2007-04-04 16:51:40 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,11 +41,11 @@ public:
     inline int		ID( int idx ) const
 			{ return atoi(key(idx)); }
     inline void		setID( int idx, int i )
-			{ setKey( idx, getStringFromInt("%d",i) ); }
+			{ setKey( idx, getStringFromInt(i) ); }
     int			leafID() const;
 
     inline MultiID&	add( int i )
-			{ *this += getStringFromInt("%d",i); return *this; }
+			{ *this += getStringFromInt(i); return *this; }
 
 };
 
