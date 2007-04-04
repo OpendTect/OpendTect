@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		11-4-1994
  Contents:	Extra string functions
- RCS:		$Id: string2.h,v 1.17 2006-07-25 13:02:52 cvsbert Exp $
+ RCS:		$Id: string2.h,v 1.18 2007-04-04 16:15:23 cvsdgb Exp $
 ________________________________________________________________________
 -*/
 
@@ -64,8 +64,8 @@ const char*	getStringFromInt(const char* fmt,int32);
 const char*	getStringFromUInt(const char* fmt,uint32);
 /*!> is like getStringFromInt. Treats "%lg" special: it will do removal of
      trailing zeros and use %f in more cases than std. */
-const char*	getStringFromInt64(const char* fmt,int64);
-const char*	getStringFromUInt64(const char* fmt,uint64);
+const char*	getStringFromInt64(int64);
+const char*	getStringFromUInt64(uint64);
 const char*	getStringFromDouble(const char* fmt,double);
 /*!> is like getStringFromDouble, with special %lf treatment. */
 const char*	getStringFromFloat(const char* fmt,float);
@@ -88,8 +88,8 @@ const char*	getRankPostFix(int);
 inline const char* toString( double d )	{ return getStringFromDouble(0, d ); }
 inline const char* toString( int32 i )	{ return getStringFromInt(0, i ); }
 inline const char* toString( uint32 i )	{ return getStringFromUInt(0, i ); }
-inline const char* toString( int64 i )	{ return getStringFromInt64(0, i ); }
-inline const char* toString( uint64 i )	{ return getStringFromUInt64(0, i ); }
+inline const char* toString( int64 i )	{ return getStringFromInt64( i ); }
+inline const char* toString( uint64 i )	{ return getStringFromUInt64( i ); }
 inline const char* toString( float f )	{ return getStringFromFloat(0, f ); }
 inline const char* toString( bool b )	{ return getYesNoString( b ); }
 
