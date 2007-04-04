@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: uiodvolrentreeitem.cc,v 1.4 2007-01-25 23:04:30 cvskris Exp $";
+static const char* rcsID = "$Id: uiodvolrentreeitem.cc,v 1.5 2007-04-04 18:18:22 cvskris Exp $";
 
 
 #include "uiodvolrentreeitem.h"
@@ -13,6 +13,7 @@ static const char* rcsID = "$Id: uiodvolrentreeitem.cc,v 1.4 2007-01-25 23:04:30
 #include "uilistview.h"
 #include "uimenu.h"
 #include "uimenuhandler.h"
+#include "uimsg.h"
 #include "uiodapplmgr.h"
 #include "uiodattribtreeitem.h"
 #include "uiodscenemgr.h"
@@ -40,6 +41,14 @@ uiODVolrenParentTreeItem::~uiODVolrenParentTreeItem()
 
 bool uiODVolrenParentTreeItem::showSubMenu()
 {
+    mDynamicCastGet(visSurvey::Scene*,scene,
+	ODMainWin()->applMgr().visServer()->getObject(sceneID()));
+    if ( scene && scene->getDataTransform() )
+    {
+	uiMSG().message( "Cannot add volume viewer to this scene (yet)" );
+	return false;
+    }
+
     uiPopupMenu mnu( getUiParent(), "Action" );
     mnu.insertItem( new uiMenuItem("Add"), 0 );
     const int mnuid = mnu.exec();
