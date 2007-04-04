@@ -7,13 +7,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2000
- RCS:           $Id: geometry.h,v 1.28 2007-02-28 20:48:15 cvskris Exp $
+ RCS:           $Id: geometry.h,v 1.29 2007-04-04 15:50:09 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 #include <gendefs.h>
 #include <math.h>
+#include <ranges.h>
 
 namespace Geom
 {
@@ -119,6 +120,10 @@ public:
     inline void		setBottomRight( Point2D<T> br );
     inline void		setTopRight( Point2D<T> tr );
     inline void		setBottomLeft( Point2D<T> tr );
+    inline void		setTopBottom(const Interval<T>&);
+    inline void		setLeftRight(const Interval<T>&);
+
+    inline Point2D<T>	moveInside(const Point2D<T>&) const;
 
     inline void		fitIn(const Rectangle<T>&);
 
@@ -172,6 +177,7 @@ class PixRectangle : public Rectangle<T>
 public:
 			PixRectangle( T l = 0 , T t = 0, T r = 0 , T b = 0 ) ;
 			PixRectangle( Point2D<T> tl, Point2D<T> br ) ;
+			PixRectangle( const Rectangle<T>& );
 
     inline bool		isInside( const Point2D<T>& p ) const;
     inline bool		isOutside( const Point2D<T>& p ) const;
@@ -488,6 +494,29 @@ void Rectangle<T>::setBottomLeft( Point2D<T> tr )
 
 
 template <class T> inline
+void Rectangle<T>::setTopBottom( const Interval<T>& rg )
+{ topLeft_.y = rg.start; bottomRight_.y = rg.stop; }
+
+
+template <class T> inline
+void Rectangle<T>::setLeftRight( const Interval<T>& rg )
+{ topLeft_.x = rg.start; bottomRight_.x = rg.stop; }
+
+
+template <class T> inline
+Point2D<T> Rectangle<T>::moveInside( const Point2D<T>& pt ) const
+{
+    Point2D<T> res = pt;
+    res.x = mMAX( res.x, left() );
+    res.x = mMIN( res.x, right() );
+    res.y = mMAX( res.y, top() );
+    res.y = mMIN( res.y, bottom() );
+
+    return res;
+}
+
+
+template <class T> inline
 T Rectangle<T>::width() const
 { return revX() ? left()-right() : right() - left(); }
 
@@ -672,6 +701,13 @@ template <class T>
 PixRectangle<T>::PixRectangle( Point2D<T> tl, Point2D<T> br ) 
     : Rectangle<T>(tl,br)
 {}
+
+
+template <class T>
+PixRectangle<T>::PixRectangle( const Rectangle<T>& r ) 
+    : Rectangle<T>( r )
+{}
+
 
 template <class T> inline
 bool PixRectangle<T>::isInside( const Point2D<T>& p ) const
