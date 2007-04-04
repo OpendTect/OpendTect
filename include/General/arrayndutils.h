@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: arrayndutils.h,v 1.23 2007-01-03 21:16:59 cvskris Exp $
+ RCS:           $Id: arrayndutils.h,v 1.24 2007-04-04 14:07:06 cvshelene Exp $
 ________________________________________________________________________
 
 
@@ -101,6 +101,26 @@ inline bool removeBias( ArrayND<T>* in, ArrayND<T>* out_ = 0)
 
     return true;
 }
+
+
+template <class T>
+inline T computeAvg( ArrayND<T>* in )
+{
+    T avg = 0;
+    const int sz = in->info().getTotalSz();
+    T* inpptr = in->getData();
+
+    if ( inpptr )
+    {
+	for ( int idx=0; idx<sz; idx++ )
+	    avg += inpptr[idx]; 
+
+	avg /= sz;
+    }
+
+    return avg;
+}
+
 
 /*! \brief Tapers the N-dimentional ArrayND with a windowFunction.
 
