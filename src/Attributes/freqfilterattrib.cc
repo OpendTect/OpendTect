@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          February 2003
- RCS:           $Id: freqfilterattrib.cc,v 1.20 2007-03-08 12:40:08 cvshelene Exp $
+ RCS:           $Id: freqfilterattrib.cc,v 1.21 2007-04-04 14:08:21 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -438,6 +438,7 @@ void FreqFilter::fftFilter( const DataHolder& output,
     }
 
     window->apply( &signal );
+    float avg = computeAvg( &signal ).real();
     removeBias( &signal );
     for ( int idy=0; idy<nrsamp; idy++ )
 	timedomain.set( sz+idy, signal.get(idy) );
@@ -453,8 +454,12 @@ void FreqFilter::fftFilter( const DataHolder& output,
     fftinv.transform( tmpfreqdomain, timecplxoutp );
 
     const int firstidx = nrsamples < mMINNRSAMPLES ? fftsz/2 - nrsamples/2: sz;
+    bool needrestorebias = filtertype==mFilterLowPass
+			   || ( filtertype==mFilterBandPass && minfreq==0 );
+    float correctbias = needrestorebias ? avg : 0;
     for ( int idx=0; idx<nrsamples; idx++ )
-	output.series(0)->setValue( idx, timecplxoutp.get(firstidx+idx).real());
+	output.series(0)->setValue( idx, 
+			    timecplxoutp.get(firstidx+idx).real()+correctbias);
 }
 
 
@@ -466,6 +471,7 @@ void FreqFilter::setSz( int sz )
     tmpfreqdomain.setInfo( Array1DInfoImpl( fftsz ) );
     timecplxoutp.setInfo( Array1DInfoImpl( fftsz ) );
 }
+
 
 const Interval<int>* FreqFilter::desZSampMargin(int input, int output) const
 {
