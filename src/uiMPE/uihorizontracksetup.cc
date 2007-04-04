@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2005
- RCS:           $Id: uihorizontracksetup.cc,v 1.12 2007-03-29 11:38:57 cvsjaap Exp $
+ RCS:           $Id: uihorizontracksetup.cc,v 1.13 2007-04-04 09:37:35 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -258,6 +258,8 @@ bool uiHorizonSetupGroup::commitToTracker( bool& fieldchange ) const
     }
 
     Interval<int> intv = srchgatefld->getIInterval();
+    if ( intv.start>0 || intv.stop<0 || intv.start==intv.stop )
+	mErrRet( "Search window should be minus to positive, ex. -20, 20");
     Interval<float> relintv( (float)intv.start/SI().zFactor(),
 			     (float)intv.stop/SI().zFactor() );
     if ( horadj_->permittedZRange() != relintv )
@@ -276,7 +278,7 @@ bool uiHorizonSetupGroup::commitToTracker( bool& fieldchange ) const
     if ( usesimi )
     {
 	Interval<float> intval = compwinfld->getFInterval();
-	if ( intval.start > 0 || intval.stop < 0 || intv.start == intv.stop )
+	if ( intval.start>0 || intval.stop<0 || intval.start==intval.stop )
 	    mErrRet( "Compare window should be minus to positive, ex. -20, 20");
 	Interval<float> relintval( (float)intval.start/SI().zFactor(),
 				   (float)intval.stop/SI().zFactor() );
