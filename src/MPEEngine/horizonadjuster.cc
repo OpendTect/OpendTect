@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizonadjuster.cc,v 1.41 2007-02-22 12:42:42 cvsjaap Exp $";
+static const char* rcsID = "$Id: horizonadjuster.cc,v 1.42 2007-04-04 11:38:41 cvsjaap Exp $";
 
 #include "horizonadjuster.h"
 
@@ -59,7 +59,10 @@ HorizonAdjuster::~HorizonAdjuster()
 
 
 void HorizonAdjuster::setPermittedZRange( const Interval<float>& rg )
-{ permzrange_ = rg; }
+{ 
+    permzrange_ = rg;
+    permzrange_.sort(); 
+}
 
 
 Interval<float> HorizonAdjuster::permittedZRange() const
@@ -107,7 +110,10 @@ bool HorizonAdjuster::useAbsThreshold() const
 
 
 void HorizonAdjuster::setSimilarityWindow( const Interval<float>& rg )
-{ similaritywin_ = rg; }
+{ 
+    similaritywin_ = rg;
+    similaritywin_.sort();
+}
 
 
 Interval<float> HorizonAdjuster::similarityWindow() const
@@ -309,11 +315,14 @@ bool HorizonAdjuster::snap( const BinID& bid,
     ValueSeriesEvFinder<float, float>
 			    evfinder( valarr, attrdata_->getZSz()-1, sd);
 
-    const Interval<float> uprg( targetz,
-	    			mMAX(zrg.start,targetz+permzrange_.start) );
-    const Interval<float> dnrg( targetz,
-	    			mMIN(zrg.stop,targetz+permzrange_.stop) );
+    const float zstep = fabs( zrg.step );
+    const float upbound = targetz + permzrange_.start - 0.01*zstep;
+    const float dnbound = targetz + permzrange_.stop  + 0.01*zstep;
 
+    const Interval<float> uprg( targetz, mMAX(zrg.start,upbound-zstep) );
+    const Interval<float> dnrg( targetz, mMIN(zrg.stop, dnbound+zstep) );
+
+    float eventpos;
     if ( evtype_==VSEvent::ZCNegPos || evtype_==VSEvent::ZCPosNeg )
     {
 	ValueSeriesEvent<float, float> upevent =
@@ -327,10 +336,10 @@ bool HorizonAdjuster::snap( const BinID& bid,
 	if ( !upfound && !dnfound )
 	    return false;
 	else if ( upfound && dnfound )
-	    targetz = fabs(targetz-upevent.pos)<fabs(targetz-dnevent.pos) ?
+	    eventpos = fabs(targetz-upevent.pos)<fabs(targetz-dnevent.pos) ?
 		upevent.pos : dnevent.pos;
 	else 
-	    targetz = upfound ? upevent.pos : dnevent.pos;
+	    eventpos = upfound ? upevent.pos : dnevent.pos;
     }
     else if ( evtype_==VSEvent::Max || evtype_==VSEvent::Min )
     {
@@ -367,14 +376,21 @@ bool HorizonAdjuster::snap( const BinID& bid,
 	else if ( upfound && dnfound )
 	{
 	    if ( uploopskip!=dnloopskip )
-		targetz = uploopskip ? dnevent.pos : upevent.pos;
+	    {
+		eventpos = uploopskip && dnevent.pos<=dnbound ? 
+						  dnevent.pos : upevent.pos;
+	    }
 	    else
 	    {
-		targetz = upampl>dnampl ? upevent.pos : dnevent.pos;
+		if ( upampl==dnampl && fabs(upevent.pos-dnevent.pos)<zstep )
+		    eventpos = (upevent.pos + dnevent.pos) / 2;
+		else
+		    eventpos = upampl>dnampl ? upevent.pos : dnevent.pos;
 	    }
 	}
 	else 
-	    targetz = upfound ? upevent.pos : dnevent.pos;
+	    eventpos = upfound ? upevent.pos : dnevent.pos;
+
     }
     else
     {
@@ -382,6 +398,10 @@ bool HorizonAdjuster::snap( const BinID& bid,
 	return false;
     }
 
+    if ( eventpos<upbound || eventpos>dnbound )
+	return false;
+    
+    targetz = eventpos;
     return true;
 }
 
