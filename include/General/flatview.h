@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2005
- RCS:           $Id: flatview.h,v 1.14 2007-03-28 12:19:38 cvsbert Exp $
+ RCS:           $Id: flatview.h,v 1.15 2007-04-04 16:19:49 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,6 +41,7 @@ public:
     {
     public:
 				AuxData( const char* nm );
+				AuxData( const AuxData& );
 				~AuxData();
 
 	BufferString		name_;
