@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		September 2006
- RCS:		$Id: horizonattrib.cc,v 1.5 2007-03-23 13:51:52 cvshelene Exp $
+ RCS:		$Id: horizonattrib.cc,v 1.6 2007-04-05 14:37:17 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,6 +22,9 @@ ________________________________________________________________________
 #include "executor.h"
 #include "ptrman.h"
 
+#define mOutTypeZ		0
+#define mOutTypeSurfData	1
+
 
 namespace Attrib
 {
@@ -30,16 +33,22 @@ mAttrDefCreateInstance(Horizon)
     
 void Horizon::initClass()
 {
-    Desc* desc = new Desc( attribName(), updateDesc );
-    desc->ref();
+    mAttrStartInitClassWithUpdate
 
     desc->addParam( new StringParam(sKeyHorID()) );
-    StringParam* fnmpar = new StringParam( sKeyFileName() );
-    fnmpar->setRequired( false );
-    desc->addParam( fnmpar );
+    
+    EnumParam* type = new EnumParam( sKeyType() );
+    //Note: Ordering must be the same as numbering!
+    type->addEnum( outTypeNamesStr(mOutTypeZ) );
+    type->addEnum( outTypeNamesStr(mOutTypeSurfData) );
+    desc->addParam( type );
+    
+    StringParam* surfidpar = new StringParam( sKeySurfDataName() );
+    surfidpar->setEnabled( false );
+    desc->addParam( surfidpar );
 
-    desc->addInput( InputSpec("Input data for Horizon",true) );
-    desc->setNrOutputs( Seis::UnknowData, 2 );
+    desc->addInput( InputSpec("Input data for Horizon",true) );//positioning
+    desc->addOutputDataType( Seis::UnknowData );
 
     mAttrEndInitClass
 }
@@ -47,13 +56,9 @@ void Horizon::initClass()
 
 void Horizon::updateDesc( Desc& desc )
 {
-    BufferString idstr = desc.getValParam( sKeyHorID() )->getStringValue();
-    MultiID horid( idstr.buf() );
-    EM::SurfaceIOData iodata;
-    const char* err = EM::EMM().getSurfaceData( horid, iodata );
-    if ( err ) return;
-
-    desc.setNrOutputs( Seis::UnknowData, iodata.valnames.size()+2 );
+    BufferString type = desc.getValParam(sKeyType())->getStringValue();
+    const bool issurfdata = type==outTypeNamesStr( mOutTypeSurfData );
+    desc.setParamEnabled( sKeySurfDataName(), issurfdata );
 }
 
 
@@ -62,16 +67,45 @@ Horizon::Horizon( Desc& dsc )
     , inputdata_(0)
     , horizon_(0)
 { 
-    if ( !isOK() ) return;
-
     BufferString idstr = desc.getValParam( sKeyHorID() )->getStringValue();
     horid_ = MultiID( idstr.buf() );
+
+    mGetEnum( outtype_, sKeyType() );
+    if ( outtype_ == mOutTypeSurfData )
+	mGetString( surfdatanm_, sKeySurfDataName() );
+
+    if ( !isOK() )
+    {
+	errmsg = "Selected surface data name does not exist";
+	return;
+    }
 }
 
 
 Horizon::~Horizon()
 {
     if ( horizon_ ) horizon_->unRef();
+}
+
+
+bool Horizon::isOK() const
+{
+    if ( outtype_==mOutTypeSurfData )
+    {
+	EM::SurfaceIOData sd;
+	EM::EMM().getSurfaceData( horid_, sd );
+	int surfdtidx = sd.valnames.indexOf( surfdatanm_ );
+	if ( surfdtidx<0 ) return false;
+    }
+
+    return true;
+}
+
+
+const char* Horizon::outTypeNamesStr(int type)
+{
+    if ( type== mOutTypeZ ) return "Z";
+    return "Surface Data";
 }
 
 
@@ -104,8 +138,10 @@ void Horizon::prepareForComputeData()
     if ( getDesiredVolume() )
 	sel.rg = getDesiredVolume()->hrg;
 
-    for ( int idx=0; idx<sd.valnames.size(); idx++ )
-	sel.selvalues += idx;
+    int surfdtidx = sd.valnames.indexOf( surfdatanm_ );
+    if ( surfdtidx<0 && outtype_==mOutTypeSurfData ) return;
+    else if ( surfdtidx >= 0 )
+	sel.selvalues += surfdtidx;
 
     PtrMan<Executor> loader = em.objectLoader( horid_, &sel );
     if ( !loader ) return;
@@ -131,26 +167,17 @@ bool Horizon::computeData( const DataHolder& output, const BinID& relpos,
 	    		   bid.getSerialized() );
     const float zval = horizon_->getPos( posid ).z;
 
-    TypeSet<float> outputvalues( nrOutputs(), mUdf(float) );
-    for ( int idx=0; idx<nrOutputs(); idx++ )
+    float outputvalue = mUdf(float);
+    if ( outtype_ == mOutTypeZ )
+	outputvalue = zval;
+    else
     {
-	if ( idx==0 && isOutputEnabled(0) )
-	    outputvalues[0] = zval;
-	else if ( idx==1 && isOutputEnabled(1) )
-	    outputvalues[1] =
-	    		getInterpolInputValue( *inputdata_, dataidx_, zval );
-	else if ( isOutputEnabled(idx) ) // surface data start at idx=2
-	    outputvalues[idx] = horizon_->auxdata.getAuxDataVal( idx-2, posid );
+	int auxindex = horizon_->auxdata.auxDataIndex( surfdatanm_ );
+	outputvalue = horizon_->auxdata.getAuxDataVal( auxindex, posid );
     }
-
+    
     for ( int idx=0; idx<nrsamples; idx++ )
-    {
-	for ( int outidx=0; outidx<nrOutputs(); outidx++ )
-	{
-	    if ( isOutputEnabled(outidx) )
-		setOutputValue( output, outidx, idx, z0, outputvalues[outidx] );
-	}
-    }
+	setOutputValue( output, 0, idx, z0, outputvalue );
 
     return true;
 }

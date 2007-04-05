@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          September 2006
- RCS:           $Id: uihorizonattrib.h,v 1.4 2006-12-20 11:23:00 cvshelene Exp $
+ RCS:           $Id: uihorizonattrib.h,v 1.5 2007-04-05 14:37:17 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,7 +22,7 @@ class uiGenInput;
 class uiIOObjSel;
 
 
-/*! \brief Coherency attribute description editor */
+/*! \brief Horizon attribute description editor */
 
 class uiHorizonAttrib : public uiAttrDescEd
 {
@@ -35,18 +35,19 @@ protected:
 
     uiAttrSel*		inpfld_;
     uiIOObjSel*		horfld_;
-    uiGenInput*		outputfld_;
+    uiGenInput*		typefld_;
+    uiGenInput*		surfdatafld_;
 
     CtxtIOObj&		horctio_;
+    BufferStringSet	surfdatanms_;
 
     virtual bool	setParameters(const Attrib::Desc&);
     virtual bool	setInput(const Attrib::Desc&);
-    virtual bool	setOutput(const Attrib::Desc&);
     virtual bool	getParameters(Attrib::Desc&);
     virtual bool	getInput(Attrib::Desc&);
-    virtual bool	getOutput(Attrib::Desc&);
 
     void		horSel(CallBacker*);
+    void		typeSel(CallBacker*);
 
     			mDeclReqAttribUIFns
 };

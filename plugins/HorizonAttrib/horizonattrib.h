@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          September 2006
- RCS:           $Id: horizonattrib.h,v 1.3 2007-03-08 12:40:08 cvshelene Exp $
+ RCS:           $Id: horizonattrib.h,v 1.4 2007-04-05 14:37:17 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,11 +34,15 @@ public:
 
     static const char*	attribName()	{ return "Horizon"; }
     static const char*	sKeyHorID()	{ return "horid"; }
-    static const char*	sKeyFileName()	{ return "filename"; }
+    static const char*	sKeySurfDataName(){ return "surfdatanm"; }
+    static const char*	sKeyType()	{ return "type"; }
+    static const char*	outTypeNamesStr(int);
+
+    bool                isOK() const;
 
 protected:
     static Provider*	createInstance( Desc& );
-    static void		updateDesc( Desc& );
+    static void         updateDesc( Desc& );
 
     virtual bool	getInputData(const BinID&,int intv);
     virtual bool	computeData(const DataHolder&,const BinID& relpos,
@@ -47,7 +51,8 @@ protected:
     virtual bool	allowParallelComputation() const { return true; }
 
     MultiID		horid_;
-    BufferString	filenm_;
+    BufferString	surfdatanm_;
+    int			outtype_;
 
     EM::Horizon*	horizon_;
     const DataHolder*	inputdata_;

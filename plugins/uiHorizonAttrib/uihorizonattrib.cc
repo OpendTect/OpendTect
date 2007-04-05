@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          September 2006
- RCS:		$Id: uihorizonattrib.cc,v 1.5 2006-12-20 11:23:00 cvshelene Exp $
+ RCS:		$Id: uihorizonattrib.cc,v 1.6 2007-04-05 14:37:17 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,7 +28,7 @@ ________________________________________________________________________
 
 using namespace Attrib;
 
-static const char* sDefHorOut[] = { "Z", "Input data", 0 };
+static const char* sDefHorOut[] = { "Z", "Surface Data", 0 };
 
 mInitAttribUI(uiHorizonAttrib,Horizon,"Horizon",sKeyPositionGrp)
 
@@ -43,10 +43,16 @@ uiHorizonAttrib::uiHorizonAttrib( uiParent* p, bool is2d )
     horfld_->selectiondone.notify( mCB(this,uiHorizonAttrib,horSel) );
     horfld_->attach( alignedBelow, inpfld_ );
 
-    outputfld_ = new uiGenInput( this, "Output", StringListInpSpec() );
-    outputfld_->attach( alignedBelow, horfld_ );
+    typefld_ = new uiGenInput( this, "Output", StringListInpSpec(sDefHorOut) );
+    typefld_->valuechanged.notify( mCB(this,uiHorizonAttrib,typeSel) );
+    typefld_->attach( alignedBelow, horfld_ );
 
+    surfdatafld_ = new uiGenInput( this, "Select surface data",
+	    			   StringListInpSpec() );
+    surfdatafld_->attach( alignedBelow, typefld_ );
+    
     setHAlignObj( inpfld_ );
+    typeSel(0);
 }
 
 
@@ -64,10 +70,18 @@ bool uiHorizonAttrib::setParameters( const Attrib::Desc& desc )
     mIfGetString( Horizon::sKeyHorID(), horidstr,
 		  IOObj* ioobj = IOM().get( MultiID(horidstr) );
 		  horfld_->ctxtIOObj().setObj( ioobj );
-		  horfld_->updateInput() )
+		  horfld_->updateInput() );
 
     if ( horctio_.ioobj )
 	horSel(0);
+    
+    mIfGetEnum(Horizon::sKeyType(), typ, typefld_->setValue(typ));
+
+    mIfGetString( Horizon::sKeySurfDataName(), surfdtnm, 
+		  surfdatafld_->setValue(surfdatanms_.indexOf( surfdtnm )<0 
+		      ? 0 : surfdatanms_.indexOf(surfdtnm) ) );
+
+    typeSel(0);
 
     return true;
 }
@@ -80,13 +94,6 @@ bool uiHorizonAttrib::setInput( const Attrib::Desc& desc )
 }
 
 
-bool uiHorizonAttrib::setOutput( const Attrib::Desc& desc )
-{
-    outputfld_->setValue( desc.selectedOutput() );
-    return true;
-}
-
-
 bool uiHorizonAttrib::getParameters( Attrib::Desc& desc )
 {
     if ( strcmp(desc.attribName(),Horizon::attribName()) )
@@ -94,7 +101,15 @@ bool uiHorizonAttrib::getParameters( Attrib::Desc& desc )
 
     mSetString( Horizon::sKeyHorID(),
 	        horctio_.ioobj ? horctio_.ioobj->key().buf() : "" );
-
+    mSetEnum( Horizon::sKeyType(), typefld_->getIntValue() );
+    const int typ = typefld_->getIntValue();
+    if ( typ==1 )
+    {
+	int surfdataidx = surfdatafld_->getIntValue();
+	const char* surfdatanm = surfdatanms_.get(surfdataidx);
+	mSetString( Horizon::sKeySurfDataName(), surfdatanm )
+    }
+    
     return true;
 }
 
@@ -103,13 +118,6 @@ bool uiHorizonAttrib::getInput( Desc& desc )
 {
     inpfld_->processInput();
     fillInp( inpfld_, desc, 0 );
-    return true;
-}
-
-
-bool uiHorizonAttrib::getOutput( Desc& desc )
-{
-    fillOutput( desc, outputfld_->getIntValue() );
     return true;
 }
 
@@ -130,8 +138,15 @@ void uiHorizonAttrib::horSel( CallBacker* )
 	return;
     }
 
-    BufferStringSet outputs( sDefHorOut );
+    surfdatanms_.erase();
     for ( int idx=0; idx<iodata.valnames.size(); idx++ )
-	outputs.add( iodata.valnames.get(idx).buf() );
-    outputfld_->newSpec( StringListInpSpec(outputs), 0 );
+	surfdatanms_.add( iodata.valnames.get(idx).buf() );
+    surfdatafld_->newSpec( StringListInpSpec(surfdatanms_), 0 );
 }
+
+
+void uiHorizonAttrib::typeSel(CallBacker*)
+{
+    surfdatafld_->display( typefld_->getIntValue() == 1 );
+}
+
