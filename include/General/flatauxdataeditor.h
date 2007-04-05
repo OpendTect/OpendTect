@@ -4,9 +4,9 @@
 ________________________________________________________________________
 
  CopyRight:     (C) dGB Beheer B.V.
- Author:        A.H. Bril
- Date:          Dec 2005
- RCS:           $Id: flatauxdataeditor.h,v 1.1 2007-04-04 18:19:49 cvskris Exp $
+ Author:        Kris
+ Date:          Mar 2007
+ RCS:           $Id: flatauxdataeditor.h,v 1.2 2007-04-05 16:57:48 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,6 +31,7 @@ class AuxDataEditor : public CallBacker
 public:
 			AuxDataEditor(Viewer&,MouseEventHandler&);
     virtual		~AuxDataEditor();
+
     int			addAuxData(FlatView::Annotation::AuxData*,
 	    			   bool doedit);
     			/*!<\param doedit says whether this object
@@ -62,6 +63,9 @@ public:
     				/*!If selPtIdx()==-1, position should be added,
 				   otherwise moved. */
     Notifier<AuxDataEditor>	removeSelected;
+
+    const Viewer&	viewer() const	{ return viewer_; }
+    Viewer&		viewer()	{ return viewer_; }
 
 protected:
     void		mousePressCB(CallBacker*);
