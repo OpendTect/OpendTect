@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Jan 2007
- RCS:		$Id: seiscubeprov.h,v 1.3 2007-02-05 18:13:01 cvsbert Exp $
+ RCS:		$Id: seiscubeprov.h,v 1.4 2007-04-06 15:04:59 cvsjaap Exp $
 ________________________________________________________________________
 
 */
@@ -111,6 +111,10 @@ protected:
     int			reqmincrl_;
     int			reqmaxcrl_;
 
+    int			newposidx_;	// Index of new position ready, 
+					// equals -1 while buffering.
+    int			pivotidx_;	// Next position to be examined.
+    
     void		init();
     void		doUsePar(const IOPar&);
     void		getIdxs(int,int,int&,int&);
@@ -120,6 +124,8 @@ protected:
     bool		startWork();
     bool		isSingleTrc() const
 			{ return desstepout_.r() == 0 && desstepout_.c() == 0; }
+
+    bool 		gapInReqBox(int pivotidx,bool upwards) const;
 };
 
 

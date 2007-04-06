@@ -4,7 +4,7 @@
  * DATE     : Jan 2007
 -*/
 
-static const char* rcsID = "$Id: seiscubeprov.cc,v 1.3 2007-04-04 15:53:57 cvsbert Exp $";
+static const char* rcsID = "$Id: seiscubeprov.cc,v 1.4 2007-04-06 15:04:59 cvsjaap Exp $";
 
 #include "seismscprov.h"
 #include "seistrc.h"
@@ -129,6 +129,9 @@ bool SeisMSCProvider::startWork()
     SeisTrcBuf* newbuf = new SeisTrcBuf;
     tbufs_ += newbuf;
     newbuf->add( trc );
+    
+    pivotidx_ = 0;
+
     return true;
 }
 
@@ -251,17 +254,81 @@ SeisMSCProvider::AdvanceState SeisMSCProvider::advance()
 }
 
 
+// Distances to box borders: 0 on border, >0 outside, <0 inside.
+#define mCalcBoxDistances(curidx,pivotidx,stepout) \
+    const BinID& curbid = tbufs_[curidx].info().binid; \
+    const BinID& pivotbid = tbufs_[pivotidx].info().binid; \
+    const int bottomdist = pivotbid.inl - curbid.inl - stepout.r(); \
+    const int topdist = curbid.inl - pivotbid.inl - stepout.r(); \
+    const int leftdist = pivotbid.crl - curbid.crl - stepout.c(); \
+    const int rightdist = curbid.crl - pivotbid.crl - stepout.c(); 
+
+
+bool SeisMSCProvider::gapInReqBox( int pivotidx, bool upwards ) const
+{
+    int emptybins = (2*reqstepout_.r()+1)*reqstepout_.c() + reqstepout_.r();
+    
+    const int dir = upwards ? 1 : -1;
+    const int bufsz = tbufs_.size();
+
+    for ( int idx=pivotidx+dir; idx>=0 && idx<bufsz; idx+=dir )
+    {
+	mCalcBoxDistances(idx,pivotidx,reqstepout_);
+
+	if ( bottomdist<=0 && topdist<=0 && leftdist<=0 && rightdist<=0 )
+	    emptybins--;
+
+	if ( bottomdist>0 || bottomdist==0 && leftdist>=0 )
+	    break;
+	if ( topdist>0 || topdist==0 && rightdist>=0 ) 
+	    break;
+    }
+
+    return emptybins;
+}
+
+
 bool SeisMSCProvider::doAdvance()
 {
-    int curidxinbuf = idxinbuf_ + 1;
-    int curbufnr = bufnr_;
-    SeisTrcBuf* curbuf = tbufs_[curbufnr];
+    newposidx_= -1;  
 
-    if ( curidxinbuf >= curbuf->size() )
+    while ( true )
     {
-	curbufnr++;
-	if ( curbufnr >= tbufs_.size() )
+	// Remove leading traces no longer needed from buffer.
+	while ( tbufs_.size() ) 
+	{
+	    mCalcBoxDistances(0,pivotidx_,desstepout_);
+
+	    if ( bottomdist<0 || bottomdist==0 && leftdist<0 )
+		break;
+
+	    delete tbufs_.remove(0);
+	    pivotidx_--; 
+	}
+
+	// If no traces left in buffer (e.g. at 0-stepouts), ask next trace.
+	if ( !tbufs_.size() )
 	    return false;
-	curbuf = tbufs_[curbufnr];
+	
+	// If last trace not beyond desired box, ask next trace if available.
+	if ( readstate_!=AtEnd && readstate_!=ReadError )
+	{
+	    mCalcBoxDistances(tbufs_.size()-1,pivotidx_,desstepout_);
+
+	    if ( topdist<0 || topdist==0 && rightdist<0 )
+		return false;
+	}
+
+	// Skip position if required box will remain incomplete.
+	if ( gapInReqBox(pivotidx_,false) || gapInReqBox(pivotidx_,true) )
+	{
+	    pivotidx_++;
+	    continue;
+	}
+
+	// Report readiness of new position.
+	newposidx_ = pivotidx_;
+	pivotidx_++;
+	return true;
     }
 }
