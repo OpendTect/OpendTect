@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: uilistbox.cc,v 1.68 2007-03-07 17:53:24 cvsnanne Exp $
+ RCS:           $Id: uilistbox.cc,v 1.69 2007-04-10 08:01:46 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,14 +20,20 @@ ________________________________________________________________________
 
 #ifdef USEQT3
 # include "i_qlistbox.h"
-# define mQListBox	QListBox
+# define mQListWidget	QListBox
+#define mNoSelection QListBox::NoSelection
+#define mExtended QListBox::Extended
+#define mSingle QListBox::Single
 #else
 # include "i_q4listbox.h"
-# define mQListBox	Q3ListBox
+# define mQListWidget	QListWidget
+#define mNoSelection QAbstractItemView::NoSelection
+#define mExtended QAbstractItemView::ExtendedSelection
+#define mSingle QAbstractItemView::SingleSelection
 #endif
 
 
-class uiListBoxBody : public uiObjBodyImpl<uiListBox,mQListBox>
+class uiListBoxBody : public uiObjBodyImpl<uiListBox,mQListWidget>
 {
 
 public:
@@ -70,12 +76,13 @@ private:
 uiListBoxBody::uiListBoxBody( uiListBox& handle, uiParent* parnt, 
 			const char* nm, bool isMultiSelect,
 			int preferredNrLines, int preferredFieldWidth )
-	: uiObjBodyImpl<uiListBox,mQListBox>( handle, parnt, nm )
+	: uiObjBodyImpl<uiListBox,mQListWidget>( handle, parnt, nm, true )
 	, messenger_ (*new i_listMessenger(this, &handle))
 	, fieldWdt(preferredFieldWidth)
 	, prefnrlines(preferredNrLines)
 {
-    if( isMultiSelect ) setSelectionMode( mQListBox::Extended );
+    setObjectName( nm );
+    if( isMultiSelect ) setSelectionMode( mExtended );
 
     setStretch( 2, (nrTxtLines()== 1) ? 0 : 2 );
 
@@ -121,13 +128,13 @@ void uiListBox::setLines( int prefNrLines, bool adaptVStretch )
 
 void uiListBox::setNotSelectable()
 {
-    body_->setSelectionMode( mQListBox::NoSelection );
+    body_->setSelectionMode( mNoSelection );
 }
 
 
 void uiListBox::setMultiSelect( bool yn )
 {
-    body_->setSelectionMode( yn ? mQListBox::Extended : mQListBox::Single );
+    body_->setSelectionMode( yn ? mExtended : mSingle );
 }
 
 
@@ -138,7 +145,7 @@ int uiListBox::size() const
 bool uiListBox::isSelected ( int idx ) const
 {
     if ( idx < 0 || idx >= body_->count() ) return false;
-    return body_->isSelected( idx );
+    return body_->item( idx )->isSelected();
 }
 
 
@@ -154,17 +161,17 @@ int uiListBox::nrSelected() const
 void uiListBox::setSelected( int idx, bool yn )
 {
     if ( idx >= 0 && idx < body_->count() )
-	body_->setSelected( idx, yn );
+	body_->item( idx )->setSelected( yn );
 }
 
 
 void uiListBox::selectAll( bool yn )
 {
-    if ( yn && body_->selectionMode()!=mQListBox::Extended ) return;
+    if ( yn && body_->selectionMode()!=mExtended ) return;
 
     const int sz = body_->count();
     for ( int idx=0; idx<sz; idx++ )
-	body_->setSelected( idx, yn );
+	body_->item( idx )->setSelected( yn );
 }
 
 
@@ -177,11 +184,8 @@ void uiListBox::createQString( QString& qs, const char* str, bool embed )
 }
 
 
-void uiListBox::createQPixmap( QPixmap& qpm, int index )
+void uiListBox::createQPixmap( QPixmap& qpm, int idx )
 {
-    if ( !size() ) return;
-    const int height = body_->itemHeight( 0 );
-    qpm.resize( height-2, height-2 );
 }
 
 
@@ -205,7 +209,7 @@ void uiListBox::addItems( const BufferStringSet& strs )
 {
     int curidx = currentItem();
     for ( int idx=0; idx<strs.size(); idx++ )
-	body_->insertItem( QString( strs.get(idx) ), -1 );
+	body_->addItem( QString( strs.get(idx) ) );
     setCurrentItem( curidx < 0 ? 0 : curidx );
 }
 
@@ -214,7 +218,7 @@ void uiListBox::insertItem( const char* text, int index, bool embed )
 {
     QString qs;
     createQString( qs, text, embed );
-    body_->insertItem( qs, index );
+    body_->insertItem( index, qs );
 }
 
 
@@ -229,35 +233,30 @@ void uiListBox::insertItem( const char* text, const Color& col, int index )
 
 void uiListBox::insertItem( const char* text, const ioPixmap& pm, int index )
 {
-    QString qs;
-    createQString( qs, text, false );
-    body_->insertItem( *pm.qpixmap(), qs, index );
+    pErrMsg( "ioPixMap not impl: how in QT4?" );
+    insertItem( text, index, false );
 }
 
 
-void uiListBox::setColor( const Color& col, int index )
+void uiListBox::setColor( const Color& col, int idx )
 {
-    if ( index >= size() ) return;
+    if ( idx >= size() ) return;
 
-    QPixmap qpm;
-    createQPixmap( qpm, index );
-    qpm.fill( QColor(col.r(),col.g(),col.b()) );
-
-    QString qs = body_->text( index );
-    body_->changeItem( qpm, qs, index );
+    pErrMsg( "not impl: how in QT4?" );
+    // body_->item( idx )->setBackgroundColor( QColor( col.asInt() ) );
 }
 
 
 ioPixmap* uiListBox::pixmap( int index )
 {
-    const QPixmap* qpm = body_->pixmap(index);
-    return qpm ? new ioPixmap( *qpm ) : 0;
+    pErrMsg( "not impl: how in QT4?" );
+    return 0;
 }
 
 
 void uiListBox::empty()
 {
-    body_->mQListBox::clear();
+    body_->mQListWidget::clear();
 }
 
 
@@ -269,13 +268,15 @@ void uiListBox::clear()
 
 void uiListBox::sort( bool asc )
 {
-    body_->sort( asc );
+    if ( !asc )
+	pErrMsg("descending sort not possible");
+    body_->setSortingEnabled( true );
 }
 
 
 void uiListBox::removeItem( int idx )
 {
-    body_->removeItem( idx );
+    delete body_->takeItem( idx );
 }
 
 
@@ -287,7 +288,7 @@ bool uiListBox::isPresent( const char* txt ) const
 #ifdef USEQT3
 	BufferString itmtxt( body_->text(idx) );
 #else
-	BufferString itmtxt( body_->text(idx).toAscii().constData() );
+	BufferString itmtxt( body_->item(idx)->text().toAscii().constData() );
 #endif
 	char* ptr = itmtxt.buf();
 	skipLeadingBlanks( ptr );
@@ -302,7 +303,7 @@ const char* uiListBox::textOfItem( int idx, bool disembed ) const
     if ( idx < 0 || idx >= body_->count() )
 	return "";
 
-    rettxt = (const char*)body_->text(idx);
+    rettxt = (const char*)body_->item(idx)->text().toAscii();
     if ( !disembed || rettxt[0] != '[' )
 	return rettxt;
 
@@ -317,14 +318,14 @@ const char* uiListBox::textOfItem( int idx, bool disembed ) const
 
 bool uiListBox::isEmbedded( int idx ) const
 {
-    rettxt = (const char*)body_->text(idx);
+    rettxt = (const char*)body_->item(idx)->text().toAscii();
     return rettxt[0] == '[' && rettxt[rettxt.size()-1] == ']';
 }
 
 
 int uiListBox::currentItem() const
 {
-    return body_->currentItem();
+    return body_->currentRow();
 }
 
 
@@ -335,7 +336,7 @@ void uiListBox::setCurrentItem( const char* txt )
     const int sz = body_->count();
     for ( int idx=0; idx<sz; idx++ )
     {
-	const char* ptr = body_->text(idx);
+	const char* ptr = textOfItem( idx );
 	skipLeadingBlanks(ptr);
 	if ( !strcmp(ptr,txt) )
 	    { setCurrentItem( idx ); return; }
@@ -346,8 +347,8 @@ void uiListBox::setCurrentItem( int idx )
 {
     if ( idx >= 0 && idx < body_->count() )
     {
-	body_->setCurrentItem( idx );
-	if ( body_->selectionMode() != mQListBox::Extended )
+	body_->setCurrentRow( idx );
+	if ( body_->selectionMode() != mExtended )
 	    setSelected( idx );
     }
 }
@@ -355,7 +356,8 @@ void uiListBox::setCurrentItem( int idx )
 
 void uiListBox::setItemText( int idx, const char* txt )
 {
-    body_->changeItem( QString(txt), idx );
+    if ( idx < body_->count() )
+	body_->item(idx)->setText( QString(txt) );
 }
 
 
