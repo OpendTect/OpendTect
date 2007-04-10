@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uimultisurfaceread.cc,v 1.7 2007-02-07 08:55:27 cvsnanne Exp $
+ RCS:           $Id: uimultisurfaceread.cc,v 1.8 2007-04-10 11:09:04 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,6 +30,7 @@ uiMultiSurfaceRead::uiMultiSurfaceRead( uiParent* p, const BufferString& typ )
 {
     IOM().to( ctio.ctxt.getSelKey() );
     entrylist_ = new IODirEntryList( IOM().dirPtr(), ctio.ctxt );
+    entrylist_->sort();
 
     BufferString lbl( "Select " ); lbl += typ; lbl += "(s)";
     surfacefld_ = new uiLabeledListBox( this, lbl, true,
