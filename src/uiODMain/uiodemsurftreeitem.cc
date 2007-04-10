@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodemsurftreeitem.cc,v 1.21 2007-03-22 20:51:04 cvskris Exp $
+ RCS:		$Id: uiodemsurftreeitem.cc,v 1.22 2007-04-10 08:15:58 cvsjaap Exp $
 ___________________________________________________________________
 
 -*/
@@ -51,7 +51,9 @@ uiODEarthModelSurfaceTreeItem::uiODEarthModelSurfaceTreeItem(
     , reloadmnuitem_("Reload")
     , relationsmnuitem_("Relations ...")
     , starttrackmnuitem_("Start tracking ...")
-{}
+{
+    enabletrackingmnuitem_.checkable = true;
+}
 
 
 uiODEarthModelSurfaceTreeItem::~uiODEarthModelSurfaceTreeItem()
@@ -239,7 +241,8 @@ void uiODEarthModelSurfaceTreeItem::createMenuCB( CallBacker* cb )
 	else if ( menu->getPath() )
 	    section = uivisemobj->getSectionID( menu->getPath() );
 
-	const bool hastracker = applMgr()->mpeServer()->getTrackerID(emid)>=0;
+	uiMPEPartServer* mps = applMgr()->mpeServer();
+	const bool hastracker = mps->getTrackerID(emid)>=0;
 	if ( !hastracker && !visserv->isLocked(displayid_) && !hastransform )
 	{
 	    mAddMenuItem( trackmnu, &starttrackmnuitem_, true, false );
@@ -253,9 +256,7 @@ void uiODEarthModelSurfaceTreeItem::createMenuCB( CallBacker* cb )
 	    mAddMenuItem( trackmnu, &starttrackmnuitem_, false, false );
 	    mAddMenuItem( trackmnu, &changesetupmnuitem_, true, false );
 	    mAddMenuItem( trackmnu, &enabletrackingmnuitem_, true,
-		   applMgr()->mpeServer()->isTrackingEnabled(
-		      applMgr()->mpeServer()->getTrackerID(emid)) );
-
+			  mps->isTrackingEnabled(mps->getTrackerID(emid)) );
 	    mResetMenuItem( &relationsmnuitem_ );
 	    //mAddMenuItem( trackmnu, &relationsmnuitem_,
 	//	    mIsObject(EM::Horizon::typeStr()), false );
