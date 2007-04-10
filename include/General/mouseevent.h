@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          September 2005
- RCS:           $Id: mouseevent.h,v 1.4 2007-01-24 14:27:11 cvskris Exp $
+ RCS:           $Id: mouseevent.h,v 1.5 2007-04-10 20:58:45 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -92,7 +92,10 @@ public:
     Notifier<MouseEventHandler>	movement;
     Notifier<MouseEventHandler>	doubleClick;
 
+    bool			hasEvent() const	{ return event_; }
     const MouseEvent&		event() const		{ return *event_; }
+    				/*!<\note only ok to call in function triggered
+				     by an event from this class. */
     bool			isHandled() const	{ return ishandled_; }
     void			setHandled(bool yn)	{ ishandled_ = yn; }
 
