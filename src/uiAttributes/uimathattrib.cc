@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2001
- RCS:           $Id: uimathattrib.cc,v 1.14 2007-03-07 10:13:20 cvshelene Exp $
+ RCS:           $Id: uimathattrib.cc,v 1.15 2007-04-10 12:29:17 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -111,9 +111,13 @@ void uiMathAttrib::parsePush( CallBacker* )
 	}
     }
 
-    if ( !found && nrvariables_ )
+    if ( ( !found && nrvariables_ ) || ( nrxvars_+nrcstvars_!=nrvariables_) )
     {
-	uiMSG().error( "Formula should have x0, x1, x2 ... or c0, c1, c2 ..." );
+	BufferString errmsg = "Formula should have x0, x1, x2 ...";
+	errmsg += "or c0, c1, c2 ...\n";
+	errmsg += "Please take care of the numbering:\n";
+       	errmsg += "first x0, then x1...";
+	uiMSG().error( errmsg.buf() );
 	nrvariables_ = 0;
 	return;
     }
