@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: uilistbox.cc,v 1.70 2007-04-10 10:04:23 cvsbert Exp $
+ RCS:           $Id: uilistbox.cc,v 1.71 2007-04-10 10:18:44 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -139,7 +139,7 @@ int uiListBox::size() const
 bool uiListBox::isSelected ( int idx ) const
 {
     if ( idx < 0 || idx >= body_->count() ) return false;
-    return body_->item( idx )->isSelected();
+    return body_->isItemSelected( body_->item(idx) );
 }
 
 
