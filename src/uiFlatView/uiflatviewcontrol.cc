@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:		Feb 2007
- RCS:           $Id: uiflatviewcontrol.cc,v 1.19 2007-03-13 18:31:38 cvsbert Exp $
+ RCS:           $Id: uiflatviewcontrol.cc,v 1.20 2007-04-10 21:54:49 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -277,22 +277,33 @@ MouseEventHandler& uiFlatViewControl::mouseEventHandler( int vieweridx )
 
 void uiFlatViewControl::mouseMoveCB( CallBacker* cb )
 {
-    //TODO and what about multiple viewers?
-    const MouseEvent& ev = mouseEventHandler(0).event();
-    uiWorld2Ui w2u;
-    vwrs_[0]->getWorld2Ui(w2u);
-    const uiWorldPoint wp = w2u.transform( ev.pos() );
-    vwrs_[0]->getAuxInfo( wp, infopars_ );
-    CBCapsule<IOPar> caps( infopars_, this );
-    infoChanged.trigger( &caps );
+    for ( int idx=0; idx<vwrs_.size(); idx++ )
+    {
+	if ( !mouseEventHandler( idx ).hasEvent() )
+	    continue;
+
+	const MouseEvent& ev = mouseEventHandler(idx).event();
+	uiWorld2Ui w2u;
+	vwrs_[idx]->getWorld2Ui(w2u);
+	const uiWorldPoint wp = w2u.transform( ev.pos() );
+	vwrs_[idx]->getAuxInfo( wp, infopars_ );
+	CBCapsule<IOPar> caps( infopars_, this );
+	infoChanged.trigger( &caps );
+    }
 }
+
 
 
 void uiFlatViewControl::usrClickCB( CallBacker* cb )
 {
-    //TODO and what about multiple viewers?
-    if ( mouseEventHandler(0).isHandled() )
-	return;
+    for ( int idx=0; idx<vwrs_.size(); idx++ )
+    {
+	if ( !mouseEventHandler( idx ).hasEvent() )
+	    continue;
 
-    mouseEventHandler(0).setHandled( handleUserClick() );
+	if ( mouseEventHandler(idx).isHandled() )
+	    return;
+
+	mouseEventHandler(idx).setHandled( handleUserClick() );
+    }
 }
