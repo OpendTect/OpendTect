@@ -4,13 +4,14 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: prestackprocessor.cc,v 1.2 2007-03-15 20:05:34 cvskris Exp $";
+static const char* rcsID = "$Id: prestackprocessor.cc,v 1.3 2007-04-10 21:57:03 cvskris Exp $";
 
 #include "prestackprocessor.h"
 
 #include "prestackgather.h"
 
-using namespace PreStack;
+namespace PreStack
+{
 
 
 mImplFactory( Processor, PF );
@@ -134,3 +135,6 @@ Processor* ProcessManager::getProcessor( int idx )
 const Processor*
 ProcessManager::getProcessor( int idx ) const
 { return processors_[idx]; }
+
+
+}; //namespace
