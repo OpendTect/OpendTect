@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: uilistbox.cc,v 1.69 2007-04-10 08:01:46 cvsbert Exp $
+ RCS:           $Id: uilistbox.cc,v 1.70 2007-04-10 10:04:23 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,23 +17,13 @@ ________________________________________________________________________
 #include "color.h"
 #include "pixmap.h"
 
-
-#ifdef USEQT3
-# include "i_qlistbox.h"
-# define mQListWidget	QListBox
-#define mNoSelection QListBox::NoSelection
-#define mExtended QListBox::Extended
-#define mSingle QListBox::Single
-#else
-# include "i_q4listbox.h"
-# define mQListWidget	QListWidget
+#include "i_q4listbox.h"
 #define mNoSelection QAbstractItemView::NoSelection
 #define mExtended QAbstractItemView::ExtendedSelection
 #define mSingle QAbstractItemView::SingleSelection
-#endif
 
 
-class uiListBoxBody : public uiObjBodyImpl<uiListBox,mQListWidget>
+class uiListBoxBody : public uiObjBodyImpl<uiListBox,QListWidget>
 {
 
 public:
@@ -76,7 +66,7 @@ private:
 uiListBoxBody::uiListBoxBody( uiListBox& handle, uiParent* parnt, 
 			const char* nm, bool isMultiSelect,
 			int preferredNrLines, int preferredFieldWidth )
-	: uiObjBodyImpl<uiListBox,mQListWidget>( handle, parnt, nm, true )
+	: uiObjBodyImpl<uiListBox,QListWidget>( handle, parnt, nm, true )
 	, messenger_ (*new i_listMessenger(this, &handle))
 	, fieldWdt(preferredFieldWidth)
 	, prefnrlines(preferredNrLines)
@@ -123,7 +113,9 @@ uiListBox::~uiListBox()
 }
 
 void uiListBox::setLines( int prefNrLines, bool adaptVStretch )
-    { body_->setLines(prefNrLines,adaptVStretch); }
+{
+    body_->setLines( prefNrLines, adaptVStretch );
+}
 
 
 void uiListBox::setNotSelectable()
@@ -139,7 +131,9 @@ void uiListBox::setMultiSelect( bool yn )
 
 
 int uiListBox::size() const
-    { return body_->count(); }
+{
+    return body_->count();
+}
 
 
 bool uiListBox::isSelected ( int idx ) const
@@ -256,7 +250,7 @@ ioPixmap* uiListBox::pixmap( int index )
 
 void uiListBox::empty()
 {
-    body_->mQListWidget::clear();
+    body_->QListWidget::clear();
 }
 
 
@@ -325,7 +319,7 @@ bool uiListBox::isEmbedded( int idx ) const
 
 int uiListBox::currentItem() const
 {
-    return body_->currentRow();
+    return lastClicked_ < 0 ? body_->currentRow() : lastClicked_;
 }
 
 
@@ -350,6 +344,7 @@ void uiListBox::setCurrentItem( int idx )
 	body_->setCurrentRow( idx );
 	if ( body_->selectionMode() != mExtended )
 	    setSelected( idx );
+	lastClicked_ = idx;
     }
 }
 

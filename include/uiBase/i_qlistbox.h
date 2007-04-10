@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: i_qlistbox.h,v 1.3 2007-04-10 08:00:59 cvsbert Exp $
+ RCS:           $Id: i_qlistbox.h,v 1.4 2007-04-10 10:04:23 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,17 +30,22 @@ class i_listMessenger : public QObject
     friend class	uiListBoxBody;
 
 protected:
-			i_listMessenger( QListWidget*  sender,
+			i_listMessenger( QListWidget* sender,
 					 uiListBox* receiver )
 			: _sender( sender )
 			, _receiver( receiver )
-			{ 
-			    connect( sender,SIGNAL( itemSelectionChanged()),
-				     this,SLOT( selectionChanged ()));
+			{
+			    connect(sender,
+				SIGNAL(currentItemChanged(QListWidgetItem*,
+							  QListWidgetItem*)),
+				this,
+				SLOT(selectionChanged(QListWidgetItem*,
+						      QListWidgetItem*)));
 
-			    connect( sender,
+			    connect(sender,
 				    SIGNAL(itemDoubleClicked(QListWidgetItem*)),
-				    this,SLOT(doubleClicked(QListWidgetItem*)));
+				    this,
+				    SLOT(doubleClicked(QListWidgetItem*)));
 
 			}
 
@@ -54,16 +59,21 @@ private:
 private slots:
 
 
-    void 		selectionChanged() 
+    void 		selectionChanged( QListWidgetItem* cur,
+	    				  QListWidgetItem* prev ) 
 			{
+			    if ( !cur ) cur = prev;
+			    if ( !cur ) return;
+			    int idx = _sender->row( cur );
+			    _receiver->lastClicked_ = idx;
 			    _receiver->selectionChanged.trigger( *_receiver );
 			}
     
-    void		doubleClicked( QListWidgetItem * item )
+    void		doubleClicked( QListWidgetItem* cur )
 			{
-			    int idx = _sender->row(item);
+			    int idx = _sender->row( cur );
 			    _receiver->lastClicked_ = idx;
-			    _receiver->doubleClicked.trigger(*_receiver);
+			    _receiver->doubleClicked.trigger( *_receiver );
 			}
 
 
