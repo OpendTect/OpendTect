@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		September 2006
- RCS:		$Id: horizonattrib.cc,v 1.6 2007-04-05 14:37:17 cvshelene Exp $
+ RCS:		$Id: horizonattrib.cc,v 1.7 2007-04-10 14:00:10 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -104,7 +104,7 @@ bool Horizon::isOK() const
 
 const char* Horizon::outTypeNamesStr(int type)
 {
-    if ( type== mOutTypeZ ) return "Z";
+    if ( type == mOutTypeZ ) return "Z";
     return "Surface Data";
 }
 
@@ -124,7 +124,8 @@ void Horizon::prepareForComputeData()
     if ( objid > -1 )
     {
 	mDynamicCastGet(EM::Horizon*,hor,em.getObject(objid))
-	if ( hor && hor->isFullyLoaded() )
+	if ( hor && hor->isFullyLoaded() 
+	     && ( outtype_!=mOutTypeSurfData || hor->auxdata.nrAuxData() ) )
 	{
 	    horizon_ = hor;
 	    horizon_->ref();
