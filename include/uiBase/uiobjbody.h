@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/06/2001
- RCS:           $Id: uiobjbody.h,v 1.41 2007-02-14 12:38:01 cvsnanne Exp $
+ RCS:           $Id: uiobjbody.h,v 1.42 2007-04-10 08:00:29 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -233,7 +233,19 @@ public:
 			    , T( parnt && parnt->pbody() ? 
 				     parnt->pbody()->managewidg() : 0 , nm )
 			    , handle_( handle )
-			    {}
+			    {
+			    }
+
+                        uiObjBodyImpl( C& handle, uiParent* parnt,
+					const char* nm, bool dummy ) 
+			    : uiObjectBody( parnt, nm )
+			    , T( parnt && parnt->pbody() ? 
+				     parnt->pbody()->managewidg() : 0 )
+			    , handle_( handle )
+			    {
+				// Use this when the objs constructor only wants
+				// a QWidget*, not a const char* nm
+			    }
 
 #include		"i_uiobjqtbody.h"
 
