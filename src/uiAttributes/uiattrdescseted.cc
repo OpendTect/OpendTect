@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrdescseted.cc,v 1.45 2007-02-28 07:41:42 cvsnanne Exp $
+ RCS:           $Id: uiattrdescseted.cc,v 1.46 2007-04-10 12:24:10 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -78,6 +78,7 @@ uiAttribDescSetEd::uiAttribDescSetEd( uiParent* p, DescSetMan* adsm )
     , dirshowcb(this)
     , evalattrcb(this)
     , adsman(0)
+    , updating_fields(false)
 {
     createMenuBar();
     createToolBar();
@@ -241,6 +242,9 @@ void uiAttribDescSetEd::attrTypSel( CallBacker* )
 
 void uiAttribDescSetEd::selChg( CallBacker* )
 {
+    if ( updating_fields ) return;
+    	// Fix for continuous call during re-build of list
+
     doCommit( true );
     updateFields();
     prevdesc = curDesc();
@@ -318,7 +322,6 @@ void uiAttribDescSetEd::addPush( CallBacker* )
     if ( res )
 	mErrRet( res )
     newdesc->setUserRef( newnm );
-
     if ( attrset->addDesc(newdesc) < 0 )
 	{ uiMSG().error( attrset->errMsg() ); newdesc->unRef(); return; }
 
@@ -397,6 +400,7 @@ void uiAttribDescSetEd::newList( int newcur )
 
 void uiAttribDescSetEd::updateFields( bool set_type )
 {
+    updating_fields = true;
     updateAttrName();
     Desc* desc = curDesc();
     uiAttrDescEd* curde = 0;
@@ -437,6 +441,7 @@ void uiAttribDescSetEd::updateFields( bool set_type )
 	de->display( dodisp );
     }
     dummydesc->unRef();
+    updating_fields = false;
 }
 
 
@@ -473,9 +478,7 @@ bool uiAttribDescSetEd::doCommit( bool useprev )
 
 void uiAttribDescSetEd::updateUserRefs()
 {
-    BufferString selnm;
-    if ( attrlistfld )
-	selnm = attrlistfld->getText();
+    BufferString selnm( attrlistfld ? attrlistfld->getText() : "" );
     userattrnames.deepErase();
     attrdescs.erase();
 
@@ -558,16 +561,17 @@ bool uiAttribDescSetEd::validName( const char* newnm ) const
 
 bool uiAttribDescSetEd::setUserRef( Desc* attrdesc )
 {
-    BufferString newnm( attrnmfld->text() );
+    BufferString usertypednm( attrnmfld->text() );
+    char* ptr = usertypednm.buf();
+    skipLeadingBlanks( ptr ); removeTrailingBlanks( ptr );
+    const BufferString newnm( ptr );
 
-    while ( newnm[(int)(strlen(newnm)-1)] == ' ' )
-	newnm[(int)(strlen(newnm)-1)] = 0;
-
-    if ( !strcmp(newnm,attrdesc->userRef()) ) return true;
+    if ( newnm == attrdesc->userRef() ) return true;
     else if ( !validName(newnm) ) return false;
 
     const char* res = curDescEd()->commit();
-    if ( res ) uiMSG().error( res );
+    if ( res )
+	{ uiMSG().error( res ); return false; }
 
     attrdesc->setUserRef( newnm );
     int selidx = userattrnames.indexOf( attrlistfld->getText() );

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrdescseted.h,v 1.6 2006-12-14 14:30:51 cvshelene Exp $
+ RCS:           $Id: uiattrdescseted.h,v 1.7 2007-04-10 12:24:10 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -70,6 +70,7 @@ protected:
     BufferStringSet&	userattrnames;
     CtxtIOObj&		setctio;
     MultiID		cancelsetid;
+    bool		updating_fields;
 
     uiToolBar*		toolbar;
     uiListBox*		attrlistfld;
