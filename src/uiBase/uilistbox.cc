@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: uilistbox.cc,v 1.71 2007-04-10 10:18:44 cvsbert Exp $
+ RCS:           $Id: uilistbox.cc,v 1.72 2007-04-10 10:42:03 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -185,7 +185,9 @@ void uiListBox::createQPixmap( QPixmap& qpm, int idx )
 
 void uiListBox::addItem( const char* text, bool embed ) 
 {
-    insertItem( text, -1, embed );
+    QString qs;
+    createQString( qs, text, embed );
+    body_->addItem( qs );
 }
 
 
