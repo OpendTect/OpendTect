@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          17/1/2001
- RCS:           $Id: uiseparator.h,v 1.3 2003-11-07 12:21:54 bert Exp $
+ RCS:           $Id: uiseparator.h,v 1.4 2007-04-11 16:32:52 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,10 +23,10 @@ class uiSeparator : public uiObject
 public:
 
                         uiSeparator(uiParent*,const char* nm="Separator", 
-				    bool hor=true, bool raised=false);
+				    bool hor=true, bool raised=true);
 
 
-    void		setRaised( bool yn );
+    void		setRaised(bool);
 
 private:
 
