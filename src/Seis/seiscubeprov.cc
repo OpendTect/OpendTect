@@ -4,7 +4,7 @@
  * DATE     : Jan 2007
 -*/
 
-static const char* rcsID = "$Id: seiscubeprov.cc,v 1.5 2007-04-11 10:10:19 cvsbert Exp $";
+static const char* rcsID = "$Id: seiscubeprov.cc,v 1.6 2007-04-11 16:32:24 cvsbert Exp $";
 
 #include "seismscprov.h"
 #include "seistrc.h"
@@ -12,13 +12,16 @@ static const char* rcsID = "$Id: seiscubeprov.cc,v 1.5 2007-04-11 10:10:19 cvsbe
 #include "seisread.h"
 #include "seisbuf.h"
 #include "survinfo.h"
+#include "cubesampling.h"
 #include "ioobj.h"
 #include "ioman.h"
 #include "errh.h"
 
 
+static const IOObj* nullioobj = 0;
+
 SeisMSCProvider::SeisMSCProvider( const MultiID& id )
-	: rdr_(*new SeisTrcReader(0))
+	: rdr_(*new SeisTrcReader(nullioobj))
 {
     IOObj* ioobj = IOM().get( id );
     rdr_.setIOObj( ioobj );
@@ -27,8 +30,8 @@ SeisMSCProvider::SeisMSCProvider( const MultiID& id )
 }
 
 
-SeisMSCProvider::SeisMSCProvider( const IOObj* ioobj )
-	: rdr_(*new SeisTrcReader(ioobj))
+SeisMSCProvider::SeisMSCProvider( const IOObj& ioobj )
+	: rdr_(*new SeisTrcReader(&ioobj))
 {
     init();
 }
@@ -44,12 +47,10 @@ SeisMSCProvider::SeisMSCProvider( const char* fnm )
 void SeisMSCProvider::init()
 {
     readstate_ = NeedStart;
-    stepoutstep_.inl = stepoutstep_.crl = 0;
     seldata_ = 0;
     intofloats_ = workstarted_ = false;
-    errmsg_ = 0;
+    errmsg_ = "";
     estnrtrcs_ = -2;
-    curbuf_ = 0;
 }
 
 
@@ -81,128 +82,11 @@ bool SeisMSCProvider::is2D() const
 void SeisMSCProvider::setStepout( int i, int c, bool req )
 {
     if ( req )
-	reqstepout_.r() = i; reqstepout_.c() = c;
+	{ reqstepout_.r() = i; reqstepout_.c() = c; }
     else
-	desstepout_.r() = i; desstepout_.c() = c;
+	{ desstepout_.r() = i; desstepout_.c() = c; }
 }
 
-
-bool SeisMSCProvider::startWork()
-{
-    if ( !prepareWork() ) return false;
-
-    workstarted_ = true;
-    rdr_.getSteps( stepoutstep_.inl, stepoutstep_.crl );
-    rdr_.forceFloatData( intofloats_ );
-    if ( reqstepout_.r() > desstepout_.r() ) desstepout_.r() = reqstepout_.r();
-    if ( reqstepout_.c() > desstepout_.c() ) desstepout_.c() = reqstepout_.c();
-
-    delete seldata_; seldata_ = 0;
-    if ( !rdr_.selData() || rdr_.selData()->all_ )
-	return true;
-
-    seldata_ = new SeisSelData( *rdr_.selData() );
-    SeisSelData* newseldata = new SeisSelData( *rdr_.selData() );
-    BinID so( desstepout_.r(), desstepout_.c() );
-    bool doextend = so.inl > 0 || so.crl > 0;
-    if ( is2D() )
-    {
-	so.inl = 0;
-	doextend = doextend && newseldata->type_ == Seis::Range;
-	if ( so.crl && newseldata->type_ == Seis::Table )
-	    newseldata->all_ = true;
-    }
-
-    if ( doextend )
-	newseldata->extend( so, &stepoutstep_ );
-
-    rdr_.setSelData( newseldata );
-    SeisTrc* trc = new SeisTrc;
-    int rv = readTrace( *trc );
-    while ( rv > 1 )
-	rv = readTrace( *trc );
-
-    if ( rv < 0 )
-	{ errmsg_ = rdr_.errMsg(); return false; }
-    else if ( rv == 0 )
-	{ errmsg_ = "No valid/selected trace found"; return false; }
-
-    SeisTrcBuf* newbuf = new SeisTrcBuf;
-    tbufs_ += newbuf;
-    newbuf->add( trc );
-    
-    pivotidx_ = 0;
-    readstate_ = ReadOK;
-    return true;
-}
-
-
-int SeisMSCProvider::estimatedNrTraces() const
-{
-    if ( estnrtrcs_ != -2 ) return estnrtrcs_;
-    estnrtrcs_ = -1;
-    if ( !rdr_.selData() )
-	return is2D() ? estnrtrcs_ : SI().sampling().hrg.totalNr();
-
-    estnrtrcs_ = rdr_.selData()->expectedNrTraces( is2D() );
-    return estnrtrcs_;
-}
-
-
-int SeisMSCProvider::comparePos( const SeisMSCProvider& req ) const
-{
-    if ( &req == this )
-	return 0;
-
-    if ( is2D() && req.is2D() )
-    {
-	if ( curnr_ == req.curnr_ )
-	    return 0;
-	return curnr_ > req.curnr_ ? 1 : -1;
-    }
-
-    if ( curbid_ == req.curbid_ )
-	return 0;
-
-    if ( curbid_.inl != req.curbid_.inl )
-	return curbid_.inl > req.curbid_.inl ? 1 : -1;
-
-    return curbid_.crl > req.curbid_.crl ? 1 : -1;
-}
-
-
-int SeisMSCProvider::readTrace( SeisTrc& trc )
-{
-    while ( true )
-    {
-	const int rv = rdr_.get( trc.info() );
-
-	switch ( rv )
-	{
-	case 1:		break;
-	case -1:	errmsg_ = rdr_.errMsg();	return -1;
-	case 0:						return 0;
-	case 2:
-	default:					return 2;
-	}
-
-	if ( rdr_.get(trc) )
-	    return 1;
-	else
-	{
-	    BufferString msg( "Trace " );
-	    if ( is2D() )
-		msg += lastread_->info().nr;
-	    else
-		lastread_->info().binid.fill( msg.buf() + 6 );
-	    msg += ": "; msg += rdr_.errMsg();
-	    ErrMsg( msg );
-	}
-    }
-}
-
-
-#define mRet(act,rv) { act; return rv; }
 
 /* Strategy:
    1) try going to next in already buffered traces: doAdvance()
@@ -255,17 +139,146 @@ SeisMSCProvider::AdvanceState SeisMSCProvider::advance()
 }
 
 
+int SeisMSCProvider::comparePos( const SeisMSCProvider& mscp ) const
+{
+    if ( &mscp == this )
+	return 0;
+
+    if ( is2D() && mscp.is2D() )
+    {
+	const int mynr = getTrcNr();
+	const int mscpsnr = mscp.getTrcNr();
+	if ( mynr == mscpsnr )
+	    return 0;
+	return mynr > mscpsnr ? 1 : -1;
+    }
+
+    const BinID mybid = getPos();
+    const BinID mscpsbid = mscp.getPos();
+    if ( mybid == mscpsbid )
+	return 0;
+
+    if ( mybid.inl != mscpsbid.inl )
+	return mybid.inl > mscpsbid.inl ? 1 : -1;
+
+    return mybid.crl > mscpsbid.crl ? 1 : -1;
+}
+
+
+int SeisMSCProvider::estimatedNrTraces() const
+{
+    if ( estnrtrcs_ != -2 ) return estnrtrcs_;
+    estnrtrcs_ = -1;
+    if ( !rdr_.selData() )
+	return is2D() ? estnrtrcs_ : SI().sampling(false).hrg.totalNr();
+
+    estnrtrcs_ = rdr_.selData()->expectedNrTraces( is2D() );
+    return estnrtrcs_;
+}
+
+
+bool SeisMSCProvider::startWork()
+{
+    if ( !prepareWork() ) return false;
+
+    workstarted_ = true;
+    rdr_.getSteps( stepoutstep_.r(), stepoutstep_.c() );
+    rdr_.forceFloatData( intofloats_ );
+    if ( reqstepout_.r() > desstepout_.r() ) desstepout_.r() = reqstepout_.r();
+    if ( reqstepout_.c() > desstepout_.c() ) desstepout_.c() = reqstepout_.c();
+
+    delete seldata_; seldata_ = 0;
+    if ( !rdr_.selData() || rdr_.selData()->all_ )
+	return true;
+
+    seldata_ = new SeisSelData( *rdr_.selData() );
+    SeisSelData* newseldata = new SeisSelData( *rdr_.selData() );
+    BinID so( desstepout_.r(), desstepout_.c() );
+    bool doextend = so.inl > 0 || so.crl > 0;
+    if ( is2D() )
+    {
+	so.inl = 0;
+	doextend = doextend && newseldata->type_ == Seis::Range;
+	if ( so.crl && newseldata->type_ == Seis::Table )
+	    newseldata->all_ = true;
+    }
+
+    if ( doextend )
+    {
+	BinID bid( stepoutstep_.r(), stepoutstep_.c() );
+	newseldata->extend( so, &bid );
+    }
+
+    rdr_.setSelData( newseldata );
+    SeisTrc* trc = new SeisTrc;
+    int rv = readTrace( *trc );
+    while ( rv > 1 )
+	rv = readTrace( *trc );
+
+    if ( rv < 0 )
+	{ errmsg_ = rdr_.errMsg(); return false; }
+    else if ( rv == 0 )
+	{ errmsg_ = "No valid/selected trace found"; return false; }
+
+    SeisTrcBuf* newbuf = new SeisTrcBuf;
+    tbufs_ += newbuf;
+    newbuf->add( trc );
+    
+    pivotidx_ = 0;
+    readstate_ = ReadOK;
+    return true;
+}
+
+
+
+int SeisMSCProvider::readTrace( SeisTrc& trc )
+{
+    while ( true )
+    {
+	const int rv = rdr_.get( trc.info() );
+
+	switch ( rv )
+	{
+	case 1:		break;
+	case -1:	errmsg_ = rdr_.errMsg();	return -1;
+	case 0:						return 0;
+	case 2:
+	default:					return 2;
+	}
+
+	if ( rdr_.get(trc) )
+	    return 1;
+	else
+	{
+	    BufferString msg( "Trace " );
+	    if ( is2D() )
+		msg += trc.info().nr;
+	    else
+		trc.info().binid.fill( msg.buf() + 6 );
+	    msg += ": "; msg += rdr_.errMsg();
+	    ErrMsg( msg );
+	}
+    }
+}
+
+
 // Distances to box borders: 0 on border, >0 outside, <0 inside.
+//TODO solve probs in real def below
+/*
 #define mCalcBoxDistances(curidx,pivotidx,stepout) \
-    const BinID& curbid = tbufs_[curidx].info().binid; \
-    const BinID& pivotbid = tbufs_[pivotidx].info().binid; \
+    const BinID& curbid = tbufs_[curidx]->info().binid; \
+    const BinID& pivotbid = tbufs_[pivotidx]->info().binid; \
     const int bottomdist = pivotbid.inl - curbid.inl - stepout.r(); \
     const int topdist = curbid.inl - pivotbid.inl - stepout.r(); \
     const int leftdist = pivotbid.crl - curbid.crl - stepout.c(); \
-    const int rightdist = curbid.crl - pivotbid.crl - stepout.c(); 
+    const int rightdist = curbid.crl - pivotbid.crl - stepout.c()
+    */
+#define mCalcBoxDistances(curidx,pivotidx,stepout) \
+    const BinID curbid,pivotbid; \
+    const int bottomdist=0,topdist=0,leftdist=0,rightdist=0
 
 
-bool SeisMSCProvider::gapInReqBox( int pivotidx, bool upwards ) const
+bool SeisMSCProvider::reqBoxFilled( int pivotidx, bool upwards ) const
 {
     int emptybins = (2*reqstepout_.r()+1)*reqstepout_.c() + reqstepout_.r();
     
@@ -285,7 +298,7 @@ bool SeisMSCProvider::gapInReqBox( int pivotidx, bool upwards ) const
 	    break;
     }
 
-    return emptybins;
+    return emptybins < 1;
 }
 
 
@@ -312,7 +325,7 @@ bool SeisMSCProvider::doAdvance()
 	    return false;
 	
 	// If last trace not beyond desired box, ask next trace if available.
-	if ( readstate_!=ReadAtEnd && readstate_!=ReadError )
+	if ( readstate_!=ReadAtEnd && readstate_!=ReadErr )
 	{
 	    mCalcBoxDistances(tbufs_.size()-1,pivotidx_,desstepout_);
 
@@ -321,7 +334,7 @@ bool SeisMSCProvider::doAdvance()
 	}
 
 	// Skip position if required box will remain incomplete.
-	if ( gapInReqBox(pivotidx_,false) || gapInReqBox(pivotidx_,true) )
+	if ( !reqBoxFilled(pivotidx_,false) || !reqBoxFilled(pivotidx_,true) )
 	{
 	    pivotidx_++;
 	    continue;
