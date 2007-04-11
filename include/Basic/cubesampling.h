@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Feb 2002
- RCS:           $Id: cubesampling.h,v 1.30 2007-03-20 14:57:48 cvskris Exp $
+ RCS:           $Id: cubesampling.h,v 1.31 2007-04-11 14:55:47 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -47,6 +47,9 @@ struct HorSampling
     void		includeCrl( int crl );
     bool		isDefined() const;
     void		limitTo(const HorSampling&);
+    void		limitToWithUdf(const HorSampling&);
+    			/*!< handles undef values +returns reference horsampling
+			     nearest limit if horsamplings do not intersect */
 
     inline int		inlIdx( int inl ) const
 			{ return (inl - start.inl) / step.inl; }
@@ -163,6 +166,9 @@ public:
     			//!< Returns false if intersection is empty
     void		include(const CubeSampling&);
     void		limitTo(const CubeSampling&);
+    void		limitToWithUdf(const CubeSampling&);
+    			/*!< handles undef values + returns reference cube 
+			     nearest limit if the 2 cubes do not intersect */
 
     void		snapToSurvey();
     			/*!< Checks if it is on valid bids and sample positions.

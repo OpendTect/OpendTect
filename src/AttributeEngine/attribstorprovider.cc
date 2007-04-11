@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribstorprovider.cc,v 1.60 2007-04-11 10:26:04 cvsbert Exp $";
+static const char* rcsID = "$Id: attribstorprovider.cc,v 1.61 2007-04-11 14:55:47 cvshelene Exp $";
 
 #include "attribstorprovider.h"
 
@@ -311,17 +311,10 @@ bool StorageProvider::getPossibleVolume( int, CubeSampling& res )
 	possiblevolume = new CubeSampling;
     
     *possiblevolume = storedvolume;
-# define mAdjustIf(v1,op,v2) \
-  if ( !mIsUdf(v1) && !mIsUdf(v2) && v1 op v2 ) v1 = v2;
-  
-    mAdjustIf(res.hrg.start.inl,<,possiblevolume->hrg.start.inl);
-    mAdjustIf(res.hrg.start.crl,<,possiblevolume->hrg.start.crl);
-    mAdjustIf(res.zrg.start,<,possiblevolume->zrg.start);
-    mAdjustIf(res.hrg.stop.inl,>,possiblevolume->hrg.stop.inl);
-    mAdjustIf(res.hrg.stop.crl,>,possiblevolume->hrg.stop.crl);
-    mAdjustIf(res.zrg.stop,>,possiblevolume->zrg.stop);
-    mAdjustIf(res.hrg.step.inl,<,possiblevolume->hrg.step.inl);
-    mAdjustIf(res.hrg.step.crl,<,possiblevolume->hrg.step.crl);
+    res.limitToWithUdf( *possiblevolume );
+    if ( res.hrg.inlRange().width(false)<0 || res.hrg.crlRange().width(false)<0)
+	return false;
+
     return true;
 }
 

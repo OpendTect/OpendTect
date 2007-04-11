@@ -4,7 +4,7 @@
  * DATE     : somewhere around 1999
 -*/
  
-static const char* rcsID = "$Id: cubesampling.cc,v 1.28 2007-03-20 14:57:48 cvskris Exp $";
+static const char* rcsID = "$Id: cubesampling.cc,v 1.29 2007-04-11 14:55:47 cvshelene Exp $";
 
 #include "cubesampling.h"
 #include "survinfo.h"
@@ -141,6 +141,23 @@ void HorSampling::limitTo( const HorSampling& h )
     if ( hs.stop.inl < stop.inl ) stop.inl = hs.stop.inl;
     if ( hs.step.inl > step.inl ) step.inl = hs.step.inl;
     if ( hs.step.crl > step.crl ) step.crl = hs.step.crl;
+}
+
+
+# define mAdjustIf(v1,op,v2) \
+      if ( !mIsUdf(v1) && !mIsUdf(v2) && v1 op v2 ) v1 = v2;
+
+void HorSampling::limitToWithUdf( const HorSampling& h )
+{
+    HorSampling hs( h ); hs.normalise();
+    normalise();
+
+    mAdjustIf(start.inl,<,hs.start.inl);
+    mAdjustIf(start.crl,<,hs.start.crl);
+    mAdjustIf(stop.inl,>,hs.stop.inl);
+    mAdjustIf(stop.crl,>,hs.stop.crl);
+    mAdjustIf(step.inl,<,hs.step.inl);
+    mAdjustIf(step.crl,<,hs.step.crl);
 }
 
 
@@ -390,6 +407,16 @@ void CubeSampling::limitTo( const CubeSampling& c )
     if ( zrg.start < cs.zrg.start ) zrg.start = cs.zrg.start;
     if ( zrg.stop > cs.zrg.stop ) zrg.stop = cs.zrg.stop;
     if ( zrg.step < cs.zrg.step ) zrg.step = cs.zrg.step;
+}
+
+
+void CubeSampling::limitToWithUdf( const CubeSampling& c )
+{
+    CubeSampling cs( c ); cs.normalise();
+    normalise();
+    hrg.limitToWithUdf( cs.hrg );
+    mAdjustIf(zrg.start,<,cs.zrg.start);
+    mAdjustIf(zrg.stop,>,cs.zrg.stop);
 }
 
 

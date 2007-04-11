@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribprocessor.cc,v 1.48 2007-03-27 16:30:40 cvshelene Exp $";
+static const char* rcsID = "$Id: attribprocessor.cc,v 1.49 2007-04-11 14:55:47 cvshelene Exp $";
 
 #include "attribprocessor.h"
 
@@ -332,16 +332,7 @@ void Processor::computeAndSetPosAndDesVol( CubeSampling& globalcs )
 	provider_->setDesiredVolume( possvol );
 	provider_->getPossibleVolume( -1, possvol );
 	provider_->resetDesiredVolume();
-
-#       define mAdjustIf(v1,op,v2) \
-	if ( !mIsUdf(v1) && !mIsUdf(v2) && v1 op v2 ) v1 = v2;
-	
-	mAdjustIf(globalcs.hrg.start.inl,<,possvol.hrg.start.inl);
-	mAdjustIf(globalcs.hrg.start.crl,<,possvol.hrg.start.crl);
-	mAdjustIf(globalcs.zrg.start,<,possvol.zrg.start);
-	mAdjustIf(globalcs.hrg.stop.inl,>,possvol.hrg.stop.inl);
-	mAdjustIf(globalcs.hrg.stop.crl,>,possvol.hrg.stop.crl);
-	mAdjustIf(globalcs.zrg.stop,>,possvol.zrg.stop);
+	globalcs.limitToWithUdf( possvol );
 	
 	provider_->setDesiredVolume( globalcs );
     }

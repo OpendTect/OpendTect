@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribprovider.cc,v 1.93 2007-04-11 07:21:49 cvshelene Exp $";
+static const char* rcsID = "$Id: attribprovider.cc,v 1.94 2007-04-11 14:55:47 cvshelene Exp $";
 
 #include "attribprovider.h"
 #include "attribstorprovider.h"
@@ -428,16 +428,7 @@ bool Provider::getPossibleVolume( int output, CubeSampling& res )
 		    inputcs.zrg.stop -= zrgsamp->stop*refstep;
 		}
 		
-#		define mAdjustIf(v1,op,v2) \
-		    if ( !mIsUdf(v1) && !mIsUdf(v2) && v1 op v2 ) v1 = v2;
-		mAdjustIf(res.hrg.start.inl,<,inputcs.hrg.start.inl);
-		mAdjustIf(res.hrg.start.crl,<,inputcs.hrg.start.crl);
-		mAdjustIf(res.zrg.start,<,inputcs.zrg.start);
-		mAdjustIf(res.hrg.stop.inl,>,inputcs.hrg.stop.inl);
-		mAdjustIf(res.hrg.stop.crl,>,inputcs.hrg.stop.crl);
-		mAdjustIf(res.zrg.stop,>,inputcs.zrg.stop);
-		mAdjustIf(res.hrg.step.inl,<,inputcs.hrg.step.inl);
-		mAdjustIf(res.hrg.step.crl,<,inputcs.hrg.step.crl);
+		res.limitToWithUdf( inputcs );
 		isset = true;
 	    }
 	}
