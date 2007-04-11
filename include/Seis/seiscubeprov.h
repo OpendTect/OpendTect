@@ -7,19 +7,21 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Jan 2007
- RCS:		$Id: seiscubeprov.h,v 1.5 2007-04-11 10:10:19 cvsbert Exp $
+ RCS:		$Id: seiscubeprov.h,v 1.6 2007-04-11 16:32:32 cvsbert Exp $
 ________________________________________________________________________
 
 */
 
 
-#include "position.h"
+#include "rowcol.h"
 #include "sets.h"
 class IOObj;
+class BinID;
 class MultiID;
 class SeisTrc;
 class SeisTrcBuf;
 class SeisSelData;
+class SeisTrcReader;
 
 
 /*!\brief Reads seismic data into buffers providing a Moving Virtual Subcube
@@ -52,8 +54,8 @@ public:
 				//!< Use any real user entry from '.omf' file
 			SeisMSCProvider(const IOObj&);
 				//!< Use any real user entry from '.omf' file
-			SeisMSCProvider(const char* fnm,bool is2d);
-				//!< Use 'loose' CBVS files only.
+			SeisMSCProvider(const char* fnm);
+				//!< 'loose' 3D Post-stack CBVS files only.
     virtual		~SeisMSCProvider();
 
     bool		is2D() const;
@@ -64,23 +66,22 @@ public:
     			// but before the first next()
     void		forceFloatData( bool yn )
     			{ intofloats_ = yn; }
-    void		setStepoutStep( int i, int c )
-			{ stepoutstep_.inl = i; stepoutstep_.crl = c; }
     void		setStepout(int,int,bool required);
+    void		setStepoutStep( int i, int c )
+			{ stepoutstep_.r() = i; stepoutstep_.c() = c; }
     int			inlStepout( bool req ) const
-    			{ return req ? reqstepout_.inl : desstepout_.inl; }
+    			{ return req ? reqstepout_.r() : desstepout_.r(); }
     int			crlStepout( bool req ) const
-    			{ return req ? reqstepout_.crl : desstepout_.crl; }
+    			{ return req ? reqstepout_.c() : desstepout_.c(); }
 
     enum AdvanceState	{ NewPosition, Buffering, EndReached, Error };
-    State		advance();	
-    State		state()			{ return state_; }
+    AdvanceState	advance();	
     const char*		errMsg() const		{ return errmsg_; }
 
     const BinID&	getPos() const;
     int			getTrcNr() const;
-    SeisTrc*		get(int inl,int crl);	//!< Relative position. Fast.
-    SeisTrc*		get(const BinID&);	//!< Absolute position. Slower.
+    SeisTrc*		get(int deltainl,int deltacrl);
+    SeisTrc*		get(const BinID&);
     const SeisTrc*	get( int i, int c ) const
 			{ return const_cast<SeisMSCProvider*>(this)->get(i,c); }
     const SeisTrc*	get( const BinID& bid ) const
@@ -99,14 +100,13 @@ protected:
     ObjectSet<SeisTrcBuf> tbufs_;
     RowCol		reqstepout_;
     RowCol		desstepout_;
-    BinID		stepoutstep_;
+    RowCol		stepoutstep_;
     bool		intofloats_;
     SeisSelData*	seldata_;
     bool		workstarted_;
     enum ReadState	{ NeedStart, ReadOK, ReadAtEnd, ReadErr };
     ReadState		readstate_;
 
-    RowCol		curpos_;
     BufferString	errmsg_;
     mutable int		estnrtrcs_;
     int			reqmininl_;
@@ -119,16 +119,10 @@ protected:
     int			pivotidx_;	// Next position to be examined.
     
     void		init();
-    void		doUsePar(const IOPar&);
-    void		getIdxs(int,int,int&,int&);
-    void		getIdxs(const BinID&,int&,int&);
-    int			selRv(const SeisSelData*,bool) const;
-
     bool		startWork();
-    bool		isSingleTrc() const
-			{ return desstepout_.r() == 0 && desstepout_.c() == 0; }
-
-    bool 		gapInReqBox(int pivotidx,bool upwards) const;
+    int			readTrace(SeisTrc&);
+    bool 		reqBoxFilled(int,bool) const;
+    bool 		doAdvance();
 };
 
 
