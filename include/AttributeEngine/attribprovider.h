@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribprovider.h,v 1.60 2007-03-27 16:30:40 cvshelene Exp $
+ RCS:           $Id: attribprovider.h,v 1.61 2007-04-11 07:21:49 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -115,7 +115,7 @@ public:
     void                        setExtraZ(const Interval<float>&);
     void			setOutputInterestSize();
     void			setNeedInterpol(bool);
-    virtual void		setExactZ(TypeSet<float>);
+    void			setExactZ(TypeSet<float>);
     
     void			computeRefStep();
     				/*!<If an attribute uses as inputs stored cubes
@@ -309,6 +309,9 @@ protected:
     CubeSampling*               possiblevolume;
     TypeSet< Interval<int> >	localcomputezintervals;
     ObjectSet<Provider>		allexistingprov;
+    TypeSet<float>      	exactz_;//only used for outputs which require
+                                        //data at exact z values not placed
+                                        //at sample locations
 
     ProviderTask*		providertask_;
     DataHolderLineBuffer*	linebuffer;

@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribprovider.cc,v 1.92 2007-03-27 16:30:40 cvshelene Exp $";
+static const char* rcsID = "$Id: attribprovider.cc,v 1.93 2007-04-11 07:21:49 cvshelene Exp $";
 
 #include "attribprovider.h"
 #include "attribstorprovider.h"
@@ -1432,6 +1432,7 @@ void Provider::prepareForComputeData()
 
 void Provider::setExactZ( TypeSet<float> exactz )
 {
+    exactz_ = exactz;
     for ( int idx=0; idx<inputs.size(); idx++ )
 	if ( inputs[idx] )
 	    inputs[idx]->setExactZ( exactz );
