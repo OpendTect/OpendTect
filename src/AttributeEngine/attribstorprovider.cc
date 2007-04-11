@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribstorprovider.cc,v 1.59 2007-03-27 16:30:40 cvshelene Exp $";
+static const char* rcsID = "$Id: attribstorprovider.cc,v 1.60 2007-04-11 10:26:04 cvsbert Exp $";
 
 #include "attribstorprovider.h"
 
@@ -608,11 +608,11 @@ BinDataDesc StorageProvider::getOutputFormat( int output ) const
 BinID StorageProvider::getStepoutStep() const
 {
     SeisRequester* req = getSeisRequester();
-    if ( !req || !req->reader() || !req->reader()->seisTranslator() )
+    if ( !req || !req->reader() )
 	return BinID(0,0);
 
-    SeisPacketInfo& info = req->reader()->seisTranslator()->packetInfo();
-    return BinID( info.inlrg.step, info.crlrg.step );
+    BinID ret; req->reader()->getSteps( ret.inl, ret.crl );
+    return ret;
 }
 
 
