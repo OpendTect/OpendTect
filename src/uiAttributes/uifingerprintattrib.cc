@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Payraudeau
  Date:          February  2006
- RCS:           $Id: uifingerprintattrib.cc,v 1.31 2007-02-05 18:19:47 cvsbert Exp $
+ RCS:           $Id: uifingerprintattrib.cc,v 1.32 2007-04-11 10:10:19 cvsbert Exp $
 
 ________________________________________________________________________
 
@@ -599,7 +599,7 @@ BinID uiFingerPrintAttrib::get2DRefPos() const
 	    StepInterval<int> trcrg;
 	    lineset.getRanges( lineindex, trcrg, geometry->zrg );
 	    const int trcnr = refpos2dfld_->getIntValue();
-	    return SI().transform( geometry->posns[trcnr-trcrg.start].coord );
+	    return SI().transform( geometry->posns[trcnr-trcrg.start].coord_ );
 	}
     }
     return BinID(mUdf(int),mUdf(int));

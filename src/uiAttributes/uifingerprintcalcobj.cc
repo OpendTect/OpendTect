@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Payraudeau
  Date:          June 2006
- RCS:           $Id: uifingerprintcalcobj.cc,v 1.6 2007-01-03 12:33:08 cvshelene Exp $
+ RCS:           $Id: uifingerprintcalcobj.cc,v 1.7 2007-04-11 10:10:19 cvsbert Exp $
 
 ________________________________________________________________________
 
@@ -73,7 +73,7 @@ static void create2DRandPicks( const MultiID& lsetid, BinIDValueSet* rangesset )
 	PosInfo::Line2DData& geometry = *geoms[lineidx];
 	const int nrcoords = geometry.posns.size();
 	const int crdidx = Stats::RandGen::getIndex( nrcoords );
-	const Coord& pos = geometry.posns[crdidx].coord;
+	const Coord& pos = geometry.posns[crdidx].coord_;
 
 	const BinID bid = SI().transform( pos );
 	const float zpos = geometry.zrg.start +

@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2004
- RCS:           $Id: visseis2ddisplay.cc,v 1.15 2007-02-19 16:41:46 cvsbert Exp $
+ RCS:           $Id: visseis2ddisplay.cc,v 1.16 2007-04-11 10:10:19 cvsbert Exp $
  ________________________________________________________________________
 
 -*/
@@ -102,7 +102,7 @@ void Seis2DDisplay::setGeometry( const PosInfo::Line2DData& geometry )
     maxtrcnrrg_.start = INT_MAX; maxtrcnrrg_.stop = INT_MIN;
 
     for ( int idx=linepositions.size()-1; idx>=0; idx-- )
-	maxtrcnrrg_.include( linepositions[idx].nr, false );
+	maxtrcnrrg_.include( linepositions[idx].nr_, false );
 
     if ( zrg_.start==-1 )
     {
@@ -294,8 +294,8 @@ void Seis2DDisplay::updateVizPath()
     TypeSet<Coord> coords;
     for ( int idx=0; idx<geometry_.posns.size(); idx++ )
     {
-	if ( !trcnrrg_.includes( geometry_.posns[idx].nr ) ) continue;
-	coords += geometry_.posns[idx].coord;
+	if ( !trcnrrg_.includes( geometry_.posns[idx].nr_ ) ) continue;
+	coords += geometry_.posns[idx].coord_;
     }
 
     const Interval<float> zrg( geometry_.zrg.atIndex( zrg_.start ),
@@ -562,7 +562,7 @@ void Seis2DDisplay::getMousePosInfo( const visBase::EventInfo&,
     if ( getNearestTrace( pos, dataidx, mindist ) )
     {
 	info += "   Tracenr: ";
-	info += geometry_.posns[dataidx].nr;
+	info += geometry_.posns[dataidx].nr_;
     }
 }
 
@@ -609,7 +609,7 @@ void Seis2DDisplay::snapToTracePos( Coord3& pos )
 
     if ( trcidx<0 ) return;
 
-    const Coord& crd = geometry_.posns[trcidx].coord;
+    const Coord& crd = geometry_.posns[trcidx].coord_;
     pos.x = crd.x; pos.y = crd.y; 
 }
 
@@ -630,9 +630,9 @@ bool Seis2DDisplay::getNearestTrace( const Coord3& pos,
 
     for ( int idx=geometry_.posns.size()-1; idx>=0; idx-- )
     {
-	if ( !trcnrrg_.includes( geometry_.posns[idx].nr ) ) continue;
+	if ( !trcnrrg_.includes( geometry_.posns[idx].nr_ ) ) continue;
 
-	const float dist = pos.Coord::sqDistTo( geometry_.posns[idx].coord );
+	const float dist = pos.Coord::sqDistTo( geometry_.posns[idx].coord_ );
 	if ( dist<mindist )
 	{
 	    mindist = dist;

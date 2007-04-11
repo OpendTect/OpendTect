@@ -4,7 +4,7 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID = "$Id: seiscbvs2d.cc,v 1.35 2006-11-21 14:00:07 cvsbert Exp $";
+static const char* rcsID = "$Id: seiscbvs2d.cc,v 1.36 2007-04-11 10:10:19 cvsbert Exp $";
 
 #include "seiscbvs2d.h"
 #include "seiscbvs.h"
@@ -267,7 +267,7 @@ bool SeisCBVS2DLineIOProvider::getGeometry( const IOPar& iop,
     for ( int idx=0; idx<coords.size(); idx++ )
     {
 	PosInfo::Line2DPos p( binids[idx].crl );
-	p.coord = coords[idx];
+	p.coord_ = coords[idx];
 	geom.posns += p;
     }
 

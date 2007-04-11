@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		27-1-98
- RCS:		$Id: seisread.h,v 1.24 2005-11-04 15:38:50 cvsbert Exp $
+ RCS:		$Id: seisread.h,v 1.25 2007-04-11 10:10:19 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -68,8 +68,10 @@ public:
     void		fillPar(IOPar&) const;
 
     bool		isPrepared() const		{ return prepared; }
+    void		getSteps(int& inl,int& crl) const;
+    			//!< use after prepareWork(). If not avail: survinfo
     void		getIsRev(bool& inl,bool& crl) const;
-    			//!< use after prepareWork()
+    			//!< Obsolete in 3.0
 
     			// 2D only
     int			curLineIdx() const		{ return curlineidx; }

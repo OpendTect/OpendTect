@@ -5,7 +5,7 @@
  * FUNCTION : Seismic data reader
 -*/
 
-static const char* rcsID = "$Id: seisread.cc,v 1.67 2006-12-28 21:10:33 cvsnanne Exp $";
+static const char* rcsID = "$Id: seisread.cc,v 1.68 2007-04-11 10:10:19 cvsbert Exp $";
 
 #include "seisread.h"
 #include "seistrctr.h"
@@ -19,6 +19,7 @@ static const char* rcsID = "$Id: seisread.cc,v 1.67 2006-12-28 21:10:33 cvsnanne
 #include "survinfo.h"
 #include "binidselimpl.h"
 #include "keystrs.h"
+#include "segposinfo.h"
 #include "errh.h"
 #include "iopar.h"
 
@@ -606,6 +607,40 @@ void SeisTrcReader::fillPar( IOPar& iopar ) const
     SeisStoreAccess::fillPar( iopar );
     if ( seldata )	seldata->fillPar( iopar );
     else		SeisSelData::removeFromPar( iopar );
+}
+
+
+void SeisTrcReader::getSteps( int& inl, int& crl ) const
+{
+    inl = crl = 1;
+    if ( psioprov )
+	return;
+
+    if ( !is2d )
+    {
+	inl = trl ? strl()->packetInfo().inlrg.step : SI().inlStep();
+	crl = trl ? strl()->packetInfo().crlrg.step : SI().crlStep();
+	return;
+    }
+
+    if ( !lset || lset->nrLines() < 1 )
+	return;
+    PosInfo::Line2DData l2dd;
+    if ( !lset->getGeometry(0,l2dd) || l2dd.posns.size() < 2 )
+	return;
+
+    crl = mUdf(int);
+    int prevnr = l2dd.posns[0].nr_;
+    for ( int idx=1; idx<l2dd.posns.size(); idx++ )
+    {
+	const int curnr = l2dd.posns[idx].nr_;
+	const int step = abs( curnr - prevnr );
+	if ( step > 0 && step < crl )
+	{
+	    crl = step;
+	    if ( crl == 1 ) break;
+	}
+    }
 }
 
 

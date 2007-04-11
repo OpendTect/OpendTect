@@ -4,7 +4,7 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID = "$Id: seis2dline.cc,v 1.55 2007-02-19 16:41:46 cvsbert Exp $";
+static const char* rcsID = "$Id: seis2dline.cc,v 1.56 2007-04-11 10:10:19 cvsbert Exp $";
 
 #include "seis2dline.h"
 #include "seistrctr.h"
@@ -683,7 +683,7 @@ bool Seis2DLineSet::haveMatch( int ipar, const BinIDValueSet& bivs ) const
     {
 	for ( int idx=0; idx<geom.posns.size(); idx++ )
 	{
-	    if ( bivs.includes( SI().transform(geom.posns[idx].coord) ) )
+	    if ( bivs.includes( SI().transform(geom.posns[idx].coord_) ) )
 		return true;
 	}
     }
@@ -812,9 +812,9 @@ int nextStep()
 	const PosInfo::Line2DPos& pos = geom.posns[idx];
 	outstr = "";
 	if ( incnr )
-	    { outstr += pos.nr; outstr += "\t"; }
-	outstr += pos.coord.x; outstr += "\t";
-	outstr += pos.coord.y;
+	    { outstr += pos.nr_; outstr += "\t"; }
+	outstr += pos.coord_.x; outstr += "\t";
+	outstr += pos.coord_.y;
 	if ( incz )
 	    { outstr += "\t"; outstr += zval * zfac; }
 	strm << outstr << '\n';

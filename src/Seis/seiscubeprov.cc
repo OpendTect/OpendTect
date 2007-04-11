@@ -4,7 +4,7 @@
  * DATE     : Jan 2007
 -*/
 
-static const char* rcsID = "$Id: seiscubeprov.cc,v 1.4 2007-04-06 15:04:59 cvsjaap Exp $";
+static const char* rcsID = "$Id: seiscubeprov.cc,v 1.5 2007-04-11 10:10:19 cvsbert Exp $";
 
 #include "seismscprov.h"
 #include "seistrc.h"
@@ -44,7 +44,7 @@ SeisMSCProvider::SeisMSCProvider( const char* fnm )
 void SeisMSCProvider::init()
 {
     readstate_ = NeedStart;
-    stepoutstep_.inl = SI().inlStep(); stepoutstep_.crl = SI().crlStep();
+    stepoutstep_.inl = stepoutstep_.crl = 0;
     seldata_ = 0;
     intofloats_ = workstarted_ = false;
     errmsg_ = 0;
@@ -92,6 +92,7 @@ bool SeisMSCProvider::startWork()
     if ( !prepareWork() ) return false;
 
     workstarted_ = true;
+    rdr_.getSteps( stepoutstep_.inl, stepoutstep_.crl );
     rdr_.forceFloatData( intofloats_ );
     if ( reqstepout_.r() > desstepout_.r() ) desstepout_.r() = reqstepout_.r();
     if ( reqstepout_.c() > desstepout_.c() ) desstepout_.c() = reqstepout_.c();
@@ -131,7 +132,7 @@ bool SeisMSCProvider::startWork()
     newbuf->add( trc );
     
     pivotidx_ = 0;
-
+    readstate_ = ReadOK;
     return true;
 }
 
@@ -212,13 +213,13 @@ int SeisMSCProvider::readTrace( SeisTrc& trc )
 SeisMSCProvider::AdvanceState SeisMSCProvider::advance()
 {
     if ( !workstarted_ && !startWork() )
-	{ errmsg_ = rdr_.errMsg(); return AdvErr; }
+	{ errmsg_ = rdr_.errMsg(); return Error; }
 
     if ( doAdvance() )
 	return NewPosition;
     else if ( readstate_ == ReadErr )
-	return AdvErr;
-    else if ( readstate_ == AtEnd )
+	return Error;
+    else if ( readstate_ == ReadAtEnd )
 	return EndReached;
 
     SeisTrc* trc = new SeisTrc;
@@ -227,7 +228,7 @@ SeisMSCProvider::AdvanceState SeisMSCProvider::advance()
 	delete trc;
     if ( res < 0 )
     {
-	readstate_ = res == 0 ? AtEnd : ReadErr;
+	readstate_ = res == 0 ? ReadAtEnd : ReadErr;
 	return advance();
     }
 
@@ -290,7 +291,7 @@ bool SeisMSCProvider::gapInReqBox( int pivotidx, bool upwards ) const
 
 bool SeisMSCProvider::doAdvance()
 {
-    newposidx_= -1;  
+    posidx_ = -1;  
 
     while ( true )
     {
@@ -307,11 +308,11 @@ bool SeisMSCProvider::doAdvance()
 	}
 
 	// If no traces left in buffer (e.g. at 0-stepouts), ask next trace.
-	if ( !tbufs_.size() )
+	if ( tbufs_.isEmpty() )
 	    return false;
 	
 	// If last trace not beyond desired box, ask next trace if available.
-	if ( readstate_!=AtEnd && readstate_!=ReadError )
+	if ( readstate_!=ReadAtEnd && readstate_!=ReadError )
 	{
 	    mCalcBoxDistances(tbufs_.size()-1,pivotidx_,desstepout_);
 
@@ -327,7 +328,7 @@ bool SeisMSCProvider::doAdvance()
 	}
 
 	// Report readiness of new position.
-	newposidx_ = pivotidx_;
+	posidx_ = pivotidx_;
 	pivotidx_++;
 	return true;
     }

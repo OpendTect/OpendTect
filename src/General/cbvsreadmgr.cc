@@ -5,7 +5,7 @@
  * FUNCTION : CBVS File pack reading
 -*/
 
-static const char* rcsID = "$Id: cbvsreadmgr.cc,v 1.53 2006-11-21 14:00:07 cvsbert Exp $";
+static const char* rcsID = "$Id: cbvsreadmgr.cc,v 1.54 2007-04-11 10:10:19 cvsbert Exp $";
 
 #include "cbvsreadmgr.h"
 #include "cbvsreader.h"
@@ -500,10 +500,10 @@ void CBVSReadMgr::getPositions( TypeSet<BinID>& posns ) const
 	for ( int iinl=0; iinl<info_.geom.cubedata.size(); iinl++ )
 	{
 	    const PosInfo::LineData& inlinf = *info_.geom.cubedata[iinl];
-	    bid.inl = inlinf.linenr;
-	    for ( int iseg=0; iseg<inlinf.segments.size(); iseg++ )
+	    bid.inl = inlinf.linenr_;
+	    for ( int iseg=0; iseg<inlinf.segments_.size(); iseg++ )
 	    {
-		const PosInfo::LineData::Segment seg = inlinf.segments[iseg];
+		const PosInfo::LineData::Segment seg = inlinf.segments_[iseg];
 		if ( seg.step > 0 )
 		    for ( bid.crl=seg.start; bid.crl<=seg.stop;
 			  bid.crl+=seg.step )
@@ -828,7 +828,7 @@ void CBVSReadMgr::dumpInfo( std::ostream& strm, bool inclcompinfo ) const
 	    }
 	    else
 	    {
-		if ( inlinf->segments.size() > 1 )
+		if ( inlinf->segments_.size() > 1 )
 		    crlgaps = true;
 		if ( !mIsUdf(inlgap.start) )
 		{

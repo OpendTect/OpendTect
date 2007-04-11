@@ -5,7 +5,7 @@
  * FUNCTION : CBVS File pack reading
 -*/
 
-static const char* rcsID = "$Id: cbvsinfo.cc,v 1.21 2006-08-16 10:51:20 cvsbert Exp $";
+static const char* rcsID = "$Id: cbvsinfo.cc,v 1.22 2007-04-11 10:10:19 cvsbert Exp $";
 
 #include "cbvsinfo.h"
 #include "binidselimpl.h"
@@ -76,9 +76,9 @@ int CBVSInfo::SurvGeom::excludes( const BinID& bid ) const
     if ( infidx < 0 ) return res;
 
     PosInfo::LineData inlinf = *cubedata[infidx];
-    for ( int idx=0; idx<inlinf.segments.size(); idx++ )
+    for ( int idx=0; idx<inlinf.segments_.size(); idx++ )
     {
-	if ( inlinf.segments[idx].includes(bid.crl) )
+	if ( inlinf.segments_[idx].includes(bid.crl) )
 	    return 0;
     }
     return 1 + 256;
@@ -91,12 +91,12 @@ int CBVSInfo::SurvGeom::findNextInfIdx( int curinlinfnr ) const
     if ( curinlinfnr < 0 || curinlinfnr >= cubedata.size() )
 	return inlrev ? cubedata.size()-1 : 0;
 
-    const int curinl = cubedata[curinlinfnr]->linenr;
+    const int curinl = cubedata[curinlinfnr]->linenr_;
     int inlinfnr = curinlinfnr + (inlrev ? -1 : 1);
     // Try the next one first - most probably that's the one we need
     if ( inlinfnr >= 0 && inlinfnr < cubedata.size() )
     {
-	int inldiff = cubedata[inlinfnr]->linenr - curinl;
+	int inldiff = cubedata[inlinfnr]->linenr_ - curinl;
 	if ( inldiff > 0 && inldiff <= abs(step.inl) )
 	    return inlinfnr;
     }
@@ -105,7 +105,7 @@ int CBVSInfo::SurvGeom::findNextInfIdx( int curinlinfnr ) const
     inlinfnr = -1; int mindiff = mUdf(int);
     for ( int idx=0; idx<cubedata.size(); idx++ )
     {
-	int inldiff = cubedata[idx]->linenr - curinl;
+	int inldiff = cubedata[idx]->linenr_ - curinl;
 	if ( inldiff > 0 && inldiff < mindiff )
 	    { mindiff = inldiff; inlinfnr = idx; }
     }
@@ -124,8 +124,8 @@ bool CBVSInfo::SurvGeom::toNextInline( BinID& bid ) const
 	infidx = findNextInfIdx( infidx );
 	if ( infidx < 0 )
 	    return false;
-	bid.inl = cubedata[infidx]->linenr;
-	bid.crl = cubedata[infidx]->segments[0].start;
+	bid.inl = cubedata[infidx]->linenr_;
+	bid.crl = cubedata[infidx]->segments_[0].start;
 	return true;
     }
     else if ( fullyrectandreg )
@@ -153,21 +153,21 @@ bool CBVSInfo::SurvGeom::toNextBinID( BinID& bid ) const
 	return false;
 
     const PosInfo::LineData& inlinf = *cubedata[infidx];
-    if ( inlinf.segments.size() == 1 )
+    if ( inlinf.segments_.size() == 1 )
 	return toNextInline( bid );
 
     int iseg = -1;
-    for ( int idx=0; idx<inlinf.segments.size(); idx++ )
+    for ( int idx=0; idx<inlinf.segments_.size(); idx++ )
     {
-	const PosInfo::LineData::Segment& seg = inlinf.segments[idx];
+	const PosInfo::LineData::Segment& seg = inlinf.segments_[idx];
 	if ( (seg.step > 0 && seg.start > bid.crl)
 	  || (seg.step < 0 && seg.start < bid.crl) )
 	    { iseg = idx; break; }
     }
-    if ( iseg < 0 || iseg == inlinf.segments.size()-1 )
+    if ( iseg < 0 || iseg == inlinf.segments_.size()-1 )
 	return toNextInline( bid );
 
-    bid.crl = inlinf.segments[iseg+1].start;
+    bid.crl = inlinf.segments_[iseg+1].start;
     return true;
 }
 
@@ -207,7 +207,7 @@ void CBVSInfo::SurvGeom::toIrreg()
     {
 	int curinl = startinl + idx * step.inl;
 	PosInfo::LineData* newinf = new PosInfo::LineData( curinl );
-	newinf->segments += PosInfo::LineData::Segment(
+	newinf->segments_ += PosInfo::LineData::Segment(
 				step.crl > 0 ? start.crl : stop.crl,
 				step.crl > 0 ? stop.crl : start.crl,
 				step.crl );
@@ -229,15 +229,15 @@ void CBVSInfo::SurvGeom::mergeIrreg( const CBVSInfo::SurvGeom& g )
     for ( int idx=0; idx<geom->cubedata.size(); idx++ )
     {
 	const PosInfo::LineData* gii = geom->cubedata[idx];
-	PosInfo::LineData* ii = getInfoFor( gii->linenr );
+	PosInfo::LineData* ii = getInfoFor( gii->linenr_ );
 	if ( !ii )
 	    cubedata.add( new PosInfo::LineData( *gii ) );
 	else
 	{
 	    // not correct in case of overlap
 	    // but that is asking a bit much, really
-	    for ( int iseg=0; iseg<gii->segments.size(); iseg++ )
-		ii->segments += gii->segments[idx];
+	    for ( int iseg=0; iseg<gii->segments_.size(); iseg++ )
+		ii->segments_ += gii->segments_[idx];
 	}
     }
 
@@ -256,20 +256,20 @@ void CBVSInfo::SurvGeom::reCalcBounds()
     for ( int idx=0; idx<cubedata.size(); idx++ )
     {
 	const PosInfo::LineData& ii = *cubedata[idx];
-	for ( int iseg=0; iseg<ii.segments.size(); iseg++ )
+	for ( int iseg=0; iseg<ii.segments_.size(); iseg++ )
 	{
-	    const PosInfo::LineData::Segment& seg = ii.segments[iseg];
+	    const PosInfo::LineData::Segment& seg = ii.segments_[iseg];
 	    if ( !seg.start && !seg.stop )
 	    {
 #ifdef __debug__
-		std::cerr << "CBVSInfo - Empty segment: " << ii.linenr
+		std::cerr << "CBVSInfo - Empty segment: " << ii.linenr_
 		    	  << " segment " << iseg << std::endl;
 #endif
 		continue;
 	    }
 
-	    bidrg.include( BinID(ii.linenr,seg.start) );
-	    bidrg.include( BinID(ii.linenr,seg.stop) );
+	    bidrg.include( BinID(ii.linenr_,seg.start) );
+	    bidrg.include( BinID(ii.linenr_,seg.stop) );
 	}
     }
 

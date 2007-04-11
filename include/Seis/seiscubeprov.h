@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Jan 2007
- RCS:		$Id: seiscubeprov.h,v 1.4 2007-04-06 15:04:59 cvsjaap Exp $
+ RCS:		$Id: seiscubeprov.h,v 1.5 2007-04-11 10:10:19 cvsbert Exp $
 ________________________________________________________________________
 
 */
@@ -56,8 +56,9 @@ public:
 				//!< Use 'loose' CBVS files only.
     virtual		~SeisMSCProvider();
 
-    bool		prepareWork();
     bool		is2D() const;
+    bool		prepareWork();
+    			//!< Opens the input data. Can still set stepouts etc.
 
     			// use the following after prepareWork
     			// but before the first next()
@@ -71,7 +72,7 @@ public:
     int			crlStepout( bool req ) const
     			{ return req ? reqstepout_.crl : desstepout_.crl; }
 
-    enum State		{ DataOK, DataIncomplete, NoMoreData, Error }
+    enum AdvanceState	{ NewPosition, Buffering, EndReached, Error };
     State		advance();	
     State		state()			{ return state_; }
     const char*		errMsg() const		{ return errmsg_; }
@@ -102,6 +103,8 @@ protected:
     bool		intofloats_;
     SeisSelData*	seldata_;
     bool		workstarted_;
+    enum ReadState	{ NeedStart, ReadOK, ReadAtEnd, ReadErr };
+    ReadState		readstate_;
 
     RowCol		curpos_;
     BufferString	errmsg_;
@@ -111,7 +114,7 @@ protected:
     int			reqmincrl_;
     int			reqmaxcrl_;
 
-    int			newposidx_;	// Index of new position ready, 
+    int			posidx_;	// Index of new position ready, 
 					// equals -1 while buffering.
     int			pivotidx_;	// Next position to be examined.
     
