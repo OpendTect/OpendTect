@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink / Bril
  Date:          22/05/2000
- RCS:           $Id: uicolor.cc,v 1.17 2007-02-02 12:38:47 cvsbert Exp $
+ RCS:           $Id: uicolor.cc,v 1.18 2007-04-12 06:46:40 cvsdgb Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,10 +16,10 @@ ________________________________________________________________________
 #include "pixmap.h"
 #include "uiparentbody.h"
 
-#ifdef __mac__
-# define _machack_
-# define private public // need access to some private stuff in qcolordialog
-#endif
+//#ifdef __mac__
+//# define _machack_
+//# define private public // need access to some private stuff in qcolordialog
+//#endif
 #include "qcolordialog.h"
 
 #ifdef _machack_
