@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2001
- RCS:           $Id: create_randpicks_2d.cc,v 1.4 2006-09-21 12:02:46 cvsbert Exp $
+ RCS:           $Id: create_randpicks_2d.cc,v 1.5 2007-04-12 06:51:10 cvsdgb Exp $
 ________________________________________________________________________
 
 -*/
@@ -88,7 +88,7 @@ static int doWork( int argc, char** argv )
 	PosInfo::Line2DData& geometry = *geoms[lineidx];
 	const int nrcoords = geometry.posns.size();
 	const int crdidx = Stats::RandGen::getIndex( nrcoords );
-	const Coord& pos = geometry.posns[crdidx].coord;
+	const Coord& pos = geometry.posns[crdidx].coord_;
 
 	const BinID bid = SI().transform( pos );
 	const EM::SectionID sid = horizon->sectionID( 0 );
