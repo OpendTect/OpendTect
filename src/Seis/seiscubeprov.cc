@@ -4,7 +4,7 @@
  * DATE     : Jan 2007
 -*/
 
-static const char* rcsID = "$Id: seiscubeprov.cc,v 1.6 2007-04-11 16:32:24 cvsbert Exp $";
+static const char* rcsID = "$Id: seiscubeprov.cc,v 1.7 2007-04-12 06:40:58 cvsbert Exp $";
 
 #include "seismscprov.h"
 #include "seistrc.h"
@@ -259,6 +259,20 @@ int SeisMSCProvider::readTrace( SeisTrc& trc )
 	    ErrMsg( msg );
 	}
     }
+}
+
+
+BinID SeisMSCProvider::getPos() const
+{
+    //TODO
+    return BinID(0,0);
+}
+
+
+int SeisMSCProvider::getTrcNr() const
+{
+    //TODO
+    return 0;
 }
 
 

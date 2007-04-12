@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Jan 2007
- RCS:		$Id: seiscubeprov.h,v 1.6 2007-04-11 16:32:32 cvsbert Exp $
+ RCS:		$Id: seiscubeprov.h,v 1.7 2007-04-12 06:40:57 cvsbert Exp $
 ________________________________________________________________________
 
 */
@@ -78,7 +78,7 @@ public:
     AdvanceState	advance();	
     const char*		errMsg() const		{ return errmsg_; }
 
-    const BinID&	getPos() const;
+    BinID		getPos() const;
     int			getTrcNr() const;
     SeisTrc*		get(int deltainl,int deltacrl);
     SeisTrc*		get(const BinID&);
