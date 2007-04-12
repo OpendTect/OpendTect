@@ -2,10 +2,10 @@
  * COPYRIGHT: (C) de Groot-Bril Earth Sciences B.V.
  * AUTHOR   : A.H. Bril
  * DATE     : 2000
- * RCS      : $Id: od_cbvs_browse.cc,v 1.26 2006-03-12 20:44:44 cvsbert Exp $
+ * RCS      : $Id: od_cbvs_browse.cc,v 1.27 2007-04-12 06:52:57 cvsdgb Exp $
 -*/
 
-static const char* rcsID = "$Id: od_cbvs_browse.cc,v 1.26 2006-03-12 20:44:44 cvsbert Exp $";
+static const char* rcsID = "$Id: od_cbvs_browse.cc,v 1.27 2007-04-12 06:52:57 cvsdgb Exp $";
 
 #include "seistrc.h"
 #include "seiscbvs.h"
@@ -116,11 +116,11 @@ int main( int argc, char** argv )
 		continue;
 	    }
 	    std::cerr << "Xline range available: ";
-	    for ( int idx=0; idx<inlinf->segments.size(); idx++ )
+	    for ( int idx=0; idx<inlinf->segments_.size(); idx++ )
 	    {
-		std::cerr << inlinf->segments[idx].start << " - "
-		     << inlinf->segments[idx].stop;
-		if ( idx < inlinf->segments.size()-1 )
+		std::cerr << inlinf->segments_[idx].start << " - "
+		     << inlinf->segments_[idx].stop;
+		if ( idx < inlinf->segments_.size()-1 )
 		    std::cerr << " and ";
 	    }
 	    std::cerr << std::endl;
