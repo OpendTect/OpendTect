@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.120 2007-03-30 10:38:28 cvsbert Exp $
+ RCS:           $Id: uimainwin.cc,v 1.121 2007-04-12 15:02:38 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -205,7 +205,7 @@ uiMainWinBody::uiMainWinBody( uiMainWin& handle__, uiParent* p,
 #ifdef USEQT3
     setDockMenuEnabled( false );
 #else
-    iconsz_ = 24;
+    iconsz_ = 32;
     Settings::common().get( "dTect.Icons.size", iconsz_ );
     setIconSize( QSize(iconsz_,iconsz_) );
 
