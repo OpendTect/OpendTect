@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: viswelldisplay.cc,v 1.64 2007-02-22 18:14:40 cvskris Exp $";
+static const char* rcsID = "$Id: viswelldisplay.cc,v 1.65 2007-04-13 19:55:30 cvskris Exp $";
 
 #include "viswelldisplay.h"
 
@@ -149,7 +149,7 @@ TypeSet<Coord3> WellDisplay::getTrackPos( Well::Data* wd )
 
 #define mErrRet(s) { errmsg = s; return false; }
 
-bool WellDisplay::setWellId( const MultiID& multiid )
+bool WellDisplay::setMultiID( const MultiID& multiid )
 {
     Well::Data* wd = Well::MGR().get( multiid, true );
     if ( !wd ) return false;
@@ -396,7 +396,7 @@ int WellDisplay::usePar( const IOPar& par )
     if ( !par.get(sKeyEarthModelID,newmid) )
 	return -1;
 
-    if ( !setWellId(newmid) )
+    if ( !setMultiID(newmid) )
     {
 	return 1;
     }

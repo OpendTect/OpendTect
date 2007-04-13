@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		May 2006
- RCS:		$Id: uiodwelltreeitem.cc,v 1.9 2007-02-28 08:05:08 cvsnanne Exp $
+ RCS:		$Id: uiodwelltreeitem.cc,v 1.10 2007-04-13 19:55:30 cvskris Exp $
 ___________________________________________________________________
 
 -*/
@@ -172,7 +172,7 @@ bool uiODWellTreeItem::init()
 	visSurvey::WellDisplay* wd = visSurvey::WellDisplay::create();
 	displayid_ = wd->id();
 	visserv->addObject( wd, sceneID(), true );
-	if ( !wd->setWellId(mid) )
+	if ( !wd->setMultiID(mid) )
 	{
 	    visserv->removeObject( wd, sceneID() );
 	    return false;
@@ -205,7 +205,7 @@ void uiODWellTreeItem::createMenuCB( CallBacker* cb )
     mDynamicCastGet(visSurvey::WellDisplay*,wd,visserv->getObject(displayid_));
 
     mAddMenuItem( menu, &sellogmnuitem_,
-		  applMgr()->wellServer()->hasLogs(wd->wellId()), false );
+		  applMgr()->wellServer()->hasLogs(wd->getMultiID()), false );
     mAddMenuItem( menu, &attrmnuitem_, true, false );
     mAddMenuItem( menu, &propertiesmnuitem_, true, false );
     mAddMenuItem( menu, &editmnuitem_, true, false );
@@ -217,7 +217,7 @@ void uiODWellTreeItem::createMenuCB( CallBacker* cb )
     mAddMenuItem( &showmnuitem_, &markernamemnuitem_, wd->canShowMarkers(),
 		  wd->canShowMarkers() && wd->markerNameShown() );
     mAddMenuItem( &showmnuitem_, &showlogmnuitem_,
-		  applMgr()->wellServer()->hasLogs(wd->wellId()), 
+		  applMgr()->wellServer()->hasLogs(wd->getMultiID()), 
 		  wd->logsShown() );
 }
 
@@ -231,7 +231,7 @@ void uiODWellTreeItem::handleMenuCB( CallBacker* cb )
 	return;
 
     mDynamicCastGet(visSurvey::WellDisplay*,wd,visserv->getObject(displayid_))
-    const MultiID& wellid = wd->wellId();
+    const MultiID& wellid = wd->getMultiID();
     if ( mnuid == attrmnuitem_.id )
     {
 	menu->setIsHandled( true );
