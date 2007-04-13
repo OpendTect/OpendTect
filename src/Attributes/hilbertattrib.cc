@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: hilbertattrib.cc,v 1.18 2007-03-08 12:40:08 cvshelene Exp $
+ RCS:           $Id: hilbertattrib.cc,v 1.19 2007-04-13 07:59:14 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -92,11 +92,27 @@ Masker( const DataHolder* dh, int shift, float avg, int dataidx )
 float operator[]( int idx ) const
 {
     const int pos = shift_ + idx;
+    float val = mUdf(float);
     if ( pos < 0 )
-	return data_->series(dataidx_)->value(0) - avg_;
+    {
+	
+	val = data_->series(dataidx_)->value(0) - avg_;
+    }
     if ( pos >= data_->nrsamples_ )
-	return data_->series(dataidx_)->value(data_->nrsamples_-1) - avg_;
-    return data_->series(dataidx_)->value( pos ) - avg_;
+	val = data_->series(dataidx_)->value(data_->nrsamples_-1) - avg_;
+    else
+	val = data_->series(dataidx_)->value( pos );
+    
+    bool goup = pos<data_->nrsamples_/2;
+    int tmppos = goup ? ( pos<0 ? 1 : pos+1) 
+		      : (pos>=data_->nrsamples_ ? data_->nrsamples_-2 : pos-1);
+    while ( mIsUdf( val ) && tmppos>0 && tmppos<data_->nrsamples_ )
+    {
+	val = data_->series(dataidx_)->value( tmppos );
+	goup ? tmppos++ : tmppos--;
+    }
+    
+    return mIsUdf(val) ? val : val - avg_;
 }
 
     const DataHolder*	data_;
