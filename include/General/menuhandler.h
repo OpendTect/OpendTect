@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2003
- RCS:           $Id: menuhandler.h,v 1.6 2007-02-27 12:35:01 cvsnanne Exp $
+ RCS:           $Id: menuhandler.h,v 1.7 2007-04-13 20:00:03 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -71,9 +71,7 @@ private:
 class MenuItem : public MenuItemHolder
 {
 public:
-    				MenuItem(const char* text=0,int placement=-1,
-					 const CallBack& cb=CallBack(0,0));
-
+    				MenuItem(const char* text=0,int placement=-1 );
     void			createItems(const BufferStringSet&);
 
     BufferString		text;
@@ -82,9 +80,6 @@ public:
     				/*!< Gives the system an indication where in the
 				     menu the item should be placed. Items will
 				     be placed in increasing order of placement.				*/
-    CallBack			cb;
-    				/*< is called if item is selected in the menu.*/
-
     int				id;
     				/*!< This item's unique id. */
     bool			checkable;
@@ -188,10 +183,50 @@ public:
 protected:
     void			assignItemID( MenuItem& );
 
-    int				freeid;
+    int				freeid_;
     int				id_;
-    bool			ishandled;
+    bool			ishandled_;
 };
+
+
+/*!  handles the MenuItem insertion automaticly. If the menu is selected,
+     a callback is triggered. Default behaviour is that the menu item is added
+     every time the menu is built, and that it's enabled but not checked.
+     That can be changes by setting the doadd_, isenabled_ and ischecked_ or
+     by an inheriting object in the shouldAddMenu(), shouldBeEnabled() and
+     shouldBeChecked() functions. */
+
+class MenuItemHandler : public CallBacker
+{
+public:
+			MenuItemHandler(MenuHandler&,const char* nm,
+					const CallBack&, int placement=-1);
+			~MenuItemHandler();
+    bool		doadd_;
+    			/*!<Item is added if true AND shouldAddMenu() retuns
+			    true. Default is true. */
+    bool		isenabled_;
+    			/*!<Item is enabled if true AND shouldBeEnabled() retuns
+			    true. Default is true. */
+    bool		ischecked_;
+    			/*!<Item is checked if true OR shouldBeChecked() retuns
+			    true. Default is false. */
+    
+protected:
+
+    virtual void	createMenuCB(CallBacker*);	
+    virtual void	handleMenuCB(CallBacker*);	
+
+    virtual bool	shouldAddMenu() const			{ return true; }
+    virtual bool	shouldBeEnabled() const			{ return true;}
+    virtual bool	shouldBeChecked() const			{ return false;}
+
+    MenuItem		menuitem_;
+    MenuHandler&	menuhandler_;
+    CallBack		cb_;
+};
+
+
 
 #define mResetMenuItem( item ) \
 { \

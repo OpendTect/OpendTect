@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2003
- RCS:           $Id: menuhandler.cc,v 1.4 2007-02-27 12:35:01 cvsnanne Exp $
+ RCS:           $Id: menuhandler.cc,v 1.5 2007-04-13 20:00:03 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -151,10 +151,9 @@ void MenuItemHolder::assignItemID(MenuItem& item)
 }
 
 
-MenuItem::MenuItem( const char* txt, int pl, const CallBack& ncb )
+MenuItem::MenuItem( const char* txt, int pl )
     : text(txt)
     , placement(pl)
-    , cb(ncb)
     , checkable(false)
     , checked(false)
     , enabled(true)
@@ -183,17 +182,65 @@ MenuHandler::~MenuHandler()
 
 
 bool MenuHandler::isHandled() const
-{ return ishandled; }
+{ return ishandled_; }
 
 
 void MenuHandler::setIsHandled( bool yn )
-{ ishandled = yn; }
+{ ishandled_ = yn; }
 
 
 void MenuHandler::assignItemID( MenuItem& itm )
 {
-    itm.id = freeid++;
+    itm.id = freeid_++;
 
     for ( int idx=0; idx<itm.items.size(); idx++ )
 	assignItemID( *itm.items[idx] );
 }
+
+
+MenuItemHandler::MenuItemHandler(MenuHandler& mh,
+			     const char* nm,const CallBack& cb, int placement )
+    : menuitem_( nm, placement )
+    , cb_( cb )
+    , menuhandler_( mh )
+    , doadd_( true )
+    , isenabled_( true )
+    , ischecked_( false )
+{
+    menuhandler_.createnotifier.notify( mCB(this,MenuItemHandler,createMenuCB));
+    menuhandler_.handlenotifier.notify( mCB(this,MenuItemHandler,handleMenuCB));
+}
+
+
+MenuItemHandler::~MenuItemHandler()
+{
+    menuhandler_.createnotifier.remove( mCB(this,MenuItemHandler,createMenuCB));
+    menuhandler_.handlenotifier.remove( mCB(this,MenuItemHandler,handleMenuCB));
+}
+
+
+void MenuItemHandler::createMenuCB(CallBacker*)
+{
+    if ( doadd_ && shouldAddMenu() )
+    {
+	mAddMenuItem( &menuhandler_, &menuitem_, isenabled_&&shouldBeEnabled(),
+		      ischecked_ || shouldBeChecked() );
+    }
+    else
+    {
+	mResetMenuItem( &menuitem_ );
+    }
+}
+
+
+void MenuItemHandler::handleMenuCB( CallBacker* cb )
+{
+    mCBCapsuleUnpack( int, mnuid, cb );
+    if ( menuhandler_.isHandled() || mnuid!=menuitem_.id )
+	return;
+
+    cb_.doCall( this );
+    menuhandler_.setIsHandled( true );
+}
+
+
