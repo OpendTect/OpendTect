@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          January 2003
- RCS:           $Id: uispecdecompattrib.h,v 1.5 2006-12-20 11:23:00 cvshelene Exp $
+ RCS:           $Id: uispecdecompattrib.h,v 1.6 2007-04-16 13:53:11 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -52,6 +52,8 @@ protected:
     void		inputSel(CallBacker*);
     void		typeSel(CallBacker*);
     void		stepChg(CallBacker*);
+
+    void		checkOutValSnapped() const;
 
     float		nyqfreq;
     int			nrsamples; //!< Nr of samples in selected data

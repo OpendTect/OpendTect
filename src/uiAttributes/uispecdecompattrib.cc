@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2004
- RCS:           $Id: uispecdecompattrib.cc,v 1.15 2007-03-02 16:24:45 cvsnanne Exp $
+ RCS:           $Id: uispecdecompattrib.cc,v 1.16 2007-04-16 13:53:11 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,6 +21,7 @@ ________________________________________________________________________
 #include "uiattrsel.h"
 #include "uigeninput.h"
 #include "uilabel.h"
+#include "uimsg.h"
 #include "uispinbox.h"
 
 using namespace Attrib;
@@ -187,6 +188,7 @@ bool uiSpecDecompAttrib::getInput( Desc& desc )
 
 bool uiSpecDecompAttrib::getOutput( Desc& desc )
 {
+    checkOutValSnapped();
     const int freqidx = getOutputIdx( outpfld->box()->getFValue() );
     fillOutput( desc, freqidx );
     return true;
@@ -200,3 +202,19 @@ void uiSpecDecompAttrib::getEvalParams( TypeSet<EvalParam>& params ) const
     if ( typefld->getBoolValue() )
 	params += EvalParam( timegatestr, SpecDecomp::gateStr() );
 }
+
+
+void uiSpecDecompAttrib::checkOutValSnapped() const
+{
+    const float oldfreq = outpfld->box()->getFValue();
+    const int freqidx = getOutputIdx( oldfreq );
+    const float freq = getOutputValue( freqidx );
+    if ( oldfreq>0.5 && oldfreq!=freq )
+    {
+	BufferString wmsg = "Chosen output frequency \n";
+	wmsg += "does not fit with frequency step \n";
+	wmsg += "and will be snapped to nearest suitable frequency";
+	uiMSG().warning( wmsg );
+    }
+}
+
