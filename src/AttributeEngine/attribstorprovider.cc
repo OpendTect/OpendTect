@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribstorprovider.cc,v 1.61 2007-04-11 14:55:47 cvshelene Exp $";
+static const char* rcsID = "$Id: attribstorprovider.cc,v 1.62 2007-04-16 08:04:37 cvshelene Exp $";
 
 #include "attribstorprovider.h"
 
@@ -29,6 +29,7 @@ static const char* rcsID = "$Id: attribstorprovider.cc,v 1.61 2007-04-11 14:55:4
 #include "seistrc.h"
 #include "seistrcsel.h"
 #include "seistrctr.h"
+#include "simpnumer.h"
 #include "survinfo.h"
 #include "threadwork.h"
 #include "basictask.h"
@@ -556,12 +557,14 @@ bool StorageProvider::fillDataHolderWithTrc( const SeisTrc* trc,
     const int z0 = data.z0_;
     int offset = 0;
     float exacttime = 0;
+    BoolTypeSet isclass( outputinterest.size(), true );
     if ( needinterp )
     {
 	int intvidx = localcomputezintervals.indexOf( 
 				    Interval<int>( z0, z0+data.nrsamples_-1) );
 	exacttime = exactz_[intvidx];
 	offset = mNINT( z0 - exacttime/refstep + 0.5 );
+	checkClassType( trc, isclass );
     }
     
     Interval<float> trcrange = trc->info().sampling.interval(trc->size());
@@ -576,9 +579,10 @@ bool StorageProvider::fillDataHolderWithTrc( const SeisTrc* trc,
 	    if ( outputinterest[idy] )
 	    {
 		compidx++;
-		const float val = trcrange.includes(curt) 
-		    ? trc->getValue( curt, compidx )
-		    : mUdf(float);
+		const float val = trcrange.includes(curt) ? 
+		   ( isclass[idy] ? trc->get(trc->nearestSample(curt), compidx)
+				  : trc->getValue(curt, compidx) )
+		   : mUdf(float);
 
 		const_cast<DataHolder&>(data).series(idy)->setValue(idx,val);
 	    }
@@ -663,5 +667,28 @@ void StorageProvider::fillDataCubesWithTrc( DataCubes* dc ) const
 	}
     }
 } 
+
+
+void StorageProvider::checkClassType( const SeisTrc* trc,
+				      BoolTypeSet& isclass ) const
+{
+    int idx = 0;
+    bool foundneed = true;
+    while ( idx<trc->size() && foundneed )
+    {
+	foundneed = false;
+	for ( int ido=0; ido<outputinterest.size(); ido++ )
+	{
+	    if ( outputinterest[ido] && isclass[ido] )
+	    {
+		foundneed = true;
+		const float val  = trc->get( idx, ido );
+		if ( !holdsClassValue( val) )
+		    isclass[ido] = false;
+	    }
+	}
+	idx++;
+    }
+}
 
 }; // namespace Attrib

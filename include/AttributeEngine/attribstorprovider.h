@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribstorprovider.h,v 1.24 2007-04-11 07:21:49 cvshelene Exp $
+ RCS:           $Id: attribstorprovider.h,v 1.25 2007-04-16 08:04:37 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -67,6 +67,7 @@ protected:
     bool 		checkDataOK( StepInterval<int> trcrg,
 	                             StepInterval<float>zrg );
     bool 		checkDataOK();
+    void		checkClassType(const SeisTrc*,BoolTypeSet&) const;
 
     TypeSet<BinDataDesc> datachar_;
     SeisReqGroup	rg;
