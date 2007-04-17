@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2003
- RCS:           $Id: uimenuhandler.cc,v 1.6 2007-02-27 12:35:01 cvsnanne Exp $
+ RCS:           $Id: uimenuhandler.cc,v 1.7 2007-04-17 14:21:02 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,7 +30,7 @@ bool uiMenuHandler::executeMenu( int menutype_, const TypeSet<int>* path_ )
     //makes sure that object is not removed during a cb
     RefMan<uiMenuHandler> reffer(this);
     
-    freeid = 0;
+    freeid_ = 0;
     menutype = menutype_;
     path = path_;
 
@@ -47,7 +47,7 @@ bool uiMenuHandler::executeMenu( int menutype_, const TypeSet<int>* path_ )
     if ( selection==-1 )
     { return true; }
 
-    ishandled = false;
+    ishandled_ = false;
     handlenotifier.trigger( selection, *this );
 
     return true;
@@ -98,10 +98,7 @@ uiPopupMenu* uiMenuHandler::createMenu( const ObjectSet<MenuItem>& subitms,
 	}
 	else
 	{
-	    uiMenuItem* mnuitem = subitm.cb.cbObj() && subitm.cb.cbFn() 
-		? new uiMenuItem(subitm.text,subitm.cb)
-		: new uiMenuItem(subitm.text);
-
+	    uiMenuItem* mnuitem = new uiMenuItem(subitm.text);
 	    menu->insertItem( mnuitem, subitm.id );
 	    mnuitem->setEnabled( subitm.enabled );
 	    mnuitem->setCheckable( subitm.checkable );
