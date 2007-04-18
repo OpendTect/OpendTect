@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Jan 2005
- RCS:           $Id: uivisemobj.cc,v 1.56 2007-04-02 11:38:50 cvsjaap Exp $
+ RCS:           $Id: uivisemobj.cc,v 1.57 2007-04-18 12:06:03 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -354,7 +354,7 @@ void uiVisEMObject::createMenuCB( CallBacker* cb )
     mAddMenuItem( menu, &changesectionnamemnuitem, 
 	          emobj->canSetSectionName() && sid!=-1, false );
 
-    visSurvey::Scene* scene = hordisp->getScene();
+    visSurvey::Scene* scene = hordisp ? hordisp->getScene() : 0;
 
     const bool hastransform = scene && scene->getDataTransform();
     const bool enabmenu =
