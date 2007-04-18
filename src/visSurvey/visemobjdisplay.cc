@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: visemobjdisplay.cc,v 1.96 2007-02-27 14:11:37 cvsjaap Exp $
+ RCS:           $Id: visemobjdisplay.cc,v 1.97 2007-04-18 17:08:08 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,7 +51,7 @@ EMObjectDisplay::EMObjectDisplay()
     , locknotifier( this )
     , drawstyle_( visBase::DrawStyle::create() )
     , nontexturecolisset_( false )
-    , enableedit_( true )
+    , enableedit_( false )
     , restoresessupdate_( false )
     , burstalertison_( false )
     , postponedposchanges_( 0 )
