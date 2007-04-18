@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2004
- RCS:           $Id: uimpepartserv.cc,v 1.61 2007-03-06 11:47:28 cvsjaap Exp $
+ RCS:           $Id: uimpepartserv.cc,v 1.62 2007-04-18 12:13:28 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -384,6 +384,9 @@ void uiMPEPartServer::loadAttribData()
 
     for ( int idx=0; idx<attribselspecs.size(); idx++ )
     {
+	if ( attribselspecs[idx]->is2D() ) // TODO
+	    continue;
+
 	eventattrselspec_ = attribselspecs[idx];
 	const CubeSampling desiredcs = getAttribVolume( *eventattrselspec_ );
 
