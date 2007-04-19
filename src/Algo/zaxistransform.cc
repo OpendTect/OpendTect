@@ -4,15 +4,14 @@
  * DATE     : Oct 2005
 -*/
 
-static const char* rcsID = "$Id: zaxistransform.cc,v 1.11 2007-03-20 21:42:59 cvskris Exp $";
+static const char* rcsID = "$Id: zaxistransform.cc,v 1.12 2007-04-19 21:09:50 cvskris Exp $";
 
 #include "zaxistransform.h"
 
 #include "survinfo.h"
 
-DefineEnumNames(ZAxisTransform,ZType,1,"Z Type")
-{ "Time", "Depth", "StratDepth", 0 };
 
+mImplFactory( ZAxisTransform, ZATF );
 
 ZAxisTransform::ZAxisTransform()
 {}
@@ -109,37 +108,4 @@ void ZAxisTransformSampler::computeCache( const Interval<int>& range )
     if ( back_ ) transform_.transformBack( bid_, cachesd, sz, cache_.arr() );
     else transform_.transform( bid_, cachesd, sz, cache_.arr() );
     firstcachesample_ = range.start;
-}
-
-
-ZAxisTransformFactorySet::~ZAxisTransformFactorySet()
-{}
-
-
-ZAxisTransform* ZAxisTransformFactorySet::create(
-	const ZAxisTransform::ZType& t0, const ZAxisTransform::ZType& t1) const
-{
-    for ( int idx=0; idx<factories.size(); idx++ )
-    {
-	ZAxisTransform* res = factories[idx]( t0, t1 );
-	if ( res ) return res;
-	res = factories[idx]( t1, t0 );
-	if ( res ) return res;
-    }
-
-    return 0;
-}
-
-
-void ZAxisTransformFactorySet::addFactory(
-	ZAxisTransformFactory factory )
-{
-    factories += factory;
-}
-
-
-ZAxisTransformFactorySet& ZATF()
-{
-    static ZAxisTransformFactorySet factoryset;
-    return factoryset;
 }

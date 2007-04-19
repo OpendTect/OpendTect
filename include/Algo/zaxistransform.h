@@ -6,12 +6,13 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          October 2006
- RCS:           $Id: zaxistransform.h,v 1.13 2007-03-20 21:42:59 cvskris Exp $
+ RCS:           $Id: zaxistransform.h,v 1.14 2007-04-19 21:09:50 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "enums.h"
+#include "factory.h"
 #include "position.h"
 #include "ranges.h"
 #include "refcount.h"
@@ -19,6 +20,7 @@ ________________________________________________________________________
 
 class Coord3;
 class CubeSampling;
+class IOPar;
 
 /*! Baseclass for z stretching in different ways. The z-stretch may be dependent
 on the location (binid). The various transforms can be retrieved from factory
@@ -28,10 +30,8 @@ ZATF().
 class ZAxisTransform
 { mRefCountImpl(ZAxisTransform);
 public:
-    enum		ZType { Time, Depth, StratDepth };
-    			DeclareEnumUtils( ZType );
-
     			ZAxisTransform();
+    virtual const char*	name() const 				= 0;
 
     virtual bool	needsVolumeOfInterest() const		{ return true; }
     virtual int		addVolumeOfInterest(const CubeSampling&,
@@ -41,9 +41,6 @@ public:
     virtual void	removeVolumeOfInterest(int);
     virtual bool	loadDataIfMissing(int);
     				
-    virtual ZType	getFromZType() const 				= 0;
-    virtual ZType	getToZType() const 				= 0;
-
     virtual void		transform(const BinID&, 
 	    				  const SamplingData<float>&,
 					  int sz,float* res) const	= 0;
@@ -62,8 +59,13 @@ public:
     				/*!\returns a position within the
 				    z-range that is a logical 'center' */
 
-    virtual NotifierAccess*	changeNotifier() { return 0; }
+    virtual NotifierAccess*	changeNotifier()		{ return 0; }
+    virtual void		fillPar(IOPar&) const		{}
+    virtual bool		usePar(const IOPar&)		{ return true; }
 };
+
+
+mDefineFactory( ZAxisTransform, ZATF );
 
 
 class ZAxisTransformSampler
@@ -87,30 +89,5 @@ protected:
     TypeSet<float>		cache_;
     int				firstcachesample_;
 };
-
-
-typedef ZAxisTransform* (*ZAxisTransformFactory)
-    	( const ZAxisTransform::ZType& from, const ZAxisTransform::ZType& to);
-
-
-class ZAxisTransformFactorySet
-{
-public:
-    				~ZAxisTransformFactorySet();
-    				
-    virtual ZAxisTransform*	create( const ZAxisTransform::ZType& t0,
-	    				const ZAxisTransform::ZType& t1) const;
-    				/*!<\note that returned transform can be in 
-					  any direction. */
-
-    void			addFactory( ZAxisTransformFactory );
-
-private:
-    TypeSet<ZAxisTransformFactory>	factories;
-};
-
-
-ZAxisTransformFactorySet& ZATF();
-
 
 #endif
