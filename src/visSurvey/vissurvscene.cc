@@ -4,16 +4,17 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: vissurvscene.cc,v 1.94 2007-03-27 15:58:13 cvskris Exp $
+ RCS:           $Id: vissurvscene.cc,v 1.95 2007-04-19 21:12:00 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "vissurvscene.h"
 
-#include "iopar.h"
-#include "survinfo.h"
 #include "cubesampling.h"
+#include "iopar.h"
+#include "keystrs.h"
+#include "survinfo.h"
 #include "visannot.h"
 #include "visdataman.h"
 #include "visevent.h"
@@ -34,6 +35,7 @@ const char* Scene::sKeyShowAnnot()			{ return "Show text"; }
 const char* Scene::sKeyShowScale()			{ return "Show scale"; }
 const char* Scene::sKeyShowCube()			{ return "Show cube"; }
 const char* Scene::sKeyZScale()				{ return "ZScale"; }
+const char* Scene::sKeyZDataTransform()			{ return "ZTransform"; }
 
 Scene::Scene()
     : inlcrl2disptransform_(0)
@@ -352,6 +354,8 @@ void Scene::mouseMoveCB( CallBacker* cb )
 
 void Scene::setDataTransform( ZAxisTransform* zat )
 {
+    if ( datatransform_==zat ) return;
+
     if ( datatransform_ ) datatransform_->unRef();
     datatransform_ = zat;
     if ( datatransform_ ) datatransform_->ref();
@@ -363,6 +367,16 @@ void Scene::setDataTransform( ZAxisTransform* zat )
 
 	so->setDataTransform( zat );
     }
+
+    CubeSampling cs = SI().sampling( true );
+    if ( zat )
+    {
+	const Interval<float> zrg = zat->getZInterval( false );
+	cs.zrg.start = zrg.start;
+	cs.zrg.stop = zrg.stop;
+    }
+
+    setAnnotationCube( cs );
 }
 
 
@@ -486,6 +500,14 @@ void Scene::fillPar( IOPar& par, TypeSet<int>& saveids ) const
     par.setYN( sKeyShowScale(), isAnnotScaleShown() );
     par.setYN( sKeyShowCube(), isAnnotShown() );
     par.set( sKeyZScale(), curzscale_ );
+
+    if ( datatransform_ )
+    {
+	IOPar transpar;
+	transpar.set( sKey::Name, datatransform_->name() );
+	datatransform_->fillPar( transpar );
+	par.mergeComp( transpar, sKeyZDataTransform() );
+    }
 }
 
 
@@ -521,7 +543,16 @@ int Scene::usePar( const IOPar& par )
     par.get( sKeyZScale(), zscale );
     if ( zscale != curzscale_ )
 	setZScale( zscale );
-    
+   
+    PtrMan<IOPar> transpar = par.subselect( sKeyZDataTransform() );
+    if ( transpar )
+    {
+	const char* nm = transpar->find( sKey::Name );
+	RefMan<ZAxisTransform> transform = ZATF().create( nm );
+	if ( transform && transform->usePar( *transpar ) )
+	    setDataTransform( transform );
+    }
+
     return 1;
 }
 
