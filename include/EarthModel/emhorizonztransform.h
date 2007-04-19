@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		April 2006
- RCS:		$Id: emhorizonztransform.h,v 1.5 2007-03-20 21:42:59 cvskris Exp $
+ RCS:		$Id: emhorizonztransform.h,v 1.6 2007-04-19 21:11:14 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -27,10 +27,13 @@ class HorizonZTransform : public ZAxisTransform
 			, public CallBacker
 {
 public:
-    			HorizonZTransform(const Horizon&);
+    static void		initClass();
+    const char*		name() const		{ return sName(); }
+    static const char*	sName()			{ return "HorizonZTransform"; }
+    static const char*	sKeyHorizonID()		{ return "Horizon"; }
+
+    			HorizonZTransform(const Horizon* = 0);
     void		setHorizon(const Horizon&);
-    ZType		getFromZType() const;
-    ZType		getToZType() const;
     void		transform(const BinID&,const SamplingData<float>&,
 				  int sz,float* res) const;
     void		transformBack(const BinID&,const SamplingData<float>&,
@@ -40,7 +43,11 @@ public:
     float		getZIntervalCenter(bool from) const;
     bool		needsVolumeOfInterest() const { return false; }
 
+    void		fillPar(IOPar&) const;
+    bool		usePar(const IOPar&);
+
 protected:
+    static ZAxisTransform* create() { return new HorizonZTransform( 0 ); }
     			~HorizonZTransform();
     void		calculateHorizonRange();
     void		horChangeCB( CallBacker* );

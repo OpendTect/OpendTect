@@ -4,24 +4,35 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: emhorizonztransform.cc,v 1.4 2007-03-22 20:52:16 cvskris Exp $
+ RCS:           $Id: emhorizonztransform.cc,v 1.5 2007-04-19 21:11:14 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "emhorizonztransform.h"
 
+#include "emmanager.h"
 #include "emhorizon.h"
+#include "executor.h"
+#include "iopar.h"
 #include "survinfo.h"
 #include "sorting.h"
 
 using namespace EM;
 
-HorizonZTransform::HorizonZTransform( const Horizon& hor )
+void HorizonZTransform::initClass()
+{
+    ::ZATF().addCreator( EM::HorizonZTransform::create,
+	    	       EM::HorizonZTransform::sName() );
+}
+
+
+HorizonZTransform::HorizonZTransform( const Horizon* hor )
     : horizon_( 0 )
     , horchanged_( false )
 {
-    setHorizon( hor );
+    if ( hor )
+	setHorizon( *hor );
 }
 
 
@@ -46,18 +57,6 @@ void HorizonZTransform::setHorizon( const Horizon& hor )
 
     horchanged_ = true;
     calculateHorizonRange();
-}
-
-
-ZAxisTransform::ZType HorizonZTransform::getFromZType() const
-{
-    return SI().zIsTime() ? ZAxisTransform::Time : ZAxisTransform::Depth;
-}
-
-
-ZAxisTransform::ZType HorizonZTransform::getToZType() const
-{
-    return SI().zIsTime() ? ZAxisTransform::Time : ZAxisTransform::Depth;
 }
 
 
@@ -132,6 +131,44 @@ Interval<float> HorizonZTransform::getZInterval( bool from ) const
 
     return Interval<float>( SI().zRange(true).start-depthrange_.stop,
 	    		    SI().zRange(true).stop-depthrange_.start );
+}
+
+
+void HorizonZTransform::fillPar( IOPar& par ) const
+{
+    ZAxisTransform::fillPar( par );
+
+    if ( horizon_ )
+	par.set( sKeyHorizonID(), horizon_->multiID() );
+}
+
+
+bool HorizonZTransform::usePar( const IOPar& par )
+{
+    if ( !ZAxisTransform::usePar( par ) )
+	return false;
+
+    MultiID mid;
+    if ( !par.get( sKeyHorizonID(), mid ) )
+	return true;
+
+    EM::ObjectID emid = EM::EMM().getObjectID( mid );
+    RefMan<EM::EMObject> emobj = EM::EMM().getObject( emid );
+    if ( !emobj )
+    {
+	PtrMan<Executor> loader = EM::EMM().objectLoader( mid );
+	if ( !loader || !loader->execute() ) return false;
+
+	emid = EM::EMM().getObjectID( mid );
+	emobj = EM::EMM().getObject( emid );
+    }
+
+    mDynamicCastGet( EM::Horizon*, hor, emobj.ptr() );
+    if ( !hor )
+	return false;
+
+    setHorizon( *hor );
+    return true;
 }
 
 
