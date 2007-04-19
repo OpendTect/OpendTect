@@ -4,7 +4,7 @@
  * DATE     : 2-12-2005
 -*/
 
-static const char* rcsID = "$Id: seis_cut_poly.cc,v 1.5 2007-01-31 13:31:12 cvsjaap Exp $";
+static const char* rcsID = "$Id: seis_cut_poly.cc,v 1.6 2007-04-19 15:12:46 cvsjaap Exp $";
 
 #include "prog.h"
 #include "batchprog.h"
@@ -195,7 +195,8 @@ bool BatchProgram::go( std::ostream& strm )
     bool incborder = true; pars().getYN( "Border is inside", incborder );
     while ( rdr.get(trc) )
     {
-	const bool inside = isInside( edgecoords, trc.info().coord, incborder );
+	const bool inside = 
+		isInside( edgecoords, trc.info().coord, incborder, 0.001 );
 	if ( (needinside && !inside) || (!needinside && inside) )
 	    { nrexcl++; continue; }
 
