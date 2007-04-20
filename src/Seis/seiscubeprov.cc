@@ -4,7 +4,7 @@
  * DATE     : Jan 2007
 -*/
 
-static const char* rcsID = "$Id: seiscubeprov.cc,v 1.7 2007-04-12 06:40:58 cvsbert Exp $";
+static const char* rcsID = "$Id: seiscubeprov.cc,v 1.8 2007-04-20 16:45:10 cvsjaap Exp $";
 
 #include "seismscprov.h"
 #include "seistrc.h"
@@ -47,10 +47,13 @@ SeisMSCProvider::SeisMSCProvider( const char* fnm )
 void SeisMSCProvider::init()
 {
     readstate_ = NeedStart;
-    seldata_ = 0;
+//  seldata_ = 0;
     intofloats_ = workstarted_ = false;
     errmsg_ = "";
     estnrtrcs_ = -2;
+    reqmask_ = 0;
+    bufidx_ = -1;
+    trcidx_ = -1;
 }
 
 
@@ -58,8 +61,9 @@ SeisMSCProvider::~SeisMSCProvider()
 {
     rdr_.close();
     deepErase( tbufs_ );
-    delete seldata_;
+//  delete seldata_;
     delete &rdr_;
+    delete reqmask_;
 }
 
 
@@ -82,11 +86,25 @@ bool SeisMSCProvider::is2D() const
 void SeisMSCProvider::setStepout( int i, int c, bool req )
 {
     if ( req )
-	{ reqstepout_.r() = i; reqstepout_.c() = c; }
+    { 
+	reqstepout_.r() = i; reqstepout_.c() = c; 
+	delete reqmask_;
+	reqmask_ = 0;
+    }
     else
-	{ desstepout_.r() = i; desstepout_.c() = c; }
+    { 
+	desstepout_.r() = i; desstepout_.c() = c; 
+    }
 }
 
+
+void SeisMSCProvider::setStepout( Array2D<bool>* mask )
+{
+    if ( !mask ) return;
+    
+    setStepout( mask->info().getSize(0)/2, mask->info().getSize(1)/2, true );
+    reqmask_ = mask;
+}
 
 /* Strategy:
    1) try going to next in already buffered traces: doAdvance()
@@ -110,31 +128,29 @@ SeisMSCProvider::AdvanceState SeisMSCProvider::advance()
     int res = readTrace( *trc );
     if ( res < 1 )
 	delete trc;
-    if ( res < 0 )
+    if ( res <= 0 )
     {
-	readstate_ = res == 0 ? ReadAtEnd : ReadErr;
+	readstate_ = res==0 ? ReadAtEnd : ReadErr;
 	return advance();
     }
 
     trc->data().handleDataSwapping();
 
-    SeisTrcBuf* addbuf = tbufs_[ tbufs_.size()-1 ];
-    bool neednewbuf = is2D() && trc->info().new_packet;
-    if ( !is2D() )
-	neednewbuf = addbuf->size() > 0
-	          && addbuf->get(0)->info().binid.inl != trc->info().binid.inl;
-    if ( neednewbuf )
+    SeisTrcBuf* addbuf = tbufs_.isEmpty() ? 0 : tbufs_[ tbufs_.size()-1 ];
+    if ( is2D() && trc->info().new_packet )
+	addbuf = 0;
+    if ( !is2D() && addbuf && 
+	 addbuf->get(0)->info().binid.inl != trc->info().binid.inl )
+	addbuf = 0;	
+
+    if ( !addbuf )
     {
-	if ( is2D() )
-	{
-	    tbufs_[0]->deepErase();
-	    deepErase( tbufs_ );
-	}
 	addbuf = new SeisTrcBuf;
 	tbufs_ += addbuf;
     }
 
     addbuf->add( trc );
+
     return doAdvance() ? NewPosition : Buffering;
 }
 
@@ -187,11 +203,14 @@ bool SeisMSCProvider::startWork()
     if ( reqstepout_.r() > desstepout_.r() ) desstepout_.r() = reqstepout_.r();
     if ( reqstepout_.c() > desstepout_.c() ) desstepout_.c() = reqstepout_.c();
 
-    delete seldata_; seldata_ = 0;
-    if ( !rdr_.selData() || rdr_.selData()->all_ )
-	return true;
+//  delete seldata_; seldata_ = 0;
 
-    seldata_ = new SeisSelData( *rdr_.selData() );
+//    if ( !rdr_.selData() || rdr_.selData()->all_ )  What is goal of this????
+//	return true;
+    if ( !rdr_.selData() )
+	return false;
+
+//  seldata_ = new SeisSelData( *rdr_.selData() );
     SeisSelData* newseldata = new SeisSelData( *rdr_.selData() );
     BinID so( desstepout_.r(), desstepout_.c() );
     bool doextend = so.inl > 0 || so.crl > 0;
@@ -224,7 +243,7 @@ bool SeisMSCProvider::startWork()
     tbufs_ += newbuf;
     newbuf->add( trc );
     
-    pivotidx_ = 0;
+    pivotidx_ = 0; pivotidy_ = 0;
     readstate_ = ReadOK;
     return true;
 }
@@ -264,74 +283,120 @@ int SeisMSCProvider::readTrace( SeisTrc& trc )
 
 BinID SeisMSCProvider::getPos() const
 {
-    //TODO
-    return BinID(0,0);
+    return bufidx_==-1 ? BinID(-1,-1) :
+			 tbufs_[bufidx_]->get(trcidx_)->info().binid; 
 }
 
 
 int SeisMSCProvider::getTrcNr() const
 {
-    //TODO
-    return 0;
+    return !is2D() || bufidx_==-1 ? -1 :
+				    tbufs_[bufidx_]->get(trcidx_)->info().nr;
+}
+
+
+SeisTrc* SeisMSCProvider::get( int deltainl, int deltacrl )
+{
+    if ( bufidx_==-1 )
+	return 0;
+    if ( abs(deltainl)>desstepout_.r() || abs(deltacrl)>desstepout_.c() )
+	return 0;
+
+    BinID bidtofind( deltainl*stepoutstep_.r(), deltacrl*stepoutstep_.c() );
+    bidtofind += !is2D() ? tbufs_[bufidx_]->get(trcidx_)->info().binid :
+		 BinID( bufidx_, tbufs_[bufidx_]->get(trcidx_)->info().nr );
+    
+    int idx = mMIN( mMAX(0,bufidx_+deltainl), tbufs_.size()-1 ); 
+    while ( true )
+    {
+	const int inldif = tbufs_[idx]->get(0)->info().binid.inl-bidtofind.inl;
+	if ( !inldif )
+	    break;
+	if ( deltainl*inldif < 0 )
+	    return 0;
+	idx += deltainl>0 ? -1 : 1;
+    }
+
+    const int idy = tbufs_[idx]->find( bidtofind, is2D() );
+    return idy<0 ? 0 : tbufs_[idx]->get(idy);
+}
+
+
+SeisTrc* SeisMSCProvider::get( const BinID& bid )
+{
+    if ( bufidx_==-1 || !stepoutstep_.r() || !stepoutstep_.c() )
+	return 0;
+
+    RowCol biddif( bid ); 
+    biddif -= tbufs_[bufidx_]->get(trcidx_)->info().binid;
+
+    RowCol delta( biddif ); delta /= stepoutstep_; 
+    RowCol check( delta  ); check *= stepoutstep_;
+
+    if ( biddif != check )
+	return 0;
+    
+    return get( delta.r(), delta.c() );
 }
 
 
 // Distances to box borders: 0 on border, >0 outside, <0 inside.
-//TODO solve probs in real def below
-/*
-#define mCalcBoxDistances(curidx,pivotidx,stepout) \
-    const BinID& curbid = tbufs_[curidx]->info().binid; \
-    const BinID& pivotbid = tbufs_[pivotidx]->info().binid; \
-    const int bottomdist = pivotbid.inl - curbid.inl - stepout.r(); \
-    const int topdist = curbid.inl - pivotbid.inl - stepout.r(); \
-    const int leftdist = pivotbid.crl - curbid.crl - stepout.c(); \
-    const int rightdist = curbid.crl - pivotbid.crl - stepout.c()
-    */
-#define mCalcBoxDistances(curidx,pivotidx,stepout) \
-    const BinID curbid,pivotbid; \
-    const int bottomdist=0,topdist=0,leftdist=0,rightdist=0
+#define mCalcBoxDistances(idx,idy,stepout) \
+    const BinID curbid = is2D() ? \
+	    BinID( idx, tbufs_[idx]->get(idy)->info().nr ) : \
+	    tbufs_[idx]->get(idy)->info().binid; \
+    const BinID pivotbid = is2D() ? \
+	    BinID( pivotidx_, tbufs_[pivotidx_]->get(pivotidy_)->info().nr ) : \
+	    tbufs_[pivotidx_]->get(pivotidy_)->info().binid; \
+    RowCol bidstepout( stepout ); bidstepout *= stepoutstep_; \
+    const int bottomdist = pivotbid.inl - curbid.inl - bidstepout.r(); \
+    const int topdist = curbid.inl - pivotbid.inl - bidstepout.r(); \
+    const int leftdist = pivotbid.crl - curbid.crl - bidstepout.c(); \
+    const int rightdist = curbid.crl - pivotbid.crl - bidstepout.c();
+   
 
-
-bool SeisMSCProvider::reqBoxFilled( int pivotidx, bool upwards ) const
+bool SeisMSCProvider::isReqBoxFilled() const
 {
-    int emptybins = (2*reqstepout_.r()+1)*reqstepout_.c() + reqstepout_.r();
-    
-    const int dir = upwards ? 1 : -1;
-    const int bufsz = tbufs_.size();
-
-    for ( int idx=pivotidx+dir; idx>=0 && idx<bufsz; idx+=dir )
-    {
-	mCalcBoxDistances(idx,pivotidx,reqstepout_);
-
-	if ( bottomdist<=0 && topdist<=0 && leftdist<=0 && rightdist<=0 )
-	    emptybins--;
-
-	if ( bottomdist>0 || bottomdist==0 && leftdist>=0 )
-	    break;
-	if ( topdist>0 || topdist==0 && rightdist>=0 ) 
-	    break;
+    for ( int idy=0; idy<=2*reqstepout_.c(); idy++ )
+    { 
+	for ( int idx=0; idx<=2*reqstepout_.r(); idx++ )
+	{
+	    if ( !reqmask_ || reqmask_->get(idx,idy) )
+	    {
+		if ( !get(idx-reqstepout_.r(), idy-reqstepout_.c()) )
+		    return false;
+	    }
+	}
     }
-
-    return emptybins < 1;
+    return true;
 }
 
 
 bool SeisMSCProvider::doAdvance()
 {
-    posidx_ = -1;  
-
     while ( true )
     {
-	// Remove leading traces no longer needed from buffer.
-	while ( tbufs_.size() ) 
+	bufidx_=-1; trcidx_=-1;
+
+	// Remove oldest traces no longer needed from buffer.
+	while ( !tbufs_.isEmpty() ) 
 	{
-	    mCalcBoxDistances(0,pivotidx_,desstepout_);
+	    if ( pivotidx_ < tbufs_.size() )
+	    {
+		mCalcBoxDistances(0,0,desstepout_);
+		
+		if ( bottomdist<0 || bottomdist==0 && leftdist<=0 )
+		    break;
+	    }
 
-	    if ( bottomdist<0 || bottomdist==0 && leftdist<0 )
-		break;
-
-	    delete tbufs_.remove(0);
-	    pivotidx_--; 
+	    delete tbufs_[0]->remove(0); 
+	    if ( pivotidx_ == 0 )
+		pivotidy_--;
+	    if ( tbufs_[0]->isEmpty() )
+	    {
+		delete tbufs_.remove(0);
+		pivotidx_--; 
+	    }
 	}
 
 	// If no traces left in buffer (e.g. at 0-stepouts), ask next trace.
@@ -341,22 +406,26 @@ bool SeisMSCProvider::doAdvance()
 	// If last trace not beyond desired box, ask next trace if available.
 	if ( readstate_!=ReadAtEnd && readstate_!=ReadErr )
 	{
-	    mCalcBoxDistances(tbufs_.size()-1,pivotidx_,desstepout_);
+	    const int lastidx = tbufs_.size()-1;
+	    const int lastidy = tbufs_[lastidx]->size()-1;
+	    mCalcBoxDistances(lastidx,lastidy,desstepout_);
 
 	    if ( topdist<0 || topdist==0 && rightdist<0 )
 		return false;
 	}
 
-	// Skip position if required box will remain incomplete.
-	if ( !reqBoxFilled(pivotidx_,false) || !reqBoxFilled(pivotidx_,true) )
+	// Store current pivot position for external reference.
+	bufidx_=pivotidx_; trcidx_=pivotidy_;
+	
+	// Determine next pivot position to consider.
+	pivotidy_++;
+	if ( pivotidy_ == tbufs_[pivotidx_]->size() )
 	{
-	    pivotidx_++;
-	    continue;
+	    pivotidx_++; pivotidy_ = 0;
 	}
 
-	// Report readiness of new position.
-	posidx_ = pivotidx_;
-	pivotidx_++;
-	return true;
+	// Report stored pivot position if required box valid.
+	if ( isReqBoxFilled() )
+	    return true;
     }
 }

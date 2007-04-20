@@ -7,12 +7,13 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Jan 2007
- RCS:		$Id: seiscubeprov.h,v 1.7 2007-04-12 06:40:57 cvsbert Exp $
+ RCS:		$Id: seiscubeprov.h,v 1.8 2007-04-20 16:45:10 cvsjaap Exp $
 ________________________________________________________________________
 
 */
 
 
+#include "arraynd.h"
 #include "rowcol.h"
 #include "sets.h"
 class IOObj;
@@ -35,13 +36,14 @@ inline and crossline number relative to the center. This is irrespective
 the steps in the cube's numbers. Therefore, the actual inline number of
 get(1,0) may be 10 higher than get(0,0) .
 
-The next() method moves the cube one further along the seismic storage.
-Depending on what is available in the cube, the return value will tell
-you whether you can work on the new position.
+The advance() method moves the reader one step further along the seismic 
+storage. The return value will tell you whether there is a new position
+available to work on, or that more traces need to be read first.
 
-You canspecify two stepouts: required and desired. The required stepout traces
-will always be available when the return of next() is DataOK. If DataIncomplete
-is returned, then the provider is still gathering more traces.
+You can specify two stepouts: required and desired. The required stepout
+traces will always be available when the return of advance() is DataOK. 
+If "Buffering" is returned, then the provider is still gathering more 
+traces.
  
  */
 
@@ -67,6 +69,8 @@ public:
     void		forceFloatData( bool yn )
     			{ intofloats_ = yn; }
     void		setStepout(int,int,bool required);
+    void		setStepout(Array2D<bool>* mask);
+			/*!< mask has 2m+1 * 2n+1 entries and becomes mine. */
     void		setStepoutStep( int i, int c )
 			{ stepoutstep_.r() = i; stepoutstep_.c() = c; }
     int			inlStepout( bool req ) const
@@ -101,27 +105,27 @@ protected:
     RowCol		reqstepout_;
     RowCol		desstepout_;
     RowCol		stepoutstep_;
+    Array2D<bool>*	reqmask_;
     bool		intofloats_;
-    SeisSelData*	seldata_;
+//  SeisSelData*	seldata_;
     bool		workstarted_;
     enum ReadState	{ NeedStart, ReadOK, ReadAtEnd, ReadErr };
     ReadState		readstate_;
 
     BufferString	errmsg_;
     mutable int		estnrtrcs_;
-    int			reqmininl_;
-    int			reqmaxinl_;
-    int			reqmincrl_;
-    int			reqmaxcrl_;
 
-    int			posidx_;	// Index of new position ready, 
-					// equals -1 while buffering.
-    int			pivotidx_;	// Next position to be examined.
+    			// Indexes of new pos ready, equals -1 while buffering.
+    int			bufidx_; 
+    int			trcidx_;
+    			// Indexes of next position to be examined.
+    int			pivotidx_;
+    int			pivotidy_;	
     
     void		init();
     bool		startWork();
     int			readTrace(SeisTrc&);
-    bool 		reqBoxFilled(int,bool) const;
+    bool 		isReqBoxFilled() const;
     bool 		doAdvance();
 };
 
