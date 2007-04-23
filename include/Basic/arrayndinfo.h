@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: arrayndinfo.h,v 1.8 2007-02-16 16:36:30 cvskris Exp $
+ RCS:		$Id: arrayndinfo.h,v 1.9 2007-04-23 10:48:48 cvshelene Exp $
 ________________________________________________________________________
 
 
@@ -105,13 +105,13 @@ public:
 			Array1DInfoImpl(int nsz=0); 
 			Array1DInfoImpl(const Array1DInfo&);
 
-    int         	getSize(int dim) const; 
-    bool        	setSize(int dim,int nsz);
-    uint64		getTotalSz() const { return sz; }
+    inline int		getSize(int dim) const; 
+    bool		setSize(int dim,int nsz);
+    uint64		getTotalSz() const { return sz_; }
 
 protected:
 
-    int			sz;
+    int			sz_;
 };
 
 
@@ -124,14 +124,18 @@ public:
 			Array2DInfoImpl(int sz0=0, int sz1=0);
 			Array2DInfoImpl(const Array2DInfo&);
 
-    int                 getSize(int dim) const;
-    bool                setSize(int dim,int nsz);
+    inline int		getSize(int dim) const;
+    bool		setSize(int dim,int nsz);
 
     uint64		getTotalSz() const { return cachedtotalsz_; }
+    
+    virtual inline uint64	getOffset(int,int) const;
+				/*!<Returns offset in a 'flat' array.*/
 
 protected:
 
-    int                 sz[2];
+    int                 sz0_;
+    int                 sz1_;
     uint64		cachedtotalsz_;
 };
 
@@ -145,13 +149,18 @@ public:
 			Array3DInfoImpl(int sz0=0, int sz1=0, int sz2=0);
 			Array3DInfoImpl(const Array3DInfo&);
 
-    int                 getSize(int dim) const; 
+    inline int		getSize(int dim) const; 
     bool                setSize(int dim,int nsz);
     uint64		getTotalSz() const { return cachedtotalsz_; }
 
+    virtual inline uint64	getOffset(int, int, int) const;
+				/*!<Returns offset in a 'flat' array.*/
+
 protected:
 
-    int                 sz[3];
+    int                 sz0_;
+    int                 sz1_;
+    int                 sz2_;
     uint64		cachedtotalsz_;
 };  
 
@@ -210,6 +219,36 @@ protected:
     int*			position_;
     const ArrayNDInfo&		sz_;
 };
+
+
+inline int Array1DInfoImpl::getSize( int dim ) const
+{
+    return dim ? 0 : sz_;
+}
+
+
+inline int Array2DInfoImpl::getSize( int dim ) const
+{
+    return dim>1 || dim<0 ? 0 : (&sz0_)[dim];
+}
+
+
+inline uint64 Array2DInfoImpl::getOffset( int p0, int p1 ) const
+{
+    return (uint64) p0 * sz1_ + p1;
+}
+
+
+inline int Array3DInfoImpl::getSize( int dim ) const
+{
+    return dim>2 || dim<0 ? 0 : (&sz0_)[dim];
+}
+
+
+inline uint64 Array3DInfoImpl::getOffset( int p0, int p1, int p2 ) const
+{
+    return (uint64) p0 * sz2_ * sz1_ + p1 * sz2_ + p2;
+}
 
 
 template <class T> inline void ArrayNDIter::setPos( const T& idxable )

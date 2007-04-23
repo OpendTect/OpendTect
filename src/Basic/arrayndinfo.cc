@@ -4,7 +4,7 @@
  * DATE     : 9-3-1999
 -*/
 
-static const char* rcsID = "$Id: arrayndinfo.cc,v 1.8 2007-02-16 16:36:30 cvskris Exp $";
+static const char* rcsID = "$Id: arrayndinfo.cc,v 1.9 2007-04-23 10:48:48 cvshelene Exp $";
 
 #include <arrayndinfo.h>
 
@@ -110,55 +110,44 @@ bool Array3DInfo::validPos( int p0, int p1, int p2 ) const
 
 
 Array1DInfoImpl::Array1DInfoImpl( int nsz ) 
-	: sz( nsz ) 
+	: sz_( nsz ) 
 { }
 
 
 Array1DInfoImpl::Array1DInfoImpl( const Array1DInfo& nsz)
-	: sz( nsz.getSize(0) )
+	: sz_( nsz.getSize(0) )
 { } 
-
-
-int Array1DInfoImpl::getSize( int dim ) const
-{ 
-    return dim ? 0 : sz;
-}
 
 
 bool Array1DInfoImpl::setSize( int dim, int nsz )
 {
     if( dim != 0 ) return false;
-    sz = nsz;
+    sz_ = nsz;
     return true;
 }
 
 
 Array2DInfoImpl::Array2DInfoImpl( int sz0, int sz1 )
 {
-    sz[0] = sz0; sz[1] = sz1;
+    sz0_ = sz0; sz1_ = sz1;
     cachedtotalsz_ = calcTotalSz();
 }
 
 
 Array2DInfoImpl::Array2DInfoImpl( const Array2DInfo& nsz)
 {
-    sz[0] = nsz.getSize(0);
-    sz[1] = nsz.getSize(1);
+    sz0_ = nsz.getSize(0);
+    sz1_ = nsz.getSize(1);
 
     cachedtotalsz_ = calcTotalSz(); 
-}
-
-
-int Array2DInfoImpl::getSize( int dim ) const
-{
-    return dim>1 || dim < 0 ? 0 : sz[dim];
 }
 
 
 bool Array2DInfoImpl::setSize( int dim, int nsz )
 {
     if( dim > 1 || dim < 0 ) return false;
-    sz[dim] = nsz;
+    if ( dim == 0 ) sz0_ = nsz;
+    else sz1_ = nsz;
     cachedtotalsz_ = calcTotalSz();	
     return true;
 }
@@ -166,31 +155,27 @@ bool Array2DInfoImpl::setSize( int dim, int nsz )
 
 Array3DInfoImpl::Array3DInfoImpl( int sz0, int sz1, int sz2) 
 { 
-    sz[0] = sz0; sz[1] = sz1; sz[2] = sz2;
+    sz0_ = sz0; sz1_ = sz1; sz2_ = sz2;
     cachedtotalsz_ = calcTotalSz();
 }
 
 
 Array3DInfoImpl::Array3DInfoImpl( const Array3DInfo& nsz)
 {
-    sz[0] = nsz.getSize(0);
-    sz[1] = nsz.getSize(1);
-    sz[2] = nsz.getSize(2);
+    sz0_ = nsz.getSize(0);
+    sz1_ = nsz.getSize(1);
+    sz2_ = nsz.getSize(2);
 
     cachedtotalsz_ = calcTotalSz();
-}
-
-
-int Array3DInfoImpl::getSize(int dim) const
-{
-    return dim > 2 || dim < 0 ? 0 : sz[dim];
 }
 
 
 bool Array3DInfoImpl::setSize(int dim, int nsz)
 {
     if( dim > 2 || dim < 0 ) return false;
-    sz[dim] = nsz;
+    if ( dim == 0 ) sz0_ = nsz;
+    else if ( dim == 1) sz1_ = nsz;
+    else sz2_ = nsz;
     cachedtotalsz_ = calcTotalSz(); 
     return true;
 }
