@@ -4,7 +4,7 @@
  * DATE     : Jan 2007
 -*/
 
-static const char* rcsID = "$Id: seiscubeprov.cc,v 1.8 2007-04-20 16:45:10 cvsjaap Exp $";
+static const char* rcsID = "$Id: seiscubeprov.cc,v 1.9 2007-04-23 15:11:07 cvsjaap Exp $";
 
 #include "seismscprov.h"
 #include "seistrc.h"
@@ -87,13 +87,15 @@ void SeisMSCProvider::setStepout( int i, int c, bool req )
 {
     if ( req )
     { 
-	reqstepout_.r() = i; reqstepout_.c() = c; 
+	reqstepout_.r() = is2D() ? 0 : i; 
+	reqstepout_.c() = c; 
 	delete reqmask_;
 	reqmask_ = 0;
     }
     else
     { 
-	desstepout_.r() = i; desstepout_.c() = c; 
+	desstepout_.r() = is2D() ? 0 : i; 
+	desstepout_.c() = c; 
     }
 }
 
@@ -102,7 +104,8 @@ void SeisMSCProvider::setStepout( Array2D<bool>* mask )
 {
     if ( !mask ) return;
     
-    setStepout( mask->info().getSize(0)/2, mask->info().getSize(1)/2, true );
+    setStepout( (mask->info().getSize(0)-1)/2, 
+		(mask->info().getSize(1)-1)/2, true );
     reqmask_ = mask;
 }
 
@@ -205,30 +208,29 @@ bool SeisMSCProvider::startWork()
 
 //  delete seldata_; seldata_ = 0;
 
-//    if ( !rdr_.selData() || rdr_.selData()->all_ )  What is goal of this????
-//	return true;
-    if ( !rdr_.selData() )
-	return false;
-
-//  seldata_ = new SeisSelData( *rdr_.selData() );
-    SeisSelData* newseldata = new SeisSelData( *rdr_.selData() );
-    BinID so( desstepout_.r(), desstepout_.c() );
-    bool doextend = so.inl > 0 || so.crl > 0;
-    if ( is2D() )
+    if ( rdr_.selData() && !rdr_.selData()->all_ )
     {
-	so.inl = 0;
-	doextend = doextend && newseldata->type_ == Seis::Range;
-	if ( so.crl && newseldata->type_ == Seis::Table )
+//	seldata_ = new SeisSelData( *rdr_.selData() );
+	SeisSelData* newseldata = new SeisSelData( *rdr_.selData() );
+	BinID so( desstepout_.r(), desstepout_.c() );
+	bool doextend = so.inl > 0 || so.crl > 0;
+	if ( is2D() )
+	{
+	    so.inl = 0;
+	    doextend = doextend && newseldata->type_ == Seis::Range;
+	    if ( so.crl && newseldata->type_ == Seis::Table )
 	    newseldata->all_ = true;
+	}
+
+	if ( doextend )
+	{
+	    BinID bid( stepoutstep_.r(), stepoutstep_.c() );
+	    newseldata->extend( so, &bid );
+	}
+
+	rdr_.setSelData( newseldata );
     }
 
-    if ( doextend )
-    {
-	BinID bid( stepoutstep_.r(), stepoutstep_.c() );
-	newseldata->extend( so, &bid );
-    }
-
-    rdr_.setSelData( newseldata );
     SeisTrc* trc = new SeisTrc;
     int rv = readTrace( *trc );
     while ( rv > 1 )
@@ -307,7 +309,7 @@ SeisTrc* SeisMSCProvider::get( int deltainl, int deltacrl )
 		 BinID( bufidx_, tbufs_[bufidx_]->get(trcidx_)->info().nr );
     
     int idx = mMIN( mMAX(0,bufidx_+deltainl), tbufs_.size()-1 ); 
-    while ( true )
+    while ( !is2D() )
     {
 	const int inldif = tbufs_[idx]->get(0)->info().binid.inl-bidtofind.inl;
 	if ( !inldif )
