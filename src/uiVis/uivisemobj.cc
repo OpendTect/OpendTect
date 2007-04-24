@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Jan 2005
- RCS:           $Id: uivisemobj.cc,v 1.57 2007-04-18 12:06:03 cvsjaap Exp $
+ RCS:           $Id: uivisemobj.cc,v 1.58 2007-04-24 15:31:16 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -351,8 +351,12 @@ void uiVisEMObject::createMenuCB( CallBacker* cb )
 	  	  !hordisp || (hordisp&&!hordisp->usesTexture()) );
     mAddMenuItem( menu, &showonlyatsectionsmnuitem, true,
 	          emod->getOnlyAtSectionsDisplay() );
+#ifdef __debug__
     mAddMenuItem( menu, &changesectionnamemnuitem, 
 	          emobj->canSetSectionName() && sid!=-1, false );
+#else
+    mResetMenuItem( &changesectionnamemnuitem );
+#endif
 
     visSurvey::Scene* scene = hordisp ? hordisp->getScene() : 0;
 
@@ -383,9 +387,13 @@ void uiVisEMObject::createMenuCB( CallBacker* cb )
 
     mAddMenuItem( menu, &trackmenuitem, trackmenuitem.nrItems(), false );
 
+#ifdef __debug__
     mAddMenuItem( menu, &removesectionmnuitem, false, false );
     if ( emobj->nrSections()>1 && sid!=-1 )
 	removesectionmnuitem.enabled = true;
+#else
+    mResetMenuItem( &removesectionmnuitem );
+#endif
 }
 
 
