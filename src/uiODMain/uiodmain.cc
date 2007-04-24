@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodmain.cc,v 1.70 2007-03-22 17:38:11 cvsdgb Exp $
+ RCS:           $Id: uiodmain.cc,v 1.71 2007-04-24 03:38:32 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -560,7 +560,8 @@ bool uiODMain::closeOK()
 
     menumgr->storePositions();
     scenemgr->storePositions();
-    ctabwin->storePosition();
+    if ( ctabwin )
+	ctabwin->storePosition();
 
     bool askedanything = false;
     if ( !askStore(askedanything) )
