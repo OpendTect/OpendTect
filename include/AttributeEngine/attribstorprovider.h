@@ -7,15 +7,16 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribstorprovider.h,v 1.25 2007-04-16 08:04:37 cvshelene Exp $
+ RCS:           $Id: attribstorprovider.h,v 1.26 2007-04-24 08:45:20 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "attribprovider.h"
 #include "cubesampling.h"
-#include "seisreq.h"
 #include "datachar.h"
+class SeisMSCProvider;
+class SeisTrc;
 
 namespace Attrib
 {
@@ -25,12 +26,13 @@ class DataHolder;
 class StorageProvider : public Provider
 {
 public:
+
     static void		initClass();
     static const char*  attribName()		{ return "Storage"; }
     static const char*  keyStr()		{ return "id"; }
 
-    int			moveToNextTrace(BinID startpos = BinID(-1,-1),
-	    				bool fisrcheck = false);
+    int			moveToNextTrace(BinID startpos=BinID(-1,-1),
+	    				bool firstcheck=false);
     bool		getPossibleVolume(int outp,CubeSampling&);
     BinID		getStepoutStep() const;
     void		updateStorageReqs(bool all=true);
@@ -38,6 +40,7 @@ public:
     void		fillDataCubesWithTrc(DataCubes*) const;
 
 protected:
+
     			StorageProvider(Desc&);
     			~StorageProvider();
 
@@ -47,9 +50,9 @@ protected:
     bool		init();
     bool		allowParallelComputation() const { return false; }
 
-    SeisRequester*	getSeisRequester() const;
-    bool		initSeisRequester(int req);
-    bool		setSeisRequesterSelection(int req);
+    SeisMSCProvider*	getMSCProvider() const	{ return mscprov_; }
+    bool		initMSCProvider();
+    bool		setMSCProvSelData();
 
     void		setReqBufStepout(const BinID&,bool wait=false);
     void		setDesBufStepout(const BinID&,bool wait=false);
@@ -64,14 +67,15 @@ protected:
 
     BinDataDesc		getOutputFormat(int output) const;
     
-    bool 		checkDataOK( StepInterval<int> trcrg,
-	                             StepInterval<float>zrg );
-    bool 		checkDataOK();
+    bool 		checkDesiredTrcRgOK(StepInterval<int>,
+	    				    StepInterval<float>);
+    bool 		checkDesiredVolumeOK();
     void		checkClassType(const SeisTrc*,BoolTypeSet&) const;
+    bool		setTableSelData();
+    bool		set2DRangeSelData();
 
     TypeSet<BinDataDesc> datachar_;
-    SeisReqGroup	rg;
-    int			currentreq;
+    SeisMSCProvider*	mscprov_;
 
     CubeSampling	storedvolume;
 

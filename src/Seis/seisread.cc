@@ -5,7 +5,7 @@
  * FUNCTION : Seismic data reader
 -*/
 
-static const char* rcsID = "$Id: seisread.cc,v 1.68 2007-04-11 10:10:19 cvsbert Exp $";
+static const char* rcsID = "$Id: seisread.cc,v 1.69 2007-04-24 08:45:20 cvsbert Exp $";
 
 #include "seisread.h"
 #include "seistrctr.h"
@@ -618,8 +618,31 @@ void SeisTrcReader::getSteps( int& inl, int& crl ) const
 
     if ( !is2d )
     {
-	inl = trl ? strl()->packetInfo().inlrg.step : SI().inlStep();
-	crl = trl ? strl()->packetInfo().crlrg.step : SI().crlStep();
+	inl = SI().inlStep(); crl = SI().crlStep();
+	if ( trl )
+	{
+	    int trlinl = strl()->packetInfo().inlrg.step;
+	    if ( trlinl < 0 )
+	    {
+		pErrMsg("Poss prob: negative inl step from transl");
+		inl = -trlinl;
+	    }
+	    else if ( trlinl == 0 )
+		pErrMsg("Prob: zero inl step from transl");
+	    else
+		inl = trlinl;
+
+	    int trlcrl = strl()->packetInfo().crlrg.step;
+	    if ( trlcrl < 0 )
+	    {
+		pErrMsg("Poss prob: negative crl step from transl");
+		crl = -trlcrl;
+	    }
+	    else if ( trlcrl == 0 )
+		pErrMsg("Prob: zero crl step from transl");
+	    else
+		crl = trlcrl;
+	}
 	return;
     }
 

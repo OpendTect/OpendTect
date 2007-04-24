@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribprovider.h,v 1.61 2007-04-11 07:21:49 cvshelene Exp $
+ RCS:           $Id: attribprovider.h,v 1.62 2007-04-24 08:45:20 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,7 +19,7 @@ ________________________________________________________________________
 #include "linekey.h"
 
 class CubeSampling;
-class SeisRequester;
+class SeisMSCProvider;
 class SeisSelData;
 class SeisTrcInfo;
 template <class T> class Array2DImpl;
@@ -145,7 +145,7 @@ protected:
     virtual bool		init();
     				/*!< Should be run _after_ inputs are set */
 
-    virtual SeisRequester*	getSeisRequester() const;
+    virtual SeisMSCProvider*	getMSCProvider() const;
     static Provider*		internalCreate(Desc&,ObjectSet<Provider>&, 
 					       bool& issame,BufferString&);
     				/*!< Creates the provider needed and all its

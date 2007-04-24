@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribprovider.cc,v 1.94 2007-04-11 14:55:47 cvshelene Exp $";
+static const char* rcsID = "$Id: attribprovider.cc,v 1.95 2007-04-24 08:45:20 cvsbert Exp $";
 
 #include "attribprovider.h"
 #include "attribstorprovider.h"
@@ -19,7 +19,7 @@ static const char* rcsID = "$Id: attribprovider.cc,v 1.94 2007-04-11 14:55:47 cv
 #include "basictask.h"
 #include "cubesampling.h"
 #include "errh.h"
-#include "seisreq.h"
+#include "seismscprov.h"
 #include "seisinfo.h"
 #include "seistrcsel.h"
 #include "survinfo.h"
@@ -477,7 +477,7 @@ int Provider::moveToNextTrace( BinID startpos, bool firstcheck )
 	    const int res = inputs[idx]->moveToNextTrace(startpos, firstcheck);
 	    if ( res!=1 ) return res;
 
-	    if ( !inputs[idx]->getSeisRequester() ) continue;
+	    if ( !inputs[idx]->getMSCProvider() ) continue;
 	    if ( movinginputs.indexOf( inputs[idx] ) < 0 )
 		movinginputs += inputs[idx];
 	}
@@ -653,8 +653,8 @@ int Provider::comparePosAndAlign( Provider* input1, bool inp1_is_on_newline,
     bool inp2moved = false;
     while ( true )
     {
-	int compres = input1->getSeisRequester()->
-	    			comparePos( *input2->getSeisRequester() );
+	int compres = input1->getMSCProvider()->
+	    			comparePos( *input2->getMSCProvider() );
 
 	if ( compres == 0 )
 	    break;
@@ -948,12 +948,12 @@ const DataHolder* Provider::getDataDontCompute( const BinID& relpos ) const
 }
 
 
-SeisRequester* Provider::getSeisRequester() const
+SeisMSCProvider* Provider::getMSCProvider() const
 {
     for ( int idx=0; idx<inputs.size(); idx++ )
     {
 	if ( !inputs[idx] ) continue;
-	SeisRequester* res = inputs[idx]->getSeisRequester();
+	SeisMSCProvider* res = inputs[idx]->getMSCProvider();
 	if ( res ) return res;
     }
 

@@ -5,7 +5,7 @@
  * FUNCTION : CBVS Seismic data translator
 -*/
 
-static const char* rcsID = "$Id: seiscbvs.cc,v 1.70 2006-11-21 14:00:07 cvsbert Exp $";
+static const char* rcsID = "$Id: seiscbvs.cc,v 1.71 2007-04-24 08:45:20 cvsbert Exp $";
 
 #include "seiscbvs.h"
 #include "seisinfo.h"
@@ -183,10 +183,11 @@ bool CBVSSeisTrcTranslator::initRead_()
     pinfo.nr = info.seqnr;
     pinfo.inlrg.start = info.geom.start.inl;
     pinfo.inlrg.stop = info.geom.stop.inl;
-    pinfo.inlrg.step = info.geom.step.inl;
+    pinfo.inlrg.step = abs(info.geom.step.inl);
+    pinfo.inlrg.sort();
     pinfo.crlrg.start = info.geom.start.crl;
     pinfo.crlrg.stop = info.geom.stop.crl;
-    pinfo.crlrg.step = info.geom.step.crl;
+    pinfo.crlrg.step = abs(info.geom.step.crl);
     rdmgr->getIsRev( pinfo.inlrev, pinfo.crlrev );
     return true;
 }
