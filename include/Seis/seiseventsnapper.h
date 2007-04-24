@@ -7,19 +7,18 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          September 2006
- RCS:           $Id: seiseventsnapper.h,v 1.2 2006-09-20 15:22:51 cvsnanne Exp $
+ RCS:           $Id: seiseventsnapper.h,v 1.3 2007-04-24 16:38:21 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "executor.h"
 #include "samplingdata.h"
-#include "seistrc.h"
 #include "valseriesevent.h"
 
 class BinIDValueSet;
 class IOObj;
-class SeisRequester;
+class SeisMSCProvider;
 class SeisTrc;
 
 class SeisEventSnapper : public Executor
@@ -46,7 +45,7 @@ protected:
 	    					 float tarz) const;
 
     BinIDValueSet&		positions_;
-    SeisRequester*		req_;
+    SeisMSCProvider*		mscprov_;
     Interval<float>		searchgate_;
     VSEvent::Type		eventtype_;
     SamplingData<float>		sd_;

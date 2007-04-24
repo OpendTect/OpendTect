@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Jan 2007
- RCS:		$Id: seiscubeprov.h,v 1.8 2007-04-20 16:45:10 cvsjaap Exp $
+ RCS:		$Id: seiscubeprov.h,v 1.9 2007-04-24 16:38:21 cvsbert Exp $
 ________________________________________________________________________
 
 */
@@ -77,6 +77,8 @@ public:
     			{ return req ? reqstepout_.r() : desstepout_.r(); }
     int			crlStepout( bool req ) const
     			{ return req ? reqstepout_.c() : desstepout_.c(); }
+    void		setSelData(SeisSelData*);
+    			//!< seldata becomes mine
 
     enum AdvanceState	{ NewPosition, Buffering, EndReached, Error };
     AdvanceState	advance();	
@@ -107,7 +109,6 @@ protected:
     RowCol		stepoutstep_;
     Array2D<bool>*	reqmask_;
     bool		intofloats_;
-//  SeisSelData*	seldata_;
     bool		workstarted_;
     enum ReadState	{ NeedStart, ReadOK, ReadAtEnd, ReadErr };
     ReadState		readstate_;

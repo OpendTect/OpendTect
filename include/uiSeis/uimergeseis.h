@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          January 2002
- RCS:           $Id: uimergeseis.h,v 1.7 2004-11-09 10:23:05 nanne Exp $
+ RCS:           $Id: uimergeseis.h,v 1.8 2007-04-24 16:38:21 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,7 +20,6 @@ class SeisTrc;
 class uiSeisSel;
 class CtxtIOObj;
 class uiCheckBox;
-class SeisRequester;
 class uiLabeledListBox;
 class SeisSingleTraceProc;
 

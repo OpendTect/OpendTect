@@ -4,7 +4,7 @@
  * DATE     : Jan 2007
 -*/
 
-static const char* rcsID = "$Id: seiscubeprov.cc,v 1.9 2007-04-23 15:11:07 cvsjaap Exp $";
+static const char* rcsID = "$Id: seiscubeprov.cc,v 1.10 2007-04-24 16:38:21 cvsbert Exp $";
 
 #include "seismscprov.h"
 #include "seistrc.h"
@@ -108,6 +108,13 @@ void SeisMSCProvider::setStepout( Array2D<bool>* mask )
 		(mask->info().getSize(1)-1)/2, true );
     reqmask_ = mask;
 }
+
+
+void SeisMSCProvider::setSelData( SeisSelData* sd )
+{
+    rdr_.setSelData( sd );
+}
+
 
 /* Strategy:
    1) try going to next in already buffered traces: doAdvance()

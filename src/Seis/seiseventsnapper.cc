@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		September 2006
- RCS:		$Id: seiseventsnapper.cc,v 1.2 2006-09-20 15:22:51 cvsnanne Exp $
+ RCS:		$Id: seiseventsnapper.cc,v 1.3 2007-04-24 16:38:21 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,8 +14,8 @@ ________________________________________________________________________
 #include "cubesampling.h"
 #include "ioobj.h"
 #include "seisioobjinfo.h"
-#include "seisread.h"
-#include "seisreq.h"
+#include "seismscprov.h"
+#include "seistrc.h"
 #include "seistrcsel.h"
 
 
@@ -30,8 +30,8 @@ SeisEventSnapper::SeisEventSnapper( const IOObj& ioobj, BinIDValueSet& bvs )
     sd_.step = cs.zrg.step;
     nrsamples_ = cs.nrZ();
 
-    req_ = new SeisRequester( &ioobj );
-    req_->prepareWork();
+    mscprov_ = new SeisMSCProvider( ioobj );
+    mscprov_->prepareWork();
 
     SeisSelData* seldata = new SeisSelData;
     seldata->all_ = false;
@@ -40,7 +40,7 @@ SeisEventSnapper::SeisEventSnapper( const IOObj& ioobj, BinIDValueSet& bvs )
     Interval<float> zrg = bvs.valRange( 0 );
     seldata->extraz_ = Interval<float>( cs.zrg.start-zrg.start,
 	    				cs.zrg.stop-zrg.stop );
-    req_->reader()->setSelData( seldata );
+    mscprov_->setSelData( seldata );
 
     totalnr_ = bvs.totalSize();
 }
@@ -48,31 +48,32 @@ SeisEventSnapper::SeisEventSnapper( const IOObj& ioobj, BinIDValueSet& bvs )
 
 SeisEventSnapper::~SeisEventSnapper()
 {
-    delete req_;
+    delete mscprov_;
 }
 
 
 int SeisEventSnapper::nextStep()
 {
-    const int res = req_->next();
+    const SeisMSCProvider::AdvanceState res = mscprov_->advance();
     switch ( res )
     {
-	case -1: return ErrorOccurred;
-	case 0: return Finished;
-	case 1:
+	case SeisMSCProvider::Error: return ErrorOccurred;
+	case SeisMSCProvider::EndReached: return Finished;
+	case SeisMSCProvider::NewPosition:
 	{
-	    SeisTrc* trc = req_->get(0,0);
+	    SeisTrc* trc = mscprov_->get(0,0);
 	    BinIDValueSet::Pos pos = positions_.findFirst( trc->info().binid );
-	    if ( !pos.valid() ) return MoreToDo;
-
-	    BinID dummy; float zval;
-	    positions_.get( pos, dummy, zval );
-	    zval = findNearestEvent( *trc, zval );
-	    positions_.set( pos, zval );
-	    nrdone_++;
-	    return MoreToDo;
+	    if ( pos.valid() )
+	    {
+		BinID dummy; float zval;
+		positions_.get( pos, dummy, zval );
+		zval = findNearestEvent( *trc, zval );
+		positions_.set( pos, zval );
+		nrdone_++;
+	    }
 	}
-	case 2: case 3: return MoreToDo;
+	case SeisMSCProvider::Buffering:
+	    return MoreToDo;
     }
 
     return Finished;
