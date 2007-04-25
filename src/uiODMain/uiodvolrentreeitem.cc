@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: uiodvolrentreeitem.cc,v 1.5 2007-04-04 18:18:22 cvskris Exp $";
+static const char* rcsID = "$Id: uiodvolrentreeitem.cc,v 1.6 2007-04-25 16:22:33 cvskris Exp $";
 
 
 #include "uiodvolrentreeitem.h"
@@ -225,17 +225,20 @@ void uiODVolrenTreeItem::handleMenuCB( CallBacker* cb )
     }
     else if ( mnuid==addlinlslicemnuid_.id )
     {
-	addChild( new uiODVolrenSubTreeItem(voldisp->addSlice(0)), true );
+	addChild( new uiODVolrenSubTreeItem(voldisp->addSlice(
+			visSurvey::VolumeDisplay::cInLine())), true );
 	menu->setIsHandled( true );
     }
     else if ( mnuid==addlcrlslicemnuid_.id )
     {
-	addChild( new uiODVolrenSubTreeItem(voldisp->addSlice(1)), true );
+	addChild( new uiODVolrenSubTreeItem(voldisp->addSlice(
+			visSurvey::VolumeDisplay::cCrossLine())), true );
 	menu->setIsHandled( true );
     }
     else if ( mnuid==addltimeslicemnuid_.id )
     {
-	addChild( new uiODVolrenSubTreeItem(voldisp->addSlice(2)), true );
+	addChild( new uiODVolrenSubTreeItem(voldisp->addSlice(
+			visSurvey::VolumeDisplay::cTimeSlice())), true );
 	menu->setIsHandled( true );
     }
     else if ( mnuid==addvolumemnuid_.id && !hasVolume() )

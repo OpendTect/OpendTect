@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		August 2002
- RCS:		$Id: visvolumedisplay.h,v 1.39 2007-02-02 15:44:43 cvsnanne Exp $
+ RCS:		$Id: visvolumedisplay.h,v 1.40 2007-04-25 16:22:33 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -48,6 +48,10 @@ public:
     static VolumeDisplay*	create()
 				mCreateDataObj(VolumeDisplay);
     bool			isInlCrl() const { return true; }
+
+    static int			cInLine() 		{ return 2; }
+    static int			cCrossLine() 		{ return 1; }
+    static int			cTimeSlice() 		{ return 0; }
 
     int				addSlice(int dim);
     				/*!\note return with removeChild(displayid). */

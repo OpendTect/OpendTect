@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2002
- RCS:           $Id: visvolumedisplay.cc,v 1.56 2007-02-19 16:41:46 cvsbert Exp $
+ RCS:           $Id: visvolumedisplay.cc,v 1.57 2007-04-25 16:22:33 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -91,7 +91,7 @@ VolumeDisplay::VolumeDisplay()
     float z1 = SI().zRange(true).snap( cs.zrg.stop ); cs.zrg.stop = z1;
     
     setCubeSampling( cs );
-    addSlice( 2 ); addSlice( 1 ); addSlice( 0 );
+    addSlice( cInLine() ); addSlice( cCrossLine() ); addSlice( cTimeSlice() );
     showVolRen( true ); showVolRen( false );
 
     setColorTab( getColorTab() );
