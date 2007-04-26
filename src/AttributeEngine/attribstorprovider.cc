@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribstorprovider.cc,v 1.63 2007-04-24 08:45:20 cvsbert Exp $";
+static const char* rcsID = "$Id: attribstorprovider.cc,v 1.64 2007-04-26 13:45:25 cvshelene Exp $";
 
 #include "attribstorprovider.h"
 
@@ -523,7 +523,9 @@ bool StorageProvider::computeData( const DataHolder& output,
 				   const BinID& relpos,
 				   int z0, int nrsamples, int threadid ) const
 {
-    const SeisTrc* trc = mscprov_->get( relpos.inl, relpos.crl );
+    const BinID bidstep = getStepoutStep();
+    const SeisTrc* trc = mscprov_->get( relpos.inl/bidstep.inl, 
+	    				relpos.crl/bidstep.crl );
     if ( !trc )
 	return false;
 
