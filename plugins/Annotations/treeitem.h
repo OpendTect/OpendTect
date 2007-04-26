@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2005
- RCS:           $Id: treeitem.h,v 1.11 2007-03-29 22:23:39 cvskris Exp $
+ RCS:           $Id: treeitem.h,v 1.12 2007-04-26 06:36:58 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -33,6 +33,7 @@ public:
 protected:
     bool		init();
     const char*		parentType() const;
+    virtual bool	rightClick(uiListViewItem*);
 };
 
 
