@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpewizard.cc,v 1.72 2007-04-02 15:46:04 cvsjaap Exp $
+ RCS:           $Id: uimpewizard.cc,v 1.73 2007-04-26 08:02:29 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -294,7 +294,8 @@ bool Wizard::prepareNamePage()
 #define mAskGoOnStr(nameandtypeexist) \
     ( nameandtypeexist ? \
 	"An object with this name exists. Overwrite?" : \
-	"An object of different type owns this name. Make it unique?" )
+	"An object of different type owns the name chosen.\n" \
+	"Extend the chosen name to make it unique?" )
 
 bool Wizard::leaveNamePage( bool process )
 {

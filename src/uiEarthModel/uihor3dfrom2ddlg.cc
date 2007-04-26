@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          January 2007
- RCS:           $Id: uihor3dfrom2ddlg.cc,v 1.7 2007-02-13 13:32:05 cvsjaap Exp $
+ RCS:           $Id: uihor3dfrom2ddlg.cc,v 1.8 2007-04-26 08:02:29 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -66,7 +66,8 @@ bool uiHor3DFrom2DDlg::doDisplay() const
 #define mAskGoOnStr(nameandtypeexist) \
     ( nameandtypeexist ? \
 	"An object with this name exists. Overwrite?" : \
-	"An object of different type owns this name. Make it unique?" )
+	"An object of different type owns the name chosen.\n" \
+	"Extend the chosen name to make it unique?" )
 
 bool uiHor3DFrom2DDlg::acceptOK( CallBacker* )
 {
