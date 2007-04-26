@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.cc,v 1.117 2007-03-29 11:41:02 cvsjaap Exp $
+ RCS:           $Id: uimpeman.cc,v 1.118 2007-04-26 15:37:20 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,6 +40,7 @@ ________________________________________________________________________
 #include "visdataman.h"
 #include "visdataman.h"
 #include "visplanedatadisplay.h"
+#include "visrandomtrackdisplay.h"
 #include "vismpe.h"
 #include "vismpeseedcatcher.h"
 #include "visselman.h"
@@ -238,24 +239,31 @@ void uiMPEMan::seedClick( CallBacker* )
     if ( !emobj ) 
 	return;
 
+    const int clickedobject = clickcatcher->info().getObjID();
+    if ( clickedobject == -1 )
+	return;
+
     if ( !clickcatcher->info().isLegalClick() )
     {
+	visBase::DataObject* dataobj = visserv->getObject( clickedobject );
+	mDynamicCastGet( visSurvey::RandomTrackDisplay*, randomdisp, dataobj );
+
 	if ( tracker->is2D() && !clickcatcher->info().getObjLineName() )
 	    uiMSG().error( "2D tracking cannot handle picks on 3D lines.");
 	else if ( !tracker->is2D() && clickcatcher->info().getObjLineName() )
 	    uiMSG().error( "3D tracking cannot handle picks on 2D lines.");
-	else if ( clickcatcher->info().getObjCS().nrZ()==1 )
+	else if ( randomdisp )
+	    uiMSG().error( emobj->getTypeStr(),
+			   " tracking cannot handle picks on random lines.");
+	else if ( clickcatcher->info().getObjCS().nrZ()==1 &&
+		  !clickcatcher->info().getObjCS().isEmpty() )
 	    uiMSG().error( emobj->getTypeStr(), 
-			   " tracking cannot handle picks on timeslices." );
+			   " tracking cannot handle picks on time slices." );
 	return;
     }
 	
     const EM::PosID pid = clickcatcher->info().getNode();
     if ( pid.objectID()!=emobj->id() && pid.objectID()!=-1 )
-	return;
-
-    const int clickedobject = clickcatcher->info().getObjID();
-    if ( clickedobject == -1 )
 	return;
 
     MPE::EMSeedPicker* seedpicker = tracker->getSeedPicker(true);

@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vismpeseedcatcher.cc,v 1.20 2007-03-29 11:42:59 cvsjaap Exp $";
+static const char* rcsID = "$Id: vismpeseedcatcher.cc,v 1.21 2007-04-26 15:37:20 cvsjaap Exp $";
 
 #include "vismpeseedcatcher.h"
 
@@ -18,6 +18,7 @@ static const char* rcsID = "$Id: vismpeseedcatcher.cc,v 1.20 2007-03-29 11:42:59
 #include "visemobjdisplay.h"
 #include "visevent.h"
 #include "vishorizon2ddisplay.h"
+#include "visrandomtrackdisplay.h"
 #include "visseis2ddisplay.h"
 #include "vismpe.h"
 #include "vissurvscene.h"
@@ -113,8 +114,6 @@ bool MPEClickCatcher::isClickable( const char* trackertype, int visid )
     if ( !dataobj )
 	return false;
 
-    bool legalclick;
-    
     mCheckPlaneDataDisplay( trackertype, dataobj, plane, legalclick1 );
     if ( plane && legalclick1 )
 	return true;
@@ -191,6 +190,15 @@ void MPEClickCatcher::clickCB( CallBacker* cb )
 	if ( eventinfo.ctrl != eventinfo.shift )
 	    continue;
 	    
+	mDynamicCastGet( visSurvey::RandomTrackDisplay*, rtdisp, dataobj );
+	if ( rtdisp )
+	{
+	    info().setLegalClick( false );
+	    click.trigger();
+	    eventcatcher_->eventIsHandled();
+	    break;
+	}
+
 	mCheckPlaneDataDisplay( trackertype_, dataobj, plane, legalclick1 );
 	if ( plane )
 	{
