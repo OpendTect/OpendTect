@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribstorprovider.cc,v 1.64 2007-04-26 13:45:25 cvshelene Exp $";
+static const char* rcsID = "$Id: attribstorprovider.cc,v 1.65 2007-04-27 07:37:17 cvshelene Exp $";
 
 #include "attribstorprovider.h"
 
@@ -503,8 +503,8 @@ bool StorageProvider::checkDesiredTrcRgOK( StepInterval<int> trcrg,
 				   StepInterval<float>zrg )
 {
     const bool trcrgwrong =
-	desiredvolume->hrg.start.crl > trcrg.start
-     || desiredvolume->hrg.stop.crl < trcrg.stop;
+	desiredvolume->hrg.start.crl > trcrg.stop
+     || desiredvolume->hrg.stop.crl < trcrg.start;
     const bool zwrong =
 	desiredvolume->zrg.start > zrg.stop
      || desiredvolume->zrg.stop < zrg.start;
