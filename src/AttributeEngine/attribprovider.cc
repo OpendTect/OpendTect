@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribprovider.cc,v 1.95 2007-04-24 08:45:20 cvsbert Exp $";
+static const char* rcsID = "$Id: attribprovider.cc,v 1.96 2007-04-27 13:23:42 cvshelene Exp $";
 
 #include "attribprovider.h"
 #include "attribstorprovider.h"
@@ -994,6 +994,13 @@ const char* Provider::prepare( Desc& desc )
 void Provider::setOutputInterestSize()
 {
     outputinterest = TypeSet<int>(desc.nrOutputs(),0);
+}
+
+
+void Provider::enableAllOutputs( bool yn )
+{
+    for ( int idx=0; idx<nrOutputs(); idx++ )
+	enableOutput( idx, yn );
 }
 
 

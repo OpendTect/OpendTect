@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribprovider.h,v 1.62 2007-04-24 08:45:20 cvsbert Exp $
+ RCS:           $Id: attribprovider.h,v 1.63 2007-04-27 13:23:42 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -62,6 +62,8 @@ public:
     				{ return outputinterest.size(); }
     void			enableOutput(int output,bool yn=true);
     bool			isOutputEnabled(int output) const;
+    void			setOutputInterestSize();
+    void			enableAllOutputs(bool yn=true);
 
     virtual void		setReqBufStepout(const BinID&,bool wait=false);
     virtual void		setDesBufStepout(const BinID&,bool wait=false);
@@ -113,7 +115,6 @@ public:
     void			setUseSC()		{ useshortcuts_ = true;}
     void			setSelData(const SeisSelData*);
     void                        setExtraZ(const Interval<float>&);
-    void			setOutputInterestSize();
     void			setNeedInterpol(bool);
     void			setExactZ(TypeSet<float>);
     
