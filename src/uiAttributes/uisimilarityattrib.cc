@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May  2005
- RCS:           $Id: uisimilarityattrib.cc,v 1.18 2007-03-08 12:45:19 cvshelene Exp $
+ RCS:           $Id: uisimilarityattrib.cc,v 1.19 2007-04-27 12:05:47 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -123,9 +123,7 @@ bool uiSimilarityAttrib::setParameters( const Attrib::Desc& desc )
     mIfGetBinID( Similarity::pos0Str(), pos0, pos0fld->setBinID(pos0) )
     mIfGetBinID( Similarity::pos1Str(), pos1, pos1fld->setBinID(pos1) )
     mIfGetEnum( Similarity::extensionStr(), extension,
-	        const char* str = is2d_ ? extstrs2d[extension]
-					: extstrs3d[extension]; 
-		extfld->setText(str) )
+		extfld->setText(extstrs3d[extension]) )
 
     extSel(0);
     return true;
@@ -169,7 +167,7 @@ bool uiSimilarityAttrib::getParameters( Attrib::Desc& desc )
 	mSetBinID( Similarity::pos1Str(), pos1fld->getBinID() );
     }
 
-    BufferStringSet strs( is2d_ ? extstrs2d : extstrs3d );
+    BufferStringSet strs( extstrs3d );
     mSetEnum( Similarity::extensionStr(), strs.indexOf(ext) );
     mSetFloatInterval( Similarity::gateStr(), gatefld->getFInterval() );
     mSetBool( Similarity::steeringStr(), steerfld->willSteer() );
