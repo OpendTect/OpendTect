@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: autotracker.cc,v 1.12 2006-11-21 14:00:07 cvsbert Exp $";
+static const char* rcsID = "$Id: autotracker.cc,v 1.13 2007-05-01 07:49:13 cvsjaap Exp $";
 
 #include "autotracker.h"
 
@@ -62,6 +62,7 @@ AutoTracker::~AutoTracker()
 {
     manageCBbuffer( false );
     geomelem_->trimUndefParts();
+    emobject_.setBurstAlert( false );
 }
 
 
@@ -99,7 +100,10 @@ int AutoTracker::nextStep()
     manageCBbuffer( true );
 
     if ( !nrdone_ )
+    {
+	emobject_.setBurstAlert( true );
 	extender_->preallocExtArea();
+    }
 
     extender_->reset();
     extender_->setDirection( BinIDValue(BinID(0,0), mUdf(float)) );
