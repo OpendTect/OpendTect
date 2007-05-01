@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: segytr.cc,v 1.52 2007-05-01 16:29:09 cvsbert Exp $";
+static const char* rcsID = "$Id: segytr.cc,v 1.53 2007-05-01 17:11:48 cvsdgb Exp $";
 
 #include "segytr.h"
 #include "seistrc.h"
@@ -287,7 +287,7 @@ bool SEGYSeisTrcTranslator::writeTapeHeader()
     unsigned char binheadbuf[400];
     binhead.putTo( binheadbuf );
     if ( !sConn().doIO( binheadbuf, SegyBinHeaderLength ) )
-	mErrRet("Cannot write SEG-Y bunary header")
+	mErrRet("Cannot write SEG-Y binary header")
 
     return true;
 }
