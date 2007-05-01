@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: segytr.cc,v 1.51 2006-12-19 20:55:41 cvskris Exp $";
+static const char* rcsID = "$Id: segytr.cc,v 1.52 2007-05-01 16:29:09 cvsbert Exp $";
 
 #include "segytr.h"
 #include "seistrc.h"
@@ -73,16 +73,19 @@ int SEGYSeisTrcTranslator::dataBytes() const
 }
 
 
+#define mErrRet(s) { fillErrMsg(s); return false; }
+
+
 bool SEGYSeisTrcTranslator::readTapeHeader()
 {
     SegyTxtHeader txthead;
     if ( !sConn().doIO(txthead.txt,SegyTxtHeaderLength) )
-	{ errmsg = "Cannot read EBCDIC header"; return false; }
+	mErrRet( "Cannot read EBCDIC header" )
     txthead.setAscii();
 
     unsigned char binheaderbuf[400];
     if ( !sConn().doIO( binheaderbuf, SegyBinHeaderLength ) )
-	{ errmsg = "Cannot read binary header"; return false; }
+	mErrRet( "Cannot read EBCDIC header" )
     SegyBinHeader binhead;
     binhead.getFrom( binheaderbuf );
     trhead.isrev1 = force_rev0 ? false : binhead.isrev1;
@@ -92,25 +95,20 @@ bool SEGYSeisTrcTranslator::readTapeHeader()
 	for ( int idx=0; idx<binhead.nrstzs; idx++ )
 	{
 	    if ( !sConn().doIO(txthead.txt,SegyTxtHeaderLength) )
-		{ errmsg = "Cannot SEG-Y REV1 extended headers"; return false; }
+		mErrRet( "No traces found in the SEG-Y file" )
 	}
     }
 
     if ( numbfmt == 0 )
     {
 	numbfmt = binhead.format;
-	if ( numbfmt < 1 || numbfmt > 8 || numbfmt == 6 || numbfmt == 7 )
+	if ( numbfmt == 4 && read_mode != Seis::PreScan )
+	    mErrRet( "SEG-Y format '4' (fixed point/gain code) not supported" )
+	else if ( numbfmt < 1 || numbfmt > 8 || numbfmt == 6 || numbfmt == 7 )
 	{
-	    BufferString msg = "SEG-Y format '";
-	    msg += numbfmt;
+	    BufferString msg = "SEG-Y format '"; msg += numbfmt;
 	    msg += "' found. Will try '1' (4-byte floating point)";
-	    ErrMsg( msg );
-	    numbfmt = 1;
-	}
-	else if ( numbfmt == 4 && read_mode != Seis::PreScan )
-	{
-	    errmsg = "SEG-Y format '4' (fixed point/gain code) not supported";
-	    return false;
+	    ErrMsg( msg ); numbfmt = 1;
 	}
     }
 
@@ -276,7 +274,7 @@ bool SEGYSeisTrcTranslator::writeTapeHeader()
     txthead.setPosInfo( hdef );
     txthead.setStartPos( outsd.start );
     if ( !sConn().doIO( txthead.txt, SegyTxtHeaderLength ) )
-	{ errmsg = "Cannot write SEG-Y textual header"; return false; }
+	mErrRet("Cannot write SEG-Y textual header")
 
     SegyBinHeader binhead( trhead.isrev1 );
     binhead.format = numbfmt < 2 ? 1 : numbfmt;
@@ -289,7 +287,7 @@ bool SEGYSeisTrcTranslator::writeTapeHeader()
     unsigned char binheadbuf[400];
     binhead.putTo( binheadbuf );
     if ( !sConn().doIO( binheadbuf, SegyBinHeaderLength ) )
-	{ errmsg = "Cannot write SEG-Y binary header"; return false; }
+	mErrRet("Cannot write SEG-Y bunary header")
 
     return true;
 }
