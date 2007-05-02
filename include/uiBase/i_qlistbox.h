@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: i_qlistbox.h,v 1.4 2007-04-10 10:04:23 cvsbert Exp $
+ RCS:           $Id: i_qlistbox.h,v 1.5 2007-05-02 14:37:41 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -62,6 +62,8 @@ private slots:
     void 		selectionChanged( QListWidgetItem* cur,
 	    				  QListWidgetItem* prev ) 
 			{
+			    if ( _receiver->lastClicked_ == -2 ) return;
+
 			    if ( !cur ) cur = prev;
 			    if ( !cur ) return;
 			    int idx = _sender->row( cur );
@@ -71,6 +73,8 @@ private slots:
     
     void		doubleClicked( QListWidgetItem* cur )
 			{
+			    if ( _receiver->lastClicked_ == -2 ) return;
+
 			    int idx = _sender->row( cur );
 			    _receiver->lastClicked_ = idx;
 			    _receiver->doubleClicked.trigger( *_receiver );

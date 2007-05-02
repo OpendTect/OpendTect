@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: uilistbox.cc,v 1.73 2007-05-02 13:54:29 cvsbert Exp $
+ RCS:           $Id: uilistbox.cc,v 1.74 2007-05-02 14:37:41 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -86,7 +86,8 @@ uiListBox::uiListBox( uiParent* p, const char* nm, bool ms, int nl, int pfw)
     , doubleClicked( this )
     , rightButtonClicked( this )
     , lastClicked_( -1 )
-{}
+{
+}
 
 
 uiListBox::uiListBox( uiParent* p, const BufferStringSet& uids,
@@ -252,6 +253,7 @@ ioPixmap* uiListBox::pixmap( int index )
 
 void uiListBox::empty()
 {
+    lastClicked_ = -2;
     body_->QListWidget::clear();
     lastClicked_ = -1;
 }
@@ -273,9 +275,10 @@ void uiListBox::sort( bool asc )
 
 void uiListBox::removeItem( int idx )
 {
+    const int oldlc = lastClicked_;
+    lastClicked_ = -2;
     delete body_->takeItem( idx );
-    if ( lastClicked_ >= idx )
-	lastClicked_ = -1;
+    lastClicked_ = oldlc >= idx ? -1 : oldlc;
 }
 
 
