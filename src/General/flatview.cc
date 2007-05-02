@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2000
- RCS:           $Id: flatview.cc,v 1.15 2007-04-04 16:19:49 cvskris Exp $
+ RCS:           $Id: flatview.cc,v 1.16 2007-05-02 15:31:42 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -166,7 +166,6 @@ void FlatView::Viewer::addAuxInfo( bool iswva, const Point& pt,
 FlatView::Annotation::Annotation( bool drkbg )
     : color_(drkbg ? Color::White : Color::Black)
     , showaux_(true)
-    , feedbackauxdata_( 0 )
 {
     x1_.name_ = "X1";
     x2_.name_ = "X2";
@@ -175,7 +174,6 @@ FlatView::Annotation::Annotation( bool drkbg )
 
 FlatView::Annotation::~Annotation()
 {
-    delete feedbackauxdata_;
     deepErase( auxdata_ );
 }
 

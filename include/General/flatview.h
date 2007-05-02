@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2005
- RCS:           $Id: flatview.h,v 1.15 2007-04-04 16:19:49 cvskris Exp $
+ RCS:           $Id: flatview.h,v 1.16 2007-05-02 15:31:42 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -82,10 +82,6 @@ public:
     AxisData			x1_;
     AxisData			x2_;
     ObjectSet<AuxData>		auxdata_;
-    const AuxData*		feedbackauxdata_; 
-    				/*!<Should be painted without full
-				   redraw for quick feedback.
-				   Data is managed from outside. */
     bool			showaux_;
 
     inline void		setAxesAnnot( bool yn ) //!< Convenience all or nothing
@@ -315,8 +311,7 @@ public:
     bool		isVisible(bool wva) const;
     			//!< Depends on show_ and availability of data
 
-    enum DataChangeType	{ None, All, Annot, FeedbackAnnot, WVAData, VDData,
-			  WVAPars, VDPars };
+    enum DataChangeType	{ None, All, Annot, WVAData, VDData, WVAPars, VDPars };
     virtual void	handleChange(DataChangeType)	= 0;
 
     virtual void	fillPar( IOPar& iop ) const

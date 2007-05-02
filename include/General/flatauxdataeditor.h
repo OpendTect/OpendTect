@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kris
  Date:          Mar 2007
- RCS:           $Id: flatauxdataeditor.h,v 1.3 2007-04-05 18:06:07 cvskris Exp $
+ RCS:           $Id: flatauxdataeditor.h,v 1.4 2007-05-02 15:31:42 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,6 +38,7 @@ public:
 			     should change the auxdata, or if the user
 			     of the objects should do it.
 			    \returns an id of the new set. */
+    void		removeAuxData(int id);
     void		enableEdit(int id,bool allowadd,bool allowmove,
 				   bool allowdelete);
     void		setAddAuxData(int id);
@@ -53,6 +54,7 @@ public:
     			/*!<When movement starts, the movement is unlimited.
 			    Movement can be limited once the movement started
 			    by calling limitMovement. */
+    bool		isDragging() const { return mousedown_; }
 
     int				getSelPtDataID() const;
     int				getSelPtIdx() const;

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2000
- RCS:           $Id: flatauxdataeditor.cc,v 1.4 2007-04-10 21:55:55 cvskris Exp $
+ RCS:           $Id: flatauxdataeditor.cc,v 1.5 2007-05-02 15:31:42 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -68,6 +68,21 @@ int AuxDataEditor::addAuxData( FlatView::Annotation::AuxData* nd, bool doedit )
     doedit_ += doedit;
 
     return res;
+}
+
+
+void AuxDataEditor::removeAuxData( int id )
+{
+    const int idx = ids_.indexOf( id );
+    if ( idx<0 )
+	return;
+
+    ids_.remove( idx );
+    auxdata_.remove( idx );
+    allowadd_.remove( idx );
+    allowmove_.remove( idx );
+    allowremove_.remove( idx );
+    doedit_.remove( idx );
 }
 
 
@@ -182,22 +197,18 @@ void AuxDataEditor::mouseReleaseCB( CallBacker* cb )
 
     mousedown_ = false;
 
-    if ( hasmoved_ )
+    if ( hasmoved_ || selptidx_!=-1 )
     {
 	movementFinished.trigger();
-
-	if ( doedit_[seldatasetidx_] )
-	{
-	    if ( selptidx_!=-1 )
-		auxdata_[seldatasetidx_]->poly_[selptidx_] = selptcoord_;
-	    else auxdata_[seldatasetidx_]->poly_ += selptcoord_;
-
-	    delete viewer_.appearance().annot_.feedbackauxdata_;
-	    viewer_.appearance().annot_.feedbackauxdata_ = 0;
-	    viewer_.handleChange( Viewer::Annot );
-	}
-
 	mousehandler_.setHandled( true );
+    }
+
+    if ( feedback_ )
+    {
+	viewer_.appearance().annot_.auxdata_ -= feedback_;
+	delete feedback_;
+	feedback_ = 0;
+	viewer_.handleChange( Viewer::Annot );
     }
 }
 
@@ -222,17 +233,18 @@ void AuxDataEditor::mouseMoveCB( CallBacker* cb )
 
     selptcoord_ = movementlimit_.moveInside( selptcoord_ );
 
-    if ( !feedback_ )
+    if ( doedit_[seldatasetidx_]  && selptidx_!=-1 )
+	auxdata_[seldatasetidx_]->poly_[selptidx_] = selptcoord_;
+    else if ( !feedback_ )
     {
 	feedback_ = new Annotation::AuxData( *auxdata_[seldatasetidx_] );
-	viewer_.appearance().annot_.feedbackauxdata_ = feedback_;
+	viewer_.appearance().annot_.auxdata_ += feedback_;
 	feedback_->poly_.erase();
         feedback_->poly_ += selptcoord_;
     }
-    else
-	feedback_->poly_[0] = selptcoord_;
+    else feedback_->poly_[0] = selptcoord_;
 
-    viewer_.handleChange( Viewer::FeedbackAnnot );
+    viewer_.handleChange( Viewer::Annot );
     mousehandler_.setHandled( true );
 }
 
