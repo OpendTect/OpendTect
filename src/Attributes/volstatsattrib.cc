@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: volstatsattrib.cc,v 1.34 2007-03-08 12:40:08 cvshelene Exp $";
+static const char* rcsID = "$Id: volstatsattrib.cc,v 1.35 2007-05-02 11:42:15 cvshelene Exp $";
 
 #include "volstatsattrib.h"
 
@@ -223,7 +223,7 @@ bool VolStats::getInputData( const BinID& relpos, int zintv )
 }
 
 
-const BinID* VolStats::reqStepout( int inp, int out ) const
+const BinID* VolStats::desStepout( int inp, int out ) const
 { return inp == 0 ? &stepout_ : 0; }
 
 
