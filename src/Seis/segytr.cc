@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: segytr.cc,v 1.53 2007-05-01 17:11:48 cvsdgb Exp $";
+static const char* rcsID = "$Id: segytr.cc,v 1.54 2007-05-02 11:35:51 cvsbert Exp $";
 
 #include "segytr.h"
 #include "seistrc.h"
@@ -284,6 +284,7 @@ bool SEGYSeisTrcTranslator::writeTapeHeader()
     binhead.jobid = ++jobid;
     binhead.hns = (short)outnrsamples;
     binhead.hdt = (short)(outsd.step * SI().zFactor() * 1e3 + .5);
+    binhead.tsort = is_prestack ? 0 : 4; // To make Strata users happy
     unsigned char binheadbuf[400];
     binhead.putTo( binheadbuf );
     if ( !sConn().doIO( binheadbuf, SegyBinHeaderLength ) )
