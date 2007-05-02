@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.cc,v 1.80 2007-03-21 15:44:23 cvskris Exp $
+ RCS:           $Id: uiodmenumgr.cc,v 1.81 2007-05-02 11:01:01 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -196,8 +196,7 @@ void uiODMenuMgr::fillSurveyMenu()
     uiPopupMenu* impseissgy = new uiPopupMenu( &appl_, "&SEG-Y" );
     mInsertItem( impseissgy, "&3D ...", mImpSeisSEGY3DMnuItm );
     mInsertItem( impseissgy, "&2D ...", mImpSeisSEGY2DMnuItm );
-    if ( GetEnvVarYN("OD_SHOW_PRESTACK_SEGY_IMP") )
-	mInsertItem( impseissgy, "&Pre-Stack ...", mImpSeisSEGYPSMnuItm );
+    mInsertItem( impseissgy, "&Pre-Stack ...", mImpSeisSEGYPSMnuItm );
     impseis->insertItem( impseissgy );
     mInsertItem( impseis, "&CBVS ...", mImpSeisCBVSMnuItm );
 
