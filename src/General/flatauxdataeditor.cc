@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2000
- RCS:           $Id: flatauxdataeditor.cc,v 1.5 2007-05-02 15:31:42 cvskris Exp $
+ RCS:           $Id: flatauxdataeditor.cc,v 1.6 2007-05-02 20:47:29 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -300,11 +300,11 @@ Rect AuxDataEditor::getWorldRect( int id ) const
     Rect res( curview_ );
     const int idx = ids_.indexOf( id );
 
-    if ( auxdata_[idx]->x0rg_ )
-	res.setLeftRight( *auxdata_[idx]->x0rg_ );
-
     if ( auxdata_[idx]->x1rg_ )
-	res.setTopBottom( *auxdata_[idx]->x1rg_ );
+	res.setLeftRight( *auxdata_[idx]->x1rg_ );
+
+    if ( auxdata_[idx]->x2rg_ )
+	res.setTopBottom( *auxdata_[idx]->x2rg_ );
 
     return res;
 }

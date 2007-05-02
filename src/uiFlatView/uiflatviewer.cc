@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewer.cc,v 1.23 2007-05-02 18:33:21 cvskris Exp $
+ RCS:           $Id: uiflatviewer.cc,v 1.24 2007-05-02 20:47:29 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -274,16 +274,16 @@ void uiFlatViewer::drawAux( const FlatView::Annotation::AuxData& ad )
     const FlatView::Annotation& annot = appearance().annot_;
     const uiRect datarect( canvas_.arrArea() );
     uiWorldRect auxwr( wr_ );
-    if ( ad.x0rg_ )
-    {
-	auxwr.setLeft( ad.x0rg_->start );
-	auxwr.setRight( ad.x0rg_->stop );
-    }
-
     if ( ad.x1rg_ )
     {
-	auxwr.setTop( ad.x1rg_->start );
-	auxwr.setBottom( ad.x1rg_->stop );
+	auxwr.setLeft( ad.x1rg_->start );
+	auxwr.setRight( ad.x1rg_->stop );
+    }
+
+    if ( ad.x2rg_ )
+    {
+	auxwr.setTop( ad.x2rg_->start );
+	auxwr.setBottom( ad.x2rg_->stop );
     }
 
     const uiWorld2Ui w2u( auxwr, canvas_.arrArea().size() );
