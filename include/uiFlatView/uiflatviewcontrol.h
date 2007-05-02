@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewcontrol.h,v 1.13 2007-04-10 21:54:49 cvskris Exp $
+ RCS:           $Id: uiflatviewcontrol.h,v 1.14 2007-05-02 18:35:05 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -66,15 +66,17 @@ protected:
 
     MouseEventHandler&	mouseEventHandler(int);
     uiWorldRect		getZoomAndPanRect(Geom::Point2D<double>,
-	    				  Geom::Size2D<double>) const;
+	    				  Geom::Size2D<double>,
+					  const uiWorldRect& bbox) const;
     uiWorldRect		getZoomOrPanRect(Geom::Point2D<double>,
-	    				 Geom::Size2D<double>) const;
+	    				 Geom::Size2D<double>,
+					 const uiWorldRect& bbox) const;
 
     virtual void	finalPrepare()			{}
-    void		onFinalise(CallBacker*);
+    virtual void	onFinalise(CallBacker*);
     
-    void		dataChangeCB(CallBacker*);
-    void		rubBandCB(CallBacker*);
+    virtual void	dataChangeCB(CallBacker*);
+    virtual void	rubBandCB(CallBacker*);
     virtual void	mouseMoveCB(CallBacker*);
     void		usrClickCB(CallBacker*);
     virtual bool	handleUserClick()		{ return false; }

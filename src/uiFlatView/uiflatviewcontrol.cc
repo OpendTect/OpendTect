@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:		Feb 2007
- RCS:           $Id: uiflatviewcontrol.cc,v 1.20 2007-04-10 21:54:49 cvskris Exp $
+ RCS:           $Id: uiflatviewcontrol.cc,v 1.21 2007-05-02 18:35:05 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -124,8 +124,9 @@ void uiFlatViewControl::setNewView( Geom::Point2D<double>& centre,
     const bool havezoom = haveZoom( cv.size(), sz );
     if ( !havepan && !havezoom ) return;
 
-    uiWorldRect wr( havepan && havezoom ? getZoomAndPanRect(centre,sz)
-	    				: getZoomOrPanRect(centre,sz) );
+    const uiWorldRect bb( getBoundingBox() );
+    uiWorldRect wr( havepan && havezoom ? getZoomAndPanRect(centre,sz,bb)
+	    				: getZoomOrPanRect(centre,sz,bb) );
     centre = wr.centre(); sz = wr.size();
     if ( havezoom )
 	zoommgr_.add( sz );
@@ -138,17 +139,18 @@ void uiFlatViewControl::setNewView( Geom::Point2D<double>& centre,
 
 
 uiWorldRect uiFlatViewControl::getZoomAndPanRect( Geom::Point2D<double> centre,
-					      Geom::Size2D<double> sz ) const
+						Geom::Size2D<double> sz,
+       						const uiWorldRect& bbox	) const
 {
     //TODO we should have a different policy for requests outside
-    return getZoomOrPanRect( centre, sz );
+    return getZoomOrPanRect( centre, sz, bbox );
 }
 
 
 uiWorldRect uiFlatViewControl::getZoomOrPanRect( Geom::Point2D<double> centre,
-						 Geom::Size2D<double> sz ) const
+						 Geom::Size2D<double> sz,
+						 const uiWorldRect& bb ) const
 {
-    const uiWorldRect bb( getBoundingBox() );
     if ( sz.width() > bb.width() )
 	sz.setWidth( bb.width() );
     if ( sz.height() > bb.height() )
