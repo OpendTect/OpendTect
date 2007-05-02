@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          October 2003
- RCS:           $Id: uiwelldlgs.cc,v 1.56 2007-05-02 13:12:39 cvshelene Exp $
+ RCS:           $Id: uiwelldlgs.cc,v 1.57 2007-05-02 15:46:38 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,6 +26,8 @@ ________________________________________________________________________
 #include "ctxtioobj.h"
 #include "filegen.h"
 #include "ioobj.h"
+#include "ioman.h"
+#include "iodirentry.h"
 #include "iopar.h"
 #include "oddirs.h"
 #include "randcolor.h"
@@ -662,8 +664,7 @@ void uiExportLogs::typeSel( CallBacker* )
 }
 
 
-#define mErrRet(msg) \
-{ uiMSG().error(msg); return false; }
+#define mErrRet(msg) { uiMSG().error(msg); return false; }
 
 bool uiExportLogs::acceptOK( CallBacker* )
 {
@@ -919,31 +920,53 @@ bool uiStoreWellDlg::setWellTrack( Well::Data* well )
 //============================================================================
 
 uiNewWellDlg::uiNewWellDlg( uiParent* p )
-        : uiDialog(p,uiDialog::Setup("New Well","",0) )
+        : uiGetObjectName(p,uiGetObjectName::Setup("New Well",mkWellNms())
+	       			.inptxt("New well name") )
 {
-    nmfld = new uiGenInput( this, "Name for new Well" );
-    colsel = new uiColorInput( this, getRandomColor(), "Color" );
-    colsel->attach( alignedBelow, nmfld );
+    colsel_ = new uiColorInput( this, getRandomColor(), "Color" );
+    colsel_->attach( alignedBelow, inpFld() );
 }
 
 
+uiNewWellDlg::~uiNewWellDlg()
+{
+    delete nms_;
+}
+
+
+const BufferStringSet& uiNewWellDlg::mkWellNms()
+{
+    nms_ = new BufferStringSet;
+    IOObjContext ctxt( WellTranslatorGroup::ioContext() );
+    IOM().to( ctxt.getSelKey() );
+    IODirEntryList del( IOM().dirPtr(), ctxt );
+    for ( int idx=0; idx<del.size(); idx++ )
+    {
+	const IOObj* ioobj = del[idx]->ioobj;
+	if ( ioobj )
+	    nms_->add( ioobj->name() );
+    }
+    return *nms_;
+}
+
 bool uiNewWellDlg::acceptOK( CallBacker* )
 {
-    char* ptr = ((BufferString)nmfld->text()).buf();
+    BufferString tmp( text() );
+    char* ptr = tmp.buf();
     skipLeadingBlanks(ptr); removeTrailingBlanks(ptr);
-    if ( ! *ptr ) { uiMSG().error( "Please enter a name" ); return false; }
+    if ( !*ptr )
+	mErrRet( "Please enter a name" )
 
+    if ( nms_->indexOf(ptr) >= 0 )
+	mErrRet( "Please specify a new name.\n"
+		 "Wells can be removed in 'Manage wells'" )
+
+    name_ = ptr;
     return true;
 }
 
 
 const Color& uiNewWellDlg::getWellColor()
 {
-    return colsel->color();
-}
-
-
-const char* uiNewWellDlg::getName() const
-{
-    return nmfld->text();
+    return colsel_->color();
 }

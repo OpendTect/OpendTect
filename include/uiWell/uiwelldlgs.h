@@ -7,12 +7,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2003
- RCS:           $Id: uiwelldlgs.h,v 1.24 2007-02-04 20:11:19 cvsnanne Exp $
+ RCS:           $Id: uiwelldlgs.h,v 1.25 2007-05-02 15:46:38 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uidialog.h"
+#include "uiselsimple.h"
 #include "ranges.h"
 
 class uiButtonGroup;
@@ -198,19 +198,23 @@ protected:
 
 class uiColorInput;
 
-class uiNewWellDlg : public uiDialog
+class uiNewWellDlg : public uiGetObjectName
 {
 public:
     				uiNewWellDlg(uiParent*);
+    				~uiNewWellDlg();
 
     const Color&		getWellColor();
-    const char* 		getName() const;
+    const char* 		getName() const		{ return name_; }
 				
 protected:
-    uiGenInput*         	nmfld;
-    uiColorInput*		colsel;
+
+    uiColorInput*		colsel_;
+    BufferString		name_;
+    BufferStringSet*		nms_;
 
     virtual bool        	acceptOK(CallBacker*);
+    const BufferStringSet&	mkWellNms();
 };
 
 #endif
