@@ -5,7 +5,7 @@
  * FUNCTION : Seg-Y headers
 -*/
 
-static const char* rcsID = "$Id: segyhdr.cc,v 1.42 2007-03-27 12:01:08 cvsbert Exp $";
+static const char* rcsID = "$Id: segyhdr.cc,v 1.43 2007-05-02 09:34:43 cvsbert Exp $";
 
 
 #include "segyhdr.h"
@@ -248,7 +248,7 @@ void SegyTxtHeader::print( std::ostream& stream ) const
 
 SegyBinHeader::SegyBinHeader( bool rev1 )
 	: needswap(false)
-    	, isrev1(rev1 ? 1 : 0)
+    	, isrev1(rev1 ? 256 : 0)
     	, nrstzs(0)
     	, fixdsz(1)
 {
@@ -299,13 +299,13 @@ void SegyBinHeader::getFrom( const void* buf )
     mSBHGet(polyt,Short,2);
     mSBHGet(vpol,Short,2);
 
-    for ( int i=0; i<SegyBinHeaderUnassShorts; i++ )
+    for ( int i=0; i<SegyBinHeaderUnassUShorts; i++ )
     {
-	mSBHGet(hunass[i],Short,2);
+	mSBHGet(hunass[i],UnsignedShort,2);
     }
-    isrev1 = hunass[21];
-    fixdsz = hunass[22];
-    nrstzs = hunass[23];
+    isrev1 = hunass[120];
+    fixdsz = hunass[121];
+    nrstzs = hunass[122];
 }
 
 
@@ -347,10 +347,10 @@ void SegyBinHeader::putTo( void* buf ) const
     mSBHPut(polyt,Short,2);
     mSBHPut(vpol,Short,2);
 
-    short* v = const_cast<short*>( hunass );
-    v[21] = isrev1; v[22] = fixdsz; v[23] = nrstzs;
-    for ( int i=0; i<SegyBinHeaderUnassShorts; i++ )
-	{ mSBHPut(hunass[i],Short,2); }
+    unsigned short* v = const_cast<unsigned short*>( hunass );
+    v[120] = isrev1; v[121] = fixdsz; v[122] = nrstzs;
+    for ( int i=0; i<SegyBinHeaderUnassUShorts; i++ )
+	{ mSBHPut(hunass[i],UnsignedShort,2); }
 }
 
 
@@ -446,12 +446,16 @@ void SegyBinHeader::print( std::ostream& strm ) const
     mPrHead( polyt, 56, "impulse signal polarity code" )
     mPrHead( vpol, 58, "vibratory polarity code" )
 
+    SegyBinHeader& self = *const_cast<SegyBinHeader*>(this);
+    unsigned short tmpisrev1 = isrev1;
+    if ( isrev1 ) self.isrev1 = 1;
     mPrHead( isrev1, 300, "[REV1 only] SEG-Y revision code" )
+    self.isrev1 = tmpisrev1;
     mPrHead( fixdsz, 302, "[REV1 only] Fixed trace size?" )
     mPrHead( nrstzs, 304, "[REV1 only] Number of extra headers" );
 
-    for ( int i=0; i<SegyBinHeaderUnassShorts; i++ )
-	if ( hunass[i] != 0 && (i < 21 || i > 23) )
+    for ( int i=0; i<SegyBinHeaderUnassUShorts; i++ )
+	if ( hunass[i] != 0 && (i < 120 || i > 122) )
 	    strm << "\tExtra\t" << 60 + 2*i << '\t' << hunass[i]
 		 << "\t(Non-standard - unassigned)\n";
     strm << std::endl;

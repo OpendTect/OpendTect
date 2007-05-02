@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: segyhdr.h,v 1.13 2005-08-23 16:49:37 cvsbert Exp $
+ RCS:		$Id: segyhdr.h,v 1.14 2007-05-02 09:34:43 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,7 +19,7 @@ class BufferString;
 
 #define SegyTxtHeaderLength		3200
 #define SegyBinHeaderLength		400
-#define SegyBinHeaderUnassShorts	170
+#define SegyBinHeaderUnassUShorts	170
 #define SegyTracHeaderLength		240
 
 
@@ -98,15 +98,16 @@ public:
     short	fold, tsort, vscode, hsfs, hsfe, hslen, hstyp, schn, hstas,
 		hstae, htatyp, hcorr, bgrcv, rcvm;
 
-    short	mfeet;    /* measurement system code: 1 = meters 2 = feet */
+    short		mfeet;
+    			/* measurement system code: 1 = meters 2 = feet */
 
-    short	polyt, vpol;
-    short	hunass[SegyBinHeaderUnassShorts];
+    short		polyt, vpol;
+    unsigned short	hunass[SegyBinHeaderUnassUShorts];
 
-    short	isrev1; //!< This must be considered final
+    unsigned short	isrev1; //!< This must be considered final
     		// Rev 1 only
-    short	fixdsz;	
-    short	nrstzs;
+    unsigned short	fixdsz;	
+    unsigned short	nrstzs;
 };
 
 
