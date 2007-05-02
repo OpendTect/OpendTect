@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          October 2003
- RCS:           $Id: uiwelldlgs.cc,v 1.55 2007-04-02 16:37:44 cvsbert Exp $
+ RCS:           $Id: uiwelldlgs.cc,v 1.56 2007-05-02 13:12:39 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -771,6 +771,8 @@ uiStoreWellDlg::uiStoreWellDlg( uiParent* p, const BufferString& wellname )
     : uiDialog(p,uiDialog::Setup("Store Well Dialog",
 				 "Specify well parameters", "107.0.1"))
     , ctio_(*mMkCtxtIOObj(Well))
+    , usemodelfld(0)
+    , constvelfld(0)
 {
     uiGroup* topgrp = 0;
     
@@ -822,10 +824,10 @@ bool uiStoreWellDlg::acceptOK( CallBacker* )
 
 bool uiStoreWellDlg::checkInpFlds()
 {
-    if ( SI().zIsTime() && usemodelfld->getBoolValue() && !*d2tgrp->fileName() )
+    if ( usemodelfld && usemodelfld->getBoolValue() && !*d2tgrp->fileName() )
 	mErrRet( "Please select 'Depth to Time model' file" )
 
-    if ( SI().zIsTime() && !usemodelfld->getBoolValue() )
+    if ( usemodelfld && constvelfld && !usemodelfld->getBoolValue() )
     {
 	float val = constvelfld->getfValue();
 	if ( mIsUdf(val) || val <= 0 )
@@ -841,9 +843,13 @@ bool uiStoreWellDlg::checkInpFlds()
 
 void uiStoreWellDlg::modelSel( CallBacker* )
 {
-    const bool usemodel = usemodelfld->getBoolValue();
-    d2tgrp->display( usemodel );
-    constvelfld->display( !usemodel );
+    if ( SI().zIsTime() )
+    {
+	const bool usemodel = usemodelfld && usemodelfld->getBoolValue();
+	d2tgrp->display( usemodel );
+	if ( constvelfld )
+	    constvelfld->display( !usemodel );
+    }
 }
 
 
@@ -869,7 +875,7 @@ bool uiStoreWellDlg::storeWell()
 bool uiStoreWellDlg::setWellTrack( Well::Data* well )
 {
     TypeSet<float> times;
-    if ( SI().zIsTime() && usemodelfld->getBoolValue() )
+    if ( usemodelfld && usemodelfld->getBoolValue() )
     {
 	Well::AscImporter ascimp( *well );
 	const char* errmsg = ascimp.getD2T( d2tgrp->fileName(),
@@ -882,7 +888,7 @@ bool uiStoreWellDlg::setWellTrack( Well::Data* well )
 	for ( int idx=0; idx<wellcoords_.size(); idx++ )
 	    wellcoords_[idx].z = well->d2TModel()->getDepth(wellcoords_[idx].z);
     }
-    else if ( SI().zIsTime() )
+    else if ( SI().zIsTime() && constvelfld )
     {
 	float vel = constvelfld->getfValue();
 	for ( int idx=0; idx<wellcoords_.size(); idx++ )
@@ -896,7 +902,7 @@ bool uiStoreWellDlg::setWellTrack( Well::Data* well )
 	well->track().insertPoint( Coord(wellcoords_[idx].x,wellcoords_[idx].y),
 					 wellcoords_[idx].z);
 
-    if ( SI().zIsTime() && !usemodelfld->getBoolValue() )
+    if ( usemodelfld && constvelfld && !usemodelfld->getBoolValue() )
     {
 	float vel = constvelfld->getfValue();
 	Well::D2TModel* d2t = new Well::D2TModel();
