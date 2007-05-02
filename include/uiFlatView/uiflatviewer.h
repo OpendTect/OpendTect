@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewer.h,v 1.11 2007-03-27 18:54:53 cvskris Exp $
+ RCS:           $Id: uiflatviewer.h,v 1.12 2007-05-02 18:33:21 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -64,7 +64,6 @@ protected:
     FlatView::AxesDrawer& 		axesdrawer_;
     					//!<Needs to be declared *after* canvas_
     uiWorldRect				wr_;
-    FlatView::Annotation::AuxData	prevfeedbackdata_;
 
     DataChangeType		reportedchange_;
     float			dim0extfac_;
@@ -85,7 +84,6 @@ protected:
 
     void		drawBitMaps();
     void		drawAnnot();
-    void		drawFeedbackAnnot();
     void		drawGridAnnot();
     void		drawAux(const FlatView::Annotation::AuxData&);
     void		initView();

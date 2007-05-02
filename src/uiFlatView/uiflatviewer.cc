@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewer.cc,v 1.22 2007-03-28 12:20:46 cvsbert Exp $
+ RCS:           $Id: uiflatviewer.cc,v 1.23 2007-05-02 18:33:21 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,7 +35,6 @@ uiFlatViewer::uiFlatViewer( uiParent* p )
     , extraborders_(0,0,0,0)
     , annotsz_(50,20) //TODO: should be dep on font size
     , viewChanged(this)
-    , prevfeedbackdata_( 0 )
     , dataChanged(this)
 {
     bmp2rgb_ = new FlatView::BitMap2RGB( appearance(), canvas_.rgbArray() );
@@ -103,7 +102,6 @@ void uiFlatViewer::canvasNewFill( CallBacker* )
 void uiFlatViewer::canvasPostDraw( CallBacker* )
 {
     drawAnnot();
-    drawFeedbackAnnot();
 }
 
 
@@ -153,12 +151,6 @@ void uiFlatViewer::setView( uiWorldRect wr )
 
 void uiFlatViewer::handleChange( DataChangeType dct )
 {
-    if ( dct==FeedbackAnnot )
-    {
-	drawFeedbackAnnot();
-	return;
-    }
-
     reportedchange_ = dct;
     const FlatView::Annotation& annot = appearance().annot_;
     int l = extraborders_.left(); int r = extraborders_.right();
@@ -171,7 +163,7 @@ void uiFlatViewer::handleChange( DataChangeType dct )
 	{ b += annotsz_.height(); t += annotsz_.height(); }
     canvas_.setBorders( uiSize(l,t), uiSize(r,b) );
     canvas_.forceNewFill();
-    if ( dct == WVAData || dct == VDData )
+    if ( dct == WVAData || dct == VDData || dct==All )
 	dataChanged.trigger();
 }
 
@@ -195,7 +187,6 @@ void uiFlatViewer::drawBitMaps()
     }
 
     bmp2rgb_->draw( wvabmpmgr_->bitMap(), vdbmpmgr_->bitMap() );
-    prevfeedbackdata_.empty();
 }
 
 
@@ -221,30 +212,6 @@ void uiFlatViewer::drawAnnot()
     }
 
     reportedchange_ = None;
-}
-
-
-void uiFlatViewer::drawFeedbackAnnot()
-{
-    ioDrawTool& dt = canvas_.drawTool();
-    dt.setRasterXor();
-    drawAux( prevfeedbackdata_ );	//Removes old
-
-    const FlatView::Annotation::AuxData* auxdata =
-					appearance().annot_.feedbackauxdata_;
-
-    if ( !auxdata )
-    {
-	prevfeedbackdata_.empty();
-    	return;
-    }
-    else
-    {
-	prevfeedbackdata_ = *auxdata;
-	drawAux( prevfeedbackdata_ );	//Draw new
-    }
-
-    dt.setRasterNorm();
 }
 
 
