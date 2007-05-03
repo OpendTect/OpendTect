@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2000
- RCS:           $Id: flatauxdataeditor.cc,v 1.6 2007-05-02 20:47:29 cvskris Exp $
+ RCS:           $Id: flatauxdataeditor.cc,v 1.7 2007-05-03 19:18:04 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -121,6 +121,15 @@ const Point& AuxDataEditor::getSepPtPos() const
 { return selptcoord_; }
 
 
+const TypeSet<int>& AuxDataEditor::getIds() const
+{ return ids_; }
+
+
+const ObjectSet<Annotation::AuxData>&
+AuxDataEditor::getAuxData() const
+{ return auxdata_; }
+
+
 void AuxDataEditor::mousePressCB( CallBacker* cb )
 {
     if ( mousehandler_.isHandled() ) 
@@ -145,7 +154,7 @@ void AuxDataEditor::mousePressCB( CallBacker* cb )
 	    seldatasetidx_ = -1;
     }
 
-    if ( seldatasetidx_!=-1 )
+    if ( seldatasetidx_==-1 )
 	return;
 
     const Rect wr = movementlimit_ = getWorldRect( ids_[seldatasetidx_] );

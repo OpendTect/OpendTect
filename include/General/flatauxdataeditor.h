@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kris
  Date:          Mar 2007
- RCS:           $Id: flatauxdataeditor.h,v 1.4 2007-05-02 15:31:42 cvskris Exp $
+ RCS:           $Id: flatauxdataeditor.h,v 1.5 2007-05-03 19:18:04 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,6 +43,9 @@ public:
 				   bool allowdelete);
     void		setAddAuxData(int id);
     			//!<Added points will be added to this set.
+    int			getAddAuxData() const;
+    			//!<\returns the id of the set that new points will
+			//!< 	     be added to
     
     void		setView(const Rect& wv,
 	    			const Geom::Rectangle<int>& mouserect);
@@ -68,6 +71,9 @@ public:
 
     const Viewer&	viewer() const	{ return viewer_; }
     Viewer&		viewer()	{ return viewer_; }
+
+    const TypeSet<int>&				getIds() const;
+    const ObjectSet<Annotation::AuxData>&	getAuxData() const;
 
 protected:
     void		mousePressCB(CallBacker*);
