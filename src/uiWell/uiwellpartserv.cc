@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2003
- RCS:           $Id: uiwellpartserv.cc,v 1.24 2006-12-28 21:10:33 cvsnanne Exp $
+ RCS:           $Id: uiwellpartserv.cc,v 1.25 2007-05-03 11:26:39 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,6 +26,7 @@ ________________________________________________________________________
 #include "uiioobjsel.h"
 #include "uimsg.h"
 #include "uiwelldlgs.h"
+#include "uilogseldlg.h"
 #include "ptrman.h"
 #include "color.h"
 
@@ -84,17 +85,16 @@ bool uiWellPartServer::selectWells( ObjectSet<MultiID>& wellids )
 }
 
 
-void uiWellPartServer::selectLogs( const MultiID& wellid, int& selidx, 
-				   int& lognr )
+void uiWellPartServer::selectLogs( const MultiID& wellid, 
+					Well::LogDisplayParSet*& logparset ) 
 {
     Well::Data* wd = Well::MGR().get( wellid );
-    if ( !wd ) return;
-    
-    uiLogSelDlg dlg( appserv().parent(), wd->logs() );
-    if ( !dlg.go() ) return;
-
-    selidx = dlg.selectedLog();
-    lognr = dlg.logNumber();
+    if(!wd)
+	return;
+    uiLogSelDlg dlg( appserv().parent(), wd->logs(), logparset );
+    if( !dlg.go() )
+	return;
+    logparset = dlg.getParSet();
 }
 
 

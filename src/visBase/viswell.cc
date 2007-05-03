@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2003
- RCS:           $Id: viswell.cc,v 1.27 2007-02-04 20:08:40 cvsnanne Exp $
+ RCS:           $Id: viswell.cc,v 1.28 2007-05-03 11:26:39 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -303,10 +303,14 @@ void Well::setLogData( const TypeSet<Coord3Value>& crdvals, const char* lognm,
 	prevval = val;
     }
 
-    showLogs( true );
+    showLog( true, lognr );
 }
 
 
+void Well::clearLog( int lognr )
+{
+    log->clearLog( lognr );
+}
 
 void Well::setLogColor( const Color& col, int lognr )
 {
@@ -355,6 +359,11 @@ void Well::showLogs( bool yn )
 {
     log->showLog( yn, 1 );
     log->showLog( yn, 2 );
+}
+
+void Well::showLog( bool yn, int lognr )
+{
+    log->showLog( yn, lognr );
 }
 
 

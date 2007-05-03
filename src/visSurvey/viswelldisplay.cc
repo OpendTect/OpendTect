@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: viswelldisplay.cc,v 1.65 2007-04-13 19:55:30 cvskris Exp $";
+static const char* rcsID = "$Id: viswelldisplay.cc,v 1.66 2007-05-03 11:26:39 cvsraman Exp $";
 
 #include "viswelldisplay.h"
 
@@ -64,6 +64,7 @@ WellDisplay::WellDisplay()
     , picksallowed_(false)
     , group_(0)
     , pseudotrack_(0)
+    , logparset_( new Well::LogDisplayParSet() )
     , needsave_(false)
 {
     setMaterial(0);
@@ -79,6 +80,7 @@ WellDisplay::~WellDisplay()
     if ( transformation_ ) transformation_->unRef();
     if ( group_ )
 	removeChild( group_->getInventorNode() );
+    delete logparset_;
 }
 
 
@@ -109,11 +111,11 @@ void WellDisplay::fullRedraw( CallBacker* )
     well_->setWellName( wd->name(), trackpos[0] );
     updateMarkers(0);
 
-    if ( log1nm_.size() )
-	displayLog( log1nm_, log1logsc_, log1rg_, 1 );
+    if ( logparset_->getLeft()->getLogNm().size() )
+	displayLeftLog();
 
-    if ( log2nm_.size())
-	displayLog( log2nm_, log2logsc_, log2rg_, 2 );
+    if ( logparset_->getRight()->getLogNm().size())
+	displayRightLog();
 }
 
 
@@ -238,12 +240,14 @@ mShowFunction( showLogs, logsShown )
 mShowFunction( showLogName, logNameShown )
 
 
-void WellDisplay::displayLog( int logidx, int lognr, bool logrthm,
-			      const Interval<float>* range )
+void WellDisplay::displayLog( int logidx, Interval<float>* range, 
+						bool logrthm, int lognr ) 
 {
     Well::Data* wd = Well::MGR().get( wellid_ );
     if ( !wd || wd->logs().isEmpty() ) return;
 
+    if ( logidx<0 )
+	return;
     Well::Log& log = wd->logs().getLog(logidx);
     const int logsz = log.size();
     if ( !logsz ) return;
@@ -270,32 +274,47 @@ void WellDisplay::displayLog( int logidx, int lognr, bool logrthm,
     if ( !range )
 	logrthm = log.dispLogarithmic();
     well_->setLogData( crdvals, log.name(), selrange, logrthm, lognr );
-
-    if ( lognr == 1 )
-	{log1nm_ = log.name(); log1rg_.setFrom(selrange); log1logsc_ = logrthm;}
-    else
-	{log2nm_ = log.name(); log2rg_.setFrom(selrange); log2logsc_ = logrthm;}
+    
 }
 
 
-void WellDisplay::displayLog( const char* lognm, bool logarthm,
+void WellDisplay::displayLog( const BufferString lognm, bool logarthm,
 			      const Interval<float>& range, int lognr )
 {
     Well::Data* wd = Well::MGR().get( wellid_ );
     if ( !wd || wd->logs().isEmpty() ) return;
 
-    int logidx = -1;
-    for ( int idx=0; idx<wd->logs().size(); idx++ )
-    {
-	const char* nm = wd->logs().getLog(idx).name();
-	if ( !strcmp(lognm,nm) ) { logidx = idx; break; }
-    }
+    int logidx = wd->logs().indexOf( lognm );
 
     if ( logidx < 0 ) return; // TODO: errmsg
     
-    displayLog( logidx, lognr, logarthm, &range );
+    Interval<float>* rgptr = new Interval<float>( range );    
+    displayLog( logidx, rgptr, logarthm, lognr );
 }
 
+
+void WellDisplay::displayLog( Well::LogDisplayPars* logpar, int lognr )
+{
+    Well::Data* wd = Well::MGR().get( wellid_ );
+    if ( !wd || wd->logs().isEmpty() ) return;
+    
+    const int logidx = wd->logs().indexOf( logpar->getLogNm() );
+    if( logidx<0 )
+    {
+	well_->showLog( false, lognr );
+	return;
+    }
+    Interval<float>* rgptr = new Interval<float>( logpar->getRange() );    
+    displayLog( logidx, rgptr, logpar->getLogScale(), lognr );
+    setLogColor( logpar->getColor(), lognr );
+}
+
+
+void WellDisplay::displayLeftLog()
+{ displayLog( logparset_->getLeft(), 1 ); }
+
+void WellDisplay::displayRightLog()
+{ displayLog( logparset_->getRight(), 2 ); }
 
 void WellDisplay::setLogColor( const Color& col, int lognr )
 { well_->setLogColor( col, lognr ); }
@@ -358,19 +377,15 @@ void WellDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
     par.set( sKeyWellID, viswellid );
     if ( saveids.indexOf(viswellid) == -1 ) saveids += viswellid;
     
-    BufferString colstr;
-
-#define mStoreLogPars( num ) \
-    par.set( sKeyLog##num##Name, log##num##nm_ ); \
-    par.set( sKeyLog##num##Range, log##num##rg_.start, log##num##rg_.stop ); \
-    par.setYN( sKeyLog##num##Scale, log##num##logsc_ ); \
-    logColor(num).fill( colstr.buf() ); \
-    par.set( sKeyLog##num##Color, colstr )
-
-    mStoreLogPars(1);
-    mStoreLogPars(2);
+    par.set( sKeyLog1Name, logparset_->getLeft()->getLogNm() ); 
+    par.set( sKeyLog2Name, logparset_->getRight()->getLogNm() ); 
+    par.set( sKeyLog1Range, logparset_->getLeft()->getRange() ); 
+    par.set( sKeyLog2Range, logparset_->getRight()->getRange() ); 
+    par.setYN( sKeyLog1Scale, logparset_->getLeft()->getLogScale() ); 
+    par.setYN( sKeyLog2Scale, logparset_->getRight()->getLogScale() ); 
+    par.set( sKeyLog1Color, logparset_->getLeft()->getColor() ); 
+    par.set( sKeyLog2Color, logparset_->getRight()->getColor() );
 }
-
 
 int WellDisplay::usePar( const IOPar& par )
 {
@@ -400,23 +415,32 @@ int WellDisplay::usePar( const IOPar& par )
     {
 	return 1;
     }
-
+    
     BufferString logname;
-    BufferString colstr;
     Color col;
+    Interval<float> rg;
+    bool logsc;
 
-#define mRetrieveLogPars( num ) \
-    par.get( sKeyLog##num##Name, logname ); \
-    par.get( sKeyLog##num##Range, log##num##rg_.start, log##num##rg_.stop ); \
-    par.getYN( sKeyLog##num##Scale, log##num##logsc_ ); \
-    if ( *logname.buf() ) \
-	displayLog( logname, log##num##logsc_, log##num##rg_, num ); \
-    par.get( sKeyLog##num##Color, colstr ); \
-    if ( col.use(colstr.buf()) ) \
-	setLogColor( col, num )
+    par.get( sKeyLog1Name, logname ); 
+    logparset_->getLeft()->setLogNm(logname); 
+    par.get( sKeyLog1Range, rg ); 
+    logparset_->getLeft()->setRange(rg); 
+    par.getYN( sKeyLog1Scale, logsc ); 
+    logparset_->getLeft()->setLogScale(logsc); 
+    par.get( sKeyLog1Color, col ); 
+    logparset_->getLeft()->setColor(col); 
+    					  
+    par.get( sKeyLog2Name, logname ); 
+    logparset_->getRight()->setLogNm(logname); 
+    par.get( sKeyLog2Range, rg ); 
+    logparset_->getRight()->setRange(rg); 
+    par.getYN( sKeyLog2Scale, logsc ); 
+    logparset_->getRight()->setLogScale(logsc); 
+    par.get( sKeyLog2Color, col ); 
+    logparset_->getRight()->setColor(col); 
 
-    mRetrieveLogPars( 1 );
-    mRetrieveLogPars( 2 );
+    displayLeftLog();
+    displayRightLog();
 
 // Support for old sessions
     BufferString linestyle;

@@ -7,12 +7,13 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2003
- RCS:           $Id: uiwellpartserv.h,v 1.20 2006-02-14 13:32:19 cvshelene Exp $
+ RCS:           $Id: uiwellpartserv.h,v 1.21 2007-05-03 11:26:38 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiapplserv.h"
+#include "welllog.h"
 
 class MultiID;
 class Coord3;
@@ -39,7 +40,8 @@ public:
     void			manageWells();
     bool			selectWells(ObjectSet<MultiID>&);
 
-    void			selectLogs(const MultiID&,int&,int&);
+    void			selectLogs(const MultiID&, 
+						Well::LogDisplayParSet*&);
     bool			hasLogs(const MultiID&) const;
 
     void			selectWellCoordsForRdmLine();

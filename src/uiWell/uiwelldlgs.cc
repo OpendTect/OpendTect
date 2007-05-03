@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          October 2003
- RCS:           $Id: uiwelldlgs.cc,v 1.57 2007-05-02 15:46:38 cvsbert Exp $
+ RCS:           $Id: uiwelldlgs.cc,v 1.58 2007-05-03 11:26:38 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -471,115 +471,6 @@ bool uiLoadLogsDlg::acceptOK( CallBacker* )
     return true;
 }
 
-
-// ==================================================================
-
-uiLogSelDlg::uiLogSelDlg( uiParent* p, const Well::LogSet& logs )
-    : uiDialog(p,uiDialog::Setup("Display Well logs",
-				 "Select log","107.2.0"))
-    , logset(logs)
-{
-    logsfld = new uiLabeledListBox( this, "Select Log" );
-    logsfld->box()->setHSzPol( uiObject::Wide );
-    logsfld->box()->selectionChanged.notify( mCB(this,uiLogSelDlg,logSel) );
-    for ( int idx=0; idx<logs.size(); idx++ )
-	logsfld->box()->addItem( logs.getLog(idx).name() );
-
-    rangefld = new uiGenInput( this, "Specify data range", 
-	    			FloatInpIntervalSpec() );
-    rangefld->attach( alignedBelow, logsfld );
-
-    logscfld = new uiCheckBox( this, "Logarithmic" );
-    logscfld->setChecked( false );
-    logscfld->attach( rightOf, rangefld );
-
-    uiPushButton* resetbut = new uiPushButton( this, "&Reset",
-	    				mCB(this,uiLogSelDlg,resetPush), true );
-    resetbut->attach( rightOf, logscfld );
-
-    dispfld = new uiGenInput( this, "Display",
-	    		      BoolInpSpec(true,"Left","Right") );
-    dispfld->attach( alignedBelow, rangefld );
-    dispfld->valuechanged.notify( mCB(this,uiLogSelDlg,leftRightSel) );
-
-    logsfld->box()->setCurrentItem(0);
-}
-
-
-void uiLogSelDlg::setLogNames( const char* left, const char* right )
-{
-    leftlogstr = left;
-    rightlogstr = right;
-    leftRightSel( 0 );
-}
-
-
-void uiLogSelDlg::leftRightSel( CallBacker* )
-{
-    const bool isleft = dispfld->getBoolValue();
-    logsfld->box()->setCurrentItem( isleft ? leftlogstr : rightlogstr );
-}
-
-
-void uiLogSelDlg::resetPush( CallBacker* )
-{
-    setLogRg( true );
-}
-
-
-void uiLogSelDlg::logSel( CallBacker* )
-{
-    setLogRg( false );
-}
-
-
-void uiLogSelDlg::setLogRg( bool def )
-{
-    const int logidx = logsfld->box()->currentItem();
-    if ( logidx < 0 || logidx >= logset.size() )
-	return;
-
-    const Well::Log& log = logset.getLog(logidx);
-    rangefld->setValue( def ? log.valueRange() : log.selValueRange() );
-    logscfld->setChecked( def ? false : log.dispLogarithmic() );
-}
-
-
-bool uiLogSelDlg::acceptOK( CallBacker* )
-{
-    const int logidx = logsfld->box()->currentItem();
-    if ( logidx < 0 || logidx >= logset.size() )
-	return false;
-
-    Well::Log& log = const_cast<Well::Log&>(logset.getLog(logidx));
-    log.setSelValueRange( selRange() );
-    log.setDispLogarithmic( scaleLogarithmic() );
-    return true;
-}
-
-
-int uiLogSelDlg::logNumber() const
-{
-    return dispfld->getBoolValue() ? 1 : 2;
-}
-
-
-int uiLogSelDlg::selectedLog() const
-{
-    return logsfld->box()->currentItem();
-}
-
-
-Interval<float> uiLogSelDlg::selRange() const
-{
-    return rangefld->getFInterval();
-}
-
-
-bool uiLogSelDlg::scaleLogarithmic() const
-{
-    return logscfld->isChecked();
-}
 
 
 // ==================================================================

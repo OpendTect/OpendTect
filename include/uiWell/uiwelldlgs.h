@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2003
- RCS:           $Id: uiwelldlgs.h,v 1.25 2007-05-02 15:46:38 cvsbert Exp $
+ RCS:           $Id: uiwelldlgs.h,v 1.26 2007-05-03 11:26:38 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -107,41 +107,6 @@ protected:
     void			lasSel(CallBacker*);
 };
 
-
-/*! \brief
-Dialog for selecting logs for display
-*/
-
-class uiLogSelDlg : public uiDialog
-{
-public:
-    				uiLogSelDlg(uiParent*,const Well::LogSet&);
-
-    void			setLogNames(const char* left,const char* right);
-
-    int				logNumber() const;
-    int				selectedLog() const;
-    Interval<float>		selRange() const;
-    bool			scaleLogarithmic() const;
-
-protected:
-
-    const Well::LogSet&		logset;
-
-    uiLabeledListBox*		logsfld;
-    uiGenInput*			rangefld;
-    uiCheckBox*			logscfld;
-    uiGenInput*			dispfld;
-
-    BufferString		leftlogstr;
-    BufferString		rightlogstr;
-
-    void			setLogRg(bool);
-    void			leftRightSel(CallBacker*);
-    void			resetPush(CallBacker*);
-    void			logSel(CallBacker*);
-    virtual bool		acceptOK(CallBacker*);
-};
 
 
 class uiExportLogs : public uiDialog

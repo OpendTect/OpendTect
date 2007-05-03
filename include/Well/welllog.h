@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: welllog.h,v 1.13 2006-03-12 13:39:10 cvsbert Exp $
+ RCS:		$Id: welllog.h,v 1.14 2007-05-03 11:26:38 cvsraman Exp $
 ________________________________________________________________________
 
 
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "sets.h"
 #include "welldahobj.h"
 #include "ranges.h"
+#include "color.h"
 
 namespace Well
 {
@@ -63,6 +64,66 @@ protected:
 
 };
 
+
+class LogDisplayPars
+{
+public:
+			LogDisplayPars( BufferString nm,
+					const Interval<float>& rg, 
+					bool logsc )
+			    : lognm_(nm)
+			    , logrange_(rg)
+			    , logscale_(logsc)
+			    , logcolor_(Color::White)	{}
+			LogDisplayPars() {}
+			~LogDisplayPars() {}
+
+    void		setLogNm( const char* nm )	{ lognm_ = nm; }
+    void		setRange( const Interval<float>& rg )
+    				{ logrange_ = rg; }
+    void		setLogScale( bool ls )	{ logscale_ = ls; }
+    void		setColor( const Color& col )	
+				{ logcolor_.setRgb( col.rgb() ); }
+    BufferString	getLogNm() const	{ return lognm_; }
+    Interval<float>	getRange() const	{ return logrange_; }
+    bool		getLogScale() const	{ return logscale_; }
+    Color		getColor() const	{ return logcolor_; }
+
+protected:
+    BufferString	lognm_;
+    Interval<float>	logrange_;
+    bool		logscale_;
+    Color		logcolor_;
+};
+
+
+class LogDisplayParSet
+{
+public:
+			LogDisplayParSet ()
+			{
+			    Interval<float> lrg( 0, 0 );
+			    Interval<float> rrg( 0, 0 );
+			    leftlogpar_ = new LogDisplayPars( "None", lrg,
+							false );
+			    rightlogpar_ = new LogDisplayPars( "None", rrg,
+							false );  
+			}
+			~LogDisplayParSet()  
+			{
+			    delete leftlogpar_;
+			    delete rightlogpar_;
+			}
+
+    LogDisplayPars*	getLeft() const { return leftlogpar_; }
+    LogDisplayPars*	getRight() const { return rightlogpar_; }
+    void		setLeft( LogDisplayPars* lp ) { leftlogpar_ = lp; }
+    void		setRight( LogDisplayPars* rp ) { rightlogpar_ = rp; }
+
+protected:
+    LogDisplayPars*	leftlogpar_;
+    LogDisplayPars*	rightlogpar_;
+};
 
 }; // namespace Well
 

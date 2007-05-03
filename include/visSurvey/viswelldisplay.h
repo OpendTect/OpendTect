@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viswelldisplay.h,v 1.38 2007-04-13 19:55:30 cvskris Exp $
+ RCS:		$Id: viswelldisplay.h,v 1.39 2007-05-03 11:26:38 cvsraman Exp $
 ________________________________________________________________________
 
 
@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "vissurvobj.h"
 #include "multiid.h"
 #include "ranges.h"
+#include "welllog.h"
 
 class LineStyle;
 
@@ -29,7 +30,7 @@ namespace visBase
     class Well;
 };
 
-namespace Well { class Data; class Track; }
+namespace Well { class Data; class Track; class LogDisplayPars; class LogDisplayParSet; }
 
 namespace visSurvey
 {
@@ -67,12 +68,13 @@ public:
     void			setMarkerScreenSize(int);
     int				markerScreenSize() const;
 
-    void			displayLog(int idx,int nr,bool logarthm_scale,
-	    				   const Interval<float>* rg=0);
-    				//!< idx: idx in Well::LogSet
-    				//!< nr==1: left log; nr==2: right log
-    void			displayLog(const char*,bool,
+    void			displayLog(int,Interval<float>*,bool,int);
+    void			displayLog(const BufferString,bool,
 	    				   const Interval<float>&,int nr);
+    void			displayRightLog();
+    void			displayLeftLog();
+    Well::LogDisplayParSet*	getLogParSet() const	{ return logparset_; }
+
     void			setLogColor(const Color&,int);
     const Color&		logColor(int) const;
     void			setLogLineWidth(float,int);
@@ -84,7 +86,7 @@ public:
     void			showLogName(bool);
     bool			logNameShown() const;
     const char*			logName(bool left) const
-				{ return left ? log1nm_ : log2nm_; }
+				{return left ? logparset_->getLeft()->getLogNm()					: logparset_->getRight()->getLogNm();}
 
     void			getMousePosInfo(const visBase::EventInfo& pos,
 	    					const Coord3&,BufferString& val,
@@ -114,6 +116,7 @@ protected:
     void			updateMarkers(CallBacker*);
     void			fullRedraw(CallBacker*);
     TypeSet<Coord3>		getTrackPos(Well::Data*);
+    void			displayLog(Well::LogDisplayPars*,int);
 
     void                        pickCB(CallBacker* cb=0);
 
@@ -123,12 +126,7 @@ protected:
     const bool			zistime_;
     const bool			zinfeet_;
 
-    BufferString		log1nm_;
-    BufferString		log2nm_;
-    Interval<float>		log1rg_;
-    Interval<float>		log2rg_;
-    bool			log1logsc_;
-    bool			log2logsc_;
+    Well::LogDisplayParSet*	logparset_;
 
     visBase::DataObjectGroup*	group_;
     visBase::EventCatcher*	eventcatcher_;
