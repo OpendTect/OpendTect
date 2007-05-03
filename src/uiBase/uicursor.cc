@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          12/05/2004
- RCS:           $Id: uicursor.cc,v 1.6 2007-05-03 16:24:42 cvskris Exp $
+ RCS:           $Id: uicursor.cc,v 1.7 2007-05-03 18:11:44 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,18 +16,40 @@ ________________________________________________________________________
 #include "qapplication.h"
 
 
-void uiCursor::setOverride( uiCursor::Shape shape, bool replace )
+uiCursor::uiCursor( Shape sh )
+    : qcursor_( *new QCursor )
 {
-    Qt::CursorShape qshape = (Qt::CursorShape)(int)shape;
-    QApplication::setOverrideCursor( QCursor(qshape), replace );
+    setShape( sh );
 }
 
 
-void uiCursor::setOverride( const ioPixmap& pm, int hotx, int hoty,
-			    bool replace )
+uiCursor::uiCursor( const ioPixmap& pm, int hotx, int hoty )
+    : qcursor_( *new QCursor )
 {
-    QApplication::setOverrideCursor( QCursor( *pm.qpixmap(), hotx, hoty ),
-	    			     replace );
+    setPixmap( pm, hotx, hoty );
+}
+
+
+uiCursor::~uiCursor()
+{ delete &qcursor_; }
+
+
+void uiCursor::setShape( Shape sh )
+{
+    Qt::CursorShape qshape = (Qt::CursorShape)(int) sh;
+    qcursor_.setShape( qshape );
+}
+
+
+void uiCursor::setPixmap( const ioPixmap& pm, int hotx, int hoty )
+{
+    qcursor_ = QCursor( *pm.qpixmap(), hotx, hoty );
+}
+
+
+void uiCursor::setOverride( const uiCursor& cursor, bool replace )
+{
+    QApplication::setOverrideCursor( cursor.qcursor_,  replace );
 }
 
 
@@ -35,3 +57,6 @@ void uiCursor::restoreOverride()
 {
     QApplication::restoreOverrideCursor();
 }
+
+
+const QCursor& uiCursor::qcursor() const { return qcursor_; }

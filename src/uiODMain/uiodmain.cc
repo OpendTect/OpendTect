@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodmain.cc,v 1.71 2007-04-24 03:38:32 cvsnanne Exp $
+ RCS:           $Id: uiodmain.cc,v 1.72 2007-05-03 18:11:44 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -437,7 +437,7 @@ bool uiODMain::updateSession()
 
 void uiODMain::doRestoreSession()
 {
-    uiCursor::setOverride( uiCursor::Wait );
+    uiCursor::setOverride( uiCursor(uiCursor::Wait) );
     sceneMgr().cleanUp( false );
     applMgr().resetServers();
 
@@ -461,7 +461,7 @@ void uiODMain::doRestoreSession()
 	uiCursor::restoreOverride();
 	uiMSG().error( "An error occurred while reading session file.\n"
 		       "A new scene will be launched" );	
-	uiCursor::setOverride( uiCursor::Wait );
+	uiCursor::setOverride( uiCursor(uiCursor::Wait) );
 	sceneMgr().cleanUp( true );
     }
 
