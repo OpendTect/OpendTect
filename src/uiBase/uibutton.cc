@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uibutton.cc,v 1.35 2007-03-26 13:46:39 cvsbert Exp $
+ RCS:           $Id: uibutton.cc,v 1.36 2007-05-03 08:13:23 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -311,7 +311,7 @@ static int preftbsz = -1;
 	if ( preftbsz < 10 || preftbsz > 64 ) \
 	    preftbsz = 28; \
     } \
-    setPrefWidth( preftbsz ); setPrefHeight( preftbsz )
+    body_->setIconSize( QSize(preftbsz,preftbsz) );
 
 uiToolButton::uiToolButton( uiParent* parnt, const char* nm )
     : uiButton( parnt, nm, 0, mkbody(parnt,0,nm) )
