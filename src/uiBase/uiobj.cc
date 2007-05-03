@@ -4,13 +4,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          25/08/1999
- RCS:           $Id: uiobj.cc,v 1.63 2007-03-06 07:40:55 cvsnanne Exp $
+ RCS:           $Id: uiobj.cc,v 1.64 2007-05-03 18:13:24 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiobj.h"
 #include "uiobjbody.h"
+#include "uicursor.h"
 #include "uimainwin.h"
 #include "i_layoutitem.h"
 #include "errh.h"
@@ -221,6 +222,12 @@ void uiObject::setFocus()
     
 bool uiObject::hasFocus() const			
     { return mConstBody()->uihasFocus(); }
+
+
+void uiObject::setCursor( const uiCursor& cursor )
+{
+    body()->qwidget()->setCursor( cursor.qcursor() );
+}
 
 
 const Color& uiObject::backgroundColor() const	
