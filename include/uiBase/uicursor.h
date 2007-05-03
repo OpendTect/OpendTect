@@ -7,10 +7,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          12/05/2004
- RCS:           $Id: uicursor.h,v 1.6 2006-12-08 15:58:03 cvsnanne Exp $
+ RCS:           $Id: uicursor.h,v 1.7 2007-05-03 16:24:42 cvskris Exp $
 ________________________________________________________________________
 
 -*/
+
+class ioPixmap;
 
 class uiCursor 
 {
@@ -67,6 +69,8 @@ public:
     is pushed onto the top of the stack.
 */
     static void		setOverride(Shape,bool replace=false);
+    static void		setOverride(const ioPixmap&,int hotx=-1,int hoty=-1,
+	    			    bool replace=false);
     static void		restoreOverride();
 };
 
