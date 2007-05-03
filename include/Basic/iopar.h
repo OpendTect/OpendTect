@@ -7,13 +7,14 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		21-12-1995
- RCS:		$Id: iopar.h,v 1.42 2006-11-21 14:00:06 cvsbert Exp $
+ RCS:		$Id: iopar.h,v 1.43 2007-05-03 11:21:43 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
  
 #include "namedobj.h"
 #include "sets.h"
+#include "ranges.h"
 
 class BinID;
 class BufferString;
@@ -152,6 +153,7 @@ public:
     bool		getPtr(const char*,void*&) const;
     inline bool		isTrue( const char* key ) const
 			{ bool b = false; return getYN(key,b) && b; }
+    bool		get(const char*,Interval<float>&) const;
     bool		get(const char*,BinID&) const;
     bool		get(const char*,Coord&) const;
     bool		get(const char*,Coord3&) const;
@@ -184,6 +186,7 @@ public:
     void		setYN(const char*,bool,bool);
     void		setPtr(const char*,void*);
 
+    void		set(const char*,const Interval<float>&);
     void		set(const char*,const BinID&);
     void		set(const char*,const Coord&);
     void		set(const char*,const Coord3&);
