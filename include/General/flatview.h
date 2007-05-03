@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2005
- RCS:           $Id: flatview.h,v 1.17 2007-05-02 20:47:29 cvskris Exp $
+ RCS:           $Id: flatview.h,v 1.18 2007-05-03 19:17:43 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,6 +43,8 @@ public:
 				AuxData( const char* nm );
 				AuxData( const AuxData& );
 				~AuxData();
+
+	bool			enabled_; 	//!<Turns on/off everything
 
 	BufferString		name_;
 	int			namepos_;	//!<nodraw=udf, before first=-1,
@@ -96,8 +98,7 @@ public:
 			{ return color_.isVisible()
 			      && ( ( x1dir && x1_.showgridlines_)
 				|| (!x1dir && x2_.showgridlines_)); }
-    inline bool		haveAux() const
-			{ return showaux_ && auxdata_.size() > 0; }
+    bool		haveAux() const;
 
     void		fillPar(IOPar&) const;
     void		usePar(const IOPar&);

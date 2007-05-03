@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2000
- RCS:           $Id: flatview.cc,v 1.17 2007-05-02 20:47:29 cvskris Exp $
+ RCS:           $Id: flatview.cc,v 1.18 2007-05-03 19:17:43 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -177,6 +177,22 @@ FlatView::Annotation::~Annotation()
     deepErase( auxdata_ );
 }
 
+
+bool FlatView::Annotation::haveAux() const
+{
+    if ( !showaux_ ) return false;
+
+    for ( int idx=auxdata_.size()-1; idx>=0; idx-- )
+    {
+	if ( auxdata_[idx]->enabled_ )
+	{
+	    return true;
+	}
+    }
+
+    return false;
+}
+
 #define mIOPDoAxes(fn,keynm,memb) \
     iop.fn( IOPar::compKey(sKeyAxes,keynm), memb )
 #define mIOPDoAxes2(fn,keynm,memb1,memb2) \
@@ -214,6 +230,7 @@ FlatView::Annotation::AuxData::AuxData( const char* nm )
     , close_( false )
     , x1rg_( 0 )
     , x2rg_( 0 )
+    , enabled_( true )
 {}
 
 
@@ -226,6 +243,7 @@ FlatView::Annotation::AuxData::AuxData(const FlatView::Annotation::AuxData& aux)
     , close_( aux.close_ )
     , x1rg_( aux.x1rg_ ? new Interval<double>( *aux.x1rg_ ) : 0 )
     , x2rg_( aux.x2rg_ ? new Interval<double>( *aux.x2rg_ ) : 0 )
+    , enabled_( aux.enabled_ )
 {}
 
 
