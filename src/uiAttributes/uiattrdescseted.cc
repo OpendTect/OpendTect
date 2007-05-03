@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrdescseted.cc,v 1.46 2007-04-10 12:24:10 cvsbert Exp $
+ RCS:           $Id: uiattrdescseted.cc,v 1.47 2007-05-03 12:30:31 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -385,9 +385,13 @@ void uiAttribDescSetEd::newList( int newcur )
 {
     prevdesc = 0;
     updateUserRefs();
+    // Fix for continuous call during re-build of list
+    updating_fields = true;
     attrlistfld->empty();
     attrlistfld->addItems( userattrnames );
+    updating_fields = false;	
     if ( newcur < 0 ) newcur = 0;
+    if ( newcur >= attrlistfld->size() ) newcur = attrlistfld->size()-1;
     if ( !userattrnames.isEmpty() )
     {
 	attrlistfld->setCurrentItem( newcur );
@@ -468,7 +472,7 @@ bool uiAttribDescSetEd::doCommit( bool useprev )
     if ( !curdesced )
 	return false;
 
-    const char* res = curdesced->commit( 0 );
+    const char* res = curdesced->commit();
     if ( res )
 	mErrRetFalse( res )
 
