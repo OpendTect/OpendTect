@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/09/2000
- RCS:           $Id: uifiledlg.cc,v 1.34 2007-03-07 09:59:52 cvsnanne Exp $
+ RCS:           $Id: uifiledlg.cc,v 1.35 2007-05-03 09:01:09 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -170,6 +170,10 @@ int uiFileDialog::go()
 #ifdef USEQT3
     if ( !oktxt_.isEmpty() ) fd->okB->setText( (const char*)oktxt_ );
     if ( !cnclxt_.isEmpty()) fd->cancelB->setText( (const char*)cnclxt_ );
+#endif
+
+#ifdef __win__
+    fd->setViewMode( QFileDialog::Detail );
 #endif
 
     if ( fd->exec() != QDialog::Accepted )
