@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2002
- RCS:           $Id: visvolumedisplay.cc,v 1.57 2007-04-25 16:22:33 cvskris Exp $
+ RCS:           $Id: visvolumedisplay.cc,v 1.58 2007-05-04 21:46:22 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -294,6 +294,7 @@ void VolumeDisplay::setCubeSampling( const CubeSampling& cs )
     const Interval<float> zintv( cs.zrg.start, cs.zrg.stop );
     voltrans_->setTranslation( 
 	    	Coord3(xintv.center(),yintv.center(),zintv.center()) );
+    voltrans_->setRotation( Coord3( 0, 1, 0 ), M_PI_2 );
     voltrans_->setScale( Coord3(-zintv.width(),yintv.width(),xintv.width()) );
     scalarfield_->setVolumeSize( Interval<float>(-0.5,0.5),
 	    		    Interval<float>(-0.5,0.5),
