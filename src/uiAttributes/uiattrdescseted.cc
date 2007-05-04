@@ -4,43 +4,48 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrdescseted.cc,v 1.47 2007-05-03 12:30:31 cvshelene Exp $
+ RCS:           $Id: uiattrdescseted.cc,v 1.48 2007-05-04 06:05:44 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiattrdescseted.h"
-#include "uiattrdesced.h"
-#include "uiattribfactory.h"
-#include "uiattrtypesel.h"
+
 #include "attribfactory.h"
 #include "attribdesc.h"
 #include "attribdescset.h"
 #include "attribdescsetman.h"
 #include "attribdescsettr.h"
 #include "attribparam.h"
-#include "attribstorprovider.h"
-#include "uiattrinpdlg.h"
-#include "uiattrgetfile.h"
 #include "attribsel.h"
-
+#include "attribstorprovider.h"
+#include "bufstringset.h"
 #include "ctxtioobj.h"
 #include "datainpspec.h"
 #include "dirlist.h"
 #include "filegen.h"
 #include "filepath.h"
+#include "iodir.h"
 #include "ioman.h"
 #include "ioobj.h"
-#include "iostrm.h"
 #include "iopar.h"
-#include "iodir.h"
+#include "iostrm.h"
+#include "keystrs.h"
 #include "oddirs.h"
 #include "ptrman.h"
-#include "keystrs.h"
+#include "seistype.h"
+#include "survinfo.h"
 
-#include "uigeninput.h"
+#include "uiattrdesced.h"
+#include "uiattrgetfile.h"
+#include "uiattribcrossplot.h"
+#include "uiattribfactory.h"
+#include "uiattrinpdlg.h"
+#include "uiattrtypesel.h"
 #include "uibutton.h"
 #include "uicombobox.h"
+#include "uifileinput.h"
+#include "uigeninput.h"
 #include "uiioobjsel.h"
 #include "uilabel.h"
 #include "uilistbox.h"
@@ -49,13 +54,9 @@ ________________________________________________________________________
 #include "uimsg.h"
 #include "uiselsimple.h"
 #include "uiseparator.h"
+#include "uisplitter.h"
 #include "uitextedit.h"
 #include "uitoolbar.h"
-#include "seistype.h"
-#include "survinfo.h"
-#include "bufstringset.h"
-#include "uifileinput.h"
-#include "uiattribcrossplot.h"
 
 
 extern "C" const char* GetBaseDataDir();
@@ -150,14 +151,9 @@ void uiAttribDescSetEd::createGroups()
     rmbut->attach( centeredBelow, attrlistfld );
     rmbut->activated.notify( mCB(this,uiAttribDescSetEd,rmPush) );
 
-    uiSeparator* vertsep = new uiSeparator( this, "Big vert sep", false );
-    vertsep->attach( rightOf, leftgrp );
-    vertsep->attach( heightSameAs, leftgrp );
-
 //  Right part
     uiGroup* rightgrp = new uiGroup( this, "RightGroup" );
-    rightgrp->setStretch( 0, 1 );
-    rightgrp->attach( rightOf, vertsep );
+    rightgrp->setStretch( 1, 1 );
 
     uiGroup* degrp = new uiGroup( rightgrp, "DescEdGroup" );
     degrp->setStretch( 1, 1 );
@@ -198,6 +194,10 @@ void uiAttribDescSetEd::createGroups()
     revbut->attach( rightTo, addbut );
     revbut->attach( rightBorder );
     revbut->activated.notify( mCB(this,uiAttribDescSetEd,revPush) );
+
+    uiSplitter* splitter = new uiSplitter( this, "Splitter", true );
+    splitter->addGroup( leftgrp );
+    splitter->addGroup( rightgrp );
 }
 
 
@@ -211,7 +211,7 @@ void uiAttribDescSetEd::init()
 
     setid = inoutadsman->attrsetid_;
     IOM().to( setctio.ctxt.getSelKey() );
-    setctio.ioobj = IOM().get( setid );
+    setctio.setObj( IOM().get(setid) );
     attrsetfld->setText( setctio.ioobj ? setctio.ioobj->name() : "" );
     cancelsetid = setid;
     newList(0);
