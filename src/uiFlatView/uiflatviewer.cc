@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewer.cc,v 1.24 2007-05-02 20:47:29 cvskris Exp $
+ RCS:           $Id: uiflatviewer.cc,v 1.25 2007-05-04 11:54:00 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,7 +27,6 @@ uiFlatViewer::uiFlatViewer( uiParent* p )
     : uiGroup(p,"Flat viewer")
     , canvas_(*new uiRGBArrayCanvas(this,*new uiRGBArray))
     , axesdrawer_(*new FlatView::AxesDrawer(*this,canvas_))
-    , reportedchange_(All)
     , dim0extfac_(0.5)
     , wvabmpmgr_(0)
     , vdbmpmgr_(0)
@@ -40,6 +39,7 @@ uiFlatViewer::uiFlatViewer( uiParent* p )
     bmp2rgb_ = new FlatView::BitMap2RGB( appearance(), canvas_.rgbArray() );
     canvas_.newFillNeeded.notify( mCB(this,uiFlatViewer,canvasNewFill) );
     canvas_.postDraw.notify( mCB(this,uiFlatViewer,canvasPostDraw) );
+    reportedchanges_ += All;
 }
 
 
@@ -96,7 +96,9 @@ void uiFlatViewer::setInitialSize( uiSize sz )
 
 
 void uiFlatViewer::canvasNewFill( CallBacker* )
-{ drawBitMaps(); }
+{
+    drawBitMaps();
+}
 
 
 void uiFlatViewer::canvasPostDraw( CallBacker* )
@@ -151,7 +153,10 @@ void uiFlatViewer::setView( uiWorldRect wr )
 
 void uiFlatViewer::handleChange( DataChangeType dct )
 {
-    reportedchange_ = dct;
+    if ( dct == None ) return;
+
+    reportedchanges_ += dct;
+
     const FlatView::Annotation& annot = appearance().annot_;
     int l = extraborders_.left(); int r = extraborders_.right();
     int t = extraborders_.top(); int b = extraborders_.bottom();
@@ -163,8 +168,6 @@ void uiFlatViewer::handleChange( DataChangeType dct )
 	{ b += annotsz_.height(); t += annotsz_.height(); }
     canvas_.setBorders( uiSize(l,t), uiSize(r,b) );
     canvas_.forceNewFill();
-    if ( dct == WVAData || dct == VDData || dct==All )
-	dataChanged.trigger();
 }
 
 
@@ -172,18 +175,37 @@ void uiFlatViewer::drawBitMaps()
 {
     if ( !anysetviewdone_ ) initView();
 
+    bool datachgd = false;
+    for ( int idx=0; idx<reportedchanges_.size(); idx++ )
+    {
+	DataChangeType dct = reportedchanges_[idx];
+	if ( dct == All || dct == WVAData || dct == VDData )
+	    datachgd = true;
+    }
+    reportedchanges_.erase();
+
     uiRGBArray& rgbarr = canvas_.rgbArray();
     uiSize uisz( rgbarr.getSize(true), rgbarr.getSize(false) );
 
-    //TODO: use prev bmp data and changetype to optimise
-    delete wvabmpmgr_; wvabmpmgr_ = new FlatView::BitMapMgr(*this,true);
-    delete vdbmpmgr_; vdbmpmgr_ = new FlatView::BitMapMgr(*this,false);
+    bool neednewbitmaps = datachgd;
+    if ( datachgd )
+	dataChanged.trigger();
+    else
+	neednewbitmaps = prevwr_ != wr_ || prevsz_ != uisz;
+    prevwr_ = wr_; prevsz_ = uisz;
 
-    if ( !wvabmpmgr_->generate(wr_,uisz) || !vdbmpmgr_->generate(wr_,uisz) )
+    //TODO: better optimisation
+    if ( neednewbitmaps )
     {
-	uiMSG().error( "No memory for bitmaps" );
-	delete wvabmpmgr_; wvabmpmgr_ = 0; delete vdbmpmgr_; vdbmpmgr_ = 0;
-	return;
+	delete wvabmpmgr_; wvabmpmgr_ = new FlatView::BitMapMgr(*this,true);
+	delete vdbmpmgr_; vdbmpmgr_ = new FlatView::BitMapMgr(*this,false);
+
+	if ( !wvabmpmgr_->generate(wr_,uisz) || !vdbmpmgr_->generate(wr_,uisz) )
+	{
+	    uiMSG().error( "No memory for bitmaps" );
+	    delete wvabmpmgr_; wvabmpmgr_ = 0; delete vdbmpmgr_; vdbmpmgr_ = 0;
+	    return;
+	}
     }
 
     bmp2rgb_->draw( wvabmpmgr_->bitMap(), vdbmpmgr_->bitMap() );
@@ -210,8 +232,6 @@ void uiFlatViewer::drawAnnot()
 	dt.drawText( uiPoint(canvas_.arrArea().centre().x,2), annot.title_,
 		     mAlign(Middle,Start) );
     }
-
-    reportedchange_ = None;
 }
 
 

@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewer.h,v 1.12 2007-05-02 18:33:21 cvskris Exp $
+ RCS:           $Id: uiflatviewer.h,v 1.13 2007-05-04 11:54:00 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -60,15 +60,17 @@ public:
 
 protected:
 
-    uiRGBArrayCanvas&			canvas_;
-    FlatView::AxesDrawer& 		axesdrawer_;
-    					//!<Needs to be declared *after* canvas_
-    uiWorldRect				wr_;
+    uiRGBArrayCanvas&		canvas_;
+    FlatView::AxesDrawer& 	axesdrawer_;
+    				//!<Needs to be declared *after* canvas_
+    uiWorldRect			wr_;
 
-    DataChangeType		reportedchange_;
+    TypeSet<DataChangeType>	reportedchanges_;
     float			dim0extfac_;
     uiRect			extraborders_;
     uiSize			annotsz_;
+    uiWorldRect			prevwr_;
+    uiSize			prevsz_;
     bool			anysetviewdone_;
     bool			x0rev_;
     bool			x1rev_;
