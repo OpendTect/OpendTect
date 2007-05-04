@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: uilistbox.cc,v 1.74 2007-05-02 14:37:41 cvsbert Exp $
+ RCS:           $Id: uilistbox.cc,v 1.75 2007-05-04 09:54:43 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -72,7 +72,9 @@ uiListBoxBody::uiListBoxBody( uiListBox& handle, uiParent* parnt,
 	, prefnrlines(preferredNrLines)
 {
     setObjectName( nm );
-    if( isMultiSelect ) setSelectionMode( mExtended );
+    setDragDropMode( QAbstractItemView::NoDragDrop );
+    setAcceptDrops( false ); setDragEnabled( false );
+    if ( isMultiSelect ) setSelectionMode( mExtended );
 
     setStretch( 2, (nrTxtLines()== 1) ? 0 : 2 );
 
