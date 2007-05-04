@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Jan 2005
- RCS:           $Id: viscallout.cc,v 1.15 2007-03-29 20:53:44 cvskris Exp $
+ RCS:           $Id: viscallout.cc,v 1.16 2007-05-04 19:53:06 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -428,7 +428,8 @@ void Callout::setDisplayTransformation( visBase::Transformation* nt )
     marker_->setDisplayTransformation( nt );
 
     displaytrans_ = nt;
-    displaytrans_->ref();
+    if ( displaytrans_ )
+	displaytrans_->ref();
 }
 
 
@@ -791,6 +792,7 @@ void CalloutDisplay::urlClickCB( CallBacker* cb )
 
 void CalloutDisplay::setScaleTransform( visBase::DataObject* dobj ) const
 {
+    if ( !scene_ ) return;
     mDynamicCastGet( Callout*, call, dobj );
     call->getScale()->
 	setScale(Coord3(1,1,2/scene_->getZScale()));
