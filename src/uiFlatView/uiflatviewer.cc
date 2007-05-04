@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewer.cc,v 1.25 2007-05-04 11:54:00 cvsbert Exp $
+ RCS:           $Id: uiflatviewer.cc,v 1.26 2007-05-04 12:05:38 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -180,7 +180,7 @@ void uiFlatViewer::drawBitMaps()
     {
 	DataChangeType dct = reportedchanges_[idx];
 	if ( dct == All || dct == WVAData || dct == VDData )
-	    datachgd = true;
+	    { datachgd = true; break; }
     }
     reportedchanges_.erase();
 
