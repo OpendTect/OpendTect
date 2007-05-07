@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          November 2001
- RCS:           $Id: uisettings.cc,v 1.23 2007-03-19 17:41:50 cvsbert Exp $
+ RCS:           $Id: uisettings.cc,v 1.24 2007-05-07 05:50:30 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -87,13 +87,15 @@ bool uiSettings::acceptOK( CallBacker* )
 struct LooknFeelSettings
 {
     		LooknFeelSettings()
-		    : iconsz( 24 )
-		    , isvert( true )
-		    , isontop( false )		{}
+		    : iconsz(24)
+		    , isvert(true)
+		    , isontop(false)
+		    , noshading(false)		{}
 
     int		iconsz;
     bool	isvert;
     bool	isontop;
+    bool	noshading;
 };
 
 
@@ -102,7 +104,6 @@ uiLooknFeelSettings::uiLooknFeelSettings( uiParent* p, const char* nm )
 	: uiDialog(p,uiDialog::Setup(nm,"Look and Feel Settings","0.2.3"))
 	, setts(Settings::common())
     	, lfsetts(*new LooknFeelSettings)
-	, oldnoshading(false)
 	, changed(false)
 {
     IOPar* iopar = setts.subselect( mIconsKey );
@@ -118,17 +119,21 @@ uiLooknFeelSettings::uiLooknFeelSettings( uiParent* p, const char* nm )
    
     iconszfld = new uiGenInput( this, "Icon Size", IntInpSpec(lfsetts.iconsz) );
     colbarhvfld = new uiGenInput( this, "Color bar orientation",
-			  BoolInpSpec(lfsetts.isvert,"Vertical","Horizontal") );
+			BoolInpSpec(lfsetts.isvert,"Vertical","Horizontal") );
+    colbarhvfld->valuechanged.notify(
+			mCB(this,uiLooknFeelSettings,ctOrientChange) );
     colbarhvfld->attach( alignedBelow, iconszfld );
 
     colbarontopfld = new uiGenInput( this, "Color bar starts on top",
-			      BoolInpSpec(lfsetts.isontop) );
+				     BoolInpSpec(lfsetts.isontop) );
     colbarontopfld->attach( alignedBelow, colbarhvfld );
 
-    setts.getYN( "dTect.No shading", oldnoshading );
+    setts.getYN( "dTect.No shading", lfsetts.noshading );
     useshadingfld = new uiGenInput( this, "Use OpenGL shading when available",
-	    				BoolInpSpec(!oldnoshading) );
+				    BoolInpSpec(!lfsetts.noshading) );
     useshadingfld->attach( alignedBelow, colbarontopfld );
+
+    ctOrientChange(0);
 }
 
 uiLooknFeelSettings::~uiLooknFeelSettings()
@@ -137,12 +142,18 @@ uiLooknFeelSettings::~uiLooknFeelSettings()
 }
 
 
+void uiLooknFeelSettings::ctOrientChange( CallBacker* )
+{
+    colbarontopfld->display( colbarhvfld->getBoolValue() );
+}
+
+
 bool uiLooknFeelSettings::acceptOK( CallBacker* )
 {
     LooknFeelSettings newsetts;
     newsetts.iconsz = iconszfld->getIntValue();
     newsetts.isvert = colbarhvfld->getBoolValue();
-    newsetts.isontop = colbarontopfld->getBoolValue();
+    newsetts.isontop = newsetts.isvert ? colbarontopfld->getBoolValue() : false;
 
     if ( newsetts.iconsz < 10 || newsetts.iconsz > 64 )
     {
@@ -161,8 +172,8 @@ bool uiLooknFeelSettings::acceptOK( CallBacker* )
 	delete iopar;
     }
 
-    if ( newsetts.isvert != lfsetts.isvert
-      || newsetts.isontop != lfsetts.isontop )
+    if ( newsetts.isvert != lfsetts.isvert ||
+	 newsetts.isontop != lfsetts.isontop )
     {
 	IOPar* iopar = setts.subselect( mCBarKey );
 	if ( !iopar ) iopar = new IOPar;
@@ -175,8 +186,8 @@ bool uiLooknFeelSettings::acceptOK( CallBacker* )
 	delete iopar;
     }
 
-    bool newnoshading = !useshadingfld->getBoolValue();
-    if ( oldnoshading != newnoshading )
+    const bool newnoshading = !useshadingfld->getBoolValue();
+    if ( lfsetts.noshading != newnoshading )
     {
 	changed = true;
 	setts.setYN( "dTect.No shading", newnoshading );

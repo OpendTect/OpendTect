@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Dec 2004
- RCS:		$Id: uisettings.h,v 1.9 2007-03-19 17:41:50 cvsbert Exp $
+ RCS:		$Id: uisettings.h,v 1.10 2007-05-07 05:50:30 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,13 +51,14 @@ protected:
 
     Settings&		setts;
     LooknFeelSettings&	lfsetts;
-    bool		oldnoshading;
     bool		changed;
 
     uiGenInput*		iconszfld;
     uiGenInput*		colbarhvfld;
     uiGenInput*		colbarontopfld;
     uiGenInput*		useshadingfld;
+
+    void		ctOrientChange(CallBacker*);
 
     bool		acceptOK(CallBacker*);
 
