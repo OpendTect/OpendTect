@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewer.cc,v 1.26 2007-05-04 12:05:38 cvsbert Exp $
+ RCS:           $Id: uiflatviewer.cc,v 1.27 2007-05-07 22:00:20 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -289,7 +289,7 @@ void uiFlatViewer::drawGridAnnot()
 
 void uiFlatViewer::drawAux( const FlatView::Annotation::AuxData& ad )
 {
-    if ( ad.isEmpty() ) return;
+    if ( !ad.enabled_ || ad.isEmpty() ) return;
 
     const FlatView::Annotation& annot = appearance().annot_;
     const uiRect datarect( canvas_.arrArea() );
