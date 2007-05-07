@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uimultisurfaceread.cc,v 1.8 2007-04-10 11:09:04 cvsbert Exp $
+ RCS:           $Id: uimultisurfaceread.cc,v 1.9 2007-05-07 10:20:45 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,14 +43,17 @@ uiMultiSurfaceRead::uiMultiSurfaceRead( uiParent* p, const BufferString& typ )
     surfacefld_->box()->doubleClicked.notify(
 	    				mCB(this,uiMultiSurfaceRead,dClck) );
 
-    if ( typ == EMHorizon2DTranslatorGroup::keyword )
-	return;
-
     mkSectionFld( true );
     sectionfld->attach( rightTo, surfacefld_ );
 
     mkRangeFld();
     rgfld->attach( leftAlignedBelow, surfacefld_ );
+
+    if ( typ == EMHorizon2DTranslatorGroup::keyword )
+    {
+	sectionfld->display( false, true );
+	rgfld->display( false, true );
+    }
 }
 
 
