@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:		Feb 2007
- RCS:           $Id: flatviewzoommgr.cc,v 1.3 2007-03-13 18:31:38 cvsbert Exp $
+ RCS:           $Id: flatviewzoommgr.cc,v 1.4 2007-05-07 18:22:45 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -54,8 +54,8 @@ void FlatView::ZoomMgr::add( FlatView::ZoomMgr::Size newzoom )
     for ( int idx=0; idx<zooms_.size(); idx++ )
     {
 	const Size zoom = zooms_[idx];
-	if ( newzoom.width() > zoom.width() - eps.width()
-	  && newzoom.width() < zoom.width() + eps.width() )
+	if ( mIsEqual(newzoom.width(),zoom.width(), eps.width() ) &&
+	     mIsEqual(newzoom.height(),zoom.height(), eps.height() ) )
 	    { cur_ = idx; return; }
     }
 
