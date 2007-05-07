@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          January 2007
- RCS:           $Id: uihor3dfrom2ddlg.cc,v 1.8 2007-04-26 08:02:29 cvsjaap Exp $
+ RCS:           $Id: uihor3dfrom2ddlg.cc,v 1.9 2007-05-07 15:52:29 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -78,8 +78,9 @@ bool uiHor3DFrom2DDlg::acceptOK( CallBacker* )
     const BufferString typ = EM::Horizon::typeStr();
 
     PtrMan<IOObj> ioobj = IOM().getLocal( nm );
+    const bool implexists = ioobj && ioobj->implExists( false );
     const bool nameandtypeexist = ioobj && typ==ioobj->group();
-    if ( ioobj && !uiMSG().askGoOn(mAskGoOnStr(nameandtypeexist),true) )
+    if ( implexists && !uiMSG().askGoOn(mAskGoOnStr(nameandtypeexist),true) )
 	return false;
     
     EM::EMManager& em = EM::EMM();
