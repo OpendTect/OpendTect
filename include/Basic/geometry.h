@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2000
- RCS:           $Id: geometry.h,v 1.29 2007-04-04 15:50:09 cvskris Exp $
+ RCS:           $Id: geometry.h,v 1.30 2007-05-07 20:50:47 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -452,12 +452,12 @@ Point2D<T> Rectangle<T>::topLeft() const
 
 template <class T> inline
 Point2D<T> Rectangle<T>::topRight() const
-{ return Point2D<T>(top(),right()); }
+{ return Point2D<T>(right(),top()); }
 
 
 template <class T> inline
 Point2D<T> Rectangle<T>::bottomLeft() const
-{ return Point2D<T>(bottom(),left()); }
+{ return Point2D<T>(left(),bottom()); }
 
 
 template <class T> inline
