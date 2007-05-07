@@ -4,7 +4,7 @@
  * DATE     : Nov 2006
 -*/
 
-static const char* rcsID = "$Id: seisimporter.cc,v 1.8 2006-12-19 13:11:54 cvsbert Exp $";
+static const char* rcsID = "$Id: seisimporter.cc,v 1.9 2007-05-07 12:54:40 cvskris Exp $";
 
 #include "seisimporter.h"
 #include "seisbuf.h"
@@ -30,7 +30,7 @@ SeisImporter::SeisImporter( SeisImporter::Reader* r, SeisTrcWriter& w,
     	, geomtype_(gt)
     	, buf_(*new SeisTrcBuf)
     	, trc_(*new SeisTrc)
-    	, state_(ReadBuf)
+    	, state_( Seis::isPS(gt) ? ReadWrite : ReadBuf )
     	, nrread_(0)
     	, nrwritten_(0)
     	, postproc_(0)

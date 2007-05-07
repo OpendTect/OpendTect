@@ -37,7 +37,7 @@ SeisTrcWriter::SeisTrcWriter( const char* fnm, bool isps )
 
 void SeisTrcWriter::init()
 {
-    putter = 0; psioprov = 0; pswriter = 0;
+    putter = 0; pswriter = 0;
     nrtrcs = nrwritten = 0;
     prepared = false;
 }
