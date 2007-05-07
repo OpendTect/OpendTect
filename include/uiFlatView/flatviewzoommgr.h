@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: flatviewzoommgr.h,v 1.3 2007-03-13 18:31:38 cvsbert Exp $
+ RCS:           $Id: flatviewzoommgr.h,v 1.4 2007-05-07 21:58:25 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,6 +46,7 @@ public:
     Size		forward() const;	//!< goes on and on
     bool		atStart() const		{ return cur_ < 1; }
     Size		toStart() const;
+    int			nrZooms() const		{ return zooms_.size(); }
 
     double		fwdFac() const		{ return fwdfac_; }
     void		setFwdFac( double fac )	{ fwdfac_ = fac; }
