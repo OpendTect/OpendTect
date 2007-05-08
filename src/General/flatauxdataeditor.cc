@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2000
- RCS:           $Id: flatauxdataeditor.cc,v 1.7 2007-05-03 19:18:04 cvskris Exp $
+ RCS:           $Id: flatauxdataeditor.cc,v 1.8 2007-05-08 17:51:51 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -101,6 +101,12 @@ void AuxDataEditor::setAddAuxData( int id )
 { addauxdataid_ = id; }
 
 
+int AuxDataEditor::getAddAuxData() const
+{
+    return addauxdataid_;
+}
+
+    
 void AuxDataEditor::setView( const Rect& wv,
 			     const Geom::Rectangle<int>& mouserect )
 {
@@ -158,10 +164,10 @@ void AuxDataEditor::mousePressCB( CallBacker* cb )
 	return;
 
     const Rect wr = movementlimit_ = getWorldRect( ids_[seldatasetidx_] );
-    seldatatransform_.set3Pts( wr.topLeft(), wr.bottomLeft(), wr.topRight(),
+    seldatatransform_.set3Pts( wr.topLeft(), wr.topRight(), wr.bottomLeft(), 
 	       RowCol( mousearea_.topLeft().x, mousearea_.topLeft().y ),
-	       RowCol( mousearea_.bottomLeft().x, mousearea_.bottomLeft().y ),
-	       mousearea_.topRight().y );
+	       RowCol( mousearea_.topRight().x, mousearea_.topRight().y ),
+	       mousearea_.bottomLeft().y );
 
     selptcoord_ = selptidx_!=-1 ? auxdata_[seldatasetidx_]->poly_[selptidx_]
 				: seldatatransform_.transform(
@@ -190,7 +196,8 @@ void AuxDataEditor::mouseReleaseCB( CallBacker* cb )
 	return;
 
     if ( ev.ctrlStatus() && !ev.shiftStatus() &&
-	 !ev.altStatus() && seldatasetidx_!=-1 && allowremove_[seldatasetidx_] )
+	 !ev.altStatus() && seldatasetidx_!=-1 &&
+	 allowremove_[seldatasetidx_] && selptidx_!=-1 )
     {
 	removeSelected.trigger();
 
@@ -201,12 +208,13 @@ void AuxDataEditor::mouseReleaseCB( CallBacker* cb )
 	}
 
 	mousehandler_.setHandled( true );
+	mousedown_ = false;
 	return;
     }
 
     mousedown_ = false;
 
-    if ( hasmoved_ || selptidx_!=-1 )
+    if ( hasmoved_ || selptidx_==-1 )
     {
 	movementFinished.trigger();
 	mousehandler_.setHandled( true );
@@ -253,6 +261,7 @@ void AuxDataEditor::mouseMoveCB( CallBacker* cb )
     }
     else feedback_->poly_[0] = selptcoord_;
 
+    hasmoved_ = true;
     viewer_.handleChange( Viewer::Annot );
     mousehandler_.setHandled( true );
 }
@@ -275,10 +284,10 @@ bool AuxDataEditor::updateSelection( const Geom::Point2D<int>& pt )
 
 	const Rect wr = getWorldRect( ids_[idx] );
 	RCol2Coord transform;
-	transform.set3Pts( wr.topLeft(), wr.bottomLeft(), wr.topRight(),
+	transform.set3Pts( wr.topLeft(), wr.topRight(), wr.bottomLeft(), 
 	       RowCol( mousearea_.topLeft().x, mousearea_.topLeft().y ),
-	       RowCol( mousearea_.bottomLeft().x, mousearea_.bottomLeft().y ),
-	       mousearea_.topRight().y );
+	       RowCol( mousearea_.topRight().x, mousearea_.topRight().y ),
+	       mousearea_.bottomLeft().y );
 
 	const TypeSet<Point>& dataset = auxdata_[idx]->poly_;
 
