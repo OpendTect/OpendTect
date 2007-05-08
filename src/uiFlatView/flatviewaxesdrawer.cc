@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2007
- RCS:           $Id: flatviewaxesdrawer.cc,v 1.4 2007-03-12 18:44:10 cvsbert Exp $
+ RCS:           $Id: flatviewaxesdrawer.cc,v 1.5 2007-05-08 18:37:08 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,6 +12,8 @@ ________________________________________________________________________
 #include "flatviewaxesdrawer.h"
 #include "flatview.h"
 #include "datapackbase.h"
+#include "iodraw.h"
+#include "iodrawtool.h"
 
 
 FlatView::AxesDrawer::AxesDrawer( FlatView::Viewer& vwr, ioDrawArea& da )
@@ -29,6 +31,8 @@ void FlatView::AxesDrawer::draw( uiRect uir, uiWorldRect wr )
     const FlatView::Annotation& annot = vwr_.appearance().annot_;
     const FlatView::Annotation::AxisData& ad1 = annot.x1_;
     const FlatView::Annotation::AxisData& ad2 = annot.x2_;
+
+    drawarea_->drawTool().setPenColor( annot.color_ );
 
     drawAxes( ad1.showannot_, ad2.showannot_, true, true );
     drawGridLines( ad1.showgridlines_, ad2.showgridlines_ );
