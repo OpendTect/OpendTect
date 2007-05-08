@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribprovider.h,v 1.63 2007-04-27 13:23:42 cvshelene Exp $
+ RCS:           $Id: attribprovider.h,v 1.64 2007-05-08 14:46:34 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -62,7 +62,7 @@ public:
     				{ return outputinterest.size(); }
     void			enableOutput(int output,bool yn=true);
     bool			isOutputEnabled(int output) const;
-    void			setOutputInterestSize();
+    void			setOutputInterestSize(bool preserve=false);
     void			enableAllOutputs(bool yn=true);
 
     virtual void		setReqBufStepout(const BinID&,bool wait=false);

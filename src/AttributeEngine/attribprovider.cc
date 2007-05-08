@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribprovider.cc,v 1.96 2007-04-27 13:23:42 cvshelene Exp $";
+static const char* rcsID = "$Id: attribprovider.cc,v 1.97 2007-05-08 14:46:34 cvshelene Exp $";
 
 #include "attribprovider.h"
 #include "attribstorprovider.h"
@@ -991,9 +991,21 @@ const char* Provider::prepare( Desc& desc )
 }
 
 
-void Provider::setOutputInterestSize()
+void Provider::setOutputInterestSize( bool preserve )
 {
-    outputinterest = TypeSet<int>(desc.nrOutputs(),0);
+    if ( preserve )
+    {
+	int outintsz = outputinterest.size();
+	if ( outintsz < desc.nrOutputs() )
+	{
+	    TypeSet<int> addon(desc.nrOutputs()-outputinterest.size(),0);
+	    outputinterest.append( addon );
+	}
+	else
+	    outputinterest.remove( desc.nrOutputs()-1, outintsz-1 );
+    }
+    else
+	outputinterest = TypeSet<int>(desc.nrOutputs(),0);
 }
 
 
