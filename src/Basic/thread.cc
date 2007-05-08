@@ -4,7 +4,7 @@
  * DATE     : Mar 2000
 -*/
 
-static const char* rcsID = "$Id: thread.cc,v 1.24 2006-09-11 09:19:00 cvsbert Exp $";
+static const char* rcsID = "$Id: thread.cc,v 1.25 2007-05-08 05:46:25 cvsnanne Exp $";
 
 #include "thread.h"
 #include "callback.h"
@@ -202,12 +202,10 @@ static int getSysNrProc()
 
 #ifdef __win__
 
-/*
     struct _SYSTEM_INFO sysinfo;
     GetSystemInfo(&sysinfo);
     ret = sysinfo.dwNumberOfProcessors; // total number of CPUs
-*/
-    ret = GetEnvVarIVal( "NUMBER_OF_PROCESSORS", 1 );
+//    ret = GetEnvVarIVal( "NUMBER_OF_PROCESSORS", 1 );
 
 #else
 
@@ -253,7 +251,8 @@ int Threads::getNrProcessors()
     nrproc = 1;
 
     const char* envres = GetEnvVar( "DTECT_USE_MULTIPROC" );
-    bool douse = !__iswin__;
+//    bool douse = !__iswin__;
+    bool douse = true;
     if ( envres && (*envres == 'n' || *envres == 'N') )
 	douse = false;
     if ( envres && (*envres == 'y' || *envres == 'Y') )
