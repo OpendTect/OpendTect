@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		2-4-1996
- RCS:		$Id: segytr.h,v 1.18 2006-09-27 20:24:34 cvskris Exp $
+ RCS:		$Id: segytr.h,v 1.19 2007-05-08 16:38:21 cvsbert Exp $
 ________________________________________________________________________
 
 Translators for SEGY files traces.
@@ -47,7 +47,6 @@ public:
     static const char*	sExternalCoordScaling;
     static const char*	sExternalTimeShift;
     static const char*	sExternalSampleRate;
-    static const char*	sUseLiNo;
     static const char*	sUseOffset;
     static const char*	sForceRev0;
 
@@ -69,8 +68,6 @@ protected:
     DumpMode		dumpmode;
     mutable std::string	dumpstr;
     int			maxnrdump;
-    bool		use_lino;
-    bool		use_offset;
     bool		force_rev0;
 
     bool		readTapeHeader();

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: segythdef.h,v 1.4 2005-10-28 12:33:38 cvsbert Exp $
+ RCS:		$Id: segythdef.h,v 1.5 2007-05-08 16:38:21 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,17 +32,24 @@ public:
 				unsigned char x=73,
 				unsigned char y=77,
 				unsigned char t=1,
+				unsigned char o=37,
+				unsigned char a=255,
 				unsigned char p=255,
 				unsigned char ibs=4,
 				unsigned char cbs=4,
+				unsigned char obs=4,
+				unsigned char abs=4,
 				unsigned char tbs=4)
-			: inl(i), crl(c), xcoord(x), ycoord(y), trnr(t), pick(p)
+			: inl(i), crl(c), xcoord(x), ycoord(y), trnr(t)
+			, offs(o), azim(a), pick(p)
 			, inlbytesz(ibs), crlbytesz(cbs), trnrbytesz(tbs)
-			, pinfo(0)		{}
+			, offsbytesz(obs), azimbytesz(abs), pinfo(0)	{}
 
     unsigned char	inl, inlbytesz;
     unsigned char	crl, crlbytesz;
     unsigned char	trnr, trnrbytesz;
+    unsigned char	offs, offsbytesz;
+    unsigned char	azim, azimbytesz;
     unsigned char	xcoord, ycoord;
     unsigned char	pick;
 
@@ -52,11 +59,13 @@ public:
     inline bool         isClashing( unsigned char b ) const
                         {
                             return isReserved( b, xcoord )
-                                || isReserved( b, ycoord )
-                                || isReserved( b, pick )
-                                || isReserved( b, inl )
-                                || isReserved( b, crl )
-                                || isReserved( b, trnr );
+				|| isReserved( b, ycoord )
+				|| isReserved( b, pick )
+				|| isReserved( b, inl )
+				|| isReserved( b, crl )
+				|| isReserved( b, offs )
+				|| isReserved( b, azim )
+				|| isReserved( b, trnr );
                         }
 
     void		usePar(const IOPar&);
@@ -66,11 +75,15 @@ public:
     static const char*	sXCoordByte;
     static const char*	sYCoordByte;
     static const char*	sInlByte;
-    static const char*	sCrlByte;
-    static const char*	sTrNrByte;
     static const char*	sInlByteSz;
+    static const char*	sCrlByte;
     static const char*	sCrlByteSz;
+    static const char*	sTrNrByte;
     static const char*	sTrNrByteSz;
+    static const char*	sOffsByte;
+    static const char*	sOffsByteSz;
+    static const char*	sAzimByte;
+    static const char*	sAzimByteSz;
     static const char*	sPickByte;
 
     BufferString	linename;

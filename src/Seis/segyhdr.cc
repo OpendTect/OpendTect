@@ -5,7 +5,7 @@
  * FUNCTION : Seg-Y headers
 -*/
 
-static const char* rcsID = "$Id: segyhdr.cc,v 1.43 2007-05-02 09:34:43 cvsbert Exp $";
+static const char* rcsID = "$Id: segyhdr.cc,v 1.44 2007-05-08 16:38:21 cvsbert Exp $";
 
 
 #include "segyhdr.h"
@@ -31,10 +31,14 @@ const char* SegyTraceheaderDef::sXCoordByte = "X-coord byte";
 const char* SegyTraceheaderDef::sYCoordByte = "Y-coord byte";
 const char* SegyTraceheaderDef::sInlByte = "In-line byte";
 const char* SegyTraceheaderDef::sCrlByte = "Cross-line byte";
+const char* SegyTraceheaderDef::sOffsByte = "Offset byte";
+const char* SegyTraceheaderDef::sAzimByte = "Azimuth byte";
 const char* SegyTraceheaderDef::sTrNrByte = "Trace number byte";
 const char* SegyTraceheaderDef::sPickByte = "Pick byte";
 const char* SegyTraceheaderDef::sInlByteSz = "Nr bytes for In-line";
 const char* SegyTraceheaderDef::sCrlByteSz = "Nr bytes for Cross-line";
+const char* SegyTraceheaderDef::sOffsByteSz = "Nr bytes for Offset";
+const char* SegyTraceheaderDef::sAzimByteSz = "Nr bytes for Azimuth";
 const char* SegyTraceheaderDef::sTrNrByteSz = "Nr bytes for trace number";
 bool SegyTxtHeader::info2d = false;
 
@@ -535,26 +539,16 @@ void SegyTraceheader::use( const SeisTrcInfo& ti )
     if ( !isrev1 ) // starting default
 	putRev1Flds( ti, buf );
 
-    // First put some Statoil standards
-    IbmFormat::putInt( seqnr++, buf );
+    IbmFormat::putInt( seqnr, buf );
+    IbmFormat::putInt( seqnr++, buf+4 );
+
     IbmFormat::putShort( 1, buf+88 );   // counit
-    IbmFormat::putInt( ti.binid.inl, buf+4 );
-    if ( !hdef.isClashing(180) )
-	IbmFormat::putInt( mNINT(ti.coord.x * 10), buf+180 );
-    if ( !hdef.isClashing(184) )
-	IbmFormat::putInt( mNINT(ti.coord.y * 10), buf+184 );
-    if ( !hdef.isClashing(188) )
-	IbmFormat::putInt( ti.binid.inl, buf+188 );
-    if ( !hdef.isClashing(192) )
-	IbmFormat::putInt( ti.binid.crl, buf+192 );
 
     // Now the more general standards
     const bool is2d = SegyTxtHeader::info2d;
     IbmFormat::putInt( is2d ? ti.nr : ti.binid.crl, buf+16 ); // ep
     IbmFormat::putInt( is2d ? ti.binid.crl : ti.nr, buf+20 ); // cdp
     IbmFormat::putShort( 1, buf+28 );
-    IbmFormat::putInt( mNINT(ti.offset), buf+36 );
-    IbmFormat::putInt( mNINT(ti.azimuth*1e6), buf+40 );
     IbmFormat::putShort( -10, buf+70 ); // scalco
     if ( mIsUdf(ti.coord.x) )
     {
@@ -570,27 +564,21 @@ void SegyTraceheader::use( const SeisTrcInfo& ti )
 	if ( hdef.ycoord != 255 )
 	    IbmFormat::putInt( mNINT(ti.coord.y * 10), buf+hdef.ycoord-1 );
     }
-    if ( ti.binid.inl > 0 && hdef.inl != 255 )
-    {
-	if ( hdef.inlbytesz == 2 )
-	    IbmFormat::putShort( ti.binid.inl, buf+hdef.inl-1 );
-	else
-	    IbmFormat::putInt( ti.binid.inl, buf+hdef.inl-1 );
+
+#define mPutIntVal(timemb,hdmemb) \
+    if ( timemb > 0 && hdef.hdmemb != 255 ) \
+    { \
+	if ( hdef.hdmemb##bytesz == 2 ) \
+	    IbmFormat::putShort( timemb, buf+hdef.hdmemb-1 ); \
+	else \
+	    IbmFormat::putInt( timemb, buf+hdef.hdmemb-1 ); \
     }
-    if ( ti.binid.crl > 0 && hdef.crl != 255 )
-    {
-	if ( hdef.crlbytesz == 2 )
-	    IbmFormat::putShort( ti.binid.crl, buf+hdef.crl-1 );
-	else
-	    IbmFormat::putInt( ti.binid.crl, buf+hdef.crl-1 );
-    }
-    if ( hdef.trnr != 255 )
-    {
-	if ( hdef.trnrbytesz == 2 )
-	    IbmFormat::putShort( ti.nr, buf+hdef.trnr-1 );
-	else
-	    IbmFormat::putInt( ti.nr, buf+hdef.trnr-1 );
-    }
+
+    mPutIntVal(ti.binid.inl,inl);
+    mPutIntVal(ti.binid.crl,crl);
+    mPutIntVal(ti.nr,trnr);
+    int iv = mNINT( ti.offset ); mPutIntVal(iv,offs);
+    iv = mNINT( ti.azimuth * 360 / M_PI ); mPutIntVal(iv,azim);
 
     const float zfac = SI().zFactor();
     if ( !mIsUdf(ti.pick) && hdef.pick != 255 )
@@ -603,7 +591,7 @@ void SegyTraceheader::use( const SeisTrcInfo& ti )
     IbmFormat::putUnsignedShort( (unsigned short)(ti.sampling.step*zfac*1e3+.5),
 				 buf+116 );
 
-    if ( isrev1 ) // Now it overrules everything
+    if ( isrev1 ) // Now this overrules everything
 	putRev1Flds( ti, buf );
 }
 
@@ -678,16 +666,20 @@ void SegyTraceheader::fill( SeisTrcInfo& ti, float extcoordsc ) const
     if ( hdef.xcoord != 255 ) ti.coord.x = IbmFormat::asInt( buf+hdef.xcoord-1);
     if ( hdef.ycoord != 255 ) ti.coord.y = IbmFormat::asInt( buf+hdef.ycoord-1);
     ti.binid.inl = ti.binid.crl = 0;
-    if ( hdef.inl != 255 )
-	ti.binid.inl = hdef.inlbytesz == 2 ? IbmFormat::asShort(buf+hdef.inl-1)
-					   : IbmFormat::asInt(buf+hdef.inl-1);
-    if ( hdef.crl != 255 )
-	ti.binid.crl = hdef.crlbytesz == 2 ? IbmFormat::asShort(buf+hdef.crl-1)
-					   : IbmFormat::asInt(buf+hdef.crl-1);
-    if ( hdef.trnr != 255 )
-	ti.nr = hdef.trnrbytesz == 2 ? IbmFormat::asShort(buf+hdef.trnr-1)
-				     : IbmFormat::asInt(buf+hdef.trnr-1);
-    ti.offset = IbmFormat::asInt( buf+36 );
+
+#define mGetIntVal(timemb,hdmemb) \
+    if ( hdef.hdmemb != 255 ) \
+	ti.timemb = hdef.hdmemb##bytesz == 2 \
+    		  ? IbmFormat::asShort( buf + hdef.hdmemb - 1 ) \
+		  : IbmFormat::asInt( buf + hdef.hdmemb - 1 )
+	
+
+    mGetIntVal(binid.inl,inl);
+    mGetIntVal(binid.crl,crl);
+    mGetIntVal(nr,trnr);
+    mGetIntVal(offset,offs);
+    mGetIntVal(azimuth,azim);
+    ti.azimuth *= M_PI / 360;
 
     if ( isrev1 )
 	getRev1Flds( ti, buf );
@@ -736,26 +728,26 @@ Coord SegyTraceheader::getCoord( bool rcv, float extcoordsc )
 }
 
 
+#define mGtFromPar(str,memb) \
+    res = iopar.find( str ); \
+    if ( res && *res ) memb = atoi( res )
+
 void SegyTraceheaderDef::usePar( const IOPar& iopar )
 {
-    const char* res = iopar[ sInlByte ];
-    if ( *res ) inl = atoi( res );
-    res = iopar[ sCrlByte ];
-    if ( *res ) crl = atoi( res );
-    res = iopar[ sTrNrByte ];
-    if ( *res ) trnr = atoi( res );
-    res = iopar[ sXCoordByte ];
-    if ( *res ) xcoord = atoi( res );
-    res = iopar[ sYCoordByte ];
-    if ( *res ) ycoord = atoi( res );
-    res = iopar[ sInlByteSz ];
-    if ( *res ) inlbytesz = atoi( res );
-    res = iopar[ sCrlByteSz ];
-    if ( *res ) crlbytesz = atoi( res );
-    res = iopar[ sTrNrByteSz ];
-    if ( *res ) trnrbytesz = atoi( res );
-    res = iopar[ sPickByte ];
-    if ( *res ) pick = atoi( res );
+    const char*
+    mGtFromPar( sInlByte, inl );
+    mGtFromPar( sCrlByte, crl );
+    mGtFromPar( sOffsByte, offs );
+    mGtFromPar( sAzimByte, azim );
+    mGtFromPar( sTrNrByte, trnr );
+    mGtFromPar( sXCoordByte, xcoord );
+    mGtFromPar( sYCoordByte, ycoord );
+    mGtFromPar( sInlByteSz, inlbytesz );
+    mGtFromPar( sCrlByteSz, crlbytesz );
+    mGtFromPar( sOffsByteSz, offsbytesz );
+    mGtFromPar( sAzimByteSz, azimbytesz );
+    mGtFromPar( sTrNrByteSz, trnrbytesz );
+    mGtFromPar( sPickByte, pick );
 }
 
 
@@ -769,16 +761,23 @@ void SegyTraceheaderDef::fromSettings()
     delete subiop;
 }
 
+#define mPutToPar(str,memb) \
+    iopar.set( IOPar::compKey(key,str), memb )
+
 
 void SegyTraceheaderDef::fillPar( IOPar& iopar, const char* key ) const
 {
-    iopar.set( IOPar::compKey(key,sInlByte), inl );
-    iopar.set( IOPar::compKey(key,sCrlByte), crl );
-    iopar.set( IOPar::compKey(key,sTrNrByte), trnr );
-    iopar.set( IOPar::compKey(key,sXCoordByte), xcoord );
-    iopar.set( IOPar::compKey(key,sYCoordByte), ycoord );
-    iopar.set( IOPar::compKey(key,sInlByteSz), inlbytesz );
-    iopar.set( IOPar::compKey(key,sCrlByteSz), crlbytesz );
-    iopar.set( IOPar::compKey(key,sTrNrByteSz), trnrbytesz );
-    iopar.set( IOPar::compKey(key,sPickByte), pick );
+    mPutToPar( sInlByte, inl );
+    mPutToPar( sCrlByte, crl );
+    mPutToPar( sOffsByte, offs );
+    mPutToPar( sAzimByte, azim );
+    mPutToPar( sTrNrByte, trnr );
+    mPutToPar( sXCoordByte, xcoord );
+    mPutToPar( sYCoordByte, ycoord );
+    mPutToPar( sInlByteSz, inlbytesz );
+    mPutToPar( sCrlByteSz, crlbytesz );
+    mPutToPar( sOffsByteSz, offsbytesz );
+    mPutToPar( sAzimByteSz, azimbytesz );
+    mPutToPar( sTrNrByteSz, trnrbytesz );
+    mPutToPar( sPickByte, pick );
 }

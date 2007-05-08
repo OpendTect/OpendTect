@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Aug 2001
- RCS:		$Id: od_SEGYExaminer.cc,v 1.9 2006-05-29 08:02:32 cvsbert Exp $
+ RCS:		$Id: od_SEGYExaminer.cc,v 1.10 2007-05-08 16:38:21 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -140,9 +140,6 @@ bool rejectOK()
 
 void outInfo( const char* txt )
 {
-#ifdef __debug__
-    if ( txt && *txt ) std::cerr << txt << std::endl;
-#endif
     toStatusBar( txt, 0 );
 }
 

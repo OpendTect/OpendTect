@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: segytr.cc,v 1.54 2007-05-02 11:35:51 cvsbert Exp $";
+static const char* rcsID = "$Id: segytr.cc,v 1.55 2007-05-08 16:38:21 cvsbert Exp $";
 
 #include "segytr.h"
 #include "seistrc.h"
@@ -32,10 +32,6 @@ const char* SEGYSeisTrcTranslator::sExternalSampleRate = "Sample rate overrule";
 const char* SEGYSeisTrcTranslator::sForceRev0 = "Force Rev0";
 const char* SEGYSeisTrcTranslator::sExternalCoordScaling
 	= "Coordinate scaling overrule";
-const char* SEGYSeisTrcTranslator::sUseLiNo
-	= "Use tape header line number for inline";
-const char* SEGYSeisTrcTranslator::sUseOffset
-	= "Use tape header offset";
 
 
 SEGYSeisTrcTranslator::SEGYSeisTrcTranslator( const char* nm, const char* unm )
@@ -50,8 +46,6 @@ SEGYSeisTrcTranslator::SEGYSeisTrcTranslator( const char* nm, const char* unm )
 	, ext_coord_scaling(mUdf(float))
 	, ext_time_shift(mUdf(float))
 	, ext_sample_rate(mUdf(float))
-	, use_lino(false)
-	, use_offset(true)
 	, force_rev0(false)
 	, dumpmode(None)
     	, maxnrdump(5)
@@ -227,21 +221,11 @@ void SEGYSeisTrcTranslator::interpretBuf( SeisTrcInfo& ti )
     trhead.fill( ti, ext_coord_scaling );
     if ( is_prestack )
     {
-	if ( use_offset )
-	{
-	    if ( !mIsUdf(ext_coord_scaling) && !mIsUdf(ti.offset) )
-		ti.offset *= ext_coord_scaling;
-	    ti.coord = SI().transform( ti.binid );
-	}
-	else
-	{
-	    Coord c1( trhead.getCoord(true,ext_coord_scaling) );
-	    Coord c2( trhead.getCoord(false,ext_coord_scaling) );
-	    fillOffsAzim( ti, c1, c2 );
-	    ti.coord = Coord( (c1.x+c2.x)*.5, (c1.y+c2.y)*.5 );
-	}
+	Coord c1( trhead.getCoord(true,ext_coord_scaling) );
+	Coord c2( trhead.getCoord(false,ext_coord_scaling) );
+	fillOffsAzim( ti, c1, c2 );
+	ti.coord = Coord( (c1.x+c2.x)*.5, (c1.y+c2.y)*.5 );
     }
-    if ( use_lino ) ti.binid.inl = pinfo.nr;
     float scfac = trhead.postScale( numbfmt ? numbfmt : 1 );
     if ( mIsEqual(scfac,1,mDefEps) )
 	curtrcscale = 0;
@@ -316,8 +300,6 @@ void SEGYSeisTrcTranslator::usePar( const IOPar& iopar )
     iopar.get( sExternalCoordScaling, ext_coord_scaling );
     iopar.get( sExternalTimeShift, ext_time_shift );
     iopar.get( sExternalSampleRate, ext_sample_rate );
-    iopar.getYN( sUseOffset, use_offset );
-    iopar.getYN( sUseLiNo, use_lino );
     iopar.getYN( sForceRev0, force_rev0 );
 }
 
