@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: vishorizondisplay.cc,v 1.29 2007-03-22 20:34:26 cvskris Exp $
+ RCS:           $Id: vishorizondisplay.cc,v 1.30 2007-05-09 18:20:22 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -439,6 +439,16 @@ SurveyObject::AttribFormat HorizonDisplay::getAttributeFormat() const
 
 int HorizonDisplay::nrAttribs() const
 { return as_.size(); }
+
+
+bool HorizonDisplay::canAddAttrib() const
+{
+    mDynamicCastGet(const visBase::ParametricSurface*,psurf,sections_[0]);
+    const int maxnr = psurf ? psurf->maxNrTextures() : 0;
+    if ( !maxnr ) return true;
+
+    return nrAttribs()<maxnr;
+}
 
 
 bool HorizonDisplay::addAttrib()
