@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra and Helene Huck
  Date:		January 2007
- RCS:		$Id: datapackbase.h,v 1.4 2007-03-12 10:59:35 cvsbert Exp $
+ RCS:		$Id: datapackbase.h,v 1.5 2007-05-09 21:33:08 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,6 +33,7 @@ public:
     				FlatDataPack(const char* categry,
 					     Array2D<float>*);
 				//!< Array2D become mine (of course)
+				FlatDataPack(const FlatDataPack&);
 				~FlatDataPack();
 
     virtual Array2D<float>&	data()			{ return *arr2d_; }
