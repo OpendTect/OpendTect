@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: prestackprocessor.h,v 1.1 2007-03-15 17:28:52 cvskris Exp $
+ RCS:		$Id: prestackprocessor.h,v 1.2 2007-05-09 16:45:03 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -15,6 +15,7 @@ ________________________________________________________________________
 
 #include "basictask.h"
 #include "bufstringset.h"
+#include "datapack.h"
 #include "sets.h"
 #include "factory.h"
 
@@ -31,8 +32,8 @@ public:
     				Processor();
     virtual			~Processor();
 
-    void			setInput(const Gather*);
-    const Gather*		getOutput() const;
+    void			setInput(DataPack::ID);
+    DataPack::ID		getOutput() const;
     virtual bool		prepareWork();
     virtual const char*		errMsg() const { return 0; }
 
@@ -65,9 +66,9 @@ class ProcessManager
 public:
     			ProcessManager();
     			~ProcessManager();
-    void		setInput(const Gather*);
+    void		setInput(DataPack::ID);
     bool		process(bool forceall);
-    const Gather*	getOutput() const;
+    DataPack::ID	getOutput() const;
 
     void		addProcessor(Processor*);
     int			nrProcessors() const;

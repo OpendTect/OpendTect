@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: prestackprocessor.cc,v 1.3 2007-04-10 21:57:03 cvskris Exp $";
+static const char* rcsID = "$Id: prestackprocessor.cc,v 1.4 2007-05-09 16:45:03 cvskris Exp $";
 
 #include "prestackprocessor.h"
 
@@ -25,35 +25,37 @@ Processor::Processor()
 
 Processor::~Processor()
 {
-    if ( output_ ) output_->unRef();
-    if ( input_ ) input_->unRef();
+    if ( output_ ) DPM( DataPackMgr::FlatID ).release( output_->id() );
+    if ( input_ ) DPM( DataPackMgr::FlatID ).release( input_->id() );
 }
 
 
-void Processor::setInput( const Gather* isg )
+void Processor::setInput( DataPack::ID id )
 {
-    if ( input_ ) input_->unRef();
-    input_ = isg;
-    if ( input_ ) input_->ref();
+    if ( input_ ) DPM( DataPackMgr::FlatID ).release( input_->id() );
+    DataPack* dp = DPM( DataPackMgr::FlatID ).obtain( id, false );
+    mDynamicCastGet( Gather*, gather, dp );
+    if ( gather ) input_ = gather;
+    else if ( dp ) DPM( DataPackMgr::FlatID ).release( dp->id() );
 }
 
 
-const Gather* Processor::getOutput() const
-{ return output_; }
+DataPack::ID Processor::getOutput() const
+{ return output_ ? output_->id() : -1; }
 
 
 bool Processor::prepareWork()
 {
     if ( !input_ ) return false;
 
-    if ( output_ ) //TODO Make smarter and only set auxdata
+    if ( output_ )
     {
-	output_->unRef();
+	DPM( DataPackMgr::FlatID ).release( output_->id() );
 	output_ = 0;
     }
 
     output_ = new Gather(*input_);
-    output_->ref();
+    DPM( DataPackMgr::FlatID ).add( output_ );
 
     return true;
 }
@@ -75,22 +77,25 @@ ProcessManager::ProcessManager()
 ProcessManager::~ProcessManager()
 {
     deepErase( processors_ );
-    if ( input_ ) input_->unRef();
-    if ( output_ ) output_->unRef();
+    if ( output_ ) DPM( DataPackMgr::FlatID ).release( output_->id() );
+    if ( input_ ) DPM( DataPackMgr::FlatID ).release( input_->id() );
 }
 
 
-void ProcessManager::setInput( const Gather* isg )
+void ProcessManager::setInput( DataPack::ID id )
 {
-    if ( input_ ) input_->unRef();
-    input_ = isg;
-    if ( input_ ) input_->ref();
+    if ( input_ ) DPM( DataPackMgr::FlatID ).release( input_->id() );
+    input_ = 0;
+    DataPack* dp = DPM( DataPackMgr::FlatID ).obtain( id, false );
+    mDynamicCastGet( Gather*, gather, dp );
+    if ( gather ) input_ = gather;
+    else if ( dp ) DPM( DataPackMgr::FlatID ).release( dp->id() );
 }
 
 
 bool ProcessManager::process(bool forceall)
 {
-    const Gather* curinput = input_;
+    DataPack::ID curinput = input_->id();
     for ( int idx=0; idx<processors_.size(); idx++ )
     {
 	processors_[idx]->setInput( curinput );
@@ -100,16 +105,19 @@ bool ProcessManager::process(bool forceall)
 	curinput = processors_[idx]->getOutput();
     }
 
-    if ( output_ ) output_->unRef();
-    output_ = curinput;
-    if ( output_ ) output_->ref();
+    if ( output_ ) DPM( DataPackMgr::FlatID ).release( output_->id() );
+    output_ = 0;
+    DataPack* dp = DPM( DataPackMgr::FlatID ).obtain( curinput, false );
+    mDynamicCastGet( Gather*, gather, dp );
+    if ( gather ) output_ = gather;
+    else if ( dp ) DPM( DataPackMgr::FlatID ).release( dp->id() );
 
     return true;
 }
 
 
-const Gather* ProcessManager::getOutput() const
-{ return output_; }
+DataPack::ID ProcessManager::getOutput() const
+{ return output_ ? output_->id() : -1; }
 
 
 void ProcessManager::addProcessor( Processor* sgp )

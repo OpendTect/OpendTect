@@ -4,11 +4,12 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: prestackgather.cc,v 1.1 2007-03-15 17:28:52 cvskris Exp $";
+static const char* rcsID = "$Id: prestackgather.cc,v 1.2 2007-05-09 16:45:03 cvskris Exp $";
 
 #include "prestackgather.h"
 
 #include "genericnumer.h"
+#include "flatposdata.h"
 #include "ioobj.h"
 #include "iopar.h"
 #include "ioman.h"
@@ -27,16 +28,16 @@ static const char* rcsID = "$Id: prestackgather.cc,v 1.1 2007-03-15 17:28:52 cvs
 
 using namespace PreStack;
 
-const char* Gather::sKeyIsAngeGather()	{ return "Angle Gather"; }
+const char* Gather::sKeyIsAngleGather()	{ return "Angle Gather"; }
 const char* Gather::sKeyIsNMO()		{ return "Is NMO Corrected"; }
 const char* Gather::sKeyVelocityCubeID()	{ return "Velocity volume"; }
 const char* Gather::sKeyZisTime()		{ return "Z Is Time"; }
 
 Gather::Gather()
-    : offsetisangle_( false )
+    : FlatDataPack( "Pre-Stack Gather" )
+    , offsetisangle_( false )
     , iscorr_( false )
     , binid_( -1, -1 )
-    , data_( 1, 1 )
 {}
 
 
@@ -94,22 +95,30 @@ bool Gather::readFrom( const MultiID& mid, const BinID& bid,
 	return false;
 
     const int nrsamples = tbuf2.get(0)->size();
-    data_.setSize( offsets_.size(), nrsamples );
-    zsampling_ = tbuf2.get(0)->info().sampling;
+    if ( arr2d_ )
+	delete arr2d_;
+
+    arr2d_ = new Array2DImpl<float>( offsets_.size(), nrsamples );
 
     if ( offsets_.size()>1 )
 	sort_coupled( offsets_.arr(), traceorder_.arr(), traceorder_.size() );
 
+    posdata_.setX1Pos( offsets_.arr(), offsets_.size(), 0 );
+    const StepInterval<float> zsd =
+	tbuf2.get(0)->info().sampling.interval( nrsamples );
+    posdata_.setRange( false,StepInterval<double>(zsd.start,zsd.stop,zsd.step));
+
+
     for ( int idy=0; idy<nrsamples; idy++ )
     {
-	const float z = zsampling_.atIndex(idy);
+	const float z = posdata_.range( false ).atIndex( idy );
 
 	for ( int idx=0; idx<traceorder_.size(); idx++ )
-	    data_.set(idx, idy, tbuf2.get(traceorder_[idx])->getValue( z, 0 ) );
+	    arr2d_->set(idx, idy, tbuf2.get(traceorder_[idx])->getValue(z,0) );
     }
 
     offsetisangle_ = false;
-    ioobj->pars().getYN(sKeyIsAngeGather(), offsetisangle_ );
+    ioobj->pars().getYN(sKeyIsAngleGather(), offsetisangle_ );
 
     iscorr_ = false;
     ioobj->pars().getYN(sKeyIsNMO(), iscorr_ );
@@ -120,8 +129,15 @@ bool Gather::readFrom( const MultiID& mid, const BinID& bid,
     ioobj->pars().get(sKeyVelocityCubeID(), velocitymid_ );
     
     binid_ = bid;
+    setName( ioobj->name() );
 
     return true;
+}
+
+
+const StepInterval<double>& Gather::zSampling() const
+{
+    return posdata_.range( false );
 }
 
 
