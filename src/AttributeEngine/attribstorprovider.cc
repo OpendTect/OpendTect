@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribstorprovider.cc,v 1.65 2007-04-27 07:37:17 cvshelene Exp $";
+static const char* rcsID = "$Id: attribstorprovider.cc,v 1.66 2007-05-09 14:34:49 cvsbert Exp $";
 
 #include "attribstorprovider.h"
 
@@ -132,6 +132,7 @@ StorageProvider::StorageProvider( Desc& desc_ )
     : Provider( desc_ )
     , mscprov_(0)
     , status( Nada )
+    , stepoutstep_(-1,0)
 {
 }
 
@@ -159,7 +160,7 @@ bool StorageProvider::init()
     const bool is2d = mscprov_->is2D();
     desc.set2D( is2d );
     if ( !is2d )
-	SeisTrcTranslator::getRanges( mid, storedvolume, lk );
+	SeisTrcTranslator::getRanges( mid, storedvolume_, lk );
     else
     {
 	const Seis2DLineSet* lset = mscprov_->reader().lineSet();
@@ -169,23 +170,23 @@ bool StorageProvider::init()
 	const int lineidx = lset->indexOf( lk.buf() );
 	if ( lineidx == -1 )
 	{
-	    storedvolume.hrg.start.inl = storedvolume.hrg.start.crl = 0;
-	    storedvolume.hrg.stop.inl = storedvolume.hrg.step.inl = 1;
-	    storedvolume.hrg.stop.crl = SI().maxNrTraces(true);
-	    storedvolume.hrg.step.crl = 1; // what else?
-	    storedvolume.zrg = SI().sampling(true).zrg;
+	    storedvolume_.hrg.start.inl = storedvolume_.hrg.start.crl = 0;
+	    storedvolume_.hrg.stop.inl = storedvolume_.hrg.step.inl = 1;
+	    storedvolume_.hrg.stop.crl = SI().maxNrTraces(true);
+	    storedvolume_.hrg.step.crl = 1; // what else?
+	    storedvolume_.zrg = SI().sampling(true).zrg;
 	}
 	else
 	{
-	    storedvolume.hrg.start.inl = storedvolume.hrg.stop.inl = lineidx;
+	    storedvolume_.hrg.start.inl = storedvolume_.hrg.stop.inl = lineidx;
 	    StepInterval<int> trcrg; StepInterval<float> zrg;
 	    if ( !lset->getRanges( lineidx, trcrg, zrg ) )
 		mErrRet("Cannot get needed trace range from 2D line set")
 	    else
 	    {
-		storedvolume.hrg.start.crl = trcrg.start;
-		storedvolume.hrg.stop.crl = trcrg.stop;
-		storedvolume.zrg = zrg;
+		storedvolume_.hrg.start.crl = trcrg.start;
+		storedvolume_.hrg.stop.crl = trcrg.stop;
+		storedvolume_.zrg = zrg;
 	    }
 	}
     }
@@ -278,7 +279,7 @@ bool StorageProvider::getPossibleVolume( int, CubeSampling& res )
     if ( !possiblevolume ) 
 	possiblevolume = new CubeSampling;
     
-    *possiblevolume = storedvolume;
+    *possiblevolume = storedvolume_;
     res.limitToWithUdf( *possiblevolume );
     if ( res.hrg.inlRange().width(false)<0 || res.hrg.crlRange().width(false)<0)
 	return false;
@@ -366,21 +367,21 @@ bool StorageProvider::setMSCProvSelData()
 
     CubeSampling cs;
     cs.hrg.start.inl = 
-	    desiredvolume->hrg.start.inl < storedvolume.hrg.start.inl ?
-	    storedvolume.hrg.start.inl : desiredvolume->hrg.start.inl;
+	    desiredvolume->hrg.start.inl < storedvolume_.hrg.start.inl ?
+	    storedvolume_.hrg.start.inl : desiredvolume->hrg.start.inl;
     cs.hrg.stop.inl = 
-	    desiredvolume->hrg.stop.inl > storedvolume.hrg.stop.inl ?
-	    storedvolume.hrg.stop.inl : desiredvolume->hrg.stop.inl;
+	    desiredvolume->hrg.stop.inl > storedvolume_.hrg.stop.inl ?
+	    storedvolume_.hrg.stop.inl : desiredvolume->hrg.stop.inl;
     cs.hrg.stop.crl = 
-	    desiredvolume->hrg.stop.crl > storedvolume.hrg.stop.crl ?
-	    storedvolume.hrg.stop.crl : desiredvolume->hrg.stop.crl;
+	    desiredvolume->hrg.stop.crl > storedvolume_.hrg.stop.crl ?
+	    storedvolume_.hrg.stop.crl : desiredvolume->hrg.stop.crl;
     cs.hrg.start.crl = 
-	    desiredvolume->hrg.start.crl < storedvolume.hrg.start.crl ?
-	    storedvolume.hrg.start.crl : desiredvolume->hrg.start.crl;
-    cs.zrg.start = desiredvolume->zrg.start < storedvolume.zrg.start ?
-		    storedvolume.zrg.start : desiredvolume->zrg.start;
-    cs.zrg.stop = desiredvolume->zrg.stop > storedvolume.zrg.stop ?
-		     storedvolume.zrg.stop : desiredvolume->zrg.stop;
+	    desiredvolume->hrg.start.crl < storedvolume_.hrg.start.crl ?
+	    storedvolume_.hrg.start.crl : desiredvolume->hrg.start.crl;
+    cs.zrg.start = desiredvolume->zrg.start < storedvolume_.zrg.start ?
+		    storedvolume_.zrg.start : desiredvolume->zrg.start;
+    cs.zrg.stop = desiredvolume->zrg.stop > storedvolume_.zrg.stop ?
+		     storedvolume_.zrg.stop : desiredvolume->zrg.stop;
 
     SeisSelData* seldata = seldata_ ? new SeisSelData( *seldata_ )
 				    : new SeisSelData( true );
@@ -477,24 +478,24 @@ bool StorageProvider::checkDesiredVolumeOK()
 	return true;
 
     const bool inlwrong =
-	desiredvolume->hrg.start.inl > storedvolume.hrg.stop.inl
-     || desiredvolume->hrg.stop.inl < storedvolume.hrg.start.inl;
+	desiredvolume->hrg.start.inl > storedvolume_.hrg.stop.inl
+     || desiredvolume->hrg.stop.inl < storedvolume_.hrg.start.inl;
     const bool crlwrong =
-	desiredvolume->hrg.start.crl > storedvolume.hrg.stop.crl
-     || desiredvolume->hrg.stop.crl < storedvolume.hrg.start.crl;
+	desiredvolume->hrg.start.crl > storedvolume_.hrg.stop.crl
+     || desiredvolume->hrg.stop.crl < storedvolume_.hrg.start.crl;
     const bool zwrong =
-	desiredvolume->zrg.start > storedvolume.zrg.stop
-     || desiredvolume->zrg.stop < storedvolume.zrg.start;
+	desiredvolume->zrg.start > storedvolume_.zrg.stop
+     || desiredvolume->zrg.stop < storedvolume_.zrg.start;
 
     if ( !inlwrong && !crlwrong && !zwrong )
 	return true;
 
     mInitErrMsg();
     mAdd2ErrMsg(inlwrong,"Inline",
-	    	storedvolume.hrg.start.inl,storedvolume.hrg.stop.inl)
+	    	storedvolume_.hrg.start.inl,storedvolume_.hrg.stop.inl)
     mAdd2ErrMsg(crlwrong,"Crossline",
-	    	storedvolume.hrg.start.crl,storedvolume.hrg.stop.crl)
-    mAdd2ErrMsg(zwrong,"Z",storedvolume.zrg.start,storedvolume.zrg.stop)
+	    	storedvolume_.hrg.start.crl,storedvolume_.hrg.stop.crl)
+    mAdd2ErrMsg(zwrong,"Z",storedvolume_.zrg.start,storedvolume_.zrg.stop)
     return false;
 }
 
@@ -586,11 +587,16 @@ BinDataDesc StorageProvider::getOutputFormat( int output ) const
 
 BinID StorageProvider::getStepoutStep() const
 {
-    if ( !mscprov_ )
-	return BinID(0,0);
+    if ( stepoutstep_.inl >= 0 )
+	return stepoutstep_;
 
-    BinID ret; mscprov_->reader().getSteps( ret.inl, ret.crl );
-    return ret;
+    BinID& sos = const_cast<StorageProvider*>(this)->stepoutstep_;
+    if ( mscprov_ )
+	mscprov_->reader().getSteps( sos.inl, sos.crl );
+    else
+	sos.inl = sos.crl = 0;
+
+    return stepoutstep_;
 }
 
 
@@ -605,11 +611,11 @@ void StorageProvider::adjust2DLineStoredVolume()
     StepInterval<float> zrg;
     if ( idx >= 0 && lset->getRanges(idx,trcrg,zrg) )
     {
-	storedvolume.hrg.start.crl = trcrg.start;
-	storedvolume.hrg.stop.crl = trcrg.stop;
-	storedvolume.zrg.start = zrg.start;
-	storedvolume.zrg.stop = zrg.stop;
-	storedvolume.zrg.step = zrg.step;
+	storedvolume_.hrg.start.crl = trcrg.start;
+	storedvolume_.hrg.stop.crl = trcrg.stop;
+	storedvolume_.zrg.start = zrg.start;
+	storedvolume_.zrg.stop = zrg.stop;
+	storedvolume_.zrg.step = zrg.step;
     }
 }
 

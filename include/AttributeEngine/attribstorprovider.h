@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribstorprovider.h,v 1.26 2007-04-24 08:45:20 cvsbert Exp $
+ RCS:           $Id: attribstorprovider.h,v 1.27 2007-05-09 14:34:49 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -63,7 +63,7 @@ protected:
     bool		fillDataHolderWithTrc(const SeisTrc*,
 					      const DataHolder&) const;
     bool		getZStepStoredData(float& step) const
-			{ step = storedvolume.zrg.step; return true; }
+			{ step = storedvolume_.zrg.step; return true; }
 
     BinDataDesc		getOutputFormat(int output) const;
     
@@ -76,8 +76,8 @@ protected:
 
     TypeSet<BinDataDesc> datachar_;
     SeisMSCProvider*	mscprov_;
-
-    CubeSampling	storedvolume;
+    BinID		stepoutstep_;
+    CubeSampling	storedvolume_;
 
     enum Status        { Nada, StorageOpened, Ready } status;
 };
