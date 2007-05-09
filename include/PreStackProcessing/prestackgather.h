@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: prestackgather.h,v 1.2 2007-05-09 16:45:03 cvskris Exp $
+ RCS:		$Id: prestackgather.h,v 1.3 2007-05-09 21:34:53 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -27,6 +27,8 @@ class Gather : public FlatDataPack
 public:
     				Gather();
     				~Gather();
+
+    const char*			dimName(bool) const;
 
     bool			readFrom(const MultiID&, const BinID&,
 	    				 BufferString* errmsg=0);

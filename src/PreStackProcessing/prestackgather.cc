@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: prestackgather.cc,v 1.2 2007-05-09 16:45:03 cvskris Exp $";
+static const char* rcsID = "$Id: prestackgather.cc,v 1.3 2007-05-09 21:34:53 cvskris Exp $";
 
 #include "prestackgather.h"
 
@@ -43,6 +43,15 @@ Gather::Gather()
 
 Gather::~Gather()
 {}
+
+
+const char* Gather::dimName( bool dim0 ) const
+{
+    if ( dim0 )
+	return "Offset";
+    
+    return zit_ ? "Time" : "Depth";
+}
 
 
 bool Gather::readFrom( const MultiID& mid, const BinID& bid, 
@@ -103,7 +112,9 @@ bool Gather::readFrom( const MultiID& mid, const BinID& bid,
     if ( offsets_.size()>1 )
 	sort_coupled( offsets_.arr(), traceorder_.arr(), traceorder_.size() );
 
-    posdata_.setX1Pos( offsets_.arr(), offsets_.size(), 0 );
+    float* offsetarr = new float[offsets_.size()];
+    memcpy( offsetarr, offsets_.arr(), offsets_.size()*sizeof(float) );
+    posdata_.setX1Pos( offsetarr, offsets_.size(), 0 );
     const StepInterval<float> zsd =
 	tbuf2.get(0)->info().sampling.interval( nrsamples );
     posdata_.setRange( false,StepInterval<double>(zsd.start,zsd.stop,zsd.step));
