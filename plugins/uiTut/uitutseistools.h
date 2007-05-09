@@ -1,11 +1,10 @@
-
 #ifndef uitutseistools_h
 #define uitutseistools_h
 /*+
  * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : R.K. Singh
  * DATE     : Mar 2007
- * ID       : $Id: uitutseistools.h,v 1.3 2007-03-14 09:00:47 cvsraman Exp $
+ * ID       : $Id: uitutseistools.h,v 1.4 2007-05-09 15:58:49 cvsbert Exp $
 -*/
 
 #include "uidialog.h"
@@ -32,10 +31,14 @@ protected:
 
     uiSeisSel*		inpfld_;
     uiSeisSel*		outfld_;
-    uiGenInput*		strengthfld_;
-    uiGenInput*		incrementfld_;
+    uiGroup*		scalegrp_;
+    uiGenInput*		choicefld_;
+    uiGenInput*		factorfld_;
+    uiGenInput*		shiftfld_;
+    uiGenInput*		smoothszfld_;
 
     bool		acceptOK(CallBacker*);
+    void		choiceSel(CallBacker*);
     void		doProc(CallBacker*);
 
 };
