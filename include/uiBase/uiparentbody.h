@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/06/2001
- RCS:           $Id: uiparentbody.h,v 1.13 2006-08-21 17:14:45 cvsbert Exp $
+ RCS:           $Id: uiparentbody.h,v 1.14 2007-05-09 16:52:40 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -59,6 +59,8 @@ public:
 					      uiObject* child, 
 					      uiObject* other, int margin,
 					      bool reciprocal ) =0;
+
+    const ObjectSet<uiObjHandle>* childList() const	{ return &children; }
 
     bool			finalised() const	{ return finalised_; }
     virtual void 		finalise()		

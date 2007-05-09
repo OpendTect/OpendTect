@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uibutton.cc,v 1.36 2007-05-03 08:13:23 cvsnanne Exp $
+ RCS:           $Id: uibutton.cc,v 1.37 2007-05-09 16:53:08 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "settings.h"
 
 
+#include <qapplication.h>
 #include <qpushbutton.h>
 #include <qradiobutton.h>
 #include <qcheckbox.h>
@@ -28,6 +29,9 @@ ________________________________________________________________________
 # define mTxt 
 # define mQIcon QIcon
 #endif 
+
+static const QEvent::Type sQEventActivate = (QEvent::Type) (QEvent::User + 0);
+
 
 //! Wrapper around QButtons. 
 /*!
@@ -46,6 +50,7 @@ template< class T > class uiButtonTemplBody : public uiButtonBody,
                             , handle_( handle )
 			    , messenger_ ( *new i_ButMessenger( this, this) )
 			    , idInGroup( 0 )		
+			    , isactive_( false )
 			    { 
 				this->setText(txt); 
 				setHSzPol( uiObject::SmallVar );
@@ -61,6 +66,7 @@ template< class T > class uiButtonTemplBody : public uiButtonBody,
                             , handle_( handle )
 			    , messenger_ ( *new i_ButMessenger( this, this) )
 			    , idInGroup( 0 )		
+			    , isactive_( false )
 			    { 
 				this->setText(txt); 
 				setHSzPol( uiObject::SmallVar );
@@ -81,12 +87,28 @@ public:
 
     const char*		text();
 
+    bool		isActive() const		{ return isactive_;  }
+    
+    void 		activate()
+			{
+			    isactive_ = true; 
+			    QEvent* actevent = new QEvent( sQEventActivate );
+			    QApplication::postEvent( &messenger_, actevent ); 
+			}
+
 protected:
 
     i_ButMessenger&     messenger_;
     int                 idInGroup;
+    bool		isactive_;
 
     void		Notifier()	{ handle_.activated.trigger(handle_); }
+
+    bool 		handleEvent( const QEvent* ev )
+			{ 
+			    if ( ev->type() != sQEventActivate ) return false;
+			    Notifier(); isactive_ = false; return true; 
+			}
 
 };
 
@@ -188,6 +210,18 @@ const char* uiButton::text()
 #else
     { return mqbut()->text().toAscii().constData(); }
 #endif
+
+
+bool uiButton::isActive() const
+{
+    return dynamic_cast<const uiButtonBody*>( body() )->isActive();
+}
+
+
+void uiButton::activate()
+{
+    dynamic_cast<uiButtonBody*>( body() )->activate();
+}
 
 
 uiPushButton::uiPushButton( uiParent* parnt, const char* nm, bool ia )

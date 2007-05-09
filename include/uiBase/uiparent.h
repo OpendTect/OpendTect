@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2001
- RCS:           $Id: uiparent.h,v 1.14 2007-05-03 18:13:24 cvskris Exp $
+ RCS:           $Id: uiparent.h,v 1.15 2007-05-09 16:52:40 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,6 +36,8 @@ public:
     void                attachChild ( constraintType tp, uiObject* child,
 				      uiObject* other, int margin,
 				      bool reciprocal );
+
+    const ObjectSet<uiObjHandle>* childList() const;
 
 			//! persists current widget position
     void		storePosition();

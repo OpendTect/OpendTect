@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          25/08/1999
- RCS:           $Id: uiobj.h,v 1.46 2007-05-03 18:13:24 cvskris Exp $
+ RCS:           $Id: uiobj.h,v 1.47 2007-05-09 16:52:40 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -128,6 +128,8 @@ public:
     QWidget*		qwidget();
     const QWidget*	qwidget() const
 			{ return const_cast<uiObject*>(this)->qwidget(); }
+
+    virtual const ObjectSet<uiObjHandle>* childList() const	{ return 0; }
 
     Notifier<uiObject>	closed;
 			//!< Triggered when object closes.

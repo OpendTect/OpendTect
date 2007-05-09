@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: uimenu.h,v 1.32 2007-02-14 12:38:00 cvsnanne Exp $
+ RCS:           $Id: uimenu.h,v 1.33 2007-05-09 16:52:40 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -147,6 +147,7 @@ public:
     bool			handleEvent(const QEvent*);
 
     void			activate();
+    bool			isActive() const	{ return isactive_; }
     Notifier<uiMenuItem>	activated;
 
     int				id() const		{ return id_; }
@@ -169,6 +170,7 @@ private:
     bool			checkable_;
     bool			checked_;
     bool			enabled_;
+    bool			isactive_;
 
 };
 

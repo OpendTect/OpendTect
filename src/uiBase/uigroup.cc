@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uigroup.cc,v 1.56 2007-03-14 15:22:47 cvsnanne Exp $
+ RCS:           $Id: uigroup.cc,v 1.57 2007-05-09 16:53:08 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -547,6 +547,10 @@ uiGroupObj::uiGroupObj( uiGroup* bud, uiParent* parnt , const char* nm,
 
 uiGroupObj::~uiGroupObj()
     { if(uigrp_) { uigrp_->grpobj_ =0; delete uigrp_; }  }
+
+
+const ObjectSet<uiObjHandle>* uiGroupObj::childList() const
+    { return uigrp_ ? uigrp_->childList() : 0; }
 
 
 void uiGroupObj::bodyDel( CallBacker* cb )

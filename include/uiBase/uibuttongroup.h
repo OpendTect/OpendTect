@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          18/08/2001
- RCS:           $Id: uibuttongroup.h,v 1.7 2004-09-27 10:26:07 nanne Exp $
+ RCS:           $Id: uibuttongroup.h,v 1.8 2007-05-09 16:52:40 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,12 +26,18 @@ class uiButtonGroupObj : public uiObject
 { 	
 friend class uiButtonGroup;
 protected:
-			uiButtonGroupObj( uiParent*, const char* nm,
-					  bool vertical=true, int strips=1 );
+			uiButtonGroupObj( uiButtonGroup*, uiParent*, 
+					  const char* nm, bool vertical=true, 
+					  int strips=1 );
+
+public:
+    const ObjectSet<uiObjHandle>* childList() const;
+
 private:
 
 //    uiButtonGroupObjBody*	mkbody(uiParent*,const char*);
     uiButtonGroupObjBody*	body_;
+    uiButtonGroup*		uibutgrp_;
 };
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uigroup.h,v 1.32 2006-05-29 08:02:32 cvsbert Exp $
+ RCS:           $Id: uigroup.h,v 1.33 2007-05-09 16:52:40 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,6 +38,8 @@ protected:
 public:
 
     virtual		~uiGroupObj();
+
+    const ObjectSet<uiObjHandle>* childList() const;
 
 protected:
 

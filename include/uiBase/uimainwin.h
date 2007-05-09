@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.h,v 1.46 2007-03-06 07:40:53 cvsnanne Exp $
+ RCS:           $Id: uimainwin.h,v 1.47 2007-05-09 16:52:40 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -64,6 +64,7 @@ public:
     uiMenuBar* 		menuBar();
 
     static uiMainWin*	activeWindow();
+    static uiMainWin*	activeModalWidget();
 
     void		setCaption( const char* txt );
     void		setIcon(const char* img[],const char* icntxt); //!< XPM
@@ -100,7 +101,6 @@ public:
 
 			//! get uiMainWin for mwimpl if it is a uiMainWinBody
     static uiMainWin*	gtUiWinIfIsBdy(QWidget* mwimpl);
-
 
     bool		poppedUp() const;
     bool		touch(); //!< resets pop-up timer if !poppedUp yet

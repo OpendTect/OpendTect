@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          18/08/2001
- RCS:           $Id: uibuttongroup.cc,v 1.13 2007-03-14 12:02:12 cvsbert Exp $
+ RCS:           $Id: uibuttongroup.cc,v 1.14 2007-05-09 16:53:08 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -105,13 +105,18 @@ private:
 };
 
 
-uiButtonGroupObj::uiButtonGroupObj( uiParent* p, const char* nm,
-                                    bool vertical, int strips )
-    : uiObject(p,nm)
+uiButtonGroupObj::uiButtonGroupObj( uiButtonGroup* uibg, uiParent* p, 
+				    const char* nm, bool vertical, int strips )
+    : uiObject( p, nm )
+    , uibutgrp_( uibg )
 {
     body_ = new uiButtonGroupObjBody( *this, p, nm, vertical, strips );
     setBody( body_ );
 }
+
+
+const ObjectSet<uiObjHandle>* uiButtonGroupObj::childList() const
+{ return uibutgrp_ ? uibutgrp_->childList() : 0; }
 
 
 uiButtonGroup::uiButtonGroup( uiParent* p, const char* nm,
@@ -120,7 +125,7 @@ uiButtonGroup::uiButtonGroup( uiParent* p, const char* nm,
     , grpobj_( 0 )
     , body_( 0 )
 {
-    grpobj_ = new uiButtonGroupObj( p, nm, vertical, strips );
+    grpobj_ = new uiButtonGroupObj( this, p, nm, vertical, strips );
     uiButtonGroupObjBody* grpbdy = 
 	    dynamic_cast<uiButtonGroupObjBody*>( grpobj_->body() );
 

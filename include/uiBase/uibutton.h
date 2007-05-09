@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uibutton.h,v 1.18 2007-02-07 16:46:22 cvsnanne Exp $
+ RCS:           $Id: uibutton.h,v 1.19 2007-05-09 16:52:40 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,6 +22,7 @@ class uiRadioButtonBody;
 class uiCheckBoxBody;
 class uiToolButtonBody;
 class ioPixmap;
+class QEvent;
 
 
 //!\brief Button Abstract Base class
@@ -34,6 +35,9 @@ public:
 
     virtual void	setText(const char*);
     const char*		text();
+
+    void		activate();
+    bool		isActive() const;
 
     Notifier<uiButton>	activated;
 };
@@ -151,10 +155,15 @@ public:
 			uiButtonBody()				{}
     virtual		~uiButtonBody()				{}
 
+    virtual void	activate()				=0;
+    virtual bool	isActive() const			=0;
+
     //! Button signals emitted by Qt.
     enum notifyTp       { clicked, pressed, released, toggled };
-
+    
 protected:
+    virtual bool	handleEvent(const QEvent*)		=0;
+
     //! Handler called from Qt.
     virtual void        notifyHandler(notifyTp)			=0;
 };

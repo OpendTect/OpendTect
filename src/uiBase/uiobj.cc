@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          25/08/1999
- RCS:           $Id: uiobj.cc,v 1.64 2007-05-03 18:13:24 cvskris Exp $
+ RCS:           $Id: uiobj.cc,v 1.65 2007-05-09 16:53:08 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -77,6 +77,14 @@ void uiParent::attachChild ( constraintType tp, uiObject* child,
 	{ pErrMsg("uiParent has a body, but it's no uiParentBody"); return; } 
 
     b->attachChild ( tp, child, other, margin, reciprocal );
+}
+
+
+const ObjectSet<uiObjHandle>* uiParent::childList() const 
+{
+    uiParentBody* uipb = 
+	    dynamic_cast<uiParentBody*>( const_cast<uiParent*>(this)->body() );
+    return uipb ? uipb->childList(): 0;
 }
 
 

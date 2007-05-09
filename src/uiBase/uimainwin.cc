@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.122 2007-04-23 09:02:21 cvsnanne Exp $
+ RCS:           $Id: uimainwin.cc,v 1.123 2007-05-09 16:53:08 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -537,8 +537,10 @@ void uiMainWin::addToolBarBreak()
 
 uiGroup* uiMainWin::topGroup()	    	   { return body_->uiCentralWidg(); }
 
+
 void uiMainWin::setShrinkAllowed(bool yn)  
     { if ( topGroup() ) topGroup()->setShrinkAllowed(yn); }
+ 
 
 bool uiMainWin::shrinkAllowed()	 	   
     { return topGroup() ? topGroup()->shrinkAllowed() : false; }
@@ -546,6 +548,7 @@ bool uiMainWin::shrinkAllowed()
 
 uiObject* uiMainWin::mainobject()
     { return body_->uiCentralWidg()->mainObject(); }
+
 
 void uiMainWin::toStatusBar( const char* txt, int fldidx, int msecs )
 {
@@ -557,13 +560,26 @@ void uiMainWin::toStatusBar( const char* txt, int fldidx, int msecs )
     	UsrMsg(txt);
 }
 
+
 uiMainWin* uiMainWin::activeWindow()
 {
     QWidget* _aw = qApp->activeWindow();
     if ( !_aw )		return 0;
 
     uiMainWinBody* _awb = dynamic_cast<uiMainWinBody*>(_aw);
-    if ( !_awb )		return 0;
+    if ( !_awb )	return 0;
+
+    return &_awb->handle();
+}
+
+
+uiMainWin* uiMainWin::activeModalWidget()
+{
+    QWidget* _amw = qApp->activeModalWidget();
+    if ( !_amw )	return 0;
+
+    uiMainWinBody* _awb = dynamic_cast<uiMainWinBody*>(_amw);
+    if ( !_awb )	return 0;
 
     return &_awb->handle();
 
