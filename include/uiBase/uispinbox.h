@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2001
- RCS:           $Id: uispinbox.h,v 1.12 2006-11-10 13:55:02 cvsbert Exp $
+ RCS:           $Id: uispinbox.h,v 1.13 2007-05-10 06:14:30 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -80,6 +80,7 @@ public:
     void		doSnap(bool yn)			{ dosnap = yn; }
 
     Notifier<uiSpinBox>	valueChanged;
+    Notifier<uiSpinBox>	valueChanging;
 
 private:
 

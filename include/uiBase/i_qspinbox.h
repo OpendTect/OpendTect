@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2001
- RCS:           $Id: i_qspinbox.h,v 1.5 2007-03-02 16:25:31 cvsnanne Exp $
+ RCS:           $Id: i_qspinbox.h,v 1.6 2007-05-10 06:14:30 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -47,8 +47,10 @@ protected:
 			    connect(sender,SIGNAL(valueChanged(int)),
 				    this, SLOT(valueChanged(int)));
 #else
-			    connect(sender,SIGNAL(editingFinished()),
-				    this, SLOT(editingFinished()));
+			    connect( sender, SIGNAL(editingFinished()),
+				     this, SLOT(editingFinished()) );
+			    connect(sender, SIGNAL(valueChanged(double)),
+				    this, SLOT(valueChanged(double)) );
 #endif
 			}
 
@@ -67,6 +69,8 @@ private slots:
 #else
     void		editingFinished()
 			{ _receiver->valueChanged.trigger(*_receiver); }
+    void 		valueChanged(double)
+			{ _receiver->valueChanging.trigger(*_receiver); }
 #endif
 };
 
