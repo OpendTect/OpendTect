@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          10/12/1999
- RCS:           $Id: uimain.cc,v 1.37 2007-02-28 07:32:12 cvsnanne Exp $
+ RCS:           $Id: uimain.cc,v 1.38 2007-05-10 05:41:07 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -99,6 +99,8 @@ uiMain::uiMain( QApplication* qapp )
     : mainobj_( 0 )
 { 
     QApplication::setDesktopSettingsAware( false );
+    QApplication::setEffectEnabled( Qt::UI_AnimateMenu, false );
+    QApplication::setEffectEnabled( Qt::UI_AnimateTooltip, false );
     QApplication::setColorSpec( QApplication::ManyColor );
     QApplication::setLibraryPaths( QStringList("/dev") );
 
