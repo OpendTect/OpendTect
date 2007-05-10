@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.185 2007-03-21 15:44:23 cvskris Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.186 2007-05-10 08:01:42 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -300,6 +300,15 @@ void uiODApplMgr::editAttribSet( bool is2d )
 void uiODApplMgr::createHorOutput( int tp, bool is2d )
 {
     emattrserv_->setDescSet( attrserv_->curDescSet(is2d) );
+    MultiID nlaid; const NLAModel* nlamdl = 0;
+    if ( nlaserv_ )
+    {
+	nlaserv_->set2DEvent( is2d );
+	nlaid = nlaserv_->modelId();
+	nlamdl = &nlaserv_->getModel();
+    }
+    emattrserv_->setNLA( nlamdl, nlaid );
+
     uiEMAttribPartServer::HorOutType type =
 	  tp==0 ? uiEMAttribPartServer::OnHor :
 	( tp==1 ? uiEMAttribPartServer::AroundHor : 
