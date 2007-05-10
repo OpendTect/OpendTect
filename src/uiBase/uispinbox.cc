@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2001
- RCS:           $Id: uispinbox.cc,v 1.24 2007-03-02 16:25:45 cvsnanne Exp $
+ RCS:           $Id: uispinbox.cc,v 1.25 2007-05-10 06:15:13 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,9 +42,17 @@ public:
     void		setNrDecimals(int);
 
 #ifndef USEQT3
-    QValidator::State	validate ( QString & input, int & pos ) const  
-			{ return dval ? dval->validate( input, pos )
-				      : mQSpinBox::validate( input, pos ); }
+    QValidator::State	validate( QString& input, int& pos ) const
+			{
+			    const double val = input.toDouble();
+			    if ( val > maximum() )
+				input.setNum( maximum() );
+			    return QDoubleSpinBox::validate( input, pos );
+			}
+
+
+    virtual void	fixup( QString& input) const
+			{ std::cout << input.toAscii().data() << std::endl; }
 #endif
 
 protected:
@@ -74,6 +82,7 @@ uiSpinBoxBody::uiSpinBoxBody( uiSpinBox& handle, uiParent* p, const char* nm )
 #ifdef USEQT3
     setValidator( dval );
 #endif
+    setCorrectionMode( QAbstractSpinBox::CorrectToNearestValue );
 }
 
 
@@ -108,6 +117,7 @@ void uiSpinBoxBody::setNrDecimals( int dec )
 uiSpinBox::uiSpinBox( uiParent* p, int dec, const char* nm )
     : uiObject(p,nm,mkbody(p,nm))
     , valueChanged(this)
+    , valueChanging(this)
     , dosnap(false)
     , factor(1)
 {
@@ -199,7 +209,6 @@ void uiSpinBox::setValue( int val )
 void uiSpinBox::setValue( float val )
 { body_->setValue( mNINT(val*factor) ); }
 
-
 void uiSpinBox::setMinValue( int val )
 { body_->setMinValue( val*factor ); }
 
@@ -223,7 +232,6 @@ int uiSpinBox::maxValue() const
 
 float uiSpinBox::maxFValue() const
 { return (float)body_->maxValue() / factor; }
-
 
 int uiSpinBox::step() const
 { return body_->mGetStep() / factor; }
@@ -256,7 +264,6 @@ void uiSpinBox::setValue( int val )
 
 void uiSpinBox::setValue( float val )
 { body_->setValue( val ); }
-
 
 void uiSpinBox::setMinValue( int val )
 { body_->setMinimum( val ); }
