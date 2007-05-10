@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribdesc.h,v 1.38 2007-01-04 15:27:50 cvshelene Exp $
+ RCS:           $Id: attribdesc.h,v 1.39 2007-05-10 07:39:09 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,6 +18,9 @@ ________________________________________________________________________
 #include "seistype.h"
 #include "attribdescid.h"
 
+//only usefull for backward compatibility 2.4
+#include "attribdescset.h"
+
 class DataInpSpec;
 class MultiID;
 
@@ -25,7 +28,6 @@ namespace Attrib
 {
 
 class Desc;
-class DescSet;
 class Param;
 class ValParam;
 
@@ -249,6 +251,8 @@ protected:
 	if ( binidparam##var ) \
 	    var = binidparam##var->getDefaultBinIDValue();\
     }\
+    if ( desc.descSet()->is2D() ) \
+    	var.inl = 0; \
 }
 
 #define mGetFloatInterval( var, varstring ) \

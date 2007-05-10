@@ -5,11 +5,10 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribdesc.cc,v 1.53 2006-12-21 13:48:37 cvshelene Exp $";
+static const char* rcsID = "$Id: attribdesc.cc,v 1.54 2007-05-10 07:39:09 cvshelene Exp $";
 
 #include "attribdesc.h"
 
-#include "attribdescset.h"
 #include "attribparam.h"
 #include "attribstorprovider.h"
 #include "seistrctr.h"
