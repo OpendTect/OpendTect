@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          April 2007
- RCS:           $Id: uiflatauxdataeditorlist.cc,v 1.1 2007-05-08 18:40:04 cvskris Exp $
+ RCS:           $Id: uiflatauxdataeditorlist.cc,v 1.2 2007-05-10 13:12:51 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -111,5 +111,5 @@ void uiFlatViewAuxDataEditorList::listSelChangeCB( CallBacker* )
 {
     const int nrsel = listbox_->nrSelected();
     if ( nrsel!=1 ) editor_->setAddAuxData( -1 );
-    else editor_->setAddAuxData( ids_[listbox_->currentItem()] );
+    else editor_->setAddAuxData( ids_[listbox_->nextSelected()] );
 }
