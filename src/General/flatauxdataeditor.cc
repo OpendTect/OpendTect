@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2000
- RCS:           $Id: flatauxdataeditor.cc,v 1.8 2007-05-08 17:51:51 cvskris Exp $
+ RCS:           $Id: flatauxdataeditor.cc,v 1.9 2007-05-10 16:06:01 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -299,7 +299,7 @@ bool AuxDataEditor::updateSelection( const Geom::Point2D<int>& pt )
 		continue;
 
 	    const int sqdist = displaypos.sqDistTo( pt );
-	    if ( sqdist<minsqdist || seldatasetidx_==-1 )
+	    if ( seldatasetidx_==-1 || sqdist<minsqdist )
 	    {
 		seldatasetidx_ = idx;
 		selptidx_ = idy;
