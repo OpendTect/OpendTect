@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: uilistbox.cc,v 1.75 2007-05-04 09:54:43 cvsnanne Exp $
+ RCS:           $Id: uilistbox.cc,v 1.76 2007-05-10 05:43:59 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -74,6 +74,7 @@ uiListBoxBody::uiListBoxBody( uiListBox& handle, uiParent* parnt,
     setObjectName( nm );
     setDragDropMode( QAbstractItemView::NoDragDrop );
     setAcceptDrops( false ); setDragEnabled( false );
+    setSelectionBehavior( QAbstractItemView::SelectItems );
     if ( isMultiSelect ) setSelectionMode( mExtended );
 
     setStretch( 2, (nrTxtLines()== 1) ? 0 : 2 );
@@ -84,10 +85,11 @@ uiListBoxBody::uiListBoxBody( uiListBox& handle, uiParent* parnt,
 
 uiListBox::uiListBox( uiParent* p, const char* nm, bool ms, int nl, int pfw)
     : uiObject( p, nm, mkbody(p,nm,ms,nl,pfw) )
-    , selectionChanged( this )
-    , doubleClicked( this )
-    , rightButtonClicked( this )
-    , lastClicked_( -1 )
+    , currentItemChanged(this)
+    , selectionChanged(this)
+    , doubleClicked(this)
+    , rightButtonClicked(this)
+    , lastclicked_(-1)
 {
 }
 
@@ -95,10 +97,11 @@ uiListBox::uiListBox( uiParent* p, const char* nm, bool ms, int nl, int pfw)
 uiListBox::uiListBox( uiParent* p, const BufferStringSet& uids,
 		      const char* txt, bool ms, int nl, int pfw )
     : uiObject( p, txt, mkbody(p,txt,ms,nl,pfw))
-    , selectionChanged( this )
-    , doubleClicked( this )
-    , rightButtonClicked( this )
-    , lastClicked_( -1 )
+    , currentItemChanged(this)
+    , selectionChanged(this)
+    , doubleClicked(this)
+    , rightButtonClicked(this)
+    , lastclicked_(-1)
 {
     addItems( uids );
 }
@@ -142,7 +145,9 @@ int uiListBox::size() const
 bool uiListBox::isSelected ( int idx ) const
 {
     if ( idx < 0 || idx >= body_->count() ) return false;
-    return body_->isItemSelected( body_->item(idx) );
+
+    QListWidgetItem* itm = body_->item( idx );
+    return itm ? itm->isSelected() : false;
 }
 
 
@@ -255,9 +260,9 @@ ioPixmap* uiListBox::pixmap( int index )
 
 void uiListBox::empty()
 {
-    lastClicked_ = -2;
+    lastclicked_ = -2;
     body_->QListWidget::clear();
-    lastClicked_ = -1;
+    lastclicked_ = -1;
 }
 
 
@@ -277,10 +282,10 @@ void uiListBox::sort( bool asc )
 
 void uiListBox::removeItem( int idx )
 {
-    const int oldlc = lastClicked_;
-    lastClicked_ = -2;
+    const int oldlc = lastclicked_;
+    lastclicked_ = -2;
     delete body_->takeItem( idx );
-    lastClicked_ = oldlc >= idx ? -1 : oldlc;
+    lastclicked_ = oldlc >= idx ? -1 : oldlc;
 }
 
 
@@ -329,8 +334,8 @@ bool uiListBox::isEmbedded( int idx ) const
 
 int uiListBox::currentItem() const
 {
-    return lastClicked_ < 0 || lastClicked_ >= size()
-	 ? body_->currentRow() : lastClicked_;
+    return lastclicked_ < 0 || lastclicked_ >= size()
+	 ? body_->currentRow() : lastclicked_;
 }
 
 
@@ -355,7 +360,7 @@ void uiListBox::setCurrentItem( int idx )
 	body_->setCurrentRow( idx );
 	if ( body_->selectionMode() != mExtended )
 	    setSelected( idx );
-	lastClicked_ = idx;
+	lastclicked_ = idx;
     }
 }
 

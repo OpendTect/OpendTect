@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: uilistbox.h,v 1.32 2006-11-21 14:00:06 cvsbert Exp $
+ RCS:           $Id: uilistbox.h,v 1.33 2007-05-10 05:43:45 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -93,20 +93,21 @@ public:
     void		setFieldWidth(int);
     int			optimumFieldWidth(int minwdth=20,int maxwdth=40) const;
 
-    int			lastClicked()		{ return lastClicked_; }
+    int			lastClicked()		{ return lastclicked_; }
 
+    Notifier<uiListBox> currentItemChanged;
     Notifier<uiListBox> selectionChanged;
 
-			//! sets lastClicked
+			//! sets lastclicked_
     Notifier<uiListBox> doubleClicked;
 
-			//! sets lastClicked
+			//! sets lastclicked_
     Notifier<uiListBox> rightButtonClicked;
 
 protected:
 
     mutable BufferString	rettxt;
-    int				lastClicked_;
+    int				lastclicked_;
 
 private:
 

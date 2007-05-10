@@ -7,20 +7,17 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: i_qlistbox.h,v 1.5 2007-05-02 14:37:41 cvsbert Exp $
+ RCS:           $Id: i_qlistbox.h,v 1.6 2007-05-10 05:43:45 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
-#include <uilistbox.h>
-
-#include <qobject.h>
-#include <qwidget.h>
-#include <string.h>
+#include "uilistbox.h"
 
 #include <QListWidget>
+#include <QObject>
 
-//! Helper class for uiListBox to relay Qt's 'activated' messages to uiMenuItem.
+//! Helper class for uiListBox to relay Qt's messages.
 /*!
     Internal object, to hide Qt's signal/slot mechanism.
 */
@@ -35,17 +32,20 @@ protected:
 			: _sender( sender )
 			, _receiver( receiver )
 			{
-			    connect(sender,
+			    connect( sender,
 				SIGNAL(currentItemChanged(QListWidgetItem*,
 							  QListWidgetItem*)),
 				this,
-				SLOT(selectionChanged(QListWidgetItem*,
-						      QListWidgetItem*)));
+				SLOT(currentItemChanged(QListWidgetItem*,
+							QListWidgetItem*)) );
 
-			    connect(sender,
-				    SIGNAL(itemDoubleClicked(QListWidgetItem*)),
-				    this,
-				    SLOT(doubleClicked(QListWidgetItem*)));
+			    connect( sender,
+				SIGNAL(itemDoubleClicked(QListWidgetItem*)),
+				this,
+				SLOT(doubleClicked(QListWidgetItem*)) );
+
+			    connect( sender, SIGNAL(itemSelectionChanged()),
+				     this, SLOT(itemSelectionChanged()) );
 
 			}
 
@@ -59,27 +59,35 @@ private:
 private slots:
 
 
-    void 		selectionChanged( QListWidgetItem* cur,
-	    				  QListWidgetItem* prev ) 
+    void 		currentItemChanged( QListWidgetItem* cur,
+					    QListWidgetItem* prev ) 
 			{
-			    if ( _receiver->lastClicked_ == -2 ) return;
+			    if ( _receiver->lastclicked_ == -2 ) return;
 
 			    if ( !cur ) cur = prev;
 			    if ( !cur ) return;
-			    int idx = _sender->row( cur );
-			    _receiver->lastClicked_ = idx;
-			    _receiver->selectionChanged.trigger( *_receiver );
+			    cur->setSelected( true );
+			    _receiver->lastclicked_ = _sender->row( cur );
+			    _receiver->currentItemChanged.trigger( *_receiver );
 			}
     
     void		doubleClicked( QListWidgetItem* cur )
 			{
-			    if ( _receiver->lastClicked_ == -2 ) return;
+			    if ( _receiver->lastclicked_ == -2 ) return;
 
 			    int idx = _sender->row( cur );
-			    _receiver->lastClicked_ = idx;
+			    _receiver->lastclicked_ = idx;
 			    _receiver->doubleClicked.trigger( *_receiver );
 			}
 
+    void		itemSelectionChanged()
+			{
+			    if ( _receiver->lastclicked_ == -2 ) return;
+
+			    _receiver->lastclicked_ =
+					_sender->row( _sender->currentItem() );
+			    _receiver->selectionChanged.trigger( *_receiver );
+			}
 
 };
 
