@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribstorprovider.cc,v 1.66 2007-05-09 14:34:49 cvsbert Exp $";
+static const char* rcsID = "$Id: attribstorprovider.cc,v 1.67 2007-05-10 08:21:13 cvshelene Exp $";
 
 #include "attribstorprovider.h"
 
@@ -503,6 +503,13 @@ bool StorageProvider::checkDesiredVolumeOK()
 bool StorageProvider::checkDesiredTrcRgOK( StepInterval<int> trcrg, 
 				   StepInterval<float>zrg )
 {
+    if ( !desiredvolume )
+    {
+	errmsg = "internal error, '"; errmsg += desc.userRef(); errmsg += "'";
+	errmsg += " has no desired volume\n";
+	return false;
+    }
+    
     const bool trcrgwrong =
 	desiredvolume->hrg.start.crl > trcrg.stop
      || desiredvolume->hrg.stop.crl < trcrg.start;
