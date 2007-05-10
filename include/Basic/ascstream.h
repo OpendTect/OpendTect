@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		2-5-1995
- RCS:		$Id: ascstream.h,v 1.12 2007-01-10 19:02:51 cvsbert Exp $
+ RCS:		$Id: ascstream.h,v 1.13 2007-05-10 17:20:15 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,6 +42,7 @@ public:
 			: mystrm(NO), keyvalsep(kvsep)	{ init(&strm); }
 		ascostream(std::ostream* strm,char kvsep=mDefKeyValSep)
 			: mystrm(YES), keyvalsep(kvsep)	{ init(strm); }
+		//!<\note stream becomes mine
 		~ascostream();
 
     bool	put(const char*,const char* val=0);
