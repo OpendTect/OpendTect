@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2001
- RCS:           $Id: uispinbox.h,v 1.13 2007-05-10 06:14:30 cvsnanne Exp $
+ RCS:           $Id: uispinbox.h,v 1.14 2007-05-10 06:32:07 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -77,19 +77,19 @@ public:
     const char*		suffix() const;
     void		setSuffix(const char*);
 
-    void		doSnap(bool yn)			{ dosnap = yn; }
+    void		doSnap( bool yn )		{ dosnap_ = yn; }
 
     Notifier<uiSpinBox>	valueChanged;
     Notifier<uiSpinBox>	valueChanging;
 
 private:
 
-    int			factor;
+    int			factor_;
 
     uiSpinBoxBody*	body_;
     uiSpinBoxBody&	mkbody(uiParent*, const char*);
 
-    bool		dosnap; /*!< If true, value in spinbox will be snapped 
+    bool		dosnap_; /*!< If true, value in spinbox will be snapped 
 				  to a value equal to N*step. */
     void		snapToStep(CallBacker*);
 };

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2001
- RCS:           $Id: uispinbox.cc,v 1.25 2007-05-10 06:15:13 cvsnanne Exp $
+ RCS:           $Id: uispinbox.cc,v 1.26 2007-05-10 06:32:07 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,10 +49,6 @@ public:
 				input.setNum( maximum() );
 			    return QDoubleSpinBox::validate( input, pos );
 			}
-
-
-    virtual void	fixup( QString& input) const
-			{ std::cout << input.toAscii().data() << std::endl; }
 #endif
 
 protected:
@@ -95,14 +91,14 @@ uiSpinBoxBody::~uiSpinBoxBody()
 
 int uiSpinBoxBody::mapTextToValue( bool* ok )
 {
-    return (int)(cleanText().toFloat(ok) * handle_.factor);
+    return (int)(cleanText().toFloat(ok) * handle_.factor_);
 }
 
 
 QString uiSpinBoxBody::mapValueToText( int val )
 {
     QString s;
-    s.setNum( (float)val / handle_.factor );
+    s.setNum( (float)val / handle_.factor_ );
     return s;
 }
 
@@ -118,8 +114,8 @@ uiSpinBox::uiSpinBox( uiParent* p, int dec, const char* nm )
     : uiObject(p,nm,mkbody(p,nm))
     , valueChanged(this)
     , valueChanging(this)
-    , dosnap(false)
-    , factor(1)
+    , dosnap_(false)
+    , factor_(1)
 {
     setNrDecimals( dec );
     valueChanged.notify( mCB(this,uiSpinBox,snapToStep) );
@@ -143,7 +139,7 @@ void uiSpinBox::setNrDecimals( int dec )
 {
 #ifdef USEQT3
     if ( dec < 0 ) dec = 0;
-    factor = (int)pow(10,(float)dec);
+    factor_ = (int)pow(10,(float)dec);
     body_->setNrDecimals( dec );
 #else
     body_->setDecimals( dec );
@@ -153,18 +149,13 @@ void uiSpinBox::setNrDecimals( int dec )
 
 void uiSpinBox::snapToStep( CallBacker* )
 {
-#ifdef USEQT3
-    if ( !dosnap ) return;
+    if ( !dosnap_ ) return;
 
-    const int diff = body_->value() - body_->minValue();
-    const int step_ = body_->mGetStep() ? body_->mGetStep() : 1;
-    if ( diff%step_ )
-    {
-	const float ratio = (float)diff / step_;
-	const int newval = body_->minValue() + mNINT(ratio)*step_;
-	body_->setValue( newval );
-    }
-#endif
+    const float diff = getFValue() - minFValue();
+    const float step = fstep();
+    const float ratio = diff / step;
+    const float newval = minFValue() + mNINT(ratio)*step;
+    setValue( newval );
 }
 
 
@@ -198,56 +189,56 @@ StepInterval<float> uiSpinBox::getFInterval() const
 
 #ifdef USEQT3
 int uiSpinBox::getValue() const
-{ return body_->value() / factor; }
+{ return body_->value() / factor_; }
 
 float uiSpinBox::getFValue() const	
-{ return (float)body_->value() / factor; }
+{ return (float)body_->value() / factor_; }
 
 void uiSpinBox::setValue( int val )
-{ body_->setValue( val*factor ); }
+{ body_->setValue( val*factor_ ); }
 
 void uiSpinBox::setValue( float val )
-{ body_->setValue( mNINT(val*factor) ); }
+{ body_->setValue( mNINT(val*factor_) ); }
 
 void uiSpinBox::setMinValue( int val )
-{ body_->setMinValue( val*factor ); }
+{ body_->setMinValue( val*factor_ ); }
 
 void uiSpinBox::setMinValue( float val )
-{ body_->setMinValue( mNINT(val*factor) ); }
+{ body_->setMinValue( mNINT(val*factor_) ); }
 
 int uiSpinBox::minValue() const
-{ return body_->minValue() / factor; }
+{ return body_->minValue() / factor_; }
 
 float uiSpinBox::minFValue() const
-{ return (float)body_->minValue() / factor; }
+{ return (float)body_->minValue() / factor_; }
 
 void uiSpinBox::setMaxValue( int val )
-{ body_->setMaxValue( val*factor ); }
+{ body_->setMaxValue( val*factor_ ); }
 
 void uiSpinBox::setMaxValue( float val )
-{ body_->setMaxValue( mNINT(val*factor) ); }
+{ body_->setMaxValue( mNINT(val*factor_) ); }
 
 int uiSpinBox::maxValue() const
-{ return body_->maxValue() / factor; }
+{ return body_->maxValue() / factor_; }
 
 float uiSpinBox::maxFValue() const
-{ return (float)body_->maxValue() / factor; }
+{ return (float)body_->maxValue() / factor_; }
 
 int uiSpinBox::step() const
-{ return body_->mGetStep() / factor; }
+{ return body_->mGetStep() / factor_; }
 
 float uiSpinBox::fstep() const
-{ return (float)body_->mGetStep() / factor; }
+{ return (float)body_->mGetStep() / factor_; }
 
-void uiSpinBox::setStep( int step_, bool snapcur )		
-{ setStep( (float)step_, snapcur ); }
+void uiSpinBox::setStep( int step, bool snapcur )		
+{ setStep( (float)step, snapcur ); }
 
 
-void uiSpinBox::setStep( float step_, bool snapcur )
+void uiSpinBox::setStep( float step, bool snapcur )
 {
-    if ( !step_ ) step_ = 1;
-    body_->mSetStep( mNINT(step_*factor) );
-    dosnap = snapcur;
+    if ( !step ) step = 1;
+    body_->mSetStep( mNINT(step*factor_) );
+    dosnap_ = snapcur;
     snapToStep(0);
 }
 
@@ -302,7 +293,7 @@ void uiSpinBox::setStep( float step_, bool snapcur )
 {
     if ( !step_ ) step_ = 1;
     body_->mSetStep( step_ );
-    dosnap = snapcur;
+    dosnap_ = snapcur;
     snapToStep(0);
 }
 #endif
