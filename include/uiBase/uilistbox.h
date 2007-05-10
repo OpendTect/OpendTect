@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: uilistbox.h,v 1.33 2007-05-10 05:43:45 cvsnanne Exp $
+ RCS:           $Id: uilistbox.h,v 1.34 2007-05-10 13:08:40 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -57,6 +57,7 @@ public:
 
     int			size() const;
     inline bool		isEmpty() const		{ return size() == 0; }
+    int			nextSelected(int prev=-1) const;
     bool		isPresent(const char*) const;
     bool		isSelected(int) const;
     int			nrSelected() const;

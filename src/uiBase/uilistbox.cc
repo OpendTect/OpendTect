@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: uilistbox.cc,v 1.76 2007-05-10 05:43:59 cvsnanne Exp $
+ RCS:           $Id: uilistbox.cc,v 1.77 2007-05-10 13:08:40 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -286,6 +286,20 @@ void uiListBox::removeItem( int idx )
     lastclicked_ = -2;
     delete body_->takeItem( idx );
     lastclicked_ = oldlc >= idx ? -1 : oldlc;
+}
+
+
+int uiListBox::nextSelected( int prev ) const
+{
+    if ( prev<0 ) prev = -1;
+    const int sz = size();
+    for ( int idx=prev+1; idx<sz; idx++ )
+    {
+	if ( isSelected( idx ) )
+	    return idx;
+    }
+
+    return -1;
 }
 
 
