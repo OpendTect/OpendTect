@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          13/01/2005
- RCS:           $Id: undefarray.cc,v 1.3 2007-01-03 16:18:10 cvskris Exp $
+ RCS:           $Id: undefarray.cc,v 1.4 2007-05-10 15:49:53 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -92,7 +92,7 @@ void UndefArrayHandler::unsetUdf##postfix( void* ptr, int64 idx ) \
 	return; \
 	 \
     type* myptr = (type*)(ptr); \
-    myptr[idx] == udfreplace; \
+    myptr[idx] = udfreplace; \
 }
 
 
@@ -118,7 +118,7 @@ void UndefArrayHandler::unsetUdf##postfix( void* ptr, int64 idx ) \
 	return; \
 	 \
     type* myptr = (type*)(ptr); \
-    myptr[idx] == udfreplace; \
+    myptr[idx] = udfreplace; \
 }
 
 
