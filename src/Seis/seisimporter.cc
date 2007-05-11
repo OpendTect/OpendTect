@@ -4,7 +4,7 @@
  * DATE     : Nov 2006
 -*/
 
-static const char* rcsID = "$Id: seisimporter.cc,v 1.9 2007-05-07 12:54:40 cvskris Exp $";
+static const char* rcsID = "$Id: seisimporter.cc,v 1.10 2007-05-11 11:51:03 cvsbert Exp $";
 
 #include "seisimporter.h"
 #include "seisbuf.h"
@@ -298,6 +298,8 @@ int nextStep()
 	linenr_ += geom_->step.crl;
 	if ( linenr_ > geom_->stop.crl )
 	    return doFinal();
+	else
+	    trcnr_ = geom_->start.inl;
     }
 
     if ( tri_->goTo(BinID(trcnr_,linenr_)) )
