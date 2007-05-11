@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          25/08/1999
- RCS:           $Id: uiobj.h,v 1.47 2007-05-09 16:52:40 cvsjaap Exp $
+ RCS:           $Id: uiobj.h,v 1.48 2007-05-11 12:43:35 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -124,6 +124,9 @@ public:
     uiSize		actualsize(bool include_border=true) const;
 
     uiParent*		parent()			{ return parent_; }
+    const uiParent*	parent() const
+			    { return const_cast<uiObject*>(this)->parent(); }
+    
     uiMainWin*		mainwin();
     QWidget*		qwidget();
     const QWidget*	qwidget() const
