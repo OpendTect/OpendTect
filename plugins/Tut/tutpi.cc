@@ -5,7 +5,7 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: tutpi.cc,v 1.1 2007-05-09 15:58:49 cvsbert Exp $";
+static const char* rcsID = "$Id: tutpi.cc,v 1.2 2007-05-11 12:55:07 cvsbert Exp $";
 
 #include "tutseistools.h"
 #include "plugins.h"
@@ -22,7 +22,7 @@ extern "C" PluginInfo* GetTutPluginInfo()
 	"Tutorial plugin development (Non-UI)",
 	"dGB (Raman/Bert)",
 	"3.0",
-    	"Shows some simple plugin basics using a seismic example." };
+    	"Shows some simple plugin basics." };
     return &retpi;
 }
 

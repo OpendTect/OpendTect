@@ -5,7 +5,7 @@
  * DATE     : Mar 2007
 -*/
 
-static const char* rcsID = "$Id: uitutseistools.cc,v 1.6 2007-05-11 12:19:25 cvsbert Exp $";
+static const char* rcsID = "$Id: uitutseistools.cc,v 1.7 2007-05-11 12:55:07 cvsbert Exp $";
 
 #include "uitutseistools.h"
 #include "tutseistools.h"
@@ -38,10 +38,11 @@ uiTutSeisTools::uiTutSeisTools( uiParent* p )
     actionfld_ = new uiGenInput( this, "Action",
 	    			 StringListInpSpec(actions) );
     actionfld_->valuechanged.notify( choicecb );
+    actionfld_->attach( alignedBelow, inpfld_ );
 
     // Parameters for scaling
     scalegrp_ = new uiGroup( this, "Scale group" );
-    scalegrp_->attach( alignedBelow, inpfld_ );
+    scalegrp_->attach( alignedBelow, actionfld_ );
     factorfld_ = new uiGenInput( scalegrp_, "Factor",
 				FloatInpSpec(tst_.factor()) );
     shiftfld_ = new uiGenInput( scalegrp_, "Shift",
@@ -57,7 +58,7 @@ uiTutSeisTools::uiTutSeisTools( uiParent* p )
     // The output seismic object
     outctio_.ctxt.forread = false;
     outfld_ = new uiSeisSel( this, outctio_, SeisSelSetup() );
-    outfld_->attach( leftAlignedBelow, factorfld_ );
+    outfld_->attach( alignedBelow, scalegrp_ );
 
     // Make sure only relevant stuff is displayed on startup
     finaliseDone.notify( choicecb );
