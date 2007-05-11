@@ -5,7 +5,7 @@
  * DATE     : Mar 2007
 -*/
 
-static const char* rcsID = "$Id: uitutseistools.cc,v 1.5 2007-05-09 15:58:49 cvsbert Exp $";
+static const char* rcsID = "$Id: uitutseistools.cc,v 1.6 2007-05-11 12:19:25 cvsbert Exp $";
 
 #include "uitutseistools.h"
 #include "tutseistools.h"
@@ -15,10 +15,11 @@ static const char* rcsID = "$Id: uitutseistools.cc,v 1.5 2007-05-09 15:58:49 cvs
 #include "uimsg.h"
 #include "seistrctr.h"
 #include "seistrcsel.h"
-#include "seissingtrcproc.h"
 #include "ctxtioobj.h"
 #include "ioobj.h"
 
+static const char* actions[] = { "Scale", "Square", "Smooth", 0 };
+// Exactly the order of the Tut::SeisTools::Action enum
 
 uiTutSeisTools::uiTutSeisTools( uiParent* p )
 	: uiDialog( p, Setup( "Tut seismic tools",
@@ -27,7 +28,6 @@ uiTutSeisTools::uiTutSeisTools( uiParent* p )
     	, inctio_(*mMkCtxtIOObj(SeisTrc))
     	, outctio_(*mMkCtxtIOObj(SeisTrc))
     	, tst_(*new Tut::SeisTools)
-    	, stp_(0)
 {
     const CallBack choicecb( mCB(this,uiTutSeisTools,choiceSel) );
 
@@ -35,10 +35,9 @@ uiTutSeisTools::uiTutSeisTools( uiParent* p )
     inpfld_ = new uiSeisSel( this, inctio_, SeisSelSetup() );
 
     // What seismic tool is required?
-    static const char* choices = { "Scale", "Square", "Smooth", 0 };
-    choicefld_ = new uiGenInput( this, "Action",
-	    			 StringListInpSpec(choices) );
-    choicefld_->valuechanged.notify( choicecb );
+    actionfld_ = new uiGenInput( this, "Action",
+	    			 StringListInpSpec(actions) );
+    actionfld_->valuechanged.notify( choicecb );
 
     // Parameters for scaling
     scalegrp_ = new uiGroup( this, "Scale group" );
@@ -51,9 +50,9 @@ uiTutSeisTools::uiTutSeisTools( uiParent* p )
     scalegrp_->setHAlignObj( factorfld_ );
 
     // Parameters for smoothing
-    smoothszfld_ = new uiGenInput( this, "Filter Size",
-	    			   BoolInpSpec(true,"3","5") );
-    smoothszfld_->attach( alignedBelow, choicefld_ );
+    smoothszfld_ = new uiGenInput( this, "Filter strength",
+			       BoolInpSpec(tst_.weakSmoothing(),"Low","High") );
+    smoothszfld_->attach( alignedBelow, actionfld_ );
 
     // The output seismic object
     outctio_.ctxt.forread = false;
@@ -69,16 +68,17 @@ uiTutSeisTools::~uiTutSeisTools()
 {
     delete inctio_.ioobj; delete &inctio_;
     delete outctio_.ioobj; delete &outctio_;
-    delete stp_;
     delete &tst_;
 }
 
 
 void uiTutSeisTools::choiceSel( CallBacker* )
 {
-    const int selection = choicefld_->getIntValue();
-    scalegrp_->display( selection == 0 );
-    smoothszfld_->display( selection == 2 );
+    const Tut::SeisTools::Action act
+			= (Tut::SeisTools::Action)actionfld_->getIntValue();
+
+    scalegrp_->display( act == Tut::SeisTools::Scale );
+    smoothszfld_->display( act == Tut::SeisTools::Smooth );
 }
 
 
@@ -86,35 +86,38 @@ void uiTutSeisTools::choiceSel( CallBacker* )
 
 bool uiTutSeisTools::acceptOK( CallBacker* )
 {
+    // Get cubes and check
     if ( !inpfld_->commitInput(false) )
 	mErrRet("Missing Input\nPlease select the input seismics")
     if ( !outfld_->commitInput(true) )
 	mErrRet("Missing Output\nPlease enter a name for the output seismics")
+    else if ( outctio_.ioobj->implExists(false)
+	   && !uiMSG().askGoOn("Output cube exists. Overwrite?") )
+	return false;
 
-    const int selection = choicefld_->getIntValue();
-    tst_.setTool( selection );
-    if ( selection == 0 )
+    tst_.setInput( *inctio_.ioobj );
+    tst_.setOutput( *outctio_.ioobj );
+
+    // Set action-specific parameters
+    tst_.setAction( (Tut::SeisTools::Action)actionfld_->getIntValue() );
+    switch ( tst_.action() )
+    {
+    case Tut::SeisTools::Smooth:
+	tst_.setWeakSmoothing( smoothszfld_->getBoolValue() );
+    break;
+    case Tut::SeisTools::Scale:
     {
 	float usrfactor = factorfld_->getfValue();
 	if ( mIsUdf(usrfactor) ) usrfactor = 1;
-	tst_.setFactor( usrfactor );
-
 	float usrshift = shiftfld_->getfValue();
 	if ( mIsUdf(usrshift) ) usrshift = 0;
-	tst_.setShift( usrshift );
+	tst_.setScale( usrfactor, usrshift );
     }
-    else if ( selection == 2 )
-	tst_.setSmallFilt( smoothszfld_->getBoolValue() );
+    break;
+    default: // No parameters to set
+    break;
+    }
 
-    stp_ = new SeisSingleTraceProc( inctio_.ioobj, outctio_.ioobj );
-    stp_->setProcessingCB( mCB(this,uiTutSeisTools,doProc) );
-
-    uiExecutor dlg( this, *stp_ );
+    uiExecutor dlg( this, tst_ );
     return dlg.go();
-}
-
-
-void uiTutSeisTools::doProc( CallBacker* )
-{
-    tst_.apply( stp_->getTrace() );
 }
