@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2003
- RCS:           $Id: uisurfaceman.cc,v 1.35 2007-01-24 15:45:40 cvsjaap Exp $
+ RCS:           $Id: uisurfaceman.cc,v 1.36 2007-05-11 05:01:35 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,26 +36,24 @@ ________________________________________________________________________
 #include "uitextedit.h"
 
 
+#define mGet( typ, hor2d, hor3d, flt ) \
+    !strcmp(typ,EMHorizon2DTranslatorGroup::keyword) ? hor2d : \
+    (!strcmp(typ,EMHorizonTranslatorGroup::keyword) ? hor3d : flt)
+
 #define mGetIoContext(typ) \
-    typ==EMHorizon2DTranslatorGroup::keyword ? \
-	EMHorizon2DTranslatorGroup::ioContext() :  \
-    typ==EMHorizonTranslatorGroup::keyword ?  \
-	EMHorizonTranslatorGroup::ioContext() : \
-    EMFaultTranslatorGroup::ioContext()
+    mGet( typ, EMHorizon2DTranslatorGroup::ioContext(), \
+	       EMHorizonTranslatorGroup::ioContext(), \
+	       EMFaultTranslatorGroup::ioContext() )
 
 #define mGetManageStr(typ) \
-    typ==EMHorizon2DTranslatorGroup::keyword ? \
-	"Manage 2D horizons" : \
-    typ==EMHorizonTranslatorGroup::keyword ?  \
-    	"Manage horizons" : "Manage faults" 
-    
-#define mGetCopyStr(typ) \
-    typ==EMHorizon2DTranslatorGroup::keyword ? \
-	"Copy 2D horizon" : \
-    typ==EMHorizonTranslatorGroup::keyword ?  \
-    	"Copy horizon" : "Copy fault" 
+    mGet( typ, "Manage 2D horizons", "Manage horizons", "Manage faults" )
 
-uiSurfaceMan::uiSurfaceMan( uiParent* p, const BufferString& typ )
+#define mGetCopyStr(typ) \
+    mGet( typ, "Copy 2D horizon", "Copy horizon", "Copy fault" )
+
+using namespace EM;
+
+uiSurfaceMan::uiSurfaceMan( uiParent* p, const char* typ )
     : uiObjFileMan(p,uiDialog::Setup("Surface file management",
                                      mGetManageStr(typ),
                                      "104.2.0").nrstatusflds(1),
@@ -72,10 +70,12 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, const BufferString& typ )
     attribfld->setToolTip( "Calculated attributes" );
 
     uiManipButGrp* butgrp = new uiManipButGrp( this );
-    butgrp->addButton( uiManipButGrp::Remove, mCB(this,uiSurfaceMan,removeCB),
+    butgrp->addButton( uiManipButGrp::Remove,
+	    	       mCB(this,uiSurfaceMan,removeAttribCB),
 		       "Remove selected attribute(s)" );
 #ifdef __debug__
-    butgrp->addButton( uiManipButGrp::Rename, mCB(this,uiSurfaceMan,renameCB),
+    butgrp->addButton( uiManipButGrp::Rename,
+	    	       mCB(this,uiSurfaceMan,renameAttribCB),
 	    	       "Rename selected attribute" );
 #endif
     butgrp->attach( rightTo, attribfld );
@@ -91,11 +91,27 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, const BufferString& typ )
 
 
 uiSurfaceMan::~uiSurfaceMan()
+{}
+
+
+void uiSurfaceMan::copyCB( CallBacker* )
 {
+    if ( !curioobj_ ) return;
+    PtrMan<IOObj> ioobj = curioobj_->clone();
+    uiCopySurface dlg( this, *ioobj );
+    if ( dlg.go() )
+	selgrp->fullUpdate( ioobj->key() );
 }
 
 
-void uiSurfaceMan::removeCB( CallBacker* )
+void uiSurfaceMan::setRelations( CallBacker* )
+{
+    uiHorizonRelationsDlg dlg( this );
+    dlg.go();
+}
+
+
+void uiSurfaceMan::removeAttribCB( CallBacker* )
 {
     if ( !curioobj_ ) return;
 
@@ -105,19 +121,18 @@ void uiSurfaceMan::removeCB( CallBacker* )
 	return;
     }
 
-    BufferStringSet attribnms;
-    attribfld->getSelectedItems( attribnms );
-    if ( attribnms.isEmpty() || 
+    BufferStringSet attrnms;
+    attribfld->getSelectedItems( attrnms );
+    if ( attrnms.isEmpty() || 
 	    !uiMSG().askGoOn("All selected attributes will be removed.\n"
 			     "Do you want to continue?") )
 	return;
 
-    for ( int ida=0; ida<attribnms.size(); ida++ )
+    for ( int ida=0; ida<attrnms.size(); ida++ )
     {
-	BufferString filenm = 
-	    EM::SurfaceAuxData::getAuxDataFileName( *curioobj_, 
-		    				    attribnms.get(ida) );
-	if ( !*filenm ) continue;
+	const BufferString filenm = 
+	    SurfaceAuxData::getAuxDataFileName( *curioobj_, attrnms.get(ida) );
+	if ( filenm.isEmpty() ) continue;
 
 	File_remove( filenm, NO );
     }
@@ -128,28 +143,25 @@ void uiSurfaceMan::removeCB( CallBacker* )
 
 #define mErrRet(msg) { uiMSG().error(msg); return; }
 
-void uiSurfaceMan::renameCB( CallBacker* )
+void uiSurfaceMan::renameAttribCB( CallBacker* )
 {
     if ( !curioobj_ ) return;
-    BufferString attribnm = attribfld->getText();
+
+    const char* attribnm = attribfld->getText();
     BufferString titl( "Rename '" ); titl += attribnm; titl += "'";
     uiGenInputDlg dlg( this, titl, "New name", new StringInpSpec(attribnm) );
     if ( !dlg.go() ) return;
 
-    BufferString newnm = dlg.text();
+    const char* newnm = dlg.text();
     if ( attribfld->isPresent(newnm) )
-	mErrRet("Name already in use")
+	mErrRet("Name is already in use")
 
-}
+    const BufferString filename =
+		SurfaceAuxData::getAuxDataFileName( *curioobj_, attribnm );
+    if ( !File_exists(filename) )
+	mErrRet( "Cannot find file to change attribute name" )
 
-
-void uiSurfaceMan::copyCB( CallBacker* )
-{
-    if ( !curioobj_ ) return;
-    PtrMan<IOObj> ioobj = curioobj_->clone();
-    uiCopySurface dlg( this, *ioobj );
-    if ( dlg.go() )
-	selgrp->fullUpdate( ioobj->key() );
+// TODO: Read file, replace attribute name and write file again.
 }
 
 
@@ -170,8 +182,8 @@ void uiSurfaceMan::mkFileInfo()
 
     BufferString txt;
     BinIDSampler bs;
-    EM::SurfaceIOData sd;
-    const char* res = EM::EMM().getSurfaceData( curioobj_->key(), sd );
+    SurfaceIOData sd;
+    const char* res = EMM().getSurfaceData( curioobj_->key(), sd );
     if ( !res )
     {
 	fillAttribList( sd.valnames );
@@ -192,11 +204,4 @@ void uiSurfaceMan::mkFileInfo()
     }
 
     infofld->setText( txt );
-}
-
-
-void uiSurfaceMan::setRelations( CallBacker* )
-{
-    uiHorizonRelationsDlg dlg( this );
-    dlg.go();
 }
