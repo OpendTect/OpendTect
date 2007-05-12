@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: uiprestackprocessor.cc,v 1.1 2007-03-26 21:12:02 cvskris Exp $";
+static const char* rcsID = "$Id: uiprestackprocessor.cc,v 1.2 2007-05-12 18:00:31 cvskris Exp $";
 
 #include "uiprestackprocessor.h"
 
@@ -93,11 +93,8 @@ void uiProcessorManager::updateList()
 
 void uiProcessorManager::updateButtons()
 {
-    const bool factoryselected =
-	factorylist_->isSelected(factorylist_->currentItem() );
-    int processorsel = processorlist_->currentItem();
-    if ( !processorlist_->isSelected( processorsel ) )
-	processorsel = -1;
+    const bool factoryselected = factorylist_->nextSelected(-1)!=-1;
+    const int processorsel = processorlist_->nextSelected(-1);
 
     addprocessorbutton_->setSensitive( factoryselected );
     removeprocessorbutton_->setSensitive( processorsel!=-1 );
@@ -135,7 +132,7 @@ void uiProcessorManager::showPropDialog( int idx )
 
 void uiProcessorManager::factoryClickCB( CallBacker* )
 {
-    if ( !factorylist_->isSelected( factorylist_->currentItem() ) )
+    if ( factorylist_->nextSelected(-1)==-1 )
 	return;
 
     processorlist_->selectAll(false);
@@ -145,7 +142,7 @@ void uiProcessorManager::factoryClickCB( CallBacker* )
 
 void uiProcessorManager::processorClickCB( CallBacker* )
 {
-    if ( !processorlist_->isSelected( processorlist_->currentItem() ) )
+    if ( processorlist_->nextSelected(-1)==-1 )
 	return;
 
     factorylist_->selectAll(false);
@@ -164,7 +161,7 @@ void uiProcessorManager::processorDoubleClickCB( CallBacker* )
 
 void uiProcessorManager::addProcessorCB( CallBacker* )
 {
-    if ( !factorylist_->isSelected(factorylist_->currentItem()) )
+    if ( factorylist_->nextSelected(-1)==-1 )
 	return;
 
     Processor* proc = PF().create( factorylist_->getText() );
@@ -179,9 +176,8 @@ void uiProcessorManager::addProcessorCB( CallBacker* )
 
 void uiProcessorManager::removeProcessorCB( CallBacker* )
 {
-    const int idx = processorlist_->currentItem();
-    if ( !processorlist_->isSelected(idx))
-	return;
+    const int idx = processorlist_->nextSelected(-1);
+    if ( idx<0 ) return;
 
     manager_.removeProcessor( idx );
     updateList();
@@ -193,8 +189,8 @@ void uiProcessorManager::removeProcessorCB( CallBacker* )
 
 void uiProcessorManager::moveUpCB( CallBacker* )
 {
-    const int idx = processorlist_->currentItem();
-    if ( idx<1 || !processorlist_->isSelected(idx) ) return;
+    const int idx = processorlist_->nextSelected(-1);
+    if ( idx<1 ) return;
 
     manager_.swapProcessors( idx, idx-1 );
     updateList();
@@ -207,8 +203,8 @@ void uiProcessorManager::moveUpCB( CallBacker* )
 
 void uiProcessorManager::moveDownCB( CallBacker* )
 {
-    const int idx = processorlist_->currentItem();
-    if ( idx>=manager_.nrProcessors() || !processorlist_->isSelected(idx) )
+    const int idx = processorlist_->nextSelected(-1);
+    if ( idx<0 || idx>=manager_.nrProcessors() )
 	return;
 
     manager_.swapProcessors( idx, idx+1 );
@@ -220,8 +216,8 @@ void uiProcessorManager::moveDownCB( CallBacker* )
 
 void uiProcessorManager::propertiesCB( CallBacker* )
 {
-    const int idx = processorlist_->currentItem();
-    if ( !processorlist_->isSelected(idx) ) return;
+    const int idx = processorlist_->nextSelected(-1);
+    if ( idx<0 ) return;
 
     showPropDialog( idx );
 }

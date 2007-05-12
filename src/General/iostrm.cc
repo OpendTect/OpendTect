@@ -4,7 +4,7 @@
  * DATE     : 25-10-1994
 -*/
 
-static const char* rcsID = "$Id: iostrm.cc,v 1.22 2005-11-02 17:35:26 cvsbert Exp $";
+static const char* rcsID = "$Id: iostrm.cc,v 1.23 2007-05-12 18:00:31 cvskris Exp $";
 
 #include "iostrm.h"
 #include "iolink.h"
@@ -123,7 +123,7 @@ bool IOStream::implReadOnly() const
 
 bool IOStream::implRemove() const
 {
-    return implDo( true, false );
+    return implDo( true, true );
 }
 
 
