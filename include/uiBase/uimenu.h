@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: uimenu.h,v 1.33 2007-05-09 16:52:40 cvsjaap Exp $
+ RCS:           $Id: uimenu.h,v 1.34 2007-05-13 15:42:36 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -144,11 +144,12 @@ public:
 				          to it's parent, since parent will
 					  overwrite this setting. */
     
-    bool			handleEvent(const QEvent*);
-
-    void			activate();
-    bool			isActive() const	{ return isactive_; }
     Notifier<uiMenuItem>	activated;
+
+    				//! force activation in GUI thread
+    void			activate();	
+    Notifier<uiMenuItem>	activatedone;
+    bool			handleEvent(const QEvent*);
 
     int				id() const		{ return id_; }
     int				index() const;
@@ -170,7 +171,6 @@ private:
     bool			checkable_;
     bool			checked_;
     bool			enabled_;
-    bool			isactive_;
 
 };
 

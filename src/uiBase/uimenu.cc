@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: uimenu.cc,v 1.38 2007-05-09 16:53:08 cvsjaap Exp $
+ RCS:           $Id: uimenu.cc,v 1.39 2007-05-13 15:43:07 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -222,26 +222,26 @@ private:
 uiMenuItem::uiMenuItem( const char* nm )
     : NamedObject(nm)
     , activated(this)
+    , activatedone(this)
     , messenger_( *new i_MenuMessenger(this) ) 
     , id_(-1)
     , menu_(0)
     , enabled_(true)
     , checked_(false)
     , checkable_(false)
-    , isactive_(false)
 {}
 
 
 uiMenuItem::uiMenuItem( const char* nm, const CallBack& cb )
     : NamedObject(nm )
     , activated(this)
+    , activatedone(this)
     , messenger_( *new i_MenuMessenger(this) )
     , id_(-1)
     , menu_(0)
     , enabled_(true)
     , checked_(false)
     , checkable_(false)
-    , isactive_(false)
 { 
     activated.notify( cb ); 
 }
@@ -350,7 +350,7 @@ bool uiMenuItem::handleEvent( const QEvent* ev )
     if ( ev->type() == sQEventActivate )
     {
 	activated.trigger();
-	isactive_ = false;
+	activatedone.trigger();
 	return true;
     }
 
@@ -360,7 +360,6 @@ bool uiMenuItem::handleEvent( const QEvent* ev )
 
 void uiMenuItem::activate()
 {
-    isactive_ = true;
     QEvent* activateevent = new QEvent( sQEventActivate );
     QApplication::postEvent( &messenger_ , activateevent );
 }
