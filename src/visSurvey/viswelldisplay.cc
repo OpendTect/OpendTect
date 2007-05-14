@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: viswelldisplay.cc,v 1.66 2007-05-03 11:26:39 cvsraman Exp $";
+static const char* rcsID = "$Id: viswelldisplay.cc,v 1.67 2007-05-14 12:09:01 cvsraman Exp $";
 
 #include "viswelldisplay.h"
 
@@ -108,7 +108,7 @@ void WellDisplay::fullRedraw( CallBacker* )
 	return;
 
     well_->setTrack( trackpos );
-    well_->setWellName( wd->name(), trackpos[0] );
+    well_->setWellName( wd->name(), trackpos[0], trackpos[trackpos.size()-1] );
     updateMarkers(0);
 
     if ( logparset_->getLeft()->getLogNm().size() )
@@ -233,10 +233,10 @@ bool WellDisplay::objShown() const \
 bool WellDisplay::canShowMarkers() const
 { return well_->canShowMarkers(); }
 
-mShowFunction( showWellName, wellNameShown )
+mShowFunction( showWellTopName, wellTopNameShown )
+mShowFunction( showWellBotName, wellBotNameShown )
 mShowFunction( showMarkers, markersShown )
 mShowFunction( showMarkerName, markerNameShown )
-mShowFunction( showLogs, logsShown )
 mShowFunction( showLogName, logNameShown )
 
 
@@ -301,6 +301,7 @@ void WellDisplay::displayLog( Well::LogDisplayPars* logpar, int lognr )
     const int logidx = wd->logs().indexOf( logpar->getLogNm() );
     if( logidx<0 )
     {
+	well_->clearLog( lognr );
 	well_->showLog( false, lognr );
 	return;
     }
@@ -338,6 +339,17 @@ void WellDisplay::setLogWidth( int width )
 
 int WellDisplay::logWidth() const
 { return well_->logWidth(); }
+
+bool WellDisplay::logsShown() const
+{
+    return well_->logsShown();
+}
+
+void WellDisplay::showLogs( bool yn )
+{
+    well_->showLog( yn && !(logparset_->getLeft()->getLogNm()=="None"), 1);
+    well_->showLog( yn && !(logparset_->getRight()->getLogNm()=="None"), 2);
+}
 
 
 void WellDisplay::getMousePosInfo( const visBase::EventInfo&,
@@ -452,8 +464,11 @@ int WellDisplay::usePar( const IOPar& par )
     }
 
     bool wellnmshown;
-    if ( par.getYN(visBase::Well::showwellnmstr,wellnmshown) )
-	showWellName( wellnmshown );
+    if ( par.getYN(visBase::Well::showwelltopnmstr,wellnmshown) )
+	showWellTopName( wellnmshown );
+    if ( par.getYN(visBase::Well::showwellbotnmstr,wellnmshown) )
+	showWellBotName( wellnmshown );
+
 
     return 1;
 }

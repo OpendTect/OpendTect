@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2003
- RCS:           $Id: viswell.h,v 1.16 2007-05-03 11:26:38 cvsraman Exp $
+ RCS:           $Id: viswell.h,v 1.17 2007-05-14 12:06:53 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -48,9 +48,11 @@ public:
     void			setLineStyle(const LineStyle&);
     const LineStyle&		lineStyle() const;
 
-    void			setWellName(const char*,const Coord3&);
-    void			showWellName(bool);
-    bool			wellNameShown() const;
+    void			setWellName(const char*,Coord3,Coord3);
+    void			showWellTopName(bool);
+    void			showWellBotName(bool);
+    bool			wellTopNameShown() const;
+    bool			wellBotNameShown() const;
 
     void			addMarker(const Coord3&,const Color&,
 	    				  const char*);
@@ -87,7 +89,8 @@ public:
     int				usePar(const IOPar& par);
 
     static const char*		linestylestr;
-    static const char*		showwellnmstr;
+    static const char*		showwelltopnmstr;
+    static const char*		showwellbotnmstr;
     static const char*		showmarkerstr;
     static const char*		markerszstr;
     static const char*		showmarknmstr;
@@ -100,7 +103,8 @@ protected:
 
     PolyLine*			track;
     DrawStyle*			drawstyle;
-    Text2*			welltxt;
+    Text2*			welltoptxt;
+    Text2*			wellbottxt;
     DataObjectGroup*		markergroup;
     SoSwitch*			markernmswitch;
     DataObjectGroup*		markernames;
