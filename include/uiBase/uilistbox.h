@@ -7,21 +7,20 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: uilistbox.h,v 1.34 2007-05-10 13:08:40 cvskris Exp $
+ RCS:           $Id: uilistbox.h,v 1.35 2007-05-14 06:48:27 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uigroup.h"
+#include "pixmap.h"
 
 class BufferStringSet;
 class Color;
-class ioPixmap;
 class uiLabel;
 class uiListBoxBody;
 
 class QString;
-class QPixmap;
 
 
 class uiListBox : public uiObject
@@ -70,13 +69,16 @@ public:
     void		removeItem(int);
     void		addItem(const char*,bool embedded=false); 
     			//!< embedded = put [...] around text
+    void		addItem(const char*,const ioPixmap&);
+    void		addItem(const char*,const Color&);
     void		addItems(const char**); 
     void		addItems(const BufferStringSet&);
     void		insertItem(const char*,int idx=-1,bool embedded=false);
-    void		insertItem(const char*,const Color&,int idx=-1);
     void		insertItem(const char*,const ioPixmap&,int idx=-1);
-    void		setColor(const Color&,int);
-    ioPixmap*		pixmap(int);
+    void		insertItem(const char*,const Color&,int);
+    void		setPixmap(int,const Color&);
+    void		setPixmap(int,const ioPixmap&);
+    ioPixmap		pixmap(int) const;
 
     void		setItemText(int,const char*);
     int			currentItem() const;
@@ -94,29 +96,21 @@ public:
     void		setFieldWidth(int);
     int			optimumFieldWidth(int minwdth=20,int maxwdth=40) const;
 
-    int			lastClicked()		{ return lastclicked_; }
-
-    Notifier<uiListBox> currentItemChanged;
     Notifier<uiListBox> selectionChanged;
-
-			//! sets lastclicked_
     Notifier<uiListBox> doubleClicked;
-
-			//! sets lastclicked_
     Notifier<uiListBox> rightButtonClicked;
 
 protected:
 
     mutable BufferString	rettxt;
-    int				lastclicked_;
 
 private:
 
     uiListBoxBody*	body_;
     uiListBoxBody&	mkbody(uiParent*,const char*,bool,int,int);
 
-    void		createQString(QString&,const char*,bool);
-    void		createQPixmap(QPixmap&,int);
+    void		createQString(QString&,const char*,bool) const;
+    bool		validIndex(int) const;
 };
 
 
@@ -124,22 +118,21 @@ class uiLabeledListBox : public uiGroup
 {
 public:
 
-    enum LblPos	{ LeftTop, RightTop,
-		  AboveLeft, AboveMid, AboveRight,
-		  BelowLeft, BelowMid, BelowRight };
+    enum LblPos		{ LeftTop, RightTop,
+			  AboveLeft, AboveMid, AboveRight,
+			  BelowLeft, BelowMid, BelowRight };
 
-		uiLabeledListBox( uiParent*,const char* txt,
-				  bool multisel=false,LblPos p=LeftTop);
-		uiLabeledListBox( uiParent*,const BufferStringSet&,
-				  const char* txt,
-				  bool multisel=false,LblPos p=LeftTop);
+			uiLabeledListBox(uiParent*,const char* txt,
+					 bool multisel=false,LblPos p=LeftTop);
+			uiLabeledListBox(uiParent*,const BufferStringSet&,
+					 const char* txt,
+					 bool multisel=false,LblPos p=LeftTop);
 
-    uiListBox*	box()				{ return lb; }
-
-    int		nrLabels() const		{ return lbls.size(); }
-    uiLabel*	label( int nr=0 )		{ return lbls[nr]; }
-    const char*	labelText(int nr=0) const;
-    void	setLabelText(const char*,int nr=0);
+    uiListBox*		box()				{ return lb; }
+    int			nrLabels() const		{ return lbls.size(); }
+    uiLabel*		label( int nr=0 )		{ return lbls[nr]; }
+    const char*		labelText(int nr=0) const;
+    void		setLabelText(const char*,int nr=0);
 
 
 protected:

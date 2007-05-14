@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: i_qlistbox.h,v 1.6 2007-05-10 05:43:45 cvsnanne Exp $
+ RCS:           $Id: i_qlistbox.h,v 1.7 2007-05-14 06:48:27 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,64 +29,40 @@ class i_listMessenger : public QObject
 protected:
 			i_listMessenger( QListWidget* sender,
 					 uiListBox* receiver )
-			: _sender( sender )
-			, _receiver( receiver )
+			: sender_( sender )
+			, receiver_( receiver )
 			{
-			    connect( sender,
-				SIGNAL(currentItemChanged(QListWidgetItem*,
-							  QListWidgetItem*)),
-				this,
-				SLOT(currentItemChanged(QListWidgetItem*,
-							QListWidgetItem*)) );
-
 			    connect( sender,
 				SIGNAL(itemDoubleClicked(QListWidgetItem*)),
 				this,
-				SLOT(doubleClicked(QListWidgetItem*)) );
+				SLOT(itemDoubleClicked(QListWidgetItem*)) );
 
 			    connect( sender, SIGNAL(itemSelectionChanged()),
 				     this, SLOT(itemSelectionChanged()) );
-
 			}
 
     virtual		~i_listMessenger() {}
    
 private:
 
-    uiListBox* 		_receiver;
-    QListWidget*  	_sender;
+    uiListBox* 		receiver_;
+    QListWidget*  	sender_;
 
 private slots:
 
-
-    void 		currentItemChanged( QListWidgetItem* cur,
-					    QListWidgetItem* prev ) 
-			{
-			    if ( _receiver->lastclicked_ == -2 ) return;
-
-			    if ( !cur ) cur = prev;
-			    if ( !cur ) return;
-			    cur->setSelected( true );
-			    _receiver->lastclicked_ = _sender->row( cur );
-			    _receiver->currentItemChanged.trigger( *_receiver );
-			}
-    
-    void		doubleClicked( QListWidgetItem* cur )
-			{
-			    if ( _receiver->lastclicked_ == -2 ) return;
-
-			    int idx = _sender->row( cur );
-			    _receiver->lastclicked_ = idx;
-			    _receiver->doubleClicked.trigger( *_receiver );
-			}
+    void		itemDoubleClicked( QListWidgetItem* cur )
+			{ receiver_->doubleClicked.trigger( *receiver_ ); }
 
     void		itemSelectionChanged()
 			{
-			    if ( _receiver->lastclicked_ == -2 ) return;
+			    QList<QListWidgetItem*> selitems =
+						sender_->selectedItems();
+			    if ( selitems.count() > 0 )
+				sender_->setCurrentItem( selitems.first() );
+			    else
+				sender_->setCurrentItem( 0 );
 
-			    _receiver->lastclicked_ =
-					_sender->row( _sender->currentItem() );
-			    _receiver->selectionChanged.trigger( *_receiver );
+			    receiver_->selectionChanged.trigger( *receiver_ );
 			}
 
 };
