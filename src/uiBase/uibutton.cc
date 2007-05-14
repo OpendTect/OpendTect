@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uibutton.cc,v 1.37 2007-05-09 16:53:08 cvsjaap Exp $
+ RCS:           $Id: uibutton.cc,v 1.38 2007-05-14 14:58:31 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,7 +50,6 @@ template< class T > class uiButtonTemplBody : public uiButtonBody,
                             , handle_( handle )
 			    , messenger_ ( *new i_ButMessenger( this, this) )
 			    , idInGroup( 0 )		
-			    , isactive_( false )
 			    { 
 				this->setText(txt); 
 				setHSzPol( uiObject::SmallVar );
@@ -66,7 +65,6 @@ template< class T > class uiButtonTemplBody : public uiButtonBody,
                             , handle_( handle )
 			    , messenger_ ( *new i_ButMessenger( this, this) )
 			    , idInGroup( 0 )		
-			    , isactive_( false )
 			    { 
 				this->setText(txt); 
 				setHSzPol( uiObject::SmallVar );
@@ -87,11 +85,8 @@ public:
 
     const char*		text();
 
-    bool		isActive() const		{ return isactive_;  }
-    
     void 		activate()
 			{
-			    isactive_ = true; 
 			    QEvent* actevent = new QEvent( sQEventActivate );
 			    QApplication::postEvent( &messenger_, actevent ); 
 			}
@@ -100,14 +95,14 @@ protected:
 
     i_ButMessenger&     messenger_;
     int                 idInGroup;
-    bool		isactive_;
 
     void		Notifier()	{ handle_.activated.trigger(handle_); }
 
     bool 		handleEvent( const QEvent* ev )
 			{ 
 			    if ( ev->type() != sQEventActivate ) return false;
-			    Notifier(); isactive_ = false; return true; 
+			    Notifier(); handle_.activatedone.trigger(handle_);
+			    return true; 
 			}
 
 };
@@ -193,6 +188,7 @@ uiButton::uiButton( uiParent* parnt, const char* nm, const CallBack* cb,
 		    uiObjectBody& b  )
     : uiObject( parnt, nm, b )
     , activated( this )
+    , activatedone( this )
 {
     if ( cb ) activated.notify(*cb);
 }
@@ -210,12 +206,6 @@ const char* uiButton::text()
 #else
     { return mqbut()->text().toAscii().constData(); }
 #endif
-
-
-bool uiButton::isActive() const
-{
-    return dynamic_cast<const uiButtonBody*>( body() )->isActive();
-}
 
 
 void uiButton::activate()
