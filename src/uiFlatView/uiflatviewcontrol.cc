@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:		Feb 2007
- RCS:           $Id: uiflatviewcontrol.cc,v 1.21 2007-05-02 18:35:05 cvskris Exp $
+ RCS:           $Id: uiflatviewcontrol.cc,v 1.22 2007-05-14 20:28:49 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -203,10 +203,10 @@ void uiFlatViewControl::rubBandCB( CallBacker* cb )
 }
 
 
-void uiFlatViewControl::doPropertiesDialog()
+void uiFlatViewControl::doPropertiesDialog( int vieweridx )
 {
     //TODO what if more than one viewer? Also functions below
-    uiFlatViewer& vwr = *vwrs_[0];
+    uiFlatViewer& vwr = *vwrs_[vieweridx];
     BufferStringSet annots;
     const int selannot = vwr.getAnnotChoices( annots ); 
 
