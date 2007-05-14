@@ -4,10 +4,12 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: prestackprocessor.cc,v 1.4 2007-05-09 16:45:03 cvskris Exp $";
+static const char* rcsID = "$Id: prestackprocessor.cc,v 1.5 2007-05-14 13:32:59 cvskris Exp $";
 
 #include "prestackprocessor.h"
 
+#include "iopar.h"
+#include "keystrs.h"
 #include "prestackgather.h"
 
 namespace PreStack
@@ -56,6 +58,7 @@ bool Processor::prepareWork()
 
     output_ = new Gather(*input_);
     DPM( DataPackMgr::FlatID ).add( output_ );
+    DPM( DataPackMgr::FlatID ).obtain( output_->id() );
 
     return true;
 }
@@ -143,6 +146,57 @@ Processor* ProcessManager::getProcessor( int idx )
 const Processor*
 ProcessManager::getProcessor( int idx ) const
 { return processors_[idx]; }
+
+
+void ProcessManager::fillPar( IOPar& par ) const
+{
+    par.set( sKeyNrProcessors(), processors_.size() );
+    for ( int idx=0; idx<processors_.size(); idx++ )
+    {
+	IOPar procpar;
+	procpar.set( sKey::Name, processors_[idx]->name() );
+	processors_[idx]->fillPar( procpar );
+
+	const BufferString idxstr = idx;
+	par.mergeComp( procpar, idxstr.buf() );
+    }
+}
+
+
+bool ProcessManager::usePar( const IOPar& par )
+{
+    deepErase( processors_ );
+
+    int nrprocessors;
+    if ( !par.get( sKeyNrProcessors(), nrprocessors ) )
+	return false;
+
+    for ( int idx=0; idx<nrprocessors; idx++ )
+    {
+	const BufferString idxstr = idx;
+	PtrMan<IOPar> steppar = par.subselect( idxstr.buf() );
+	if ( !steppar )
+	    continue;
+
+	BufferString name;
+	if ( !steppar->get( sKey::Name, name ) )
+	    return false;
+
+	Processor* proc = PF().create( name.buf() );
+	if ( !proc )
+	    return false;
+
+	if ( !proc->usePar( *steppar ) )
+	{
+	    delete proc;
+	    return false;
+	}
+
+	addProcessor( proc );
+    }
+
+    return true;
+}
 
 
 }; //namespace
