@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uibutton.cc,v 1.38 2007-05-14 14:58:31 cvskris Exp $
+ RCS:           $Id: uibutton.cc,v 1.39 2007-05-14 15:13:16 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -96,12 +96,12 @@ protected:
     i_ButMessenger&     messenger_;
     int                 idInGroup;
 
-    void		Notifier()	{ handle_.activated.trigger(handle_); }
+    void		doNotify()	{ handle_.activated.trigger(handle_); }
 
     bool 		handleEvent( const QEvent* ev )
 			{ 
 			    if ( ev->type() != sQEventActivate ) return false;
-			    Notifier(); handle_.activatedone.trigger(handle_);
+			    doNotify(); handle_.activatedone.trigger(handle_);
 			    return true; 
 			}
 
@@ -125,7 +125,7 @@ public:
 protected:
 
     virtual void        notifyHandler( notifyTp tp ) 
-			{ if ( tp == uiButtonBody::clicked ) Notifier(); }
+			{ if ( tp == uiButtonBody::clicked ) doNotify(); }
 };
 
 
@@ -142,7 +142,7 @@ public:
 protected:
 
     virtual void        notifyHandler( notifyTp tp ) 
-			{ if ( tp == uiButtonBody::clicked ) Notifier(); }
+			{ if ( tp == uiButtonBody::clicked ) doNotify(); }
 };
 
 
@@ -160,7 +160,7 @@ public:
 protected:
 
     virtual void        notifyHandler( notifyTp tp ) 
-			{ if ( tp == uiButtonBody::toggled ) Notifier(); }
+			{ if ( tp == uiButtonBody::toggled ) doNotify(); }
 };
 
 
@@ -178,7 +178,7 @@ public:
 protected:
 
     virtual void        notifyHandler( notifyTp tp ) 
-			{ if ( tp == uiButtonBody::clicked ) Notifier(); }
+			{ if ( tp == uiButtonBody::clicked ) doNotify(); }
 };
 
 
