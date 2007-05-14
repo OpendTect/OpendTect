@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: i_qlistbox.h,v 1.7 2007-05-14 06:48:27 cvsnanne Exp $
+ RCS:           $Id: i_qlistbox.h,v 1.8 2007-05-14 07:32:54 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -55,12 +55,13 @@ private slots:
 
     void		itemSelectionChanged()
 			{
+			    // TODO: Remove this hack when using Qt 4.3
 			    QList<QListWidgetItem*> selitems =
 						sender_->selectedItems();
-			    if ( selitems.count() > 0 )
-				sender_->setCurrentItem( selitems.first() );
-			    else
+			    if ( selitems.count() == 0 )
 				sender_->setCurrentItem( 0 );
+			    else if ( selitems.count() == 1 )
+				sender_->setCurrentItem( selitems.first() );
 
 			    receiver_->selectionChanged.trigger( *receiver_ );
 			}
