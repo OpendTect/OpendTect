@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: uiprestackprocessor.cc,v 1.2 2007-05-12 18:00:31 cvskris Exp $";
+static const char* rcsID = "$Id: uiprestackprocessor.cc,v 1.3 2007-05-14 06:48:55 cvsnanne Exp $";
 
 #include "uiprestackprocessor.h"
 
@@ -31,35 +31,37 @@ uiProcessorManager::uiProcessorManager( uiParent* p, ProcessManager& man )
 
     factorylist_ = new uiListBox( this, PF().getNames() );
     factorylist_->selectionChanged.notify(
-	    mCB( this, uiProcessorManager, factoryClickCB ) );
+	    mCB(this,uiProcessorManager,factoryClickCB) );
     factorylist_->attach( ensureBelow, label );
 
     addprocessorbutton_ = new uiPushButton( this, "Add",
-	    mCB( this, uiProcessorManager, addProcessorCB ), true );
+	    mCB(this,uiProcessorManager,addProcessorCB), true );
     addprocessorbutton_->attach( rightOf, factorylist_ );
 
     removeprocessorbutton_ = new uiPushButton( this, "Remove",
-	    mCB( this, uiProcessorManager, removeProcessorCB ), true);
+	    mCB(this,uiProcessorManager,removeProcessorCB), true);
     removeprocessorbutton_->attach( alignedBelow, addprocessorbutton_ );
 
     processorlist_ = new uiListBox( this );
     processorlist_->attach( rightOf, addprocessorbutton_ );
     processorlist_->selectionChanged.notify(
-	    mCB( this, uiProcessorManager, processorClickCB ) );
+	    mCB(this,uiProcessorManager,processorClickCB) );
+    processorlist_->doubleClicked.notify(
+	    mCB(this,uiProcessorManager,processorDoubleClickCB) );
 
     label = new uiLabel( this, "Used preprocessing methods" );
     label->attach( alignedAbove, processorlist_ );
 
     moveupbutton_ = new uiPushButton( this, "Move Up",
-	    mCB( this, uiProcessorManager, moveUpCB ), true );
+	    mCB(this,uiProcessorManager,moveUpCB), true );
     moveupbutton_->attach( rightOf, processorlist_ );
 
     movedownbutton_ = new uiPushButton( this, "Move Down",
-	    mCB( this, uiProcessorManager, moveDownCB ), true);
+	    mCB(this,uiProcessorManager,moveDownCB), true);
     movedownbutton_->attach( alignedBelow, moveupbutton_ );
 
     propertiesbutton_ = new uiPushButton( this, "Properties",
-	    mCB( this, uiProcessorManager, propertiesCB ), false );
+	    mCB(this,uiProcessorManager,propertiesCB), false );
     propertiesbutton_->attach( alignedBelow, movedownbutton_ );
 
     updateList();
@@ -145,17 +147,17 @@ void uiProcessorManager::processorClickCB( CallBacker* )
     if ( processorlist_->nextSelected(-1)==-1 )
 	return;
 
-    factorylist_->selectAll(false);
+    factorylist_->selectAll( false );
     updateButtons();
 }
 
 
 void uiProcessorManager::processorDoubleClickCB( CallBacker* )
 {
-    factorylist_->selectAll(false);
+    factorylist_->selectAll( false );
     updateButtons();
 
-    showPropDialog( processorlist_->lastClicked() );
+    showPropDialog( processorlist_->currentItem() );
 }
 
 
