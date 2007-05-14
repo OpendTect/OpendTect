@@ -4,7 +4,7 @@
  * DATE     : April 2004
 -*/
 
-static const char* rcsID = "$Id: visvolrenscalarfield.cc,v 1.5 2007-03-16 11:24:07 cvsnanne Exp $";
+static const char* rcsID = "$Id: visvolrenscalarfield.cc,v 1.6 2007-05-14 12:21:59 cvsnanne Exp $";
 
 #include "visvolrenscalarfield.h"
 
@@ -26,10 +26,10 @@ visBase::FactoryEntry visBase::VolumeRenderScalarField::oldnameentry(
 		(visBase::FactPtr) visBase::VolumeRenderScalarField::create,
 		"VolumeRender::VolumeTexture");
 
+mCreateFactoryEntry( visBase::VolumeRenderScalarField );
 
-using namespace visBase;
-
-mCreateFactoryEntry( VolumeRenderScalarField );
+namespace visBase
+{
 
 #define NRCOLORS 256
 
@@ -319,3 +319,5 @@ void VolumeRenderScalarField::clipData()
 {
     if ( datacache_ ) ctab_->scaleTo( *datacache_, sz0_*sz1_*sz2_ );
 }
+
+} // namespace visBase

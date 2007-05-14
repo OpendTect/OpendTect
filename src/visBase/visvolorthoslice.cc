@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: visvolorthoslice.cc,v 1.5 2007-03-16 11:30:51 cvsnanne Exp $";
+static const char* rcsID = "$Id: visvolorthoslice.cc,v 1.6 2007-05-14 12:21:59 cvsnanne Exp $";
 
 
 #include "visvolorthoslice.h"
@@ -23,12 +23,13 @@ visBase::FactoryEntry visBase::OrthogonalSlice::oldnameentry(
 			(visBase::FactPtr) visBase::OrthogonalSlice::create,
 			"VolumeRender::OrthogonalSlice");
 
-using namespace visBase;
+mCreateFactoryEntry( visBase::OrthogonalSlice );
+
+namespace visBase
+{
 
 const char* OrthogonalSlice::dimstr = "Dim";
 const char* OrthogonalSlice::slicestr = "Slice";
-
-mCreateFactoryEntry( OrthogonalSlice );
 
 OrthogonalSlice::OrthogonalSlice()
     : slice(new SoOrthoSlice)
@@ -95,7 +96,7 @@ void OrthogonalSlice::setDim( int dim )
     else
 	slice->axis = SoOrthoSlice::Z;
 
-    dragger->setDim(dim);
+    dragger->setDim( dim );
     draggerMovementCB(0);
 }
 
@@ -111,41 +112,11 @@ float OrthogonalSlice::getPosition() const
 }
 
 
-void OrthogonalSlice::setSliceNr(int nr) 
-{
-    slice->sliceNumber = nr;
-}
-
+void OrthogonalSlice::setSliceNr( int nr )
+{ slice->sliceNumber = nr; }
 
 int  OrthogonalSlice::getSliceNr() const
 { return slice->sliceNumber.getValue(); }
-
-
-void OrthogonalSlice::fillPar( IOPar& par,
-					     TypeSet<int>& saveids ) const
-{
-    VisualObjectImpl::fillPar( par, saveids );
-
-    par.set( dimstr, getDim() );
-    par.set( slicestr, getSliceNr() );
-}
-
-
-int OrthogonalSlice::usePar( const IOPar& par )
-{
-    int res = VisualObjectImpl::usePar( par );
-    if ( res != 1 ) return res;
-
-    int dim;
-    if ( par.get(dimstr,dim) )
-	setDim(dim);
-
-    int slicenr;
-    if ( par.get(slicestr,slicenr) )
-	setSliceNr(slicenr);
-
-    return 1;
-}
 
 
 NotifierAccess& OrthogonalSlice::dragStart()
@@ -179,8 +150,7 @@ void OrthogonalSlice::draggerMovementCB( CallBacker* cb )
 }
 
 
-void OrthogonalSlice::getSliceInfo( int& nrslices,
-						  Interval<float>& range ) const
+void OrthogonalSlice::getSliceInfo( int& nrslices, Interval<float>& range) const
 {
     Interval<float> xrange, yrange, zrange;
     dragger->getSpaceLimits( xrange, yrange, zrange );
@@ -202,3 +172,31 @@ void OrthogonalSlice::getSliceInfo( int& nrslices,
 	range = zrange;
     }
 }
+
+
+void OrthogonalSlice::fillPar( IOPar& par, TypeSet<int>& saveids ) const
+{
+    VisualObjectImpl::fillPar( par, saveids );
+
+    par.set( dimstr, getDim() );
+    par.set( slicestr, getSliceNr() );
+}
+
+
+int OrthogonalSlice::usePar( const IOPar& par )
+{
+    int res = VisualObjectImpl::usePar( par );
+    if ( res != 1 ) return res;
+
+    int dim;
+    if ( par.get(dimstr,dim) )
+	setDim(dim);
+
+    int slicenr;
+    if ( par.get(slicestr,slicenr) )
+	setSliceNr(slicenr);
+
+    return 1;
+}
+
+} // namespace visBase

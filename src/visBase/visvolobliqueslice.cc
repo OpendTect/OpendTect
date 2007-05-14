@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: visvolobliqueslice.cc,v 1.1 2007-01-05 21:57:25 cvskris Exp $";
+static const char* rcsID = "$Id: visvolobliqueslice.cc,v 1.2 2007-05-14 12:21:59 cvsnanne Exp $";
 
 
 #include "visvolobliqueslice.h"
@@ -16,10 +16,10 @@ static const char* rcsID = "$Id: visvolobliqueslice.cc,v 1.1 2007-01-05 21:57:25
 
 #include "VolumeViz/nodes/SoObliqueSlice.h"
 
-using namespace visBase;
+mCreateFactoryEntry( visBase::ObliqueSlice );
 
-mCreateFactoryEntry( ObliqueSlice );
-
+namespace visBase
+{
 
 ObliqueSlice::ObliqueSlice()
     : slice_( new SoObliqueSlice )
@@ -29,7 +29,7 @@ ObliqueSlice::ObliqueSlice()
 
 
 ObliqueSlice::~ObliqueSlice()
-{ }
+{}
 
 
 Coord3 ObliqueSlice::getPosOnPlane() const
@@ -45,7 +45,9 @@ Coord3 ObliqueSlice::getNormal() const
 
 void ObliqueSlice::set( const Coord3& normal, const Coord3& pos )
 {
-    SbPlane plane( SbVec3f(normal.x,normal.y,normal.z ),
+    SbPlane plane( SbVec3f(normal.x,normal.y,normal.z),
 	    	   SbVec3f(pos.x,pos.y,pos.z) );
-    slice_->plane.setValue(plane);
+    slice_->plane.setValue( plane );
 }
+
+} // namespace visBase
