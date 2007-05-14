@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2000
- RCS:           $Id: flatauxdataeditor.cc,v 1.9 2007-05-10 16:06:01 cvskris Exp $
+ RCS:           $Id: flatauxdataeditor.cc,v 1.10 2007-05-14 13:34:03 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -153,7 +153,8 @@ void AuxDataEditor::mousePressCB( CallBacker* cb )
 	return;
     }
 
-    if ( !updateSelection( ev.pos() ) )
+    if ( !updateSelection( ev.pos() ) &&
+	 !ev.ctrlStatus() && !ev.shiftStatus() && !ev.altStatus() )
     {
 	seldatasetidx_ = ids_.indexOf( addauxdataid_ );
 	if ( seldatasetidx_!=-1 && !allowadd_[seldatasetidx_] )
@@ -195,7 +196,7 @@ void AuxDataEditor::mouseReleaseCB( CallBacker* cb )
 	  (ev.buttonState() & OD::RightButton ) )
 	return;
 
-    if ( ev.ctrlStatus() && !ev.shiftStatus() &&
+    if ( !hasmoved_ && ev.ctrlStatus() && !ev.shiftStatus() &&
 	 !ev.altStatus() && seldatasetidx_!=-1 &&
 	 allowremove_[seldatasetidx_] && selptidx_!=-1 )
     {
@@ -238,10 +239,16 @@ void AuxDataEditor::mouseMoveCB( CallBacker* cb )
     if ( mousehandler_.isHandled() ) 
 	return; 
 
+
     const MouseEvent& ev = mousehandler_.event(); 
     if ( !(ev.buttonState() & OD::LeftButton ) ||
 	  (ev.buttonState() & OD::MidButton ) ||
 	  (ev.buttonState() & OD::RightButton ) )
+	return;
+
+    hasmoved_ = true;
+
+    if ( ev.ctrlStatus() || ev.shiftStatus() || ev.altStatus() )
 	return;
 
     const Geom::Point2D<int> mousedisplaypos = mousearea_.moveInside(ev.pos());
@@ -261,7 +268,6 @@ void AuxDataEditor::mouseMoveCB( CallBacker* cb )
     }
     else feedback_->poly_[0] = selptcoord_;
 
-    hasmoved_ = true;
     viewer_.handleChange( Viewer::Annot );
     mousehandler_.setHandled( true );
 }
