@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viswelldisplay.h,v 1.39 2007-05-03 11:26:38 cvsraman Exp $
+ RCS:		$Id: viswelldisplay.h,v 1.40 2007-05-14 12:08:46 cvsraman Exp $
 ________________________________________________________________________
 
 
@@ -57,8 +57,10 @@ public:
     bool			hasColor() const	{ return true; }
     Color			getColor() const;
 
-    void			showWellName(bool);
-    bool			wellNameShown() const;
+    void			showWellTopName(bool);
+    void			showWellBotName(bool);
+    bool			wellTopNameShown() const;
+    bool			wellBotNameShown() const;
 
     bool			canShowMarkers() const;
     void			showMarkers(bool);

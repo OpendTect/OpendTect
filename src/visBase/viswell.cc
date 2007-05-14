@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2003
- RCS:           $Id: viswell.cc,v 1.28 2007-05-03 11:26:39 cvsraman Exp $
+ RCS:           $Id: viswell.cc,v 1.29 2007-05-14 12:07:19 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,7 +38,8 @@ static const int sMaxNrLogSamples = 2000;
 static const int sDefaultMarkerSize = 10;
 
 const char* Well::linestylestr	= "Line style";
-const char* Well::showwellnmstr	= "Show name";
+const char* Well::showwelltopnmstr = "Show top name";
+const char* Well::showwellbotnmstr = "Show bottom name";
 const char* Well::showmarkerstr = "Show markers";
 const char* Well::showmarknmstr	= "Show markername";
 const char* Well::markerszstr	= "Marker size";
@@ -62,10 +63,14 @@ Well::Well()
     track->ref();
     track->setMaterial( Material::create() );
     sep->addChild( track->getInventorNode() );
-    welltxt = Text2::create();
-    welltxt->ref();
-    welltxt->setMaterial( track->getMaterial() );
-    sep->addChild( welltxt->getInventorNode() );
+    welltoptxt = Text2::create();
+    wellbottxt = Text2::create();
+    welltoptxt->ref();
+    wellbottxt->ref();
+    welltoptxt->setMaterial( track->getMaterial() );
+    wellbottxt->setMaterial( track->getMaterial() );
+    sep->addChild( welltoptxt->getInventorNode() );
+    sep->addChild( wellbottxt->getInventorNode() );
 
     markergroup = DataObjectGroup::create();
     markergroup->ref();
@@ -95,8 +100,10 @@ Well::~Well()
 {
     if ( transformation ) transformation->unRef();
 
-    removeChild( welltxt->getInventorNode() );
-    welltxt->unRef();
+    removeChild( welltoptxt->getInventorNode() );
+    welltoptxt->unRef();
+    removeChild( wellbottxt->getInventorNode() );
+    wellbottxt->unRef();
 
     removeChild( track->getInventorNode() );
     track->unRef();
@@ -147,25 +154,37 @@ const LineStyle& Well::lineStyle() const
     return ls;
 }
 
+#define msetWellName( nm, pos, post ) \
+    well##post##txt->setDisplayTransformation( transformation ); \
+    well##post##txt->setText( nm ); \
+    if ( !SI().zRange(true).includes(pos.z) ) \
+	pos.z = SI().zRange(true).limitValue( pos.z ); \
+    well##post##txt->setPosition( pos ); \
+    well##post##txt->setJustification( Text::Center ); 
 
-void Well::setWellName( const char* nm, const Coord3& pos )
+
+void Well::setWellName( const char* nm, Coord3 toppos, 
+					Coord3 botpos)
 {
-    welltxt->setDisplayTransformation( transformation );
-    welltxt->setText( nm );
-    Coord3 wp( pos );
-    if ( !SI().zRange(true).includes(pos.z) )
-	wp.z = SI().zRange(true).limitValue( pos.z );
-    welltxt->setPosition( wp ); //TODO
-    welltxt->setJustification( Text::Center );
+    msetWellName( nm, toppos, top );
+    msetWellName( nm, botpos, bot );
 }
 
 
-void Well::showWellName( bool yn )
-{ welltxt->turnOn( yn ); }
+void Well::showWellTopName( bool yn )
+{ welltoptxt->turnOn( yn ); }
 
 
-bool Well::wellNameShown() const
-{ return welltxt->isOn(); }
+void Well::showWellBotName( bool yn )
+{ wellbottxt->turnOn( yn ); }
+
+
+bool Well::wellTopNameShown() const
+{ return welltoptxt->isOn(); }
+
+
+bool Well::wellBotNameShown() const
+{ return wellbottxt->isOn(); }
 
 
 void Well::addMarker( const Coord3& pos, const Color& color, const char* nm ) 
@@ -369,7 +388,7 @@ void Well::showLog( bool yn, int lognr )
 
 bool Well::logsShown() const
 {
-    return log->logShown( 1 );
+    return log->logShown( 1 ) || log->logShown( 2 );
 }
 
 
@@ -402,7 +421,8 @@ void Well::fillPar( IOPar& par, TypeSet<int>& saveids ) const
     lineStyle().toString( linestyle );
     par.set( linestylestr, linestyle );
 
-    par.setYN( showwellnmstr, welltxt->isOn() );
+    par.setYN( showwelltopnmstr, welltoptxt->isOn() );
+    par.setYN( showwellbotnmstr, wellbottxt->isOn() );
     par.setYN( showmarkerstr, markersShown() );
     par.setYN( showmarknmstr, markerNameShown() );
     par.setYN( showlogsstr, logsShown() );
@@ -431,7 +451,8 @@ int Well::usePar( const IOPar& par )
     func( doshow );
 
     bool doshow;
-    mParGetYN(showwellnmstr,showWellName);
+    mParGetYN(showwelltopnmstr,showWellTopName);
+    mParGetYN(showwellbotnmstr,showWellBotName);
     mParGetYN(showmarkerstr,showMarkers);	showmarkers = doshow;
     mParGetYN(showmarknmstr,showMarkerName);
     mParGetYN(showlogsstr,showLogs);

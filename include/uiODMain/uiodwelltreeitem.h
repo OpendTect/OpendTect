@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		May 2006
- RCS:		$Id: uiodwelltreeitem.h,v 1.1 2006-05-09 11:00:53 cvsbert Exp $
+ RCS:		$Id: uiodwelltreeitem.h,v 1.2 2007-05-14 12:12:46 cvsraman Exp $
 ________________________________________________________________________
 
 
@@ -18,7 +18,17 @@ ________________________________________________________________________
 #include "multiid.h"
 
 
-mDefineItem( WellParent, TreeItem, TreeTop, mShowMenu );
+class uiODWellParentTreeItem : public uiODTreeItem
+{
+public:
+    			uiODWellParentTreeItem();
+    bool		showSubMenu();
+    bool		handleSubMenu(int);
+
+protected:
+    const char*		parentType() const
+			    { return typeid(uiODTreeTop).name(); }
+};
 
 
 class uiODWellTreeItemFactory : public uiODTreeItemFactory
@@ -50,7 +60,8 @@ protected:
     MenuItem		attrmnuitem_;
     MenuItem		sellogmnuitem_;
     MenuItem		propertiesmnuitem_;
-    MenuItem		namemnuitem_;
+    MenuItem		nametopmnuitem_;
+    MenuItem		namebotmnuitem_;
     MenuItem		markermnuitem_;
     MenuItem		markernamemnuitem_;
     MenuItem		showlogmnuitem_;
