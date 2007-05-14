@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		May 2006
- RCS:		$Id: uiodwelltreeitem.cc,v 1.11 2007-05-03 11:26:38 cvsraman Exp $
+ RCS:		$Id: uiodwelltreeitem.cc,v 1.12 2007-05-14 12:14:12 cvsraman Exp $
 ___________________________________________________________________
 
 -*/
@@ -48,12 +48,37 @@ bool uiODWellParentTreeItem::showSubMenu()
     uiPopupMenu mnu( getUiParent(), "Action" );
     mnu.insertItem( new uiMenuItem("Load ..."), 0 );
     mnu.insertItem( new uiMenuItem("New WellTrack ..."), 1 );
-    if ( children_.size() )
+    if ( children_.size() > 1 )
+    {
 	mnu.insertItem( new uiMenuItem("Properties ..."), 2 );
+
+	mnu.insertSeparator( 20 );
+	uiPopupMenu* showmnu = new uiPopupMenu( getUiParent(), "Show all" );
+	showmnu->insertItem( new uiMenuItem("Well Names (Top)"), 21 );
+	showmnu->insertItem( new uiMenuItem("Well Names (Bottom)"), 22 );
+	showmnu->insertItem( new uiMenuItem("Markers"), 23 );
+	showmnu->insertItem( new uiMenuItem("Marker Names"), 24 );
+	showmnu->insertItem( new uiMenuItem("Logs"), 25 );
+	mnu.insertItem( showmnu );
+
+	uiPopupMenu* hidemnu = new uiPopupMenu( getUiParent(), "Hide all" );
+	hidemnu->insertItem( new uiMenuItem("Well Names (Top)"), 31 );
+	hidemnu->insertItem( new uiMenuItem("Well Names (Bottom)"), 32 );
+	hidemnu->insertItem( new uiMenuItem("Markers"), 33 );
+	hidemnu->insertItem( new uiMenuItem("Marker Names"), 34 );
+	hidemnu->insertItem( new uiMenuItem("Logs"), 35 );
+	mnu.insertItem( hidemnu );
+    }
     addStandardItems( mnu );
 
     const int mnuid = mnu.exec();
-    if ( mnuid<0 ) return false;
+    return mnuid<0 ? false : handleSubMenu( mnuid );
+}
+
+
+bool uiODWellParentTreeItem::handleSubMenu( int mnuid )
+{
+    uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
     if ( mnuid == 0 )
     {
 	ObjectSet<MultiID> emwellids;
@@ -68,7 +93,6 @@ bool uiODWellParentTreeItem::showSubMenu()
     }
     else if ( mnuid == 1 )
     {
-	uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
 	visSurvey::WellDisplay* wd = visSurvey::WellDisplay::create();
 	wd->setupPicking(true);
 	BufferString wellname;
@@ -80,9 +104,8 @@ bool uiODWellParentTreeItem::showSubMenu()
 	visserv->addObject( wd, sceneID(), true );
 	addChild( new uiODWellTreeItem(wd->id()), false );
     }
-    else if ( mnuid == 2 || mnuid == 3 )
+    else if ( mnuid == 2 )
     {
-	uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
 	TypeSet<int> wdids;
 	visserv->findObject( typeid(visSurvey::WellDisplay), wdids );
 	ObjectSet<visSurvey::WellDisplay> wds;
@@ -95,20 +118,40 @@ bool uiODWellParentTreeItem::showSubMenu()
 
 	if ( wds.isEmpty() ) return false;
 
-	if ( mnuid == 2 )
-	{
-	    uiWellPropDlg dlg( getUiParent(), wds );
-	    dlg.go();
+	uiWellPropDlg dlg( getUiParent(), wds );
+	dlg.go();
 
-	    for ( int idx=0; idx<children_.size(); idx++ )
-	    {
-		mDynamicCastGet(uiODWellTreeItem*,itm,children_[idx])
-		if ( itm )
-		    itm->updateColumnText(uiODSceneMgr::cColorColumn());
-	    }
-	}
-	else if ( mnuid == 3 )
+	for ( int idx=0; idx<children_.size(); idx++ )
 	{
+	    mDynamicCastGet(uiODWellTreeItem*,itm,children_[idx])
+	    if ( itm )
+		itm->updateColumnText(uiODSceneMgr::cColorColumn());
+	}
+    }
+    else if ( ( mnuid>20 && mnuid<26 ) || ( mnuid>30 && mnuid<36 ) )
+    {
+	for ( int idx=0; idx<children_.size(); idx++ )
+	{
+	    mDynamicCastGet(uiODWellTreeItem*,itm,children_[idx]);
+	    if ( !itm ) continue;
+
+	    mDynamicCastGet(visSurvey::WellDisplay*,wd,
+				    visserv->getObject(itm->displayID()));
+	    if ( !wd ) continue;
+
+	    switch ( mnuid )
+	    {
+		case 21: wd->showWellTopName( true ); break;
+		case 22: wd->showWellBotName( true ); break;
+		case 23: wd->showMarkers( true ); break;
+		case 24: wd->showMarkerName( true ); break;
+		case 25: wd->showLogs( true ); break;
+		case 31: wd->showWellTopName( false ); break;
+		case 32: wd->showWellBotName( false ); break;
+		case 33: wd->showMarkers( false ); break;
+		case 34: wd->showMarkerName( false ); break;
+		case 35: wd->showLogs( false ); break;
+	    }
 	}
     }
     else
@@ -150,7 +193,8 @@ void uiODWellTreeItem::initMenuItems()
     attrmnuitem_.text = "Create attribute log...";
     sellogmnuitem_.text = "Select logs ...";
     propertiesmnuitem_.text = "Properties ...";
-    namemnuitem_.text = "Well name";
+    nametopmnuitem_.text = "Well name (Top)";
+    namebotmnuitem_.text = "Well name (Bottom)";
     markermnuitem_.text = "Markers";
     markernamemnuitem_.text = "Marker names";
     showlogmnuitem_.text = "Logs" ;
@@ -158,7 +202,8 @@ void uiODWellTreeItem::initMenuItems()
     editmnuitem_.text = "Edit Welltrack" ;
     storemnuitem_.text = "Store ...";
 
-    namemnuitem_.checkable = true;
+    nametopmnuitem_.checkable = true;
+    namebotmnuitem_.checkable = true;
     markermnuitem_.checkable = true;
     markernamemnuitem_.checkable = true;
     showlogmnuitem_.checkable = true;
@@ -211,7 +256,11 @@ void uiODWellTreeItem::createMenuCB( CallBacker* cb )
     mAddMenuItem( menu, &editmnuitem_, true, false );
     mAddMenuItem( menu, &storemnuitem_, true, false );
     mAddMenuItem( menu, &showmnuitem_, true, false );
-    mAddMenuItem( &showmnuitem_, &namemnuitem_, true,  wd->wellNameShown() );
+    mAddMenuItem( &showmnuitem_, &nametopmnuitem_, true,  
+	    					wd->wellTopNameShown() );
+    mAddMenuItem( &showmnuitem_, &namebotmnuitem_, true,  
+	    					wd->wellBotNameShown() );
+
     mAddMenuItem( &showmnuitem_, &markermnuitem_, wd->canShowMarkers(),
 		 wd->markersShown() );
     mAddMenuItem( &showmnuitem_, &markernamemnuitem_, wd->canShowMarkers(),
@@ -244,9 +293,11 @@ void uiODWellTreeItem::handleMenuCB( CallBacker* cb )
     {
 	menu->setIsHandled( true );
 	Well::LogDisplayParSet* logparset = wd->getLogParSet();
-	applMgr()->wellServer()->selectLogs( wellid, logparset );
-	wd->displayRightLog();
-	wd->displayLeftLog();
+	if( applMgr()->wellServer()->selectLogs( wellid, logparset ) )
+	{
+	    wd->displayRightLog();
+	    wd->displayLeftLog();
+	}
     }
     else if ( mnuid == propertiesmnuitem_.id )
     {
@@ -255,10 +306,15 @@ void uiODWellTreeItem::handleMenuCB( CallBacker* cb )
 	dlg.go();
 	updateColumnText( uiODSceneMgr::cColorColumn() );
     }
-    else if ( mnuid == namemnuitem_.id )
+    else if ( mnuid == nametopmnuitem_.id )
     {
 	menu->setIsHandled( true );
-	wd->showWellName( !wd->wellNameShown() );
+	wd->showWellTopName( !wd->wellTopNameShown() );
+    }
+    else if ( mnuid == namebotmnuitem_.id )
+    {
+	menu->setIsHandled( true );
+	wd->showWellBotName( !wd->wellBotNameShown() );
     }
     else if ( mnuid == markermnuitem_.id )
     {
@@ -272,8 +328,21 @@ void uiODWellTreeItem::handleMenuCB( CallBacker* cb )
 	wd->showMarkerName( !wd->markerNameShown() );
     }
     else if ( mnuid == showlogmnuitem_.id )
-	wd->showLogs( !wd->logsShown() );
-    
+    {
+       	menu->setIsHandled( true );
+	if( wd->getLogParSet()->getLeft()->getLogNm() == "None"
+	    && wd->getLogParSet()->getRight()->getLogNm() == "None" )
+	{
+	    Well::LogDisplayParSet* logparset = wd->getLogParSet();
+	    if( applMgr()->wellServer()->selectLogs( wellid, logparset ) )
+	    {
+	        wd->displayRightLog();
+	        wd->displayLeftLog();
+	    }
+	}
+	else
+	    wd->showLogs( !wd->logsShown() );
+    }
     else if ( mnuid == storemnuitem_.id )
     {
 	BufferString errmsg;
