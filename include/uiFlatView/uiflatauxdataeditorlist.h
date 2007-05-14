@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          April 2007
- RCS:           $Id: uiflatauxdataeditorlist.h,v 1.1 2007-05-08 18:40:04 cvskris Exp $
+ RCS:           $Id: uiflatauxdataeditorlist.h,v 1.2 2007-05-14 21:53:15 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,7 +38,7 @@ public:
     void		enableAdd(bool yn);
 
 protected:
-    void			listSelChangeCB(CallBacker*);
+    virtual void		listSelChangeCB(CallBacker*);
 
     uiListBox*			listbox_;
     uiButton*			addbutton_;
