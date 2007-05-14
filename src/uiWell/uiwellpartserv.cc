@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2003
- RCS:           $Id: uiwellpartserv.cc,v 1.25 2007-05-03 11:26:39 cvsraman Exp $
+ RCS:           $Id: uiwellpartserv.cc,v 1.26 2007-05-14 12:11:00 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -85,16 +85,17 @@ bool uiWellPartServer::selectWells( ObjectSet<MultiID>& wellids )
 }
 
 
-void uiWellPartServer::selectLogs( const MultiID& wellid, 
+bool uiWellPartServer::selectLogs( const MultiID& wellid, 
 					Well::LogDisplayParSet*& logparset ) 
 {
     Well::Data* wd = Well::MGR().get( wellid );
     if(!wd)
-	return;
+	return false;
     uiLogSelDlg dlg( appserv().parent(), wd->logs(), logparset );
     if( !dlg.go() )
-	return;
+	return false;
     logparset = dlg.getParSet();
+    return true;
 }
 
 

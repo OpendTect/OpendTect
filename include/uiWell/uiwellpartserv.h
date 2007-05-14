@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2003
- RCS:           $Id: uiwellpartserv.h,v 1.21 2007-05-03 11:26:38 cvsraman Exp $
+ RCS:           $Id: uiwellpartserv.h,v 1.22 2007-05-14 12:10:36 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,7 +40,7 @@ public:
     void			manageWells();
     bool			selectWells(ObjectSet<MultiID>&);
 
-    void			selectLogs(const MultiID&, 
+    bool			selectLogs(const MultiID&, 
 						Well::LogDisplayParSet*&);
     bool			hasLogs(const MultiID&) const;
 
