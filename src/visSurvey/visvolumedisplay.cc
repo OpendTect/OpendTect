@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2002
- RCS:           $Id: visvolumedisplay.cc,v 1.58 2007-05-04 21:46:22 cvskris Exp $
+ RCS:           $Id: visvolumedisplay.cc,v 1.59 2007-05-14 12:21:02 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -187,7 +187,8 @@ int VolumeDisplay::addSlice( int dim )
     slice->motion.notify( mCB(this,VolumeDisplay,sliceMoving) );
     slices_ += slice;
 
-    slice->setName( !dim ? timestr : (dim==1 ? crosslinestr : inlinestr) );
+    slice->setName( dim==cTimeSlice() ? timestr : 
+	    	   (dim==cCrossLine() ? crosslinestr : inlinestr) );
 
     addChild( slice->getInventorNode() );
     const CubeSampling cs = getCubeSampling( 0 );
@@ -711,6 +712,11 @@ int VolumeDisplay::usePar( const IOPar& par )
 	os->motion.notify( mCB(this,VolumeDisplay,sliceMoving) );
 	slices_ += os;
 	addChild( os->getInventorNode() );
+	// set correct dimensions ...
+	if ( !strcmp(os->name(),inlinestr) )
+	    os->setDim( cInLine() );
+	else if ( !strcmp(os->name(),timestr) )
+	    os->setDim( cTimeSlice() );
     }
 
     setColorTab( getColorTab() );
@@ -719,4 +725,4 @@ int VolumeDisplay::usePar( const IOPar& par )
 }
 
 
-}; // namespace VolumeRender
+}; // namespace visSurvey
