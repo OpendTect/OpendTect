@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uibutton.h,v 1.20 2007-05-13 15:42:36 cvsjaap Exp $
+ RCS:           $Id: uibutton.h,v 1.21 2007-05-15 10:28:57 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,6 +35,8 @@ public:
 
     virtual void	setText(const char*);
     const char*		text();
+
+    virtual void	click()			{}
 
     Notifier<uiButton>	activated;
 
@@ -71,6 +73,8 @@ public:
     				{ return const_cast<ioPixmap*>(pixmap_); }
     const ioPixmap*		getPixmap() const	{ return pixmap_; }
 
+    void			click();
+
 private:
 
     uiPushButtonBody*		body_;
@@ -91,6 +95,8 @@ public:
     bool			isChecked() const;
     virtual void		setChecked(bool yn=true);
 
+    void			click();
+
 private:
 
     uiRadioButtonBody*		body_;
@@ -109,6 +115,8 @@ public:
 
     bool			isChecked() const;
     void			setChecked(bool yn=true);
+
+    void			click();
 
     virtual void		setText(const char*);
 
@@ -138,6 +146,8 @@ public:
     bool			isToggleButton();
 
     void			setPixmap(const ioPixmap&);
+    
+    void			click();
 
 private:
 

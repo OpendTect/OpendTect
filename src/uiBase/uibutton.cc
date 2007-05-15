@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uibutton.cc,v 1.39 2007-05-14 15:13:16 cvsbert Exp $
+ RCS:           $Id: uibutton.cc,v 1.40 2007-05-15 10:28:57 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -101,7 +101,8 @@ protected:
     bool 		handleEvent( const QEvent* ev )
 			{ 
 			    if ( ev->type() != sQEventActivate ) return false;
-			    doNotify(); handle_.activatedone.trigger(handle_);
+			    handle_.click(); 
+			    handle_.activatedone.trigger(handle_);
 			    return true; 
 			}
 
@@ -275,6 +276,8 @@ void uiPushButton::setPixmap( const ioPixmap& pm )
 }
 
 
+void uiPushButton::click()			{ activated.trigger(); }
+
 
 uiRadioButton::uiRadioButton( uiParent* p, const char* nm )
     : uiButton(p,nm,0,mkbody(p,nm))
@@ -298,6 +301,7 @@ bool uiRadioButton::isChecked() const		{ return body_->isChecked (); }
 
 void uiRadioButton::setChecked( bool check )	{ body_->setChecked( check ); }
 
+void uiRadioButton::click()			{ setChecked( true ); }
 
 
 uiCheckBox::uiCheckBox( uiParent* p, const char* nm )
@@ -325,6 +329,8 @@ uiCheckBoxBody& uiCheckBox::mkbody( uiParent* parnt, const char* txt )
 bool uiCheckBox::isChecked () const		{ return body_->isChecked(); }
 
 void uiCheckBox::setChecked ( bool check )	{ body_->setChecked( check ); }
+
+void uiCheckBox::click()			{ setChecked( !isChecked() ); }
 
 
 static int preftbsz = -1;
@@ -395,6 +401,15 @@ void uiToolButton::setOn( bool yn)	{ body_->mSetOn(yn); }
 
 bool uiToolButton::isToggleButton()     { return body_->mIsToggleButton(); }
 void uiToolButton::setToggleButton( bool yn) { body_->mSetToggleButton(yn); }
+
+
+void uiToolButton::click()
+{
+    if ( isToggleButton() )
+	setOn( !isOn() );
+    else
+	activated.trigger();
+}
 
 
 void uiToolButton::setPixmap( const ioPixmap& pm )
