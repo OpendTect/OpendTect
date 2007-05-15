@@ -5,7 +5,7 @@
  * FUNCTION : Seg-Y headers
 -*/
 
-static const char* rcsID = "$Id: segyhdr.cc,v 1.45 2007-05-14 08:15:54 cvsbert Exp $";
+static const char* rcsID = "$Id: segyhdr.cc,v 1.46 2007-05-15 11:33:02 cvsbert Exp $";
 
 
 #include "segyhdr.h"
@@ -517,10 +517,12 @@ void SegyTraceheader::putSampling( SamplingData<float> sd, unsigned short ns )
     const float zfac = SI().zFactor();
     float drt = sd.start * zfac;
     short delrt = (short)mNINT(drt);
+    IbmFormat::putShort( -delrt, buf+104 ); // HRS and Petrel
     IbmFormat::putShort( delrt, buf+108 );
     IbmFormat::putUnsignedShort( (unsigned short)
 	    			 (sd.step*1e3*zfac+.5), buf+116 );
-    IbmFormat::putUnsignedShort( ns, buf+114 );
+    if ( ns != 0 )
+	IbmFormat::putUnsignedShort( ns, buf+114 );
 }
 
 
@@ -585,12 +587,7 @@ void SegyTraceheader::use( const SeisTrcInfo& ti )
 	IbmFormat::putInt( mNINT(ti.pick*zfac), buf+hdef.pick-1 );
 
     // Absolute priority, therefore possibly overwriting previous
-    float drt = ti.sampling.start * zfac;
-    short delrt = (short)mNINT(drt);
-    IbmFormat::putShort( -delrt, buf+104 ); // HRS and Petrel
-    IbmFormat::putShort( delrt, buf+108 );
-    IbmFormat::putUnsignedShort( (unsigned short)(ti.sampling.step*zfac*1e3+.5),
-				 buf+116 );
+    putSampling( ti.sampling, 0 );
 
     if ( isrev1 ) // Now this overrules everything
 	putRev1Flds( ti, buf );
@@ -667,8 +664,8 @@ void SegyTraceheader::fill( SeisTrcInfo& ti, float extcoordsc ) const
 	    delrt = 0;
     }
     ti.sampling.start = delrt * zfac;
-
     ti.sampling.step = IbmFormat::asUnsignedShort( buf+116 ) * zfac * 0.001;
+
     ti.pick = ti.refpos = mUdf(float);
     ti.nr = IbmFormat::asInt( buf+0 );
     if ( hdef.pick != 255 ) ti.pick = IbmFormat::asInt( buf+hdef.pick ) * zfac;
