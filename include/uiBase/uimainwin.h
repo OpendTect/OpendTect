@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.h,v 1.47 2007-05-09 16:52:40 cvsjaap Exp $
+ RCS:           $Id: uimainwin.h,v 1.48 2007-05-15 15:05:22 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -105,8 +105,10 @@ public:
     bool		poppedUp() const;
     bool		touch(); //!< resets pop-up timer if !poppedUp yet
     bool		finalised() const;
-    virtual uiMainWin*	mainwin()				{ return this; }
+    virtual uiMainWin*	mainwin()			{ return this; }
     QWidget*		qWidget() const;
+    uiParent*		parent()			{ return parent_; }
+    const uiParent*	parent() const			{ return parent_; }
 
 protected:
 
@@ -116,6 +118,7 @@ protected:
     uiObject*		mainobject();
 
     uiMainWinBody*	body_;
+    uiParent*		parent_;
 };
 
 #endif

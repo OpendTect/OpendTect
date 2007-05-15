@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.123 2007-05-09 16:53:08 cvsjaap Exp $
+ RCS:           $Id: uimainwin.cc,v 1.124 2007-05-15 15:05:22 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -445,6 +445,7 @@ uiMainWin::uiMainWin( uiParent* parnt, const char* nm,
 		      int nrstatusflds, bool wantMBar, bool modal )
     : uiParent( nm, 0 )
     , body_( 0 )
+    , parent_( parnt )			
     , windowClosed(this)
 { 
     body_= new uiMainWinBody( *this, parnt, nm, modal ); 
@@ -458,6 +459,7 @@ uiMainWin::uiMainWin( uiParent* parnt, const char* nm,
 uiMainWin::uiMainWin( const char* nm )
     : uiParent( nm, 0 )
     , body_( 0 )			
+    , parent_( 0 )			
     , windowClosed(this)
 {}
 
