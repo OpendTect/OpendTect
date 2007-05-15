@@ -8,6 +8,8 @@ NLA
 Seis
 AttributeEngine
 Attributes
+PreStackProcessing
+VolumeProcessing
 MPEEngine
 Well
 uiBase
@@ -18,6 +20,8 @@ uiEarthModel
 uiNLA
 uiSeis
 uiAttributes
+uiPreStackProcessing
+uiVolumeProcessing
 uiEMAttrib
 uiMPE
 uiWell
