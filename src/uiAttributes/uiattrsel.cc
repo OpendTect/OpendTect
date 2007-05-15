@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: uiattrsel.cc,v 1.22 2007-02-13 13:23:05 cvsjaap Exp $
+ RCS:           $Id: uiattrsel.cc,v 1.23 2007-05-15 07:26:09 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -348,6 +348,11 @@ bool uiAttrSelDlg::getAttrData( bool needattrmatch )
 	    attrdata_.outputnr = attr2dfld_->getIntValue();
 	    BufferStringSet nms;
 	    SelInfo::getAttrNames( ioobjkey, nms );
+	    if ( nms.isEmpty() )
+	    {
+		uiMSG().error( "No data available" );
+		return false;
+	    }
 	    const char* attrnm = attrdata_.outputnr >= nms.size() ? 0
 				    : nms.get(attrdata_.outputnr).buf();
 	    if ( needattrmatch )
