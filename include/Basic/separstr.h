@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		May 1995
  Contents:	String with a separator between the items
- RCS:		$Id: separstr.h,v 1.9 2004-11-04 14:36:13 arend Exp $
+ RCS:		$Id: separstr.h,v 1.10 2007-05-15 10:23:07 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -52,6 +52,7 @@ public:
     			operator const char*() const	{ return rep; }
     char*		buf()				{ return rep.buf(); }
     unsigned int	size() const;
+    bool		isEmpty() const			{ return !size(); }
     char		sepChar() const			{ return sep; }
     void		setSepChar( char );
 
