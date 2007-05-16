@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewcontrol.h,v 1.15 2007-05-14 20:28:49 cvskris Exp $
+ RCS:           $Id: uiflatviewcontrol.h,v 1.16 2007-05-16 16:30:20 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,7 +16,7 @@ ________________________________________________________________________
 class uiFlatViewer;
 class uiFlatViewPropDlg;
 class MouseEventHandler;
-namespace FlatView { class ZoomMgr; }
+namespace FlatView { class ZoomMgr; class Viewer; }
 
 
 /*!\brief Tools to control uiFlatViewer(s). */
@@ -84,7 +84,7 @@ protected:
     void		doPropertiesDialog(int vieweridx=0);
     void		propDlgClosed(CallBacker*);
     void		applyProperties(CallBacker* cb);
-    void		saveProperties();
+    void		saveProperties(FlatView::Viewer&);
 
 };
 

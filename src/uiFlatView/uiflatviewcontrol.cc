@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:		Feb 2007
- RCS:           $Id: uiflatviewcontrol.cc,v 1.22 2007-05-14 20:28:49 cvskris Exp $
+ RCS:           $Id: uiflatviewcontrol.cc,v 1.23 2007-05-16 16:30:20 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -221,12 +221,13 @@ void uiFlatViewControl::doPropertiesDialog( int vieweridx )
 
 void uiFlatViewControl::propDlgClosed( CallBacker* )
 {
-    if ( propdlg_->uiResult() == 1 )
-    {
-	applyProperties(0);
-	if ( propdlg_->saveButtonChecked() )
-	    saveProperties();
-    }
+    if ( propdlg_->uiResult() != 1 )
+	return;
+
+    applyProperties(0);
+    if ( propdlg_->saveButtonChecked() )
+	saveProperties( propdlg_->getViewer() );
+
 }
 
 
@@ -234,9 +235,11 @@ void uiFlatViewControl::applyProperties( CallBacker* cb )
 {
     if ( !propdlg_ ) return;
 
-    uiFlatViewer& vwr = *vwrs_[0];
-    const uiWorldRect cv( vwr.curView() );
-    FlatView::Annotation& annot = vwr.appearance().annot_;
+    mDynamicCastGet( uiFlatViewer*, vwr, &propdlg_->getViewer() );
+    if ( !vwr ) return;
+
+    const uiWorldRect cv( vwr->curView() );
+    FlatView::Annotation& annot = vwr->appearance().annot_;
     if ( cv.right() > cv.left() == annot.x1_.reversed_ )
 	{ annot.x1_.reversed_ = !annot.x1_.reversed_; flip( true ); }
     if ( cv.top() > cv.bottom() == annot.x2_.reversed_ )
@@ -244,18 +247,13 @@ void uiFlatViewControl::applyProperties( CallBacker* cb )
 
     const int selannot = propdlg_->selectedAnnot();
 
-    for ( int idx=0; idx<vwrs_.size(); idx++ )
-    {
-	vwrs_[idx]->setAnnotChoice( selannot );
-	vwrs_[idx]->handleChange( FlatView::Viewer::All );
-    }
+    vwr->setAnnotChoice( selannot );
+    vwr->handleChange( FlatView::Viewer::All );
 }
 
 
-void uiFlatViewControl::saveProperties()
+void uiFlatViewControl::saveProperties( FlatView::Viewer& vwr )
 {
-    uiFlatViewer& vwr = *vwrs_[0];
-
     BufferString cat( category_ );
     if ( category_.isEmpty() )
     {
