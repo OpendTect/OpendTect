@@ -4,7 +4,7 @@
  * DATE     : 18-4-1996
 -*/
 
-static const char* rcsID = "$Id: draw.cc,v 1.64 2007-04-04 16:51:41 cvsbert Exp $";
+static const char* rcsID = "$Id: draw.cc,v 1.65 2007-05-16 16:31:33 cvskris Exp $";
 
 /*! \brief Several implementations for UI-related things.
 
@@ -73,6 +73,14 @@ mToStringImpl( LineStyle, width )
 mFromStringImpl( MarkerStyle2D, size )
 mFromStringImpl( MarkerStyle3D, size )
 mFromStringImpl( LineStyle, width )
+
+
+bool LineStyle::operator==(const LineStyle& b) const
+{ return type==b.type && width==b.width && color==b.color; }
+
+
+bool LineStyle::operator!=(const LineStyle& b) const
+{ return !(*this==b); }
 
 
 // And the ColorTable stuff ...

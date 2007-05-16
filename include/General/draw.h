@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          26/07/2000
- RCS:           $Id: draw.h,v 1.12 2007-03-28 12:18:57 cvsbert Exp $
+ RCS:           $Id: draw.h,v 1.13 2007-05-16 16:31:33 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -98,6 +98,9 @@ public:
 
 			LineStyle( Type t=Solid,int w=1,Color c=Color::Black )
 			: type(t), width(w), color(c)	{}
+
+    bool		operator==(const LineStyle& b) const;
+    bool		operator!=(const LineStyle& b) const;
 
     Type		type;
     int			width;
