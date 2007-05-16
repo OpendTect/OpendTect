@@ -2,7 +2,7 @@
 # Puts the header file for a module into a file '.deps'
 # Author: Bert, May 2007
 #
-# $Id: gendeps.pl,v 1.3 2007-05-16 12:50:49 cvsbert Exp $
+# $Id: gendeps.pl,v 1.4 2007-05-16 14:43:53 cvsbert Exp $
 #______________________________________________________________________________
 
 # global $cpp;
@@ -109,6 +109,8 @@ sub cleanDeps
     @alreadyadded = ();
     foreach $fil ( @tmplist )
     {
+	next if ( !($fil =~ /\.h/) ); # remove any thing that's not .h
+
     	my $path;
 	foreach $path ( @ipathnames ) # remove known -I paths
 	    { $fil =~ s%$path/%%; }
