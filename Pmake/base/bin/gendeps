@@ -1,0 +1,16 @@
+#!/bin/csh -f
+#__Pmake________________________________________________________________________
+#
+# This script runs gendeps.pl
+# CVS: $Id: gendeps,v 1.1 2007-05-16 12:06:56 cvsbert Exp $
+#_______________________________________________________________________________
+
+if ( ! $?GNUCC ) then
+    setenv GNUCC gcc
+
+    if ( $HDIR == win ) then
+	setenv GNUCC "gcc -mno-cygwin"
+    endif
+endif
+
+perl $PMAKE/bin/gendeps.pl $*
