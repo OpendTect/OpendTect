@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: arrayndutils.h,v 1.24 2007-04-04 14:07:06 cvshelene Exp $
+ RCS:           $Id: arrayndutils.h,v 1.25 2007-05-16 19:52:48 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -207,86 +207,6 @@ protected:
     bool			rectangular;
 
     bool			buildWindow( );
-
-    class BoxWindow : public FloatMathFunction
-    {
-    public:
-	float	getValue( float x ) const
-		{ return fabs(x) > 1 ? 0 : 1; }
-    };
-
-    class HammingWindow : public FloatMathFunction
-    {
-    public:
-	float	getValue( float x ) const
-		{
-		    float rx = fabs( x );
-		    if ( rx > 1 )
-			return 0;
-
-		    return 0.54 + 0.46 * cos( M_PI * rx );
-		}
-    };
-
-    class HanningWindow : public FloatMathFunction
-    {
-    public:
-	float	getValue( float x ) const
-		{
-		    float rx = fabs( x );
-		    if ( rx > 1 ) return 0;
-
-		    return (1 + cos( M_PI * rx )) / 2.0;
-		}
-    };
-
-    class BlackmanWindow : public FloatMathFunction
-    {
-    public:
-	float	getValue( float x ) const
-		{
-		    float rx = fabs( x );
-		    if ( rx > 1 ) return 0;
-
-		    return 0.42 + 0.5*cos( M_PI * rx )+ 0.08*cos( 2 *M_PI*rx);
-		}
-    };
-
-    class BarlettWindow : public FloatMathFunction
-    {
-    public:
-	float	getValue( float x ) const
-		{
-		    float rx = fabs( x );
-
-		    if ( rx > 1 ) return 0;
-		    return 1-rx;
-		}
-    };
-
-    class CosTaperWindow : public FloatMathFunction
-    {
-    public:
-		CosTaperWindow( float pct )	{ setPct( pct ); }
-
-	float	getValue( float x ) const
-		{
-		    float rx = fabs( x );
-
-		    if ( rx > 1 ) return 0;
-		    if ( rx < thresh ) return 1;
-
-		    rx -= thresh;
-		    rx *= fac;
-		
-		    return (1 + cos( M_PI * rx )) * .5;
-		}
-	void	setPct( float pct )
-		{ thresh = 1. - 0.01 * pct; fac = 100. / pct; }
-
-	float	thresh;
-	float	fac;
-    };
 
 };
    
