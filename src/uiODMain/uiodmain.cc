@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodmain.cc,v 1.72 2007-05-03 18:11:44 cvskris Exp $
+ RCS:           $Id: uiodmain.cc,v 1.73 2007-05-16 06:41:15 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -258,6 +258,10 @@ CtxtIOObj* uiODMain::getUserSessionIOData( bool restore )
 {
     CtxtIOObj* ctio = mMkCtxtIOObj(ODSession);
     ctio->ctxt.forread = restore;
+    bool douse = false;
+    MultiID id;
+    ODSession::getStartupData( douse, id );
+    ctio->setObj( id );
     uiIOObjSelDlg dlg( this, *ctio );
     if ( !dlg.go() )
 	{ delete ctio->ioobj; delete ctio; ctio = 0; }
