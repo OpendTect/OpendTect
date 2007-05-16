@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewer.cc,v 1.27 2007-05-07 22:00:20 cvskris Exp $
+ RCS:           $Id: uiflatviewer.cc,v 1.28 2007-05-16 16:29:18 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -219,7 +219,7 @@ void uiFlatViewer::drawAnnot()
 
     if ( annot.color_.isVisible() )
     {
-	dt.setPenColor( annot.color_ );
+	dt.setLineStyle( LineStyle(LineStyle::Solid, 2, annot.color_) );
 	drawGridAnnot();
     }
 
