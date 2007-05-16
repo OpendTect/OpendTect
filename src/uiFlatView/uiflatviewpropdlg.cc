@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          Dec 2006
- RCS:           $Id: uiflatviewpropdlg.cc,v 1.12 2007-03-28 12:20:46 cvsbert Exp $
+ RCS:           $Id: uiflatviewpropdlg.cc,v 1.13 2007-05-16 16:28:07 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,6 +18,8 @@ ________________________________________________________________________
 #include "uicombobox.h"
 #include "uilabel.h"
 #include "uibutton.h"
+#include "uisellinest.h"
+#include "uiseparator.h"
 
 #include "datapackbase.h"
 
@@ -370,12 +372,53 @@ uiFVAnnotPropTab::uiFVAnnotPropTab( uiParent* p, FlatView::Viewer& vwr,
        				    const BufferStringSet* annots )
     : uiFlatViewPropTab(p,vwr,"Annotation")
     , annot_(app_.annot_)
+    , auxnamefld_( 0 )
+    , currentaux_( 0 )
 {
     colfld_ = new uiColorInput( this, annot_.color_, "Annotation color" );
     x1_ = new AxesGroup( this, annot_.x1_, annots );
     x1_->attach( alignedBelow, colfld_ );
     x2_ = new AxesGroup( this, annot_.x2_ );
     x2_->attach( alignedBelow, x1_ );
+
+    BufferStringSet auxnames;
+    for ( int idx=0; idx<annot_.auxdata_.size(); idx++ )
+    {
+	const FlatView::Annotation::AuxData& auxdata = *annot_.auxdata_[idx];
+	if ( !auxdata.name_.buf()[0] || !auxdata.editpermissions_ )
+	    continue;
+
+	if ( !auxdata.enabled_ && !auxdata.editpermissions_->onoff_ )
+	    continue;
+
+	permissions_ += auxdata.editpermissions_;
+	enabled_ += auxdata.enabled_;
+	linestyles_ += auxdata.linestyle_;
+	indices_ += idx;
+	fillcolors_ += auxdata.fillcolor_;
+	markerstyles_ += auxdata.markerstyle_;
+	x1rgs_ += auxdata.x1rg_ ? *auxdata.x1rg_ : Interval<double>( 0, 1 );
+	x2rgs_ += auxdata.x2rg_ ? *auxdata.x2rg_ : Interval<double>( 0, 1 );
+	auxnames.add( auxdata.name_.buf() );
+    }
+
+    if ( !auxnames.size() )
+	return;
+
+    auxnamefld_ = new uiGenInput( this, "Aux data",
+	    			  StringListInpSpec( auxnames ) );
+    auxnamefld_->valuechanged.notify( mCB( this, uiFVAnnotPropTab, auxNmFldCB));
+    auxnamefld_->attach( alignedBelow, x2_ );
+
+    linestylefld_ = new uiSelLineStyle( this, linestyles_[0], "Line style" );
+    linestylefld_->attach( alignedBelow, auxnamefld_ );
+
+    linestylenocolorfld_ = new uiSelLineStyle( this, linestyles_[0],
+	    				"Line style", true, false, true  );
+    linestylenocolorfld_->attach( alignedBelow, auxnamefld_ );
+
+    fillcolorfld_ = new uiColorInput( this, fillcolors_[0] );
+    fillcolorfld_->attach( alignedBelow, linestylefld_ );
 }
 
 
@@ -384,6 +427,24 @@ void uiFVAnnotPropTab::putToScreen()
     colfld_->setColor( annot_.color_ );
     x1_->putToScreen();
     x2_->putToScreen();
+
+    for ( int idx=0; idx<indices_.size(); idx++ )
+    {
+	*permissions_[idx] = *annot_.auxdata_[indices_[idx]]->editpermissions_;
+	enabled_[idx] = annot_.auxdata_[indices_[idx]]->enabled_;
+	linestyles_[idx] = annot_.auxdata_[indices_[idx]]->linestyle_;
+	fillcolors_[idx] = annot_.auxdata_[indices_[idx]]->fillcolor_;
+	markerstyles_[idx] = annot_.auxdata_[indices_[idx]]->markerstyle_;
+	x1rgs_[idx] = annot_.auxdata_[indices_[idx]]->x1rg_
+	    ? *annot_.auxdata_[indices_[idx]]->x1rg_
+	    : Interval<double>( 0, 1 );
+	x2rgs_[idx] = annot_.auxdata_[indices_[idx]]->x2rg_
+	    ? *annot_.auxdata_[indices_[idx]]->x2rg_
+	    : Interval<double>( 0, 1 );
+    }
+
+    if ( auxnamefld_ )
+	updateAuxFlds( currentaux_ );
 }
 
 
@@ -392,9 +453,72 @@ void uiFVAnnotPropTab::getFromScreen()
     annot_.color_ = colfld_->color();
     x1_->getFromScreen();
     x2_->getFromScreen();
+
+    if ( !auxnamefld_ )
+	return;
+
+    getFromAuxFld( currentaux_ );
+
+    for ( int idx=0; idx<indices_.size(); idx++ )
+    {
+	annot_.auxdata_[indices_[idx]]->linestyle_ = linestyles_[idx];
+	annot_.auxdata_[indices_[idx]]->fillcolor_ = fillcolors_[idx];
+	annot_.auxdata_[indices_[idx]]->markerstyle_ = markerstyles_[idx];
+	annot_.auxdata_[indices_[idx]]->enabled_ = enabled_[idx];
+	if ( annot_.auxdata_[indices_[idx]]->x1rg_ )
+	    *annot_.auxdata_[indices_[idx]]->x1rg_ = x1rgs_[idx];
+	if ( annot_.auxdata_[indices_[idx]]->x2rg_ )
+	    *annot_.auxdata_[indices_[idx]]->x2rg_ = x2rgs_[idx];
+    }
 }
 
 		    
+void uiFVAnnotPropTab::auxNmFldCB( CallBacker* )
+{
+    getFromAuxFld( currentaux_ );
+    currentaux_ = auxnamefld_->getIntValue();
+    updateAuxFlds( currentaux_ );
+}
+
+
+void uiFVAnnotPropTab::getFromAuxFld( int idx )
+{
+    if ( permissions_[idx]->linestyle_ && permissions_[idx]->linecolor_ )
+	linestyles_[idx] = linestylefld_->getStyle();
+    else if ( permissions_[idx]->linestyle_ && !permissions_[idx]->linecolor_ )
+	linestyles_[idx].color = linestylenocolorfld_->getStyle().color;
+
+    if ( permissions_[idx]->fillcolor_ )
+	fillcolors_[idx] = fillcolorfld_->color();
+}
+
+
+void uiFVAnnotPropTab::updateAuxFlds( int idx )
+{
+    if ( permissions_[idx]->linestyle_ && permissions_[idx]->linecolor_ )
+    {
+	linestylefld_->setStyle( linestyles_[idx] );
+	linestylefld_->display( true );
+	linestylenocolorfld_->display( false );
+    }
+    else if ( permissions_[idx]->linestyle_ && !permissions_[idx]->linecolor_ )
+    {
+	linestylenocolorfld_->setStyle( linestyles_[idx] );
+	linestylenocolorfld_->display( true );
+	linestylefld_->display( false );
+    }
+
+    if ( permissions_[idx]->fillcolor_ &&
+	 annot_.auxdata_[indices_[idx]]->close_)
+    {
+	fillcolorfld_->setColor( fillcolors_[idx] );
+	fillcolorfld_->display( true );
+    }
+    else
+	fillcolorfld_->display( false );
+}
+
+
 uiFlatViewPropDlg::uiFlatViewPropDlg( uiParent* p, FlatView::Viewer& vwr,
 				      const CallBack& applcb,
 				      const BufferStringSet* annots,

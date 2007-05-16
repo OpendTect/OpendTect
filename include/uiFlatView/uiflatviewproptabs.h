@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2007
- RCS:           $Id: uiflatviewproptabs.h,v 1.3 2007-03-12 18:44:10 cvsbert Exp $
+ RCS:           $Id: uiflatviewproptabs.h,v 1.4 2007-05-16 16:28:07 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,6 +19,7 @@ class uiLabel;
 class uiGenInput;
 class uiCheckBox;
 class uiColorInput;
+class uiSelLineStyle;
 class ColorTableEditor;
 class uiLabeledComboBox;
 
@@ -150,6 +151,10 @@ public:
 
 
 protected:
+
+    void		auxNmFldCB(CallBacker*);
+    void		getFromAuxFld(int);
+    void		updateAuxFlds(int);
     
     FlatView::Annotation& annot_;
 
@@ -180,6 +185,21 @@ protected:
     AxesGroup*		x1_;
     AxesGroup*		x2_;
 
+    uiGenInput*		auxnamefld_;
+    uiSelLineStyle*	linestylefld_;
+    uiSelLineStyle*	linestylenocolorfld_;
+    //uiSelLineStyle*	markerstylefld_;
+    uiColorInput*	fillcolorfld_;
+
+    ObjectSet<FlatView::Annotation::AuxData::EditPermissions>	permissions_;
+    BoolTypeSet							enabled_;
+    TypeSet<LineStyle>						linestyles_;
+    TypeSet<int>						indices_;
+    TypeSet<Color>						fillcolors_;
+    TypeSet<MarkerStyle2D>					markerstyles_;
+    TypeSet<Interval<double> >					x1rgs_;
+    TypeSet<Interval<double> >					x2rgs_;
+    int								currentaux_;
 };
 
 
