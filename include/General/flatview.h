@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2005
- RCS:           $Id: flatview.h,v 1.19 2007-05-09 16:40:07 cvskris Exp $
+ RCS:           $Id: flatview.h,v 1.20 2007-05-16 16:22:53 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,16 +36,33 @@ class Annotation
 {
 public:
 
+
     //!\brief Things like well tracks, cultural data, 2-D line positions
     class AuxData
     {
     public:
+	//!\brief explains what part of the an auxdata's appearance that may be
+	//!	  edited by the user
+	class EditPermissions
+	{
+	public:			EditPermissions();
+	    bool		onoff_;
+	    bool		namepos_;
+	    bool		linestyle_;
+	    bool		linecolor_;
+	    bool		fillcolor_;
+	    bool		markerstyle_;
+	    bool		markercolor_;
+	    bool		x1rg_;
+	    bool		x2rg_;
+	};
 				AuxData( const char* nm );
 				AuxData( const AuxData& );
 				~AuxData();
 
-	bool			enabled_; 	//!<Turns on/off everything
+	EditPermissions*	editpermissions_;//!<If null no editing allowed
 
+	bool			enabled_; 	//!<Turns on/off everything
 	BufferString		name_;
 	int			namepos_;	//!<nodraw=udf, before first=-1,
 						//!< center=0, after last=1

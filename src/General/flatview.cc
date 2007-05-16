@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2000
- RCS:           $Id: flatview.cc,v 1.18 2007-05-03 19:17:43 cvskris Exp $
+ RCS:           $Id: flatview.cc,v 1.19 2007-05-16 16:22:52 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -221,6 +221,20 @@ void FlatView::Annotation::usePar( const IOPar& iop )
 }
 
 
+FlatView::Annotation::AuxData::EditPermissions::EditPermissions()
+    : onoff_( true )
+    , namepos_( true )
+    , linestyle_( true )
+    , linecolor_( true )
+    , fillcolor_( true )
+    , markerstyle_( true )
+    , markercolor_( true )
+    , x1rg_( true )
+    , x2rg_( true )
+{}
+
+
+
 FlatView::Annotation::AuxData::AuxData( const char* nm )
     : name_( nm )
     , namepos_( mUdf(int) )
@@ -231,6 +245,7 @@ FlatView::Annotation::AuxData::AuxData( const char* nm )
     , x1rg_( 0 )
     , x2rg_( 0 )
     , enabled_( true )
+    , editpermissions_( 0 )
 {}
 
 
@@ -244,6 +259,8 @@ FlatView::Annotation::AuxData::AuxData(const FlatView::Annotation::AuxData& aux)
     , x1rg_( aux.x1rg_ ? new Interval<double>( *aux.x1rg_ ) : 0 )
     , x2rg_( aux.x2rg_ ? new Interval<double>( *aux.x2rg_ ) : 0 )
     , enabled_( aux.enabled_ )
+    , editpermissions_( aux.editpermissions_
+	    ? new EditPermissions(*aux.editpermissions_) : 0 )
 {}
 
 
@@ -251,6 +268,7 @@ FlatView::Annotation::AuxData::~AuxData()
 {
     delete x1rg_;
     delete x2rg_;
+    delete editpermissions_;
 }
 
 
