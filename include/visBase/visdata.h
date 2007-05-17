@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visdata.h,v 1.44 2007-03-20 20:22:14 cvskris Exp $
+ RCS:		$Id: visdata.h,v 1.45 2007-05-17 13:52:37 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -177,7 +177,7 @@ protected:
 
 #define _mCreateDataObj(clss) 					\
 {								\
-    clss* res = reinterpret_cast<clss*>(factoryentry_.create());\
+    clss* res = (clss*) factoryentry_.create();			\
     return res;							\
 }								\
 								\
