@@ -6,12 +6,13 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmain.h,v 1.14 2007-01-23 15:34:14 cvsbert Exp $
+ RCS:           $Id: uiodmain.h,v 1.15 2007-05-17 05:12:51 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uimainwin.h"
+#include "multiid.h"
 
 class IOPar;
 class IOObj;
@@ -76,6 +77,7 @@ protected:
     ODSession&		lastsession;
     uiDockWin*		ctabwin;
 
+    MultiID		cursessid;
     bool		failed;
 
     virtual bool	closeOK();

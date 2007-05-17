@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodmain.cc,v 1.73 2007-05-16 06:41:15 cvsraman Exp $
+ RCS:           $Id: uiodmain.cc,v 1.74 2007-05-17 05:14:15 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -126,6 +126,9 @@ uiODMain::uiODMain( uicMain& a )
     uiMSG().setMainWin( this );
     uiapp.setTopLevel( this );
     uiSurveyInfoEditor::addInfoProvider( new ui2DSurvInfoProvider );
+
+//    bool douse;
+//    ODSession::getStartupData( douse, cursessid );
 
     if ( !ensureGoodDataDir()
       || (IOM().bad() && !ensureGoodSurveySetup()) )
@@ -258,15 +261,16 @@ CtxtIOObj* uiODMain::getUserSessionIOData( bool restore )
 {
     CtxtIOObj* ctio = mMkCtxtIOObj(ODSession);
     ctio->ctxt.forread = restore;
-    bool douse = false;
-    MultiID id;
-    ODSession::getStartupData( douse, id );
-    ctio->setObj( id );
+    ctio->setObj( cursessid );
     uiIOObjSelDlg dlg( this, *ctio );
     if ( !dlg.go() )
 	{ delete ctio->ioobj; delete ctio; ctio = 0; }
     else
-	{ delete ctio->ioobj; ctio->ioobj = dlg.ioObj()->clone(); }
+    { 
+	delete ctio->ioobj; ctio->ioobj = dlg.ioObj()->clone(); 
+        const MultiID id( ctio->ioobj ? ctio->ioobj->key() : MultiID("") );
+	cursessid = id;
+    }
 
     return ctio;
 }
@@ -482,7 +486,7 @@ void uiODMain::handleStartupSession( CallBacker* )
 
     PtrMan<IOObj> ioobj = IOM().get( id );
     if ( !ioobj ) return;
-
+    cursessid = id;
     restoreSession( ioobj );
     sceneMgr().layoutScenes();
 }
