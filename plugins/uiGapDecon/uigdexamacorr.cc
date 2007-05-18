@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          Sep 2006
- RCS:           $Id: uigdexamacorr.cc,v 1.20 2007-04-02 14:10:21 cvshelene Exp $
+ RCS:           $Id: uigdexamacorr.cc,v 1.21 2007-05-18 12:40:12 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -120,7 +120,7 @@ EngineMan* GapDeconACorrView::createEngineMan()
 
 #define mCreateFD2DDataPack(fddatapack) \
 { \
-    fddatapack = new Attrib::Flat2DDataPack( attribid_, *correctd2dh ); \
+    fddatapack = new Attrib::Flat2DDHDataPack( attribid_, *correctd2dh ); \
     fddatapack->setName( "autocorrelation" ); \
 }
 

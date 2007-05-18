@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.186 2007-05-10 08:01:42 cvsnanne Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.187 2007-05-18 12:40:12 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -474,9 +474,18 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
 		bidset.add( bids[idx], zrg.start, zrg.stop );
 	    SeisTrcBuf data( true );
 	    attrserv_->setTargetSelSpec( myas );
-	    if ( !attrserv_->createOutput(bidset,data) )
+	    mDynamicCastGet(visSurvey::RandomTrackDisplay*,rdmtdisp,
+		    	    visserv_->getObject(visid) );
+	    TypeSet<BinID>* trcspath = rdmtdisp ? rdmtdisp->getPath() : 0;
+	    const DataPack::ID newid = 
+		    attrserv_->createRdmTrcsOutput( bidset, data, trcspath );
+	    if ( newid == -1 )
+	    {
+		visserv_->setTraceData( visid, attrib, data );
 		return false;
-	    visserv_->setTraceData( visid, attrib, data );
+	    }
+
+	    visserv_->setDataPackID( visid, attrib, newid );
 	    return true;
 	}
 	case uiVisPartServer::RandomPos :

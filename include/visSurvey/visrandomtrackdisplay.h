@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		January 2003
- RCS:		$Id: visrandomtrackdisplay.h,v 1.52 2007-03-01 09:27:16 cvsnanne Exp $
+ RCS:		$Id: visrandomtrackdisplay.h,v 1.53 2007-05-18 12:40:11 cvshelene Exp $
 ________________________________________________________________________
 
 
@@ -85,6 +85,10 @@ public:
     Interval<float>		getDataTraceRange() const;
     void			setTraceData(int,SeisTrcBuf&);
 
+    bool                        setDataPackID(int attrib,DataPack::ID);
+    DataPack::ID                getDataPackID(int attrib) const;
+    virtual DataPackMgr::ID     getDataPackMgrID() const        { return 1; }
+
     bool			canAddKnot(int knotnr) const;
     				/*!< If knotnr<nrKnots the function Checks if
 				     a knot can be added before the
@@ -134,6 +138,7 @@ public:
     virtual int			usePar(const IOPar&);
 
     bool			canBDispOn2DViewer() const	{ return true; }
+    TypeSet<BinID>*             getPath()		{ return &trcspath_; }
     
 protected:
 				~RandomTrackDisplay();
@@ -156,6 +161,8 @@ protected:
     ObjectSet<Attrib::SelSpec>	as_;
     ObjectSet<SeisTrcBuf>	cache_;
     int				selknotidx_;
+    TypeSet<DataPack::ID>	datapackids_;
+    TypeSet<BinID>		trcspath_;
 
     ZAxisTransform*		datatransform_;
 

@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          January 2003
- RCS:           $Id: visrandomtrackdisplay.cc,v 1.87 2007-03-15 20:09:17 cvskris Exp $
+ RCS:           $Id: visrandomtrackdisplay.cc,v 1.88 2007-05-18 12:40:12 cvshelene Exp $
  ________________________________________________________________________
 
 -*/
@@ -13,6 +13,7 @@
 #include "visrandomtrackdisplay.h"
 
 #include "arrayndimpl.h"
+#include "attribdatapack.h"
 #include "attribsel.h"
 #include "binidselimpl.h"
 #include "iopar.h"
@@ -123,6 +124,7 @@ RandomTrackDisplay::RandomTrackDisplay()
     as_ += new Attrib::SelSpec;
     cache_.allowNull();
     cache_ += 0;
+    datapackids_ += -1;
 }
 
 
@@ -135,6 +137,10 @@ RandomTrackDisplay::~RandomTrackDisplay()
 
     deepErase( as_ );
     deepErase( cache_ );
+
+    DataPackMgr& dpman = DPM( DataPackMgr::FlatID );
+    for ( int idx=0; idx<datapackids_.size(); idx++ )
+	dpman.release( datapackids_[idx] );
 }
 
 
@@ -338,6 +344,7 @@ void RandomTrackDisplay::getDataTraceBids( TypeSet<BinID>& bids ) const
 	int bidy = (int)(val + .5); \
 	BinID nextbid = inlwise ? BinID(bidx,bidy) : BinID(bidy,bidx); \
 	SI().snap( nextbid ); \
+	const_cast<RandomTrackDisplay*>(this)->trcspath_.addIfNew( nextbid ); \
 	bids += nextbid ; \
 	if ( segments ) (*segments) += (idx-1);\
     }
@@ -346,6 +353,7 @@ void RandomTrackDisplay::getDataTraceBids( TypeSet<BinID>& bids ) const
 void RandomTrackDisplay::getDataTraceBids( TypeSet<BinID>& bids,
        					   TypeSet<int>* segments ) const
 {
+    const_cast<RandomTrackDisplay*>(this)->trcspath_.erase(); 
     TypeSet<BinID> knots;
     getAllKnotPos( knots );
     for ( int idx=1; idx<knots.size(); idx++ )
@@ -361,6 +369,33 @@ void RandomTrackDisplay::getDataTraceBids( TypeSet<BinID>& bids,
 	else 
 	{ mGetBinIDs(crl,inl); }
     }
+}
+
+
+bool RandomTrackDisplay::setDataPackID( int attrib, DataPack::ID dpid )
+{
+    DataPackMgr& dpman = DPM( DataPackMgr::FlatID );
+    const DataPack* datapack = dpman.obtain( dpid );
+    mDynamicCastGet(const Attrib::FlatRdmTrcsDataPack*,dprdm,datapack);
+    if ( !dprdm )
+    {
+	dpman.release( dpid );
+	return false;
+    }
+
+    SeisTrcBuf tmpbuf( dprdm->seisBuf() );
+    setTraceData( attrib, tmpbuf );
+
+    DataPack::ID oldid = datapackids_[attrib];
+    datapackids_[attrib] = dpid;
+    dpman.release( oldid );
+    return true;
+}
+
+
+DataPack::ID RandomTrackDisplay::getDataPackID( int attrib ) const
+{
+    return datapackids_[attrib];
 }
 
 
@@ -741,6 +776,7 @@ bool RandomTrackDisplay::swapAttribs( int a0, int a1 )
     texture_->swapTextures( a0, a1 );
     as_.swap( a0, a1 );
     cache_.swap( a0, a1 );
+    datapackids_.swap( a0, a1 );
 
     return true;
 }
@@ -766,6 +802,7 @@ bool RandomTrackDisplay::addAttrib()
 {
     as_ += new Attrib::SelSpec;
     cache_ += 0;
+    datapackids_ += -1;
 
     texture_->addTexture("");
     return true;
@@ -781,6 +818,9 @@ bool RandomTrackDisplay::removeAttrib( int attrib )
     as_.remove( attrib );
     delete cache_[attrib];
     cache_.remove( attrib );
+
+    DPM( DataPackMgr::FlatID ).release( datapackids_[attrib] );
+    datapackids_.remove( attrib );
 		    
     texture_->removeTexture( attrib );
 			        

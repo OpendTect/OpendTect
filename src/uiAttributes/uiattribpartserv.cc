@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiattribpartserv.cc,v 1.66 2007-03-14 14:49:56 cvshelene Exp $
+ RCS:           $Id: uiattribpartserv.cc,v 1.67 2007-05-18 12:40:12 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -475,6 +475,23 @@ bool uiAttribPartServer::createOutput( ObjectSet<BinIDValueSet>& values )
 }
 
 
+DataPack::ID uiAttribPartServer::createRdmTrcsOutput( 
+					    const BinIDValueSet& bidvalset,
+					    SeisTrcBuf& output,
+       					    TypeSet<BinID>* path )
+{
+    DataPackMgr& dpman = DPM( DataPackMgr::FlatID );
+    if ( !createOutput( bidvalset, output ) )
+	return -1;
+
+    DataPack* newpack =
+		new Attrib::FlatRdmTrcsDataPack( targetID(false), output, path);
+    newpack->setName( targetspecs_[0].userRef() );
+    dpman.add( newpack );
+    return newpack->id();
+}
+
+
 bool uiAttribPartServer::createOutput( const BinIDValueSet& bidvalset,
 				       SeisTrcBuf& output )
 {
@@ -504,15 +521,15 @@ DataPack::ID uiAttribPartServer::create2DOutput( const CubeSampling& cs,
     Data2DHolder* data2d = new Data2DHolder;
     PtrMan<Processor> process = aem->createScreenOutput2D( errmsg, *data2d );
     if ( !process )
-	{ uiMSG().error(errmsg); return false; }
+	{ uiMSG().error(errmsg); return -1; }
 
     uiExecutor dlg( appserv().parent(), *process );
     if ( !dlg.go() )
 	return -1;
 
     DataPackMgr& dpman = DPM( DataPackMgr::FlatID );
-    Flat2DDataPack* newpack = new Attrib::Flat2DDataPack( targetID(true),
-	    						  *data2d);
+    Flat2DDHDataPack* newpack = new Attrib::Flat2DDHDataPack( targetID(true),
+	    						      *data2d);
     newpack->setName( linekey.attrName() );
     dpman.add( newpack );
     return newpack->id();

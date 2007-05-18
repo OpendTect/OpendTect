@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2004
- RCS:           $Id: visseis2ddisplay.cc,v 1.16 2007-04-11 10:10:19 cvsbert Exp $
+ RCS:           $Id: visseis2ddisplay.cc,v 1.17 2007-05-18 12:40:12 cvshelene Exp $
  ________________________________________________________________________
 
 -*/
@@ -183,7 +183,7 @@ bool Seis2DDisplay::setDataPackID( int attrib, DataPack::ID dpid )
 {
     DataPackMgr& dpman = DPM( DataPackMgr::FlatID );
     const DataPack* datapack = dpman.obtain( dpid );
-    mDynamicCastGet(const Flat2DDataPack*,dp2d,datapack);
+    mDynamicCastGet(const Flat2DDHDataPack*,dp2d,datapack);
     if ( !dp2d )
     {
 	dpman.release( dpid );
