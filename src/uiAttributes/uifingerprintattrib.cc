@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Payraudeau
  Date:          February  2006
- RCS:           $Id: uifingerprintattrib.cc,v 1.32 2007-04-11 10:10:19 cvsbert Exp $
+ RCS:           $Id: uifingerprintattrib.cc,v 1.33 2007-05-18 12:37:04 cvshelene Exp $
 
 ________________________________________________________________________
 
@@ -103,6 +103,8 @@ class uiFPAdvancedDlg: public uiDialog
 uiFingerPrintAttrib::uiFingerPrintAttrib( uiParent* p, bool is2d )
 	: uiAttrDescEd(p,is2d)
     	, ctio_(*mMkCtxtIOObj(PickSet))
+    	, refposfld_(0)
+    	, refpos2dfld_(0)
 {
     calcobj_ = new calcFingParsObject( this );
 
@@ -114,24 +116,27 @@ uiFingerPrintAttrib::uiFingerPrintAttrib( uiParent* p, bool is2d )
     picksetbut_ = new uiRadioButton( refgrp_, "Pickset" );
     picksetbut_->activated.notify( mCB(this,uiFingerPrintAttrib,refSel ) );
 
-    refposfld_ = new uiGenInput( this, "Position (Inl/Crl)", BinIDInpSpec() );
-    refposfld_->attach( alignedBelow, refgrp_ );
-    refpos2dfld_ = new uiGenInput( this, "Trace number", IntInpSpec() );
-    refpos2dfld_->attach( alignedBelow, refgrp_ );
-    refpos2dfld_->display( is2d_ );
+    if ( is2d_ )
+    {
+	refpos2dfld_ = new uiGenInput( this, "Trace number", IntInpSpec() );
+        refpos2dfld_->attach( alignedBelow, refgrp_ );
+    }
+    else
+    {
+	refposfld_ = new uiGenInput(this, "Position (Inl/Crl)", BinIDInpSpec());
+	refposfld_->attach( alignedBelow, refgrp_ );
+    }
     BufferString zlabel = "Z "; zlabel += SI().getZUnit();
     refposzfld_ = new uiGenInput( this, zlabel );
     refposzfld_->setElemSzPol( uiObject::Small );
-    refposzfld_->attach( rightTo, refposfld_ );
-    refposzfld_->attach( rightTo, refpos2dfld_ );
-    refposfld_->display( !is2d_ );
+    refposzfld_->attach( rightTo, refposfld_ ? refposfld_ : refpos2dfld_ );
     
     getposbut_ = new uiToolButton( this, "", ioPixmap("pick.png"),
 	    			   mCB(this,uiFingerPrintAttrib,getPosPush) );
     getposbut_->attach( rightOf, refposzfld_ );
 
     linesetfld_ = new uiGenInput( this, "LineSet", StringInpSpec() );
-    linesetfld_-> attach( alignedBelow, refposfld_ );
+    linesetfld_-> attach( alignedBelow, refposfld_ ? refposfld_ : refpos2dfld_);
 
     CallBack sel2dcb = mCB(this,uiFingerPrintAttrib,fillIn2DPos);
     sel2dbut_ = new uiPushButton( this, "&Select", sel2dcb, false);
@@ -248,9 +253,16 @@ bool uiFingerPrintAttrib::setParameters( const Desc& desc )
     if ( strcmp(desc.attribName(),FingerPrint::attribName()) )
 	return false;
 
-    mIfGetBinID( FingerPrint::refposStr(),refpos,refposfld_->setValue(refpos));
-    mIfGetBinID( FingerPrint::refposStr(),refpos2d,
-	    	 refpos2dfld_->setValue(refpos2d.crl))
+    if ( is2d_ )
+    {
+	mIfGetBinID( FingerPrint::refposStr(),refpos2d,
+		     refpos2dfld_->setValue(refpos2d.crl) )
+    }
+    else
+    {
+	mIfGetBinID( FingerPrint::refposStr(), refpos,
+		     refposfld_->setValue(refpos) )
+    }
     mIfGetFloat( FingerPrint::refposzStr(), refposz,
 	    	 refposzfld_->setValue( refposz ) );
 
@@ -352,13 +364,16 @@ bool uiFingerPrintAttrib::getParameters( Desc& desc )
 
     if ( refgrpval == 1 )
     {
-	mSetBinID( FingerPrint::refposStr(), refposfld_->getBinID() );
-	mSetInt( FingerPrint::refposStr(), refpos2dfld_->getIntValue() );
 	mSetFloat( FingerPrint::refposzStr(), refposzfld_->getfValue() );
-	if ( desc.descSet() && desc.descSet()->is2D() )
+	if ( is2d_ )
 	{
+	    mSetInt( FingerPrint::refposStr(), refpos2dfld_->getIntValue() );
 	    mSetString( FingerPrint::reflinesetStr(), lsid_ )
 	    mSetString( FingerPrint::ref2dlineStr(), linefld_->box()->text() )
+	}
+	else
+	{
+	    mSetBinID( FingerPrint::refposStr(), refposfld_->getBinID() );
 	}
     }
     else if ( refgrpval == 2 )
@@ -422,8 +437,10 @@ void uiFingerPrintAttrib::refSel( CallBacker* )
 {
     const bool refbutchecked = refposbut_->isChecked();
     const bool pickbutchecked = picksetbut_->isChecked();
-    refposfld_->display( !is2d_ && refbutchecked );
-    refpos2dfld_->display( is2d_ && refbutchecked );
+    if ( is2d_ ) 
+	refpos2dfld_->display( refbutchecked );
+    else
+	refposfld_->display( refbutchecked );
     refposzfld_->display( refbutchecked );
     linesetfld_->display( refbutchecked && is2d_ );
     linefld_->display( refbutchecked && is2d_ );
