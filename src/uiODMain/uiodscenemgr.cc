@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.104 2007-04-02 16:36:03 cvsbert Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.105 2007-05-21 12:03:55 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -85,21 +85,21 @@ uiODSceneMgr::uiODSceneMgr( uiODMain* a )
 	    	       SurveyInfo::No2D );
     tifs_->addFactory( new uiODTimesliceTreeItemFactory, 3000,
 	    	       SurveyInfo::No2D );
-    tifs_->addFactory( new uiODVolrenTreeItemFactory, 3500, SurveyInfo::No2D );
-    tifs_->addFactory( new uiODRandomLineTreeItemFactory, 4000,
+    tifs_->addFactory( new uiODVolrenTreeItemFactory, 3100, SurveyInfo::No2D );
+    tifs_->addFactory( new uiODRandomLineTreeItemFactory, 3500,
 	    	       SurveyInfo::No2D );
+    tifs_->addFactory( new Seis2DTreeItemFactory, 4000, SurveyInfo::Only2D );
     tifs_->addFactory( new uiODPickSetTreeItemFactory, 5000,
 	    	       SurveyInfo::Both2DAnd3D );
     tifs_->addFactory( new uiODHorizonTreeItemFactory, 6000,
 	    	       SurveyInfo::Both2DAnd3D );
+    tifs_->addFactory( new uiODHorizon2DTreeItemFactory, 6500,
+		       SurveyInfo::Only2D );
 #ifdef __debug__
     tifs_->addFactory( new uiODFaultTreeItemFactory, 7000, SurveyInfo::No2D );
 #endif
     tifs_->addFactory( new uiODWellTreeItemFactory, 8000,
 	    	       SurveyInfo::Both2DAnd3D );
-    tifs_->addFactory( new Seis2DTreeItemFactory, 9500, SurveyInfo::Only2D );
-    tifs_->addFactory( new uiODHorizon2DTreeItemFactory, 9600,
-		       SurveyInfo::Only2D );
 
     wsp_->setPrefWidth( cWSWidth );
     wsp_->setPrefHeight( cWSHeight );
