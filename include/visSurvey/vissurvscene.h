@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvscene.h,v 1.44 2007-04-19 21:12:00 cvskris Exp $
+ RCS:		$Id: vissurvscene.h,v 1.45 2007-05-21 05:46:29 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -119,6 +119,9 @@ public:
     const Color&		getMarkerColor() const;
     void			setMarkerColor( const Color& );
 
+    void			allowShading( bool yn )	{ allowshading_ = yn; }
+    bool			allowsShading() const	{ return allowshading_;}
+
     virtual void		fillPar(IOPar&,TypeSet<int>&) const;
     virtual int			usePar(const IOPar&);
     bool			acceptsIncompletePar() const { return true; }
@@ -145,6 +148,7 @@ protected:
     BufferString		mouseposstr_;
     float			curzscale_;
     BufferString		depthdomainkey_;
+    bool			allowshading_;
 
     static const char*		sKeyShowAnnot();
     static const char*		sKeyShowScale();

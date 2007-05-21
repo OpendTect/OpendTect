@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvobj.h,v 1.76 2007-03-22 20:33:07 cvskris Exp $
+ RCS:		$Id: vissurvobj.h,v 1.77 2007-05-21 05:46:29 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -171,6 +171,9 @@ public:
     virtual int			nrTextures(int attrib) const	{ return 0; }
     virtual void		selectTexture(int attrib,int texture) {}
     virtual int			selectedTexture(int attrib) const { return 0; }
+    virtual void		allowShading(bool)		{}
+    bool			isShadingAllowed() const	{ return false;}
+    bool			isShadingUsed() const		{ return false;}
     virtual void		getMousePosInfo(const visBase::EventInfo&,
 					    const Coord3& xyzpos,
 					    BufferString& val,
@@ -221,7 +224,7 @@ public:
     virtual bool		isLocked() const	{ return locked_; }
     virtual NotifierAccess*	getLockNotification()	{ return 0; }
 
-    //Rem : as for now: vertical viewer is the only one available,
+    //TODO: as for now: vertical viewer is the only one available,
     //later on: allow timeslices and horizons with horizontal viewer
     virtual bool		canBDispOn2DViewer() const	{ return false;}
     
@@ -246,7 +249,7 @@ protected:
 };
 
 
-}; // Namespace visSurvey
+}; // namespace visSurvey
 
 
 /*! \mainpage 3D Visualisation - OpendTect specific

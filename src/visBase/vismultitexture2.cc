@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vismultitexture2.cc,v 1.37 2007-03-27 17:23:40 cvskris Exp $";
+static const char* rcsID = "$Id: vismultitexture2.cc,v 1.38 2007-05-21 05:45:22 cvsnanne Exp $";
 
 
 #include "vismultitexture2.h"
@@ -18,7 +18,6 @@ static const char* rcsID = "$Id: vismultitexture2.cc,v 1.37 2007-03-27 17:23:40 
 #include "interpol2d.h"
 #include "errh.h"
 #include "simpnumer.h"
-#include "settings.h"
 #include "thread.h"
 #include "viscolortab.h"
 #include "SoOD.h"
@@ -85,7 +84,7 @@ MultiTexture2::MultiTexture2()
     , shadinggroup_( new SoGroup )
     , size_( -1, -1 )
     , useshading_( false )
-    , dontshadesetting_( false )
+    , allowshading_( true )
     , ctabtexture_( 0 )
     , datatexturegrp_( 0 )
     , shaderprogram_( 0 )
@@ -96,12 +95,6 @@ MultiTexture2::MultiTexture2()
     , layersize1_( 0 )
     , ctabunit_( 0 )
 {
-    if ( GetEnvVarYN("DTECT_MULTITEXTURE_NO_SHADING" ) )
-	dontshadesetting_ = true;
-
-    if ( !dontshadesetting_ )
-	Settings::common().getYN( "dTect.No shading", dontshadesetting_ );
-
     switch_->ref();
     switch_->addChild( nonshadinggroup_ );
     switch_->addChild( shadinggroup_ );
@@ -170,7 +163,7 @@ void MultiTexture2::clearAll()
 
 bool MultiTexture2::canUseShading() const
 {
-    return !dontshadesetting_ && SoOD::supportsFragShading()==1;
+    return allowshading_ && SoOD::supportsFragShading()==1;
 }
 
 
@@ -292,7 +285,7 @@ bool MultiTexture2::setDataOversample( int texture, int version,
 {
     if ( !data ) return setData( texture, version, data );
 
-    dontshadesetting_ = true;	//If user has oversampling, we cannot easily
+    allowshading_ = false;	//If user has oversampling, we cannot easily
     				//go back to non-oversamples
     const int datax0size = data->info().getSize(0);
     const int datax1size = data->info().getSize(1);

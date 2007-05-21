@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: vissurvscene.cc,v 1.95 2007-04-19 21:12:00 cvskris Exp $
+ RCS:           $Id: vissurvscene.cc,v 1.96 2007-05-21 05:46:29 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,8 +12,10 @@ ________________________________________________________________________
 #include "vissurvscene.h"
 
 #include "cubesampling.h"
+#include "envvars.h"
 #include "iopar.h"
 #include "keystrs.h"
+#include "settings.h"
 #include "survinfo.h"
 #include "visannot.h"
 #include "visdataman.h"
@@ -49,10 +51,21 @@ Scene::Scene()
     , zscalechange(this)
     , curzscale_(-1)
     , datatransform_( 0 )
+    , allowshading_(true)
 {
     events_.eventhappened.notify( mCB(this,Scene,mouseMoveCB) );
     setAmbientLight( 1 );
     init();
+
+    if ( GetEnvVarYN("DTECT_MULTITEXTURE_NO_SHADING" ) )
+	allowshading_ = false;
+
+    if ( allowshading_ )
+    {
+	bool noshading = false;
+	Settings::common().getYN( "dTect.No shading", noshading );
+	allowshading_ = !noshading;
+    }
 }
 
 
@@ -170,6 +183,7 @@ void Scene::addObject( visBase::DataObject* obj )
 
 	so->setScene( this );
 	STM().setCurrentScene( this );
+	so->allowShading( allowshading_ );
     }
 
     if ( so && so->isInlCrl() )
@@ -395,7 +409,6 @@ void Scene::setMarkerPos( const Coord3& coord )
     {
 	if ( marker_ )
 	    marker_->turnOn( false );
-
 	return;
     }
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		Dec 2005
- RCS:		$Id: vismultitexture2.h,v 1.13 2007-03-21 16:43:48 cvskris Exp $
+ RCS:		$Id: vismultitexture2.h,v 1.14 2007-05-21 05:45:22 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -47,6 +47,8 @@ public:
 
     bool			canUseShading() const;
     bool			usesShading() const { return useshading_; }
+    void			allowShading( bool yn )
+				{ allowshading_ = yn; }
 
     void			setTextureTransparency(int, unsigned char);
     unsigned char		getTextureTransparency(int) const;
@@ -99,8 +101,8 @@ protected:
 
     SoSwitch*			switch_; // off/noshading/shading 
     RowCol			size_;
-    bool			dontshadesetting_; //user setting
-    bool			useshading_;	   //current status
+    bool			allowshading_;	//user setting
+    bool			useshading_;	//current status
 
     //Non-shading
     SoGroup*			nonshadinggroup_;
