@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vismultiattribsurvobj.h,v 1.8 2007-03-06 20:37:34 cvskris Exp $
+ RCS:		$Id: vismultiattribsurvobj.h,v 1.9 2007-05-21 12:17:10 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -45,6 +45,7 @@ public:
     bool			swapAttribs(int attrib0,int attrib1);
     void			setAttribTransparency(int,unsigned char);
     unsigned char		getAttribTransparency(int) const;
+    virtual void		allowShading(bool);
 
     const Attrib::SelSpec*	getSelSpec(int) const;
     void			setSelSpec(int,const Attrib::SelSpec&);

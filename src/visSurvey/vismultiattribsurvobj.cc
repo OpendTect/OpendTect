@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: vismultiattribsurvobj.cc,v 1.6 2007-03-16 11:42:36 cvsnanne Exp $";
+static const char* rcsID = "$Id: vismultiattribsurvobj.cc,v 1.7 2007-05-21 12:17:10 cvsnanne Exp $";
 
 #include "vismultiattribsurvobj.h"
 
@@ -47,6 +47,13 @@ MultiTextureSurveyObject::~MultiTextureSurveyObject()
 
 void MultiTextureSurveyObject::_init()
 { visBase::DataObject::_init(); addAttrib(); }
+
+
+void MultiTextureSurveyObject::allowShading( bool yn )
+{
+    if ( texture_ )
+	texture_->allowShading( yn );
+}
 
 
 void MultiTextureSurveyObject::turnOn( bool yn )
@@ -326,6 +333,7 @@ int MultiTextureSurveyObject::usePar( const IOPar& par )
 	    if ( attribpar->get(sKeyColTabID(),coltabid) )
 	    {
 		visBase::DataObject* dataobj= visBase::DM().getObject(coltabid);
+		if ( !dataobj ) return 0;
 		mDynamicCastGet(const visBase::VisColorTab*,coltab,dataobj);
 		if ( !coltab ) coltabid=-1;
 	    }
