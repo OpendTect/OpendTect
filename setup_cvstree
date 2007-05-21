@@ -1,6 +1,6 @@
 #!/bin/csh
 # This script initialises a work dir after CVS checkout
-# $Id: setup_cvstree,v 1.2 2007-04-18 09:11:49 cvsnanne Exp $
+# $Id: setup_cvstree,v 1.3 2007-05-21 05:03:54 cvsnanne Exp $
 
 if ( $#argv < 1 ) then
     set od_wdir=`pwd`
@@ -21,6 +21,9 @@ dvs update
 
 ln -s Pmake/RootMakefile Makefile
 
+cd src
+ln -s .mods.od .mods
+
 source $od_wdir/bin/mksethdir
 
 # make G and O dirs in $WORK/lib/$binsubdir
@@ -36,7 +39,6 @@ cd G
 ln -s ../*.a . >& /dev/null
 cd ../O
 ln -s ../*.a . >& /dev/null
-
 
 # make G and O dirs in $WORK/bin/$binsubdir
 if ( ! -e "$od_wdir/bin" ) mkdir -p "$od_wdir/bin"
@@ -72,6 +74,7 @@ else if ( $binsubdir == sol32 ) then
     cp /usr/local/lib/libstdc++.so.6 .
 endif
 
+set dosimvollib=0
 if ( ! -e /users/appman/bin/set_basedir.csh ) then
     echo "make sure coin, qt and fftw .so libs are"
     echo "copied or linked to $od_wdir/bin/$binsubdir/so"
@@ -79,19 +82,30 @@ if ( ! -e /users/appman/bin/set_basedir.csh ) then
 else if ( $binsubdir == mac ) then
     source /users/appman/bin/set_basedir.csh
     ln -s $basedir/qt/rel/lib/libqt-mt.3.dylib .
-    ln -s $basedir/coin/lib/libCoin.40.dylib .
+    ln -s $basedir/coin/lib/libCoin.60.dylib .
     ln -s $basedir/coin/lib/libSoQt.20.dylib .
     ln -s $basedir/coin/lib/libsimage.20.dylib .
     ln -s libsimage.20.dylib libsimage.dylib
     ln -s $basedir/fftw/lib/libfftw3f.3.dylib .
     ln -s libfftw3f.3.dylib libfftw3f.dylib
+    set dosimvollib=1
 else
     source /users/appman/bin/set_basedir.csh
     ln -s $basedir/qt/rel/lib/libqt-mt.so.3 .
-    ln -s $basedir/coin/lib/libCoin.so.40 .
+    ln -s $basedir/coin/lib/libCoin.so.60 .
     ln -s $basedir/coin/lib/libSoQt.so.20 .
     ln -s $basedir/coin/lib/libsimage.so.20 .
     ln -s libsimage.so.20 libsimage.so
     ln -s $basedir/fftw/lib/libfftw3f.so.3 .
     ln -s libfftw3f.so.3 libfftw3f.so
+    set dosimvollib=1
+endif
+
+if ( $dosimvollib == 1 ) then
+    cd "$od_wdir/lib/$binsubdir"
+    ln -s $basedir/coin/lib/libSimVoleon.a .
+    cd G
+    ln -s ../libSimVoleon.a . >& /dev/null
+    cd ../O
+    ln -s ../libSimVoleon.a . >& /dev/null
 endif
