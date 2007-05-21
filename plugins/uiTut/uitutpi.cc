@@ -5,7 +5,7 @@
  * DATE     : NOv 2003
 -*/
 
-static const char* rcsID = "$Id: uitutpi.cc,v 1.3 2007-05-11 12:55:07 cvsbert Exp $";
+static const char* rcsID = "$Id: uitutpi.cc,v 1.4 2007-05-21 15:39:32 cvsbert Exp $";
 
 #include "uitutseistools.h"
 #include "uiodmenumgr.h"
@@ -37,8 +37,7 @@ public:
 
     uiODMain*		appl;
 
-    void		doDirSeis(CallBacker*);
-    void		doAttrSeis(CallBacker*);
+    void		doSeis(CallBacker*);
     void		doHor(CallBacker*);
 };
 
@@ -49,25 +48,17 @@ uiTutMgr::uiTutMgr( uiODMain* a )
     uiODMenuMgr& mnumgr = appl->menuMgr();
     uiPopupMenu* mnu = new uiPopupMenu( appl, "&Tut Tools" );
     mnu->insertItem( new uiMenuItem("&Seismic (Direct) ...",
-			mCB(this,uiTutMgr,doDirSeis)) );
-    mnu->insertItem( new uiMenuItem("Seismic (&Attribute-based) ...",
-			mCB(this,uiTutMgr,doAttrSeis)) );
+			mCB(this,uiTutMgr,doSeis)) );
     mnu->insertItem( new uiMenuItem("&Horizon ...",
 			mCB(this,uiTutMgr,doHor)) );
     mnumgr.utilMnu()->insertItem( mnu );
 }
 
 
-void uiTutMgr::doDirSeis( CallBacker* )
+void uiTutMgr::doSeis( CallBacker* )
 {
     uiTutSeisTools dlg( appl );
     dlg.go();
-}
-
-
-void uiTutMgr::doAttrSeis( CallBacker* )
-{
-    uiMSG().message( "Attribute-based not yet implemented" );
 }
 
 
