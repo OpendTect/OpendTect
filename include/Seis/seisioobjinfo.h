@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		25-10-1996
- RCS:		$Id: seisioobjinfo.h,v 1.6 2006-06-29 16:34:09 cvsbert Exp $
+ RCS:		$Id: seisioobjinfo.h,v 1.7 2007-05-21 15:41:23 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -52,6 +52,7 @@ public:
 	int		maxbytespsamp;
     };
 
+    bool		getDefSpaceInfo(SpaceInfo&) const;
     int			expectedMBs(const SpaceInfo&) const;
     bool		getRanges(CubeSampling&) const;
     bool		getBPS(int&,int icomp) const;

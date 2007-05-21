@@ -4,7 +4,7 @@
  * DATE     : June 2005
 -*/
 
-static const char* rcsID = "$Id: seisioobjinfo.cc,v 1.10 2006-11-21 07:48:16 cvsnanne Exp $";
+static const char* rcsID = "$Id: seisioobjinfo.cc,v 1.11 2007-05-21 15:41:23 cvsbert Exp $";
 
 #include "seisioobjinfo.h"
 #include "seistrcsel.h"
@@ -90,7 +90,28 @@ SeisIOObjInfo::SpaceInfo::SpaceInfo( int ns, int ntr, int bps )
 	expectednrtrcs = SI().sampling(false).hrg.totalNr();
 }
 
+
 #define mChk(ret) if ( bad_ ) return ret
+
+bool SeisIOObjInfo::getDefSpaceInfo( SpaceInfo& spinf ) const
+{
+    mChk(false);
+
+    if ( Seis::isPS(geomtype_) )
+	{ pErrMsg( "No space info for PS" ); return false; }
+
+    if ( Seis::is2D(geomtype_) )
+	{ pErrMsg( "TODO: space info for 2D" ); return false; }
+
+    CubeSampling cs;
+    if ( !getRanges(cs) )
+	return false;
+
+    spinf.expectednrsamps = cs.zrg.nrSteps() + 1;
+    spinf.expectednrtrcs = cs.hrg.totalNr();
+    getBPS( spinf.maxbytespsamp, -1 );
+    return true;
+}
 
 int SeisIOObjInfo::expectedMBs( const SpaceInfo& si ) const
 {
