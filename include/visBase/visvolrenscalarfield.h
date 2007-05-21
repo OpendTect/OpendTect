@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          January 2007
- RCS:           $Id: visvolrenscalarfield.h,v 1.3 2007-03-16 11:24:01 cvsnanne Exp $
+ RCS:           $Id: visvolrenscalarfield.h,v 1.4 2007-05-21 07:56:15 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,9 +16,10 @@ ________________________________________________________________________
 #include "ranges.h"
 #include "visdata.h"
 
+class SoGroup;
 class SoTransferFunction;
 class SoVolumeData;
-class SoGroup;
+class IOPar;
 template <class T> class Array3D;
 template <class T> class ValueSeries;
 
@@ -42,19 +43,21 @@ public:
     VisColorTab&		getColorTab();
     void			setBlendColor(const Color&);
     const Color&		getBlendColor() const;
-
     const TypeSet<float>&	getHistogram() const;
 
-    void			setVolumeSize(	const Interval<float>& x,
-	    					const Interval<float>& y,
-						const Interval<float>& z );
-
+    void			setVolumeSize(const Interval<float>& x,
+					      const Interval<float>& y,
+					      const Interval<float>& z);
     Interval<float>		getVolumeSize(int dim) const;
 
     SoNode*			getInventorNode();
 
+    virtual void		fillPar(IOPar&,TypeSet<int>&) const;
+    virtual int			usePar(const IOPar&);
+
 protected:
     				~VolumeRenderScalarField();
+
     void			colorTabChCB(CallBacker*);
     void			colorSeqChCB(CallBacker*);
     void			autoscaleChCB(CallBacker*);

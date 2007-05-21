@@ -4,15 +4,17 @@
  * DATE     : April 2004
 -*/
 
-static const char* rcsID = "$Id: visvolrenscalarfield.cc,v 1.6 2007-05-14 12:21:59 cvsnanne Exp $";
+static const char* rcsID = "$Id: visvolrenscalarfield.cc,v 1.7 2007-05-21 07:56:15 cvsnanne Exp $";
 
 #include "visvolrenscalarfield.h"
 
 #include "arraynd.h"
 #include "draw.h"
 #include "envvars.h"
-#include "viscolortab.h"
+#include "iopar.h"
 #include "valseries.h"
+#include "viscolortab.h"
+#include "visdataman.h"
 #include "viscolortabindexer.h"
 
 #undef YES
@@ -32,6 +34,8 @@ namespace visBase
 {
 
 #define NRCOLORS 256
+static const char* sKeyColTabID = "ColorTable ID";
+
 
 VolumeRenderScalarField::VolumeRenderScalarField()
     : transferfunc_( new SoTransferFunction )
@@ -319,5 +323,33 @@ void VolumeRenderScalarField::clipData()
 {
     if ( datacache_ ) ctab_->scaleTo( *datacache_, sz0_*sz1_*sz2_ );
 }
+
+
+void VolumeRenderScalarField::fillPar( IOPar& par, TypeSet<int>& saveids ) const
+{
+    DataObject::fillPar( par, saveids );
+
+    int ctid = ctab_->id();
+    par.set( sKeyColTabID, ctid );
+    if ( saveids.indexOf(ctid) == -1 ) saveids += ctid;
+}
+
+
+int VolumeRenderScalarField::usePar( const IOPar& par )
+{
+    int res = DataObject::usePar( par );
+    if ( res != 1 ) return res;
+
+    int coltabid;
+    if ( !par.get( sKeyColTabID, coltabid ) ) return -1;
+    DataObject* dataobj = DM().getObject( coltabid );
+    if ( !dataobj ) return 0;
+    mDynamicCastGet(VisColorTab*,coltab,dataobj)
+    if ( !coltab ) return -1;
+    setColorTab( *coltab );
+
+    return 1;
+}
+
 
 } // namespace visBase
