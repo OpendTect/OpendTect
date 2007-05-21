@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Jan 2005
- RCS:           $Id: viscallout.cc,v 1.16 2007-05-04 19:53:06 cvskris Exp $
+ RCS:           $Id: viscallout.cc,v 1.17 2007-05-21 04:39:37 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -783,8 +783,7 @@ void CalloutDisplay::urlClickCB( CallBacker* cb )
 #ifdef USEQT3
 	uiMSG().error( "Cannot open file or url with Qt3" );
 #else
-	uiDesktopServices uds;
-	uds.openUrl( url );
+	uiDesktopServices::openUrl( url );
 #endif
     }
 }
