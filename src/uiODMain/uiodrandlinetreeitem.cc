@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		May 2006
- RCS:		$Id: uiodrandlinetreeitem.cc,v 1.5 2006-12-28 12:15:36 cvsnanne Exp $
+ RCS:		$Id: uiodrandlinetreeitem.cc,v 1.6 2007-05-21 12:23:00 cvshelene Exp $
 ___________________________________________________________________
 
 -*/
@@ -116,12 +116,18 @@ bool uiODRandomLineTreeItem::init()
 				    visSurvey::RandomTrackDisplay::create();
 	displayid_ = rtd->id();
 	visserv->addObject( rtd, sceneID(), true );
+	rtd->moving_.notify( mCB(this,uiODRandomLineTreeItem,remove2DViewerCB));
+	rtd->knotmoving_.notify( mCB(this,uiODRandomLineTreeItem,
+		    		 remove2DViewerCB));
     }
     else
     {
 	mDynamicCastGet(visSurvey::RandomTrackDisplay*,rtd,
 			visserv->getObject(displayid_));
 	if ( !rtd ) return false;
+	rtd->moving_.notify( mCB(this,uiODRandomLineTreeItem,remove2DViewerCB));
+	rtd->knotmoving_.notify( mCB(this,uiODRandomLineTreeItem,
+		    		 remove2DViewerCB));
     }
 
     return uiODDisplayTreeItem::init();
@@ -246,3 +252,11 @@ void uiODRandomLineTreeItem::editNodes()
 	ODMainWin()->sceneMgr().updateTrees();
     }
 }
+
+
+void uiODRandomLineTreeItem::remove2DViewerCB( CallBacker* )
+{
+    ODMainWin()->sceneMgr().remove2DViewer( displayid_ );
+}
+
+

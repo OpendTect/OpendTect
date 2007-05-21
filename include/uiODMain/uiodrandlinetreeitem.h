@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		May 2006
- RCS:		$Id: uiodrandlinetreeitem.h,v 1.3 2006-12-15 14:35:57 cvsnanne Exp $
+ RCS:		$Id: uiodrandlinetreeitem.h,v 1.4 2007-05-21 12:23:00 cvshelene Exp $
 ________________________________________________________________________
 
 
@@ -40,6 +40,7 @@ protected:
     void		createMenuCB(CallBacker*);
     void		handleMenuCB(CallBacker*);
     void                changeColTabCB(CallBacker*);
+    void		remove2DViewerCB(CallBacker*);
     const char*		parentType() const
 			{ return typeid(uiODRandomLineParentTreeItem).name(); }
 
