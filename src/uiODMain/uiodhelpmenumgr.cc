@@ -4,16 +4,17 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodhelpmenumgr.cc,v 1.7 2007-01-09 09:45:12 cvsnanne Exp $
+ RCS:           $Id: uiodhelpmenumgr.cc,v 1.8 2007-05-21 04:40:11 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiodhelpmenumgr.cc,v 1.7 2007-01-09 09:45:12 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodhelpmenumgr.cc,v 1.8 2007-05-21 04:40:11 cvsnanne Exp $";
 
 #include "uiodhelpmenumgr.h"
 #include "uiodmenumgr.h"
 #include "uiodstdmenu.h"
+#include "uidesktopservices.h"
 #include "uimenu.h"
 #include "dirlist.h"
 #include "helpview.h"
@@ -160,28 +161,32 @@ static const char* getHelpF( const char* subdir, const char* infnm,
     fp.add( infnm );
     static BufferString fnm;
     fnm = fp.fullPath();
+    fnm = GetDataFileName( fnm.buf() );
     return fnm.buf();
 }
 
 
 void uiODHelpMenuMgr::handle( int id, const char* itemname )
 {
+    BufferString helpurl;
+    BufferString title;
     switch( id )
     {
-    case mAdminMnuItm: 
-	HelpViewer::doHelp( getHelpF("ApplMan","index.html"),
-				     "OpendTect System administrator");
+    case mAdminMnuItm:
+	title = "OpendTect System administrator";
+	helpurl = getHelpF( "ApplMan", "index.html" );
     break;
     case mProgrammerMnuItm:
-	HelpViewer::doHelp( getHelpF("Programmer","index.html"), "d-Tect" );
+	title = "d-Tect";
+        helpurl = getHelpF( "Programmer", "index.html" );
     break;
     case mAboutMnuItm:
     {
+	title = "About OpendTect";
 	const char* htmlfnm = "about.html";
 	const BufferString dddirnm = GetDataFileName( "dTectDoc" );
-	BufferString fnm = FilePath(dddirnm).add(htmlfnm).fullPath();
-	fnm = File_exists(fnm) ? getHelpF(0,htmlfnm) : htmlfnm;
-	HelpViewer::doHelp( fnm, "About OpendTect" );
+	helpurl = FilePath(dddirnm).add(htmlfnm).fullPath();
+	helpurl = File_exists(helpurl) ? getHelpF(0,htmlfnm) : htmlfnm;
     } break;
 
     default:
@@ -196,14 +201,20 @@ void uiODHelpMenuMgr::handle( int id, const char* itemname )
 	{
 	    BufferString msg( "Invalid help menu ID: '" );
 	    msg += id; msg += "'"; pErrMsg( msg );
+	    return;
 	}
 	else
 	{
-	    BufferString titl( "Documentation for " );
-	    titl += di->nm;
-	    HelpViewer::use( di->starturl, titl );
+	    title = "Documentation for "; title += di->nm;
+	    helpurl = di->starturl;
 	}
     } break;
 
     }
+
+#ifdef USEQT3
+    HelpViewer::doHelp( helpurl, title );
+#else
+    uiDesktopServices::openUrl( helpurl );
+#endif
 }

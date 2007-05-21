@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.124 2007-05-15 15:05:22 cvsbert Exp $
+ RCS:           $Id: uimainwin.cc,v 1.125 2007-05-21 04:40:14 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "uifont.h"
 
 #include "uibutton.h"
+#include "uidesktopservices.h"
 #include "uidockwin.h"
 #include "uigroup.h"
 #include "uilabel.h"
@@ -471,7 +472,14 @@ QWidget* uiMainWin::qWidget() const
 { return body_; }
 
 void uiMainWin::provideHelp( const char* winid )
-{ HelpViewer::use( HelpViewer::getURLForWinID(winid) ); }
+{
+    BufferString fnm = HelpViewer::getURLForWinID( winid );
+#ifdef USEQT3
+    HelpViewer::use( fnm );
+#else
+    uiDesktopServices::openUrl( fnm );
+#endif
+}
 
 uiStatusBar* uiMainWin::statusBar()		{ return body_->uistatusbar(); }
 uiMenuBar* uiMainWin::menuBar()			{ return body_->uimenubar(); }
