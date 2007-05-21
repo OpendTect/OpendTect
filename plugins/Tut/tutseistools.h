@@ -5,7 +5,7 @@
  * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : R.K. Singh
  * DATE     : Mar 2007
- * ID       : $Id: tutseistools.h,v 1.2 2007-05-11 12:43:42 cvsbert Exp $
+ * ID       : $Id: tutseistools.h,v 1.3 2007-05-21 11:39:18 cvsbert Exp $
 -*/
 
 #include "executor.h"
@@ -27,6 +27,7 @@ public:
 
     			SeisTools();
     virtual		~SeisTools();
+    void		clear();
 
     const IOObj*	input() const		{ return inioobj_; }
     const IOObj*	output() const		{ return outioobj_; }
@@ -62,9 +63,15 @@ protected:
 
     SeisTrcReader*	rdr_;
     SeisTrcWriter*	wrr_;
+    SeisTrc&		trc_;
     int			nrdone_;
     mutable int		totnr_;
     BufferString	errmsg_;
+
+    bool		createReader();
+    bool		createWriter();
+    void		handleTrace();
+
 };
 
 } // namespace

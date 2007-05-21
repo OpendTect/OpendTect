@@ -5,32 +5,45 @@
  * DATE     : Mar 2007
 -*/
 
-static const char* rcsID = "$Id: tutseistools.cc,v 1.2 2007-05-11 12:43:42 cvsbert Exp $";
+static const char* rcsID = "$Id: tutseistools.cc,v 1.3 2007-05-21 11:39:18 cvsbert Exp $";
 
 #include "tutseistools.h"
 #include "seisread.h"
 #include "seiswrite.h"
+#include "seisioobjinfo.h"
+#include "seistrc.h"
+#include "seistrcprop.h"
 #include "ioobj.h"
 
 
 Tut::SeisTools::SeisTools()
-    : Executor("Tut Seismic Tools")
+    : Executor("Tutorial tools: Direct Seismic")
     , inioobj_(0), outioobj_(0)
-    , action_(Scale)
-    , factor_(1), shift_(0)
-    , weaksmooth_(false)
-    , totnr_(-1)
-    , nrdone_(0)
-    , rdr_(0)
-    , wrr_(0)
+    , rdr_(0), wrr_(0)
+    , trc_(*new SeisTrc)
 {
+    clear();
 }
 
 
 Tut::SeisTools::~SeisTools()
 {
-    delete inioobj_; delete outioobj_;
-    delete rdr_; delete wrr_;
+    clear();
+    delete &trc_;
+}
+
+
+void Tut::SeisTools::clear()
+{
+    delete inioobj_; inioobj_ = 0;
+    delete outioobj_; outioobj_ = 0;
+    delete rdr_; rdr_ = 0;
+    delete wrr_; wrr_ = 0;
+
+    action_ = Scale;
+    factor_ = 1; shift_ = 0;
+    weaksmooth_ = false;
+    totnr_ = -1; nrdone_ = 0;
 }
 
 
@@ -55,31 +68,103 @@ const char* Tut::SeisTools::message() const
 
 int Tut::SeisTools::totalNr() const
 {
-    if ( totnr_ >= 0 || !inioobj_ )
-	return totnr_;
-
-    // SeisIOObjInfo ioobjinfo( *inioobj_ );
-    return totnr_;
+    if ( inioobj_ && totnr_ == -1 )
+    {
+	totnr_ = -2;
+	SeisIOObjInfo ioobjinfo( *inioobj_ );
+	SeisIOObjInfo::SpaceInfo spinf;
+	if ( ioobjinfo.getDefSpaceInfo(spinf) )
+	    totnr_ = spinf.expectednrtrcs;
+    }
+	
+    return totnr_ < 0 ? -1 : totnr_;
 }
 
 
-#define mOpenIO(clss,obj,ioobj) \
-    if ( !obj ) \
-    { \
-	obj = new clss( ioobj ); \
-	const char* emsg = obj->errMsg(); \
-	if ( emsg && *emsg ) \
-	{ \
-	    errmsg_ = emsg; \
-	    return Executor::ErrorOccurred; \
-	} \
-	return Executor::MoreToDo; \
+bool Tut::SeisTools::createReader()
+{
+    rdr_ = new SeisTrcReader( inioobj_ );
+    rdr_->forceFloatData( action_ != Smooth );
+    if ( !rdr_->prepareWork() )
+    {
+	errmsg_ = rdr_->errMsg();
+	return false;
     }
+    return true;
+}
+
+
+bool Tut::SeisTools::createWriter()
+{
+    wrr_ = new SeisTrcWriter( outioobj_ );
+    if ( !wrr_->prepareWork(trc_) )
+    {
+	errmsg_ = wrr_->errMsg();
+	return false;
+    }
+    return true;
+}
+
 
 int Tut::SeisTools::nextStep()
 {
-    mOpenIO( SeisTrcReader, rdr_, inioobj_ );
-    mOpenIO( SeisTrcWriter, wrr_, outioobj_ );
+    if ( action_ == Smooth )
+    {
+	errmsg_ = "Smoothing not yet implemented.\nTry implementing it!";
+	return Executor::ErrorOccurred;
+    }
 
-    return Executor::Finished;
+    if ( !rdr_ )
+	return createReader() ? Executor::MoreToDo : Executor::ErrorOccurred;
+
+    int rv = rdr_->get( trc_.info() );
+    if ( rv < 0 )
+	{ errmsg_ = rdr_->errMsg(); return Executor::ErrorOccurred; }
+    else if ( rv == 0 )
+	return Executor::Finished;
+    else if ( rv == 1 )
+    {
+	if ( !rdr_->get(trc_) )
+	    { errmsg_ = rdr_->errMsg(); return Executor::ErrorOccurred; }
+
+	handleTrace();
+
+	if ( !wrr_ && !createWriter() )
+	    return Executor::ErrorOccurred;
+	if ( !wrr_->put(trc_) )
+	    { errmsg_ = wrr_->errMsg(); return Executor::ErrorOccurred; }
+    }
+
+    return Executor::MoreToDo;
+}
+
+
+void Tut::SeisTools::handleTrace()
+{
+    switch ( action_ )
+    {
+
+    case Scale: {
+	SeisTrcPropChg stpc( trc_ );
+	stpc.scale( factor_, shift_ );
+    } break;
+
+    case Square: {
+	for ( int icomp=0; icomp<trc_.nrComponents(); icomp++ )
+	{
+	    for ( int idx=0; idx<trc_.size(); idx++ )
+	    {
+		const float v = trc_.get( idx, icomp );
+		trc_.set( idx, v*v, icomp );
+	    }
+	}
+    } break;
+
+    case Smooth: {
+	// If weaksmooth_, average 3 samples, otherwise 5.
+    } break;
+
+    }
+
+    nrdone_++;
 }

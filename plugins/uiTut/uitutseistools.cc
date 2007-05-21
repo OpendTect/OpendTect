@@ -5,7 +5,7 @@
  * DATE     : Mar 2007
 -*/
 
-static const char* rcsID = "$Id: uitutseistools.cc,v 1.7 2007-05-11 12:55:07 cvsbert Exp $";
+static const char* rcsID = "$Id: uitutseistools.cc,v 1.8 2007-05-21 11:39:18 cvsbert Exp $";
 
 #include "uitutseistools.h"
 #include "tutseistools.h"
@@ -96,6 +96,7 @@ bool uiTutSeisTools::acceptOK( CallBacker* )
 	   && !uiMSG().askGoOn("Output cube exists. Overwrite?") )
 	return false;
 
+    tst_.clear();
     tst_.setInput( *inctio_.ioobj );
     tst_.setOutput( *outctio_.ioobj );
 
