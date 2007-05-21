@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		January 2003
- RCS:		$Id: visrandomtrackdisplay.h,v 1.53 2007-05-18 12:40:11 cvshelene Exp $
+ RCS:		$Id: visrandomtrackdisplay.h,v 1.54 2007-05-21 06:54:22 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -76,6 +76,7 @@ public:
     void			enableAttrib(int attrib,bool yn);
     bool			isAngle(int attrib) const;
     void			setAngleFlag(int attrib,bool yn);
+    void			allowShading(bool);
 
     bool			removeAttrib(int);
     const Attrib::SelSpec*	getSelSpec(int) const;

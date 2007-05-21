@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          January 2003
- RCS:           $Id: visrandomtrackdisplay.cc,v 1.88 2007-05-18 12:40:12 cvshelene Exp $
+ RCS:           $Id: visrandomtrackdisplay.cc,v 1.89 2007-05-21 06:54:22 cvsnanne Exp $
  ________________________________________________________________________
 
 -*/
@@ -757,6 +757,13 @@ BinID RandomTrackDisplay::snapPosition( const BinID& binid_ ) const
 
     SI().snap( binid, BinID(0,0) );
     return binid;
+}
+
+
+void RandomTrackDisplay::allowShading( bool yn )
+{
+    if ( texture_ )
+	texture_->allowShading( yn );
 }
 
 
