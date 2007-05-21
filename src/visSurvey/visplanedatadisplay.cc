@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.174 2007-03-22 20:32:36 cvskris Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.175 2007-05-21 12:19:14 cvsnanne Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -29,12 +29,11 @@ static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.174 2007-03-22 20:32
 #include "vismultitexture2.h"
 #include "vistransform.h"
 #include "iopar.h"
+#include "settings.h"
 #include "zaxistransform.h"
 
 
-
 mCreateFactoryEntry( visSurvey::PlaneDataDisplay );
-
 
 namespace visSurvey {
 
@@ -127,8 +126,13 @@ PlaneDataDisplay::PlaneDataDisplay()
     rposcache_ += 0;
     datapackids_ += -1;
 
-    setTranslationDragKeys( true, OD::NoButton );
-    setTranslationDragKeys( false, OD::ShiftButton );
+
+    int buttonkey = OD::NoButton;
+    mSettUse( get, "dTect.MouseInteraction", sKeyDepthKey(), buttonkey );
+    dragger_->setTransDragKeys( true, buttonkey );
+    buttonkey = OD::ShiftButton;
+    mSettUse( get, "dTect.MouseInteraction", sKeyPlaneKey(), buttonkey );
+    dragger_->setTransDragKeys( false, buttonkey );
 }
 
 
@@ -1078,9 +1082,6 @@ void PlaneDataDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 
     par.set( sKeyOrientation(), eString(Orientation,orientation_) );
     getCubeSampling( false, true ).fillPar( par );
-
-    par.set( sKeyDepthKey(), (int) dragger_->getTransDragKeys(true) );
-    par.set( sKeyPlaneKey(), (int) dragger_->getTransDragKeys(false) );
 }
 
 
@@ -1096,12 +1097,6 @@ int PlaneDataDisplay::usePar( const IOPar& par )
     CubeSampling cs;
     if ( cs.usePar( par ) )
 	setCubeSampling( cs );
-
-    int buttonkey;
-    if ( par.get( sKeyDepthKey(), buttonkey ) )
-	dragger_->setTransDragKeys(true, buttonkey );
-    if ( par.get( sKeyPlaneKey(), buttonkey ) )
-	dragger_->setTransDragKeys(false, buttonkey );
 
     return 1;
 }

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visplanedatadisplay.h,v 1.95 2007-02-12 22:10:42 cvskris Exp $
+ RCS:		$Id: visplanedatadisplay.h,v 1.96 2007-05-21 12:19:15 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -126,6 +126,9 @@ public:
 				    \returns	combination of OD::ButtonState*/
     bool                	canBDispOn2DViewer() const;
 
+    static const char*		sKeyDepthKey()		{ return "DepthKey"; }
+    static const char*		sKeyPlaneKey()		{ return "PlaneKey"; }
+
 protected:
 				~PlaneDataDisplay();
     void			updateMainSwitch();
@@ -178,8 +181,6 @@ protected:
     static const char*		sKeyOrientation() { return "Orientation"; }
     static const char*		sKeyTextureRect() { return "Texture rectangle";}
     static const char*		sKeyResolution()  { return "Resolution";}
-    static const char*		sKeyDepthKey() { return "DepthKey"; }
-    static const char*		sKeyPlaneKey() { return "PlaneKey"; }
 };
 
 };
