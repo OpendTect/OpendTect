@@ -4,7 +4,7 @@
   - Author:	A.H. Bril
   - Date:	Oct 2003
   - Contents:	Plugins
-  - RCS:	$Id: plugins.html,v 1.37 2007-04-24 12:21:26 bert Exp $
+  - RCS:	$Id: plugins.html,v 1.38 2007-05-21 15:37:15 bert Exp $
  -->
 
 <body background="../backg.png"><title>Plugins [OpendTect Programmer's manual V3.0]</title>
@@ -12,8 +12,9 @@
 <h1>OpendTect Plugins</h1>
   <a href=#intro>Intro</a>
 | <a href=#concept>Concept</a>
-| <a href=#mnudlg>Menu and Dialog</a>
-| <a href=#coh>Coherency</a>
+| <a href=#helloworld>Hello World</a>
+| <a href=#mnudlg>Menus and Dialogs</a>
+| <a href=#tutpi>The Tutorial plugin</a>
 | <a href=#autoload>Installation and auto-loading</a>
 </center>
 <br>
@@ -73,7 +74,7 @@ fn( "Hello world\n" );
 
 <p> In this very simple case calling the function has no other effect
 than printing a string. In OpendTect, you'd want to add an attribute,
-create a menu item in the Opendtect menu, etc. etc. </p>
+create a menu item in the Opendtect menu, start horizon tracking, that sort of thing. </p>
 
 <h3>OpendTect plugins</h3>
 
@@ -96,7 +97,8 @@ objects (and always after the static objects are initialised). The
 second function simply provides info for the users of your plugin.
 </p>
 
-<p> Note that these functions must be declared 'extern "C"', as you
+<a name=helloworld></a>
+<p> Note that the standard plugin functions must be declared 'extern "C"', as you
 can see in the first example plugin "Hello": </p>
 
 <pre><code>#include &lt;iostream&gt;
@@ -332,25 +334,40 @@ the screen. </p>
 
 <br>
 <br>
-<a name=coh><h3>Attributes: Coherency</h3>
+<a name=tutpi><h3>The Tutorial plugin</h3>
 
-<a name=cohintro><h4>Intro</h4>
+<a name=tutpiintro><h4>Intro</h4>
 
-<p> Anyone vaguely familiar with interpretation by now knows about
-Coherency and Coherency cubes. We have always used the 'Similarity'
-attribute instead because of patent restrictions. Similarity is just
-as good for object detection en better suited in combination with the
-dip/steering concept. Coherency beats Similarity when used for
-single-attribute display. </p>
+<p>Now that we've seen some basic plugin stuff, and some basic GUI stuff, we can move on to a real plugin that looks like something that could actually be useful. For this purpose, we have created the Tutorial plugins. As is common in OpendTect, there is a plugin 'Tut' for non-ui, real-work stuff, and the 'uiTut' for the GUI part.</p>
+<p>The idea of the tutorial plugins is to show a variety of common things that one might want to do, rather than make something useful for end-users. For that we'll make the following tools:
+<ul>
+<li>Manipulating some seismic data (read, process, write)
+<li>The same, but now using an Attribute
+<li>Do some work with horizons
+<li>Do some work with wells
+</ul>
+In the process, we'll see how to:
+<ul>
+<li>Create menu items and toolbar icons
+<li>Make right-click tree item menus
+<li>Work in the COIN 'vis' world
+<li>Work with DataPack's and create flat displays
+</ul>
 
-<p> The Coherency attributes were implemented some time ago by
-Kristofer for his research work, and it seemed a good idea to show how
-to make your own attribute plugins by looking at the <code>Coh</code>
-and <code>uiCoh</code> plugin code. </p>
 
-<a name=cohrw><h4>The <code>Coh</code> plugin</h4>
+<a name=tutgui><h4>The <code>uiTut</code> plugin</h4>
 
-<p> The <code>Coh</code> plugin handles the 'Real Work' part. If we
+<p>We think it is easiest if we first show how the GUI part 
+
+etc.etc.
+
+<br><br>
+<hr>
+<a name=coh></a>
+<b>Here's old Coherency stuff, all the way to <a href=#autoload>Installation and auto-loading</a></b>
+<br><br>
+
+
 start with the plugin 'main' file, <code>cohpi.cc</code>, we see
 that it's not that much more complex than the <code>hellopi.cc</code>
 from the <code>Hello</code> plugin. There are tow includes:
@@ -696,6 +713,9 @@ because you'd want the rest of the UI already in place. The only
 interesting part is the part where the new <code>AttrDescEd</code> is
 added to the <code>uiAttribFactory</code>. 
 
+<hr>
+<b>That was the old Coherency stuff, all the way up to <a href=#coh>here</a></b>
+<br><br>
 
 <br>
 <a name=autoload><h2>Installation and auto-loading</h2>
