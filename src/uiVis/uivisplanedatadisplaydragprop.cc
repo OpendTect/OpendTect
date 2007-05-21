@@ -4,13 +4,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Feb 2007
- RCS:           $Id: uivisplanedatadisplaydragprop.cc,v 1.2 2007-03-28 14:24:51 cvskris Exp $
+ RCS:           $Id: uivisplanedatadisplaydragprop.cc,v 1.3 2007-05-21 09:22:02 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uivisplanedatadisplaydragprop.h"
 
+#include "settings.h"
 #include "uibuttonstateedit.h"
 #include "uimsg.h"
 #include "visplanedatadisplay.h"
@@ -41,6 +42,12 @@ bool uiVisPlaneDataDisplayDragProp::acceptOK()
 
     pdd_->setTranslationDragKeys( true, scrollstate_->getState() );
     pdd_->setTranslationDragKeys( false, panstate_->getState() );
+
+    mSettUse( set, "dTect.MouseInteraction", pdd_->sKeyDepthKey(),
+	      scrollstate_->getState() );
+    mSettUse( set, "dTect.MouseInteraction", pdd_->sKeyPlaneKey(),
+	      panstate_->getState() );
+    Settings::common().write(); 
 
     return true;
 }
