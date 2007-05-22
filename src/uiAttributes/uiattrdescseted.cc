@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrdescseted.cc,v 1.48 2007-05-04 06:05:44 cvsnanne Exp $
+ RCS:           $Id: uiattrdescseted.cc,v 1.49 2007-05-22 07:09:50 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,6 +35,7 @@ ________________________________________________________________________
 #include "ptrman.h"
 #include "seistype.h"
 #include "survinfo.h"
+#include "settings.h"
 
 #include "uiattrdesced.h"
 #include "uiattrgetfile.h"
@@ -58,6 +59,8 @@ ________________________________________________________________________
 #include "uitextedit.h"
 #include "uitoolbar.h"
 
+const char* uiAttribDescSetEd::sKeyUseAutoAttrSet = "dTect.Auto Attribute set";
+const char* uiAttribDescSetEd::sKeyAutoAttrSetID = "Attrset.Auto ID";
 
 extern "C" const char* GetBaseDataDir();
 static bool prevsavestate = true;
@@ -101,6 +104,7 @@ void uiAttribDescSetEd::createMenuBar()
     mInsertItem( "&New set ...", newSet );
     mInsertItem( "&Open set ...", openSet );
     mInsertItem( "&Save set ...", savePush );
+    mInsertItem( "&Auto Load Attribute Set ...", autoSet );
     mInsertItem( "&Change input ...", changeInput );
     filemnu->insertSeparator();
     mInsertItem( "Open &Default set ...", defaultSet );
@@ -287,6 +291,81 @@ bool uiAttribDescSetEd::doSave( bool endsave )
 	attrsetfld->setText( setctio.ioobj->name() );
     adsman->setSaved( true );
     return true;
+}
+
+
+class uiAutoAttrSetDlg : public uiDialog
+{
+public:
+
+    uiAutoAttrSetDlg( uiParent* p )
+        : uiDialog(p,uiDialog::Setup("Auto-load Attribute Set",
+		                     "Set auto-load Attribute-Set",
+				     "50.3.1"))
+        , ctio_( *(new CtxtIOObj(AttribDescSetTranslatorGroup::ioContext())) )
+{
+    bool douse = false; MultiID id;
+    Settings::common().getYN( uiAttribDescSetEd::sKeyUseAutoAttrSet, douse );
+    id = SI().pars().find( uiAttribDescSetEd::sKeyAutoAttrSetID );
+
+    usefld_ = new uiGenInput( this, "Enable auto-load Attribute Set",
+                                  BoolInpSpec(true) );
+    usefld_->setValue( douse );
+    usefld_->valuechanged.notify( mCB(this,uiAutoAttrSetDlg,useChg) );
+
+    ctio_.setObj( id ); ctio_.ctxt.forread = true;
+    selgrp_ = new uiIOObjSelGrp( this, ctio_ );
+    selgrp_->attach( alignedBelow, usefld_ );
+    lbl_ = new uiLabel( this, "Attribute Set to use" );
+    lbl_->attach( centeredLeftOf, selgrp_ );
+
+    finaliseDone.notify( mCB(this,uiAutoAttrSetDlg,useChg) );
+}
+
+~uiAutoAttrSetDlg()
+{   
+    delete ctio_.ioobj; delete &ctio_;
+}
+
+void useChg( CallBacker* )
+{   
+    const bool douse = usefld_->getBoolValue();
+    selgrp_->display( douse );
+    lbl_->display( douse );
+}
+
+
+bool acceptOK( CallBacker* )
+{   
+    const bool douse = usefld_->getBoolValue();
+    selgrp_->processInput();
+    if ( douse && selgrp_->nrSel() < 1 )
+        { uiMSG().error("Please select an Attribute Set"); return false; }
+    if ( selgrp_->nrSel() > 0 )
+	ctio_.setObj( selgrp_->selected(0) );
+
+    const MultiID id( ctio_.ioobj ? ctio_.ioobj->key() : MultiID("") );
+    Settings::common().setYN( uiAttribDescSetEd::sKeyUseAutoAttrSet, douse );
+    Settings::common().write();
+    SI().pars().set( uiAttribDescSetEd::sKeyAutoAttrSetID, (const char*)id );
+    SI().savePars();
+    return true;
+}
+
+    CtxtIOObj&          ctio_;
+
+    uiGenInput*         usefld_;
+    uiGenInput*         loadnowfld_;
+    uiIOObjSelGrp*      selgrp_;
+    uiLabel*            lbl_;
+
+};
+
+
+void uiAttribDescSetEd::autoSet()
+{
+    uiAutoAttrSetDlg dlg( this );
+    dlg.go();
 }
 
 
