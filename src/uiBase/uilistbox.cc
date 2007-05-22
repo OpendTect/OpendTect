@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: uilistbox.cc,v 1.78 2007-05-14 06:48:27 cvsnanne Exp $
+ RCS:           $Id: uilistbox.cc,v 1.79 2007-05-22 13:08:32 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -203,8 +203,7 @@ void uiListBox::addItem( const char* text, const ioPixmap& pm )
 
 void uiListBox::addItem( const char* text, const Color& col )
 {
-    QSize sz = body_->iconSize();
-    ioPixmap pm( sz.width(), sz.height() ); pm.fill( col );
+    ioPixmap pm( 64, 64); pm.fill( col );
     addItem( text, pm );
 }
 
@@ -253,8 +252,7 @@ void uiListBox::insertItem( const char* text, const ioPixmap& pm, int index )
 
 void uiListBox::insertItem( const char* text, const Color& col, int index )
 {
-    QSize sz = body_->iconSize();
-    ioPixmap pm( sz.width(), sz.height() ); pm.fill( col );
+    ioPixmap pm( 64, 64 ); pm.fill( col );
     insertItem( text, pm, index );
 }
 
