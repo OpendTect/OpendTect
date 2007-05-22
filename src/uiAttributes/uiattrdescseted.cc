@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrdescseted.cc,v 1.49 2007-05-22 07:09:50 cvsraman Exp $
+ RCS:           $Id: uiattrdescseted.cc,v 1.50 2007-05-22 07:36:43 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -978,6 +978,7 @@ void uiAttribDescSetEd::replaceStoredAttr()
 	storedids += descid;
     }
 
+    const bool is2d = adsman ? adsman->is2D() : attrset->is2D();
     BufferStringSet usrrefs;
     bool found2d = false;
     for ( int idnr=0; idnr<storedids.size(); idnr++ )
@@ -1000,7 +1001,7 @@ void uiAttribDescSetEd::replaceStoredAttr()
 
 	Desc* ad = attrset->getDesc( storedid );
 	const bool issteer = ad->dataType() == Seis::Dip;
-        uiAttrInpDlg dlg( this, usrrefs, issteer );
+        uiAttrInpDlg dlg( this, usrrefs, issteer, is2d );
         if ( dlg.go() )
         {
             ad->changeStoredID( dlg.getKey() );

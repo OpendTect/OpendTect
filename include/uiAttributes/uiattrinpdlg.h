@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiattrinpdlg.h,v 1.4 2006-12-20 11:23:00 cvshelene Exp $
+ RCS:           $Id: uiattrinpdlg.h,v 1.5 2007-05-22 07:36:43 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,7 +22,8 @@ class BufferStringSet;
 class uiAttrInpDlg : public uiDialog
 {
 public:
-			uiAttrInpDlg(uiParent*,const BufferStringSet&,bool);
+			uiAttrInpDlg(uiParent*,const BufferStringSet& attrnms,
+				     bool issteer,bool is2d);
 			~uiAttrInpDlg();
 
     bool		is2D() const;
