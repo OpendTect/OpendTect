@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrdescseted.h,v 1.7 2007-04-10 12:24:10 cvsbert Exp $
+ RCS:           $Id: uiattrdescseted.h,v 1.8 2007-05-22 07:02:09 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,6 +46,7 @@ public:
     Attrib::DescSet*	getSet()		{ return attrset; }
     const MultiID&	curSetID() const	{ return setid; }
 
+    void		autoSet();
     uiAttrDescEd*	curDescEd();
     			//!< Use during operation only!
     Attrib::Desc*		curDesc() const;
@@ -57,6 +58,9 @@ public:
 
     Notifier<uiAttribDescSetEd>		dirshowcb;
     Notifier<uiAttribDescSetEd>		evalattrcb;
+
+    static const char* sKeyUseAutoAttrSet;
+    static const char* sKeyAutoAttrSetID;
 
 protected:
 
