@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: uiprestackprocessor.cc,v 1.4 2007-05-15 21:28:22 cvskris Exp $";
+static const char* rcsID = "$Id: uiprestackprocessor.cc,v 1.5 2007-05-22 15:52:10 cvskris Exp $";
 
 #include "uiprestackprocessor.h"
 
@@ -24,6 +24,7 @@ mImplFactory2Param( uiDialog, uiParent*, Processor*, uiPSPD );
 uiProcessorManager::uiProcessorManager( uiParent* p, ProcessManager& man )
     : uiGroup( p )
     , manager_( man )
+    , change( this )
 {
     manager_.fillPar( restorepar_ );
 
@@ -128,7 +129,8 @@ void uiProcessorManager::showPropDialog( int idx )
 
     if ( !dlg ) return;
 
-    dlg->go();
+    if ( dlg->go() )
+	change.trigger();
 }
 
 
@@ -173,6 +175,7 @@ void uiProcessorManager::addProcessorCB( CallBacker* )
     updateList();
     processorlist_->selectAll(false);
     updateButtons();
+    change.trigger();
 }
 
 
@@ -186,6 +189,7 @@ void uiProcessorManager::removeProcessorCB( CallBacker* )
     processorlist_->selectAll(false);
 
     updateButtons();
+    change.trigger();
 }
 
 
@@ -199,7 +203,7 @@ void uiProcessorManager::moveUpCB( CallBacker* )
     processorlist_->setSelected( idx-1, true );
 
     updateButtons();
-
+    change.trigger();
 }
 
 
@@ -213,6 +217,7 @@ void uiProcessorManager::moveDownCB( CallBacker* )
     updateList();
     processorlist_->setSelected( idx+1, true );
     updateButtons();
+    change.trigger();
 }
 
 
