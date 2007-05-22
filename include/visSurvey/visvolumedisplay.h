@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		August 2002
- RCS:		$Id: visvolumedisplay.h,v 1.40 2007-04-25 16:22:33 cvskris Exp $
+ RCS:		$Id: visvolumedisplay.h,v 1.41 2007-05-22 04:42:27 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -69,7 +69,7 @@ public:
     bool			canResetManipulation() const;
     void			resetManipulation();
     void			acceptManipulation();
-    NotifierAccess*		getMovementNotification() {return &slicemoving;}
+    NotifierAccess*		getMovementNotifier() { return &slicemoving; }
     NotifierAccess*		getManipulationNotifier() {return &slicemoving;}
     BufferString		getManipulationString() const;
 

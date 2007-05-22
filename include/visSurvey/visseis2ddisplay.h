@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		January 2003
- RCS:		$Id: visseis2ddisplay.h,v 1.11 2007-02-02 15:44:43 cvsnanne Exp $
+ RCS:		$Id: visseis2ddisplay.h,v 1.12 2007-05-22 04:42:27 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -106,7 +106,7 @@ public:
     void			setLineSetID(const MultiID& mid);
     const MultiID&		lineSetID() const;
 
-    NotifierAccess*		getMovementNotification()	
+    NotifierAccess*		getMovementNotifier()	
     				{ return &geomchanged_; }
 
     void			fillPar(IOPar&,TypeSet<int>&) const;

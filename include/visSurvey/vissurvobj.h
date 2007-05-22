@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvobj.h,v 1.77 2007-05-21 05:46:29 cvsnanne Exp $
+ RCS:		$Id: vissurvobj.h,v 1.78 2007-05-22 04:42:27 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -68,7 +68,7 @@ public:
     virtual void		snapToTracePos(Coord3&)	{}
     				//<\Snaps coordinate to a trace position
 
-    virtual NotifierAccess*	getMovementNotification()	{ return 0; }
+    virtual NotifierAccess*	getMovementNotifier()	{ return 0; }
     				/*!<Gives access to a notifier that is triggered
 				    when object is moved or modified. */
 
@@ -79,7 +79,7 @@ public:
 				     added in the scene, this function is
 				     called. \note that it only notifies on
 				     objects that return something on
-				     getMovementNotification().
+				     getMovementNotifier().
 				     \param whichobj refers to id of the
 				     moved object */
     virtual bool		isInlCrl() const	    	{ return false;}
@@ -222,7 +222,7 @@ public:
 
     virtual void		lock( bool yn )		{ locked_ = yn; }
     virtual bool		isLocked() const	{ return locked_; }
-    virtual NotifierAccess*	getLockNotification()	{ return 0; }
+    virtual NotifierAccess*	getLockNotifier()	{ return 0; }
 
     //TODO: as for now: vertical viewer is the only one available,
     //later on: allow timeslices and horizons with horizontal viewer

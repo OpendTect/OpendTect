@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		August 2002
- RCS:		$Id: vismpe.h,v 1.34 2006-10-05 08:45:46 cvsjaap Exp $
+ RCS:		$Id: vismpe.h,v 1.35 2007-05-22 04:42:27 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -72,7 +72,7 @@ public:
     void			updateBoxSpace();
     void			freezeBoxPosition(bool yn);
 
-    NotifierAccess*		getMovementNotification() { return  &movement; }
+    NotifierAccess*		getMovementNotifier() { return &movement; }
     Notifier<MPEDisplay>	boxDraggerStatusChange;
     
     virtual float               calcDist(const Coord3&) const;

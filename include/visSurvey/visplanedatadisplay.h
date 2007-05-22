@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visplanedatadisplay.h,v 1.96 2007-05-21 12:19:15 cvsnanne Exp $
+ RCS:		$Id: visplanedatadisplay.h,v 1.97 2007-05-22 04:42:27 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -67,7 +67,7 @@ public:
     void			acceptManipulation();
     BufferString		getManipulationString() const;
     NotifierAccess*		getManipulationNotifier();
-    NotifierAccess*		getMovementNotification()
+    NotifierAccess*		getMovementNotifier()
     				{ return &movefinished_; }
 
     bool			allowMaterialEdit() const	{ return true; }

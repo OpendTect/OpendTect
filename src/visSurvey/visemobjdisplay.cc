@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: visemobjdisplay.cc,v 1.97 2007-04-18 17:08:08 cvskris Exp $
+ RCS:           $Id: visemobjdisplay.cc,v 1.98 2007-05-22 04:42:27 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -576,12 +576,6 @@ int EMObjectDisplay::usePar( const IOPar& par )
 
     return 1;
 }
-
-
-NotifierAccess* EMObjectDisplay::getMovementNotification() { return &hasmoved; }
-
-
-NotifierAccess* EMObjectDisplay::getLockNotification() { return &locknotifier; }
 
 
 void EMObjectDisplay::lock( bool yn ) 

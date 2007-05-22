@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodplanedatatreeitem.cc,v 1.12 2007-03-15 16:20:25 cvsbert Exp $
+ RCS:		$Id: uiodplanedatatreeitem.cc,v 1.13 2007-05-22 04:42:27 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -215,7 +215,7 @@ void uiODPlaneDataTreeItem::handleMenuCB( CallBacker* cb )
 	positiondlg_->windowClosed.notify( 
 		mCB(this,uiODPlaneDataTreeItem,posDlgClosed) );
 	positiondlg_->go();
-	pdd->getMovementNotification()->notify(
+	pdd->getMovementNotifier()->notify(
 		mCB(this,uiODPlaneDataTreeItem,updatePositionDlg) );
 	applMgr()->enableMenusAndToolBars( false );
 	applMgr()->visServer()->disabToolBars( false );
@@ -258,7 +258,7 @@ void uiODPlaneDataTreeItem::posDlgClosed( CallBacker* )
 
     applMgr()->enableMenusAndToolBars( true );
     applMgr()->enableSceneManipulation( true );
-    pdd->getMovementNotification()->remove(
+    pdd->getMovementNotifier()->remove(
 		mCB(this,uiODPlaneDataTreeItem,updatePositionDlg) );
 }
 

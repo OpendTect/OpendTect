@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: vissurvscene.cc,v 1.96 2007-05-21 05:46:29 cvsnanne Exp $
+ RCS:           $Id: vissurvscene.cc,v 1.97 2007-05-22 04:42:27 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -106,9 +106,9 @@ Scene::~Scene()
     for ( int idx=0; idx<size(); idx++ )
     {
 	mDynamicCastGet(SurveyObject*,so,getObject(idx));
-	if ( !so || !so->getMovementNotification() ) continue;
+	if ( !so || !so->getMovementNotifier() ) continue;
 
-	so->getMovementNotification()->remove( mCB(this,Scene,objectMoved) );
+	so->getMovementNotifier()->remove( mCB(this,Scene,objectMoved) );
     }
 }
 
@@ -178,8 +178,8 @@ void Scene::addObject( visBase::DataObject* obj )
 
     if ( so )
     {
-	if ( so->getMovementNotification() )
-	    so->getMovementNotification()->notify( mCB(this,Scene,objectMoved));
+	if ( so->getMovementNotifier() )
+	    so->getMovementNotifier()->notify( mCB(this,Scene,objectMoved));
 
 	so->setScene( this );
 	STM().setCurrentScene( this );
@@ -203,8 +203,8 @@ void Scene::removeObject( int idx )
 {
     DataObject* obj = getObject( idx );
     mDynamicCastGet(SurveyObject*,so,obj)
-    if ( so && so->getMovementNotification() )
-	so->getMovementNotification()->remove( mCB(this,Scene,objectMoved) );
+    if ( so && so->getMovementNotifier() )
+	so->getMovementNotifier()->remove( mCB(this,Scene,objectMoved) );
 
     visBase::DataObjectGroup::removeObject( idx );
 
@@ -299,7 +299,7 @@ void Scene::objectMoved( CallBacker* cb )
     {
 	mDynamicCastGet(SurveyObject*,so,getObject(idx))
 	if ( !so ) continue;
-	if ( !so->getMovementNotification() ) continue;
+	if ( !so->getMovementNotifier() ) continue;
 
 	mDynamicCastGet(visBase::VisualObject*,vo,getObject(idx))
 	if ( !vo ) continue;

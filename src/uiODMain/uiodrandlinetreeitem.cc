@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		May 2006
- RCS:		$Id: uiodrandlinetreeitem.cc,v 1.6 2007-05-21 12:23:00 cvshelene Exp $
+ RCS:		$Id: uiodrandlinetreeitem.cc,v 1.7 2007-05-22 04:42:27 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -110,24 +110,27 @@ uiODRandomLineTreeItem::uiODRandomLineTreeItem( int id )
 
 bool uiODRandomLineTreeItem::init()
 {
+    visSurvey::RandomTrackDisplay* rtd = 0;
     if ( displayid_==-1 )
     {
-	visSurvey::RandomTrackDisplay* rtd =
-				    visSurvey::RandomTrackDisplay::create();
+	rtd = visSurvey::RandomTrackDisplay::create();
 	displayid_ = rtd->id();
 	visserv->addObject( rtd, sceneID(), true );
-	rtd->moving_.notify( mCB(this,uiODRandomLineTreeItem,remove2DViewerCB));
-	rtd->knotmoving_.notify( mCB(this,uiODRandomLineTreeItem,
-		    		 remove2DViewerCB));
     }
     else
     {
-	mDynamicCastGet(visSurvey::RandomTrackDisplay*,rtd,
+	mDynamicCastGet(visSurvey::RandomTrackDisplay*,disp,
 			visserv->getObject(displayid_));
-	if ( !rtd ) return false;
-	rtd->moving_.notify( mCB(this,uiODRandomLineTreeItem,remove2DViewerCB));
-	rtd->knotmoving_.notify( mCB(this,uiODRandomLineTreeItem,
-		    		 remove2DViewerCB));
+	if ( !disp ) return false;
+	rtd = disp;
+    }
+
+    if ( rtd )
+    {
+	rtd->getMovementNotifier()->notify(
+		mCB(this,uiODRandomLineTreeItem,remove2DViewerCB) );
+	rtd->getManipulationNotifier()->notify(
+		mCB(this,uiODRandomLineTreeItem,remove2DViewerCB) );
     }
 
     return uiODDisplayTreeItem::init();

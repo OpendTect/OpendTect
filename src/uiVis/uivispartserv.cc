@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.348 2007-03-29 11:42:10 cvsjaap Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.349 2007-05-22 04:42:27 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -1284,7 +1284,7 @@ void uiVisPartServer::setUpConnections( int id )
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id))
     NotifierAccess* na = so ? so->getManipulationNotifier() : 0;
     if ( na ) na->notify( mCB(this,uiVisPartServer,interactionCB) );
-    na = so ? so->getLockNotification() : 0;
+    na = so ? so->getLockNotifier() : 0;
     if ( na ) na->notify( mCB(mpetools_,uiMPEMan,visObjectLockedCB) );
 
     mDynamicCastGet(visBase::VisualObject*,vo,getObject(id))
@@ -1310,7 +1310,7 @@ void uiVisPartServer::removeConnections( int id )
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id))
     NotifierAccess* na = so ? so->getManipulationNotifier() : 0;
     if ( na ) na->remove( mCB(this,uiVisPartServer,interactionCB) );
-    na = so ? so->getLockNotification() : 0;
+    na = so ? so->getLockNotifier() : 0;
     if ( na ) na->remove( mCB(mpetools_,uiMPEMan,visObjectLockedCB) );
 
     mDynamicCastGet(visBase::VisualObject*,vo,getObject(id));

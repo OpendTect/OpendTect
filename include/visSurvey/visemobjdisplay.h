@@ -7,9 +7,8 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          May 2004
- RCS:           $Id: visemobjdisplay.h,v 1.46 2007-02-27 14:11:37 cvsjaap Exp $
+ RCS:           $Id: visemobjdisplay.h,v 1.47 2007-05-22 04:42:27 cvsnanne Exp $
 ________________________________________________________________________
-
 
 -*/
 
@@ -94,13 +93,11 @@ public:
     void			fillPar(IOPar&,TypeSet<int>&) const;
     int				usePar(const IOPar&);
 
-    NotifierAccess*		getMovementNotification();
-    Notifier<EMObjectDisplay>	hasmoved;
+    NotifierAccess*		getMovementNotifier()	{ return &hasmoved; }
     Notifier<EMObjectDisplay>	changedisplay;
 
     void			lock(bool yn);
-    NotifierAccess*		getLockNotification();
-    Notifier<EMObjectDisplay>	locknotifier;
+    NotifierAccess*		getLockNotifier()	{ return &locknotifier;}
 
 protected:
     				~EMObjectDisplay();
@@ -113,6 +110,9 @@ protected:
     virtual void		emChangeCB(CallBacker*);
     virtual void		clickCB(CallBacker*);
     virtual void		updatePosAttrib(int attrib);
+
+    Notifier<EMObjectDisplay>	hasmoved;
+    Notifier<EMObjectDisplay>	locknotifier;
 
     mVisTrans*				transformation_;
     visBase::EventCatcher*		eventcatcher_;
