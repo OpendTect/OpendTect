@@ -1,5 +1,5 @@
-#ifndef sectionextenderimpl_h
-#define sectionextenderimpl_h
+#ifndef horizon3dextender_h
+#define horizon3dextender_h
                                                                                 
 /*+
 ________________________________________________________________________
@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: horizon3dextender.h,v 1.5 2007-05-22 03:23:22 cvsnanne Exp $
+ RCS:           $Id: horizon3dextender.h,v 1.6 2007-05-22 03:50:51 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
