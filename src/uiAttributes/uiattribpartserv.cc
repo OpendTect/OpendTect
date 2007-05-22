@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiattribpartserv.cc,v 1.67 2007-05-18 12:40:12 cvshelene Exp $
+ RCS:           $Id: uiattribpartserv.cc,v 1.68 2007-05-22 07:02:02 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -160,7 +160,7 @@ void uiAttribPartServer::getDirectShowAttrSpec( SelSpec& as ) const
 
 void uiAttribPartServer::manageAttribSets()
 {
-    uiAttrSetMan dlg( appserv().parent() );
+    uiAttrSetMan dlg( parent() );
     dlg.go();
 }
 
@@ -173,7 +173,7 @@ bool uiAttribPartServer::editSet( bool is2d )
 
     DescSet* oldset = adsman->descSet();
     delete attrsetdlg_;
-    attrsetdlg_ = new uiAttribDescSetEd( appserv().parent(), adsman );
+    attrsetdlg_ = new uiAttribDescSetEd( parent(), adsman );
     attrsetdlg_->dirshowcb.notify( mCB(this,uiAttribPartServer,directShowAttr));
     attrsetdlg_->evalattrcb.notify( mCB(this,uiAttribPartServer,showEvalDlg) );
     attrsetdlg_->windowClosed.notify( 
@@ -220,7 +220,7 @@ bool uiAttribPartServer::selectAttrib( SelSpec& selspec, const char* depthkey,
     attrdata.outputnr = selspec.isNLA() ? selspec.id().asInt() : -1;
     attrdata.nlamodel = getNLAModel(is2d);
     attrdata.depthdomainkey = depthkey;
-    uiAttrSelDlg dlg( appserv().parent(), "View Data", attrdata, false );
+    uiAttrSelDlg dlg( parent(), "View Data", attrdata, false );
     if ( !dlg.go() )
 	return false;
 
@@ -319,7 +319,7 @@ void uiAttribPartServer::saveSet( bool is2d )
 {
     PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(AttribDescSet);
     ctio->ctxt.forread = false;
-    uiIOObjSelDlg dlg( appserv().parent(), *ctio );
+    uiIOObjSelDlg dlg( parent(), *ctio );
     if ( dlg.go() && dlg.ioObj() )
     {
 	ctio->ioobj = 0;
@@ -340,7 +340,7 @@ void uiAttribPartServer::outputVol( MultiID& nlaid, bool is2d )
     DescSet* dset = getAdsMan( is2d )->descSet();
     if ( !dset ) { pErrMsg("No attr set"); return; }
 
-    uiAttrVolOut dlg( appserv().parent(), *dset, getNLAModel(is2d), nlaid );
+    uiAttrVolOut dlg( parent(), *dset, getNLAModel(is2d), nlaid );
     dlg.go();
 }
 
@@ -428,7 +428,7 @@ const Attrib::DataCubes* uiAttribPartServer::createOutput(
     bool success = true;
     if ( aem->getNrOutputsToBeProcessed(*process) != 0 )
     {
-	uiExecutor dlg( appserv().parent(), *process );
+	uiExecutor dlg( parent(), *process );
 	success = dlg.go();
     }
 
@@ -468,7 +468,7 @@ bool uiAttribPartServer::createOutput( ObjectSet<BinIDValueSet>& values )
     if ( !process )
 	{ uiMSG().error(errmsg); return false; }
 
-    uiExecutor dlg( appserv().parent(), *process );
+    uiExecutor dlg( parent(), *process );
     if ( !dlg.go() ) return false;
 
     return true;
@@ -504,7 +504,7 @@ bool uiAttribPartServer::createOutput( const BinIDValueSet& bidvalset,
     if ( !process )
 	{ uiMSG().error(errmsg); return false; }
 
-    uiExecutor dlg( appserv().parent(), *process );
+    uiExecutor dlg( parent(), *process );
     if ( !dlg.go() ) return false;
 
     return true;
@@ -523,7 +523,7 @@ DataPack::ID uiAttribPartServer::create2DOutput( const CubeSampling& cs,
     if ( !process )
 	{ uiMSG().error(errmsg); return -1; }
 
-    uiExecutor dlg( appserv().parent(), *process );
+    uiExecutor dlg( parent(), *process );
     if ( !dlg.go() )
 	return -1;
 
@@ -589,7 +589,7 @@ bool uiAttribPartServer::extractData( const NLACreationDesc& desc,
     {
 	PosVecOutputGen pvog( *adsman->descSet(), desc.design.inputs,
 				     bivsets, outvds );
-	uiExecutor dlg( appserv().parent(), pvog );
+	uiExecutor dlg( parent(), pvog );
 	if ( !dlg.go() )
 	    return false;
 	else if ( outvds.size() != bivsets.size() )
@@ -625,7 +625,7 @@ Attrib::DescID uiAttribPartServer::getStoredID( const LineKey& lkey, bool is2d )
 bool uiAttribPartServer::createAttributeSet( const BufferStringSet& inps,
 					     DescSet* attrset )
 {
-    AttributeSetCreator attrsetcr( appserv().parent(), inps, attrset );
+    AttributeSetCreator attrsetcr( parent(), inps, attrset );
     return attrsetcr.create();
 }
 
@@ -633,7 +633,7 @@ bool uiAttribPartServer::createAttributeSet( const BufferStringSet& inps,
 //TODO check what is the exact role of the descset
 bool uiAttribPartServer::setPickSetDirs( Pick::Set& ps, const NLAModel* nlamod )
 {
-//    uiSetPickDirs dlg( appserv().parent(), ps, curDescSet(), nlamod );
+//    uiSetPickDirs dlg( parent(), ps, curDescSet(), nlamod );
 //	return dlg.go();
     return true;
 }
@@ -963,8 +963,8 @@ void uiAttribPartServer::showEvalDlg( CallBacker* )
     if ( !alloweval_ ) mErrRet( "Evaluation of attributes only possible on\n"
 			       "Inlines, Crosslines, Timeslices and Surfaces.");
 
-    uiEvaluateDlg* evaldlg = new uiEvaluateDlg( appserv().parent(), *ade, 
-						allowevalstor_ );
+    uiEvaluateDlg* evaldlg = new uiEvaluateDlg( parent(), *ade,
+	    					allowevalstor_ );
     if ( !evaldlg->evaluationPossible() )
 	mErrRet( "This attribute has no parameters to evaluate" )
 
