@@ -8,13 +8,13 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizon3dextender.cc,v 1.9 2007-01-16 14:31:41 cvsjaap Exp $";
+static const char* rcsID = "$Id: horizon3dextender.cc,v 1.10 2007-05-22 03:23:23 cvsnanne Exp $";
 
 #include "horizonextender.h"
 
 #include "binidsurface.h"
 #include "emfault.h"
-#include "emhorizon.h"
+#include "emhorizon3d.h"
 #include "emhorizontaltube.h"
 #include "geomtube.h"
 #include "survinfo.h"
@@ -26,29 +26,29 @@ namespace MPE
 {
 
 
-HorizonExtender::HorizonExtender( EM::Horizon& surface_,
+Horizon3DExtender::Horizon3DExtender( EM::Horizon3D& surface_,
 				  const EM::SectionID& sectionid )
     : SectionExtender( sectionid )
     , surface( surface_ )
 {}
 
 
-void HorizonExtender::setDirection( const BinIDValue& bdval )
+void Horizon3DExtender::setDirection( const BinIDValue& bdval )
 { direction =  bdval; }
 
 
-int HorizonExtender::maxNrPosInExtArea() const
+int Horizon3DExtender::maxNrPosInExtArea() const
 { return getExtBoundary().hrg.totalNr(); }
 
 
-void HorizonExtender::preallocExtArea()
+void Horizon3DExtender::preallocExtArea()
 {
     const HorSampling hrg = getExtBoundary().hrg;
     surface.geometry().sectionGeometry(sid_)->expandWithUdf(hrg.start,hrg.stop);
 }
 
 
-int HorizonExtender::nextStep()
+int Horizon3DExtender::nextStep()
 {
     const bool alldirs = direction.binid.inl==0 && direction.binid.crl==0;
     
@@ -151,7 +151,7 @@ int HorizonExtender::nextStep()
 }
 
 
-const CubeSampling& HorizonExtender::getExtBoundary() const
+const CubeSampling& Horizon3DExtender::getExtBoundary() const
 { return extboundary_.isEmpty() ? engine().activeVolume() : extboundary_; }
 
 

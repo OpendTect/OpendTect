@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfaceedgelineimpl.h,v 1.10 2006-04-27 15:29:13 cvskris Exp $
+ RCS:		$Id: emsurfaceedgelineimpl.h,v 1.11 2007-05-22 03:23:22 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -23,7 +23,7 @@ class TerminationEdgeLineSegment : public EdgeLineSegment
 {
 public:
 		    mEdgeLineSegmentClone(TerminationEdgeLineSegment, TermLine);
-		    TerminationEdgeLineSegment( EM::Horizon& surf,
+		    TerminationEdgeLineSegment( EM::Horizon3D& surf,
 						const EM::SectionID& sect )
 			: EdgeLineSegment( surf, sect ) {}
 
@@ -36,7 +36,7 @@ class SurfaceConnectLine : public EdgeLineSegment
 {
 public:
     			mEdgeLineSegmentClone(SurfaceConnectLine,ConnLine);
-			SurfaceConnectLine( EM::Horizon& surf,
+			SurfaceConnectLine( EM::Horizon3D& surf,
 					    const EM::SectionID& sect )
 			    : EdgeLineSegment( surf, sect ) {}
 
@@ -65,11 +65,11 @@ class SurfaceCutLine : public EdgeLineSegment
 {
 public:
     			mEdgeLineSegmentClone(SurfaceCutLine,CutLine);
-			SurfaceCutLine( EM::Horizon&, const EM::SectionID& );
+			SurfaceCutLine( EM::Horizon3D&, const EM::SectionID& );
     int		    	reTrackOrderIndex() const { return 2; }
 
     bool		canTrack() const { return cuttinghorizon_; }
-    const EM::Horizon*	cuttingHorizon() const { return cuttinghorizon_; }
+    const EM::Horizon3D* cuttingHorizon() const { return cuttinghorizon_; }
     virtual bool	shouldHorizonTrack(int,const RowCol& trackdir) const;
     virtual bool	shouldHorizonExpand() const { return true; }
 
@@ -79,13 +79,13 @@ public:
 					const EdgeLineSegment* );
 
     virtual void	setTime2Depth( const FloatMathFunction* f) { t2d=f; }
-    void		setCuttingSurface( const EM::Horizon* cs, bool pos )
+    void		setCuttingSurface( const EM::Horizon3D* cs, bool pos )
 			{ cuttinghorizon_ = cs; cutonpositiveside = pos; }
 
     bool		isNodeOK(const RowCol&) const;
 
     static
-    SurfaceCutLine*	createCutFromEdges( EM::Horizon& surface,
+    SurfaceCutLine*	createCutFromEdges( EM::Horizon3D& surface,
 					    const EM::SectionID& section,
 					    int relidx,
 					    const FloatMathFunction* t2d );
@@ -95,7 +95,7 @@ public:
 			*/
 
     static
-    SurfaceCutLine*	createCutFromSeed( EM::Horizon& surface,
+    SurfaceCutLine*	createCutFromSeed( EM::Horizon3D& surface,
 					   const EM::SectionID& section,
 					   int relidx, const RowCol& seed,
 					   bool boothdirs,
@@ -105,7 +105,7 @@ public:
 			     			will be tracked.
 			*/
     static void		computeDistancesAlongLine( const EM::EdgeLine&,
-					       const EM::Horizon&,
+					       const EM::Horizon3D&,
 					       const  FloatMathFunction* t2d,
 					       TypeSet<RowCol>&,
 					       TypeSet<float>&,
@@ -136,7 +136,7 @@ protected:
     const float		meshdist;
 
     const FloatMathFunction*	t2d;
-    const EM::Horizon*	cuttinghorizon_;
+    const EM::Horizon3D* cuttinghorizon_;
     bool		cutonpositiveside;
 
     static const char*	cuttingobjectstr;

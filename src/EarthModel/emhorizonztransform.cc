@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: emhorizonztransform.cc,v 1.5 2007-04-19 21:11:14 cvskris Exp $
+ RCS:           $Id: emhorizonztransform.cc,v 1.6 2007-05-22 03:23:23 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,13 +12,14 @@ ________________________________________________________________________
 #include "emhorizonztransform.h"
 
 #include "emmanager.h"
-#include "emhorizon.h"
+#include "emhorizon3d.h"
 #include "executor.h"
 #include "iopar.h"
 #include "survinfo.h"
 #include "sorting.h"
 
-using namespace EM;
+namespace EM
+{
 
 void HorizonZTransform::initClass()
 {
@@ -27,7 +28,7 @@ void HorizonZTransform::initClass()
 }
 
 
-HorizonZTransform::HorizonZTransform( const Horizon* hor )
+HorizonZTransform::HorizonZTransform( const Horizon3D* hor )
     : horizon_( 0 )
     , horchanged_( false )
 {
@@ -41,18 +42,18 @@ HorizonZTransform::~HorizonZTransform()
 
 
 
-void HorizonZTransform::setHorizon( const Horizon& hor )
+void HorizonZTransform::setHorizon( const Horizon3D& hor )
 {
     if ( horizon_ )
     {
-	const_cast<Horizon*>(horizon_)
+	const_cast<Horizon3D*>(horizon_)
 	    ->notifier.remove( mCB(this,HorizonZTransform,horChangeCB) );
 	horizon_->unRef();
     }
 
     horizon_ = &hor;
     horizon_->ref();
-    const_cast<Horizon*>(horizon_)
+    const_cast<Horizon3D*>(horizon_)
 	->notifier.notify( mCB(this,HorizonZTransform,horChangeCB) );
 
     horchanged_ = true;
@@ -163,7 +164,7 @@ bool HorizonZTransform::usePar( const IOPar& par )
 	emobj = EM::EMM().getObject( emid );
     }
 
-    mDynamicCastGet( EM::Horizon*, hor, emobj.ptr() );
+    mDynamicCastGet( EM::Horizon3D*, hor, emobj.ptr() );
     if ( !hor )
 	return false;
 
@@ -236,7 +237,4 @@ bool HorizonZTransform::getTopBottom( const BinID& bid, float& top,
     return true;
 }
 
-	
-
-
-
+} // namespace EM

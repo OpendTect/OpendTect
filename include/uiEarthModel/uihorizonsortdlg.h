@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          January 2006
- RCS:           $Id: uihorizonsortdlg.h,v 1.2 2006-05-26 08:13:25 cvsnanne Exp $
+ RCS:           $Id: uihorizonsortdlg.h,v 1.3 2007-05-22 03:23:22 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,7 +25,7 @@ class uiIOObjSelGrp;
 class uiHorizonSortDlg : public uiDialog
 {
 public:
-				uiHorizonSortDlg(uiParent*);
+				uiHorizonSortDlg(uiParent*,bool is2d);
 				~uiHorizonSortDlg();
 
     void			setParConstraints(const IOPar&,

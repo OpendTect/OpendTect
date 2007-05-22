@@ -4,14 +4,14 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emmanager.cc,v 1.54 2007-04-19 21:11:14 cvskris Exp $";
+static const char* rcsID = "$Id: emmanager.cc,v 1.55 2007-05-22 03:23:23 cvsnanne Exp $";
 
 #include "emmanager.h"
 
 #include "ctxtioobj.h"
 #include "emfault.h"
 #include "emhistory.h"
-#include "emhorizon.h"
+#include "emhorizon3d.h"
 #include "emhorizon2d.h"
 #include "emhorizontaltube.h"
 #include "emhorizonztransform.h"
@@ -110,7 +110,7 @@ const char* EMManager::objectType( const MultiID& mid ) const
 
 void EMManager::init()
 {
-    Horizon::initClass( *this );
+    Horizon3D::initClass( *this );
     Fault::initClass( *this );
     HorizontalTube::initClass(*this);
     StickSet::initClass(*this);
@@ -263,7 +263,7 @@ const char* EMManager::getSurfaceData( const MultiID& id, SurfaceIOData& sd )
 
     const char* grpname = ioobj->group();
     if ( !strcmp(grpname,EMHorizon2DTranslatorGroup::keyword) ||
-	 !strcmp(grpname,EMHorizonTranslatorGroup::keyword) ||
+	 !strcmp(grpname,EMHorizon3DTranslatorGroup::keyword) ||
 	 !strcmp(grpname,EMFaultTranslatorGroup::keyword) )
     {
 	PtrMan<EMSurfaceTranslator> tr = 

@@ -8,12 +8,12 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: sectionselectorimpl.cc,v 1.13 2006-04-28 20:59:59 cvskris Exp $";
+static const char* rcsID = "$Id: sectionselectorimpl.cc,v 1.14 2007-05-22 03:23:23 cvsnanne Exp $";
 
 #include "sectionselectorimpl.h"
 
 #include "binidsurface.h"
-#include "emhorizon.h"
+#include "emhorizon3d.h"
 #include "geomtube.h"
 #include "survinfo.h"
 #include "trackplane.h"
@@ -24,7 +24,7 @@ namespace MPE
 
 
 BinIDSurfaceSourceSelector::BinIDSurfaceSourceSelector(
-	const EM::Horizon& hor, const EM::SectionID& sid )
+	const EM::Horizon3D& hor, const EM::SectionID& sid )
     : SectionSourceSelector( sid )
     , surface_( hor )
 {}

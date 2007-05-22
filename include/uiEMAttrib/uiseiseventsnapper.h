@@ -7,14 +7,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          September 2006
- RCS:           $Id: uiseiseventsnapper.h,v 1.3 2006-10-19 11:53:45 cvsbert Exp $
+ RCS:           $Id: uiseiseventsnapper.h,v 1.4 2007-05-22 03:23:22 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uidialog.h"
 
-namespace EM { class Horizon; }
+namespace EM { class Horizon3D; }
 
 class CtxtIOObj;
 class IOObj;
@@ -44,7 +44,7 @@ protected:
     bool		readHorizon();
     bool		saveHorizon();
 
-    EM::Horizon*	horizon_;
+    EM::Horizon3D*	horizon_;
     CtxtIOObj&		horinctio_;
     CtxtIOObj&		horoutctio_;
     CtxtIOObj&		seisctio_;

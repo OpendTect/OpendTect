@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          September 2005
- RCS:           $Id: emhorizonutils.cc,v 1.10 2006-08-16 10:51:20 cvsbert Exp $
+ RCS:           $Id: emhorizonutils.cc,v 1.11 2007-05-22 03:23:23 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "binidvalset.h"
 
 #include "emmanager.h"
-#include "emhorizon.h"
+#include "emhorizon3d.h"
 #include "emsurfacegeometry.h"
 #include "emsurfaceauxdata.h"
 #include "parametricsurface.h"
@@ -277,7 +277,7 @@ void HorizonUtils::addSurfaceData( const MultiID& id,
     EMManager& em = EMM();
     const ObjectID objid = em.getObjectID(id);
     EMObject* obj = em.getObject( objid );
-    mDynamicCastGet(Horizon*,horizon,obj)
+    mDynamicCastGet(Horizon3D*,horizon,obj)
     if ( !horizon ) return;
 
     horizon->auxdata.removeAll();

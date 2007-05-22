@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		April 2006
- RCS:		$Id: uihorizonrelations.h,v 1.2 2006-06-07 06:57:14 cvsnanne Exp $
+ RCS:		$Id: uihorizonrelations.h,v 1.3 2007-05-22 03:23:22 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,7 +24,7 @@ class BufferStringSet;
 class uiHorizonRelationsDlg : public uiDialog
 {
 public:
-			uiHorizonRelationsDlg(uiParent*);
+			uiHorizonRelationsDlg(uiParent*,bool is2d);
 
 protected:
     uiLabeledListBox*	relationfld_;
@@ -33,6 +33,7 @@ protected:
 
     BufferStringSet	hornames_;
     TypeSet<MultiID>	horids_;
+    bool		is2d_;
 
     void		fillRelationField(const BufferStringSet&);
     void		read();

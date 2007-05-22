@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2005
- RCS:           $Id: uihorizontracksetup.cc,v 1.13 2007-04-04 09:37:35 cvsjaap Exp $
+ RCS:           $Id: uihorizontracksetup.cc,v 1.14 2007-05-22 03:23:23 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,8 +13,8 @@ ________________________________________________________________________
 
 #include "attribdescset.h"
 #include "attribsel.h"
-#include "emhorizon.h"
 #include "emhorizon2d.h"
+#include "emhorizon3d.h"
 #include "horizonadjuster.h"
 #include "sectiontracker.h"
 #include "survinfo.h"
@@ -40,7 +40,7 @@ void uiHorizonSetupGroup::initClass()
 uiSetupGroup* uiHorizonSetupGroup::create( uiParent* p, const char* typestr,
 					   const Attrib::DescSet* ads )
 {
-    if ( strcmp(typestr,EM::Horizon::typeStr()) && 
+    if ( strcmp(typestr,EM::Horizon3D::typeStr()) && 
 	 strcmp(typestr,EM::Horizon2D::typeStr()) )
 	return 0;
 

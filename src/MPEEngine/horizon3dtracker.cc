@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2002
- RCS:           $Id: horizon3dtracker.cc,v 1.3 2006-12-22 10:17:46 cvsjaap Exp $
+ RCS:           $Id: horizon3dtracker.cc,v 1.4 2007-05-22 03:23:23 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,7 +13,7 @@ ________________________________________________________________________
 
 #include "cubicbeziercurve.h"
 #include "emhistory.h"
-#include "emhorizon.h"
+#include "emhorizon3d.h"
 #include "emmanager.h"
 #include "horizonadjuster.h"
 #include "horizonextender.h"
@@ -30,53 +30,53 @@ ________________________________________________________________________
 namespace MPE
 {
 
-HorizonTracker::HorizonTracker( EM::Horizon* hor )
+Horizon3DTracker::Horizon3DTracker( EM::Horizon3D* hor )
     : EMTracker(hor)
     , consistencychecker(0)
     , seedpicker( 0 )
 {}
 
 
-HorizonTracker::~HorizonTracker()
+Horizon3DTracker::~Horizon3DTracker()
 {
     delete seedpicker;
 }
 
 
-EMTracker* HorizonTracker::create( EM::EMObject* emobj )
+EMTracker* Horizon3DTracker::create( EM::EMObject* emobj )
 {
-    mDynamicCastGet(EM::Horizon*,hor,emobj)
-    return emobj && !hor ? 0 : new HorizonTracker( hor );
+    mDynamicCastGet(EM::Horizon3D*,hor,emobj)
+    return emobj && !hor ? 0 : new Horizon3DTracker( hor );
 }
 
 
-void HorizonTracker::initClass()
+void Horizon3DTracker::initClass()
 {
     MPE::engine().addTrackerFactory(
-	    new TrackerFactory( EM::Horizon::typeStr(), create ) );
+	    new TrackerFactory( EM::Horizon3D::typeStr(), create ) );
 }
 
 
 #define mErrRet(msg) { errmsg = msg; return false; }
 
-SectionTracker* HorizonTracker::createSectionTracker( EM::SectionID sid )
+SectionTracker* Horizon3DTracker::createSectionTracker( EM::SectionID sid )
 {
     if ( !getHorizon() ) return 0;
 
     return new SectionTracker( *emObject(), sid,
 	    new BinIDSurfaceSourceSelector(*getHorizon(),sid),
-	    new HorizonExtender(*getHorizon(),sid),
+	    new Horizon3DExtender(*getHorizon(),sid),
 	    new HorizonAdjuster(*getHorizon(),sid) );
 }
 
 
-bool HorizonTracker::trackIntersections( const TrackPlane& plane )
+bool Horizon3DTracker::trackIntersections( const TrackPlane& plane )
 {
     return true;
 }
 
 
-EMSeedPicker* HorizonTracker::getSeedPicker(bool createifnotpresent)
+EMSeedPicker* Horizon3DTracker::getSeedPicker(bool createifnotpresent)
 {
     if ( seedpicker )
 	return seedpicker;
@@ -84,25 +84,25 @@ EMSeedPicker* HorizonTracker::getSeedPicker(bool createifnotpresent)
     if ( !createifnotpresent )
 	return 0;
 
-    seedpicker = new HorizonSeedPicker(*this);
+    seedpicker = new Horizon3DSeedPicker(*this);
     return seedpicker;
 }
 
 
-EM::Horizon* HorizonTracker::getHorizon()
+EM::Horizon3D* Horizon3DTracker::getHorizon()
 {
-    mDynamicCastGet(EM::Horizon*,hor,emObject());
+    mDynamicCastGet(EM::Horizon3D*,hor,emObject());
     return hor;
 }
 
 
-const EM::Horizon* HorizonTracker::getHorizon() const 
-{ return const_cast<HorizonTracker*>(this)->getHorizon(); }
+const EM::Horizon3D* Horizon3DTracker::getHorizon() const 
+{ return const_cast<Horizon3DTracker*>(this)->getHorizon(); }
 
 
-ConsistencyChecker* HorizonTracker::getConsistencyChecker()
+ConsistencyChecker* Horizon3DTracker::getConsistencyChecker()
 {
-    mDynamicCastGet(EM::Horizon*,horizon,emObject());
+    mDynamicCastGet(EM::Horizon3D*,horizon,emObject());
     if ( !horizon ) return 0;
 
     if ( !consistencychecker )

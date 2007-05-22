@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurface.cc,v 1.41 2007-01-31 11:59:44 cvsjaap Exp $
+ RCS:           $Id: uiiosurface.cc,v 1.42 2007-05-22 03:23:23 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,7 +32,7 @@ const int cListHeight = 5;
 
 #define mMakeCtxtIOObj(typ) \
     typ==EMHorizon2DTranslatorGroup::keyword ? *mMkCtxtIOObj(EMHorizon2D) : \
-    typ==EMHorizonTranslatorGroup::keyword ? *mMkCtxtIOObj(EMHorizon) : \
+    typ==EMHorizon3DTranslatorGroup::keyword ? *mMkCtxtIOObj(EMHorizon3D) : \
     *mMkCtxtIOObj(EMFault)  
 
 uiIOSurface::uiIOSurface( uiParent* p, bool forread_, const BufferString& typ )

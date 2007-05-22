@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          May 2002
- RCS:           $Id: uiimphorizon.cc,v 1.78 2007-02-05 14:32:25 cvsnanne Exp $
+ RCS:           $Id: uiimphorizon.cc,v 1.79 2007-05-22 03:23:23 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,7 +13,7 @@ ________________________________________________________________________
 
 #include "emsurfacetr.h"
 #include "emmanager.h"
-#include "emhorizon.h"
+#include "emhorizon3d.h"
 
 #include "arrayndimpl.h"
 #include "binidselimpl.h"
@@ -96,7 +96,7 @@ void selChg( CallBacker* )
 uiImportHorizon::uiImportHorizon( uiParent* p )
     : uiDialog(p,uiDialog::Setup("Import Horizon",
 				 "Specify horizon parameters","104.0.0"))
-    , ctio_(*mMkCtxtIOObj(EMHorizon))
+    , ctio_(*mMkCtxtIOObj(EMHorizon3D))
     , attribnames_(*new BufferStringSet)
     , emobjid_(-1)
 {
@@ -253,8 +253,8 @@ bool uiImportHorizon::doWork()
 {
     const char* horizonnm = outfld->getInput();
     EM::EMManager& em = EM::EMM();
-    emobjid_ = em.createObject( EM::Horizon::typeStr(), horizonnm );
-    mDynamicCastGet(EM::Horizon*,horizon,em.getObject(emobjid_));
+    emobjid_ = em.createObject( EM::Horizon3D::typeStr(), horizonnm );
+    mDynamicCastGet(EM::Horizon3D*,horizon,em.getObject(emobjid_));
     if ( !horizon )
 	mErrRet( "Cannot create horizon" );
 

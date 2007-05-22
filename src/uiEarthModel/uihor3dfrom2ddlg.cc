@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          January 2007
- RCS:           $Id: uihor3dfrom2ddlg.cc,v 1.9 2007-05-07 15:52:29 cvsjaap Exp $
+ RCS:           $Id: uihor3dfrom2ddlg.cc,v 1.10 2007-05-22 03:23:23 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,7 +19,7 @@ ________________________________________________________________________
 #include "uimsg.h"
 
 #include "emhorizon2d.h"
-#include "emhorizon.h"
+#include "emhorizon3d.h"
 #include "emsurfacetr.h"
 #include "emmanager.h"
 #include "emhor2dto3d.h"
@@ -35,7 +35,7 @@ uiHor3DFrom2DDlg::uiHor3DFrom2DDlg( uiParent* p, const EM::Horizon2D& h2d,
     : uiDialog( p, Setup("Create 3D Horizon","Specify parameters","104.0.5") )
     , hor2d_( h2d )
     , emserv_( ems )
-    , ctio_(*mMkCtxtIOObj(EMHorizon))
+    , ctio_(*mMkCtxtIOObj(EMHorizon3D))
     , selid_( -1 )
 {
     ctio_.ctxt.forread = false;
@@ -75,7 +75,7 @@ bool uiHor3DFrom2DDlg::acceptOK( CallBacker* )
 
     outfld_->processInput();
     const char* nm = outfld_->getInput();
-    const BufferString typ = EM::Horizon::typeStr();
+    const BufferString typ = EM::Horizon3D::typeStr();
 
     PtrMan<IOObj> ioobj = IOM().getLocal( nm );
     const bool implexists = ioobj && ioobj->implExists( false );
@@ -89,7 +89,7 @@ bool uiHor3DFrom2DDlg::acceptOK( CallBacker* )
     emserv_->removeTreeObject( em.getObjectID(mid) );
     
     const EM::ObjectID emobjid = em.createObject( typ, nm );
-    mDynamicCastGet(EM::Horizon*,hor3d,em.getObject(emobjid));
+    mDynamicCastGet(EM::Horizon3D*,hor3d,em.getObject(emobjid));
     if ( !hor3d )
 	mErrRet( "Cannot create 3D horizon" );
 

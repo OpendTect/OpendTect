@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: emhorizon2d.cc,v 1.8 2007-01-31 11:41:48 cvsjaap Exp $
+ RCS:           $Id: emhorizon2d.cc,v 1.9 2007-05-22 03:23:22 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,40 +21,40 @@ ________________________________________________________________________
 namespace EM
 {
 
-const char* Horizon2Geometry::lineidsstr_	= "Line IDs";
-const char* Horizon2Geometry::linenamesstr_	= "Line names";
-const char* Horizon2Geometry::linesetprefixstr_	= "Set ID of line ";
+const char* Horizon2DGeometry::lineidsstr_	 = "Line IDs";
+const char* Horizon2DGeometry::linenamesstr_	 = "Line names";
+const char* Horizon2DGeometry::linesetprefixstr_ = "Set ID of line ";
 
     
-Horizon2Geometry::Horizon2Geometry( Surface& hor2 )
-    : RowColSurfaceGeometry( hor2 )
+Horizon2DGeometry::Horizon2DGeometry( Surface& surface )
+    : HorizonGeometry( surface )
 {}
 
 
 Geometry::Horizon2DLine*
-Horizon2Geometry::sectionGeometry( const SectionID& sid )
+Horizon2DGeometry::sectionGeometry( const SectionID& sid )
 {
-    return (Geometry::Horizon2DLine*) SurfaceGeometry::sectionGeometry(sid);
+    return (Geometry::Horizon2DLine*)SurfaceGeometry::sectionGeometry( sid );
 }
 
 
 const Geometry::Horizon2DLine*
-Horizon2Geometry::sectionGeometry( const SectionID& sid ) const
+Horizon2DGeometry::sectionGeometry( const SectionID& sid ) const
 {
     return (const Geometry::Horizon2DLine*)
-	SurfaceGeometry::sectionGeometry(sid);
+	SurfaceGeometry::sectionGeometry( sid );
 }
 
 
-int Horizon2Geometry::nrLines() const
+int Horizon2DGeometry::nrLines() const
 { return linenames_.size(); }
 
 
-int Horizon2Geometry::lineID( int idx ) const
+int Horizon2DGeometry::lineID( int idx ) const
 { return idx>=0 && idx<nrLines() ? lineids_[idx] : -1; }
 
 
-const char* Horizon2Geometry::lineName( int lid ) const
+const char* Horizon2DGeometry::lineName( int lid ) const
 {
     const int idx = lineids_.indexOf( lid );
     if ( idx>=0 && idx<nrLines() )
@@ -67,7 +67,7 @@ const char* Horizon2Geometry::lineName( int lid ) const
 }
 
 
-const MultiID& Horizon2Geometry::lineSet( int lid ) const
+const MultiID& Horizon2DGeometry::lineSet( int lid ) const
 {
     const int idx = lineids_.indexOf( lid );
     if ( idx>=0 && idx<nrLines() )
@@ -78,8 +78,8 @@ const MultiID& Horizon2Geometry::lineSet( int lid ) const
 }
 
 
-int Horizon2Geometry::addLine( const TypeSet<Coord>& path, int start, int step,
-			 const MultiID& lineset, const char* line )
+int Horizon2DGeometry::addLine( const TypeSet<Coord>& path, int start, int step,
+				const MultiID& lineset, const char* line )
 {
     linenames_.add( line );
     linesets_ +=  lineset;
@@ -99,7 +99,7 @@ int Horizon2Geometry::addLine( const TypeSet<Coord>& path, int start, int step,
 }
 
 
-void Horizon2Geometry::removeLine( int lid )
+void Horizon2DGeometry::removeLine( int lid )
 {
     const int lidx = lineids_.indexOf( lid );
     if ( lidx<0 || lidx>=linenames_.size() )
@@ -117,8 +117,8 @@ void Horizon2Geometry::removeLine( int lid )
 }
 
 
-PosID Horizon2Geometry::getNeighbor( const PosID& pid, bool nextcol,
-				     bool retundef ) const
+PosID Horizon2DGeometry::getNeighbor( const PosID& pid, bool nextcol,
+				      bool retundef ) const
 {
     const RowCol rc( pid.subID() );
     TypeSet<PosID> aliases;
@@ -143,18 +143,18 @@ PosID Horizon2Geometry::getNeighbor( const PosID& pid, bool nextcol,
 }
 
 
-int Horizon2Geometry::getConnectedPos(const PosID& pid,
-				      TypeSet<PosID>* res) const
+int Horizon2DGeometry::getConnectedPos( const PosID& pid,
+					TypeSet<PosID>* res ) const
 {
     int nrres = 0;
-    PosID neighborpid = getNeighbor( pid, true, true);
+    PosID neighborpid = getNeighbor( pid, true, true );
     if ( neighborpid.objectID()!=-1 )
     {
 	nrres++;
 	if ( res ) (*res) += neighborpid;
     }
 
-    neighborpid = getNeighbor( pid, false, true);
+    neighborpid = getNeighbor( pid, false, true );
     if ( neighborpid.objectID()!=-1 )
     {    
 	nrres++;
@@ -165,17 +165,17 @@ int Horizon2Geometry::getConnectedPos(const PosID& pid,
 }
 
 
-bool Horizon2Geometry::isAtEdge( const PosID& pid ) const
+bool Horizon2DGeometry::isAtEdge( const PosID& pid ) const
 {
-    return getConnectedPos( pid, 0 )!=2;
+    return getConnectedPos( pid, 0 ) != 2;
 }
 
 
-Geometry::Horizon2DLine* Horizon2Geometry::createSectionGeometry() const
+Geometry::Horizon2DLine* Horizon2DGeometry::createSectionGeometry() const
 { return new Geometry::Horizon2DLine; }
 
 
-void Horizon2Geometry::fillPar( IOPar& par ) const
+void Horizon2DGeometry::fillPar( IOPar& par ) const
 {
     par.set( lineidsstr_, lineids_ );
     par.set( linenamesstr_, linenames_ );
@@ -189,7 +189,7 @@ void Horizon2Geometry::fillPar( IOPar& par ) const
 }
 
 
-bool Horizon2Geometry::usePar( const IOPar& par )
+bool Horizon2DGeometry::usePar( const IOPar& par )
 {
     if ( !par.get(lineidsstr_,lineids_) )
 	return false;
@@ -209,14 +209,24 @@ bool Horizon2Geometry::usePar( const IOPar& par )
 }
 
 
-const char* Horizon2D::typeStr() { return EMHorizon2DTranslatorGroup::keyword; }
+
+Horizon2D::Horizon2D( EMManager& emm )
+    : Horizon( emm )
+    , geometry_( *this )
+{
+    geometry_.addSection( "", false );
+}
+
+
+const char* Horizon2D::typeStr()
+{ return EMHorizon2DTranslatorGroup::keyword; }
 
 
 EMObject* Horizon2D::create( EMManager& emm )
 { return new Horizon2D( emm ); }
 
 
-void Horizon2D::initClass(EMManager& emm)
+void Horizon2D::initClass( EMManager& emm )
 {
     ObjectFactory* no = new ObjectFactory( create,
 	    EMHorizon2DTranslatorGroup::ioContext(), typeStr());
@@ -224,19 +234,7 @@ void Horizon2D::initClass(EMManager& emm)
 }
 
 
-Horizon2D::Horizon2D( EMManager& man )
-    : Surface( man )
-    , geometry_( *this )
-{
-    geometry_.addSection( "", false );
-}
-
-
-const char* Horizon2D::getTypeStr() const
-{ return typeStr(); }
-
-
-bool Horizon2D::unSetPos(const PosID& pid, bool addtohistory )
+bool Horizon2D::unSetPos( const PosID& pid, bool addtohistory )
 {
     Coord3 pos = getPos( pid );
     pos.z = mUdf(float);
@@ -245,7 +243,7 @@ bool Horizon2D::unSetPos(const PosID& pid, bool addtohistory )
 
 
 bool Horizon2D::unSetPos( const EM::SectionID& sid, const EM::SubID& subid,
-			 bool addtohistory )
+			  bool addtohistory )
 {
     Coord3 pos = getPos( sid, subid );
     pos.z = mUdf(float);
@@ -253,17 +251,7 @@ bool Horizon2D::unSetPos( const EM::SectionID& sid, const EM::SubID& subid,
 }
 
 
-Horizon2Geometry& Horizon2D::geometry()
-{ return geometry_; }
-
-
-const Horizon2Geometry& Horizon2D::geometry() const
-{ return geometry_; }
-
-
 const IOObjContext& Horizon2D::getIOObjContext() const
 { return EMHorizon2DTranslatorGroup::ioContext(); }  //Fix onw tr
 
-    
-
-}; //namespace
+} // namespace EM

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          September 2006
- RCS:           $Id: uiseiseventsnapper.cc,v 1.6 2007-02-05 14:32:25 cvsnanne Exp $
+ RCS:           $Id: uiseiseventsnapper.cc,v 1.7 2007-05-22 03:23:23 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,7 +19,7 @@ ________________________________________________________________________
 #include "uiseissel.h"
 
 #include "ctxtioobj.h"
-#include "emhorizon.h"
+#include "emhorizon3d.h"
 #include "emmanager.h"
 #include "emposid.h"
 #include "emsurfacetr.h"
@@ -35,8 +35,8 @@ ________________________________________________________________________
 
 uiSeisEventSnapper::uiSeisEventSnapper( uiParent* p, const IOObj* inp )
     : uiDialog(p,Setup("Snap horizon to seismic event","",""))
-    , horinctio_(*mMkCtxtIOObj(EMHorizon))
-    , horoutctio_(*mMkCtxtIOObj(EMHorizon))
+    , horinctio_(*mMkCtxtIOObj(EMHorizon3D))
+    , horoutctio_(*mMkCtxtIOObj(EMHorizon3D))
     , seisctio_(*mMkCtxtIOObj(SeisTrc))
     , horizon_(0)
 {
@@ -105,7 +105,7 @@ bool uiSeisEventSnapper::readHorizon()
 	emobj = EM::EMM().getObject( oid );
     }
 
-    mDynamicCastGet(EM::Horizon*,hor,emobj)
+    mDynamicCastGet(EM::Horizon3D*,hor,emobj)
     horizon_ = hor;
     horizon_->ref();
     delete reader;

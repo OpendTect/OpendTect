@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: horizon3dextender.h,v 1.4 2007-01-16 14:26:56 cvsjaap Exp $
+ RCS:           $Id: horizon3dextender.h,v 1.5 2007-05-22 03:23:22 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,15 +16,15 @@ ________________________________________________________________________
 #include "sectionextender.h"
 #include "position.h"
 
-namespace EM { class Horizon; };
+namespace EM { class Horizon3D; };
 
 namespace MPE
 {
 
-class HorizonExtender : public SectionExtender
+class Horizon3DExtender : public SectionExtender
 {
 public:
-    				HorizonExtender(EM::Horizon& surface_,
+    				Horizon3DExtender(EM::Horizon3D& surface_,
 						const EM::SectionID& sid);
 
     void			setDirection(const BinIDValue&);
@@ -39,7 +39,7 @@ public:
 
 protected:
     BinIDValue			direction;
-    EM::Horizon&		surface;
+    EM::Horizon3D&		surface;
 };
 
 

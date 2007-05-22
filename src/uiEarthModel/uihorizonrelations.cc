@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		April 2006
- RCS:		$Id: uihorizonrelations.cc,v 1.5 2007-02-05 14:32:25 cvsnanne Exp $
+ RCS:		$Id: uihorizonrelations.cc,v 1.6 2007-05-22 03:23:23 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,7 +35,7 @@ ________________________________________________________________________
 #include "iopar.h"
 
 
-uiHorizonRelationsDlg::uiHorizonRelationsDlg( uiParent* p )
+uiHorizonRelationsDlg::uiHorizonRelationsDlg( uiParent* p, bool is2d )
     : uiDialog(p,Setup("Horizon relations","",""))
 {
     read();
@@ -65,7 +65,7 @@ uiHorizonRelationsDlg::uiHorizonRelationsDlg( uiParent* p )
 
 void uiHorizonRelationsDlg::readHorizonCB( CallBacker* )
 {
-    uiHorizonSortDlg dlg( this );
+    uiHorizonSortDlg dlg( this, is2d_ );
     if ( !dlg.go() ) return;
 
     hornames_.erase();
@@ -143,7 +143,7 @@ HorizonModifyDlg( uiParent* p, const MultiID& mid1, const MultiID& mid2,
     : uiDialog(p,Setup("Horizon relations","Solve crossings",""))
     , mid1_(mid1)
     , mid2_(mid2)
-    , ctio_(*mMkCtxtIOObj(EMHorizon))
+    , ctio_(*mMkCtxtIOObj(EMHorizon3D))
 {
     BufferStringSet hornms;
     hornms.add( EM::EMM().objectName(mid1) );

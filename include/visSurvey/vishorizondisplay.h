@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          May 2004
- RCS:           $Id: vishorizondisplay.h,v 1.15 2007-05-09 18:20:22 cvskris Exp $
+ RCS:           $Id: vishorizondisplay.h,v 1.16 2007-05-22 03:23:22 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -70,6 +70,7 @@ public:
     bool			isAttribEnabled(int attrib) const;
     void			setAngleFlag(int attrib,bool yn);
     bool			isAngle(int attrib) const;
+    void			allowShading(bool);
     const Attrib::SelSpec*	getSelSpec(int) const;
     void			setSelSpec(int,const Attrib::SelSpec&);
     void			setDepthAsAttrib(int);

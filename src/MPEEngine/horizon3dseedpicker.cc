@@ -8,12 +8,12 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizon3dseedpicker.cc,v 1.23 2007-03-29 11:38:15 cvsjaap Exp $";
+static const char* rcsID = "$Id: horizon3dseedpicker.cc,v 1.24 2007-05-22 03:23:23 cvsnanne Exp $";
 
 #include "horizonseedpicker.h"
 
 #include "autotracker.h"
-#include "emhorizon.h"
+#include "emhorizon3d.h"
 #include "emmanager.h"
 #include "sectiontracker.h"
 #include "executor.h"
@@ -25,7 +25,7 @@ static const char* rcsID = "$Id: horizon3dseedpicker.cc,v 1.23 2007-03-29 11:38:
 namespace MPE 
 {
 
-HorizonSeedPicker::HorizonSeedPicker( MPE::EMTracker& t )
+Horizon3DSeedPicker::Horizon3DSeedPicker( MPE::EMTracker& t )
     : tracker_( t )
     , addrmseed_( this )
     , surfchange_( this )
@@ -34,7 +34,7 @@ HorizonSeedPicker::HorizonSeedPicker( MPE::EMTracker& t )
 { }
 
 
-bool HorizonSeedPicker::setSectionID( const EM::SectionID& sid )
+bool Horizon3DSeedPicker::setSectionID( const EM::SectionID& sid )
 { 
     sectionid_ = sid; 
     return true; 
@@ -43,11 +43,11 @@ bool HorizonSeedPicker::setSectionID( const EM::SectionID& sid )
 
 #define mGetHorizon(hor) \
     const EM::ObjectID emobjid = tracker_.objectID(); \
-    mDynamicCastGet( EM::Horizon*, hor, EM::EMM().getObject(emobjid) ); \
+    mDynamicCastGet( EM::Horizon3D*, hor, EM::EMM().getObject(emobjid) ); \
     if ( !hor ) \
 	return false;\
 
-bool HorizonSeedPicker::startSeedPick()
+bool Horizon3DSeedPicker::startSeedPick()
 {
     mGetHorizon(hor);
     didchecksupport_ = hor->enableGeometryChecks( false );
@@ -55,7 +55,7 @@ bool HorizonSeedPicker::startSeedPick()
 }
 
 	
-bool HorizonSeedPicker::addSeed(const Coord3& seedcrd, bool drop )
+bool Horizon3DSeedPicker::addSeed(const Coord3& seedcrd, bool drop )
 {
     addrmseed_.trigger();
 
@@ -102,7 +102,7 @@ bool HorizonSeedPicker::addSeed(const Coord3& seedcrd, bool drop )
 }
 
 
-bool HorizonSeedPicker::removeSeed( const EM::PosID& pid, bool environment, 
+bool Horizon3DSeedPicker::removeSeed( const EM::PosID& pid, bool environment, 
 				    bool retrack )
 {
     addrmseed_.trigger();
@@ -144,7 +144,7 @@ bool HorizonSeedPicker::removeSeed( const EM::PosID& pid, bool environment,
 }
 
 
-bool HorizonSeedPicker::reTrack()
+bool Horizon3DSeedPicker::reTrack()
 {
     propagatelist_.erase(); seedlist_.erase(); seedpos_.erase(); 
     
@@ -154,7 +154,7 @@ bool HorizonSeedPicker::reTrack()
 }
 
 
-bool HorizonSeedPicker::retrackOnActiveLine( const BinID& startbid, 
+bool Horizon3DSeedPicker::retrackOnActiveLine( const BinID& startbid, 
 					     bool startwasdefined,
 					     bool eraseonly ) 
 {
@@ -190,7 +190,7 @@ bool HorizonSeedPicker::retrackOnActiveLine( const BinID& startbid,
 }
 
 
-void HorizonSeedPicker::processJunctions()
+void Horizon3DSeedPicker::processJunctions()
 {
     EM::EMObject* emobj = EM::EMM().getObject( tracker_.objectID() );  
 
@@ -244,7 +244,7 @@ void HorizonSeedPicker::processJunctions()
     junctions_ += EM::PosID(emobj->id(),sectionid_,nextbid.getSerialized()); \
 }
 
-void HorizonSeedPicker::extendSeedListEraseInBetween( 
+void Horizon3DSeedPicker::extendSeedListEraseInBetween( 
 				    bool wholeline, const BinID& startbid, 
 				    bool startwasdefined, const BinID& dir )
 {
@@ -315,7 +315,7 @@ void HorizonSeedPicker::extendSeedListEraseInBetween(
 }
 
 
-bool HorizonSeedPicker::retrackFromSeedList()
+bool Horizon3DSeedPicker::retrackFromSeedList()
 {
     if ( seedlist_.isEmpty() )
 	return true;
@@ -362,7 +362,7 @@ bool HorizonSeedPicker::retrackFromSeedList()
 }
 
 
-int HorizonSeedPicker::nrSeeds() const
+int Horizon3DSeedPicker::nrSeeds() const
 {
     EM::EMObject* emobj = EM::EMM().getObject( tracker_.objectID() );  
     const TypeSet<EM::PosID>* seednodelist = 
@@ -370,7 +370,7 @@ int HorizonSeedPicker::nrSeeds() const
     return seednodelist ? seednodelist->size() : 0;
 }
 
-const char* HorizonSeedPicker::seedConModeText( int mode, bool abbrev )
+const char* Horizon3DSeedPicker::seedConModeText( int mode, bool abbrev )
 {
     if ( mode==TrackFromSeeds && !abbrev )
 	return "Tracking in volume";
@@ -384,7 +384,7 @@ const char* HorizonSeedPicker::seedConModeText( int mode, bool abbrev )
 	return "Unknown mode";
 }
 
-int HorizonSeedPicker::minSeedsToLeaveInitStage() const
+int Horizon3DSeedPicker::minSeedsToLeaveInitStage() const
 { 
     if ( seedconmode_==TrackFromSeeds ) 
 	return 1;
@@ -395,19 +395,19 @@ int HorizonSeedPicker::minSeedsToLeaveInitStage() const
 }
 
 
-bool HorizonSeedPicker::doesModeUseVolume() const
+bool Horizon3DSeedPicker::doesModeUseVolume() const
 { return seedconmode_==TrackFromSeeds; }
 
 
-bool HorizonSeedPicker::doesModeUseSetup() const
+bool Horizon3DSeedPicker::doesModeUseSetup() const
 { return seedconmode_!=DrawBetweenSeeds; }
 
 
-int HorizonSeedPicker::defaultSeedConMode( bool gotsetup ) const 
+int Horizon3DSeedPicker::defaultSeedConMode( bool gotsetup ) const 
 { return gotsetup ? defaultSeedConMode() : DrawBetweenSeeds; }
 
 
-bool HorizonSeedPicker::stopSeedPick( bool iscancel )
+bool Horizon3DSeedPicker::stopSeedPick( bool iscancel )
 {
     mGetHorizon(hor);
     hor->enableGeometryChecks( didchecksupport_ );
@@ -415,7 +415,7 @@ bool HorizonSeedPicker::stopSeedPick( bool iscancel )
 }
 
 
-bool HorizonSeedPicker::lineTrackDirection( BinID& dir, 
+bool Horizon3DSeedPicker::lineTrackDirection( BinID& dir, 
 					    bool perptotrackdir ) const
 {
     const CubeSampling& activevol = engine().activeVolume();
@@ -436,13 +436,13 @@ bool HorizonSeedPicker::lineTrackDirection( BinID& dir,
 }
 
 
-int HorizonSeedPicker::nrLateralNeighbors( const EM::PosID& pid ) const
+int Horizon3DSeedPicker::nrLateralNeighbors( const EM::PosID& pid ) const
 {
     return nrLineNeighbors( pid, true );
 }
 
 
-int HorizonSeedPicker::nrLineNeighbors( const EM::PosID& pid, 
+int Horizon3DSeedPicker::nrLineNeighbors( const EM::PosID& pid, 
 				        bool perptotrackdir ) const
 {
     EM::EMObject* emobj = EM::EMM().getObject( tracker_.objectID() );  
@@ -467,7 +467,7 @@ int HorizonSeedPicker::nrLineNeighbors( const EM::PosID& pid,
 }
 
 
-bool HorizonSeedPicker::interpolateSeeds()
+bool Horizon3DSeedPicker::interpolateSeeds()
 {
     BinID dir;
     if ( !lineTrackDirection(dir) ) return false;
@@ -507,7 +507,7 @@ bool HorizonSeedPicker::interpolateSeeds()
 }
 
 
-CubeSampling HorizonSeedPicker::getTrackBox() const
+CubeSampling Horizon3DSeedPicker::getTrackBox() const
 {
     CubeSampling trackbox( true );
     trackbox.hrg.init( false );

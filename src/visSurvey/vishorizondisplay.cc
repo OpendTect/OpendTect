@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: vishorizondisplay.cc,v 1.30 2007-05-09 18:20:22 cvskris Exp $
+ RCS:           $Id: vishorizondisplay.cc,v 1.31 2007-05-22 03:23:22 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,7 +13,7 @@ ________________________________________________________________________
 
 #include "attribsel.h"
 #include "binidvalset.h"
-#include "emhorizon.h"
+#include "emhorizon3d.h"
 #include "mpeengine.h"
 #include "viscoord.h"
 #include "visdataman.h"
@@ -221,7 +221,7 @@ void HorizonDisplay::removeEMStuff()
 
     }
 
-    mDynamicCastGet( EM::Horizon*, emhorizon, emobject_ );
+    mDynamicCastGet( EM::Horizon3D*, emhorizon, emobject_ );
     if ( emhorizon )
 	emhorizon->edgelinesets.addremovenotify.remove(
 			mCB(this,HorizonDisplay,emEdgeLineChangeCB ));
@@ -245,7 +245,7 @@ bool HorizonDisplay::setEMObject( const EM::ObjectID& newid )
     if ( !EMObjectDisplay::setEMObject( newid ) )
 	return false;
 
-    mDynamicCastGet( EM::Horizon*, emhorizon, emobject_ );
+    mDynamicCastGet( EM::Horizon3D*, emhorizon, emobject_ );
     if ( emhorizon ) emhorizon->edgelinesets.addremovenotify.notify(
 			    mCB(this,HorizonDisplay,emEdgeLineChangeCB ));
 
@@ -255,7 +255,7 @@ bool HorizonDisplay::setEMObject( const EM::ObjectID& newid )
 
 StepInterval<int> HorizonDisplay::displayedRowRange() const
 {
-    mDynamicCastGet(const EM::Horizon*, surface, emobject_ );
+    mDynamicCastGet(const EM::Horizon3D*, surface, emobject_ );
     if ( !surface ) return parrowrg_;
     
     return surface->geometry().rowRange();
@@ -264,7 +264,7 @@ StepInterval<int> HorizonDisplay::displayedRowRange() const
 
 StepInterval<int> HorizonDisplay::displayedColRange() const
 {
-    mDynamicCastGet(const EM::Horizon*, surface, emobject_ );
+    mDynamicCastGet(const EM::Horizon3D*, surface, emobject_ );
     if ( !surface ) return parcolrg_;
     
     return surface->geometry().colRange();
@@ -303,7 +303,7 @@ void HorizonDisplay::updateFromMPE()
 
 bool HorizonDisplay::addEdgeLineDisplay( const EM::SectionID& sid )
 {
-    mDynamicCastGet( EM::Horizon*, emhorizon, emobject_ );
+    mDynamicCastGet( EM::Horizon3D*, emhorizon, emobject_ );
     EM::EdgeLineSet* els = emhorizon
 	? emhorizon->edgelinesets.getEdgeLineSet(sid,false) : 0;
 
@@ -407,7 +407,7 @@ void HorizonDisplay::selectTexture( int attrib, int textureidx )
 	    psurf->selectActiveVersion( attrib, textureidx );
     }
 
-    mDynamicCastGet(EM::Horizon*,emsurf,emobject_)
+    mDynamicCastGet(EM::Horizon3D*,emsurf,emobject_)
     if ( !emsurf || emsurf->auxdata.nrAuxData() == 0 ) return;
 
     if ( textureidx >= emsurf->auxdata.nrAuxData() )
@@ -569,6 +569,17 @@ void HorizonDisplay::setAngleFlag( int attribnr, bool yn )
     }
 }
 
+
+void HorizonDisplay::allowShading( bool yn )
+{
+    for ( int idx=sections_.size()-1; idx>=0; idx-- )
+    {
+	mDynamicCastGet(visBase::ParametricSurface*,psurf,sections_[idx]);
+	if ( psurf ) psurf->allowShading( yn );
+    }
+}
+
+
 const Attrib::SelSpec* HorizonDisplay::getSelSpec( int attrib ) const
 { return as_[attrib]; }
 
@@ -711,7 +722,7 @@ void HorizonDisplay::setTranslation( const Coord3& nt )
     Coord3 shift( nt ); shift.z *= -1;
     translation_->setTranslation( shift );
 
-    mDynamicCastGet(EM::Horizon*,horizon,emobject_);
+    mDynamicCastGet(EM::Horizon3D*,horizon,emobject_);
     if ( horizon ) horizon->geometry().setShift( -shift.z );
 
     for ( int idx=0; idx<sections_.size(); idx++ )
@@ -765,7 +776,7 @@ bool HorizonDisplay::addSection( const EM::SectionID& sid )
 {
     visBase::ParametricSurface* surf = visBase::ParametricSurface::create();
 
-    mDynamicCastGet( EM::Horizon*, horizon, emobject_ );
+    mDynamicCastGet( EM::Horizon3D*, horizon, emobject_ );
     surf->setSurface(horizon->geometry().sectionGeometry(sid), true );
 
     while ( surf->nrTextures()<nrAttribs() ) surf->addTexture();
@@ -833,7 +844,7 @@ void HorizonDisplay::emEdgeLineChangeCB(CallBacker* cb)
 {
     mCBCapsuleUnpack( EM::SectionID, section, cb );
 
-    mDynamicCastGet(const EM::Horizon*,emhorizon,emobject_);
+    mDynamicCastGet(const EM::Horizon3D*,emhorizon,emobject_);
     if ( !emhorizon ) return;
 
     if ( emhorizon->edgelinesets.getEdgeLineSet( section, false ) )
@@ -919,7 +930,7 @@ float HorizonDisplay::calcDist( const Coord3& pickpos ) const
 
     const mVisTrans* utm2display = scene_->getUTM2DisplayTransform();
     const Coord3 xytpos = utm2display->transformBack( pickpos );
-    mDynamicCastGet(const EM::Horizon*,hor,emobject_)
+    mDynamicCastGet(const EM::Horizon3D*,hor,emobject_)
     if ( hor )
     {
 	const BinID bid = SI().transform( xytpos );
@@ -1106,7 +1117,7 @@ void HorizonDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
 void HorizonDisplay::updateIntersectionLines(
 	    const ObjectSet<const SurveyObject>& objs, int whichobj )
 {
-    mDynamicCastGet(const EM::Horizon*,horizon,emobject_);
+    mDynamicCastGet(const EM::Horizon3D*,horizon,emobject_);
     if ( !horizon ) return;
 
     TypeSet<int> linestoupdate;

@@ -8,13 +8,13 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emeditor.cc,v 1.18 2006-11-21 14:00:07 cvsbert Exp $";
+static const char* rcsID = "$Id: emeditor.cc,v 1.19 2007-05-22 03:23:23 cvsnanne Exp $";
 
 #include "emeditor.h"
 
 #include "emhistory.h"
 #include "emmanager.h"
-#include "emhorizon.h"
+#include "emhorizon3d.h"
 #include "emsurfacegeometry.h"
 #include "emsurfaceedgeline.h"
 #include "emtracker.h"
@@ -237,7 +237,7 @@ mGetFunction( getDirection );
 
 void ObjectEditor::restartInteractionLine(const EM::PosID& pid)
 {
-    mDynamicCastGet( EM::Horizon*, emsurface, &emobject );
+    mDynamicCastGet( EM::Horizon3D*, emsurface, &emobject );
     const EM::SectionID sid = pid.sectionID();
     if ( !emsurface )
     {
@@ -317,7 +317,7 @@ bool ObjectEditor::interactionLineInteraction( const EM::PosID& pid,
 	 !interactionline->getLine(0)->getSegment(0)->size())
 	return false;
 
-    EM::Horizon& emsurface = interactionline->getHorizon();
+    EM::Horizon3D& emsurface = interactionline->getHorizon();
     const EM::SectionID sid = interactionline->getSection();
     const RowCol rc( pid.subID() );
 

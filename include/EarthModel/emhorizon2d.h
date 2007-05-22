@@ -7,36 +7,37 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emhorizon2d.h,v 1.5 2007-01-31 11:39:37 cvsjaap Exp $
+ RCS:		$Id: emhorizon2d.h,v 1.6 2007-05-22 03:23:22 cvsnanne Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "emsurface.h"
-#include "emsurfacegeometry.h"
+#include "emhorizon.h"
 #include "bufstringset.h"
 #include "horizon2dline.h"
+
+namespace Geometry { class Horizon2DLine; }
 
 namespace EM
 {
 class EMManager;
 
-class Horizon2Geometry : public RowColSurfaceGeometry
+class Horizon2DGeometry : public HorizonGeometry
 {
 public:
-    					Horizon2Geometry(Surface&);
-    Geometry::Horizon2DLine*		sectionGeometry(const SectionID&);
-    const Geometry::Horizon2DLine*	sectionGeometry(const SectionID&) const;
+				Horizon2DGeometry(Surface&);
+    Geometry::Horizon2DLine*	sectionGeometry(const SectionID&);
+    const Geometry::Horizon2DLine* sectionGeometry(const SectionID&) const;
 
     int				nrLines() const;
     int				lineID(int idx) const;
     const char*			lineName(int id) const;
     const MultiID&		lineSet(int id) const;
     int				addLine(const TypeSet<Coord>&,
-	    			    int start,int step,
-				    const MultiID& lineset,
-				    const char* linename);
+					int start,int step,
+					const MultiID& lineset,
+					const char* linename);
 				/*!<\returns id of new line. */
     void			removeLine( int id );
     bool			isAtEdge(const PosID&) const;
@@ -71,29 +72,29 @@ protected:
 position's subid is formed by RowCol( lineid, tracenr ).getSerialized(). If
 multiple z-values per trace is needed, multiple sections can be added. */
 
-class Horizon2D : public Surface
+class Horizon2D : public Horizon
 {
 public:
-    static const char*	typeStr();
-    static EMObject*	create(EMManager&);
-    static void		initClass(EMManager&);
+    static const char*		typeStr();
+    static EMObject*		create(EMManager&);
+    static void			initClass(EMManager&);
 
-    const char*		getTypeStr() const;
+    const char*			getTypeStr() const	{ return typeStr(); }
 
-    bool		unSetPos(const EM::PosID&,bool addtohistory);
-    bool		unSetPos(const EM::SectionID&,const EM::SubID&,
-	    			 bool addtohistory);
+    bool			unSetPos(const EM::PosID&,bool addtohistory);
+    bool			unSetPos(const EM::SectionID&,const EM::SubID&,
+					 bool addtohistory);
 
-    Horizon2Geometry&		geometry();
-    const Horizon2Geometry&	geometry() const;
+    Horizon2DGeometry&		geometry()		{ return geometry_; }
+    const Horizon2DGeometry&	geometry() const	{ return geometry_; }
 
 protected:
-    			Horizon2D( EMManager& );
+    				Horizon2D(EMManager&);
 
-    const IOObjContext&	getIOObjContext() const;
-    Horizon2Geometry		geometry_;
+    const IOObjContext&		getIOObjContext() const;
+    Horizon2DGeometry		geometry_;
 };
 
-}; //namespace
+} // namespace EM
 
 #endif

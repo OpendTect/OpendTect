@@ -4,14 +4,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: emsurfaceauxdata.cc,v 1.12 2006-09-25 13:39:27 cvsnanne Exp $
+ RCS:           $Id: emsurfaceauxdata.cc,v 1.13 2007-05-22 03:23:23 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "emsurfaceauxdata.h"
 
-#include "emhorizon.h"
+#include "emhorizon3d.h"
 #include "emsurfacegeometry.h"
 #include "emsurfacetr.h"
 #include "emsurfauxdataio.h"
@@ -29,7 +29,7 @@ ________________________________________________________________________
 namespace EM
 {
 
-SurfaceAuxData::SurfaceAuxData( Horizon& horizon )
+SurfaceAuxData::SurfaceAuxData( Horizon3D& horizon )
     : horizon_( horizon )
     , changed( 0 )
 {

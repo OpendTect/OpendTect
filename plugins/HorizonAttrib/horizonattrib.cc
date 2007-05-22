@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		September 2006
- RCS:		$Id: horizonattrib.cc,v 1.7 2007-04-10 14:00:10 cvshelene Exp $
+ RCS:		$Id: horizonattrib.cc,v 1.8 2007-05-22 03:23:22 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "attribdesc.h"
 #include "attribfactory.h"
 #include "attribparam.h"
-#include "emhorizon.h"
+#include "emhorizon3d.h"
 #include "emmanager.h"
 #include "emsurfaceauxdata.h"
 #include "emsurfaceiodata.h"
@@ -123,7 +123,7 @@ void Horizon::prepareForComputeData()
     EM::ObjectID objid = em.getObjectID( horid_ );
     if ( objid > -1 )
     {
-	mDynamicCastGet(EM::Horizon*,hor,em.getObject(objid))
+	mDynamicCastGet(EM::Horizon3D*,hor,em.getObject(objid))
 	if ( hor && hor->isFullyLoaded() 
 	     && ( outtype_!=mOutTypeSurfData || hor->auxdata.nrAuxData() ) )
 	{
@@ -149,7 +149,7 @@ void Horizon::prepareForComputeData()
 
     loader->execute();
     objid = em.getObjectID( horid_ );
-    mDynamicCastGet(EM::Horizon*,hor,em.getObject(objid))
+    mDynamicCastGet(EM::Horizon3D*,hor,em.getObject(objid))
     if ( hor )
     {
 	horizon_ = hor;

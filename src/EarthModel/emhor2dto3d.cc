@@ -4,14 +4,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Jan 2007
- RCS:           $Id: emhor2dto3d.cc,v 1.3 2007-02-01 16:50:15 cvsjaap Exp $
+ RCS:           $Id: emhor2dto3d.cc,v 1.4 2007-05-22 03:23:22 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "emhor2dto3d.h"
 
-#include "emhorizon.h"
+#include "emhorizon3d.h"
 #include "emhorizon2d.h"
 #include "emrowcoliterator.h"
 #include "arrayndimpl.h"
@@ -92,8 +92,8 @@ void add( const BinID& bid, float z )
 };
 
 
-Hor2DTo3D::Hor2DTo3D( const EM::Horizon2D& h2d, const HorSampling& hs,
-		      int nrsteps, EM::Horizon& h3d )
+Hor2DTo3D::Hor2DTo3D( const Horizon2D& h2d, const HorSampling& hs,
+		      int nrsteps, Horizon3D& h3d )
     : Executor( "Converting 2D horizon to 3D" )
     , hor2d_(h2d)
     , hor3d_(h3d)

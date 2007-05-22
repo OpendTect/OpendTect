@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          March 2005
- RCS:           $Id: horizoneditor.h,v 1.2 2007-02-14 12:35:21 cvsnanne Exp $
+ RCS:           $Id: horizoneditor.h,v 1.3 2007-05-22 03:23:22 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,7 +16,7 @@ ________________________________________________________________________
 
 #include "bufstringset.h"
 
-namespace EM { class Horizon; };
+namespace EM { class Horizon3D; };
 
 namespace MPE
 {
@@ -24,7 +24,7 @@ namespace MPE
 class HorizonEditor : public ObjectEditor
 {
 public:
-    				HorizonEditor(EM::Horizon&);
+    				HorizonEditor(EM::Horizon3D&);
     static ObjectEditor*	create(EM::EMObject&);
     static void			initClass();
 

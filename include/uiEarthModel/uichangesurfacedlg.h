@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          June 2006
- RCS:           $Id: uichangesurfacedlg.h,v 1.4 2006-11-23 15:24:21 cvsbert Exp $
+ RCS:           $Id: uichangesurfacedlg.h,v 1.5 2007-05-22 03:23:22 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,7 +15,7 @@ ________________________________________________________________________
 
 #include "uidialog.h"
 
-namespace EM { class Horizon; }
+namespace EM { class Horizon3D; }
 
 class Executor;
 class CtxtIOObj;
@@ -29,7 +29,7 @@ template <class T> class StepInterval;
 class uiChangeSurfaceDlg : public uiDialog
 {
 public:
-				uiChangeSurfaceDlg(uiParent*,EM::Horizon*,
+				uiChangeSurfaceDlg(uiParent*,EM::Horizon3D*,
 						   const char*);
 				~uiChangeSurfaceDlg();
 
@@ -40,7 +40,7 @@ protected:
     uiIOObjSel*			outputfld_;
     uiGroup*			parsgrp_;
 
-    EM::Horizon*		horizon_;
+    EM::Horizon3D*		horizon_;
     CtxtIOObj*			ctioin_;
     CtxtIOObj*			ctioout_;
 
@@ -67,7 +67,7 @@ class uiArr2DInterpolPars;
 class uiInterpolHorizonDlg : public uiChangeSurfaceDlg
 {
 public:
-				uiInterpolHorizonDlg(uiParent*,EM::Horizon*);
+				uiInterpolHorizonDlg(uiParent*,EM::Horizon3D*);
 
 protected:
 
@@ -90,7 +90,7 @@ class uiStepOutSel;
 class uiFilterHorizonDlg : public uiChangeSurfaceDlg
 {
 public:
-				uiFilterHorizonDlg(uiParent*,EM::Horizon*);
+				uiFilterHorizonDlg(uiParent*,EM::Horizon3D*);
 
 protected:
 

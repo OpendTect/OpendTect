@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          September 2005
- RCS:           $Id: uiattrtrcselout.cc,v 1.21 2007-02-05 14:32:25 cvsnanne Exp $
+ RCS:           $Id: uiattrtrcselout.cc,v 1.22 2007-05-22 03:23:23 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,8 +45,8 @@ uiAttrTrcSelOut::uiAttrTrcSelOut( uiParent* p, const DescSet& ad,
 				  bool usesinglehor )
     : uiFullBatchDialog(p,Setup("Create Horizon related cube output")
 	    		  .procprognm("process_attrib_em"))
-    , ctio_(*mMkCtxtIOObj(EMHorizon))
-    , ctio2_(*mMkCtxtIOObj(EMHorizon))
+    , ctio_(*mMkCtxtIOObj(EMHorizon3D))
+    , ctio2_(*mMkCtxtIOObj(EMHorizon3D))
     , ctioout_(*mMkCtxtIOObj(SeisTrc))
     , ads_(const_cast<DescSet&>(ad))
     , nlamodel_(n)

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          March 2005
- RCS:           $Id: uiemhorizoneditor.cc,v 1.19 2007-02-05 18:19:47 cvsbert Exp $
+ RCS:           $Id: uiemhorizoneditor.cc,v 1.20 2007-05-22 03:23:23 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "emhistory.h"
 #include "emmanager.h"
 #include "emsurfaceedgelineimpl.h"
-#include "emhorizon.h"
+#include "emhorizon3d.h"
 #include "uidialog.h"
 #include "uigeninput.h"
 #include "uimpepartserv.h"
@@ -200,7 +200,7 @@ void uiEMHorizonEditor::handleInteractionLineMenus( CallBacker* cb )
     const EM::EdgeLineSegment& interactionlineseg = *interactionline.getSegment(0);
     const EM::SectionID sid = interactionline.getSection();
     EM::EMObject& emobj = const_cast<EM::EMObject&>(editor->emObject());
-    mDynamicCastGet(EM::Horizon&,surface,emobj)
+    mDynamicCastGet(EM::Horizon3D&,surface,emobj)
     bool handled = false;
 /*
     EM::EdgeLineSet* lineset = surface.edgelinesets.getEdgeLineSet( sid, true );

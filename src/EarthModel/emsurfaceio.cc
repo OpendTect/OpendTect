@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          June 2003
- RCS:           $Id: emsurfaceio.cc,v 1.88 2007-04-04 16:15:23 cvsdgb Exp $
+ RCS:           $Id: emsurfaceio.cc,v 1.89 2007-05-22 03:23:23 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,7 +17,7 @@ ________________________________________________________________________
 #include "ascstream.h"
 #include "datachar.h"
 #include "datainterp.h"
-#include "emhorizon.h"
+#include "emhorizon3d.h"
 #include "emhorizon2d.h"
 #include "emsurfacegeometry.h"
 #include "emsurfaceauxdata.h"
@@ -409,7 +409,7 @@ void dgbSurfaceReader::setGeometry()
 		continue;
 
 	    auxdataexecs_[auxdatasel_[idx]]->setSurface(
-		    reinterpret_cast<Horizon&>(*surface_));
+		    reinterpret_cast<Horizon3D&>(*surface_));
 
 	    add( auxdataexecs_[auxdatasel_[idx]] );
 	    auxdataexecs_.replace( auxdatasel_[idx], 0 );
@@ -431,7 +431,7 @@ void dgbSurfaceReader::setGeometry()
 	    readcolrange_->step *= -1;
     }
 
-    mDynamicCastGet(Horizon*,hor,surface_);
+    mDynamicCastGet(Horizon3D*,hor,surface_);
     if ( hor )
     {
 	const RowCol filestep = getFileStep();
@@ -1187,14 +1187,14 @@ void dgbSurfaceWriter::selSections(const TypeSet<SectionID>& sel, bool keep )
 
 int dgbSurfaceWriter::nrAuxVals() const
 {
-    mDynamicCastGet(const Horizon*,hor,&surface_);
+    mDynamicCastGet(const Horizon3D*,hor,&surface_);
     return hor ? hor->auxdata.nrAuxData() : 0;
 }
 
 
 const char* dgbSurfaceWriter::auxDataName( int idx ) const
 {
-    mDynamicCastGet(const Horizon*,hor,&surface_);
+    mDynamicCastGet(const Horizon3D*,hor,&surface_);
     return hor ? hor->auxdata.auxDataName(idx) : 0;
 }
 
@@ -1308,7 +1308,7 @@ int dgbSurfaceWriter::nextStep()
 	nrsectionsoffsetoffset_ = strm.tellp();
 	writeInt64( strm, 0, sEOL() );
 
-	mDynamicCastGet(const Horizon*,hor,&surface_);
+	mDynamicCastGet(const Horizon3D*,hor,&surface_);
 	for ( int idx=0; idx<auxdatasel_.size(); idx++ )
 	{
 	    if ( auxdatasel_[idx]>=hor->auxdata.nrAuxData() )
@@ -1523,7 +1523,7 @@ bool dgbSurfaceWriter::writeRow( std::ostream& strm )
 	(writecolrange_?writecolrange_->nrSteps():colrange_.nrSteps())+1;
 
     mDynamicCastGet(const Horizon2D*,hor2d,&surface_)
-    mDynamicCastGet(const Horizon*,hor3d,&surface_)
+    mDynamicCastGet(const Horizon3D*,hor3d,&surface_)
     for ( int colindex=0; colindex<nrcols; colindex++ )
     {
 	const int col = writecolrange_ ? writecolrange_->atIndex(colindex) :

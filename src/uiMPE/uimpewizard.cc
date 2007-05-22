@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpewizard.cc,v 1.73 2007-04-26 08:02:29 cvsjaap Exp $
+ RCS:           $Id: uimpewizard.cc,v 1.74 2007-05-22 03:23:23 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -197,7 +197,7 @@ uiGroup* Wizard::createTrackModePage()
     colorfld = new uiColorInput( grp, getRandomColor(), "Object color" );
     colorfld->colorchanged.notify( mCB(this,Wizard,colorChangeCB) );
 
-    mDefSeedConModeGrp( hmodegrp, Horizon ); 
+    mDefSeedConModeGrp( hmodegrp, Horizon3D ); 
     mDefSeedConModeGrp( h2dmodegrp, Horizon2D ); 
 //  mDefSeedConModeGrp( fmodegrp, Fault ); 
 
@@ -227,7 +227,7 @@ uiGroup* Wizard::createSeedSetupPage()
     uiLabel* lbl = new uiLabel( grp,
 			    "Evaluate settings by picking one or more seeds" );
 
-    mDefSetupGrp( hsetupgrp, Horizon );
+    mDefSetupGrp( hsetupgrp, Horizon3D );
     mDefSetupGrp( h2dsetupgrp, Horizon2D );
 //  mDefSetupGrp( fsetupgrp, Fault );
 
@@ -380,7 +380,7 @@ bool Wizard::prepareTrackModePage()
     if ( sid==-1 )
         sid = emobj->sectionID( emobj->nrSections()-1 );
 
-    mSelectSeedConModeGrp( hmodegrp, Horizon );
+    mSelectSeedConModeGrp( hmodegrp, Horizon3D );
     mSelectSeedConModeGrp( h2dmodegrp, Horizon2D );
 //  mSelectSeedConModeGrp( fmodegrp, Fault );
 
@@ -409,7 +409,7 @@ bool Wizard::leaveTrackModePage( bool process )
 
 bool Wizard::prepareSeedSetupPage()
 {
-    mSelectSetupGrp( hsetupgrp, Horizon );
+    mSelectSetupGrp( hsetupgrp, Horizon3D );
     mSelectSetupGrp( h2dsetupgrp, Horizon2D );
     //mSelectSetupGrp( fsetupgrp, Fault );
 

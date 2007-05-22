@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          September 2006
- RCS:           $Id: horizonattrib.h,v 1.4 2007-04-05 14:37:17 cvshelene Exp $
+ RCS:           $Id: horizonattrib.h,v 1.5 2007-05-22 03:23:22 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "bufstring.h"
 #include "multiid.h"
 
-namespace EM { class Horizon; }
+namespace EM { class Horizon3D; }
 
 namespace Attrib
 {
@@ -54,7 +54,7 @@ protected:
     BufferString	surfdatanm_;
     int			outtype_;
 
-    EM::Horizon*	horizon_;
+    EM::Horizon3D*	horizon_;
     const DataHolder*	inputdata_;
     int			dataidx_;
 };

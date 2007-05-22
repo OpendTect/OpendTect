@@ -1,5 +1,5 @@
-#ifndef horisonadjuster_h
-#define horisonadjuster_h
+#ifndef horizonadjuster_h
+#define horizonadjuster_h
                                                                                 
 /*+
 ________________________________________________________________________
@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          January 2005
- RCS:           $Id: horizonadjuster.h,v 1.20 2007-01-18 09:02:26 cvsjaap Exp $
+ RCS:           $Id: horizonadjuster.h,v 1.21 2007-05-22 03:23:22 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,7 +18,7 @@ ________________________________________________________________________
 #include "valseriesevent.h"
 
 class IOPar;
-namespace EM { class Surface; };
+namespace EM { class Horizon; };
 namespace Attrib { class DataCubes; };
 
 
@@ -30,9 +30,7 @@ class SectionExtender;
 class HorizonAdjuster : public SectionAdjuster
 {
 public:
-			HorizonAdjuster(EM::Surface&,const EM::SectionID&);
-			/*!<\note Object is only supposed to work on
-			          EM::Horizon and EM::Horizon2. */
+			HorizonAdjuster(EM::Horizon&,const EM::SectionID&);
 			~HorizonAdjuster();
 
     void		reset();
@@ -75,7 +73,7 @@ protected:
 
     Attrib::SelSpec*	attribsel_;
     const Attrib::DataCubes* attrdata_;
-    EM::Surface&	horizon_;
+    EM::Horizon&	horizon_;
     VSEvent::Type	evtype_;
     Interval<float>	permzrange_;
     float		ampthreshold_;

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: emsurfacetr.cc,v 1.15 2006-12-22 10:14:42 cvsjaap Exp $
+ RCS:           $Id: emsurfacetr.cc,v 1.16 2007-05-22 03:23:23 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,11 +28,11 @@ ________________________________________________________________________
 #include "settings.h"
 
 
-const char* EMHorizonTranslatorGroup::keyword = "Horizon";
+const char* EMHorizon3DTranslatorGroup::keyword = "Horizon";
 
-mDefSimpleTranslatorSelector(EMHorizon,keyword)
+mDefSimpleTranslatorSelector(EMHorizon3D,keyword)
 
-const IOObjContext& EMHorizonTranslatorGroup::ioContext()
+const IOObjContext& EMHorizon3DTranslatorGroup::ioContext()
 {
     static IOObjContext* ctxt = 0;
     if ( !ctxt )

@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uisurfaceman.h,v 1.12 2007-05-11 05:01:35 cvsnanne Exp $
+ RCS:           $Id: uisurfaceman.h,v 1.13 2007-05-22 03:23:22 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,6 +33,8 @@ protected:
 
     void		mkFileInfo();
     void		fillAttribList(const BufferStringSet&);
+
+    bool		is2d_;
 };
 
 

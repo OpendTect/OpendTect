@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra / Bert Bril
  Date:		Sep 2005 / Nov 2006
- RCS:		$Id: uichangesurfacedlg.cc,v 1.13 2007-02-05 14:32:25 cvsnanne Exp $
+ RCS:		$Id: uichangesurfacedlg.cc,v 1.14 2007-05-22 03:23:23 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,7 +22,7 @@ ________________________________________________________________________
 #include "array2dinterpol.h"
 #include "array2dfilter.h"
 #include "ctxtioobj.h"
-#include "emhorizon.h"
+#include "emhorizon3d.h"
 #include "emmanager.h"
 #include "emposid.h"
 #include "emsurfacetr.h"
@@ -33,7 +33,7 @@ ________________________________________________________________________
 #include "survinfo.h"
 
 
-uiChangeSurfaceDlg::uiChangeSurfaceDlg( uiParent* p, EM::Horizon* hor,
+uiChangeSurfaceDlg::uiChangeSurfaceDlg( uiParent* p, EM::Horizon3D* hor,
 					const char* txt )
     : uiDialog(p,Setup(txt,"","104.0.3"))
     , horizon_(hor)
@@ -46,7 +46,7 @@ uiChangeSurfaceDlg::uiChangeSurfaceDlg( uiParent* p, EM::Horizon* hor,
 {
     if ( !horizon_ )
     {
-	ctioin_ = mMkCtxtIOObj( EMHorizon );
+	ctioin_ = mMkCtxtIOObj( EMHorizon3D );
 	ctioin_->ctxt.forread = true;
 	inputfld_ = new uiIOObjSel( this, *ctioin_, "Select Horizon" );
     }
@@ -57,7 +57,7 @@ uiChangeSurfaceDlg::uiChangeSurfaceDlg( uiParent* p, EM::Horizon* hor,
 				   BoolInpSpec(false,"As new","Overwrite") );
 	savefld_->valuechanged.notify( mCB(this,uiChangeSurfaceDlg,saveCB) );
 
-	ctioout_ = mMkCtxtIOObj( EMHorizon );
+	ctioout_ = mMkCtxtIOObj( EMHorizon3D );
 	ctioout_->ctxt.forread = false;
 	outputfld_ = new uiIOObjSel( this, *ctioout_, "Output Horizon" );
 	outputfld_->attach( alignedBelow, savefld_ );
@@ -115,7 +115,7 @@ bool uiChangeSurfaceDlg::readHorizon()
 	emobj = EM::EMM().getObject( oid );
     }
 
-    mDynamicCastGet(EM::Horizon*,hor,emobj)
+    mDynamicCastGet(EM::Horizon3D*,hor,emobj)
     horizon_ = hor;
     horizon_->ref();
     delete reader;
@@ -225,7 +225,7 @@ uiArr2DInterpolPars* uiInterpolHorizonDlg::a2dInterp()
 }
 
 
-uiInterpolHorizonDlg::uiInterpolHorizonDlg( uiParent* p, EM::Horizon* hor )
+uiInterpolHorizonDlg::uiInterpolHorizonDlg( uiParent* p, EM::Horizon3D* hor )
     : uiChangeSurfaceDlg(p,hor,"Horizon interpolation")
 {
     parsgrp_ = new uiArr2DInterpolPars( this );
@@ -268,7 +268,7 @@ const char* uiInterpolHorizonDlg::infoMsg( const Executor* ex ) const
 
 //---- uiFilterHorizonDlg
 
-uiFilterHorizonDlg::uiFilterHorizonDlg( uiParent* p, EM::Horizon* hor )
+uiFilterHorizonDlg::uiFilterHorizonDlg( uiParent* p, EM::Horizon3D* hor )
     : uiChangeSurfaceDlg(p,hor,"Horizon filtering")
 {
     parsgrp_ = new uiArr2DFilterPars( this );

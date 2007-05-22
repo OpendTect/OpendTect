@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Mar 2002
- RCS:           $Id: vishingeline.cc,v 1.15 2006-08-23 19:02:20 cvskris Exp $
+ RCS:           $Id: vishingeline.cc,v 1.16 2007-05-22 03:23:22 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,7 +12,7 @@ ________________________________________________________________________
 
 #include "vishingeline.h"
 
-#include "emhorizon.h"
+#include "emhorizon3d.h"
 #include "emsurfaceedgeline.h"
 #include "emsurfacegeometry.h"
 #include "emmanager.h"
@@ -154,7 +154,7 @@ visBase::Transformation* EdgeLineSetDisplay::getDisplayTransformation()
 void EdgeLineSetDisplay::updateEdgeLineSetChangeCB(CallBacker*)
 {
     if ( !edgelineset ) return;
-    const EM::Horizon& surface = edgelineset->getHorizon();
+    const EM::Horizon3D& surface = edgelineset->getHorizon();
     const EM::SectionID section = edgelineset->getSection();
 
     for ( int lineidx=0; lineidx<edgelineset->nrLines(); lineidx++ )

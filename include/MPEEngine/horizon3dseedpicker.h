@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: horizon3dseedpicker.h,v 1.17 2007-03-29 11:35:12 cvsjaap Exp $
+ RCS:           $Id: horizon3dseedpicker.h,v 1.18 2007-05-22 03:23:22 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,10 +18,10 @@ ________________________________________________________________________
 namespace MPE
 {
 
-class HorizonSeedPicker : public EMSeedPicker
+class Horizon3DSeedPicker : public EMSeedPicker
 {
 public:
-    			HorizonSeedPicker(MPE::EMTracker&);
+    			Horizon3DSeedPicker(MPE::EMTracker&);
 
     bool		canSetSectionID() const		{ return true; }
     bool		setSectionID(const EM::SectionID&);
@@ -90,10 +90,8 @@ protected:
     int			seedconmode_;
     bool		blockpicking_;
 
-    Notifier<HorizonSeedPicker>	
-			addrmseed_;
-    Notifier<HorizonSeedPicker>	
-			surfchange_;
+    Notifier<Horizon3DSeedPicker>	addrmseed_;
+    Notifier<Horizon3DSeedPicker>	surfchange_;
 private: 
     void		extendSeedListEraseInBetween( 
 			    bool wholeline,const BinID& startbid,

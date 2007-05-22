@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: emsurface.cc,v 1.85 2006-11-06 10:44:29 cvsjaap Exp $
+ RCS:           $Id: emsurface.cc,v 1.86 2007-05-22 03:23:23 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,7 +13,7 @@ ________________________________________________________________________
 
 #include "cubesampling.h"
 #include "emhistoryimpl.h"
-#include "emhorizon.h"
+#include "emhorizon3d.h"
 #include "emmanager.h"
 #include "emrowcoliterator.h"
 #include "emsurfacegeometry.h"
@@ -59,7 +59,7 @@ void SurfaceIOData::use( const Surface& surf )
     for ( int idx=0; idx<surf.nrSections(); idx++ )
 	sections += new BufferString( surf.sectionName( surf.sectionID(idx) ) );
 
-    mDynamicCastGet( const Horizon*, horizon, &surf );
+    mDynamicCastGet(const Horizon3D*,horizon,&surf);
     if ( horizon )
     {
 	for ( int idx=0; idx<horizon->auxdata.nrAuxData(); idx++ )
@@ -120,62 +120,53 @@ Surface::Surface( EMManager& man)
 
 
 Surface::~Surface()
-{
-    delete &relations;
-}
-
+{ delete &relations; }
 
 void Surface::removeAll()
-{
-    relations.removeAll();
-}
-
+{ relations.removeAll(); }
 
 int Surface::nrSections() const
 { return geometry().nrSections(); }
 
-
 SectionID Surface::sectionID( int idx ) const
 { return geometry().sectionID(idx); }
 
-
 BufferString Surface::sectionName( const SectionID& sid ) const
-{
-    return geometry().sectionName(sid);
-}
-
+{ return geometry().sectionName(sid); }
 
 bool Surface::canSetSectionName() const { return true; }
-
 
 bool Surface::setSectionName( const SectionID& sid, const char* nm, bool hist )
 { return geometry().setSectionName(sid,nm,hist); }
 
-
 bool Surface::removeSection( SectionID sid, bool hist )
-{
-    return geometry().removeSection( sid, hist );
-}
-
+{ return geometry().removeSection( sid, hist ); }
 
 bool Surface::isAtEdge( const PosID& posid ) const
 { return geometry().isAtEdge(posid); }
 
-
 bool Surface::isLoaded() const
 { return geometry().isLoaded(); }
 
-
 Executor* Surface::saver() { return geometry().saver(); }
-
 
 Executor* Surface::loader() { return geometry().loader(); }
 
-
 Geometry::Element* Surface::sectionGeometryInternal( const SectionID& sid )
-{
-    return geometry().sectionGeometry(sid);
-}
+{ return geometry().sectionGeometry(sid); }
+
+EMObjectIterator* Surface::createIterator( const SectionID& sid, 
+					   const CubeSampling* cs ) const
+{ return geometry().createIterator( sid, cs ); }
+
+bool Surface::enableGeometryChecks( bool nv )
+{ return geometry().enableChecks( nv ); }
+
+bool Surface::isGeometryChecksEnabled() const
+{ return geometry().isChecksEnabled(); }
+
+const SurfaceGeometry& Surface::geometry() const
+{ return const_cast<Surface*>(this)->geometry(); }
 
 
 bool Surface::usePar( const IOPar& par )
@@ -187,26 +178,7 @@ bool Surface::usePar( const IOPar& par )
 
 void Surface::fillPar( IOPar& par ) const
 {
-    EMObject::fillPar(par);
-    relations.fillPar(par);
-    geometry().fillPar(par);
+    EMObject::fillPar( par );
+    relations.fillPar( par );
+    geometry().fillPar( par );
 }
-
-
-EMObjectIterator* Surface::createIterator( const SectionID& sid, 
-					   const CubeSampling* cs ) const
-{
-    return geometry().createIterator( sid, cs );
-}
-
-
-bool Surface::enableGeometryChecks( bool nv )
-{ return geometry().enableChecks( nv ); }
-
-
-bool Surface::isGeometryChecksEnabled() const
-{ return geometry().isChecksEnabled(); }
-
-
-const SurfaceGeometry& Surface::geometry() const
-{ return const_cast<Surface*>(this)->geometry(); }

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfacetr.h,v 1.4 2006-09-19 12:09:45 cvsnanne Exp $
+ RCS:		$Id: emsurfacetr.h,v 1.5 2007-05-22 03:23:22 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -23,22 +23,22 @@ namespace EM
 {
     class dgbSurfaceReader;
     class Fault;
-    class Horizon;
+    class Horizon3D;
     class Horizon2D;
     class Surface;
 }
 
-typedef EM::Horizon 	EMHorizon;
+typedef EM::Horizon3D 	EMHorizon3D;
 typedef EM::Horizon2D	EMHorizon2D;
 typedef EM::Fault	EMFault;
 
 
 /*!\brief Read/write EM::Horizon to storage */
 
-class EMHorizonTranslatorGroup : public TranslatorGroup
-{				 isTranslatorGroup(EMHorizon)
+class EMHorizon3DTranslatorGroup : public TranslatorGroup
+{				   isTranslatorGroup(EMHorizon3D)
 public:
-				mDefEmptyTranslatorGroupConstructor(EMHorizon)
+				mDefEmptyTranslatorGroupConstructor(EMHorizon3D)
 
     const char*			defExtension() const	{ return "hor"; }
 
@@ -47,7 +47,7 @@ public:
 
 
 class EMHorizon2DTranslatorGroup : public TranslatorGroup
-{				 isTranslatorGroup(EMHorizon2D)
+{				   isTranslatorGroup(EMHorizon2D)
 public:
 				mDefEmptyTranslatorGroupConstructor(EMHorizon2D)
 
@@ -58,7 +58,7 @@ public:
 
 
 class EMFaultTranslatorGroup : public TranslatorGroup
-{				isTranslatorGroup(EMFault)
+{			       isTranslatorGroup(EMFault)
 public:
     			mDefEmptyTranslatorGroupConstructor(EMFault)
 
@@ -144,13 +144,13 @@ protected:
 };
 
 
-class dgbEMHorizonTranslator : public dgbEMSurfaceTranslator
-{				isTranslator(dgb,EMHorizon)
+class dgbEMHorizon3DTranslator : public dgbEMSurfaceTranslator
+{				 isTranslator(dgb,EMHorizon3D)
 public:
-    				dgbEMHorizonTranslator(const char* unm,
+    				dgbEMHorizon3DTranslator(const char* unm,
 						       const char* nm)
 				    : dgbEMSurfaceTranslator(unm,nm)	{}
-    virtual			~dgbEMHorizonTranslator()		{}
+    virtual			~dgbEMHorizon3DTranslator()		{}
 
 protected:
     virtual bool		readOnlyZ() const		{ return true; }

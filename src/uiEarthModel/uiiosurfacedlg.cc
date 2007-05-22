@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurfacedlg.cc,v 1.20 2007-01-24 15:45:40 cvsjaap Exp $
+ RCS:           $Id: uiiosurfacedlg.cc,v 1.21 2007-05-22 03:23:23 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,7 +21,7 @@ ________________________________________________________________________
 #include "filegen.h"
 #include "ioobj.h"
 #include "emsurface.h"
-#include "emhorizon.h"
+#include "emhorizon3d.h"
 #include "emmanager.h"
 #include "uigeninput.h"
 #include "uiioobjsel.h"
@@ -32,7 +32,7 @@ uiWriteSurfaceDlg::uiWriteSurfaceDlg( uiParent* p, const EM::Surface& surf )
     : uiDialog(p,uiDialog::Setup("Output selection","","104.3.1"))
     , surface_(surf)
 {
-    mDynamicCastGet(const EM::Horizon*,hor,&surface_)
+    mDynamicCastGet(const EM::Horizon3D*,hor,&surface_)
     iogrp_ = new uiSurfaceWrite( this, surface_, surface_.getTypeStr() );
 }
 
@@ -82,7 +82,7 @@ void uiReadSurfaceDlg::getSelection( EM::SurfaceIODataSelection& sels )
 
 
 
-uiStoreAuxData::uiStoreAuxData( uiParent* p, const EM::Horizon& surf )
+uiStoreAuxData::uiStoreAuxData( uiParent* p, const EM::Horizon3D& surf )
     : uiDialog(p,uiDialog::Setup("Output selection","Specify attribute name",
 				 "104.3.2"))
     , surface_(surf)
@@ -107,7 +107,7 @@ bool uiStoreAuxData::acceptOK( CallBacker* )
     }
 
     if ( attrnm != surface_.auxdata.auxDataName(0) )
-	const_cast<EM::Horizon&>(surface_).
+	const_cast<EM::Horizon3D&>(surface_).
 	    auxdata.setAuxDataName( 0, attrnm.buf() );
 
     return true;
@@ -156,8 +156,8 @@ uiCopySurface::~uiCopySurface()
 
 CtxtIOObj& uiCopySurface::mkCtxtIOObj( const IOObj& ioobj )
 {
-    return !strcmp(ioobj.group(),EM::Horizon::typeStr())
-	? *mMkCtxtIOObj(EMHorizon) : *mMkCtxtIOObj(EMFault);
+    return !strcmp(ioobj.group(),EM::Horizon3D::typeStr())
+	? *mMkCtxtIOObj(EMHorizon3D) : *mMkCtxtIOObj(EMFault);
 }
 
 

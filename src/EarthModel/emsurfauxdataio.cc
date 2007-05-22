@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Jun 2003
- RCS:           $Id: emsurfauxdataio.cc,v 1.29 2006-11-21 14:00:07 cvsbert Exp $
+ RCS:           $Id: emsurfauxdataio.cc,v 1.30 2007-05-22 03:23:23 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,7 +13,7 @@ ________________________________________________________________________
 #include "ascstream.h"
 #include "datainterp.h"
 #include "datachar.h"
-#include "emhorizon.h"
+#include "emhorizon3d.h"
 #include "emsurfacegeometry.h"
 #include "emsurfaceauxdata.h"
 #include "filepath.h"
@@ -36,7 +36,7 @@ const char* dgbSurfDataWriter::sKeyFileType() 	    {return "Surface aux data";}
 const char* dgbSurfDataWriter::sKeyShift() 	    { return "Shift"; }
 
 
-dgbSurfDataWriter::dgbSurfDataWriter( const Horizon& surf,int dataidx,
+dgbSurfDataWriter::dgbSurfDataWriter( const Horizon3D& surf,int dataidx,
 				    const BinIDSampler* sel, bool binary,
        				    const char* filename )
     : Executor("Aux data writer")
@@ -328,7 +328,7 @@ const char* dgbSurfDataReader::dataInfo() const
 
 
 
-void dgbSurfDataReader::setSurface( Horizon& surf )
+void dgbSurfDataReader::setSurface( Horizon3D& surf )
 {
     surf_ = &surf;
     dataidx_ = surf_->auxdata.addAuxData( dataname_ );

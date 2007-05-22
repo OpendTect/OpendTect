@@ -4,13 +4,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2004
- RCS:           $Id: uiattrsurfout.cc,v 1.18 2007-01-08 08:19:55 cvshelene Exp $
+ RCS:           $Id: uiattrsurfout.cc,v 1.19 2007-05-22 03:23:23 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 
 #include "uiattrsurfout.h"
+
 #include "attribdesc.h"
 #include "attribdescset.h"
 #include "attribengman.h"
@@ -38,7 +39,7 @@ uiAttrSurfaceOut::uiAttrSurfaceOut( uiParent* p, const DescSet& ad,
 				    const NLAModel* n, const MultiID& mid )
     : uiFullBatchDialog(p,Setup("Create surface output")
 	    		  .procprognm("process_attrib_em"))
-    , ctio(*mMkCtxtIOObj(EMHorizon))
+    , ctio(*mMkCtxtIOObj(EMHorizon3D))
     , ads(const_cast<DescSet&>(ad))
     , nlamodel(n)
     , nlaid(mid)

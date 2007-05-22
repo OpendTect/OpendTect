@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: horizon3dtracker.h,v 1.2 2006-02-27 12:16:07 cvsjaap Exp $
+ RCS:		$Id: horizon3dtracker.h,v 1.3 2007-05-22 03:23:22 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -16,42 +16,42 @@ ________________________________________________________________________
 #include "emtracker.h"
 #include "emposid.h"
 
-namespace EM { class Horizon; };
+namespace EM { class Horizon3D; };
 
 namespace MPE
 {
 
 class ConsistencyChecker;
-class HorizonSeedPicker;
+class Horizon3DSeedPicker;
 
 /*!\brief Horizon tracker
 */
 
-class HorizonTracker : public EMTracker
+class Horizon3DTracker : public EMTracker
 {
 public:
-    			HorizonTracker(EM::Horizon* =0);
-			~HorizonTracker();
+    				Horizon3DTracker(EM::Horizon3D* =0);
+				~Horizon3DTracker();
      
-    static EMTracker*	create(EM::EMObject* =0);
-    static void		initClass();
+    static EMTracker*		create(EM::EMObject* =0);
+    static void			initClass();
 
-    bool		trackIntersections(const TrackPlane&);
+    bool			trackIntersections(const TrackPlane&);
 
-    EMSeedPicker*	getSeedPicker(bool createifnotpresent=true);
+    EMSeedPicker*		getSeedPicker(bool createifnotpresent=true);
 
 protected:
 
-    EM::Horizon*	getHorizon();
-    const EM::Horizon*	getHorizon() const;
+    EM::Horizon3D*		getHorizon();
+    const EM::Horizon3D*	getHorizon() const;
 
-    SectionTracker*	createSectionTracker(EM::SectionID);
-    ConsistencyChecker* getConsistencyChecker();
+    SectionTracker*		createSectionTracker(EM::SectionID);
+    ConsistencyChecker*		getConsistencyChecker();
     
-    ConsistencyChecker*	consistencychecker;
-    HorizonSeedPicker*	seedpicker;
+    ConsistencyChecker*		consistencychecker;
+    Horizon3DSeedPicker*	seedpicker;
 };
 
-}; // Namespace MPE
+} // namespace MPE
 
 #endif

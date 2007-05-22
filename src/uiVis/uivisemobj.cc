@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Jan 2005
- RCS:           $Id: uivisemobj.cc,v 1.58 2007-04-24 15:31:16 cvsjaap Exp $
+ RCS:           $Id: uivisemobj.cc,v 1.59 2007-05-22 03:23:22 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,7 +13,7 @@ ________________________________________________________________________
 
 #include "attribsel.h"
 #include "emhistory.h"
-#include "emhorizon.h"
+#include "emhorizon3d.h"
 #include "emhorizon2d.h"
 #include "emmanager.h"
 #include "emobject.h"
@@ -153,10 +153,10 @@ uiVisEMObject::uiVisEMObject( uiParent* uip, const EM::ObjectID& emid,
 
     const EM::EMObject* emobj = EM::EMM().getObject(emid);
     visSurvey::EMObjectDisplay* emod = 0;
-    mDynamicCastGet( const EM::Horizon*, hor, emobj );
-    if ( hor )
+    mDynamicCastGet(const EM::Horizon3D*,hor3d,emobj);
+    if ( hor3d )
 	emod = visSurvey::HorizonDisplay::create();
-    mDynamicCastGet( const EM::Horizon2D*, hor2d, emobj );
+    mDynamicCastGet(const EM::Horizon2D*,hor2d,emobj);
     if ( hor2d )
 	emod = visSurvey::Horizon2DDisplay::create();
 
@@ -362,7 +362,7 @@ void uiVisEMObject::createMenuCB( CallBacker* cb )
 
     const bool hastransform = scene && scene->getDataTransform();
     const bool enabmenu =
-	!strcmp(getObjectType(displayid),EM::Horizon::typeStr())
+	!strcmp(getObjectType(displayid),EM::Horizon3D::typeStr())
 	&& !visserv->isLocked(displayid) && !hastransform;
 
     mAddMenuItem( menu, &shiftmnuitem, enabmenu, false );

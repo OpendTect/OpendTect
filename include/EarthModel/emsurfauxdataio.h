@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfauxdataio.h,v 1.14 2006-08-22 12:54:57 cvsjaap Exp $
+ RCS:		$Id: emsurfauxdataio.h,v 1.15 2007-05-22 03:23:22 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -23,14 +23,14 @@ template <class T> class DataInterpreter;
 namespace EM
 {
 
-class Horizon;
+class Horizon3D;
 
 /*!\brief  Writes auxdata to file */
 
 class dgbSurfDataWriter : public Executor
 {
 public:
-    				dgbSurfDataWriter(const EM::Horizon& surf,
+    				dgbSurfDataWriter(const EM::Horizon3D& surf,
 						  int dataidx,
 						  const BinIDSampler* sel,
 						  bool binary,
@@ -68,7 +68,7 @@ protected:
     bool			writeInt64(int64);
     bool			writeFloat(float);
     int				dataidx_;
-    const EM::Horizon&		surf_;
+    const EM::Horizon3D&	surf_;
     const BinIDSampler*		sel_;
   
     TypeSet<EM::SubID>		subids_;
@@ -97,7 +97,7 @@ public:
     const char*			dataName() const;
     const char*			dataInfo() const;
 
-    void			setSurface(EM::Horizon&);
+    void			setSurface(EM::Horizon3D&);
 
     virtual int			nextStep();
     virtual int			nrDone() const;
@@ -112,7 +112,7 @@ protected:
     BufferString		datainfo_;
     int				dataidx_;
     float			shift_;
-    EM::Horizon*		surf_;
+    EM::Horizon3D*		surf_;
     const BinIDSampler*		sel_;
   
     int				sectionindex_;

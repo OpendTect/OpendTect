@@ -8,14 +8,14 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emsurfaceedgelineimpl.cc,v 1.25 2007-01-29 20:49:47 cvskris Exp $";
+static const char* rcsID = "$Id: emsurfaceedgelineimpl.cc,v 1.26 2007-05-22 03:23:23 cvsnanne Exp $";
 
 
 
 #include "emsurfaceedgelineimpl.h"
 
 #include "emmanager.h"
-#include "emhorizon.h"
+#include "emhorizon3d.h"
 #include "emsurfacerelations.h"
 #include "executor.h"
 #include "iopar.h"
@@ -73,7 +73,7 @@ bool SurfaceConnectLine::usePar(const IOPar& par)
 }
 
 
-SurfaceCutLine::SurfaceCutLine( Horizon& surf, const SectionID& sect )
+SurfaceCutLine::SurfaceCutLine( Horizon3D& surf, const SectionID& sect )
     : EdgeLineSegment( surf, sect )
     , t2d( 0 )
     , cuttinghorizon_( 0 )
@@ -474,7 +474,7 @@ void SurfaceCutLine::commitChanges()
     if ( !relations || relidx>=relations->cuttingsurfaces.size() ) \
 	return 0; \
  \
-    mDynamicCastGet(Horizon*,cuttinghorizon_, \
+    mDynamicCastGet(Horizon3D*,cuttinghorizon_, \
 	    	    EMM().getObject(relations->cuttingsurfaces[relidx])); \
     const SectionID& cuttingsection = relations->cuttingsections[relidx]; \
     const bool cutonposside = relations->cutpositiveside[relidx]; \
@@ -488,7 +488,7 @@ void SurfaceCutLine::commitChanges()
 	    *horizon_.edgelinesets.getEdgeLineSet(section,createline); \
     if ( !&elset ) return 0
 
-SurfaceCutLine* SurfaceCutLine::createCutFromSeed( Horizon& horizon,
+SurfaceCutLine* SurfaceCutLine::createCutFromSeed( Horizon3D& horizon,
     const SectionID& section, int relidx, const RowCol& seed,
     bool bothdirs, const FloatMathFunction* t2d )
 {
@@ -547,7 +547,7 @@ SurfaceCutLine* SurfaceCutLine::createCutFromSeed( Horizon& horizon,
 }
 
 
-SurfaceCutLine* SurfaceCutLine::createCutFromEdges( Horizon& horizon,
+SurfaceCutLine* SurfaceCutLine::createCutFromEdges( Horizon3D& horizon,
    const SectionID& section, int relidx, const FloatMathFunction* t2d )
 {
     return 0;
@@ -714,12 +714,12 @@ SurfaceCutLine* SurfaceCutLine::createCutFromEdges( Horizon& horizon,
 
 
 void SurfaceCutLine::computeDistancesAlongLine( const EdgeLine& line,
-	const Horizon& cuttinghorizon, const  FloatMathFunction* t2d,
+	const Horizon3D& cuttinghorizon, const  FloatMathFunction* t2d,
 	TypeSet<RowCol>& border, TypeSet<float>& distances, bool negate,
 	bool usecaching )
 {
     /*
-    const Horizon& horizon = line.getHorizon();
+    const Horizon3D& horizon = line.getHorizon();
     const SectionID section = line.getSection();
     int furthestaway = -1;
 
@@ -953,13 +953,13 @@ bool SurfaceCutLine::usePar(const IOPar& par)
 	return false;
 
     const EM::ObjectID id = EM::EMM().getObjectID( mid );
-    mDynamicCastGet(EM::Horizon*,newsurf,EM::EMM().getObject(id));
+    mDynamicCastGet(EM::Horizon3D*,newsurf,EM::EMM().getObject(id));
     if ( !newsurf || !newsurf->isLoaded() )
     {
 	PtrMan<Executor> loader = EM::EMM().objectLoader(id,0);
 	if ( loader ) loader->execute();
 
-	newsurf = dynamic_cast<EM::Horizon*>(EM::EMM().getObject(id));
+	newsurf = dynamic_cast<EM::Horizon3D*>(EM::EMM().getObject(id));
 	if ( !newsurf || !newsurf->isLoaded() )
 	    return false;
     }

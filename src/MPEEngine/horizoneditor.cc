@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          March 2005
- RCS:           $Id: horizoneditor.cc,v 1.2 2006-04-27 15:53:13 cvskris Exp $
+ RCS:           $Id: horizoneditor.cc,v 1.3 2007-05-22 03:23:23 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,7 +12,7 @@ ________________________________________________________________________
 #include "horizoneditor.h"
 #include "geeditorimpl.h"
 #include "binidsurface.h"
-#include "emhorizon.h"
+#include "emhorizon3d.h"
 #include "emmanager.h"
 #include "emhistory.h"
 #include "mpeengine.h"
@@ -24,13 +24,13 @@ ________________________________________________________________________
 namespace MPE
 {
 
-HorizonEditor::HorizonEditor( EM::Horizon& horizon )
+HorizonEditor::HorizonEditor( EM::Horizon3D& horizon )
     : ObjectEditor(horizon)
     , editarea( 5, 5 )
     , horbox( false )
     , vertstyle( 0 )
 {
-    emobject.notifier.notify( mCB( this, HorizonEditor, emChangeCB) );
+    emobject.notifier.notify( mCB(this,HorizonEditor,emChangeCB) );
     vertstylenames.add("Sinus");
     vertstylenames.add("Pyramid");
     vertstylenames.add("Box");
@@ -38,13 +38,13 @@ HorizonEditor::HorizonEditor( EM::Horizon& horizon )
 
 HorizonEditor::~HorizonEditor()
 {
-    emobject.notifier.remove( mCB( this, HorizonEditor, emChangeCB) );
+    emobject.notifier.remove( mCB(this,HorizonEditor,emChangeCB) );
 }
 
 
 ObjectEditor* HorizonEditor::create( EM::EMObject& emobj )
 {
-    mDynamicCastGet(EM::Horizon*,horizon,&emobj);
+    mDynamicCastGet(EM::Horizon3D*,horizon,&emobj);
     return horizon ? new HorizonEditor( *horizon ) : 0;
 }
 
@@ -52,7 +52,7 @@ ObjectEditor* HorizonEditor::create( EM::EMObject& emobj )
 void HorizonEditor::initClass()
 {
     engine().addEditorFactory(
-	    new EditorFactory( EM::Horizon::typeStr(), create ) );
+	    new EditorFactory( EM::Horizon3D::typeStr(), create ) );
 }
 
 
@@ -113,7 +113,7 @@ void HorizonEditor::getAlongMovingNodes( const EM::PosID&,
     if ( movingnode.objectID()==-1 )
 	return;
 
-    mDynamicCastGet( const EM::Horizon*, horizon, &emObject() );
+    mDynamicCastGet(const EM::Horizon3D*,horizon,&emObject())
     if ( !horizon )
 	return;
 

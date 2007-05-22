@@ -1,5 +1,5 @@
-#ifndef emhorizon_h
-#define emhorizon_h
+#ifndef emhorizon3d_h
+#define emhorizon3d_h
 
 /*+
 ________________________________________________________________________
@@ -7,14 +7,13 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emhorizon3d.h,v 1.50 2007-01-31 11:47:13 cvsbert Exp $
+ RCS:		$Id: emhorizon3d.h,v 1.51 2007-05-22 03:23:22 cvsnanne Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "emsurface.h"
-#include "emsurfacegeometry.h"
+#include "emhorizon.h"
 #include "binidsurface.h"
 
 /*!
@@ -26,10 +25,10 @@ class BufferStringSet;
 namespace EM
 {
 
-class HorizonGeometry : public RowColSurfaceGeometry
+class Horizon3DGeometry : public HorizonGeometry
 {
 public:
-				HorizonGeometry(Surface&);
+				Horizon3DGeometry(Surface&);
 
     const Geometry::BinIDSurface* sectionGeometry(const SectionID&) const;
     Geometry::BinIDSurface*	sectionGeometry(const SectionID&);
@@ -77,7 +76,7 @@ The grids are defined by knot-points in a matrix and the fillstyle inbetween
 the knots.
 */
 
-class Horizon : public Surface
+class Horizon3D : public Horizon
 {
 public:
     static const char*		typeStr();
@@ -85,8 +84,8 @@ public:
     static void			initClass(EMManager&);
     void			removeAll();
 
-    HorizonGeometry&		geometry();
-    const HorizonGeometry&	geometry() const;
+    Horizon3DGeometry&		geometry();
+    const Horizon3DGeometry&	geometry() const;
 
     Array2D<float>*		createArray2D(SectionID);
     bool			setArray2D(const Array2D<float>&,SectionID,
@@ -107,15 +106,15 @@ public:
     EdgeLineManager&		edgelinesets;
 
 protected:
-	    			Horizon(EMManager&);
-	    			~Horizon();
+	    			Horizon3D(EMManager&);
+	    			~Horizon3D();
     void			fillPar(IOPar&) const;
     bool			usePar( const IOPar& );
     const IOObjContext&		getIOObjContext() const;
 
     friend class		EMManager;
     friend class		EMObject;
-    HorizonGeometry		geometry_;
+    Horizon3DGeometry		geometry_;
 };
 
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.cc,v 1.81 2007-05-02 11:01:01 cvsbert Exp $
+ RCS:           $Id: uiodmenumgr.cc,v 1.82 2007-05-22 03:23:22 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -66,6 +66,7 @@ uiODMenuMgr::uiODMenuMgr( uiODMain* a )
     appl_.applMgr().visServer()->createToolBars();
     IOM().surveyChanged.notify( mCB(this,uiODMenuMgr,updateDTectToolBar) );
     IOM().surveyChanged.notify( mCB(this,uiODMenuMgr,updateDTectMnus) );
+    timer_.tick.notify( mCB(this,uiODMenuMgr,timerCB) );
 }
 
 
@@ -94,8 +95,6 @@ void uiODMenuMgr::initSceneMgrDepObjs( uiODApplMgr* appman,
     fillDtectTB( appman );
     fillCoinTB( sceneman );
     fillManTB();
-
-    timer_.tick.notify( mCB(this,uiODMenuMgr,timerCB) );
 }
 
 
@@ -167,8 +166,11 @@ void uiODMenuMgr::enableActButton( bool yn )
 
 void uiODMenuMgr::fillSurveyMenu()
 {
-    mCleanUpImpExpSets(impmnus_)
-    mCleanUpImpExpSets(expmnus_)
+//    mCleanUpImpExpSets(impmnus_)
+//    mCleanUpImpExpSets(expmnus_)
+    impmnus_.erase();
+    expmnus_.erase();
+
     mInsertItem( surveymnu_, "&Select/Setup ...", mManSurveyMnuItm );
 
     uiPopupMenu* sessionitm = new uiPopupMenu( &appl_, "S&ession");
@@ -231,7 +233,13 @@ void uiODMenuMgr::fillSurveyMenu()
 #ifdef __debug__
     mInsertItem( manmnu_, "&Faults ...", mManFaultMnuItm );
 #endif
-    mInsertItem( manmnu_, "&Horizons ...", mManHorMnuItm );
+    if ( SI().getSurvDataType() == SurveyInfo::No2D )
+	mInsertItem( manmnu_, "&Horizons ...", mManHor3DMnuItm );
+    else
+    {
+	mInsertItem( manmnu_, "&Horizons 3D ...", mManHor3DMnuItm );
+	mInsertItem( manmnu_, "Horizons &2D ...", mManHor2DMnuItm );
+    }
     mInsertItem( manmnu_, "&PickSets ...", mManPickMnuItm );
     mInsertItem( manmnu_, "&Seismics ...", mManSeisMnuItm );
     mInsertItem( manmnu_, "Wa&velets ...", mManWvltMnuItm );
@@ -514,7 +522,8 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mImpLmkFaultMnuItm: 	applMgr().importLMKFault(); break;
 
     case mManSeisMnuItm: 	mDoOp(Man,Seis,0); break;
-    case mManHorMnuItm: 	mDoOp(Man,Hor,0); break;
+    case mManHor3DMnuItm: 	mDoOp(Man,Hor,0); break;
+    case mManHor2DMnuItm: 	mDoOp(Man,Hor,1); break;
     case mManFaultMnuItm: 	mDoOp(Man,Flt,0); break;
     case mManWellMnuItm: 	mDoOp(Man,Wll,0); break;
     case mManPickMnuItm: 	mDoOp(Man,Pick,0); break;

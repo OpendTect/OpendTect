@@ -8,12 +8,12 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emsurfaceedgeline.cc,v 1.32 2006-11-27 14:55:45 cvsnanne Exp $";
+static const char* rcsID = "$Id: emsurfaceedgeline.cc,v 1.33 2007-05-22 03:23:23 cvsnanne Exp $";
    
 
 #include "emsurfaceedgeline.h"
 #include "emmanager.h"
-#include "emhorizon.h"
+#include "emhorizon3d.h"
 #include "emsurfacegeometry.h"
 #include "emhistory.h"
 #include "executor.h"
@@ -46,7 +46,7 @@ const char* EdgeLineManager::sectionkey = "Sectionlines ";
 mEdgeLineSegmentFactoryEntry(EdgeLineSegment);
 
 
-EdgeLineSegment::EdgeLineSegment( Horizon& surf, const SectionID& sect )
+EdgeLineSegment::EdgeLineSegment( Horizon3D& surf, const SectionID& sect )
     : horizon_( surf )
     , section( sect )
     , notifier( 0 )
@@ -653,7 +653,7 @@ EdgeLineSegment::factories()
 
 
 EdgeLineSegment* EM::EdgeLineSegment::factory( const IOPar& par,
-       						   Horizon&	surf,
+       						   Horizon3D&	surf,
 						   const SectionID& sect )
 {
     BufferString name;
@@ -699,7 +699,7 @@ void EdgeLineSegment::posChangeCB(CallBacker* cb)
 }
 
 
-EdgeLine::EdgeLine( EM::Horizon& surf, const EM::SectionID& sect )
+EdgeLine::EdgeLine( EM::Horizon3D& surf, const EM::SectionID& sect )
     : horizon_( surf )
     , section( sect )
     , t2d( 0 )
@@ -1577,12 +1577,12 @@ bool EdgeLineIterator::next()
 
 PosID EdgeLineIterator::current() const
 {
-    const Horizon& horizon_ = el.getHorizon();
+    const Horizon3D& horizon_ = el.getHorizon();
     return PosID(horizon_.id(),el.getSection(),currentRowCol().getSerialized() );
 }
 
 
-EdgeLineSet::EdgeLineSet(EM::Horizon& surf, const EM::SectionID& sect)
+EdgeLineSet::EdgeLineSet(EM::Horizon3D& surf, const EM::SectionID& sect)
     : horizon_(surf), section(sect), changenotifier(this)
 {}
 
@@ -1855,7 +1855,7 @@ bool EdgeLineSet::usePar( const IOPar& par )
 }
 
 
-EdgeLineManager::EdgeLineManager( EM::Horizon& surf )
+EdgeLineManager::EdgeLineManager( EM::Horizon3D& surf )
     : horizon_(surf)
     , addremovenotify( this )
 {

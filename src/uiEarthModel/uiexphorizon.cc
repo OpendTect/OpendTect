@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2002
- RCS:           $Id: uiexphorizon.cc,v 1.47 2007-02-05 14:32:25 cvsnanne Exp $
+ RCS:           $Id: uiexphorizon.cc,v 1.48 2007-05-22 03:23:23 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,7 +12,7 @@ ________________________________________________________________________
 #include "uiexphorizon.h"
 
 #include "ctxtioobj.h"
-#include "emhorizon.h"
+#include "emhorizon3d.h"
 #include "emmanager.h"
 #include "emsurfaceauxdata.h"
 #include "emsurfaceiodata.h"
@@ -42,7 +42,7 @@ uiExportHorizon::uiExportHorizon( uiParent* p )
 	: uiDialog(p,uiDialog::Setup("Export Horizon",
 				     "Specify output format","104.0.1"))
 {
-    infld = new uiSurfaceRead( this, EMHorizonTranslatorGroup::keyword );
+    infld = new uiSurfaceRead( this, EMHorizon3DTranslatorGroup::keyword );
     infld->attrSelChange.notify( mCB(this,uiExportHorizon,attrSel) );
 
     typfld = new uiGenInput( this, "Output type", StringListInpSpec(exptyps) );
@@ -148,7 +148,7 @@ bool uiExportHorizon::writeAscii()
     if ( !emobj ) mErrRet("Cannot create horizon")
 
     emobj->setMultiID( ioobj->key() );
-    mDynamicCastGet(EM::Horizon*,hor,emobj.ptr())
+    mDynamicCastGet(EM::Horizon3D*,hor,emobj.ptr())
     PtrMan<Executor> loader = hor->geometry().loader( &sels );
     if ( !loader ) mErrRet("Cannot read horizon")
     uiExecutor dlg( this, *loader );

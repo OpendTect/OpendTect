@@ -4,12 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: emhorizon3d.cc,v 1.88 2007-02-27 16:17:40 cvsjaap Exp $
+ RCS:           $Id: emhorizon3d.cc,v 1.89 2007-05-22 03:23:22 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "emhorizon.h"
+#include "emhorizon3d.h"
 
 #include "array2dinterpol.h"
 #include "arrayndimpl.h"
@@ -34,7 +34,7 @@ class AuxDataImporter : public Executor
 {
 public:
 
-AuxDataImporter( Horizon& hor, const ObjectSet<BinIDValueSet>& sects,
+AuxDataImporter( Horizon3D& hor, const ObjectSet<BinIDValueSet>& sects,
 		 const BufferStringSet& attribnames,
 		 const BoolTypeSet& attrsel )
     : Executor("Data Import")
@@ -113,7 +113,7 @@ protected:
 
     const BoolTypeSet&		attribsel;
     const ObjectSet<BinIDValueSet>&	sections;
-    Horizon&			horizon;
+    Horizon3D&			horizon;
     StepInterval<int>		inlrange;
     StepInterval<int>		crlrange;
 
@@ -129,7 +129,7 @@ class HorizonImporter : public Executor
 {
 public:
 
-HorizonImporter( Horizon& hor, const ObjectSet<BinIDValueSet>& sects, 
+HorizonImporter( Horizon3D& hor, const ObjectSet<BinIDValueSet>& sects, 
 		 const RowCol& step )
     : Executor("Horizon Import")
     , horizon_(hor)
@@ -196,7 +196,7 @@ int nextStep()
 protected:
 
     const ObjectSet<BinIDValueSet>&	sections_;
-    Horizon&		horizon_;
+    Horizon3D&		horizon_;
     BinIDValueSet::Pos	pos_;
 
     int			sectionidx_;
@@ -205,8 +205,8 @@ protected:
 };
 
 
-Horizon::Horizon( EMManager& man )
-    : Surface(man)
+Horizon3D::Horizon3D( EMManager& man )
+    : Horizon(man)
     , geometry_( *this )
     , auxdata( *new SurfaceAuxData(*this) )
     , edgelinesets( *new EdgeLineManager(*this) )
@@ -215,14 +215,14 @@ Horizon::Horizon( EMManager& man )
 }
 
 
-Horizon::~Horizon()
+Horizon3D::~Horizon3D()
 {
     delete &auxdata;
     delete &edgelinesets;
 }
 
 
-void Horizon::removeAll()
+void Horizon3D::removeAll()
 {
     Surface::removeAll();
     geometry_.removeAll();
@@ -231,7 +231,7 @@ void Horizon::removeAll()
 }
 
 
-void Horizon::fillPar( IOPar& par ) const
+void Horizon3D::fillPar( IOPar& par ) const
 {
     Surface::fillPar( par );
     auxdata.fillPar( par );
@@ -239,7 +239,7 @@ void Horizon::fillPar( IOPar& par ) const
 }
 
 
-bool Horizon::usePar( const IOPar& par )
+bool Horizon3D::usePar( const IOPar& par )
 {
     return Surface::usePar( par ) &&
 	auxdata.usePar( par ) &&
@@ -247,25 +247,25 @@ bool Horizon::usePar( const IOPar& par )
 }
 
 
-HorizonGeometry& Horizon::geometry()
+Horizon3DGeometry& Horizon3D::geometry()
 { return geometry_; }
 
 
-const HorizonGeometry& Horizon::geometry() const
+const Horizon3DGeometry& Horizon3D::geometry() const
 { return geometry_; }
 
 
-const char* Horizon::typeStr() { return EMHorizonTranslatorGroup::keyword; }
+const char* Horizon3D::typeStr() { return EMHorizon3DTranslatorGroup::keyword; }
 
-void Horizon::initClass( EMManager& emm )
+void Horizon3D::initClass( EMManager& emm )
 {
     emm.addFactory( new ObjectFactory( create,
-				       EMHorizonTranslatorGroup::ioContext(),
+				       EMHorizon3DTranslatorGroup::ioContext(),
 				       typeStr()) );
 }
 
 
-Array2D<float>* Horizon::createArray2D( SectionID sid )
+Array2D<float>* Horizon3D::createArray2D( SectionID sid )
 {
     const StepInterval<int> rowrg = geometry_.rowRange( sid );
     const StepInterval<int> colrg = geometry_.colRange( sid );
@@ -287,8 +287,8 @@ Array2D<float>* Horizon::createArray2D( SectionID sid )
 }
 
 
-bool Horizon::setArray2D( const Array2D<float>& arr, SectionID sid, 
-			  bool onlyfillundefs )
+bool Horizon3D::setArray2D( const Array2D<float>& arr, SectionID sid, 
+			    bool onlyfillundefs )
 {
     const StepInterval<int> rowrg = geometry_.rowRange( sid );
     const StepInterval<int> colrg = geometry_.colRange( sid );
@@ -336,33 +336,33 @@ bool Horizon::setArray2D( const Array2D<float>& arr, SectionID sid,
 }
 
 
-EMObject* Horizon::create( EMManager& emm )
-{ return new Horizon( emm ); }
+EMObject* Horizon3D::create( EMManager& emm )
+{ return new Horizon3D( emm ); }
 
 
-const IOObjContext& Horizon::getIOObjContext() const
-{ return EMHorizonTranslatorGroup::ioContext(); }
+const IOObjContext& Horizon3D::getIOObjContext() const
+{ return EMHorizon3DTranslatorGroup::ioContext(); }
 
 
-Executor* Horizon::importer( const ObjectSet<BinIDValueSet>& sections, 
-			     const RowCol& step )
+Executor* Horizon3D::importer( const ObjectSet<BinIDValueSet>& sections, 
+			       const RowCol& step )
 {
     removeAll();
     return new HorizonImporter( *this, sections, step );
 }
 
 
-Executor* Horizon::auxDataImporter( const ObjectSet<BinIDValueSet>& sections,
-				    const BufferStringSet& attribnms,
-				    const BoolTypeSet& attribsel )
+Executor* Horizon3D::auxDataImporter( const ObjectSet<BinIDValueSet>& sections,
+				      const BufferStringSet& attribnms,
+				      const BoolTypeSet& attribsel )
 {
     return new AuxDataImporter( *this, sections, attribnms, attribsel );
 }
 
 
 
-HorizonGeometry::HorizonGeometry( Surface& surf )
-    : RowColSurfaceGeometry( surf ) 
+Horizon3DGeometry::Horizon3DGeometry( Surface& surf )
+    : HorizonGeometry( surf ) 
     , step_( SI().inlStep(), SI().crlStep() )
     , loadedstep_( SI().inlStep(), SI().crlStep() )
     , shift_( 0 )
@@ -371,32 +371,32 @@ HorizonGeometry::HorizonGeometry( Surface& surf )
 
 
 const Geometry::BinIDSurface*
-HorizonGeometry::sectionGeometry( const SectionID& sid ) const
+Horizon3DGeometry::sectionGeometry( const SectionID& sid ) const
 {
     return (const Geometry::BinIDSurface*) SurfaceGeometry::sectionGeometry(sid);
 }
 
 
 Geometry::BinIDSurface*
-HorizonGeometry::sectionGeometry( const SectionID& sid )
+Horizon3DGeometry::sectionGeometry( const SectionID& sid )
 {
     return (Geometry::BinIDSurface*) SurfaceGeometry::sectionGeometry(sid);
 }
 
 
-RowCol HorizonGeometry::loadedStep() const
+RowCol Horizon3DGeometry::loadedStep() const
 {
     return loadedstep_;
 }
 
 
-RowCol HorizonGeometry::step() const
+RowCol Horizon3DGeometry::step() const
 {
     return step_;
 }
 
 
-void HorizonGeometry::setStep( const RowCol& ns, const RowCol& loadedstep )
+void Horizon3DGeometry::setStep( const RowCol& ns, const RowCol& loadedstep )
 {
     step_ = ns; step_.row = abs( step_.row ); step_.col = abs( step_.col );
 
@@ -409,42 +409,42 @@ void HorizonGeometry::setStep( const RowCol& ns, const RowCol& loadedstep )
 }
 
 
-bool HorizonGeometry::isFullResolution() const
+bool Horizon3DGeometry::isFullResolution() const
 {
     return loadedstep_ == step_;
 }
 
 
-bool HorizonGeometry::removeSection( const SectionID& sid, bool addtohistory )
+bool Horizon3DGeometry::removeSection( const SectionID& sid, bool addtohistory )
 {
     int idx=sids_.indexOf(sid);
     if ( idx==-1 ) return false;
 
-    ((Horizon&) surface_).edgelinesets.removeSection( sid );
-    ((Horizon&) surface_).auxdata.removeSection( sid );
+    ((Horizon3D&) surface_).edgelinesets.removeSection( sid );
+    ((Horizon3D&) surface_).auxdata.removeSection( sid );
     return SurfaceGeometry::removeSection( sid, addtohistory );
 }
 
 
-SectionID HorizonGeometry::cloneSection( const SectionID& sid )
+SectionID Horizon3DGeometry::cloneSection( const SectionID& sid )
 {
     const SectionID res = SurfaceGeometry::cloneSection(sid);
     if ( res!=-1 )
-	((Horizon&) surface_).edgelinesets.cloneEdgeLineSet( sid, res );
+	((Horizon3D&) surface_).edgelinesets.cloneEdgeLineSet( sid, res );
 
     return res;
 }
 
 
-void HorizonGeometry::setShift( float ns )
+void Horizon3DGeometry::setShift( float ns )
 { shift_ = ns; }
 
 
-float HorizonGeometry::getShift() const
+float Horizon3DGeometry::getShift() const
 { return shift_; }
 
 
-bool HorizonGeometry::enableChecks( bool yn )
+bool Horizon3DGeometry::enableChecks( bool yn )
 {
     const bool res = checksupport_;
     for ( int idx=0; idx<sections_.size(); idx++ )
@@ -456,20 +456,20 @@ bool HorizonGeometry::enableChecks( bool yn )
 }
 
 
-bool HorizonGeometry::isChecksEnabled() const
+bool Horizon3DGeometry::isChecksEnabled() const
 {
     return checksupport_;
 }
 
 
-bool HorizonGeometry::isNodeOK( const PosID& pid ) const
+bool Horizon3DGeometry::isNodeOK( const PosID& pid ) const
 {
     const Geometry::BinIDSurface* surf = sectionGeometry( pid.sectionID() );
     return surf ? surf->hasSupport( RowCol(pid.subID()) ) : false;
 }
 
 
-bool HorizonGeometry::isAtEdge( const PosID& pid ) const
+bool Horizon3DGeometry::isAtEdge( const PosID& pid ) const
 {
     if ( !surface_.isDefined( pid ) )
 	return false;
@@ -481,8 +481,8 @@ bool HorizonGeometry::isAtEdge( const PosID& pid ) const
 }
 
 
-PosID HorizonGeometry::getNeighbor( const PosID& posid,
-				    const RowCol& dir ) const
+PosID Horizon3DGeometry::getNeighbor( const PosID& posid,
+				      const RowCol& dir ) const
 {
     const RowCol rc( posid.subID() );
     const SectionID sid = posid.sectionID();
@@ -521,8 +521,8 @@ PosID HorizonGeometry::getNeighbor( const PosID& posid,
 }
 
 
-int HorizonGeometry::getConnectedPos( const PosID& posid,
-				      TypeSet<PosID>* res ) const
+int Horizon3DGeometry::getConnectedPos( const PosID& posid,
+				        TypeSet<PosID>* res ) const
 {
     int rescount = 0;
     const TypeSet<RowCol>& dirs = RowCol::clockWiseSequence();
@@ -540,7 +540,7 @@ int HorizonGeometry::getConnectedPos( const PosID& posid,
 }
 
 
-Geometry::BinIDSurface* HorizonGeometry::createSectionGeometry() const
+Geometry::BinIDSurface* Horizon3DGeometry::createSectionGeometry() const
 {
     Geometry::BinIDSurface* res = new Geometry::BinIDSurface( loadedstep_ );
     res->checkSupport( checksupport_ );
@@ -549,8 +549,8 @@ Geometry::BinIDSurface* HorizonGeometry::createSectionGeometry() const
 }
 
 
-void HorizonGeometry::fillBinIDValueSet( const SectionID& sid,
-					 BinIDValueSet& bivs ) const
+void Horizon3DGeometry::fillBinIDValueSet( const SectionID& sid,
+					   BinIDValueSet& bivs ) const
 {
     PtrMan<EMObjectIterator> it = createIterator( sid );
     if ( !it ) return;
@@ -572,8 +572,8 @@ void HorizonGeometry::fillBinIDValueSet( const SectionID& sid,
 }
 
 
-EMObjectIterator* HorizonGeometry::createIterator( const SectionID& sid,
-						   const CubeSampling* cs) const
+EMObjectIterator* Horizon3DGeometry::createIterator(
+			const SectionID& sid, const CubeSampling* cs) const
 {
     if ( !cs )
         return new RowColIterator( surface_, sid, cs );

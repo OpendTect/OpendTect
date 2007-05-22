@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2003
- RCS:           $Id: uisurfaceman.cc,v 1.36 2007-05-11 05:01:35 cvsnanne Exp $
+ RCS:           $Id: uisurfaceman.cc,v 1.37 2007-05-22 03:23:23 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,11 +38,11 @@ ________________________________________________________________________
 
 #define mGet( typ, hor2d, hor3d, flt ) \
     !strcmp(typ,EMHorizon2DTranslatorGroup::keyword) ? hor2d : \
-    (!strcmp(typ,EMHorizonTranslatorGroup::keyword) ? hor3d : flt)
+    (!strcmp(typ,EMHorizon3DTranslatorGroup::keyword) ? hor3d : flt)
 
 #define mGetIoContext(typ) \
     mGet( typ, EMHorizon2DTranslatorGroup::ioContext(), \
-	       EMHorizonTranslatorGroup::ioContext(), \
+	       EMHorizon3DTranslatorGroup::ioContext(), \
 	       EMFaultTranslatorGroup::ioContext() )
 
 #define mGetManageStr(typ) \
@@ -58,6 +58,7 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, const char* typ )
                                      mGetManageStr(typ),
                                      "104.2.0").nrstatusflds(1),
 		   mGetIoContext(typ) )
+    , is2d_(mGet(typ,true,false,false))
 {
     createDefaultUI();
     uiIOObjManipGroup* manipgrp = selgrp->getManipGroup();
@@ -106,7 +107,7 @@ void uiSurfaceMan::copyCB( CallBacker* )
 
 void uiSurfaceMan::setRelations( CallBacker* )
 {
-    uiHorizonRelationsDlg dlg( this );
+    uiHorizonRelationsDlg dlg( this, is2d_ );
     dlg.go();
 }
 
