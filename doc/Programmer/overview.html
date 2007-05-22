@@ -4,7 +4,7 @@
   - Author:	A.H. Bril
   - Date:	Oct 2003
   - Contents:	Overview of programmer doc
-  - RCS:	$Id: overview.html,v 1.18 2007-04-24 12:21:26 bert Exp $
+  - RCS:	$Id: overview.html,v 1.19 2007-05-22 11:32:08 bert Exp $
  -->
 
 <body background="../backg.png"><title>Overview [OpendTect Programmer's manual V3.0]</title>
@@ -24,7 +24,7 @@ OpendTect:
 <ul>
 <li>Is <a href=#why_cpp>in C++</a> and a tiny bit of C
 <li>Is built with <a href=#design_principles>design principles</a> and strict <a href=#separation>separations</a> of functionality
-<li>Uses almost exclusively <a href=#opensrc>open source tools</a>
+<li>Uses exclusively <a href=#opensrc>open source tools</a>
 <li>Can be extended using <a href="plugins.html">plugins</a>
 <li>Has its own make system: <a href="pmake.html">Pmake</a>
 </ul>
@@ -41,10 +41,10 @@ That doesn't mean that programming in C++ automagically delivers good software, 
 There are many aspects of software that can be categorised as 'good'. These include robustness, flexibility, high performance, compactness, maintainability, understandability. Software engineering is all about making choices - every aspect costs resources and there's always a limit to that. So, even if one tries to optimise all 'good' aspects, there will be different degrees of emphasis on each of them.</p>
 As OpendTect was developed in a research-minded environment, flexibility is a high priority. The Object-Oriented toolkit delivers many tricks to make software more flexible. Some of these tricks nowadays have labels - 'Design patterns' - like the ones in the 'Design Patterns' book (Factories,Singletons,etc.). Many constructs in the software are fit to match the problem though, always with a number of design principles in mind:
 <ul>
-<li><a href=http://www.objectmentor.com/resources/articles/ocp.pdf>OCP</a> <i>Open/Closed</i>: classes and modules should be open for extension, but closed for modification.
-<li><a href=http://www.objectmentor.com/resources/articles/srp>SRP</a> <i>Single responsibility</i>: only one class or module does one thing well and complete.
-<li><a href=http://www.objectmentor.com/resources/articles/lsp.pdf>LSP</a> <i>Substititutability</i>: inheritance for interfaces makes classes substitutable.
-<li><a href=http://www.objectmentor.com/resources/articles/dip.pdf>DIP</a> <i>Dependency inversion</i>: depending on abstract base classes inverts dependencies from high-level on low-level into dependency on stable high-level abstractions.
+<li><a href=http://en.wikipedia.org/wiki/Open_Closed_Principle>OCP</a> <i>Open/Closed</i>: classes and modules should be open for extension, but closed for modification.
+<li><a href=http://en.wikipedia.org/wiki/Single_responsibility_principle>SRP</a> <i>Single responsibility</i>: only one class or module does one thing well and complete.
+<li><a href=http://en.wikipedia.org/wiki/Liskov_Substitution_Principle>LSP</a> <i>Substititutability</i>: inheritance for interfaces makes classes substitutable.
+<li><a href=http://en.wikipedia.org/wiki/Dependency_inversion_principle>DIP</a> <i>Dependency inversion</i>: depending on abstract base classes inverts dependencies from high-level on low-level into dependency on stable high-level abstractions.
 <li><a href=#dif>DIF</a> <i>Don't Implement the Future</i>: All source code present should actually be used now.
 <li><a href=#nbs>NBS</a> <i>No BullShit</i>: Create constructs if needed, not because they're cool or anything.
 </ul>
@@ -81,27 +81,23 @@ OpendTect is based on a couple of external packages, which are mostly open sourc
 <a name=modules><h2>Modules</h2></a>
 <h3>Intro</h3>
 <p>
-A group of classes that handle a certain area of our domain is what could be called a module. Sometimes these modules have their own namespace, most often not (sometimes because the code pre-dates the good support of namespaces by gcc). In any case, it does correspond with two physical directories in the source tree: include/module_name and src/module_name. Thus earth model related classes go in the <code>EarthModel</code> directories.</p>
+A group of classes that handle a certain area of our domain is what could be called a module. Sometimes these modules have their own namespace, most often not (sometimes because the code pre-dates good support of namespaces by gcc). In any case, it does correspond with two physical directories in the source tree: include/module_name and src/module_name. Thus earth model related classes go in the <code>EarthModel</code> directories.</p>
 </p><p>
 <a name=separation>The separation</a> of <code>include</code> and <code>src</code> is first of all a visibility issue. The <code>include</code> files can be 'seen' by other modules, the <code>src</code> files not. Conceptually, the separation is roughly interface versus implementation. Roughly, because small functions are often implemented in the header file.
 </p><p>
-Another separation that is very important is between <a href=#uimodules>UI-</a> and <a href=#rwmodules>'Real Work'</a> modules. No (direct) user interface work is done in the RW-modules. The amount of Real Work in the UI modules is minimised. Within the user inteface part, there is a separation between basic UI (Qt-based in OpendTect) and 3D visualistion (COIN/OpenInventor-based). Both types of user interface modules have a prefix: 'ui' and 'vis' respectively.
+Another separation that is very important is between <a href=#uimodules>UI-</a> and <a href=#rwmodules>'Real Work'</a> modules. No (direct) user interface work is done in the RW-modules. The amount of Real Work in the UI modules is minimised. Within the user interface part, there is a separation between basic UI (Qt-based in OpendTect) and 3D visualistion (COIN/OpenInventor-based). Both types of user interface modules have a prefix: 'ui' and 'vis' respectively.
 </p>
-Making all these modules as opposed to just dumping everything in one big directory does have the effect that it becomes necessary to precisely know what's dependent on what. That's exactly what's described in the <code>ModDeps.od</code> file. This file is used by Pmake to automatically generate include and link directives.
+Making all these modules as opposed to just dumping everything in one big directory does have the effect that it becomes necessary to precisely know what's dependent on what. That's exactly what's described in the <code>Pmake/ModDeps.od</code> file. This file is used by Pmake to automatically generate include and link directives.
 
 <a name=rwmodules><h3>RW modules</h3></a>
 <p>
-First of all, there are the <code>Basic</code> and <code>General</code> modules. <code>General</code> depends on <code>Basic</code>. The separation is a bit arbitrary, and the idea was that <code>Basic</code> would be tools also usable outside OpendTect. It's easy to find a counterexample like survinfo which was placed there to provide other <code>Basic</code> classes with good defaults.
+First of all, there are the <code>Basic</code>, <code>Algo</code> and <code>General</code> modules. <code>General</code> depends on <code>Algo</code>, which in turn depends on <code>Basic</code>. The separation is a bit arbitrary, and the idea was that <code>Basic</code> would be tools also usable outside OpendTect. It's easy to find a counterexample like survinfo which was placed there to provide other <code>Basic</code> classes with good defaults.
 </p><p>
 In any case, <code>Basic</code> handles basic stuff like file-related, extra string utils, Ascii keyword-value files, positions (coords, inline/crossline), our own 'string' class the <code>BufferString</code> (not just a relict: it works better with C environments), sets: <code>TypeSet</code>, <code>ObjectSet</code> and <code>BufferStringSet</code>, OS dependent things like threads, stream opening, and a variety of basic algorithms.
 </p><p>
-<code>General</code> handles fast dynamic large N-D arrays (<code>ArrayND</code> etc.), the CBVS format for volumestorage, the <code>IOObj</code>, <code>IOMan</code> and other data store related classes, <code>Translators</code> enabling different formats, transforms and a few more things.
+<code>Algo</code> is for, well, Algorithmic stuff. <code>General</code> handles all sorts of things, like fast dynamic large N-D arrays (<code>ArrayND</code> etc.), the CBVS format for volumestorage, the <code>IOObj</code>, <code>IOMan</code> and other data store related classes, <code>Translators</code> enabling different formats, transforms and a few more things.
 </p><p>
-The domain-specific modules like <code>Well</code>, <code>EarthModel</code>, <code>Grid</code> etc. will be recognised by a geoscientist. Leaves us with <code>Attrib</code> and <code>AttribEng</code>, the seismic attribute modules, and the <code>Features</code> module.
-</p><p>
-The <code>Features</code> module implements a concept of (sets of) vectors where each vector has a position and each vector row has a name. This is what is needed to hold the data for many N-dimensional data analysis problems.
-</p><p>
-For seismic attributes, a separation is made between the engine and the structure of the attributes (<code>AttribEng</code>), and the implementation of the various standard attributes (<code>Attrib</code>).
+The domain-specific modules like <code>Well</code>, <code>EarthModel</code>, <code>Seis</code> etc. will be recognised by a geoscientist. There's also the <code>Attribute</code> and <code>AttributeEngine</code>, the seismic attribute modules, and the engine that does the work.
 </p>
 
 <a name=uimodules><h3>UI modules</h3></a>

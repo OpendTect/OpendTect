@@ -4,7 +4,7 @@
   - Author:	A.H. Bril
   - Date:	Sep 2005
   - Contents:	Development rules & standards
-  - RCS:	$Id: rules.html,v 1.6 2007-04-24 12:21:26 bert Exp $
+  - RCS:	$Id: rules.html,v 1.7 2007-05-22 11:32:08 bert Exp $
  -->
 
 <body background="../backg.png"><title>Rules [OpendTect Programmer's manual V3.0]</title>
@@ -292,13 +292,15 @@ adopted the early Smalltalk rules:
 Then, how the method is named is dependent on what it does. The rule is that
 the resulting code must read as if it is English text, and that it does what it
 says. most often verbNoun is OK. Bad are:
-# bool moderator() - bool functions must be usable directly in 'if' or '?'
+<ul>
+<li>bool moderator() - bool functions must be usable directly in 'if' or '?'
 statements. Imagine 'if ( moderator() )'. Depending on what it does, consider
 'isModerator()' or 'moderate()'.
-# void wordChanger() - a word changer could be an object but not a function.
+<li> void wordChanger() - a word changer could be an object but not a function.
 Consider 'changeWord()' or 'changeWords()' or a re-design.
-# int applesAndPears() - what does this thing do? Make sure there is at least
+<li>int applesAndPears() - what does this thing do? Make sure there is at least
 one verb.
+</ul>
 </li>
 <li>Variables are in lowercase. Class members should get an underscore at the
 end, further variables should generally be free of underscores. Special cases
@@ -316,7 +318,7 @@ indispensible in real C++.
 
 <h3>Layout</h3>
 <p>
-No other subject brings up this many discussions. While it's simple: we chose
+No other subject brings up this many discussions. While it's simple: choose
 a policy and stick to it. The end result is what counts: readability,
 compactness, understandability. Thus all rules can be broken if it really helps
 those properties, but they rarely are.
@@ -324,12 +326,12 @@ those properties, but they rarely are.
 <p>
 
 <ul>
-<li><b>Indentation:<br></b>
+<li><b>Indentation:</b><br>
 
 	4 spaces per level, 8 spaces = one tab.
 	Use tabs whenever possible, also inside a line.
 </li>
-<li><b>Alignment:<br></b>
+<li><b>Alignment:</b><br>
 
 	The maximum number of characters on one line is 80. So when you exceed
 	this number, start on the new line with a couple of tabs. Align
@@ -346,7 +348,7 @@ those properties, but they rarely are.
 		getValue() const	{ return val; }
 	</pre></code>
 </li>
-<li><b>Braces '{ }':<br></b>
+<li><b>Braces '{ }':</b><br>
 
 	On a line by themselves.
 	<code><pre>
@@ -367,7 +369,7 @@ those properties, but they rarely are.
 		    { stmt(); return; }
 	</pre></code>
 </li>
-<li><b>Parentheses:<br></b>
+<li><b>Parentheses:</b><br>
 
 	Pad with a space on both sides, except when this would make things
 	unclear because it would become too spacy.
@@ -376,36 +378,36 @@ those properties, but they rarely are.
 		if ( (x && y) || (z1 && z2) )
 	</pre></code>
 </li>
-<li><b>Array brackets:<br></b>
+<li><b>Array brackets:</b><br>
 	No space between array and first bracket. Pad index if that makes
 	things more clear.
 	<code><pre>
 		x = arr[0];
 	</pre></code>
 </li>
-<li><b>Equality-type operators:<br></b>
-	Pad with spaces, unless it really help see grouping.
+<li><b>Equality-type operators:</b><br>
+	Pad with spaces, unless it really helps seeing the grouping.
 	<code><pre>
 		if ( a == b )
 		x = 15;
 	</pre></code>
 	If more clear, use:
 	<code><pre>
-		if ( c<d && e>f )
+		if ( c&lt;d && e&gt;f )
 	</pre></code>
 	rather than:
 	<code><pre>
-		if ( c < d && e > f )
+		if ( c &lt; d && e &gt; f )
 	</pre></code>
 </li>
-<li><b>Semicolons:<br></b>
+<li><b>Semicolons:</b><br>
 	Attach to last character of statement:
 	<code><pre>
 		doIt();
 		for ( int idx=0; idx<10; idx++ )
 	</pre></code>
 </li>
-<li><b>'?'-statements:<br></b>
+<li><b>'?'-statements:</b><br>
 	Use only and always if the same thing must be done or used depending
 	on a condition:
 	<code><pre>
@@ -414,7 +416,7 @@ those properties, but they rarely are.
 		prTxt( isOK() ? "Yes" : "No" );
 	</pre></code>
 </li>
-<li><b>Class declarations:<br></b>
+<li><b>Class declarations:</b><br>
 	Just look at examples, but a nice template may be:
 
 	<code><pre>
@@ -494,9 +496,7 @@ like will be made by the compiler after you remove them and then you still
 don't know whether they are used). An unused non-trivial fuction must be
 considered 'unbearable' (see next item).
 </li>
-<li>Some things are 'unbearable'. Spaces instead of tabs for example. Replace
-them where you see them. If these things happen too much, consider asking the
-producer of the crap to remove it him/herself.
+<li>Some things are 'unbearable'. Unbearably bad naming. Spaces instead of tabs. Unused code. Replace this kind of stuff where you see it. If these things happen too much, consider asking the producer of the crap to remove it him/herself.
 </li>
 </p>
 
