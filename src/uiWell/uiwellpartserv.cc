@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2003
- RCS:           $Id: uiwellpartserv.cc,v 1.26 2007-05-14 12:11:00 cvsraman Exp $
+ RCS:           $Id: uiwellpartserv.cc,v 1.27 2007-05-22 10:44:23 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -94,7 +94,6 @@ bool uiWellPartServer::selectLogs( const MultiID& wellid,
     uiLogSelDlg dlg( appserv().parent(), wd->logs(), logparset );
     if( !dlg.go() )
 	return false;
-    logparset = dlg.getParSet();
     return true;
 }
 
