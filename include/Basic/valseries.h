@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril & Kris Tingdahl
  Date:          Mar 2005
- RCS:           $Id: valseries.h,v 1.6 2007-01-17 09:30:41 cvskris Exp $
+ RCS:           $Id: valseries.h,v 1.7 2007-05-22 13:05:43 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -90,6 +90,7 @@ public:
 
     bool	reSizeable() const		{ return mine_; }
     inline bool	setSize(int64);
+    int64	size() const			{ return cursize_; }
 
 protected:
 
