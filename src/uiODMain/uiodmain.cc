@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodmain.cc,v 1.75 2007-05-22 06:57:14 cvsraman Exp $
+ RCS:           $Id: uiodmain.cc,v 1.76 2007-05-22 08:41:43 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,6 +40,7 @@ ________________________________________________________________________
 #include "ioman.h"
 #include "ioobj.h"
 #include "odsessionfact.h"
+#include "oddirs.h"
 #include "pixmap.h"
 #include "plugins.h"
 #include "ptrman.h"
@@ -75,7 +76,7 @@ int ODMain( int argc, char** argv )
     uiODMain* odmain = new uiODMain( *new uicMain(argc,argv) );
 
 #ifndef USEQT3
-    ioPixmap pm( "od.jpg" );
+    ioPixmap pm( GetDataFileName("splash.png") );
     uiSplashScreen splash( pm );
     splash.show();
     splash.showMessage( "Loading plugins ..." );
