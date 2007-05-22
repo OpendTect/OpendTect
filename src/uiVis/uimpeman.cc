@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.cc,v 1.119 2007-05-22 03:23:22 cvsnanne Exp $
+ RCS:           $Id: uimpeman.cc,v 1.120 2007-05-22 04:08:58 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,8 +18,8 @@ ________________________________________________________________________
 #include "emsurfacetr.h"
 #include "emtracker.h"
 #include "faultseedpicker.h"
-#include "horizonseedpicker.h"
 #include "horizon2dseedpicker.h"
+#include "horizon3dseedpicker.h"
 #include "ioman.h"
 #include "keystrs.h"
 #include "mpeengine.h"

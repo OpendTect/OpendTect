@@ -1,5 +1,5 @@
-#ifndef horizontracker_h
-#define horizontracker_h
+#ifndef horizon3dtracker_h
+#define horizon3dtracker_h
 
 /*+
 ________________________________________________________________________
@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: horizon3dtracker.h,v 1.3 2007-05-22 03:23:22 cvsnanne Exp $
+ RCS:		$Id: horizon3dtracker.h,v 1.4 2007-05-22 04:08:58 cvsnanne Exp $
 ________________________________________________________________________
 
 

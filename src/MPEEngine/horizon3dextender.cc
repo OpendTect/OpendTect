@@ -8,9 +8,9 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizon3dextender.cc,v 1.10 2007-05-22 03:23:23 cvsnanne Exp $";
+static const char* rcsID = "$Id: horizon3dextender.cc,v 1.11 2007-05-22 04:08:58 cvsnanne Exp $";
 
-#include "horizonextender.h"
+#include "horizon3dextender.h"
 
 #include "binidsurface.h"
 #include "emfault.h"

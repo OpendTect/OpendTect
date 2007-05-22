@@ -8,9 +8,9 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizon3dseedpicker.cc,v 1.24 2007-05-22 03:23:23 cvsnanne Exp $";
+static const char* rcsID = "$Id: horizon3dseedpicker.cc,v 1.25 2007-05-22 04:08:58 cvsnanne Exp $";
 
-#include "horizonseedpicker.h"
+#include "horizon3dseedpicker.h"
 
 #include "autotracker.h"
 #include "emhorizon3d.h"

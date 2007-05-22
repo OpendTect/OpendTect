@@ -1,5 +1,5 @@
-#ifndef horizonseedpicker_h
-#define horizonseedpicker_h
+#ifndef horizon3dseedpicker_h
+#define horizon3dseedpicker_h
                                                                                 
 /*+
 ________________________________________________________________________
@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: horizon3dseedpicker.h,v 1.18 2007-05-22 03:23:22 cvsnanne Exp $
+ RCS:           $Id: horizon3dseedpicker.h,v 1.19 2007-05-22 04:08:58 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/

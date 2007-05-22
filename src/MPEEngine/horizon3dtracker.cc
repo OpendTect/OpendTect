@@ -4,20 +4,20 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2002
- RCS:           $Id: horizon3dtracker.cc,v 1.4 2007-05-22 03:23:23 cvsnanne Exp $
+ RCS:           $Id: horizon3dtracker.cc,v 1.5 2007-05-22 04:08:58 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "horizontracker.h"
+#include "horizon3dtracker.h"
 
 #include "cubicbeziercurve.h"
 #include "emhistory.h"
 #include "emhorizon3d.h"
 #include "emmanager.h"
 #include "horizonadjuster.h"
-#include "horizonextender.h"
-#include "horizonseedpicker.h"
+#include "horizon3dextender.h"
+#include "horizon3dseedpicker.h"
 #include "mpeengine.h"
 #include "sectionselectorimpl.h"
 #include "sectiontracker.h"
