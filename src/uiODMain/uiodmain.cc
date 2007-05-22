@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodmain.cc,v 1.74 2007-05-17 05:14:15 cvsraman Exp $
+ RCS:           $Id: uiodmain.cc,v 1.75 2007-05-22 06:57:14 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -126,9 +126,6 @@ uiODMain::uiODMain( uicMain& a )
     uiMSG().setMainWin( this );
     uiapp.setTopLevel( this );
     uiSurveyInfoEditor::addInfoProvider( new ui2DSurvInfoProvider );
-
-//    bool douse;
-//    ODSession::getStartupData( douse, cursessid );
 
     if ( !ensureGoodDataDir()
       || (IOM().bad() && !ensureGoodSurveySetup()) )
@@ -481,7 +478,7 @@ void uiODMain::handleStartupSession( CallBacker* )
 {
     bool douse = false; MultiID id;
     ODSession::getStartupData( douse, id );
-    if ( !douse || id == "" )
+    if ( !douse || id == "" ) 
 	return;
 
     PtrMan<IOObj> ioobj = IOM().get( id );
