@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiattribpartserv.cc,v 1.68 2007-05-22 07:02:02 cvsnanne Exp $
+ RCS:           $Id: uiattribpartserv.cc,v 1.69 2007-05-22 07:11:06 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,6 +45,7 @@ ________________________________________________________________________
 #include "ptrman.h"
 #include "seisinfo.h"
 #include "survinfo.h"
+#include "settings.h"
 
 #include "uiattrdesced.h"
 #include "uiattrdescseted.h"
@@ -96,6 +97,8 @@ uiAttribPartServer::uiAttribPartServer( uiApplService& a )
     stored3dmnuitem_.checkable = true;
     calc2dmnuitem_.checkable = true;
     calc3dmnuitem_.checkable = true;
+
+    handleAutoSet();
 }
 
 
@@ -105,6 +108,26 @@ uiAttribPartServer::~uiAttribPartServer()
     delete adsman3d_;
     delete attrsetdlg_;
     deepErase( linesets2dmnuitem_ );
+}
+
+
+void uiAttribPartServer::handleAutoSet()
+{
+    bool douse = false;
+    Settings::common().getYN( uiAttribDescSetEd::sKeyUseAutoAttrSet, douse );
+    if(douse)
+    {
+        MultiID id = SI().pars().find( uiAttribDescSetEd::sKeyAutoAttrSetID );
+        if (id)
+        {
+            PtrMan<IOObj> ioobj = IOM().get( id );
+            BufferString bs;
+            DescSet* attrset = new DescSet( false, false );
+	    AttribDescSetTranslator::retrieve( *attrset,ioobj,bs );
+	    adsman3d_->setDescSet( attrset );
+	    adsman3d_->attrsetid_ = id;
+	}
+    }
 }
 
 

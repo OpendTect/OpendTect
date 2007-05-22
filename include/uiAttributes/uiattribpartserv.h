@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiattribpartserv.h,v 1.27 2007-05-18 12:40:11 cvshelene Exp $
+ RCS:           $Id: uiattribpartserv.h,v 1.28 2007-05-22 07:06:58 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -79,6 +79,7 @@ public:
     static const int	objNLAModel3D;
     			//!< Request current 3D NLAModel* via getObject()
 
+    void		handleAutoSet();
     void		manageAttribSets();
     const Attrib::DescSet* curDescSet(bool) const;
     void		getDirectShowAttrSpec(Attrib::SelSpec&) const;
