@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2006
- RCS:           $Id: uidesktopservices.cc,v 1.3 2007-05-21 04:27:45 cvsnanne Exp $
+ RCS:           $Id: uidesktopservices.cc,v 1.4 2007-05-23 10:27:21 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,13 +21,6 @@ ________________________________________________________________________
 
 bool uiDesktopServices::openUrl( const char* url )
 {
-    if ( !File_exists(url) )
-    {
-	BufferString msg( "Cannot open file:\n" ); msg += url;
-	uiMSG().error( msg );
-	return false;
-    }
-
     QUrl qurl( url, QUrl::TolerantMode );
     return QDesktopServices::openUrl( qurl );
 }
