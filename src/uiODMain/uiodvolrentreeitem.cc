@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: uiodvolrentreeitem.cc,v 1.6 2007-04-25 16:22:33 cvskris Exp $";
+static const char* rcsID = "$Id: uiodvolrentreeitem.cc,v 1.7 2007-05-23 06:34:20 cvsnanne Exp $";
 
 
 #include "uiodvolrentreeitem.h"
@@ -43,19 +43,12 @@ bool uiODVolrenParentTreeItem::showSubMenu()
 {
     mDynamicCastGet(visSurvey::Scene*,scene,
 	ODMainWin()->applMgr().visServer()->getObject(sceneID()));
-    if ( scene && scene->getDataTransform() )
-    {
-	uiMSG().message( "Cannot add volume viewer to this scene (yet)" );
-	return false;
-    }
 
     uiPopupMenu mnu( getUiParent(), "Action" );
     mnu.insertItem( new uiMenuItem("Add"), 0 );
     const int mnuid = mnu.exec();
-    if ( !mnuid )
-    {
+    if ( mnuid==0 )
 	addChild( new uiODVolrenTreeItem(-1), true );
-    }
 
     return true;
 }
@@ -70,7 +63,6 @@ int uiODVolrenParentTreeItem::sceneID() const
 }
 
 
-
 bool uiODVolrenParentTreeItem::init()
 {
     return uiTreeItem::init();
@@ -81,12 +73,12 @@ const char* uiODVolrenParentTreeItem::parentType() const
 { return typeid(uiODTreeTop).name(); }
 
 
-uiTreeItem* uiODVolrenTreeItemFactory::create( int visid, uiTreeItem*) const
+
+uiTreeItem* uiODVolrenTreeItemFactory::create( int visid, uiTreeItem* ) const
 {
-    mDynamicCastGet( visSurvey::VolumeDisplay*, vd,
-		     ODMainWin()->applMgr().visServer()->getObject(visid) );
-    if ( vd ) return new uiODVolrenTreeItem( visid );
-    return 0;
+    mDynamicCastGet(visSurvey::VolumeDisplay*,vd,
+		    ODMainWin()->applMgr().visServer()->getObject(visid) );
+    return vd ? new uiODVolrenTreeItem( visid ) : 0;
 }
 
 
@@ -109,17 +101,18 @@ uiODVolrenTreeItem::uiODVolrenTreeItem( int displayid )
 
 uiODVolrenTreeItem::~uiODVolrenTreeItem()
 {
-    uilistviewitem_->stateChanged.remove( mCB(this,uiODVolrenTreeItem,checkCB) );
+    uilistviewitem_->stateChanged.remove(
+				mCB(this,uiODVolrenTreeItem,checkCB) );
     while( children_.size() )
 	removeChild(children_[0]);
 
-    visserv->removeObject(displayid_, sceneID());
+    visserv->removeObject( displayid_, sceneID() );
 }
 
 
 bool uiODVolrenTreeItem::showSubMenu()
 {
-    return visserv->showMenu(displayid_);
+    return visserv->showMenu( displayid_ );
 }
 
 
@@ -137,8 +130,8 @@ bool uiODVolrenTreeItem::init()
     }
     else
     {
-	mDynamicCastGet( visSurvey::VolumeDisplay*, display,
-			 visserv->getObject(displayid_) );
+	mDynamicCastGet(visSurvey::VolumeDisplay*,display,
+			visserv->getObject(displayid_) );
 	if ( !display ) return false;
     }
 
