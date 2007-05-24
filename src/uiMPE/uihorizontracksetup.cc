@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2005
- RCS:           $Id: uihorizontracksetup.cc,v 1.14 2007-05-22 03:23:23 cvsnanne Exp $
+ RCS:           $Id: uihorizontracksetup.cc,v 1.15 2007-05-24 13:53:49 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -104,7 +104,7 @@ uiGroup* uiHorizonSetupGroup::createEventGroup()
 			mCB(this,uiHorizonSetupGroup,selAmpThresholdType) );
     thresholdtypefld->attach( alignedBelow, srchgatefld );
 
-    ampthresholdfld = new uiGenInput ( grp, "XXXXXXXXXXXXXX",
+    ampthresholdfld = new uiGenInput ( grp, "Allowed difference (%)",
 	    			       FloatInpSpec() );
     ampthresholdfld->attach( alignedBelow, thresholdtypefld );
 
@@ -153,7 +153,7 @@ void uiHorizonSetupGroup::selUseSimilarity( CallBacker* )
 void uiHorizonSetupGroup::selAmpThresholdType( CallBacker* )
 {
     const bool absthreshold = thresholdtypefld->getBoolValue();
-    ampthresholdfld->setTitleText( absthreshold ? "Amplitude value"
+    ampthresholdfld->setTitleText( absthreshold ? "       Amplitude value"
 						: "Allowed difference (%)" );
     ampthresholdfld->setValue( absthreshold ? horadj_->amplitudeThreshold()
 	    				    : horadj_->allowedVariance()*100 );
