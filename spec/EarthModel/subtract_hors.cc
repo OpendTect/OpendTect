@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:           2005
- RCS:           $Id: subtract_hors.cc,v 1.6 2006-05-09 15:22:18 cvsnanne Exp $
+ RCS:           $Id: subtract_hors.cc,v 1.7 2007-05-24 07:45:48 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,7 +17,7 @@ ________________________________________________________________________
 #include "ctxtioobj.h"
 #include "cubesampling.h"
 #include "emmanager.h"
-#include "emhorizon.h"
+#include "emhorizon3d.h"
 #include "emsurfaceauxdata.h"
 #include "emsurfacegeometry.h"
 #include "emposid.h"
@@ -46,7 +46,7 @@ static int prError( const char* msg )
 }
 
 
-static EM::Horizon* loadHorizon( const char* id, BufferString& err )
+static EM::Horizon3D* loadHorizon( const char* id, BufferString& err )
 {
     IOM().to( MultiID(IOObjContext::getStdDirData(IOObjContext::Surf)->id) );
     PtrMan<IOObj> ioobj = IOM().get( id );
@@ -57,7 +57,7 @@ static EM::Horizon* loadHorizon( const char* id, BufferString& err )
     PtrMan<Executor> exec = em.objectLoader( ioobj->key() );
     exec->execute( &std::cerr );
     EM::EMObject* emobj = em.getObject( em.getObjectID(ioobj->key()) );
-    mDynamicCastGet(EM::Horizon*,horizon,emobj)
+    mDynamicCastGet(EM::Horizon3D*,horizon,emobj)
     if ( !horizon ) { err = "ID "; err += id; err += " is not horizon"; }
     return horizon;
 }
@@ -68,12 +68,12 @@ static int doWork( int argc, char** argv )
     if ( argc < 4 ) return prUsage();
 
     BufferString errmsg;
-    EM::Horizon* horizon1 = loadHorizon( argv[1], errmsg );
+    EM::Horizon3D* horizon1 = loadHorizon( argv[1], errmsg );
     if ( errmsg != "" ) return prError( errmsg );
-    EM::Horizon* horizon2 = loadHorizon( argv[2], errmsg );
+    EM::Horizon3D* horizon2 = loadHorizon( argv[2], errmsg );
     if ( errmsg != "" ) return prError( errmsg );
 
-    EM::Horizon& addtohor = !strcasecmp(argv[3],"T") ? *horizon1 : *horizon2;
+    EM::Horizon3D& addtohor = !strcasecmp(argv[3],"T") ? *horizon1 : *horizon2;
 
     BufferString attribname = argv[4] ? argv[4] : "Thickness";
     const int dataidx = addtohor.auxdata.addAuxData( attribname );

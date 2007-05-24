@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2004
- RCS:           $Id: od_process_attrib_em.cc,v 1.38 2007-03-02 08:05:44 cvsnanne Exp $
+ RCS:           $Id: od_process_attrib_em.cc,v 1.39 2007-05-24 07:45:48 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,7 +22,7 @@ ________________________________________________________________________
 
 #include "batchprog.h"
 #include "binidvalset.h"
-#include "emhorizon.h"
+#include "emhorizon3d.h"
 #include "emhorizonutils.h"
 #include "emmanager.h"
 #include "emsurfaceauxdata.h"
@@ -354,7 +354,7 @@ bool BatchProgram::go( std::ostream& strm )
 	if ( !process(strm,proc) ) return false;
         HorizonUtils::addSurfaceData( *(midset[0]), attribrefs, bivs );
 	EMObject* obj = EMM().getObject( EMM().getObjectID(*midset[0]) );
-	mDynamicCastGet(Horizon*,horizon,obj)
+	mDynamicCastGet(Horizon3D*,horizon,obj)
 	if ( !horizon ) mErrRet( "Huh" );
 
 	SurfaceIOData sd; sd.use( *horizon );
