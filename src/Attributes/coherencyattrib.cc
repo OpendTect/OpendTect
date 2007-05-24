@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: coherencyattrib.cc,v 1.17 2007-03-08 12:40:08 cvshelene Exp $";
+static const char* rcsID = "$Id: coherencyattrib.cc,v 1.18 2007-05-24 14:35:17 cvshelene Exp $";
 
 
 #include "coherencyattrib.h"
@@ -225,12 +225,9 @@ bool Coherency::computeData1( const DataHolder& output, int z0,
 	cohres += maxcoh;
 	cohres /= 2;
 
-	if ( outputinterest[0] ) 
-	    output.series(0)->setValue( idx, cohres );
-	if ( outputinterest[1] )
-	    output.series(1)->setValue( idx, inldip * dipFactor() );
-	if ( outputinterest[2] ) 
-	    output.series(2)->setValue( idx, dipatmax * dipFactor() );
+	setOutputValue( output, 0, idx, z0, cohres );
+	setOutputValue( output, 1, idx, z0, inldip * dipFactor() );
+	setOutputValue( output, 2, idx, z0, dipatmax * dipFactor() );
     }
 
     return true;
@@ -258,7 +255,7 @@ bool Coherency::computeData2( const DataHolder& output, int z0,
 	    while ( crldip <= maxdip_ )
 	    {
 		float coh = calc2( cursample, samplegate, inldip, 
-				    crldip, *realdataholder_, *imagdataholder_ );
+				crldip, *realdataholder_, *imagdataholder_ );
 
 		if ( coh > maxcoh )
 		    { maxcoh = coh; inldipatmax = inldip; crldipatmax = crldip;}
@@ -269,12 +266,9 @@ bool Coherency::computeData2( const DataHolder& output, int z0,
 	    inldip += ddip_;
 	}
 	
-	if ( outputinterest[0] ) 
-	    output.series(0)->setValue( idx, maxcoh );
-	if ( outputinterest[1] )
-	    output.series(1)->setValue( idx, inldipatmax * dipFactor() );
-	if ( outputinterest[2] ) 
-	    output.series(2)->setValue( idx, crldipatmax * dipFactor() );
+	setOutputValue( output, 0, idx, z0, maxcoh );
+	setOutputValue( output, 1, idx, z0, inldipatmax * dipFactor() );
+	setOutputValue( output, 2, idx, z0, crldipatmax * dipFactor() );
     }
 
     return true;
