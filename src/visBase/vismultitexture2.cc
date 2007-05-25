@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vismultitexture2.cc,v 1.38 2007-05-21 05:45:22 cvsnanne Exp $";
+static const char* rcsID = "$Id: vismultitexture2.cc,v 1.39 2007-05-25 06:15:08 cvsnanne Exp $";
 
 
 #include "vismultitexture2.h"
@@ -104,7 +104,7 @@ MultiTexture2::MultiTexture2()
     complexity_->value.setIgnored( true );
     complexity_->textureQuality.setValue( 1 );
 
-    texture_->setNrThreads( Threads::getNrProcessors() );
+    texture_->setNrThreads( __iswin__ ? 1 : Threads::getNrProcessors() );
     nonshadinggroup_->addChild( texture_ );
 
     turnOn( true );
