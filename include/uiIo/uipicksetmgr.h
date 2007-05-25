@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Jun 2006
- RCS:           $Id: uipicksetmgr.h,v 1.1 2006-06-30 10:15:49 cvsbert Exp $
+ RCS:           $Id: uipicksetmgr.h,v 1.2 2007-05-25 10:16:34 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "callback.h"
 
 class IOObj;
+class MultiID;
 class uiParent;
 namespace Pick { class Set; class SetMgr; };
 
@@ -29,7 +30,7 @@ public:
     bool		storeSets();	//!< Stores all changed sets
     bool		storeSet(const Pick::Set&);
     bool		storeSetAs(const Pick::Set&);
-    void		mergeSets();
+    void		mergeSets(MultiID&);
     bool		pickSetsStored() const;
 
     virtual uiParent*	parent()		= 0;

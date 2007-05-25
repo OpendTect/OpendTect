@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:           2003
- RCS:           $Id: uipicksetman.h,v 1.1 2006-08-03 18:56:52 cvsnanne Exp $
+ RCS:           $Id: uipicksetman.h,v 1.2 2007-05-25 10:16:34 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,6 +27,8 @@ public:
 protected:
 
     void			mkFileInfo();
+    void			mergeSets(CallBacker*);
+
 };
 
 #endif

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uipicksetmgr.cc,v 1.2 2007-02-05 18:19:47 cvsbert Exp $
+ RCS:           $Id: uipicksetmgr.cc,v 1.3 2007-05-25 10:16:34 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -134,16 +134,18 @@ class uiMergePickSets : public uiDialog
 {
 public:
 
-uiMergePickSets( uiParent* p )
+uiMergePickSets( uiParent* p, MultiID& mid )
     : uiDialog(p,uiDialog::Setup("Merge Pick Sets","Specify sets to merge",
 				 "105.0.4"))
-    , ctioin( PickSetTranslatorGroup::ioContext() )
-    , ctioout( PickSetTranslatorGroup::ioContext() )
+    , ctioin_( PickSetTranslatorGroup::ioContext() )
+    , ctioout_( PickSetTranslatorGroup::ioContext() )
+    , mid_(mid)
 {
-    selfld = new uiIOObjSelGrp( this, ctioin, "Select Pick Sets to merge",
+    ctioin_.setObj( IOM().get(mid_) );
+    selfld = new uiIOObjSelGrp( this, ctioin_, "Select Pick Sets to merge",
 	    			true );
-    ctioout.ctxt.forread = false;
-    outfld = new uiIOObjSel( this, ctioout, "Output merged set" );
+    ctioout_.ctxt.forread = false;
+    outfld = new uiIOObjSel( this, ctioout_, "Output merged set" );
     outfld->attach( alignedBelow, selfld );
 }
 
@@ -162,23 +164,27 @@ bool acceptOK( CallBacker* )
 	uiMSG().error( "Cannot create the output set" );
 	return false;
     }
+
+    if ( ctioout_.ioobj )
+	mid_ = ctioout_.ioobj->key();
     return true;
 }
 
     uiIOObjSelGrp*	selfld;
     uiIOObjSel*		outfld;
-    CtxtIOObj		ctioin;
-    CtxtIOObj		ctioout;
+    CtxtIOObj		ctioin_;
+    CtxtIOObj		ctioout_;
+    MultiID&		mid_;
 
     int			nrsel;
 
 };
 
 
-void uiPickSetMgr::mergeSets()
+void uiPickSetMgr::mergeSets( MultiID& mid )
 {
     CtxtIOObj ctio( PickSetTranslatorGroup::ioContext() );
-    uiMergePickSets dlg( parent() );
+    uiMergePickSets dlg( parent(), mid );
     if ( !dlg.go() ) return;
 
     ObjectSet<const Pick::Set> pss;
@@ -209,12 +215,12 @@ void uiPickSetMgr::mergeSets()
     }
 
     Pick::Set resset( *pss[0] );
-    resset.setName( dlg.ctioout.ioobj->name() );
+    resset.setName( dlg.ctioout_.ioobj->name() );
     for ( int idx=1; idx<pss.size(); idx ++ )
 	resset.append( *pss[idx] );
 
     BufferString msg;
-    if ( !PickSetTranslator::store(resset,dlg.ctioout.ioobj,msg) )
+    if ( !PickSetTranslator::store(resset,dlg.ctioout_.ioobj,msg) )
 	uiMSG().error( msg );
 
     deepErase( pssread );

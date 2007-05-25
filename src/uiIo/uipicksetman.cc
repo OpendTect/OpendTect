@@ -4,14 +4,16 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          September 2003
- RCS:           $Id: uipicksetman.cc,v 1.4 2007-02-14 12:36:09 cvsnanne Exp $
+ RCS:           $Id: uipicksetman.cc,v 1.5 2007-05-25 10:16:34 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uipicksetman.h"
+#include "uipicksetmgr.h"
 
 #include "uiioobjsel.h"
+#include "uiioobjmanip.h"
 #include "uitextedit.h"
 
 #include "ctxtioobj.h"
@@ -28,6 +30,12 @@ uiPickSetMan::uiPickSetMan( uiParent* p )
 	           PickSetTranslatorGroup::ioContext())
 {
     createDefaultUI();
+
+    uiIOObjManipGroup* manipgrp = selgrp->getManipGroup();
+    manipgrp->addButton( "mergepicksets.png", mCB(this,uiPickSetMan,mergeSets),
+			 "Merge pick sets" );
+
+
     selgrp->setPrefWidthInChar( cPrefWidth );
     infofld->setPrefWidthInChar( cPrefWidth );
 
@@ -72,4 +80,25 @@ void uiPickSetMan::mkFileInfo()
     txt += "\n";
     txt += getFileInfo();
     infofld->setText( txt );
+}
+
+
+class uiPickSetManPickSetMgr : public uiPickSetMgr
+{
+public:
+uiPickSetManPickSetMgr( uiParent* p ) : uiPickSetMgr(Pick::Mgr()), par_(p) {}
+uiParent* parent() { return par_; }
+
+    uiParent*	par_;
+
+};
+
+void uiPickSetMan::mergeSets( CallBacker* )
+{
+    uiPickSetManPickSetMgr mgr( this );
+    MultiID curkey; if ( curioobj_ ) curkey = curioobj_->key();
+    mgr.mergeSets( curkey );
+
+    if ( curkey != "" )
+	selgrp->fullUpdate( curkey );
 }

@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodpicksettreeitem.cc,v 1.23 2007-03-21 14:02:05 cvskris Exp $
+ RCS:		$Id: uiodpicksettreeitem.cc,v 1.24 2007-05-25 10:16:34 cvsbert Exp $
 ___________________________________________________________________
 
 -*/
@@ -153,7 +153,7 @@ bool uiODPickSetParentTreeItem::showSubMenu()
 	}
     }
     else if ( mnuid==4 )
-	applMgr()->pickServer()->mergeSets();
+	{ MultiID mid; applMgr()->pickServer()->mergeSets( mid ); }
     else
 	handleStandardItems( mnuid );
 

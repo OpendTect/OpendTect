@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          25/05/2000
- RCS:           $Id: uiioobjsel.cc,v 1.99 2007-03-14 12:00:55 cvsbert Exp $
+ RCS:           $Id: uiioobjsel.cc,v 1.100 2007-05-25 10:16:34 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -206,7 +206,15 @@ void uiIOObjSelGrp::filtChg( CallBacker* )
 
 void uiIOObjSelGrp::fullUpdate( const MultiID& ky )
 {
-    fullUpdate( indexOf( ioobjids_, ky ) );
+    int selidx = indexOf( ioobjids_, ky );
+    fullUpdate( selidx );
+    // Maybe a new one has been added
+    if ( selidx < 0 )
+    {
+	selidx = indexOf( ioobjids_, ky );
+	if ( selidx >= 0 )
+	    setCur( selidx );
+    }
 }
 
 
