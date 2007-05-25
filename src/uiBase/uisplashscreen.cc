@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		December 2006
- RCS:		$Id: uisplashscreen.cc,v 1.2 2007-03-07 17:53:24 cvsnanne Exp $
+ RCS:		$Id: uisplashscreen.cc,v 1.3 2007-05-25 10:31:05 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,12 +14,17 @@ ________________________________________________________________________
 #include "uimainwin.h"
 #include "pixmap.h"
 
+#include <QApplication>
+#include <QDesktopWidget>
 #include <QSplashScreen>
 
 
 uiSplashScreen::uiSplashScreen( const ioPixmap& pm )
 {
-    qsplashscreen_ = new QSplashScreen( *pm.qpixmap() );
+    QDesktopWidget* qdw = QApplication::desktop();
+    QWidget* parent = qdw->screen( qdw->primaryScreen() );
+    qsplashscreen_ = new QSplashScreen( parent,  *pm.qpixmap(),
+	    				Qt::WindowStaysOnTopHint );
 }
 
 
