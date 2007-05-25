@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2006
- RCS:           $Id: uidesktopservices.cc,v 1.5 2007-05-23 12:20:07 cvsdgb Exp $
+ RCS:           $Id: uidesktopservices.cc,v 1.6 2007-05-25 03:32:34 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,5 +34,7 @@ bool uiDesktopServices::openUrl( const char* url )
     }
 
     QUrl qurl( myurl.buf(), QUrl::TolerantMode );
+    if ( qurl.isRelative() )
+	qurl.setScheme( "file" );
     return QDesktopServices::openUrl( qurl );
 }
