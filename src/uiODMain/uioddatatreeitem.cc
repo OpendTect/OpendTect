@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uioddatatreeitem.cc,v 1.11 2007-02-02 15:44:43 cvsnanne Exp $
+ RCS:		$Id: uioddatatreeitem.cc,v 1.12 2007-05-25 08:42:44 cvshelene Exp $
 ___________________________________________________________________
 
 -*/
@@ -23,6 +23,10 @@ ___________________________________________________________________
 #include "colortab.h"
 #include "pixmap.h"
 #include "viscolortab.h"
+
+//TODO:remove when Flattened scene ok for 2D Viewer
+#include "emhorizonztransform.h"
+#include "vissurvscene.h"
 
 
 TypeSet<uiODDataTreeItem::Creator> uiODDataTreeItem::creators_;
@@ -207,7 +211,16 @@ void uiODDataTreeItem::createMenuCB( CallBacker* cb )
     else
 	mResetMenuItem( &changetransparencyitem_ );
 
-    if ( visserv->canBDispOn2DViewer(displayID()) )
+    bool isflatscene = false;//TODO:remove when Flattened scene ok for 2D Viewer
+    mDynamicCastGet(visSurvey::Scene*,scene,
+	                applMgr()->visServer()->getObject(sceneID()));
+    if ( scene )
+    {
+	mDynamicCastGet(EM::HorizonZTransform*,horztrans,
+			scene->getDataTransform());
+	if ( horztrans ) isflatscene = true;
+    }
+    if ( visserv->canBDispOn2DViewer(displayID()) && !isflatscene )
     {
 	const Attrib::SelSpec* as =
 	    visserv->getSelSpec( displayID(), attribNr() );
