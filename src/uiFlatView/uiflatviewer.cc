@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewer.cc,v 1.28 2007-05-16 16:29:18 cvskris Exp $
+ RCS:           $Id: uiflatviewer.cc,v 1.29 2007-05-28 15:13:46 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,6 +21,7 @@ ________________________________________________________________________
 #include "drawaxis2d.h"
 #include "uiworld2ui.h"
 #include "uimsg.h"
+#include "linerectangleclipper.h"
 
 
 uiFlatViewer::uiFlatViewer( uiParent* p )
@@ -318,12 +319,31 @@ void uiFlatViewer::drawAux( const FlatView::Annotation::AuxData& ad )
     {
 	dt.setFillColor( ad.fillcolor_ );
 	dt.setLineStyle( ad.linestyle_ );
-	dt.drawLine( ptlist, ad.close_ );
+
+	if ( ad.close_ )
+	    //TODO clip polygon
+	    dt.drawLine( ptlist, true );
+	else
+	{
+	    ObjectSet<TypeSet<uiPoint> > lines;
+	    clipPolyLine( datarect, ptlist, lines );
+
+	    for ( int idx=lines.size()-1; idx>=0; idx-- )
+		dt.drawLine( *lines[idx], false );
+
+	    deepErase( lines );
+	}
     }
+
     if ( ad.markerstyle_.isVisible() )
     {
 	for ( int idx=ptlist.size()-1; idx>=0; idx-- )
+	{
+	    if ( datarect.isOutside(ptlist[idx] ) )
+		continue;
+
 	    dt.drawMarker( ptlist[idx], ad.markerstyle_ );
+	}
     }
 
     if ( !ad.name_.isEmpty() && !mIsUdf(ad.namepos_) )
