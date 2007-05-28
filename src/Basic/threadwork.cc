@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: threadwork.cc,v 1.18 2006-11-21 14:00:06 cvsbert Exp $";
+static const char* rcsID = "$Id: threadwork.cc,v 1.19 2007-05-28 15:07:06 cvskris Exp $";
 
 #include "threadwork.h"
 #include "basictask.h"
@@ -41,41 +41,43 @@ public:
     			//!< If working on this task, cancel it and continue.
     			//!< If a nullpointer is given, it will cancel
     			//!< regardless of which task we are working on
+    const BasicTask*	getTask() const { return task_; }
 
 protected:
 
     void		doWork(CallBacker*);
     void 		exitWork(CallBacker*);
-    ThreadWorkManager&	manager;
 
-    ConditionVar&	controlcond;	//Dont change this order!
-    int			retval;		//Lock before reading or writing
+    ThreadWorkManager&	manager_;
 
-    bool		exitflag;	//Set only from destructor
-    bool		cancelflag;	//Cancel current work and continue
-    BasicTask*		task;		
-    CallBack*		finishedcb;
+    ConditionVar&	controlcond_;	//Dont change this order!
+    int			retval_;	//Lock before reading or writing
 
-    Thread*		thread;
+    bool		exitflag_;	//Set only from destructor
+    bool		cancelflag_;	//Cancel current work and continue
+    BasicTask*		task_;		
+    CallBack*		finishedcb_;
+
+    Thread*		thread_;
 
 private:
-    long		_spacefiller[24];
+    long		spacefiller_[24];
 };
 
 }; // Namespace
 
 
 Threads::WorkThread::WorkThread( ThreadWorkManager& man )
-    : manager( man )
-    , controlcond( *new Threads::ConditionVar )
-    , thread( 0 )
-    , exitflag( false )
-    , cancelflag( false )
-    , task( 0 )
+    : manager_( man )
+    , controlcond_( *new Threads::ConditionVar )
+    , thread_( 0 )
+    , exitflag_( false )
+    , cancelflag_( false )
+    , task_( 0 )
 {
-    controlcond.lock();
-    thread = new Thread( mCB( this, WorkThread, doWork));
-    controlcond.unlock();
+    controlcond_.lock();
+    thread_ = new Thread( mCB( this, WorkThread, doWork));
+    controlcond_.unlock();
 
     SignalHandling::startNotify( SignalHandling::Kill,
 	    			 mCB( this, WorkThread, exitWork ));
@@ -87,18 +89,18 @@ Threads::WorkThread::~WorkThread()
     SignalHandling::stopNotify( SignalHandling::Kill,
 				 mCB( this, WorkThread, exitWork ));
 
-    if ( thread )
+    if ( thread_ )
     {
-	controlcond.lock();
-	exitflag = true;
-	controlcond.signal(false);
-	controlcond.unlock();
+	controlcond_.lock();
+	exitflag_ = true;
+	controlcond_.signal(false);
+	controlcond_.unlock();
 
-	thread->stop();
-	thread = 0;
+	thread_->stop();
+	thread_ = 0;
     }
 
-    delete &controlcond;
+    delete &controlcond_;
 }
 
 
@@ -115,94 +117,94 @@ void Threads::WorkThread::doWork( CallBacker* )
 
 #endif
 
-    controlcond.lock();
+    controlcond_.lock();
     while ( true )
     {
-	while ( !task && !exitflag )
-	    controlcond.wait();
+	while ( !task_ && !exitflag_ )
+	    controlcond_.wait();
 
-	if ( exitflag )
+	if ( exitflag_ )
 	{
-	    controlcond.unlock();
-	    thread->threadExit();
+	    controlcond_.unlock();
+	    thread_->threadExit();
 	}
 
-	while ( task && !exitflag )
+	while ( task_ && !exitflag_ )
 	{
-	    controlcond.unlock(); //Allow someone to set the exitflag
-	    retval = cancelflag ? 0 : task->doStep();
-	    controlcond.lock();
+	    controlcond_.unlock(); //Allow someone to set the exitflag
+	    retval_ = cancelflag_ ? 0 : task_->doStep();
+	    controlcond_.lock();
 
-	    if ( retval<1 )
+	    if ( retval_<1 )
 	    {
-		if ( finishedcb ) finishedcb->doCall( this );
-		manager.workloadcond_.lock();
+		if ( finishedcb_ ) finishedcb_->doCall( this );
+		manager_.workloadcond_.lock();
 
-		if ( manager.workload_.size() )
+		if ( manager_.workload_.size() )
 		{
-		    task = manager.workload_[0];
-		    finishedcb = manager.callbacks_[0];
-		    manager.workload_.remove( 0 );
-		    manager.callbacks_.remove( 0 );
+		    task_ = manager_.workload_[0];
+		    finishedcb_ = manager_.callbacks_[0];
+		    manager_.workload_.remove( 0 );
+		    manager_.callbacks_.remove( 0 );
 		}
 		else
 		{
-		    task = 0;
-		    finishedcb = 0;
-		    manager.freethreads_ += this;
+		    task_ = 0;
+		    finishedcb_ = 0;
+		    manager_.freethreads_ += this;
 		}
 
-		manager.workloadcond_.unlock();
-		manager.isidle.trigger(&manager);
+		manager_.workloadcond_.unlock();
+		manager_.isidle.trigger(&manager_);
 	    }
 	}
     }
 
-    controlcond.unlock();
+    controlcond_.unlock();
 }
 
 
 void Threads::WorkThread::cancelWork( const BasicTask* canceltask )
 {
-    Threads::MutexLocker lock( controlcond );
-    if ( !canceltask || canceltask==task )
-	cancelflag = true;
+    Threads::MutexLocker lock( controlcond_ );
+    if ( !canceltask || canceltask==task_ )
+	cancelflag_ = true;
 }
 
 
 void Threads::WorkThread::exitWork(CallBacker*)
 {
-    controlcond.lock();
-    exitflag = true;
-    controlcond.signal( false );
-    controlcond.unlock();
+    controlcond_.lock();
+    exitflag_ = true;
+    controlcond_.signal( false );
+    controlcond_.unlock();
 
-    thread->stop();
-    thread = 0;
+    thread_->stop();
+    thread_ = 0;
 }
 
 
 void Threads::WorkThread::assignTask(BasicTask& newtask, CallBack* cb_ )
 {
-    controlcond.lock();
-    if ( task )
+    controlcond_.lock();
+    if ( task_ )
     {
 	pErrMsg( "Trying to set existing task");
-	controlcond.unlock();
+	controlcond_.unlock();
 	return;
     }
 
-    task = &newtask;
-    finishedcb = cb_;
-    controlcond.signal(false);
-    controlcond.unlock();
+    task_ = &newtask;
+    finishedcb_ = cb_;
+    controlcond_.signal(false);
+    controlcond_.unlock();
     return;
 }
 
 
 int Threads::WorkThread::getRetVal()
 {
-    return retval;
+    return retval_;
 }
 
 
@@ -279,6 +281,21 @@ void Threads::ThreadWorkManager::removeWork( const BasicTask* task )
     callbacks_.remove( idx );
     workloadcond_.unlock();
 }
+
+
+const BasicTask* Threads::ThreadWorkManager::getWork( CallBacker* cb ) const
+{
+    if ( !cb ) return 0;
+
+    for ( int idx=0; idx<threads_.size(); idx++ )
+    {
+	if ( threads_[idx]==cb )
+	    return threads_[idx]->getTask();
+    }
+
+    return 0;
+}
+
 
 class ThreadWorkResultManager : public CallBacker
 {

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: threadwork.h,v 1.14 2006-07-27 13:46:26 cvskris Exp $
+ RCS:		$Id: threadwork.h,v 1.15 2007-05-28 15:07:06 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -46,6 +46,15 @@ public:
     				/*!< Removes the task from queue
 				     and stop it if allready running
 				*/
+
+    const BasicTask*		getWork(CallBacker*) const;
+    				/*!When a work is sumbmitted with a
+				   callback, the callback is called with a
+				   callbacker. If called from the callback,
+				   this function may (not guaranteed) return
+				   a pointer to the work that was completed.
+				   If not possible, a zero pointer will be
+				   returned. */
 
     int				nrThreads() const { return threads_.size(); }
 
