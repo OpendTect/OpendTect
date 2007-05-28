@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: threadwork.h,v 1.15 2007-05-28 15:07:06 cvskris Exp $
+ RCS:		$Id: threadwork.h,v 1.16 2007-05-28 15:09:27 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -50,9 +50,9 @@ public:
     const BasicTask*		getWork(CallBacker*) const;
     				/*!When a work is sumbmitted with a
 				   callback, the callback is called with a
-				   callbacker. If called from the callback,
-				   this function may (not guaranteed) return
-				   a pointer to the work that was completed.
+				   callbacker. If called from the callback and
+				   the callbacker is non-zero, a pointer to the
+				   work that was completed is returned.
 				   If not possible, a zero pointer will be
 				   returned. */
 
