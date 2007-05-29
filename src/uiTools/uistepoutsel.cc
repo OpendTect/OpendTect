@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uistepoutsel.cc,v 1.6 2007-01-26 12:00:29 cvsbert Exp $";
+static const char* rcsID = "$Id: uistepoutsel.cc,v 1.7 2007-05-29 07:53:59 cvshelene Exp $";
 
 #include "uistepoutsel.h"
 #include "uispinbox.h"
@@ -94,7 +94,7 @@ void uiStepOutSel::setVals( int v )
 
 bool uiStepOutSel::dir2Active() const
 {
-    return fld2 && fld2->sensitive();
+    return fld2;
 }
 
 
