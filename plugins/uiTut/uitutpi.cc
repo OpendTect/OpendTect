@@ -5,9 +5,10 @@
  * DATE     : NOv 2003
 -*/
 
-static const char* rcsID = "$Id: uitutpi.cc,v 1.4 2007-05-21 15:39:32 cvsbert Exp $";
+static const char* rcsID = "$Id: uitutpi.cc,v 1.5 2007-05-29 06:35:51 cvsraman Exp $";
 
 #include "uitutseistools.h"
+#include "uituthortools.h"
 #include "uiodmenumgr.h"
 #include "uimenu.h"
 #include "uimsg.h"
@@ -64,7 +65,8 @@ void uiTutMgr::doSeis( CallBacker* )
 
 void uiTutMgr::doHor( CallBacker* )
 {
-    uiMSG().message( "Horizontools not yet implemented" );
+    uiTutHorTools dlg( appl );
+    dlg.go();
 }
 
 
