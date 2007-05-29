@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:		$Id: uiattrvolout.cc,v 1.27 2007-01-08 13:02:25 cvshelene Exp $
+ RCS:		$Id: uiattrvolout.cc,v 1.28 2007-05-29 10:30:03 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -75,7 +75,7 @@ uiAttrVolOut::uiAttrVolOut( uiParent* p, const DescSet& ad,
 
     transffld = new uiSeisTransfer( uppgrp, uiSeisTransfer::Setup()
 	    	.geom(is2d ? Seis::Line : Seis::Vol)
-	    	.fornewentry(false).withstep(false).multi2dlines(true) );
+	    	.fornewentry(true).withstep(false).multi2dlines(true) );
     transffld->attach( alignedBelow, todofld );
     if ( transffld->selFld2D() )
 	transffld->selFld2D()->singLineSel.notify(
