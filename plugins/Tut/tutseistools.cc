@@ -5,7 +5,7 @@
  * DATE     : Mar 2007
 -*/
 
-static const char* rcsID = "$Id: tutseistools.cc,v 1.4 2007-05-24 08:32:07 cvsraman Exp $";
+static const char* rcsID = "$Id: tutseistools.cc,v 1.5 2007-05-29 06:32:21 cvsraman Exp $";
 
 #include "tutseistools.h"
 #include "seisread.h"
@@ -155,15 +155,16 @@ void Tut::SeisTools::handleTrace()
     } break;
 
     case Smooth: {
-	const int smpgate = weaksmooth_ ? 3 : 5;
+	const int sgate = weaksmooth_ ? 3 : 5;
+	const int sgate2 = sgate/2; 
 	for ( int icomp=0; icomp<trc_.nrComponents(); icomp++ )
 	{
-	    for ( int idx = smpgate/2; idx < trc_.size() - smpgate/2; idx++ )
+	    for ( int idx=sgate/2; idx<trc_.size()-sgate2; idx++ )
 	    {
 	        float sum = 0;
-		for( int ismp = idx-smpgate/2; ismp <= idx+smpgate/2; ismp++)
+		for( int ismp=idx-sgate2; ismp<=idx+sgate2; ismp++)
 		    sum += trc_.get( ismp, icomp );
-	        trc_.set( idx, sum/smpgate, icomp );
+	        trc_.set( idx, sum/sgate, icomp );
 	    }
 	}
 
