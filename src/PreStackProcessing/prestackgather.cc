@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: prestackgather.cc,v 1.3 2007-05-09 21:34:53 cvskris Exp $";
+static const char* rcsID = "$Id: prestackgather.cc,v 1.4 2007-05-29 20:09:29 cvskris Exp $";
 
 #include "prestackgather.h"
 
@@ -65,6 +65,7 @@ bool Gather::readFrom( const MultiID& mid, const BinID& bid,
     if ( !ioobj )
     {
 	if ( errmsg ) (*errmsg) = "No valid gather selected.";
+	delete arr2d_; arr2d_ = 0;
 	return false;
     }
 
@@ -73,6 +74,7 @@ bool Gather::readFrom( const MultiID& mid, const BinID& bid,
     {
 	if ( errmsg )
 	    (*errmsg) = "This Pre-Stack data store cannot be handeled.";
+	delete arr2d_; arr2d_ = 0;
 	return false;
     }
 
@@ -80,6 +82,7 @@ bool Gather::readFrom( const MultiID& mid, const BinID& bid,
     if ( !rdr->getGather(bid,tbuf) )
     {
 	if ( errmsg ) (*errmsg) = rdr->errMsg();
+	delete arr2d_; arr2d_ = 0;
 	return false;
     }
 
@@ -101,7 +104,10 @@ bool Gather::readFrom( const MultiID& mid, const BinID& bid,
     }
 
     if ( tbuf2.isEmpty() )
+    {
+	delete arr2d_; arr2d_ = 0;
 	return false;
+    }
 
     const int nrsamples = tbuf2.get(0)->size();
     if ( arr2d_ )
