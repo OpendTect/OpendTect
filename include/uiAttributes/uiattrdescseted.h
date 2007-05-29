@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrdescseted.h,v 1.8 2007-05-22 07:02:09 cvsraman Exp $
+ RCS:           $Id: uiattrdescseted.h,v 1.9 2007-05-29 07:20:16 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -55,6 +55,8 @@ public:
     			//!< Use during operation only!
     void		updateCurDescEd();
     bool		is2D() const;
+
+    void		setSensitive(bool);
 
     Notifier<uiAttribDescSetEd>		dirshowcb;
     Notifier<uiAttribDescSetEd>		evalattrcb;

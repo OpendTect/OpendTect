@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiattribpartserv.cc,v 1.69 2007-05-22 07:11:06 cvsraman Exp $
+ RCS:           $Id: uiattribpartserv.cc,v 1.70 2007-05-29 07:20:16 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -986,7 +986,7 @@ void uiAttribPartServer::showEvalDlg( CallBacker* )
     if ( !alloweval_ ) mErrRet( "Evaluation of attributes only possible on\n"
 			       "Inlines, Crosslines, Timeslices and Surfaces.");
 
-    uiEvaluateDlg* evaldlg = new uiEvaluateDlg( parent(), *ade,
+    uiEvaluateDlg* evaldlg = new uiEvaluateDlg( attrsetdlg_, *ade,
 	    					allowevalstor_ );
     if ( !evaldlg->evaluationPossible() )
 	mErrRet( "This attribute has no parameters to evaluate" )

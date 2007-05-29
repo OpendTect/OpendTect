@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrdescseted.cc,v 1.50 2007-05-22 07:36:43 cvsnanne Exp $
+ RCS:           $Id: uiattrdescseted.cc,v 1.51 2007-05-29 07:20:16 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -230,6 +230,14 @@ uiAttribDescSetEd::~uiAttribDescSetEd()
     delete &setctio;
     delete toolbar;
     delete adsman;
+}
+
+
+void uiAttribDescSetEd::setSensitive( bool yn )
+{
+    topGroup()->setSensitive( yn );
+    menuBar()->setSensitive( yn );
+    toolbar->setSensitive( yn );
 }
 
 
