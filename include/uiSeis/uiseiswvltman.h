@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Oct 2006
- RCS:           $Id: uiseiswvltman.h,v 1.6 2007-03-10 12:13:46 cvsbert Exp $
+ RCS:           $Id: uiseiswvltman.h,v 1.7 2007-05-30 13:26:55 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,6 +32,7 @@ protected:
 
     void		impPush(CallBacker*);
     void		crPush(CallBacker*);
+    void		getFromOtherSurvey(CallBacker*);
 };
 
 

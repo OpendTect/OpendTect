@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiseiswvltman.cc,v 1.21 2007-03-10 12:13:47 cvsbert Exp $
+ RCS:           $Id: uiseiswvltman.cc,v 1.22 2007-05-30 13:26:55 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,18 +14,24 @@ ________________________________________________________________________
 #include "uiseiswvltimp.h"
 #include "wavelet.h"
 #include "ioobj.h"
+#include "ioman.h"
 #include "iostrm.h"
 #include "iopar.h"
 #include "ctxtioobj.h"
 #include "color.h"
+#include "oddirs.h"
+#include "dirlist.h"
 #include "survinfo.h"
 #include "statruncalc.h"
 #include "arrayndimpl.h"
 
 #include "uibutton.h"
 #include "uiioobjsel.h"
+#include "uiioobjmanip.h"
 #include "uitextedit.h"
 #include "uiflatviewer.h"
+#include "uilistbox.h"
+#include "uiselsimple.h"
 #include "uigeninput.h"
 #include "uimsg.h"
 
@@ -38,6 +44,9 @@ uiSeisWvltMan::uiSeisWvltMan( uiParent* p )
     , fva2d_(0)
 {
     createDefaultUI();
+
+    selgrp->getManipGroup()->addButton( "wvltfromothsurv.png",
+	mCB(this,uiSeisWvltMan,getFromOtherSurvey), "Get from other survey" );
 
     uiGroup* butgrp = new uiGroup( this, "Imp/Create buttons" );
     uiPushButton* impbut = new uiPushButton( butgrp, "&Import", false );
@@ -214,4 +223,58 @@ void uiSeisWvltMan::mkFileInfo()
 
     txt += getFileInfo();
     infofld->setText( txt );
+}
+
+#define mRet(s) \
+	{ ctio.setObj(0); delete &ctio; if ( s ) uiMSG().error(s); return; }
+
+void uiSeisWvltMan::getFromOtherSurvey( CallBacker* )
+{
+    CtxtIOObj& ctio = *mMkCtxtIOObj(Wavelet);
+    const BufferString basedatadir( GetBaseDataDir() );
+
+    PtrMan<DirList> dirlist = new DirList( basedatadir, DirList::DirsOnly );
+    dirlist->sort();
+
+    uiSelectFromList::Setup setup( "Survey", *dirlist );
+    setup.dlgtitle( "Select survey" );
+    uiSelectFromList dlg( this, setup );
+    if ( !dlg.go() ) return;
+
+    FilePath fp( basedatadir ); fp.add( dlg.selFld()->getText() );
+    const BufferString tmprootdir( fp.fullPath() );
+    if ( !File_exists(tmprootdir) ) mRet("Survey doesn't seem to exist")
+    const BufferString realrootdir( GetDataDir() );
+
+    // No returns from here ...
+    IOM().setRootDir( tmprootdir );
+
+    ctio.ctxt.forread = true;
+
+    uiIOObjSelDlg objdlg( this, ctio );
+    Wavelet* wvlt = 0;
+    bool didsel = true;
+    if ( !objdlg.go() || !objdlg.ioObj() )
+	didsel = false;
+    else
+    {
+	ctio.setObj( objdlg.ioObj()->clone() );
+	wvlt = Wavelet::get( ctio.ioobj );
+	ctio.setName( ctio.ioobj->name() );
+	ctio.setObj( 0 );
+    }
+
+    IOM().setRootDir( realrootdir );
+    // ... to here
+
+    if ( !wvlt )
+	mRet((didsel?"Could not read wavelet":0))
+    IOM().getEntry( ctio );
+    if ( !ctio.ioobj )
+	mRet("Cannot create new entry in Object Management")
+    else if ( !wvlt->put(ctio.ioobj) )
+	mRet("Cannot write wavelet to disk")
+
+    selgrp->fullUpdate( ctio.ioobj->key() );
+    mRet( 0 )
 }
