@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          May 2002
- RCS:		$Id: uiseistransf.cc,v 1.37 2007-02-05 14:32:25 cvsnanne Exp $
+ RCS:		$Id: uiseistransf.cc,v 1.38 2007-05-30 10:46:47 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,12 +41,12 @@ uiSeisTransfer::uiSeisTransfer( uiParent* p, const uiSeisTransfer::Setup& s )
     else
 	selfld = new uiSeis3DSubSel( this, setup_.withstep_ );
 
-    scfmtfld = new uiSeisFmtScale( this, setup_.geom_, !setup_.fornewentry_ );
-    scfmtfld->attach( alignedBelow, selfld->attachObj() );
-
     remnullfld = new uiGenInput( this, "Null traces",
 				 BoolInpSpec(true,"Discard","Pass") );
-    remnullfld->attach( alignedBelow, scfmtfld );
+    remnullfld->attach( alignedBelow, selfld->attachObj() );
+
+    scfmtfld = new uiSeisFmtScale( this, setup_.geom_, !setup_.fornewentry_ );
+    scfmtfld->attach( alignedBelow, remnullfld );
 
     setHAlignObj( remnullfld );
 }
