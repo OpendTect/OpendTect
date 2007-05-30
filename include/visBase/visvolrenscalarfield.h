@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          January 2007
- RCS:           $Id: visvolrenscalarfield.h,v 1.4 2007-05-21 07:56:15 cvsnanne Exp $
+ RCS:           $Id: visvolrenscalarfield.h,v 1.5 2007-05-30 16:08:24 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,6 +33,9 @@ public:
 
     static VolumeRenderScalarField*	create()
 	                        	mCreateDataObj(VolumeRenderScalarField);
+
+    void			useShading(bool yn) { useshading_=yn; }
+    				//!<\note must be called before getInventorNode
 
     bool			turnOn(bool);
     bool			isOn() const;
@@ -79,6 +82,7 @@ protected:
     bool			ownsdatacache_;
     TypeSet<float>		histogram_;
     Color			blendcolor_;
+    bool			useshading_;
 
     static visBase::FactoryEntry oldnameentry;
 };

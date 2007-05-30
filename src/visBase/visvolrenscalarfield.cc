@@ -4,7 +4,7 @@
  * DATE     : April 2004
 -*/
 
-static const char* rcsID = "$Id: visvolrenscalarfield.cc,v 1.7 2007-05-21 07:56:15 cvsnanne Exp $";
+static const char* rcsID = "$Id: visvolrenscalarfield.cc,v 1.8 2007-05-30 16:08:24 cvskris Exp $";
 
 #include "visvolrenscalarfield.h"
 
@@ -39,7 +39,7 @@ static const char* sKeyColTabID = "ColorTable ID";
 
 VolumeRenderScalarField::VolumeRenderScalarField()
     : transferfunc_( new SoTransferFunction )
-    , voldata_( new SoVolumeData )
+    , voldata_( 0 )
     , root_( new SoGroup )
     , dummytexture_( 255 )
     , indexcache_( 0 )
@@ -51,15 +51,9 @@ VolumeRenderScalarField::VolumeRenderScalarField()
     , sz2_( 1 )
     , ctab_( 0 )
     , blendcolor_( Color::White )
+    , useshading_( true )
 {
     root_->ref();
-    root_->addChild( voldata_ );
-    voldata_->setVolumeData( SbVec3s(1,1,1),
-	    		    &dummytexture_, SoVolumeData::UNSIGNED_BYTE );
-    if ( GetEnvVarYN("DTECT_VOLREN_NO_PALETTED_TEXTURE") )
-	voldata_->usePalettedTexture = FALSE;
-
-    root_->addChild( transferfunc_ );
     setColorTab( *VisColorTab::create() );
     turnOn( true );
 }
@@ -90,6 +84,7 @@ bool VolumeRenderScalarField::turnOn( bool yn )
 
 bool VolumeRenderScalarField::isOn() const
 {
+    if ( !voldata_ ) return false;
     SbVec3s size;
     void* ptr;
     SoVolumeData::DataType dt;
@@ -230,7 +225,26 @@ Interval<float> VolumeRenderScalarField::getVolumeSize( int dim ) const
 
 
 SoNode* VolumeRenderScalarField::getInventorNode()
-{ return root_; }
+{
+    if ( !voldata_ )
+    {
+	BufferString val = useshading_ ? 0 : 1;
+	SetEnvVar("CVR_DISABLE_PALETTED_FRAGPROG", val.buf() );
+
+	voldata_ =  new SoVolumeData;
+	root_->addChild( voldata_ );
+
+	voldata_->setVolumeData( SbVec3s(1,1,1),
+	    		    &dummytexture_, SoVolumeData::UNSIGNED_BYTE );
+	if ( GetEnvVarYN("DTECT_VOLREN_NO_PALETTED_TEXTURE") )
+	    voldata_->usePalettedTexture = FALSE;
+
+	transferfunc_ = new SoTransferFunction;
+	root_->addChild( transferfunc_ );
+    }
+
+    return root_;
+}
 
 
 void VolumeRenderScalarField::colorTabChCB(CallBacker*)
