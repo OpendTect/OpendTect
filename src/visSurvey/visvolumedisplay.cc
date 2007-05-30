@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2002
- RCS:           $Id: visvolumedisplay.cc,v 1.59 2007-05-14 12:21:02 cvsnanne Exp $
+ RCS:           $Id: visvolumedisplay.cc,v 1.60 2007-05-30 14:41:39 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -62,7 +62,7 @@ VolumeDisplay::VolumeDisplay()
     , volren_(0)
     , as_(*new Attrib::SelSpec)
     , cache_(0)
-    , cacheid_(-1)
+    , cacheid_( DataPack::cNoID )
     , slicemoving(this)
     , voltrans_( visBase::Transformation::create() )
 {
@@ -456,6 +456,10 @@ void VolumeDisplay::setSelSpec( int attrib, const Attrib::SelSpec& as )
     as_ = as;
     if ( cache_ ) cache_->unRef();
     cache_ = 0;
+
+    DPM( DataPackMgr::CubeID ).release( cacheid_ );
+    cacheid_ = DataPack::cNoID;
+
     scalarfield_->turnOn( false );
 
     for ( int idx=0; idx<isosurfaces_.size(); idx++ )
@@ -532,7 +536,7 @@ const Attrib::DataCubes* VolumeDisplay::getCacheVolume( int attrib ) const
 
 
 DataPack::ID VolumeDisplay::getDataPackID( int attrib ) const
-{ return attrib ? -1 : cacheid_; }
+{ return attrib ? DataPack::cNoID : cacheid_; }
 
 
 void VolumeDisplay::getMousePosInfo( const visBase::EventInfo&,
