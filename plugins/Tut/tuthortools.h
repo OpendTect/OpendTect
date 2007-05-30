@@ -28,78 +28,66 @@ class HorTools : public Executor
 {
 public:
 
-    			HorTools()
-			    : Executor("Tutorial Tools : Thickness Calculation")
-			    , hortop_(0)
-			    , horbot_(0)
-			    , horout_(0)
+    			HorTools(const char* title)
+			    : Executor(title)
+			    , horizon1_(0)
+			    , horizon2_(0)
 			    , iter_(0)
 			    , nrdone_(0)
 			{}
     virtual		~HorTools();
 
-    void		setTop(EM::Horizon3D* hor)	{ hortop_ = hor; }
-    void		setBot(EM::Horizon3D* hor)      { horbot_ = hor; }
-    void		setOutHor(bool top);
-    void		setIdx(int idx)			{ dataidx_ = idx; }
-    void		setId(EM::PosID id)		{ posid_ = id; }
-    EM::Horizon3D*	getOutHor()			{ return horout_; }
+    void		setHorizons(EM::Horizon3D* hor1,EM::Horizon3D* hor2=0);
     int			totalNr() const;
-    int			nrDone() const			{ return nrdone_; }
-    const char*         nrDoneText() const      { return "Points Computed"; }
-    const char*		message() const		{return "Computing Thickness";}
+    int			nrDone() const		{ return nrdone_; }
     void		setHorSamp(StepInterval<int>,StepInterval<int>);
+    const char*		message() const		{ return "Computing..."; }
+    const char*		nrDoneText() const	{ return "Points done"; }    
 
-    int			nextStep();
 protected:
 
-    EM::PosID 		posid_;
     BinID		bid_;
-    int			dataidx_;
     HorSampling		hs_;
     int			nrdone_;
 
     HorSamplingIterator*	iter_;
 
-    EM::Horizon3D*	hortop_;
-    EM::Horizon3D*	horbot_;
-    EM::Horizon3D*	horout_;
+    EM::Horizon3D*	horizon1_;
+    EM::Horizon3D*	horizon2_;
 
 };
 
 
-class HorFilter : public Executor
+class ThicknessFinder : public HorTools
 {
 public:
-
-    			HorFilter()
-			    : Executor("Tutorial Tools : Horizon Filter")
-			    , hor_(0)
-			    , iter_(0)
-			    , nrdone_(0)
+    			ThicknessFinder()
+			    : HorTools("Thickness Calculation")
 			{}
-    virtual		~HorFilter();
-
-    void		setInput(EM::Horizon3D* hor)	{ hor_ = hor; }
-    EM::Horizon3D*	getHor()			{ return hor_; }
-    int			totalNr() const;
-    int			nrDone() const			{ return nrdone_; }
-    const char*         nrDoneText() const      { return "Points Done"; }
-    const char*		message() const		{ return "Smoothening..."; }
-    void		setHorSamp(StepInterval<int>,StepInterval<int>);
 
     int			nextStep();
+    Executor*		saveData();
+    void		init(const char*);
+
+protected:
+    EM::PosID           posid_;
+    int                 dataidx_;
+
+};
+
+
+class HorSmoothener : public HorTools
+{
+public:
+			HorSmoothener()
+			    : HorTools("Horizon Smoothening")
+			{}
+
+    int			nextStep();
+    Executor*		saveData(const MultiID&);
 protected:
 
-    BinID		bid_;
     EM::SubID		subid_;
-    HorSampling		hs_;
-    int			nrdone_;
-
-    HorSamplingIterator*	iter_;
-
-    EM::Horizon3D*	hor_;
-
 };
 
 

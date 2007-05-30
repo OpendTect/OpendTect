@@ -15,20 +15,27 @@ static const char* rcsID = "$ $";
 Tut::HorTools::~HorTools()
 {
     delete iter_;
-    hortop_->unRef();
-    horbot_->unRef();
+    if( horizon1_ ) horizon1_->unRef();
+    if( horizon2_ ) horizon2_->unRef();
+}
+
+
+void Tut::HorTools::setHorizons( EM::Horizon3D* hor1, EM::Horizon3D* hor2 )
+{
+    horizon1_ = hor1;
+    horizon2_ = hor2;
+    if( !horizon1_ )
+	return;
+
+    StepInterval<int> inlrg = horizon1_->geometry().rowRange();
+    StepInterval<int> crlrg = horizon1_->geometry().colRange();
+    setHorSamp( inlrg, crlrg );
 }
 
 
 int Tut::HorTools::totalNr() const
 {
     return hs_.totalNr();
-}
-
-
-void Tut::HorTools::setOutHor( bool top )
-{
-    horout_ = top ? hortop_ : horbot_;
 }
 
 
@@ -40,54 +47,57 @@ void Tut::HorTools::setHorSamp( StepInterval<int> inlrg,
 }
 
 
-int Tut::HorTools::nextStep()
+//////////////////////////////////////////////////////////////////////////////
+
+
+void Tut::ThicknessFinder::init( const char* attribname )
+{
+    if ( !horizon1_ )
+    {
+	pErrMsg( "init should be called after the horizons are set" );
+	return;
+    }
+
+    dataidx_ = horizon1_->auxdata.addAuxData( attribname && *attribname ?
+	    				attribname : "Thickness" );
+    posid_.setObjectID( horizon1_->id() );
+}
+
+
+int Tut::ThicknessFinder::nextStep()
 {
     if ( !iter_->next(bid_) )
 	return Executor::Finished;
 
     const EM::SubID subid = bid_.getSerialized();
-    const float z1 = hortop_->getPos( hortop_->sectionID(0), subid ).z;
-    const float z2 = horbot_->getPos( horbot_->sectionID(0), subid ).z;
+    const float z1 = horizon1_->getPos( horizon1_->sectionID(0), subid ).z;
+    const float z2 = horizon2_->getPos( horizon2_->sectionID(0), subid ).z;
 		        
     float val = mUdf(float);
     if ( !mIsUdf(z1) && !mIsUdf(z2) )
     {
-        val = z2 - z1;
-
+        val = fabs( z2 - z1 );
 	if ( SI().zIsTime() ) val *= 1000;
-									            }
+    }
 
     posid_.setSubID( subid );
-    horout_->auxdata.setAuxDataVal( dataidx_, posid_, val );
+    horizon1_->auxdata.setAuxDataVal( dataidx_, posid_, val );
 
     nrdone_++;
     return Executor::MoreToDo;
 }
 
+
+Executor* Tut::ThicknessFinder::saveData()
+{
+    return horizon1_->auxdata.auxDataSaver();
+}
+
+
 ///////////////////////////////////////////////////////////////////////////////
 
-Tut::HorFilter::~HorFilter()
-{
-    delete iter_;
-    hor_->unRef();
-}
 
-
-int Tut::HorFilter::totalNr() const
-{
-    return hs_.totalNr();
-}
-
-
-void Tut::HorFilter::setHorSamp( StepInterval<int> inlrg, 
-				StepInterval<int> crlrg )
-{
-    hs_.set( inlrg, crlrg );
-    iter_ = new HorSamplingIterator( hs_ );
-}
-
-
-int Tut::HorFilter::nextStep()
+int Tut::HorSmoothener::nextStep()
 {
     if ( !iter_->next(bid_) )
 	return Executor::Finished;
@@ -95,17 +105,18 @@ int Tut::HorFilter::nextStep()
     int inl = bid_.r(); int crl = bid_.c();
     float sum = 0;
     int count = 0;
-    for( int idx=-1; idx<2; idx++ )
+    for ( int idx=-1; idx<2; idx++ )
     {
-	for( int cdx=-1; cdx<2; cdx++ )
+	for ( int cdx=-1; cdx<2; cdx++ )
 	{
-	    if( idx && cdx ) continue;
+	    if ( idx && cdx ) continue;
 	    BinID binid = BinID( inl + idx * hs_.step.r(),
 		    		 crl + cdx * hs_.step.c() );
-	    if( hs_.includes( binid ) )
+	    if ( hs_.includes( binid ) )
 	    {
 	        const EM::SubID subid = binid.getSerialized();
-	        const float z = hor_->getPos( hor_->sectionID(0), subid ).z;
+	        const float z = horizon1_->getPos( horizon1_->sectionID(0),
+							subid ).z;
 	        if ( mIsUdf(z) ) continue;
 	        sum += z; count++;
 	    }
@@ -115,12 +126,16 @@ int Tut::HorFilter::nextStep()
     float val = count ? sum / count : mUdf(float);
 
     subid_ = bid_.getSerialized();
-    Coord3 pos = hor_->getPos( hor_->sectionID(0), subid_ );
+    Coord3 pos = horizon1_->getPos( horizon1_->sectionID(0), subid_ );
     pos.z = val;
-    hor_->setPos( hor_->sectionID(0), subid_, pos, false );
+    horizon1_->setPos( horizon1_->sectionID(0), subid_, pos, false );
 
     nrdone_++;
     return Executor::MoreToDo;
 }
 
 
+Executor* Tut::HorSmoothener::saveData( const MultiID& id )
+{
+    return horizon1_->geometry().saver( 0, &id );
+}
