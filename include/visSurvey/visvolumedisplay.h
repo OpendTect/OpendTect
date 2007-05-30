@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		August 2002
- RCS:		$Id: visvolumedisplay.h,v 1.41 2007-05-22 04:42:27 cvsnanne Exp $
+ RCS:		$Id: visvolumedisplay.h,v 1.42 2007-05-30 16:09:36 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -102,6 +102,12 @@ public:
     bool			canDuplicate() const		{ return true; }
     visSurvey::SurveyObject*	duplicate() const;
 
+    void			allowShading(bool yn ) { allowshading_ = yn; }
+    bool			isShadingAllowed() const {return allowshading_;}
+    bool			isShadingUsed() const	{ return true; }
+
+    SoNode*			getInventorNode();
+
     Notifier<VolumeDisplay>	slicemoving;
     BufferString		sliceposition;
     BufferString		slicename;
@@ -133,6 +139,7 @@ protected:
     DataPack::ID		cacheid_;
     const Attrib::DataCubes*	cache_;
     Attrib::SelSpec&		as_;
+    bool			allowshading_;
 
     static visBase::FactoryEntry oldnameentry;
 

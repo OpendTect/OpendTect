@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2002
- RCS:           $Id: visvolumedisplay.cc,v 1.60 2007-05-30 14:41:39 cvskris Exp $
+ RCS:           $Id: visvolumedisplay.cc,v 1.61 2007-05-30 16:09:36 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -58,13 +58,14 @@ const char* VolumeDisplay::texturestr = "TextureID";
 VolumeDisplay::VolumeDisplay()
     : VisualObjectImpl(true)
     , boxdragger_(visBase::BoxDragger::create())
-    , scalarfield_(visBase::VolumeRenderScalarField::create())
+    , scalarfield_( 0 )
     , volren_(0)
     , as_(*new Attrib::SelSpec)
     , cache_(0)
     , cacheid_( DataPack::cNoID )
     , slicemoving(this)
     , voltrans_( visBase::Transformation::create() )
+    , allowshading_( false )
 {
     boxdragger_->ref();
     addChild( boxdragger_->getInventorNode() );
@@ -75,28 +76,6 @@ VolumeDisplay::VolumeDisplay()
     voltrans_->ref();
     addChild( voltrans_->getInventorNode() );
     voltrans_->setRotation( Coord3( 0, 1, 0 ), M_PI_2 );
-    scalarfield_->ref();
-    addChild( scalarfield_->getInventorNode() );
-
-    CubeSampling cs(false); CubeSampling sics = SI().sampling(true);
-    cs.hrg.start.inl = (5*sics.hrg.start.inl+3*sics.hrg.stop.inl)/8;
-    cs.hrg.start.crl = (5*sics.hrg.start.crl+3*sics.hrg.stop.crl)/8;
-    cs.hrg.stop.inl = (3*sics.hrg.start.inl+5*sics.hrg.stop.inl)/8;
-    cs.hrg.stop.crl = (3*sics.hrg.start.crl+5*sics.hrg.stop.crl)/8;
-    cs.zrg.start = ( 5*sics.zrg.start + 3*sics.zrg.stop ) / 8;
-    cs.zrg.stop = ( 3*sics.zrg.start + 5*sics.zrg.stop ) / 8;
-    SI().snap( cs.hrg.start, BinID(0,0) );
-    SI().snap( cs.hrg.stop, BinID(0,0) );
-    float z0 = SI().zRange(true).snap( cs.zrg.start ); cs.zrg.start = z0;
-    float z1 = SI().zRange(true).snap( cs.zrg.stop ); cs.zrg.stop = z1;
-    
-    setCubeSampling( cs );
-    addSlice( cInLine() ); addSlice( cCrossLine() ); addSlice( cTimeSlice() );
-    showVolRen( true ); showVolRen( false );
-
-    setColorTab( getColorTab() );
-    showManipulator( true );
-    scalarfield_->turnOn( true );
 }
 
 
@@ -619,6 +598,40 @@ visSurvey::SurveyObject* VolumeDisplay::duplicate() const
     vd->setCubeSampling( getCubeSampling(false,0) );
 
     return vd;
+}
+
+
+SoNode* VolumeDisplay::getInventorNode()
+{
+    if ( !scalarfield_ )
+    {
+	scalarfield_ = visBase::VolumeRenderScalarField::create();
+	scalarfield_->ref();
+	scalarfield_->useShading( allowshading_ );
+	addChild( scalarfield_->getInventorNode() );
+
+	CubeSampling cs(false); CubeSampling sics = SI().sampling(true);
+	cs.hrg.start.inl = (5*sics.hrg.start.inl+3*sics.hrg.stop.inl)/8;
+	cs.hrg.start.crl = (5*sics.hrg.start.crl+3*sics.hrg.stop.crl)/8;
+	cs.hrg.stop.inl = (3*sics.hrg.start.inl+5*sics.hrg.stop.inl)/8;
+	cs.hrg.stop.crl = (3*sics.hrg.start.crl+5*sics.hrg.stop.crl)/8;
+	cs.zrg.start = ( 5*sics.zrg.start + 3*sics.zrg.stop ) / 8;
+	cs.zrg.stop = ( 3*sics.zrg.start + 5*sics.zrg.stop ) / 8;
+	SI().snap( cs.hrg.start, BinID(0,0) );
+	SI().snap( cs.hrg.stop, BinID(0,0) );
+	float z0 = SI().zRange(true).snap( cs.zrg.start ); cs.zrg.start = z0;
+	float z1 = SI().zRange(true).snap( cs.zrg.stop ); cs.zrg.stop = z1;
+	
+	setCubeSampling( cs );
+	setColorTab( getColorTab() );
+	showManipulator( true );
+	scalarfield_->turnOn( true );
+
+	addSlice(cInLine()); addSlice(cCrossLine()); addSlice(cTimeSlice());
+	showVolRen( true ); showVolRen( false );
+    }
+
+    return VisualObjectImpl::getInventorNode();
 }
 
 
