@@ -6,17 +6,18 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2002
- RCS:           $Id: uiseisfmtscale.h,v 1.11 2006-12-12 17:48:55 cvsbert Exp $
+ RCS:           $Id: uiseisfmtscale.h,v 1.12 2007-05-30 10:47:05 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uigroup.h"
 #include "seistype.h"
-class uiGenInput;
-class uiScaler;
-class Scaler;
 class IOObj;
+class Scaler;
+class uiScaler;
+class uiGenInput;
+class uiSeisFmtScaleComp;
 
 
 class uiSeisFmtScale : public uiGroup
@@ -38,14 +39,14 @@ public:
 
 protected:
 
-    uiGenInput*		imptypefld;
-    uiGenInput*		optimfld;
-    uiScaler*		scalefld;
+    uiSeisFmtScaleComp*	compfld_;
+    uiScaler*		scalefld_;
 
-    Seis::GeomType	geom_;
+    Seis::GeomType	gt_;
     bool		issteer_;
 
     void		updSteer(CallBacker*);
+    friend class	uiSeisFmtScaleComp;
 
 };
 
