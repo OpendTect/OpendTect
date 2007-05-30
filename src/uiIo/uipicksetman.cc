@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          September 2003
- RCS:           $Id: uipicksetman.cc,v 1.5 2007-05-25 10:16:34 cvsbert Exp $
+ RCS:           $Id: uipicksetman.cc,v 1.6 2007-05-30 13:26:20 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,15 +30,10 @@ uiPickSetMan::uiPickSetMan( uiParent* p )
 	           PickSetTranslatorGroup::ioContext())
 {
     createDefaultUI();
-
-    uiIOObjManipGroup* manipgrp = selgrp->getManipGroup();
-    manipgrp->addButton( "mergepicksets.png", mCB(this,uiPickSetMan,mergeSets),
-			 "Merge pick sets" );
-
-
+    selgrp->getManipGroup()->addButton( "mergepicksets.png",
+	    		mCB(this,uiPickSetMan,mergeSets), "Merge pick sets" );
     selgrp->setPrefWidthInChar( cPrefWidth );
     infofld->setPrefWidthInChar( cPrefWidth );
-
     selChg( this );
 }
 
