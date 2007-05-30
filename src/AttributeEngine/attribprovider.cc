@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribprovider.cc,v 1.97 2007-05-08 14:46:34 cvshelene Exp $";
+static const char* rcsID = "$Id: attribprovider.cc,v 1.98 2007-05-30 10:54:20 cvshelene Exp $";
 
 #include "attribprovider.h"
 #include "attribstorprovider.h"
@@ -363,9 +363,12 @@ bool Provider::getPossibleVolume( int output, CubeSampling& res )
     CubeSampling tmpres = res;
     if ( inputs.size()==0 )
     {
-	res.init(true);
+	const bool is2d = getDesc().descSet()->is2D();
+	if ( !is2d ) res.init(true);
 	if ( !possiblevolume )
 	    possiblevolume = new CubeSampling;
+
+	if ( is2d ) *possiblevolume = res;
 	return true;
     }
 
@@ -515,7 +518,8 @@ int Provider::moveToNextTrace( BinID startpos, bool firstcheck )
 	{
 	    if ( currentbid.inl == -1 && currentbid.crl == -1 )
 	    {
-		currentbid.inl = desiredvolume->hrg.start.inl;
+		const bool is2d = getDesc().descSet()->is2D();
+		currentbid.inl = is2d ? 0 : desiredvolume->hrg.start.inl;
 		currentbid.crl = desiredvolume->hrg.start.crl;
 	    }
 	    else
@@ -713,7 +717,12 @@ bool Provider::setCurrentPosition( const BinID& bid )
     if ( currentbid == BinID(-1,-1) )
 	currentbid = bid;
     else if ( bid != currentbid )
-	return false;
+    {
+	if ( inputs.isEmpty() && !desc.isStored())
+	    currentbid = bid;
+	else
+	    return false;
+    }
     
     if ( linebuffer )
     {

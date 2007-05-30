@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribdesc.cc,v 1.54 2007-05-10 07:39:09 cvshelene Exp $";
+static const char* rcsID = "$Id: attribdesc.cc,v 1.55 2007-05-30 10:54:20 cvshelene Exp $";
 
 #include "attribdesc.h"
 
@@ -458,6 +458,13 @@ bool Desc::isParamRequired( const char* key ) const
 void Desc::updateParams()
 {
     if ( statusupdater_ ) statusupdater_(*this);
+
+    for ( int idx=0; idx<nrInputs(); idx++ )
+    {
+	Desc* dsc = getInput(idx); 
+	if ( dsc && dsc->isHidden() )
+	    dsc->updateParams();
+    }
 }
 
 

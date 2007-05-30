@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:		$Id: uiattrdesced.cc,v 1.19 2006-12-20 11:23:00 cvshelene Exp $
+ RCS:		$Id: uiattrdesced.cc,v 1.20 2007-05-30 10:54:20 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -242,9 +242,10 @@ const char* uiAttrDescEd::commit( Attrib::Desc* editdesc )
 
     getParameters( *editdesc );
     errmsg_ = Provider::prepare( *editdesc );
-    editdesc->updateParams();
+    editdesc->updateParams();	//needed before getInput to set correct input nr
     getInput( *editdesc );
     getOutput( *editdesc );
+    editdesc->updateParams();	//needed after getInput to update inputs' params
     if ( editdesc->isSatisfied() == Desc::Error )
 	errmsg_ = editdesc->errMsg();
 

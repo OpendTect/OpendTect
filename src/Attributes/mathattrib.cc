@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: mathattrib.cc,v 1.20 2007-03-08 12:40:08 cvshelene Exp $
+ RCS:           $Id: mathattrib.cc,v 1.21 2007-05-30 10:54:20 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -73,12 +73,15 @@ void Math::updateDesc( Desc& desc )
     TypeSet<int> inptab;
     getInputTable( formula, inptab, false );
 
-    while ( desc.nrInputs() )
-	desc.removeInput(0);
+    if ( desc.nrInputs() != inptab.size() )
+    {
+	while ( desc.nrInputs() )
+	    desc.removeInput(0);
 
-    for ( int idx=0; idx<inptab.size(); idx++ )
-	desc.addInput( InputSpec(formula->getVariableStr(inptab[idx]),true) );
-    
+	for ( int idx=0; idx<inptab.size(); idx++ )
+	    desc.addInput(InputSpec(formula->getVariableStr(inptab[idx]),true));
+    }
+
     TypeSet<int> csttab;
     getInputTable( formula, csttab, true );
     desc.setParamEnabled( cstStr(), csttab.size() );

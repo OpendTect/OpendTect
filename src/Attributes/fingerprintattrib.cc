@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          February 2006
- RCS:           $Id: fingerprintattrib.cc,v 1.13 2007-03-19 14:53:41 cvshelene Exp $
+ RCS:           $Id: fingerprintattrib.cc,v 1.14 2007-05-30 10:54:20 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -102,15 +102,17 @@ void FingerPrint::updateDesc( Desc& desc )
 {
     mDescGetParamGroup(FloatParam,valueset,desc,valStr())
 
-    while ( desc.nrInputs() )
-	desc.removeInput(0);
-
-    for ( int idx=0; idx<valueset->size(); idx++ )
+    if ( desc.nrInputs() != valueset->size() )
     {
-	BufferString bfs = "Input Data"; bfs += idx+1;
-	desc.addInput( InputSpec(bfs, true) );
-    }
+	while ( desc.nrInputs() )
+	    desc.removeInput(0);
 
+	for ( int idx=0; idx<valueset->size(); idx++ )
+	{
+	    BufferString bfs = "Input Data"; bfs += idx+1;
+	    desc.addInput( InputSpec(bfs, true) );
+	}
+    }
     int type = desc.getValParam(valreftypeStr())->getIntValue();
     desc.setParamEnabled( refposStr(), type == 1 );
     desc.setParamEnabled( refposzStr(), type == 1 );
