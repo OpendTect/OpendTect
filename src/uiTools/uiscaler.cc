@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2002
- RCS:           $Id: uiscaler.cc,v 1.16 2007-02-05 14:32:25 cvsnanne Exp $
+ RCS:           $Id: uiscaler.cc,v 1.17 2007-05-30 10:40:19 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -102,6 +102,8 @@ Scaler* uiScaler::getScaler() const
 
 void uiScaler::setInput( const Scaler& sc )
 {
+    ynfld->setChecked( !sc.isEmpty() );
+
     const char* typ = sc.type();
     int typnr = 0;
     if ( !strcmp(typ,sLinScaler) )
