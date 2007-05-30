@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Huck
  Date:          January 2007
- RCS:           $Id: attribdatapack.cc,v 1.22 2007-05-18 12:40:12 cvshelene Exp $
+ RCS:           $Id: attribdatapack.cc,v 1.23 2007-05-30 12:11:29 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -288,6 +288,12 @@ CubeDataPack::CubeDataPack( DescID did, const DataCubes& dc, int ci )
 {
     cube_.ref();
     cs_ = cube_.cubeSampling();
+}
+
+
+CubeDataPack::~CubeDataPack()
+{
+    cube_.unRef();
 }
 
 

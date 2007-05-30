@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra and Helene Huck
  Date:		January 2007
- RCS:		$Id: attribdatapack.h,v 1.18 2007-05-18 12:40:11 cvshelene Exp $
+ RCS:		$Id: attribdatapack.h,v 1.19 2007-05-30 12:11:29 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -147,6 +147,8 @@ class CubeDataPack : public ::CubeDataPack
 public:
 
     			CubeDataPack(DescID,const DataCubes&,int cubeidx);
+			~CubeDataPack();
+
     virtual const char*	sourceType() const	{ return "3D"; }
 
     const DataCubes&	cube() const		{ return cube_; }
