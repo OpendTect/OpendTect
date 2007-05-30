@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          May 2002
- RCS:		$Id: uiseisfmtscale.cc,v 1.18 2007-05-30 10:47:05 cvsbert Exp $
+ RCS:		$Id: uiseisfmtscale.cc,v 1.19 2007-05-30 11:13:11 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -56,7 +56,8 @@ public:
 
 uiSeisFmtScaleDlg( uiParent* p, Seis::GeomType gt, uiSeisFmtScaleData& d,
 		   bool fixedfmtscl )
-    : uiDialog(p,uiDialog::Setup("Format/Scale","Specify format/scale","0.0.0"))
+    : uiDialog(p,uiDialog::Setup("Format / Scaling","Format and scaling",
+				 "103.0.10"))
     , optimfld_(0)
     , data_(d)
     , gt_(gt)
@@ -105,7 +106,7 @@ class uiSeisFmtScaleComp : public uiCompoundParSel
 public:
 
 uiSeisFmtScaleComp( uiSeisFmtScale* p, Seis::GeomType gt, const bool& ffs )
-    : uiCompoundParSel(p,"Format/Scale","Sp&ecify")
+    : uiCompoundParSel(p,"Format / Scaling","Sp&ecify")
     , gt_(gt)
     , fixfmtscl_(ffs)
 {
@@ -205,7 +206,7 @@ void uiSeisFmtScale::updateFrom( const IOObj& ioobj )
 
     res = ioobj.pars().find( "Data storage" );
     if ( res )
-	compfld_->data_.stor_ = (int)*res;
+	compfld_->data_.stor_ = (int)(*res - '0');
 
     res = ioobj.pars().find( "Optimized direction" );
     compfld_->data_.optim_ = res && *res == 'H';
