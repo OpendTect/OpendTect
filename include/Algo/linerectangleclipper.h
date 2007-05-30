@@ -7,13 +7,13 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Dec 2006
- RCS:		$Id: linerectangleclipper.h,v 1.1 2007-05-25 15:18:31 cvskris Exp $
+ RCS:		$Id: linerectangleclipper.h,v 1.2 2007-05-30 16:52:47 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
 
 
-/*!Clips a line between to points by a rectangle. The line may be completely
+/*!Clips a line between two points by a rectangle. The line may be completely
    outside, completely inside or partially inside. If partially inside, new
    endpoints are calculated.
 */
@@ -42,6 +42,9 @@ protected:
     Geom::Point2D<T>	stop_;
 
     Geom::Rectangle<T>	rect_;
+
+private:
+    inline const T	castDouble2T(double) const;
 };
 
 
@@ -88,18 +91,76 @@ LineRectangleClipper<T>::LineRectangleClipper( const Geom::Rectangle<T>& r )
     , isintersecting_( true )
     , startchanged_( false )
     , stopchanged_( false )
-{}
+{
+    rect_.checkCorners();
+}
 
 
+template <class T> inline
+const T LineRectangleClipper<T>::castDouble2T( double d ) const
+{
+    const T t1 = (T) d;
+    const T t2 = (T) floor( d + 0.5 );
+    return fabs(d-t1)>fabs(d-t2) ? t2 : t1;
+}
+
+
+#define mBoundaryClip( delta, offset ) \
+{ \
+    if ( delta ) \
+    { \
+	double tnew = (double) (offset) / (delta); \
+	if ( (delta) < 0 ) \
+	{ \
+	    if ( tnew > tstop )	 return; \
+	    if ( tnew > tstart ) tstart = tnew; \
+	} \
+	else \
+	{ \
+	    if ( tnew < tstart ) return; \
+	    if ( tnew < tstop )	 tstop = tnew; \
+	} \
+    } \
+    else \
+	if ( (offset) < 0 ) return; \
+}
+
+/*! LineRectangleClipper applies the Liang&Barsky line-clipping algorithm */
 template <class T> inline
 void LineRectangleClipper<T>::setLine(const Geom::Point2D<T>& start,
 				const Geom::Point2D<T>& stop)
 {
-    start_ = start;
+    isintersecting_ = false;
+    start_ = start; 
     stop_ = stop;
-    isintersecting_ = true;
-    startchanged_ = false;
+    startchanged_ = false; 
     stopchanged_ = false;
+
+    double tstart = 0.0; 
+    double tstop = 1.0;
+
+    const double dx = stop.x - start.x;
+    mBoundaryClip( -dx, start.x - rect_.left()  );
+    mBoundaryClip(  dx, rect_.right() - start.x );
+
+    const double dy = stop.y - start.y;
+    mBoundaryClip( -dy, start.y - rect_.top()   );
+    mBoundaryClip(  dy, rect_.bottom() - start.y );
+
+    isintersecting_ = true;
+
+    if ( tstart > 0.0 )
+    {
+	startchanged_ = true;
+	start_.x += castDouble2T( tstart * dx );
+	start_.y += castDouble2T( tstart * dy );
+    }
+    if ( tstop < 1.0 )
+    {
+	stopchanged_ = true;
+	stop_.x = start.x + castDouble2T( tstop * dx );
+	stop_.y = start.y + castDouble2T( tstop * dy );
+    }
 }
 
 
