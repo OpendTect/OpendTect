@@ -5,7 +5,7 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: uimadagascarmain.cc,v 1.1 2007-05-23 17:05:28 cvsbert Exp $";
+static const char* rcsID = "$Id: uimadagascarmain.cc,v 1.2 2007-05-30 10:45:54 cvsbert Exp $";
 
 #include "uimadagascarmain.h"
 #include "uiseissel.h"
@@ -68,7 +68,6 @@ uiMadagascarMain::uiMadagascarMain( uiParent* p )
     rmbut_->setPrefWidthInChar( 10 );
     rmbut_->attach( alignedBelow, editbut_ );
     procgrp->setHAlignObj( addbut_ );
-    procgrp->attach( alignedWith, inpseis3dfld_ );
     procgrp->attach( ensureBelow, sep );
 
     sep = new uiSeparator( this, "Hor sep 2", true );
@@ -90,7 +89,7 @@ uiMadagascarMain::uiMadagascarMain( uiParent* p )
 	    			  uiFileInput::Setup().forread(false) );
     outmadfld_->attach( alignedBelow, outtypfld_ );
     outgrp->setHAlignObj( outseis3dfld_ );
-    outgrp->attach( alignedWith, procgrp );
+    outgrp->attach( alignedWith, inpgrp );
     outgrp->attach( ensureBelow, sep );
 
     finaliseDone.notify( mCB(this,uiMadagascarMain,initWin) );
