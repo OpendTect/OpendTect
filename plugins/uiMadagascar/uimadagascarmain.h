@@ -4,7 +4,7 @@
  * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : Bert
  * DATE     : May 2007
- * ID       : $Id: uimadagascarmain.h,v 1.1 2007-05-23 17:05:28 cvsbert Exp $
+ * ID       : $Id: uimadagascarmain.h,v 1.2 2007-05-30 15:58:05 cvsbert Exp $
 -*/
 
 #include "uidialog.h"
@@ -15,6 +15,8 @@ class uiIOObjSel;
 class uiFileInput;
 class uiListBox;
 class uiPushButton;
+class uiSeis2DSubSel;
+class uiSeis3DSubSel;
 
 
 class uiMadagascarMain : public uiDialog
@@ -32,12 +34,17 @@ protected:
     CtxtIOObj&			out3dctio_;
     CtxtIOObj&			out2dctio_;
     CtxtIOObj&			outpsctio_;
+    int				idx3d_, idx2d_, idxps_, idxmad_;
 
     uiGenInput*			intypfld_;
     uiSeisSel*			inpseis3dfld_;
     uiSeisSel*			inpseis2dfld_;
     uiIOObjSel*			inpseispsfld_;
     uiFileInput*		inpmadfld_;
+    uiSeis3DSubSel*		subsel3dfld_;
+    uiSeis2DSubSel*		subsel2dfld_;
+    uiSeis3DSubSel*		subselpsfld_;
+
     uiGenInput*			outtypfld_;
     uiSeisSel*			outseis3dfld_;
     uiSeisSel*			outseis2dfld_;

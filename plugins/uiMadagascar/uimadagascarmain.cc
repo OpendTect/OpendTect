@@ -5,10 +5,11 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: uimadagascarmain.cc,v 1.2 2007-05-30 10:45:54 cvsbert Exp $";
+static const char* rcsID = "$Id: uimadagascarmain.cc,v 1.3 2007-05-30 15:58:05 cvsbert Exp $";
 
 #include "uimadagascarmain.h"
 #include "uiseissel.h"
+#include "uiseissubsel.h"
 #include "uifileinput.h"
 #include "uigeninputdlg.h"
 #include "uilistbox.h"
@@ -20,37 +21,58 @@ static const char* rcsID = "$Id: uimadagascarmain.cc,v 1.2 2007-05-30 10:45:54 c
 #include "seispsioprov.h"
 #include "ctxtioobj.h"
 #include "ioobj.h"
+#include "survinfo.h"
 #include "filegen.h"
 
-static const char* seistypes[] =
-	{ "3D cube", "2D line", "Pre-Stack data", "Madagascar file", 0 };
 
 uiMadagascarMain::uiMadagascarMain( uiParent* p )
 	: uiDialog( p, Setup( "Madagacar processing",
 			      "Processing flow",
 			      "0.0.0") )
-	, in3dctio_(*mMkCtxtIOObj(SeisTrc))
-	, in2dctio_(*mMkCtxtIOObj(SeisTrc))
-	, inpsctio_(*mMkCtxtIOObj(SeisPS))
-	, out3dctio_(*mMkCtxtIOObj(SeisTrc))
-	, out2dctio_(*mMkCtxtIOObj(SeisTrc))
-	, outpsctio_(*mMkCtxtIOObj(SeisPS))
+	, in3dctio_(*mMkCtxtIOObj(SeisTrc)), in2dctio_(*mMkCtxtIOObj(SeisTrc))
+	, out3dctio_(*mMkCtxtIOObj(SeisTrc)), out2dctio_(*mMkCtxtIOObj(SeisTrc))
+	, inpsctio_(*mMkCtxtIOObj(SeisPS)), outpsctio_(*mMkCtxtIOObj(SeisPS))
+	, inpseis3dfld_(0), inpseis2dfld_(0), inpseispsfld_(0)
+	, outseis3dfld_(0), outseis2dfld_(0), outseispsfld_(0)
+	, subsel3dfld_(0), subsel2dfld_(0), subselpsfld_(0)
+    	, idx3d_(-1), idx2d_(-1), idxps_(-1), idxmad_(-1)
 {
+    BufferStringSet seistypes;
+#   define mAdd(s,idx) { seistypes.add( s ); idx = seistypes.size() - 1; }
+    if ( SI().has3D() ) mAdd( "3D cube", idx3d_ );
+    if ( SI().has2D() ) mAdd( "2D line", idx2d_ );
+    if ( SI().has3D() ) mAdd( "Pre-Stack data", idxps_ );
+    mAdd( "Madagascar file", idxmad_ );
+
     uiGroup* inpgrp = new uiGroup( this, "Input group" );
     intypfld_ = new uiGenInput( inpgrp, "Input",
 	    			 StringListInpSpec(seistypes) );
     intypfld_->valuechanged.notify( mCB(this,uiMadagascarMain,typSel) );
     SeisSelSetup sss3d; sss3d.is2d_ = false;
-    inpseis3dfld_ = new uiSeisSel( inpgrp, in3dctio_, sss3d );
-    inpseis3dfld_->attach( alignedBelow, intypfld_ );
     SeisSelSetup sss2d; sss2d.is2d_ = true;
-    inpseis2dfld_ = new uiSeisSel( inpgrp, in2dctio_, sss2d );
-    inpseis2dfld_->attach( alignedBelow, intypfld_ );
-    inpseispsfld_ = new uiIOObjSel( inpgrp, inpsctio_ );
-    inpseispsfld_->attach( alignedBelow, intypfld_ );
+    if ( SI().has3D() )
+    {
+	inpseis3dfld_ = new uiSeisSel( inpgrp, in3dctio_, sss3d );
+	inpseis3dfld_->attach( alignedBelow, intypfld_ );
+	subsel3dfld_ = new uiSeis3DSubSel( inpgrp, true );
+	subsel3dfld_->attach( alignedBelow, inpseis3dfld_ );
+    }
+    if ( SI().has2D() )
+    {
+	inpseis2dfld_ = new uiSeisSel( inpgrp, in2dctio_, sss2d );
+	inpseis2dfld_->attach( alignedBelow, intypfld_ );
+	subsel2dfld_ = new uiSeis2DSubSel( inpgrp, false, false );
+	subsel2dfld_->attach( alignedBelow, inpseis2dfld_ );
+    }
+    if ( SI().has3D() )
+    {
+	inpseispsfld_ = new uiIOObjSel( inpgrp, inpsctio_ );
+	inpseispsfld_->attach( alignedBelow, intypfld_ );
+	subselpsfld_ = subsel3dfld_;
+    }
     inpmadfld_ = new uiFileInput( inpgrp, "Input file", uiFileInput::Setup() );
     inpmadfld_->attach( alignedBelow, intypfld_ );
-    inpgrp->setHAlignObj( inpseis3dfld_ );
+    inpgrp->setHAlignObj( inpseis3dfld_ ? inpseis3dfld_ : inpseis2dfld_ );
 
     uiSeparator* sep = new uiSeparator( this, "Hor sep 1", true );
     sep->attach( stretchedBelow, inpgrp, -2 );
@@ -73,22 +95,31 @@ uiMadagascarMain::uiMadagascarMain( uiParent* p )
     sep = new uiSeparator( this, "Hor sep 2", true );
     sep->attach( stretchedBelow, procgrp, -2 );
 
-    uiGroup* outgrp = new uiGroup( this, "Outut group" );
+    uiGroup* outgrp = new uiGroup( this, "Output group" );
     outtypfld_ = new uiGenInput( outgrp, "Output",
 	    			 StringListInpSpec(seistypes) );
     outtypfld_->valuechanged.notify( mCB(this,uiMadagascarMain,typSel) );
     out2dctio_.ctxt.forread = out3dctio_.ctxt.forread
 			    = outpsctio_.ctxt.forread = false;
-    outseis3dfld_ = new uiSeisSel( outgrp, out3dctio_, sss3d );
-    outseis3dfld_->attach( alignedBelow, outtypfld_ );
-    outseis2dfld_ = new uiSeisSel( outgrp, out2dctio_, sss2d );
-    outseis2dfld_->attach( alignedBelow, outtypfld_ );
-    outseispsfld_ = new uiIOObjSel( outgrp, outpsctio_ );
-    outseispsfld_->attach( alignedBelow, outtypfld_ );
+    if ( SI().has3D() )
+    {
+	outseis3dfld_ = new uiSeisSel( outgrp, out3dctio_, sss3d );
+	outseis3dfld_->attach( alignedBelow, outtypfld_ );
+    }
+    if ( SI().has2D() )
+    {
+	outseis2dfld_ = new uiSeisSel( outgrp, out2dctio_, sss2d );
+	outseis2dfld_->attach( alignedBelow, outtypfld_ );
+    }
+    if ( SI().has3D() )
+    {
+	outseispsfld_ = new uiIOObjSel( outgrp, outpsctio_ );
+	outseispsfld_->attach( alignedBelow, outtypfld_ );
+    }
     outmadfld_ = new uiFileInput( outgrp, "Output file",
 	    			  uiFileInput::Setup().forread(false) );
     outmadfld_->attach( alignedBelow, outtypfld_ );
-    outgrp->setHAlignObj( outseis3dfld_ );
+    outgrp->setHAlignObj( outseis3dfld_ ? outseis3dfld_ : outseis2dfld_ );
     outgrp->attach( alignedWith, inpgrp );
     outgrp->attach( ensureBelow, sep );
 
@@ -116,22 +147,29 @@ void uiMadagascarMain::initWin( CallBacker* )
 
 void uiMadagascarMain::typSel( CallBacker* cb )
 {
-    if ( cb == intypfld_ )
-	dispFlds( intypfld_->getIntValue(),
-		  inpseis3dfld_, inpseis2dfld_, inpseispsfld_, inpmadfld_ );
-    else
+    if ( cb == outtypfld_ )
+    {
 	dispFlds( outtypfld_->getIntValue(),
 		  outseis3dfld_, outseis2dfld_, outseispsfld_, outmadfld_ );
+	return;
+    }
+
+    const int choice = intypfld_->getIntValue();
+    dispFlds( choice, inpseis3dfld_, inpseis2dfld_, inpseispsfld_, inpmadfld_ );
+    if ( subsel3dfld_ )
+	subsel3dfld_->display( choice == idx3d_ || choice == idxps_ );
+    if ( subsel2dfld_ )
+	subsel2dfld_->display( choice == idx2d_ );
 }
 
 
 void uiMadagascarMain::dispFlds( int choice, uiSeisSel* fld3d, uiSeisSel* fld2d,
-			uiIOObjSel* fldps, uiFileInput* fldmad )
+				 uiIOObjSel* fldps, uiFileInput* fldmad )
 {
-    fld3d->display( choice == 0 );
-    fld2d->display( choice == 1 );
-    fldps->display( choice == 2 );
-    fldmad->display( choice == 3 );
+    if ( fld3d ) fld3d->display( choice == idx3d_ );
+    if ( fld2d ) fld2d->display( choice == idx2d_ );
+    if ( fldps ) fldps->display( choice == idxps_ );
+    fldmad->display( choice == idxmad_ );
 }
 
 
@@ -175,17 +213,17 @@ void uiMadagascarMain::setButStates()
 
 bool uiMadagascarMain::ioOK( int choice, bool inp )
 {
-    if ( choice < 2 )
+    if ( choice == idx3d_ || choice == idx2d_ )
     {
-	uiSeisSel* ss = choice == 0 ? (inp?inpseis3dfld_:outseis3dfld_)
-	   			    : (inp?inpseis2dfld_:outseis2dfld_);
+	uiSeisSel* ss = choice == idx3d_ ? (inp?inpseis3dfld_:outseis3dfld_)
+					 : (inp?inpseis2dfld_:outseis2dfld_);
 	if ( !ss->commitInput(!inp) )
 	    mErrRet("Please select the ", inp?"input":"output", " seismics")
 	if ( !inp && choice == 0 && out3dctio_.ioobj->implExists(false)
 	   && !uiMSG().askGoOn("Output cube exists. Overwrite?") )
 	    return false;
     }
-    else if ( choice == 2 )
+    else if ( choice == idxps_ )
     {
 	uiIOObjSel* objsel = inp ? inpseispsfld_ : outseispsfld_;
 	if ( !objsel->commitInput(!inp) )
