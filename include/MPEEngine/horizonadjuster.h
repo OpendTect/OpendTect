@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          January 2005
- RCS:           $Id: horizonadjuster.h,v 1.21 2007-05-22 03:23:22 cvsnanne Exp $
+ RCS:           $Id: horizonadjuster.h,v 1.22 2007-05-31 22:31:10 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,6 +20,7 @@ ________________________________________________________________________
 class IOPar;
 namespace EM { class Horizon; };
 namespace Attrib { class DataCubes; };
+class EventTracker;
 
 
 namespace MPE
@@ -58,7 +59,7 @@ public:
     void		setSimilarityWindow(const Interval<float>& rg);
     Interval<float>	similarityWindow() const;
     void		setSimilarityThreshold(float th);
-    float		similarityThreshold();
+    float		similarityThreshold() const;
 
     int			getNrAttributes() const;
     const Attrib::SelSpec* getAttributeSel(int idx) const;
@@ -71,72 +72,24 @@ public:
 
 protected:
 
-    Attrib::SelSpec*	attribsel_;
-    const Attrib::DataCubes* attrdata_;
-    EM::Horizon&	horizon_;
-    VSEvent::Type	evtype_;
-    Interval<float>	permzrange_;
-    float		ampthreshold_;
-    float		allowedvar_;
-    bool		useabsthreshold_;
-    Interval<float>	similaritywin_;
-    float		similaritythreshold_;
-    bool		trackbyvalue_;
+    Attrib::SelSpec*		attribsel_;
+    const Attrib::DataCubes*	attrdata_;
+    EM::Horizon&		horizon_;
+    Interval<float>		permzrange_;
+    Interval<float>		similaritywin_;
+    EventTracker*		tracker_;
 
 private:
 
+    bool		track(const BinID&,const BinID&,float&) const;
+
     const BinID		attrDataBinId( const BinID& bid ) const;
-
-    bool		trackByAmplitude( const BinID& refbid,
-					  const BinID& targetbid,
-					  float& targetz ) const;
-
-    bool		trackBySimilarity( const BinID& refbid,
-					  const BinID& targetbid,
-					  float& targetz ) const;
-
-    bool		findMaxSimilarity( const ValueSeries<float>& fixedarr,
-					   const ValueSeries<float>& slidingarr,
-					   int nrsamples, int nrtests,
-					   int step, int nrgracesamples,
-					   float& res, float& maxsim,
-					   bool& flatstart ) const;
-    			/*!<Slides slidingarr as long as similarity increases.
-			    \param nrgracesamples Number of decreasing
-			    	   similarities that are allowed in a row
-				   without stopping the search.
-			    \param step Specifies how the slidingarr should
-			    	   slide. Normally 1 or -1.
-			    \param res Position of maximum similarity
-			    \param maxsim Highest similarity found.
-			    \param flatstart Is true if the similarity didn't
-			    	   change from start.
-			    \returns true if a max similarity was found that
-			    	     is above similaritythreshold_ */
-
-     ValueSeriesEvent<float, float>
-	 		findExtreme( const ValueSeriesEvFinder<float, float>&,
-				 const Interval<float>& rg, float threshold,
-				 float& avgampl, bool& hasloopskips,
-				 float& troughampl) const;
-     			/*!<\param avgamp	The average value from the
-						rg.start to the found extreme.
-     			    \param threshold	The min/max amplitude that is
-			    			allowed.*/
-
-    bool		snap( const BinID& bid, float threshold,
-	    		      float& targetz ) const;
 
     void		setHorizonPick(const BinID& bid, float val);
 
     static const char*	sKeyPermittedZRange()	{ return "Permitted Z range"; }
-    static const char*	sKeyValueThreshold()	{ return "Value threshhold"; }
-    static const char*	sKeyAllowedVariance()	{ return "Allowed variance"; }
-    static const char*	sKeyUseAbsThreshold()	{ return "Use abs threshhold"; }
     static const char*	sKeySimWindow()		{ return "Similarity window"; }
-    static const char*	sKeySimThreshold() { return "Similarity threshhold"; }
-    static const char*	sKeyTrackByValue()	{ return "Track by value"; }
-    static const char*	sKeyTrackEvent()	{ return "Track event"; }
+    static const char*	sKeyTracker()		{ return "Tracker"; }
     static const char*	sKeyAttribID()		{ return "Attribute"; }
 };
 
