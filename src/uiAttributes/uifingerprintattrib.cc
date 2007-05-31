@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Payraudeau
  Date:          February  2006
- RCS:           $Id: uifingerprintattrib.cc,v 1.33 2007-05-18 12:37:04 cvshelene Exp $
+ RCS:           $Id: uifingerprintattrib.cc,v 1.34 2007-05-31 11:18:52 cvsnanne Exp $
 
 ________________________________________________________________________
 
@@ -101,20 +101,25 @@ class uiFPAdvancedDlg: public uiDialog
 
 
 uiFingerPrintAttrib::uiFingerPrintAttrib( uiParent* p, bool is2d )
-	: uiAttrDescEd(p,is2d)
-    	, ctio_(*mMkCtxtIOObj(PickSet))
-    	, refposfld_(0)
-    	, refpos2dfld_(0)
+    : uiAttrDescEd(p,is2d)
+    , ctio_(*mMkCtxtIOObj(PickSet))
+    , refposfld_(0)
+    , refpos2dfld_(0)
+    , linesetfld_(0)
+    , linefld_(0)
+    , sel2dbut_(0)
 {
     calcobj_ = new calcFingParsObject( this );
 
-    refgrp_ = new uiButtonGroup( this, "Get values from", false );
+    refgrp_ = new uiButtonGroup( this, "", false );
     uiRadioButton* manualbut = new uiRadioButton( refgrp_, "Manual" );
     manualbut->activated.notify( mCB(this,uiFingerPrintAttrib,refSel ) );
     refposbut_ = new uiRadioButton( refgrp_,"Reference position");
     refposbut_->activated.notify( mCB(this,uiFingerPrintAttrib,refSel ) );
     picksetbut_ = new uiRadioButton( refgrp_, "Pickset" );
     picksetbut_->activated.notify( mCB(this,uiFingerPrintAttrib,refSel ) );
+    uiLabel* lbl = new uiLabel( this, "Get values from" );
+    lbl->attach( centeredLeftOf, refgrp_ );
 
     if ( is2d_ )
     {
@@ -126,6 +131,7 @@ uiFingerPrintAttrib::uiFingerPrintAttrib( uiParent* p, bool is2d )
 	refposfld_ = new uiGenInput(this, "Position (Inl/Crl)", BinIDInpSpec());
 	refposfld_->attach( alignedBelow, refgrp_ );
     }
+
     BufferString zlabel = "Z "; zlabel += SI().getZUnit();
     refposzfld_ = new uiGenInput( this, zlabel );
     refposzfld_->setElemSzPol( uiObject::Small );
@@ -135,28 +141,32 @@ uiFingerPrintAttrib::uiFingerPrintAttrib( uiParent* p, bool is2d )
 	    			   mCB(this,uiFingerPrintAttrib,getPosPush) );
     getposbut_->attach( rightOf, refposzfld_ );
 
-    linesetfld_ = new uiGenInput( this, "LineSet", StringInpSpec() );
-    linesetfld_-> attach( alignedBelow, refposfld_ ? refposfld_ : refpos2dfld_);
+    if ( is2d_ )
+    {
+	linesetfld_ = new uiGenInput( this, "LineSet", StringInpSpec() );
+	linesetfld_-> attach( alignedBelow,
+			      refposfld_ ? refposfld_ : refpos2dfld_);
 
-    CallBack sel2dcb = mCB(this,uiFingerPrintAttrib,fillIn2DPos);
-    sel2dbut_ = new uiPushButton( this, "&Select", sel2dcb, false);
-    sel2dbut_->attach( rightOf, linesetfld_ );
+	CallBack sel2dcb = mCB(this,uiFingerPrintAttrib,fillIn2DPos);
+	sel2dbut_ = new uiPushButton( this, "&Select", sel2dcb, false);
+	sel2dbut_->attach( rightOf, linesetfld_ );
 
-    linefld_ = new uiLabeledComboBox( this, "Line name" );
-    linefld_-> attach( alignedBelow, linesetfld_ );
+	linefld_ = new uiLabeledComboBox( this, "Line name" );
+	linefld_-> attach( alignedBelow, linesetfld_ );
+    }
 
     picksetfld_ = new uiIOObjSel( this, ctio_, "Pickset file" );
-    picksetfld_->attach( alignedBelow, (uiParent*)refgrp_ );
-    picksetfld_->display(false);
+    picksetfld_->attach( alignedBelow, refgrp_ );
+    picksetfld_->display( false );
 
     statsfld_ = new uiGenInput( this, "PickSet statistic", 
 	    		       StringListInpSpec(statstrs) );
     statsfld_->attach( alignedBelow, picksetfld_ );
-    statsfld_->display(false);
+    statsfld_->display( false );
 
     manlbl_ = new uiLabel( this, 
 	    		   "Please select some attributes and go to Advanced" );
-    manlbl_->attach( alignedBelow, (uiParent*)refgrp_ );
+    manlbl_->attach( alignedBelow, refgrp_ );
     
     table_ = new uiTable( this,uiTable::Setup().rowdesc("")
 					.rowgrow(true)
@@ -171,17 +181,17 @@ uiFingerPrintAttrib::uiFingerPrintAttrib( uiParent* p, bool is2d )
     const char* collbls[] = { "Reference attributes", 0 };
     table_->setColumnLabels( collbls );
     table_->setNrRows( sInitNrRows );
-    table_->setColumnWidth(0,240);
     table_->setRowHeight( -1, 4 );
-    table_->setStretch( 0, 0 );
+    table_->setStretch( 2, 0 );
     table_->setPrefHeightInChar( 8 );
     table_->setToolTip( "Right-click to add, insert or remove an attribute" );
-    table_->attach( alignedBelow, linefld_ );
+    if ( linefld_ )	table_->attach( alignedBelow, linefld_ );
+    else		table_->attach( alignedBelow, statsfld_ );
     table_->rowInserted.notify( mCB(this,uiFingerPrintAttrib,insertRowCB) );
     table_->rowDeleted.notify( mCB(this,uiFingerPrintAttrib,deleteRowCB) );
 
-    BufferString lbl = "Right-click\nto add,\ninsert or\nremove\nan attribute";
-    uiLabel* tablelab = new uiLabel( this, lbl.buf() );
+    BufferString str = "Right-click\nto add,\ninsert or\nremove\nan attribute";
+    uiLabel* tablelab = new uiLabel( this, str.buf() );
     tablelab->attach( leftTo, table_ );
 
     CallBack cbcalc = mCB(this,uiFingerPrintAttrib,calcPush);
@@ -266,10 +276,12 @@ bool uiFingerPrintAttrib::setParameters( const Desc& desc )
     mIfGetFloat( FingerPrint::refposzStr(), refposz,
 	    	 refposzfld_->setValue( refposz ) );
 
-    mIfGetString( FingerPrint::reflinesetStr(), ls, useLineSetID( ls ) )
-
-    mIfGetString( FingerPrint::ref2dlineStr(), line, 
-	    	  linefld_->box()->setCurrentItem(line.buf()) )
+    if ( is2d_ )
+    {
+	mIfGetString( FingerPrint::reflinesetStr(), ls, useLineSetID( ls ) )
+	mIfGetString( FingerPrint::ref2dlineStr(), line, 
+		      linefld_->box()->setCurrentItem(line.buf()) )
+    }
 
     mIfGetString( FingerPrint::valpicksetStr(), pickidstr, 
 	    	  IOObj* ioobj = IOM().get( MultiID(pickidstr) );
@@ -300,7 +312,8 @@ bool uiFingerPrintAttrib::setParameters( const Desc& desc )
     }
 
     table_->clearTable();
-    table_->setNrRows( nrvals );
+    while ( nrvals > table_->nrRows() )
+	table_->insertRows( 0, 1 );
     initTable( nrvals );
 
     if ( desc.getParam( FingerPrint::rangeStr() ) )
@@ -442,9 +455,12 @@ void uiFingerPrintAttrib::refSel( CallBacker* )
     else
 	refposfld_->display( refbutchecked );
     refposzfld_->display( refbutchecked );
-    linesetfld_->display( refbutchecked && is2d_ );
-    linefld_->display( refbutchecked && is2d_ );
-    sel2dbut_->display( refbutchecked && is2d_ );
+    if ( is2d_ )
+    {
+	linesetfld_->display( refbutchecked );
+	linefld_->display( refbutchecked );
+	sel2dbut_->display( refbutchecked );
+    }
     getposbut_->display( refbutchecked );
     picksetfld_->display( pickbutchecked );
     statsfld_->display( pickbutchecked );
@@ -564,6 +580,8 @@ BinIDValueSet* uiFingerPrintAttrib::createValuesBinIDSet(
 
 void uiFingerPrintAttrib::fillIn2DPos(CallBacker*)
 {
+    if ( !is2d_ ) return;
+
     PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(SeisTrc);
     SeisSelSetup setup;
     setup.is2d( true ).selattr( false );
@@ -600,7 +618,11 @@ void uiFingerPrintAttrib::get2DLineSetName( const MultiID& mid,
 
 BinID uiFingerPrintAttrib::get2DRefPos() const
 {
-    mGet2DLineSet( lsid_, BinID(mUdf(int),mUdf(int)) );
+    BinID undef( mUdf(int), mUdf(int) );
+    if ( !is2d_ )
+	return undef;
+
+    mGet2DLineSet( lsid_, undef );
     for ( int idx=0 ;idx<lineset.nrLines();idx++ )
     {
 	LineKey lkey( linefld_->box()->text(), "Seis" );
@@ -611,7 +633,7 @@ BinID uiFingerPrintAttrib::get2DRefPos() const
 	    if ( !lineset.getGeometry(lineindex,*geometry) )
 	    {
 		delete geometry;
-		return BinID(mUdf(int),mUdf(int));
+		return undef;
 	    }
 	    StepInterval<int> trcrg;
 	    lineset.getRanges( lineindex, trcrg, geometry->zrg );
@@ -619,12 +641,15 @@ BinID uiFingerPrintAttrib::get2DRefPos() const
 	    return SI().transform( geometry->posns[trcnr-trcrg.start].coord_ );
 	}
     }
-    return BinID(mUdf(int),mUdf(int));
+
+    return undef;
 }
 
 
 void uiFingerPrintAttrib::useLineSetID( const BufferString& ls )
 {
+    if ( !is2d_ ) return;
+
     lsid_ = MultiID( ls );
     BufferString lsname;
     get2DLineSetName ( lsid_, lsname );
