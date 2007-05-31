@@ -7,11 +7,12 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Dec 2006
- RCS:		$Id: linerectangleclipper.h,v 1.2 2007-05-30 16:52:47 cvsjaap Exp $
+ RCS:		$Id: linerectangleclipper.h,v 1.3 2007-05-31 14:31:48 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "geometry.h"
 
 /*!Clips a line between two points by a rectangle. The line may be completely
    outside, completely inside or partially inside. If partially inside, new
@@ -34,6 +35,7 @@ public:
     inline const Geom::Point2D<T>&	getStop() const;
 
 protected:
+    inline const T	castDouble2T(double) const;
 
     bool		isintersecting_;
     bool		startchanged_;
@@ -42,9 +44,6 @@ protected:
     Geom::Point2D<T>	stop_;
 
     Geom::Rectangle<T>	rect_;
-
-private:
-    inline const T	castDouble2T(double) const;
 };
 
 
@@ -101,7 +100,7 @@ const T LineRectangleClipper<T>::castDouble2T( double d ) const
 {
     const T t1 = (T) d;
     const T t2 = (T) floor( d + 0.5 );
-    return fabs(d-t1)>fabs(d-t2) ? t2 : t1;
+    return fabs(d-t1) < fabs(d-t2) ? t1 : t2;
 }
 
 
@@ -125,7 +124,16 @@ const T LineRectangleClipper<T>::castDouble2T( double d ) const
 	if ( (offset) < 0 ) return; \
 }
 
-/*! LineRectangleClipper applies the Liang&Barsky line-clipping algorithm */
+#define mAdjustPoint( which ) \
+{ \
+    Geom::Point2D<T> newpoint; \
+    newpoint.x = start.x + castDouble2T( dx * t##which ); \
+    newpoint.y = start.y + castDouble2T( dy * t##which ); \
+    which##changed_ = which##_ != newpoint; \
+    which##_ = newpoint; \
+}
+
+/* LineRectangleClipper applies the Liang&Barsky line-clipping algorithm */
 template <class T> inline
 void LineRectangleClipper<T>::setLine(const Geom::Point2D<T>& start,
 				const Geom::Point2D<T>& stop)
@@ -150,17 +158,10 @@ void LineRectangleClipper<T>::setLine(const Geom::Point2D<T>& start,
     isintersecting_ = true;
 
     if ( tstart > 0.0 )
-    {
-	startchanged_ = true;
-	start_.x += castDouble2T( tstart * dx );
-	start_.y += castDouble2T( tstart * dy );
-    }
+	mAdjustPoint( start );
+
     if ( tstop < 1.0 )
-    {
-	stopchanged_ = true;
-	stop_.x = start.x + castDouble2T( tstop * dx );
-	stop_.y = start.y + castDouble2T( tstop * dy );
-    }
+	mAdjustPoint( stop );
 }
 
 
