@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vismultitexture2.cc,v 1.39 2007-05-25 06:15:08 cvsnanne Exp $";
+static const char* rcsID = "$Id: vismultitexture2.cc,v 1.40 2007-05-31 12:13:17 cvsnanne Exp $";
 
 
 #include "vismultitexture2.h"
@@ -117,7 +117,8 @@ MultiTexture2::~MultiTexture2()
 
 int MultiTexture2::maxNrTextures() const
 {
-    static const int nrunits = mMIN(SoTextureUnit::getMaxTextureUnit(),mMaxNrUnits);
+    static const int nrunits = mMIN( SoTextureUnit::getMaxTextureUnit(),
+	    			     mMaxNrUnits );
     return (nrunits-1) * mLayersPerUnit;
 }
 
@@ -320,6 +321,8 @@ bool MultiTexture2::setDataOversample( int texture, int version,
 }
 
 
+static bool newsize_ = false;
+
 bool MultiTexture2::setSize( int sz0, int sz1 )
 {
     if ( size_.row==sz0 && size_.col==sz1 )
@@ -340,7 +343,9 @@ bool MultiTexture2::setSize( int sz0, int sz1 )
 	layersize1_->value.setValue( size_.row );
     }
 
+    newsize_ = true;
     reviewShading();
+    newsize_ = false;
 
     return true;
 }
@@ -777,6 +782,14 @@ void MultiTexture2::reviewShading()
 	if ( size_.row>0 && size_.col>0 &&
 	     size_.row<=maxshadingsize && size_.col<=maxshadingsize )
 	    res = true;
+	else if ( newsize_ && size_.row>0 && size_.col>0 )
+	{
+	    BufferString msg( "Texture size is too large for using shading.\n"
+			      "Current size is (" );
+	    msg += size_.row; msg += ","; msg += size_.col; msg += "). ";
+	    msg += "Maximum size is: "; msg += maxshadingsize;
+	    ErrMsg( msg );
+	}
     }
 
     if ( useshading_==res )
