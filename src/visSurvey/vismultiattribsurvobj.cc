@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: vismultiattribsurvobj.cc,v 1.7 2007-05-21 12:17:10 cvsnanne Exp $";
+static const char* rcsID = "$Id: vismultiattribsurvobj.cc,v 1.8 2007-05-31 11:40:26 cvsnanne Exp $";
 
 #include "vismultiattribsurvobj.h"
 
@@ -313,12 +313,31 @@ int MultiTextureSurveyObject::usePar( const IOPar& par )
 
     par.get( sKeyResolution(), resolution_ );
 
+    bool ison = true;
+    par.getYN( visBase::VisualObjectImpl::sKeyIsOn(), ison );
+    turnOn( ison );
+
     int nrattribs;
     if ( par.get(sKeyNrAttribs(),nrattribs) ) //current format
     {
-	bool ison = true;
-	par.getYN( visBase::VisualObjectImpl::sKeyIsOn(), ison );
-	turnOn( ison );
+	TypeSet<int> coltabids( nrattribs, -1 );
+	for ( int attrib=0; attrib<nrattribs; attrib++ )
+	{
+	    BufferString key = sKeyAttribs();
+	    key += attrib;
+	    PtrMan<const IOPar> attribpar = par.subselect( key );
+	    if ( !attribpar )
+		continue;
+
+	    if ( attribpar->get(sKeyColTabID(),coltabids[attrib]) )
+	    {
+		visBase::DataObject* dataobj =
+		    visBase::DM().getObject( coltabids[attrib] );
+		if ( !dataobj ) return 0;
+		mDynamicCastGet(const visBase::VisColorTab*,coltab,dataobj);
+		if ( !coltab ) coltabids[attrib] = -1;
+	    }
+	}
 
 	bool firstattrib = true;
 	for ( int attrib=0; attrib<nrattribs; attrib++ )
@@ -329,15 +348,6 @@ int MultiTextureSurveyObject::usePar( const IOPar& par )
 	    if ( !attribpar )
 		continue;
 
-	    int coltabid = -1;
-	    if ( attribpar->get(sKeyColTabID(),coltabid) )
-	    {
-		visBase::DataObject* dataobj= visBase::DM().getObject(coltabid);
-		if ( !dataobj ) return 0;
-		mDynamicCastGet(const visBase::VisColorTab*,coltab,dataobj);
-		if ( !coltab ) coltabid=-1;
-	    }
-
 	    if ( !firstattrib )
 		addAttrib();
 	    else
@@ -346,10 +356,11 @@ int MultiTextureSurveyObject::usePar( const IOPar& par )
 	    const int attribnr = as_.size()-1;
 
 	    as_[attribnr]->usePar( *attribpar );
+	    const int coltabid = coltabids[attribnr];
 	    if ( coltabid!=-1 )
 	    {
-		mDynamicCastGet( visBase::VisColorTab*, coltab, 
-		       		 visBase::DM().getObject(coltabid) );
+		mDynamicCastGet(visBase::VisColorTab*,coltab, 
+		       		visBase::DM().getObject(coltabid) );
 		texture_->setColorTab( attribnr, *coltab );
 	    }
 
