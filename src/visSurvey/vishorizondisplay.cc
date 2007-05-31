@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: vishorizondisplay.cc,v 1.31 2007-05-22 03:23:22 cvsnanne Exp $
+ RCS:           $Id: vishorizondisplay.cc,v 1.32 2007-05-31 11:42:44 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -76,6 +76,7 @@ HorizonDisplay::HorizonDisplay()
     as_ += new Attrib::SelSpec;
     coltabs_ += visBase::VisColorTab::create();
     coltabs_[0]->ref();
+    enabled_ += true;
 }
 
 
@@ -456,6 +457,7 @@ bool HorizonDisplay::addAttrib()
     as_ += new Attrib::SelSpec;
     coltabs_ += visBase::VisColorTab::create();
     coltabs_[coltabs_.size()-1]->ref();
+    enabled_ += true;
 
     for ( int idx=0; idx<sections_.size(); idx++ )
     {
@@ -483,6 +485,7 @@ bool HorizonDisplay::removeAttrib( int attrib )
 
     coltabs_[attrib]->unRef();
     coltabs_.remove( attrib );
+    enabled_.remove( attrib );
 
     delete as_[attrib];
     as_.remove( attrib );
@@ -501,6 +504,7 @@ bool HorizonDisplay::swapAttribs( int a0, int a1 )
 
     as_.swap( a0, a1 );
     coltabs_.swap( a0, a1 );
+    enabled_.swap( a0, a1 );
     return true;
 }
 
@@ -782,7 +786,10 @@ bool HorizonDisplay::addSection( const EM::SectionID& sid )
     while ( surf->nrTextures()<nrAttribs() ) surf->addTexture();
 
     for ( int idx=0; idx<nrAttribs(); idx++ )
+    {
 	surf->setColorTab( idx, *coltabs_[idx] );
+	surf->enableTexture( idx, enabled_[idx] );
+    }
 
     surf->useWireframe( useswireframe_ );
     surf->setResolution( resolution_-1 );
@@ -1404,6 +1411,25 @@ int HorizonDisplay::usePar( const IOPar& par )
     int nrattribs;
     if ( par.get(sKeyNrAttribs(),nrattribs) ) //Current format
     {
+	TypeSet<int> coltabids( nrattribs, -1 );
+	for ( int attrib=0; attrib<nrattribs; attrib++ )
+	{
+	    BufferString key = sKeyAttribs();
+	    key += attrib;
+	    PtrMan<const IOPar> attribpar = par.subselect( key );
+	    if ( !attribpar )
+		continue;
+
+	    if ( attribpar->get(sKeyColTabID(),coltabids[attrib]) )
+	    {
+		visBase::DataObject* dataobj =
+		    visBase::DM().getObject( coltabids[attrib] );
+		if ( !dataobj ) return 0;
+		mDynamicCastGet(const visBase::VisColorTab*,coltab,dataobj);
+		if ( !coltab ) coltabids[attrib] = -1;
+	    }
+	}
+
 	bool firstattrib = true;
 	for ( int attrib=0; attrib<nrattribs; attrib++ )
 	{
@@ -1422,30 +1448,18 @@ int HorizonDisplay::usePar( const IOPar& par )
 
 	    bool ison = true;
 	    attribpar->getYN( sKeyIsOn(), ison );
+	    enabled_[attribnr] = ison;
 
-	    int coltabid = -1;
-	    if ( attribpar->get(sKeyColTabID(),coltabid) )
+	    visBase::VisColorTab* coltab = 0;
+	    const int coltabid = coltabids[attribnr];
+	    if ( coltabid!=-1 )
 	    {
-		visBase::DataObject* dataobj = 
-		    			visBase::DM().getObject( coltabid );
-		if ( !dataobj ) return 0;
-
-		mDynamicCastGet(visBase::VisColorTab*,coltab,dataobj);
-		if ( !coltab ) coltabid=-1;
+		mDynamicCastGet(visBase::VisColorTab*,ct,
+				visBase::DM().getObject(coltabid))
 		coltabs_[attribnr]->unRef();
-		coltabs_.replace( attribnr, coltab );
+		coltabs_.replace( attribnr, ct );
 		coltabs_[attribnr]->ref();
-
-		for ( int idx=0; idx<sections_.size(); idx++ )
-		{
-		    mDynamicCastGet(visBase::ParametricSurface*,psurf,
-			    	    sections_[idx]);
-		    if ( psurf )
-		    {
-			psurf->setColorTab( attribnr, *coltab );
-			psurf->enableTexture( attribnr, ison );
-		    }
-		}
+		coltab = ct;
 	    }
 
 	    as_[attribnr]->usePar( *attribpar );

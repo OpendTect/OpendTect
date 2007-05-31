@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          May 2004
- RCS:           $Id: vishorizondisplay.h,v 1.16 2007-05-22 03:23:22 cvsnanne Exp $
+ RCS:           $Id: vishorizondisplay.h,v 1.17 2007-05-31 11:42:44 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -164,6 +164,7 @@ protected:
 
     ObjectSet<Attrib::SelSpec>		as_;
     ObjectSet<visBase::VisColorTab>	coltabs_;
+    BoolTypeSet				enabled_;
     bool				validtexture_;
 
     static visBase::FactoryEntry	surfdispentry;
