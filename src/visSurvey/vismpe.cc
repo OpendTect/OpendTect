@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vismpe.cc,v 1.51 2007-03-09 09:18:28 cvsjaap Exp $";
+static const char* rcsID = "$Id: vismpe.cc,v 1.52 2007-05-31 12:13:49 cvsnanne Exp $";
 
 #include "vismpe.h"
 
@@ -123,6 +123,8 @@ MPEDisplay::~MPEDisplay()
     draggerrect_->unRef();
     boxdragger_->finished.remove( mCB(this,MPEDisplay,boxDraggerFinishCB) );
     boxdragger_->unRef();
+
+    delete &curtextureas_;
 }
 
 
