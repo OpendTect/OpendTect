@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.125 2007-05-21 04:40:14 cvsnanne Exp $
+ RCS:           $Id: uimainwin.cc,v 1.126 2007-05-31 05:30:40 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -1000,8 +1000,6 @@ uiObject* uiDialogBody::createChildren()
     return lowestobj;
 }
 
-
-#define mPr(i) { std::cout << i << std::endl;
 
 void uiDialogBody::layoutChildren( uiObject* lowestobj )
 {
