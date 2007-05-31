@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/01/2002
- RCS:           $Id: uitreeview.cc,v 1.28 2007-03-15 16:16:30 cvsbert Exp $
+ RCS:           $Id: uitreeview.cc,v 1.29 2007-05-31 10:24:24 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -915,8 +915,13 @@ const uiListViewItem* uiListViewItem::itemFor( const mQListViewItem* itm )
 bool uiListViewItem::isCheckable() const
     { return mChkthing() ? true : false; }
 
+
 void uiListViewItem::setChecked( bool yn )
-    { if ( mChkthing() ) mChkthing()->setOn( yn ); }
+{
+    NotifyStopper ns( stateChanged );
+    if ( mChkthing() ) mChkthing()->setOn( yn );
+}
+
 
 bool uiListViewItem::isChecked() const
     { return mChkthing() ? mChkthing()->isOn() : false; }
