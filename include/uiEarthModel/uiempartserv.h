@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Sep 2002
- RCS:           $Id: uiempartserv.h,v 1.48 2007-02-14 09:01:00 cvsnanne Exp $
+ RCS:           $Id: uiempartserv.h,v 1.49 2007-05-31 12:16:08 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,7 +20,6 @@ ________________________________________________________________________
 class BinID;
 class BinIDRange;
 class BinIDValueSet;
-class BufferString;
 class BufferStringSet;
 class MultiID;
 class SurfaceInfo;
@@ -73,7 +72,7 @@ public:
 
     bool		importLMKFault();
 
-    void		manageSurfaces(const BufferString& typ);
+    void		manageSurfaces(const char* typ);
     bool		loadSurface(const MultiID&,
 	    			    const EM::SurfaceIODataSelection* s=0);
     void		getSurfaceInfo(ObjectSet<SurfaceInfo>&);

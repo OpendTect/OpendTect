@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.106 2007-05-22 03:23:23 cvsnanne Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.107 2007-05-31 12:16:08 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -91,7 +91,7 @@ EM::ObjectID uiEMPartServer::getObjectID( const MultiID& mid ) const
 }
 
 
-void uiEMPartServer::manageSurfaces( const BufferString& typ )
+void uiEMPartServer::manageSurfaces( const char* typ )
 {
     uiSurfaceMan dlg( appserv().parent(), typ );
     dlg.go();
