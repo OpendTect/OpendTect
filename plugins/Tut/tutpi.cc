@@ -5,9 +5,10 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: tutpi.cc,v 1.2 2007-05-11 12:55:07 cvsbert Exp $";
+static const char* rcsID = "$Id: tutpi.cc,v 1.3 2007-06-01 06:29:09 cvsraman Exp $";
 
 #include "tutseistools.h"
+#include "tutorialattrib.h"
 #include "plugins.h"
 
 extern "C" int GetTutPluginType()
@@ -29,5 +30,7 @@ extern "C" PluginInfo* GetTutPluginInfo()
 
 extern "C" const char* InitTutPlugin( int, char** )
 {
+    Attrib::Tutorial::initClass();
+
     return 0;
 }
