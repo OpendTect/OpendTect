@@ -5,7 +5,7 @@
  * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : R.K. Singh
  * DATE     : Mar 2007
- * ID       : $Id: tutseistools.h,v 1.3 2007-05-21 11:39:18 cvsbert Exp $
+ * ID       : $Id: tutseistools.h,v 1.4 2007-06-01 06:23:48 cvsraman Exp $
 -*/
 
 #include "executor.h"
@@ -63,7 +63,8 @@ protected:
 
     SeisTrcReader*	rdr_;
     SeisTrcWriter*	wrr_;
-    SeisTrc&		trc_;
+    SeisTrc&		trcin_;
+    SeisTrc&            trcout_;
     int			nrdone_;
     mutable int		totnr_;
     BufferString	errmsg_;

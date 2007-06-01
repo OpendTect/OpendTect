@@ -5,7 +5,7 @@
  * DATE     : Mar 2007
 -*/
 
-static const char* rcsID = "$Id: tutseistools.cc,v 1.5 2007-05-29 06:32:21 cvsraman Exp $";
+static const char* rcsID = "$Id: tutseistools.cc,v 1.6 2007-06-01 06:24:28 cvsraman Exp $";
 
 #include "tutseistools.h"
 #include "seisread.h"
@@ -20,7 +20,8 @@ Tut::SeisTools::SeisTools()
     : Executor("Tutorial tools: Direct Seismic")
     , inioobj_(0), outioobj_(0)
     , rdr_(0), wrr_(0)
-    , trc_(*new SeisTrc)
+    , trcin_(*new SeisTrc)
+    , trcout_(*new SeisTrc)
 {
     clear();
 }
@@ -29,7 +30,8 @@ Tut::SeisTools::SeisTools()
 Tut::SeisTools::~SeisTools()
 {
     clear();
-    delete &trc_;
+    delete &trcin_;
+    delete &trcout_;
 }
 
 
@@ -97,7 +99,7 @@ bool Tut::SeisTools::createReader()
 bool Tut::SeisTools::createWriter()
 {
     wrr_ = new SeisTrcWriter( outioobj_ );
-    if ( !wrr_->prepareWork(trc_) )
+    if ( !wrr_->prepareWork(trcout_) )
     {
 	errmsg_ = wrr_->errMsg();
 	return false;
@@ -111,21 +113,22 @@ int Tut::SeisTools::nextStep()
     if ( !rdr_ )
 	return createReader() ? Executor::MoreToDo : Executor::ErrorOccurred;
 
-    int rv = rdr_->get( trc_.info() );
+    int rv = rdr_->get( trcin_.info() );
     if ( rv < 0 )
 	{ errmsg_ = rdr_->errMsg(); return Executor::ErrorOccurred; }
     else if ( rv == 0 )
 	return Executor::Finished;
     else if ( rv == 1 )
     {
-	if ( !rdr_->get(trc_) )
+	if ( !rdr_->get(trcin_) )
 	    { errmsg_ = rdr_->errMsg(); return Executor::ErrorOccurred; }
 
+	trcout_ = trcin_;
 	handleTrace();
 
 	if ( !wrr_ && !createWriter() )
 	    return Executor::ErrorOccurred;
-	if ( !wrr_->put(trc_) )
+	if ( !wrr_->put(trcout_) )
 	    { errmsg_ = wrr_->errMsg(); return Executor::ErrorOccurred; }
     }
 
@@ -139,17 +142,17 @@ void Tut::SeisTools::handleTrace()
     {
 
     case Scale: {
-	SeisTrcPropChg stpc( trc_ );
+	SeisTrcPropChg stpc( trcout_ );
 	stpc.scale( factor_, shift_ );
     } break;
 
     case Square: {
-	for ( int icomp=0; icomp<trc_.nrComponents(); icomp++ )
+	for ( int icomp=0; icomp<trcin_.nrComponents(); icomp++ )
 	{
-	    for ( int idx=0; idx<trc_.size(); idx++ )
+	    for ( int idx=0; idx<trcin_.size(); idx++ )
 	    {
-		const float v = trc_.get( idx, icomp );
-		trc_.set( idx, v*v, icomp );
+		const float v = trcin_.get( idx, icomp );
+		trcout_.set( idx, v*v, icomp );
 	    }
 	}
     } break;
@@ -157,14 +160,14 @@ void Tut::SeisTools::handleTrace()
     case Smooth: {
 	const int sgate = weaksmooth_ ? 3 : 5;
 	const int sgate2 = sgate/2; 
-	for ( int icomp=0; icomp<trc_.nrComponents(); icomp++ )
+	for ( int icomp=0; icomp<trcin_.nrComponents(); icomp++ )
 	{
-	    for ( int idx=sgate/2; idx<trc_.size()-sgate2; idx++ )
+	    for ( int idx=sgate/2; idx<trcin_.size()-sgate2; idx++ )
 	    {
 	        float sum = 0;
 		for( int ismp=idx-sgate2; ismp<=idx+sgate2; ismp++)
-		    sum += trc_.get( ismp, icomp );
-	        trc_.set( idx, sum/sgate, icomp );
+		    sum += trcin_.get( ismp, icomp );
+	        trcout_.set( idx, sum/sgate, icomp );
 	    }
 	}
 
