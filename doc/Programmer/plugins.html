@@ -4,7 +4,7 @@
   - Author:	A.H. Bril
   - Date:	Oct 2003
   - Contents:	Plugins
-  - RCS:	$Id: plugins.html,v 1.38 2007-05-21 15:37:15 bert Exp $
+  - RCS:	$Id: plugins.html,v 1.39 2007-06-01 12:26:18 raman Exp $
  -->
 
 <body background="../backg.png"><title>Plugins [OpendTect Programmer's manual V3.0]</title>
@@ -357,9 +357,61 @@ In the process, we'll see how to:
 
 <a name=tutgui><h4>The <code>uiTut</code> plugin</h4>
 
-<p>We think it is easiest if we first show how the GUI part 
+<p>In the uiHello plugin, you have already seen how to add a menu item and how to create a dialog. In uiTut, the GUI consists of two parts. One is similar to that in uiHello and deals with opening an independent dialog box via a menu item in the 'Utilities' menu. The other part gets the 'Tutorial' attribute listed in the 'Edit Attributes' dialog and creates the input fields in the same dialog box.<p>
 
-etc.etc.
+<p>Let us first have a look at the independent dialog part which in turn has two parts -- one for seismic tools and the other for horizon tools. the insertion of menu item and opening of dialog is similar to that in uiHello. The only interesting part is the <code>uiIOObjSel</code> class which allows you to select an item from a set -- a horizon or a seismic cube ( subclass <code>uiSeisSel</code> is used for seismic cube selection).<p>
+
+<p> Both <code>uiSeisTools</code> and <code>uiHorTools</code> use the class <code>uiExecutor</code>, which triggers the <code>Executor</code>'s in the <b><code>Tut</code></b> plugin. The class <code>uiExecutor</code> also displays a progress bar which keeps the user informed about the progress of the process.<p>
+
+<p> Now we come to the attribute part. In the uitutorialattrib.cc file we see that although uiAttrDescEd is not a uiDialog like the the uiHello example, it still is a valid parent (being a uiGroup) for the various UI elements. A nice feature of OpendTect is clear from the first line in the constructor: the inpfld is a special Attribute UI class which is handled just like any pre-defined uiBase or uiTools class. This illustrates that in the OpendTect GUI system, not only pre-made GUI elements are 'first class' - new objects with different shape and behavior attached will be usable transparently by any other GUI class.<p>
+
+<p>Coming to the plugin 'main' file <code>uitutpi.cc</code>, you will find it very similar to <code>uihellopi.cc</code>. Like any typical UI plugin, uiTut is a LATE plugin, which means that it will be loaded only after the rest of the UI is already in place.<p>
+
+<code><pre>extern "C" int GetuiTutPluginType()
+{
+    return PI_AUTO_INIT_LATE;
+}
+
+</pre></code>
+
+<p> Then comes the second 'special' plugin function <code>GetxxxPluginInfo()</code>. You may want to refer to the definition of the class <code>PluginInfo</code> for a better understanding of the above function. It allows the plugin manager to make this info available to the world.<p>
+
+<code><pre>extern "C" PluginInfo* GetuiTutPluginInfo()
+{
+    static PluginInfo retpi = { 
+        "Tutorial plugin development",
+        "dGB (Raman/Bert)",
+        "3.0",
+        "Shows some simple plugin basics." }; 
+    return &retpi;
+}
+
+</pre></code>
+
+<p> And the last 'special' function is the one which gets things going:<p>
+
+<code><pre>extern "C" const char* InituiTutPlugin( int, char** )
+{
+    static uiTutMgr* mgr = 0; if ( mgr ) return 0;
+    mgr = new uiTutMgr( ODMainWin() );
+
+    uiTutorialAttrib::initClass();
+    return 0;
+}
+
+</pre></code>
+
+<a name=tut><h4>The <code>Tut</code> plugin</h4>
+
+<p> The responsibility of uiTut is limited to talking to the user and getting the input parameters from him (or her -- we don't want to get sued by the feminists). The real work is done behind the scene by the non-UI <b><code>Tut</code></b> plugin. And that is the reason why it is of type EARLY:<p>
+<code><pre>extern "C" int GetTutPluginType()
+{
+    return PI_AUTO_INIT_EARLY;
+}
+
+</pre></code>
+
+<p>More to come....<p>
 
 <br><br>
 <hr>
