@@ -5,10 +5,11 @@
  * DATE     : NOv 2003
 -*/
 
-static const char* rcsID = "$Id: uitutpi.cc,v 1.5 2007-05-29 06:35:51 cvsraman Exp $";
+static const char* rcsID = "$Id: uitutpi.cc,v 1.6 2007-06-01 06:34:08 cvsraman Exp $";
 
 #include "uitutseistools.h"
 #include "uituthortools.h"
+#include "uitutorialattrib.h"
 #include "uiodmenumgr.h"
 #include "uimenu.h"
 #include "uimsg.h"
@@ -74,5 +75,7 @@ extern "C" const char* InituiTutPlugin( int, char** )
 {
     static uiTutMgr* mgr = 0; if ( mgr ) return 0;
     mgr = new uiTutMgr( ODMainWin() );
+
+    uiTutorialAttrib::initClass();
     return 0;
 }
