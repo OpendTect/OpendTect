@@ -4,7 +4,7 @@
   - Author:	A.H. Bril
   - Date:	Oct 2003
   - Contents:	Plugins
-  - RCS:	$Id: plugins.html,v 1.39 2007-06-01 12:26:18 raman Exp $
+  - RCS:	$Id: plugins.html,v 1.40 2007-06-04 11:20:37 raman Exp $
  -->
 
 <body background="../backg.png"><title>Plugins [OpendTect Programmer's manual V3.0]</title>
@@ -14,7 +14,7 @@
 | <a href=#concept>Concept</a>
 | <a href=#helloworld>Hello World</a>
 | <a href=#mnudlg>Menus and Dialogs</a>
-| <a href=#tutpi>The Tutorial plugin</a>
+| <a href=#tutplugin>The Tutorial plugin</a>
 | <a href=#autoload>Installation and auto-loading</a>
 </center>
 <br>
@@ -334,7 +334,7 @@ the screen. </p>
 
 <br>
 <br>
-<a name=tutpi><h3>The Tutorial plugin</h3>
+<a name=tutplugin><h3>The Tutorial plugin</h3>
 
 <a name=tutpiintro><h4>Intro</h4>
 
@@ -357,11 +357,11 @@ In the process, we'll see how to:
 
 <a name=tutgui><h4>The <code>uiTut</code> plugin</h4>
 
-<p>In the uiHello plugin, you have already seen how to add a menu item and how to create a dialog. In uiTut, the GUI consists of two parts. One is similar to that in uiHello and deals with opening an independent dialog box via a menu item in the 'Utilities' menu. The other part gets the 'Tutorial' attribute listed in the 'Edit Attributes' dialog and creates the input fields in the same dialog box.<p>
+<p>In the uiHello plugin, you have already seen how to add a menu item and how to create a dialog. In uiTut, the GUI consists of two parts. One is similar to that in uiHello and deals with opening an independent dialog box via a menu item in the 'Utilities' menu. The other part gets the 'Tutorial' attribute listed in the 'Edit Attributes' dialog and creates the input fields in the same dialog box. It also sends the input parameters to <a href=#tutattrib><code>Tutorial</code></a> for attribute computation<p>
 
 <p>Let us first have a look at the independent dialog part which in turn has two parts -- one for seismic tools and the other for horizon tools. the insertion of menu item and opening of dialog is similar to that in uiHello. The only interesting part is the <code>uiIOObjSel</code> class which allows you to select an item from a set -- a horizon or a seismic cube ( subclass <code>uiSeisSel</code> is used for seismic cube selection).<p>
 
-<p> Both <code>uiSeisTools</code> and <code>uiHorTools</code> use the class <code>uiExecutor</code>, which triggers the <code>Executor</code>'s in the <b><code>Tut</code></b> plugin. The class <code>uiExecutor</code> also displays a progress bar which keeps the user informed about the progress of the process.<p>
+<p> Both <code>uiSeisTools</code> and <code>uiHorTools</code> use the class <code><a href="Generated/uiTools/classuiExecutor.html">uiExecutor</a></code>, which triggers the <code>Executor</code>'s in the <b><code><a href=#tut>Tut</a></code></b> plugin. The class <code>uiExecutor</code> also displays a progress bar which keeps the user informed about the progress of the process.<p>
 
 <p> Now we come to the attribute part. In the uitutorialattrib.cc file we see that although uiAttrDescEd is not a uiDialog like the the uiHello example, it still is a valid parent (being a uiGroup) for the various UI elements. A nice feature of OpendTect is clear from the first line in the constructor: the inpfld is a special Attribute UI class which is handled just like any pre-defined uiBase or uiTools class. This illustrates that in the OpendTect GUI system, not only pre-made GUI elements are 'first class' - new objects with different shape and behavior attached will be usable transparently by any other GUI class.<p>
 
@@ -403,7 +403,9 @@ In the process, we'll see how to:
 
 <a name=tut><h4>The <code>Tut</code> plugin</h4>
 
-<p> The responsibility of uiTut is limited to talking to the user and getting the input parameters from him (or her -- we don't want to get sued by the feminists). The real work is done behind the scene by the non-UI <b><code>Tut</code></b> plugin. And that is the reason why it is of type EARLY:<p>
+<p> The responsibility of uiTut is limited to talking to the user and getting the input parameters from him (or her -- we don't want to get sued by the feminists). The real work is done behind the scene by the non-UI <b><code>Tut</code></b> plugin. And that is the reason why it is of type EARLY. This particular plugin tells OpendTect's application manager that it wants to be loaded early - i.e. before any build of tables, data structures or user interfaces are made. That is typical of 'Real Work' plugins. The alternatives are NONE (which is default so in that case a GetxxxxPluginType() need not be defined) and LATE, which is typical
+for UI plugins that want to start working when all objects have already been created.<p>
+
 <code><pre>extern "C" int GetTutPluginType()
 {
     return PI_AUTO_INIT_EARLY;
@@ -411,173 +413,172 @@ In the process, we'll see how to:
 
 </pre></code>
 
-<p>More to come....<p>
+<a name=seistools><h5>SeisTools</h5>
 
-<br><br>
-<hr>
-<a name=coh></a>
-<b>Here's old Coherency stuff, all the way to <a href=#autoload>Installation and auto-loading</a></b>
-<br><br>
+<p> Let us first look at the direct seismic operations, that are handled by the class <code>SeisTools</code>, which in turn is a subclass of class <code>Executor</code>. 'Real work' is done by the function <code>nextStep()</code> which is typical of class <code>Executor</code>. Here, three different operations are possible: Scaling, where you can multiply the data values by a certain factor and apply a shift; Squaring, where as the name suggests, you can take a square of the data values; and Smoothening, where you can take the arithmatic average of 3 or 5 samples depending on the filter strength. Traces are read one-by-one by a <code>SeisTrcReader</code> and supplied to the function <code>handleTrace()</code> where the actual computation is done. Then a SeisTrcWriter writes the output traces on-by-one to the output cube.<p>
 
-
-start with the plugin 'main' file, <code>cohpi.cc</code>, we see
-that it's not that much more complex than the <code>hellopi.cc</code>
-from the <code>Hello</code> plugin. There are tow includes:
-<code>#include "coherencyattrib.h"</code> gets the Coherency attribute object
-classes; <code>#include "plugins.h"</code> is needed for the PluginInfo
-structure and the PI_AUTO_INIT_EARLY define: </p>
-
-<pre><code>extern "C" int GetCohPluginType()
+<code><pre>int Tut::SeisTools::nextStep()
 {
-    return PI_AUTO_INIT_EARLY;
-}</code></pre>
+    if ( !rdr_ )
+        return createReader() ? Executor::MoreToDo : Executor::ErrorOccurred;
 
-<p> The above is one of the three 'special' plugin functions that
-determine how OpendTect will deal with the plugin. The
-GetxxxxPluginType() function is used for determining whether and when
-to <a href=#autoload>auto-load</a> the plugin. </p>
+    int rv = rdr_->get( trcin_.info() );
+    if ( rv < 0 )
+        { errmsg_ = rdr_->errMsg(); return Executor::ErrorOccurred; }
+    else if ( rv == 0 )
+        return Executor::Finished;
+    else if ( rv == 1 )
+    {
+        if ( !rdr_->get(trcin_) )
+            { errmsg_ = rdr_->errMsg(); return Executor::ErrorOccurred; }
 
-<p> This particular plugin tells OpendTect's application manager that
-it wants to be loaded early - i.e. before any build of tables, data
-structures or user interfaces are made. That is typical of 'Real Work'
-plugins. The alternatives are NONE (which is default so in that case a
-GetxxxxPluginType() need not be defined) and LATE, which is typical
-for UI plugins that want to start working when all objects have
-already been created. </p>
+        trcout_ = trcin_;
+        handleTrace();
 
-<p> A few lines further we get:</p>
+        if ( !wrr_ && !createWriter() )
+            return Executor::ErrorOccurred;
+        if ( !wrr_->put(trcout_) )
+            { errmsg_ = wrr_->errMsg(); return Executor::ErrorOccurred; }
+    }
 
-<pre><code>
-extern "C" PluginInfo* GetCohPluginInfo()
-{
-    static PluginInfo retpii = {
-        "Coherency",
-        "dGB - Kristofer Tingdahl and Bert Bril",
-        "=od",
-        "Coherency attribute plugin.\n\n"
-        "Usage of Coherency may be subject to patent laws!" };
-    return &retpii;
+    return Executor::MoreToDo;
 }
-</code></pre>
+</pre></code>
 
-<p> If you look at the definition of PluginInfo, this should be easy
-to grasp. It allows the plugin manager to make this info about the
-plugin available to the world. </p>
+<p> Scaling and squaring are single-sample operations. But as you can see in the implementation of the function <code>handleTrace()</code> below, smoothening involves multi-sample computation. It requires separate input and output traces. Otherwise, if we did the operation on the same trace, we would be taking the modified values of samples preceding the current sample. For the sake of simplicity, we make a copy of the input trace to store the output values. This is not a good practice as it results in duplication of data. But since it is a tutorial, our aim is to keep the code as simple as possible and leave the efficiency part for serious programming.<p>
 
-<p> The actual work is done, like in the Hello world plugin, in:</p>
-
-
-<pre><code>
-extern "C" const char* InitCohPlugin( int, char** )
+<code><pre>void Tut::SeisTools::handleTrace()
 {
-    Attrib::Coherency::initClass();
-    return 0; // All OK - no error messages
+    switch ( action_ )
+    {
+
+    case Scale: {
+        SeisTrcPropChg stpc( trcout_ );
+        stpc.scale( factor_, shift_ );
+    } break;
+
+    case Square: {
+        for ( int icomp=0; icomp < trcin_.nrComponents(); icomp++ )
+        {
+            for ( int idx=0; idx < trcin_.size(); idx++ )
+            {
+                const float v = trcin_.get( idx, icomp );
+                trcout_.set( idx, v*v, icomp );
+            }
+        }
+    } break;
+
+    case Smooth: {
+        const int sgate = weaksmooth_ ? 3 : 5;
+        const int sgate2 = sgate/2;
+        for ( int icomp=0; icomp < trcin_.nrComponents(); icomp++ )
+        {
+            for ( int idx=sgate/2; idx < trcin_.size()-sgate2; idx++ )
+            {
+                float sum = 0;
+                for( int ismp=idx-sgate2; ismp <= idx+sgate2; ismp++)
+                    sum += trcin_.get( ismp, icomp );
+                trcout_.set( idx, sum/sgate, icomp );
+            }
+        }
+
+    } break;
+
+    }
+
+    nrdone_++;
 }
-</code></pre>
+</pre></code>
 
-<p> This function initializes the attribute, the initClass() function will be 
-explained in more detail in the following part</p>
+<p><a name=hortools><h5>HorTools</h5>
 
-<a name=cohrw><h4>Making attributes</h4>
+<p> Similar to <code>SeisTools, HorTools</code> performs some simple operations on horizons: thickness computation and smoothening. Each of these operations is handled by a subclass of <code>HorTools</code> which is a subclass of <code>Executor</code> and as expected the computation is performed by the function <code>nextStep()</code>. You may notice here that no object of class <code>HorTools</code> is defined anywhere. It is only used as the base class for classes <code>ThicknessFinder</code> and <code>HorSmoothener</code>. Let us have a look at the <code>nextStep()</code> function in class <code>ThicknessFinder</code> to see how the data values are accessed in a <code>Horizon3D</code>:<p>
 
-<p> Although cohpi.cc looks pretty simple, underneath the simple
-<code>initClass()</code> there is of course some real programming of the
-attribute. For that, we need to switch to coherencyattrib.h . 
-We see an attribute <code>CoherencyAttrib</code> inheriting the <a
-href="Generated/AttributeEngine/classAttrib_1_1Provider.html">Attrib::Provider</a> 
-class. Every attribute is a provider, each can thus be used as input for 
-another attribute.
+<code><pre>int Tut::ThicknessFinder::nextStep()
+{
+    if ( !iter_->next(bid_) )
+        return Executor::Finished;
+
+    const EM::SubID subid = bid_.getSerialized();
+    const float z1 = horizon1_->getPos( horizon1_->sectionID(0), subid ).z;
+    const float z2 = horizon2_->getPos( horizon2_->sectionID(0), subid ).z;
+
+    float val = mUdf(float);
+    if ( !mIsUdf(z1) && !mIsUdf(z2) )
+    {
+        val = fabs( z2 - z1 );
+        if ( SI().zIsTime() ) val *= 1000;
+    }
+
+    posid_.setSubID( subid );
+    horizon1_->auxdata.setAuxDataVal( dataidx_, posid_, val );
+    
+    nrdone_++;
+    return Executor::MoreToDo;
+}</pre></code>
+<p> Please note the difference in the function <code>dataSaver</code> in the two classes. In <code>ThicknessFinder</code>, it saves the auxilary data, whereas in <code>HorSmoothener</code>, it saves the geometry.<p>
+<p>
+<a name=tutattrib><h4>The Tutorial Attribute</h4>
+
+<p> We have seen the direct seismic approach to simple operations on seismic data in <a href=#seistools><code>SeisTools</code></a>. For our purpose, it suits well. But the main problem with this approach is the difficulty in multi-trace handling. Moreover, for large seismic volumes, handling each trace one-by-one may slow down the process. This brings us to another approach called <i>Attributes</i>. In this example, we define the <i>Tutorial</i> attribute to do things once done by <code>SeisTools</code>. As we discuss different aspects of making an attribute, we will also discuss its advantages over the direct seismic approach.<p> 
+
+<p> The main plugin file "tutpi.cc" makes a call to <code>Tutorial::initClass()</code>. The class <code>Tutorial</code> ( tutorialattrib.h ) is defined as a subclass of <a href="Generated/AttributeEngine/classAttrib_1_1Provider.html">Attrib::Provider</a> class. Every attribute is a provider, each can thus be used as input for another attribute.<p>
 
 <p>Some fundamental functions are listed here:</p>
-<a name=cohrw><h5>initClass()</h5>
+<a name=tutinit><h5>initClass()</h5>
 <p> This static function initializes the attribute: sets up the parameters and 
-the number and type of the inputs and outputs. You can compare this to what you see in Opendtect in the attribute definition window after loading the uiCoh 
+the number and type of the inputs and outputs. You can compare this to what you see in Opendtect in the attribute definition window after loading the uiTut 
 plugin.</p>
 
 <p> If you look at the parts of the implementation carefully, 
-( coherencyattrib.cc ) you'll see that each parameter is built up following 
+( tutorialattrib.cc ) you'll see that each parameter is built up following 
 that example: </p>
 
-<pre><code>
-ZGateParam* gate = new ZGateParam( gateStr() );
-gate->setLimits( Interval&lt;float&gt;(-mUndefValue, mUndefValue) );
-gate->setDefaultValue( Interval&lt;float&gt;(-40,40) );
-gate->setRequired(false);
-desc->addParam( gate );
+<pre><code>EnumParam* action = new EnumParam( actionStr() );
+    action->addEnum( "Scale" );
+    action->addEnum( "Square" );
+    action->addEnum( "Smooth" );
+    desc->addParam( action );
 </code></pre>
 
 <p>where xxxParam is the type of the parameter.</p>
-<p>of course the default values and the limits are optional.</p>
 <p>Every parameter is required by default, to overrule this use <code>setRequired(false)"</p>
 
 <p>initClass() also adds the attribute to the attribute factory.
-In this case, as every attribute is a provider, the Coherency attribute is 
+In this case, as every attribute is a provider, the Tutorial attribute is 
 added to PF() (the <a href="Generated/AttributeEngine/classAttrib_1_1ProviderFactory.html"
 >Attrib::ProviderFactory</a> singleton access function).</p>
 
 
-<a name=cohrw><h5>createInstance()</h5>
+<h5>createInstance()</h5>
 <p>This function is standard for every attribute, 
 here is the attribute constructor called.</p>
 
 
-<a name=cohrw><h5>updateDesc()</h5>
+<h5>updateDesc()</h5>
 <p>Will be used not only to update the parameters but also the number and type 
 of the outputs and to add or disable some inputs. If you look at the 
-implementation for the coherency, this function just allows to enable or disable
-the second input ( hidden hilbert transform ) according to the type chosen
+implementation for the tutorial attribute, this function just allows to enable or disable
+the inputs ( factor, shift and smooth ) according to the action chosen
 by the user</p>
 
 
-<a name=cohrw><h5>getInputOutput()</h5>
+<h5>getInputOutput()</h5>
 <p>Here you can specify the outputs you need for calculation among all those 
 provided by your input data; this function is very usefull when you have 
 steering as input data:</p>
 
-<pre><code>
-bool Similarity::getInputOutput( int input, TypeSet &lt; int &gt; &res ) const
-{
-    if ( !dosteer_ || !input ) return Provider::getInputOutput( input, res );
-
-    for ( int idx=0; idx &lt; ttrcpos_.size(); idx++ )
-	res += getSteeringIndex( trcpos_[idx] );
-
-    return true;
-}
-</code></pre>
-
-<p>in this abstract ( taken from the code of similarityattrib.cc ) we just get 
-the indexes of the steering output which are needed as input to compute the similarity at given positions around the central trace. </p>
-
-
-<a name=cohrw><h5>getInputData();</h5>
+<h5>getInputData();</h5>
 <p>Before the work can be done, some input has to be given. This function is the
 place where you specify how to get your input data.
-For the Coherency this is the seismic data and the imaginairy data calculated 
-by the <code>Hilbert</code> attribute. But it can also be Steering Data or any 
-other attribute. let's have a look at the abstract of code below:</p>
+For the Tutorial this is the seismic data. But it can also be Steering Data or any other attribute.</p>
 
-<pre><code>
-const BinID bidstep = inputs[0]->getStepoutStep();
-    if ( type==1 )
-    {
-	while ( inputdata.size() &lt; 3 )
-	    inputdata += 0;
-
-	const DataHolder* datac = inputs[0]->getData( relpos, idx );
-	const DataHolder* datai =
-	   inputs[0]->getData( BinID(relpos.inl+bidstep.inl,relpos.crl), idx );
-	const DataHolder* datax =
-           inputs[0]->getData( BinID(relpos.inl,relpos.crl+bidstep.crl), idx );
-	if ( !datac || !datai || !datax )
-	  return false;
-
-      realidx_ = getDataIndex( 0 );
-      inputdata.replace( 0, datac );
-      inputdata.replace( 1, datai );
-      inputdata.replace( 2, datax );
-    }
-</code></pre>
+<code><pre>bool Tutorial::getInputData( const BinID& relpos, int zintv )
+{
+    inputdata_ = inputs[0]->getData( relpos, zintv );
+    dataidx_ = getDataIndex( 0 );
+    return inputdata_;
+}</pre></code>
 
 <p> You will notice from here that the calculation of the attributes is not done
 on traces but using a different object, the DataHolder. The dataholder contains
@@ -604,7 +605,7 @@ function. If your input requires additional samples (timegate) or neighbouring
 traces (stepout), you will have to define <code>reqZMargin()</code> and 
 <code>reqStepout()</code> respectively. </p>
 
-<a name=cohrw><h5>computeData();</h5>
+<h5>computeData();</h5>
 <p> When we want to look at the actual work, the place to be is the
 <code><b>computeData()</b></code> method. This is the place where you define the
 mathematics for calculating the attribute. This function is called for each 
@@ -624,150 +625,48 @@ named 'z0_' in the corresponding DataHolders.</p>
 <img src="fig_explainz0.png" alt="Explaining Z0">
 </center>
 
-<p>To show what indexes are involved, let's go for an example where we simply
-have one input cube from which we need to take the average of 5 consequent
-samples (2 above and 2 below) and put it in the output.
+<p>Let us have a look at the <code>Tutorial::computeData</code> function and compare it with the code in <code>SeisTools</code>. The algorithm for actual computation is the same in both the cases, but there is a marked difference in the manner in which seismic data is accessed in each case. 
 
-We get the following code:</p>
-<pre><code>
-bool MatchDelta::computeData( const DataHolder& output, const BinID& relpos,
-                              int z0, int nrsamples ) const
+<code><pre>bool Tutorial::computeData( const DataHolder& output, const BinID& relpos,
+                           int z0, int nrsamples, int threadid ) const
 {
-    const ValueSeries<float>* inpseries
-                = inpcubedata_->series( getDataIndex(0) );
-    const int inpoffs = z0 - inpcubedata_->z0_;
-    const int outoffs = z0 - output.z0_;
-    const int lastinpz = inpcubedata_->z0_ + inpcubedata_->nrsamples_ - 1;
-
-    for ( int idx=0; idx &lt; nrsamples; idx++ )
+    for ( int idx=0; idx < nrsamples; idx++ )
     {
-        const int inpz = inpoffs + idx;
-        const int curz = z0 + idx;
-        TypeSet<float> vals;
-        if ( inpcubedata_->z0_ < curz-1 )
-             vals +=inpseries->value( inpz - 2 );
-        if ( inpcubedata_->z0_ < curz )
-             vals += inpseries->value( inpz - 1 );
-        vals += inpseries->value( inpz );
-        if ( lastinpz >= curz )
-             vals += inpseries->value( inpz + 1 );
-        if ( lastinpz >= curz+1 )
-             vals += inpseries->value( inpz + 2 );
+        float outval = 0;
+        if ( action_==0 || action_==1 )
+        {
+            const float trcval = getInputValue( *inputdata_, dataidx_,
+                                                idx, z0 );
+            outval = action_==0 ? trcval * factor_ + shift_ :
+                                        trcval * trcval;
+        }
+        else if (action_==2 )
+        {
+            int sgate = weaksmooth_ ? 3 : 5;
+            int sgate2 = sgate/2;
+            float sum = 0;
+            int count = 0;
+            for ( int isamp=-sgate2; isamp <= sgate2; isamp++ )
+            {
+                const float curval = getInputValue( *inputdata_, dataidx_,
+                                        idx + isamp, z0 );
+                if ( !mIsUdf(curval) )
+                {
+                    sum += curval;
+                    count ++;
+                }
+            }
+            outval = sum / count;
+        }
 
-	const float val = vals.size() ? gtAvg(vals) : mUdf(float);
-        output.series(0)->setValue( outoffs + idx, val );
+        setOutputValue( output, 0, idx, z0, outval );
     }
 
-    return true;
-}</code></pre>
-
-<p>Two new functions are very handy to avoid dealing yourself with all the indexes:<code><b>getInputValue()</b></code> and <code><b>setOutputValue()</b></code>.
-These virtual functions are defined in "attribprovider.h/cc"; using them, the piece of code written above would look like this:</p>
-
-<pre><code>
-bool MatchDelta::computeData( const DataHolder& output, const BinID& relpos,
-                              int z0, int nrsamples ) const
-{
-    const int lastinpz = inpcubedata_->z0_ + inpcubedata_->nrsamples_ - 1;
-
-    for ( int idx=0; idx &lt; nrsamples; idx++ )
-    {
-        const int curz = z0 + idx;
-        TypeSet<float> vals;
-        if ( inpcubedata_->z0_ < curz-1 )
-             vals += getInputValue( *inpcubedata_, getDataIndex(0), idx-2, z0 );
-        if ( inpcubedata_->z0_ < curz )
-             vals += getInputValue( *inpcubedata_, getDataIndex(0), idx-1, z0 );
-        vals += getInputValue( *inpcubedata_, getDataIndex(0), idx, z0 );
-        if ( lastinpz >= curz )
-	     vals += getInputValue( *inpcubedata_, getDataIndex(0), idx+1, z0 );
-        if ( lastinpz >= curz+1 )
-             vals += getInputValue( *inpcubedata_, getDataIndex(0), idx+2, z0 );
-
-        const float val = vals.size() ? gtAvg(vals) : mUdf(float);
-	setOutputValue( output, 0, idx, z0, val );
-    }
-	
     return true;
 }
-</code></pre>
 
-<a name=cohui><h4>The <code>uiCoh</code> plugin</h4>
+</pre></code>
 
-<p> There are special classes for the attribute parameters user
-interfaces. This is because they: </p>
-
-
-<ul>
-<li>have a lot in common
-<li>have to be displayed in the Attribute Set Editor window
-<li>need to be able to do the right things at the right moment
-</ul>
-
-<p>In uicoherencyattrib.h you can see that <code>uiCoherencyAttrib</code>
-inherits from <code>uiAttrDescEd</code> - the base class for all
-attribute parameter UI groups.</p>
-
-<p> The <code>uiAttrDescEd</code> class delivers services to its
-children, but it also sets a couple of requirements:</p>
-
-<ul>
-<li>setParameters (required)
-<li>setInput (required)
-<li>getParameters(required)
-<li>getInput (required)
-<li>setOutput (required if you have more than one possible output)
-<li>getOutput (required if you have more than one possible output)
-<li>getEvalParams (optional)
-</ul>
-
-<p> These methods must be defined by subclasses. To implement these
-methods there are services like fillInp and putInp. </p>
-
-<p> In the uicoherencyattrib.cc file we see that although
-<code>uiAttrDescEd</code> is not a <code>uiDialog</code> like the the
-uiHello example, it still is a valid parent (being a
-<code>uiGroup</code>) for the various UI elements. A nice feature of
-OpendTect is clear from the first line in the constructor: the
-<code>inpfld</code> is a special Attribute UI class which is handled
-just like any pre-defined uiBase or <code>uiTools</code> class. This
-illustrates that in the OpendTect GUI system, not only pre-made GUI
-elements are 'first class' - new objects with different shape and
-behavior attached will be usable transparently by any other GUI class.
-</p>
-
-<p> Further on the specific uiAttrdescEd methods, we take the example
-of <code>uiCoherencyAttrib::setParameters</code>. Here we get access to the 
-<code>desc</code> that is currently being edited. 
-In this case, the attribute set editor wants us to take the values from the 
-desc and put them on the screen. 
-Thus, we have to check whether there is something in the first place (macro
-<code>mIfGetxxx</code>, where xxx stands for the type of the parameter), and if
-so, put the value into the corresponding UI element. For inputs to this 
-attribute (input cubes or other attributes), there is a special <code>setInput()</code> method.</p>
-
-<p> The <code>getParameters</code> method's implementation
-follows similar patterns. Here we read the values from the screen and put them into the desc. Underneath we make use of the change tracker
-to update the pars - this allows the set editor to figure out whether
-the attribute set was changed (and subsequently warn the user when no
-save has beeen done). In the same way the input and output are handled by <code>getInput()</code> and <code>getOutput()</code> respectively.</p>
-
-<p>A special function is <code>getEvalParams</code>. In this function, the user can add parameters to the given set of <code>EvalParam</code>'s.
-When added, the set editor knows that attribute evaluations can be done with this parameter. In this case, the user can evaluate the effect of time gate differences by using the special button. </p>
-
-<p> The funny thing is that uicoherencyattrib.cc stops without 'doing' anything.
-That's because the attribute set editor object is 'doing' everything.
-Some people will want to call this an example of the <i>Hollywood
-principle</i> - 'Don't call us - we'll call you'. </p>
-
-<p> Anyway, lastly, the uicohpi.cc is dead simple. It's a LATE plugin
-because you'd want the rest of the UI already in place. The only
-interesting part is the part where the new <code>AttrDescEd</code> is
-added to the <code>uiAttribFactory</code>. 
-
-<hr>
-<b>That was the old Coherency stuff, all the way up to <a href=#coh>here</a></b>
-<br><br>
 
 <br>
 <a name=autoload><h2>Installation and auto-loading</h2>
@@ -785,7 +684,7 @@ by implementing the GetxxxxPluginType() function, for example: </p>
 <p><pre><code>
 #include "plugins.h"
 
-extern "C" int GetCohPluginType()
+extern "C" int GetTutPluginType()
 {
     return PI_AUTO_INIT_EARLY;
 }
