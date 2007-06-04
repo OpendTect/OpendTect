@@ -130,9 +130,9 @@ void uiTutHorTools::saveData(bool geom)
 {
     PtrMan<Executor> exec;
     if ( geom )
-	exec = smoothnr_->saveData( outctio_.ioobj->key() );
+	exec = smoothnr_->dataSaver( outctio_.ioobj->key() );
     else
-	exec = thickcalc_->saveData();
+	exec = thickcalc_->dataSaver();
 
     uiExecutor dlg( this, *exec );
     dlg.go();
