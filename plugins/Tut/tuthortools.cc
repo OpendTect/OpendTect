@@ -88,7 +88,7 @@ int Tut::ThicknessFinder::nextStep()
 }
 
 
-Executor* Tut::ThicknessFinder::saveData()
+Executor* Tut::ThicknessFinder::dataSaver()
 {
     return horizon1_->auxdata.auxDataSaver();
 }
@@ -135,7 +135,7 @@ int Tut::HorSmoothener::nextStep()
 }
 
 
-Executor* Tut::HorSmoothener::saveData( const MultiID& id )
+Executor* Tut::HorSmoothener::dataSaver( const MultiID& id )
 {
     return horizon1_->geometry().saver( 0, &id );
 }

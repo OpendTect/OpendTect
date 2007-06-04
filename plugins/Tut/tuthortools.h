@@ -66,7 +66,7 @@ public:
 			{}
 
     int			nextStep();
-    Executor*		saveData();
+    Executor*		dataSaver();
     void		init(const char*);
 
 protected:
@@ -84,7 +84,7 @@ public:
 			{}
 
     int			nextStep();
-    Executor*		saveData(const MultiID&);
+    Executor*		dataSaver(const MultiID&);
 protected:
 
     EM::SubID		subid_;
