@@ -4,7 +4,7 @@
  * DATE     : 3-8-1994
 -*/
 
-static const char* rcsID = "$Id: ioman.cc,v 1.77 2007-02-13 13:19:37 cvsjaap Exp $";
+static const char* rcsID = "$Id: ioman.cc,v 1.78 2007-06-05 08:35:06 cvsbert Exp $";
 
 #include "ioman.h"
 #include "iodir.h"
@@ -812,19 +812,26 @@ bool SurveyDataTreePreparer::createDataTree()
 {
     FilePath fp( IOM().dirPtr()->dirName() );
     fp.add( dirdata_.dirname_ );
-    const BufferString mydirnm( fp.fullPath() );
-    if ( File_exists(mydirnm) )
-	// the physical directory is there, maybe the parent entry isn't created
-	return true;
-
-    if ( !File_createDir(mydirnm,0) )
-	mErrRet( "Cannot create '", dirdata_.dirname_, "' directory in survey");
+    const BufferString thedirnm( fp.fullPath() );
+    bool dircreated = false;
+    if ( !File_exists(thedirnm) )
+    {
+	if ( !File_createDir(thedirnm,0) )
+	    mErrRet( "Cannot create '", dirdata_.dirname_,
+		     "' directory in survey");
+	dircreated = true;
+    }
 
     fp.add( ".omf" );
+    const BufferString omffnm( fp.fullPath() );
+    if ( File_exists(omffnm) )
+	return true;
+
     StreamData sd = StreamProvider( fp.fullPath() ).makeOStream();
     if ( !sd.usable() )
     {
-	File_remove( mydirnm, YES );
+	if ( dircreated )
+	    File_remove( thedirnm, YES );
 	mErrRet( "Could not create '.omf' file in ", dirdata_.dirname_,
 		 " directory" );
     }
