@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrdescseted.cc,v 1.52 2007-06-06 09:32:09 cvsnanne Exp $
+ RCS:           $Id: uiattrdescseted.cc,v 1.53 2007-06-06 09:58:56 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -801,7 +801,8 @@ void uiAttribDescSetEd::defaultSet( CallBacker* )
     uiSelectFromList::Setup setup( "Default Attribute Sets", attribnames );
     setup.dlgtitle( "Select attribute set" );
     uiSelectFromList dlg( this, setup );
-    dlg.selFld()->setHSzPol( uiObject::Wide );
+    if ( dlg.selFld() )
+	dlg.selFld()->setHSzPol( uiObject::Wide );
     if ( !dlg.go() ) return;
 
     const int selitm = dlg.selection();
