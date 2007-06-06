@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.cc,v 1.53 2007-03-22 13:19:47 cvsdgb Exp $
+ RCS:           $Id: uitable.cc,v 1.54 2007-06-06 07:52:53 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -271,6 +271,7 @@ void uiTable::update( bool row, int rc )
     int c = row ? 0 : rc;
 
     setCurrentCell( RowCol(r,c) );
+    updateCellSizes();
 }
 
 
@@ -859,7 +860,10 @@ void uiTable::clearTable()
 {
     for ( int row = 0 ; row < nrRows() ; row++ )
 	for ( int col = 0 ; col < nrCols() ; col++ )
+	{
 	    clearCell( RowCol(row,col) );
+	    clearCellObject( RowCol(row,col) );
+	}
 }
 
 
