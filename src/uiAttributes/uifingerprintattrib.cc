@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Payraudeau
  Date:          February  2006
- RCS:           $Id: uifingerprintattrib.cc,v 1.34 2007-05-31 11:18:52 cvsnanne Exp $
+ RCS:           $Id: uifingerprintattrib.cc,v 1.35 2007-06-06 07:51:18 cvsnanne Exp $
 
 ________________________________________________________________________
 
@@ -314,6 +314,8 @@ bool uiFingerPrintAttrib::setParameters( const Desc& desc )
     table_->clearTable();
     while ( nrvals > table_->nrRows() )
 	table_->insertRows( 0, 1 );
+    while ( nrvals < table_->nrRows() )
+	table_->removeRow( 0 );
     initTable( nrvals );
 
     if ( desc.getParam( FingerPrint::rangeStr() ) )
