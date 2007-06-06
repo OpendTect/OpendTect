@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2005
- RCS:           $Id: treeitem.cc,v 1.21 2007-04-26 06:36:58 cvsnanne Exp $
+ RCS:           $Id: treeitem.cc,v 1.22 2007-06-06 05:58:22 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -888,6 +888,7 @@ void ArrowSubItem::handleMenuCB( CallBacker* cb )
 
 	arrowtype_ = dlg.getArrowType();
 	defscale_ *= dlg.getScale();
+	updateColumnText( 1 );
     }
 }
 
