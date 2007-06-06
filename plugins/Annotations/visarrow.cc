@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Jan 2005
- RCS:           $Id: visarrow.cc,v 1.8 2007-03-29 22:16:30 cvskris Exp $
+ RCS:           $Id: visarrow.cc,v 1.9 2007-06-06 05:56:57 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,7 +37,7 @@ ArrowDisplay::~ArrowDisplay()
     linestyle_->unRef();
 
     if ( scene_ )
-	scene_->zscalechange.notify(mCB(this,ArrowDisplay,zScaleCB));
+	scene_->zscalechange.remove( mCB(this,ArrowDisplay,zScaleCB) );
 }
 
 
@@ -57,11 +57,11 @@ void ArrowDisplay::setType( Type typ )
 void ArrowDisplay::setScene( visSurvey::Scene* ns )
 {
     if ( scene_ )
-	scene_->zscalechange.remove(mCB(this,ArrowDisplay,zScaleCB));
+	scene_->zscalechange.remove( mCB(this,ArrowDisplay,zScaleCB) );
     visSurvey::SurveyObject::setScene( ns );
 
     if ( scene_ )
-	scene_->zscalechange.notify(mCB(this,ArrowDisplay,zScaleCB));
+	scene_->zscalechange.notify( mCB(this,ArrowDisplay,zScaleCB) );
 }
 
 
