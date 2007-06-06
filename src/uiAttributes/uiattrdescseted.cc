@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrdescseted.cc,v 1.51 2007-05-29 07:20:16 cvsnanne Exp $
+ RCS:           $Id: uiattrdescseted.cc,v 1.52 2007-06-06 09:32:09 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -767,6 +767,7 @@ void uiAttribDescSetEd::defaultSet( CallBacker* )
 {
     if ( !offerSetSave() ) return;
 
+    const bool is2d = adsman ? adsman->is2D() : attrset->is2D();
     const char* ptr = GetDataFileName(0);
     DirList attrdl( ptr, DirList::DirsOnly, "*Attribs" );
 
@@ -778,18 +779,21 @@ void uiAttribDescSetEd::defaultSet( CallBacker* )
 	fp.add( attrdl[idx]->buf() ).add( "index" );
 	IOPar iopar("AttributeSet Table");
 	iopar.read( fp.fullPath(), sKey::Pars, false );
-	for ( int idy=0; idy<iopar.size(); idy++ )
+	PtrMan<IOPar> subpar = iopar.subselect( is2d ? "2D" : "3D" );
+	if ( !subpar ) continue;
+
+	for ( int idy=0; idy<subpar->size(); idy++ )
 	{
-	    BufferString attrfnm = iopar.getKey(idy);
+	    BufferString attrfnm = subpar->getValue( idy );
 	    if ( !FilePath(attrfnm).isAbsolute() )
 	    {
-		fp.setFileName(attrfnm);
+		fp.setFileName( attrfnm );
 		attrfnm = fp.fullPath();
 	    }
 
 	    if ( !File_exists(attrfnm) ) continue;
 		
-	    attribnames.add( iopar.getValue(idy) );
+	    attribnames.add( subpar->getKey(idy) );
 	    attribfiles.add( attrfnm );
 	}
     }
@@ -797,6 +801,7 @@ void uiAttribDescSetEd::defaultSet( CallBacker* )
     uiSelectFromList::Setup setup( "Default Attribute Sets", attribnames );
     setup.dlgtitle( "Select attribute set" );
     uiSelectFromList dlg( this, setup );
+    dlg.selFld()->setHSzPol( uiObject::Wide );
     if ( !dlg.go() ) return;
 
     const int selitm = dlg.selection();
