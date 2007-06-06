@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Payraudeau
  Date:          February  2006
- RCS:           $Id: uifingerprintattrib.cc,v 1.35 2007-06-06 07:51:18 cvsnanne Exp $
+ RCS:           $Id: uifingerprintattrib.cc,v 1.36 2007-06-06 08:19:59 cvshelene Exp $
 
 ________________________________________________________________________
 
@@ -382,7 +382,8 @@ bool uiFingerPrintAttrib::getParameters( Desc& desc )
 	mSetFloat( FingerPrint::refposzStr(), refposzfld_->getfValue() );
 	if ( is2d_ )
 	{
-	    mSetInt( FingerPrint::refposStr(), refpos2dfld_->getIntValue() );
+	    mSetBinID( FingerPrint::refposStr(), 
+		    		BinID( 0,refpos2dfld_->getIntValue() ) );
 	    mSetString( FingerPrint::reflinesetStr(), lsid_ )
 	    mSetString( FingerPrint::ref2dlineStr(), linefld_->box()->text() )
 	}
