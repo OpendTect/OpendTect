@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribdesc.h,v 1.39 2007-05-10 07:39:09 cvshelene Exp $
+ RCS:           $Id: attribdesc.h,v 1.40 2007-06-06 08:17:51 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -152,6 +152,7 @@ public:
     void			addOutputDataType(Seis::DataType);
     void			setNrOutputs(Seis::DataType,int);
     void			addOutputDataTypeSameAs(int);
+    void			changeOutputDataType(int,Seis::DataType);
 
     static bool			getAttribName(const char* defstr,BufferString&);
     static bool			getParamString(const char* defstr,

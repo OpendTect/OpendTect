@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribdesc.cc,v 1.55 2007-05-30 10:54:20 cvshelene Exp $";
+static const char* rcsID = "$Id: attribdesc.cc,v 1.56 2007-06-06 08:17:51 cvshelene Exp $";
 
 #include "attribdesc.h"
 
@@ -514,6 +514,13 @@ void Desc::addOutputDataTypeSameAs( int input )
 {
     outputtypes_ += Seis::UnknowData;
     outputtypelinks_ += input;
+}
+
+
+void Desc::changeOutputDataType( int input, Seis::DataType ndt )
+{
+    if ( outputtypes_.size()<=input || input<0 ) return;
+    outputtypes_[input] = ndt;
 }
 	
 
