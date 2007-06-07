@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          November 2001
- RCS:           $Id: uisettings.cc,v 1.24 2007-05-07 05:50:30 cvsnanne Exp $
+ RCS:           $Id: uisettings.cc,v 1.25 2007-06-07 15:21:55 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -90,12 +90,14 @@ struct LooknFeelSettings
 		    : iconsz(24)
 		    , isvert(true)
 		    , isontop(false)
-		    , noshading(false)		{}
+		    , noshading(false)	
+		    , volrenshading(false)		{}
 
     int		iconsz;
     bool	isvert;
     bool	isontop;
     bool	noshading;
+    bool	volrenshading;
 };
 
 
@@ -132,8 +134,15 @@ uiLooknFeelSettings::uiLooknFeelSettings( uiParent* p, const char* nm )
     useshadingfld = new uiGenInput( this, "Use OpenGL shading when available",
 				    BoolInpSpec(!lfsetts.noshading) );
     useshadingfld->attach( alignedBelow, colbarontopfld );
+    useshadingfld->valuechanged.notify(
+	    		mCB(this,uiLooknFeelSettings,shadingChange) );
+    setts.getYN( "dTect.Use VolRen shading", lfsetts.volrenshading );
+    volrenshadingfld = new uiGenInput( this, "Also for volume rendering?",
+				    BoolInpSpec(lfsetts.volrenshading) );
+    volrenshadingfld->attach( alignedBelow, useshadingfld );
 
     ctOrientChange(0);
+    shadingChange(0);
 }
 
 uiLooknFeelSettings::~uiLooknFeelSettings()
@@ -145,6 +154,12 @@ uiLooknFeelSettings::~uiLooknFeelSettings()
 void uiLooknFeelSettings::ctOrientChange( CallBacker* )
 {
     colbarontopfld->display( colbarhvfld->getBoolValue() );
+}
+
+
+void uiLooknFeelSettings::shadingChange( CallBacker* )
+{
+    volrenshadingfld->display( useshadingfld->getBoolValue() );
 }
 
 
@@ -191,6 +206,16 @@ bool uiLooknFeelSettings::acceptOK( CallBacker* )
     {
 	changed = true;
 	setts.setYN( "dTect.No shading", newnoshading );
+    }
+
+    bool newvolrenshading = !newnoshading;
+    if ( newvolrenshading )
+	newvolrenshading = volrenshadingfld->getBoolValue();
+
+    if ( lfsetts.volrenshading != newvolrenshading )
+    {
+	changed = true;
+	setts.setYN( "dTect.Use VolRen shading", newvolrenshading );
     }
 
     if ( changed && !setts.write() )
