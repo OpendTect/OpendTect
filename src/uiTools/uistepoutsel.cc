@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uistepoutsel.cc,v 1.7 2007-05-29 07:53:59 cvshelene Exp $";
+static const char* rcsID = "$Id: uistepoutsel.cc,v 1.8 2007-06-07 09:07:42 cvsraman Exp $";
 
 #include "uistepoutsel.h"
 #include "uispinbox.h"
@@ -104,6 +104,14 @@ void uiStepOutSel::setBinID( const BinID& bid )
 	{ setVal(true,bid.inl); setVal(false,bid.crl); }
     else
 	setVal(true,bid.crl);
+}
+
+
+void uiStepOutSel::setInterval( StepInterval<int> inlrg, 
+				StepInterval<int> crlrg )
+{
+    fld1->setInterval( inlrg );
+    if ( dir2Active() ) fld2->setInterval( crlrg );
 }
 
 
