@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uisteeringsel.h,v 1.9 2007-03-08 12:45:19 cvshelene Exp $
+ RCS:           $Id: uisteeringsel.h,v 1.10 2007-06-07 05:29:22 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -60,7 +60,8 @@ class uiSteeringSel : public uiGroup
 {
 public:
 				uiSteeringSel(uiParent*,
-					      const Attrib::DescSet*,bool);
+					      const Attrib::DescSet*,bool is2d,
+					      bool withconstdir=true);
 				~uiSteeringSel();
 
     Attrib::DescID		descID();
