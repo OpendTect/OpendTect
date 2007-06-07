@@ -2,7 +2,7 @@
 # Puts the header file dependencies for a module into a file '.deps'
 # Author: Bert, May 2007
 #
-# $Id: gendeps.pl,v 1.5 2007-06-07 19:24:44 cvsbert Exp $
+# $Id: gendeps.pl,v 1.6 2007-06-07 19:30:30 cvsbert Exp $
 #______________________________________________________________________________
 
 
@@ -140,7 +140,7 @@ sub setDefaults
     $dbglvl = 0;
     $cpp = "$ENV{'GNUCC'}";
     $cpp = "gcc" if ( "$cpp" eq "" );
-    $cppflags = "-D$ENV{'HDIR'} -MM";
+    $cppflags = "-D$ENV{'HDIR'} D$ENV{'PLFSUBDIR'} -MM";
     $outfile = ".deps";
 }
 
@@ -204,11 +204,6 @@ sub getNoDeps
 	@nodepdirs = (@nodepdirs, $_);
     }
     close NODEP;
-}
-
-
-sub printInitialVars
-{
 }
 
 
