@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: uisteeringsel.cc,v 1.22 2007-03-08 12:45:19 cvshelene Exp $
+ RCS:           $Id: uisteeringsel.cc,v 1.23 2007-06-07 05:27:51 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,7 +38,7 @@ using namespace Attrib;
 IOPar& uiSteeringSel::inpselhist = *new IOPar( "Steering selection history" );
 
 uiSteeringSel::uiSteeringSel( uiParent* p, const Attrib::DescSet* ads, 
-			      bool is2d )
+			      bool is2d, bool withconstdir)
     : uiGroup(p,"Steering selection")
     , ctio_(*mMkCtxtIOObj(SeisTrc))
     , descset_(ads)
@@ -57,8 +57,11 @@ uiSteeringSel::uiSteeringSel( uiParent* p, const Attrib::DescSet* ads,
 	return;
     }
 
-    static const char* steertyps[] = { "None", "Central", "Full",
-				       "Constant direction", 0 };
+    BufferStringSet steertyps;
+    steertyps.add ( "None" );
+    steertyps.add ( "Central" );
+    steertyps.add ( "Full" );
+    if ( withconstdir ) steertyps.add ( "Constant direction" );
     typfld = new uiGenInput( this, "Steering", StringListInpSpec(steertyps) );
     typfld->valuechanged.notify( mCB(this,uiSteeringSel,typeSel));
 
