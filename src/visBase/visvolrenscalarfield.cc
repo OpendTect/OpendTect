@@ -4,7 +4,7 @@
  * DATE     : April 2004
 -*/
 
-static const char* rcsID = "$Id: visvolrenscalarfield.cc,v 1.8 2007-05-30 16:08:24 cvskris Exp $";
+static const char* rcsID = "$Id: visvolrenscalarfield.cc,v 1.9 2007-06-07 15:22:27 cvsbert Exp $";
 
 #include "visvolrenscalarfield.h"
 
@@ -16,6 +16,7 @@ static const char* rcsID = "$Id: visvolrenscalarfield.cc,v 1.8 2007-05-30 16:08:
 #include "viscolortab.h"
 #include "visdataman.h"
 #include "viscolortabindexer.h"
+#include "settings.h"
 
 #undef YES
 #undef NO
@@ -56,6 +57,10 @@ VolumeRenderScalarField::VolumeRenderScalarField()
     root_->ref();
     setColorTab( *VisColorTab::create() );
     turnOn( true );
+
+    useshading_ = Settings::common().isTrue( "dTect.Use VolRen shading" );
+    if ( !useshading_ )
+	SetEnvVar( "CVR_DISABLE_PALETTED_FRAGPROG", "1" );
 }
 
 
@@ -228,10 +233,7 @@ SoNode* VolumeRenderScalarField::getInventorNode()
 {
     if ( !voldata_ )
     {
-	BufferString val = useshading_ ? 0 : 1;
-	SetEnvVar("CVR_DISABLE_PALETTED_FRAGPROG", val.buf() );
-
-	voldata_ =  new SoVolumeData;
+	voldata_ = new SoVolumeData;
 	root_->addChild( voldata_ );
 
 	voldata_->setVolumeData( SbVec3s(1,1,1),
