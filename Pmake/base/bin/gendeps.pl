@@ -1,19 +1,10 @@
 #_Pmake________________________________________________________________________
-# Puts the header file for a module into a file '.deps'
+# Puts the header file dependencies for a module into a file '.deps'
 # Author: Bert, May 2007
 #
-# $Id: gendeps.pl,v 1.4 2007-05-16 14:43:53 cvsbert Exp $
+# $Id: gendeps.pl,v 1.5 2007-06-07 19:24:44 cvsbert Exp $
 #______________________________________________________________________________
 
-# global $cpp;
-# global $dbglvl;
-# global $outfile;
-# global $srcfiles;
-# global $cppflags;
-# global @deps;
-# global @ipathnames;
-# global @idirectives;
-# global @gendepcmdstart;
 
 do go();
 
