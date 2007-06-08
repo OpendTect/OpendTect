@@ -5,7 +5,7 @@
  * DATE     : Mar 2007
 -*/
 
-static const char* rcsID = "$Id: uitutseistools.cc,v 1.8 2007-05-21 11:39:18 cvsbert Exp $";
+static const char* rcsID = "$Id: uitutseistools.cc,v 1.9 2007-06-08 06:19:16 cvsraman Exp $";
 
 #include "uitutseistools.h"
 #include "tutseistools.h"
@@ -24,7 +24,7 @@ static const char* actions[] = { "Scale", "Square", "Smooth", 0 };
 uiTutSeisTools::uiTutSeisTools( uiParent* p )
 	: uiDialog( p, Setup( "Tut seismic tools",
 			      "Specify process parameters",
-			      "0.0.0") )
+			      "tut:105.0.1") )
     	, inctio_(*mMkCtxtIOObj(SeisTrc))
     	, outctio_(*mMkCtxtIOObj(SeisTrc))
     	, tst_(*new Tut::SeisTools)
