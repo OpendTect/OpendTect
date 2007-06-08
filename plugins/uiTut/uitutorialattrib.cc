@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        R. K. Singh
  Date:          May 2007
- RCS:           $Id: uitutorialattrib.cc,v 1.2 2007-06-08 06:20:01 cvsraman Exp $
+ RCS:           $Id: uitutorialattrib.cc,v 1.3 2007-06-08 06:41:35 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -52,7 +52,7 @@ uiTutorialAttrib::uiTutorialAttrib( uiParent* p, bool is2d )
     smoothdirfld_->valuechanged.notify( mCB(this,uiTutorialAttrib,actionSel) );
     smoothdirfld_->attach( alignedBelow, actionfld_ );
 
-    smoothstrengthfld_ = new uiGenInput( this, "Smoothening strength",
+    smoothstrengthfld_ = new uiGenInput( this, "Filter strength",
                                 BoolInpSpec(true,"Low","High") );
     smoothstrengthfld_->attach( alignedBelow, smoothdirfld_ );
 
