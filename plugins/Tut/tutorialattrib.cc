@@ -5,7 +5,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        R. K. Singh
  Date:          May 2007
- RCS:           $Id: tutorialattrib.cc,v 1.2 2007-06-08 06:16:34 cvsraman Exp $
+ RCS:           $Id: tutorialattrib.cc,v 1.3 2007-06-08 11:55:35 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -154,11 +154,12 @@ bool Tutorial::getInputData( const BinID& relpos, int zintv )
 	while ( inpdata_.size() < maxlength * maxlength )
 	    inpdata_ += 0;
     
+	const BinID bidstep = inputs[0]->getStepoutStep();
 	for ( int idx=0; idx<posandsteeridx_.steeridx_.size(); idx++ )
 	{
 	    if ( posandsteeridx_.steeridx_[idx] == 0 ) continue;
-	    const DataHolder* data = 
-		inputs[0]->getData( relpos + posandsteeridx_.pos_[idx] );
+	    const BinID inpos = relpos + bidstep * posandsteeridx_.pos_[idx];
+	    const DataHolder* data = inputs[0]->getData( inpos );
 	    if ( !data ) continue;
 	    inpdata_.replace( posandsteeridx_.steeridx_[idx], data);
 	}
