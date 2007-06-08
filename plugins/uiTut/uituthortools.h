@@ -4,7 +4,7 @@
  * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : R.K. Singh
  * DATE     : Mar 2007
- * ID       : $Id: uituthortools.h,v 1.2 2007-05-30 07:11:26 cvsraman Exp $
+ * ID       : $Id: uituthortools.h,v 1.3 2007-06-08 06:18:32 cvsraman Exp $
 -*/
 
 #include "uidialog.h"
@@ -44,6 +44,7 @@ protected:
     uiIOObjSel*         inpfld2_;
     uiGenInput*		selfld_;
     uiIOObjSel*		outfld_;
+    uiGenInput*		smoothfld_;
     uiGenInput*		attribnamefld_;
 
     void		choiceSel( CallBacker* );

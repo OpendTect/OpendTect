@@ -19,7 +19,7 @@ static const char* rcsID = "$ $";
 uiTutHorTools::uiTutHorTools( uiParent* p )
 	: uiDialog( p, Setup( "Tut Horizon tools",
 			      "Specify process parameters",
-			      "0.0.0") )
+			      "tut:105.0.2") )
     	, inctio_(*mMkCtxtIOObj(EMHorizon3D))
 	, inctio2_(*mMkCtxtIOObj(EMHorizon3D))
     	, outctio_(*mMkCtxtIOObj(EMHorizon3D))
@@ -37,6 +37,10 @@ uiTutHorTools::uiTutHorTools( uiParent* p )
     outctio_.ctxt.forread = false;
     outfld_ = new uiIOObjSel( this, outctio_, "Output Horizon" );
     outfld_->attach( alignedBelow, inpfld_ );
+
+    smoothfld_ = new uiGenInput( this, "Filter Strength",
+	    		BoolInpSpec(true, "Low", "High") );
+    smoothfld_->attach( alignedBelow, outfld_ );
 
     inpfld2_ = new uiIOObjSel( this, inctio2_, "Input Bottom Horizon" );
     inpfld2_->attach( alignedBelow, inpfld_ );
@@ -71,6 +75,7 @@ void uiTutHorTools::choiceSel( CallBacker* )
     inpfld2_->display( !mono );
     attribnamefld_->display( !mono );
     outfld_->display( mono );
+    smoothfld_->display( mono );
 }
 
 
@@ -99,6 +104,7 @@ bool uiTutHorTools::initHorSmoothener()
     if ( !hor )
 	return false;
     smoothnr_->setHorizons( hor );
+    smoothnr_->setWeaksmooth( smoothfld_->getBoolValue() ); 
     return true;
 }
 
