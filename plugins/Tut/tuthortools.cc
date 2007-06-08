@@ -6,7 +6,7 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: tuthortools.cc,v 1.4 2007-06-04 12:13:55 cvsraman Exp $";
+static const char* rcsID = "$Id: tuthortools.cc,v 1.5 2007-06-08 06:15:27 cvsraman Exp $";
 
 #include "tuthortools.h"
 #include "ioobj.h"
@@ -105,11 +105,11 @@ int Tut::HorSmoothener::nextStep()
     int inl = bid_.r(); int crl = bid_.c();
     float sum = 0;
     int count = 0;
-    for ( int idx=-1; idx<2; idx++ )
+    const int rad = weaksmooth_ ? 1 : 2;
+    for ( int idx=-rad; idx<=rad; idx++ )
     {
-	for ( int cdx=-1; cdx<2; cdx++ )
+	for ( int cdx=-rad; cdx<=rad; cdx++ )
 	{
-	    if ( idx && cdx ) continue;
 	    BinID binid = BinID( inl + idx * hs_.step.r(),
 		    		 crl + cdx * hs_.step.c() );
 	    if ( hs_.includes( binid ) )

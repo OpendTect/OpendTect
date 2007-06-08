@@ -5,7 +5,7 @@
  * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : R.K. Singh
  * DATE     : May 2007
- * ID       : $Id: tuthortools.h,v 1.4 2007-06-04 12:13:55 cvsraman Exp $
+ * ID       : $Id: tuthortools.h,v 1.5 2007-06-08 06:15:27 cvsraman Exp $
 -*/
 
 #include "executor.h"
@@ -84,10 +84,12 @@ public:
 			{}
 
     int			nextStep();
+    void		setWeaksmooth(bool weak)	{ weaksmooth_ = weak; }
     Executor*		dataSaver(const MultiID&);
 protected:
 
     EM::SubID		subid_;
+    bool		weaksmooth_;
 };
 
 
