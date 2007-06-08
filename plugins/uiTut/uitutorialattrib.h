@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        R. K. Singh
  Date:          May 2007
- RCS:           $Id: uitutorialattrib.h,v 1.1 2007-06-01 06:35:30 cvsraman Exp $
+ RCS:           $Id: uitutorialattrib.h,v 1.2 2007-06-08 06:20:01 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,8 @@ ________________________________________________________________________
 namespace Attrib { class Desc; }
 class uiAttrSel;
 class uiGenInput;
+class uiSteeringSel;
+class uiStepOutSel;
 
 
 class uiTutorialAttrib : public uiAttrDescEd
@@ -31,7 +33,10 @@ protected:
     uiGenInput*		actionfld_;
     uiGenInput*		factorfld_;
     uiGenInput*		shiftfld_;
-    uiGenInput*		smoothszfld_;
+    uiGenInput*		smoothstrengthfld_;
+    uiGenInput*         smoothdirfld_;
+    uiSteeringSel*      steerfld_;
+    uiStepOutSel*       stepoutfld_;
 
 
     void		actionSel(CallBacker*);

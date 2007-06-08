@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        R. K. Singh
  Date:          May 2007
- RCS:           $Id: uitutorialattrib.cc,v 1.1 2007-06-01 06:35:45 cvsraman Exp $
+ RCS:           $Id: uitutorialattrib.cc,v 1.2 2007-06-08 06:20:01 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,6 +19,8 @@ ________________________________________________________________________
 #include "uiattribfactory.h"
 #include "uiattrsel.h"
 #include "uigeninput.h"
+#include "uisteeringsel.h"
+#include "uistepoutsel.h"
 
 using namespace Attrib;
 
@@ -45,9 +47,22 @@ uiTutorialAttrib::uiTutorialAttrib( uiParent* p, bool is2d )
     actionfld_->valuechanged.notify( mCB(this,uiTutorialAttrib,actionSel) );
     actionfld_->attach( alignedBelow, inpfld_ );
 
-    smoothszfld_ = new uiGenInput( this, "Filter strength",
-	                        BoolInpSpec(true,"Low","High") );
-    smoothszfld_->attach( alignedBelow, actionfld_ );
+    smoothdirfld_ = new uiGenInput( this, "Smoothening direction",
+	                        BoolInpSpec(true,"Horizontal","Vertical") );
+    smoothdirfld_->valuechanged.notify( mCB(this,uiTutorialAttrib,actionSel) );
+    smoothdirfld_->attach( alignedBelow, actionfld_ );
+
+    smoothstrengthfld_ = new uiGenInput( this, "Smoothening strength",
+                                BoolInpSpec(true,"Low","High") );
+    smoothstrengthfld_->attach( alignedBelow, smoothdirfld_ );
+
+    steerfld_ = new uiSteeringSel( this, 0, is2d, false );
+    steerfld_->attach( alignedBelow, smoothdirfld_ );
+
+    stepoutfld_ = new uiStepOutSel( this, is2d );
+    const StepInterval<int> intv( 0, 10, 1 );
+    stepoutfld_->setInterval( intv, intv );
+    stepoutfld_->attach( alignedBelow, steerfld_ );
 
     factorfld_ = new uiGenInput( this, "Factor", FloatInpSpec() );
     factorfld_->attach( alignedBelow, actionfld_ );
@@ -64,10 +79,14 @@ uiTutorialAttrib::uiTutorialAttrib( uiParent* p, bool is2d )
 void uiTutorialAttrib::actionSel( CallBacker* )
 {
     const int actval = actionfld_->getIntValue();
+    const bool horsmooth = smoothdirfld_->getBoolValue();
 
     factorfld_->display( actval==0 );
     shiftfld_->display( actval==0 );
-    smoothszfld_->display( actval==2 );
+    smoothdirfld_->display( actval==2 );
+    steerfld_->display( actval==2 && horsmooth );
+    stepoutfld_->display( actval==2 && horsmooth );
+    smoothstrengthfld_->display( actval==2 && !horsmooth );
 }
 
 
@@ -80,8 +99,14 @@ bool uiTutorialAttrib::setParameters( const Desc& desc )
 	        actionfld_->setValue(action) );
     mIfGetFloat( Tutorial::factorStr(), factor, factorfld_->setValue(factor) );
     mIfGetFloat( Tutorial::shiftStr(), shift, shiftfld_->setValue(shift) );
-    mIfGetBool( Tutorial::smoothStr(), smooth, smoothszfld_->setValue(smooth) );
+    mIfGetBool( Tutorial::horsmoothStr(), horsmooth, 
+	    	smoothdirfld_->setValue(horsmooth) );
+    mIfGetBool( Tutorial::weaksmoothStr(), weaksmooth,
+                smoothstrengthfld_->setValue(weaksmooth) );
+    mIfGetBinID( Tutorial::stepoutStr(), stepout,
+                stepoutfld_->setBinID(stepout) );
     actionSel(0);
+
     return true;
 }
 
@@ -89,6 +114,7 @@ bool uiTutorialAttrib::setParameters( const Desc& desc )
 bool uiTutorialAttrib::setInput( const Desc& desc )
 {
     putInp( inpfld_, desc, 0 );
+    putInp( steerfld_, desc, 1 );
     return true;
 }
 
@@ -101,7 +127,13 @@ bool uiTutorialAttrib::getParameters( Desc& desc )
     mSetEnum( Tutorial::actionStr(), actionfld_->getIntValue() );
     mSetFloat( Tutorial::factorStr(), factorfld_->getfValue() );
     mSetFloat( Tutorial::shiftStr(), shiftfld_->getfValue() );
-    mSetBool( Tutorial::smoothStr(), smoothszfld_->getBoolValue() );
+    mSetBool( Tutorial::horsmoothStr(), smoothdirfld_->getBoolValue() );
+    BinID stepout( stepoutfld_->getBinID() );
+    if ( stepout == BinID(0,0) )
+	stepout.inl = stepout.crl = mUdf(int);
+    mSetBinID( Tutorial::stepoutStr(), stepout );
+    mSetBool( Tutorial::weaksmoothStr(), smoothstrengthfld_->getBoolValue() );
+    mSetBool( Tutorial::steeringStr(), steerfld_->willSteer() );
 
     return true;
 }
@@ -110,6 +142,7 @@ bool uiTutorialAttrib::getParameters( Desc& desc )
 bool uiTutorialAttrib::getInput( Desc& desc )
 {
     fillInp( inpfld_, desc, 0 );
+    fillInp( steerfld_, desc, 1 );
     return true;
 }
 
