@@ -5,7 +5,7 @@
  * DATE     : Mar 2007
 -*/
 
-static const char* rcsID = "$Id: tutseistools.cc,v 1.6 2007-06-01 06:24:28 cvsraman Exp $";
+static const char* rcsID = "$Id: tutseistools.cc,v 1.7 2007-06-08 06:13:43 cvsraman Exp $";
 
 #include "tutseistools.h"
 #include "seisread.h"
@@ -162,12 +162,21 @@ void Tut::SeisTools::handleTrace()
 	const int sgate2 = sgate/2; 
 	for ( int icomp=0; icomp<trcin_.nrComponents(); icomp++ )
 	{
-	    for ( int idx=sgate/2; idx<trcin_.size()-sgate2; idx++ )
+	    for ( int idx=0; idx<trcin_.size(); idx++ )
 	    {
 	        float sum = 0;
+		int count = 0;
 		for( int ismp=idx-sgate2; ismp<=idx+sgate2; ismp++)
-		    sum += trcin_.get( ismp, icomp );
-	        trcout_.set( idx, sum/sgate, icomp );
+		{
+		    const float val = trcin_.get( ismp, icomp );
+		    if ( !mIsUdf(val) )
+		    {
+			sum += val;
+			count++;
+		    }
+		}
+		if ( count )
+		    trcout_.set( idx, sum/count, icomp );
 	    }
 	}
 
