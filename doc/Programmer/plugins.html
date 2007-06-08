@@ -4,7 +4,7 @@
   - Author:	A.H. Bril
   - Date:	Oct 2003
   - Contents:	Plugins
-  - RCS:	$Id: plugins.html,v 1.40 2007-06-04 11:20:37 raman Exp $
+  - RCS:	$Id: plugins.html,v 1.41 2007-06-08 11:58:25 raman Exp $
  -->
 
 <body background="../backg.png"><title>Plugins [OpendTect Programmer's manual V3.0]</title>
@@ -15,6 +15,7 @@
 | <a href=#helloworld>Hello World</a>
 | <a href=#mnudlg>Menus and Dialogs</a>
 | <a href=#tutplugin>The Tutorial plugin</a>
+| <a href=#helpdoc>Help Doc Creation</a>
 | <a href=#autoload>Installation and auto-loading</a>
 </center>
 <br>
@@ -473,12 +474,21 @@ for UI plugins that want to start working when all objects have already been cre
         const int sgate2 = sgate/2;
         for ( int icomp=0; icomp < trcin_.nrComponents(); icomp++ )
         {
-            for ( int idx=sgate/2; idx < trcin_.size()-sgate2; idx++ )
+            for ( int idx=0; idx < trcin_.size(); idx++ )
             {
                 float sum = 0;
+                int count = 0;
                 for( int ismp=idx-sgate2; ismp <= idx+sgate2; ismp++)
-                    sum += trcin_.get( ismp, icomp );
-                trcout_.set( idx, sum/sgate, icomp );
+                {
+                    const float val = trcin_.get( ismp, icomp );
+                    if ( !mIsUdf(val) )
+                    {
+                        sum += val;
+                        count++;
+                    }
+                }
+                if ( count )
+                    trcout_.set( idx, sum/count, icomp );
             }
         }
 
@@ -524,7 +534,11 @@ for UI plugins that want to start working when all objects have already been cre
 
 <p> The main plugin file "tutpi.cc" makes a call to <code>Tutorial::initClass()</code>. The class <code>Tutorial</code> ( tutorialattrib.h ) is defined as a subclass of <a href="Generated/AttributeEngine/classAttrib_1_1Provider.html">Attrib::Provider</a> class. Every attribute is a provider, each can thus be used as input for another attribute.<p>
 
-<p>Some fundamental functions are listed here:</p>
+<a name=steer><h4>Steering</h4>
+
+<p> A <i>Steering cube</i>, as the name suggests, works as a guiding cube. It stores the <i>Inline dip</i> and <i>Crossline dip</i> at each point, which guides the attribute engine in multi-trace computations. In case of our <i>Tutorial</i> attribute, we can use the steering data for horizontal smoothening. The key function is <a href=#initsteer><code>initSteering()</code></a> which makes the steering data available in the form of shifts relative to the central trace. To understand how this shift is used during computation, please refer to the <a href=#horsmooth><i>horizontal smoothening</i></a> section in the function <a href=#compdata><code>computeData().</code></a>
+
+<p>Some fundamental attribute functions are listed here:</p>
 <a name=tutinit><h5>initClass()</h5>
 <p> This static function initializes the attribute: sets up the parameters and 
 the number and type of the inputs and outputs. You can compare this to what you see in Opendtect in the attribute definition window after loading the uiTut 
@@ -532,7 +546,7 @@ plugin.</p>
 
 <p> If you look at the parts of the implementation carefully, 
 ( tutorialattrib.cc ) you'll see that each parameter is built up following 
-that example: </p>
+this example: </p>
 
 <pre><code>EnumParam* action = new EnumParam( actionStr() );
     action->addEnum( "Scale" );
@@ -541,7 +555,6 @@ that example: </p>
     desc->addParam( action );
 </code></pre>
 
-<p>where xxxParam is the type of the parameter.</p>
 <p>Every parameter is required by default, to overrule this use <code>setRequired(false)"</p>
 
 <p>initClass() also adds the attribute to the attribute factory.
@@ -568,16 +581,50 @@ by the user</p>
 provided by your input data; this function is very usefull when you have 
 steering as input data:</p>
 
-<h5>getInputData();</h5>
+<a name=initsteer><h5>initSteering()</h5>
+<p> If we are using steering data, this function prepares the steering input for use in computation. A subvolume is generated around the central trace, with the size of the subvolume specified by the <i>stepout</i>. This data contains the shifts in terms of number of samples for each trace in the subvolume relative to the central trace.<p>
+<code><pre>void Tutorial::initSteering()
+{
+    if ( inputs[1] && inputs[1]->getDesc().isSteering() )
+        inputs[1]->initSteering( stepout_ );
+}
+</pre></code>
+
+<h5>getInputData()</h5>
 <p>Before the work can be done, some input has to be given. This function is the
 place where you specify how to get your input data.
 For the Tutorial this is the seismic data. But it can also be Steering Data or any other attribute.</p>
 
 <code><pre>bool Tutorial::getInputData( const BinID& relpos, int zintv )
 {
-    inputdata_ = inputs[0]->getData( relpos, zintv );
+    if ( inpdata_.isEmpty() )
+        inpdata_ += 0;
+    const DataHolder* data = inputs[0]->getData( relpos, zintv );
+    if ( !data ) return false;
+    inpdata_.replace( 0, data);
+
+
+    if ( action_ ==2 && horsmooth_ )
+    {
+        steeringdata_ = inputs[1] ? inputs[1]->getData( relpos, zintv ) : 0;
+        const int maxlength  = mMAX(stepout_.inl, stepout_.crl)*2 + 1;
+        while ( inpdata_.size() < maxlength * maxlength )
+            inpdata_ += 0;
+
+        for ( int idx=0; idx<posandsteeridx_.steeridx_.size(); idx++ )
+        {
+            if ( posandsteeridx_.steeridx_[idx] == 0 ) continue;
+            const DataHolder* data =
+                inputs[0]->getData( relpos + posandsteeridx_.pos_[idx] );
+            if ( !data ) continue;
+            inpdata_.replace( posandsteeridx_.steeridx_[idx], data);
+        }
+    }
+
     dataidx_ = getDataIndex( 0 );
-    return inputdata_;
+
+    return true;
+
 }</pre></code>
 
 <p> You will notice from here that the calculation of the attributes is not done
@@ -605,7 +652,7 @@ function. If your input requires additional samples (timegate) or neighbouring
 traces (stepout), you will have to define <code>reqZMargin()</code> and 
 <code>reqStepout()</code> respectively. </p>
 
-<h5>computeData();</h5>
+<a name=compdata><h5>computeData()</h5>
 <p> When we want to look at the actual work, the place to be is the
 <code><b>computeData()</b></code> method. This is the place where you define the
 mathematics for calculating the attribute. This function is called for each 
@@ -640,19 +687,38 @@ named 'z0_' in the corresponding DataHolders.</p>
             outval = action_==0 ? trcval * factor_ + shift_ :
                                         trcval * trcval;
         }
-        else if (action_==2 )
+	else if ( action_==2 && !horsmooth_ )
         {
-            int sgate = weaksmooth_ ? 3 : 5;
-            int sgate2 = sgate/2;
             float sum = 0;
             int count = 0;
-            for ( int isamp=-sgate2; isamp <= sgate2; isamp++ )
+            for ( int isamp=sampgate_.start; isamp <= sampgate_.stop; isamp++ )
             {
-                const float curval = getInputValue( *inputdata_, dataidx_,
+                const float curval = getInputValue( *inpdata_[0], dataidx_,
                                         idx + isamp, z0 );
                 if ( !mIsUdf(curval) )
                 {
                     sum += curval;
+                    count ++;
+                }
+            }
+            outval = sum / count;
+        }<a name=horsmooth>
+        else if (action_ == 2 && horsmooth_ )
+        {
+            float sum = 0;
+            int count = 0;
+            for ( int posidx=0; posidx < inpdata_.size(); posidx++ )
+            {
+                if ( !inpdata_[posidx] ) continue;
+                const float shift = steeringdata_ ?
+                        getInputValue( *steeringdata_,posidx, idx, z0 ) : 0;
+                const int sampidx = idx + ( mIsUdf(shift) ? 0 : mNINT(shift) );
+                if ( sampidx < 0 || sampidx >= nrsamples ) continue;
+                const float val = getInputValue( *inpdata_[posidx], 
+                                        dataidx_, sampidx, z0 ); 
+                if ( !mIsUdf(val) )
+                {
+                    sum += val;
                     count ++;
                 }
             }
@@ -663,12 +729,31 @@ named 'z0_' in the corresponding DataHolders.</p>
     }
 
     return true;
+
 }
 
 </pre></code>
 
 
 <br>
+
+<a name=helpdoc><h2>Creating the Help Document</h2>
+
+<p> Like any other commercial application, our plugin also needs a help document which a user can see by clicking on a button in the user interface. In OpendTect, the help documents are stored in <i>$WORK/data/###Doc</i> directories. In case of our <i>Tutorial</i> plugin, the directory is called <i>tutDoc</i>. There are 4 key files in this directory:
+<ul>
+<li>.mnuinfo 			: This contains the name and start page of the help document as seen in the <i>Index</i> menu.
+<li>WindowLinkTable.txt		: This file contains the window links and corresponding codes as used in the UI.
+<li>LinkFileTable.txt		: Relates the links to the actual files.
+<li>index.html			: This is the start page.
+</ul></pre>
+<p> The codes of these help documents as mentioned in the <code>WindowLinkTable.txt</code> can be passed as a parameter during creation of the UI dialog. For example,
+<code><pre>uiTutSeisTools::uiTutSeisTools( uiParent* p )
+        : uiDialog( p, Setup( "Tut seismic tools",
+                              "Specify process parameters",
+                              "tut:105.0.1") )
+</pre></code>  
+In the above code, <code>"tut:105.0.1"</code> is passed as the <i>help id</i>, where <code>tut</code> refers to the directory <i>tutDoc</i> and <code>105.0.1</code> is the window link code of the corresponding help document.<p>
+
 <a name=autoload><h2>Installation and auto-loading</h2>
 
 <p> Once you have made your own plugin, you probably would like it to
