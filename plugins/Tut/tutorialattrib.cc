@@ -5,7 +5,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        R. K. Singh
  Date:          May 2007
- RCS:           $Id: tutorialattrib.cc,v 1.1 2007-06-01 06:31:22 cvsraman Exp $
+ RCS:           $Id: tutorialattrib.cc,v 1.2 2007-06-08 06:16:34 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,11 +43,26 @@ void Tutorial::initClass()
     desc->addParam( shift );
     shift->setDefaultValue( 0 );
 
-    BoolParam* smooth = new BoolParam( smoothStr() );
-    desc->addParam( smooth );
+    BoolParam* weaksmooth = new BoolParam( weaksmoothStr() );
+    desc->addParam( weaksmooth );
+
+    BoolParam* horsmooth = new BoolParam( horsmoothStr() );
+    desc->addParam( horsmooth );
+
+    BoolParam* steering = new BoolParam( steeringStr() );
+    steering->setDefaultValue( true );
+    desc->addParam( steering );
+
+    BinIDParam* stepout = new BinIDParam( stepoutStr() );
+    stepout->setDefaultValue( BinID(1,1) );
+    desc->addParam( stepout );
 
     desc->addOutputDataType( Seis::UnknowData );
     desc->addInput( InputSpec("Input data",true) );
+    
+    InputSpec steeringspec( "Steering data", false );
+    steeringspec.issteering = true;
+    desc->addInput( steeringspec );
 
     mAttrEndInitClass
 }
@@ -56,10 +71,15 @@ void Tutorial::initClass()
 void Tutorial::updateDesc( Desc& desc )
 {
     BufferString action = desc.getValParam( actionStr() )->getStringValue();
+    bool horsmooth = desc.getValParam( horsmoothStr() )->getBoolValue();
 
     desc.setParamEnabled( factorStr(), action=="Scale" );
     desc.setParamEnabled( shiftStr(), action=="Scale" );
-    desc.setParamEnabled( smoothStr(), action=="Smooth" );
+    desc.setParamEnabled( horsmoothStr(), action=="Smooth" );
+    desc.setParamEnabled( stepoutStr(), action=="Smooth" && horsmooth );
+    desc.setParamEnabled( weaksmoothStr(), action=="Smooth" && !horsmooth );
+    desc.inputSpec(1).enabled = action=="Smooth" && horsmooth
+			&& desc.getValParam(steeringStr())->getBoolValue();
 }
 
 
@@ -71,21 +91,91 @@ Tutorial::Tutorial( Desc& desc_ )
     mGetEnum( action_, actionStr() );
     mGetFloat( factor_, factorStr() );
     mGetFloat( shift_, shiftStr() );
-    mGetBool ( weaksmooth_, smoothStr() );
+    mGetBool ( horsmooth_, horsmoothStr() );
+    mGetBinID( stepout_, stepoutStr() );
+    mGetBool ( weaksmooth_, weaksmoothStr() );
+
+    if ( action_ == 2  && !horsmooth_ )
+    {
+	const int dev = weaksmooth_ ? 1 : 2;
+	sampgate_.start = -dev;
+	sampgate_.stop = dev;
+    }
+
+    else if ( action_ == 2  && horsmooth_ )
+    {
+	for ( int idx=-stepout_.inl; idx<=stepout_.inl; idx++ )
+	{
+	    for ( int cdx=-stepout_.crl; cdx<=stepout_.crl; cdx++ )
+	    {
+		const BinID bid ( idx, cdx );
+		const int steeridx = getSteeringIndex( bid );
+		posandsteeridx_.pos_ += bid;
+		posandsteeridx_.steeridx_ += steeridx;
+	    }
+	}
+    }
+
+    inpdata_.allowNull( true );
+}
+
+void Tutorial::initSteering()
+{
+    if ( inputs[1] && inputs[1]->getDesc().isSteering() )
+	inputs[1]->initSteering( stepout_ );
 }
 
 
 bool Tutorial::getInputOutput( int input, TypeSet<int>& res ) const
 {
-    return Provider::getInputOutput( input, res );
+    if ( input == 0 )
+    	return Provider::getInputOutput( input, res );
+
+    for ( int idx=0; idx<posandsteeridx_.steeridx_.size(); idx++ )
+	    res += posandsteeridx_.steeridx_[idx];
+
+    return true;
 }
 
 
 bool Tutorial::getInputData( const BinID& relpos, int zintv )
 {
-    inputdata_ = inputs[0]->getData( relpos, zintv );
+    if ( inpdata_.isEmpty() )
+	inpdata_ += 0;
+    const DataHolder* data = inputs[0]->getData( relpos, zintv );
+    if ( !data ) return false;
+    inpdata_.replace( 0, data);
+
+
+    if ( action_ ==2 && horsmooth_ )
+    {
+	steeringdata_ = inputs[1] ? inputs[1]->getData( relpos, zintv ) : 0;
+	const int maxlength  = mMAX(stepout_.inl, stepout_.crl)*2 + 1;
+	while ( inpdata_.size() < maxlength * maxlength )
+	    inpdata_ += 0;
+    
+	for ( int idx=0; idx<posandsteeridx_.steeridx_.size(); idx++ )
+	{
+	    if ( posandsteeridx_.steeridx_[idx] == 0 ) continue;
+	    const DataHolder* data = 
+		inputs[0]->getData( relpos + posandsteeridx_.pos_[idx] );
+	    if ( !data ) continue;
+	    inpdata_.replace( posandsteeridx_.steeridx_[idx], data);
+	}
+    }
+
     dataidx_ = getDataIndex( 0 );
-    return inputdata_;
+
+    return true;
+}
+
+
+const BinID* Tutorial::desStepout( int inp, int out ) const
+{
+    if ( inp==0 && action_==2 && horsmooth_ )
+	return &stepout_;
+
+    return 0;
 }
 
 
@@ -97,24 +187,43 @@ bool Tutorial::computeData( const DataHolder& output, const BinID& relpos,
 	float outval = 0;
 	if ( action_==0 || action_==1 )
 	{
-	    const float trcval = getInputValue( *inputdata_, dataidx_,
+	    const float trcval = getInputValue( *inpdata_[0], dataidx_,
 		    				idx, z0 );
 	    outval = action_==0 ? trcval * factor_ + shift_ :
 					trcval * trcval;
 	}
-	else if (action_==2 )
+	else if ( action_==2 && !horsmooth_ )
 	{
-	    int sgate = weaksmooth_ ? 3 : 5;
-	    int sgate2 = sgate/2;
 	    float sum = 0;
 	    int count = 0;
-	    for ( int isamp=-sgate2; isamp<=sgate2; isamp++ )
+	    for ( int isamp=sampgate_.start; isamp<=sampgate_.stop; isamp++ )
 	    {
-		const float curval = getInputValue( *inputdata_, dataidx_,
+		const float curval = getInputValue( *inpdata_[0], dataidx_,
 			                idx + isamp, z0 );
 		if ( !mIsUdf(curval) )
 		{
 		    sum += curval;
+		    count ++;
+		}
+	    }
+	    outval = sum / count;
+	}
+	else if (action_ == 2 && horsmooth_ )
+	{
+	    float sum = 0;
+	    int count = 0;
+	    for ( int posidx=0; posidx<inpdata_.size(); posidx++ )
+	    {
+		if ( !inpdata_[posidx] ) continue;
+		const float shift = steeringdata_ ? 
+		    	getInputValue( *steeringdata_,posidx, idx, z0 ) : 0;
+		const int sampidx = idx + ( mIsUdf(shift) ? 0 : mNINT(shift) );
+		if ( sampidx < 0 || sampidx >= nrsamples ) continue; 
+		const float val = getInputValue( *inpdata_[posidx], 
+					dataidx_, sampidx, z0 );
+		if ( !mIsUdf(val) )
+		{
+		    sum += val;
 		    count ++;
 		}
 	    }
@@ -125,6 +234,15 @@ bool Tutorial::computeData( const DataHolder& output, const BinID& relpos,
     }
 
     return true;
+}
+
+
+const Interval<int>* Tutorial::desZSampMargin(int,int) const
+{
+    if ( action_ == 2 && !horsmooth_ )
+	return &sampgate_;
+
+    return 0;
 }
 
 

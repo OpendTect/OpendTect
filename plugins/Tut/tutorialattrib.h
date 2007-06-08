@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        R. K. Singh
  Date:          May 2007
- RCS:           $Id: tutorialattrib.h,v 1.1 2007-06-01 06:30:59 cvsraman Exp $
+ RCS:           $Id: tutorialattrib.h,v 1.2 2007-06-08 06:16:34 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,7 +37,11 @@ public:
     static const char*	actionStr()		{ return "action"; }
     static const char*	shiftStr()		{ return "shift"; }
     static const char*	factorStr()		{ return "factor"; }
-    static const char*	smoothStr()		{ return "smoothtype"; }
+    static const char*	weaksmoothStr()		{ return "smoothstrength"; }
+    static const char*  horsmoothStr()          { return "smoothdir"; }
+    static const char*  steeringStr()   	{ return "steering"; }
+    static const char*  stepoutStr()      	{ return "stepout"; }
+    void		initSteering();
 
 protected:
 			~Tutorial() {}
@@ -50,13 +54,28 @@ protected:
     bool		getInputData(const BinID&,int zintv);
     bool		computeData(const DataHolder&,const BinID& relpos,
 				    int z0,int nrsamples,int threadid) const;
+    const BinID*        desStepout(int,int) const;
+    const Interval<int>* desZSampMargin(int,int) const;
 
     int			action_;
     float		factor_;
     float		shift_;
     bool		weaksmooth_;
-    const DataHolder*	inputdata_;
-    int			dataidx_;
+    bool                horsmooth_;
+    Interval<int>	sampgate_;
+    BinID               stepout_;
+
+    struct PosAndSteeridx
+    {
+	TypeSet<int>	steeridx_;
+	TypeSet<BinID>	pos_;
+    };
+
+    PosAndSteeridx	posandsteeridx_;
+
+    ObjectSet<const DataHolder> inpdata_;
+    int				dataidx_;
+    const DataHolder*   	steeringdata_;
 };
 
 }; // namespace Attrib
