@@ -1,0 +1,9 @@
+dTect V3.1
+Window Link Table
+Wed Oct 22 16:14:12 2003
+!
+105:	Tut
+	0:	Tools
+		1:	uiTutSeisTools		link-Tut.Tools.Seis
+		2:	uiTutHorTools		link-Tut.Tools.Hor
+!

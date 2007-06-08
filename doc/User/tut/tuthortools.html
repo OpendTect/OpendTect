@@ -1,0 +1,44 @@
+<html>
+<!--
+  - CopyRight:	(C) dGB Beheer B.V.
+  - Author:	R. K. Singh	
+  - Date:	June 2007
+  - Contents:	Simple Horizon Operations (Tutorial)
+  - RCS:	$Id: tuthortools.html,v 1.1 2007-06-08 12:05:23 cvsraman Exp $
+ -->
+
+<body background="../dTectDoc/backg.png"><title>Tutorial Plugin : Tut Horizon Tools</title>
+<center>
+<h1>Tut Horizon Tools</h1>
+</center>
+
+<a href=#intro>Intro</a>
+<a href=#smooth>Smoothening</a>
+<a href=#thick>Thickness Calculation</a>
+
+<br>
+<a name=#intro><h3>Intro</h3>
+
+<p> Here, you can perform some simple operations on horizon surfaces like <b>Smoothening</b> and <b>Thickness calculation</b>. From the <b>OpendTect</b> menu, select <center><br><b>Utilities-->Tut Tools-->Horizon</b></center><br>You can choose from two available operations in the <b>Select Task</b> field: <b>Smooth a Horizon</b> and <b>Find Thickness between two Horizons.</b><p>
+
+<a name=#smooth><h3>Smoothening</h3>
+
+<p> It takes and <b>Input Horizon</b> as input and performs simple smoothening on it, The <b>Output Horizon</b> can either be an existing horizon or a new one. For smoothening, a square centred around each point is taken and the <b>z</b> value of the point is replaced by the average of <b>z</b> values of all the points lying within the square. The size of the square depends on the <b>Filter Strength</b> which can be chosen as <b>Low</b> or <b>High</b>. <p> 
+
+<a name=#thick><h3>Thickness Calculation</h3>
+
+<p> This utility can be used where the thickness between two surfaces is needed, for example in Isopach map computation. It takes two horizons as input. The terms <b>Top</b> and <b>Bottom</b> are only symbolic and have no bearing on the result, as the thickness is taken as the absolute difference between the <b>z</b> values of corresponding points on the two surfaces, and hence is always positive. The ouput is stored as an attribute to one of the input horizons, specified by you. You can also give a name for this attribute which is named <b>Thickness</b> by default.<p>
+
+<br><br><br>
+<img src="../dTectDoc/hr.png" border=0>
+<br><br><br>
+
+<p>
+<center>
+  <a href="index.html">Index</a>
+| <a href="http://www.opendtect.org">opendtect.org</a>
+</center>
+</p>
+
+</body>
+</html>

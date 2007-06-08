@@ -1,0 +1,49 @@
+<html>
+<!--
+  - CopyRight:	(C) dGB Beheer B.V.
+  - Author:	R. K. Singh	
+  - Date:	June 2007
+  - Contents:	Simple Seismic Operations (Tutorial)
+  - RCS:	$Id: tutseistools.html,v 1.1 2007-06-08 12:05:23 cvsraman Exp $
+ -->
+
+<body background="../dTectDoc/backg.png"><title>Tutorial Plugin : Tut Seismic Tools</title>
+<center>
+<h1>Tut Seismic Tools</h1>
+</center>
+
+<a href=#intro>Intro</a>
+<a href=#scale>Scale</a>
+<a href=#square>Square</a>
+<a href=#smooth>Smooth</a>
+
+<br>
+<a name=#intro><h3>Intro</h3>
+
+<p> Here, you can modify a seismic cube by accessing the seismic traces and manipulating their values directly. From the <b>OpendTect</b> menu, select <center><br><b>Utilities  --> Tut Tools  --> Seismic (Direct)</b></center><br>In the <b>Input Cube</b> selection field, select an existing seismic cube. For the <b>Output Cube</b>, you can either select an existing cube or enter the name of a new seismic cube. You can choose from three available operations in the <b>Action</b> field and accordingly specify the corresponding input parameters:<p>
+
+<a name=#scale><h3>Scale</h3>
+
+<p> It performs a linear scaling of the form <b>a + b * x</b>, where parameters <b>a</b> and <b>b</b> are taken from the inputs <b>Shift</b> and <b>Factor</b> respectively.<p>
+
+<a name=#square><h3>Square</h3>
+
+<p> As the name suggests, it takes the square of data values.<p>
+
+<a name=#smooth><h3>Smooth</h3>
+
+<p> This involves a vertical smoothening of traces. You can choose a <b>Low</b> or <b>High</b> filter strength to specify whether 3 or 5 samples are taken for calculating the mean.<p>
+
+<br><br><br>
+<img src="../dTectDoc/hr.png" border=0>
+<br><br><br>
+
+<p>
+<center>
+  <a href="index.html">Index</a>
+| <a href="http://www.opendtect.org">opendtect.org</a>
+</center>
+</p>
+
+</body>
+</html>
