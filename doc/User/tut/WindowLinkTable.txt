@@ -1,6 +1,5 @@
 dTect V3.1
 Window Link Table
-Wed Oct 22 16:14:12 2003
 !
 105:	Tut
 	0:	Tools
