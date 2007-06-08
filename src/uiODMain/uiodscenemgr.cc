@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.105 2007-05-21 12:03:55 cvsnanne Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.106 2007-06-08 06:12:59 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -699,6 +699,9 @@ void uiODSceneMgr::updateSelectedTreeItem()
 	else if ( scenes_.size() != 1 && visServ().isSoloMode() )
 	    visServ().updateDisplay( true, id );
     }
+
+    if ( !applMgr().attrServer() )
+	return;
 
     bool found = applMgr().attrServer()->attrSetEditorActive();
     bool gotoact = false;
