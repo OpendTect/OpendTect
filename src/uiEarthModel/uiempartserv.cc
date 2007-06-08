@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.107 2007-05-31 12:16:08 cvsnanne Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.108 2007-06-08 06:11:38 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -359,7 +359,8 @@ int uiEMPartServer::loadAuxData( const EM::ObjectID& id, const char* attrnm )
 
     if ( selidx<0 ) return -1;
     TypeSet<int> selattribs( 1, selidx );
-    return loadAuxData( id, selattribs ) ? selidx : -1;
+    return loadAuxData( id, selattribs )
+	? hor3d->auxdata.auxDataIndex(attrnm) : -1;
 }
 
 
