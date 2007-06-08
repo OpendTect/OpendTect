@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          July  2006
- RCS:           $Id: uigapdeconattrib.cc,v 1.29 2007-04-02 14:09:04 cvshelene Exp $
+ RCS:           $Id: uigapdeconattrib.cc,v 1.30 2007-06-08 14:16:12 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -190,6 +190,7 @@ bool uiGapDeconAttrib::getParameters( Attrib::Desc& desc )
     mSetInt( GapDecon::noiselevelStr(), noiselvlfld_->getIntValue() );
     mSetBool( GapDecon::isinp0phaseStr(), isinpzerophasefld_->getBoolValue() );
     mSetBool( GapDecon::isout0phaseStr(), isoutzerophasefld_->getBoolValue() );
+    mSetBool( GapDecon::onlyacorrStr(), false );
 
     return true;
 }
@@ -316,6 +317,12 @@ DescID uiGapDeconAttrib::createVolStatsDesc( Desc& desc, int stepout )
     mDynamicCastGet( Attrib::FloatGateParam*,gateparam,
 		     newdesc->getValParam(VolStats::gateStr()) )
     gateparam->setValue( gate );
+    mDynamicCastGet( Attrib::BoolParam*,steerparam,
+		     newdesc->getValParam(VolStats::steeringStr()) )
+    steerparam->setValue( false );
+    mDynamicCastGet( Attrib::IntParam*,nrtrcsparam,
+		     newdesc->getValParam(VolStats::nrtrcsStr()) )
+    nrtrcsparam->setValue( 3 );
 
     return descset->addDesc( newdesc );
 }
