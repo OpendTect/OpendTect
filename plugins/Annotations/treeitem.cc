@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2005
- RCS:           $Id: treeitem.cc,v 1.22 2007-06-06 05:58:22 cvsnanne Exp $
+ RCS:           $Id: treeitem.cc,v 1.23 2007-06-08 06:08:10 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -329,7 +329,7 @@ void SubItem::prepareForShutdown()
 {
     Pick::SetMgr& mgr = Pick::SetMgr::getMgr( managerName() );
     const int setidx = mgr.indexOf( *set_ );
-    if ( mgr.isChanged( setidx ) )
+    if ( mgr.isChanged(setidx) )
     {
 	BufferString msg = "The annotation group ";
 	msg += name();
@@ -377,7 +377,7 @@ void SubItem::handleMenuCB( CallBacker* cb )
     uiODDisplayTreeItem::handleMenuCB(cb);
     mCBCapsuleUnpackWithCaller(int,mnuid,caller,cb);
     mDynamicCastGet(MenuHandler*,menu,caller);
-    if ( menu->menuID()!=displayID() || menu->isHandled() )
+    if ( menu->isHandled() || menu->menuID()!=displayID() )
 	return;
 
     mDynamicCastGet( visSurvey::LocationDisplay*,ld,
@@ -549,6 +549,17 @@ void SubItem::scaleChg( CallBacker* cb )
 }
 
 
+void SubItem::removeStuff()
+{
+    Pick::SetMgr& mgr = Pick::SetMgr::getMgr( managerName() );
+    const int setidx = mgr.indexOf( *set_ );
+    if ( setidx>= 0 )
+	mgr.set( mgr.id(setidx), 0 );
+    mgr.removeCBs( this );
+}
+
+
+
 TextSubItem::TextSubItem( Pick::Set& pck, int displayid )
     : SubItem(pck,displayid)
     , changetextmnuitem_("Change text ...")
@@ -612,7 +623,7 @@ void TextSubItem::handleMenuCB( CallBacker* cb )
     SubItem::handleMenuCB( cb );
     mCBCapsuleUnpackWithCaller(int,mnuid,caller,cb);
     mDynamicCastGet(uiMenuHandler*,menu,caller);
-    if ( menu->menuID()!=displayID() || menu->isHandled() )
+    if ( menu->isHandled() || menu->menuID()!=displayID() )
 	return;
 
     if ( mnuid==changetextmnuitem_.id )
@@ -865,7 +876,7 @@ void ArrowSubItem::handleMenuCB( CallBacker* cb )
     SubItem::handleMenuCB( cb );
     mCBCapsuleUnpackWithCaller(int,mnuid,caller,cb);
     mDynamicCastGet(MenuHandler*,menu,caller);
-    if ( menu->menuID()!=displayID() || menu->isHandled() )
+    if ( menu->isHandled() || menu->menuID()!=displayID() )
 	return;
 
     if ( mnuid==propmnuitem_.id )
@@ -1012,7 +1023,7 @@ void ImageSubItem::handleMenuCB( CallBacker* cb )
 {
     mCBCapsuleUnpackWithCaller(int,mnuid,caller,cb);
     mDynamicCastGet(MenuHandler*,menu,caller);
-    if ( menu->menuID() != displayID() )
+    if ( menu->isHandled() || menu->menuID()!=displayID() )
 	return;
 
     SubItem::handleMenuCB( cb );

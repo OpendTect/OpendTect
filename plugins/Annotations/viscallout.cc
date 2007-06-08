@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Jan 2005
- RCS:           $Id: viscallout.cc,v 1.17 2007-05-21 04:39:37 cvsnanne Exp $
+ RCS:           $Id: viscallout.cc,v 1.18 2007-06-08 06:08:10 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -504,6 +504,10 @@ void Callout::updateCoords()
 void Callout::updateArrow()
 {
     Interval<float> xrange, yrange;
+    if ( faceset_->getCoordinates()->size(false) != 
+	 faceset_->getCoordinates()->size(true) )
+	return;
+
     for ( int idx=0; idx<12 && idx<faceset_->getCoordinates()->size(true);
 	    idx+=3 )
     {
@@ -707,6 +711,9 @@ CalloutDisplay::~CalloutDisplay()
     boxmaterial_->unRef();
     textmaterial_->unRef();
     activedraggermaterial_->unRef();
+
+    if ( scene_ )
+	scene_->zscalechange.remove( mCB(this,CalloutDisplay,zScaleChangeCB) );
 }
 
 
@@ -716,20 +723,20 @@ void CalloutDisplay::setScale( float ns )
     for ( int idx=group_->size()-1; idx>=0; idx-- )
     {
 	mDynamicCastGet( Callout*, call, group_->getObject(idx) );
-	call->setTextSize(scale_);
+	call->setTextSize( scale_ );
     }
 }
 
 
 void CalloutDisplay::setScene( visSurvey::Scene* scene )
 {
-    if ( scene_ ) scene_->zscalechange.remove(
-	    mCB( this, CalloutDisplay, zScaleChangeCB));
+    if ( scene_ )
+	scene_->zscalechange.remove( mCB(this,CalloutDisplay,zScaleChangeCB) );
 
     visSurvey::SurveyObject::setScene( scene );
 
-    if ( scene_ ) scene_->zscalechange.notify(
-	    mCB( this, CalloutDisplay, zScaleChangeCB));
+    if ( scene_ )
+	scene_->zscalechange.notify( mCB(this,CalloutDisplay,zScaleChangeCB) );
 }
 
 
@@ -752,15 +759,6 @@ void CalloutDisplay::directionChangeCB( CallBacker* cb )
 				set_, idx );
     picksetmgr_->reportChange( 0, cd );
 }
-
-
-static bool openDocument( const char* appl, const char* docstr )
-{
-    BufferString cmd( appl ); cmd += " "; cmd += docstr;
-    StreamProvider sp( cmd );
-    return sp.executeCommand( true );
-}
-
 
 
 void CalloutDisplay::urlClickCB( CallBacker* cb )
@@ -792,7 +790,7 @@ void CalloutDisplay::urlClickCB( CallBacker* cb )
 void CalloutDisplay::setScaleTransform( visBase::DataObject* dobj ) const
 {
     if ( !scene_ ) return;
-    mDynamicCastGet( Callout*, call, dobj );
+    mDynamicCastGet(Callout*,call,dobj)
     call->getScale()->
 	setScale(Coord3(1,1,2/scene_->getZScale()));
 }

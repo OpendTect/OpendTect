@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Jan 2005
- RCS:           $Id: visannotimage.cc,v 1.5 2007-03-29 22:16:12 cvskris Exp $
+ RCS:           $Id: visannotimage.cc,v 1.6 2007-06-08 06:08:10 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -164,6 +164,9 @@ ImageDisplay::~ImageDisplay()
 {
     shape_->unRef();
     image_->unRef();
+
+    if ( scene_ )
+	scene_->zscalechange.remove( mCB(this,ImageDisplay,updateCoords) );
 }
 
 
@@ -189,13 +192,13 @@ void ImageDisplay::setSet( Pick::Set* set )
 
 void ImageDisplay::setScene( visSurvey::Scene* scene )
 {
-    if ( scene_ ) scene_->zscalechange.remove(
-	    mCB( this, ImageDisplay, updateCoords));
+    if ( scene_ )
+	scene_->zscalechange.remove( mCB(this,ImageDisplay,updateCoords) );
 
     visSurvey::SurveyObject::setScene( scene );
 
-    if ( scene_ ) scene_->zscalechange.notify(
-	    mCB( this, ImageDisplay, updateCoords));
+    if ( scene_ )
+	scene_->zscalechange.notify( mCB(this,ImageDisplay,updateCoords) );
 
     updateCoords();
 }

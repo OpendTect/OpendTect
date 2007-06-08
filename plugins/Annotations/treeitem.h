@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2005
- RCS:           $Id: treeitem.h,v 1.12 2007-04-26 06:36:58 cvsnanne Exp $
+ RCS:           $Id: treeitem.h,v 1.13 2007-06-08 06:08:10 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -90,8 +90,9 @@ public:
 protected:
     			SubItem(Pick::Set&,int displayid=-1);
 			//!<Pickset becomes mine, if it's not in the mgr
-			~SubItem();
+    virtual		~SubItem();
     void		prepareForShutdown();
+    void		removeStuff();
     bool		init();
     virtual const char*	parentType() const		=0;
     virtual void	fillStoragePar(IOPar&) const;
@@ -130,7 +131,7 @@ public:
     static const char*	sKeyManager() 	{ return "TextAnnotations"; }
 
 protected:
-			~TextSubItem()			{}
+			~TextSubItem()	{ removeStuff(); }
     virtual const char*	parentType() const;
     virtual void	pickAddedCB(CallBacker*);
     const char*		managerName() const	{ return sKeyManager(); }
@@ -159,7 +160,7 @@ public:
     static const char*	sKeyManager() 	{ return "ArrowAnnotations"; }
 
 protected:
-			~ArrowSubItem()		{}
+			~ArrowSubItem()	{ removeStuff(); }
     virtual const char*	parentType() const;
 
     void		fillStoragePar(IOPar&) const;
@@ -186,7 +187,7 @@ public:
     static const char*	sKeyManager() 	{ return "ImageAnnotations"; }
 
 protected:
-			~ImageSubItem()			{}
+			~ImageSubItem()	{ removeStuff(); }
     const char*		parentType() const;
     void		fillStoragePar(IOPar&) const;
 
