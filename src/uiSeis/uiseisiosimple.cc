@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: uiseisiosimple.cc,v 1.1 2007-06-12 15:28:21 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseisiosimple.cc,v 1.2 2007-06-12 15:40:55 cvsbert Exp $";
 
 #include "uiseisiosimple.h"
 #include "uiseisfmtscale.h"
@@ -56,7 +56,7 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
 	: uiDialog( p, Setup( imp ? "Import seismics from simple flat file"
 				  : "Export seismics to simple flat file",
 			      "Specify parameters for I/O",
-			      imp ? "extra:103.0.1" : "extra:103.0.2") )
+			      imp ? "103.0.11" : "103.0.12") )
     	, ctio(*mMkCtxtIOObj(SeisTrc))
     	, sdfld(0)
 	, havenrfld(0)
