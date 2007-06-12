@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrdescseted.cc,v 1.53 2007-06-06 09:58:56 cvsnanne Exp $
+ RCS:           $Id: uiattrdescseted.cc,v 1.54 2007-06-12 11:43:54 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,6 +43,7 @@ ________________________________________________________________________
 #include "uiattribfactory.h"
 #include "uiattrinpdlg.h"
 #include "uiattrtypesel.h"
+#include "uiautoattrdescset.h"
 #include "uibutton.h"
 #include "uicombobox.h"
 #include "uifileinput.h"
@@ -58,6 +59,7 @@ ________________________________________________________________________
 #include "uisplitter.h"
 #include "uitextedit.h"
 #include "uitoolbar.h"
+
 
 const char* uiAttribDescSetEd::sKeyUseAutoAttrSet = "dTect.Auto Attribute set";
 const char* uiAttribDescSetEd::sKeyAutoAttrSetID = "Attrset.Auto ID";
@@ -214,9 +216,57 @@ void uiAttribDescSetEd::init()
     adsman->setSaved( inoutadsman->isSaved() );
 
     setid = inoutadsman->attrsetid_;
+    bool autoset = false;
+    Settings::common().getYN( uiAttribDescSetEd::sKeyUseAutoAttrSet, autoset );
     IOM().to( setctio.ctxt.getSelKey() );
     setctio.setObj( IOM().get(setid) );
-    attrsetfld->setText( setctio.ioobj ? setctio.ioobj->name() : "" );
+    if ( autoset && !setctio.ioobj )
+    {
+        BufferString msg = "The Attribute-set selected for Auto-load";
+        msg += "is no longer valid\n";
+        msg += "Load another now?";
+        if ( uiMSG().askGoOn( msg ) )
+	{
+    	    BufferStringSet attribfiles;
+	    BufferStringSet attribnames;
+	    getDefaultAttribsets( attribfiles, attribnames );
+	    uiAutoAttrSetOpen dlg( this, attribfiles, attribnames );
+	    if ( dlg.go() )
+	    {
+		if ( dlg.isUserDef() )
+		{
+		    IOObj* ioobj = dlg.getObj();
+		    if ( dlg.isAuto() )
+		    {
+			MultiID id = ioobj ? ioobj->key() : "";
+			SI().pars().set(uiAttribDescSetEd::
+				sKeyAutoAttrSetID, (const char*)id);
+			SI().savePars();
+		    }
+		    else
+		    {
+			Settings::common().setYN(uiAttribDescSetEd::
+				sKeyUseAutoAttrSet, false);
+			Settings::common().write();
+		    }
+		    openAttribSet( ioobj );
+		}
+		else
+		{
+		    const char* filenm = dlg.getAttribfile();
+		    const char* attribnm = dlg.getAttribname();
+		    importFromFile( filenm );
+		    attrsetfld->setText( attribnm );
+		    Settings::common().setYN(uiAttribDescSetEd::
+			        sKeyUseAutoAttrSet, false);
+		    Settings::common().write();
+		}
+	    }
+	}
+    }
+    else
+    	attrsetfld->setText( setctio.ioobj ? setctio.ioobj->name() : "" );
+
     cancelsetid = setid;
     newList(0);
 
@@ -302,78 +352,24 @@ bool uiAttribDescSetEd::doSave( bool endsave )
 }
 
 
-class uiAutoAttrSetDlg : public uiDialog
-{
-public:
-
-    uiAutoAttrSetDlg( uiParent* p )
-        : uiDialog(p,uiDialog::Setup("Auto-load Attribute Set",
-		                     "Set auto-load Attribute-Set",
-				     "50.3.1"))
-        , ctio_( *(new CtxtIOObj(AttribDescSetTranslatorGroup::ioContext())) )
-{
-    bool douse = false; MultiID id;
-    Settings::common().getYN( uiAttribDescSetEd::sKeyUseAutoAttrSet, douse );
-    id = SI().pars().find( uiAttribDescSetEd::sKeyAutoAttrSetID );
-
-    usefld_ = new uiGenInput( this, "Enable auto-load Attribute Set",
-                                  BoolInpSpec(true) );
-    usefld_->setValue( douse );
-    usefld_->valuechanged.notify( mCB(this,uiAutoAttrSetDlg,useChg) );
-
-    ctio_.setObj( id ); ctio_.ctxt.forread = true;
-    selgrp_ = new uiIOObjSelGrp( this, ctio_ );
-    selgrp_->attach( alignedBelow, usefld_ );
-    lbl_ = new uiLabel( this, "Attribute Set to use" );
-    lbl_->attach( centeredLeftOf, selgrp_ );
-
-    finaliseDone.notify( mCB(this,uiAutoAttrSetDlg,useChg) );
-}
-
-~uiAutoAttrSetDlg()
-{   
-    delete ctio_.ioobj; delete &ctio_;
-}
-
-void useChg( CallBacker* )
-{   
-    const bool douse = usefld_->getBoolValue();
-    selgrp_->display( douse );
-    lbl_->display( douse );
-}
-
-
-bool acceptOK( CallBacker* )
-{   
-    const bool douse = usefld_->getBoolValue();
-    selgrp_->processInput();
-    if ( douse && selgrp_->nrSel() < 1 )
-        { uiMSG().error("Please select an Attribute Set"); return false; }
-    if ( selgrp_->nrSel() > 0 )
-	ctio_.setObj( selgrp_->selected(0) );
-
-    const MultiID id( ctio_.ioobj ? ctio_.ioobj->key() : MultiID("") );
-    Settings::common().setYN( uiAttribDescSetEd::sKeyUseAutoAttrSet, douse );
-    Settings::common().write();
-    SI().pars().set( uiAttribDescSetEd::sKeyAutoAttrSetID, (const char*)id );
-    SI().savePars();
-    return true;
-}
-
-    CtxtIOObj&          ctio_;
-
-    uiGenInput*         usefld_;
-    uiGenInput*         loadnowfld_;
-    uiIOObjSelGrp*      selgrp_;
-    uiLabel*            lbl_;
-
-};
-
-
 void uiAttribDescSetEd::autoSet()
 {
-    uiAutoAttrSetDlg dlg( this );
-    dlg.go();
+    uiAutoAttrSelDlg dlg( this );
+    if ( dlg.go() )
+    {
+	const bool douse = dlg.useAuto();
+	IOObj* ioobj = dlg.getObj();
+	const MultiID id( ioobj ? ioobj->key() : MultiID("") );
+    	Settings::common().setYN(uiAttribDescSetEd::sKeyUseAutoAttrSet, douse);
+	Settings::common().write();
+	SI().pars().set(uiAttribDescSetEd::sKeyAutoAttrSetID, (const char*)id);
+	SI().savePars();
+	if ( dlg.loadAuto() )
+	{
+	    if ( !offerSetSave() ) return;
+	    openAttribSet( ioobj );
+	}
+    }
 }
 
 
@@ -729,34 +725,39 @@ void uiAttribDescSetEd::openSet( CallBacker* )
     setctio.ctxt.forread = true;
     uiIOObjSelDlg dlg( this, setctio );
     if ( dlg.go() && dlg.ioObj() )
+	openAttribSet( dlg.ioObj() );
+
+}
+
+void uiAttribDescSetEd::openAttribSet( const IOObj* ioobj )
+{
+    if ( !ioobj ) return;
+    IOObj* oldioobj = setctio.ioobj; setctio.ioobj = 0;
+    setctio.setObj( ioobj->clone() );
+    if ( !doSetIO( true ) )
+	setctio.setObj( oldioobj );
+    else
     {
-	IOObj* oldioobj = setctio.ioobj; setctio.ioobj = 0;
-        setctio.setObj( dlg.ioObj()->clone() );
-	if ( !doSetIO( true ) )
-	    setctio.setObj( oldioobj );
-	else
+	delete oldioobj;
+	setid = setctio.ioobj->key();
+	newList( -1 );
+	attrsetfld->setText( setctio.ioobj->name() );
+	adsman->setSaved( true );
+	TypeSet<DescID> ids;
+	attrset->getIds( ids );
+	for ( int idx=0; idx<attrset->nrDescs(); idx++ )
 	{
-	    delete oldioobj;
-	    setid = setctio.ioobj->key();
-	    newList( -1 );
-	    attrsetfld->setText( setctio.ioobj->name() );
-	    adsman->setSaved( true );
-	    TypeSet<DescID> ids;
-	    attrset->getIds( ids );
-	    for ( int idx=0; idx<attrset->nrDescs(); idx++ )
+	    Desc* ad = attrset->getDesc( ids[idx] );
+	    if ( !ad ) continue;
+	    if ( ad->isStored() && ad->isSatisfied()==2 )
 	    {
-		Desc* ad = attrset->getDesc( ids[idx] );
-		if ( !ad ) continue;
-		if ( ad->isStored() && ad->isSatisfied()==2 )
-		{
-		    BufferString msg = "The attribute: '";
-		    msg += ad->userRef();
-		    msg += "' will be removed\n";
-		    msg += "Storage ID is no longer valid";
-		    uiMSG().message( msg );
-		    attrset->removeDesc( ad->id() );
-		    idx--;
-		}
+		BufferString msg = "The attribute: '";
+		msg += ad->userRef();
+		msg += "' will be removed\n";
+		msg += "Storage ID is no longer valid";
+		uiMSG().message( msg );
+		attrset->removeDesc( ad->id() );
+		idx--;
 	    }
 	}
     }
@@ -767,12 +768,30 @@ void uiAttribDescSetEd::defaultSet( CallBacker* )
 {
     if ( !offerSetSave() ) return;
 
+    BufferStringSet attribfiles;
+    BufferStringSet attribnames;
+    getDefaultAttribsets( attribfiles, attribnames );
+
+    uiSelectFromList::Setup setup( "Default Attribute Sets", attribnames );
+    setup.dlgtitle( "Select attribute set" );
+    uiSelectFromList dlg( this, setup );
+    if ( !dlg.go() ) return;
+    
+    const int selitm = dlg.selection();
+    if ( selitm < 0 ) return;
+    const char* filenm = attribfiles[selitm]->buf();
+
+    importFromFile( filenm );
+    attrsetfld->setText( attribnames[selitm]->buf() );
+}
+
+
+void uiAttribDescSetEd::getDefaultAttribsets( BufferStringSet& attribfiles,
+					      BufferStringSet& attribnames )
+{
     const bool is2d = adsman ? adsman->is2D() : attrset->is2D();
     const char* ptr = GetDataFileName(0);
     DirList attrdl( ptr, DirList::DirsOnly, "*Attribs" );
-
-    BufferStringSet attribfiles;
-    BufferStringSet attribnames;
     for ( int idx=0; idx<attrdl.size(); idx++ )
     {
 	FilePath fp( ptr );
@@ -797,19 +816,6 @@ void uiAttribDescSetEd::defaultSet( CallBacker* )
 	    attribfiles.add( attrfnm );
 	}
     }
-
-    uiSelectFromList::Setup setup( "Default Attribute Sets", attribnames );
-    setup.dlgtitle( "Select attribute set" );
-    uiSelectFromList dlg( this, setup );
-    if ( dlg.selFld() )
-	dlg.selFld()->setHSzPol( uiObject::Wide );
-    if ( !dlg.go() ) return;
-
-    const int selitm = dlg.selection();
-    if ( selitm < 0 ) return;
-    const char* filenm = attribfiles[selitm]->buf();
-
-    importFromFile( filenm );
 }
 
 
