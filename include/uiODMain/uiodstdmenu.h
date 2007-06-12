@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: uiodstdmenu.h,v 1.26 2007-05-22 03:23:22 cvsnanne Exp $
+ RCS:		$Id: uiodstdmenu.h,v 1.27 2007-06-12 15:28:20 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -45,6 +45,9 @@ ________________________________________________________________________
 #define mImpSeisSEGY3DMnuItm	(mFileImpMnu + 10)
 #define mImpSeisSEGY2DMnuItm	(mFileImpMnu + 11)
 #define mImpSeisSEGYPSMnuItm	(mFileImpMnu + 12)
+#define mImpSeisSimple3DMnuItm	(mFileImpMnu + 13)
+#define mImpSeisSimple2DMnuItm	(mFileImpMnu + 14)
+#define mImpSeisSimplePSMnuItm	(mFileImpMnu + 15)
 #define mImpSeisCBVSMnuItm	(mFileImpMnu + 20)
 #define mImpHorAsciiMnuItm	(mFileImpMnu + 30)
 #define mImpHorAsciiAttribMnuItm (mFileImpMnu + 31)
@@ -57,6 +60,9 @@ ________________________________________________________________________
 #define mExpSeisSEGY3DMnuItm	(mFileExpMnu + 10)
 #define mExpSeisSEGY2DMnuItm	(mFileExpMnu + 11)
 #define mExpSeisSEGYPSMnuItm	(mFileExpMnu + 12)
+#define mExpSeisSimple3DMnuItm	(mFileExpMnu + 13)
+#define mExpSeisSimple2DMnuItm	(mFileExpMnu + 14)
+#define mExpSeisSimplePSMnuItm	(mFileExpMnu + 15)
 #define mExpHorAsciiMnuItm	(mFileExpMnu + 20)
 #define mExpPickMnuItm		(mFileExpMnu + 50)
 #define mManSeisMnuItm		(mFileManMnu + 10)

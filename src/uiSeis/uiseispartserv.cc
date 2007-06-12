@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiseispartserv.cc,v 1.64 2007-03-15 16:17:30 cvsbert Exp $
+ RCS:           $Id: uiseispartserv.cc,v 1.65 2007-06-12 15:28:21 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,6 +40,7 @@ ________________________________________________________________________
 #include "uimsg.h"
 #include "uisegysip.h"
 #include "uiseiscbvsimp.h"
+#include "uiseisiosimple.h"
 #include "uiseisfileman.h"
 #include "uiseisioobjinfo.h"
 #include "uiseissegyimpexp.h"
@@ -66,13 +67,21 @@ bool uiSeisPartServer::ioSeis( int opt, bool forread )
     PtrMan<uiDialog> dlg = 0;
     if ( opt == 3 )
 	dlg = new uiSeisImpCBVS( appserv().parent() );
-    else
+    else if ( opt < 3 )
     {
 	Seis::GeomType gt = opt == 0 ? Seis::Vol
 	    		 : (opt == 1 ? Seis::Line
 				     : Seis::VolPS);
 	if ( !uiSurvey::survTypeOKForUser(Seis::is2D(gt)) ) return true;
 	dlg = new uiSeisSegYImpExp( appserv().parent(), forread, segyid, gt );
+    }
+    else
+    {
+	Seis::GeomType gt = opt == 4 ? Seis::Vol
+	    		 : (opt == 5 ? Seis::Line
+				     : Seis::VolPS);
+	if ( !uiSurvey::survTypeOKForUser(Seis::is2D(gt)) ) return true;
+	dlg = new uiSeisIOSimple( appserv().parent(), gt, forread );
     }
     return dlg->go();
 }
