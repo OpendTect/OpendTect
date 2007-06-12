@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/12/1999
- RCS:           $Id: pixmap.cc,v 1.22 2007-03-28 12:20:46 cvsbert Exp $
+ RCS:           $Id: pixmap.cc,v 1.23 2007-06-12 09:27:53 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -126,6 +126,7 @@ ioPixmap::ioPixmap( const ColorTable& ctabin, int width, int height )
 
 ioPixmap::~ioPixmap()
 {
+    releaseDrawTool();
     if ( qpixmap_ )
 	delete qpixmap_;
 }
