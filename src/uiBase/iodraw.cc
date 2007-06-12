@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/12/1999
- RCS:           $Id: iodraw.cc,v 1.25 2007-03-28 15:16:41 cvsbert Exp $
+ RCS:           $Id: iodraw.cc,v 1.26 2007-06-12 09:27:26 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,8 +51,8 @@ ioDrawTool::ioDrawTool( QPaintDevice* pd )
 
 ioDrawTool::~ioDrawTool() 
 { 
-    if ( qpainter_ )
-       delete qpainter_;
+    if ( qpaintermine_ )
+	delete qpainter_;
 
 #ifdef USEQT3
     if ( qpaintdevmetr_ )
