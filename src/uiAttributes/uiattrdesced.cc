@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:		$Id: uiattrdesced.cc,v 1.20 2007-05-30 10:54:20 cvshelene Exp $
+ RCS:		$Id: uiattrdesced.cc,v 1.21 2007-06-12 06:57:18 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -112,7 +112,7 @@ void uiAttrDescEd::fillInp( uiSteeringSel* fld, Attrib::Desc& desc, int inp )
     const Attrib::Desc* inpdesc = desc.getInput( inp );
     if ( inpdesc )
 	chtr_.set( inpdesc->id(), descid );
-    else
+    else if ( fld->willSteer() )
 	chtr_.setChanged( true );
 
     if ( !desc.setInput( inp, desc.descSet()->getDesc(descid) ) )
