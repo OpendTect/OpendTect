@@ -5,7 +5,7 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: uimadagascarmain.cc,v 1.3 2007-05-30 15:58:05 cvsbert Exp $";
+static const char* rcsID = "$Id: uimadagascarmain.cc,v 1.4 2007-06-12 10:24:46 cvsbert Exp $";
 
 #include "uimadagascarmain.h"
 #include "uiseissel.h"
@@ -43,6 +43,7 @@ uiMadagascarMain::uiMadagascarMain( uiParent* p )
     if ( SI().has2D() ) mAdd( "2D line", idx2d_ );
     if ( SI().has3D() ) mAdd( "Pre-Stack data", idxps_ );
     mAdd( "Madagascar file", idxmad_ );
+    mAdd( "None", idxnone_ );
 
     uiGroup* inpgrp = new uiGroup( this, "Input group" );
     intypfld_ = new uiGenInput( inpgrp, "Input",
@@ -54,6 +55,8 @@ uiMadagascarMain::uiMadagascarMain( uiParent* p )
     {
 	inpseis3dfld_ = new uiSeisSel( inpgrp, in3dctio_, sss3d );
 	inpseis3dfld_->attach( alignedBelow, intypfld_ );
+	inpseis3dfld_->selectiondone.notify(
+			mCB(this,uiMadagascarMain,inpSel) );
 	subsel3dfld_ = new uiSeis3DSubSel( inpgrp, true );
 	subsel3dfld_->attach( alignedBelow, inpseis3dfld_ );
     }
@@ -61,6 +64,8 @@ uiMadagascarMain::uiMadagascarMain( uiParent* p )
     {
 	inpseis2dfld_ = new uiSeisSel( inpgrp, in2dctio_, sss2d );
 	inpseis2dfld_->attach( alignedBelow, intypfld_ );
+	inpseis2dfld_->selectiondone.notify(
+			mCB(this,uiMadagascarMain,inpSel) );
 	subsel2dfld_ = new uiSeis2DSubSel( inpgrp, false, false );
 	subsel2dfld_->attach( alignedBelow, inpseis2dfld_ );
     }
@@ -68,6 +73,8 @@ uiMadagascarMain::uiMadagascarMain( uiParent* p )
     {
 	inpseispsfld_ = new uiIOObjSel( inpgrp, inpsctio_ );
 	inpseispsfld_->attach( alignedBelow, intypfld_ );
+	inpseispsfld_->selectiondone.notify(
+			mCB(this,uiMadagascarMain,inpSel) );
 	subselpsfld_ = subsel3dfld_;
     }
     inpmadfld_ = new uiFileInput( inpgrp, "Input file", uiFileInput::Setup() );
@@ -142,6 +149,23 @@ void uiMadagascarMain::initWin( CallBacker* )
 {
     typSel( intypfld_ ); typSel( outtypfld_ );
     butPush( 0 );
+}
+
+
+void uiMadagascarMain::inpSel( CallBacker* cb )
+{
+    if ( cb == inpmadfld_ ) return;
+
+    const bool isps = cb == inpseispsfld_;
+    const bool is2d = cb == inpseis2dfld_;
+    uiSeisSubSel* inpsubsel = subsel2dfld_;
+    if ( !is2d ) inpsubsel = isps ? subselpsfld_ : subsel3dfld_;
+    CtxtIOObj& ctio = is2d ? in2dctio_ : (isps ? inpsctio_ : in3dctio_);
+
+    if ( !ctio.ioobj )
+	inpsubsel->clear();
+    else
+	inpsubsel->setInput( *ctio.ioobj );
 }
 
 
@@ -229,7 +253,7 @@ bool uiMadagascarMain::ioOK( int choice, bool inp )
 	if ( !objsel->commitInput(!inp) )
 	    mErrRet("Please select the ", inp?"input":"output", " data store")
     }
-    else
+    else if ( choice == idxmad_ )
     {
 	uiFileInput* madfld = inp ? inpmadfld_ : outmadfld_;
 	const BufferString fnm( madfld->fileName() );

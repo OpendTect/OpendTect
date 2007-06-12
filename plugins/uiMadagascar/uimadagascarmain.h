@@ -4,7 +4,7 @@
  * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : Bert
  * DATE     : May 2007
- * ID       : $Id: uimadagascarmain.h,v 1.2 2007-05-30 15:58:05 cvsbert Exp $
+ * ID       : $Id: uimadagascarmain.h,v 1.3 2007-06-12 10:24:46 cvsbert Exp $
 -*/
 
 #include "uidialog.h"
@@ -34,7 +34,7 @@ protected:
     CtxtIOObj&			out3dctio_;
     CtxtIOObj&			out2dctio_;
     CtxtIOObj&			outpsctio_;
-    int				idx3d_, idx2d_, idxps_, idxmad_;
+    int				idx3d_, idx2d_, idxps_, idxmad_, idxnone_;
 
     uiGenInput*			intypfld_;
     uiSeisSel*			inpseis3dfld_;
@@ -60,6 +60,7 @@ protected:
     bool			acceptOK(CallBacker*);
     void			butPush(CallBacker*);
     void			typSel(CallBacker*);
+    void			inpSel(CallBacker*);
 
     void			dispFlds(int,uiSeisSel*,uiSeisSel*,
 	    				 uiIOObjSel*,uiFileInput*);
