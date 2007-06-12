@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: vissurvscene.cc,v 1.97 2007-05-22 04:42:27 cvsnanne Exp $
+ RCS:           $Id: vissurvscene.cc,v 1.98 2007-06-12 10:06:06 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -106,9 +106,11 @@ Scene::~Scene()
     for ( int idx=0; idx<size(); idx++ )
     {
 	mDynamicCastGet(SurveyObject*,so,getObject(idx));
-	if ( !so || !so->getMovementNotifier() ) continue;
+	if ( !so ) continue;
 
-	so->getMovementNotifier()->remove( mCB(this,Scene,objectMoved) );
+	if ( so->getMovementNotifier() )
+	    so->getMovementNotifier()->remove( mCB(this,Scene,objectMoved) );
+	so->setScene( 0 );
     }
 }
 
