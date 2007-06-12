@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        R. K. Singh
  Date:          May 2007
- RCS:           $Id: uitutorialattrib.cc,v 1.3 2007-06-08 06:41:35 cvsraman Exp $
+ RCS:           $Id: uitutorialattrib.cc,v 1.4 2007-06-12 11:20:28 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -125,15 +125,26 @@ bool uiTutorialAttrib::getParameters( Desc& desc )
 	return false;
 
     mSetEnum( Tutorial::actionStr(), actionfld_->getIntValue() );
-    mSetFloat( Tutorial::factorStr(), factorfld_->getfValue() );
-    mSetFloat( Tutorial::shiftStr(), shiftfld_->getfValue() );
-    mSetBool( Tutorial::horsmoothStr(), smoothdirfld_->getBoolValue() );
-    BinID stepout( stepoutfld_->getBinID() );
-    if ( stepout == BinID(0,0) )
-	stepout.inl = stepout.crl = mUdf(int);
-    mSetBinID( Tutorial::stepoutStr(), stepout );
-    mSetBool( Tutorial::weaksmoothStr(), smoothstrengthfld_->getBoolValue() );
-    mSetBool( Tutorial::steeringStr(), steerfld_->willSteer() );
+    if ( actionfld_->getIntValue() == 0 )
+    {
+    	mSetFloat( Tutorial::factorStr(), factorfld_->getfValue() );
+    	mSetFloat( Tutorial::shiftStr(), shiftfld_->getfValue() );
+    }
+    else if (actionfld_->getIntValue() == 2 )
+    {
+    	mSetBool( Tutorial::horsmoothStr(), smoothdirfld_->getBoolValue() );
+	if ( smoothdirfld_->getBoolValue() )
+	{
+	    BinID stepout( stepoutfld_->getBinID() );
+	    if ( stepout == BinID(0,0) )
+		stepout.inl = stepout.crl = mUdf(int);
+    	    mSetBinID( Tutorial::stepoutStr(), stepout );
+	    mSetBool( Tutorial::steeringStr(), steerfld_->willSteer() );
+	}
+	else
+	    mSetBool( Tutorial::weaksmoothStr(),
+		    		smoothstrengthfld_->getBoolValue() );
+    }
 
     return true;
 }
