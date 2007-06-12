@@ -4,7 +4,7 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vislocationdisplay.cc,v 1.22 2007-03-21 13:59:08 cvskris Exp $";
+static const char* rcsID = "$Id: vislocationdisplay.cc,v 1.23 2007-06-12 10:07:02 cvsnanne Exp $";
 
 #include "vislocationdisplay.h"
 
@@ -345,8 +345,11 @@ bool LocationDisplay::getPickSurface( const visBase::EventInfo& evi,
 
 Coord3 LocationDisplay::display2World( const Coord3& pos ) const
 {
-    Coord3 res  = scene_->getZScaleTransform()->transformBack( pos );
-    if ( transformation_ ) res = transformation_->transformBack( res );
+    Coord3 res = pos;
+    if ( scene_ )
+	res = scene_->getZScaleTransform()->transformBack( pos );
+    if ( transformation_ )
+	res = transformation_->transformBack( res );
     return res;
 }
 
@@ -354,7 +357,8 @@ Coord3 LocationDisplay::display2World( const Coord3& pos ) const
 Coord3 LocationDisplay::world2Display( const Coord3& pos ) const
 {
     Coord3 res = transformation_ ? transformation_->transform( pos ) : pos;
-    res = scene_->getZScaleTransform()->transform( res );
+    if ( scene_ )
+	res = scene_->getZScaleTransform()->transform( res );
     return res;
 }
 
@@ -548,7 +552,8 @@ void LocationDisplay::otherObjectsMoved(
 	Coord3 pos = (*set_)[idx].pos;
 	if ( datatransform_ ) pos.z = datatransform_->transform( pos );
 
-	pos = scene_->getUTM2DisplayTransform()->transform( pos );
+	if ( scene_ )
+	    pos = scene_->getUTM2DisplayTransform()->transform( pos );
 
 	bool newstatus;
 	if ( !pos.isDefined() )
@@ -661,9 +666,7 @@ int LocationDisplay::usePar( const IOPar& par )
 
     BufferString setmgr;
     if ( par.get(sKeyMgrName(),setmgr) )
-    {
 	setSetMgr( &Pick::SetMgr::getMgr(setmgr.buf()) );
-    }
 
     if ( !par.get(sKeyID(),storedmid_) )
 	return -1;
@@ -675,11 +678,12 @@ int LocationDisplay::usePar( const IOPar& par )
 
 	BufferString bs;
 	PtrMan<IOObj> ioobj = IOM().get( storedmid_ );
-	if ( !ioobj || !PickSetTranslator::retrieve(*newps,ioobj,bs) )
-	{
-	    delete newps;
-	    return -1;
-	}
+	if ( ioobj )
+	    PickSetTranslator::retrieve( *newps, ioobj, bs );
+
+	if ( !newps->name() || !*newps->name() )
+	    newps->setName( name() );
+
 	newps->disp_.markertype_ = markertype;
 	newps->disp_.pixsize_ = pixsize;
 
