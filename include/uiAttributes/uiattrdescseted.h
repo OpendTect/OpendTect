@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrdescseted.h,v 1.9 2007-05-29 07:20:16 cvsnanne Exp $
+ RCS:           $Id: uiattrdescseted.h,v 1.10 2007-06-12 11:22:28 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,6 +32,7 @@ class uiPushButton;
 class uiToolBar;
 class BufferStringSet;
 class CtxtIOObj;
+class IOObj;
 
 
 /*! \brief Editor for Attribute sets */
@@ -61,8 +62,8 @@ public:
     Notifier<uiAttribDescSetEd>		dirshowcb;
     Notifier<uiAttribDescSetEd>		evalattrcb;
 
-    static const char* sKeyUseAutoAttrSet;
-    static const char* sKeyAutoAttrSetID;
+    static const char* 	sKeyUseAutoAttrSet;
+    static const char* 	sKeyAutoAttrSetID;
 
 protected:
 
@@ -95,9 +96,11 @@ protected:
 
     void		newSet(CallBacker*);
     void		openSet(CallBacker*);
+    void                openAttribSet(const IOObj*);
     void		savePush(CallBacker*);
     void		changeInput(CallBacker*);
     void		defaultSet(CallBacker*);
+    void		getDefaultAttribsets(BufferStringSet&,BufferStringSet&);
     void		importSet(CallBacker*);
     void		importFile(CallBacker*);
     void		job2Set(CallBacker*);
