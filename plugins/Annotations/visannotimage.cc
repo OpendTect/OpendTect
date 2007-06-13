@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Jan 2005
- RCS:           $Id: visannotimage.cc,v 1.6 2007-06-08 06:08:10 cvsnanne Exp $
+ RCS:           $Id: visannotimage.cc,v 1.7 2007-06-13 03:06:30 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -248,12 +248,13 @@ void ImageDisplay::setPosition( int idx, const Pick::Location& pick )
 
 void ImageDisplay::updateCoords(CallBacker*)
 {
+    const float zscale = scene_ ? scene_->getZScale() : 1;
     const float size = set_ ? set_->disp_.pixsize_ : 100;
     visBase::Coordinates* facecoords = shape_->getCoordinates();
-    facecoords->setPos( 0, Coord3(-size,0,-2*size/scene_->getZScale()) );
-    facecoords->setPos( 1, Coord3(-size,0,2*size/scene_->getZScale()) );
-    facecoords->setPos( 2, Coord3(size,0,2*size/scene_->getZScale()) );
-    facecoords->setPos( 3, Coord3(size,0,-2*size/scene_->getZScale()) );
+    facecoords->setPos( 0, Coord3(-size,0,-2*size/zscale) );
+    facecoords->setPos( 1, Coord3(-size,0,2*size/zscale) );
+    facecoords->setPos( 2, Coord3(size,0,2*size/zscale) );
+    facecoords->setPos( 3, Coord3(size,0,-2*size/zscale) );
 }
 
 } //namespace
