@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Aug 2005
- RCS:		$Id: oddirs.h,v 1.6 2006-09-26 10:24:22 cvsbert Exp $
+ RCS:		$Id: oddirs.h,v 1.7 2007-06-13 16:29:34 cvsbert Exp $
 ________________________________________________________________________
 
 For historic reasons, also dGB_ instead of DTECT_ or OD_ will be scanned.
@@ -41,21 +41,21 @@ extern "C" {
 */
 const char*	GetSoftwareDir(void);
 
+
+/*! Site-specific site directory with setup files and scripts overruling
+    current software release's. Tied to environment DTECT_SITE_DATA. If
+    the environment is not set (see GetEnvVar), this function returns null.
+*/
+
+const char*	GetSiteDataDir(void);
+
+
 /*! Platform subdirectory for platforms
 
   Tries PLFSUBDIR, if not set: binsubdir, if not set: HDIR
  
  */
 const char*	GetPlfSubDir(void);
-
-/*! Location of binaries on local platform
-
-    GetSoftwareDir()/bin		on *nix
-    GetSoftwareDir()\bin		on win32
-    GetSoftwareDir()/Contents/MacOS	on Mac OS/X
-
-*/
-const char*	GetBinDir(void);
 
 
 /*! Location of launch script for external programs
@@ -66,6 +66,9 @@ const char*	GetBinDir(void);
     remote:
 	GetSoftwareDir()/bin/od_exec_rmt     on *nix
 	GetSoftwareDir()\bin\od_exec_rmt.bat on win32
+
+    In the above, if a GetSiteDataDir()/bin/od_xx script exists, this will be
+    returned.
 
 */
 const char*	GetExecScript(int remote);
@@ -158,8 +161,9 @@ const char*	GetPersonalDir(void);
 
 
 const char*	GetDataFileName(const char*);
-		/*!< Application data file in $DTECT_APPL/data.
-		  	Pass null for directory name. */
+		/*!< Application data file in $DTECT_SITE_DATA/data (if set),
+		     or $DTECT_APPL/data. Pass null for the $DTECT_APPL/data
+		     directory itself. */
 
 const char*	GetProcFileName(const char*);
 		/*!< Job processing spec file in $DTECT_DATA/Proc.

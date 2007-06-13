@@ -5,7 +5,7 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID = "$Id: genc.c,v 1.83 2007-03-30 15:16:09 cvskris Exp $";
+static const char* rcsID = "$Id: genc.c,v 1.84 2007-06-13 16:29:34 cvsbert Exp $";
 
 #include "oddirs.h"
 #include "genc.h"
@@ -191,55 +191,77 @@ const char* GetPlfSubDir()
 }
 
 
-const char* GetBinDir()
+const char* GetSiteDataDir()
 {
-    static FileNameString bindir;
+    static const char* ret = 0;
+    static FileNameString filenamebuf;
+    const char* envstr;
+    if ( ret )
+	return *ret ? ret : 0;
 
-    strcpy( bindir, GetSoftwareDir() );
-    strcpy( bindir, mkFullPath(bindir, "bin") );
+    filenamebuf[0] = '\0';
+    ret = filenamebuf;
 
-    return bindir;
+    envstr = GetEnvVar( "DTECT_SITE_DATA" );
+    if ( !envstr )
+	return 0;
+
+    strcpy( filenamebuf, envstr );
+    return ret;
 }
 
 
-const char* GetFullPathForExec( const char* exec )
+
+static const char* gtExecScript( const char* basedir, int remote )
 {
-    static FileNameString progname;
-
-    strcat( progname, GetBinDir() );
-
-    if ( exec && *exec )
-	strcpy( progname, mkFullPath(progname, exec) );
-
-    return progname;
+    static FileNameString scriptnm;
+    strcpy( scriptnm, mkFullPath(basedir,"bin") );
+    strcpy( scriptnm, mkFullPath(scriptnm,"od_exec") );
+    if ( remote ) strcat( scriptnm, "_rmt" );
+    return scriptnm;
 }
 
 
 const char* GetExecScript( int remote )
 {
     static FileNameString progname;
+    const char* fnm = 0;
+    const char* basedir = GetSiteDataDir();
+    if ( basedir )
+	fnm = gtExecScript( basedir, remote );
+
+    if ( !fnm || !File_exists(fnm) )
+	fnm = gtExecScript( GetSoftwareDir(), remote );
 
     strcpy( progname, "'" );
-
-    strcat( progname, GetBinDir() );
-
-    strcpy( progname, mkFullPath(progname, "od_exec") );
-
-    if ( remote )
-	strcat( progname, "_rmt" );
-
+    strcat( progname, fnm );
     strcat( progname, "' " );
     return progname;
 }
 
 
-const char* GetDataFileName( const char* fname )
+static const char* gtDataFileName( const char* basedir, const char* fname )
 {
     static FileNameString filenamebuf;
-    strcpy( filenamebuf, mkFullPath( GetSoftwareDir(), "data" ) );
+    strcpy( filenamebuf, mkFullPath( basedir, "data" ) );
     if ( fname && *fname )
 	strcpy( filenamebuf, mkFullPath( filenamebuf, fname ) );
     return filenamebuf;
+}
+
+
+const char* GetDataFileName( const char* fname )
+{
+    const char* ret;
+    const char* basedir = fname ? GetSiteDataDir() : 0;
+    if ( basedir )
+    {
+	ret = gtDataFileName( basedir, fname );
+	if ( File_exists(ret) )
+	    return ret;
+    }
+
+    return gtDataFileName( GetSoftwareDir(), fname );
 }
 
 
@@ -273,6 +295,9 @@ const char* SearchODFile( const char* fname )
 { // NOTE: recompile SearchODFile in spec/General when making changes here...
 
     const char* nm = checkFile( GetEnvVar("OD_FILES"), "", fname );
+    if ( !nm ) nm = checkFile( GetSiteDataDir(), "", fname );
+    if ( !nm ) nm = checkFile( GetSiteDataDir(), "data", fname );
+    if ( !nm ) nm = checkFile( GetSiteDataDir(), "bin", fname );
     if ( !nm ) nm = checkFile( GetPersonalDir(), ".od", fname );
     if ( !nm ) nm = checkFile( GetSettingsDir(), "", fname );
     if ( !nm ) nm = checkFile( GetEnvVar("ALLUSERSPROFILE"), ".od", fname );
