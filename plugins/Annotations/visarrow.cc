@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Jan 2005
- RCS:           $Id: visarrow.cc,v 1.9 2007-06-06 05:56:57 cvsnanne Exp $
+ RCS:           $Id: visarrow.cc,v 1.10 2007-06-13 03:07:52 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -71,8 +71,9 @@ ArrowDisplay::Type ArrowDisplay::getType() const
 
 void ArrowDisplay::setLineWidth( int nw )
 {
-    linestyle_->setLineStyle( LineStyle( LineStyle::Solid, nw ) );
+    linestyle_->setLineStyle( LineStyle(LineStyle::Solid,nw) );
 }
+
 
 int ArrowDisplay::getLineWidth() const
 {
@@ -80,7 +81,7 @@ int ArrowDisplay::getLineWidth() const
 }
 
 
-void ArrowDisplay::zScaleCB(CallBacker*)
+void ArrowDisplay::zScaleCB( CallBacker* )
 {
     fullRedraw();
 }
@@ -140,14 +141,14 @@ void ArrowDisplay::setPosition( int idx, const Pick::Location& loc )
 }
 
 
-void ArrowDisplay::updateLineShape(visBase::IndexedPolyLine* pl) const
+void ArrowDisplay::updateLineShape( visBase::IndexedPolyLine* pl ) const
 {
     pl->ref();
     int idx = 0;
     pl->setCoordIndex( idx++, 1 );
     pl->setCoordIndex( idx++, 0 );
 
-    if ( arrowtype_==Top || arrowtype_==Double )
+    if ( arrowtype_==Bottom || arrowtype_==Double )
 	pl->setCoordIndex( idx++, 2 );
     else
 	pl->setCoordIndex( idx++, 3 );
@@ -166,7 +167,7 @@ void ArrowDisplay::updateLineShape(visBase::IndexedPolyLine* pl) const
 }
 
 
-int ArrowDisplay::isMarkerClick(const TypeSet<int>& path) const
+int ArrowDisplay::isMarkerClick( const TypeSet<int>& path ) const
 {
     for ( int idx=group_->size()-1; idx>=0; idx-- )
     {

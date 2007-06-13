@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		January 2005
- RCS:		$Id: visarrow.h,v 1.3 2007-02-09 20:55:44 cvskris Exp $
+ RCS:		$Id: visarrow.h,v 1.4 2007-06-13 03:07:52 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -32,7 +32,7 @@ public:
 
     void			setScene( visSurvey::Scene* );
 
-    enum Type			{ Top, Bot, Double };
+    enum Type			{ Top, Bottom, Double };
     void			setType(Type);
     Type			getType() const;
 
